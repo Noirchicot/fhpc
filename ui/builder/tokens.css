@@ -573,6 +573,52 @@
      `rgba()` dans la feuille échappe au thème. */
   --fantome-ombre: rgba(0, 0, 0, .35);
 
+  /* ══ 📏 LES DEUX COTES DU BOUTON À MOT — Eric, 2026-09-06 ══════════
+     *« je veux une taille standard pour tous les petits boutons sur tout le
+     site »* · *« la cote 77 comme standard petit »* · *« donc c'est 105,
+     c'est acté »*. ⭐ LA LOI ENTIÈRE VIT AU CORPUS, sous
+     📍 `bouton-deux-largeurs` (NORMES §6) — ⛔ ne pas la recopier ici : une
+     feuille de style ne porte pas une raison, elle porte un nombre qui a un nom.
+
+     🔴 DEUX GABARITS, ET DEUX SEULEMENT :
+       `--bouton-petit`   **77**  · un libellé de **6 caractères ou moins**
+       `--bouton-moyen`  **105**  · jusqu'à **11** — il porte `Inheritance`
+
+     ⭐ ELLES NE SONT PAS CHOISIES, ELLES SONT DÉDUITES DE LA PLACE, et c'est ce
+     qui les rend défendables. La dalle offre **335 blg** de contenu, et les deux
+     configurations d'Eric doivent tenir toutes les deux :
+
+       4 petits ................. 4 × 77 + 3 × 8 ............. **332**
+       3 petits + livre + `?` ... 44 + 3 × 77 + 2 × 8 + 44 ... **335**, pile
+       3 moyens ................. 3 × 105 + 2 × 8 ........... **331**
+       2 moyens + livre + `?` ... 44 + 2 × 105 + 8 + 44 ..... **306**
+
+     📏 ET LE VRAI LEVIER EST LE REMBOURRAGE, PAS LA LARGEUR — mesuré : à
+     `--sp-8`, `Choose` (le petit le plus large du dépôt) demande **67,9** et
+     tient dans 77 avec 9,1 de marge. À `--sp-20`, l'ancien, il en réclamait
+     **89,7** : aucune largeur ne pouvait satisfaire à la fois « le plus gros mot
+     rentre » et « quatre boutons dans la rangée ». C'est en descendant le
+     rembourrage que les deux se referment.
+     ⛔ Corollaire : on ne rétrécit JAMAIS un bouton en réduisant sa police ou en
+     tronquant son mot — on lui rend son rembourrage, ou on change le mot.
+
+     ⚖️ 105 A ÉTÉ CHOISI CONTRE 101 ET CONTRE 106, et c'est écrit pour qu'un lot
+     futur ne « l'optimise » pas : 106 ne laisse qu'un demi-blg de marge à la
+     rangée centrée, 101 en laisserait 8 — mais **la marge qui compte est celle du
+     MOT dans son bouton** (12,3 blg à 105, 8,3 à 101), pas celle de la rangée
+     dans sa dalle. C'est le mot qu'on lit.
+
+     ⛔ CE QUI N'ENTRE PAS DANS CES DEUX COTES, nommé par Eric un par un : les
+     **chevrons** · les onglets `Menu`/`Sheet` (`--onglet-taille`, 58, un organe
+     déclaré à part) · les **interrupteurs** on/off · le **livre** et le **`?`**,
+     qui valent `--touch` (44) et sont des ronds, pas des boutons à mot.
+
+     ⚠️ ET CE NE SONT PAS DEUX NOMS POUR 87 : `--glisse-case` est la cote de la
+     CASE du vivier (87), et elle reste. Ces deux-ci sont les cotes du BOUTON À
+     MOT — deux organes, deux cotes, et le 06/09 les a séparées. */
+  --bouton-petit: 77px;
+  --bouton-moyen: 105px;
+
   /* ══ LES DEUX ONGLETS DE BOUT (Eric, 2026-08-19) ═════════════════════
      Deux demi-pastilles happées par les bords, collées en haut de l'écran.
      ⛔ LEUR FOND EST NOIR DANS LES DEUX THÈMES, ET C'EST CALCULÉ, PAS UN
@@ -662,14 +708,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=587");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=589");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=587");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=589");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -762,8 +808,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-day.jpg?v=587");
-  --bg-nuit: url("./assets/bg-night.jpg?v=587");
+  --bg-jour: url("./assets/bg-day.jpg?v=589");
+  --bg-nuit: url("./assets/bg-night.jpg?v=589");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

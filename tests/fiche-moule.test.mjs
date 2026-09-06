@@ -130,13 +130,49 @@ test("le halo du scrollspy existe, et dans les DEUX thèmes", () => {
   assert.match(SHELL, /\.catalogue-rail-item\[aria-current="true"\] \{[^}]*box-shadow:[^}]*var\(--spy-halo\)/s);
 });
 
-test("CHOOSE porte le gabarit small — 87, la largeur d'un jeton", () => {
-  /* Eric, 27/08 : « choose = petit bouton ». Et la cote se LIT
-     (--glisse-case), elle ne se recopie pas : le jour où la rangée change,
-     boutons et jetons suivent ensemble (NORMES §6). */
+test("CHOOSE porte le gabarit PETIT — et `fiche.css` n'en \u00e9crit plus la cote", () => {
+  /* Eric, 27/08 : *\u00ab choose = petit bouton \u00bb* \u00b7 06/09 : *\u00ab la cote 77 comme
+     standard petit \u00bb*. \U0001f4cd `bouton-deux-largeurs` (NORMES \u00a76).
+
+     \u26a0\ufe0f \u26d4 CE GARDE A CHANG\u00c9 DE SENS LE 06/09, ET IL FAUT DIRE POURQUOI.
+     Il exigeait `width: var(--glisse-case)` ICI — c'est-\u00e0-dire qu'il exigeait le
+     SECOND \u00c9CRIVAIN. Tant qu'87 \u00e9tait la cote du petit, le garde et la loi
+     disaient la m\u00eame chose ; le jour o\u00f9 Eric a tranch\u00e9 77, le garde a d\u00e9fendu
+     la cote morte — et il l'aurait d\u00e9fendue en VERT, sans un mot.
+     \u2b50 D'o\u00f9 la r\u00e9\u00e9criture : ce qu'on garde n'est plus un NOMBRE \u00e9crit ici, c'est
+     qu'AUCUN nombre ne soit \u00e9crit ici. La cote a un seul lieu, `shell.css`.
+
+     \U0001f4cf CE QUE LA MESURE A DIT, au banc le 06/09 \u00e0 14:48 : `Choose` rendait
+     **87 \u00d7 44** quand les huit autres petits du d\u00e9p\u00f4t rendaient d\u00e9j\u00e0 77. Et le
+     plancher de `shell.css` \u00e9tait bien appliqu\u00e9 — il ne pouvait simplement rien,
+     parce qu'un `width` et un `min-width` sont DEUX PROPRI\u00c9T\u00c9S, que nulle
+     sp\u00e9cificit\u00e9 ne d\u00e9partage. \u26d4 Un garde qui lit la sp\u00e9cificit\u00e9 n'aurait rien vu. */
+  assert.doesNotMatch(
+    FICHE,
+    /\.fiche-action\s*\{[^}]*(?:^|[^-])(?:min-)?width\s*:/s,
+    "\u26d4 `fiche.css` ne d\u00e9clare plus AUCUNE largeur pour CHOOSE : la cote du gabarit "
+    + "petit vit dans `shell.css` (`--bouton-petit`), et un second \u00e9crivain la rendrait "
+    + "increvable le jour o\u00f9 elle bouge"
+  );
+
+  /* \u2b50 ET CE QUI DOIT RESTER RESTE : `.fiche-action` d\u00e9clare `flex: 1 1 0` plus
+     haut dans cette m\u00eame feuille. Sans un refus explicite de s'\u00e9tirer, CHOOSE
+     prendrait toute la rang\u00e9e et le plancher ne se verrait jamais — un bouton
+     trop LARGE passe tous les gardes de cote, puisqu'il les respecte tous. */
   assert.match(
     FICHE,
-    /\.fiche-dalle:not\(\[data-dressing="prose"\]\) \.fiche-action \{[^}]*width:\s*var\(--glisse-case\)/s
+    /\.fiche-dalle:not\(\[data-dressing="prose"\]\) \.fiche-action \{[^}]*flex:\s*0 0 auto/s,
+    "CHOOSE doit refuser de s'\u00e9tirer (`flex: 0 0 auto`), sinon le `flex: 1 1 0` "
+    + "d\u00e9clar\u00e9 plus haut lui fait remplir la rang\u00e9e"
+  );
+
+  /* \U0001f534 ET LA COTE EXISTE VRAIMENT, dans son seul lieu. Sans cette clause, le
+     garde passerait au vert sur une feuille o\u00f9 PERSONNE ne cote le petit bouton —
+     une absence lue comme une r\u00e9ponse, exactement ce qu'on refuse ailleurs. */
+  assert.match(
+    SHELL,
+    /min-width:\s*var\(--bouton-petit\)/,
+    "`shell.css` doit poser le plancher du gabarit petit sur la famille \u00e0 mot"
   );
 });
 

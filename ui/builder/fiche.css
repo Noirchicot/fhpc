@@ -1378,15 +1378,31 @@
   text-overflow: ellipsis;
 }
 
-/* ── CHOOSE PASSE AU GABARIT `small` — Eric, 27/08 : « choose = petit
-   bouton ». 87 = --glisse-case, la largeur d'un jeton (NORMES §6 : les deux
-   se déduisent de la même rangée de 278). CHOOSE fait 6 caractères, le
-   gabarit en loge 6 avec 22 de marge à T3. ⛔ Cote FIXE : le pied est hors
-   homothétie, un bouton ne scale pas. */
+/* ── CHOOSE PASSE AU GABARIT PETIT — Eric, 27/08 : « choose = petit bouton »,
+   et 06/09 : « la cote 77 comme standard petit ».
+
+   ⛔ ⚠️ **CE BLOC ÉTAIT UN SECOND ÉCRIVAIN, ET IL A GAGNÉ EN SILENCE.** Il
+   posait `width: var(--glisse-case)` — 87, la cote de la CASE du vivier — là où
+   `shell.css` pose désormais le plancher du gabarit petit (`--bouton-petit`,
+   77). ⭐ Et un `width` n'est pas en concurrence avec un `min-width` : ce sont
+   deux propriétés différentes, donc AUCUNE spécificité ne départage. Le plancher
+   était écrit, il était même appliqué, et il ne pouvait rien — 87 > 77.
+   📏 MESURÉ AU BANC LE 06/09 À 14:48, sur les douze cartes du catalogue
+   d'espèces : `Choose` rendait **87 × 44** quand les huit autres petits du dépôt
+   rendaient déjà 77. Un seul bouton hors cote, et rien ne le disait.
+
+   ⭐ LA RÉPARATION EST DE RETIRER L'ÉCRIVAIN, PAS DE LE CORRIGER : réécrire 87
+   en 77 ici aurait laissé DEUX endroits qui disent la largeur d'un bouton, et le
+   suivant qui bouge `--bouton-petit` aurait retrouvé ce 87 intact. Ce qui reste
+   est `flex: 0 0 auto` — et il reste parce qu'il DOIT rester : `.fiche-action`
+   déclare `flex: 1 1 0` plus haut dans cette feuille (il s'étirerait sur toute la
+   rangée), et un pied hors homothétie ne scale pas. ⛔ Ce n'est pas une cote,
+   c'est un refus de s'étirer ; la cote vient de `shell.css`, et d'elle seule.
+   📌 `padding-inline: 0` part avec : la famille pose `--sp-8` à (0,3,1), donc
+   cette ligne PERDAIT déjà. Une déclaration perdante laissée en place est une
+   dette qui se lit comme une règle. */
 .fiche-dalle:not([data-dressing="prose"]) .fiche-action {
-  flex: 0 0 var(--glisse-case);
-  width: var(--glisse-case);
-  padding-inline: 0;
+  flex: 0 0 auto;
 }
 
 
