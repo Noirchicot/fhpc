@@ -1207,10 +1207,44 @@ function applyDecisionAction(action) {
      confirmé » : la dette est la même sur les cinq écrans qui portent ce mot,
      elle se paiera d'un coup ou pas du tout. */
   if (action.kind === "destinyReset") {
-    /* 🔴 EN SB2, IL REND AU CATALOGUE — et il n'efface pas plus que `Back` :
-       la carte n'est actée qu'au `Done`. ⭐ Le rang décide, pas une mémoire :
-       même verbe, même bouton, deux sorties selon où l'organe est rendu. */
+    /* 🔴 UN SEUL EFFACEUR POUR LES DEUX SORTIES — Eric, 2026-09-06 : *« répare la
+       boucle de validation de Destiny B1 et B2, c'était en cours et pas fini »*.
+       ⛔ CE QUI ÉTAIT CASSÉ, ET POURQUOI ÇA A TENU SANS QU'UNE LIGNE NE BOUGE :
+       la sortie B2 ci-dessous a été écrite le 2026-09-03, **quand aucun `Done`
+       n'existait sur cet écran**. Son commentaire disait vrai ce jour-là — *« il
+       n'efface pas plus que Back : la carte n'est actée qu'au Done »*. Le `Done`
+       du 06/09 a rendu cette phrase FAUSSE sans toucher ce bloc : depuis, un
+       joueur venu du catalogue pouvait signer, changer d'avis, et repartir avec
+       **la pastille verte allumée sur une étape qu'il vient d'abandonner**, et
+       l'arcane encore écrit à sa fiche. ⭐ Une phrase vraie le jour où on l'écrit
+       devient un mensonge le jour où l'écran d'à côté gagne un bouton.
+       ⭐⭐ LA RÉPARATION N'EST PAS UN SECOND EFFACEMENT DANS LA BRANCHE B2 : c'est
+       UN SEUL effaceur que les deux sorties traversent. Deux effacements écrits
+       côte à côte divergent à la première correction — c'est la loi du dépôt
+       (« un organe, un seul écrivain »), et c'est elle qui a coûté cette panne.
+       ⚖️ CE QUI NE CHANGE PAS : la DESTINATION reste au rang. B2 rend au
+       catalogue (Eric, 03/09 : *« en SB2, I changed my mind revient à B2 »*), B1
+       rend à la porte. Le rang décide d'OÙ l'on repart, jamais de ce qu'on
+       efface — sans quoi le même bouton rouge tiendrait deux promesses. */
+    const effacerLaDestinee = () => {
+      annulerDestiny();
+      /* IL LÈVE LA SIGNATURE — sinon la pastille resterait verte sur une étape
+         qu'on vient de vider. Même loi que `leverLaSignatureDAbilities` : tout
+         geste qui peut encore changer le résultat éteint le voyant. */
+      if (state.docWriters && state.document && estConfirme(state.document, "destiny")) {
+        state.document = state.docWriters.revoke({ document: state.document, path: "destiny" });
+      }
+      /* et la carte déjà écrite au document part avec le reste — sinon l'écran
+         dirait « tu n'as rien » pendant que la fiche porterait encore l'arcane. */
+      if (state.engine && currentArcanaId(state.document)) {
+        state.document = state.engine.build.verbs.clear({
+          document: state.document, path: DESTINY_ARCANA_PATH, kind: "choice"
+        }).document;
+        rebuild();
+      }
+    };
     if (state.destinyRang === "SB2") {
+      effacerLaDestinee();
       state.destinyMode = "choice";
       state.destinyPhase = "porte";
       state.destinyDraw = null;
@@ -1219,13 +1253,7 @@ function applyDecisionAction(action) {
       refresh();
       return;
     }
-    annulerDestiny();
-    /* 🔴 ET IL LÈVE LA SIGNATURE — sinon la pastille resterait verte sur une étape
-       qu'on vient de vider. Même loi que `leverLaSignatureDAbilities` : tout geste
-       qui peut encore changer le résultat éteint le voyant. */
-    if (state.docWriters && state.document && estConfirme(state.document, "destiny")) {
-      state.document = state.docWriters.revoke({ document: state.document, path: "destiny" });
-    }
+    effacerLaDestinee();
     state.destinyPhase = "porte";
     state.destinyMode = "draw";
     state.destinyDraw = null;
@@ -1234,14 +1262,6 @@ function applyDecisionAction(action) {
     state.destinyTaps = [];
     state.destinyRang = null;
     state.palier = 1;
-    /* la carte déjà écrite au document part avec le reste — sinon l'écran
-       dirait « tu n'as rien » pendant que la fiche porterait encore l'arcane. */
-    if (state.engine && currentArcanaId(state.document)) {
-      state.document = state.engine.build.verbs.clear({
-        document: state.document, path: DESTINY_ARCANA_PATH, kind: "choice"
-      }).document;
-      rebuild();
-    }
     refresh();
     return;
   }
@@ -1269,6 +1289,17 @@ function applyDecisionAction(action) {
       state.document = state.docWriters.confirm({ document: state.document, path: "destiny" });
     }
     rebuild();
+    /* 🔴 ET IL REDESSINE — c'est le défaut qu'Eric voyait, et il rendait le
+       `Done` du 06/09 INVISIBLE : `rebuild()` recalcule la fiche, il ne rend
+       RIEN à l'écran. Sans ce `refresh()`, la signature était bel et bien
+       posée au document (mesuré : `data-fait` passait à `true` dès qu'un
+       autre geste forçait un rendu) — mais le joueur voyait un bouton qui ne
+       faisait rien, et le `Next` n'apparaissait jamais. Il ne pouvait donc
+       plus circuler : la boucle était coupée là.
+       ⚠️ `destinyNext` n'en a pas besoin, lui : `goToStep()` redessine en
+       partant. `Done` reste sur place — c'est TOUTE la différence entre les
+       deux mots, et c'est exactement ce qui a été oublié en les séparant. */
+    refresh();
     return;
   }
   if (action.kind === "destinyNext") {
