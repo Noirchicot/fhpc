@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=579";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=579";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=579";
-import { armerJeton } from "./glisser.mjs?v=579";
-import { facteurZoomCourant } from "./echelle.mjs?v=579";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=579";
-import { createDieHost, mount } from "./dice3d.mjs?v=579";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=579";
+import { markPressed } from "./carnet.mjs?v=580";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=580";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=580";
+import { armerJeton } from "./glisser.mjs?v=580";
+import { facteurZoomCourant } from "./echelle.mjs?v=580";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=580";
+import { createDieHost, mount } from "./dice3d.mjs?v=580";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=580";
 
 export { rollAbilitySet };
 
@@ -189,22 +189,43 @@ export const ABILITY_ENTRIES = [
 /** L'explication d'une méthode — celle de sa mécanique de jet quand elle en
  *  a une, la sienne sinon. ⛔ Jamais un `if` sur un id : l'entrée porte soit
  *  `mecanique`, soit `blurb`. */
-/* ══ 🌱 LATE BLOOMER — le trait que les dés accordent ══════════════════════════
-   Règle publiée (`ability-scores`, PHB) : si AUCUN jet naturel n'atteint 14 — le
-   plancher haut a dû intervenir, ≈ 17 % des lots — l'Inheritance porte le trait
-   Late Bloomer : +2 points libres, et l'option d'acheter Expertise au niveau 1.
-   Eric, 06/09 : *« l'aiguilleur pourra l'annoncer dans B1 en gras — et il
-   justifie »*, puis : *« reste à trois lignes, annonce Late Bloomer en lettres
-   d'or comme pour les caracs, mets ce texte en dessous des caracs »* — donc sous
-   la rangée des six collecteurs en B1, sous les six cellules au bilan. Le moteur des jets sait déjà quand c'est le cas (`ajuste: "haut"`,
-   dice.mjs) : l'écran LIT ce drapeau, il ne recalcule rien.
+/* ══ 🌱 LATE BLOOMER — UN TRAIT SE PRÉSENTE COMME UN TOKEN ═══════════════════
+   Règle publiée (`ability-scores`, chapitre FH) : si AUCUN jet naturel n'atteint
+   14 — le plancher haut a dû intervenir, ≈ 17 % des lots — l'Inheritance porte le
+   trait Late Bloomer. Le moteur des jets sait déjà quand c'est le cas
+   (`ajuste: "haut"`, dice.mjs) : l'écran LIT ce drapeau, il ne recalcule rien.
+
+   🔴 LA FORME, TRANCHÉE PAR ERIC LE 06/09 AU SOIR — et elle RENVERSE la ligne d'or
+   du matin même : *« on fait plus simple pour Late Bloomer, présente-le comme un
+   token classique. Il se place sous les caracs, annule le 2ᵉ aiguilleur (ça faut
+   pas faire), le token n'a aucune destination mais il se présente comme un trait.
+   Clic droit pour info. L'unique aiguilleur dit juste qu'il existe. »* puis
+   *« token classique, tu comprends pas, comme un dé »* — non : **l'octogone de
+   §2 bis**, celui des lignages et des sorts, pas le cube 3D de cet écran. Puis
+   *« il a un liseré vert car il est valide »* — le vert de §2 ter (`--positive`,
+   `--creneau-lisere-rempli`), la teinte qui dit *« l'ensemble est bon »*.
+
+   ⛔ CE QUE ÇA SUPPRIME, ET C'EST LE FOND DE L'ORDRE : la ligne d'or sous les six
+   collecteurs était un SECOND AIGUILLEUR — un deuxième paragraphe de guidage sur
+   un écran qui en porte déjà un. Un écran a un aiguilleur, pas deux (§6 pré bis).
+   La prose descend donc dans l'info du token, là où on va la chercher.
+
    ⏳ L'ANNONCE SEULE EST CÂBLÉE : l'effet (+2 au pool de Skills, l'option
    Expertise au verrou) attend trois réponses d'Eric (`FHPCv2 future updates.md`,
    PRODIGY : le palier `expertise`, la seconde exception au verrou, le cas du
-   Rogue). Le nom, lui, est tranché : *« je valide Late Bloomer »* (Eric, 06/09). */
-/* 📏 TROIS LIGNES, mesurées à 375 dans la dalle du collecteur (127 signes en gras) —
-   Eric : *« reste à trois lignes »*. L'effet (+2, Expertise) est dans le chapitre. */
-const LATE_BLOOMER = "Late Bloomer — no roll hit 14 on its own: the dice were unkind, you learned faster elsewhere. Your Inheritance gains the trait.";
+   Rogue). Le nom, lui, est tranché : *« je valide Late Bloomer »* (Eric, 06/09).
+   ⚠️ L'info DIT les deux dons parce que le CHAPITRE les publie ; le builder ne les
+   applique pas encore. L'écart est nommé ici et porté à Eric — il se referme au
+   même endroit que PRODIGY, jamais en retirant la phrase du chapitre. */
+const TRAIT_TARDIF = {
+  nom: "Late Bloomer",
+  /* ⌨️ La prose vient du chapitre `ability-scores` (l'encadré « Late Bloomer —
+     when the floor had to catch you »), condensée. ⛔ La RÈGLE se corrige dans le
+     chapitre du vault qui la publie, jamais ici. */
+  texte: "No natural roll reached 14, so the high floor had to step in — it happens to 17 % of characters. "
+    + "The dice were unkind; your character learned faster somewhere else.\n\n"
+    + "An Inheritance trait. It gives +2 free points, and the option to buy Expertise at level 1 — an option, never an obligation."
+};
 export function lotRattrape(rollBatch) {
   return Boolean(rollBatch && Array.isArray(rollBatch.rolls) && rollBatch.rolls.some((r) => r.ajuste === "haut"));
 }
@@ -756,6 +777,44 @@ function renderCibleVide() {
   return el("span", "glisse-cible-vide", [el("span", "glisse-cible-mot", [text("drop"), el("br"), text("here")])]);
 }
 
+/** 🌱 LE TOKEN DU TRAIT — un octogone de §2 bis, posé sous les six caracs.
+ *
+ *  🔴 IL N'A AUCUNE DESTINATION, et c'est ce qui le distingue de tous les autres
+ *  jetons du site : rien à glisser, rien à poser, aucun créneau qui l'attende. Il
+ *  ne DEMANDE pas un choix, il CONSTATE un acquis — d'où le liseré **vert** de
+ *  §2 ter (*« il a un liseré vert car il est valide »*, Eric 06/09), la teinte qui
+ *  dit ailleurs *« l'ensemble est bon »*. Ici l'ensemble est bon d'emblée.
+ *
+ *  🔦 IL INFORME, SUR N'IMPORTE QUEL GESTE. Eric a dicté *« clic droit pour
+ *  info »* — la moitié souris de la loi du 16/08 (*« tap pour info, clic droit
+ *  info, gauche select »*). ⭐ Mais le clic GAUCHE, lui, n'a rien à sélectionner :
+ *  la moitié qui poserait un choix n'existe pas sur ce token. Lui laisser un clic
+ *  MORT serait pire que la divergence — un contrôle qui ne répond pas passe pour
+ *  cassé. Les trois gestes ouvrent donc la même fenêtre, et c'est la seule lecture
+ *  qui ne fabrique ni geste mort ni faux choix.
+ *  ⛔ Pas de `armerJeton` : ce qu'on n'arme pas ne peut pas être glissé par
+ *  accident, et le fantôme n'a rien à lever. */
+function renderTraitTardif(act) {
+  const rangee = el("div", "ability-trait");
+  const jeton = el("button", "glisse-jeton ability-trait-jeton", [text(TRAIT_TARDIF.nom)]);
+  jeton.type = "button";
+  jeton.dataset.trait = "late-bloomer";
+  /* Il se nomme entièrement à qui ne le voit pas : le titre du jeton ne dit que
+     le nom, l'`aria-label` dit aussi ce qu'il EST. */
+  jeton.setAttribute("aria-label", `${TRAIT_TARDIF.nom} — a trait you gained; open it for what it does`);
+  const ouvrir = (ev) => {
+    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
+    act({ kind: "popup", titre: TRAIT_TARDIF.nom, texte: TRAIT_TARDIF.texte });
+  };
+  jeton.addEventListener("click", ouvrir);
+  /* Le clic droit — l'autre moitié de la même décision (16/08). `preventDefault`
+     parce qu'un menu contextuel du navigateur n'est pas une réponse à
+     « qu'est-ce que ce trait ? ». */
+  jeton.addEventListener("contextmenu", ouvrir);
+  rangee.append(jeton);
+  return rangee;
+}
+
 function renderCollecteur(ctx) {
   const { document: doc, resolved } = ctx;
   /* 📐 35 % (Eric, 05/09 : « toutes les dalles 35 % ») — 50 % avant. */
@@ -766,9 +825,14 @@ function renderCollecteur(ctx) {
   /* ⌨️ Eric, 05/09 : *« glissez les scores dans chacune des caractéristiques de votre
      personnage »* — et l'aiguilleur dit la FINALITÉ du geste, pas le geste. */
   bloc.append(el("h3", "ability-dalle-titre", [text("Drag a score onto each of your character's abilities")]));
-  bloc.append(el("p", "guide-mot ability-collecteur-mot", [text(
-    "The score you drop becomes that ability. Its bonus is what you add to every roll the ability governs."
-  )]));
+  /* 🌱 ET C'EST LUI QUI CITE LE TRAIT, DEPUIS LE 06/09 AU SOIR. Il le disait avant
+     dans l'aiguilleur de l'organe ; l'organe n'en a plus en scène 2, et « l'unique
+     aiguilleur dit juste qu'il existe » (Eric) — l'unique, en scène 2, c'est
+     celui-ci. Le token juste dessous porte le nom, l'info porte la règle. */
+  bloc.append(el("p", "guide-mot ability-collecteur-mot", [
+    text("The score you drop becomes that ability. Its bonus is what you add to every roll the ability governs."),
+    ...(lotRattrape(ctx.rollBatch) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
+  ]));
 
   const rangee = el("div", "glisse-creneaux ability-creneaux");
   for (const key of ABILITY_KEYS) {
@@ -835,9 +899,10 @@ function renderCollecteur(ctx) {
     rangee.append(creneau);
   }
   bloc.append(rangee);
-  /* 🌱 LATE BLOOMER, EN LETTRES D'OR SOUS LES SIX — Eric, 06/09. Le drapeau est celui
-     du moteur des jets (`ajuste: "haut"`) ; l'écran le lit. */
-  if (lotRattrape(ctx.rollBatch)) bloc.append(el("p", "guide-mot ability-bloomer-mot", [el("strong", "ability-bloomer", [text(LATE_BLOOMER)])]));
+  /* 🌱 LATE BLOOMER — LE TOKEN SOUS LES SIX CARACS (Eric, 06/09 au soir, en
+     renversant la ligne d'or du matin). Le drapeau est celui du moteur des jets
+     (`ajuste: "haut"`) ; l'écran le lit. */
+  if (lotRattrape(ctx.rollBatch)) bloc.append(renderTraitTardif(ctx.act));
   /* 🧊 LA CONSIGNE EST PARTIE LE 2026-09-05 : la dalle de sélection d'Eric est
      *« six collecteurs · 16 · la cellule livre/Back/Done/? · 8 »* — rien entre
      les cibles et la rangée. Ce qu'elle disait (*« drag a die onto an ability,
@@ -1142,7 +1207,7 @@ export function renderAbilitiesStep(ctx, onAction) {
     /* 🏁 R2 — LE BILAN REMPLACE LE CHOIX (Eric, 06/09 : *« on remonte en R avec les
        résultats, R1 l'ancien choix disparaît, devient R2 un bilan »*). La coquille
        dit lequel des deux (`ctx.bilan`) ; l'écran ne le déduit pas d'un lot. */
-    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved, rollBatch })); return section; }
+    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved, rollBatch, act })); return section; }
     section.append(renderSelecteurMethode(ctx.method || null, act));
     return section;
   }
@@ -1239,13 +1304,27 @@ export function renderAbilitiesStep(ctx, onAction) {
      font les trois boutons — mais seulement là où ils sont. ⛔ Un aiguilleur qui
      parlerait d'organes absents est la faute du 05/09, prise par l'autre bout : un
      texte qui NOMME un organe se périme avec lui. */
-  /* 🌱 En scène 2, si le plancher haut a rattrapé le lot, l'aiguilleur le CITE en
-     bref et en gras — Eric : *« l'aiguilleur peut citer rapidement "you gained a
-     trait" »* — la ligne d'or sous les collecteurs dit le reste ; trois lignes tiennent. */
-  flux.append(el("p", "guide-mot ability-organe-mot", [
-    text(explicationDe(entry) + (meca && !scene2 ? " " + motDesBoutons(meca) : "")),
-    ...(scene2 && lotRattrape(rollBatch) ? [text(" "), el("strong", "ability-bloomer", [text("You gained a trait.")])] : [])
-  ]));
+  /* 🔴 UN ÉCRAN, UN AIGUILLEUR — Eric, 06/09 au soir : *« dans FH 3D6, B1 : le
+     premier aiguilleur disparaît quand le 2ᵉ apparaît en scène 2. Il ne reste que
+     le titre FH 3D6 »*.
+     ⭐ C'EST LA MÊME LOI QUE CELLE QUI VIENT DE TUER LA LIGNE D'OR, prise par
+     l'autre bout : là c'était un second aiguilleur AJOUTÉ sous les caracs, ici
+     c'est le premier qui reste ALLUMÉ quand celui du collecteur s'ouvre. Deux
+     paragraphes de guidage sur un écran, c'est deux fois la même faute.
+     📏 ET ÇA RÉPARE UNE MESURE : en scène 2 le gabarit trois bandes écrasait cette
+     dalle — son flux ne montrait plus qu'une ligne et demie de l'aiguilleur, donc
+     un texte tronqué que personne ne pouvait lire. La dalle ne porte plus que son
+     titre, et il n'y a plus rien à tronquer.
+     ⚖️ LA PORTÉE EST CELLE DE LA SCÈNE, PAS DE L'ÉCRAN : `scene2` n'existe que sur
+     les deux méthodes À DÉS. ARRAY et FREE gardent donc leur aiguilleur — chez eux
+     il n'y a pas de bascule, et c'est le seul endroit où la méthode s'explique.
+     ⏳ Qu'ils portent EUX AUSSI deux aiguilleurs à la fois est vrai, mesuré, et
+     c'est une question pour Eric — pas une déduction à prendre ici. */
+  if (!scene2) {
+    flux.append(el("p", "guide-mot ability-organe-mot", [
+      text(explicationDe(entry) + (meca ? " " + motDesBoutons(meca) : ""))
+    ]));
+  }
   let plateau = null;
   if (meca) {
     /* ⭐ LE PLATEAU SERT LES DEUX MÉCANIQUES — trois dés et dix jets, ou quatre
@@ -1285,6 +1364,11 @@ export function renderAbilitiesStep(ctx, onAction) {
 
   const glisseCtx = {
     document: doc, resolved, rollBatch, assign,
+    /* ⭐ `act` EST DANS LE CONTEXTE, PAS UN SECOND PARAMÈTRE : le collecteur
+       reçoit déjà tout ce qu'il rend par ce seul objet, et le token du trait est
+       le premier de ses enfants qui parle à la coquille (une fenêtre d'info).
+       Deux façons de descendre le même acteur en feraient deux à tenir. */
+    act,
     /** Le jet posé sur cette clef, ou `null` — lu dans `assign`, la SEULE
      *  carte qui le sache (lot 50, §2a : elle vit hors document et meurt avec
      *  le lot). Jamais une comparaison de valeurs : c'était le défaut du
@@ -1477,7 +1561,7 @@ export function renderAbilitiesStep(ctx, onAction) {
    R1 »*. Le tapis est celui du tirage (552 × 176, il loge les trois lignes) ; les
    cellules sont celles du collecteur — nom en accent, dé dans sa cellule
    (`--de-pose`), bonus signé et son mot — un seul dessin pour un même objet. */
-function renderBilan({ document: doc, resolved, rollBatch }) {
+function renderBilan({ document: doc, resolved, rollBatch, act }) {
   const section = el("section", "ability-bilan");
   section.dataset.bandes = "true";
   const tapis = el("section", "ability-bilan-tapis");
@@ -1499,9 +1583,11 @@ function renderBilan({ document: doc, resolved, rollBatch }) {
   section.append(tapis);
 
   const dalle = el("section", "ability-bilan-dalle dalle-simple");
-  /* 🌱 La ligne sous le tapis quand un dé est bleu (Eric, 06/09) — le même mot
-     qu'en B1, en gras : le bilan est le second endroit où on l'apprend. */
-  if (lotRattrape(rollBatch)) dalle.append(el("p", "guide-mot ability-bilan-trait", [el("strong", "ability-bloomer", [text(LATE_BLOOMER)])]));
+  /* 🌱 LE MÊME TOKEN, SOUS LES MÊMES CARACS — R2 est la destination commune des
+     quatre méthodes (§7.9) : le trait s'y présente comme il se présente en B1,
+     jamais dans une seconde forme. Il vient AVANT l'aiguilleur : sous le tapis,
+     donc sous les caracs, exactement là où Eric le place. */
+  if (lotRattrape(rollBatch)) dalle.append(renderTraitTardif(act));
   dalle.append(el("p", "guide-mot ability-bilan-mot", [text(
     "Your six ability scores are set. Next moves on to Skills; Cancel reopens the choice of method."
   )]));

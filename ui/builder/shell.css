@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=579") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=580") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -4313,7 +4313,7 @@ button { font: inherit; }
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=579") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=580") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -4330,11 +4330,15 @@ button { font: inherit; }
 .ability-bilan-de .porte-de { position: relative; display: inline-block; line-height: 0; }
 .ability-bilan-dalle { padding: var(--sp-8); display: grid; gap: var(--sp-8); }
 .ability-bilan-mot { margin: 0; }
-/* 🌱 LATE BLOOMER EN LETTRES D'OR — Eric, 06/09 : *« annonce Late Bloomer en lettres
-   d'or comme tu suggérais pour les caracs, mets ce texte en dessous des caracs »*.
-   L'accent du site (les noms, les titres), en gras ; trois lignes à 375, mesuré. */
+/* 🌱 LATE BLOOMER — LA MENTION DANS L'AIGUILLEUR, ET RIEN D'AUTRE.
+   Eric, 06/09 au soir : *« l'unique aiguilleur dit juste qu'il existe »*. La ligne
+   d'or du matin (un paragraphe entier sous les caracs) est partie : c'était un
+   SECOND aiguilleur, et un écran n'en porte qu'un (§6 pré bis). Reste cette
+   mention brève, dans l'accent du site, en gras — elle annonce, le token nomme,
+   l'info explique. */
 .ability-bloomer { color: var(--accent); font-weight: 700; }
-.ability-bloomer-mot, .ability-bilan-trait { margin: 0; }
+
+
 /* La ligne d'attente mime les DEUX lignes du bonus (valeur T3 600, mot T1). */
 .ability-creneau .ability-row-final-attente { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
 .ability-creneau .ability-row-final-attente-valeur { font-size: var(--t3); font-weight: 600; }
@@ -5558,6 +5562,50 @@ button { font: inherit; }
    se voit et se corrige ; un mot passé sous la bordure, non. */
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau { overflow-wrap: break-word; }
+
+/* 🔴 ET C'EST ICI QU'IL FALLAIT L'ÉCRIRE, PAS 1200 LIGNES PLUS HAUT. Première
+   pose : le bloc vivait avec les autres règles d'Abilities, donc AVANT la famille
+   `.choix-glisse .glisse-jeton` — même spécificité (0,0,2,0), écrite avant, donc
+   PERDANTE. 📏 Mesuré à l'écran avant de le comprendre : le token s'étirait sur
+   les 351 blg de la dalle au lieu des 87 de sa case. C'est mot pour mot le piège
+   que §7.8 a payé le matin même sur `.tray-bouton`, et que la feuille documente
+   deux fois plus haut : *« une déclaration invalide crie, une déclaration
+   PERDANTE se tait »*. Une règle de teinte ou de cote se pose APRÈS sa famille. */
+/* 🌱 LE TOKEN DU TRAIT — sous les six caracs, en B1 scène 2 comme au bilan.
+   Eric, 06/09 : *« présente-le comme un token classique »*, *« il a un liseré vert
+   car il est valide »*. */
+.ability-trait { display: flex; justify-content: center; }
+/* 🔴 LA COTE EST CELLE DE LA CASE, PAS LA LARGEUR DU MOT — `--glisse-case` (87),
+   la cote partagée du dépôt, celle que §7.8 a donnée aux trois boutons de
+   `Roll Options` le matin même. ⛔ Une largeur naturelle ferait un jeton dont la
+   taille dépend du nom qu'il porte, alors que §2 bis dit *« un seul modèle »*.
+   ⚠️ ET IL FAUT LA POSER : dans la dalle du collecteur, `.choix-glisse
+   .glisse-jeton` (0,0,2,0) impose `flex: 1 1 auto` + `width: 100 %` — sans cette
+   règle-ci le token s'étirerait sur toute la rangée. Écrite APRÈS le bloc de la
+   famille, à spécificité égale : la leçon de §7.8, à la lettre. */
+.ability-trait .ability-trait-jeton {
+  flex: 0 0 var(--glisse-case);
+  width: var(--glisse-case);
+  /* 🟢 LE VERT DE §2 ter — la teinte qui dit ailleurs *« toutes les poses sont
+     valides »*. Ici il n'y a aucune pose à faire : le trait est acquis, donc bon
+     d'emblée. Les deux jetons du socle sont lus, jamais recopiés. */
+  border-width: var(--creneau-lisere-rempli);
+  border-color: var(--positive);
+  /* 🔴 LE REMBOURRAGE SERRÉ DE LA CASE, ET IL FAUT LE POSER ICI. Le token vit à
+     DEUX endroits : dans la dalle du collecteur (`.choix-glisse`, qui lui donne
+     `0 var(--sp-4)`) et dans celle du bilan, qui n'est pas un `.choix-glisse` —
+     là, c'est la règle NUE qui gagne, avec ses 12 de chaque côté.
+     📏 Mesuré : 87 − 24 − 4 = 59 blg utiles, et « Late Bloomer » se coupait en
+     deux lignes au bilan alors qu'il tenait sur une au collecteur. **Un objet qui
+     se dessine de deux façons selon la dalle qui le porte est deux objets**, et
+     §2 bis n'en admet qu'un. */
+  padding: 0 var(--sp-4);
+  /* ⛔ PAS `grab` : ce token n'a aucune destination (Eric, 06/09). Un curseur qui
+     promet un glisser sur un objet qu'on ne peut pas glisser est un mensonge de
+     2 px — et c'est la seule chose qui, sur un bureau, dit la différence. */
+  cursor: pointer;
+  text-align: center;
+}
 
 /* 📌 CE QUE LA GRILLE DES SORTS A LAISSÉ EN PARTANT — et il faut le garder en
    tête, parce que ça s'est payé deux fois le 19/08.
@@ -6905,7 +6953,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=579");
+  background-image: url("./assets/tarot-dos.jpg?v=580");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

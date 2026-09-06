@@ -4830,6 +4830,59 @@ quatre chemins pour y arriver.
 **Les noms de caractéristiques sont en `--accent`** (06/09 : l'oxblood *« passe pour un message
 d'erreur »*), partout où ils nomment une cellule — collecteur et bilan.
 
+### 7.10 🔴 UN ÉCRAN, UN AIGUILLEUR — le premier s'éteint quand le second s'allume *(06/09 au soir)*
+📍 `aiguilleur-un-seul-par-ecran-le-premier-s-eteint` · vivante · 06/09
+> Eric : *« dans FH 3D6, B1 : le premier aiguilleur disparaît quand le 2ᵉ apparaît en scène 2. Il ne
+> reste que le titre FH 3D6. »*
+
+En **scène 2**, la dalle de l'organe ne porte plus que son **titre**. L'aiguilleur qui disait la
+règle de la méthode s'en va ; celui du **collecteur** devient l'unique.
+⭐ **C'est §6 pré bis appliqué**, pas une règle neuve : un écran a un aiguilleur. La même loi a tué
+la ligne d'or de Late Bloomer le même soir (7.11) — **là un second était AJOUTÉ sous les caracs,
+ici le premier restait ALLUMÉ** ; deux paragraphes de guidage sur un écran, c'est deux fois la même
+faute.
+📏 **Et ça referme une mesure** : en scène 2 le gabarit trois bandes écrasait cette dalle — le flux
+ne montrait qu'**une ligne et demie** de l'aiguilleur, donc un texte tronqué que personne ne pouvait
+lire. Une dalle qui ne porte que son titre n'a plus rien à tronquer.
+⚖️ **La portée est celle de la SCÈNE, pas de l'écran** : `scene2` n'existe que sur les deux méthodes
+à dés. **ARRAY et FREE gardent leur aiguilleur** — chez eux il n'y a pas de bascule, et c'est le seul
+endroit où la méthode s'explique. ⏳ Qu'ils en portent **deux à la fois** est vrai et mesuré : c'est
+une question ouverte pour Eric, pas une déduction à prendre dans un lot.
+
+### 7.11 🌱 LATE BLOOMER — un trait se présente comme un TOKEN, jamais comme une phrase *(06/09 au soir)*
+📍 `jeton-trait-est-un-token-sans-destination` · vivante · 06/09
+> Eric, en renversant la ligne d'or du matin même : *« on fait plus simple pour Late Bloomer,
+> présente-le comme un token classique. Il se place sous les caracs, annule le 2ᵉ aiguilleur (ça faut
+> pas faire), le token n'a aucune destination mais il se présente comme un trait. Clic droit pour
+> info. L'unique aiguilleur dit juste qu'il existe. »* · *« token classique, tu comprends pas, comme
+> un dé »* — **l'octogone de §2 bis**, celui des lignages et des sorts, ⛔ **pas** le cube 3D de cet
+> écran. · *« il a un liseré vert car il est valide. »*
+
+| ce qu'il est | la cote | où |
+|---|---|---|
+| **le token** | `.glisse-jeton` — le modèle UNIQUE de §2 bis | **87 × 44** (`--glisse-case`), T1, rembourrage `--sp-4` | `.ability-trait-jeton` |
+| **son liseré** | 🟢 **vert**, 2 px — la teinte de §2 ter qui dit *« l'ensemble est bon »* | `--positive` · `--creneau-lisere-rempli` | idem |
+| **sa place** | **sous les six caracs** — sous les collecteurs en B1 scène 2, sous le tapis au bilan | rangée centrée | `.ability-trait` |
+| **son geste** | **il informe, et rien d'autre** | popup `{titre, texte}` | `renderTraitTardif` |
+
+🔴 **IL N'A AUCUNE DESTINATION**, et c'est ce qui le sépare de tous les autres jetons du site : rien
+à glisser, aucun créneau qui l'attende. Il ne **demande** pas un choix, il **constate** un acquis —
+d'où le vert, dès qu'il paraît. ⛔ Pas de `armerJeton` : ce qu'on n'arme pas ne part pas par accident.
+⭐ **LES TROIS GESTES OUVRENT LA MÊME FENÊTRE.** Eric a dicté le clic droit (la moitié souris de la
+loi du 16/08). Mais le clic **gauche** n'a rien à sélectionner ici : lui laisser un **clic mort**
+serait pire que la divergence — un contrôle qui ne répond pas passe pour cassé.
+📏 **Deux dalles, un seul dessin** : le token vit dans `.choix-glisse` (le collecteur, qui impose
+`flex: 1 1 auto` + `width: 100 %`) **et** dans la dalle du bilan, qui n'en est pas une. Les deux
+cotes se posent donc sur le token lui-même, **APRÈS** le bloc de la famille — mesuré à l'écran deux
+fois avant d'être juste : d'abord étiré sur les 351 blg de la dalle *(règle écrite avant, donc
+perdante — le piège de 7.8, le même jour)*, puis coupé en deux lignes au bilan *(le rembourrage de
+12 de la règle nue)*. **Un objet qui se dessine de deux façons selon la dalle qui le porte est deux
+objets**, et §2 bis n'en admet qu'un.
+⏳ **L'EFFET N'EST PAS CÂBLÉ** (+2 au pool de Skills, l'option Expertise au niveau 1) : trois points
+attendent Eric dans `FHPCv2 future updates.md` § PRODIGY. ⚠️ L'info **dit** les deux dons, parce que
+le chapitre `ability-scores` les publie ; le builder ne les applique pas. **L'écart est nommé**, et
+il se referme au même endroit que PRODIGY — jamais en retirant la phrase du chapitre.
+
 ---
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·

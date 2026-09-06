@@ -856,10 +856,14 @@ test("un redessin REPOSE les dés du plateau, il ne les efface pas — et il n'a
      faisait, `Cancel` le fait — son verbe `abilityClear` est vérifié plus haut. */
   assert.equal(node.querySelectorAll(".tray-titre").length, 0, "scène 2 : `Roll Options` a disparu");
   assert.equal(node.querySelectorAll(".tray-bouton").length, 0, "…et les trois boutons avec lui");
-  /* ⛔ ET L'AIGUILLEUR NE LES NOMME PLUS : un texte qui nomme un organe se périme
-     avec lui (la faute du 05/09, prise par l'autre bout). */
-  assert.ok(!node.querySelectorAll(".ability-organe-mot")[0].textContent.includes("Flash"),
-    "scène 2 : l'aiguilleur ne parle plus de boutons absents");
+  /* 🔴 ET L'AIGUILLEUR DE L'ORGANE EST PARTI TOUT ENTIER — Eric, 06/09 au soir :
+     *« le premier aiguilleur disparaît quand le 2ᵉ apparaît en scène 2, il ne reste
+     que le titre FH 3D6 »*. Ne plus NOMMER les boutons ne suffisait pas : deux
+     paragraphes de guidage sur un écran sont deux fois la même faute (§6 pré bis),
+     et le gabarit trois bandes n'en montrait qu'une ligne et demie. */
+  assert.equal(node.querySelectorAll(".ability-organe-mot").length, 0, "scène 2 : l'aiguilleur de l'organe a disparu");
+  assert.equal(node.querySelectorAll(".ability-methode-titre")[0]?.textContent, "FH 3D6", "…il ne reste que le titre");
+  assert.equal(node.querySelectorAll(".ability-collecteur-mot").length, 1, "…et l'UNIQUE aiguilleur est celui du collecteur");
 });
 
 test("le lot tiré : dix cases PLEINES sans qu'aucune salve n'ait tourné, six marquées gardées", () => {
@@ -1123,25 +1127,46 @@ test("🏁 LE BILAN (R2) — Done mène au bilan, le bilan porte Next et un Canc
   const racine = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: standardArrayBatch(), palier: 1 }), () => {});
   assert.equal(racine.querySelectorAll(".ability-bilan").length, 0, "pas de bilan sans le drapeau de la coquille");
   assert.equal(racine.querySelectorAll(".ability-methodes").length, 1, "…c'est le choix");
-  /* 🌱 LATE BLOOMER — Eric, 06/09 : *« l'aiguilleur pourra l'annoncer dans B1 en
-     gras, et il justifie »* + la ligne sous le tapis du bilan. Le drapeau est celui
-     du moteur des jets (`ajuste: "haut"`) ; l'écran le lit, jamais ne le recalcule. */
+  /* 🌱 LATE BLOOMER EST UN TOKEN — Eric, 06/09 au soir : *« présente-le comme un
+     token classique, il se place sous les caracs, il n'a aucune destination, clic
+     droit pour info, l'unique aiguilleur dit juste qu'il existe »* + *« il a un
+     liseré vert car il est valide »*. Le drapeau est celui du moteur des jets
+     (`ajuste: "haut"`) ; l'écran le lit, jamais ne le recalcule.
+     ⛔ ET LE SECOND AIGUILLEUR EST MORT : la ligne d'or du matin (`.ability-bilan-trait`,
+     `.ability-bloomer-mot`) était un deuxième paragraphe de guidage — ce test la
+     refuse par son NOM, pas seulement par son absence de contenu. */
   const rattrape = standardArrayBatch();
   rattrape.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
   rattrape.rolls[2] = { ...rattrape.rolls[2], ajuste: "haut", brut: 12, total: 14 };
   const bilanRattrape = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: rattrape, palier: 1, bilan: true }), () => {});
-  const ligne = bilanRattrape.querySelectorAll(".ability-bilan-trait strong.ability-bloomer");
-  assert.equal(ligne.length, 1, "un dé bleu : la ligne sous le tapis, en gras");
-  assert.match(ligne[0].textContent, /^Late Bloomer — no roll hit 14 on its own: the dice were unkind/, "et elle justifie");
-  assert.equal(bilan.querySelectorAll(".ability-bilan-trait").length, 0, "sans dé bleu : rien");
+  const tokenBilan = bilanRattrape.querySelectorAll(".ability-bilan-dalle .ability-trait .glisse-jeton");
+  assert.equal(tokenBilan.length, 1, "un dé bleu : le token du trait sous le tapis du bilan");
+  assert.equal(tokenBilan[0].textContent, "Late Bloomer", "il porte le NOM du trait, rien d'autre");
+  assert.equal(tokenBilan[0].dataset.trait, "late-bloomer");
+  assert.equal(bilanRattrape.querySelectorAll(".ability-bilan-trait, .ability-bloomer-mot").length, 0,
+    "⛔ plus de second aiguilleur : la ligne d'or a disparu des DEUX écrans");
+  assert.equal(bilan.querySelectorAll(".ability-trait").length, 0, "sans dé bleu : rien");
+  /* 🔦 IL INFORME, ET SUR LES DEUX GESTES — clic droit (la moitié souris de la loi
+     du 16/08) et clic simple (il n'a rien à sélectionner : un clic mort passerait
+     pour un contrôle cassé). Le même popup, le même texte. */
+  const ouvertures = [];
+  const bilanArme = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: rattrape, palier: 1, bilan: true }), (a) => ouvertures.push(a));
+  const jetonArme = bilanArme.querySelectorAll(".ability-trait .glisse-jeton")[0];
+  jetonArme.dispatchEvent({ type: "click", preventDefault() {} });
+  jetonArme.dispatchEvent({ type: "contextmenu", preventDefault() {} });
+  assert.equal(ouvertures.length, 2, "les deux gestes ouvrent l'info — aucun clic mort");
+  assert.deepEqual(ouvertures.map((a) => [a.kind, a.titre]), [["popup", "Late Bloomer"], ["popup", "Late Bloomer"]]);
+  assert.match(ouvertures[0].texte, /No natural roll reached 14/, "l'info dit POURQUOI le trait est là");
+  assert.match(ouvertures[0].texte, /Expertise at level 1/, "…et ce qu'il donne, comme le chapitre le publie");
   /* En B1 (une méthode À DÉS — le plancher n'existe pas sur ARRAY ni FREE), scène 2. */
   const lotFh = makeRollBatch([16, 14, 13, 12, 10, 8], emptyAbilityAssign());
   lotFh.rolls = lotFh.rolls.map((r, i) => i === 1 ? { ...r, ajuste: "haut", brut: 12, total: 14 } : r);
   const pageRattrapee = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch: lotFh }), () => {});
-  assert.equal(pageRattrapee.querySelectorAll(".ability-collecteur .ability-bloomer-mot strong.ability-bloomer").length, 1, "en B1, scène 2 : la ligne d'or sous les six collecteurs");
-  assert.equal(pageRattrapee.querySelectorAll(".ability-organe-mot strong.ability-bloomer")[0]?.textContent, "You gained a trait.", "et l'aiguilleur de l'organe le cite en bref, en gras");
+  assert.equal(pageRattrapee.querySelectorAll(".ability-collecteur .ability-trait .glisse-jeton").length, 1, "en B1, scène 2 : le token sous les six collecteurs");
+  assert.equal(pageRattrapee.querySelectorAll(".ability-collecteur-mot strong.ability-bloomer")[0]?.textContent, "You gained a trait.", "et l'unique aiguilleur — celui du collecteur, en scène 2 — dit juste qu'il existe");
   const pageSage = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { rollBatch: makeRollBatch([16, 14, 13, 12, 10, 8], emptyAbilityAssign()) }), () => {});
-  assert.equal(pageSage.querySelectorAll(".ability-organe-mot strong.ability-bloomer").length, 0, "…et se tait quand aucun plancher n'a parlé");
+  assert.equal(pageSage.querySelectorAll("strong.ability-bloomer").length, 0, "…et se tait quand aucun plancher n'a parlé");
+  assert.equal(pageSage.querySelectorAll(".ability-trait").length, 0, "…et aucun token n'apparaît");
   /* 🟢 LA PASTILLE DU BELT — Eric, 06/09 : *« pourtant on a complété le chapitre »*.
      La ceinture lit `estConfirme(document, "abilities")` : le passage au bilan
      signe, Cancel / lot jeté / autre méthode lèvent la signature. */

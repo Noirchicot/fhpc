@@ -117,7 +117,13 @@ test("7.8 — les libellés n'ont qu'un écrivain : l'aiguilleur les LIT, il ne 
   assert.match(TRAY, /bouton\(LIBELLES\.reset,/);
   assert.match(STEP, /\$\{LIBELLES\.flash\}/, "la phrase de l'aiguilleur lit le libellé du plateau");
   assert.match(STEP, /\$\{meca\.boutonUn\}/, "…et le premier vient de la mécanique, jamais recopié");
-  assert.match(STEP, /meca && !scene2 \? " " \+ motDesBoutons\(meca\)/, "et il ne les nomme qu'en scène 1");
+  /* 🔴 06/09 au soir — L'AIGUILLEUR DE L'ORGANE N'EXISTE PLUS EN SCÈNE 2 (Eric :
+     *« le premier aiguilleur disparaît quand le 2ᵉ apparaît, il ne reste que le
+     titre »*). Il ne suffit donc plus de ne pas NOMMER les boutons : le paragraphe
+     entier est sous la porte de la scène, et c'est ce que ce garde lit. */
+  assert.match(STEP, /if \(!scene2\) \{\n\s*flux\.append\(el\("p", "guide-mot ability-organe-mot"/,
+    "l'aiguilleur de l'organe est SOUS la porte de la scène 1, pas seulement raccourci");
+  assert.match(STEP, /meca \? " " \+ motDesBoutons\(meca\)/, "et il nomme les boutons tant qu'ils sont là");
   assert.match(STEP, /if \(!scene2\) flux\.append\(plateau\.commandes\)/, "le bloc entier part en scène 2");
 });
 
