@@ -5746,6 +5746,38 @@ retourne, et **B1 est figé** (§7.3).
 n'est dispatché, le seuil de 6 px n'est pas franchi et `armerJeton` lit un **TAP**. Le test passait
 en mesurant le tap. Le vrai vide fait **bouger** le pointeur et rend `elementFromPoint` vide.
 
+### 7.14 🆓 `FREE` EST 100 % LIBRE — aucune condition sur le choix des caracs *(Eric, 2026-09-06)*
+📍 `budget-free-est-cent-pour-cent-libre` · vivante · 06/09
+⚖️ **La méthode `FREE` n'oppose AUCUNE condition au choix des caractéristiques — ni total, ni budget, ni plafond, ni plancher.**
+
+> Eric, 2026-09-06 : *« **free c'est 100 % de liberté sur le choix des caracs** »*.
+
+📏 **LE CODE Y ÉTAIT DÉJÀ CONFORME LE JOUR OÙ LA RÈGLE A ÉTÉ DITE**, mesuré dans le moteur par
+le siège Archi : un document `18/18/18/18/18/18` rend **zéro** refus sur les caracs — exactement
+comme le tableau standard — et `3 × 6` aussi. ⭐ *Une règle qui décrit ce que le code fait déjà
+n'est pas inutile : elle empêche qu'on le « répare ».*
+
+⚠️ **LA BORNE QUI RESTE, ET IL NE FAUT PAS LA CONFONDRE AVEC UNE CONDITION** : un score vaut
+**3 à 18**. C'est le **domaine d'un score**, pas une contrainte sur le choix — la liberté porte
+sur **quelles valeurs on met où, et combien de fois**. ⛔ C'est exactement la phrase qu'un
+successeur lira de travers si personne ne l'écrit.
+📌 **ET CETTE BORNE N'A PAS D'ADRESSE AU CORPUS** — vérifié le 06/09 : elle vit dans le moteur
+(`CREATION_SCORE_MAX`) et dans une parole d'Eric du 15/08 que ce fichier ne porte pas. ⛔ Elle
+n'en reçoit pas une ici : on n'adresse pas une règle qu'on n'a pas mesurée soi-même, sous peine
+de graver un chiffre déduit à la place d'un chiffre donné. ⏳ À poser le jour où elle est lue
+dans le moteur.
+
+⭐ **UNE CONSÉQUENCE QUI FERME UNE QUESTION, ET ELLE EST SIGNALÉE COMME UNE LECTURE.** `POINT BUY`
+n'est pas offerte, et son barème n'existe nulle part au dépôt. Un budget de points sur `FREE`
+aurait été un Point Buy déguisé ; Eric ayant tranché la liberté totale, **le barème absent cesse
+d'être un manque**. ⚠️ *Eric n'a pas dit cela en toutes lettres — c'est la lecture du siège
+Archi, notée comme telle et non comme sa parole.*
+
+📌 **CE QUI LA TIENT** : `tests/free-cent-pour-cent.test.mjs`, vu **rouge des deux côtés** avant
+d'être cru vert, avec un seul levier — `CREATION_SCORE_MAX` à 17 fait échouer le cas `18 × 6`
+*(la liberté rétrécit)*, à 20 fait échouer le témoin contraire *(le moteur cesse de juger, et le
+fichier serait vert pour rien)*.
+
 ---
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·

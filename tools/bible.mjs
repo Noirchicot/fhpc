@@ -212,7 +212,12 @@ export function generer(dest) {
     pages.push([`${slug}.md`, page([slug, titre, sous, familles], regles, sacres.filter((r) => familles.includes(r.famille)))]);
   });
   const orphelines = regles.filter((r) => !PLAN.some(([, , , f]) => f.includes(r.famille)));
-  idx += `| 8 | [À trancher](8-a-trancher.md) | les contradictions | 26 |\n`;
+  /* ⛔ LE COMPTE SE DÉRIVE, IL NE S'ÉCRIT PAS. Il valait `26` en littéral et il a menti
+     le jour même où `C27` est né — *« un chiffre écrit à la main dans une phrase ment le
+     jour où la donnée bouge, et il ment en silence »* (NORMES, § exception Dragonborn). */
+  const aTrancher = (fs.readFileSync(path.join(UI, "A-TRANCHER.md"), "utf8")
+    .match(/\{ #c\d+ \}/g) ?? []).length;
+  idx += `| 8 | [À trancher](8-a-trancher.md) | les contradictions | ${aTrancher} |\n`;
   idx += `| — | [Références](0-references.md) | sur quoi sa forme est bâtie | — |\n`;
   if (orphelines.length) idx += `\n⚠️ **${orphelines.length} règles hors plan** : familles `
     + [...new Set(orphelines.map((r) => `\`${r.famille}\``))].join(" · ") + ".\n";

@@ -126,6 +126,36 @@ ne réclame aujourd'hui.
 | Le **minuteur** des chevrons | la fermeture de `mountChevrons` | lui-même |
 | La **vérité « ça défile »** (lot 70) : `data-visible` sur l'hôte des chevrons, `data-more` sur la scène, `disabled` sur les deux boutons | des attributs, sur des nœuds qui ne meurent pas | **`mountChevrons` seul** — un garde le prouve (`tests/chevrons.test.mjs`) |
 
+## 🏠 Qui possède quoi — côté JOUEUR : le personnage est à lui
+📍 `socle-chacun-est-proprietaire-de-ses-donnees` · vivante · 06/09
+⚖️ **Les données d'un personnage appartiennent au JOUEUR : le FICHIER est l'organe qui les porte, et le stockage du navigateur n'est qu'un cache de reprise.**
+
+> Eric, 2026-09-06 : *« la règle de FH : **chacun est propriétaire de ses données**. Bah on
+> passe par l'app Fichiers, libre à moi de le mettre sur le cloud ou sur l'iPad ou ailleurs.
+> Sur desktop ou ailleurs, **je choisis où je range mes persos**. »*
+
+⭐ **ELLE RETOURNE `§0.9` PAR L'AUTRE BOUT, ET C'EST LÀ QU'EST SA VALEUR.** *« Aucun serveur
+mondial à maintenir »* se lisait comme une contrainte d'exploitation — ce qu'on ne fait pas
+faute de moyens. Ce n'en est pas une : **il n'y a pas de serveur PARCE QUE les données
+appartiennent au joueur**, et non l'inverse. ⛔ Un lot qui lirait §0.9 comme une limite
+technique proposerait un jour de la lever ; lue par ce bout, il n'y a rien à lever.
+
+📌 **CE QUE ÇA RANGE, ET QUI N'EST PAS ÉVIDENT** : `fhpc.personnage` *(`memoire.mjs`)* n'est
+pas la sauvegarde, c'est **le cache qui fait qu'on retrouve son écran**. La sauvegarde est le
+FICHIER, et son rangement est le choix du joueur — l'app Fichiers sur iPad, le disque ailleurs.
+⚠️ **Un cache n'a pas les devoirs d'une sauvegarde** : il peut disparaître à un vidage de
+navigateur sans que personne ait rien perdu, *à condition* qu'un fichier existe. C'est cette
+condition-là qui n'est pas encore tenue — voir `A-TRANCHER § C26 ④`.
+
+⚠️ **ET SON NIVEAU EST UNE RÈGLE, PAS UN SACRÉ — Eric l'a tranché lui-même le 06/09** :
+*« on reste à l'état de règle, on laisse le concept mûrir »*. ⛔ Elle ne se marque pas
+`⚖️ 🔒`, et ⛔ elle ne se marque pas non plus « en attente de promotion » : c'est une règle.
+⭐ **Et sa raison vaut au-delà de ce cas** : *laisser mûrir un concept est un état légitime,
+pas une indécision.* Un sacré ne cède jamais — l'écrire trop tôt, c'est se lier sur un
+principe qu'on n'a pas éprouvé. Une règle, elle, se corrige quand la pratique la contredit.
+📌 **Le niveau appartient à Eric**, jamais à un siège : un lot peut ÉCRIRE une règle, il ne
+l'élève pas.
+
 ## Qui possède quoi — côté DONNÉES : SRD · SRFH · SRFH+
 📍 `socle-qui-possede-quoi-cote-donnees-srd-srfh-srfh` · vivante · 23/08
 ⚖️ **Le test de rangement porte sur le NOM, pas sur le contenu — *« si on change ça, est-ce que ça s'appelle encore le SRD ? »* : oui → **SRD** · on ne sait pas → **SRFH** · non → **SRFH+**.**

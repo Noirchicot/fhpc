@@ -48,9 +48,21 @@
 
 ### Le Menu dit l'état de la sauvegarde, et n'offre pas de « nouveau personnage »
 📍 `menu-dit-la-sauvegarde` · déployée, hors corpus · 20/08
-⚖️ **Le Menu dit toujours l'état de la sauvegarde, dans les deux sens, et il n'offre aucun bouton « nouveau personnage ».**
+⚖️ **Le Menu dit toujours l'état de la sauvegarde, dans les deux sens, et aucune de ses portes ne PROMET un personnage neuf.**
 
 > **Eric** : « Un perso est enregistré dans le navigateur de tout le monde, et disparaît s'il n'est pas enregistré s'il y a un reset. »
+
+> 📐 **PRÉCISÉE LE 2026-09-06 — elle n'était pas fausse, elle était sous-spécifiée.** `v592` a
+> posé `Forget this character` dans le Menu. Le garde `D4` a été **resserré, pas désarmé** :
+> il ne cherche plus l'absence du libellé *« nouveau personnage »*, il exige qu'**aucune porte
+> ne promette un personnage neuf** — renommer ce bouton `Start over` le fait donc rougir.
+> ⭐ La phrase suit ce que le garde vérifie ; l'ancienne était littéralement vraie et laissait
+> passer la promesse par un autre mot.
+> ⚠️ **CE QUI L'A RENDUE NÉCESSAIRE EST UNE LOI ÉCRITE LE MATIN MÊME** : l'écran a changé le
+> 06/09 sans que la question *« est-ce qu'une Bible doit être éditée ? »* soit posée dans le
+> rapport *(`socle-une-bible-se-demande-avant-de-rendre`)*. C'est le premier cas mesuré de
+> cette loi, et il tombe le jour de sa naissance.
+> 📌 Relayée par ARCHI 32 depuis `Agent Menu`, qui l'a reconnue de lui-même.
 
 **Le Menu dit toujours l'état de la sauvegarde, dans les deux sens, et il n'offre aucun bouton « nouveau personnage ».**
 
