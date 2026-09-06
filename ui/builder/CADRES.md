@@ -39,6 +39,24 @@
 > parce qu'**une exclusion de plus déplace la spécificité**. La forme sûre est un attribut à
 > plusieurs valeurs (`data-rangs`), qui donne à tous les cas la MÊME spécificité.
 >
+>
+> ## ⚖️ **LA LOI DES DEUX ÂGES** *(Eric, 2026-09-06)*
+>
+> **« Quand c'est ancien c'est archivé mais gardé, et une règle neuve prime sur une ancienne
+> jusqu'à ce qu'on ait statué. »**
+>
+> 🔴 **DEUX CONSÉQUENCES, ET ELLES NE SE NÉGOCIENT PAS.**
+> ① **Rien ne se supprime.** Une règle périmée est **archivée**, jamais effacée : elle porte
+> l'incident qui l'a fait naître, et cet incident se repaie si on l'oublie.
+> ② **La plus RÉCENTE fait foi, par défaut et sans attendre d'arbitrage.** ⛔ Un lot ne
+> s'arrête pas devant deux règles qui se contredisent : il applique la neuve, marque
+> l'ancienne `remplacée par`, et laisse la trace. Eric tranche après, s'il le veut.
+>
+> ⭐ **CE QUE ÇA CHANGE POUR CELUI QUI LIT** : le corpus a une **surface** — ce qui fait foi
+> aujourd'hui — et une **profondeur** — ce qui a fait foi et qu'on garde. ⛔ Un lot ne lit
+> que la surface. C'est ce qui doit ramener le corpus sous le seuil des **200 règles**
+> qu'un lecteur suit vraiment.
+>
 > 📌 **PORTÉE : LE BUILDER.** Le site du livre (`fh-phb`) a sa propre feuille et n'est pas régi
 > ici. L'étendre est une décision d'Eric, pas une conséquence de ce paragraphe.
 >
