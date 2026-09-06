@@ -279,3 +279,16 @@
 - Règles concernées : `voyant-belt-signature` · `bouton-done-puis-next`
 - ⭐ **ET C'EST ERIC QUI A NOMMÉ LA VRAIE RAISON DE NE PAS LE FAIRE MAINTENANT** : *« on l'a pas fait ailleurs ? dans ce cas il faudrait le faire partout »*. Le gendarme de sortie n'est pas une affaire de Destiny — c'est **une loi transverse** sur toute étape qu'on quitte sans valider. La poser dans un seul écran en ferait une **exception de plus**, exactement ce que ce lot vient de défaire en faisant rentrer Destiny dans le rang du `Done`/`Next`.
 - ⏳ **CE QUI RESTE À TRANCHER LE JOUR OÙ ON LE FERA**, et qui n'a aucune réponse aujourd'hui : le *« une fois »* se compte-t-il **par étape** (Skills redemandera après Destiny) ou **par session** (un seul avertissement dans toute la création) ? ⚠️ Question posée le 06/09, **restée sans réponse** — c'est elle qui bloquera, pas le mécanisme.
+
+## C24 — Les deux familles grises et cliquables : bleues, ou vraiment désarmées ? { #c24 }
+
+**Question : maintenant que « NON COLORÉ = NON CLIQUABLE » (Eric, 06/09), que deviennent les deux familles qui sont grises ET cliquables ?**
+
+- **`shell.css:7630` — `.ability-entry`**, les quatre tuiles de méthode d'Abilities (`FH 3D6` · `4D6` · `ARRAY` · `FREE`). 📏 **Mesurées au banc sur page vierge** par le siège Abilities : elles rendent `#928c7f`, portent `aria-pressed="false"`, et sont **parfaitement cliquables** — c'est même **le seul geste de l'écran**. Seule celle qu'on vient de choisir passe au bleu `#5f90c7`.
+- **`shell.css:7922` — `.pipeline-bouton`, `.dressing-bouton`, `.carte-r-bouton`, `.pipeline-ligne-envoi`, `.pipeline-pas`, `.aiguilleur-bouton`** (chapitre Équipement). Le commentaire juste au-dessus **déclare** le gris comme un état légitime : *« l'ÉTAT par `--bouton-fond` selon les trois verbes ratifiés — naviguer (bleu) · valider (vert) · défaire (rouge) · **MUET (GRIS DÉFAUT)** »*.
+- Règles concernées : `bouton-gris-non-cliquable` · `bouton-done-gris-inacheve` · `bouton-trois-verbes`
+- ⚠️ **ET IL Y A UN PIÈGE DE MÉMOIRE, DATÉ** : Eric croyait ces tuiles bleues (*« les 4 boutons du R sont bleus »*). **Elles ne le sont pas.** Sa mémoire disait la loi ; le code disait autre chose. ⭐ C'est exactement *« un fichier ne dit jamais s'il est un défaut ou une décision »* — sauf qu'ici c'est le souvenir qui portait la loi, et le code qui portait l'écart.
+- 🔴 **LES DEUX RÉPONSES POSSIBLES, ET ELLES NE COÛTENT PAS PAREIL** :
+  - **bleues** — elles naviguent (choisir une méthode ouvre une scène), donc le bleu dit vrai. ⛔ Mais quatre tuiles bleues côte à côte, dont une seule est « choisie », affaiblit le signal du choix ; il faudra un second signe pour l'élue.
+  - **vraiment désarmées** — le gris devient honnête, mais alors **l'écran n'a plus aucun geste** tant que rien ne les arme. ⛔ Impossible pour `.ability-entry` : c'est le seul geste de la page.
+- 📌 **Le garde attend cette réponse.** *« Aucun bouton gris n'est cliquable, aucun bouton cliquable n'est gris »* rougirait aujourd'hui sur ces deux familles. Le poser avant la décision, c'est livrer une suite rouge ; l'assouplir pour qu'il passe, c'est écrire un garde creux — le dépôt en a déjà hébergé un **seize jours**.

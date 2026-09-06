@@ -3637,8 +3637,53 @@ l'origine — **un état qui demeure n'a rien à dire à une échelle qui mesure
 tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleurs**. ⛔ Vérifier
 pourquoi elle avait été écrite avant de la retirer.
 
+### 🔴 NON COLORÉ = NON CLIQUABLE *(Eric, 2026-09-06)*
+📍 `bouton-gris-non-cliquable` · vivante · 06/09 · borne `bouton-done-gris-inacheve`
+
+> Eric, 2026-09-06 : *« un `Done` non cliquable se confond avec un bouton non coloré.
+> **Désormais NON COLORÉ = NON CLIQUABLE.** »*
+
+⭐ **CE N'EST PAS UN GOÛT, C'EST UN TÉMOIN MESURÉ, ET IL EST FORT.** Devant `4D6` en scène 2,
+Eric a dit *« 4D6 n'a pas de `Done` »* — puis, deux messages plus tard : *« le `Done` est là mais
+grisé quand inactif »*. **Il ne l'avait pas vu.** Un bouton présent, à sa place, lisible au
+contraste — et **invisible à l'usage**. Le gris ne se lisait pas comme « désarmé » : il ne se
+lisait pas du tout.
+
+➡️ **LA RÈGLE, DANS LES DEUX SENS** *(c'est ce qui la rend opposable)* :
+
+| | |
+|---|---|
+| **un bouton GRIS** | ⛔ **n'est jamais cliquable** |
+| **un bouton CLIQUABLE** | ⛔ **n'est jamais gris** — il porte le verbe qu'il fait : naviguer **bleu** · valider **vert** · défaire **rouge** |
+
+⚠️ **ET LE GRIS DIT AUJOURD'HUI DEUX CHOSES CONTRAIRES DANS LE MÊME PRODUIT** — relevé par le
+siège Abilities le 06/09, **vérifié par l'architecte, deux occurrences et deux seulement** :
+
+| où | ce que le gris y signifie | état |
+|---|---|---|
+| `shell.mjs:4064` — le `Done` *(`done.disabled = !gate.ready`)* | *« tu ne peux pas »* | ✅ conforme |
+| `shell.css:7630` — `.ability-entry` *(les quatre méthodes `FH 3D6` `4D6` `ARRAY` `FREE`)* | *« tu peux, je n'ai simplement pas d'état »* — 📏 **mesurées au banc : `#928c7f`, `aria-pressed="false"`, et PARFAITEMENT cliquables** — c'est même le seul geste de l'écran | ⛔ **viole** |
+| `shell.css:7922` — `.pipeline-bouton`, `.dressing-bouton`, `.carte-r-bouton`, `.pipeline-ligne-envoi`, `.pipeline-pas`, `.aiguilleur-bouton` *(Équipement)* | le commentaire au-dessus **déclare** le gris comme un état légitime : *« MUET (GRIS DÉFAUT) »* | ⛔ **viole** |
+
+🔴 **CES DEUX FAMILLES SONT DONC EN INFRACTION CONNUE, ET LEUR SORT N'EST PAS TRANCHÉ** :
+bleues *(elles naviguent, elles agissent)*, ou vraiment **désarmées** là où elles sont grises ?
+⛔ **C'est un arbitrage d'Eric** — voir `A-TRANCHER § C24`. ⚠️ Tant qu'il n'a pas tranché, on ne
+repeint rien : une norme neuve ne se câble pas en repeignant au hasard ce qu'elle condamne.
+
+📌 **ET LE GARDE VIENT APRÈS, PAS AVANT.** Un garde de la forme *« aucun bouton gris n'est
+cliquable, aucun bouton cliquable n'est gris »* rougirait **immédiatement** sur ces deux familles.
+Le poser aujourd'hui, c'est livrer une suite rouge ; l'assouplir pour qu'il passe, c'est écrire un
+garde creux. Il se pose **le jour où Eric a tranché**, il se fonde sur la **DONNÉE** (`disabled`,
+la teinte calculée), ⛔ jamais sur la forme d'un sélecteur.
+
 ### ✅ LE GRIS EST `--text-muted`, ET UN `DONE` INACHEVÉ EST GRIS *(tranché 26/08)*
-📍 `bouton-done-gris-inacheve` · vivante · 26/08
+📍 `bouton-done-gris-inacheve` · vivante · 26/08 · bornée par `bouton-gris-non-cliquable`
+
+> ⚖️ **BORNÉE, PAS REMPLACÉE, LE 2026-09-06.** La règle ci-dessus ne change **ni la teinte du
+> `Done`** *(il reste gris tant que l'étape est inachevée)* **ni son argument** *(« le bleu
+> impliquerait un mouvement »)* : elle lui donne un **SENS OPPOSABLE** — ce gris-là veut dire
+> *« tu ne peux pas »*, et plus aucun bouton cliquable n'a le droit de le porter. Cette section
+> reste **vivante**, entière.
 
 > Eric, 2026-08-26 : *« gris c'est mieux, **le bleu impliquerait un mouvement** »*.
 
