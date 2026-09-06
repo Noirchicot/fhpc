@@ -4949,6 +4949,17 @@ avec son écart) part **sur FREE seulement** ; son **titre** reste et dit le ges
 ⭐ **ARRAY ne bouge pas** — son vivier tient sur une rangée, il garde ses deux textes. Eric :
 *« Array, t'y touches pas, il est bien. »*
 
+🟢 **ET LE DÉ EST SUR UN CERCLE VERT, À COÛT NUL** *(Eric : « tu peux mettre les dés sur des cercles
+verts ? sans perdre davantage de place ? »)*. Le disque est peint **sur le BOUTON du dé**, pas sur
+l'îlot qui le porte : le bouton fait déjà 44 × 44 et c'est lui qui donne la hauteur de la rangée —
+y peindre un fond n'ajoute pas un pixel *(mesuré : palette 197, carte 473, inchangées)*.
+⛔ **Sur l'îlot, ça aurait coûté 59** : le rapport de B1 est *dé = 75 % du disque*, donc 44 / .75 =
+58,7 par rangée, soit `4 × 58,7 + 24 = 259` — 59 de trop pour une page qui a 3 de reste. **Le même
+dessin à un étage près, et l'un des deux ne rentre pas.**
+⭐ Le `.75` du podium est repris tel quel : cube **32,6** dans un disque de **43,4**. Ce qui rétrécit
+est le **dessin** ; la **cible** reste le bouton de 44 — §1 ter, *un dessin ne dimensionne pas un
+contrôle*.
+
 ---
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·

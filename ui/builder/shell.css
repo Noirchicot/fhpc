@@ -2875,6 +2875,27 @@ button { font: inherit; }
    dé ne change pas de taille — il était DÉJÀ à son plafond de 48, c'est le
    vide autour qui part. */
 .ability-palette .fs { background: none; box-shadow: none; padding: 0; }
+/* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
+   sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
+   perdre de place » tient à UN choix : **le disque est peint sur le BOUTON du dé**,
+   pas sur l'îlot qui le porte.
+   📐 CE QUE ÇA CHANGE, ET CE QUE ÇA NE CHANGE PAS. Au podium de B1 le disque est
+   l'îlot (`.fs`, 54,5) et le dé vit dedans — l'îlot DONNE donc la hauteur de la
+   rangée. Ici le bouton fait déjà **44 × 44** (`--fs-de-max`, la cote tactile), et
+   c'est LUI qui décide la hauteur : y peindre le disque n'ajoute pas un pixel.
+   ⛔ Le disque sur `.fs` aurait coûté le rapport de B1 (dé = 75 % du disque, donc
+   44 / .75 = 58,7 par rangée) : **4 × 58,7 + 24 = 259**, soit 59 de trop pour une
+   page qui n'a que 3 de reste. Le même dessin à deux étages près, et l'un des deux
+   ne rentre pas.
+   ⭐ Le `.75` du podium est repris tel quel : un cercle vert et un dé au même
+   rapport que B1, un seul dessin pour « une valeur qu'on peut prendre ». Ce qui
+   rétrécit est le DESSIN du dé (~33 dans son disque) ; la CIBLE, elle, reste le
+   bouton de 44 — c'est la distinction de §1 ter, un dessin ne dimensionne pas un
+   contrôle. */
+.ability-palette .fs-de {
+  background: var(--podium-pastille) center / contain no-repeat;
+}
+.ability-palette .fh-cd-static-die[data-sides="6"] { transform: scale(.75); }
 /* ⛔ LA PALETTE N'A PLUS DE RÈGLE À ELLE POUR SA GRILLE, ET C'EST UN GAIN.
    Elle portait des colonnes plafonnées à la cote du dé et un centrage — deux
    déclarations qui la DÉTACHAIENT du bord de sa dalle. Eric veut l'inverse
