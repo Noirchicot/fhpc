@@ -2315,8 +2315,15 @@ explicitement, et le garde reste muet. Ce qu'il interdit, c'est de **recopier le
 ---
 
 ## 4 ter. 📐 LE GABARIT DU RANG **B** — le menu d'une étape *(dicté par Eric, 27/08)*
-📍 `bouton-la-paire-encadre-la-rangee` · vivante · 26/08
+📍 `bouton-la-paire-encadre-la-rangee` · remplacée · 26/08 · remplacée par `bouton-rangee-controles`
 ⚖️ **Le livre à gauche et le `?` à droite encadrent la rangée de boutons, à la même cote, hors du centrage.**
+
+> 🗄️ **ARCHIVÉE LE 2026-09-06 — LA NEUVE DIT TOUT CE QU'ELLE DIT, ET COMMENT.** §6 pré
+> *(`bouton-rangee-controles`, 04/09)* porte les mêmes trois faits — le livre à gauche, le `?`
+> à droite, hors du centrage — **plus la mécanique qui les tient** : trois colonnes, deux
+> bornes `--touch`, un groupe `1fr` qui se centre. ⭐ *Une règle qui dit QUOI sans dire
+> COMMENT se fait obéir de quatre façons différentes* — et c'est exactement ce qui est
+> arrivé : quatre réserves en rembourrage, écrites à quatre dates par quatre lots.
 📍 `budget-gabarit-b-non-negociable` · vivante · 27/08
 ⚖️ **Trois choses du gabarit B ne se négocient pas : la porte (44 de cible, T3), le `?` et le livre (22 dans 44), la fenêtre (elle défile, elle ne se tronque pas).**
 
@@ -3140,7 +3147,7 @@ garde sa forme quel que soit le lignage choisi**.
 ---
 
 ## 6 pré. 🔲 **LA RANGÉE DE CONTRÔLES — DEUX BORNES ET UN GROUPE** *(norme, 2026-09-04)*
-📍 `bouton-rangee-controles` · vivante · 04/09
+📍 `bouton-rangee-controles` · vivante · 04/09 · remplace `bouton-la-paire-encadre-la-rangee`
 ⚖️ **Une rangée de contrôles est TROIS COLONNES — deux bornes `--touch` et un groupe `1fr` — et c'est le GROUPE qui se centre, pas chaque bouton.**
 
 > Eric, après m'avoir vu échouer **trois fois de suite** : *« la règle est
@@ -3193,7 +3200,7 @@ plus large des deux — `Cancel` est passé de 171 à **120 blg**, libellé
 rogné, sans que rien ne déborde.)*
 
 ### ⛔ LA RÉSERVE EN REMBOURRAGE EST INTERDITE — les quatre écrivains
-📍 `bouton-reserve-en-rembourrage-est-interdite` · vivante · 04/09
+📍 `bouton-reserve-en-rembourrage-est-interdite` · vivante · 04/09 · borne `bouton-reserve-symetrique`
 ⚖️ **Une borne a une COLONNE, ⛔ jamais une réserve en rembourrage : une colonne existe même vide, tenue par le gabarit et non négociée par le contenu.**
 
 Une borne a une **colonne**, jamais une réserve. Une colonne existe même vide :
@@ -3870,7 +3877,16 @@ et l'item fautif) ; `renderGuideSpecifique` fait le reste. Gardes : `tests/budge
 
 ### ✅ `Cancel` N'EST **JAMAIS SEUL** DANS SA RANGÉE — tranché 26/08
 📍 `bouton-i-changed-my-mind-jamais-seul` · vivante · 26/08
-⚖️ **`I changed my mind` n'est jamais seul dans sa rangée : `Next` si l'étape est réglée, `Done` sinon.**
+⚖️ **`Cancel` n'est jamais seul dans sa rangée : `Next` si l'étape est réglée, `Done` sinon.**
+
+> ✍️ **LE MOT A CHANGÉ LE 05/09, PAS LA LOI — réécrit en place le 2026-09-06.** La phrase
+> disait encore `I changed my mind`, un libellé retiré du produit
+> *(`bouton-deux-mots-retour-et-couleur-se-deduit-mot` : « deux mots, pas trois »)*, alors que
+> le TITRE de cette section portait déjà `Cancel`. ⚠️ C'est le point aveugle que
+> `tests/corpus-ancres.test.mjs` nomme lui-même : *une section peut être périmée à
+> l'intérieur d'elle-même, le titre portant la décision neuve et le corps gardant le mot
+> mort.* ⛔ Aucun lien de supersession n'est posé : la règle n'est pas remplacée, c'est son
+> vocabulaire qui a suivi.
 
 > Eric, 2026-08-26, capture d'Identity à l'appui : **« la bonne chose à faire, toujours un Next à
 > côté de Cancel »**.
@@ -3939,7 +3955,13 @@ confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 📍 `bouton-done-signe` · vivante · 26/08
 ⚖️ **`Done` signe ce qui est là, puis remonte d'un cran.**
 📍 `bouton-trois-verbes` · vivante · 26/08
-⚖️ **Trois familles, trois verbes, aucun recouvrement : `Back`/`Next` NAVIGUENT (bleu), `Done` VALIDE (vert), `Cancel`/`I changed my mind` DÉFAIT (rouge + popup).**
+⚖️ **Trois familles, trois verbes, aucun recouvrement : `Back`/`Next` NAVIGUENT (bleu), `Done` VALIDE (vert), `Cancel` DÉFAIT (rouge + popup).**
+
+> ✍️ **CORRIGÉ EN PLACE LE 2026-09-06 — le mot a changé, les trois verbes n'ont pas bougé.**
+> La phrase citait encore `I changed my mind` en quatrième libellé ; il a été retiré du
+> produit le 05/09 *(`bouton-deux-mots-retour-et-couleur-se-deduit-mot` : « deux mots, pas
+> trois »)*. ⛔ Une phrase normative qui NOMME un organe retiré envoie un lot chercher ce qui
+> n'est plus là — et celle-ci est la table de référence des couleurs.
 
 > Eric, 2026-08-26 : *« back et next = **navigation** uniquement »* · **« done = validation »**.
 
@@ -5234,8 +5256,16 @@ rendre faux un texte qu'on n'a pas touché** : la phrase ne parlait pas d'elle-m
 ### ✅ LA RÉSERVE EST SYMÉTRIQUE, ET C'EST CE QUI CENTRE LES BOUTONS *(26/08, second temps)*
 📍 `aide-cycle-de-vie` · vivante · 26/08
 ⚖️ **Le `?` apparaît de base, propose systématiquement d'être désactivé totalement, un `ok` le fait partir pour cette fois, il revient à chaque nouveau personnage sauf désactivation, et la réactivation est toujours possible.**
-📍 `bouton-reserve-symetrique` · vivante · 26/08
+📍 `bouton-reserve-symetrique` · vivante · 26/08 · bornée par `bouton-reserve-en-rembourrage-est-interdite`
 ⚖️ **La rangée réserve `--touch` de chaque côté et se centre sur ce qui reste : c'est l'arithmétique, pas un arbitrage.**
+
+> 🔗 **BORNÉE, PAS REMPLACÉE — 2026-09-06.** Ce qu'elle dit reste vrai : la réserve est
+> symétrique, et c'est la symétrie qui centre. ⛔ Ce qu'elle ne dit PAS, c'est **par quoi**
+> réserver — et lue au pied de la lettre elle a produit **quatre réserves en `padding`**,
+> retirées le 04/09. `bouton-reserve-en-rembourrage-est-interdite` la borne : la réserve est
+> une **colonne**, jamais un rembourrage.
+> ⭐ *Une borne ne tue pas : cette règle vaut encore partout, elle a seulement cessé de
+> laisser le choix de la méthode.*
 📍 `livre-peut-exister-sans-etre-cable` · vivante · 26/08
 ⚖️ **Le livre peut exister sans être câblé — exception nommée, et seulement pendant la construction.**
 📍 `livre-rangee-encore-vide` · à trancher · 26/08

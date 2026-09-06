@@ -293,7 +293,14 @@
 **L'écran ne liste que les vibrations À PORTÉE, et le Score projeté ajoute l'impact d'une carte pas encore actée — celle-là seulement.**
 ### Les deux pieds propres refusent la paire de la coquille
 📍 `destiny-pieds-propres` · déployée, hors corpus · ?
-⚖️ **Les deux écrans qui portent leur propre rangée — `Draw`/`Choose` et `I changed my mind`/`Next` — déclarent qu'ils n'ont pas de sortie, pour que la coquille n'en pose pas une seconde.**
+⚖️ **Les deux écrans qui portent leur propre rangée — `Draw`/`Choose` et `Cancel`/`Next` — déclarent qu'ils n'ont pas de sortie, pour que la coquille n'en pose pas une seconde.**
+
+> ✍️ **CORRIGÉ EN PLACE LE 2026-09-06** : `I changed my mind` a été retiré du produit le 05/09
+> *(`bouton-deux-mots-retour-et-couleur-se-deduit-mot`)*, et cette phrase le nommait encore.
+> ⚠️ **Le corps sous cette adresse le nommait aussi, et il n'a pas été corrigé** — il décrit
+> ce que `destiny-step.mjs` fait, et cette règle est `déployée, hors corpus` : elle relate le
+> code, elle ne le commande pas. ⛔ Corriger la description d'un code sans regarder le code
+> ferait mentir le relevé. C'est un lot d'écran, pas une correction de corpus.
 
 > ⚠️ **Aucune citation d'Eric, aucune date** — cette règle ne vivait que dans un commentaire
 > de `destiny-step.mjs`, relevé par le tirage du 02/09.
