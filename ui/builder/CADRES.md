@@ -76,10 +76,15 @@
 
 ## 0 bis. TROIS DÉCISIONS D'ERIC, 2026-08-16 (après mesure)
 📍 `cadre-prediction-fausse-du-16-08` · remplacée · 16/08
+⚖️ **Le départ de `Validate` ne rend pas ses 76 px : le budget de F2 est inchangé et le cas qui débordait déborderait encore.**
 📍 `cadre-pied-76` · vivante · 16/08
+⚖️ **Le pied fait 76 blg de haut, et cette cote ne bouge pas tant que la paire tient sur UNE ligne.**
 📍 `cadre-telephone-couche-hors-cible` · vivante · 16/08
+⚖️ **Le téléphone COUCHÉ n'est pas une cible ; l'iPad couché en reste une.**
 📍 `cadre-validate-disparu` · vivante · 16/08
+⚖️ **`Validate` a disparu partout, remplacé par la paire `BACK` / `DONE` produite une seule fois par la coquille.**
 📍 `cadre-plafond-en-secours` · à trancher · 16/08
+⚖️ **Un plafond sur la carte n'est légitime qu'en secours : il ne mord que quand la carte allait déborder.**
 
 1. ✅ **`Validate` A DISPARU PARTOUT** — décidé le 16/08, **fait le 16/08**
    (lot 80, §5.1). Ce n'était pas un réglage : c'est la barre qui pesait
@@ -150,6 +155,7 @@
 
 ## 0. LA CONSTANTE, ET ELLE EST AU-DESSUS DE TOUT
 📍 `cadre-belt-toujours-visible` · vivante · 16/08 · bornée par `budget-entree-r-sans-ceinture` · bornée par `cadre-seuil-est-un-fs`
+⚖️ **La ceinture n'est jamais couverte par aucun cadre : elle n'est pas un cadre, c'est la coquille, et un cadre commence sous elle.**
 
 > *« BELT IS ALWAYS VISIBLE »* — première ligne du croquis.
 
@@ -172,6 +178,7 @@ deux rangs, sa cote déduite, le chevron et son bout de course, les deux bouts
 
 ## 1. LES DEUX FAMILLES
 📍 `cadre-rail` · vivante · 30/08
+⚖️ **Le menu latéral vaut 90 blg partout, et n'existe que là où il y a une liste à suivre.**
 
 | | le menu latéral | largeur du contenu |
 |---|---|---|
@@ -188,7 +195,9 @@ espèces, les 22 arcanes).
 
 ## 2. ✅ LE MODÈLE RATIFIÉ — Eric, 2026-08-19
 📍 `cadre-fs-sortie-nommee` · vivante · 19/08
+⚖️ **Un plein écran (FS) DOIT porter une sortie nommée.**
 📍 `cadre-trois-ecrans` · vivante · 19/08
+⚖️ **Il y a trois écrans — F, FF, FS — et seul l'écran porte la lettre.**
 
 > ⛔ **CE QUI SUIT REMPLACE LA GRILLE À DEUX CHIFFRES.** Elle collait une
 > propriété d'ÉCRAN (le rail) à une propriété de DALLE (la hauteur) en une
@@ -198,8 +207,11 @@ espèces, les 22 arcanes).
 
 ### Deux niveaux, deux mots
 📍 `cadre-measure-unique` · vivante · 19/08
+⚖️ **`--measure` vaut 62ch, c'est un plafond et il n'y en a qu'un.**
 📍 `cadre-saignante` · vivante · 19/08
+⚖️ **`saignante` est la seule marque : une dalle finit par un filet débordant de −16 pour dire qu'une autre suit — jamais la dernière dalle d'un écran.**
 📍 `cadre-trois-objets` · vivante · 19/08
+⚖️ **Il y a trois objets — carte, dalle, tuile — et aucun ne porte jamais de lettre.**
 
 **L'ÉCRAN — il y en a trois. Lui seul porte la lettre.**
 
@@ -249,6 +261,7 @@ shell.mjs) ; un objet écrit `data-objet="carte|dalle|tuile"` et, s'il saigne,
 
 ### La traduction de l'ancien vocabulaire
 📍 `cadre-traduction-ancien-vocabulaire` · vivante · 19/08
+⚖️ **F1/FF1 = carte · F2/FF2 = dalle · F3/FF3 = dalle saignante · l'ancien FS (l'îlot) = tuile · FS = plein écran (sens neuf).**
 
 | avant | après |
 |---|---|
@@ -271,6 +284,7 @@ shell.mjs) ; un objet écrit `data-objet="carte|dalle|tuile"` et, s'il saigne,
 
 ## 2 quinquies. LE « ? » — en haut à DROITE de la dalle
 📍 `cadre-question-en-haut-a-droite` · vivante · 19/08
+⚖️ **Le `?` est sur la dalle, tout à droite, au même niveau que le titre.**
 
 Eric, 2026-08-19, après l'avoir vu à gauche : *« le ? est sur la dalle tout à
 droite au même niveau que le titre »*.
@@ -285,7 +299,9 @@ justement le texte que ce bouton sert à rouvrir.
 
 ## 2 bis. LES COTES, EN CHIFFRES
 📍 `cadre-marges-quatre-cotes` · vivante · 16/08
+⚖️ **Les marges sont sur les quatre côtés, systématiquement, avec un seul jeton pour tout le vocabulaire.**
 📍 `cadre-trois-largeurs` · vivante · 30/08
+⚖️ **Trois largeurs max cohabitent : carte 625, panneau 625, grille 605 — leur nature diffère (carte, contrôles, grille).**
 
 Les marges sont sur **les quatre côtés**, systématiquement, et c'est **un seul
 jeton pour tout le vocabulaire** — elles ne font donc pas partie du barème.
@@ -299,6 +315,7 @@ jeton pour tout le vocabulaire** — elles ne font donc pas partie du barème.
 
 ### ⚖️ UNE SEULE COLONNE DEPUIS LE 2026-08-30 — *le renversement, et sa raison*
 📍 `cadre-une-seule-colonne` · remplacée · 30/08
+⚖️ **La table des cotes n'a plus qu'une colonne : les mêmes valeurs à tous les crans, en blg.**
 
 La table en avait **deux** : « étroit » et « grand écran », où la même carte valait 625 puis 766,
 le panneau 625 puis 887. C'était la grandeur Large du lot 69, et elle est **supprimée**.
@@ -318,7 +335,9 @@ blg ne change jamais ; c'est le pixel qui bouge sous lui.
 
 ### 🔴 LA COTE EST EN PIXELS, LE `ch` N'EST PLUS QUE SA RAISON *(29/08)*
 📍 `cadre-cote-en-px-le-ch-est-la-raison` · vivante · 29/08
+⚖️ **Une cote de CADRE se fige en pixels ; le `ch` ne reste légitime que pour borner de la prose.**
 📍 `ecriture-mesure-de-prose` · vivante · 29/08
+⚖️ **Le `ch` reste légitime pour borner de la prose, jamais une boîte dont dépendent d'autres cotes.**
 
 Ces largeurs ont vécu en `ch` jusqu'à ce jour, et **c'était un défaut invisible d'ici**.
 
@@ -344,6 +363,7 @@ nature est sa largeur.
 
 ### 🔴 LA LARGEUR N'EST PAS UNE PROPRIÉTÉ DU FORMAT — question d'Eric, 2026-08-16
 📍 `cadre-largeur-n-est-pas-une-propriete-du-format` · vivante · 16/08
+⚖️ **Le format ne dit pas la largeur : deux écrans du même format peuvent en avoir des différentes.**
 
 > *« C'est normalement la caractéristique d'une FF2, non ? »*, en demandant de
 > plafonner deux dalles à `--measure`.
@@ -378,8 +398,11 @@ cote.
 
 ## 3. LA CARTE — *la fiche* · species et classes  ⟨ex-F1⟩
 📍 `cadre-carte-hauteur-imposee` · vivante · 15/08
+⚖️ **Une carte a une hauteur IMPOSÉE : `--fiche-h` = 440.**
 📍 `cadre-carte-largeur` · vivante · 16/08
+⚖️ **La largeur d'une carte a un plancher calculé de 242 et un plafond `--measure`.**
 📍 `geste-defilement-aimante` · vivante · 15/08
+⚖️ **Le défilement aimanté n'est honnête que parce qu'une fiche fait un écran.**
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -408,6 +431,7 @@ cote.
 
 ### 📏 CE QUE LA COTE IMPOSÉE ACHÈTE VRAIMENT — mesuré le 2026-08-16
 📍 `cadre-carte-achete-la-regularite` · vivante · 16/08
+⚖️ **La hauteur imposée de la carte n'achète pas de la hauteur, elle achète de la RÉGULARITÉ.**
 
 Eric : *« imposer la hauteur dans mes cartes species ne changerait rien sur
 tous les mobiles, car les organes du dressage sont limitants — donc elle
@@ -440,6 +464,7 @@ ouvert) et Destiny en mode choix — autrement dit **tout ce qui porte le menu**
 
 ## 3 bis. QUI PORTE LE MENU LATÉRAL — la seule chose qui sépare F de FF
 📍 `cadre-qui-porte-le-rail` · vivante · 16/08
+⚖️ **Portent le menu (F) : Species, Class, le don d'origine panneau ouvert, Destiny en mode choix. Tout le reste est FF.**
 
 Relevé dans `catalogueCourant` (shell.mjs) le 2026-08-16, **écran par écran** :
 
@@ -458,7 +483,9 @@ latérale »*), et le code lui donne raison.
 
 ## 4. LA DALLE DANS UN ÉCRAN F — les cotes mesurées  ⟨ex-F2⟩
 📍 `cadre-dalle-hauteur-libre` · vivante · 19/08
+⚖️ **Une dalle a la hauteur de son contenu ; sa largeur est plafonnée par `--measure`.**
 📍 `cadre-f2-place-reservee` · vivante · 16/08
+⚖️ **La dalle dans un écran F (ex-F2) n'a aucun utilisateur et rien ne l'implémente : c'est une place réservée.**
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -484,6 +511,7 @@ latérale »*), et le code lui donne raison.
 
 ### ⭐ CE QUE TOUTE FENÊTRE FLOTTANTE PROMET — Eric, 2026-08-16
 📍 `cadre-promesse-de-l-air` · à trancher · 16/08
+⚖️ **Toute fenêtre flottante promet de l'AIR en haut et en bas — c'est un plafond qu'il lui faut, jamais une hauteur imposée.**
 
 *(écrit à propos de F2, vrai de tout cadre centré à marges : 1, 2 ou 3)*
 
@@ -532,6 +560,7 @@ des complications payées au lot 79.
 
 ## 5. LA CARTE DANS UN ÉCRAN FF — les cotes mesurées  ⟨ex-FF1⟩
 📍 `cadre-destiny-menu-en-mode-choix` · à trancher · 16/08
+⚖️ **Destiny n'a de menu qu'en mode choix ; le mettre en FF reviendrait à retirer le menu du mode qui en a le plus besoin.**
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -593,9 +622,13 @@ presque tout le builder. Mesuré : 271 px pour un champ de 493.
 
 ## 7. LA TUILE — *l'îlot* · le petit format répété  ⟨ex-FS⟩
 📍 `cadre-tuile-ecart-4` · vivante · 16/08
+⚖️ **L'écart entre tuiles est de 4, et c'est l'arithmétique de 360 qui l'impose.**
 📍 `cadre-tuile-n-a-que-des-marges` · vivante · 19/08
+⚖️ **Une tuile n'a ni largeur ni hauteur écrite : seulement un nombre de colonnes, un écart et une forme.**
 📍 `cadre-tuile-taille-du-de-deduite` · vivante · 16/08
+⚖️ **La taille du dé est écrite (le moteur 3D veut des pixels) mais elle se déduit de la largeur mesurée d'un îlot, jamais d'une constante.**
 📍 `geste-une-rangee-de-tuiles-est-une-cible-unique` · vivante · 16/08
+⚖️ **Une rangée de tuiles peut être une seule zone d'accueil plutôt que six cibles.**
 
 > Nommé par Eric le 2026-08-16, en construisant le plateau des
 > caractéristiques : *« six caracs qui flottent au-dessus du background, avec
@@ -637,6 +670,7 @@ donc ni les marges ni les hauteurs des F/FF : il n'a qu'un **écart** et un
 
 ## 8. L'HABILLAGE — `D-<format>-<variante>-<plateforme>`
 📍 `cadre-habillage-d` · vivante · 16/08
+⚖️ **L'habillage se nomme `D-<format>-<variante>-<plateforme>` : le cadre dit la BOÎTE, l'habillage dit ce qu'il y a dedans.**
 
 > Eric, 16/08 : *« c'est comment on organise les boîtes de texte dans une
 > fenêtre, et aussi son background »*.
@@ -656,7 +690,9 @@ justement pour qu'elles puissent cesser de l'être sans rien renommer.
 
 ### 📏 LA BOÎTE DONNE-T-ELLE LE CONTRÔLE ? OUI — MAIS PAS PAR LA PROPORTION
 📍 `cadre-boite-achete-une-cote-reservee` · vivante · 16/08
+⚖️ **Une boîte n'achète pas une proportion, elle achète une COTE RÉSERVÉE.**
 📍 `ecriture-corps-de-lecture-ne-se-met-pas-a-l-echelle` · vivante · 16/08 · bornée par `budget-carte-r-est-un-dessin`
+⚖️ **Un corps de texte est une taille de LECTURE : il vaut 16 sur les deux écrans, il ne se met pas à l'échelle avec sa dalle.**
 
 Eric, 2026-08-16 : *« si on met le texte et les images dans des boîtes, a-t-on
 un meilleur contrôle du rendu ? La même boîte texte 1 des classes fait-elle la
@@ -695,6 +731,7 @@ devant un décor »). **C'est l'image qui cède, jamais le texte.**
 
 ### 🔍 REPRIS AXE PAR AXE, À LA DEMANDE D'ERIC — et sa lecture trouve ce que la mienne ratait
 📍 `cadre-forme-non-gardee` · à trancher · 16/08
+⚖️ **La continuité de FORME entre écrans n'est tenue par aucune règle : si elle doit l'être, il faut l'écrire.**
 
 Le même relevé, en rapports **par axe** et en **forme** (hauteur ÷ largeur) :
 
@@ -733,6 +770,7 @@ rapport d'échelle.
 
 ### Le fond, et ce sont les valeurs QUI EXISTENT DÉJÀ
 📍 `cadre-encre-sur-verre` · vivante · ?
+⚖️ **Sur du verre, seule l'encre `--text` tient les 4,5:1 — un habillage qui passe en verre ne peut pas garder son texte gris.**
 
 | habillage | jeton | ce que c'est |
 |---|---|---|
@@ -750,8 +788,11 @@ pas garder son texte gris.
 
 ## 8 bis. 🔴 FAIRE PASSER LE FOND ENTRE DEUX DALLES — `data-bleed`
 📍 `cadre-bleed-garde-les-gouttieres` · vivante · 16/08
+⚖️ **L'effacement de la carte ne retire pas ses 8 px de marge : c'est la SURFACE qui disparaît.**
 📍 `cadre-data-bleed` · vivante · 16/08
+⚖️ **`data-bleed` efface la carte pour faire passer le fond entre deux dalles.**
 📍 `cadre-data-bleed-porte-aussi-la-hauteur` · vivante · 16/08
+⚖️ **`data-bleed` porte aussi `height: 100%`, et ce n'est pas toujours souhaitable : un écran à hauteur de contenu ne doit pas la recevoir.**
 
 > Eric, 2026-08-16, après m'avoir vu échouer deux fois : *« démerde-toi comme
 > tu veux mais je veux voir du background entre ces deux dalles — ça a déjà
@@ -802,6 +843,7 @@ systématiquement).
 
 ## 9. CE QUE CE FICHIER N'EST PAS
 📍 `socle-la-source-cite-elle-ne-s-invente-pas` · vivante · ?
+⚖️ **Une cote se change dans `tokens.css` ou `fiche.css`, et se RECOPIE ici avec sa date.**
 
 ⛔ Il ne remplace pas `SOCLE.md` (qui possède quoi, les trois verbes, ce qui
 survit à un redessin) : celui-là dit le MÉCANISME, celui-ci dit les FORMATS.

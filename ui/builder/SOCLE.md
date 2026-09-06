@@ -65,7 +65,9 @@
 
 ## La règle de rendu tranchée : **B**
 📍 `socle-fiche-vs-stage` · vivante · ?
+⚖️ **`fiche` = la feuille de personnage · `stage` = la surface qui défile.**
 📍 `socle-regle-de-rendu-b` · vivante · ?
+⚖️ **La règle de rendu est **B** : le cadre est construit une fois et jamais remplacé, on y écrit des attributs, jamais des nœuds.**
 
 `ERGONOMIE-BUILDER.md` §RENDU laissait trois issues à `app.innerHTML = ""` :
 **A** mémoriser/restaurer le défilement · **B** ne redessiner que ce qui
@@ -94,6 +96,7 @@ ne réclame aujourd'hui.
 
 ## Qui possède quoi
 📍 `socle-qui-possede-quoi` · vivante · ?
+⚖️ **Chaque état a un seul propriétaire et un seul écrivain.**
 
 | L'état | Où il vit | Qui l'écrit |
 |---|---|---|
@@ -268,6 +271,7 @@ noté ici est le **fait**, pour qu'il ne se redécouvre pas une troisième fois.
 
 ## Les trois verbes, et rien d'autre
 📍 `socle-trois-verbes-du-rendu` · vivante · ?
+⚖️ **Trois verbes, et rien d'autre : `refresh()` (le défilement survit), `openSurface()` (il repart en haut, délibérément), et rien du tout quand on défile.**
 
 | Verbe | Quand | Ce qu'il fait au défilement |
 |---|---|---|
@@ -281,6 +285,7 @@ rappelle le spy. Le spy **écrit `state`, touche un attribut, et s'arrête là.*
 
 ## Ce qui ne se redessine JAMAIS
 📍 `socle-ce-qui-ne-se-redessine-jamais` · vivante · ?
+⚖️ **Cinq nœuds ne se redessinent jamais.**
 
 - `.belt` et ses dix crans — **les nœuds sont créés une fois**, seuls
   `data-status` / `aria-current` changent ;
@@ -293,6 +298,7 @@ rappelle le spy. Le spy **écrit `state`, touche un attribut, et s'arrête là.*
 
 ## Ce qui doit survivre à une mise à jour
 📍 `socle-cinq-choses-qui-survivent` · vivante · ?
+⚖️ **Cinq choses survivent à une mise à jour, et chacune est logée quelque part.**
 
 Les cinq de `ERGONOMIE-BUILDER.md` §RENDU, et où chacune est logée :
 
@@ -306,10 +312,15 @@ Les cinq de `ERGONOMIE-BUILDER.md` §RENDU, et où chacune est logée :
 
 ## Les quatre fonctions du socle
 📍 `socle-chevrons-machine-a-etats` · vivante · ?
+⚖️ **`mountChevrons` porte la vérité « ça défile » : pas de mou → tout s'éteint ; un bout de course → la direction s'éteint ; la souris posée ou le focus clavier retiennent le minuteur.**
 📍 `socle-keepinview-remplace-scrollintoview` · vivante · ?
+⚖️ **`keepInView` remplace `scrollIntoView`, qui déplaçait la page entière ; un garde interdit `scrollIntoView` dans `ui/`.**
 📍 `socle-quatre-fonctions` · vivante · ?
+⚖️ **`socle.mjs` porte quatre fonctions, et le fichier doit rester lisible d'un coup d'œil.**
 📍 `socle-rien-sans-un-ecran-qui-en-a-besoin` · vivante · ?
+⚖️ **On n'ajoute rien au socle sans un écran qui en a besoin AUJOURD'HUI.**
 📍 `socle-un-seul-ecrivain-par-brique` · vivante · ?
+⚖️ **`swapContent` est le SEUL endroit du dépôt qui remplace le contenu d'un nœud : une brique, un écrivain, un garde.**
 
 `socle.mjs` — et le fichier doit rester lisible d'un coup d'œil.
 
@@ -343,7 +354,9 @@ avant qu'un seul écran fonctionne.
 
 ## L'échelle — un organe hors socle, mais qui obéit à sa loi
 📍 `socle-echelle-hors-socle` · vivante · ?
+⚖️ **`echelle.mjs` pose deux attributs sur `<html>` et aucun nœud : changer de taille ne redessine rien.**
 📍 `socle-resize-avant-refresh` · vivante · ?
+⚖️ **Au redimensionnement, l'échelle se repose AVANT `refresh()` — et c'est toujours `refresh()`, jamais `openSurface()`.**
 
 `echelle.mjs` (lot 85) pose **deux attributs sur `<html>`** — `--echelle` et
 `data-grandeur` — et **aucun nœud**. C'est la règle du cadre appliquée telle
@@ -360,9 +373,13 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 
 ## Le contrat d'un écran
 📍 `socle-contrat-d-un-ecran` · vivante · 39/42
+⚖️ **Un module d'écran exporte une fonction qui rend un nœud et ne connaît ni la coquille ni les verbes du moteur.**
 📍 `socle-data-snap` · vivante · ?
+⚖️ **`data-snap` sur les fiches d'un défilement aimanté est le seul contrat entre un écran et le spy.**
 📍 `socle-paliers` · vivante · ?
+⚖️ **Un écran peut exporter un descripteur de paliers `{ label, ready, commit }` ; celui qui n'en exporte pas a UN palier par défaut : avancer.**
 📍 `socle-rail-vertical-seulement` · à trancher · ?
+⚖️ **Le rail existe dans sa forme VERTICALE ; la forme horizontale (la molette de catégories de Compétences) n'est pas construite.**
 
 Un module d'écran exporte une fonction qui **rend un nœud** et ne connaît
 ni la coquille ni les verbes du moteur (loi des lots 39/42, inchangée).
@@ -383,6 +400,7 @@ Ce que le lot 58 ajoute, et **seulement pour les écrans qui en ont besoin** :
 
 ## 📖 LA LOI DES BIBLES — un lot qui change quelque chose demande AVANT de rendre
 📍 `socle-une-bible-se-demande-avant-de-rendre` · vivante · 06/09
+⚖️ **Tout lot qui change quelque chose se demande, AVANT de rendre : « est-ce qu'une Bible doit être éditée ? » — et il RÉPOND dans son rapport, même si la réponse est non.**
 
 > Eric, 2026-09-06 : *« et **dès qu'on change des choses, on se pose la question d'éditer une
 > Bible**. »*
