@@ -269,6 +269,7 @@ débordant de **−16 px** (`--saignee-debord`), pour dire qu'une autre suit.
 
 ### Comment ça se lit, et comment ça s'écrit
 📍 `cadre-comment-ca-se-lit-et-comment-ca-s-ecrit` · vivante · 19/08
+⚖️ **L'écran écrit `data-ecran="F|FF|FS"` et un objet écrit `data-objet="carte|dalle|tuile"` — ⛔ aucun objet n'écrit de lettre.**
 
 > L'écran **Species** est un **F**. Il porte des **cartes**.
 > L'écran **Identity** est un **FF**. Il porte trois **dalles**, dont la
@@ -292,6 +293,7 @@ shell.mjs) ; un objet écrit `data-objet="carte|dalle|tuile"` et, s'il saigne,
 
 ### 🔴 Les trois défauts qui ont tué la grille, tous le même jour
 📍 `cadre-trois-defauts-qui-ont-tue-grille-tous-meme-jour` · vivante · 19/08
+⚖️ **Une dalle ne peut pas connaître le rail : la question n'est jamais *quel format*, mais *où l'objet vit*.**
 
 1. **Le chapeau de chapitre déclarait `FF3` sur les huit chapitres et était un
    `F3` sur quatre.** Une dalle ne peut pas connaître le rail.
@@ -545,6 +547,7 @@ plafond doit compter ce que la carte NE VOIT PAS.
 
 ### 📏 LA PROMESSE, MESURÉE LE 2026-08-16 (Concept et Universe)
 📍 `cadre-promesse-mesuree-2026-08-16` · vivante · 16/08
+⚖️ **Le budget d'une carte qui garde son air n'est pas le champ, c'est `champ − 76 − 16` : la sortie d'étape partage le même champ.**
 
 | écran | champ | Concept | Universe | ressemble à une carte ? |
 |---|---|---|---|---|
@@ -605,6 +608,7 @@ menu **du mode qui en a le plus besoin**. À trancher avant de le faire.
 
 ## 6. LA DALLE DANS UN ÉCRAN FF — Skills, et presque tout le reste  ⟨ex-FF2⟩
 📍 `cadre-dalle-dans-ecran-ff` · vivante · ?
+⚖️ **Une dalle d'écran FF est en pleine largeur `--grid-w` et sa hauteur est celle de son CONTENU — c'est un 2, comme tout ce qui n'est pas une fiche.**
 
 ```
  ┌───────────────────────────────────────────────┐
@@ -634,6 +638,7 @@ qui lui est propre.
 
 ## 6 bis. ✅ IDENTITY EST UN ÉCRAN FF QUI PORTE DES DALLES
 📍 `cadre-identity-est-ecran-ff-qui-porte-dalles` · vivante · 16/08
+⚖️ **Identity est un écran FF2 qui porte des dalles : aucun menu latéral, et sa hauteur est celle de son contenu.**
 
 La question posée hier (*« FF2 ou FF3 ? »*) est tombée avec F3. Concept n'a
 aucun menu latéral et sa hauteur est celle de son contenu : **FF2**, comme

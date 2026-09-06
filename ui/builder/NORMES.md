@@ -154,6 +154,7 @@
 
 ### 🔴 AMENDEMENT DU 2026-09-02 — **LE BUILDER EST UN PARTAGE DE L'ÉCRAN**
 📍 `panneau-amendement-2026-09-02` · vivante · 02/09
+⚖️ **La taille du panneau se déduit du PARTAGE de la fenêtre — sept crans, une part par cran — jamais d'une taille d'écran.**
 
 > **« Concept. Builder plein écran sur mobile. […] Etc… »**
 > **« Donc largeur plutôt basée sur la largeur, et un plancher à la hauteur ; si ça passe pas on
@@ -197,6 +198,7 @@ viewport le 02/09 ; le même garde la refait.
 
 ### ✅ LES DEUX BORNES DU CRAN DES TABLETTES — **mesurées, jamais choisies** *(ratifiées 02/09)*
 📍 `panneau-deux-bornes-cran-tablettes` · vivante · 02/09
+⚖️ **Le cran du demi est borné à `768` en bas et `1440` en haut, et les deux bornes sont MESURÉES : un appareil en sort parce qu'il ne passe pas, jamais parce qu'on l'a jugé.**
 
 > **« probablement un iPad mini va préférer un affichage mobile »** · **« du classique au Pro 13
 > pouces, le 1/2 passera »**
@@ -217,6 +219,7 @@ fait 1133, donc il est POSÉ sur le demi, puis sa hauteur de 744 le fait **saute
 
 ### 📏 COUCHÉE, LA GAMME iPAD SE COUPE EN DEUX — et c'est le saut de cran qui coupe
 📍 `panneau-couchee-gamme-ipad-se-coupe-en-deux` · vivante · ?
+⚖️ **Aucun appareil n'a de cas particulier : c'est le SAUT DE CRAN qui coupe la gamme des tablettes, et il se déduit du rapport `--panneau-h / --panneau-l`.**
 
 | appareil | couché | ratio | cran rendu | panneau | 2 panneaux |
 |---|---|---|---|---|---|
@@ -238,6 +241,7 @@ tient cette frontière dans les deux sens.
 
 ### Le mécanisme, en deux temps
 📍 `panneau-mecanisme-en-deux-temps` · vivante · 31/08
+⚖️ **La LARGEUR pose le cran, la HAUTEUR ne fait que descendre : quand la place ne porte pas la hauteur, on saute un cran en dessous, ⛔ on ne rabote jamais la largeur.**
 
 | | |
 |---|---|
@@ -250,6 +254,7 @@ tient cette frontière dans les deux sens.
 
 ### ⚖️ Le saut de cran a un témoin, et un seul
 📍 `panneau-saut-cran-a-temoin-et-seul` · vivante · 31/08
+⚖️ **Le saut de cran a un témoin unique — l'iPad Air couché, `1180 × 820` — et un garde prouve d'abord qu'il DÉBORDERAIT, puis qu'il descend, puis qu'il tient.**
 
 📏 **L'iPad Air couché, `1180 × 820`** : au demi il demande `590 × 881` pour 820 disponibles — **il
 déborde de 61**. Il saute un cran, retombe au tiers, et rend **`393 × 587`**, 72 % de la hauteur.
@@ -259,6 +264,7 @@ qu'il DÉBORDERAIT, puis qu'il descend, puis qu'il tient.
 
 ### 🧊 Ce que cet amendement renverse, et pourquoi
 📍 `panneau-ce-que-cet-amendement-renverse-et-pourquoi` · vivante · 31/08
+⚖️ **Au-dessus du plein écran l'échelle est DISCRÈTE — sept crans — et `min(L/375, H/560)` ne vaut plus qu'en plein écran et en vue double.**
 
 | renversé | remplacé par |
 |---|---|
@@ -390,9 +396,11 @@ leur manquait la déclaration qui le dit — `zoom: var(--echelle)` sur `.app`, 
 
 ⛔ ~~**« R1 » n'existe pas.** Cette faute a coûté un lot entier le 2026-08-23.~~
 📍 `vocabulaire-r1-n-existe-pas` · remplacée · 23/08 · remplacée par `vocabulaire-r-de-depart-r-d-arrivee`
+⚖️ **`R1` n'existe pas : `R` est un rang, et un chiffre derrière lui nommerait une page.**
 
 ### ⭐ LE `R` A DEUX TEMPS — **R de DÉPART et R d'ARRIVÉE** *(Eric, 2026-09-06)*
 📍 `vocabulaire-r-de-depart-r-d-arrivee` · vivante · 06/09 · remplace `vocabulaire-r1-n-existe-pas`
+⚖️ **Le `R` a deux temps — `R1` le R de DÉPART (le choix), `R2` le R d'ARRIVÉE (le bilan) — et le chiffre y nomme un TEMPS du rang, jamais une page.**
 
 > Eric, 2026-09-06 : *« j'ai changé la terminologie avec le R d'arrivée et de départ,
 > mais ça fait plus sens »* · *« je l'ai utilisé pour Abilities aussi »*.
@@ -727,6 +735,7 @@ boîte.
 
 ## 1 ter quinquies. 🔴 L'ÉCHELLE EST UN ESCALIER — **on descend TOUT le bloc, on ne sort jamais UNE valeur** *(dicté le 2026-09-03)*
 📍 `panneau-echelle-est-escalier` · vivante · 03/09
+⚖️ **Quand un seul endroit ne tient pas, c'est TOUT le bloc qui descend au barreau inférieur ; ⛔ jamais une valeur locale posée hors de l'échelle.**
 
 > **« Rajouter un cran à l'échelle si besoin, et toujours arrondir la GLOBALITÉ à l'inférieur,
 > si problème à un endroit. »**
@@ -744,6 +753,7 @@ local** : un écran dont tous les organes sont sur des barreaux se lit comme un 
 
 ### 🔴 Pourquoi la faute ne se voit QUE sur les grands écrans
 📍 `panneau-pourquoi-faute-ne-se-voit-que-sur-grands-ecrans` · vivante · ?
+⚖️ **Une valeur hors échelle n'est jamais « juste sur cet écran-là » : elle est fausse partout, et le cran ne fait que la rendre visible ailleurs.**
 
 Eric, en regardant les fiches du rang R : *« sur mon iPhone les caractères et les espaces sont
 homogènes ; par contre sur l'iPad et sur le desktop les caractères et les espaces sont incohérents,
@@ -761,6 +771,7 @@ jamais « juste sur cet écran-là » : elle est fausse partout, et seulement vi
 
 ### ⭐ Et la perte va presque toujours dans le BON sens
 📍 `panneau-et-perte-va-presque-toujours-dans-bon-sens` · vivante · 03/09
+⚖️ **Une taille de texte s'écrit `var(--t0..--t7)` ou un multiple ÉCRIT d'un barreau, un écart `var(--sp-*)` — ⛔ écrire le NOMBRE d'un barreau en littéral est la même faute que d'en écrire un faux.**
 
 La raison qui pousse à sortir de l'échelle est presque toujours *« ça ne rentre pas »*. Or **le
 barreau inférieur fait rentrer DAVANTAGE**, pas moins. Mesuré le 03/09 sur la carte du rang R : le
@@ -1144,6 +1155,7 @@ entière »)*. C'est **une contrainte à respecter le jour où ce chantier s'ouv
 la hauteur du **premier écran vu**, pas celle de l'écran entier. ⏳ Ce qui doit tenir **au-dessus
 de la ligne de flottaison** n'est pas tranché.
 📍 `budget-seuil-n-est-plus-une-contrainte-dure` · vivante · 26/08
+⚖️ **Le budget du Seuil (≈ 380 blg) borne le PREMIER ÉCRAN VU, plus l'écran entier.**
 
 ---
 
@@ -1157,6 +1169,7 @@ de la ligne de flottaison** n'est pas tranché.
 
 ### Les quatre du glisser *(validé 26/08 sur maquette)*
 📍 `jeton-quatre-glisser` · vivante · 26/08
+⚖️ **Les quatre organes du glisser se distinguent par leur REMPLISSAGE : zone de drop creuse · jeton teinté · bouton plein et opaque · collecteur creux à vide, habit du jeton une fois rempli.**
 
 | organe | forme | remplissage | voile |
 |---|---|---|---|
@@ -1182,6 +1195,7 @@ de la ligne de flottaison** n'est pas tranché.
 
 #### 🔴 « TOUT POSÉ » = **LE CHOIX EST FINI**, jamais « toutes les cases remplies » *(lot 123, 02/09)*
 📍 `collecteur-tout-pose-choix-est-fini-jamais-toutes-cases-remplies` · vivante · 02/09
+⚖️ **« Tout posé » se lit `answered === expected` — le choix est FINI — ⛔ jamais « toutes les cases sont remplies ».**
 
 > Eric, 02/09 : *« SB skill budget (elestu, elf…) : le liseré autour des collecteurs ne passe pas
 > de bleu à vert quand j'ai dépensé tout le budget. »*
@@ -1371,6 +1385,7 @@ ce qu'elle accepte avant qu'on lâche.
 
 ### Combien de modèles *(26/08)*
 📍 `jeton-combien-modeles` · vivante · 26/08
+⚖️ **Un seul modèle de jeton, un seul de collecteur, trois couleurs de bouton : la variété vit dans les BOUTONS.**
 
 **bouton = 3 couleurs · jeton = UN SEUL modèle · collecteur = UN SEUL modèle.**
 ⭐ La variété vit dans les **boutons**, pas dans les jetons.
@@ -1534,6 +1549,7 @@ c'est un jeton ordinaire dont le libellé est un nombre.
 
 ### 🔒 LA CATÉGORIE DES SACRÉS — trois lois, et elles ne se négocient dans aucun lot
 📍 `socle-categorie-sacres` · vivante · 04/09
+⚖️ **Un sacré ne cède pas quand un écran déborde : un lot qui ne fait pas tenir un écran retire du contenu ou descend tout le bloc d'un cran, ⛔ il ne rogne jamais un sacré.**
 
 > Eric, 2026-09-04 : *« Donc **ranger dans la catégorie des sacrés** si ce n'est pas le cas. »*
 
@@ -1553,6 +1569,7 @@ d'un cran** (§1 ter quinquies) ; il ne rogne pas un sacré.
 
 ### 🔒 SACRÉ N° 2 — **LE DUO EST DANS LA DERNIÈRE RANGÉE, UNE FOIS PAR ÉCRAN** *(04/09)*
 📍 `socle-sacre-n-2-duo-est-dans-derniere-rangee-fois-par-ecran` · vivante · 04/09
+⚖️ 🔒 **Le duo `?` + livre paraît UNE FOIS PAR ÉCRAN, dans la dernière rangée, cadré à gauche et à droite d'une cellule qui porte au moins un bouton, à 8 blg du bas de la dalle.**
 
 > *« Une seule fois **par écran**. **Pas par dalle**. »*
 > *« Le duo est toujours dans une **cellule contenant au moins un bouton**, à
@@ -1580,6 +1597,7 @@ rangée.
 
 #### ⏳ LE POINT OUVERT, ET IL EST MESURÉ — *« une fois par écran »* CONTRE LE CATALOGUE À RAIL
 📍 `socle-point-ouvert-et-il-est-mesure` · vivante · 03/09
+⚖️ **Un écran qui DÉFILE porte son duo sur une dalle flottante fixe du bas, ⛔ jamais sur sa dernière dalle — sinon il est hors de vue pour toutes les fiches sauf la dernière.**
 
 ⚠️ **DEUX PHRASES D'ERIC SE CROISENT ICI, ET IL FAUT LE DIRE PLUTÔT QUE DE
 CHOISIR À SA PLACE.**
@@ -1605,6 +1623,7 @@ de fiche (44 de rangée + 2 × 8) sur Species, Class et Destiny.
 
 ### 🔒 SACRÉ N° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(04/09)*
 📍 `socle-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
+⚖️ 🔒 **Tout ce qui vit sur une dalle est dans une BOÎTE, les boîtes sont sur une GRILLE, et elles sont à ≥ 8 blg de leurs voisines.**
 
 > *« Désormais tout ce qu'il y a sur une dalle est dans une boîte, qui est sur
 > une grille, espacée d'**au moins 8 blg** avec ses voisines. »* · *« Absolu aussi. »*
@@ -1684,6 +1703,7 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 
 ### 🔒 SACRÉ n° 2 — **LE DUO `?` + LIVRE VIT DANS LA DERNIÈRE RANGÉE** *(Eric, 2026-09-04)*
 📍 `livre-sacre-n-2-duo-livre-vit-dans-derniere-rangee` · vivante · 04/09
+⚖️ 🔒 **La dernière rangée est TOUJOURS EN BAS de la dalle, ses boutons majeurs cadrés au centre en un seul groupe, le duo `?` + livre cadré à gauche et à droite dans une cellule à 8 blg du bas.**
 
 > ⚠️ **CONSIGNÉE ICI PAR L'ARCHITECTE LE 2026-09-05, ET IL FAUT SAVOIR D'OÙ ELLE VIENT.**
 > Eric l'a ratifiée le 04/09 devant une session distante, qui l'a écrite **dans son
@@ -1723,6 +1743,7 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 
 ### 🔴 CE QUE CHAQUE BORNE **FAIT** — et ce n'est pas la même chose *(Eric, 2026-09-05)*
 📍 `socle-ce-que-chaque-borne-fait` · vivante · 05/09
+⚖️ **Le livre SORT du builder vers FH WEB, le `?` reste dans l'écran et ouvre le popup du guide : le livre parle du JEU, le `?` parle de l'ÉCRAN.**
 
 > *« le livre doit emmener vers le site FH WEB »* · *« le point d'interrogation est le
 > guide et fait un popup »*.
@@ -1767,6 +1788,7 @@ de FH WEB pour quel écran. Aucune ne se déduit du code.
 
 ### 🔴 ET S'IL Y A PLUSIEURS DALLES — **LA DERNIÈRE, OU UNE DALLE FLOTTANTE FIXE**
 📍 `cadre-et-s-il-y-a-plusieurs-dalles` · vivante · 05/09
+⚖️ **Un écran à plusieurs dalles pose son duo dans la DERNIÈRE dalle ou dans une dalle flottante fixe, et c'est le DÉFILEMENT qui tranche entre les deux — jamais une préférence.**
 
 > Eric, 2026-09-05, en réponse au seul cas que les cinq clauses ne tranchaient pas :
 > *« s'il y'a plusieurs dales, la dernière ou dans un dalle flottante fixe »*.
@@ -1819,6 +1841,7 @@ jour où le cas qui les sépare arrive.*
 
 ### 🔒 SACRÉ n° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(Eric, 2026-09-04)*
 📍 `cadre-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
+⚖️ 🔒 **Les boutons compris : c'est la GRILLE qui écrit l'écart de 8 blg, ⛔ jamais une marge posée organe par organe.**
 
 **Les boutons compris.** Les écarts valent **8 blg**, et c'est **la grille** qui les
 écrit — jamais une marge posée organe par organe.
@@ -2275,6 +2298,7 @@ ceux du bas où ils sont »*. 📏 **Mesuré : 78 px au départ, 184 à l'arriv�
 
 ### ⛔ Ce qui n'est PAS négociable dans ce gabarit
 📍 `budget-ce-qui-n-est-pas-negociable-dans-ce-gabarit` · vivante · 27/08
+⚖️ **Dans ce gabarit, la porte (cible 44, corps T3), le duo `?` + livre (22 de dessin dans 44 de cible) et le défilement de la fenêtre ne se négocient pas.**
 
 | | |
 |---|---|
@@ -2349,6 +2373,7 @@ PC d'un ami d'Eric.
 
 ### ✅ LES CORPS DE LA CARTE SONT SUR L'ÉCHELLE *(2026-09-03)*
 📍 `budget-corps-carte-sont-sur-echelle` · vivante · 03/09
+⚖️ **Les quatre corps de la carte du rang R sont sur l'échelle — `--t5` · `--t2` · `--t1` · `--t1` — et ses écarts en `--sp-8` / `--sp-4`.**
 
 Les quatre corps du portrait étaient écrits en pixels bruts — `18px` (le nombre de `--t5`),
 `13px`, `10,5px`, `11px` — et les cinq écarts en `8px`/`4px`. Ils valent désormais
@@ -2405,6 +2430,7 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 
 ## 4 quater bis. 📐 LE GABARIT DE L'ÉCRAN FINAL DE DESTINY *(figé au banc, 2026-09-03)*
 📍 `budget-gabarit-ecran-final-destiny` · vivante · 03/09
+⚖️ **Le gabarit de l'écran final de Destiny est FIGÉ : chaque nombre y est un relevé sur la page rendue à 375 × 500 blg, jamais une intention.**
 
 > Eric : **« tu mesures tout précisément »** · **« tu figes tout ça »** · **« tu as 7 blocs texte
 > et un bloc image, place-les et fige-les »**.
@@ -2413,6 +2439,7 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 
 ### 🔴 LE BUDGET, ET IL EST FERMÉ
 📍 `budget-et-il-est-ferme` · vivante · 31/08
+⚖️ **La scène vaut 500 blg — le panneau de 560 moins la ceinture de 60 — et c'est le budget d'un écran sur TOUS les appareils.**
 
     panneau      560 blg      (règle sacrée du 31/08)
     ceinture     − 60
@@ -2426,6 +2453,7 @@ appareils** — un iPad ne donne pas plus de blg, il les peint plus gros.
 
 ### 🔴 HUIT BLOCS, HUIT CASES NOMMÉES
 📍 `budget-huit-blocs-huit-cases-nommees` · vivante · ?
+⚖️ **Les huit blocs de l'écran final sont huit CASES NOMMÉES d'une grille : un bloc se déplace en changeant un mot du dessin, ⛔ jamais en compensant une marge par une autre.**
 
 ⛔ **CINQ BLOCS VIVAIENT DANS UN CONTENEUR**, et c'est ce qui rendait l'écran irréglable : un bloc
 enfermé ne peut pas être PLACÉ, il subit le flux de sa boîte. Une soirée entière s'est passée à
@@ -2446,6 +2474,7 @@ une marge par une autre.
 
 ### La colonne des postes — 475 sur 500
 📍 `budget-colonne-postes` · vivante · ?
+⚖️ **La colonne des postes de l'écran final se compte VOYANT COMPRIS — 4 + 10 + ~395 + 8 + 44 + 8 — et rend 463 des 500.**
 
 | | poste | blg |
 |---|---|---|
@@ -2462,6 +2491,7 @@ somme tombait à 492 au lieu de 500, et les 8 manquants ont été cherchés dans
 
 ### Les blocs, leur forme et leur cote
 📍 `budget-blocs-leur-forme-et-leur-cote` · vivante · ?
+⚖️ **Chaque bloc de l'écran final a une largeur et une hauteur figées, et l'image occupe une cellule étirée sur les six rangées autres que le titre.**
 
 | bloc | largeur | hauteur | forme |
 |---|---|---|---|
@@ -2477,6 +2507,7 @@ somme tombait à 492 au lieu de 500, et les 8 manquants ont été cherchés dans
 
 ### 🔴 CE QUE L'ÉCRAN NE MONTRE PAS, ET OÙ ÇA VIT
 📍 `budget-ce-que-ecran-ne-montre-pas-et-ou-ca-vit` · vivante · 03/09
+⚖️ **L'effet d'une vibration vit dans un POPUP et la règle entière de la carte vit dans le LIVRE : ce qui est en trop sur un écran se DÉPLACE, il ne se coupe pas.**
 
 > Eric, 2026-09-03 : *« les vibrations peuvent n'être que nommées »* · *« les vibrations = popup »*
 > · *« le livre mène aux règles dans FH Web »*.
@@ -2497,6 +2528,7 @@ toucher à un seul texte de règle.
 
 ### Les écarts — **8 partout**, un seul écrivain, aucune exception
 📍 `budget-ecarts-8-partout-seul-ecrivain-aucune-exception` · vivante · 03/09
+⚖️ **Les écarts de l'écran final valent 8 partout et le `gap` en est le seul écrivain — aucune exception à retenir.**
 
     titre=8   ability=8   impact=8   meaning=8   power=8   vibrations=8
 
@@ -2510,6 +2542,7 @@ exception à retenir.
 
 ### 🎨 L'encre porte la structure, depuis que les cadres sont invisibles
 📍 `ecriture-encre-porte-structure-depuis-que-cadres-sont` · vivante · 26/08
+⚖️ **Depuis que les cadres sont invisibles, c'est l'ENCRE qui porte la structure : ⛔ aucun bloc n'a de cadre ni de rembourrage, et ce qu'un croquis dessine en rectangle est une place réservée.**
 
 | | |
 |---|---|
@@ -2532,6 +2565,7 @@ porte.
 
 ### ⛔ TROIS PIÈGES PAYÉS CETTE NUIT, ET ILS SE RESSEMBLENT
 📍 `budget-trois-pieges-payes-cette-nuit-et-ils-se-ressemblent` · vivante · 97/79
+⚖️ **Une marge, un centrage ou une répartition qui compense un défaut disparu est le défaut suivant : il se retire avec sa cause.**
 
 1. **`align-self: center` RÉTRÉCIT la cellule** à son contenu : il ne reste alors rien à répartir,
    et le centrage ne déplace rien. Mesuré : cellule 235 pour une image de 235. La cellule doit
@@ -2545,6 +2579,7 @@ porte.
 
 ### ⏳ Ce qui n'est PAS figé
 📍 `budget-ce-qui-n-est-pas-fige` · vivante · 03/09
+⚖️ **Le pire cas du budget des 22 arcanes est BORNÉ — 3 vibrations, 5 lignes de bonus — et il se vérifie sur la page CAPTURÉE, ⛔ jamais sur un clone.**
 
 - **la hauteur de l'image** — elle a valu 42, 40, 38, 33 puis 42 % du panneau dans la même soirée ;
 - **le voyant** : il n'est pas sur le croquis d'Eric, gardé faute de décision ;
@@ -2586,6 +2621,7 @@ porte.
 
 ### ⚖️ L'EXCEPTION AU NON-DÉFILEMENT — la seule, et elle est bornée
 📍 `liste-exception-au-non-defilement` · vivante · 03/09
+⚖️ **L'unique exception au non-défilement est bornée aux deux fenêtres de prose de l'arcane, à quatre lignes exactement — parce que ce qui débordait était une règle du jeu, et rien n'est en trop dans une règle du jeu.**
 
 > Eric, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »* · *« si
 > c'est mécaniquement possible on passe à 4 lignes scrollable, on fait une exception à la règle du
@@ -2622,6 +2658,7 @@ première mise en page, l'observateur pour ce qui bouge après.
 
 ## 4 quater ter. 🗂️ LE CATALOGUE À RAIL — B2 de Destiny *(mesuré au banc, 2026-09-03)*
 📍 `cadre-catalogue-a-rail` · vivante · 03/09
+⚖️ **Le catalogue à rail de Destiny › B2 est mesuré au banc : chaque nombre y est un relevé sur la page rendue, jamais une intention.**
 
 > Eric, dans la nuit : *« juste une numérotation des arcanes à gauche »* · *« 8 tuiles tiennent
 > TOUJOURS dans un écran »* · *« la dalle s'arrête 8 blg sous les boutons, centrée verticalement »*
@@ -2631,6 +2668,7 @@ première mise en page, l'observateur pour ce qui bouge après.
 
 ### 🔴 LA FICHE **EST** L'ÉCRAN FINAL — un seul organe, deux rangs
 📍 `cadre-fiche-est-ecran-final` · vivante · ?
+⚖️ **La fiche du catalogue EST l'écran final rendu par un gabarit qui RETIRE — ⛔ jamais un second écran qui recopie.**
 
 ⛔ **IL N'Y A PAS DE SECONDE MISE EN PAGE.** La fiche du catalogue est
 `renderDestinyFinal({ gabarit: "apercu" })` : le MÊME rendu, à qui l'on **retire** le voyant, le
@@ -2642,6 +2680,7 @@ divergent la fois où l'on oublie — c'est ce que le garde du lot 60 interdit a
 
 ### 📐 LA CHAÎNE DES COTES — chaque maillon tombe de son voisin
 📍 `cadre-chaine-cotes` · vivante · ?
+⚖️ **Chaque cote du catalogue se DÉDUIT de sa voisine — tuile 64, rail 72, fiche 287, dézoom 0,765 — et c'est le mot le plus large qui commande la largeur, pas le nom.**
 
     tuile      64      Temperance (59), le mot le plus large des 22
     rail       72      8 de rembourrage + 64
@@ -2656,6 +2695,7 @@ plus de trois mots.
 
 ### 🧲 HUIT CRANS PAR ÉCRAN, PAR CONSTRUCTION
 📍 `cadre-huit-crans-par-ecran-par-construction` · vivante · ?
+⚖️ **Le cran d'aimantation se DÉRIVE de la piste — `(piste − 7 écarts) / 8` — et le rembourrage vaut l'écart ; une hauteur écrite ne tiendrait que par coïncidence.**
 
     piste = (panneau − ceinture) − rembourrage haut = 500 − 4 = 496
     cran  = (piste − 7 écarts) / 8                  = (496 − 28) / 8 = 58,5
@@ -2670,6 +2710,7 @@ si l'on s'immobilise déjà presque en place, et `center` coupe les DEUX extrém
 
 ### 🪟 LA DALLE — libre, et jamais tout l'écran
 📍 `cadre-dalle-libre-et-jamais-tout-ecran` · vivante · ?
+⚖️ **La dalle du catalogue a une hauteur `auto` — elle vaut son contenu et grandit vers le bas ; c'est la RANGÉE qui garde ses 500 et qui fait le cran.**
 
 | | |
 |---|---|
@@ -2684,6 +2725,7 @@ pas parce qu'on pousse le mou ailleurs. **Une hauteur qu'on n'écrit pas ne peut
 
 ### 🎛️ LA RANGÉE DE BOUTONS — quatre organes, une grille
 📍 `bouton-rangee-boutons` · vivante · ?
+⚖️ **Les quatre organes de la rangée ont chacun leur colonne (`--touch | 1fr | 1fr | --touch`) : deux organes dans une même cellule s'empilent, et ⛔ aucun ne se sort du flux.**
 
     grid-template-columns: --touch | 1fr | 1fr | --touch
     livre → 1     Choose → 2 (fin)     Cancel → 3 (début)     ? → 4
@@ -2703,6 +2745,7 @@ pas le même écart : il se comporte différemment dès qu'autre chose bouge.*
 
 ### 🎨 CE QUE LE RANG CHANGE, ET RIEN D'AUTRE
 📍 `cadre-ce-que-rang-change-et-rien-autre` · vivante · ?
+⚖️ **Le RANG décide de ce que l'écran montre et d'où mène son retour ; ⛔ aucun état n'est retenu — un rang se lit, il ne se mémorise pas.**
 
 | | B2 (l'aperçu) | SB2 (l'écran final) |
 |---|---|---|
@@ -2720,6 +2763,7 @@ tordu ne peut le mettre en défaut.
 
 ### 🚫 UN SEUL VOILE
 📍 `cadre-seul-voile` · vivante · 27/08
+⚖️ **Un seul voile : la DALLE peint ses 35 %, la rangée qui la porte est nue.**
 
 La **rangée** est nue (`catalogue-card`, aucun fond, aucune ombre) ; seule la **dalle** peint ses
 35 %. ⛔ Elle portait `dalle-intermediaire` — un reste juste devenu faux : quand la rangée ÉTAIT la
@@ -2729,6 +2773,7 @@ a bougé sous elle, et rien ne le signale.**
 
 ### ⛔ CE QUI NE SE DEVINE JAMAIS — sept drapeaux déclarés
 📍 `socle-ce-qui-ne-se-devine-jamais` · vivante · 27/08
+⚖️ **L'écran DÉCLARE son gabarit par sept drapeaux nommés et le catalogue DESSINE — ⛔ rien ne se devine d'après les nœuds rendus.**
 
 `railEtroit` · `railEtiquette` · `titreDansLaFiche` · `corpsEstUneDalle` · `retourInterne` ·
 `sansDone` · `motDuRetour`. ⭐ **L'écran DÉCLARE, le catalogue DESSINE.** Deviner le gabarit d'après
@@ -2804,6 +2849,7 @@ synthétiques qui n'existent pas, avec le moteur »*. Le témoin de longueur est
 
 ### ⚖️ L'EXCEPTION NOMMÉE DU DRAGONBORN — le SB des lignages sans sa table *(Eric, 2026-09-02)*
 📍 `cadre-exception-nommee-dragonborn` · vivante · 02/09
+⚖️ **Le SB des lignages du Dragonborn sert sa bande d'aiguilleur à la place de sa table, et l'exception est nommée par un ID DE RECORD (`LIGNAGES_SANS_TABLE`) — ⛔ jamais un seuil ni un `:nth-child`.**
 
 > **« Dragonborn, SB lignages : exception, on change le donné. Le texte de l'aiguilleur dit "il y a
 > 10 lignées, cliquer sur les tokens de choix pour regarder les options". Tu fais court, tu fais
@@ -2837,6 +2883,7 @@ vérifie aussi fort que le reste (`tests/lignage-exception-dragonborn.test.mjs`)
 
 ### 📏 CE QU'UN TRAIT ACCORDE SE LIT D'UN COUP D'ŒIL — la bande des condensés *(lot 127, 02/09)*
 📍 `ecriture-ce-qu-trait-accorde-se-lit-coup-il` · vivante · 02/09
+⚖️ **Un texte de trait servi à l'écran tient en ≤ 102 caractères — la cote DONNÉE du plus long condensé du dépôt — et un trait sans condensé sert sa prose plutôt qu'un blanc.**
 
 > Eric, devant la capture du Dragonborn : **« dragonborn S : granted texte pas conforme »**.
 
@@ -2876,6 +2923,7 @@ chose, avec les condensés **comme sans eux**).
 
 ### 🧬 UN TRAIT QUI DÉPEND DU CHOIX APPARTIENT À LA LIGNÉE *(lot 128, 02/09)*
 📍 `socle-trait-qui-depend-choix-appartient-a-lignee` · vivante · 02/09
+⚖️ **Un trait dont le CONTENU change avec l'option choisie appartient à la lignée, ⛔ jamais au bloc *Granted automatically*.**
 
 > Eric : **« Un trait dont le CONTENU dépend du choix de lignée appartient à la lignée, pas au
 > bloc *Granted automatically*. »**
@@ -3032,6 +3080,7 @@ garde sa forme quel que soit le lignage choisi**.
 
 ## 6 pré. 🔲 **LA RANGÉE DE CONTRÔLES — DEUX BORNES ET UN GROUPE** *(norme, 2026-09-04)*
 📍 `bouton-rangee-controles` · vivante · 04/09
+⚖️ **Une rangée de contrôles est TROIS COLONNES — deux bornes `--touch` et un groupe `1fr` — et c'est le GROUPE qui se centre, pas chaque bouton.**
 
 > Eric, après m'avoir vu échouer **trois fois de suite** : *« la règle est
 > toujours la même et la même erreur est faite. Boutons majeurs centrés, `?` et
@@ -3041,6 +3090,7 @@ garde sa forme quel que soit le lignage choisi**.
 
 ### 🔴 LA FORME, ET ELLE EST UNIQUE
 📍 `bouton-forme-et-elle-est-unique` · vivante · ?
+⚖️ **Tout ce qui n'est pas une borne entre dans `.rangee-majeurs`, une SEULE cellule en flex : le nombre de boutons cesse d'être une question.**
 
 ```
 grid-template-columns:  var(--touch) | 1fr | var(--touch)
@@ -3059,6 +3109,7 @@ Les quatre rangées du site convergent ici : `.parcours-pied` · `.sortie` ·
 
 ### ⛔ LES TROIS MÉTHODES QUI ONT ÉCHOUÉ — toutes VERTES aux tests
 📍 `bouton-trois-methodes-qui-ont-echoue` · vivante · ?
+⚖️ **⛔ Jamais une colonne par organe : deux organes dans une même cellule s'EMPILENT, trois dans un même GROUPE se POUSSENT.**
 
 Elles ont échoué **pour la même raison** : elles désignaient *une colonne par
 organe*. Le tableau est le cœur de cette norme.
@@ -3082,6 +3133,7 @@ rogné, sans que rien ne déborde.)*
 
 ### ⛔ LA RÉSERVE EN REMBOURRAGE EST INTERDITE — les quatre écrivains
 📍 `bouton-reserve-en-rembourrage-est-interdite` · vivante · 04/09
+⚖️ **Une borne a une COLONNE, ⛔ jamais une réserve en rembourrage : une colonne existe même vide, tenue par le gabarit et non négociée par le contenu.**
 
 Une borne a une **colonne**, jamais une réserve. Une colonne existe même vide :
 la place est tenue par le **gabarit**, jamais négociée par le contenu.
@@ -3098,6 +3150,7 @@ Destiny R faisait **335** pour des colonnes de **291**, et le groupe se centrait
 
 ### 🔴🔴 `position: relative`, **JAMAIS** `static` — la faute qu'on refait à chaque fois
 📍 `bouton-position-relative-jamais-static` · vivante · 04/09
+⚖️ **Une borne se sort du flottement en `position: relative`, ⛔ JAMAIS `static` — sinon le cercle de son `::before` cherche un autre ancêtre et se dessine à côté du glyphe.**
 
 > Eric, 2026-09-04, en majuscules : *« note ce relative pas static, car cette
 > erreur est faite à chaque fois !!! »*
@@ -3135,6 +3188,7 @@ retirer qu'un flottement.
 
 ### 🔴🔴 L'ABSOLU DU 2026-09-04 — **LE LIVRE ET LE « ? » SONT DANS LA *DERNIÈRE* RANGÉE**
 📍 `livre-absolu-2026-09-04` · vivante · 04/09
+⚖️ **La dernière rangée de boutons d'un écran EST celle qui porte les deux bornes, et un seul écrivain les pose (`poserLesBornes`) — ⛔ « dernière » n'est jamais « celle qu'on trouve ».**
 
 > Eric : *« Livre et `?` toujours dans la dernière rangée. **Dernière rangée de
 > boutons = `?` et livre dedans. C'est un absolu.** »*
@@ -3164,6 +3218,7 @@ résultat était juste, la règle ne l'était pas.**
 
 ### ⚖️ LES DEUX SEULES BORNES DE L'ABSOLU, ET ELLES SE MESURENT
 📍 `livre-deux-seules-bornes-absolu-et-elles-se-mesurent` · vivante · 20/08
+⚖️ **L'absolu du duo a deux bornes et deux seulement : son périmètre s'arrête à la FICHE, et une dalle sans rangée ne déplace rien.**
 
 | borne | pourquoi | mesuré |
 |---|---|---|
@@ -3178,6 +3233,7 @@ devant le futur groupe. ⛔ **Le clavier suit le DOM, pas l'écran.**
 
 ### 📐 LES COTES, ET ELLES NE SE NÉGOCIENT PAS
 📍 `bouton-cotes-et-elles-ne-se-negocient-pas` · vivante · 04/09
+⚖️ **Une borne est un carré `--touch`, ⛔ jamais la largeur de son dessin ; la rangée vaut 44, l'écart du groupe 8, et 8 la sépare du bord de la dalle en haut comme en bas.**
 
 | | |
 |---|---|
@@ -3190,6 +3246,7 @@ devant le futur groupe. ⛔ **Le clavier suit le DOM, pas l'écran.**
 
 ### ✅ LE TÉMOIN — comment on prouve qu'une rangée est juste
 📍 `bouton-temoin-comment-on-prouve-qu-rangee-est-juste` · vivante · 04/09
+⚖️ **Une rangée se prouve en DEUX temps : libellés allongés sans aucun recouvrement, puis centre du groupe relevé contre le centre de la DALLE — écart attendu 0.**
 
 ⛔ **Une rangée juste en anglais ne prouve rien.** L'épreuve est en deux temps,
 et les deux comptent :
@@ -3205,6 +3262,7 @@ de centre, 0 organe en `absolute`**.
 
 ## 6 pré bis. 🧭 **L'AIGUILLEUR — LE TEXTE QUI DIT OÙ ALLER** *(Eric, 2026-09-04)*
 📍 `aide-aiguilleur-texte-qui-dit-ou-aller` · vivante · 04/09
+⚖️ **L'aiguilleur est BLEU et il a toujours une boîte de TROIS lignes : c'est ce qui rend le budget d'un écran calculable d'avance.**
 
 > ⚠️ **CONSIGNÉE PAR L'ARCHITECTE LE 2026-09-05.** Même origine que les sacrés n° 2 et
 > n° 3 : ratifiée le 04/09 devant une session distante, écrite dans son conteneur, et
@@ -3236,6 +3294,7 @@ appartient à l'organe qu'ils partagent.*
 
 ### 🔵 L'AIGUILLEUR ET LE TUTORIEL DISENT LA MÊME ÉTAPE — PAS DE LA MÊME FAÇON *(Eric, 2026-09-05)*
 📍 `aide-aiguilleur-et-tutoriel-disent-meme-etape` · vivante · 05/09
+⚖️ **L'aiguilleur POINTE en trois lignes sous les yeux de tous ; le tutoriel du `?` EXPLIQUE dans un popup, et il a le droit d'être verbeux.**
 
 > *« le `?` est un tutoriel plus verbeux, plus agréable à lire, que l'aiguilleur, c'est
 > un popup »*.
@@ -3276,6 +3335,7 @@ qui a payé : *on regarde avant de conclure, même quand on croit connaître le 
 
 ### 🔵 AMENDEMENT DE L'AIGUILLEUR — **sur du verre, il écrit en `--text`**
 📍 `aide-amendement-aiguilleur` · vivante · 26/08
+⚖️ **Sur une dalle de verre, l'aiguilleur écrit en `--text` et non en `--text-soft` — et la réparation va à l'ORGANE, conditionnée au voile, jamais à un écran.**
 
 > Eric, le même jour : *« le texte en dessous, ça devrait être en bleu :
 > l'aiguilleur. Pas en noir. L'aiguilleur a toujours besoin d'une boîte texte de
@@ -3312,6 +3372,7 @@ pas garder son texte gris »*.
 
 ## 6 pré ter. 🔲 **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(norme, 2026-09-04)*
 📍 `cadre-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
+⚖️ **Ceci est la MESURE du sacré n° 3, pas un second énoncé : la grille devient le seul écrivain de l'écart, et une marge d'enfant qui survit s'AJOUTE au `gap`.**
 
 > 📌 **C'est la MESURE du SACRÉ n° 3**, pas un second énoncé : la règle est
 > dictée plus haut (§ sacré n° 3) ; ici on montre ce qu'elle coûte et comment on
@@ -3324,6 +3385,7 @@ pas garder son texte gris »*.
 
 ### 🔴 LES TROIS PHRASES, ET CE QU'ELLES INTERDISENT
 📍 `cadre-trois-phrases-et-ce-qu-elles-interdisent` · vivante · ?
+⚖️ **Plus d'organe posé « à côté », plus de `flex-wrap` qui coupe où il peut, plus de barème d'écarts par organe : `--sp-8` est le défaut, et s'en écarter se NOMME.**
 
 | la phrase | ce qu'elle retire |
 |---|---|
@@ -3344,6 +3406,7 @@ déclaration PERDANTE se tait. »* L'exception se **nomme** (`.ability-methodes 
 
 ### 📐 « LE PLANCHER EST DÉFINI PAR CONSTRUCTION »
 📍 `cadre-plancher-est-defini-par-construction` · vivante · ?
+⚖️ **Le plancher se CALCULE avant de dessiner — la somme verticale écrite, puis vérifiée sur la page — et le découpage se DÉCLARE au lieu de se compter.**
 
 ⭐ **Ça ne veut pas dire « il y a de la place », ça veut dire qu'on la CALCULE
 avant de dessiner** — §1 ter, appliqué. Le relevé de R Abilities, écrit avant la
@@ -3367,6 +3430,7 @@ Un `repeat(3, …)` en CSS face à un `slice(0, 3)` en JS aurait été **un nomb
 
 ### ⚖️ `data-rangee` — LA CINQUIÈME PORTE DE §6 pré
 📍 `cadre-data-rangee-cinquieme-porte-6-pre` · vivante · ?
+⚖️ **Une rangée neuve DÉCLARE `data-rangee` et hérite de tout le bloc : ⛔ un cinquième nom de classe est le signe qu'on recommence.**
 
 La rangée de contrôles était énumérée par **quatre noms de classe**, à **sept
 endroits** (cinq dans `shell.css`, deux dans `shell.mjs`). La seconde rangée de
@@ -3398,6 +3462,7 @@ l'était pour §6 pré.
 
 #### ✅ LA FORME EST L'OCTOGONE, TEL QU'IL EST DESSINÉ AUJOURD'HUI *(Eric, 2026-09-06)*
 📍 `bouton-forme-octogone-ratifiee` · vivante · 06/09
+⚖️ **La forme du bouton est l'OCTOGONE que la feuille dessine aujourd'hui et elle ne se rediscute plus ; les trois gabarits restent `small` 6 · `medium` 12 · `no constraint`.**
 
 > Eric, 2026-09-06 : **« garde le gabarit, mais la forme octogone actuelle est la norme »**.
 
@@ -3484,6 +3549,7 @@ pas. C'est encore *« un contrôle ne se laisse jamais dimensionner par un dessi
 
 ### 🔴 `+` / `−` : le dessin le plus petit possible, la cible au minimum tactile
 📍 `bouton-dessin-plus-petit-possible-cible-au-minimum-tactile` · vivante · 26/08
+⚖️ **Le DESSIN d'un `+` / `−` est le plus petit possible et sa CIBLE vaut `--touch` 44 : un contrôle ne se laisse jamais dimensionner par son dessin.**
 
 > Eric, 2026-08-26 : *« boutons + / − : **le plus petit possible / minimum acceptable sur
 > tactile** »*.
@@ -3569,6 +3635,7 @@ par diverger — c'est la faute des deux échelles typographiques que le dépôt
 
 ### 🔴 DEUX MOTS DE RETOUR, ET LA COULEUR SE DÉDUIT DU MOT *(Eric, 2026-09-05)*
 📍 `bouton-deux-mots-retour-et-couleur-se-deduit-mot` · vivante · 05/09
+⚖️ **Deux mots de retour et deux seulement — `Back` bleu qui n'annule rien, `Cancel` rouge qui abandonne du travail — et la teinte se DÉDUIT du mot.**
 
 > **« back = navigation = bleu · cancel = annulation = rouge »**
 > puis, pour fermer toute lecture molle : **« back n'annule rien »**.
@@ -3891,6 +3958,7 @@ pourquoi elle avait été écrite avant de la retirer.
 
 ### 🔴 LA TRILOGIE EST DUE À TOUT ÉCRAN — livre · bouton(s) · `?` *(Eric, 2026-09-06)*
 📍 `rangee-trilogie-due-partout` · vivante · 06/09
+⚖️ **La trilogie livre · bouton(s) majeurs · `?` est DUE à tout écran : un écran sans elle est un défaut, et c'est l'exception qui s'argumente et se date.**
 
 > Eric, 2026-09-06 : *« **ils doivent tous avoir la trilogie.** Mais c'est les autres qu'on passe
 > à la moulinette. »*
@@ -3949,6 +4017,7 @@ gauche ; il ne sait pas le créer. ⛔ **Lot à part**, après la fusion des cot
 
 ### 🔴 DEUX LARGEURS DE BOUTON, ET DEUX SEULEMENT — **77 et 105** *(Eric, 2026-09-06)*
 📍 `bouton-deux-largeurs` · vivante · 06/09
+⚖️ **Deux largeurs de bouton et deux seulement — PETIT 77 pour ≤ 6 caractères, MOYEN 105 pour ≤ 11 — hauteur `--touch`, texte T3, écriture classique.**
 
 > Eric, 2026-09-06 : *« je veux une taille standard pour tous les petits boutons sur tout le
 > site »* · *« **la cote 77** comme standard petit »* · *« **donc c'est 105**, c'est acté »*
@@ -4025,6 +4094,7 @@ pas des boutons à mot.
 
 ### 🔴 NON COLORÉ = NON CLIQUABLE *(Eric, 2026-09-06)*
 📍 `bouton-gris-non-cliquable` · vivante · 06/09 · borne `bouton-done-gris-inacheve`
+⚖️ **NON COLORÉ = NON CLIQUABLE, dans les deux sens : un bouton gris n'est jamais cliquable, un bouton cliquable n'est jamais gris.**
 
 > Eric, 2026-09-06 : *« un `Done` non cliquable se confond avec un bouton non coloré.
 > **Désormais NON COLORÉ = NON CLIQUABLE.** »*
@@ -4428,6 +4498,7 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 
 ## 6 ter. 🎗️ LE BELT — DEUX LARGEURS, ET CE QUI CHANGE DANS CHACUNE *(2026-09-02)*
 📍 `cadre-belt-deux-largeurs-et-ce-qui-change-dans-chacune` · vivante · 02/09
+⚖️ **La ceinture est toujours visible et fait 60 blg ; le belt fonctionne sur DEUX largeurs, dont les exceptions se réduisent à un nombre de crans visibles.**
 
 > Eric, 2026-09-02, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg` :
 > **« TOUTES LES TUILES DU MENU FONT LA MÊME TAILLE »** · *« sur la version courte je rajoute ces
@@ -4443,6 +4514,7 @@ visible**, elle fait **60 blg**, et le panneau garde ses **500**. Tout ce qui su
 
 ### ⭐ LA LOI, EN UNE PHRASE : **une tuile vaut la piste divisée par ce qu'elle montre**
 📍 `cadre-loi-en-phrase-tuile-vaut-piste-divisee-par-ce-qu-elle` · vivante · ?
+⚖️ **Une tuile vaut la piste divisée par ce que la piste montre — une seule formule, deux comptes.**
 
 | | **le belt ÉTROIT** *(vue simple)* | **le belt DÉROULÉ** *(vue double)* |
 |---|---|---|
@@ -4459,6 +4531,7 @@ un nombre de crans visibles. ⭐ Une seule ligne de feuille bascule le tout —
 
 ### 📐 LA TUILE — deux rangs, et c'est ce qui rend « la même taille » possible
 📍 `cadre-tuile-deux-rangs-et-c-est-ce-qui-rend-meme-taille` · vivante · ?
+⚖️ **La tuile empile la pastille AU-DESSUS du nom : sa largeur cesse alors de dépendre du mot, et « toutes les tuiles font la même taille » devient vrai par construction.**
 
 | | |
 |---|---|
@@ -4506,6 +4579,7 @@ voulait dire.
 
 ### ⭐ LA LEÇON À PART : **UN VIDE SE PAIE AILLEURS QU'OÙ ON LE REGARDE** *(02/09)*
 📍 `budget-lecon-a-part-vide-se-paie-ailleurs-qu-ou-on-regarde` · vivante · 02/09
+⚖️ **Un vide n'est pas local : avant de descendre un organe d'un barreau, écrire la somme verticale de sa boîte et chercher lequel de ses termes est un vide.**
 
 > Relevée en mesurant la tuile, et sortie de sa section à la demande de l'architecte : elle ne
 > parle pas du belt, elle parle de tous les budgets.
@@ -4534,6 +4608,7 @@ verticale de sa boîte** et regarder lequel de ses termes est un vide. Un organe
 
 ### 🎚️ LE CHEVRON DU BELT — un organe du seul format étroit
 📍 `chevron-belt` · vivante · 02/09
+⚖️ **Le chevron du belt est un TRAIT DESSINÉ sans tuile, à cible `--touch` 44, dont le voile de 35 % vit sur l'ENCRE ; en bout de course il disparaît et sa place reste.**
 
 | | |
 |---|---|
@@ -4591,6 +4666,7 @@ n'y a jamais de dalle tranchée.
 
 ### 🔒 TROIS TUILES, ET T2 — la question est FERMÉE PAR LA MESURE *(02/09)*
 📍 `cadre-trois-tuiles-et-t2` · vivante · 02/09
+⚖️ **Le belt étroit montre TROIS tuiles en T2 : la rangée est pleine au blg près, et une tuile ne pourrait s'élargir qu'en prenant sur une cible tactile.**
 
 > Eric : *« regarde si tu peux mettre 4 boutons sur une vue sans que rien ne se chevauche »*, puis,
 > après l'avoir essayé lui-même : *« ça ne passe pas, on reste à 3 visibles d'un coup »* · *« essaie
@@ -4635,6 +4711,7 @@ Barde »)*. En libérer une est une décision d'Eric, jamais une conséquence d'
 
 ### 🎛️ LES DEUX BOUTS — `Menu` et `Sheet`, à 100 %
 📍 `cadre-deux-bouts-menu-et-sheet-a-100` · vivante · 02/09
+⚖️ **`Menu` et `Sheet` sont OPAQUES à 100 % : ce ne sont pas des étapes, et l'opacité le dit sans un mot.**
 
 | | |
 |---|---|
@@ -4644,6 +4721,7 @@ Barde »)*. En libérer une est une décision d'Eric, jamais une conséquence d'
 
 ### ⚠️ CE QUE LE BANC NE SAIT PAS MESURER, dit plutôt que masqué
 📍 `cadre-ce-que-banc-ne-sait-pas-mesurer-dit-plutot-que-masque` · vivante · 02/09
+⚖️ **Un geste peint LUI-MÊME l'état de ses chevrons, sur la position VISÉE — ⛔ jamais en attendant un événement de défilement.**
 
 📏 Mesuré le 02/09 dans le navigateur du banc : **aucun défilement lissé de script ne bouge** —
 ni sur la piste, ni sur la scène, dont les chevrons sont pourtant en production depuis le lot 70 ;
@@ -5252,6 +5330,7 @@ chemins**. Détail : `FH-WEB/FHPC/FHPCv2 hebergement donnees.md`.
 
 ## 7. 🎲 LE GLISSER DES DÉS — Abilities › B1, **FIGÉ** *(Eric, 2026-09-06 : « je veux que tu figes »)*
 📍 `geste-glisser-des-des` · vivante · 06/09
+⚖️ **Le glisser des dés d'Abilities › B1 est FIGÉ : ses cotes et ses gestes ne se rouvrent que sur un mot d'Eric.**
 
 > Eric, 06/09, B1 en ligne et validé au pouce : *« tu figes la manière de faire fonctionner les
 > fantômes, et le drag and drop versatile : aller-retour source/destination, déplacement latéral ;
@@ -5264,6 +5343,7 @@ chemins**. Détail : `FH-WEB/FHPC/FHPCv2 hebergement donnees.md`.
 
 ### 7.1 Le dé est le token, le collecteur est une dépression
 📍 `jeton-de-est-le-token-collecteur-est-une-depression` · vivante · 06/09
+⚖️ **Le dé EST le token de cet écran et le collecteur une DÉPRESSION, pas un jeton en relief — les deux lisent la même cellule `--de-pose`.**
 | objet | ce qu'il est | la cote | où |
 |---|---|---|---|
 | **le dé** | le token de cet écran — un token spécial, le cube 3D avec son relief à lui | cellule **`--de-pose` = 41** (sa boîte au podium, îlot 54,5 × `.75`), face **`--collecteur-face` = 28** | `tokens.css` |
@@ -5276,6 +5356,7 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 
 ### 7.2 Le podium
 📍 `cadre-podium` · vivante · 06/09
+⚖️ **Chaque pastille du podium est une cible, l'origine redevient un collecteur quand le dé l'a quittée, et la pose ne joue qu'à l'ARRIVÉE d'un lot — jamais à un redessin.**
 - Six pastilles (`--podium-pastille`) ; le dé y est réduit à `.75` (le `.8` du moteur repris, `data-sides="6"`), cube 29 × 32,6, **face 28** — c'est l'étalon de `--collecteur-face` : *si le dé du podium change, la face se remesure*.
 - **L'origine devient un collecteur** quand le dé l'a quitté : la même dépression, centrée dans le disque (dx 0, dy 0), sans voile.
 - **Chaque pastille est une cible** `podium:<index du jet>` ; l'ordre vit dans le lot (`rollBatch.podium`). Lâcher entre les pastilles (`vivier`) rend le dé à sa place.
@@ -5283,6 +5364,7 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 
 ### 7.3 Le glisser versatile — les quatre gestes, jusqu'à `Done`
 📍 `geste-glisser-versatile-quatre-gestes-jusqu-a-done` · vivante · 06/09
+⚖️ **Le glisser est VERSATILE — poser · déplacer · échanger · revenir, plus le rangement d'un podium à l'autre — et `Done` s'allume à six poses sans rien bloquer.**
 | geste | verbe | ce que le document apprend |
 |---|---|---|
 | **poser** (podium → collecteur vide) | `assignAbilityRoll` | la valeur, par `set` |
@@ -5295,6 +5377,7 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 
 ### 7.4 Le fantôme
 📍 `geste-fantome` · vivante · 06/09
+⚖️ **Le fantôme est IDENTIQUE à l'objet, divisé par le zoom courant avant d'être posé, et c'est LUI qui vise la cible.**
 - Il est **identique à l'objet** : `FS.fantome` = `--de-pose` (41), ses `.porte-de` / image ramenés à `width: 100 %`, le `.8` du moteur repris — ⛔ sinon il est monté à la résolution (96) et son centre tombe 24 px sous le doigt.
 - Il vit dans `.app`, qui porte le zoom : **on divise par `facteurZoomCourant()` avant de poser** (`fantomeBouger`). ⛔ Le lot 125 avait fermé cette faute dans `glisser.mjs` « dernier site » — faux : celui-ci la portait. *Une faute « fermée partout » se vérifie par grep sur la forme, pas en croyant le commentaire.*
 - Le fantôme **vise** (`fantomeCentre`) : la cible est celle qu'il recouvre, mesurée à (−3,1 ; −3,1) du doigt à zoom 1. C'est ce qui rend la case A → B exacte.
@@ -5302,6 +5385,7 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 
 ### 7.5 Le chiffre sur le dé — par taille de dé
 📍 `ecriture-chiffre-sur-le-de-par-taille-de-de` · vivante · 06/09
+⚖️ **Le chiffre d'un dé se règle par TAILLE DE DÉ — T2 sur le grand, T1 sur le petit, T0 pour la somme — et se centre sur la FACE, pas sur la boîte.**
 | dé | boîte | chiffre (`.valeur`) | centrage |
 |---|---|---|---|
 | **grand** (podium, collecteur, fantôme) | 41 | **T2**, serif du moteur, 500 | sur la **face** : `translateY(−8,75 %)`, mesuré au canvas (centre de la face à 41,25 %) |
@@ -5310,12 +5394,14 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 
 ### 7.6 Aucun artefact brun pendant le geste
 📍 `geste-aucun-artefact-brun-pendant-le-geste` · vivante · 06/09
+⚖️ **Au survol, RIEN ne se peint : le seul retour visuel du geste est le fantôme.**
 Au survol, **rien ne se peint** : ni contour de colonne, ni outline de rangée, ni dépression allumée, ni anneau
 autour du dé à échanger — au podium comme aux collecteurs. Le retour visuel du geste est le fantôme.
 *(Le liseré bleu / rouge / vert du §2 ter n'est pas demandé ici.)*
 
 ### 7.8 `Roll Options` — trois boutons, et la scène 1 seulement *(06/09)*
 📍 `bouton-roll-options-trois-boutons-scene-1` · vivante · 06/09
+⚖️ **`Roll Options` porte trois boutons de type `Next`, de cote identique et centrés dans une même cellule — et tout le bloc disparaît en scène 2.**
 > *« 3d6, Flash et Reset = trois boutons de taille identique de type next (en bleu) et centrés dans une
 > même cellule. L'aiguilleur doit expliquer ce que font ces trois boutons. Roll Options peut disparaître
 > avec les trois boutons et les dés mobiles en scène 2. »*
@@ -5329,6 +5415,7 @@ autour du dé à échanger — au podium comme aux collecteurs. Le retour visuel
 
 ### 7.7 La sortie de l'écran
 📍 `cadre-sortie-de-l-ecran-du-glisser-des-des` · vivante · 06/09
+⚖️ **`Done` est VERT dès qu'il est allumé et mène au BILAN ; `Cancel` est ROUGE dès qu'il a quelque chose à abandonner — et c'est la coquille qui les pose.**
 `Done` **vert** dès qu'il est allumé (six poses) — Eric, 06/09 : *« mieux en vert finalement »* (bleu
 le matin même) ; il mène au **bilan** (7.9), pas à l'étape suivante. `Cancel` **rouge** dès qu'il a
 quelque chose à abandonner (le premier jet). Règle de la coquille (`renderSortieEtape`, `data-lit` /
@@ -5336,6 +5423,7 @@ quelque chose à abandonner (le premier jet). Règle de la coquille (`renderSort
 
 ### 7.9 Le bilan — R2, l'écran de la racine une fois l'étape validée *(06/09)*
 📍 `cadre-bilan-du-glisser-des-des` · vivante · 06/09
+⚖️ **`R2` est la destination COMMUNE de B1 / B2 / B3 / B4 : le bilan lit le document, jamais la méthode qui y a mené.**
 Eric : *« quand j'appuie sur Done, on remonte en R avec les résultats. R1 (l'ancien choix) disparaît,
 devient R2 un bilan »*. Sur **son tapis** (`tapis-bilan`, 552 × 184, rectangle à coins courts — le stade du tirage mangeait les
 cellules des bouts), six cellules — **nom** (accent, T1
@@ -5351,6 +5439,7 @@ d'erreur »*), partout où ils nomment une cellule — collecteur et bilan.
 
 ### 7.10 🔴 UN ÉCRAN, UN AIGUILLEUR — le premier s'éteint quand le second s'allume *(06/09 au soir)*
 📍 `aiguilleur-un-seul-par-ecran-le-premier-s-eteint` · vivante · 06/09
+⚖️ **Un écran n'a qu'UN aiguilleur allumé : le premier s'éteint quand le second s'allume.**
 > Eric : *« dans FH 3D6, B1 : le premier aiguilleur disparaît quand le 2ᵉ apparaît en scène 2. Il ne
 > reste que le titre FH 3D6. »*
 
@@ -5370,6 +5459,7 @@ une question ouverte pour Eric, pas une déduction à prendre dans un lot.
 
 ### 7.11 🌱 LATE BLOOMER — un trait se présente comme un TOKEN, jamais comme une phrase *(06/09 au soir)*
 📍 `jeton-trait-est-un-token-sans-destination` · vivante · 06/09
+⚖️ **Un trait se présente comme un TOKEN — l'octogone unique de §2 bis, liseré vert — et celui-ci n'a AUCUNE destination : il informe, et rien d'autre.**
 > Eric, en renversant la ligne d'or du matin même : *« on fait plus simple pour Late Bloomer,
 > présente-le comme un token classique. Il se place sous les caracs, annule le 2ᵉ aiguilleur (ça faut
 > pas faire), le token n'a aucune destination mais il se présente comme un trait. Clic droit pour
@@ -5410,6 +5500,7 @@ sources** — le lot avant `Done`, le personnage après et pour toujours.
 
 ### 7.12 🎨 B4 `FREE` — la palette est une RANGÉE, et son budget est fermé *(06/09)*
 📍 `cadre-palette-de-free-est-une-rangee` · vivante · 06/09
+⚖️ **La palette de `FREE` est une RANGÉE hors de tout défilement, entre l'organe et le collecteur : un vivier dont on ne voit qu'un quart n'est pas un vivier.**
 > Eric : *« toujours un grid, prends B1 en exemple »* · *« c'est 4×4 »* · *« la taille des dés idem à
 > B1, ça passe en hauteur »* — puis, de lui-même : *« ou pas »*.
 
@@ -5537,6 +5628,7 @@ la **cible** reste le bouton de 44 — §1 ter, *un dessin ne dimensionne pas un
 
 ### 7.13 🖐️ LES GESTES DE FREE — le collecteur se vide, il ne se duplique pas *(06/09)*
 📍 `geste-free-collecteur-se-vide-jamais-ne-duplique` · vivante · 06/09
+⚖️ **C'est l'ORIGINE du geste qui décide, pas la nature du vivier : un dé pris à la palette se recopie, un dé pris à un collecteur le VIDE.**
 > Eric : *« il faut qu'on puisse recouvrir par un autre dé (c'est câblé) · il faut qu'on puisse
 > balancer un dé dans le vide pour évacuer un collecteur (pas fait) · il faut qu'on puisse déplacer
 > un dé posé latéralement, vider le collecteur et le poser ailleurs (ici pas fait, on duplique) »*.

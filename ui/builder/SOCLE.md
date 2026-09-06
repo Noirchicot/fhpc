@@ -128,6 +128,7 @@ ne réclame aujourd'hui.
 
 ## Qui possède quoi — côté DONNÉES : SRD · SRFH · SRFH+
 📍 `socle-qui-possede-quoi-cote-donnees-srd-srfh-srfh` · vivante · 23/08
+⚖️ **Le test de rangement porte sur le NOM, pas sur le contenu — *« si on change ça, est-ce que ça s'appelle encore le SRD ? »* : oui → **SRD** · on ne sait pas → **SRFH** · non → **SRFH+**.**
 
 > **Ratifié par Eric le 2026-08-23.** ⚠️ **La source est sa note du vault**,
 > `FH-WEB/FHPC/FHPCv2 SRFH et SRFH+.md` — ce qui suit n'en est qu'un **tirage**.
@@ -149,6 +150,7 @@ sait pas → **SRFH** · Non, clairement → **SRFH+**.
 
 ### ⭐ CE QUE LE CONTRAT DIT À UNE COUCHE QUI PATCHE
 📍 `socle-ce-que-contrat-dit-a-couche-qui-patche` · vivante · 03/09
+⚖️ **Une couche FH ne modifie pas un record `srd:` : elle POSE le sien et pointe vers lui (`data.extends`) — une couche qui vise un MOT au lieu d'une ADRESSE se casse à la première langue.**
 
 Une couche FH ne modifie pas un record `srd:` : elle **pose le sien** et pointe
 vers lui (`data.extends`), comme `srfh-shelving-en` le fait sur ses 416 objets.
@@ -174,6 +176,7 @@ le garde : `tests/layers-traits-fr.test.mjs`.
 
 ### 🔴 UN ÉCRAN NE PEUT PAS RENDRE UN CONTENU QUI N'EST PAS ÉCRIT
 📍 `socle-ecran-ne-peut-pas-rendre-contenu-qui-n-est-pas-ecrit` · vivante · 03/09
+⚖️ **⛔ Un gabarit ne se dessine jamais sur un contenu supposé, et un trou de contenu ne se bouche pas en code : on le NOMME avec son chiffre et on rend la décision à Eric.**
 
 > **Noté sur ordre d'Eric le 2026-09-03**, en butant dessus : la spec d'une ligne
 > *« Subclasses : Sub 1, Sub 2, Sub 3 and more »* a rencontré une couche qui ne
@@ -225,6 +228,7 @@ recueillie au vol se relit avant d'être gravée** — le corpus n'est pas le fi
 
 ### ⛔ ET LE MANQUE PEUT ÊTRE DANS LA **FORME**, PAS SEULEMENT DANS LE CONTENU
 📍 `socle-et-manque-peut-etre-dans-forme-pas-seulement-dans` · vivante · 04/09
+⚖️ **Avant de spécifier un écran, regarder non seulement COMBIEN la couche porte mais de quelle FORME : un champ singulier ne dit pas « il en manque », il dit « la question n'est pas encore posée ».**
 
 > **Mesuré le 2026-09-04**, en cherchant les sous-classes que le SRD porterait
 > « en plus ». Il n'en porte aucune de plus — et la raison n'est pas un contenu
@@ -248,6 +252,7 @@ n'est pas encore posée ».
 
 ### 🔴 UN INVENTAIRE QUI NE VISITE PAS LES TROIS LIEUX NE COMPTE RIEN
 📍 `socle-inventaire-qui-ne-visite-pas-trois-lieux-ne-compte` · vivante · 04/09
+⚖️ **Un inventaire du contenu FH visite les TROIS lieux — le vault, `fh-phb`, les couches — et tout compte dit d'abord lequel il interroge.**
 
 > **Écrit faux le 2026-09-04, corrigé le jour même.** J'ai compté les
 > sous-classes FH dans le **vault** et dans les **couches**, conclu *« une seule
@@ -274,6 +279,7 @@ lieu est un chiffre sans unité.
 
 ### ⚠️ ET UN CHAPITRE PEUT PERDRE SON AMONT SANS QUE RIEN NE CRIE
 📍 `socle-et-chapitre-peut-perdre-son-amont-sans-que-rien-ne` · vivante · 04/09
+⚖️ **Une table de correspondance qui pointe vers un fichier absent ne prouve pas qu'il existe : un chapitre peut ne vivre que dans l'imprimerie, en aval du manuscrit.**
 
 Trouvé en corrigeant le compte : la table de `sync_from_vault.py` fait descendre
 `college-of-banners.md`, `silent-blade.md` et `spell-rigger.md` depuis
