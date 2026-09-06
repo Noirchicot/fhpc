@@ -3679,6 +3679,21 @@ réclamait **89,7** — aucune largeur ne pouvait satisfaire à la fois « le pl
 📌 Corollaire : ⛔ **on ne rétrécit jamais un bouton en réduisant sa police ou en tronquant son
 mot.** On rend son rembourrage, ou on change le mot.
 
+⚖️ **105 A ÉTÉ CHOISI CONTRE 101 ET CONTRE 106, ET LA RAISON EST ÉCRITE ICI POUR QU'ON NE
+« L'OPTIMISE » PAS DEMAIN.** Trois candidats ont été calculés, chacun par ce que son RESTE devient
+une fois la rangée centrée :
+
+| cote | 3 moyens | reste | marge de chaque côté | |
+|---:|---:|---:|---:|---|
+| **106** | 334 | 1 | **0,5** | ⛔ un demi-blg — le maximum théorique, et le pire |
+| **105** | 331 | 4 | 2,0 | ✅ **retenu par Eric** |
+| **101** | 319 | 16 | **8,0** | ◻︎ les marges tomberaient sur `--sp-8`, un jeton |
+
+⭐ **101 était mathématiquement plus élégant, et Eric a tranché 105 quand même.** Sa loi du jour est
+*« la marge importe plus »* — mais il l'a appliquée au **bouton**, pas au reste : 105 donne à
+`Inheritance` **12,3 blg** de respiration là où 101 n'en laisse que 8,3. ⛔ **La marge qui compte est
+celle du MOT dans son bouton, pas celle de la rangée dans sa dalle.** C'est le mot qu'on lit.
+
 ⛔ **CE QUI N'ENTRE PAS DANS CES DEUX COTES** *(Eric les a exclus nommément)* : les **chevrons** ·
 les **onglets** `Menu`/`Sheet` *(58, `--onglet-taille`, un organe déclaré à part)* · les
 **interrupteurs** on/off · le **livre** et le **`?`**, qui valent `--touch` 44 et sont des ronds,
