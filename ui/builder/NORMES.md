@@ -1547,7 +1547,7 @@ c'est un jeton ordinaire dont le libellé est un nombre.
 
 ---
 
-### 🔒 LA CATÉGORIE DES SACRÉS — trois lois, et elles ne se négocient dans aucun lot
+### 🔒 LA CATÉGORIE DES SACRÉS — neuf lois, et elles ne se négocient dans aucun lot
 📍 `socle-categorie-sacres` · vivante · 04/09
 ⚖️ **Un sacré ne cède pas quand un écran déborde : un lot qui ne fait pas tenir un écran retire du contenu ou descend tout le bloc d'un cran, ⛔ il ne rogne jamais un sacré.**
 
@@ -1559,17 +1559,48 @@ un DÉFAUT, pas un mur »* (26/08) — un sacré, si. ⛔ Un lot qui n'arrive pa
 faire tenir un écran **retire du contenu** (§1 quater) ou **descend tout le bloc
 d'un cran** (§1 ter quinquies) ; il ne rogne pas un sacré.
 
-| # | la loi | depuis |
-|---|---|---|
-| 1 | **les jetons et les boutons** — cote, corps, cible tactile, gabarit | 26/08 *(ci-dessous)* |
-| 2 | **le duo `?` + livre** — une fois par écran, dans la dernière rangée | **04/09** |
-| 3 | **tout est dans une boîte, les boîtes sont sur une grille, ≥ 8 blg** | **04/09** |
+📌 **LA TABLE EST LA LISTE ENTIÈRE, ET C'EST SA RAISON D'ÊTRE** — *« un sacré qu'il faut
+chercher n'est pas un sacré »* (`socle-tout-agent-connait-les-sacres`). ⛔ Elle en annonçait
+**trois** le 04/09 et il y en avait **neuf** au soir du 06/09 : une liste qu'on ne tient pas
+est pire qu'aucune liste, parce qu'un agent qui l'a lue croit les connaître tous.
+
+| # | la loi | son adresse | depuis |
+|---|---|---|---|
+| 1 | quand un écran déborde, ce sont les **VIDES** qui cèdent, jamais les organes | `budget-les-vides-cedent` | 26/08 |
+| 2 | **les jetons et les boutons** — leur cote et leur corps ne cèdent jamais | `jeton-sacre` | 26/08 |
+| 3 | le duo **`?` + livre** — une fois par écran, dans la dernière rangée, en bas | `livre-sacre-n-2-duo-livre-vit-dans-derniere-rangee` | **04/09** |
+| 4 | **tout est dans une boîte, les boîtes sont sur une grille**, ≥ 8 blg | `socle-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` | **04/09** |
+| 5 | le **format d'écriture** d'une règle : une adresse, une phrase, l'incident | `socle-format-d-ecriture-est-sacre` | **06/09** |
+| 6 | tout agent a en mémoire **TOUS les sacrés** avant d'écrire une ligne | `socle-tout-agent-connait-les-sacres` | **06/09** |
+| 7 | un agent qui va **coder lit la Bible d'abord** | `socle-bible-lue-avant-de-coder` | **06/09** |
+| 8 | **franchir la frontière** builder ↔ FH WEB oblige à lire l'autre Bible | `socle-franchir-la-frontiere-oblige-a-lire-l-autre-bible` | **06/09** |
+| 9 | deux sacrés qui se **contredisent** se refondent ou fusionnent | `socle-deux-sacres-contradictoires-se-fusionnent` | **06/09** |
+
+⚠️ **CETTE TABLE SE TIENT DANS LE MÊME GESTE QUE LE SACRÉ QU'ELLE AJOUTE.** Un neuvième
+sacré posé sans sa ligne ici serait un sacré qu'il faut chercher — ⛔ c'est-à-dire pas un
+sacré du tout.
 
 ---
 
 ### 🔒 SACRÉ N° 2 — **LE DUO EST DANS LA DERNIÈRE RANGÉE, UNE FOIS PAR ÉCRAN** *(04/09)*
-📍 `socle-sacre-n-2-duo-est-dans-derniere-rangee-fois-par-ecran` · vivante · 04/09
-⚖️ 🔒 **Le duo `?` + livre paraît UNE FOIS PAR ÉCRAN, dans la dernière rangée, cadré à gauche et à droite d'une cellule qui porte au moins un bouton, à 8 blg du bas de la dalle.**
+📍 `socle-sacre-n-2-duo-est-dans-derniere-rangee-fois-par-ecran` · remplacée · 04/09 · remplacée par `livre-sacre-n-2-duo-livre-vit-dans-derniere-rangee`
+⚖️ **Le duo `?` + livre paraît UNE FOIS PAR ÉCRAN, dans la dernière rangée, cadré à gauche et à droite d'une cellule qui porte au moins un bouton, à 8 blg du bord bas de la dalle.**
+
+> 🗄️ **ARCHIVÉE LE 2026-09-06 — CE N'EST PAS UN DÉSAVEU, C'EST UNE FUSION.** Le SACRÉ n° 2
+> était écrit **deux fois** dans ce fichier : ici, d'après le rapport du 04/09, et plus bas
+> d'après la **dictée mot pour mot d'Eric du 05/09**, qui se déclare elle-même *« la version
+> qui fait foi »* et qui **corrige** ce texte-ci sur deux points — « 8 blg du **bord** » au
+> lieu du **bas**, et *« toujours en bas »* omis. ⛔ Deux sacrés qui disent la même loi de
+> deux façons, c'est **zéro sacré** *(`socle-deux-sacres-contradictoires-se-fusionnent`)* :
+> l'un des deux survit, l'autre s'archive, et les deux se citent.
+> ⭐ **CE QUE CE TEXTE-CI A VERSÉ AU SURVIVANT AVANT DE S'ARCHIVER, et il fallait le porter
+> à la main** : *« une fois par ÉCRAN »* et *« une cellule qui porte au moins un bouton »* —
+> deux clauses que la dictée du 05/09 ne redit pas, et qu'une fusion paresseuse aurait
+> perdues en silence. ⚠️ *Archiver un doublon, c'est d'abord chercher ce qu'il est le seul
+> à dire.*
+> 📌 **ET LA SOUS-SECTION CI-DESSOUS RESTE VIVANTE** : `socle-point-ouvert-et-il-est-mesure`
+> n'est pas archivée avec sa parente — une règle vivante sous une section archivée se lit
+> à son adresse, pas à sa place dans le fichier.
 
 > *« Une seule fois **par écran**. **Pas par dalle**. »*
 > *« Le duo est toujours dans une **cellule contenant au moins un bouton**, à
@@ -1622,8 +1653,18 @@ de fiche (44 de rangée + 2 × 8) sur Species, Class et Destiny.
 ---
 
 ### 🔒 SACRÉ N° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(04/09)*
-📍 `socle-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
-⚖️ 🔒 **Tout ce qui vit sur une dalle est dans une BOÎTE, les boîtes sont sur une GRILLE, et elles sont à ≥ 8 blg de leurs voisines.**
+📍 `socle-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09 · remplace `cadre-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille`
+⚖️ 🔒 **Tout ce qui vit sur une dalle est dans une BOÎTE, les boîtes sont sur une GRILLE — les boutons compris — et elles sont à ≥ 8 blg de leurs voisines, écart que la grille écrit seule.**
+
+> 🔀 **FUSION DU 2026-09-06.** Le SACRÉ n° 3 était écrit **deux fois** ; cette phrase porte
+> maintenant ce que la seconde écriture disait en propre — *« les boutons compris »* et
+> *« c'est la grille qui écrit l'écart, jamais une marge posée organe par organe »*.
+> Le doublon est archivé sous `cadre-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille`.
+> ⚠️ **Ce qui vivait avec lui et n'était PAS une redite** — le bornage d'Eric du 05/09,
+> *« on laisse tout tranquille tant que ça marche »* — n'a pas été archivé avec le doublon :
+> il a reçu sa propre adresse, `socle-on-laisse-tranquille-ce-qui-marche`.
+> ⛔ *Archiver un doublon sans regarder ce qu'il porte de neuf périme une règle vivante
+> par effet de bord.*
 
 > *« Désormais tout ce qu'il y a sur une dalle est dans une boîte, qui est sur
 > une grille, espacée d'**au moins 8 blg** avec ses voisines. »* · *« Absolu aussi. »*
@@ -1702,8 +1743,14 @@ mauvaise : elle brisait une norme, et elle ne payait pas.
 ---
 
 ### 🔒 SACRÉ n° 2 — **LE DUO `?` + LIVRE VIT DANS LA DERNIÈRE RANGÉE** *(Eric, 2026-09-04)*
-📍 `livre-sacre-n-2-duo-livre-vit-dans-derniere-rangee` · vivante · 04/09
-⚖️ 🔒 **La dernière rangée est TOUJOURS EN BAS de la dalle, ses boutons majeurs cadrés au centre en un seul groupe, le duo `?` + livre cadré à gauche et à droite dans une cellule à 8 blg du bas.**
+📍 `livre-sacre-n-2-duo-livre-vit-dans-derniere-rangee` · vivante · 04/09 · remplace `socle-sacre-n-2-duo-est-dans-derniere-rangee-fois-par-ecran`
+⚖️ 🔒 **La dernière rangée est TOUJOURS EN BAS de la dalle, ses boutons majeurs cadrés au centre en un seul groupe, et le duo `?` + livre — UNE FOIS PAR ÉCRAN — cadré à gauche et à droite dans une cellule qui porte au moins un bouton, à 8 blg du bas.**
+
+> 🔀 **FUSION DU 2026-09-06.** Cette phrase porte désormais les DEUX écritures du sacré :
+> la dictée d'Eric du 05/09 *(la rangée en bas, le groupe centré, 8 blg du **bas**)* et les
+> deux clauses que seul le tirage du 04/09 disait — *« une fois par écran »* et *« une
+> cellule qui porte au moins un bouton »*. Le tirage est archivé sous
+> `socle-sacre-n-2-duo-est-dans-derniere-rangee-fois-par-ecran`, il n'est pas effacé.
 
 > ⚠️ **CONSIGNÉE ICI PAR L'ARCHITECTE LE 2026-09-05, ET IL FAUT SAVOIR D'OÙ ELLE VIENT.**
 > Eric l'a ratifiée le 04/09 devant une session distante, qui l'a écrite **dans son
@@ -1840,8 +1887,15 @@ porter **deux** rangées fait cesser la coïncidence.
 jour où le cas qui les sépare arrive.*
 
 ### 🔒 SACRÉ n° 3 — **TOUT EST DANS UNE BOÎTE, LES BOÎTES SONT SUR UNE GRILLE** *(Eric, 2026-09-04)*
-📍 `cadre-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · vivante · 04/09
-⚖️ 🔒 **Les boutons compris : c'est la GRILLE qui écrit l'écart de 8 blg, ⛔ jamais une marge posée organe par organe.**
+📍 `cadre-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille` · remplacée · 04/09 · remplacée par `socle-sacre-n-3-tout-est-dans-boite-boites-sont-sur-grille`
+⚖️ **Les boutons compris : c'est la GRILLE qui écrit l'écart de 8 blg, ⛔ jamais une marge posée organe par organe.**
+
+> 🗄️ **ARCHIVÉE LE 2026-09-06 — SECONDE ÉCRITURE DU MÊME SACRÉ.** *« Une règle énoncée deux
+> fois est deux règles »* : sa clause propre — *« les boutons compris »*, et la grille seule
+> écrivain de l'écart — est versée dans le survivant, qui la porte désormais dans sa phrase.
+> ⛔ Ce qui suit sous ce titre reste lisible : la définition d'un sacré *(elle vit à
+> `socle-categorie-sacres`)*, le **bornage** du 05/09 *(qui a maintenant sa propre adresse,
+> ci-dessous)*, et le relevé du 04/09 dalle par dalle.
 
 **Les boutons compris.** Les écarts valent **8 blg**, et c'est **la grille** qui les
 écrit — jamais une marge posée organe par organe.
@@ -1852,9 +1906,16 @@ jour où le cas qui les sépare arrive.*
 écran **retire du contenu** (§1 quater) ou **descend tout le bloc d'un cran**
 (§1 ter quinquies) — ⛔ il ne rogne pas un sacré.
 
-🔴 **ET IL EST BORNÉ PAR UNE RÈGLE PLUS HAUTE — Eric, 2026-09-05 :**
+#### 🔴 ET IL EST BORNÉ PAR UNE RÈGLE PLUS HAUTE — *Eric, 2026-09-05*
+📍 `socle-on-laisse-tranquille-ce-qui-marche` · vivante · 05/09
+⚖️ **Un sacré dit comment on CONSTRUIT, ⛔ pas qu'il faut aller refaire ce qui tourne : convertir une dalle existante demande un défaut mesuré à l'écran, ou un mot d'Eric — jamais un relevé de non-conformité.**
 
 > **« on fera comme ça désormais, on laisse tout tranquille tant que ça marche »**
+
+📌 **CETTE ADRESSE A ÉTÉ POSÉE LE 2026-09-06, ET C'EST LA FUSION QUI L'A RENDUE NÉCESSAIRE.**
+Le bornage vivait **sans adresse**, à l'intérieur d'une section qui n'était qu'une seconde
+écriture du sacré n° 3. En archivant le doublon, on aurait périmé une règle d'Eric plus
+récente que celle qu'elle borne — ⚠️ *une règle sans adresse meurt de la mort de sa voisine.*
 
 ⛔ **UN SACRÉ DIT COMMENT ON CONSTRUIT, ⛔ PAS QU'IL FAUT ALLER RÉÉCRIRE CE QUI TOURNE.**
 Un écran conforme par construction est la règle pour tout ce qu'on pose ; un écran qui
