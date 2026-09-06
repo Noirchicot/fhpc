@@ -1057,20 +1057,29 @@ test("🔴 `FREE` — DEUX dalles, et aucune rangée d'îlots entre les deux", (
     "⛔ plus dans l'organe — elle y était sous le défilement du gabarit trois bandes");
   assert.equal([...node.children].filter((e) => (e.className || "").includes("ability-palette")).length, 1,
     "…elle est une rangée de l'étape, comme le podium de B1");
-  /* 📏 ET L'ORGANE N'A PLUS D'AIGUILLEUR — le budget MESURÉ ne l'admet pas, et le
-     chiffre d'ici était périmé (il disait 494 de fenêtre et un aiguilleur à 53).
-     🔵 RELEVÉ AU BANC LE 06/09 À 14:53, l'aiguilleur POSÉ pour de vrai (lot 168) :
-     carte **492**, contenu 468,39 — organe 41,59 · écart 4 · palette 196 · écart 4 ·
-     collecteur 222,80 — donc **23,61 de place libre**. La bande en demande **38**
-     (4 + 2 × 15 + 4, plancher ramené à deux lignes) ; même en rendant les 8 du
-     rembourrage haut de sa `.sortie`, elle n'en reçoit que 31,61.
-     ⛔ LE TÉMOIN QUI TRANCHE : `.ability-flux` a rendu `scrollHeight` 38 pour
-     `clientHeight` 32 — **6,39 blg coupés**, la deuxième ligne tronquée à l'écran.
-     Un aiguilleur qui défile est le défaut qu'Eric interdit nommément.
-     ⚠️ CE TEST N'EST DONC PAS UNE PRÉFÉRENCE, C'EST UNE MESURE : le jour où l'un des
-     quatre postes nommés dans `ABILITY_ENTRIES` (entrée `free`) est tranché par
-     Eric, il rougira — et c'est LUI qu'il faudra réécrire, pas le câblage. */
-  assert.equal(node.querySelectorAll(".ability-organe-mot").length, 0, "FREE : la dalle ne garde que son titre");
+  /* ✅ ET L'ORGANE PORTE SON AIGUILLEUR DEPUIS LE 06/09 AU SOIR (lot 168) — Eric le
+     voulait (*« dans FREE, il faut un aiguilleur sous le titre »*), il aura fallu
+     trois sièges pour lui trouver ses 38 blg.
+     🔵 RELEVÉ AU BANC LE 06/09 À 15:11, ÉCRAN LIVRÉ : carte **492**, contenu 490,37
+     — organe 79,59 · écart 4 · palette 188 · écart 4 · collecteur 214,78 — donc
+     **1,63 de place libre**. La bande vaut **38** (4 + 2 × 15 + 4, plancher ramené à
+     deux lignes et BORNÉ à `.ability-organe[data-methode="free"] .guide-mot`).
+     💰 CE QUI L'A PAYÉE : le rembourrage haut de `.ability-collecteur > .sortie`
+     (16 → 8, +8) et le rembourrage vertical du tapis 4/4 (4 → 0, +8) — ⭐ ce dernier
+     était DÉDUIT du rapport de `tapis-4x4.webp` (1,764) et le `row-gap` 8 → 4 du
+     matin avait porté la boîte à 1,872 : il ne servait déjà plus, Eric a tranché de
+     le retirer plutôt que de recadrer son image.
+     🔴 LE TÉMOIN QUI TRANCHE, ET IL N'Y EN A QU'UN : `.ability-flux` rend
+     `scrollHeight` **38** pour `clientHeight` **38**, et l'écran montre DEUX LIGNES
+     ENTIÈRES. Les deux sièges précédents ont lu 38/25 puis 38/32 et ont refusé de
+     livrer — un aiguilleur qui défile est le défaut qu'Eric interdit nommément.
+     ⚔️ ET C'EST LA MOITIÉ QUI MANQUAIT À L'ALTERNATIVE : l'autre est le garde de la
+     scène 2 (« l'aiguilleur de l'organe a disparu », plus haut dans ce fichier). Un
+     garde qui n'éprouve qu'une branche laisse l'autre libre de mentir. */
+  assert.equal(node.querySelectorAll(".ability-organe-mot").length, 1, "FREE : la dalle porte son aiguilleur");
+  assert.equal(node.querySelectorAll(".ability-organe-mot")[0].textContent,
+    ABILITY_ENTRIES.find((e) => e.id === "free").blurb,
+    "…et il LIT la phrase de l'entrée, il ne la recopie pas");
   /* ⌨️ ET SA PHRASE EST DÉJÀ TAILLÉE POUR LES DEUX LIGNES QU'ELLE AURA — l'architecte,
      06/09, au nom d'Eric : *« on ne réduit JAMAIS une police et on ne tronque pas un
      mot pour gagner de la place — on raccourcit le texte »*. Mesuré à 351 blg de
@@ -1087,8 +1096,10 @@ test("🔴 `FREE` — DEUX dalles, et aucune rangée d'îlots entre les deux", (
   assert.match(guideAbilities, /drag a die off to discard it/i,
     "…et « drag a die off to discard it » est descendu dans le tutoriel du `?` (GUIDES.abilities)");
   assert.equal(node.querySelectorAll(".ability-methode-titre")[0].textContent, "FREE");
-  /* 📏 ET SON COLLECTEUR NON PLUS : il faut les DEUX aiguilleurs (53 + 52) pour que
-     le 4 × 4 et `Done` tiennent dans les 486 de la carte. Le TITRE du collecteur
+  /* 📏 ET LE COLLECTEUR DE FREE N'EN A TOUJOURS PAS, LUI : les deux ne tiennent pas.
+     ⚠️ Le chiffre d'ici était périmé — la carte fait **492**, pas 486, et le relevé
+     du 06/09 à 15:11 la donne pleine à 490,37 AVEC l'aiguilleur de l'organe : 1,63
+     de reste, là où celui du collecteur en demanderait 52. Le TITRE du collecteur
      reste, et c'est lui qui dit le geste. */
   assert.equal(node.querySelectorAll(".ability-collecteur-mot").length, 0, "FREE : pas d'aiguilleur au collecteur non plus");
   assert.equal(node.querySelectorAll(".ability-collecteur .ability-dalle-titre")[0].textContent,

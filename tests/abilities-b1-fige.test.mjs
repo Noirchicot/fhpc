@@ -120,9 +120,18 @@ test("7.8 — les libellés n'ont qu'un écrivain : l'aiguilleur les LIT, il ne 
   /* 🔴 06/09 au soir — L'AIGUILLEUR DE L'ORGANE N'EXISTE PLUS EN SCÈNE 2 (Eric :
      *« le premier aiguilleur disparaît quand le 2ᵉ apparaît, il ne reste que le
      titre »*). Il ne suffit donc plus de ne pas NOMMER les boutons : le paragraphe
-     entier est sous la porte de la scène, et c'est ce que ce garde lit. */
-  assert.match(STEP, /if \(!scene2 && !composable\) \{\n\s*flux\.append\(el\("p", "guide-mot ability-organe-mot"/,
-    "l'aiguilleur de l'organe est SOUS une porte — scène 1, et pas la palette de FREE");
+     entier est sous la porte de la scène, et c'est ce que ce garde lit.
+     🔵 ET LA PORTE EST LA SCÈNE, RIEN QU'ELLE — corrigé le 06/09 au soir, lot 168.
+     Elle a porté `&& !composable` pendant une journée, le temps que FREE trouve les
+     38 blg de sa bande. ⛔ Ce garde ne doit PAS reprendre cette condition : elle
+     décrivait un MANQUE DE PLACE, pas une promesse — un garde qui épelle un état
+     provisoire rougit sur sa réparation, avec l'air d'avoir raison (TRAPS).
+     ⚔️ Les deux moitiés de l'alternative sont éprouvées SUR LE RENDU dans
+     `abilities-step.test.mjs` : scène 2 n'en a aucun, FREE en a un. */
+  assert.match(STEP, /if \(!scene2\) \{\n\s*flux\.append\(el\("p", "guide-mot ability-organe-mot"/,
+    "l'aiguilleur de l'organe est SOUS la porte de la scène");
+  assert.ok(!/if \(!scene2 && !composable\)/.test(STEP),
+    "⛔ `composable` ne garde plus l'aiguilleur : FREE en porte un depuis le 06/09");
   assert.match(STEP, /meca \? " " \+ motDesBoutons\(meca\)/, "et il nomme les boutons tant qu'ils sont là");
   assert.match(STEP, /if \(!scene2\) flux\.append\(plateau\.commandes\)/, "le bloc entier part en scène 2");
 });

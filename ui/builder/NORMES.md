@@ -5103,39 +5103,46 @@ elle pesait **344 blg pour ~90 montrés** — on ne voyait que `3 · 4 · 5 · 6
 valeurs vivaient sous un défilement que rien n'annonce. *« Un jeton hors écran est introuvable »*
 (§5 bis) : un vivier dont on voit un quart n'est pas un vivier.
 
-**LE BUDGET, RECENSÉ AU BANC LE 06/09 À 14:53** *(lot 168 — chaque poste relevé par
+**LE BUDGET, RECENSÉ AU BANC LE 06/09 À 15:11** *(lot 168, écran LIVRÉ — chaque poste relevé par
 `getBoundingClientRect`, jamais déduit)*. ⚠️ **La carte fait 492**, pas 486 : le 486 était la cote
-du 05/09 et personne ne l'avait remesurée.
+du 05/09 et personne ne l'avait remesurée — il a fait perdre une heure à deux sièges.
 
 | poste | blg | ce qui le compose |
 |---|---|---|
-| organe, **titre seul** | 41,59 | 4 + titre 21,59 + écart 8 + flux 0 + 8 |
-| palette **4 × 4**, dés à **44** | 196 | 4 + 4 × 44 + 3 × 4 + 4 |
-| collecteur **sans son aiguilleur** | 222,80 | 8 + titre 28,80 + 8 + créneaux 94 + 8 + sortie 68 + 8 |
+| organe, **titre + aiguilleur** | 79,59 | 4 + titre 21,59 + écart 8 + **flux 38** + 8 |
+| palette **4 × 4**, dés à **44** | 188 | **0** + 4 × 44 + 3 × 4 + **0** *(rembourrage retiré)* |
+| collecteur **sans son aiguilleur** | 214,78 | 8 + titre 28,80 + 8 + créneaux 94 + 8 + **sortie 60** + 8 |
 | écarts de l'étape | 8 | 2 × 4 *(le line bleed ramené à 4 le 06/09)* |
-| **total** | **468,39** dans **492** | **il reste 23,61** |
+| **total** | **490,37** dans **492** | **il reste 1,63** |
 
-🔵 **L'AIGUILLEUR DE L'ORGANE : IL MANQUE 6,39 blg, ET C'EST MESURÉ EN LE POSANT** *(lot 168)*.
-Sa boîte à **deux lignes** vaut **38** *(4 + 2 × 15 + 4, plancher ramené à deux lignes pour ce seul
-organe)*. Le rembourrage HAUT de sa `.sortie` *(16 → 8, la cote d'Eric du 05/09)* en rend 8 : il en
-reçoit **31,61**. ⛔ **Le témoin** : `.ability-flux` a rendu `scrollHeight` **38** pour
-`clientHeight` **32** — la seconde ligne sortait coupée. Un aiguilleur qui défile est le défaut
-qu'Eric interdit nommément, donc **le câblage a été défait**, pas livré tronqué.
-⚖️ **LES QUATRE POSTES QUI PORTENT CES 6,39**, chacun mesuré **en le retirant au banc**, et chacun
-une cote d'Eric — donc un arbitrage qui lui revient, jamais une marge à grignoter :
+🔵 **L'AIGUILLEUR DE L'ORGANE EST LIVRÉ — 06/09, lot 168, après TROIS sièges.** Sa boîte à **deux
+lignes** vaut **38** *(4 + 2 × 15 + 4 ; le plancher de deux lignes est borné à
+`.ability-organe[data-methode="free"] .guide-mot`, ⛔ jamais global — les autres écrans gardent les
+trois lignes d'Eric du 27/08)*.
+🔴 **LE TÉMOIN, ET IL N'Y EN A QU'UN** : `.ability-flux` rend `scrollHeight` **38** pour
+`clientHeight` **38**, et l'écran montre **deux lignes entières**, bande bleue comprise *(mesuré et
+REGARDÉ à 15:11, 375 × 720)*. ⛔ Les deux sièges précédents ont lu **38/25** puis **38/32** et ont
+refusé de livrer une bande coupée : *« un contenu qui ne tient pas, on demande ce qu'il porte EN
+TROP, jamais un défilement »*. Le succès de ce lot n'est pas un compte de blg, **c'est l'écran**.
+⚖️ **CE QUI LE FINANCE — deux cotes d'Eric, et il a tranché la seconde lui-même** :
 
-| poste | rend | referme ? |
+| poste | rend | ce que c'est |
 |---|---|---|
-| rembourrage **vertical du tapis** 4/4 → 0 | +8 | ✅ **pile** — 38 pour 38 |
-| **titre du collecteur** retiré | +36,8 | ✅ mais c'est lui qui dit le geste |
-| **ligne de bonus réservée** (31) retirée | +31 | ✅ mais c'est sa règle du 05/09 |
-| écart **titre ↔ aiguilleur** 8 → 4 | +4 | ⛔ insuffisant seul |
+| rembourrage **HAUT** de `.ability-collecteur > .sortie`, 16 → 8 | +8 | sa cote du 05/09 |
+| rembourrage **vertical du tapis** 4/4 → 0 | +8 | ⭐ **un orphelin** — voir ci-dessous |
+| place libre de la carte | +23,61 | le reste du recensement |
 
-⭐ **LE MOINS CHER EST DÉJÀ ORPHELIN** : ce rembourrage de 4 était **déduit** du rapport de
-`tapis-4x4.webp` (1,764) pour qu'un `contain` remplisse la boîte au pixel — le `row-gap` 8 → 4 du
-06/09 a porté la boîte à **1,872**, et le tapis ne touche **déjà plus** les bords (10,7 de vide de
-chaque côté). Le rembourrage ne sert plus ce qu'il servait. ⛔ Mais l'image est **l'asset d'Eric** :
-recadrage ou rembourrage, c'est lui qui tranche.
+⭐ **ET LE POSTE DÉCISIF ÉTAIT DÉJÀ ORPHELIN — c'est ce qui l'a rendu gratuit.** Ce rembourrage de 4
+était **déduit** du rapport de `tapis-4x4.webp` (1,764) pour qu'un `contain` remplisse la boîte au
+pixel ; le `row-gap` 8 → 4 du 06/09 a porté la boîte à **1,872**, et le tapis **ne touchait déjà
+plus** les bords (10,7 de vide de chaque côté, mesuré). ⛔ **Une cote qui ne sert plus ce pour quoi
+elle a été déduite est un orphelin : la retirer ne casse rien qui vive encore.** La question posée à
+Eric en une phrase — *« je retire le rembourrage, ou tu recadres l'image ? »* — a reçu **« A »** :
+`tapis-4x4.webp` n'est pas touché, il reste son asset.
+⛔ **LES DEUX AUTRES POSTES N'ONT PAS ÉTÉ PRIS**, et c'est à noter pour la prochaine fois : le
+**titre du collecteur** (+36,8) dit le geste, la **ligne de bonus réservée** (+31) est la règle
+d'Eric du 05/09 — et sa métrique d'attente (`.ability-row-final-attente`, T3/600) existe précisément
+pour que la rangée ne remonte pas au premier dépôt.
 ⭐ **ET LE TEXTE, LUI, EST DÉJÀ COUPÉ** *(la seule des trois décisions qui ne coûte aucune cote)* :
 155 signes tombaient en **3 lignes**, sa première phrase seule en fait 86 et **2** — mesuré à 351 blg
 de large. C'est la loi d'Eric appliquée à la lettre : *« un contenu qui ne tient pas, on demande ce
@@ -5181,20 +5188,31 @@ le TAPIS est arrivé : un dé sur un cercle sur un tapis fait deux fonds verts e
 partage de B1 — les dés du **tapis** n'ont pas de pastille, les dés du **podium** n'ont pas de tapis.
 Le `.75`, lui, reste : il laisse le feutre se voir entre les seize.
 
-🟢 **LE TAPIS** *(`tapis-4x4.webp`, 552 × 313, livré sur commande chiffrée)* : son rembourrage est
+🟢 **LE TAPIS** *(`tapis-4x4.webp`, 552 × 313, livré sur commande chiffrée)* : son rembourrage était
 **déduit du rapport de l'image**, jamais choisi — image 552/313 = **1,764**, grille nue
-362,4/197,5 = 1,835 *(plus large que le tapis)*, avec **4 tout autour** 362,4/205,5 = **1,764**. Le
-`contain` remplit donc exactement la boîte, sans bande vide ni recadrage, et les dés des coins ont
-4 blg avant le filet. Coût : **8 blg**.
+362,4/197,5 = 1,835 *(plus large que le tapis)*, avec **4 tout autour** 362,4/205,5 = **1,764**.
+🔴 **ET IL EST PARTI LE 06/09 AU SOIR, sur le mot d'Eric** *(« A », c'est-à-dire : retire le
+rembourrage plutôt que je recadre l'image)*. La raison est mesurée, pas esthétique : le `row-gap`
+8 → 4 du matin même avait porté la boîte à **1,872**, le `contain` ne la remplissait donc **déjà
+plus** (10,7 blg de vide de chaque côté), et le rembourrage avait cessé de servir ce pour quoi il
+avait été déduit. Il rend **8 blg**, la moitié de l'aiguilleur.
+⛔ **Le latéral reste à 4** : `padding` écrivait les quatre côtés — deux longhands (`padding-block`
+/ `padding-inline`) remplacent le raccourci, sinon l'axe horizontal serait parti **en silence**,
+la faute que `shell.css` a déjà payée quatre fois.
+⭐ **Et la sortie « propre » n'a pas été prise sans lui** : un recadrage de l'image au nouveau
+rapport reste possible, c'est un **asset**, donc un mot d'Eric — il a choisi l'autre branche.
 ⚠️ **Le fichier n'était pas où ChatGPT disait l'avoir rangé** — il ne peut pas écrire sur le disque.
 Une livraison se **vérifie au disque**, jamais sur la parole de qui l'annonce.
 
-⏳ **CE QUI MANQUE, ET C'EST UNE DETTE MESURÉE** : Eric veut *« un aiguilleur sous le titre »* sur
-FREE. La carte fait **486** et elle est pleine à **486 pile** *(organe 46 · palette 205 ·
-collecteur 219 · écarts 16)*. Un aiguilleur coûte **45 de boîte — son plancher, même à 32 signes de
-texte** — plus 8 d'écart : **53**. Les seuls postes qui peuvent les payer sont des cotes d'Eric : le
-titre du collecteur *(28+8)*, la ligne de bonus réservée *(31, sa règle du 05/09)*, le rembourrage
-du tapis *(8)*. **Aucune n'appartient à un lot.** En attendant, le `?` porte la règle entière.
+✅ **LA DETTE EST FERMÉE** *(06/09, lot 168)*. ⚠️ Ce paragraphe portait *« la carte fait 486 et elle
+est pleine à 486 pile »* et *« un aiguilleur coûte 53 »* : **les deux chiffres étaient périmés** —
+la carte fait **492**, et le plancher de 45 (trois lignes) n'était pas une fatalité, il se borne. Un
+chiffre périmé dans une note de passation coûte plus cher que pas de note du tout : il a envoyé deux
+sièges chercher 53 blg là où il en fallait 38.
+⭐ **CE QUI L'A FERMÉE, DANS L'ORDRE** : le texte raccourci *(155 → 86 signes, v588 — la seule
+décision qui ne coûte aucune cote, et le geste de rejet descendu dans `GUIDES.abilities`)* · le
+plancher ramené à deux lignes **pour ce seul organe** · le rembourrage haut de la `.sortie`
+*(16 → 8)* · et le rembourrage du tapis, **l'orphelin**, tranché par Eric.
 
 ⭐ Le `.75` du podium : cube **32,6** dans un disque de **43,4**. Ce qui rétrécit est le **dessin** ;
 la **cible** reste le bouton de 44 — §1 ter, *un dessin ne dimensionne pas un contrôle*.

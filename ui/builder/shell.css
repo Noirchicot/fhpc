@@ -2849,7 +2849,15 @@ button { font: inherit; }
   /* 📏 ET LE DÉ PLAFONNE À 44, PAS À CELUI DE B1 — Eric, 06/09 : *« la taille des
      dés idem à B1, ça passe en hauteur »*, puis *« ou pas »*. **Ou pas** : mesuré.
 
-     LE BUDGET DE LA PAGE (carte de 486 blg à 375 × 553, la borne basse) :
+     ⚠️ CORRIGÉ LE 06/09 À 15:11 — LA CARTE FAIT **492**, PAS 486. Le 486 datait du
+     05/09 et personne ne l'avait remesuré ; il a envoyé deux sièges chercher 53 blg
+     là où il en fallait 38. ⭐ LA CONCLUSION, ELLE, NE BOUGE PAS : le dé reste à 44
+     (`--touch`), et le recensement à jour de la page vit en tête de
+     `abilities-step.mjs`, sur l'entrée `free`. Le calcul ci-dessous est gardé TEL
+     QUEL parce qu'il montre POURQUOI 54 ne passait pas — un raisonnement daté se
+     corrige en tête, il ne se réécrit pas après coup.
+
+     LE BUDGET DE LA PAGE (carte lue 486 à 375 × 553, la borne basse — voir ci-dessus) :
          collecteur, sans son aiguilleur .... 227
          organe, titre seul .................  40
          écarts .............................  16
@@ -2932,6 +2940,22 @@ button { font: inherit; }
    ⛔ Les seize pastilles s'en vont : un dé sur un cercle sur un tapis fait deux
    fonds verts l'un sur l'autre. C'est le partage de B1 — les dés du TAPIS n'ont pas
    de pastille (scène 1), les dés du PODIUM n'ont pas de tapis. */
+/* 🔴 ET SON REMBOURRAGE VERTICAL EST PARTI LE 06/09 — Eric, tranchant le dernier
+   poste de l'aiguilleur de FREE : *« il manque 6,39 blg ; le rembourrage du tapis
+   en rend 8 et ne sert déjà plus à rien depuis hier — je le retire, ou tu recadres
+   l'image ? »* → **« A »**.
+   ⭐ ET LA RAISON EST MESURÉE, PAS ESTHÉTIQUE : ces 4 étaient DÉDUITS du rapport de
+   l'image (1,764) pour qu'un `contain` remplisse la boîte au pixel. Le `row-gap`
+   8 → 4 de la veille a porté la boîte à **1,872** — le tapis ne touchait DÉJÀ plus
+   les bords (10,7 blg de vide de chaque côté, mesuré). Le rembourrage ne servait
+   donc plus ce qu'il servait : **c'est un orphelin**, et le retirer ne casse rien
+   qui vive encore. Il rend **8 blg**, exactement les 6,39 qui manquaient.
+   ⛔ LE LATÉRAL RESTE À 4, ET C'EST TOUT LE SOIN : `padding` écrivait les quatre
+   côtés ; le réécrire pour sa seule valeur verticale aurait emporté l'horizontale
+   en silence — la faute que cette feuille a payée quatre fois. Deux longhands, un
+   axe chacun, rien de deviné.
+   ⛔ ET L'IMAGE N'EST PAS TOUCHÉE : recadrer `tapis-4x4.webp` reste un mot d'Eric,
+   et il a choisi l'autre branche. */
 .ability-palette {
   padding: var(--sp-4);
   background: url("./assets/abilities/tapis-4x4.webp?v=589") center / contain no-repeat;
@@ -3238,7 +3262,15 @@ button { font: inherit; }
    La dalle porte déjà sa gouttière de 8 : le rembourrage latéral du pied
    ferait double emploi et rentrerait les boutons de 16 px de plus. */
 .ability-collecteur > .sortie {
-  padding: var(--sp-16) 0 var(--sp-8);   /* « 16 blg · cellule livre/back/done/? · 8 blg fin » — 05/09 */
+  /* 🔴 LE HAUT PASSE DE 16 À 8 LE 06/09, ET IL FINANCE UN ORGANE NOMMÉ : les
+     8 blg rendus ici sont la première moitié des 38 que réclame l'aiguilleur de
+     FREE (l'autre moitié vient du rembourrage du tapis, retiré le même jour).
+     ⚖️ C'est une cote d'Eric du 05/09 (*« 16 blg · cellule livre/back/done/? ·
+     8 blg fin »*) et elle ne se change QUE pour ça — un siège précédent l'avait
+     rendue puis remise en place le jour où le câblage n'est pas parti : une cote
+     d'Eric changée pour financer un organe qui ne part pas est changée pour rien.
+     ⛔ Le BAS ne bouge pas (8), ni le latéral (0, la dalle porte sa gouttière). */
+  padding: var(--sp-8) 0 var(--sp-8);
   /* 🔴 `margin-inline: auto` DOIT SAUTER ICI, et ce n'est pas cosmétique : une
      marge automatique sur un enfant de flex ABSORBE la place libre, donc le
      pied cessait de s'étirer — mesuré à **169 px** de large au lieu des 343 de
@@ -4811,6 +4843,23 @@ button { font: inherit; }
    📌 Même famille que le garde qui épelle une implémentation : ce qui est écrit
    doit être la propriété, jamais la forme qu'elle avait le jour de l'écriture. */
 :is(.dalle-simple, .dalle-intermediaire) .guide-mot { color: var(--text); }
+/* 🔵 DEUX LIGNES CHEZ FREE, ET SEULEMENT CHEZ LUI — 06/09, lot 168.
+   📏 Le plancher général est de TROIS lignes (45 blg de boîte, 53 avec l'écart) :
+   c'est la cote d'Eric du 27/08, prise sur un écran qui avait la place. FREE ne
+   l'a pas — sa palette de seize prend 200 blg là où les autres viviers en prennent
+   62 — et sa phrase, raccourcie à 86 signes le 06/09, tient en **deux lignes**
+   mesurées à 351 de large. Le plancher à trois lui réserverait une ligne vide.
+   ⛔ BORNÉ À L'ORGANE DE FREE, JAMAIS GLOBAL : les aiguilleurs des autres écrans
+   gardent les trois lignes d'Eric. Une cote qu'on baisse « puisque ça arrange
+   ici » se paie partout ailleurs, en silence.
+   ⛔ ET ELLE EST POSÉE APRÈS LE BLOC DE SA FAMILLE : à spécificité supérieure
+   l'ordre ne tranche pas, mais la règle de ce fichier est l'ordre — une cote
+   écrite avant sa famille perd sans rien dire (payé trois fois les 05→06/09).
+   ⭐ Le 1,5 n'est toujours écrit qu'une fois : `--aiguilleur-interligne` est
+   reprise telle quelle, pas recopiée. */
+.ability-organe[data-methode="free"] .guide-mot {
+  min-height: calc(2 * var(--aiguilleur-interligne) * 1em);
+}
 
 /* ② LE GUIDE SPÉCIFIQUE */
 /* 🔴 4 px SOUS LE PIED — Eric, 2026-08-26, dernière ligne de son gabarit d'Elf :
