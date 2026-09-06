@@ -2637,7 +2637,7 @@ button { font: inherit; }
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=585") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=587") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -2891,7 +2891,7 @@ button { font: inherit; }
    de pastille (scène 1), les dés du PODIUM n'ont pas de tapis. */
 .ability-palette {
   padding: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=585") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=587") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4387,7 +4387,7 @@ button { font: inherit; }
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=585") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=587") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7048,7 +7048,7 @@ button { font: inherit; }
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=585");
+  background-image: url("./assets/tarot-dos.jpg?v=587");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7840,6 +7840,102 @@ button { font: inherit; }
    « rien n'est fait » : il porte la couleur de l'action qui avance, comme la
    porte validée. `[disabled]` garde son voile (fiche.css, opacity .55). */
 .fiche-action { --bouton-fond: var(--positive); }
+
+/* ══ 🔵 LES QUATRE MÉTHODES CESSENT D'ÊTRE GRISES — Eric, 2026-09-06 ════════
+   *« un `Done` non cliquable se confond avec un bouton non coloré. Désormais
+   NON COLORÉ = NON CLIQUABLE. »* — la loi est écrite au corpus sous
+   📍 `bouton-gris-non-cliquable` (commit `f822a84`, branche
+   `166-gris-non-cliquable`), et `A-TRANCHER § C24` la tranche pour ces quatre
+   tuiles : ⭐ **BLEU**, parce que *« la teinte se lit à ce que le bouton
+   PROMET »* et qu'elles promettent d'ouvrir une scène de jet — Eric lui-même :
+   *« le bleu c'est de la navigation, c'est cohérent non ? »*.
+
+   📏 CE QUI ÉTAIT MESURÉ, au banc, le 06/09 à 14:24 : les quatre tuiles
+   rendaient `#928c7f` (`--text-muted`), portaient `aria-pressed="false"` et
+   n'étaient **pas** `disabled` — grises ET cliquables, et c'est **le seul
+   geste de l'écran**. ⚠️ Eric les croyait déjà bleues (*« les 4 boutons du R
+   sont bleus »*) : sa mémoire portait la loi, le code portait l'écart.
+
+   🔴 ET LA RÈGLE EST ÉCRITE DANS LES DEUX SENS, sinon elle n'est pas
+   opposable : cliquable ⇒ jamais gris, **et** gris ⇒ jamais cliquable. La
+   seconde ligne rend au gris son seul sens, *« tu ne peux pas »*, et elle se
+   fonde sur la DONNÉE (`:disabled`), ⛔ jamais sur la forme d'un sélecteur.
+
+   ⚠️ POSÉ **APRÈS** LE BLOC DE LA FAMILLE, et ce n'est pas un détail : le gris
+   par défaut vit dans le patron de l'octogone, à spécificité ÉGALE (0,1,0).
+   Écrites plus haut, ces deux lignes auraient perdu **en silence** — le défaut
+   même que `.tray-bouton` a payé cinquante lignes au-dessus.
+   ⭐ `[data-active="true"]` (0,2,0) garde la main sur l'élue et lui laisse son
+   `font-weight: 600` : la tuile choisie reste distincte **par la graisse**, ce
+   qui dissout l'objection *« quatre tuiles bleues affaiblissent le choix »*. */
+.ability-entry { --bouton-fond: var(--info); }
+.ability-entry:disabled { --bouton-fond: var(--text-muted); }
+
+/* ══ 📏 LA COTE DU GABARIT `small` — Eric, 2026-09-06 ══════════════════════
+   *« je veux une taille standard pour tous les petits boutons sur tout le
+   site, harmoniser maintenant »* · *« cote 44, elle porte tous les mots à
+   6 lettres ou moins »* · *« c'est tous les boutons avec : done / cancel /
+   next / choose / draw / FH3d6 / 4D6 / Array / free »*.
+
+   🔴 CE QUI VARIAIT N'ÉTAIT PAS LA HAUTEUR — mesuré au banc le 06/09 à 14:16,
+   quatre md5 de contenu contre le disque, largeurs relevées en blg
+   (`offsetWidth`, zoom 1,04) :
+
+     `Next`   .parcours-next .......  68     ⛔
+     `Done`   .parcours-done .......  72     ⛔
+     `Draw`   .parcours-next .......  72     ⛔
+     `Done`   .sortie-done .........  72 ET 75 selon l'écran   ⛔⛔ deux cotes
+     `Cancel` .sortie-annule .......  85     ⛔
+     `Choose` .fiche-action ........  87     ✅ (fiche.css la lui donne déjà)
+     `FH 3D6` `4D6` `ARRAY` `FREE` .  87     ✅ (`.ability-entry`, déjà cotée)
+     livre · `?` ..................  44 × 44 ✅
+     LA HAUTEUR VALAIT DÉJÀ 44 PARTOUT (`min-height: var(--touch)`).
+
+   ⭐ LA COTE N'EST PAS NEUVE, ET C'EST TOUT L'ARGUMENT : `--glisse-case` vaut
+   87, et NORMES §6 le déduit déjà — *« small · 6 caractères · 3 par ligne ·
+   87 »*, *« un petit bouton fait 87, EXACTEMENT la largeur d'un jeton : les
+   deux se déduisent de la MÊME rangée de 278 avec la MÊME gouttière »*. ⛔ On
+   n'invente donc aucun nombre, on fait PRENDRE au gabarit la cote qu'il a.
+
+   🔴 POURQUOI `min-width` ET NON `width`, ET CE N'EST PAS UNE PRUDENCE :
+   la règle d'Eric est une LONGUEUR DE MOT, pas une liste — et un plancher la
+   dit exactement. Un libellé de 6 caractères à T3 demande ~65 blg, donc moins
+   que 87 : le plancher décide, et le bouton rend 87 pile. Un libellé plus
+   bavard (`Expert view`, `Export HTML`, `Export JSON`, `I understand`,
+   `Turn tutorials off`) demande DÉJÀ plus de 87 : le plancher ne le touche
+   pas, et Eric les a explicitement mis hors périmètre — *« ne les force
+   pas »*. ⛔ Un `width` fixe, lui, les aurait rognés en silence.
+   ⭐ Le compte de caractères n'a donc pas à être écrit nulle part : la LARGEUR
+   NATURELLE DU MOT est la donnée, et 87 est le seuil qu'elle franchit
+   précisément entre 6 et 7 caractères — parce que §6 a déduit 87 DE ce compte.
+
+   ⛔ CE QUI RESTE DEHORS, ET ERIC LES A NOMMÉS UN PAR UN : les chevrons
+   (`.stage-chevron` 36 × 14, `.card-final-chevron` 6 × 6), les onglets
+   `Menu`/`Sheet` (58 × 58, `--onglet-taille`, un organe déclaré à part), les
+   interrupteurs on/off (`.bascule-ligne`, `.universe-bascule` — *« un
+   interrupteur n'est pas un bouton »*, §6). Aucun n'est de la famille
+   octogone : ils ne sont pas atteints par ce sélecteur, et c'est voulu.
+   ⛔ Les deux BORNES en sortent aussi, nommément : elles valent leur carré
+   tactile 44, et *« un contrôle ne se laisse jamais dimensionner par un
+   dessin »* joue ici dans l'autre sens — 87 les ferait grossir.
+
+   ⚠️ ET LA RÈGLE EST POSÉE **APRÈS** LE BLOC DE SA FAMILLE, jamais avant : à
+   spécificité égale c'est l'ordre qui départage, et une cote écrite plus haut
+   aurait perdu sans un mot — le défaut que `.tray-bouton` a payé quatre lignes
+   plus haut, dans cette même feuille.
+
+   📏 IL Y A LA PLACE, ET ELLE EST MESURÉE : la cellule des majeurs offre 247
+   blg ; deux boutons à 87 plus l'écart de 8 font 182. Trois en feraient 277 —
+   mais §6 interdit que `Done` et `Next` coexistent, et la paire maximale
+   observée sur les dix écrans est `Cancel` + un seul verbe. */
+:is(.sortie-bouton,
+    .species-done,
+    .parcours-item-porte,
+    .card-pied button,
+    .fiche-action,
+    .parcours-pied button):not(.fiche-livre):not(.tuto-point) {
+  min-width: var(--glisse-case);
+}
 
 /* ══ LE DRESSING EN TROIS BANDES (NORMES §1 sexies, 26/08) ══════════════════
    « un dressing qui scrolle, des boutons fixes » — titre collé en haut, flux
