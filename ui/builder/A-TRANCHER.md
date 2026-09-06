@@ -291,4 +291,15 @@
 - 🔴 **LES DEUX RÉPONSES POSSIBLES, ET ELLES NE COÛTENT PAS PAREIL** :
   - **bleues** — elles naviguent (choisir une méthode ouvre une scène), donc le bleu dit vrai. ⛔ Mais quatre tuiles bleues côte à côte, dont une seule est « choisie », affaiblit le signal du choix ; il faudra un second signe pour l'élue.
   - **vraiment désarmées** — le gris devient honnête, mais alors **l'écran n'a plus aucun geste** tant que rien ne les arme. ⛔ Impossible pour `.ability-entry` : c'est le seul geste de la page.
+- ⚖️ **DIRECTION DONNÉE PAR ERIC LE 06/09**, relayée par le siège Abilities : *« le bleu c'est de la navigation — c'est cohérent non ? »*. ⭐ **Oui, et ça règle la moitié de C24** : les quatre tuiles passent au **bleu**, parce que la teinte se lit à ce que le bouton **PROMET**, et elles promettent d'ouvrir une page. ⚠️ **Formulé comme une question, pas comme un ordre** — un mot d'Eric le ferme définitivement.
+- 🔴 **MAIS LA SECONDE MOITIÉ N'EST PAS TRANCHÉE, ET ELLE EST PLUS GRAVE QUE LA COULEUR.** 📏 Mesuré par le siège Abilities, **vérifié par l'architecte** à `shell.mjs:620-642` : le clic de tuile a **deux comportements**, et un seul est de la navigation.
+  - **la tuile DÉJÀ choisie** (`memeMethode`) → il ne se passe **rien** hors le palier. Navigation pure. ✅
+  - **toute AUTRE tuile** → `abilities.mode` est écrit au document **et le lot en cours est JETÉ**. Le code le dit lui-même : *« seul un CHANGEMENT de méthode jette le lot, et c'est légitime : un lot de dés n'a aucun sens dans une autre méthode »*.
+- ⛔ **DONC TROIS DES QUATRE TUILES DÉTRUISENT DU TRAVAIL, ET CE NE SONT JAMAIS LES MÊMES.** Un joueur qui a posé six dés en `FREE` et qui touche `ARRAY` perd ses six poses. §6 range ce geste chez **`Cancel`** (*« il abandonne ou efface du travail fait »*), pas chez `Back` — et le bleu ne le dit pas.
+- ⚠️ **Et le coût n'est pas le même partout** : sur les deux méthodes à dés le lot se re-tire **en un geste** ; en `FREE` et en `ARRAY` ce sont des **poses à la main** qu'on perd.
+- 🔴 **CE QUI RESTE À TRANCHER — trois formes, aucune n'est à un siège de choisir** :
+  ① **le gendarme** (§6) parle au moment du changement, **si un lot existe** ;
+  ② **rien**, et on assume ;
+  ③ le bleu pour la tuile courante, **une autre teinte pour les trois autres** — ⛔ *déconseillé par Abilities, et l'argument est juste* : ça peindrait **la DESTINATION** en couleur de danger alors que **le danger est dans le DÉPART**.
+- ⭐ **ET ÇA DISSOUT L'OBJECTION DE L'ARCHITECTE** (*« quatre tuiles bleues affaiblissent le signal du choix »*) : **l'élue n'a pas besoin d'une couleur à elle — elle est la seule dont le clic ne détruit rien.** La distinction existe **déjà dans le comportement** ; il reste à la rendre visible.
 - 📌 **Le garde attend cette réponse.** *« Aucun bouton gris n'est cliquable, aucun bouton cliquable n'est gris »* rougirait aujourd'hui sur ces deux familles. Le poser avant la décision, c'est livrer une suite rouge ; l'assouplir pour qu'il passe, c'est écrire un garde creux — le dépôt en a déjà hébergé un **seize jours**.
