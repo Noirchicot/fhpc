@@ -3637,6 +3637,53 @@ l'origine — **un état qui demeure n'a rien à dire à une échelle qui mesure
 tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleurs**. ⛔ Vérifier
 pourquoi elle avait été écrite avant de la retirer.
 
+### 🔴 DEUX LARGEURS DE BOUTON, ET DEUX SEULEMENT — **77 et 105** *(Eric, 2026-09-06)*
+📍 `bouton-deux-largeurs` · vivante · 06/09
+
+> Eric, 2026-09-06 : *« je veux une taille standard pour tous les petits boutons sur tout le
+> site »* · *« **la cote 77** comme standard petit »* · *« **donc c'est 105**, c'est acté »*
+> pour le moyen · *« l'écriture classique en **T3**, bien »*.
+
+| | la cote | ce qu'elle porte |
+|---|---:|---|
+| **PETIT** | **77** | un libellé de **6 caractères ou moins** — `Done` · `Next` · `Cancel` · `Choose` · `Draw` · `FH 3D6` · `4D6` · `ARRAY` · `FREE` |
+| **MOYEN** | **105** | jusqu'à **11 caractères** — il porte **`Equipment`** et même **`Inheritance`**, le plus long nom de chapitre |
+
+⛔ **Hauteur `--touch` (44), texte **T3** (14), écriture **classique** — pas de capitales, Eric l'a
+retiré le jour même : *« j'ai pas demandé les capitales, j'ai dit AU CAS OÙ les capitales »***.
+📌 Rembourrage **`--sp-8`**, et c'est lui qui rend les cotes possibles — voir plus bas.
+
+⭐ **LES DEUX COTES NE SONT PAS CHOISIES, ELLES SONT DÉDUITES DE LA PLACE**, et c'est ce qui les
+rend défendables. La dalle offre **335 blg** de contenu *(367 moins ses 2 × 16)*. Eric a posé
+**deux configurations, et chacune doit tenir** :
+
+| la cote sert à | l'arithmétique | reste |
+|---|---|---:|
+| **4 petits** en largeur | 4 × 77 + 3 × 8 = **332** | 3 |
+| **3 petits + livre + `?`** | 44 + 3 × 77 + 2 × 8 + 44 = **335** | 0, pile |
+| **3 moyens** en largeur | 3 × 105 + 2 × 8 = **331** | 4 |
+| **2 moyens + livre + `?`** | 44 + 2 × 105 + 8 + 44 = **306** | 29 |
+
+📏 **MESURÉ AU BANC LE 06/09, chaque mot dans SA classe** *(⚠️ une sonde qui emprunte la classe
+d'un autre organe ment : la première a pris un onglet du belt, police 16 et rembourrage 0)* :
+
+| le mot le plus large de sa famille | largeur à `--sp-8` | dans sa cote |
+|---|---:|---|
+| `Choose` *(le petit le plus large de tout le dépôt)* | **67,9** | 77 → **9,1 de marge** |
+| `Inheritance` | **92,7** | 105 → **12,3 de marge** |
+| `Equipment` | **88,6** | 105 → **16,4 de marge** |
+
+⚠️ **ET LE REMBOURRAGE EST LE VRAI LEVIER, PAS LA LARGEUR.** À `--sp-20` *(l'ancien)*, `Choose`
+réclamait **89,7** — aucune largeur ne pouvait satisfaire à la fois « le plus gros mot rentre » et
+« quatre boutons dans la rangée ». C'est en descendant le rembourrage que les deux se referment.
+📌 Corollaire : ⛔ **on ne rétrécit jamais un bouton en réduisant sa police ou en tronquant son
+mot.** On rend son rembourrage, ou on change le mot.
+
+⛔ **CE QUI N'ENTRE PAS DANS CES DEUX COTES** *(Eric les a exclus nommément)* : les **chevrons** ·
+les **onglets** `Menu`/`Sheet` *(58, `--onglet-taille`, un organe déclaré à part)* · les
+**interrupteurs** on/off · le **livre** et le **`?`**, qui valent `--touch` 44 et sont des ronds,
+pas des boutons à mot.
+
 ### 🔴 NON COLORÉ = NON CLIQUABLE *(Eric, 2026-09-06)*
 📍 `bouton-gris-non-cliquable` · vivante · 06/09 · borne `bouton-done-gris-inacheve`
 
