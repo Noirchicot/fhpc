@@ -798,6 +798,35 @@ test("⚔️ ATTAQUE — plus aucun jet en dur dans la coquille : c'est le plate
     "⛔ la molette de méthode de jet n'existe plus : FH 3D6 et 4D6 sont deux TUILES, pas un réglage");
 });
 
+test("🔴 L'ABSOLU DU 04/09 — les QUATRE méthodes portent le livre dans leur dernière rangée", () => {
+  /* Eric, 06/09 : *« array et free : livre / bouton / ? — absolu »*. §6 pré :
+     *« dernière rangée de boutons = `?` et livre dedans, c'est un absolu »*.
+     ⚠️ ARRAY et FREE ne le tenaient pas, et RIEN NE CRIAIT : une borne absente ne
+     casse aucune rangée — les organes restants se centrent très bien sans elle.
+     C'est le miroir de la faute que §6 pré nomme (*« il PARAISSAIT aligné, il ne
+     l'était que par coïncidence »*) : ici la rangée paraissait complète.
+     Le `?`, lui, est descendu par la coquille (`poserLesBornes`) et son garde vit
+     là-bas ; ce test-ci répond de l'AUTRE borne, celle que l'écran dépose. */
+  for (const m of ["fh3d6", "4d6", "standard", "free"]) {
+    const lot = m === "fh3d6" || m === "4d6"
+      ? makeRollBatch([16, 14, 13, 12, 10, 8], emptyAbilityAssign(), m === "4d6" ? "4d6" : "fh3d6")
+      : lotSansDes(m);
+    const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: m, rollBatch: lot }), () => {});
+    const hote = node.querySelectorAll("[data-sortie-ici]")[0];
+    assert.ok(hote, `${m} : un hôte de sortie`);
+    assert.equal(hote.querySelectorAll(".livre-de-sortie").length, 1,
+      `${m} : le livre est DANS la dalle qui porte la dernière rangée`);
+  }
+  /* ⚓ ET L'ANCRE SUIT LA MÉTHODE : `#the-3d6-10-method` est une ancre relevée sur
+     la page publiée, et elle ne décrit QUE le tirage FH. ARRAY et FREE ouvrent le
+     chapitre entier — le chapitre ne porte aucune section pour eux. */
+  const src = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder", "abilities-step.mjs"), "utf8");
+  assert.match(src, /renderLivreDeLaMethode\(plateau \? "the-3d6-10-method" : null\)/,
+    "le collecteur passe l'ancre du 3d6 aux seules méthodes à dés");
+  assert.match(src, /lienAbilityScoresFhWeb\(ancre \|\| null\)/,
+    "…et le livre ouvre le chapitre entier quand il n'en reçoit pas");
+});
+
 test("les quatre explications sont DIFFÉRENTES, et celles des dés viennent de leur mécanique", () => {
   /* 🔴 LES QUATRE PHRASES SE COMPTENT À LEUR SOURCE, PLUS À L'ÉCRAN — depuis le
      06/09, B1 et B2 n'ont d'aiguilleur qu'en scène 1 et FREE n'en a plus du tout

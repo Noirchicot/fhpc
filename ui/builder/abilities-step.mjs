@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=582";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=582";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=582";
-import { armerJeton } from "./glisser.mjs?v=582";
-import { facteurZoomCourant } from "./echelle.mjs?v=582";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=582";
-import { createDieHost, mount } from "./dice3d.mjs?v=582";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=582";
+import { markPressed } from "./carnet.mjs?v=583";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=583";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=583";
+import { armerJeton } from "./glisser.mjs?v=583";
+import { facteurZoomCourant } from "./echelle.mjs?v=583";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=583";
+import { createDieHost, mount } from "./dice3d.mjs?v=583";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=583";
 
 export { rollAbilitySet };
 
@@ -1560,7 +1560,7 @@ export function renderAbilitiesStep(ctx, onAction) {
          `Done` (rien à valider avant le dixième jet). La coquille produit. */
       dalleSortie.dataset.sortieMot = "Cancel";
       dalleSortie.dataset.sortieSansDone = "true";
-      dalleSortie.append(renderLivreDeLaMethode());
+      dalleSortie.append(renderLivreDeLaMethode("the-3d6-10-method"));
       section.append(dalleSortie);
     }
     /* Scène 1 s'arrête ici : ni podium ni sélection tant que les dix ne sont
@@ -1588,8 +1588,20 @@ export function renderAbilitiesStep(ctx, onAction) {
        où chaque `Cancel` défait le dernier pas. `Done` valide les six posés. */
     collecteur.dataset.sortieMot = "Cancel";
     collecteur.dataset.sortieVerbe = "abilityClear";
-    collecteur.append(renderLivreDeLaMethode());
   }
+  /* 🔴🔴 L'ABSOLU DU 04/09 — *« dernière rangée de boutons = `?` ET livre dedans.
+     C'est un absolu »* (§6 pré). ARRAY et FREE ne le tenaient pas : leur rangée
+     portait le `?` (la coquille le descend seule) et **pas le livre**, parce que
+     ce `append` vivait sous la porte `if (plateau)` — donc sous les deux méthodes
+     À DÉS, et sous elles seules.
+     ⚠️ ET LA FAUTE ÉTAIT INVISIBLE À LA SUITE : une borne ABSENTE ne casse aucune
+     rangée — les trois organes restants se centrent très bien à trois. C'est
+     exactement ce que §6 pré nomme, *« il PARAISSAIT aligné ; il ne l'était que
+     par coïncidence »*, pris par l'autre bout : ici il paraissait complet.
+     ⭐ Ce qui reste sous la porte du plateau, c'est le MOT du bouton (`Cancel`,
+     qui efface un lot — ARRAY et FREE n'en ont pas à effacer, ils gardent `Back`).
+     Le livre, lui, ne dépend d'aucune mécanique : il mène au chapitre. */
+  collecteur.append(renderLivreDeLaMethode(plateau ? "the-3d6-10-method" : null));
   section.append(collecteur);
   return section;
 }
@@ -1642,17 +1654,27 @@ function renderBilan({ document: doc, resolved, rollBatch, act }) {
   dalle.dataset.sortieMot = "Cancel";
   dalle.dataset.sortieVerbe = "abilityBilanCancel";
   dalle.dataset.sortieDoneMot = "Next";
-  dalle.append(renderLivreDeLaMethode());
+  dalle.append(renderLivreDeLaMethode("the-3d6-10-method"));
   section.append(dalle);
   return section;
 }
 
-function renderLivreDeLaMethode() {
+/* ⚓ ET SON ANCRE DÉPEND DE LA MÉTHODE — 06/09.
+   `#the-3d6-10-method` est une ancre RELEVÉE sur la page publiée (curl du 05/09),
+   et elle ne décrit QUE le tirage de Fate's Hand. ⛔ Y envoyer le joueur d'`ARRAY`
+   ou de `FREE` serait le poser sur une section qui parle d'autre chose : le
+   chapitre `ability-scores` ne porte aucune section pour ces deux méthodes —
+   ⚠️ vérifié en le lisant, pas supposé. Ils ouvrent donc le chapitre ENTIER.
+   ⛔ Et on n'invente pas une troisième ancre : une ancre morte ne se voit qu'en
+   cliquant (la règle de `liens-fh.mjs`). */
+function renderLivreDeLaMethode(ancre) {
   const livre = el("button", "fiche-livre livre-de-sortie");
   livre.type = "button";
-  livre.setAttribute("aria-label", "Ability scores — read the 3d6 × 10 rules on FH Web");
+  livre.setAttribute("aria-label", ancre
+    ? "Ability scores — read the 3d6 × 10 rules on FH Web"
+    : "Ability scores — read the rules on FH Web");
   livre.addEventListener("click", () => {
-    window.open(lienAbilityScoresFhWeb("the-3d6-10-method"), "_blank", "noopener");
+    window.open(lienAbilityScoresFhWeb(ancre || null), "_blank", "noopener");
   });
   return livre;
 }
