@@ -488,3 +488,20 @@ test("⚔️ ATTAQUE — un fh:skill-points menteur (value ≠ somme du détail)
   assert.equal(texteDe(spent(node)), "2", "le dépensé, lui, vient du détail");
   assert.notEqual(2 + 99, 2 + vrai, "témoin : le mensonge est visible");
 });
+
+test("La molette tourne au glisser latéral, comme la fenêtre (Eric, 07/09 : « swipe latéral sur la molette doit être actif »)", () => {
+  skillsReinitialiserEcran();
+  const node = renderSkillsStep(ctxFrom(fixture.report, () => {}));
+  const tambour = node.querySelectorAll(".skills-tambour-hote")[0];
+  const centre = () => node.querySelectorAll('.skills-cran[data-place="centre"]')[0].textContent;
+  const avant = centre();
+  tambour.dispatchEvent({ type: "pointerdown", target: tambour, clientX: 200, clientY: 10 });
+  tambour.dispatchEvent({ type: "pointerup", target: tambour, clientX: 100, clientY: 12 });
+  const apres = centre();
+  assert.notEqual(apres, avant, "un glisser vers la gauche avance d'une page");
+  /* 🔴 LE TÉMOIN CONTRAIRE : un geste plus haut que large est un défilement, pas un tour. */
+  tambour.dispatchEvent({ type: "pointerdown", target: tambour, clientX: 200, clientY: 10 });
+  tambour.dispatchEvent({ type: "pointerup", target: tambour, clientX: 150, clientY: 90 });
+  assert.equal(centre(), apres, "un geste vertical ne tourne pas");
+  skillsReinitialiserEcran();
+});

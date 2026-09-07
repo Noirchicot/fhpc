@@ -923,6 +923,11 @@ export function renderSkillsStep(ctx, onAction) {
   section.append(tambourHote, fenetre, pied);
   redessiner();
   armerLeGlisser(fenetre, pages, redessiner);
+  /* « SWIPE LATÉRAL SUR LA MOLETTE DOIT ÊTRE ACTIF » (Eric, 07/09 05:4x) : la molette
+     tourne du même geste que la fenêtre — un doigt qui part d'un cran et glisse. Un
+     glisser qui finit sur un autre cran ne clique pas (pas de `click` sans départ et
+     arrivée sur le même bouton). */
+  armerLeGlisser(tambourHote, pages, redessiner);
 
   /* ── LE PIED, FIXE : la coquille le garnit (garde 17). L'hôte DÉCLARE sa
      paire : `Reset` (rouge, tout sauf le lié) à la place du retour, `Done` qui
