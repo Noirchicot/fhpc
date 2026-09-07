@@ -366,7 +366,11 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   jeton.dispatchEvent({ type: "pointerdown", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   jeton.dispatchEvent({ type: "pointerup", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.equal(skillsEcran().collecteurs.tool[0], jeton.getAttribute("data-valeur"), "le tap au doigt POSE dans le premier collecteur — il n'inspecte plus");
-  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "un collecteur qui change demande le redessin à la coquille : c'est elle qui tient la porte d'Add tool");
+  const emis = actions.splice(0);
+  assert.equal(emis[0].kind, "popup", "« tap sur un tool doit afficher sa description » (Eric, 07/09) : la prise ouvre le détail");
+  assert.equal(emis[0].titre, "Alchemist’s Supplies");
+  assert.match(emis[0].texte, /Intelligence/, "le détail est celui du record — l'aptitude de l'outil");
+  assert.deepEqual(emis[1], { kind: "skillsRedessiner" }, "et un collecteur qui change demande le redessin à la coquille : c'est elle qui tient la porte d'Add tool");
   assert.equal(pied.getAttribute("data-sortie-done-pret"), "false", "vide : « Add tool » déclaré éteint");
   const nodePris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   const pris = nodePris.querySelectorAll(".glisse-jeton")[0];
@@ -376,7 +380,7 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   pris.dispatchEvent({ type: "pointerdown", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   pris.dispatchEvent({ type: "pointerup", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.equal(skillsEcran().collecteurs.tool[0], null, "le second tap le rend");
-  actions.splice(0);
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "le retrait ne rouvre pas le détail");
   /* ⭐ ET « ADD TOOL » IMPORTE : le collecteur pris devient une ligne de la page. */
   skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";
   skillsFermerAjout();

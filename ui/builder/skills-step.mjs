@@ -279,8 +279,8 @@ function renderAiguilleur(c) {
        choix »*), pas sous le vivier : la ligne gagnée paie la 4ᵉ rangée. */
     const pris = ecran.collecteurs[ecran.ajout].filter(Boolean).length;
     lignes.push(ecran.ajout === "tool"
-      ? `Tap a tool to pick it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`
-      : `Tap a training to pick it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`);
+      ? `Tap a tool to pick it and read it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`
+      : `Tap a training to pick it and read it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`);
   } else if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
@@ -729,6 +729,13 @@ function renderSelecteur(c, kind) {
     path: `${racine}.${index}`, index, options, selected: slug ? [slug] : [], lock: null,
     mot: `${kind === "tool" ? "Tool" : "Training"} ${index + 1}`
   }));
+  const texteDuJeton = (slug) => {
+    const view = catalogue.find((v) => (v.record.slug || v.id) === slug);
+    const data = (view && view.record.data) || {};
+    return kind === "tool"
+      ? texteDuDetail({ nom: nomDe.get(slug), view, acquis: "none", bonus: null, plancher: "none", c })
+      : `${data.description || ""}${Number.isInteger(data.cost) ? `\n\nCost: ${data.cost} point${data.cost > 1 ? "s" : ""}.` : ""}`;
+  };
   const local = (action) => {
     const index = Number(String(action.path).slice(racine.length + 1));
     if (!Number.isInteger(index) || index < 0 || index >= COLLECTEURS) return;
@@ -738,7 +745,13 @@ function renderSelecteur(c, kind) {
          se rend (« tap to add, tap again to remove », la loi de l'écran). */
       const deja = col.indexOf(action.value);
       if (deja >= 0) col[deja] = null;
-      else col[index] = action.value;
+      else {
+        col[index] = action.value;
+        /* « Tap sur un tool doit afficher sa description » (Eric, 07/09 13:1x) : la
+           prise ouvre le détail — le même popup que le nom sur la ligne. Le retrait
+           (second tap) ne dit rien : on sait déjà ce qu'on rend. */
+        c.act({ kind: "popup", titre: nomDe.get(action.value) || action.value, texte: texteDuJeton(action.value) });
+      }
     } else if (action.kind === "clear") {
       col[index] = null;
     }
