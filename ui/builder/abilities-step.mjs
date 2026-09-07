@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=594";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=594";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=594";
-import { armerJeton } from "./glisser.mjs?v=594";
-import { facteurZoomCourant } from "./echelle.mjs?v=594";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=594";
-import { createDieHost, mount } from "./dice3d.mjs?v=594";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=594";
+import { markPressed } from "./carnet.mjs?v=595";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=595";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=595";
+import { armerJeton } from "./glisser.mjs?v=595";
+import { facteurZoomCourant } from "./echelle.mjs?v=595";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=595";
+import { createDieHost, mount } from "./dice3d.mjs?v=595";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=595";
 
 export { rollAbilitySet };
 
