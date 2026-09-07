@@ -716,7 +716,7 @@ function renderLigneTraining({ view, slug, lie, acquis }, c) {
    ⛔ Rien n'est écrit au personnage : les verbes du glisser sont repris ICI, dans
    l'état d'écran, et le `Done` du pied (verbe `skillsAjoutFermer`, exécuté par
    la coquille) fait entrer les collecteurs dans la page — vides. */
-function renderSelecteur(c, kind, surChangement) {
+function renderSelecteur(c, kind) {
   const catalogue = (c.query({ kind }) || []).slice().sort((a, b) => a.record.name.localeCompare(b.record.name));
   const nomDe = new Map(catalogue.map((v) => [v.record.slug || v.id, v.record.name]));
   const dejaLa = new Set(kind === "tool" ? outilsListes(c).map((v) => v.record.slug) : trainingsListes(c).map((l) => l.slug));
@@ -737,12 +737,14 @@ function renderSelecteur(c, kind, surChangement) {
          (Eric, 07/09 06:2x) : le tap CHOISIT — un jeton déjà pris, tapé de nouveau,
          se rend (« tap to add, tap again to remove », la loi de l'écran). */
       const deja = col.indexOf(action.value);
-      if (deja >= 0) { col[deja] = null; surChangement(); return; }
-      col[index] = action.value;
+      if (deja >= 0) col[deja] = null;
+      else col[index] = action.value;
     } else if (action.kind === "clear") {
       col[index] = null;
     }
-    surChangement();
+    /* La porte d'« Add tool » vit dans le pied, que la COQUILLE fabrique : un collecteur
+       qui change lui demande le redessin (`skillsRedessiner`), comme l'ouverture. */
+    c.act({ kind: "skillsRedessiner" });
   };
   const bloc = renderChoixGlisses({
     plan, slots, titre: null, mot: kind === "tool" ? "Tool" : "Training",
@@ -793,7 +795,7 @@ function renderPage(c, pages, surChangement) {
   const page = pages[cur];
   if (!page) return el("p", "placeholder", [text("No skills to spend on yet — pick a class first.")]);
   if (ecran.ajout && page.id === "kit") {
-    return renderSelecteur(c, ecran.ajout, surChangement);
+    return renderSelecteur(c, ecran.ajout);
   }
   const wrap = el("div", "skills-page");
   wrap.dataset.page = page.id;
@@ -883,11 +885,15 @@ export function renderSkillsStep(ctx, onAction) {
       pied.dataset.sortieMot = "Cancel";
       pied.dataset.sortieDoneMot = ecran.ajout === "tool" ? "Add tool" : "Add training";
       pied.dataset.sortieDoneVerbe = "skillsAjoutFermer";
+      /* Sa porte, déclarée : « Add tool » s'allume dès qu'un collecteur est pris — jamais
+         la porte du Done de l'étape (Eric, 07/09 06:4x : « n'importe pas les tools choisis »). */
+      pied.dataset.sortieDonePret = String(ecran.collecteurs[ecran.ajout].some(Boolean));
       pied.dataset.selecteur = "oui";
     } else {
       pied.dataset.sortieVerbe = "resetSkills";
       pied.dataset.sortieMot = "Reset";
       delete pied.dataset.sortieDoneVerbe;
+      delete pied.dataset.sortieDonePret;
       delete pied.dataset.selecteur;
       pied.dataset.sortieDoneMot = c.signe ? "Next" : "Done";
     }

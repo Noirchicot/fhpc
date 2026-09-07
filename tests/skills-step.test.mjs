@@ -366,14 +366,25 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   jeton.dispatchEvent({ type: "pointerdown", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   jeton.dispatchEvent({ type: "pointerup", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.equal(skillsEcran().collecteurs.tool[0], jeton.getAttribute("data-valeur"), "le tap au doigt POSE dans le premier collecteur — il n'inspecte plus");
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "un collecteur qui change demande le redessin à la coquille : c'est elle qui tient la porte d'Add tool");
+  assert.equal(pied.getAttribute("data-sortie-done-pret"), "false", "vide : « Add tool » déclaré éteint");
   const nodePris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   const pris = nodePris.querySelectorAll(".glisse-jeton")[0];
   assert.equal(pris.getAttribute("data-active"), "true", "le jeton pris porte le halo vert");
+  assert.equal(nodePris.querySelectorAll(".skills-pied")[0].getAttribute("data-sortie-done-pret"), "true", "un collecteur pris : « Add tool » déclaré allumé — jamais la porte du Done de l'étape (Eric, 07/09 : « n'importe pas les tools choisis »)");
   assert.equal(pris.disabled, false, "et reste vivant");
   pris.dispatchEvent({ type: "pointerdown", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   pris.dispatchEvent({ type: "pointerup", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.equal(skillsEcran().collecteurs.tool[0], null, "le second tap le rend");
   actions.splice(0);
+  /* ⭐ ET « ADD TOOL » IMPORTE : le collecteur pris devient une ligne de la page. */
+  skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";
+  skillsFermerAjout();
+  const nodeApres = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  assert.equal(nodeApres.querySelectorAll(".skills-selecteur").length, 0, "le sélecteur est refermé");
+  assert.ok(lignes(nodeApres).some((l) => l.getAttribute("data-ligne") === "alchemist-s-supplies"), "l'outil choisi est sur la page, vide");
+  skillsEcran().ajoutes.tool.clear();
+  skillsEcran().ajout = "tool";
   /* Un jeton posé dans un collecteur vit dans l'état d'écran ; le Done du pied
      (verbe exécuté par la coquille) le fait entrer dans la page. */
   skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";

@@ -4229,7 +4229,14 @@ function renderSortieEtape(hote) {
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire
      pourquoi par son apparence, jamais disparaître. */
-  if (done) { done.dataset.lit = String(gate.ready); done.disabled = !gate.ready; }
+  /* 🔒 LOT 173 — UN VERBE DÉCLARÉ PORTE SA PROPRE PORTE. Eric, 07/09 06:4x : *« le
+     bouton add tool n'importe pas le ou les tools choisis »* — mesuré au banc : à 13
+     points dépensés sur 14, `gate.ready` était faux et « Add tool » héritait de la porte
+     du `Done` de l'étape, éteint et inerte. Le bouton d'un verbe déclaré ne signe rien :
+     sa porte est celle que l'hôte déclare (`data-sortie-done-pret`, « true » par défaut —
+     Skills l'éteint tant qu'aucun collecteur n'est pris), jamais celle du palier. */
+  const pret = decl.sortieDoneVerbe ? decl.sortieDonePret !== "false" : gate.ready;
+  if (done) { done.dataset.lit = String(pret); done.disabled = !pret; }
   /* 🟢 L'AVANCEMENT DE L'ITEM, LU AU CARNET — 27/08, revue d'Archi 28 :
      « Done reste GRIS à 3 of 3 chosen ». `gate.ready` dit si le bouton
      RÉPOND (toujours, sur un item) ; `data-avance` dit où en est le CONTENU —
