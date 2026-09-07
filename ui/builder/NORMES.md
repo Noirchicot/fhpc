@@ -3195,36 +3195,61 @@ lecteur doit pouvoir le voir.
 
 📌 **CE QUI EST BIEN D'ERIC, ET QUI N'A PAS BESOIN D'ÊTRE DÉFENDU** : les deux méthodes coexistent ·
 le tap et le clic droit lisent · le pied de la description agit · un tap en dehors ferme le popup.
-✅ **LE CÂBLAGE EST SUR `origin/main`** — 📏 vérifié au moment d'écrire, et ⛔ **pas sur la foi du
-relais, qui l'annonçait « non fusionnée »** : `renderSelecteur` **2** · `onInfo` **2** ·
-`reutilisable` **2** · `markPressed` **5** *(skills-step)* · `paintPopup` avec ses `actions` **5**
-*(shell.mjs)*. ⚠️ *Le relais portait l'heure de son auteur, pas la mienne : la note d'attente s'est
-périmée entre son envoi et sa gravure.* ⭐ **C'est la troisième note d'attente fausse en une nuit,
-et la première que j'allais écrire moi-même** — la parade est la même, `grep` avant de graver.
+⏳ **LE CÂBLAGE VIT SUR `173-skills-dalles`, ET ELLE N'EST PAS POUSSÉE** — `c1f8fc7` · `498a925`
+*(l'alternative : tap lit, `Close` · `Select` au pied)* · `c161f3f` · `107628b`. 📏 Vérifié :
+`origin/main` est à `43a62c8` (v601) et n'a **aucun** `onInfo` passé au sélecteur.
 
-🔴 **ET LA VÉRIFICATION A TROUVÉ MIEUX QU'UNE DATE : DEUX PAROLES D'ERIC SE CROISENT À SEPT HEURES
-D'ÉCART.** Le sélecteur d'`Add a tool` **n'a PAS d'`onInfo`** sur `origin/main`, et le code dit
-pourquoi, en citant Eric :
+⛔ **ET J'AI ÉCRIT LE CONTRAIRE ICI, SUR UNE MESURE FAUSSE — corrigé le 07/09.** J'avais compté
+`grep -c onInfo` = **2** sur `origin/main` et conclu que c'était fusionné. 🔴 **Les deux occurrences
+étaient DANS LE COMMENTAIRE QUI L'INTERDIT** : *« ⛔ PAS D'`onInfo` ICI »*. Le mot réellement passé
+en argument : **zéro** sur `origin/main`, **un** sur la branche.
+⭐ *Une ABSENCE n'est jamais une réponse — et une PRÉSENCE n'est jamais une preuve.* Le corpus
+portait déjà la première moitié ; voici la seconde, et elle m'a coûté une affirmation gravée.
+📌 Le geste juste tenait en une ancre : `grep -cE "^\s*onInfo\s*:"` — la **déclaration**, pas le mot.
 
-> *« ⛔ PAS D'`onInfo` ICI — Eric, 07/09 **06:2x** : « add a tool ne fonctionne pas, dans ce cas une
-> sélection = halo vert ». Avec `onInfo`, le tap au doigt INSPECTE et seul le glisser pose ; sans
-> lui, le tap POSE (premier collecteur libre) au doigt comme à la souris. »*
+### 🔎 UN MOT SE COMPTE DANS SA FORME D'EMPLOI, JAMAIS EN TEXTE LIBRE
+📍 `socle-un-mot-compte-dans-la-phrase-qui-le-nie` · vivante · 07/09
+⚖️ **Compter un mot en texte libre le compte AUSSI dans les phrases qui l'interdisent, le commentent ou le regrettent — une mesure de présence vise la FORME D'EMPLOI, jamais le mot nu.**
 
-| | ce qu'Eric dit | où |
+🔴 **L'INCIDENT, LE 2026-09-07.** `grep -c onInfo` rendait **2** sur `origin/main` ; les deux étaient
+dans *« ⛔ PAS D'`onInfo` ICI »*. J'en ai conclu qu'un câblage existait, je l'ai **écrit dans le
+corpus**, et j'ai contredit un relais qui avait raison. ⭐ **Le commentaire était sous mes yeux dans
+ma propre sortie** — le chiffre a été plus fort que la lecture.
+
+⛔ **CE N'EST PAS UNE FAUTE D'INATTENTION, C'EST LA FORME D'UN OUTIL.** Un dépôt qui documente ses
+interdits — ce que celui-ci fait à chaque ligne — **contient le mot autant de fois qu'il l'interdit
+que lorsqu'il l'emploie**. Plus le corpus est discipliné, plus le comptage nu ment.
+📌 **La parade est toujours la même et elle est courte** : ancrer sur ce qui **déclare**
+*(`^\s*onInfo\s*:`, `^📍`, `^export function`)* plutôt que sur le mot. C'est la loi du garde
+appliquée à une mesure : *un garde se fonde sur la DONNÉE, jamais sur la FORME* — ici, sur la
+**forme d'emploi**, jamais sur l'occurrence.
+⭐ **ET C'EST LA MÊME FAMILLE QUE LE FILTRE LEXICAL QUI A ÉCHOUÉ AU TRI DES COUPLES** *(06/09 :
+« une règle qui n'emploie pas le mot est invisible »)*. Les deux bouts du même outil : il **rate**
+ce qui ne dit pas le mot, et il **compte** ce qui le nie.
+
+🔴 **UNE PAROLE, PUIS SA CORRECTION PAR ERIC — ⛔ pas deux paroles qui se croisent.** J'avais écrit
+ici qu'il fallait lui poser une question ; **il n'y en a pas.** La chronologie du 07/09, sur **le
+même écran**, celui d'`Add a tool` :
+
+| | ce qu'Eric dit | ce que ça fait |
 |---|---|---|
-| **06:2x** | sur `Add a tool` : **le tap POSE**, pas d'inspection | commentaire de `skills-step.mjs`, déployé |
-| **13:2x** | en général : **le tap LIT**, et le pied du popup pose | la règle ci-dessus |
+| **06:2x** | *« add a tool ne fonctionne pas, dans ce cas une sélection = halo vert »* | `onInfo` retiré, le tap POSE *(v600, déployé)* |
+| **13:1x** | *« Tap sur un tool doit afficher sa description »* | le tap LIT de nouveau |
+| **13:2x** | *« Méthode 1 / Méthode 2 »* — la règle ci-dessus | les deux méthodes, partout |
 
-⚖️ **CE QUE LE RÉGIME EN DIT, ET JE NE TRANCHE PAS À LA PLACE D'ERIC.** La loi des deux âges donne
-la **plus récente** — donc la règle générale de 13:2x fait foi par défaut. ⛔ Mais celle de 06:2x
-n'est pas une règle concurrente : c'est une **exception nommée et argumentée sur UN écran**
-*(« add a tool ne fonctionne pas »)*, et une norme est un **défaut, pas un mur** *(26/08)*. Elle est
-donc légale — ⏳ **à ceci près qu'elle est ANTÉRIEURE à la règle qu'elle excepte**, ce qui n'a de
-sens que si Eric la reconduit.
-➡️ **La question à lui poser tient en une ligne** : *« Add a tool garde-t-il le tap qui pose, ou
-passe-t-il aux deux méthodes comme le reste ? »* ⛔ Aucun lot ne doit y répondre en repeignant.
-⭐ *Une exception écrite AVANT sa règle n'est pas une exception : c'est une règle qui n'a pas encore
-rencontré la nouvelle.*
+⭐ **L'EXCEPTION DE 06:2x EST DONC MORTE DE LA MAIN D'ERIC, PAS D'UN LOT** : il l'a renversée sept
+heures plus tard, **devant ce sélecteur-là**, avant de dicter la règle générale. ⛔ Il n'y a rien à
+lui demander, et le commentaire d'interdiction est remplacé dans `498a925` par le bloc qui cite les
+deux heures.
+⚠️ **CE QUE J'AVAIS ÉCRIT, ET POURQUOI C'ÉTAIT FAUX** : j'avais lu le commentaire de 06:2x sur
+`origin/main`, mesuré qu'il tenait toujours, et bâti là-dessus *« deux paroles se croisent, question
+à poser »*. Le commentaire tenait — il n'était simplement **pas à jour de la branche en cours**.
+⭐ *Deux dates ne se croisent que si personne n'a parlé entre les deux ; avant de nommer un
+croisement, demander à celui qui tient l'écran s'il y a un mot au milieu.*
+
+📌 **ET UN DÉTAIL D'ERIC QUE LE PREMIER RELAIS N'AVAIT PAS** : quand les quatre collecteurs sont
+pris, **`Select` n'est pas affiché** — le popup n'offre que `Close`. ⭐ *Un bouton qui ne ferait rien
+mentirait*, et c'est `bouton-gris-non-cliquable` réglé par l'absence plutôt que par le gris.
 
 📌 Le témoin du lot 173 : *« L'ALTERNATIVE AU GLISSER-DÉPOSER »* dans `tests/skills-step.test.mjs`.
 
