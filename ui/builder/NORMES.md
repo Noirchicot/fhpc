@@ -3152,6 +3152,82 @@ d'une lignée à l'autre** — puis exige de ces noms-là l'absence du bloc acco
 Éprouvé **rouge des deux côtés** de l'alternative : la générale servie au bilan, la spécifique
 servie au SB.
 
+### 🤝 DEUX MÉTHODES POUR POSER UN JETON, ET JAMAIS UNE SEULE
+📍 `geste-deux-methodes-pour-poser-un-jeton` · vivante · 07/09
+⚖️ **Partout où un vivier alimente des collecteurs, DEUX méthodes coexistent : le glisser-déposer, et le popup d'information dont le pied porte les boutons qui posent.**
+
+> **Eric**, 2026-09-07, titre compris : **« Alternative au drag and drop »**
+> *« **Méthode 1** : Possibilité alternative au drag and drop. tap / clic droit, pour lire ;
+> boutons et **back / select** au pied de la description pour le placer direct dans le collecteur
+> ou revenir en arrière ; toujours possible aussi de tap / clic en dehors pour quitter le popup.
+> **Méthode 2** : drag and drop dans le collecteur. »*
+
+⭐ **CE N'EST PAS UN GESTE DE PLUS, C'EST UNE SECONDE ROUTE VERS LE MÊME ACTE.** Le glisser demande
+de viser ; le popup demande de lire puis d'appuyer. ⛔ Un écran qui n'offrirait que le glisser
+oblige à connaître le jeton **avant** de le prendre — or c'est justement le popup qui le fait
+connaître. *La méthode qui informe doit pouvoir conclure ce qu'elle a fait comprendre.*
+
+📌 **ELLE ÉTEND `geste-tap-info-clic-droit-info`, ELLE NE LA REMPLACE PAS.** Cette règle-là *(NORMES
+§7 ter)* dit depuis le 16/08 que **tap au doigt** et **clic droit à la souris** ouvrent la même
+fenêtre d'information ; ce qui est neuf le 07/09, c'est que **le pied de cette fenêtre agit**.
+⛔ Aucun lien de supersession n'est posé : l'ancienne est entièrement vraie, la neuve dit ce que la
+fenêtre porte **en plus**.
+
+| | le geste | ce qu'il fait |
+|---|---|---|
+| **méthode 1** | tap *(doigt)* · clic droit *(souris)* | ouvre le **détail**, et son pied porte les boutons qui posent ou qui rendent |
+| **méthode 2** | glisser-déposer *(doigt)* · clic gauche *(souris)* | pose **directement**, sans popup — inchangé depuis le 16/08 |
+
+🟢 **ET UN JETON PRIS RESTE VIVANT DANS LE VIVIER.** ⛔ Il ne se grise pas — *« non coloré = non
+cliquable »* *(`bouton-gris-non-cliquable`, 06/09)*, et il reste parfaitement cliquable puisqu'on
+peut le rendre. Il porte le **halo vert** de la validation (`--positive`) et `aria-pressed="true"`.
+⭐ *Un objet qu'on peut encore reprendre n'a pas le droit de se peindre comme éteint.*
+
+⚠️ **DEUX POINTS OÙ LE RELAIS VA PLUS LOIN QU'ERIC, ET JE LES SÉPARE PLUTÔT QUE DE LES FONDRE.**
+Le lot 173 les a câblés ainsi, avec de bons arguments ; ⛔ ce ne sont pas les mots d'Eric, et un
+lecteur doit pouvoir le voir.
+
+| ce que le code fait | ce qu'Eric a dit | l'argument, et il tient |
+|---|---|---|
+| le bouton se nomme **`Close`** | *« back / select »* — il a écrit **back** | `Back` est réservé au pied de la coquille : *« il ne touche à rien, il recule, c'est tout »* *(`bouton-deux-mots-retour-et-couleur-se-deduit-mot`)*. Un bouton qui ferme un DÉTAIL ne recule d'aucun écran. ⏳ **Renommage à confirmer d'un mot** |
+| `Select` place dans le **premier collecteur libre** | *« le placer direct dans le collecteur »* — au singulier, sans dire lequel | il faut bien en choisir un quand il y en a plusieurs ; *(lecture du lot 173)*. ⏳ **Non tranché** : et s'il n'y en a aucun de libre ? |
+| sur un jeton pris, `Select` devient **`Drop`**, rouge | *(rien)* | rouge par la **famille DÉFAIRE** *(`bouton-famille-defaire`)* — le geste rend du travail fait. *(lecture du lot 173)* |
+
+📌 **CE QUI EST BIEN D'ERIC, ET QUI N'A PAS BESOIN D'ÊTRE DÉFENDU** : les deux méthodes coexistent ·
+le tap et le clic droit lisent · le pied de la description agit · un tap en dehors ferme le popup.
+✅ **LE CÂBLAGE EST SUR `origin/main`** — 📏 vérifié au moment d'écrire, et ⛔ **pas sur la foi du
+relais, qui l'annonçait « non fusionnée »** : `renderSelecteur` **2** · `onInfo` **2** ·
+`reutilisable` **2** · `markPressed` **5** *(skills-step)* · `paintPopup` avec ses `actions` **5**
+*(shell.mjs)*. ⚠️ *Le relais portait l'heure de son auteur, pas la mienne : la note d'attente s'est
+périmée entre son envoi et sa gravure.* ⭐ **C'est la troisième note d'attente fausse en une nuit,
+et la première que j'allais écrire moi-même** — la parade est la même, `grep` avant de graver.
+
+🔴 **ET LA VÉRIFICATION A TROUVÉ MIEUX QU'UNE DATE : DEUX PAROLES D'ERIC SE CROISENT À SEPT HEURES
+D'ÉCART.** Le sélecteur d'`Add a tool` **n'a PAS d'`onInfo`** sur `origin/main`, et le code dit
+pourquoi, en citant Eric :
+
+> *« ⛔ PAS D'`onInfo` ICI — Eric, 07/09 **06:2x** : « add a tool ne fonctionne pas, dans ce cas une
+> sélection = halo vert ». Avec `onInfo`, le tap au doigt INSPECTE et seul le glisser pose ; sans
+> lui, le tap POSE (premier collecteur libre) au doigt comme à la souris. »*
+
+| | ce qu'Eric dit | où |
+|---|---|---|
+| **06:2x** | sur `Add a tool` : **le tap POSE**, pas d'inspection | commentaire de `skills-step.mjs`, déployé |
+| **13:2x** | en général : **le tap LIT**, et le pied du popup pose | la règle ci-dessus |
+
+⚖️ **CE QUE LE RÉGIME EN DIT, ET JE NE TRANCHE PAS À LA PLACE D'ERIC.** La loi des deux âges donne
+la **plus récente** — donc la règle générale de 13:2x fait foi par défaut. ⛔ Mais celle de 06:2x
+n'est pas une règle concurrente : c'est une **exception nommée et argumentée sur UN écran**
+*(« add a tool ne fonctionne pas »)*, et une norme est un **défaut, pas un mur** *(26/08)*. Elle est
+donc légale — ⏳ **à ceci près qu'elle est ANTÉRIEURE à la règle qu'elle excepte**, ce qui n'a de
+sens que si Eric la reconduit.
+➡️ **La question à lui poser tient en une ligne** : *« Add a tool garde-t-il le tap qui pose, ou
+passe-t-il aux deux méthodes comme le reste ? »* ⛔ Aucun lot ne doit y répondre en repeignant.
+⭐ *Une exception écrite AVANT sa règle n'est pas une exception : c'est une règle qui n'a pas encore
+rencontré la nouvelle.*
+
+📌 Le témoin du lot 173 : *« L'ALTERNATIVE AU GLISSER-DÉPOSER »* dans `tests/skills-step.test.mjs`.
+
 ### 🔗 §7 ter — LA LOI GÉNÉRALE DES LIENS
 
 📖 **CETTE LOI TRAVERSE LA FRONTIÈRE, ET LE LIVRE A SON PROPRE CORPUS.** Elle oblige des cibles qui
