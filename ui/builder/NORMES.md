@@ -5765,6 +5765,39 @@ retourne, et **B1 est figé** (§7.3).
 n'est dispatché, le seuil de 6 px n'est pas franchi et `armerJeton` lit un **TAP**. Le test passait
 en mesurant le tap. Le vrai vide fait **bouger** le pointeur et rend `elementFromPoint` vide.
 
+## 6 pré quater. 🔌 L'ÉCRAN DÉCLARE, LA COQUILLE EXÉCUTE *(2026-09-07)*
+📍 `socle-l-ecran-declare-la-coquille-execute` · vivante · 07/09
+⚖️ **Un écran DÉCLARE son verbe de retour ; c'est la COQUILLE qui l'exécute — un geste que chaque écran doit se rappeler de poser sera oublié par ceux qui l'oublient.**
+
+📏 **CE QUI ÉTAIT ÉCRIT, ET CE QUI L'EST — vérifié dans le code le 07/09.** `renderSortieEtape`
+connaissait **deux verbes, nommés en dur** :
+
+```js
+/* avant */  const auRetour = decl.sortieVerbe === "abilityClear"     ? … 
+                            : decl.sortieVerbe === "abilityBilanCancel" ? … : …
+/* après */  const auRetour = decl.sortieVerbe
+               ? () => applyDecisionAction({ kind: decl.sortieVerbe }) : …
+```
+
+⭐ **UN TROISIÈME ÉCRAN A SUFFI À MONTRER QUE CE N'ÉTAIT PAS UN MÉCANISME.** Tant que seul Abilities
+déclarait, l'énumération et la loi rendaient le même résultat — la coïncidence, encore. Skills
+déclare `data-sortie-verbe="resetSkills"`, `data-sortie-mot="Reset"`,
+`data-sortie-done-mot="Done|Next"` et **ne fabrique aucun bouton** : c'est ce qui a fait tomber
+l'énumération.
+
+📌 **C'EST LA MÊME LOI QUE LE `?` ET QUE LES DEUX BORNES**, et elle a déjà été payée trois fois :
+le `?` posé par la coquille *(une fois, pour tous)* · les bornes rassemblées dans `poserLesBornes`
+*(trois écrivains devenus un)* · le **livre**, fabriqué par SEPT écrans, et **absent de cinq**.
+⭐ *Un organe que chaque écran doit se rappeler de poser sera oublié par ceux qui l'oublient* —
+ce n'est pas une prédiction, c'est un relevé du 06/09.
+
+⚠️ **CE QUE ÇA N'AUTORISE PAS** : un écran ne déclare pas un COMPORTEMENT, il déclare un **verbe du
+moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne peut toujours pas
+écrire au document par ce chemin, et `socle-qui-possede-quoi` n'est pas entamé.
+⚠️ **Le câblage vit sur `171-skills` au jour où ces lignes sont écrites**, et n'est pas fusionné.
+
+---
+
 ### 7.14 🆓 `FREE` EST 100 % LIBRE — aucune condition sur le choix des caracs *(Eric, 2026-09-06)*
 📍 `budget-free-est-cent-pour-cent-libre` · vivante · 06/09
 ⚖️ **La méthode `FREE` n'oppose AUCUNE condition au choix des caractéristiques — ni total, ni budget, ni plafond, ni plancher.**

@@ -466,6 +466,26 @@
 
 ## 7 · Skills
 
+> 🔄 **L'ÉCRAN A ÉTÉ RECONSTRUIT LE 2026-09-07** *(lot 171)*, sur un croquis d'Eric
+> *(`fh-phb/croquis/2026-09-07-skills-reconstruction.jpg`)* et **deux tours de réponses dictées**
+> — 00:56 → 01:10, puis 01:4x. Les règles marquées **07/09** ci-dessous sont **sa parole** ; ce qui
+> était une lecture d'un siège est signalé comme telle, et ce qui reste ouvert est marqué
+> `à trancher`.
+>
+> ⚠️ **ET LEUR STATUT EST `vivante`, PAS `déployée, hors corpus` — c'est délibéré, et ça mérite
+> d'être dit.** Les 80 autres règles de ce fichier portent `déployée, hors corpus` : ce fichier
+> RELÈVE ce qui tourne. Celles-ci sont des **lois dictées** dont le code vit sur la branche
+> `171-skills`, **non fusionnée** au jour où elles sont écrites. ⛔ Les marquer « déployée » serait
+> faux ; ⭐ et ce cas montre que `déployée, hors corpus` mélange **deux questions** — *« est-ce en
+> ligne ? »* et *« est-ce une norme ou un relevé ? »*. Le jeu des statuts n'a pas de mot pour
+> « loi dictée, code en attente de fusion ». **Question pour Eric, pas décision d'un siège.**
+>
+> 📌 **ET LES NEUF RÈGLES DU LOT 39 NE SONT PAS TOUTES PÉRIMÉES** — le rapport du lot 171
+> conclut *« à réécrire en entier »*, son propre tableau de mesure dit autre chose : **quatre
+> tiennent**, deux ont été corrigées le 07/09, et **deux seulement** sont remplacées ici.
+> ⛔ *Une conclusion qui va plus loin que la mesure qui la porte est une conclusion à rouvrir* —
+> et c'est la même famille que « un total juste ne dit rien du contenu », prise à l'envers.
+
 ### Le bouton « 0 » n'existe pas
 📍 `skills-pas-de-bouton-zero` · déployée, hors corpus · 14/08
 ⚖️ **Il reste trois ronds : l'absence de maîtrise est l'ABSENCE de remplissage, pas un quatrième bouton.**
@@ -475,7 +495,7 @@
 **Il reste trois ronds : l'absence de maîtrise est l'ABSENCE de remplissage, pas un quatrième bouton.**
 
 ### Le reste flotte, le calcul défile
-📍 `skills-le-reste-flotte` · déployée, hors corpus · 14/08
+📍 `skills-le-reste-flotte` · remplacée · 14/08 · remplacée par `skills-spent-porte-l-echelle`
 ⚖️ **Le compteur est coupé en deux : la ligne du RESTE flotte et ne quitte jamais l'écran, `Reset` est dans la ligne qui flotte — et la ligne du calcul ne défile plus, elle a rejoint la bande fixe.**
 
 > ✍️ **CORRIGÉE EN PLACE LE 2026-09-07 — une moitié était périmée depuis le 26/08.** La phrase
@@ -509,7 +529,7 @@
 **Le tableau de la bourse d'espèce ne vit pas sur Skills : il vit là où le choix se prend, et Skills en LIT le compte sans pouvoir le changer.**
 
 ### Trois bandes, et le seul titre du parcours
-📍 `skills-trois-bandes-et-un-titre` · déployée, hors corpus · 26/08
+📍 `skills-trois-bandes-et-un-titre` · remplacée · 26/08 · remplacée par `skills-le-belt-porte-le-titre`
 ⚖️ **Skills est bâti en trois bandes — titre fixe, flux, pied fixe — et c'est le seul écran d'étape qui garde un titre.**
 
 > **Eric** : « les boutons cachent le texte »
@@ -518,7 +538,13 @@
 
 ### La barre blanche descend dans une dalle fixe
 📍 `skills-barre-blanche-descend` · déployée, hors corpus · 26/08
-⚖️ **La barre du haut disparaît totalement : ses éléments descendent dans une petite dalle fixe sous le titre, et Skills cesse de garnir le bandeau du cadre.**
+⚖️ **La barre du haut disparaît totalement : ses éléments descendent dans une petite dalle FIXE en tête d'écran, et Skills cesse de garnir le bandeau du cadre.**
+
+> ✍️ **CORRIGÉE EN PLACE LE 2026-09-07** : la phrase disait *« sous le titre »*, et il n'y a plus de
+> titre — Eric, 07/09 : *« le titre est déjà dans le belt »* *(`skills-le-belt-porte-le-titre`)*.
+> ⭐ La dalle fixe, elle, n'a pas bougé d'un blg : c'est **son repère** qui a disparu, pas elle.
+> ⛔ Aucun lien de supersession : la règle n'est pas remplacée, une de ses clauses n'avait plus de
+> quoi se mesurer.
 
 > **Eric** : « la barre blanche doit TOTALEMENT disparaître, et ses éléments reportés sur la petite dalle sous le titre Skills. Cette petite dalle restera fixe. »
 
@@ -562,11 +588,203 @@
 📍 `skills-bourse-depassee` · déployée, hors corpus · 27/08
 ⚖️ **Un dépassement n'est pas une réponse : le compte est EXACT, le verrou l'emporte sur la signature, le gendarme parle en rouge à la place de l'aiguilleur — et la porte du retour reste ouverte.**
 
+> ✅ **TENUE, ET CONFIRMÉE PAR ERIC LE 07/09** : *« l'aiguilleur s'efface en présence du gendarme »*.
+> Sa clause du gendarme est désormais une règle à part entière — `skills-gendarme-recouvre-l-aiguilleur`.
+
 > **Eric** : « tu peux bloquer le Next et faire parler le gendarme en rouge à la place de l'aiguilleur »
 
 **Un dépassement n'est pas une réponse : le compte est EXACT, le verrou l'emporte sur la signature, le gendarme parle en rouge à la place de l'aiguilleur — et la porte du retour reste ouverte.**
 
 ---
+
+
+
+---
+
+### Le tambour tourne en boucle, et c'est le CRAN qui est fixe
+📍 `skills-tambour-en-boucle` · vivante · 07/09
+⚖️ **Les six catégories vivent sur un tambour qui tourne à l'infini : trois en vue, le cran CENTRAL fixe — halo et ×1,05 — et les voisins grisés.**
+
+> **Eric**, 07/09 : « un tambour (pas de 3D) mais ça tourne à l'infini. La position au centre a un
+> halo et est agrandie de 5 %, **le halo ne bouge pas**. Les autres items, à l'extérieur, sont un
+> peu grisés. »
+
+⭐ **CE QUI EST FIXE N'EST PAS LE CONTENU, C'EST LA PLACE.** Le halo et l'agrandissement
+appartiennent au **cran du milieu**, pas à la catégorie qui l'occupe — c'est ce qui permet à la
+bande de tourner sans que la décoration la suive. ⛔ Un halo qui voyagerait avec sa catégorie serait
+un second écrivain de l'état courant.
+📌 Six catégories : Knowledge · Social · Exploration · Physical · Tools · Trainings. Un chevron
+avance d'**un cran** ; un tap sur un voisin y va.
+📏 Mesuré au banc 360 × 740 : le tambour vaut **50 blg**.
+
+### Une page par catégorie, et le glisser latéral les change
+📍 `skills-une-page-par-categorie` · vivante · 07/09
+⚖️ **Chaque catégorie est une PAGE ; le glisser latéral passe de l'une à l'autre et fait tourner le tambour avec elle.**
+
+> **Eric**, 07/09 : « swipe latéral pour bouger d'une catégorie à l'autre, pour défiler la page. »
+
+📌 **La fenêtre vaut ce qui reste** — Eric : *« on voit ce qu'on peut faire avec notre budget de
+blg, oui sinon c'est du scroll »* · *« on voit combien on en fait tenir »*. C'est §1 quater appliqué :
+la hauteur se déduit, elle ne se choisit pas. ⚠️ Mesuré à 360 × 740 : **quatre lignes visibles sur
+huit**, la dalle haute prenant 136 des 480 de scène. ⏳ **Ce qui se gagne se gagne là** — le Bound en
+T0, l'aiguilleur à deux lignes — et c'est **la décision d'Eric**, pas celle d'un lot.
+
+### Le LIÉ est un halo violet et il est captif ; le vert est ce qu'on a acquis
+📍 `skills-lie-est-un-halo-violet-captif` · vivante · 07/09
+⚖️ **Un palier LIÉ porte un halo violet et il est CAPTIF — il ne se retire pas sur cet écran ; le remplissage VERT est ce que les points libres ont acquis.**
+
+> **Eric**, 07/09 : « le bound est un halo violet, les free points remplissent les cases en vert. Si
+> tu as 1 point bound : premier cercle halo violet rempli en vert, le point d'adept vert. **Le vert
+> dans le bound est captif, pas les autres.** » · « rien de rempli = pas compétent. »
+
+⭐ **DEUX SIGNES SUR LE MÊME ROND, ET ILS NE DISENT PAS LA MÊME CHOSE** : le **halo** dit *d'où ça
+vient* (lié), le **remplissage** dit *que c'est acquis*. Un rond peut donc être vert ET captif —
+c'est le premier rond d'une ligne liée. ⛔ Il n'y a plus de « ligne verrouillée » à part : la
+captivité vit sur le ROND, jamais sur la ligne.
+⚠️ **`--lie` (le violet) est aujourd'hui un emploi de `--tier-1`, posé localement sur `.skills-step`.**
+⏳ Si Species reprend le motif, il lui faudra **un jeton propre** — sinon deux écrans peindront la
+même idée avec deux valeurs.
+
+### Le Bound INFORME, il ne modifie rien
+📍 `skills-bound-informe-et-ne-modifie-rien` · vivante · 07/09
+⚖️ **Le bloc Bound compte les paliers liés — Skills · Tools · Trainings — en LECTURE SEULE : un tap ouvre le popup qui dit d'où ils viennent, jamais un moyen de les changer.**
+
+> **Eric**, 07/09 : « Bound / Skills / Tools / Trainings (T1 ou T0 en fonction de la place) » · « ça
+> informe juste que les bounds sont comptabilisés, **on ne peut pas les bouger dans cette fenêtre** »
+> · « au lvl 1 il y aura les langues dans le popup (ce sont des trainings). »
+
+📌 **C'est `skills-bourse-d-espece-chez-species` étendu à trois sources** : le choix se prend là où
+il se prend, l'écran en LIT le compte. Le popup nomme la source — *From Rogue*, *From Keen Senses*,
+les langues d'origine.
+
+### Le Spent porte l'échelle : bleu pendant, vert au compte, rouge au-delà
+📍 `skills-spent-porte-l-echelle` · vivante · 07/09 · remplace `skills-le-reste-flotte`
+⚖️ **Les points libres se lisent en DEUX nombres — Budget et Spent — et c'est le Spent qui porte l'échelle : bleu pendant la dépense, vert quand il atteint le budget, rouge au-delà.**
+
+> **Eric**, 07/09, sur le croquis : « Budget · Spent » — *« becomes blue during process, green at
+> [budget], red beyond »*.
+
+⛔ **`Invested` et `Left` disparaissent**, et avec eux le compteur en deux lignes dont la seconde
+défilait *(`skills-le-reste-flotte`, 14/08)*. ⭐ **Deux nombres suffisent parce que le troisième se
+déduit** — et un nombre déduit ne peut pas contredire les autres.
+📌 `skills-compteur-dit-free` **tient toujours** : ce sont bien les points LIBRES que l'écran
+nomme, et pour la même raison — ce sont les seuls que le joueur dépense.
+
+### Le gendarme RECOUVRE l'aiguilleur, et il le rend
+📍 `skills-gendarme-recouvre-l-aiguilleur` · vivante · 07/09
+⚖️ **Le gendarme parle DANS la case de l'aiguilleur, qui s'efface tant qu'il est là et la reprend dès que le refus tombe — ⛔ jamais une seconde voix ni un popup.**
+
+> **Eric**, 07/09 : « le gendarme parle dans la case de l'aiguilleur, l'aiguilleur s'efface en
+> présence du gendarme » · « superpose temporairement l'aiguilleur, et **disparaît quand la
+> condition est rétablie**. »
+
+🔴 **ET ÇA A COÛTÉ UN DÉFAUT MESURÉ AU BANC** : la coquille levait *en plus* son popup de refus, et
+le même refus s'affichait **deux fois** (02:1x). ⭐ *Deux organes qui répondent à la même question
+finissent par se répondre en même temps* — c'est `socle-qui-possede-quoi` sur une VOIX au lieu d'un
+état.
+📌 L'aiguilleur garde ses **3 lignes** *(§6 pré bis)* : il porte la consigne des paliers et le droit
+d'Expertise du personnage.
+
+### `Done` exige le compte, et il SIGNE
+📍 `skills-done-exige-le-compte` · vivante · 07/09
+⚖️ **`Done` reste gris tant que Spent ≠ Budget ; il SIGNE l'étape — phrase verte dans l'aiguilleur, belt vert — et c'est `Next` qui fait partir.**
+
+> **Eric**, 07/09 : « Done en gris tant que le compte n'est pas là » · « Done on valide,
+> confirmation que c'est bon : phrase dans l'aiguilleur en vert (c'est la validation), le belt
+> devient vert. **Next on part.** » · « oui reset et next. »
+
+📌 **C'est `bouton-done-et-next-jamais-ensemble` respecté, pas contourné** : le pied porte
+`Reset · Done` avant la signature, `Reset · Next` après. Les deux ne coexistent jamais — c'est le
+même moment vu avant et après.
+⭐ **ET LA SIGNATURE SE LÈVE TOUTE SEULE** : une dépense après `Done` dé-signe l'étape *(belt bleu,
+`Done` revient)*. Une étape dont le compte bouge n'est pas complète.
+⚠️ **`Done` gris est conforme à `bouton-gris-non-cliquable`** : il est gris **parce qu'il est
+désarmé**, ce qui est le seul gris que la loi du 06/09 admet.
+
+### `Reset` efface tout SAUF le lié
+📍 `skills-reset-tout-sauf-le-lie` · vivante · 07/09
+⚖️ **`Reset` est ROUGE et efface les dépenses, les outils et les trainings ajoutés — ⛔ jamais le lié, qui ne se décide pas ici.**
+
+> **Eric**, 07/09 : « oui rouge, et reset tout sauf le bound. »
+
+📌 Rouge par la **famille DÉFAIRE** *(`bouton-famille-defaire`)*, et non parce que le mot est
+`Reset` : la teinte se déduit de ce que le geste COÛTE. ⭐ *Ce qui n'a pas été choisi ici ne peut pas
+être défait ici* — c'est la même frontière que le Bound en lecture seule.
+
+### Le second tap redescend d'un cran
+📍 `skills-second-tap-redescend` · vivante · 07/09
+⚖️ **Taper une seconde fois sur un rond acquis le fait redescendre d'un cran et rend ses points ; sous le premier, il s'efface — et sur un rond CAPTIF, le tap ouvre le popup au lieu de retirer.**
+
+> **Eric**, 07/09 : « taper une deuxième fois sur un rond vert le fait disparaître, et revient dans
+> les free points. Taper sur un point vert bound : popup, oui. **Oui pour training et tools.** »
+
+📌 **Le même geste sur les trois pages** — compétences, outils, trainings. ⭐ Et le tap sur un
+captif n'est pas un **clic mort** : il informe. C'est la leçon de Late Bloomer *(NORMES §7.11)* —
+*un contrôle qui ne répond pas passe pour cassé.*
+
+### Les pages Tools et Trainings ne listent que l'ACQUIS
+📍 `skills-page-ne-liste-que-l-acquis` · vivante · 07/09
+⚖️ **Une page Tools ou Trainings ne montre que ce qu'on a — lié ou ajouté ; un bouton `Add` ouvre un FS avec la liste ENTIÈRE, et l'ajouté arrive VIDE.**
+
+> **Eric**, 07/09 : « il n'y a dans la page trainings et tools que ceux qu'on va chercher » · « il y a
+> un "add a tool" qui fait pop un écran FS avec toute la liste, on en choisit un ou plus, Done —
+> idem que pour un choix de sorts. Pour les enlever on tape sur le tool ou le training dans la page R
+> pour avoir le popup, il y a une fonction remove » · « **non il arrive vide**, il faudra le
+> remplir avec des free points. »
+
+📌 **Arriver VIDE n'écrit rien au personnage** : la ligne paraît avec ses trois ronds vides et ne
+coûte aucun point tant qu'on n'en remplit pas. ⭐ *Ajouter une ligne n'est pas dépenser.*
+📌 Le nom d'un training est **bleu** — *« les trainings n'ont pas de bonus mais ce sera en bleu donc
+cliquable + popup »* — donc un lien, avec l'habit des liens *(`.lien-sort`)*.
+⏳ **NON TRANCHÉ** : un maximum d'ajouts *(« 4 max » comme les sorts)*, ou le pool seul arbitre ?
+
+### Les Languages sont des trainings, et le bloc disparaît
+📍 `skills-langues-sont-des-trainings` · vivante · 07/09
+⚖️ **Les langues sont des TRAININGS liés : le bloc Languages disparaît, et elles se lisent dans la page Trainings et dans le popup Bound.**
+
+> **Eric**, 07/09 : « languages étant dans training, on peut les citer » · « au lvl 1 il y aura les
+> langues dans le popup (ce sont des trainings). »
+
+⭐ **Un bloc qui disparaît parce que son contenu a trouvé sa famille** — pas parce qu'on l'a coupé.
+C'est *« demander ce que l'écran porte EN TROP »* réglé par le rangement plutôt que par la coupe.
+
+### Le belt porte le titre, l'écran n'en a plus
+📍 `skills-le-belt-porte-le-titre` · vivante · 07/09 · remplace `skills-trois-bandes-et-un-titre`
+⚖️ **Skills n'a plus de bande titre : le belt le nomme à 8 blg de là — et l'écran garde ses deux bandes fixes, tête et pied.**
+
+> **Eric**, 07/09 : « le titre est déjà dans le belt. »
+
+⭐ **CE N'EST PAS UN REVIREMENT, C'EST UNE TENSION QUI SE FERME.** `skills-step.mjs` la portait par
+écrit depuis le 26/08 : *« le titre est en tension avec NORMES §1 quinquies, et je le dis plutôt que
+de choisir en silence »* — la loi disait *non*, le croquis du 26/08 dessinait une bande titre, et
+les croquis priment. ⭐ **Le croquis du 07/09 n'en dessine plus** : la loi et le croquis disent enfin
+la même chose, et il n'y a plus d'exception à porter.
+📏 Ce que ça rend : la bande titre valait **une part des 136 blg** de la dalle haute, sur une scène
+de 480.
+
+### ⏳ Le point d'outil LIÉ n'a aucune porte — et l'écran le dit plutôt que de mentir
+📍 `skills-point-d-outil-lie-n-a-pas-de-porte` · à trancher · 07/09
+⚖️ **Aucune étape ne place les points d'outil liés : l'écran affiche « Tools 0/1 » plutôt que d'inventer un acquis — et le choix entre LIÉ et LIBRE appartient à Eric.**
+
+> **Eric**, 07/09 : « les points d'outils sont bound. **Ou alors c'est des free points dépensables
+> partout.** » — l'alternative est ouverte, et il l'a posée lui-même.
+> Puis, au second tour : « tout ce qui est bound a déjà été choisi et est déjà hardwired dans la
+> page, il l'a déjà choisi dans son menu de classe. »
+
+🔴 **ET CETTE SECONDE PHRASE EST VRAIE DES LANGUES, FAUSSE DES OUTILS — mesuré le 07/09 à 01:5x.**
+`resolved.tools` est **vide** pour le Rogue comme pour le Bard : le record déclare
+`bound_tool_points` *(Rogue 1, Bard 2)*, le SRD ne porte que de la prose *(« Thieves' Tools »,
+« Choose 3 Musical Instruments »)*, et **aucune étape ne place ces points**.
+⭐ **L'écran affiche donc « Tools 0/1 »** — il montre le trou au lieu de le combler. *Un trou de
+contenu ne se bouche pas en code* *(`socle-ecran-ne-peut-pas-rendre-contenu-qui-n-est-pas-ecrit`)*.
+
+| la route | ce qu'elle coûte |
+|---|---|
+| **LIÉ** — une porte à Class, comme la bourse de compétences | `class-step.mjs`, `decisions.mjs`, une donnée structurée sur le record |
+| **LIBRE** — il fond dans le pool | Rogue 14 → 15, Bard 12 → 14 ; la couche et le canon §B.1 changent ; la ligne Tools du Bound disparaît |
+
+⏳ **Deux autres points restent ouverts après les réponses d'Eric** : l'outil ajouté a-t-il un
+maximum ? · un rond touché après `Done` dé-signe-t-il *(mesuré : oui, il le fait)* — est-ce voulu ?
 
 ## 8 · Equipment
 
