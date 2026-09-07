@@ -720,8 +720,15 @@ test("16 ter — ⛔ LE PIED EST UNE PAIRE, ET ELLE TIENT SUR UNE LIGNE (la cond
      Un bouton qui détruit du travail était peint comme un bouton qui recule. */
   assert.match(shellText, /\(state\.parcoursItem \|\| effaceAuRetour\) \? "Cancel"/,
     "⛔ un retour qui ABANDONNE ou qui EFFACE se dit `Cancel` — c'est de l'annulation, pas de la navigation");
-  assert.match(shellText, /motDuRetour === "Cancel" \? "sortie-annule" : "sortie-back"/,
-    "⛔ LA TEINTE SE DÉDUIT DU MOT : `Cancel` → `sortie-annule` (rouge) · sinon `sortie-back` (bleu)");
+  /* REWRITTEN 2026-09-07 (lot 171) — la promesse gardée est la même : LA TEINTE SE
+     DÉDUIT DU MOT. Ce qui change est le nombre de mots qui DÉFONT : `Cancel` et,
+     depuis le pied de Skills, `Reset` (Eric, 07/09 : *« oui rouge »*). Le garde
+     lit les deux étapes de la déduction — quels mots défont, et que c'est ce
+     prédicat, pas un id d'écran, qui choisit la classe. */
+  assert.match(shellText, /const defait = motDuRetour === "Cancel" \|\| motDuRetour === "Reset";/,
+    "⛔ LES MOTS QUI DÉFONT SONT NOMMÉS EN UN SEUL ENDROIT : `Cancel` et `Reset`");
+  assert.match(shellText, /\(defait \? "sortie-annule" : "sortie-back"\)/,
+    "⛔ LA TEINTE SE DÉDUIT DU MOT : un mot qui défait → `sortie-annule` (rouge) · sinon `sortie-back` (bleu)");
   assert.doesNotMatch(shellText, /motDuRetour\s*=\s*[^;]*"I changed my mind"/,
     "⛔ `I changed my mind` ne nomme plus aucun retour depuis le 2026-09-05");
   /* ⛔ ET LE VOCABULAIRE NE GRANDIT PAS : les mots qu'un catalogue peut déclarer

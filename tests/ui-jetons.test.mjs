@@ -791,10 +791,14 @@ test("⚔️ ATTAQUE 2 — remettre font-size: 13px sur .skills-budget-note fait
   /* La cible d'origine (`.skill-chip`, lot 33) n'existe plus : le lot 39 a
      réécrit l'étape Compétences et retiré les classes du lot 33 qu'elle ne
      consomme plus (loi §0.6 — pas de sélecteur mort). La cible est reportée
-     sur une règle du lot 39 qui porte le même jeton `--t3`. */
+     sur une règle du lot 39 qui porte le même jeton `--t3`.
+     ⚠️ REPORTÉE UNE SECONDE FOIS AU LOT 171 (2026-09-07) : le lot 39 est parti
+     à son tour (le croquis du 07/09), `.skills-budget-note` avec lui. La cible
+     est une règle du lot 171 qui porte un jeton de type (`--t2`) — le défaut
+     rejoué est le même : un littéral à la place du jeton. */
   const mutated = shellCssRaw.replace(
-    ".skills-budget-note { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }",
-    ".skills-budget-note { margin: 0 0 var(--sp-8); font-size: 13px; color: var(--text-muted); }"
+    ".skills-vide, .skills-liste-consigne { margin: 0; font-size: var(--t2); color: var(--text); padding: var(--sp-4) 0; }",
+    ".skills-vide, .skills-liste-consigne { margin: 0; font-size: 13px; color: var(--text); padding: var(--sp-4) 0; }"
   );
   assert.notEqual(mutated, shellCssRaw);
 

@@ -1,314 +1,361 @@
-/* ══ LES TESTS DU LOT 39 — L'ÉTAPE COMPÉTENCES ═══════════════════════════
+/* ══ LES GARDES DE L'ÉCRAN SKILLS — LOT 171, le croquis du 2026-09-07 ═══════
+   Même patron que la suite du lot 39 qu'elle remplace : on teste la FONCTION
+   (`renderSkillsStep(ctx, onAction)`), pas la page, avec le DOM minimal de
+   `tests/dom-stub.mjs`. La matière est RÉELLE : la pile EN Fate's Hand montée
+   une fois (`exempleFhEn()`, un Wizard Elf niveau 1), et un Rogue bâti de ses
+   seuls choix — jamais un `resolved` tapé à la main, sauf pour l'attaque du
+   total menteur, où c'est le point de l'attaque.
 
-   Même patron que `tests/render-fiche.test.mjs` (commande §4) : on teste la
-   FONCTION, pas la page. `renderSkillsStep(ctx, onAction)` rend un nœud —
-   elle se teste sans navigateur, avec le DOM minimal de `tests/dom-stub.mjs`
-   (aucun paquet de plus, loi Q3).
-
-   La matière est RÉELLE partout où c'est possible : la pile EN Fate's Hand
-   montée une seule fois (`exempleFhEn()`, comme `render-fiche.test.mjs`),
-   `build.verbs.set/rebuild/validate` pour composer les scénarios (Roublard,
-   dépassement, palier verrouillé…) — jamais un `resolved` tapé à la main,
-   SAUF pour l'attaque du test 12, où c'est le point même de l'attaque
-   (`render-fiche.test.mjs` fait pareil, voir son test 5). */
-
+   CE QUE LES LOIS DU LOT 39 DEVIENNENT ICI (aucune n'est perdue) :
+     · « les 26 apparaissent, 8·7·6·5 »        → réparties sur les pages du tambour ;
+     · « un clic = un verbe, bon chemin »        → tenu, plus le second tap qui redescend ;
+     · « OVER au compteur, validate ko »         → le Spent rouge, le gendarme, Done éteint ;
+     · « le budget d'espèce a dégagé »           → Bound est informatif, ses ronds captifs ;
+     · « la notification du Rogue »              → la 2ᵉ ligne de l'aiguilleur, lue au record ;
+     · « SRD pur : aucun mot FH »                → tenu ;
+     · « un total menteur s'affiche menteur »    → tenu ;
+     · « les 37 outils apparaissent »            → dans la LISTE ENTIÈRE d'Add, plus sur la page.
+   Chaque garde porte son témoin contraire quand une alternative existe. */
 import test from "node:test";
 import assert from "node:assert/strict";
-
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
-import { makeHarness, manifestOf, uneCouche, SRD_FR, HOMEBREW } from "./build-harness.mjs";
-
+import { makeHarness, manifestOf, SRD_FR, HOMEBREW } from "./build-harness.mjs";
 globalThis.document = createTestDocument();
+const {
+  renderSkillsStep, skillsValidate, skillsCategories, skillsEcran, skillsReinitialiserEcran, skillsCheminsDeReset
+} = await import("../ui/builder/skills-step.mjs");
 
-const { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate } =
-  await import("../ui/builder/skills-step.mjs");
-
-/* ⚠️ LOT 62 — L'ÉCRAN EST COUPÉ EN DEUX, et les tests suivent.
-   B7.1 : la molette de catégories et la LIGNE 1 du pool (`Pool · Invested ·
-   Left`, `Reset` compris) **flottent** — elles vivent dans le slot fixe du
-   cadre, rendues par `renderSkillsBar`. Seule la LIGNE 2 (le calcul) défile
-   avec le contenu.
-   ⭐ Les lois que ces tests prouvaient sont TOUTES conservées ; ce qui change
-   est OÙ on va lire. `barre()` est la moitié flottante. */
-const barre = (ctx) => renderSkillsBar(ctx, ctx.onAction || (() => {}));
-
-/* La pile EN Fate's Hand, montée UNE FOIS (comme render-fiche.test.mjs) : le
-   personnage d'exemple est un Magicien Elfe niveau 1 — c'est lui que la
-   commande a sondé (§0), et ses nombres mesurés y sont recopiés en
-   commentaire pour qu'un futur lecteur puisse comparer d'un coup d'œil. */
 const fixture = exempleFhEn();
 const { layers, build } = fixture;
 const query = layers.verbs.query;
+const rebuild = (document) => build.verbs.rebuild({ document });
+const validate = (document) => build.verbs.validate({ document });
+const set = (document, path, value) => build.verbs.set({ document, path, value }).document;
 
-function rebuild(document) {
-  return build.verbs.rebuild({ document });
-}
-function validate(document) {
-  return build.verbs.validate({ document });
-}
-function set(document, path, value) {
-  return build.verbs.set({ document, path, value }).document;
-}
-function clear(document, path) {
-  return build.verbs.clear({ document, path, kind: "choice" }).document;
+/** Un `ctx` complet, à partir d'un `rebuild()`. */
+function ctxFrom(report, actions, extra) {
+  return Object.assign({
+    resolved: report.resolved, decisions: report.decisions,
+    violations: validate(report.document).violations, query, onAction: actions || (() => {})
+  }, extra || {});
 }
 
-/** Un `ctx` complet pour `renderSkillsStep`, à partir d'un `rebuild()`. */
-function ctxFrom(report, actions) {
+/** Un Rogue Elf niveau 1 bâti de ses seuls choix, kit lié posé : Stealth
+ *  expert (4) + Acrobatics et Athletics novice (1 + 1) = ses 6 points liés. */
+function rogueDocument(extra = []) {
+  const base = fixture.report.document;
   return {
-    resolved: report.resolved,
-    decisions: report.decisions,
-    violations: validate(report.document).violations,
-    query,
-    onAction: actions || (() => {})
+    ...base, id: "lot171-rogue", name: "Rogue",
+    build: {
+      ...base.build, overrides: [], budgets: {},
+      choices: [
+        { path: "level", value: 1 },
+        { path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } },
+        { path: "species", ref: { kind: "species", id: "srd:species:en:elf" } },
+        { path: "species.lineage", value: "high-elf" },
+        { path: "species.skillBudget.survival", value: "novice" },
+        { path: "species.skillBudget.vigilance", value: "novice" },
+        { path: "background.boost.int", value: 2 }, { path: "background.boost.con", value: 1 },
+        { path: "abilities.mode", value: "standard" },
+        { path: "abilities.str", value: 10 }, { path: "abilities.dex", value: 15 }, { path: "abilities.con", value: 13 },
+        { path: "abilities.int", value: 12 }, { path: "abilities.wis", value: 10 }, { path: "abilities.cha", value: 8 },
+        { path: "class.skillBudget.stealth", value: "expert" },
+        { path: "class.skillBudget.acrobatics", value: "novice" },
+        { path: "class.skillBudget.athletics", value: "novice" },
+        { path: "background.languages[0]", ref: { kind: "training", id: "fh:training:en:language-elf" } },
+        { path: "background.languages[1]", ref: { kind: "training", id: "fh:training:en:language-human" } }
+      ].concat(extra)
+    }
   };
 }
 
-function rows(node) { return node.querySelectorAll(".skills-row"); }
-function rowFor(node, slug) { return node.querySelectorAll(`.skills-row[data-row="${slug}"]`)[0] || null; }
-function tierButtons(row) { return row.querySelectorAll(".skills-tier-btn"); }
-function activeTier(row) {
-  const active = tierButtons(row).find((btn) => btn.getAttribute("data-active") === "true");
-  return active ? active.getAttribute("aria-label") : null;
-}
+const lignes = (node) => [...node.querySelectorAll(".skills-ligne")];
+const ligne = (node, slug) => node.querySelectorAll(`.skills-ligne[data-ligne="${slug}"]`)[0] || null;
+const ronds = (l) => [...l.querySelectorAll(".skills-rond")];
+const rond = (node, slug, rang) => node.querySelectorAll(`.skills-ligne[data-ligne="${slug}"] .skills-rond[data-rang="${rang}"]`)[0];
+const aiguilleur = (node) => node.querySelectorAll(".skills-aiguilleur")[0];
+const spent = (node) => node.querySelectorAll(".skills-free-spent")[0];
+const texteDe = (n) => n.textContent;
+function surLaPage(index) { skillsReinitialiserEcran(); skillsEcran().page = index; }
 
-/* ══ 1 — LES 26 COMPÉTENCES, ET LE COMPTE VIENT DE `resolved.skills` ═══ */
+/* ══ 1 — UNE PAGE À LA FOIS, ET LES 26 SE RETROUVENT EN TOURNANT ══════════ */
 
-test("les 26 compétences apparaissent, et leur compte est LU dans resolved.skills", () => {
-  const node = renderSkillsStep(ctxFrom(fixture.report));
-  const skillIds = new Set(fixture.report.resolved.skills.map((s) => s.id));
-  assert.equal(fixture.report.resolved.skills.length, 26, "mesure de départ — 26 sur l'exemple EN");
-  for (const id of skillIds) assert.ok(rowFor(node, id), `la compétence « ${id} » a sa ligne`);
-
-  /* PREUVE que le compte n'est pas écrit "26" en dur : un `resolved` réduit
-     à 5 compétences rend 5 lignes de compétence, pas 26 — scopé à la grille
-     de compétences, le catalogue des 37 outils rend aussi ses lignes à lui
-     et ne doit pas fausser le compte. */
-  const reduit = { ...fixture.report.resolved, skills: fixture.report.resolved.skills.slice(0, 5), stats: [], tools: [] };
-  const nodeReduit = renderSkillsStep({ resolved: reduit, decisions: [], violations: [], query, onAction: () => {} });
-  const skillRowsOnly = nodeReduit.querySelectorAll(".skills-grid .skills-row");
-  assert.equal(skillRowsOnly.length, 5, "5 compétences → 5 lignes, jamais 26");
-});
-
-/* ══ 2 — LES QUATRE CATÉGORIES RANGENT LES 26 ═══════════════════════════ */
-
-test("les quatre catégories rangent les 26 compétences — 8 · 7 · 6 · 5, lues sur la couche", () => {
-  const skillCatalog = query({ kind: "skill" });
-  const counts = { knowledge: 0, social: 0, exploration: 0, physical: 0 };
-  for (const view of skillCatalog) {
-    const category = view.record.data && view.record.data.category;
-    if (Object.hasOwn(counts, category)) counts[category] += 1;
+test("le tambour a six crans — quatre catégories, Tools, Trainings — et les 26 compétences se répartissent 8 · 7 · 6 · 5", () => {
+  const ctx = ctxFrom(fixture.report);
+  assert.deepEqual(skillsCategories(ctx), ["Knowledge", "Social", "Exploration", "Physical", "Tools", "Trainings"]);
+  const comptes = [];
+  const tous = new Set();
+  for (let i = 0; i < 4; i += 1) {
+    surLaPage(i);
+    const node = renderSkillsStep(ctx);
+    const page = node.querySelectorAll(".skills-page")[0];
+    comptes.push(lignes(node).length);
+    for (const l of lignes(node)) tous.add(l.getAttribute("data-ligne"));
+    assert.equal(page.getAttribute("data-page"), ["knowledge", "social", "exploration", "physical"][i]);
   }
-  assert.deepEqual(counts, { knowledge: 8, social: 7, exploration: 6, physical: 5 }, "mesure de la couche, pas recopiée");
+  assert.deepEqual(comptes, [8, 7, 6, 5], "les catégories sont lues sur la couche, pas comptées ici");
+  assert.equal(tous.size, 26, "les 26 compétences, chacune sur UNE page");
+  surLaPage(0);
+});
 
+test("le tambour tourne en boucle : avant Knowledge vient Trainings, et un chevron déplace d'un cran", () => {
+  surLaPage(0);
   const node = renderSkillsStep(ctxFrom(fixture.report));
-  const groups = node.querySelectorAll(".skills-group");
-  /* ⚠️ B7.3b — PLUS DE `<h3>` : « ne pas re-préciser Knowledge en titre, le
-     spy et le snap le rendent évident ». Le label voyage en `data-label`,
-     que la molette du cadre lit et que l'écran n'affiche pas. */
-  const byLabel = new Map(groups.map((g) => [g.getAttribute("data-label"), g.querySelectorAll(".skills-row").length]));
-  assert.equal(byLabel.get("Knowledge"), 8);
-  assert.equal(byLabel.get("Social"), 7);
-  assert.equal(byLabel.get("Exploration"), 6);
-  assert.equal(byLabel.get("Physical"), 5);
+  const crans = () => [...node.querySelectorAll(".skills-cran")].map((c) => `${c.getAttribute("data-place")}:${texteDe(c)}`);
+  assert.deepEqual(crans(), ["avant:Trainings", "centre:Knowledge", "apres:Social"], "six crans, trois en vue, la boucle se referme");
+  assert.equal(node.querySelectorAll('.skills-cran[data-place="centre"]')[0].getAttribute("aria-current"), "true");
+  node.querySelectorAll(".skills-tambour-chevron")[1].click(); // ›
+  assert.equal(skillsEcran().page, 1);
+  assert.deepEqual(crans(), ["avant:Knowledge", "centre:Social", "apres:Exploration"], "le contenu tourne, le halo reste au centre");
+  assert.equal(node.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "social", "la fenêtre suit le tambour");
+  /* 🔴 LE TÉMOIN CONTRAIRE : ‹ depuis Knowledge mène à Trainings, la dernière — une boucle, pas une liste. */
+  surLaPage(0);
+  const node2 = renderSkillsStep(ctxFrom(fixture.report));
+  node2.querySelectorAll(".skills-tambour-chevron")[0].click();
+  assert.equal(skillsEcran().page, 5);
+  assert.equal(node2.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "trainings");
+  surLaPage(0);
 });
 
-/* ══ 3 — LES 36 OUTILS, ACQUIS OU NON ═══════════════════════════════════ */
+/* ══ 2 — UN TAP, UN VERBE ; LE SECOND REDESCEND ; RIEN N'EST CALCULÉ ICI ══ */
 
-test("les 37 outils apparaissent, y compris ceux que le personnage n'a pas", () => {
-  const toolCatalog = query({ kind: "tool" });
-  assert.equal(toolCatalog.length, 37, "mesure de départ");
-  /* ⚠️ Le bloc « Tools & Trainings » a perdu son titre (B7.3b) mais garde ses
-     TROIS sous-titres : ils distinguent des choses différentes DANS la même
-     dalle, ce que la molette ne dit pas. */
-  const node = renderSkillsStep(ctxFrom(fixture.report));
-  const toolsBlock = node.querySelectorAll(".skills-tools-block")[0];
-  assert.equal(rows(toolsBlock).length, 37);
+test("un tap sur un rond vide émet UN verbe `set` au bon chemin ; sur un rond vert, il redescend d'un cran, et efface sous le premier", () => {
+  surLaPage(0);
+  const actions = [];
+  const node = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  rond(node, "academics", 2).click();
+  assert.deepEqual(actions, [{ kind: "set", path: "fh.skills.spend.academics", value: "adept" }], "un verbe, le palier du rond, jamais un calcul");
 
-  /* Un outil non acquis n'est PAS dans `resolved.tools[]` (mesuré, §0) —
-     son palier se lit par ABSENCE, et son bonus est le modificateur brut de
-     caractéristique (`resolved.abilities[key].mod`), jamais recalculé. */
-  assert.equal(fixture.report.resolved.tools.length, 0, "aucun outil acquis sur l'exemple de base");
-  const alchemist = rowFor(toolsBlock, "alchemist-s-supplies");
-  assert.ok(alchemist, "un outil non acquis a quand même sa ligne");
-  /* 🔴 B7.4 — « rien de rempli = 0 ». Le bouton « aucune maîtrise » n'existe
-     plus : l'absence de maîtrise est l'ABSENCE de rond allumé. Ce test
-     l'affirme positivement, sinon la suppression du 0 pourrait être défaite
-     sans que rien ne bronche. */
-  assert.equal(activeTier(alchemist), null, "aucun rond allumé — c'est ça, « pas de maîtrise »");
-  assert.equal(tierButtons(alchemist).length, 3, "et il reste TROIS ronds, plus quatre");
-  const bonusCell = alchemist.querySelectorAll(".skills-row-bonus")[0];
-  const abilityKey = query({ kind: "tool", id: "srd:tool:en:alchemist-s-supplies" }).record.data.ability_key;
-  const expected = fixture.report.resolved.abilities[abilityKey].mod;
-  assert.equal(bonusCell.textContent, expected >= 0 ? `+${expected}` : String(expected));
+  /* Le MÊME personnage, Academics déjà adept : le second tap sur ● redescend à
+     Novice, et le tap sur ◐ (le premier) EFFACE — Eric, 07/09 : *« taper une
+     deuxième fois sur un rond vert le fait disparaître »*. */
+  const adept = rebuild(set(fixture.report.document, "fh.skills.spend.academics", "adept"));
+  const actions2 = [];
+  const node2 = renderSkillsStep(ctxFrom(adept, (a) => actions2.push(a)));
+  assert.deepEqual(ronds(ligne(node2, "academics")).map((b) => b.getAttribute("data-active")), ["true", "true", "false"], "deux ronds verts");
+  rond(node2, "academics", 2).click();
+  rond(node2, "academics", 1).click();
+  assert.deepEqual(actions2, [
+    { kind: "set", path: "fh.skills.spend.academics", value: "novice" },
+    { kind: "clear", path: "fh.skills.spend.academics" }
+  ]);
 });
 
-/* ══ 4 — UN CLIC PRODUIT EXACTEMENT UN APPEL DE VERBE ═══════════════════ */
+/* ══ 3 — LE LIÉ : HALO VIOLET, CAPTIF, ET LE POPUP « BOUND » ══════════════ */
 
-test("un clic sur un palier produit exactement un appel de verbe, avec le bon chemin et la bonne valeur", () => {
-  const calls = [];
-  const node = renderSkillsStep(ctxFrom(fixture.report, (action) => calls.push(action)));
-  const stealth = rowFor(node, "stealth");
-  /* LOT 57 — le repérage se fait sur `data-tier`, la clef MACHINE
-     (`dataset.tier`, jamais renommée par ce lot), pas sur `aria-label` :
-     ce dernier porte maintenant le MOT humain (« Full proficiency »), et
-     un test qui chercherait le bouton par ce mot casserait au premier
-     lot qui l'affine sans rien avoir changé au comportement. */
-  const proficientBtn = tierButtons(stealth).find((b) => b.dataset.tier === "adept");
-  assert.ok(proficientBtn, "le bouton « proficient » existe (lu dans tier_costs, pas en dur)");
-  proficientBtn.click();
-  assert.equal(calls.length, 1, "exactement un appel");
-  assert.deepEqual(calls[0], { kind: "set", path: "fh.skills.spend.stealth", value: "adept" });
+test("un rond lié porte le halo, n'émet aucun verbe, et ouvre le popup Bound — le libre du même personnage se pose", () => {
+  const rogue = rebuild(rogueDocument());
+  surLaPage(3); // Physical : Stealth, Acrobatics, Athletics y vivent
+  const actions = [];
+  const node = renderSkillsStep(ctxFrom(rogue, (a) => actions.push(a)));
+  const stealth = ligne(node, "stealth");
+  assert.ok(stealth, "Stealth est sur la page Physical");
+  assert.equal(stealth.getAttribute("data-lie"), "oui");
+  assert.deepEqual(ronds(stealth).map((b) => `${b.getAttribute("data-lie")}/${b.getAttribute("data-active")}`),
+    ["oui/true", "oui/true", "oui/true"], "expert lié : trois ronds verts sous halo violet");
+  rond(node, "stealth", 3).click();
+  assert.equal(actions.length, 1);
+  assert.equal(actions[0].kind, "popup", "captif : aucun `set`, aucun `clear` — le popup dit d'où ça vient");
+  assert.equal(actions[0].titre, "Bound");
+  assert.match(actions[0].texte, /Rogue/, "la source est nommée");
+  assert.match(actions[0].texte, /Stealth Expert/, "et le palier posé");
+  assert.match(actions[0].texte, /Elf/, "la bourse d'espèce aussi");
+  /* 🔴 LE TÉMOIN CONTRAIRE : Acrobatics est lié à Novice — son 2ᵉ rond est LIBRE et se pose. */
+  const acro = ligne(node, "acrobatics");
+  assert.deepEqual(ronds(acro).map((b) => b.getAttribute("data-lie")), ["oui", "non", "non"]);
+  rond(node, "acrobatics", 2).click();
+  assert.deepEqual(actions[1], { kind: "set", path: "fh.skills.spend.acrobatics", value: "adept" });
+  surLaPage(0);
 });
 
-/* ══ 5/6 — LE REJET : LE POOL DÉPASSÉ ════════════════════════════════════ */
-
-test("REJET — dépasser le pool : la dépense s'applique, le compteur affiche OVER, et validate() répond ok:false " +
-  "— et le refus se pose au COMPTEUR, jamais sur une ligne", () => {
-  const slugs = ["religion", "nature", "medicine", "insight", "history", "persuasion", "deception"];
-  let doc = fixture.document;
-  for (const slug of slugs) doc = set(doc, `fh.skills.spend.${slug}`, "adept");
-  const report = rebuild(doc);
-  const validation = validate(report.document);
-
-  const poolStat = report.resolved.stats.find((s) => s.id === "fh:skill-points");
-  assert.ok(poolStat.value < 0, "mesure : le total publié est bien négatif — la dépense EST appliquée");
-  assert.equal(validation.ok, false);
-  assert.ok(validation.violations.some((v) => v.key === "skill-pool.overspent"));
-
-  const node = renderSkillsStep({ resolved: report.resolved, decisions: report.decisions, violations: validation.violations, query, onAction: () => {} });
-  const leftLine = barre(ctxFrom(report, () => {})).querySelectorAll(".skills-counter-line[data-over=\"true\"]")[0];
-  assert.ok(leftLine, "la ligne « Left » porte le marqueur OVER");
-  assert.ok(leftLine.textContent.includes("OVER"));
-
-  /* test 6 : AUCUNE ligne de la grille ne porte de marque pour ce refus —
-     `skill-pool.overspent` n'a pas de `.path` (mesuré, §3d). */
-  const rowRefusals = node.querySelectorAll(".skills-row .skills-refusal");
-  assert.equal(rowRefusals.length, 0, "aucune ligne ne porte le refus du pool");
-  const counterRefusal = node.querySelectorAll(".skills-refusal-pool")[0];
-  assert.ok(counterRefusal, "le refus est bien affiché, au compteur");
-  assert.ok(counterRefusal.textContent.includes("Overspent"));
+test("Bound points dit la vérité : Skills 8/8 · Tools 0/1 (aucune porte ne place le point d'outil) · Trainings 2/2", () => {
+  surLaPage(0);
+  const rogue = rebuild(rogueDocument());
+  const node = renderSkillsStep(ctxFrom(rogue));
+  const lignesBound = [...node.querySelectorAll(".skills-bound-ligne")].map(texteDe);
+  assert.deepEqual(lignesBound, ["Skills 8/8", "Tools 0/1", "Trainings 2/2"]);
+  /* ⚠️ MESURÉ LE 07/09 : `resolved.tools` est VIDE pour le Rogue — le record
+     déclare 1 point d'outil lié, rien ne le place. « 1/1 » aurait menti. */
+  assert.deepEqual(rogue.resolved.tools, []);
+  /* 🔴 LE TÉMOIN CONTRAIRE : le Wizard Elf n'a aucun point d'outil lié — sa ligne dit 0/0. */
+  const wizard = renderSkillsStep(ctxFrom(fixture.report));
+  assert.equal([...wizard.querySelectorAll(".skills-bound-ligne")].map(texteDe)[1], "Tools 0/0");
 });
 
-/* ══ 7 — KEEN SENSES PROPOSE LES TROIS, PALIER LIBRE ═══════════════════ */
+/* ══ 4 — LE SPENT PARCOURT L'ÉCHELLE, ET DONE N'OUVRE QU'AU COMPTE ═══════ */
 
-test("🗑️ Keen Senses n'est plus piloté ICI — et le test qui le prouvait a suivi la bourse", () => {
-  /* La bourse captive vit sur l'écran SPECIES depuis le lot 60, et la loi
-     qu'elle porte — LES TROIS compétences proposées, Delve compris, palier
-     LIBRE (le bogue du v1 qui n'en montrait que deux et forçait le ½) — est
-     prouvée là-bas, dans `class-species-steps.test.mjs`.
-     ⛔ Ce test ne la reprouve pas ici : il vérifie qu'elle n'y est PLUS, pour
-     qu'un futur lot ne réintroduise pas le doublon en silence. */
-  const node = renderSkillsStep(ctxFrom(fixture.report));
-  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
-  const slugsDeLaGrille = node.querySelectorAll(".skills-row").map((r) => r.getAttribute("data-row"));
-  assert.ok(slugsDeLaGrille.includes("delve"),
-    "delve reste dans la GRILLE (c'est une compétence comme une autre) — seule la BOURSE a déménagé");
+test("Spent : bleu en cours, vert au compte exact, rouge au-delà — Done ne s'allume qu'au compte, et le gendarme prend la case de l'aiguilleur", () => {
+  surLaPage(0);
+  const depart = fixture.report;
+  const budget = depart.resolved.stats.find((s) => s.id === "fh:skill-points").value;
+  assert.ok(budget >= 8, `mesure : le Wizard Elf a ${budget} points libres à dépenser`);
+  const node0 = renderSkillsStep(ctxFrom(depart));
+  assert.equal(spent(node0).getAttribute("data-etat"), "cours");
+  assert.equal(skillsValidate(ctxFrom(depart)).ready, false, "Eric, 07/09 : « Done en gris tant que le compte n'est pas là »");
+
+  /* Au compte exact — on dépense TOUT en experts et adeptes sur des compétences libres. */
+  let doc = depart.document;
+  const cibles = ["academics", "appraise", "history", "deception", "insight", "intimidation", "persuasion", "streetwise", "athletics", "acrobatics", "stealth", "survival"];
+  let reste = budget;
+  for (const slug of cibles) {
+    if (reste >= 2) { doc = set(doc, `fh.skills.spend.${slug}`, "adept"); reste -= 2; }
+    else if (reste === 1) { doc = set(doc, `fh.skills.spend.${slug}`, "novice"); reste -= 1; }
+    if (reste === 0) break;
+  }
+  const exact = rebuild(doc);
+  const nodeExact = renderSkillsStep(ctxFrom(exact));
+  assert.equal(spent(nodeExact).getAttribute("data-etat"), "compte", "tout placé : vert");
+  assert.equal(skillsValidate(ctxFrom(exact)).ready, true, "et Done s'allume");
+  assert.match(texteDe(aiguilleur(nodeExact)), /Done to settle/);
+
+  /* Au-delà — un adept de plus sur une compétence libre (un expert serait refusé
+     par le verrou du Wizard avant de coûter : ce serait le mauvais témoin). */
+  const trop = rebuild(set(doc, "fh.skills.spend.hunting", "adept"));
+  const nodeTrop = renderSkillsStep(ctxFrom(trop));
+  assert.equal(spent(nodeTrop).getAttribute("data-etat"), "trop", "dépassé : rouge");
+  assert.equal(skillsValidate(ctxFrom(trop)).ready, false, "Done se rééteint");
+  const g = aiguilleur(nodeTrop);
+  assert.equal(g.getAttribute("data-gendarme"), "oui", "le gendarme a pris la case");
+  assert.match(texteDe(g), /Overspent by/, "et il dit le refus, mot du moteur");
+  assert.equal(nodeExact.querySelectorAll('.skills-aiguilleur[data-gendarme="oui"]').length, 0, "témoin : au compte exact, l'aiguilleur guide");
 });
 
-/* ══ 8 — LE BUDGET CAPTIF NE CONTAMINE PAS LE POOL LIBRE ════════════════ */
-
-test("🗑️ B7.2d — le budget captif d'espèce a DÉGAGÉ de cet écran", () => {
-  /* Eric, 2026-08-14 : « le tableau Species skill budget DÉGAGE ».
-     ⚠️ IL N'EST PAS SUPPRIMÉ DU PRODUIT : depuis le lot 60 il vit sur l'écran
-     SPECIES, au 2ᵉ palier de son Validate — là où le choix se prend. Ce qui
-     part d'ici, c'est le DOUBLON : la même bourse pilotée depuis deux
-     écrans, sur les mêmes chemins, aurait fini par diverger.
-     ⭐ Et son COMPTE reste lu ici, en ligne 2 : savoir ce qu'on a investi
-     ailleurs n'oblige pas à pouvoir le changer ici. */
-  const node = renderSkillsStep(ctxFrom(fixture.report));
-  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
-  /* ⚠️ LA LIGNE SE TROUVE PAR CE QU'ELLE DIT, PAS PAR SON RANG — corrigé le
-     2026-08-20 : une ligne « Bound … — already placed » s'est ajoutée AVANT
-     celle-ci (les points liés du canon §B.1), et un `[0]` a rougi pour une
-     raison qui n'était pas la sienne. Même leçon que les gardes du pied ce
-     matin : on reconnaît une chose à ce qu'elle EST, jamais à sa place. */
-  const detail = Array.from(node.querySelectorAll(".skills-pooldetail-line"))
-    .map((n) => n.textContent).find((t) => /invested/.test(t));
-  assert.ok(/Species \d+\/\d+/.test(detail), `mais son compte reste lisible — lu : « ${detail} »`);
+test("une demande refusée (plafond) se lit sur la ligne, et le tap sur le palier refusé l'EFFACE au lieu de la redire", () => {
+  /* Un Rogue niveau 1 : Stealth expert lié + un expert libre = le plafond ; le
+     second expert libre est refusé et reste écrit — le rond doit offrir la sortie. */
+  surLaPage(0);
+  const rogue = rebuild(rogueDocument([
+    { path: "fh.skills.spend.academics", value: "expert" },
+    { path: "fh.skills.spend.appraise", value: "expert" }
+  ]));
+  const actions = [];
+  const node = renderSkillsStep(ctxFrom(rogue, (a) => actions.push(a)));
+  const appraise = ligne(node, "appraise");
+  assert.equal(appraise.querySelectorAll('.skills-ronds[data-refus="oui"]').length, 1, "la ligne refusée est marquée");
+  assert.equal(aiguilleur(node).getAttribute("data-gendarme"), "oui");
+  rond(node, "appraise", 3).click();
+  assert.deepEqual(actions, [{ kind: "clear", path: "fh.skills.spend.appraise" }], "le tap sur ◉ efface la demande refusée");
+  /* 🔴 LE TÉMOIN CONTRAIRE : sur la ligne ACCEPTÉE, ◉ est vert et le tap redescend. */
+  const actions2 = [];
+  const node2 = renderSkillsStep(ctxFrom(rogue, (a) => actions2.push(a)));
+  rond(node2, "academics", 3).click();
+  assert.deepEqual(actions2, [{ kind: "set", path: "fh.skills.spend.academics", value: "adept" }]);
 });
 
-/* ══ 9 — LA NOTIFICATION DU ROGUE, ET PAS POUR LE MAGICIEN ═════════════ */
+/* ══ 5 — SIGNÉE, L'ÉTAPE CONCLUT EN VERT ET LE PIED DÉCLARE `Next` ════════ */
 
-function rogueDocument() {
-  const rogueClass = query({ kind: "class", id: "srd:class:en:rogue" });
-  const choices = [
-    { path: "level", value: 1, label: "Level 1" },
-    { path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }, label: "Rogue" },
-    /* LOT 43 — plus de choix `background` : l'Inheritance est le seul record
-       du genre, livrée par la couche FH, jamais choisie (contrat §1a). */
-    { path: "background.boost.int", value: 2 },
-    { path: "background.boost.con", value: 1 },
-    { path: "abilities.mode", value: "standard", label: "Standard array" },
-    { path: "abilities.str", value: 10 }, { path: "abilities.dex", value: 15 },
-    { path: "abilities.con", value: 13 }, { path: "abilities.int", value: 12 },
-    { path: "abilities.wis", value: 10 }, { path: "abilities.cha", value: 8 },
-    { path: "class.skills[0]", value: "stealth" }, { path: "class.skills[1]", value: "acrobatics" },
-    { path: "class.skills[2]", value: "perception" }, { path: "class.skills[3]", value: "insight" }
-  ];
-  assert.ok(rogueClass, "sonde : le record rogue existe bien dans la pile montée");
-  return {
-    schema: "fh-char/1", id: "test-rogue", name: "Test Rogue", lang: "en",
-    units: { distance: "ft", weight: "lb" },
-    generator: { name: "tests/skills-step", version: "1.0.0" },
-    created: "2026-08-13T00:00:00Z", modified: "2026-08-13T00:00:00Z",
-    build: { layers: manifestOf(layers), choices, budgets: {}, overrides: [] }
-  };
-}
-
-test("la notification du Rogue apparaît pour le rogue, et PAS pour le magicien — le coût est lu dans tier_costs", () => {
-  const rogueReport = rebuild(rogueDocument());
-  const rogueNode = renderSkillsStep(ctxFrom(rogueReport));
-  const notice = rogueNode.querySelectorAll(".skills-rogue-notice")[0];
-  assert.ok(notice, "le rogue voit la ligne dès le niveau 1");
-  const rogueClass = query({ kind: "class", id: "srd:class:en:rogue" });
-  const cost = rogueClass.record.data.fh_skill_pool.tier_costs.expert;
-  assert.ok(notice.textContent.includes(String(cost)), "le coût vient de tier_costs, pas d'un nombre en dur");
-  assert.ok(notice.textContent.includes("Rogue"));
-
-  const wizardNode = renderSkillsStep(ctxFrom(fixture.report));
-  assert.equal(wizardNode.querySelectorAll(".skills-rogue-notice").length, 0, "le magicien ne la voit pas au niveau 1");
+test("signée : la conclusion verte remplace l'aiguilleur et l'hôte du pied déclare `Next` ; non signée, il déclare `Done` — et `Reset` toujours", () => {
+  surLaPage(0);
+  const signe = renderSkillsStep(ctxFrom(fixture.report, null, { signe: true }));
+  assert.equal(signe.getAttribute("data-signe"), "oui");
+  assert.equal(aiguilleur(signe).getAttribute("data-signe"), "oui");
+  assert.match(texteDe(aiguilleur(signe)), /settled/);
+  const pied = signe.querySelectorAll(".skills-pied")[0];
+  assert.equal(pied.getAttribute("data-sortie-ici"), "true", "la coquille garnit le pied — l'écran ne fabrique aucun Done");
+  assert.equal(pied.getAttribute("data-sortie-done-mot"), "Next");
+  assert.equal(pied.getAttribute("data-sortie-verbe"), "resetSkills");
+  assert.equal(pied.getAttribute("data-sortie-mot"), "Reset");
+  assert.equal(pied.querySelectorAll(".livre-de-sortie").length, 1, "le livre est posé, la coquille le range à gauche");
+  const pas = renderSkillsStep(ctxFrom(fixture.report));
+  assert.equal(pas.querySelectorAll(".skills-pied")[0].getAttribute("data-sortie-done-mot"), "Done");
+  assert.equal(pas.querySelectorAll(".sortie-bouton").length, 0, "aucun bouton de sortie fabriqué par l'écran (garde 17)");
 });
 
-/* ══ 10 — UN PLAN INCOMPLET RESTE VALIDE ════════════════════════════════ */
-
-test("un plan incomplet (budget captif d'espèce pas totalement dépensé) reste valide — un personnage en cours de construction n'est pas une faute", () => {
-  /* La fiche de base n'a encore AUCUN point en outil (Sage n'en impose pas) :
-     `skill-pool.no-tool` y est TOUJOURS vrai, indépendamment de ce test — il
-     faut le satisfaire à part pour isoler ce qu'on veut vraiment mesurer.
-     ⚠️ MESURÉ EN ÉCRIVANT CE TEST : retirer UNE des deux compétences
-     IMPOSÉES de classe (`class.skills[1]`) N'EST PAS l'exemple qui convient
-     — le moteur la refuse déjà (`skill-grant.count-mismatch`, `block.mjs`) :
-     une source qui déclare `{count:2}` et n'en reçoit qu'une EST une faute
-     rapportée, pas un plan « en cours ». Le budget captif, lui, ne verrouille
-     que le DÉPASSEMENT (`spent > points`), jamais le manque — c'est
-     l'exemple qui prouve vraiment la phrase de la commande. */
-  let doc = set(fixture.document, "fh.skills.spend.thieves-tools", "novice");
-  doc = clear(doc, "species.skillBudget.vigilance");
-  const report = rebuild(doc);
-  const validation = validate(report.document);
-  assert.equal(validation.ok, true, "un budget sous-dépensé n'est pas un refus");
-  const budgetPlan = report.decisions.find((entry) => entry.path === "species.skillBudget");
-  assert.equal(budgetPlan.status, "pending", "mesure : pending, pas locked");
-  assert.equal(budgetPlan.lock, undefined, "un plan incomplet ne porte pas de verrou");
-  const node = renderSkillsStep(ctxFrom(report));
-  /* ⚠️ Le compte d'espèce a migré en LIGNE 2 (celle qui défile) : B7.1 garde
-     au flottant « combien il reste », pas « d'où ça vient ». La ligne 1 ne
-     porte donc plus que Pool · Invested · Left. */
-  /* ⚠️ LA LIGNE SE TROUVE PAR CE QU'ELLE DIT, PAS PAR SON RANG — corrigé le
-     2026-08-20 : une ligne « Bound … — already placed » s'est ajoutée AVANT
-     celle-ci (les points liés du canon §B.1), et un `[0]` a rougi pour une
-     raison qui n'était pas la sienne. Même leçon que les gardes du pied ce
-     matin : on reconnaît une chose à ce qu'elle EST, jamais à sa place. */
-  const detail = Array.from(node.querySelectorAll(".skills-pooldetail-line"))
-    .map((n) => n.textContent).find((t) => /invested/.test(t));
-  assert.ok(detail.includes("Species 1/2"), `le détail doit porter le compte d'espèce — lu : « ${detail} »`);
+test("Reset : les chemins viennent du DOCUMENT — tout le libre, rien du lié, et pas le trait", () => {
+  const doc = rogueDocument([
+    { path: "fh.skills.spend.academics", value: "expert" },
+    { path: "fh.skills.train.language-araag", value: true },
+    { path: "fh.skills.trait.late-bloomer", value: true }
+  ]);
+  assert.deepEqual(skillsCheminsDeReset(doc).sort(), ["fh.skills.spend.academics", "fh.skills.train.language-araag"]);
+  assert.deepEqual(skillsCheminsDeReset({ build: { choices: [] } }), []);
+  assert.deepEqual(skillsCheminsDeReset(null), [], "un document absent ne fait pas planter le pied");
 });
 
-/* ══ 11 — UN PERSONNAGE SRD PUR : AUCUNE MÉCANIQUE FH, L'ÉCRAN NE CASSE PAS */
+/* ══ 6 — TOOLS ET TRAININGS : L'ACQUIS SEULEMENT, ET LA LISTE ENTIÈRE D'ADD ══ */
+
+test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arrive VIDE, sans un verbe", () => {
+  skillsReinitialiserEcran();
+  skillsEcran().page = 4; // Tools
+  const actions = [];
+  const node = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  assert.equal(lignes(node).length, 0, "le Wizard Elf n'a aucun outil : rien à lister");
+  assert.equal(node.querySelectorAll(".skills-vide").length, 1);
+  const add = node.querySelectorAll(".skills-ajout")[0];
+  assert.equal(texteDe(add), "Add a tool");
+  add.click();
+  const choix = [...node.querySelectorAll(".skills-choix")];
+  assert.equal(choix.length, 37, "la liste entière : les 37 outils de la pile, lus sur la couche");
+  const alchimie = () => [...node.querySelectorAll(".skills-choix")].find((c) => c.getAttribute("data-slug") === "alchemist-s-supplies");
+  alchimie().click();
+  /* La liste se REDESSINE au tap (état d'écran) : on relit le nœud, jamais l'ancien. */
+  assert.equal(alchimie().getAttribute("data-active"), "true");
+  node.querySelectorAll(".skills-liste-done")[0].click();
+  const l = ligne(node, "alchemist-s-supplies");
+  assert.ok(l, "l'outil ajouté a sa ligne");
+  assert.deepEqual(ronds(l).map((b) => b.getAttribute("data-active")), ["false", "false", "false"], "il arrive VIDE — Eric, 07/09");
+  assert.deepEqual(actions, [], "et RIEN n'a été écrit au personnage : l'ajout est un état d'écran");
+  /* Son premier rond se paie au pool comme une compétence. */
+  rond(node, "alchemist-s-supplies", 1).click();
+  assert.deepEqual(actions, [{ kind: "set", path: "fh.skills.spend.alchemist-s-supplies", value: "novice" }]);
+  skillsReinitialiserEcran();
+  assert.equal(skillsEcran().ajoutes.tool.size, 0, "Reset oublie l'ajout sans point");
+});
+
+test("Trainings : les deux langues d'origine sont liées, un training s'achète d'un tap et se rend d'un second, et Add ouvre les 13", () => {
+  skillsReinitialiserEcran();
+  skillsEcran().page = 5; // Trainings
+  /* ⚠️ Niveau 4 : un training sans `from_level` s'ouvre au niveau générique du
+     moteur (mesuré : tous les records de la couche en sont là, le Garrot
+     compris) ; au niveau 1 l'achat serait refusé et ce test mesurerait le verrou,
+     pas la page. Le Rogue de niveau 4 porte les mêmes 6 points liés. */
+  const rogue = rebuild(set(rogueDocument([{ path: "fh.skills.train.garrot", value: true }]), "level", 4));
+  const actions = [];
+  const node = renderSkillsStep(ctxFrom(rogue, (a) => actions.push(a)));
+  const noms = lignes(node).map((l) => l.getAttribute("data-ligne")).sort();
+  assert.deepEqual(noms, ["garrot", "language-elf", "language-human"], "les langues liées + le training acheté, rien d'autre");
+  const elf = ligne(node, "language-elf");
+  assert.equal(elf.getAttribute("data-lie"), "oui");
+  assert.equal(ronds(elf)[0].getAttribute("data-lie"), "oui", "une langue d'origine porte le halo");
+  ronds(elf)[0].click();
+  assert.equal(actions[0].kind, "popup", "captive : le tap explique, il n'écrit rien");
+  const garrot = ligne(node, "garrot");
+  assert.equal(ronds(garrot)[0].getAttribute("data-active"), "true");
+  ronds(garrot)[0].click();
+  assert.deepEqual(actions[1], { kind: "clear", path: "fh.skills.train.garrot" }, "le second tap rend le training");
+  /* Le nom d'un training est un lien bleu qui ouvre son popup (description du record). */
+  const nom = garrot.querySelectorAll(".skills-ligne-lien")[0];
+  assert.ok(nom, "le nom est cliquable");
+  nom.click();
+  assert.equal(actions[2].kind, "popup");
+  assert.equal(actions[2].titre, "Garrot");
+  node.querySelectorAll(".skills-ajout")[0].click();
+  const choix = [...node.querySelectorAll(".skills-choix")];
+  assert.equal(choix.length, 13, "douze langues et le Garrot");
+  assert.equal(choix.filter((c) => c.getAttribute("data-deja") === "oui").length, 3, "ce qui est déjà là est marqué et inerte");
+  skillsReinitialiserEcran();
+});
+
+/* ══ 7 — L'AIGUILLEUR LIT LE RECORD : le droit d'Expertise, par personnage ══ */
+
+test("l'aiguilleur dit le droit d'Expertise de CE personnage, nombres lus sur le record — Rogue, Wizard, Wizard avec Late Bloomer", () => {
+  surLaPage(0);
+  const rogueClass = query({ kind: "class", id: "srd:class:en:rogue" }).record.data.fh_skill_pool;
+  const rogue = renderSkillsStep(ctxFrom(rebuild(rogueDocument())));
+  assert.match(texteDe(aiguilleur(rogue)), new RegExp(`up to ${rogueClass.expertise_cap.max} at level ${rogueClass.expertise_cap.through_level}`));
+  const wizardClass = query({ kind: "class", id: "srd:class:en:wizard" }).record.data.fh_skill_pool;
+  const wizard = renderSkillsStep(ctxFrom(fixture.report));
+  assert.match(texteDe(aiguilleur(wizard)), new RegExp(`Expertise unlocks at level ${wizardClass.expertise_from_level}`));
+  const tardif = renderSkillsStep(ctxFrom(rebuild(set(fixture.report.document, "fh.skills.trait.late-bloomer", true))));
+  assert.match(texteDe(aiguilleur(tardif)), /Late Bloomer: 1 Expertise before level 4/, "le trait, son compte et le relais de la classe — tous lus");
+  assert.match(texteDe(aiguilleur(wizard)), /Novice 1 · Adept 2 · Expert 4/, "la consigne des paliers vient de tier_costs");
+});
+
+/* ══ 8 — SRD PUR : aucune mécanique FH, l'écran ne casse pas ═════════════ */
 
 test("un personnage SRD pur (couche FH débrayée) : aucune mécanique FH n'apparaît, l'écran ne casse pas", () => {
+  surLaPage(0);
   const srdHarness = makeHarness({ layers: [SRD_FR, HOMEBREW] }); // AUCUN module (§0.12) — le pli SRD nu
   const document = {
     schema: "fh-char/1", id: "srd-pur", name: "SRD pur", lang: "fr",
@@ -331,126 +378,33 @@ test("un personnage SRD pur (couche FH débrayée) : aucune mécanique FH n'appa
   };
   const report = srdHarness.verbs.rebuild({ document });
   assert.equal(report.resolved.stats.length, 0, "mesure : aucun module monté, aucune stat FH");
-  const validation = srdHarness.verbs.validate({ document: report.document });
-
   const node = renderSkillsStep({
-    resolved: report.resolved, decisions: report.decisions, violations: validation.violations,
+    resolved: report.resolved, decisions: report.decisions, violations: srdHarness.verbs.validate({ document: report.document }).violations,
     query: srdHarness.layers.verbs.query, onAction: () => {}
   });
-  assert.equal(node.querySelectorAll(".skills-pooldetail").length, 0, "pas de compteur sans fh:skill-points");
-  assert.equal(node.querySelectorAll(".skills-rogue-notice").length, 0);
-  assert.equal(node.querySelectorAll(".skills-budget-block").length, 0);
-  assert.ok(node.querySelectorAll(".skills-row").length > 0, "la grille de base (SRD) s'affiche quand même");
-  /* Chaque compétence, sans palier achetable (aucun `tier_costs` à lire) : le
-     texte statique remplace les boutons de palier — l'écran ne plante pas. */
-  const oneRow = node.querySelectorAll(".skills-row")[0];
-  assert.equal(tierButtons(oneRow).length, 0);
-  assert.ok(oneRow.querySelectorAll(".skills-row-static").length === 1);
+  assert.equal(node.querySelectorAll(".skills-free-spent").length, 0, "pas de compte sans fh:skill-points");
+  assert.match(texteDe(aiguilleur(node)), /SRD/, "l'aiguilleur le dit");
+  assert.ok(lignes(node).length > 0, "la liste SRD s'affiche quand même — sans catégorie, une seule page « Skills »");
+  assert.equal(node.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "skills");
+  assert.equal(ronds(lignes(node)[0]).length, 0, "aucun palier achetable : pas de ronds");
+  assert.equal(lignes(node)[0].querySelectorAll(".skills-ligne-static").length, 1);
+  const mots = node.textContent;
+  for (const interdit of ["Novice", "Adept", "Expert", "Late Bloomer", "Fate"]) {
+    assert.equal(mots.includes(interdit), false, `un SRD pur ne cite pas « ${interdit} »`);
+  }
 });
 
-/* ══ 12 — ⚔️ L'ATTAQUE : UN resolved.stats MENTEUR S'AFFICHE MENTEUR ═══ */
+/* ══ 9 — ⚔️ UN TOTAL MENTEUR S'AFFICHE MENTEUR ══════════════════════════ */
 
 test("⚔️ ATTAQUE — un fh:skill-points menteur (value ≠ somme du détail) s'affiche MENTEUR, jamais recalculé", () => {
-  const menteur = structuredClone(fixture.report.resolved);
-  const stat = menteur.stats.find((s) => s.id === "fh:skill-points");
-  const vraieSomme = stat.breakdown.reduce((total, line) => total + line.value, 0);
-  assert.equal(stat.value, vraieSomme, "au départ, le document est honnête");
-  stat.value = 9999;
-  assert.notEqual(9999, vraieSomme, "et 9999 n'est pas la somme — sinon l'attaque ne prouve rien");
-
-  const ctxMenteur = { resolved: menteur, decisions: fixture.report.decisions, violations: [], query, onAction: () => {} };
-  const node = barre(ctxMenteur);
-  const leftLine = node.querySelectorAll(".skills-counter-line")
-    .find((line) => line.querySelectorAll(".skills-counter-label")[0].textContent === "Left");
-  assert.equal(leftLine.querySelectorAll(".skills-counter-value")[0].textContent, "9999", "L'ÉCRAN AFFICHE CE QUE resolved DIT");
-  assert.notEqual(leftLine.querySelectorAll(".skills-counter-value")[0].textContent, String(vraieSomme),
-    "il n'a pas refait l'addition à la place du moteur");
-
-  /* L'attaque n'a touché qu'un clone. */
-  assert.equal(fixture.report.resolved.stats.find((s) => s.id === "fh:skill-points").value, vraieSomme);
-});
-
-/* ══ 13 — LE GARDE DU LOT 38 RESTE VERT ══════════════════════════════════
-   Vérifié par la suite complète (`npm test`), pas ici — ce fichier n'a
-   modifié ni `tokens.css` ni le garde. Voir INVENTAIRE-LOT-39.md. */
-
-/* ══ LE CHEMIN VIVANT DES TRAININGS (0 record aujourd'hui, mais testé) ══
-   ADDENDUMS : « le mécanisme est fait, le catalogue est vide ». Ce test
-   MONTE un record synthétique pour prouver que le sous-bloc bascule de
-   « grisé, sans catalogue » à « une liste réelle, cliquable » sans qu'une
-   ligne de `skills-step.mjs` ait besoin de changer — la garantie que la
-   commande demande (§2c) sans jamais l'exercer en pratique. */
-
-test("⭐ Trainings : le catalogue n'est plus vide — treize lignes, dont les douze langues", () => {
-  /* ⚠️ CE TEST A CHANGÉ DE CAMP AU LOT 82, et c'est le bon signe. Il gardait un
-     bloc GRISÉ, « catalogue vide » — un état arbitré par Eric le 2026-08-13
-     (« on ne s'y attelle pas pour le moment »). Le canon des points §B.3 l'a
-     rempli : douze langues, une par peuple, plus le Garrot.
-
-     ⭐ ET L'ÉCRAN N'A RIEN EU À ROUVRIR. Le chemin vivant était écrit et testé
-     depuis le lot 39 sur un training synthétique, précisément pour ce jour-là.
-     La branche grisée reste testée plus bas : elle sert une pile où
-     `fh-skills-en` n'est pas montée. */
-  const node = renderSkillsStep(ctxFrom(fixture.report));
-  const trainingsBlock = node.querySelectorAll(".skills-trainings-block")[0];
-  assert.notEqual(trainingsBlock.getAttribute("data-status"), "locked",
-    "avec la couche FH montée, le bloc est VIVANT");
-  assert.equal(rows(trainingsBlock).length, 13, "douze langues + le Garrot");
-
-  /* ⛔ ON NOMME, ON NE COMPTE PAS. « 13 lignes » passerait avec treize
-     mauvaises — ce dépôt a déjà payé la leçon deux fois (TRAPS.md). */
-  const noms = [...rows(trainingsBlock)].map((r) => r.querySelector(".skills-row-name").textContent);
-  assert.deepEqual(noms, ["Araag", "Dragonborn", "Dwarf", "Elestu", "Elf", "Garrot", "Goliath",
-    "Halfling", "Hoddon", "Human", "Loroka", "Orc", "Tiefling"],
-    "les douze peuples donnent leur nom à leur langue, et le Garrot se range parmi elles par ordre alphabétique");
-
-  /* ⛔ LE NIVEAU 4 N'EST TOUJOURS PAS ÉCRIT DANS L'ÉCRAN, alors qu'il a
-     désormais une source : elle vit sur le RECORD (l'absence de `from_level`
-     EST la règle générique). L'écrire ici en ferait une seconde source. */
-  assert.ok(!trainingsBlock.textContent.includes(" 4 "), "le niveau générique vit sur le record, pas ici");
-
-  const withTraining = makeHarness({
-    layers: [SRD_FR, HOMEBREW],
-    extra: uneCouche("scenario-training", {
-      training: { "scenario:training:fr:garrot": { op: "add", name: "Garrot", slug: "garrot", data: { cost: 1 } } }
-    })
-  });
-  const catalog = withTraining.layers.verbs.query({ kind: "training" });
-  assert.equal(catalog.length, 1, "le record synthétique est bien monté");
-
-  const calls = [];
-  const liveNode = renderSkillsStep({
-    resolved: { stats: [], skills: [], tools: [], traits: [], languages: [], identity: {} },
-    decisions: [], violations: [], query: withTraining.layers.verbs.query,
-    onAction: (a) => calls.push(a)
-  });
-  const liveBlock = liveNode.querySelectorAll(".skills-trainings-block")[0];
-  assert.notEqual(liveBlock.getAttribute("data-status"), "locked");
-  assert.equal(rows(liveBlock).length, 1);
-  /* ⛔ `.skills-train-btn`, PAS `.skills-tier-btn` (lot 82). Un training n'a ni
-     palier ni caractéristique : lui prêter la classe des ronds de palier était
-     un mensonge de forme sur le seul point qui justifie que `training` soit un
-     genre à part — et le garde d'ARIA, qui exige trois ronds par ligne ou
-     aucun, le voyait. Même dessin, classe distincte. */
-  assert.equal(rows(liveBlock)[0].querySelectorAll(".skills-tier-btn").length, 0,
-    "une ligne de training ne porte AUCUN rond de palier");
-  rows(liveBlock)[0].querySelectorAll(".skills-train-btn")[0].click();
-  assert.deepEqual(calls[0], { kind: "set", path: "fh.skills.train.garrot", value: true });
-});
-
-test("Trainings : la branche GRISÉE survit — une pile sans catalogue le DIT au lieu de se cacher", () => {
-  /* ⛔ Décision n°4 (lot 39) : grisé avec sa raison, PAS caché. Un bloc absent
-     se lit « cette règle n'existe pas » ; un bloc grisé se lit « elle existe et
-     rien n'est encore achetable ». Le catalogue FH est plein depuis le lot 82,
-     mais une pile SRD nue n'en a pas — et c'est cette pile-là que ce test
-     monte, pour que la branche ne meure pas faute d'être empruntée. */
-  const nue = makeHarness({ layers: [SRD_FR, HOMEBREW] });
-  const node = renderSkillsStep({
-    resolved: { stats: [], skills: [], tools: [], traits: [], languages: [], identity: {} },
-    decisions: [], violations: [], query: nue.layers.verbs.query, onAction: () => {}
-  });
-  const bloc = node.querySelectorAll(".skills-trainings-block")[0];
-  assert.equal(bloc.getAttribute("data-status"), "locked");
-  assert.equal(rows(bloc).length, 0);
-  assert.ok(bloc.textContent.includes("Trainings"), "le bloc reste visible et nommé");
+  surLaPage(0);
+  const report = rebuild(set(fixture.report.document, "fh.skills.spend.academics", "adept"));
+  const stat = report.resolved.stats.find((s) => s.id === "fh:skill-points");
+  const vrai = stat.value;
+  stat.value = 99; // le mensonge
+  const node = renderSkillsStep(ctxFrom(report));
+  const budget = [...node.querySelectorAll(".skills-free-nombre")][0];
+  assert.equal(texteDe(budget), String(2 + 99), "Budget = dépensé + reste LU (99), jamais la somme du détail");
+  assert.equal(texteDe(spent(node)), "2", "le dépensé, lui, vient du détail");
+  assert.notEqual(2 + 99, 2 + vrai, "témoin : le mensonge est visible");
 });

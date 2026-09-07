@@ -164,3 +164,63 @@ Les croquis priment sur le texte. Ce qui suit est **la parole d'Eric**, question
 3. **Après Done** — le pied devient Reset · Next ? Un cercle touché après Done dé-signe (belt bleu, Done revient) ?
 
 *(lecture, à valider d'un mot)* : tap sur un cercle captif = le popup Bound · un training lié se marque du même halo violet sur son nom · Add et le FS suivent le patron du choix de sorts (`catalogue.mjs`).
+
+---
+
+# ④ L'ÉCRAN RECONSTRUIT — 2026-09-07, 01:45 → 02:27
+
+## Les réponses d'Eric au second tour (01:4x), mot pour mot
+
+| point | Eric | ce que ça fixe |
+|---|---|---|
+| l'image des trois ronds | *« image adept avec un bound à 1 »* — premier rond halo violet rempli vert (◐), second vert (●), troisième vide (◉) — *« rien de rempli = pas compétent »* | la ligne : ◐ ● ◉ ; vert = acquis ; halo violet = lié, captif |
+| le gendarme | *« superpose temporairement l'aiguilleur, et disparaît quand la condition est rétablie »* | l'aiguilleur reprend sa place dès que le refus tombe |
+| Q1 — outils liés | *« tout ce qui est bound a déjà été choisi et est déjà hardwired dans la page, il l'a déjà choisi dans son menu de classe. Il est donc présent dans la liste des tools, idem pour les langues »* | ⚠️ **faux aujourd'hui pour les outils, vrai pour les langues** — voir « ce qui reste » |
+| Q2 — Add | *« non il arrive vide, il faudra le remplir avec des free points »* | l'outil ajouté n'écrit rien au personnage ; ses ronds sont vides |
+| Q3 — après Done | *« oui reset et next »* | le pied signé : `Reset` · `Next` |
+| Q4 — le second tap | *« taper une deuxième fois sur un rond vert le fait disparaître, et revient dans les free points. Taper sur un point vert bound : popup, oui. Oui pour training et tools »* | second tap = redescend d'un cran, sous le premier = efface ; captif → popup Bound ; même loi pour outils et trainings |
+
+## Ce qui est construit
+
+`ui/builder/skills-step.mjs` **réécrit** (lot 39 → lot 171), `shell.css` bloc Skills **remplacé** (72 mentions, 0 sélecteur mort — vérifié dans les deux sens), `tests/skills-step.test.mjs` **réécrit** (14 gardes, témoins contraires), `tests/aria-pressed-guard`, `tests/shell-wiring` (16 ter), `tests/ui-jetons` (attaque 2) **reportés** sur la nouvelle vérité.
+
+**Huit retouches de coquille (`shell.mjs`), toutes déclarées — ce n'est pas mon terrain, Archi les relit :**
+1. l'import : `renderSkillsBar` et `skillsCategories` ne sont plus lus par la coquille ; `skillsCheminsDeReset` et `skillsReinitialiserEcran` le sont ;
+2. `SIGNE_SUR_DONE` gagne `"skills"` — Done signe l'étape, comme Identity ;
+3. `skillsCtx()` porte `signe` (la signature vient de la coquille, jamais de l'écran) et le rendu de Skills lit `skillsCtx()` — deux fabricants du ctx divergeaient, mesuré : belt vert, écran encore à `Done` ;
+4. `resetSkills` lit ses chemins dans le document quand le bouton ne les porte pas, lève la signature, et fait oublier à l'écran ses ajouts sans point ;
+5. `auRetour` exécute N'IMPORTE QUEL verbe déclaré par l'hôte (`data-sortie-verbe`), plus deux seulement ;
+6. `Reset` est rouge comme `Cancel` : `const defait = motDuRetour === "Cancel" || motDuRetour === "Reset"` ;
+7. une dépense `fh.skills.*` après Done lève la signature (une étape dont le compte bouge n'est pas complète) ;
+8. `motDeRefus()` ne lève plus de popup sur Skills : le gendarme parle dans l'aiguilleur — deux voix pour un refus, mesuré au banc à 02:1x (le refus s'affichait deux fois).
+
+**Ce qui vit dans l'écran et meurt avec la session** : la page du tambour et les lignes ajoutées sans point (`skillsEcran()`), comme `positionDuTambour` d'Equipment.
+
+## Mesuré au banc (360 × 740, empreinte de contenu vérifiée à 02:12:31, 4 md5)
+
+| organe | blg | ce qu'on voit |
+|---|---|---|
+| dalle haute (aiguilleur 3 lignes + Bound/Free) | **136** | *« Skills 8/8 · Tools 0/1 · Trainings 2/2 »* · *« Budget 14 · Spent 0 »* |
+| tambour | **50** | ‹ Trainings · **Knowledge** · Social › |
+| fenêtre | **190** (198 de fenêtre pour 388 de contenu) | **4 lignes visibles sur 8** (Knowledge), lignes de 42 |
+| pied | **88** | livre · `Reset` rouge · `Done` gris · `?` |
+
+⚠️ **Eric voulait voir combien tiennent : quatre.** La scène fait 480 dans une fenêtre de 740 ; la dalle haute en prend 136. Ce qui se gagne se gagne là (le Bound en T0, l'aiguilleur en deux lignes ?) — sa décision.
+
+**Gestes vérifiés au banc** (02:1x → 02:26) : tap ● → 2 pts · re-tap → 1 · re-tap ◐ → 0 ✓ · quatre experts demandés → un passe, trois refusées par le plafond (Stealth lié + 1 = 2), lignes rouges, **gendarme dans l'aiguilleur** ✓ · Reset → 0 ✓ · 14/14 → Spent vert, **Done s'allume** ✓ · Done → aiguilleur vert, belt vert, pied `Reset · Next` ✓ · un rond touché → dé-signé, `Done` gris ✓ · page Tools vide + `Add a tool` (bleu, largeur du mot) → liste de 37 → Thieves' Tools choisi → ligne à trois ronds vides, rien d'écrit ✓ · Trainings : Elf et Human sous halo violet, captifs ✓ · glisser latéral dans les deux sens, en boucle ✓ · popup Bound par source ✓.
+
+**Suite entière : 1831 / 1831 à 02:26:59** (l'écran : 14 ; cinq gardes reportés, aucun désarmé — le garde de type et le garde d'encre ont rougi sur ma première feuille (un `13px`, quatre boutons sans `color`) et ont été corrigés, pas contournés).
+
+## Mes erreurs de ce ④
+- Deux fabricants du `ctx` de Skills dans la coquille (le rendu et la porte) : la signature n'arrivait pas à l'écran. Vu au banc, pas dans les tests — un `ctx` fabriqué à la main dans un test ne peut pas voir ça.
+- Le popup de refus de la coquille doublait le gendarme : je ne l'avais pas cherché avant de regarder l'écran.
+- Ma première feuille de style portait un littéral (`13px`) et quatre règles de bouton sans encre : les gardes du dépôt les ont vus, pas moi.
+- Le tap sur une demande refusée n'offrait aucune sortie (il la redisait) : trouvé au banc en demandant quatre experts.
+
+## Ce qui reste — et à qui
+
+1. ⛔ **Le point d'outil lié n'a pas de porte.** Eric croit le Rogue *« hardwired »* par son menu de classe : mesuré à 01:5x, `resolved.tools` est **vide** pour le Rogue et le Bard, le SRD ne porte que de la prose (*« Thieves’ Tools »*, *« Choose 3 Musical Instruments »*), aucune étape ne place ces points. L'écran dit **« Tools 0/1 »** plutôt que de mentir. → **Archi** : une porte à Class (comme la bourse de compétences), hors de mon terrain (`class-step.mjs`, `decisions.mjs`, une donnée structurée sur le record).
+2. **La hauteur** : 4 lignes sur 8 au téléphone. → **Eric** : Bound en T0, aiguilleur à deux lignes, ou la fenêtre telle qu'elle est.
+3. **`--lie`** (le violet du lié) est un emploi de `--tier-1`, posé localement sur `.skills-step`. → **Bible / Archi** : un jeton propre si Species le reprend.
+4. **Les huit retouches de coquille** ci-dessus → **Archi** les relit ; aucune ne change un autre écran (mesuré : 1831 verts), la n° 5 généralise un mécanisme que seul Abilities déclarait.
+5. **Pour AGENT BIBLE** — ECRANS §7 est à réécrire en entier : les neuf règles du lot 39 sont périmées ou déplacées ; les faits neufs sont ceux du tableau ③ et de ce ④ (tambour en boucle · une page par catégorie · lié = halo violet captif · Spent bleu/vert/rouge · Done exige le compte · Reset rouge tout sauf le lié · Add en liste entière, l'ajouté arrive vide · le livre → tableau des 26).

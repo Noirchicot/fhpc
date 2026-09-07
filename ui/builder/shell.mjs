@@ -76,7 +76,7 @@ import { planAt, planSlots } from "./carnet.mjs?v=593";
 import { renderChoixGlisses } from "./glisser.mjs?v=593";
 import { renderConceptStep } from "./concept-step.mjs?v=593";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=593";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=593";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran } from "./skills-step.mjs?v=593";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
 } from "./catalogue.mjs?v=593";
@@ -431,7 +431,11 @@ function rebuild() {
 function motDeRefus() {
   const v = state.violations[state.violations.length - 1];
   if (!v) return null;
-  if (surCompetences()) return motDuVerrou(v);
+  /* 🧊 LOT 171 — plus de popup de refus sur Skills : le gendarme parle DANS la
+     case de l'aiguilleur (Eric, 07/09 : *« le gendarme superpose temporairement
+     l'aiguilleur »*). Un popup en plus était deux voix pour un refus. `motDuVerrou`
+     reste importé : c'est lui que l'écran lit. */
+  void surCompetences; void motDuVerrou;
   return null;
 }
 
@@ -1353,9 +1357,18 @@ function applyDecisionAction(action) {
        donc balayer les 62 chemins possibles ne coûte rien de plus qu'un
        clear unique. */
     let document = state.document;
-    for (const path of action.paths) {
+    /* 🔒 LOT 171 — les chemins sont LUS dans le document (tout ce qui est libre,
+       rien de ce qui est lié) quand le bouton du pied ne les porte pas ; `Reset`
+       lève aussi la signature (le compte va changer) et l'écran oublie les
+       lignes ajoutées sans point. */
+    const chemins = Array.isArray(action.paths) ? action.paths : skillsCheminsDeReset(document);
+    for (const path of chemins) {
       document = verbs.clear({ document, path, kind: "choice" }).document;
     }
+    if (state.docWriters && estConfirme(document, "skills")) {
+      document = state.docWriters.revoke({ document, path: "skills" });
+    }
+    skillsReinitialiserEcran();
     state.document = document;
     rebuild();
     refresh();
@@ -1566,6 +1579,13 @@ function applyDecisionAction(action) {
       ? verbs.set({ document: state.document, path: action.path, value: action.value })
       : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
   state.document = out.document;
+  /* 🔒 LOT 171 — UNE DÉPENSE APRÈS `Done` DÉ-SIGNE SKILLS. Eric, 07/09 : un rond
+     vert se vide d'un second tap, même après validation ; une étape dont le compte
+     peut encore bouger n'est pas complète (même loi que le bilan d'Abilities). */
+  if (typeof action.path === "string" && action.path.startsWith("fh.skills.")
+    && state.docWriters && estConfirme(state.document, "skills")) {
+    state.document = state.docWriters.revoke({ document: state.document, path: "skills" });
+  }
   rebuild();
   refresh();
 }
@@ -1594,7 +1614,10 @@ let destinyTimer = null;
 function skillsCtx() {
   return {
     resolved: state.resolved, decisions: state.decisions, violations: state.violations,
-    query: state.engine.layers.verbs.query, cursor: state.cursor
+    query: state.engine.layers.verbs.query, cursor: state.cursor,
+    /* 🟢 LA SIGNATURE VIENT DE LA COQUILLE, JAMAIS DE L'ÉCRAN (lot 171) — même
+       partage qu'avec `destiny-step`. */
+    signe: Boolean(state.docWriters && state.document && estConfirme(state.document, "skills"))
   };
 }
 function equipmentCtx() {
@@ -2161,12 +2184,11 @@ function renderStepContent() {
   } else if (step.id === "destiny") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "skills" && state.engine) {
-    card.append(renderSkillsStep({
-      resolved: state.resolved,
-      decisions: state.decisions,
-      violations: state.violations,
-      query: state.engine.layers.verbs.query
-    }, applyDecisionAction));
+    /* 🟢 LE MÊME `ctx` QUE LA PORTE (lot 171) : `skillsCtx()` porte la signature
+       (`signe`), que l'écran lit pour dire sa conclusion verte et déclarer `Next`.
+       Deux fabricants du ctx auraient divergé — et l'ont fait : le belt était vert
+       pendant que l'écran disait encore `Done` (mesuré au banc le 07/09). */
+    card.append(renderSkillsStep(skillsCtx(), applyDecisionAction));
   } else if (step.id === "skills" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
@@ -3242,7 +3264,9 @@ const TUTO_IDENTITY = {
 };
 
 /** Les étapes dont le `Done` VAUT signature — voir `pressDone`. */
-const SIGNE_SUR_DONE = new Set(["concept"]);
+/* 🔒 LOT 171 — Skills se signe sur `Done` (Eric, 07/09 : *« Done on valide, la phrase
+   verte, le belt vert. Next on part »*) : même geste que Identity. */
+const SIGNE_SUR_DONE = new Set(["concept", "skills"]);
 
 const IDENTITY_PARCOURS = {
   path: "concept", kind: null, label: "Identity",
@@ -4128,11 +4152,11 @@ function renderSortieEtape(hote) {
   /* 🔴 `abilityClear` EST UN VERBE DÉCLARÉ, PAS UN PALIER : en scène 2 de B1, le
      retour efface le lot et ramène en scène 1 — reculer jusqu'au R se fait au
      pas suivant. Le bouton n'émet qu'un verbe ; c'est la coquille qui l'exécute. */
-  const auRetour = decl.sortieVerbe === "abilityClear"
-    ? () => applyDecisionAction({ kind: "abilityClear" })
-    : decl.sortieVerbe === "abilityBilanCancel"
-      ? () => applyDecisionAction({ kind: "abilityBilanCancel" })
-      : () => pressBack();
+  /* 🔒 LOT 171 — un hôte déclare N'IMPORTE QUEL verbe de retour (`Reset` de Skills
+     émet `resetSkills`) : le bouton n'émet qu'un verbe, la coquille l'exécute. */
+  const auRetour = decl.sortieVerbe
+    ? () => applyDecisionAction({ kind: decl.sortieVerbe })
+    : () => pressBack();
   /* 🔴 LE BOUTON EXISTE QUAND `pressBack()` A QUELQUE CHOSE À QUITTER — et ces
      deux-là DOIVENT dire la même chose. Mesuré cassé le 2026-09-03 : le
      catalogue de Destiny était devenu un cran de recul dans `pressBack()`, et
@@ -4155,13 +4179,14 @@ function renderSortieEtape(hote) {
      ⛔ Ce n'est pas une exception de plus : c'est la règle appliquée à un mot
      qu'on n'avait encore jamais colorié. Les trois mots existaient, deux
      seulement avaient leur teinte. */
-  if (back) back.className = "sortie-bouton " + (motDuRetour === "Cancel" ? "sortie-annule" : "sortie-back");
+  const defait = motDuRetour === "Cancel" || motDuRetour === "Reset"; // lot 171 : `Reset` défait, donc rouge
+  if (back) back.className = "sortie-bouton " + (defait ? "sortie-annule" : "sortie-back");
   /* 🔴 `Cancel` EST ROUGE QUAND IL A QUELQUE CHOSE À ABANDONNER — Eric, 06/09 :
      *« le cancel est rouge dès le début des tirages »*. Sur Abilities, il y a
      quelque chose à abandonner dès le PREMIER jet (`abilityRevele`) ou dès qu'un
      lot existe ; ailleurs, `Cancel` n'est produit que s'il y a un choix à
      relâcher, donc il est armé. La feuille ne peint que `[data-arme="true"]`. */
-  if (back && motDuRetour === "Cancel") {
+  if (back && defait) {
     const surAbilities = STEPS[state.step] && STEPS[state.step].id === "abilities";
     back.dataset.arme = String(surAbilities ? (state.abilityRevele > 0 || Boolean(state.abilityRoll)) : true);
   }
