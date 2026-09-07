@@ -2735,7 +2735,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=596") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=597") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3058,7 +3058,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=596") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=597") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4562,7 +4562,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=596") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=597") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7281,7 +7281,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=596");
+  background-image: url("./assets/tarot-dos.jpg?v=597");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

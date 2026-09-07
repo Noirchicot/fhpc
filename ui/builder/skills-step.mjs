@@ -34,10 +34,10 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=596";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=596";
-import { swapContent } from "./socle.mjs?v=596";
-import { renderChoixGlisses } from "./glisser.mjs?v=596";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=597";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=597";
+import { swapContent } from "./socle.mjs?v=597";
+import { renderChoixGlisses } from "./glisser.mjs?v=597";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
