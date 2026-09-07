@@ -480,6 +480,12 @@
 > ligne ? »* et *« est-ce une norme ou un relevé ? »*. Le jeu des statuts n'a pas de mot pour
 > « loi dictée, code en attente de fusion ». **Question pour Eric, pas décision d'un siège.**
 >
+>
+> ⛔ **ET CET ÉCRAN NE PORTE AUCUN JETON — Eric, 07/09** : *« on n'utilise pas des jetons dans le
+> panneau skills, trop volumineux »*. ⛔ Les règles de la famille `jeton` (cote 87 × 48, *« un
+> collecteur = un jeton en taille »*, les trois colonnes) **ne gouvernent donc pas Skills**. La
+> loi et son incident vivent à `NORMES.md:jeton-skills-ne-porte-aucun-jeton` — ⭐ et c'est elle qui
+> explique *pourquoi* `skills-quatre-par-ligne` ne pouvait pas être une règle de cet écran.
 > 📌 **ET LES NEUF RÈGLES DU LOT 39 NE SONT PAS TOUTES PÉRIMÉES** — le rapport du lot 171
 > conclut *« à réécrire en entier »*, son propre tableau de mesure dit autre chose : **quatre
 > tiennent**, deux ont été corrigées le 07/09, et **deux seulement** sont remplacées ici.

@@ -495,6 +495,39 @@ marge si possible »*, corrigé par Eric le jour même.
 
 ---
 
+## 1 bis. 🗣️ LES MOTS QUI PORTENT DEUX SENS — la liste, et elle est courte exprès
+📍 `vocabulaire-mots-a-deux-sens` · vivante · 07/09
+⚖️ **Un mot du dépôt qui porte deux sens s'écrit ICI, avec ses deux sens et l'incident qui l'a révélé — ⛔ on ne le renomme pas au passage.**
+
+🔴 **L'INCIDENT QUI CRÉE CETTE SECTION, LE 2026-09-07 VERS 03h.** Deux sièges ont failli se croiser
+sur le mot **jeton** : l'un parlait de l'ORGANE *(celui qu'on glisse)*, l'autre d'une VARIABLE CSS
+*(`--lie`, `--tier-1`, `--sp-8`)*. Aucun des deux n'avait tort, et rien n'aurait signalé le
+malentendu — ⛔ **deux sens d'un même mot ne produisent pas d'erreur, ils produisent un accord
+apparent.**
+
+⚠️ **ET CETTE SECTION EXISTE PARCE QU'ELLE N'EXISTAIT PAS.** L'architecte a écrit *« ce mot rejoint
+ta liste »* — 📏 vérifié le 07/09 : **il n'y avait pas de liste**. Le corpus documentait **un** cas,
+au détour d'une note de `SOCLE.md`, et rien ne le rassemblait avec les autres. ⭐ *Croire qu'un lieu
+existe parce qu'on y range depuis longtemps est la même faute que déduire un fichier d'un préfixe* —
+et c'est la seconde fois en une nuit.
+
+| le mot | sens ⑴ | sens ⑵ | où c'est écrit |
+|---|---|---|---|
+| **fiche** | la **feuille de personnage** — ce que `render-fiche.mjs` émet | la **surface qui défile**, quand Eric le dit ; en CODE elle s'appelle `.stage` | `socle-fiche-vs-stage` — ⚠️ mesuré : la feuille de Review héritait `position: absolute` et rendait une boîte de hauteur zéro |
+| **jeton** | l'**ORGANE** qu'on glisse — 87 × 48, l'octogone de §2 *(Eric dit « token »)* | une **variable CSS** au socle — `--lie`, `--tier-1`, `--sp-8` | ici, 07/09. ⚠️ Deux sièges ont failli se croiser dessus |
+
+⏳ **TROIS AUTRES SONT NOMMÉS PAR L'ARCHITECTE ET NON VÉRIFIÉS ICI** — *« le livre »*, *« le site »*,
+*« chapitre »*. ⛔ Ils ne sont pas gravés : on n'inscrit pas un mot ambigu sur la foi d'un compte,
+il faut **ses deux sens et son incident**. Le jour où l'un d'eux coûte un croisement, il prend sa
+ligne.
+
+⛔ **CE QUE CETTE SECTION N'EST PAS : un chantier de renommage.** Renommer un mot du dépôt touche le
+code, les gardes et l'habitude d'Eric — c'est une décision, pas une conséquence d'avoir écrit une
+liste. ⭐ *Nommer une ambiguïté suffit à la désamorcer* : deux sièges qui savent que le mot en porte
+deux demandent lequel, au lieu de se répondre à côté.
+
+---
+
 ## 1 ter. 🔴 UNE COTE DE CONTENANT NE S'ÉCRIT PAS — ELLE SE DÉDUIT D'AVANCE
 📍 `budget-contenant-se-deduit` · vivante · 26/08
 ⚖️ **Une cote de contenant ne s'écrit pas, elle se déduit d'avance — de la police, l'interligne, le `padding` et le `gap`.**
@@ -1166,6 +1199,37 @@ de la ligne de flottaison** n'est pas tranché.
 > 🔴 **UN ORGANE SE RECONNAÎT À SA FORME, PAS À SA COULEUR.** C'est la loi qui gouverne toute
 > cette section : la couleur peut changer *(elle porte l'état, §6)*, **la forme ne change jamais**.
 > ⛔ Deux organes qui se ressemblent sont deux organes qu'on confondra.
+
+### ⛔ SKILLS NE PORTE AUCUN JETON — et la famille jeton ne le gouverne donc pas
+📍 `jeton-skills-ne-porte-aucun-jeton` · vivante · 07/09
+⚖️ **Le panneau Skills ne porte AUCUN jeton — ils y sont trop volumineux — et les règles de la famille `jeton` ne le gouvernent donc pas.**
+
+> **Eric**, 2026-09-07 : *« on n'utilise pas des jetons dans le panneau skills, trop volumineux, je
+> maintiens le halo violet. **C'est mon choix de procéder de la sorte.** On n'utilise pas de tokens
+> là, donc ta loi ne s'applique pas. »*
+
+📏 **VÉRIFIÉ AVANT D'ÊTRE ÉCRIT** : `grep glisse-jeton` rend **0** dans `skills-step.mjs`, sur `main`
+comme sur l'écran reconstruit. La règle ne demande rien de neuf au code — elle **nomme** ce qui est.
+
+🔴 **CE QU'ELLE EMPÊCHE, ET C'EST TOUT SON INTÉRÊT.** Sans elle, un siège qui lit §2 applique à
+Skills la cote **87 × 48**, *« un collecteur = un jeton en taille, ne varie jamais »*, *« trois
+colonnes toujours »* — et **il aura l'air d'avoir raison**. ⛔ C'est la règle appliquée par
+RESSEMBLANCE, que ce fichier condamne déjà *(`cadre-regle-par-ressemblance-nomme-sa-source`)* : une
+famille dit de quoi une règle parle, ⛔ jamais sur quoi elle s'applique.
+
+⭐ **ET ELLE TRANSFORME UNE COÏNCIDENCE EN CONSÉQUENCE.** Le 07/09, `skills-quatre-par-ligne`
+*(ECRANS §7)* a été reclassée : elle gouverne les **collecteurs** (`listes.css`, `.choix-glisse`) et
+non l'écran Skills, qui n'en porte aucun — on l'avait alors **constaté**. On sait maintenant
+**pourquoi** : Skills ne porte aucun jeton, donc aucun collecteur, donc aucune règle de rangement de
+collecteurs. ⛔ Les deux ne se lient pas par le régime *(une règle `déployée, hors corpus` ne peut
+pas porter de borne)* — elles se citent ici, et c'est le seul endroit où ça se lit.
+📌 Le corollaire de `socle-famille-ne-dit-pas-le-fichier` se complète donc : **un préfixe ne dit ni
+le fichier qui porte la règle, ni l'écran qu'elle gouverne.**
+
+📌 **ET LE HALO VIOLET NE BOUGE PAS.** `--lie` est un jeton CSS à part entière — vérifié :
+`#765299` le jour, `#9e81bb` la nuit, *« même départ que `--tier-1`, libre d'en diverger »*. Une
+couleur nommée n'est pas un organe : la borne d'Eric porte sur les **jetons**, pas sur les jetons
+CSS. *(Voir juste ci-dessous : le mot en porte deux sens.)*
 
 ### Les quatre du glisser *(validé 26/08 sur maquette)*
 📍 `jeton-quatre-glisser` · vivante · 26/08
