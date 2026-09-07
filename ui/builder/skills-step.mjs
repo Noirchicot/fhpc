@@ -276,11 +276,15 @@ function droitDExpertise(c) {
  *  POINTS Skills 4/4 tools 0/0 trainings 2/2 »*, *« tapable pour obtenir plus
  *  d'info, en bleu foncé et en T2 »*). La cible tactile reste 44 : elle déborde
  *  la ligne en dessin sans lui coûter un blg (rembourrage compensé). */
-function renderLigneDeCompte({ mot, aria, popup, valeurs, c }) {
+function renderLigneDeCompte({ mot, aria, popup, cellules, c }) {
+  /* Les deux lignes partagent UNE grille (Eric, 07/09 03:5x : *« aligne
+     verticalement Skills / Budget et Tools / Spent »*) : la ligne est
+     `display: contents`, ses cellules sont celles de la grille de la dalle. */
   const ligne = el("div", "skills-ligne-compte");
   const etiquette = bouton("skills-compte-etiquette", [text(mot)], () => c.act({ kind: "popup", titre: popup.titre, texte: popup.texte() }));
   etiquette.setAttribute("aria-label", aria);
-  ligne.append(etiquette, el("span", "skills-compte-valeurs", valeurs));
+  ligne.append(etiquette);
+  for (const cellule of cellules) ligne.append(el("span", "skills-compte-cellule", cellule));
   return ligne;
 }
 
@@ -288,11 +292,10 @@ function renderLigneDeCompte({ mot, aria, popup, valeurs, c }) {
  *  peut pas les bouger dans cette fenêtre »* : le tap OUVRE (le popup par
  *  source), il ne change rien. */
 function renderBound(c) {
-  const comptes = comptesLies(c).map((l) => `${l.mot} ${l.place}/${l.total}`).join(" · ");
   return renderLigneDeCompte({
     mot: "Bound points", aria: "Bound points — what your class, species and inheritance already placed",
     popup: { titre: "Bound", texte: () => texteDuBound(c) },
-    valeurs: [text(comptes)], c
+    cellules: comptesLies(c).map((l) => [text(`${l.mot} ${l.place}/${l.total}`)]), c
   });
 }
 
@@ -372,18 +375,18 @@ function texteDuBound(c) {
 /** FREE POINTS — une ligne : Budget · Spent. Le Spent porte l'échelle : bleu
  *  tant qu'on place, vert au compte exact, rouge au-delà (le croquis). */
 function renderFree(c) {
-  const valeurs = [];
+  let cellules;
   if (!c.compte) {
-    valeurs.push(text("No free pool — the SRD rules apply."));
+    cellules = [[text("No free pool — the SRD rules apply.")], [], []];
   } else {
     const spent = el("span", "skills-free-nombre skills-free-spent", [text(String(c.compte.spent))]);
     spent.dataset.etat = c.compte.left < 0 ? "trop" : (c.compte.left === 0 ? "compte" : "cours");
-    valeurs.push(text("Budget "), el("span", "skills-free-nombre", [text(String(c.compte.budget))]), text(" · Spent "), spent);
+    cellules = [[text("Budget "), el("span", "skills-free-nombre", [text(String(c.compte.budget))])], [text("Spent "), spent], []];
   }
   return renderLigneDeCompte({
     mot: "Free points", aria: "Free points — where your budget comes from",
     popup: { titre: "Free points", texte: () => texteDuFree(c) },
-    valeurs, c
+    cellules, c
   });
 }
 
@@ -722,7 +725,7 @@ export function renderSkillsStep(ctx, onAction) {
   /* La coupe d'Eric (07/09 03:3x) : 4 · aiguilleur · 8 · Bound · 4 · Free · 8 —
      les écarts sont ceux de la dalle, écrits une fois dans la feuille. */
   const tete = el("header", "skills-tete dalle-intermediaire");
-  tete.append(renderAiguilleur(c), renderBound(c), renderFree(c));
+  tete.append(renderAiguilleur(c), el("div", "skills-comptes", [renderBound(c), renderFree(c)]));
   section.append(tete);
 
   /* ── LE TAMBOUR ET LA FENÊTRE — redessinés ensemble à chaque geste local

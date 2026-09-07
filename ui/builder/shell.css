@@ -1653,8 +1653,13 @@ button { font: inherit; }
      l'étiquette est le bouton (bleu foncé, T2), les valeurs suivent. */
 .skills-tete { display: block; }
 .skills-tete .skills-aiguilleur { margin: 0 0 var(--sp-8); }
-.skills-ligne-compte { display: flex; align-items: baseline; gap: var(--sp-8); font-size: var(--t2); line-height: 1.5; color: var(--text); }
-.skills-ligne-compte + .skills-ligne-compte { margin-top: var(--sp-4); }
+/* UNE GRILLE POUR LES DEUX LIGNES — Eric, 07/09 : *« aligne verticalement Skills /
+   Budget et Tools / Spent »*. Quatre colonnes : l'étiquette à sa largeur, puis
+   trois colonnes égales ; chaque ligne est `display: contents`, ses cellules
+   tombent dans les colonnes de la dalle. 4 blg entre les deux lignes. */
+.skills-comptes { display: grid; grid-template-columns: auto repeat(3, 1fr); column-gap: var(--sp-8); row-gap: var(--sp-4); align-items: baseline; font-size: var(--t2); line-height: 1.5; color: var(--text); }
+.skills-ligne-compte { display: contents; }
+.skills-compte-cellule { white-space: nowrap; }
 /* L'ÉTIQUETTE EST UN BOUTON QUI OUVRE (le popup) : bleu foncé — `--lien`, le bleu
    des liens hors jeton (§1 ter bis³) —, T2, majuscules. Sa cible tactile fait
    44 sans coûter un blg à la ligne : le rembourrage qui l'y porte est repris en
@@ -1666,7 +1671,6 @@ button { font: inherit; }
   padding-block: calc((var(--touch) - 1.5em) / 2);
   margin-block: calc(-1 * (var(--touch) - 1.5em) / 2);
 }
-.skills-compte-valeurs { color: var(--text); }
 .skills-free-nombre { font-variant-numeric: tabular-nums; font-weight: 600; }
 /* LE SPENT PARCOURT L'ÉCHELLE (§6) — bleu en cours · vert au compte · rouge au-delà. */
 .skills-free-spent[data-etat="cours"] { color: var(--info); }

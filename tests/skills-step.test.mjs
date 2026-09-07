@@ -177,13 +177,14 @@ test("Bound points dit la vérité : Skills 8/8 · Tools 0/1 (aucune porte ne pl
   /* Une LIGNE, plus trois (Eric, 07/09 03:3x) : l'étiquette ouvre, les valeurs suivent. */
   const bound = node.querySelectorAll(".skills-ligne-compte")[0];
   assert.equal(texteDe(bound.querySelectorAll(".skills-compte-etiquette")[0]), "Bound points");
-  assert.equal(texteDe(bound.querySelectorAll(".skills-compte-valeurs")[0]), "Skills 8/8 · Tools 0/1 · Trainings 2/2");
+  /* Trois CELLULES sur la grille, sous les colonnes de Budget · Spent (Eric, 03:5x). */
+  assert.deepEqual([...bound.querySelectorAll(".skills-compte-cellule")].map(texteDe), ["Skills 8/8", "Tools 0/1", "Trainings 2/2"]);
   /* ⚠️ MESURÉ LE 07/09 : `resolved.tools` est VIDE pour le Rogue — le record
      déclare 1 point d'outil lié, rien ne le place. « 1/1 » aurait menti. */
   assert.deepEqual(rogue.resolved.tools, []);
   /* 🔴 LE TÉMOIN CONTRAIRE : le Wizard Elf n'a aucun point d'outil lié — sa ligne dit 0/0. */
   const wizard = renderSkillsStep(ctxFrom(fixture.report));
-  assert.match(texteDe(wizard.querySelectorAll(".skills-compte-valeurs")[0]), /Tools 0\/0/);
+  assert.equal(texteDe(wizard.querySelectorAll(".skills-compte-cellule")[1]), "Tools 0/0");
   /* Et les deux étiquettes OUVRENT : Bound par source, Free par provenance des points. */
   const actions = [];
   const w2 = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
