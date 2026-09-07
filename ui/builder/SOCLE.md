@@ -487,6 +487,34 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 ⭐ **ET CE PARAGRAPHE OBÉIT À CE QU'IL ÉNONCE.** Trois adresses, trois phrases, un incident
 dessous. Une règle de format qui ne se respecte pas elle-même n'est pas une règle, c'est un avis.
 
+### 📖 UNE RÈGLE SE LIT À SA LETTRE, JAMAIS DE MÉMOIRE — dans les DEUX sens
+📍 `socle-une-regle-se-lit-a-sa-lettre` · vivante · 08/09
+⚖️ **Une source se rouvre avant d'être citée — un lieu, un chiffre, un garde, une règle : une mémoire ne rougit pas, et elle se trompe aussi bien en disant TROP qu'en disant TROP PEU.**
+
+🔴 **NEUF FOIS EN UNE NUIT, ENTRE TROIS SIÈGES — et ⛔ aucune n'a été vue par un test** *(1 825
+verts à chaque fois)*. Toutes ont été attrapées en **rouvrant la mesure**, et **quatre fois sur
+neuf par quelqu'un d'autre**.
+
+| la forme | l'exemple, mesuré |
+|---|---|
+| ⛔ **compter un mot en texte libre** | `grep -c onInfo` rendait **2** — les deux étaient dans *« ⛔ PAS D'`onInfo` ICI »* *(`socle-un-mot-compte-dans-la-phrase-qui-le-nie`)* |
+| ⛔ **lire un COMMENTAIRE pour une assertion** | *« on identifie par la classe, plus par le mot »* — et trente lignes plus bas le garde tient le mot nu `"Back"` |
+| ⛔ **citer un LIEU sans l'ouvrir** | *« ta liste »* — elle n'existait pas · `§0.9` — il n'existe pas, et c'est **moi** qui l'avais écrit |
+| ⛔ **citer un CHIFFRE qu'on n'a pas mesuré** | *« 25 sur 67 »* — la mesure rend **171** · *« quatre lois que tu as déjà »* — il y en avait **deux** |
+| ⛔ **lire une règle de MÉMOIRE** | *« cette règle bloquera le lot »* — elle portait déjà *« ou un mot d'Eric »*, et celui qui le disait avait **cité la clause lui-même** trois heures plus tôt |
+
+⭐ **ET LA NEUVIÈME EST DANS L'AUTRE SENS, C'EST POURQUOI LA RÈGLE DIT « LES DEUX ».** Huit fois la
+source disait **moins** que ce qu'on lui faisait dire ; une fois elle disait **plus** — une règle
+lue comme un mur alors qu'elle portait sa porte. ⛔ **Le coût est le même : un lot qui ne s'ouvre
+pas.** *Un corpus bien écrit se fait aussi sous-estimer.*
+
+📌 **LA PARADE TIENT EN UN GESTE ET COÛTE TROIS SECONDES** : ouvrir avant de citer. ⛔ Et elle vise
+**la forme d'emploi**, jamais le mot nu — `grep -cE "^\s*onInfo\s*:"`, pas `grep -c onInfo`.
+⚠️ **Aucun garde ne peut la tenir**, et c'est dit ici plutôt que promis : un garde lirait de la prose
+libre et se ferait contourner au premier tour. ⭐ **Ce que le corpus tient, c'est le TRANSPORT d'une
+règle ; ce qu'il ne tient pas, c'est ce qu'un lecteur croit y avoir lu.** Le seul témoin mesuré qui
+marche est **un second siège qui rouvre la source** — neuf fois sur neuf cette nuit.
+
 ### 🧭 LA FAMILLE D'UNE ADRESSE NE DIT PAS LE FICHIER QUI LA PORTE
 📍 `socle-famille-ne-dit-pas-le-fichier` · vivante · 06/09
 ⚖️ **Un renvoi qui envoie quelqu'un LIRE une règle donne `fichier:ancre`, jamais l'ancre seule — la famille d'une adresse ne dit pas où elle vit.**
