@@ -134,11 +134,16 @@ ne réclame aujourd'hui.
 > passe par l'app Fichiers, libre à moi de le mettre sur le cloud ou sur l'iPad ou ailleurs.
 > Sur desktop ou ailleurs, **je choisis où je range mes persos**. »*
 
-⭐ **ELLE RETOURNE `§0.9` PAR L'AUTRE BOUT, ET C'EST LÀ QU'EST SA VALEUR.** *« Aucun serveur
-mondial à maintenir »* se lisait comme une contrainte d'exploitation — ce qu'on ne fait pas
-faute de moyens. Ce n'en est pas une : **il n'y a pas de serveur PARCE QUE les données
-appartiennent au joueur**, et non l'inverse. ⛔ Un lot qui lirait §0.9 comme une limite
-technique proposerait un jour de la lever ; lue par ce bout, il n'y a rien à lever.
+⭐ **ELLE RETOURNE « AUCUN SERVEUR MONDIAL » PAR L'AUTRE BOUT, ET C'EST LÀ QU'EST SA VALEUR.**
+Cette loi-là *(Eric, 2026-08-07)* se lisait comme une contrainte d'exploitation — ce qu'on ne fait
+pas faute de moyens. Ce n'en est pas une : **il n'y a pas de serveur PARCE QUE les données
+appartiennent au joueur**, et non l'inverse. ⛔ Un lot qui la lirait comme une limite technique
+proposerait un jour de la lever ; lue par ce bout, il n'y a rien à lever.
+⛔ **ET CE PARAGRAPHE CITAIT `§0.9`, QUI N'EXISTE PAS — corrigé le 2026-09-08.** 📏 Vérifié :
+`§0.9` ne se trouvait **nulle part** dans les quatre fichiers du corpus, sauf ici. J'avais repris
+la référence d'un relais sans l'ouvrir. ⭐ *C'est exactement `socle-famille-ne-dit-pas-le-fichier`
+retourné contre son auteur : un renvoi qu'on recopie ne rougit pas.* La loi est désormais
+**adressée** — `socle-aucun-serveur-mondial`, ci-dessous.
 
 📌 **CE QUE ÇA RANGE, ET QUI N'EST PAS ÉVIDENT** : `fhpc.personnage` *(`memoire.mjs`)* n'est
 pas la sauvegarde, c'est **le cache qui fait qu'on retrouve son écran**. La sauvegarde est le
@@ -155,6 +160,27 @@ pas une indécision.* Un sacré ne cède jamais — l'écrire trop tôt, c'est s
 principe qu'on n'a pas éprouvé. Une règle, elle, se corrige quand la pratique la contredit.
 📌 **Le niveau appartient à Eric**, jamais à un siège : un lot peut ÉCRIRE une règle, il ne
 l'élève pas.
+
+## 🏠 bis. 🚫 LE SITE N'HÉBERGE RIEN, ET PERSONNE NE S'Y CONNECTE
+📍 `socle-aucun-serveur-mondial` · vivante · 07/08
+⚖️ **Aucun serveur mondial à maintenir : le cloud est un appoint gratuit et optionnel, ⛔ aucune table ne paie un stockage, et la seule exception tolérée est un INDEX de pointeurs — jamais du contenu.**
+
+> **Eric**, 2026-08-07 *(`FHPCv2 architecture`)* : *« le personnage appartient au joueur, la campagne
+> au MJ, **Eric n'héberge personne** »* · 2026-08-26 *(`FHPCv2 hebergement donnees`)* : *« aucun cache,
+> aucun miroir »*.
+
+📍 `socle-aucun-login-aucun-secret` · vivante · 26/08
+⚖️ **Aucun login sur le site, aucun secret stocké : le compte d'un joueur EST son coffre, et le site ne garde qu'un nom de joueur et des chemins.**
+
+> **Eric**, 2026-08-26 : *« **Connecter mon coffre** = un bouton »* · trois états pour un coffre —
+> *vivant · injoignable · CHANGÉ*.
+
+🔴 **CES DEUX LOIS SONT ICI PARCE QU'ELLES COMMANDENT UN LOT, PAS PARCE QU'ELLES SONT BELLES.** Un
+écran qui ajouterait un compte, un cache de personnages ou un miroir de homebrew les enfreindrait
+**sans qu'aucun garde ne rougisse** — le corpus ne les portait pas. 📏 Mesuré le 08/09 : `serveur`
+et `login` rendaient **zéro** dans les 401 phrases normatives vivantes.
+⭐ Elles sont le **pourquoi** de `socle-chacun-est-proprietaire-de-ses-donnees` : il n'y a pas de
+serveur **parce que** les données sont au joueur, et le coffre est la conséquence des deux.
 
 ## Qui possède quoi — côté DONNÉES : SRD · SRFH · SRFH+
 📍 `socle-qui-possede-quoi-cote-donnees-srd-srfh-srfh` · vivante · 23/08

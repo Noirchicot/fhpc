@@ -1449,6 +1449,21 @@ pas cette cote.
 
 ---
 
+### 🕓 UN RÉGLAGE MONTRÉ ET NON CÂBLÉ SE LIT COMME TEL
+📍 `interrupteur-montre-et-non-cable-se-lit-comme-tel` · vivante · 26/08
+⚖️ **Un réglage qu'on montre sans l'avoir câblé se dit lui-même — « bientôt » — et un bon défaut se montre sans se demander, prévalidé.**
+
+> **Eric**, 2026-08-26 *(`FHPCv2 hebergement donnees`)*.
+
+⭐ **LES DEUX MOITIÉS SE TIENNENT, ET C'EST CE QUI LES REND UTILES ENSEMBLE.** Montrer ce qui n'existe
+pas encore **rassure** — à condition que l'écran le dise ; le taire fabrique un contrôle mort, et
+*un contrôle qui ne répond pas passe pour cassé* *(§7.11)*. Symétriquement, un défaut qu'on juge bon
+se **pose**, il ne se **demande** pas : une question dont la réponse est connue coûte un geste pour
+rien.
+📌 **C'est la parente de `cadre-f2-place-reservee`** *(« aucun utilisateur, rien ne l'implémente :
+c'est une place réservée »)* — celle-là décrit une place vide dans le CORPUS, celle-ci une place
+vide **à l'écran, sous les yeux du joueur**. ⛔ Deux objets, deux règles.
+
 ### 🔴 LES AUTRES ORGANES — le registre complet *(Eric, 26/08 : « rajoute le voyant et le on/off »)*
 📍 `bouton-octogone` · vivante · 26/08
 ⚖️ **Un bouton à libellé est un OCTOGONE à coupe, et la coupe d'angle lui appartient seul.**

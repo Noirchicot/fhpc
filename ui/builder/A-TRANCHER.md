@@ -329,6 +329,9 @@
 **Question : le Menu est à reconstruire — que doit porter sa reconstruction, et dans quel ordre ?**
 
 - 🔴 **CE N'EST PAS UNE QUESTION OUVERTE, C'EST UNE LISTE QUI GROSSIT.** Eric a reporté **quatre** chantiers vers le Menu dans la seule journée du 06/09, chacun pour la même raison : *« réparer le pied d'un écran qu'on va démonter, c'est payer deux fois »*. ⛔ Cette entrée existe pour qu'aucun ne se perde d'ici là — **un report non écrit est un abandon.**
+- 🔴 **CETTE ENTRÉE PART DU MAUVAIS ENDROIT, ET C'EST CORRIGÉ LE 2026-09-08.** Elle décrit les **sept sections existantes** et se demande quoi en faire. ⛔ Or **le Menu a déjà été DICTÉ** : `FH-WEB/FHPC/FHPCv2 arborescence d'entree.md` *(Eric, 26/08, 159 lignes — vérifié)* — `R — MENU` *(langue · unités · **My characters** · **New character** · **DM**)* → `B3 — DM` *(**Campagnes** · **Connecteur : Foundry · AboveVTT · Other** · **Homebrew**)* → `SSB1 — une campagne` *(nom · langue · unités · joueurs · système · data)*. *« On commence par le haut. »*
+  - ⚠️ **La dictée n'a jamais été portée**, et le Menu construit depuis ne la connaît pas. ⭐ **C'est le piège du TIRAGE, appliqué à une spec** : *une entrée d'À-TRANCHER bâtie sur l'existant décrit ce qui EST, pas ce qui a été DÉCIDÉ* — et elle fait discuter la reconstruction d'un écran dont le plan est déjà tranché depuis le 26/08.
+  - ➡️ **La reconstruction part donc de la dictée, pas de la liste ci-dessous.** Ce qui suit reste utile comme **inventaire de ce qu'il faudra reloger**, ⛔ jamais comme plan.
 - 📏 **L'ÉTAT, mesuré le 06/09** : `universe-step.mjs` fait **608 lignes** et le Menu porte **sept sections** — `Rules` · `Background` · `Interface size` · `Sheet language & units` · `Tutorials` · `Double view` · `This character`. Eric, le même jour : *« le Menu est un vrai bordel en scroll, on aura du rangement à faire à un moment »*.
 - ⏳ **CE QUI ATTEND LA RECONSTRUCTION** *(rien de tout ceci n'est commencé)* :
   | | ce qui attend | pourquoi c'est là |
@@ -367,3 +370,28 @@
   | **un modèle d'appartenance existe déjà ailleurs** | `~/tools/fh-worker` tient les **codes de campagne** (`campaign-index`) | ils servent déjà au dock, pour la table et les jets |
 - ⚠️ **ET LA TENSION À NOTER, PARCE QU'ELLE VIENT D'ÊTRE CRÉÉE LE MÊME SOIR** : `socle-chacun-est-proprietaire-de-ses-donnees` dit que les données du personnage appartiennent **au joueur**. Un exemplaire chez le MJ est donc **une copie** — à qui appartient-elle, et que devient-elle quand le joueur modifie son personnage ? ⛔ **Aucune réponse ici** : c'est précisément ce qu'Eric a demandé de laisser mûrir (*« on reste à l'état de règle »*), et une réponse écrite maintenant durcirait le concept avant l'heure.
 - 📌 Relayée par ARCHI 32. ⛔ Rien à faire : **une ligne à garder, pas un chantier.**
+
+## C28 — Les lois du PRODUIT n'ont aucun corpus, et huit sur dix ne sont écrites nulle part { #c28 }
+
+**Question : où vivent les lois qui régissent le produit — ni un organe du builder, ni une page du livre ?**
+
+- 🔴 **LE FAIT, MESURÉ LE 2026-09-08.** Eric a nommé ses deux produits : **SOWLREACH** *(builder + Player Companion, bâti sur le SRD mais **agnostique**, **gratuit**, et il le reste)* et **FATE'S HAND** *(son monde — FH Web et les couches sur le SRD de SOWLREACH — **c'est ce qui se monétise**)*. ⛔ **Le corpus du builder ne nomme ni l'un ni l'autre** : `grep -i sowlreach` rend **zéro** dans les quatre fichiers.
+- 📏 **ET LE COMPTE EST PIRE QU'ANNONCÉ.** Le document `7.CLAUDE AND ERIC LOGBOOK/D&D — Tech & Outils/SOWLREACH — Le produit et le premier chemin.md` porte **dix lois datées**. On m'annonçait *« quatre que tu as déjà »* ; 📏 **mesuré sur les 401 phrases normatives vivantes, il y en avait DEUX** — la propriété des données et le SRD intact.
+
+  | # | la loi d'Eric | au corpus, le 08/09 |
+  |---|---|---|
+  | 1 | chacun est propriétaire de ses données | ✅ `socle-chacun-est-proprietaire-de-ses-donnees` |
+  | 2 | aucun serveur mondial, aucune table ne paie un stockage | ⛔ absente → ✅ **posée ce jour** |
+  | 3 | aucun login, aucun secret : le compte, c'est le coffre | ⛔ absente → ✅ **posée ce jour** |
+  | 4 | **la parole du MJ bat le JSON** — tout champ éditable, toute règle débrayable | ⛔ **absente** |
+  | 5 | le SRD reste intact ; SRFH habille, SRFH+ est Fate's Hand | ✅ `socle-qui-possede-quoi-cote-donnees-srd-srfh-srfh` |
+  | 6 | ⛔ jamais de « preuve d'achat » ; l'éditeur émet le code, la plateforme prend une commission | ⛔ **absente** |
+  | 7 | **BYO-AI** — jamais d'IA embarquée ; elle emploie les mêmes verbes que le joueur | ⛔ **absente** |
+  | 8 | le builder a **deux expressions du même document** — guidé et expert, l'expert jamais obligatoire | ⛔ **absente** |
+  | 9 | SOWLREACH est **gratuit** ; ce qui se vend, ce sont les extensions du monde | ⛔ **absente** |
+  | 10 | un réglage montré et non câblé se lit comme tel ; un bon défaut se montre prévalidé | ⛔ absente → ✅ **posée ce jour** |
+
+- ⭐ **CE QUE ÇA RÉVÈLE, ET C'EST LA QUESTION** : il y a **deux Bibles** — le **builder** *(les organes)* et le **livre** *(la voix publiée)*. **Il n'y en a aucune pour le PRODUIT.** Les lois d'Eric sur ce qu'il vend, ce qu'il n'héberge pas et ce qu'il n'embarquera jamais vivent dans **un fichier de logbook que personne n'ouvre avant d'écrire** — ⛔ exactement la configuration qui a coûté **six violations dans un seul chapitre** le 06/09, et qui a fait naître `socle-une-bible-se-demande-avant-de-rendre`.
+- ⚠️ **TROIS DES DIX ONT ÉTÉ POSÉES ICI, ET SEULEMENT PARCE QU'ELLES COMMANDENT UN LOT DU BUILDER** : un écran qui ajouterait un login, un cache, ou un réglage muet les enfreindrait sans qu'aucun garde ne rougisse. ⛔ **Les cinq autres n'ont pas été gravées** : la loi 8 *(guidé / expert)* décrit une forme de produit qu'aucun écran ne porte encore ; les lois 4, 6, 7, 9 ne régissent aucun organe. **Les écrire ici serait ouvrir un corpus de produit de ma propre initiative** — c'est une décision d'Eric.
+- ➡️ **LA QUESTION, EN UNE LIGNE** : *les lois du produit reçoivent-elles un lieu — une troisième Bible, ou un chapitre du corpus — ou restent-elles au logbook ?* ⛔ Tant qu'elle n'est pas tranchée, **cinq lois d'Eric ne sont opposables à aucun lot.**
+- 📌 ⚠️ **Et le nom se grave mal** : Eric a corrigé un siège qui écrivait *« Soulseek »*. C'est **SOWLREACH**. Un nom de produit mal recopié se répand plus vite qu'il ne se corrige.
