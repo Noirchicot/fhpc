@@ -3189,7 +3189,7 @@ lecteur doit pouvoir le voir.
 
 | ce que le code fait | ce qu'Eric a dit | l'argument, et il tient |
 |---|---|---|
-| le bouton se nomme **`Close`** | *« back / select »* — il a écrit **back** | ⛔ **et l'argument n'est PAS que `Back` serait réservé** — il ne l'est pas *(`bouton-la-classe-et-le-verbe-font-l-organe`)*. Il est de SENS : *un libellé nomme ce que son bouton FAIT*, et celui-ci ferme un détail, il ne recule d'aucun écran. ⏳ **À confirmer d'un mot** |
+| le bouton se nomme **`Close`** | *« back / select »* — il a écrit **back** | **deux arguments, et ils tiennent ensemble** *(`bouton-la-classe-et-le-verbe-font-l-organe`)* : le **SENS** — *un libellé nomme ce que son bouton FAIT*, et celui-ci ferme un détail, il ne recule d'aucun écran — et le **GARDE**, `shell-wiring.test.mjs:517`, éprouvé rouge (`"Back"` → 1831/1833). ⏳ **À confirmer d'un mot** |
 | `Select` place dans le **premier collecteur libre** | *« le placer direct dans le collecteur »* — au singulier, sans dire lequel | il faut bien en choisir un quand il y en a plusieurs ; *(lecture du lot 173)*. ⏳ **Non tranché** : et s'il n'y en a aucun de libre ? |
 | sur un jeton pris, `Select` devient **`Drop`**, rouge | *(rien)* | rouge par la **famille DÉFAIRE** *(`bouton-famille-defaire`)* — le geste rend du travail fait. *(lecture du lot 173)* |
 
@@ -3926,43 +3926,53 @@ informations, aucune redondance**.
 dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations séparées finiraient
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
 
-### 🚧 CE QUE LA COQUILLE RÉSERVE, C'EST LA CLASSE ET LE VERBE — ⛔ jamais le MOT
+### 🚧 LA CLASSE ET LE VERBE FONT L'ORGANE — mais TROIS MOTS ont leur propre régime
 📍 `bouton-la-classe-et-le-verbe-font-l-organe` · vivante · 07/09
-⚖️ **Un organe de la coquille se reconnaît à sa CLASSE et à son VERBE, jamais à son libellé : un écran peut porter le même mot, il ne peut porter ni la même classe ni le même verbe.**
+⚖️ **Un organe de la coquille se reconnaît à sa CLASSE et à son VERBE, jamais à son libellé — sauf trois mots dont le régime est écrit dans un témoin : `Back` est EXCLUSIF à la coquille, `Validate` est BANNI, `Cancel` et `Done` sont PARTAGÉS.**
 
-🔴 **ET CETTE RÈGLE A ÉTÉ ÉCRITE POUR CORRIGER LA FORMULATION INVERSE, PROPOSÉE LE 07/09.** On me
-demandait de graver *« un mot que la coquille réserve — `Back`, `Cancel`, `Done` — ne se rejoue pas
-dans un écran »*. ⛔ **Le garde 17 dit le contraire, et il l'explique lui-même** *(`tests/shell-wiring.test.mjs`,
-en tête de `SORTIE_ETAPE`)* :
+📏 **LES TROIS RÉGIMES, MESURÉS LE 07/09 — qui écrit le mot nu dans `ui/` :**
 
-> *« CE QUI RESTE DE LA PASSE : la casse (`Done`, pas `DONE`) et surtout la **façon d'identifier
-> l'organe — par sa CLASSE et son VERBE, plus par son mot**. Le pied du guide porte légitimement
-> "I changed my mind" ; reconnaître la paire de la coquille à un libellé, c'était se faire tromper
-> le jour où deux choses portent le même nom. »*
+| le mot | porteurs | le régime | son témoin |
+|---|---|---|---|
+| **`Back`** | **`shell.mjs` seul** | 🔒 **exclusif** — ⛔ un écran ne l'écrit pas | `shell-wiring.test.mjs:517` — *« écrit UNE fois et par la coquille — jamais par un écran »* |
+| **`Validate`** | **aucun** | ⛔ **banni** — il ne doit exister nulle part | `shell-wiring.test.mjs:345` |
+| **`Cancel`** | `confirm` · `destiny-step` · `parcours-ecrans` · `abilities-step` · `shell` | ✅ **partagé** — 4 écrans l'écrivent aujourd'hui | ⛔ **aucun témoin sur le mot nu** |
+| **`Done`** | `destiny-step` · `species-step` · `parcours-ecrans` · `shell` | ✅ **partagé** — 3 écrans l'écrivent aujourd'hui | ⛔ **aucun témoin sur le mot nu** |
 
-⭐ **LE GARDE A DONC DÉJÀ PAYÉ CETTE LEÇON, ET DANS LE BON SENS** : il a cessé d'épingler le libellé
-parce que **deux organes légitimes portaient le même mot**. Réserver le mot aujourd'hui, ce serait
-défaire ce qu'il a appris.
-📌 Ce qu'il tient, et qui ne bouge pas : `back: "Back"` · `cancel: "Cancel"` · `done: "Done"`, avec
-leurs classes `sortie-back` · `sortie-annule` · `sortie-bouton sortie-done`, **produites par
-`shell.mjs` seul**. ⛔ Un écran qui écrirait l'une de ces classes rougit ; un écran qui écrit l'un
-de ces mots, non.
+⭐ **ET LA RAISON N'EST PAS UN CAPRICE DE GARDE, ELLE EST DANS LE GESTE.** `Back` est le seul dont le
+**verbe** n'existe que dans la coquille — `pressBack()` n'est appelé nulle part ailleurs, et le
+garde le tient aussi *(:474)*. Un second `Back` rouvrirait **deux chemins de recul**, ce que la loi
+I.5 interdit. `Cancel` et `Done`, eux, nomment des gestes qu'un écran fait **pour son compte** : il
+est légitime qu'il les affiche.
 
-⚖️ **LA CONSÉQUENCE POUR QUI CHOISIT UN LIBELLÉ, ET C'EST TOUT L'INTÉRÊT DE LA RÈGLE.** Le bon
-argument n'est jamais *« ce mot est pris »* — il est **de SENS** : *un libellé nomme ce que son
-bouton FAIT* *(Eric, 20/08 : « back n'efface pas »)*. ⭐ Un bouton qui ferme un détail ne recule
-d'aucun écran ; s'il ne doit pas s'appeler `Back`, ce n'est pas parce que la coquille garde le mot,
-c'est parce qu'il **ne recule pas**.
-⛔ **Et la réciproque est une porte ouverte à surveiller** : deux organes qui portent le même mot en
-faisant deux gestes différents finiront par se confondre pour un lecteur, même si aucun garde ne
-rougit. *La classe protège le CODE ; seul le sens protège le JOUEUR.*
+⚖️ **CE QUI RESTE VRAI DE LA RÈGLE GÉNÉRALE, ET C'EST L'ESSENTIEL** : ⛔ **aucun écran n'écrit une
+CLASSE de la coquille** — `sortie-back` · `sortie-annule` · `sortie-bouton sortie-done`, un seul
+producteur, trois témoins *(:470-473)*. C'est la classe et le verbe qui font l'organe ; le mot n'est
+tenu que là où le geste est unique.
+📌 **Et le garde le dit lui-même** : *« un garde écrit contre une ORTHOGRAPHE devient faux le jour où
+l'orthographe change de camp ; écrit contre un PROPRIÉTAIRE, il tient »* — c'est un garde de
+**propriétaire**, pas d'orthographe.
 
-⏳ **LE CAS D'ESPÈCE N'EST PAS TRANCHÉ, ET CETTE RÈGLE NE LE TRANCHE PAS.** Le pied du popup du
-sélecteur de Skills s'appelle `Close` dans le lot 173 ; Eric avait écrit *« back / select »*. C'est
-un **arbitrage de siège**, porté à Eric et pas encore sa parole *(ancre : le commentaire au-dessus
-de `const revenir = { mot: "Close" … }` dans `renderSelecteur`, `skills-step.mjs`)*.
-📌 **Si Eric veut `Back` là, il n'y a rien à rouvrir dans le garde** — le garde ne l'interdit pas.
-La seule question est de savoir si le bouton **recule**, et c'est à lui de le dire.
+⛔ **CETTE RÈGLE A ÉTÉ ÉCRITE FAUSSE UNE PREMIÈRE FOIS, LE JOUR MÊME, ET VOICI COMMENT.** J'avais lu
+le **commentaire** en tête de `SORTIE_ETAPE` — *« la façon d'identifier l'organe : par sa CLASSE et
+son VERBE, plus par son mot »* — et j'en avais conclu qu'aucun mot n'était tenu. 📏 Faux : trente
+lignes plus bas, une assertion tient le mot nu `"Back"`.
+🔴 **J'AI PRIS UNE INTENTION ÉCRITE EN PROSE POUR CE QUE LE FICHIER FAIT.** ⭐ *Un commentaire dit ce
+qu'un auteur a voulu ; seule l'assertion dit ce que le garde exige.* Et c'est **le jumeau exact**
+de `socle-un-mot-compte-dans-la-phrase-qui-le-nie`, écrit une heure plus tôt : là je comptais un mot
+dans la phrase qui le nie, ici je croyais une phrase qui nie une pratique que le fichier applique.
+⛔ **Les deux fautes sont la même** : *prendre de la PROSE pour de la DONNÉE.*
+📌 **Le dégât était réel et il a été évité par une relecture croisée** : la version fausse autorisait
+un écran à écrire `Back`, et la suite aurait rougi sur le premier siège qui l'aurait crue.
+
+⏳ **LE CAS D'ESPÈCE RESTE OUVERT, ET LES DEUX ARGUMENTS TIENNENT ENSEMBLE.** Le pied du popup du
+sélecteur de Skills s'appelle `Close` *(lot 173)* là où Eric avait écrit *« back »* :
+* le **SENS** — un libellé nomme ce que son bouton FAIT, et celui-ci ferme un détail, il ne recule
+  d'aucun écran *(Eric, 20/08 : « back n'efface pas »)* ;
+* le **GARDE** — 📏 éprouvé ROUGE par le siège Skills avant d'être écrit : avec `mot: "Back"`,
+  `npm test` rend **1831/1833** et le témoin `:517` accuse ; avec `"Close"`, **1833/1833**.
+➡️ **Si Eric veut `Back` là, il y a bien quelque chose à rouvrir : le témoin `:517`**, avec sa
+raison — ⛔ jamais l'écran qu'on repeint en silence.
 
 ### 🔴 DEUX MOTS DE RETOUR, ET LA COULEUR SE DÉDUIT DU MOT *(Eric, 2026-09-05)*
 📍 `bouton-deux-mots-retour-et-couleur-se-deduit-mot` · vivante · 05/09
