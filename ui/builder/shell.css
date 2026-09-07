@@ -1717,18 +1717,18 @@ button { font: inherit; }
    belt »* · *« 40 si la cible est 44 »* · *« pas d'agrandissement, la tuile
    centrale passe à voile 50 % »*. 4 blg de marge au-dessus et en dessous. */
 /* ── LA RANGÉE D'ONGLETS — Eric, 07/09 05:5x : *« 5 cases, on reste en T2, Tools &
-   Trainings en une case »*, *« dans ce cas précis on ne serait plus sur un tambour »*.
+   Trainings en une case »*, *« dans ce cas précis on ne serait plus sur un tambour »*,
+   puis 06:0x : *« Tools & / Trainings — toutes les cases de la même taille »*.
    Cinq onglets visibles, ni chevron ni boucle. La rangée a la largeur de la dalle
    (gouttières de 8, comme les autres), 4 au-dessus et 4 en dessous, cible 44.
-   📏 Chaque onglet prend la largeur de SON mot, sans rembourrage ni graisse : mesuré à
-   T2, 66 · 36 · 66 · 49 · 101 = 318, plus quatre écarts d'au moins 4 = 334 dans 351 ; le
-   reste (17) s'étale dans les écarts (`space-between`). Des cases égales (5 × 101)
-   ne tiendraient pas, et une graisse sur l'onglet courant ferait bouger la rangée. */
+   📏 Cinq cases ÉGALES : (351 − 4 × 4) / 5 = 67 ; à T2 « Knowledge » et « Exploration »
+   font 66 — aucun rembourrage latéral, aucune graisse, sinon ça coupe. Le mot long se
+   plie sur deux lignes (le `<br>` vient de la page), centré dans les 40 de dessin. */
 .skills-onglets-hote { flex: none; margin: var(--sp-4) var(--sp-8); touch-action: pan-y; } /* le glisser latéral change d'onglet */
-.skills-onglets { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-4); height: var(--touch); }
-.skills-onglet { flex: 0 0 auto; min-width: 0; height: var(--touch); border: none; padding: var(--sp-2) 0; background: none; color: var(--text-muted); font-size: var(--t2); cursor: pointer; display: grid; align-items: center; }
+.skills-onglets { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; column-gap: var(--sp-4); height: var(--touch); }
+.skills-onglet { min-width: 0; height: var(--touch); border: none; padding: var(--sp-2) 0; background: none; color: var(--text-muted); font-size: var(--t2); cursor: pointer; display: grid; align-items: center; }
 /* ⛔ Pas d'`overflow: hidden` sur l'onglet : il couperait le halo (mesuré sur le tambour, 07/09). */
-.skills-onglet-mot { display: block; height: var(--skills-ligne); line-height: var(--skills-ligne); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; padding: 0 var(--sp-2); }
+.skills-onglet-mot { display: grid; place-items: center; height: var(--skills-ligne); line-height: var(--interligne-texte); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; padding: 0; text-align: center; }
 /* Le courant : voile 50 % et le halo blanc du rail de Species (`--spy-halo`). */
 .skills-onglet[aria-current="true"] { cursor: default; color: var(--text); }
 .skills-onglet[aria-current="true"] .skills-onglet-mot { background: var(--dalle-inter); box-shadow: 0 0 6px 1px var(--spy-halo); }

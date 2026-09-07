@@ -50,7 +50,7 @@ const CATEGORY_LABEL = { knowledge: "Knowledge", social: "Social", exploration: 
 const UNSORTED_LABEL = "Skills";
 /* « 5 cases, on reste en T2, Tools & Trainings en une case » (Eric, 07/09 05:5x) :
    la cinquième page porte les deux listes, chacune avec sa ligne d'ajout. */
-const PAGE_KIT = { id: "kit", label: "Tools & Trainings" };
+const PAGE_KIT = { id: "kit", label: "Tools & Trainings", lignes: ["Tools &", "Trainings"] }; // sur deux lignes dans l'onglet (Eric, 07/09 06:0x)
 
 /* ── LES TROIS RONDS — ◐ ● ◉, et rien de rempli = pas compétent ──────────
    Eric, 07/09 : *« un demi, un plein, un plein entouré, c'est bien »*. Les
@@ -475,16 +475,21 @@ function pageCourante(pages) {
    Eric, 07/09 05:5x : *« 5 cases, on reste en T2 »* — et *« dans ce cas précis on ne
    serait plus sur un tambour »*. Cinq pages, cinq onglets visibles : rien à faire
    tourner, donc ni chevron, ni boucle, ni centre. L'onglet courant porte le voile
-   50 % et le halo blanc ; les autres le voile 35 %. Chaque onglet prend la largeur
-   de SON mot (mesuré à T2 : 66 · 36 · 66 · 49 · 101 = 318, + 4 gaps de 4 = 334 dans
-   351) — des cases égales ne tiendraient pas (5 × 101). Le tambour à trois crans,
+   50 % et le halo blanc ; les autres le voile 35 %. Cinq cases ÉGALES de 67 (Eric,
+   06:0x : *« toutes les cases de la même taille »*), « Tools & Trainings » sur deux
+   lignes — à T2, « Knowledge » et « Exploration » font 66. Le tambour à trois crans,
    lui, vit en mémoire et dans l'historique (v598) pour l'étape qui en aura besoin. */
 function renderOnglets(c, pages, surChangement) {
   const cur = pageCourante(pages);
   const rangee = el("nav", "skills-onglets");
   rangee.setAttribute("aria-label", "Skill categories");
   pages.forEach((page, index) => {
-    const b = bouton("skills-onglet", [el("span", "skills-onglet-mot", [text(page.label)])],
+    const mot = el("span", "skills-onglet-mot");
+    /* « Tools & / Trainings, toutes les cases de la même taille » (Eric, 07/09 06:0x) :
+       cinq cases égales — (351 − 4 × 4) / 5 = 67 — et le mot le plus long se plie sur
+       deux lignes, déclaré par la page (`lignes`), jamais deviné par la feuille. */
+    (page.lignes || [page.label]).forEach((l, i) => { if (i > 0) mot.append(document.createElement("br")); mot.append(text(l)); });
+    const b = bouton("skills-onglet", [mot],
       index === cur ? null : () => { ecran.page = index; ecran.ajout = null; surChangement(); });
     b.dataset.page = page.id;
     b.setAttribute("aria-current", index === cur ? "true" : "false");

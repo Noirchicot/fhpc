@@ -104,11 +104,12 @@ test("la rangée n'est pas un tambour (Eric, 07/09) : cinq onglets visibles, auc
   surLaPage(0);
   const node = renderSkillsStep(ctxFrom(fixture.report));
   const onglets = () => [...node.querySelectorAll(".skills-onglet")].map((o) => `${o.getAttribute("aria-current") === "true" ? "*" : ""}${texteDe(o)}`);
-  assert.deepEqual(onglets(), ["*Knowledge", "Social", "Exploration", "Physical", "Tools & Trainings"], "cinq onglets, tous visibles, le courant marqué");
+  assert.deepEqual(onglets(), ["*Knowledge", "Social", "Exploration", "Physical", "Tools &Trainings"], "cinq onglets, tous visibles, le courant marqué — le dernier sur deux lignes");
+  assert.equal(node.querySelectorAll(".skills-onglet")[4].querySelectorAll("br").length, 1, "« Tools & / Trainings » se plie, déclaré par la page");
   assert.equal(node.querySelectorAll(".skills-tambour-chevron").length, 0, "rien à faire tourner : pas de chevron");
   node.querySelectorAll(".skills-onglet")[4].click();
   assert.equal(skillsEcran().page, 4);
-  assert.deepEqual(onglets(), ["Knowledge", "Social", "Exploration", "Physical", "*Tools & Trainings"], "le halo suit l'onglet tapé, la rangée ne bouge pas");
+  assert.deepEqual(onglets(), ["Knowledge", "Social", "Exploration", "Physical", "*Tools &Trainings"], "le halo suit l'onglet tapé, la rangée ne bouge pas");
   assert.equal(node.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "kit", "la fenêtre suit l'onglet");
   /* 🔴 LE TÉMOIN CONTRAIRE : au bout de la rangée, le glisser ne boucle pas. */
   const hote = node.querySelectorAll(".skills-onglets-hote")[0];
