@@ -1821,8 +1821,17 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    de chevron), (100 % − 16) / 3 ; dans la rangée des collecteurs (351), on retire ces
    deux colonnes avant de diviser. Mesuré : 79 des deux côtés, quatre collecteurs sur
    une ligne (4 × 79 + 3 × 8 = 340 < 351). */
-.skills-selecteur .grille-rang > .glisse-vivier > li { --case-cedee: calc((100% - 2 * var(--sp-8)) / 3); }
-.skills-selecteur .glisse-creneaux > .glisse-creneau { --case-cedee: calc((100% - 2 * (var(--touch) + var(--sp-4)) - 2 * var(--sp-8)) / 3); }
+/* 🔴 « T'AS CASSÉ LE TOKEN WOODCARVER'S TOOLS » (Eric, 07/09 13:0x, capture) : sur la
+   dernière page, UN seul jeton s'écrasait en colonne de lettres. La cote d'avant était un
+   POURCENTAGE du vivier — `(100% − 16) / 3` — et le vivier (`flex: 1 1 auto`) prend la
+   largeur de son contenu : à douze jetons la boucle se referme sur 255, à un jeton elle
+   se referme sur rien, et le pourcentage retombe sur le contenu minimal du mot.
+   ⭐ LA COTE SE DÉDUIT D'UNE LARGEUR DONNÉE, JAMAIS D'UNE BOÎTE QUI LA LIT (listes.css
+   §1 ter) : on ne redéfinit plus la case, on dit au socle la LARGEUR DE CETTE DALLE —
+   351 = colonne d'écran − deux gouttières de 8 — et sa formule fait le reste, pour le
+   jeton comme pour le collecteur : min(87, (351 − 88 − 8 − 16) / 3) = 79,67. Même
+   nombre qu'avant (79), par un chemin qui ne dépend plus du nombre de jetons. */
+.skills-selecteur { --colonne-dalle: calc(var(--colonne-ecran) - 2 * var(--sp-8)); }
 /* « ÇA RECOUVRE, DE LINE BLEED » (Eric, 07/09 04:2x) : en mode sélecteur, la dalle 2
    perd son voile et s'étend jusqu'en bas — elle recouvre la dalle 3, dont la rangée
    (livre · Add tool · ?) vient vivre en son pied. */
