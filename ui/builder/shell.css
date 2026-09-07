@@ -1645,7 +1645,14 @@ button { font: inherit; }
    `--lie` — le VIOLET du lié (Eric : *« le bound est un halo violet »*) est un
    JETON de `tokens.css` (arbitrage d'Archi 32, 07/09) : une provenance, pas un
    rang — il ne s'écrit pas ici. */
-.skills-step { max-width: var(--grid-w); margin-inline: auto; position: relative; --skills-rond-dessin: 30px; }
+.skills-step { max-width: var(--grid-w); margin-inline: auto; position: relative; --skills-rond-dessin: 30px;
+  /* LA HAUTEUR D'UNE LIGNE, ET CELLE D'UNE TUILE : 40 — la cote qu'Eric a donnée pour la
+     molette (*« 40 si la cible est 44 »*), reprise pour les lignes (*« tu n'as pas réduit
+     les espaces entre les lignes »*). La cible tactile des ronds reste 44 : elle déborde la
+     ligne de 2 en haut et 2 en bas, dans l'écart de 4 qui sépare deux lignes. */
+  --skills-ligne: calc(var(--touch) - 2 * var(--sp-2));
+  /* Ce dont un contrôle de 44 déborde une ligne de 40, de chaque côté : −2. */
+  --skills-deborde: calc((var(--skills-ligne) - var(--touch)) / 2); }
 
 /* ── LA DALLE HAUTE — la coupe d'Eric (07/09 03:3x), blg par blg ──────────
      4 · aiguilleur · 8 · BOUND POINTS Skills 4/4 · Tools 0/0 · Trainings 2/2 ·
@@ -1706,7 +1713,7 @@ button { font: inherit; }
 /* T2, comme le mot d'une tuile du belt : à trois tuiles dans 375, chacune fait
    ~77 blg, et « Knowledge » ou « Exploration » n'y tiennent qu'à ce corps
    (mesuré : à T3 gras, « Knowl… »). */
-.skills-cran-mot { display: block; height: calc(var(--touch) - 2 * var(--sp-2)); line-height: calc(var(--touch) - 2 * var(--sp-2)); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0; }
+.skills-cran-mot { display: block; height: var(--skills-ligne); line-height: var(--skills-ligne); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0; }
 /* ⛔ Aucun rembourrage latéral dans la tuile : mesuré à 375, « Exploration » en T2 fait
    66 blg pour une tuile de 69 de contenu — 4 + 4 de rembourrage la coupaient de 5. */
 .skills-cran[data-place="avant"] .skills-cran-mot, .skills-cran[data-place="apres"] .skills-cran-mot { color: var(--text-muted); }
@@ -1726,11 +1733,11 @@ button { font: inherit; }
    Tools vide se tassait sur ses deux lignes et le pied remontait. */
 .skills-page { display: flex; flex-direction: column; gap: var(--sp-4); padding: 0 var(--sp-8); }
 .skills-vide, .skills-liste-consigne { margin: 0; font-size: var(--t2); color: var(--text); padding: var(--sp-4) 0; }
-.skills-ligne { display: grid; grid-template-columns: minmax(0, 1fr) 3.5ch 3.5ch auto; align-items: center; gap: var(--sp-4); min-height: var(--touch); }
+.skills-ligne { display: grid; grid-template-columns: minmax(0, 1fr) 3.5ch 3.5ch auto; align-items: center; gap: var(--sp-4); height: var(--skills-ligne); }
 .skills-ligne-nom { font-size: var(--t3); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Le nom d'un training est BLEU et cliquable (Eric, 07/09) — un lien hors jeton
    est bleu (§1 ter bis³), et il ouvre le popup de la chose. */
-button.skills-ligne-lien { text-align: left; border: none; background: none; padding: 0; margin: 0; font: inherit; font-size: var(--t3); color: var(--info); text-decoration: underline; cursor: pointer; min-height: var(--touch); }
+button.skills-ligne-lien { text-align: left; border: none; background: none; padding: 0; margin: 0; font: inherit; font-size: var(--t3); color: var(--info); text-decoration: underline; cursor: pointer; height: var(--skills-ligne); }
 .skills-ligne-carac { font-size: var(--t2); color: var(--text-muted); }
 .skills-ligne-bonus { font-size: var(--t3); color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
 .skills-ligne-static { font-size: var(--t2); color: var(--text-muted); text-align: right; min-width: 6ch; }
@@ -1745,7 +1752,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      · vide  — rien de rempli = pas compétent ;
      · vert  — acquis avec des points libres (`data-active`, posé par markPressed) ;
      · halo violet — LIÉ (`data-lie`), captif : vert dedans, et il ne se vide pas ici. */
-.skills-rond { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--text); padding: 0; margin: 0; display: grid; place-items: center; cursor: pointer; }
+.skills-rond { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--text); padding: 0; margin: var(--skills-deborde) 0; display: grid; place-items: center; cursor: pointer; }
 .skills-rond::before { content: ""; grid-area: 1 / 1; width: var(--skills-rond-dessin); height: var(--skills-rond-dessin); border-radius: 50%; border: 2px solid var(--text); background: var(--surface); box-sizing: border-box; }
 .skills-rond-marque { grid-area: 1 / 1; font-size: var(--t2); line-height: 1; color: var(--text); pointer-events: none; }
 .skills-rond[data-active="true"]::before { background: var(--positive); }
@@ -1760,7 +1767,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    dépôt (un bord bas plus sombre, un reflet en haut), sans octogone : un rond
    sans libellé n'est pas de la famille à pans coupés (`bouton-ronds-de-palier`). */
 .skills-ligne-ajout { grid-template-columns: minmax(0, 1fr) auto; }
-.skills-ajout { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--on-accent); padding: 0; margin: 0; display: grid; place-items: center; cursor: pointer; justify-self: end; }
+.skills-ajout { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--on-accent); padding: 0; margin: var(--skills-deborde) 0; display: grid; place-items: center; cursor: pointer; justify-self: end; }
 .skills-ajout::before {
   content: ""; grid-area: 1 / 1; width: 40px; height: 40px; border-radius: 50%;
   background: var(--positive);
@@ -6486,6 +6493,11 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    faisait 352 quand les trois autres dalles faisaient 337 — il n'avait pas les
    gouttières de 8 des autres. Les quatre dalles portent la même marge latérale. */
 .skills-pied { padding: var(--sp-4) var(--sp-8) var(--sp-8); margin: var(--sp-4) var(--sp-8) var(--sp-8); }
+/* ⛔ LA RANGÉE DE LA COQUILLE APPORTE SON PROPRE REMBOURRAGE (`.sortie` : 20 en haut,
+   12 en bas, mesuré) — dans cette dalle, c'est la DALLE qui cote (4 · boutons · 8,
+   Eric 07/09 : *« t'as pas 4 blg au-dessus de Done et 8 blg sous Done »*). La
+   rangée se pose à nu ; le pied passe de 88 à 56. */
+.skills-pied .sortie { padding: 0; }
 
 /* ②bis 🔴 `width: 100%` N'EST PAS UN ORNEMENT : IL REND LEUR LARGEUR AUX
    DALLES, et il répare un défaut que ce lot a FABRIQUÉ avant de le voir.
