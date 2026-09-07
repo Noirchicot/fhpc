@@ -1697,10 +1697,11 @@ button { font: inherit; }
 }
 .skills-free-nombre { font-variant-numeric: tabular-nums; font-weight: 600; }
 /* LE SPENT PARCOURT L'ÉCHELLE (§6) — bleu en cours · vert au compte · rouge au-delà. */
-/* En cours, le Spent est de l'ENCRE, pas du bleu : à côté des étiquettes bleues, un
-   nombre bleu lisait « lien » (Eric, 07/09 04:1x : *« le spent en bleu est incohérent
-   non ? »* — oui). Il ne prend une couleur qu'aux deux moments où elle dit quelque chose. */
-.skills-free-spent[data-etat="cours"] { color: var(--text); }
+/* En cours, le Spent est en ACCENT — l'or du site, la seule teinte qui ne dit ni « lien »
+   ni un état de l'échelle : à côté des étiquettes bleues, un nombre bleu lisait « lien »
+   (Eric, 07/09 04:1x : *« le spent en bleu est incohérent non ? »*, puis *« alors
+   accent »*). Vert au compte exact, rouge au-delà. */
+.skills-free-spent[data-etat="cours"] { color: var(--accent); }
 .skills-free-spent[data-etat="compte"] { color: var(--positive); }
 .skills-free-spent[data-etat="trop"] { color: var(--critical); }
 /* La conclusion VERTE — l'étape est signée (Eric, 07/09 : *« phrase dans
