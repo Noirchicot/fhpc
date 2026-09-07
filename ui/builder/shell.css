@@ -1647,9 +1647,31 @@ button { font: inherit; }
    rang — il ne s'écrit pas ici. */
 .skills-step { max-width: var(--grid-w); margin-inline: auto; position: relative; --skills-rond-dessin: 30px; }
 
-/* ── LA DALLE HAUTE : l'aiguilleur, puis les deux compteurs ── */
-.skills-tete { display: grid; gap: var(--sp-8); }
-.skills-tete .skills-aiguilleur { margin: 0; }
+/* ── LA DALLE HAUTE — la coupe d'Eric (07/09 03:3x), blg par blg ──────────
+     4 · aiguilleur · 8 · BOUND POINTS Skills 4/4 · Tools 0/0 · Trainings 2/2 ·
+     4 · FREE POINTS Budget 10 · Spent 0 · 8. Deux LIGNES, plus deux colonnes ;
+     l'étiquette est le bouton (bleu foncé, T2), les valeurs suivent. */
+.skills-tete { display: block; }
+.skills-tete .skills-aiguilleur { margin: 0 0 var(--sp-8); }
+.skills-ligne-compte { display: flex; align-items: baseline; gap: var(--sp-8); font-size: var(--t2); line-height: 1.5; color: var(--text); }
+.skills-ligne-compte + .skills-ligne-compte { margin-top: var(--sp-4); }
+/* L'ÉTIQUETTE EST UN BOUTON QUI OUVRE (le popup) : bleu foncé — `--lien`, le bleu
+   des liens hors jeton (§1 ter bis³) —, T2, majuscules. Sa cible tactile fait
+   44 sans coûter un blg à la ligne : le rembourrage qui l'y porte est repris en
+   marge négative — la LIGNE garde la hauteur de son texte, la CIBLE a la sienne. */
+.skills-compte-etiquette {
+  border: none; background: none; padding: 0; margin: 0; font: inherit;
+  font-size: var(--t2); line-height: 1.5; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--lien); cursor: pointer; flex: none;
+  padding-block: calc((var(--touch) - 1.5em) / 2);
+  margin-block: calc(-1 * (var(--touch) - 1.5em) / 2);
+}
+.skills-compte-valeurs { color: var(--text); }
+.skills-free-nombre { font-variant-numeric: tabular-nums; font-weight: 600; }
+/* LE SPENT PARCOURT L'ÉCHELLE (§6) — bleu en cours · vert au compte · rouge au-delà. */
+.skills-free-spent[data-etat="cours"] { color: var(--info); }
+.skills-free-spent[data-etat="compte"] { color: var(--positive); }
+.skills-free-spent[data-etat="trop"] { color: var(--critical); }
 /* La conclusion VERTE — l'étape est signée (Eric, 07/09 : *« phrase dans
    l'aiguilleur en vert, c'est la validation »*). Même organe, même dessin que
    le gendarme rouge (`.guide-mot[data-gendarme]`, plus bas) : c'est l'ÉTAT qui
@@ -1660,45 +1682,38 @@ button { font: inherit; }
   color: var(--positive);
   font-weight: 600;
 }
-.skills-compteurs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); align-items: start; }
-.skills-compteur-titre { display: block; font-size: var(--t2); text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin-bottom: var(--sp-2); }
-/* BOUND POINTS est un bouton parce qu'il OUVRE (le popup par source), pas parce
-   qu'il change : aucun octogone, aucun relief — c'est une ligne de texte qu'on
-   peut toucher, et le pointillé violet sous son titre le dit (le croquis). */
-.skills-bound { display: grid; text-align: left; border: none; background: none; padding: 0; margin: 0; font: inherit; color: var(--text); cursor: pointer; min-height: var(--touch); align-content: start; }
-.skills-bound .skills-compteur-titre { border-bottom: 2px dotted var(--lie); padding-bottom: var(--sp-2); }
-/* T1, et T0 si la place manque (Eric : *« T1 ou T0 en fonction de la place »*) :
-   la taille se DÉDUIT de la largeur du panneau, elle ne se choisit pas ici. */
-.skills-bound-ligne { display: block; font-size: var(--t1); line-height: 1.5; }
-.skills-free { display: grid; align-content: start; color: var(--text); }
-.skills-free-ligne { display: flex; justify-content: space-between; gap: var(--sp-8); font-size: var(--t2); line-height: 1.5; }
-.skills-free-nombre { font-variant-numeric: tabular-nums; font-weight: 600; }
-/* LE SPENT PARCOURT L'ÉCHELLE (§6) — bleu en cours · vert au compte · rouge au-delà. */
-.skills-free-spent[data-etat="cours"] { color: var(--info); }
-.skills-free-spent[data-etat="compte"] { color: var(--positive); }
-.skills-free-spent[data-etat="trop"] { color: var(--critical); }
+/* ── LE TAMBOUR : six crans en boucle, trois en vue, le centre fixe ─────────
+   Eric, 07/09 03:3x : *« des tuiles de largeur identique au belt, voile 35 %,
+   8 blg entre elles »* · *« un halo blanc bien marqué, identique aux tuiles
+   Species »* · *« halo marron moche dégage »* · *« les mêmes chevrons que le
+   belt »* · *« 40 si la cible est 44 »* · *« pas d'agrandissement, la tuile
+   centrale passe à voile 50 % »*. 4 blg de marge au-dessus et en dessous. */
+.skills-tambour-hote { flex: none; margin: var(--sp-4) var(--sp-8); }
+.skills-tambour { display: grid; grid-template-columns: var(--touch) 1fr 1fr 1fr var(--touch); align-items: center; gap: var(--sp-8); height: var(--touch); }
+/* Le chevron est celui du belt : même cible (44), même trait dessiné
+   (`.belt-chevron-fleche`), orienté par `data-sens`. */
+.skills-tambour-chevron { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--text); cursor: pointer; padding: 0; display: grid; place-items: center; -webkit-tap-highlight-color: transparent; }
+.skills-tambour-chevron[data-sens="avant"] .belt-chevron-fleche::before { transform: rotate(-135deg); }
+.skills-tambour-chevron[data-sens="apres"] .belt-chevron-fleche::before { transform: rotate(45deg); }
+/* La tuile : 40 de dessin dans une cible de 44 (la hauteur du bouton), le voile
+   simple du belt (35 %), le rayon des dalles. */
+.skills-cran { height: var(--touch); border: none; padding: var(--sp-2) var(--sp-4); background: none; color: var(--text); font-size: var(--t3); cursor: pointer; overflow: hidden; display: grid; align-items: center; }
+/* T2, comme le mot d'une tuile du belt : à trois tuiles dans 375, chacune fait
+   ~77 blg, et « Knowledge » ou « Exploration » n'y tiennent qu'à ce corps
+   (mesuré : à T3 gras, « Knowl… »). */
+.skills-cran-mot { display: block; height: calc(var(--touch) - 2 * var(--sp-2)); line-height: calc(var(--touch) - 2 * var(--sp-2)); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 var(--sp-4); }
+.skills-cran[data-place="avant"] .skills-cran-mot, .skills-cran[data-place="apres"] .skills-cran-mot { color: var(--text-muted); }
+/* Le centre : voile 50 % et le halo blanc du rail de Species (`--spy-halo`,
+   même cote que `.catalogue-rail-item[aria-current]`) — sans agrandissement. */
+.skills-cran[data-place="centre"] { cursor: default; }
+.skills-cran[data-place="centre"] .skills-cran-mot { background: var(--dalle-inter); font-weight: 600; box-shadow: 0 0 6px 1px var(--spy-halo); }
 
-/* ── LE TAMBOUR : six crans en boucle, trois en vue, le centre fixe ── */
-.skills-tambour-hote { flex: none; padding: 0 var(--sp-8); }
-.skills-tambour { display: grid; grid-template-columns: var(--touch) 1fr 1.2fr 1fr var(--touch); align-items: center; gap: var(--sp-4); min-height: calc(var(--touch) + var(--sp-8)); }
-.skills-tambour-chevron { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--text); font-size: var(--t6); line-height: 1; cursor: pointer; padding: 0; }
-.skills-cran { min-height: var(--touch); border: none; background: none; color: var(--text); font-size: var(--t3); padding: 0 var(--sp-4); border-radius: var(--radius-md); cursor: pointer; overflow: hidden; }
-.skills-cran-mot { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Les voisins sont *« un peu grisés »* ; le centre porte le HALO et grandit de
-   5 % — *« le halo ne bouge pas »* : c'est le contenu qui tourne dessous. */
-.skills-cran[data-place="avant"], .skills-cran[data-place="apres"] { color: var(--text-muted); opacity: .7; }
-.skills-cran[data-place="centre"] {
-  color: var(--text);
-  font-weight: 600;
-  transform: scale(1.05);
-  background: var(--accent-wash);
-  box-shadow: 0 0 0 2px var(--accent), 0 0 14px color-mix(in srgb, var(--accent) 55%, transparent);
-  cursor: default;
-}
-
-/* ── LA FENÊTRE : une page à la fois, le glisser latéral change de page ── */
-.skills-flux { touch-action: pan-y; }
-.skills-page { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-4) var(--sp-8); }
+/* ── LA FENÊTRE : une dalle à 35 % (Eric : *« dalle 2, voile 35 % »*), une page à
+   la fois, le glisser latéral change de page. Elle prend TOUJOURS la hauteur
+   qui reste, remplie ou non (*« même si elle n'est pas remplie »*) : c'est le
+   `flex: 1 1 auto` du squelette, et `.dalle-simple` ne pose que le verre. */
+.skills-flux { touch-action: pan-y; margin: 0 var(--sp-8); padding: var(--sp-4) 0; }
+.skills-page { display: flex; flex-direction: column; gap: var(--sp-4); padding: 0 var(--sp-8); }
 .skills-vide, .skills-liste-consigne { margin: 0; font-size: var(--t2); color: var(--text); padding: var(--sp-4) 0; }
 .skills-ligne { display: grid; grid-template-columns: minmax(0, 1fr) 3.5ch 3.5ch auto; align-items: center; gap: var(--sp-4); min-height: var(--touch); }
 .skills-ligne-nom { font-size: var(--t3); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1727,12 +1742,25 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .skills-rond[data-lie="oui"] { cursor: help; }
 
 /* ── ADD, ET LA LISTE ENTIÈRE ── */
+/* La ligne « Add a tool » — Eric, 07/09 : *« un bouton rond de 40 blg de diamètre
+   avec son petit relief, il est vert. Il occupe une ligne comme un skill : texte
+   cadré à gauche, bouton cadré à droite, 8 blg du bord droit, tout en bas »*.
+   Le disque (40) vit dans une cible de 44 ; le relief est celui des boutons du
+   dépôt (un bord bas plus sombre, un reflet en haut), sans octogone : un rond
+   sans libellé n'est pas de la famille à pans coupés (`bouton-ronds-de-palier`). */
+.skills-ligne-ajout { grid-template-columns: minmax(0, 1fr) auto; }
+.skills-ajout { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--on-accent); padding: 0; margin: 0; display: grid; place-items: center; cursor: pointer; justify-self: end; }
+.skills-ajout::before {
+  content: ""; grid-area: 1 / 1; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--positive);
+  /* Le relief en jetons, jamais une couleur littérale (garde 3) : le reflet est
+     le liseré de verre, le bord bas est la teinte assombrie par l'encre. */
+  box-shadow: inset 0 1px 0 var(--verre-lisere), inset 0 -3px 0 color-mix(in srgb, var(--positive) 70%, var(--text)), 0 1px 2px var(--spy-halo);
+}
+.skills-ajout-signe { grid-area: 1 / 1; font-size: var(--t6); line-height: 1; color: var(--on-accent); pointer-events: none; }
+/* Le `Done` de la liste entière referme un choix fini → le vert du gabarit, à la largeur de son mot. */
 .skills-liste-pied { display: flex; justify-content: center; padding: var(--sp-8) 0 var(--sp-4); }
-/* `Add` est un MOUVEMENT (§6 : on ouvre une liste, rien ne change) → le bleu ;
-   le `Done` de la liste referme un choix fini → le vert du gabarit. Ni l'un ni
-   l'autre ne prend toute la largeur : un bouton a la largeur de son mot. */
 .skills-liste-pied .fiche-action { width: auto; flex: 0 1 auto; min-width: 14ch; padding-inline: var(--sp-16); }
-.skills-liste-pied .skills-ajout { --bouton-fond: var(--info); }
 .skills-choix { display: flex; align-items: center; min-height: var(--touch); text-align: left; border: none; background: none; padding: 0 var(--sp-8); margin: 0; font: inherit; font-size: var(--t3); color: var(--text); border-radius: var(--radius-md); cursor: pointer; }
 .skills-choix[data-active="true"] { background: color-mix(in srgb, var(--positive) 18%, transparent); color: var(--text); font-weight: 600; }
 .skills-choix[data-deja="oui"] { color: var(--text-muted); cursor: default; }
@@ -6435,7 +6463,8 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    unique sur un écran qui défile.
    ⛔ LES QUATRE CÔTÉS, pas seulement le bas : une dalle porte ses gouttières
    sur les quatre côtés, systématiquement (CADRES §2 bis). */
-.skills-pied { padding: var(--sp-8); }
+/* La coupe d'Eric (07/09) : 4 · boutons · 8, et 4 de marge au-dessus. */
+.skills-pied { padding: var(--sp-4) var(--sp-8) var(--sp-8); margin-top: var(--sp-4); }
 
 /* ②bis 🔴 `width: 100%` N'EST PAS UN ORNEMENT : IL REND LEUR LARGEUR AUX
    DALLES, et il répare un défaut que ce lot a FABRIQUÉ avant de le voir.
@@ -6528,7 +6557,8 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    ⭐ Les cotes sont celles des groupes de compétences (`.skills-group`, juste
    au-dessus) : deux dalles du même écran qui se rembourrent de deux façons
    commencent à diverger au premier réglage. */
-.skills-tete { margin: var(--sp-8); padding: var(--sp-8); }
+/* La coupe d'Eric (07/09) : 4 en haut, 8 en bas, 4 de marge vers la molette. */
+.skills-tete { margin: var(--sp-8) var(--sp-8) var(--sp-4); padding: var(--sp-4) var(--sp-8) var(--sp-8); }
 /* 📏 ET LE BAS DE LA BANDE REND SA MARGE — 12 px mesurés sous le calcul du
    pool (et 16 sous la ligne d'Expertise). Ils séparaient ce bloc d'un contenu
    qui n'est plus derrière lui : la grille a cessé de le suivre le jour où il

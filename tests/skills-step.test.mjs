@@ -70,7 +70,8 @@ function rogueDocument(extra = []) {
   };
 }
 
-const lignes = (node) => [...node.querySelectorAll(".skills-ligne")];
+/* Les lignes de CONTENU — la ligne « Add » est une ligne de la page, pas un objet listé. */
+const lignes = (node) => [...node.querySelectorAll(".skills-ligne")].filter((l) => !String(l.className).includes("skills-ligne-ajout"));
 const ligne = (node, slug) => node.querySelectorAll(`.skills-ligne[data-ligne="${slug}"]`)[0] || null;
 const ronds = (l) => [...l.querySelectorAll(".skills-rond")];
 const rond = (node, slug, rang) => node.querySelectorAll(`.skills-ligne[data-ligne="${slug}"] .skills-rond[data-rang="${rang}"]`)[0];
@@ -173,14 +174,25 @@ test("Bound points dit la vérité : Skills 8/8 · Tools 0/1 (aucune porte ne pl
   surLaPage(0);
   const rogue = rebuild(rogueDocument());
   const node = renderSkillsStep(ctxFrom(rogue));
-  const lignesBound = [...node.querySelectorAll(".skills-bound-ligne")].map(texteDe);
-  assert.deepEqual(lignesBound, ["Skills 8/8", "Tools 0/1", "Trainings 2/2"]);
+  /* Une LIGNE, plus trois (Eric, 07/09 03:3x) : l'étiquette ouvre, les valeurs suivent. */
+  const bound = node.querySelectorAll(".skills-ligne-compte")[0];
+  assert.equal(texteDe(bound.querySelectorAll(".skills-compte-etiquette")[0]), "Bound points");
+  assert.equal(texteDe(bound.querySelectorAll(".skills-compte-valeurs")[0]), "Skills 8/8 · Tools 0/1 · Trainings 2/2");
   /* ⚠️ MESURÉ LE 07/09 : `resolved.tools` est VIDE pour le Rogue — le record
      déclare 1 point d'outil lié, rien ne le place. « 1/1 » aurait menti. */
   assert.deepEqual(rogue.resolved.tools, []);
   /* 🔴 LE TÉMOIN CONTRAIRE : le Wizard Elf n'a aucun point d'outil lié — sa ligne dit 0/0. */
   const wizard = renderSkillsStep(ctxFrom(fixture.report));
-  assert.equal([...wizard.querySelectorAll(".skills-bound-ligne")].map(texteDe)[1], "Tools 0/0");
+  assert.match(texteDe(wizard.querySelectorAll(".skills-compte-valeurs")[0]), /Tools 0\/0/);
+  /* Et les deux étiquettes OUVRENT : Bound par source, Free par provenance des points. */
+  const actions = [];
+  const w2 = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  const etiquettes = [...w2.querySelectorAll(".skills-compte-etiquette")];
+  assert.deepEqual(etiquettes.map(texteDe), ["Bound points", "Free points"]);
+  etiquettes[1].click();
+  assert.equal(actions[0].kind, "popup");
+  assert.equal(actions[0].titre, "Free points");
+  assert.match(actions[0].texte, /Budget \d+ — where it comes from/);
 });
 
 /* ══ 4 — LE SPENT PARCOURT L'ÉCHELLE, ET DONE N'OUVRE QU'AU COMPTE ═══════ */
@@ -282,8 +294,11 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   const node = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   assert.equal(lignes(node).length, 0, "le Wizard Elf n'a aucun outil : rien à lister");
   assert.equal(node.querySelectorAll(".skills-vide").length, 1);
+  /* La ligne « Add a tool » : le mot à gauche, le disque vert à droite (Eric, 07/09). */
+  const ligneAjout = node.querySelectorAll(".skills-ligne-ajout")[0];
+  assert.equal(texteDe(ligneAjout.querySelectorAll(".skills-ligne-nom")[0]), "Add a tool");
   const add = node.querySelectorAll(".skills-ajout")[0];
-  assert.equal(texteDe(add), "Add a tool");
+  assert.equal(add.getAttribute("aria-label"), "Add a tool");
   add.click();
   const choix = [...node.querySelectorAll(".skills-choix")];
   assert.equal(choix.length, 37, "la liste entière : les 37 outils de la pile, lus sur la couche");

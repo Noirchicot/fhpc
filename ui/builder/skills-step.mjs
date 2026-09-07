@@ -271,18 +271,42 @@ function droitDExpertise(c) {
   return `Expertise unlocks at level ${pool.expertise_from_level}.`;
 }
 
-/** BOUND POINTS — trois lignes informatives (Skills · Tools · Trainings), un
- *  tap ouvre le popup par source. *« On ne peut pas les bouger dans cette
- *  fenêtre »* : c'est un bouton parce qu'il OUVRE, pas parce qu'il change. */
+/** UNE LIGNE DE COMPTE — l'étiquette (bleu foncé, T2) est le bouton qui ouvre
+ *  le popup, les valeurs suivent sur la même ligne (Eric, 07/09 03:3x : *« BOUND
+ *  POINTS Skills 4/4 tools 0/0 trainings 2/2 »*, *« tapable pour obtenir plus
+ *  d'info, en bleu foncé et en T2 »*). La cible tactile reste 44 : elle déborde
+ *  la ligne en dessin sans lui coûter un blg (rembourrage compensé). */
+function renderLigneDeCompte({ mot, aria, popup, valeurs, c }) {
+  const ligne = el("div", "skills-ligne-compte");
+  const etiquette = bouton("skills-compte-etiquette", [text(mot)], () => c.act({ kind: "popup", titre: popup.titre, texte: popup.texte() }));
+  etiquette.setAttribute("aria-label", aria);
+  ligne.append(etiquette, el("span", "skills-compte-valeurs", valeurs));
+  return ligne;
+}
+
+/** BOUND POINTS — une ligne informative : Skills · Tools · Trainings. *« On ne
+ *  peut pas les bouger dans cette fenêtre »* : le tap OUVRE (le popup par
+ *  source), il ne change rien. */
 function renderBound(c) {
-  const bloc = bouton("skills-bound", [], () => c.act({ kind: "popup", titre: "Bound", texte: texteDuBound(c) }));
-  bloc.setAttribute("aria-label", "Bound points — what your class, species and inheritance already placed");
-  bloc.append(el("span", "skills-compteur-titre", [text("Bound points")]));
-  const lignes = comptesLies(c);
-  for (const ligne of lignes) {
-    bloc.append(el("span", "skills-bound-ligne", [text(`${ligne.mot} ${ligne.place}/${ligne.total}`)]));
-  }
-  return bloc;
+  const comptes = comptesLies(c).map((l) => `${l.mot} ${l.place}/${l.total}`).join(" · ");
+  return renderLigneDeCompte({
+    mot: "Bound points", aria: "Bound points — what your class, species and inheritance already placed",
+    popup: { titre: "Bound", texte: () => texteDuBound(c) },
+    valeurs: [text(comptes)], c
+  });
+}
+
+/** D'où viennent les points libres — les lignes POSITIVES du détail du pool,
+ *  telles que le moteur les a publiées (classe, paliers, espèce, don, trait). */
+function texteDuFree(c) {
+  const poolStat = findPoolStat(c.resolved);
+  if (!poolStat || !c.compte) return "No free pool on this rule set.";
+  const gains = (poolStat.breakdown || []).filter((l) => Number.isInteger(l.value) && l.value > 0)
+    .map((l) => `${l.label} +${l.value}`);
+  return [
+    `Budget ${c.compte.budget} — where it comes from:\n${gains.join(" · ") || "nothing yet"}`,
+    `Spent ${c.compte.spent} · left ${c.compte.left}. Free points buy Novice, Adept and Expert on any skill, tool or training. Done needs them all placed.`
+  ].join("\n\n");
 }
 
 /** Les trois comptes liés. ⚠️ TOOLS DIT LA VÉRITÉ : le record déclare des
@@ -345,20 +369,22 @@ function texteDuBound(c) {
   return blocs.join("\n\n");
 }
 
-/** FREE POINTS — Budget · Spent. Le Spent porte l'échelle : bleu tant qu'on
- *  place, vert au compte exact, rouge au-delà (le croquis). */
+/** FREE POINTS — une ligne : Budget · Spent. Le Spent porte l'échelle : bleu
+ *  tant qu'on place, vert au compte exact, rouge au-delà (le croquis). */
 function renderFree(c) {
-  const bloc = el("div", "skills-free");
-  bloc.append(el("span", "skills-compteur-titre", [text("Free points")]));
+  const valeurs = [];
   if (!c.compte) {
-    bloc.append(el("span", "skills-free-ligne", [text("No free pool — the SRD rules apply.")]));
-    return bloc;
+    valeurs.push(text("No free pool — the SRD rules apply."));
+  } else {
+    const spent = el("span", "skills-free-nombre skills-free-spent", [text(String(c.compte.spent))]);
+    spent.dataset.etat = c.compte.left < 0 ? "trop" : (c.compte.left === 0 ? "compte" : "cours");
+    valeurs.push(text("Budget "), el("span", "skills-free-nombre", [text(String(c.compte.budget))]), text(" · Spent "), spent);
   }
-  const budget = el("span", "skills-free-ligne", [el("span", null, [text("Budget")]), el("span", "skills-free-nombre", [text(String(c.compte.budget))])]);
-  const spent = el("span", "skills-free-nombre skills-free-spent", [text(String(c.compte.spent))]);
-  spent.dataset.etat = c.compte.left < 0 ? "trop" : (c.compte.left === 0 ? "compte" : "cours");
-  bloc.append(budget, el("span", "skills-free-ligne", [el("span", null, [text("Spent")]), spent]));
-  return bloc;
+  return renderLigneDeCompte({
+    mot: "Free points", aria: "Free points — where your budget comes from",
+    popup: { titre: "Free points", texte: () => texteDuFree(c) },
+    valeurs, c
+  });
 }
 
 /* ══ LE TAMBOUR — six crans en boucle, trois en vue ═══════════════════════ */
@@ -406,8 +432,12 @@ function renderTambour(c, pages, surChangement) {
   const tambour = el("nav", "skills-tambour");
   tambour.setAttribute("aria-label", "Skill categories");
   const aller = (delta) => { ecran.page = ((cur + delta) % n + n) % n; ecran.ajout = null; surChangement(); };
-  const chevron = (glyphe, delta, mot) => {
-    const b = bouton("skills-tambour-chevron", [text(glyphe)], () => aller(delta));
+  /* Les MÊMES chevrons que le belt (Eric, 07/09) : le trait est dessiné par
+     `.belt-chevron-fleche`, jamais un glyphe — un caractère change de forme
+     selon la police (§6, §7 bis). `data-sens` oriente le trait. */
+  const chevron = (sens, delta, mot) => {
+    const b = bouton("skills-tambour-chevron", [el("span", "belt-chevron-fleche")], () => aller(delta));
+    b.dataset.sens = sens;
     b.setAttribute("aria-label", mot);
     return b;
   };
@@ -419,12 +449,12 @@ function renderTambour(c, pages, surChangement) {
     b.setAttribute("aria-current", offset === 0 ? "true" : "false");
     return b;
   };
-  tambour.append(chevron("‹", -1, "Previous category"));
+  tambour.append(chevron("avant", -1, "Previous category"));
   /* Un tambour à un ou deux crans montre ses voisins tels qu'ils sont — un
      cran « avant » et un cran « après » peuvent être le même : c'est une
      boucle, pas une liste. */
   tambour.append(cran(-1, "avant"), cran(0, "centre"), cran(1, "apres"));
-  tambour.append(chevron("›", 1, "Next category"));
+  tambour.append(chevron("apres", 1, "Next category"));
   return tambour;
 }
 
@@ -608,6 +638,19 @@ function renderListeEntiere(c, kind, surChangement) {
   return page;
 }
 
+/** La ligne « Add » — Eric, 07/09 : *« un bouton rond de 40 blg de diamètre avec
+ *  son petit relief, il est vert. Il occupe une ligne comme un skill : le texte
+ *  cadré à gauche, le bouton cadré à droite, 8 blg du bord »*, *« tout en bas »*.
+ *  Le disque fait 40 dans une cible de 44 — ce qui rétrécit est le dessin. */
+function renderLigneAjout(mot, kind, surChangement) {
+  const ligne = el("div", "skills-ligne skills-ligne-ajout");
+  ligne.append(el("span", "skills-ligne-nom", [text(mot)]));
+  const b = bouton("skills-ajout", [el("span", "skills-ajout-signe", [text("+")])], () => { ecran.ajout = kind; surChangement(); });
+  b.setAttribute("aria-label", mot);
+  ligne.append(b);
+  return ligne;
+}
+
 /* ══ LA PAGE — une catégorie à la fois ════════════════════════════════════ */
 function renderPage(c, pages, surChangement) {
   const cur = pageCourante(pages);
@@ -622,14 +665,14 @@ function renderPage(c, pages, surChangement) {
     const liste = outilsListes(c);
     if (liste.length === 0) wrap.append(el("p", "skills-vide", [text("No tools yet.")]));
     for (const view of liste) wrap.append(renderLigneTool(view, c));
-    wrap.append(el("div", "skills-liste-pied", [bouton("fiche-action skills-ajout", [text("Add a tool")], () => { ecran.ajout = "tool"; surChangement(); })]));
+    wrap.append(renderLigneAjout("Add a tool", "tool", surChangement));
     return wrap;
   }
   if (page.id === "trainings") {
     const liste = trainingsListes(c);
     if (liste.length === 0) wrap.append(el("p", "skills-vide", [text("No trainings yet.")]));
     for (const l of liste) wrap.append(renderLigneTraining(l, c));
-    wrap.append(el("div", "skills-liste-pied", [bouton("fiche-action skills-ajout", [text("Add a training")], () => { ecran.ajout = "training"; surChangement(); })]));
+    wrap.append(renderLigneAjout("Add a training", "training", surChangement));
     return wrap;
   }
   for (const skill of page.skills) wrap.append(renderLigneSkill(skill, c));
@@ -676,18 +719,17 @@ export function renderSkillsStep(ctx, onAction) {
   const pages = pagesDe(c);
 
   /* ── LA DALLE HAUTE, FIXE ── */
+  /* La coupe d'Eric (07/09 03:3x) : 4 · aiguilleur · 8 · Bound · 4 · Free · 8 —
+     les écarts sont ceux de la dalle, écrits une fois dans la feuille. */
   const tete = el("header", "skills-tete dalle-intermediaire");
-  tete.append(renderAiguilleur(c));
-  const compteurs = el("div", "skills-compteurs");
-  compteurs.append(renderBound(c), renderFree(c));
-  tete.append(compteurs);
+  tete.append(renderAiguilleur(c), renderBound(c), renderFree(c));
   section.append(tete);
 
   /* ── LE TAMBOUR ET LA FENÊTRE — redessinés ensemble à chaque geste local
      (page, liste entière) ; la dalle haute et le pied ne bougent pas, et le
      pied garde la paire que la coquille y a posée. ── */
   const tambourHote = el("div", "skills-tambour-hote");
-  const fenetre = el("div", "skills-flux");
+  const fenetre = el("div", "skills-flux dalle-simple");
   fenetre.dataset.scroller = "skills";
   const redessiner = () => {
     swapContent(tambourHote, [renderTambour(c, pages, redessiner)]);
