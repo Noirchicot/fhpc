@@ -6442,6 +6442,13 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
   max-height: 100%; min-height: 0;
   display: flex; flex-direction: column;
 }
+/* 🔴 SKILLS REMPLIT SA CARTE — Eric, 07/09 : *« la dalle [2] prend toujours hauteur
+   maximale même si elle n'est pas remplie »*. Mesuré : `max-height: 100%` borne
+   l'écran mais ne l'étire pas ; sur la page Tools vide, la fenêtre se tassait à 79
+   et le pied remontait. L'écran prend la hauteur de sa carte, et son flux
+   (`flex: 1 1 auto`) prend ce que les deux bandes lui laissent. Abilities garde
+   son comportement (un organe qui ne grandit pas). */
+.skills-step { flex: 1 1 auto; }
 
 /* ② CE QUI NE CÈDE JAMAIS — les deux bandes du dehors.
    🔴 LE COLLECTEUR EST UNE BANDE BASSE, PAS DU CONTENU : ses six créneaux sont
@@ -6469,8 +6476,11 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    unique sur un écran qui défile.
    ⛔ LES QUATRE CÔTÉS, pas seulement le bas : une dalle porte ses gouttières
    sur les quatre côtés, systématiquement (CADRES §2 bis). */
-/* La coupe d'Eric (07/09) : 4 · boutons · 8, et 4 de marge au-dessus. */
-.skills-pied { padding: var(--sp-4) var(--sp-8) var(--sp-8); margin-top: var(--sp-4); }
+/* La coupe d'Eric (07/09) : 4 · boutons · 8, et 4 de marge au-dessus.
+   🔴 « TOUTES LES LARGEURS DE DALLES HOMOGÈNES » (Eric, 03:4x) : mesuré, le pied
+   faisait 352 quand les trois autres dalles faisaient 337 — il n'avait pas les
+   gouttières de 8 des autres. Les quatre dalles portent la même marge latérale. */
+.skills-pied { padding: var(--sp-4) var(--sp-8) var(--sp-8); margin: var(--sp-4) var(--sp-8) var(--sp-8); }
 
 /* ②bis 🔴 `width: 100%` N'EST PAS UN ORNEMENT : IL REND LEUR LARGEUR AUX
    DALLES, et il répare un défaut que ce lot a FABRIQUÉ avant de le voir.
