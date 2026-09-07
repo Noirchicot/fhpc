@@ -472,13 +472,25 @@
 > était une lecture d'un siège est signalé comme telle, et ce qui reste ouvert est marqué
 > `à trancher`.
 >
-> ⚠️ **ET LEUR STATUT EST `vivante`, PAS `déployée, hors corpus` — c'est délibéré, et ça mérite
-> d'être dit.** Les 80 autres règles de ce fichier portent `déployée, hors corpus` : ce fichier
-> RELÈVE ce qui tourne. Celles-ci sont des **lois dictées** dont le code vit sur la branche
-> `171-skills`, **non fusionnée** au jour où elles sont écrites. ⛔ Les marquer « déployée » serait
-> faux ; ⭐ et ce cas montre que `déployée, hors corpus` mélange **deux questions** — *« est-ce en
-> ligne ? »* et *« est-ce une norme ou un relevé ? »*. Le jeu des statuts n'a pas de mot pour
-> « loi dictée, code en attente de fusion ». **Question pour Eric, pas décision d'un siège.**
+> ✅ **LE CODE EST SUR `main` DEPUIS LE 2026-09-07 À 02:4x** — Eric : *« allez on push et on
+> déploie »* ; `origin/main` `86eb2fc`, 📏 vérifié : `tambour` rend **21** occurrences dans
+> `skills-step.mjs`, `renderFloorTiers` **zéro**.
+>
+> ⚠️ **ET LEUR STATUT RESTE `vivante`, PAS `déployée, hors corpus` — la fusion ne l'a pas changé,
+> elle a PRÉCISÉ pourquoi.** On m'a écrit que la question *« se fermait d'elle-même »* maintenant
+> que le code est en ligne. ⛔ Elle ne se ferme pas : `déployée, hors corpus` porte **deux
+> affirmations**, et la fusion n'en règle qu'une.
+>
+> | ce que le statut affirme | avant la fusion | après |
+> |---|---|---|
+> | *« c'est en ligne »* | ⛔ faux | ✅ vrai |
+> | *« c'est un relevé, **hors** du corpus normatif »* | ⛔ faux | ⛔ **toujours faux** |
+>
+> ⭐ **Ce sont des LOIS DICTÉES par Eric, citées mot pour mot : elles sont DANS le corpus.** Les 80
+> autres règles de ce fichier relatent un code que personne n'a dicté — c'est ça, *« hors corpus »*.
+> Le jeu fermé des statuts n'a donc toujours pas de mot pour **« loi dictée, et déployée »**.
+> ⛔ **Question pour Eric, pas décision d'un siège** — et je la garde ouverte au lieu de la clore
+> par le côté qui vient d'être réglé. *Une objection à moitié levée n'est pas une objection levée.*
 >
 >
 > ⛔ **ET CET ÉCRAN NE PORTE AUCUN JETON — Eric, 07/09** : *« on n'utilise pas des jetons dans le
@@ -647,9 +659,12 @@ T0, l'aiguilleur à deux lignes — et c'est **la décision d'Eric**, pas celle 
 vient* (lié), le **remplissage** dit *que c'est acquis*. Un rond peut donc être vert ET captif —
 c'est le premier rond d'une ligne liée. ⛔ Il n'y a plus de « ligne verrouillée » à part : la
 captivité vit sur le ROND, jamais sur la ligne.
-⚠️ **`--lie` (le violet) est aujourd'hui un emploi de `--tier-1`, posé localement sur `.skills-step`.**
-⏳ Si Species reprend le motif, il lui faudra **un jeton propre** — sinon deux écrans peindront la
-même idée avec deux valeurs.
+✅ **`--lie` EST un jeton, depuis `86eb2fc`** — 📏 vérifié sur `origin/main` : `tokens.css` porte
+`--lie: #765299` le jour et `#9e81bb` la nuit, avec son commentaire *« même départ que `--tier-1`,
+libre d'en diverger »*. ⭐ L'arbitrage de l'architecte tient en cinq mots : **une provenance, pas un
+rang** — deux idées qui partagent une valeur ne sont pas la même idée, et le jour où un contraste
+l'exigera, l'une pourra bouger sans l'autre.
+*(Ce paragraphe demandait « un jeton propre » ; il a été posé dans l'heure.)*
 
 ### Le Bound INFORME, il ne modifie rien
 📍 `skills-bound-informe-et-ne-modifie-rien` · vivante · 07/09
@@ -788,6 +803,13 @@ contenu ne se bouche pas en code* *(`socle-ecran-ne-peut-pas-rendre-contenu-qui-
 |---|---|
 | **LIÉ** — une porte à Class, comme la bourse de compétences | `class-step.mjs`, `decisions.mjs`, une donnée structurée sur le record |
 | **LIBRE** — il fond dans le pool | Rogue 14 → 15, Bard 12 → 14 ; la couche et le canon §B.1 changent ; la ligne Tools du Bound disparaît |
+
+✅ **ET LA ROUTE EST RATIFIÉE DEPUIS LE 07/09 — ce qui reste à trancher est la RÈGLE DU JEU, plus
+le chemin.** L'architecte a arrêté `granted_tool_budget {points, from}` et un `budgetCaptifPlan`
+enraciné sur `class.toolBudget` *(lot 172, worktree `172-outil-lie`)*. ⛔ Le statut `à trancher`
+reste juste, et il ne porte plus que **le nombre de points et le palier** — c'est-à-dire le mot
+d'Eric, pas une architecture. ⭐ *Une question qui rétrécit doit le dire, sinon elle continue
+d'effrayer autant qu'au premier jour.*
 
 ⏳ **Deux autres points restent ouverts après les réponses d'Eric** : l'outil ajouté a-t-il un
 maximum ? · un rond touché après `Done` dé-signe-t-il *(mesuré : oui, il le fait)* — est-ce voulu ?

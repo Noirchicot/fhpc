@@ -1200,6 +1200,45 @@ de la ligne de flottaison** n'est pas tranché.
 > cette section : la couleur peut changer *(elle porte l'état, §6)*, **la forme ne change jamais**.
 > ⛔ Deux organes qui se ressemblent sont deux organes qu'on confondra.
 
+### ⭕ LES RONDS DE PALIER — ni jeton ni bouton à libellé, et Eric les a validés
+📍 `bouton-ronds-de-palier` · vivante · 07/09
+⚖️ **Un palier se montre par TROIS ronds — vide · demi · plein entouré — cliquables, à cible tactile `--touch` et dessin réduit ; ⛔ ce n'est ni un jeton, ni un bouton à libellé.**
+
+> **Eric**, 2026-09-07, devant le croquis : *« un demi, un plein, un plein entouré, c'est bien »* ·
+> *« boutons ronds plus petits que dans la page originale, limite inf du tactile »* · *« rien de
+> rempli = pas compétent »*.
+
+⭐ **C'EST L'ANCRE QUI MANQUAIT, PAS LA DÉCISION.** L'organe existe depuis le 14/08
+*(`skills-pas-de-bouton-zero` : l'absence de maîtrise est l'ABSENCE de remplissage)*, `CADRES §6`
+le nomme en passant — *« une rangée de ronds de palier »* — et rien ne le décrivait. Un organe
+qu'on nomme sans l'adresser est un organe que le premier lot venu redessinera à sa façon.
+
+🔴 **CE QU'IL FAUT DIRE EN PREMIER, C'EST CE QU'IL N'EST PAS**, et deux règles s'appliqueraient
+sinon par ressemblance :
+* ⛔ **pas un jeton** — Eric l'a borné le jour même : *« on n'utilise pas des jetons dans le panneau
+  skills »* *(`jeton-skills-ne-porte-aucun-jeton`)*. Donc ⛔ ni la cote 87 × 48, ni le rectangle très
+  arrondi, ni *« un collecteur = un jeton en taille »*.
+* ⛔ **pas un bouton à libellé** — il ne porte aucun mot, donc ⛔ pas l'octogone à coupe, qui est
+  *« réservé aux gabarits à libellé »* *(`bouton-dans-la-rangee-mais-pas-de-son-habit`)*.
+
+⭐ **ET IL SUIT LA SEULE LOI QUI VAUT POUR TOUT CONTRÔLE** : le **dessin** est le plus petit
+possible, la **cible** vaut `--touch` 44 — exactement `bouton-dessin-plus-petit-possible-cible-au-minimum-tactile`
+et la loi générale *« un contrôle ne se laisse jamais dimensionner par un dessin »*. C'est ce qui
+autorise Eric à demander des ronds *« plus petits »* sans que rien ne cède : ce qui rétrécit est le
+dessin, jamais la zone.
+
+⚠️ **SA FAMILLE EST `bouton` PAR DÉFAUT, ET C'EST UNE TENSION QUE JE NOMME PLUTÔT QUE DE LA TAIRE.**
+C'est un **contrôle**, donc la famille des contrôles ; mais toutes les autres règles de `bouton`
+décrivent l'octogone à libellé. ⛔ L'amendement n° 1 interdit d'inventer une famille, donc je ne le
+fais pas — ⏳ **si Eric veut une famille propre aux contrôles sans mot, c'est sa décision**, et elle
+tient en un renommage d'adresse.
+
+📌 **CE QUE PORTE LE ROND, ET CE QUE PORTE LA LIGNE** : la couleur du remplissage et le halo
+appartiennent au ROND *(`skills-lie-est-un-halo-violet-captif`, ECRANS §7)* ; le geste du second tap
+aussi *(`skills-second-tap-redescend`)*. La ligne, elle, ne porte plus rien depuis le 07/09 —
+`renderFloorTiers`, qui allumait toujours le premier rond, **n'existe plus** *(vérifié sur
+`origin/main`, `86eb2fc`)*.
+
 ### ⛔ SKILLS NE PORTE AUCUN JETON — et la famille jeton ne le gouverne donc pas
 📍 `jeton-skills-ne-porte-aucun-jeton` · vivante · 07/09
 ⚖️ **Le panneau Skills ne porte AUCUN jeton — ils y sont trop volumineux — et les règles de la famille `jeton` ne le gouvernent donc pas.**
@@ -5664,8 +5703,11 @@ se voir**. *« Deux max au niveau 1 »* était vrai de ce que le pool comptait, 
 📌 **Et la réparation ferme trois autres cas sans une règle de plus** : un palier posé par une bourse
 est **semé en plancher** avant la dépense, donc le pool ne le redescend plus, ne le repaie plus, et
 ne monte qu'au prix de la différence.
-⚠️ **CE PASSAGE DÉCRIT UNE LOI D'ERIC, PAS L'ÉTAT DE `main`** : le câblage vit sur `171-skills`
-*(7 gardes vus rouges puis verts)* et n'est pas encore fusionné au jour où ces lignes sont écrites.
+✅ **ET C'EST L'ÉTAT DE `main` DEPUIS LE 2026-09-07 À 02:4x** — Eric : *« allez on push et on
+déploie »*. Le câblage est fusionné *(`origin/main` `86eb2fc`, 7 gardes vus rouges puis verts)* :
+📏 vérifié, `maxExpertise` rend **6 occurrences** dans `src/modules/fh/skill-pool.mjs`.
+⚠️ *Ce paragraphe disait « loi d'Eric, pas l'état de main » quand il a été écrit, deux heures plus
+tôt. Une note d'attente se périme par le bon côté — encore faut-il aller la relire.*
 🔴 **ET LE TOKEN SE MONTRE DÉSORMAIS DEPUIS LE PERSONNAGE, PLUS SEULEMENT DEPUIS LE LOT DE DÉS.**
 `ajuste: "haut"` vit dans l'écran et meurt avec la session : un personnage rouvert perdait son token,
 et le moteur ne pouvait rien appliquer. Le trait s'écrit au personnage (`fh.skills.trait.late-bloomer`)
@@ -5858,7 +5900,8 @@ ce n'est pas une prédiction, c'est un relevé du 06/09.
 ⚠️ **CE QUE ÇA N'AUTORISE PAS** : un écran ne déclare pas un COMPORTEMENT, il déclare un **verbe du
 moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne peut toujours pas
 écrire au document par ce chemin, et `socle-qui-possede-quoi` n'est pas entamé.
-⚠️ **Le câblage vit sur `171-skills` au jour où ces lignes sont écrites**, et n'est pas fusionné.
+✅ **Le câblage est sur `main` depuis le 2026-09-07** — 📏 vérifié sur `origin/main` (`86eb2fc`) :
+`kind: decl.sortieVerbe` y rend **une** occurrence, l'énumération a disparu.
 
 ---
 
