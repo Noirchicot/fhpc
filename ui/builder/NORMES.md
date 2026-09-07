@@ -3183,17 +3183,23 @@ cliquable »* *(`bouton-gris-non-cliquable`, 06/09)*, et il reste parfaitement c
 peut le rendre. Il porte le **halo vert** de la validation (`--positive`) et `aria-pressed="true"`.
 ⭐ *Un objet qu'on peut encore reprendre n'a pas le droit de se peindre comme éteint.*
 
-⚠️ **DEUX POINTS OÙ LE RELAIS VA PLUS LOIN QU'ERIC, ET JE LES SÉPARE PLUTÔT QUE DE LES FONDRE.**
-Le lot 173 les a câblés ainsi, avec de bons arguments ; ⛔ ce ne sont pas les mots d'Eric, et un
-lecteur doit pouvoir le voir.
+✅ **TROIS POINTS QUI ÉTAIENT DES ARBITRAGES DE SIÈGE SONT RATIFIÉS PAR ERIC — 2026-09-07 vers 19:3x.**
+⚠️ **Ses trois réponses tiennent en un mot chacune, et c'est pour ça que la QUESTION est gravée à
+côté** : *« close »*, *« oui »*, *« a »* ne veulent rien dire seuls. ⭐ *Une réponse d'un mot n'est
+une décision qu'accompagnée de sa question — séparées, elles se périment le jour où personne ne se
+souvient de ce qu'on demandait.*
 
-| ce que le code fait | ce qu'Eric a dit | l'argument, et il tient |
+| la question posée | Eric | ce que ça fixe |
 |---|---|---|
-| le bouton se nomme **`Close`** | *« back / select »* — il a écrit **back** | **deux arguments, et ils tiennent ensemble** *(`bouton-la-classe-et-le-verbe-font-l-organe`)* : le **SENS** — *un libellé nomme ce que son bouton FAIT*, et celui-ci ferme un détail, il ne recule d'aucun écran — et le **GARDE**, `shell-wiring.test.mjs:517`, éprouvé rouge (`"Back"` → 1831/1833). ⏳ **À confirmer d'un mot** |
-| `Select` place dans le **premier collecteur libre** | *« le placer direct dans le collecteur »* — au singulier, sans dire lequel | il faut bien en choisir un quand il y en a plusieurs ; *(lecture du lot 173)*. ⏳ **Non tranché** : et s'il n'y en a aucun de libre ? |
-| sur un jeton pris, `Select` devient **`Drop`**, rouge | *(rien)* | rouge par la **famille DÉFAIRE** *(`bouton-famille-defaire`)* — le geste rend du travail fait. *(lecture du lot 173)* |
+| le bouton qui **ferme le popup sans rien faire** s'appelle-t-il `Close` ? *(Eric avait écrit « back »)* | **« close »** | ✅ **`Close`** — et les deux arguments qui l'avaient fait choisir tiennent toujours : le **SENS** *(un libellé nomme ce que son bouton FAIT ; celui-ci ferme, il ne recule d'aucun écran)* et le **GARDE** *(`shell-wiring.test.mjs:517`, éprouvé rouge : `"Back"` → 1831/1833)* |
+| `Select` place-t-il l'outil dans le **premier collecteur libre** ? | **« oui »** | ✅ **le premier libre** — 📏 `const libre = col.indexOf(null)`, vérifié sur `origin/main`. ⛔ Et quand les quatre sont pris, `Select` **n'est pas affiché** : il ne reste que `Close` — *un bouton qui ne ferait rien mentirait* |
+| sur un outil **déjà pris**, le bouton de droite est-il `Drop` rouge qui le retire *(A)*, ou `Close` seul avec retrait depuis le collecteur *(B)* ? | **« a »** | ✅ **`Drop`, rouge, il retire** — rouge par la **famille DÉFAIRE** *(`bouton-famille-defaire`)* : le geste rend du travail fait |
 
-📌 **CE QUI EST BIEN D'ERIC, ET QUI N'A PAS BESOIN D'ÊTRE DÉFENDU** : les deux méthodes coexistent ·
+📏 **VÉRIFIÉ DANS LE CODE EN LIGNE, `origin/main` `adcfdc2` (v602)** : `mot: "Close"` **1** ·
+`"Drop"` **1** · `defait` **3** · et la bascule exacte
+`pris ? { mot: "Drop", defait: true … } : (libre >= 0 ? { mot: "Select" … } : null)`.
+
+📌 **TOUTE LA RÈGLE EST DÉSORMAIS DE SA MAIN** : les deux méthodes coexistent ·
 le tap et le clic droit lisent · le pied de la description agit · un tap en dehors ferme le popup.
 ⏳ **LE CÂBLAGE VIT SUR `173-skills-dalles`, ET ELLE N'EST PAS POUSSÉE** — `c1f8fc7` · `498a925`
 *(l'alternative : tap lit, `Close` · `Select` au pied)* · `c161f3f` · `107628b`. 📏 Vérifié :
