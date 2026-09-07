@@ -1656,14 +1656,18 @@ button { font: inherit; }
   /* La marge de la molette : celle du chevron du belt (`--onglet-taille / 2` = 29 depuis
      le bord de l'écran), moins l'enfoncement de la carte (4) — mesuré : sans cette
      soustraction le chevron tombait à 33, quatre blg à droite de celui du belt. */
-  --skills-tambour-marge: calc(var(--onglet-taille) / 2 - var(--sp-4)); }
+  --skills-tambour-marge: calc(var(--onglet-taille) / 2 - var(--sp-4));
+  /* 7 sous l'aiguilleur, pas 8 — Eric, 07/09 04:0x : *« prends 1 blg sous l'aiguilleur »*,
+     pour rendre ses 8 au bas du pied sans perdre la sixième ligne (le compte fermait à
+     3 blg près). Il n'y a pas de jeton à 7 : la cote se DÉDUIT de ceux qui existent. */
+  --skills-sous-aiguilleur: calc(var(--sp-8) - var(--sp-2) / 2); }
 
 /* ── LA DALLE HAUTE — la coupe d'Eric (07/09 03:3x), blg par blg ──────────
      4 · aiguilleur · 8 · BOUND POINTS Skills 4/4 · Tools 0/0 · Trainings 2/2 ·
      4 · FREE POINTS Budget 10 · Spent 0 · 8. Deux LIGNES, plus deux colonnes ;
      l'étiquette est le bouton (bleu foncé, T2), les valeurs suivent. */
 .skills-tete { display: block; }
-.skills-tete .skills-aiguilleur { margin: 0 0 var(--sp-8); }
+.skills-tete .skills-aiguilleur { margin: 0 0 var(--skills-sous-aiguilleur); }
 /* UNE GRILLE POUR LES DEUX LIGNES — Eric, 07/09 : *« aligne verticalement Skills /
    Budget et Tools / Spent »*. Quatre colonnes : l'étiquette à sa largeur, puis
    trois colonnes égales ; chaque ligne est `display: contents`, ses cellules
@@ -6527,10 +6531,10 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    🔴 « TOUTES LES LARGEURS DE DALLES HOMOGÈNES » (Eric, 03:4x) : mesuré, le pied
    faisait 352 quand les trois autres dalles faisaient 337 — il n'avait pas les
    gouttières de 8 des autres. Les quatre dalles portent la même marge latérale. */
-/* ⚖️ 4 SOUS LES BOUTONS — « exception à la règle » (Eric, 07/09 03:5x), nommée : §6 pré
-   cote 8 sous la rangée jusqu'au bord de la dalle ; ici, Eric a repris ces 4 blg pour
-   la fenêtre. L'exception vit sur CETTE dalle, elle ne change pas la cote des autres. */
-.skills-pied { padding: var(--sp-4) var(--sp-8); margin: var(--sp-4) var(--sp-8) var(--sp-8); }
+/* 4 · boutons · 8 — la cote de §6 pré (8 sous la rangée jusqu'au bord de la dalle) est
+   RÉTABLIE le 07/09 à 04:0x : Eric l'avait ramenée à 4 pour la fenêtre, puis a préféré
+   reprendre le blg manquant sous l'aiguilleur. Aucune exception ne reste sur cette dalle. */
+.skills-pied { padding: var(--sp-4) var(--sp-8) var(--sp-8); margin: var(--sp-4) var(--sp-8) var(--sp-8); }
 /* ⛔ LA RANGÉE DE LA COQUILLE APPORTE SON PROPRE REMBOURRAGE (`.sortie` : 20 en haut,
    12 en bas, mesuré) — dans cette dalle, c'est la DALLE qui cote (4 · boutons · 8,
    Eric 07/09 : *« t'as pas 4 blg au-dessus de Done et 8 blg sous Done »*). La
