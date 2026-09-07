@@ -515,8 +515,29 @@ et c'est la seconde fois en une nuit.
 |---|---|---|---|
 | **fiche** | la **feuille de personnage** — ce que `render-fiche.mjs` émet | la **surface qui défile**, quand Eric le dit ; en CODE elle s'appelle `.stage` | `socle-fiche-vs-stage` — ⚠️ mesuré : la feuille de Review héritait `position: absolute` et rendait une boîte de hauteur zéro |
 | **jeton** | l'**ORGANE** qu'on glisse — 87 × 48, l'octogone de §2 *(Eric dit « token »)* | une **variable CSS** au socle — `--lie`, `--tier-1`, `--sp-8` | ici, 07/09. ⚠️ Deux sièges ont failli se croiser dessus |
+| **livre** | l'**ORGANE** — le bouton 📖 posé sur une rangée, qui MÈNE à un chapitre (`.fiche-livre`) | le **PRODUIT** — le livre publié, FH WEB, le manuscrit | ici, 07/09. ⚠️ Incident mesuré ci-dessous : la loi de la trilogie a été écrite dans un sens et lue dans l'autre |
 
-⏳ **TROIS AUTRES SONT NOMMÉS PAR L'ARCHITECTE ET NON VÉRIFIÉS ICI** — *« le livre »*, *« le site »*,
+🔴 **L'INCIDENT DU MOT « LIVRE », ET IL A COÛTÉ CINQ ÉCRANS.** La loi *« la trilogie est due à tout
+écran — livre · bouton(s) · `?` »* *(`rangee-trilogie-due-partout`, 06/09)* parle de **l'organe**.
+📏 Relevé écran par écran le 06/09 à 14:31, sur douze rangées : **cinq n'avaient pas de livre**.
+⭐ **Et la cause est la dissymétrie que le mot cachait** — mesurée par moi sur `origin/main` :
+
+| l'organe | qui le fabrique | ce qui arrive |
+|---|---|---|
+| le **`?`** *(`.tuto-point`)* | **la coquille seule** — `shell.mjs`, et aucun fichier d'écran | il ne manque **nulle part** |
+| le **livre** *(`.fiche-livre`)* | **cinq fichiers d'écran** *(`abilities-step` · `catalogue` · `concept-step` · `destiny-step` · `parcours-ecrans`)* **plus** la coquille | absent **5 fois sur 12** |
+
+⛔ **Personne n'avait rapproché les deux, parce que *« le livre »* dans la loi ne disait pas lequel
+des deux sens.** Un lecteur qui pense au PRODUIT ne se demande pas qui le fabrique ; un lecteur qui
+pense à l'ORGANE se le demande tout de suite. ⭐ *Un mot à deux sens ne fait pas hésiter : il fait
+lire la mauvaise question.*
+📏 **ET IL EST PARTOUT** : `livre` rend **171 occurrences** dans les quatre fichiers du corpus —
+c'est le mot ambigu le plus fréquent qu'on ait mesuré.
+📌 Relayé par l'architecte, avec ses deux sens et son incident, exactement au format que cette
+section exige. ⛔ *Il en nommait trois autres et n'a envoyé que celui-là : il n'avait le dossier
+complet que pour lui.* C'est la bonne retenue.
+
+⏳ **DEUX AUTRES SONT NOMMÉS PAR L'ARCHITECTE ET NON VÉRIFIÉS ICI** — *« le site »* et
 *« chapitre »*. ⛔ Ils ne sont pas gravés : on n'inscrit pas un mot ambigu sur la foi d'un compte,
 il faut **ses deux sens et son incident**. Le jour où l'un d'eux coûte un croisement, il prend sa
 ligne.
@@ -1202,7 +1223,7 @@ de la ligne de flottaison** n'est pas tranché.
 
 ### ⭕ LES RONDS DE PALIER — ni jeton ni bouton à libellé, et Eric les a validés
 📍 `bouton-ronds-de-palier` · vivante · 07/09
-⚖️ **Un palier se montre par TROIS ronds — vide · demi · plein entouré — cliquables, à cible tactile `--touch` et dessin réduit ; ⛔ ce n'est ni un jeton, ni un bouton à libellé.**
+⚖️ **Un palier se montre par TROIS ronds — vide · demi · plein entouré — cliquables, à cible tactile `--touch` 44 et dessin réduit — **30 blg** ; ⛔ ce n'est ni un jeton, ni un bouton à libellé.**
 
 > **Eric**, 2026-09-07, devant le croquis : *« un demi, un plein, un plein entouré, c'est bien »* ·
 > *« boutons ronds plus petits que dans la page originale, limite inf du tactile »* · *« rien de
