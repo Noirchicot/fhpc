@@ -1661,10 +1661,6 @@ button { font: inherit; }
   --skills-ligne: calc(var(--touch) - 2 * var(--sp-2));
   /* Ce dont un contrôle de 44 déborde une ligne de 40, de chaque côté : −2. */
   --skills-deborde: calc((var(--skills-ligne) - var(--touch)) / 2);
-  /* La marge de la molette : celle du chevron du belt (`--onglet-taille / 2` = 29 depuis
-     le bord de l'écran), moins l'enfoncement de la carte (4) — mesuré : sans cette
-     soustraction le chevron tombait à 33, quatre blg à droite de celui du belt. */
-  --skills-tambour-marge: calc(var(--onglet-taille) / 2 - var(--sp-4));
   /* 7 sous l'aiguilleur, pas 8 — Eric, 07/09 04:0x : *« prends 1 blg sous l'aiguilleur »*,
      pour rendre ses 8 au bas du pied sans perdre la sixième ligne (le compte fermait à
      3 blg près). Il n'y a pas de jeton à 7 : la cote se DÉDUIT de ceux qui existent. */
@@ -1720,39 +1716,22 @@ button { font: inherit; }
    Species »* · *« halo marron moche dégage »* · *« les mêmes chevrons que le
    belt »* · *« 40 si la cible est 44 »* · *« pas d'agrandissement, la tuile
    centrale passe à voile 50 % »*. 4 blg de marge au-dessus et en dessous. */
-/* LES CHEVRONS À L'APLOMB DE CEUX DU BELT (Eric, 07/09 03:5x : *« chevrons placés
-   comme sur le belt, alignés verticalement »*). Le belt pose son chevron à
-   `--onglet-taille / 2` du bord (29) : même marge ici. Et les colonnes sont celles du
-   belt — chevron 44 · tuile · 8 · tuile · 8 · tuile · chevron 44, aucun écart entre
-   un chevron et sa tuile — donc trois tuiles de 71, la largeur d'un cran du belt. */
-.skills-tambour-hote { flex: none; margin: var(--sp-4) var(--skills-tambour-marge); touch-action: pan-y; } /* le glisser latéral tourne la molette (Eric, 07/09) */
-.skills-tambour { display: grid; grid-template-columns: var(--touch) 1fr var(--sp-8) 1fr var(--sp-8) 1fr var(--touch); align-items: center; gap: 0; height: var(--touch); }
-.skills-cran[data-place="avant"] { grid-column: 2; }
-.skills-cran[data-place="centre"] { grid-column: 4; }
-.skills-cran[data-place="apres"] { grid-column: 6; }
-.skills-tambour-chevron[data-sens="apres"] { grid-column: 7; }
-/* Le chevron est celui du belt : même cible (44), même trait dessiné
-   (`.belt-chevron-fleche`), orienté par `data-sens`. */
-.skills-tambour-chevron { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--text); cursor: pointer; padding: 0; display: grid; place-items: center; -webkit-tap-highlight-color: transparent; }
-.skills-tambour-chevron[data-sens="avant"] .belt-chevron-fleche::before { transform: rotate(-135deg); }
-.skills-tambour-chevron[data-sens="apres"] .belt-chevron-fleche::before { transform: rotate(45deg); }
-/* La tuile : 40 de dessin dans une cible de 44 (la hauteur du bouton), le voile
-   simple du belt (35 %), le rayon des dalles. */
-.skills-cran { height: var(--touch); border: none; padding: var(--sp-2) 0; background: none; color: var(--text); font-size: var(--t3); cursor: pointer; display: grid; align-items: center; }
-/* ⛔ Pas d'`overflow: hidden` sur le cran : il coupait le HALO de la tuile centrale
-   (Eric, 07/09 : *« le halo est coupé ? »* — oui, mesuré). C'est le mot (`.skills-cran-mot`)
-   qui porte son propre `overflow` pour l'ellipse ; le halo, lui, déborde librement. */
-/* T2, comme le mot d'une tuile du belt : à trois tuiles dans 375, chacune fait
-   ~77 blg, et « Knowledge » ou « Exploration » n'y tiennent qu'à ce corps
-   (mesuré : à T3 gras, « Knowl… »). */
-.skills-cran-mot { display: block; height: var(--skills-ligne); line-height: var(--skills-ligne); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0; }
-/* ⛔ Aucun rembourrage latéral dans la tuile : mesuré à 375, « Exploration » en T2 fait
-   66 blg pour une tuile de 69 de contenu — 4 + 4 de rembourrage la coupaient de 5. */
-.skills-cran[data-place="avant"] .skills-cran-mot, .skills-cran[data-place="apres"] .skills-cran-mot { color: var(--text-muted); }
-/* Le centre : voile 50 % et le halo blanc du rail de Species (`--spy-halo`,
-   même cote que `.catalogue-rail-item[aria-current]`) — sans agrandissement. */
-.skills-cran[data-place="centre"] { cursor: default; }
-.skills-cran[data-place="centre"] .skills-cran-mot { background: var(--dalle-inter); font-weight: 600; box-shadow: 0 0 6px 1px var(--spy-halo); }
+/* ── LA RANGÉE D'ONGLETS — Eric, 07/09 05:5x : *« 5 cases, on reste en T2, Tools &
+   Trainings en une case »*, *« dans ce cas précis on ne serait plus sur un tambour »*.
+   Cinq onglets visibles, ni chevron ni boucle. La rangée a la largeur de la dalle
+   (gouttières de 8, comme les autres), 4 au-dessus et 4 en dessous, cible 44.
+   📏 Chaque onglet prend la largeur de SON mot, sans rembourrage ni graisse : mesuré à
+   T2, 66 · 36 · 66 · 49 · 101 = 318, plus quatre écarts d'au moins 4 = 334 dans 351 ; le
+   reste (17) s'étale dans les écarts (`space-between`). Des cases égales (5 × 101)
+   ne tiendraient pas, et une graisse sur l'onglet courant ferait bouger la rangée. */
+.skills-onglets-hote { flex: none; margin: var(--sp-4) var(--sp-8); touch-action: pan-y; } /* le glisser latéral change d'onglet */
+.skills-onglets { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-4); height: var(--touch); }
+.skills-onglet { flex: 0 0 auto; min-width: 0; height: var(--touch); border: none; padding: var(--sp-2) 0; background: none; color: var(--text-muted); font-size: var(--t2); cursor: pointer; display: grid; align-items: center; }
+/* ⛔ Pas d'`overflow: hidden` sur l'onglet : il couperait le halo (mesuré sur le tambour, 07/09). */
+.skills-onglet-mot { display: block; height: var(--skills-ligne); line-height: var(--skills-ligne); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; padding: 0 var(--sp-2); }
+/* Le courant : voile 50 % et le halo blanc du rail de Species (`--spy-halo`). */
+.skills-onglet[aria-current="true"] { cursor: default; color: var(--text); }
+.skills-onglet[aria-current="true"] .skills-onglet-mot { background: var(--dalle-inter); box-shadow: 0 0 6px 1px var(--spy-halo); }
 
 /* ── LA FENÊTRE : une dalle à 35 % (Eric : *« dalle 2, voile 35 % »*), une page à
    la fois, le glisser latéral change de page. Elle prend TOUJOURS la hauteur
@@ -6692,10 +6671,10 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    au-dessus) : deux dalles du même écran qui se rembourrent de deux façons
    commencent à diverger au premier réglage. */
 /* La coupe d'Eric (07/09) : 4 en haut, 4 en bas (*« 4 blg sous Free points avant la
-   fin de dalle »*, 03:5x), 4 de marge vers la molette. */
+   fin de dalle »*, 03:5x), 4 de marge vers la rangée d'onglets (la molette d'alors). */
 .skills-tete { margin: var(--sp-8) var(--sp-8) 0; padding: var(--sp-4) var(--sp-8); }
-/* ⛔ Aucune marge basse ici : l'écart de 4 vers la molette est celui de la molette
-   (`.skills-tambour-hote`), sinon les deux s'additionnaient — 8 mesuré, 4 voulu
+/* ⛔ Aucune marge basse ici : l'écart de 4 vers la rangée est celui de la rangée
+   (`.skills-onglets-hote`), sinon les deux s'additionnaient — 8 mesuré, 4 voulu
    (Eric, 07/09 : *« 4 blg au-dessus et en dessous de la molette »*). */
 /* 📏 ET LE BAS DE LA BANDE REND SA MARGE — 12 px mesurés sous le calcul du
    pool (et 16 sous la ligne d'Expertise). Ils séparaient ce bloc d'un contenu

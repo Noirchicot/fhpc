@@ -48,8 +48,9 @@ import { renderChoixGlisses } from "./glisser.mjs?v=598";
 const CATEGORIES = ["knowledge", "social", "exploration", "physical"];
 const CATEGORY_LABEL = { knowledge: "Knowledge", social: "Social", exploration: "Exploration", physical: "Physical" };
 const UNSORTED_LABEL = "Skills";
-const PAGE_TOOLS = { id: "tools", label: "Tools" };
-const PAGE_TRAININGS = { id: "trainings", label: "Trainings" };
+/* « 5 cases, on reste en T2, Tools & Trainings en une case » (Eric, 07/09 05:5x) :
+   la cinquième page porte les deux listes, chacune avec sa ligne d'ajout. */
+const PAGE_KIT = { id: "kit", label: "Tools & Trainings" };
 
 /* ── LES TROIS RONDS — ◐ ● ◉, et rien de rempli = pas compétent ──────────
    Eric, 07/09 : *« un demi, un plein, un plein entouré, c'est bien »*. Les
@@ -453,11 +454,11 @@ function pagesDe(c) {
     if (liste.length > 0) pages.push({ id: key, label: CATEGORY_LABEL[key], skills: liste.sort((a, b) => a.name.localeCompare(b.name)) });
   }
   if (sans.length > 0) pages.push({ id: "skills", label: UNSORTED_LABEL, skills: sans.sort((a, b) => a.name.localeCompare(b.name)) });
-  pages.push({ ...PAGE_TOOLS }, { ...PAGE_TRAININGS });
+  pages.push({ ...PAGE_KIT });
   return pages;
 }
 
-/** Les libellés des pages, dans l'ordre du tambour. */
+/** Les libellés des pages, dans l'ordre de la rangée d'onglets. */
 export function skillsCategories(ctx) {
   return pagesDe(contexte(ctx, () => {})).map((p) => p.label);
 }
@@ -470,36 +471,26 @@ function pageCourante(pages) {
   return ecran.page;
 }
 
-function renderTambour(c, pages, surChangement) {
-  const n = pages.length;
+/* ══ LA RANGÉE D'ONGLETS ═════════════════════════════════════════════════
+   Eric, 07/09 05:5x : *« 5 cases, on reste en T2 »* — et *« dans ce cas précis on ne
+   serait plus sur un tambour »*. Cinq pages, cinq onglets visibles : rien à faire
+   tourner, donc ni chevron, ni boucle, ni centre. L'onglet courant porte le voile
+   50 % et le halo blanc ; les autres le voile 35 %. Chaque onglet prend la largeur
+   de SON mot (mesuré à T2 : 66 · 36 · 66 · 49 · 101 = 318, + 4 gaps de 4 = 334 dans
+   351) — des cases égales ne tiendraient pas (5 × 101). Le tambour à trois crans,
+   lui, vit en mémoire et dans l'historique (v598) pour l'étape qui en aura besoin. */
+function renderOnglets(c, pages, surChangement) {
   const cur = pageCourante(pages);
-  const tambour = el("nav", "skills-tambour");
-  tambour.setAttribute("aria-label", "Skill categories");
-  const aller = (delta) => { ecran.page = ((cur + delta) % n + n) % n; ecran.ajout = null; surChangement(); };
-  /* Les MÊMES chevrons que le belt (Eric, 07/09) : le trait est dessiné par
-     `.belt-chevron-fleche`, jamais un glyphe — un caractère change de forme
-     selon la police (§6, §7 bis). `data-sens` oriente le trait. */
-  const chevron = (sens, delta, mot) => {
-    const b = bouton("skills-tambour-chevron", [el("span", "belt-chevron-fleche")], () => aller(delta));
-    b.dataset.sens = sens;
-    b.setAttribute("aria-label", mot);
-    return b;
-  };
-  const cran = (offset, place) => {
-    const index = ((cur + offset) % n + n) % n;
-    const b = bouton("skills-cran", [el("span", "skills-cran-mot", [text(pages[index].label)])], offset === 0 ? null : () => aller(offset));
-    b.dataset.place = place;
-    b.dataset.page = pages[index].id;
-    b.setAttribute("aria-current", offset === 0 ? "true" : "false");
-    return b;
-  };
-  tambour.append(chevron("avant", -1, "Previous category"));
-  /* Un tambour à un ou deux crans montre ses voisins tels qu'ils sont — un
-     cran « avant » et un cran « après » peuvent être le même : c'est une
-     boucle, pas une liste. */
-  tambour.append(cran(-1, "avant"), cran(0, "centre"), cran(1, "apres"));
-  tambour.append(chevron("apres", 1, "Next category"));
-  return tambour;
+  const rangee = el("nav", "skills-onglets");
+  rangee.setAttribute("aria-label", "Skill categories");
+  pages.forEach((page, index) => {
+    const b = bouton("skills-onglet", [el("span", "skills-onglet-mot", [text(page.label)])],
+      index === cur ? null : () => { ecran.page = index; ecran.ajout = null; surChangement(); });
+    b.dataset.page = page.id;
+    b.setAttribute("aria-current", index === cur ? "true" : "false");
+    rangee.append(b);
+  });
+  return rangee;
 }
 
 /* ══ LES LIGNES ═══════════════════════════════════════════════════════════ */
@@ -792,22 +783,21 @@ function renderPage(c, pages, surChangement) {
   const cur = pageCourante(pages);
   const page = pages[cur];
   if (!page) return el("p", "placeholder", [text("No skills to spend on yet — pick a class first.")]);
-  if (ecran.ajout && (page.id === "tools" || page.id === "trainings")) {
-    return renderSelecteur(c, page.id === "tools" ? "tool" : "training", surChangement);
+  if (ecran.ajout && page.id === "kit") {
+    return renderSelecteur(c, ecran.ajout, surChangement);
   }
   const wrap = el("div", "skills-page");
   wrap.dataset.page = page.id;
-  if (page.id === "tools") {
-    const liste = outilsListes(c);
-    if (liste.length === 0) wrap.append(el("p", "skills-vide", [text("No tools yet.")]));
-    for (const view of liste) wrap.append(renderLigneTool(view, c));
+  if (page.id === "kit") {
+    /* Une page, deux listes (Eric, 07/09 : « Tools & Trainings en une case ») : les
+       outils puis leur ligne d'ajout, les trainings puis la leur. */
+    const outils = outilsListes(c);
+    if (outils.length === 0) wrap.append(el("p", "skills-vide", [text("No tools yet.")]));
+    for (const view of outils) wrap.append(renderLigneTool(view, c));
     wrap.append(renderLigneAjout("Add a tool", "tool", c.act));
-    return wrap;
-  }
-  if (page.id === "trainings") {
-    const liste = trainingsListes(c);
-    if (liste.length === 0) wrap.append(el("p", "skills-vide", [text("No trainings yet.")]));
-    for (const l of liste) wrap.append(renderLigneTraining(l, c));
+    const trainings = trainingsListes(c);
+    if (trainings.length === 0) wrap.append(el("p", "skills-vide", [text("No trainings yet.")]));
+    for (const l of trainings) wrap.append(renderLigneTraining(l, c));
     wrap.append(renderLigneAjout("Add a training", "training", c.act));
     return wrap;
   }
@@ -829,7 +819,10 @@ function armerLeGlisser(fenetre, pages, surChangement) {
     if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
     const n = pages.length;
     if (n === 0) return;
-    ecran.page = ((pageCourante(pages) + (dx < 0 ? 1 : -1)) % n + n) % n;
+    /* Une rangée, pas une boucle : au bout, le geste ne fait rien. */
+    const vise = pageCourante(pages) + (dx < 0 ? 1 : -1);
+    if (vise < 0 || vise >= n) return;
+    ecran.page = vise;
     ecran.ajout = null;
     surChangement();
   });
@@ -890,7 +883,7 @@ export function renderSkillsStep(ctx, onAction) {
       pied.dataset.sortieDoneMot = c.signe ? "Next" : "Done";
     }
   };
-  const tambourHote = el("div", "skills-tambour-hote");
+  const tambourHote = el("div", "skills-onglets-hote");
   const fenetre = el("div", "skills-flux dalle-simple");
   /* « LES SKILLS NE SONT JAMAIS COUPÉS » (Eric, 07/09 03:5x) : la dalle garde sa
      hauteur maximale, mais ce qui DÉFILE dedans est une fenêtre dont la hauteur
@@ -902,7 +895,7 @@ export function renderSkillsStep(ctx, onAction) {
   fenetre.append(defilement);
   const redessiner = () => {
     swapContent(tete, [renderAiguilleur(c), comptes]);
-    swapContent(tambourHote, [renderTambour(c, pages, redessiner)]);
+    swapContent(tambourHote, [renderOnglets(c, pages, redessiner)]);
     /* En mode sélecteur, la dalle 2 porte le sélecteur lui-même (il défile en
        bloc) ; sinon la fenêtre à lignes entières. Le pied change de paire avec lui. */
     declarerLePied();

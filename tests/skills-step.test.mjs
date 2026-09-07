@@ -82,9 +82,9 @@ function surLaPage(index) { skillsReinitialiserEcran(); skillsEcran().page = ind
 
 /* ══ 1 — UNE PAGE À LA FOIS, ET LES 26 SE RETROUVENT EN TOURNANT ══════════ */
 
-test("le tambour a six crans — quatre catégories, Tools, Trainings — et les 26 compétences se répartissent 8 · 7 · 6 · 5", () => {
+test("la rangée a cinq onglets — quatre catégories, Tools & Trainings — et les 26 compétences se répartissent 8 · 7 · 6 · 5", () => {
   const ctx = ctxFrom(fixture.report);
-  assert.deepEqual(skillsCategories(ctx), ["Knowledge", "Social", "Exploration", "Physical", "Tools", "Trainings"]);
+  assert.deepEqual(skillsCategories(ctx), ["Knowledge", "Social", "Exploration", "Physical", "Tools & Trainings"]);
   const comptes = [];
   const tous = new Set();
   for (let i = 0; i < 4; i += 1) {
@@ -100,22 +100,27 @@ test("le tambour a six crans — quatre catégories, Tools, Trainings — et les
   surLaPage(0);
 });
 
-test("le tambour tourne en boucle : avant Knowledge vient Trainings, et un chevron déplace d'un cran", () => {
+test("la rangée n'est pas un tambour (Eric, 07/09) : cinq onglets visibles, aucun chevron, un tap ouvre sa page, le bout ne boucle pas", () => {
   surLaPage(0);
   const node = renderSkillsStep(ctxFrom(fixture.report));
-  const crans = () => [...node.querySelectorAll(".skills-cran")].map((c) => `${c.getAttribute("data-place")}:${texteDe(c)}`);
-  assert.deepEqual(crans(), ["avant:Trainings", "centre:Knowledge", "apres:Social"], "six crans, trois en vue, la boucle se referme");
-  assert.equal(node.querySelectorAll('.skills-cran[data-place="centre"]')[0].getAttribute("aria-current"), "true");
-  node.querySelectorAll(".skills-tambour-chevron")[1].click(); // ›
-  assert.equal(skillsEcran().page, 1);
-  assert.deepEqual(crans(), ["avant:Knowledge", "centre:Social", "apres:Exploration"], "le contenu tourne, le halo reste au centre");
-  assert.equal(node.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "social", "la fenêtre suit le tambour");
-  /* 🔴 LE TÉMOIN CONTRAIRE : ‹ depuis Knowledge mène à Trainings, la dernière — une boucle, pas une liste. */
+  const onglets = () => [...node.querySelectorAll(".skills-onglet")].map((o) => `${o.getAttribute("aria-current") === "true" ? "*" : ""}${texteDe(o)}`);
+  assert.deepEqual(onglets(), ["*Knowledge", "Social", "Exploration", "Physical", "Tools & Trainings"], "cinq onglets, tous visibles, le courant marqué");
+  assert.equal(node.querySelectorAll(".skills-tambour-chevron").length, 0, "rien à faire tourner : pas de chevron");
+  node.querySelectorAll(".skills-onglet")[4].click();
+  assert.equal(skillsEcran().page, 4);
+  assert.deepEqual(onglets(), ["Knowledge", "Social", "Exploration", "Physical", "*Tools & Trainings"], "le halo suit l'onglet tapé, la rangée ne bouge pas");
+  assert.equal(node.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "kit", "la fenêtre suit l'onglet");
+  /* 🔴 LE TÉMOIN CONTRAIRE : au bout de la rangée, le glisser ne boucle pas. */
+  const hote = node.querySelectorAll(".skills-onglets-hote")[0];
+  hote.dispatchEvent({ type: "pointerdown", target: hote, clientX: 100, clientY: 10 });
+  hote.dispatchEvent({ type: "pointerup", target: hote, clientX: 200, clientY: 12 }); // vers la droite = page précédente
+  assert.equal(skillsEcran().page, 3, "un glisser à droite recule d'un onglet");
   surLaPage(0);
   const node2 = renderSkillsStep(ctxFrom(fixture.report));
-  node2.querySelectorAll(".skills-tambour-chevron")[0].click();
-  assert.equal(skillsEcran().page, 5);
-  assert.equal(node2.querySelectorAll(".skills-page")[0].getAttribute("data-page"), "trainings");
+  const hote2 = node2.querySelectorAll(".skills-onglets-hote")[0];
+  hote2.dispatchEvent({ type: "pointerdown", target: hote2, clientX: 100, clientY: 10 });
+  hote2.dispatchEvent({ type: "pointerup", target: hote2, clientX: 200, clientY: 12 });
+  assert.equal(skillsEcran().page, 0, "depuis le premier, reculer ne mène nulle part : une rangée, pas une boucle");
   surLaPage(0);
 });
 
@@ -320,11 +325,14 @@ test("Reset : les chemins viennent du DOCUMENT — tout le libre, rien du lié, 
 
 test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arrive VIDE, sans un verbe", () => {
   skillsReinitialiserEcran();
-  skillsEcran().page = 4; // Tools
+  skillsEcran().page = 4; // Tools & Trainings
   const actions = [];
   const node = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
-  assert.equal(lignes(node).length, 0, "le Wizard Elf n'a aucun outil : rien à lister");
-  assert.equal(node.querySelectorAll(".skills-vide").length, 1);
+  /* Une page, deux listes : les outils d'abord (aucun pour le Wizard Elf), les trainings
+     ensuite (ses deux langues d'origine). */
+  assert.equal(lignes(node).filter((l) => !String(l.className).includes("skills-ligne-training")).length, 0, "le Wizard Elf n'a aucun outil : rien à lister");
+  assert.equal(node.querySelectorAll(".skills-vide").length, 1, "« No tools yet. » — et pas « No trainings yet. », il en a deux");
+  assert.equal(node.querySelectorAll(".skills-ligne-ajout").length, 2, "deux lignes d'ajout : un outil, un training");
   /* La ligne « Add a tool » : le mot à gauche, le disque vert à droite (Eric, 07/09). */
   const ligneAjout = node.querySelectorAll(".skills-ligne-ajout")[0];
   assert.equal(texteDe(ligneAjout.querySelectorAll(".skills-ligne-nom")[0]), "Add a tool");
@@ -380,7 +388,7 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
 
 test("Trainings : les deux langues d'origine sont liées, un training s'achète d'un tap et se rend d'un second, et Add ouvre les 13", () => {
   skillsReinitialiserEcran();
-  skillsEcran().page = 5; // Trainings
+  skillsEcran().page = 4; // Tools & Trainings
   /* ⚠️ Niveau 4 : un training sans `from_level` s'ouvre au niveau générique du
      moteur (mesuré : tous les records de la couche en sont là, le Garrot
      compris) ; au niveau 1 l'achat serait refusé et ce test mesurerait le verrou,
@@ -388,7 +396,7 @@ test("Trainings : les deux langues d'origine sont liées, un training s'achète 
   const rogue = rebuild(set(rogueDocument([{ path: "fh.skills.train.garrot", value: true }]), "level", 4));
   const actions = [];
   const node = renderSkillsStep(ctxFrom(rogue, (a) => actions.push(a)));
-  const noms = lignes(node).map((l) => l.getAttribute("data-ligne")).sort();
+  const noms = lignes(node).filter((l) => String(l.className).includes("skills-ligne-training")).map((l) => l.getAttribute("data-ligne")).sort();
   assert.deepEqual(noms, ["garrot", "language-elf", "language-human"], "les langues liées + le training acheté, rien d'autre");
   const elf = ligne(node, "language-elf");
   assert.equal(elf.getAttribute("data-lie"), "oui");
@@ -409,7 +417,8 @@ test("Trainings : les deux langues d'origine sont liées, un training s'achète 
   /* 🔴 LE TÉMOIN CONTRAIRE : une langue LIÉE n'offre pas Remove (Eric : « bloqué car bound »). */
   elf.querySelectorAll(".skills-ligne-lien")[0].click();
   assert.deepEqual(actions[3].actions, [], "un lié ne se retire pas d'ici");
-  node.querySelectorAll(".skills-ajout")[0].click();
+  node.querySelectorAll(".skills-ajout")[1].click(); // le second disque : « Add a training »
+  assert.equal(skillsEcran().ajout, "training");
   const nodeSel = renderSkillsStep(ctxFrom(rogue, () => {}));
   const selecteur = nodeSel.querySelectorAll(".skills-selecteur")[0];
   assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 10, "une seule page : les dix trainings restants tiennent dans douze");
@@ -489,11 +498,11 @@ test("⚔️ ATTAQUE — un fh:skill-points menteur (value ≠ somme du détail)
   assert.notEqual(2 + 99, 2 + vrai, "témoin : le mensonge est visible");
 });
 
-test("La molette tourne au glisser latéral, comme la fenêtre (Eric, 07/09 : « swipe latéral sur la molette doit être actif »)", () => {
+test("La rangée d'onglets change au glisser latéral, comme la fenêtre (Eric, 07/09 : « swipe latéral sur la molette doit être actif »)", () => {
   skillsReinitialiserEcran();
   const node = renderSkillsStep(ctxFrom(fixture.report, () => {}));
-  const tambour = node.querySelectorAll(".skills-tambour-hote")[0];
-  const centre = () => node.querySelectorAll('.skills-cran[data-place="centre"]')[0].textContent;
+  const tambour = node.querySelectorAll(".skills-onglets-hote")[0];
+  const centre = () => node.querySelectorAll('.skills-onglet[aria-current="true"]')[0].textContent;
   const avant = centre();
   tambour.dispatchEvent({ type: "pointerdown", target: tambour, clientX: 200, clientY: 10 });
   tambour.dispatchEvent({ type: "pointerup", target: tambour, clientX: 100, clientY: 12 });
