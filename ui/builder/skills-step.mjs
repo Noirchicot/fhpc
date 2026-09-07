@@ -778,10 +778,14 @@ function renderSelecteur(c, kind) {
          (garde 17 — *« Back ne fait que reculer »*) ; ici le bouton FERME le détail, comme
          le tap en dehors, il ne recule d'aucun écran. */
       const revenir = { mot: "Close", faire: () => c.act({ kind: "skillsRedessiner" }) };
+      /* Eric a dit « le collecteur », sans dire lequel : Select prend le PREMIER libre.
+         Et quand les quatre sont pris, Select n'est pas là — un bouton qui ne ferait
+         rien mentirait ; il reste Close, et les collecteurs sous les yeux. */
+      const libre = col.indexOf(null);
       const choisir = pris
         ? { mot: "Drop", defait: true, faire: () => { col[col.indexOf(slug)] = null; c.act({ kind: "skillsRedessiner" }); } }
-        : { mot: "Select", faire: () => { const libre = col.indexOf(null); if (libre >= 0) col[libre] = slug; c.act({ kind: "skillsRedessiner" }); } };
-      c.act({ kind: "popup", titre: nomDe.get(slug) || slug, texte: texteDuJeton(slug), actions: [revenir, choisir] });
+        : (libre >= 0 ? { mot: "Select", faire: () => { col[libre] = slug; c.act({ kind: "skillsRedessiner" }); } } : null);
+      c.act({ kind: "popup", titre: nomDe.get(slug) || slug, texte: texteDuJeton(slug), actions: [revenir, choisir].filter(Boolean) });
     }
   });
   /* Le halo vert du jeton pris — la même bascule que les ronds (`markPressed`) : le

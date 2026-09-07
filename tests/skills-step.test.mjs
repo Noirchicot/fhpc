@@ -394,6 +394,15 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   relu[0].actions[0].faire();
   assert.equal(skillsEcran().collecteurs.tool[0], null);
   assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "Close revient sans écrire");
+  /* 🔴 LE TÉMOIN CONTRAIRE : quatre collecteurs pris, le détail d'un jeton libre n'offre
+     que Close — pas de Select qui ne ferait rien. */
+  skillsEcran().collecteurs.tool.splice(0, 4, "a", "b", "c", "d");
+  const nodePlein = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  const jLibre = nodePlein.querySelectorAll(".glisse-jeton")[3];
+  jLibre.dispatchEvent({ type: "pointerdown", target: jLibre, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  jLibre.dispatchEvent({ type: "pointerup", target: jLibre, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  assert.deepEqual(actions.splice(0)[0].actions.map((a) => a.mot), ["Close"], "plein : Close seul");
+  skillsEcran().collecteurs.tool.fill(null);
   /* 🖱️ MÉTHODE 2 AU CLIC GAUCHE : la souris POSE sans lire (le socle), et sur un jeton
      pris elle le rend. */
   const nodeSouris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
