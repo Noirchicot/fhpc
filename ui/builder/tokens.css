@@ -103,6 +103,13 @@
   --tier-1: #765299; /* demi (½)   — 4,54:1 sur --sunken jour */
   --tier-2: #60437d; /* plein (●)  — 6,01:1 */
   --tier-3: #49335f; /* expertise (★) — 8,12:1 */
+  /* ── LE LIÉ — une PROVENANCE, pas un rang (lot 171, arbitrage d'Archi 32 le 07/09) ──
+     Eric : *« le bound est un halo violet »*. Il PART de la valeur de `--tier-1`
+     et c'est honnête ; ce qui ne le serait pas, c'est qu'il ne puisse pas en
+     diverger : le jour où le violet du Novice bouge pour un contraste, le halo
+     du lié n'a aucune raison de bouger avec. Un halo de 3 blg sur `--surface`,
+     ⛔ il ne porte jamais d'encre — son contraste est celui d'un trait, pas d'un texte. */
+  --lie: #765299;
 
   /* ══ L'ÉCHELLE, ET LE MOT QUI VA AVEC — Eric, 2026-08-30 ═══════════════
      ⭐ LE **blg** (« blurg », abrégé `blg`) : l'unité de dessin du builder.
@@ -952,6 +959,7 @@
     --tier-1: #9e81bb; /* demi   — 4,53:1 sur --sunken nuit */
     --tier-2: #b29bc9; /* plein  — 6,05:1 */
     --tier-3: #c7b7d8; /* expertise — 8,03:1 */
+    --lie: #9e81bb; /* le lié, la nuit — même départ que --tier-1, libre d'en diverger */
 
     /* LOT 59 — la SEULE chose du décor qui bascule : l'image. Les trois
        voiles ne sont pas redéclarés (ce sont des pourcentages, pas des

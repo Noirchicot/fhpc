@@ -1642,11 +1642,10 @@ button { font: inherit; }
    gardées mortes derrière un sélecteur. Le squelette des trois bandes (tête
    fixe · flux · pied fixe) vit plus bas, avec celui d'Abilities, et sert
    toujours.
-   ⏳ `--lie` — le VIOLET du lié (Eric : *« le bound est un halo violet »*). C'est
-   un emploi du jeton `--tier-1` (le violet le plus clair de l'échelle des
-   paliers), pas une teinte inventée ; à ratifier comme jeton propre si un
-   second écran (la bourse de Species) le reprend. */
-.skills-step { max-width: var(--grid-w); margin-inline: auto; position: relative; --lie: var(--tier-1); --skills-rond-dessin: 30px; }
+   `--lie` — le VIOLET du lié (Eric : *« le bound est un halo violet »*) est un
+   JETON de `tokens.css` (arbitrage d'Archi 32, 07/09) : une provenance, pas un
+   rang — il ne s'écrit pas ici. */
+.skills-step { max-width: var(--grid-w); margin-inline: auto; position: relative; --skills-rond-dessin: 30px; }
 
 /* ── LA DALLE HAUTE : l'aiguilleur, puis les deux compteurs ── */
 .skills-tete { display: grid; gap: var(--sp-8); }
