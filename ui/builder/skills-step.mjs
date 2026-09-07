@@ -279,8 +279,8 @@ function renderAiguilleur(c) {
        choix »*), pas sous le vivier : la ligne gagnée paie la 4ᵉ rangée. */
     const pris = ecran.collecteurs[ecran.ajout].filter(Boolean).length;
     lignes.push(ecran.ajout === "tool"
-      ? `Drag a tool onto a slot, tap for details — ${pris} of ${COLLECTEURS} picked.`
-      : `Drag a training onto a slot, tap for details — ${pris} of ${COLLECTEURS} picked.`);
+      ? `Tap a tool to pick it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`
+      : `Tap a training to pick it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`);
   } else if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
@@ -733,8 +733,11 @@ function renderSelecteur(c, kind, surChangement) {
     const index = Number(String(action.path).slice(racine.length + 1));
     if (!Number.isInteger(index) || index < 0 || index >= COLLECTEURS) return;
     if (action.kind === "set") {
+      /* « Add a tool ne fonctionne pas ; dans ce cas une sélection = halo vert »
+         (Eric, 07/09 06:2x) : le tap CHOISIT — un jeton déjà pris, tapé de nouveau,
+         se rend (« tap to add, tap again to remove », la loi de l'écran). */
       const deja = col.indexOf(action.value);
-      if (deja >= 0) col[deja] = null; // un jeton ne vit qu'à une place
+      if (deja >= 0) { col[deja] = null; surChangement(); return; }
       col[index] = action.value;
     } else if (action.kind === "clear") {
       col[index] = null;
@@ -750,17 +753,18 @@ function renderSelecteur(c, kind, surChangement) {
        scroll » (Eric, 07/09 04:2x). Une voix, un lieu. */
     consigne: null,
     compte: false, // le compte vit dans l'aiguilleur aussi (Eric, 07/09 05:0x)
-    onInfo: (slug) => {
-      const view = catalogue.find((v) => (v.record.slug || v.id) === slug);
-      const data = (view && view.record.data) || {};
-      c.act({
-        kind: "popup", titre: nomDe.get(slug) || slug,
-        texte: kind === "tool"
-          ? texteDuDetail({ nom: nomDe.get(slug), view, acquis: "none", bonus: null, plancher: "none", c })
-          : `${data.description || ""}${Number.isInteger(data.cost) ? `\n\nCost: ${data.cost} point${data.cost > 1 ? "s" : ""}.` : ""}`
-      });
-    }
+    /* ⛔ PAS D'`onInfo` ICI — Eric, 07/09 06:2x : *« add a tool ne fonctionne pas, dans ce
+       cas une sélection = halo vert »*. Avec `onInfo`, le tap au doigt INSPECTE et seul le
+       glisser pose ; sans lui, le tap POSE (premier collecteur libre) au doigt comme à la
+       souris. Le détail d'un outil se lit ensuite sur sa ligne (le nom est un lien).
+       `reutilisable` : le jeton pris reste vivant — c'est le second tap qui le rend. */
+    reutilisable: true
   });
+  /* Le halo vert du jeton pris — la même bascule que les ronds (`markPressed`) : le
+     jeton dit son état (`data-active` + `aria-pressed`), la feuille le peint. */
+  for (const jeton of bloc.querySelectorAll(".glisse-jeton")) {
+    markPressed(jeton, col.includes(jeton.dataset ? jeton.dataset.valeur : jeton.getAttribute("data-valeur")));
+  }
   const page = el("div", "skills-selecteur");
   page.dataset.liste = kind;
   if (bloc) page.append(bloc);

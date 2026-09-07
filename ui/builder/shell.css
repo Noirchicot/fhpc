@@ -1802,6 +1802,10 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    quatre collecteurs et la rangée du pied tiennent dans la dalle 2 étendue jusqu'en bas
    (mesuré : ~300 dans 332). La dalle ne défile pas. */
 .skills-selecteur { min-height: 0; overflow: hidden; padding: 0; }
+/* « UNE SÉLECTION = HALO VERT » (Eric, 07/09 06:2x) : le jeton pris garde sa couleur et
+   prend le halo de la validation (`--positive`, la teinte du Done allumé) — même cote de
+   halo que l'onglet courant. Il reste vivant : un second tap le rend. */
+.skills-selecteur .glisse-jeton[data-active="true"] { box-shadow: 0 0 6px 1px var(--positive); }
 .skills-selecteur .choix-glisse { margin: 0; }
 /* TROIS JETONS PAR RANGÉE, DANS 351 : le vivier vit entre deux colonnes de chevron
    (44 + 4 chacune) → 255 blg pour trois jetons ; le socle (87) en demande 277.

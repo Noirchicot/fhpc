@@ -359,6 +359,21 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   assert.equal(pied.getAttribute("data-sortie-mot"), "Cancel");
   assert.equal(pied.getAttribute("data-sortie-done-mot"), "Add tool", "le bouton de droite dit ce qu'il fait, pas « Done » (Eric, 07/09)");
   assert.equal(pied.getAttribute("data-sortie-done-verbe"), "skillsAjoutFermer", "et il n'est pas le Done de l'étape : il ne signe rien");
+  /* « UNE SÉLECTION = HALO VERT » (Eric, 07/09 06:2x) : un tap prend le jeton (premier
+     collecteur libre, `data-active` + `aria-pressed`), un second le rend. */
+  const jeton = selecteur.querySelectorAll(".glisse-jeton")[0];
+  assert.equal(jeton.getAttribute("aria-pressed"), "false", "libre : la bascule est déclarée, à faux");
+  jeton.dispatchEvent({ type: "pointerdown", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  jeton.dispatchEvent({ type: "pointerup", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  assert.equal(skillsEcran().collecteurs.tool[0], jeton.getAttribute("data-valeur"), "le tap au doigt POSE dans le premier collecteur — il n'inspecte plus");
+  const nodePris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  const pris = nodePris.querySelectorAll(".glisse-jeton")[0];
+  assert.equal(pris.getAttribute("data-active"), "true", "le jeton pris porte le halo vert");
+  assert.equal(pris.disabled, false, "et reste vivant");
+  pris.dispatchEvent({ type: "pointerdown", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  pris.dispatchEvent({ type: "pointerup", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  assert.equal(skillsEcran().collecteurs.tool[0], null, "le second tap le rend");
+  actions.splice(0);
   /* Un jeton posé dans un collecteur vit dans l'état d'écran ; le Done du pied
      (verbe exécuté par la coquille) le fait entrer dans la page. */
   skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";
