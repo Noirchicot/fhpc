@@ -1701,7 +1701,9 @@ button { font: inherit; }
 /* T2, comme le mot d'une tuile du belt : à trois tuiles dans 375, chacune fait
    ~77 blg, et « Knowledge » ou « Exploration » n'y tiennent qu'à ce corps
    (mesuré : à T3 gras, « Knowl… »). */
-.skills-cran-mot { display: block; height: calc(var(--touch) - 2 * var(--sp-2)); line-height: calc(var(--touch) - 2 * var(--sp-2)); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 var(--sp-4); }
+.skills-cran-mot { display: block; height: calc(var(--touch) - 2 * var(--sp-2)); line-height: calc(var(--touch) - 2 * var(--sp-2)); border-radius: var(--radius-md); background: var(--dalle-simple); font-size: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0; }
+/* ⛔ Aucun rembourrage latéral dans la tuile : mesuré à 375, « Exploration » en T2 fait
+   66 blg pour une tuile de 69 de contenu — 4 + 4 de rembourrage la coupaient de 5. */
 .skills-cran[data-place="avant"] .skills-cran-mot, .skills-cran[data-place="apres"] .skills-cran-mot { color: var(--text-muted); }
 /* Le centre : voile 50 % et le halo blanc du rail de Species (`--spy-halo`,
    même cote que `.catalogue-rail-item[aria-current]`) — sans agrandissement. */
@@ -1712,7 +1714,11 @@ button { font: inherit; }
    la fois, le glisser latéral change de page. Elle prend TOUJOURS la hauteur
    qui reste, remplie ou non (*« même si elle n'est pas remplie »*) : c'est le
    `flex: 1 1 auto` du squelette, et `.dalle-simple` ne pose que le verre. */
-.skills-flux { touch-action: pan-y; margin: 0 var(--sp-8); padding: var(--sp-4) 0; }
+.skills-flux { flex: 1 1 auto; touch-action: pan-y; margin: 0 var(--sp-8); padding: var(--sp-4) 0; }
+/* ⚠️ `flex: 1 1 auto` est ce qui fait la « hauteur maximale même si elle n'est pas
+   remplie » : le squelette partagé avec Abilities ne donne au flux que `min-height: 0`
+   (Abilities veut l'inverse — un organe qui ne grandit pas). Mesuré sans lui : la page
+   Tools vide se tassait sur ses deux lignes et le pied remontait. */
 .skills-page { display: flex; flex-direction: column; gap: var(--sp-4); padding: 0 var(--sp-8); }
 .skills-vide, .skills-liste-consigne { margin: 0; font-size: var(--t2); color: var(--text); padding: var(--sp-4) 0; }
 .skills-ligne { display: grid; grid-template-columns: minmax(0, 1fr) 3.5ch 3.5ch auto; align-items: center; gap: var(--sp-4); min-height: var(--touch); }
