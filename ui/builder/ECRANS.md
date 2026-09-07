@@ -476,7 +476,17 @@
 
 ### Le reste flotte, le calcul défile
 📍 `skills-le-reste-flotte` · déployée, hors corpus · 14/08
-⚖️ **Le compteur est coupé en deux : la ligne du RESTE flotte et ne quitte jamais l'écran, la ligne du calcul disparaît dans le défilement — et `Reset` est dans la ligne qui flotte.**
+⚖️ **Le compteur est coupé en deux : la ligne du RESTE flotte et ne quitte jamais l'écran, `Reset` est dans la ligne qui flotte — et la ligne du calcul ne défile plus, elle a rejoint la bande fixe.**
+
+> ✍️ **CORRIGÉE EN PLACE LE 2026-09-07 — une moitié était périmée depuis le 26/08.** La phrase
+> disait *« la ligne du calcul disparaît dans le défilement »*. 📏 Vérifié dans le code par le siège
+> Bible : `skills-step.mjs:835` fait `tete.append(renderPoolDetail(…))` — le détail vit dans
+> `skills-tete`, la **bande fixe**. C'est `skills-barre-blanche-descend` (26/08) qui l'y a mis, et
+> les deux règles ont cohabité **douze jours** en portant toutes deux le statut `déployée`.
+> ⛔ **Aucun lien de supersession n'est posé** : la première moitié est toujours vraie, la règle
+> n'est donc pas remplacée — et le régime des liens exige un statut `vivante` pour une borne, que
+> ces règles `déployée, hors corpus` n'ont pas.
+> 📌 Relevé par `AGENT SKILLS` (lot 171), revérifié ici avant d'être écrit.
 
 > **Eric** : « je voudrais un flottant pour voir le compte, ça disparaît »
 
@@ -516,15 +526,33 @@
 
 ### Skills est le seul écran à fond ouvert, et sans plafond
 📍 `skills-fond-ouvert-sans-plafond` · déployée, hors corpus · 29/08
-⚖️ **La carte de Skills cesse d'être une surface : le décor passe entre des dalles qui flottent, et sa largeur n'est PAS plafonnée.**
+⚖️ **La carte de Skills cesse d'être une surface — le décor passe entre des dalles qui flottent — mais sa largeur EST plafonnée, par `--grid-w` comme toute grille.**
+
+> ✍️ **CORRIGÉE EN PLACE LE 2026-09-07.** La phrase disait *« sa largeur n'est PAS
+> plafonnée »*. 📏 Vérifié : `shell.css:1638` porte `.skills-step { max-width: var(--grid-w) }`, et
+> le panneau vaut la même cote à tous les crans depuis le sacré du 31/08. ⭐ *« Non plafonnée »
+> décrivait un monde qui n'existe plus* — la règle n'était pas fausse le jour où elle a été écrite,
+> le contexte a bougé sous elle et rien ne l'a signalé. C'est `cadre-seul-voile`, mot pour mot.
+> 📌 Ce qui reste vrai et n'a pas bougé : `data-bleed="true"`, le fond ouvert, les dalles qui
+> flottent. Seul le plafond était nié à tort.
 
 > **Eric** : « le data bleed de Skills me convient »
 
 **La carte de Skills cesse d'être une surface : le décor passe entre des dalles qui flottent, et sa largeur n'est PAS plafonnée.**
 
-### Quatre par ligne, et la ligne incomplète se centre
+### Quatre par ligne — la règle des COLLECTEURS, et Skills n'en porte aucun
 📍 `skills-quatre-par-ligne` · déployée, hors corpus · 29/08
-⚖️ **Les collecteurs de compétences se rangent par lignes de quatre, et une ligne incomplète se centre.**
+⚖️ **Les COLLECTEURS se rangent par lignes de quatre par défaut, et une ligne incomplète se centre — ⛔ l'écran Skills n'en porte aucun, il rend 76 LIGNES.**
+
+> ✍️ **CORRIGÉE EN PLACE LE 2026-09-07 — elle n'était pas fausse, elle était MAL RANGÉE.**
+> 📏 Vérifié : la règle vit dans `listes.css:189`, `--par-rangee: 4` sur `.choix-glisse`, avec le
+> commentaire *« skills : le défaut »* — c'est ce commentaire qui l'a fait attribuer à cet écran.
+> Elle gouverne les collecteurs de Keen Senses (Species) et tout futur glisser ; **rien sur l'écran
+> Skills ne la rend**, il sert 76 lignes d'une compétence.
+> 🔴 **ET C'EST LE MÊME PIÈGE QUE `socle-famille-ne-dit-pas-le-fichier`, D'UN CRAN PLUS LOIN** : là,
+> le préfixe d'une adresse mentait sur le FICHIER qui la porte ; ici il ment sur l'OBJET qu'elle
+> gouverne. ⛔ Un préfixe est un rangement, jamais une preuve d'appartenance.
+> 📌 Relevé par `AGENT SKILLS` (lot 171), revérifié ici.
 
 > **Eric** : « pour tous les collecteurs de skills, se limiter à des lignes de 4 ; après on passe à la ligne suivante ; si on ne complète pas la ligne à 4, on centre »
 

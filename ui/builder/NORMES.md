@@ -5578,11 +5578,30 @@ fois avant d'être juste : d'abord étiré sur les 351 blg de la dalle *(règle 
 perdante — le piège de 7.8, le même jour)*, puis coupé en deux lignes au bilan *(le rembourrage de
 12 de la règle nue)*. **Un objet qui se dessine de deux façons selon la dalle qui le porte est deux
 objets**, et §2 bis n'en admet qu'un.
-✅ **L'EFFET EST CÂBLÉ — 2026-09-06 au soir, lot 169.** Les trois points ouverts ont été tranchés par
-Eric le jour même (*« le droit de l'acheter »*, *« deux expertises max au niveau 1 »*), et le builder
-les applique : **+2 points libres** au pool de Skills et **le DROIT d'acheter l'Expertise au niveau 1,
-au prix normal**. ⛔ **Rien n'est offert** — le joueur peut dépenser ses deux points ailleurs. L'info du
-token dit donc désormais exactement ce que le builder fait, et l'écart d'avant est refermé.
+✅ **L'EFFET EST CÂBLÉ — 2026-09-06 au soir, lot 169**, et **PRÉCISÉ PAR ERIC LE 2026-09-07** devant
+un relevé qui a montré que la première formulation laissait passer un cas. Ce que le trait donne :
+**+2 points libres** au pool de Skills, et **le droit d'acheter UNE Expertise avant que sa classe ne
+l'ouvre**. ⛔ **Rien n'est offert** — le joueur peut dépenser ses deux points ailleurs.
+
+> Eric, 2026-09-07, devant le relevé du lot 171 : *« pas possible ça, **c'est 2 max**. Les points de
+> Late Bloomer tu les dépenses ailleurs. Plus de limite au-delà du lvl 1 si t'es un Rogue. Les autres
+> auront droit à une Expertise grâce à Late Bloomer. »*
+
+| ce qui était écrit le 06/09 | ce que ça dit depuis le 07/09 |
+|---|---|
+| *« deux expertises max au niveau 1 »* | **deux AU TOTAL, kit lié compris** — la bourse d'espèce ou de classe **compte** dans le plafond, et elle fait **PLANCHER** |
+| *« le droit d'acheter l'Expertise au niveau 1 »* | **le droit d'acheter UNE Expertise avant que sa classe ne l'ouvre** — la cote se **lit** sur le grant (`maxExpertise`), ⛔ jamais figée dans le code |
+| *(rien n'était dit)* | **au-delà du niveau 1, plus aucune limite** — c'est le Rogue |
+
+🔴 **CE QUE LA PREMIÈRE FORMULATION LAISSAIT PASSER, ET C'EST MESURÉ.** Le 06/09 à 23:52, un Rogue
+niveau 1 sortait avec **TROIS** Expertises : la bourse liée et le pool écrivaient le même slug **sans
+se voir**. *« Deux max au niveau 1 »* était vrai de ce que le pool comptait, et faux du personnage —
+⭐ *une phrase peut être juste sur l'organe qui la lit et fausse sur l'objet qu'elle décrit.*
+📌 **Et la réparation ferme trois autres cas sans une règle de plus** : un palier posé par une bourse
+est **semé en plancher** avant la dépense, donc le pool ne le redescend plus, ne le repaie plus, et
+ne monte qu'au prix de la différence.
+⚠️ **CE PASSAGE DÉCRIT UNE LOI D'ERIC, PAS L'ÉTAT DE `main`** : le câblage vit sur `171-skills`
+*(7 gardes vus rouges puis verts)* et n'est pas encore fusionné au jour où ces lignes sont écrites.
 🔴 **ET LE TOKEN SE MONTRE DÉSORMAIS DEPUIS LE PERSONNAGE, PLUS SEULEMENT DEPUIS LE LOT DE DÉS.**
 `ajuste: "haut"` vit dans l'écran et meurt avec la session : un personnage rouvert perdait son token,
 et le moteur ne pouvait rien appliquer. Le trait s'écrit au personnage (`fh.skills.trait.late-bloomer`)
