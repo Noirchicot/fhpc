@@ -1652,7 +1652,11 @@ button { font: inherit; }
      ligne de 2 en haut et 2 en bas, dans l'écart de 4 qui sépare deux lignes. */
   --skills-ligne: calc(var(--touch) - 2 * var(--sp-2));
   /* Ce dont un contrôle de 44 déborde une ligne de 40, de chaque côté : −2. */
-  --skills-deborde: calc((var(--skills-ligne) - var(--touch)) / 2); }
+  --skills-deborde: calc((var(--skills-ligne) - var(--touch)) / 2);
+  /* La marge de la molette : celle du chevron du belt (`--onglet-taille / 2` = 29 depuis
+     le bord de l'écran), moins l'enfoncement de la carte (4) — mesuré : sans cette
+     soustraction le chevron tombait à 33, quatre blg à droite de celui du belt. */
+  --skills-tambour-marge: calc(var(--onglet-taille) / 2 - var(--sp-4)); }
 
 /* ── LA DALLE HAUTE — la coupe d'Eric (07/09 03:3x), blg par blg ──────────
      4 · aiguilleur · 8 · BOUND POINTS Skills 4/4 · Tools 0/0 · Trainings 2/2 ·
@@ -1700,8 +1704,17 @@ button { font: inherit; }
    Species »* · *« halo marron moche dégage »* · *« les mêmes chevrons que le
    belt »* · *« 40 si la cible est 44 »* · *« pas d'agrandissement, la tuile
    centrale passe à voile 50 % »*. 4 blg de marge au-dessus et en dessous. */
-.skills-tambour-hote { flex: none; margin: var(--sp-4) var(--sp-8); }
-.skills-tambour { display: grid; grid-template-columns: var(--touch) 1fr 1fr 1fr var(--touch); align-items: center; gap: var(--sp-8); height: var(--touch); }
+/* LES CHEVRONS À L'APLOMB DE CEUX DU BELT (Eric, 07/09 03:5x : *« chevrons placés
+   comme sur le belt, alignés verticalement »*). Le belt pose son chevron à
+   `--onglet-taille / 2` du bord (29) : même marge ici. Et les colonnes sont celles du
+   belt — chevron 44 · tuile · 8 · tuile · 8 · tuile · chevron 44, aucun écart entre
+   un chevron et sa tuile — donc trois tuiles de 71, la largeur d'un cran du belt. */
+.skills-tambour-hote { flex: none; margin: var(--sp-4) var(--skills-tambour-marge); }
+.skills-tambour { display: grid; grid-template-columns: var(--touch) 1fr var(--sp-8) 1fr var(--sp-8) 1fr var(--touch); align-items: center; gap: 0; height: var(--touch); }
+.skills-cran[data-place="avant"] { grid-column: 2; }
+.skills-cran[data-place="centre"] { grid-column: 4; }
+.skills-cran[data-place="apres"] { grid-column: 6; }
+.skills-tambour-chevron[data-sens="apres"] { grid-column: 7; }
 /* Le chevron est celui du belt : même cible (44), même trait dessiné
    (`.belt-chevron-fleche`), orienté par `data-sens`. */
 .skills-tambour-chevron { width: var(--touch); height: var(--touch); border: none; background: none; color: var(--text); cursor: pointer; padding: 0; display: grid; place-items: center; -webkit-tap-highlight-color: transparent; }
@@ -1709,7 +1722,10 @@ button { font: inherit; }
 .skills-tambour-chevron[data-sens="apres"] .belt-chevron-fleche::before { transform: rotate(45deg); }
 /* La tuile : 40 de dessin dans une cible de 44 (la hauteur du bouton), le voile
    simple du belt (35 %), le rayon des dalles. */
-.skills-cran { height: var(--touch); border: none; padding: var(--sp-2) var(--sp-4); background: none; color: var(--text); font-size: var(--t3); cursor: pointer; overflow: hidden; display: grid; align-items: center; }
+.skills-cran { height: var(--touch); border: none; padding: var(--sp-2) 0; background: none; color: var(--text); font-size: var(--t3); cursor: pointer; display: grid; align-items: center; }
+/* ⛔ Pas d'`overflow: hidden` sur le cran : il coupait le HALO de la tuile centrale
+   (Eric, 07/09 : *« le halo est coupé ? »* — oui, mesuré). C'est le mot (`.skills-cran-mot`)
+   qui porte son propre `overflow` pour l'ellipse ; le halo, lui, déborde librement. */
 /* T2, comme le mot d'une tuile du belt : à trois tuiles dans 375, chacune fait
    ~77 blg, et « Knowledge » ou « Exploration » n'y tiennent qu'à ce corps
    (mesuré : à T3 gras, « Knowl… »). */
@@ -1726,7 +1742,26 @@ button { font: inherit; }
    la fois, le glisser latéral change de page. Elle prend TOUJOURS la hauteur
    qui reste, remplie ou non (*« même si elle n'est pas remplie »*) : c'est le
    `flex: 1 1 auto` du squelette, et `.dalle-simple` ne pose que le verre. */
-.skills-flux { flex: 1 1 auto; touch-action: pan-y; margin: 0 var(--sp-8); padding: var(--sp-4) 0; }
+.skills-flux { flex: 1 1 auto; margin: 0 var(--sp-8); padding: var(--sp-2) 0; overflow: hidden; display: grid; grid-template-rows: minmax(0, 1fr); }
+/* 2 en haut et en bas, pas 4 : mesuré, six lignes entières demandent 260 et la dalle
+   en offrait 259 avec 4 · 4 — un blg décidait entre cinq et six lignes. */
+/* ⚠️ `minmax(0, 1fr)` est ce qui rend le `100 %` de la fenêtre CALCULABLE : contre une
+   piste `auto`, le pourcentage se résolvait sur rien et la fenêtre sortait de la dalle
+   (mesuré : 304 dans 259). Une piste définie, une hauteur définie. */
+/* « LES SKILLS NE SONT JAMAIS COUPÉS » (Eric, 07/09 03:5x). La dalle prend toute la
+   place ; la FENÊTRE qui défile dedans mesure un nombre ENTIER de lignes — la cote se
+   déduit (§1 ter) : N lignes de `--skills-ligne` séparées de 4 valent N × 44 − 4, donc
+   round(down, place + 4, 44) − 4. Et le défilement s'aimante ligne à ligne : en haut
+   comme en bas, une ligne est entière ou n'est pas là. Le reste de la dalle, sous la
+   fenêtre, reste du verre vide — c'est le prix d'une ligne jamais coupée. */
+.skills-fenetre {
+  --skills-pas: calc(var(--skills-ligne) + var(--sp-4));
+  align-self: start;
+  height: calc(round(down, calc(100% + var(--sp-4)), var(--skills-pas)) - var(--sp-4));
+  overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y;
+  scroll-snap-type: y mandatory;
+}
+.skills-fenetre .skills-ligne { scroll-snap-align: start; }
 /* ⚠️ `flex: 1 1 auto` est ce qui fait la « hauteur maximale même si elle n'est pas
    remplie » : le squelette partagé avec Abilities ne donne au flux que `min-height: 0`
    (Abilities veut l'inverse — un organe qui ne grandit pas). Mesuré sans lui : la page

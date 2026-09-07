@@ -239,10 +239,13 @@ function renderAiguilleur(c) {
     lignes.push("Skills follow the SRD here — nothing to spend.");
   }
   lignes.push(droitDExpertise(c));
+  /* La 3ᵉ ligne : le geste (Eric, 07/09 03:5x : *« tap to add, tap again to remove —
+     dans l'aiguilleur »*) ; le compte, lui, est déjà sous les yeux (FREE POINTS ·
+     Spent). Au compte exact, la ligne dit la sortie. */
   if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
-      : `${c.compte.spent} of ${c.compte.budget} free points spent.`);
+      : "Tap a circle to add, tap it again to remove.");
   }
   const p = el("p", "guide-mot skills-aiguilleur");
   lignes.forEach((ligne, i) => { if (i > 0) p.append(document.createElement("br")); p.append(text(ligne)); });
@@ -733,11 +736,18 @@ export function renderSkillsStep(ctx, onAction) {
      pied garde la paire que la coquille y a posée. ── */
   const tambourHote = el("div", "skills-tambour-hote");
   const fenetre = el("div", "skills-flux dalle-simple");
-  fenetre.dataset.scroller = "skills";
+  /* « LES SKILLS NE SONT JAMAIS COUPÉS » (Eric, 07/09 03:5x) : la dalle garde sa
+     hauteur maximale, mais ce qui DÉFILE dedans est une fenêtre dont la hauteur
+     est un nombre entier de lignes (la feuille la déduit : `round(down, …)`),
+     aimantée ligne à ligne — en haut comme en bas, une ligne est entière ou
+     n'est pas là. */
+  const defilement = el("div", "skills-fenetre");
+  defilement.dataset.scroller = "skills";
+  fenetre.append(defilement);
   const redessiner = () => {
     swapContent(tambourHote, [renderTambour(c, pages, redessiner)]);
-    swapContent(fenetre, [renderPage(c, pages, redessiner)]);
-    if (typeof fenetre.scrollTo === "function") fenetre.scrollTo(0, 0);
+    swapContent(defilement, [renderPage(c, pages, redessiner)]);
+    if (typeof defilement.scrollTo === "function") defilement.scrollTo(0, 0);
   };
   redessiner();
   armerLeGlisser(fenetre, pages, redessiner);
