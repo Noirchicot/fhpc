@@ -3189,7 +3189,7 @@ lecteur doit pouvoir le voir.
 
 | ce que le code fait | ce qu'Eric a dit | l'argument, et il tient |
 |---|---|---|
-| le bouton se nomme **`Close`** | *« back / select »* — il a écrit **back** | `Back` est réservé au pied de la coquille : *« il ne touche à rien, il recule, c'est tout »* *(`bouton-deux-mots-retour-et-couleur-se-deduit-mot`)*. Un bouton qui ferme un DÉTAIL ne recule d'aucun écran. ⏳ **Renommage à confirmer d'un mot** |
+| le bouton se nomme **`Close`** | *« back / select »* — il a écrit **back** | ⛔ **et l'argument n'est PAS que `Back` serait réservé** — il ne l'est pas *(`bouton-la-classe-et-le-verbe-font-l-organe`)*. Il est de SENS : *un libellé nomme ce que son bouton FAIT*, et celui-ci ferme un détail, il ne recule d'aucun écran. ⏳ **À confirmer d'un mot** |
 | `Select` place dans le **premier collecteur libre** | *« le placer direct dans le collecteur »* — au singulier, sans dire lequel | il faut bien en choisir un quand il y en a plusieurs ; *(lecture du lot 173)*. ⏳ **Non tranché** : et s'il n'y en a aucun de libre ? |
 | sur un jeton pris, `Select` devient **`Drop`**, rouge | *(rien)* | rouge par la **famille DÉFAIRE** *(`bouton-famille-defaire`)* — le geste rend du travail fait. *(lecture du lot 173)* |
 
@@ -3925,6 +3925,44 @@ informations, aucune redondance**.
 📌 **Ce qui se garde** : qu'aucune couleur ne soit figée dans le balisage, et que la couleur se
 dérive **du même état** que le cercle de signalisation. ⛔ Deux dérivations séparées finiraient
 par diverger — c'est la faute des deux échelles typographiques que le dépôt paie encore.
+
+### 🚧 CE QUE LA COQUILLE RÉSERVE, C'EST LA CLASSE ET LE VERBE — ⛔ jamais le MOT
+📍 `bouton-la-classe-et-le-verbe-font-l-organe` · vivante · 07/09
+⚖️ **Un organe de la coquille se reconnaît à sa CLASSE et à son VERBE, jamais à son libellé : un écran peut porter le même mot, il ne peut porter ni la même classe ni le même verbe.**
+
+🔴 **ET CETTE RÈGLE A ÉTÉ ÉCRITE POUR CORRIGER LA FORMULATION INVERSE, PROPOSÉE LE 07/09.** On me
+demandait de graver *« un mot que la coquille réserve — `Back`, `Cancel`, `Done` — ne se rejoue pas
+dans un écran »*. ⛔ **Le garde 17 dit le contraire, et il l'explique lui-même** *(`tests/shell-wiring.test.mjs`,
+en tête de `SORTIE_ETAPE`)* :
+
+> *« CE QUI RESTE DE LA PASSE : la casse (`Done`, pas `DONE`) et surtout la **façon d'identifier
+> l'organe — par sa CLASSE et son VERBE, plus par son mot**. Le pied du guide porte légitimement
+> "I changed my mind" ; reconnaître la paire de la coquille à un libellé, c'était se faire tromper
+> le jour où deux choses portent le même nom. »*
+
+⭐ **LE GARDE A DONC DÉJÀ PAYÉ CETTE LEÇON, ET DANS LE BON SENS** : il a cessé d'épingler le libellé
+parce que **deux organes légitimes portaient le même mot**. Réserver le mot aujourd'hui, ce serait
+défaire ce qu'il a appris.
+📌 Ce qu'il tient, et qui ne bouge pas : `back: "Back"` · `cancel: "Cancel"` · `done: "Done"`, avec
+leurs classes `sortie-back` · `sortie-annule` · `sortie-bouton sortie-done`, **produites par
+`shell.mjs` seul**. ⛔ Un écran qui écrirait l'une de ces classes rougit ; un écran qui écrit l'un
+de ces mots, non.
+
+⚖️ **LA CONSÉQUENCE POUR QUI CHOISIT UN LIBELLÉ, ET C'EST TOUT L'INTÉRÊT DE LA RÈGLE.** Le bon
+argument n'est jamais *« ce mot est pris »* — il est **de SENS** : *un libellé nomme ce que son
+bouton FAIT* *(Eric, 20/08 : « back n'efface pas »)*. ⭐ Un bouton qui ferme un détail ne recule
+d'aucun écran ; s'il ne doit pas s'appeler `Back`, ce n'est pas parce que la coquille garde le mot,
+c'est parce qu'il **ne recule pas**.
+⛔ **Et la réciproque est une porte ouverte à surveiller** : deux organes qui portent le même mot en
+faisant deux gestes différents finiront par se confondre pour un lecteur, même si aucun garde ne
+rougit. *La classe protège le CODE ; seul le sens protège le JOUEUR.*
+
+⏳ **LE CAS D'ESPÈCE N'EST PAS TRANCHÉ, ET CETTE RÈGLE NE LE TRANCHE PAS.** Le pied du popup du
+sélecteur de Skills s'appelle `Close` dans le lot 173 ; Eric avait écrit *« back / select »*. C'est
+un **arbitrage de siège**, porté à Eric et pas encore sa parole *(ancre : le commentaire au-dessus
+de `const revenir = { mot: "Close" … }` dans `renderSelecteur`, `skills-step.mjs`)*.
+📌 **Si Eric veut `Back` là, il n'y a rien à rouvrir dans le garde** — le garde ne l'interdit pas.
+La seule question est de savoir si le bouton **recule**, et c'est à lui de le dire.
 
 ### 🔴 DEUX MOTS DE RETOUR, ET LA COULEUR SE DÉDUIT DU MOT *(Eric, 2026-09-05)*
 📍 `bouton-deux-mots-retour-et-couleur-se-deduit-mot` · vivante · 05/09
