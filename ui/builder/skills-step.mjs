@@ -103,7 +103,7 @@ const ecran = {
   collecteurs: { tool: [null, null, null, null], training: [null, null, null, null] }
 };
 const COLLECTEURS = 4;
-const JETONS_PAR_PAGE = 9; // trois rangées de trois (Eric, 07/09)
+const JETONS_PAR_PAGE = 12; // quatre rangées de trois (Eric, 07/09 05:0x : « 4e rangée possible ? » — oui, sans la ligne du compte)
 
 /** Lecture seule, pour les tests et la coquille. */
 export function skillsEcran() { return ecran; }
@@ -118,7 +118,15 @@ export function skillsReinitialiserEcran() {
   ecran.collecteurs.training.fill(null);
 }
 
-/** Le `Done` du sélecteur (la coquille l'exécute, verbe `skillsAjoutFermer`) : ce
+/** `Cancel` du sélecteur (verbe `skillsAjoutAnnuler`) : les collecteurs se vident,
+ *  rien n'entre dans la page. */
+export function skillsAnnulerAjout() {
+  const kind = ecran.ajout;
+  if (kind && ecran.collecteurs[kind]) ecran.collecteurs[kind].fill(null);
+  ecran.ajout = null;
+}
+
+/** « Add tool » du sélecteur (la coquille l'exécute, verbe `skillsAjoutFermer`) : ce
  *  qui est dans les collecteurs rejoint la page, vide ; les collecteurs se vident. */
 export function skillsFermerAjout() {
   const kind = ecran.ajout;
@@ -265,9 +273,13 @@ function renderAiguilleur(c) {
      dans l'aiguilleur »*) ; le compte, lui, est déjà sous les yeux (FREE POINTS ·
      Spent). Au compte exact, la ligne dit la sortie. */
   if (ecran.ajout) {
+    /* Le compte des collecteurs vit ICI (Eric, 07/09 05:0x : *« si on dégage le
+       0 of 4 picked ? l'aiguilleur en haut peut donner des infos relatives à ce
+       choix »*), pas sous le vivier : la ligne gagnée paie la 4ᵉ rangée. */
+    const pris = ecran.collecteurs[ecran.ajout].filter(Boolean).length;
     lignes.push(ecran.ajout === "tool"
-      ? "Drag a tool onto a slot, tap it for details — it arrives empty."
-      : "Drag a training onto a slot, tap it for details — each costs its own points.");
+      ? `Drag a tool onto a slot, tap for details — ${pris} of ${COLLECTEURS} picked.`
+      : `Drag a training onto a slot, tap for details — ${pris} of ${COLLECTEURS} picked.`);
   } else if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
@@ -741,6 +753,7 @@ function renderSelecteur(c, kind, surChangement) {
        la dalle faisaient déborder le sélecteur de 22 blg, et « il ne doit pas y avoir de
        scroll » (Eric, 07/09 04:2x). Une voix, un lieu. */
     consigne: null,
+    compte: false, // le compte vit dans l'aiguilleur aussi (Eric, 07/09 05:0x)
     onInfo: (slug) => {
       const view = catalogue.find((v) => (v.record.slug || v.id) === slug);
       const data = (view && view.record.data) || {};
@@ -845,12 +858,14 @@ export function renderSkillsStep(ctx, onAction) {
   /* La coupe d'Eric (07/09 03:3x) : 4 · aiguilleur · 8 · Bound · 4 · Free · 8 —
      les écarts sont ceux de la dalle, écrits une fois dans la feuille. */
   const tete = el("header", "skills-tete dalle-intermediaire");
-  tete.append(renderAiguilleur(c), el("div", "skills-comptes", [renderBound(c), renderFree(c)]));
+  const comptes = el("div", "skills-comptes", [renderBound(c), renderFree(c)]);
+  tete.append(renderAiguilleur(c), comptes);
   section.append(tete);
 
   /* ── LE TAMBOUR ET LA FENÊTRE — redessinés ensemble à chaque geste local
-     (page, liste entière) ; la dalle haute et le pied ne bougent pas, et le
-     pied garde la paire que la coquille y a posée. ── */
+     (page, liste entière) ; les comptes de la dalle haute et le pied ne bougent
+     pas, et le pied garde la paire que la coquille y a posée. L'AIGUILLEUR, lui,
+     se redit : sa 3ᵉ ligne porte le compte des collecteurs en mode sélecteur. ── */
   /* ── LE PIED, FIXE, DÉCLARÉ AVANT TOUT REDESSIN — la coquille le garnit (garde 17).
      La paire déclarée dépend du mode : Reset · Done/Next sur la page ; sur le
      sélecteur un SEUL bouton, large, qui dit ce qu'il fait — « Add tool » / « Add
@@ -860,15 +875,17 @@ export function renderSkillsStep(ctx, onAction) {
   pied.dataset.sortieIci = "true";
   const declarerLePied = () => {
     if (ecran.ajout) {
-      pied.dataset.sortieVerbe = "skillsAjoutFermer";
-      pied.dataset.sortieMot = ecran.ajout === "tool" ? "Add tool" : "Add training";
-      pied.dataset.sortieSansDone = "true";
+      /* Eric, 07/09 04:2x : *« Add tool et Cancel »* — Cancel (petit, 77) rend les
+         collecteurs ; Add tool (moyen, 105) les fait entrer, vides. */
+      pied.dataset.sortieVerbe = "skillsAjoutAnnuler";
+      pied.dataset.sortieMot = "Cancel";
+      pied.dataset.sortieDoneMot = ecran.ajout === "tool" ? "Add tool" : "Add training";
+      pied.dataset.sortieDoneVerbe = "skillsAjoutFermer";
       pied.dataset.selecteur = "oui";
-      delete pied.dataset.sortieDoneMot;
     } else {
       pied.dataset.sortieVerbe = "resetSkills";
       pied.dataset.sortieMot = "Reset";
-      delete pied.dataset.sortieSansDone;
+      delete pied.dataset.sortieDoneVerbe;
       delete pied.dataset.selecteur;
       pied.dataset.sortieDoneMot = c.signe ? "Next" : "Done";
     }
@@ -884,6 +901,7 @@ export function renderSkillsStep(ctx, onAction) {
   defilement.dataset.scroller = "skills";
   fenetre.append(defilement);
   const redessiner = () => {
+    swapContent(tete, [renderAiguilleur(c), comptes]);
     swapContent(tambourHote, [renderTambour(c, pages, redessiner)]);
     /* En mode sélecteur, la dalle 2 porte le sélecteur lui-même (il défile en
        bloc) ; sinon la fenêtre à lignes entières. Le pied change de paire avec lui. */

@@ -76,7 +76,7 @@ import { planAt, planSlots } from "./carnet.mjs?v=596";
 import { renderChoixGlisses } from "./glisser.mjs?v=596";
 import { renderConceptStep } from "./concept-step.mjs?v=596";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=596";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout } from "./skills-step.mjs?v=596";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=596";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
 } from "./catalogue.mjs?v=596";
@@ -1356,6 +1356,11 @@ function applyDecisionAction(action) {
      déclaré par l'hôte (`data-sortie-verbe`), fabriqué par la coquille. */
   if (action.kind === "skillsAjoutFermer") {
     skillsFermerAjout();
+    refresh();
+    return;
+  }
+  if (action.kind === "skillsAjoutAnnuler") {
+    skillsAnnulerAjout();
     refresh();
     return;
   }
@@ -4215,7 +4220,11 @@ function renderSortieEtape(hote) {
      partout où `Back` n'existe pas, dans l'autre sens. */
   /* 🏁 LE MOT DU `Done` SE DÉCLARE AUSSI (`data-sortie-done-mot`) : sur le bilan
      d'Abilities il dit `Next` — la même porte, le même geste, le mot du croquis. */
-  const done = ((cfgRetour && cfgRetour.sansDone) || decl.sortieSansDone === "true") ? null : button(decl.sortieDoneMot || "Done", () => pressDone());
+  /* 🔒 LOT 173 — un hôte peut déclarer le VERBE du bouton de droite (`data-sortie-done-verbe`) :
+     le sélecteur de Skills y met « Add tool » (verbe `skillsAjoutFermer`), qui n'est pas
+     le `Done` de l'étape — il ne signe rien. Sans déclaration, c'est `pressDone()`. */
+  const done = ((cfgRetour && cfgRetour.sansDone) || decl.sortieSansDone === "true") ? null
+    : button(decl.sortieDoneMot || "Done", () => (decl.sortieDoneVerbe ? applyDecisionAction({ kind: decl.sortieDoneVerbe }) : pressDone()));
   if (done) done.className = "sortie-bouton sortie-done";
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire

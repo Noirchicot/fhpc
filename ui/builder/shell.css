@@ -1843,12 +1843,21 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 /* « ÇA RECOUVRE, DE LINE BLEED » (Eric, 07/09 04:2x) : en mode sélecteur, la dalle 2
    perd son voile et s'étend jusqu'en bas — elle recouvre la dalle 3, dont la rangée
    (livre · Add tool · ?) vient vivre en son pied. */
-.skills-flux[data-ajout] { background: none; margin-bottom: 0; padding-bottom: 0; grid-template-rows: minmax(0, 1fr) auto; }
+.skills-flux[data-ajout] { background: none; margin-bottom: 0; padding-bottom: 0; row-gap: 0; grid-template-rows: minmax(0, 1fr) auto; }
+/* 📏 LE BUDGET DE LA 4ᵉ RANGÉE (mesuré au banc, 07/09 05:1x) : 4 rangées de 48 + 3 × 8
+   + 8 + collecteurs 48 = 272 blg. La dalle en offrait 266 + un `row-gap` de 8 avant le
+   pied : le gap tombe à 0 (le pied garde ses 4 au-dessus des boutons — la coupe d'Eric),
+   la ligne « 0 of 4 picked » part dans l'aiguilleur (15 + 8). 274 ≥ 272, sans scroll. */
 .skills-flux[data-ajout] .skills-pied { margin: 0; background: none; padding: var(--sp-4) 0 var(--sp-8); }
 /* Le bouton du sélecteur est LARGE (Eric, 07/09 : *« bouton large du coup »*) : un seul
    majeur dans la rangée, il dit ce qu'il fait — « Add tool » — et ne ressemble pas au
    `Done` de l'étape. Bleu : c'est un mouvement (§6), rien n'est signé. */
-.skills-pied[data-selecteur="oui"] .sortie-bouton { flex: 1 1 auto; max-width: 60%; --bouton-fond: var(--info); }
+/* « ADD TOOL ET CANCEL. LE BOUTON LARGE A UNE NORME DE LARGEUR, LE PETIT BOUTON AUSSI »
+   (Eric, 07/09 05:0x) : Cancel garde le petit (77, le défaut de `.sortie-bouton`) ;
+   Add tool / Add training prend le moyen (105, la cote d'`Inheritance`). Même
+   spécificité que l'interrupteur `.bouton-moyen` (0,3,1) : ici (0,3,1) aussi, écrit
+   PLUS BAS dans la feuille — l'ordre départage, la cote gagne. */
+.skills-pied[data-selecteur="oui"] .sortie-bouton.sortie-done { min-width: var(--bouton-moyen); --bouton-fond: var(--info); }
 /* La ligne « Add a tool » — Eric, 07/09 : *« un bouton rond de 40 blg de diamètre
    avec son petit relief, il est vert. Il occupe une ligne comme un skill : texte
    cadré à gauche, bouton cadré à droite, 8 blg du bord droit, tout en bas »*.

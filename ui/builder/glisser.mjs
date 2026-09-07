@@ -514,7 +514,7 @@ function fantomeSuivre(x, y) {
     `translate(${x / z - fantomeDemi[0]}px, ${y / z - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle, compte }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   /* 🔴 UNE RANGÉE DE SORTS SE RANGE PAR TROIS — Eric, 2026-08-29 : *« je veux
@@ -585,7 +585,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      — on CHOISIT des sorts, on DÉPENSE des points, et « 3 of 6 chosen » sur une
      bourse dirait au joueur qu'il lui reste trois choix quand il lui reste deux
      points. ⛔ L'organe ne le devine pas : l'appelant le dit. */
-  if (plan.expected > 1) {
+  /* ⚖️ `compte: false` — la déviation DÉCLARÉE : l'appelant qui porte le compte
+     AILLEURS (le sélecteur de Skills le dit dans son aiguilleur — Eric, 07/09 :
+     *« si on dégage le 0 of 4 picked ? l'aiguilleur en haut peut donner des infos
+     relatives à ce choix »*) le retire d'ici. Une voix, un lieu ; la ligne gagnée
+     (15 + 8) paie la quatrième rangée de jetons. */
+  if (plan.expected > 1 && compte !== false) {
     bloc.append(el("p", "choix-glisse-compte",
       [text(`${plan.answered} of ${plan.expected} ${unite || "chosen"}`)]));
   }

@@ -335,17 +335,21 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
      que ce verbe, et le test le rejoue en rendant à nouveau. */
   assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }]);
   const nodeSel = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
-  /* Le sélecteur est l'organe du glisser (Eric, 07/09 : « type spells ») : neuf jetons par
-     page — trois rangées de trois —, quatre collecteurs, et le pied déclare un seul bouton. */
+  /* Le sélecteur est l'organe du glisser (Eric, 07/09 : « type spells ») : douze jetons par
+     page — quatre rangées de trois, la 4ᵉ payée par la ligne du compte qui part dans
+     l'aiguilleur (Eric, 07/09 05:0x) —, quatre collecteurs, et le pied déclare Cancel + Add tool. */
   const selecteur = nodeSel.querySelectorAll(".skills-selecteur")[0];
   assert.ok(selecteur, "le sélecteur a pris la dalle");
-  assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 9, "trois rangées de trois");
+  assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 12, "quatre rangées de trois");
+  assert.equal(selecteur.querySelectorAll(".choix-glisse-compte").length, 0, "pas de « 0 of 4 picked » sous le vivier : il vit dans l'aiguilleur");
+  assert.match(nodeSel.querySelectorAll(".skills-aiguilleur")[0].textContent, /0 of 4 picked/, "l'aiguilleur porte le compte des collecteurs");
   assert.equal(selecteur.querySelectorAll(".glisse-creneau").length, 4, "quatre collecteurs");
   assert.equal(selecteur.querySelectorAll(".choix-glisse")[0].getAttribute("data-rangs"), "sorts", "trois par rangée, le régime des sorts, déclaré");
   const pied = nodeSel.querySelectorAll(".skills-pied")[0];
-  assert.equal(pied.getAttribute("data-sortie-verbe"), "skillsAjoutFermer");
-  assert.equal(pied.getAttribute("data-sortie-mot"), "Add tool", "le bouton dit ce qu'il fait, pas « Done » (Eric, 07/09)");
-  assert.equal(pied.getAttribute("data-sortie-sans-done"), "true", "un seul bouton, large, entre le livre et le ?");
+  assert.equal(pied.getAttribute("data-sortie-verbe"), "skillsAjoutAnnuler", "Cancel rend les collecteurs");
+  assert.equal(pied.getAttribute("data-sortie-mot"), "Cancel");
+  assert.equal(pied.getAttribute("data-sortie-done-mot"), "Add tool", "le bouton de droite dit ce qu'il fait, pas « Done » (Eric, 07/09)");
+  assert.equal(pied.getAttribute("data-sortie-done-verbe"), "skillsAjoutFermer", "et il n'est pas le Done de l'étape : il ne signe rien");
   /* Un jeton posé dans un collecteur vit dans l'état d'écran ; le Done du pied
      (verbe exécuté par la coquille) le fait entrer dans la page. */
   skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";
@@ -408,8 +412,8 @@ test("Trainings : les deux langues d'origine sont liées, un training s'achète 
   node.querySelectorAll(".skills-ajout")[0].click();
   const nodeSel = renderSkillsStep(ctxFrom(rogue, () => {}));
   const selecteur = nodeSel.querySelectorAll(".skills-selecteur")[0];
-  assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 9, "première page : neuf des dix trainings restants");
-  assert.equal(selecteur.querySelectorAll(".grille-compte")[0].textContent, "10", "13 moins les 3 déjà là : ce qui reste à prendre");
+  assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 10, "une seule page : les dix trainings restants tiennent dans douze");
+  assert.equal(selecteur.querySelectorAll(".grille-compte").length, 0, "13 moins les 3 déjà là tiennent sur une page : pas de pagineur");
   skillsReinitialiserEcran();
 });
 
