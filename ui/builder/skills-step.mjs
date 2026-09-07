@@ -509,12 +509,60 @@ function renderRonds({ nom, palier, plancher, path, c, violation }) {
   return wrap;
 }
 
+/** LE DÉTAIL D'UNE LIGNE — Eric, 07/09 04:0x : *« lien pour un popup expliquant le
+ *  skill en détails, autant de détails que nécessaire »*. Tout vient du record
+ *  (`example_uses`, `ability`, et pour un outil `utilize` · `craft` · `cost`) et du
+ *  moteur (le palier acquis, le bonus et sa décomposition, le barème du record de
+ *  classe, la provenance d'un lié). Rien n'est écrit ici qui ne soit lu. */
+function texteDuDetail({ nom, view, acquis, bonus, plancher, c }) {
+  const data = (view && view.record && view.record.data) || {};
+  const blocs = [];
+  const carac = data.ability ? `${data.ability} (${abilityLabel(data.ability_key)})` : abilityLabel(data.ability_key);
+  const mod = c.resolved.abilities && data.ability_key && c.resolved.abilities[data.ability_key]
+    ? c.resolved.abilities[data.ability_key].mod : null;
+  blocs.push(`Ability: ${carac}${Number.isInteger(mod) ? ` — your modifier ${signed(mod)}` : ""}.`);
+  if (data.example_uses) blocs.push(data.example_uses);
+  if (data.utilize) blocs.push(`Utilize: ${data.utilize}`);
+  if (data.craft) blocs.push(`Craft: ${data.craft}`);
+  if (data.cost) blocs.push(`Market price: ${data.cost}.`);
+  if (data.category) blocs.push(`${CATEGORY_LABEL[data.category] || data.category} skill.`);
+  const prof = c.resolved.proficiency;
+  if (rang(acquis) > 0 && Number.isInteger(bonus) && Number.isInteger(mod)) {
+    blocs.push(`Your tier: ${TIER_LABEL[acquis] || acquis} — bonus ${signed(bonus)} = ${abilityLabel(data.ability_key)} ${signed(mod)} + ${TIER_LABEL[acquis] || acquis} ${signed(bonus - mod)}.`);
+  } else if (Number.isInteger(mod)) {
+    blocs.push(`Not trained: you roll with your ${abilityLabel(data.ability_key)} modifier alone, ${signed(mod)}.`);
+  }
+  if (c.pool && c.pool.tier_costs && Number.isInteger(prof)) {
+    const t = c.pool.tier_costs;
+    const barème = c.tiers.map((k) => {
+      const gain = k === "novice" ? Math.floor(prof / 2) : k === "adept" ? prof : k === "expert" ? prof * 2 : null;
+      return `${TIER_LABEL[k] || k} ${t[k]} pt${t[k] > 1 ? "s" : ""}${Number.isInteger(gain) ? ` (${signed(gain)})` : ""}`;
+    }).join(" · ");
+    blocs.push(`Tiers, with your proficiency bonus of ${signed(prof)}: ${barème}. Tap a circle to buy, tap it again to give back.`);
+  }
+  if (rang(plancher) > 0) {
+    blocs.push(`Bound at ${TIER_LABEL[plancher] || plancher}: placed by your class or species, and it stays — change it on that step.`);
+  }
+  return blocs.join("\n\n");
+}
+
+/** Le nom d'une ligne est un LIEN (bleu) qui ouvre son détail. */
+function renderNomAvecDetail(nom, ouvrir) {
+  const b = bouton("skills-ligne-nom skills-ligne-lien", [text(nom)], ouvrir);
+  b.setAttribute("aria-label", `${nom} — details`);
+  return b;
+}
+
 function renderLigneSkill(skill, c) {
   const ligne = el("div", "skills-ligne");
   ligne.dataset.ligne = skill.id;
   const plancher = palierLie(c.decisions, skill.id);
   if (rang(plancher) > 0) ligne.dataset.lie = "oui";
-  ligne.append(el("span", "skills-ligne-nom", [text(skill.name)]));
+  const view = (c.query({ kind: "skill" }) || []).find((v) => v.record.slug === skill.id) || null;
+  ligne.append(renderNomAvecDetail(skill.name, () => c.act({
+    kind: "popup", titre: skill.name,
+    texte: texteDuDetail({ nom: skill.name, view, acquis: skill.proficiency, bonus: skill.bonus, plancher, c })
+  })));
   ligne.append(el("span", "skills-ligne-carac", [text(abilityLabel(skill.ability))]));
   ligne.append(el("span", "skills-ligne-bonus", [text(signed(skill.bonus))]));
   if (c.tiers.length > 0) {
@@ -546,7 +594,18 @@ function renderLigneTool(view, c) {
   const ligne = el("div", "skills-ligne");
   ligne.dataset.ligne = slug;
   if (lie) ligne.dataset.lie = "oui";
-  ligne.append(el("span", "skills-ligne-nom", [text(view.record.name)]));
+  /* « Remove » — Eric, 07/09 04:0x : le popup permet d'enlever un outil du tableau ;
+     ⛔ jamais un lié (*« au lvl 1 pour trainings c'est bloqué car ils sont bound »*).
+     Retirer = rendre sa dépense au pool ET oublier la ligne ajoutée sans point. */
+  const path = `fh.skills.spend.${slug}`;
+  ligne.append(renderNomAvecDetail(view.record.name, () => c.act({
+    kind: "popup", titre: view.record.name,
+    texte: texteDuDetail({
+      nom: view.record.name, view, acquis: owned ? owned.proficiency : "none", bonus: owned ? owned.bonus : null,
+      plancher: lie ? owned.proficiency : "none", c
+    }),
+    actions: lie ? [] : [{ mot: "Remove", defait: true, faire: () => { ecran.ajoutes.tool.delete(slug); c.act({ kind: "clear", path }); } }]
+  })));
   ligne.append(el("span", "skills-ligne-carac", [text(abilityLabel(abilityKey))]));
   const bonus = owned ? signed(owned.bonus)
     : (c.resolved.abilities && abilityKey && c.resolved.abilities[abilityKey]) ? signed(c.resolved.abilities[abilityKey].mod) : "—";
@@ -586,15 +645,17 @@ function renderLigneTraining({ view, slug, lie, acquis }, c) {
   const data = view.record.data || {};
   /* Le nom est BLEU et cliquable (Eric, 07/09) : il ouvre le popup de la
      chose — sa description et son prix viennent du record, jamais d'ici. */
+  const path = `fh.skills.train.${slug}`;
   const nom = bouton("skills-ligne-nom skills-ligne-lien", [text(view.record.name)], () => c.act({
     kind: "popup", titre: view.record.name,
-    texte: `${data.description || ""}${Number.isInteger(data.cost) ? `\n\nCost: ${data.cost} point${data.cost > 1 ? "s" : ""}.` : ""}${lie ? "\n\nBound — granted by your inheritance." : ""}`
+    texte: `${data.description || ""}${Number.isInteger(data.cost) ? `\n\nCost: ${data.cost} point${data.cost > 1 ? "s" : ""}.` : ""}${lie ? "\n\nBound — granted by your inheritance, it stays." : ""}`,
+    /* « Remove » sur un training libre ; un lié n'en a pas (Eric, 07/09). */
+    actions: lie ? [] : [{ mot: "Remove", defait: true, faire: () => { ecran.ajoutes.training.delete(slug); c.act({ kind: "clear", path }); } }]
   }));
   ligne.append(nom);
   ligne.append(el("span", "skills-ligne-carac", [text(data.category === "language" ? "LANG" : "")]));
   ligne.append(el("span", "skills-ligne-bonus", [text("")]));
   const ronds = el("div", "skills-ronds");
-  const path = `fh.skills.train.${slug}`;
   const b = bouton("skills-rond", [el("span", "skills-rond-marque", [text("●")])], () => {
     if (lie) { c.act({ kind: "popup", titre: "Bound", texte: texteDuBound(c) }); return; }
     if (acquis) c.act({ kind: "clear", path });

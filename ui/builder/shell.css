@@ -1129,6 +1129,14 @@ body {
   pointer-events: none;
 }
 .popup-texte { margin: 0; font-size: var(--t3); color: var(--text); }
+/* La rangée d'actions d'un popup (lot 173) — un groupe centré, comme toute rangée de
+   boutons (§6 pré) ; le bouton est celui de la sortie, sa teinte suit son mot. */
+.popup-actions { display: flex; justify-content: center; gap: var(--sp-8); margin-top: var(--sp-12); }
+/* La largeur de son mot, pas celle du popup : la famille `fiche-action` écrit
+   `width: 100 %` plus bas dans la feuille, à spécificité égale — d'où le sélecteur
+   composé (§7.8 : la cascade se mesure, elle ne se raisonne pas ; mesuré : pleine largeur). */
+.popup-actions .popup-action { width: auto; flex: 0 1 auto; min-width: 12ch; padding-inline: var(--sp-16); }
+.popup-action[data-defait="true"] { --bouton-fond: var(--critical); }
 /* §7 (26/08) — LES TROIS PASTILLES : un composant, trois teintes, trois
    intentions. Le GUIDE est le défaut et ne signale rien (parchemin — la
    surface elle-même) ; l'AIGUILLEUR prévient (bleu) ; le GENDARME dit
@@ -1689,7 +1697,10 @@ button { font: inherit; }
 }
 .skills-free-nombre { font-variant-numeric: tabular-nums; font-weight: 600; }
 /* LE SPENT PARCOURT L'ÉCHELLE (§6) — bleu en cours · vert au compte · rouge au-delà. */
-.skills-free-spent[data-etat="cours"] { color: var(--info); }
+/* En cours, le Spent est de l'ENCRE, pas du bleu : à côté des étiquettes bleues, un
+   nombre bleu lisait « lien » (Eric, 07/09 04:1x : *« le spent en bleu est incohérent
+   non ? »* — oui). Il ne prend une couleur qu'aux deux moments où elle dit quelque chose. */
+.skills-free-spent[data-etat="cours"] { color: var(--text); }
 .skills-free-spent[data-etat="compte"] { color: var(--positive); }
 .skills-free-spent[data-etat="trop"] { color: var(--critical); }
 /* La conclusion VERTE — l'étape est signée (Eric, 07/09 : *« phrase dans
@@ -1776,7 +1787,10 @@ button { font: inherit; }
 .skills-ligne-nom { font-size: var(--t3); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Le nom d'un training est BLEU et cliquable (Eric, 07/09) — un lien hors jeton
    est bleu (§1 ter bis³), et il ouvre le popup de la chose. */
-button.skills-ligne-lien { text-align: left; border: none; background: none; padding: 0; margin: 0; font: inherit; font-size: var(--t3); color: var(--info); text-decoration: underline; cursor: pointer; height: var(--skills-ligne); }
+/* Le nom d'un skill, d'un outil ou d'un training est un LIEN : le bleu des liens du
+   site (`--lien`, §1 ter bis³), jamais souligné — Eric, 07/09 04:1x : *« liens non
+   soulignés, comme partout ailleurs sur le site, et le bleu habituel »*. */
+button.skills-ligne-lien { text-align: left; border: none; background: none; padding: 0; margin: 0; font: inherit; font-size: var(--t3); color: var(--lien); text-decoration: none; cursor: pointer; height: var(--skills-ligne); }
 .skills-ligne-carac { font-size: var(--t2); color: var(--text-muted); }
 .skills-ligne-bonus { font-size: var(--t3); color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
 .skills-ligne-static { font-size: var(--t2); color: var(--text-muted); text-align: right; min-width: 6ch; }

@@ -143,6 +143,36 @@ test("un tap sur un rond vide émet UN verbe `set` au bon chemin ; sur un rond v
   ]);
 });
 
+/* ══ 2 bis — LE NOM EST UN LIEN : le détail vient du record et du moteur ═══ */
+
+test("le nom d'une compétence ouvre son détail — usage du record, carac, palier acquis et bonus décomposé, barème, provenance d'un lié", () => {
+  surLaPage(3); // Physical : Stealth, lié expert chez le Rogue
+  const rogue = rebuild(rogueDocument());
+  const actions = [];
+  const node = renderSkillsStep(ctxFrom(rogue, (a) => actions.push(a)));
+  const nom = ligne(node, "stealth").querySelectorAll(".skills-ligne-lien")[0];
+  assert.ok(nom, "le nom est un lien");
+  nom.click();
+  assert.equal(actions.length, 1);
+  assert.equal(actions[0].kind, "popup", "un popup, aucun verbe au document");
+  assert.equal(actions[0].titre, "Stealth");
+  const t = actions[0].texte;
+  const record = query({ kind: "skill" }).find((v) => v.record.slug === "stealth").record.data;
+  assert.ok(t.includes(record.example_uses), "l'usage vient du record, mot pour mot");
+  assert.match(t, /Ability: Dexterity \(DEX\)/);
+  const stealth = rogue.resolved.skills.find((s) => s.id === "stealth");
+  assert.match(t, new RegExp(`Your tier: Expert — bonus \\${stealth.bonus >= 0 ? "+" : "-"}${Math.abs(stealth.bonus)}`), "le bonus est celui du moteur");
+  assert.match(t, /Novice 1 pt .* · Adept 2 pts .* · Expert 4 pts/, "le barème vient de tier_costs");
+  assert.match(t, /Bound at Expert/, "et la provenance d'un lié est dite");
+  /* 🔴 LE TÉMOIN CONTRAIRE : une compétence non acquise dit qu'elle roule avec la carac seule. */
+  surLaPage(0);
+  const actions2 = [];
+  const node2 = renderSkillsStep(ctxFrom(rogue, (a) => actions2.push(a)));
+  ligne(node2, "appraise").querySelectorAll(".skills-ligne-lien")[0].click();
+  assert.match(actions2[0].texte, /Not trained/);
+  assert.equal(/Bound at/.test(actions2[0].texte), false);
+});
+
 /* ══ 3 — LE LIÉ : HALO VIOLET, CAPTIF, ET LE POPUP « BOUND » ══════════════ */
 
 test("un rond lié porte le halo, n'émet aucun verbe, et ouvre le popup Bound — le libre du même personnage se pose", () => {
@@ -315,6 +345,15 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   /* Son premier rond se paie au pool comme une compétence. */
   rond(node, "alchemist-s-supplies", 1).click();
   assert.deepEqual(actions, [{ kind: "set", path: "fh.skills.spend.alchemist-s-supplies", value: "novice" }]);
+  /* Le popup de l'outil porte « Remove » (Eric, 07/09) : il oublie la ligne ET rend la dépense. */
+  l.querySelectorAll(".skills-ligne-lien")[0].click();
+  const popup = actions[1];
+  assert.equal(popup.kind, "popup");
+  assert.equal(popup.actions.length, 1);
+  assert.equal(popup.actions[0].mot, "Remove");
+  popup.actions[0].faire();
+  assert.equal(skillsEcran().ajoutes.tool.has("alchemist-s-supplies"), false, "la ligne ajoutée est oubliée");
+  assert.deepEqual(actions[2], { kind: "clear", path: "fh.skills.spend.alchemist-s-supplies" }, "et la dépense est rendue");
   skillsReinitialiserEcran();
   assert.equal(skillsEcran().ajoutes.tool.size, 0, "Reset oublie l'ajout sans point");
 });
@@ -346,6 +385,10 @@ test("Trainings : les deux langues d'origine sont liées, un training s'achète 
   nom.click();
   assert.equal(actions[2].kind, "popup");
   assert.equal(actions[2].titre, "Garrot");
+  assert.equal(actions[2].actions[0].mot, "Remove", "un training libre se retire depuis son popup");
+  /* 🔴 LE TÉMOIN CONTRAIRE : une langue LIÉE n'offre pas Remove (Eric : « bloqué car bound »). */
+  elf.querySelectorAll(".skills-ligne-lien")[0].click();
+  assert.deepEqual(actions[3].actions, [], "un lié ne se retire pas d'ici");
   node.querySelectorAll(".skills-ajout")[0].click();
   const choix = [...node.querySelectorAll(".skills-choix")];
   assert.equal(choix.length, 13, "douze langues et le Garrot");

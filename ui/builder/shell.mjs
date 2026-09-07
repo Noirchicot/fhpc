@@ -1152,7 +1152,7 @@ function applyDecisionAction(action) {
        il ne signale rien) · aiguilleur (bleu, il prévient) · gendarme
        (rouge, il dit l'erreur). La teinte vit en CSS, jamais ici. */
     state.popup = action.texte
-      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide" }
+      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide", actions: action.actions || null }
       : null;
     refresh();
     return;
@@ -4596,6 +4596,25 @@ function paintPopup() {
      `innerHTML` — la coquille n'en a plus aucun depuis le lot 65. */
   for (const paragraphe of String(state.popup.texte).split("\n").filter((l) => l.trim() !== "")) {
     contenu.push(el("p", "popup-texte", [document.createTextNode(paragraphe)]));
+  }
+  /* 🔒 LOT 173 — UN POPUP PEUT PORTER DES ACTIONS (Eric, 07/09 04:0x : *« permettra
+     aussi d'avoir l'option d'enlever un tool ou training du tableau »*). Chaque action
+     est `{ mot, faire }` : le bouton n'émet qu'un geste, l'écran qui a ouvert le popup
+     sait ce qu'il fait ; le popup se ferme d'abord, le geste redessine ensuite. Le mot
+     dit le geste, et « Remove » DÉFAIT — donc le rouge de la famille (§6). */
+  if (Array.isArray(state.popup.actions) && state.popup.actions.length > 0) {
+    const rangee = el("div", "popup-actions");
+    for (const action of state.popup.actions) {
+      if (!action || typeof action.faire !== "function") continue;
+      const b = button(action.mot, () => { state.popup = null; action.faire(); });
+      /* ⛔ Pas la classe de la SORTIE (`sortie-back` n'a qu'un producteur, garde 17) :
+         c'est un bouton de fiche (`fiche-action`, l'octogone à libellé), et l'état
+         `data-defait` peint le rouge de ce qui coûte. */
+      b.className = "fiche-action popup-action";
+      b.dataset.defait = action.defait ? "true" : "false";
+      rangee.append(b);
+    }
+    contenu.push(rangee);
   }
   frame.popupLayer.show(contenu);
 }
