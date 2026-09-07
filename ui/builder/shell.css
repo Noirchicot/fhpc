@@ -1668,6 +1668,7 @@ button { font: inherit; }
   border: none; background: none; padding: 0; margin: 0; font: inherit;
   font-size: var(--t2); line-height: 1.5; text-transform: uppercase; letter-spacing: .04em;
   color: var(--lien); cursor: pointer; flex: none;
+  text-align: left; justify-self: start; /* un <button> centre son texte : FREE POINTS flottait sous BOUND POINTS (mesuré) */
   padding-block: calc((var(--touch) - 1.5em) / 2);
   margin-block: calc(-1 * (var(--touch) - 1.5em) / 2);
 }
