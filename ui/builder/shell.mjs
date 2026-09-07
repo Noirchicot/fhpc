@@ -76,7 +76,7 @@ import { planAt, planSlots } from "./carnet.mjs?v=596";
 import { renderChoixGlisses } from "./glisser.mjs?v=596";
 import { renderConceptStep } from "./concept-step.mjs?v=596";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=596";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran } from "./skills-step.mjs?v=596";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout } from "./skills-step.mjs?v=596";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
 } from "./catalogue.mjs?v=596";
@@ -1350,6 +1350,18 @@ function applyDecisionAction(action) {
   /* Chaque verbe REND `{document}` — il ne mute pas en place (contracts/
      build.md). C'est ce document-là qui doit passer à `rebuild`, jamais
      celui d'avant. */
+  /* 🔒 LOT 173 — le `Done` du sélecteur d'outils / trainings de Skills : il ferme le
+     sélecteur (les collecteurs entrent dans la page, vides), il n'écrit rien au
+     personnage — donc pas de `rebuild`, un redessin. Le bouton est celui du pied,
+     déclaré par l'hôte (`data-sortie-verbe`), fabriqué par la coquille. */
+  if (action.kind === "skillsAjoutFermer") {
+    skillsFermerAjout();
+    refresh();
+    return;
+  }
+  /* Le sélecteur s'OUVRE : l'écran a changé son état, la coquille redessine — le pied
+     change de paire, et c'est elle qui la fabrique. Aucune écriture au personnage. */
+  if (action.kind === "skillsRedessiner") { refresh(); return; }
   if (action.kind === "resetSkills") {
     /* LOT 39, décision n°2 — *Reset* ne rend que les points DÉPENSÉS : une
        suite de `clear` sur le MÊME document, un seul `rebuild` à la fin.

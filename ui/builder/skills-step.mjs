@@ -37,6 +37,7 @@
 import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=596";
 import { lienSkillFhWeb } from "./liens-fh.mjs?v=596";
 import { swapContent } from "./socle.mjs?v=596";
+import { renderChoixGlisses } from "./glisser.mjs?v=596";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
@@ -94,7 +95,15 @@ export function motDuVerrou(violation) {
 }
 
 /* ══ L'ÉTAT D'ÉCRAN — la page du tambour, les lignes ajoutées sans point ══ */
-const ecran = { page: 0, ajout: null, ajoutes: { tool: new Set(), training: new Set() } };
+const ecran = {
+  page: 0, ajout: null,
+  ajoutes: { tool: new Set(), training: new Set() },
+  /* Les quatre collecteurs du sélecteur (Eric, 07/09 04:1x : *« 4 collecteurs en
+     dessous »*) — ce qu'on y pose n'est ajouté qu'au `Done` du sélecteur. */
+  collecteurs: { tool: [null, null, null, null], training: [null, null, null, null] }
+};
+const COLLECTEURS = 4;
+const JETONS_PAR_PAGE = 9; // trois rangées de trois (Eric, 07/09)
 
 /** Lecture seule, pour les tests et la coquille. */
 export function skillsEcran() { return ecran; }
@@ -105,6 +114,19 @@ export function skillsReinitialiserEcran() {
   ecran.ajout = null;
   ecran.ajoutes.tool.clear();
   ecran.ajoutes.training.clear();
+  ecran.collecteurs.tool.fill(null);
+  ecran.collecteurs.training.fill(null);
+}
+
+/** Le `Done` du sélecteur (la coquille l'exécute, verbe `skillsAjoutFermer`) : ce
+ *  qui est dans les collecteurs rejoint la page, vide ; les collecteurs se vident. */
+export function skillsFermerAjout() {
+  const kind = ecran.ajout;
+  if (kind && ecran.collecteurs[kind]) {
+    for (const slug of ecran.collecteurs[kind]) if (slug) ecran.ajoutes[kind].add(slug);
+    ecran.collecteurs[kind].fill(null);
+  }
+  ecran.ajout = null;
 }
 
 /** Les chemins que `Reset` efface — TOUT ce qui est libre, RIEN de ce qui est
@@ -242,7 +264,11 @@ function renderAiguilleur(c) {
   /* La 3ᵉ ligne : le geste (Eric, 07/09 03:5x : *« tap to add, tap again to remove —
      dans l'aiguilleur »*) ; le compte, lui, est déjà sous les yeux (FREE POINTS ·
      Spent). Au compte exact, la ligne dit la sortie. */
-  if (c.compte) {
+  if (ecran.ajout) {
+    lignes.push(ecran.ajout === "tool"
+      ? "Drag a tool onto a slot, tap it for details — it arrives empty."
+      : "Drag a training onto a slot, tap it for details — each costs its own points.");
+  } else if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
       : "Tap a circle to add, tap it again to remove.");
@@ -672,36 +698,64 @@ function renderLigneTraining({ view, slug, lie, acquis }, c) {
   return ligne;
 }
 
-/* ══ LA LISTE ENTIÈRE — « Add a tool » / « Add a training » ═══════════════
-   Eric, 07/09 : *« un add a tool qui fait pop un écran avec toute la liste,
-   on en choisit un ou plus, Done »*. Elle prend la place de la page ; un tap
-   choisit ou dé-choisit ; ce qui est déjà listé est marqué et ne bouge pas.
-   Le choix n'écrit RIEN au personnage : l'objet arrive vide. */
-function renderListeEntiere(c, kind, surChangement) {
+/* ══ LE SÉLECTEUR — « Add a tool » / « Add a training » ═════════════════════
+   Eric, 07/09 04:1x : *« un sélecteur type spells : 3 rangées de 3 superposées = 9
+   avec navigation latérale, 4 collecteurs en dessous ; tu recouvres la dalle
+   inférieure ; un Done, rajoute le livre et ? »*. C'est l'organe du glisser
+   (`renderChoixGlisses`, celui des sorts et des bourses) : un vivier de jetons
+   paginé par neuf, quatre collecteurs ; au doigt, tap = info et glisser = choisir,
+   à la souris clic gauche = choisir (la loi du 16/08, portée par l'organe).
+   ⛔ Rien n'est écrit au personnage : les verbes du glisser sont repris ICI, dans
+   l'état d'écran, et le `Done` du pied (verbe `skillsAjoutFermer`, exécuté par
+   la coquille) fait entrer les collecteurs dans la page — vides. */
+function renderSelecteur(c, kind, surChangement) {
   const catalogue = (c.query({ kind }) || []).slice().sort((a, b) => a.record.name.localeCompare(b.record.name));
-  const dejaLa = new Set(kind === "tool"
-    ? outilsListes(c).map((v) => v.record.slug)
-    : trainingsListes(c).map((l) => l.slug));
-  const choisis = ecran.ajoutes[kind];
-  const page = el("div", "skills-page skills-liste-entiere");
+  const nomDe = new Map(catalogue.map((v) => [v.record.slug || v.id, v.record.name]));
+  const dejaLa = new Set(kind === "tool" ? outilsListes(c).map((v) => v.record.slug) : trainingsListes(c).map((l) => l.slug));
+  const options = catalogue.map((v) => v.record.slug || v.id).filter((slug) => !dejaLa.has(slug));
+  const col = ecran.collecteurs[kind];
+  const poses = col.filter(Boolean);
+  const racine = `skills.ajout.${kind}`;
+  const plan = { path: racine, options, selected: poses.slice(), answered: poses.length, expected: COLLECTEURS, status: poses.length > 0 ? "partial" : "open" };
+  const slots = col.map((slug, index) => ({
+    path: `${racine}.${index}`, index, options, selected: slug ? [slug] : [], lock: null,
+    mot: `${kind === "tool" ? "Tool" : "Training"} ${index + 1}`
+  }));
+  const local = (action) => {
+    const index = Number(String(action.path).slice(racine.length + 1));
+    if (!Number.isInteger(index) || index < 0 || index >= COLLECTEURS) return;
+    if (action.kind === "set") {
+      const deja = col.indexOf(action.value);
+      if (deja >= 0) col[deja] = null; // un jeton ne vit qu'à une place
+      col[index] = action.value;
+    } else if (action.kind === "clear") {
+      col[index] = null;
+    }
+    surChangement();
+  };
+  const bloc = renderChoixGlisses({
+    plan, slots, titre: null, mot: kind === "tool" ? "Tool" : "Training",
+    labelOf: (slug) => nomDe.get(slug) || slug,
+    onAction: local, parPage: JETONS_PAR_PAGE, unite: "picked", rangee: "sorts",
+    /* La consigne vit dans l'AIGUILLEUR (3ᵉ ligne), pas ici : deux lignes de plus dans
+       la dalle faisaient déborder le sélecteur de 22 blg, et « il ne doit pas y avoir de
+       scroll » (Eric, 07/09 04:2x). Une voix, un lieu. */
+    consigne: null,
+    onInfo: (slug) => {
+      const view = catalogue.find((v) => (v.record.slug || v.id) === slug);
+      const data = (view && view.record.data) || {};
+      c.act({
+        kind: "popup", titre: nomDe.get(slug) || slug,
+        texte: kind === "tool"
+          ? texteDuDetail({ nom: nomDe.get(slug), view, acquis: "none", bonus: null, plancher: "none", c })
+          : `${data.description || ""}${Number.isInteger(data.cost) ? `\n\nCost: ${data.cost} point${data.cost > 1 ? "s" : ""}.` : ""}`
+      });
+    }
+  });
+  const page = el("div", "skills-selecteur");
   page.dataset.liste = kind;
-  page.append(el("p", "skills-liste-consigne", [text(kind === "tool"
-    ? "Pick the tools to add — they arrive empty, fill them with free points."
-    : "Pick the trainings to add — a language, a weapon… each costs its own points.")]));
-  for (const view of catalogue) {
-    const slug = view.record.slug || view.id;
-    const deja = dejaLa.has(slug) && !choisis.has(slug);
-    const b = bouton("skills-choix", [text(view.record.name)], deja ? null : () => {
-      if (choisis.has(slug)) choisis.delete(slug); else choisis.add(slug);
-      surChangement();
-    });
-    b.dataset.slug = slug;
-    if (deja) { b.disabled = true; b.dataset.deja = "oui"; }
-    markPressed(b, deja || choisis.has(slug));
-    page.append(b);
-  }
-  const done = bouton("fiche-action skills-liste-done", [text("Done")], () => { ecran.ajout = null; surChangement(); });
-  page.append(el("div", "skills-liste-pied", [done]));
+  if (bloc) page.append(bloc);
+  else page.append(el("p", "skills-vide", [text("Nothing left to add.")]));
   return page;
 }
 
@@ -709,10 +763,12 @@ function renderListeEntiere(c, kind, surChangement) {
  *  son petit relief, il est vert. Il occupe une ligne comme un skill : le texte
  *  cadré à gauche, le bouton cadré à droite, 8 blg du bord »*, *« tout en bas »*.
  *  Le disque fait 40 dans une cible de 44 — ce qui rétrécit est le dessin. */
-function renderLigneAjout(mot, kind, surChangement) {
+function renderLigneAjout(mot, kind, act) {
   const ligne = el("div", "skills-ligne skills-ligne-ajout");
   ligne.append(el("span", "skills-ligne-nom", [text(mot)]));
-  const b = bouton("skills-ajout", [el("span", "skills-ajout-signe", [text("+")])], () => { ecran.ajout = kind; surChangement(); });
+  /* Ouvrir le sélecteur change la paire du pied : c'est la coquille qui la fabrique,
+     donc c'est elle qui redessine (`skillsRedessiner`), pas un redessin local. */
+  const b = bouton("skills-ajout", [el("span", "skills-ajout-signe", [text("+")])], () => { ecran.ajout = kind; act({ kind: "skillsRedessiner" }); });
   b.setAttribute("aria-label", mot);
   ligne.append(b);
   return ligne;
@@ -724,7 +780,7 @@ function renderPage(c, pages, surChangement) {
   const page = pages[cur];
   if (!page) return el("p", "placeholder", [text("No skills to spend on yet — pick a class first.")]);
   if (ecran.ajout && (page.id === "tools" || page.id === "trainings")) {
-    return renderListeEntiere(c, page.id === "tools" ? "tool" : "training", surChangement);
+    return renderSelecteur(c, page.id === "tools" ? "tool" : "training", surChangement);
   }
   const wrap = el("div", "skills-page");
   wrap.dataset.page = page.id;
@@ -732,14 +788,14 @@ function renderPage(c, pages, surChangement) {
     const liste = outilsListes(c);
     if (liste.length === 0) wrap.append(el("p", "skills-vide", [text("No tools yet.")]));
     for (const view of liste) wrap.append(renderLigneTool(view, c));
-    wrap.append(renderLigneAjout("Add a tool", "tool", surChangement));
+    wrap.append(renderLigneAjout("Add a tool", "tool", c.act));
     return wrap;
   }
   if (page.id === "trainings") {
     const liste = trainingsListes(c);
     if (liste.length === 0) wrap.append(el("p", "skills-vide", [text("No trainings yet.")]));
     for (const l of liste) wrap.append(renderLigneTraining(l, c));
-    wrap.append(renderLigneAjout("Add a training", "training", surChangement));
+    wrap.append(renderLigneAjout("Add a training", "training", c.act));
     return wrap;
   }
   for (const skill of page.skills) wrap.append(renderLigneSkill(skill, c));
@@ -795,6 +851,28 @@ export function renderSkillsStep(ctx, onAction) {
   /* ── LE TAMBOUR ET LA FENÊTRE — redessinés ensemble à chaque geste local
      (page, liste entière) ; la dalle haute et le pied ne bougent pas, et le
      pied garde la paire que la coquille y a posée. ── */
+  /* ── LE PIED, FIXE, DÉCLARÉ AVANT TOUT REDESSIN — la coquille le garnit (garde 17).
+     La paire déclarée dépend du mode : Reset · Done/Next sur la page ; sur le
+     sélecteur un SEUL bouton, large, qui dit ce qu'il fait — « Add tool » / « Add
+     training » (Eric, 07/09 04:2x : *« pour éviter la confusion avec la vraie étape
+     de validation avec Done »*) — entre le livre et le `?`. ── */
+  const pied = el("div", "skills-pied dalle-intermediaire");
+  pied.dataset.sortieIci = "true";
+  const declarerLePied = () => {
+    if (ecran.ajout) {
+      pied.dataset.sortieVerbe = "skillsAjoutFermer";
+      pied.dataset.sortieMot = ecran.ajout === "tool" ? "Add tool" : "Add training";
+      pied.dataset.sortieSansDone = "true";
+      pied.dataset.selecteur = "oui";
+      delete pied.dataset.sortieDoneMot;
+    } else {
+      pied.dataset.sortieVerbe = "resetSkills";
+      pied.dataset.sortieMot = "Reset";
+      delete pied.dataset.sortieSansDone;
+      delete pied.dataset.selecteur;
+      pied.dataset.sortieDoneMot = c.signe ? "Next" : "Done";
+    }
+  };
   const tambourHote = el("div", "skills-tambour-hote");
   const fenetre = el("div", "skills-flux dalle-simple");
   /* « LES SKILLS NE SONT JAMAIS COUPÉS » (Eric, 07/09 03:5x) : la dalle garde sa
@@ -807,29 +885,38 @@ export function renderSkillsStep(ctx, onAction) {
   fenetre.append(defilement);
   const redessiner = () => {
     swapContent(tambourHote, [renderTambour(c, pages, redessiner)]);
-    swapContent(defilement, [renderPage(c, pages, redessiner)]);
-    if (typeof defilement.scrollTo === "function") defilement.scrollTo(0, 0);
+    /* En mode sélecteur, la dalle 2 porte le sélecteur lui-même (il défile en
+       bloc) ; sinon la fenêtre à lignes entières. Le pied change de paire avec lui. */
+    declarerLePied();
+    if (ecran.ajout) {
+      /* Le sélecteur RECOUVRE la dalle 3 (Eric : *« tu recouvres la dalle inférieure »*,
+         *« ça descend jusqu'en bas, de line bleed »*) : la dalle 2 s'étend jusqu'en bas
+         et le pied — la rangée que la coquille garnit — vient vivre dedans. */
+      fenetre.dataset.ajout = ecran.ajout;
+      swapContent(fenetre, [renderPage(c, pages, redessiner), pied]);
+    } else {
+      delete fenetre.dataset.ajout;
+      swapContent(fenetre, [defilement]);
+      swapContent(defilement, [renderPage(c, pages, redessiner)]);
+      if (typeof defilement.scrollTo === "function") defilement.scrollTo(0, 0);
+      section.append(pied);
+    }
   };
+  section.append(tambourHote, fenetre, pied);
   redessiner();
   armerLeGlisser(fenetre, pages, redessiner);
-  section.append(tambourHote, fenetre);
 
   /* ── LE PIED, FIXE : la coquille le garnit (garde 17). L'hôte DÉCLARE sa
      paire : `Reset` (rouge, tout sauf le lié) à la place du retour, `Done` qui
      devient `Next` une fois l'étape signée (Eric, 07/09 : *« Done on valide…
      Next on part »*). Le livre mène au tableau des 26 (*« chapitre skills sur
      le tableau »*). ── */
-  const pied = el("div", "skills-pied dalle-intermediaire");
-  pied.dataset.sortieIci = "true";
-  pied.dataset.sortieVerbe = "resetSkills";
-  pied.dataset.sortieMot = "Reset";
-  pied.dataset.sortieDoneMot = c.signe ? "Next" : "Done";
+  declarerLePied();
   const livre = bouton("fiche-livre livre-de-sortie", [], () => {
     if (typeof window !== "undefined" && typeof window.open === "function") window.open(lienSkillFhWeb(""), "_blank", "noopener");
   });
   livre.setAttribute("aria-label", "Skills — read the table of the 26 skills on FH Web");
   pied.append(livre);
-  section.append(pied);
   return section;
 }
 

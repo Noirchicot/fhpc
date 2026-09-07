@@ -1815,7 +1815,40 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .skills-rond[data-lie="oui"]::before { box-shadow: 0 0 0 3px var(--lie); }
 .skills-rond[data-lie="oui"] { cursor: help; }
 
-/* ── ADD, ET LA LISTE ENTIÈRE ── */
+/* ── ADD, ET LE SÉLECTEUR ── */
+/* Le sélecteur (le glisser des sorts) prend la dalle 2 entière et défile en bloc
+   s'il déborde ; ses cotes (vivier 3 × 3, collecteurs) sont celles de `listes.css`. */
+.skills-flux[data-ajout] { grid-template-rows: minmax(0, 1fr); }
+/* « IL NE DOIT PAS Y AVOIR DE SCROLL » (Eric, 07/09 04:2x) : 3 × 3 jetons, le compte,
+   quatre collecteurs et la rangée du pied tiennent dans la dalle 2 étendue jusqu'en bas
+   (mesuré : ~300 dans 332). La dalle ne défile pas. */
+.skills-selecteur { min-height: 0; overflow: hidden; padding: 0; }
+.skills-selecteur .choix-glisse { margin: 0; }
+/* TROIS JETONS PAR RANGÉE, DANS 351 : le vivier vit entre deux colonnes de chevron
+   (44 + 4 chacune) → 255 blg pour trois jetons ; le socle (87) en demande 277.
+   NORMES §1 ter ter : *« sur un grand écran le socle plafonne, à l'étroit le tiers
+   gagne et le vide cède, jamais l'organe »* — la cote se déduit ICI de la largeur du
+   vivier (mesuré : la formule du socle se résout sur la dalle, pas sur le vivier, et
+   rendait 87 → deux par rangée). Résultat : (255 − 16) / 3 = 79 blg. */
+/* ⛔ Pas une règle de largeur sur le `li` : celle de `listes.css` (`:has(.grille-rang) … > li`)
+   pèse plus, et elle lit `--case-cedee` — c'est le JETON qu'on redéfinit, pas la règle
+   qu'on double. Le pourcentage se résout là où le jeton est lu.
+   ⚖️ UN COLLECTEUR ET SON JETON ONT UNE SEULE COTE (§1 ter bis) : les deux formules
+   rendent le même nombre par deux chemins — dans le vivier (255 = 351 − deux colonnes
+   de chevron), (100 % − 16) / 3 ; dans la rangée des collecteurs (351), on retire ces
+   deux colonnes avant de diviser. Mesuré : 79 des deux côtés, quatre collecteurs sur
+   une ligne (4 × 79 + 3 × 8 = 340 < 351). */
+.skills-selecteur .grille-rang > .glisse-vivier > li { --case-cedee: calc((100% - 2 * var(--sp-8)) / 3); }
+.skills-selecteur .glisse-creneaux > .glisse-creneau { --case-cedee: calc((100% - 2 * (var(--touch) + var(--sp-4)) - 2 * var(--sp-8)) / 3); }
+/* « ÇA RECOUVRE, DE LINE BLEED » (Eric, 07/09 04:2x) : en mode sélecteur, la dalle 2
+   perd son voile et s'étend jusqu'en bas — elle recouvre la dalle 3, dont la rangée
+   (livre · Add tool · ?) vient vivre en son pied. */
+.skills-flux[data-ajout] { background: none; margin-bottom: 0; padding-bottom: 0; grid-template-rows: minmax(0, 1fr) auto; }
+.skills-flux[data-ajout] .skills-pied { margin: 0; background: none; padding: var(--sp-4) 0 var(--sp-8); }
+/* Le bouton du sélecteur est LARGE (Eric, 07/09 : *« bouton large du coup »*) : un seul
+   majeur dans la rangée, il dit ce qu'il fait — « Add tool » — et ne ressemble pas au
+   `Done` de l'étape. Bleu : c'est un mouvement (§6), rien n'est signé. */
+.skills-pied[data-selecteur="oui"] .sortie-bouton { flex: 1 1 auto; max-width: 60%; --bouton-fond: var(--info); }
 /* La ligne « Add a tool » — Eric, 07/09 : *« un bouton rond de 40 blg de diamètre
    avec son petit relief, il est vert. Il occupe une ligne comme un skill : texte
    cadré à gauche, bouton cadré à droite, 8 blg du bord droit, tout en bas »*.
@@ -1832,12 +1865,8 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
   box-shadow: inset 0 1px 0 var(--verre-lisere), inset 0 -3px 0 color-mix(in srgb, var(--positive) 70%, var(--text)), 0 1px 2px var(--spy-halo);
 }
 .skills-ajout-signe { grid-area: 1 / 1; font-size: var(--t6); line-height: 1; color: var(--on-accent); pointer-events: none; }
-/* Le `Done` de la liste entière referme un choix fini → le vert du gabarit, à la largeur de son mot. */
-.skills-liste-pied { display: flex; justify-content: center; padding: var(--sp-8) 0 var(--sp-4); }
-.skills-liste-pied .fiche-action { width: auto; flex: 0 1 auto; min-width: 14ch; padding-inline: var(--sp-16); }
-.skills-choix { display: flex; align-items: center; min-height: var(--touch); text-align: left; border: none; background: none; padding: 0 var(--sp-8); margin: 0; font: inherit; font-size: var(--t3); color: var(--text); border-radius: var(--radius-md); cursor: pointer; }
-.skills-choix[data-active="true"] { background: color-mix(in srgb, var(--positive) 18%, transparent); color: var(--text); font-weight: 600; }
-.skills-choix[data-deja="oui"] { color: var(--text-muted); cursor: default; }
+/* 🧊 La liste entière à cases (`.skills-choix`, `.skills-liste-pied`) est partie le
+   07/09 à 04:1x, remplacée par le sélecteur du glisser — ses règles avec elle. */
 
 /* ══ LES ÉCRANS À CATALOGUE — Class et Species, lots 58/60 ════════════════════════════════════════
    Deux colonnes (B2.1) : un rail étroit à gauche (dans `.stage-aside`, hors

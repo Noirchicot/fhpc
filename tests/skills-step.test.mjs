@@ -23,7 +23,7 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { makeHarness, manifestOf, SRD_FR, HOMEBREW } from "./build-harness.mjs";
 globalThis.document = createTestDocument();
 const {
-  renderSkillsStep, skillsValidate, skillsCategories, skillsEcran, skillsReinitialiserEcran, skillsCheminsDeReset
+  renderSkillsStep, skillsValidate, skillsCategories, skillsEcran, skillsReinitialiserEcran, skillsCheminsDeReset, skillsFermerAjout
 } = await import("../ui/builder/skills-step.mjs");
 
 const fixture = exempleFhEn();
@@ -331,19 +331,35 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   const add = node.querySelectorAll(".skills-ajout")[0];
   assert.equal(add.getAttribute("aria-label"), "Add a tool");
   add.click();
-  const choix = [...node.querySelectorAll(".skills-choix")];
-  assert.equal(choix.length, 37, "la liste entière : les 37 outils de la pile, lus sur la couche");
-  const alchimie = () => [...node.querySelectorAll(".skills-choix")].find((c) => c.getAttribute("data-slug") === "alchemist-s-supplies");
-  alchimie().click();
-  /* La liste se REDESSINE au tap (état d'écran) : on relit le nœud, jamais l'ancien. */
-  assert.equal(alchimie().getAttribute("data-active"), "true");
-  node.querySelectorAll(".skills-liste-done")[0].click();
-  const l = ligne(node, "alchemist-s-supplies");
+  /* Ouvrir demande un redessin à la COQUILLE (le pied change de paire) — l'écran n'émet
+     que ce verbe, et le test le rejoue en rendant à nouveau. */
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }]);
+  const nodeSel = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  /* Le sélecteur est l'organe du glisser (Eric, 07/09 : « type spells ») : neuf jetons par
+     page — trois rangées de trois —, quatre collecteurs, et le pied déclare un seul bouton. */
+  const selecteur = nodeSel.querySelectorAll(".skills-selecteur")[0];
+  assert.ok(selecteur, "le sélecteur a pris la dalle");
+  assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 9, "trois rangées de trois");
+  assert.equal(selecteur.querySelectorAll(".glisse-creneau").length, 4, "quatre collecteurs");
+  assert.equal(selecteur.querySelectorAll(".choix-glisse")[0].getAttribute("data-rangs"), "sorts", "trois par rangée, le régime des sorts, déclaré");
+  const pied = nodeSel.querySelectorAll(".skills-pied")[0];
+  assert.equal(pied.getAttribute("data-sortie-verbe"), "skillsAjoutFermer");
+  assert.equal(pied.getAttribute("data-sortie-mot"), "Add tool", "le bouton dit ce qu'il fait, pas « Done » (Eric, 07/09)");
+  assert.equal(pied.getAttribute("data-sortie-sans-done"), "true", "un seul bouton, large, entre le livre et le ?");
+  /* Un jeton posé dans un collecteur vit dans l'état d'écran ; le Done du pied
+     (verbe exécuté par la coquille) le fait entrer dans la page. */
+  skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";
+  skillsFermerAjout();
+  assert.equal(skillsEcran().ajout, null, "le sélecteur est refermé");
+  assert.deepEqual(skillsEcran().collecteurs.tool, [null, null, null, null], "les collecteurs sont rendus");
+  const node2 = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  assert.equal(node2.querySelectorAll(".skills-pied")[0].getAttribute("data-sortie-mot"), "Reset", "le pied retrouve Reset · Done");
+  const l = ligne(node2, "alchemist-s-supplies");
   assert.ok(l, "l'outil ajouté a sa ligne");
   assert.deepEqual(ronds(l).map((b) => b.getAttribute("data-active")), ["false", "false", "false"], "il arrive VIDE — Eric, 07/09");
   assert.deepEqual(actions, [], "et RIEN n'a été écrit au personnage : l'ajout est un état d'écran");
   /* Son premier rond se paie au pool comme une compétence. */
-  rond(node, "alchemist-s-supplies", 1).click();
+  rond(node2, "alchemist-s-supplies", 1).click();
   assert.deepEqual(actions, [{ kind: "set", path: "fh.skills.spend.alchemist-s-supplies", value: "novice" }]);
   /* Le popup de l'outil porte « Remove » (Eric, 07/09) : il oublie la ligne ET rend la dépense. */
   l.querySelectorAll(".skills-ligne-lien")[0].click();
@@ -390,9 +406,10 @@ test("Trainings : les deux langues d'origine sont liées, un training s'achète 
   elf.querySelectorAll(".skills-ligne-lien")[0].click();
   assert.deepEqual(actions[3].actions, [], "un lié ne se retire pas d'ici");
   node.querySelectorAll(".skills-ajout")[0].click();
-  const choix = [...node.querySelectorAll(".skills-choix")];
-  assert.equal(choix.length, 13, "douze langues et le Garrot");
-  assert.equal(choix.filter((c) => c.getAttribute("data-deja") === "oui").length, 3, "ce qui est déjà là est marqué et inerte");
+  const nodeSel = renderSkillsStep(ctxFrom(rogue, () => {}));
+  const selecteur = nodeSel.querySelectorAll(".skills-selecteur")[0];
+  assert.equal(selecteur.querySelectorAll(".glisse-jeton").length, 9, "première page : neuf des dix trainings restants");
+  assert.equal(selecteur.querySelectorAll(".grille-compte")[0].textContent, "10", "13 moins les 3 déjà là : ce qui reste à prendre");
   skillsReinitialiserEcran();
 });
 

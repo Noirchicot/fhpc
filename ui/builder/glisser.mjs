@@ -539,8 +539,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      donc un régime se mettait à battre un autre par accident (les six caracs
      repassées au socle et rangées 3 + 3). Trois valeurs d'un même attribut ont
      la MÊME spécificité et ne peuvent pas se battre : une seule est vraie. */
+  /* 🔒 LOT 173 — le régime `sorts` SE DÉCLARE aussi (`rangee: "sorts"`), comme
+     `caracs` : le sélecteur d'outils de Skills range ses jetons par trois sans être
+     un écran de sorts (Eric, 07/09 : *« 3 rangées de 3 superposées »*). Le mot
+     dit le régime, le genre du record ne le devine plus seul. */
   bloc.dataset.rangs = rangeeStyle === "caracs" ? "caracs"
-    : refKind === "spell" ? "sorts" : "skills";
+    : (rangeeStyle === "sorts" || refKind === "spell") ? "sorts" : "skills";
   /* 📏 ET LA RANGÉE LA PLUS DENSE SE DÉCLARE — précision du 29/08 au soir.
      La cote cédée divisait par la LOI des collecteurs (4) même quand l'écran
      n'a qu'UN créneau : à 360, Identity rendait des cases de 78 et la tête
