@@ -279,8 +279,8 @@ function renderAiguilleur(c) {
        choix »*), pas sous le vivier : la ligne gagnée paie la 4ᵉ rangée. */
     const pris = ecran.collecteurs[ecran.ajout].filter(Boolean).length;
     lignes.push(ecran.ajout === "tool"
-      ? `Tap a tool to read it and Select it, or drag it onto a slot — ${pris} of ${COLLECTEURS} picked.`
-      : `Tap a training to read it and Select it, or drag it onto a slot — ${pris} of ${COLLECTEURS} picked.`);
+      ? `Tap a tool to read it, or drag it to a slot — ${pris} of ${COLLECTEURS} picked.`
+      : `Tap a training to read it, or drag it to a slot — ${pris} of ${COLLECTEURS} picked.`);
   } else if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
