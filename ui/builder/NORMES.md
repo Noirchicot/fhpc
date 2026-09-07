@@ -2620,6 +2620,41 @@ parchemin clair serait invisible. `box-shadow: 0 0 6px 1px`, sur `[aria-current=
 
 ---
 
+### 📐 LA MARGE HAUTE DE DESTINY R2 — 4 en haut, 0 en bas, et ⛔ pas 16
+📍 `budget-destiny-r2-marge-haute` · vivante · 07/09
+⚖️ **L'écran final de Destiny (R2) porte 4 blg de marge au-dessus et 0 en dessous — ⛔ il ne prend PAS les 16 du défaut des autres écrans du parcours.**
+
+> **Eric**, 2026-09-07 : *« Destiny R2, la marge sous le belt doit augmenter de 4 »*.
+
+🔴 **ET LA MOITIÉ QUI COMPTE EST LA SECONDE : R2 NE REJOINT PAS LES AUTRES.** Eux prennent **16**
+*(`.decision-card { margin-block: var(--sp-16) }`, `shell.css:1298`)* ; R2 prend **4**. Eric a
+demandé *« augmenter de 4 »* — **de 0 à 4** — ⛔ **pas un alignement**. Un lot qui « harmoniserait »
+à 16 en croyant finir le travail défera sa cote.
+
+📏 **D'OÙ VENAIT LE ZÉRO, ET CE N'EST PAS UN OUBLI.** La marge valait **0** et c'était **déclaré** :
+`.decision-card:has(> .card-step > .card-final) { height: 100%; margin-block: 0 }`
+*(`shell.css:8892`)*. ⛔ Cette ligne n'a **pas** été posée pour retirer l'espace — elle appartient à
+la **chaîne de hauteur du 30/08** *(« ça doit rester dans le cadre que j'ai dessiné »)*, et ses deux
+voisines immédiates ne portent que `height: 100%`. **La marge est tombée en effet de bord.**
+⭐ *Une cote perdue par effet de bord se retrouve dans la déclaration qui l'a emportée, jamais là où
+on la cherche.*
+
+📏 **LA CASCADE EST MESURÉE, ET IL N'Y A QU'UN ÉCRIVAIN.** `:has()` prend la spécificité de son
+argument le plus spécifique : `.decision-card:has(> .card-step > .card-final)` pèse **0-3-0**
+*(une classe + deux dans l'argument)* contre **0-1-0** pour `.decision-card` seul — elle gagne
+**quel que soit l'ordre du fichier**. Les deux autres `margin-block: 0` posées sur ce sélecteur
+visent `equipment-step` et `parcours-item-dalle`, **jamais** `card-final`.
+📌 *(Le relais annonçait 0-2-0 ; le compte exact est 0-3-0. La conclusion ne change pas, et une cote
+fausse dans le corpus voyage — c'est pour ça qu'elle est recomptée ici.)*
+
+⚠️ **CETTE COTE EST PROUVÉE PAR LA FEUILLE, ⛔ PAS PAR L'ŒIL — et le siège qui l'a codée le dit
+lui-même.** Le volet de prévisualisation lit le `launch.json` du **checkout principal**, partagé par
+deux autres sièges ; ouvrir un banc depuis un worktree aurait sali leur arbre. ⭐ *Un rendu se
+REGARDE avant livraison* reste la loi — ici elle n'a pas pu être tenue, et **c'est écrit plutôt que
+masqué**. ⏳ La première capture de R2 confirmera les 4 blg, ou les démentira.
+
+📌 Lot `174-destiny-r2-marge`, commit `15f1bf7`, **1833/1833** — ⛔ non poussé.
+
 ## 4 quater bis. 📐 LE GABARIT DE L'ÉCRAN FINAL DE DESTINY *(figé au banc, 2026-09-03)*
 📍 `budget-gabarit-ecran-final-destiny` · vivante · 03/09
 ⚖️ **Le gabarit de l'écran final de Destiny est FIGÉ : chaque nombre y est un relevé sur la page rendue à 375 × 500 blg, jamais une intention.**
@@ -2939,14 +2974,21 @@ pas le même écart : il se comporte différemment dès qu'autre chose bouge.*
 📍 `cadre-ce-que-rang-change-et-rien-autre` · vivante · ?
 ⚖️ **Le RANG décide de ce que l'écran montre et d'où mène son retour ; ⛔ aucun état n'est retenu — un rang se lit, il ne se mémorise pas.**
 
-| | B2 (l'aperçu) | SB2 (l'écran final) |
+> ✍️ **VOCABULAIRE RECOUSU LE 2026-09-07** : ce tableau disait *« SB2 (l'écran final) »*. Depuis le
+> 06/09, l'écran final de Destiny est un **`R2`** — `vocabulaire-r-de-depart-r-d-arrivee` le nomme
+> nommément parmi ses deux usages établis. ⛔ `SB2` n'est pas faux comme RANG, il est **périmé pour
+> cet écran-là** : le chiffre y nomme désormais un TEMPS de la racine, pas une page du chemin de
+> choix. ⭐ *Un vocabulaire renversé laisse derrière lui des tableaux qui n'ont rien fait de mal — et
+> que rien ne signale.*
+
+| | B2 (l'aperçu) | R2 (l'écran final) |
 |---|---|---|
 | voyant · Score · `Done` | ⛔ absents | ✅ présents |
 | vibrations | **inertes**, encre de corps | liens `--lien`, popup |
 | fenêtres de prose | **libres** | plafonnées à 4 lignes, défilantes |
 | le retour | `Cancel` → le **R** | `Cancel` → **B2** |
 
-🔴 **LE PLAFOND DE PROSE RESTE VITAL EN SB2** : c'est lui qui fait tenir les 22 cartes dans les
+🔴 **LE PLAFOND DE PROSE RESTE VITAL EN R2** : c'est lui qui fait tenir les 22 cartes dans les
 500 blg — la pire y est à **498**. Le lever là-bas casserait le budget ; l'aperçu, lui, flotte dans
 une rangée de 500 et peut grandir.
 ⭐ **LE RANG DÉCIDE, AUCUN ÉTAT N'EST RETENU.** Le même bouton mène à deux endroits selon le rang où
