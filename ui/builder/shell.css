@@ -1843,12 +1843,16 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 /* « ÇA RECOUVRE, DE LINE BLEED » (Eric, 07/09 04:2x) : en mode sélecteur, la dalle 2
    perd son voile et s'étend jusqu'en bas — elle recouvre la dalle 3, dont la rangée
    (livre · Add tool · ?) vient vivre en son pied. */
-.skills-flux[data-ajout] { background: none; margin-bottom: 0; padding-bottom: 0; row-gap: 0; grid-template-rows: minmax(0, 1fr) auto; }
+/* « IL FAUT QUE LA DALLE SOIT À 35 % DE VOILE ET QU'ON NE VOIE PAS DE LIGNES BLANCHES
+   ENTRE LES COLLECTEURS ET LES BOUTONS » (Eric, 07/09 05:2x) : la dalle 2 garde son
+   voile (`dalle-simple`, 35 %) jusqu'en bas ; le pied qui vit dedans perd son propre
+   voile ET son liseré — une seule dalle, pas une boîte dans la boîte. */
+.skills-flux[data-ajout] { margin-bottom: 0; padding-bottom: 0; row-gap: 0; grid-template-rows: minmax(0, 1fr) auto; }
 /* 📏 LE BUDGET DE LA 4ᵉ RANGÉE (mesuré au banc, 07/09 05:1x) : 4 rangées de 48 + 3 × 8
    + 8 + collecteurs 48 = 272 blg. La dalle en offrait 266 + un `row-gap` de 8 avant le
    pied : le gap tombe à 0 (le pied garde ses 4 au-dessus des boutons — la coupe d'Eric),
    la ligne « 0 of 4 picked » part dans l'aiguilleur (15 + 8). 274 ≥ 272, sans scroll. */
-.skills-flux[data-ajout] .skills-pied { margin: 0; background: none; padding: var(--sp-4) 0 var(--sp-8); }
+.skills-flux[data-ajout] .skills-pied { margin: 0; background: none; box-shadow: none; padding: var(--sp-4) var(--sp-8) var(--sp-8); }
 /* Le bouton du sélecteur est LARGE (Eric, 07/09 : *« bouton large du coup »*) : un seul
    majeur dans la rangée, il dit ce qu'il fait — « Add tool » — et ne ressemble pas au
    `Done` de l'étape. Bleu : c'est un mouvement (§6), rien n'est signé. */
