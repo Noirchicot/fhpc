@@ -359,19 +359,25 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   assert.equal(pied.getAttribute("data-sortie-mot"), "Cancel");
   assert.equal(pied.getAttribute("data-sortie-done-mot"), "Add tool", "le bouton de droite dit ce qu'il fait, pas « Done » (Eric, 07/09)");
   assert.equal(pied.getAttribute("data-sortie-done-verbe"), "skillsAjoutFermer", "et il n'est pas le Done de l'étape : il ne signe rien");
-  /* « UNE SÉLECTION = HALO VERT » (Eric, 07/09 06:2x) : un tap prend le jeton (premier
-     collecteur libre, `data-active` + `aria-pressed`), un second le rend. */
+  /* ══ L'ALTERNATIVE AU GLISSER-DÉPOSER (Eric, 07/09 13:2x) — méthode 1 : le tap LIT,
+     et le pied de la description porte Close · Select ; Select place dans le premier
+     collecteur libre (halo vert, `data-active` + `aria-pressed`) ; sur un jeton pris, le
+     tap rouvre le détail avec Drop. Méthode 2, le glisser, reste celle du socle. */
   const jeton = selecteur.querySelectorAll(".glisse-jeton")[0];
   assert.equal(jeton.getAttribute("aria-pressed"), "false", "libre : la bascule est déclarée, à faux");
   jeton.dispatchEvent({ type: "pointerdown", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   jeton.dispatchEvent({ type: "pointerup", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
-  assert.equal(skillsEcran().collecteurs.tool[0], jeton.getAttribute("data-valeur"), "le tap au doigt POSE dans le premier collecteur — il n'inspecte plus");
-  const emis = actions.splice(0);
-  assert.equal(emis[0].kind, "popup", "« tap sur un tool doit afficher sa description » (Eric, 07/09) : la prise ouvre le détail");
-  assert.equal(emis[0].titre, "Alchemist’s Supplies");
-  assert.match(emis[0].texte, /Intelligence/, "le détail est celui du record — l'aptitude de l'outil");
-  assert.deepEqual(emis[1], { kind: "skillsRedessiner" }, "et un collecteur qui change demande le redessin à la coquille : c'est elle qui tient la porte d'Add tool");
+  assert.equal(skillsEcran().collecteurs.tool[0], null, "le tap au doigt LIT, il ne pose pas");
+  const lu = actions.splice(0);
+  assert.equal(lu.length, 1);
+  assert.equal(lu[0].kind, "popup", "le tap ouvre le détail");
+  assert.equal(lu[0].titre, "Alchemist’s Supplies");
+  assert.match(lu[0].texte, /Intelligence/, "le détail est celui du record — l'aptitude de l'outil");
+  assert.deepEqual(lu[0].actions.map((a) => `${a.mot}${a.defait ? "!" : ""}`), ["Close", "Select"], "au pied : Close · Select (« Back » est le mot du pied de la coquille, garde 17)");
   assert.equal(pied.getAttribute("data-sortie-done-pret"), "false", "vide : « Add tool » déclaré éteint");
+  lu[0].actions[1].faire();
+  assert.equal(skillsEcran().collecteurs.tool[0], jeton.getAttribute("data-valeur"), "Select place dans le premier collecteur libre");
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "et demande le redessin à la coquille : c'est elle qui tient la porte d'Add tool");
   const nodePris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   const pris = nodePris.querySelectorAll(".glisse-jeton")[0];
   assert.equal(pris.getAttribute("data-active"), "true", "le jeton pris porte le halo vert");
@@ -379,8 +385,24 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   assert.equal(pris.disabled, false, "et reste vivant");
   pris.dispatchEvent({ type: "pointerdown", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   pris.dispatchEvent({ type: "pointerup", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
-  assert.equal(skillsEcran().collecteurs.tool[0], null, "le second tap le rend");
-  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "le retrait ne rouvre pas le détail");
+  const relu = actions.splice(0);
+  assert.deepEqual(relu[0].actions.map((a) => `${a.mot}${a.defait ? "!" : ""}`), ["Close", "Drop!"], "sur un jeton pris : Close · Drop (rouge, il défait)");
+  relu[0].actions[1].faire();
+  assert.equal(skillsEcran().collecteurs.tool[0], null, "Drop le rend");
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }]);
+  /* Close ne touche à rien : il rend la main et redessine. */
+  relu[0].actions[0].faire();
+  assert.equal(skillsEcran().collecteurs.tool[0], null);
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }], "Close revient sans écrire");
+  /* 🖱️ MÉTHODE 2 AU CLIC GAUCHE : la souris POSE sans lire (le socle), et sur un jeton
+     pris elle le rend. */
+  const nodeSouris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
+  const j2 = nodeSouris.querySelectorAll(".glisse-jeton")[1];
+  j2.dispatchEvent({ type: "pointerdown", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
+  j2.dispatchEvent({ type: "pointerup", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
+  assert.equal(skillsEcran().collecteurs.tool[0], j2.getAttribute("data-valeur"), "clic gauche : posé, sans popup");
+  assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }]);
+  skillsEcran().collecteurs.tool[0] = null;
   /* ⭐ ET « ADD TOOL » IMPORTE : le collecteur pris devient une ligne de la page. */
   skillsEcran().collecteurs.tool[0] = "alchemist-s-supplies";
   skillsFermerAjout();

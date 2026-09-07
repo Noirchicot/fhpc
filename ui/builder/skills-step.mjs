@@ -279,8 +279,8 @@ function renderAiguilleur(c) {
        choix »*), pas sous le vivier : la ligne gagnée paie la 4ᵉ rangée. */
     const pris = ecran.collecteurs[ecran.ajout].filter(Boolean).length;
     lignes.push(ecran.ajout === "tool"
-      ? `Tap a tool to pick it and read it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`
-      : `Tap a training to pick it and read it, tap again to drop it — ${pris} of ${COLLECTEURS} picked.`);
+      ? `Tap a tool to read it and Select it, or drag it onto a slot — ${pris} of ${COLLECTEURS} picked.`
+      : `Tap a training to read it and Select it, or drag it onto a slot — ${pris} of ${COLLECTEURS} picked.`);
   } else if (c.compte) {
     lignes.push(c.compte.left === 0
       ? `All ${c.compte.budget} free points placed — Done to settle.`
@@ -745,13 +745,7 @@ function renderSelecteur(c, kind) {
          se rend (« tap to add, tap again to remove », la loi de l'écran). */
       const deja = col.indexOf(action.value);
       if (deja >= 0) col[deja] = null;
-      else {
-        col[index] = action.value;
-        /* « Tap sur un tool doit afficher sa description » (Eric, 07/09 13:1x) : la
-           prise ouvre le détail — le même popup que le nom sur la ligne. Le retrait
-           (second tap) ne dit rien : on sait déjà ce qu'on rend. */
-        c.act({ kind: "popup", titre: nomDe.get(action.value) || action.value, texte: texteDuJeton(action.value) });
-      }
+      else col[index] = action.value;
     } else if (action.kind === "clear") {
       col[index] = null;
     }
@@ -768,12 +762,27 @@ function renderSelecteur(c, kind) {
        scroll » (Eric, 07/09 04:2x). Une voix, un lieu. */
     consigne: null,
     compte: false, // le compte vit dans l'aiguilleur aussi (Eric, 07/09 05:0x)
-    /* ⛔ PAS D'`onInfo` ICI — Eric, 07/09 06:2x : *« add a tool ne fonctionne pas, dans ce
-       cas une sélection = halo vert »*. Avec `onInfo`, le tap au doigt INSPECTE et seul le
-       glisser pose ; sans lui, le tap POSE (premier collecteur libre) au doigt comme à la
-       souris. Le détail d'un outil se lit ensuite sur sa ligne (le nom est un lien).
-       `reutilisable` : le jeton pris reste vivant — c'est le second tap qui le rend. */
-    reutilisable: true
+    /* ══ L'ALTERNATIVE AU GLISSER-DÉPOSER — Eric, 07/09 13:2x ══════════════════════
+       « Méthode 1 : tap (clic droit) pour lire ; au pied de la description, Select
+       place directement dans le collecteur, Back revient ; tap en dehors quitte le
+       popup. Méthode 2 : drag and drop dans le collecteur. » (règle remise à la Bible)
+       · `onInfo` : le tap au doigt et le clic droit ouvrent le détail — le même popup
+         que le nom sur la ligne — avec SES boutons : Close · Select (ou Drop, rouge,
+         si le jeton est déjà pris). Le clic gauche pose, comme partout au socle.
+       · `reutilisable` : le jeton pris reste vivant (halo vert, `markPressed`) — un
+         second tap rouvre le détail avec Drop, un clic gauche le rend. */
+    reutilisable: true,
+    onInfo: (slug) => {
+      const pris = col.includes(slug);
+      /* « Close », pas « Back » : `Back` est le mot du pied de la coquille, écrit une fois
+         (garde 17 — *« Back ne fait que reculer »*) ; ici le bouton FERME le détail, comme
+         le tap en dehors, il ne recule d'aucun écran. */
+      const revenir = { mot: "Close", faire: () => c.act({ kind: "skillsRedessiner" }) };
+      const choisir = pris
+        ? { mot: "Drop", defait: true, faire: () => { col[col.indexOf(slug)] = null; c.act({ kind: "skillsRedessiner" }); } }
+        : { mot: "Select", faire: () => { const libre = col.indexOf(null); if (libre >= 0) col[libre] = slug; c.act({ kind: "skillsRedessiner" }); } };
+      c.act({ kind: "popup", titre: nomDe.get(slug) || slug, texte: texteDuJeton(slug), actions: [revenir, choisir] });
+    }
   });
   /* Le halo vert du jeton pris — la même bascule que les ronds (`markPressed`) : le
      jeton dit son état (`data-active` + `aria-pressed`), la feuille le peint. */
