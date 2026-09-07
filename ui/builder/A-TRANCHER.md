@@ -314,7 +314,25 @@
 **Question : pourquoi `Identity` porte sa trilogie complète en R1 et la perd en R2 (le bilan), et est-ce voulu ?**
 
 - 📏 **Relevé écran par écran le 2026-09-06 à 14:31** par le siège BOUTONS, sur un personnage-témoin avec une classe choisie. Douze rangées inspectées ; **cinq n'ont pas de livre**.
-- ⚖️ **QUATRE SONT CLOSES PAR ERIC LE MÊME JOUR** : *« Sheet et Équipement, Skills et Menu **sont à reconstruire**, donc on peut les laisser tranquille pour le moment »*. ⛔ On n'y touche pas — réparer le pied d'un écran qu'on va démonter, c'est payer deux fois. *(Même raison que pour les interrupteurs du Menu, tranchée à 03:2x.)*
+- ⚖️ **QUATRE SONT CLOSES PAR ERIC LE 06/09** : *« Sheet et Équipement, Skills et Menu **sont à reconstruire**, donc on peut les laisser tranquille pour le moment »* — réparer le pied d'un écran qu'on va démonter, c'est payer deux fois.
+- 🔴 **⛔ ET CETTE CONSIGNE NE VISE QUE L'HABILLAGE — PRÉCISÉ LE 2026-09-08, PARCE QU'ELLE ALLAIT BLOQUER UN LOT.** Eric, le 08/09 : *« j'ai besoin de voir un builder fonctionnel. Donc **de finir le chapitre Équipement**. Ensuite Menu. Ensuite Sheet. »*
+
+  | | ce que la consigne vise | ce qu'elle autorise |
+  |---|---|---|
+  | **06/09** | l'**HABILLAGE** — le pied, le livre manquant, le gris des bascules | ⛔ ne pas repeindre un écran qu'on va démonter |
+  | **08/09** | la **FONCTION** — *finir* Équipement, puis Menu, puis Sheet | ✅ **construire est demandé**, dans cet ordre |
+
+  ⛔ **Écrite sans cette précision, la ligne du 06/09 se lit « on n'y touche pas » et un siège qui ouvre Équipement REFUSE de travailler** — et il aurait raison, sur le texte. ⭐ *Même famille que le `SB2` recousu la veille : **un texte qui n'a pas bougé peut cesser d'être vrai parce que ce qu'il vise a changé.***
+  📌 ⚖️ **`NORMES.md:socle-on-laisse-tranquille-ce-qui-marche` ne bloquait PAS**, contrairement à ce qu'on m'annonçait : sa phrase porte déjà *« …ou **un mot d'Eric** »*, et Eric a parlé le 08/09. **La clause d'exception était écrite ; c'est `C25` qui n'en avait aucune.**
+- 📏 **ET LE BLOCAGE RÉEL D'ÉQUIPEMENT EST AILLEURS — mesuré le 08/09 dans `layers/srd-5.2.1-en.layer.json`** :
+
+  | | `cost_gp` | `weight_lb` | typé À CÔTÉ, sur les mêmes records |
+  |---|---:|---:|---|
+  | `gear` · `armor` · `weapon` *(133)* | **0** | **0** | ✅ `ac_base` **13** · `damage_dice` **38** |
+
+  ⭐ **L'EXTRACTEUR SAIT DÉJÀ DÉRIVER UN CHAMP TYPÉ DEPUIS SA PROSE VOISINE** — `armor_class: "14 + Dex modifier (max 2)"` coexiste avec `ac_base: 14` — ⛔ **mais jamais pour le prix ni le poids**, qui existent sur les 133 en prose seule *(`"cost"` **168** occurrences, `"weight"` **158**)*.
+  🔴 **CE N'EST DONC PAS UN TROU DE CONTENU** : `socle-ecran-ne-peut-pas-rendre-contenu-qui-n-est-pas-ecrit` **ne s'applique pas** — la donnée EST écrite. C'est **un champ non extrait**, et c'est un lot de couche, pas d'écran.
+  📌 **Et l'ordre d'Eric a une raison mesurée, pas un goût** : *« la v2 du Player Companion va utiliser la section Équipement et une partie de Skills »* — Équipement passe devant parce que **le Companion en dépend**.
 - 🔴 **LA CINQUIÈME N'EST PAS DANS SA LISTE, ET ELLE EST D'UNE AUTRE NATURE** : `Identity` porte **livre · majeurs · `?`** en **R1**, et **perd son livre en R2** *(le bilan, après le `Done`)*. Ce n'est pas un écran à reconstruire : c'est **le même écran** qui a l'organe avant et ne l'a plus après.
 - Règles concernées : `bouton-deux-largeurs` · `vocabulaire-r-de-depart-r-d-arrivee` · §6 pré *(la trilogie dans une cellule, cadrage g/centre/d)*
 - ⭐ **ET LA CAUSE EST PROBABLEMENT STRUCTURELLE, PAS LOCALE** : le `?` est posé **par la coquille**, une fois, pour tous les écrans ; le **livre est fabriqué par SEPT écrans différents** (`abilities-step` · `catalogue` · `concept-step` · `destiny-step` · `parcours-ecrans` ×2). ⛔ Un organe que chaque écran doit se rappeler de poser **sera oublié par ceux qui l'oublient** — et `NORMES` le dit déjà, pour le `?` : *« il est posé par la coquille, une fois, sur toutes les étapes — **jamais par un écran, qui pourrait l'oublier** »*. **La règle existait ; elle n'avait jamais été appliquée au livre.**
@@ -371,7 +389,14 @@
 - ⚠️ **ET LA TENSION À NOTER, PARCE QU'ELLE VIENT D'ÊTRE CRÉÉE LE MÊME SOIR** : `socle-chacun-est-proprietaire-de-ses-donnees` dit que les données du personnage appartiennent **au joueur**. Un exemplaire chez le MJ est donc **une copie** — à qui appartient-elle, et que devient-elle quand le joueur modifie son personnage ? ⛔ **Aucune réponse ici** : c'est précisément ce qu'Eric a demandé de laisser mûrir (*« on reste à l'état de règle »*), et une réponse écrite maintenant durcirait le concept avant l'heure.
 - 📌 Relayée par ARCHI 32. ⛔ Rien à faire : **une ligne à garder, pas un chantier.**
 
-## C28 — Les lois du PRODUIT n'ont aucun corpus, et huit sur dix ne sont écrites nulle part { #c28 }
+## C28 — ✅ TRANCHÉE — il y aura QUATRE Bibles, et cinq lois attendent la leur { #c28 }
+
+> ✅ **ERIC A RÉPONDU LE 2026-09-08.** ⛔ Pas une Bible SOWLREACH unique — *« je crains que ça fasse une trop grosse Bible »* — mais **quatre** : **Builder** *(celle-ci)* · **Companion** *(n'existe pas encore, naîtra avec la V2)* · **Web** *(le livre)* · **Produit** — *« l'orientation, le positionnement du produit est une Bible en elle-même »*.
+> ➡️ **La question posée ci-dessous a donc sa réponse : un LIEU, pas le logbook.** Sa matière est le document `SOWLREACH — Le produit et le premier chemin` *(§8 porte les dix arbitrages)*.
+> ⏳ **Ce qui reste, et ce n'est pas tranché** : *quand* la Bible du Produit se construit, et *qui* la tient. ⛔ Un chantier, pas un lot — et pas une décision de siège.
+> ⚠️ **Jusque-là, les cinq lois non gravées restent inopposables** : la parole du MJ bat le JSON · jamais de preuve d'achat · BYO-AI · guidé/expert · SOWLREACH est gratuit. Le tableau ci-dessous dit lesquelles.
+
+
 
 **Question : où vivent les lois qui régissent le produit — ni un organe du builder, ni une page du livre ?**
 
