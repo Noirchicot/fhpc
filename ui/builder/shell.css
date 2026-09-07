@@ -6492,7 +6492,10 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    🔴 « TOUTES LES LARGEURS DE DALLES HOMOGÈNES » (Eric, 03:4x) : mesuré, le pied
    faisait 352 quand les trois autres dalles faisaient 337 — il n'avait pas les
    gouttières de 8 des autres. Les quatre dalles portent la même marge latérale. */
-.skills-pied { padding: var(--sp-4) var(--sp-8) var(--sp-8); margin: var(--sp-4) var(--sp-8) var(--sp-8); }
+/* ⚖️ 4 SOUS LES BOUTONS — « exception à la règle » (Eric, 07/09 03:5x), nommée : §6 pré
+   cote 8 sous la rangée jusqu'au bord de la dalle ; ici, Eric a repris ces 4 blg pour
+   la fenêtre. L'exception vit sur CETTE dalle, elle ne change pas la cote des autres. */
+.skills-pied { padding: var(--sp-4) var(--sp-8); margin: var(--sp-4) var(--sp-8) var(--sp-8); }
 /* ⛔ LA RANGÉE DE LA COQUILLE APPORTE SON PROPRE REMBOURRAGE (`.sortie` : 20 en haut,
    12 en bas, mesuré) — dans cette dalle, c'est la DALLE qui cote (4 · boutons · 8,
    Eric 07/09 : *« t'as pas 4 blg au-dessus de Done et 8 blg sous Done »*). La
@@ -6590,8 +6593,12 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    ⭐ Les cotes sont celles des groupes de compétences (`.skills-group`, juste
    au-dessus) : deux dalles du même écran qui se rembourrent de deux façons
    commencent à diverger au premier réglage. */
-/* La coupe d'Eric (07/09) : 4 en haut, 8 en bas, 4 de marge vers la molette. */
-.skills-tete { margin: var(--sp-8) var(--sp-8) var(--sp-4); padding: var(--sp-4) var(--sp-8) var(--sp-8); }
+/* La coupe d'Eric (07/09) : 4 en haut, 4 en bas (*« 4 blg sous Free points avant la
+   fin de dalle »*, 03:5x), 4 de marge vers la molette. */
+.skills-tete { margin: var(--sp-8) var(--sp-8) 0; padding: var(--sp-4) var(--sp-8); }
+/* ⛔ Aucune marge basse ici : l'écart de 4 vers la molette est celui de la molette
+   (`.skills-tambour-hote`), sinon les deux s'additionnaient — 8 mesuré, 4 voulu
+   (Eric, 07/09 : *« 4 blg au-dessus et en dessous de la molette »*). */
 /* 📏 ET LE BAS DE LA BANDE REND SA MARGE — 12 px mesurés sous le calcul du
    pool (et 16 sous la ligne d'Expertise). Ils séparaient ce bloc d'un contenu
    qui n'est plus derrière lui : la grille a cessé de le suivre le jour où il
