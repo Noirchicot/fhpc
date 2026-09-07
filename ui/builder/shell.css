@@ -1784,6 +1784,8 @@ button { font: inherit; }
    Tools vide se tassait sur ses deux lignes et le pied remontait. */
 .skills-page { display: flex; flex-direction: column; gap: var(--sp-4); padding: 0 var(--sp-8); }
 .skills-vide, .skills-liste-consigne { margin: 0; font-size: var(--t2); color: var(--text); padding: var(--sp-4) 0; }
+/* « No tools yet » : italique, centré — Eric, 07/09 04:1x. Une ligne d'attente, pas un objet. */
+.skills-vide { font-style: italic; text-align: center; height: var(--skills-ligne); display: grid; align-items: center; padding: 0; }
 .skills-ligne { display: grid; grid-template-columns: minmax(0, 1fr) 3.5ch 3.5ch auto; align-items: center; gap: var(--sp-4); height: var(--skills-ligne); }
 .skills-ligne-nom { font-size: var(--t3); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* Le nom d'un training est BLEU et cliquable (Eric, 07/09) — un lien hors jeton
