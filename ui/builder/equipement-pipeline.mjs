@@ -71,16 +71,89 @@ function bouton(mot, classe, surClic, note) {
    maison. */
 export const TAUX_EN_GP = { pp: 10, gp: 1, sp: 0.1, cp: 0.01 };
 
-/** « 25 GP » · « 2 sp » · « 1,500 GP » → { pp, gp, sp, cp }. Une chaîne sans
- *  montant lisible (ou « — ») rend null : l'objet n'a PAS de prix connu, et
- *  l'écran doit le dire au lieu d'afficher 0 (une absence n'est jamais 0). */
+/* ══ LIRE UN NOMBRE DANS LA PROSE DU LIVRE ═══════════════════════════════════
+   Le SRD écrit le prix et le poids EN TOUTES LETTRES — « 25 GP », « 1 lb. » ;
+   en français « 25 po », « 0,5 kg ». Ces deux lecteurs en DÉRIVENT un nombre.
+   ⛔ Ils ne réécrivent RIEN : `data.cost` et `data.weight` restent la chaîne du
+   livre, intactes. Le SRD ne se réécrit jamais — on le lit.
+
+   ⚠️ LES DEUX VIRGULES NE DISENT PAS LA MÊME CHOSE, et c'est le défaut qu'on
+   répare : en anglais « 1,000 GP » la virgule sépare les MILLIERS, en français
+   « 0,5 kg » elle sépare les DÉCIMALES. L'ancien `replace(/,/g, "")` global
+   lisait donc « 0,5 kg » comme 5 kg. La règle est POSITIONNELLE : virgule (ou
+   espace) suivie d'EXACTEMENT trois chiffres = milliers ; sinon = décimale.
+
+   📏 MESURÉ sur les deux couches (158 records portent les deux champs) avant
+   d'écrire une ligne. Les quatre formes qui cassaient l'ancien lecteur :
+     « 1/2 lb. » → il rendait 2    (miroir, potion, sac : 4× trop lourds)
+     « 1/4 lb. » → il rendait 4    (la fléchette : 16× trop lourde)
+     « 58½ lb. » → il rendait null (le paquetage le plus lourd ne pesait rien)
+     toute la couche FR → 0 prix lu sur 158, 0 poids lu sur 158
+   ⭐ La couche FR a servi de SECONDE LECTURE, en sens inverse : « 1/2 lb. » y
+   est « 250 g » et « 1/4 lb. » y est « 125 g » — l'édition française confirme
+   0,5 et 0,25, et prouve que le 2 et le 4 de l'ancien lecteur étaient faux. */
+
+const FRACTIONS = { "½": 0.5, "¼": 0.25, "¾": 0.75, "⅓": 1 / 3, "⅔": 2 / 3 };
+
+/** « 1 000 » · « 1,000 » · « 0,5 » · « 1/2 » · « 58½ » → un nombre, ou `null`
+ *  si ce n'en est pas un. ⛔ Jamais 0 en cas de doute : `null` dit « je n'ai
+ *  pas lu », 0 dirait « c'est gratuit / ça ne pèse rien » — deux faits opposés. */
+function lisNombre(brut) {
+  let s = String(brut).trim();
+  s = s.replace(/(\d)[\s,](?=\d{3}(?!\d))/g, "$1");   /* les milliers s'effacent */
+  s = s.replace(",", ".");                             /* ce qui reste est décimal */
+  const colle = s.match(/^(\d*)\s*([½¼¾⅓⅔])$/);        /* « 58½ » */
+  if (colle) return (colle[1] ? Number(colle[1]) : 0) + FRACTIONS[colle[2]];
+  const frac = s.match(/^(\d+)\/(\d+)$/);              /* « 1/2 » */
+  if (frac) return Number(frac[2]) === 0 ? null : Number(frac[1]) / Number(frac[2]);
+  return /^\d+(\.\d+)?$/.test(s) ? Number(s) : null;
+}
+
+/* Les deux vocabulaires de pièces. 1 pp = 10 gp · 1 gp = 10 sp · 1 sp = 10 cp
+   (donc 1 gp = 100 cp) — les taux du SRD, déjà nommés par `TAUX_EN_GP`.
+   ⚠️ `cp` (copper) et `pc` (pièce de cuivre) sont le même mot à l'envers : la
+   table les distingue par la LANGUE, jamais par un retournement de lettres. */
+const PIECES = { gp: "gp", sp: "sp", cp: "cp", pp: "pp", po: "gp", pa: "sp", pc: "cp" };
+
+/** « 25 GP » · « 2 sp » · « 1,500 GP » · « 1 000 po » → { pp, gp, sp, cp }.
+ *  Une chaîne sans montant lisible (« — », « Varies », « Variable ») rend null :
+ *  l'objet n'a PAS de prix connu, et l'écran doit le dire au lieu d'afficher 0
+ *  (une absence n'est jamais 0).
+ *  ⭐ LA LECTURE EST ANCRÉE (ancrée des deux bouts), et ce n'est pas de la coquetterie : dix
+ *  `class-option` portent « 1 Sorcery Point » dans le MÊME champ `cost`. Une
+ *  lecture non ancrée y attrapait un nombre et facturait un don de sorcier en
+ *  or. Un point de Sorcellerie n'est pas une monnaie : il se REFUSE. */
 export function parseCout(chaine) {
   if (typeof chaine !== "string") return null;
-  const m = chaine.replace(/,/g, "").match(/([\d.]+)\s*(pp|gp|sp|cp)/i);
+  const m = chaine.trim().match(/^(.+?)\s*(gp|sp|cp|pp|po|pa|pc)\.?(\s*\([^)]*\))?$/i);
   if (!m) return null;
+  const montant = lisNombre(m[1]);
+  if (montant === null) return null;
   const cout = { pp: 0, gp: 0, sp: 0, cp: 0 };
-  cout[m[2].toLowerCase()] = Number(m[1]);
+  cout[PIECES[m[2].toLowerCase()]] = montant;
   return cout;
+}
+
+/* Les unités de masse des deux éditions. ⚠️ Le gramme se RAMÈNE au kilo : la
+   couche FR mélange « 1 kg » et « 250 g » sur la même page, et sommer 250 avec
+   1 sans regarder l'unité donnerait un sac de 251. ⛔ En revanche la livre et
+   le kilo ne se convertissent JAMAIS l'un dans l'autre ici : l'édition FR n'est
+   pas une conversion mais un ARRONDI d'éditeur (« 2 lb. » y vaut « 1 kg », pas
+   0,907), et convertir inventerait une précision que le livre ne donne pas. */
+const MASSES = { lb: ["lb", 1], lbs: ["lb", 1], kg: ["kg", 1], g: ["kg", 0.001] };
+
+/** « 1 lb. » · « 1/2 lb. » · « 58½ lb. » · « 5 lb. (full) » · « 0,5 kg » ·
+ *  « 250 g » → { valeur, unite }, l'unité étant celle du LIVRE (`lb` ou `kg`).
+ *  « — » et « Varies » rendent null — ce sont des faits de la source, pas des
+ *  zéros : 18 objets portent le tiret et 5 portent « Varies ». */
+export function parsePoids(chaine) {
+  if (typeof chaine !== "string") return null;
+  const m = chaine.trim().match(/^(.+?)\s*(lbs|lb|kg|g)\.?(\s*\([^)]*\))?$/i);
+  if (!m) return null;
+  const valeur = lisNombre(m[1]);
+  if (valeur === null) return null;
+  const [unite, facteur] = MASSES[m[2].toLowerCase()];
+  return { valeur: valeur * facteur, unite };
 }
 
 export function formatCout(cout) {
@@ -168,27 +241,45 @@ export function lignesParLieu(lignes, lieu) {
 }
 
 /** Le panneau GEAR WEIGHT (croquis B3/SB3.x) — self · backpack · storage.
- *  ⭐ Des COMPTES et une somme de poids de CATALOGUE (`data.weight`, « 1 lb. »),
- *  jamais un jugement : aucune capacité, aucun seuil, aucun rouge. */
+ *  ⭐ Des COMPTES et une somme de poids de CATALOGUE (`data.weight`), jamais
+ *  un jugement : aucune capacité, aucun seuil, aucun rouge.
+ *  🔴 ET CE QUI NE SE LIT PAS SE COMPTE À PART, dans `inconnus`. L'ancienne
+ *  version sautait l'objet illisible en silence : il entrait dans `compte` et
+ *  pesait 0 dans `somme`, si bien qu'un sac de cinq objets dont trois portent
+ *  « — » s'affichait avec un poids d'aplomb. ⛔ Un objet sans poids connu est
+ *  un FAIT (18 objets portent le tiret, 5 portent « Varies »), pas un zéro —
+ *  l'écran doit pouvoir le dire.
+ *  `unite` est celle du LIVRE (`lb` en anglais, `kg` en français), jamais une
+ *  conversion ; `melange` dit qu'une même pile a rendu deux unités, ce qui est
+ *  une faute de données et non une somme à arrondir. */
 export function poidsParLieu(lignes, chercheRecord) {
   const somme = { self: 0, backpack: 0, storage: 0 };
   const compte = { self: 0, backpack: 0, storage: 0 };
+  const inconnus = { self: 0, backpack: 0, storage: 0 };
+  const unites = new Set();
   for (const l of lignes) {
     const lieu = l.location || "backpack";
-    compte[lieu] += l.quantity || 1;
+    const n = l.quantity || 1;
+    compte[lieu] += n;
     const rec = chercheRecord(l.ref);
-    const m = rec && typeof rec.data?.weight === "string" ? rec.data.weight.replace(/,/g, "").match(/([\d.]+)\s*lb/i) : null;
-    if (m) somme[lieu] += Number(m[1]) * (l.quantity || 1);
+    const pesee = parsePoids(rec && rec.data ? rec.data.weight : undefined);
+    if (pesee) { somme[lieu] += pesee.valeur * n; unites.add(pesee.unite); }
+    else inconnus[lieu] += n;
   }
-  return { somme, compte };
+  return { somme, compte, inconnus,
+    unite: unites.size === 1 ? [...unites][0] : null, melange: unites.size > 1 };
 }
 
 function panneauPoids(poids, surLieu) {
   const p = elp("aside", "pipeline-poids");
   p.append(elp("h3", null, "Gear weight"));
   for (const [lieu, mot] of [["self", "Self"], ["backpack", "Backpack"], ["storage", "Storage"]]) {
+    /* ⚠️ Le nombre d'objets SANS poids connu s'affiche à côté de la somme :
+       sans lui, la somme se lit comme si elle portait tout le sac. */
+    const ignores = poids.inconnus[lieu];
     const ligne = bouton(
-      `${mot} — ${poids.compte[lieu]} obj. · ${Math.round(poids.somme[lieu] * 10) / 10} lb`,
+      `${mot} — ${poids.compte[lieu]} obj. · ${Math.round(poids.somme[lieu] * 10) / 10} ${poids.unite || "lb"}`
+      + (ignores ? ` (+${ignores} sans poids)` : ""),
       "pipeline-poids-ligne",
       () => surLieu && surLieu(lieu),
       `Open ${mot}`
