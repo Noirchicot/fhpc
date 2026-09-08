@@ -92,13 +92,27 @@ import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=604";
    ne dit jamais qu'elle est incomplète. Le tambour lit maintenant les 416
    records de rangement, qui portent chacun LEUR genre — plus de liste. */
 
-/* ADDENDUMS §4 (Eric, 2026-08-13), ratifié §0.1 de la commande : « Le
-   paquet de la CLASSE, plus une bourse de 50 PO. » HÉRITÉ, pas inventé :
-   c'est l'option B des quatre arrière-plans SRD supprimés (« … or 50 GP »).
-   Le paquet de classe porte SON PROPRE or (le Barbare option A : « … and 15
-   GP ») et les deux s'ADDITIONNENT — aucune collision, vérifié §0.1. Nommé
-   UNE SEULE FOIS, ici — jamais un `50` nu au milieu d'une fonction de rendu
-   (§1c de la commande). */
+/* 🔴 LA BOURSE DE DÉPART — LES 50 PO **REMPLACENT** LE KIT DE CLASSE.
+   ⚖️ Eric, 2026-09-08, en tranchant `A-TRANCHER §C22` : à la question « les 50 po
+   s'ajoutent au kit, ou le remplacent ? » — **« Le remplacent »**.
+
+   ⛔ CE QUI EST RETIRÉ ICI, ET POURQUOI CE N'ÉTAIT PAS UN COMMENTAIRE MORT : ce
+   bloc portait la lecture ADDITIVE — « le paquet de la CLASSE, PLUS une bourse de
+   50 PO », « les deux s'ADDITIONNENT ». Elle datait du 13/08 et elle était sincère.
+   Mais `shell.mjs` câblait depuis le 24/08 un aiguilleur EXCLUSIF (`kit` | `purse`),
+   sur une autre parole d'Eric — et personne n'avait retiré la première.
+   ⭐ Le module portait donc DEUX RÈGLES CONTRAIRES : l'additive en prose, l'exclusive
+   en code. C'est `C22`, ouverte depuis le 24/08, et la seule contradiction du corpus
+   qui venait du CODE et non de la prose. Le code avait raison ; c'est le commentaire
+   qui mentait, et un siège qui l'aurait lu aurait « réparé » vers l'addition.
+
+   📌 CE QUI RESTE VRAI DE L'ANCIEN TEXTE : le nombre est HÉRITÉ, pas inventé — c'est
+   l'option B des quatre arrière-plans SRD supprimés (« … or 50 GP »). Et il est nommé
+   UNE SEULE FOIS, ici, jamais un `50` nu au milieu d'un rendu.
+   ⚠️ ET LE POINT QUI CHANGE DE SENS : le paquet de classe porte SON PROPRE or (le
+   Barbare option A : « … and 15 GP »). Sous la règle additive, cet or s'ajoutait aux
+   50. Sous « remplacent », **il part avec le kit** — qui choisit la bourse n'a que
+   50 PO, pas 50 + 15. */
 export const INHERITED_PURSE_GP = 50;
 
 function el(tag, className, children) {
