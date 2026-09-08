@@ -48,6 +48,7 @@
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
 import { planAt } from "./carnet.mjs?v=604";
+import { lignageChoisi } from "./species-step.mjs?v=604";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -182,7 +183,16 @@ export function renderReviewStep(ctx, onAction) {
 
   const identite = resolved && resolved.identity ? resolved.identity : {};
   const classe = Array.isArray(identite.classes) && identite.classes[0] ? identite.classes[0].name : null;
-  const titre = [document && document.name, identite.species, classe].filter(Boolean).join(" · ");
+  /* 🔴 LE LIGNAGE COMPOSE L'IDENTITÉ — « Elf (High Elf) » (Eric, 2026-09-08).
+     ⭐ ET C'EST L'INTERFACE QUI COMPOSE, PAS LE MOTEUR : la loi §0.13 veut que
+     le moteur manipule des identifiants et que l'interface produise les mots.
+     Le moteur déclare `underived.lineage-not-composed` en disant lui-même
+     *« la composition appartient à l'interface »* — il attendait ce code-ci.
+     ⛔ Le nom vient de `lignageChoisi` (species-step), pas d'une seconde
+     lecture : deux lectures du même choix finiraient par se contredire. */
+  const lignage = lignageChoisi(ctx);
+  const espece = identite.species && lignage ? `${identite.species} (${lignage})` : identite.species;
+  const titre = [document && document.name, espece, classe].filter(Boolean).join(" · ");
   dalle.append(el("h2", "review-name", [text(titre || "Unnamed character")]));
 
   const liste = el("ol", "review-steps");

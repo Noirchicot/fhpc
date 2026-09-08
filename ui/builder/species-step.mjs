@@ -451,11 +451,16 @@ export const LIGNE_ACQUIS = {
 
 /** Le nom du lignage POSÉ, ou `null`.
  *
+ *  📤 EXPORTÉ LE 2026-09-08 pour que `review-step` compose « Elf (High Elf) »
+ *  (Eric : *« lignage compose l'identité »*). ⛔ Il est exporté plutôt que
+ *  recopié EXACTEMENT pour la raison que ce commentaire donnait déjà : deux
+ *  lectures du même choix finiraient par se contredire. Un seul lecteur.
+ *
  *  ⭐ Il lit exactement là où `resumeDeLItem` lit déjà — `planAt(decisions,
  *  "species.lineage[0]")` puis le record de l'espèce. ⛔ Deux lectures
  *  différentes du même choix finiraient par se contredire : celle-ci reprend
  *  la sienne, mot pour mot. */
-function lignageChoisi(ctx) {
+export function lignageChoisi(ctx) {
   if (!ctx) return null;
   const record = especeRetenue(ctx);
   if (!record) return null;

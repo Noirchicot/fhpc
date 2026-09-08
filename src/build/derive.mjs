@@ -346,7 +346,15 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const identity = { level, classes: [{ name: classView.record.name, level }] };
   if (speciesView) {
     identity.species = speciesView.record.name;
-    if (picked.byPath.has("species.lineage")) {
+    /* ⛔ LES DEUX FORMES, ET LA SECONDE MANQUAIT — mesuré le 2026-09-08.
+       Ce test ne lisait que `species.lineage` (sans indice). L'écran, lui,
+       écrit `species.lineage[0]`. La clef ne correspondait pas, la déclaration
+       ne partait JAMAIS, et le choix tombait en `unconsumed` — c'est-à-dire
+       dans la liste des défauts, sans sa raison.
+       ⭐ Le signal existait, il visait à côté : un garde qui cherche la mauvaise
+       clef est plus dangereux qu'un garde absent, parce qu'il a l'air de veiller. */
+    if ([...picked.byPath.keys()].some((chemin) =>
+      chemin === "species.lineage" || chemin.startsWith("species.lineage["))) {
       underived.declare("identity.species (lignage)", "underived.lineage-not-composed", {});
     }
     const sizeKey = speciesData.size_key;
