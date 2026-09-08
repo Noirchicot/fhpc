@@ -354,6 +354,10 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         decisions: projectDecisions({ query, choices: document.build.choices }),
         underived: outcome.underived,
         unconsumed: outcome.unconsumed,
+        /* LES SOUVENIRS DÉCLARÉS (2026-09-08) — voir `SOUVENIRS_DECLARES` dans
+           `derive.mjs`. Ils voyagent À CÔTÉ de `unconsumed`, jamais dedans :
+           c'est ce qui rend à `unconsumed` son pouvoir d'accuser. */
+        memos: Array.isArray(outcome.memos) ? outcome.memos : [],
         /* LOT 34 — ce qu'un module a jugé illégal SANS jeter (canal générique
            `outcome.violations`, lot 27) : `{key, params, path}`, jamais une
            phrase. Vide quand aucun module n'en a rendu. */

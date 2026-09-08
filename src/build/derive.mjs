@@ -153,6 +153,44 @@ function flatView(view) {
  *  d'arrière-plan serait du code sans besoin (loi §0.6). */
 const GRANT_ROOTS = ["species", "class"];
 
+/* ══ LES SOUVENIRS DÉCLARÉS — ce qu'aucune règle ne lit, et c'est VOULU ══════
+   ⚖️ Eric, 2026-09-08, en choisissant la route ③ : un chemin gardé exprès cesse
+   d'être annoncé comme un défaut.
+
+   🔴 LE DÉFAUT QUE ÇA RÉPARE, ET IL A COÛTÉ SIX SEMAINES. `unconsumed` n'avait
+   qu'UN sens — « aucune règle ne t'a lu » — et faisait donc sortir par la MÊME
+   PORTE deux choses contraires :
+     · un SOUVENIR voulu — `abilities.mode`, la méthode de tirage : rien n'en
+       dérive, et c'est normal ;
+     · un ORPHELIN — `depart` (kit ou bourse), un choix qui DEVAIT avoir un effet
+       et n'en avait pas, faute d'une règle tranchée (`A-TRANCHER §C22`, ouverte
+       du 24/08 au 08/09).
+   ⛔ Le second s'est caché derrière le premier tout ce temps : ils se
+   ressemblaient à l'écran. ⭐ UNE LISTE QUI MÊLE L'ACCIDENT ET L'INTENTION NE
+   PEUT PLUS ACCUSER — c'est le témoin qui ne rougit jamais.
+
+   📏 ET LA DÉMONSTRATION EST ARRIVÉE PENDANT L'ÉCRITURE DE CE LOT : un troisième
+   chemin, `species.lineage[0]`, est apparu dans la même liste. Il N'EST PAS un
+   souvenir — c'est un orphelin CACHÉ PAR UN DÉFAUT DE FORME : le moteur teste
+   `picked.byPath.has("species.lineage")` (sans indice) pour déclarer
+   `underived.lineage-not-composed`, et l'écran écrit `species.lineage[0]` (avec
+   indice). La clef ne correspond pas, la déclaration ne part jamais.
+   ⛔ Il n'entre donc PAS dans cette table. Sa réparation dépend d'une règle
+   qu'Eric n'a pas tranchée : le lignage compose-t-il l'identité, ou reste-t-il
+   un trait à part ?
+
+   ⚖️ LE CRITÈRE D'ENTRÉE, ET IL EST ÉTROIT : « aucune règle ne DOIT le lire ».
+   ⛔ PAS « la règle reste à écrire » — ça, c'est un orphelin, et l'inscrire ici
+   reviendrait à FAIRE TAIRE L'ALARME AU LIEU DE RÉPARER.
+   📌 Cette table est minuscule exprès. Si elle grandit, ce n'est pas qu'il y a
+   plus de souvenirs : c'est qu'on s'en sert pour se taire. */
+export const SOUVENIRS_DECLARES = new Map([
+  ["abilities.mode",
+    "la méthode de tirage (FH 3D6 · 4D6 · ARRAY · FREE). Le moteur ne garde que les " +
+    "six scores finaux ; la façon de les obtenir n'a AUCUN effet sur la fiche. Le champ " +
+    "existe pour que l'écran se restaure sur un personnage rouvert — un souvenir, pas un effet."]
+]);
+
 function fail(what) {
   throw new BuildError(`fhpc/build: ${what}`);
 }
@@ -346,7 +384,15 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const identity = { level, classes: [{ name: classView.record.name, level }] };
   if (speciesView) {
     identity.species = speciesView.record.name;
-    if (picked.byPath.has("species.lineage")) {
+    /* ⛔ LES DEUX FORMES, ET LA SECONDE MANQUAIT — mesuré le 2026-09-08.
+       Ce test ne lisait que `species.lineage` (sans indice). L'écran, lui,
+       écrit `species.lineage[0]`. La clef ne correspondait pas, la déclaration
+       ne partait JAMAIS, et le choix tombait en `unconsumed` — c'est-à-dire
+       dans la liste des défauts, sans sa raison.
+       ⭐ Le signal existait, il visait à côté : un garde qui cherche la mauvaise
+       clef est plus dangereux qu'un garde absent, parce qu'il a l'air de veiller. */
+    if ([...picked.byPath.keys()].some((chemin) =>
+      chemin === "species.lineage" || chemin.startsWith("species.lineage["))) {
       underived.declare("identity.species (lignage)", "underived.lineage-not-composed", {});
     }
     const sizeKey = speciesData.size_key;
@@ -1472,7 +1518,14 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   return {
     resolved: ordered,
     underived: underived.list(),
-    unconsumed: picked.order.filter((entry) => !entry.consumed).map((entry) => entry.choice.path),
+    /* ⭐ DEUX SORTIES LÀ OÙ IL N'Y EN AVAIT QU'UNE — voir `SOUVENIRS_DECLARES`.
+       `unconsumed` ne porte plus QUE des orphelins : des choix qui devraient
+       avoir un effet et n'en ont pas. C'est ce qui lui rend son pouvoir d'accuser. */
+    unconsumed: picked.order.filter((entry) => !entry.consumed)
+      .map((entry) => entry.choice.path).filter((chemin) => !SOUVENIRS_DECLARES.has(chemin)),
+    memos: picked.order.filter((entry) => !entry.consumed)
+      .map((entry) => entry.choice.path).filter((chemin) => SOUVENIRS_DECLARES.has(chemin))
+      .map((chemin) => ({ path: chemin, raison: SOUVENIRS_DECLARES.get(chemin) })),
     /* Ce que la dérivation a LU dans les déclarations de choix — `validate` en
        a besoin pour dire « tu devais en choisir 2, tu en as choisi 1 ». */
     grants: { chosenBy, declarations: Object.fromEntries(GRANT_ROOTS.map((root) => [root, declarations[root].data])) },

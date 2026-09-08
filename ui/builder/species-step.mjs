@@ -28,17 +28,17 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=604";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=604";
-import { renderChoixGlisses } from "./glisser.mjs?v=604";
-import { spellInfo } from "./class-step.mjs?v=604";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=605";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=605";
+import { renderChoixGlisses } from "./glisser.mjs?v=605";
+import { spellInfo } from "./class-step.mjs?v=605";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=604";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=604";
-import { etapeParId } from "./etapes.mjs?v=604";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=604";
+import { motDuVerrou } from "./skills-step.mjs?v=605";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=605";
+import { etapeParId } from "./etapes.mjs?v=605";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=605";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -451,11 +451,16 @@ export const LIGNE_ACQUIS = {
 
 /** Le nom du lignage POSÉ, ou `null`.
  *
+ *  📤 EXPORTÉ LE 2026-09-08 pour que `review-step` compose « Elf (High Elf) »
+ *  (Eric : *« lignage compose l'identité »*). ⛔ Il est exporté plutôt que
+ *  recopié EXACTEMENT pour la raison que ce commentaire donnait déjà : deux
+ *  lectures du même choix finiraient par se contredire. Un seul lecteur.
+ *
  *  ⭐ Il lit exactement là où `resumeDeLItem` lit déjà — `planAt(decisions,
  *  "species.lineage[0]")` puis le record de l'espèce. ⛔ Deux lectures
  *  différentes du même choix finiraient par se contredire : celle-ci reprend
  *  la sienne, mot pour mot. */
-function lignageChoisi(ctx) {
+export function lignageChoisi(ctx) {
   if (!ctx) return null;
   const record = especeRetenue(ctx);
   if (!record) return null;

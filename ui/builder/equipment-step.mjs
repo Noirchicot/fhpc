@@ -43,27 +43,27 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=604";
-import { facteurZoomCourant } from "./echelle.mjs?v=604";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=604";
+import { renderPicker } from "./carnet.mjs?v=605";
+import { facteurZoomCourant } from "./echelle.mjs?v=605";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=605";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=604";
-import { swapContent } from "./socle.mjs?v=604";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=604";
+import { isGenre } from "../../src/layers/document.mjs?v=605";
+import { swapContent } from "./socle.mjs?v=605";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=605";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=604";
+import { armerJeton } from "./glisser.mjs?v=605";
 /* 🧍 B3 — LE DRESSING EN TROIS BANDES (lot 5, la couture) : une seule
    écriture (`b3-dressing.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLeDressing } from "./b3-dressing.mjs?v=604";
+import { construireLeDressing } from "./b3-dressing.mjs?v=605";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=604";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=604";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=605";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=605";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -92,13 +92,27 @@ import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=604";
    ne dit jamais qu'elle est incomplète. Le tambour lit maintenant les 416
    records de rangement, qui portent chacun LEUR genre — plus de liste. */
 
-/* ADDENDUMS §4 (Eric, 2026-08-13), ratifié §0.1 de la commande : « Le
-   paquet de la CLASSE, plus une bourse de 50 PO. » HÉRITÉ, pas inventé :
-   c'est l'option B des quatre arrière-plans SRD supprimés (« … or 50 GP »).
-   Le paquet de classe porte SON PROPRE or (le Barbare option A : « … and 15
-   GP ») et les deux s'ADDITIONNENT — aucune collision, vérifié §0.1. Nommé
-   UNE SEULE FOIS, ici — jamais un `50` nu au milieu d'une fonction de rendu
-   (§1c de la commande). */
+/* 🔴 LA BOURSE DE DÉPART — LES 50 PO **REMPLACENT** LE KIT DE CLASSE.
+   ⚖️ Eric, 2026-09-08, en tranchant `A-TRANCHER §C22` : à la question « les 50 po
+   s'ajoutent au kit, ou le remplacent ? » — **« Le remplacent »**.
+
+   ⛔ CE QUI EST RETIRÉ ICI, ET POURQUOI CE N'ÉTAIT PAS UN COMMENTAIRE MORT : ce
+   bloc portait la lecture ADDITIVE — « le paquet de la CLASSE, PLUS une bourse de
+   50 PO », « les deux s'ADDITIONNENT ». Elle datait du 13/08 et elle était sincère.
+   Mais `shell.mjs` câblait depuis le 24/08 un aiguilleur EXCLUSIF (`kit` | `purse`),
+   sur une autre parole d'Eric — et personne n'avait retiré la première.
+   ⭐ Le module portait donc DEUX RÈGLES CONTRAIRES : l'additive en prose, l'exclusive
+   en code. C'est `C22`, ouverte depuis le 24/08, et la seule contradiction du corpus
+   qui venait du CODE et non de la prose. Le code avait raison ; c'est le commentaire
+   qui mentait, et un siège qui l'aurait lu aurait « réparé » vers l'addition.
+
+   📌 CE QUI RESTE VRAI DE L'ANCIEN TEXTE : le nombre est HÉRITÉ, pas inventé — c'est
+   l'option B des quatre arrière-plans SRD supprimés (« … or 50 GP »). Et il est nommé
+   UNE SEULE FOIS, ici, jamais un `50` nu au milieu d'un rendu.
+   ⚠️ ET LE POINT QUI CHANGE DE SENS : le paquet de classe porte SON PROPRE or (le
+   Barbare option A : « … and 15 GP »). Sous la règle additive, cet or s'ajoutait aux
+   50. Sous « remplacent », **il part avec le kit** — qui choisit la bourse n'a que
+   50 PO, pas 50 + 15. */
 export const INHERITED_PURSE_GP = 50;
 
 function el(tag, className, children) {
