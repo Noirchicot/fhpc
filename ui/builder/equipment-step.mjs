@@ -1777,8 +1777,15 @@ export function renderEquipmentStep(ctx, onAction) {
       pied.append(
         button("I keep my kit", "aiguilleur-bouton",
           () => act({ kind: "choisirDepart", valeur: "kit" }), "Keep the class kit"),
+        /* ⚖️ « Le REMPLACENT » — Eric, 2026-09-08 (C22). Le texte visible a suivi
+           sa règle au lot 175 ; ⛔ CE NOM ACCESSIBLE, LUI, ÉTAIT RESTÉ SUR LA
+           LECTURE ADDITIVE et disait « ADD fifty gold » — un lecteur d'écran
+           entendait donc l'inverse exact de la règle, et rien ne le voyait
+           puisque l'œil lit l'autre texte. Trouvé le 09/09 en traversant
+           l'écran en ligne, jamais par une relecture du code. */
         button("Take the 50 GP", "aiguilleur-bouton",
-          () => act({ kind: "choisirDepart", valeur: "purse" }), "Add fifty gold to the purse"),
+          () => act({ kind: "choisirDepart", valeur: "purse" }),
+          "Set the class kit aside and take fifty gold instead"),
       );
       boite.append(pied);
       voile.append(boite);
