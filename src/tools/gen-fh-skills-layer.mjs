@@ -715,6 +715,26 @@ function buildBackgrounds(srd, training) {
       "resterait sur un arrière-plan que l'Inheritance devait remplacer.");
   }
 
+  /* ⭐ LOT 182 — CE QUI REMPLACE DOIT PORTER L'OR DE CE QU'IL REMPLACE.
+     Les quatre arrière-plans éteints portent chacun `data.equipment`, et son
+     option B est l'or de départ de l'origine. L'Inheritance les remplace : si
+     elle n'en porte pas, ce montant n'existe plus nulle part dans la donnée et
+     un écran finira par le réécrire à la main — c'est EXACTEMENT ce qui s'est
+     passé pendant vingt-sept jours (`INHERITED_PURSE_GP = 50`).
+     ⛔ Le garde ne vise QUE ce champ, et c'est délibéré : §4 a retiré les
+     CHOIX d'arrière-plan (compétences, outil, don imposé, clefs), pas la bourse
+     de départ. Exiger `ability_keys` ou `feat_id` contredirait la règle ; exiger
+     l'or la sert. ⚠️ Et il se fonde sur la DONNÉE : c'est la couche SRD lue qui
+     dit que ce champ existe, pas une liste écrite ici. */
+  const sansOr = servis.size > 0
+    ? [...servis].filter((id) => typeof ((srdBackgrounds[id] || {}).data || {}).equipment !== "string")
+    : [];
+  if (sansOr.length === 0 && typeof BACKGROUND_INHERITANCE.equipment !== "string") {
+    fail("les quatre arrière-plans éteints portent tous `data.equipment` (leur option B est l'or de départ), " +
+      "et `BACKGROUND_INHERITANCE.equipment` n'existe pas. L'Inheritance les remplace : sans ce champ, " +
+      "l'or de l'origine ne vit plus dans aucune couche et un écran le réécrira en dur.");
+  }
+
   /* L'INHERITANCE, LA SEULE ADDITION. Pas d'`ability_keys` (§1c : absent =
      les six caractéristiques) ; pas de `feat_id` (imposé) mais un
      `feat_choice.from: "origin"` (libre parmi les dons de cette catégorie). */
@@ -736,6 +756,9 @@ function buildBackgrounds(srd, training) {
         ...BACKGROUND_INHERITANCE.languageGrant,
         from: languesProduites(training)
       },
+      /* L'or de départ de l'origine, MÊME CHAMP que les quatre du SRD — c'est
+         ce qui permet à l'écran de n'avoir qu'un lecteur pour les deux piles. */
+      equipment: BACKGROUND_INHERITANCE.equipment,
       description: BACKGROUND_INHERITANCE.description
     }
   };

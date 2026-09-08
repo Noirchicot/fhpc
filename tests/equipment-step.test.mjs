@@ -9,10 +9,10 @@
 
    ⛔ `shell.mjs` N'A AUCUN EXPORT (il exécute son propre `render()` à
    l'import) — les TROIS gestes composites qu'il ajoute pour ce lot
-   (`addGearLine`, `removeGearLine`, `addInheritedPurse`) ne peuvent donc pas
+   (`addGearLine`, `removeGearLine`, `addStartingPurse`) ne peuvent donc pas
    être exercés via un vrai harnais de rendu. Même limite, même réponse que
    `abilities-step.test.mjs` (« garde 11 ») : les trois fonctions
-   `applyAddGearLine`/`applyRemoveGearLine`/`applyAddInheritedPurse`
+   `applyAddGearLine`/`applyRemoveGearLine`/`applyAddStartingPurse`
    ci-dessous sont des COPIES de la logique de `shell.mjs`, écrites pour ce
    test, qui pilotent les VRAIS verbes (`choose`/`set`/`clear`/`rebuild`) —
    elles prouvent le résultat, jamais que `shell.mjs` lui-même est
@@ -35,7 +35,8 @@ globalThis.document = createTestDocument();
 const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 
 const {
-  renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex, INHERITED_PURSE_GP
+  renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
+  orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart
 } = await import("../ui/builder/equipment-step.mjs");
 
 const fixture = exempleFhEn();
@@ -72,12 +73,14 @@ function withoutCurrency(document) {
   return doc;
 }
 
-function applyAddInheritedPurse(document) {
+function applyAddStartingPurse(document) {
+  const or = orDuDepart({ query, document });
+  if (!or.cout) return document;
   const current = currentCurrency(document);
   let doc = document;
   for (const key of CURRENCY_KEYS) {
     const base = Number.isInteger(current[key]) ? current[key] : 0;
-    const value = key === "gp" ? base + INHERITED_PURSE_GP : base;
+    const value = base + (or.cout[key] || 0);
     doc = build.verbs.set({ document: doc, path: `currency.${key}`, value }).document;
   }
   return doc;
@@ -130,19 +133,25 @@ test("2 — poser currency.gp SEUL ne produit AUCUNE resolved.currency ; les qua
   assert.deepEqual(reportComplete.resolved.currency, { cp: 0, sp: 0, gp: 99, pp: 0 });
 });
 
-/* ══ 3 — LES 50 PO, POSÉES UNE FOIS, PAS RÉÉCRITES (commande §3, test 3) ═ */
-test("3 — addInheritedPurse pose les quatre clefs, ajoute 50 à gp sans écraser ce qui existe déjà (option A du Barbare)", () => {
-  /* Barbare option A : « … and 15 GP » — SON propre or, posé par le joueur
-     comme n'importe quelle autre valeur de bourse AVANT le geste des 50 PO. */
+/* ══ 3 — L'OR DE DÉPART, POSÉ UNE FOIS, PAS RÉÉCRIT (commande §3, test 3) ═
+   ⭐ LOT 182 — LE MONTANT N'EST PLUS ÉCRIT DANS CE TEST NON PLUS : le
+   personnage d'exemple est un Wizard (55 GP à l'option B de sa classe) et son
+   origine est l'Inheritance (50 GP). 105, donc — et si la donnée change, c'est
+   la table du lot 182 plus bas qui rougit, pas ce test-ci. */
+test("3 — addStartingPurse pose les quatre clefs et s'AJOUTE à ce qui existe déjà (l'or du paquet, posé avant)", () => {
+  /* Option A d'un paquet : « … and 15 GP » — SON propre or, posé par le joueur
+     comme n'importe quelle autre valeur de bourse AVANT le geste de la bourse. */
   const withClassGold = build.verbs.set({ document: withoutCurrency(fixture.document), path: "currency.gp", value: 15 }).document;
-  const withPurse = applyAddInheritedPurse(withClassGold);
+  const withPurse = applyAddStartingPurse(withClassGold);
+  const attendu = orDuDepart({ query, document: withClassGold }).cout.gp;
+  assert.equal(attendu, 105, "Wizard 55 + Inheritance 50 — les deux sources, chacune LUE dans sa prose");
   const current = currentCurrency(withPurse);
-  assert.deepEqual(current, { cp: 0, sp: 0, gp: 65, pp: 0 },
-    "15 (le paquet de classe) + 50 (ADDENDUMS §4) = 65 — aucune collision, §0.1 de la commande");
+  assert.deepEqual(current, { cp: 0, sp: 0, gp: 15 + attendu, pp: 0 },
+    "15 (l'or du paquet) + l'or de départ — aucune collision, §0.1 de la commande");
 });
 
 test("3b — une valeur déjà posée n'est PAS réécrite par un re-rendu de l'étape (aucun onAction pendant render)", () => {
-  const withPurse = applyAddInheritedPurse(fixture.document);
+  const withPurse = applyAddStartingPurse(fixture.document);
   /* Le joueur DÉPENSE : gp descend à 10, à la main. */
   const spent = build.verbs.set({ document: withPurse, path: "currency.gp", value: 10 }).document;
   const report = rebuild(spent);
@@ -257,7 +266,7 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
   for (const needle of [
     'action.kind === "addGearLine"',
     'action.kind === "removeGearLine"',
-    'action.kind === "addInheritedPurse"',
+    'action.kind === "addStartingPurse"',
     "renderEquipmentStep("
   ]) {
     assert.ok(shellText.includes(needle), `shell.mjs devrait contenir « ${needle} » — sans quoi le lot 49 n'est pas branché`);
@@ -272,19 +281,26 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
 });
 
 /* ⚔️ ATTAQUE MANUELLE JOUÉE SUR CE LOT (commande §3, « une attaque manuelle
-   minimum ») : remplacer `key === "gp" ? base + INHERITED_PURSE_GP : base`
-   par `base` dans `shell.mjs` (neutralise l'ajout des 50 PO) laisse LES 833
+   minimum ») : remplacer l'arithmétique de la bourse par `base` dans
+   `shell.mjs` (elle pose les quatre clefs et n'ajoute rien) laissait LES 833
    TESTS DE LA SUITE VERTS — le test 3/3b de ce fichier rejoue la logique à
    la MAIN (voir l'en-tête), il ne relit jamais `shell.mjs`, et le garde
-   au-dessus ne vérifiait QUE la présence du mot `addInheritedPurse`, jamais
-   son arithmétique. Suspecté, mesuré, corrigé ICI plutôt que caché : ce
+   au-dessus ne vérifiait QUE la présence du mot de l'action, jamais son
+   arithmétique. Suspecté, mesuré, corrigé ICI plutôt que caché : ce
    garde-ci lit l'EXPRESSION, au même patron que « garde — shell.mjs ÉCHANGE
-   vraiment » (tests/abilities-step.test.mjs, lot 51). Restauré et rejoué
-   après l'attaque : la suite complète repasse verte, diff byte-à-byte nul. */
-test("garde — shell.mjs ajoute VRAIMENT INHERITED_PURSE_GP à gp, jamais aux trois autres clefs", () => {
+   vraiment » (tests/abilities-step.test.mjs, lot 51).
+   ⭐ LOT 182 — IL LIT MAINTENANT DEUX CHOSES, ET LA SECONDE EST LA PLUS
+   IMPORTANTE : que le montant soit AJOUTÉ clef par clef, et qu'il vienne de
+   `orDuDepart` — c'est-à-dire de la donnée. Un `shell.mjs` qui reviendrait à
+   un nombre écrit à la main passerait la première moitié et échouerait ici. */
+test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réécrit pas à la main", () => {
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /key\s*===\s*"gp"\s*\?\s*base\s*\+\s*INHERITED_PURSE_GP\s*:\s*base/,
-    "sans cette ligne, addInheritedPurse pose les quatre clefs mais AJOUTE zéro PO — mesuré : la suite complète reste verte sans elle");
+  assert.match(shellText, /base\s*\+\s*\(or\.cout\[key\]\s*\|\|\s*0\)/,
+    "sans cette ligne, addStartingPurse pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
+  assert.match(shellText, /orDuDepart\(\{\s*query:[^}]*document:\s*state\.document\s*\}\)/,
+    "le montant doit être LU par `orDuDepart` sur le document courant, jamais écrit dans la coquille");
+  assert.equal(/\bINHERITED_PURSE_GP\b/.test(shellText), false,
+    "la constante du lot 49 est morte : un écran ne porte pas une valeur de règle");
 });
 
 /* Même attaque, sur `removeGearLine` : retirer les deux `.quantity`/
@@ -346,4 +362,202 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
   assert.match(texte, /Azurite/, "le nom du record doit arriver jusqu'à la ligne");
   assert.equal(texte.includes("fh:gem:en:azurite"), false,
     "un id nu à l'écran est le symptôme exact d'un genre que le chercheur ne résout pas");
+});
+
+/* ══ LOT 182 — L'OR DE DÉPART SE LIT DANS LA DONNÉE, DES DEUX CÔTÉS ═══════
+
+   🔴 CE QUE CES GARDES DÉFENDENT, ET IL A ÉTÉ MESURÉ AVANT D'ÊTRE ÉCRIT.
+   `equipment-step.mjs` portait `INHERITED_PURSE_GP = 50`, écrit en dur, et sa
+   propre ligne 27 déclarait « le nombre est nommé UNE FOIS, jamais un `50` nu
+   dans une fonction de rendu ». 📏 Mesuré le 2026-09-09 : `50` apparaissait DIX
+   fois dans le fichier, dont DEUX dans la prose lue par le joueur. Conséquence
+   sur la table : tout personnage se voyait offrir 50 PO — un Fighter, dont le
+   SRD dit 155, lisait 50 et recevait 50.
+
+   ⚠️ LE PIÈGE DE MESURE DE CE LOT, ET IL EST DANS LA DONNÉE : **trois classes
+   valent VRAIMENT 50** (Druid, Monk, Sorcerer). Un relevé qui rend 50 ne prouve
+   donc RIEN. C'est pour ça que la table ci-dessous nomme les douze montants un
+   par un, et que les gardes de rendu se jouent sur le Fighter (155) et le
+   Wizard (55) — les deux qui accusent. */
+
+/** La table témoin : les douze montants d'option B, écrits À LA MAIN d'après
+ *  `layers/srd-5.2.1-en.layer.json`. ⛔ Elle n'est PAS dérivée de la couche —
+ *  un compte tiré de la même source que ce qu'il compte ne prouve rien. Si un
+ *  jour la couche change, c'est ce tableau qui rougit, et c'est voulu. */
+const OR_DES_CLASSES = {
+  "srd:class:en:barbarian": 75, "srd:class:en:bard": 90, "srd:class:en:cleric": 110,
+  "srd:class:en:druid": 50, "srd:class:en:fighter": 155, "srd:class:en:monk": 50,
+  "srd:class:en:paladin": 150, "srd:class:en:ranger": 150, "srd:class:en:rogue": 100,
+  "srd:class:en:sorcerer": 50, "srd:class:en:warlock": 100, "srd:class:en:wizard": 55
+};
+
+test("182 — les DOUZE classes rendent l'or de LEUR option B, pas un montant commun", () => {
+  const vues = query({ kind: "class" });
+  assert.equal(vues.length, 12, "douze classes — si ce compte bouge, l'Artificier est entré");
+  const lu = {};
+  for (const vue of vues) {
+    const or = orDeLaSource(vue, "class");
+    assert.equal(or.underived, null, `« ${vue.id} » : son or de départ doit se lire`);
+    lu[vue.id] = or.cout.gp;
+    /* ⛔ ET IL N'Y A QUE DE L'OR : une option B en PA ou en PC changerait la
+       bourse posée sans changer le nombre affiché. */
+    assert.deepEqual({ pp: or.cout.pp, sp: or.cout.sp, cp: or.cout.cp }, { pp: 0, sp: 0, cp: 0 });
+  }
+  assert.deepEqual(lu, OR_DES_CLASSES,
+    "chaque classe porte SON montant : 75 · 90 · 110 · 50 · 155 · 50 · 150 · 150 · 100 · 50 · 100 · 55");
+  /* ⭐ LA PREUVE QUE CE N'EST PAS UN NOMBRE UNIQUE DÉGUISÉ : HUIT valeurs
+     distinctes pour douze classes, et l'écart va de 50 à 155.
+     ⚠️ Huit, pas neuf — 50 revient trois fois (Druid · Monk · Sorcerer), 150 et
+     100 deux fois chacun. Le premier jet de ce garde disait « neuf » : un
+     compte fait de tête sur sa propre table, et c'est la table qui avait
+     raison. */
+  assert.equal(new Set(Object.values(lu)).size, 8);
+});
+
+test("182 — ⚔️ LE PIÈGE DE LA PHRASE : c'est la DERNIÈRE option qui est l'or, jamais la première", () => {
+  /* Le Barbare porte DEUX montants : « … Explorer's Pack, and 15 GP; or (B) 75
+     GP ». Le 15 est DANS le paquet — le facturer serait plausible et faux. */
+  const barbare = query({ kind: "class", id: "srd:class:en:barbarian" });
+  assert.equal(orDeLaSource(barbare, "class").cout.gp, 75, "75, l'option B — pas 15, l'or que le paquet contient");
+  /* Le Fighter en porte TROIS (« Choose A, B, or C ») : 4, 11, puis 155. */
+  const fighter = query({ kind: "class", id: "srd:class:en:fighter" });
+  assert.equal(orDeLaSource(fighter, "class").cout.gp, 155, "155, l'option C — ni 4 ni 11");
+});
+
+test("182 — l'Inheritance porte SON or dans la donnée, et les quatre du SRD qu'elle remplace aussi", () => {
+  const origines = query({ kind: "background" });
+  assert.equal(origines.length, 1, "pile FH : l'Inheritance est la seule origine");
+  const or = orDeLaSource(origines[0], "background");
+  assert.equal(or.underived, null, "sans ce champ, l'écran réécrirait le montant à la main — c'est le défaut du lot 182");
+  assert.equal(or.cout.gp, 50);
+
+  /* ⭐ ET LE MÊME LECTEUR SUR LE SRD NU — l'autre pile, l'autre forme de
+     phrase (« Choose A or B: (A) …, 8 GP; or (B) 50 GP »), un seul lecteur. */
+  const srd = JSON.parse(fs.readFileSync(path.join(UI_DIR, "..", "..", "layers", "srd-5.2.1-en.layer.json"), "utf8"));
+  const arrierePlans = Object.entries(srd.records.background);
+  assert.equal(arrierePlans.length, 4);
+  for (const [id, record] of arrierePlans) {
+    const lu = orDeLaSource({ id, record }, "background");
+    assert.equal(lu.underived, null, `« ${id} » : le SRD nomme son or, il doit se lire`);
+    assert.equal(lu.cout.gp, 50, `« ${id} » : les quatre arrière-plans du SRD portent le MÊME 50`);
+  }
+});
+
+test("182 — ⚔️ ce qui ne se lit pas rend `null` : jamais un 0, jamais un 50 de secours", () => {
+  /* ⛔ « 1 Sorcery Point » — dix `class-option` portent ça dans un champ de
+     coût. C'est l'ancrage de `parseCout` qui le refuse, et il doit le refuser
+     ici aussi : un point de sorcellerie n'est pas une monnaie. */
+  assert.equal(orDeLaProse("Choose A or B: (A) a staff; or (B) 1 Sorcery Point"), null);
+  /* ⛔ Une phrase SANS option chiffrée : le découpage rend la phrase entière,
+     que `parseCout` refuse parce qu'il est ancré des deux bouts. */
+  assert.equal(orDeLaProse("Choose A or B: (A) Chain Mail and a Greatsword; or (B) a Longbow"), null);
+  assert.equal(orDeLaProse("A Greataxe, 4 Handaxes and an Explorer's Pack"), null);
+  assert.equal(orDeLaProse(""), null);
+  assert.equal(orDeLaProse(null), null);
+  assert.equal(orDeLaProse(42), null);
+  /* ✅ ET IL NE CRIE PAS SUR CE QUI EST JUSTE — une phrase à UNE seule option
+     est sa propre dernière option (c'est la forme de l'Inheritance). */
+  assert.equal(orDeLaProse("50 GP").gp, 50);
+  assert.equal(orDeLaProse("Choose A or B: (A) a Robe; or (B) 55 GP").gp, 55);
+
+  /* ⛔ Un record SANS le champ : `underived`, et le montant reste `null`. */
+  const muet = orDeLaSource({ record: { name: "Muet", data: {} } }, "class");
+  assert.equal(muet.cout, null);
+  assert.equal(muet.underived, "starting-gold.no-phrase");
+  /* ⛔ Un record dont la phrase existe mais ne se lit pas : l'autre raison,
+     et elle n'est pas la même — l'écran ne dit pas la même chose au joueur. */
+  const illisible = orDeLaSource({ record: { name: "Flou", data: { starting_equipment: "Choose A or B: (A) a cat; or (B) a dog" } } }, "class");
+  assert.equal(illisible.cout, null);
+  assert.equal(illisible.underived, "starting-gold.phrase-unreadable");
+  /* ⛔ Et le mauvais genre ne fabrique pas un champ : un `background` lu comme
+     une `class` ne trouve pas `starting_equipment`. */
+  assert.equal(orDeLaSource({ record: { data: { equipment: "50 GP" } } }, "class").cout, null);
+});
+
+test("182 — l'origine se trouve MÊME sans `choose` : le repli à une option de la pile FH", () => {
+  /* ⚠️ `inheritance-step.mjs` n'émet AUCUN `choose({path:"background"})` quand
+     le genre n'a qu'une option. Lire seulement `build.choices` rendrait `null`
+     sur TOUTE la pile FH — une absence n'est jamais une réponse. */
+  const sansChoix = origineDuDepart(query, fixture.document);
+  assert.ok(sansChoix, "la pile FH n'a qu'une origine : elle se lit au genre");
+  assert.equal(sansChoix.id, "fh:background:en:inheritance");
+
+  /* ⛔ DEUX OPTIONS ET AUCUN CHOIX POSÉ : on ne devine pas. */
+  const deux = (arg) => (arg && arg.kind === "background" && !arg.id ? [{ id: "a" }, { id: "b" }] : null);
+  assert.equal(origineDuDepart(deux, fixture.document), null);
+  /* ✅ ET AVEC UN CHOIX POSÉ, C'EST LUI — jamais le premier de la liste. */
+  const pose = build.verbs.choose({
+    document: fixture.document, path: "background", ref: { kind: "background", id: "fh:background:en:inheritance" }
+  }).document;
+  assert.equal(origineDuDepart(query, pose).id, "fh:background:en:inheritance");
+});
+
+/* ── LA PILE, TRUQUÉE PAR L'ORIGINE — l'attaque qui accuse un nombre en dur ──
+   ⭐ Aucun relevé sur la vraie couche ne peut distinguer « lu » de « écrit en
+   dur » pour l'origine : la donnée dit 50, la constante disait 50. Le seul
+   témoin qui accuse est une origine qui porte AUTRE CHOSE que 50. */
+function queryAvecOrigine(id, equipment) {
+  const vue = { id, record: { name: "Inheritance", data: { equipment } } };
+  return (arg) => {
+    if (arg && arg.kind === "background") return arg.id ? (arg.id === id ? vue : null) : [vue];
+    return query(arg);
+  };
+}
+
+test("182 — 🔴 L'ÉCRAN COMPOSE SON MONTANT : un Fighter lit 155, un Wizard 55, et l'origine n'est plus un 50 en dur", () => {
+  const docFighter = build.verbs.choose({
+    document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:fighter" }
+  }).document;
+
+  const node = renderEquipmentStep(ctxFrom(docFighter, null), () => {});
+  const texte = [...node.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
+  assert.match(texte, /Fighter 155 GP/, "le montant de la classe est LU — hier tout le monde lisait 50");
+  assert.match(texte, /Inheritance 50 GP/);
+  assert.match(texte, /205 GP in all/, "155 + 50 : chaque source offre SON or, et le total est composé");
+
+  /* ⭐ LE BOUTON ET SON NOM ACCESSIBLE PORTENT LE MÊME NOMBRE — c'est la faute
+     réparée la veille (`e01ff19`) : le nom disait l'inverse du texte visible,
+     et l'œil ne pouvait pas le voir. */
+  const boutons = [...node.querySelectorAll(".aiguilleur-bouton")];
+  const bourse = boutons.find((b) => /^Take the/.test(b.textContent));
+  assert.equal(bourse.textContent, "Take the 205 GP");
+  assert.equal(bourse.getAttribute("aria-label"), "Set the class kit aside and take 205 GP instead");
+
+  /* Le Wizard de l'exemple : 55 + 50. Deux classes, deux phrases. */
+  const wizard = renderEquipmentStep(ctxFrom(fixture.document, null), () => {});
+  const texteW = [...wizard.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
+  assert.match(texteW, /Wizard 55 GP/);
+  assert.match(texteW, /105 GP in all/);
+
+  /* ⚔️ L'ATTAQUE QUI ACCUSE : une origine qui porte 7 GP. Un `50` resté en dur
+     rendrait ici 205 au lieu de 162, et AUCUN autre relevé ne le verrait. */
+  const truque = ctxFrom(docFighter, null);
+  truque.query = queryAvecOrigine("fh:background:en:inheritance", "7 GP");
+  const truqueNode = renderEquipmentStep(truque, () => {});
+  const texteT = [...truqueNode.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
+  assert.match(texteT, /Inheritance 7 GP/, "l'origine est LUE : son montant vient de son record");
+  assert.match(texteT, /162 GP in all/);
+  assert.equal(/50 GP/.test(texteT), false, "plus aucun 50 n'apparaît quand la donnée n'en porte pas");
+});
+
+test("182 — ⚔️ UN MONTANT ILLISIBLE N'OFFRE RIEN : pas de bouton, pas de bourse, pas de secours", () => {
+  const muet = ctxFrom(fixture.document, null);
+  /* Une pile sans aucune source lisible : ni classe, ni origine. */
+  muet.query = (arg) => (arg && arg.kind === "background" ? (arg.id ? null : []) : (arg && arg.kind === "class" && arg.id ? null : query(arg)));
+  const node = renderEquipmentStep(muet, () => {});
+  const boutons = [...node.querySelectorAll(".aiguilleur-bouton")].map((b) => b.textContent);
+  assert.deepEqual(boutons, ["I keep my kit"], "aucun bouton de bourse : promettre un or qu'on ne sait pas chiffrer est un mensonge");
+  const texte = [...node.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
+  assert.equal(/\d+ GP/.test(texte), false, "et aucun montant n'est inventé — ni 0, ni 50");
+  assert.match(texte, /could not be read|is not named in the data/, "le manque est NOMMÉ au joueur, pas comblé");
+});
+
+test("182 — la bourse POSÉE est celle qui a été ANNONCÉE (le même lecteur des deux côtés)", () => {
+  const docFighter = build.verbs.choose({
+    document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:fighter" }
+  }).document;
+  const vide = withoutCurrency(docFighter);
+  const apres = applyAddStartingPurse(vide);
+  assert.deepEqual(currentCurrency(apres), { cp: 0, sp: 0, gp: 205, pp: 0 },
+    "155 (Fighter) + 50 (Inheritance) — le montant du bouton, à la pièce près");
 });

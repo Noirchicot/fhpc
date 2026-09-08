@@ -106,7 +106,7 @@ import {
   DESTINY_ARCANA_PATH, arcanaNumeral
 } from "./destiny-step.mjs?v=606";
 import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=606";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=606";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=606";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
 import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=606";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=606";
@@ -1608,13 +1608,13 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* LA DÉCISION DU DÉPART (26/08) — kit de classe OU 50 po. UNE écriture au
-     document (`depart`, mesurée acceptée) ; « purse » enchaîne le geste des
-     50 PO déjà ratifié (`addInheritedPurse`), jamais une seconde copie. */
+  /* LA DÉCISION DU DÉPART (26/08) — le paquet OU l'or. UNE écriture au
+     document (`depart`, mesurée acceptée) ; « purse » enchaîne le geste déjà
+     ratifié (`addStartingPurse`), jamais une seconde copie. */
   if (action.kind === "choisirDepart") {
     if (action.valeur !== "kit" && action.valeur !== "purse") { refresh(); return; }
     state.document = verbs.set({ document: state.document, path: "depart", value: action.valeur }).document;
-    if (action.valeur === "purse") { applyDecisionAction({ kind: "addInheritedPurse" }); return; }
+    if (action.valeur === "purse") { applyDecisionAction({ kind: "addStartingPurse" }); return; }
     rebuild();
     refresh();
     return;
@@ -1645,20 +1645,27 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* Les 50 PO ADDENDUMS §4 (commande §1b/§1c) — posées par l'écran, jamais
-     par le moteur. POSE LES QUATRE clefs (le piège de §0.2 : `gp` seul ne
-     produit aucune bourse) et n'ÉCRASE JAMAIS ce qui est déjà là : chaque
-     clef manquante part de 0, et seule `gp` reçoit le supplément (§0.1 — le
-     paquet de classe garde SON propre or, les deux s'additionnent, jamais
-     de collision). `INHERITED_PURSE_GP`/`currentCurrency` viennent
-     d'`equipment-step.mjs` — même carte que le rendu, jamais une seconde
-     copie du nombre. */
-  if (action.kind === "addInheritedPurse") {
+  /* L'OR DE DÉPART (lot 182) — posé par l'écran, jamais par le moteur. POSE
+     LES QUATRE clefs (le piège de §0.2 : `gp` seul ne produit aucune bourse)
+     et n'ÉCRASE JAMAIS ce qui est déjà là : chaque clef manquante part de 0,
+     et le supplément s'ajoute clef par clef (§0.1 — le paquet garde SON propre
+     or, les deux s'additionnent, jamais de collision).
+     ⛔ LE MONTANT NE VIT PAS ICI, ET PLUS NULLE PART DANS UN ÉCRAN :
+     `orDuDepart` le LIT dans la prose de chaque source de départ — c'est la
+     MÊME fonction dont l'aiguilleur compose sa phrase (`equipment-step.mjs`),
+     jamais une seconde copie du nombre. Un écran qui annonce un montant et en
+     pose un autre est le défaut que ce lot vient de retirer.
+     ⚠️ ET UN MONTANT ILLISIBLE NE POSE RIEN : ni bourse vide, ni 50 de secours.
+     L'aiguilleur, lui, n'a même pas offert le bouton. */
+  if (action.kind === "addStartingPurse") {
+    const q = state.engine && state.engine.layers ? state.engine.layers.verbs.query : null;
+    const or = q ? orDuDepart({ query: q, document: state.document }) : { cout: null };
+    if (!or.cout) { refresh(); return; }
     const current = currentCurrency(state.document);
     let document = state.document;
     for (const key of CURRENCY_KEYS) {
       const base = Number.isInteger(current[key]) ? current[key] : 0;
-      const value = key === "gp" ? base + INHERITED_PURSE_GP : base;
+      const value = base + (or.cout[key] || 0);
       document = verbs.set({ document, path: `currency.${key}`, value }).document;
     }
     state.document = document;

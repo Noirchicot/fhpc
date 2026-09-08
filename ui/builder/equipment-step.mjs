@@ -20,12 +20,18 @@
    deux copies divergent sauf si quelque chose les compare. Le joueur COMPOSE
    son sac lui-même avec le chercheur plus bas, en lisant la phrase.
 
-   ── LA BOURSE (commande §1b/§1c) — Les 50 PO ADDENDUMS §4 sont une RÈGLE
-   que le moteur ne connaît pas : c'est CET ÉCRAN qui les pose, jamais
-   automatiquement (`shell.mjs`, action `addInheritedPurse` — un CLIC, pas un
-   effet de rendu, pour ne jamais réécrire une bourse déjà dépensée). Le
-   nombre est nommé UNE FOIS (`INHERITED_PURSE_GP`, plus bas), jamais un `50`
-   nu dans une fonction de rendu.
+   ── LA BOURSE DE DÉPART (lot 182) — L'or de départ est une RÈGLE que le
+   moteur ne dérive pas (`contracts/DERIVATION-FIELDS.md` §6 : la phrase de
+   départ est « un CHOIX du joueur, pas une dérivation », sa lecture appartient
+   à l'interface) : c'est CET ÉCRAN qui la pose, jamais automatiquement
+   (`shell.mjs`, action `addStartingPurse` — un CLIC, pas un effet de rendu,
+   pour ne jamais réécrire une bourse déjà dépensée).
+   ⛔ ET PLUS AUCUN MONTANT N'EST ÉCRIT ICI. La consigne d'hier disait « le
+   nombre est nommé UNE FOIS (`INHERITED_PURSE_GP`), jamais un `50` nu » —
+   📏 mesuré le 09/09 : `50` apparaissait DIX fois dans ce fichier, dont deux
+   dans la prose lue par le joueur. Une loi écrite et non tenue ne protège
+   rien. Chaque montant se LIT maintenant dans la prose de sa source
+   (`orDuDepart`, plus bas), et il n'y a plus de nombre à tenir.
 
    ── 🔴 LE PIÈGE DE LA BOURSE, RENDU VISIBLE, PAS CONTOURNÉ — `CURRENCY_KEYS`
    (importé de `src/build/index.mjs`, JAMAIS recopié : même liste que
@@ -61,7 +67,7 @@ import { armerJeton } from "./glisser.mjs?v=606";
 import { construireLeDressing } from "./b3-dressing.mjs?v=606";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
-import { parseCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
+import { parseCout, additionneCouts, formatCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
   renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=606";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=606";
 
@@ -101,28 +107,119 @@ import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=606";
    et la recherche ne la trouvait pas. Elle est corrigée là-bas, par
    `genresDuRangement` — et le mot de ce commentaire redevient vrai. */
 
-/* 🔴 LA BOURSE DE DÉPART — LES 50 PO **REMPLACENT** LE KIT DE CLASSE.
-   ⚖️ Eric, 2026-09-08, en tranchant `A-TRANCHER §C22` : à la question « les 50 po
-   s'ajoutent au kit, ou le remplacent ? » — **« Le remplacent »**.
+/* ══ 🔴 L'OR DE DÉPART — DEUX SOURCES, UNE RÈGLE, ZÉRO NOMBRE ÉCRIT ICI ══
+   ⚖️ Eric, 2026-09-09 : *« le kit ou les 50 gp peut marcher pour SRD et FH »*,
+   *« fait idem SRD pour FH »*, *« harmonise ça »*. ⇒ **CHAQUE SOURCE DE DÉPART
+   OFFRE SON PAQUET OU SON OR**, et c'est la même règle dans les deux piles.
+   ⭐ C22 (« les 50 PO REMPLACENT le kit », Eric le 08/09) n'est pas défaite :
+   elle est ÉLARGIE. Prendre la bourse, c'est mettre les paquets de côté — de
+   TOUTES ses sources — et prendre l'or que chacune propose à leur place.
 
-   ⛔ CE QUI EST RETIRÉ ICI, ET POURQUOI CE N'ÉTAIT PAS UN COMMENTAIRE MORT : ce
-   bloc portait la lecture ADDITIVE — « le paquet de la CLASSE, PLUS une bourse de
-   50 PO », « les deux s'ADDITIONNENT ». Elle datait du 13/08 et elle était sincère.
-   Mais `shell.mjs` câblait depuis le 24/08 un aiguilleur EXCLUSIF (`kit` | `purse`),
-   sur une autre parole d'Eric — et personne n'avait retiré la première.
-   ⭐ Le module portait donc DEUX RÈGLES CONTRAIRES : l'additive en prose, l'exclusive
-   en code. C'est `C22`, ouverte depuis le 24/08, et la seule contradiction du corpus
-   qui venait du CODE et non de la prose. Le code avait raison ; c'est le commentaire
-   qui mentait, et un siège qui l'aurait lu aurait « réparé » vers l'addition.
+   📏 CE QUE LA DONNÉE PORTE, MESURÉ LE 2026-09-09 sur `layers/` :
+   · `class.data.starting_equipment` — « Choose A or B: (A) …, and 15 GP; or
+     (B) 75 GP » : le paquet porte SON or, et l'option B en porte un AUTRE, un
+     par classe (75 · 90 · 110 · 50 · 155 · 50 · 150 · 150 · 100 · 50 · 100 ·
+     55). Le Fighter en a trois (« Choose A, B, or C »).
+   · `background.data.equipment` — la MÊME forme, et 50 GP pour les quatre
+     arrière-plans du SRD ; l'Inheritance qui les remplace le porte depuis le
+     lot 182 (`src/tools/fh-skills-source.mjs`, jamais le JSON produit).
 
-   📌 CE QUI RESTE VRAI DE L'ANCIEN TEXTE : le nombre est HÉRITÉ, pas inventé — c'est
-   l'option B des quatre arrière-plans SRD supprimés (« … or 50 GP »). Et il est nommé
-   UNE SEULE FOIS, ici, jamais un `50` nu au milieu d'un rendu.
-   ⚠️ ET LE POINT QUI CHANGE DE SENS : le paquet de classe porte SON PROPRE or (le
-   Barbare option A : « … and 15 GP »). Sous la règle additive, cet or s'ajoutait aux
-   50. Sous « remplacent », **il part avec le kit** — qui choisit la bourse n'a que
-   50 PO, pas 50 + 15. */
-export const INHERITED_PURSE_GP = 50;
+   ⚠️ ET LE PIÈGE DE MESURE DE CE LOT, NOMMÉ AVANT D'AVOIR MENTI : **trois
+   classes valent VRAIMENT 50** (Druid, Monk, Sorcerer). Un relevé qui rend 50
+   n'est donc PAS la preuve qu'un `50` en dur est resté — et un relevé qui rend
+   50 partout n'est pas la preuve du contraire non plus. C'est le Fighter (155)
+   et le Wizard (55) qui accusent, pas le Druide.
+
+   ⛔ CE QUI EST RETIRÉ : `export const INHERITED_PURSE_GP = 50`. Le nombre
+   était JUSTE — c'est l'option B des quatre arrière-plans SRD éteints — et il
+   était au mauvais endroit. Un écran ne porte pas une valeur de règle : celle-ci
+   figeait la pile FH sur 50 et rendait FAUX le fil SRD, où un Fighter dont la
+   donnée dit 155 lisait 50 et recevait 50.
+
+   ⛔ LA LECTURE VIT DANS L'INTERFACE, JAMAIS DANS LE MOTEUR —
+   `contracts/DERIVATION-FIELDS.md` §6 : *« C'est un CHOIX du joueur, pas une
+   dérivation […] structurer les phrases pour les PRÉSENTER est un besoin de
+   l'interface (M3) »*. Le refus tient toujours, il est respecté ici.
+   ⛔ ET UN SEUL LECTEUR DE MONNAIE : `parseCout`, déjà écrit dans le pipeline
+   et ANCRÉ des deux bouts. C'est son ancrage qui refuse « 1 Sorcery Point » et
+   qui fait qu'une phrase mal découpée rend `null` au lieu d'un faux montant. */
+
+/** Le champ de prose où chaque genre de source porte son départ. Deux genres,
+ *  deux noms de champ — le SRD ne les a pas nommés pareil, et les renommer
+ *  serait réécrire du SRD à la main (interdit, §L). */
+const CHAMP_DE_DEPART = { class: "starting_equipment", background: "equipment" };
+
+/** Comment nommer une source qui n'a pas encore de record (aucune classe
+ *  choisie) — l'écran doit pouvoir dire CE QUI manque, pas se taire. */
+const MOT_DE_LA_SOURCE = { class: "Your class", background: "Your origin" };
+
+/** L'or de la DERNIÈRE option d'une phrase de départ, ou `null`.
+ *  ⚠️ LA DERNIÈRE, ET C'EST TOUT LE PIÈGE : la phrase du Barbare porte DEUX
+ *  montants (« … and 15 GP; or (B) 75 GP ») — prendre le premier facturerait
+ *  l'or que le paquet contient DÉJÀ, et le nombre rendu serait plausible.
+ *  ⭐ Une phrase à une seule option est sa propre dernière option : c'est ce
+ *  qui permet à l'Inheritance (« 50 GP », pas de paquet à poser) et aux douze
+ *  classes d'être lues par LE MÊME lecteur.
+ *  ⛔ Le découpage échoue en rendant `null`, jamais un nombre : `parseCout`
+ *  est ancré, donc une phrase entière n'y parse pas. */
+export function orDeLaProse(prose) {
+  if (typeof prose !== "string") return null;
+  const options = prose.split(/;\s*or\s+/i);
+  const derniere = options[options.length - 1].replace(/^\s*\(\s*[A-Za-z]\s*\)\s*/, "").trim();
+  return parseCout(derniere);
+}
+
+/** L'or d'UNE source, lu dans SON record : `{nom, prose, cout, underived}`.
+ *  ⭐ UN MONTANT QU'ON NE SAIT PAS LIRE EST UN FAIT DÉCLARÉ, jamais un 0
+ *  consolant ni un 50 de secours — même doctrine que les `underived.*` de
+ *  `derive.mjs` (« un zéro consolant se joue sans que personne le sache »).
+ *  L'écran AFFICHE ce manque, il ne le comble pas. */
+export function orDeLaSource(view, genre) {
+  const champ = CHAMP_DE_DEPART[genre];
+  const record = view && view.record;
+  const data = record && record.data;
+  const nom = record && typeof record.name === "string" ? record.name : null;
+  const prose = champ && data && typeof data[champ] === "string" ? data[champ] : null;
+  if (!prose) return { nom, prose: null, cout: null, underived: "starting-gold.no-phrase" };
+  const cout = orDeLaProse(prose);
+  if (!cout) return { nom, prose, cout: null, underived: "starting-gold.phrase-unreadable" };
+  return { nom, prose, cout, underived: null };
+}
+
+/** L'origine du personnage — l'Inheritance en pile FH, l'arrière-plan choisi
+ *  en pile SRD.
+ *  ⚠️ LIRE SEULEMENT `build.choices` RENDRAIT `null` SUR TOUTE LA PILE FH :
+ *  `inheritance-step.mjs` n'émet AUCUN `choose({path:"background"})` quand le
+ *  genre n'a qu'une option (le repli à une option, contrat §1a). Une absence
+ *  n'est jamais une réponse : on demande alors au genre ce qu'il contient.
+ *  ⛔ Et deux options sans choix posé rendent `null` — on ne devine pas
+ *  laquelle le joueur aurait prise. */
+export function origineDuDepart(query, document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const entry = choices.find((c) => c.path === "background");
+  if (entry && entry.ref) return query({ kind: "background", id: entry.ref.id }) || null;
+  const tous = query({ kind: "background" }) || [];
+  return tous.length === 1 ? tous[0] : null;
+}
+
+/** L'or de départ du personnage : ce que CHAQUE source offre, et le total.
+ *  Rend `{sources: [{genre, nom, prose, cout, underived}], cout}` — `cout`
+ *  vaut `null` tant qu'aucune source n'a pu être lue (⛔ pas `{gp: 0}` : zéro
+ *  pièce et « je ne sais pas » ne se jouent pas pareil).
+ *  ⭐ UN SEUL ÉCRIVAIN POUR CE MONTANT : la prose de l'aiguilleur ET le geste
+ *  qui pose la bourse (`shell.mjs`) appellent CETTE fonction. Deux calculs du
+ *  même nombre divergent au premier jour où l'un des deux est corrigé. */
+export function orDuDepart({ query, document } = {}) {
+  const q = typeof query === "function" ? query : () => null;
+  const refClasse = currentClassRef(document);
+  const vueClasse = refClasse ? q({ kind: "class", id: refClasse.id }) : null;
+  const sources = [
+    { genre: "class", ...orDeLaSource(vueClasse, "class") },
+    { genre: "background", ...orDeLaSource(origineDuDepart(q, document), "background") }
+  ];
+  const lisibles = sources.filter((s) => s.cout);
+  return { sources, cout: lisibles.length ? additionneCouts(lisibles.map((s) => s.cout)) : null };
+}
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -1527,7 +1624,7 @@ function renderGearBlock({ query, onAction }) {
  * @param {object} [ctx.resolved] la fiche dérivée — `resolved.ac`, `resolved.gear`, `resolved.currency`, jamais recalculés
  * @param {Function} ctx.query    `layers.verbs.query`
  * @param {(action:{kind:string, [key:string]:*}) => void} onAction  `set`/`clear` ordinaires, plus les trois gestes
- *   composites de `shell.mjs` : `addGearLine` ({ref,quantity,equipped}), `removeGearLine` ({index}), `addInheritedPurse` ()
+ *   composites de `shell.mjs` : `addGearLine` ({ref,quantity,equipped}), `removeGearLine` ({index}), `addStartingPurse` ()
  */
 /* ══ B8.1 — LE BANDEAU DU HAUT, ET IL FLOTTE ════════════════════════════
    « Le budget en pièces, SANS TROP PRENDRE DE PLACE » · « une molette
@@ -1764,29 +1861,60 @@ export function renderEquipmentStep(ctx, onAction) {
          l'appuie pas »*. Celui-ci porte DEUX boutons. Un aiguilleur qui exige
          une réponse n'est donc pas la même forme qu'un aiguilleur qui prévient
          en passant. À Eric de dire si ce sont deux organes ou un seul. */
+      /* ⭐ LOT 182 — LA PROSE COMPOSE SON MONTANT, ELLE NE LE CONTIENT PLUS.
+         Les deux phrases d'hier portaient « 50 GP » en toutes lettres : un
+         Fighter, dont la donnée dit 155, lisait 50 et recevait 50. Le nombre
+         vient maintenant de `orDuDepart` — LA MÊME LECTURE que celle qui pose
+         la bourse (`shell.mjs`, `addStartingPurse`) : l'écran ne peut plus
+         annoncer un montant et en poser un autre.
+         ⛔ ET LE NOM ACCESSIBLE EST COMPOSÉ AVEC LE MÊME NOMBRE, pas écrit à
+         côté. C'est la faute réparée la veille (`e01ff19` : le nom disait
+         « ADD fifty gold » quand la règle disait « remplacent ») — un nom
+         écrit à la main redevient faux au premier changement de règle, et
+         personne ne le voit puisque l'œil lit l'autre texte. */
+      const or = orDuDepart({ query, document: docu });
+      const detail = or.sources.filter((s) => s.cout)
+        .map((s) => `${s.nom || MOT_DE_LA_SOURCE[s.genre]} ${formatCout(s.cout)}`).join(", ");
+      const total = or.cout ? formatCout(or.cout) : null;
+
       const voile = el("div", "aiguilleur");
       const boite = el("div", "aiguilleur-carte");
       boite.append(
         el("h2", "aiguilleur-titre", [text("Your equipment")]),
         el("p", "aiguilleur-texte", [text(
-          "You start equipped: your class kit is yours, already listed. " +
-          "Or set it aside and take 50 GP to spend as you please — the " +
-          "catalogue is behind the Equipment button.")]),
+          total
+            ? "You start equipped: your class kit is yours, already listed. Or set it " +
+              `aside and take the starting gold instead — ${detail}, ${total} in all. ` +
+              "The catalogue is behind the Equipment button."
+            : "You start equipped: your class kit is yours, already listed. " +
+              "The catalogue is behind the Equipment button.")]),
       );
+      /* ⚠️ CE QUI NE SE LIT PAS SE DIT. Une source dont la phrase de départ
+         manque, ou ne se laisse pas lire, ne vaut ni 0 ni 50 : elle est NOMMÉE
+         au joueur et son or n'entre pas dans le total. Un montant de secours
+         serait une règle inventée par un écran, jouée sans que personne le
+         sache — exactement ce que ce lot vient de défaire. */
+      for (const s of or.sources.filter((s) => !s.cout)) {
+        boite.append(el("p", "aiguilleur-texte", [text(
+          `${s.nom || MOT_DE_LA_SOURCE[s.genre]}: its starting gold ` +
+          (s.prose ? "could not be read from its own text" : "is not named in the data") +
+          ", so it is not offered here.")]));
+      }
       const pied = el("div", "aiguilleur-pied");
       pied.append(
         button("I keep my kit", "aiguilleur-bouton",
           () => act({ kind: "choisirDepart", valeur: "kit" }), "Keep the class kit"),
-        /* ⚖️ « Le REMPLACENT » — Eric, 2026-09-08 (C22). Le texte visible a suivi
-           sa règle au lot 175 ; ⛔ CE NOM ACCESSIBLE, LUI, ÉTAIT RESTÉ SUR LA
-           LECTURE ADDITIVE et disait « ADD fifty gold » — un lecteur d'écran
-           entendait donc l'inverse exact de la règle, et rien ne le voyait
-           puisque l'œil lit l'autre texte. Trouvé le 09/09 en traversant
-           l'écran en ligne, jamais par une relecture du code. */
-        button("Take the 50 GP", "aiguilleur-bouton",
-          () => act({ kind: "choisirDepart", valeur: "purse" }),
-          "Set the class kit aside and take fifty gold instead"),
       );
+      /* ⛔ PAS DE BOUTON SANS MONTANT : proposer « prends l'or » sans savoir
+         lequel poserait une bourse vide sur un clic qui promet le contraire.
+         L'aiguilleur garde sa sortie (« I keep my kit ») — il ne bloque pas. */
+      if (total) {
+        pied.append(
+          button(`Take the ${total}`, "aiguilleur-bouton",
+            () => act({ kind: "choisirDepart", valeur: "purse" }),
+            `Set the class kit aside and take ${total} instead`),
+        );
+      }
       boite.append(pied);
       voile.append(boite);
       noeud.append(voile);

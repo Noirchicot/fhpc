@@ -269,6 +269,7 @@
 - **Eric, 2026-08-24** : *« la fenêtre doit lui dire qu'il a son équipement **ou** 50 po à débourser »* — câblé en aiguilleur **exclusif** (`kit` | `purse`), et la coquille écrit en toutes lettres « kit de classe OU 50 po ».
 - Règles concernées : `equipement-depart-kit-ou-bourse`
 - ⚠️ Le module porte **encore les deux lectures** : la règle additive dans son commentaire de tête, la règle exclusive dans son code. Aucune des deux n'a été retirée. ⛔ Cette contradiction ne vient pas du corpus des 310 — elle vient du code et des commits, et c'est la première de cette origine.
+- ⚖️ **CLOSE, ET ÉLARGIE LE 2026-09-09 (lot 182)** — Eric : *« le kit ou les 50 gp peut marcher pour SRD et FH »*, *« fait idem SRD pour FH »*, *« harmonise ça »*. ⇒ **Chaque source de départ offre SON paquet OU SON or**, et prendre la bourse met les paquets de côté (la lecture exclusive du 08/09, appliquée à toutes les sources). Le commentaire additif a été retiré d'`equipment-step.mjs` avec le `50` qu'il expliquait. 📌 La règle vit désormais en un seul endroit, `ECRANS.md:equipement-depart-kit-ou-bourse`, et son MONTANT vit dans les couches — plus dans un écran.
 
 ## C23 — Quitter une étape non validée par le belt : silence, ou avertissement ? { #c23 }
 
