@@ -1262,6 +1262,11 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
          pour savoir OÙ poser un plancher ; ce fichier ne dit toujours pas
          CE QUE le plancher vaut. */
       imposedSkillSlugs: imposedSkillSlugs.slice(),
+      /* LOT 171, GÉNÉRIQUE : les paliers que le pli a DÉJÀ posés par une
+         bourse captive (classe, espèce). Un module qui gère une grille de
+         paliers en fait des planchers et les compte ; ce fichier ne dit
+         toujours pas ce qu'un palier VAUT ni combien on en tolère. */
+      placedSkillTiers: Object.fromEntries(budgetTier),
       choices: own.map((entry) => ({
         path: entry.choice.path,
         /* Le chemin PRIVÉ DE SON PRÉFIXE. Le point de séparation est retiré

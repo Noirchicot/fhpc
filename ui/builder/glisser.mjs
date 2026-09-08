@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=593";
+import { pageDeListe } from "./normes.mjs?v=603";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=593";
-import { swapContent } from "./socle.mjs?v=593";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=603";
+import { swapContent } from "./socle.mjs?v=603";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=593";
+import { facteurZoomCourant } from "./echelle.mjs?v=603";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -514,7 +514,7 @@ function fantomeSuivre(x, y) {
     `translate(${x / z - fantomeDemi[0]}px, ${y / z - fantomeDemi[1]}px)`;
 }
 
-export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle }) {
+export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, onAction, consigne, onInfo, reutilisable, unite, parPage, rangee: rangeeStyle, compte }) {
   if (!plan || !Array.isArray(slots) || slots.length === 0) return null;
   const act = onAction || (() => {});
   /* 🔴 UNE RANGÉE DE SORTS SE RANGE PAR TROIS — Eric, 2026-08-29 : *« je veux
@@ -539,8 +539,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      donc un régime se mettait à battre un autre par accident (les six caracs
      repassées au socle et rangées 3 + 3). Trois valeurs d'un même attribut ont
      la MÊME spécificité et ne peuvent pas se battre : une seule est vraie. */
+  /* 🔒 LOT 173 — le régime `sorts` SE DÉCLARE aussi (`rangee: "sorts"`), comme
+     `caracs` : le sélecteur d'outils de Skills range ses jetons par trois sans être
+     un écran de sorts (Eric, 07/09 : *« 3 rangées de 3 superposées »*). Le mot
+     dit le régime, le genre du record ne le devine plus seul. */
   bloc.dataset.rangs = rangeeStyle === "caracs" ? "caracs"
-    : refKind === "spell" ? "sorts" : "skills";
+    : (rangeeStyle === "sorts" || refKind === "spell") ? "sorts" : "skills";
   /* 📏 ET LA RANGÉE LA PLUS DENSE SE DÉCLARE — précision du 29/08 au soir.
      La cote cédée divisait par la LOI des collecteurs (4) même quand l'écran
      n'a qu'UN créneau : à 360, Identity rendait des cases de 78 et la tête
@@ -581,7 +585,12 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
      — on CHOISIT des sorts, on DÉPENSE des points, et « 3 of 6 chosen » sur une
      bourse dirait au joueur qu'il lui reste trois choix quand il lui reste deux
      points. ⛔ L'organe ne le devine pas : l'appelant le dit. */
-  if (plan.expected > 1) {
+  /* ⚖️ `compte: false` — la déviation DÉCLARÉE : l'appelant qui porte le compte
+     AILLEURS (le sélecteur de Skills le dit dans son aiguilleur — Eric, 07/09 :
+     *« si on dégage le 0 of 4 picked ? l'aiguilleur en haut peut donner des infos
+     relatives à ce choix »*) le retire d'ici. Une voix, un lieu ; la ligne gagnée
+     (15 + 8) paie la quatrième rangée de jetons. */
+  if (plan.expected > 1 && compte !== false) {
     bloc.append(el("p", "choix-glisse-compte",
       [text(`${plan.answered} of ${plan.expected} ${unite || "chosen"}`)]));
   }

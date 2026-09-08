@@ -19,27 +19,27 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=593";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=593";
-import { mountPopup } from "./popup.mjs?v=593";
-import { renderLorePanel } from "./lore.mjs?v=593";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=593";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=603";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=603";
+import { mountPopup } from "./popup.mjs?v=603";
+import { renderLorePanel } from "./lore.mjs?v=603";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=603";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=593";
-import { STEPS } from "./etapes.mjs?v=593";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=593";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=603";
+import { STEPS } from "./etapes.mjs?v=603";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=603";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=593";
+} from "./tutoriel.mjs?v=603";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=593";
-import { lireLeFichier } from "./ouvrir.mjs?v=593";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=603";
+import { lireLeFichier } from "./ouvrir.mjs?v=603";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -50,14 +50,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=593";
+} from "./echelle.mjs?v=603";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=593";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=603";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -68,51 +68,51 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=593";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=593";
+} from "./fonds.mjs?v=603";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=593";
-import { renderChoixGlisses } from "./glisser.mjs?v=593";
-import { renderConceptStep } from "./concept-step.mjs?v=593";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=593";
-import { renderSkillsStep, renderSkillsBar, skillsCategories, skillsValidate, motDuVerrou } from "./skills-step.mjs?v=593";
+import { planAt, planSlots } from "./carnet.mjs?v=603";
+import { renderChoixGlisses } from "./glisser.mjs?v=603";
+import { renderConceptStep } from "./concept-step.mjs?v=603";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=603";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=603";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=593";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=593";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=593";
+} from "./catalogue.mjs?v=603";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=603";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=603";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=593";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=603";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=593";
+} from "./abilities-step.mjs?v=603";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=593";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=603";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=593";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=593";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=593";
+} from "./destiny-step.mjs?v=603";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=603";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, INHERITED_PURSE_GP } from "./equipment-step.mjs?v=603";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=593";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=593";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=603";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=603";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=593";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=603";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -131,16 +131,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=593";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=593";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=603";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=593";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=593";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=603";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=603";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=593";
+import { versionQuery } from "./version.mjs?v=603";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -435,7 +435,11 @@ function rebuild() {
 function motDeRefus() {
   const v = state.violations[state.violations.length - 1];
   if (!v) return null;
-  if (surCompetences()) return motDuVerrou(v);
+  /* 🧊 LOT 171 — plus de popup de refus sur Skills : le gendarme parle DANS la
+     case de l'aiguilleur (Eric, 07/09 : *« le gendarme superpose temporairement
+     l'aiguilleur »*). Un popup en plus était deux voix pour un refus. `motDuVerrou`
+     reste importé : c'est lui que l'écran lit. */
+  void surCompetences; void motDuVerrou;
   return null;
 }
 
@@ -1242,7 +1246,7 @@ function applyDecisionAction(action) {
        il ne signale rien) · aiguilleur (bleu, il prévient) · gendarme
        (rouge, il dit l'erreur). La teinte vit en CSS, jamais ici. */
     state.popup = action.texte
-      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide" }
+      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide", actions: action.actions || null }
       : null;
     refresh();
     return;
@@ -1440,6 +1444,23 @@ function applyDecisionAction(action) {
   /* Chaque verbe REND `{document}` — il ne mute pas en place (contracts/
      build.md). C'est ce document-là qui doit passer à `rebuild`, jamais
      celui d'avant. */
+  /* 🔒 LOT 173 — le `Done` du sélecteur d'outils / trainings de Skills : il ferme le
+     sélecteur (les collecteurs entrent dans la page, vides), il n'écrit rien au
+     personnage — donc pas de `rebuild`, un redessin. Le bouton est celui du pied,
+     déclaré par l'hôte (`data-sortie-verbe`), fabriqué par la coquille. */
+  if (action.kind === "skillsAjoutFermer") {
+    skillsFermerAjout();
+    refresh();
+    return;
+  }
+  if (action.kind === "skillsAjoutAnnuler") {
+    skillsAnnulerAjout();
+    refresh();
+    return;
+  }
+  /* Le sélecteur s'OUVRE : l'écran a changé son état, la coquille redessine — le pied
+     change de paire, et c'est elle qui la fabrique. Aucune écriture au personnage. */
+  if (action.kind === "skillsRedessiner") { refresh(); return; }
   if (action.kind === "resetSkills") {
     /* LOT 39, décision n°2 — *Reset* ne rend que les points DÉPENSÉS : une
        suite de `clear` sur le MÊME document, un seul `rebuild` à la fin.
@@ -1447,9 +1468,18 @@ function applyDecisionAction(action) {
        donc balayer les 62 chemins possibles ne coûte rien de plus qu'un
        clear unique. */
     let document = state.document;
-    for (const path of action.paths) {
+    /* 🔒 LOT 171 — les chemins sont LUS dans le document (tout ce qui est libre,
+       rien de ce qui est lié) quand le bouton du pied ne les porte pas ; `Reset`
+       lève aussi la signature (le compte va changer) et l'écran oublie les
+       lignes ajoutées sans point. */
+    const chemins = Array.isArray(action.paths) ? action.paths : skillsCheminsDeReset(document);
+    for (const path of chemins) {
       document = verbs.clear({ document, path, kind: "choice" }).document;
     }
+    if (state.docWriters && estConfirme(document, "skills")) {
+      document = state.docWriters.revoke({ document, path: "skills" });
+    }
+    skillsReinitialiserEcran();
     state.document = document;
     rebuild();
     refresh();
@@ -1660,6 +1690,13 @@ function applyDecisionAction(action) {
       ? verbs.set({ document: state.document, path: action.path, value: action.value })
       : verbs.clear({ document: state.document, path: action.path, kind: "choice" });
   state.document = out.document;
+  /* 🔒 LOT 171 — UNE DÉPENSE APRÈS `Done` DÉ-SIGNE SKILLS. Eric, 07/09 : un rond
+     vert se vide d'un second tap, même après validation ; une étape dont le compte
+     peut encore bouger n'est pas complète (même loi que le bilan d'Abilities). */
+  if (typeof action.path === "string" && action.path.startsWith("fh.skills.")
+    && state.docWriters && estConfirme(state.document, "skills")) {
+    state.document = state.docWriters.revoke({ document: state.document, path: "skills" });
+  }
   rebuild();
   refresh();
 }
@@ -1688,7 +1725,10 @@ let destinyTimer = null;
 function skillsCtx() {
   return {
     resolved: state.resolved, decisions: state.decisions, violations: state.violations,
-    query: state.engine.layers.verbs.query, cursor: state.cursor
+    query: state.engine.layers.verbs.query, cursor: state.cursor,
+    /* 🟢 LA SIGNATURE VIENT DE LA COQUILLE, JAMAIS DE L'ÉCRAN (lot 171) — même
+       partage qu'avec `destiny-step`. */
+    signe: Boolean(state.docWriters && state.document && estConfirme(state.document, "skills"))
   };
 }
 function equipmentCtx() {
@@ -2256,12 +2296,11 @@ function renderStepContent() {
   } else if (step.id === "destiny") {
     card.append(el("p", "placeholder", [document.createTextNode("Loading the engine…")]));
   } else if (step.id === "skills" && state.engine) {
-    card.append(renderSkillsStep({
-      resolved: state.resolved,
-      decisions: state.decisions,
-      violations: state.violations,
-      query: state.engine.layers.verbs.query
-    }, applyDecisionAction));
+    /* 🟢 LE MÊME `ctx` QUE LA PORTE (lot 171) : `skillsCtx()` porte la signature
+       (`signe`), que l'écran lit pour dire sa conclusion verte et déclarer `Next`.
+       Deux fabricants du ctx auraient divergé — et l'ont fait : le belt était vert
+       pendant que l'écran disait encore `Done` (mesuré au banc le 07/09). */
+    card.append(renderSkillsStep(skillsCtx(), applyDecisionAction));
   } else if (step.id === "skills" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
       "Engine failed to load: " + state.engineError)]));
@@ -3337,7 +3376,9 @@ const TUTO_IDENTITY = {
 };
 
 /** Les étapes dont le `Done` VAUT signature — voir `pressDone`. */
-const SIGNE_SUR_DONE = new Set(["concept"]);
+/* 🔒 LOT 171 — Skills se signe sur `Done` (Eric, 07/09 : *« Done on valide, la phrase
+   verte, le belt vert. Next on part »*) : même geste que Identity. */
+const SIGNE_SUR_DONE = new Set(["concept", "skills"]);
 
 const IDENTITY_PARCOURS = {
   path: "concept", kind: null, label: "Identity",
@@ -4230,11 +4271,11 @@ function renderSortieEtape(hote) {
   /* 🔴 `abilityClear` EST UN VERBE DÉCLARÉ, PAS UN PALIER : en scène 2 de B1, le
      retour efface le lot et ramène en scène 1 — reculer jusqu'au R se fait au
      pas suivant. Le bouton n'émet qu'un verbe ; c'est la coquille qui l'exécute. */
-  const auRetour = decl.sortieVerbe === "abilityClear"
-    ? () => applyDecisionAction({ kind: "abilityClear" })
-    : decl.sortieVerbe === "abilityBilanCancel"
-      ? () => applyDecisionAction({ kind: "abilityBilanCancel" })
-      : () => pressBack();
+  /* 🔒 LOT 171 — un hôte déclare N'IMPORTE QUEL verbe de retour (`Reset` de Skills
+     émet `resetSkills`) : le bouton n'émet qu'un verbe, la coquille l'exécute. */
+  const auRetour = decl.sortieVerbe
+    ? () => applyDecisionAction({ kind: decl.sortieVerbe })
+    : () => pressBack();
   /* 🔴 LE BOUTON EXISTE QUAND `pressBack()` A QUELQUE CHOSE À QUITTER — et ces
      deux-là DOIVENT dire la même chose. Mesuré cassé le 2026-09-03 : le
      catalogue de Destiny était devenu un cran de recul dans `pressBack()`, et
@@ -4257,13 +4298,14 @@ function renderSortieEtape(hote) {
      ⛔ Ce n'est pas une exception de plus : c'est la règle appliquée à un mot
      qu'on n'avait encore jamais colorié. Les trois mots existaient, deux
      seulement avaient leur teinte. */
-  if (back) back.className = "sortie-bouton " + (motDuRetour === "Cancel" ? "sortie-annule" : "sortie-back");
+  const defait = motDuRetour === "Cancel" || motDuRetour === "Reset"; // lot 171 : `Reset` défait, donc rouge
+  if (back) back.className = "sortie-bouton " + (defait ? "sortie-annule" : "sortie-back");
   /* 🔴 `Cancel` EST ROUGE QUAND IL A QUELQUE CHOSE À ABANDONNER — Eric, 06/09 :
      *« le cancel est rouge dès le début des tirages »*. Sur Abilities, il y a
      quelque chose à abandonner dès le PREMIER jet (`abilityRevele`) ou dès qu'un
      lot existe ; ailleurs, `Cancel` n'est produit que s'il y a un choix à
      relâcher, donc il est armé. La feuille ne peint que `[data-arme="true"]`. */
-  if (back && motDuRetour === "Cancel") {
+  if (back && defait) {
     const surAbilities = STEPS[state.step] && STEPS[state.step].id === "abilities";
     back.dataset.arme = String(surAbilities ? (state.abilityRevele > 0 || Boolean(state.abilityRoll)) : true);
   }
@@ -4280,12 +4322,23 @@ function renderSortieEtape(hote) {
      partout où `Back` n'existe pas, dans l'autre sens. */
   /* 🏁 LE MOT DU `Done` SE DÉCLARE AUSSI (`data-sortie-done-mot`) : sur le bilan
      d'Abilities il dit `Next` — la même porte, le même geste, le mot du croquis. */
-  const done = ((cfgRetour && cfgRetour.sansDone) || decl.sortieSansDone === "true") ? null : button(decl.sortieDoneMot || "Done", () => pressDone());
+  /* 🔒 LOT 173 — un hôte peut déclarer le VERBE du bouton de droite (`data-sortie-done-verbe`) :
+     le sélecteur de Skills y met « Add tool » (verbe `skillsAjoutFermer`), qui n'est pas
+     le `Done` de l'étape — il ne signe rien. Sans déclaration, c'est `pressDone()`. */
+  const done = ((cfgRetour && cfgRetour.sansDone) || decl.sortieSansDone === "true") ? null
+    : button(decl.sortieDoneMot || "Done", () => (decl.sortieDoneVerbe ? applyDecisionAction({ kind: decl.sortieDoneVerbe }) : pressDone()));
   if (done) done.className = "sortie-bouton sortie-done";
   /* B0.11 lu à travers I.4 — il s'allume aux conditions DU PALIER COURANT.
      Éteint, il reste LISIBLE : un bouton qu'on ne peut pas presser doit dire
      pourquoi par son apparence, jamais disparaître. */
-  if (done) { done.dataset.lit = String(gate.ready); done.disabled = !gate.ready; }
+  /* 🔒 LOT 173 — UN VERBE DÉCLARÉ PORTE SA PROPRE PORTE. Eric, 07/09 06:4x : *« le
+     bouton add tool n'importe pas le ou les tools choisis »* — mesuré au banc : à 13
+     points dépensés sur 14, `gate.ready` était faux et « Add tool » héritait de la porte
+     du `Done` de l'étape, éteint et inerte. Le bouton d'un verbe déclaré ne signe rien :
+     sa porte est celle que l'hôte déclare (`data-sortie-done-pret`, « true » par défaut —
+     Skills l'éteint tant qu'aucun collecteur n'est pris), jamais celle du palier. */
+  const pret = decl.sortieDoneVerbe ? decl.sortieDonePret !== "false" : gate.ready;
+  if (done) { done.dataset.lit = String(pret); done.disabled = !pret; }
   /* 🟢 L'AVANCEMENT DE L'ITEM, LU AU CARNET — 27/08, revue d'Archi 28 :
      « Done reste GRIS à 3 of 3 chosen ». `gate.ready` dit si le bouton
      RÉPOND (toujours, sur un item) ; `data-avance` dit où en est le CONTENU —
@@ -4673,6 +4726,25 @@ function paintPopup() {
      `innerHTML` — la coquille n'en a plus aucun depuis le lot 65. */
   for (const paragraphe of String(state.popup.texte).split("\n").filter((l) => l.trim() !== "")) {
     contenu.push(el("p", "popup-texte", [document.createTextNode(paragraphe)]));
+  }
+  /* 🔒 LOT 173 — UN POPUP PEUT PORTER DES ACTIONS (Eric, 07/09 04:0x : *« permettra
+     aussi d'avoir l'option d'enlever un tool ou training du tableau »*). Chaque action
+     est `{ mot, faire }` : le bouton n'émet qu'un geste, l'écran qui a ouvert le popup
+     sait ce qu'il fait ; le popup se ferme d'abord, le geste redessine ensuite. Le mot
+     dit le geste, et « Remove » DÉFAIT — donc le rouge de la famille (§6). */
+  if (Array.isArray(state.popup.actions) && state.popup.actions.length > 0) {
+    const rangee = el("div", "popup-actions");
+    for (const action of state.popup.actions) {
+      if (!action || typeof action.faire !== "function") continue;
+      const b = button(action.mot, () => { state.popup = null; action.faire(); });
+      /* ⛔ Pas la classe de la SORTIE (`sortie-back` n'a qu'un producteur, garde 17) :
+         c'est un bouton de fiche (`fiche-action`, l'octogone à libellé), et l'état
+         `data-defait` peint le rouge de ce qui coûte. */
+      b.className = "fiche-action popup-action";
+      b.dataset.defait = action.defait ? "true" : "false";
+      rangee.append(b);
+    }
+    contenu.push(rangee);
   }
   frame.popupLayer.show(contenu);
 }

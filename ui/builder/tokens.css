@@ -103,6 +103,13 @@
   --tier-1: #765299; /* demi (½)   — 4,54:1 sur --sunken jour */
   --tier-2: #60437d; /* plein (●)  — 6,01:1 */
   --tier-3: #49335f; /* expertise (★) — 8,12:1 */
+  /* ── LE LIÉ — une PROVENANCE, pas un rang (lot 171, arbitrage d'Archi 32 le 07/09) ──
+     Eric : *« le bound est un halo violet »*. Il PART de la valeur de `--tier-1`
+     et c'est honnête ; ce qui ne le serait pas, c'est qu'il ne puisse pas en
+     diverger : le jour où le violet du Novice bouge pour un contraste, le halo
+     du lié n'a aucune raison de bouger avec. Un halo de 3 blg sur `--surface`,
+     ⛔ il ne porte jamais d'encre — son contraste est celui d'un trait, pas d'un texte. */
+  --lie: #765299;
 
   /* ══ L'ÉCHELLE, ET LE MOT QUI VA AVEC — Eric, 2026-08-30 ═══════════════
      ⭐ LE **blg** (« blurg », abrégé `blg`) : l'unité de dessin du builder.
@@ -708,14 +715,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=593");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=603");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=593");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=603");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -808,8 +815,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=593");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=593");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=603");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=603");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
@@ -952,6 +959,7 @@
     --tier-1: #9e81bb; /* demi   — 4,53:1 sur --sunken nuit */
     --tier-2: #b29bc9; /* plein  — 6,05:1 */
     --tier-3: #c7b7d8; /* expertise — 8,03:1 */
+    --lie: #9e81bb; /* le lié, la nuit — même départ que --tier-1, libre d'en diverger */
 
     /* LOT 59 — la SEULE chose du décor qui bascule : l'image. Les trois
        voiles ne sont pas redéclarés (ce sont des pourcentages, pas des

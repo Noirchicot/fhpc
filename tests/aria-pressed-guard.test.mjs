@@ -248,13 +248,19 @@ test("Skills — chaque rond de palier s'annonce, et il n'y en a plus que trois 
      retiré le tiret, B7.2d a déménagé la bourse : le compte baisse
      mécaniquement d'un quart. Le plancher suit la mesure, il ne la précède
      pas — et il reste un plancher LARGE, pas un compte exact. */
-  assertToutBoutonActifAnnonceSonEtat(node, "Skills", 150);
-  const lignes = node.querySelectorAll(".skills-row");
-  assert.ok(lignes.length > 50, `témoin : la grille est bien peuplée (${lignes.length} lignes)`);
+  /* REWRITTEN 2026-09-07 (lot 171) — l'écran montre UNE page à la fois (le
+     croquis d'Eric) : le plancher de boutons à état descend à la page la plus
+     peuplée (Knowledge, 8 lignes × 3 ronds = 24), et c'est encore un plancher
+     LARGE. Le témoin de peuplement lit les six pages du tambour, pas un compte
+     de lignes rendues d'un coup. */
+  assertToutBoutonActifAnnonceSonEtat(node, "Skills", 20);
+  const lignes = node.querySelectorAll(".skills-ligne");
+  assert.ok(lignes.length >= 5 && lignes.length <= 8,
+    `témoin : la page courante est une catégorie de compétences (5 à 8 lignes) — trouvé ${lignes.length}`);
   for (const ligne of lignes) {
-    const ronds = ligne.querySelectorAll(".skills-tier-btn");
+    const ronds = ligne.querySelectorAll(".skills-rond");
     assert.ok(ronds.length === 0 || ronds.length === 3,
-      `B7.4 : une ligne porte TROIS ronds, ou aucun (lignes sans palier achetable) — trouvé ${ronds.length}`);
+      `Eric, 07/09 : une ligne de compétence porte TROIS ronds (◐ ● ◉), ou aucun sur une pile SRD nue — trouvé ${ronds.length}`);
   }
 });
 

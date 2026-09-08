@@ -319,6 +319,32 @@ function expertiseFromLevel(classRef, pool, traitGrantsOuverts) {
   return parLeTrait.length > 0 ? Math.min(level, ...parLeTrait) : level;
 }
 
+/* ── 🔒 LOT 171 — QUI OUVRE LA PORTE DIT COMBIEN PASSENT ─────────────
+   Eric, 2026-09-07 : *« c'est 2 max »* (le Rogue, kit lié compris) · *« plus de
+   limite au-delà du lvl 1 si t'es un Rogue »* · *« les autres auront droit à
+   UNE Expertise grâce à Late Bloomer »*.
+
+   Deux portes, deux comptes, et c'est la porte OUVERTE qui compte :
+     · la CLASSE ouvre (`level ≥ expertise_from_level`) → `expertise_cap`
+       (`{through_level, max}`) — le Rogue : 2 jusqu'au niveau 1, rien au-delà ;
+     · seul un TRAIT ouvre → le plus petit `maxExpertise` des grants ouverts,
+       tant que la classe n'a pas pris le relais.
+   Rend `{max, throughLevel, feature}` ou `null` quand rien ne borne. Le compte
+   lui-même (`deja`) est fait par l'appelant sur ce qui est RÉELLEMENT posé —
+   bourse comprise, depuis ce lot. */
+function plafondDExpertise(classRef, pool, level, traitGrantsOuverts) {
+  const verrouDeClasse = expertiseFromLevel(classRef, pool, []);
+  if (level >= verrouDeClasse) {
+    const cap = expertiseCap(classRef, pool);
+    return level <= cap.through_level ? { max: cap.max, throughLevel: cap.through_level, feature: null } : null;
+  }
+  const porteurs = (Array.isArray(traitGrantsOuverts) ? traitGrantsOuverts : [])
+    .filter((grant) => grant.unlocksExpertise === true);
+  if (porteurs.length === 0) return null; // le verrou de niveau a déjà refusé
+  const leMoins = porteurs.reduce((a, b) => (b.maxExpertise < a.maxExpertise ? b : a));
+  return { max: leMoins.maxExpertise, throughLevel: verrouDeClasse - 1, feature: leMoins.feature, unlockLevel: verrouDeClasse };
+}
+
 /* ── LE PLAFOND D'EXPERTISES DU NIVEAU 1 (lot 169) ───────────────────
    Eric, 2026-09-06, en tranchant Late Bloomer : *« deux expertises max au
    niveau 1 »*, *« pour lui comme pour n'importe qui »*. C'est une règle NEUVE
@@ -494,6 +520,17 @@ function verifierLaFormeDUnGrant(classRef, grant, quoi) {
     fail(`the class record "${classRef.id}" carries a ${quoi} with no usable \`feature\` name. The breakdown line ` +
       "is labelled with it, copied from the record (loi §0.13) — without it the player would read points " +
       "arriving from nowhere.");
+  }
+  /* 🔒 LOT 171 — UN TRAIT QUI OUVRE L'EXPERTISE DIT COMBIEN. Eric, 07/09 : *« les
+     autres auront droit à UNE Expertise grâce à Late Bloomer »*. Le nombre est
+     LU (`maxExpertise`), jamais écrit ici — même loi que `expertise_cap`. Une
+     aptitude de CLASSE, elle, n'en porte pas : quand la classe ouvre, c'est
+     `expertise_cap` qui compte, et au-delà de `through_level` plus rien. */
+  if (quoi === "trait grant" && grant.unlocksExpertise === true &&
+    (!Number.isInteger(grant.maxExpertise) || grant.maxExpertise < 0)) {
+    fail(`the class record "${classRef.id}" carries a ${quoi} for "${grant.trait}" that unlocks expertise without a ` +
+      `readable \`maxExpertise\` (${JSON.stringify(grant.maxExpertise)}) — a permission without a count is a cap ` +
+      "the engine cannot apply, and a character it would let out of creation above the rule.");
   }
 }
 
@@ -786,9 +823,12 @@ export function createFhSkillPoolStat() {
      * @param {Array}  input.refs     les records que le personnage désigne HORS de ce namespace — ce module lit la CLASSE et l'ARRIÈRE-PLAN
      * @param {string[]} [input.imposedSkillSlugs] les slugs que le pli a déjà placés en maîtrise pleine
      *   (arrière-plan, classe, espèce) — lot 34, le PLANCHER de la grille à quatre paliers.
+     * @param {Object<string,string>} [input.placedSkillTiers] 🔒 lot 171 — les paliers que le pli a déjà
+     *   POSÉS par une bourse captive (`{slug: "novice"|"adept"|"expert"}`) : un plancher chacun, et
+     *   comptés dans le plafond d'Expertises. Sans eux, le pool écrasait la bourse et le plafond ne la voyait pas.
      * @returns {{stat: object|null, underived: Array, consumed: string[], skillTiers?: object, traits?: Array}}
      */
-    contribute({ level, species, choices, records, refs, imposedSkillSlugs, proficiency }) {
+    contribute({ level, species, choices, records, refs, imposedSkillSlugs, placedSkillTiers, proficiency }) {
       const underived = [];
       const lines = [];
       /* REWRITTEN 2026-09-06 (lot 169) — `violations` était déclaré au §5, juste
@@ -946,6 +986,17 @@ export function createFhSkillPoolStat() {
          chaque slug — le plancher d'abord, la dépense du joueur ensuite. */
       const tierBySlug = {}; // slug → nom de palier, USAGE INTERNE seulement
       for (const slug of Array.isArray(imposedSkillSlugs) ? imposedSkillSlugs : []) tierBySlug[slug] = "novice";
+      /* 🔒 LOT 171 — LA BOURSE EST UN PLANCHER, ET ELLE COMPTE. Mesuré le 06/09
+         (INVENTAIRE-LOT-171, cas A · C · G) : un expert posé par la bourse de
+         classe n'était ni un plancher (le pool le redescendait en novice pour
+         1 point) ni compté (un Rogue sortait avec trois Expertises). Le pli tend
+         désormais ces paliers ; ce module les sème AVANT la dépense, comme les
+         imposés — et un palier posé n'est pas un mot de ce module : il vient de
+         la bourse, qui l'a déjà jugé légal. Un palier illisible est un refus du
+         pli, pas de ce module. */
+      for (const [slug, tier] of Object.entries(placedSkillTiers || {})) {
+        if (TIER_ORDER.includes(tier) && tier !== "none") tierBySlug[slug] = tier;
+      }
       /* LOT 36 — les trainings acquis, à publier dans `resolved.traits[]`
          par le canal générique que `derive.mjs` recopie sans jamais nommer
          la mécanique qui l'a produit (§0.12, même discipline que
@@ -1026,13 +1077,18 @@ export function createFhSkillPoolStat() {
              ferait refuser le SUIVANT pour une expertise qui n'existe pas.
              ⛔ Il ne compte que ce que ce module a RÉELLEMENT posé — le bound
              ne passe jamais par `expert`, et un refus a déjà `continue`. */
-          if (value === "expert") {
-            const cap = expertiseCap(classRef, pool);
+          /* 🔒 LOT 171 — deux plafonds, un seul compte, bourse comprise. */
+          if (value === "expert" && tierBySlug[slug] !== "expert") {
+            const plafond = plafondDExpertise(classRef, pool, level, ouverts);
             const deja = Object.values(tierBySlug).filter((tier) => tier === "expert").length;
-            if (level <= cap.through_level && tierBySlug[slug] !== "expert" && deja >= cap.max) {
-              violations.push(buildViolation("skill-spend.expertise-capped", {
-                path, skillId: slug, level, max: cap.max, throughLevel: cap.through_level
-              }, path));
+            if (plafond && deja >= plafond.max) {
+              violations.push(plafond.feature === null
+                ? buildViolation("skill-spend.expertise-capped", {
+                  path, skillId: slug, level, max: plafond.max, throughLevel: plafond.throughLevel
+                }, path)
+                : buildViolation("skill-spend.trait-expertise-capped", {
+                  path, skillId: slug, level, max: plafond.max, feature: plafond.feature, unlockLevel: plafond.unlockLevel
+                }, path));
               continue;
             }
           }
