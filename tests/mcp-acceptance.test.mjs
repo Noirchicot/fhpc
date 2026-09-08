@@ -225,8 +225,10 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     assert.ok(texte.includes(String(entry)), `le texte doit porter la RAISON de « ${entry.field} »`);
   }
   assert.match(texte, /RECORDS RECOUVERTS \(\d+\)/, "et `shadowed` a sa ligne, même vide");
-  assert.match(texte, /CHOIX NON CONSOMMÉS \(5\)/,
-    "lignage, don d'arrière-plan, mode de caractéristiques, don homebrew, langue");
+  assert.match(texte, /CHOIX NON CONSOMMÉS \(4\)/,
+    "lignage, don d'arrière-plan, don homebrew, langue. ⚠️ CINQ jusqu'au 2026-09-08 : " +
+    "`abilities.mode` est devenu un SOUVENIR DÉCLARÉ — il n'est plus un choix inerte, " +
+    "c'est un champ qu'aucune règle ne DOIT lire. Le chiffre reste exact, pas assoupli.");
 
   assert.equal(result.isError, false, "un rebuild qui réussit n'est pas un échec, et il le dit");
 });
@@ -260,7 +262,10 @@ test("`build.validate` ne trouve rien à redire — et un refus reste un RÉSULT
   assert.equal(result.structuredContent.ok, true);
   assert.deepEqual(result.structuredContent.violations, []);
   const inertes = result.structuredContent.warnings.filter((line) => line.includes("n'a été consommé"));
-  assert.equal(inertes.length, 5);
+  assert.equal(inertes.length, 4,
+    "quatre orphelins depuis le 2026-09-08 — `abilities.mode` est sorti par `memos`, " +
+    "pas par la porte des défauts. ⛔ Un cinquième qui reviendrait ici serait un VRAI " +
+    "orphelin, et il faudrait le réparer, pas le déclarer.");
 });
 
 test("le document sort par `mcp.document` ET par la resource — le même, au caractère près", () => {

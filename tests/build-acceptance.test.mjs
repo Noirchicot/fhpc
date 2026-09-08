@@ -515,5 +515,16 @@ test("`validate` ne trouve rien à redire au personnage d'acceptation", () => {
      c'est le seul endroit qui dise à un joueur « ce que tu as coché ne change
      rien à ta fiche ». */
   const inertes = verdict.warnings.filter((line) => line.includes("n'a été consommé"));
-  assert.deepEqual(inertes.length, 5, "lignage, don d'arrière-plan, mode de caractéristiques, don homebrew, langue");
+  assert.deepEqual(inertes.length, 4,
+    "lignage, don d'arrière-plan, don homebrew, langue. ⚠️ ILS ÉTAIENT CINQ jusqu'au " +
+    "2026-09-08 : « mode de caractéristiques » (`abilities.mode`) est sorti de cette liste " +
+    "parce qu'il est devenu un SOUVENIR DÉCLARÉ (`SOUVENIRS_DECLARES`, derive.mjs) — aucune " +
+    "règle ne DOIT le lire. ⛔ Ce garde n'a pas été assoupli : il compte toujours au chiffre " +
+    "exact, et les quatre qui restent sont de vrais orphelins.");
+  /* ⭐ ET LA MOITIÉ QUI MANQUAIT : le souvenir doit être QUELQUE PART, sinon on
+     l'aurait simplement fait disparaître au lieu de le ranger. */
+  const rapport = dispatch("build.rebuild", {});
+  assert.ok((rapport.memos || []).some((m) => m.path === "abilities.mode"),
+    "⛔ `abilities.mode` n'est plus averti ET n'est pas dans `memos` : il a été effacé, " +
+    "pas déclaré. Un souvenir qu'on ne voit nulle part est une information perdue.");
 });
