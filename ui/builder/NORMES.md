@@ -4293,6 +4293,18 @@ confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 📍 `bouton-trois-verbes` · vivante · 26/08
 ⚖️ **Trois familles, trois verbes, aucun recouvrement : `Back`/`Next` NAVIGUENT (bleu), `Done` VALIDE (vert), `Cancel` DÉFAIT (rouge + popup).**
 
+> ⚠️ **UN ORGANE DIVERGE AUJOURD'HUI, ET IL EST NOMMÉ PLUTÔT QUE REPEINT — 08/09.**
+> 📏 Mesuré sur `origin/main` `a251d47` : `Build a character` porte `.tdc-majeur`, dont la feuille
+> dit `background: var(--positive)` — **vert** — et dont le code dit *« il NAVIGUE vers Identity »*.
+> ⛔ **Un geste qui navigue et qui est vert n'entre dans aucune des trois familles.**
+> ⏳ **Un relais l'annonce comme un choix d'Eric du 08/09, ⛔ sans citer ses mots** — je ne le grave
+> donc **pas** comme une décision *(`socle-un-arbitrage-ne-se-relaie-pas-de-seconde-main`)*, et la
+> question est ouverte à `A-TRANCHER § C29`.
+> 🔴 **⛔ ET AUCUN LOT NE REPEINT CE VERT EN BLEU tant qu'Eric n'a pas parlé.** Si c'est bien son
+> choix, un siège qui « répare » défait une décision ; si ce n'en est pas un, c'est à lui de le
+> dire. ⭐ *C'est le même traitement que les deux familles grises de `§C24` : une norme neuve ne se
+> câble pas en repeignant au hasard ce qu'elle condamne.*
+
 > ✍️ **CORRIGÉ EN PLACE LE 2026-09-06 — le mot a changé, les trois verbes n'ont pas bougé.**
 > La phrase citait encore `I changed my mind` en quatrième libellé ; il a été retiré du
 > produit le 05/09 *(`bouton-deux-mots-retour-et-couleur-se-deduit-mot` : « deux mots, pas

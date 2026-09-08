@@ -314,6 +314,7 @@
 **Question : pourquoi `Identity` porte sa trilogie complète en R1 et la perd en R2 (le bilan), et est-ce voulu ?**
 
 - 📏 **Relevé écran par écran le 2026-09-06 à 14:31** par le siège BOUTONS, sur un personnage-témoin avec une classe choisie. Douze rangées inspectées ; **cinq n'ont pas de livre**.
+- ✅ **ET L'EXCEPTION DU MENU EST TOMBÉE LE 08/09** : 📏 mesuré sur `origin/main` `a251d47`, `universe-step.mjs` porte **`fiche-livre`** et une rangée `tdc-pied`. ⭐ **`rangee-trilogie-due-partout` est donc tenue par le Menu aussi** — un des cinq écrans sans livre du relevé du 06/09 n'en fait plus partie.
 - ⚖️ **QUATRE SONT CLOSES PAR ERIC LE 06/09** : *« Sheet et Équipement, Skills et Menu **sont à reconstruire**, donc on peut les laisser tranquille pour le moment »* — réparer le pied d'un écran qu'on va démonter, c'est payer deux fois.
 - 🔴 **⛔ ET CETTE CONSIGNE NE VISE QUE L'HABILLAGE — PRÉCISÉ LE 2026-09-08, PARCE QU'ELLE ALLAIT BLOQUER UN LOT.** Eric, le 08/09 : *« j'ai besoin de voir un builder fonctionnel. Donc **de finir le chapitre Équipement**. Ensuite Menu. Ensuite Sheet. »*
 
@@ -357,7 +358,7 @@
   | ① | **la trilogie** — le Menu n'a **pas de livre** | `rangee-trilogie-due-partout` : report, ⛔ **pas dispense** |
   | ② | **le vert / rouge sur les DEUX organes on/off** — voir le détail ci-dessous | Eric le 06/09 à 03:2x, puis *« c'est surtout dans le menu, qui devra être refait un jour — chantier à part »*, puis *« les boutons on/off passeront en rouge vert aussi »* |
   | ③ | **un bouton de déblocage** *(efface les cinq préférences et recharge)* | ⚠️ **et il ne doit PAS vivre là** — voir l'avertissement ci-dessous |
-  | ④ | **`My characters`** — la liste des personnages | ⛔ bloqué en amont par **l'ENTRÉE de fichier**, ⛔ **pas** par la sauvegarde : celle-ci existe *(corrigé le 06/09, ci-dessous)* |
+  | ④ | **`My characters`** — la liste des personnages | 🟡 **`B1` existe, l'organe est vivant** *(mesuré le 08/09 : 3 occurrences dans `universe-step.mjs`)* ; la LISTE attend le préfixe de clef que `memoire.mjs` annonce depuis le 20/08. ⛔ Il n'a **jamais** été « bloqué par la sauvegarde » — c'était le fait faux corrigé le 06/09 |
   | ⑤ | **le rangement du scroll lui-même** | sept sections, aucune hiérarchie déclarée |
 - 🔴 **LE DÉTAIL DE ② — ET CE SONT DEUX ORGANES, PAS UN.** ⚠️ Eric dit *« les boutons on/off passeront en rouge vert **aussi** »* : le mot **aussi** élargit sa consigne du 06/09 03:2x, qui ne visait que le premier. 📏 Mesurés dans `shell.css` le 06/09 :
   | l'organe | ce qu'il est | ce qu'il rend aujourd'hui | ce qu'il doit rendre |
@@ -443,3 +444,20 @@
 - ⚠️ **TROIS DES DIX ONT ÉTÉ POSÉES ICI, ET SEULEMENT PARCE QU'ELLES COMMANDENT UN LOT DU BUILDER** : un écran qui ajouterait un login, un cache, ou un réglage muet les enfreindrait sans qu'aucun garde ne rougisse. ⛔ **Les cinq autres n'ont pas été gravées** : la loi 8 *(guidé / expert)* décrit une forme de produit qu'aucun écran ne porte encore ; les lois 4, 6, 7, 9 ne régissent aucun organe. **Les écrire ici serait ouvrir un corpus de produit de ma propre initiative** — c'est une décision d'Eric.
 - ➡️ **LA QUESTION, EN UNE LIGNE** : *les lois du produit reçoivent-elles un lieu — une troisième Bible, ou un chapitre du corpus — ou restent-elles au logbook ?* ⛔ Tant qu'elle n'est pas tranchée, **cinq lois d'Eric ne sont opposables à aucun lot.**
 - 📌 ⚠️ **Et le nom se grave mal** : Eric a corrigé un siège qui écrivait *« Soulseek »*. C'est **SOWLREACH**. Un nom de produit mal recopié se répand plus vite qu'il ne se corrige.
+
+## C29 — Le geste majeur du tableau de commande est VERT et il NAVIGUE { #c29 }
+
+**Question : `Build a character` garde-t-il son vert, ou rejoint-il le bleu des gestes qui naviguent ?**
+
+- 📏 **LE FAIT, MESURÉ SUR `origin/main` `a251d47` (v604), et non rapporté** : `Build a character` porte `.tdc-majeur` → `background: var(--positive)`, **vert** ; et `universe-step.mjs` écrit lui-même *« LE GESTE MAJEUR — large, vert en relief. **Il NAVIGUE vers Identity.** »*
+- ⛔ **CE QUE ÇA CONTREDIT** : `bouton-trois-verbes` *(26/08)* — *« `Back`/`Next` NAVIGUENT (bleu), `Done` VALIDE (vert), `Cancel` DÉFAIT (rouge) »* — et `bouton-definition-du-bleu` : *« bleu = mouvement non impactant : après ce clic, le document n'a pas changé »*. 📏 Le clic n'écrit rien au document : il ouvre les huit étapes.
+- ⏳ **UN RELAIS L'ANNONCE COMME UN CHOIX D'ERIC DU 08/09 — ⛔ SANS CITER SES MOTS.** Il n'est donc **pas** gravé comme une décision *(`socle-un-arbitrage-ne-se-relaie-pas-de-seconde-main`)*. ⭐ **Les deux lectures se valent tant qu'il n'a pas parlé** :
+
+  | | la lecture | ce qu'elle implique |
+  |---|---|---|
+  | **le vert est voulu** | `R` n'est **pas une étape** mais un **tableau de commande** : son geste majeur n'y navigue pas *entre* des écrans, il **ouvre le travail**. Le vert dirait *« c'est par ici qu'on commence »*, pas *« c'est validé »* | ⇒ **exception nommée**, à poser à côté de son argument *(la forme existe : « une exception se nomme »)* |
+  | **le vert est un défaut** | la loi des trois verbes ne connaît pas d'exception, et un vert qui ne signe rien apprend au joueur que le vert ne veut rien dire | ⇒ le bouton passe **bleu**, comme tout ce qui navigue |
+
+- 🔴 **⛔ AUCUN LOT NE REPEINT CE VERT EN BLEU AVANT SON MOT.** Si c'est son choix, « réparer » défait une décision ; si ce n'en est pas un, c'est à lui de le dire. ⭐ *Même traitement que les deux familles grises de `§C24`.*
+- 📌 **Et le voisinage mérite d'être mesuré dans le même geste** : `Open` et `Save` portent `.tdc-vert`. `Save` **écrit** *(vert plausible)*, `Open` **lit** — ⏳ non tranché non plus, et il n'a pas été relayé.
+
