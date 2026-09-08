@@ -88,14 +88,29 @@ export const EMPREINTE_SOURCE = "a37a102b0064ecce0e4e10c7861620ead893dd1a4dbafdd
    les 54 gemmes. ⛔ Ne la recopie nulle part ailleurs — une seconde écriture
    rouvrirait le défaut `ETAGERE_DE` que le lot 95 a retiré. */
 /** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE. */
-export const ETAGERE_DES_GEMMES = "crafting:gems";
+export const ETAGERE_DES_GEMMES = "valuables:gems";
 
 /** D'où vient ce rangement, écrit dans chaque record : le tambour n'affiche
  *  pas cette phrase, mais un lecteur qui se demande « qui a décidé ça ? » la
  *  trouve dans la donnée plutôt que dans un fil de conversation perdu. */
 export const PROVENANCE_ETAGERE =
-  "eric:structure de rangement 2026-08-21/22 (`crafting › gems`, déclarée à zéro) ; " +
-  "⏳ à re-trancher — le 2026-09-08 Eric a dit « équipement : valuables », étagère qui n'existe pas encore";
+  "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` " +
+  "est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, " +
+  "déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.";
+
+/* 🔴 LES DEUX TAGS — Eric, 2026-09-08 : *« tag valuables, tag Soulforging »*.
+   ⭐ C'EST LA RÉPONSE À UNE QUESTION QUE LE RANGEMENT NE POUVAIT PAS TRANCHER :
+   une gemme se VEND (valuables) *et* alimente la forge (soulforging), or un
+   record n'a qu'UNE étagère. L'étagère dit OÙ on la trouve ; les tags disent
+   À QUOI elle sert. Les deux ne se remplacent pas.
+   ⚠️ Aucun des 416 records `srfh` ne porte de `tags` — ce champ est NEUF, et
+   c'est pour ça qu'il porte sa provenance comme `craftable` et `slot` portent
+   la leur : un lecteur qui le découvre doit savoir qui l'a demandé et quand. */
+export const TAGS_DES_GEMMES = Object.freeze(["valuables", "soulforging"]);
+
+export const PROVENANCE_TAGS =
+  "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, " +
+  "l'étagère ne pouvait en dire qu'un";
 
 export const LAYER = {
   schema: "fh-layer/1",
@@ -338,7 +353,8 @@ export function construireCouche(doc, { etagere = ETAGERE_DES_GEMMES } = {}) {
         extends: g.id,
         name: nom,
         of_kind: "gem",
-        shelf: { aisle: rayon, provenance: PROVENANCE_ETAGERE, shelf: rayonnage }
+        shelf: { aisle: rayon, provenance: PROVENANCE_ETAGERE, shelf: rayonnage },
+        tags: { provenance: PROVENANCE_TAGS, value: [...TAGS_DES_GEMMES] }
       }
     };
 

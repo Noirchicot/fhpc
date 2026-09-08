@@ -111,8 +111,9 @@ const RANGEMENT = lireRangement(query);
 test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
   assert.deepEqual(arbre.map((r) => r.id),
-    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane"],
-    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique");
+    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane", "valuables"],
+    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `valuables` est entré le "
+    + "2026-09-08 avec les 54 gemmes d'Eric, et c'est le premier rayon qu'une couche FH apporte");
   /* ⛔ ET AUCUN GENRE N'Y SURVIT : le défaut se reconnaît à ces quatre mots. */
   for (const genre of ["armor", "gear", "item", "weapon"]) {
     assert.equal(arbre.some((r) => r.id === genre), false,
@@ -139,7 +140,12 @@ test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () 
    étagère déborde, c'est le DÉCOUPAGE qu'on refait, jamais la donnée qu'on
    refuse ». Le découpage se refait chez fh-srd (`src/shelving.py`) ET dans
    `ETAGERE_DES_GEMMES` (`src/tools/gen-fh-gems-layer.mjs`), une chaîne. */
-const DETTE_DES_35 = { id: "crafting:gems", n: 54 };
+/* ⚖️ TRANCHÉ le 2026-09-08 : ce n'est plus une dette « en attente », c'est un
+   débordement RATIFIÉ. 📌 Et `NORMES.md:2441` l'anticipait mot pour mot :
+   *« le 35 par étagère est une CIBLE DE DÉCOUPE, jamais un plafond de données —
+   le homebrew le fera déborder, c'est prévu »*. Le garde reste, parce qu'il
+   attrape un débordement NON VOULU ; il nomme celui qui l'est. */
+const DEBORDEMENT_RATIFIE = { id: "valuables:gems", n: 54 };
 
 test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la dette NOMMÉE des gemmes", () => {
   /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
@@ -155,20 +161,19 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
      dette écrite « Crafting › Gems » se serait accrochée à un affichage. */
   const toutes = arbre.flatMap((r) => r.etageres.map((e) => ({ id: e.id, nom: `${r.label} › ${e.label}`, n: e.objets.length })));
   const debordent = toutes.filter((e) => e.n >= 35).map(({ id, n }) => ({ id, n }));
-  assert.deepEqual(debordent, [DETTE_DES_35],
-    "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — et la seule tolérée est la " +
-    "dette des gemmes, ouverte le 2026-09-08 et qui attend l'arbitrage d'Eric (`crafting › gems` ou " +
-    "une étagère `valuables` qui n'existe pas encore)");
+  assert.deepEqual(debordent, [DEBORDEMENT_RATIFIE],
+    "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — la seule admise est " +
+    "`valuables › gems`, 54 gemmes, tranchée par Eric le 2026-09-08 et prévue par NORMES.md:2441");
 
   /* ⚔️ ET LA DETTE SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui déborde
      doit être EXACTEMENT des gemmes. Sans ce témoin, un objet d'un autre genre
      rangé là par erreur se cacherait derrière un compte toléré. */
-  const dette = arbre.find((r) => r.id === "crafting").etageres.find((e) => e.id === DETTE_DES_35.id);
+  const dette = arbre.find((r) => r.id === "valuables").etageres.find((e) => e.id === DEBORDEMENT_RATIFIE.id);
   assert.deepEqual([...new Set(dette.objets.map((o) => o.kind))], ["gem"],
     "l'étagère tolérée ne porte QUE des gemmes — sinon la tolérance couvrirait autre chose");
 
   /* Le rangement d'Eric HORS de la dette n'a pas bougé d'un objet. */
-  const sansLaDette = toutes.filter((e) => e.id !== DETTE_DES_35.id);
+  const sansLaDette = toutes.filter((e) => e.id !== DEBORDEMENT_RATIFIE.id);
   const plusGrosse = sansLaDette.reduce((a, b) => (b.n > a.n ? b : a));
   assert.equal(plusGrosse.n, 33, `mesuré le 2026-08-24 : la plus grosse est ${plusGrosse.nom}`);
 });
@@ -304,7 +309,8 @@ test("5 ter — ⏳ LES RAYONS VIDES NE SONT PAS DANS L'EXPORT, et ce garde le d
      records eux-mêmes, par le seul chemin que ce dépôt accepte : une couche
      qui pose des rangements, jamais une taxonomie recopiée ici. */
   const arbre = rayonsEtEtageres(query);
-  assert.equal(arbre.length, 6, "six rayons PEUPLÉS — c'est tout ce que l'export porte");
+  assert.equal(arbre.length, 7, "sept rayons PEUPLÉS — les six de l'export SRFH, plus `valuables` "
+    + "que la couche des gemmes apporte depuis le 2026-09-08");
   assert.equal(arbre.some((r) => r.id === "companions"), false,
     "⏳ le 7ᵉ rayon d'Eric est vide, donc absent de l'export : il n'apparaîtra qu'une fois la structure publiée");
 
@@ -496,7 +502,7 @@ test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ 
     "et le compte ne MENT pas pendant l'attente — pas de « 1/1 » sur une grille qui ne montre rien");
 });
 
-test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennent 36 crans, pas 18", () => {
+test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 7 rayons deviennent 42 crans, pas 21", () => {
   /* 🔴 LE PIÈGE N°4, ET IL EST MUET : la roue pose trois blocs et saute d'un
      bloc dès qu'on quitte celui du milieu. Avec 4 crans, un bloc fait 484 px
      pour une fenêtre de 359 — on en sort au moindre geste et la couture tire
@@ -510,7 +516,7 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennen
      4 se répète 3 fois et 6 se répète 2 fois — 12 dans les deux cas. ⛔ C'est
      aussi pourquoi « 36 » ne prouve rien tout seul : c'est la liste des quatre
      premiers libellés, en dessous, qui dit quels rayons on regarde. */
-  assert.equal(crans.length, 36, "3 tours × ceil(12 / 6) × 6 rayons = 36 crans");
+  assert.equal(crans.length, 42, "3 tours × ceil(12 / 7) × 7 rayons = 42 crans");
   assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent),
     ["Adventuring", "Arcana", "Battlefield", "Crafting"],
     "les rayons d'Eric, pas les genres de records");

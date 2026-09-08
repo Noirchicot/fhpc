@@ -30,7 +30,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  construireCouche, prixSrd, assertEmpreinteSource, ETAGERE_DES_GEMMES,
+  construireCouche, prixSrd, assertEmpreinteSource, ETAGERE_DES_GEMMES, TAGS_DES_GEMMES,
   CHAMPS_REFUSES_LANGUE, LAYER, GemError
 } from "../src/tools/gen-fh-gems-layer.mjs";
 import { GENRES } from "../src/layers/document.mjs";
@@ -181,16 +181,44 @@ test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC
      interdit qu'une seconde écriture apparaisse ailleurs, ce qui rouvrirait le
      défaut `ETAGERE_DE` retiré au lot 95. */
   const [rayon, etagere] = ETAGERE_DES_GEMMES.split(":");
-  assert.equal(ETAGERE_DES_GEMMES, "crafting:gems", "⏳ arbitrage d'Eric en attente — `crafting › gems` ou `valuables`");
+  assert.equal(ETAGERE_DES_GEMMES, "valuables:gems",
+    "⚖️ TRANCHÉ par Eric le 2026-09-08 : « étagère des gemmes dans valuables ». Le rayon est NEUF, "
+    + "il remplace `crafting › gems` déclarée à zéro les 21-22/08 — une gemme se VEND avant de se forger");
   const posees = new Set();
   for (const [id, entree] of Object.entries(RANGEMENTS)) {
     assert.equal(entree.data.of_kind, "gem", `${id} : le rangement doit dire le genre qu'il habille`);
     posees.add(`${entree.data.shelf.aisle}:${entree.data.shelf.shelf}`);
-    assert.match(entree.data.shelf.provenance, /2026-08-21\/22/,
-      `${id} : le rangement doit dire QUI l'a décidé, pas seulement où il va`);
+    assert.match(entree.data.shelf.provenance, /2026-09-08/,
+      `${id} : la provenance doit citer la décision QUI FAIT LOI (2026-09-08, « valuables »), 
+       pas seulement celle qu'elle remplace — sinon le garde passe pour la mauvaise raison`);
   }
   assert.deepEqual([...posees], [`${rayon}:${etagere}`],
     "les 54 gemmes sont sur UNE seule étagère, celle que le générateur déclare");
+});
+
+/* 🏷️ LES DEUX TAGS — Eric, 2026-09-08 : *« tag valuables, tag Soulforging »*.
+   ⭐ POURQUOI CE TÉMOIN EXISTE : l'étagère répond à « où la trouve-t-on ? », les
+   tags à « à quoi sert-elle ? ». Une gemme se VEND et alimente la FORGE, et un
+   record n'a qu'une étagère — sans les tags, la moitié de sa vocation serait
+   perdue au rangement. ⛔ Le témoin se fonde sur la DONNÉE, pas sur la forme :
+   il exige les deux tags sur les 54, dans cet ordre, avec leur provenance.
+   ⚠️ Aucun des 416 records `srfh` ne porte de `tags` : ce champ est neuf, donc
+   c'est ici qu'on l'empêche de dériver. */
+test("🏷️ LES 54 GEMMES PORTENT LES DEUX TAGS D'ERIC, avec leur provenance", () => {
+  const attendus = ["valuables", "soulforging"];
+  assert.deepEqual([...TAGS_DES_GEMMES], attendus,
+    "⚖️ Eric, 2026-09-08 : « tag valuables, tag Soulforging » — dans cet ordre, et il n'y en a pas un troisième");
+
+  const vus = new Set();
+  for (const [id, entree] of Object.entries(RANGEMENTS)) {
+    const t = entree.data.tags;
+    assert.ok(t && Array.isArray(t.value), `${id} : un rangement de gemme doit porter ses tags`);
+    assert.deepEqual(t.value, attendus, `${id} : les deux tags, et rien d'autre`);
+    assert.match(t.provenance, /2026-09-08/, `${id} : un champ neuf dit QUI l'a demandé et QUAND`);
+    vus.add(t.value.join(","));
+  }
+  assert.equal(Object.keys(RANGEMENTS).length, 54, "les 54, aucune oubliée");
+  assert.deepEqual([...vus], [attendus.join(",")], "un seul jeu de tags sur les 54 — aucune dérive");
 });
 
 /* ══ ③ LES REFUS DU GÉNÉRATEUR, ÉPROUVÉS ═══════════════════════════════ */
