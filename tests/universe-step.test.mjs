@@ -29,7 +29,8 @@ const { renderUniverseStep, currentStack, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER
 
 /** Les organes du tableau de commande. */
 const interrupteurs = (node) => node.querySelectorAll(".interrupteur");
-const fateSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur")[0];
+const fateSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur").find((b) => /Fate/.test(b.textContent));
+const srdSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur").find((b) => /^SRD/.test(b.textContent.trim()));
 /* LOT 77 — la pile que le NAVIGATEUR monte, pour la confronter à la pile
    NOMMÉE (test A0). Importée, jamais recopiée : c'est la recopie qui a
    laissé les deux diverger. */
@@ -156,6 +157,7 @@ test("B1 — 🔴 UN SEUL INTERRUPTEUR « Fate's Hand » : éteint sur la pile S
   const nFh = renderUniverseStep({ document: fh, query: () => null, fieldErrors: {} }, () => {});
   assert.equal(fateSwitch(nFh).dataset.on, "true", "pile SRD+FH → allumé");
   assert.equal(nFh.querySelectorAll(".bascule-liste").length, 0, "⛔ les deux anciens sélecteurs n'existent plus");
+  assert.equal(nFh.querySelectorAll(".tdc-deux .interrupteur").length, 2, "deux interrupteurs sur la ligne : SRD (miroir) et Fate's Hand");
 });
 
 test("B2 — l'interrupteur dispatche {kind:\"requestLayerStack\"} vers l'AUTRE pile, jamais un verbe directement", () => {
@@ -278,7 +280,7 @@ test("D1 — gardé : la tête de R le DIT (pastille verte), et le geste qui gar
   const bloc = node.querySelectorAll(".universe-memoire")[0];
   assert.ok(bloc, "le bloc existe");
   assert.equal(bloc.dataset.garde, "true");
-  assert.match(bloc.textContent, /kept in this browser/);
+  assert.match(bloc.querySelectorAll(".tdc-etat")[0].textContent, /in browser: .*saved/, "« in browser : <nom> · saved » (Eric)");
   assert.ok(bloc.querySelectorAll(".universe-sauver")[0], "et `Save` est là, à côté d'`Open`");
 });
 
@@ -379,14 +381,14 @@ test("D9 — ⚠️ UNE OUVERTURE REFUSÉE SE DIT, avec le mot de la cause", () 
   const doc = draftDocument();
   const sansRefus = renderUniverseStep(
     { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
-  assert.equal(sansRefus.querySelectorAll(".universe-memoire .doc-field-error").length, 0,
+  assert.equal(sansRefus.querySelectorAll(".tdc-tete .doc-field-error").length, 0,
     "⛔ rien à dire tant que rien n'a été refusé — un message permanent ne serait plus un message");
 
   const avecRefus = renderUniverseStep({
     document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true },
     ouvertureRefusee: 'this file says it is "roll20/2", not a Fate\'s Hand character'
   }, () => {});
-  const dit = avecRefus.querySelectorAll(".universe-memoire .doc-field-error")
+  const dit = avecRefus.querySelectorAll(".tdc-tete .doc-field-error")
     .map((p) => p.textContent).join(" ");
   assert.match(dit, /not opened/, "l'écran dit que le fichier n'est pas entré");
   assert.match(dit, /roll20\/2/, "et il RECOPIE la cause, il ne la résume pas");
@@ -420,10 +422,11 @@ function racine(ctx = {}, onAction = () => {}) {
   return renderUniverseStep({ document: draftDocument(), query: () => null, fieldErrors: {}, memoire: { ok: true }, ...ctx }, onAction);
 }
 
-test("R1 — 🧭 R porte le nom du produit en tête, et c'est la première fois qu'il apparaît", () => {
+test("R1 — 🧭 R porte le nom du produit en tête, centré, et son sous-titre", () => {
   const node = racine();
   assert.equal(node.querySelectorAll(".tdc-marque")[0].textContent, "SOWLREACH");
-  assert.match(node.querySelectorAll(".tdc-nom")[0].textContent, /\S/, "et le nom du personnage juste dessous");
+  assert.equal(node.querySelectorAll(".tdc-sous-titre")[0].textContent, "Agnostic SRD 5.2.1 interface");
+  assert.match(node.querySelectorAll(".tdc-etat .tdc-nom")[0].textContent, /\S/, "et la ligne d'état porte le nom du personnage");
 });
 
 test("R2 — 🔴 le geste principal est `Build a character`, il émet un verbe de NAVIGATION, et R n'a pas de Done", () => {
@@ -436,35 +439,80 @@ test("R2 — 🔴 le geste principal est `Build a character`, il émet un verbe 
   assert.equal(node.dataset.sortieIci, undefined, "⛔ pas de paire de sortie à la racine : un Done doublerait ce bouton");
 });
 
-test("R3 — `Save` est l'export canonique de Sheet — le MÊME écrivain, jamais un second", () => {
+test("R3 — la rangée du fichier est au FORMAT RÉGLEMENTÉ : Open et Save verts, Forget rouge, `Save` = l'export canonique", () => {
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
-  node.querySelectorAll(".universe-sauver")[0].dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "exportJson" }]);
+  const trio = node.querySelectorAll(".parcours-pied.tdc-trio")[0];
+  assert.ok(trio, "une rangée .parcours-pied : la coquille lui donne la grille et le plancher de 77");
+  const boutons = trio.querySelectorAll("button");
+  assert.deepEqual(boutons.map((b) => b.textContent), ["Open", "Save", "Forget"]);
+  assert.ok(boutons[0].className.includes("tdc-vert") && boutons[1].className.includes("tdc-vert"), "Open et Save en vert (Eric)");
+  assert.ok(boutons[2].className.includes("parcours-annuler"), "Forget rouge : il défait");
+  boutons[1].dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "exportJson" }], "le MÊME écrivain que Sheet, jamais un second");
 });
 
-test("R4 — 💤 LES PLACES RÉSERVÉES : My characters · DM · Tools — présentes, éteintes, avec leur mot", () => {
-  /* Eric, 08/09 : *« il faut laisser une place à tout ce que j'ai dit »*, pour
-     que les itérations suivantes n'aient pas à détruire pour reconstruire.
-     La forme est celle de `Double view` sous sa porte : disabled + un mot. */
+test("R4 — 💤 LES PLACES RÉSERVÉES : DM · Tools — présentes, éteintes, grises, avec leur mot", () => {
+  /* Eric, 08/09 : *« il faut laisser une place à tout ce que j'ai dit »*. Au
+     format réglementé (77), le mot « soon » n'a plus la place à côté du
+     libellé : il vit dans le titre, et c'est le GRIS qui dit « pas encore »
+     (📍 bouton-gris-non-cliquable). */
   const node = racine();
   const reservees = node.querySelectorAll("[data-reserve]");
-  const mots = reservees.map((b) => b.textContent.replace(/soon/g, "").trim());
-  assert.deepEqual(mots, ["My characters", "DM", "Tools"]);
+  assert.deepEqual(reservees.map((b) => b.textContent.trim()), ["DM", "Tools"]);
   for (const b of reservees) {
     assert.equal(b.disabled, true, `${b.textContent} : réservée = éteinte`);
-    assert.match(b.textContent, /soon/, `${b.textContent} : et elle le DIT`);
+    assert.match(b.getAttribute("title") || "", /soon/, `${b.textContent} : et elle le DIT`);
   }
 });
 
-test("R5 — 🚪 Appearance est une porte VIVANTE vers le rang B, et elle est la seule", () => {
+test("R5 — 🚪 LA RANGÉE DU BAS EST LA TRILOGIE : le livre, les trois portes au standard, Appearance vivante", () => {
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
-  const vivantes = node.querySelectorAll(".tdc-porte").filter((b) => !b.disabled);
+  const pied = node.querySelectorAll(".parcours-pied.tdc-pied")[0];
+  assert.ok(pied, "la rangée du bas est une .parcours-pied : le ? y sera posé par la coquille");
+  assert.ok(pied.querySelectorAll(".fiche-livre")[0], "📖 le livre est là — il manquait (Eric)");
+  const portes = pied.querySelectorAll("button.tdc-porte");
+  assert.deepEqual(portes.map((b) => b.textContent), ["Display", "DM", "Tools"]);
+  const vivantes = portes.filter((b) => !b.disabled);
   assert.equal(vivantes.length, 1);
-  assert.match(vivantes[0].textContent, /^Appearance/);
   vivantes[0].dispatchEvent({ type: "click" });
   assert.deepEqual(gestes, [{ kind: "ouvrirDisplay" }]);
+});
+
+test("R6 — 🧑 `My characters` est un bouton VIVANT (bleu, cadré à gauche) qui ouvre B1, et B1 dit la vérité : un personnage", () => {
+  const gestes = [];
+  const node = racine({}, (a) => gestes.push(a));
+  const b = node.querySelectorAll(".tdc-liste")[0];
+  assert.equal(b.textContent, "My characters");
+  assert.equal(b.disabled, false);
+  b.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirPersonnages" }]);
+  const b1 = renderUniverseStep({ document: draftDocument({ name: "Ilyra" }), query: () => null, fieldErrors: {}, memoire: { ok: true }, ecran: "characters" }, () => {});
+  assert.equal(b1.dataset.ecran, "characters");
+  assert.equal(b1.dataset.sortieIci, "true", "rang B : la coquille pose Back · Done");
+  const lignes = b1.querySelectorAll(".tdc-personnage");
+  assert.equal(lignes.length, 1, "⛔ une ligne, pas une liste inventée : le navigateur garde UN personnage");
+  assert.match(lignes[0].textContent, /Ilyra/);
+});
+
+test("R7 — 🪞 L'INTERRUPTEUR SRD EST UN MIROIR : même ligne, inactif, et il montre l'INVERSE de Fate's Hand", () => {
+  /* Eric, 08/09 : *« un switch pour SRD même s'il est inactif, même ligne, donc
+     off »* — *« quand l'un s'allume, l'autre s'éteint »* (17/08). Un seul organe
+     écrit la pile ; celui-ci la reflète. */
+  const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  for (const [doc, attendu] of [[srd, "true"], [fh, "false"]]) {
+    const gestes = [];
+    const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => gestes.push(a));
+    const miroir = srdSwitch(node);
+    assert.ok(miroir, "l'interrupteur SRD existe");
+    assert.equal(miroir.disabled, true, "inactif : il ne se clique pas");
+    assert.equal(miroir.dataset.on, attendu, `SRD ${attendu === "true" ? "allumé" : "éteint"} quand Fate's Hand est ${attendu === "true" ? "éteint" : "allumé"}`);
+    assert.equal(miroir.dataset.on !== fateSwitch(node).dataset.on, true, "les deux sont toujours opposés");
+    miroir.click();
+    assert.deepEqual(gestes, [], "et le cliquer n'émet RIEN");
+  }
 });
 
 test("S1 — 🔴 L'INTERRUPTEUR : role=switch, aria-checked = data-on, et cliquer INVERSE", () => {

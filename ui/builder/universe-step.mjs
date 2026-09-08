@@ -64,6 +64,10 @@ import { motDeLEchelon } from "./echelle.mjs?v=603";
  *  listes ensemble (`tests/fiche-360.test.mjs`, garde 3). */
 export const SRD_LAYER_ID = "srd-5.2.1-en";
 
+/** 📖 LE LIVRE DU MENU : FH Web, le livre lui-même — pas un chapitre, puisque
+ *  le Menu ne parle d'aucune règle en particulier. Vérifié en 200 le 08/09. */
+export const LIVRE_FH_WEB = "https://noirchicot.github.io/fh-phb/";
+
 /** 🔴 LA TROISIÈME COUCHE, ET ELLE N'EST DANS AUCUN DES DEUX CAMPS (lot 95).
  *  `srfh` porte ce qui est AMBIGU — les ajustements de confort qui font
  *  tourner le système sans amputer personne. Le test d'Eric porte sur le NOM :
@@ -234,22 +238,6 @@ function ligneReservee(label) {
   return b;
 }
 
-/** Une PORTE vers un rang B — vivante, ou réservée (même forme, éteinte). */
-function porte(label, onOpen, { reservee = false } = {}) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "tdc-porte";
-  b.append(el("span", null, [text(label)]));
-  if (reservee) {
-    b.disabled = true;
-    b.dataset.reserve = "true";
-    b.append(el("span", "tdc-bientot", [text("soon")]));
-  } else {
-    b.append(el("span", "tdc-porte-fleche", [text("→")]));
-    b.addEventListener("click", onOpen);
-  }
-  return b;
-}
 
 function nomDuPersonnage(doc) {
   const nom = doc && typeof doc.name === "string" ? doc.name.trim() : "";
@@ -394,6 +382,35 @@ function renderCranChoice({ echelle, onPick }) {
  *  vue double appartient à un autre chantier en cours, et déplacer son organe
  *  pendant qu'on l'écrit est le meilleur moyen de le perdre. À rapatrier
  *  quand ce chantier est fusionné. */
+/** 🧑 B1 — MY CHARACTERS — Eric, 26/08 (dictée) et 08/09 (*« bouton large bleu »*).
+ *  ⚖️ CE QU'IL MONTRE AUJOURD'HUI EST VRAI : le navigateur garde UN personnage
+ *  (`memoire.mjs`, une clef) — la liste a donc une ligne. Le jour où la clef
+ *  devient un préfixe, cette liste s'allonge sans changer de forme. ⛔ Aucune
+ *  ligne inventée, aucun « à venir » qui promettrait un compte. */
+function renderPersonnagesEcran(ctx, onAction) {
+  const section = el("section", "universe-step personnages-ecran dalle-intermediaire");
+  section.dataset.objet = "dalle";
+  section.dataset.sortieIci = "true";
+  section.dataset.ecran = "characters";
+  const memoire = ctx.memoire || { ok: true };
+  section.append(el("h3", "tdc-titre-b", [text("My characters")]));
+  const liste = el("ul", "tdc-personnages");
+  liste.dataset.garde = String(Boolean(memoire.ok));
+  const ligne = el("li", "tdc-personnage");
+  ligne.append(el("span", "tdc-nom", [text(nomDuPersonnage(ctx.document))]));
+  ligne.append(el("span", "tdc-garde", [text(memoire.ok ? "in this browser" : `not saved: ${memoire.raison}`)]));
+  liste.append(ligne);
+  section.append(liste);
+  section.append(el("p", "universe-note", [
+    text("This browser keeps one character. Open a .fh-char.json file from the Menu to switch, or Save to keep a copy where you want.")
+  ]));
+  const gestes = el("div", "parcours-pied");
+  gestes.append(bouton("Open", "tdc-vert", () => onAction({ kind: "ouvrirUnFichier" })));
+  gestes.append(bouton("Save", "tdc-vert", () => onAction({ kind: "exportJson" })));
+  section.append(gestes);
+  return section;
+}
+
 function renderDisplayEcran(ctx, onAction) {
   const section = el("section", "universe-step display-ecran dalle-intermediaire");
   section.dataset.objet = "dalle";
@@ -467,6 +484,7 @@ export function renderUniverseStep(ctx, onAction) {
      coquille ignorante du dedans de l'étape : elle dit à quel RANG on est
      (`ecran`), l'écran dit ce qu'on y voit. */
   if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
+  if (ctx.ecran === "characters") return renderPersonnagesEcran(ctx, onAction);
   const doc = ctx.document;
   const query = ctx.query;
   const errors = ctx.fieldErrors || {};
@@ -508,64 +526,85 @@ export function renderUniverseStep(ctx, onAction) {
      garde `D4` refuse toute porte qui PROMET un personnage neuf. « Build »
      dit ce que le bouton fait : il ouvre les étapes sur le personnage courant.
      Le jour où un personnage vierge existera, ce bouton changera de mot avec. */
+  /* ⚖️ LES NEUF CORRECTIONS D'ERIC SUR R — 08/09, après la première itération :
+     « SOWLREACH (centré) · Agnostic SRD 5.2.1 interface (centré italique) ·
+     Build a Character bouton large, relief vert · standard des boutons, Open et
+     Save en vert (format réglementé, petits, centrés) · un switch pour Fate's
+     Hand, et un switch pour SRD même s'il est inactif, même ligne · My
+     characters bouton large bleu cadré à gauche · in browser : <nom>, voyant
+     vert si saved, rouge sinon · campaign · trois boutons du bas standard,
+     centrés, cellule — manque le livre — à 8 blg du pied de page. »
+     ⚠️ `Forget` n'était PAS dans sa liste : gardé dans la rangée du fichier,
+     parce que c'est la seule sortie quand la fiche ne dérive plus (v592). À lui
+     de dire s'il vit ailleurs. */
   const memoire = ctx.memoire || { ok: true };
   const perso = el("div", "universe-memoire tdc-perso");
   perso.dataset.garde = String(Boolean(memoire.ok));
 
   const tete = el("header", "tdc-tete");
   tete.append(el("p", "tdc-marque", [text("SOWLREACH")]));
-  const sous = el("p", "tdc-sous");
-  sous.append(el("span", "tdc-nom", [text(nomDuPersonnage(doc))]));
-  sous.append(el("span", "tdc-garde", [text(memoire.ok
-    ? "kept in this browser"
-    : `not saved: ${memoire.raison}`)]));
-  tete.append(sous);
-  perso.append(tete);
+  tete.append(el("p", "tdc-sous-titre", [text("Agnostic SRD 5.2.1 interface")]));
   /* ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS — un personnage gardé mais
-     illisible, ou un fichier refusé, laissent chacun leur mot ici. */
+     illisible, ou un fichier refusé, laissent chacun leur mot ici, en tête. */
   if (ctx.memoireIgnoree) {
-    perso.append(el("p", "doc-field-error", [
+    tete.append(el("p", "doc-field-error", [
       text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
     ]));
   }
   if (ctx.ouvertureRefusee) {
-    perso.append(el("p", "doc-field-error", [text(`That file was not opened: ${ctx.ouvertureRefusee}`)]));
+    tete.append(el("p", "doc-field-error", [text(`That file was not opened: ${ctx.ouvertureRefusee}`)]));
   }
+  perso.append(tete);
 
+  /* LE GESTE MAJEUR — large, vert en relief (Eric). Il NAVIGUE vers Identity. */
   perso.append(bouton("Build a character", "tdc-majeur", () => onAction({ kind: "construireLePersonnage" })));
 
-  /* ⚖️ LES TROIS GESTES DU FICHIER, ENSEMBLE — Eric, 08/09 : *« chacun est
-     propriétaire de ses données »*. Ouvrir et enregistrer sont les deux
-     moitiés d'un même geste ; elles vivent sur le même écran (tranché le
-     08/09 : *« Save au Menu aussi, à côté d'Open »*). `Save` est l'export
-     canonique de Sheet — le MÊME écrivain, pas un second (`exportJson`). */
-  const trio = el("div", "tdc-trio");
-  trio.append(bouton("Open", "tdc-mineur universe-ouvrir", () => onAction({ kind: "ouvrirUnFichier" })));
-  trio.append(bouton("Save", "tdc-mineur universe-sauver", () => onAction({ kind: "exportJson" })));
-  trio.append(bouton("Forget", "tdc-mineur universe-oubli", () => onAction({ kind: "oublierPersonnage" })));
+  /* ⚖️ LES TROIS GESTES DU FICHIER, AU FORMAT RÉGLEMENTÉ — une rangée
+     `.parcours-pied` : la coquille lui donne la grille des rangées et le
+     plancher de 77 (📍 `bouton-deux-largeurs`). `Open` et `Save` en vert
+     (Eric) ; `Forget` reste rouge, il DÉFAIT. `Save` est l'export canonique de
+     Sheet — le MÊME écrivain (`exportJson`), pas un second. */
+  const trio = el("div", "parcours-pied tdc-trio");
+  trio.append(bouton("Open", "tdc-vert universe-ouvrir", () => onAction({ kind: "ouvrirUnFichier" })));
+  trio.append(bouton("Save", "tdc-vert universe-sauver", () => onAction({ kind: "exportJson" })));
+  trio.append(bouton("Forget", "parcours-annuler universe-oubli", () => onAction({ kind: "oublierPersonnage" })));
   perso.append(trio);
-  perso.append(ligneReservee("My characters"));
-  section.append(perso);
 
-  /* ══ FATE'S HAND — un seul interrupteur, tranché le 08/09 ═══════════════
-     ⛔ CECI REMPLACE `menu-regles-au-selecteur` (17/08 : deux sélecteurs
-     exclusifs). Le SRD est TOUJOURS la base ; Fate's Hand est une couche
-     qu'on allume ou non — c'est la pile SRD → SRFH → SRFH+ exposée comme un
-     choix de produit, et un seul état suffit à la dire. Éteint = SRD pur.
-     Allumé = SRD + Fate's Hand. Le passage à SRD garde sa confirmation (elle
-     NOMME ce qui cesse de s'appliquer — rien n'est effacé). */
+  /* ══ LES DEUX INTERRUPTEURS DES RÈGLES, SUR UNE LIGNE — Eric, 08/09 ════════
+     *« un switch pour Fate's Hand, oui ; un switch pour SRD même s'il est
+     inactif, même ligne, donc off »*. Le SRD est la base : son interrupteur est
+     un MIROIR, jamais un geste — il montre l'autre hauteur de la pile
+     (*« quand l'un s'allume, l'autre s'éteint »*, 17/08) et ne se clique pas.
+     ⛔ Un seul organe écrit la pile : l'interrupteur `Fate's Hand`. */
   const stack = currentStack(doc);
   const regles = el("div", "tdc-regles");
-  regles.append(interrupteur({
+  const deux = el("div", "tdc-deux");
+  deux.append(interrupteur({ label: "SRD", on: stack === "srd", disabled: true, onChange: () => {} }));
+  deux.append(interrupteur({
     label: "Fate's Hand", on: stack === "srdfh",
     onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })
   }));
+  regles.append(deux);
   if (stack === null) {
     regles.append(el("p", "doc-field-error", [
-      text("This character's layer stack doesn't match either ruleset — flip the switch to realign it.")
+      text("This character's layer stack doesn't match either ruleset — flip Fate's Hand to realign it.")
     ]));
   }
-  section.append(regles);
+  perso.append(regles);
+
+  /* MY CHARACTERS — large, bleu, cadré à gauche (Eric). Il ouvre le rang B1 :
+     la liste de ce que le navigateur garde — aujourd'hui, un personnage. */
+  perso.append(bouton("My characters", "tdc-liste", () => onAction({ kind: "ouvrirPersonnages" })));
+
+  /* LA LIGNE D'ÉTAT — *« in browser : Ilyra Duskleaf · saved, voyant vert si
+     saved, rouge sinon »*. La pastille lit `[data-garde]`, jamais une couleur
+     écrite ici. */
+  const etat = el("p", "tdc-etat");
+  etat.append(el("span", "tdc-etat-mot", [text("in browser: ")]));
+  etat.append(el("span", "tdc-nom", [text(nomDuPersonnage(doc))]));
+  etat.append(el("span", "tdc-garde", [text(memoire.ok ? "saved" : `not saved: ${memoire.raison}`)]));
+  perso.append(etat);
+  section.append(perso);
 
   if (ctx.pendingStack) {
     const affected = fhRefChoices(doc, query);
@@ -594,17 +633,32 @@ export function renderUniverseStep(ctx, onAction) {
     onCommit: (value) => onAction({ kind: "describe", field: "campaign", value })
   }));
 
-  /* ══ LES PORTES — les trois familles qui ne sont pas l'essentiel ═════════
-     Apparence est VIVANTE (l'ancien Display, qui prend aussi le tutoriel et
-     la double vue). `DM` et `Tools` sont RÉSERVÉES : la zone DM (campagnes,
-     homebrew, systèmes) et les outils (table, VTT, coffre) sont dans la carte
-     du produit et pas dans le premier chemin — la place est prise, rien n'est
-     câblé. */
-  const portes = el("div", "tdc-portes");
-  portes.append(porte("Appearance", () => onAction({ kind: "ouvrirDisplay" })));
-  portes.append(porte("DM", null, { reservee: true }));
-  portes.append(porte("Tools", null, { reservee: true }));
-  section.append(portes);
+  /* ══ LA RANGÉE DU BAS : LE LIVRE · LES TROIS PORTES · LE `?` ═══════════════
+     Eric, 08/09 : *« trois boutons du bas, standard, centrés, cellule — manque
+     le livre — à 8 blg du pied de page »*. C'est la trilogie (📍 `rangee-
+     trilogie-due-partout`) : une rangée `.parcours-pied`, le livre à gauche
+     (il ouvre FH Web, le livre lui-même), les trois portes au format réglementé
+     dans la cellule du milieu — 3 × 77 + 2 × 8 = 247, la largeur exacte de la
+     cellule — et le `?` que la coquille pose à droite. `Appearance` est
+     VIVANTE (bleue, elle navigue) ; `DM` et `Tools` sont RÉSERVÉES : grises,
+     éteintes — *non coloré = non cliquable* — et leur mot est dans le titre. */
+  const pied = el("div", "parcours-pied tdc-pied");
+  const livre = el("button", "fiche-livre parcours-livre");
+  livre.type = "button";
+  livre.setAttribute("aria-label", "Rules");
+  livre.addEventListener("click", () => { window.open(LIVRE_FH_WEB, "_blank", "noopener"); });
+  pied.append(livre);
+  /* 📏 « Display », le mot d'Eric du 02/09 — « Appearance » mesurait 110 blg dans
+     une cellule qui en donne 77 à chacun des trois, et rognait le livre. */
+  pied.append(bouton("Display", "tdc-porte", () => onAction({ kind: "ouvrirDisplay" })));
+  for (const mot of ["DM", "Tools"]) {
+    const b = bouton(mot, "tdc-porte", () => {});
+    b.disabled = true;
+    b.dataset.reserve = "true";
+    b.setAttribute("title", `${mot} — soon`);
+    pied.append(b);
+  }
+  section.append(pied);
 
   return section;
 }
