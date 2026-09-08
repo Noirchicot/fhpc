@@ -1145,3 +1145,51 @@ test("⛔ LES RITUELS SOMBRES NE SONT PAS DES TRAININGS — mesuré, pas suppos�
     "aucun rituel dans le catalogue : le canon est corrigé, et l'économie de points suit un chapitre " +
     "au lieu d'en annexer un");
 });
+
+/* ══ LOT 182 — L'OR DE DÉPART DE L'ORIGINE, RENDU À LA DONNÉE ════════════
+   🔴 CE QUE CE GARDE DÉFEND, MESURÉ LE 2026-09-09 : les quatre arrière-plans
+   du SRD portent chacun `data.equipment`, dont l'option B est « 50 GP ».
+   L'Inheritance les éteint et ne portait AUCUN or — le montant ne vivait plus
+   que dans `ui/builder/equipment-step.mjs`, sous la forme d'un
+   `INHERITED_PURSE_GP = 50` écrit en dur, hors de toute couche.
+   ⛔ Le champ ne vise QUE l'or : §4 a retiré les CHOIX d'arrière-plan
+   (compétences, outil, don imposé, clefs), jamais la bourse de départ. */
+
+test("182 — l'Inheritance porte l'or de départ des quatre arrière-plans qu'elle éteint", () => {
+  const verbs = pile();
+  const data = verbs.query({ kind: "background", id: BACKGROUND_INHERITANCE.id }).record.data;
+  assert.equal(typeof data.equipment, "string",
+    "sans ce champ, l'or de l'origine ne vit dans aucune couche et un écran le réécrit en dur");
+  assert.equal(data.equipment, "50 GP");
+
+  /* ⭐ ET LE 50 N'EST PAS UNE INVENTION DE FATE'S HAND : il est mesuré sur les
+     quatre records SRD éteints, qui le portent tous les quatre. */
+  const srd = readSrdLayer(SRD_PATH);
+  for (const entry of BACKGROUNDS_EXTINGUISHED) {
+    const phrase = srd.records.background[entry.target].data.equipment;
+    assert.match(phrase, /;\s*or\s*\(B\)\s*50 GP$/,
+      `« ${entry.target} » : son option B est l'or que l'Inheritance reprend`);
+  }
+});
+
+test("REFUS — une Inheritance sans or, alors que les quatre éteints en portent, fait jeter", () => {
+  /* ⚔️ LE GARDE, ÉPROUVÉ ROUGE. `BACKGROUND_INHERITANCE` est lu par le
+     générateur à l'import : on le prive de son champ le temps d'une passe, et
+     on le rend — un garde qu'on n'a jamais vu accuser ne protège rien. */
+  const or = BACKGROUND_INHERITANCE.equipment;
+  try {
+    delete BACKGROUND_INHERITANCE.equipment;
+    assert.throws(() => buildLayer({ srd: readSrdLayer(SRD_PATH) }),
+      (e) => e instanceof GenError && /equipment/.test(e.message));
+    /* ✅ ET IL NE CRIE PAS SUR CE QUI EST JUSTE : si le SRD lui-même ne portait
+       plus cet or, il n'y aurait plus rien à reprendre — le garde se tait. */
+    const sansOrAuSrd = srdAmputé((s) => {
+      for (const entry of BACKGROUNDS_EXTINGUISHED) delete s.records.background[entry.target].data.equipment;
+    });
+    assert.doesNotThrow(() => buildLayer({ srd: sansOrAuSrd }));
+  } finally {
+    BACKGROUND_INHERITANCE.equipment = or;
+  }
+  /* ⛔ ET LA SOURCE EST RENDUE INTACTE — la passe normale repasse. */
+  assert.doesNotThrow(() => buildLayer({ srd: readSrdLayer(SRD_PATH) }));
+});

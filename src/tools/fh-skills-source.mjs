@@ -842,7 +842,33 @@ export const BACKGROUND_INHERITANCE = {
      slugs en ferait une seconde liste, qui divergerait le jour où une
      treizième langue arrive — exactement ce que `LANGUAGE_SPECIES` empêche
      déjà pour les espèces. */
-  languageGrant: { from: "language", count: 2, cost: 0 }
+  languageGrant: { from: "language", count: 2, cost: 0 },
+  /* ⭐ L'OR DE DÉPART, RENDU À LA DONNÉE — lot 182 (2026-09-09) ══════════
+     🔴 CE CHAMP MANQUAIT, ET SON ABSENCE ÉTAIT TENUE À BOUT DE BRAS PAR L'ÉCRAN.
+     Les QUATRE arrière-plans du SRD que l'Inheritance remplace portent chacun
+     `data.equipment` — « Choose A or B: (A) … ; or (B) 50 GP » — et les quatre
+     nomment le MÊME montant. En les éteignant (§4), l'Inheritance a emporté leur
+     option A (le paquet : elle n'en donne aucun) mais aussi leur option B, l'or.
+     ⛔ `ui/builder/equipment-step.mjs` la maintenait en vie avec un
+     `INHERITED_PURSE_GP = 50` ÉCRIT EN DUR — un nombre de règle vivant dans un
+     fichier d'écran, que rien ne pouvait confronter à une couche.
+
+     ⚖️ LA RÈGLE, DICTÉE PAR ERIC LE 2026-09-09 : « le kit ou les 50 gp peut
+     marcher pour SRD et FH », « fait idem SRD pour FH », « harmonise ça ».
+     ⇒ CHAQUE SOURCE DE DÉPART OFFRE SON PAQUET OU SON OR, dans les deux piles.
+     La classe porte le sien dans `data.starting_equipment` (75 · 90 · 110 · 155…,
+     un montant PAR CLASSE) ; l'origine porte le sien ici.
+
+     📌 LA FORME : une phrase, comme le SRD, LUE et jamais recalculée. Celle-ci
+     ne porte qu'UNE option parce que l'Inheritance n'a pas de paquet à poser —
+     ⛔ lui en écrire un serait inventer une règle que personne n'a tranchée. Le
+     lecteur d'écran prend la DERNIÈRE option d'une phrase, et une phrase à une
+     seule option est sa propre dernière option : un seul lecteur, deux piles.
+
+     ⚠️ LE 50 N'EST PAS UN CHOIX DE FATE'S HAND, c'est celui du SRD, hérité des
+     quatre records éteints. S'il doit devenir autre chose, c'est Eric qui le dit
+     — et ce sera ICI, dans la source de la couche, jamais dans un écran. */
+  equipment: "50 GP"
 };
 
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════

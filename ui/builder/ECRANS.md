@@ -896,13 +896,17 @@ maximum ? · un rond touché après `Done` dé-signe-t-il *(mesuré : oui, il le
 
 **Un objet seul s'envoie par défaut à son emplacement ; une LISTE s'envoie par défaut au sac.**
 
-### Le départ : le kit de classe, ou la bourse
-📍 `equipement-depart-kit-ou-bourse` · déployée, hors corpus · 24/08
-⚖️ **L'étape s'ouvre sur un aiguilleur qui EXIGE une réponse — garder le kit de classe, ou le mettre de côté contre `50` PO — et cette réponse vit au personnage, pas au navigateur.**
+### Le départ : le paquet, ou l'or — de CHAQUE source
+📍 `equipement-depart-kit-ou-bourse` · déployée, hors corpus · 09/09
+⚖️ **L'étape s'ouvre sur un aiguilleur qui EXIGE une réponse — garder les paquets de départ, ou les mettre de côté contre l'or que CHAQUE source de départ propose à leur place — et cette réponse vit au personnage, pas au navigateur. Le montant se LIT dans la donnée de chaque source ; il ne s'écrit nulle part dans un écran.**
 
-> **Eric** : « la fenêtre doit lui dire qu'il a son équipement ou 50 po à débourser, elle vient même tutoriel éteint »
+> **Eric, 24/08** : « la fenêtre doit lui dire qu'il a son équipement ou 50 po à débourser, elle vient même tutoriel éteint »
 
-**L'étape s'ouvre sur un aiguilleur qui EXIGE une réponse — garder le kit de classe, ou le mettre de côté contre `50` PO — et cette réponse vit au personnage, pas au navigateur.**
+> **Eric, 09/09** : « le kit ou les 50 gp peut marcher pour SRD et FH » · « fait idem SRD pour FH » · « harmonise ça »
+
+**L'étape s'ouvre sur un aiguilleur qui EXIGE une réponse — garder les paquets de départ, ou les mettre de côté contre l'or que CHAQUE source de départ propose à leur place — et cette réponse vit au personnage, pas au navigateur. Le montant se LIT dans la donnée de chaque source ; il ne s'écrit nulle part dans un écran.**
+
+⚠️ **CE QUE LE `50` DU 24/08 ÉTAIT, ET CE QU'IL RESTE.** Ce n'était pas un nombre de Fate's Hand : c'est l'option B des **quatre arrière-plans du SRD** (`background.data.equipment`, « … or (B) 50 GP »), que l'Inheritance a remplacés. La classe, elle, porte le SIEN (`class.data.starting_equipment`) — **un par classe** : 75 · 90 · 110 · 50 · 155 · 50 · 150 · 150 · 100 · 50 · 100 · 55. ⛔ Tant que l'écran écrivait `50`, un Fighter (155) lisait 50 et recevait 50 : la règle du 24/08 était juste, sa MISE EN ŒUVRE était fausse. Depuis le lot 182, l'Inheritance porte son or dans la couche et l'écran lit les deux sources — **un Fighter lit 155, un Wizard 55**, chacun plus les 50 de son origine.
 
 ### La bourse a quatre monnaies
 📍 `equipement-bourse-quatre-monnaies` · déployée, hors corpus · 24/08

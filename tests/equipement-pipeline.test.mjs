@@ -23,7 +23,7 @@ import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bour
   currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
-import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency }
+import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
   from "../ui/builder/equipment-step.mjs";
 
 const fixture = exempleFhEn();
@@ -59,11 +59,18 @@ function appliquer(doc, a) {
   }
   if (a.kind === "choisirDepart") {
     let d = verbs.set({ document: doc, path: "depart", value: a.valeur }).document;
+    /* ⭐ LOT 182 — CE HARNAIS PORTAIT UN `+ 50` EN DUR, LUI AUSSI. Il rejoue
+       `shell.mjs` : il lit donc le montant là où la coquille le lit, dans la
+       prose des deux sources de départ. Un harnais qui garde son propre nombre
+       reste vert le jour où la règle change — c'est un témoin qui ne peut
+       jamais accuser. */
     if (a.valeur === "purse") {
+      const or = orDuDepart({ query, document: d });
+      if (!or.cout) return d;
       const bourse = currentCurrency(d);
       for (const k of CURRENCY_KEYS) {
         const base = Number.isInteger(bourse[k]) ? bourse[k] : 0;
-        d = verbs.set({ document: d, path: `currency.${k}`, value: k === "gp" ? base + 50 : base }).document;
+        d = verbs.set({ document: d, path: `currency.${k}`, value: base + (or.cout[k] || 0) }).document;
       }
     }
     return d;
@@ -243,12 +250,20 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
      c'est le sélecteur qu'on change, pas l'assertion. */
   assert.ok(node.querySelector(".aiguilleur"), "un personnage sans `depart` reçoit la question");
 
+  /* ⭐ LOT 182 — LE SÉLECTEUR NE CHERCHE PLUS « le bouton qui contient 50 ».
+     Le montant est composé (Wizard 55 + Inheritance 50 = 105) : ce test-là
+     n'aurait plus rien trouvé, et il ne l'aurait dit qu'en jetant. Il cherche
+     le VERBE et compare au montant LU — le même que celui de l'écran. */
+  const attendu = orDuDepart({ query, document: doc }).cout;
+  assert.equal(attendu.gp, 105, "le personnage d'exemple : Wizard 55 + Inheritance 50, chacun lu dans sa prose");
   const prendre = [...node.querySelectorAll(".aiguilleur-bouton")]
-    .find((b) => b.textContent.includes("50"));
+    .find((b) => b.textContent.startsWith("Take the"));
+  assert.equal(prendre.textContent, `Take the ${attendu.gp} GP`, "le bouton ANNONCE le montant qu'il pose");
   const gpAvant = currentCurrency(doc).gp || 0;
   prendre.click();
   assert.equal(doc.build.choices.find((c) => c.path === "depart")?.value, "purse", "le choix est ÉCRIT au document");
-  assert.equal(currentCurrency(doc).gp, gpAvant + 50, "et les 50 po tombent dans la bourse — le geste ratifié, pas une copie");
+  assert.equal(currentCurrency(doc).gp, gpAvant + attendu.gp,
+    "et l'or annoncé tombe dans la bourse, à la pièce près — le geste ratifié, pas une copie");
 
   node = rendre();
   assert.equal(node.querySelectorAll(".aiguilleur").length, 0, "la question ne se repose pas : le document a répondu");
