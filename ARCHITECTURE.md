@@ -44,6 +44,63 @@ record par id, **désactive** un record, **lève des drapeaux de capacités**
 à charger. Les mécaniques nouvelles sont des **modules moteur** activés par les
 drapeaux, pas du contenu de couche (décision Q4).
 
+### La coupe des couches — six interrupteurs, un catalogue (Eric, 2026-09-08)
+
+Une couche est de l'un de **deux genres**, et le genre décide où elle se pilote.
+
+**L'interrupteur** *ajoute ou retire une règle*, et il vit dans l'écran `Rules` du
+Menu. Ils sont **six** : `Trainings` · `Skills & tools` · `Inheritance` · `Destiny` ·
+`Lore` · `Soulforging`.
+
+**Le catalogue** *offre du contenu*, marqué compatible SRD ou non : `species`, les
+lignages, `class`, les sous-classes. Araag, Loroka, Elestu, Hoddon sont du
+**homebrew**, pas des règles — c'est la porte homebrew de SOWLREACH.
+
+⚖️ **Un drapeau garde un MODULE ; seule une couche fait disparaître du CONTENU.** Un
+drapeau éteint ne consomme rien, les choix restent `unconsumed` (`derive.mjs:1226`) :
+éteindre Destiny par drapeau laisserait les 22 Arcanes choisissables et inertes.
+
+📏 **La coupe est mesurée, pas déclarée.** Ce que `fh-species-en` fait aux neuf espèces
+SRD se trie sans reste : d'un côté les règles — `destiny` (9×), `granted_skill_budget`
+(2×), `skill_points` (2×), `fh_traits` (3×) ; de l'autre le contenu — `lineages` (3×),
+`lineage_intro` (2×), `traits[…].text` (6×), `description` (3×). Les 19 lignages ne
+portent que `id · name · damage|levels` : **aucune règle FH dedans**. Et le marqueur du
+catalogue existe déjà — `mole-people` porte `"fh": true`, `forest-folk` et `rock-folk`
+non.
+
+⚠️ **Les trois espèces neuves, elles, mélangent** : Araag met `Fast Learner` (la face
+de `skill_points`) et `Soulforged Affinity` dans `data.traits`, là où les neuf SRD
+mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
+`modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
+les ramener à une.**
+
+#### Les trois arbitrages du 08/09, chacun avec sa question
+
+**1. « Soulforging : interrupteur ou contenu ? » → INTERRUPTEUR.** Il rejoint `craft`
+dans Équipement : un gros catalogue *et* des règles propres à la forge et aux
+propriétés des objets magiques. ⚠️ Il n'a **aucun écran aujourd'hui** et il est tissé
+dans **5 couches, 10 records** (Araag · l'Elfe · le Wizard · l'outil
+`fh:tool:en:soulforging` · 3 sorts dont `identify` et `gentle-repose` patchés) :
+**son extraction est un lot AVANT son bouton**.
+
+**2. « Hoddon : espèce neuve ou renommage ? » → NI L'UN NI L'AUTRE, c'est LORE.** *« Tu
+pousses le bouton Lore et c'est un gnome. »* Le renommage `name`/`slug`/`data.name` →
+`Hoddon`, le trait `Gnomish Lineage` → `Hoddon Lineage`, et `Forest Gnome`/`Rock Gnome`
+→ `Forest Folk`/`Rock Folk` appartiennent à la couche **Lore**. Le **lignage
+supplémentaire** (`mole-people`) appartient au **catalogue homebrew**. 📏 Le gnome SRD
+ne porte aucun `data.lineages` — sa lignée est de la prose dans le trait
+`gnomish-lineage` ; FH la structure, en renomme deux, en ajoute une.
+
+**3. « Un contenu qui exige une règle absente ? » → IL S'AFFICHE INERTE, sa règle
+manquante NOMMÉE**, jusqu'au jour où on l'ajoute.
+
+⚖️ **La règle de dégradation, dictée le 08/09** : sans la couche `Skills & tools`, **les
+points libres deviennent des compétences supplémentaires à répartir à la création.**
+📏 L'humain SRD porte `Skillful` — *« proficiency in one skill of your choice »* — donc
+**1** ; Araag en donne **2**. ⚠️ La forme FH d'Araag donne 2 points aux niveaux 1, 3 et
+6 (`skill_points.by_level`) ; la forme dégradée n'en donne que **2, à la création** —
+une espèce SRD n'accorde pas de compétence aux niveaux suivants.
+
 ### Les blocs — verbes en entrée, événements en sortie, état privé
 
 Chaque bloc : ses verbes (seul point d'entrée), sa tranche d'état (lui seul
