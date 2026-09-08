@@ -39,6 +39,7 @@ import {
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
 import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=592";
+import { lireLeFichier } from "./ouvrir.mjs?v=592";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -252,6 +253,9 @@ const state = {
      repartirait de l'exemple sans jamais apprendre qu'il a perdu quelque
      chose, ce qui est le repli silencieux que la loi §0.5 interdit. */
   memoireIgnoree: null,
+  /* 📂 Le mot du dernier fichier REFUSÉ à l'ouverture, ou null. ⛔ Il ne vit
+     pas dans le document : c'est un fait d'écran, il meurt au rechargement. */
+  ouvertureRefusee: null,
   /* ⭐ LE REGISTRE DES FONDS, BRUT — lot 134. On garde le registre, PAS une
      liste dérivée : `collections()` et `collectionServie()` le relisent à
      chaque rendu, et il n'y a donc jamais deux états à tenir d'accord. `null`
@@ -938,6 +942,89 @@ function applyDecisionAction(action) {
      rechargement seul répare déjà les pannes qui ne viennent pas du stockage,
      et rendre la main sans rien faire serait, ici précisément, un bouton mort
      de plus sur un builder déjà bloqué. */
+  /* ══ 📂 OUVRIR UN PERSONNAGE DEPUIS UN FICHIER — Eric, 2026-09-06 ════════
+     ⚖️ *« chacun est propriétaire de ses données […] je choisis où je range
+     mes persos »*. Le fichier vient d'où le joueur l'a rangé : l'app Fichiers,
+     un cloud, un disque. Le builder ne sait pas d'où, et c'est le but.
+
+     🔴 POURQUOI LA COQUILLE ET PAS L'ÉCRAN. Lire un fichier demande trois
+     choses qui n'existent ni dans `node:test` ni dans le `dom-stub` — un
+     `<input type="file">`, la liste `.files`, et `.text()`. Même loi que
+     `fichier.mjs` en sortie : l'écran ÉMET un verbe, la coquille touche le
+     monde. L'écran reste ainsi testable en entier, et le garde `D6` du Menu
+     l'exige déjà pour l'autre bouton.
+
+     ⛔ L'INPUT NE VIT PAS DANS LE DOCUMENT. Il est créé, cliqué, et abandonné
+     au ramasse-miettes : un `<input>` posé dans la page passerait sous les
+     yeux du `spy` du socle et compterait un point d'aimantation de plus —
+     exactement ce que `telecharger()` évite depuis le lot 67.
+
+     ⚠️ ET UN FICHIER QU'ON N'A PAS CHOISI N'EST PAS UN REFUS : fermer le
+     sélecteur ne doit rien afficher. Seul un fichier CHOISI et illisible parle.
+
+     ⭐ CE QUI ARRIVE APRÈS, ET C'EST LE POINT DÉLICAT : on ne pose pas le
+     document à la main au milieu d'un écran vivant. `state` porte une dizaine
+     de faits qui appartiennent au personnage COURANT (la carte tirée de
+     Destiny, le lot de dés d'Abilities, le palier, le curseur…). Les remettre
+     un par un marcherait aujourd'hui et raterait le onzième qu'on ajoutera
+     demain, EN SILENCE. On repasse donc par le seul chemin qui les pose tous :
+     celui du DÉMARRAGE. `refresh()` confie le personnage à la mémoire du
+     navigateur (`memoriser()`), puis la page redémarre dessus.
+     ⛔ ET ON NE RECHARGE QUE SI LA MÉMOIRE A ACCEPTÉ : recharger sur un
+     magasin qui refuse (navigation privée) jetterait le fichier que le joueur
+     vient d'ouvrir. Dans ce cas seulement, on l'installe en mémoire vive et on
+     remet à zéro ce qui appartenait au personnage d'avant. */
+  if (action.kind === "ouvrirUnFichier") {
+    if (typeof document === "undefined" || !document.createElement) return;
+    const choix = document.createElement("input");
+    choix.type = "file";
+    choix.accept = ".json,application/json";
+    choix.addEventListener("change", async () => {
+      const fichier = choix.files && choix.files[0];
+      if (!fichier) return;                       // sélecteur fermé : pas un refus
+      let texte;
+      try { texte = await fichier.text(); } catch (_) {
+        state.ouvertureRefusee = "this file could not be read";
+        refresh();
+        return;
+      }
+      const issue = lireLeFichier(texte);
+      if (issue.etat !== "lu") {
+        state.ouvertureRefusee = issue.raison;
+        refresh();
+        return;
+      }
+      state.ouvertureRefusee = null;
+      state.memoireIgnoree = null;
+      state.document = issue.document;
+      refresh();                                  // `memoriser()` garde le personnage neuf
+      const garde = ecrirePersonnage(canonicalText(state.document));
+      if (garde && garde.ok && typeof window !== "undefined" && window.location && window.location.reload) {
+        window.location.reload();
+        return;
+      }
+      /* Le magasin refuse : pas de rechargement possible. On repose ce qui
+         appartenait au personnage d'avant, puis on redérive. */
+      annulerDestiny();
+      state.step = 0;
+      state.palier = 1;
+      state.cursor = 0;
+      state.lore = null;
+      state.destinyPhase = "porte";
+      state.destinyMode = "draw";
+      state.destinyDraw = null;
+      state.destinyFace = "down";
+      state.destinyDezoom = false;
+      state.destinyTaps = [];
+      state.destinyRang = null;
+      state.abilityRoll = null;
+      state.abilityRevele = 0;
+      rebuild();
+      refresh();
+    });
+    choix.click();
+    return;
+  }
   if (action.kind === "oublierPersonnage") {
     oublierPersonnage();
     if (typeof window !== "undefined" && window.location && window.location.reload) {
@@ -1958,7 +2045,8 @@ function renderStepContent() {
          mémoire, il ne va pas le chercher — un écran qui lirait `localStorage`
          lui-même deviendrait impossible à tester. */
       memoire: state.memoire,
-      memoireIgnoree: state.memoireIgnoree
+      memoireIgnoree: state.memoireIgnoree,
+      ouvertureRefusee: state.ouvertureRefusee
     }, applyDecisionAction));
   } else if (step.id === "universe" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(

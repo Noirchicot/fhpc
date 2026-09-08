@@ -638,6 +638,53 @@ export function renderUniverseStep(ctx, onAction) {
      personnage périmé — c'est même le cas exact qu'on répare. Le griser sur
      `ok === false` aurait retiré la sortie de secours au moment précis où elle
      sert. Sans rien à oublier, le geste ne coûte qu'un rechargement. */
+  /* ══ 📂 OUVRIR UN PERSONNAGE — Eric, 2026-09-06 ═════════════════════════
+     ⚖️ *« La règle de FH : chacun est propriétaire de ses données. On passe
+     par l'app Fichiers, libre à moi de le mettre sur le cloud ou sur l'iPad
+     ou ailleurs. Sur desktop ou ailleurs, je choisis où je range mes
+     persos. »*
+
+     🔴 LA MOITIÉ QUI MANQUAIT. Le builder savait SORTIR un personnage
+     (`Export JSON`, sur la fiche) et **rien ne savait le relire** — mesuré le
+     06/09 : zéro `FileReader`, zéro `type="file"` dans tout `ui/`. ⛔ Un
+     fichier qu'on ne peut pas rouvrir n'est pas une sauvegarde, c'est une
+     impression, et la loi d'Eric n'était écrite qu'à moitié.
+
+     ⭐ ET C'EST ICI QU'IL VIT, PAS SUR LA FICHE : on ouvre un personnage
+     précisément quand celui qui est chargé ne convient pas — cassé, ancien,
+     ou simplement pas celui qu'on veut jouer. Le Menu est le seul écran qui
+     ne lit pas la fiche dérivée, donc le seul qui réponde encore quand elle
+     ne dérive plus. Sur la fiche, ce bouton serait absent le jour où il sert.
+
+     ⏳ DETTE NOMMÉE, PAS RÉPARÉE EN PASSANT : `Export JSON` reste sur la
+     fiche, `Open` arrive au Menu — les deux moitiés d'un même geste vivent
+     sur deux écrans. Les réunir est une décision d'Eric sur SA fiche, pas un
+     rangement que je m'autorise ici.
+
+     ⛔ IL N'EST PAS ROUGE : il ne défait rien. Il prend le gabarit neutre du
+     Menu (`.universe-bascule`), parce que c'est la même espèce d'organe — un
+     mot dans une boîte, hauteur `--touch`. Seul le geste qui EFFACE porte
+     `--critical`, et c'est ce qui rend cette teinte lisible. */
+  const ouvrir = document.createElement("button");
+  ouvrir.type = "button";
+  ouvrir.className = "universe-ouvrir";
+  ouvrir.append(text("Open a character"));
+  ouvrir.addEventListener("click", () => onAction({ kind: "ouvrirUnFichier" }));
+  ou.append(ouvrir);
+  ou.append(el("p", "universe-note", [
+    text("Reads a .fh-char.json file you saved — from this device, your cloud, anywhere you filed it. "
+      + "It replaces the character below.")
+  ]));
+  /* ⚠️ UNE OUVERTURE REFUSÉE SE DIT, ELLE NE SE DEVINE PAS — même loi que le
+     personnage illisible du navigateur, juste au-dessus. Un fichier choisi qui
+     ne rentre pas et un écran qui ne bouge pas, c'est un bouton mort du point
+     de vue du joueur : il ne saura pas s'il a raté son geste ou son fichier. */
+  if (ctx.ouvertureRefusee) {
+    ou.append(el("p", "doc-field-error", [
+      text(`That file was not opened: ${ctx.ouvertureRefusee}`)
+    ]));
+  }
+
   const oubli = document.createElement("button");
   oubli.type = "button";
   oubli.className = "universe-oubli";
