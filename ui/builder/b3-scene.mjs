@@ -214,10 +214,18 @@ export function construireLaSceneB3(options = {}) {
     POIDS.lignes.forEach((ligne, i) => {
       const lieu = ligne.toLowerCase();
       const y = POIDS.y + 25 + i * 11;
+      /* ⚠️ LE MÊME CADRAN EST DESSINÉ À DEUX ENDROITS (ici, et le panneau de
+         `equipement-pipeline.mjs`) : les deux doivent dire la MÊME chose, ou
+         celui qui se tait ment. Le nombre d'objets SANS poids connu s'écrit
+         donc ici aussi, en marque courte (`+2?`) faute de place — la phrase
+         entière part dans le libellé lu par les lecteurs d'écran. */
+      const ignores = contenu && contenu.poids ? (contenu.poids.inconnus?.[lieu] || 0) : 0;
       const mot = contenu && contenu.poids
-        ? `${ligne}  ${contenu.poids.compte[lieu] || 0} · ${Math.round((contenu.poids.somme[lieu] || 0) * 10) / 10} lb`
+        ? `${ligne}  ${contenu.poids.compte[lieu] || 0} · ${Math.round((contenu.poids.somme[lieu] || 0) * 10) / 10}`
+          + ` ${contenu.poids.unite || "lb"}${ignores ? ` +${ignores}?` : ""}`
         : ligne;
-      const g = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0, "aria-label": `Open ${ligne}` });
+      const g = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0,
+        "aria-label": ignores ? `Open ${ligne} — ${ignores} sans poids connu` : `Open ${ligne}` });
       g.append(texte("b3-info-texte", POIDS.x + 6, y, mot));
       if (contenu && contenu.surLieu) g.addEventListener("click", () => contenu.surLieu(lieu));
       noeud.append(g);
