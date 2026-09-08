@@ -41,6 +41,13 @@ export const LAYER_FILES = [
      Soulforge d'Identify et Gentle Repose), et AVANT les deux couches de
      texte qui ferment la pile. */
   "fh-soulforging-en.layer.json",
+  /* ⭐ LOT 181 — les 54 gemmes d'Eric, genre `gem` (le second genre Fate's
+     Hand après `arcana`) plus leurs 54 rangements. Elle n'AJOUTE que : aucune
+     dépendance de montage, donc sa place est celle du contenu maison — après
+     les couches mécaniques, avant les deux couches de texte qui ferment la
+     pile. ⚠️ Elle entre ici EN MÊME TEMPS que dans `FH_LAYER_IDS` et dans
+     `PILE` : trois listes, un seul geste (leçon du lot 77). */
+  "fh-gems-en.layer.json",
   "fh-fiche-en.layer.json",
   "fh-lore-en.layer.json"
 ];

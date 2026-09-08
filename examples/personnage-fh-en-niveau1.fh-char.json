@@ -64,6 +64,12 @@
         "name": "Fate's Hand — Soulforging (EN)"
       },
       {
+        "id": "fh-gems-en",
+        "version": "0.1.0",
+        "hash": "d204bbf31bf98bc38423724e6360e35016be8511cb8b865a26fd7de56dab9018",
+        "name": "Fate's Hand — Gems (EN)"
+      },
+      {
         "id": "fh-fiche-en",
         "version": "0.1.0",
         "hash": "384255a02ea4a9dc6de9ec615af55980c9741bbec1ffd1b2240f4e78600ca1f9",
@@ -454,6 +460,12 @@
           "version": "0.1.0",
           "hash": "ca2d630210105769b7869e842791e1e830df2ab5c32cceaf55f9437b8ab7dc85",
           "name": "Fate's Hand — Soulforging (EN)"
+        },
+        {
+          "id": "fh-gems-en",
+          "version": "0.1.0",
+          "hash": "d204bbf31bf98bc38423724e6360e35016be8511cb8b865a26fd7de56dab9018",
+          "name": "Fate's Hand — Gems (EN)"
         },
         {
           "id": "fh-fiche-en",

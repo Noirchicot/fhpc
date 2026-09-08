@@ -303,8 +303,35 @@ test("⚔️ ATTAQUE (la règle) — les quatre refus NOMMENT ce qu'ils écarten
      naît chez fh-srd, mais dans la couche `srfh` — c'est le rangement d'Eric,
      pas le livre. 🔴 Il a été ajouté parce qu'ouvrir un genre au contrat
      DÉSARME le refus ④ qui le couvrait jusque-là : la porte « genre non
-     déclaré » ne protège plus un nom qu'on vient de déclarer. */
-  assert.deepEqual(GENRES_MAISON, ["arcana", "shelving", "training"]);
+     déclaré » ne protège plus un nom qu'on vient de déclarer.
+     ⭐ LOT 181 — `gem` rejoint la liste POUR LA MÊME RAISON QUE `arcana` : il
+     naît dans ce dépôt-ci (54 gemmes dictées par Eric le 2026-09-08), fh-srd
+     n'en publie aucune, et il vient d'être ouvert au contrat — donc le refus ④
+     a cessé de le couvrir. Les deux gestes sont dans le même commit. */
+  assert.deepEqual(GENRES_MAISON, ["arcana", "gem", "shelving", "training"]);
+});
+
+test("⚔️ ATTAQUE (lot 181) — un `gem` publié par fh-srd serait REFUSÉ, et par SON motif", () => {
+  /* 🔴 LE GARDE CI-DESSUS EST UNE LISTE ; celui-ci est son MORDANT. Sans lui,
+     `GENRES_MAISON` pourrait porter « gem » sans que rien ne prouve que le
+     refus s'exerce — une liste qu'aucun chemin ne lit est une liste morte.
+     ⭐ Et l'attaque vise la porte ①, PAS la ④ : `declares` inclut `gem`,
+     donc le contrat le déclare. Si le refus ④ était le seul à mordre, ce test
+     passerait au vert le jour où on retirerait `gem` de `GENRES_HORS_SRD`. */
+  const declares = ["gem", "item", "spell"];
+  const inventaire = {
+    en: { disque: ["gem", "item"], manifest: ["gem", "item"] },
+    fr: { disque: ["gem", "item"], manifest: ["gem", "item"] }
+  };
+  assert.throws(() => deriveGenres(inventaire, { declares }),
+    (e) => /gem/.test(e.message) && /§0\.12/.test(e.message),
+    "un `gem` venu de fh-srd doit être refusé comme genre MAISON, en nommant la loi");
+  /* ⚔️ ET LE TÉMOIN INVERSE : sans `gem` au disque, la même lecture passe.
+     Un refus qui refuserait tout ne prouverait rien. */
+  assert.deepEqual(
+    deriveGenres({ en: { disque: ["item"], manifest: ["item"] }, fr: { disque: ["item"], manifest: ["item"] } },
+      { declares }),
+    ["item"]);
 });
 
 test("⚔️ ATTAQUE (la lecture) — un FICHIER d'export inconnu posé sur le disque est NOMMÉ, pas sauté", () => {

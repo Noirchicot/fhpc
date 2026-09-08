@@ -38,10 +38,13 @@
    lot ne rouvre pas. */
 import { sha256Portable } from "./sha256.mjs";
 
-/* Les 20 genres, dans l'ordre du schéma (alphabétique). ⚠️ CE NOMBRE A ÉTÉ
-   FAUX QUATRE FOIS : il disait 16 quand la liste en portait 19. La leçon est
-   écrite trois paragraphes plus bas et elle vaut pour cette ligne-ci — un
-   chiffre dans une phrase n'est relu par personne. `GENRES.length` répond.
+/* Les genres, dans l'ordre du schéma (alphabétique). ⚠️ LE NOMBRE QUI TENAIT
+   CETTE PLACE A ÉTÉ FAUX CINQ FOIS : il disait 16 quand la liste en portait
+   19, puis 20 quand elle en portait 21. Il est RETIRÉ le 2026-09-08 plutôt que
+   corrigé une sixième — la leçon est écrite trois paragraphes plus bas et elle
+   valait pour cette ligne-ci : un chiffre dans une phrase n'est relu par
+   personne, et le corriger ne fait que rembobiner l'horloge. `GENRES.length`
+   répond, et il ne se trompe pas.
    RÉVISION DU
    2026-08-08 : `skill` et `class-progression` sont les genres 13 et 14, venus
    du lot 6-srd-tables. RÉVISION DU 2026-08-08 : `arcana` est le genre 15 — et
@@ -131,10 +134,35 @@ import { sha256Portable } from "./sha256.mjs";
 
    ⚠️ PUBLIÉ EN ANGLAIS SEULEMENT, et ce n'est PAS un manque à combler ici :
    `exports/srfh/` n'existe qu'en anglais chez fh-srd. ⛔ Ne fabrique pas un
-   `srfh:shelving:fr:` en traduisant — ce serait inventer une source. */
+   `srfh:shelving:fr:` en traduisant — ce serait inventer une source.
+
+   ⭐ RÉVISION DU 2026-09-08 (lot 181) — `gem` est le genre 22, et c'est le
+   SECOND genre Fate's Hand, après `arcana`. Il porte les 54 gemmes qu'Eric a
+   dictées le 2026-09-08, sur douze paliers de valeur (10 po → 50 000 po).
+
+   ⛔ POURQUOI PAS `gear`, ET POURQUOI PAS `item`. Le SRD est PROPRIÉTAIRE de
+   `gear` : y verser 54 records maison mélangerait la copie fidèle et du
+   contenu d'Eric dans le même seau (§0.12), et un consommateur qui compterait
+   « les 82 objets d'aventure du livre » en trouverait 136. `item` est le genre
+   des objets MAGIQUES — rareté, harmonisation — or une gemme reste NON
+   MAGIQUE : sa valeur vient de sa taille, de sa pureté, de sa taille lapidaire
+   et de sa provenance, jamais d'un enchantement.
+
+   🔴 ET OUVRIR CE GENRE DÉSARME UNE PORTE, EXACTEMENT COMME `shelving` EN 95.
+   Le refus ④ de `gen-srd-layer.mjs` (« un genre que le contrat ne déclare
+   pas ») cesse de couvrir `gem` à la seconde où cette ligne est écrite. C'est
+   pourquoi `gem` entre dans `GENRES_HORS_SRD` DANS LE MÊME GESTE — le refus ①
+   prend le relais, et il le refuse pour SON motif : un genre maison.
+
+   ⚠️ CE QU'IL NE PORTE PAS, arbitrage d'Eric du 2026-09-08 : aucun champ « de
+   la Forêt des Démons ». La même azurite est ordinaire ou de la Forêt selon OÙ
+   elle a été trouvée — propriété d'INSTANCE, portée par la ligne possédée
+   (`gear[N]`), jamais par le catalogue. ⚠️ Et aucun nom français : la source du
+   vault porte `name_fr` et `tier_fr`, mais une couche NE MÉLANGE PAS LES
+   LANGUES. Ils restent au vault jusqu'à ce qu'une `fh-gems-fr` existe. */
 export const GENRES = [
   "arcana", "armor", "background", "class", "class-option", "class-progression", "feat", "gear",
-  "glossary", "item", "item-value", "monster", "shelving", "skill", "species", "spell", "tool", "training", "weapon",
+  "gem", "glossary", "item", "item-value", "monster", "shelving", "skill", "species", "spell", "tool", "training", "weapon",
   "weapon-mastery", "weapon-property"
 ];
 const GENRE_SET = new Set(GENRES);

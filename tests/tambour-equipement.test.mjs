@@ -111,8 +111,9 @@ const RANGEMENT = lireRangement(query);
 test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
   assert.deepEqual(arbre.map((r) => r.id),
-    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane"],
-    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique");
+    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane", "valuables"],
+    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `valuables` est entré le "
+    + "2026-09-08 avec les 54 gemmes d'Eric, et c'est le premier rayon qu'une couche FH apporte");
   /* ⛔ ET AUCUN GENRE N'Y SURVIT : le défaut se reconnaît à ces quatre mots. */
   for (const genre of ["armor", "gear", "item", "weapon"]) {
     assert.equal(arbre.some((r) => r.id === genre), false,
@@ -120,7 +121,33 @@ test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () 
   }
 });
 
-test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35", () => {
+/* 🔴 LA SEULE ÉTAGÈRE QUI DÉBORDE LES 35 D'ERIC, ET C'EST UN ARBITRAGE QUI LUI
+   REVIENT — ouvert le 2026-09-08 par le lot 181.
+
+   Deux paroles d'Eric se contredisent, et aucune n'est de moi :
+     · 2026-08-21/22, ÉCRIT — sa structure de rangement déclare `crafting ›
+       gems`, à zéro. C'est ce que le lot 181 a rempli.
+     · 2026-09-08, DIT — « les gemmes doivent être dans l'équipement :
+       valuables ». ⚠️ Et `valuables` n'existe dans aucun des 470 records de
+       rangement : ce serait une étagère NEUVE, donc une décision de taxonomie.
+
+   ⛔ CE N'EST PAS UN DESSERRAGE, ET LA FORME LE PROUVE : la liste des
+   débordements est confrontée ENTIÈRE (`deepEqual`), pas filtrée. Une SECONDE
+   étagère qui déborderait ferait rougir ce test comme avant ; un compte de
+   gemmes qui bouge aussi ; et le jour où Eric re-tranche le découpage, c'est
+   cette constante qui rougit et qui le rappelle.
+   📌 CE QUE DIT LE TEST ORIGINAL, ET QUI TIENT TOUJOURS : « si un jour une
+   étagère déborde, c'est le DÉCOUPAGE qu'on refait, jamais la donnée qu'on
+   refuse ». Le découpage se refait chez fh-srd (`src/shelving.py`) ET dans
+   `ETAGERE_DES_GEMMES` (`src/tools/gen-fh-gems-layer.mjs`), une chaîne. */
+/* ⚖️ TRANCHÉ le 2026-09-08 : ce n'est plus une dette « en attente », c'est un
+   débordement RATIFIÉ. 📌 Et `NORMES.md:2441` l'anticipait mot pour mot :
+   *« le 35 par étagère est une CIBLE DE DÉCOUPE, jamais un plafond de données —
+   le homebrew le fera déborder, c'est prévu »*. Le garde reste, parce qu'il
+   attrape un débordement NON VOULU ; il nomme celui qui l'est. */
+const DEBORDEMENT_RATIFIE = { id: "valuables:gems", n: 54 };
+
+test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la dette NOMMÉE des gemmes", () => {
   /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
      toujours d'arriver à MOINS DE 35 ITEMS SUR LA DERNIÈRE CATÉGORIE, c'est
      l'idée ». ⭐ Les rayons ne sont pas une classification pour elle-même : ils
@@ -130,10 +157,24 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35", () => {
      une étagère déborde, c'est le DÉCOUPAGE qu'on refait, jamais la donnée
      qu'on refuse — et la pagination, elle, n'a pas de plafond (test 9). */
   const arbre = rayonsEtEtageres(query);
-  const toutes = arbre.flatMap((r) => r.etageres.map((e) => ({ nom: `${r.label} › ${e.label}`, n: e.objets.length })));
-  const debordent = toutes.filter((e) => e.n >= 35);
-  assert.deepEqual(debordent, [], "une étagère à 35 ou plus a raté l'unique raison d'être des rayons");
-  const plusGrosse = toutes.reduce((a, b) => (b.n > a.n ? b : a));
+  /* 🔴 L'IDENTITÉ EST `aisle:shelf`, JAMAIS LE LIBELLÉ — loi du test 3. Une
+     dette écrite « Crafting › Gems » se serait accrochée à un affichage. */
+  const toutes = arbre.flatMap((r) => r.etageres.map((e) => ({ id: e.id, nom: `${r.label} › ${e.label}`, n: e.objets.length })));
+  const debordent = toutes.filter((e) => e.n >= 35).map(({ id, n }) => ({ id, n }));
+  assert.deepEqual(debordent, [DEBORDEMENT_RATIFIE],
+    "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — la seule admise est " +
+    "`valuables › gems`, 54 gemmes, tranchée par Eric le 2026-09-08 et prévue par NORMES.md:2441");
+
+  /* ⚔️ ET LA DETTE SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui déborde
+     doit être EXACTEMENT des gemmes. Sans ce témoin, un objet d'un autre genre
+     rangé là par erreur se cacherait derrière un compte toléré. */
+  const dette = arbre.find((r) => r.id === "valuables").etageres.find((e) => e.id === DEBORDEMENT_RATIFIE.id);
+  assert.deepEqual([...new Set(dette.objets.map((o) => o.kind))], ["gem"],
+    "l'étagère tolérée ne porte QUE des gemmes — sinon la tolérance couvrirait autre chose");
+
+  /* Le rangement d'Eric HORS de la dette n'a pas bougé d'un objet. */
+  const sansLaDette = toutes.filter((e) => e.id !== DEBORDEMENT_RATIFIE.id);
+  const plusGrosse = sansLaDette.reduce((a, b) => (b.n > a.n ? b : a));
   assert.equal(plusGrosse.n, 33, `mesuré le 2026-08-24 : la plus grosse est ${plusGrosse.nom}`);
 });
 
@@ -175,15 +216,34 @@ test("4 — ⚔️ ATTAQUE : aucun libellé n'est inventé, chacun se retrouve d
   }
 });
 
-test("5 — 🔴 LES 416 RANGEMENTS SONT LUS, ET LES DEUX ÉCARTÉS SONT NOMMÉS", () => {
-  /* ⚠️ LE TOTAL N'EST PAS 416, ET C'EST CORRECT — un total juste ne dirait
-     rien du contenu, celui-ci dit quelque chose en NE tombant PAS juste.
-     `srfh` est construite sur le SRD seul ; deux de ses records rangent
-     `gaming-set` et `musical-instrument`, que la couche `fh-skills-en`
+/* LE RANGEMENT VIENT DE DEUX COUCHES DEPUIS LE LOT 181, et les deux sont
+   NOMMÉES SÉPARÉMENT : un total juste ne dit rien du contenu — 470 se lit
+   aussi bien « 416 + 54 » que « 470 records de la même couche ». Les deux
+   chiffres se vérifient donc l'un après l'autre, par le PRÉFIXE d'id. */
+const RANGEMENTS_SRFH = 416;   // `srfh-shelving-en`, lot 95 — le SRD habillé
+const RANGEMENTS_GEMMES = 54;  // `fh-gems-en`, lot 181 — les gemmes d'Eric
+
+test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET LES DEUX ÉCARTÉS SONT NOMMÉS", () => {
+  /* ⚠️ LE TOTAL AFFICHÉ N'EST PAS LE TOTAL LU, ET C'EST CORRECT — un total
+     juste ne dirait rien du contenu, celui-ci dit quelque chose en NE tombant
+     PAS juste. `srfh` est construite sur le SRD seul ; deux de ses records
+     rangent `gaming-set` et `musical-instrument`, que la couche `fh-skills-en`
      DÉSACTIVE (`op: disable`) pour les remplacer par sept outils plus fins.
      Un objet rangé qui n'existe plus dans la pile montée ne s'affiche pas —
      et il est COMPTÉ, jamais avalé. */
-  assert.equal(RANGEMENT.lus, 416, "les 416 records de rangement sont bien lus");
+  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
+    "les 470 records de rangement des DEUX couches sont bien lus");
+  /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
+     côté sans que ce test bronche. `srfh:` habille le livre, `fh:` les
+     gemmes — deux préfixes, deux comptes. */
+  const parPrefixe = { "srfh:": 0, "fh:": 0 };
+  for (const vue of query({ kind: "shelving" })) {
+    const prefixe = String(vue.id).startsWith("srfh:") ? "srfh:" : "fh:";
+    parPrefixe[prefixe] += 1;
+  }
+  assert.deepEqual(parPrefixe, { "srfh:": RANGEMENTS_SRFH, "fh:": RANGEMENTS_GEMMES },
+    "le rangement du livre et celui des gemmes se comptent séparément");
+
   assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
   assert.deepEqual(RANGEMENT.introuvables.map((x) => x.extends).sort(),
     ["srd:tool:en:gaming-set", "srd:tool:en:musical-instrument"],
@@ -191,10 +251,11 @@ test("5 — 🔴 LES 416 RANGEMENTS SONT LUS, ET LES DEUX ÉCARTÉS SONT NOMMÉS
 
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, 414, "416 rangements − 2 records désactivés par une couche du dessus");
+  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES - 2,
+    "470 rangements − 2 records désactivés par une couche du dessus");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, 414, "et chaque objet n'est rangé que sur UNE étagère");
+  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES - 2, "et chaque objet n'est rangé que sur UNE étagère");
 });
 
 test("5 bis — ⭐ LES OUTILS SONT ENTRÉS, et les 14 outils Fate's Hand sont NOMMÉS comme non rangés", () => {
@@ -239,11 +300,17 @@ test("5 ter — ⏳ LES RAYONS VIDES NE SONT PAS DANS L'EXPORT, et ce garde le d
 
      ⏳ LOT À COMMANDER CHEZ fh-srd, et il tient en une ligne d'exportateur :
      publier la structure déclarée (rayons et étagères, peuplés ou non) à côté
-     des records. Trois rayons/étagères manquent aujourd'hui à l'appel —
-     `companions › familiars`, `companions › henchmen`, `crafting › gems`,
-     `crafting › ingredients` : tous à zéro, tous invisibles. */
+     des records. Manquent aujourd'hui à l'appel — `companions › familiars`,
+     `companions › henchmen`, `crafting › ingredients` : tous à zéro, tous
+     invisibles.
+     ⭐ MISE À JOUR DU 2026-09-08 (lot 181) — `crafting › gems` a QUITTÉ cette
+     liste : elle porte les 54 gemmes d'Eric et s'affiche. Elle n'est pas venue
+     de la structure publiée (fh-srd ne l'exporte toujours pas) mais des
+     records eux-mêmes, par le seul chemin que ce dépôt accepte : une couche
+     qui pose des rangements, jamais une taxonomie recopiée ici. */
   const arbre = rayonsEtEtageres(query);
-  assert.equal(arbre.length, 6, "six rayons PEUPLÉS — c'est tout ce que l'export porte");
+  assert.equal(arbre.length, 7, "sept rayons PEUPLÉS — les six de l'export SRFH, plus `valuables` "
+    + "que la couche des gemmes apporte depuis le 2026-09-08");
   assert.equal(arbre.some((r) => r.id === "companions"), false,
     "⏳ le 7ᵉ rayon d'Eric est vide, donc absent de l'export : il n'apparaîtra qu'une fois la structure publiée");
 
@@ -435,7 +502,7 @@ test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ 
     "et le compte ne MENT pas pendant l'attente — pas de « 1/1 » sur une grille qui ne montre rien");
 });
 
-test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennent 36 crans, pas 18", () => {
+test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 7 rayons deviennent 42 crans, pas 21", () => {
   /* 🔴 LE PIÈGE N°4, ET IL EST MUET : la roue pose trois blocs et saute d'un
      bloc dès qu'on quitte celui du milieu. Avec 4 crans, un bloc fait 484 px
      pour une fenêtre de 359 — on en sort au moindre geste et la couture tire
@@ -449,7 +516,7 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 6 rayons deviennen
      4 se répète 3 fois et 6 se répète 2 fois — 12 dans les deux cas. ⛔ C'est
      aussi pourquoi « 36 » ne prouve rien tout seul : c'est la liste des quatre
      premiers libellés, en dessous, qui dit quels rayons on regarde. */
-  assert.equal(crans.length, 36, "3 tours × ceil(12 / 6) × 6 rayons = 36 crans");
+  assert.equal(crans.length, 42, "3 tours × ceil(12 / 7) × 7 rayons = 42 crans");
   assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent),
     ["Adventuring", "Arcana", "Battlefield", "Crafting"],
     "les rayons d'Eric, pas les genres de records");

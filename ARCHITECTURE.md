@@ -30,14 +30,30 @@ reste inerte et intact, les couches manquantes sont listées et affichées.
 
 ### Les couches `fh-layer/1` — données, jamais du code
 
-Manifeste + records par genre — **15 genres**, dont 14 viennent de `fh-srd`
-(armor, background, class, class-progression, feat, gear, glossary, item,
-monster, skill, species, spell, tool, weapon ; `skill` et `class-progression`
-sont arrivés avec le lot `6-srd-tables` le 2026-08-08) **et un vient de Fate's
-Hand : `arcana`**, ouvert par révision d'architecte le 2026-08-08 pour porter
-les 22 Arcanes majeurs. C'est le premier genre qui n'existe dans aucun SRD, et
-la frontière qu'il pose vaut pour tous ceux qui suivront : le générateur de la
-couche SRD garde **sa propre liste de 14** et ne produit jamais un genre FH.
+Manifeste + records par genre — la liste vit dans `src/layers/document.mjs`
+(`GENRES`) et dans `schemas/fh-layer.schema.json`, tenues ensemble par un garde
+de dérive. La plupart viennent de `fh-srd` (armor, background, class,
+class-progression, feat, gear, glossary, item, item-value, class-option,
+monster, skill, species, spell, tool, weapon, weapon-mastery, weapon-property ;
+`skill` et `class-progression` sont arrivés avec le lot `6-srd-tables` le
+2026-08-08), un vient de la couche `srfh` (`shelving`, lot 95 — le rangement
+d'Eric), **et trois viennent de Fate's Hand : `arcana`** (2026-08-08, les 22
+Arcanes majeurs), **`training`** (2026-08-12) **et `gem`** (2026-09-08, lot 181,
+les 54 gemmes d'Eric). `arcana` est le premier genre qui n'existe dans aucun
+SRD, et la frontière qu'il pose vaut pour tous ceux qui suivent : le générateur
+de la couche SRD ne produit **jamais** un genre FH — il les refuse nommément
+(`GENRES_HORS_SRD`).
+
+⚠️ **UN CHIFFRE DE GENRES A ÉTÉ FAUX CINQ FOIS DANS CE DÉPÔT**, ici comme dans
+`document.mjs` : « 15 genres, dont 14 » se lisait encore quand il y en avait 21.
+Il est retiré plutôt que corrigé une sixième — `GENRES.length` répond, et lui ne
+se trompe pas.
+
+⛔ **ET OUVRIR UN GENRE AU CONTRAT DÉSARME UNE PORTE.** Le refus « un genre que
+le contrat ne déclare pas » cesse de couvrir un nom à la seconde où on le
+déclare. Un genre maison entre donc dans `GENRES_HORS_SRD` **dans le même
+commit** que sa ligne du contrat — mesuré au lot 95 (`shelving`), refait au lot
+181 (`gem`).
 Une couche **ajoute** des records, **patche** un
 record par id, **désactive** un record, **lève des drapeaux de capacités**
 (ex. `fh.destiny`). Jamais d'exécutable — un homebrew d'inconnu est inoffensif

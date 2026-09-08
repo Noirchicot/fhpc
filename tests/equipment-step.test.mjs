@@ -296,3 +296,54 @@ test("garde — shell.mjs retire VRAIMENT les trois chemins de removeGearLine (p
   assert.match(shellText, /\[""\s*,\s*"\.quantity"\s*,\s*"\.equipped"\]/,
     "sans les trois suffixes, un retrait laisserait `gear[N].quantity`/`gear[N].equipped` orphelins dans build.choices");
 });
+
+/* ══ LOT 181 — LES GEMMES, ET LA LISTE DE GENRES QUI AVAIT SURVÉCU ═══════
+
+   🔴 CE QUE CES GARDES DÉFENDENT, ET IL A ÉTÉ MESURÉ AVANT D'ÊTRE ÉCRIT. Le
+   lot 95 a retiré `EQUIPMENT_RECORD_KINDS` du tambour en écrivant « plus de
+   liste » — et a laissé la MÊME liste, cinq genres en dur, dans
+   `fabriquerChercheur`, mille lignes plus bas. Ce chercheur sert TOUT le
+   reste : le nom d'une ligne achetée, la recherche, les boîtes du dressing.
+
+   📏 MESURE DU 2026-09-08, avec les 54 gemmes du lot 181 : une azurite
+   achetée s'affichait « fh:gem:en:azurite » — SON ID NU — et la recherche ne
+   la trouvait pas. L'objet était visible au tambour et introuvable partout
+   ailleurs. La liste est remplacée par `genresDuRangement`, qui lit
+   `shelving.of_kind` comme le tambour le fait déjà. */
+const { genresDuRangement } = await import("../ui/builder/equipment-step.mjs");
+
+test("lot 181 — les genres du chercheur sont LUS dans le rangement, jamais écrits à la main", () => {
+  const genres = genresDuRangement(query({ kind: "shelving" }));
+  assert.deepEqual(genres, ["armor", "gear", "gem", "item", "tool", "weapon"],
+    "six genres rangés par Eric — `gem` est arrivé avec les gemmes, sans qu'une liste soit corrigée");
+
+  /* ⚔️ ATTAQUE — un rangement qui nomme un genre ABSENT du contrat ne doit ni
+     entrer ni faire tomber l'écran : `query` JETTE sur un genre inconnu. */
+  const bruit = [{ record: { data: { of_kind: "tarot" } } }, { record: { data: {} } }, {}, null];
+  assert.deepEqual(genresDuRangement(bruit), [], "un genre hors contrat est écarté, pas propagé à `query`");
+  /* ⚔️ ET LE VIDE — sans couche de rangement, aucun genre : l'écran se vide,
+     il n'invente pas un repli sur les genres (le défaut retiré au lot 95). */
+  assert.deepEqual(genresDuRangement([]), []);
+  assert.deepEqual(genresDuRangement(undefined), []);
+});
+
+test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son id nu", () => {
+  /* ⚔️ C'EST LE TEST QUI ÉTAIT ROUGE AVANT LE CORRECTIF, et il l'a été pour
+     de vrai : « la ligne montre l'id nu : true / la ligne montre Azurite :
+     false ». Il vaut pour tout genre qu'Eric range et que le chercheur ne
+     connaissait pas — les gemmes ne sont que la première occasion. */
+  const doc = {
+    build: {
+      choices: [
+        { path: "gear[0]", ref: { kind: "gem", id: "fh:gem:en:azurite" } },
+        { path: "gear[0].quantity", value: 1 },
+        { path: "gear[0].location", value: "backpack" }
+      ]
+    }
+  };
+  const node = renderEquipmentStep({ document: doc, resolved: null, query, search: true }, () => {});
+  const texte = node.textContent || "";
+  assert.match(texte, /Azurite/, "le nom du record doit arriver jusqu'à la ligne");
+  assert.equal(texte.includes("fh:gem:en:azurite"), false,
+    "un id nu à l'écran est le symptôme exact d'un genre que le chercheur ne résout pas");
+});

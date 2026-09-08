@@ -40,6 +40,8 @@ export const FH_FICHE_EN = "layers/fh-fiche-en.layer.json";
 export const FH_SPELLS_EN = "layers/fh-spells-en.layer.json";
 /* LOT 179 — le chapitre `Soulforge Crafting` dans sa couche à lui. */
 export const FH_SOULFORGING_EN = "layers/fh-soulforging-en.layer.json";
+/* LOT 181 — les 54 gemmes d'Eric, genre `gem`, plus leurs 54 rangements. */
+export const FH_GEMS_EN = "layers/fh-gems-en.layer.json";
 export const FH_LORE_EN = "layers/fh-lore-en.layer.json";
 
 export function fileBytes(rel) {

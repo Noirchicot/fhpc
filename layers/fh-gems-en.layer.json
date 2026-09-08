@@ -1,0 +1,2343 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-gems-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Gems (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.gems"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds records of its own and modifies NO material from the System Reference Document 5.2.1 — the fifty-four gems exist in no SRD, and nothing here patches, extends or reproduces SRD text."
+  },
+  "description": "The fifty-four gems of Fate's Hand, dictated by Eric on 2026-09-08 and kept in the vault (`5.RPG/Fate's Hand/8. Tools/Gems (FH).json`). Twelve value tiers, from 10 GP to 50,000 GP — five gems per tier, except the last three (10,000 · 25,000 · 50,000 GP) which carry three: at that level they are unique, named stones. They are NOT magical: their worth comes from size, purity, cut and provenance. Each gem carries a shelving record of its own so the Equipment drum can show it; those records live HERE and not in `srfh-shelving-en`, which is mounted on the SRD-only stack too and must never point at records that stack does not have. ⚠️ Two things this layer does not carry, both on purpose: no Demon-Forest field (the same azurite is ordinary or Demon-Forest depending on where it was found — that is a property of the OWNED LINE, not of the catalogue), and no French names (a layer does not mix languages; `name_fr` and `tier_fr` stay in the vault until a `fh-gems-fr` exists).",
+  "records": {
+    "gem": {
+      "fh:gem:en:azurite": {
+        "name": "Azurite",
+        "slug": "azurite",
+        "data": {
+          "cost": "10 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "10 g"
+          },
+          "name": "Azurite",
+          "roll": 1,
+          "tier": "Common Gems",
+          "value_gp": 10,
+          "weight": "—",
+          "weight_g": 10,
+          "weight_kg": 0.01,
+          "weight_lb": 0.022,
+          "weight_oz": 0.35,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:hematite": {
+        "name": "Hematite",
+        "slug": "hematite",
+        "data": {
+          "cost": "10 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "10 g"
+          },
+          "name": "Hematite",
+          "roll": 2,
+          "tier": "Common Gems",
+          "value_gp": 10,
+          "weight": "—",
+          "weight_g": 10,
+          "weight_kg": 0.01,
+          "weight_lb": 0.022,
+          "weight_oz": 0.35,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:malachite": {
+        "name": "Malachite",
+        "slug": "malachite",
+        "data": {
+          "cost": "10 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "10 g"
+          },
+          "name": "Malachite",
+          "roll": 3,
+          "tier": "Common Gems",
+          "value_gp": 10,
+          "weight": "—",
+          "weight_g": 10,
+          "weight_kg": 0.01,
+          "weight_lb": 0.022,
+          "weight_oz": 0.35,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:rhodonite": {
+        "name": "Rhodonite",
+        "slug": "rhodonite",
+        "data": {
+          "cost": "10 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "10 g"
+          },
+          "name": "Rhodonite",
+          "roll": 4,
+          "tier": "Common Gems",
+          "value_gp": 10,
+          "weight": "—",
+          "weight_g": 10,
+          "weight_kg": 0.01,
+          "weight_lb": 0.022,
+          "weight_oz": 0.35,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:turquoise": {
+        "name": "Turquoise",
+        "slug": "turquoise",
+        "data": {
+          "cost": "10 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "10 g"
+          },
+          "name": "Turquoise",
+          "roll": 5,
+          "tier": "Common Gems",
+          "value_gp": 10,
+          "weight": "—",
+          "weight_g": 10,
+          "weight_kg": 0.01,
+          "weight_lb": 0.022,
+          "weight_oz": 0.35,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:chalcedony": {
+        "name": "Chalcedony",
+        "slug": "chalcedony",
+        "data": {
+          "cost": "50 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Chalcedony",
+          "roll": 1,
+          "tier": "Ornamental Gems",
+          "value_gp": 50,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:citrine": {
+        "name": "Citrine",
+        "slug": "citrine",
+        "data": {
+          "cost": "50 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Citrine",
+          "roll": 2,
+          "tier": "Ornamental Gems",
+          "value_gp": 50,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:carnelian": {
+        "name": "Carnelian",
+        "slug": "carnelian",
+        "data": {
+          "cost": "50 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Carnelian",
+          "roll": 3,
+          "tier": "Ornamental Gems",
+          "value_gp": 50,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:onyx": {
+        "name": "Onyx",
+        "slug": "onyx",
+        "data": {
+          "cost": "50 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Onyx",
+          "roll": 4,
+          "tier": "Ornamental Gems",
+          "value_gp": 50,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:zircon": {
+        "name": "Zircon",
+        "slug": "zircon",
+        "data": {
+          "cost": "50 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Zircon",
+          "roll": 5,
+          "tier": "Ornamental Gems",
+          "value_gp": 50,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:amber": {
+        "name": "Amber",
+        "slug": "amber",
+        "data": {
+          "cost": "100 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "3 g"
+          },
+          "name": "Amber",
+          "roll": 1,
+          "tier": "Fine Gems",
+          "value_gp": 100,
+          "weight": "—",
+          "weight_g": 3,
+          "weight_kg": 0.003,
+          "weight_lb": 0.0066,
+          "weight_oz": 0.11,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:coral": {
+        "name": "Coral",
+        "slug": "coral",
+        "data": {
+          "cost": "100 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "3 g"
+          },
+          "name": "Coral",
+          "roll": 2,
+          "tier": "Fine Gems",
+          "value_gp": 100,
+          "weight": "—",
+          "weight_g": 3,
+          "weight_kg": 0.003,
+          "weight_lb": 0.0066,
+          "weight_oz": 0.11,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:jade": {
+        "name": "Jade",
+        "slug": "jade",
+        "data": {
+          "cost": "100 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "3 g"
+          },
+          "name": "Jade",
+          "roll": 3,
+          "tier": "Fine Gems",
+          "value_gp": 100,
+          "weight": "—",
+          "weight_g": 3,
+          "weight_kg": 0.003,
+          "weight_lb": 0.0066,
+          "weight_oz": 0.11,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:jet": {
+        "name": "Jet",
+        "slug": "jet",
+        "data": {
+          "cost": "100 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "3 g"
+          },
+          "name": "Jet",
+          "roll": 4,
+          "tier": "Fine Gems",
+          "value_gp": 100,
+          "weight": "—",
+          "weight_g": 3,
+          "weight_kg": 0.003,
+          "weight_lb": 0.0066,
+          "weight_oz": 0.11,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:pearl": {
+        "name": "Pearl",
+        "slug": "pearl",
+        "data": {
+          "cost": "100 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "3 g"
+          },
+          "name": "Pearl",
+          "roll": 5,
+          "tier": "Fine Gems",
+          "value_gp": 100,
+          "weight": "—",
+          "weight_g": 3,
+          "weight_kg": 0.003,
+          "weight_lb": 0.0066,
+          "weight_oz": 0.11,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:fire-agate": {
+        "name": "Fire Agate",
+        "slug": "fire-agate",
+        "data": {
+          "cost": "250 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Fire Agate",
+          "roll": 1,
+          "tier": "Rare Gems",
+          "value_gp": 250,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 500 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:ametrine": {
+        "name": "Ametrine",
+        "slug": "ametrine",
+        "data": {
+          "cost": "250 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Ametrine",
+          "roll": 2,
+          "tier": "Rare Gems",
+          "value_gp": 250,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 500 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:golden-beryl": {
+        "name": "Golden Beryl",
+        "slug": "golden-beryl",
+        "data": {
+          "cost": "250 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Golden Beryl",
+          "roll": 3,
+          "tier": "Rare Gems",
+          "value_gp": 250,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 500 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:lavender-jade": {
+        "name": "Lavender Jade",
+        "slug": "lavender-jade",
+        "data": {
+          "cost": "250 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Lavender Jade",
+          "roll": 4,
+          "tier": "Rare Gems",
+          "value_gp": 250,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 500 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:watermelon-tourmaline": {
+        "name": "Watermelon Tourmaline",
+        "slug": "watermelon-tourmaline",
+        "data": {
+          "cost": "250 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Watermelon Tourmaline",
+          "roll": 5,
+          "tier": "Rare Gems",
+          "value_gp": 250,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 500 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:alexandrite": {
+        "name": "Alexandrite",
+        "slug": "alexandrite",
+        "data": {
+          "cost": "500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Alexandrite",
+          "roll": 1,
+          "tier": "Precious Gems",
+          "value_gp": 500,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:red-beryl": {
+        "name": "Red Beryl",
+        "slug": "red-beryl",
+        "data": {
+          "cost": "500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Red Beryl",
+          "roll": 2,
+          "tier": "Precious Gems",
+          "value_gp": 500,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:chrysoberyl": {
+        "name": "Chrysoberyl",
+        "slug": "chrysoberyl",
+        "data": {
+          "cost": "500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Chrysoberyl",
+          "roll": 3,
+          "tier": "Precious Gems",
+          "value_gp": 500,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:peridot": {
+        "name": "Peridot",
+        "slug": "peridot",
+        "data": {
+          "cost": "500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Peridot",
+          "roll": 4,
+          "tier": "Precious Gems",
+          "value_gp": 500,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:tanzanite": {
+        "name": "Tanzanite",
+        "slug": "tanzanite",
+        "data": {
+          "cost": "500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Tanzanite",
+          "roll": 5,
+          "tier": "Precious Gems",
+          "value_gp": 500,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:imperial-jade": {
+        "name": "Imperial Jade",
+        "slug": "imperial-jade",
+        "data": {
+          "cost": "750 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Imperial Jade",
+          "roll": 1,
+          "tier": "Superb Gems",
+          "value_gp": 750,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 1 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:peacock-opal": {
+        "name": "Peacock Opal",
+        "slug": "peacock-opal",
+        "data": {
+          "cost": "750 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Peacock Opal",
+          "roll": 2,
+          "tier": "Superb Gems",
+          "value_gp": 750,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 1 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:padparadscha-sapphire": {
+        "name": "Padparadscha Sapphire",
+        "slug": "padparadscha-sapphire",
+        "data": {
+          "cost": "750 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Padparadscha Sapphire",
+          "roll": 3,
+          "tier": "Superb Gems",
+          "value_gp": 750,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 1 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:black-spinel": {
+        "name": "Black Spinel",
+        "slug": "black-spinel",
+        "data": {
+          "cost": "750 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Black Spinel",
+          "roll": 4,
+          "tier": "Superb Gems",
+          "value_gp": 750,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 1 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:blue-zircon": {
+        "name": "Blue Zircon",
+        "slug": "blue-zircon",
+        "data": {
+          "cost": "750 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Blue Zircon",
+          "roll": 5,
+          "tier": "Superb Gems",
+          "value_gp": 750,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 1 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:white-opal": {
+        "name": "White Opal",
+        "slug": "white-opal",
+        "data": {
+          "cost": "1,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "White Opal",
+          "roll": 1,
+          "tier": "Exceptional Gems",
+          "value_gp": 1000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:star-ruby": {
+        "name": "Star Ruby",
+        "slug": "star-ruby",
+        "data": {
+          "cost": "1,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Star Ruby",
+          "roll": 2,
+          "tier": "Exceptional Gems",
+          "value_gp": 1000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:blue-sapphire": {
+        "name": "Blue Sapphire",
+        "slug": "blue-sapphire",
+        "data": {
+          "cost": "1,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Blue Sapphire",
+          "roll": 3,
+          "tier": "Exceptional Gems",
+          "value_gp": 1000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:star-sapphire": {
+        "name": "Star Sapphire",
+        "slug": "star-sapphire",
+        "data": {
+          "cost": "1,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Star Sapphire",
+          "roll": 4,
+          "tier": "Exceptional Gems",
+          "value_gp": 1000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:emerald": {
+        "name": "Emerald",
+        "slug": "emerald",
+        "data": {
+          "cost": "1,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Emerald",
+          "roll": 5,
+          "tier": "Exceptional Gems",
+          "value_gp": 1000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:color-change-alexandrite": {
+        "name": "Color-Change Alexandrite",
+        "slug": "color-change-alexandrite",
+        "data": {
+          "cost": "2,500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Color-Change Alexandrite",
+          "roll": 1,
+          "tier": "Sublime Gems",
+          "value_gp": 2500,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 5 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:canary-diamond": {
+        "name": "Canary Diamond",
+        "slug": "canary-diamond",
+        "data": {
+          "cost": "2,500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Canary Diamond",
+          "roll": 2,
+          "tier": "Sublime Gems",
+          "value_gp": 2500,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 5 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:harlequin-opal": {
+        "name": "Harlequin Opal",
+        "slug": "harlequin-opal",
+        "data": {
+          "cost": "2,500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Harlequin Opal",
+          "roll": 3,
+          "tier": "Sublime Gems",
+          "value_gp": 2500,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 5 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:cornflower-sapphire": {
+        "name": "Cornflower Sapphire",
+        "slug": "cornflower-sapphire",
+        "data": {
+          "cost": "2,500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Cornflower Sapphire",
+          "roll": 4,
+          "tier": "Sublime Gems",
+          "value_gp": 2500,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 5 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:trapiche-emerald": {
+        "name": "Trapiche Emerald",
+        "slug": "trapiche-emerald",
+        "data": {
+          "cost": "2,500 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Trapiche Emerald",
+          "roll": 5,
+          "tier": "Sublime Gems",
+          "value_gp": 2500,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08 (repris du palier 5 000 gp — arrondi voulu par Eric)"
+        }
+      },
+      "fh:gem:en:blue-diamond": {
+        "name": "Blue Diamond",
+        "slug": "blue-diamond",
+        "data": {
+          "cost": "5,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Blue Diamond",
+          "roll": 1,
+          "tier": "Legendary Gems",
+          "value_gp": 5000,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:pink-diamond": {
+        "name": "Pink Diamond",
+        "slug": "pink-diamond",
+        "data": {
+          "cost": "5,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Pink Diamond",
+          "roll": 2,
+          "tier": "Legendary Gems",
+          "value_gp": 5000,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:red-diamond": {
+        "name": "Red Diamond",
+        "slug": "red-diamond",
+        "data": {
+          "cost": "5,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Red Diamond",
+          "roll": 3,
+          "tier": "Legendary Gems",
+          "value_gp": 5000,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:jacinth": {
+        "name": "Jacinth",
+        "slug": "jacinth",
+        "data": {
+          "cost": "5,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Jacinth",
+          "roll": 4,
+          "tier": "Legendary Gems",
+          "value_gp": 5000,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:black-opal": {
+        "name": "Black Opal",
+        "slug": "black-opal",
+        "data": {
+          "cost": "5,000 GP",
+          "die": "d5",
+          "display": {
+            "imperial": "—",
+            "metric": "0.5 g"
+          },
+          "name": "Black Opal",
+          "roll": 5,
+          "tier": "Legendary Gems",
+          "value_gp": 5000,
+          "weight": "—",
+          "weight_g": 0.5,
+          "weight_kg": 0.0005,
+          "weight_lb": 0.0011,
+          "weight_oz": 0.018,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:flawless-diamond": {
+        "name": "Flawless Diamond",
+        "slug": "flawless-diamond",
+        "data": {
+          "cost": "10,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Flawless Diamond",
+          "roll": 1,
+          "tier": "Masterwork Gems",
+          "value_gp": 10000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:celestial-sapphire": {
+        "name": "Celestial Sapphire",
+        "slug": "celestial-sapphire",
+        "data": {
+          "cost": "10,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Celestial Sapphire",
+          "roll": 2,
+          "tier": "Masterwork Gems",
+          "value_gp": 10000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:imperial-emerald": {
+        "name": "Imperial Emerald",
+        "slug": "imperial-emerald",
+        "data": {
+          "cost": "10,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "1 g"
+          },
+          "name": "Imperial Emerald",
+          "roll": 3,
+          "tier": "Masterwork Gems",
+          "value_gp": 10000,
+          "weight": "—",
+          "weight_g": 1,
+          "weight_kg": 0.001,
+          "weight_lb": 0.0022,
+          "weight_oz": 0.035,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:great-blue-diamond": {
+        "name": "Great Blue Diamond",
+        "slug": "great-blue-diamond",
+        "data": {
+          "cost": "25,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Great Blue Diamond",
+          "roll": 1,
+          "tier": "Royal Gems",
+          "value_gp": 25000,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:royal-black-opal": {
+        "name": "Royal Black Opal",
+        "slug": "royal-black-opal",
+        "data": {
+          "cost": "25,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Royal Black Opal",
+          "roll": 2,
+          "tier": "Royal Gems",
+          "value_gp": 25000,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:flawless-star-ruby": {
+        "name": "Flawless Star Ruby",
+        "slug": "flawless-star-ruby",
+        "data": {
+          "cost": "25,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "2 g"
+          },
+          "name": "Flawless Star Ruby",
+          "roll": 3,
+          "tier": "Royal Gems",
+          "value_gp": 25000,
+          "weight": "—",
+          "weight_g": 2,
+          "weight_kg": 0.002,
+          "weight_lb": 0.0044,
+          "weight_oz": 0.071,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:monarch-diamond": {
+        "name": "Monarch Diamond",
+        "slug": "monarch-diamond",
+        "data": {
+          "cost": "50,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Monarch Diamond",
+          "roll": 1,
+          "tier": "Sovereign Gems",
+          "value_gp": 50000,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:emperor-s-ruby": {
+        "name": "Emperor’s Ruby",
+        "slug": "emperor-s-ruby",
+        "data": {
+          "cost": "50,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Emperor’s Ruby",
+          "roll": 2,
+          "tier": "Sovereign Gems",
+          "value_gp": 50000,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      },
+      "fh:gem:en:midnight-sapphire": {
+        "name": "Midnight Sapphire",
+        "slug": "midnight-sapphire",
+        "data": {
+          "cost": "50,000 GP",
+          "die": "d3",
+          "display": {
+            "imperial": "—",
+            "metric": "5 g"
+          },
+          "name": "Midnight Sapphire",
+          "roll": 3,
+          "tier": "Sovereign Gems",
+          "value_gp": 50000,
+          "weight": "—",
+          "weight_g": 5,
+          "weight_kg": 0.005,
+          "weight_lb": 0.011,
+          "weight_oz": 0.18,
+          "weight_provenance": "Eric, 2026-09-08"
+        }
+      }
+    },
+    "shelving": {
+      "fh:shelving:en:azurite": {
+        "name": "Azurite",
+        "slug": "azurite",
+        "data": {
+          "extends": "fh:gem:en:azurite",
+          "name": "Azurite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:hematite": {
+        "name": "Hematite",
+        "slug": "hematite",
+        "data": {
+          "extends": "fh:gem:en:hematite",
+          "name": "Hematite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:malachite": {
+        "name": "Malachite",
+        "slug": "malachite",
+        "data": {
+          "extends": "fh:gem:en:malachite",
+          "name": "Malachite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:rhodonite": {
+        "name": "Rhodonite",
+        "slug": "rhodonite",
+        "data": {
+          "extends": "fh:gem:en:rhodonite",
+          "name": "Rhodonite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:turquoise": {
+        "name": "Turquoise",
+        "slug": "turquoise",
+        "data": {
+          "extends": "fh:gem:en:turquoise",
+          "name": "Turquoise",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:chalcedony": {
+        "name": "Chalcedony",
+        "slug": "chalcedony",
+        "data": {
+          "extends": "fh:gem:en:chalcedony",
+          "name": "Chalcedony",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:citrine": {
+        "name": "Citrine",
+        "slug": "citrine",
+        "data": {
+          "extends": "fh:gem:en:citrine",
+          "name": "Citrine",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:carnelian": {
+        "name": "Carnelian",
+        "slug": "carnelian",
+        "data": {
+          "extends": "fh:gem:en:carnelian",
+          "name": "Carnelian",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:onyx": {
+        "name": "Onyx",
+        "slug": "onyx",
+        "data": {
+          "extends": "fh:gem:en:onyx",
+          "name": "Onyx",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:zircon": {
+        "name": "Zircon",
+        "slug": "zircon",
+        "data": {
+          "extends": "fh:gem:en:zircon",
+          "name": "Zircon",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:amber": {
+        "name": "Amber",
+        "slug": "amber",
+        "data": {
+          "extends": "fh:gem:en:amber",
+          "name": "Amber",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:coral": {
+        "name": "Coral",
+        "slug": "coral",
+        "data": {
+          "extends": "fh:gem:en:coral",
+          "name": "Coral",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:jade": {
+        "name": "Jade",
+        "slug": "jade",
+        "data": {
+          "extends": "fh:gem:en:jade",
+          "name": "Jade",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:jet": {
+        "name": "Jet",
+        "slug": "jet",
+        "data": {
+          "extends": "fh:gem:en:jet",
+          "name": "Jet",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:pearl": {
+        "name": "Pearl",
+        "slug": "pearl",
+        "data": {
+          "extends": "fh:gem:en:pearl",
+          "name": "Pearl",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:fire-agate": {
+        "name": "Fire Agate",
+        "slug": "fire-agate",
+        "data": {
+          "extends": "fh:gem:en:fire-agate",
+          "name": "Fire Agate",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:ametrine": {
+        "name": "Ametrine",
+        "slug": "ametrine",
+        "data": {
+          "extends": "fh:gem:en:ametrine",
+          "name": "Ametrine",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:golden-beryl": {
+        "name": "Golden Beryl",
+        "slug": "golden-beryl",
+        "data": {
+          "extends": "fh:gem:en:golden-beryl",
+          "name": "Golden Beryl",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:lavender-jade": {
+        "name": "Lavender Jade",
+        "slug": "lavender-jade",
+        "data": {
+          "extends": "fh:gem:en:lavender-jade",
+          "name": "Lavender Jade",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:watermelon-tourmaline": {
+        "name": "Watermelon Tourmaline",
+        "slug": "watermelon-tourmaline",
+        "data": {
+          "extends": "fh:gem:en:watermelon-tourmaline",
+          "name": "Watermelon Tourmaline",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:alexandrite": {
+        "name": "Alexandrite",
+        "slug": "alexandrite",
+        "data": {
+          "extends": "fh:gem:en:alexandrite",
+          "name": "Alexandrite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:red-beryl": {
+        "name": "Red Beryl",
+        "slug": "red-beryl",
+        "data": {
+          "extends": "fh:gem:en:red-beryl",
+          "name": "Red Beryl",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:chrysoberyl": {
+        "name": "Chrysoberyl",
+        "slug": "chrysoberyl",
+        "data": {
+          "extends": "fh:gem:en:chrysoberyl",
+          "name": "Chrysoberyl",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:peridot": {
+        "name": "Peridot",
+        "slug": "peridot",
+        "data": {
+          "extends": "fh:gem:en:peridot",
+          "name": "Peridot",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:tanzanite": {
+        "name": "Tanzanite",
+        "slug": "tanzanite",
+        "data": {
+          "extends": "fh:gem:en:tanzanite",
+          "name": "Tanzanite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:imperial-jade": {
+        "name": "Imperial Jade",
+        "slug": "imperial-jade",
+        "data": {
+          "extends": "fh:gem:en:imperial-jade",
+          "name": "Imperial Jade",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:peacock-opal": {
+        "name": "Peacock Opal",
+        "slug": "peacock-opal",
+        "data": {
+          "extends": "fh:gem:en:peacock-opal",
+          "name": "Peacock Opal",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:padparadscha-sapphire": {
+        "name": "Padparadscha Sapphire",
+        "slug": "padparadscha-sapphire",
+        "data": {
+          "extends": "fh:gem:en:padparadscha-sapphire",
+          "name": "Padparadscha Sapphire",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:black-spinel": {
+        "name": "Black Spinel",
+        "slug": "black-spinel",
+        "data": {
+          "extends": "fh:gem:en:black-spinel",
+          "name": "Black Spinel",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:blue-zircon": {
+        "name": "Blue Zircon",
+        "slug": "blue-zircon",
+        "data": {
+          "extends": "fh:gem:en:blue-zircon",
+          "name": "Blue Zircon",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:white-opal": {
+        "name": "White Opal",
+        "slug": "white-opal",
+        "data": {
+          "extends": "fh:gem:en:white-opal",
+          "name": "White Opal",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:star-ruby": {
+        "name": "Star Ruby",
+        "slug": "star-ruby",
+        "data": {
+          "extends": "fh:gem:en:star-ruby",
+          "name": "Star Ruby",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:blue-sapphire": {
+        "name": "Blue Sapphire",
+        "slug": "blue-sapphire",
+        "data": {
+          "extends": "fh:gem:en:blue-sapphire",
+          "name": "Blue Sapphire",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:star-sapphire": {
+        "name": "Star Sapphire",
+        "slug": "star-sapphire",
+        "data": {
+          "extends": "fh:gem:en:star-sapphire",
+          "name": "Star Sapphire",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:emerald": {
+        "name": "Emerald",
+        "slug": "emerald",
+        "data": {
+          "extends": "fh:gem:en:emerald",
+          "name": "Emerald",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:color-change-alexandrite": {
+        "name": "Color-Change Alexandrite",
+        "slug": "color-change-alexandrite",
+        "data": {
+          "extends": "fh:gem:en:color-change-alexandrite",
+          "name": "Color-Change Alexandrite",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:canary-diamond": {
+        "name": "Canary Diamond",
+        "slug": "canary-diamond",
+        "data": {
+          "extends": "fh:gem:en:canary-diamond",
+          "name": "Canary Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:harlequin-opal": {
+        "name": "Harlequin Opal",
+        "slug": "harlequin-opal",
+        "data": {
+          "extends": "fh:gem:en:harlequin-opal",
+          "name": "Harlequin Opal",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:cornflower-sapphire": {
+        "name": "Cornflower Sapphire",
+        "slug": "cornflower-sapphire",
+        "data": {
+          "extends": "fh:gem:en:cornflower-sapphire",
+          "name": "Cornflower Sapphire",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:trapiche-emerald": {
+        "name": "Trapiche Emerald",
+        "slug": "trapiche-emerald",
+        "data": {
+          "extends": "fh:gem:en:trapiche-emerald",
+          "name": "Trapiche Emerald",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:blue-diamond": {
+        "name": "Blue Diamond",
+        "slug": "blue-diamond",
+        "data": {
+          "extends": "fh:gem:en:blue-diamond",
+          "name": "Blue Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:pink-diamond": {
+        "name": "Pink Diamond",
+        "slug": "pink-diamond",
+        "data": {
+          "extends": "fh:gem:en:pink-diamond",
+          "name": "Pink Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:red-diamond": {
+        "name": "Red Diamond",
+        "slug": "red-diamond",
+        "data": {
+          "extends": "fh:gem:en:red-diamond",
+          "name": "Red Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:jacinth": {
+        "name": "Jacinth",
+        "slug": "jacinth",
+        "data": {
+          "extends": "fh:gem:en:jacinth",
+          "name": "Jacinth",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:black-opal": {
+        "name": "Black Opal",
+        "slug": "black-opal",
+        "data": {
+          "extends": "fh:gem:en:black-opal",
+          "name": "Black Opal",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:flawless-diamond": {
+        "name": "Flawless Diamond",
+        "slug": "flawless-diamond",
+        "data": {
+          "extends": "fh:gem:en:flawless-diamond",
+          "name": "Flawless Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:celestial-sapphire": {
+        "name": "Celestial Sapphire",
+        "slug": "celestial-sapphire",
+        "data": {
+          "extends": "fh:gem:en:celestial-sapphire",
+          "name": "Celestial Sapphire",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:imperial-emerald": {
+        "name": "Imperial Emerald",
+        "slug": "imperial-emerald",
+        "data": {
+          "extends": "fh:gem:en:imperial-emerald",
+          "name": "Imperial Emerald",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:great-blue-diamond": {
+        "name": "Great Blue Diamond",
+        "slug": "great-blue-diamond",
+        "data": {
+          "extends": "fh:gem:en:great-blue-diamond",
+          "name": "Great Blue Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:royal-black-opal": {
+        "name": "Royal Black Opal",
+        "slug": "royal-black-opal",
+        "data": {
+          "extends": "fh:gem:en:royal-black-opal",
+          "name": "Royal Black Opal",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:flawless-star-ruby": {
+        "name": "Flawless Star Ruby",
+        "slug": "flawless-star-ruby",
+        "data": {
+          "extends": "fh:gem:en:flawless-star-ruby",
+          "name": "Flawless Star Ruby",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:monarch-diamond": {
+        "name": "Monarch Diamond",
+        "slug": "monarch-diamond",
+        "data": {
+          "extends": "fh:gem:en:monarch-diamond",
+          "name": "Monarch Diamond",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:emperor-s-ruby": {
+        "name": "Emperor’s Ruby",
+        "slug": "emperor-s-ruby",
+        "data": {
+          "extends": "fh:gem:en:emperor-s-ruby",
+          "name": "Emperor’s Ruby",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      },
+      "fh:shelving:en:midnight-sapphire": {
+        "name": "Midnight Sapphire",
+        "slug": "midnight-sapphire",
+        "data": {
+          "extends": "fh:gem:en:midnight-sapphire",
+          "name": "Midnight Sapphire",
+          "of_kind": "gem",
+          "shelf": {
+            "aisle": "valuables",
+            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
+            "shelf": "gems"
+          },
+          "tags": {
+            "provenance": "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, l'étagère ne pouvait en dire qu'un",
+            "value": [
+              "valuables",
+              "soulforging"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

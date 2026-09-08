@@ -83,8 +83,11 @@ function sha256(bytes) {
  *  disque (loi §0.12). ⚠️ ILS N'Y SONT PAS TOUS POUR LA MÊME RAISON, et les
  *  confondre reviendrait à en oublier un le jour où la source bouge :
  *
- *  · `arcana`, `training` — ils NAISSENT DANS CE DÉPÔT-CI. fh-srd n'en publie
- *    aucun ; en voir un dans ses exports serait une anomalie de source.
+ *  · `arcana`, `training`, `gem` — ils NAISSENT DANS CE DÉPÔT-CI. fh-srd n'en
+ *    publie aucun ; en voir un dans ses exports serait une anomalie de source.
+ *    ⭐ `gem` est arrivé le 2026-09-08 (lot 181) : 54 gemmes dictées par Eric,
+ *    et le SECOND genre Fate's Hand après `arcana`. Il entre ici DANS LE MÊME
+ *    GESTE que sa ligne du contrat — voir le paragraphe rouge ci-dessous.
  *  · `shelving` — il naît bien chez fh-srd, mais dans la couche **`srfh`** :
  *    c'est le RANGEMENT d'Eric, pas le livre. Le produire dans la couche SRD
  *    ferait entrer une décision d'Eric dans la copie fidèle — exactement le
@@ -94,8 +97,13 @@ function sha256(bytes) {
  *  a ouvert `shelving` au contrat pour que la couche `srfh` puisse exister ;
  *  à cette seconde-là, le refus ④ (« un genre que le contrat ne déclare pas »)
  *  a CESSÉ de couvrir ce nom. Ouvrir un genre au contrat DÉSARME donc une des
- *  quatre portes : c'est le geste à ne pas faire seul. */
-export const GENRES_HORS_SRD = ["arcana", "shelving", "training"];
+ *  quatre portes : c'est le geste à ne pas faire seul.
+ *
+ *  ⭐ ET LE LOT 181 L'A FAIT AVEC, PAS APRÈS. `gem` a été ouvert au contrat et
+ *  inscrit ici dans le même commit : entre les deux lignes, le refus ④ ne
+ *  couvrait plus le nom et le refus ① ne le couvrait pas encore. La fenêtre
+ *  n'a jamais existé. */
+export const GENRES_HORS_SRD = ["arcana", "gem", "shelving", "training"];
 
 /** @deprecated Ancien nom, gardé le temps qu'aucun appelant ne le lise plus.
  *  Il disait « MAISON », ce qui n'est vrai que de deux des trois. */
