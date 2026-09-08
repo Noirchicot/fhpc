@@ -43,7 +43,6 @@
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
 import { renderConfirmDialog } from "./confirm.mjs?v=592";
-import { markPressed } from "./carnet.mjs?v=592";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
@@ -146,8 +145,8 @@ function text(value) { return document.createTextNode(String(value)); }
  *  jamais sur chaque frappe (voir sa tête de fichier — `render()` reconstruit
  *  toute la page). Pas de `datalist` ici : `campaign` est un texte libre
  *  SANS suggestion, contrairement à l'alignement de Concept. */
-function textField({ id, label, value, maxLength, error, onCommit }) {
-  const wrap = el("div", "doc-field");
+function textField({ id, label, value, maxLength, error, onCommit, compact = false, placeholder }) {
+  const wrap = el("div", compact ? "doc-field tdc-champ" : "doc-field");
   const labelNode = el("label", "doc-field-label", [text(label)]);
   labelNode.setAttribute("for", id);
   wrap.append(labelNode);
@@ -158,6 +157,7 @@ function textField({ id, label, value, maxLength, error, onCommit }) {
   input.className = "doc-field-input";
   input.value = typeof value === "string" ? value : "";
   if (typeof maxLength === "number") input.maxLength = maxLength;
+  if (placeholder) input.placeholder = placeholder;
   if (error) input.setAttribute("aria-invalid", "true");
   input.addEventListener("change", () => onCommit(input.value));
   wrap.append(input);
@@ -166,53 +166,96 @@ function textField({ id, label, value, maxLength, error, onCommit }) {
   return wrap;
 }
 
-/** Les DEUX RÈGLES — deux lignes à interrupteur, jamais un éditeur de pile.
- *
- *  ⭐ CE NE SONT PAS DES BOUTONS, CE SONT DES SÉLECTEURS — Eric, 2026-08-17 :
- *  *« SRD et SRD + FH sont des sélecteurs, pas des boutons. Mets-les en texte
- *  l'un au-dessus de l'autre avec un bouton on/off ; quand l'un s'allume,
- *  l'autre s'éteint »*. Deux pastilles côte à côte se lisaient comme deux
- *  actions ; deux lignes à bascule se lisent comme un état, ce qu'elles sont.
- *
- *  🔴 EXCLUSIF, ET LE CODE LE TIENT PLUTÔT QUE DE L'ESPÉRER : cliquer la ligne
- *  DÉJÀ allumée ne fait rien. Sans ce test, un second clic sur `SRD` relancerait
- *  la confirmation de bascule pour un changement qui n'a pas lieu — et rien ne
- *  peut éteindre les deux, ce qui laisserait le personnage sans pile.
- *
- *  ⛔ TOUJOURS PAS `role="radio"`, et la raison n'a pas bougé (voir `carnet.mjs`,
- *  tête de fichier) : ce patron promet la navigation par flèches, que rien ici
- *  n'implémente. Poser le rôle sans le clavier romprait un contrat qu'un lecteur
- *  d'écran tient pour acquis — pire que ne rien poser. On reste sur des boutons
- *  à bascule (`aria-pressed`, WAI-ARIA « Toggle Button »), posés par
- *  `markPressed` — le SEUL écrivain de `data-active` du dépôt, et un garde le
- *  tient. */
-function renderStackChoice({ stack, onPick }) {
-  const wrap = el("div", "universe-stack-block");
-  wrap.append(el("h3", null, [text("Rules")]));
-  const list = el("div", "bascule-liste");
-  list.setAttribute("role", "group");
-  list.setAttribute("aria-label", "Rules");
-  for (const [value, label] of [["srd", "SRD"], ["srdfh", "SRD + FH"]]) {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "bascule-ligne";
-    markPressed(btn, stack === value);
-    btn.append(el("span", "bascule-mot", [text(label)]));
-    /* L'interrupteur est DESSINÉ (une piste, un pouce), jamais un glyphe : un
-       glyphe change de forme selon la police installée. Il ne porte aucun mot —
-       le nom accessible du bouton vient du texte à sa gauche. */
-    btn.append(el("span", "bascule-piste", [el("span", "bascule-pouce")]));
-    btn.addEventListener("click", () => { if (stack !== value) onPick(value); });
-    list.append(btn);
-  }
-  wrap.append(list);
-  if (stack === null) {
-    wrap.append(el("p", "doc-field-error", [
-      text("This character's layer stack doesn't match either named ruleset — pick one to realign it.")
-    ]));
-  }
-  return wrap;
+function bouton(libelle, className, onClick) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = className;
+  b.append(text(libelle));
+  b.addEventListener("click", onClick);
+  return b;
 }
+
+/* ══ L'INTERRUPTEUR — Eric, 2026-09-08 ════════════════════════════════════
+   *« Il faut créer ce putain de switch on/off rouge-vert, qui prend peu de
+   place — genre on en met un par ligne. »*
+
+   ⭐ UN SEUL ORGANE POUR LES DEUX ESPÈCES QU'ON AVAIT. Le Menu portait DEUX
+   dessins pour « allumé / éteint » : la piste-et-pouce de `.bascule-ligne`
+   (les règles) et le mot-dans-une-boîte de `.universe-bascule` (tutoriel,
+   double vue) — `A-TRANCHER §C26 ②` les nommait tous les deux et demandait
+   qu'ils prennent le rouge et le vert. Ils prennent la même forme, et c'est
+   celle-ci : une LIGNE, le mot à gauche, la piste à droite.
+
+   🔴 LE ROUGE À GAUCHE, LE VERT À DROITE — Eric, 06/09 : *« le cercle à gauche
+   = rouge, à droite = vert »*. La couleur DIT l'état, la position le REDIT, et
+   `aria-checked` le dit une troisième fois — trois canaux, comme la loi des
+   jetons. ⛔ Aucune couleur n'est écrite ici : la feuille lit `data-on`.
+
+   ⚖️ `role="switch"` ET PAS `aria-pressed` : un interrupteur est un état vrai
+   ou faux, pas un bouton qu'on enfonce. Le rôle promet exactement ce que
+   l'organe fait — cliquer inverse — et rien de plus (⛔ pas de `radio`, qui
+   promettrait des flèches que rien n'implémente, voir `carnet.mjs`).
+
+   📏 PETIT, PARCE QU'ERIC LE VEUT PETIT : piste 36 × 20, pouce 16. La LIGNE,
+   elle, garde `--touch` 44 — on vise la ligne au pouce, pas la piste. */
+function interrupteur({ label, on, disabled, onChange }) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "interrupteur";
+  btn.setAttribute("role", "switch");
+  btn.setAttribute("aria-checked", String(Boolean(on)));
+  btn.dataset.on = String(Boolean(on));
+  if (disabled) btn.disabled = true;
+  btn.append(el("span", "interrupteur-mot", [text(label)]));
+  btn.append(el("span", "interrupteur-piste", [el("span", "interrupteur-pouce")]));
+  btn.addEventListener("click", () => onChange(!on));
+  return btn;
+}
+
+/* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════
+   Eric, 26/08 : *« à mettre dans le menu mais pas le câbler »* · *« on note,
+   on câble après »*. Eric, 08/09 : *« il faut laisser une place à tout ce
+   que j'ai dit »* — pour que les itérations suivantes n'aient pas à
+   détruire pour reconstruire.
+
+   ⭐ ELLE EST PRÉSENTE, ÉTEINTE, ET ELLE LE DIT — la forme exacte de
+   `Double view` quand la fenêtre est trop petite (📍 `menu-reglage-
+   impossible-reste-visible`) : `disabled` + un mot. ⛔ Pas une seconde forme :
+   un joueur qui a appris ce que veut dire « gris avec un mot » sur un
+   réglage l'apprend une fois pour toutes. */
+function ligneReservee(label) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "tdc-ligne";
+  b.disabled = true;
+  b.dataset.reserve = "true";
+  b.append(el("span", null, [text(label)]));
+  b.append(el("span", "tdc-bientot", [text("soon")]));
+  return b;
+}
+
+/** Une PORTE vers un rang B — vivante, ou réservée (même forme, éteinte). */
+function porte(label, onOpen, { reservee = false } = {}) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "tdc-porte";
+  b.append(el("span", null, [text(label)]));
+  if (reservee) {
+    b.disabled = true;
+    b.dataset.reserve = "true";
+    b.append(el("span", "tdc-bientot", [text("soon")]));
+  } else {
+    b.append(el("span", "tdc-porte-fleche", [text("→")]));
+    b.addEventListener("click", onOpen);
+  }
+  return b;
+}
+
+function nomDuPersonnage(doc) {
+  const nom = doc && typeof doc.name === "string" ? doc.name.trim() : "";
+  return nom !== "" ? nom : "Unnamed character";
+}
+
 
 /** ⭐ UN DROPDOWN DE CHOIX — Eric, 2026-09-02 : *« Les backgrounds en drop
  *  down. »* Il remplace la rampe de bascules du lot 134, et c'est un
@@ -356,6 +399,46 @@ function renderDisplayEcran(ctx, onAction) {
   section.dataset.objet = "dalle";
   section.dataset.sortieIci = "true";
   section.dataset.ecran = "display";
+
+  /* ══ APPARENCE — tout ce qui règle l'UI vit ICI, derrière une porte ═════
+     Eric, 08/09 : *« après y'a tout l'aspect apparence de l'UI »* — et
+     *« R doit tenir en une page »*. Le tutoriel et la double vue vivaient à
+     la racine du Menu, seuls de leur famille pendant que les fonds et la
+     taille étaient déjà descendus ici. Ils rejoignent leur famille.
+     ⏳ La langue et les unités sont RÉSERVÉES, pas câblées — Eric, 26/08 :
+     *« pour le moment en anglais ; fr/en on voit après, mais on note, on
+     câble après »*. Elles se montrent éteintes avec leur valeur d'aujourd'hui. */
+  const lignes = el("div", "tdc-lignes");
+  const tuto = ctx.tutoriel === true;
+  lignes.append(interrupteur({
+    label: "Tutorials", on: tuto,
+    onChange: (on) => onAction({ kind: "tutoBascule", value: on })
+  }));
+  lignes.append(el("p", "universe-note", [text(tuto
+    ? "Each step opens with a short guide. The ? in the corner of a panel brings it back."
+    : "Guides are off everywhere. Turn them back on here, or with the ? in the corner of any panel.")]));
+
+  /* 🚪 LA PORTE DE LARGEUR — présent mais éteint et grisé quand la fenêtre ne
+     porte pas deux panneaux (758 × 560 px, mesuré) ; jamais caché, et il DIT
+     pourquoi il dort (📍 `menu-reglage-impossible-reste-visible`). */
+  const possible = ctx.vueDoublePossible !== false;
+  const vueEtat = ctx.vueDouble === true;
+  lignes.append(interrupteur({
+    label: "Double view", on: vueEtat && possible, disabled: !possible,
+    onChange: (on) => onAction({ kind: "vueBascule", value: on })
+  }));
+  lignes.append(el("p", "universe-note", [text(!possible
+    ? "This window is too small for two panels. Make it wider — at least two panels across — and this comes back."
+    : vueEtat
+      ? "Two panels side by side, one belt across the top. Click a panel to work in it; the belt moves the panel you are working in."
+      : "Show a second panel beside this one — the menu, or any other step. Needs a window wide enough for two panels.")]));
+
+  const doc = ctx.document || {};
+  const units = doc.units || {};
+  lignes.append(ligneReservee(`Language — ${doc.lang === "fr" ? "French" : "English"}`));
+  lignes.append(ligneReservee(`Units — ${units.distance === "m" ? "meters" : "feet"} · ${units.weight === "kg" ? "kilograms" : "pounds"}`));
+  section.append(lignes);
+
   section.append(renderCranChoice({
     echelle: ctx.echelle,
     onPick: (value) => onAction({ kind: "cranChoisi", value })
@@ -393,25 +476,108 @@ export function renderUniverseStep(ctx, onAction) {
   /* Il DIT son format, comme les dalles du parcours : un écran qui ne le
      déclare pas oblige à le déduire, et une déduction se trompe. */
   section.dataset.objet = "dalle";
-  /* Le pied de la coquille s'accroche au bas de CETTE dalle (Eric, 2026-08-17 :
-     *« DONE en bas de dalle, centré »*). Une DÉCLARATION, pas une fabrication :
-     l'écran ne produit ni `BACK` ni `DONE` — voir `poserLaSortie`, shell.mjs. */
-  section.dataset.sortieIci = "true";
+  /* ⛔ AUCUNE SORTIE DÉCLARÉE À LA RACINE — voir le commentaire du tableau de
+     commande plus bas : `R` n'a pas de `Done`, son geste est `Build a character`.
+     La coquille ne pose donc pas de paire ici ; le `?` reste en absolu. */
 
-  section.append(renderStackChoice({
-    stack: currentStack(doc),
-    onPick: (value) => onAction({ kind: "requestLayerStack", value })
+  /* ══ R — LE TABLEAU DE COMMANDE — Eric, 2026-09-08 ═══════════════════════
+     *« Objectif 1 : le joueur y arrive. »* · *« Le joueur ne veut pas naviguer,
+     il doit trouver l'essentiel en R. »* · *« R doit tenir en une page »* —
+     **500 blg, ceinture exclue**. *« Après, les fonctions joueur avancées, et
+     les trois autres familles, c'est dans B1 à B4. »*
+
+     ⭐ CE MENU AVAIT ÉTÉ DICTÉ LE 26/08 (`FH-WEB/FHPC/FHPCv2 arborescence
+     d'entree`) ET JAMAIS PORTÉ — le Menu d'avant s'était construit *« au fur
+     et à mesure, à chaque besoin »*, cinq réglages d'affichage à la racine et
+     le personnage tout en bas. Celui-ci INVERSE l'ordre : le personnage
+     d'abord, les règles, puis les portes.
+
+     🔴 ET IL RÉSERVE LES PLACES de tout ce qui a été dit — `My characters`,
+     `DM`, `Tools` — visibles, éteintes, avec un mot. *« Pour que les prochaines
+     itérations ne nécessitent pas qu'on détruise pour reconstruire. »* Le code
+     est la mémoire : un siège qui arrive VOIT où va chaque organe.
+
+     ⛔ PAS DE `Done` À LA RACINE, ET C'EST UNE DÉCISION : `R` n'est pas une
+     étape à valider, c'est un tableau de commande. Son geste principal est
+     `Build a character`, qui ouvre les huit étapes — un `Done` qui ferait la
+     même chose serait un second organe pour un seul geste. Le `?` reste, posé
+     par la coquille en absolu (§6 pré, *« sur une dalle sans rangée »*).
+
+     ⚠️ `Build a character`, PAS `New character` — le mot de la dictée. Le
+     builder n'a AUCUN personnage vierge (il naît de l'exemple commité), et le
+     garde `D4` refuse toute porte qui PROMET un personnage neuf. « Build »
+     dit ce que le bouton fait : il ouvre les étapes sur le personnage courant.
+     Le jour où un personnage vierge existera, ce bouton changera de mot avec. */
+  const memoire = ctx.memoire || { ok: true };
+  const perso = el("div", "universe-memoire tdc-perso");
+  perso.dataset.garde = String(Boolean(memoire.ok));
+
+  const tete = el("header", "tdc-tete");
+  tete.append(el("p", "tdc-marque", [text("SOWLREACH")]));
+  const sous = el("p", "tdc-sous");
+  sous.append(el("span", "tdc-nom", [text(nomDuPersonnage(doc))]));
+  sous.append(el("span", "tdc-garde", [text(memoire.ok
+    ? "kept in this browser"
+    : `not saved: ${memoire.raison}`)]));
+  tete.append(sous);
+  perso.append(tete);
+  /* ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS — un personnage gardé mais
+     illisible, ou un fichier refusé, laissent chacun leur mot ici. */
+  if (ctx.memoireIgnoree) {
+    perso.append(el("p", "doc-field-error", [
+      text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
+    ]));
+  }
+  if (ctx.ouvertureRefusee) {
+    perso.append(el("p", "doc-field-error", [text(`That file was not opened: ${ctx.ouvertureRefusee}`)]));
+  }
+
+  perso.append(bouton("Build a character", "tdc-majeur", () => onAction({ kind: "construireLePersonnage" })));
+
+  /* ⚖️ LES TROIS GESTES DU FICHIER, ENSEMBLE — Eric, 08/09 : *« chacun est
+     propriétaire de ses données »*. Ouvrir et enregistrer sont les deux
+     moitiés d'un même geste ; elles vivent sur le même écran (tranché le
+     08/09 : *« Save au Menu aussi, à côté d'Open »*). `Save` est l'export
+     canonique de Sheet — le MÊME écrivain, pas un second (`exportJson`). */
+  const trio = el("div", "tdc-trio");
+  trio.append(bouton("Open", "tdc-mineur universe-ouvrir", () => onAction({ kind: "ouvrirUnFichier" })));
+  trio.append(bouton("Save", "tdc-mineur universe-sauver", () => onAction({ kind: "exportJson" })));
+  trio.append(bouton("Forget", "tdc-mineur universe-oubli", () => onAction({ kind: "oublierPersonnage" })));
+  perso.append(trio);
+  perso.append(ligneReservee("My characters"));
+  section.append(perso);
+
+  /* ══ FATE'S HAND — un seul interrupteur, tranché le 08/09 ═══════════════
+     ⛔ CECI REMPLACE `menu-regles-au-selecteur` (17/08 : deux sélecteurs
+     exclusifs). Le SRD est TOUJOURS la base ; Fate's Hand est une couche
+     qu'on allume ou non — c'est la pile SRD → SRFH → SRFH+ exposée comme un
+     choix de produit, et un seul état suffit à la dire. Éteint = SRD pur.
+     Allumé = SRD + Fate's Hand. Le passage à SRD garde sa confirmation (elle
+     NOMME ce qui cesse de s'appliquer — rien n'est effacé). */
+  const stack = currentStack(doc);
+  const regles = el("div", "tdc-regles");
+  regles.append(interrupteur({
+    label: "Fate's Hand", on: stack === "srdfh",
+    onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })
   }));
+  if (stack === null) {
+    regles.append(el("p", "doc-field-error", [
+      text("This character's layer stack doesn't match either ruleset — flip the switch to realign it.")
+    ]));
+  }
+  section.append(regles);
 
   if (ctx.pendingStack) {
     const affected = fhRefChoices(doc, query);
     section.append(renderConfirmDialog({
       title: affected.length > 0
-        ? "Switching to SRD will stop applying these Fate's Hand picks (they stay saved, and resume as soon as you switch back to SRD + FH):"
-        : "Switching to SRD may also pause Fate's Hand skill grants tied to species/class — nothing is deleted, and switching back restores them.",
+        ? "Switching Fate's Hand off will stop applying these picks (they stay saved, and resume as soon as you switch it back on):"
+        : "Switching Fate's Hand off may also pause skill grants tied to species/class — nothing is deleted, and switching back restores them.",
       items: affected,
-      confirmLabel: "Switch to SRD",
-      cancelLabel: "Keep SRD + FH",
+      /* 📏 Deux mots chacun : mesuré au banc le 08/09, « Keep Fate's Hand » et
+         « Switch to SRD » se coupaient dans la paire de la confirmation. */
+      confirmLabel: "Switch off",
+      cancelLabel: "Keep on",
       onConfirm: () => onAction({ kind: "confirmLayerStack" }),
       onCancel: () => onAction({ kind: "cancelLayerStack" })
     }));
@@ -419,284 +585,26 @@ export function renderUniverseStep(ctx, onAction) {
 
   section.append(textField({
     id: "universe-campaign",
-    label: "Campaign codename (optional)",
+    label: "Campaign",
+    placeholder: "codename, optional",
+    compact: true,
     value: doc.campaign,
     maxLength: 80,
     error: errors.campaign,
     onCommit: (value) => onAction({ kind: "describe", field: "campaign", value })
   }));
 
-  /* ── LA LANGUE DE LA FICHE ET LES UNITÉS — AFFICHÉES, PAS ÉDITABLES ────
-     Mesuré (§1 de la commande, étendu ici) : `lang` et `units` sont
-     REQUIS par `fh-char/1` (`required`), donc `describableFields` — qui ne
-     retient que les propriétés RACINE FACULTATIVES — les exclut par
-     construction (`src/doc/schema.mjs`). Ni `rename` ni `describe` ne
-     peuvent les écrire, et aucun troisième écrivain n'existe : `create` les
-     pose une fois, à la naissance, et rien depuis ne les réécrit (voir
-     INVENTAIRE-LOT-54.md, « ce qui m'a surpris » — trou déclaré, pas
-     contourné par un nouveau verbe non mandaté par cette commande). */
-  const locale = el("div", "universe-locale-block");
-  locale.append(el("h3", null, [text("Sheet language & units")]));
-  const dl = el("dl", "universe-locale-list");
-  const row = (labelText, valueText) => {
-    const r = el("div", "universe-locale-row");
-    r.append(el("dt", null, [text(labelText)]));
-    r.append(el("dd", null, [text(valueText)]));
-    return r;
-  };
-  dl.append(row("Language", doc.lang === "en" ? "English" : doc.lang === "fr" ? "French" : String(doc.lang)));
-  const units = doc.units || {};
-  dl.append(row("Distance", units.distance === "ft" ? "feet" : units.distance === "m" ? "meters" : String(units.distance)));
-  dl.append(row("Weight", units.weight === "lb" ? "pounds" : units.weight === "kg" ? "kilograms" : String(units.weight)));
-  locale.append(dl);
-  /* ⚠️ CE TEXTE EST LU PAR UN JOUEUR, PAS PAR LE CHANTIER. La première
-     rédaction renvoyait à `INVENTAIRE-LOT-54.md` — un document interne — dans
-     l'interface publiée ; trouvé à l'œil le 2026-08-14, invisible aux 876
-     tests. La référence de chantier reste dans le COMMENTAIRE ci-dessus, où
-     elle sert ; elle n'a rien à faire dans la page. */
-  locale.append(el("p", "doc-field-note", [
-    text("Set when the character is created; not editable here.")
-  ]));
-  section.append(locale);
-
-  /* ══ L'INTERRUPTEUR DU TUTORIEL — Eric, 2026-08-19 ═══════════════════════
-     *« Il est possible de on/off le tutoriel dans le menu. »*
-
-     🔴 C'EST LA SECONDE MOITIÉ DE `Turn tutorials off`. Ce bouton-là éteint
-     tout d'un geste, depuis n'importe quelle dalle ; il fallait un endroit
-     nommé pour le rallumer autrement qu'en cherchant le « ? ». Le Menu est cet
-     endroit — c'est là que vivent les réglages.
-
-     ⛔ CE N'EST PAS UNE DONNÉE DE PERSONNAGE, et l'écran ne le sait pas non
-     plus : il reçoit l'état et rend un geste. Le drapeau vit dans
-     `tutoriel.mjs`, et personne d'autre ne le lit. */
-  const reglages = el("div", "universe-reglages", []);
-  reglages.append(el("h3", null, [text("Tutorials")]));
-  const etat = ctx.tutoriel === true;
-  const bascule = document.createElement("button");
-  bascule.type = "button";
-  bascule.className = "universe-bascule";
-  bascule.dataset.actif = String(etat);
-  /* ⚠️ L'ÉTAT EST PRONONCÉ, pas seulement peint : `aria-pressed` dit à un
-     lecteur d'écran ce qu'une pastille colorée ne dit qu'à l'œil. */
-  bascule.setAttribute("aria-pressed", String(etat));
-  bascule.append(text(etat ? "On" : "Off"));
-  bascule.addEventListener("click", () => onAction({ kind: "tutoBascule", value: !etat }));
-  reglages.append(bascule);
-  reglages.append(el("p", "universe-note", [
-    text(etat
-      ? "Each step opens with a short guide. The ? in the corner of a panel brings it back."
-      : "Guides are off everywhere. Turn them back on here, or with the ? in the corner of any panel.")
-  ]));
-  section.append(reglages);
-
-  /* ══ L'INTERRUPTEUR DU DOUBLE AFFICHAGE — Eric, 2026-09-02 ═══════════════
-     Croquis `2026-09-02-double-view-belt-deroule.jpg` : deux panneaux du
-     builder côte à côte, un seul belt déroulé au-dessus. Eric : *« accessible
-     depuis le Menu »*, et le second écran est *« par défaut Menu, mais
-     configurable »*.
-
-     ⭐ IL COPIE `Tutorials`, ET C'EST VOULU : c'est la même espèce d'organe —
-     une BASCULE SIMPLE, dont NORMES §6 a ratifié la forme le 26/08 (*« bouton
-     On/Off, 72 × 44, liseré vert allumé »*). ⛔ Lui donner la piste-et-pouce du
-     SÉLECTEUR EXCLUSIF ferait deux dessins pour une même espèce dans le même
-     écran, à quinze pixels l'un de l'autre.
-
-     🚪 LA PORTE DE LARGEUR — il est PRÉSENT mais éteint et GRISÉ quand la
-     fenêtre ne porte pas deux panneaux à l'échelle 1 (758 × 560 px, mesuré).
-     ⛔ Ni caché, ni retiré : un réglage qui disparaît laisse croire qu'il
-     n'existe pas, et le joueur ne saura pas qu'agrandir sa fenêtre le lui
-     rend. Il DIT pourquoi il dort, à l'endroit où on le cherche.
-     ⚠️ `disabled` ET la note : le gris seul dirait « éteint », pas « pas ici ». */
-  const vue = el("div", "universe-reglages", []);
-  vue.append(el("h3", null, [text("Double view")]));
-  const possible = ctx.vueDoublePossible !== false;
-  const vueEtat = ctx.vueDouble === true;
-  const vueBascule = document.createElement("button");
-  vueBascule.type = "button";
-  vueBascule.className = "universe-bascule";
-  vueBascule.dataset.actif = String(vueEtat && possible);
-  vueBascule.setAttribute("aria-pressed", String(vueEtat && possible));
-  vueBascule.disabled = !possible;
-  vueBascule.append(text(vueEtat && possible ? "On" : "Off"));
-  vueBascule.addEventListener("click", () => onAction({ kind: "vueBascule", value: !vueEtat }));
-  vue.append(vueBascule);
-  vue.append(el("p", "universe-note", [
-    text(!possible
-      ? "This window is too small for two panels. Make it wider — at least two panels across — and this comes back."
-      : vueEtat
-        ? "Two panels side by side, one belt across the top. Click a panel to work in it; the belt moves the panel you are working in."
-        : "Show a second panel beside this one — the menu, or any other step. Needs a window wide enough for two panels.")
-  ]));
-  section.append(vue);
-
-  /* ══ 🚪 LA PORTE DE DISPLAY — Eric, 2026-09-02 ═══════════════════════════
-     *« Menu peut avoir une branche S. On y va via un bouton Display. »*
-
-     ⭐ CE QUI DESCEND DERRIÈRE ELLE : le choix de fond (qui vivait ici depuis
-     le lot 134) et le cran d'interface. Deux réglages qu'on pose une fois et
-     qu'on ne relit pas — ils encombraient un écran d'entrée qui doit d'abord
-     dire les RÈGLES et où vit le personnage.
-     ⛔ Elle est là même si le registre des fonds n'a pas (encore) chargé : le
-     cran d'interface, lui, ne dépend d'aucun réseau, et une porte qui
-     apparaîtrait en cours de route serait pire qu'une porte qui attend. */
-  const porte = document.createElement("button");
-  porte.type = "button";
-  porte.className = "display-porte";
-  porte.append(text("Display"));
-  porte.addEventListener("click", () => onAction({ kind: "ouvrirDisplay" }));
-  section.append(porte);
-
-  /* ⚖️ LA RAMPE « INTERFACE SIZE » A VÉCU DU 30/08 AU 02/09 — retirée au lot
-     118. Eric, 2026-09-02 : *« si l'auto fait bien son travail, effectivement
-     les boutons sont obsolètes, et le redimensionnement peut être fait à la
-     main sur la fenêtre du navigateur »*. Depuis la règle sacrée (31/08),
-     l'échelle suit la fenêtre en continu et rend déjà le plus grand facteur
-     qu'elle porte : un cran choisi ici ne pouvait que RAPETISSER le builder —
-     mesuré à 1366 × 1024, Auto ×1,83 et « Large » ×1,25. Six boutons, dont
-     quatre grisés en permanence, pour un réglage qui mentait. Ce que le
-     joueur veut plus grand ou plus petit, il l'obtient en redimensionnant sa
-     fenêtre ; sur téléphone et tablette, l'appareil décide. */
-
-  /* ══ OÙ VIT CE PERSONNAGE — 2026-08-20 ═══════════════════════════════════
-     Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
-     disparaît s'il n'est pas enregistré s'il y a un reset. »*
-
-     🔴 CE BLOC EXISTE PARCE QUE LA SAUVEGARDE EST INVISIBLE. Le builder garde
-     désormais le personnage tout seul, sans bouton et sans message — et une
-     sauvegarde qu'on ne voit pas est une sauvegarde en laquelle on ne peut pas
-     avoir confiance. Pire : le jour où elle échoue (mode privé, quota plein),
-     le joueur travaillerait des heures en croyant être gardé. Le Menu dit donc
-     l'état, toujours, dans les deux sens.
-
-     ⚠️ ET IL NOMME LA LIMITE PLUTÔT QUE DE LA LAISSER DÉCOUVRIR : ce
-     personnage vit dans CE navigateur et meurt avec ses données de site.
-     La seule copie durable est l'export, qui existe déjà sur la fiche.
-
-     ⛔ TOUJOURS PAS DE « NOUVEAU PERSONNAGE », ET LA RAISON DU 20/08 TIENT :
-     le builder n'a AUCUN personnage vierge — il naît du personnage d'exemple
-     commité. Offrir « recommencer » qui rend un Magicien tout fait serait un
-     bouton qui ment (loi §0.6 : pas de porte qui ne mène pas là où elle dit).
-     ⭐ MAIS « OUBLIER » N'EST PAS « RECOMMENCER », et c'est pourquoi le bouton
-     posé plus bas ne renverse pas cette décision-là : il ne promet aucun
-     personnage neuf, il dit exactement ce qu'il fait — il jette ce que CE
-     navigateur garde, et la page rouvre sur l'exemple. Le libellé porte le
-     geste, jamais une promesse. */
-  const memoire = ctx.memoire || { ok: true };
-  const ou = el("div", "universe-memoire");
-  ou.append(el("h3", null, [text("This character")]));
-  ou.append(el("p", "universe-note", [text(memoire.ok
-    ? "Kept in this browser as you go — reopen the page and you carry on where you left off."
-    : `Not being saved: ${memoire.raison}. Export your character from the sheet to keep it.`)]));
-  ou.dataset.garde = String(Boolean(memoire.ok));
-  /* La limite se dit à qui EST gardé — celui qui ne l'est pas vient de lire
-     pire, et lui répéter la mise en garde noierait son message. */
-  if (memoire.ok) {
-    ou.append(el("p", "doc-field-note", [
-      text("Clearing this browser's site data erases it. Export from the sheet to keep a copy.")
-    ]));
-  }
-  /* ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS. Ce message survit à la
-     première sauvegarde réussie : sans lui, un joueur dont le personnage gardé
-     est illisible repartirait de l'exemple en croyant n'avoir jamais rien
-     construit. */
-  if (ctx.memoireIgnoree) {
-    ou.append(el("p", "doc-field-error", [
-      text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
-    ]));
-  }
-
-  /* ══ 🔴 OUBLIER CE QUI EST GARDÉ ICI — Eric, 2026-09-06 ═══════════════════
-     *« Peut-on mettre un bouton reset du perso, dans le menu — qui permet de
-     vider le cache, quand ça bloque. »*
-
-     🔴 CE N'EST PAS UN CONFORT, C'EST UNE SORTIE DE SECOURS, et elle a été
-     MESURÉE le 06/09 sur le site déployé : un personnage gardé AVANT un
-     changement de couche de données ne dérive plus (le moteur refuse — *« la
-     pile montée ne correspond pas à `build.layers` »*), et SIX ÉCRANS SUR
-     HUIT ne disent plus qu'une phrase, *« it cannot be derived yet »*
-     (Inheritance · Abilities · Destiny · Skills · Equipment · Review). Sans ce
-     bouton, la seule issue était de vider les données de site à la main — ce
-     qu'un joueur ne fera jamais. Il était enfermé dans son propre builder.
-
-     ⭐ ET C'EST CET ÉCRAN-LÀ QUI POUVAIT LE PORTER, PAS UN AUTRE : le Menu ne
-     lit que le DOCUMENT, jamais la fiche dérivée (`ECRANS_QUI_LISENT_LA_FICHE`
-     ne le contient pas). Il reste donc debout exactement dans le cas où tous
-     les autres tombent. Une sortie de secours posée sur un écran qui s'éteint
-     avec la panne n'aurait secouru personne.
-
-     ⚖️ IL EST ROUGE ET IL NE DEMANDE PAS, comme tous les gestes qui défont
-     dans ce builder (`Cancel`). ⛔ Inventer une confirmation ici en ferait un
-     geste à part, et NORMES §6 le dit : *« rouge ET confirmé »* est une dette
-     COLLECTIVE, portée par les cinq écrans qui effacent — elle se paiera d'un
-     coup ou pas du tout. ⏳ Si Eric veut la payer, c'est ce bouton-ci le
-     meilleur premier client : il efface plus que tous les autres.
-
-     ⛔ ET IL N'EST JAMAIS GRISÉ, contrairement au `Double view` d'au-dessus :
-     `memoire.ok` dit si la dernière ÉCRITURE a réussi, pas s'il y a quelque
-     chose à jeter. Un magasin qui refuse d'écrire peut très bien garder un
-     personnage périmé — c'est même le cas exact qu'on répare. Le griser sur
-     `ok === false` aurait retiré la sortie de secours au moment précis où elle
-     sert. Sans rien à oublier, le geste ne coûte qu'un rechargement. */
-  /* ══ 📂 OUVRIR UN PERSONNAGE — Eric, 2026-09-06 ═════════════════════════
-     ⚖️ *« La règle de FH : chacun est propriétaire de ses données. On passe
-     par l'app Fichiers, libre à moi de le mettre sur le cloud ou sur l'iPad
-     ou ailleurs. Sur desktop ou ailleurs, je choisis où je range mes
-     persos. »*
-
-     🔴 LA MOITIÉ QUI MANQUAIT. Le builder savait SORTIR un personnage
-     (`Export JSON`, sur la fiche) et **rien ne savait le relire** — mesuré le
-     06/09 : zéro `FileReader`, zéro `type="file"` dans tout `ui/`. ⛔ Un
-     fichier qu'on ne peut pas rouvrir n'est pas une sauvegarde, c'est une
-     impression, et la loi d'Eric n'était écrite qu'à moitié.
-
-     ⭐ ET C'EST ICI QU'IL VIT, PAS SUR LA FICHE : on ouvre un personnage
-     précisément quand celui qui est chargé ne convient pas — cassé, ancien,
-     ou simplement pas celui qu'on veut jouer. Le Menu est le seul écran qui
-     ne lit pas la fiche dérivée, donc le seul qui réponde encore quand elle
-     ne dérive plus. Sur la fiche, ce bouton serait absent le jour où il sert.
-
-     ⏳ DETTE NOMMÉE, PAS RÉPARÉE EN PASSANT : `Export JSON` reste sur la
-     fiche, `Open` arrive au Menu — les deux moitiés d'un même geste vivent
-     sur deux écrans. Les réunir est une décision d'Eric sur SA fiche, pas un
-     rangement que je m'autorise ici.
-
-     ⛔ IL N'EST PAS ROUGE : il ne défait rien. Il prend le gabarit neutre du
-     Menu (`.universe-bascule`), parce que c'est la même espèce d'organe — un
-     mot dans une boîte, hauteur `--touch`. Seul le geste qui EFFACE porte
-     `--critical`, et c'est ce qui rend cette teinte lisible. */
-  const ouvrir = document.createElement("button");
-  ouvrir.type = "button";
-  ouvrir.className = "universe-ouvrir";
-  ouvrir.append(text("Open a character"));
-  ouvrir.addEventListener("click", () => onAction({ kind: "ouvrirUnFichier" }));
-  ou.append(ouvrir);
-  ou.append(el("p", "universe-note", [
-    text("Reads a .fh-char.json file you saved — from this device, your cloud, anywhere you filed it. "
-      + "It replaces the character below.")
-  ]));
-  /* ⚠️ UNE OUVERTURE REFUSÉE SE DIT, ELLE NE SE DEVINE PAS — même loi que le
-     personnage illisible du navigateur, juste au-dessus. Un fichier choisi qui
-     ne rentre pas et un écran qui ne bouge pas, c'est un bouton mort du point
-     de vue du joueur : il ne saura pas s'il a raté son geste ou son fichier. */
-  if (ctx.ouvertureRefusee) {
-    ou.append(el("p", "doc-field-error", [
-      text(`That file was not opened: ${ctx.ouvertureRefusee}`)
-    ]));
-  }
-
-  const oubli = document.createElement("button");
-  oubli.type = "button";
-  oubli.className = "universe-oubli";
-  oubli.append(text("Forget this character"));
-  oubli.addEventListener("click", () => onAction({ kind: "oublierPersonnage" }));
-  ou.append(oubli);
-  ou.append(el("p", "universe-note", [
-    text("Throws away what this browser keeps and reopens on the example character. "
-      + "Use it if a screen says the sheet cannot be derived. Files you exported are not touched.")
-  ]));
-
-  section.append(ou);
+  /* ══ LES PORTES — les trois familles qui ne sont pas l'essentiel ═════════
+     Apparence est VIVANTE (l'ancien Display, qui prend aussi le tutoriel et
+     la double vue). `DM` et `Tools` sont RÉSERVÉES : la zone DM (campagnes,
+     homebrew, systèmes) et les outils (table, VTT, coffre) sont dans la carte
+     du produit et pas dans le premier chemin — la place est prise, rien n'est
+     câblé. */
+  const portes = el("div", "tdc-portes");
+  portes.append(porte("Appearance", () => onAction({ kind: "ouvrirDisplay" })));
+  portes.append(porte("DM", null, { reservee: true }));
+  portes.append(porte("Tools", null, { reservee: true }));
+  section.append(portes);
 
   return section;
 }

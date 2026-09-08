@@ -321,7 +321,13 @@ test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occup
     "⚔️ et l'écran n'est pas VIDE : s'il ne rendait plus rien, l'assertion du dessus passerait pour rien");
 });
 
-test("Universe & Layers — les deux boutons de pile (SRD / SRD + FH) s'annoncent", () => {
+test("Menu — ses organes à état sont des INTERRUPTEURS (role=switch), et aria-checked porte data-on", () => {
+  /* 🔴 RÉÉCRIT À LA NOUVELLE VÉRITÉ LE 2026-09-08, ET NON RELÂCHÉ — même geste
+     que Class le 16/08. Les deux sélecteurs de pile (`aria-pressed`) sont
+     devenus UN interrupteur « Fate's Hand » (`role="switch"`, `aria-checked`) :
+     un état vrai/faux, pas un bouton qu'on enfonce. Ce garde exige que chaque
+     interrupteur du Menu annonce son état, et qu'il y en ait AU MOINS un — un
+     écran qui n'en produirait plus rendrait ce garde creux sans le dire. */
   const doc = {
     schema: "fh-char/1", id: "aria-guard-universe", name: "Sonde", lang: "en",
     units: { distance: "ft", weight: "lb" },
@@ -329,5 +335,12 @@ test("Universe & Layers — les deux boutons de pile (SRD / SRD + FH) s'annoncen
     build: { layers: report.document.build.layers, choices: [], budgets: {}, overrides: [] }
   };
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
-  assertToutBoutonActifAnnonceSonEtat(node, "Universe & Layers", 2);
+  const switches = node.querySelectorAll('[role="switch"]');
+  assert.ok(switches.length >= 1, `Menu : attendu au moins 1 interrupteur, trouvé ${switches.length}`);
+  for (const sw of switches) {
+    assert.equal(sw.getAttribute("aria-checked"), sw.dataset.on,
+      `Menu : aria-checked doit porter EXACTEMENT data-on — ${sw.className}`);
+  }
+  assert.equal(node.querySelectorAll("[data-active]").length, 0,
+    "et plus aucun [data-active] à la racine : l'ancien organe est parti en entier, pas à moitié");
 });

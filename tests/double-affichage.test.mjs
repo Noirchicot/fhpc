@@ -156,17 +156,17 @@ test("🔴 le halo du PANNEAU est borné à la vue double — sinon il ne désig
    joueur doit pouvoir lire ce qu'il n'a pas encore fait »*. */
 
 test("🚪 l'interrupteur `Double view` est PRÉSENT, éteint et DÉSARMÉ sous la porte", () => {
+  /* ⚖️ 08/09 : l'organe est désormais `interrupteur()` (un par ligne, rouge/vert),
+     et il vit dans APPEARANCE. Les trois faits qu'on garde n'ont pas bougé. */
   const universe = lire("ui/builder/universe-step.mjs");
-  assert.match(universe, /vueBascule\.disabled\s*=\s*!possible/,
-    "sous la porte, il est désarmé — jamais retiré du DOM");
-  assert.match(universe, /vueBascule\.dataset\.actif\s*=\s*String\(vueEtat && possible\)/,
-    "et il s'affiche ÉTEINT : une préférence gardée mais inapplicable ne doit pas s'annoncer allumée");
+  assert.match(universe, /label: "Double view", on: vueEtat && possible, disabled: !possible/,
+    "sous la porte, il est désarmé — jamais retiré du DOM — et il s'affiche ÉTEINT");
   assert.match(universe, /too small for two panels/,
     "et il DIT pourquoi il dort — le gris seul dirait « éteint », pas « pas ici »");
 });
 
 test("🚪 le gris du désarmé est `--text-muted`, le jeton ratifié le 26/08", () => {
-  const regle = reglesPortant(shellCss, /\.universe-bascule:disabled/);
+  const regle = reglesPortant(shellCss, /^\.interrupteur:disabled$/);
   assert.equal(regle.length, 1, "une seule règle pour l'état désarmé");
   assert.match(regle[0].corps, /--text-muted/,
     "⛔ pas `--border-strong` (4,09 / 3,73 — hors bande) : le gris lisible du 26/08");

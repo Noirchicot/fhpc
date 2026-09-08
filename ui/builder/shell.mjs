@@ -1067,6 +1067,13 @@ function applyDecisionAction(action) {
      `goToStep` sait déjà le remettre à 1 en quittant l'étape. Un second
      mécanisme de rang aurait dû réapprendre les trois. */
   if (action.kind === "ouvrirDisplay") { state.palier = 2; openSurface(); return; }
+  /* 🧭 LE GESTE PRINCIPAL DU TABLEAU DE COMMANDE — Eric, 2026-09-08 :
+     *« la première itération viable du Menu permet de produire un perso de A
+     à Z »*. `Build a character` ouvre la première des huit étapes sur le
+     personnage courant. ⛔ Il ne crée rien et ne promet rien : le builder n'a
+     pas de personnage vierge (garde `D4`). C'est `goToStep(1)`, le même chemin
+     que le `Done` du Menu d'avant — un seul organe le porte désormais. */
+  if (action.kind === "construireLePersonnage") { goToStep(1); return; }
   /* ⭐ LE CRAN D'INTERFACE — la chaîne vide rend la main à l'automatique.
      🔴 L'ORDRE EST CELUI DU REDIMENSIONNEMENT, ET IL N'EST PAS NÉGOCIABLE :
      changer le cran change l'échelle, donc la place, donc la PORTE du double
@@ -4047,6 +4054,13 @@ function renderSortieEtape(hote) {
      📌 La constante du croquis n'est pas touchée : le BELT reste visible, et
      c'est lui qui fait reculer. */
   if (STEPS[state.step].id === "equipment") return null;
+  /* 🧭 PAS DE PAIRE À LA RACINE DU MENU — Eric, 2026-09-08 : `R` est un tableau
+     de commande, pas une étape à valider. Son geste est `Build a character`
+     (`construireLePersonnage`) ; un `Done` qui ferait la même chose serait un
+     second organe pour un seul geste — et il tombait sur le fond nu, sous la
+     dalle, comme le `Done` dans le vide d'Identity le 04/09. Le rang B du Menu
+     (Appearance, palier 2) garde sa paire `Back · Done`. */
+  if (STEPS[state.step].id === "universe" && state.palier < 2) return null;
   /* 🚪 DESTINY PORTE SON PROPRE PIED (lot 109) — le R a `Draw`/`Choose`,
      l'écran final a `I changed my mind`/`Next`, et la cérémonie n'a aucun
      bouton (trois taps la résolvent). La paire de la coquille en plus serait

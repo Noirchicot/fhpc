@@ -94,12 +94,15 @@ const mots = (select) => select.querySelectorAll("option").map((o) => o.textCont
 
 /* ══ 1 — L'ÉCRAN D'ENTRÉE : UNE PORTE, ET PLUS LA RAMPE ══════════════════ */
 
-test("🚪 le Menu d'entrée porte un bouton Display, et il ouvre le sous-écran", () => {
+test("🚪 le Menu d'entrée porte une porte Appearance, et elle ouvre le sous-écran", () => {
+  /* ⚖️ 08/09 : `Display` s'appelle désormais `Appearance` — Eric : *« tout
+     l'aspect apparence de l'UI »* — et prend aussi le tutoriel et la double
+     vue. Le verbe de la coquille, lui, n'a pas bougé. */
   let vu = null;
   const node = entree({}, (a) => { vu = a; });
-  const portes = node.querySelectorAll(".display-porte");
-  assert.equal(portes.length, 1, "une porte, une seule");
-  assert.equal(portes[0].textContent, "Display", "le mot est celui d'Eric");
+  const portes = node.querySelectorAll(".tdc-porte").filter((b) => !b.disabled);
+  assert.equal(portes.length, 1, "une porte vivante, une seule");
+  assert.match(portes[0].textContent, /^Appearance/, "le mot d'Eric");
   portes[0].dispatchEvent({ type: "click" });
   assert.deepEqual(vu, { kind: "ouvrirDisplay" });
 });
@@ -109,8 +112,8 @@ test("⛔ le choix de fond a QUITTÉ l'écran d'entrée — il ne reste pas aux 
      pour un choix, et le joueur qui en règle un voit l'autre lui répondre. */
   const node = entree();
   assert.equal(selects(node).length, 0, "aucun dropdown à l'entrée du Menu");
-  assert.equal(node.querySelectorAll(".bascule-liste").length, 1,
-    "il ne reste que la rampe des RÈGLES — celle des fonds est partie");
+  assert.equal(node.querySelectorAll(".interrupteur").length, 1,
+    "il ne reste qu'UN interrupteur à l'entrée — Fate's Hand ; les fonds sont derrière la porte");
 });
 
 /* ══ 2 — LE SOUS-ÉCRAN ═══════════════════════════════════════════════════ */

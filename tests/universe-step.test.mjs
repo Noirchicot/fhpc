@@ -26,6 +26,10 @@ globalThis.document = createTestDocument();
 
 const { renderUniverseStep, currentStack, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS }
   = await import("../ui/builder/universe-step.mjs");
+
+/** Les organes du tableau de commande. */
+const interrupteurs = (node) => node.querySelectorAll(".interrupteur");
+const fateSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur")[0];
 /* LOT 77 — la pile que le NAVIGATEUR monte, pour la confronter à la pile
    NOMMÉE (test A0). Importée, jamais recopiée : c'est la recopie qui a
    laissé les deux diverger. */
@@ -135,90 +139,60 @@ test("A4 — fhRefChoices retombe sur l'id nu si query ne rend rien (couche déj
    plutôt que deux pastilles. Le contrat testé ne bouge pas d'un mot (deux
    entrées, l'active marquée, un `requestLayerStack` au clic) ; seule la forme
    change, et c'est exactement ce qu'un garde doit survivre. */
-function stackButtons(node) { return node.querySelectorAll(".bascule-ligne"); }
 function campaignField(node) { return node.querySelectorAll(".doc-field-input")[0]; }
 
-test("B1 — les deux boutons de pile existent, et celui qui correspond à la pile active est marqué", () => {
-  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
-  const buttons = stackButtons(node);
-  assert.equal(buttons.length, 2);
-  assert.deepEqual(buttons.map((b) => b.textContent), ["SRD", "SRD + FH"]);
-  assert.equal(buttons[0].dataset.active, "true");
-  assert.equal(buttons[1].dataset.active, "false");
+test("B1 — 🔴 UN SEUL INTERRUPTEUR « Fate's Hand » : éteint sur la pile SRD, allumé sur SRD + FH", () => {
+  /* ⚖️ Tranché par Eric le 2026-09-08 — remplace les deux sélecteurs exclusifs
+     du 17/08 (📍 `menu-regles-au-selecteur`). Le SRD est TOUJOURS la base ;
+     Fate's Hand est une couche qu'on allume. Un seul état suffit à le dire. */
+  const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  const nSrd = renderUniverseStep({ document: srd, query: () => null, fieldErrors: {} }, () => {});
+  const sw = fateSwitch(nSrd);
+  assert.ok(sw, "l'interrupteur des règles existe");
+  assert.equal(sw.textContent.replace(/\s+/g, " ").trim(), "Fate's Hand");
+  assert.equal(sw.dataset.on, "false", "pile SRD → éteint");
+  assert.equal(sw.getAttribute("aria-checked"), "false");
+  const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  const nFh = renderUniverseStep({ document: fh, query: () => null, fieldErrors: {} }, () => {});
+  assert.equal(fateSwitch(nFh).dataset.on, "true", "pile SRD+FH → allumé");
+  assert.equal(nFh.querySelectorAll(".bascule-liste").length, 0, "⛔ les deux anciens sélecteurs n'existent plus");
 });
 
-test("B2 — cliquer un bouton dispatche {kind:\"requestLayerStack\", value}, jamais un verbe directement", () => {
-  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const actions = [];
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
-  stackButtons(node)[1].click(); // "SRD + FH"
-  assert.deepEqual(actions, [{ kind: "requestLayerStack", value: "srdfh" }]);
+test("B2 — l'interrupteur dispatche {kind:\"requestLayerStack\"} vers l'AUTRE pile, jamais un verbe directement", () => {
+  const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  const a1 = [];
+  fateSwitch(renderUniverseStep({ document: srd, query: () => null, fieldErrors: {} }, (a) => a1.push(a))).click();
+  assert.deepEqual(a1, [{ kind: "requestLayerStack", value: "srdfh" }], "éteint → on demande SRD + FH");
+  const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  const a2 = [];
+  fateSwitch(renderUniverseStep({ document: fh, query: () => null, fieldErrors: {} }, (a) => a2.push(a))).click();
+  assert.deepEqual(a2, [{ kind: "requestLayerStack", value: "srd" }], "allumé → on demande SRD (la coquille confirmera)");
 });
 
-test("B2 bis — ⚔️ RECLIQUER LA LIGNE DÉJÀ ALLUMÉE NE FAIT RIEN — deux éteintes est un état impossible", () => {
-  /* 🔴 CE GARDE NAÎT DE LA FORME NEUVE (Eric, 2026-08-17 : *« quand l'un
-     s'allume, l'autre s'éteint »*). Un interrupteur invite à le rappuyer ; s'il
-     répondait, il relancerait la CONFIRMATION de bascule pour un changement qui
-     n'a pas lieu — et l'idée même d'éteindre les deux laisserait le personnage
-     sans pile de règles. L'exclusivité se tient dans le code, elle ne s'espère
-     pas. */
-  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const actions = [];
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
-  const lignes = stackButtons(node);
-  assert.equal(lignes[0].dataset.active, "true", "témoin : c'est bien la ligne allumée qu'on reclique");
-  lignes[0].click();
-  assert.deepEqual(actions, [], "aucune action — l'état ne change pas, donc rien n'est demandé");
-  lignes[1].click();
-  assert.deepEqual(actions, [{ kind: "requestLayerStack", value: "srdfh" }], "et l'AUTRE ligne répond toujours");
+test("B2 bis — ⚔️ DEUX ÉTEINTS EST DEVENU IMPOSSIBLE PAR CONSTRUCTION : un interrupteur n'a que deux positions", () => {
+  /* Le garde du 17/08 empêchait de recliquer la ligne allumée pour ne pas
+     laisser le personnage sans pile. Avec UN interrupteur, l'état « aucune
+     pile » n'existe plus : éteint = SRD, allumé = SRD + FH. Le garde se
+     déplace : une pile HORS des deux noms doit toujours se DIRE. */
+  const bizarre = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID]), choices: [], budgets: {}, overrides: [] } });
+  const node = renderUniverseStep({ document: bizarre, query: () => null, fieldErrors: {} }, () => {});
+  assert.equal(fateSwitch(node).dataset.on, "false", "une pile inconnue se montre éteinte, jamais allumée par défaut");
+  const mots = node.querySelectorAll(".tdc-regles .doc-field-error").map((p) => p.textContent).join(" ");
+  assert.match(mots, /doesn't match either ruleset/, "et l'écran le DIT");
 });
 
-test("B3 — pendingStack ouvre la confirmation, NOMME les choix FH affectés, et ses boutons dispatchent confirm/cancel", () => {
-  const doc = draftDocument({
-    build: {
-      layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), budgets: {}, overrides: [],
-      choices: [{ path: "background.originFeat[0]", ref: { kind: "feat", id: "fh:feat:en:auspicious" }, label: "Origin feat" }]
-    }
-  });
-  const query = () => ({ record: { name: "Auspicious (fh)" } });
-  const actions = [];
-  const node = renderUniverseStep(
-    { document: doc, query, fieldErrors: {}, pendingStack: "srd" },
-    (a) => actions.push(a)
-  );
-  const dialog = node.querySelectorAll(".confirm-dialog")[0];
-  assert.ok(dialog, "la confirmation doit apparaître quand pendingStack est posé");
-  const items = node.querySelectorAll(".confirm-dialog-items li");
-  assert.deepEqual(items.map((li) => li.textContent), ["Origin feat: Auspicious (fh)"]);
-
-  node.querySelectorAll(".confirm-dialog-confirm")[0].click();
-  node.querySelectorAll(".confirm-dialog-cancel")[0].click();
-  assert.deepEqual(actions, [{ kind: "confirmLayerStack" }, { kind: "cancelLayerStack" }]);
-});
-
-test("B3bis — sans pendingStack, aucune confirmation ne s'affiche", () => {
-  const doc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, pendingStack: null }, () => {});
-  assert.equal(node.querySelectorAll(".confirm-dialog").length, 0);
-});
-
-test("B4 — le champ campagne s'affiche et commet {kind:\"describe\", field:\"campaign\", value}", () => {
-  const doc = draftDocument({ campaign: "Nymedes" });
-  const actions = [];
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => actions.push(a));
-  const input = campaignField(node);
-  assert.equal(input.value, "Nymedes");
-  input.value = "Obvious Mimic";
-  input.dispatchEvent({ type: "change" });
-  assert.deepEqual(actions, [{ kind: "describe", field: "campaign", value: "Obvious Mimic" }]);
-});
-
-test("B5 — la langue de la fiche et les unités s'affichent, lisibles (pas les codes bruts)", () => {
+test("B5 — la langue et les unités vivent dans APPEARANCE, en places réservées lisibles (pas les codes bruts)", () => {
+  /* Eric, 26/08 : *« on note, on câble après »* — elles se montrent éteintes,
+     avec leur valeur d'aujourd'hui. Eric, 08/09 : *« R doit tenir en une page »*
+     — elles quittent la racine. */
   const doc = draftDocument({ lang: "en", units: { distance: "ft", weight: "lb" } });
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
-  const rows = node.querySelectorAll(".universe-locale-row dd");
-  assert.deepEqual(rows.map((dd) => dd.textContent), ["English", "feet", "pounds"]);
+  const racine = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
+  assert.equal(racine.querySelectorAll(".universe-locale-row").length, 0, "plus rien à la racine");
+  const app = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ecran: "display", fonds: [], echelle: { auto: {}, crans: [] } }, () => {});
+  const reservees = app.querySelectorAll(".tdc-ligne[data-reserve]").map((b) => b.textContent.replace(/\s+/g, " ").trim());
+  assert.ok(reservees.some((t) => /Language — English/.test(t)), `la langue, lisible — vu : ${reservees.join(" | ")}`);
+  assert.ok(reservees.some((t) => /Units — feet · pounds/.test(t)), "les unités, lisibles");
+  for (const b of app.querySelectorAll(".tdc-ligne[data-reserve]")) assert.equal(b.disabled, true, "réservée = éteinte");
 });
 
 /* ══ C — ⚔️ LE TEST QUI MONTRE CE QUE CHANGER DE PILE FAIT, SUR LA VRAIE
@@ -294,19 +268,21 @@ function currentStackViaModule(doc) { return currentStack(doc); }
    on ne peut pas avoir confiance — et le jour où elle échoue, le joueur
    travaillerait des heures en se croyant gardé. */
 
-test("D1 — gardé : l'écran le DIT, et nomme la limite", () => {
+test("D1 — gardé : la tête de R le DIT (pastille verte), et le geste qui garde un fichier est LÀ", () => {
+  /* ⚖️ RÉÉCRIT LE 08/09 : la phrase « Clearing this browser's site data erases
+     it » a quitté R — *« R doit tenir en une page »*. La limite ne se dit plus
+     en prose : elle se dit par le GESTE juste dessous, `Save`, qui est la seule
+     copie qui survit. Un bouton vaut mieux qu'une mise en garde. */
   const doc = draftDocument();
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
   const bloc = node.querySelectorAll(".universe-memoire")[0];
   assert.ok(bloc, "le bloc existe");
   assert.equal(bloc.dataset.garde, "true");
-  const mots = bloc.querySelectorAll("p").map((p) => p.textContent).join(" ");
-  assert.match(mots, /Kept in this browser/);
-  assert.match(mots, /Clearing this browser's site data erases it/,
-    "⛔ la limite se dit, elle ne se découvre pas");
+  assert.match(bloc.textContent, /kept in this browser/);
+  assert.ok(bloc.querySelectorAll(".universe-sauver")[0], "et `Save` est là, à côté d'`Open`");
 });
 
-test("D2 — 🔴 PAS gardé : la raison du navigateur est RECOPIÉE, et la mise en garde disparaît", () => {
+test("D2 — 🔴 PAS gardé : la raison du navigateur est RECOPIÉE dans la tête de R", () => {
   const doc = draftDocument();
   const node = renderUniverseStep({
     document: doc, query: () => null, fieldErrors: {},
@@ -314,11 +290,8 @@ test("D2 — 🔴 PAS gardé : la raison du navigateur est RECOPIÉE, et la mise
   }, () => {});
   const bloc = node.querySelectorAll(".universe-memoire")[0];
   assert.equal(bloc.dataset.garde, "false");
-  const mots = bloc.querySelectorAll("p").map((p) => p.textContent).join(" ");
-  assert.match(mots, /Not being saved: QuotaExceededError/, "le mot du navigateur, pas une prose inventée");
-  assert.match(mots, /Export your character/, "et le geste qui reste possible");
-  assert.doesNotMatch(mots, /Clearing this browser's site data/,
-    "⛔ celui qui n'est pas gardé vient de lire pire — lui répéter la mise en garde noierait son message");
+  assert.match(bloc.textContent, /not saved: QuotaExceededError/, "le mot du navigateur, pas une prose inventée");
+  assert.ok(bloc.querySelectorAll(".universe-sauver")[0], "et le geste qui reste possible est là : Save");
 });
 
 test("D3 — 🔴 UNE PERTE SE DIT : un personnage illisible laisse un message, même une fois la sauvegarde repartie", () => {
@@ -439,4 +412,95 @@ test("D5 — sans `memoire` dans le ctx, l'écran ne ment pas : il se tait sur l
   const doc = draftDocument();
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
   assert.equal(node.querySelectorAll(".universe-memoire")[0].dataset.garde, "true");
+});
+
+/* ══ R — LE TABLEAU DE COMMANDE — Eric, 2026-09-08 ═══════════════════════ */
+
+function racine(ctx = {}, onAction = () => {}) {
+  return renderUniverseStep({ document: draftDocument(), query: () => null, fieldErrors: {}, memoire: { ok: true }, ...ctx }, onAction);
+}
+
+test("R1 — 🧭 R porte le nom du produit en tête, et c'est la première fois qu'il apparaît", () => {
+  const node = racine();
+  assert.equal(node.querySelectorAll(".tdc-marque")[0].textContent, "SOWLREACH");
+  assert.match(node.querySelectorAll(".tdc-nom")[0].textContent, /\S/, "et le nom du personnage juste dessous");
+});
+
+test("R2 — 🔴 le geste principal est `Build a character`, il émet un verbe de NAVIGATION, et R n'a pas de Done", () => {
+  const gestes = [];
+  const node = racine({}, (a) => gestes.push(a));
+  const b = node.querySelectorAll(".tdc-majeur")[0];
+  assert.equal(b.textContent, "Build a character");
+  b.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "construireLePersonnage" }]);
+  assert.equal(node.dataset.sortieIci, undefined, "⛔ pas de paire de sortie à la racine : un Done doublerait ce bouton");
+});
+
+test("R3 — `Save` est l'export canonique de Sheet — le MÊME écrivain, jamais un second", () => {
+  const gestes = [];
+  const node = racine({}, (a) => gestes.push(a));
+  node.querySelectorAll(".universe-sauver")[0].dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "exportJson" }]);
+});
+
+test("R4 — 💤 LES PLACES RÉSERVÉES : My characters · DM · Tools — présentes, éteintes, avec leur mot", () => {
+  /* Eric, 08/09 : *« il faut laisser une place à tout ce que j'ai dit »*, pour
+     que les itérations suivantes n'aient pas à détruire pour reconstruire.
+     La forme est celle de `Double view` sous sa porte : disabled + un mot. */
+  const node = racine();
+  const reservees = node.querySelectorAll("[data-reserve]");
+  const mots = reservees.map((b) => b.textContent.replace(/soon/g, "").trim());
+  assert.deepEqual(mots, ["My characters", "DM", "Tools"]);
+  for (const b of reservees) {
+    assert.equal(b.disabled, true, `${b.textContent} : réservée = éteinte`);
+    assert.match(b.textContent, /soon/, `${b.textContent} : et elle le DIT`);
+  }
+});
+
+test("R5 — 🚪 Appearance est une porte VIVANTE vers le rang B, et elle est la seule", () => {
+  const gestes = [];
+  const node = racine({}, (a) => gestes.push(a));
+  const vivantes = node.querySelectorAll(".tdc-porte").filter((b) => !b.disabled);
+  assert.equal(vivantes.length, 1);
+  assert.match(vivantes[0].textContent, /^Appearance/);
+  vivantes[0].dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirDisplay" }]);
+});
+
+test("S1 — 🔴 L'INTERRUPTEUR : role=switch, aria-checked = data-on, et cliquer INVERSE", () => {
+  /* Trois canaux pour un état — la couleur (feuille, sur data-on), la position
+     (feuille), et aria-checked. L'écran n'écrit aucune couleur. */
+  /* ⚠️ ÉPROUVÉ SUR LES DEUX ÉTATS — vu vert à tort le 08/09 : testé sur la seule
+     pile SRD (éteint), un `aria-checked` figé à "false" coïncidait avec `data-on`
+     et le garde ne voyait rien. Un garde d'égalité se teste là où les deux
+     valeurs DIVERGENT si l'une est fausse. */
+  const fhDoc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
+  for (const node of [racine(), racine({ document: fhDoc })]) {
+    for (const sw of node.querySelectorAll(".interrupteur")) {
+      assert.equal(sw.getAttribute("role"), "switch");
+      assert.equal(sw.getAttribute("aria-checked"), sw.dataset.on, "aria-checked porte EXACTEMENT data-on");
+      assert.ok(sw.querySelectorAll(".interrupteur-piste .interrupteur-pouce")[0], "une piste, un pouce — dessinés, jamais un glyphe");
+    }
+  }
+  assert.equal(fateSwitch(racine({ document: fhDoc })).dataset.on, "true", "témoin : le second écran est bien ALLUMÉ");
+  const vus = [];
+  const sw = fateSwitch(racine({}, (a) => vus.push(a)));
+  const avant = sw.dataset.on === "true";
+  sw.click();
+  assert.equal(vus.length, 1);
+  assert.equal(vus[0].value, avant ? "srd" : "srdfh", "le clic demande l'INVERSE de l'état affiché");
+});
+
+test("S2 — APPEARANCE : Tutorials et Double view sont des interrupteurs ; Double view grisé quand la fenêtre ne le porte pas", () => {
+  const app = (ctx) => renderUniverseStep({ document: draftDocument(), query: () => null, fieldErrors: {}, ecran: "display", fonds: [], echelle: { auto: {}, crans: [] }, ...ctx }, () => {});
+  const n1 = app({ tutoriel: true, vueDouble: true, vueDoublePossible: true });
+  const sws = n1.querySelectorAll(".interrupteur");
+  const mots = sws.map((b) => b.querySelectorAll(".interrupteur-mot")[0].textContent);
+  assert.deepEqual(mots, ["Tutorials", "Double view"]);
+  assert.deepEqual(sws.map((b) => b.dataset.on), ["true", "true"]);
+  const n2 = app({ tutoriel: false, vueDouble: true, vueDoublePossible: false });
+  const vue = n2.querySelectorAll(".interrupteur")[1];
+  assert.equal(vue.disabled, true, "sous la porte : désarmé, jamais retiré");
+  assert.equal(vue.dataset.on, "false", "et il s'affiche ÉTEINT : une préférence gardée mais inapplicable ne s'annonce pas allumée");
+  assert.match(n2.textContent, /too small for two panels/, "et il DIT pourquoi il dort");
 });
