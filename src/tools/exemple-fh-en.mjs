@@ -77,6 +77,10 @@ export const PILE = [
   /* LOT 179 — même place que dans `LAYER_FILES` : le garde 3 de `fiche-360`
      compare les deux listes, donc une seule des deux ne peut pas bouger. */
   "layers/fh-soulforging-en.layer.json",
+  /* LOT 181 — les 54 gemmes, même place que dans `LAYER_FILES` : le garde 3
+     de `fiche-360` compare les deux listes, donc une seule des deux ne peut
+     pas bouger. */
+  "layers/fh-gems-en.layer.json",
   "layers/fh-fiche-en.layer.json",
   "layers/fh-lore-en.layer.json"
 ];

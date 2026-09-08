@@ -89,8 +89,17 @@ import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=605";
    genres, le rangement d'Eric en range cinq — les outils sont sur
    `crafting › tools` depuis le lot 90 et n'apparaissaient nulle part.
    ⭐ La leçon est celle d'`item-value` : une liste de genres écrite à la main
-   ne dit jamais qu'elle est incomplète. Le tambour lit maintenant les 416
-   records de rangement, qui portent chacun LEUR genre — plus de liste. */
+   ne dit jamais qu'elle est incomplète. Le tambour lit maintenant les 470
+   records de rangement, qui portent chacun LEUR genre — plus de liste.
+
+   🔴 « PLUS DE LISTE » ÉTAIT FAUX PENDANT QUINZE JOURS, ET C'EST CE
+   COMMENTAIRE-CI QUI L'A FAIT CROIRE. Le lot 95 a retiré la liste du TAMBOUR
+   et l'a laissée intacte dans `fabriquerChercheur` — les cinq mêmes genres en
+   dur, mille lignes plus bas, pour la recherche, les noms des lignes achetées
+   et les boîtes du dressing. 📏 Mesuré le 2026-09-08 en posant les 54 gemmes
+   du lot 181 : une azurite achetée s'affichait `fh:gem:en:azurite`, son id nu,
+   et la recherche ne la trouvait pas. Elle est corrigée là-bas, par
+   `genresDuRangement` — et le mot de ce commentaire redevient vrai. */
 
 /* 🔴 LA BOURSE DE DÉPART — LES 50 PO **REMPLACENT** LE KIT DE CLASSE.
    ⚖️ Eric, 2026-09-08, en tranchant `A-TRANCHER §C22` : à la question « les 50 po
@@ -1580,6 +1589,33 @@ function ficheItem(item) {
   };
 }
 
+/** Les genres d'objets que le rangement d'Eric CONTIENT, lus dans la donnée
+ *  (`shelving.of_kind`) — jamais une liste écrite à la main.
+ *
+ *  🔴 CETTE FONCTION EXISTE PARCE QUE LE LOT 95 A RETIRÉ SA LISTE D'UN
+ *  ENDROIT ET L'A LAISSÉE DANS L'AUTRE. Le commentaire de `EQUIPMENT_RECORD_
+ *  KINDS`, en tête de ce fichier, dit « plus de liste » — et `fabriquerChercheur`
+ *  en gardait une, identique, cinq genres en dur, pendant que le tambour lisait
+ *  la donnée. 📏 MESURÉ LE 2026-09-08 avec les 54 gemmes du lot 181 : la ligne
+ *  d'équipement d'une azurite achetée affichait `fh:gem:en:azurite` — SON ID NU
+ *  — au lieu de « Azurite », et la recherche ne la trouvait pas. L'objet était
+ *  visible au tambour et introuvable partout ailleurs.
+ *  ⭐ La leçon est celle d'`item-value` (lot 93) : une liste de genres écrite à
+ *  la main ne dit jamais qu'elle est incomplète. Elle le dit d'autant moins
+ *  qu'elle vit à côté d'un commentaire qui annonce sa disparition.
+ *
+ *  ⛔ `isGenre` filtre AVANT `query`, qui JETTE sur un genre inconnu : un
+ *  rangement homebrew nommant un genre absent du contrat ne doit pas faire
+ *  tomber l'écran entier. Le tri est explicite — jamais l'ordre du hasard. */
+export function genresDuRangement(rangements) {
+  const genres = new Set();
+  for (const vue of rangements || []) {
+    const data = (vue && vue.record && vue.record.data) || {};
+    if (typeof data.of_kind === "string" && isGenre(data.of_kind)) genres.add(data.of_kind);
+  }
+  return [...genres].sort();
+}
+
 /** id → record (toutes sortes), et id de base → slot (la couche `shelving`
  *  du lot 95 : `data.slot.slot`, dix valeurs qui recopient les dix ancrages
  *  d'Eric). Une passe par rendu, jamais une recherche par ligne. */
@@ -1587,7 +1623,10 @@ function fabriquerChercheur(query) {
   const parId = new Map();
   const slotParBase = new Map();
   const tous = [];
-  for (const kind of ["gear", "weapon", "armor", "item", "tool"]) {
+  let rangements = [];
+  try { rangements = query({ kind: GENRE_RANGEMENT }) || []; }
+  catch { /* la couche absente n'est pas une panne : les boîtes restent vides */ }
+  for (const kind of genresDuRangement(rangements)) {
     let vues = [];
     try { vues = query({ kind }); } catch { vues = []; }
     for (const v of vues) {
@@ -1595,13 +1634,11 @@ function fabriquerChercheur(query) {
       tous.push({ kind: v.kind || kind, view: v });
     }
   }
-  try {
-    for (const v of query({ kind: "shelving" })) {
-      const d = (v.record && v.record.data) || {};
-      const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
-      if (d.extends && slot) slotParBase.set(d.extends, slot);
-    }
-  } catch { /* la couche absente n'est pas une panne : les boîtes restent vides */ }
+  for (const v of rangements) {
+    const d = (v.record && v.record.data) || {};
+    const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
+    if (d.extends && slot) slotParBase.set(d.extends, slot);
+  }
   return {
     record: (ref) => parId.get(ref && ref.id) || null,
     slot: (ref) => slotParBase.get(ref && ref.id) || null,

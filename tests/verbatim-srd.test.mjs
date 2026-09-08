@@ -75,7 +75,7 @@ test("témoin — la liste des couches FH est DÉDUITE, et elle porte bien toute
   assert.deepEqual(COUCHES_FH, [
     "fh-species-en.layer.json", "fh-skills-en.layer.json", "fh-arcana-en.layer.json",
     "fh-feats-en.layer.json", "fh-spells-en.layer.json", "fh-soulforging-en.layer.json",
-    "fh-fiche-en.layer.json", "fh-lore-en.layer.json"
+    "fh-gems-en.layer.json", "fh-fiche-en.layer.json", "fh-lore-en.layer.json"
   ], "une couche FH est entrée dans (ou sortie de) la pile : vérifier qu'elle reste verbatim, PUIS corriger cette liste");
   for (const fichier of COUCHES_FH) {
     assert.ok(fs.existsSync(path.join(ROOT, "layers", fichier)),
