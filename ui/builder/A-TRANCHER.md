@@ -389,7 +389,30 @@
 - ⚠️ **ET LA TENSION À NOTER, PARCE QU'ELLE VIENT D'ÊTRE CRÉÉE LE MÊME SOIR** : `socle-chacun-est-proprietaire-de-ses-donnees` dit que les données du personnage appartiennent **au joueur**. Un exemplaire chez le MJ est donc **une copie** — à qui appartient-elle, et que devient-elle quand le joueur modifie son personnage ? ⛔ **Aucune réponse ici** : c'est précisément ce qu'Eric a demandé de laisser mûrir (*« on reste à l'état de règle »*), et une réponse écrite maintenant durcirait le concept avant l'heure.
 - 📌 Relayée par ARCHI 32. ⛔ Rien à faire : **une ligne à garder, pas un chantier.**
 
-## C28 — ✅ TRANCHÉE — il y aura QUATRE Bibles, et cinq lois attendent la leur { #c28 }
+## C28 — ⏳ OUVERTE — combien de corpus, et où vivent les lois du produit ? { #c28 }
+
+> 🔴 **CETTE ENTRÉE A ÉTÉ ÉCRITE `✅ TRANCHÉE` LE 08/09, PUIS ROUVERTE LE MÊME JOUR. C'est ma faute,
+> et elle est nommée** : j'ai gravé *« Eric a tranché : quatre Bibles »* sur un relais **de seconde
+> main**, sans une parole citée. ⛔ Une heure plus tard, la source se corrigeait : *« il n'a pas
+> encore tranché »*. La règle qui en sort est `SOCLE.md:socle-un-arbitrage-ne-se-relaie-pas-de-seconde-main`.
+>
+> **LES DEUX POSITIONS, ET AUCUNE N'EST D'ERIC :**
+>
+> | | ce qu'elle dit | son argument |
+> |---|---|---|
+> | **quatre corpus** *(rapporté comme un mot d'Eric, non cité)* | Builder · Companion · Web · **Produit** — *« une trop grosse Bible »* si l'on fond tout | chaque produit a son lecteur, et le positionnement *« est une Bible en lui-même »* |
+> | **un seul corpus + un document** *(un siège, argumenté auprès d'Eric)* | ⛔ *« quatre Bibles est une **symétrie**, pas un besoin »* | le Companion partagerait **7 732 lignes de lois** avec le builder et n'aurait besoin que d'une **section** dans `ECRANS` ; la carte du produit est **un document**, pas un corpus |
+>
+> ⭐ **CE QUI REND LA QUESTION DÉCIDABLE, ET C'EST LE MÊME CRITÈRE QUE J'AI EMPLOYÉ POUR REFUSER LES
+> CINQ LOIS DE PRODUIT** : *un corpus se justifie par ce qu'il EMPÊCHE, pas par la symétrie du
+> rangement.* ➡️ **Une règle qui régit un organe entre au corpus de cet organe ; une règle qui
+> n'en régit aucun n'a pas besoin d'un corpus, elle a besoin d'un LIEU.** Combien de lieux, et
+> lesquels, appartient à Eric.
+> ⚠️ **Et le coût d'attendre ne bouge pas** : les **cinq** lois non gravées restent **inopposables à
+> tout lot** — la parole du MJ bat le JSON · jamais de preuve d'achat · BYO-AI · guidé/expert ·
+> SOWLREACH est gratuit. Le tableau ci-dessous dit lesquelles sont déjà au corpus et pourquoi.
+
+
 
 > ✅ **ERIC A RÉPONDU LE 2026-09-08.** ⛔ Pas une Bible SOWLREACH unique — *« je crains que ça fasse une trop grosse Bible »* — mais **quatre** : **Builder** *(celle-ci)* · **Companion** *(n'existe pas encore, naîtra avec la V2)* · **Web** *(le livre)* · **Produit** — *« l'orientation, le positionnement du produit est une Bible en elle-même »*.
 > ➡️ **La question posée ci-dessous a donc sa réponse : un LIEU, pas le logbook.** Sa matière est le document `SOWLREACH — Le produit et le premier chemin` *(§8 porte les dix arbitrages)*.

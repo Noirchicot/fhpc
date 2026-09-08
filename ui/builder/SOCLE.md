@@ -487,6 +487,32 @@ pas le joueur en haut de l'écran qu'il lisait (garde E ter).
 ⭐ **ET CE PARAGRAPHE OBÉIT À CE QU'IL ÉNONCE.** Trois adresses, trois phrases, un incident
 dessous. Une règle de format qui ne se respecte pas elle-même n'est pas une règle, c'est un avis.
 
+### 🗣️ UN ARBITRAGE D'ERIC NE SE RELAIE PAS DE SECONDE MAIN
+📍 `socle-un-arbitrage-ne-se-relaie-pas-de-seconde-main` · vivante · 08/09
+⚖️ **Une décision d'Eric se grave avec SES MOTS ou elle attend — ⛔ un arbitrage rapporté par un tiers qui ne le cite pas n'est pas une décision, c'est une lecture.**
+
+🔴 **L'INCIDENT, LE 2026-09-08 VERS 02h, ET IL EST LE PLUS COÛTEUX DE LA SÉRIE.** `A-TRANCHER §C28`
+demandait où vivent les lois du produit. On m'a écrit *« Eric a tranché : il y aura quatre
+Bibles »* — l'architecte le tenait d'un troisième siège, sans parole citée. ⛔ **Je l'ai gravé, et
+j'ai écrit `✅ TRANCHÉE` sur une question qui ne l'était pas.** Une heure plus tard, le même siège
+corrigeait : *« il n'a pas encore tranché »* — et il avait même **argumenté contre**.
+
+⛔ **CE QUI REND CETTE FAUTE PIRE QUE LES AUTRES DE LA MÊME NUIT**, et c'est pour ça qu'elle a sa
+propre adresse : les quatre précédentes portaient sur **un lieu, un chiffre, une liste, une règle**
+— toutes **rouvrables**. Celle-ci portait sur **une décision d'Eric**, et une question close ne se
+rouvre que si quelqu'un s'en souvient. ⭐ *Un fait faux se corrige quand on le remesure ; une
+question close ne se remesure pas — on ne la pose plus.*
+
+⚖️ **LA FORME QUI PASSE, ET ELLE EST SIMPLE** — c'est celle qui a marché toute la nuit : le relais
+donne **l'ancre et la PHRASE**, avec **les mots d'Eric entre guillemets**. ⭐ Quatre décisions sont
+passées comme ça sans une erreur *(`Close` · le premier collecteur libre · `Drop` · la marge de R2)*.
+📌 **Et une réponse d'un mot se grave avec sa QUESTION** : *« a »*, *« oui »*, *« close »* ne veulent
+rien dire seuls *(voir `geste-deux-methodes-pour-poser-un-jeton`)*.
+
+⛔ **CE QUE ÇA N'INTERDIT PAS** : relayer. Un siège qui rapporte *« Eric a dit ceci, je te le cite »*
+fait exactement son travail. Ce qui est interdit, c'est **de graver un arbitrage dont on n'a que le
+résumé** — et la parade est d'écrire `⏳ rapporté, non cité` au lieu de `✅ tranché`.
+
 ### 📖 UNE RÈGLE SE LIT À SA LETTRE, JAMAIS DE MÉMOIRE — dans les DEUX sens
 📍 `socle-une-regle-se-lit-a-sa-lettre` · vivante · 08/09
 ⚖️ **Une source se rouvre avant d'être citée — un lieu, un chiffre, un garde, une règle : une mémoire ne rougit pas, et elle se trompe aussi bien en disant TROP qu'en disant TROP PEU.**
