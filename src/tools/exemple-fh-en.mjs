@@ -74,6 +74,9 @@ export const PILE = [
   "layers/fh-arcana-en.layer.json",
   "layers/fh-feats-en.layer.json",
   "layers/fh-spells-en.layer.json",
+  /* LOT 179 — même place que dans `LAYER_FILES` : le garde 3 de `fiche-360`
+     compare les deux listes, donc une seule des deux ne peut pas bouger. */
+  "layers/fh-soulforging-en.layer.json",
   "layers/fh-fiche-en.layer.json",
   "layers/fh-lore-en.layer.json"
 ];

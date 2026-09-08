@@ -38,6 +38,8 @@ export const FH_FEATS_EN = "layers/fh-feats-en.layer.json";
    records de classe et d'espèce. Elles ferment la pile « SRD + FH ». */
 export const FH_FICHE_EN = "layers/fh-fiche-en.layer.json";
 export const FH_SPELLS_EN = "layers/fh-spells-en.layer.json";
+/* LOT 179 — le chapitre `Soulforge Crafting` dans sa couche à lui. */
+export const FH_SOULFORGING_EN = "layers/fh-soulforging-en.layer.json";
 export const FH_LORE_EN = "layers/fh-lore-en.layer.json";
 
 export function fileBytes(rel) {
