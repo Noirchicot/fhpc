@@ -515,8 +515,13 @@ test("`validate` ne trouve rien à redire au personnage d'acceptation", () => {
      c'est le seul endroit qui dise à un joueur « ce que tu as coché ne change
      rien à ta fiche ». */
   const inertes = verdict.warnings.filter((line) => line.includes("n'a été consommé"));
-  assert.deepEqual(inertes.length, 4,
-    "lignage, don d'arrière-plan, don homebrew, langue. ⚠️ ILS ÉTAIENT CINQ jusqu'au " +
+  assert.deepEqual(inertes.length, 3,
+    "lignage, don d'arrière-plan, don homebrew. ⚠️ « langue » est SORTIE le 2026-09-08 : " +
+    "`languages[0] = \"draconique\"` a été RETIRÉ du personnage — une intention sans effet. " +
+    "⛔ ET LE TROU QU'ELLE RÉVÉLAIT RESTE, IL N'EST PAS RÉPARÉ : ce personnage est SRD + " +
+    "homebrew, et la couche SRD porte ZÉRO record `training` — le SRD SEUL NE SAIT PAS " +
+    "EXPRIMER UNE LANGUE. Les langues sont des records FH (`fh:training:en:language-*`). " +
+    "Retirer le choix ne crée pas la langue : il cesse seulement de faire croire qu'elle est là. ⚠️ ILS ÉTAIENT CINQ jusqu'au " +
     "2026-09-08 : « mode de caractéristiques » (`abilities.mode`) est sorti de cette liste " +
     "parce qu'il est devenu un SOUVENIR DÉCLARÉ (`SOUVENIRS_DECLARES`, derive.mjs) — aucune " +
     "règle ne DOIT le lire. ⛔ Ce garde n'a pas été assoupli : il compte toujours au chiffre " +
