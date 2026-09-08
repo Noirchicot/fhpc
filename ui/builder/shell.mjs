@@ -256,6 +256,9 @@ const state = {
   /* 📂 Le mot du dernier fichier REFUSÉ à l'ouverture, ou null. ⛔ Il ne vit
      pas dans le document : c'est un fait d'écran, il meurt au rechargement. */
   ouvertureRefusee: null,
+  /* 🧭 La branche de rang B du Menu ouverte : "display" (Appearance) ou
+     "characters" (My characters). Lue seulement quand `palier >= 2`. */
+  menuBranche: "display",
   /* ⭐ LE REGISTRE DES FONDS, BRUT — lot 134. On garde le registre, PAS une
      liste dérivée : `collections()` et `collectionServie()` le relisent à
      chaque rendu, et il n'y a donc jamais deux états à tenir d'accord. `null`
@@ -1070,7 +1073,9 @@ function applyDecisionAction(action) {
      déjà remonter, `renderSortieEtape` sait déjà poser un `Back`, et
      `goToStep` sait déjà le remettre à 1 en quittant l'étape. Un second
      mécanisme de rang aurait dû réapprendre les trois. */
-  if (action.kind === "ouvrirDisplay") { state.palier = 2; openSurface(); return; }
+  if (action.kind === "ouvrirDisplay") { state.palier = 2; state.menuBranche = "display"; openSurface(); return; }
+  /* 🧑 MY CHARACTERS — la seconde branche de rang B du Menu (Eric, 26/08 et 08/09). */
+  if (action.kind === "ouvrirPersonnages") { state.palier = 2; state.menuBranche = "characters"; openSurface(); return; }
   /* 🧭 LE GESTE PRINCIPAL DU TABLEAU DE COMMANDE — Eric, 2026-09-08 :
      *« la première itération viable du Menu permet de produire un perso de A
      à Z »*. `Build a character` ouvre la première des huit étapes sur le
@@ -2081,7 +2086,7 @@ function renderStepContent() {
          l'écran sait ce qu'on y montre. ⛔ Elle ne lui passe pas `state.palier`
          nu : un écran qui lirait un COMPTEUR devrait deviner ce que « 2 »
          veut dire, et un troisième rang le ferait mentir en silence. */
-      ecran: state.palier >= 2 ? "display" : null,
+      ecran: state.palier >= 2 ? state.menuBranche : null,
       /* ⭐ TOUT L'ÉTAT DE L'ÉCHELLE, LU ICI. Voir la note de l'import. */
       echelle: etatDeLEchelle(),
       document: state.document,

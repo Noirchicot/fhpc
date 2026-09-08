@@ -94,7 +94,7 @@ const mots = (select) => select.querySelectorAll("option").map((o) => o.textCont
 
 /* ══ 1 — L'ÉCRAN D'ENTRÉE : UNE PORTE, ET PLUS LA RAMPE ══════════════════ */
 
-test("🚪 le Menu d'entrée porte une porte Appearance, et elle ouvre le sous-écran", () => {
+test("🚪 le Menu d'entrée porte une porte Display, et elle ouvre le sous-écran", () => {
   /* ⚖️ 08/09 : `Display` s'appelle désormais `Appearance` — Eric : *« tout
      l'aspect apparence de l'UI »* — et prend aussi le tutoriel et la double
      vue. Le verbe de la coquille, lui, n'a pas bougé. */
@@ -102,7 +102,7 @@ test("🚪 le Menu d'entrée porte une porte Appearance, et elle ouvre le sous-�
   const node = entree({}, (a) => { vu = a; });
   const portes = node.querySelectorAll(".tdc-porte").filter((b) => !b.disabled);
   assert.equal(portes.length, 1, "une porte vivante, une seule");
-  assert.match(portes[0].textContent, /^Appearance/, "le mot d'Eric");
+  assert.match(portes[0].textContent, /^Display/, "le mot d'Eric (02/09) — et il tient dans 77");
   portes[0].dispatchEvent({ type: "click" });
   assert.deepEqual(vu, { kind: "ouvrirDisplay" });
 });
@@ -112,8 +112,8 @@ test("⛔ le choix de fond a QUITTÉ l'écran d'entrée — il ne reste pas aux 
      pour un choix, et le joueur qui en règle un voit l'autre lui répondre. */
   const node = entree();
   assert.equal(selects(node).length, 0, "aucun dropdown à l'entrée du Menu");
-  assert.equal(node.querySelectorAll(".interrupteur").length, 1,
-    "il ne reste qu'UN interrupteur à l'entrée — Fate's Hand ; les fonds sont derrière la porte");
+  assert.equal(node.querySelectorAll(".interrupteur").length, 2,
+    "à l'entrée, la ligne des règles : SRD (miroir) et Fate's Hand — les fonds sont derrière la porte");
 });
 
 /* ══ 2 — LE SOUS-ÉCRAN ═══════════════════════════════════════════════════ */
@@ -222,7 +222,7 @@ test("🔌 la coquille câble les trois gestes du rang, et n'invente aucun compt
     "⛔ `Done` doit REMONTER d'un rang, jamais pousser à l'étape suivante");
   assert.match(shell, /action\.kind === "cranChoisi"[\s\S]{0,400}surRedimensionnement\(\)/,
     "changer le cran doit rejouer la séquence du redimensionnement (vue, échelle, rendu)");
-  assert.match(shell, /ecran: state\.palier >= 2 \? "display" : null/,
+  assert.match(shell, /ecran: state\.palier >= 2 \? state\.menuBranche : null/,
     "la coquille dit le RANG à l'écran ; elle ne lui passe pas un compteur nu");
 });
 

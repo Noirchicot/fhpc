@@ -5429,52 +5429,61 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    de chercher le « ? ». */
 /* ══ LE TABLEAU DE COMMANDE — `R` du Menu, Eric, 2026-09-08 ═══════════════
    *« Le joueur ne veut pas naviguer, il doit trouver l'essentiel en R. R doit
-   tenir en une page »* — 500 blg, ceinture exclue. Tout ici est compté.
+   tenir en une page »* — 500 blg, ceinture exclue. Puis ses neuf corrections du
+   même jour, ligne par ligne : SOWLREACH centré · sous-titre centré italique ·
+   Build large en relief vert · Open et Save en vert au format réglementé ·
+   deux interrupteurs sur une ligne · My characters large, bleu, cadré à
+   gauche · la ligne d'état avec son voyant · la rangée du bas standard, avec
+   le livre, à 8 blg du pied.
 
-   ⭐ LES COTES : une ligne se vise au pouce (`--touch` 44) ; une place réservée
-   n'est pas un geste, elle prend 36 ; la piste de l'interrupteur est PETITE
-   (36 × 20, pouce 16) parce qu'Eric la veut petite — c'est la LIGNE qui est
-   la cible, pas la piste. */
+   ⭐ LES RANGÉES DE BOUTONS SONT DES `.parcours-pied` : la coquille leur donne
+   la grille `--touch 1fr --touch`, le plancher de 77 et l'octogone — le
+   standard des petits boutons, pas une seconde forme. */
 .universe-note { margin: 0 0 var(--sp-4); color: var(--text-muted); font-size: var(--t3); }
-
 .universe-memoire { margin-top: 0; }
-.tdc-tete { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.tdc-tete { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); text-align: center; }
 .tdc-marque {
   margin: 0; font-size: var(--t5); font-weight: 700;
   letter-spacing: .14em; text-transform: uppercase; color: var(--text);
 }
-.tdc-sous {
-  margin: 0; display: flex; flex-wrap: wrap; align-items: baseline;
-  gap: var(--sp-4) var(--sp-8); font-size: var(--t3); color: var(--text-muted);
-}
-.tdc-nom { color: var(--text); font-weight: 600; font-size: var(--t4); }
-/* LA PASTILLE DE SAUVEGARDE — verte si gardé, rouge sinon : sur `[data-garde]`,
-   une exception NOMMÉE, jamais sur une couleur écrite dans l'écran. */
-.universe-memoire[data-garde="true"]  .tdc-garde::before { content: "● "; color: var(--positive); }
-.universe-memoire[data-garde="false"] .tdc-garde::before { content: "● "; color: var(--critical); }
+.tdc-sous-titre { margin: 0; font-size: var(--t3); font-style: italic; color: var(--text-muted); }
 
-/* LE GESTE MAJEUR — bleu : il NAVIGUE (les trois verbes ratifiés : naviguer
-   bleu · valider vert · défaire rouge). Pleine largeur, seul de sa rangée. */
+/* LE GESTE MAJEUR — large, VERT, EN RELIEF (Eric, 08/09). Le relief : un liseré
+   clair en haut, une ombre pleine en bas — deux teintes dérivées du même jeton,
+   aucune couleur écrite. */
 .tdc-majeur {
   width: 100%; min-height: var(--touch); margin-top: var(--sp-8);
   border: 0; border-radius: var(--radius-md);
-  background: var(--info); color: var(--on-accent);
+  background: var(--positive); color: var(--on-accent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--on-accent) 28%, transparent),
+    0 2px 0 color-mix(in srgb, var(--positive) 55%, var(--border-strong));
   font: inherit; font-weight: 600; font-size: var(--t4); cursor: pointer;
 }
-/* LES TROIS GESTES DU FICHIER — une rangée, trois parts égales. `Forget`
-   seul est rouge : il DÉFAIT. `Open` et `Save` restent au fond neutre. */
-.tdc-trio { display: flex; gap: var(--sp-8); margin-top: var(--sp-8); }
-.tdc-mineur {
-  flex: 1 1 0; min-width: 0; min-height: var(--touch);
-  border: 0; border-radius: var(--radius-md);
-  background: var(--sunken); color: var(--text-soft);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-  font: inherit; font-weight: 600; cursor: pointer;
-}
-.tdc-mineur.universe-oubli { background: var(--critical); color: var(--text); box-shadow: none; }
+/* LA RANGÉE DU FICHIER — Open et Save en VERT (Eric), Forget rouge (il défait). */
+.tdc-trio { margin-top: var(--sp-8); }
 
-/* UNE PLACE RÉSERVÉE — présente, éteinte, un mot. La forme de `Double view`
-   quand la fenêtre est trop petite ; pas une seconde forme. */
+/* DEUX INTERRUPTEURS SUR UNE LIGNE — SRD (miroir, éteint) · Fate's Hand. */
+.tdc-regles { margin-top: var(--sp-8); }
+.tdc-deux { display: flex; gap: var(--sp-8); }
+.tdc-deux .interrupteur { flex: 1 1 0; min-width: 0; }
+
+/* MY CHARACTERS — large, BLEU, cadré à gauche (Eric). Il navigue. */
+.tdc-liste {
+  width: 100%; min-height: var(--touch); margin-top: var(--sp-8); padding: 0 var(--sp-12);
+  border: 0; border-radius: var(--radius-md);
+  background: var(--info); color: var(--on-accent);
+  font: inherit; font-weight: 600; font-size: var(--t4); text-align: left; cursor: pointer;
+}
+/* LA LIGNE D'ÉTAT — « in browser : <nom> · saved », voyant sur `[data-garde]`. */
+.tdc-etat { margin: var(--sp-8) 0 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-8); align-items: baseline; font-size: var(--t3); color: var(--text-muted); }
+.tdc-etat-mot { color: var(--text-muted); }
+.tdc-nom { color: var(--text); font-weight: 600; font-size: var(--t4); }
+[data-garde="true"]  .tdc-garde::before { content: "● "; color: var(--positive); }
+[data-garde="false"] .tdc-garde::before { content: "● "; color: var(--critical); }
+
+/* UNE PLACE RÉSERVÉE — présente, éteinte, un mot (Appearance : langue, unités). */
 .tdc-ligne {
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
   width: 100%; min-height: var(--touch); margin-top: var(--sp-4); padding: 0 var(--sp-8);
@@ -5491,9 +5500,8 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 /* ══ L'INTERRUPTEUR — rouge à gauche, vert à droite (Eric, 06/09 et 08/09) ══
    La feuille lit `data-on` — l'écran n'écrit aucune couleur. Éteint : pouce à
    gauche, `--critical`. Allumé : pouce à droite, `--positive`. Grisé : le
-   réglage dort, et la note sous la ligne dit pourquoi. */
+   réglage dort (ou n'est qu'un miroir), et la piste perd sa teinte. */
 .tdc-lignes { display: flex; flex-direction: column; gap: 0; }
-.tdc-regles { margin-top: var(--sp-8); }
 .interrupteur {
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
   width: 100%; min-height: var(--touch); padding: 0 var(--sp-4) 0 var(--sp-8);
@@ -5516,37 +5524,35 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--border-strong));
 }
 .interrupteur[data-on="true"] .interrupteur-pouce { background: var(--positive); }
+/* Un miroir ou un réglage qui dort garde sa POSITION (elle dit l'état) mais
+   perd sa teinte : le gris dit « pas à toi de le toucher ». */
 .interrupteur:disabled .interrupteur-piste { background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
 .interrupteur:disabled .interrupteur-pouce { background: var(--text-muted); }
 
-/* LES PORTES — vers un rang B. Vivante : fond creux, flèche. Réservée : la
-   même forme, éteinte, avec son mot. */
-/* 📏 LES TROIS PORTES SUR UNE SEULE RANGÉE — mesuré au banc le 08/09 : en
-   colonne, R rendait 550 pour 500 et le `?` chevauchait `Tools`. En rangée on
-   rend 96 blg, et la marge du bas RÉSERVE la place du `?` (posé en absolu par
-   la coquille, §6 pré) au lieu de le laisser tomber sur la dernière porte. */
-.tdc-portes { display: flex; gap: var(--sp-8); margin-top: var(--sp-8); margin-bottom: calc(var(--touch) + var(--sp-8)); }
-.tdc-porte {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
-  flex: 1 1 0; min-width: 0; min-height: var(--touch); padding: 0 var(--sp-8);
-  border: 0; border-radius: var(--radius-md);
-  background: var(--sunken); color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-  font: inherit; font-weight: 600; font-size: var(--t3); text-align: left; cursor: pointer;
-}
-.tdc-porte:disabled {
-  background: none; color: var(--text-muted); font-weight: 400;
-  box-shadow: inset 0 0 0 1px var(--border); cursor: not-allowed;
-}
-.tdc-porte-fleche { color: var(--text-muted); }
-/* LE CHAMP CAMPAGNE, SUR UNE LIGNE — le libellé à gauche, la saisie prend le
-   reste. Une étiquette au-dessus coûtait une ligne entière des 500. */
-/* ⚠️ `.universe-step` devant : `.doc-field` est écrit plus bas dans la feuille
-   et gagnerait à spécificité égale (piège n°2 du canon, un bloc générique écrit
-   plus bas vole la cascade). */
+/* LA RANGÉE DU BAS — le livre · Appearance (bleue, elle navigue) · DM · Tools
+   (réservées : grises, éteintes — non coloré = non cliquable) · le `?`.
+   ⏳ « à 8 blg du pied de page » : la cote se règle ici, mesurée au banc. */
+/* 📏 « à 8 blg du pied de page » (Eric) — mesuré 12 au banc : la MARGE de 4 que
+   `.parcours-pied` pose sous ses boutons s'ajoutait aux 8 de la dalle (deux
+   marges légitimes qui s'additionnent — la leçon du 26/08, encore). Ici le
+   pied ne la pose pas : la dalle garde ses 8, et c'est tout. Mesuré après : 8. */
+.tdc-pied { margin-top: var(--sp-8); margin-bottom: 0; }
+
+/* LE CHAMP CAMPAGNE, SUR UNE LIGNE. `.universe-step` devant : `.doc-field` est
+   écrit plus bas et gagnerait à spécificité égale (piège n°2 du canon). */
 .universe-step .tdc-champ { display: flex; flex-direction: row; align-items: center; gap: var(--sp-8); margin: var(--sp-8) 0 0; }
 .universe-step .tdc-champ .doc-field-label { flex: none; margin: 0; text-align: left; }
 .universe-step .tdc-champ .doc-field-input { flex: 1 1 0; min-width: 0; }
+
+/* B1 — MY CHARACTERS : une liste d'une ligne, aujourd'hui vraie. */
+.tdc-titre-b { margin: 0 0 var(--sp-8); font-size: var(--t5); font-weight: 600; text-align: center; }
+.tdc-personnages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.tdc-personnage {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-8);
+  min-height: var(--touch); padding: 0 var(--sp-8);
+  border-radius: var(--radius-md); background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--border-strong); font-size: var(--t3); color: var(--text-muted);
+}
 
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
@@ -8030,6 +8036,14 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
    (0,2,1) ; une règle d'état à (0,2,0) perd contre lui quel que soit l'ordre.
    L'état doit peser autant et venir après. */
 .parcours-pied button.parcours-annuler { --bouton-fond: var(--critical); }
+/* 🧭 LES BOUTONS DU MENU — écrits ICI, après la règle de base des petits
+   boutons, et pas dans le bloc du tableau de commande : à spécificité égale
+   (0,2,1), c'est l'ORDRE qui tranche, et la base est écrite plus bas que le
+   bloc du Menu. Mesuré au banc le 08/09 : Open, Save et Display rendaient gris.
+   Même place que `.parcours-annuler` juste au-dessus, même raison. */
+.parcours-pied button.tdc-vert { --bouton-fond: var(--positive); }   /* Open · Save — verts (Eric) */
+.parcours-pied button.tdc-porte { --bouton-fond: var(--info); }      /* une porte NAVIGUE : bleue */
+.parcours-pied button.tdc-porte:disabled { --bouton-fond: var(--text-muted); } /* réservée : grise */
 
 /* ── LE MOUVEMENT NON IMPACTANT — bleu ───────────────────────────────────
    ⛔ Le test de §6 tient en une question : *après ce clic, le document a-t-il
