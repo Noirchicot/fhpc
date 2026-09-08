@@ -90,6 +90,23 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### L'arbitrage du 09/09 — l'interrupteur Soulforging reste incomplet, et c'est voulu
+
+**« Le trait `Soulforged Affinity` de l'Araag ne peut pas suivre sa couche : on étend la grammaire
+du patch pour qu'une couche puisse AJOUTER un élément dans un tableau, ou on accepte l'interrupteur
+incomplet ? » → ON ACCEPTE.** Eric, 09/09 : *« laisse l'Araag incomplet, pas grave. »*
+
+📏 **Le fait, mesuré au lot 179 en appelant la fonction** — pas déduit : `applyChange` refuse de
+créer un élément dans un tableau (`src/layers/paths.mjs`, règle 3), *« on désigne un élément
+existant par son identité, on n'en crée pas un par un chemin »*. Le trait vit dans `data.traits`
+d'un record que `fh-species-en` **ajoute** ; aucune couche au-dessus ne peut l'y remettre.
+
+⇒ **Conséquence assumée, à ne pas re-signaler comme un défaut** : éteindre `fh-soulforging-en`
+laisse l'Araag avec un trait qui lui promet de Body Forge une Soulgem, dans un jeu où le
+Soulforging n'existe plus. ⛔ **Ce n'est pas un bug à corriger, c'est une dette tranchée.**
+📌 Elle se rouvrira d'elle-même le jour où une couche FH devra poser un trait sur une espèce
+qu'elle n'a pas créée — c'est **alors** que la clef d'ajout, sœur du `remove` du lot 17, se paiera.
+
 #### Les trois arbitrages du 08/09, chacun avec sa question
 
 **1. « Soulforging : interrupteur ou contenu ? » → INTERRUPTEUR.** Il rejoint `craft`
