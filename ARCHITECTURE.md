@@ -97,9 +97,16 @@ manquante NOMMÉE**, jusqu'au jour où on l'ajoute.
 ⚖️ **La règle de dégradation, dictée le 08/09** : sans la couche `Skills & tools`, **les
 points libres deviennent des compétences supplémentaires à répartir à la création.**
 📏 L'humain SRD porte `Skillful` — *« proficiency in one skill of your choice »* — donc
-**1** ; Araag en donne **2**. ⚠️ La forme FH d'Araag donne 2 points aux niveaux 1, 3 et
-6 (`skill_points.by_level`) ; la forme dégradée n'en donne que **2, à la création** —
-une espèce SRD n'accorde pas de compétence aux niveaux suivants.
+**1** ; Araag en donne **2** (confirmé par Eric le 08/09 : *« +2 compétences, au lvl 1
+et point »*). ⚠️ La forme FH d'Araag donne 2 points aux niveaux 1, 3 **et** 6
+(`skill_points.by_level`) ; la forme dégradée n'en donne que **2, à la création, et
+rien ensuite** — une espèce SRD n'accorde pas de compétence aux niveaux suivants.
+
+⚖️ **Et « point » ne se dit pas en SRD.** Un point FH achète un palier
+(Novice/Adept/Expert) ; sans la couche, il n'existe plus rien à acheter. La forme
+dégradée s'écrit donc en vocabulaire SRD — **une compétence maîtrisée**, soit le
+palier Novice — et le compte se lit `skill_points.by_level["1"]`, jamais la somme des
+niveaux.
 
 ### Les blocs — verbes en entrée, événements en sortie, état privé
 
