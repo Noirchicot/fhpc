@@ -77,6 +77,10 @@ import { planAt, planSlots } from "./carnet.mjs?v=606";
 import { renderChoixGlisses } from "./glisser.mjs?v=606";
 import { renderConceptStep } from "./concept-step.mjs?v=606";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=606";
+/* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
+   parce qu'une phrase choisie par une condition mérite un test qui la LIT,
+   et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
+import { motDeLEcranMort } from "./ecran-mort.mjs?v=606";
 import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=606";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
@@ -1977,12 +1981,15 @@ function renderStepContent() {
      sans regarder ce qu'elle affiche aurait fermé une porte ouverte.
      📌 ET LE MOT NOMME LE MANQUE, jamais une clef machine — la règle du refus
      qui nomme, §5 du canon. */
+  /* 📏 LOT 183 — ET LE MOT NOMME LA CAUSE, PAS SEULEMENT LE MANQUE. Mesuré en
+     ligne le 2026-09-09 : v606 fait passer la pile de 7 à 9 couches, un
+     personnage gardé la veille ne correspond plus à aucun des deux jeux de
+     règles, et ces six écrans rendaient *« it cannot be derived yet »* — ni
+     cause, ni sortie — pendant que le Menu, au même instant, disait quoi
+     faire. ⭐ Le choix de la phrase vit dans `ecran-mort.mjs`, où un test peut
+     le LIRE ; ici il ne reste que la pose. */
   if (state.derivationImpossible && !catalogueCourant() && ECRANS_QUI_LISENT_LA_FICHE.has(step.id)) {
-    const manque = !(state.document && state.document.build.choices.some((c) => c && c.path === "class"));
-    card.append(el("p", "placeholder", [document.createTextNode(manque
-      ? "This screen reads your character sheet, and there is no sheet without a class. "
-        + "Choose one on Class, and this screen comes back with it."
-      : "This screen reads your character sheet, and it cannot be derived yet.")]));
+    card.append(el("p", "placeholder", [document.createTextNode(motDeLEcranMort(state.document))]));
     return card;
   }
 
