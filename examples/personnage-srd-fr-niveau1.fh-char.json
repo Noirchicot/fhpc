@@ -390,7 +390,6 @@
       { "path": "class.prepared[3]", "ref": { "kind": "spell", "id": "srd:spell:en:sleep" } },
       { "path": "feat.magicInitiate.cantrip", "ref": { "kind": "spell", "id": "exemple:spell:fr:chuchotement-des-pages" } },
       { "path": "feat.extra", "ref": { "kind": "feat", "id": "exemple:feat:fr:lecteur-de-marges" }, "label": "Lecteur de marges (couche homebrew)" },
-      { "path": "languages[0]", "value": "draconique" },
 
       { "path": "level", "value": 1, "label": "Niveau 1" },
 

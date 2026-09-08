@@ -124,7 +124,10 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
   const parResource = JSON.parse(lue.result.contents[0].text);
   const parOutil = await server.ok("mcp.document");
   assert.deepEqual(parResource, parOutil);
-  assert.equal(parResource.build.choices.length, 59);
+  /* 📏 58 depuis le 2026-09-08 : `languages[0] = "draconique"` a été retiré du
+     personnage d'exemple — une intention qu'aucune règle ne lisait. ⛔ Le compte
+     reste EXACT, il n'a pas été assoupli en `>=`. */
+  assert.equal(parResource.build.choices.length, 58);
   assert.equal(parResource.resolved.vitals.hpMax, 9);
 
   assert.deepEqual(server.junk, [], "aucune ligne de stdout qui ne soit un message MCP, sur tout l'échange");
