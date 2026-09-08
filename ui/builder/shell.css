@@ -1584,39 +1584,9 @@ body {
    ⚠️ AUCUNE COULEUR NON PLUS ICI : l'allumé se dit par la POSITION du pouce et
    par l'encre pleine, l'éteint par une encre sourde. Deux canaux, pas un — et
    `aria-pressed` le dit une troisième fois, aux outils d'assistance. */
-.bascule-liste { display: flex; flex-direction: column; gap: var(--sp-8); }
-.bascule-ligne {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: var(--sp-8); width: 100%;
-  min-height: var(--touch);       /* le seuil tactile — une ligne se vise au pouce */
-  padding: var(--sp-8);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: none;
-  color: var(--text);             /* un <button> n'hérite pas de `color` — défaut n°4 */
-  font-family: inherit; font-size: var(--t4); text-align: left;
-  cursor: pointer;
-}
-.bascule-mot { color: var(--text); }
-/* LA PISTE ET LE POUCE — dessinés, et le pouce se déplace par la JUSTIFICATION
-   de la piste, jamais par une marge automatique : une marge `auto` serait un
-   nombre implicite de plus dans une feuille qui n'en veut pas, et le garde
-   d'espacement ne saurait pas la lire. */
-.bascule-piste {
-  flex: none; display: flex; align-items: center; justify-content: flex-start;
-  width: 44px; height: 24px;
-  padding: var(--sp-2);
-  border-radius: var(--radius-pill);
-  background: var(--sunken);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-.bascule-pouce {
-  width: 18px; height: 18px;
-  border-radius: var(--radius-pill);
-  background: var(--text-muted);
-}
-.bascule-ligne[data-active="true"] .bascule-piste { justify-content: flex-end; }
-.bascule-ligne[data-active="true"] .bascule-pouce { background: var(--text); }
-.bascule-ligne[data-active="true"] .bascule-mot { font-weight: 600; }
+/* 🧊 `.bascule-liste` / `.bascule-ligne` ONT VÉCU DU 17/08 AU 08/09 — les deux
+   sélecteurs exclusifs des règles. Remplacés par `.interrupteur` (plus bas) :
+   un seul interrupteur « Fate's Hand », tranché par Eric le 08/09. */
 /* ⛔ `.decision-card h1` EST PARTI AVEC LE TITRE D'ÉCRAN (voir
    `renderStepContent`, shell.mjs) : B7.3b généralisé — la molette du haut
    nomme déjà l'étape et la surligne, le répéter en T6 coûtait une ligne de
@@ -5382,61 +5352,126 @@ button { font: inherit; }
 /* L'INTERRUPTEUR DU TUTORIEL, dans le Menu (Eric, 2026-08-19) — la seconde
    moitié de « Turn tutorials off » : un endroit NOMMÉ pour rallumer, au lieu
    de chercher le « ? ». */
-.universe-reglages { margin-top: var(--sp-24); }
-.universe-reglages h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
-.universe-bascule {
-  min-width: 72px; min-height: var(--touch); padding: 0 var(--sp-16);
+/* ══ LE TABLEAU DE COMMANDE — `R` du Menu, Eric, 2026-09-08 ═══════════════
+   *« Le joueur ne veut pas naviguer, il doit trouver l'essentiel en R. R doit
+   tenir en une page »* — 500 blg, ceinture exclue. Tout ici est compté.
+
+   ⭐ LES COTES : une ligne se vise au pouce (`--touch` 44) ; une place réservée
+   n'est pas un geste, elle prend 36 ; la piste de l'interrupteur est PETITE
+   (36 × 20, pouce 16) parce qu'Eric la veut petite — c'est la LIGNE qui est
+   la cible, pas la piste. */
+.universe-note { margin: 0 0 var(--sp-4); color: var(--text-muted); font-size: var(--t3); }
+
+.universe-memoire { margin-top: 0; }
+.tdc-tete { display: flex; flex-direction: column; gap: var(--sp-2); }
+.tdc-marque {
+  margin: 0; font-size: var(--t5); font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--text);
+}
+.tdc-sous {
+  margin: 0; display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: var(--sp-4) var(--sp-8); font-size: var(--t3); color: var(--text-muted);
+}
+.tdc-nom { color: var(--text); font-weight: 600; font-size: var(--t4); }
+/* LA PASTILLE DE SAUVEGARDE — verte si gardé, rouge sinon : sur `[data-garde]`,
+   une exception NOMMÉE, jamais sur une couleur écrite dans l'écran. */
+.universe-memoire[data-garde="true"]  .tdc-garde::before { content: "● "; color: var(--positive); }
+.universe-memoire[data-garde="false"] .tdc-garde::before { content: "● "; color: var(--critical); }
+
+/* LE GESTE MAJEUR — bleu : il NAVIGUE (les trois verbes ratifiés : naviguer
+   bleu · valider vert · défaire rouge). Pleine largeur, seul de sa rangée. */
+.tdc-majeur {
+  width: 100%; min-height: var(--touch); margin-top: var(--sp-8);
+  border: 0; border-radius: var(--radius-md);
+  background: var(--info); color: var(--on-accent);
+  font: inherit; font-weight: 600; font-size: var(--t4); cursor: pointer;
+}
+/* LES TROIS GESTES DU FICHIER — une rangée, trois parts égales. `Forget`
+   seul est rouge : il DÉFAIT. `Open` et `Save` restent au fond neutre. */
+.tdc-trio { display: flex; gap: var(--sp-8); margin-top: var(--sp-8); }
+.tdc-mineur {
+  flex: 1 1 0; min-width: 0; min-height: var(--touch);
   border: 0; border-radius: var(--radius-md);
   background: var(--sunken); color: var(--text-soft);
-  font: inherit; font-weight: 600; cursor: pointer;
   box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-.universe-bascule[data-actif="true"] { color: var(--text); box-shadow: inset 0 0 0 1px var(--positive); }
-/* 🚪 UN INTERRUPTEUR QUE LA FENÊTRE NE PORTE PAS — lot 120, la porte du double
-   affichage. ⛔ NI CACHÉ NI RETIRÉ : un réglage qui disparaît laisse croire
-   qu'il n'existe pas. Il reste lisible et il DIT pourquoi il dort (la note
-   sous lui) — c'est la même loi que le `Done` gris de §6, *« le joueur doit
-   pouvoir lire ce qu'il n'a pas encore fait »*.
-   ⭐ `--text-muted` et pas `--border-strong` : le jeton du gris ratifié le
-   26/08, celui qui reste DANS la bande de contraste des autres boutons. */
-.universe-bascule:disabled { color: var(--text-muted); cursor: not-allowed; }
-.universe-note { margin: var(--sp-8) 0 0; color: var(--text-muted); font-size: var(--t4); }
-
-/* OÙ VIT CE PERSONNAGE (2026-08-20) — même gabarit que le bloc au-dessus, et
-   c'est voulu : ce sont deux réglages du Menu, pas deux inventions. Seule la
-   PASTILLE est propre à celui-ci — une sauvegarde qui a échoué doit se voir
-   avant d'être lue. ⛔ Et elle est posée sur `[data-garde]`, une exception
-   NOMMÉE : sans elle, la règle générique `.universe-memoire h3` du dessus
-   emporterait la couleur (piège n°2 du canon — un bloc générique écrit plus
-   bas vole la cascade). */
-.universe-memoire { margin-top: var(--sp-24); }
-.universe-memoire h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
-.universe-memoire[data-garde="true"] h3::after {
-  content: "●"; margin-left: var(--sp-8); color: var(--positive); font-size: var(--t4);
-}
-.universe-memoire[data-garde="false"] h3::after {
-  content: "●"; margin-left: var(--sp-8); color: var(--critical); font-size: var(--t4);
-}
-
-/* 🔴 LA SORTIE DE SECOURS — `Forget this character` (Eric, 2026-09-06).
-   ⭐ IL COPIE LE GABARIT DE `.universe-bascule`, ET C'EST VOULU : c'est un
-   bouton du Menu, pas une invention. Même hauteur `--touch`, même rayon, même
-   graisse — seule la COULEUR change, parce que seul le GESTE change.
-   ⚖️ `--critical`, la teinte de la famille DÉFAIRE : c'est le même rouge que
-   `Cancel` (`.parcours-annuler`, `.sortie-annule`), et la loi du 05/09 dit
-   que le mot et la teinte suivent le verbe, jamais l'écran. Un bouton qui
-   jette doit se lire rouge avant d'être lu tout court.
-   ⛔ PAS DE `min-width` DE LA FAMILLE 77/105 : ces deux cotes sont celles du
-   PIED, où les boutons se rangent par paires dans une rangée mesurée. Ici le
-   bouton est seul dans une section qui coule, et son libellé décide — lui
-   imposer un plancher de pied appliquerait une règle hors de son écran. */
-.universe-oubli {
-  margin-top: var(--sp-8);
-  min-height: var(--touch); padding: 0 var(--sp-16);
-  border: 0; border-radius: var(--radius-md);
-  background: var(--critical); color: var(--text);
   font: inherit; font-weight: 600; cursor: pointer;
 }
+.tdc-mineur.universe-oubli { background: var(--critical); color: var(--text); box-shadow: none; }
+
+/* UNE PLACE RÉSERVÉE — présente, éteinte, un mot. La forme de `Double view`
+   quand la fenêtre est trop petite ; pas une seconde forme. */
+.tdc-ligne {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
+  width: 100%; min-height: var(--touch); margin-top: var(--sp-4); padding: 0 var(--sp-8);
+  border: 0; border-radius: var(--radius-md); background: none;
+  color: var(--text-muted); font: inherit; font-size: var(--t4); text-align: left;
+  cursor: not-allowed;
+}
+.tdc-bientot {
+  flex: none; font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill); padding: var(--sp-2) var(--sp-8);
+}
+
+/* ══ L'INTERRUPTEUR — rouge à gauche, vert à droite (Eric, 06/09 et 08/09) ══
+   La feuille lit `data-on` — l'écran n'écrit aucune couleur. Éteint : pouce à
+   gauche, `--critical`. Allumé : pouce à droite, `--positive`. Grisé : le
+   réglage dort, et la note sous la ligne dit pourquoi. */
+.tdc-lignes { display: flex; flex-direction: column; gap: 0; }
+.tdc-regles { margin-top: var(--sp-8); }
+.interrupteur {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
+  width: 100%; min-height: var(--touch); padding: 0 var(--sp-4) 0 var(--sp-8);
+  border: 0; border-radius: var(--radius-md); background: none;
+  color: var(--text); font: inherit; font-size: var(--t4); font-weight: 600; text-align: left;
+  cursor: pointer;
+}
+.interrupteur:disabled { color: var(--text-muted); font-weight: 400; cursor: not-allowed; }
+.interrupteur-piste {
+  flex: none; display: flex; align-items: center; justify-content: flex-start;
+  width: 36px; height: 20px; padding: var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--critical) 26%, var(--sunken));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 55%, var(--border-strong));
+}
+.interrupteur-pouce { width: 16px; height: 16px; border-radius: var(--radius-pill); background: var(--critical); }
+.interrupteur[data-on="true"] .interrupteur-piste {
+  justify-content: flex-end;
+  background: color-mix(in srgb, var(--positive) 26%, var(--sunken));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--border-strong));
+}
+.interrupteur[data-on="true"] .interrupteur-pouce { background: var(--positive); }
+.interrupteur:disabled .interrupteur-piste { background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
+.interrupteur:disabled .interrupteur-pouce { background: var(--text-muted); }
+
+/* LES PORTES — vers un rang B. Vivante : fond creux, flèche. Réservée : la
+   même forme, éteinte, avec son mot. */
+/* 📏 LES TROIS PORTES SUR UNE SEULE RANGÉE — mesuré au banc le 08/09 : en
+   colonne, R rendait 550 pour 500 et le `?` chevauchait `Tools`. En rangée on
+   rend 96 blg, et la marge du bas RÉSERVE la place du `?` (posé en absolu par
+   la coquille, §6 pré) au lieu de le laisser tomber sur la dernière porte. */
+.tdc-portes { display: flex; gap: var(--sp-8); margin-top: var(--sp-8); margin-bottom: calc(var(--touch) + var(--sp-8)); }
+.tdc-porte {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+  flex: 1 1 0; min-width: 0; min-height: var(--touch); padding: 0 var(--sp-8);
+  border: 0; border-radius: var(--radius-md);
+  background: var(--sunken); color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  font: inherit; font-weight: 600; font-size: var(--t3); text-align: left; cursor: pointer;
+}
+.tdc-porte:disabled {
+  background: none; color: var(--text-muted); font-weight: 400;
+  box-shadow: inset 0 0 0 1px var(--border); cursor: not-allowed;
+}
+.tdc-porte-fleche { color: var(--text-muted); }
+/* LE CHAMP CAMPAGNE, SUR UNE LIGNE — le libellé à gauche, la saisie prend le
+   reste. Une étiquette au-dessus coûtait une ligne entière des 500. */
+/* ⚠️ `.universe-step` devant : `.doc-field` est écrit plus bas dans la feuille
+   et gagnerait à spécificité égale (piège n°2 du canon, un bloc générique écrit
+   plus bas vole la cascade). */
+.universe-step .tdc-champ { display: flex; flex-direction: row; align-items: center; gap: var(--sp-8); margin: var(--sp-8) 0 0; }
+.universe-step .tdc-champ .doc-field-label { flex: none; margin: 0; text-align: left; }
+.universe-step .tdc-champ .doc-field-input { flex: 1 1 0; min-width: 0; }
 
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
