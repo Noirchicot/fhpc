@@ -271,18 +271,21 @@ export const TOOLS_ADDED = [
   { slug: "instrument-strings", name: "Instrument (Strings)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
   { slug: "instrument-other", name: "Instrument (Other)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
 
-  /* 🔴 SOULFORGING — MANQUANT DEPUIS TOUJOURS, trouvé le 2026-08-20 en lisant
-     la table publiée par-dessus l'épaule d'Eric. Son livre le porte (`Skills &
-     Tools`, table des outils, CHA, marqué ✦ « ajout Fate's Hand ») ; la couche
-     ne l'avait jamais eu, et RIEN nulle part ne disait pourquoi.
+  /* 🔴 SOULFORGING N'EST PLUS ICI — lot 179, 2026-09-08. Il a été ajouté le
+     2026-08-20 (il manquait depuis toujours : le livre d'Eric le porte dans
+     `Skills & Tools`, table des outils, CHA, marqué ✦ « ajout Fate's Hand »,
+     et le croisement livre → couche l'a sorti alors que le croisement
+     couche → livre était vert 13 sur 13 — *un inventaire ne prouve rien s'il
+     ne se lit que dans le sens où il a été écrit*).
 
-     ⭐ C'EST LE CROISEMENT DANS L'AUTRE SENS QUI L'A SORTI. Le fil FH WEB avait
-     vérifié que chaque outil de la couche est bien dans le livre — 13 sur 13,
-     tout vert. Personne n'avait fait le trajet inverse. **Un inventaire ne
-     prouve rien s'il ne se lit que dans le sens où il a été écrit.**
-     ⚠️ Et c'est l'omission la plus lourde possible : `Soulforge Crafting` est
-     l'un des plus gros chapitres du livre, 3 636 mots, 100 % d'Eric. */
-  { slug: "soulforging", name: "Soulforging", ability: "cha", inherits: null },
+     ⭐ IL VIT DÉSORMAIS DANS `layers/fh-soulforging-en.layer.json`, et ce
+     déménagement est le lot entier : `Soulforge Crafting` est un chapitre
+     d'Eric (3 636 mots, 100 % maison) qu'on doit pouvoir ÉTEINDRE. Tant que
+     son outil était ici, éteindre le Soulforging éteignait AUSSI le pool de
+     points de compétence des douze espèces. Un chapitre qu'on ne peut pas
+     éteindre sans en éteindre un autre n'est pas un interrupteur.
+     ⚠️ L'outil n'a pas quitté la PILE, seulement cette couche-ci : il est
+     toujours interrogeable en `fh:tool:en:soulforging`. */
 
   { slug: "vehicles-land", name: "Vehicles (Land)", ability: "dex", inherits: null },
   { slug: "vehicles-water", name: "Vehicles (Water)", ability: "dex", inherits: null },
@@ -852,11 +855,16 @@ export const BACKGROUND_INHERITANCE = {
    attrapent l'oubli, pas la substitution. */
 export const EXPECTED = {
   skills: 26,
-  /* 37 depuis le 2026-08-20 : `Soulforging` manquait, et ce compte-ci est ce
-     qui a rendu son arrivée bruyante — le générateur a REFUSÉ de produire une
-     couche à 37 outils tant que la source en annonçait 36. Un compte déclaré
-     est un garde, pas une décoration. */
-  tools: 37,
+  /* 36 depuis le 2026-09-08 (lot 179) : `Soulforging` a quitté CETTE couche
+     pour `fh-soulforging-en`, qui l'éteint d'un seul geste. Il était passé à
+     37 le 2026-08-20 en arrivant, et ce compte-ci est ce qui avait rendu son
+     arrivée bruyante — le générateur a REFUSÉ de produire une couche à 37
+     outils tant que la source en annonçait 36. Un compte déclaré est un
+     garde, pas une décoration : c'est le même garde qui, dans l'autre sens,
+     refuse aujourd'hui une couche à 37 quand le Soulforging est parti.
+     ⚠️ Ce 36 compte les outils de CETTE COUCHE, pas ceux de la pile — la
+     pile en porte toujours 37, le trente-septième étant dans l'autre couche. */
+  tools: 36,
   /* ⛔ TREIZE : douze langues (une par espèce jouable) et le Garrot. Si ce
      nombre bouge sans qu'une règle bouge, quelqu'un a ajouté un training sans
      chapitre — et un training sans chapitre est un achat que le joueur ne peut

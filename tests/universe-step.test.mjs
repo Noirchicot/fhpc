@@ -205,7 +205,17 @@ test("C — ⚔️ passer de SRD+FH à SRD ne perd RIEN dans build.choices, dég
      les DEUX piles nommées : la bascule n'éteint que les couches FH, donc le
      rangement d'Eric survit au passage en « SRD seul ». Une pile de test qui
      l'oublierait ne serait reconnue NI comme « srd » NI comme « srdfh ». */
-  const harness = makeHarness({ layers: [SRD_EN, "layers/srfh-shelving-en.layer.json", FH_SPECIES_EN, "layers/fh-skills-en.layer.json", FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN] });
+  /* 🔴 LOT 179 — CETTE LISTE ÉTAIT ÉCRITE À LA MAIN, ET ELLE A DIVERGÉ LE
+     JOUR MÊME OÙ UNE COUCHE EST ENTRÉE. L'arrivée de `fh-soulforging-en`
+     dans `engine.mjs` a fait monter à ce test une pile à neuf couches quand
+     la page en montait dix : `currentStack` a rendu `null` — « ni srd ni
+     srdfh » — et le test a rougi sur un document parfaitement sain.
+     ⭐ C'EST EXACTEMENT LA FAUTE QUE LE TEST A0 DÉNONCE QUINZE LIGNES PLUS
+     HAUT (« une liste écrite deux fois diverge »), et elle était ici, dans le
+     même fichier, sur la même pile. Elle se DÉDUIT donc de `LAYER_FILES`,
+     la source que A0 tient déjà pour vraie — la prochaine couche entrera
+     dans cette pile de test sans que personne y pense. */
+  const harness = makeHarness({ layers: LAYER_FILES.map((fichier) => `layers/${fichier}`) });
   /* Le personnage d'exemple EN+FH DU DÉPÔT (`examples/personnage-fh-en-
      niveau1.fh-char.json`, lot 20) — celui que `engine.mjs`/`shell.mjs`
      chargent réellement au boot du builder, jamais recopié à la main. */

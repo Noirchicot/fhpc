@@ -35,6 +35,12 @@ export const LAYER_FILES = [
   "fh-arcana-en.layer.json",
   "fh-feats-en.layer.json",
   "fh-spells-en.layer.json",
+  /* ⭐ LOT 179 — `Soulforge Crafting` dans SA couche, pour qu'il devienne un
+     interrupteur. Elle se monte APRÈS `fh-skills-en` (elle y reprend l'outil)
+     et APRÈS `fh-spells-en` (elle y reprend Transfer Essence et les rôles
+     Soulforge d'Identify et Gentle Repose), et AVANT les deux couches de
+     texte qui ferment la pile. */
+  "fh-soulforging-en.layer.json",
   "fh-fiche-en.layer.json",
   "fh-lore-en.layer.json"
 ];

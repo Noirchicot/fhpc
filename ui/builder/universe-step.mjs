@@ -86,9 +86,13 @@ export const LIVRE_FH_WEB = "https://noirchicot.github.io/fh-phb/";
  *  devient le tambour. */
 export const SRFH_LAYER_IDS = ["srfh-shelving-en"];
 
+/* ⭐ LOT 179 — `fh-soulforging-en` entre ici EN MÊME TEMPS que dans
+   `engine.mjs`, MÊME PLACE et MÊME ORDRE : c'est la leçon du lot 77, où la
+   pile réelle (7) ne correspondait plus à la pile nommée (5) et l'écran
+   accusait TOUT personnage d'avoir une pile hors des deux jeux de règles. */
 export const FH_LAYER_IDS = [
   "fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en", "fh-spells-en",
-  "fh-fiche-en", "fh-lore-en"
+  "fh-soulforging-en", "fh-fiche-en", "fh-lore-en"
 ];
 
 /** La pile que `document.build.layers` DÉCLARE, réduite à l'un des deux noms

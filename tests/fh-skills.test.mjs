@@ -35,6 +35,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { createLayers } from "../src/layers/index.mjs";
+/* LOT 179 — la pile de la PAGE, pour prouver que le Soulforging a DÉMÉNAGÉ
+   et non disparu. Même paire que celle de `fh-spells.test.mjs`. */
+import { monter } from "../src/tools/gen-fh-changes.mjs";
+import { PILE } from "../src/tools/exemple-fh-en.mjs";
 import {
   ROOT,
   SRD_EN,
@@ -247,16 +251,48 @@ test("ATTAQUE — l'assertion rougit aussi sur une caractéristique déplacée",
   assert.notDeepEqual(observé, truqué, "et l'assertion doit quand même rougir");
 });
 
-test("acceptation 1 — les 37 outils, nommément ; les deux génériques sont partis", () => {
+test("acceptation 1 — les 36 outils de CETTE couche, nommément ; les deux génériques sont partis", () => {
+  /* 🔴 36 DEPUIS LE LOT 179, ET LE 37ᵉ N'A PAS DISPARU — il a changé de
+     couche. `Soulforging` est parti dans `fh-soulforging-en` pour que le
+     chapitre `Soulforge Crafting` s'éteigne sans emporter le pool de points
+     de compétence des douze espèces. Cette pile-ci ne monte QUE le SRD et
+     `fh-skills-en` : elle mesure ce que cette couche porte SEULE, et c'est
+     36. Le test suivant tient l'autre bout — les 37 dans la pile réelle. */
   const verbs = pile();
   const vues = verbs.query({ kind: "tool" });
-  assert.deepEqual(nomsTriés(vues), [...LES_37_OUTILS].sort(),
-    "les 37 outils de Fate's Hand");
+  assert.deepEqual(nomsTriés(vues), LES_37_OUTILS.filter((n) => n !== "Soulforging").sort(),
+    "les 36 outils que `fh-skills-en` porte seule");
+
+  assert.equal(verbs.query({ kind: "tool", id: "fh:tool:en:soulforging" }), null,
+    "⛔ le Soulforging ne doit plus être dans CETTE couche — sinon il serait dans les deux");
 
   assert.equal(verbs.query({ kind: "tool", id: "srd:tool:en:gaming-set" }), null,
     "le Gaming Set générique est éclaté en quatre, il ne doit pas rester à côté d'eux");
   assert.equal(verbs.query({ kind: "tool", id: "srd:tool:en:musical-instrument" }), null,
     "le Musical Instrument générique est éclaté en trois");
+});
+
+test("🔴 LOT 179 — la PILE RÉELLE porte toujours les 37, et le 37ᵉ vient de `fh-soulforging-en`", () => {
+  /* ⭐ CE TEST EST LA MOITIÉ QUI MANQUERAIT. Sans lui, l'assertion du dessus
+     passerait de 37 à 36 et personne ne saurait jamais si le Soulforging a
+     déménagé ou s'il a été PERDU : un compte qui baisse ne dit pas lequel des
+     deux. Il se lit dans l'autre sens que celui qui a fait entrer le
+     Soulforging le 20/08 — et c'est ce croisement-là qui l'avait sorti.
+     ⛔ Il monte la pile de la PAGE, pas une pile de test : la question posée
+     est « le joueur voit-il encore son outil ? », et seule la vraie pile y
+     répond. */
+  const verbs = monter(PILE).query;
+  const vues = verbs({ kind: "tool" });
+  assert.deepEqual(nomsTriés(vues), [...LES_37_OUTILS].sort(),
+    "les 37 outils du livre d'Eric, désormais répartis sur DEUX couches");
+
+  const vue = verbs({ kind: "tool", id: "fh:tool:en:soulforging" });
+  assert.ok(vue, "le Soulforging doit rester interrogeable — le déménagement n'est pas une suppression");
+  assert.equal(vue.record.data.ability_key, "cha", "et il garde sa caractéristique, CHA");
+
+  const couche = JSON.parse(readFileSync(join(ROOT, "layers", "fh-soulforging-en.layer.json"), "utf8"));
+  assert.ok(couche.records.tool["fh:tool:en:soulforging"],
+    "et c'est bien `fh-soulforging-en` qui le porte — pas une troisième couche apparue en route");
 });
 
 test("acceptation 1 — les trois outils re-caractérisés le sont, et rien d'autre n'a bougé chez eux", () => {
@@ -295,14 +331,18 @@ test("acceptation 1 — les sept outils éclatés héritent l'usage de leur pare
   }
 });
 
-test("acceptation 1 — les sept outils Fate's Hand purs n'inventent aucun usage", () => {
+test("acceptation 1 — les six outils Fate's Hand purs n'inventent aucun usage", () => {
   const verbs = pile();
   const purs = TOOLS_ADDED.filter((e) => !e.inherits);
-  /* 🔴 SEPT depuis le 2026-08-20 : `Soulforging` a rejoint les trois véhicules
-     et les trois montures. Il manquait à la couche depuis toujours alors que le
-     livre d'Eric le porte — trouvé en lisant sa table publiée, pas par un
-     croisement, parce que le croisement n'allait que de la couche vers le livre. */
-  assert.equal(purs.length, 7, "trois véhicules, trois montures, et le Soulforging");
+  /* 🔴 SIX depuis le lot 179 (2026-09-08) : `Soulforging` est parti dans
+     `fh-soulforging-en`. Il était passé à SEPT le 2026-08-20 en ARRIVANT —
+     il manquait à la couche depuis toujours alors que le livre d'Eric le
+     porte, trouvé en lisant sa table publiée parce que le croisement
+     n'allait que de la couche vers le livre.
+     ⚠️ Six ici ne veut pas dire six dans le livre : la règle « un outil pur
+     n'invente pas d'usage » vaut aussi pour le Soulforging, et c'est
+     l'assertion en fin de test qui va la chercher dans son autre couche. */
+  assert.equal(purs.length, 6, "trois véhicules et trois montures");
 
   for (const entry of purs) {
     const vue = verbs.query({ kind: "tool", id: `fh:tool:en:${entry.slug}` });
@@ -310,6 +350,15 @@ test("acceptation 1 — les sept outils Fate's Hand purs n'inventent aucun usage
     assert.equal(vue.record.data.utilize, undefined,
       `« ${entry.name} » : le canon ne donne pas d'usage, et ce lot n'en invente pas`);
   }
+
+  /* ⛔ ET LE SEPTIÈME, DANS SON AUTRE COUCHE. La règle ne s'est pas arrêtée
+     à la frontière de la couche en même temps que l'outil : sans cette
+     ligne, `fh-soulforging-en` pourrait inventer un `utilize` que plus
+     personne ne regarde — le déménagement aurait AFFAIBLI un garde. */
+  const soulforging = monter(PILE).query({ kind: "tool", id: "fh:tool:en:soulforging" });
+  assert.ok(soulforging, "« Soulforging » doit exister dans la pile réelle");
+  assert.equal(soulforging.record.data.utilize, undefined,
+    "« Soulforging » : le canon ne donne pas d'usage, et le déménagement n'en invente pas");
 });
 
 test("acceptation 1 — les deux `ref` que la couche des espèces avait déjà pris sont vivants", () => {
@@ -739,14 +788,19 @@ test("deux générations d'affilée rendent le même octet", () => {
   }
 });
 
-test("le générateur rend bien 17 + 9 et 23 + 14 — l'arithmétique du chapitre", () => {
+test("le générateur rend bien 17 + 9 et 23 + 13 — l'arithmétique du chapitre", () => {
+  /* 🔴 13 NEUFS, PAS 14, DEPUIS LE LOT 179 : le Soulforging est le
+     quatorzième et il est parti dans `fh-soulforging-en`. L'arithmétique du
+     LIVRE n'a pas bougé (23 + 14 = 37) — c'est celle de CETTE COUCHE qui est
+     mesurée ici, et les deux ne se confondent plus depuis que le chapitre
+     `Soulforge Crafting` a la sienne. */
   const { skills, tools } = buildLayer({ srd: readSrdLayer(SRD_PATH) });
   assert.deepEqual(
     { conservées: skills.kept, neuves: skills.added, total: skills.total },
     { conservées: 17, neuves: 9, total: 26 });
   assert.deepEqual(
     { conservés: tools.kept, neufs: tools.added, total: tools.total },
-    { conservés: 23, neufs: 14, total: 37 });
+    { conservés: 23, neufs: 13, total: 36 });
 });
 
 /** Une couche SRD amputée : la privation est DÉLIBÉRÉE, pas une pénurie de

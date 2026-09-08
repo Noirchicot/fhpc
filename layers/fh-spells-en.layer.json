@@ -9,9 +9,9 @@
   ],
   "attribution": {
     "license": "all-rights-reserved",
-    "text": "Original Fate's Hand content: all rights reserved. This layer adds four spells of its own and modifies NO material from the System Reference Document 5.2.1: it rewrites no SRD text and disables no SRD record. It patches four SRD spells with an FH-ONLY field, `data[fh_effect]`, which does not exist in the SRD — the SRD spell stands exactly as printed and the Fate's Hand effect is added beside it."
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds three spells of its own and modifies NO material from the System Reference Document 5.2.1: it rewrites no SRD text and disables no SRD record. It patches two SRD spells with an FH-ONLY field, `data[fh_effect]`, which does not exist in the SRD — the SRD spell stands exactly as printed and the Fate's Hand effect is added beside it."
   },
-  "description": "The eight spells of the chapter `Fate's Hand Spells`. Four are new — Appease the Chaos, Devil-Vision, Consecration, Transfer Essence. Four are SRD spells that Fate's Hand adds an effect to, without touching a word of them: Bless, Guidance, Identify, Gentle Repose.",
+  "description": "The spells of the chapter `Fate's Hand Spells` that are NOT Soulforging. Three are new — Appease the Chaos, Devil-Vision, Consecration. Two are SRD spells that Fate's Hand adds an effect to, without touching a word of them: Bless, Guidance. ⚠️ Lot 179 — the chapter has eight spells; the three that serve Soulforge Crafting (Transfer Essence, Identify, Gentle Repose) moved to `fh-soulforging-en` so that chapter can be switched off on its own. Read the two layers together to see the eight.",
   "records": {
     "spell": {
       "fh:spell:en:appease-the-chaos": {
@@ -77,29 +77,6 @@
           "school": "abjuration"
         }
       },
-      "fh:spell:en:transfer-essence": {
-        "name": "Transfer Essence",
-        "slug": "transfer-essence",
-        "data": {
-          "cantrip": false,
-          "casting_time": "Action",
-          "classes": [
-            "Wizard",
-            "Cleric",
-            "Druid",
-            "Warlock"
-          ],
-          "components": "V, S, M (a gemstone, which the spell fills)",
-          "concentration": false,
-          "description": "You draw the Essence of a freshly slain creature into a gemstone you hold. The gem's value must meet the essence's PP — from 50 GP (1 PP) to 50,000 GP (11 PP); see the gem table in Soulforge Crafting. The transfer automatically succeeds.\n\nIn the Demon Forest this spell is needless — those beasts already carry their essence in the gems crusting their bodies; simply take the gem.",
-          "duration": "Instantaneous",
-          "level": 1,
-          "name": "Transfer Essence",
-          "range": "Touch — a creature slain within the hour (Gentle Repose: 10 hours)",
-          "ritual": false,
-          "school": "transmutation"
-        }
-      },
       "srd:spell:en:bless": {
         "op": "patch",
         "changes": {
@@ -113,20 +90,6 @@
           "data[fh_effect]": "Either the usual effect, or: you touch one willing creature and grant it 1 temporary Destiny Point for the duration of the spell. A single creature can only benefit from this effect once per long rest."
         },
         "note": "Fate's Hand offers an alternative effect on Guidance; the SRD effect remains available and unchanged."
-      },
-      "srd:spell:en:identify": {
-        "op": "patch",
-        "changes": {
-          "data[fh_effect]": "Cast on a harvested catalyst part, Identify reveals the exact power that part will grant once forged. The Knowledge check only tells you that a part is a catalyst; only Identify tells you what it does."
-        },
-        "note": "Fate's Hand gives Identify a role in Soulforge Crafting. The spell works as printed."
-      },
-      "srd:spell:en:gentle-repose": {
-        "op": "patch",
-        "changes": {
-          "data[fh_effect]": "Three uses in Soulforge Crafting, which stay decay in body and soul. Salvage: on a slain creature, grants one extra ingredient-retrieval attempt beyond the 1d4-minute harvest window. Essence storage: extends the window to store an Essence into a gem from 1 hour to 10 hours. Ingredient viability: recast every 10 days, keeps well-harvested Structure and Catalyst parts viable indefinitely, instead of the normal one month."
-        },
-        "note": "Fate's Hand gives Gentle Repose three roles in Soulforge Crafting. The spell works as printed."
       }
     }
   }

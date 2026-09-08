@@ -354,15 +354,6 @@
           "weight": "Varies"
         }
       },
-      "fh:tool:en:soulforging": {
-        "name": "Soulforging",
-        "slug": "soulforging",
-        "data": {
-          "ability": "Charisma",
-          "ability_key": "cha",
-          "name": "Soulforging"
-        }
-      },
       "fh:tool:en:vehicles-land": {
         "name": "Vehicles (Land)",
         "slug": "vehicles-land",

@@ -30,6 +30,36 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SRD = JSON.parse(readFileSync(join(ROOT, "layers", "srd-5.2.1-en.layer.json"), "utf8"));
 const COUCHE = JSON.parse(readFileSync(join(ROOT, "layers", "fh-spells-en.layer.json"), "utf8"));
 
+/* 🔴 LOT 179 — LE CHAPITRE EST SUR DEUX COUCHES DEPUIS LE 2026-09-08. Les
+   trois sorts qui servent `Soulforge Crafting` (Transfer Essence, et les
+   rôles Soulforge d'Identify et de Gentle Repose) sont partis dans
+   `fh-soulforging-en`, pour que ce chapitre-là s'éteigne sans emporter les
+   cinq autres sorts du livre.
+   ⛔ ET LES GARDES DE CE FICHIER SUIVENT LES SORTS, ILS NE RESTENT PAS SUR LA
+   COUCHE. Les laisser lire `fh-spells-en` seule aurait fait passer les
+   assertions de 4 à 2 en restant vertes, pendant que les deux patchs SRD
+   déménagés n'auraient PLUS ÉTÉ GARDÉS DU TOUT : le lot aurait desserré
+   trois gardes en croyant n'en corriger qu'un. C'est la règle du chapitre
+   qui est gardée, pas le fichier où il est rangé. */
+const COUCHE_SOULFORGING = JSON.parse(
+  readFileSync(join(ROOT, "layers", "fh-soulforging-en.layer.json"), "utf8"));
+
+/** Les records de sort du CHAPITRE, où qu'ils vivent → `[id, entrée, couche]`. */
+const CHAPITRE = [COUCHE, COUCHE_SOULFORGING].flatMap((couche) =>
+  Object.entries(couche.records.spell || {}).map(([id, entrée]) => [id, entrée, couche.id]));
+
+/** Où chaque sort du chapitre est rangé — la répartition décidée au lot 179. */
+const RANGEMENT = {
+  "fh:spell:en:appease-the-chaos": "fh-spells-en",
+  "fh:spell:en:devil-vision": "fh-spells-en",
+  "fh:spell:en:consecration": "fh-spells-en",
+  "srd:spell:en:bless": "fh-spells-en",
+  "srd:spell:en:guidance": "fh-spells-en",
+  "fh:spell:en:transfer-essence": "fh-soulforging-en",
+  "srd:spell:en:identify": "fh-soulforging-en",
+  "srd:spell:en:gentle-repose": "fh-soulforging-en"
+};
+
 /** Les quatre neufs, avec ce que le chapitre d'Eric déclare pour chacun. */
 const NEUFS = [
   { id: "fh:spell:en:appease-the-chaos", name: "Appease the Chaos", level: 3, school: "abjuration", classes: ["Cleric", "Druid"] },
@@ -110,11 +140,32 @@ test("⛔ la couche ne DÉCLARE que `data[fh_effect]` sur les records du SRD", (
      écrite dans la couche. Les deux peuvent diverger : un patch pourrait viser
      un champ que le SRD n'a pas encore et qui arriverait demain. */
   for (const id of PATCHÉS) {
-    const entrée = COUCHE.records.spell[id];
+    const trouvé = CHAPITRE.find(([autre]) => autre === id);
+    assert.ok(trouvé, `${id} : le chapitre le déclare — aucune des deux couches ne le porte`);
+    const [, entrée, couche] = trouvé;
+    assert.equal(couche, RANGEMENT[id], `${id} : rangé dans la couche prévue au lot 179`);
     assert.equal(entrée.op, "patch", `${id} doit être un patch, jamais un add`);
     assert.deepEqual(Object.keys(entrée.changes), ["data[fh_effect]"],
       `${id} : un patch de sort ne touche QUE le champ maison`);
     assert.equal(entrée.remove, undefined, `${id} : un patch de sort ne retire rien du SRD`);
+  }
+});
+
+test("🔴 LOT 179 — les huit sorts du chapitre sont là, sur DEUX couches, chacun à SA place", () => {
+  /* ⭐ LE GARDE DU DÉMÉNAGEMENT. Sans lui, rien ne distingue « le sort a
+     changé de couche » de « le sort a été perdu » : les deux font baisser un
+     compte. Il se lit dans les DEUX SENS — aucun sort du chapitre ne manque,
+     et aucune des deux couches ne porte un sort que le chapitre ne déclare
+     pas. Un appariement qui ne se lit que dans un sens laisse passer
+     l'intrus. */
+  const vus = Object.fromEntries(CHAPITRE.map(([id, , couche]) => [id, couche]));
+  assert.deepEqual(vus, RANGEMENT,
+    "le chapitre, ses huit sorts et leur couche — si ça bouge, dire lequel a bougé et pourquoi");
+
+  /* Et le chapitre entier reste montable : les huit sortent de la pile. */
+  const verbs = pile().query;
+  for (const id of Object.keys(RANGEMENT)) {
+    assert.ok(verbs({ kind: "spell", id }), `${id} doit sortir de la pile — le déménagement n'efface rien`);
   }
 });
 
@@ -137,10 +188,11 @@ test("la couche n'éteint AUCUN sort du SRD, et n'en renomme aucun", () => {
   /* Eric, 2026-08-20 : *« tout ce qui n'est pas SRD ou FH doit dégager »*. Le
      tri a été fait dans le chapitre, pas dans la couche : ici on n'a rien à
      retirer, et le vérifier empêche qu'un lot futur le fasse en passant. */
-  const entrées = Object.entries(COUCHE.records.spell);
-  const éteints = entrées.filter(([, v]) => v.op === "disable").map(([id]) => id);
+  /* LOT 179 — sur les DEUX couches du chapitre : le déménagement ne doit pas
+     ouvrir dans `fh-soulforging-en` la porte qu'on avait fermée ici. */
+  const éteints = CHAPITRE.filter(([, v]) => v.op === "disable").map(([id]) => id);
   assert.deepEqual(éteints, [], "aucun sort du SRD n'est éteint par Fate's Hand");
-  const ajouts = entrées.filter(([, v]) => !v.op);
+  const ajouts = CHAPITRE.filter(([, v]) => !v.op);
   assert.equal(ajouts.length, 4, "quatre ajouts, pas un de plus");
   for (const [id] of ajouts) {
     assert.match(id, /^fh:spell:en:/, "un ajout maison porte un id maison — jamais un id srd:");

@@ -33,21 +33,55 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { PILE } from "../src/tools/exemple-fh-en.mjs";
+
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, "layers", f), "utf8"));
 
 const SRD = lire("srd-5.2.1-en.layer.json");
 
-/** Les couches Fate's Hand de la pile réelle — celles que la page monte. */
-const COUCHES_FH = [
-  "fh-species-en.layer.json", "fh-skills-en.layer.json", "fh-arcana-en.layer.json",
-  "fh-feats-en.layer.json", "fh-fiche-en.layer.json", "fh-lore-en.layer.json"
-];
+/** Les couches Fate's Hand de la pile réelle — celles que la page monte.
+ *
+ *  🔴 ELLE ÉTAIT ÉCRITE À LA MAIN, ET ELLE MENTAIT (trouvé au lot 179). Six
+ *  noms y étaient posés sous le commentaire « les couches de la pile réelle »
+ *  alors que la pile en portait SEPT : `fh-spells-en` n'y a jamais été. Le
+ *  garde était donc vert sur une couche qu'il ne lisait pas — et c'est la
+ *  faute que l'en-tête de ce fichier dénonce déjà pour les dons (« une liste
+ *  de quatre noms écrite ici aurait protégé quatre noms, et rien d'autre »),
+ *  reproduite quinze lignes plus bas sur les couches elles-mêmes.
+ *  ⛔ Une liste par NOM ne dit jamais qu'elle est incomplète.
+ *
+ *  ⭐ ELLE SE DÉDUIT DÉSORMAIS DE LA PILE, comme les styles de combat se
+ *  déduisent de `data.category` : la couche `fh-soulforging-en` du lot 179 y
+ *  est entrée sans que personne l'y écrive, et la prochaine aussi. */
+const COUCHES_FH = PILE
+  .map((chemin) => chemin.slice(chemin.lastIndexOf("/") + 1))
+  .filter((fichier) => fichier.startsWith("fh-"));
 
 /** Les dons que le SRD classe lui-même comme styles de combat. */
 const STYLES_DE_COMBAT = Object.entries(SRD.records.feat)
   .filter(([, record]) => record.data && record.data.category === "fighting-style")
   .map(([id]) => id);
+
+test("témoin — la liste des couches FH est DÉDUITE, et elle porte bien toute la pile FH", () => {
+  /* ⚔️ SANS CE TÉMOIN, la déduction est le pire des deux mondes : un `filter`
+     qui ne rendrait plus rien (un préfixe de fichier qui change, une pile
+     réorganisée) laisserait les trois gardes suivants boucler sur ZÉRO couche
+     et rester VERTS. Le témoin qui accuse est celui qui nomme le contenu, pas
+     celui qui compte : les deux sont ici, et le second est le vrai.
+     ⛔ Ce test est le seul endroit où les noms sont écrits à la main — donc le
+     seul endroit qui puisse dire « une couche FH est entrée dans la pile et
+     personne n'a regardé si elle respecte le verbatim ». */
+  assert.deepEqual(COUCHES_FH, [
+    "fh-species-en.layer.json", "fh-skills-en.layer.json", "fh-arcana-en.layer.json",
+    "fh-feats-en.layer.json", "fh-spells-en.layer.json", "fh-soulforging-en.layer.json",
+    "fh-fiche-en.layer.json", "fh-lore-en.layer.json"
+  ], "une couche FH est entrée dans (ou sortie de) la pile : vérifier qu'elle reste verbatim, PUIS corriger cette liste");
+  for (const fichier of COUCHES_FH) {
+    assert.ok(fs.existsSync(path.join(ROOT, "layers", fichier)),
+      `${fichier} est déclarée dans la pile mais n'existe pas dans layers/`);
+  }
+});
 
 test("témoin — le SRD classe bien ses styles de combat, sinon ce garde ne garde rien", () => {
   /* ⚔️ SANS CE TÉMOIN, un jour où `category` disparaîtrait de la couche, la
