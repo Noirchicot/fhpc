@@ -39,8 +39,9 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
    `document` au montage — même préparation que `tests/universe-step.test.mjs`. */
 globalThis.document = createTestDocument();
 
-const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_SANS_RAISON }
+const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_SANS_RAISON, MOT_CRAN_NON_MONTE }
   = await import("../ui/builder/ecran-mort.mjs");
+const { STEPS, cransAlignes } = await import("../ui/builder/etapes.mjs");
 const { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, currentStack }
   = await import("../ui/builder/universe-step.mjs");
 
@@ -127,6 +128,40 @@ test("⏳ LA PHRASE MUETTE SURVIT, ET ELLE EST DÉCLARÉE MUETTE — les causes 
     "elle ne prétend PAS donner une sortie — c'est ce qui la rend repérable");
 });
 
+/* ══ 4 bis — LOT 186 : LE CRAN QUE LA PILE NE MONTE PLUS ═══════════════════
+   📏 LE CHEMIN, MESURÉ LE 2026-09-09 : en vue double, le panneau PASSIF peut
+   être Destiny pendant que l'ACTIF est le Menu — c'est-à-dire pendant qu'on
+   éteint Fate's Hand. La pile perd `fh.destiny`, le catalogue des arcanes
+   passe de 22 records à 0 (relevé sur les couches du dépôt), et l'écran
+   continuait d'afficher le R : *« Twenty-two cards watch over Nymedes »*, avec
+   un bouton `Draw` qui ne fait RIEN (`drawArcana([])` rend `null`).
+   ⭐ C'est la même maladie que le §1, un cran plus haut : un refus qui ne dit
+   ni sa cause ni sa sortie. */
+
+test("🔴 LOT 186 — UN CRAN NON MONTÉ EST NOMMÉ, avec sa cause ET sa sortie", () => {
+  /* ⛔ LE TÉMOIN D'ABORD : il doit exister un cran que la pile SRD ne monte
+     pas, sinon cette phrase garderait une porte que personne ne peut franchir. */
+  const absents = cransAlignes([]).map((cran, index) => (cran ? null : STEPS[index].id)).filter(Boolean);
+  assert.notDeepEqual(absents, [],
+    "aucun cran n'est conditionnel — la phrase de refus n'aurait plus de cas");
+
+  assert.match(MOT_CRAN_NON_MONTE, /ruleset/, "la CAUSE : c'est le jeu de règles qui a changé");
+  assert.match(MOT_CRAN_NON_MONTE, /Fate's Hand/, "la SORTIE nomme l'interrupteur qui le ramène");
+  assert.match(MOT_CRAN_NON_MONTE, /Menu/, "…et OÙ il se trouve — le joueur n'est pas sur cet écran-là");
+  /* ⚖️ ET LA MOITIÉ QU'ON OUBLIE : le joueur a le droit de NE PAS revenir en
+     arrière. Une phrase qui ne dirait que « rallume » ferait croire qu'il est
+     coincé, alors que son personnage est complet sans ce cran. */
+  assert.match(MOT_CRAN_NON_MONTE, /nothing you chose has been erased/,
+    "rien n'est perdu, et ça se DIT — c'est mesuré : passer à SRD n'efface aucun choix");
+  /* ⛔ ELLE NE NOMME AUCUNE ÉTAPE : un cran absent n'a plus de mot résolu sur
+     la ceinture, et en écrire un rouvrirait la seconde voix que le lot ferme. */
+  const enDur = [...new Set(STEPS.flatMap((step) =>
+    [step.label, ...(step.motSi || []).map((v) => v.mot)]))]
+    .filter((mot) => mot !== "Menu" && MOT_CRAN_NON_MONTE.includes(mot));
+  assert.deepEqual(enDur, [],
+    "la phrase cite un libellé d'étape — elle deviendrait une seconde voix pour le mot d'un cran");
+});
+
 /* ══ 5 — LA COQUILLE N'A PLUS DE SECONDE VOIX ══════════════════════════════
    🔴 GARDE D'OCTETS, ET C'EST ASSUMÉ : `shell.mjs` ne se monte pas sous Node.
    Ce qu'il vérifie n'est pas la phrase — c'est qu'il n'y en a plus DEUX. Une
@@ -138,6 +173,11 @@ test("🔴 `shell.mjs` ne fabrique plus la phrase — il la DEMANDE", () => {
   const shell = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.mjs"), "utf8"));
   assert.match(shell, /motDeLEcranMort\(state\.document\)/,
     "la coquille doit poser la phrase du module, sur le document vivant");
+  /* ⚖️ LOT 186 — MÊME LOI POUR LE CRAN NON MONTÉ : la coquille DEMANDE la
+     phrase, elle ne la fabrique pas, et elle la pose sur la condition qui la
+     justifie — l'absence de cran à l'index où le joueur se tient. */
+  assert.match(shell, /!cransAlignes\(drapeauxMontes\(\)\)\[state\.step\][\s\S]{0,200}?MOT_CRAN_NON_MONTE/,
+    "un cran que la pile ne monte pas doit rendre le refus qui NOMME, pas son écran vide");
   assert.ok(!shell.includes("it cannot be derived yet"),
     "⛔ la phrase muette ne doit plus exister en littéral dans la coquille : deux écrivains, et c'est celui-là qui gagne");
   assert.ok(!shell.includes("no sheet without a class"),

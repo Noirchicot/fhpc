@@ -419,8 +419,15 @@ body {
        belt = 44 + 2 × --sp-8 = 60  ← la cote du 16/08, inchangée
    ⛔ C'ÉTAIT LA CONDITION : le panneau vaut 560 blg dont 500 pour la scène, et
    le 31/08 a mesuré qu'il ne restait que 9 blg de mou. Une ceinture qui
-   grandit de 8 les mangerait tous. */
-.belt-item {
+   grandit de 8 les mangerait tous.
+
+   ⛔ `:not([hidden])`, ET LE DÉPÔT L'A DÉJÀ PAYÉ TROIS FOIS (le panneau, le
+   chevron, la carte R) : un `display: flex` sans condition BAT le
+   `[hidden] { display: none }` de l'agent utilisateur. Le lot 186 cache les
+   crans que la pile ne justifie pas (`paintBelt` écrit `item.hidden`) — sans
+   cette garde, le cran `Destiny` resterait à l'écran en pile SRD, et l'échec
+   serait SILENCIEUX : le JS aurait raison, la page mentirait. */
+.belt-item:not([hidden]) {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -521,6 +528,15 @@ body {
   scroll-snap-align: center;
   flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3);
 }
+/* ⏳ LOT 186 — CE `8` DÉCRIT LA PILE COMPLÈTE, ET LA CEINTURE EST DEVENUE
+   VERSATILE. En pile SRD la piste ne porte que SEPT tuiles : divisée par huit,
+   elle en laisse un huitième vide au bout. ⛔ Je ne l'ai PAS changé, et la
+   raison est double — la cote se déduit d'un DESSIN d'Eric (croquis du
+   2026-09-02, « toutes les tuiles du menu font la même taille »), et les deux
+   remèdes possibles sont des décisions de dessin, pas de code : diviser par ce
+   qui est monté (les tuiles grandissent en pile courte) ou centrer la piste
+   (elles gardent leur cote et la ceinture se resserre). La question est posée
+   dans `ui/builder/A-TRANCHER.md`. */
 :root[data-vue="double"] .belt-item {
   flex: 0 0 calc((100% - 7 * var(--sp-8)) / 8);
 }
@@ -2697,7 +2713,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=609") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=610") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3020,7 +3036,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=609") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=610") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4524,7 +4540,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=609") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=610") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7314,7 +7330,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=609");
+  background-image: url("./assets/tarot-dos.jpg?v=610");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

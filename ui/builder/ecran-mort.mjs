@@ -33,7 +33,7 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=609";
+import { currentStack } from "./universe-step.mjs?v=610";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -49,6 +49,32 @@ export const MOT_PILE_INCONNUE = TETE
   + "this character's layer stack doesn't match either ruleset, so there is nothing to derive it from. "
   + "Open Menu, the first tab, and flip the Fate's Hand switch: it realigns the stack, "
   + "and this screen comes back with it.";
+
+/** 🔴 LOT 186 — LE CRAN N'EST PLUS SUR LA CEINTURE.
+ *
+ *  ⚖️ La ceinture est devenue VERSATILE : chaque cran déclare le drapeau dont
+ *  il a besoin, et la pile montée décide (voir `etapes.mjs`). Un joueur peut
+ *  donc se retrouver DEVANT un écran que la ceinture ne montre plus.
+ *
+ *  📏 CE QUE ÇA DONNAIT AVANT CE MOT, MESURÉ LE 2026-09-09 : en vue double, le
+ *  panneau PASSIF peut être Destiny pendant que l'actif est le Menu, c'est-à-
+ *  dire pendant qu'on éteint Fate's Hand. La pile perd `fh.destiny`, le
+ *  catalogue des arcanes tombe à 0 record (mesuré : 22 → 0), et l'écran
+ *  continuait d'afficher le R — *« Twenty-two cards watch over Nymedes »* — et
+ *  un bouton `Draw` qui ne fait RIEN, en silence (`drawArcana([])` rend
+ *  `null`). Un faux magasin, exactement ce que §0.5 interdit.
+ *
+ *  ⛔ ET ON NE DÉPLACE PAS LE JOUEUR À SA PLACE. Le rasseoir d'office sur le
+ *  cran voisin serait une réparation silencieuse — la même que ce module
+ *  refuse déjà pour la pile (voir sa tête). On NOMME, il décide.
+ *
+ *  ⚠️ LE MOT NE CITE AUCUNE ÉTAPE PAR SON NOM, et c'est voulu : le cran absent
+ *  n'a par définition plus de libellé résolu sur la ceinture. En nommer un
+ *  reviendrait à rouvrir la seconde voix que le lot vient de fermer. */
+export const MOT_CRAN_NON_MONTE =
+  "This step belongs to a ruleset your layer stack no longer carries, so there is nothing here to settle. "
+  + "Open Menu, the first tab, and turn Fate's Hand back on to bring it back — "
+  + "or leave it: your character is complete without it, and nothing you chose has been erased.";
 
 /** LE MOT DU 2026-08-20, REPRIS À LA LETTRE — il n'avait aucun défaut. */
 export const MOT_SANS_CLASSE = TETE

@@ -4960,6 +4960,49 @@ formats ; ce sont *« les exceptions dans chaque format »* qu'Eric nomme, et el
 un nombre de crans visibles. ⭐ Une seule ligne de feuille bascule le tout —
 `--belt-chevron-zone`, qui vaut 24 en étroit et 0 en double.
 
+### 🔴 LA CEINTURE EST VERSATILE — elle montre ce que la PILE MONTÉE justifie *(Eric, 2026-09-09)*
+📍 `cadre-belt-versatile-drapeaux` · vivante · 09/09
+⚖️ **Un cran de ceinture DÉCLARE le drapeau dont il a besoin ; la ceinture montre ceux dont le besoin est satisfait. ⛔ Elle ne lit jamais le NOM de la pile.**
+
+> Eric, 2026-09-09, dans l'ordre où les trois phrases sont venues :
+> *« en pile SRD, que fait le cran Destiny ? »* → **absent, neuf crans** ·
+> *« si j'allume Destiny dans les couches, il réapparaît ? »* → **oui** ·
+> *« ou il faut que tu réécrives le belt pour qu'il soit versatile SRD / FH »*.
+
+⛔ **CE QUE LA DEUXIÈME QUESTION FERME, ET C'EST TOUTE LA RÈGLE.** Un aiguillage à deux branches
+— *« neuf crans si la pile s'appelle `srd`, dix si elle s'appelle `srdfh` »* — se serait trompé sur
+la pile qu'Eric décrit lui-même : **SRD plus la seule couche des arcanes** n'est NI l'une NI
+l'autre. `currentStack` y rend `null`, et l'écran mort se serait affiché. 📏 **Mesuré le 09/09 sur
+les couches du dépôt** : SRD seul lève `[]`, SRD + `fh-arcana-en` lève `["fh.destiny"]`, la pile
+complète en lève huit.
+
+| | |
+|---|---|
+| **la source** | `layers.verbs.flags()` — les drapeaux levés par la pile **montée**, ⛔ jamais `document.build.layers` |
+| **un cran conditionnel** | `exige: "<drapeau>"` — sans le drapeau, **le cran n'existe pas** |
+| **un mot conditionnel** | `motSi: [{ drapeau, mot }]` — le libellé change **seul** *(`Background` → `Inheritance`)* |
+| **le numéro de la pastille** | celui de la ceinture **VISIBLE** — ceinture courte, `Class` porte **4**, pas 5 |
+| **l'index qui peint l'état** | 🔴 celui de **`STEPS`**, toujours dix — un cran non monté est **caché**, jamais retiré |
+| **l'enchaînement** | ⛔ plus de `± 1` : le cran **voisin sur la ceinture visible** |
+
+🔴 **L'INDEX EST LA MOITIÉ QUI SE TRAHIT SANS CASSER.** Les items du belt sont bâtis **une fois**,
+au chargement, donc **avant** qu'une seule couche soit montée. Un tableau qui rétrécirait décalerait
+tout ce qui suit le trou, et **l'échec serait SILENCIEUX** — un cran peindrait l'état d'un autre,
+sans erreur, sans page blanche. ⇒ La table d'appariement rend **toujours `STEPS.length` entrées**,
+`null` là où le cran n'est pas monté *(`cransAlignes`, `etapes.mjs`)*.
+
+⚖️ **ET UN CRAN QUI DISPARAÎT SOUS LE JOUEUR SE DIT.** En vue double, le panneau passif peut être
+Destiny pendant que l'actif est le Menu — c'est-à-dire pendant qu'on éteint Fate's Hand. L'écran
+rend alors le **refus qui nomme** *(§5 du canon, `MOT_CRAN_NON_MONTE`)*, sa cause et sa sortie.
+⛔ **On ne rassoit personne d'office** : une réparation silencieuse est ce que `ecran-mort.mjs`
+refuse déjà pour la pile.
+
+📌 **LE NOM DE L'ÉCRAN DES SIX INTERRUPTEURS EST ARRÊTÉ : `Layers`** *(Eric, 09/09)*. Il portera
+aussi les bascules des livres et du homebrew — c'est pourquoi `Rules` a été écarté : ce mot est
+déjà le **nom accessible du bouton livre** *(`aria-label`, `destiny-step.mjs` et
+`universe-step.mjs`)*. ⛔ Le lot 186 **ne construit pas cet écran** ; il grave le nom pour que le
+lot qui le bâtira n'ait pas à le rouvrir.
+
 ### 📐 LA TUILE — deux rangs, et c'est ce qui rend « la même taille » possible
 📍 `cadre-tuile-deux-rangs-et-c-est-ce-qui-rend-meme-taille` · vivante · ?
 ⚖️ **La tuile empile la pastille AU-DESSUS du nom : sa largeur cesse alors de dépendre du mot, et « toutes les tuiles font la même taille » devient vrai par construction.**

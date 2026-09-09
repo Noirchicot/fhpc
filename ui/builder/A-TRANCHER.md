@@ -462,3 +462,36 @@
 - 🔴 **⛔ AUCUN LOT NE REPEINT CE VERT EN BLEU AVANT SON MOT.** Si c'est son choix, « réparer » défait une décision ; si ce n'en est pas un, c'est à lui de le dire. ⭐ *Même traitement que les deux familles grises de `§C24`.*
 - 📌 **Et le voisinage mérite d'être mesuré dans le même geste** : `Open` et `Save` portent `.tdc-vert`. `Save` **écrit** *(vert plausible)*, `Open` **lit** — ⏳ non tranché non plus, et il n'a pas été relayé.
 
+
+## C30 — La ceinture courte : sept tuiles pour une piste divisée par huit { #c30 }
+
+**Question : en pile SRD, le belt déroulé divise-t-il la piste par ce qui est MONTÉ, ou garde-t-il ses huitièmes et resserre-t-il la rangée ?**
+
+- 📏 **LE FAIT, MESURÉ AU LOT 186** : la ceinture est devenue versatile *(`cadre-belt-versatile-drapeaux`)*. En pile SRD, la piste porte **sept** tuiles, pas huit. Or `shell.css` écrit `flex: 0 0 calc((100% - 7 * var(--sp-8)) / 8)` — un **huitième** de piste reste donc vide au bout.
+- ⚖️ **ET LA LOI ÉCRITE DIT LES DEUX** : `cadre-loi-en-phrase-tuile-vaut-piste-divisee-par-ce-qu-elle` — *« une tuile vaut la piste divisée par **ce qu'elle montre** »*. En pile courte, « ce qu'elle montre » vaut sept. Mais la table de la même section écrit **« les 8 »**, et le croquis d'Eric du 02/09 dessine huit tuiles.
+- ⛔ **LE LOT 186 N'A RIEN CHANGÉ**, et c'est délibéré : les deux remèdes sont des décisions de **dessin**, pas de code.
+
+  | | la lecture | ce que le joueur voit en pile SRD |
+  |---|---|---|
+  | **diviser par ce qui est monté** | la formule suit la lettre de la loi | les sept tuiles **grandissent** et remplissent la piste — la ceinture change de cote selon la pile |
+  | **garder les huitièmes** | la cote d'une tuile est un fait du croquis, pas de la pile | les tuiles **gardent** leur cote ; la rangée s'arrête plus tôt, ou se **centre** |
+
+- 📌 Le premier remède demande un compte donné à la feuille ; ⛔ un `style.setProperty` est refusé par le garde des styles en ligne *(`tests/ui-jetons.test.mjs`, garde 7)* — il faudrait un `data-` sur `.belt`. Le second ne demande qu'un `justify-content`.
+
+## C31 — `REVIEW_GROUPS` est une seconde voix pour le mot d'une étape { #c31 }
+
+**Question : le récapitulatif nomme-t-il ses chapitres avec les mots de la ceinture, ou garde-t-il son propre vocabulaire ?**
+
+- 📏 **LE FAIT, MESURÉ LE 2026-09-09** : `review-step.mjs` déclare ses libellés **en littéral** — `"Universe & Layers"`, `"Biography"`, `"Destiny"`, `"Inheritance"`. La ceinture, elle, dit **`Menu`**, **`Identity`**, et — depuis le lot 186 — **`Background`** quand `fh.inheritance` n'est pas levé.
+- ⛔ **DEUX DES QUATRE SONT DÉJÀ PÉRIMÉS** : `Biography` a été renommé `Identity` par Eric le 2026-08-18, et `Universe & Layers` est devenu `Menu` le 2026-08-19. Le récapitulatif n'a jamais suivi — ⚠️ **la divergence est donc antérieure au lot 186**, qui ne fait que la rendre visible.
+- ⛔ **LE LOT 186 NE L'A PAS BRANCHÉ SUR LA CEINTURE**, et la raison est nommée : le faire **renommerait trois lignes que le joueur lit**, d'un coup, sans qu'Eric l'ait demandé. ⭐ Un mot qu'un joueur lit est à lui.
+- ➡️ Trois lectures possibles : *(a)* Review lit `ceinture()` et hérite des mots du belt ; *(b)* Review garde un vocabulaire propre, et alors **il se déclare comme tel** *(un chapitre n'est pas un cran)* ; *(c)* on ne corrige que les deux périmés.
+
+## C32 — L'étape `background` en pile SRD n'a pas d'écran { #c32 }
+
+**Question : que montre le cran 3 quand `fh.inheritance` n'est pas levé ?**
+
+- 📏 **LE FAIT, MESURÉ AU LOT 186** : la ceinture sait désormais dire **`Background`** au cran 3 *(`cadre-belt-versatile-drapeaux`)*. ⛔ Mais l'écran, lui, ne le sait pas : `parcoursInheritance()` rend `true` **sans condition**, et `INHERITANCE_PARCOURS` sert ses trois items *(bonus, langues, don d'origine)* quelle que soit la pile.
+- ⚠️ **CE N'EST PAS UN DÉFAUT DU LOT 186 — c'est un trou qu'il ÉCLAIRE.** Les quatre arrière-plans du SRD existent dans la couche *(`equipment-step.mjs` les cite, « … or (B) 50 GP »)*, mais **aucun écran ne les choisit** : le builder n'a jamais eu d'étape Background au sens du SRD.
+- ➡️ Deux lectures : *(a)* le cran 3 **exige** lui aussi `fh.inheritance` — la pile SRD montre alors **huit** crans, et le joueur SRD n'a pas d'arrière-plan ; *(b)* un écran de choix d'arrière-plan SRD se construit, et le cran 3 sert l'un ou l'autre selon le drapeau.
+- ⛔ **Le lot 186 n'a pas tranché** : retirer le cran 3 en pile SRD amputerait le SRD d'une règle qu'il porte ; le construire est un lot entier.
