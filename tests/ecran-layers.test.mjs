@@ -42,7 +42,8 @@ globalThis.document = createTestDocument();
 /* ⚠️ `layers-ecran.mjs` D'ABORD, et c'est voulu : `universe-step.test.mjs`
    importe l'autre bout du cycle en premier. Les deux ordres doivent charger. */
 const {
-  INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, compositionFh, couchesApresLeGeste, gestesDAlignement, renderLayersEcran
+  INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, compositionFh, couchesApresLeGeste, gestesDAlignement, renderLayersEcran,
+  interrupteur, voyant
 } = await import("../ui/builder/layers-ecran.mjs");
 const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, currentStack }
   = await import("../ui/builder/universe-step.mjs");
@@ -77,7 +78,27 @@ const sans = (ids, retirees) => ids.filter((id) => !retirees.includes(id));
 /* Les organes de l'écran, par leur DONNÉE, jamais par leur position. */
 const enfant = (node, id) => node.querySelectorAll(`.interrupteur[data-enfant="${id}"]`)[0];
 const maitre = (node) => node.querySelectorAll(".interrupteur[data-maitre]")[0];
-const socle = (node) => node.querySelectorAll(".interrupteur[data-socle]")[0];
+/* 🔴 LOT 189 — LE SOCLE EST UN VOYANT, PLUS UN INTERRUPTEUR (Eric, 09/09 :
+   *« Le bouton SRD est un voyant, pas un bouton — il est toujours actif »*).
+   On le trouve par sa DONNÉE (`data-socle`), pas par sa classe : c'est ce qui
+   permet à `srdEstUnVoyantF` de juger un socle redevenu interrupteur. */
+const socle = (node) => node.querySelectorAll("[data-socle]")[0];
+
+/** LA CLAUSE GARDÉE — le SRD est une LAMPE, pas un contrôle. Rend les fautes,
+ *  fondées sur ce que l'arbre d'accessibilité annonce, jamais sur une classe. */
+function srdEstUnVoyantF(node) {
+  const s = socle(node);
+  if (!s) return ["<aucun [data-socle]>"];
+  const fautes = [];
+  if (s.tagName === "BUTTON") fautes.push("le socle est un <button> : il a l'air d'un contrôle");
+  if (s.getAttribute("role") === "switch") fautes.push("le socle annonce role=switch : un lecteur d'écran entend « interrupteur »");
+  if (s.getAttribute("aria-checked") !== null) fautes.push("le socle porte aria-checked : il prétend avoir deux positions");
+  if (s.disabled === true) fautes.push("le socle est disabled : « pas à toi de le toucher » au lieu de « rien à toucher »");
+  if (s.getAttribute("role") !== "status") fautes.push("le socle n'est pas une région d'état (role=status)");
+  if (s.dataset.on !== "true") fautes.push("le socle n'est pas allumé");
+  if (!/always on/.test(s.textContent)) fautes.push("le socle ne dit pas « always on »");
+  return fautes;
+}
 const rendu = (ctx = {}, onAction = () => {}) =>
   renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, ecran: "layers", ...ctx }, onAction);
 
@@ -169,15 +190,16 @@ test("C4 — le maître : tout ou rien, et l'ordre est celui de `FH_LAYER_IDS`",
 
 /* ══ D — LE RENDU, DANS LES TROIS ÉTATS D'ERIC ═════════════════════════════ */
 
-test("D1 — 🎛️ LE MAÎTRE ALLUMÉ : le socle verrouillé, le maître, six enfants allumés, le catalogue, la sortie déclarée", () => {
+test("D1 — 🎛️ LE MAÎTRE ALLUMÉ : le socle est un VOYANT allumé, le maître, six enfants allumés, le catalogue, la sortie déclarée", () => {
   const node = rendu();
   assert.equal(node.dataset.ecran, "layers");
   assert.equal(node.dataset.sortieIci, "true", "⛔ l'écran ne pose pas son Back : la coquille le fait (garde 17)");
   assert.equal(node.querySelectorAll(".tdc-titre-b")[0].textContent, "Layers", "le nom d'Eric, 09/09");
 
-  const s = socle(node);
-  assert.equal(s.dataset.on, "true", "le SRD est allumé en dur");
-  assert.equal(s.disabled, true, "…et VERROUILLÉ : il n'y a rien en dessous");
+  /* 🔴 LOT 189 — le SRD est une LAMPE : allumée, et rien à pousser. */
+  assert.deepEqual(srdEstUnVoyantF(node), [], "Eric, 09/09 : « un voyant, pas un bouton »");
+  assert.equal(socle(node).querySelectorAll(".interrupteur-piste").length, 0, "aucune piste, aucun pouce : ce n'est pas un interrupteur grisé");
+  assert.ok(socle(node).querySelectorAll(".voyant-lampe")[0], "…mais une lampe dessinée, que la feuille peint sur data-on");
   assert.equal(maitre(node).dataset.on, "true");
   for (const inter of INTERRUPTEURS) {
     const e = enfant(node, inter.id);
@@ -217,21 +239,54 @@ test("D2 — 🎛️ TRAININGS ÉTEINT : lui seul est éteint, Inheritance DORT 
   assert.equal(node.querySelectorAll(".doc-field-error").length, 0, "⛔ aucun mot rouge : ce sous-ensemble est légitime");
 });
 
-test("D3 — 🎛️ LE MAÎTRE ÉTEINT : six enfants éteints, Inheritance dort, le socle reste allumé et verrouillé", () => {
+test("D3 — 🎛️ LE MAÎTRE ÉTEINT : six enfants éteints, Inheritance dort, le socle reste un voyant ALLUMÉ", () => {
   const node = rendu({ document: docAvec(SOCLE) });
   assert.equal(maitre(node).dataset.on, "false");
+  /* 🔴 LE GARDE DU LOT 188 SOUS SA NOUVELLE FORME : « le SRD ne s'éteint
+     JAMAIS » — il ne peut plus s'éteindre parce qu'il n'a plus de position
+     éteinte, et la clause le vérifie dans les DEUX états du maître. */
   assert.equal(socle(node).dataset.on, "true", "le SRD ne s'éteint JAMAIS");
-  assert.equal(socle(node).disabled, true);
+  assert.deepEqual(srdEstUnVoyantF(node), [], "…et il reste une lampe quand Fate's Hand dort");
   for (const inter of INTERRUPTEURS) assert.equal(enfant(node, inter.id).dataset.on, "false", `${inter.id} éteint`);
   assert.equal(enfant(node, "inheritance").disabled, true, "Trainings est éteint, donc Inheritance dort");
   assert.equal(enfant(node, "destiny").disabled, false, "un enfant sans dépendance se rallume seul depuis SRD");
+});
+
+test("D0 — ⚔️ ATTAQUE (lot 189) — remettre l'interrupteur verrouillé au socle fait ROUGIR la clause", () => {
+  /* ⛔ C'EST LE DÉFAUT EXACT DE LA v612, PAS UNE CARICATURE : le socle était
+     `interrupteur({ on: true, disabled: true })`. On le refabrique avec le VRAI
+     organe, on lui pose `data-socle`, et la clause doit accuser — sur ce que
+     l'arbre d'accessibilité annonce. Un garde qui ne peut jamais accuser est
+     le pire de tous. */
+  const mutant = document.createElement("section");
+  const ancien = interrupteur({ label: "SRD 5.2.1", note: "the core rules — always on", on: true, disabled: true, onChange: () => {} });
+  ancien.dataset.socle = "true";
+  mutant.append(ancien);
+  const fautes = srdEstUnVoyantF(mutant);
+  assert.ok(fautes.some((f) => /role=switch/.test(f)), `la clause doit accuser role=switch — ${fautes}`);
+  assert.ok(fautes.some((f) => /aria-checked/.test(f)), "…et aria-checked");
+  assert.ok(fautes.some((f) => /disabled/.test(f)), "…et disabled");
+  assert.ok(fautes.some((f) => /<button>/.test(f)), "…et la nature de bouton");
+  /* ⭐ ET LE TÉMOIN INVERSE : le voyant nu, sans écran autour, passe la clause —
+     c'est bien l'ORGANE qui est jugé, pas la page. */
+  const temoin = document.createElement("section");
+  const lampe = voyant({ label: "SRD 5.2.1", note: "the core rules" });
+  lampe.dataset.socle = "true";
+  temoin.append(lampe);
+  assert.deepEqual(srdEstUnVoyantF(temoin), []);
+  /* ⛔ ET AUCUN `role=switch` DE L'ÉCRAN NE COMMENCE PAR « SRD » — la moitié
+     qui attrape un second écrivain : un interrupteur SRD posé AILLEURS que
+     sous `data-socle` passerait la clause du socle. */
+  const node = rendu();
+  const switches = node.querySelectorAll('[role="switch"]').filter((b) => /^SRD/.test(b.textContent.trim()));
+  assert.deepEqual(switches, [], "un interrupteur nommé SRD existe encore dans Layers");
 });
 
 test("D4 — 🔌 les gestes : le maître demande la PILE (la coquille confirme), un enfant demande SON interrupteur, le socle n'émet rien", () => {
   const vus = [];
   const node = rendu({}, (a) => vus.push(a));
   socle(node).click();
-  assert.deepEqual(vus, [], "⛔ le SRD verrouillé ne demande rien — le stub honore `disabled`");
+  assert.deepEqual(vus, [], "⛔ le voyant SRD ne demande rien — il n'a AUCUN écouteur, pas un `disabled` qui retient un clic");
   maitre(node).click();
   assert.deepEqual(vus, [{ kind: "requestLayerStack", value: "srd" }], "le MÊME geste que l'interrupteur de R");
   enfant(node, "trainings").click();

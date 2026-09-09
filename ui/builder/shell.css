@@ -2718,7 +2718,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=612") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=613") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3041,7 +3041,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=612") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=613") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4545,7 +4545,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=612") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=613") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -5485,10 +5485,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* LA RANGÉE DU FICHIER — Open et Save en VERT (Eric), Forget rouge (il défait). */
 .tdc-trio { margin-top: var(--sp-8); }
 
-/* DEUX INTERRUPTEURS SUR UNE LIGNE — SRD (miroir, éteint) · Fate's Hand. */
+/* LA LIGNE DES RÈGLES — le voyant SRD · l'interrupteur Fate's Hand (Eric, 09/09 :
+   « le bouton SRD est un voyant, pas un bouton »). Les deux se partagent la ligne. */
 .tdc-regles { margin-top: var(--sp-8); }
 .tdc-deux { display: flex; gap: var(--sp-8); }
-.tdc-deux .interrupteur { flex: 1 1 0; min-width: 0; }
+.tdc-deux .interrupteur, .tdc-deux .voyant { flex: 1 1 0; min-width: 0; }
 
 /* MY CHARACTERS — large, BLEU, cadré à gauche (Eric). Il navigue.
    LOT 188 — `Layers` (`.tdc-couches`) prend la MÊME forme : une porte large et
@@ -5562,10 +5563,34 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--border-strong));
 }
 .interrupteur[data-on="true"] .interrupteur-pouce { background: var(--positive); }
-/* Un miroir ou un réglage qui dort garde sa POSITION (elle dit l'état) mais
-   perd sa teinte : le gris dit « pas à toi de le toucher ». */
+/* Un réglage qui dort garde sa POSITION (elle dit l'état) mais perd sa
+   teinte : le gris dit « pas à toi de le toucher ». */
 .interrupteur:disabled .interrupteur-piste { background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
 .interrupteur:disabled .interrupteur-pouce { background: var(--text-muted); }
+
+/* ══ LE VOYANT — une lampe, pas un contrôle (Eric, 09/09) ══════════════════
+   La MÊME ligne que l'interrupteur (hauteur `--touch`, mot à gauche en 600, la
+   note dessous) — c'est ce qui le range dans la même colonne du tableau de
+   commande. Ce qui diffère est ce qui le distingue d'un contrôle : ⛔ pas de
+   piste, pas de pouce, pas de curseur de bouton — à droite, un POINT de 8 px
+   (la pastille de coffre, `cadre-pastille-de-coffre`) et le mot de l'état.
+   Le point lit `data-on` : la feuille peint, l'écran n'écrit aucune couleur. */
+.voyant {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
+  width: 100%; min-height: var(--touch); padding: 0 var(--sp-4) 0 var(--sp-8);
+  border-radius: var(--radius-md);
+  color: var(--text); font: inherit; font-size: var(--t4); font-weight: 600; text-align: left;
+  cursor: default;
+}
+.voyant-mot { display: flex; flex-direction: column; min-width: 0; }
+.voyant-note { font-size: var(--t1); font-weight: 400; color: var(--text-muted); }
+.voyant-etat {
+  flex: none; display: inline-flex; align-items: center; gap: var(--sp-4);
+  font-size: var(--t1); font-weight: 400; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.voyant-lampe { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--text-muted); }
+.voyant[data-on="true"] .voyant-lampe { background: var(--positive); }
 
 /* LA RANGÉE DU BAS — le livre · Appearance (bleue, elle navigue) · DM · Tools
    (réservées : grises, éteintes — non coloré = non cliquable) · le `?`.
@@ -7352,7 +7377,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=612");
+  background-image: url("./assets/tarot-dos.jpg?v=613");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

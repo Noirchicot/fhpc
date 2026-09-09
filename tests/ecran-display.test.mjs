@@ -112,8 +112,13 @@ test("⛔ le choix de fond a QUITTÉ l'écran d'entrée — il ne reste pas aux 
      pour un choix, et le joueur qui en règle un voit l'autre lui répondre. */
   const node = entree();
   assert.equal(selects(node).length, 0, "aucun dropdown à l'entrée du Menu");
-  assert.equal(node.querySelectorAll(".interrupteur").length, 2,
-    "à l'entrée, la ligne des règles : SRD (miroir) et Fate's Hand — les fonds sont derrière la porte");
+  /* LOT 189 — la ligne des règles porte UN interrupteur (Fate's Hand) et UN
+     voyant (SRD, « toujours actif » — Eric, 09/09) ; le compte ne dit plus
+     « deux interrupteurs », il dit chaque organe par sa nature. */
+  assert.equal(node.querySelectorAll(".interrupteur").length, 1,
+    "à l'entrée, un seul interrupteur : Fate's Hand — les fonds sont derrière la porte");
+  assert.equal(node.querySelectorAll(".voyant[data-socle]").length, 1,
+    "…et le voyant SRD à côté de lui");
 });
 
 /* ══ 2 — LE SOUS-ÉCRAN ═══════════════════════════════════════════════════ */

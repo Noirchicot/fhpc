@@ -75,16 +75,30 @@ test("témoin — les drapeaux ne sont pas écrits ici, ils sont RELEVÉS sur `l
     "aucune couche montée ne lève `fh.destiny` — le garde mesurerait un drapeau qui n'existe plus");
   assert.ok(TOUS.includes("fh.inheritance"),
     "aucune couche montée ne lève `fh.inheritance` — idem");
-  /* ⭐ ET LA PILE SRD EN LÈVE ZÉRO : c'est ce qui rend « neuf crans » atteignable
-     autrement que sur le papier. */
+  /* 🔴 LOT 189 — ET `fh.skills` EST UN DRAPEAU D'UNE SEULE COUCHE, MESURÉ : la
+     pile entière moins tout Fate's Hand sauf `fh-skills-en` lève EXACTEMENT
+     `["fh.skills"]`. C'est ce qui rend « Skills revient seul » atteignable. */
+  assert.ok(TOUS.includes("fh.skills"),
+    "aucune couche montée ne lève `fh.skills` — le cran Skills n'aurait plus de porte");
   const { FH_LAYER_IDS } = await import("../ui/builder/universe-step.mjs");
+  assert.deepEqual(await drapeauxDe(FH_LAYER_IDS.filter((id) => id !== "fh-skills-en")), ["fh.skills"],
+    "`fh-skills-en` seule doit lever `fh.skills` et rien d'autre (relevé le 09/09)");
+  /* ⭐ ET LA PILE SRD EN LÈVE ZÉRO : c'est ce qui rend « huit crans » atteignable
+     autrement que sur le papier. */
   assert.deepEqual(await drapeauxDe(FH_LAYER_IDS), [],
-    "la pile SRD ne lève aucun drapeau — si elle en levait un, `neuf crans` serait faux");
+    "la pile SRD ne lève aucun drapeau — si elle en levait un, `huit crans` serait faux");
 });
 
-/* ══ 1. LE COMPTE — DIX, PUIS NEUF ═════════════════════════════════════════ */
+/* ══ 1. LE COMPTE — DIX, NEUF, ET HUIT ═════════════════════════════════════
+   ⚖️ LOT 189 — Eric, 09/09, devant la v612 : *« Tu n'as pas enlevé Skills,
+   pourtant tout est décoché dans Layers »* · *« En SRD les compétences sont
+   choisies DANS les classes »*. Le lot 186 comptait NEUF crans en SRD parce
+   que seul Destiny déclarait une exigence ; Skills est l'écran du pool de
+   points de Fate's Hand (`fh.skills`), et le SRD n'en a pas. ⇒ HUIT. Les
+   gardes ci-dessous comptent huit sans Destiny NI Skills — ce n'est pas un
+   relâchement, c'est le second cran qui rejoint la loi du premier. */
 
-test("🔴 dix crans quand la pile complète est montée, NEUF sans `fh.destiny`", () => {
+test("🔴 dix crans en pile complète, NEUF sans `fh.destiny`, NEUF sans `fh.skills` — chacun manque seul", () => {
   assert.equal(ceinture(TOUS).length, 10, "la pile complète montre les dix crans");
   const sansDestiny = TOUS.filter((f) => f !== "fh.destiny");
   const courte = ceinture(sansDestiny);
@@ -93,6 +107,33 @@ test("🔴 dix crans quand la pile complète est montée, NEUF sans `fh.destiny`
   /* ⭐ « SI J'ALLUME DESTINY DANS LES COUCHES, IL RÉAPPARAÎT ? » — oui, et
      c'est la même fonction qui répond, sans une branche de plus. */
   assert.equal(ceinture([...sansDestiny, "fh.destiny"]).length, 10, "rallumé, il revient");
+  /* 🔴 LOT 189 — LA MÊME LOI POUR SKILLS, et elle ne touche pas Destiny. */
+  const sansSkills = ceinture(TOUS.filter((f) => f !== "fh.skills"));
+  assert.equal(sansSkills.length, 9, "sans `fh.skills`, le cran Skills manque — et lui seul");
+  assert.equal(sansSkills.some((c) => c.id === "skills"), false, "c'est bien Skills qui manque");
+  assert.equal(sansSkills.some((c) => c.id === "destiny"), true, "…et Destiny, lui, est resté");
+});
+
+test("🔴 LOT 189 — la pile SRD montre HUIT crans, les huit d'Eric, et le mot `Skills` n'y est nulle part", () => {
+  /* ⚖️ LA LISTE EST CELLE DU MANDAT, EN TOUTES LETTRES — *Menu · Identity ·
+     Species · Background · Class · Abilities · Equipment · Sheet* — parce que
+     c'est un COMPTE qu'Eric a lu à l'écran, pas une propriété dérivée. Un
+     garde qui ne vérifierait que `length === 8` laisserait passer une
+     ceinture de huit crans dont l'un serait le mauvais. */
+  const srd = ceinture([]);
+  assert.deepEqual(srd.map((c) => c.mot),
+    ["Menu", "Identity", "Species", "Background", "Class", "Abilities", "Equipment", "Sheet"],
+    "⛔ Eric, 09/09 : en SRD, huit crans — Skills se choisit dans la classe");
+  assert.equal(srd.some((c) => c.mot === "Skills" || c.id === "skills"), false, "le mot Skills est absent");
+  /* ⭐ ET LES NUMÉROS SE RESSERRENT : Equipment porte la pastille 6, pas 8. */
+  assert.deepEqual(srd.map((c) => c.numero), [0, 1, 2, 3, 4, 5, 6, 7], "les pastilles se suivent sans trou");
+  assert.equal(etapeParId("equipment", []).numero, 6, "Equipment est la sixième pastille en SRD");
+  /* ⚔️ « SI J'ALLUME SKILLS & TOOLS DANS LES COUCHES, IL RÉAPPARAÎT ? » — oui,
+     seul, et Destiny ne revient pas avec lui. */
+  const skillsSeul = ceinture(["fh.skills"]);
+  assert.equal(skillsSeul.length, 9, "`fh.skills` seul : neuf crans");
+  assert.equal(skillsSeul.find((c) => c.id === "skills").numero, 6, "…et Skills reprend sa place, la septième pastille");
+  assert.equal(skillsSeul.some((c) => c.id === "destiny"), false, "sans amener Destiny");
 });
 
 test("🔴 le mot du cran 3 est DÉCLARÉ, pas choisi par un `if` sur le nom de la pile", () => {
@@ -109,13 +150,19 @@ test("⚔️ `fh.destiny` SANS `fh.inheritance` — le cran Destiny est LÀ, et 
      un `if (stack === "srd") ? 9 : 10` se serait trompé DEUX fois : pas de
      Destiny, et le mauvais mot au cran 3. */
   const crans = ceinture(["fh.destiny"]);
-  assert.equal(crans.length, 10, "Destiny est monté : la ceinture est longue");
+  /* ⚖️ LOT 189 — NEUF, PAS DIX : `fh.destiny` seul ne lève pas `fh.skills`, et
+     le cran Skills exige ce dernier. Le garde comptait dix quand Skills était
+     inconditionnel ; il compte neuf depuis que Skills a rejoint la loi de
+     Destiny — le commit du lot le dit. Le point qui compte n'a pas bougé : le
+     cran DESTINY est là, à la cinquième place. */
+  assert.equal(crans.length, 9, "Destiny est monté, Skills ne l'est pas : neuf");
   assert.equal(crans[4].id, "destiny", "…et il est à sa place, la cinquième");
+  assert.equal(crans.some((c) => c.id === "skills"), false, "Skills n'est pas venu avec Destiny");
   assert.equal(crans[3].mot, "Background",
     "⛔ sans `fh.inheritance`, le cran 3 garde son nom SRD — c'est LUI que l'aiguillage aurait raté");
-  /* ⚖️ ET LE SYMÉTRIQUE : l'héritage sans la destinée. */
+  /* ⚖️ ET LE SYMÉTRIQUE : l'héritage sans la destinée — ni les compétences. */
   const inverse = ceinture(["fh.inheritance"]);
-  assert.equal(inverse.length, 9, "l'héritage n'amène pas la destinée avec lui");
+  assert.equal(inverse.length, 8, "l'héritage n'amène ni la destinée ni les compétences avec lui");
   assert.equal(inverse[3].mot, "Inheritance", "…et il renomme quand même son cran");
 });
 

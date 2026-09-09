@@ -159,6 +159,11 @@ test("🔴 LOT 186 — UN CRAN NON MONTÉ EST NOMMÉ, avec sa cause ET sa sortie
   const absents = cransAlignes([]).map((cran, index) => (cran ? null : STEPS[index].id)).filter(Boolean);
   assert.notDeepEqual(absents, [],
     "aucun cran n'est conditionnel — la phrase de refus n'aurait plus de cas");
+  /* ⚖️ LOT 189 — ET LE MÊME MOT COUVRE SKILLS SANS UN CAS PARTICULIER : le
+     cran a rejoint la loi de Destiny (`exige: "fh.skills"`), et rien ici n'a
+     eu à changer pour lui — c'est ce que ce témoin grave. */
+  assert.deepEqual(absents, ["destiny", "skills"],
+    "en pile SRD, les crans non montés sont Destiny et Skills — Eric, 09/09");
 
   assert.match(MOT_CRAN_NON_MONTE, /ruleset/, "la CAUSE : c'est le jeu de règles qui a changé");
   assert.match(MOT_CRAN_NON_MONTE, /Fate's Hand/, "la SORTIE nomme l'interrupteur qui le ramène");

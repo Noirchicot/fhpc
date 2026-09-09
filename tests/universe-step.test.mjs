@@ -30,7 +30,8 @@ const { renderUniverseStep, currentStack, currentBooks, currentContent, fhRefCho
 /** Les organes du tableau de commande. */
 const interrupteurs = (node) => node.querySelectorAll(".interrupteur");
 const fateSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur").find((b) => /Fate/.test(b.textContent));
-const srdSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur").find((b) => /^SRD/.test(b.textContent.trim()));
+/* LOT 189 — le SRD est un VOYANT (Eric, 09/09), trouvé par sa donnée. */
+const srdVoyant = (node) => node.querySelectorAll(".tdc-regles [data-socle]")[0];
 /* LOT 77 — la pile que le NAVIGATEUR monte, pour la confronter à la pile
    NOMMÉE (test A0). Importée, jamais recopiée : c'est la recopie qui a
    laissé les deux diverger. */
@@ -157,7 +158,10 @@ test("B1 — 🔴 UN SEUL INTERRUPTEUR « Fate's Hand » : éteint sur la pile S
   const nFh = renderUniverseStep({ document: fh, query: () => null, fieldErrors: {} }, () => {});
   assert.equal(fateSwitch(nFh).dataset.on, "true", "pile SRD+FH → allumé");
   assert.equal(nFh.querySelectorAll(".bascule-liste").length, 0, "⛔ les deux anciens sélecteurs n'existent plus");
-  assert.equal(nFh.querySelectorAll(".tdc-deux .interrupteur").length, 2, "deux interrupteurs sur la ligne : SRD (miroir) et Fate's Hand");
+  /* LOT 189 — UN interrupteur sur la ligne, et un voyant à sa gauche : le SRD
+     n'est plus un miroir grisé, c'est une lampe (Eric, 09/09). */
+  assert.equal(nFh.querySelectorAll(".tdc-deux .interrupteur").length, 1, "un seul interrupteur sur la ligne : Fate's Hand");
+  assert.equal(nFh.querySelectorAll(".tdc-deux .voyant[data-socle]").length, 1, "…et le voyant SRD à côté, sur la même ligne");
 });
 
 test("B2 — l'interrupteur dispatche {kind:\"requestLayerStack\"} vers l'AUTRE pile, jamais un verbe directement", () => {
@@ -506,22 +510,40 @@ test("R6 — 🧑 `My characters` est un bouton VIVANT (bleu, cadré à gauche) 
   assert.match(lignes[0].textContent, /Ilyra/);
 });
 
-test("R7 — 🪞 L'INTERRUPTEUR SRD EST UN MIROIR : même ligne, inactif, et il montre l'INVERSE de Fate's Hand", () => {
-  /* Eric, 08/09 : *« un switch pour SRD même s'il est inactif, même ligne, donc
-     off »* — *« quand l'un s'allume, l'autre s'éteint »* (17/08). Un seul organe
-     écrit la pile ; celui-ci la reflète. */
+test("R7 — 💡 LE SRD EST UN VOYANT : même ligne, TOUJOURS allumé, et il n'est pas un contrôle", () => {
+  /* ⚖️ RÉÉCRIT LE 09/09 À LA NOUVELLE VÉRITÉ, ET NON RELÂCHÉ. Eric, 08/09 :
+     *« un switch pour SRD même s'il est inactif, même ligne, donc off »* ; puis,
+     devant la v612 : *« Le bouton SRD est un VOYANT, pas un bouton — il est
+     toujours actif. »* Le second mot corrige le premier sur deux points :
+     · la FORME — plus un interrupteur grisé (qui a l'air d'un bouton qu'on ne
+       peut pas pousser), une lampe ;
+     · le SENS — plus un miroir INVERSÉ de Fate's Hand (« quand l'un s'allume,
+       l'autre s'éteint », 17/08) : le SRD est allumé dans les DEUX piles.
+     ⛔ Le garde d'avant exigeait `on` opposé à Fate's Hand ; celui-ci exige
+     `on` dans les deux états — c'est là qu'il diverge, et c'est là qu'on
+     l'éprouve. */
   const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
   const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  for (const [doc, attendu] of [[srd, "true"], [fh, "false"]]) {
+  for (const [doc, fate] of [[srd, "false"], [fh, "true"]]) {
     const gestes = [];
     const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => gestes.push(a));
-    const miroir = srdSwitch(node);
-    assert.ok(miroir, "l'interrupteur SRD existe");
-    assert.equal(miroir.disabled, true, "inactif : il ne se clique pas");
-    assert.equal(miroir.dataset.on, attendu, `SRD ${attendu === "true" ? "allumé" : "éteint"} quand Fate's Hand est ${attendu === "true" ? "éteint" : "allumé"}`);
-    assert.equal(miroir.dataset.on !== fateSwitch(node).dataset.on, true, "les deux sont toujours opposés");
-    miroir.click();
-    assert.deepEqual(gestes, [], "et le cliquer n'émet RIEN");
+    const lampe = srdVoyant(node);
+    assert.ok(lampe, "le voyant SRD existe, sur la ligne des règles");
+    assert.equal(fateSwitch(node).dataset.on, fate, `témoin : Fate's Hand est ${fate === "true" ? "allumé" : "éteint"}`);
+    assert.equal(lampe.dataset.on, "true", `le SRD est allumé quand Fate's Hand est ${fate === "true" ? "allumé" : "éteint"} — « il est toujours actif »`);
+    assert.match(lampe.textContent, /always on/, "…et il le DIT");
+    /* ⛔ PAS UN CONTRÔLE — sur ce que l'arbre d'accessibilité annonce. */
+    assert.notEqual(lampe.tagName, "BUTTON", "un voyant n'est pas un bouton");
+    assert.equal(lampe.getAttribute("role"), "status", "une région d'état, lue comme du texte");
+    assert.notEqual(lampe.getAttribute("role"), "switch");
+    assert.equal(lampe.getAttribute("aria-checked"), null, "aucun aria-checked : il n'a pas deux positions");
+    assert.notEqual(lampe.disabled, true, "et pas `disabled` : il n'y a rien à retenir");
+    lampe.click();
+    assert.deepEqual(gestes, [], "le cliquer n'émet RIEN — il n'a aucun écouteur");
+    /* ⛔ ET AUCUN `role=switch` DU MENU NE S'APPELLE SRD : la moitié qui attrape
+       un interrupteur SRD reposé ailleurs que sur `data-socle`. */
+    const reste = node.querySelectorAll('[role="switch"]').filter((b) => /^SRD/.test(b.textContent.trim()));
+    assert.deepEqual(reste, [], "un interrupteur nommé SRD existe encore au Menu");
   }
 });
 

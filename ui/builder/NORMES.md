@@ -4839,6 +4839,37 @@ une seule règle portant `border: 1px solid var(--critical)`. **Le `+` était ro
 🔴 **`--touch` 44 tient, même si le cercle est petit.** ⛔ Un contrôle ne se laisse jamais
 dimensionner par son dessin : le rond peut faire 24 px, **sa cible en fait 44**.
 
+### 💡 LE VOYANT SRD — une lampe, pas un bouton *(Eric, 09/09)*
+📍 `voyant-srd-toujours-allume-jamais-un-controle` · vivante · 09/09
+⚖️ **Le SRD est un VOYANT : toujours allumé, dans les deux piles, et il n'expose ni `role="switch"`, ni `aria-checked`, ni `disabled` — un `role="status"` qui dit « always on ». ⛔ Jamais un interrupteur grisé.**
+
+> Eric, 2026-09-09, devant la v612 : *« Le bouton SRD est un **voyant**, pas un bouton — il est
+> toujours actif. »*
+
+📏 **CE QUE C'ÉTAIT, ET POURQUOI C'ÉTAIT FAUX.** Le socle de `Layers` et la ligne des règles du Menu
+portaient un `interrupteur({ on: true, disabled: true })`. Un interrupteur `disabled` **ressemble à
+un bouton qu'on ne peut pas pousser** — piste grise, pouce gris, curseur barré : trois signes qui
+disent *« pas à toi de le toucher »*, quand la vérité est *« il n'y a rien à toucher »*. Et le lecteur
+d'écran annonçait *« interrupteur, activé, désactivé »* sur une chose qui n'a jamais eu deux positions.
+
+⭐ **LA NORME EXISTAIT AVANT L'ORGANE** — `voyant-non-cliquable` *(26/08)* : *« le voyant ne se touche
+pas : ne pas lui donner l'apparence d'un contrôle »*. Sa forme est celle de la **pastille de coffre**
+*(`cadre-pastille-de-coffre`, « C — la pastille et la date »)* : un **point de 8 px** + le **mot de
+l'état**. Le Menu en portait déjà une sur sa ligne d'état *(`[data-garde]`, « ● saved »)*.
+
+| | |
+|---|---|
+| **l'organe** | `voyant({ label, note })` — `layers-ecran.mjs`, à côté d'`interrupteur` et `ligneReservee` |
+| **ses deux emplois** | le socle de **`Layers`** *(« SRD 5.2.1 · the core rules »)* · la ligne des règles du **Menu** *(« SRD »)* — **un organe, un sens, deux endroits** |
+| **ce qu'il annonce** | `role="status"`, `data-on="true"`, le mot **always on** ; ⛔ pas de `<button>`, pas de focus clavier |
+| **son dessin** | la **même ligne** que l'interrupteur *(`--touch` 44, mot en 600, note en T1 dessous)* ; à droite, **un point `--positive`** et le mot, ⛔ ni piste ni pouce |
+| **le sens qui change** | ⛔ **plus de miroir inversé** *(« quand l'un s'allume, l'autre s'éteint », 17/08)* : le SRD est allumé **que Fate's Hand le soit ou non** — c'est le **plancher**, pas l'autre plateau |
+| son garde | `tests/ecran-layers.test.mjs` *(D0 — l'attaque remet l'interrupteur au socle et la clause accuse)* · `tests/universe-step.test.mjs` R7 |
+
+🔴 **ET LE GARDE DU LOT 188 SURVIT SOUS SA NOUVELLE FORME** — *« le SRD ne s'éteint JAMAIS »* : il ne
+peut plus s'éteindre parce qu'il **n'a plus de position éteinte**, et la clause le vérifie dans les
+deux états du maître.
+
 ### 🔴 LE VOYANT D'AVANCEMENT — c'est le CRAN DE LA CEINTURE *(tranché 26/08)*
 📍 `voyant-anneau-vs-disque` · vivante · 19/08
 ⚖️ **Un anneau se lit « en cours », un disque PLEIN se lit « fait » — et la règle vaut pour les quatre états.**
@@ -4996,6 +5027,22 @@ Destiny pendant que l'actif est le Menu — c'est-à-dire pendant qu'on éteint 
 rend alors le **refus qui nomme** *(§5 du canon, `MOT_CRAN_NON_MONTE`)*, sa cause et sa sortie.
 ⛔ **On ne rassoit personne d'office** : une réparation silencieuse est ce que `ecran-mort.mjs`
 refuse déjà pour la pile.
+
+📍 `cadre-belt-huit-crans-en-srd-skills-exige-fh-skills` · vivante · 09/09
+⚖️ **Le cran Skills exige `fh.skills` : en pile SRD la ceinture montre HUIT crans — Menu · Identity · Species · Background · Class · Abilities · Equipment · Sheet — et les compétences se choisissent DANS la classe.**
+
+> Eric, 2026-09-09, devant la v612 : *« Tu n'as pas enlevé Skills, pourtant tout est décoché dans
+> Layers. »* puis : *« En SRD les compétences sont choisies **dans les classes**. »*
+
+📏 **NEUF CE MATIN-LÀ, HUIT DEPUIS.** Le lot 186 comptait neuf crans en SRD parce que seul Destiny
+déclarait une exigence. L'écran Skills est le **pool de points de Fate's Hand** *(`fh-skills-en`,
+drapeau `fh.skills` — mesuré : cette couche seule lève exactement `["fh.skills"]`)* ; le SRD n'a
+**pas d'étape Skills** — ses compétences sont un `skill_choice { count, from }` du record de classe,
+et c'est l'écran Class qui les pose. ⇒ Skills **rejoint la loi de Destiny** *(`exige`)*, sans un cas
+particulier : `cranVoisin`, `cransAlignes` et `MOT_CRAN_NON_MONTE` le couvrent tels quels. Les gardes
+qui comptaient **neuf** sans Destiny comptent **huit** sans Destiny ni Skills — ce n'est pas un
+relâchement, c'est le second cran qui rejoint la loi du premier. ⛔ **Abilities ne bouge pas** :
+*« Abilities, tu laisses comme dans FH »* *(Eric, 09/09)*.
 
 📌 **LE NOM DE L'ÉCRAN DES SIX INTERRUPTEURS EST ARRÊTÉ : `Layers`** *(Eric, 09/09)*. Il portera
 aussi les bascules des livres et du homebrew — c'est pourquoi `Rules` a été écarté : ce mot est
