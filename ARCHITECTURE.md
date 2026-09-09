@@ -117,6 +117,48 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LES DEUX PORTS — on IMPORTE de 5e.tools, on EXPORTE vers Foundry (09/09)
+
+⚖️ Eric, 09/09 : *« exporter vers Foundry, importer de 5e.tools »*, et *« tu veux parler avec
+Foundry, c'est essentiel de passer par ce format »*. ⭐ **CE N'EST PAS UN FORMAT D'ÉCHANGE, CE SONT
+DEUX PORTS**, et les confondre fait scoper un chantier là où il y en a deux.
+
+| sens | interlocuteur | ce qui passe | forme |
+|---|---|---|---|
+| **entrée** | **5e.tools** | du **CONTENU** — sorts, objets, dons, espèces | leur JSON, **APLATI** |
+| **sortie** | **Foundry** *(`dnd5e`)* | un **PERSONNAGE** | leur schéma d'acteur |
+
+📏 **Sa carte produit le disait déjà, daté du 22/08** : *« 5e.tools = source et pivot de CONTENU —
+⚠️ 5e.tools n'a AUCUN format de personnage : un PJ ne s'échange qu'avec Foundry »*. Le 09/09 ne
+décide pas, il **rend la règle directionnelle**.
+
+⛔ **ET LA LIGNE DE LICENCE PASSE ENTRE LES DEUX.** `fh-srd/src/tripwire.py` classe 5e.tools en
+**`forbidden-source`** — *« no SRD marking; DMCA'd 2024-08 »* — et cette garde est **lexicale** :
+elle lit ce que les records DISENT, pas d'où ils prétendent venir. ⇒ **La base SRD ne vient jamais
+de 5e.tools** : elle vient du PDF épinglé (`sources.lock.json`, empreinte SHA-256). 5e.tools est le
+port du **contenu TIERS** — la porte homebrew de SOWLREACH — jamais la source du livre.
+
+📏 **CE QUE L'APLATISSEMENT COÛTE, mesuré le 09/09 sur leurs records marqués `srd52`** :
+
+```
+languages    19 records ·     0 balise  ·  0,0 par record   ← le seul à zéro
+feats        17         ·    51         ·  3,0
+backgrounds   4         ·    38         ·  9,5
+spells      322         · 1 242         ·  3,9
+items       458         · 1 737         ·  3,8
+races         9         ·   192         · 21,3              ← le plus dense
+                    ~3 300 balises · 15+ familles
+```
+
+⚠️ **Aplatir n'est pas uniforme** : `{@damage 2d6}` rend `2d6`, mais
+`{@filter demons|bestiary|tag=demon}` est une **REQUÊTE** — l'aplatir en texte perd ce qu'elle
+fait. **Chaque famille demande sa décision.**
+
+⭐ **Conséquence pour le chantier des langues** : les 19 sont **le cas le plus facile de tout leur
+jeu de données**. Mais ⛔ **elles ne s'importent pas de chez eux** — elles s'extraient de NOTRE PDF
+(SRD 5.2.1, PHB 2024 p. 37, CC-BY). 5e.tools sert de **témoin** : il dit où regarder et combien en
+attendre (**19**, pas 20). Un témoin n'est pas une source.
+
 #### ⚖️ L'ASYMÉTRIE DES DEUX SENS — monter est sûr, descendre ne l'est pas (09/09)
 
 ⚖️ Eric, 09/09 : *« plus facile de monter du SRD dans FH que descendre du FH dans SRD »*.
