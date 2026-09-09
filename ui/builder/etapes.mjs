@@ -78,14 +78,24 @@ export const STEPS = [
      le nom SRD du chapitre, celui qu'`equipment-step.mjs` cite déjà (« les
      quatre arrière-plans du SRD »). */
   { id: "background", label: "Background", motSi: [{ drapeau: "fh.inheritance", mot: "Inheritance" }] },
-  /* 🔴 LE SEUL CRAN CONDITIONNEL AUJOURD'HUI — Eric, 09/09 : « absent, neuf
-     crans ». Les arcanes majeures n'existent que dans Fate's Hand ; sans
+  /* 🔴 LE PREMIER CRAN CONDITIONNEL — Eric, 09/09 : « absent, neuf crans »
+     (neuf ce matin-là ; huit depuis que Skills, plus bas, a rejoint la même
+     loi). Les arcanes majeures n'existent que dans Fate's Hand ; sans
      elles, l'écran tirerait dans un paquet vide (mesuré : `drawArcana([])`
      rend `null`, et le bouton `Draw` ne fait rien, en silence). */
   { id: "destiny",    label: "Destiny", exige: "fh.destiny" },
   { id: "class",      label: "Class" },
   { id: "abilities",  label: "Abilities" },
-  { id: "skills",     label: "Skills" },
+  /* 🔴 LOT 189 — LE SECOND CRAN CONDITIONNEL, ET IL L'ÉTAIT DÉJÀ SANS LE DIRE.
+     Eric, 09/09, sur la v612 en ligne : *« Tu n'as pas enlevé Skills, pourtant
+     tout est décoché dans Layers »*, puis : *« En SRD les compétences sont
+     choisies DANS les classes »*. L'écran Skills est le POOL DE POINTS de
+     Fate's Hand (`fh-skills-en`, drapeau `fh.skills`) ; le SRD n'a pas
+     d'étape Skills — ses compétences sont un `skill_choice { count, from }`
+     du record de classe (mesuré sur le Fighter), et c'est l'écran Class qui
+     les pose. Sans le drapeau, ce cran ouvrait un magasin sans marchandise :
+     la coupe est la même qu'à Destiny, deux lignes plus haut. */
+  { id: "skills",     label: "Skills", exige: "fh.skills" },
   { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
   { id: "review",     label: "Sheet" }      // ⟵ « Review » — le CHAPITRE, lui, s'appelle Character
 ];

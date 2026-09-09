@@ -42,17 +42,17 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=612";
+import { renderConfirmDialog } from "./confirm.mjs?v=613";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=612";
+import { motDeLEchelon } from "./echelle.mjs?v=613";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=612";
+import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=613";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -623,12 +623,18 @@ export function renderUniverseStep(ctx, onAction) {
   trio.append(bouton("Forget", "parcours-annuler universe-oubli", () => onAction({ kind: "oublierPersonnage" })));
   perso.append(trio);
 
-  /* ══ LES DEUX INTERRUPTEURS DES RÈGLES, SUR UNE LIGNE — Eric, 08/09 ════════
-     *« un switch pour Fate's Hand, oui ; un switch pour SRD même s'il est
-     inactif, même ligne, donc off »*. Le SRD est la base : son interrupteur est
-     un MIROIR, jamais un geste — il montre l'autre hauteur de la pile
-     (*« quand l'un s'allume, l'autre s'éteint »*, 17/08) et ne se clique pas.
-     ⛔ Un seul organe écrit la pile : l'interrupteur `Fate's Hand`. */
+  /* ══ LA LIGNE DES RÈGLES — UN VOYANT ET UN INTERRUPTEUR — Eric, 08 et 09/09 ═
+     08/09 : *« un switch pour Fate's Hand, oui ; un switch pour SRD même s'il
+     est inactif, même ligne, donc off »*. Puis 09/09, devant la v612 :
+     *« Le bouton SRD est un VOYANT, pas un bouton — il est toujours actif. »*
+     ⚖️ Le second mot corrige le premier sur DEUX points, et les deux se lisent :
+     · la FORME — plus d'interrupteur grisé qui a l'air d'un bouton qu'on ne
+       peut pas pousser, une LAMPE (`voyant`, layers-ecran.mjs) ;
+     · le SENS — le SRD n'est plus le miroir inversé de Fate's Hand (« quand
+       l'un s'allume, l'autre s'éteint », 17/08) : il est TOUJOURS allumé,
+       Fate's Hand ou non. C'est le plancher, pas l'autre plateau de la balance.
+     ⛔ Un seul organe écrit la pile : l'interrupteur `Fate's Hand`. Et c'est
+     le MÊME voyant qu'au socle de `Layers` — un organe, deux emplois. */
   /* ⭐ LOT 188 — LES DEUX INTERRUPTEURS LISENT LA COMPOSITION, PAS LE NOM DE LA
      PILE. `currentStack` ne connaît que `srd` et `srdfh` ; un joueur qui a
      coupé une seule couche depuis `Layers` n'est ni l'un ni l'autre, et il
@@ -638,7 +644,9 @@ export function renderUniverseStep(ctx, onAction) {
   const composition = compositionFh(doc);
   const regles = el("div", "tdc-regles");
   const deux = el("div", "tdc-deux");
-  deux.append(interrupteur({ label: "SRD", on: !composition.maitre, disabled: true, onChange: () => {} }));
+  const socle = voyant({ label: "SRD" });
+  socle.dataset.socle = "true";
+  deux.append(socle);
   deux.append(interrupteur({
     label: "Fate's Hand", on: composition.maitre,
     onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })

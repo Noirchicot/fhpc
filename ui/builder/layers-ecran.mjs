@@ -8,7 +8,7 @@
    *« Un tableau de commande, pas une liste d'options. Le socle, puis les
    couches qui s'empilent dessus. »*
 
-       SRD 5.2.1      compatible with the core rules   — VERROUILLÉ
+       SRD 5.2.1      compatible with the core rules   — un VOYANT (09/09)
        Fate's Hand    allume les six d'un coup          — MAÎTRE
        ── ses six couches, chacune se coupe seule ──
        Trainings · Skills & tools · Inheritance · Destiny · Lore · Soulforging
@@ -48,7 +48,7 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=612";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=613";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -127,6 +127,50 @@ export function ligneReservee(label, mot = "soon") {
   b.append(el("span", null, [text(label)]));
   b.append(el("span", "tdc-bientot", [text(mot)]));
   return b;
+}
+
+/* ══ LE VOYANT — Eric, 09/09, sur la v612 en ligne ═══════════════════════
+   *« Le bouton SRD est un VOYANT, pas un bouton — il est toujours actif. »*
+
+   📏 CE QU'IL REMPLACE, ET POURQUOI C'ÉTAIT FAUX : le socle était un
+   `interrupteur({ on: true, disabled: true })` — ici ET au Menu (où il jouait
+   en plus le miroir de Fate's Hand). Un interrupteur `disabled` RESSEMBLE À
+   UN BOUTON QU'ON NE PEUT PAS POUSSER : la piste grise, le pouce gris, le
+   curseur barré — trois signes qui disent « pas à toi de le toucher », alors
+   que la vérité est « il n'y a rien à toucher ». Et le lecteur d'écran
+   annonçait *« interrupteur, activé, désactivé »* sur une chose qui n'a
+   jamais eu deux positions.
+
+   ⭐ UN VOYANT EST UNE LAMPE : elle dit « allumé », on ne la pousse pas. La
+   norme existait avant l'organe — `voyant-non-cliquable` (NORMES, 26/08) :
+   *« Le voyant ne se touche pas : ne pas lui donner l'apparence d'un
+   contrôle. »* Sa forme est celle de la pastille de coffre (📍
+   `cadre-pastille-de-coffre`, tranchée par Eric : *« C — la pastille et la
+   date »*) : un POINT de 8 px + le mot de l'état. Le Menu en portait déjà une
+   sur la ligne d'état (`[data-garde]`, « ● saved ») ; c'est la même lampe.
+
+   🔴 CE QU'IL N'EST PAS, ET UN GARDE LE TIENT (`tests/ecran-layers.test.mjs`) :
+   ⛔ pas un `<button>` · ⛔ pas de `role="switch"` · ⛔ pas d'`aria-checked` ·
+   ⛔ pas de `disabled` · ⛔ pas de focus clavier. `role="status"` : une région
+   d'état, lue comme du texte, jamais annoncée comme un contrôle.
+
+   ⭐ UN SEUL ORGANE POUR UN SEUL SENS, DEUX ENDROITS : le socle de `Layers` et
+   la ligne des règles du Menu (`universe-step.mjs`). Le SRD y est TOUJOURS
+   allumé — Eric : *« il est toujours actif »* — y compris quand Fate's Hand
+   l'est aussi : le miroir « SRD éteint quand FH est allumé » (08/09) est
+   abandonné par ce mot du 09/09. Le SRD n'est pas l'inverse de Fate's Hand,
+   c'est le plancher sous lui. */
+export function voyant({ label, note, etat = "always on" }) {
+  const ligne = el("div", "voyant");
+  ligne.setAttribute("role", "status");
+  ligne.dataset.on = "true";
+  const mot = el("span", "voyant-mot", [text(label)]);
+  if (note) mot.append(el("span", "voyant-note", [text(note)]));
+  ligne.append(mot);
+  /* La lampe est DESSINÉE par la feuille sur `data-on` (un point, `--positive`),
+     jamais un glyphe — la même loi qu'au pouce de l'interrupteur. */
+  ligne.append(el("span", "voyant-etat", [el("span", "voyant-lampe"), text(etat)]));
+  return ligne;
 }
 
 /* ══ LES SIX INTERRUPTEURS — la coupe d'Eric du 08/09, couche par couche ══
@@ -309,10 +353,10 @@ export function renderLayersEcran(ctx, onAction) {
 
   const lignes = el("div", "tdc-lignes");
 
-  /* LE SOCLE — verrouillé, allumé en dur. Il n'y a rien en dessous : c'est la
-     promesse du produit, « ce que tu construis reste ouvrable par n'importe
-     qui ». Le même miroir `disabled` que sur R. */
-  const socle = interrupteur({ label: "SRD 5.2.1", note: "the core rules — always on", on: true, disabled: true, onChange: () => {} });
+  /* LE SOCLE — un VOYANT, pas un interrupteur verrouillé (Eric, 09/09). Il
+     n'y a rien en dessous : c'est la promesse du produit, « ce que tu
+     construis reste ouvrable par n'importe qui ». La même lampe qu'au Menu. */
+  const socle = voyant({ label: "SRD 5.2.1", note: "the core rules" });
   socle.dataset.socle = "true";
   lignes.append(socle);
 
