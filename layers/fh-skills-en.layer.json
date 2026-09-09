@@ -9,14 +9,21 @@
   ],
   "attribution": {
     "license": "all-rights-reserved",
-    "text": "Original Fate's Hand content: all rights reserved. This layer modifies and extends material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Portions of the SRD material — including the Perception skill, the Gaming Set and the Musical Instrument — have been removed, split or modified for this work."
+    "text": "Original Fate's Hand content: all rights reserved. This layer modifies and extends material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. Portions of the SRD material — including the Perception skill, the Gaming Set and the Musical Instrument — have been renamed, split or modified for this work."
   },
-  "description": "The twenty-six skills and thirty-six tools of Fate's Hand. Perception is removed and split into Vigilance, Delve and Hunting; nine skills are new. The generic Gaming Set and Musical Instrument are split into seven named tools, three tools change their default ability, and vehicles and mounts are added for land, water and air.",
+  "description": "The twenty-six skills and thirty-six tools of Fate's Hand. Perception is rewritten as Vigilance and joined by Delve and Hunting; eight skills are new. The generic Gaming Set is rewritten as the Dice Set and the Musical Instrument as Instrument (Strings), each joined by its remaining variants; three tools change their default ability, and vehicles and mounts are added for land, water and air.",
   "records": {
     "skill": {
       "srd:skill:en:perception": {
-        "op": "disable",
-        "reason": "Fate's Hand replaces Perception with three specialised skills — Vigilance (immediate threat detection), Delve (built structures and ruins) and Hunting (tracking and motionless camouflage). Survival already covered the wilderness."
+        "op": "patch",
+        "changes": {
+          "name": "Vigilance",
+          "slug": "vigilance",
+          "data.name": "Vigilance",
+          "data.category": "exploration",
+          "data[example_uses]": "Immediate threat detection: spotting ambushes or fleeting danger."
+        },
+        "note": "Fate's Hand — Perception rewritten as Vigilance"
       },
       "fh:skill:en:might": {
         "name": "Might",
@@ -71,17 +78,6 @@
           "category": "exploration",
           "example_uses": "Tracking, skinning and butchering, and camouflage while motionless (hide or ambush).",
           "name": "Hunting"
-        }
-      },
-      "fh:skill:en:vigilance": {
-        "name": "Vigilance",
-        "slug": "vigilance",
-        "data": {
-          "ability": "Wisdom",
-          "ability_key": "wis",
-          "category": "exploration",
-          "example_uses": "Immediate threat detection: spotting ambushes or fleeting danger.",
-          "name": "Vigilance"
         }
       },
       "fh:skill:en:delve": {
@@ -239,12 +235,28 @@
     },
     "tool": {
       "srd:tool:en:gaming-set": {
-        "op": "disable",
-        "reason": "Fate's Hand splits the generic Gaming Set into its four SRD variants, so that proficiency names an actual game rather than a category."
+        "op": "patch",
+        "remove": [
+          "data[variants]"
+        ],
+        "changes": {
+          "name": "Dice Set",
+          "slug": "gaming-set-dice",
+          "data.name": "Dice Set"
+        },
+        "note": "Fate's Hand — Gaming Set rewritten as Dice Set"
       },
       "srd:tool:en:musical-instrument": {
-        "op": "disable",
-        "reason": "Fate's Hand splits the generic Musical Instrument into three families (wind, strings, other), so that proficiency names how the instrument is played."
+        "op": "patch",
+        "remove": [
+          "data[variants]"
+        ],
+        "changes": {
+          "name": "Instrument (Strings)",
+          "slug": "instrument-strings",
+          "data.name": "Instrument (Strings)"
+        },
+        "note": "Fate's Hand — Musical Instrument rewritten as Instrument (Strings)"
       },
       "srd:tool:en:mason-s-tools": {
         "op": "patch",
@@ -269,18 +281,6 @@
           "data[ability_key]": "wis"
         },
         "note": "Fate's Hand — default ability int → wis"
-      },
-      "fh:tool:en:gaming-set-dice": {
-        "name": "Dice Set",
-        "slug": "gaming-set-dice",
-        "data": {
-          "ability": "Wisdom",
-          "ability_key": "wis",
-          "name": "Dice Set",
-          "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
-          "cost": "Varies",
-          "weight": "Varies"
-        }
       },
       "fh:tool:en:gaming-set-cards": {
         "name": "Card Set",
@@ -325,18 +325,6 @@
           "ability": "Charisma",
           "ability_key": "cha",
           "name": "Instrument (Wind)",
-          "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
-          "cost": "Varies",
-          "weight": "Varies"
-        }
-      },
-      "fh:tool:en:instrument-strings": {
-        "name": "Instrument (Strings)",
-        "slug": "instrument-strings",
-        "data": {
-          "ability": "Charisma",
-          "ability_key": "cha",
-          "name": "Instrument (Strings)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
           "cost": "Varies",
           "weight": "Varies"
@@ -418,8 +406,8 @@
             "srd:skill:en:athletics",
             "srd:skill:en:intimidation",
             "srd:skill:en:nature",
+            "srd:skill:en:perception",
             "fh:skill:en:delve",
-            "fh:skill:en:vigilance",
             "srd:skill:en:survival"
           ],
           "data[granted_skill_budget]": {
@@ -616,8 +604,8 @@
             "srd:skill:en:insight",
             "srd:skill:en:medicine",
             "srd:skill:en:nature",
+            "srd:skill:en:perception",
             "fh:skill:en:delve",
-            "fh:skill:en:vigilance",
             "srd:skill:en:religion",
             "srd:skill:en:survival"
           ],
@@ -675,8 +663,8 @@
             "srd:skill:en:insight",
             "srd:skill:en:intimidation",
             "srd:skill:en:persuasion",
+            "srd:skill:en:perception",
             "fh:skill:en:delve",
-            "fh:skill:en:vigilance",
             "srd:skill:en:survival"
           ],
           "data[granted_skill_budget]": {
@@ -823,8 +811,8 @@
             "srd:skill:en:insight",
             "srd:skill:en:investigation",
             "srd:skill:en:nature",
+            "srd:skill:en:perception",
             "fh:skill:en:delve",
-            "fh:skill:en:vigilance",
             "srd:skill:en:stealth",
             "srd:skill:en:survival"
           ],
@@ -898,8 +886,8 @@
             "srd:skill:en:insight",
             "srd:skill:en:intimidation",
             "srd:skill:en:investigation",
+            "srd:skill:en:perception",
             "fh:skill:en:delve",
-            "fh:skill:en:vigilance",
             "srd:skill:en:survival",
             "srd:skill:en:persuasion",
             "srd:skill:en:sleight-of-hand",

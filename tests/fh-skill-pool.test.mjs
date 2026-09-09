@@ -487,20 +487,33 @@ test("la bourse captive de CLASSE remplace le choix SRD, et son EXPERT accorde l
   assert.ok(bourse, "la bourse de classe publie son plan");
   assert.equal(bourse.expected, 6, "six points liés — ceux que le canon §B.1 place chez le Rogue");
   assert.equal(bourse.answered, 0);
+  /* ⛔ LE SLUG SE LIT DANS LE RECORD, IL NE SE DÉDUIT PAS DE L'ID.
+     🔴 LOT 185 — cette ligne faisait `id.split(":").pop()`, et ce raccourci a
+     cessé d'être vrai le jour où Eric a dit *« au lieu de soustraire,
+     réécrit »* : `srd:skill:en:perception` porte désormais le slug
+     « vigilance ». Le garde aurait accusé la bourse d'offrir une compétence
+     hors liste alors que c'est exactement la même. Il vaut mieux le corriger
+     ici qu'apprendre à la table que la bourse du Rogue refuse Vigilance. */
   const listeDeClasse = h.layers.verbs.query({ kind: "class", id: base.classId })
-    .record.data.skill_choice.from.map((id) => id.split(":").pop());
+    .record.data.skill_choice.from
+    .map((id) => h.layers.verbs.query({ kind: "skill", id }))
+    .filter(Boolean)
+    .map((vue) => vue.record.slug);
   for (const slug of bourse.options) {
     assert.ok(listeDeClasse.includes(slug),
       `« ${slug} » n'est pas dans la liste de la classe — la bourse doit rester CAPTIVE de cette liste`);
   }
-  /* ⭐ ET ELLE SE FILTRE SUR CE QUI EXISTE VRAIMENT, ce qui se voit ici en
-     grand : `perception` est dans la liste SRD du Rogue et **absente** des
-     options, parce que la couche maison l'a éclatée en trois (Vigilance, Delve,
-     Hunting). Une bourse qui aurait recopié la liste SRD aurait proposé une
-     compétence que le personnage ne peut pas porter. C'est exactement ce que
-     « lire la liste là où elle vit » achète. */
+  /* ⭐ ET ELLE SE FILTRE SUR CE QUI EXISTE VRAIMENT. `perception` est dans la
+     liste SRD du Rogue et **absente** des options — non plus parce que la
+     compétence a été éteinte (elle ne l'est plus depuis le lot 185), mais parce
+     que le record qui porte cet id s'appelle et se range désormais
+     « vigilance ». Une bourse qui aurait recopié les slugs de la liste SRD
+     aurait proposé un `perception` que le personnage ne peut pas porter. C'est
+     exactement ce que « lire la liste là où elle vit » achète. */
   assert.equal(bourse.options.includes("perception"), false,
-    "une compétence que la pile ne porte plus ne s'offre pas — même si la liste SRD la nomme");
+    "aucun slug `perception` ne s'offre : ce record se range désormais sous `vigilance`");
+  assert.ok(bourse.options.includes("vigilance"),
+    "⭐ et Vigilance EST offerte — la réécriture ne fait perdre l'option à personne");
   assert.ok(bourse.options.includes("stealth") && bourse.options.includes("acrobatics"),
     "et tout ce qui existe reste offert");
 
