@@ -48,7 +48,7 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=612";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=613";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

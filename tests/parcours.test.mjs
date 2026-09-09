@@ -167,3 +167,20 @@ test("un CRÉNEAU SANS GROUPE est un item — le don d'origine de l'Inheritance"
     ["background.boost", "background.originFeat[0]", "background.tool"],
     "le boost et l'outil sont des items, `boost.con` est leur contenu, et le don EN EST UN");
 });
+
+test("🚪 un plan REQUIS n'est pas un item (lot 190) — le même plan sans provenance en est un", () => {
+  /* ⚖️ Eric, 2026-09-09 : « Savage Attacker (c'est granted) pas de bouton …
+     idem que pour les lineages ». Le carnet publie un plan pour ANNONCER ce
+     que le record impose (`provenance.mode === "required"`) ; le parcours ne
+     l'ouvre pas et ne le fait pas signer. ⛔ La règle lit la DONNÉE (la
+     provenance), pas le chemin ni le compte : un plan répondu sans provenance
+     reste une porte (un choix déjà fait se rouvre). */
+  const requis = { ...plan("background.originFeat[0]", 1, 1), provenance: { mode: "required", kind: "background", id: "x", field: "feat_id" } };
+  const offert = { ...plan("background.tool", 0, 1), provenance: { mode: "offered", kind: "background", id: "x", field: "tool_choice" } };
+  const decisions = [{ path: "background", selected: ["x"] }, plan("background.boost", 0, 3), requis, offert];
+  assert.deepEqual(itemsDeLEtape({ decisions, document: docAvec(), racine: "background" }).map((i) => i.path),
+    ["background.boost", "background.tool"], "le don imposé n'est pas une porte ; l'outil offert en est une");
+  const sansProvenance = decisions.map((p) => (p === requis ? plan("background.originFeat[0]", 1, 1) : p));
+  assert.deepEqual(itemsDeLEtape({ decisions: sansProvenance, document: docAvec(), racine: "background" }).map((i) => i.path),
+    ["background.boost", "background.originFeat[0]", "background.tool"], "témoin : sans provenance, un plan répondu reste un item");
+});

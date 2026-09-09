@@ -514,13 +514,28 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
      traverse-t-il l'écran de bout en bout ? ») rendue exécutable, et pas un
      repli décoratif. Les deux moitiés se vérifient ici : aucune trace de la
      fiche FH, et les lignes SRD bien présentes. */
-  assert.equal(classNode.querySelectorAll(".fiche-blurb").length, 0,
-    "aucun blurb sans la couche qui le porte — le blurb est du contenu Fate's Hand");
-  assert.equal(classNode.querySelectorAll(".fiche-stat-row").length, 0,
-    "aucune ligne de fiche compressée sans sa couche");
-  const libelles = classNode.querySelectorAll(".catalogue-card-row dt").map((dt) => dt.textContent);
+  /* 📍 LOT 190 — RENVERSÉ PAR ERIC LE 09/09 : *« Class idem Species »* —
+     *« prends l'image Fate's Hand, le même texte de blurb. Pour le moment. »*
+     La fiche SRD passe par `renderFicheBody` (image, prose, pied `Choose`) ;
+     le blurb vient de la FICHE DE SECOURS (`fiche-secours.mjs`), jamais d'une
+     couche montée. Ici, aucune fiche de secours n'est retenue : la prose est
+     VIDE — et la fiche a quand même son `Choose`. Les deux moitiés de la loi
+     §0.12 se vérifient encore : rien de FH n'apparaît, le SRD est bien là. */
+  /* ⚠️ LA MÊME INSTANCE QUE L'ÉCRAN : l'UI importe `./fiche-secours.mjs?v=<N>`,
+     et un import nu serait un second module, avec son propre état. Le <N> se
+     LIT dans l'écran, jamais recopié (la loi de `version.mjs`). */
+  const fsSource = (await import("node:fs")).readFileSync(new URL("../ui/builder/species-step.mjs", import.meta.url), "utf8");
+  const { oublierLaFicheDeSecours } = await import(`../ui/builder/fiche-secours.mjs?v=${fsSource.match(/catalogue\.mjs\?v=(\d+)/)[1]}`);
+  oublierLaFicheDeSecours();
+  const classNodeSans = renderCatalogueCards({ ...ctxDe(report.decisions, "class"), query: srdQuery }, renderClassCardBody);
+  assert.ok(classNodeSans.querySelectorAll(".fiche-blurb").every((p) => p.textContent === ""),
+    "sans fiche de secours retenue, aucune prose — le blurb reste du contenu Fate's Hand, jamais inventé");
+  assert.equal(classNodeSans.querySelectorAll(".fiche-stat-row").length, 0,
+    "aucune ligne de fiche compressée sans sa couche — les faits SRD sont des traits, qui se replient");
+  const libelles = classNodeSans.querySelectorAll(".fiche-trait-nom").map((b) => b.textContent);
   assert.equal(libelles.includes("Skill pool"), false, "aucune ligne de pool sans la couche qui la porte");
   assert.ok(libelles.includes("Points de vie") || libelles.includes("Hit points"), "les lignes SRD, elles, sont bien là");
+  assert.equal(classNodeSans.querySelectorAll('[data-action="choose"]').length, 12, "et chaque fiche a son Choose (mesuré absent au lot 187)");
 
   const classMenu = renderClassChoices({ decisions: report.decisions, query: srdQuery }, () => {});
   /* ⚠️ LOT 79 — l'écran des compétences a changé de FORME (vivier + créneaux),
@@ -547,9 +562,12 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
      fiches aimantées qui portent la liste. */
   const speciesCards = renderCatalogueCards({ ...ctxDe(report.decisions, "species"), query: srdQuery }, renderSpeciesCardBody);
   assert.ok(speciesCards.querySelectorAll("[data-snap]").length > 0, "les fiches d'espèce s'affichent quand même");
-  const libellesEspece = speciesCards.querySelectorAll(".catalogue-card-row dt").map((dt) => dt.textContent);
+  /* lot 190 : la fiche SRD d'espèce est la fiche (traits qui se replient, image, Choose) — voir la classe plus haut */
+  const libellesEspece = speciesCards.querySelectorAll(".fiche-trait-nom").map((b) => b.textContent);
   assert.equal(libellesEspece.includes("Destiny"), false, "aucune ligne de Destinée sans la couche qui la porte");
   assert.ok(libellesEspece.includes("Taille") || libellesEspece.includes("Size"), "les lignes SRD, elles, sont bien là");
+  assert.ok(speciesCards.querySelectorAll(".fiche-blurb").every((p) => p.textContent === ""), "sans fiche de secours retenue, aucune prose d'espèce non plus");
+  assert.ok(speciesCards.querySelectorAll('[data-action="choose"]').length > 0, "et le Choose est là");
 
   const speciesNode = renderSpeciesChoices({ decisions: report.decisions, query: srdQuery }, () => {});
   /* MESURÉ (pas l'hypothèse de départ) : Humain porte `granted_skill_choice`

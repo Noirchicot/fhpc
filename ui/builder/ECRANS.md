@@ -224,6 +224,16 @@
 
 **Le tableau des lignées se compose sur son contenu et se centre — jamais étiré à 100 % — et il est toujours précédé d'une phrase qui dit ce qu'il va montrer.**
 
+### 📍 En pile SRD, la fiche porte l'image et le blurb de Fate's Hand — « pour le moment »
+📍 `species-fiche-srd-image-et-blurb-de-secours` · déployée, hors corpus · 09/09
+⚖️ **En pile SRD, la fiche d'une espèce est la fiche (`renderFicheBody`, pied `Choose`) : l'image par slug, les faits SRD du record en forme de traits, et le blurb de Fate's Hand lu par la fiche de secours — un repli DÉCLARÉ, sans qu'aucune couche FH soit montée.**
+
+> **Eric** : « Species, prends l'image Fate's Hand, le même texte de blurb. Pour le moment. Les sous-menus sont les mêmes à très peu de choses près. »
+
+**En pile SRD, la fiche d'une espèce est la fiche (`renderFicheBody`, pied `Choose`) : l'image par slug, les faits SRD du record en forme de traits, et le blurb de Fate's Hand lu par la fiche de secours — un repli DÉCLARÉ, sans qu'aucune couche FH soit montée.**
+
+📏 Mesuré au lot 187 : neuf fiches SRD nues (lignes + noms de traits), sans image, sans prose, sans `Choose` — l'espèce ne pouvait pas se choisir depuis sa fiche. L'image n'a jamais dépendu d'une couche (`assets/fiches/<slug>.webp`). Le blurb vit dans `fh-fiche-en`, éteinte en SRD : `fiche-secours.mjs` lit les OCTETS du fichier de couche et applique le patch d'UN record avec `applyPatch`, l'organe du pli — la pile ne bouge pas, la vue montée n'est pas patchée, et seul le blurb en sort (`fiche_traits` porte « Splinter of Anon », un trait FH). « Pour le moment » : le jour où un blurb neutre existe, il remplace ce fichier et rien d'autre. Les sous-menus SRD sont ceux que le record publie (lignage, compétence accordée) ; ni livre (pas de lore) ni bourse (pas de Keen Senses).
+
 ### L'exception nommée du Dragonborn
 📍 `species-exception-dragonborn` · déployée, hors corpus · 27/08
 ⚖️ **Le Dragonborn est une exception NOMMÉE : son sous-écran ne porte plus la table des dix lignées mais une bande d'aiguilleur courte, et le tap sur un jeton ouvre la version synthétique.**
@@ -271,6 +281,26 @@
 > **Eric** : « je ne comprends pas où est ton problème » — à *« l'étape Background en pile SRD n'a pas d'écran : huit crans, ou un écran ? »*
 
 **Quand la pile montée ne lève pas `fh.inheritance`, le cran 3 dit `Background` ET montre les arrière-plans que la pile porte — le même drapeau décide du mot et de l'écran ; un arrière-plan choisi écrit `background`, le moteur dérive le reste.**
+
+### 🔴 Le fantôme posait, le collecteur ne le montrait pas — le ctx des catalogues porte le document
+📍 `inheritance-background-srd-ctx-porte-le-document` · déployée, hors corpus · 09/09
+⚖️ **Le contexte que la coquille donne aux écrans à catalogue (`catalogueCtx`) porte le document, comme celui de l'Inheritance : un organe qui lit une valeur posée dans le document la lit sur les deux crans.**
+
+> **Eric** : « Pour le choix de caracs la présentation est bonne mais, fantôme marche pas, pas possible de poser dans les collecteurs. »
+
+**Le contexte que la coquille donne aux écrans à catalogue (`catalogueCtx`) porte le document, comme celui de l'Inheritance : un organe qui lit une valeur posée dans le document la lit sur les deux crans.**
+
+📏 Mesuré le 09/09 (375 × 812, Acolyte, +1 glissé sur INT) : le dépôt ÉCRIVAIT — `background.boost.int = 1` au document, « 1 of 3 chosen » — et le collecteur restait « drop here », `data-rempli="false"`. `renderBoostGlisse` lit la valeur posée dans `ctx.document` (`currentBoostValue` : le sous-plan d'un bonus ne publie pas de nombre) ; `inheritanceCtx` le donnait, `catalogueCtx` non. Le témoin du lot 187 ne pouvait pas accuser : son ctx de test portait `document`. Deux gardes ferment les deux moitiés (`tests/background-step.test.mjs` §6) : l'organe lit le document (avec, rempli ; sans, « drop here »), et la coquille le donne (lu sur ses octets, attaqué par mutation).
+
+### 🚪 Ce qui est granted se montre, il ne se choisit pas
+📍 `inheritance-background-srd-granted-se-montre` · déployée, hors corpus · 09/09
+⚖️ **En pile SRD, le don d'origine, les deux compétences et l'outil fixé par l'arrière-plan ne sont pas des portes : ils se lisent sur la ligne « gagné d'office », la forme des traits d'un lignage, et le nom du don ou de l'outil se tape pour lire.**
+
+> **Eric** : « Pour le feat : Savage Attacker (c'est granted) pas de bouton. Les compétences idem, les skills sont granted, y'a pas de choix. Idem que pour les lineages. »
+
+**En pile SRD, le don d'origine, les deux compétences et l'outil fixé par l'arrière-plan ne sont pas des portes : ils se lisent sur la ligne « gagné d'office », la forme des traits d'un lignage, et le nom du don ou de l'outil se tape pour lire.**
+
+📏 Mesuré le 09/09 : trois portes (`Ability boosts`, `Magic Initiate / origin feat`, `Calligrapher's Supplies / Tool`), deux d'entre elles ouvrant sur « nothing to pick here » et un `Done` à signer pour rien — la question C35 du lot 187, tranchée. La règle est GÉNÉRALE et vit dans `parcours.mjs` (NORMES §6 pré quinquies : un plan `required` n'est pas un item) ; l'Acolyte n'a plus qu'un item (les bonus), le Soldier deux (les bonus, son outil à choisir) ; l'Inheritance de Fate's Hand, sans plan requis, ne bouge pas. Le menu des choix n'empile que ce qui reste à choisir.
 
 📏 Mesuré le 09/09 avant le lot : le cran disait `Background`, l'écran servait le guide d'Inheritance, vide — `parcoursInheritance()` rendait `true` sans condition. La carte (`renderFicheBody`, pied `LORE` / `CHOOSE`) porte le nom, les trois caractéristiques, les deux compétences, l'outil et le don d'origine ; les cartes sont celles du genre monté (`query({ kind: "background" })`, jamais une liste), et un cinquième record en fait une cinquième carte. Derrière `Choose`, le guide liste ce que le carnet publie sous la racine : les bonus (le glisser de l'Inheritance, trois récepteurs), l'outil (un glisser quand le record laisse choisir — le Soldier seul dans le SRD —, un acquis sinon) et le don d'origine (un acquis). L'équipement A/B n'est pas ici : c'est l'étape Equipment qui lit `data.equipment`.
 
@@ -349,6 +379,26 @@
 ---
 
 ## 5 · Class
+
+### 📍 En pile SRD, la fiche de classe porte l'image et le blurb de Fate's Hand — « idem Species »
+📍 `class-fiche-srd-image-et-blurb-de-secours` · déployée, hors corpus · 09/09
+⚖️ **En pile SRD, la fiche d'une classe est la fiche (`renderFicheBody`, pied `Choose`) : l'image par slug, les faits SRD du record en forme de traits (dé de vie, caractéristique, sauvegardes), et le blurb de Fate's Hand lu par la fiche de secours — le même repli déclaré que Species.**
+
+> **Eric** : « Class idem Species. »
+
+**En pile SRD, la fiche d'une classe est la fiche (`renderFicheBody`, pied `Choose`) : l'image par slug, les faits SRD du record en forme de traits (dé de vie, caractéristique, sauvegardes), et le blurb de Fate's Hand lu par la fiche de secours — le même repli déclaré que Species.**
+
+📏 Mesuré au lot 187 : douze fiches SRD nues, sans `Choose`. Les aptitudes de niveau 1 quittent la fiche, comme en Fate's Hand : elles vivent sur la ligne « gagné d'office », avec leur phrase.
+
+### 🎯 En pile SRD, les compétences de la classe se choisissent au sélecteur de jetons
+📍 `class-competences-srd-au-selecteur-de-jetons` · déployée, hors corpus · 09/09
+⚖️ **Sans `fh.skills`, la classe ouvre un sous-menu `Class skills` : les compétences de `skill_choice.from` en jetons par rangées de trois, `count` collecteurs en bas ; au doigt, tap = la fenêtre de la compétence avec `Close` · `Select` (le premier collecteur libre), glisser = poser ; le drapeau, pas l'absence d'une bourse, décide.**
+
+> **Eric** : « En SRD les compétences sont choisies dans les classes. Il faut un sélecteur de compétences en mode choix de jetons (sous-menu, rangées de 3, avec collecteurs en bas). »
+
+**Sans `fh.skills`, la classe ouvre un sous-menu `Class skills` : les compétences de `skill_choice.from` en jetons par rangées de trois, `count` collecteurs en bas ; au doigt, tap = la fenêtre de la compétence avec `Close` · `Select` (le premier collecteur libre), glisser = poser ; le drapeau, pas l'absence d'une bourse, décide.**
+
+📏 Mesuré le 09/09 : l'organe existait (lot 79, `class.skills`, neuf jetons, deux collecteurs) — sans fenêtre d'info, en régime quatre par rangée, et derrière une fiche sans `Choose` qu'Eric ne pouvait pas franchir. Il est calqué sur le sélecteur de Skills & tools (lot 171) : régime `sorts`, popup à actions ; pas de `Drop` (un jeton posé s'éteint, il se rend en glissant hors du collecteur). Le choix écrit va dans `class.skills[n]` (`set`, slug) : deux posés → deux maîtrises dans `resolved.skills` ; un troisième est refusé par le carnet (`skill-grant.count-mismatch`). En pile Fate's Hand, aucun plan `class.skills` n'existe et le drapeau `fh.skills` éteint le sélecteur même s'il en existait un.
 
 ### Le bilan porte les textes, pas des noms nus
 📍 `class-bilan-porte-les-textes` · déployée, hors corpus · 29/08

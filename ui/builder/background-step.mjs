@@ -36,24 +36,33 @@
    plan, même organe, seules les clefs offertes changent (trois au lieu de
    six). Le rendre deux fois ferait diverger les deux écrans au premier
    réglage.
+   🔴 ET IL LIT LE DOCUMENT — lot 190. Eric : *« fantôme marche pas, pas
+   possible de poser dans les collecteurs »*. Mesuré : le dépôt écrivait, le
+   collecteur restait vide, parce que `renderBoostGlisse` lit la valeur posée
+   dans `ctx.document` et que le ctx des catalogues ne le portait pas. C'est
+   la coquille qui le donne (`catalogueCtx`, shell.mjs) — pas cet écran.
 
-   ⚠️ LES ITEMS IMPOSÉS SE SIGNENT SANS RIEN CHOISIR. Le don et l'outil d'un
-   arrière-plan SRD sont des faits du record ; le parcours les liste quand même
-   (un plan sous la racine est un item, `itemsDeLEtape`), et leur `Done` ne
-   fait qu'en prendre acte. Les retirer de la liste serait une règle GÉNÉRALE
-   du parcours — elle n'est pas prise ici, elle est nommée dans le rapport du
-   lot. Leur dalle dit ce qui est accordé, et le tap sur le nom ouvre l'info.
+   🚪 CE QUI EST GRANTED SE MONTRE, IL NE SE CHOISIT PAS — Eric, 2026-09-09,
+   lot 190 : *« Pour le feat : Savage Attacker (c'est granted) pas de bouton.
+   Les compétences idem, les skills sont granted, y'a pas de choix. Idem que
+   pour les lineages. »* Le don, les deux compétences et l'outil fixé sont des
+   FAITS du record : le parcours ne les liste plus comme des portes (un plan
+   requis n'est pas un item — `parcours.mjs`, NORMES §6 pré quinquies), et
+   cette étape les montre sur sa ligne « gagné d'office » (`LIGNE_ACQUIS`),
+   exactement la forme des traits d'un lignage. Le nom du don et de l'outil se
+   tape pour lire (doigt : tap = info). ⛔ Le lot 187 les listait, avec un
+   `Done` qui « prenait acte » : c'était une signature à poser pour rien.
 
    ⛔ L'ÉQUIPEMENT A/B N'EST PAS CHOISI ICI. `data.equipment` est lu par
    l'étape Equipment (`orDuDepart`, lot 182 : « les 50 gp remplacent le
    paquet »). Une carte qui l'afficherait inviterait à un choix que cet écran
    n'offre pas — le « faux magasin » que ce dépôt interdit. */
 
-import { planAt, planSlots } from "./carnet.mjs?v=612";
-import { renderFicheBody, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=612";
-import { renderChoixGlisses } from "./glisser.mjs?v=612";
-import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=612";
-import { STEPS } from "./etapes.mjs?v=612";
+import { planAt, planSlots } from "./carnet.mjs?v=613";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=613";
+import { renderChoixGlisses } from "./glisser.mjs?v=613";
+import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=613";
+import { STEPS } from "./etapes.mjs?v=613";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -96,6 +105,18 @@ const CHEMIN_OUTIL = "background.tool";
    arrière-plan qui DÉCLARE des langues (`granted_language_choice`, un homebrew
    demain) obtient le glisser, comme l'Inheritance. */
 const CHEMIN_LANGUES = "background.languages";
+
+/** LA LIGNE « GAGNÉ D'OFFICE » — la même que celle des lignages
+ *  (`LIGNE_ACQUIS`, species-step) et des classes (`LIGNE_ACQUIS_CLASSE`) :
+ *  pas de porte, un voyant vert dès que l'arrière-plan est retenu, et son
+ *  résumé sous la tête. ⛔ Aucun `depend` : ce qu'un arrière-plan accorde ne
+ *  dépend d'aucun autre choix — il est acquis à l'instant où l'arrière-plan
+ *  l'est. */
+export const LIGNE_ACQUIS = Object.freeze({
+  path: "background.granted",
+  sansChoix: true,
+  label: "Granted automatically"
+});
 
 function nomDuRecord(query, kind, id) {
   const view = typeof query === "function" ? query({ kind, id }) : null;
@@ -182,11 +203,9 @@ function motDesCaracs(data) {
    ne se replie pas — la ligne passait SOUS l'image et se rognait des deux côtés
    (« ities : Intelligence, Wisdom, Ch »). Les stats d'espèce sont courtes
    (« Medium », « 30 feet ») ; celles-ci ne le sont pas. Un trait se replie.
-
-   ⛔ PAS LE CORPS « SRD PUR » DE SPECIES (`renderCardRows` seul). Mesuré le
-   09/09 en pile SRD : ce corps n'a aucun pied, et le pied générique s'efface
-   sous `fiche: true` — les neuf fiches d'espèce n'ont AUCUN `Choose`. Ce trou
-   est nommé dans le rapport du lot ; cette carte-ci ne le recopie pas.
+   ⭐ Depuis le lot 190, les fiches SRD de Species et de Class prennent la même
+   forme (des traits qui se replient, l'image, le blurb) : ce n'est plus une
+   exception de cet écran.
 
    📌 Aucune image d'arrière-plan n'existe : le dos de carte tient la place,
    comme il l'a fait pour les douze espèces avant leurs images. Le nom du
@@ -231,28 +250,10 @@ function toolInfo(query, id) {
   return { kind: "popup", titre: (view && view.record && view.record.name) || id, texte: lignes.join("\n\n") };
 }
 
-/** UN ACQUIS IMPOSÉ — le corps d'un item que le record fixe. Une ligne qui dit
- *  ce qui est accordé et par qui ; le nom se tape pour lire l'info (doigt :
- *  tap = info). ⛔ Rien à glisser : un collecteur qu'on ne peut pas remplir
- *  autrement serait un faux geste. */
-function renderImpose({ nom, source, info, act }) {
-  const bloc = el("section", "background-impose");
-  const ligne = el("p", "guide-mot");
-  if (info) {
-    const bouton = el("button", "background-impose-nom", [text(nom)]);
-    bouton.type = "button";
-    bouton.addEventListener("click", () => act(info));
-    ligne.append(bouton);
-  } else {
-    ligne.append(el("b", null, [text(nom)]));
-  }
-  ligne.append(text(source ? ` — granted by ${source}.` : " — granted."));
-  bloc.append(ligne);
-  return bloc;
-}
-
-/** L'OUTIL : un glisser quand le record laisse choisir (`tool_choice`, plan
- *  OFFERT), l'acquis imposé sinon (`tool_id`, plan REQUIS).
+/** L'OUTIL À CHOISIR : un glisser quand le record laisse choisir
+ *  (`tool_choice`, plan OFFERT). Un outil IMPOSÉ (`tool_id`, plan REQUIS)
+ *  n'est plus un item du parcours (lot 190) : il se lit sur la ligne « gagné
+ *  d'office », et ce corps rend `null` — il n'a rien à demander.
  *  ⭐ C'est la PROVENANCE du plan qui tranche — le carnet la publie
  *  (`recordProvenance("offered" | "required")`). Un plan sans provenance se lit
  *  à son compte : reste-t-il quelque chose à répondre ? */
@@ -263,34 +264,12 @@ function renderToolItem(ctx, act) {
   const offert = plan.provenance && typeof plan.provenance.mode === "string"
     ? plan.provenance.mode === "offered"
     : plan.answered < plan.expected;
-  const record = arrierePlanRetenu(ctx);
-  if (!offert) {
-    const id = Array.isArray(plan.selected) ? plan.selected[0] : null;
-    if (!id) return null;
-    return renderImpose({
-      nom: nomDuRecord(ctx.query, "tool", id), source: record && record.name,
-      info: toolInfo(ctx.query, id), act
-    });
-  }
+  if (!offert) return null;
   /* titre: null — la dalle d'item nomme déjà l'écran (§1 quinquies) */
   return renderChoixGlisses({
     plan, slots: [{ ...plan, index: 0, mot: "Tool" }], titre: null, mot: "Tool",
     refKind: "tool", labelOf: (id) => nomDuRecord(ctx.query, "tool", id), onAction: act,
     onInfo: (id) => { const info = toolInfo(ctx.query, id); if (info) act(info); }
-  });
-}
-
-/** LE DON D'ORIGINE, imposé par le record SRD (`feat_id`). Le glisser de
- *  l'Inheritance ne convient pas : il n'y a rien à poser dans un créneau déjà
- *  plein. Le nom se tape pour lire le don (`featInfo`, la même fenêtre). */
-function renderFeatItem(ctx, act) {
-  const plan = planAt(ctx.decisions || [], CHEMIN_DON);
-  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
-  if (!id) return null;
-  const record = arrierePlanRetenu(ctx);
-  return renderImpose({
-    nom: nomDuRecord(ctx.query, "feat", id), source: record && record.name,
-    info: featInfo(ctx.query, id), act
   });
 }
 
@@ -320,23 +299,56 @@ function corpsDeLItem(item, ctx, act) {
   if (!item) return null;
   if (item.path === CHEMIN_BOOST) return renderBoostGlisse(ctx, act);
   if (item.path === CHEMIN_OUTIL) return renderToolItem(ctx, act);
-  if (item.path === CHEMIN_DON) return renderFeatItem(ctx, act);
   if (item.path === CHEMIN_LANGUES) return renderLanguesItem(ctx, act);
   return null;
 }
 
+/* ══ LA LIGNE « GAGNÉ D'OFFICE » — ce que l'arrière-plan donne sans qu'on
+   choisisse ═══════════════════════════════════════════════════════════════
+   ⭐ LE MÊME ORGANE QUE LA CLASSE (`renderBilanLignes`, « **Mot :** texte »,
+   la dictée d'Eric du 27/08) et le même geste que le lignage : un nom qui a
+   une fenêtre d'info EST un bouton (le don, l'outil — `featInfo`, `toolInfo`,
+   les fenêtres que le tap ouvrait déjà au lot 187), sans bleu (Eric, 28/08 :
+   *« pas besoin de mettre le texte des tokens en bleu »*). Les compétences
+   restent du texte : le SRD n'a pas de fenêtre de compétence ici.
+   ⛔ L'OUTIL N'Y FIGURE QUE S'IL EST IMPOSÉ. Le Soldier choisit le sien : sa
+   ligne le dirait avant qu'il l'ait choisi, et la porte `Tool` le dit déjà. */
+function nomQuiOuvre(nom, info, act) {
+  if (!info) return text(nom);
+  const bouton = el("button", "bilan-nom", [text(nom)]);
+  bouton.type = "button";
+  bouton.setAttribute("aria-label", `${nom} — details`);
+  bouton.addEventListener("click", () => act(info));
+  return bouton;
+}
+
+function resumeDeLItem(item, ctx, act) {
+  if (!item || item.path !== LIGNE_ACQUIS.path) return null;
+  const record = arrierePlanRetenu(ctx);
+  if (!record) return null;
+  const data = record.data || {};
+  const query = ctx.query;
+  const agir = act || (() => {});
+  const don = motDuDon(query, data);
+  const outil = typeof data.tool_id === "string" ? nomDuRecord(query, "tool", data.tool_id) : null;
+  const lignes = [
+    ["Skills", nomsDe(query, "skill", data.skill_ids, data.skill_proficiencies)],
+    ["Tool", outil ? nomQuiOuvre(outil, toolInfo(query, data.tool_id), agir) : null],
+    ["Origin feat", don ? nomQuiOuvre(don, typeof data.feat_id === "string" ? featInfo(query, data.feat_id) : null, agir) : null]
+  ];
+  const corps = renderBilanLignes(lignes);
+  return corps ? el("div", "parcours-resume-corps", [corps]) : null;
+}
+
 /** LA PORTE DIT CE QU'IL Y A DERRIÈRE (loi de la porte, Eric 27/08) : une
- *  porte résolue nomme la réponse et garde la question en sous-titre. Le don
- *  et l'outil imposés arrivent résolus ; le boost reste une question. */
+ *  porte résolue nomme la réponse et garde la question en sous-titre. Seul
+ *  l'outil À CHOISIR arrive comme une question ; les bonus en sont une
+ *  jusqu'au bout (une bourse n'a pas UNE réponse). */
 function porteDeLItem(chemin, ctx) {
   const decisions = ctx.decisions || [];
   if (chemin === CHEMIN_BOOST) return "Ability boosts";
   if (chemin === CHEMIN_LANGUES) return "Languages";
-  if (chemin === CHEMIN_DON) {
-    const plan = planAt(decisions, CHEMIN_DON);
-    const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
-    return id ? { mot: nomDuRecord(ctx.query, "feat", id), sous: "origin feat" } : "Origin feat";
-  }
+  if (chemin === LIGNE_ACQUIS.path) return LIGNE_ACQUIS.label;
   if (chemin === CHEMIN_OUTIL) {
     const plan = planAt(decisions, CHEMIN_OUTIL);
     const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
@@ -347,16 +359,9 @@ function porteDeLItem(chemin, ctx) {
 
 const PREVENTION = "Leaving this open marks nothing — only Done records the choice.";
 
-function aiguilleurDeLItem(chemin, ctx) {
+function aiguilleurDeLItem(chemin) {
   if (chemin === CHEMIN_OUTIL) {
-    const plan = planAt(ctx.decisions || [], CHEMIN_OUTIL);
-    const offert = plan && plan.provenance && plan.provenance.mode === "offered";
-    return offert
-      ? `Tap a tool to read what it covers — drag it into the slot to choose. ${PREVENTION}`
-      : `Granted by your background — nothing to pick here; tap the name to read it. Done takes note.`;
-  }
-  if (chemin === CHEMIN_DON) {
-    return "Granted by your background — nothing to pick here; tap the name to read it. Done takes note.";
+    return `Tap a tool to read what it covers — drag it into the slot to choose. ${PREVENTION}`;
   }
   return null;
 }
@@ -371,6 +376,9 @@ export const BACKGROUND_CATALOGUE = {
   itemCorps: corpsDeLItem,
   itemLabel: porteDeLItem,
   itemAiguilleur: aiguilleurDeLItem,
+  /* la ligne « gagné d'office » et son résumé — la forme des lignages */
+  lignesEnPlus: [LIGNE_ACQUIS],
+  resumeItem: resumeDeLItem,
   /* ⏳ LE TEXTE EST UN BROUILLON — le mien, pas celui d'Eric. Il dit ce que
      l'écran ATTEND, et il se corrige ICI, à un seul endroit. Le compte n'est
      pas écrit : la pile dit combien elle en porte. */
@@ -384,11 +392,13 @@ export const BACKGROUND_CATALOGUE = {
 };
 
 /** LE MENU DES CHOIX (2ᵉ palier hors parcours, et le repli d'un item sans
- *  corps) : les corps, empilés. Même contrat que `renderSpeciesChoices`. */
+ *  corps) : les corps de ce qui reste À CHOISIR, empilés. Même contrat que
+ *  `renderSpeciesChoices`. Ce que le record impose n'y est pas : ce n'est
+ *  pas un choix. */
 export function renderBackgroundChoices(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const menu = el("div", "catalogue-choices");
-  for (const chemin of [CHEMIN_BOOST, CHEMIN_OUTIL, CHEMIN_DON, CHEMIN_LANGUES]) {
+  for (const chemin of [CHEMIN_BOOST, CHEMIN_OUTIL, CHEMIN_LANGUES]) {
     const corps = corpsDeLItem({ path: chemin }, ctx, act);
     if (corps) menu.append(corps);
   }
@@ -396,8 +406,9 @@ export function renderBackgroundChoices(ctx, onAction) {
 }
 
 /** La porte du 2ᵉ palier : prête quand tout ce que le carnet publie sous la
- *  racine est répondu. `null` sans plan — un arrière-plan qui ne demanderait
- *  rien n'aurait qu'un palier (I.4). */
+ *  racine est répondu — les plans requis y sont, déjà répondus : ils ne
+ *  retiennent jamais la porte. `null` sans plan — un arrière-plan qui ne
+ *  demanderait rien n'aurait qu'un palier (I.4). */
 export function backgroundPalier2(decisions) {
   const plans = [CHEMIN_BOOST, CHEMIN_OUTIL, CHEMIN_DON, CHEMIN_LANGUES]
     .map((chemin) => planAt(decisions, chemin))

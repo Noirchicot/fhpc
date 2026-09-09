@@ -35,7 +35,7 @@ globalThis.document = createTestDocument();
 
 const { catalogueOptions, renderCatalogueCards } = await import("../ui/builder/catalogue.mjs");
 const {
-  BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee
+  BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee, LIGNE_ACQUIS
 } = await import("../ui/builder/background-step.mjs");
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -240,10 +240,6 @@ test("⚔️ TÉMOIN — aucun id d'arrière-plan SRD n'est écrit dans l'écran
 
 /* ══ 3. CE QU'UNE CARTE MONTRE — LU DANS LE RECORD ═════════════════════════ */
 
-/** Un corps d'item est-il l'acquis imposé ? Le nœud rendu EST la section
- *  (querySelector ne regarde que les descendants). */
-const estImpose = (n) => Boolean(n) && (n.className === "background-impose" || Boolean(n.querySelector(".background-impose")));
-
 function carteDe(h, report, id) {
   const cards = renderCatalogueCards(ctxDe(h, report), renderBackgroundCardBody);
   return [...cards.querySelectorAll("[data-snap]")].find((c) => c.getAttribute("data-value") === id);
@@ -279,7 +275,7 @@ test("🔴 la carte dit le nom, les 2 compétences, l'outil, le don d'origine et
 
 /* ══ 4. UN CHOIX POSÉ — LE MOTEUR LE LIT (le témoin de fin de lot) ═════════ */
 
-test("🔴 un arrière-plan choisi sort `identity.background` d'`underived` — et ses compétences et son outil sont dans `resolved`", () => {
+test("🔴 un arrière-plan choisi — et RIEN d'autre posé — sort `identity.background` d'`underived` ; ses compétences, son outil et son don sont acquis sans un geste", () => {
   const sans = H.build.verbs.rebuild({ document: docSrd(H, "sans") });
   assert.ok(sans.underived.some((u) => u.field === "identity.background"), "témoin : sans choix, le moteur le DIT");
   for (const v of ARRIERE_PLANS) {
@@ -326,39 +322,75 @@ test("🔴 le `tool_choice` : le choix posé (`choose`, ref tool) est CONSOMMÉ 
 
 /* ══ 5. LES ITEMS DU PARCOURS — un corps par chemin, la question seulement là où elle se pose ═ */
 
-test("🔴 les items sous la racine : les bonus (un glisser à 3 récepteurs), l'outil, le don", () => {
+test("🔴 les items sous la racine : les bonus SEULS quand l'outil est imposé — le don et l'outil ne sont pas des portes (lot 190)", () => {
   const v = ARRIERE_PLANS.find((x) => typeof x.record.data.tool_id === "string");
   const report = H.build.verbs.rebuild({ document: docSrd(H, "items", [CHOIX_BG(v.id)]) });
   const ctx = ctxDe(H, report);
   const items = itemsDeLEtape({ decisions: report.decisions, document: report.document, racine: "background" });
-  assert.deepEqual(items.map((i) => i.path).sort(), ["background.boost", "background.originFeat[0]", "background.tool"]);
+  /* ⚖️ Eric, 09/09 : « Savage Attacker (c'est granted) pas de bouton … les
+     skills sont granted, y'a pas de choix. Idem que pour les lineages. » —
+     les plans REQUIS du carnet (feat_id, tool_id) ne sont plus des items. */
+  assert.deepEqual(items.map((i) => i.path), ["background.boost"]);
+  for (const chemin of ["background.originFeat[0]", "background.tool"]) {
+    const plan = report.decisions.find((p) => p.path === chemin);
+    assert.equal(plan && plan.provenance && plan.provenance.mode, "required", `témoin : ${chemin} est bien publié REQUIS par le carnet`);
+  }
 
   const boost = BACKGROUND_CATALOGUE.itemCorps({ path: "background.boost" }, ctx, () => {});
   assert.ok(boost, "le glisser des bonus existe");
   assert.equal(boost.querySelectorAll(".glisse-creneau").length, v.record.data.ability_keys.length,
     "un récepteur par caractéristique que le record nomme — trois, pas six");
 
-  /* l'outil IMPOSÉ : un acquis, pas un glisser */
-  const outil = BACKGROUND_CATALOGUE.itemCorps({ path: "background.tool" }, ctx, () => {});
-  assert.ok(estImpose(outil), "l'outil accordé se présente comme un acquis");
-  assert.equal(outil.querySelectorAll(".glisse-vivier").length, 0, "⛔ aucun collecteur pour un outil qu'on ne choisit pas");
-  assert.match(outil.textContent, new RegExp(Q({ kind: "tool", id: v.record.data.tool_id }).record.name));
-  assert.match(outil.textContent, new RegExp(`granted by ${v.record.name}`));
-
-  /* le don IMPOSÉ : idem, et le nom se tape pour lire */
-  const don = BACKGROUND_CATALOGUE.itemCorps({ path: "background.originFeat[0]" }, ctx, () => {});
-  assert.ok(estImpose(don));
-  const appels = [];
-  const donCliquable = BACKGROUND_CATALOGUE.itemCorps({ path: "background.originFeat[0]" }, ctx, (a) => appels.push(a));
-  donCliquable.querySelector("button.background-impose-nom").dispatchEvent({ type: "click" });
-  assert.equal(appels.length, 1);
-  assert.equal(appels[0].kind, "popup", "tap sur le nom = info (la fenêtre du don)");
-  assert.equal(appels[0].titre, Q({ kind: "feat", id: v.record.data.feat_id }).record.name);
-
-  /* la porte : résolue, elle NOMME (loi de la porte) */
-  assert.deepEqual(BACKGROUND_CATALOGUE.itemLabel("background.originFeat[0]", ctx),
-    { mot: Q({ kind: "feat", id: v.record.data.feat_id }).record.name, sous: "origin feat" });
+  /* ⛔ un item imposé n'a plus de corps : rien à ouvrir, rien à signer */
+  assert.equal(BACKGROUND_CATALOGUE.itemCorps({ path: "background.tool" }, ctx, () => {}), null);
+  assert.equal(BACKGROUND_CATALOGUE.itemCorps({ path: "background.originFeat[0]" }, ctx, () => {}), null);
   assert.equal(BACKGROUND_CATALOGUE.itemLabel("background.boost", ctx), "Ability boosts");
+});
+
+test("🔴 la ligne « gagné d'office » — la forme des lignages : les compétences, l'outil imposé, le don ; le nom du don et de l'outil se tape pour lire", () => {
+  const v = ARRIERE_PLANS.find((x) => typeof x.record.data.tool_id === "string");
+  const d = v.record.data;
+  const report = H.build.verbs.rebuild({ document: docSrd(H, "acquis", [CHOIX_BG(v.id)]) });
+  const ctx = ctxDe(H, report);
+  assert.deepEqual(BACKGROUND_CATALOGUE.lignesEnPlus, [LIGNE_ACQUIS], "une ligne sans porte, comme `species.granted`");
+  assert.equal(LIGNE_ACQUIS.sansChoix, true);
+  assert.equal(LIGNE_ACQUIS.depend, undefined, "elle ne dépend d'aucun autre choix : verte dès que l'arrière-plan est retenu");
+  assert.equal(BACKGROUND_CATALOGUE.itemLabel(LIGNE_ACQUIS.path, ctx), LIGNE_ACQUIS.label);
+
+  const appels = [];
+  const resume = BACKGROUND_CATALOGUE.resumeItem({ path: LIGNE_ACQUIS.path }, ctx, (a) => appels.push(a));
+  assert.ok(resume, "le résumé existe dès que l'arrière-plan est retenu");
+  const texte = resume.textContent;
+  for (const sid of d.skill_ids) assert.ok(texte.includes(Q({ kind: "skill", id: sid }).record.name), `la compétence ${sid}`);
+  assert.ok(texte.includes(Q({ kind: "tool", id: d.tool_id }).record.name), "l'outil imposé");
+  assert.ok(texte.includes(Q({ kind: "feat", id: d.feat_id }).record.name), "le don d'origine");
+  assert.equal(resume.querySelectorAll(".glisse-vivier").length, 0, "⛔ rien à glisser sur un acquis");
+
+  const boutons = [...resume.querySelectorAll("button.bilan-nom")];
+  assert.equal(boutons.length, 2, "deux noms qui ouvrent une fenêtre : l'outil et le don");
+  for (const b of boutons) b.dispatchEvent({ type: "click" });
+  assert.deepEqual(appels.map((a) => a.kind), ["popup", "popup"], "tap sur le nom = info (doigt : tap = info)");
+  assert.deepEqual(appels.map((a) => a.titre).sort(),
+    [Q({ kind: "feat", id: d.feat_id }).record.name, Q({ kind: "tool", id: d.tool_id }).record.name].sort());
+
+  /* le Soldier CHOISIT son outil : sa ligne ne le nomme pas, la porte `Tool` le demande */
+  const s = ARRIERE_PLANS.find((x) => x.record.data.tool_choice !== undefined);
+  const rs = H.build.verbs.rebuild({ document: docSrd(H, "acquis-soldier", [CHOIX_BG(s.id)]) });
+  const resumeS = BACKGROUND_CATALOGUE.resumeItem({ path: LIGNE_ACQUIS.path }, ctxDe(H, rs), () => {});
+  for (const tid of s.record.data.tool_choice.from) {
+    assert.ok(!resumeS.textContent.includes(Q({ kind: "tool", id: tid }).record.name), `${tid} n'est pas annoncé comme acquis`);
+  }
+  assert.deepEqual(itemsDeLEtape({ decisions: rs.decisions, document: rs.document, racine: "background" }).map((i) => i.path),
+    ["background.boost", "background.tool"], "l'outil À CHOISIR reste une porte");
+});
+
+test("⚔️ TÉMOIN — l'Inheritance de Fate's Hand n'a aucun plan requis : ses trois items ne bougent pas", async () => {
+  const { exempleFhEn } = await import("../src/tools/exemple-fh-en.mjs");
+  const fh = exempleFhEn();
+  const report = fh.build.verbs.rebuild({ document: fh.document });
+  assert.ok(report.decisions.filter((p) => p.path.startsWith("background.")).every((p) => !p.provenance || p.provenance.mode !== "required"));
+  assert.deepEqual(itemsDeLEtape({ decisions: report.decisions, document: report.document, racine: "background" }).map((i) => i.path),
+    ["background.boost", "background.languages", "background.originFeat[0]"]);
 });
 
 test("🔴 l'outil À CHOISIR (tool_choice) : un glisser, et LUI SEUL pose la question", () => {
@@ -367,7 +399,6 @@ test("🔴 l'outil À CHOISIR (tool_choice) : un glisser, et LUI SEUL pose la qu
   const ctx = ctxDe(H, report);
   const outil = BACKGROUND_CATALOGUE.itemCorps({ path: "background.tool" }, ctx, () => {});
   assert.ok(outil && outil.querySelector(".glisse-vivier"), "un collecteur : il y a quelque chose à poser");
-  assert.equal(estImpose(outil), false);
   const jetons = [...outil.querySelectorAll(".glisse-vivier button")].map((b) => b.textContent);
   for (const tid of v.record.data.tool_choice.from) {
     assert.ok(jetons.some((j) => j.includes(Q({ kind: "tool", id: tid }).record.name)), `le jeton ${tid}`);
@@ -394,7 +425,58 @@ test("le menu des choix (repli) empile les corps, et rend un nœud même sans ar
   assert.equal(vide.className, "catalogue-choices");
   assert.equal(vide.children.length, 0, "aucun plan sous la racine : rien à empiler");
   assert.equal(backgroundPalier2(sans.decisions), null, "aucun plan : un seul palier (I.4)");
+  /* le menu n'empile que ce qui reste À CHOISIR (lot 190) : les bonus pour
+     un outil imposé, les bonus ET l'outil pour le Soldier */
+  const impose = ARRIERE_PLANS.find((x) => typeof x.record.data.tool_id === "string");
+  const avec = H.build.verbs.rebuild({ document: docSrd(H, "menu-avec", [CHOIX_BG(impose.id)]) });
+  assert.equal(renderBackgroundChoices(ctxDe(H, avec), () => {}).children.length, 1);
+  const choisit = ARRIERE_PLANS.find((x) => x.record.data.tool_choice !== undefined);
+  const soldier = H.build.verbs.rebuild({ document: docSrd(H, "menu-soldier", [CHOIX_BG(choisit.id)]) });
+  assert.equal(renderBackgroundChoices(ctxDe(H, soldier), () => {}).children.length, 2);
+});
+
+/* ══ 6. LOT 190 — LE FANTÔME QUI « NE POSAIT PAS » ══════════════════════════
+   Eric, 09/09 : *« fantôme marche pas, pas possible de poser dans les
+   collecteurs »*. 📏 Mesuré dans la page (375 × 812, Acolyte, +1 glissé sur
+   INT) : le dépôt ÉCRIVAIT `background.boost.int = 1` et l'écran comptait
+   « 1 of 3 chosen » — mais le collecteur restait « drop here ».
+   ⛔ LE TÉMOIN DU LOT 187 NE POUVAIT PAS ACCUSER : son `ctxDe` portait
+   `document`, celui de la coquille (`catalogueCtx`) ne le portait pas. Les
+   deux gardes ci-dessous ferment les deux moitiés : l'organe LIT le document
+   (donnée), et la coquille le DONNE (lu sur ses octets, comme le routage). */
+
+test("🔴 le récepteur d'un bonus lit sa valeur DANS LE DOCUMENT : avec, il est rempli ; sans, il dit « drop here »", () => {
   const v = ARRIERE_PLANS[0];
-  const avec = H.build.verbs.rebuild({ document: docSrd(H, "menu-avec", [CHOIX_BG(v.id)]) });
-  assert.ok(renderBackgroundChoices(ctxDe(H, avec), () => {}).children.length >= 2);
+  const key = v.record.data.ability_keys[0];
+  const report = H.build.verbs.rebuild({ document: docSrd(H, "boost-pose", [CHOIX_BG(v.id), { path: `background.boost.${key}`, value: 2 }]) });
+  const creneau = (ctx) => [...BACKGROUND_CATALOGUE.itemCorps({ path: "background.boost" }, ctx, () => {})
+    .querySelectorAll("[data-creneau]")].find((c) => c.getAttribute("data-creneau") === `background.boost.${key}`);
+  const avec = creneau(ctxDe(H, report));
+  assert.equal(avec.getAttribute("data-rempli"), "true", "avec le document : le collecteur montre le bonus posé");
+  assert.match(avec.textContent, /\+2/);
+  const { document: _sans, ...sansDocument } = ctxDe(H, report);
+  const sans = creneau(sansDocument);
+  assert.equal(sans.getAttribute("data-rempli"), "false", "témoin : sans document, l'organe ne voit rien — c'était l'écran d'Eric");
+  assert.match(sans.textContent, /drop here/);
+  /* et le moteur CONSOMME le bonus : +2 sur la caractéristique, base 12 */
+  assert.equal(report.resolved.abilities[key].score, 14, "le boost d'arrière-plan SRD est lu par derive.mjs — ce n'est pas un trou de moteur");
+  assert.ok(!report.unconsumed.some((c) => c.path === `background.boost.${key}`));
+});
+
+/** Ce que la coquille doit donner au ctx des catalogues — lu sur ses octets. */
+function fautesDuCtx(source) {
+  const corps = corpsDe(stripComments(source), "catalogueCtx") || "";
+  return /document: state\.document/.test(corps) ? [] : ["catalogueCtx ne porte pas le document"];
+}
+
+test("🔴 `catalogueCtx` (shell.mjs) porte le document — comme `inheritanceCtx` l'a toujours fait", () => {
+  assert.deepEqual(fautesDuCtx(shellText), []);
+  assert.match(corpsDe(stripComments(shellText), "inheritanceCtx") || "", /document: state\.document/, "témoin : l'autre ctx du même organe");
+});
+
+test("⚔️ ATTAQUE — retirer `document` du ctx des catalogues fait ROUGIR le garde", () => {
+  const corps = corpsDe(shellText, "catalogueCtx");
+  const mute = shellText.replace(corps, corps.replace("document: state.document,", ""));
+  assert.notEqual(mute, shellText, "témoin : la mutation a trouvé sa cible");
+  assert.deepEqual(fautesDuCtx(mute), ["catalogueCtx ne porte pas le document"]);
 });

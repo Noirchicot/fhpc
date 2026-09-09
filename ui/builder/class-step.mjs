@@ -20,11 +20,16 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=612";
-import { renderFicheBody, renderCardRows, renderBilanLignes, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=612";
-import { renderConfirmDialog } from "./confirm.mjs?v=612";
-import { renderChoixGlisses } from "./glisser.mjs?v=612";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=612";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=613";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=613";
+/* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
+import { blurbDeSecours } from "./fiche-secours.mjs?v=613";
+/* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
+   jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=613";
+import { renderConfirmDialog } from "./confirm.mjs?v=613";
+import { renderChoixGlisses } from "./glisser.mjs?v=613";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=613";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -80,12 +85,32 @@ function nomDuPalier(valeur) {
    SRD, « delve » est maison — deviner le préfixe marcherait jusqu'au jour où il
    se tromperait, en silence. On CHERCHE dans le catalogue, qui sait les deux.
    📌 Et le nom reste celui du RECORD, recopié : aucun mot n'est fabriqué ici. */
-function skillLabel(query, id) {
+function skillView(query, id) {
   const view = query({ kind: "skill", id });
-  if (view && view.record) return view.record.name;
-  const parSlug = (query({ kind: "skill" }) || [])
-    .find((v) => v && v.record && (v.record.slug === id || String(v.id).endsWith(`:${id}`)));
-  return parSlug && parSlug.record ? parSlug.record.name : id;
+  if (view && view.record) return view;
+  return (query({ kind: "skill" }) || [])
+    .find((v) => v && v.record && (v.record.slug === id || String(v.id).endsWith(`:${id}`))) || null;
+}
+
+function skillLabel(query, id) {
+  const view = skillView(query, id);
+  return view && view.record ? view.record.name : id;
+}
+
+/** L'INFO D'UNE COMPÉTENCE — ce que le SRD en dit : sa caractéristique et
+ *  ses usages (`example_uses`). Même fenêtre que le tap d'un sort ou d'une
+ *  arme ; le sélecteur de Skills lit les mêmes champs (`texteDuDetail`).
+ *  ⛔ Rien n'est écrit ici qui ne soit lu ; `null` quand le record n'a rien à
+ *  dire, et le tap ne fait alors rien plutôt que d'ouvrir une fenêtre vide. */
+function skillInfo(query, id) {
+  const view = skillView(query, id);
+  const data = (view && view.record && view.record.data) || {};
+  const lignes = [
+    typeof data.ability === "string" ? `Ability: ${data.ability}.` : null,
+    typeof data.example_uses === "string" ? data.example_uses : null
+  ].filter(Boolean);
+  if (lignes.length === 0) return null;
+  return { kind: "popup", titre: (view && view.record && view.record.name) || id, texte: lignes.join("\n\n") };
 }
 
 /* LOT 72 — le même geste pour un sort : le NOM vient du record, jamais
@@ -552,7 +577,7 @@ export const CLASS_CATALOGUE = {
     : chemin === "class.skillBudget"
       ? "Drag a price onto a skill to spend your points. Leaving this open marks nothing — only Done records the choice."
     : chemin === "class.skills"
-      ? "Tap a skill, or drag it onto a slot. Leaving this open marks nothing — only Done records the choice."
+      ? "Tap a skill to read it — drag it into a slot to choose, or press Select. Leaving this open marks nothing — only Done records the choice."
     : null),
   /* ⭐ LE CORPS D'UN ITEM NE REND QUE SON BLOC — même contrat que Species
      (`itemCorps`), et c'est ce qui rend les deux chapitres identiques à
@@ -627,7 +652,7 @@ function lignesDuPool(data) {
 export function renderClassCardBody(query, id) {
   const view = query({ kind: "class", id });
   const data = (view && view.record && view.record.data) || {};
-  if (!Array.isArray(data.fiche_stats)) return renderClassCardBodySrd(data);
+  if (!Array.isArray(data.fiche_stats)) return renderClassCardBodySrd(query, id, data);
   return renderFicheBody({
     stats: [...data.fiche_stats, ...lignesDuPool(data).map(([label, value]) => ({ label, value }))],
     blurb: data.blurb && data.blurb.text,
@@ -652,41 +677,40 @@ export function renderClassCardBody(query, id) {
 
 /** LA FICHE D'UN PERSONNAGE SRD PUR — la couche `fh-fiche-en` débrayée.
  *
- *  🔴 CE N'EST PAS UN REPLI DÉCORATIF, C'EST LA LOI §0.12 : « un personnage
- *  SRD pur traverse-t-il l'écran de bout en bout ? ». `fiche_stats` et
- *  `blurb` sont du contenu Fate's Hand ; sans la couche qui les porte, la
- *  fiche neuve serait VIDE — douze dalles blanches. Ce corps-ci est
- *  exactement celui d'avant le lot 77, gardé tel quel : la pile SRD nue rend
- *  ce qu'elle rendait, ni plus ni moins.
+ *  📍 LOT 190 — Eric, 2026-09-09 : *« Class idem Species. »* — c'est-à-dire
+ *  *« prends l'image Fate's Hand, le même texte de blurb. Pour le moment. »*
  *
- *  ⚠️ ET IL N'EST PAS TENU PAR LE GARDE DES 118 px — il ne peut pas l'être :
- *  ses lignes viennent du record SRD (`hit_point_die` est une phrase
- *  entière), et c'est précisément parce qu'elles débordent de la colonne que
- *  `fh-fiche-en` existe. À 360 px, une pile SRD nue est LISIBLE mais pas
- *  CALIBRÉE — le dire ici plutôt que le laisser découvrir. */
-function renderClassCardBodySrd(data) {
-  /* ⭐ LOT 82 — LE NOMBRE QUE LE JOUEUR DÉPENSE, ET LUI SEUL. La carte
-     montrait `base`, qui mélangeait le pool et les points déjà placés : douze
-     nombres faux à l'écran. Le canon §B.1 publie trois totaux, et le joueur
-     n'en manipule qu'un — c'est celui-là que la carte annonce. Le bound (déjà
-     dépensé quand la feuille arrive) a sa place sur la fiche, pas sur la carte
-     de choix : ici, ce qui aide à choisir, c'est ce qu'on aura à dépenser. */
-  /* ⭐ LES MÊMES TROIS TOTAUX QUE LA FICHE FH, par le même organe : deux
-     façons de compter les points sur deux chemins de rendu, ce serait deux
-     vérités. Le lot 82 n'en montrait qu'un ici, avec l'argument « ce qui aide
-     à choisir, c'est ce qu'on aura à dépenser » — Eric a tranché autrement le
-     2026-08-20 : les trois totaux, parce que savoir ce qui est DÉJÀ POSÉ pour
-     soi fait partie du choix. */
-  const rows = renderCardRows([
-    ...lignesDuPool(data),
-    ["Hit points", data.hit_point_die],
-    ["Primary ability", data.primary_ability],
-    ["Saving throws", Array.isArray(data.saving_throw_proficiencies) ? data.saving_throw_proficiencies.join(", ") : null]
-  ]);
-  const level1 = (Array.isArray(data.features) ? data.features : [])
-    .filter((f) => f && f.level === 1 && typeof f.name === "string")
-    .map((f) => f.name);
-  return [rows, renderCardNames("Level 1 features", level1)].filter(Boolean);
+ *  📏 CE QUI ÉTAIT SERVI, MESURÉ AU LOT 187 : le corps d'avant le lot 77 —
+ *  des lignes et les noms des aptitudes de niveau 1, **sans image, sans prose,
+ *  sans pied**, donc sans `Choose`. La loi §0.12 (« un personnage SRD pur
+ *  traverse-t-il l'écran ? ») était tenue à la lettre et perdue en fait : on
+ *  ne choisissait pas sa classe depuis sa fiche.
+ *
+ *  ⭐ LA MÊME FICHE QUE FATE'S HAND (`renderFicheBody`), comme chez l'espèce :
+ *  l'image par slug (`imageDeFiche`, elle n'a jamais dépendu d'une couche), le
+ *  blurb de Fate's Hand lu sans monter la couche (`blurbDeSecours` — le repli
+ *  et son « pour le moment » sont déclarés dans `fiche-secours.mjs`), et les
+ *  faits SRD que ce corps montrait déjà, en forme de TRAITS — la forme qui se
+ *  replie : `hit_point_die` est une phrase entière (« D10 per Fighter level »),
+ *  et une ligne de stat de 118 px la rognerait (c'est précisément pour ça que
+ *  `fh-fiche-en` compresse ; ses `fiche_stats` sont du contenu de couche).
+ *  ⛔ Les aptitudes de niveau 1 quittent la fiche, comme en Fate's Hand : elles
+ *  vivent sur la ligne « gagné d'office » derrière `Choose`, avec leur phrase. */
+function renderClassCardBodySrd(query, id, data) {
+  const traits = [
+    ...lignesDuPool(data).map(([name, effect]) => ({ name, effect })),
+    { name: "Hit points", effect: data.hit_point_die },
+    { name: "Primary ability", effect: data.primary_ability },
+    { name: "Saving throws", effect: Array.isArray(data.saving_throw_proficiencies) ? data.saving_throw_proficiencies.join(", ") : null }
+  ].filter((t) => typeof t.effect === "string" && t.effect.length > 0);
+  return renderFicheBody({
+    stats: [],
+    traits,
+    blurb: blurbDeSecours("class", query({ kind: "class", id })) || "",
+    image: imageDeFiche(id),
+    imageSecours: DOS_DE_CARTE,
+    imageAlt: ""
+  });
 }
 
 /* ══ LE MENU DES CHOIX INTRINSÈQUES (B2.3) — LE PALIER 2 ═════════════════
@@ -757,19 +781,56 @@ export function renderClassChoices(ctx, onAction, seulement) {
   }) : null;
   if (glisse && retenu("class.skillBudget")) menu.append(glisse);
 
-  /* 🔴 ET LE SRD PUR GARDE SON ÉCRAN — loi §0.12, et c'est un test qui me l'a
-     rappelé dans la minute. Sans la couche maison, aucune bourse n'est
-     déclarée : le personnage a toujours ses N maîtrises SRD à cocher, et les
-     lui retirer l'aurait laissé SANS AUCUN écran de compétences. La bascule
-     remplace un système là où l'autre existe ; elle n'en supprime pas un là où
-     il est le seul. */
-  if (!budget) {
+  /* ══ LOT 190 — LES COMPÉTENCES DE LA CLASSE SRD, AU SÉLECTEUR DE JETONS ═══
+     Eric, 2026-09-09 : *« En SRD les compétences sont choisies dans les
+     classes. Il faut un sélecteur de compétences en mode choix de jetons
+     (sous-menu, rangées de 3, avec collecteurs en bas). »*
+
+     ⭐ C'EST LE SÉLECTEUR DE SKILLS & TOOLS (lot 171, `renderSelecteur`,
+     skills-step), CALQUÉ : le même organe (`renderChoixGlisses`), le régime
+     `sorts` (trois par rangée), et l'alternative au glisser d'Eric du 07/09 —
+     *« tap (clic droit) pour lire ; au pied de la description, Select place
+     directement dans le collecteur »* : le tap ouvre la fenêtre de la
+     compétence avec `Close` · `Select` (le premier collecteur libre ; absent
+     quand tout est pris — un bouton qui ne ferait rien mentirait). ⛔ Pas de
+     `Drop` ici : un jeton posé s'éteint (une compétence ne se prend qu'une
+     fois, la loi du vivier), et se rend en glissant hors du collecteur — le
+     geste d'annulation d'Eric du 19/08, le même que partout.
+     📏 MESURÉ LE 09/09 AVANT CE LOT : l'organe existait déjà (lot 79), sans
+     fenêtre d'info (le tap posait), en régime `skills` (quatre par rangée sur
+     un écran large), et derrière une fiche SANS `Choose` — Eric ne pouvait
+     pas l'atteindre.
+
+     🔴 IL N'EXISTE QU'EN PILE SRD, ET C'EST LE DRAPEAU QUI LE DIT — pas
+     l'absence d'une bourse. `fh.skills` levé, les compétences se prennent au
+     cran Skills ; ce sous-menu n'a alors aucune raison d'être, même si un
+     record publiait encore `skill_choice`. ⛔ Jamais le nom de la pile (« SRD +
+     Destiny » n'en a pas — lot 186) : les drapeaux montés, donnés par la
+     coquille (`ctx.drapeaux`, `catalogueCtx`), et le nom du drapeau lu là où le
+     moteur le tient (`FH_SKILLS_FLAG`, skill-pool.mjs).
+     📌 ET LE SRD PUR GARDE SON ÉCRAN — loi §0.12 : sans la couche maison,
+     aucune bourse n'est déclarée, et le personnage a toujours ses N maîtrises
+     SRD à poser. La bascule remplace un système là où l'autre existe ; elle
+     n'en supprime pas un là où il est le seul. */
+  const skillsFh = Array.isArray(ctx.drapeaux) && ctx.drapeaux.includes(FH_SKILLS_FLAG);
+  if (!budget && !skillsFh) {
     const qcm = planAt(decisions, "class.skills");
+    const creneaux = planSlots(decisions, "class.skills");
+    const poseDans = (slot) => (Array.isArray(slot.selected) ? slot.selected[0] : slot.selected) || null;
     const glisseSrd = qcm ? renderChoixGlisses({
-      plan: qcm, slots: planSlots(decisions, "class.skills"),
-      titre: "Class skills", mot: "Choice",
+      plan: qcm, slots: creneaux,
+      titre: "Class skills", mot: "Skill", rangee: "sorts",
       labelOf: (id) => skillLabel(query, id), onAction: act,
-      consigne: "Tap a skill, or drag it onto a slot."
+      /* la consigne vit dans l'AIGUILLEUR (`itemAiguilleur`), une voix, un
+         lieu — comme au sélecteur de Skills (Eric, 07/09) */
+      onInfo: (slug) => {
+        const info = skillInfo(query, slug);
+        if (!info) return;
+        const libre = creneaux.find((s) => !poseDans(s));
+        const revenir = { mot: "Close", faire: () => {} };
+        const choisir = libre ? { mot: "Select", faire: () => act({ kind: "set", path: libre.path, value: slug }) } : null;
+        act({ ...info, actions: [revenir, choisir].filter(Boolean) });
+      }
     }) : null;
     if (glisseSrd && retenu("class.skills")) menu.append(glisseSrd);
   }
