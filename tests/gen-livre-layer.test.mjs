@@ -206,3 +206,33 @@ test("⚖️ L'ÉPREUVE DES TROIS ÉTAGES — la pile monte, et il n'y a qu'UNE 
   assert.equal(records.get("xdmg:gem:en:obsidian").src, "xdmg-en",
     "obsidian n'est qu'au livre : elle reste, et elle reste au livre");
 });
+
+/* ══ LOT 188 — LA COUCHE SE MONTE PAR LE VRAI BLOC, PAS PAR UN PLI À LA MAIN ═
+   📏 MESURÉ LE 09/09 : le fichier du disque tendu à `layers.verbs.register`
+   était REFUSÉ trois fois de suite — `schema` (« fhpc.layer/1 »), `flags`
+   absent, `attribution` en chaîne. L'épreuve des trois étages ci-dessus
+   pliait les records elle-même et ne pouvait pas le voir : une bijection
+   fausse est cohérente. Ce garde tend la couche au lecteur, puis au bloc. */
+
+test("🔴 LOT 188 — la couche du livre est acceptée par `readLayer` ET par `register`, à sa place dans la pile", async () => {
+  const { readLayer, createLayers } = await import("../src/layers/index.mjs");
+  const { layer } = construireCouche(source());
+  const bytes = Buffer.from(JSON.stringify(layer), "utf8");
+  const lue = readLayer(bytes, "xdmg-en.layer.json");
+  assert.equal(lue.document.id, "xdmg-en");
+  assert.equal(lue.document.schema, "fh-layer/1", "⛔ « fhpc.layer/1 » n'est le schéma de rien");
+  assert.deepEqual(lue.document.flags, [], "un livre n'allume aucun module — mais il le DIT");
+  assert.equal(lue.document.attribution.license, "all-rights-reserved");
+
+  const bus = { emit() {} };
+  const layers = createLayers({ bus });
+  for (const f of ["srd-5.2.1-en.layer.json", "srfh-shelving-en.layer.json"]) {
+    layers.verbs.register({ bytes: readFileSync(join(RACINE, "layers", f)), origin: f });
+  }
+  const monte = layers.verbs.register({ bytes, origin: "xdmg-en.layer.json" });
+  assert.equal(monte.records, lue.total, "tout le contenu est monté");
+  layers.verbs.register({ bytes: readFileSync(join(RACINE, "layers", "fh-gems-en.layer.json")), origin: "fh-gems-en.layer.json" });
+  const azurite = layers.verbs.query({ kind: "gem", id: "srfh:gem:en:azurite" });
+  assert.equal(azurite.provenance.from, "fh-gems-en", "sur la VRAIE pile aussi, c'est Fate's Hand qui recouvre le livre");
+  assert.equal(layers.verbs.query({ kind: "gem", id: "xdmg:gem:en:obsidian" }).provenance.from, "xdmg-en");
+});

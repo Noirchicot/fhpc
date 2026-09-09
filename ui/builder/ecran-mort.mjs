@@ -33,7 +33,15 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=610";
+import { currentStack } from "./universe-step.mjs?v=611";
+/* ⭐ LOT 188 — UN SOUS-ENSEMBLE DE COUCHES EST LÉGITIME, PAS INCONNU. Depuis
+   l'écran `Layers`, un joueur coupe Trainings, ou Destiny, une par une ;
+   `currentStack` ne sait nommer que les deux piles entières et rend `null` sur
+   ce personnage-là. L'accuser d'une « pile inconnue » l'enverrait flipper
+   Fate's Hand pour défaire ce qu'il vient de choisir. `compositionFh` lit le
+   document interrupteur par interrupteur : seule une composition qu'AUCUN
+   interrupteur ne peut produire reste innommable. */
+import { compositionFh } from "./layers-ecran.mjs?v=611";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -46,7 +54,7 @@ const TETE = "This screen reads your character sheet, and ";
  *  trouve. Un joueur qui lit cette phrase sur Equipment doit savoir où
  *  aller. */
 export const MOT_PILE_INCONNUE = TETE
-  + "this character's layer stack doesn't match either ruleset, so there is nothing to derive it from. "
+  + "this character's layer stack doesn't match either ruleset, nor any mix of its layers, so there is nothing to derive it from. "
   + "Open Menu, the first tab, and flip the Fate's Hand switch: it realigns the stack, "
   + "and this screen comes back with it.";
 
@@ -120,7 +128,12 @@ export const MOT_SANS_RAISON = TETE + "it cannot be derived yet.";
  */
 export function motDeLEcranMort(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
-  if (layers.length > 0 && currentStack(doc) === null) return MOT_PILE_INCONNUE;
+  /* ⭐ LOT 188 — `currentStack` accuse tout ce qui n'est pas l'une des deux
+     piles entières ; `compositionFh` ne retient l'accusation que si aucun
+     interrupteur ne peut produire cette composition. Les deux se lisent
+     ensemble : une pile nommée est toujours légitime (garde dans
+     `tests/ecran-layers.test.mjs`), l'inverse n'est plus vrai. */
+  if (layers.length > 0 && currentStack(doc) === null && !compositionFh(doc).legitime) return MOT_PILE_INCONNUE;
   const choices = (doc && doc.build && Array.isArray(doc.build.choices)) ? doc.build.choices : [];
   if (!choices.some((c) => c && c.path === "class")) return MOT_SANS_CLASSE;
   return MOT_SANS_RAISON;

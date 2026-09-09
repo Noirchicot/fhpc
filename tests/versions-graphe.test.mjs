@@ -365,13 +365,20 @@ test("9 — le moteur demande couches, exemple et schéma SOUS SA version — la
     };
   };
   try {
-    const { bootEngine, loadExampleDocument, loadDocSchema, LAYER_FILES } =
+    const { bootEngine, loadExampleDocument, loadDocSchema, LAYER_FILES, LIVRE_FILES } =
       await import("../ui/builder/engine.mjs?v=888");
     /* `root` absolu : le stub lit le disque là où la page lirait le site. */
     const { build, layers } = await bootEngine({ root: ROOT });
     await loadExampleDocument({ root: ROOT });
     await loadDocSchema({ root: ROOT });
-    assert.equal(demandees.length, LAYER_FILES.length + 2, "cinq couches + l'exemple + le schéma");
+    /* LOT 188 — le moteur DEMANDE aussi les livres du joueur (`layers-livres/`),
+       sous leur version ; ici le stub lit le disque, le dossier n'y est pas, et
+       le moteur passe — un 404 n'est pas une erreur. Les URL sont comptées
+       parce qu'elles sont demandées : une URL sans version rechargerait le
+       livre d'AVANT. */
+    assert.equal(demandees.length, LAYER_FILES.length + LIVRE_FILES.length + 2,
+      "les couches + les livres du joueur + l'exemple + le schéma");
+    assert.ok(demandees.some((u) => u.includes("layers-livres/")), "les livres ont bien été demandés");
     assert.deepEqual(demandees.filter((u) => !u.endsWith("?v=888")), [],
       "une URL d'exécution sans la version du module rechargerait la pièce d'AVANT depuis le cache");
     assert.ok(build && layers, "bootEngine rend { build, layers }");

@@ -64,9 +64,10 @@ drapeaux, pas du contenu de couche (décision Q4).
 
 Une couche est de l'un de **deux genres**, et le genre décide où elle se pilote.
 
-**L'interrupteur** *ajoute ou retire une règle*, et il vit dans l'écran `Rules` du
-Menu. Ils sont **six** : `Trainings` · `Skills & tools` · `Inheritance` · `Destiny` ·
-`Lore` · `Soulforging`.
+**L'interrupteur** *ajoute ou retire une règle*, et il vit dans l'écran **`Layers`** du
+Menu *(le nom d'Eric, 09/09 — `Rules` est le nom accessible du bouton livre ; construit au
+lot 188, `ui/builder/layers-ecran.mjs`)*. Ils sont **six** : `Trainings` · `Skills & tools` ·
+`Inheritance` · `Destiny` · `Lore` · `Soulforging`.
 
 #### Où en est la coupe, couche par couche (lot 184, 2026-09-09)
 
@@ -79,9 +80,39 @@ contenu :
 | `Skills & tools` | `fh-skills-en` | `fh.skills` |
 | `Trainings` | `fh-trainings-en` | `fh.trainings` |
 | `Inheritance` | `fh-inheritance-en` | `fh.inheritance` |
-| `Destiny` | `fh-arcana-en` · `fh-feats-en` · `fh-spells-en` · `fh-species-en` | `fh.destiny` |
+| `Destiny` | `fh-arcana-en` · `fh-feats-en` · `fh-spells-en` | `fh.destiny` |
 | `Lore` | `fh-lore-en` · `fh-fiche-en` | *(aucun)* |
 | `Soulforging` | `fh-soulforging-en` | `fh.soulforging` |
+| *(catalogue — suit le maître)* | `fh-species-en` · `fh-gems-en` | `fh.chaos` · `fh.species` · `fh.gems` |
+
+#### ⛔ Le piège mesuré du lot 188 — `fh-species-en` levait `fh.destiny` (09/09)
+
+📏 **Mesuré sur la vraie pile** : Destiny éteint (ses trois couches démontées), les espèces
+restaient montées — elles sont du catalogue — et **le drapeau `fh.destiny` restait levé**, parce
+que la couche des espèces le déclarait pour ses Bases de Destinée. Conséquences : la ceinture
+versatile gardait son cran Destiny, et le module publiait un Score de Destinée fait de la seule
+Base, avec *« couche des arcanes non montée »* en déclaration — **une règle éteinte qui tourne**.
+
+⚖️ **La loi qui tranche est le §3 de cette section** — *« un contenu qui exige une règle absente
+s'affiche inerte, sa règle manquante nommée »*. La Base d'espèce est ce contenu ; sa règle est
+Destiny ; **c'est Destiny qui lève le drapeau**. `fh-species-en` ne lève plus que `fh.chaos` et
+`fh.species` (`src/tools/fh-species-source.mjs`). ⏳ Si Eric veut qu'une espèce garde une Base
+**sans** Destiny, c'est une règle de jeu à lui — et elle se dira dans la source de la couche.
+
+#### 🔴 Un sous-ensemble de couches est LÉGITIME, pas inconnu (lot 188)
+
+`currentStack` ne nomme que deux piles (`srd`, `srdfh`) et rend `null` entre les deux. Depuis
+`Layers`, un joueur coupe une couche à la fois : **`compositionFh`** (`layers-ecran.mjs`) lit le
+document interrupteur par interrupteur, et seule une composition qu'**aucun interrupteur ne peut
+produire** — un ensemble coupé en deux (`fh-arcana-en` sans `fh-spells-en`), le catalogue à
+moitié, le socle absent — reste innommable pour le Menu et pour l'écran mort.
+
+📏 **Et la pile montée se range sur le document au boot** (`alignerLaPileSurLeDocument`,
+shell.mjs). Mesuré avant le lot : un personnage gardé en « SRD seul » et **rechargé** retrouvait
+la pile complète montée, `rebuild` refusait (*« la pile montée ne correspond pas à
+build.layers »*) et les six écrans mouraient — pendant que le Menu affichait `SRD` allumé.
+⛔ On monte ce que le document demande, on n'écrit rien dedans : le SRD et `srfh` ne bougent
+jamais, seules les couches pilotables (Fate's Hand, livres, homebrew) suivent le manifeste.
 
 ⚖️ **ET UN INTERRUPTEUR PEUT EN EXIGER UN AUTRE — Eric, 08/09 : *l'Inheritance
 dépend des Trainings*.** Les deux langues que l'origine offre SONT des records du

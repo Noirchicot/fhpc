@@ -11,7 +11,7 @@
    l'URL de CE module : sans elle, un moteur frais pouvait recharger des
    couches de la version d'avant, servies par le cache (max-age=600 PAR
    fichier). Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=610";
+import { versionQuery } from "./version.mjs?v=611";
 
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
@@ -67,6 +67,60 @@ export const LAYER_FILES = [
   "fh-lore-en.layer.json"
 ];
 
+/* ══ 📚 LES LIVRES DU JOUEUR — lot 188 ═════════════════════════════════════
+   ⚖️ Eric, 09/09 : *« tu dois pouvoir les activer et les désactiver »*, *« ils
+   seront visibles dans le menu »*, et *« la version officielle ne contiendra
+   pas DMG et player »*.
+
+   🔴 LE FICHIER N'EXISTE QUE SUR LE DISQUE DU JOUEUR : `layers-livres/` est
+   ignoré par git (`gen-livre-layer.mjs`), donc ABSENT du site déployé — par
+   construction, pas par discipline. Dans le navigateur, un livre n'existe que
+   si le fichier est servi. ⇒ Un 404 n'est PAS une erreur, c'est zéro livre :
+   `fetch` dit `ok: false`, on passe. ⛔ Ne jamais faire tomber le boot pour un
+   livre : c'est le SRD qui est le plancher, pas le DMG.
+
+   ⭐ LA PLACE DANS LA PILE EST UNE LOI (ARCHITECTURE, « la superposition ») :
+   le livre se monte AU-DESSUS du SRD et de `srfh`, EN DESSOUS des couches
+   Fate's Hand — c'est ce qui fait que FH RECOUVRE le livre et non l'inverse.
+   L'ordre de la pile est l'ordre d'enregistrement (stack.mjs) : on enregistre
+   donc les livres juste après `srfh`, avant `fh-species-en`.
+
+   ⭐ ET IL SE MONTE ÉTEINT. C'est le DOCUMENT qui décide ce qui est allumé
+   (`alignerLaPileSurLeDocument`, shell.mjs) ; un livre monté allumé d'office
+   ferait diverger la pile active de tout personnage qui ne le déclare pas, et
+   `rebuild` refuserait. Un livre PRÉSENT mais que le bloc refuse (un fichier
+   d'une autre version) est rapporté dans `livresRefuses`, avec sa raison, pour
+   que l'écran `Layers` le dise au lieu de le taire. */
+export const LIVRE_FILES = ["xphb-en.layer.json", "xdmg-en.layer.json"];
+/** Le fichier au-dessus duquel les livres se montent — le plancher `srfh`. */
+const SOUS_LES_LIVRES = "srfh-shelving-en.layer.json";
+
+async function octetsDuLivre(root, file) {
+  let reponse;
+  try {
+    reponse = await fetch(`${root}/layers-livres/${file}${versionQuery(import.meta.url)}`);
+  } catch (_) {
+    return null;                                    // pas de réseau, pas de fichier : zéro livre
+  }
+  if (!reponse || !reponse.ok) return null;         // 404 : le livre n'est pas sur cet appareil
+  return new Uint8Array(await reponse.arrayBuffer());
+}
+
+async function monterLesLivres(layers, root) {
+  const refuses = [];
+  for (const file of LIVRE_FILES) {
+    const bytes = await octetsDuLivre(root, file);
+    if (!bytes) continue;
+    try {
+      const { id } = layers.verbs.register({ bytes, origin: file });
+      layers.verbs.disable({ id });
+    } catch (error) {
+      refuses.push({ id: file.replace(/\.layer\.json$/, ""), raison: error.message });
+    }
+  }
+  return refuses;
+}
+
 function makeBus() {
   const listeners = new Map();
   return {
@@ -90,14 +144,14 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs?v=610");
-  const { createBuild } = await import("../../src/build/index.mjs?v=610");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=610");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=610");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=611");
+  const { createBuild } = await import("../../src/build/index.mjs?v=611");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=611");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=611");
   /* LOT 148 BIS — le module qui fait ARRIVER sur la fiche les traits que la
      couche des espèces AJOUTE (`Splinter of Anon`, `Outlasting`,
      `Twice-Born`). Sans lui, ils s'appliquent sans que le joueur les voie. */
-  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=610");
+  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=611");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
@@ -113,12 +167,15 @@ export async function bootEngine({ root = "../.." } = {}) {
     modules: [createFhDestinyStat(), createFhSkillPoolStat(), createFhSpeciesTraits()]
   });
 
+  let livresRefuses = [];
   for (const file of LAYER_FILES) {
     const bytes = new Uint8Array(await (await fetch(`${root}/layers/${file}${versionQuery(import.meta.url)}`)).arrayBuffer());
     layers.verbs.register({ bytes, origin: file });
+    /* 📚 LOT 188 — les livres du joueur, juste au-dessus de `srfh` (voir leur tête). */
+    if (file === SOUS_LES_LIVRES) livresRefuses = await monterLesLivres(layers, root);
   }
 
-  return { build, layers, bus };
+  return { build, layers, bus, livresRefuses };
 }
 
 /** Charge le personnage d'exemple EN+FH — la seule matière réelle
