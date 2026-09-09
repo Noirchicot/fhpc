@@ -179,6 +179,25 @@ réflexe.
 | une étape n'a **aucun** contenu dans l'autre pile | **présente, éteinte, un mot** — jamais retirée |
 | rien ne peut hériter, et le record doit vraiment disparaître | `disable`, **et on écrit pourquoi rien n'héritait** |
 
+##### ⚖️ LES QUATRE RÉPONSES DU 09/09 — gravées AVEC leur question
+
+Eric, avant de partir : *« je vais te laisser en autonomie, pose les questions avant pour éviter
+d'être bloqué plus tard »*. Quatre questions fermées, quatre réponses :
+
+| la question | la réponse | ce qu'elle décide |
+|---|---|---|
+| **Qui hérite du record SRD réécrit, dans les trois cas ?** | **Vigilance · Dés · Cordes** | Perception → Vigilance ; Gaming Set → le jeu de dés ; Musical Instrument → les cordes. Les autres sont des `add`. **L'id du SRD ne bouge pas.** |
+| **En pile SRD, que fait le cran Destiny ?** | **Absent — neuf crans** | ⛔ contre ma recommandation *(« présent, inerte, un mot »)*. Puis : *« si j'allume Destiny dans les couches, il réapparaît ? »* → **oui** — donc la ceinture se lit sur **les drapeaux montés**, jamais sur le nom de la pile |
+| **Comment s'appelle l'écran des six interrupteurs ?** | **`Layers`** | et non `Rules`, en collision avec le nom accessible du bouton livre. Le mot dit ce que l'écran fait : allumer et éteindre des **couches** — règles FH, livres du joueur, homebrew |
+| **Cette nuit, après fusion et suite verte, je pousse et je déploie seul ?** | **Oui, si tout est vert** | j'arrête au premier rouge ; vérification par empreinte de CONTENU |
+
+⭐ **LA CEINTURE VERSATILE — ce que la deuxième réponse impose.** Eric : *« ou il faut que tu
+réécrives le belt pour qu'il soit versatile SRD / FH »*. Un aiguillage `srd` / `srdfh` ne sait
+pas nommer « SRD + Destiny seul » — `currentStack` y rend `null`. **Chaque cran déclare son
+besoin** *(un drapeau)* ; la ceinture montre ceux que la pile montée justifie. 📏 `fh.destiny`
+est levé par `fh-arcana-en`, `fh-feats-en`, `fh-spells-en`, `fh-species-en` ; `fh.inheritance`
+par `fh-inheritance-en` seule.
+
 ⭐ **CE QUE LA RÉÉCRITURE ACHÈTE, ET C'EST MESURÉ.** Un record éteint laisse derrière lui tout ce
 qui le référençait : son rangement pointe dans le vide *(2 cas mesurés le 09/09)*, et une liste de
 classe qui le nommait perd une option **en silence**. Un record réécrit **survit à son propre
