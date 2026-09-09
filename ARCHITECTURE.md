@@ -148,6 +148,53 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LE LEXIQUE — cinq mots, un seul sens chacun (10/09, discussion jusqu'à l'alignement)
+
+⚖️ Eric, 10/09, après avoir posé son modèle *(« le moteur FH = SRD + 1 couche moteur FH »)* et
+demandé des mots qui évitent les confusions : *« homebrew = fait maison aussi = confusion. J'ai dit
+catalogue après coup, c'est plus précis. Et moteur pour les règles qui changent. »* Puis :
+*« ton jargon est bon, tu me corriges dès que je ne l'utilise pas »*, et *« pas Lore mais World ?
+ça me va »*.
+
+| le mot | ce qu'il désigne | exemples |
+|---|---|---|
+| **Moteur** | une règle qui change la façon de jouer | Trainings · Skills & tools · Inheritance · Destiny · Soulforging |
+| **World** *(ex-Lore)* | les descriptions, l'ambiance, et les espèces et classes **dans leur version SRD** | Nymedes, les noms, l'Araag version SRD, les blurbs |
+| **Catalogue** | du contenu fait pour fonctionner avec un moteur — **toujours qualifié par sa source** | catalogue **SRD** · **des livres du joueur** *(PHB, DMG)* · **Fate's Hand** · **de table** *(ce qu'un MJ ou un joueur écrit — l'ancien « homebrew »)* |
+| **Version** | la forme d'un même élément selon les interrupteurs allumés | *Fighter* / *Fighter version FH* · *Araag version SRD* / *Araag version FH* |
+| **Interrupteur** | ce qu'on allume ou éteint au Menu — un moteur, le monde, un catalogue | les six, le maître, les livres |
+
+⛔ **Bannis dans la discussion** : *homebrew* → catalogue de table · *couche* → un mot de
+construction, il reste dans le code · *alias* → version · *drapeau* → interrupteur.
+
+**La phrase complète, signée par Eric** : *Fate's Hand = le SRD, plus le **World** de Nymedes,
+plus cinq **moteurs**, plus un **catalogue** Fate's Hand fait pour ces moteurs. Chaque élément a
+une **version** FH, et une version SRD quand il sait revenir. Couper un **interrupteur** ne détruit
+rien : ce qui ne sait pas revenir se marque « à refaire », et revient quand on rallume.*
+
+**Les règles qui en sortent :**
+
+1. **Deux familles d'éléments FH** — ceux qui **savent revenir** au SRD *(une espèce ou une classe
+   du SRD avec des ajouts FH : on retire les ajouts, l'original reste)* et ceux qui **ne savent pas**
+   *(Araag, Elestu, Loroka ; Silent Blade, College of Banners, Spellrigger — le SRD n'en a pas
+   d'original)*. Pour les seconds, **il faut écrire une version SRD** — laissés pour compte, avec la
+   règle de chacun : *Araag à réécrire pour rester équilibré sans le Body Forging ; Elestu : un
+   Skillful à deux choix ; Loroka : un don en plus*. En attendant, la version SRD provisoire de
+   l'Araag du 08/09 *(deux compétences à la création)* tient.
+2. **Une version SRD d'un élément FH vit dans le World, pas dans le SRD.** World éteint, elle part
+   avec lui — *« pas d'Araag dans SRD si le bouton n'est pas poussé »*.
+3. **World allumé, tous les moteurs éteints, un Araag version SRD → on joue dans Nymedes avec les
+   règles pures du SRD.** C'est la définition la plus propre de World.
+4. **« Cassé » = « à refaire à cet endroit », jamais « perdu ».** Un Elfe FH redevient Elfe SRD mais
+   ses compétences venaient du moteur Skills & tools : en SRD elles viennent de la classe, donc
+   l'étape Classe est marquée à refaire. Un Silent Blade sans version SRD : le personnage est à
+   refaire ou à changer. Le choix reste enregistré, l'écran dit quoi et où.
+5. ⚖️ **Et avant d'éteindre, la version FH doit rester sauvegardée** — Eric : *« ça duplique le
+   perso ; au moins poser la question : voulez-vous garder une sauvegarde de la version FH ? »*.
+   Le navigateur ne gardant qu'un personnage, la copie est un **fichier** — le geste *Save*.
+6. **Les blurbs et images actuels servent les deux versions** — ils sont généraux. Seules les
+   espèces propres à FH auront besoin des leurs, laissées pour compte avec elles.
+
 #### ⚖️ LES ESPÈCES FATE'S HAND SONT DU LORE (09/09)
 
 ⚖️ Eric, 09/09, devant un Araag affiché en pile SRD : *« **Il n'y a pas d'Araag dans SRD si le
