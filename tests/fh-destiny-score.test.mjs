@@ -31,7 +31,16 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 
-import { ROOT, SRD_EN, FH_SPECIES_EN, makeHarness, manifestOf, uneCouche } from "./build-harness.mjs";
+import { ROOT, SRD_EN, FH_SPECIES_EN, FH_FEATS_EN, makeHarness, manifestOf, uneCouche } from "./build-harness.mjs";
+/* ⭐ LOT 188 — LE DRAPEAU `fh.destiny` N'EST PLUS LEVÉ PAR LA COUCHE DES ESPÈCES.
+   La Base de Destinée est un TERME du Score ; la RÈGLE qui publie le Score est
+   l'interrupteur `Destiny` — `fh-arcana-en`, `fh-feats-en`, `fh-spells-en`,
+   qui lèvent le drapeau. Ces suites montent donc UNE couche de la règle à côté
+   des espèces : `fh-feats-en`, et pas les arcanes — le test « CE QUI N'EST
+   DÉRIVABLE DE RIEN » MESURE que sa pile ne porte aucun record d'arcane, et
+   cette mesure reste vraie. Aucune attente n'a changé : le don de ce
+   personnage n'est pas choisi, sa ligne reste déclarée. */
+const PILE_DESTINY = [SRD_EN, FH_SPECIES_EN, FH_FEATS_EN];
 import { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "../src/modules/fh/destiny-stat.mjs";
 import { statSumViolations } from "../src/build/validate.mjs";
 /* LOT 41 — `underived[].reason` → `{key, params}`, deux paquets composés
@@ -81,7 +90,7 @@ const CHOIX_DE_BASE = [
 
 function pileFH(options = {}) {
   return makeHarness(Object.assign({
-    layers: [SRD_EN, FH_SPECIES_EN],
+    layers: PILE_DESTINY,
     modules: [createFhDestinyStat()]
   }, options));
 }
@@ -414,7 +423,7 @@ test("ATTAQUE DU GARDE DE LA SOMME — une somme fausse est vue, nommée, et la 
       underived: []
     })
   };
-  const h = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN], modules: [menteur] });
+  const h = makeHarness({ layers: PILE_DESTINY, modules: [menteur] });
   assert.throws(() => h.verbs.rebuild({ document: documentFH(h) }),
     /ne vaut pas la somme de son détail/,
     "un Score faux qui a l'air juste n'entre pas dans le document");
@@ -517,7 +526,7 @@ test("LE MODULE NE S'ALLUME QUE SUR SON DRAPEAU — monté sans la couche, il ne
 
   /* La couche FH montée SANS le module : la pile réclame la capacité, personne
      ne la sert, et la fiche le DIT au lieu de se taire. */
-  const h = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN], modules: [] });
+  const h = makeHarness({ layers: PILE_DESTINY, modules: [] });
   const out = h.verbs.rebuild({ document: documentFH(h) });
   assert.deepEqual(out.resolved.stats, []);
   const declaration = out.underived.find((entry) => entry.field === "stats");

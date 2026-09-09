@@ -78,7 +78,10 @@ const frUnderivedFh = createLabels(FH_UNDERIVED_FR);
 const declareUnderived = (field, key, params) =>
   underivedEntry(field, key, params || {}, (entry) => renderUnderived(entry, frUnderivedFh));
 
-/** Le drapeau qui allume ce module. Levé par `layers/fh-species-en.layer.json`. */
+/** Le drapeau qui allume ce module. Levé par les trois couches de l'interrupteur
+ *  `Destiny` — `fh-arcana-en`, `fh-feats-en`, `fh-spells-en`. ⛔ Plus par
+ *  `fh-species-en` depuis le lot 188 : la Base d'espèce est un TERME de ce
+ *  Score, pas la règle qui le publie (voir `fh-species-source.mjs`). */
 export const FH_DESTINY_FLAG = "fh.destiny";
 
 /** L'ancre de l'entrée dans `resolved.stats[]`.

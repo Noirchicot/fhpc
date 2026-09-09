@@ -487,6 +487,21 @@
 - ⛔ **LE LOT 186 NE L'A PAS BRANCHÉ SUR LA CEINTURE**, et la raison est nommée : le faire **renommerait trois lignes que le joueur lit**, d'un coup, sans qu'Eric l'ait demandé. ⭐ Un mot qu'un joueur lit est à lui.
 - ➡️ Trois lectures possibles : *(a)* Review lit `ceinture()` et hérite des mots du belt ; *(b)* Review garde un vocabulaire propre, et alors **il se déclare comme tel** *(un chapitre n'est pas un cran)* ; *(c)* on ne corrige que les deux périmés.
 
+## C33 — Où vit la porte de `Layers` dans le R du Menu ? { #c33 }
+
+**Question : la porte qui ouvre le tableau de commande des couches — où, et sous quelle forme ?**
+
+- 📏 **CE QUE LE LOT 188 A POSÉ, par défaut** : une porte **large et bleue** (la forme de `My characters`), **sous les deux interrupteurs** `SRD · Fate's Hand`, dans le bloc des règles. Elle NAVIGUE, elle ne règle rien.
+- ⚠️ **Ce n'est pas une cote d'Eric.** Ses neuf corrections du 08/09 sur `R` n'en parlaient pas — l'écran n'existait pas. La rangée du bas ne pouvait pas la prendre : trois portes de 77 remplissent exactement la cellule de 247.
+- ➡️ Trois lectures : *(a)* elle reste là ; *(b)* elle remplace l'une des deux réservées du bas (`DM`, `Tools`) le jour où l'une d'elles se câble ailleurs ; *(c)* les deux interrupteurs de `R` DEVIENNENT la porte (toucher la ligne ouvre `Layers`) — ⛔ mais alors un tap ferait deux choses.
+
+## C34 — Un livre déclaré par le personnage, absent de cet appareil { #c34 }
+
+**Question : que lit le joueur quand son personnage déclare le DMG et que le fichier n'est pas sur ce disque ?**
+
+- 📏 **LE FAIT** : `layers-livres/` n'est jamais commité ; un personnage gardé avec le DMG allumé, ouvert sur un autre appareil, déclare une couche que le moteur ne peut pas monter. `rebuild` refuse (*« la pile montée ne correspond pas »*), et l'écran mort rend sa phrase **muette** (`MOT_SANS_RAISON`, lot 183 — « ce qui reste muet est nommé comme muet »).
+- ➡️ Le mot appartient à Eric : *« this character uses a book that is not on this device — import it, or switch it off in Layers »* est un brouillon, pas une décision. L'écran `Layers` le montre déjà « not on this device » ; c'est la phrase des six autres écrans qui manque.
+
 ## C32 — L'étape `background` en pile SRD n'a pas d'écran { #c32 }
 
 **Question : que montre le cran 3 quand `fh.inheritance` n'est pas levé ?**

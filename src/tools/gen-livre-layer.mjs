@@ -214,17 +214,33 @@ export function construireCouche(source, cle = "dmg-2024") {
   if (Object.keys(gear).length) records.gear = gear;
   if (Object.keys(shelving).length) records.shelving = shelving;
 
+  /* 🔴 LOT 188 — LA COUCHE DOIT SE MONTER PAR LE BLOC `layers`, ET ELLE NE
+     LE POUVAIT PAS. Mesuré le 09/09 en tendant le fichier du disque à
+     `layers.verbs.register` : « schema vaut « fhpc.layer/1 » — ce bloc ne
+     monte que des documents fh-layer/1 », puis `flags` absent, puis
+     `attribution` en chaîne là où le lecteur exige `{license, text}`
+     (`src/layers/document.mjs`, `assertLayerShape`). L'épreuve des trois
+     étages pliait les records à la main, sans jamais passer par le lecteur —
+     une bijection fausse est cohérente. Le garde monte désormais la couche
+     par le VRAI bloc (`tests/gen-livre-layer.test.mjs`). */
   const layer = {
-    schema: "fhpc.layer/1",
+    schema: "fh-layer/1",
     id: livre.id,
     version: "1.0.0",
     name: livre.nom,
     lang: "en",
-    attribution:
-      `${livre.nom} — contenu du livre que le joueur POSSÈDE, importé depuis sa propre ` +
-      "bibliothèque D&D Beyond. ⛔ Cette couche ne fait partie d'aucune version publiée : " +
-      "elle est produite sur le disque du joueur et n'entre dans aucun commit " +
-      "(Eric, 2026-09-09 : « la version officielle ne contiendra pas DMG et player »).",
+    /* Un livre n'allume aucun module moteur : c'est du contenu (« les livres
+       rajoutent du homebrew », Eric, 09/09). Le tableau vide est OBLIGATOIRE :
+       une couche déclare toujours ses drapeaux, même aucun. */
+    flags: [],
+    attribution: {
+      license: "all-rights-reserved",
+      text:
+        `${livre.nom} — contenu du livre que le joueur POSSÈDE, importé depuis sa propre ` +
+        "bibliothèque D&D Beyond. ⛔ Cette couche ne fait partie d'aucune version publiée : " +
+        "elle est produite sur le disque du joueur et n'entre dans aucun commit " +
+        "(Eric, 2026-09-09 : « la version officielle ne contiendra pas DMG et player »)."
+    },
     description:
       `Chapitre 7 « Treasure » : ${Object.keys(gem).length} gemmes, ` +
       `${Object.keys(gear).length} objets de valeur et marchandises. ` +

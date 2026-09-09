@@ -53,10 +53,22 @@ export const LAYER = {
   lang: "en",
 
   /* LES DRAPEAUX. Un drapeau ALLUME un module moteur ; il n'a pas de valeur.
-     Trois sont levés, et chacun se justifie par un contenu de CETTE couche :
-     · `fh.destiny` — les douze espèces portent une Base de Destinée, et
-       trois portent un pouvoir de Destinée. Sans le module, ces champs ne
-       veulent rien dire.
+     Deux sont levés, et chacun se justifie par un contenu de CETTE couche :
+     · ⛔ `fh.destiny` N'EST PLUS LEVÉ ICI — LOT 188, 2026-09-09, MESURÉ. Les
+       douze espèces portent une Base de Destinée, et c'était la raison du
+       drapeau. Mais la Base est un TERME du Score de Destinée, et le Score
+       est la règle de l'interrupteur `Destiny` (`fh-arcana-en`,
+       `fh-feats-en`, `fh-spells-en`, qui lèvent tous trois `fh.destiny`).
+       Cette couche est du CATALOGUE : elle reste montée quand le joueur coupe
+       Destiny — et tant qu'elle levait le drapeau, la ceinture gardait son
+       cran Destiny (lot 186, `cransAlignes` lit les drapeaux MONTÉS) et le
+       module publiait un Score fait de la seule Base, avec « couche des
+       arcanes non montée » en déclaration : une règle éteinte qui tourne.
+       ⭐ La loi qui tranche est ARCHITECTURE §3 : « un contenu qui exige une
+       règle absente s'affiche inerte, sa règle manquante NOMMÉE ». La Base
+       est ce contenu ; sa règle est Destiny ; c'est Destiny qui lève le
+       drapeau. ⏳ Si Eric veut qu'une espèce ait une Base SANS Destiny, c'est
+       une règle de jeu à lui — et elle se dira ici, pas dans l'écran.
      · `fh.chaos` — « Outlasting » (Halfelin) donne l'avantage aux jets de
        Chaos. Sans le module, le trait nomme une mécanique qui ne tourne pas,
        c'est-à-dire exactement la dégradation silencieuse que ce dépôt refuse.
@@ -71,7 +83,7 @@ export const LAYER = {
      `fh.overreach`) ne sont PAS levés ici : aucun contenu de cette couche ne
      les appelle. Ils viendront avec le chapitre qui les porte. ⚠️ À ratifier
      (question Q15-2). */
-  flags: ["fh.chaos", "fh.destiny", "fh.species"],
+  flags: ["fh.chaos", "fh.species"],
 
   /* AUCUN `ruleValues`, et ce n'est pas un oubli.
      · La Base de Destinée est PAR ESPÈCE : ce n'est pas un réglage global du

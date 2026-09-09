@@ -49,6 +49,10 @@ import { renderConfirmDialog } from "./confirm.mjs?v=611";
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
 import { motDeLEchelon } from "./echelle.mjs?v=611";
+/* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
+   vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
+   d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=611";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -263,65 +267,29 @@ function bouton(libelle, className, onClick) {
   return b;
 }
 
-/* ══ L'INTERRUPTEUR — Eric, 2026-09-08 ════════════════════════════════════
-   *« Il faut créer ce putain de switch on/off rouge-vert, qui prend peu de
-   place — genre on en met un par ligne. »*
+/* ⭐ LOT 188 — L'INTERRUPTEUR ET LA PLACE RÉSERVÉE ONT DÉMÉNAGÉ dans
+   `layers-ecran.mjs`, l'écran qui en porte le plus (onze lignes). Ils n'ont
+   pas changé de forme : ce fichier les importe, il ne les refait pas. */
 
-   ⭐ UN SEUL ORGANE POUR LES DEUX ESPÈCES QU'ON AVAIT. Le Menu portait DEUX
-   dessins pour « allumé / éteint » : la piste-et-pouce de `.bascule-ligne`
-   (les règles) et le mot-dans-une-boîte de `.universe-bascule` (tutoriel,
-   double vue) — `A-TRANCHER §C26 ②` les nommait tous les deux et demandait
-   qu'ils prennent le rouge et le vert. Ils prennent la même forme, et c'est
-   celle-ci : une LIGNE, le mot à gauche, la piste à droite.
-
-   🔴 LE ROUGE À GAUCHE, LE VERT À DROITE — Eric, 06/09 : *« le cercle à gauche
-   = rouge, à droite = vert »*. La couleur DIT l'état, la position le REDIT, et
-   `aria-checked` le dit une troisième fois — trois canaux, comme la loi des
-   jetons. ⛔ Aucune couleur n'est écrite ici : la feuille lit `data-on`.
-
-   ⚖️ `role="switch"` ET PAS `aria-pressed` : un interrupteur est un état vrai
-   ou faux, pas un bouton qu'on enfonce. Le rôle promet exactement ce que
-   l'organe fait — cliquer inverse — et rien de plus (⛔ pas de `radio`, qui
-   promettrait des flèches que rien n'implémente, voir `carnet.mjs`).
-
-   📏 PETIT, PARCE QU'ERIC LE VEUT PETIT : piste 36 × 20, pouce 16. La LIGNE,
-   elle, garde `--touch` 44 — on vise la ligne au pouce, pas la piste. */
-function interrupteur({ label, on, disabled, onChange }) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "interrupteur";
-  btn.setAttribute("role", "switch");
-  btn.setAttribute("aria-checked", String(Boolean(on)));
-  btn.dataset.on = String(Boolean(on));
-  if (disabled) btn.disabled = true;
-  btn.append(el("span", "interrupteur-mot", [text(label)]));
-  btn.append(el("span", "interrupteur-piste", [el("span", "interrupteur-pouce")]));
-  btn.addEventListener("click", () => onChange(!on));
-  return btn;
+/** LA CONFIRMATION DU MAÎTRE — partagée entre R et l'écran `Layers` (lot 188),
+ *  parce que `pendingStack` est un état de la coquille et que le joueur doit
+ *  voir la question là où il a basculé l'interrupteur. Une seule fonction :
+ *  deux rendus de « la même question » divergeraient. */
+export function renderConfirmationPile(doc, query, onAction) {
+  const affected = fhRefChoices(doc, query);
+  return renderConfirmDialog({
+    title: affected.length > 0
+      ? "Switching Fate's Hand off will stop applying these picks (they stay saved, and resume as soon as you switch it back on):"
+      : "Switching Fate's Hand off may also pause skill grants tied to species/class — nothing is deleted, and switching back restores them.",
+    items: affected,
+    /* 📏 Deux mots chacun : mesuré au banc le 08/09, « Keep Fate's Hand » et
+       « Switch to SRD » se coupaient dans la paire de la confirmation. */
+    confirmLabel: "Switch off",
+    cancelLabel: "Keep on",
+    onConfirm: () => onAction({ kind: "confirmLayerStack" }),
+    onCancel: () => onAction({ kind: "cancelLayerStack" })
+  });
 }
-
-/* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════
-   Eric, 26/08 : *« à mettre dans le menu mais pas le câbler »* · *« on note,
-   on câble après »*. Eric, 08/09 : *« il faut laisser une place à tout ce
-   que j'ai dit »* — pour que les itérations suivantes n'aient pas à
-   détruire pour reconstruire.
-
-   ⭐ ELLE EST PRÉSENTE, ÉTEINTE, ET ELLE LE DIT — la forme exacte de
-   `Double view` quand la fenêtre est trop petite (📍 `menu-reglage-
-   impossible-reste-visible`) : `disabled` + un mot. ⛔ Pas une seconde forme :
-   un joueur qui a appris ce que veut dire « gris avec un mot » sur un
-   réglage l'apprend une fois pour toutes. */
-function ligneReservee(label) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "tdc-ligne";
-  b.disabled = true;
-  b.dataset.reserve = "true";
-  b.append(el("span", null, [text(label)]));
-  b.append(el("span", "tdc-bientot", [text("soon")]));
-  return b;
-}
-
 
 function nomDuPersonnage(doc) {
   const nom = doc && typeof doc.name === "string" ? doc.name.trim() : "";
@@ -569,6 +537,7 @@ export function renderUniverseStep(ctx, onAction) {
      (`ecran`), l'écran dit ce qu'on y voit. */
   if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
   if (ctx.ecran === "characters") return renderPersonnagesEcran(ctx, onAction);
+  if (ctx.ecran === "layers") return renderLayersEcran(ctx, onAction);
   const doc = ctx.document;
   const query = ctx.query;
   const errors = ctx.fieldErrors || {};
@@ -660,20 +629,31 @@ export function renderUniverseStep(ctx, onAction) {
      un MIROIR, jamais un geste — il montre l'autre hauteur de la pile
      (*« quand l'un s'allume, l'autre s'éteint »*, 17/08) et ne se clique pas.
      ⛔ Un seul organe écrit la pile : l'interrupteur `Fate's Hand`. */
-  const stack = currentStack(doc);
+  /* ⭐ LOT 188 — LES DEUX INTERRUPTEURS LISENT LA COMPOSITION, PAS LE NOM DE LA
+     PILE. `currentStack` ne connaît que `srd` et `srdfh` ; un joueur qui a
+     coupé une seule couche depuis `Layers` n'est ni l'un ni l'autre, et il
+     n'est pas pour autant « hors des deux jeux de règles ». Le maître dit si
+     Fate's Hand est ENGAGÉ ; le mot rouge ne sort que pour une composition
+     qu'aucun interrupteur ne peut produire (`compositionFh`, layers-ecran). */
+  const composition = compositionFh(doc);
   const regles = el("div", "tdc-regles");
   const deux = el("div", "tdc-deux");
-  deux.append(interrupteur({ label: "SRD", on: stack === "srd", disabled: true, onChange: () => {} }));
+  deux.append(interrupteur({ label: "SRD", on: !composition.maitre, disabled: true, onChange: () => {} }));
   deux.append(interrupteur({
-    label: "Fate's Hand", on: stack === "srdfh",
+    label: "Fate's Hand", on: composition.maitre,
     onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })
   }));
   regles.append(deux);
-  if (stack === null) {
+  if (!composition.legitime) {
     regles.append(el("p", "doc-field-error", [
       text("This character's layer stack doesn't match either ruleset — flip Fate's Hand to realign it.")
     ]));
   }
+  /* 🎛️ LA PORTE DE `Layers` — le rang B où les six couches se coupent une par
+     une (Eric, 09/09). Large et bleue comme `My characters` : elle NAVIGUE,
+     elle ne règle rien ici. ⏳ Sa place sous les deux interrupteurs est le
+     défaut le plus sobre, pas une cote d'Eric (A-TRANCHER §C33). */
+  regles.append(bouton("Layers", "tdc-couches", () => onAction({ kind: "ouvrirLayers" })));
   perso.append(regles);
 
   /* MY CHARACTERS — large, bleu, cadré à gauche (Eric). Il ouvre le rang B1 :
@@ -690,21 +670,7 @@ export function renderUniverseStep(ctx, onAction) {
   perso.append(etat);
   section.append(perso);
 
-  if (ctx.pendingStack) {
-    const affected = fhRefChoices(doc, query);
-    section.append(renderConfirmDialog({
-      title: affected.length > 0
-        ? "Switching Fate's Hand off will stop applying these picks (they stay saved, and resume as soon as you switch it back on):"
-        : "Switching Fate's Hand off may also pause skill grants tied to species/class — nothing is deleted, and switching back restores them.",
-      items: affected,
-      /* 📏 Deux mots chacun : mesuré au banc le 08/09, « Keep Fate's Hand » et
-         « Switch to SRD » se coupaient dans la paire de la confirmation. */
-      confirmLabel: "Switch off",
-      cancelLabel: "Keep on",
-      onConfirm: () => onAction({ kind: "confirmLayerStack" }),
-      onCancel: () => onAction({ kind: "cancelLayerStack" })
-    }));
-  }
+  if (ctx.pendingStack) section.append(renderConfirmationPile(doc, query, onAction));
 
   section.append(textField({
     id: "universe-campaign",

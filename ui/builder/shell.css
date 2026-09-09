@@ -5490,8 +5490,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .tdc-deux { display: flex; gap: var(--sp-8); }
 .tdc-deux .interrupteur { flex: 1 1 0; min-width: 0; }
 
-/* MY CHARACTERS — large, BLEU, cadré à gauche (Eric). Il navigue. */
-.tdc-liste {
+/* MY CHARACTERS — large, BLEU, cadré à gauche (Eric). Il navigue.
+   LOT 188 — `Layers` (`.tdc-couches`) prend la MÊME forme : une porte large et
+   bleue vers un rang B du Menu, une seule règle pour les deux. */
+.tdc-liste, .tdc-couches {
   width: 100%; min-height: var(--touch); margin-top: var(--sp-8); padding: 0 var(--sp-12);
   border: 0; border-radius: var(--radius-md);
   background: var(--info); color: var(--on-accent);
@@ -5523,6 +5525,21 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    gauche, `--critical`. Allumé : pouce à droite, `--positive`. Grisé : le
    réglage dort (ou n'est qu'un miroir), et la piste perd sa teinte. */
 .tdc-lignes { display: flex; flex-direction: column; gap: 0; }
+/* LOT 188 — LE MOT ET SA NOTE : le mot en 600, la note dessous en T1 sourd — la
+   ligne du dessin d'Eric (« langues, rituels sombres »). Un interrupteur sans
+   note ne change pas. `min-width: 0` : c'est la note qui se coupe, jamais la
+   piste, qui reste `flex: none`. */
+.interrupteur-mot { display: flex; flex-direction: column; min-width: 0; }
+.interrupteur-note { font-size: var(--t1); font-weight: 400; color: var(--text-muted); }
+/* LA BANDE DE SECTION du tableau de commande — « ses six couches », « catalogue » :
+   un mot sourd en capitales, jamais un titre. */
+.tdc-regle {
+  margin: var(--sp-8) 0 var(--sp-2); padding: 0 var(--sp-8);
+  font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted);
+}
+/* LES ENFANTS DU MAÎTRE sont en retrait d'un cran : la hiérarchie se lit à
+   l'œil, avant de lire un mot. */
+.interrupteur[data-enfant] { padding-left: var(--sp-20); }
 .interrupteur {
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
   width: 100%; min-height: var(--touch); padding: 0 var(--sp-4) 0 var(--sp-8);

@@ -65,7 +65,16 @@ const CHOIX_CLASSE = { path: "class", ref: { kind: "class", id: "srd:wizard" }, 
    recopiée ici serait devenue fausse au prochain lot qui monte une couche —
    c'est exactement la faute du lot 77, où une pile recopiée a fait accuser le
    personnage d'exemple. */
-const PILE_D_HIER = PILE_COMPLETE.slice(0, -2);
+/* ⭐ LOT 188 — LA PILE D'HIER EST CELLE DE v606, PAS « MOINS DEUX AU HASARD ».
+   Les deux couches arrivées entre v599 et v606 sont `fh-soulforging-en` (lot
+   179) et `fh-gems-en` (lot 181). Ce personnage-là reste innommable APRÈS le
+   lot 188 — et pour la bonne raison : Soulforging éteint serait un choix
+   légitime, mais les gemmes manquantes coupent le CATALOGUE en deux (les
+   espèces sans les gemmes), ce qu'aucun interrupteur ne produit.
+   ⛔ `slice(0, -2)` — les deux couches de Lore — ne fait plus l'affaire : depuis
+   le lot 188, « Lore éteint » est un interrupteur, pas une pile inconnue (le
+   témoin est plus bas, dans ce même test). */
+const PILE_D_HIER = PILE_COMPLETE.filter((id) => !["fh-soulforging-en", "fh-gems-en"].includes(id));
 
 test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — avec sa sortie", () => {
   assert.equal(PILE_D_HIER.length, PILE_COMPLETE.length - 2,
@@ -83,6 +92,12 @@ test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — av
      l'interrupteur est sous les yeux du joueur. Ici il est ailleurs. */
   assert.match(mot, /Fate's Hand/, "la SORTIE doit nommer l'interrupteur qui réaligne");
   assert.match(mot, /Menu/, "…et OÙ il se trouve : le joueur n'est pas sur l'écran qui le porte");
+  /* ⚔️ LOT 188 — ET UN INTERRUPTEUR ENTIER ÉTEINT N'EST PLUS ACCUSÉ : la pile
+     moins ses deux couches de Lore est « Lore off », un choix fait depuis
+     `Layers`. L'envoyer flipper Fate's Hand défaire ce choix serait le défaut
+     symétrique de celui que ce fichier a fermé. */
+  const loreEteint = motDeLEcranMort(docAvec({ layers: PILE_COMPLETE.slice(0, -2), choices: [CHOIX_CLASSE] }));
+  assert.notEqual(loreEteint, MOT_PILE_INCONNUE, "⛔ « Lore off » est légitime — `compositionFh`, layers-ecran.mjs");
 });
 
 /* ══ 2 — LE MOT DU 2026-08-20 N'A PAS BOUGÉ ════════════════════════════════

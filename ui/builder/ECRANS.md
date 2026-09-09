@@ -82,6 +82,22 @@
 
 **`Display` est une branche du Menu au rang `B` — ⛔ `S` n'est un rang dans aucune nomenclature — elle prend des listes déroulantes, et ce qui y descend est ce qu'on règle une fois et qu'on ne relit pas.**
 
+### Layers est un rang B du Menu
+📍 `menu-layers-est-un-rang-b` · déployée, hors corpus · 09/09
+⚖️ **`Layers` est une branche du Menu au rang `B` : le socle SRD verrouillé, le maître Fate's Hand, ses six enfants qui se coupent un par un — Inheritance dort tant que Trainings est éteint — et le catalogue (les livres du joueur, le `+` homebrew inerte).**
+
+> **Eric** : « Comment s'appelle l'écran des six interrupteurs ? » → « Layers » ; et sur le dessin : « Un tableau de commande, pas une liste d'options. Le socle, puis les couches qui s'empilent dessus. »
+
+**`Layers` est une branche du Menu au rang `B` — ouverte par une porte large et bleue sous les deux interrupteurs de `R`. Un enfant se coupe SANS confirmation (une couche éteinte dégrade, elle n'efface rien) ; le maître garde la sienne. Un livre absent du disque est PRÉSENT, éteint, avec son mot (« not on this device »).**
+
+### Un sous-ensemble de couches est légitime
+📍 `menu-sous-ensemble-legitime` · déployée, hors corpus · 09/09
+⚖️ **Un personnage qui a coupé un interrupteur entier n'est PAS « hors des deux jeux de règles » : le Menu et l'écran mort n'accusent que ce qu'aucun interrupteur ne peut produire — un ensemble coupé en deux, le catalogue à moitié, le socle absent.**
+
+> **Eric** : « si j'allume Destiny dans les couches, il réapparaît ? » → oui — la même question, lue depuis le document.
+
+**Un personnage qui a coupé un interrupteur entier n'est PAS « hors des deux jeux de règles » ; et au rechargement, la pile montée se range sur ce que son document déclare, au lieu de le laisser mourir sur l'écran mort.**
+
 ### Les deux bouts de la ceinture sont opaques
 📍 `menu-onglet-opaque` · déployée, hors corpus · 02/09
 ⚖️ **Les onglets `Menu` et `Sheet` sont peints à `100 %` d'opacité, parce que ni l'un ni l'autre n'est une étape.**

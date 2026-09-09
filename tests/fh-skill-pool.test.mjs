@@ -878,8 +878,10 @@ test("LE MODULE DÉCLARE `{flag, contribute}` — sans quoi la dérivation le RE
 test("DEUX MODULES COHABITENT — le pool ne remplace pas le Score de Destinée", () => {
   /* Le pli appelle tous les modules dont le drapeau est levé. Ce test dit que
      `stats[]` en porte bien DEUX, chacun sous son ancre et son drapeau. */
+  /* LOT 188 — `fh.destiny` est levé par la RÈGLE Destiny (ici `fh-feats-en`),
+     plus par la couche des espèces, qui est du catalogue. */
   const h = makeHarness({
-    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN],
+    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN, FH_FEATS_EN],
     modules: [createFhDestinyStat(), createFhSkillPoolStat()]
   });
   const out = h.verbs.rebuild({

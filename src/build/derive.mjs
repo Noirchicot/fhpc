@@ -1294,11 +1294,19 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       level,
       records: moduleRecords,
       /* HORS de son namespace : ce qu'il y voit déjà lui arrive par `choices`,
-         et le lui tendre deux fois inviterait à le compter deux fois. */
-      refs: outsideRefs.map((entry) => Object.assign(
-        { path: entry.choice.path, kind: entry.choice.ref.kind },
-        flatView(reader.must(entry.choice.ref.kind, entry.choice.ref.id, `le choix « ${entry.choice.path} »`))
-      )),
+         et le lui tendre deux fois inviterait à le compter deux fois.
+         ⚠️ LOT 188 — `maybe`, PAS `must`, ET C'EST MESURÉ : un choix qui
+         pointe vers un record d'une couche ÉTEINTE (une langue choisie, puis
+         Trainings coupé depuis le Menu) faisait JETER toute la dérivation dès
+         qu'UN module tournait — alors que le pli lui-même dégrade sur ce
+         même ref (« langueDeTraining », plus haut) et que `validate` le
+         NOMME (`choice.ref-missing`). Un ref mort n'est pas un record à
+         tendre au module : il n'existe pas pour lui, comme le choix
+         n'existerait pas. Le manque reste dit, par `validate`, à sa place. */
+      refs: outsideRefs.flatMap((entry) => {
+        const view = reader.maybe(entry.choice.ref.kind, entry.choice.ref.id);
+        return view ? [Object.assign({ path: entry.choice.path, kind: entry.choice.ref.kind }, flatView(view))] : [];
+      }),
       species: speciesView
         ? { id: speciesView.id, name: speciesView.record.name, slug: speciesView.record.slug, data: speciesData }
         : null,
