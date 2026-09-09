@@ -162,6 +162,34 @@ seront produits pour être compatibles avec un moteur**. »*
 
 ⭐ **Ça règle une contradiction apparente que la loi de superposition laissait ouverte.**
 
+##### ⚖️ ET L'AMENDEMENT DU MÊME SOIR : « AU LIEU DE SOUSTRAIRE, RÉÉCRIT »
+
+⚖️ Eric, 09/09, quelques minutes après la phrase ci-dessus, en voyant ce que coûtait un retrait :
+*« Eh bien au lieu de soustraire, **réécrit** »*, puis, pour la ceinture d'étapes : *« fait idem
+pour le belt »*.
+
+⛔ **LES DEUX PHRASES NE SE CONTREDISENT PAS, ET IL FAUT LIRE LES DEUX.** La première dit qu'un
+interrupteur **A LE DROIT** de retrancher. La seconde dit qu'il **DOIT PRÉFÉRER RÉÉCRIRE** quand
+un héritier existe. La soustraction reste dans la grammaire ; elle cesse d'être le premier
+réflexe.
+
+| la situation | ce qu'on fait |
+|---|---|
+| le SRD porte un record que FH remplace par des records **plus fins** | **`patch`** — le record du SRD DEVIENT son héritier le plus proche, les autres sont `add` |
+| une étape n'a **aucun** contenu dans l'autre pile | **présente, éteinte, un mot** — jamais retirée |
+| rien ne peut hériter, et le record doit vraiment disparaître | `disable`, **et on écrit pourquoi rien n'héritait** |
+
+⭐ **CE QUE LA RÉÉCRITURE ACHÈTE, ET C'EST MESURÉ.** Un record éteint laisse derrière lui tout ce
+qui le référençait : son rangement pointe dans le vide *(2 cas mesurés le 09/09)*, et une liste de
+classe qui le nommait perd une option **en silence**. Un record réécrit **survit à son propre
+remplacement** : toutes les références continuent de se résoudre, vers l'héritier.
+
+📏 **Et sur la ceinture, la réécriture est aussi ce qui est SÛR.** `monterBelt` (`shell.mjs`) le
+dit lui-même : *« `paintBelt` écrit `data-status` par index sur les DIX ; les sortir du tableau
+les priverait de l'état courant »*. **Retirer un cran casse une arithmétique en silence ;
+réécrire son mot n'y touche pas.** Le cran `background` le faisait déjà depuis le lot 42 — il
+garde son id et change de libellé. ⇒ **Ce n'était pas un cas particulier, c'était le modèle.**
+
 | | fait quoi | pourquoi |
 |---|---|---|
 | une couche de **CATALOGUE** *(gemmes, livres, homebrew)* | **ajoute**, jamais `disable` | elle apporte du contenu ; retirer n'est pas son métier |
