@@ -24,7 +24,7 @@ import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN,
 
 globalThis.document = createTestDocument();
 
-const { renderUniverseStep, currentStack, currentBooks, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS }
+const { renderUniverseStep, currentStack, currentBooks, currentContent, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, RULE_LAYER_IDS }
   = await import("../ui/builder/universe-step.mjs");
 
 /** Les organes du tableau de commande. */
@@ -607,20 +607,45 @@ test("A6 — `currentBooks` dit QUELS livres sont allumés, dans un ordre STABLE
   assert.deepEqual(currentBooks(null), [], "un document absent n'est pas une erreur, c'est zéro livre");
 });
 
-test("A7 — ⚔️ ET LE GARDE N'EST PAS DEVENU AVEUGLE : une pile vraiment inconnue rend toujours `null`", () => {
-  /* ⛔ LE RISQUE DU CORRECTIF : à force de retirer des ids avant de comparer,
-     `currentStack` pourrait finir par tout accepter. Il doit continuer à
-     refuser ce qu'il refusait — une couche FH manquante reste une pile qu'on
-     ne sait pas nommer, livre ou pas. */
+test("A7 — ⚔️ CE QUI REND UNE PILE INNOMMABLE, C'EST UNE RÈGLE QUI MANQUE — PAS DU CONTENU EN TROP", () => {
+  /* ⛔ LE RISQUE DU CORRECTIF : à force d'ignorer des couches, `currentStack`
+     pourrait finir par tout accepter. Il doit continuer à refuser ce qui l'a
+     toujours mérité — une pile FH amputée d'une de ses couches de RÈGLES. */
   const fhIncomplete = draftDocument({ build: {
     layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "xdmg-en", ...FH_LAYER_IDS.slice(1)]),
     choices: [], budgets: {}, overrides: []
   } });
   assert.equal(currentStack(fhIncomplete), null,
     "il manque une couche FH : la pile reste innommable, et le livre n'y change rien");
-  const inconnue = draftDocument({ build: {
-    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "couche-inventee"]),
-    choices: [], budgets: {}, overrides: []
+  const sansSrfh = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: []
   } });
-  assert.equal(currentStack(inconnue), null, "une couche qui n'est ni FH ni un livre reste inconnue");
+  assert.equal(currentStack(sansSrfh), null, "sans `srfh`, aucune des deux piles nommées ne colle");
+});
+
+test("A8 — ⚖️ « SI ON A BIEN FAIT NOTRE BOULOT, LES LIVRES RAJOUTENT DU HOMEBREW » (Eric, 09/09)", () => {
+  /* 🔴 C'EST UNE ÉPREUVE, PAS UNE PHRASE. Elle dit : un livre ne doit être
+     qu'un cas de homebrew. Si le code doit CONNAÎTRE le nom d'un livre pour
+     que la pile tienne, on a mal fait le travail — et c'était le cas une heure
+     plus tôt, avec une liste `LIVRE_LAYER_IDS` en dur consultée par
+     `currentStack`. Ce test est ce qui empêche ce cas particulier de revenir. */
+  const inconnue = "la-classe-que-mon-ami-a-ecrite";
+  assert.equal(RULE_LAYER_IDS.includes(inconnue), false, "témoin : personne n'a jamais entendu parler de cette couche");
+  assert.equal(LIVRE_LAYER_IDS.includes(inconnue), false, "témoin : ce n'est pas un livre non plus");
+  const doc = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, inconnue]), choices: [], budgets: {}, overrides: []
+  } });
+  assert.equal(currentStack(doc), "srd",
+    "⛔ un homebrew que personne n'a listé ne doit PAS envoyer le personnage sur l'écran mort");
+  assert.deepEqual(currentContent(doc), [inconnue], "il est vu, nommé, et rangé du côté du CONTENU");
+
+  /* ⚔️ ET LA MÊME CHOSE POUR UN LIVRE — la preuve qu'il n'a rien de spécial :
+     les deux passent par le MÊME chemin, et rendent le MÊME résultat. */
+  const avecLivre = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "xdmg-en"]), choices: [], budgets: {}, overrides: []
+  } });
+  assert.equal(currentStack(avecLivre), currentStack(doc),
+    "un livre et un homebrew inconnu doivent donner EXACTEMENT le même nom de pile");
+  assert.equal(currentContent(avecLivre).length, currentContent(doc).length,
+    "et être comptés du même côté");
 });

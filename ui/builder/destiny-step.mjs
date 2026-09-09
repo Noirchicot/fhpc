@@ -25,12 +25,12 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=608";
-import { renderCardRows } from "./catalogue.mjs?v=608";
+import { drawArcana } from "./dice.mjs?v=609";
+import { renderCardRows } from "./catalogue.mjs?v=609";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=608";
+import { versionQuery } from "./version.mjs?v=609";
 
 export { drawArcana };
 

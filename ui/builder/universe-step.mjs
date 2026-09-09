@@ -42,13 +42,13 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=608";
+import { renderConfirmDialog } from "./confirm.mjs?v=609";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=608";
+import { motDeLEchelon } from "./echelle.mjs?v=609";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -130,6 +130,38 @@ export const FH_LAYER_IDS = [
  *  ici : cette liste ne dit QUE quels ids sont des livres. */
 export const LIVRE_LAYER_IDS = ["xphb-en", "xdmg-en"];
 
+/** 🔴 LES COUCHES DE RÈGLES — ET C'EST LA SEULE LISTE QUI NOMME LA PILE.
+ *
+ *  ⚖️ Eric, 09/09, et c'est une ÉPREUVE, pas une affirmation :
+ *  *« SI ON A BIEN FAIT NOTRE BOULOT, les livres rajoutent du homebrew. »*
+ *
+ *  🔴 CE QU'ELLE M'A FAIT VOIR, ET C'ÉTAIT MON PROPRE CODE D'IL Y A UNE HEURE.
+ *  J'avais retiré les livres du nom de la pile en les nommant : une liste
+ *  `LIVRE_LAYER_IDS` en dur, consultée par `currentStack`. ⛔ C'est exactement
+ *  le cas particulier que sa phrase interdit — si un livre n'est que du
+ *  homebrew, la pile n'a pas à connaître son nom. Le jour où un joueur monte
+ *  la classe qu'un ami lui a écrite, elle ne serait dans aucune liste, et
+ *  l'écran mort reviendrait pour lui seul.
+ *
+ *  ⭐ LA FORME JUSTE EST L'INVERSE : on ne liste pas ce qu'on IGNORE, on liste
+ *  ce qui COMPTE. Le nom de la pile se lit sur les couches de RÈGLES et sur
+ *  elles seules ; tout le reste — livre, homebrew, ce qui n'existe pas encore —
+ *  est du CONTENU et n'a aucun effet sur le nom.
+ *
+ *  ⚠️ ET LE GARDE N'EST PAS DESSERRÉ POUR AUTANT : ce qui rend une pile
+ *  innommable, c'est une couche de RÈGLES QUI MANQUE — pas une couche de
+ *  contenu EN TROP. C'était déjà le vrai sujet de l'écran mort ; la liste des
+ *  livres ne faisait que le brouiller. */
+export const RULE_LAYER_IDS = [SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS];
+
+/** Les couches de CONTENU du document — livres du joueur, homebrew, tout ce
+ *  qui n'est pas une règle. Dans l'ordre du document : ici il n'y a pas de
+ *  liste de référence pour imposer le sien, et c'est le but. */
+export function currentContent(doc) {
+  const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
+  return layers.map((layer) => layer.id).filter((id) => !RULE_LAYER_IDS.includes(id));
+}
+
 /** Les livres du joueur présents dans le manifeste du document, dans l'ordre
  *  de `LIVRE_LAYER_IDS` — jamais dans celui, variable, du document. */
 export function currentBooks(doc) {
@@ -145,11 +177,12 @@ export function currentBooks(doc) {
  *  pour CE personnage, que `rebuild` l'ait déjà adopté ou non. */
 export function currentStack(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
-  /* ⭐ LES LIVRES SORTENT DU COMPTE AVANT TOUT LE RESTE (09/09). Ils ne
-     changent pas le nom du jeu de règles : un personnage SRD avec le DMG
-     allumé joue toujours en SRD. Sans ce retrait, `ids.size` ne tomberait
-     jamais juste et l'écran mort s'afficherait pour tout le monde. */
-  const ids = new Set(layers.map((layer) => layer.id).filter((id) => !LIVRE_LAYER_IDS.includes(id)));
+  /* ⭐ SEULES LES COUCHES DE RÈGLES COMPTENT (09/09). Un personnage SRD avec
+     son DMG allumé — ou la classe d'un ami — joue toujours en SRD : le contenu
+     apporté ne change pas le jeu de règles. ⛔ On garde ce qui COMPTE, on ne
+     retire pas ce qu'on connaît : une liste de ce qu'on ignore serait toujours
+     incomplète d'un homebrew que personne n'a encore écrit. */
+  const ids = new Set(layers.map((layer) => layer.id).filter((id) => RULE_LAYER_IDS.includes(id)));
   /* Les deux piles portent le SRD ET `srfh` ; seules les couches FH les
      distinguent. Le compte se DÉDUIT des listes, il ne s'écrit pas à côté —
      un `5` en dur ici a déjà survécu à l'arrivée de deux couches (lot 77). */
