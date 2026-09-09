@@ -34,10 +34,13 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=614";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=614";
-import { swapContent } from "./socle.mjs?v=614";
-import { renderChoixGlisses } from "./glisser.mjs?v=614";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=615";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=615";
+import { swapContent } from "./socle.mjs?v=615";
+import { renderChoixGlisses } from "./glisser.mjs?v=615";
+/* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
+   dont la couche est éteinte (Trainings coupé depuis `Layers`). */
+import { motDuChoix } from "./mot-du-choix.mjs?v=615";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
@@ -397,10 +400,7 @@ function texteDuBound(c) {
   bourse("species", (c.resolved.identity && c.resolved.identity.species) || "your species");
   const langues = c.compte && c.compte.languagesPlan;
   if (langues) {
-    const noms = (langues.selected || []).map((id) => {
-      const view = c.query({ kind: "training", id });
-      return view && view.record ? view.record.name : id;
-    });
+    const noms = (langues.selected || []).map((id) => motDuChoix(c.query, "training", id));
     blocs.push(`From your inheritance — trainings, ${langues.answered} of ${langues.expected} languages:\n${noms.length ? noms.join(" · ") : "none chosen yet"}`);
   }
   const outils = c.pool && Number.isInteger(c.pool.bound_tool_points) ? c.pool.bound_tool_points : 0;

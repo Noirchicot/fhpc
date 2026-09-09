@@ -19,27 +19,27 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=614";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=614";
-import { mountPopup } from "./popup.mjs?v=614";
-import { renderLorePanel } from "./lore.mjs?v=614";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=614";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=615";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=615";
+import { mountPopup } from "./popup.mjs?v=615";
+import { renderLorePanel } from "./lore.mjs?v=615";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=615";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=614";
-import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=614";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=614";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=615";
+import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=615";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=615";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=614";
+} from "./tutoriel.mjs?v=615";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=614";
-import { lireLeFichier } from "./ouvrir.mjs?v=614";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=615";
+import { lireLeFichier } from "./ouvrir.mjs?v=615";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -50,14 +50,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=614";
+} from "./echelle.mjs?v=615";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=614";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=615";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -68,65 +68,69 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=614";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=614";
+} from "./fonds.mjs?v=615";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=614";
-import { renderChoixGlisses } from "./glisser.mjs?v=614";
-import { renderConceptStep } from "./concept-step.mjs?v=614";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=614";
+import { planAt, planSlots } from "./carnet.mjs?v=615";
+import { renderChoixGlisses } from "./glisser.mjs?v=615";
+import { renderConceptStep } from "./concept-step.mjs?v=615";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=615";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement } from "./layers-ecran.mjs?v=614";
+import { couchesApresLeGeste, gestesDAlignement } from "./layers-ecran.mjs?v=615";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE } from "./ecran-mort.mjs?v=614";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=614";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=615";
+/* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
+   résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
+   rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=615";
 import {
-  catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=614";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=614";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=614";
+  catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
+} from "./catalogue.mjs?v=615";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=615";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=615";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=614";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=615";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=614";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=615";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=614";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=615";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=614";
+} from "./abilities-step.mjs?v=615";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=614";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=615";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=614";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=614";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=614";
+} from "./destiny-step.mjs?v=615";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=615";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=615";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=614";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=614";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=615";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=615";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=614";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=615";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -145,16 +149,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=614";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=614";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=615";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=614";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=614";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=615";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=615";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=614";
+import { versionQuery } from "./version.mjs?v=615";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1294,7 +1298,7 @@ function applyDecisionAction(action) {
     /* ⛔ LE REFUS NE COMPTE QUE CE QUI SE CHOISIT. Une ligne « gagné d'office »
        ne porte aucune signature — l'exiger bloquerait le `Done` pour toujours. */
     const refus = refusDuDone({
-      decisions: state.decisions, document: state.document, racine: action.racine
+      decisions: state.decisions, document: state.document, racine: action.racine, violations: state.violations
     });
     /* 🔴 IL N'ÉCRIT PLUS RIEN DANS LE DOCUMENT — Eric, 2026-08-19 : *« il y a
        une double validation inutile »*. Il signait la racine ; le `Next` qui
@@ -3117,9 +3121,22 @@ function gendarmeParDefaut(cfg, ctx) {
 
 function renderParcoursGuide(cfg, ctx) {
   const items = itemsDuParcours(cfg);
-  const refus = Array.isArray(state.parcoursRefus) && state.parcoursRefus.length > 0
-    ? `Not yet: ${state.parcoursRefus.map((c) => motDe(cfg.itemLabel ? cfg.itemLabel(c, ctx) : motDuChemin(c))).join(", ")}.`
-    : null;
+  /* 🔴 LOT 191 — LES CHOIX QUE LA PILE NE RÉSOUT PAS, LUS DANS `validate()` :
+     ils retiennent le `Done` (donc « settled » ne sort pas) et la bande dit
+     pourquoi, avec la sortie. Un Araag en pile SRD lisait « This step is
+     settled » — vu en ligne le 09/09, v614. */
+  const nonResolus = refsMortsDeLEtape({ violations: state.violations, racine: cfg.path });
+  /* Le refus du `Done` a deux moitiés : les items non signés (par leur porte,
+     `state.parcoursRefus`) et les choix non résolus (par leur mot, jamais leur
+     id). `state.parcoursRefus` est un tableau — même vide — dès que `Done` a
+     refusé : c'est ce qui fait sortir la ligne « Not yet ». */
+  const motsDuRefus = Array.isArray(state.parcoursRefus)
+    ? [
+      ...state.parcoursRefus.map((c) => motDe(cfg.itemLabel ? cfg.itemLabel(c, ctx) : motDuChemin(c))),
+      ...nonResolus.map((r) => motDUnRecordAbsent(r.id))
+    ]
+    : [];
+  const refus = motsDuRefus.length > 0 ? `Not yet: ${motsDuRefus.join(", ")}.` : null;
   return renderGuideSpecifique({
     racine: cfg.path,
     titre: titreDuParcours(cfg, ctx),
@@ -3141,8 +3158,9 @@ function renderParcoursGuide(cfg, ctx) {
        joueur est déjà reparti par `Next`. Le pied lit les deux : `Done`,
        puis `Next`, puis plus rien. Les fondre en un seul booléen redonnerait
        le `Next` à quelqu'un qui revient simplement relire. */
-    acheve: etapeAchevee({ decisions: state.decisions, document: state.document, racine: cfg.path }),
+    acheve: etapeAchevee({ decisions: state.decisions, document: state.document, racine: cfg.path, violations: state.violations }),
     conclu: estConfirme(state.document, cfg.path),
+    manque: motDesChoixNonResolus(nonResolus),
     refus,
     onAction: applyDecisionAction
   });
@@ -3191,7 +3209,10 @@ function renderParcoursBilan(cfg, ctx) {
  *  au vert. Mesuré dans la page. */
 function titreDuParcours(cfg, ctx) {
   if (!cfg.kind || !ctx || typeof ctx.query !== "function") return cfg.label;
-  return recordName(ctx.query, cfg.kind, resolvedRefId(cfg)) || cfg.label;
+  /* ⛔ LOT 191 — `motDuChoix`, jamais l'id : un Araag en pile SRD titrait
+     `fh:species:en:araag` (vu en ligne, v614). Il titre « Araag — not in
+     this ruleset ». Sans record retenu, le mot est vide et le libellé prend. */
+  return motDuChoix(ctx.query, cfg.kind, resolvedRefId(cfg)) || cfg.label;
 }
 
 /** L'id du record RETENU pour ce catalogue — lu au carnet, jamais deviné. */
@@ -3375,7 +3396,7 @@ const FEAT_RACINE = "background.originFeat[0]";
 function featPorteLabel(ctx) {
   const plan = (state.decisions || []).find((entry) => entry && entry.path === FEAT_RACINE);
   const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
-  const nom = id && ctx && typeof ctx.query === "function" ? recordName(ctx.query, "feat", id) : null;
+  const nom = id && ctx && typeof ctx.query === "function" ? motDuChoix(ctx.query, "feat", id) : null;
   return nom ? { mot: nom, sous: "origin feat" } : "Origin feat";
 }
 
@@ -3414,7 +3435,7 @@ const FEAT_PARCOURS = {
     if (chemin === `${FEAT_RACINE}.list`) {
       const plan = (state.decisions || []).find((entry) => entry && entry.path === chemin);
       const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
-      const nom = id && ctx && typeof ctx.query === "function" ? recordName(ctx.query, "class", id) : null;
+      const nom = id && ctx && typeof ctx.query === "function" ? motDuChoix(ctx.query, "class", id) : null;
       return nom ? { mot: nom, sous: "spell list" } : "Spell list";
     }
     return featSousLabel(chemin) || chemin;
@@ -3428,10 +3449,7 @@ const FEAT_PARCOURS = {
 function renderLanguesGlisse(ctx, act) {
   const plan = planAt(ctx.decisions || [], "background.languages");
   if (!plan) return null;
-  const nom = (id) => {
-    const view = ctx.query({ kind: "training", id });
-    return view && view.record ? view.record.name : id;
-  };
+  const nom = (id) => motDuChoix(ctx.query, "training", id);
   return renderChoixGlisses({
     plan, slots: planSlots(ctx.decisions || [], "background.languages"),
     titre: "Languages", mot: "Language",
@@ -3795,7 +3813,7 @@ function pressDone() {
        EMBOÎTÉ se signent un à un, et l'emboîtement est DÉCLARÉ
        (FEAT_PARCOURS) — le refus ne lit que lui. */
     const refusItem = ouvert && ouvert.path === FEAT_PARCOURS.path ? refusDuDone({
-      decisions: state.decisions, document: state.document, racine: ouvert.path
+      decisions: state.decisions, document: state.document, racine: ouvert.path, violations: state.violations
     }) : null;
     if (refusItem) { state.parcoursRefus = refusItem.manquants; refresh(); return; }
     /* 🚪 UN SOUS-ITEM REMONTE À SON B EMBOÎTÉ, pas au guide de l'étape — c'est
@@ -4151,11 +4169,16 @@ function paintBelt() {
        qu'elles ont. Les deux réponses ne se contredisent pas — elles couvrent
        deux familles de chapitres. */
     const chapitre = parcoursDuChapitre(racine);
-    item.dataset.fait = String(estConfirme(state.document, racine) || (
+    /* ⛔ LOT 191 — ET LA LUMIÈRE NE S'ALLUME PAS SUR UN CHOIX QUE LA PILE NE
+       RÉSOUT PAS : un Araag signé la veille, Fate's Hand éteint ensuite,
+       restait vert par sa seule signature. Le chapitre lit les mêmes refus
+       que le pied de son guide — une seule réponse à « est-ce réglé ? ». */
+    const nonResolu = Boolean(chapitre) && refsMortsDeLEtape({ violations: state.violations, racine: chapitre.path }).length > 0;
+    item.dataset.fait = String(!nonResolu && (estConfirme(state.document, racine) || (
       Boolean(chapitre) && etapeAchevee({
-        decisions: state.decisions, document: state.document, racine: chapitre.path
+        decisions: state.decisions, document: state.document, racine: chapitre.path, violations: state.violations
       })
-    ));
+    )));
     item.setAttribute("aria-current", index === state.step ? "step" : "false");
     /* 🔴 LES DEUX HALOS, ET SEULEMENT EN VUE DOUBLE : à un panneau il n'y a
        pas de « second écran » à désigner, et un halo qui ne distingue rien

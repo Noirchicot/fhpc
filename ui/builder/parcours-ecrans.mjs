@@ -127,7 +127,7 @@ export function motDe(libelle) {
   return String(libelle);
 }
 
-export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, gendarme, poseEnHaut, onAction }) {
+export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bilanLabel, resumeDe, refus, acheve, conclu, livreDe, gendarme, manque, poseEnHaut, onAction }) {
   const act = onAction || (() => {});
   /* 🔴 VOILE 35 % — Eric, 2026-09-03 : *« change le voile à 35 pour Species et
      Classes »*, dit APRÈS avoir vu le comparatif des quatre écrans, où le 50
@@ -187,11 +187,20 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
      et son propre paragraphe — deux blocs de plus dans un écran qu'on venait de
      resserrer au pixel. Et son VERT disait « réglé » à un endroit où les voyants
      le disaient déjà. */
-  const motGuide = acheve
-    ? (conclu
-        ? "This step is settled. Change your mind if you want to start it over."
-        : "This step is settled. Move on when you are ready — or change your mind and start it over.")
-    : String(texte || "");
+  /* 🔴 LOT 191 — ET ELLE NE DIT PAS « SETTLED » D'UN CHOIX QUE LA PILE NE
+     RÉSOUT PAS. `manque` est la phrase de `motDesChoixNonResolus`
+     (ecran-mort.mjs) : elle prend la bande, parce que c'est exactement ce que
+     l'aiguilleur fait — dire où l'on en est et ce qui vient. `acheve` est déjà
+     faux ici (le juge du pied lit les mêmes refus), donc le mot « settled » ne
+     peut pas sortir ; la bande dirait sinon le texte de guide, qui invite à
+     régler des items qui ne manquent pas. */
+  const motGuide = manque
+    ? String(manque)
+    : acheve
+      ? (conclu
+          ? "This step is settled. Change your mind if you want to start it over."
+          : "This step is settled. Move on when you are ready — or change your mind and start it over.")
+      : String(texte || "");
   const bandeAiguilleur = motGuide.split(/\n{2,}/)
     .map((para) => para.trim())
     .filter((ligne) => ligne.length > 0)

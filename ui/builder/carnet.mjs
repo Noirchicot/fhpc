@@ -22,6 +22,11 @@
    par chemin et rendre ce qu'il trouve. Aucun compte n'est recalculé, aucune
    liste n'est composée à la main — seulement descendue. */
 
+/* LOT 191 — le mot d'un choix vit dans `mot-du-choix.mjs`, qui ne lit que la
+   feuille `interrupteurs.mjs` : ce fichier peut le lire sans cycle
+   (`catalogue.mjs` importe `carnet.mjs`). */
+import { motHumainDeLId, motDuChoix, motDuRefus } from "./mot-du-choix.mjs?v=615";
+
 /** Le carnet, indexé par chemin — jamais par « le dernier segment » (le
  *  bogue nommé en tête de l'ancien fichier, lot 33). */
 export function planAt(decisions, path) {
@@ -57,7 +62,10 @@ export function planSlots(decisions, basePath) {
    clef inconnue retombe sur elle-même. */
 const DECISION_REFUSAL_WORDS = {
   "decision.kind-mismatch": (p) => `Expected a “${p.expectedKind}”, got “${p.actualKind}”.`,
-  "decision.option-unavailable": (p) => `“${p.selected}” isn't on the catalogue.`,
+  /* ⛔ LOT 191 — `p.selected` est un ID (`fh:species:en:araag`) : le verrou
+     d'un Araag en pile SRD l'imprimait nu. Le mot humanisé, jamais l'id — et
+     l'interrupteur qui le porte, le même que partout (Eric, 09/09). */
+  "decision.option-unavailable": (p) => `“${motHumainDeLId(p.selected)}” isn't on the catalogue: it ${motDuRefus(p.selected)}.`,
   "skill-grant.count-mismatch": (p) => `${p.actual} chosen, ${p.declared} expected (${p.answers}).`,
   /* LOT 72 — le verrou de compte des SORTS (`decisions.mjs`,
      `classSpellPlans`) : même recomposition que la ligne au-dessus, les
@@ -250,10 +258,7 @@ export function renderRecordChoice({ decisions, path, kind, title, query, onActi
   wrap.append(renderPicker({
     options: plan.options,
     selected: plan.selected,
-    labelOf: (id) => {
-      const view = query({ kind, id });
-      return view && view.record ? view.record.name : id;
-    },
+    labelOf: (id) => motDuChoix(query, kind, id),
     onSelect: (id) => onAction({ kind: "choose", path, ref: { kind, id } }),
     lock: plan.lock
   }));

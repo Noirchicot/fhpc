@@ -133,11 +133,39 @@ export function etatDeLEtape({ decisions, document, racine }) {
  *  ⛔ IL N'EST JAMAIS GRISÉ (Eric : *« done lance un message et ne valide pas
  *  si tout n'est pas coché »*). Un bouton mort ne dit pas ce qui manque ; un
  *  bouton qui répond, si. */
-export function refusDuDone({ decisions, document, racine }) {
+export function refusDuDone({ decisions, document, racine, violations }) {
   const items = itemsDeLEtape({ decisions, document, racine });
   const manquants = items.filter((item) => !item.confirme);
-  if (manquants.length === 0) return null;
-  return { manquants: manquants.map((item) => item.path) };
+  const nonResolus = refsMortsDeLEtape({ violations, racine });
+  if (manquants.length === 0 && nonResolus.length === 0) return null;
+  return { manquants: manquants.map((item) => item.path), nonResolus };
+}
+
+/** LES CHOIX DE L'ÉTAPE QUE LA PILE NE RÉSOUT PAS — lot 191.
+ *
+ *  📏 LE DÉFAUT, VU EN LIGNE LE 2026-09-09 (v614) : un Araag (espèce Fate's
+ *  Hand), Fate's Hand éteint depuis `Layers` — l'écran Species disait
+ *  *« This step is settled »* sous un id nu. Rien n'était réglé : le choix
+ *  pointe vers un record que cette pile ne porte pas.
+ *
+ *  ⭐ ON LIT `validate()`, ON NE RE-JUGE PAS : le moteur NOMME déjà chaque
+ *  ref mort (`choice.ref-missing`, `block.mjs`), avec son chemin, son genre
+ *  et son id. Ce lecteur ne fait que retenir ceux qui vivent sous la racine —
+ *  la racine elle-même (`species`) et tout ce qui est dessous
+ *  (`background.originFeat[0]`, `background.languages[1]`). Une seconde
+ *  lecture de la pile ici serait le deuxième écrivain que la maison interdit.
+ *
+ *  ⛔ ET UN CHOIX NON RÉSOLU N'EST PAS UN ITEM : il n'a ni porte ni voyant —
+ *  le joueur n'a rien à y régler tant que la couche est éteinte. Il retient
+ *  le `Done` (l'étape n'est pas réglée) et il se NOMME dans la bande. Rien
+ *  n'est effacé : tout revient quand la couche se rallume (Eric, 09/09 :
+ *  *« que le personnage ne se dissocie pas, pas trop grave »*). */
+export function refsMortsDeLEtape({ violations, racine }) {
+  const liste = Array.isArray(violations) ? violations : [];
+  return liste
+    .filter((v) => v && v.key === "choice.ref-missing" && typeof v.path === "string")
+    .filter((v) => v.path === racine || v.path.startsWith(`${racine}.`) || v.path.startsWith(`${racine}[`))
+    .map((v) => ({ path: v.path, kind: v.params && v.params.kind, id: v.params && v.params.id }));
 }
 
 /** L'ÉTAPE EST-ELLE COMPLÈTE ? Tous ses items signés, et elle est commencée.
@@ -159,7 +187,10 @@ export function refusDuDone({ decisions, document, racine }) {
  *  ⛔ ET IL EXIGE QUE L'ÉTAPE SOIT COMMENCÉE. Sans ce garde, un chapitre dont
  *  le carnet n'a pas encore livré les plans n'a aucun item, donc aucun manque,
  *  donc « complet » — et le belt s'allumerait en vert sur du vide. */
-export function etapeAchevee({ decisions, document, racine }) {
+export function etapeAchevee({ decisions, document, racine, violations }) {
   if (etatDeLEtape({ decisions, document, racine }) === ETAT.catalogue) return false;
-  return refusDuDone({ decisions, document, racine }) === null;
+  /* ⛔ LOT 191 — « settled » ne se dit pas d'un choix non résolu : les refs
+     morts de `validate()` retiennent le `Done`, donc l'étape n'est pas
+     achevée. Même juge que le pied, une seule réponse. */
+  return refusDuDone({ decisions, document, racine, violations }) === null;
 }

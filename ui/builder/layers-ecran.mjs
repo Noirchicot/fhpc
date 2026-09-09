@@ -17,9 +17,15 @@
 
    🔴 UN INTERRUPTEUR EST UN ENSEMBLE DE COUCHES, PAS UNE COUCHE — mesuré le
    09/09 sur les drapeaux du dépôt : `Destiny` = `fh-arcana-en` + `fh-feats-en`
-   + `fh-spells-en` ; `Lore` = `fh-fiche-en` + `fh-lore-en` ; les quatre autres
-   en portent une. `fh-species-en` et `fh-gems-en` sont du CATALOGUE : elles
-   ne se coupent pas seules, elles suivent le maître.
+   + `fh-spells-en` ; `Lore` = `fh-species-en` + `fh-fiche-en` + `fh-lore-en` ;
+   les quatre autres en portent une. `fh-gems-en` est du CATALOGUE : elle ne
+   se coupe pas seule, elle suit le maître.
+   ⚖️ LOT 191 — `fh-species-en` a QUITTÉ le catalogue pour Lore, sur les deux
+   règles d'Eric du 09/09 : *« Il n'y a pas d'Araag dans SRD si le bouton Lore
+   n'est pas poussé »* et *« Lore rajoute le monde FH sans les règles »*. La
+   table vit dans `interrupteurs.mjs` (une feuille sans import, pour que le
+   mot d'un choix non résolu puisse nommer son interrupteur sans cycle) et
+   se réexporte d'ici : ses lecteurs ne changent pas d'adresse.
 
    ⚖️ UNE COUCHE ÉTEINTE NE LAISSE PAS DE TROU, ELLE DÉGRADE (Eric). Sans
    Trainings, l'Inheritance n'offre plus de langue ; le moteur déclare le
@@ -48,7 +54,11 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=614";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=615";
+/* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
+   se réexporte d'ici pour l'écran, la coquille et les gardes. */
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=615";
+export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -173,37 +183,16 @@ export function voyant({ label, note, etat = "always on" }) {
   return ligne;
 }
 
-/* ══ LES SIX INTERRUPTEURS — la coupe d'Eric du 08/09, couche par couche ══
-   L'ordre est celui de son dessin. `couches` = ce que l'interrupteur allume
-   et éteint, dans l'ordre du manifeste (le montage/démontage, lui, suit
-   TOUJOURS `FH_LAYER_IDS` — voir `monterLesCouches`, shell.mjs). `exige` = un
-   autre interrupteur sans lequel celui-ci dort.
-   ⛔ LES IDS SONT ÉCRITS ICI EN TOUTES LETTRES, et un garde les confronte à
+/* ══ LES SIX INTERRUPTEURS, LE CATALOGUE, LES LIVRES ══════════════════════
+   ⭐ LOT 191 — la table a DÉMÉNAGÉ dans `interrupteurs.mjs` (feuille sans
+   import) et se réexporte en tête de ce fichier. `couches` = ce que
+   l'interrupteur allume et éteint (le montage/démontage, lui, suit TOUJOURS
+   `FH_LAYER_IDS` — voir `monterLesCouches`, shell.mjs). `exige` = un autre
+   interrupteur sans lequel celui-ci dort.
+   ⛔ LES IDS Y SONT ÉCRITS EN TOUTES LETTRES, et un garde les confronte à
    `FH_LAYER_IDS` (`tests/ecran-layers.test.mjs`) : l'union des six plus le
    catalogue doit être EXACTEMENT la pile Fate's Hand, sans trou ni doublon.
    Une couche qui entrerait dans `engine.mjs` sans interrupteur rougirait là. */
-export const INTERRUPTEURS = Object.freeze([
-  { id: "trainings",   label: "Trainings",      note: "languages, dark rituals",              couches: ["fh-trainings-en"] },
-  { id: "skills",      label: "Skills & tools", note: "tiers and the skill pool",             couches: ["fh-skills-en"] },
-  { id: "inheritance", label: "Inheritance",    note: "one origin, in place of backgrounds",  couches: ["fh-inheritance-en"],
-    exige: "trainings", motSiDort: "off while Trainings is off" },
-  { id: "destiny",     label: "Destiny",        note: "22 Arcana, the die, the Tilt",         couches: ["fh-arcana-en", "fh-feats-en", "fh-spells-en"] },
-  { id: "lore",        label: "Lore",           note: "the names and the flavour of Nymedes", couches: ["fh-fiche-en", "fh-lore-en"] },
-  { id: "soulforging", label: "Soulforging",    note: "the forge and its items",              couches: ["fh-soulforging-en"] }
-].map(Object.freeze));
-
-/** LE CATALOGUE FATE'S HAND — les douze espèces et les 54 gemmes. Du contenu,
- *  pas une règle : il n'a pas d'interrupteur, il suit le maître. */
-export const CATALOGUE_FH = Object.freeze(["fh-species-en", "fh-gems-en"]);
-
-/** LES LIVRES DU JOUEUR, avec le nom que l'écran affiche quand le livre n'est
- *  PAS monté (un livre monté porte son nom dans le manifeste). ⛔ Les noms
- *  viennent de `src/tools/gen-livre-layer.mjs` (`LIVRES`), qui ne s'importe pas
- *  dans un navigateur ; un garde tient les deux listes ensemble. */
-export const LIVRES_DU_JOUEUR = Object.freeze([
-  { id: "xphb-en", nom: "Player's Handbook (2024)" },
-  { id: "xdmg-en", nom: "Dungeon Master's Guide (2024)" }
-].map(Object.freeze));
 
 function idsDuDocument(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];

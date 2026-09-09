@@ -28,19 +28,22 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=614";
-import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=614";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=615";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=615";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=614";
-import { renderChoixGlisses } from "./glisser.mjs?v=614";
-import { spellInfo } from "./class-step.mjs?v=614";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=615";
+import { renderChoixGlisses } from "./glisser.mjs?v=615";
+import { spellInfo } from "./class-step.mjs?v=615";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=614";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=614";
-import { etapeParId } from "./etapes.mjs?v=614";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=614";
+import { motDuVerrou } from "./skills-step.mjs?v=615";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=615";
+import { etapeParId } from "./etapes.mjs?v=615";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=615";
+/* LOT 191 — le mot d'un choix : le nom du record, sinon le slug humanisé et
+   le refus nommé. Jamais l'id nu (voir la tête de `mot-du-choix.mjs`). */
+import { motDuChoix } from "./mot-du-choix.mjs?v=615";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -60,8 +63,7 @@ function el(tag, className, children) {
 function text(value) { return document.createTextNode(String(value)); }
 
 function skillLabel(query, id) {
-  const view = query({ kind: "skill", id });
-  return view && view.record ? view.record.name : id;
+  return motDuChoix(query, "skill", id);
 }
 /* Capitalisation d'AFFICHAGE seulement (« half » → « Half ») — un mot
    d'écran, pas une règle (même famille que `CATEGORY_LABEL`, lot 39). */

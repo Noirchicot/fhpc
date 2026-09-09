@@ -27,6 +27,10 @@
    ce panneau côté Species seul le ferait recopier côté Class le jour d'après
    — la loi du dépôt, et elle a déjà coûté. */
 
+/* LOT 191 — le mot d'un choix : le nom du record, sinon le slug humanisé et
+   le refus nommé — jamais l'id nu (voir la tête de `mot-du-choix.mjs`). */
+import { motDuChoix } from "./mot-du-choix.mjs?v=615";
+
 function el(tag, className, children) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -132,8 +136,9 @@ function renderSection(section) {
  *  d'un panneau vit dans `state`, jamais dans le DOM »). */
 export function renderLorePanel({ query, kind, id, onAction }) {
   const act = typeof onAction === "function" ? onAction : () => {};
-  const view = query({ kind, id });
-  const nom = view && view.record ? view.record.name : id;
+  /* LOT 191 — le nom vient de l'organe unique : jamais l'id nu en tête du
+     panneau, même sur un record que la pile ne porte plus. */
+  const nom = motDuChoix(query, kind, id);
   const lore = loreDe(query, kind, id);
 
   const page = el("section", "lore-page");
