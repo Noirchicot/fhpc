@@ -214,7 +214,14 @@ test("🏷️ LES 54 GEMMES PORTENT LES DEUX TAGS D'ERIC, avec leur provenance",
     const t = entree.data.tags;
     assert.ok(t && Array.isArray(t.value), `${id} : un rangement de gemme doit porter ses tags`);
     assert.deepEqual(t.value, attendus, `${id} : les deux tags, et rien d'autre`);
-    assert.match(t.provenance, /2026-09-08/, `${id} : un champ neuf dit QUI l'a demandé et QUAND`);
+    /* 🔄 08/09 → 09/09 : Eric a ÉLARGI le sens du tag ce jour-là — « cet item
+       participe au Soulforging, et peut porter un état associé ». Le tag n'est
+       plus une propriété de gemme, c'est un marqueur générique. La date suit la
+       décision qui FAIT LOI, pas la première qui a posé le champ. */
+    assert.match(t.provenance, /2026-09-09/, `${id} : un champ neuf dit QUI l'a demandé et QUAND`);
+    assert.match(t.provenance, /participe au Soulforging/,
+      `${id} : la provenance doit porter le SENS d'Eric, pas une paraphrase — le tag déclare une
+       APTITUDE au catalogue, jamais un état`);
     vus.add(t.value.join(","));
   }
   assert.equal(Object.keys(RANGEMENTS).length, 54, "les 54, aucune oubliée");

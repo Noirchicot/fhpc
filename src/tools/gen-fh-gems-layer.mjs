@@ -66,7 +66,7 @@ export const SOURCE_PATH = join(
  *  passe s'arrête donc et demande une relecture. Le geste, quand Eric édite
  *  les gemmes : relire le fichier, remesurer, poser le nouveau chiffre ICI,
  *  puis regénérer. */
-export const EMPREINTE_SOURCE = "a37a102b0064ecce0e4e10c7861620ead893dd1a4dbafddf72cee3f2a4fec4a4";
+export const EMPREINTE_SOURCE = "e623a20e9029a58f374013ccef9ee8f9d5597765c52bb71ac1b1d8a073cedb96";
 
 /* ══ 🔴 LE SEUL POINT OUVERT DU LOT — L'ÉTAGÈRE ═══════════════════════════
 
@@ -108,9 +108,22 @@ export const PROVENANCE_ETAGERE =
    la leur : un lecteur qui le découvre doit savoir qui l'a demandé et quand. */
 export const TAGS_DES_GEMMES = Object.freeze(["valuables", "soulforging"]);
 
+/* 🔴 CE QUE LE TAG VEUT DIRE — ET IL EST PLUS LARGE QUE LES GEMMES. Eric,
+   2026-09-09, corrigeant ma première formulation : *« j'ai suggéré le tag
+   Soulforging pour dire : cet item PARTICIPE au Soulforging, et PEUT PORTER un
+   état associé »*. ⛔ Ce n'est donc pas une propriété de gemme — c'est un
+   marqueur générique, qui vaudra pour l'outil de forge, les 210 ingrédients,
+   les 465 catalyseurs et les objets forgés.
+   ⭐ ET LES DEUX MOITIÉS VONT ENSEMBLE : le TAG vit au CATALOGUE et déclare une
+   APTITUDE, vraie de tous les exemplaires ; l'ÉTAT vit sur la LIGNE POSSÉDÉE
+   (`gear[N]`) et n'est vrai que d'un seul. Une gemme taguée `soulforging`
+   N'EST PAS une Soulgem : elle peut le devenir, par Transfer Essence.
+   ⛔ NE JAMAIS METTRE UN ÉTAT AU CATALOGUE — Eric a posé cette loi trois fois
+   en deux jours : la Soulgem, « de la Forêt des Démons », et ce tag. */
 export const PROVENANCE_TAGS =
-  "eric:2026-09-08 — « tag valuables, tag Soulforging » ; une gemme se vend ET se forge, " +
-  "l'étagère ne pouvait en dire qu'un";
+  "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». " +
+  "`valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état " +
+  "qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.";
 
 export const LAYER = {
   schema: "fh-layer/1",
