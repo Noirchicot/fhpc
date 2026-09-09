@@ -153,6 +153,29 @@ elles ne sont pas un doublon, elles sont **le plancher qui reste quand le livre 
 doublon n'apparaît qu'à l'ALLUMAGE du DMG — et c'est là, et là seulement, que la superposition
 doit produire une ligne au lieu de deux.
 
+#### ⚖️ FH SOUSTRAIT PARCE QU'IL EST NÉ AVANT LE SRD — LES MOTEURS À VENIR FERONT LES DEUX (09/09)
+
+⚖️ Eric, 09/09, après la mesure des sept `disable` : *« Oui je sais cette nuance : **on a construit
+FH avant le SRD**, donc on a une couche de soustraction. Les futurs moteurs (les changeurs de
+règles) devront faire de l'**addition ET de la soustraction** sur le SRD. Et **les catalogues
+seront produits pour être compatibles avec un moteur**. »*
+
+⭐ **Ça règle une contradiction apparente que la loi de superposition laissait ouverte.**
+
+| | fait quoi | pourquoi |
+|---|---|---|
+| une couche de **CATALOGUE** *(gemmes, livres, homebrew)* | **ajoute**, jamais `disable` | elle apporte du contenu ; retirer n'est pas son métier |
+| un **INTERRUPTEUR** *(changeur de règles)* | **ajoute ET retranche** | remplacer Background par l'Inheritance EST son travail |
+
+📏 **Mesuré le 09/09** : FH retranche **7** records au SRD — `fh-inheritance-en` éteint les 4
+backgrounds, `fh-skills-en` éteint Perception + les 2 outils génériques. ⛔ **Ce ne sont pas des
+accrocs**, ce sont deux interrupteurs qui font leur métier.
+
+⚠️ **ET LA CONSÉQUENCE POUR LA SUITE, dite par Eric** : *« les catalogues seront produits pour
+être compatibles avec un moteur »*. Un catalogue ne se conçoit donc plus seul — il se conçoit
+**contre le moteur qui le consommera**. C'est ce qui rend le port d'import et le moteur de
+réduction solidaires.
+
 ⚖️ **ET LES LIVRES SONT DU HOMEBREW — Eric, 09/09 : *« les livres rajoutent du homebrew »*.**
 
 ⭐ **Ce n'est pas une image, c'est une réduction d'architecture.** Du point de vue de FHPC, tout
@@ -164,6 +187,16 @@ un pour le homebrew : il y en a UN**, et `gen-livre-layer.mjs` en est la premiè
 📏 **Ce que ça décide concrètement** : le conteneur homebrew existe déjà « sans porte » *(carte
 du produit, 08/09)*. Sa porte est **celle-ci**. Un livre importé et un homebrew importé produisent
 la même chose — une couche, un id, une bascule au Menu.
+
+⚖️ **OÙ MÈNE LE BOUTON LIVRE, ET OÙ SE PLACE LE PHB — Eric, 09/09, l'arbitrage ④ à moitié
+tranché.** *« Le livre, tu parles du bouton… oui il est censé porter le lecteur vers le site web
+SRD, qui reste très moche, donc pas très aidant (on fait avec pour le moment), et pour FH vers le
+site. Si tu parles de montrer le PHB dans le menu, **placé comme un catalogue homebrew utile**,
+oui. »*
+
+⇒ **Deux organes distincts, et le mot `Rules` n'est en collision qu'avec l'un des deux** : le
+**bouton livre** sort vers un site *(SRD ou FH selon la pile)* — il reste tel quel ; le **PHB au
+Menu** est un **catalogue**, rangé avec le homebrew, pas un bouton de règles.
 
 ⚖️ **À QUOI SERVENT LES LIVRES — Eric, 09/09, et ce n'est pas que du contenu.** *« Les livres
 rajoutent des feats, des subclasses, des trade goods, des monstres, des objets magiques, des
