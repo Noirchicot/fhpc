@@ -14,7 +14,7 @@
   "description": "The fifty-four gems of Fate's Hand, dictated by Eric on 2026-09-08 and kept in the vault (`5.RPG/Fate's Hand/8. Tools/Gems (FH).json`). Twelve value tiers, from 10 GP to 50,000 GP — five gems per tier, except the last three (10,000 · 25,000 · 50,000 GP) which carry three: at that level they are unique, named stones. They are NOT magical: their worth comes from size, purity, cut and provenance. Each gem carries a shelving record of its own so the Equipment drum can show it; those records live HERE and not in `srfh-shelving-en`, which is mounted on the SRD-only stack too and must never point at records that stack does not have. ⚠️ Two things this layer does not carry, both on purpose: no Demon-Forest field (the same azurite is ordinary or Demon-Forest depending on where it was found — that is a property of the OWNED LINE, not of the catalogue), and no French names (a layer does not mix languages; `name_fr` and `tier_fr` stay in the vault until a `fh-gems-fr` exists).",
   "records": {
     "gem": {
-      "fh:gem:en:azurite": {
+      "srfh:gem:en:azurite": {
         "name": "Azurite",
         "slug": "azurite",
         "data": {
@@ -36,7 +36,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:hematite": {
+      "srfh:gem:en:hematite": {
         "name": "Hematite",
         "slug": "hematite",
         "data": {
@@ -58,7 +58,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:malachite": {
+      "srfh:gem:en:malachite": {
         "name": "Malachite",
         "slug": "malachite",
         "data": {
@@ -102,7 +102,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:turquoise": {
+      "srfh:gem:en:turquoise": {
         "name": "Turquoise",
         "slug": "turquoise",
         "data": {
@@ -124,7 +124,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:chalcedony": {
+      "srfh:gem:en:chalcedony": {
         "name": "Chalcedony",
         "slug": "chalcedony",
         "data": {
@@ -146,7 +146,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:citrine": {
+      "srfh:gem:en:citrine": {
         "name": "Citrine",
         "slug": "citrine",
         "data": {
@@ -168,7 +168,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:carnelian": {
+      "srfh:gem:en:carnelian": {
         "name": "Carnelian",
         "slug": "carnelian",
         "data": {
@@ -190,7 +190,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:onyx": {
+      "srfh:gem:en:onyx": {
         "name": "Onyx",
         "slug": "onyx",
         "data": {
@@ -212,7 +212,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:zircon": {
+      "srfh:gem:en:zircon": {
         "name": "Zircon",
         "slug": "zircon",
         "data": {
@@ -234,7 +234,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:amber": {
+      "srfh:gem:en:amber": {
         "name": "Amber",
         "slug": "amber",
         "data": {
@@ -256,7 +256,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:coral": {
+      "srfh:gem:en:coral": {
         "name": "Coral",
         "slug": "coral",
         "data": {
@@ -278,7 +278,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:jade": {
+      "srfh:gem:en:jade": {
         "name": "Jade",
         "slug": "jade",
         "data": {
@@ -300,7 +300,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:jet": {
+      "srfh:gem:en:jet": {
         "name": "Jet",
         "slug": "jet",
         "data": {
@@ -322,7 +322,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:pearl": {
+      "srfh:gem:en:pearl": {
         "name": "Pearl",
         "slug": "pearl",
         "data": {
@@ -454,7 +454,7 @@
           "weight_provenance": "Eric, 2026-09-08 (repris du palier 500 gp — arrondi voulu par Eric)"
         }
       },
-      "fh:gem:en:alexandrite": {
+      "srfh:gem:en:alexandrite": {
         "name": "Alexandrite",
         "slug": "alexandrite",
         "data": {
@@ -498,7 +498,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:chrysoberyl": {
+      "srfh:gem:en:chrysoberyl": {
         "name": "Chrysoberyl",
         "slug": "chrysoberyl",
         "data": {
@@ -520,7 +520,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:peridot": {
+      "srfh:gem:en:peridot": {
         "name": "Peridot",
         "slug": "peridot",
         "data": {
@@ -696,7 +696,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:star-ruby": {
+      "srfh:gem:en:star-ruby": {
         "name": "Star Ruby",
         "slug": "star-ruby",
         "data": {
@@ -718,7 +718,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:blue-sapphire": {
+      "srfh:gem:en:blue-sapphire": {
         "name": "Blue Sapphire",
         "slug": "blue-sapphire",
         "data": {
@@ -740,7 +740,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:star-sapphire": {
+      "srfh:gem:en:star-sapphire": {
         "name": "Star Sapphire",
         "slug": "star-sapphire",
         "data": {
@@ -762,7 +762,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:emerald": {
+      "srfh:gem:en:emerald": {
         "name": "Emerald",
         "slug": "emerald",
         "data": {
@@ -960,7 +960,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:jacinth": {
+      "srfh:gem:en:jacinth": {
         "name": "Jacinth",
         "slug": "jacinth",
         "data": {
@@ -982,7 +982,7 @@
           "weight_provenance": "Eric, 2026-09-08"
         }
       },
-      "fh:gem:en:black-opal": {
+      "srfh:gem:en:black-opal": {
         "name": "Black Opal",
         "slug": "black-opal",
         "data": {
@@ -1204,11 +1204,11 @@
       }
     },
     "shelving": {
-      "fh:shelving:en:azurite": {
+      "srfh:shelving:en:azurite": {
         "name": "Azurite",
         "slug": "azurite",
         "data": {
-          "extends": "fh:gem:en:azurite",
+          "extends": "srfh:gem:en:azurite",
           "name": "Azurite",
           "of_kind": "gem",
           "shelf": {
@@ -1225,11 +1225,11 @@
           }
         }
       },
-      "fh:shelving:en:hematite": {
+      "srfh:shelving:en:hematite": {
         "name": "Hematite",
         "slug": "hematite",
         "data": {
-          "extends": "fh:gem:en:hematite",
+          "extends": "srfh:gem:en:hematite",
           "name": "Hematite",
           "of_kind": "gem",
           "shelf": {
@@ -1246,11 +1246,11 @@
           }
         }
       },
-      "fh:shelving:en:malachite": {
+      "srfh:shelving:en:malachite": {
         "name": "Malachite",
         "slug": "malachite",
         "data": {
-          "extends": "fh:gem:en:malachite",
+          "extends": "srfh:gem:en:malachite",
           "name": "Malachite",
           "of_kind": "gem",
           "shelf": {
@@ -1288,11 +1288,11 @@
           }
         }
       },
-      "fh:shelving:en:turquoise": {
+      "srfh:shelving:en:turquoise": {
         "name": "Turquoise",
         "slug": "turquoise",
         "data": {
-          "extends": "fh:gem:en:turquoise",
+          "extends": "srfh:gem:en:turquoise",
           "name": "Turquoise",
           "of_kind": "gem",
           "shelf": {
@@ -1309,11 +1309,11 @@
           }
         }
       },
-      "fh:shelving:en:chalcedony": {
+      "srfh:shelving:en:chalcedony": {
         "name": "Chalcedony",
         "slug": "chalcedony",
         "data": {
-          "extends": "fh:gem:en:chalcedony",
+          "extends": "srfh:gem:en:chalcedony",
           "name": "Chalcedony",
           "of_kind": "gem",
           "shelf": {
@@ -1330,11 +1330,11 @@
           }
         }
       },
-      "fh:shelving:en:citrine": {
+      "srfh:shelving:en:citrine": {
         "name": "Citrine",
         "slug": "citrine",
         "data": {
-          "extends": "fh:gem:en:citrine",
+          "extends": "srfh:gem:en:citrine",
           "name": "Citrine",
           "of_kind": "gem",
           "shelf": {
@@ -1351,11 +1351,11 @@
           }
         }
       },
-      "fh:shelving:en:carnelian": {
+      "srfh:shelving:en:carnelian": {
         "name": "Carnelian",
         "slug": "carnelian",
         "data": {
-          "extends": "fh:gem:en:carnelian",
+          "extends": "srfh:gem:en:carnelian",
           "name": "Carnelian",
           "of_kind": "gem",
           "shelf": {
@@ -1372,11 +1372,11 @@
           }
         }
       },
-      "fh:shelving:en:onyx": {
+      "srfh:shelving:en:onyx": {
         "name": "Onyx",
         "slug": "onyx",
         "data": {
-          "extends": "fh:gem:en:onyx",
+          "extends": "srfh:gem:en:onyx",
           "name": "Onyx",
           "of_kind": "gem",
           "shelf": {
@@ -1393,11 +1393,11 @@
           }
         }
       },
-      "fh:shelving:en:zircon": {
+      "srfh:shelving:en:zircon": {
         "name": "Zircon",
         "slug": "zircon",
         "data": {
-          "extends": "fh:gem:en:zircon",
+          "extends": "srfh:gem:en:zircon",
           "name": "Zircon",
           "of_kind": "gem",
           "shelf": {
@@ -1414,11 +1414,11 @@
           }
         }
       },
-      "fh:shelving:en:amber": {
+      "srfh:shelving:en:amber": {
         "name": "Amber",
         "slug": "amber",
         "data": {
-          "extends": "fh:gem:en:amber",
+          "extends": "srfh:gem:en:amber",
           "name": "Amber",
           "of_kind": "gem",
           "shelf": {
@@ -1435,11 +1435,11 @@
           }
         }
       },
-      "fh:shelving:en:coral": {
+      "srfh:shelving:en:coral": {
         "name": "Coral",
         "slug": "coral",
         "data": {
-          "extends": "fh:gem:en:coral",
+          "extends": "srfh:gem:en:coral",
           "name": "Coral",
           "of_kind": "gem",
           "shelf": {
@@ -1456,11 +1456,11 @@
           }
         }
       },
-      "fh:shelving:en:jade": {
+      "srfh:shelving:en:jade": {
         "name": "Jade",
         "slug": "jade",
         "data": {
-          "extends": "fh:gem:en:jade",
+          "extends": "srfh:gem:en:jade",
           "name": "Jade",
           "of_kind": "gem",
           "shelf": {
@@ -1477,11 +1477,11 @@
           }
         }
       },
-      "fh:shelving:en:jet": {
+      "srfh:shelving:en:jet": {
         "name": "Jet",
         "slug": "jet",
         "data": {
-          "extends": "fh:gem:en:jet",
+          "extends": "srfh:gem:en:jet",
           "name": "Jet",
           "of_kind": "gem",
           "shelf": {
@@ -1498,11 +1498,11 @@
           }
         }
       },
-      "fh:shelving:en:pearl": {
+      "srfh:shelving:en:pearl": {
         "name": "Pearl",
         "slug": "pearl",
         "data": {
-          "extends": "fh:gem:en:pearl",
+          "extends": "srfh:gem:en:pearl",
           "name": "Pearl",
           "of_kind": "gem",
           "shelf": {
@@ -1624,11 +1624,11 @@
           }
         }
       },
-      "fh:shelving:en:alexandrite": {
+      "srfh:shelving:en:alexandrite": {
         "name": "Alexandrite",
         "slug": "alexandrite",
         "data": {
-          "extends": "fh:gem:en:alexandrite",
+          "extends": "srfh:gem:en:alexandrite",
           "name": "Alexandrite",
           "of_kind": "gem",
           "shelf": {
@@ -1666,11 +1666,11 @@
           }
         }
       },
-      "fh:shelving:en:chrysoberyl": {
+      "srfh:shelving:en:chrysoberyl": {
         "name": "Chrysoberyl",
         "slug": "chrysoberyl",
         "data": {
-          "extends": "fh:gem:en:chrysoberyl",
+          "extends": "srfh:gem:en:chrysoberyl",
           "name": "Chrysoberyl",
           "of_kind": "gem",
           "shelf": {
@@ -1687,11 +1687,11 @@
           }
         }
       },
-      "fh:shelving:en:peridot": {
+      "srfh:shelving:en:peridot": {
         "name": "Peridot",
         "slug": "peridot",
         "data": {
-          "extends": "fh:gem:en:peridot",
+          "extends": "srfh:gem:en:peridot",
           "name": "Peridot",
           "of_kind": "gem",
           "shelf": {
@@ -1855,11 +1855,11 @@
           }
         }
       },
-      "fh:shelving:en:star-ruby": {
+      "srfh:shelving:en:star-ruby": {
         "name": "Star Ruby",
         "slug": "star-ruby",
         "data": {
-          "extends": "fh:gem:en:star-ruby",
+          "extends": "srfh:gem:en:star-ruby",
           "name": "Star Ruby",
           "of_kind": "gem",
           "shelf": {
@@ -1876,11 +1876,11 @@
           }
         }
       },
-      "fh:shelving:en:blue-sapphire": {
+      "srfh:shelving:en:blue-sapphire": {
         "name": "Blue Sapphire",
         "slug": "blue-sapphire",
         "data": {
-          "extends": "fh:gem:en:blue-sapphire",
+          "extends": "srfh:gem:en:blue-sapphire",
           "name": "Blue Sapphire",
           "of_kind": "gem",
           "shelf": {
@@ -1897,11 +1897,11 @@
           }
         }
       },
-      "fh:shelving:en:star-sapphire": {
+      "srfh:shelving:en:star-sapphire": {
         "name": "Star Sapphire",
         "slug": "star-sapphire",
         "data": {
-          "extends": "fh:gem:en:star-sapphire",
+          "extends": "srfh:gem:en:star-sapphire",
           "name": "Star Sapphire",
           "of_kind": "gem",
           "shelf": {
@@ -1918,11 +1918,11 @@
           }
         }
       },
-      "fh:shelving:en:emerald": {
+      "srfh:shelving:en:emerald": {
         "name": "Emerald",
         "slug": "emerald",
         "data": {
-          "extends": "fh:gem:en:emerald",
+          "extends": "srfh:gem:en:emerald",
           "name": "Emerald",
           "of_kind": "gem",
           "shelf": {
@@ -2107,11 +2107,11 @@
           }
         }
       },
-      "fh:shelving:en:jacinth": {
+      "srfh:shelving:en:jacinth": {
         "name": "Jacinth",
         "slug": "jacinth",
         "data": {
-          "extends": "fh:gem:en:jacinth",
+          "extends": "srfh:gem:en:jacinth",
           "name": "Jacinth",
           "of_kind": "gem",
           "shelf": {
@@ -2128,11 +2128,11 @@
           }
         }
       },
-      "fh:shelving:en:black-opal": {
+      "srfh:shelving:en:black-opal": {
         "name": "Black Opal",
         "slug": "black-opal",
         "data": {
-          "extends": "fh:gem:en:black-opal",
+          "extends": "srfh:gem:en:black-opal",
           "name": "Black Opal",
           "of_kind": "gem",
           "shelf": {

@@ -188,6 +188,38 @@ export const GEMMES_DU_LIVRE = Object.freeze({
    peuvent, par construction, doubler personne. */
 export const PALIERS_DU_LIVRE = Object.freeze([10, 50, 100, 500, 1000, 5000]);
 
+/** ⚖️ L'ID D'UNE GEMME — ET C'EST LÀ QUE « ON SUPERPOSE » DEVIENT DU CODE.
+ *
+ *  Eric, 09/09 : *« FH doit se superposer »*, ⛔ *« on ne veut pas de doublons
+ *  inutiles »*, *« que tu puisses désactiver dmg player et toujours te
+ *  raccrocher au SRD »*.
+ *
+ *  📏 `stack.mjs:143` — pour un `add`, « le dernier qui parle gagne », et le
+ *  recouvrement est RAPPORTÉ dans `shadowed`. Le moteur sait donc superposer
+ *  tout seul, À UNE CONDITION : que les deux couches posent LE MÊME ID.
+ *  ⛔ Et il ne sait PAS faire autrement — `stack.mjs:161`, « un patch dans le
+ *  vide est un échec » : une couche FH qui PATCHERAIT la gemme du livre ferait
+ *  ÉCHOUER toute la pile le jour où le joueur éteint le DMG. Or c'est
+ *  précisément le geste qu'Eric exige. La superposition passe donc par l'id.
+ *
+ *  ⇒ LES 23 GEMMES QUE LE LIVRE PORTE AUSSI PASSENT EN `srfh:` — le préfixe
+ *  défini au lot 95 comme « ce qui est AMBIGU, ni SRD ni FH, et qui monte dans
+ *  LES DEUX piles ». Une pierre que le DMG range à 10 po et qu'Eric range à
+ *  10 po n'appartient à personne. Les 31 autres sont des inventions de Fate's
+ *  Hand et gardent `fh:`.
+ *
+ *  ⭐ CE QUE ÇA DONNE, LES QUATRE CAS :
+ *    DMG allumé + FH allumé → un record, celui de FH (elle est plus haute)
+ *    DMG allumé + FH éteint → un record, celui du livre
+ *    DMG éteint + FH allumé → un record, celui de FH — le plancher tient
+ *    les deux éteints        → rien : le SRD ne porte aucune gemme prisée   */
+export function idCanonique(idSource) {
+  const slug = String(idSource).split(":").pop();
+  return Object.hasOwn(GEMMES_DU_LIVRE, slug)
+    ? `srfh:gem:en:${slug}`
+    : `fh:gem:en:${slug}`;
+}
+
 export const LAYER = {
   schema: "fh-layer/1",
   id: "fh-gems-en",
@@ -282,7 +314,15 @@ function slugDeLId(id) {
  *  qui n'existent PAS sur le fil SRD. `srfh-shelving-en` monte dans les DEUX
  *  piles nommées (voir `SRFH_LAYER_IDS`) — y loger un rangement de gemme
  *  ferait pointer, en mode « SRD seul », vers un `extends` introuvable. */
-function idDeRangement(slug) { return `fh:shelving:${LAYER.lang}:${slug}`; }
+/* ⭐ ET LE RANGEMENT SUIT LA GEMME. Si la pierre est partagée (`srfh:`) mais que
+   son rangement reste `fh:`, la couche du livre en pose un second et le rayon
+   affiche DEUX lignes pour une seule pierre — le doublon revient par la porte de
+   derrière, celle du rangement. Le préfixe se DÉDUIT de l'id de la gemme, il ne
+   se réécrit pas à côté. */
+function idDeRangement(slug) {
+  const prefixe = idCanonique(slug).split(":")[0];
+  return `${prefixe}:shelving:${LAYER.lang}:${slug}`;
+}
 
 /* ══ LA CONSTRUCTION — PURE, ET ELLE RECOPIE ═════════════════════════════ */
 
@@ -394,7 +434,8 @@ export function construireCouche(doc, { etagere = ETAGERE_DES_GEMMES } = {}) {
        garde « — ». Une gemme EST négligeable en livres, et c'est le mot du
        livre ». ⚠️ « — » N'EST PAS ZÉRO : les quatre poids chiffrés voyagent
        avec le record, et c'est sur EUX qu'un sac se sommera. */
-    gem[g.id] = {
+    const idGemme = idCanonique(g.id);
+    gem[idGemme] = {
       name: nom,
       slug,
       data: {
@@ -426,7 +467,7 @@ export function construireCouche(doc, { etagere = ETAGERE_DES_GEMMES } = {}) {
       name: nom,
       slug,
       data: {
-        extends: g.id,
+        extends: idGemme,
         name: nom,
         of_kind: "gem",
         shelf: { aisle: rayon, provenance: PROVENANCE_ETAGERE, shelf: rayonnage },

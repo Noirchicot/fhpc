@@ -351,7 +351,10 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
   const doc = {
     build: {
       choices: [
-        { path: "gear[0]", ref: { kind: "gem", id: "fh:gem:en:azurite" } },
+        /* ⚖️ 09/09 — `azurite` est l'une des 23 pierres que le DMG porte AUSSI :
+           son id est PARTAGÉ (`srfh:`), pour que la couche du livre et celle de
+           FH n'en fassent qu'un seul record. Voir `idCanonique`. */
+        { path: "gear[0]", ref: { kind: "gem", id: "srfh:gem:en:azurite" } },
         { path: "gear[0].quantity", value: 1 },
         { path: "gear[0].location", value: "backpack" }
       ]
@@ -360,8 +363,14 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
   const node = renderEquipmentStep({ document: doc, resolved: null, query, search: true }, () => {});
   const texte = node.textContent || "";
   assert.match(texte, /Azurite/, "le nom du record doit arriver jusqu'à la ligne");
-  assert.equal(texte.includes("fh:gem:en:azurite"), false,
+  /* ⛔ LE PIÈGE, ET IL EST EXACTEMENT CELUI DE `TRAPS.md` — « un identifiant qui
+     en contient un autre ». La chaîne « srfh:gem:en:azurite » CONTIENT
+     « fh:gem:en:azurite » : chercher l'ancien id passerait au vert sur le
+     nouveau. On cherche donc l'id COMPLET, et le témoin ci-dessous le prouve. */
+  assert.equal(texte.includes("srfh:gem:en:azurite"), false,
     "un id nu à l'écran est le symptôme exact d'un genre que le chercheur ne résout pas");
+  assert.ok("srfh:gem:en:azurite".includes("fh:gem:en:azurite"),
+    "témoin : l'ancien id est une SOUS-CHAÎNE du nouveau — un garde qui cherche l'ancien ne garde rien");
 });
 
 /* ══ LOT 182 — L'OR DE DÉPART SE LIT DANS LA DONNÉE, DES DEUX CÔTÉS ═══════

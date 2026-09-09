@@ -236,15 +236,27 @@ test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET LES DEUX ÉCARTÉS S
   assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
     "les 470 records de rangement des DEUX couches sont bien lus");
   /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
-     côté sans que ce test bronche. `srfh:` habille le livre, `fh:` les
-     gemmes — deux préfixes, deux comptes. */
+     côté sans que ce test bronche.
+     ⚖️ 09/09 — LE PARTAGE DES PRÉFIXES A CHANGÉ, ET C'EST UNE DÉCISION D'ERIC.
+     `srfh:` ne veut plus dire « le rangement du livre SRD » : il veut dire
+     « cet objet n'appartient pas à une seule source ». Les 23 gemmes que le
+     DMG porte AUSSI y sont passées, pour que les deux couches posent le MÊME
+     id et que le moteur n'en garde qu'un record (« on superpose », « pas de
+     doublons inutiles »). Restent `fh:` les 31 inventions de Fate's Hand. */
+  const GEMMES_PARTAGEES = 23;
   const parPrefixe = { "srfh:": 0, "fh:": 0 };
   for (const vue of query({ kind: "shelving" })) {
     const prefixe = String(vue.id).startsWith("srfh:") ? "srfh:" : "fh:";
     parPrefixe[prefixe] += 1;
   }
-  assert.deepEqual(parPrefixe, { "srfh:": RANGEMENTS_SRFH, "fh:": RANGEMENTS_GEMMES },
-    "le rangement du livre et celui des gemmes se comptent séparément");
+  assert.deepEqual(parPrefixe, {
+    "srfh:": RANGEMENTS_SRFH + GEMMES_PARTAGEES,
+    "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES
+  }, "416 du livre + 23 gemmes partagées d'un côté, 31 inventions de FH de l'autre");
+  /* ⚔️ ET LE TOTAL NE BOUGE PAS — c'est ce qui prouve qu'on a DÉPLACÉ des
+     rangements entre deux comptes, et non pas ajouté ou perdu des records. */
+  assert.equal(parPrefixe["srfh:"] + parPrefixe["fh:"], RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
+    "le déplacement de 23 ids ne doit créer ni détruire aucun rangement");
 
   assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
   assert.deepEqual(RANGEMENT.introuvables.map((x) => x.extends).sort(),

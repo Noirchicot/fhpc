@@ -12,3 +12,10 @@ node_modules
 fixture-banc.json
 fixture-equipe.json
 fixture-panier.json
+
+# ⛔ LES LIVRES DU JOUEUR — Eric, 09/09 : « la version officielle ne contiendra pas
+#    DMG et player ». Le dépôt porte le GÉNÉRATEUR (`src/tools/gen-livre-layer.mjs`),
+#    jamais le contenu. Une version construite depuis un clone frais ne les a pas —
+#    par ABSENCE, pas par discipline.
+sources-livres/
+layers-livres/

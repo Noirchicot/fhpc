@@ -32,6 +32,7 @@ import { fileURLToPath } from "node:url";
 import {
   GEMMES_DU_LIVRE,
   PALIERS_DU_LIVRE,
+  idCanonique,
   construireCouche, prixSrd, assertEmpreinteSource, ETAGERE_DES_GEMMES, TAGS_DES_GEMMES,
   CHAMPS_REFUSES_LANGUE, LAYER, GemError
 } from "../src/tools/gen-fh-gems-layer.mjs";
@@ -160,16 +161,40 @@ test("🔴 UNE GEMME, UN RANGEMENT — la bijection lue dans les DEUX sens", () 
   }
 });
 
-test("🔴 LES RANGEMENTS PORTENT LE PRÉFIXE `fh:`, JAMAIS `srfh:`", () => {
+test("🔴 LE PRÉFIXE D'UN RANGEMENT DIT QUI POSSÈDE LA GEMME — `fh:` l'invention, `srfh:` le partage", () => {
   /* ⛔ ET CE N'EST PAS UNE COQUETTERIE D'IDENTIFIANT. `srfh-shelving-en` monte
      dans les DEUX piles nommées — un joueur en « SRD seul » la garde (voir
      `SRFH_LAYER_IDS`). Un rangement de gemme logé là-bas pointerait, sur cette
      pile, vers un `extends` que rien ne résout : `lireRangement` le compterait
      dans `introuvables`, et 54 objets disparaîtraient en silence du catalogue
      de tous ceux qui jouent SRD. */
+  /* ⚖️ 09/09 — CE GARDE A CHANGÉ DE LOI, PAS DE SÉVÉRITÉ. Il exigeait `fh:`
+     pour les 54. Eric a tranché « on superpose / pas de doublons inutiles » :
+     les 23 gemmes que le DMG porte AUSSI passent en `srfh:` pour que les deux
+     couches posent LE MÊME id et que le moteur n'en garde qu'un record
+     (`stack.mjs:143`). Le garde exige donc maintenant LE BON préfixe pour
+     CHAQUE gemme — 31 `fh:`, 23 `srfh:` — ce qui est plus strict, pas moins :
+     l'ancien laissait passer une 24ᵉ gemme partagée restée en `fh:`.
+     ⛔ CE QUI RESTE VRAI ET NE DOIT PAS BOUGER : le danger que l'ancien garde
+     nommait. `srfh-shelving-en` monte dans les DEUX piles ; un rangement logé
+     LÀ-BAS pointerait vers un `extends` que « SRD seul » ne résout pas. Ici le
+     préfixe `srfh:` désigne un ID PARTAGÉ, pas la couche `srfh-shelving-en` —
+     le rangement reste dans `fh-gems-en`, et le témoin ci-dessous le prouve. */
+  const compte = { fh: 0, srfh: 0 };
   for (const id of Object.keys(RANGEMENTS)) {
-    assert.match(id, /^fh:shelving:en:/, `« ${id} » n'appartient pas à une couche Fate's Hand`);
+    const slug = id.split(":").pop();
+    const attendu = Object.hasOwn(GEMMES_DU_LIVRE, slug) ? "srfh" : "fh";
+    assert.match(id, new RegExp(`^${attendu}:shelving:en:`),
+      `« ${id} » : le DMG ${attendu === "srfh" ? "PORTE" : "ne porte PAS"} cette pierre, ` +
+      `son rangement doit donc commencer par \`${attendu}:\``);
+    compte[attendu] += 1;
   }
+  assert.deepEqual(compte, { fh: 31, srfh: 23 },
+    "31 inventions de Fate's Hand, 23 pierres partagées avec le livre");
+  /* ⚔️ LE TÉMOIN QUI GARDE L'ANCIENNE VÉRITÉ : la couche qui PORTE ces
+     rangements est toujours `fh-gems-en`, quel que soit le préfixe de l'id. */
+  assert.equal(COUCHE.id, "fh-gems-en",
+    "les rangements doivent rester dans la couche FH — un id partagé n'est pas un déménagement");
 });
 
 test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC", () => {
@@ -262,8 +287,11 @@ test("témoin — une source saine PASSE, et elle produit les deux records", () 
   const { layer, compte, parPalier } = construireCouche(sourceSaine());
   assert.equal(compte, 1);
   assert.deepEqual(parPalier, { 10: 1 });
-  assert.deepEqual(Object.keys(layer.records.gem), ["fh:gem:en:azurite"]);
-  assert.deepEqual(Object.keys(layer.records.shelving), ["fh:shelving:en:azurite"]);
+  /* ⭐ `azurite` EST l'une des 23 que le DMG porte aussi : son id est donc
+     PARTAGÉ. Le témoin le dit explicitement — sans ça, un lecteur croirait à
+     une faute de frappe. */
+  assert.deepEqual(Object.keys(layer.records.gem), ["srfh:gem:en:azurite"]);
+  assert.deepEqual(Object.keys(layer.records.shelving), ["srfh:shelving:en:azurite"]);
 });
 
 test("⚔️ ATTAQUE — une source vide est REFUSÉE : un vide n'est pas une réponse", () => {
@@ -331,7 +359,7 @@ test("⚔️ ATTAQUE — une étagère qui n'est pas « rayon:étagère » est r
      étagère déplace les 54 gemmes sans toucher à rien d'autre. C'est ce qui
      rend l'arbitrage d'Eric praticable en une ligne. */
   const { layer } = construireCouche(sourceSaine(), { etagere: "equipment:valuables" });
-  const shelf = layer.records.shelving["fh:shelving:en:azurite"].data.shelf;
+  const shelf = layer.records.shelving["srfh:shelving:en:azurite"].data.shelf;
   assert.deepEqual([shelf.aisle, shelf.shelf], ["equipment", "valuables"]);
 });
 
@@ -405,7 +433,14 @@ test("🔴 LA COUCHE N'AJOUTE QUE — elle ne patche ni n'éteint aucun record d
   for (const genre of Object.values(COUCHE.records)) {
     for (const [id, entree] of Object.entries(genre)) {
       assert.equal(entree.op, undefined, `${id} porte un \`op\` — cette couche n'AJOUTE que`);
-      assert.match(id, /^fh:/, `${id} ne commence pas par \`fh:\` — un record d'une autre couche`);
+      /* ⚖️ 09/09 — deux préfixes légitimes, et un seul par gemme : `fh:` pour
+         les 31 inventions, `srfh:` pour les 23 partagées avec le livre. Le
+         garde vérifie LEQUEL, pas « au moins un des deux ». */
+      const slug = id.split(":").pop();
+      const attendu = Object.hasOwn(GEMMES_DU_LIVRE, slug) ? "srfh" : "fh";
+      assert.match(id, new RegExp(`^${attendu}:`),
+        `${id} devrait commencer par \`${attendu}:\` — ` +
+        `le DMG ${attendu === "srfh" ? "porte" : "ne porte pas"} cette pierre`);
     }
   }
 });
@@ -465,7 +500,7 @@ test("⚖️ LE PALIER QUE FH DONNE À UNE GEMME DU LIVRE — deux divergences, 
      silence serait un accident, pas un choix. */
   const divergences = [];
   for (const [slug, palierLivre] of Object.entries(GEMMES_DU_LIVRE)) {
-    const entree = COUCHE.records.gem[`fh:gem:en:${slug}`];
+    const entree = COUCHE.records.gem[idCanonique(slug)];
     if (entree.data.value_gp !== palierLivre) {
       divergences.push([slug, entree.data.value_gp, palierLivre]);
     }
