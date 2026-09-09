@@ -73,7 +73,14 @@ test("témoin — la liste des couches FH est DÉDUITE, et elle porte bien toute
      seul endroit qui puisse dire « une couche FH est entrée dans la pile et
      personne n'a regardé si elle respecte le verbatim ». */
   assert.deepEqual(COUCHES_FH, [
-    "fh-species-en.layer.json", "fh-skills-en.layer.json", "fh-arcana-en.layer.json",
+    "fh-species-en.layer.json", "fh-skills-en.layer.json",
+    /* LOT 184 — les deux couches sorties de `fh-skills-en`. Vérifiées avant
+       d'être écrites ici : `fh-trainings-en` ne porte que le genre `training`
+       et `fh-inheritance-en` que le genre `background` — aucun `feat`, aucune
+       arme, aucune maîtrise, donc rien que les trois gardes ci-dessous
+       puissent avoir à dire. */
+    "fh-trainings-en.layer.json", "fh-inheritance-en.layer.json",
+    "fh-arcana-en.layer.json",
     "fh-feats-en.layer.json", "fh-spells-en.layer.json", "fh-soulforging-en.layer.json",
     "fh-gems-en.layer.json", "fh-fiche-en.layer.json", "fh-lore-en.layer.json"
   ], "une couche FH est entrée dans (ou sortie de) la pile : vérifier qu'elle reste verbatim, PUIS corriger cette liste");

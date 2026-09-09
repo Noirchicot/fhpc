@@ -68,6 +68,33 @@ Une couche est de l'un de **deux genres**, et le genre décide où elle se pilot
 Menu. Ils sont **six** : `Trainings` · `Skills & tools` · `Inheritance` · `Destiny` ·
 `Lore` · `Soulforging`.
 
+#### Où en est la coupe, couche par couche (lot 184, 2026-09-09)
+
+`fh-skills-en` en portait **trois à la fois** — Eric, en la lisant : *« FH skills
+contient des feats, LOL »*. Le lot 184 l'a fendue, sans toucher un octet de
+contenu :
+
+| interrupteur | couche | drapeau |
+|---|---|---|
+| `Skills & tools` | `fh-skills-en` | `fh.skills` |
+| `Trainings` | `fh-trainings-en` | `fh.trainings` |
+| `Inheritance` | `fh-inheritance-en` | `fh.inheritance` |
+| `Destiny` | `fh-arcana-en` · `fh-feats-en` · `fh-spells-en` · `fh-species-en` | `fh.destiny` |
+| `Lore` | `fh-lore-en` · `fh-fiche-en` | *(aucun)* |
+| `Soulforging` | `fh-soulforging-en` | `fh.soulforging` |
+
+⚖️ **ET UN INTERRUPTEUR PEUT EN EXIGER UN AUTRE — Eric, 08/09 : *l'Inheritance
+dépend des Trainings*.** Les deux langues que l'origine offre SONT des records du
+catalogue des trainings (`granted_language_choice.from` → `fh:training:en:language-*`).
+📏 Mesuré le 09/09 sur la pile de la page privée de `fh-trainings-en` : le moteur
+**dégrade, il n'échoue pas** — le montage passe, `rebuild` passe, l'octroi publie
+toujours ses douze options (des `ref` qui ne désignent plus rien),
+`resolved.languages` sort **vide** et la fiche déclare `underived.no-language-chosen` ;
+une langue déjà choisie devient un refus **nommé**, `choice.ref-missing`. Une
+dépendance non satisfaite se LIT donc sur la fiche, elle ne casse pas le
+personnage — c'est la règle §3 de cette section (« un contenu qui exige une règle
+absente s'affiche inerte, sa règle manquante NOMMÉE »), vérifiée sur un cas réel.
+
 **Le catalogue** *offre du contenu*, marqué compatible SRD ou non : `species`, les
 lignages, `class`, les sous-classes. Araag, Loroka, Elestu, Hoddon sont du
 **homebrew**, pas des règles — c'est la porte homebrew de SOWLREACH.

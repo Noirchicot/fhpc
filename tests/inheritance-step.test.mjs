@@ -42,12 +42,18 @@ function rebuild(document) { return build.verbs.rebuild({ document }); }
 function set(document, path, value) { return build.verbs.set({ document, path, value }).document; }
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
+/* LOT 184 — `fh-skills-en` portait TROIS interrupteurs ; les trainings et
+   l'origine Fate's Hand sont sortis dans leurs couches. Les monter à côté
+   d'elle restitue EXACTEMENT ce que cette suite montait avant la fente : les
+   records ont déménagé octet pour octet, aucun n'a changé. */
+const FH_TRAININGS_EN = "layers/fh-trainings-en.layer.json";
+const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 
 /** La pile Fate's Hand MINIMALE (SRD + compétences + dons) — même harnais
  *  que `tests/inheritance-lot43.test.mjs`, réutilisé pour les scénarios que
  *  le personnage d'exemple ne couvre pas (aucun boost, un boost fautif). */
 function pile() {
-  return makeHarness({ layers: [SRD_EN, FH_SKILLS_EN, FH_FEATS_EN] });
+  return makeHarness({ layers: [SRD_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN, FH_FEATS_EN] });
 }
 
 function baseChoices({ classId = "srd:class:en:wizard", extra = [] } = {}) {

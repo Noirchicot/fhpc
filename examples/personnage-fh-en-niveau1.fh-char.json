@@ -36,8 +36,20 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "6fa320503866731c8225ca95e2077bc8de8d79a9242db911c5ca69c18f4217a6",
+        "hash": "3cfb2504dabc6aa2f27e2bccac2e0fde61cacff43e7ef8ba0179dce89fa25a54",
         "name": "Fate's Hand — Skills & Tools (EN)"
+      },
+      {
+        "id": "fh-trainings-en",
+        "version": "0.1.0",
+        "hash": "9305a2af6033c53cabed938a336c81c93999a7e78557454d6df6f469ac3e7a20",
+        "name": "Fate's Hand — Trainings (EN)"
+      },
+      {
+        "id": "fh-inheritance-en",
+        "version": "0.1.0",
+        "hash": "fcdab45c479b2b6d6dbdd7b8c7655196abe4f8bf6f43e6f63b73196a4383b6f4",
+        "name": "Fate's Hand — Inheritance (EN)"
       },
       {
         "id": "fh-arcana-en",
@@ -434,8 +446,20 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "6fa320503866731c8225ca95e2077bc8de8d79a9242db911c5ca69c18f4217a6",
+          "hash": "3cfb2504dabc6aa2f27e2bccac2e0fde61cacff43e7ef8ba0179dce89fa25a54",
           "name": "Fate's Hand — Skills & Tools (EN)"
+        },
+        {
+          "id": "fh-trainings-en",
+          "version": "0.1.0",
+          "hash": "9305a2af6033c53cabed938a336c81c93999a7e78557454d6df6f469ac3e7a20",
+          "name": "Fate's Hand — Trainings (EN)"
+        },
+        {
+          "id": "fh-inheritance-en",
+          "version": "0.1.0",
+          "hash": "fcdab45c479b2b6d6dbdd7b8c7655196abe4f8bf6f43e6f63b73196a4383b6f4",
+          "name": "Fate's Hand — Inheritance (EN)"
         },
         {
           "id": "fh-arcana-en",

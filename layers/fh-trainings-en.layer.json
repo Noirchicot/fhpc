@@ -1,0 +1,149 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-trainings-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Trainings (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.trainings"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer adds thirteen records of its own and modifies NO material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd: it rewrites no SRD text, patches no SRD record and disables none. The SRD 5.2.1 carries no language catalogue at all — there was nothing to take from it, even willingly."
+  },
+  "description": "The thirteen trainings of Fate's Hand: twelve languages, one per playable people, and the Garrot. A training has neither tier nor ability — you know it or you do not — and its cost lives on its own record. Two of the languages are granted at creation by the Inheritance (`fh-inheritance-en`), which resolves its list on THIS catalogue: without this layer, the Inheritance offers no language.",
+  "records": {
+    "training": {
+      "fh:training:en:language-araag": {
+        "name": "Araag",
+        "slug": "language-araag",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Araag people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Araag"
+        }
+      },
+      "fh:training:en:language-dragonborn": {
+        "name": "Dragonborn",
+        "slug": "language-dragonborn",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Dragonborn people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Dragonborn"
+        }
+      },
+      "fh:training:en:language-dwarf": {
+        "name": "Dwarf",
+        "slug": "language-dwarf",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Dwarf people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Dwarf"
+        }
+      },
+      "fh:training:en:language-elestu": {
+        "name": "Elestu",
+        "slug": "language-elestu",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Elestu people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Elestu"
+        }
+      },
+      "fh:training:en:language-elf": {
+        "name": "Elf",
+        "slug": "language-elf",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Elf people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Elf"
+        }
+      },
+      "fh:training:en:language-goliath": {
+        "name": "Goliath",
+        "slug": "language-goliath",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Goliath people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Goliath"
+        }
+      },
+      "fh:training:en:language-halfling": {
+        "name": "Halfling",
+        "slug": "language-halfling",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Halfling people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Halfling"
+        }
+      },
+      "fh:training:en:language-hoddon": {
+        "name": "Hoddon",
+        "slug": "language-hoddon",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Hoddon people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Hoddon"
+        }
+      },
+      "fh:training:en:language-human": {
+        "name": "Human",
+        "slug": "language-human",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Human people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Human"
+        }
+      },
+      "fh:training:en:language-loroka": {
+        "name": "Loroka",
+        "slug": "language-loroka",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Loroka people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Loroka"
+        }
+      },
+      "fh:training:en:language-orc": {
+        "name": "Orc",
+        "slug": "language-orc",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Orc people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Orc"
+        }
+      },
+      "fh:training:en:language-tiefling": {
+        "name": "Tiefling",
+        "slug": "language-tiefling",
+        "data": {
+          "category": "language",
+          "cost": 1,
+          "description": "The tongue of the Tiefling people. Two languages are granted by your Inheritance, at creation and at no cost; a further one is bought like any other training.",
+          "name": "Tiefling"
+        }
+      },
+      "fh:training:en:garrot": {
+        "name": "Garrot",
+        "slug": "garrot",
+        "data": {
+          "category": "weapon",
+          "cost": 1,
+          "description": "A finesse cord used to strangle a surprised target. It deals no damage — only exhaustion — and it is a training, not a tool: no tier, no ability behind it.",
+          "name": "Garrot"
+        }
+      }
+    }
+  }
+}

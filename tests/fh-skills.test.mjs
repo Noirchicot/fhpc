@@ -54,8 +54,6 @@ import {
   GenError
 } from "../src/tools/gen-fh-skills-layer.mjs";
 import {
-  BACKGROUND_INHERITANCE,
-  BACKGROUNDS_EXTINGUISHED,
   EXPECTED,
   SKILLS_ADDED,
   TOOLS_ADDED
@@ -701,73 +699,6 @@ test("REFUS — une classe du SRD oubliée par la table des pools fait jeter", (
   assert.throws(() => buildLayer({ srd }), /srd:class:en:monk/);
 });
 
-/* ══ L'ARRIÈRE-PLAN, RETIRÉ — REMPLACÉ PAR L'INHERITANCE (lot 43) ══════
-   Addendums §4, réécrit le 2026-08-13 : « IL N'Y A PLUS DE RECORD
-   D'ARRIÈRE-PLAN DU TOUT ». Le lot 35 avait seulement PATCHÉ les quatre
-   records SRD (retrait de `skill_ids`, `tool_id`/`tool_choice`) : ils
-   restaient choisissables. Ce lot les ÉTEINT (`op: "disable"`) et ajoute
-   `fh:background:en:inheritance`, le seul arrière-plan de la pile FH,
-   livré et jamais choisi (contrat §1a). */
-
-test("les quatre arrière-plans du SRD sont ÉTEINTS — la pile FH ne les rend plus", () => {
-  const verbs = pile();
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    assert.equal(verbs.query({ kind: "background", id: entry.target }), null,
-      `« ${entry.target} » : disable() retire le record entier de la pile FH`);
-  }
-  /* ⛔ Et sous le SRD nu, sans la couche FH, les quatre existent toujours —
-     `disable` retire de la PILE, jamais du SRD commité (§L7, `op:"disable"`
-     rend « ce qu'elle avait désactivé » quand la couche se retire). */
-  const srdSeul = pile({ fh: false });
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    assert.ok(srdSeul.query({ kind: "background", id: entry.target }),
-      `« ${entry.target} » : intact sous le SRD pur, hors de la pile Fate's Hand`);
-  }
-});
-
-test("l'Inheritance est le SEUL arrière-plan de la pile Fate's Hand", () => {
-  const verbs = pile();
-  const tous = verbs.query({ kind: "background" });
-  assert.equal(tous.length, 1, "les quatre du SRD sont éteints, un seul record les remplace");
-  assert.equal(tous[0].id, BACKGROUND_INHERITANCE.id);
-  assert.equal(tous[0].record.name, "Inheritance");
-});
-
-test("l'Inheritance ne porte NI `ability_keys` NI `feat_id` — c'est la règle, pas un oubli", () => {
-  const verbs = pile();
-  const data = verbs.query({ kind: "background", id: BACKGROUND_INHERITANCE.id }).record.data;
-  /* §1c — l'absence D'`ability_keys` EST la règle : un record qui ne nomme pas
-     ses clefs ne les restreint pas, donc les SIX caractéristiques sont
-     proposées (`decisions.mjs`, `backgroundBoostPlan`). */
-  assert.equal(Object.hasOwn(data, "ability_keys"), false);
-  /* §1b/§3d — pas de `feat_id` (imposé) : à la place, `feat_choice.from`, le
-     don d'origine libre. */
-  assert.equal(Object.hasOwn(data, "feat_id"), false);
-  assert.deepEqual(data.feat_choice, { from: "origin" });
-});
-
-/* ⚠️ PAS DE TEST SÉPARÉ « disable() vise un record absent du SRD » ICI : le
-   supprimer changerait aussi le COMPTE (3 au lieu de 4), et c'est le contrôle
-   `EXPECTED.backgrounds` qui mordrait, jamais `srdRecord()`. C'est exactement
-   la mesure du commentaire de `renomme()` un peu plus bas. Le test « REFUS —
-   un arrière-plan du SRD oublié par la table d'extinction » l'exerce déjà en
-   RENOMMANT (compte inchangé, cible introuvable) : ce garde-là, pas un
-   nouveau. */
-
-test("REFUS — un cinquième arrière-plan au SRD ferait jeter, au lieu de rester intact en silence", () => {
-  const srd = srdAmputé((s) => {
-    s.records.background["srd:background:en:hermit"] = {
-      name: "Hermit", slug: "hermit", data: { skill_ids: [], ability_keys: ["wis"] }
-    };
-  });
-  assert.throws(() => buildLayer({ srd }), /5 arrière-plans|quatre/i);
-});
-
-test("REFUS — un arrière-plan du SRD oublié par la table d'extinction fait jeter", () => {
-  const srd = srdAmputé(renomme("background", "srd:background:en:criminal", "srd:background:en:outlaw"));
-  assert.throws(() => buildLayer({ srd }), /srd:background:en:criminal/);
-});
-
 /* ══ LE GÉNÉRATEUR — REPRODUCTIBILITÉ ET REFUS ═════════════════════════ */
 
 test("le fichier commité est EXACTEMENT ce que le générateur produit", () => {
@@ -1070,126 +1001,51 @@ test("⚔️ ATTAQUE — un grant accroché à une aptitude que le SRD ne porte 
     "elle vit dans sa SOUS-CLASSE — la poser sur la classe la donnerait à toute voie de barde");
 });
 
-/* ══ LOT 82 — LE CATALOGUE DES TRAININGS, ENFIN REMPLI ════════════════
-   Le genre existe depuis le 2026-08-12 et son catalogue est resté VIDE par
-   arbitrage d'Eric (« on ne s'y attelle pas pour le moment »). Le canon des
-   points §B.3 le remplit : douze langues et le Garrot. */
 
-test("les treize trainings sont NOMMÉS — douze langues, une par peuple, plus le Garrot", () => {
-  const verbs = pile();
-  const catalogue = verbs.query({ kind: "training" });
-  assert.equal(catalogue.length, EXPECTED.trainings);
+/* ══ LOT 184 — LA COUCHE NE PORTE PLUS QUE CE QUE SON NOM DIT ═════════════
+   🔴 CE QU'ERIC A VU LE 08/09, EN UNE PHRASE : *« FH skills contient des feats,
+   LOL »*. Cette couche portait TROIS interrupteurs de l'écran `Rules` —
+   `Skills & tools`, `Trainings`, `Inheritance` — et on ne pouvait éteindre
+   aucun des trois sans les deux autres.
 
-  /* ⛔ ON NOMME, ON NE COMPTE PAS. « 13 » passerait avec treize mauvais. */
-  assert.deepEqual(catalogue.map((v) => v.record.name).sort(),
-    ["Araag", "Dragonborn", "Dwarf", "Elestu", "Elf", "Garrot", "Goliath",
-      "Halfling", "Hoddon", "Human", "Loroka", "Orc", "Tiefling"],
-    "une langue par peuple, portant SON nom — pas d'Elvish, pas de Dwarvish : les formes " +
-    "adjectivales du SRD tombent (canon §B.3, Eric 2026-08-18)");
+   ⛔ ET LES DEUX GARDES VONT PAR PAIRE. Celui du dessus dit ce que la couche
+   ne porte PLUS ; à lui seul, il resterait vert si les records avaient été
+   PERDUS au lieu d'être déménagés. Celui du dessous lit la pile RÉELLE, dans
+   l'autre sens, et nomme la couche qui les porte maintenant. C'est la leçon
+   du lot 179, appliquée à un déménagement deux fois plus gros. */
+
+test("🔴 LOT 184 — `fh-skills-en` ne porte plus QUE `skill`, `tool` et `class`", () => {
+  const couche = JSON.parse(readFileSync(join(ROOT, FH_SKILLS_EN), "utf8"));
+  /* ⛔ LES GENRES SE LISENT, ILS NE SE CHERCHENT PAS UN PAR UN : une clef
+     `feat` ou `spell` apparue demain serait vue par cette égalité, alors
+     qu'une liste de deux `assert.equal(records.training, undefined)` ne
+     verrait que ce qu'elle nomme. */
+  assert.deepEqual(Object.keys(couche.records).sort(), ["class", "skill", "tool"],
+    "un genre de plus ici, et la couche recommence à porter plus d'un interrupteur");
+  assert.deepEqual(couche.flags, ["fh.skills"],
+    "un seul drapeau : les deux autres sont levés par les deux couches sorties");
 });
 
-test("⛔ UN TRAINING N'A NI PALIER NI CARACTÉRISTIQUE — c'est ce qui en fait un genre à part", () => {
-  const verbs = pile();
-  for (const vue of verbs.query({ kind: "training" })) {
-    const data = vue.record.data;
-    assert.equal(Number.isInteger(data.cost) && data.cost >= 1, true,
-      `« ${vue.id} » doit porter son coût sur SON record — un training que le moteur ne sait pas tarifer ` +
-      "est un training qu'il ne peut pas vendre");
-    for (const interdit of ["ability", "ability_key", "tier_costs"]) {
-      assert.equal(data[interdit], undefined,
-        `« ${vue.id} » ne doit porter aucun \`${interdit}\` : on sait un training, on ne le pratique pas à ` +
-        "un palier. Le loger chez les outils forcerait tout lecteur à tester un champ pour savoir ce " +
-        "qu'il tient (loi §0.6) — c'est la raison d'être du genre.");
-    }
-    /* ⛔ ET PAS DE `from_level` : son ABSENCE est la règle générique (niveau 4,
-       canon §B.3), sa PRÉSENCE serait la dérogation. Écrire 4 rendrait les
-       deux indistinguables. */
-    assert.equal(data.from_level, undefined,
-      `« ${vue.id} » : le niveau générique se lit dans l'ABSENCE du champ, jamais dans un 4 recopié`);
-  }
-});
+test("🔴 LOT 184 — la PILE RÉELLE porte toujours les 13 trainings et les 5 arrière-plans", () => {
+  /* ⭐ CE TEST EST LA MOITIÉ QUI MANQUERAIT. Sans lui, le garde du dessus
+     passerait au vert le jour où les records auraient été SUPPRIMÉS plutôt que
+     déplacés : « la couche ne les porte plus » est vrai dans les deux cas.
+     ⛔ Il monte la pile de la PAGE, pas une pile de test : la question posée
+     est « le joueur voit-il encore ses langues et son origine ? ». */
+  const verbs = monter(PILE).query;
 
-test("⛔ LES DOUZE LANGUES CONTRE LES DOUZE ESPÈCES — dans les deux sens", () => {
-  /* ⚠️ CE TEST MONTE LA PILE COMPLÈTE, et il le doit. `pile()` ne monte que le
-     SRD et la couche des compétences : les espèces Fate's Hand (Araag, Elestu,
-     Loroka) n'y sont pas, et le Gnome n'y est pas encore Hoddon. Comparer les
-     langues à cette pile-là mesurerait la mauvaise réalité — la correspondance
-     est avec les DOUZE ESPÈCES JOUABLES, celles que le joueur voit. */
-  const bus = makeBus();
-  const layers = createLayers({ bus });
-  for (const couche of [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN]) {
-    layers.verbs.register({ bytes: fileBytes(couche), origin: couche });
-  }
-  const verbs = layers.verbs;
+  const trainings = verbs({ kind: "training" });
+  assert.equal(trainings.length, 13, "les treize trainings sont toujours là, dans l'autre couche");
+  const backgrounds = verbs({ kind: "background" });
+  assert.equal(backgrounds.length, 1,
+    "l'Inheritance est toujours le seul arrière-plan : les quatre extinctions ont suivi avec elle");
+  assert.equal(backgrounds[0].id, "fh:background:en:inheritance");
 
-  const langues = verbs.query({ kind: "training" })
-    .filter((v) => v.record.data.category === "language")
-    .map((v) => v.record.slug.replace(/^language-/, "")).sort();
-  const especes = verbs.query({ kind: "species" }).map((v) => v.record.slug).sort();
-
-  assert.equal(langues.length, especes.length,
-    "un peuple muet et une langue orpheline passeraient toutes deux si on se contentait de compter d'un côté");
-  assert.deepEqual(langues, especes,
-    "chaque peuple jouable a sa langue, et aucune langue ne mène nulle part");
-});
-
-test("⛔ LES RITUELS SOMBRES NE SONT PAS DES TRAININGS — mesuré, pas supposé", () => {
-  /* Le canon les annonçait trainings. Mesuré dans le chapitre qui les définit
-     (`6. Spells & Magic/Dark Rituals.md`) : un rite est gaté par le NIVEAU
-     CUMULÉ de ses lanceurs et par leur classe de lanceur de sorts, et payé en
-     points de Destinée et en dégâts nécrotiques. Nulle part il n'est dit qu'on
-     APPREND un rituel. Un rite se pratique, il ne se connaît pas. */
-  const verbs = pile();
-  const octets = JSON.stringify(verbs.query({ kind: "training" }));
-  assert.equal(/ritual|rite/i.test(octets), false,
-    "aucun rituel dans le catalogue : le canon est corrigé, et l'économie de points suit un chapitre " +
-    "au lieu d'en annexer un");
-});
-
-/* ══ LOT 182 — L'OR DE DÉPART DE L'ORIGINE, RENDU À LA DONNÉE ════════════
-   🔴 CE QUE CE GARDE DÉFEND, MESURÉ LE 2026-09-09 : les quatre arrière-plans
-   du SRD portent chacun `data.equipment`, dont l'option B est « 50 GP ».
-   L'Inheritance les éteint et ne portait AUCUN or — le montant ne vivait plus
-   que dans `ui/builder/equipment-step.mjs`, sous la forme d'un
-   `INHERITED_PURSE_GP = 50` écrit en dur, hors de toute couche.
-   ⛔ Le champ ne vise QUE l'or : §4 a retiré les CHOIX d'arrière-plan
-   (compétences, outil, don imposé, clefs), jamais la bourse de départ. */
-
-test("182 — l'Inheritance porte l'or de départ des quatre arrière-plans qu'elle éteint", () => {
-  const verbs = pile();
-  const data = verbs.query({ kind: "background", id: BACKGROUND_INHERITANCE.id }).record.data;
-  assert.equal(typeof data.equipment, "string",
-    "sans ce champ, l'or de l'origine ne vit dans aucune couche et un écran le réécrit en dur");
-  assert.equal(data.equipment, "50 GP");
-
-  /* ⭐ ET LE 50 N'EST PAS UNE INVENTION DE FATE'S HAND : il est mesuré sur les
-     quatre records SRD éteints, qui le portent tous les quatre. */
-  const srd = readSrdLayer(SRD_PATH);
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    const phrase = srd.records.background[entry.target].data.equipment;
-    assert.match(phrase, /;\s*or\s*\(B\)\s*50 GP$/,
-      `« ${entry.target} » : son option B est l'or que l'Inheritance reprend`);
-  }
-});
-
-test("REFUS — une Inheritance sans or, alors que les quatre éteints en portent, fait jeter", () => {
-  /* ⚔️ LE GARDE, ÉPROUVÉ ROUGE. `BACKGROUND_INHERITANCE` est lu par le
-     générateur à l'import : on le prive de son champ le temps d'une passe, et
-     on le rend — un garde qu'on n'a jamais vu accuser ne protège rien. */
-  const or = BACKGROUND_INHERITANCE.equipment;
-  try {
-    delete BACKGROUND_INHERITANCE.equipment;
-    assert.throws(() => buildLayer({ srd: readSrdLayer(SRD_PATH) }),
-      (e) => e instanceof GenError && /equipment/.test(e.message));
-    /* ✅ ET IL NE CRIE PAS SUR CE QUI EST JUSTE : si le SRD lui-même ne portait
-       plus cet or, il n'y aurait plus rien à reprendre — le garde se tait. */
-    const sansOrAuSrd = srdAmputé((s) => {
-      for (const entry of BACKGROUNDS_EXTINGUISHED) delete s.records.background[entry.target].data.equipment;
-    });
-    assert.doesNotThrow(() => buildLayer({ srd: sansOrAuSrd }));
-  } finally {
-    BACKGROUND_INHERITANCE.equipment = or;
-  }
-  /* ⛔ ET LA SOURCE EST RENDUE INTACTE — la passe normale repasse. */
-  assert.doesNotThrow(() => buildLayer({ srd: readSrdLayer(SRD_PATH) }));
+  /* ⛔ ET C'EST BIEN LA BONNE COUCHE QUI LES PORTE — pas une troisième apparue
+     en route, pas `fh-skills-en` qui les aurait discrètement gardés. */
+  const trainingsEn = JSON.parse(readFileSync(join(ROOT, "layers", "fh-trainings-en.layer.json"), "utf8"));
+  const inheritanceEn = JSON.parse(readFileSync(join(ROOT, "layers", "fh-inheritance-en.layer.json"), "utf8"));
+  assert.equal(Object.keys(trainingsEn.records.training).length, 13);
+  assert.equal(Object.keys(inheritanceEn.records.background).length, 5,
+    "quatre extinctions du SRD + l'Inheritance");
 });

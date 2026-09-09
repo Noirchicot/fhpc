@@ -40,8 +40,6 @@ import { fileURLToPath } from "node:url";
 
 import {
   ABILITY_NAMES,
-  BACKGROUND_INHERITANCE,
-  BACKGROUNDS_EXTINGUISHED,
   CLASS_POOLS,
   EXPECTED,
   TIER_COSTS,
@@ -53,9 +51,7 @@ import {
   SKILLS_REMOVED,
   TOOLS_ADDED,
   TOOLS_RECHARACTERISED,
-  TOOLS_REMOVED,
-  TRAININGS_ADDED,
-  LANGUAGE_SPECIES
+  TOOLS_REMOVED
 } from "./fh-skills-source.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -331,59 +327,6 @@ function buildTools(srd) {
    régénération de `fh-srd` — un Artificier qui rentrerait par la porte de
    derrière — ferait jeter ici, et pas trois mois plus tard sur une question
    de licence (loi §0.8, dépôt public). */
-/* ══ LES TRAININGS — LE CATALOGUE, POSÉ ET CONFRONTÉ (lot 82) ═════════
-   Douze langues et le Garrot. Ce sont des records NEUFS : aucun n'existe au
-   SRD, et ce générateur le vérifie plutôt que de l'espérer.
-
-   ⛔ LE GARDE QUI COMPTE POUR DE VRAI : les douze langues doivent correspondre
-   EXACTEMENT aux douze espèces jouables de la pile. Une espèce ajoutée sans sa
-   langue serait un peuple muet, et une langue sans son peuple serait un achat
-   qui ne mène nulle part — les deux passeraient sans un mot si on se contentait
-   de compter. */
-function buildTrainings(srd, especes) {
-  const training = {};
-  const langues = new Set();
-
-  for (const entry of TRAININGS_ADDED) {
-    const id = idOf("training", entry.slug);
-    if (training[id]) fail(`le training « ${id} » est déclaré deux fois par la source.`);
-    if (!Number.isInteger(entry.cost) || entry.cost < 1) {
-      fail(`le training « ${id} » coûte ${entry.cost}, qui n'est pas un nombre entier positif de points. ` +
-        "Un training que le moteur ne sait pas tarifer est un training qu'il ne peut pas vendre.");
-    }
-    if (entry.category === "language") langues.add(entry.slug.replace(/^language-/, ""));
-    training[id] = {
-      name: entry.name,
-      slug: entry.slug,
-      data: {
-        category: entry.category,
-        /* ⛔ LE COÛT VIT ICI, PAS DANS LE MOTEUR. Le jour où Eric passe une
-           langue à 2 points, aucun fichier de `src/` ne bouge. */
-        cost: entry.cost,
-        description: entry.description,
-        name: entry.name
-        /* PAS de `from_level` : son ABSENCE est la règle générique (niveau 4,
-           canon §B.3), et sa PRÉSENCE serait la dérogation. Écrire 4 ici
-           rendrait la dérogation indistinguable du défaut. */
-      }
-    };
-  }
-
-  /* LES DOUZE LANGUES CONTRE LES DOUZE ESPÈCES — dans les deux sens. */
-  const manquantes = especes.filter((slug) => !langues.has(slug));
-  if (manquantes.length > 0) {
-    fail(`ces espèces jouables n'ont pas de langue : ${manquantes.join(", ")}. Le canon donne à chaque ` +
-      "peuple une langue qui porte son nom ; un peuple muet est du contenu faux, pas du contenu qui manque.");
-  }
-  const orphelines = [...langues].filter((slug) => !especes.includes(slug));
-  if (orphelines.length > 0) {
-    fail(`ces langues ne correspondent à aucune espèce jouable : ${orphelines.join(", ")}. Une langue sans ` +
-      "son peuple est un achat qui ne mène nulle part.");
-  }
-
-  return { training, total: Object.keys(training).length, languages: langues.size };
-}
-
 /* 🔴 LE TRIO QUI REMPLACE PERCEPTION DANS UNE LISTE DE CLASSE — Eric,
    2026-08-20 : *« Delve, Vigilance, Survival »*.
    ⚠️ CE N'EST PAS LA SPLIT. La description de cette couche dit que Perception
@@ -677,111 +620,6 @@ function buildClasses(srd, skillIdsDeLaPile) {
   return { class: klass, total: servis.size };
 }
 
-/* ══ L'ARRIÈRE-PLAN, RETIRÉ — REMPLACÉ PAR L'INHERITANCE (lot 43) ══════
-   ⭐ RÉVISÉ 2026-08-13. Le lot 35 avait seulement PATCHÉ les quatre records
-   SRD (retrait de `skill_ids`, `tool_id`/`tool_choice`) : ils restaient
-   choisissables, avec `ability_keys` et `feat_id` intacts. Addendums §4,
-   réécrit le 2026-08-13 : « IL N'Y A PLUS DE RECORD D'ARRIÈRE-PLAN DU TOUT ».
-   Les quatre sont donc ÉTEINTS (`op: "disable"`, le patron déjà en place pour
-   Perception et le Gaming Set générique — `SKILLS_REMOVED` plus haut), et la
-   couche EN AJOUTE un cinquième : `fh:background:en:inheritance`, le seul
-   arrière-plan de la pile Fate's Hand.
-
-   ⛔ LE GARDE QUI COMPTE : le SRD doit porter EXACTEMENT quatre arrière-plans,
-   et chacun d'eux doit être éteint. Un cinquième apparu dans une régénération
-   de `fh-srd` resterait sinon intact en silence — un arrière-plan choisissable
-   de plus est exactement l'arrière-plan que l'Inheritance devait remplacer. */
-function buildBackgrounds(srd, training) {
-  const srdBackgrounds = (srd.records || {}).background || {};
-  const srdIds = Object.keys(srdBackgrounds);
-  if (srdIds.length !== EXPECTED.backgrounds) {
-    fail(`la couche SRD porte ${srdIds.length} arrière-plans, la source en attend ${EXPECTED.backgrounds}. ` +
-      "L'Inheritance éteint les quatre du SRD ; un cinquième n'aurait pas d'extinction déclarée.");
-  }
-
-  const background = {};
-  const servis = new Set();
-
-  for (const entry of BACKGROUNDS_EXTINGUISHED) {
-    srdRecord(srd, "background", entry.target, `l'extinction de « ${entry.target} »`);
-    if (background[entry.target]) fail(`l'arrière-plan « ${entry.target} » est éteint deux fois.`);
-    servis.add(entry.target);
-    background[entry.target] = { op: "disable", reason: entry.reason };
-  }
-
-  const oubliés = srdIds.filter((id) => !servis.has(id));
-  if (oubliés.length > 0) {
-    fail(`ces arrière-plans du SRD ne sont pas éteints : ${oubliés.join(", ")}. Un personnage qui les choisit ` +
-      "resterait sur un arrière-plan que l'Inheritance devait remplacer.");
-  }
-
-  /* ⭐ LOT 182 — CE QUI REMPLACE DOIT PORTER L'OR DE CE QU'IL REMPLACE.
-     Les quatre arrière-plans éteints portent chacun `data.equipment`, et son
-     option B est l'or de départ de l'origine. L'Inheritance les remplace : si
-     elle n'en porte pas, ce montant n'existe plus nulle part dans la donnée et
-     un écran finira par le réécrire à la main — c'est EXACTEMENT ce qui s'est
-     passé pendant vingt-sept jours (`INHERITED_PURSE_GP = 50`).
-     ⛔ Le garde ne vise QUE ce champ, et c'est délibéré : §4 a retiré les
-     CHOIX d'arrière-plan (compétences, outil, don imposé, clefs), pas la bourse
-     de départ. Exiger `ability_keys` ou `feat_id` contredirait la règle ; exiger
-     l'or la sert. ⚠️ Et il se fonde sur la DONNÉE : c'est la couche SRD lue qui
-     dit que ce champ existe, pas une liste écrite ici. */
-  const sansOr = servis.size > 0
-    ? [...servis].filter((id) => typeof ((srdBackgrounds[id] || {}).data || {}).equipment !== "string")
-    : [];
-  if (sansOr.length === 0 && typeof BACKGROUND_INHERITANCE.equipment !== "string") {
-    fail("les quatre arrière-plans éteints portent tous `data.equipment` (leur option B est l'or de départ), " +
-      "et `BACKGROUND_INHERITANCE.equipment` n'existe pas. L'Inheritance les remplace : sans ce champ, " +
-      "l'or de l'origine ne vit plus dans aucune couche et un écran le réécrira en dur.");
-  }
-
-  /* L'INHERITANCE, LA SEULE ADDITION. Pas d'`ability_keys` (§1c : absent =
-     les six caractéristiques) ; pas de `feat_id` (imposé) mais un
-     `feat_choice.from: "origin"` (libre parmi les dons de cette catégorie). */
-  const inheritanceId = BACKGROUND_INHERITANCE.id;
-  if (background[inheritanceId]) fail(`« ${inheritanceId} » est déjà un identifiant du SRD — collision.`);
-  background[inheritanceId] = {
-    name: BACKGROUND_INHERITANCE.name,
-    slug: BACKGROUND_INHERITANCE.slug,
-    data: {
-      name: BACKGROUND_INHERITANCE.name,
-      feat_choice: { from: "origin" },
-      /* ⭐ LES DEUX LANGUES — la liste est RÉSOLUE, jamais recopiée. On prend
-         les trainings de catégorie `language` que CE générateur vient de
-         produire : une treizième langue ajoutée à `TRAININGS_ADDED` entre dans
-         l'octroi le jour même, sans qu'une seconde liste ait à suivre.
-         ⛔ ET LE GARDE EST DANS LE COMPTE : zéro langue produite ferait un
-         octroi vide, c'est-à-dire une règle qui ne s'applique à rien. */
-      granted_language_choice: {
-        ...BACKGROUND_INHERITANCE.languageGrant,
-        from: languesProduites(training)
-      },
-      /* L'or de départ de l'origine, MÊME CHAMP que les quatre du SRD — c'est
-         ce qui permet à l'écran de n'avoir qu'un lecteur pour les deux piles. */
-      equipment: BACKGROUND_INHERITANCE.equipment,
-      description: BACKGROUND_INHERITANCE.description
-    }
-  };
-
-  return { background, extinguished: servis.size, total: servis.size + 1 };
-}
-
-/** Les identifiants des trainings de catégorie `language`, tels que CE
- *  générateur vient de les produire — jamais une seconde liste.
- *  ⛔ Zéro langue est un refus : l'octroi de l'Héritage porterait un menu vide,
- *  et le joueur lirait « choisis deux langues » sans en avoir une seule. */
-function languesProduites(training) {
-  const ids = Object.entries(training)
-    .filter(([, record]) => record.data && record.data.category === "language")
-    .map(([id]) => id)
-    .sort();
-  if (ids.length === 0) {
-    fail("aucun training de catégorie `language` n'a été produit : l'octroi de l'Inheritance " +
-      "offrirait un menu vide. Une règle qui ne s'applique à rien est pire qu'une règle absente.");
-  }
-  return ids;
-}
-
 /* ── LE GARDE ANTI-RECOPIE ─────────────────────────────────────────────
    Un record AJOUTÉ par Fate's Hand ne doit pas porter le texte éditorial du
    SRD, sauf par l'héritage déclaré ci-dessus. Le contrôle est fait sur le
@@ -834,12 +672,6 @@ export function buildLayer({ srd }) {
     .concat(Object.keys(srd.records.skill || {})
       .filter((id) => !skills.skill[id] || skills.skill[id].op !== "disable")));
   const classes = buildClasses(srd, idsDesCompetences);
-  /* ⚠️ LES TRAININGS D'ABORD, ET C'EST UNE DÉPENDANCE RÉELLE, PAS UN GOÛT :
-     l'octroi de langues de l'Inheritance RÉSOUT sa liste sur les trainings
-     produits (`languesProduites`). Les construire après ferait lire un objet
-     vide — et un octroi vide est une règle qui ne s'applique à rien. */
-  const trainings = buildTrainings(srd, LANGUAGE_SPECIES);
-  const backgrounds = buildBackgrounds(srd, trainings.training);
 
   const layer = {
     schema: LAYER.schema,
@@ -861,15 +693,13 @@ export function buildLayer({ srd }) {
     records: {
       skill: skills.skill,
       tool: tools.tool,
-      training: trainings.training,
-      class: classes.class,
-      background: backgrounds.background
+      class: classes.class
     }
   };
 
   assertNoHandWrittenSrdText(layer, srd);
 
-  return { layer, skills, tools, trainings, classes, backgrounds };
+  return { layer, skills, tools, classes };
 }
 
 export function serialize(layer) {
@@ -879,20 +709,18 @@ export function serialize(layer) {
 /** Génère la couche et l'ÉCRIT. `outDir` et `srdPath` sont des arguments : la
  *  suite génère dans un répertoire temporaire et compare là. */
 export function generate({ outDir = OUT_DIR, srdPath = SRD_PATH } = {}) {
-  const { layer, skills, tools, trainings, classes, backgrounds } = buildLayer({ srd: readSrdLayer(srdPath) });
+  const { layer, skills, tools, classes } = buildLayer({ srd: readSrdLayer(srdPath) });
   mkdirSync(outDir, { recursive: true });
   const outPath = join(outDir, OUT_NAME);
   writeFileSync(outPath, serialize(layer));
-  return { outPath, skills, tools, trainings, classes, backgrounds };
+  return { outPath, skills, tools, classes };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { outPath, skills, tools, trainings, classes, backgrounds } = generate();
+  const { outPath, skills, tools, classes } = generate();
   console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD + ${skills.added} neuves), ` +
     `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs), ` +
-    `${trainings.total} trainings (${trainings.languages} langues), ` +
-    `${classes.total} pools de classe, ${backgrounds.extinguished} arrière-plans éteints + l'Inheritance ` +
-    `(${backgrounds.total} au genre) → ${outPath}`);
+    `${classes.total} pools de classe → ${outPath}`);
 }
 
 export { OUT_NAME, SRD_PATH };

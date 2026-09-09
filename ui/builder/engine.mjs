@@ -32,6 +32,21 @@ export const LAYER_FILES = [
   "srfh-shelving-en.layer.json",
   "fh-species-en.layer.json",
   "fh-skills-en.layer.json",
+  /* ⭐ LOT 184 — `fh-skills-en` PORTAIT TROIS INTERRUPTEURS ; en voici deux,
+     sortis pour que chacun ait le sien (ARCHITECTURE.md, « La coupe des
+     couches »). ⚠️ L'ORDRE DES DEUX N'EST PAS INDIFFÉRENT ET IL SE LIT :
+     `fh-inheritance-en` offre deux langues qui sont des records de
+     `fh-trainings-en` (`granted_language_choice.from` → `fh:training:en:
+     language-*`). Aucune des deux ne PATCHE ce que l'autre pose — le genre
+     `training` n'est écrit que par la première, le genre `background` que par
+     la seconde — donc le montage ne peut pas se casser sur l'ordre ; mais la
+     pile DIT la dépendance en la posant dans le bon sens, et un lecteur ne
+     doit pas avoir à la deviner. Elles restent collées à `fh-skills-en`, d'où
+     elles viennent, plutôt que d'aller se ranger ailleurs.
+     ⛔ Elles entrent ici EN MÊME TEMPS que dans `FH_LAYER_IDS` et dans `PILE` :
+     trois listes, un seul geste (leçon du lot 77). */
+  "fh-trainings-en.layer.json",
+  "fh-inheritance-en.layer.json",
   "fh-arcana-en.layer.json",
   "fh-feats-en.layer.json",
   "fh-spells-en.layer.json",
