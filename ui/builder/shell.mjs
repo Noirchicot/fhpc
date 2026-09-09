@@ -19,27 +19,27 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=609";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=609";
-import { mountPopup } from "./popup.mjs?v=609";
-import { renderLorePanel } from "./lore.mjs?v=609";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=609";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=610";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=610";
+import { mountPopup } from "./popup.mjs?v=610";
+import { renderLorePanel } from "./lore.mjs?v=610";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=610";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=609";
-import { STEPS } from "./etapes.mjs?v=609";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=609";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, ETAT } from "./parcours.mjs?v=610";
+import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=610";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=610";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=609";
+} from "./tutoriel.mjs?v=610";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=609";
-import { lireLeFichier } from "./ouvrir.mjs?v=609";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=610";
+import { lireLeFichier } from "./ouvrir.mjs?v=610";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -50,14 +50,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=609";
+} from "./echelle.mjs?v=610";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=609";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=610";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -68,55 +68,55 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=609";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=609";
+} from "./fonds.mjs?v=610";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=609";
-import { renderChoixGlisses } from "./glisser.mjs?v=609";
-import { renderConceptStep } from "./concept-step.mjs?v=609";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=609";
+import { planAt, planSlots } from "./carnet.mjs?v=610";
+import { renderChoixGlisses } from "./glisser.mjs?v=610";
+import { renderConceptStep } from "./concept-step.mjs?v=610";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=610";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort } from "./ecran-mort.mjs?v=609";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=609";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE } from "./ecran-mort.mjs?v=610";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=610";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards, recordName
-} from "./catalogue.mjs?v=609";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=609";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=609";
+} from "./catalogue.mjs?v=610";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=610";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=610";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=609";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=610";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=609";
+} from "./abilities-step.mjs?v=610";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=609";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=610";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=609";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=609";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=609";
+} from "./destiny-step.mjs?v=610";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=610";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=610";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=609";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=609";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=610";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=610";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=609";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=610";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -135,16 +135,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=609";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=609";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=610";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=609";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=609";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=610";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=610";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=609";
+import { versionQuery } from "./version.mjs?v=610";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -180,8 +180,11 @@ import { versionQuery } from "./version.mjs?v=609";
 
    ⛔ ET RIEN ICI N'EST LU PAR POSITION. Tout le pli travaille sur `id`
    (`STEPS[state.step].id === "skills"`, `findIndex(id === "review")`) ; seul
-   l'enchaînement `state.step + 1` suit le tableau, et c'est exactement ce qui
-   devait changer. Réordonner cette liste réordonne le parcours, rien d'autre.
+   l'enchaînement d'étape suit le tableau, et c'est exactement ce qui devait
+   changer. Réordonner cette liste réordonne le parcours, rien d'autre.
+   ⚖️ LOT 186 — et cet enchaînement ne compte plus « + 1 » : il demande le cran
+   VOISIN SUR LA CEINTURE VISIBLE (`cranVoisin`), parce qu'un cran peut ne pas
+   être monté. Le tableau reste l'ordre ; il n'est plus la distance.
 
    📌 LES DEUX BOUTS NE SONT PAS DES ÉTAPES (voir `mountFrame`) : le premier et
    le dernier sortent de la ceinture et deviennent des onglets.
@@ -211,6 +214,41 @@ import { versionQuery } from "./version.mjs?v=609";
    ceinture), mais le bouton final (§3c) doit mener à Review PARCE QUE c'est
    Review, pas parce qu'un index de tableau coïncide avec elle. */
 const REVIEW_INDEX = STEPS.findIndex((step) => step.id === "review");
+
+/** 🔴 LES DRAPEAUX DE LA PILE MONTÉE — LE SEUL CHEMIN, ET IL EXISTAIT DÉJÀ.
+ *
+ *  ⚖️ Lot 186 : la ceinture ne lit pas le NOM de la pile, elle lit ce qui est
+ *  MONTÉ (voir `etapes.mjs`). `layers.verbs.flags()` est le verbe prévu pour
+ *  ça depuis le bloc `layers` (§L7, « les drapeaux levés par la pile active :
+ *  ce module tourne-t-il ? ») ; ⛔ il n'avait AUCUN lecteur dans `ui/` avant ce
+ *  lot — mesuré au `grep`, zéro appel. Rien n'a donc eu à être ouvert dans le
+ *  bloc : le chemin propre était là, inemployé.
+ *
+ *  ⚠️ MOTEUR PAS ENCORE LÀ = AUCUN DRAPEAU, et ce n'est pas un repli : au
+ *  chargement il n'y a réellement aucune couche montée. La ceinture affiche
+ *  alors sa forme SRD — huit crans de décision — puis se repeint dès que
+ *  `bootEngine` a résolu, comme n'importe quel autre état du rendu. */
+function drapeauxMontes() {
+  return state.engine ? state.engine.layers.verbs.flags() : [];
+}
+
+/** LE CRAN VOISIN **SUR LA CEINTURE VISIBLE**, dans le sens donné.
+ *
+ *  ⛔ IL REMPLACE `state.step ± 1`, ET C'EST OBLIGATOIRE : avec un cran non
+ *  monté, l'arithmétique nue dépose le joueur SUR le cran caché. Il n'y verrait
+ *  ni belt qui le désigne, ni écran qui marche — sur Destiny en pile SRD, il
+ *  verrait le R des arcanes et un bouton `Draw` qui ne fait rien (mesuré :
+ *  `drawArcana([])` rend `null`).
+ *  ⭐ Il rend `state.step` quand il n'y a plus de voisin ; `goToStep` sort alors
+ *  tout seul (« if (target === state.step) return »), exactement comme le
+ *  faisait le clamp d'avant en bout de course. */
+function cranVoisin(sens) {
+  const table = cransAlignes(drapeauxMontes());
+  for (let rang = state.step + sens; rang >= 0 && rang < table.length; rang += sens) {
+    if (table[rang]) return rang;
+  }
+  return state.step;
+}
 
 /** LES SIX ÉCRANS QUI LISENT `resolved` — la fiche dérivée. Ils sont nommés
  *  ici, une fois, parce qu'ils partagent une seule chose : ils n'ont rien à
@@ -1232,7 +1270,7 @@ function applyDecisionAction(action) {
       openSurface();
       return;
     }
-    goToStep(state.step + 1);
+    goToStep(cranVoisin(1));
     return;
   }
 
@@ -1446,7 +1484,7 @@ function applyDecisionAction(action) {
       state.document = suivant.document || suivant;
       rebuild();
     }
-    goToStep(state.step + 1);
+    goToStep(cranVoisin(1));
     return;
   }
   const verbs = state.engine.build.verbs;
@@ -1869,6 +1907,13 @@ function catalogueCtx(cfg) {
   return {
     decisions: state.decisions, query: state.engine.layers.verbs.query,
     path: cfg.path, kind: cfg.kind, label: cfg.label,
+    /* ⚖️ LOT 186 — LES DRAPEAUX DE LA PILE MONTÉE, DONNÉS À L'ÉCRAN.
+       `species-step` nomme l'étape où un effet se règle (*« → chosen at step
+       3, Inheritance »*) ; ce numéro et ce mot sont ceux de la ceinture
+       VISIBLE, donc ils dépendent des drapeaux. ⛔ L'écran ne va pas les
+       chercher : il lirait le bloc `layers`, et il deviendrait intestable —
+       la même loi que `query`, juste au-dessus. */
+    drapeaux: drapeauxMontes(),
     /* Le drapeau des écrans À FICHE, déclaré par `class-step`/`species-step`.
        Il commande deux choses : le `Validate` générique qui s'efface (Ch6) et
        l'enveloppe de rangée des dalles (`renderCatalogueCards`, 16/08). */
@@ -1995,6 +2040,22 @@ function renderStepContent() {
      cause, ni sortie — pendant que le Menu, au même instant, disait quoi
      faire. ⭐ Le choix de la phrase vit dans `ecran-mort.mjs`, où un test peut
      le LIRE ; ici il ne reste que la pose. */
+  /* ══ ⚖️ LOT 186 — LE CRAN QUE LA PILE NE MONTE PLUS ════════════════════
+     🔴 IL PASSE AVANT LA DÉRIVATION, ET L'ORDRE SE LIT : un cran absent de la
+     ceinture n'a pas de fiche à lire ni de classe à choisir — il n'a pas de
+     RÈGLES. Lui proposer d'aller chercher une classe l'enverrait faire un
+     geste qui ne débloquerait rien, la faute exacte que `motDeLEcranMort`
+     évite déjà entre ses deux causes.
+     📏 LE CHEMIN QUI Y MÈNE, MESURÉ : en vue double, le panneau passif peut
+     être Destiny pendant que l'actif est le Menu — c'est-à-dire pendant qu'on
+     éteint Fate's Hand. Le détail est sur `MOT_CRAN_NON_MONTE`.
+     ⛔ ET ON NE RASSEOIT PERSONNE D'OFFICE : `cranVoisin` sert le joueur qui
+     AVANCE, jamais un déplacement qu'il n'a pas demandé. */
+  if (!cransAlignes(drapeauxMontes())[state.step]) {
+    card.append(el("p", "placeholder", [document.createTextNode(MOT_CRAN_NON_MONTE)]));
+    return card;
+  }
+
   if (state.derivationImpossible && !catalogueCourant() && ECRANS_QUI_LISENT_LA_FICHE.has(step.id)) {
     card.append(el("p", "placeholder", [document.createTextNode(motDeLEcranMort(state.document))]));
     return card;
@@ -2584,7 +2645,13 @@ function monterBelt() {
 
      ⛔ ILS RESTENT DANS `items`, ET C'EST INDISPENSABLE. `paintBelt` écrit
      `data-status` par index sur les DIX ; les sortir du tableau les priverait
-     de l'état courant. Seul leur PARENT change. */
+     de l'état courant. Seul leur PARENT change.
+
+     ⚖️ LOT 186 — LA MÊME LOI COUVRE DÉSORMAIS LES CRANS NON MONTÉS. `items`
+     porte TOUJOURS les dix, alignés sur `STEPS`, et un cran que la pile ne
+     justifie pas est CACHÉ, jamais retiré. Le raisonnement complet — et
+     pourquoi l'index de peinture n'est PAS celui de la ceinture visible — vit
+     sur `cransAlignes` (`etapes.mjs`), en un seul endroit. */
   /* ⛔ LEUR MOT N'EST PAS CELUI DE L'ÉTAPE. « Universe & Layers » déborde sur
      deux lignes dans un disque de 58 px (mesuré à l'écran) — et surtout, une
      pastille verticale ne porte pas un titre, elle porte une étiquette. Ces
@@ -2607,9 +2674,15 @@ function monterBelt() {
     }
     item.className = "belt-item";
     /* Deux nœuds, posés une fois — jamais `innerHTML`, qui les recréerait
-       à chaque peinture et rendrait le cadre aussi jetable qu'avant. */
-    const num = el("span", "belt-index", [document.createTextNode(String(index))]);
-    const label = el("span", "belt-label", [document.createTextNode(step.label)]);
+       à chaque peinture et rendrait le cadre aussi jetable qu'avant.
+       ⛔ LOT 186 — ILS SONT VIDES AU MONTAGE, et c'est la conséquence directe
+       de la versatilité : ce module s'exécute AVANT que la moindre couche soit
+       montée, donc ni le numéro ni le mot ne sont connus ici. Les écrire
+       maintenant aurait posé la valeur de la pile complète, que `paintBelt`
+       aurait ensuite corrigée — une première peinture fausse, visible le temps
+       d'un chargement, et surtout une SECONDE VOIX pour le même mot. */
+    const num = el("span", "belt-index");
+    const label = el("span", "belt-label");
     item.append(num, label);
     track.append(item);
     return item;
@@ -3039,7 +3112,7 @@ function parcoursInheritance() { return INHERITANCE_PARCOURS.parcours; }
  *  `CATALOGUES.concept`, et l'id n'est pas `background`)*, donc
  *  `"concept" !== null` était vrai, donc la branche « B emboîté » prenait la
  *  main, remettait `state.parcoursItem` à `null`, rouvrait la surface et
- *  RENDAIT — le `goToStep(state.step + 1)` deux lignes plus bas n'était
+ *  RENDAIT — le `goToStep(cranVoisin(1))` deux lignes plus bas n'était
  *  jamais atteint.
  *
  *  ⭐ « EMBOÎTÉ » VEUT DIRE **SOUS**, ET LE DÉPÔT LE DIT DÉJÀ : c'est
@@ -3667,14 +3740,14 @@ function pressDone() {
         openSurface();
         return;
       }
-      goToStep(state.step + 1);
+      goToStep(cranVoisin(1));
       return;
     }
     state.palier += 1;
     openSurface();
     return;
   }
-  goToStep(state.step + 1);
+  goToStep(cranVoisin(1));
 }
 
 /** LE PAS EN ARRIÈRE — d'abord un PALIER, une ÉTAPE sinon.
@@ -3747,7 +3820,7 @@ function pressBack() {
     return;
   }
   if (state.palier > 1) { state.palier -= 1; openSurface(); return; }
-  goToStep(state.step - 1);
+  goToStep(cranVoisin(-1));
 }
 
 /** Efface tout ce qui vit SOUS une racine — signatures et choix — sans toucher
@@ -3846,7 +3919,27 @@ function paintBelt() {
      scrollspy — le vert et le bleu du belt disent l'AVANCEMENT (§6), pas où
      l'on regarde. Ici on ne fait que NOMMER lequel est lequel. */
   const enDouble = vueDoubleRendue();
+  /* ⚖️ LOT 186 — L'APPARIEMENT CRAN ↔ ITEM EST UNE FONCTION PURE, ET C'EST CE
+     QUI REND LE DÉFAUT VISIBLE. `cransAlignes` rend TOUJOURS `STEPS.length`
+     entrées : le cran monté à cette place, ou `null`. L'index de la boucle
+     reste donc l'index de `STEPS` — la décision est écrite en toutes lettres
+     sur `cransAlignes` (`etapes.mjs`), et un test peut l'accuser sans avoir à
+     rendre le belt. ⛔ Lire ici `ceinture(...)[index]` remettrait le décalage
+     silencieux que `monterBelt` interdit depuis le 2026-08-19. */
+  const crans = cransAlignes(drapeauxMontes());
   belt.items.forEach((item, index) => {
+    /* ⛔ CACHÉ, JAMAIS RETIRÉ (voir `monterBelt`). `hidden` plutôt qu'un
+       `display:none` en feuille : c'est l'attribut natif, et `shell.css` le
+       laisse agir par un `:not([hidden])` — la leçon que le dépôt a déjà payée
+       trois fois (le panneau, le chevron, la carte R). */
+    const cran = crans[index];
+    item.hidden = !cran;
+    /* 📌 UN CRAN CACHÉ GARDE SA DERNIÈRE PEINTURE, et c'est sans conséquence :
+       `hidden` le sort du rendu ET de l'arbre d'accessibilité — vérifié au
+       navigateur le 09/09, `Destiny` disparaît des boutons annoncés. Le
+       repeindre pour rien coûterait une écriture par rendu ; le rallumer le
+       repeint de toute façon. */
+    if (!cran) return;
     /* ⚠️ DEUX FAITS DIFFÉRENTS, DEUX ATTRIBUTS — et ils étaient confondus.
        `data-status` dit OÙ ON EST dans la traversée (passé, courant, à venir) :
        c'est de la navigation. `data-fait` dit si le chapitre est FINI : c'est
@@ -3912,9 +4005,21 @@ function paintBelt() {
        ⛔ Plus rien n'efface un `textContent` ici — il n'y avait qu'un seul
        endroit, et il n'a plus de raison d'être.
        ⭐ L'`aria-label` reste, lui : un cran qui porte deux nœuds annonce
-       « 3 Inheritance » sans lui, et « Inheritance » avec. */
+       « 3 Inheritance » sans lui, et « Inheritance » avec.
+
+       ⚖️ LOT 186 — LE NUMÉRO ET LE MOT SE PEIGNENT ICI, ET ILS VIENNENT DU
+       CRAN. `cran.numero` est la place dans la ceinture VISIBLE (ceinture
+       courte, `Class` porte 4 et non 5) ; `cran.mot` est le libellé déjà
+       résolu par les drapeaux (`Background` ou `Inheritance`). ⛔ Aucun
+       libellé d'étape ne s'écrit dans cette fonction : il n'y a qu'une seule
+       voix pour le mot d'un cran, et elle est dans `etapes.mjs`. */
+    const num = item.querySelector(".belt-index");
+    if (num) num.textContent = String(cran.numero);
     const label = item.querySelector(".belt-label");
-    if (label) item.setAttribute("aria-label", STEPS[index].label);
+    if (label) {
+      label.textContent = cran.mot;
+      item.setAttribute("aria-label", cran.mot);
+    }
   });
   /* B0.3 — aucun chevron à gauche à la première étape, aucun à droite à la
      dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en

@@ -42,7 +42,14 @@ globalThis.document = createTestDocument();
 const { SPECIES_CATALOGUE } = await import("../ui/builder/species-step.mjs");
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const QUERY = exempleFhEn().layers.verbs.query;
+const VERBES = exempleFhEn().layers.verbs;
+const QUERY = VERBES.query;
+/* ⚖️ LOT 186 — LES DRAPEAUX DE LA PILE MONTÉE, MESURÉS, PAS ÉCRITS. Le numéro
+   et le mot d'une étape sont ceux de la ceinture VISIBLE, et la ceinture se
+   déduit des drapeaux : sans eux, l'écran nommerait « step 6, Skills » sur une
+   pile complète. ⛔ Ce n'est pas un paramètre de confort — c'est la même pile
+   que celle où les six couples ont été mesurés le 02/09. */
+const DRAPEAUX = VERBES.flags();
 
 const LES_DOUZE = [
   "fh:species:en:araag", "fh:species:en:elestu", "fh:species:en:loroka",
@@ -91,7 +98,7 @@ function decisionsDe(query, id) {
 function blocAccorde(query, id) {
   const noeud = SPECIES_CATALOGUE.resumeItem(
     { path: "species.granted", confirme: true },
-    { decisions: decisionsDe(query, id), query }, () => {}
+    { decisions: decisionsDe(query, id), query, drapeaux: DRAPEAUX }, () => {}
   );
   if (!noeud) return [];
   return noeud.querySelectorAll("p").map((p) => {
@@ -184,8 +191,24 @@ test("🔴 le NUMÉRO écrit est celui de la ceinture — pas un littéral qui d
   const source = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "etapes.mjs"), "utf8"));
   const bloc = source.match(/const STEPS = \[([\s\S]*?)\n\];/);
   assert.ok(bloc, "STEPS introuvable dans etapes.mjs — ce garde lit la mauvaise source");
-  const crans = [...bloc[1].matchAll(/id:\s*"([a-z]+)",\s*label:\s*"([^"]+)"/g)]
-    .map((m, index) => ({ index, id: m[1], label: m[2] }));
+  /* ⚖️ LOT 186 — LA LIGNE SE LIT AVEC SA DÉCLARATION, PAS SEULEMENT SON MOT.
+     Un cran peut EXIGER un drapeau (il n'est alors pas sur la ceinture) et un
+     autre peut CHANGER de mot sous un drapeau. Relire `label:` seul rendrait
+     ce garde aveugle aux deux — et il rougirait sur `Background` en jurant que
+     l'écran ment, alors que c'est LUI qui aurait cessé de lire la ceinture.
+     ⛔ La résolution est refaite ICI, à la main, sur les octets : importer
+     `ceinture()` reviendrait à demander à la fonction mesurée de se noter
+     elle-même. */
+  const leves = new Set(DRAPEAUX);
+  const crans = [];
+  for (const ligne of bloc[1].split("\n")) {
+    const decl = /id:\s*"([a-z]+)",\s*label:\s*"([^"]+)"/.exec(ligne);
+    if (!decl) continue;
+    const exige = /exige:\s*"([^"]+)"/.exec(ligne);
+    if (exige && !leves.has(exige[1])) continue;
+    const variante = /motSi:\s*\[\{\s*drapeau:\s*"([^"]+)",\s*mot:\s*"([^"]+)"/.exec(ligne);
+    crans.push({ id: decl[1], label: variante && leves.has(variante[1]) ? variante[2] : decl[2] });
+  }
   const attendu = new Map([[3, "Inheritance"], [4, "Destiny"], [7, "Skills"]]);
   for (const [numero, mot] of attendu) {
     const cran = crans[numero];

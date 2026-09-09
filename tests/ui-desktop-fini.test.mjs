@@ -46,7 +46,11 @@ const tokensCssRaw = fs.readFileSync(path.join(UI_DIR, "tokens.css"), "utf8");
 /** Clause 1 : le cran de la molette d'étapes est une cible tactile. */
 function cranTactile(css) {
   const stripped = stripComments(css);
-  const bloc = stripped.match(/(?:^|\})\s*\.belt-item\s*\{([^}]*)\}/);
+  /* ⚖️ LOT 186 — `:not([hidden])` est entré sur le sélecteur : `paintBelt`
+     cache les crans que la pile ne monte pas, et un `display: flex` nu bat le
+     `[hidden]` de l'agent utilisateur (NORMES §6). Le motif reste FERMÉ après
+     la clause — il ne ramasse ni `.belt-item[data-status]` ni la famille. */
+  const bloc = stripped.match(/(?:^|\})\s*\.belt-item(?::not\(\[hidden\]\))?\s*\{([^}]*)\}/);
   if (!bloc) return ["<.belt-item absent>"];
   return /min-height:\s*var\(--touch\)/.test(bloc[1]) ? [] : ["le cran ne porte pas min-height: var(--touch)"];
 }
@@ -163,7 +167,7 @@ test("⚔️ ATTAQUE 1 — retirer min-height du cran fait rougir SEULEMENT la c
      existe TROIS fois dans shell.css (le chevron de ceinture d'abord, ligne
      84) — la première version de cette attaque a mutilé le mauvais bloc et
      la clause a continué de dire vrai. On vise le bloc `.belt-item`. */
-  const mutated = shellCssRaw.replace(/(\.belt-item\s*\{[^}]*?)min-height:\s*var\(--touch\);/, "$1");
+  const mutated = shellCssRaw.replace(/(\.belt-item(?::not\(\[hidden\]\))?\s*\{[^}]*?)min-height:\s*var\(--touch\);/, "$1");
   assert.notEqual(mutated, shellCssRaw, "la substitution a trouvé sa cible");
   assert.deepEqual(cranTactile(mutated), ["le cran ne porte pas min-height: var(--touch)"]);
   assert.deepEqual(polariteChevrons(mutated), [], "la polarité ne bouge pas");

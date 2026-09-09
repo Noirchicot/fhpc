@@ -28,17 +28,17 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=609";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=609";
-import { renderChoixGlisses } from "./glisser.mjs?v=609";
-import { spellInfo } from "./class-step.mjs?v=609";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=610";
+import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=610";
+import { renderChoixGlisses } from "./glisser.mjs?v=610";
+import { spellInfo } from "./class-step.mjs?v=610";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=609";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=609";
-import { etapeParId } from "./etapes.mjs?v=609";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=609";
+import { motDuVerrou } from "./skills-step.mjs?v=610";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=610";
+import { etapeParId } from "./etapes.mjs?v=610";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=610";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -292,10 +292,16 @@ const PORTAGES = [
 
 /** L'étape où l'effet de ce trait se règle — `{ numero, mot }` — ou `null`.
  *  ⚠️ Elle se lit sur l'EFFET (voir `PORTAGES`), et sur la source du trait :
- *  un condensé d'écran peut taire le mot « feat » sans que la règle change. */
-function etapeQuiRegle(data, trait) {
+ *  un condensé d'écran peut taire le mot « feat » sans que la règle change.
+ *
+ *  ⚖️ LOT 186 — LES DRAPEAUX VIENNENT DU `ctx`, ET LA RÉPONSE PEUT ÊTRE
+ *  `null` POUR UNE ÉTAPE QUI EXISTE. Le numéro et le mot sont ceux de la
+ *  ceinture VISIBLE : une pile où `fh.destiny` n'est pas levé n'a aucun cran
+ *  Destiny, et la ligne verte ne doit pas envoyer le joueur sur un cran
+ *  absent. ⛔ Ne rien dire vaut mieux que désigner un écran qui n'est pas là. */
+function etapeQuiRegle(data, trait, drapeaux) {
   const trouve = PORTAGES.find((p) => p.porte(data || {}, trait || {}));
-  return trouve ? etapeParId(trouve.etape) : null;
+  return trouve ? etapeParId(trouve.etape, drapeaux) : null;
 }
 
 /** LA LIGNE VERTE — sous la ligne du trait, dans l'encre de l'avancement.
@@ -365,7 +371,7 @@ function resumeDeLItem(item, ctx, act) {
       /* 🟢 le 3ᵉ terme est l'étape qui RÈGLE cet effet, ou `null` (voir
          `PORTAGES`) — les cinq lignes fixes n'en ont jamais. */
       if (!couverts.has(trait.id)) {
-        lignes.push([trait.name, contenuDuTrait(trait, courts) || "—", etapeQuiRegle(data, trait)]);
+        lignes.push([trait.name, contenuDuTrait(trait, courts) || "—", etapeQuiRegle(data, trait, ctx.drapeaux)]);
       }
     }
     /* « mets en gras, deux-points, démarre le texte juste derrière » — Eric,

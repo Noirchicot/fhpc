@@ -587,7 +587,15 @@ test("21 — ⛔ UN CATALOGUE DÉCLARE PAR OÙ IL SORT, et un guide porte SON pi
      le cas NON emboîté avançait. */
   assert.match(shellText, /parcoursNext[\s\S]{0,900}?racineEmboitee\(action\.racine\)[\s\S]{0,200}?state\.parcoursItem = null/,
     "le Next d'un B emboîté signe l'item et remonte au guide — il ne change pas d'étape");
-  assert.match(shellText, /parcoursNext[\s\S]{0,1400}?goToStep\(state\.step \+ 1\)/,
+  /* ⚖️ LOT 186 — « AVANCE D'UNE ÉTAPE » NE SE COMPTE PLUS `+ 1`. La ceinture
+     est versatile : un cran que la pile ne monte pas n'est pas là, et
+     l'arithmétique nue y déposerait le joueur (sur Destiny en pile SRD, un
+     écran de tirage dont le paquet est vide). L'invariant gardé ne change
+     pas — le Next NON emboîté quitte l'étape — seule son écriture change,
+     et le garde vise le geste NOMMÉ (`cranVoisin`), jamais sa formule.
+     ⛔ C'est exactement la leçon du 2026-09-02 deux clauses plus haut :
+     épeler l'implémentation, c'est tenir le défaut en place. */
+  assert.match(shellText, /parcoursNext[\s\S]{0,1400}?goToStep\(cranVoisin\(1\)\)/,
     "🔴 et le Next d'un bilan NON emboîté avance d'une étape — la moitié que personne ne gardait");
   assert.match(shellText, /refusDuDone\(\{[\s\S]{0,120}?racine: ouvert\.path[\s\S]{0,300}?parcoursRefus = refusItem\.manquants/,
     "un item à branches ne se signe pas à moitié : le Done refuse et NOMME, comme au guide");

@@ -41,12 +41,23 @@ function regle(css, motif) {
   return morceaux.length ? morceaux.join("\n") : null;
 }
 
+/** 🔴 LE SÉLECTEUR DU CRAN PORTE `:not([hidden])` DEPUIS LE LOT 186, et la
+ *  garde reste ANCRÉE : `.belt-item` et `.belt-item:not([hidden])`, rien
+ *  d'autre. ⛔ Pas un `.belt-item` non ancré — il ramasserait
+ *  `.belt-item[data-status]` et toute la famille, et le garde jurerait sur une
+ *  cascade qu'on ne lui a pas demandé de lire.
+ *  ⚖️ POURQUOI LA CLAUSE EST LÀ : `paintBelt` cache les crans que la pile ne
+ *  justifie pas (`item.hidden = true`), et un `display: flex` sans condition
+ *  BAT le `[hidden]` de l'agent utilisateur — NORMES §6, la loi payée trois
+ *  fois (le panneau, le chevron, la carte R). */
+const CRAN = /^\.belt-item(:not\(\[hidden\]\))?$/;
+
 /* ══ 1 — LA TUILE : DEUX RANGS, ET UNE COTE QUI SE DÉDUIT ══════════════════ */
 
 test("🔴 la tuile du belt empile la pastille et le nom — c'est ce qui rend « la même taille » possible", () => {
   /* ⭐ Côte à côte, la largeur suivait LE MOT (mesuré : `Class` 99 blg contre
      `Inheritance` 142). Empilés, elle ne dépend plus de rien. */
-  const corps = regle(shellCss, /^\.belt-item$/);
+  const corps = regle(shellCss, CRAN);
   assert.ok(corps, "`.belt-item` doit exister");
   assert.match(corps, /flex-direction:\s*column/, "deux rangs, pas deux colonnes côte à côte");
   assert.match(corps, /align-items:\s*center/, "et centrés — le croquis les centre");
@@ -56,7 +67,7 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
   /* §1 ter : *« une cote de contenant ne s'écrit pas, elle se déduit
      d'avance »*. Et §1 ter bis : `flex: 0 0`, jamais `0 1` — un organe ne
      rétrécit pas sous sa cote (les bonus tokens tombés à 12 px le 26/08). */
-  const etroit = regle(shellCss, /^\.belt-item$/);
+  const etroit = regle(shellCss, CRAN);
   assert.match(etroit, /flex:\s*0 0 calc\(\(100% - 2 \* var\(--sp-8\)\) \/ 3\)/,
     "en étroit : la piste moins ses deux gouttières, divisée par les TROIS crans du croquis");
   const double = regle(shellCss, /^:root\[data-vue="double"\] \.belt-item$/);
@@ -115,7 +126,7 @@ test("🔴 LE BUDGET VERTICAL DE LA TUILE — les trois vides sont à leur planc
      ⛔ Faire grandir N'IMPORTE LEQUEL des trois vides sort de 44. Le garde les
      nomme donc un par un : une prochaine main qui remonte l'interligne « pour
      aérer » verra l'arithmétique avant de le faire, pas le débordement après. */
-  const tuile = regle(shellCss, /^\.belt-item$/);
+  const tuile = regle(shellCss, CRAN);
   const libelle = regle(shellCss, /^\.belt-label$/);
   assert.match(tuile, /padding:\s*var\(--sp-4\) var\(--sp-2\)/,
     "le rembourrage : 4 en hauteur (le budget) et 2 en largeur (la place du mot)");

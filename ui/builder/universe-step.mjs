@@ -42,13 +42,13 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=609";
+import { renderConfirmDialog } from "./confirm.mjs?v=610";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=609";
+import { motDeLEchelon } from "./echelle.mjs?v=610";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
