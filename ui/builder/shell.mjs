@@ -94,6 +94,9 @@ import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, species
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
 import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=613";
+/* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
+   (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=613";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
   featSousLabel, featInfo } from "./inheritance-step.mjs?v=613";
@@ -2013,6 +2016,20 @@ function catalogueCtx(cfg) {
   return {
     decisions: state.decisions, query: state.engine.layers.verbs.query,
     path: cfg.path, kind: cfg.kind, label: cfg.label,
+    /* 🔴 LOT 190 — LE DOCUMENT, ET C'ÉTAIT LE FANTÔME QUI « NE POSAIT PAS ».
+       Eric, 09/09, sur l'arrière-plan SRD : *« fantôme marche pas, pas
+       possible de poser dans les collecteurs »*.
+       📏 MESURÉ (375 × 812, Acolyte, glisser +1 sur INT) : le dépôt ÉCRIVAIT
+       — `background.boost.int = 1` au document, « 1 of 3 chosen » sur l'écran
+       — et le collecteur restait « drop here », `data-rempli="false"`.
+       `renderBoostGlisse` lit la valeur posée DANS LE DOCUMENT
+       (`currentBoostValue(ctx.document, key)` : le sous-plan d'un bonus ne
+       publie pas de nombre), et ce ctx-ci ne le portait pas — `inheritanceCtx`,
+       lui, l'a toujours porté. Même organe, deux contextes, un seul complet :
+       le geste marchait au cran 3 de Fate's Hand et pas au cran 3 du SRD.
+       ⛔ Ce n'est pas une couche de plus : c'est l'entrée que l'organe lit,
+       donnée au contexte qui l'appelle. */
+    document: state.document,
     /* ⚖️ LOT 186 — LES DRAPEAUX DE LA PILE MONTÉE, DONNÉS À L'ÉCRAN.
        `species-step` nomme l'étape où un effet se règle (*« → chosen at step
        3, Inheritance »*) ; ce numéro et ce mot sont ceux de la ceinture
@@ -5342,7 +5359,11 @@ refresh();
    fois la pile montée et le premier `rebuild` fait. */
 (async () => {
   try {
-    const [engine, exemple, schema] = await Promise.all([bootEngine(), loadExampleDocument(), loadDocSchema()]);
+    /* 📍 la fiche de secours se charge à côté, et ne fait jamais échouer le
+       démarrage : son propre chargeur avale l'échec et le NOMME
+       (`etatDeLaFicheDeSecours`) — sans elle, une fiche SRD est sans prose,
+       pas sans `Choose`. */
+    const [engine, exemple, schema] = await Promise.all([bootEngine(), loadExampleDocument(), loadDocSchema(), chargerLaFicheDeSecours()]);
     state.engine = engine;
     /* ══ ON REPREND LE PERSONNAGE DU NAVIGATEUR, S'IL Y EN A UN ═════════════
        ⭐ ET IL N'A PAS BESOIN D'ÊTRE « MIGRÉ » QUAND LES RÈGLES BOUGENT. Le

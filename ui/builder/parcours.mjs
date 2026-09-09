@@ -66,6 +66,23 @@ export function itemsDeLEtape({ decisions, document, racine }) {
        la bourse (`species.skillBudget.survival`), pas des décisions à part.
        Un item est une DÉCISION ; ce qui vit dessous en est le contenu. */
     .filter((plan) => !plan.path.slice(prefixe.length).replace(/\[\d+\]$/, "").includes("."))
+    /* 🚪 UN FAIT DU RECORD N'EST PAS UNE PORTE — Eric, 2026-09-09 (lot 190),
+       sur l'arrière-plan SRD : *« Pour le feat : Savage Attacker (c'est
+       granted) pas de bouton. Les compétences idem, les skills sont granted,
+       y'a pas de choix. Idem que pour les lineages. »*
+       ⭐ Le carnet publie un plan pour ce que le record IMPOSE (`feat_id`,
+       `tool_id` : `provenance.mode === "required"`, `decisions.mjs`) — pour
+       l'ANNONCER, pas pour le faire choisir. Le lot 187 le listait quand même,
+       et son `Done` ne faisait qu'en prendre acte : une porte qui s'ouvre sur
+       rien à décider, et une signature à poser pour rien. Un plan requis n'est
+       pas une décision : il se montre comme un acquis (`lignesEnPlus`, la
+       ligne « gagné d'office » des lignages), il ne se signe pas.
+       📏 Mesuré sur les couches du dépôt : seuls les arrière-plans SRD publient
+       un plan requis ; l'Inheritance de Fate's Hand n'en a aucun, ses trois
+       items ne bougent pas (`tests/background-step.test.mjs` le tient).
+       ⛔ La règle est GÉNÉRALE (NORMES §6 pré quinquies) : elle vit ici, pas
+       dans l'écran qui l'a rencontrée le premier. */
+    .filter((plan) => !(plan.provenance && plan.provenance.mode === "required"))
     /* ⚠️ UN CRÉNEAU NE S'EFFACE QUE S'IL A UN GROUPE. `species.skills[0]` vit
        sous `species.skills`, qui est l'item — le compter aussi ferait deux
        voyants pour une décision. Mais `background.originFeat[0]` n'a AUCUN

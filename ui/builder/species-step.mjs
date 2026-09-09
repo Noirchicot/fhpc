@@ -29,7 +29,9 @@
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
 import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=613";
-import { renderFicheBody, renderCardRows, renderCardNames, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=613";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=613";
+/* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
+import { blurbDeSecours } from "./fiche-secours.mjs?v=613";
 import { renderChoixGlisses } from "./glisser.mjs?v=613";
 import { spellInfo } from "./class-step.mjs?v=613";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
@@ -641,7 +643,7 @@ export const SPECIES_CATALOGUE = {
 export function renderSpeciesCardBody(query, id) {
   const view = query({ kind: "species", id });
   const data = (view && view.record && view.record.data) || {};
-  if (!Array.isArray(data.fiche_stats)) return renderSpeciesCardBodySrd(data);
+  if (!Array.isArray(data.fiche_stats)) return renderSpeciesCardBodySrd(query, id, data);
   return renderFicheBody({
     stats: data.fiche_stats,
     traits: data.fiche_traits,
@@ -661,26 +663,66 @@ export function renderSpeciesCardBody(query, id) {
   });
 }
 
-/** LA FICHE D'ESPÈCE D'UN PERSONNAGE SRD PUR — même raison qu'à Class (loi
- *  §0.12), même geste : le corps d'avant le lot 77, gardé intact, servi
- *  quand la couche `fh-fiche-en` n'est pas montée. */
-function renderSpeciesCardBodySrd(data) {
+/** LA FICHE D'ESPÈCE D'UN PERSONNAGE SRD PUR — la couche `fh-fiche-en` débrayée.
+ *
+ *  📍 LOT 190 — Eric, 2026-09-09, devant les neuf fiches NUES de la pile SRD :
+ *  *« Species, prends l'image Fate's Hand, le même texte de blurb. Pour le
+ *  moment. Les sous-menus sont les mêmes à très peu de choses près. »*
+ *
+ *  📏 CE QUI ÉTAIT SERVI, MESURÉ AU LOT 187 : le corps d'avant le lot 77
+ *  (`renderCardRows` + les noms des traits) — des lignes, **aucune image,
+ *  aucune prose, aucun pied**, donc aucun `Choose` : le joueur SRD ne pouvait
+ *  pas choisir son espèce depuis la fiche. La loi §0.12 (« un personnage SRD
+ *  pur traverse-t-il l'écran ? ») était tenue à la lettre et perdue en fait.
+ *
+ *  ⭐ LA MÊME FICHE QUE FATE'S HAND (`renderFicheBody`, pied `LORE` /
+ *  `CHOOSE`), avec :
+ *    · L'IMAGE — elle n'a jamais dépendu d'une couche : `assets/fiches/<slug>`
+ *      par le dernier segment de l'id (`imageDeFiche`), le dos de carte en
+ *      secours. Elle n'était simplement pas demandée par ce corps-là.
+ *    · LE BLURB — celui de Fate's Hand, lu SANS monter la couche
+ *      (`blurbDeSecours`, `fiche-secours.mjs` : le repli est déclaré là, avec
+ *      son « pour le moment »). Sans fiche de secours retenue, la prose est
+ *      vide : la fiche garde son image et son pied.
+ *    · LES FAITS SRD, EN FORME DE TRAITS (mot fort, effet dessous) — les
+ *      lignes que ce corps montrait déjà : la forme qui se REPLIE. ⛔ Pas la
+ *      colonne `fiche_stats` : « Medium (about 5–6 feet tall) » ne tient pas
+ *      dans une ligne de stat (mesuré au lot 187 sur l'arrière-plan :
+ *      « ities : Intelligence, Wisdom, Ch »), et les `fiche_stats` compressées
+ *      sont du contenu de couche que cette pile n'a pas.
+ *    ⛔ PAS LES NOMS DES TRAITS SRD : cinq de plus feraient neuf entrées dans
+ *      la boîte 1, qui en tient sept (mesuré au lot 81). Ils vivent, avec leur
+ *      texte, sur la ligne « gagné d'office » derrière `Choose` — le même
+ *      endroit qu'en Fate's Hand.
+ *
+ *  ⚠️ `fiche_traits` de la couche (« Splinter of Anon ») n'entre pas ici :
+ *  c'est un trait Fate's Hand, et cette fiche est celle de la pile SRD. */
+function renderSpeciesCardBodySrd(query, id, data) {
   const sens = Array.isArray(data.senses)
     ? data.senses.map((s) => (s && s.range_ft ? `${s.name} ${s.range_ft} ft` : s && s.name)).filter(Boolean).join(", ")
     : null;
   const destiny = baseDeDestinee(data);
   const bump = data.skill_points && data.skill_points.by_level && data.skill_points.by_level["1"];
-  const rows = renderCardRows([
+  /* les MÊMES lignes que ce corps montrait déjà, dans la forme des traits —
+     et la Destinée passe toujours par `baseDeDestinee`, la lecture unique
+     (`tests/bloc-accorde-dit-vrai.test.mjs` compte ces tuples) */
+  const traits = [
     ["Size", data.size],
     ["Speed", data.speed],
     ["Creature type", data.creature_type],
     ["Senses", sens],
     ["Destiny", destiny === null ? null : String(destiny)],
     ["Skill points", Number.isFinite(bump) ? `+${bump}` : null]
-  ]);
-  const traits = (Array.isArray(data.traits) ? data.traits : [])
-    .map((t) => t && t.name).filter((n) => typeof n === "string");
-  return [rows, renderCardNames("Traits", traits)].filter(Boolean);
+  ].filter(([, effect]) => typeof effect === "string" && effect.length > 0)
+    .map(([name, effect]) => ({ name, effect }));
+  return renderFicheBody({
+    stats: [],
+    traits,
+    blurb: blurbDeSecours("species", query({ kind: "species", id })) || "",
+    image: imageDeFiche(id),
+    imageSecours: DOS_DE_CARTE,
+    imageAlt: ""
+  });
 }
 
 /* ══ LA BOURSE CAPTIVE (Keen Senses…) ════════════════════════════════════

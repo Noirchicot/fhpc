@@ -6240,6 +6240,22 @@ moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne
 
 ---
 
+## 6 pré quinquies. 🚪 UN FAIT DU RECORD N'EST PAS UNE PORTE *(Eric, 2026-09-09)*
+📍 `socle-un-plan-requis-n-est-pas-un-item` · vivante · 09/09
+⚖️ **Ce qu'un record IMPOSE ne s'ouvre pas et ne se signe pas : un plan requis (`provenance.mode === "required"`) n'est pas un item du parcours — il se montre comme un acquis, sur la ligne « gagné d'office ».**
+
+> Eric, 2026-09-09, devant l'arrière-plan SRD : *« Pour le feat : Savage Attacker (c'est **granted**) pas de bouton. Les compétences idem, les skills sont **granted**, y'a pas de choix. **Idem que pour les lineages.** »*
+
+📏 **CE QUI ÉTAIT À L'ÉCRAN, MESURÉ LE 09/09 (375 × 812, Acolyte)** : trois portes — `Ability boosts`, `Magic Initiate / origin feat`, `Calligrapher's Supplies / Tool` — dont deux s'ouvraient sur une phrase (« Granted by your background — nothing to pick here ») et un `Done` **à signer pour rien**. Le carnet publie ces plans pour ANNONCER ce que `refs` applique déjà (`decisions.mjs`, lot 43 : *« ce plan ne fait plus que l'ANNONCER »*) ; le parcours les lisait comme des décisions.
+
+⭐ **LA RÈGLE VIT DANS `itemsDeLEtape` (`parcours.mjs`), UNE FOIS.** Le lot 187 l'avait vue et REMISE (*« une règle GÉNÉRALE du parcours — elle n'est pas prise ici »*) ; Eric l'a tranchée le lendemain. Elle se lit sur la **donnée** (la provenance publiée par le carnet), jamais sur un nom de chemin ni sur un compte (« `answered === expected` » dirait la même chose d'un choix déjà fait, qui reste une porte).
+
+⚠️ **CE QUE ÇA NE CHANGE PAS** : le `Done` d'un choix FAIT reste une porte (la loi de la porte, §« LA LOI DE LA PORTE ») ; un acquis qui DÉPEND d'un choix reste la ligne `depend:` des lignages (`species.granted`) ; et `refusDuDone` / `etapeAchevee` suivent d'eux-mêmes — un acquis ne manque jamais.
+
+📌 **CE QUI LA TIENT** : `tests/background-step.test.mjs` (l'Acolyte n'a qu'un item, les bonus ; le Soldier en a deux, son outil se choisit) et `tests/parcours.test.mjs` (un plan requis dans une liste synthétique n'est pas un item ; le même plan sans provenance en est un).
+
+---
+
 ### 7.14 🆓 `FREE` EST 100 % LIBRE — aucune condition sur le choix des caracs *(Eric, 2026-09-06)*
 📍 `budget-free-est-cent-pour-cent-libre` · vivante · 06/09
 ⚖️ **La méthode `FREE` n'oppose AUCUNE condition au choix des caractéristiques — ni total, ni budget, ni plafond, ni plancher.**
