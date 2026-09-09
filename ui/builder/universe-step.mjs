@@ -103,6 +103,41 @@ export const FH_LAYER_IDS = [
   "fh-soulforging-en", "fh-gems-en", "fh-fiche-en", "fh-lore-en"
 ];
 
+/** 🔴 LES LIVRES DU JOUEUR — UN AXE, PAS UN MEMBRE DE LA PILE NOMMÉE (09/09).
+ *
+ *  ⚖️ Eric : *« que tu puisses désactiver dmg player et toujours te raccrocher
+ *  au SRD »*, *« tu dois pouvoir les activer et les désactiver »*, *« ils seront
+ *  visibles dans le menu »*.
+ *
+ *  ⛔ LA MINE QUE ÇA DÉSAMORCE, ET ELLE ÉTAIT ARMÉE. `currentStack` compare la
+ *  pile déclarée aux deux piles nommées par ÉGALITÉ EXACTE DE L'ENSEMBLE.
+ *  Monter `xdmg-en` aurait donc rendu `null` — et `ecran-mort.mjs:97` renvoie
+ *  l'écran mort dès que `currentStack` rend `null` sur un document qui a des
+ *  couches. TOUT personnage aurait affiché « pile inconnue » à la seconde où le
+ *  joueur allume son DMG. C'est exactement le défaut du lot 77 que le
+ *  commentaire de `FH_LAYER_IDS` raconte, à un livre près.
+ *
+ *  ⭐ LA FORME JUSTE : les livres sont ORTHOGONAUX aux règles. « SRD » et
+ *  « SRD+FH » nomment un jeu de RÈGLES ; le PHB et le DMG apportent du
+ *  CONTENU. On peut jouer SRD avec le DMG allumé, ou Fate's Hand sans aucun
+ *  livre. Le nom de la pile se lit donc SANS eux, et les livres se lisent à
+ *  part (`currentBooks`). ⛔ Les mêler ferait 2 × 4 = huit noms de pile pour
+ *  deux jeux de règles.
+ *
+ *  ⚠️ L'ORDRE COMPTE QUAND MÊME : une couche livre se monte AU-DESSUS du SRD
+ *  et EN DESSOUS des couches FH — c'est ce qui fait que FH recouvre le livre
+ *  (« on superpose ») et non l'inverse. Cet ordre vit dans le manifeste, pas
+ *  ici : cette liste ne dit QUE quels ids sont des livres. */
+export const LIVRE_LAYER_IDS = ["xphb-en", "xdmg-en"];
+
+/** Les livres du joueur présents dans le manifeste du document, dans l'ordre
+ *  de `LIVRE_LAYER_IDS` — jamais dans celui, variable, du document. */
+export function currentBooks(doc) {
+  const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
+  const ids = new Set(layers.map((layer) => layer.id));
+  return LIVRE_LAYER_IDS.filter((id) => ids.has(id));
+}
+
 /** La pile que `document.build.layers` DÉCLARE, réduite à l'un des deux noms
  *  de l'écran — ou `null` si elle ne correspond à AUCUN des deux (un
  *  document composé autrement, hors de ce que ce lot propose). Lue sur le
@@ -110,7 +145,11 @@ export const FH_LAYER_IDS = [
  *  pour CE personnage, que `rebuild` l'ait déjà adopté ou non. */
 export function currentStack(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
-  const ids = new Set(layers.map((layer) => layer.id));
+  /* ⭐ LES LIVRES SORTENT DU COMPTE AVANT TOUT LE RESTE (09/09). Ils ne
+     changent pas le nom du jeu de règles : un personnage SRD avec le DMG
+     allumé joue toujours en SRD. Sans ce retrait, `ids.size` ne tomberait
+     jamais juste et l'écran mort s'afficherait pour tout le monde. */
+  const ids = new Set(layers.map((layer) => layer.id).filter((id) => !LIVRE_LAYER_IDS.includes(id)));
   /* Les deux piles portent le SRD ET `srfh` ; seules les couches FH les
      distinguent. Le compte se DÉDUIT des listes, il ne s'écrit pas à côté —
      un `5` en dur ici a déjà survécu à l'arrivée de deux couches (lot 77). */

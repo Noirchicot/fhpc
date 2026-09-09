@@ -24,7 +24,7 @@ import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN,
 
 globalThis.document = createTestDocument();
 
-const { renderUniverseStep, currentStack, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS }
+const { renderUniverseStep, currentStack, currentBooks, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS }
   = await import("../ui/builder/universe-step.mjs");
 
 /** Les organes du tableau de commande. */
@@ -561,4 +561,66 @@ test("S2 — APPEARANCE : Tutorials et Double view sont des interrupteurs ; Doub
   assert.equal(vue.disabled, true, "sous la porte : désarmé, jamais retiré");
   assert.equal(vue.dataset.on, "false", "et il s'affiche ÉTEINT : une préférence gardée mais inapplicable ne s'annonce pas allumée");
   assert.match(n2.textContent, /too small for two panels/, "et il DIT pourquoi il dort");
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ⚖️ LES LIVRES DU JOUEUR — un axe orthogonal aux règles (Eric, 09/09)
+   « que tu puisses désactiver dmg player et toujours te raccrocher au SRD »,
+   « tu dois pouvoir les activer et les désactiver ».
+   ══════════════════════════════════════════════════════════════════════════ */
+
+test("A5 — ⛔ LA MINE : un livre allumé ne doit PAS rendre la pile inconnue", () => {
+  /* 🔴 SANS LE CORRECTIF, CE TEST EST ROUGE ET L'ÉCRAN MORT S'AFFICHE POUR
+     TOUT LE MONDE. `currentStack` comparait la pile déclarée par ÉGALITÉ
+     EXACTE de l'ensemble ; `ecran-mort.mjs:97` rend « pile inconnue » dès que
+     `currentStack` est `null` sur un document qui porte des couches. Allumer
+     le DMG suffisait donc à condamner tous les personnages. */
+  const avecLivre = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "xdmg-en"]),
+    choices: [], budgets: {}, overrides: []
+  } });
+  assert.equal(currentStack(avecLivre), "srd",
+    "un personnage SRD qui allume son DMG joue TOUJOURS en SRD — le livre apporte du contenu, pas des règles");
+
+  const fhAvecDeuxLivres = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "xphb-en", "xdmg-en", ...FH_LAYER_IDS]),
+    choices: [], budgets: {}, overrides: []
+  } });
+  assert.equal(currentStack(fhAvecDeuxLivres), "srdfh",
+    "et Fate's Hand avec les deux livres reste Fate's Hand");
+});
+
+test("A6 — `currentBooks` dit QUELS livres sont allumés, dans un ordre STABLE", () => {
+  const aucun = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: []
+  } });
+  assert.deepEqual(currentBooks(aucun), [], "aucun livre : la liste est vide, pas nulle");
+  /* ⚔️ L'ORDRE EST CELUI DE `LIVRE_LAYER_IDS`, PAS CELUI DU DOCUMENT — deux
+     documents qui portent les mêmes livres doivent rendre la MÊME liste, sinon
+     le Menu afficherait ses interrupteurs dans un ordre qui change tout seul. */
+  const inverse = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "xdmg-en", "xphb-en"]),
+    choices: [], budgets: {}, overrides: []
+  } });
+  assert.deepEqual(currentBooks(inverse), LIVRE_LAYER_IDS,
+    "l'ordre vient de la liste, jamais du document");
+  assert.deepEqual(currentBooks(null), [], "un document absent n'est pas une erreur, c'est zéro livre");
+});
+
+test("A7 — ⚔️ ET LE GARDE N'EST PAS DEVENU AVEUGLE : une pile vraiment inconnue rend toujours `null`", () => {
+  /* ⛔ LE RISQUE DU CORRECTIF : à force de retirer des ids avant de comparer,
+     `currentStack` pourrait finir par tout accepter. Il doit continuer à
+     refuser ce qu'il refusait — une couche FH manquante reste une pile qu'on
+     ne sait pas nommer, livre ou pas. */
+  const fhIncomplete = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "xdmg-en", ...FH_LAYER_IDS.slice(1)]),
+    choices: [], budgets: {}, overrides: []
+  } });
+  assert.equal(currentStack(fhIncomplete), null,
+    "il manque une couche FH : la pile reste innommable, et le livre n'y change rien");
+  const inconnue = draftDocument({ build: {
+    layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "couche-inventee"]),
+    choices: [], budgets: {}, overrides: []
+  } });
+  assert.equal(currentStack(inconnue), null, "une couche qui n'est ni FH ni un livre reste inconnue");
 });
