@@ -31,12 +31,18 @@ import { ABILITY_KEYS } from "../src/build/skills.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
+/* LOT 184 — `fh-skills-en` portait TROIS interrupteurs ; les trainings et
+   l'origine Fate's Hand sont sortis dans leurs couches. Les monter à côté
+   d'elle restitue EXACTEMENT ce que cette suite montait avant la fente : les
+   records ont déménagé octet pour octet, aucun n'a changé. */
+const FH_TRAININGS_EN = "layers/fh-trainings-en.layer.json";
+const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 const INHERITANCE = "fh:background:en:inheritance";
 
 /** La pile Fate's Hand — SRD anglais, les compétences (l'Inheritance et le
  *  don d'origine libre) et les dons (`Auspicious (fh)`, `category: origin`). */
 function pile(options = {}) {
-  return makeHarness(Object.assign({ layers: [SRD_EN, FH_SKILLS_EN, FH_FEATS_EN] }, options));
+  return makeHarness(Object.assign({ layers: [SRD_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN, FH_FEATS_EN] }, options));
 }
 
 /** Les choix communs à presque tous les scénarios : niveau, classe,

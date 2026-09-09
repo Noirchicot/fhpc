@@ -30,11 +30,17 @@ import { makeHarness, manifestOf, SRD_EN, FH_SPECIES_EN, uneCouche } from "./bui
 import { createFhSkillPoolStat, FH_SKILL_POOL_ID } from "../src/modules/fh/skill-pool.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
+/* LOT 184 — `fh-skills-en` portait TROIS interrupteurs ; les trainings et
+   l'origine Fate's Hand sont sortis dans leurs couches. Les monter à côté
+   d'elle restitue EXACTEMENT ce que cette suite montait avant la fente : les
+   records ont déménagé octet pour octet, aucun n'a changé. */
+const FH_TRAININGS_EN = "layers/fh-trainings-en.layer.json";
+const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 const INHERITANCE = "fh:background:en:inheritance";
 
 function pile(options = {}) {
   return makeHarness(Object.assign({
-    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN],
+    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN],
     modules: [createFhSkillPoolStat()]
   }, options));
 }
@@ -256,7 +262,7 @@ test("un personnage SRD pur (aucune espèce FH, aucun budget captif) traverse la
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "srd:species:en:elf",
-      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
+      backgroundId: "srd:background:en:acolyte" // LOT 184 : `fh-inheritance-en` n'est pas montée ici — l'Inheritance n'existe pas dans cette pile
     }))
   });
   assert.deepEqual(out.resolved.stats, [], "aucun pool — le SRD n'en a pas");
@@ -272,7 +278,7 @@ test("un scénario où la couche des compétences n'est pas montée reste inchan
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:wizard", speciesId: "fh:species:en:araag",
-      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
+      backgroundId: "srd:background:en:acolyte" // LOT 184 : `fh-inheritance-en` n'est pas montée ici — l'Inheritance n'existe pas dans cette pile
     }))
   });
   assert.equal(out.resolved.skills.find((s) => s.id === "arcana").proficiency, "adept",

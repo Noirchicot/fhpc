@@ -71,6 +71,12 @@ export const PILE = [
   "layers/srfh-shelving-en.layer.json",
   "layers/fh-species-en.layer.json",
   "layers/fh-skills-en.layer.json",
+  /* LOT 184 — les deux interrupteurs sortis de `fh-skills-en`, même place que
+     dans `LAYER_FILES` : le garde 3 de `fiche-360` compare les deux listes,
+     donc une seule des deux ne peut pas bouger. `fh-trainings-en` d'abord :
+     c'est elle qui porte les langues que l'Inheritance offre. */
+  "layers/fh-trainings-en.layer.json",
+  "layers/fh-inheritance-en.layer.json",
   "layers/fh-arcana-en.layer.json",
   "layers/fh-feats-en.layer.json",
   "layers/fh-spells-en.layer.json",

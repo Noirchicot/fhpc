@@ -15,6 +15,19 @@
    Eric l'a prise en relisant son propre chapitre. Les divergences connues
    sont nommées à l'endroit où elles mordent, jamais corrigées en silence.
 
+   ── CE QUI EST PARTI D'ICI AU LOT 184, ET POURQUOI ────────────────────
+   🔴 Eric, 2026-09-08, en regardant cette couche : *« FH skills contient des
+   feats, LOL »*. Elle portait TROIS interrupteurs de l'écran `Rules` en un
+   seul : le pool de compétences, le catalogue des trainings, et l'origine
+   Fate's Hand — don gratuit, langues et 50 GP compris. Deux sont sortis :
+
+     `fh-trainings-source.mjs`    → les 13 trainings   (couche `fh-trainings-en`)
+     `fh-inheritance-source.mjs`  → l'origine et les 4 extinctions
+                                                       (couche `fh-inheritance-en`)
+
+   Ce fichier-ci ne déclare plus que ce que son nom dit : les compétences, les
+   outils, et le pool de points des douze classes.
+
    ── LA COUCHE RETIRE AUTANT QU'ELLE AJOUTE ────────────────────────────
    C'est la propriété qui distingue ce lot d'un simple ajout de contenu, et
    c'est elle qui rend l'arithmétique vérifiable :
@@ -502,80 +515,6 @@ export const TRAIT_GRANTS = [
   { trait: "late-bloomer", feature: "Late Bloomer", level: 1, points: 2, unlocksExpertise: true, maxExpertise: 1 }
 ];
 
-/* ══ LES TRAININGS — LE CATALOGUE, ENFIN REMPLI (lot 82) ══════════════
-   Le genre `training` existe depuis le 2026-08-12 (genre 16 du schéma), sa
-   mécanique est écrite et testée, et son catalogue est resté VIDE par
-   arbitrage d'Eric (*« on ne s'y attelle pas pour le moment »*). Le canon des
-   points §B.3 le remplit.
-
-   ⛔ UN TRAINING N'A NI PALIER NI CARACTÉRISTIQUE. On le sait ou on ne le sait
-   pas — c'est ce qui le distingue d'un outil, et c'est pourquoi il a son
-   propre genre plutôt qu'un `tool` amputé. Son coût vit sur LE RECORD, jamais
-   dans une table du moteur.
-
-   ── LES DOUZE LANGUES ─────────────────────────────────────────────────
-   Eric, 2026-08-18 : *« l'inventaire des langues c'est celui du SRD, jusqu'à
-   ce qu'on décide autrement »*, puis, décidant autrement : *« Choix de 2
-   langues. Araag, plus les langues du même nom que les species. Ce seront des
-   langues Fate's Hand. »*
-
-   ⚠️ ET C'EST BIEN UNE LISTE À ÉCRIRE, PAS UN INVENTAIRE À RECOPIER. Mesuré le
-   2026-08-18 : **la couche SRD de ce dépôt ne porte AUCUN catalogue de
-   langues** — ni entrée de glossaire, ni records ; `species[].data.languages`
-   vaut `null` sur les douze, et le mot « langue » n'apparaît que dans le texte
-   libre des blocs de monstres (« Deep Speech; telepathy 120 ft. »). Il n'y
-   avait donc rien à reprendre du SRD, même en le voulant.
-
-   ⭐ UNE LANGUE PORTE LE NOM DE SON PEUPLE, ET RIEN D'AUTRE. Pas d'*Elvish*,
-   pas de *Dwarvish*, pas de *Draconic* — Fate's Hand laisse tomber les formes
-   adjectivales du SRD. Un peuple, une langue, un nom. Les douze suivent donc
-   EXACTEMENT les douze espèces jouables, et le générateur le VÉRIFIE contre la
-   pile plutôt que de le croire : une espèce ajoutée sans sa langue ferait
-   jeter.
-
-   📌 Araag est la langue impériale. Elle n'est PAS automatique : le chapitre
-   Inheritance donne deux langues **au choix**, sans plancher — l'ancienne
-   règle donnait « Common plus une au choix », la neuve laisse choisir les
-   deux. Rien ici ne l'impose, et c'est délibéré.
-
-   ── CE QUI N'EST PAS ICI, ET POURQUOI ────────────────────────────────
-   ⛔ **Les rituels sombres.** Le canon les annonçait trainings ; mesuré dans le
-   chapitre qui les définit (`6. Spells & Magic/Dark Rituals.md`, dix rites
-   tous chiffrés), un rite est gaté par le NIVEAU CUMULÉ de ses lanceurs et
-   par leur classe de lanceur de sorts, et payé en points de Destinée et en
-   dégâts nécrotiques. Nulle part il n'est dit qu'on APPREND un rituel. Un rite
-   se pratique, il ne se connaît pas. Le canon est corrigé ; le catalogue ne
-   les porte pas.
-   ⏳ **Les armes exotiques** — annoncées trainings, pas encore à l'inventaire. */
-
-/** Les douze espèces jouables, dans l'ordre alphabétique de leur langue. Le
- *  générateur CONFRONTE cette liste aux espèces réellement montées : c'est ce
- *  qui empêche une treizième espèce d'arriver muette. */
-export const LANGUAGE_SPECIES = [
-  "araag", "dragonborn", "dwarf", "elestu", "elf", "goliath",
-  "halfling", "hoddon", "human", "loroka", "orc", "tiefling"
-];
-
-export const TRAININGS_ADDED = [
-  ...LANGUAGE_SPECIES.map((slug) => ({
-    slug: `language-${slug}`,
-    name: slug.charAt(0).toUpperCase() + slug.slice(1),
-    category: "language",
-    cost: 1,
-    description: `The tongue of the ${slug.charAt(0).toUpperCase() + slug.slice(1)} people. Two languages ` +
-      "are granted by your Inheritance, at creation and at no cost; a further one is bought like any " +
-      "other training."
-  })),
-  {
-    slug: "garrot",
-    name: "Garrot",
-    category: "weapon",
-    cost: 1,
-    description: "A finesse cord used to strangle a surprised target. It deals no damage — only " +
-      "exhaustion — and it is a training, not a tool: no tier, no ability behind it."
-  }
-];
-
 /* ══ LES APTITUDES DE CLASSE QUI TENDENT DES POINTS (lot 82) ═══════════
    Canon §B.1ter, « Class features that grant Expertise → free points + a
    permission », ratifié par Eric le 2026-08-18 en deux passes — la seconde
@@ -739,138 +678,6 @@ export const CLASS_POOLS = [
    Ils vivent dans le record de chaque classe, avec le pool qu'ils dépensent. */
 export const TIER_COSTS = { novice: 1, adept: 2, expert: 4 };
 
-/* ══ L'ARRIÈRE-PLAN — ÉTEINT EN FATE'S HAND (lot 35) ═══════════════════════
-   Addendums §4, « L'arrière-plan n'existe plus en Fate's Hand » (Eric,
-   2026-08-12). L'étape ne pose plus qu'un don d'origine et des bonus de
-   caractéristiques — elle peut s'appeler Inheritance. Tout le reste du choix
-   d'arrière-plan SRD s'éteint : plus de compétences imposées, plus d'outil
-   imposé. `ability_keys` et `feat_id`/`feat_option` SURVIVENT intacts — c'est
-   l'Inheritance, elle ne bouge pas.
-
-   ⚠️ MESURÉ, PAS SUPPOSÉ (2026-08-12) : les QUATRE arrière-plans du SRD
-   portent `data.skill_ids`. TROIS SEULEMENT portent `data.tool_id` — le
-   Soldier CHOISIT le sien (`data.tool_choice`), il ne le REÇOIT pas.
-
-   ⭐ CORRECTION DE L'ARCHITECTE, 2026-08-12 (après la fusion du lot 35). La
-   commande du lot nommait `skill_ids` et `tool_id`, jamais `tool_choice` : le
-   lot a donc laissé le `tool_choice` du Soldier intact, ET l'a signalé plutôt
-   que d'élargir seul son périmètre — c'est le comportement attendu, la faute
-   était dans la commande. Or la décision d'Eric est « éteindre TOUTE la partie
-   choix d'arrière-plan », et un `tool_choice` EST un choix d'arrière-plan.
-   Sans ce retrait, le Soldier resterait le SEUL arrière-plan à encore imposer
-   quelque chose au joueur, ce qui contredit la règle. Éteint le 2026-08-12,
-   sur confirmation d'Eric.
-
-   Chaque champ est déclaré par entrée et VÉRIFIÉ DANS LES DEUX SENS : retirer
-   un champ absent est un échec bruyant, et déclarer absent un champ que le SRD
-   porte l'est aussi — sinon la déclaration cesse d'être mesurée sur la réalité
-   de la couche SRD commitée. Même doctrine qu'`assertTargetField` pour les
-   espèces (`gen-fh-species-layer.mjs`).
-
-   ⭐ RÉVISÉ PAR LE LOT 43 (2026-08-13) — « éteint » n'était encore qu'un
-   `patch` qui retirait deux ou trois champs (`skill_ids`, `tool_id` /
-   `tool_choice`) : le record SURVIVAIT, choisissable, avec son `ability_keys`
-   et son `feat_id` intacts. Addendums §4 (réécrit le 2026-08-13) : « IL N'Y A
-   PLUS DE RECORD D'ARRIÈRE-PLAN DU TOUT ». Les quatre records SRD sont donc
-   RETIRÉS de la pile (`op: "disable"`, le patron déjà en place pour Perception
-   et le Gaming Set générique, `SKILLS_REMOVED` plus haut) — plus de `patch`
-   étroit, plus de champ à énumérer par entrée : `hasToolId`/`hasToolChoice`
-   disparaissent avec lui, ils n'avaient de sens que pour un retrait partiel. */
-export const BACKGROUNDS_EXTINGUISHED = [
-  {
-    target: "srd:background:en:acolyte",
-    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
-      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
-  },
-  {
-    target: "srd:background:en:criminal",
-    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
-      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
-  },
-  {
-    target: "srd:background:en:sage",
-    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
-      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
-  },
-  {
-    target: "srd:background:en:soldier",
-    reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
-      "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
-  }
-];
-
-/* ══ L'INHERITANCE — LE RECORD NEUF QUI REMPLACE LES QUATRE ═══════════
-   Lot 43. Un seul record de genre `background` (le genre reste du vocabulaire
-   de moteur — l'écran, lui, dira « Inheritance »), livré par la couche, JAMAIS
-   choisi parmi des alternatives : c'est le seul de son genre une fois les
-   quatre du SRD éteints.
-
-   ⛔ PAS D'`ability_keys` — l'absence est LA règle (contrat §1c, générique) :
-   un record qui ne nomme pas ses clefs ne les restreint pas, donc les SIX
-   caractéristiques sont proposées. ⛔ PAS de `feat_id` — à la place,
-   `feat_choice: {from: "origin"}`, sur le patron maison de `skill_choice` /
-   `granted_skill_choice` / `tool_choice` : le don d'origine est un choix
-   libre parmi les records de genre `feat` dont `data.category` vaut
-   `"origin"` (les quatre du SRD + `Auspicious (fh)`, patché §3b). */
-export const BACKGROUND_INHERITANCE = {
-  id: "fh:background:en:inheritance",
-  name: "Inheritance",
-  slug: "inheritance",
-  description: "What you carry into adventure: a free origin feat of your choice, 3 ability " +
-    "score points to distribute as +2/+1 or +1/+1/+1 on any abilities, and two languages of your " +
-    "choice. Fate's Hand replaces the four SRD backgrounds with this single step " +
-    "(addendums §4, Eric 2026-08-13).",
-  /* ⭐ LES DEUX LANGUES, DÉCLARÉES — 2026-08-20 ═══════════════════════════
-     🔴 ELLES EXISTAIENT DÉJÀ, MAIS EN PROSE SEULEMENT : chaque record de
-     langue dit « Two languages are granted by your Inheritance, at creation
-     and at no cost ». Un moteur ne lit pas une description — il ne pouvait ni
-     les offrir, ni les compter, ni refuser la troisième. La règle était juste
-     et INAPPLICABLE.
-
-     ⚠️ ET C'EST L'HÉRITAGE QUI LES DONNE, PAS L'ESPÈCE. Le déménagement date
-     du 18/08 et il est porté partout dans le livre (`Inheritance.md` §Languages,
-     le bandeau de `Species.md`, le tableau de `Skills & Tools`). La
-     formulation « chosen within your species » est celle d'AVANT — elle a
-     resurgi deux fois depuis, et elle est fausse à chaque fois.
-
-     ⛔ AUCUNE LISTE ICI : `from: "language"` désigne la CATÉGORIE, et le
-     générateur la résout sur les trainings réellement produits. Recopier douze
-     slugs en ferait une seconde liste, qui divergerait le jour où une
-     treizième langue arrive — exactement ce que `LANGUAGE_SPECIES` empêche
-     déjà pour les espèces. */
-  languageGrant: { from: "language", count: 2, cost: 0 },
-  /* ⭐ L'OR DE DÉPART, RENDU À LA DONNÉE — lot 182 (2026-09-09) ══════════
-     🔴 CE CHAMP MANQUAIT, ET SON ABSENCE ÉTAIT TENUE À BOUT DE BRAS PAR L'ÉCRAN.
-     Les QUATRE arrière-plans du SRD que l'Inheritance remplace portent chacun
-     `data.equipment` — « Choose A or B: (A) … ; or (B) 50 GP » — et les quatre
-     nomment le MÊME montant. En les éteignant (§4), l'Inheritance a emporté leur
-     option A (le paquet : elle n'en donne aucun) mais aussi leur option B, l'or.
-     ⛔ `ui/builder/equipment-step.mjs` la maintenait en vie avec un
-     `INHERITED_PURSE_GP = 50` ÉCRIT EN DUR — un nombre de règle vivant dans un
-     fichier d'écran, que rien ne pouvait confronter à une couche.
-
-     ⚖️ LA RÈGLE, DICTÉE PAR ERIC LE 2026-09-09 : « le kit ou les 50 gp peut
-     marcher pour SRD et FH », « fait idem SRD pour FH », « harmonise ça ».
-     ⇒ CHAQUE SOURCE DE DÉPART OFFRE SON PAQUET OU SON OR, dans les deux piles.
-     La classe porte le sien dans `data.starting_equipment` (75 · 90 · 110 · 155…,
-     un montant PAR CLASSE) ; l'origine porte le sien ici.
-
-     📌 LA FORME : une phrase, comme le SRD, LUE et jamais recalculée. Celle-ci
-     ne porte qu'UNE option parce que l'Inheritance n'a pas de paquet à poser —
-     ⛔ lui en écrire un serait inventer une règle que personne n'a tranchée. Le
-     lecteur d'écran prend la DERNIÈRE option d'une phrase, et une phrase à une
-     seule option est sa propre dernière option : un seul lecteur, deux piles.
-
-     ⚠️ LE 50 N'EST PAS UN CHOIX DE FATE'S HAND, c'est celui du SRD, hérité des
-     quatre records éteints. S'il doit devenir autre chose, c'est Eric qui le dit
-     — et ce sera ICI, dans la source de la couche, jamais dans un écran. */
-  equipment: "50 GP"
-};
-
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════
    Déclarés ici pour que le générateur les CONFRONTE à ce qu'il a réellement
    produit, au lieu de les recompter à partir de ses propres listes — un
@@ -891,17 +698,15 @@ export const EXPECTED = {
      ⚠️ Ce 36 compte les outils de CETTE COUCHE, pas ceux de la pile — la
      pile en porte toujours 37, le trente-septième étant dans l'autre couche. */
   tools: 36,
-  /* ⛔ TREIZE : douze langues (une par espèce jouable) et le Garrot. Si ce
-     nombre bouge sans qu'une règle bouge, quelqu'un a ajouté un training sans
-     chapitre — et un training sans chapitre est un achat que le joueur ne peut
-     lire nulle part. */
-  trainings: 13,
+  /* ⛔ NI `trainings` NI `backgrounds` DEPUIS LE LOT 184 : les treize trainings
+     sont partis dans `fh-trainings-source.mjs`, les quatre extinctions et
+     l'Inheritance dans `fh-inheritance-source.mjs`. Chaque compte vit avec la
+     couche qu'il garde — un total déclaré ici pour une couche produite
+     ailleurs serait un garde que rien ne rattache à ce qu'il compte. */
   srdSkills: 18,
   srdTools: 25,
   /* ⛔ DOUZE. Si ce nombre devient 13, quelqu'un a fait entrer l'Artificier. */
-  classes: 12,
-  /* Les quatre arrière-plans du SRD 5.2.1 — mesuré (lot 35). */
-  backgrounds: 4
+  classes: 12
 };
 
 /* Le drapeau que cette couche lève. Il n'active aucun module dans ce lot —

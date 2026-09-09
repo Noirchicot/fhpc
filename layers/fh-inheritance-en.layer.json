@@ -1,0 +1,65 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-inheritance-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Inheritance (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.inheritance"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. This layer modifies material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. The four SRD backgrounds — Acolyte, Criminal, Sage and Soldier — have been removed from the stack and replaced by a single original record, Inheritance."
+  },
+  "description": "The Fate's Hand origin, and the extinction of the four SRD backgrounds it replaces. Inheritance grants a free origin feat, 3 ability score points, two languages and 50 GP — no imposed skills, no imposed tool. ⚠️ IT DEPENDS ON `fh-trainings-en`: the two languages are records of that catalogue (`fh:training:en:language-*`), and this layer's list is resolved on the trainings that layer produces. Mounted without it, the Inheritance still stands, its language grant resolves to nothing, and the sheet declares `underived.no-language-chosen` rather than failing.",
+  "records": {
+    "background": {
+      "srd:background:en:acolyte": {
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      },
+      "srd:background:en:criminal": {
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      },
+      "srd:background:en:sage": {
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      },
+      "srd:background:en:soldier": {
+        "op": "disable",
+        "reason": "Fate's Hand replaces Background entirely with a single step, Inheritance (`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      },
+      "fh:background:en:inheritance": {
+        "name": "Inheritance",
+        "slug": "inheritance",
+        "data": {
+          "name": "Inheritance",
+          "feat_choice": {
+            "from": "origin"
+          },
+          "granted_language_choice": {
+            "from": [
+              "fh:training:en:language-araag",
+              "fh:training:en:language-dragonborn",
+              "fh:training:en:language-dwarf",
+              "fh:training:en:language-elestu",
+              "fh:training:en:language-elf",
+              "fh:training:en:language-goliath",
+              "fh:training:en:language-halfling",
+              "fh:training:en:language-hoddon",
+              "fh:training:en:language-human",
+              "fh:training:en:language-loroka",
+              "fh:training:en:language-orc",
+              "fh:training:en:language-tiefling"
+            ],
+            "count": 2,
+            "cost": 0
+          },
+          "equipment": "50 GP",
+          "description": "What you carry into adventure: a free origin feat of your choice, 3 ability score points to distribute as +2/+1 or +1/+1/+1 on any abilities, and two languages of your choice. Fate's Hand replaces the four SRD backgrounds with this single step (addendums §4, Eric 2026-08-13)."
+        }
+      }
+    }
+  }
+}

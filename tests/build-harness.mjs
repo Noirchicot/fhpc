@@ -38,6 +38,11 @@ export const FH_FEATS_EN = "layers/fh-feats-en.layer.json";
    records de classe et d'espèce. Elles ferment la pile « SRD + FH ». */
 export const FH_FICHE_EN = "layers/fh-fiche-en.layer.json";
 export const FH_SPELLS_EN = "layers/fh-spells-en.layer.json";
+/* LOT 184 — les deux interrupteurs sortis de `fh-skills-en` : le catalogue des
+   trainings d'un côté, l'origine Fate's Hand de l'autre. Une suite qui veut
+   prouver la dépendance monte la seconde SANS la première. */
+export const FH_TRAININGS_EN = "layers/fh-trainings-en.layer.json";
+export const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 /* LOT 179 — le chapitre `Soulforge Crafting` dans sa couche à lui. */
 export const FH_SOULFORGING_EN = "layers/fh-soulforging-en.layer.json";
 /* LOT 181 — les 54 gemmes d'Eric, genre `gem`, plus leurs 54 rangements. */

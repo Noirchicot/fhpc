@@ -92,8 +92,14 @@ export const SRFH_LAYER_IDS = ["srfh-shelving-en"];
    accusait TOUT personnage d'avoir une pile hors des deux jeux de règles. */
 /* ⭐ LOT 181 — `fh-gems-en` (les 54 gemmes) entre ici EN MÊME TEMPS que dans
    `engine.mjs` et `exemple-fh-en.mjs`, MÊME PLACE et MÊME ORDRE. */
+/* ⭐ LOT 184 — `fh-trainings-en` et `fh-inheritance-en` entrent ici EN MÊME
+   TEMPS que dans `engine.mjs` et `exemple-fh-en.mjs`, MÊME PLACE et MÊME
+   ORDRE. Elles sortent de `fh-skills-en`, qui portait trois interrupteurs à
+   la fois ; les Trainings avant l'Inheritance, parce que les langues que
+   l'Inheritance offre sont des records des Trainings. */
 export const FH_LAYER_IDS = [
-  "fh-species-en", "fh-skills-en", "fh-arcana-en", "fh-feats-en", "fh-spells-en",
+  "fh-species-en", "fh-skills-en", "fh-trainings-en", "fh-inheritance-en",
+  "fh-arcana-en", "fh-feats-en", "fh-spells-en",
   "fh-soulforging-en", "fh-gems-en", "fh-fiche-en", "fh-lore-en"
 ];
 

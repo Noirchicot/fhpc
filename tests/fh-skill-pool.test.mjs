@@ -46,6 +46,12 @@ import { FH_UNDERIVED_FR } from "../src/modules/fh/labels.mjs";
 const frUnderived = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
+/* LOT 184 — `fh-skills-en` portait TROIS interrupteurs ; les trainings et
+   l'origine Fate's Hand sont sortis dans leurs couches. Les monter à côté
+   d'elle restitue EXACTEMENT ce que cette suite montait avant la fente : les
+   records ont déménagé octet pour octet, aucun n'a changé. */
+const FH_TRAININGS_EN = "layers/fh-trainings-en.layer.json";
+const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 
 const ajv = new Ajv2020({ strict: true, allErrors: true });
 const validateChar = ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8")));
@@ -56,7 +62,7 @@ const validateChar = ajv.compile(JSON.parse(readFileSync(join(ROOT, "schemas/fh-
    séparément EXPRÈS : le test 5 en retire une pour prouver la déclaration. */
 function pilePool(options = {}) {
   return makeHarness(Object.assign({
-    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN],
+    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN],
     modules: [createFhSkillPoolStat()]
   }, options));
 }
@@ -66,7 +72,7 @@ function pilePool(options = {}) {
  *  attaques du lot 23 ne la montent pas : elle n'existait pas encore, et un
  *  personnage sans don d'origine choisi n'en a de toute façon rien à lire. */
 function pilePoolAvecDons(options = {}) {
-  return pilePool(Object.assign({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_FEATS_EN] }, options));
+  return pilePool(Object.assign({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN, FH_FEATS_EN] }, options));
 }
 
 /** Les choix d'un personnage. `class`, `species` et `background` sont des
@@ -403,7 +409,7 @@ test("ACCEPTATION 4 — couche FH débrayée : `stats` est VIDE et la déclarati
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 1, classId: "srd:class:en:rogue", speciesId: "srd:species:en:halfling",
-      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
+      backgroundId: "srd:background:en:acolyte" // LOT 184 : `fh-inheritance-en` n'est pas montée ici — l'Inheritance n'existe pas dans cette pile
     }))
   });
 
@@ -545,7 +551,7 @@ test("ACCEPTATION 5 — drapeau levé, couche des compétences absente : le term
   const out = h.verbs.rebuild({
     document: documentDe(h, choixDe({
       level: 3, classId: "srd:class:en:rogue", speciesId: "fh:species:en:araag",
-      backgroundId: "srd:background:en:acolyte" // fh-skills-en n'est pas montée : l'Inheritance n'existe pas ici
+      backgroundId: "srd:background:en:acolyte" // LOT 184 : `fh-inheritance-en` n'est pas montée ici — l'Inheritance n'existe pas dans cette pile
     }))
   });
 
@@ -860,7 +866,7 @@ test("DEUX MODULES COHABITENT — le pool ne remplace pas le Score de Destinée"
   /* Le pli appelle tous les modules dont le drapeau est levé. Ce test dit que
      `stats[]` en porte bien DEUX, chacun sous son ancre et son drapeau. */
   const h = makeHarness({
-    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN],
+    layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN],
     modules: [createFhDestinyStat(), createFhSkillPoolStat()]
   });
   const out = h.verbs.rebuild({

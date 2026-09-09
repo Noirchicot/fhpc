@@ -41,6 +41,12 @@ import {
 import { createFhSkillPoolStat } from "../src/modules/fh/skill-pool.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
+/* LOT 184 — `fh-skills-en` portait TROIS interrupteurs ; les trainings et
+   l'origine Fate's Hand sont sortis dans leurs couches. Les monter à côté
+   d'elle restitue EXACTEMENT ce que cette suite montait avant la fente : les
+   records ont déménagé octet pour octet, aucun n'a changé. */
+const FH_TRAININGS_EN = "layers/fh-trainings-en.layer.json";
+const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 
 /* ══ 1 — LA MESURE ELLE-MÊME : LE DOUBLON EST RÉEL, ET LE CORRECTIF LE TUE ═
    Le personnage d'acceptation (SRD français, aucune couche FH) choisit déjà
@@ -74,7 +80,7 @@ test("DETTE B, test 1 — un boost hors catalogue ne rend plus qu'UNE SEULE `bac
    `background.ability-key-invalid`, lui, N'A AUCUNE RAISON D'APPARAÎTRE ici
    : l'Inheritance elle-même n'est pas en faute, c'est le CHOIX qui l'est. */
 test("DETTE B, test 2 — sur le vrai pli (Inheritance), un boost hors des six canoniques rougit toujours, et une seule fois", () => {
-  const h = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN], modules: [createFhSkillPoolStat()] });
+  const h = makeHarness({ layers: [SRD_EN, FH_SPECIES_EN, FH_SKILLS_EN, FH_TRAININGS_EN, FH_INHERITANCE_EN], modules: [createFhSkillPoolStat()] });
   const document = {
     schema: "fh-char/1", id: "lot52-dette-b-2", name: "Dette B", lang: "en",
     units: { distance: "ft", weight: "lb" },
