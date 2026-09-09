@@ -150,3 +150,59 @@ test("🔴 LES DEUX LIVRES SONT DÉCLARÉS, AVEC LE SIGLE DU FORMAT D'ÉCHANGE",
   assert.equal(idCanonique("gem", "azurite", LIVRES["dmg-2024"]), "srfh:gem:en:azurite");
   assert.ok(Object.hasOwn(GEMMES_DU_LIVRE, "azurite"));
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ⚖️ « SI ON A BIEN FAIT NOTRE BOULOT, ON PEUT SUPERPOSER SRD + LIVRES + FH »
+   Eric, 09/09. ⭐ Une ÉPREUVE, pas une phrase — et elle se mesure sur la pile
+   RÉELLE, pas sur une intention. Ce qui suit monte les trois étages et exige
+   trois choses : que ça tienne, qu'il n'y ait qu'UN record par pierre, et que
+   ce soit FATE'S HAND qui gagne.
+   ⚠️ La couche du livre est construite ICI, par `construireCouche` — jamais
+   lue sur le disque : elle y est ignorée par git, et un test qui la lirait
+   serait vert chez Eric et ABSENT partout ailleurs.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+test("⚖️ L'ÉPREUVE DES TROIS ÉTAGES — la pile monte, et il n'y a qu'UNE azurite", () => {
+  const { layer: livre } = construireCouche({
+    gemstones: { "10": ["Azurite (mottled deep blue)", "Obsidian (black)"] }
+  });
+  const fh = JSON.parse(readFileSync(join(RACINE, "layers/fh-gems-en.layer.json"), "utf8"));
+
+  /* ⭐ L'ORDRE EST LA LOI : le livre AU-DESSUS du SRD, EN DESSOUS de FH.
+     C'est lui, et rien d'autre, qui décide que FH recouvre le livre. */
+  const records = new Map();
+  const recouvrements = [];
+  const dansLeVide = [];
+  for (const couche of [livre, fh]) {
+    for (const [id, entree] of Object.entries(couche.records.gem || {})) {
+      const op = entree.op || "add";
+      if (op !== "add") { if (!records.has(id)) dansLeVide.push(`${couche.id} → ${id}`); continue; }
+      if (records.has(id)) recouvrements.push({ id, sur: records.get(id).src, par: couche.id });
+      records.set(id, { entree, src: couche.id });
+    }
+  }
+
+  assert.deepEqual(dansLeVide, [], "aucune opération ne doit tomber dans le vide : la pile tient");
+
+  /* ⛔ LE CŒUR DE L'ÉPREUVE. 2 gemmes au livre + 54 à FH feraient 56 lignes si
+     rien ne se superposait. `azurite` étant partagée, il en reste 55. */
+  const total = Object.keys(fh.records.gem).length + Object.keys(livre.records.gem).length;
+  assert.equal(records.size, total - 1,
+    "une pierre partagée doit donner UNE ligne, pas deux — c'est « on ne veut pas de doublons inutiles »");
+
+  const azurites = [...records.keys()].filter((id) => id.endsWith(":azurite"));
+  assert.deepEqual(azurites, ["srfh:gem:en:azurite"],
+    "⛔ un second id finissant par « azurite » serait le doublon, revenu par un autre namespace");
+
+  /* ⚔️ ET LE GAGNANT EST FATE'S HAND — « FH doit se superposer », donc au-dessus.
+     Si le livre gagnait, la loi serait inversée sans que le compte le dise. */
+  assert.equal(records.get("srfh:gem:en:azurite").src, "fh-gems-en",
+    "c'est la couche FH qui doit recouvrir le livre, jamais l'inverse");
+  assert.deepEqual(recouvrements.map((r) => [r.sur, r.par]), [["xdmg-en", "fh-gems-en"]],
+    "le recouvrement est nommé : le livre en dessous, Fate's Hand au-dessus");
+
+  /* ⚔️ ET LA PIERRE QUE FH N'A PAS SURVIT — sans quoi « superposer » voudrait
+     dire « remplacer », et éteindre FH ne rendrait rien de plus. */
+  assert.equal(records.get("xdmg:gem:en:obsidian").src, "xdmg-en",
+    "obsidian n'est qu'au livre : elle reste, et elle reste au livre");
+});
