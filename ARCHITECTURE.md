@@ -164,10 +164,20 @@ Araag voit son choix **non résolu, nommé** — *« Araag comes with Lore — s
 jamais son id nu, jamais « settled ». ⛔ Le mot nomme **l'interrupteur qui porte le record**, pas
 « Fate's Hand » en général : c'est ce qui rend le refus actionnable.
 
-⚠️ **Ce que ça ne tranche pas** : les traits FH posés par `fh-species-en` **sur les neuf espèces SRD**
-*(`data[fh_traits]`)* suivent la couche, donc suivent Lore aussi. C'est cohérent avec *« Lore enlève
-l'élément ambiance »* (08/09) ; si un trait FH d'une espèce SRD devait survivre sans Lore, il
-faudrait le dire dans la source.
+⚖️ **ET LA DÉFINITION, une minute plus tard — Eric : *« Lore rajoute le monde FH sans les
+règles. »*** C'est la phrase qui définit l'interrupteur, et elle tranche ce que le paragraphe
+précédent laissait ouvert :
+
+| ce qu'une espèce porte | c'est du… | ça vient avec… |
+|---|---|---|
+| l'espèce elle-même, son nom, son blurb, ses lignages, ses traits **nommés** | **monde** | **Lore** |
+| ce qu'un trait **fait** *(Fast Learner → des points de compétence ; Soulforged Affinity → le Body Forging)* | **règle** | **son propre interrupteur** — Skills & tools, Soulforging… |
+
+⇒ Lore allumé, tout le reste éteint : **l'Araag existe**, ses traits se lisent, et chacun est
+**inerte, sa règle nommée** — la loi du 08/09 *(« un contenu sans sa règle s'affiche INERTE »)*
+s'applique telle quelle. Les traits FH posés sur les neuf espèces SRD suivent la même partition :
+**visibles avec Lore, actifs avec leur règle.** ⛔ Aucun trait ne « survit sans Lore » : sans le
+monde, il n'y a rien à afficher.
 
 #### ⚖️ LA SUPERPOSITION — FH RECOUVRE LE LIVRE, IL NE LE DOUBLE PAS (09/09)
 
