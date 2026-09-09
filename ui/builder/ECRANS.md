@@ -248,6 +248,16 @@
 
 **Une espèce qui n'ouvre aucune porte ne saute plus par-dessus son propre bilan pour tomber dans Inheritance.**
 
+### 🔴 Sans `fh.inheritance`, le cran 3 montre les arrière-plans du SRD
+📍 `inheritance-arriere-plans-srd-sans-drapeau` · déployée, hors corpus · 09/09
+⚖️ **Quand la pile montée ne lève pas `fh.inheritance`, le cran 3 dit `Background` ET montre les arrière-plans que la pile porte — le même drapeau décide du mot et de l'écran ; un arrière-plan choisi écrit `background`, le moteur dérive le reste.**
+
+> **Eric** : « je ne comprends pas où est ton problème » — à *« l'étape Background en pile SRD n'a pas d'écran : huit crans, ou un écran ? »*
+
+**Quand la pile montée ne lève pas `fh.inheritance`, le cran 3 dit `Background` ET montre les arrière-plans que la pile porte — le même drapeau décide du mot et de l'écran ; un arrière-plan choisi écrit `background`, le moteur dérive le reste.**
+
+📏 Mesuré le 09/09 avant le lot : le cran disait `Background`, l'écran servait le guide d'Inheritance, vide — `parcoursInheritance()` rendait `true` sans condition. La carte (`renderFicheBody`, pied `LORE` / `CHOOSE`) porte le nom, les trois caractéristiques, les deux compétences, l'outil et le don d'origine ; les cartes sont celles du genre monté (`query({ kind: "background" })`, jamais une liste), et un cinquième record en fait une cinquième carte. Derrière `Choose`, le guide liste ce que le carnet publie sous la racine : les bonus (le glisser de l'Inheritance, trois récepteurs), l'outil (un glisser quand le record laisse choisir — le Soldier seul dans le SRD —, un acquis sinon) et le don d'origine (un acquis). L'équipement A/B n'est pas ici : c'est l'étape Equipment qui lit `data.equipment`.
+
 ---
 
 ## 4 · Destiny

@@ -1759,6 +1759,11 @@ button { font: inherit; }
    site (`--lien`, §1 ter bis³), jamais souligné — Eric, 07/09 04:1x : *« liens non
    soulignés, comme partout ailleurs sur le site, et le bleu habituel »*. */
 button.skills-ligne-lien { text-align: left; border: none; background: none; padding: 0; margin: 0; font: inherit; font-size: var(--t3); color: var(--lien); text-decoration: none; cursor: pointer; height: var(--skills-ligne); }
+/* LOT 187 — le nom d'un acquis IMPOSÉ par l'arrière-plan SRD (don, outil) se
+   tape pour lire l'info : le MÊME habit que le nom d'un skill ci-dessus (un lien
+   hors jeton est bleu, §1 ter bis³), sans la hauteur de ligne de Skills — il vit
+   dans un `.guide-mot`, qui règle la sienne. */
+button.background-impose-nom { border: none; background: none; padding: 0; margin: 0; font: inherit; color: var(--lien); text-decoration: none; cursor: pointer; }
 .skills-ligne-carac { font-size: var(--t2); color: var(--text-muted); }
 .skills-ligne-bonus { font-size: var(--t3); color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
 .skills-ligne-static { font-size: var(--t2); color: var(--text-muted); text-align: right; min-width: 6ch; }
@@ -2713,7 +2718,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=610") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=611") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3036,7 +3041,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=610") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=611") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4540,7 +4545,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=610") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=611") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7330,7 +7335,7 @@ button.skills-ligne-lien { text-align: left; border: none; background: none; pad
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=610");
+  background-image: url("./assets/tarot-dos.jpg?v=611");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

@@ -47,8 +47,8 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=610";
-import { lignageChoisi } from "./species-step.mjs?v=610";
+import { planAt } from "./carnet.mjs?v=611";
+import { lignageChoisi } from "./species-step.mjs?v=611";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

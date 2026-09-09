@@ -682,6 +682,7 @@
    déclaration n'est pas une carte, c'est une dalle qui lui ressemble. */
 .catalogue-cards[data-kind="class"],
 .catalogue-cards[data-kind="species"],
+.catalogue-cards[data-kind="background"], /* lot 187 — la carte d'arrière-plan SRD, même cote */
 .catalogue-cards[data-kind="feat"] {
   /* ⛔ `--fiche-h` N'EST PLUS ÉCRITE ICI — remontée dans `tokens.css` le
      2026-08-23. Elle y est déclarée sur `:root`, donc elle DESCEND jusqu'ici :
@@ -737,6 +738,7 @@
    corrige aux deux, sinon on croit avoir réparé. */
 .catalogue-card[data-snap="class"],
 .catalogue-card[data-snap="species"],
+.catalogue-card[data-snap="background"],
 .catalogue-card[data-snap="feat"] {
   /* 🔴 LA BOÎTE DE RANGÉE — elle vaut UNE SCÈNE, et elle n'a AUCUN décor.
      C'est le remède du 16/08 : une rangée de grille vide ne produit pas de
