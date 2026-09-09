@@ -90,6 +90,40 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ L'ASYMÉTRIE DES DEUX SENS — monter est sûr, descendre ne l'est pas (09/09)
+
+⚖️ Eric, 09/09 : *« plus facile de monter du SRD dans FH que descendre du FH dans SRD »*.
+📏 **Ce n'est pas une intuition : le code le prouve trois fois, indépendamment.**
+
+**① La confirmation n'existe que dans un sens.** `shell.mjs:602` —
+`needsConfirm = action.value === "srd" && fhRefChoicesPresent(document)`. **Monter n'en demande
+jamais** ; le code note que c'est *« toujours sûr — n'ENLÈVE jamais de couche »*.
+
+**② Les deux sens ne parcourent pas la pile dans le même ordre, et c'est une MESURE.** Lot 77 :
+`applyLayerStack` monte `for (const id of FH_LAYER_IDS)` et descend
+`for (const id of [...FH_LAYER_IDS].reverse())`. ⛔ **Éteindre dans l'ordre de la liste faisait
+JETER la pile** — `fh-fiche-en` patche les trois espèces que `fh-species-en` **ajoute**, donc
+éteindre la base d'abord laissait un patch pointant dans le vide : *« la couche `fh-fiche-en`
+patche `species fh:species:en:araag`, qui n'est dans aucune couche sous elle »*. **Ça plantait
+l'écran Universe.**
+
+**③ Descendre peut orpheliner des choix ; monter, jamais.** `fhRefChoices` compte les choix dont
+le `ref.id` commence par `fh:` — un arcane de Destinée, un don d'origine FH. En descendant, ils
+n'ont plus de record.
+
+⭐ **LA RAISON EST STRUCTURELLE, PAS ACCIDENTELLE : une couche haute patche ce qu'une couche basse
+a AJOUTÉ.** Ajouter par-dessus ne casse rien ; retirer par-dessous casse tout ce qui pointait.
+⇒ **Aucun lot ne rendra jamais les deux sens symétriques** — ce serait nier la forme de la pile.
+
+📌 **Trois conséquences directes, à ne pas redécouvrir :**
+· un bouton qui **monte** vers `srdfh` peut se poser sans confirmation ; un bouton qui **descend**
+doit passer par celle qui existe ;
+· la **conversion d'un personnage** *(« les redescendre au niveau SRD, puis rajouter des couches »,
+Eric)* est le sens DIFFICILE, et c'est celui dont le produit a besoin — **il faut le chiffrer comme
+tel** ;
+· ⛔ **ne remets jamais les deux boucles d'`applyLayerStack` dans le même sens.** Le commentaire du
+lot 77 le dit déjà ; cette section dit **pourquoi**.
+
 #### ⚖️ LA LOI DU 09/09 — le fil FH est le PRODUIT, la descente vers SRD est le CONFORT
 
 Eric, 09/09, en deux temps qui se complètent — et l'ordre compte :
