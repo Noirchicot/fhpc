@@ -153,6 +153,18 @@ elles ne sont pas un doublon, elles sont **le plancher qui reste quand le livre 
 doublon n'apparaît qu'à l'ALLUMAGE du DMG — et c'est là, et là seulement, que la superposition
 doit produire une ligne au lieu de deux.
 
+⚖️ **ET LES LIVRES SONT DU HOMEBREW — Eric, 09/09 : *« les livres rajoutent du homebrew »*.**
+
+⭐ **Ce n'est pas une image, c'est une réduction d'architecture.** Du point de vue de FHPC, tout
+ce qui n'est pas le SRD et qui arrive par le joueur est **du contenu apporté** : le PHB, le DMG,
+la classe qu'un ami a écrite, les 675 records du Soulforging. Même mécanisme, mêmes bascules,
+même loi de superposition. ⛔ **Il n'y a donc pas deux ports à construire — un pour les livres,
+un pour le homebrew : il y en a UN**, et `gen-livre-layer.mjs` en est la première moitié.
+
+📏 **Ce que ça décide concrètement** : le conteneur homebrew existe déjà « sans porte » *(carte
+du produit, 08/09)*. Sa porte est **celle-ci**. Un livre importé et un homebrew importé produisent
+la même chose — une couche, un id, une bascule au Menu.
+
 ⚖️ **À QUOI SERVENT LES LIVRES — Eric, 09/09, et ce n'est pas que du contenu.** *« Les livres
 rajoutent des feats, des subclasses, des trade goods, des monstres, des objets magiques, des
 sorts. Sera utile pour tester l'implémentation de homebrew. Et mettre en place un moteur qui
