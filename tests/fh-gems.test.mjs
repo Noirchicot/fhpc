@@ -30,6 +30,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  GEMMES_DU_LIVRE,
+  PALIERS_DU_LIVRE,
   construireCouche, prixSrd, assertEmpreinteSource, ETAGERE_DES_GEMMES, TAGS_DES_GEMMES,
   CHAMPS_REFUSES_LANGUE, LAYER, GemError
 } from "../src/tools/gen-fh-gems-layer.mjs";
@@ -406,4 +408,70 @@ test("🔴 LA COUCHE N'AJOUTE QUE — elle ne patche ni n'éteint aucun record d
       assert.match(id, /^fh:/, `${id} ne commence pas par \`fh:\` — un record d'une autre couche`);
     }
   }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ⚖️ LA SUPERPOSITION — Eric, 09/09 : « FH doit se superposer », « on
+   superpose », ⛔ « on ne veut pas de doublons inutiles », et la contrainte
+   qui ferme la pile : « que tu puisses désactiver dmg player et toujours te
+   raccrocher au SRD ».
+
+   ⚠️ CE QUE CES DEUX GARDES NE FONT PAS : ils n'empêchent pas le doublon —
+   rien ne l'empêche aujourd'hui, l'identifiant `fh:` le fabrique. Ils
+   GARDENT LA FRONTIÈRE MESURÉE, pour que le jour où le DMG du joueur est
+   importé, la liste des collisions soit connue et non re-devinée.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+test("⚖️ LES 23 GEMMES DU LIVRE EXISTENT VRAIMENT — une table qui nomme des fantômes ne garde rien", () => {
+  const presents = new Set(Object.keys(COUCHE.records.gem).map((id) => id.split(":").pop()));
+  const fantomes = Object.keys(GEMMES_DU_LIVRE).filter((slug) => !presents.has(slug));
+  assert.deepEqual(fantomes, [],
+    "GEMMES_DU_LIVRE nomme des slugs absents de la couche — la frontière a bougé sans que la table suive");
+  /* ⚔️ LE TÉMOIN DANS L'AUTRE SENS : la table doit être un SOUS-ensemble STRICT.
+     Si elle couvrait les 54, elle ne distinguerait plus rien et passerait au vert
+     en ne disant rien. */
+  assert.ok(Object.keys(GEMMES_DU_LIVRE).length < presents.size,
+    "la table couvre TOUTE la couche : elle ne sépare plus le livre de l'invention de FH");
+  assert.equal(Object.keys(GEMMES_DU_LIVRE).length, 23,
+    "23 gemmes sur 54 portent un nom du DMG 2024 — mesuré ch. 7 § Gemstones");
+});
+
+test("⚖️ UNE GEMME D'UN PALIER PROPRE À FH NE PEUT PAS ÊTRE UNE GEMME DU LIVRE", () => {
+  /* 📏 Le DMG range ses gemmes sur 6 paliers. Les 6 autres de l'échelle d'Eric —
+     250, 750, 2 500, 10 000, 25 000, 50 000 — sont à FH seul. Une gemme posée là
+     ne double personne, par construction. C'est la moitié de la couche qui est
+     À L'ABRI du doublon, et le garde la nomme au lieu de la supposer. */
+  const horsLivre = [];
+  for (const [id, entree] of Object.entries(COUCHE.records.gem)) {
+    const slug = id.split(":").pop();
+    const gp = entree.data.value_gp;
+    if (PALIERS_DU_LIVRE.includes(gp)) continue;
+    horsLivre.push(slug);
+    assert.equal(GEMMES_DU_LIVRE[slug], undefined,
+      `${id} vaut ${gp} gp — un palier que le DMG ne donne à AUCUNE gemme — et pourtant la table le dit du livre`);
+  }
+  assert.equal(horsLivre.length, 24,
+    "24 gemmes vivent sur les 6 paliers propres à FH (250 · 750 · 2 500 · 10 000 · 25 000 · 50 000)");
+  /* ⚔️ Et l'autre moitié : les 30 des paliers du livre, dont 23 collisionnent. */
+  assert.equal(Object.keys(COUCHE.records.gem).length - horsLivre.length, 30,
+    "30 gemmes vivent sur les 6 paliers du livre — 23 y portent son nom, 7 sont des noms de FH");
+});
+
+test("⚖️ LE PALIER QUE FH DONNE À UNE GEMME DU LIVRE — deux divergences, et elles sont NOMMÉES", () => {
+  /* ⚠️ Ces deux-là sont le seul point que la mesure ne tranche pas : FH ne donne
+     pas le même prix que le DMG. La superposition dit que FH est AU-DESSUS, donc
+     que son prix gagne — mais c'est une décision de règle, pas de code, et elle
+     est portée à Eric. Le garde les FIGE : une troisième divergence apparue en
+     silence serait un accident, pas un choix. */
+  const divergences = [];
+  for (const [slug, palierLivre] of Object.entries(GEMMES_DU_LIVRE)) {
+    const entree = COUCHE.records.gem[`fh:gem:en:${slug}`];
+    if (entree.data.value_gp !== palierLivre) {
+      divergences.push([slug, entree.data.value_gp, palierLivre]);
+    }
+  }
+  assert.deepEqual(divergences.sort(), [
+    ["black-opal", 5000, 1000],
+    ["chrysoberyl", 500, 100],
+  ], "les divergences de prix avec le DMG doivent rester ces deux-là, et aucune autre");
 });

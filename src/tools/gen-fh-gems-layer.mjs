@@ -133,6 +133,61 @@ export const PROVENANCE_TAGS =
   "de Fate's Hand, donc SRFH+. " +
   "⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.";
 
+/* 🔴 LES 23 GEMMES QUE LE LIVRE PORTE DÉJÀ — la frontière, MESURÉE et GELÉE.
+   ⚖️ Eric, 2026-09-09, quatre phrases : *« on rajoute les gemmes qui manquent »*,
+   *« c'est leur valeur qui détermine »*, *« FH doit se superposer / on superpose »*,
+   ⛔ *« on ne veut pas de doublons inutiles »* — puis la contrainte qui ferme la
+   pile : *« que tu puisses désactiver dmg player et toujours te raccrocher au SRD »*.
+
+   📏 MESURÉ dans le DMG 2024 qu'Eric POSSÈDE (D&D Beyond `dnd/dmg-2024`, ch. 7
+   « Treasure » § Gemstones — la source licite, pas 5e.tools) : le livre range ses
+   gemmes sur 6 paliers, 52 pierres — 10 (×12) · 50 (×12) · 100 (×10) · 500 (×6) ·
+   1 000 (×8) · 5 000 (×4). L'échelle d'Eric en compte 12 ; les 6 autres — 250, 750,
+   2 500, 10 000, 25 000, 50 000 — n'existent pas en GEMMES au DMG (250/750/2 500 y
+   sont des paliers d'OBJETS D'ART), et leurs 24 gemmes n'ont AUCUN doublon de nom.
+
+   ⛔ CE QUE CETTE TABLE EMPÊCHE. Les 54 portent un identifiant `fh:gem:en:…`. Le jour
+   où le DMG du joueur est importé, `azurite` arriverait sous un AUTRE namespace : le
+   moteur verrait deux records et afficherait DEUX lignes à 10 gp. Le doublon n'est pas
+   un risque théorique, il est la conséquence mécanique de l'identifiant.
+   ⭐ La table ci-dessous ne le répare pas — elle le REND VISIBLE et le fige, pour que
+   le lot qui déplacera ces 23 vers un identifiant partagé n'ait pas à re-mesurer.
+   ⚠️ Ce sont les 23 SEULS records de la couche qui ne sont pas une invention de FH.
+
+   ⚠️ ET DEUX D'ENTRE ELLES NE SONT PAS D'ACCORD AVEC LE LIVRE SUR LE PRIX — c'est le
+   seul point que la mesure ne tranche pas, il attend Eric (voir la valeur, en face). */
+export const GEMMES_DU_LIVRE = Object.freeze({
+  // slug de la gemme FH : le palier que le DMG 2024 lui donne
+  "azurite": 10,
+  "hematite": 10,
+  "malachite": 10,
+  "turquoise": 10,
+  "carnelian": 50,
+  "chalcedony": 50,
+  "citrine": 50,
+  "onyx": 50,
+  "zircon": 50,
+  "amber": 100,
+  "chrysoberyl": 100,   /* ⚠️ FH le prix 500 */
+  "coral": 100,
+  "jade": 100,
+  "jet": 100,
+  "pearl": 100,
+  "alexandrite": 500,
+  "peridot": 500,
+  "black-opal": 1000,   /* ⚠️ FH le prix 5000 */
+  "blue-sapphire": 1000,
+  "emerald": 1000,
+  "star-ruby": 1000,
+  "star-sapphire": 1000,
+  "jacinth": 5000,
+});
+
+/* 📏 Les 6 paliers que le DMG 2024 donne à ses gemmes. Tout palier de l'échelle
+   d'Eric qui n'est PAS ici est un palier que FH apporte seul — et ses gemmes ne
+   peuvent, par construction, doubler personne. */
+export const PALIERS_DU_LIVRE = Object.freeze([10, 50, 100, 500, 1000, 5000]);
+
 export const LAYER = {
   schema: "fh-layer/1",
   id: "fh-gems-en",

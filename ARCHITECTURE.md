@@ -117,6 +117,76 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LA SUPERPOSITION — FH RECOUVRE LE LIVRE, IL NE LE DOUBLE PAS (09/09)
+
+⚖️ Eric, 09/09, quatre phrases en cascade, chacune plus précise que la précédente :
+*« Quand on pousse le switch FH toutes les autres gemmes partent si le player et dmg sont
+chargés »* → **il se corrige lui-même** : *« Non mieux on rajoute les gemmes qui manquent »* →
+*« c'est leur valeur qui détermine »* → **la règle générale** : *« FH doit se superposer »*,
+*« on superpose »*, ⛔ *« on ne veut pas de doublons inutiles »*.
+
+**⚖️ LA LOI, GÉNÉRALE — elle ne parle pas que des gemmes.** Une couche Fate's Hand posée
+sur un livre que le joueur possède **RECOUVRE** ce livre :
+
+| le livre a l'objet | FH fait | ce qui apparaît |
+|---|---|---|
+| **oui, au même nom** | **il RECOUVRE** — un `patch`, jamais un second record | **une ligne**, celle du livre, enrichie de ce que FH y ajoute |
+| **oui, à une autre valeur** | **il RECOUVRE quand même** — FH est au-dessus dans le manifeste | une ligne, **au prix de FH** ⚠️ *(deux cas, § plus bas)* |
+| **non** | **il AJOUTE** | une ligne neuve |
+| — | ⛔ **jamais `disable`** | le livre du joueur ne perd rien |
+
+⚖️ **ET LA PILE A UN PLANCHER — Eric, 09/09 : *« que tu puisses désactiver dmg player et
+toujours te raccrocher au SRD »*.** Les livres du joueur — Player's Handbook, Dungeon Master's
+Guide — sont des **couches qu'on éteint**, exactement comme les six interrupteurs. Ce qui reste
+quand tout s'éteint, c'est **le SRD**, et il ne s'éteint jamais.
+
+```
+FH            ── se superpose, recouvre, n'efface rien
+PHB · DMG     ── les livres du JOUEUR, importés, désactivables
+SRD           ── le PLANCHER, toujours là
+```
+
+⛔ **Conséquence dure : rien de ce que FH livre ne peut DÉPENDRE d'un livre du joueur.** Une
+gemme à 100 gp doit exister quand le DMG est éteint — sans quoi éteindre le DMG casse l'échelle
+de la forge. C'est pour ça que FH livre les 54, **y compris les 23 que le livre porte aussi** :
+elles ne sont pas un doublon, elles sont **le plancher qui reste quand le livre s'en va**. Le
+doublon n'apparaît qu'à l'ALLUMAGE du DMG — et c'est là, et là seulement, que la superposition
+doit produire une ligne au lieu de deux.
+
+⭐ **« Se superposer » n'est pas « cohabiter ».** Deux lignes *Azurite 10 gp* côte à côte,
+l'une du DMG l'autre de FH, ce n'est pas une superposition, c'est un doublon. **La superposition
+produit UNE ligne.** Et le critère qui décide si deux objets sont le même — Eric : *« c'est leur
+valeur qui détermine »* — **c'est la VALEUR, pas la couche d'origine.**
+
+🔴 **CE QUE ÇA CORRIGE, ET C'EST MOI QUI L'AI ÉCRIT UNE HEURE PLUS TÔT.** Le § précédent grave :
+*« 23 trade goods… **aucune gemme, donc aucune collision avec les 54 de FH** »*. ⛔ **FAUX.**
+J'avais mesuré la table **Trade Goods** du DMG et conclu sur **le livre**. La section **Gemstones**
+est une **autre table**, deux titres plus bas dans le même chapitre 7.
+
+📏 **La mesure, faite dans le DMG 2024 qu'Eric possède** *(D&D Beyond `dnd/dmg-2024`, ch. 7
+« Treasure » § Gemstones — pas 5e.tools : la source licite d'abord)* :
+
+* le livre range ses gemmes sur **6 paliers, 52 pierres** — 10 (×12) · 50 (×12) · 100 (×10) ·
+  500 (×6) · 1 000 (×8) · 5 000 (×4) ;
+* l'échelle d'Eric en compte **12** ; les **6 autres** — **250 · 750 · 2 500 · 10 000 · 25 000 ·
+  50 000** — **n'existent pas** en gemmes au DMG *(250/750/2 500 y sont des paliers d'**objets
+  d'art**, pas de pierres)* ;
+* ⛔ **23 des 54 gemmes de FH portent un nom qui est DÉJÀ dans le livre** — 21 au même palier,
+  **2 à un palier différent** ;
+* les **24 gemmes des 6 paliers propres à FH** n'ont **aucun** doublon de nom. Zéro.
+
+⛔ **ET LE DOUBLON EST POSSIBLE PAR CONSTRUCTION** : les 54 portent un identifiant `fh:gem:en:…`.
+Un import du DMG écrirait `azurite` sous un **autre namespace** — le moteur verrait deux records
+distincts et les afficherait tous les deux. **Rien aujourd'hui n'empêche le doublon ; c'est
+l'identifiant qui devra le rendre impossible, pas un ménage a posteriori.**
+
+⚖️ **CE QUE LA LOI EXIGE DONC DE L'IDENTIFIANT — la forme générale de la règle du § précédent.**
+Un tag de rangement est SRFH, un tag de règle est SRFH+ ; **de même, un objet que le livre porte
+aussi est SRFH, un objet que FH a inventé est SRFH+.** Les 23 noms du livre n'ont rien à faire
+sous `fh:` : sous ce préfixe, ils *fabriquent* le doublon. ⏳ Le déplacement attend que le port
+d'import fixe le slug canonique — **mais la frontière est mesurée et gelée dès maintenant**
+(`gen-fh-gems-layer.mjs`, `GEMMES_DU_LIVRE`), pour qu'elle ne soit pas à redécouvrir.
+
 #### ⚖️ UN TAG DE RANGEMENT EST SRFH, UN TAG DE RÈGLE EST SRFH+ (09/09)
 
 ⚖️ Eric, 09/09, après avoir demandé *« le player handbook a des « valuables » qui lui sont propres,
@@ -129,7 +199,9 @@ demander leur tag à une couche **éteinte**.
 
 📏 **La mesure qui l'a révélé** : le SRD 5.2 porte **23 `trade goods`** (`TG|XDMG`) — Canvas,
 Cinnamon, Cow, **Gold**, Linen, Ox, **Platinum**, Saffron, **Silver**, Silk, Wheat… ⭐ **aucune
-gemme**, donc aucune collision avec les 54 de FH — mais **des objets de valeur du LIVRE**, et
+gemme dans CETTE table** — ⛔ *(et j'en avais conclu « aucune collision avec les 54 de FH » :
+faux, la section **Gemstones** du même chapitre en porte 52, dont **23 collisions de nom** ; voir
+« LA SUPERPOSITION » ci-dessus)* — mais **des objets de valeur du LIVRE**, et
 ⛔ **0 sur 8 testés existent dans notre couche** : c'est un trou d'extraction, pas un choix.
 
 **La règle, générale :**
