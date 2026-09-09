@@ -117,6 +117,42 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ UN TAG DE RANGEMENT EST SRFH, UN TAG DE RÈGLE EST SRFH+ (09/09)
+
+⚖️ Eric, 09/09, après avoir demandé *« le player handbook a des « valuables » qui lui sont propres,
+sais-tu à l'avance où les ranger ? »* — puis, la mesure faite : **« alors un tag associé en SRFH »**.
+
+🔴 **LE DÉFAUT QUE ÇA RÉPARE, ET IL DATE DE CE SOIR.** Le lot 181 a fait apporter le rayon
+`valuables` **par `fh-gems-en`**, une couche **SRFH+**. ⛔ Une couche Fate's Hand possédait donc un
+concept dont le fil SRD a besoin : le jour où les marchandises du livre arrivent, elles auraient dû
+demander leur tag à une couche **éteinte**.
+
+📏 **La mesure qui l'a révélé** : le SRD 5.2 porte **23 `trade goods`** (`TG|XDMG`) — Canvas,
+Cinnamon, Cow, **Gold**, Linen, Ox, **Platinum**, Saffron, **Silver**, Silk, Wheat… ⭐ **aucune
+gemme**, donc aucune collision avec les 54 de FH — mais **des objets de valeur du LIVRE**, et
+⛔ **0 sur 8 testés existent dans notre couche** : c'est un trou d'extraction, pas un choix.
+
+**La règle, générale :**
+
+| ce que le tag dit | couche | vrai dans |
+|---|---|---|
+| **où l'objet se range**, ce qu'il vaut, comment on le cherche | **SRFH** | **les deux piles** |
+| **à quelle règle FH il participe** | **SRFH+** | FH seul |
+
+⇒ Donc `valuables` est **SRFH** *(rayon et tag)* et `soulforging` reste **SRFH+**. ⭐ C'est le
+précédent exact de `srfh-shelving-en`, dont le code porte déjà l'argument : *« le rangement est de
+la NAVIGATION, pas une règle de jeu »*. **Un tag qui dit « ceci a de la valeur marchande » n'est pas
+une règle de Fate's Hand.**
+
+📌 **Forme cible du rayon**, une fois l'extraction faite :
+```
+valuables ─┬─ gems          54  ·  SRFH+  (Eric)
+           └─ trade-goods   23  ·  SRD    (le livre)
+```
+⛔ **Ne pas re-déclarer `valuables` comme « neuf, apporté par fh-gems-en »** : cette phrase est dans
+`gen-fh-gems-layer.mjs` et dans la structure de `fh-srd`, et elle sera **fausse** dès que les 23
+entreront. Elle est vraie *aujourd'hui*, et c'est ce qui la rend dangereuse.
+
 #### ⚖️ LES DEUX PORTS — on IMPORTE de 5e.tools, on EXPORTE vers Foundry (09/09)
 
 ⚖️ Eric, 09/09 : *« exporter vers Foundry, importer de 5e.tools »*, et *« tu veux parler avec
