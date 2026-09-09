@@ -88,15 +88,19 @@ export const EMPREINTE_SOURCE = "e623a20e9029a58f374013ccef9ee8f9d5597765c52bb71
    les 54 gemmes. ⛔ Ne la recopie nulle part ailleurs — une seconde écriture
    rouvrirait le défaut `ETAGERE_DE` que le lot 95 a retiré. */
 /** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE. */
-export const ETAGERE_DES_GEMMES = "valuables:gems";
+export const ETAGERE_DES_GEMMES = "trade-goods:trade-goods";
 
 /** D'où vient ce rangement, écrit dans chaque record : le tambour n'affiche
  *  pas cette phrase, mais un lecteur qui se demande « qui a décidé ça ? » la
  *  trouve dans la donnée plutôt que dans un fil de conversation perdu. */
 export const PROVENANCE_ETAGERE =
-  "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` " +
-  "est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, " +
-  "déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.";
+  "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». " +
+  "⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, " +
+  "Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, " +
+  "et la loi §0.12 dit que le mot est celui du SRD. " +
+  "⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre " +
+  "s'y rangent ENSEMBLE, elles ne se séparent pas. " +
+  "Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).";
 
 /* 🔴 LES DEUX TAGS — Eric, 2026-09-08 : *« tag valuables, tag Soulforging »*.
    ⭐ C'EST LA RÉPONSE À UNE QUESTION QUE LE RANGEMENT NE POUVAIT PAS TRANCHER :
@@ -106,7 +110,7 @@ export const PROVENANCE_ETAGERE =
    ⚠️ Aucun des 416 records `srfh` ne porte de `tags` — ce champ est NEUF, et
    c'est pour ça qu'il porte sa provenance comme `craftable` et `slot` portent
    la leur : un lecteur qui le découvre doit savoir qui l'a demandé et quand. */
-export const TAGS_DES_GEMMES = Object.freeze(["valuables", "soulforging"]);
+export const TAGS_DES_GEMMES = Object.freeze(["trade-goods", "soulforging"]);
 
 /* 🔴 CE QUE LE TAG VEUT DIRE — ET IL EST PLUS LARGE QUE LES GEMMES. Eric,
    2026-09-09, corrigeant ma première formulation : *« j'ai suggéré le tag
@@ -121,9 +125,13 @@ export const TAGS_DES_GEMMES = Object.freeze(["valuables", "soulforging"]);
    ⛔ NE JAMAIS METTRE UN ÉTAT AU CATALOGUE — Eric a posé cette loi trois fois
    en deux jours : la Soulgem, « de la Forêt des Démons », et ce tag. */
 export const PROVENANCE_TAGS =
-  "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». " +
-  "`valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état " +
-  "qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.";
+  "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », " +
+  "puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». " +
+  "`trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du " +
+  "RANGEMENT, donc SRFH : vrai dans les DEUX piles. " +
+  "`soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle " +
+  "de Fate's Hand, donc SRFH+. " +
+  "⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.";
 
 export const LAYER = {
   schema: "fh-layer/1",

@@ -1212,14 +1212,14 @@
           "name": "Azurite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1233,14 +1233,14 @@
           "name": "Hematite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1254,14 +1254,14 @@
           "name": "Malachite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1275,14 +1275,14 @@
           "name": "Rhodonite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1296,14 +1296,14 @@
           "name": "Turquoise",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1317,14 +1317,14 @@
           "name": "Chalcedony",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1338,14 +1338,14 @@
           "name": "Citrine",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1359,14 +1359,14 @@
           "name": "Carnelian",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1380,14 +1380,14 @@
           "name": "Onyx",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1401,14 +1401,14 @@
           "name": "Zircon",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1422,14 +1422,14 @@
           "name": "Amber",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1443,14 +1443,14 @@
           "name": "Coral",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1464,14 +1464,14 @@
           "name": "Jade",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1485,14 +1485,14 @@
           "name": "Jet",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1506,14 +1506,14 @@
           "name": "Pearl",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1527,14 +1527,14 @@
           "name": "Fire Agate",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1548,14 +1548,14 @@
           "name": "Ametrine",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1569,14 +1569,14 @@
           "name": "Golden Beryl",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1590,14 +1590,14 @@
           "name": "Lavender Jade",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1611,14 +1611,14 @@
           "name": "Watermelon Tourmaline",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1632,14 +1632,14 @@
           "name": "Alexandrite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1653,14 +1653,14 @@
           "name": "Red Beryl",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1674,14 +1674,14 @@
           "name": "Chrysoberyl",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1695,14 +1695,14 @@
           "name": "Peridot",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1716,14 +1716,14 @@
           "name": "Tanzanite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1737,14 +1737,14 @@
           "name": "Imperial Jade",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1758,14 +1758,14 @@
           "name": "Peacock Opal",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1779,14 +1779,14 @@
           "name": "Padparadscha Sapphire",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1800,14 +1800,14 @@
           "name": "Black Spinel",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1821,14 +1821,14 @@
           "name": "Blue Zircon",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1842,14 +1842,14 @@
           "name": "White Opal",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1863,14 +1863,14 @@
           "name": "Star Ruby",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1884,14 +1884,14 @@
           "name": "Blue Sapphire",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1905,14 +1905,14 @@
           "name": "Star Sapphire",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1926,14 +1926,14 @@
           "name": "Emerald",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1947,14 +1947,14 @@
           "name": "Color-Change Alexandrite",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1968,14 +1968,14 @@
           "name": "Canary Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -1989,14 +1989,14 @@
           "name": "Harlequin Opal",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2010,14 +2010,14 @@
           "name": "Cornflower Sapphire",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2031,14 +2031,14 @@
           "name": "Trapiche Emerald",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2052,14 +2052,14 @@
           "name": "Blue Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2073,14 +2073,14 @@
           "name": "Pink Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2094,14 +2094,14 @@
           "name": "Red Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2115,14 +2115,14 @@
           "name": "Jacinth",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2136,14 +2136,14 @@
           "name": "Black Opal",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2157,14 +2157,14 @@
           "name": "Flawless Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2178,14 +2178,14 @@
           "name": "Celestial Sapphire",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2199,14 +2199,14 @@
           "name": "Imperial Emerald",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2220,14 +2220,14 @@
           "name": "Great Blue Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2241,14 +2241,14 @@
           "name": "Royal Black Opal",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2262,14 +2262,14 @@
           "name": "Flawless Star Ruby",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2283,14 +2283,14 @@
           "name": "Monarch Diamond",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2304,14 +2304,14 @@
           "name": "Emperor’s Ruby",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }
@@ -2325,14 +2325,14 @@
           "name": "Midnight Sapphire",
           "of_kind": "gem",
           "shelf": {
-            "aisle": "valuables",
-            "provenance": "eric:2026-09-08 — « étagère des gemmes dans valuables ». TRANCHÉ : le rayon `valuables` est NEUF (8e), il n'existe dans aucun des 416 records `srfh`. Il REMPLACE `crafting › gems`, déclarée à zéro les 2026-08-21/22 — une gemme se VEND avant de se forger.",
-            "shelf": "gems"
+            "aisle": "trade-goods",
+            "provenance": "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». ⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, et la loi §0.12 dit que le mot est celui du SRD. ⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre s'y rangent ENSEMBLE, elles ne se séparent pas. Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).",
+            "shelf": "trade-goods"
           },
           "tags": {
-            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé ». `valuables` dit ce que l'objet EST ; `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter. Le tag est une aptitude du catalogue ; l'état vit sur la ligne possédée.",
+            "provenance": "eric:2026-09-09 — « cet item participe au Soulforging, et peut porter un état associé », puis « un tag associé en SRFH », puis « remplace mes valuables par trade goods ». `trade-goods` dit ce que l'objet EST — une valeur marchande, le mot du livre. C'est du RANGEMENT, donc SRFH : vrai dans les DEUX piles. `soulforging` dit ce à quoi il PARTICIPE, donc l'état qu'il PEUT porter : c'est une règle de Fate's Hand, donc SRFH+. ⛔ Le tag est une APTITUDE du catalogue ; l'ÉTAT vit sur la ligne possédée.",
             "value": [
-              "valuables",
+              "trade-goods",
               "soulforging"
             ]
           }

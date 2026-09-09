@@ -111,9 +111,10 @@ const RANGEMENT = lireRangement(query);
 test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
   assert.deepEqual(arbre.map((r) => r.id),
-    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane", "valuables"],
-    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `valuables` est entré le "
-    + "2026-09-08 avec les 54 gemmes d'Eric, et c'est le premier rayon qu'une couche FH apporte");
+    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane", "trade-goods"],
+    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `trade-goods` porte le MOT "
+    + "DU LIVRE (23 marchandises typées TG au SRD 5.2) et non `valuables`, qui était une invention "
+    + "de l'architecte, retirée par Eric le 2026-09-09");
   /* ⛔ ET AUCUN GENRE N'Y SURVIT : le défaut se reconnaît à ces quatre mots. */
   for (const genre of ["armor", "gear", "item", "weapon"]) {
     assert.equal(arbre.some((r) => r.id === genre), false,
@@ -145,7 +146,7 @@ test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () 
    *« le 35 par étagère est une CIBLE DE DÉCOUPE, jamais un plafond de données —
    le homebrew le fera déborder, c'est prévu »*. Le garde reste, parce qu'il
    attrape un débordement NON VOULU ; il nomme celui qui l'est. */
-const DEBORDEMENT_RATIFIE = { id: "valuables:gems", n: 54 };
+const DEBORDEMENT_RATIFIE = { id: "trade-goods:trade-goods", n: 54 };
 
 test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la dette NOMMÉE des gemmes", () => {
   /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
@@ -163,12 +164,13 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
   const debordent = toutes.filter((e) => e.n >= 35).map(({ id, n }) => ({ id, n }));
   assert.deepEqual(debordent, [DEBORDEMENT_RATIFIE],
     "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — la seule admise est " +
-    "`valuables › gems`, 54 gemmes, tranchée par Eric le 2026-09-08 et prévue par NORMES.md:2441");
+    "`trade-goods › trade-goods`, 54 gemmes aujourd'hui et 77 quand les 23 marchandises du livre " +
+    "l'auront rejointe, prévue par NORMES.md:2441");
 
   /* ⚔️ ET LA DETTE SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui déborde
      doit être EXACTEMENT des gemmes. Sans ce témoin, un objet d'un autre genre
      rangé là par erreur se cacherait derrière un compte toléré. */
-  const dette = arbre.find((r) => r.id === "valuables").etageres.find((e) => e.id === DEBORDEMENT_RATIFIE.id);
+  const dette = arbre.find((r) => r.id === "trade-goods").etageres.find((e) => e.id === DEBORDEMENT_RATIFIE.id);
   assert.deepEqual([...new Set(dette.objets.map((o) => o.kind))], ["gem"],
     "l'étagère tolérée ne porte QUE des gemmes — sinon la tolérance couvrirait autre chose");
 
@@ -309,8 +311,8 @@ test("5 ter — ⏳ LES RAYONS VIDES NE SONT PAS DANS L'EXPORT, et ce garde le d
      records eux-mêmes, par le seul chemin que ce dépôt accepte : une couche
      qui pose des rangements, jamais une taxonomie recopiée ici. */
   const arbre = rayonsEtEtageres(query);
-  assert.equal(arbre.length, 7, "sept rayons PEUPLÉS — les six de l'export SRFH, plus `valuables` "
-    + "que la couche des gemmes apporte depuis le 2026-09-08");
+  assert.equal(arbre.length, 7, "sept rayons PEUPLÉS — les six de l'export SRFH, plus `trade-goods` "
+    + "que la couche des gemmes apporte, et que les 23 marchandises du livre rejoindront");
   assert.equal(arbre.some((r) => r.id === "companions"), false,
     "⏳ le 7ᵉ rayon d'Eric est vide, donc absent de l'export : il n'apparaîtra qu'une fois la structure publiée");
 

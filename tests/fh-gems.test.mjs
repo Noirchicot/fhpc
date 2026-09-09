@@ -181,16 +181,25 @@ test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC
      interdit qu'une seconde écriture apparaisse ailleurs, ce qui rouvrirait le
      défaut `ETAGERE_DE` retiré au lot 95. */
   const [rayon, etagere] = ETAGERE_DES_GEMMES.split(":");
-  assert.equal(ETAGERE_DES_GEMMES, "valuables:gems",
-    "⚖️ TRANCHÉ par Eric le 2026-09-08 : « étagère des gemmes dans valuables ». Le rayon est NEUF, "
-    + "il remplace `crafting › gems` déclarée à zéro les 21-22/08 — une gemme se VEND avant de se forger");
+  assert.equal(ETAGERE_DES_GEMMES, "trade-goods:trade-goods",
+    "⚖️ TRANCHÉ par Eric le 2026-09-09 : « remplace mes valuables par trade goods, même étagère "
+    + "partout ». ⭐ LE MOT EST CELUI DU LIVRE — le SRD 5.2 porte 23 marchandises typées TG — et "
+    + "`valuables` était une invention de l'architecte (loi §0.12 : le mot est celui du SRD). "
+    + "UNE SEULE étagère : les 54 gemmes FH et les 23 marchandises SRD s'y rangent ENSEMBLE");
   const posees = new Set();
   for (const [id, entree] of Object.entries(RANGEMENTS)) {
     assert.equal(entree.data.of_kind, "gem", `${id} : le rangement doit dire le genre qu'il habille`);
     posees.add(`${entree.data.shelf.aisle}:${entree.data.shelf.shelf}`);
-    assert.match(entree.data.shelf.provenance, /2026-09-08/,
-      `${id} : la provenance doit citer la décision QUI FAIT LOI (2026-09-08, « valuables »), 
+    /* 🔄 08/09 → 09/09. La décision qui FAIT LOI est celle du 09/09 — « remplace mes
+       valuables par trade goods, même étagère partout ». Celle du 08/09 (« valuables »)
+       est la décision REMPLACÉE : la citer suffisait hier, elle ferait passer le garde
+       pour la mauvaise raison aujourd'hui. */
+    assert.match(entree.data.shelf.provenance, /2026-09-09/,
+      `${id} : la provenance doit citer la décision QUI FAIT LOI (2026-09-09, « trade goods »),
        pas seulement celle qu'elle remplace — sinon le garde passe pour la mauvaise raison`);
+    assert.match(entree.data.shelf.provenance, /MOT EST CELUI DU LIVRE/,
+      `${id} : et elle doit dire POURQUOI — le SRD porte 23 marchandises typées TG, donc le mot
+       vient du livre et non de l'architecte (loi §0.12)`);
   }
   assert.deepEqual([...posees], [`${rayon}:${etagere}`],
     "les 54 gemmes sont sur UNE seule étagère, celle que le générateur déclare");
@@ -205,7 +214,7 @@ test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC
    ⚠️ Aucun des 416 records `srfh` ne porte de `tags` : ce champ est neuf, donc
    c'est ici qu'on l'empêche de dériver. */
 test("🏷️ LES 54 GEMMES PORTENT LES DEUX TAGS D'ERIC, avec leur provenance", () => {
-  const attendus = ["valuables", "soulforging"];
+  const attendus = ["trade-goods", "soulforging"];
   assert.deepEqual([...TAGS_DES_GEMMES], attendus,
     "⚖️ Eric, 2026-09-08 : « tag valuables, tag Soulforging » — dans cet ordre, et il n'y en a pas un troisième");
 
