@@ -148,6 +148,27 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LES ESPÈCES FATE'S HAND SONT DU LORE (09/09)
+
+⚖️ Eric, 09/09, devant un Araag affiché en pile SRD : *« **Il n'y a pas d'Araag dans SRD si le
+bouton Lore n'est pas poussé.** »*
+
+⭐ **C'est la même loi que Hoddon** *(« tu pousses le bouton Lore et c'est un gnome »)*, étendue aux
+trois espèces neuves : Araag, Elestu, Loroka **sont apportées par l'interrupteur Lore**, pas par un
+catalogue toujours allumé. ⇒ `fh-species-en` **entre dans l'ensemble de couches de `Lore`**
+*(avec `fh-lore-en` et `fh-fiche-en`)* et **sort de `CATALOGUE_FH`** *(où le lot 188 l'avait posée
+avec `fh-gems-en`)*. Les gemmes, elles, restent du catalogue : une pierre n'est pas de l'ambiance.
+
+📏 **Ce que ça change à l'écran** : Lore éteint → aucun Araag dans Species ; un personnage **déjà**
+Araag voit son choix **non résolu, nommé** — *« Araag comes with Lore — switch it on in Layers »* —
+jamais son id nu, jamais « settled ». ⛔ Le mot nomme **l'interrupteur qui porte le record**, pas
+« Fate's Hand » en général : c'est ce qui rend le refus actionnable.
+
+⚠️ **Ce que ça ne tranche pas** : les traits FH posés par `fh-species-en` **sur les neuf espèces SRD**
+*(`data[fh_traits]`)* suivent la couche, donc suivent Lore aussi. C'est cohérent avec *« Lore enlève
+l'élément ambiance »* (08/09) ; si un trait FH d'une espèce SRD devait survivre sans Lore, il
+faudrait le dire dans la source.
+
 #### ⚖️ LA SUPERPOSITION — FH RECOUVRE LE LIVRE, IL NE LE DOUBLE PAS (09/09)
 
 ⚖️ Eric, 09/09, quatre phrases en cascade, chacune plus précise que la précédente :
