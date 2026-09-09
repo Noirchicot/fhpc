@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "59b3ffa6b94a6b7cd66bdc96989143e59d442ab9108d2d8c7168e8664b6fa5dc",
+  "layer_run": "460b4e4fc49ed38c8519831aa1443af12da5a7ddebbe7e6bedc77bf3443598e9",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -18,12 +18,12 @@
     {
       "id": "fh-species-en",
       "version": "0.1.0",
-      "hash": "8a3d4bf4b9d6593fe5e5c85dfdf8d7faf48924a53864f35dd37e9199c96b930b"
+      "hash": "5e5592b23acf1b17b36264653af705ec1871fbc288e95361e8ab1a0ed33806f7"
     },
     {
       "id": "fh-skills-en",
       "version": "0.1.0",
-      "hash": "3cfb2504dabc6aa2f27e2bccac2e0fde61cacff43e7ef8ba0179dce89fa25a54"
+      "hash": "36601d6e2d88d5ddcf37f72e17a45b19b1e4f55c51d9ef156dac2fbd952edb07"
     },
     {
       "id": "fh-trainings-en",
@@ -739,8 +739,7 @@
         "Leadership",
         "Might",
         "Streetwise",
-        "Tactics",
-        "Vigilance"
+        "Tactics"
       ],
       "patched": [
         "Acrobatics",
@@ -759,12 +758,16 @@
         "Religion",
         "Sleight of Hand",
         "Stealth",
-        "Survival"
+        "Survival",
+        "Vigilance"
       ],
-      "removed": [
-        "Perception"
-      ],
-      "renamed": []
+      "removed": [],
+      "renamed": [
+        {
+          "from": "Perception",
+          "to": "Vigilance"
+        }
+      ]
     },
     "species": {
       "added": [
@@ -810,10 +813,8 @@
     "tool": {
       "added": [
         "Card Set",
-        "Dice Set",
         "Dragonchess Set",
         "Instrument (Other)",
-        "Instrument (Strings)",
         "Instrument (Wind)",
         "Mount (Air)",
         "Mount (Land)",
@@ -825,15 +826,23 @@
         "Vehicles (Water)"
       ],
       "patched": [
+        "Dice Set",
+        "Instrument (Strings)",
         "Mason’s Tools",
         "Potter’s Tools",
         "Tinker’s Tools"
       ],
-      "removed": [
-        "Gaming Set",
-        "Musical Instrument"
-      ],
-      "renamed": []
+      "removed": [],
+      "renamed": [
+        {
+          "from": "Gaming Set",
+          "to": "Dice Set"
+        },
+        {
+          "from": "Musical Instrument",
+          "to": "Instrument (Strings)"
+        }
+      ]
     },
     "training": {
       "added": [

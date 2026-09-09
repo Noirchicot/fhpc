@@ -156,7 +156,22 @@ test("la mesure rapporte ce qu'Eric peut vérifier de tête", () => {
   assert.deepEqual(doc.genres.background.added, ["Inheritance"],
     "…et pose l'Inheritance à leur place");
   assert.deepEqual(doc.genres.species.added, ["Araag", "Elestu", "Loroka"]);
-  assert.deepEqual(doc.genres.skill.removed, ["Perception"]);
+  /* 🔴 LOT 185 — PERCEPTION N'EST PLUS ÉTEINTE, ELLE EST RENOMMÉE. Eric,
+     2026-09-09 : *« Eh bien au lieu de soustraire, réécrit. »* Le témoin change
+     de colonne mais ne disparaît pas : la phrase que le menu publiera n'est
+     plus « Fate's Hand retire Perception » mais « Fate's Hand la renomme
+     Vigilance », et c'est celle-là qu'Eric peut vérifier de tête.
+     ⛔ `removed` VIDE est vérifié AUSSI, et séparément : sans cette ligne, le
+     jour où une compétence s'éteindrait pour de bon, personne ne le verrait. */
+  assert.deepEqual(doc.genres.skill.removed, [],
+    "aucune compétence du SRD n'est plus éteinte — la couche réécrit au lieu de soustraire");
+  assert.deepEqual(doc.genres.skill.renamed, [{ from: "Perception", to: "Vigilance" }]);
+  assert.deepEqual(doc.genres.tool.removed, [],
+    "ni aucun outil : les deux génériques sont réécrits en leur héritier");
+  assert.deepEqual(doc.genres.tool.renamed, [
+    { from: "Gaming Set", to: "Dice Set" },
+    { from: "Musical Instrument", to: "Instrument (Strings)" }
+  ]);
   assert.equal(doc.genres.arcana.added.length, 22, "les 22 Arcanes — le genre qui n'a AUCUNE contrepartie SRD");
 });
 

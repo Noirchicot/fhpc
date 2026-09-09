@@ -28,16 +28,29 @@
    Ce fichier-ci ne déclare plus que ce que son nom dit : les compétences, les
    outils, et le pool de points des douze classes.
 
-   ── LA COUCHE RETIRE AUTANT QU'ELLE AJOUTE ────────────────────────────
-   C'est la propriété qui distingue ce lot d'un simple ajout de contenu, et
-   c'est elle qui rend l'arithmétique vérifiable :
+   ── LA COUCHE NE RETRANCHE PLUS RIEN : ELLE RÉÉCRIT ───────────────────
+   🔴 ERIC, 2026-09-09 : *« Eh bien au lieu de soustraire, réécrit. »*
 
-     COMPÉTENCES  18 SRD − 1 retirée (Perception) + 9 neuves        = 26
-     OUTILS       25 SRD − 2 retirés (générique) + 14 éclatés/neufs = 37
+   Cette couche ÉTEIGNAIT trois records du SRD pour poser à côté des records
+   plus fins. Elle les RÉÉCRIT désormais en leur héritier — même id, nom neuf
+   — et n'ajoute que les autres :
 
-   Les 17 compétences et 23 outils CONSERVÉS n'apparaissent PAS ici. Une
-   couche ne porte que ses deltas : recopier un record SRD pour le laisser
-   identique, ce serait le figer contre une correction future de `fh-srd`.
+     COMPÉTENCES  18 SRD (dont 1 réécrite en Vigilance)  + 8 neuves  = 26
+     OUTILS       25 SRD (dont 2 réécrits, Dés et Cordes) + 11 neufs = 36
+
+   ⭐ CE QUE LA RÉÉCRITURE FAIT DISPARAÎTRE, ET C'EST LE LOT ENTIER. Un record
+   éteint emporte avec lui toute référence qui le nomme, et la référence ne
+   proteste pas : elle se tait. Mesuré le 2026-09-09 sur la pile montée —
+   `srfh:shelving:en:gaming-set` et `srfh:shelving:en:musical-instrument`
+   rangeaient deux outils que cette couche éteignait, donc deux rangements
+   pointaient vers des records inexistants. Ce n'est pas un défaut d'affichage
+   (ils étaient DÉJÀ invisibles, et comptés dans `introuvables`) : c'est une
+   incohérence de DONNÉE. Un record qui SURVIT ne peut pas la produire.
+
+   Les 17 compétences et 23 outils CONSERVÉS SANS CHANGEMENT n'apparaissent
+   PAS ici. Une couche ne porte que ses deltas : recopier un record SRD pour
+   le laisser identique, ce serait le figer contre une correction future de
+   `fh-srd`.
 
    ── CE QUE CE FICHIER N'ÉCRIT JAMAIS ──────────────────────────────────
    Aucune phrase du SRD n'est saisie à la main. Les sept outils qui ÉCLATENT
@@ -63,38 +76,76 @@ export const ABILITY_NAMES = {
   cha: "Charisma"
 };
 
-/* ══ LA COMPÉTENCE QUI S'EN VA ═════════════════════════════════════════
-   Perception est RETIRÉE, pas remplacée : le chapitre la scinde en Vigilance,
-   Delve et Hunting (Survival existait déjà). C'est un `disable`, pas un
-   `patch` — le record SRD n'est pas modifié, et une pile qui retire la couche
-   FH le retrouve intact.
+/* ══ LA COMPÉTENCE QUI EST RÉÉCRITE ════════════════════════════════════
+   Le chapitre scinde Perception en Vigilance, Delve et Hunting (Survival
+   existait déjà). Jusqu'au 2026-09-09 les TROIS étaient des records neufs et
+   Perception s'éteignait ; désormais l'un des trois HÉRITE du record du SRD.
+
+   ⭐ ET L'HÉRITIER EST TRANCHÉ PAR ERIC, PAS DÉDUIT. Question posée le
+   2026-09-09 — *« Qui hérite du record SRD réécrit, dans les trois cas ? »* —
+   réponse : *« Vigilance · Dés · Cordes »*. Ce n'est pas arbitrable par le
+   code : les trois héritières sont également plausibles, et c'est justement
+   pour ça que la réponse est gravée à côté de sa question.
+
+   ⚠️ L'ID NE BOUGE PAS, ET C'EST TOUT L'INTÉRÊT. `srd:skill:en:perception`
+   garde son identifiant et porte le nom « Vigilance ». Toute référence à cet
+   id — les cinq listes de classe du SRD, le `granted_skill_choice` de l'Elfe —
+   continue donc de se résoudre au lieu de tomber dans le vide.
+
+   ⚠️ LE `slug` SUIT LE NOM, ET CE N'EST PAS COSMÉTIQUE. Le slug est la clef
+   que le DOCUMENT d'un personnage écrit (`class.skills[0] = "investigation"`,
+   `resolved.skills[].id`, voir `src/build/skills.mjs`). Laisser « perception »
+   sur un record nommé Vigilance ferait imprimer `perception` sur la fiche d'un
+   personnage Fate's Hand, et casserait tous les documents déjà enregistrés qui
+   portent « vigilance ». C'est le seul champ, avec le nom, où l'héritage doit
+   se voir.
+   📏 ET LE PRÉCÉDENT EXISTAIT DÉJÀ, mesuré sur la pile complète le 2026-09-09 :
+   `srd:species:en:gnome` y porte le slug `hoddon` depuis le lot 15 — la même
+   réécriture, sur une espèce. Avant ce lot il était SEUL de son espèce (1 sur
+   1 542 records portant un slug) ; après, ils sont quatre, sans une seule
+   collision de slug dans aucun genre.
 
    ⚠️ CONSÉQUENCE CONNUE, ET ELLE N'EST PAS À MOI. Le SRD porte la Perception
    passive dans son glossaire, et `resolved.senses` la transporte
    (`senses[perception-passive]`, déjà déclarée « non dérivée » au contrat
-   `build`). Retirer le record de compétence ne retire pas cette ligne de
+   `build`). Renommer le record de compétence ne renomme pas cette ligne de
    sens. Le logbook la signale comme « conséquence technique à traiter par
    l'architecte » ; ce lot ne la traite pas et ne fait pas semblant. */
-export const SKILLS_REMOVED = [
+export const SKILLS_REWRITTEN = [
   {
     target: "srd:skill:en:perception",
-    reason: "Fate's Hand replaces Perception with three specialised skills — Vigilance (immediate " +
-      "threat detection), Delve (built structures and ruins) and Hunting (tracking and motionless " +
-      "camouflage). Survival already covered the wilderness."
+    name: "Vigilance",
+    slug: "vigilance",
+    /* VÉRIFIÉE, JAMAIS PATCHÉE. L'héritière porte la caractéristique du record
+       qu'elle réécrit ; le générateur le CONFRONTE au SRD et jette si les deux
+       divergent — un héritier d'une autre caractéristique serait une décision
+       qu'Eric n'a pas prise, pas un champ à corriger en passant. */
+    ability: "wis",
+    category: "exploration",
+    exampleUses: "Immediate threat detection: spotting ambushes or fleeting danger.",
+    reason: "Fate's Hand rewrites Perception as Vigilance (immediate threat detection) and adds two " +
+      "more specialised skills next to it — Delve (built structures and ruins) and Hunting (tracking " +
+      "and motionless camouflage). Survival already covered the wilderness."
   }
 ];
 
-/* ══ LES NEUF COMPÉTENCES NEUVES ═══════════════════════════════════════
-   Réparties 1 For · 3 Int · 3 Sag · 2 Cha. Avec les 17 conservées
-   (2 For + 3 Dex + 5 Int + 4 Sag + 4 Cha... voir le générateur, qui COMPTE
-   au lieu de croire cette parenthèse), le total tient : 26.
+/* ══ LES HUIT COMPÉTENCES NEUVES ═══════════════════════════════════════
+   ⛔ VIGILANCE N'EST PLUS ICI — 2026-09-09, et c'est le piège central du lot.
+   Elle EST désormais `srd:skill:en:perception`, réécrit (voir juste au-dessus).
+   La laisser aussi dans cette liste donnerait DEUX records pour la même
+   compétence : le SRD réécrit ET l'ajout Fate's Hand. Un héritier n'existe
+   qu'une fois — c'est le sens même du mot « réécrire ». Le générateur refuse
+   la collision au lieu de la subir.
 
-   ⚠️ DEUX SLUGS SONT DÉJÀ ENGAGÉS AILLEURS ET NE PEUVENT PAS BOUGER.
-   `layers/fh-species-en.layer.json` référence `fh:skill:en:delve` et
-   `fh:skill:en:vigilance` dans le `granted_skill_choice` de l'Elestu — la
-   couche des espèces a été écrite AVANT celle-ci et pointe vers des records
-   que ce lot crée. Renommer l'un des deux casserait un `ref` déjà commité ;
-   le générateur le vérifie au lieu de l'espérer. */
+   Réparties 1 For · 3 Int · 2 Sag · 2 Cha. Avec les 18 conservées du SRD
+   (Vigilance comprise, sous son id d'origine), le total tient : 26.
+
+   ⚠️ LES RÉFÉRENCES QUE D'AUTRES COUCHES ONT PRISES NE PEUVENT PAS BOUGER.
+   `layers/fh-species-en.layer.json` désigne le trio de Keen Senses dans le
+   `granted_skill_budget` de l'Elfe et de l'Elestu. Le générateur lit cette
+   liste LÀ OÙ ELLE VIT (`KEEN_SENSES_SKILLS`) et vérifie que cette couche-ci
+   produit chacun de ses membres, au lieu d'en garder une recopie qui pourrait
+   diverger en silence. */
 export const SKILLS_ADDED = [
   {
     slug: "might",
@@ -131,13 +182,6 @@ export const SKILLS_ADDED = [
     ability: "wis",
     category: "exploration",
     exampleUses: "Tracking, skinning and butchering, and camouflage while motionless (hide or ambush)."
-  },
-  {
-    slug: "vigilance",
-    name: "Vigilance",
-    ability: "wis",
-    category: "exploration",
-    exampleUses: "Immediate threat detection: spotting ambushes or fleeting danger."
   },
   {
     slug: "delve",
@@ -216,39 +260,67 @@ export const TOOLS_RECHARACTERISED = [
   { target: "srd:tool:en:potter-s-tools", ability: "wis", was: "int" }
 ];
 
-/* ══ LES DEUX OUTILS GÉNÉRIQUES QUI S'EN VONT ══════════════════════════
+/* ══ LES DEUX OUTILS GÉNÉRIQUES QUI SONT RÉÉCRITS ══════════════════════
    Le SRD porte un « Gaming Set » et un « Musical Instrument » uniques, dont
    la variété vit dans un champ de prose (`variants`). Fate's Hand en fait des
    records à part entière, parce qu'on ne peut pas être compétent « en jeux »
    : on l'est aux dés ou aux cartes.
 
-   Ils sont donc RETIRÉS, et leurs sept héritiers déclarés plus bas. Les
-   laisser en place doublerait chaque proficiency : un personnage compétent au
-   Dice Set le serait aussi au Gaming Set générique. */
-export const TOOLS_REMOVED = [
+   ⭐ CHACUN DES DEUX GÉNÉRIQUES DEVIENT L'UN DE SES HÉRITIERS — Eric,
+   2026-09-09 : le jeu de DÉS et les CORDES. Les autres jeux et les autres
+   familles d'instruments sont ajoutés à côté. Le générique ne subsiste donc
+   PAS à côté de ses héritiers (ce qui doublerait chaque maîtrise) : il EST
+   l'un d'eux.
+
+   ⭐ ET C'EST CE QUI RÉPARE LES DEUX RANGEMENTS. `srfh-shelving-en` range ces
+   deux ids ; tant qu'ils s'éteignaient, ses deux records pointaient vers des
+   objets inexistants. Un rangement suit son objet — encore faut-il que
+   l'objet soit là.
+
+   ⛔ `variants` PART, ET C'EST UN RETRAIT, PAS UN OUBLI. La prose du SRD y
+   énumère les quatre jeux et les dix instruments : sur un record qui s'appelle
+   désormais « Dice Set », elle affirmerait qu'un jeu de dés se décline en
+   cartes et en dragonchess. Le retrait vise un chemin qui doit EXISTER — le
+   bloc `layers` refuse un retrait dans le vide (§L7.2) —, donc il tient aussi
+   lieu de garde sur la forme du record SRD. */
+export const TOOLS_REWRITTEN = [
   {
     target: "srd:tool:en:gaming-set",
+    name: "Dice Set",
+    slug: "gaming-set-dice",
+    ability: "wis",
     reason: "Fate's Hand splits the generic Gaming Set into its four SRD variants, so that " +
-      "proficiency names an actual game rather than a category."
+      "proficiency names an actual game rather than a category. The SRD record itself becomes the " +
+      "Dice Set; the other three are added alongside it."
   },
   {
     target: "srd:tool:en:musical-instrument",
+    name: "Instrument (Strings)",
+    slug: "instrument-strings",
+    ability: "cha",
     reason: "Fate's Hand splits the generic Musical Instrument into three families (wind, strings, " +
-      "other), so that proficiency names how the instrument is played."
+      "other), so that proficiency names how the instrument is played. The SRD record itself becomes " +
+      "the strings; the other two are added alongside it."
   }
 ];
 
-/* ══ LES TREIZE OUTILS QUI ENTRENT ═════════════════════════════════════
+/* ══ LES ONZE OUTILS QUI ENTRENT ═══════════════════════════════════════
+   ⛔ LE JEU DE DÉS ET LES CORDES NE SONT PLUS ICI — 2026-09-09, même piège
+   que Vigilance juste au-dessus : ils SONT les deux records SRD réécrits. Les
+   déclarer aussi en ajout donnerait deux records pour le même outil, et le
+   joueur choisirait deux fois les mêmes dés.
+
    Deux familles, et elles ne se financent pas de la même façon :
 
-   · SEPT ÉCLATENT UN RECORD SRD (`inherits`). Leur `utilize` — et leur coût,
+   · CINQ ÉCLATENT UN RECORD SRD (`inherits`). Leur `utilize` — et leur coût,
      et leur poids — sont LUS dans le record parent par le générateur, jamais
      recopiés ici. Ils gardent donc l'attribution CC-BY du SRD, parce que le
      texte qu'ils portent est celui du SRD.
 
      ⚠️ Les quatre jeux ne sont pas inventés : le SRD les nomme lui-même dans
      `variants` du Gaming Set — « Dice, dragonchess, playing cards,
-     three-dragon ante ». Ce lot ne fait que leur donner un record chacun.
+     three-dragon ante ». Ce lot ne fait que leur donner un record chacun —
+     trois par un `add`, le quatrième (les dés) en réécrivant le générique.
 
    · SIX SONT DU FATE'S HAND PUR (`inherits: null`) — les véhicules et les
      montures, éclatés en Terre / Eau / Air. Le SRD ne porte AUCUN outil de
@@ -275,13 +347,15 @@ export const TOOLS_REMOVED = [
    générateur l'avait ajouté aux quatre par régularité, et la régularité n'est
    pas une source. */
 export const TOOLS_ADDED = [
-  { slug: "gaming-set-dice", name: "Dice Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
+  /* ⛔ `gaming-set-dice` MANQUE ICI DÉLIBÉRÉMENT : c'est `srd:tool:en:gaming-set`
+     réécrit (`TOOLS_REWRITTEN`). Le rajouter recréerait le doublon. */
   { slug: "gaming-set-cards", name: "Card Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
   { slug: "gaming-set-dragonchess", name: "Dragonchess Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
   { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante", ability: "wis", inherits: "srd:tool:en:gaming-set" },
 
+  /* ⛔ Et `instrument-strings` non plus : c'est `srd:tool:en:musical-instrument`
+     réécrit. */
   { slug: "instrument-wind", name: "Instrument (Wind)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
-  { slug: "instrument-strings", name: "Instrument (Strings)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
   { slug: "instrument-other", name: "Instrument (Other)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
 
   /* 🔴 SOULFORGING N'EST PLUS ICI — lot 179, 2026-09-08. Il a été ajouté le
@@ -721,8 +795,9 @@ export const LAYER = {
   name: "Fate's Hand — Skills & Tools (EN)",
   lang: "en",
   description:
-    "The twenty-six skills and thirty-six tools of Fate's Hand. Perception is removed and split into " +
-    "Vigilance, Delve and Hunting; nine skills are new. The generic Gaming Set and Musical Instrument " +
-    "are split into seven named tools, three tools change their default ability, and vehicles and " +
-    "mounts are added for land, water and air."
+    "The twenty-six skills and thirty-six tools of Fate's Hand. Perception is rewritten as Vigilance " +
+    "and joined by Delve and Hunting; eight skills are new. The generic Gaming Set is rewritten as " +
+    "the Dice Set and the Musical Instrument as Instrument (Strings), each joined by its remaining " +
+    "variants; three tools change their default ability, and vehicles and mounts are added for land, " +
+    "water and air."
 };

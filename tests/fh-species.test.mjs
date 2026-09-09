@@ -304,27 +304,86 @@ test("ACCEPTATION — Perception n'existe pas en FH : Keen Senses pointe vers Vi
     assert.equal(data.granted_skill_budget.points, 2);
   }
 
-  assert.deepEqual(perceptionReferences(verbs.query({ kind: "species" })), [],
-    "aucune espèce ne doit plus offrir la compétence Perception");
+  /* ⛔ ET LE GARDE LIT LE NOM DU RECORD, PAS LA QUEUE DE SON ID.
+     🔴 LOT 185 — il matchait `id.endsWith(":perception")`, et cette FORME est
+     devenue un mensonge le jour où Eric a dit *« au lieu de soustraire,
+     réécrit »* : `srd:skill:en:perception` est désormais Vigilance. Le garde
+     aurait accusé l'Elfe et l'Elestu d'offrir une compétence qui n'existe plus,
+     alors qu'ils offrent exactement celle que leur texte promet. Un garde se
+     fonde sur la DONNÉE — ici, le nom que la pile rend pour cet id.
+
+     ⚠️ ET IL SE MESURE SUR LA PILE QUI PORTE LES COMPÉTENCES. `pileFH()` ne
+     monte que le SRD et la couche des espèces : les compétences y sont celles
+     du SRD, et la question « l'Elfe offre-t-il Perception ? » n'a pas de
+     réponse honnête là — les trois ids de Keen Senses ne s'y résolvent pas tous.
+     C'est la pile du JOUEUR qui décide, celle où `fh-skills-en` a réécrit le
+     record. Sans `fh-skills-en`, ce garde répondrait sur une pile que personne
+     ne joue. */
+  const avecCompetences = pileFH();
+  avecCompetences.verbs.register({
+    bytes: fileBytes("layers/fh-skills-en.layer.json"), origin: "layers/fh-skills-en.layer.json"
+  });
+  const nomDuSkill = (id) => {
+    const vue = avecCompetences.verbs.query({ kind: "skill", id });
+    return vue ? vue.record.name : null;
+  };
+  /* ⭐ ET LES TROIS IDS DE KEEN SENSES SE RÉSOLVENT VRAIMENT, aux trois noms
+     que le texte promet. Une liste sans « Perception » dedans serait aussi
+     verte si les trois ids ne pointaient nulle part. */
+  assert.deepEqual(KEEN_SENSES_SKILLS.map(nomDuSkill), ["Survival", "Delve", "Vigilance"],
+    "les trois ids de Keen Senses rendent les trois noms de son texte");
+  assert.deepEqual(
+    perceptionReferences(avecCompetences.verbs.query({ kind: "species" }), nomDuSkill), [],
+    "aucune espèce ne doit plus offrir une compétence NOMMÉE Perception");
 });
 
-/** Les espèces qui offrent encore la compétence Perception, NOMMÉES. Extraite
- *  pour être attaquée : un garde qu'on n'a pas vu rougir est une intention.
+/** Les espèces qui offrent encore une compétence NOMMÉE « Perception »,
+ *  NOMMÉES elles-mêmes. Extraite pour être attaquée : un garde qu'on n'a pas
+ *  vu rougir est une intention.
  *  LOT 34 : Keen Senses est passé de `granted_skill_choice` à
  *  `granted_skill_budget` — les DEUX champs sont regardés, sans quoi le
- *  garde deviendrait aveugle au budget captif qui porte la même liste. */
-export function perceptionReferences(vues) {
+ *  garde deviendrait aveugle au budget captif qui porte la même liste.
+ *  LOT 185 : `nomDuSkill` est OBLIGATOIRE, et c'est délibéré. Un repli sur la
+ *  queue de l'id referait exactement la faute que ce lot corrige, en silence. */
+export function perceptionReferences(vues, nomDuSkill) {
+  if (typeof nomDuSkill !== "function") {
+    throw new TypeError("perceptionReferences a besoin d'un résolveur de nom : une compétence se " +
+      "reconnaît à son NOM, jamais à la queue de son identifiant.");
+  }
   const hits = [];
   for (const vue of vues) {
     const froms = [vue.record.data.granted_skill_choice, vue.record.data.granted_skill_budget]
       .map((declaration) => declaration && declaration.from)
       .filter((from) => Array.isArray(from));
-    if (froms.some((from) => from.some((id) => id.endsWith(":perception")))) {
+    if (froms.some((from) => from.some((id) => nomDuSkill(id) === "Perception"))) {
       hits.push(vue.record.name);
     }
   }
   return hits.sort();
 }
+
+/** Le résolveur des attaques : une table explicite, pas une déduction. */
+const NOMS_TRUQUES = {
+  "srd:skill:en:perception": "Perception",
+  "fh:skill:en:vigilance": "Vigilance",
+  "srd:skill:en:survival": "Survival"
+};
+const nomTruque = (id) => NOMS_TRUQUES[id] || null;
+
+test("⚔️ ATTAQUE (lot 185) — le MÊME id rend deux verdicts selon ce que la pile en fait", () => {
+  /* ⭐ LA MUTATION QUI PROUVE QUE LE GARDE A CHANGÉ DE FONDEMENT. Le
+     `granted_skill_budget` est identique dans les deux cas — il nomme
+     `srd:skill:en:perception`. Seul le RÉSOLVEUR change. Un garde qui lisait la
+     queue de l'id aurait accusé les deux ; celui-ci n'accuse que la pile où le
+     record s'appelle vraiment Perception. */
+  const vues = [
+    { record: { name: "Elf", data: { granted_skill_budget: { points: 2, from: ["srd:skill:en:perception"] } } } }
+  ];
+  assert.deepEqual(perceptionReferences(vues, nomTruque), ["Elf"],
+    "pile SRD seule : l'id rend « Perception », l'espèce est accusée");
+  assert.deepEqual(perceptionReferences(vues, () => "Vigilance"), [],
+    "pile FH : le MÊME id rend « Vigilance », il n'y a plus rien à accuser");
+});
 
 test("ATTAQUE — le garde « plus de Perception » rougit sur une espèce qui l'offre encore", () => {
   const vues = [
@@ -332,7 +391,7 @@ test("ATTAQUE — le garde « plus de Perception » rougit sur une espèce qui l
     { record: { name: "Human", data: { granted_skill_choice: { count: 1, from: "any" } } } },
     { record: { name: "Orc", data: {} } }
   ];
-  assert.deepEqual(perceptionReferences(vues), ["Elf"],
+  assert.deepEqual(perceptionReferences(vues, nomTruque), ["Elf"],
     "le garde doit NOMMER l'espèce fautive, pas rendre un booléen");
 });
 
@@ -341,7 +400,7 @@ test("ATTAQUE (lot 34) — le garde mord AUSSI sur `granted_skill_budget`, pas s
     { record: { name: "Elestu", data: { granted_skill_budget: { points: 2, from: ["srd:skill:en:perception"] } } } },
     { record: { name: "Elf", data: { granted_skill_budget: { points: 2, from: ["fh:skill:en:vigilance"] } } } }
   ];
-  assert.deepEqual(perceptionReferences(vues), ["Elestu"],
+  assert.deepEqual(perceptionReferences(vues, nomTruque), ["Elestu"],
     "un garde qui ne regarderait que `granted_skill_choice` deviendrait aveugle depuis que Keen Senses est un budget");
 });
 

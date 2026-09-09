@@ -225,14 +225,28 @@ test("4 — ⚔️ ATTAQUE : aucun libellé n'est inventé, chacun se retrouve d
 const RANGEMENTS_SRFH = 416;   // `srfh-shelving-en`, lot 95 — le SRD habillé
 const RANGEMENTS_GEMMES = 54;  // `fh-gems-en`, lot 181 — les gemmes d'Eric
 
-test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET LES DEUX ÉCARTÉS SONT NOMMÉS", () => {
-  /* ⚠️ LE TOTAL AFFICHÉ N'EST PAS LE TOTAL LU, ET C'EST CORRECT — un total
-     juste ne dirait rien du contenu, celui-ci dit quelque chose en NE tombant
-     PAS juste. `srfh` est construite sur le SRD seul ; deux de ses records
-     rangent `gaming-set` et `musical-instrument`, que la couche `fh-skills-en`
-     DÉSACTIVE (`op: disable`) pour les remplacer par sept outils plus fins.
-     Un objet rangé qui n'existe plus dans la pile montée ne s'affiche pas —
-     et il est COMPTÉ, jamais avalé. */
+test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
+  /* ⭐ 2026-09-09, LOT 185 — LE TOTAL AFFICHÉ EST REDEVENU LE TOTAL LU, et
+     c'est le lot entier qui tient dans cet écart refermé.
+
+     📏 CE QUI ÉTAIT MESURÉ ICI JUSQU'À CE JOUR : `srfh` est construite sur le
+     SRD seul ; deux de ses records rangent `gaming-set` et
+     `musical-instrument`, que `fh-skills-en` ÉTEIGNAIT pour les remplacer par
+     sept outils plus fins. Deux rangements désignaient donc des records
+     inexistants — et ce test les comptait, un par un, plutôt que de les avaler.
+
+     🔴 ERIC, 2026-09-09 : *« Eh bien au lieu de soustraire, réécrit. »* Les deux
+     outils ne s'éteignent plus : ils DEVIENNENT le jeu de dés et les cordes,
+     sous leur id d'origine. Les deux rangements pointent donc vers des records
+     bien vivants, sans qu'une seule ligne de `srfh-shelving-en` ait bougé.
+
+     ⛔ ET CE TEST N'EST PAS DESSERRÉ POUR AUTANT — il exige maintenant le
+     contraire, avec la même sévérité : `introuvables` doit être VIDE. Une
+     future extinction s'y verrait immédiatement, là où un test qui aurait
+     simplement retiré l'assertion l'aurait laissée passer.
+     ⚠️ Rappel de ce que ces deux-là étaient : une incohérence de DONNÉE, pas un
+     défaut d'affichage. Ils étaient déjà invisibles à l'écran avant comme après
+     — ce qui a changé, c'est qu'ils désignent enfin quelque chose. */
   assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
     "les 470 records de rangement des DEUX couches sont bien lus");
   /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
@@ -259,44 +273,71 @@ test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET LES DEUX ÉCARTÉS S
     "le déplacement de 23 ids ne doit créer ni détruire aucun rangement");
 
   assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
-  assert.deepEqual(RANGEMENT.introuvables.map((x) => x.extends).sort(),
-    ["srd:tool:en:gaming-set", "srd:tool:en:musical-instrument"],
-    "les deux seuls écartés, nommés : `fh-skills-en` les désactive");
+  /* ⚔️ LE GARDE QUI PORTE LE LOT 185 : c'était 2, ce doit être 0. */
+  assert.deepEqual(RANGEMENT.introuvables.map((x) => x.extends).sort(), [],
+    "⛔ AUCUN rangement ne pointe vers un record que la pile ne porte pas — la réécriture les a tous sauvés");
+
+  /* ⚔️ ET SON TÉMOIN INVERSE, GARDÉ : les deux ids qui pointaient dans le vide
+     sont NOMMÉS et retrouvés vivants. Sans lui, `introuvables` vide serait
+     aussi vert si `srfh-shelving-en` avait cessé de les ranger — un compte à
+     zéro ne dit pas si le problème est réparé ou si le sujet a disparu. */
+  const rangés = new Set(query({ kind: "shelving" }).map((v) => v.record.data.extends));
+  for (const id of ["srd:tool:en:gaming-set", "srd:tool:en:musical-instrument"]) {
+    assert.ok(rangés.has(id), `« ${id} » doit TOUJOURS être rangé par \`srfh-shelving-en\``);
+    assert.ok(query({ kind: "tool", id }), `…et la pile doit le porter : c'est ce que la réécriture achète`);
+  }
 
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES - 2,
-    "470 rangements − 2 records désactivés par une couche du dessus");
+  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
+    "les 470 rangements sont tous à l'étalage — plus aucun n'est écarté");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES - 2, "et chaque objet n'est rangé que sur UNE étagère");
+  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES, "et chaque objet n'est rangé que sur UNE étagère");
 });
 
-test("5 bis — ⭐ LES OUTILS SONT ENTRÉS, et les 14 outils Fate's Hand sont NOMMÉS comme non rangés", () => {
+test("5 bis — ⭐ LES OUTILS SONT ENTRÉS, et les 12 outils Fate's Hand sont NOMMÉS comme non rangés", () => {
   /* AVANT CE LOT, ZÉRO OUTIL ÉTAIT VISIBLE : `EQUIPMENT_RECORD_KINDS` nommait
      quatre genres et `tool` n'en faisait pas partie. Les 25 outils du SRD
      étaient rangés depuis le lot 90 et invisibles depuis toujours.
      🔴 ET LE COMPTE RESTANT EST UNE DETTE, PAS UN SUCCÈS : `fh-skills-en`
-     AJOUTE 14 outils Fate's Hand (jeux, instruments, véhicules, montures,
+     AJOUTE des outils Fate's Hand (jeux, instruments, véhicules, montures,
      Soulforging) que `srfh` n'a jamais vus — elle est construite sur le SRD
      seul. Ils n'ont AUCUNE étagère, donc ils n'apparaissent nulle part.
      ⛔ Ce test les nomme pour qu'un ajout futur casse ici au lieu de
-     disparaître en silence : c'est la faute d'`item-value`, refusée d'avance. */
+     disparaître en silence : c'est la faute d'`item-value`, refusée d'avance.
+
+     ⭐ 2026-09-09, LOT 185 — LA DETTE A BAISSÉ DE DEUX, ET C'EST UN EFFET DE
+     BORD DE LA RÉÉCRITURE, PAS UN RANGEMENT NEUF. `fh:tool:en:gaming-set-dice`
+     et `fh:tool:en:instrument-strings` ne sont plus des ajouts : ils SONT
+     `srd:tool:en:gaming-set` et `srd:tool:en:musical-instrument` réécrits, et
+     ces deux-là sont rangés par `srfh` depuis le lot 90. Un héritier qui hérite
+     du record hérite aussi de son étagère — c'est le nom du lot. */
   const arbre = rayonsEtEtageres(query);
   const outils = arbre.find((r) => r.id === "crafting").etageres.find((e) => e.id === "crafting:tools");
-  assert.equal(outils.objets.length, 23, "25 outils SRD − les 2 que `fh-skills-en` désactive");
+  assert.equal(outils.objets.length, 25, "les 25 outils SRD, plus aucun écarté");
 
   const ranges = new Set(query({ kind: "shelving" })
     .filter((v) => v.record.data.of_kind === "tool").map((v) => v.record.data.extends));
   const sansEtagere = query({ kind: "tool" }).map((v) => v.id).filter((id) => !ranges.has(id)).sort();
   assert.deepEqual(sansEtagere, [
-    "fh:tool:en:gaming-set-cards", "fh:tool:en:gaming-set-dice",
+    "fh:tool:en:gaming-set-cards",
     "fh:tool:en:gaming-set-dragonchess", "fh:tool:en:gaming-set-three-dragon",
-    "fh:tool:en:instrument-other", "fh:tool:en:instrument-strings", "fh:tool:en:instrument-wind",
+    "fh:tool:en:instrument-other", "fh:tool:en:instrument-wind",
     "fh:tool:en:mount-air", "fh:tool:en:mount-land", "fh:tool:en:mount-water",
     "fh:tool:en:soulforging",
     "fh:tool:en:vehicles-air", "fh:tool:en:vehicles-land", "fh:tool:en:vehicles-water"
-  ], "⏳ DETTE OUVERTE — 14 outils Fate's Hand sans étagère : le rangement d'Eric ne couvre que le SRD");
+  ], "⏳ DETTE OUVERTE — 12 outils Fate's Hand sans étagère : le rangement d'Eric ne couvre que le SRD");
+
+  /* ⛔ ET LES DEUX QUI ONT QUITTÉ LA DETTE SONT RANGÉS POUR DE VRAI, sous leur
+     nom d'héritier. Un compte qui baisse ne dit pas lequel des deux — réparé ou
+     disparu : ces deux lignes le disent. */
+  for (const [id, nom] of [["srd:tool:en:gaming-set", "Dice Set"],
+    ["srd:tool:en:musical-instrument", "Instrument (Strings)"]]) {
+    assert.ok(ranges.has(id), `« ${id} » doit être rangé`);
+    assert.equal(query({ kind: "tool", id }).record.name, nom,
+      `…et porter le nom de son héritier : c'est lui que le joueur voit sur l'étagère`);
+  }
 });
 
 test("5 ter — ⏳ LES RAYONS VIDES NE SONT PAS DANS L'EXPORT, et ce garde le dit", () => {

@@ -30,13 +30,13 @@
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "8a3d4bf4b9d6593fe5e5c85dfdf8d7faf48924a53864f35dd37e9199c96b930b",
+        "hash": "5e5592b23acf1b17b36264653af705ec1871fbc288e95361e8ab1a0ed33806f7",
         "name": "Fate's Hand — Species (EN)"
       },
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "3cfb2504dabc6aa2f27e2bccac2e0fde61cacff43e7ef8ba0179dce89fa25a54",
+        "hash": "36601d6e2d88d5ddcf37f72e17a45b19b1e4f55c51d9ef156dac2fbd952edb07",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -440,13 +440,13 @@
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "8a3d4bf4b9d6593fe5e5c85dfdf8d7faf48924a53864f35dd37e9199c96b930b",
+          "hash": "5e5592b23acf1b17b36264653af705ec1871fbc288e95361e8ab1a0ed33806f7",
           "name": "Fate's Hand — Species (EN)"
         },
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "3cfb2504dabc6aa2f27e2bccac2e0fde61cacff43e7ef8ba0179dce89fa25a54",
+          "hash": "36601d6e2d88d5ddcf37f72e17a45b19b1e4f55c51d9ef156dac2fbd952edb07",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {

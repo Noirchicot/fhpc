@@ -48,11 +48,17 @@ import {
   SKILL_CATEGORIES,
   SKILLS_ADDED,
   SKILLS_KEPT_CATEGORIES,
-  SKILLS_REMOVED,
+  SKILLS_REWRITTEN,
   TOOLS_ADDED,
   TOOLS_RECHARACTERISED,
-  TOOLS_REMOVED
+  TOOLS_REWRITTEN
 } from "./fh-skills-source.mjs";
+/* ⭐ LA LISTE DES `ref` PRIS PAR LA COUCHE DES ESPÈCES EST LUE LÀ OÙ ELLE VIT,
+   jamais recopiée ici. Elle en portait une COPIE de deux ids jusqu'au
+   2026-09-09 ; le jour où Vigilance a changé d'id, la copie et l'original
+   auraient divergé sans qu'une ligne rougisse. Deux écrivains pour une même
+   liste, c'est un oubli programmé. */
+import { KEEN_SENSES_SKILLS } from "./fh-species-source.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
@@ -74,15 +80,20 @@ const fail = (message) => {
 };
 
 /* ── LES RÉFÉRENCES QUE D'AUTRES COUCHES ONT DÉJÀ PRISES ───────────────
-   `layers/fh-species-en.layer.json` a été écrit AVANT celle-ci et pointe déjà
-   vers deux de ses records, dans le `granted_skill_choice` de l'Elestu. Ces
-   `ref` sont commités : un slug qui bouge les casse.
+   `layers/fh-species-en.layer.json` a été écrit AVANT celle-ci et pointe vers
+   trois de ses records, dans le `granted_skill_budget` de Keen Senses (Elfe et
+   Elestu). Ces `ref` sont commités : un id qui bouge les casse.
 
    ⚠️ Et le `ref` mort ne se verrait PAS ici — il se verrait à la dérivation,
    sur la fiche d'un joueur, trois mois plus tard. D'où ce garde, qui le rend
    visible à la génération. Il est vérifié en le violant (suite : renommer
-   `delve` → rouge). */
-const CLAIMED_BY_OTHER_LAYERS = ["fh:skill:en:delve", "fh:skill:en:vigilance"];
+   `delve` → rouge).
+
+   ⭐ 2026-09-09 — ET C'EST LA LISTE ELLE-MÊME QUI EST LUE, pas sa recopie :
+   `KEEN_SENSES_SKILLS` a UN écrivain, `fh-species-source.mjs`. Le jour où
+   Vigilance est passée de `fh:skill:en:vigilance` à `srd:skill:en:perception`,
+   une recopie serait restée verte en gardant l'ancien id. */
+const CLAIMED_BY_OTHER_LAYERS = KEEN_SENSES_SKILLS;
 
 export function readSrdLayer(path = SRD_PATH) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -130,6 +141,91 @@ function srdRecord(srd, kind, id, role) {
   return record;
 }
 
+/* ══ LA RÉÉCRITURE — LE GESTE CENTRAL DU LOT 185 ═══════════════════════
+   🔴 Eric, 2026-09-09 : *« Eh bien au lieu de soustraire, réécrit. »*
+
+   Un record du SRD que Fate's Hand remplaçait par des records plus fins n'est
+   plus ÉTEINT : il DEVIENT l'un d'eux. Même id, nom neuf, slug neuf.
+
+   ⭐ POURQUOI C'EST UN `patch` ET PAS UN `disable` + `add`. Un `disable`
+   emporte avec lui toute référence qui nomme l'id — et la référence ne
+   proteste pas, elle se tait. Un `patch` laisse l'id vivant : les cinq listes
+   de classe du SRD, le `granted_skill_choice` de l'Elfe et les deux rangements
+   de `srfh-shelving-en` continuent tous de se résoudre, sans qu'aucun d'eux
+   n'ait à être réécrit à son tour.
+
+   ── CE QUE CE HELPER VÉRIFIE, ET POURQUOI CHAQUE CONTRÔLE EXISTE ──────
+   1. LA CIBLE EXISTE (`srdRecord`) — sinon le patch viserait le vide.
+   2. LA CARACTÉRISTIQUE DE L'HÉRITIER EST DÉJÀ CELLE DU RECORD. Un héritier
+      d'une autre caractéristique serait une décision qu'Eric n'a pas prise ;
+      la patcher en passant la ferait entrer sans être nommée.
+   3. LE NOM CHANGE VRAIMENT. Une réécriture qui reposerait le nom du SRD est
+      un patch sans objet — il fige la valeur contre sa source, exactement ce
+      qu'une couche ne doit pas faire (même doctrine que `was` plus bas).
+   4. `data.name` EXISTE DÉJÀ. Les records de compétence et d'outil du SRD
+      portent le nom DEUX fois (racine + `data.name`, mesuré sur les 18 et les
+      25) ; n'en réécrire qu'un laisserait l'autre afficher l'ancien. */
+function gesteDeReecriture(srd, kind, entry, extras = {}) {
+  const record = srdRecord(srd, kind, entry.target,
+    `la réécriture de « ${entry.target} » en « ${entry.name} »`);
+
+  const current = ((record.data || {}).ability_key) || null;
+  if (current !== entry.ability) {
+    fail(`« ${entry.target} » porte au SRD la caractéristique « ${current} », alors que son héritier ` +
+      `« ${entry.name} » déclare « ${entry.ability} ». Une réécriture n'est pas le lieu pour changer ` +
+      "une caractéristique en silence : soit le SRD a bougé, soit l'héritier n'est pas celui qu'Eric a nommé.");
+  }
+  if (record.name === entry.name) {
+    fail(`« ${entry.target} » s'appelle DÉJÀ « ${entry.name} » au SRD — la réécriture n'a plus d'objet, ` +
+      "et un patch sans objet fige la valeur contre sa source.");
+  }
+  if (typeof ((record.data || {}).name) !== "string") {
+    fail(`« ${entry.target} » ne porte pas de \`data.name\` au SRD — la réécriture n'en poserait qu'un ` +
+      "des deux, et le record afficherait son ancien nom là où l'écran lit l'autre.");
+  }
+
+  return {
+    op: "patch",
+    ...(extras.remove ? { remove: extras.remove } : {}),
+    changes: {
+      name: entry.name,
+      /* ⚠️ LE SLUG SUIT LE NOM. C'est la clef que le DOCUMENT d'un personnage
+         écrit (`resolved.skills[].id`, `src/build/skills.mjs`) : la laisser sur
+         « perception » imprimerait `perception` sur la fiche d'un personnage
+         Fate's Hand, et casserait tous les documents déjà enregistrés qui
+         portent « vigilance ». */
+      slug: entry.slug,
+      "data.name": entry.name,
+      ...(extras.changes || {})
+    },
+    note: `Fate's Hand — ${record.name} rewritten as ${entry.name}`
+  };
+}
+
+/** Les héritiers d'une réécriture ne peuvent pas exister DEUX FOIS. C'est le
+ *  piège central du lot 185 : les trois héritiers vivaient dans les listes
+ *  d'ajout sous un id `fh:` avant de recevoir le record du SRD. Rendre les
+ *  deux produirait deux records pour la même chose — et le joueur choisirait
+ *  deux fois les mêmes dés sans qu'aucun compte ne bouge (18 + 9 = 27 est
+ *  aussi juste que 18 + 8 = 26 pour qui ne regarde que le total). */
+function assertPasDeDoublon(reecritures, ajouts, kind) {
+  const parSlug = new Map(reecritures.map((e) => [e.slug, e]));
+  const parNom = new Map(reecritures.map((e) => [e.name, e]));
+  for (const ajout of ajouts) {
+    const parSlugHit = parSlug.get(ajout.slug);
+    if (parSlugHit) {
+      fail(`« fh:${kind}:en:${ajout.slug} » est AJOUTÉ alors que « ${parSlugHit.target} » est déjà ` +
+        `réécrit sous ce slug. Un héritier n'existe qu'une fois : c'est le sens du mot « réécrire ».`);
+    }
+    const parNomHit = parNom.get(ajout.name);
+    if (parNomHit) {
+      fail(`« ${ajout.name} » est AJOUTÉ alors que « ${parNomHit.target} » porte déjà ce nom après ` +
+        "réécriture. Deux records du même nom, c'est le doublon que la réécriture doit supprimer, " +
+        "pas déplacer.");
+    }
+  }
+}
+
 /* ══ LES COMPÉTENCES ═══════════════════════════════════════════════════ */
 function buildSkills(srd) {
   const srdSkills = (srd.records || {}).skill || {};
@@ -141,12 +237,21 @@ function buildSkills(srd) {
   }
 
   const skill = {};
-  const removed = new Set();
+  const reecrits = new Set();
 
-  for (const entry of SKILLS_REMOVED) {
-    srdRecord(srd, "skill", entry.target, `le retrait « ${entry.target} »`);
-    skill[entry.target] = { op: "disable", reason: entry.reason };
-    removed.add(entry.target);
+  assertPasDeDoublon(SKILLS_REWRITTEN, SKILLS_ADDED, "skill");
+
+  for (const entry of SKILLS_REWRITTEN) {
+    skill[entry.target] = gesteDeReecriture(srd, "skill", entry, {
+      changes: {
+        "data.category": assertCategory(entry.category, entry.target),
+        /* `data[example_uses]`, PAS `data.example_uses` : la grammaire des
+           chemins n'admet pas l'underscore après un point (voir la note des
+           trois re-caractérisations plus bas). */
+        "data[example_uses]": entry.exampleUses
+      }
+    });
+    reecrits.add(entry.target);
   }
 
   for (const entry of SKILLS_ADDED) {
@@ -174,9 +279,9 @@ function buildSkills(srd) {
      texte, le coût, tout le reste reste au SRD, inchangé. */
   for (const entry of SKILLS_KEPT_CATEGORIES) {
     srdRecord(srd, "skill", entry.target, `la catégorie de « ${entry.target} »`);
-    if (removed.has(entry.target)) {
-      fail(`« ${entry.target} » reçoit une catégorie ET un retrait — une compétence RETIRÉE n'a plus de colonne ` +
-        "où ranger quoi que ce soit.");
+    if (reecrits.has(entry.target)) {
+      fail(`« ${entry.target} » reçoit une catégorie ICI ET une réécriture — sa catégorie est posée par ` +
+        "la réécriture, qui la déclare avec son nom. Deux écrivains pour la même case.");
     }
     if (skill[entry.target]) {
       fail(`« ${entry.target} » reçoit un patch de catégorie en plus d'un autre traitement de cette couche — ` +
@@ -189,33 +294,52 @@ function buildSkills(srd) {
     };
   }
 
-  /* LE GARDE QUI COMPTE. Toute compétence du SRD est soit retirée, soit
-     conservée — et « conservée » veut dire un patch ÉTROIT qui ne pose que
-     sa catégorie (lot 35 ; avant ce lot, ABSENTE de cette couche). Ce qu'on
-     vérifie ici, c'est qu'aucune n'est arrivée sans qu'on sache quoi en
-     faire, ET qu'aucune conservée n'est restée sans catégorie — une
-     compétence orpheline disparaîtrait silencieusement de l'écran. */
-  const kept = srdIds.filter((id) => !removed.has(id));
+  /* LE GARDE QUI COMPTE. Toute compétence du SRD est soit RÉÉCRITE en son
+     héritière, soit conservée — et « conservée » veut dire un patch ÉTROIT
+     qui ne pose que sa catégorie (lot 35 ; avant ce lot, ABSENTE de cette
+     couche). Ce qu'on vérifie ici, c'est qu'aucune n'est arrivée sans qu'on
+     sache quoi en faire, ET qu'aucune n'est restée sans catégorie — une
+     compétence orpheline disparaîtrait silencieusement de l'écran.
+     ⭐ 2026-09-09 — AUCUNE N'EST PLUS RETIRÉE : les 18 records du SRD sont
+     tous dans la pile, et `kept` vaut donc 18. Le total ne bouge pas (26),
+     parce que Vigilance a changé de côté : elle est passée des ajouts aux
+     conservées. Un total juste ne dit rien du contenu — c'est la liste
+     nommée, dans la suite, qui le dit. */
+  const kept = [...srdIds];
   const total = kept.length + SKILLS_ADDED.length;
   if (total !== EXPECTED.skills) {
     fail(`la couche rend ${total} compétences (${kept.length} conservées du SRD + ${SKILLS_ADDED.length} ` +
       `neuves), la source en attend ${EXPECTED.skills}.`);
   }
-  const sansCategorie = kept.filter((id) => !skill[id] || skill[id].op !== "patch");
+  /* ⛔ LE GARDE LIT LA DONNÉE, PAS LA FORME. Il vérifiait `op === "patch"` :
+     un patch qui ne posait AUCUNE catégorie serait passé, et la compétence
+     aurait disparu de l'écran avec un garde vert. On regarde donc la case
+     elle-même — c'est elle qui décide de la colonne. */
+  const sansCategorie = kept.filter((id) => {
+    const geste = skill[id];
+    if (!geste || geste.op !== "patch") return true;
+    return !SKILL_CATEGORIES.includes((geste.changes || {})["data.category"]);
+  });
   if (sansCategorie.length > 0) {
     fail(`ces compétences conservées du SRD n'ont pas de catégorie déclarée : ${sansCategorie.join(", ")}. ` +
       "Une compétence sans `category` disparaîtrait silencieusement de l'écran (loi §0.5).");
   }
 
+  /* ⛔ ET LE GARDE REFUSE AUSSI UN RECORD ÉTEINT, pas seulement un record
+     absent. Un `disable` posé ici sur l'un des trois ids de Keen Senses
+     laisserait `skill[id]` défini et le garde vert, pendant que le `ref` de
+     l'Elfe tomberait dans le vide à la dérivation — la faute exacte que ce
+     lot répare, réinstallée dans son propre garde. */
   for (const id of CLAIMED_BY_OTHER_LAYERS) {
-    if (!skill[id]) {
-      fail(`« ${id} » est déjà référencé par une autre couche commitée (le \`granted_skill_choice\` de ` +
-        "l'Elestu, dans `fh-species-en`), et cette couche-ci ne le produit pas. Le `ref` serait mort — " +
-        "et il ne se verrait qu'à la dérivation, sur la fiche d'un joueur.");
+    const geste = skill[id];
+    if (!geste || geste.op === "disable") {
+      fail(`« ${id} » est déjà référencé par une autre couche commitée (le \`granted_skill_budget\` de ` +
+        `Keen Senses, dans \`fh-species-en\`), et cette couche-ci ${geste ? "l'ÉTEINT" : "ne le produit pas"}. ` +
+        "Le `ref` serait mort — et il ne se verrait qu'à la dérivation, sur la fiche d'un joueur.");
     }
   }
 
-  return { skill, kept: kept.length, added: SKILLS_ADDED.length, total };
+  return { skill, kept: kept.length, added: SKILLS_ADDED.length, total, rewritten: reecrits.size };
 }
 
 /* ══ LES OUTILS ════════════════════════════════════════════════════════ */
@@ -227,12 +351,20 @@ function buildTools(srd) {
   }
 
   const tool = {};
-  const removed = new Set();
+  const reecrits = new Set();
 
-  for (const entry of TOOLS_REMOVED) {
-    srdRecord(srd, "tool", entry.target, `le retrait « ${entry.target} »`);
-    tool[entry.target] = { op: "disable", reason: entry.reason };
-    removed.add(entry.target);
+  assertPasDeDoublon(TOOLS_REWRITTEN, TOOLS_ADDED, "tool");
+
+  for (const entry of TOOLS_REWRITTEN) {
+    tool[entry.target] = gesteDeReecriture(srd, "tool", entry, {
+      /* ⛔ `variants` PART. C'est la prose du SRD qui énumère les quatre jeux
+         (ou les dix instruments) : sur un record qui s'appelle désormais
+         « Dice Set », elle affirmerait qu'un jeu de dés se décline en cartes.
+         Un retrait dans le vide est un échec bruyant (§L7.2), donc cette
+         ligne tient AUSSI lieu de garde sur la forme du record SRD. */
+      remove: ["data[variants]"]
+    });
+    reecrits.add(entry.target);
   }
 
   /* LES TROIS RE-CARACTÉRISATIONS. La source déclare `was` — la
@@ -244,6 +376,10 @@ function buildTools(srd) {
      contre la source, et c'est exactement ce qu'une couche ne doit pas faire. */
   for (const entry of TOOLS_RECHARACTERISED) {
     const record = srdRecord(srd, "tool", entry.target, `la re-caractérisation « ${entry.target} »`);
+    if (reecrits.has(entry.target)) {
+      fail(`« ${entry.target} » est RÉÉCRIT et re-caractérisé — deux gestes de cette couche sur le même ` +
+        "record, et le second écraserait la note du premier sans qu'on sache lequel a gagné.");
+    }
     const current = ((record.data || {}).ability_key) || null;
     if (current !== entry.was) {
       fail(`« ${entry.target} » porte au SRD la caractéristique « ${current} », alors que la source ` +
@@ -284,15 +420,22 @@ function buildTools(srd) {
        c'est une phrase du SRD, et la seule façon honnête de la porter est de
        la prendre à sa source à chaque génération.
 
-       ⚠️ Le parent est un record que cette même couche RETIRE. Ce n'est pas
-       une contradiction : le retrait vaut pour la pile que le personnage
-       monte, la lecture a lieu ici, à la génération, sur la couche SRD brute. */
+       ⭐ 2026-09-09 — LE PARENT SURVIT, ET IL EST DEVENU L'UN D'EUX. La lecture
+       a toujours lieu ici, sur la couche SRD brute ; ce qui a changé, c'est que
+       le record lu reste dans la pile sous le nom de son héritier. */
     if (entry.inherits) {
       const parent = srdRecord(srd, "tool", entry.inherits,
         `l'outil « ${entry.name} », qui hérite son usage de « ${entry.inherits} »`);
-      if (!removed.has(entry.inherits)) {
-        fail(`« ${entry.name} » éclate « ${entry.inherits} », que la source ne retire pas. Garder le ` +
-          "record générique à côté de ses héritiers doublerait chaque maîtrise.");
+      /* ⛔ LE GARDE A CHANGÉ DE LOI, PAS DE FORCE. Il exigeait que le parent
+         soit RETIRÉ ; il exige maintenant qu'il soit RÉÉCRIT. Ce qu'il défend
+         est identique : un record GÉNÉRIQUE laissé à côté de ses héritiers
+         doublerait chaque maîtrise — un personnage compétent au Dice Set le
+         serait aussi au « Gaming Set ». La réécriture est la seule autre façon
+         de faire disparaître le générique, et elle a l'avantage de ne casser
+         aucune référence. */
+      if (!reecrits.has(entry.inherits)) {
+        fail(`« ${entry.name} » éclate « ${entry.inherits} », que la source ne réécrit pas en l'un de ses ` +
+          "héritiers. Garder le record générique à côté d'eux doublerait chaque maîtrise.");
       }
       const utilize = (parent.data || {}).utilize;
       if (typeof utilize !== "string" || utilize.length === 0) {
@@ -307,14 +450,17 @@ function buildTools(srd) {
     tool[id] = { name: entry.name, slug: entry.slug, data };
   }
 
-  const kept = srdIds.filter((id) => !removed.has(id));
+  /* ⭐ 2026-09-09 — LES 25 OUTILS DU SRD SONT TOUS DANS LA PILE : aucun n'est
+     plus éteint, deux sont réécrits. Le total ne bouge pas (36), parce que les
+     deux héritiers ont changé de côté. */
+  const kept = [...srdIds];
   const total = kept.length + TOOLS_ADDED.length;
   if (total !== EXPECTED.tools) {
     fail(`la couche rend ${total} outils (${kept.length} conservés du SRD + ${TOOLS_ADDED.length} ` +
       `neufs), la source en attend ${EXPECTED.tools}.`);
   }
 
-  return { tool, kept: kept.length, added: TOOLS_ADDED.length, total };
+  return { tool, kept: kept.length, added: TOOLS_ADDED.length, total, rewritten: reecrits.size };
 }
 
 /* ══ LES POOLS DE POINTS, POSÉS SUR LES DOUZE CLASSES ══════════════════
@@ -357,8 +503,12 @@ const LISTES_DICTEES = Object.freeze({
   ])
 });
 
+/* ⭐ 2026-09-09 — CET ID EST DEVENU CELUI DE VIGILANCE. Il ne quitte plus la
+   liste d'une classe : il y reste, sous son nouveau nom. Ce qui s'ajoute
+   autour de lui, ce sont les DEUX AUTRES membres du trio d'Eric. Le nom de la
+   constante dit d'où l'id vient ; le commentaire dit ce qu'il porte. */
 const PERCEPTION_ID = "srd:skill:en:perception";
-const TRIO_DE_CLASSE = Object.freeze(["fh:skill:en:delve", "fh:skill:en:vigilance", "srd:skill:en:survival"]);
+const TRIO_DE_CLASSE = Object.freeze(["fh:skill:en:delve", PERCEPTION_ID, "srd:skill:en:survival"]);
 
 function buildClasses(srd, skillIdsDeLaPile) {
   const srdClasses = (srd.records || {}).class || {};
@@ -474,15 +624,22 @@ function buildClasses(srd, skillIdsDeLaPile) {
       }
     }
 
-    /* ══ LA LISTE DE CLASSE NE PEUT PLUS NOMMER PERCEPTION — Eric, 2026-08-20,
+    /* ══ LÀ OÙ LA LISTE DE CLASSE NOMMAIT PERCEPTION — Eric, 2026-08-20,
        en une ligne : *« Delve, Vigilance, Survival »*.
 
-       🔴 CE QUE ÇA RÉPARE, ET C'ÉTAIT UN TROU SILENCIEUX. Cette couche ÉTEINT
-       Perception (`SKILLS_REMOVED`) et la remplace par trois compétences. Mais
-       cinq listes de classe du SRD la NOMMAIENT encore — et une liste qui
-       désigne un record éteint ne provoque aucun refus : l'option disparaît,
-       simplement. Mesuré sur le Rogue : dix compétences déclarées, NEUF
-       offertes, et rien nulle part ne disait laquelle manquait.
+       🔴 CE QUE ÇA RÉPARAIT, ET C'ÉTAIT UN TROU SILENCIEUX. Cette couche
+       ÉTEIGNAIT Perception, et cinq listes de classe du SRD la NOMMAIENT
+       encore — une liste qui désigne un record éteint ne provoque aucun refus :
+       l'option disparaît, simplement. Mesuré sur le Rogue : dix compétences
+       déclarées, NEUF offertes, et rien nulle part ne disait laquelle manquait.
+
+       ⭐ 2026-09-09 — LE TROU S'EST REFERMÉ TOUT SEUL, ET C'EST LE LOT 185.
+       `srd:skill:en:perception` n'est plus éteint : il est RÉÉCRIT en Vigilance.
+       Les cinq listes le nomment donc toujours, et il désigne toujours quelque
+       chose. Ce qui reste à faire ici n'est plus un remplacement, c'est un
+       AJOUT : les deux autres membres du trio d'Eric viennent se poser à côté
+       de lui. Le garde qui confronte chaque membre à la pile reste, entier —
+       Delve, lui, est bien un record neuf, et il peut toujours manquer.
 
        ⭐ ET LE TRIO EST CELUI D'ERIC, PAS CELUI DE LA SPLIT. La description de
        cette couche dit que Perception se scinde en *Vigilance, Delve et
@@ -492,8 +649,9 @@ function buildClasses(srd, skillIdsDeLaPile) {
        dit ce qu'une classe sait faire.
 
        ⛔ SANS DOUBLON ET SANS DÉPLACEMENT : Survival est DÉJÀ dans quatre des
-       cinq listes ; elle y garde sa place, et seul le Rogue la gagne. Les deux
-       neuves prennent celle de Perception, là où elle était.
+       cinq listes ; elle y garde sa place, et seul le Rogue la gagne. Vigilance
+       garde la place que Perception occupait — c'est le même record —, et Delve
+       se pose juste après elle.
        ⚠️ CHAQUE MEMBRE DU TRIO EST CONFRONTÉ À LA COUCHE, jamais cru sur parole
        — même discipline que les grants juste au-dessus : une liste qui offrirait
        une compétence inexistante rejouerait exactement le trou qu'on referme. */
@@ -520,12 +678,15 @@ function buildClasses(srd, skillIdsDeLaPile) {
       }
       listeFh = [];
       for (const id of listeSrd) {
+        if (!listeFh.includes(id)) listeFh.push(id);
+        /* ⭐ L'ID DE PERCEPTION RESTE À SA PLACE — il porte Vigilance depuis la
+           réécriture. Ce sont les DEUX AUTRES membres du trio qui s'insèrent
+           juste après lui, et seulement s'ils ne sont pas déjà dans la liste
+           du SRD (Survival y est dans quatre listes sur cinq). */
         if (id === PERCEPTION_ID) {
           for (const neuf of TRIO_DE_CLASSE) {
             if (!listeFh.includes(neuf) && !listeSrd.includes(neuf)) listeFh.push(neuf);
           }
-        } else if (!listeFh.includes(id)) {
-          listeFh.push(id);
         }
       }
       for (const neuf of TRIO_DE_CLASSE) if (!listeFh.includes(neuf)) listeFh.push(neuf);
@@ -687,7 +848,7 @@ export function buildLayer({ srd }) {
         "https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution " +
         "4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode. " +
         "Portions of the SRD material — including the Perception skill, the Gaming Set and the Musical " +
-        "Instrument — have been removed, split or modified for this work."
+        "Instrument — have been renamed, split or modified for this work."
     },
     description: LAYER.description,
     records: {
@@ -718,9 +879,9 @@ export function generate({ outDir = OUT_DIR, srdPath = SRD_PATH } = {}) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { outPath, skills, tools, classes } = generate();
-  console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD + ${skills.added} neuves), ` +
-    `${tools.total} outils (${tools.kept} SRD + ${tools.added} neufs), ` +
-    `${classes.total} pools de classe → ${outPath}`);
+  console.log(`fh-skills : ${skills.total} compétences (${skills.kept} SRD dont ${skills.rewritten} réécrite(s) ` +
+    `+ ${skills.added} neuves), ${tools.total} outils (${tools.kept} SRD dont ${tools.rewritten} réécrits ` +
+    `+ ${tools.added} neufs), ${classes.total} pools de classe → ${outPath}`);
 }
 
 export { OUT_NAME, SRD_PATH };

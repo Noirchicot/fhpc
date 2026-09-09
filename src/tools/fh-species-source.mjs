@@ -213,20 +213,34 @@ const FAST_LEARNER = { trait: "fast-learner", by_level: { 1: 2, 3: 2, 6: 2 } };
    garde son nom SRD et change de monnaie. */
 const SKILLFUL_TEXT = "You gain 2 skill points at character creation.";
 
-/* ── PERCEPTION N'EXISTE PAS DANS FATE'S HAND ────────────────────────
+/* ── PERCEPTION N'EXISTE PLUS SOUS CE NOM DANS FATE'S HAND ───────────
    Elle est remplacée par trois compétences : Vigilance (danger immédiat),
    Delve (bâti / urbain) et Survival (naturel). C'est pour ça que « Keen
    Senses » pointe vers ces trois-là — et cette forme vaut pour TOUTES les
    espèces FH qui portent le trait (Elfe, Elestu).
 
-   ⚠️ Les deux compétences neuves n'existent pas encore : le chapitre des
-   compétences est un lot d'après. Ces deux ids sont donc une AVANCE, et le
-   lot des compétences doit les honorer tels quels sous peine de laisser deux
-   références pendantes. Question Q15-3. */
+   🔴 2026-09-09 — VIGILANCE A CHANGÉ D'ID, ET C'EST LE LOT 185. Eric : *« au
+   lieu de soustraire, réécrit. »* `fh-skills-en` n'ÉTEINT plus le record
+   `srd:skill:en:perception` pour poser une `fh:skill:en:vigilance` à côté :
+   elle le RÉÉCRIT en Vigilance, même id. L'héritière n'existe donc plus qu'à
+   UN endroit, et c'est celui-ci qu'il faut désigner.
+
+   ⛔ SANS CE CHANGEMENT, LE `ref` SERAIT MORT — et il ne se serait vu qu'à la
+   dérivation, sur la fiche d'un joueur : `granted_skill_budget.from` aurait
+   nommé un record que la pile ne porte plus, et l'option aurait disparu du
+   budget de Keen Senses en silence. C'est exactement la faute que la
+   réécriture supprime partout ailleurs.
+
+   ⭐ ET CETTE LISTE N'A QU'UN ÉCRIVAIN. `gen-fh-skills-layer.mjs` la LIT ici
+   (au lieu d'en garder une recopie de deux ids, ce qu'il faisait jusqu'au
+   2026-09-09) et refuse de produire une couche qui n'honorerait pas chacun de
+   ses membres. Une recopie serait restée verte en gardant l'ancien id.
+
+   ⚠️ Le TEXTE ne bouge pas : le record réécrit s'appelle « Vigilance ». */
 export const KEEN_SENSES_SKILLS = [
   "srd:skill:en:survival",
   "fh:skill:en:delve",
-  "fh:skill:en:vigilance"
+  "srd:skill:en:perception"
 ];
 export const KEEN_SENSES_TEXT = "You have proficiency in the Survival, Delve, or Vigilance skill.";
 

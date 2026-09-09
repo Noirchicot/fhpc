@@ -56,8 +56,14 @@ import {
 import {
   EXPECTED,
   SKILLS_ADDED,
-  TOOLS_ADDED
+  SKILLS_REWRITTEN,
+  TOOLS_ADDED,
+  TOOLS_REWRITTEN
 } from "../src/tools/fh-skills-source.mjs";
+/* LOT 185 — la liste des `ref` de Keen Senses, LÀ OÙ ELLE VIT. Le générateur
+   la lit au même endroit ; c'est ce qui rend la mutation de son garde
+   possible sans en recopier une seconde version ici. */
+import { KEEN_SENSES_SKILLS } from "../src/tools/fh-species-source.mjs";
 
 const FH_SKILLS_EN = "layers/fh-skills-en.layer.json";
 const SRD_PATH = join(ROOT, SRD_EN);
@@ -77,10 +83,13 @@ const LES_26 = [
   ["Performance", "cha"], ["Persuasion", "cha"], ["Streetwise", "cha"]
 ];
 
-/** Les 9 neuves, avec la caractéristique que le chapitre leur donne. */
-const LES_9_NEUVES = [
+/** Les 8 neuves, avec la caractéristique que le chapitre leur donne.
+ *  ⛔ VIGILANCE N'Y EST PLUS depuis le lot 185 : elle n'est plus un record
+ *  NEUF, elle est `srd:skill:en:perception` RÉÉCRIT. Elle a son garde à elle,
+ *  qui vérifie la même chose sur l'autre id. */
+const LES_8_NEUVES = [
   ["Might", "str"], ["Appraise", "int"], ["Academics", "int"], ["Tactics", "int"],
-  ["Hunting", "wis"], ["Vigilance", "wis"], ["Delve", "wis"],
+  ["Hunting", "wis"], ["Delve", "wis"],
   ["Streetwise", "cha"], ["Leadership", "cha"]
 ];
 
@@ -135,21 +144,67 @@ test("acceptation 1 — la pile rend les 26 compétences, nommément et avec leu
     "les 26 compétences, chacune avec sa caractéristique — pas un compte, une liste");
 });
 
-test("acceptation 1 — Perception a disparu, et c'est un `disable` : le record SRD est intact", () => {
-  const verbs = pile();
-  assert.equal(verbs.query({ kind: "skill", id: "srd:skill:en:perception" }), null,
-    "Perception ne doit plus être visible de la pile");
+/* ══ LA RÉÉCRITURE — LE GARDE QUI PORTE LE LOT 185 ═════════════════════
+   🔴 Eric, 2026-09-09 : *« Eh bien au lieu de soustraire, réécrit. »*
 
-  /* Le record d'origine n'est pas modifié : c'est la promesse du `disable`,
-     et c'est ce qui permet à une pile SRD pure de le retrouver (test 4). */
+   ⚠️ CE GARDE ENCODAIT LA LOI D'HIER, et c'est pour ça qu'il est réécrit et
+   pas desserré. Il exigeait que Perception ait DISPARU (`op: "disable"`) ; il
+   exige maintenant qu'elle SURVIVE sous le nom de son héritière. L'exigence
+   n'a pas faibli d'un cran : elle a changé de cible.
+
+   ⭐ ET C'EST LA SURVIE DE L'ID QUI EST LE SUJET. Un record éteint emporte
+   silencieusement toute référence qui le nomme ; un record réécrit n'en casse
+   aucune. C'est ce que ce test achète, et rien d'autre. */
+test("🔴 LOT 185 — Perception est RÉÉCRITE en Vigilance : le record SRD survit, c'est un `patch`", () => {
+  const verbs = pile();
+  const vue = verbs.query({ kind: "skill", id: "srd:skill:en:perception" });
+  assert.ok(vue, "⛔ le record du SRD doit RESTER dans la pile — c'est lui qui porte Vigilance");
+  assert.equal(vue.record.name, "Vigilance", "et il porte le nom de son héritière");
+  assert.equal(vue.record.data.name, "Vigilance",
+    "⛔ les DEUX noms du record, pas un seul : l'écran lit `data.name` là où le menu lit la racine");
+  /* ⚠️ LE SLUG EST LA CLEF DU DOCUMENT (`resolved.skills[].id`,
+     `src/build/skills.mjs`). Le laisser sur « perception » imprimerait
+     `perception` sur la fiche d'un personnage Fate's Hand. */
+  assert.equal(vue.record.slug, "vigilance", "et son slug suit son nom, pas son id");
+  assert.equal(vue.record.data.ability_key, "wis");
+  assert.equal(vue.record.data.category, "exploration");
+
+  /* ⛔ ET LE GESTE EST BIEN UN `patch`, LU DANS LA COUCHE. Sans cette moitié,
+     un `add` qui écraserait le record du SRD passerait aussi — et il aurait
+     coupé le lien avec la couche du dessous. */
+  const couche = JSON.parse(readFileSync(join(ROOT, FH_SKILLS_EN), "utf8"));
+  assert.equal(couche.records.skill["srd:skill:en:perception"].op, "patch",
+    "⛔ un `patch`, jamais un `disable` : c'est le geste qui laisse l'id vivant");
+
+  /* Le record d'origine n'est pas modifié : c'est la promesse du `patch`,
+     et c'est ce qui permet à une pile SRD pure de retrouver Perception. */
   const srd = readSrdLayer(SRD_PATH);
-  assert.ok(srd.records.skill["srd:skill:en:perception"],
-    "le retrait est une opération de pile, pas une mutation de la couche du dessous");
+  assert.equal(srd.records.skill["srd:skill:en:perception"].name, "Perception",
+    "la réécriture est une opération de pile, pas une mutation de la couche du dessous");
 });
 
-test("acceptation 1 — les 9 neuves portent chacune leur caractéristique", () => {
+test("🔴 LOT 185 — Vigilance n'existe qu'UNE fois : l'ajout `fh:` a disparu au profit du SRD réécrit", () => {
+  /* ⛔ LE PIÈGE CENTRAL DU LOT, ET IL EST INVISIBLE AUX TOTAUX. Vigilance
+     vivait dans `SKILLS_ADDED` sous `fh:skill:en:vigilance`. Lui donner le
+     record SRD sans l'ôter de la liste des ajouts aurait rendu DEUX records
+     pour la même compétence — et le compte serait passé de 26 à 27 sans que
+     personne sache lequel des deux le joueur choisit.
+     ⚠️ Le total (26) ne dit rien de ça : 18 + 9 = 27 est une arithmétique
+     aussi juste que 18 + 8 = 26. C'est le doublon NOMMÉ qui le dit. */
   const verbs = pile();
-  for (const [nom, ability] of LES_9_NEUVES) {
+  assert.equal(verbs.query({ kind: "skill", id: "fh:skill:en:vigilance" }), null,
+    "⛔ l'ancien id d'ajout ne doit plus exister — sinon Vigilance serait deux compétences");
+  assert.equal(SKILLS_ADDED.some((e) => e.slug === "vigilance" || e.name === "Vigilance"), false,
+    "⛔ ni dans la source : la liste des ajouts ne peut pas redéclarer un héritier réécrit");
+
+  const vigilances = verbs.query({ kind: "skill" }).filter((v) => v.record.name === "Vigilance");
+  assert.equal(vigilances.length, 1, "une seule Vigilance dans toute la pile");
+  assert.equal(vigilances[0].id, "srd:skill:en:perception", "et c'est le record du SRD, réécrit");
+});
+
+test("acceptation 1 — les 8 neuves portent chacune leur caractéristique", () => {
+  const verbs = pile();
+  for (const [nom, ability] of LES_8_NEUVES) {
     const slug = nom.toLowerCase();
     const vue = verbs.query({ kind: "skill", id: `fh:skill:en:${slug}` });
     assert.ok(vue, `« ${nom} » doit exister sous l'id fh:skill:en:${slug}`);
@@ -158,6 +213,16 @@ test("acceptation 1 — les 9 neuves portent chacune leur caractéristique", () 
     assert.ok(typeof vue.record.data.example_uses === "string" && vue.record.data.example_uses.length > 0,
       `« ${nom} » doit porter sa description`);
   }
+
+  /* ⛔ ET L'HÉRITIÈRE RÉÉCRITE PASSE LA MÊME INSPECTION, sur son autre id.
+     Sans cette moitié, sortir Vigilance de la liste des neuves l'aurait sortie
+     du contrôle en même temps — un garde qu'on allège en déplaçant son sujet
+     est un garde qu'on desserre. */
+  const vigilance = verbs.query({ kind: "skill", id: "srd:skill:en:perception" });
+  assert.equal(vigilance.record.name, "Vigilance");
+  assert.equal(vigilance.record.data.ability_key, "wis", "la caractéristique de « Vigilance »");
+  assert.match(vigilance.record.data.example_uses, /threat detection/,
+    "« Vigilance » porte SA description, pas celle que Perception avait au SRD");
 });
 
 /* ══ LE RANGEMENT — QUATRE CATÉGORIES (lot 35) ═══════════════════════ */
@@ -249,7 +314,7 @@ test("ATTAQUE — l'assertion rougit aussi sur une caractéristique déplacée",
   assert.notDeepEqual(observé, truqué, "et l'assertion doit quand même rougir");
 });
 
-test("acceptation 1 — les 36 outils de CETTE couche, nommément ; les deux génériques sont partis", () => {
+test("acceptation 1 — les 36 outils de CETTE couche, nommément ; les deux génériques sont RÉÉCRITS", () => {
   /* 🔴 36 DEPUIS LE LOT 179, ET LE 37ᵉ N'A PAS DISPARU — il a changé de
      couche. `Soulforging` est parti dans `fh-soulforging-en` pour que le
      chapitre `Soulforge Crafting` s'éteigne sans emporter le pool de points
@@ -264,10 +329,46 @@ test("acceptation 1 — les 36 outils de CETTE couche, nommément ; les deux gé
   assert.equal(verbs.query({ kind: "tool", id: "fh:tool:en:soulforging" }), null,
     "⛔ le Soulforging ne doit plus être dans CETTE couche — sinon il serait dans les deux");
 
-  assert.equal(verbs.query({ kind: "tool", id: "srd:tool:en:gaming-set" }), null,
-    "le Gaming Set générique est éclaté en quatre, il ne doit pas rester à côté d'eux");
-  assert.equal(verbs.query({ kind: "tool", id: "srd:tool:en:musical-instrument" }), null,
-    "le Musical Instrument générique est éclaté en trois");
+  /* ══ 🔴 LOT 185 — LES DEUX GÉNÉRIQUES NE MEURENT PLUS, ILS DEVIENNENT ═══
+     ⚠️ LE GARDE A CHANGÉ DE LOI, PAS DE FORCE. Il exigeait `query(...) === null`
+     — le générique éteint. Il exige maintenant que le record SURVIVE sous le
+     nom de son héritier : ce qu'il défend est le même (aucun record GÉNÉRIQUE
+     à côté de ses héritiers, sans quoi chaque maîtrise doublerait), mais la
+     réécriture y arrive sans casser les deux rangements de `srfh-shelving-en`
+     qui pointent vers ces ids.
+     ⭐ Héritiers tranchés par Eric le 2026-09-09 : les DÉS et les CORDES. */
+  const attenduReecrit = [
+    ["srd:tool:en:gaming-set", "Dice Set", "gaming-set-dice", "wis"],
+    ["srd:tool:en:musical-instrument", "Instrument (Strings)", "instrument-strings", "cha"]
+  ];
+  for (const [id, nom, slug, ability] of attenduReecrit) {
+    const vue = verbs.query({ kind: "tool", id });
+    assert.ok(vue, `⛔ « ${id} » doit RESTER dans la pile — c'est lui qui porte « ${nom} »`);
+    assert.equal(vue.record.name, nom);
+    assert.equal(vue.record.data.name, nom, "les DEUX noms du record, pas un seul");
+    assert.equal(vue.record.slug, slug, "et son slug suit son nom, pas son id");
+    assert.equal(vue.record.data.ability_key, ability);
+    /* ⛔ `variants` EST PARTI. La prose du SRD y énumère les quatre jeux : sur
+       un record nommé « Dice Set » elle affirmerait qu'un jeu de dés se décline
+       en cartes. C'est du contenu devenu faux, pas une décoration. */
+    assert.equal(vue.record.data.variants, undefined,
+      `« ${nom} » ne peut plus porter la liste des variantes du générique`);
+    /* ⭐ MAIS SON `utilize` RESTE — c'est la phrase du SRD, et l'héritier joue
+       toujours au même jeu. C'est elle que les autres héritiers vont lire. */
+    assert.ok(typeof vue.record.data.utilize === "string" && vue.record.data.utilize.length > 0);
+  }
+
+  /* ⛔ ET LES DEUX ANCIENS AJOUTS N'EXISTENT PLUS — le doublon, mesuré par son
+     absence. Deux records du même nom auraient laissé le total à 36 en donnant
+     au joueur deux fois les mêmes dés. */
+  for (const mort of ["fh:tool:en:gaming-set-dice", "fh:tool:en:instrument-strings"]) {
+    assert.equal(verbs.query({ kind: "tool", id: mort }), null,
+      `⛔ « ${mort} » ne doit plus exister : son record est celui du SRD, réécrit`);
+  }
+  for (const nom of ["Dice Set", "Instrument (Strings)"]) {
+    assert.equal(verbs.query({ kind: "tool" }).filter((v) => v.record.name === nom).length, 1,
+      `un seul « ${nom} » dans toute la couche`);
+  }
 });
 
 test("🔴 LOT 179 — la PILE RÉELLE porte toujours les 37, et le 37ᵉ vient de `fh-soulforging-en`", () => {
@@ -315,11 +416,17 @@ test("acceptation 1 — les trois outils re-caractérisés le sont, et rien d'au
   }
 });
 
-test("acceptation 1 — les sept outils éclatés héritent l'usage de leur parent SRD, mot pour mot", () => {
+test("acceptation 1 — les cinq outils éclatés héritent l'usage de leur parent SRD, mot pour mot", () => {
+  /* 🔴 CINQ DEPUIS LE LOT 185, ET LES DEUX MANQUANTS NE SONT PAS PERDUS : les
+     dés et les cordes SONT leurs parents, réécrits. Ils n'ont pas à hériter
+     d'un usage — ils le portent déjà, puisque c'est leur record.
+     ⛔ Un compte qui baisse ne dit pas lequel des deux : c'est la seconde
+     moitié de ce test qui le dit, en allant chercher les sept usages là où ils
+     vivent désormais. */
   const verbs = pile();
   const srd = readSrdLayer(SRD_PATH);
   const hérités = TOOLS_ADDED.filter((e) => e.inherits);
-  assert.equal(hérités.length, 7, "quatre jeux et trois familles d'instruments");
+  assert.equal(hérités.length, 5, "trois jeux et deux familles d'instruments");
 
   for (const entry of hérités) {
     const vue = verbs.query({ kind: "tool", id: `fh:tool:en:${entry.slug}` });
@@ -327,6 +434,25 @@ test("acceptation 1 — les sept outils éclatés héritent l'usage de leur pare
     assert.equal(vue.record.data.utilize, srd.records.tool[entry.inherits].data.utilize,
       `« ${entry.name} » porte l'usage de son parent, LU dans le SRD et jamais recopié à la main`);
   }
+
+  /* ⛔ ET LES SEPT PORTENT LE MÊME USAGE QUE LEUR SOUCHE — les cinq héritiers
+     ET les deux réécrits. C'est la garantie de départ, entière : sortir deux
+     outils de la liste des ajouts ne peut pas les sortir du contrôle. */
+  const familles = [
+    ["srd:tool:en:gaming-set", ["fh:tool:en:gaming-set-cards", "fh:tool:en:gaming-set-dragonchess",
+      "fh:tool:en:gaming-set-three-dragon"]],
+    ["srd:tool:en:musical-instrument", ["fh:tool:en:instrument-wind", "fh:tool:en:instrument-other"]]
+  ];
+  let comptés = 0;
+  for (const [souche, freres] of familles) {
+    const usage = srd.records.tool[souche].data.utilize;
+    for (const id of [souche, ...freres]) {
+      assert.equal(verbs.query({ kind: "tool", id }).record.data.utilize, usage,
+        `« ${id} » porte l'usage de sa souche, y compris le record réécrit lui-même`);
+      comptés += 1;
+    }
+  }
+  assert.equal(comptés, 7, "quatre jeux et trois familles d'instruments, répartis sur deux gestes");
 });
 
 test("acceptation 1 — les six outils Fate's Hand purs n'inventent aucun usage", () => {
@@ -359,22 +485,35 @@ test("acceptation 1 — les six outils Fate's Hand purs n'inventent aucun usage"
     "« Soulforging » : le canon ne donne pas d'usage, et le déménagement n'en invente pas");
 });
 
-test("acceptation 1 — les deux `ref` que la couche des espèces avait déjà pris sont vivants", () => {
-  /* `fh-species-en` a été écrite AVANT celle-ci et pointe vers deux de ses
+test("acceptation 1 — les trois `ref` que la couche des espèces a pris sont vivants", () => {
+  /* `fh-species-en` a été écrite AVANT celle-ci et pointe vers trois de ses
      records. Un `ref` mort ne se verrait qu'à la dérivation, sur la fiche d'un
-     joueur : on le vérifie ici. */
+     joueur : on le vérifie ici.
+     🔴 LOT 185 — VIGILANCE A CHANGÉ D'ID EN COURS DE ROUTE, et c'est le
+     danger que ce lot devait mesurer : elle est passée de `fh:skill:en:vigilance`
+     à `srd:skill:en:perception` réécrit. `KEEN_SENSES_SKILLS` l'a suivie, et le
+     générateur LIT cette liste là où elle vit au lieu d'en garder une recopie —
+     une recopie serait restée verte en désignant l'ancien id. */
   const verbs = pile();
   const elestu = JSON.parse(readFileSync(join(ROOT, "layers/fh-species-en.layer.json"), "utf8"))
     .records.species["fh:species:en:elestu"];
   /* LOT 34 — Keen Senses est un `granted_skill_budget` (budget captif de
      2 points), plus un `granted_skill_choice` compté. */
   const visés = elestu.data.granted_skill_budget.from;
-  assert.deepEqual(visés, ["srd:skill:en:survival", "fh:skill:en:delve", "fh:skill:en:vigilance"],
+  assert.deepEqual(visés, ["srd:skill:en:survival", "fh:skill:en:delve", "srd:skill:en:perception"],
     "le trio de Keen Senses, tel que la couche des espèces le déclare");
 
+  const noms = [];
   for (const id of visés) {
-    assert.ok(verbs.query({ kind: "skill", id }), `« ${id} » est désigné par l'Elestu et doit exister`);
+    const vue = verbs.query({ kind: "skill", id });
+    assert.ok(vue, `« ${id} » est désigné par l'Elestu et doit exister`);
+    noms.push(vue.record.name);
   }
+  /* ⛔ ET CE SONT BIEN LES TROIS QUE LE TEXTE PROMET AU JOUEUR. Un `ref` vivant
+     qui pointerait vers la mauvaise compétence est une bijection fausse : elle
+     est cohérente, et seule la seconde lecture — le NOM — l'attrape. */
+  assert.deepEqual(noms, ["Survival", "Delve", "Vigilance"],
+    "le texte de Keen Senses dit « Survival, Delve, or Vigilance » — les ids doivent rendre ces noms-là");
 });
 
 /* ══ TEST D'ACCEPTATION 4 — LE SRD PUR TRAVERSE ════════════════════════
@@ -385,12 +524,26 @@ test("acceptation 4 — couche FH débrayée, la pile rend les 18 du SRD, Percep
   const verbs = pile({ fh: false });
   assert.deepEqual(nomsTriés(verbs.query({ kind: "skill" })), [...LES_18_SRD].sort(),
     "les 18 compétences du SRD, sans rien de Fate's Hand");
-  assert.ok(verbs.query({ kind: "skill", id: "srd:skill:en:perception" }),
-    "Perception est de retour dès que la couche FH n'est plus montée");
+  /* ⛔ ET « DE RETOUR » VEUT DIRE SOUS SON NOM, PAS SEULEMENT SOUS SON ID.
+     🔴 LOT 185 — c'est LA moitié que la réécriture rendait nécessaire : depuis
+     qu'elle patche le record au lieu de l'éteindre, un `query` non nul ne prouve
+     plus rien du tout. Il faut lire le NOM et le SLUG pour savoir de quel côté
+     de la couche on se trouve. Sans ça, une réécriture qui aurait fui dans le
+     chemin commun (loi §0.12) passerait ce test au vert. */
+  const perception = verbs.query({ kind: "skill", id: "srd:skill:en:perception" });
+  assert.ok(perception, "Perception est de retour dès que la couche FH n'est plus montée");
+  assert.equal(perception.record.name, "Perception", "⛔ sous SON nom, pas sous celui de Vigilance");
+  assert.equal(perception.record.slug, "perception", "⛔ et sous son slug d'origine");
+
   assert.equal(verbs.query({ kind: "tool" }).length, EXPECTED.srdTools,
     "et les 25 outils du SRD, génériques compris");
-  assert.ok(verbs.query({ kind: "tool", id: "srd:tool:en:gaming-set" }),
-    "le Gaming Set générique aussi");
+  const jeux = verbs.query({ kind: "tool", id: "srd:tool:en:gaming-set" });
+  assert.ok(jeux, "le Gaming Set générique aussi");
+  assert.equal(jeux.record.name, "Gaming Set", "⛔ générique, pas « Dice Set »");
+  assert.ok(typeof jeux.record.data.variants === "string" && jeux.record.data.variants.length > 0,
+    "⛔ et il retrouve la liste de ses variantes, que la réécriture lui ôte");
+  assert.equal(verbs.query({ kind: "tool", id: "srd:tool:en:musical-instrument" }).record.name,
+    "Musical Instrument", "⛔ l'instrument générique aussi, pas « Instrument (Strings) »");
 });
 
 test("acceptation 4 — aucune compétence Fate's Hand ne fuit dans une pile SRD pure", () => {
@@ -618,7 +771,7 @@ test("Rogue dès le niveau 1, Bard et Ranger dès le 2, les neuf autres au nivea
   }
 });
 
-test("le patch des pools reste ÉTROIT — et la seule chose qu'il touche EN PLUS est la liste, parce que Perception est éteinte", () => {
+test("le patch des pools reste ÉTROIT — et la seule chose qu'il touche EN PLUS est la liste, où le trio d'Eric rejoint Vigilance", () => {
   /* 🔴 CE GARDE A ÉTÉ RÉÉCRIT LE 2026-08-20, ET IL DIT PLUS QU'AVANT.
      Il exigeait que `skill_choice` reste INTACT — ce qui était juste tant que
      rien de la liste ne disparaissait. Or cette couche ÉTEINT Perception, et
@@ -662,14 +815,27 @@ test("le patch des pools reste ÉTROIT — et la seule chose qu'il touche EN PLU
       const skill = verbs.query({ kind: "skill", id: skillId });
       assert.ok(skill, `${id} : sa liste offre « ${skillId} », que la pile ne porte pas — l'option se perdrait en silence`);
     }
-    /* ⭐ ET LÀ OÙ PERCEPTION ÉTAIT, LE TRIO D'ERIC EST. */
+    /* ⭐ ET LÀ OÙ PERCEPTION ÉTAIT, LE TRIO D'ERIC EST.
+       🔴 LOT 185 — L'ID DE PERCEPTION RESTE DANS LA LISTE, et c'est le contraire
+       de ce que ce garde exigeait hier. Il exigeait qu'il en SORTE, parce que la
+       couche l'éteignait ; il exige maintenant qu'il y RESTE, parce que la couche
+       le réécrit en Vigilance. Le sujet n'a pas changé d'un pouce : aucune liste
+       de classe ne doit offrir une option morte. */
     if (Array.isArray(srdChoice.from) && srdChoice.from.includes("srd:skill:en:perception")) {
-      for (const attendu of ["fh:skill:en:delve", "fh:skill:en:vigilance", "srd:skill:en:survival"]) {
+      for (const attendu of ["fh:skill:en:delve", "srd:skill:en:perception", "srd:skill:en:survival"]) {
         assert.ok(vue.record.data.skill_choice.from.includes(attendu),
           `${id} : sa liste nommait Perception, elle doit offrir « ${attendu} »`);
       }
-      assert.equal(vue.record.data.skill_choice.from.includes("srd:skill:en:perception"), false,
-        `${id} : Perception est éteinte, elle ne peut plus être offerte`);
+      /* ⛔ ET C'EST LE NOM QU'ON LIT, PAS L'ID. Un id vivant qui rendrait
+         « Perception » voudrait dire que la réécriture n'a pas eu lieu et que
+         ce garde s'est laissé rassurer par la FORME de la liste. */
+      const noms = vue.record.data.skill_choice.from
+        .map((skillId) => verbs.query({ kind: "skill", id: skillId }).record.name);
+      assert.equal(noms.includes("Perception"), false,
+        `${id} : Perception n'existe plus sous ce nom — sa place est tenue par Vigilance`);
+      for (const attendu of ["Vigilance", "Delve", "Survival"]) {
+        assert.ok(noms.includes(attendu), `${id} : le trio d'Eric, lu par les NOMS — « ${attendu} » manque`);
+      }
     }
   }
 });
@@ -719,19 +885,26 @@ test("deux générations d'affilée rendent le même octet", () => {
   }
 });
 
-test("le générateur rend bien 17 + 9 et 23 + 13 — l'arithmétique du chapitre", () => {
+test("le générateur rend bien 18 + 8 et 25 + 11 — l'arithmétique du chapitre", () => {
   /* 🔴 13 NEUFS, PAS 14, DEPUIS LE LOT 179 : le Soulforging est le
      quatorzième et il est parti dans `fh-soulforging-en`. L'arithmétique du
      LIVRE n'a pas bougé (23 + 14 = 37) — c'est celle de CETTE COUCHE qui est
      mesurée ici, et les deux ne se confondent plus depuis que le chapitre
      `Soulforge Crafting` a la sienne. */
+  /* 🔴 ET LE PARTAGE A BOUGÉ LE 2026-09-09 SANS QUE LE TOTAL BOUGE — c'est
+     exactement le cas où un total juste cache un contenu changé. La couche
+     n'ÉTEINT plus rien : les 18 compétences et les 25 outils du SRD sont tous
+     conservés, trois d'entre eux réécrits en leur héritier, et les trois
+     héritiers ont donc quitté les listes d'ajout (9 → 8, 13 → 11).
+     ⛔ Les deux comptes sont vérifiés SÉPARÉMENT du total : c'est le seul
+     montage où 26 = 18 + 8 ne peut pas être confondu avec 26 = 17 + 9. */
   const { skills, tools } = buildLayer({ srd: readSrdLayer(SRD_PATH) });
   assert.deepEqual(
-    { conservées: skills.kept, neuves: skills.added, total: skills.total },
-    { conservées: 17, neuves: 9, total: 26 });
+    { conservées: skills.kept, réécrites: skills.rewritten, neuves: skills.added, total: skills.total },
+    { conservées: 18, réécrites: 1, neuves: 8, total: 26 });
   assert.deepEqual(
-    { conservés: tools.kept, neufs: tools.added, total: tools.total },
-    { conservés: 23, neufs: 13, total: 36 });
+    { conservés: tools.kept, réécrits: tools.rewritten, neufs: tools.added, total: tools.total },
+    { conservés: 25, réécrits: 2, neufs: 11, total: 36 });
 });
 
 /** Une couche SRD amputée : la privation est DÉLIBÉRÉE, pas une pénurie de
@@ -790,6 +963,108 @@ test("REFUS — un patch d'ability dont la cible a déjà bougé au SRD fait jet
      exactement ce qu'une couche ne doit pas faire. */
   const srd = srdAmputé((s) => { s.records.tool["srd:tool:en:mason-s-tools"].data.ability_key = "int"; });
   assert.throws(() => buildLayer({ srd }), /mason-s-tools/);
+});
+
+/* ══ LES REFUS DE LA RÉÉCRITURE — LOT 185 ══════════════════════════════
+   ⚠️ CHAQUE GARDE ÉCRIT CE JOUR-LÀ EST ICI VU ROUGE. Un garde qu'on n'a pas
+   vu accuser est une intention, pas une garantie. */
+
+test("⚔️ REFUS — le DOUBLON : redéclarer Vigilance en AJOUT alors qu'elle est réécrite fait jeter", () => {
+  /* ⛔ LE PIÈGE CENTRAL DU LOT, JOUÉ POUR DE VRAI. C'est l'état exact du dépôt
+     la veille : `fh:skill:en:vigilance` en ajout ET le record SRD réécrit en
+     Vigilance. Deux records pour la même compétence, et AUCUN total ne le dit —
+     18 + 9 = 27 est une arithmétique aussi juste que 18 + 8 = 26. */
+  const srd = readSrdLayer(SRD_PATH);
+  SKILLS_ADDED.push({
+    slug: "vigilance", name: "Vigilance", ability: "wis", category: "exploration",
+    exampleUses: "Immediate threat detection: spotting ambushes or fleeting danger."
+  });
+  try {
+    assert.throws(() => buildLayer({ srd }), (err) => {
+      assert.ok(err instanceof GenError);
+      assert.match(err.message, /vigilance|Vigilance/, "le refus doit NOMMER l'héritier dupliqué");
+      assert.match(err.message, /réécri/i, "…et dire que c'est une réécriture qui le porte déjà");
+      return true;
+    });
+  } finally {
+    SKILLS_ADDED.pop();
+  }
+});
+
+test("⚔️ REFUS — le DOUBLON mord aussi sur les outils, et par le NOM autant que par le slug", () => {
+  /* ⚠️ DEUX MOITIÉS, PARCE QU'UN SLUG DIFFÉRENT NE SUFFIT PAS À DÉDOUBLONNER.
+     Un « Dice Set » ajouté sous le slug `dice-set` échapperait à un garde qui ne
+     regarderait que les slugs, et le joueur verrait deux fois le même outil. */
+  const srd = readSrdLayer(SRD_PATH);
+  for (const doublon of [
+    { slug: "gaming-set-dice", name: "Autre chose", ability: "wis", inherits: "srd:tool:en:gaming-set" },
+    { slug: "un-autre-slug", name: "Dice Set", ability: "wis", inherits: "srd:tool:en:gaming-set" }
+  ]) {
+    TOOLS_ADDED.push(doublon);
+    try {
+      assert.throws(() => buildLayer({ srd }), (err) => {
+        assert.ok(err instanceof GenError);
+        assert.match(err.message, /réécri/i);
+        return true;
+      }, `« ${doublon.name} » / « ${doublon.slug} » aurait dû être refusé`);
+    } finally {
+      TOOLS_ADDED.pop();
+    }
+  }
+});
+
+test("⚔️ REFUS — un héritier d'une AUTRE caractéristique que le record réécrit fait jeter", () => {
+  /* ⛔ Une réécriture n'est pas le lieu pour changer une caractéristique en
+     silence. Si les dés devaient être INT plutôt que WIS, c'est une décision
+     d'Eric — elle doit être dite, pas glissée dans un patch de nom. */
+  const srd = readSrdLayer(SRD_PATH);
+  const entry = TOOLS_REWRITTEN.find((e) => e.slug === "gaming-set-dice");
+  const sauvegarde = entry.ability;
+  entry.ability = "int";
+  try {
+    assert.throws(() => buildLayer({ srd }), (err) => {
+      assert.match(err.message, /gaming-set/, "le refus doit nommer le record");
+      assert.match(err.message, /wis/, "…et la caractéristique que le SRD porte VRAIMENT");
+      return true;
+    });
+  } finally {
+    entry.ability = sauvegarde;
+  }
+});
+
+test("⚔️ REFUS — une réécriture qui REPOSE le nom du SRD est un patch sans objet, et fait jeter", () => {
+  /* Même doctrine que `was` sur les trois re-caractérisations : un patch qui
+     n'a plus d'objet FIGE la valeur contre sa source. */
+  const srd = readSrdLayer(SRD_PATH);
+  const entry = SKILLS_REWRITTEN[0];
+  const sauvegarde = entry.name;
+  entry.name = "Perception";
+  try {
+    assert.throws(() => buildLayer({ srd }), /DÉJÀ|déjà/);
+  } finally {
+    entry.name = sauvegarde;
+  }
+});
+
+test("⚔️ REFUS — un id de Keen Senses que cette couche ne produit pas fait jeter, en le nommant", () => {
+  /* ⛔ LE POINT LE PLUS DANGEREUX DU LOT 185, GARDÉ. `fh-species-en` désigne le
+     trio de Keen Senses ; le jour où l'un des trois change d'id d'un côté
+     seulement, le `ref` meurt — et il ne se verrait qu'à la dérivation, sur la
+     fiche d'un joueur. C'est l'ancien id de Vigilance qu'on remet ici : celui
+     qui aurait survécu dans une recopie. */
+  const srd = readSrdLayer(SRD_PATH);
+  const index = KEEN_SENSES_SKILLS.indexOf("srd:skill:en:perception");
+  assert.ok(index >= 0, "Keen Senses doit désigner le record réécrit — sinon ce test ne prouve rien");
+  KEEN_SENSES_SKILLS[index] = "fh:skill:en:vigilance";
+  try {
+    assert.throws(() => buildLayer({ srd }), (err) => {
+      assert.match(err.message, /fh:skill:en:vigilance/, "le refus doit NOMMER le `ref` qui serait mort");
+      assert.match(err.message, /Keen Senses/);
+      return true;
+    });
+  } finally {
+    KEEN_SENSES_SKILLS[index] = "srd:skill:en:perception";
+  }
 });
 
 test("REFUS — une caractéristique hors des cinq est du contenu faux, pas un champ manquant", () => {

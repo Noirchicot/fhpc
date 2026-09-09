@@ -152,7 +152,7 @@
             "from": [
               "srd:skill:en:survival",
               "fh:skill:en:delve",
-              "fh:skill:en:vigilance"
+              "srd:skill:en:perception"
             ]
           },
           "name": "Elestu",
@@ -236,7 +236,7 @@
             "from": [
               "srd:skill:en:survival",
               "fh:skill:en:delve",
-              "fh:skill:en:vigilance"
+              "srd:skill:en:perception"
             ]
           }
         },
