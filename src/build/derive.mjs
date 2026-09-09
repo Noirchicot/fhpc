@@ -357,12 +357,27 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const classView = reader.must(classRef.kind, classRef.id, "le choix `class`");
   const classData = classView.record.data || {};
 
+  /* ⚠️ LOT 191 — `maybe`, PAS `must`, POUR L'ESPÈCE ET L'ARRIÈRE-PLAN, ET C'EST
+     MESURÉ : un Araag (`fh:species:en:araag`) dont on éteint Fate's Hand depuis
+     `Layers` faisait JETER toute la dérivation (« la pile ne porte aucun
+     species »), donc `validate` ne tournait jamais et le manque n'était nommé
+     nulle part — l'écran Species affichait l'id nu et « This step is settled ».
+     ⭐ Le personnage SANS espèce est un état que ce pli porte DÉJÀ (chaque
+     lecture de `speciesView` est gardée, et `underived` déclare le manque :
+     « speeds », « senses », les traits) — un ref mort n'est pas un record à
+     tendre, il n'existe pas pour le pli, comme le choix n'existerait pas. Le
+     manque reste dit par `validate` (`choice.ref-missing`), à sa place, et le
+     personnage ne se DISSOCIE pas : rien n'est effacé de `build.choices`, tout
+     revient quand la couche se rallume (Eric, 09/09 : *« que le personnage ne
+     se dissocie pas, pas trop grave »*). Même règle que le lot 188 pour les
+     refs tendus aux modules. ⛔ La classe reste `must` : *« there is no sheet
+     without a class »* (`ecran-mort.mjs`, mot du 2026-08-20). */
   const speciesRef = takeRef("species");
-  const speciesView = speciesRef ? reader.must(speciesRef.kind, speciesRef.id, "le choix `species`") : null;
+  const speciesView = speciesRef ? reader.maybe(speciesRef.kind, speciesRef.id) : null;
   const speciesData = speciesView ? (speciesView.record.data || {}) : {};
 
   const backgroundRef = takeRef("background");
-  const backgroundView = backgroundRef ? reader.must(backgroundRef.kind, backgroundRef.id, "le choix `background`") : null;
+  const backgroundView = backgroundRef ? reader.maybe(backgroundRef.kind, backgroundRef.id) : null;
   const backgroundData = backgroundView ? (backgroundView.record.data || {}) : {};
 
   /* ── LA PROGRESSION DE CLASSE ───────────────────────────────────────

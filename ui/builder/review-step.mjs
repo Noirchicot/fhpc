@@ -47,8 +47,11 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=614";
-import { lignageChoisi } from "./species-step.mjs?v=614";
+import { planAt } from "./carnet.mjs?v=615";
+import { lignageChoisi } from "./species-step.mjs?v=615";
+/* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
+   jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -160,15 +163,39 @@ function presences(step, document, resolved) {
  *  ⚠️ UNE ÉTAPE SANS AUCUN FAIT N'EST PAS FINIE — `etats.length > 0`. Sans
  *  cette moitié, une étape muette s'allumerait en vert d'entrée de jeu, ce
  *  qui est exactement le mensonge qu'on vient de retirer au belt. */
-export function etapeFaite({ decisions, document, resolved }, stepId) {
+export function etapeFaite({ decisions, document, resolved, violations }, stepId) {
   const groupe = REVIEW_GROUPS.find((g) => g.step === stepId);
   if (!groupe) return false;
-  const etats = groupe.paths
+  const etats = etatsDuGroupe(groupe, { decisions, document, resolved, violations });
+  return etats.length > 0 && etats.every((e) => e.fait);
+}
+
+/** LES FAITS D'UN GROUPE, EN MOTS — le carnet, les présences, et les choix
+ *  que la pile ne résout pas. Une seule liste pour la ligne du Sheet et pour
+ *  `etapeFaite` : deux listes finiraient par se contredire. */
+function etatsDuGroupe(groupe, { decisions, document, resolved, violations }) {
+  return groupe.paths
     .map((path) => planAt(decisions || [], path))
     .filter(Boolean)
     .map(etatDuPlan)
-    .concat(presences(groupe.step, document || null, resolved || null));
-  return etats.length > 0 && etats.every((e) => e.fait);
+    .concat(presences(groupe.step, document || null, resolved || null))
+    .concat(nonResolusDuGroupe(groupe, violations));
+}
+
+/** 🔴 LOT 191 — UN CHOIX QUE LA PILE NE RÉSOUT PAS N'EST PAS « done ».
+ *  📏 Mesuré le 09/09 : un Araag en pile SRD, et la ligne Species du Sheet
+ *  disait « done » — le plan a bien UNE réponse, c'est le record qui manque.
+ *  ⭐ On lit `validate()` (`choice.ref-missing`), jamais une seconde lecture
+ *  de la pile ; le mot est celui de l'organe unique, jamais l'id. Le chemin
+ *  du refus est rangé par la même table que les plans : la racine du groupe
+ *  (`background.originFeat[0]` appartient à Inheritance parce que
+ *  `background` y est). */
+function nonResolusDuGroupe(groupe, violations) {
+  const racines = groupe.paths.filter((p) => !p.includes(".") && !p.includes("["));
+  return (Array.isArray(violations) ? violations : [])
+    .filter((v) => v && v.key === "choice.ref-missing" && typeof v.path === "string")
+    .filter((v) => racines.some((r) => v.path === r || v.path.startsWith(`${r}.`) || v.path.startsWith(`${r}[`)))
+    .map((v) => ({ fait: false, mot: motDUnRecordAbsent(v.params && v.params.id) }));
 }
 
 export function renderReviewStep(ctx, onAction) {
@@ -197,11 +224,7 @@ export function renderReviewStep(ctx, onAction) {
 
   const liste = el("ol", "review-steps");
   for (const groupe of REVIEW_GROUPS) {
-    const etats = groupe.paths
-      .map((path) => planAt(decisions, path))
-      .filter(Boolean)
-      .map(etatDuPlan)
-      .concat(presences(groupe.step, document, resolved));
+    const etats = etatsDuGroupe(groupe, { decisions, document, resolved, violations: ctx.violations });
     /* Une étape sans plan NI présence ne se montre pas « à moitié » : elle
        n'a rien à dire, et on le dit. */
     const fait = etats.length > 0 && etats.every((e) => e.fait);

@@ -25,8 +25,11 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=614";
-import { versionQuery } from "./version.mjs?v=614";
+import { planAt } from "./carnet.mjs?v=615";
+import { versionQuery } from "./version.mjs?v=615";
+/* LOT 191 — le mot d'un choix, un seul organe : le nom du record, sinon le
+   slug humanisé et le refus nommé. `recordName` vivait ici et rendait l'id nu. */
+import { motDuChoix } from "./mot-du-choix.mjs?v=615";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
@@ -92,10 +95,10 @@ export function catalogueCursor(decisions, path) {
   return index >= 0 ? index : 0;
 }
 
-export function recordName(query, kind, id) {
-  const view = query({ kind, id });
-  return view && view.record ? view.record.name : id;
-}
+/* ⛔ `recordName` A DISPARU D'ICI — lot 191. Elle rendait l'ID NU quand le
+   record manquait, et huit écrans en portaient leur propre copie. Le mot d'un
+   choix vit dans `mot-du-choix.mjs` (`motDuChoix`), un seul organe, sans
+   import, que `carnet.mjs` peut lire aussi. */
 
 /* ══ LE RAIL (B2.1a/d/g) ═════════════════════════════════════════════════
    ✅ ÉRIC A RENVERSÉ L'INVARIANT, 2026-08-15 (Ch4) : *« ce serait bien de
@@ -164,7 +167,7 @@ export function renderCatalogueRail(ctx, onAction) {
        Un lecteur d'écran qui annoncerait « dix-huit » sur une liste de tarots
        serait exact et inutilisable. */
     const etiquette = typeof ctx.railEtiquette === "function" ? ctx.railEtiquette(id) : null;
-    const nom = recordName(ctx.query, ctx.kind, id);
+    const nom = motDuChoix(ctx.query, ctx.kind, id);
     /* 🔴 DEUX ÉTAGES QUAND L'ÉCRAN DONNE UNE ÉTIQUETTE — Eric, 2026-09-03 :
        *« si on s'autorise 4 étages pour écrire le nom de l'arcane et le numéro
        en haut »* puis *« le numéro en T2, le nom en T1 »*.
@@ -296,7 +299,7 @@ export function renderCatalogueCards(ctx, renderCard, onAction) {
        15 août, deviner le gabarit d'une fiche d'après ce qu'elle rendait a coûté
        deux passes. L'écran DIT ce qu'il porte. */
     if (!ctx.titreDansLaFiche) {
-      hote.append(el("h2", "catalogue-card-name", [text(recordName(ctx.query, ctx.kind, id))]));
+      hote.append(el("h2", "catalogue-card-name", [text(motDuChoix(ctx.query, ctx.kind, id))]));
     }
     const noeuds = renderCard(ctx.query, id) || [];
     /* ⭐ LA FICHE A-T-ELLE UNE ZONE D'INFOS ? Eric, 2026-08-15 : quand elle

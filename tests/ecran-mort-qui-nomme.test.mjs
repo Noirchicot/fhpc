@@ -44,6 +44,8 @@ const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_SANS_RAISON, MO
 const { STEPS, cransAlignes } = await import("../ui/builder/etapes.mjs");
 const { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, currentStack }
   = await import("../ui/builder/universe-step.mjs");
+/* LOT 191 — les couches de Lore se LISENT dans la table, jamais recopiées. */
+const { INTERRUPTEURS } = await import("../ui/builder/layers-ecran.mjs");
 
 const FT_LB = { distance: "ft", weight: "lb" };
 const manifestFor = (ids) => ids.map((id) => ({ id, version: "0.0.0", hash: "x".repeat(64), name: id }));
@@ -67,18 +69,32 @@ const CHOIX_CLASSE = { path: "class", ref: { kind: "class", id: "srd:wizard" }, 
    personnage d'exemple. */
 /* ⭐ LOT 188 — LA PILE D'HIER EST CELLE DE v606, PAS « MOINS DEUX AU HASARD ».
    Les deux couches arrivées entre v599 et v606 sont `fh-soulforging-en` (lot
-   179) et `fh-gems-en` (lot 181). Ce personnage-là reste innommable APRÈS le
-   lot 188 — et pour la bonne raison : Soulforging éteint serait un choix
-   légitime, mais les gemmes manquantes coupent le CATALOGUE en deux (les
-   espèces sans les gemmes), ce qu'aucun interrupteur ne produit.
-   ⛔ `slice(0, -2)` — les deux couches de Lore — ne fait plus l'affaire : depuis
-   le lot 188, « Lore éteint » est un interrupteur, pas une pile inconnue (le
-   témoin est plus bas, dans ce même test). */
-const PILE_D_HIER = PILE_COMPLETE.filter((id) => !["fh-soulforging-en", "fh-gems-en"].includes(id));
+   179) et `fh-gems-en` (lot 181). Ce personnage-là restait innommable APRÈS le
+   lot 188 parce que les gemmes manquantes coupaient le CATALOGUE en deux (les
+   espèces sans les gemmes).
+   ⚖️ LOT 191 — LE CATALOGUE N'A PLUS QU'UNE COUCHE (Eric, 09/09 : *« Il n'y a
+   pas d'Araag dans SRD si le bouton Lore n'est pas poussé »* — `fh-species-en`
+   est du Lore). La pile de v606 est donc devenue NOMMABLE : Soulforging
+   éteint, catalogue absent — deux états que `compositionFh` déclare légitimes
+   depuis le lot 188 (« le catalogue entier ou absent »). Ce qui reste
+   innommable, c'est un INTERRUPTEUR COUPÉ EN DEUX ; et le cas d'hier qui le
+   montre le mieux est Lore : les trois espèces montées SANS la fiche et le
+   lore qui les habillent (`fh-fiche-en`, `fh-lore-en`) — exactement l'ancien
+   `slice(0, -2)`, redevenu innommable pour la bonne raison. Le témoin inverse
+   (Lore ENTIER éteint) est plus bas, dans ce même test. */
+const LORE = INTERRUPTEURS.find((sw) => sw.id === "lore").couches;
+const PILE_D_HIER = PILE_COMPLETE.filter((id) => !["fh-fiche-en", "fh-lore-en"].includes(id));
 
 test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — avec sa sortie", () => {
   assert.equal(PILE_D_HIER.length, PILE_COMPLETE.length - 2,
     "témoin de portée : la pile d'hier doit être la pile réelle moins ses deux dernières couches");
+  assert.ok(PILE_D_HIER.includes("fh-species-en") && LORE.length === 3,
+    "témoin : Lore = 3 couches, et la pile d'hier en garde UNE — c'est ça, un interrupteur coupé en deux");
+  /* ⚖️ LOT 191 — et la pile de v606 (sans Soulforging ni gemmes) est NOMMABLE :
+     une pile qu'on accusait pour une raison qui n'existe plus. */
+  const v606 = PILE_COMPLETE.filter((id) => !["fh-soulforging-en", "fh-gems-en"].includes(id));
+  assert.notEqual(motDeLEcranMort(docAvec({ layers: v606, choices: [CHOIX_CLASSE] })), MOT_PILE_INCONNUE,
+    "Soulforging éteint + catalogue absent : deux états légitimes, pas une pile inconnue");
   const mot = motDeLEcranMort(docAvec({ layers: PILE_D_HIER, choices: [CHOIX_CLASSE] }));
 
   assert.notEqual(mot, MOT_SANS_RAISON,
@@ -93,10 +109,10 @@ test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — av
   assert.match(mot, /Fate's Hand/, "la SORTIE doit nommer l'interrupteur qui réaligne");
   assert.match(mot, /Menu/, "…et OÙ il se trouve : le joueur n'est pas sur l'écran qui le porte");
   /* ⚔️ LOT 188 — ET UN INTERRUPTEUR ENTIER ÉTEINT N'EST PLUS ACCUSÉ : la pile
-     moins ses deux couches de Lore est « Lore off », un choix fait depuis
-     `Layers`. L'envoyer flipper Fate's Hand défaire ce choix serait le défaut
-     symétrique de celui que ce fichier a fermé. */
-  const loreEteint = motDeLEcranMort(docAvec({ layers: PILE_COMPLETE.slice(0, -2), choices: [CHOIX_CLASSE] }));
+     moins les TROIS couches de Lore (lot 191 : les espèces en font partie) est
+     « Lore off », un choix fait depuis `Layers`. L'envoyer flipper Fate's Hand
+     défaire ce choix serait le défaut symétrique de celui que ce fichier a fermé. */
+  const loreEteint = motDeLEcranMort(docAvec({ layers: PILE_COMPLETE.filter((id) => !LORE.includes(id)), choices: [CHOIX_CLASSE] }));
   assert.notEqual(loreEteint, MOT_PILE_INCONNUE, "⛔ « Lore off » est légitime — `compositionFh`, layers-ecran.mjs");
 });
 

@@ -58,11 +58,13 @@
    paquet »). Une carte qui l'afficherait inviterait à un choix que cet écran
    n'offre pas — le « faux magasin » que ce dépôt interdit. */
 
-import { planAt, planSlots } from "./carnet.mjs?v=614";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=614";
-import { renderChoixGlisses } from "./glisser.mjs?v=614";
-import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=614";
-import { STEPS } from "./etapes.mjs?v=614";
+import { planAt, planSlots } from "./carnet.mjs?v=615";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=615";
+import { renderChoixGlisses } from "./glisser.mjs?v=615";
+import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=615";
+import { STEPS } from "./etapes.mjs?v=615";
+/* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -119,8 +121,7 @@ export const LIGNE_ACQUIS = Object.freeze({
 });
 
 function nomDuRecord(query, kind, id) {
-  const view = typeof query === "function" ? query({ kind, id }) : null;
-  return view && view.record ? view.record.name : id;
+  return motDuChoix(query, kind, id);
 }
 
 /** Les NOMS d'une liste d'ids, résolus par `query` ; à défaut d'ids, les
@@ -247,7 +248,7 @@ function toolInfo(query, id) {
     typeof data.ability === "string" ? `Ability: ${data.ability}` : null
   ].filter(Boolean);
   if (lignes.length === 0) return null;
-  return { kind: "popup", titre: (view && view.record && view.record.name) || id, texte: lignes.join("\n\n") };
+  return { kind: "popup", titre: (view && view.record && view.record.name) || motDUnRecordAbsent(id), texte: lignes.join("\n\n") };
 }
 
 /** L'OUTIL À CHOISIR : un glisser quand le record laisse choisir

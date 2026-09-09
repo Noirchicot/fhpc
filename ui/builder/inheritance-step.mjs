@@ -29,10 +29,12 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=614";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=614";
-import { renderChoixGlisses } from "./glisser.mjs?v=614";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=614";
+} from "./carnet.mjs?v=615";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=615";
+import { renderChoixGlisses } from "./glisser.mjs?v=615";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=615";
+/* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -43,16 +45,13 @@ function el(tag, className, children) {
 function text(value) { return document.createTextNode(String(value)); }
 
 function featLabel(query, id) {
-  const view = query({ kind: "feat", id });
-  return view && view.record ? view.record.name : id;
+  return motDuChoix(query, "feat", id);
 }
 
 /* ══ LE CADRE — le nom du record d'Inheritance, en mention, jamais un
    bouton (voir l'en-tête). */
 function renderFrame(query, plan) {
-  const view = query({ kind: "background", id: plan.options[0] });
-  const name = view && view.record ? view.record.name : plan.options[0];
-  return el("p", "inheritance-frame", [text(name)]);
+  return el("p", "inheritance-frame", [text(motDuChoix(query, "background", plan.options[0]))]);
 }
 
 /* ══ LES BONUS DE CARACTÉRISTIQUES ═══════════════════════════════════════
@@ -425,7 +424,7 @@ export function featInfo(query, id) {
   const bonus = data.skill_points && data.skill_points.bonus;
   return {
     kind: "popup",
-    titre: (view && view.record && view.record.name) || id,
+    titre: (view && view.record && view.record.name) || motDUnRecordAbsent(id),
     texte: Number.isInteger(bonus) ? `${texte}\n\n+${bonus} skill points` : texte
   };
 }
@@ -471,8 +470,7 @@ export function featListPlan(decisions) {
 /** Le nom d'une liste — le `name` du RECORD de classe, recopié. ⛔ Jamais une
  *  table « cleric → Divine » : ce serait un second vocabulaire à tenir. */
 function listeLabel(query, id) {
-  const view = query({ kind: "class", id });
-  return (view && view.record && view.record.name) || id;
+  return motDuChoix(query, "class", id);
 }
 
 /** SB — la liste de sorts, au jeton elle aussi : trois classes, une case.

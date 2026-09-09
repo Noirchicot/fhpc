@@ -20,16 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=614";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=614";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=615";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=615";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=614";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=615";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=614";
-import { renderConfirmDialog } from "./confirm.mjs?v=614";
-import { renderChoixGlisses } from "./glisser.mjs?v=614";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=614";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=615";
+import { renderConfirmDialog } from "./confirm.mjs?v=615";
+import { renderChoixGlisses } from "./glisser.mjs?v=615";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=615";
+/* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
+   du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -93,8 +96,10 @@ function skillView(query, id) {
 }
 
 function skillLabel(query, id) {
+  /* `skillView` cherche aussi par slug — on garde SA lecture, et seul le
+     repli passe par l'organe : jamais l'id nu. */
   const view = skillView(query, id);
-  return view && view.record ? view.record.name : id;
+  return view && view.record ? view.record.name : motDUnRecordAbsent(id);
 }
 
 /** L'INFO D'UNE COMPÉTENCE — ce que le SRD en dit : sa caractéristique et
@@ -110,7 +115,7 @@ function skillInfo(query, id) {
     typeof data.example_uses === "string" ? data.example_uses : null
   ].filter(Boolean);
   if (lignes.length === 0) return null;
-  return { kind: "popup", titre: (view && view.record && view.record.name) || id, texte: lignes.join("\n\n") };
+  return { kind: "popup", titre: (view && view.record && view.record.name) || motDUnRecordAbsent(id), texte: lignes.join("\n\n") };
 }
 
 /* LOT 72 — le même geste pour un sort : le NOM vient du record, jamais
@@ -124,13 +129,11 @@ function skillInfo(query, id) {
 /* Le NOM d'une arme, lu au record. Même geste que `spellLabel` : on descend
    des mots, on n'en fabrique pas. */
 export function weaponLabel(query, id) {
-  const view = query({ kind: "weapon", id });
-  return view && view.record ? view.record.name : id;
+  return motDuChoix(query, "weapon", id);
 }
 
 export function spellLabel(query, id) {
-  const view = query({ kind: "spell", id });
-  return view && view.record ? view.record.name : id;
+  return motDuChoix(query, "spell", id);
 }
 
 /* ══ L'INFO D'UN SORT — lot 79, étape 5 ══════════════════════════════════
@@ -145,8 +148,7 @@ export function spellLabel(query, id) {
    ⚠️ Une valeur absente disparaît de la ligne — elle ne devient pas un vide
    à côté d'un séparateur. */
 export function invocationLabel(query, id) {
-  const view = query({ kind: "class-option", id });
-  return view ? view.record.name : id;
+  return motDuChoix(query, "class-option", id);
 }
 
 /* ⚠️ ET LE PRÉRÉQUIS EST PORTÉ PAR L'INFO, PAS PAR LE FILTRE. Le vivier ne sait
@@ -181,7 +183,7 @@ export function spellInfo(query, id) {
     .filter((mot) => typeof mot === "string" && mot.trim() !== "");
   return {
     kind: "popup",
-    titre: record.name || id,
+    titre: record.name || motDUnRecordAbsent(id),
     texte: [tete.join(" · "), data.description].filter(Boolean).join("\n\n")
   };
 }
@@ -216,7 +218,7 @@ export function weaponInfo(query, id) {
     : propriete;
   return {
     kind: "popup",
-    titre: record.name || id,
+    titre: record.name || motDUnRecordAbsent(id),
     texte: [tete.join(" · "), texteDeLaMaitrise].filter(Boolean).join("\n\n")
   };
 }

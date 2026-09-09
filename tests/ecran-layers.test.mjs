@@ -115,6 +115,16 @@ test("A1 — 🔴 l'union des six interrupteurs et du catalogue EST la pile Fate
   assert.deepEqual(sw("destiny").couches, ["fh-arcana-en", "fh-feats-en", "fh-spells-en"],
     "Destiny est un ENSEMBLE de trois couches (mesuré sur les drapeaux du dépôt)");
   assert.equal(sw("inheritance").exige, "trainings", "Eric, 08/09 : l'Inheritance dépend des Trainings");
+  /* ⚖️ LOT 191 — LORE PORTE LES ESPÈCES (Eric, 09/09 : « Il n'y a pas d'Araag
+     dans SRD si le bouton Lore n'est pas poussé » ; « Lore rajoute le monde FH
+     sans les règles »). Trois couches, dans l'ordre du manifeste — `fh-fiche-en`
+     et `fh-lore-en` PATCHENT ce que `fh-species-en` ajoute (lot 77), donc
+     species monte d'abord et descend en dernier. Le catalogue n'a plus que les
+     gemmes. ⚔️ Remettre `fh-species-en` dans `CATALOGUE_FH` rougit ici. */
+  assert.deepEqual(sw("lore").couches, ["fh-species-en", "fh-fiche-en", "fh-lore-en"], "Lore = les espèces, la fiche, le lore");
+  assert.deepEqual([...CATALOGUE_FH], ["fh-gems-en"], "le catalogue = les gemmes, et rien d'autre");
+  assert.deepEqual(sw("lore").couches, FH_LAYER_IDS.filter((id) => sw("lore").couches.includes(id)),
+    "…et l'ordre écrit est celui du manifeste : species AVANT fiche AVANT lore");
 });
 
 test("A2 — 📚 les livres du joueur portent le MÊME nom partout : écran, moteur, générateur", () => {
@@ -153,8 +163,16 @@ test("B2 — 🔴 un sous-ensemble entier est LÉGITIME ; un interrupteur coupé
      produit ça — c'est une couche de RÈGLE qui manque au milieu d'un ensemble. */
   const destinyCoupe = compositionFh(docAvec(sans(PILE_COMPLETE, ["fh-spells-en"])));
   assert.equal(destinyCoupe.legitime, false, "⛔ un ensemble coupé en deux reste innommable");
-  /* ⚔️ Le catalogue à moitié : les espèces sans les gemmes. */
-  assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, ["fh-gems-en"]))).legitime, false);
+  /* ⚔️ LOT 191 — Lore privé de sa fiche et de son lore : les trois espèces
+     montées nues, ce qu'aucun interrupteur ne produit. (Le « catalogue à
+     moitié » du lot 188 — les espèces sans les gemmes — n'existe plus : le
+     catalogue n'a qu'une couche, il est entier ou absent.) */
+  assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, ["fh-fiche-en", "fh-lore-en"]))).legitime, false,
+    "⛔ Lore coupé en deux reste innommable");
+  assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, sw("lore").couches))).legitime, true,
+    "…et Lore ENTIER éteint — les espèces comprises — est un choix");
+  assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, ["fh-gems-en"]))).legitime, true,
+    "le catalogue absent est légitime depuis le lot 188 (« entier ou absent ») — inchangé, seulement plus petit");
   /* ⚔️ Le socle absent : le SRD seul, sans `srfh` (le cas B2 bis d'universe-step). */
   assert.equal(compositionFh(docAvec([SRD_LAYER_ID])).legitime, false, "sans `srfh`, rien ne se nomme");
   assert.equal(compositionFh(docAvec([SRD_LAYER_ID])).socle, false);
@@ -396,7 +414,7 @@ test("E2 — ⚔️ LE PIÈGE `fh-species-en` : éteindre Destiny baisse `fh.des
   assert.ok(cransAlignes(h.layers.verbs.flags())[iDestiny], "témoin : le cran Destiny est sur la ceinture");
 
   doc = monter(h, doc, couchesApresLeGeste(doc, { id: "destiny", on: false }));
-  assert.ok(actives(h).includes("fh-species-en"), "témoin : les espèces (catalogue) sont TOUJOURS montées");
+  assert.ok(actives(h).includes("fh-species-en"), "témoin : les espèces (Lore, allumé) sont TOUJOURS montées");
   assert.equal(h.layers.verbs.flags().includes("fh.destiny"), false,
     "⛔ AVANT CE LOT : `fh-species-en` levait `fh.destiny`, et le cran restait sur la ceinture, Destiny éteint");
   assert.equal(cransAlignes(h.layers.verbs.flags())[iDestiny], null, "la ceinture n'a plus de cran Destiny");
@@ -513,6 +531,75 @@ test("E7 — ⚔️ UNE LANGUE CHOISIE, PUIS TRAININGS COUPÉ : la dérivation D
   /* ⚔️ Le symétrique : le maître RALLUMÉ, tout revient et plus aucun refus. */
   doc = monter(h, doc, couchesApresLeGeste(doc, { id: "maitre", on: true }));
   assert.deepEqual(h.verbs.validate({ document: doc }).violations, [], "rallumé : le personnage est de nouveau entier");
+});
+
+/* ══ E8 — ⚔️ LOT 191 : LORE PORTE LES ESPÈCES, SUR LA VRAIE PILE ══════════
+   ⚖️ Eric, 09/09 : *« Il n'y a pas d'Araag dans SRD si le bouton Lore n'est
+   pas poussé. »* puis *« Lore rajoute le monde FH sans les règles. »* */
+test("E8 — ⚔️ LORE ÉTEINT : plus aucune espèce `fh:` ; l'Araag déjà choisi est NOMMÉ par validate ; LORE RALLUMÉ : il revient, ses traits se lisent, inertes sans leur règle", () => {
+  const h = pileReelle();
+  const ARAAG = "fh:species:en:araag";
+  const kessa = {
+    schema: "fh-char/1", id: "araag-e8", name: "Kessa", lang: "en", units: FT_LB,
+    generator: { name: "tests/ecran-layers", version: "1.0.0" },
+    created: "2026-09-10T00:00:00Z", modified: "2026-09-10T00:00:00Z",
+    build: {
+      layers: manifestOf(h.layers),
+      choices: [
+        { path: "level", value: 1 },
+        { path: "class", ref: { kind: "class", id: "srd:class:en:fighter" } },
+        { path: "species", ref: { kind: "species", id: ARAAG } },
+        ...["str", "dex", "con", "int", "wis", "cha"].map((k) => ({ path: `abilities.${k}`, value: 12 }))
+      ],
+      budgets: {}, overrides: [], confirmed: []
+    }
+  };
+  let doc = h.verbs.rebuild({ document: kessa }).document;
+  assert.equal(doc.resolved.identity.species, "Araag", "témoin : pile complète, l'Araag est là");
+  const especesFh = () => h.layers.verbs.query({ kind: "species" }).filter((v) => v.id.startsWith("fh:")).map((v) => v.id);
+  assert.equal(especesFh().length, 3, "témoin : Araag, Elestu, Loroka sont montées");
+
+  /* LORE ÉTEINT — les trois couches sortent par le haut (lore, fiche, puis
+     species : la fiche patche ce que species ajoute, l'ordre inverse jetterait). */
+  assert.doesNotThrow(() => { doc = monter(h, doc, couchesApresLeGeste(doc, { id: "lore", on: false })); },
+    "⛔ éteindre Lore ne doit pas jeter — l'ordre de démontage est celui du manifeste à l'envers");
+  assert.deepEqual(actives(h).filter((id) => sw("lore").couches.includes(id)), [], "les trois couches de Lore sont éteintes");
+  assert.deepEqual(especesFh(), [], "⛔ « Il n'y a pas d'Araag dans SRD si le bouton Lore n'est pas poussé »");
+  assert.equal(h.layers.verbs.query({ kind: "species" }).length, 9, "…et les neuf du SRD restent");
+  assert.ok(doc.resolved, "le personnage dérive, dégradé (derive.mjs lit l'espèce par `maybe`)");
+  assert.equal(doc.resolved.identity.species, undefined, "…sans espèce");
+  const morts = h.verbs.validate({ document: doc }).violations.filter((v) => v.key === "choice.ref-missing");
+  assert.deepEqual(morts.map((v) => [v.path, v.params.id]), [["species", ARAAG]], "et `validate` NOMME le choix non résolu");
+  /* L'écran : Lore éteint, ses trois couches dites, le maître toujours engagé. */
+  const node = renderLayersEcran({ document: doc, pile: h.layers.verbs.stack() }, () => {});
+  assert.equal(enfant(node, "lore").dataset.on, "false");
+  assert.equal(enfant(node, "lore").dataset.couches, "fh-species-en fh-fiche-en fh-lore-en");
+  assert.equal(maitre(node).dataset.on, "true", "Fate's Hand reste engagé : Lore est un enfant, pas le catalogue");
+
+  /* LORE RALLUMÉ — species d'abord, puis fiche et lore qui la patchent. */
+  assert.doesNotThrow(() => { doc = monter(h, doc, couchesApresLeGeste(doc, { id: "lore", on: true })); });
+  assert.equal(doc.resolved.identity.species, "Araag", "l'Araag revient — rien n'avait été effacé");
+  assert.deepEqual(h.verbs.validate({ document: doc }).violations.filter((v) => v.key === "choice.ref-missing"), []);
+  /* 📏 LE COMPTE SOUS LORE, MESURÉ AU MANIFESTE : 12 (species) + 24 (fiche) + 24 (lore). */
+  const pile = h.layers.verbs.stack();
+  const compte = sw("lore").couches.reduce((n, id) => n + pile.find((c) => c.id === id).records, 0);
+  assert.equal(compte, 60, "le compte de records sous Lore — il était 48 quand Lore n'avait que deux couches");
+  const rallume = renderLayersEcran({ document: doc, pile }, () => {});
+  assert.match(enfant(rallume, "lore").querySelectorAll(".interrupteur-note")[0].textContent, /60 records/, "l'écran l'affiche");
+
+  /* ⚖️ « LORE RAJOUTE LE MONDE FH SANS LES RÈGLES » — Lore seul, tout le
+     reste éteint : l'Araag existe, ses traits se LISENT, et aucune règle FH ne
+     tourne (aucune stat `fh:` publiée, aucun drapeau de règle levé). */
+  const loreSeul = FH_LAYER_IDS.filter((id) => sw("lore").couches.includes(id));
+  doc = monter(h, doc, loreSeul);
+  assert.deepEqual(actives(h).filter((id) => FH_LAYER_IDS.includes(id)), loreSeul, "témoin : Lore seul");
+  assert.equal(doc.resolved.identity.species, "Araag", "l'Araag existe avec Lore seul");
+  const traits = (doc.resolved.traits || []).map((t) => t.name);
+  assert.ok(traits.some((n) => /Fast Learner/i.test(n)), `le monde se lit : ses traits nommés sont sur la fiche — ${traits.join(", ")}`);
+  assert.deepEqual((doc.resolved.stats || []).filter((s) => String(s.id).startsWith("fh:")).map((s) => s.id), [],
+    "…et aucune règle ne tourne : pas de pool de compétences, pas de Score de Destinée — inerte, sa règle éteinte");
+  const drapeaux = h.layers.verbs.flags();
+  assert.equal(drapeaux.includes("fh.skills") || drapeaux.includes("fh.destiny"), false, "les drapeaux de règle sont bas");
 });
 
 /* ══ F — LES OCTETS DE LA COQUILLE ═════════════════════════════════════════ */

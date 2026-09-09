@@ -33,7 +33,7 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=614";
+import { currentStack } from "./universe-step.mjs?v=615";
 /* ⭐ LOT 188 — UN SOUS-ENSEMBLE DE COUCHES EST LÉGITIME, PAS INCONNU. Depuis
    l'écran `Layers`, un joueur coupe Trainings, ou Destiny, une par une ;
    `currentStack` ne sait nommer que les deux piles entières et rend `null` sur
@@ -41,7 +41,11 @@ import { currentStack } from "./universe-step.mjs?v=614";
    Fate's Hand pour défaire ce qu'il vient de choisir. `compositionFh` lit le
    document interrupteur par interrupteur : seule une composition qu'AUCUN
    interrupteur ne peut produire reste innommable. */
-import { compositionFh } from "./layers-ecran.mjs?v=614";
+import { compositionFh } from "./layers-ecran.mjs?v=615";
+/* LOT 191 — le nom d'un record absent : l'id humanisé, jamais l'id ; et
+   l'interrupteur qui le porte, pour que la phrase nomme la bonne ligne. */
+import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=615";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=615";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -83,6 +87,65 @@ export const MOT_CRAN_NON_MONTE =
   "This step belongs to a ruleset your layer stack no longer carries, so there is nothing here to settle. "
   + "Open Menu, the first tab, and turn Fate's Hand back on to bring it back — "
   + "or leave it: your character is complete without it, and nothing you chose has been erased.";
+
+/** 🔴 LOT 191 — UN CHOIX QUE LA PILE NE RÉSOUT PAS, DIT AU PIED DE L'ÉTAPE.
+ *
+ *  📏 LE DÉFAUT, VU EN LIGNE LE 2026-09-09 (v614) : un Araag, Fate's Hand
+ *  éteint depuis `Layers`, et l'écran Species disait *« This step is settled.
+ *  Change your mind if you want to start it over. »* sous `fh:species:en:araag`.
+ *  Rien n'était réglé, et le joueur lisait un id.
+ *
+ *  ⭐ LA MÊME VOIX QUE `MOT_CRAN_NON_MONTE`, parce que c'est la même cause vue
+ *  d'un cran plus près : là, tout le cran appartient à un jeu de règles que
+ *  la pile ne porte plus ; ici, UN choix de ce cran. La cause ET la sortie,
+ *  jamais l'une sans l'autre — et la sortie nomme SES boutons mot pour mot :
+ *  l'interrupteur de `Layers`, ou `I changed my mind` (*« change your
+ *  mind »*, comme le pied du guide).
+ *
+ *  ⚖️ ET ELLE NOMME L'INTERRUPTEUR QUI PORTE CHAQUE RECORD — Eric, 09/09 :
+ *  *« Araag comes with Lore — switch it on in Layers »*. Un Araag, un don et
+ *  deux langues n'appartiennent pas au même interrupteur : les noms se
+ *  groupent PAR interrupteur (*« Auspicious comes with Destiny, and Language
+ *  elf and Language human come with Trainings »*), jamais « Fate's Hand » en
+ *  général quand une ligne précise de `Layers` suffit.
+ *
+ *  ⛔ ON NE RÉPARE RIEN ET ON N'EFFACE RIEN : rallumer la couche est le geste
+ *  du joueur, et son choix l'attend (Eric, 09/09 : *« que le personnage ne se
+ *  dissocie pas, pas trop grave »*).
+ *
+ *  ⚠️ LE TEXTE EST UN BROUILLON en attente d'Eric, comme les autres de ce
+ *  module ; le garde lit ce qu'il PORTE (les noms, la cause, le geste), pas
+ *  sa ponctuation.
+ *
+ *  @param {Array<{id:string}>} refs les refs morts de l'étape (`refsMortsDeLEtape`)
+ *  @returns {string|null} la phrase, ou `null` s'il n'y a rien à dire */
+export function motDesChoixNonResolus(refs) {
+  /* Les noms, groupés par interrupteur, dans l'ordre où les refs arrivent. */
+  const groupes = [];
+  for (const r of Array.isArray(refs) ? refs : []) {
+    const nom = motHumainDeLId(r && r.id);
+    if (!nom) continue;
+    const sw = interrupteurDUnId(r.id);
+    const clef = sw ? sw.label : null;
+    let groupe = groupes.find((g) => g.clef === clef);
+    if (!groupe) { groupe = { clef, noms: [] }; groupes.push(groupe); }
+    if (!groupe.noms.includes(nom)) groupe.noms.push(nom);
+  }
+  if (groupes.length === 0) return null;
+  const liste = (noms) => (noms.length === 1 ? noms[0] : `${noms.slice(0, -1).join(", ")} and ${noms[noms.length - 1]}`);
+  const clauses = groupes.map(({ clef, noms }) => {
+    const pluriel = noms.length > 1;
+    return clef
+      ? `${liste(noms)} ${pluriel ? "come" : "comes"} with ${clef}`
+      : `${liste(noms)} ${pluriel ? "are" : "is"} ${MOT_HORS_PILE}`;
+  });
+  const total = groupes.reduce((n, g) => n + g.noms.length, 0);
+  const nommes = groupes.filter((g) => g.clef).length;
+  const sortie = nommes === 0
+    ? "Open Menu, the first tab, and turn that ruleset back on in Layers"
+    : `switch ${nommes > 1 || total > 1 ? "them" : "it"} on in Layers (Menu, the first tab)`;
+  return `${liste(clauses)} — ${sortie}, or change your mind and pick again. Nothing you chose has been erased.`;
+}
 
 /** LE MOT DU 2026-08-20, REPRIS À LA LETTRE — il n'avait aucun défaut. */
 export const MOT_SANS_CLASSE = TETE
