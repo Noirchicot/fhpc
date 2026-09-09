@@ -90,11 +90,24 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
-#### L'arbitrage du 09/09 — l'interrupteur Soulforging reste incomplet, et c'est voulu
+#### ⚖️ LA LOI DU 09/09 — le fil FH est le PRODUIT, la descente vers SRD est le CONFORT
 
-**« Le trait `Soulforged Affinity` de l'Araag ne peut pas suivre sa couche : on étend la grammaire
-du patch pour qu'une couche puisse AJOUTER un élément dans un tableau, ou on accepte l'interrupteur
-incomplet ? » → ON ACCEPTE.** Eric, 09/09 : *« laisse l'Araag incomplet, pas grave. »*
+Eric, 09/09, en deux temps qui se complètent — et l'ordre compte :
+> ① *« laisse l'Araag incomplet, pas grave »* · ② **« L'Araag FH DOIT ÊTRE FONCTIONNEL ! »** ·
+> ③ *« qu'il soit compliqué de les réduire à SRD, pas grave »*
+
+⚖️ **CE N'EST PAS UNE DETTE SUR L'ARAAG, C'EST UNE PRIORITÉ DE PRODUIT.** Un contenu Fate's Hand
+doit être **entier et fonctionnel dans sa pile**. Ce qui est toléré imparfait, c'est **la descente**
+— rendre ce contenu propre quand on éteint les couches. ⛔ **Ne jamais présenter l'un pour l'autre :**
+« l'Araag est incomplet » est FAUX ; « éteindre Soulforging laisse une trace sur l'Araag » est vrai.
+
+📏 **Vérifié le 09/09, pile FH montée** : l'Araag dérive, base de Destinée **2**, pool de compétences
+**14**, et le moteur **cite le trait** qui fait l'écart avec l'Humain (`fh-skill-pool.test.mjs`,
+*« ACCEPTATION 3 »*). **Rien ne manque du côté qui compte.**
+
+**La question d'origine, et sa réponse :** *« le trait `Soulforged Affinity` ne peut pas suivre sa
+couche : on étend la grammaire du patch pour qu'une couche puisse AJOUTER un élément dans un
+tableau, ou on accepte ? »* → **ON ACCEPTE**, parce que le défaut ne vit que dans la descente.
 
 📏 **Le fait, mesuré au lot 179 en appelant la fonction** — pas déduit : `applyChange` refuse de
 créer un élément dans un tableau (`src/layers/paths.mjs`, règle 3), *« on désigne un élément
@@ -102,8 +115,12 @@ existant par son identité, on n'en crée pas un par un chemin »*. Le trait vit
 d'un record que `fh-species-en` **ajoute** ; aucune couche au-dessus ne peut l'y remettre.
 
 ⇒ **Conséquence assumée, à ne pas re-signaler comme un défaut** : éteindre `fh-soulforging-en`
-laisse l'Araag avec un trait qui lui promet de Body Forge une Soulgem, dans un jeu où le
-Soulforging n'existe plus. ⛔ **Ce n'est pas un bug à corriger, c'est une dette tranchée.**
+laisse l'Araag avec un trait qui lui promet de Body Forge une Soulgem. ⛔ **Ce n'est pas un bug à
+corriger, c'est le prix de la descente**, et Eric l'a payé sciemment.
+
+⭐ **PORTÉE GÉNÉRALE, au-delà du Soulforging** : chaque fois qu'un lot devra choisir entre *« FH
+fonctionne mieux »* et *« la descente vers SRD est plus propre »*, **c'est FH qui gagne**. Un siège
+qui hésite n'a plus à demander.
 📌 Elle se rouvrira d'elle-même le jour où une couche FH devra poser un trait sur une espèce
 qu'elle n'a pas créée — c'est **alors** que la clef d'ajout, sœur du `remove` du lot 17, se paiera.
 
