@@ -153,6 +153,22 @@ elles ne sont pas un doublon, elles sont **le plancher qui reste quand le livre 
 doublon n'apparaît qu'à l'ALLUMAGE du DMG — et c'est là, et là seulement, que la superposition
 doit produire une ligne au lieu de deux.
 
+⚖️ **À QUOI SERVENT LES LIVRES — Eric, 09/09, et ce n'est pas que du contenu.** *« Les livres
+rajoutent des feats, des subclasses, des trade goods, des monstres, des objets magiques, des
+sorts. Sera utile pour tester l'implémentation de homebrew. Et mettre en place un moteur qui
+produit un contenu simplifié et adapté aux fiches de présentation. »*
+
+⭐ **Deux emplois, et le second est un organe qui n'existe pas encore :**
+
+| l'emploi | ce qu'il exige | état |
+|---|---|---|
+| **un banc d'essai du homebrew** | un gros corpus RÉEL, varié, qui n'est pas le nôtre — c'est ce qui fait dire à une implémentation si elle tient | ✅ le port existe |
+| **un moteur de RÉDUCTION** — du record complet vers la **fiche de présentation** | savoir jeter : garder ce qu'une fiche montre, laisser le reste au record | ⏳ **à construire** |
+
+⛔ **Et le second explique le premier.** Un moteur qui simplifie ne se prouve pas sur six records
+écrits pour lui : il se prouve sur un corpus qu'on n'a pas choisi. Les livres du joueur sont le
+seul corpus de cette taille auquel on ait droit — d'où l'ordre de les importer.
+
 ⭐ **« Se superposer » n'est pas « cohabiter ».** Deux lignes *Azurite 10 gp* côte à côte,
 l'une du DMG l'autre de FH, ce n'est pas une superposition, c'est un doublon. **La superposition
 produit UNE ligne.** Et le critère qui décide si deux objets sont le même — Eric : *« c'est leur
