@@ -49,11 +49,11 @@
    paquet »). Une carte qui l'afficherait inviterait à un choix que cet écran
    n'offre pas — le « faux magasin » que ce dépôt interdit. */
 
-import { planAt, planSlots } from "./carnet.mjs?v=611";
-import { renderFicheBody, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=611";
-import { renderChoixGlisses } from "./glisser.mjs?v=611";
-import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=611";
-import { STEPS } from "./etapes.mjs?v=611";
+import { planAt, planSlots } from "./carnet.mjs?v=612";
+import { renderFicheBody, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=612";
+import { renderChoixGlisses } from "./glisser.mjs?v=612";
+import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=612";
+import { STEPS } from "./etapes.mjs?v=612";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
