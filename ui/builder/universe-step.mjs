@@ -42,17 +42,17 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=615";
+import { renderConfirmDialog } from "./confirm.mjs?v=616";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=615";
+import { motDeLEchelon } from "./echelle.mjs?v=616";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
-import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=615";
+import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=616";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -271,10 +271,61 @@ function bouton(libelle, className, onClick) {
    `layers-ecran.mjs`, l'écran qui en porte le plus (onze lignes). Ils n'ont
    pas changé de forme : ce fichier les importe, il ne les refait pas. */
 
+/* ══ LOT 192 — « VOULEZ-VOUS GARDER UNE SAUVEGARDE DE LA VERSION FH ? » ═══
+   ⚖️ Eric, 10/09, gravé dans `ARCHITECTURE.md` (§ « LE LEXIQUE », règle 5) :
+   *« on peut mettre "à refaire", mais il faut que la version FH reste
+   sauvegardée, donc ça duplique le perso. Au moins poser la question :
+   voulez-vous garder une sauvegarde de la version FH ? »*
+
+   📏 LE NAVIGATEUR NE GARDE QU'UN PERSONNAGE (« This browser keeps one
+   character », écran `My characters`). « Garder une copie » ne peut donc être
+   qu'UN FICHIER — et le geste existe : `Save` (`exportJson` → `exporterJson`,
+   shell.mjs → `telecharger`, fichier.mjs). La troisième voie de la
+   confirmation RÉEMPLOIE ce geste ; elle n'ouvre pas un second chemin
+   d'écriture. Ce que le fichier s'appelle : `<nom>.fates-hand.fh-char.json`
+   (`nomDeFichier`, review-step.mjs, et sa tête dit pourquoi la version
+   entre dans le nom).
+
+   ⚖️ LA QUESTION NE SE POSE QU'AU MAÎTRE, ET VOICI POURQUOI. Le lot 188 a
+   décidé qu'un enfant se coupe SANS confirmation : une couche éteinte
+   DÉGRADE, elle n'efface rien, et tout revient à l'allumage. Le maître, lui,
+   CHANGE DE JEU — c'est le seul geste qui met tout Fate's Hand en pause d'un
+   coup, et c'est au changement de jeu que la version FH mérite sa copie. Un
+   enfant éteint (Destiny, World…) laisse le personnage dans le jeu Fate's
+   Hand, dégradé d'une règle ; sa copie serait celle d'un personnage qui n'a
+   pas changé de jeu. Ce lot ne touche pas à la décision du 188 : si un enfant
+   doit un jour poser la question, c'est un mot d'Eric, pas un lot.
+
+   🔴 SAUVEGARDER PUIS ÉTEINDRE, ET JAMAIS L'INVERSE — la copie doit porter
+   les couches Fate's Hand ; éteint d'abord, le fichier serait la version SRD.
+   Et un Save qui a REFUSÉ (le moteur pas chargé, le navigateur qui jette)
+   n'éteint pas : la question était de garder la copie, pas de couper coûte
+   que coûte — le refus est dit (`porteEnPanne`) et la question reste posée. */
+
+/** Le mot de la version dans le nom du fichier sauvegardé — un slug, l'alphabet
+ *  de `nomDeFichier`. Le nom du jeu (`MAITRE.label`, « Fate's Hand ») n'entre
+ *  pas tel quel dans un nom de fichier : apostrophe et espace. */
+export const NOM_DE_LA_VERSION_FH = "fates-hand";
+
+/** La séquence de la troisième voie, PURE pour qu'un garde la lise sans
+ *  coquille : `sauvegarder()` d'abord ; `eteindre()` seulement si elle a rendu
+ *  `true`. Rend ce qui s'est passé.
+ *  @param {{sauvegarder: () => boolean, eteindre: () => void}} gestes
+ *  @returns {boolean} `true` si l'extinction a eu lieu */
+export function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
+  if (sauvegarder() !== true) return false;
+  eteindre();
+  return true;
+}
+
 /** LA CONFIRMATION DU MAÎTRE — partagée entre R et l'écran `Layers` (lot 188),
  *  parce que `pendingStack` est un état de la coquille et que le joueur doit
  *  voir la question là où il a basculé l'interrupteur. Une seule fonction :
- *  deux rendus de « la même question » divergeraient. */
+ *  deux rendus de « la même question » divergeraient.
+ *
+ *  ⭐ LOT 192 — TROIS VOIES : `Keep on` (rien ne bouge) · `Save the Fate's
+ *  Hand version first` (Save, PUIS l'extinction) · `Switch off` (l'extinction,
+ *  sans copie — le comportement d'avant, intact). Voir la section ci-dessus. */
 export function renderConfirmationPile(doc, query, onAction) {
   const affected = fhRefChoices(doc, query);
   return renderConfirmDialog({
@@ -283,9 +334,12 @@ export function renderConfirmationPile(doc, query, onAction) {
       : "Switching Fate's Hand off may also pause skill grants tied to species/class — nothing is deleted, and switching back restores them.",
     items: affected,
     /* 📏 Deux mots chacun : mesuré au banc le 08/09, « Keep Fate's Hand » et
-       « Switch to SRD » se coupaient dans la paire de la confirmation. */
+       « Switch to SRD » se coupaient dans la paire de la confirmation. La
+       troisième voie est plus longue et le dit en entier : elle a SA ligne,
+       pleine largeur, au-dessus de la paire (`.confirm-dialog-troisieme-voie`). */
     confirmLabel: "Switch off",
     cancelLabel: "Keep on",
+    troisiemeVoie: { label: "Save the Fate's Hand version first", onClick: () => onAction({ kind: "saveAndConfirmLayerStack" }) },
     onConfirm: () => onAction({ kind: "confirmLayerStack" }),
     onCancel: () => onAction({ kind: "cancelLayerStack" })
   });
@@ -529,6 +583,7 @@ function renderDisplayEcran(ctx, onAction) {
  * @param {(action: object) => void} onAction
  *   `{kind:"requestLayerStack", value}` (clic sur un des deux boutons — `shell.mjs`
  *   décide s'il faut confirmer) · `{kind:"confirmLayerStack"}` ·
+ *   `{kind:"saveAndConfirmLayerStack"}` (lot 192 : Save, puis l'extinction) ·
  *   `{kind:"cancelLayerStack"}` · `{kind:"describe", field:"campaign", value}`.
  */
 export function renderUniverseStep(ctx, onAction) {

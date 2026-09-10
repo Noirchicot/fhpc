@@ -141,6 +141,21 @@ test("Le nom du fichier vient du personnage, et il survit à tout ce qu'on peut 
   assert.equal(nomDeFichier({ name: "☠☠☠" }, "fh-char.json"), "character.fh-char.json");
 });
 
+test("LOT 192 — une VERSION entre dans le nom, entre le personnage et le type ; sans version, rien ne change", () => {
+  /* Eric, 10/09 : *« il faut que la version FH reste sauvegardée, donc ça
+     duplique le perso »* — deux fichiers, deux noms, et le nom dit lequel
+     est la version Fate's Hand. */
+  assert.equal(nomDeFichier({ name: "Ilyra Duskleaf" }, "fh-char.json", "fates-hand"), "ilyra-duskleaf.fates-hand.fh-char.json");
+  assert.equal(nomDeFichier({}, "fh-char.json", "fates-hand"), "character.fates-hand.fh-char.json");
+  /* le mot de la version passe par le même filtre que le nom */
+  assert.equal(nomDeFichier({ name: "Ilyra" }, "fh-char.json", "Fate's Hand"), "ilyra.fate-s-hand.fh-char.json");
+  /* ⛔ une version vide ou absente ne laisse pas un point orphelin */
+  assert.equal(nomDeFichier({ name: "Ilyra" }, "fh-char.json", ""), "ilyra.fh-char.json");
+  assert.equal(nomDeFichier({ name: "Ilyra" }, "fh-char.json", undefined), "ilyra.fh-char.json");
+  /* et le fichier reste un `.fh-char.json` : `ouvrir.mjs` le rouvre comme les autres */
+  assert.ok(nomDeFichier({ name: "Ilyra" }, "fh-char.json", "fates-hand").endsWith(".fh-char.json"));
+});
+
 /* ══ C. LA PAGE EXPORTÉE ═════════════════════════════════════════════════ */
 
 test("C — `injecte` met la fiche DANS la coquille, et la vraie coquille porte encore le marqueur", () => {

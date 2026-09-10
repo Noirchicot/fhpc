@@ -73,6 +73,42 @@ test("les libellés par défaut sont « Confirm »/« Cancel », remplaçables",
   assert.equal(withLabels.querySelectorAll(".confirm-dialog-cancel")[0].textContent, "Keep them locked");
 });
 
+/* ══ LOT 192 — LA TROISIÈME VOIE, FACULTATIVE ═════════════════════════════
+   Eric, 10/09 : *« au moins poser la question : voulez-vous garder une
+   sauvegarde de la version FH ? »*. Le composant gagne UNE sortie de plus
+   quand l'appelant en donne une — un libellé, un callback sans argument,
+   entre annuler et confirmer. Sans elle, il rend exactement ce qu'il rendait. */
+
+test("192-1 — sans `troisiemeVoie`, la boîte a DEUX boutons, comme avant ; avec, TROIS, et la troisième précède la paire", () => {
+  const deux = renderConfirmDialog({ title: "x", onConfirm: () => {}, onCancel: () => {} });
+  assert.deepEqual(deux.querySelectorAll(".confirm-dialog-actions button").map((b) => b.className), ["confirm-dialog-cancel", "confirm-dialog-confirm"]);
+  assert.equal(deux.querySelectorAll(".confirm-dialog-troisieme-voie").length, 0, "témoin : aucune troisième voie sans libellé");
+  const trois = renderConfirmDialog({ title: "x", troisiemeVoie: { label: "Save first", onClick: () => {} }, onConfirm: () => {}, onCancel: () => {} });
+  assert.deepEqual(trois.querySelectorAll(".confirm-dialog-actions button").map((b) => b.textContent), ["Save first", "Cancel", "Confirm"],
+    "la troisième voie d'abord, sur sa ligne ; puis la paire annuler · confirmer, intacte — l'ordre du DOM est l'ordre visuel");
+  /* Un libellé vide n'est pas une voie : on ne rend pas un bouton muet. */
+  const muet = renderConfirmDialog({ title: "x", troisiemeVoie: { label: "" }, onConfirm: () => {}, onCancel: () => {} });
+  assert.equal(muet.querySelectorAll(".confirm-dialog-troisieme-voie").length, 0);
+});
+
+test("192-2 — cliquer la troisième voie appelle SON callback, sans argument — jamais `onConfirm`, jamais `onCancel`", () => {
+  const calls = [];
+  const node = renderConfirmDialog({
+    title: "x", items: ["a"],
+    troisiemeVoie: { label: "Save first", onClick: (...args) => calls.push(["voie", args.length]) },
+    onConfirm: () => calls.push(["confirm"]), onCancel: () => calls.push(["cancel"])
+  });
+  node.querySelectorAll(".confirm-dialog-troisieme-voie")[0].click();
+  assert.deepEqual(calls, [["voie", 0]], "la voie ne sait rien de ce qu'elle déclenche : c'est l'appelant qui sauvegarde puis éteint");
+  /* et les deux autres boutons ne la touchent pas */
+  node.querySelectorAll(".confirm-dialog-cancel")[0].click();
+  node.querySelectorAll(".confirm-dialog-confirm")[0].click();
+  assert.deepEqual(calls, [["voie", 0], ["cancel"], ["confirm"]]);
+  /* sans callback, un clic ne casse pas */
+  const sans = renderConfirmDialog({ title: "x", troisiemeVoie: { label: "Save first" } });
+  assert.doesNotThrow(() => sans.querySelectorAll(".confirm-dialog-troisieme-voie")[0].click());
+});
+
 /* ══ ⛔ CE COMPOSANT NE CONNAÎT AUCUN VERBE ═══════════════════════════════
    Preuve directe : `onConfirm`/`onCancel` sont appelés SANS ARGUMENT — le
    composant ne construit ni `{kind, path}` ni quoi que ce soit qui

@@ -11,16 +11,17 @@
        SRD 5.2.1      compatible with the core rules   — un VOYANT (09/09)
        Fate's Hand    allume les six d'un coup          — MAÎTRE
        ── ses six couches, chacune se coupe seule ──
-       Trainings · Skills & tools · Inheritance · Destiny · Lore · Soulforging
+       Trainings · Skills & tools · Inheritance · Destiny · World · Soulforging
+       (World s'appelait Lore jusqu'au 10/09 — le lexique, lot 192)
        ── catalogue, du contenu, pas des règles ──
        les livres du joueur · + homebrew
 
    🔴 UN INTERRUPTEUR EST UN ENSEMBLE DE COUCHES, PAS UNE COUCHE — mesuré le
    09/09 sur les drapeaux du dépôt : `Destiny` = `fh-arcana-en` + `fh-feats-en`
-   + `fh-spells-en` ; `Lore` = `fh-species-en` + `fh-fiche-en` + `fh-lore-en` ;
+   + `fh-spells-en` ; `World` = `fh-species-en` + `fh-fiche-en` + `fh-lore-en` ;
    les quatre autres en portent une. `fh-gems-en` est du CATALOGUE : elle ne
    se coupe pas seule, elle suit le maître.
-   ⚖️ LOT 191 — `fh-species-en` a QUITTÉ le catalogue pour Lore, sur les deux
+   ⚖️ LOT 191 — `fh-species-en` a QUITTÉ le catalogue pour World, sur les deux
    règles d'Eric du 09/09 : *« Il n'y a pas d'Araag dans SRD si le bouton Lore
    n'est pas poussé »* et *« Lore rajoute le monde FH sans les règles »*. La
    table vit dans `interrupteurs.mjs` (une feuille sans import, pour que le
@@ -32,7 +33,10 @@
    manque et continue (mesuré au lot 184, `ARCHITECTURE.md`). C'est pourquoi
    un enfant se coupe SANS confirmation : rien n'est effacé, tout revient à
    l'allumage. Le maître, lui, garde la confirmation du lot 54 — c'est le seul
-   geste qui met tout Fate's Hand en pause d'un coup.
+   geste qui met tout Fate's Hand en pause d'un coup — et depuis le lot 192
+   elle a TROIS voies : garder, sauvegarder la version FH puis couper, couper
+   (`renderConfirmationPile`, universe-step.mjs, et sa tête dit pourquoi la
+   question ne se pose qu'au maître).
 
    ⚖️ ET UN INTERRUPTEUR PEUT EN EXIGER UN AUTRE — Eric, 08/09 : *l'Inheritance
    dépend des Trainings*. Éteindre Trainings éteint Inheritance ; tant que
@@ -54,10 +58,10 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=615";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=616";
 /* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
    se réexporte d'ici pour l'écran, la coquille et les gardes. */
-import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=615";
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=616";
 export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
 
 function el(tag, className, children) {

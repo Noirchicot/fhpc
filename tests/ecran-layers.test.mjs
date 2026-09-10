@@ -45,8 +45,9 @@ const {
   INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, compositionFh, couchesApresLeGeste, gestesDAlignement, renderLayersEcran,
   interrupteur, voyant
 } = await import("../ui/builder/layers-ecran.mjs");
-const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, currentStack }
+const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, currentStack, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH }
   = await import("../ui/builder/universe-step.mjs");
+const { motDUnRecordAbsent } = await import("../ui/builder/mot-du-choix.mjs");
 const { LAYER_FILES, LIVRE_FILES } = await import("../ui/builder/engine.mjs");
 const { motDeLEcranMort, MOT_PILE_INCONNUE } = await import("../ui/builder/ecran-mort.mjs");
 const { STEPS, cransAlignes } = await import("../ui/builder/etapes.mjs");
@@ -110,8 +111,8 @@ test("A1 — 🔴 l'union des six interrupteurs et du catalogue EST la pile Fate
   assert.deepEqual([...couvertes].sort(), [...FH_LAYER_IDS].sort(),
     "⛔ une couche montée par `engine.mjs` sans interrupteur ne pourrait ni s'éteindre ni se rallumer seule");
   assert.deepEqual(INTERRUPTEURS.map((s) => s.label),
-    ["Trainings", "Skills & tools", "Inheritance", "Destiny", "Lore", "Soulforging"],
-    "l'ordre est celui du dessin d'Eric");
+    ["Trainings", "Skills & tools", "Inheritance", "Destiny", "World", "Soulforging"],
+    "l'ordre est celui du dessin d'Eric — et le cinquième s'appelle World depuis le lexique du 10/09 (lot 192)");
   assert.deepEqual(sw("destiny").couches, ["fh-arcana-en", "fh-feats-en", "fh-spells-en"],
     "Destiny est un ENSEMBLE de trois couches (mesuré sur les drapeaux du dépôt)");
   assert.equal(sw("inheritance").exige, "trainings", "Eric, 08/09 : l'Inheritance dépend des Trainings");
@@ -121,7 +122,7 @@ test("A1 — 🔴 l'union des six interrupteurs et du catalogue EST la pile Fate
      et `fh-lore-en` PATCHENT ce que `fh-species-en` ajoute (lot 77), donc
      species monte d'abord et descend en dernier. Le catalogue n'a plus que les
      gemmes. ⚔️ Remettre `fh-species-en` dans `CATALOGUE_FH` rougit ici. */
-  assert.deepEqual(sw("lore").couches, ["fh-species-en", "fh-fiche-en", "fh-lore-en"], "Lore = les espèces, la fiche, le lore");
+  assert.deepEqual(sw("lore").couches, ["fh-species-en", "fh-fiche-en", "fh-lore-en"], "World = les espèces, la fiche, le lore (l'id `lore` est un nom de construction)");
   assert.deepEqual([...CATALOGUE_FH], ["fh-gems-en"], "le catalogue = les gemmes, et rien d'autre");
   assert.deepEqual(sw("lore").couches, FH_LAYER_IDS.filter((id) => sw("lore").couches.includes(id)),
     "…et l'ordre écrit est celui du manifeste : species AVANT fiche AVANT lore");
@@ -345,6 +346,89 @@ test("D6 — la confirmation du maître se pose sur CET écran quand elle est en
   assert.equal(rendu().querySelectorAll(".confirm-dialog").length, 0, "témoin : sans attente, pas de question");
 });
 
+/* ══ G — LOT 192 : WORLD, ET LA SAUVEGARDE AVANT L'EXTINCTION ═════════════
+   ⚖️ Eric, 10/09 (ARCHITECTURE.md, § « LE LEXIQUE ») : *« pas Lore mais
+   World ? ça me va »* ; et *« il faut que la version FH reste sauvegardée,
+   donc ça duplique le perso. Au moins poser la question : voulez-vous garder
+   une sauvegarde de la version FH ? »*. */
+
+/** Le mot entier, en respectant la casse : `lore` dans un id (`fh-lore-en`,
+ *  `data-enfant="lore"`) n'est pas un mot de joueur ; « Lore » dans un TEXTE
+ *  rendu, si. */
+const porteLeMotLore = (texte) => /\bLore\b/.test(texte);
+/** Les textes RENDUS d'un arbre, un par nœud de texte — ce que le joueur lit.
+ *  ⚠️ PAS `textContent` de la racine : il COLLE les nœuds (« World » + « Lore
+ *  — … » → « WorldLore — … »), et `\b` ne voit plus le mot. Mesuré au lot 192 :
+ *  la mutation « Lore » remis dans la NOTE restait verte sous `textContent`.
+ *  Un garde se fonde sur la donnée : chaque texte, tel qu'il est posé. */
+function textesRendus(node) {
+  if (!node) return [];
+  if (node.nodeType === 3) return [node.textContent];
+  return (node.childNodes || []).flatMap(textesRendus);
+}
+const unTexteRenduPorteLore = (node) => textesRendus(node).filter(porteLeMotLore);
+
+test("G1 — 🔴 « Lore » n'est plus un mot du joueur : ni sur Layers, ni sur R, ni dans la confirmation, ni dans le mot d'un choix non résolu — c'est World", () => {
+  const layers = rendu({ pendingStack: "srd" });
+  assert.ok(textesRendus(layers).length > 20, "témoin : le balayage lit bien les textes de l'écran");
+  assert.deepEqual(unTexteRenduPorteLore(layers), [], "Layers (confirmation comprise) porte encore « Lore »");
+  assert.equal(enfant(layers, "lore").querySelectorAll(".interrupteur-mot")[0].childNodes[0].textContent, "World", "la cinquième ligne dit World");
+  assert.match(enfant(layers, "lore").querySelectorAll(".interrupteur-note")[0].textContent, /the world without its rules/,
+    "sa note : « Lore rajoute le monde FH sans les règles » (Eric, 09/09), en un mot de joueur");
+  const r = renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, memoire: { ok: true }, pendingStack: "srd" }, () => {});
+  assert.deepEqual(unTexteRenduPorteLore(r), [], "R (confirmation comprise) ne dit pas « Lore »");
+  /* ⚠️ la confirmation a DEUX titres (avec / sans choix Fate's Hand en jeu) :
+     un Araag choisi et une pile qui le nomme rendent l'autre — mesuré au lot
+     192, une mutation du premier titre restait verte sans ce rendu. */
+  const avecAraag = docAvec(PILE_COMPLETE, { build: { layers: manifestFor(PILE_COMPLETE), choices: [{ ref: { kind: "species", id: "fh:species:en:araag" }, label: "Species" }], budgets: {}, overrides: [] } });
+  const nomme = () => ({ record: { name: "Araag" } });
+  const layersAvec = rendu({ document: avecAraag, query: nomme, pendingStack: "srd" });
+  assert.equal(layersAvec.querySelectorAll(".confirm-dialog-items li").length, 1, "témoin : l'autre titre, avec sa liste");
+  assert.deepEqual(unTexteRenduPorteLore(layersAvec), [], "la confirmation avec ses choix nommés ne dit pas « Lore »");
+  /* le mot d'un choix non résolu suit le LABEL : un seul écrivain */
+  assert.equal(motDUnRecordAbsent("fh:species:en:araag"), "Araag comes with World — switch it on in Layers");
+  /* l'écran mort, pile inconnue : pas de « Lore » non plus */
+  assert.equal(porteLeMotLore(String(motDeLEcranMort(docAvec([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "fh-lore-en"])) || "")), false, "l'écran mort ne dit pas « Lore »");
+  /* ⚔️ le témoin du garde : un texte qui porterait le mot ferait rougir — et un id ne le fait pas */
+  assert.equal(porteLeMotLore("Lore — the species of Nymedes"), true);
+  assert.equal(porteLeMotLore('data-enfant="lore" fh-lore-en'), false, "un id n'est pas un mot de joueur");
+});
+
+test("G2 — 💾 la séquence pure : Save D'ABORD, l'extinction ENSUITE ; un Save qui refuse n'éteint pas", () => {
+  const journal = [];
+  const ok = sauvegarderPuisEteindre({ sauvegarder: () => { journal.push("save"); return true; }, eteindre: () => journal.push("off") });
+  assert.equal(ok, true);
+  assert.deepEqual(journal, ["save", "off"], "⛔ éteint d'abord, le fichier serait la version SRD");
+  /* ⚔️ le Save a refusé (moteur pas chargé, navigateur qui jette) — il l'a dit ; on n'éteint pas */
+  const refus = [];
+  assert.equal(sauvegarderPuisEteindre({ sauvegarder: () => { refus.push("save"); return false; }, eteindre: () => refus.push("off") }), false);
+  assert.deepEqual(refus, ["save"], "la question était de garder la copie, pas de couper coûte que coûte");
+  /* et un Save qui ne DIT rien (undefined) compte comme un refus : une absence n'est jamais une réponse */
+  const muet = [];
+  assert.equal(sauvegarderPuisEteindre({ sauvegarder: () => { muet.push("save"); }, eteindre: () => muet.push("off") }), false);
+  assert.deepEqual(muet, ["save"]);
+});
+
+test("G3 — 🎛️ la confirmation du maître porte TROIS voies, sur Layers comme sur R : Keep on n'émet rien qui éteigne, Save… émet la voie qui sauvegarde puis éteint, Switch off éteint sans sauvegarder", () => {
+  for (const [nom, ecran] of [["Layers", (act) => rendu({ pendingStack: "srd" }, act)],
+    ["R", (act) => renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, memoire: { ok: true }, pendingStack: "srd" }, act)]]) {
+    const gestes = [];
+    const node = ecran((a) => gestes.push(a));
+    const boutons = node.querySelectorAll(".confirm-dialog-actions button");
+    assert.deepEqual(boutons.map((b) => b.textContent), ["Save the Fate's Hand version first", "Keep on", "Switch off"],
+      `${nom} : trois voies — la sauvegarde sur sa ligne, puis la paire d'avant`);
+    boutons[1].click();
+    assert.deepEqual(gestes, [{ kind: "cancelLayerStack" }], `${nom} : Keep on n'éteint rien`);
+    boutons[0].click();
+    assert.deepEqual(gestes.at(-1), { kind: "saveAndConfirmLayerStack" }, `${nom} : la troisième voie demande Save PUIS l'extinction à la coquille`);
+    boutons[2].click();
+    assert.deepEqual(gestes.at(-1), { kind: "confirmLayerStack" }, `${nom} : Switch off éteint sans sauvegarder — le comportement d'avant`);
+    assert.equal(gestes.length, 3, "trois clics, trois gestes, aucun double");
+  }
+  /* le mot de la version, dans le nom du fichier : un slug de l'alphabet de `nomDeFichier` */
+  assert.equal(NOM_DE_LA_VERSION_FH, "fates-hand");
+});
+
 test("D7 — 🚪 R porte la porte `Layers`, et son interrupteur Fate's Hand lit la COMPOSITION : engagé même avec une couche coupée", () => {
   const gestes = [];
   const r = renderUniverseStep({ document: docAvec(sans(PILE_COMPLETE, ["fh-trainings-en", "fh-inheritance-en"])), query: () => null, fieldErrors: {}, memoire: { ok: true } }, (a) => gestes.push(a));
@@ -536,7 +620,7 @@ test("E7 — ⚔️ UNE LANGUE CHOISIE, PUIS TRAININGS COUPÉ : la dérivation D
 /* ══ E8 — ⚔️ LOT 191 : LORE PORTE LES ESPÈCES, SUR LA VRAIE PILE ══════════
    ⚖️ Eric, 09/09 : *« Il n'y a pas d'Araag dans SRD si le bouton Lore n'est
    pas poussé. »* puis *« Lore rajoute le monde FH sans les règles. »* */
-test("E8 — ⚔️ LORE ÉTEINT : plus aucune espèce `fh:` ; l'Araag déjà choisi est NOMMÉ par validate ; LORE RALLUMÉ : il revient, ses traits se lisent, inertes sans leur règle", () => {
+test("E8 — ⚔️ WORLD (ex-Lore) ÉTEINT : plus aucune espèce `fh:` ; l'Araag déjà choisi est NOMMÉ par validate ; WORLD RALLUMÉ : il revient, ses traits se lisent, inertes sans leur règle", () => {
   const h = pileReelle();
   const ARAAG = "fh:species:en:araag";
   const kessa = {

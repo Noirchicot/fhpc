@@ -192,6 +192,16 @@ rien : ce qui ne sait pas revenir se marque « à refaire », et revient quand o
 5. ⚖️ **Et avant d'éteindre, la version FH doit rester sauvegardée** — Eric : *« ça duplique le
    perso ; au moins poser la question : voulez-vous garder une sauvegarde de la version FH ? »*.
    Le navigateur ne gardant qu'un personnage, la copie est un **fichier** — le geste *Save*.
+   ✅ **Câblé au lot 192 (10/09)** : la confirmation du maître a **trois voies** — *Keep on* ·
+   *Save the Fate's Hand version first* · *Switch off* — la troisième appelle **le même organe**
+   que *Save* (`exporterJson`, shell.mjs) **puis** éteint ; le fichier s'appelle
+   `<nom>.fates-hand.fh-char.json` ; un *Save* refusé n'éteint pas. La question **ne se pose qu'au
+   maître** : un enfant dégrade (décision du 188), le maître change de jeu — le POURQUOI est en tête
+   de `renderConfirmationPile` (universe-step.mjs). Le même lot renomme l'interrupteur **`Lore` →
+   `World`** partout où le joueur lit (l'id interne `lore`, les couches `fh-lore-en`, le drapeau
+   `fh.lore` restent : des noms de construction). ⏳ Non tranché, laissé à Eric : le bouton **`Lore`**
+   au pied des fiches (le blurb d'un record — croquis du 15/08, `aria-label="Lore"`, garde du
+   catalogue) n'est pas l'interrupteur ; il garde son mot tant qu'Eric n'en dit pas un autre.
 6. **Les blurbs et images actuels servent les deux versions** — ils sont généraux. Seules les
    espèces propres à FH auront besoin des leurs, laissées pour compte avec elles.
 

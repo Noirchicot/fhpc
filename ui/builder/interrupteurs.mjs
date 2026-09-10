@@ -3,8 +3,9 @@
    interrupteur → couches vivait dans `layers-ecran.mjs`, qui importe
    `universe-step.mjs`, qui importe la moitié du builder. Or le mot d'un choix
    non résolu (`mot-du-choix.mjs`) doit NOMMER l'interrupteur qui porte le
-   record — *« Araag comes with Lore — switch it on in Layers »* (Eric, 09/09)
-   — et ce mot est lu par `carnet.mjs`, `catalogue.mjs`, tous les écrans :
+   record — *« Araag comes with World — switch it on in Layers »* (Eric, 09/09,
+   l'interrupteur renommé le 10/09) — et ce mot est lu par `carnet.mjs`,
+   `catalogue.mjs`, tous les écrans :
    un import de l'écran `Layers` depuis là ferait un cycle. La table descend
    donc ici, feuille sans import, et `layers-ecran.mjs` la réexporte : ses
    lecteurs (l'écran, les gardes) ne changent pas d'adresse.
@@ -13,16 +14,32 @@
    (§ « LES ESPÈCES FATE'S HAND SONT DU LORE ») :
      *« Il n'y a pas d'Araag dans SRD si le bouton Lore n'est pas poussé. »*
      *« Lore rajoute le monde FH sans les règles. »*
-   ⇒ `fh-species-en` est du LORE — ce qu'une espèce PORTE (son nom, ses
-   lignages, ses traits nommés) est du monde, et vient avec Lore ; ce qu'un
-   trait FAIT vient de son propre interrupteur, inerte sans lui. Le lot 188
-   l'avait posée au catalogue « parce qu'elle suit le maître » ; elle en sort.
-   Les gemmes, elles, restent du catalogue : une pierre n'est pas de l'ambiance.
+   ⇒ `fh-species-en` est du MONDE — ce qu'une espèce PORTE (son nom, ses
+   lignages, ses traits nommés) est du monde, et vient avec cet interrupteur ;
+   ce qu'un trait FAIT vient de son propre interrupteur, inerte sans lui. Le
+   lot 188 l'avait posée au catalogue « parce qu'elle suit le maître » ; elle
+   en sort. Les gemmes, elles, restent du catalogue : une pierre n'est pas de
+   l'ambiance.
+
+   ⚖️ LOT 192 — L'INTERRUPTEUR S'APPELLE `World`. Eric, 10/09, dans le lexique
+   (`ARCHITECTURE.md`, § « LE LEXIQUE ») : *« pas Lore mais World ? ça me va »*
+   — **World** = *les descriptions, l'ambiance, et les espèces et classes dans
+   leur version SRD*. Les citations du 09/09 ci-dessus gardent leur mot : c'est
+   ce qu'Eric a dit ce jour-là, et la règle n'a pas changé de sens, seulement
+   de nom. ⛔ « Lore » n'est plus un mot du joueur : ni sur l'écran `Layers`,
+   ni dans le mot d'un choix non résolu, ni sur l'écran mort. Un garde le tient
+   sur le TEXTE RENDU (`tests/ecran-layers.test.mjs`, G1).
+   ⚠️ L'ID INTERNE RESTE `lore`, ET IL NE MENT PAS : c'est un nom de
+   construction, comme `fh-lore-en` (la couche) et `fh.lore` (le drapeau) — il
+   ne sort qu'en `data-enfant="lore"` sur l'organe et en clef de
+   `compositionFh().enfants`, jamais dans un texte. Le renommer aurait renommé
+   des ids que des tests et des documents lisent, pour un mot que personne ne
+   voit.
 
    ⚠️ L'ORDRE DE MONTAGE (lot 77) : `fh-fiche-en` et `fh-lore-en` PATCHENT les
    trois espèces que `fh-species-en` AJOUTE. Le montage suit toujours
    `FH_LAYER_IDS` (`monterLesCouches`, shell.mjs ; `gestesDAlignement`) — on
-   allume par le bas, on éteint par le haut — donc l'ensemble Lore s'allume
+   allume par le bas, on éteint par le haut — donc l'ensemble World s'allume
    species → fiche → lore et s'éteint dans l'ordre inverse. La liste ci-dessous
    est écrite dans l'ordre du manifeste pour qu'un lecteur le voie ; ce n'est
    pas elle qui ordonne le geste. */
@@ -39,15 +56,18 @@ export const INTERRUPTEURS = Object.freeze([
   { id: "inheritance", label: "Inheritance",    note: "one origin, in place of backgrounds",  couches: ["fh-inheritance-en"],
     exige: "trainings", motSiDort: "off while Trainings is off" },
   { id: "destiny",     label: "Destiny",        note: "22 Arcana, the die, the Tilt",         couches: ["fh-arcana-en", "fh-feats-en", "fh-spells-en"] },
-  /* ⚖️ LORE = LE MONDE : les trois espèces neuves (Araag, Elestu, Loroka) et
-     les textes de fiche — Eric, 09/09. Trois couches, dans l'ordre du manifeste. */
-  { id: "lore",        label: "Lore",           note: "the species, names and flavour of Nymedes", couches: ["fh-species-en", "fh-fiche-en", "fh-lore-en"] },
+  /* ⚖️ WORLD = LE MONDE : les trois espèces neuves (Araag, Elestu, Loroka) et
+     les textes de fiche — Eric, 09/09 ; nommé `World` le 10/09 (*« Lore
+     rajoute le monde FH sans les règles »* → « Nymedes — the world without
+     its rules »). Trois couches, dans l'ordre du manifeste. L'id `lore` est
+     un nom de construction (tête de fichier). */
+  { id: "lore",        label: "World",          note: "Nymedes — the world without its rules", couches: ["fh-species-en", "fh-fiche-en", "fh-lore-en"] },
   { id: "soulforging", label: "Soulforging",    note: "the forge and its items",              couches: ["fh-soulforging-en"] }
 ].map(Object.freeze));
 
 /** LE CATALOGUE FATE'S HAND — les 54 gemmes. Du contenu, pas une règle : il
  *  n'a pas d'interrupteur, il suit le maître. ⛔ Les espèces n'y sont plus
- *  (09/09) : elles sont du Lore. */
+ *  (09/09) : elles sont du World. */
 export const CATALOGUE_FH = Object.freeze(["fh-gems-en"]);
 
 /** LE MAÎTRE — l'interrupteur `Fate's Hand` de `Layers` et du Menu, celui
@@ -153,7 +173,7 @@ export function coucheDUnId(id) {
 }
 
 /** L'INTERRUPTEUR QUI PORTE UN ID — `{id, label}` ou `null`. C'est ce que le
- *  mot d'un choix non résolu nomme : *« Araag comes with Lore »*. */
+ *  mot d'un choix non résolu nomme : *« Araag comes with World »*. */
 export function interrupteurDUnId(id) {
   const couche = coucheDUnId(id);
   return couche ? interrupteurDeLaCouche(couche) : null;
