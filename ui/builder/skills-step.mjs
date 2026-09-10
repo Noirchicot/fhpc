@@ -34,13 +34,25 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=621";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=621";
-import { swapContent } from "./socle.mjs?v=621";
-import { renderChoixGlisses } from "./glisser.mjs?v=621";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=622";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=622";
+import { swapContent } from "./socle.mjs?v=622";
+import { renderChoixGlisses } from "./glisser.mjs?v=622";
 /* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
    dont la couche est éteinte (Trainings coupé depuis `Layers`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=621";
+import { motDuChoix } from "./mot-du-choix.mjs?v=622";
+/* 🌱 LOT 198 — SKILLS VIT SANS FICHE, ET IL NOMME. ⚖️ Eric, 10/09 : *« Ce que
+   tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi ne pas
+   dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
+   travaillent sur les choix, un seul déduit : Sheet. Le pool est une stat
+   DÉRIVÉE (`fh:skill-points`) : sans fiche, cet écran disait *« No free pool —
+   the SRD rules apply »* sur une pile qui PORTE le pool (mesuré le 10/09) —
+   un mensonge ; le premier passage de ce lot l'avait TUÉ à la place. Ni l'un
+   ni l'autre : le catalogue se montre, et là où le pool devrait s'afficher,
+   la place dit ce qui manque et où aller, avec LES MOTS DE L'ÉCRAN MORT —
+   `motDuManque` en est le seul écrivain, cet écran ne recopie aucune phrase.
+   Dès que la fiche existe, le pool s'affiche et le mot disparaît. */
+import { motDuManque, CAUSE_SANS_RAISON } from "./ecran-mort.mjs?v=622";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
@@ -222,6 +234,11 @@ function palierLie(decisions, slug) {
 function contexte(ctx, act) {
   const resolved = ctx.resolved || {};
   const decisions = ctx.decisions || [];
+  /* 🌱 LOT 198 — LA FICHE MANQUE : le mot du manque, lu sur le document par
+     l'organe de l'écran mort ; `null` dès que la fiche existe. Quand le
+     document ne sait pas nommer la cause (tout est posé, le moteur refuse
+     ailleurs), la phrase muette du même organe — jamais le mensonge SRD. */
+  const manque = ctx.resolved ? null : (motDuManque(ctx.document || null) ?? CAUSE_SANS_RAISON);
   const query = typeof ctx.query === "function" ? ctx.query : () => [];
   const poolStat = findPoolStat(resolved);
   let pool = null;
@@ -234,7 +251,7 @@ function contexte(ctx, act) {
   return {
     resolved, decisions, violations: ctx.violations || [], query, pool, classView,
     tiers: purchasableTiers(pool), act, signe: Boolean(ctx.signe),
-    compte: compteur(resolved, decisions)
+    compte: compteur(resolved, decisions), manque
   };
 }
 
@@ -266,13 +283,17 @@ function renderAiguilleur(c) {
     return vert;
   }
   const lignes = [];
-  if (c.tiers.length > 0 && c.pool) {
+  if (c.manque) {
+    /* 🌱 LOT 198 — sans fiche, l'aiguilleur ne dit RIEN des règles : « Skills
+       follow the SRD » serait le mensonge mesuré. Le manque est nommé UNE
+       fois, à la place du pool (`renderFree`), pas ici en second. */
+  } else if (c.tiers.length > 0 && c.pool) {
     const prix = c.tiers.map((t) => `${TIER_LABEL[t] || t} ${c.pool.tier_costs[t]}`).join(" · ");
     lignes.push(`Fill the circles with your free points — ${prix}.`);
   } else {
     lignes.push("Skills follow the SRD here — nothing to spend.");
   }
-  lignes.push(droitDExpertise(c));
+  if (!c.manque) lignes.push(droitDExpertise(c));
   /* La 3ᵉ ligne : le geste (Eric, 07/09 03:5x : *« tap to add, tap again to remove —
      dans l'aiguilleur »*) ; le compte, lui, est déjà sous les yeux (FREE POINTS ·
      Spent). Au compte exact, la ligne dit la sortie. */
@@ -321,7 +342,7 @@ function droitDExpertise(c) {
  *  POINTS Skills 4/4 tools 0/0 trainings 2/2 »*, *« tapable pour obtenir plus
  *  d'info, en bleu foncé et en T2 »*). La cible tactile reste 44 : elle déborde
  *  la ligne en dessin sans lui coûter un blg (rembourrage compensé). */
-function renderLigneDeCompte({ mot, aria, popup, cellules, c }) {
+function renderLigneDeCompte({ mot, aria, popup, cellules, c, large = false }) {
   /* Les deux lignes partagent UNE grille (Eric, 07/09 03:5x : *« aligne
      verticalement Skills / Budget et Tools / Spent »*) : la ligne est
      `display: contents`, ses cellules sont celles de la grille de la dalle. */
@@ -329,7 +350,13 @@ function renderLigneDeCompte({ mot, aria, popup, cellules, c }) {
   const etiquette = bouton("skills-compte-etiquette", [text(mot)], () => c.act({ kind: "popup", titre: popup.titre, texte: popup.texte() }));
   etiquette.setAttribute("aria-label", aria);
   ligne.append(etiquette);
-  for (const cellule of cellules) ligne.append(el("span", "skills-compte-cellule", cellule));
+  for (const cellule of cellules) {
+    const span = el("span", "skills-compte-cellule", cellule);
+    /* 🌱 LOT 198 — une PHRASE à la place des nombres : la cellule prend les
+       trois colonnes des nombres et se laisse plier (feuille, `data-large`). */
+    if (large) span.dataset.large = "oui";
+    ligne.append(span);
+  }
   return ligne;
 }
 
@@ -347,6 +374,7 @@ function renderBound(c) {
 /** D'où viennent les points libres — les lignes POSITIVES du détail du pool,
  *  telles que le moteur les a publiées (classe, paliers, espèce, don, trait). */
 function texteDuFree(c) {
+  if (c.manque) return c.manque;
   const poolStat = findPoolStat(c.resolved);
   if (!poolStat || !c.compte) return "No free pool on this rule set.";
   const gains = (poolStat.breakdown || []).filter((l) => Number.isInteger(l.value) && l.value > 0)
@@ -418,6 +446,16 @@ function texteDuBound(c) {
  *  tant qu'on place, vert au compte exact, rouge au-delà (le croquis). */
 function renderFree(c) {
   let cellules;
+  if (c.manque) {
+    /* 🌱 LOT 198 — LÀ OÙ LE POOL DEVRAIT S'AFFICHER, LA PLACE NOMME : la
+       cause et la sortie, mots de l'écran mort (`motDuManque`), une cellule
+       large à la place des trois nombres. */
+    return renderLigneDeCompte({
+      mot: "Free points", aria: "Free points — what the sheet still needs before there is a pool",
+      popup: { titre: "Free points", texte: () => texteDuFree(c) },
+      cellules: [[text(c.manque)]], c, large: true
+    });
+  }
   if (!c.compte) {
     cellules = [[text("No free pool — the SRD rules apply.")], [], []];
   } else {
@@ -438,8 +476,15 @@ function renderFree(c) {
  *  la pile, la page « Skills » des sans-catégorie s'il y en a, puis Tools et
  *  Trainings. Le tambour et la fenêtre lisent la MÊME liste. */
 function pagesDe(c) {
-  const skills = Array.isArray(c.resolved.skills) ? c.resolved.skills : [];
   const catalogue = c.query({ kind: "skill" }) || [];
+  /* 🌱 LOT 198 — SANS FICHE, LE CATALOGUE : les lignes viennent des RECORDS de
+     la pile (nom, caractéristique), sans bonus ni palier — ce sont des chiffres
+     déduits, absents tant que la fiche manque, jamais inventés (`signed(null)`
+     et la cellule statique rendent « — »). Avec la fiche, `resolved.skills`
+     comme avant. */
+  const skills = c.manque
+    ? catalogue.map((v) => ({ id: v.record.slug, name: v.record.name, ability: v.record.data && v.record.data.ability_key, bonus: null, proficiency: null }))
+    : (Array.isArray(c.resolved.skills) ? c.resolved.skills : []);
   const categorieDe = new Map(catalogue.map((v) => [v.record.slug, v.record.data && v.record.data.category]));
   const parCategorie = new Map(CATEGORIES.map((k) => [k, []]));
   const sans = [];
@@ -604,7 +649,7 @@ function renderLigneSkill(skill, c) {
     ligne.append(renderRonds({ nom: skill.name, palier: skill.proficiency, plancher, path, c, violation: violationAt(c.violations, path) }));
   } else {
     /* Sans palier achetable, la pile est SRD : le mot est celui du SRD (loi §0.12). */
-    ligne.append(el("span", "skills-ligne-static", [text(skill.proficiency === "none" ? "—" : "Proficient")]));
+    ligne.append(el("span", "skills-ligne-static", [text(rang(skill.proficiency) > 0 ? "Proficient" : "—")]));
   }
   return ligne;
 }

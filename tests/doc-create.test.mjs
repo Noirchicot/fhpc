@@ -27,7 +27,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { DocError } from "../src/doc/index.mjs";
+import { DocError, CHOIX_DE_NAISSANCE } from "../src/doc/index.mjs";
 import { compileSchema, deriveDraftSchema } from "../src/doc/schema.mjs";
 import { projectDecisions } from "../src/build/index.mjs";
 import {
@@ -52,7 +52,10 @@ test("1 — create rend un document que projectDecisions sait lire, et publie d�
   const draft = verbs.create({
     name: "Nouveau personnage", lang: "en", units: FT_LB, layers: manifestOf(harness.layers)
   });
-  assert.equal(draft.build.choices.length, 0, "un document neuf n'a encore RIEN choisi");
+  /* 🌱 LOT 198 — un document neuf porte son niveau de naissance, et RIEN que
+     le joueur aurait choisi (la naissance se lit à la constante). */
+  assert.deepEqual(draft.build.choices, [...CHOIX_DE_NAISSANCE].map((c) => ({ ...c })),
+    "un document neuf n'a encore RIEN choisi — il ne porte que sa naissance");
 
   const query = (payload) => harness.layers.verbs.query(payload);
   const entries = projectDecisions({ query, choices: draft.build.choices });
@@ -77,7 +80,12 @@ test("2 — create ne dérive pas : le document rendu n'a pas de `resolved`", ()
     ["build", "created", "id", "lang", "modified", "name", "schema", "units"],
     "la forme exacte mesurée au §0.1 de la commande : fh-char/1 MOINS resolved");
   assert.deepEqual(Object.keys(draft.build).sort(), ["budgets", "choices", "layers", "overrides"]);
-  assert.deepEqual(draft.build.choices, []);
+  /* 🌱 LOT 198 — RÉÉCRIT À LA NOUVELLE VÉRITÉ : `create` est `composer`, et
+     `composer` fait naître le niveau (un personnage naît au niveau 1 ; sans
+     lui, mesuré sur v621, aucun personnage neuf ne dérivait jamais). Rien
+     d'autre n'est posé, et la naissance se lit à la constante. */
+  assert.deepEqual(draft.build.choices, [...CHOIX_DE_NAISSANCE].map((c) => ({ ...c })),
+    "le seul choix d'un document créé est son niveau de naissance (lot 198)");
   assert.deepEqual(draft.build.budgets, {});
   assert.deepEqual(draft.build.overrides, []);
 });
@@ -91,15 +99,20 @@ test("3 — ⚔️ rebuild sur ce document JETTE, et c'est NORMAL : les trois po
     name: "Portes", lang: "en", units: FT_LB, layers: manifestOf(harness.layers)
   });
 
-  /* PORTE 1 — `choices: []`, tel que `create` le rend. */
-  assert.throws(() => harness.verbs.rebuild({ document: draft }),
+  /* PORTE 1 — `choices: []` : un document VIDÉ de sa naissance (lot 198 :
+     `create` rend le niveau de naissance ; c'est en le RETIRANT qu'on
+     retrouve la première porte, et un fichier d'avant le lot y tombe). */
+  const sansRien = structuredClone(draft);
+  sansRien.build.choices = [];
+  assert.throws(() => harness.verbs.rebuild({ document: sansRien }),
     /aucun choix `level`/,
     "sans aucun choix, le moteur refuse en nommant le niveau — pas un refus générique");
 
-  /* PORTE 2 — le niveau seul : « pas une dérivation incomplète, une
-     dérivation IMPOSSIBLE » (mot pour mot §0.3). */
+  /* PORTE 2 — le niveau seul, TEL QUE `create` LE REND depuis le lot 198 :
+     « pas une dérivation incomplète, une dérivation IMPOSSIBLE » (mot pour
+     mot §0.3). */
   const withLevel = structuredClone(draft);
-  withLevel.build.choices.push({ path: "level", value: 1 });
+  assert.equal(withLevel.build.choices.filter((c) => c.path === "level").length, 1, "témoin : `create` a posé le niveau");
   assert.throws(() => harness.verbs.rebuild({ document: withLevel }),
     /un personnage sans classe n'est pas une dérivation incomplète, c'est une dérivation impossible/);
 
@@ -197,7 +210,7 @@ test("6 — le nom écrit se relit à la racine, et NE CRÉE AUCUN CHOIX", () =>
 
   const renamed = verbs.rename({ document: draft, name: "Sylvane, réellement" });
   assert.equal(renamed.name, "Sylvane, réellement", "le nom se relit à la racine");
-  assert.equal(renamed.build.choices.length, 0, "renommer ne pose AUCUN choix");
+  assert.deepEqual(renamed.build.choices, draft.build.choices, "renommer ne pose AUCUN choix — les choix sont ceux de la naissance, inchangés");
   assert.notEqual(renamed, draft, "et l'appelant ne tient jamais l'objet d'entrée : c'est une COPIE");
   assert.equal(draft.name, "Provisoire", "…preuve : le document d'entrée n'a pas bougé");
 });

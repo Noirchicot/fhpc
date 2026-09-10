@@ -54,6 +54,18 @@ function fail(what) {
  *   SCHEMA_TAG: string
  * }}
  */
+/** 🌱 LE NIVEAU DE NAISSANCE — un personnage naît au niveau 1 (lot 198, voir
+ *  `composer`). Exporté pour qu'un garde le LISE au lieu de le recopier. */
+export const NIVEAU_DE_NAISSANCE = 1;
+
+/** LES CHOIX QU'UN DOCUMENT PORTE EN NAISSANT — le niveau, et rien d'autre.
+ *  ⛔ Un seul écrivain : `composer` les clone, l'exemple (`exempleFhEn`) passe
+ *  par `composer`, et personne d'autre n'écrit `{ path: "level" }`. Le libellé
+ *  est celui que l'exemple portait déjà (« Level 1 »). */
+export const CHOIX_DE_NAISSANCE = Object.freeze([
+  Object.freeze({ path: "level", value: NIVEAU_DE_NAISSANCE, label: `Level ${NIVEAU_DE_NAISSANCE}` })
+]);
+
 export function createDocWriters({ schema } = {}) {
   if (!schema || typeof schema !== "object") {
     fail("createDocWriters needs a schema — le document `fh-char/1`, chargé par l'appelant. Ni `rename` ni " +
@@ -240,11 +252,35 @@ export function createDocWriters({ schema } = {}) {
      l'octet. L'appelant nomme le document (`id`) et le date (`at`) ; aucun
      défaut n'est deviné (décision D3), comme pour la langue et les unités. */
 
-  /** Compose un document `fh-char/1` NEUF : zéro choix, aucune `resolved`,
-   *  le manifeste des couches reçu tel quel (même forme que `build.layers`,
-   *  composé par l'appelant — voir `create`, store.mjs). Les champs
-   *  descriptifs (`DESCRIBABLE_FIELDS`) sont acceptés dès la naissance,
-   *  jamais exigés. Validé comme toute admission.
+  /** Compose un document `fh-char/1` NEUF : LE NIVEAU DE NAISSANCE pour seul
+   *  choix, aucune `resolved`, le manifeste des couches reçu tel quel (même
+   *  forme que `build.layers`, composé par l'appelant — voir `create`,
+   *  store.mjs). Les champs descriptifs (`DESCRIBABLE_FIELDS`) sont acceptés
+   *  dès la naissance, jamais exigés. Validé comme toute admission.
+   *
+   *  ══ 🌱 LOT 198 — UN PERSONNAGE NAÎT AU NIVEAU 1, ET C'EST ICI QU'IL NAÎT ══
+   *  ⚖️ Eric, 2026-09-10, devant un personnage neuf dont Abilities, Equipment
+   *  et Sheet restaient morts pour toujours : *« Fais en sorte que ça soit à
+   *  zéro à la création d'un nouveau. Fais ce qu'il faut pour que le Next mène
+   *  sur le chapitre suivant de manière fluide. »*
+   *  📏 LA CAUSE, MESURÉE SUR v621 : `derive` exige un choix `level` entier
+   *  (*« le niveau n'est dérivable de rien — ni le bonus de maîtrise, ni les
+   *  emplacements, ni les points de vie ne s'en passent »*, derive.mjs), et
+   *  AUCUN écran ne l'écrit. Le seul écrivain de `{ path: "level" }` était le
+   *  générateur d'exemple ; la page partait autrefois d'un exemple complet, et
+   *  c'est ce qui cachait le trou. Un personnage composé ici ne dérivait donc
+   *  jamais, quels que soient la classe et les scores posés ensuite.
+   *  ⭐ « À ZÉRO » NE VEUT PAS DIRE « SANS NIVEAU » : le niveau 1 n'est pas un
+   *  choix du joueur, c'est un FAIT DU PRODUIT — un personnage naît au niveau 1,
+   *  et c'est le companion qui le fera monter. Un fait du produit s'écrit là où
+   *  le document naît, UNE fois, par l'écrivain que `create` (store.mjs) et le
+   *  navigateur (`personnageNeuf`, shell.mjs) appellent déjà tous les deux.
+   *  ⛔ Ce n'est PAS un défaut deviné au sens de la décision D3 : D3 refuse
+   *  d'inventer ce qui appartient au joueur (sa langue, ses unités, son nom).
+   *  Le niveau de naissance n'appartient pas au joueur.
+   *  ⛔ ET LE GÉNÉRATEUR D'EXEMPLE PASSE PAR ICI (`exempleFhEn`) : deux
+   *  écrivains du même choix auraient divergé en silence — le jour où la
+   *  naissance change, l'exemple change avec elle, sans qu'on y pense.
    *  @param {{name:string, lang:string, units:object, layers:object[], id:string, at:string}} payload
    *  @param {string} [origin] le verbe qui parle dans un refus (`create` depuis le bloc) */
   function composer(payload, origin = "composer") {
@@ -267,8 +303,9 @@ export function createDocWriters({ schema } = {}) {
       modified: at,
       /* La forme exacte mesurée au §0.1 de la commande du lot 47 : un
          brouillon est `fh-char/1` moins `resolved`, et RIEN d'autre ne
-         change à `build`. */
-      build: { layers, choices: [], budgets: {}, overrides: [] }
+         change à `build` — sauf, depuis le lot 198, le niveau de naissance
+         (voir la tête de cette fonction). */
+      build: { layers, choices: structuredClone(CHOIX_DE_NAISSANCE), budgets: {}, overrides: [] }
     };
     for (const key of DESCRIBABLE_FIELDS) {
       if (Object.prototype.hasOwnProperty.call(options, key)) document[key] = options[key];

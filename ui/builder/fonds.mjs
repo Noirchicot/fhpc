@@ -38,7 +38,7 @@
    loger au document la ferait voyager avec un export, ce qui repeindrait le
    builder de celui qui importe. */
 
-import { versionQuery } from "./version.mjs?v=621";
+import { versionQuery } from "./version.mjs?v=622";
 
 const CLEF_FOND = "fhpc.fond";
 

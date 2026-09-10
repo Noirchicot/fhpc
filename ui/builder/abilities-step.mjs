@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=621";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=621";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=621";
-import { armerJeton } from "./glisser.mjs?v=621";
-import { facteurZoomCourant } from "./echelle.mjs?v=621";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=621";
-import { createDieHost, mount } from "./dice3d.mjs?v=621";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=621";
+import { markPressed } from "./carnet.mjs?v=622";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=622";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=622";
+import { armerJeton } from "./glisser.mjs?v=622";
+import { facteurZoomCourant } from "./echelle.mjs?v=622";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=622";
+import { createDieHost, mount } from "./dice3d.mjs?v=622";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=622";
 
 export { rollAbilitySet };
 
@@ -1317,7 +1317,7 @@ export function renderAbilitiesStep(ctx, onAction) {
     /* 🏁 R2 — LE BILAN REMPLACE LE CHOIX (Eric, 06/09 : *« on remonte en R avec les
        résultats, R1 l'ancien choix disparaît, devient R2 un bilan »*). La coquille
        dit lequel des deux (`ctx.bilan`) ; l'écran ne le déduit pas d'un lot. */
-    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved, rollBatch, act })); return section; }
+    if (ctx.bilan) { section.append(renderBilan({ document: doc, resolved, rollBatch, act, suivant: ctx.suivant || null })); return section; }
     section.append(renderSelecteurMethode(ctx.method || null, act));
     return section;
   }
@@ -1768,7 +1768,7 @@ export function renderAbilitiesStep(ctx, onAction) {
    R1 »*. Le tapis est celui du tirage (552 × 176, il loge les trois lignes) ; les
    cellules sont celles du collecteur — nom en accent, dé dans sa cellule
    (`--de-pose`), bonus signé et son mot — un seul dessin pour un même objet. */
-function renderBilan({ document: doc, resolved, rollBatch, act }) {
+function renderBilan({ document: doc, resolved, rollBatch, act, suivant }) {
   const section = el("section", "ability-bilan");
   section.dataset.bandes = "true";
   const tapis = el("section", "ability-bilan-tapis");
@@ -1795,8 +1795,14 @@ function renderBilan({ document: doc, resolved, rollBatch, act }) {
      jamais dans une seconde forme. Il vient AVANT l'aiguilleur : sous le tapis,
      donc sous les caracs, exactement là où Eric le place. */
   if (traitTardifVisible({ rollBatch, document: doc })) dalle.append(renderTraitTardif(act));
+  /* 🌱 LOT 198 — LE CRAN SUIVANT SE LIT SUR LA CEINTURE, IL NE S'ÉCRIT PAS.
+     📏 Mesuré au navigateur le 10/09, pile SRD : le bilan disait *« Next moves
+     on to Skills »* et `Next` menait à Equipment — Skills n'est pas sur la
+     ceinture SRD (`exige: "fh.skills"`, lot 189). Un libellé d'étape écrit en
+     dur est la seconde voix que `etapes.mjs` interdit ; la coquille tend le
+     mot du cran voisin (`suivant`), et sans voisin la phrase ne promet rien. */
   dalle.append(el("p", "guide-mot ability-bilan-mot", [text(
-    "Your six ability scores are set. Next moves on to Skills; Cancel reopens the choice of method."
+    `Your six ability scores are set. Next moves on${suivant ? ` to ${suivant}` : ""}; Cancel reopens the choice of method.`
   )]));
   /* 🗣️ La déclaration, pas la fabrication : `Cancel` rend le choix (verbe déclaré),
      le bouton d'avance s'appelle `Next`, le livre ouvre la règle publiée. */

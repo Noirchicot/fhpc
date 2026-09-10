@@ -158,6 +158,12 @@ Les quatre dénominations sont **obligatoires** : une bourse vide s'écrit en
 zéros, elle ne s'omet pas — sinon « pas de champ » et « pas d'argent » se
 confondent. L'**électrum est volontairement absent** (retiré des règles 2024).
 
+> 🌱 **Lot 198 (2026-09-10)** — la rubrique elle-même n'est plus `required` :
+> le moteur ne l'écrit qu'avec ses quatre choix et DÉCLARE son absence
+> (`underived.currency-incomplete`, « on ne les invente pas »). « Pas de champ »
+> veut dire « pas encore choisie, et dit », jamais « pas d'argent ». Le schéma
+> `required` faisait refuser par `doc` le document que `build` venait d'écrire.
+
 > ⚠️ **Un point à vérifier au lot 4** : les exports `fh-srd` relus n'emploient
 > que `pc`, `pa` et `po` dans les coûts (125 `po`, 17 `pa`, 10 `pc` ; zéro
 > occurrence de « platine » ou « électrum »). `pp` est donc le **seul champ de

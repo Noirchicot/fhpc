@@ -39,8 +39,18 @@ est un rejet bruyant, jamais un strip silencieux.
   plusieurs textes distincts, et une chaîne unique en écrase un à l'import.
 - **Les outils ont leur collection**, `resolved.tools[]`, séparée de `skills[]` :
   `tool` est un genre de couche, une compétence non.
+- **Ce que le moteur peut déclarer non dérivé, le schéma ne l'exige pas** (lot
+  198) : `proficiency`, `ac`, `saves`, `spellcasting` et `currency` sont ABSENTS
+  de `resolved` — et déclarés dans `underived` — quand `derive` ne sait pas les
+  produire ; les autres rubriques sont toujours écrites (vides s'il le faut).
+  📏 Mesuré : `required` sur ces cinq faisait refuser par `doc` le document que
+  `build` venait d'écrire, dès le premier personnage neuf.
 - **La bourse `resolved.currency` est complète ou rien** : `{cp, sp, gp, pp}`,
   zéros compris — « pas de champ » ne doit jamais vouloir dire « pas d'argent ».
+  Et « rien » veut dire ABSENTE et DÉCLARÉE (`underived.currency-incomplete`) :
+  la bourse est un choix, le moteur n'invente pas ses zéros. ⚠️ Lot 198 : elle
+  n'est donc plus `required` dans `resolved` — mesuré, le bloc `doc` refusait
+  sinon le document du bloc `build` pour tout personnage neuf pas encore équipé.
   Pas d'électrum, retiré des règles 2024.
 - **Le lien externe vit dans `build.external`**, pas dans le bloc `connect-ddb` :
   ce bloc est détachable, la donnée ne l'est pas, sinon un ré-import fait un

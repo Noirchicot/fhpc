@@ -23,7 +23,7 @@ export { platformNow } from "./clock.mjs";
 /* LOT 54 — `rename`/`describe`, SANS magasin ni bus : voir `writers.mjs`
    en tête. C'est ce que `ui/builder/` importe (JAMAIS `createDoc`) pour
    écrire Concept/Universe sans monter de bloc `doc` dans le navigateur. */
-export { createDocWriters } from "./writers.mjs";
+export { createDocWriters, CHOIX_DE_NAISSANCE, NIVEAU_DE_NAISSANCE } from "./writers.mjs";
 
 export function registerDoc(options = {}) {
   const doc = createDoc(Object.assign({ bus: kernelBus }, options));

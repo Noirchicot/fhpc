@@ -55,11 +55,69 @@
    Destiny », et pour les moteurs qui n'existent pas encore — un `if (stack ===
    "srd")` n'aurait couvert aucun des trois derniers.
 
-   LES DEUX DÉCLARATIONS, ET RIEN D'AUTRE :
+   LES DÉCLARATIONS, ET RIEN D'AUTRE :
    · `exige: "<drapeau>"` — sans lui, le cran N'EXISTE PAS dans la ceinture.
    · `motSi: [{ drapeau, mot }]` — le libellé change seul quand le drapeau est
      levé. C'est le commentaire « LOT 42 §3d » rendu DÉCLARATIF : il disait
      déjà que le mot changeait, mais rien dans le code ne savait quand.
+   · `lit: "<lecture>"` — ce que l'ÉCRAN du cran a besoin de lire pour se
+     dessiner (lot 198, voir `LECTURES` et `manqueDuCran` plus bas). Sans
+     `lit`, l'écran vit du document et du carnet, et rien ne le tue.
+
+   ══ 🔴 LOT 198 — LES CHAPITRES TRAVAILLENT SUR LES CHOIX ; UN SEUL CHAPITRE
+      DÉDUIT : SHEET ═══════════════════════════════════════════════════════
+
+   ⚖️ Eric, 2026-09-10, sur un personnage neuf : *« Fais en sorte que ça soit
+   à zéro à la création d'un nouveau. Fais ce qu'il faut pour que le Next mène
+   sur le chapitre suivant de manière fluide. Il manque encore Équipement.
+   Réécris plutôt que faire des pirouettes. »* Puis, devant le premier passage
+   de ce lot — qui faisait lire la fiche à Skills et la classe à Equipment, et
+   les tuait sans elles : *« Ce que tu crées dans Sheet est un précurseur de la
+   fiche, non ? Pourquoi ne pas dériver tous ces éléments dans le bilan de
+   Sheet ? »* — que l'archi a formulé ainsi : **les chapitres travaillent sur
+   les choix ; un seul chapitre déduit : Sheet.**
+
+   📏 LA CAUSE, MESURÉE SUR v621 : la coquille portait une liste PAR NOM de six
+   écrans (`ECRANS_QUI_LISENT_LA_FICHE` : background, abilities, destiny,
+   skills, equipment, review) et les tuait tous dès que la dérivation était
+   impossible. Or la dérivation exige `level`, `class` et les six
+   `abilities.*` (mesuré en retirant chacun) — et **Abilities est l'écran qui
+   POSE les six scores**. Il était tué parce que les scores manquaient, et les
+   scores manquaient parce qu'il était tué. Le cercle. Mesuré aussi : Destiny
+   et Inheritance, qui viennent AVANT Class dans la ceinture, mouraient sur
+   tout personnage neuf de la pile Fate's Hand.
+
+   ⭐ LA FORME JUSTE EST CELLE DU LOT 186, DEUX DÉCLARATIONS PLUS HAUT : **le
+   cran déclare, la coquille lit.** Une liste par nom dans la coquille ne dit
+   jamais qu'elle est incomplète (Destiny y était par erreur : il ne lit pas
+   `resolved`, mesuré) ni qu'elle est fausse (Abilities y était, et c'est le
+   cercle). Un écran ajouté demain se déclare ici, à côté de son cran, ou vit.
+
+   ⭐ ET UN SEUL CRAN DÉCLARE : `review` — Sheet, le chapitre qui déduit.
+   Le premier passage de ce lot en avait trois, chacun sur une mesure vraie :
+   Skills lisait la fiche (son pool est une stat DÉRIVÉE, `fh:skill-points`,
+   et sans fiche l'écran disait *« No free pool — the SRD rules apply »* en
+   pile Fate's Hand — un mensonge) ; Equipment lisait la classe (l'or de départ
+   vient de `class.data.starting_equipment`, et sans classe la boutique aurait
+   offert les 50 PO de l'Inheritance seuls — une bourse tronquée). La mesure
+   était juste, la conclusion fausse : un chapitre qui travaille sur les choix
+   ne meurt pas de ce qu'il ne déduit pas. Il VIT, et là où un chiffre déduit
+   devrait s'afficher, il NOMME ce qui manque et où aller — Skills pose le mot
+   d'`ecran-mort.mjs` à la place du pool (un seul écrivain de ces mots) ;
+   Equipment dit d'aller choisir une classe à la place d'une bourse tronquée
+   (complète, ou nommée, jamais tronquée). Mentir n'est pas permis, tuer non
+   plus : nommer.
+   📏 Mesuré le 10/09 en rendant chaque écran sans fiche (`resolved: null`)
+   dans les deux piles — aucun ne jette : Abilities (le sélecteur des quatre
+   méthodes se dessine, la colonne finale est absente), Inheritance /
+   Background (les plans viennent du carnet), Destiny (la carte posée vit au
+   document), Skills et Equipment (ci-dessus). Les chiffres déduits montrés en
+   chemin — la colonne finale d'Abilities, le poids portable, le pool — sont un
+   CONFORT : là quand la fiche existe, absents sinon, jamais une porte. Sheet
+   est le seul endroit où « il manque X, va sur Y » ferme l'écran.
+   ⏳ Sheet sans fiche rend aujourd'hui un tableau d'avancement honnête (« 0 of
+   6 scores », « Class · 0 of 1 ») ; le montrer à la place de l'écran mort est
+   un mot d'Eric, pas une décision de lot.
 
    📌 D'OÙ VIENNENT LES DRAPEAUX : de la pile MONTÉE (`layers.verbs.flags()`),
    jamais du document. Une couche les déclare dans son `flags` ; le pli les
@@ -97,8 +155,47 @@ export const STEPS = [
      la coupe est la même qu'à Destiny, deux lignes plus haut. */
   { id: "skills",     label: "Skills", exige: "fh.skills" },
   { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
-  { id: "review",     label: "Sheet" }      // ⟵ « Review » — le CHAPITRE, lui, s'appelle Character
+  /* 🔴 LE SEUL CRAN QUI DÉCLARE UNE LECTURE — Eric, 10/09 : un seul chapitre
+     déduit. Un second `lit` ici serait un chapitre qui meurt de ce qu'il ne
+     déduit pas (garde : tests/naitre-derivable.test.mjs, B1). */
+  { id: "review",     label: "Sheet", lit: "fiche" }      // ⟵ « Review » — le CHAPITRE, lui, s'appelle Character
 ];
+
+/** ══ LES LECTURES QU'UN CRAN PEUT DÉCLARER (lot 198) ═══════════════════════
+ *  Chaque lecture dit ce qu'elle exige des FAITS que la coquille lui tend —
+ *  jamais un nom d'écran, jamais une pile.
+ *  · `fiche` — la fiche dérivée existe (`rebuild` n'a pas refusé).
+ *  ⛔ UNE SEULE LECTURE, ET C'EST VOULU. Le premier passage de ce lot en
+ *  portait une seconde (`classe`, pour Equipment) : retirée avec son
+ *  déclarant, parce qu'un chapitre qui travaille sur les choix vit sans ce
+ *  qu'il ne déduit pas. La lecture `fiche` reste UNE TABLE et pas un booléen
+ *  en dur, pour que le mécanisme (le cran déclare, la coquille lit) survive
+ *  au jour où un second chapitre qui DÉDUIT existerait — ce jour-là, c'est
+ *  ici qu'il se déclare, et le garde B1 change avec la règle d'Eric.
+ *  C'est `motDeLEcranMort` (ecran-mort.mjs) qui lit ENSUITE le document pour
+ *  dire lequel des choix manque — ici on ne décide que « peut se dessiner,
+ *  ou pas ». */
+export const LECTURES = Object.freeze({
+  fiche: Object.freeze({ satisfaite: (faits) => Boolean(faits && faits.derivable) })
+});
+
+/** CE QUI MANQUE À UN CRAN POUR SE DESSINER — le nom de la lecture non
+ *  satisfaite, ou `null` si l'écran peut vivre.
+ *
+ *  ⛔ UNE LECTURE INCONNUE JETTE : un cran qui déclarerait `lit: "scores"`
+ *  sans que `LECTURES` la porte serait un écran qui ne meurt jamais, en
+ *  silence — l'inverse exact du défaut que ce lot ferme, et aussi grave.
+ *
+ *  @param {{id:string, lit?:string}} step le cran de `STEPS`
+ *  @param {{derivable:boolean}} faits ce que la coquille sait du personnage
+ *  @returns {string|null} */
+export function manqueDuCran(step, faits) {
+  const lecture = step && step.lit;
+  if (!lecture) return null;
+  const regle = LECTURES[lecture];
+  if (!regle) throw new Error(`etapes.mjs : le cran « ${step.id} » déclare une lecture inconnue « ${lecture} » — les lectures sont ${Object.keys(LECTURES).join(", ")}.`);
+  return regle.satisfaite(faits) ? null : lecture;
+}
 
 /** LA CEINTURE TELLE QU'ON LA VOIT — les crans que les drapeaux MONTÉS
  *  justifient, dans l'ordre, mot déjà résolu.
