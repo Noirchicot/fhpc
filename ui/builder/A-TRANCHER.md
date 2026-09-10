@@ -510,3 +510,20 @@
 - ⚠️ **CE N'EST PAS UN DÉFAUT DU LOT 186 — c'est un trou qu'il ÉCLAIRE.** Les quatre arrière-plans du SRD existent dans la couche *(`equipment-step.mjs` les cite, « … or (B) 50 GP »)*, mais **aucun écran ne les choisit** : le builder n'a jamais eu d'étape Background au sens du SRD.
 - ➡️ Deux lectures : *(a)* le cran 3 **exige** lui aussi `fh.inheritance` — la pile SRD montre alors **huit** crans, et le joueur SRD n'a pas d'arrière-plan ; *(b)* un écran de choix d'arrière-plan SRD se construit, et le cran 3 sert l'un ou l'autre selon le drapeau.
 - ⛔ **Le lot 186 n'a pas tranché** : retirer le cran 3 en pile SRD amputerait le SRD d'une règle qu'il porte ; le construire est un lot entier.
+
+## C35 — Comment s'appelle un personnage qui vient de naître ? { #c35 }
+
+**Question : le champ `name` d'un personnage neuf — quel mot, et le joueur doit-il l'effacer ?**
+
+- 📏 **LE FAIT, ET IL EST IMPOSÉ PAR LE SCHÉMA** : `fh-char/1` exige `name.minLength: 1` *(`schemas/fh-char.schema.json`)*. Un personnage neuf **ne peut pas** naître sans nom — une chaîne vide est un refus, pas un blanc. Il faut donc un mot, et le lot 193 en a posé un.
+- ⭐ **LE DÉFAUT LE PLUS SOBRE, PAS UNE COTE D'ERIC** : `NOM_DU_PERSONNAGE_NEUF = "Unnamed character"` *(`universe-step.mjs`)* — **exactement** le mot que le Menu affichait déjà pour un nom vide, désormais lu au même endroit par les deux. Deux mots pour la même absence auraient divergé au premier réglage.
+- ⚠️ **CE QUE ÇA COÛTE, MESURÉ AU NAVIGATEUR LE 10/09** : à l'étape 1, le champ de nom arrive **pré-rempli** de `Unnamed character`, et le joueur doit l'effacer avant d'écrire le sien. Tout mot aurait ce défaut ; seul un `placeholder` sur un champ vide y échapperait, et le schéma l'interdit.
+- ➡️ Trois lectures : *(a)* le mot reste ; *(b)* Eric en donne un autre — il se change **ICI seul** ; *(c)* Identity sélectionne le nom à l'arrivée quand il vaut le défaut, pour qu'une frappe le remplace *(⛔ un geste d'écran, à mesurer au doigt avant d'être écrit)*.
+
+## C36 — Un navigateur SANS personnage : d'où viennent langue et unités ? { #c36 }
+
+**Question : le jour où le navigateur ne portera aucun personnage, avec quelle langue et quelles unités naît le suivant ?**
+
+- 📏 **LE FAIT** : ce cas **n'existe pas aujourd'hui** — le boot retombe sur l'exemple commité, et `Forget` recharge dessus. `personnageNeuf` *(shell.mjs)* hérite donc langue et unités du personnage qu'il vient de ranger, et le bloc `doc` **refuse de les deviner** *(décision D3 : « une langue implicite serait une règle inventée à la place du joueur »)*.
+- ⛔ **LA LOI EST DÉJÀ ÉCRITE ET GARDÉE** — `creerUnPersonnage` n'appelle jamais `Save` sans personnage *(`tests/premier-pas.test.mjs`, A4)*. C'est la **naissance** qui n'aurait alors rien à hériter, pas la sauvegarde.
+- ➡️ Le mot appartient à Eric : *(a)* la langue de l'interface ; *(b)* celle de la couche SRD montée ; *(c)* une question de plus au popup — ⛔ mais il a répondu **deux voies** le 10/09.

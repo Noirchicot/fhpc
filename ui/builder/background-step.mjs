@@ -58,13 +58,13 @@
    paquet »). Une carte qui l'afficherait inviterait à un choix que cet écran
    n'offre pas — le « faux magasin » que ce dépôt interdit. */
 
-import { planAt, planSlots } from "./carnet.mjs?v=616";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=616";
-import { renderChoixGlisses } from "./glisser.mjs?v=616";
-import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=616";
-import { STEPS } from "./etapes.mjs?v=616";
+import { planAt, planSlots } from "./carnet.mjs?v=617";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=617";
+import { renderChoixGlisses } from "./glisser.mjs?v=617";
+import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=617";
+import { STEPS } from "./etapes.mjs?v=617";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=616";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=617";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

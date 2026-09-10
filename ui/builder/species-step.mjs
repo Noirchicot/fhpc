@@ -28,22 +28,22 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=616";
-import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=616";
+import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=617";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=617";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=616";
-import { renderChoixGlisses } from "./glisser.mjs?v=616";
-import { spellInfo } from "./class-step.mjs?v=616";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=617";
+import { renderChoixGlisses } from "./glisser.mjs?v=617";
+import { spellInfo } from "./class-step.mjs?v=617";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=616";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=616";
-import { etapeParId } from "./etapes.mjs?v=616";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=616";
+import { motDuVerrou } from "./skills-step.mjs?v=617";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=617";
+import { etapeParId } from "./etapes.mjs?v=617";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=617";
 /* LOT 191 — le mot d'un choix : le nom du record, sinon le slug humanisé et
    le refus nommé. Jamais l'id nu (voir la tête de `mot-du-choix.mjs`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=616";
+import { motDuChoix } from "./mot-du-choix.mjs?v=617";
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
