@@ -58,13 +58,17 @@
    paquet »). Une carte qui l'afficherait inviterait à un choix que cet écran
    n'offre pas — le « faux magasin » que ce dépôt interdit. */
 
-import { planAt, planSlots } from "./carnet.mjs?v=616";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=616";
-import { renderChoixGlisses } from "./glisser.mjs?v=616";
-import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=616";
-import { STEPS } from "./etapes.mjs?v=616";
+import { planAt, planSlots } from "./carnet.mjs?v=617";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=617";
+import { renderChoixGlisses } from "./glisser.mjs?v=617";
+import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=617";
+import { STEPS } from "./etapes.mjs?v=617";
+/* LOT 194 — « ce plan porte-t-il encore une décision ? ». Le MÊME lecteur que
+   celui qui décide s'il y a une porte (`itemsDeLEtape`) : deux réponses à cette
+   question-là feraient une porte sans son résumé, ou l'inverse. */
+import { porteUneDecisionOuverte } from "./parcours.mjs?v=617";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=616";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=617";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -323,6 +327,15 @@ function nomQuiOuvre(nom, info, act) {
   return bouton;
 }
 
+/** LE DON D'ORIGINE A-T-IL QUELQUE CHOSE À RÉGLER ? — lot 194.
+ *  Le don est IMPOSÉ par l'arrière-plan ; ce qu'il demande ENSUITE (les sorts
+ *  de Magic Initiate) vit sous lui, dans le carnet. ⛔ Aucun nom de don ici :
+ *  on lit ce que le carnet publie, comme `itemsDeLEtape` — et par le MÊME
+ *  lecteur, pour qu'une porte et son résumé ne puissent pas se contredire. */
+function donConfigurable(ctx) {
+  return porteUneDecisionOuverte((ctx && ctx.decisions) || [], CHEMIN_DON);
+}
+
 function resumeDeLItem(item, ctx, act) {
   if (!item || item.path !== LIGNE_ACQUIS.path) return null;
   const record = arrierePlanRetenu(ctx);
@@ -330,7 +343,12 @@ function resumeDeLItem(item, ctx, act) {
   const data = record.data || {};
   const query = ctx.query;
   const agir = act || (() => {});
-  const don = motDuDon(query, data);
+  /* ⛔ ET LE DON N'Y FIGURE QUE S'IL N'A RIEN À RÉGLER — lot 194, le même
+     argument que l'outil deux lignes plus bas : quand Magic Initiate ouvre sa
+     porte, c'est ELLE qui le nomme, et « soit la porte, soit le résumé, jamais
+     les deux » (Eric, 26/08). Alert et Savage Attacker ne règlent rien : ils
+     restent ici, avec leur fenêtre au tap. */
+  const don = donConfigurable(ctx) ? null : motDuDon(query, data);
   const outil = typeof data.tool_id === "string" ? nomDuRecord(query, "tool", data.tool_id) : null;
   const lignes = [
     ["Skills", nomsDe(query, "skill", data.skill_ids, data.skill_proficiencies)],
@@ -355,6 +373,15 @@ function porteDeLItem(chemin, ctx) {
     const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
     return id ? { mot: nomDuRecord(ctx.query, "tool", id), sous: "tool" } : "Tool";
   }
+  /* 🚪 LOT 194 — LA PORTE DU DON CONFIGURABLE. Le don ne se choisit pas ici
+     (l'arrière-plan l'impose) : la porte NOMME donc toujours la réponse, avec
+     sa question en sous-titre — « Magic Initiate (Cleric) » / *origin feat*,
+     la loi de la porte, et l'option fixée par le record en fait partie. */
+  if (chemin === CHEMIN_DON) {
+    const record = arrierePlanRetenu(ctx);
+    const nom = record ? motDuDon(ctx.query, record.data || {}) : null;
+    return nom ? { mot: nom, sous: "origin feat" } : "Origin feat";
+  }
   return chemin;
 }
 
@@ -363,6 +390,11 @@ const PREVENTION = "Leaving this open marks nothing — only Done records the ch
 function aiguilleurDeLItem(chemin) {
   if (chemin === CHEMIN_OUTIL) {
     return `Tap a tool to read what it covers — drag it into the slot to choose. ${PREVENTION}`;
+  }
+  /* LOT 194 — la porte du don mène à SON menu (le B emboîté, `FEAT_PARCOURS`) :
+     la bande dit ce qui attend derrière, pas un geste qui n'est pas là. */
+  if (chemin === CHEMIN_DON) {
+    return `This feat still asks you something — open it and settle each line. ${PREVENTION}`;
   }
   return null;
 }

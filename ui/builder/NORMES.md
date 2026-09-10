@@ -6279,6 +6279,36 @@ moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne
 
 ---
 
+## 6 pré sexies. 🚪 …SAUF S'IL PORTE, EN DESSOUS, UNE DÉCISION À PRENDRE *(Eric, 2026-09-10)*
+📍 `socle-un-requis-qui-porte-une-decision-est-une-porte` · vivante · 10/09
+⚖️ **Un plan requis redevient un item du parcours quand le carnet publie, SOUS lui, au moins un plan qui n'est pas requis. Ce qui est imposé se montre ; ce qu'il reste à régler DEDANS s'ouvre.**
+
+> Eric, 2026-09-10, sur l'Acolyte du fil SRD : *« B3 : tool ou skills — s'il y a un choix, un bouton, puis tokens et collecteurs, Back / Done (ici le background Acolyte est incomplet) ; sinon c'est du granted. Alors attention : **Magic Initiate nécessite un bouton, ça doit être configuré — exactement le même chemin que dans FH, tu as juste à recopier.** »*
+
+📏 **CE QUI ÉTAIT À L'ÉCRAN** : l'arrière-plan IMPOSE son don (`feat_id`), donc `background.originFeat[0]` sort `required`, donc §6 pré quinquies le range en acquis — et c'est juste tant que le don n'a **rien** à régler. *Magic Initiate* en a : deux tours mineurs et un sort de niveau 1, que le carnet publie **sous** lui. Personne n'ouvrait la porte qui y mène, et le joueur ne pouvait pas choisir ses sorts.
+
+⭐ **LE CRITÈRE RESTE LA DONNÉE, ET IL NE CONTREDIT PAS §6 pré quinquies** — qui refuse un critère de **compte** (« `answered === expected` dirait la même chose d'un choix déjà fait »). Celui-ci ne compte rien : il lit la **provenance des plans du dessous**. ⛔ Un sous-plan lui-même `required` ne compte pas — la liste de sorts d'un « Magic Initiate (Cleric) » est fixée par l'arrière-plan, elle n'ouvre aucune porte. Un outil imposé, un don sans branches : rien en dessous, donc pas de porte.
+
+⚠️ **ET LA PORTE PREND LE RÉSUMÉ AVEC ELLE** : le don qui s'ouvre quitte la ligne « gagné d'office » — *soit la porte, soit le résumé, jamais les deux* (Eric, 26/08). Le don qui ne règle rien y reste, avec sa fenêtre au tap.
+
+📌 **CE QUI LA TIENT** : `porteUneDecisionOuverte` (`parcours.mjs`), une fois, lue aussi par `background-step` pour son résumé ; `tests/lot194-don-accorde.test.mjs` (la vraie déclaration montée par une couche de fixture) et `tests/fil-srd-ecrans.test.mjs` (le carnet fabriqué, et son inverse).
+
+---
+
+## 6 pré septies. 🟩 UN COMPTE QUI N'A PAS COMMENCÉ N'EST PAS UN COMPTE FAUX *(Eric, 2026-09-10)*
+📍 `socle-rien-de-pose-n-est-pas-une-faute` · vivante · 10/09
+⚖️ **Une porte non faite est NEUTRE, avec son compte ; elle ne rougit qu'après un geste commencé et incomplet. Et le `Done` d'un item ne le signe pas tant que son plan n'a pas répondu.**
+
+> Eric, 2026-09-10, sur le fil SRD : *« B1 : ability boost commence en rouge, et pas de bouton Back / Done. »*
+
+📏 **DEUX FAITS MESURÉS LE 10/09, ET ILS SE TIENNENT PAR LA MAIN.** ① `background.boost` posait `background.boost-total-mismatch` **dès zéro candidat** : la porte s'ouvrait accusée, le `Done` désarmé et la bande d'aiguilleur remplacée par « 0 points spent, 3 expected. » — avant le moindre geste. Les autres budgets ne font pas ça (`species.skillBudget` à 0 sur 2 ne porte aucun verrou). ② Ce verrou-là **désarmait le `Done` par accident** : le retirer seul aurait échangé un faux rouge contre un faux *« This step is settled »* — mesuré, un item vide pouvait déjà se signer **partout ailleurs** (`Species skill` sans compétence choisie).
+
+⭐ **LE COMPTE FAIT LE TRAVAIL QUE LE VERROU FAISAIT PAR HASARD.** `answered / expected` retient la porte, le `Done` et l'étape ; un verrou par-dessus ne rendait pas la règle plus stricte, il rendait « pas encore fait » indiscernable de « mal fait ». ⛔ **Aucun garde ne se desserre** : un seul point posé sur trois rougit toujours, le plafond par carac aussi, et `Cancel` reste armé — *« ainsi que la possibilité de revenir en arrière »* (Eric, 29/08).
+
+📌 **CE QUI LA TIENT** : `tests/inheritance-step.test.mjs` (neutre à zéro / rouge à 2 sur 3) et `tests/fil-srd-ecrans.test.mjs` (la porte des caracs, +2/+1 et +1/+1/+1 acceptés, +3 refusé ; le `Done` d'un item désarmé tant que le compte n'y est pas).
+
+---
+
 ### 7.14 🆓 `FREE` EST 100 % LIBRE — aucune condition sur le choix des caracs *(Eric, 2026-09-06)*
 📍 `budget-free-est-cent-pour-cent-libre` · vivante · 06/09
 ⚖️ **La méthode `FREE` n'oppose AUCUNE condition au choix des caractéristiques — ni total, ni budget, ni plafond, ni plancher.**

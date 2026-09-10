@@ -575,8 +575,38 @@ test("un personnage SRD pur (couche FH débrayée) traverse Class et Species san
      `srd-5.2.1-fr.layer.json` le porte tel quel. Le QCM species s'affiche
      donc, SANS qu'aucune couche FH soit montée — la preuve même que ce lot
      ne devine rien sur le nom de l'espèce, il lit le plan que LE SRD publie. */
-  assert.equal(speciesNode.querySelectorAll(".skills-budget-block").length, 1);
-  assert.equal(speciesNode.querySelectorAll(".skills-budget-block h3")[0].textContent, "Species skill");
+  /* 🔴 LOT 194 — L'ORGANE A CHANGÉ, LA MESURE NON. Eric, 2026-09-10 : *« SB
+     skills (moche) : mets des tokens avec les noms des compétences, avec des
+     collecteurs, avec les règles habituelles. »* Le QCM (`.skills-budget-block`,
+     une rangée de boutons-radio précédée d'un « — ») laisse la place au
+     sélecteur de jetons de la classe (`renderChoixGlisses`, régime `sorts`).
+     Ce que ce test garde est inchangé : le choix vient du plan que LE SRD
+     publie, sans qu'aucune couche FH soit montée. */
+  assert.equal(speciesNode.querySelectorAll(".skills-budget-block").length, 0,
+    "plus de QCM : ni ici ni dans la dalle d'item");
+  const selecteur = speciesNode.querySelectorAll(".choix-glisse")[0];
+  assert.ok(selecteur, "le sélecteur de jetons est là");
+  assert.equal(selecteur.getAttribute("data-rangs"), "sorts", "rangées de trois — le régime du sélecteur de Skills");
+  const planEspece = report.decisions.find((p) => p.path === "species.skills");
+  const valeurs = selecteur.querySelectorAll(".glisse-jeton").map((b) => b.getAttribute("data-valeur"));
+  assert.ok(valeurs.length > 0, "des jetons");
+  /* ⛔ PAS « autant de jetons que d'options » : l'Humain déclare `from: "any"`,
+     soit les DIX-HUIT compétences, et le socle pagine à sa page (NORMES §5).
+     Ce qui se garde, c'est que CHAQUE jeton vient du plan — jamais d'une liste
+     écrite dans l'écran. */
+  assert.ok(valeurs.every((v) => planEspece.options.includes(v)),
+    "chaque jeton est une option du plan");
+  assert.equal(planEspece.options.length, 18, "témoin : `from: \"any\"` ouvre les dix-huit du SRD");
+  assert.equal(selecteur.querySelectorAll("[data-creneau]").length, planEspece.expected,
+    "`count` collecteurs, pas un de plus");
+  /* ⚔️ ET LES JETONS PORTENT LEUR NOM — le défaut mesuré le 10/09 dans la page :
+     le mot passait par un lecteur qui ne sait pas résoudre un SLUG, et les
+     trois jetons de l'Elfe SRD s'affichaient « Insight — not in this ruleset »
+     alors que la pile porte le record. Un seul mot de refus suffit à rougir. */
+  const mots = selecteur.querySelectorAll(".glisse-jeton").map((b) => b.textContent);
+  assert.equal(mots.some((mot) => /not in this ruleset|switch it on in Layers/.test(mot)), false,
+    `un jeton nomme son record : ${mots.slice(0, 3).join(" · ")}`);
+  assert.equal(mots.length, new Set(mots).size, "…et chacun le sien");
 });
 
 /* ══ LOT 46 — LA CONFIRMATION QUAND ON CHANGE DE CLASSE ══════════════════
