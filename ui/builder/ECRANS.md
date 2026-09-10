@@ -98,6 +98,23 @@
 
 **Un personnage qui a coupé un interrupteur entier n'est PAS « hors des deux jeux de règles » ; et au rechargement, la pile montée se range sur ce que son document déclare, au lieu de le laisser mourir sur l'écran mort.**
 
+### Le magasin de sauvegardes est un rang B du Menu
+📍 `menu-magasin-de-sauvegardes` · déployée, hors corpus · 10/09
+⚖️ **`Open` n'ouvre plus la boîte de fichiers du système : il ouvre le rang `B` où sont TOUTES les sauvegardes, groupées par personnage, la plus récente en tête — et chaque `Save` y range une entrée DATÉE, jamais un écrasement.**
+
+> **Eric** : « j'aimerais un menu de sauvegarde dédié, dans le site, sans avoir à me balader dans les menus, avec une option discrète sur où elles sont vraiment enregistrées. Donc quand j'appuie sur Open, j'ai une page avec toutes mes sauvegardes dedans. »
+
+> **Eric** : « popup la première fois que je vais dans ce menu : "choisissez la destination de vos sauvegardes" — ça va vers le Finder ou autre chose, bref tu choisis la destination. Une fois que c'est fait, un bouton reste présent : "save location". Après ça tout se passe dans la fenêtre B ouverte : j'appuie sur Open, qui est sur R ; dans cette fenêtre, toutes mes saves. Le DM aura plus évolué, mais idem. »
+
+> ⚖️ **Et sa réponse à « que fait Save ? »** : *« une entrée datée à chaque Save (Ilyra — 10 sept. 14:32) : rien n'est écrasé, la page montre les versions par personnage. »*
+
+> 📏 **CE QUI EST POSSIBLE, MESURÉ** : le navigateur sait choisir un dossier UNE FOIS et le retenir *(`showDirectoryPicker`, la poignée persistée dans IndexedDB)* — y lister, lire et écrire sans redemander. ⚠️ **Chrome et Edge sur Mac : oui. Safari, iPad : non.** ⇒ **deux sols, UNE seule page** : ⛔ jamais deux expériences pour le même geste, seule **la ligne discrète** change. Dossier possible → le popup la première fois, puis `Save location` dit le nom du dossier. Dossier impossible → le tiroir du navigateur, le bouton dit **« in this browser »**, ⛔ **aucun popup de destination**, et `Save` reste AUSSI un téléchargement *(le tiroir ne donne pas la propriété — loi du 06/09)*.
+> ⚠️ **CE QUI EST DEVENU FAUX ET A ÉTÉ RÉÉCRIT** : *« This browser keeps one character »*, la phrase du rang B depuis le 26/08. Elle était vraie tant que `memoire.mjs` était le seul rangement ; elle mentait dès la seconde sauvegarde.
+> ⭐ **`Open a file…` N'A PAS DISPARU** : la boîte du système descend d'un rang, DANS la page — un joueur qui reçoit un `.fh-char.json` d'ailleurs doit toujours pouvoir l'ouvrir *(loi du 06/09, `menu-dit-la-sauvegarde` inchangée)*.
+> ⏳ **CE QUI ATTEND ERIC** : `Open` et `My characters` mènent désormais à la MÊME pièce — deux portes, une seule chambre *(A-TRANCHER §C37)*.
+
+**`Open` ouvre une page, pas une boîte de fichiers : le rang `B` du Menu porte toutes les sauvegardes, groupées par personnage, la plus récente en tête, chacune disant nom · date · version. Un `Save` y écrit une entrée DATÉE — rien n'est jamais écrasé. Le popup de destination ne se pose que là où un dossier est possible, une seule fois ; ailleurs, le tiroir du navigateur et le mot « in this browser ». Le bouton `Save location` reste présent dans les deux cas.**
+
 ### Les deux bouts de la ceinture sont opaques
 📍 `menu-onglet-opaque` · déployée, hors corpus · 02/09
 ⚖️ **Les onglets `Menu` et `Sheet` sont peints à `100 %` d'opacité, parce que ni l'un ni l'autre n'est une étape.**

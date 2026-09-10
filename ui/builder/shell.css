@@ -2718,7 +2718,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=618") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=619") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3041,7 +3041,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=618") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=619") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4550,7 +4550,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=618") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=619") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -5612,15 +5612,64 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .universe-step .tdc-champ .doc-field-label { flex: none; margin: 0; text-align: left; }
 .universe-step .tdc-champ .doc-field-input { flex: 1 1 0; min-width: 0; }
 
-/* B1 — MY CHARACTERS : une liste d'une ligne, aujourd'hui vraie. */
+/* B1 — le titre d'un rang B du Menu (My characters, Layers). */
 .tdc-titre-b { margin: 0 0 var(--sp-8); font-size: var(--t5); font-weight: 600; text-align: center; }
-.tdc-personnages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
-.tdc-personnage {
-  display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-8);
-  min-height: var(--touch); padding: 0 var(--sp-8);
-  border-radius: var(--radius-md); background: var(--sunken);
-  box-shadow: inset 0 0 0 1px var(--border-strong); font-size: var(--t3); color: var(--text-muted);
+
+/* ══ 🗄️ B1 — LE MAGASIN DE SAUVEGARDES (Eric, 10/09) ══════════════════════
+   *« quand j'appuie sur Open, j'ai une page avec toutes mes sauvegardes
+   dedans »* · *« un bouton reste présent : save location »*.
+
+   🔴 UN PERSONNAGE, PUIS SES VERSIONS. Le nom une fois, en tête de son groupe ;
+   dessous, une ligne par Save, la plus récente d'abord. ⛔ Répéter le nom sur
+   chaque ligne remplirait la largeur d'une information qu'on vient de lire.
+
+   ⛔ LES LIGNES NE PORTENT AUCUNE COULEUR ÉCRITE ICI en dehors des jetons : le
+   refus prend `.doc-field-error`, comme partout ailleurs.
+   📏 Chaque ligne garde `--touch` : on ouvre une sauvegarde au pouce.
+   ⛔ ET LA PAGE NE DÉFILE PAS DANS ELLE-MÊME : elle défile comme la dalle, avec
+   le reste — un contenu qui ne tient pas se règle en portant moins, jamais par
+   un ascenseur interne (📍 `geste-deux-gardes-fous-du-defilement-interne`). */
+.magasin-groupes { display: flex; flex-direction: column; gap: var(--sp-12); }
+.magasin-groupe { display: flex; flex-direction: column; gap: var(--sp-4); }
+.magasin-nom { margin: 0; font-size: var(--t4); font-weight: 600; color: var(--text); }
+.magasin-entrees { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.magasin-entree { display: flex; }
+.magasin-ouvrir {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
+  width: 100%; min-height: var(--touch); padding: 0 var(--sp-8);
+  border: 0; border-radius: var(--radius-md); background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  color: var(--text); font: inherit; font-size: var(--t3); text-align: left; cursor: pointer;
 }
+.magasin-date { color: var(--text); }
+/* LA VERSION — un mot sourd, à droite : elle qualifie, elle ne se lit pas en
+   premier. C'est le NOM du jeu (SRD · Fate's Hand), jamais un id de couche. */
+.magasin-version {
+  flex: none; font-size: var(--t1); letter-spacing: .06em;
+  color: var(--text-muted);
+}
+/* ⛔ UNE ENTRÉE ILLISIBLE N'EST PAS CLIQUABLE — et elle reste VISIBLE : la
+   faire disparaître ferait croire au joueur qu'il n'a jamais sauvegardé. */
+.magasin-entree[data-refus="true"] {
+  align-items: baseline; gap: var(--sp-8); min-height: var(--touch); padding: 0 var(--sp-8);
+  border-radius: var(--radius-md); background: var(--sunken);
+  box-shadow: inset 0 0 0 1px var(--border-strong); font-size: var(--t3);
+}
+.magasin-mot { margin: 0; }
+
+/* LE PIED — `Open a file…` au format réglementé, et la LIGNE DISCRÈTE.
+   ⭐ `Save location` est la SEULE chose qui change entre les deux sols, et elle
+   est DISCRÈTE (Eric : « une option discrète ») : pas de teinte, un liseré, le
+   corps sourd. ⛔ Jamais caché quand il ne peut rien choisir — présent, éteint,
+   avec sa raison (📍 `menu-reglage-impossible-reste-visible`). */
+.magasin-pied { margin-top: var(--sp-12); }
+.magasin-lieu {
+  min-height: var(--touch); padding: 0 var(--sp-8);
+  border: 0; border-radius: var(--radius-md); background: none;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  color: var(--text-muted); font: inherit; font-size: var(--t1); cursor: pointer;
+}
+.magasin-lieu:disabled { cursor: not-allowed; }
 
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
@@ -7382,7 +7431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=618");
+  background-image: url("./assets/tarot-dos.jpg?v=619");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

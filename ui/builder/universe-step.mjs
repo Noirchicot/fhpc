@@ -42,17 +42,22 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=618";
+import { renderConfirmDialog } from "./confirm.mjs?v=619";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=618";
+import { motDeLEchelon } from "./echelle.mjs?v=619";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
-import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=618";
+import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=619";
+/* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
+   rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
+   ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
+   n'importe rien d'ici, donc pas de cycle à arbitrer. */
+import { renderMagasinEcran } from "./magasin-ecran.mjs?v=619";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -310,10 +315,18 @@ export const NOM_DE_LA_VERSION_FH = "fates-hand";
 /** La séquence de la troisième voie, PURE pour qu'un garde la lise sans
  *  coquille : `sauvegarder()` d'abord ; `eteindre()` seulement si elle a rendu
  *  `true`. Rend ce qui s'est passé.
- *  @param {{sauvegarder: () => boolean, eteindre: () => void}} gestes
- *  @returns {boolean} `true` si l'extinction a eu lieu */
-export function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
-  if (sauvegarder() !== true) return false;
+ *
+ *  ⏳ ELLE ATTEND DEPUIS LE LOT 195, ET C'EST LE MAGASIN QUI L'IMPOSE : ranger
+ *  une entrée touche un dossier ou une base du navigateur, et les deux
+ *  répondent en différé. ⛔ La seule autre issue était de décider l'extinction
+ *  sur une sauvegarde NON VÉRIFIÉE — c'est-à-dire de traiter le silence comme
+ *  un accord, exactement ce que la règle du 192 interdit. Le verdict reste donc
+ *  un verdict ; c'est l'attente qui est neuve.
+ *
+ *  @param {{sauvegarder: () => Promise<boolean>|boolean, eteindre: () => void}} gestes
+ *  @returns {Promise<boolean>} `true` si l'extinction a eu lieu */
+export async function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
+  if (await sauvegarder() !== true) return false;
   eteindre();
   return true;
 }
@@ -367,10 +380,16 @@ export const NOM_DU_PERSONNAGE_NEUF = "Unnamed character";
  *  ensuite demander le jeu — la question porte sur le personnage NEUF, la
  *  poser avant la ferait porter sur celui qu'on range.
  *
- *  @param {{personnage: boolean, sauvegarder: () => boolean, repartirAZero: () => void, demanderLeJeu: () => void}} gestes
- *  @returns {boolean} `true` si le personnage neuf est né */
-export function creerUnPersonnage({ personnage, sauvegarder, repartirAZero, demanderLeJeu }) {
-  if (personnage && sauvegarder() !== true) return false;
+ *  ⏳ ELLE ATTEND DEPUIS LE LOT 195, pour la MÊME raison que
+ *  `sauvegarderPuisEteindre` juste au-dessus : le magasin répond en différé, et
+ *  *« téléchargement bloqué = pas de reset »* n'a de sens que si l'on attend la
+ *  réponse. Une absence n'est jamais une réponse — et une promesse non attendue
+ *  est une absence.
+ *
+ *  @param {{personnage: boolean, sauvegarder: () => Promise<boolean>|boolean, repartirAZero: () => void, demanderLeJeu: () => void}} gestes
+ *  @returns {Promise<boolean>} `true` si le personnage neuf est né */
+export async function creerUnPersonnage({ personnage, sauvegarder, repartirAZero, demanderLeJeu }) {
+  if (personnage && await sauvegarder() !== true) return false;
   repartirAZero();
   demanderLeJeu();
   return true;
@@ -591,34 +610,17 @@ function renderCranChoice({ echelle, onPick }) {
  *  vue double appartient à un autre chantier en cours, et déplacer son organe
  *  pendant qu'on l'écrit est le meilleur moyen de le perdre. À rapatrier
  *  quand ce chantier est fusionné. */
-/** 🧑 B1 — MY CHARACTERS — Eric, 26/08 (dictée) et 08/09 (*« bouton large bleu »*).
- *  ⚖️ CE QU'IL MONTRE AUJOURD'HUI EST VRAI : le navigateur garde UN personnage
- *  (`memoire.mjs`, une clef) — la liste a donc une ligne. Le jour où la clef
- *  devient un préfixe, cette liste s'allonge sans changer de forme. ⛔ Aucune
- *  ligne inventée, aucun « à venir » qui promettrait un compte. */
-function renderPersonnagesEcran(ctx, onAction) {
-  const section = el("section", "universe-step personnages-ecran dalle-intermediaire");
-  section.dataset.objet = "dalle";
-  section.dataset.sortieIci = "true";
-  section.dataset.ecran = "characters";
-  const memoire = ctx.memoire || { ok: true };
-  section.append(el("h3", "tdc-titre-b", [text("My characters")]));
-  const liste = el("ul", "tdc-personnages");
-  liste.dataset.garde = String(Boolean(memoire.ok));
-  const ligne = el("li", "tdc-personnage");
-  ligne.append(el("span", "tdc-nom", [text(nomDuPersonnage(ctx.document))]));
-  ligne.append(el("span", "tdc-garde", [text(memoire.ok ? "in this browser" : `not saved: ${memoire.raison}`)]));
-  liste.append(ligne);
-  section.append(liste);
-  section.append(el("p", "universe-note", [
-    text("This browser keeps one character. Open a .fh-char.json file from the Menu to switch, or Save to keep a copy where you want.")
-  ]));
-  const gestes = el("div", "parcours-pied");
-  gestes.append(bouton("Open", "tdc-vert", () => onAction({ kind: "ouvrirUnFichier" })));
-  gestes.append(bouton("Save", "tdc-vert", () => onAction({ kind: "exportJson" })));
-  section.append(gestes);
-  return section;
-}
+/* 🗄️ B1 — MY CHARACTERS EST LE MAGASIN DEPUIS LE LOT 195, et son rendu vit
+   dans `magasin-ecran.mjs` — même déménagement que `Layers` au lot 188, et
+   pour la même raison : l'écran qui porte le plus de dedans a son fichier.
+
+   🔴 CE QUI EST MORT ICI, ET IL FAUT SAVOIR CE QUE C'ÉTAIT. Cet écran rendait
+   UNE ligne — le personnage du navigateur — sous la phrase *« This browser
+   keeps one character »*. Elle était VRAIE tant que `memoire.mjs` était le
+   seul rangement (une clef, un personnage). Le magasin garde une entrée DATÉE
+   par Save : la phrase mentait dès la seconde sauvegarde, et Eric l'a dit
+   autrement le 10/09 (*« dans cette fenêtre, toutes mes saves »*). Elle est
+   réécrite dans `magasin-ecran.mjs`, pas rognée. */
 
 function renderDisplayEcran(ctx, onAction) {
   const section = el("section", "universe-step display-ecran dalle-intermediaire");
@@ -694,7 +696,7 @@ export function renderUniverseStep(ctx, onAction) {
      coquille ignorante du dedans de l'étape : elle dit à quel RANG on est
      (`ecran`), l'écran dit ce qu'on y voit. */
   if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
-  if (ctx.ecran === "characters") return renderPersonnagesEcran(ctx, onAction);
+  if (ctx.ecran === "characters") return renderMagasinEcran(ctx, onAction);
   if (ctx.ecran === "layers") return renderLayersEcran(ctx, onAction);
   const doc = ctx.document;
   const query = ctx.query;
@@ -767,9 +769,10 @@ export function renderUniverseStep(ctx, onAction) {
       text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
     ]));
   }
-  if (ctx.ouvertureRefusee) {
-    tete.append(el("p", "doc-field-error", [text(`That file was not opened: ${ctx.ouvertureRefusee}`)]));
-  }
+  /* 🗄️ LOT 195 — LE REFUS D'UN FICHIER A SUIVI SON BOUTON. La boîte de
+     fichiers du système ne s'ouvre plus depuis `R` (`Open` ouvre le magasin) :
+     un mot posé ici parlerait d'un geste que le joueur n'a pas fait sur cet
+     écran. Il se dit là où on l'a fait — la page du magasin. */
   perso.append(tete);
 
   /* LE GESTE MAJEUR — large, vert en relief (Eric). ⭐ LOT 193 — IL NE NAVIGUE
@@ -784,8 +787,16 @@ export function renderUniverseStep(ctx, onAction) {
      plancher de 77 (📍 `bouton-deux-largeurs`). `Open` et `Save` en vert
      (Eric) ; `Forget` reste rouge, il DÉFAIT. `Save` est l'export canonique de
      Sheet — le MÊME écrivain (`exportJson`), pas un second. */
+  /* 🗄️ LOT 195 — `Open` N'OUVRE PLUS LA BOÎTE DE FICHIERS DU SYSTÈME.
+     ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
+     sauvegardes dedans »*. Le MOT ne bouge pas — c'est le sien, et il l'a redit
+     ce jour-là dans la même phrase. Ce qui change est ce qu'il OUVRE : le rang
+     B `characters`, la page du magasin. ⭐ La boîte de fichiers n'a pas disparu
+     pour autant : elle descend d'un rang, sur `Open a file…` DANS cette page —
+     un joueur qui reçoit un `.fh-char.json` d'ailleurs doit toujours pouvoir
+     l'ouvrir (loi du 06/09, elle n'a pas bougé). */
   const trio = el("div", "parcours-pied tdc-trio");
-  trio.append(bouton("Open", "tdc-vert universe-ouvrir", () => onAction({ kind: "ouvrirUnFichier" })));
+  trio.append(bouton("Open", "tdc-vert universe-ouvrir", () => onAction({ kind: "ouvrirLeMagasin" })));
   trio.append(bouton("Save", "tdc-vert universe-sauver", () => onAction({ kind: "exportJson" })));
   trio.append(bouton("Forget", "parcours-annuler universe-oubli", () => onAction({ kind: "oublierPersonnage" })));
   perso.append(trio);
@@ -831,9 +842,14 @@ export function renderUniverseStep(ctx, onAction) {
   regles.append(bouton("Layers", "tdc-couches", () => onAction({ kind: "ouvrirLayers" })));
   perso.append(regles);
 
-  /* MY CHARACTERS — large, bleu, cadré à gauche (Eric). Il ouvre le rang B1 :
-     la liste de ce que le navigateur garde — aujourd'hui, un personnage. */
-  perso.append(bouton("My characters", "tdc-liste", () => onAction({ kind: "ouvrirPersonnages" })));
+  /* MY CHARACTERS — large, bleu, cadré à gauche (Eric, 08/09). Il ouvre le
+     rang B1 : le magasin.
+     ⚖️ ET IL OUVRE EXACTEMENT LA MÊME PAGE QUE `Open` DEPUIS LE LOT 195 — deux
+     portes, une seule pièce. ⏳ C'EST UNE QUESTION POUR ERIC, PAS UNE DÉCISION
+     PRISE ICI (A-TRANCHER §C37) : ses deux mots sont vrais, dits à deux jours
+     d'écart, et aucun ne dit lequel des deux boutons reste. On ne retire pas en
+     silence un bouton qu'il a dicté ; on le NOMME. */
+  perso.append(bouton("My characters", "tdc-liste", () => onAction({ kind: "ouvrirLeMagasin" })));
 
   /* LA LIGNE D'ÉTAT — *« in browser : Ilyra Duskleaf · saved, voyant vert si
      saved, rouge sinon »*. La pastille lit `[data-garde]`, jamais une couleur
