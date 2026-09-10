@@ -126,6 +126,43 @@ ne réclame aujourd'hui.
 | Le **minuteur** des chevrons | la fermeture de `mountChevrons` | lui-même |
 | La **vérité « ça défile »** (lot 70) : `data-visible` sur l'hôte des chevrons, `data-more` sur la scène, `disabled` sur les deux boutons | des attributs, sur des nœuds qui ne meurent pas | **`mountChevrons` seul** — un garde le prouve (`tests/chevrons.test.mjs`) |
 
+## 🌱 UN ÉTAT NEUF A UNE SOURCE, ET LA REMISE À ZÉRO REPART D'ELLE
+📍 `socle-etat-neuf-inverse` · vivante · 10/09
+⚖️ **Une remise à zéro RECONSTRUIT l'état depuis sa déclaration et ne conserve que les champs d'infrastructure NOMMÉS un par un — ⛔ jamais une liste des champs à remettre.**
+
+> **Eric**, 2026-09-10, à « pourquoi `Build a character` ne rend pas un écran vierge ? » :
+> *« Quand je fais reset ou **Build a character**, je veux **tout à la racine R et rien de déjà
+> construit** ! Pourquoi tu ne l'as pas fait ? »*
+
+📏 **L'INCIDENT, MESURÉ.** Ce jour-là, sur `v620` : `state` portait **41 champs** et le chemin de
+`Build a character` en remettait **18** — **23 survivaient**, dont **quatorze** appartenaient en
+propre à l'écran du personnage précédent : sa fiche dérivée (`resolved`, `decisions`, `report`,
+`violations`), sa branche de Menu ouverte, sa méthode d'abilities déjà choisie, son panneau
+d'Inheritance déplié, la sous-étape de sa cérémonie de Destiny.
+
+🔴 **ET LA CAUSE N'ÉTAIT PAS UN CHAMP OUBLIÉ, C'ÉTAIT LE SENS DE LA LISTE.** `remettreLEcranAZero`
+énumérait les champs À REMETTRE. **Une liste par nom ne dit jamais qu'elle est incomplète** : chaque
+champ ajouté à `state` depuis est oublié **par défaut, en silence**. Sa propre tête annonçait le
+piège depuis le lot 193 — *« raterait le onzième qu'on ajoutera demain »* — et le onzième était
+déjà arrivé quatorze fois.
+
+⛔ **ON NE RALLONGE DONC JAMAIS CETTE LISTE, ON L'INVERSE**, et c'est la règle : rallonger laisse le
+défaut intact, puisque le champ ajouté demain sera oublié pareil. La déclaration de l'état devient
+la **source** (`etat-neuf.mjs`), la remise à zéro **reconstruit** depuis elle, et la seule liste qui
+subsiste est celle des **survivants** — courte, et chaque nom y porte son argument à côté de lui.
+⇒ **Un champ neuf est remis à zéro par défaut ; le faire survivre est une décision qui s'écrit.**
+
+⚠️ **ET UNE TELLE SOURCE VIT HORS DE LA COQUILLE.** Personne n'importe `shell.mjs` *(garde F de
+`tests/socle.test.mjs`)* : un état déclaré là-dedans ne peut être compté par aucun garde, et un
+garde qui recopierait ses noms serait exactement la liste par nom qu'on retire. La source est donc
+un module pur, et le garde énumère les clefs **réelles** de l'objet — jamais une liste recopiée
+*(`tests/etat-neuf.test.mjs`)*.
+
+📌 **LA MÊME LOI VAUT POUR TOUT ORGANE QUI « REPART À ZÉRO »**, pas seulement pour `state` : dès
+qu'un geste prétend rendre quelque chose neuf, il repart de ce qui DÉFINIT le neuf, et nomme ses
+exceptions. ⭐ Le geste qui RECHARGE la page (`Forget`) est le cas trivial de cette règle : il ne
+conserve rien, donc il n'a jamais eu de liste à tenir.
+
 ## 🏠 Qui possède quoi — côté JOUEUR : le personnage est à lui
 📍 `socle-chacun-est-proprietaire-de-ses-donnees` · vivante · 06/09
 ⚖️ **Les données d'un personnage appartiennent au JOUEUR : le FICHIER est l'organe qui les porte, et le stockage du navigateur n'est qu'un cache de reprise.**

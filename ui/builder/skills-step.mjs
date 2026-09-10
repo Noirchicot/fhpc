@@ -34,13 +34,13 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=620";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=620";
-import { swapContent } from "./socle.mjs?v=620";
-import { renderChoixGlisses } from "./glisser.mjs?v=620";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=621";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=621";
+import { swapContent } from "./socle.mjs?v=621";
+import { renderChoixGlisses } from "./glisser.mjs?v=621";
 /* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
    dont la couche est éteinte (Trainings coupé depuis `Layers`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=620";
+import { motDuChoix } from "./mot-du-choix.mjs?v=621";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`

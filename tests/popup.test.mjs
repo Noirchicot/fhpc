@@ -160,10 +160,18 @@ test("C ter — rouvrir RÉARME le différé (deux écarts d'affilée)", async (
 /* ══ D — LE CÂBLAGE DE LA COQUILLE, SUR LES OCTETS ═══════════════════════ */
 
 const shellText = fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8");
+const { etatNeuf } = await import("../ui/builder/etat-neuf.mjs");
 
 test("D — l'état du popup vit dans `state`, jamais dans le DOM (SOCLE.md)", () => {
-  assert.match(shellText, /\n  popup: null,/,
+  /* 🌱 LOT 197 — MESURÉ SUR LA DONNÉE, PLUS SUR LES OCTETS DE LA COQUILLE. La
+     déclaration de `state` a déménagé dans `etat-neuf.mjs` (elle y est devenue
+     la source de la remise à zéro), et ce garde la lit maintenant là où elle
+     vit, en interrogeant l'objet plutôt qu'un motif de texte. ⛔ Rien n'est
+     desserré : l'exigence est la même, et elle est devenue plus forte —
+     `popup: nulll` passait le motif d'avant, il ne passe plus. */
+  assert.equal("popup" in etatNeuf(), true,
     "SOCLE.md l'annonçait : « l'état d'un popup doit survivre — il vivra dans `state` comme le reste »");
+  assert.equal(etatNeuf().popup, null, "et un écran neuf n'a aucun popup ouvert");
   assert.match(shellText, /frame\.popupLayer\.(show|hide)\(/,
     "et la coquille pilote la surface persistante, elle ne fabrique pas un popup par redessin");
 });
