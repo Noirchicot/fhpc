@@ -240,28 +240,31 @@ test("E2 — 🔌 la voie choisie RÈGLE LE MAÎTRE, DÉCLARE la pile, puis ouvr
     "on ne redéclare pas ce que `rebuild` a déjà adopté");
 });
 
-test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — la liste ne vit plus dans `ouvrirUnFichier`", () => {
+test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — et depuis le 197, il ne l'ÉNUMÈRE plus", () => {
   /* Un organe que N écrans fabriquent est un organe qu'on oublie : la liste
      était écrite dans `ouvrirUnFichier`, et sa propre tête disait déjà le
-     piège (« raterait le onzième qu'on ajoutera demain, EN SILENCE »). */
+     piège (« raterait le onzième qu'on ajoutera demain, EN SILENCE »).
+
+     🌱 LOT 197 — ET LE ONZIÈME ÉTAIT DÉJÀ ARRIVÉ QUATORZE FOIS. 📏 Mesuré le
+     10/09 sur v620 : `state` portait 41 champs, ce chemin en remettait 18, et
+     23 survivaient. ⛔ CE GARDE NE SE DESSERRE PAS — il change d'objet, parce
+     que son objet d'avant est devenu le défaut : exiger que la LISTE soit ici
+     obligeait à écrire une liste. Il exige maintenant qu'AUCUNE liste ne vive
+     dans aucun des trois chemins, et que tous les trois passent par
+     `remettreAZero` (`etat-neuf.mjs`), dont le contenu est mesuré sur la
+     donnée par `tests/etat-neuf.test.mjs`. */
   const corps = shell.match(/function remettreLEcranAZero\(\) \{([\s\S]*?)\n\}/);
   assert.ok(corps, "la fonction existe");
-  /* ⛔ ON NE COMPTE PAS LES OCCURRENCES — plusieurs de ces champs se reposent
-     ailleurs pour de bonnes raisons (arriver sur Destiny rejoue la scène). Ce
-     qu'on mesure, c'est que LA LISTE est ici et qu'elle n'est plus LÀ-BAS. */
-  const CHAMPS = [
-    "state.step = 0;", "state.palier = 1;", "state.cursor = 0;", "state.lore = null;",
-    "state.destinyPhase =", "state.destinyMode =", "state.destinyDraw =", "state.destinyFace =",
-    "state.destinyDezoom =", "state.destinyTaps =", "state.destinyRang =",
-    "state.abilityRoll =", "state.abilityRevele ="
-  ];
-  for (const champ of CHAMPS) assert.ok(corps[1].includes(champ), `la liste porte « ${champ} »`);
+  assert.match(corps[1], /remettreAZero\(state\);/,
+    "elle DÉLÈGUE à la source de l'état neuf — ⛔ elle ne réécrit pas l'ordre");
+  assert.deepEqual([...corps[1].matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), [],
+    "⛔ un seul `state.x = …` ici et la liste par nom est de retour, avec son défaut");
+
   /* ⭐ LOT 195 — L'ORGANE A GAGNÉ UN ÉTAGE, ET LE GARDE AVEC LUI. Le magasin
      avait besoin, MOT POUR MOT, de ce que `ouvrirUnFichier` faisait après avoir
-     lu un fichier : `poserLeDocumentOuvert` est né de là. ⛔ Le garde ne s'est
-     pas desserré pour autant — il exige maintenant que les DEUX portes
+     lu un fichier : `poserLeDocumentOuvert` est né de là. ⛔ Les DEUX portes
      (le fichier du disque, l'entrée du magasin) passent par cet organe, et
-     qu'AUCUNE ne recopie la liste. */
+     AUCUNE ne pose de champ à la main. */
   const ouvrir = shell.slice(shell.indexOf('action.kind === "ouvrirUnFichier"'), shell.indexOf('action.kind === "oublierPersonnage"'));
   assert.match(ouvrir, /poserLeDocumentOuvert\(issue\.document\);/, "l'ouverture d'un fichier RÉEMPLOIE l'organe");
   const entree = shell.slice(shell.indexOf('action.kind === "ouvrirUneEntree"'), shell.indexOf('action.kind === "choisirLaDestination"'));
@@ -269,13 +272,18 @@ test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — la liste ne vit 
     "rouvrir une sauvegarde du magasin est le MÊME atterrissage — ⛔ pas un second chemin");
   const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe existe");
-  assert.match(pose[1], /remettreLEcranAZero\(\);/, "et c'est LUI qui réemploie la liste");
+  assert.match(pose[1], /remettreLEcranAZero\(\);/, "et c'est LUI qui réemploie l'organe");
+  /* ⚠️ LES DEUX PORTES ÉCRIVENT ENCORE UN CHAMP, ET UN SEUL : le refus de
+     LECTURE (`ouvertureRefusee`), posé quand le fichier ou l'entrée ne se lit
+     PAS — c'est-à-dire quand `poserLeDocumentOuvert` n'est jamais atteint. Ce
+     n'est pas une moitié de remise à zéro, c'est le mot du refus. ⛔ Tout
+     autre champ ici serait le second écrivain de retour. */
   for (const [ou, texte] of [["ouvrirUnFichier", ouvrir], ["ouvrirUneEntree", entree]]) {
-    for (const champ of CHAMPS) {
-      assert.equal(texte.includes(champ), false, `« ${champ} » a été recopié dans \`${ou}\` — le second écrivain est de retour`);
-    }
+    const poses = [...new Set([...texte.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()))];
+    assert.deepEqual(poses, ["state.ouvertureRefusee ="],
+      `\`${ou}\` ne pose que le refus de LECTURE — le reste appartient à l'organe`);
   }
-  assert.match(shell, /repartirAZero: \(\) => \{[\s\S]{0,200}remettreLEcranAZero\(\);/, "…et le personnage neuf aussi");
+  assert.match(shell, /repartirAZero: \(\) => \{[\s\S]{0,600}remettreLEcranAZero\(\);/, "…et le personnage neuf aussi");
 });
 
 test("E4 — ⛔ LE MOTEUR PAS CHARGÉ EST UNE PORTE EN PANNE, comme pour `Save` — jamais un bouton muet", () => {

@@ -19,27 +19,27 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=620";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=620";
-import { mountPopup } from "./popup.mjs?v=620";
-import { renderLorePanel } from "./lore.mjs?v=620";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=620";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=621";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=621";
+import { mountPopup } from "./popup.mjs?v=621";
+import { renderLorePanel } from "./lore.mjs?v=621";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=621";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=620";
-import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=620";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=620";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=621";
+import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=621";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=621";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=620";
+} from "./tutoriel.mjs?v=621";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=620";
-import { lireLeFichier } from "./ouvrir.mjs?v=620";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=621";
+import { lireLeFichier } from "./ouvrir.mjs?v=621";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -50,14 +50,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=620";
+} from "./echelle.mjs?v=621";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=620";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=621";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -68,70 +68,70 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=620";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=620";
+} from "./fonds.mjs?v=621";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=620";
-import { renderChoixGlisses } from "./glisser.mjs?v=620";
-import { renderConceptStep } from "./concept-step.mjs?v=620";
+import { planAt, planSlots } from "./carnet.mjs?v=621";
+import { renderChoixGlisses } from "./glisser.mjs?v=621";
+import { renderConceptStep } from "./concept-step.mjs?v=621";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
-  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=620";
+  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=621";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=620";
+import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=621";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=620";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=621";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=620";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=620";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=621";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=621";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=620";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=620";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=620";
+} from "./catalogue.mjs?v=621";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=621";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=621";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=620";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=621";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=620";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=621";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=620";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=621";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=620";
+} from "./abilities-step.mjs?v=621";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=620";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=621";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=620";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=620";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=620";
+} from "./destiny-step.mjs?v=621";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=621";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=621";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=620";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=620";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=621";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=621";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=620";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=621";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -150,11 +150,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=620";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=620";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=621";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=620";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=621";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -163,8 +163,8 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=620";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=620";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=620";
+import { platformNow } from "../../src/doc/clock.mjs?v=621";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=621";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
    sauvegardes dedans »* · *« une entrée datée à chaque Save »*.
@@ -173,12 +173,19 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=620";
    la version FH du 192, le fichier automatique de `Build a character` du 193)
    y entrent SANS second chemin. */
 import { ouvrirLeMagasin as monterLeMagasin, choisirUnDossier, garderDansLeTiroir,
-  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=620";
-import { popupDeLaDestination } from "./magasin-ecran.mjs?v=620";
+  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=621";
+import { popupDeLaDestination } from "./magasin-ecran.mjs?v=621";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=620";
+import { versionQuery } from "./version.mjs?v=621";
+/* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
+   ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
+   la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
+   vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
+   que la coquille garderait pour elle ne serait comptable devant aucun garde
+   (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=621";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -293,165 +300,18 @@ const ECRANS_QUI_LISENT_LA_FICHE = new Set([
   "background", "abilities", "destiny", "skills", "equipment", "review"
 ]);
 
-const state = {
-  step: 0,
-  /* ══ LE DOUBLE AFFICHAGE (lot 120) — deux crans, jamais deux `state` ══════
-     Eric, 2026-09-02 : deux panneaux côte à côte, *« si je clique sur le belt,
-     c'est l'élément actif qui bouge »*.
-
-     🔴 `state.step` RESTE LE CRAN DE L'ACTIF, et c'est ce qui rend le lot
-     petit : les quarante lectures du fichier (`STEPS[state.step]`,
-     `catalogueCourant`, `pressDone`…) parlent toutes du panneau qu'on
-     commande, comme avant. Le second cran est un champ de plus, pas un second
-     état — dupliquer `state` aurait donné deux documents à tenir d'accord.
-     ⛔ `stepSecond` ne vaut RIEN quand la vue est simple : c'est le rendu qui
-     le lit, jamais le moteur. */
-  stepSecond: 0,          // le cran du panneau PASSIF — Menu par défaut (Eric)
-  engine: null,       // { build, layers, bus } — set once bootEngine() resolves
-  document: null,      // the live fh-char/1 document
-  decisions: [],        // the last rebuild()'s carnet
-  resolved: null,        // the last rebuild()'s fiche — lot 39 needs it whole, not just decisions[]
-  report: null,          // LOT 40 — the whole last rebuild() output: {underived, warnings,
-                          // unconsumed, …}, exactly the shape render-fiche.mjs's `report` wants
-  violations: [],          // the last validate()'s refusals — {key, params, path?}
-  engineError: null,
-  /* Le refus de `derive` quand le personnage n'est PAS DÉRIVABLE — pas une
-     panne, un état de création (voir `rebuild()`). `null` le reste du temps. */
-  derivationImpossible: null,
-  /* ⭐ CE QUE LA MÉMOIRE DU NAVIGATEUR A RÉPONDU — `{ok:true}` ou
-     `{ok:false, raison}`. L'écran Menu le DIT au joueur : « gardé dans ce
-     navigateur », ou pourquoi il ne l'est pas.
-     ⛔ Un builder qui ne sauvegarde pas en silence est pire que celui d'hier,
-     qui ne sauvegardait pas du tout — hier le joueur le savait. */
-  memoire: { ok: true },
-  /* ⚠️ ET CELUI-CI NE SE TAIT JAMAIS : un personnage ÉTAIT gardé, et il était
-     inutilisable. Il survit à la première sauvegarde réussie — sinon le joueur
-     repartirait de l'exemple sans jamais apprendre qu'il a perdu quelque
-     chose, ce qui est le repli silencieux que la loi §0.5 interdit. */
-  memoireIgnoree: null,
-  /* 📂 Le mot du dernier fichier REFUSÉ à l'ouverture, ou null. ⛔ Il ne vit
-     pas dans le document : c'est un fait d'écran, il meurt au rechargement. */
-  ouvertureRefusee: null,
-  /* 🧭 La branche de rang B du Menu ouverte : "display" (Appearance),
-     "characters" (le magasin de sauvegardes, lot 195) ou "layers" (le tableau
-     de commande des couches, lot 188). Lue seulement quand `palier >= 2`. */
-  menuBranche: "display",
-  /* ══ 🗄️ LOT 195 — LE MAGASIN, ET CE QU'IL A RÉPONDU ════════════════════
-     ⭐ TROIS CHAMPS, PAS UN, ET AUCUN NE SE DÉDUIT DES AUTRES :
-     · `magasin`      — L'ORGANE lui-même (`null` tant qu'il n'est pas monté).
-       ⛔ Il n'est jamais lu par un écran : la coquille l'interroge, l'écran
-       reçoit des faits.
-     · `magasinListe` — CE QUE `lister()` A RENDU, dans son propre vocabulaire :
-       `{etat:"chargement"}` · `{etat:"liste", entrees, groupes}` ·
-       `{etat:"refus", raison}`. ⛔ « je cherche encore » et « il n'y a rien »
-       sont deux choses ; les confondre ferait croire à une perte.
-     · `magasinOu`    — LA LIGNE DISCRÈTE (`ouEstCeRange()`), gardée à part
-       parce qu'elle survit à un refus de listage : le bouton `Save location`
-       doit rester lisible précisément quand la liste a échoué. */
-  magasin: null,
-  magasinListe: { etat: "chargement" },
-  magasinOu: null,
-  /* 📚 LOT 188 — les livres du joueur PRÉSENTS sur le disque mais que le bloc
-     `layers` a REFUSÉS (`[{id, raison}]`). Un 404 n'est pas ici : c'est zéro
-     livre. Un fichier illisible, lui, se dit dans `Layers` avec sa raison. */
-  livresRefuses: [],
-  /* ⭐ LE REGISTRE DES FONDS, BRUT — lot 134. On garde le registre, PAS une
-     liste dérivée : `collections()` et `collectionServie()` le relisent à
-     chaque rendu, et il n'y a donc jamais deux états à tenir d'accord. `null`
-     tant qu'il n'est pas chargé, et `null` pour toujours s'il ne se lit pas —
-     `tokens.css` sert alors la collection par défaut, et le Menu n'affiche pas
-     le réglage plutôt que d'afficher une liste vide. */
-  registreFonds: null,
-  /* LOT 45 — le hasard n'a AUCUNE existence dans le document (Eric,
-     2026-08-13 : "seul le résultat compte", voir ABILITIES/DESTINY steps).
-     Ces deux champs sont donc ici, hors de `document`, exactement comme
-     l'était `planOpen` — perdus si l'onglet ferme, et c'est voulu.
-     *(`planOpen` est parti avec la ligne de commande, refonte 2 §1.)* */
-  /* LOT 50 — `abilityRoll` porte maintenant aussi `assign` : la carte
-     `clef → index de dé` (commande §2a, « la carte vit au même endroit que
-     le lot »). Ni l'un ni l'autre champ n'existe dans `document` — voir
-     `abilities-step.mjs`, en-tête. */
-  abilityRoll: null,     // le dernier lot de dix jets ({rolls, rerollCount, assign}), ou null
-  /* LOT 63 — B5.1c : « il faut CLIQUER pour faire apparaître les rollers ».
-     Tant que `abilityMethod` est nul, l'écran ne montre que ses tuiles. */
-  abilityMethod: null,   // "roll" | "standard" | "manual"
-  /* 🏁 LE BILAN D'ABILITIES (Eric, 06/09) : après `Done` sur la page d'une méthode,
-     la racine ne montre plus le choix (R1) mais le BILAN (R2) — six scores sur
-     un tapis, `Next` avance, `Cancel` rend le choix. Un drapeau, pas une
-     déduction : un lot complet peut vivre SANS bilan (on est revenu au choix). */
-  abilityBilan: false,
-  /* LOT PLATEAU (2026-08-15) — combien des dix jets sont DÉCOUVERTS. Il vit
-     ici et pas dans `abilityRoll` parce qu'il survit à un lot rejeté : le
-     plateau remet à zéro lui-même quand il balaie. */
-  abilityRevele: 0,
-  /* LOT 64 — B4.1/B4.2 : quel panneau d'Inheritance est ouvert. Fermé, on
-     voit les deux dalles ; ouvert, l'AUTRE disparaît. */
-  inheritanceOpen: null, // "boost" | "feat" | null
-  /* ⛔ `equipmentCategory` ET `equipmentSearch` ONT DISPARU LE 2026-08-23 :
-     la molette et la loupe qu'ils pilotaient ne sont plus à l'écran. Un état
-     que personne ne lit est un état qui ment sur ce que l'écran sait faire. */
-  /* ⛔ `rollingMethod` A DISPARU AU LOT 80 : `FH 3D6` et `4D6` ne sont plus
-     une molette DANS la méthode « Roll dice », ce sont deux TUILES du
-     sélecteur (croquis du 16/08). Un choix, plus deux. */
-  /* LOT 82 — LE PANNEAU DE LORE, croquis A : *« lore sends to full page
-     description »*. Un interrupteur d'écran de plus, de la même famille que
-     `inheritanceOpen` : il ne touche pas le document, il
-     meurt avec l'onglet, et il vit HORS du DOM pour survivre au
-     remplacement du contenu (SOCLE.md).
-     ⭐ Il porte le RECORD (`{kind, id}`) et pas un booléen : deux écrans à
-     fiche l'emploient, et douze fiches chacun. Un drapeau ne dirait pas
-     laquelle on lit. */
-  /* LE PARCOURS D'ÉTAPE (Eric, 2026-08-19) — `{ racine, path }` quand une dalle
-     d'item est ouverte, sinon null. C'est le cran le PLUS INTÉRIEUR du retour :
-     un item vit dans un guide, qui vit dans un palier, qui vit dans une étape. */
-  parcoursItem: null,
-  /* Les chemins que le dernier `Done` de guide a REFUSÉS, ou null. Il n'existe
-     qu'APRÈS un refus : annoncer d'avance ce qui manque ferait de la liste un
-     reproche. */
-  parcoursRefus: null,
-  lore: null,            // { kind, id } — le record dont on lit la prose, ou null
-  destinyRang: null,     // "SB2" = le FF ouvert depuis le catalogue ; null ailleurs
-  destinyMode: "draw",   // "draw" (défaut, ADDENDUMS §4) ou "choice" — jamais écrit au document (fh.destiny.* est un namespace strict, mesuré)
-  /* LOT 61 — QUATRE ÉTATS D'ÉCRAN POUR DESTINY, ET AUCUN N'EST DANS LE
-     DOCUMENT : B6.2 dit « rien n'est acté tant que Valid n'est pas tapé ».
-     Le tirage vit donc ici et meurt avec l'onglet — cohérent avec la
-     décision du 2026-08-13, « seul le résultat compte, aucun historique ». */
-  /* LOT 62 — LE POPUP (III.4, B7.7). Son état vit ICI et non dans le DOM :
-     c'est la quatrième des cinq choses que `innerHTML = ""` détruisait, et
-     SOCLE.md l'annonçait — « il vivra dans `state` comme le reste ». */
-  popup: null,            // { texte } quand il est ouvert, sinon null
-  /* ⭐ LES CINQ TEMPS DE DESTINY (lot 109, croquis d'Eric du 2026-08-30) :
-     `porte` (le R : Draw ou Choose) · `seq1` `seq2` `seq3` (la cérémonie
-     plein écran) · `final` (l'écran commun aux deux branches).
-     ⛔ Aucun de ces états n'entre au document : `fh.destiny.*` est un
-     namespace strict, et seul `Next` y écrit la carte. */
-  destinyPhase: "porte",
-  destinySeq2: "melange",  // sous-étape de la séquence 2 : "melange" puis "grossit"
-  destinyDezoom: false,    // séquence 3 : la carte retournée repart à 50 %
-  destinyTaps: [],         // horodatages des taps — trois d'affilée résolvent
-  destinyDraw: null,       // la carte TIRÉE ou CHOISIE, pas encore actée
-  destinyFace: "down",     // B6.1c — retournée ou non
-  /* LOT 54 — Concept/Universe. `docWriters` = `createDocWriters({schema})`,
-     construit UNE FOIS au boot (juste en dessous) : PUR, sans magasin ni bus
-     (voir shell.mjs, imports, et universe-step.mjs en tête). `fieldErrors`
-     et `pendingStack` sont de l'état d'ÉCRAN, comme `abilityRoll` —
-     jamais écrits au document, perdus si l'onglet ferme. */
-  docWriters: null,       // { rename, describe } une fois le schéma chargé, sinon null
-  fieldErrors: {},        // le dernier refus de rename/describe, par champ ({name, gender, alignment, campaign})
-  pendingStack: null,     // "srd" pendant qu'une confirmation de passage à SRD est en attente, sinon null
-  /* LOT 58 — DEUX ÉTATS D'ÉCRAN DE PLUS, ET ILS VIVENT ICI POUR UNE RAISON
-     (SOCLE.md, « qui possède quoi ») : hors du DOM, donc ils survivent à un
-     remplacement de contenu par construction. C'était deux des cinq choses
-     que `innerHTML = ""` détruisait.
-     · `palier` — où en est `Validate` sur l'écran courant (I.4). Remis à 1
-       à chaque changement d'étape, jamais deviné.
-     · `cursor` — le cran d'aimantation de l'écran à CATALOGUE courant (Class
-       ou Species : le même écran, `catalogue.mjs`). 🔴 ÉCRIT PAR LE
-       SCROLLSPY, ET PAR LUI SEUL, et il ne déclenche AUCUN redessin
-       (SOCLE.md, la troisième ligne des trois verbes). */
-  palier: 1,
-  cursor: 0
-};
+/* 🌱 LOT 197 — LA DÉCLARATION DE `state` A DÉMÉNAGÉ DANS `etat-neuf.mjs`, ET
+   ELLE Y EST DEVENUE LA SOURCE DE LA REMISE À ZÉRO. Lire la tête de ce
+   fichier-là avant d'ajouter un champ ici : depuis ce lot, **un champ neuf est
+   remis à zéro par défaut**, et le faire SURVIVRE demande de l'inscrire
+   nommément dans `CHAMPS_QUI_SURVIVENT`, avec son argument. ⛔ Le sens de la
+   liste s'est inversé — 📏 elle en remettait 18 sur 41, elle en remet 31.
+   ⭐ ET ELLE EST SORTIE D'ICI POUR QU'UN GARDE PUISSE LA COMPTER : personne
+   n'importe `shell.mjs` (SOCLE, garde F de `tests/socle.test.mjs`), donc aucun
+   test ne pouvait énumérer les clefs RÉELLES de `state` tant qu'elles vivaient
+   dans ce fichier. `tests/etat-neuf.test.mjs` les compte maintenant sur la
+   donnée, jamais sur une liste recopiée. */
+const state = etatNeuf();
 const app = document.getElementById("app");
 
 /** Re-runs `rebuild` on the current document and refreshes `decisions`.
@@ -720,30 +580,30 @@ function personnageNeuf(precedent) {
  *  DEUX fois, et l'une des deux sans que personne le voie. Un organe que N
  *  écrans fabriquent est un organe qu'on oublie : il n'y en a plus qu'un.
  *
+ *  🌱 LOT 197 — ET LE ONZIÈME ÉTAIT DÉJÀ ARRIVÉ QUATORZE FOIS. 📏 Mesuré le
+ *  10/09 sur v620 : `state` portait 41 champs, ce chemin en remettait 18, et
+ *  **23 survivaient** — dont la fiche dérivée du personnage précédent, sa
+ *  branche de Menu, sa méthode d'abilities, son panneau d'Inheritance déplié.
+ *  ⛔ LA LISTE N'A PAS ÉTÉ RALLONGÉE, ELLE A ÉTÉ INVERSÉE : `remettreAZero`
+ *  (`etat-neuf.mjs`) RECONSTRUIT l'état depuis sa déclaration et ne garde que
+ *  ce que `CHAMPS_QUI_SURVIVENT` nomme. Rallonger aurait laissé le défaut
+ *  intact — une liste PAR NOM ne dit jamais qu'elle est incomplète, et le champ
+ *  ajouté demain aurait été oublié pareil, en silence.
+ *  ⇒ **Ajouter un champ à `state` ne demande plus rien ici.** Le faire
+ *  SURVIVRE, en revanche, est une décision qui s'écrit à côté de son nom.
+ *
  *  ⛔ IL NE TOUCHE PAS AU DOCUMENT : c'est de l'état d'ÉCRAN, et l'appelant
- *  pose le document lui-même (un fichier ouvert, un personnage neuf). */
+ *  pose le document lui-même (un fichier ouvert, un personnage neuf). C'est
+ *  `document` qui porte cet argument dans `CHAMPS_QUI_SURVIVENT`, pas une
+ *  exception muette ici.
+ *
+ *  ⚠️ LE MINUTEUR RESTE ICI, ET IL NE PEUT PAS PARTIR : `annulerDestiny` tient
+ *  une fermeture de la coquille (`destinyTimer`), pas un champ de `state`.
+ *  Remettre `destinyPhase` à « porte » sans tuer le minuteur laisserait la
+ *  cérémonie du personnage d'avant repeindre l'écran du personnage neuf. */
 function remettreLEcranAZero() {
   annulerDestiny();
-  state.step = 0;
-  state.palier = 1;
-  state.cursor = 0;
-  state.lore = null;
-  state.destinyPhase = "porte";
-  state.destinyMode = "draw";
-  state.destinyDraw = null;
-  state.destinyFace = "down";
-  state.destinyDezoom = false;
-  state.destinyTaps = [];
-  state.destinyRang = null;
-  state.abilityRoll = null;
-  state.abilityRevele = 0;
-  /* ⭐ LOT 193 — DEUX DE PLUS, ET ILS ÉTAIENT DU MÊME BORD DEPUIS TOUJOURS :
-     le dernier refus de champ (`fieldErrors`) et la question de pile restée
-     ouverte (`pendingStack`) parlent du personnage qu'on vient de ranger. Les
-     laisser pendre afficherait, sur le personnage NEUF, un « name is too long »
-     qu'il n'a jamais provoqué, ou une confirmation qui n'attend plus rien. */
-  state.fieldErrors = {};
-  state.pendingStack = null;
+  remettreAZero(state);
 }
 
 /* ══ 📂 UN PERSONNAGE QUI VIENT D'AILLEURS DEVIENT LE PERSONNAGE COURANT ═══
@@ -754,27 +614,42 @@ function remettreLEcranAZero() {
    différentes — la leçon du 193 sur `remettreLEcranAZero`, appliquée un cran
    plus haut. *Un organe que N écrans fabriquent sera oublié.*
 
-   🔴 POURQUOI ON REPASSE PAR LE DÉMARRAGE. `state` porte une dizaine de faits
+   🔴 POURQUOI ON REPASSE PAR LE DÉMARRAGE. `state` porte trente et un faits
    qui appartiennent au personnage COURANT (la carte tirée de Destiny, le lot de
-   dés d'Abilities, le palier, le curseur…). Les remettre un par un marcherait
-   aujourd'hui et raterait le onzième qu'on ajoutera demain, EN SILENCE. On
-   confie donc le personnage à la mémoire du navigateur, et la page redémarre
-   dessus.
+   dés d'Abilities, le palier, le curseur…), et un rechargement de page les pose
+   TOUS par construction — c'est le seul chemin dont on n'a rien à mesurer.
+   On confie donc le personnage à la mémoire du navigateur, et la page
+   redémarre dessus.
    ⛔ ET ON NE RECHARGE QUE SI LA MÉMOIRE A ACCEPTÉ : recharger sur un magasin
    qui refuse (navigation privée) jetterait le personnage qu'on vient d'ouvrir.
-   Dans ce cas seulement, on l'installe en mémoire vive et on remet à zéro ce
-   qui appartenait au personnage d'avant. */
+
+   🌱 LOT 197 — LA BRANCHE SANS RECHARGEMENT SOUFFRAIT DU MÊME DÉFAUT QUE
+   `Build a character`, ET ELLE EST RÉPARÉE PAR LE MÊME ORGANE. Mesuré le
+   10/09 : elle remettait à zéro les mêmes 18 champs sur 41, donc un personnage
+   ouvert par-dessus un autre héritait de son écran — ⛔ et elle le faisait
+   APRÈS un premier rendu, si bien que l'ancien écran était peint une fois avec
+   le nouveau document dedans. La remise à zéro passe désormais AVANT ce rendu,
+   une seule fois, pour les deux branches. *Un organe que N écrans fabriquent
+   sera oublié.* */
 function poserLeDocumentOuvert(document) {
-  state.ouvertureRefusee = null;
-  state.memoireIgnoree = null;
   state.document = document;
+  /* 🌱 LOT 197 — AVANT LE PREMIER RENDU, ET C'EST UN CHANGEMENT D'ORDRE.
+     Ce `refresh()` peignait le personnage NEUF dans l'écran de l'ANCIEN : le
+     cran, le palier, la fiche dérivée et la branche de Menu d'avant étaient
+     encore là. Sur la branche qui recharge, personne ne le voyait ; sur celle
+     qui ne recharge pas (magasin refusé, navigation privée), c'était l'écran
+     que le joueur gardait. ⛔ Les deux nulls écrits ici à la main
+     (`ouvertureRefusee`, `memoireIgnoree`) sont partis avec : l'organe les
+     porte, et deux écrivains pour le même champ est ce que ce lot retire. */
+  remettreLEcranAZero();
   refresh();                                  // `memoriser()` garde le personnage neuf
   const garde = ecrirePersonnage(canonicalText(state.document));
   if (garde && garde.ok && typeof window !== "undefined" && window.location && window.location.reload) {
     window.location.reload();
     return;
   }
-  remettreLEcranAZero();
+  /* ⛔ PLUS DE SECONDE REMISE À ZÉRO ICI : elle a eu lieu avant le rendu
+     ci-dessus, une fois, pour les DEUX branches. */
   alignerLaPileSurLeDocument();                 // LOT 188 — même loi qu'au boot
   rebuild();
   refresh();
@@ -1597,9 +1472,12 @@ function applyDecisionAction(action) {
       sauvegarder: () => exporterJson({ quoi: "Build a character" }),
       repartirAZero: () => {
         state.document = personnageNeuf(precedent);
+        /* 🌱 LOT 197 — ET RIEN D'AUTRE. `memoireIgnoree` et `ouvertureRefusee`
+           étaient posés à la main ici ET dans `poserLeDocumentOuvert` : deux
+           copies d'une liste de deux champs. Ils tombent maintenant comme les
+           vingt-neuf autres, parce que personne ne les a inscrits parmi les
+           survivants. */
         remettreLEcranAZero();
-        state.memoireIgnoree = null;
-        state.ouvertureRefusee = null;
         /* ⛔ PAS DE `rebuild()` ICI : un personnage sans classe n'est pas
            dérivable, `rebuild` le NOMME déjà (`derivationImpossible`) et
            l'écran mort dit « pick a class ». Mais le faire MAINTENANT
