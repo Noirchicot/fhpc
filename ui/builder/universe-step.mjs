@@ -318,6 +318,105 @@ export function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
   return true;
 }
 
+/* ══ ⚖️ LOT 193 — « BUILD A CHARACTER » CRÉE UN PERSONNAGE ═════════════════
+   ⚖️ Eric, 10/09, gravé dans `ARCHITECTURE.md` (§ « LE PREMIER PAS »), second
+   fil SRD en débutant : *« j'arrive dans le menu, je tape Build a character, je
+   suis débutant. Il me faut un perso SRD mais je n'ai même pas regardé les
+   menus du dessous. **Un popup doit me dire, avant même d'arriver à l'étape 1,
+   tout de suite : tu veux SRD ou FH ? — et faire le réglage pour moi.** Le
+   perso du navigateur est **sauvegardé automatiquement et dégage du
+   navigateur** ; tous les choix des étapes sont **réinitialisés**. »*
+
+   **Deux questions posées, deux réponses, gravées avec elles :**
+   · *que devient le personnage courant ?* → **fichier automatique, puis
+     reset** ; ⛔ **téléchargement bloqué = pas de reset** — la règle du 192 mot
+     pour mot : un Save refusé n'efface rien.
+   · *combien de voies au popup ?* → **deux : SRD · Fate's Hand.** Il règle le
+     maître à la place du joueur. Les livres et les six interrupteurs restent
+     dans `Layers` pour qui veut aller plus loin. ⛔ Pas de troisième voie.
+
+   ⚠️ LE MOT DU BOUTON NE CHANGE PAS, LE GESTE OUI. `Build a character` reste
+   `Build a character` — la dictée du 26/08, rappelée plus bas au tableau de
+   commande. Ce qui change est ce qu'il FAIT : sauvegarder, repartir à zéro,
+   demander le jeu. */
+
+/** LE NOM D'UN PERSONNAGE QUI N'EN A PAS ENCORE.
+ *  📏 `fh-char/1` EXIGE UN NOM D'AU MOINS UN CARACTÈRE (`name.minLength: 1`,
+ *  schemas/fh-char.schema.json) : un personnage neuf ne peut donc PAS naître
+ *  sans nom, et une chaîne vide serait un refus, pas un blanc. Le mot choisi
+ *  est celui que le Menu affichait DÉJÀ pour un nom vide (`nomDuPersonnage`,
+ *  juste en dessous, qui le lit ici désormais) — une seule absence, un seul
+ *  mot ; deux auraient divergé au premier réglage.
+ *  ⏳ C'est le défaut le plus sobre, pas une cote d'Eric : le jour où il donne
+ *  son mot, il se change ICI, et le Menu comme la naissance le suivent. */
+export const NOM_DU_PERSONNAGE_NEUF = "Unnamed character";
+
+/** LA SÉQUENCE DU PREMIER PAS, PURE pour qu'un garde la lise sans coquille —
+ *  MÊME FORME que `sauvegarderPuisEteindre` (lot 192) et pour la même raison :
+ *  l'ordre EST la règle, et un ordre qui ne vit que dans une coquille ne se
+ *  mesure pas.
+ *
+ *  · un personnage est là → il est SAUVEGARDÉ d'abord. S'il n'est pas parti
+ *    (`sauvegarder()` rend autre chose que `true`), RIEN ne bouge : ni reset,
+ *    ni question — le joueur garde son personnage, et le refus lui a déjà été
+ *    dit par la porte (`porteEnPanne`, shell.mjs).
+ *  · aucun personnage → `sauvegarder` n'est JAMAIS appelé : écrire un fichier
+ *    de rien serait un téléchargement que personne n'a demandé.
+ *
+ *  Puis, dans cet ordre et jamais l'inverse : repartir à zéro, et SEULEMENT
+ *  ensuite demander le jeu — la question porte sur le personnage NEUF, la
+ *  poser avant la ferait porter sur celui qu'on range.
+ *
+ *  @param {{personnage: boolean, sauvegarder: () => boolean, repartirAZero: () => void, demanderLeJeu: () => void}} gestes
+ *  @returns {boolean} `true` si le personnage neuf est né */
+export function creerUnPersonnage({ personnage, sauvegarder, repartirAZero, demanderLeJeu }) {
+  if (personnage && sauvegarder() !== true) return false;
+  repartirAZero();
+  demanderLeJeu();
+  return true;
+}
+
+/* LES TROIS PHRASES DU POPUP — une par ligne, parce que `paintPopup`
+   (shell.mjs) fait un paragraphe de chaque ligne. La première DIT DE QUOI ON
+   PARLE et où le réglage vit ensuite : un joueur à qui on pose une question
+   sans lui dire ce qu'elle décide répond au hasard. Les deux suivantes donnent
+   UN MOT À CHAQUE VOIE — le bouton porte le nom, la ligne porte ce que le nom
+   veut dire. ⛔ Ni « couche » ni « homebrew » : le lexique du 10/09. */
+const MOT_DU_JEU_ENTREE = "Which rules is this character built on? You can change it later from Layers.";
+const MOT_DU_JEU_SRD = "SRD — the core rules, playable anywhere.";
+const MOT_DU_JEU_FH = "Fate's Hand — the world of Nymedes and its rules.";
+
+/** LE POPUP DU PREMIER PAS — la description d'état que `paintPopup` (shell.mjs)
+ *  sait déjà peindre (`{titre, role, texte, actions}`, lot 173) : ⛔ AUCUN
+ *  COMPOSANT NEUF, et pas un `confirm()` du navigateur. Ce n'est pas non plus
+ *  `confirm.mjs` : sa paire a un bouton ROUGE (`--critical`,
+ *  `.confirm-dialog-confirm`) parce qu'elle protège une DESTRUCTION — ici les
+ *  deux voies sont PAIRES, aucune ne défait rien, et peindre « Fate's Hand »
+ *  en rouge dirait le contraire de ce qu'elle fait. D'où le rôle `guide`, celui
+ *  qui « ne signale rien » (§7).
+ *
+ *  🔴 DEUX VOIES, ET LEUR NOMBRE EST LA DÉCISION D'ERIC — pas une commodité :
+ *  *« combien de voies au popup ? → deux : SRD · Fate's Hand »*. Chaque voie
+ *  rend un nom de pile du vocabulaire déjà en place (`currentStack` :
+ *  `"srd"` / `"srdfh"`), jamais un mot neuf.
+ *
+ *  ⛔ ELLE NE SAIT PAS CE QUE `choisir` FAIT — même loi que `confirm.mjs` en
+ *  tête : le composant ne connaît aucun verbe, l'appelant décide.
+ *
+ *  @param {(pile: "srd" | "srdfh") => void} choisir
+ *  @returns {{titre: string, role: string, texte: string, actions: {mot: string, faire: () => void}[]}} */
+export function popupDuJeu(choisir) {
+  return {
+    titre: "SRD or Fate's Hand?",
+    role: "guide",
+    texte: [MOT_DU_JEU_ENTREE, MOT_DU_JEU_SRD, MOT_DU_JEU_FH].join("\n"),
+    actions: [
+      { mot: "SRD", faire: () => choisir("srd") },
+      { mot: "Fate's Hand", faire: () => choisir("srdfh") }
+    ]
+  };
+}
+
 /** LA CONFIRMATION DU MAÎTRE — partagée entre R et l'écran `Layers` (lot 188),
  *  parce que `pendingStack` est un état de la coquille et que le joueur doit
  *  voir la question là où il a basculé l'interrupteur. Une seule fonction :
@@ -347,7 +446,11 @@ export function renderConfirmationPile(doc, query, onAction) {
 
 function nomDuPersonnage(doc) {
   const nom = doc && typeof doc.name === "string" ? doc.name.trim() : "";
-  return nom !== "" ? nom : "Unnamed character";
+  /* ⭐ LOT 193 — LE MOT DE L'ABSENCE EST DÉCLARÉ UNE FOIS
+     (`NOM_DU_PERSONNAGE_NEUF`, plus haut) : c'est le MÊME qu'un personnage
+     neuf porte à sa naissance, et deux écrivains du même mot auraient
+     divergé le jour où Eric donne le sien. */
+  return nom !== "" ? nom : NOM_DU_PERSONNAGE_NEUF;
 }
 
 
@@ -629,11 +732,16 @@ export function renderUniverseStep(ctx, onAction) {
      même chose serait un second organe pour un seul geste. Le `?` reste, posé
      par la coquille en absolu (§6 pré, *« sur une dalle sans rangée »*).
 
-     ⚠️ `Build a character`, PAS `New character` — le mot de la dictée. Le
-     builder n'a AUCUN personnage vierge (il naît de l'exemple commité), et le
-     garde `D4` refuse toute porte qui PROMET un personnage neuf. « Build »
-     dit ce que le bouton fait : il ouvre les étapes sur le personnage courant.
-     Le jour où un personnage vierge existera, ce bouton changera de mot avec. */
+     ⚠️ `Build a character`, PAS `New character` — le mot de la dictée, et il
+     ne bouge pas au lot 193. ⭐ CE QUI A CHANGÉ, C'EST SA RAISON, ET ELLE SE
+     LIT : jusqu'au 10/09 le builder n'avait AUCUN personnage vierge (il naît
+     de l'exemple commité), donc « New » aurait promis ce que rien ne savait
+     fabriquer. Depuis, il sait — `composer` (src/doc/writers.mjs) fait naître
+     un document, et ce bouton l'appelle. Le mot reste quand même : c'est
+     CELUI D'ERIC, dicté le 26/08 et redit le 10/09 dans le même souffle que
+     la création (« je tape Build a character »). ⛔ Le garde `D4` ne se
+     desserre pas pour autant — il refuse toujours « New », « Start over »,
+     « Reset » : un second mot pour un seul geste, c'est un second organe. */
   /* ⚖️ LES NEUF CORRECTIONS D'ERIC SUR R — 08/09, après la première itération :
      « SOWLREACH (centré) · Agnostic SRD 5.2.1 interface (centré italique) ·
      Build a Character bouton large, relief vert · standard des boutons, Open et
@@ -664,7 +772,11 @@ export function renderUniverseStep(ctx, onAction) {
   }
   perso.append(tete);
 
-  /* LE GESTE MAJEUR — large, vert en relief (Eric). Il NAVIGUE vers Identity. */
+  /* LE GESTE MAJEUR — large, vert en relief (Eric). ⭐ LOT 193 — IL NE NAVIGUE
+     PLUS, IL CRÉE : sauvegarder le personnage courant, repartir à zéro,
+     demander « SRD ou Fate's Hand ? », et c'est la RÉPONSE qui ouvre l'étape 1
+     (voir la section « LE PREMIER PAS » en tête de fichier). L'écran, lui,
+     émet le même verbe qu'avant — c'est la coquille qui a appris le geste. */
   perso.append(bouton("Build a character", "tdc-majeur", () => onAction({ kind: "construireLePersonnage" })));
 
   /* ⚖️ LES TROIS GESTES DU FICHIER, AU FORMAT RÉGLEMENTÉ — une rangée

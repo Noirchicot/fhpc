@@ -48,6 +48,7 @@ function fail(what) {
  * @returns {{
  *   rename: (payload: {document: object, name: string}) => object,
  *   describe: (payload: {document: object, [field: string]: *}) => object,
+ *   composer: (payload: {name: string, lang: string, units: object, layers: object[], id: string, at: string}, origin?: string) => object,
  *   assertValid: (document: object, origin: string) => object,
  *   DESCRIBABLE_FIELDS: string[],
  *   SCHEMA_TAG: string
@@ -219,5 +220,62 @@ export function createDocWriters({ schema } = {}) {
     return lireConfirmes(document).includes(path);
   }
 
-  return { rename, describe, confirm, revoke, isConfirmed, assertValid, DESCRIBABLE_FIELDS, SCHEMA_TAG, compiled };
+  /* ══ LOT 193 — LA NAISSANCE D'UN DOCUMENT, EN UN SEUL ENDROIT ═══════════════
+     ⚖️ Eric, 10/09 (ARCHITECTURE.md, « LE PREMIER PAS ») : *« le perso du
+     navigateur est sauvegardé automatiquement et dégage du navigateur ; tous
+     les choix des étapes sont réinitialisés »*. Le builder doit donc savoir
+     faire NAÎTRE un document `fh-char/1` — et jusqu'ici, la seule fonction qui
+     en composait un vivait dans la fermeture de `createDoc` (`create`,
+     store.mjs), derrière un magasin que le navigateur n'a pas (D1).
+
+     🔴 CE N'EST PAS UNE COPIE DE `create`, C'EST SON CŒUR, SORTI. Même loi que
+     `rename`/`describe` en tête de ce fichier : `store.mjs` n'écrit plus la
+     forme d'un document neuf, il appelle `composer` avec l'id et l'heure qu'il
+     possède (`freshId()`, `now()`). Deux écrivains de la même forme auraient
+     divergé au premier champ ajouté au schéma — et celui du navigateur en
+     silence, puisque `create` seul avait des tests.
+
+     ⛔ NI ID NI HORLOGE ICI : ce module est PUR (aucune `Date`, aucun
+     `crypto`), et c'est ce qui le rend importable par `ui/` et testable à
+     l'octet. L'appelant nomme le document (`id`) et le date (`at`) ; aucun
+     défaut n'est deviné (décision D3), comme pour la langue et les unités. */
+
+  /** Compose un document `fh-char/1` NEUF : zéro choix, aucune `resolved`,
+   *  le manifeste des couches reçu tel quel (même forme que `build.layers`,
+   *  composé par l'appelant — voir `create`, store.mjs). Les champs
+   *  descriptifs (`DESCRIBABLE_FIELDS`) sont acceptés dès la naissance,
+   *  jamais exigés. Validé comme toute admission.
+   *  @param {{name:string, lang:string, units:object, layers:object[], id:string, at:string}} payload
+   *  @param {string} [origin] le verbe qui parle dans un refus (`create` depuis le bloc) */
+  function composer(payload, origin = "composer") {
+    const options = payload || {};
+    const { name, lang, units, layers, id, at } = options;
+    for (const [key, value] of [["name", name], ["lang", lang], ["units", units], ["layers", layers], ["id", id], ["at", at]]) {
+      if (value === undefined) {
+        fail(`${origin} attend \`{name, lang, units, layers, id, at}\` — « ${key} » manque. Aucun défaut n'est deviné ` +
+          "(décision D3) : un document neuf sans langue, sans unités, sans nom ou sans date serait une règle " +
+          "inventée par cet écrivain à la place du joueur.");
+      }
+    }
+    const document = {
+      schema: SCHEMA_TAG,
+      id,
+      name,
+      lang,
+      units,
+      created: at,
+      modified: at,
+      /* La forme exacte mesurée au §0.1 de la commande du lot 47 : un
+         brouillon est `fh-char/1` moins `resolved`, et RIEN d'autre ne
+         change à `build`. */
+      build: { layers, choices: [], budgets: {}, overrides: [] }
+    };
+    for (const key of DESCRIBABLE_FIELDS) {
+      if (Object.prototype.hasOwnProperty.call(options, key)) document[key] = options[key];
+    }
+    assertValid(document, origin);
+    return structuredClone(document);
+  }
+
+  return { rename, describe, confirm, revoke, isConfirmed, composer, assertValid, DESCRIBABLE_FIELDS, SCHEMA_TAG, compiled };
 }

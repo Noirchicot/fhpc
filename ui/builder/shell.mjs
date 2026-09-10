@@ -76,11 +76,12 @@ import {
 import { planAt, planSlots } from "./carnet.mjs?v=617";
 import { renderChoixGlisses } from "./glisser.mjs?v=617";
 import { renderConceptStep } from "./concept-step.mjs?v=617";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH } from "./universe-step.mjs?v=617";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
+  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=617";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement } from "./layers-ecran.mjs?v=617";
+import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=617";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
@@ -154,6 +155,15 @@ import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
 import { canonicalText } from "../../src/doc/canonical.mjs?v=617";
+/* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
+   `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
+   le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
+   UTC à la seconde — et `src/doc/clock.mjs` est le seul fichier de `src/doc/`
+   autorisé à nommer `Date`. Un `new Date().toISOString()` écrit dans cette
+   coquille aurait été une seconde horloge, libre de rendre les millisecondes
+   que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
+   navigateur sait le résoudre, contrairement à `store.mjs`. */
+import { platformNow } from "../../src/doc/clock.mjs?v=617";
 import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=617";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
@@ -603,6 +613,114 @@ function alignerLaPileSurLeDocument() {
   for (const id of gestes.allumer) layersVerbs.enable({ id });
 }
 
+/* ══ ⚖️ LOT 193 — FAIRE NAÎTRE UN PERSONNAGE ══════════════════════════════
+   ⚖️ Eric, 10/09 (`ARCHITECTURE.md`, § « LE PREMIER PAS ») : *« le perso du
+   navigateur est sauvegardé automatiquement et dégage du navigateur ; tous les
+   choix des étapes sont réinitialisés »*. Trois organes, chacun avec son
+   pourquoi ; la SÉQUENCE, elle, est pure et vit dans `universe-step.mjs`
+   (`creerUnPersonnage`), comme celle du 192. */
+
+/** LE MANIFESTE DE LA PILE MONTÉE. ⛔ LA FORME N'EST PAS ÉCRITE ICI : elle vit
+ *  dans `manifesteDeLaPile` (layers-ecran.mjs), PURE et gardée contre celle que
+ *  `rebuild` adopte. Cette coquille ne fournit que ce qu'elle POSSÈDE — la pile
+ *  montée. */
+function manifesteDeLaPileMontee() {
+  return manifesteDeLaPile(state.engine.layers.verbs.stack());
+}
+
+/** 🔴 LA PILE RESTE DÉCLARÉE MÊME QUAND LA DÉRIVATION EST IMPOSSIBLE.
+ *
+ *  📏 MESURÉ SUR LE CHEMIN DU LOT 193 : `monterLesCouches` VIDE `build.layers`
+ *  pour que `rebuild` ADOPTE la pile montée — mais `rebuild` n'adopte rien
+ *  quand il JETTE, et un personnage NEUF le fait toujours : il n'a pas de
+ *  classe, et `derive` refuse (« pas une dérivation incomplète, une dérivation
+ *  impossible »). Le champ serait donc resté VIDE juste après que le joueur a
+ *  choisi son jeu — `currentStack` aurait rendu `null`, `compositionFh` aurait
+ *  perdu son socle, et le Menu aurait accusé EN ROUGE (« doesn't match either
+ *  ruleset ») un personnage qui venait de répondre à la question.
+ *
+ *  ⭐ ON DÉCLARE DONC CE QUE `rebuild` AURAIT ADOPTÉ, et seulement quand il ne
+ *  l'a pas fait : une cote DONNÉE bat une cote déduite, et un personnage sans
+ *  classe joue quand même à un jeu. */
+function declarerLaPileMontee() {
+  if (state.document.build.layers.length > 0) return;      // `rebuild` a adopté : rien à redire
+  state.document = { ...state.document, build: { ...state.document.build, layers: manifesteDeLaPileMontee() } };
+}
+
+/** LE PERSONNAGE NEUF — un document `fh-char/1` ZÉRO CHOIX, fabriqué par
+ *  l'écrivain PUR du bloc `doc` (`composer`, src/doc/writers.mjs), le MÊME que
+ *  `doc.create` appelle. ⛔ Pas un objet littéral écrit ici : deux formes du
+ *  même document auraient divergé au premier champ ajouté au schéma, et celle
+ *  du navigateur en silence.
+ *
+ *  ⛔ ET ON NE VIDE PAS LES CHAMPS DU PERSONNAGE D'AVANT UN PAR UN. « Repartir
+ *  à zéro » est un document NEUF : la liste des choses à effacer serait juste
+ *  aujourd'hui et incomplète du champ qu'on ajoutera demain.
+ *
+ *  📏 CE QUI EST HÉRITÉ, ET POURQUOI CE N'EST PAS UN DÉFAUT DEVINÉ : la langue
+ *  et les unités viennent du personnage qu'on vient de ranger. Le bloc `doc`
+ *  refuse de les inventer (décision D3, `composer` jette si l'une manque), et
+ *  il a raison — un joueur qui joue en `fr`/mètres ne doit pas repartir en
+ *  `en`/pieds parce qu'il a créé un personnage. `name`, lui, est EXIGÉ par le
+ *  schéma : voir `NOM_DU_PERSONNAGE_NEUF` (universe-step.mjs).
+ *
+ *  ⏳ CE QUE CE LOT NE SAIT PAS FAIRE, ÉCRIT ICI PARCE QUE ÇA NE SE VOIT PAS :
+ *  un navigateur SANS personnage n'existe pas aujourd'hui (le boot retombe sur
+ *  l'exemple commité, et `Forget` recharge dessus). Le jour où il en existera
+ *  un, cette fonction n'aura RIEN à hériter — et d'où viennent alors la langue
+ *  et les unités est un mot d'Eric, pas un défaut à poser ici. */
+function personnageNeuf(precedent) {
+  return state.docWriters.composer({
+    name: NOM_DU_PERSONNAGE_NEUF,
+    lang: precedent.lang,
+    units: precedent.units,
+    layers: manifesteDeLaPileMontee(),
+    /* L'IDENTIFIANT. `doc.create` le tire de `node:crypto` ; le navigateur a le
+       MÊME verbe sur `crypto` global (Web Crypto), et le motif de `id`
+       (`^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$`) accepte un UUID v4. ⛔ Aucun
+       repli inventé : un navigateur sans `randomUUID` fait refuser `composer`
+       (id absent), et le refus est DIT — un id fabriqué à la main serait un
+       identifiant qu'on ne sait pas garantir unique. */
+    id: globalThis.crypto ? globalThis.crypto.randomUUID() : undefined,
+    at: platformNow()
+  });
+}
+
+/** 🔴 CE QUI APPARTENAIT AU PERSONNAGE D'AVANT, REMIS À ZÉRO — UN SEUL ÉCRIVAIN.
+ *
+ *  ⭐ LOT 193 — CETTE LISTE ÉTAIT ÉCRITE DANS `ouvrirUnFichier`, ET UN SECOND
+ *  GESTE VENAIT D'EN AVOIR BESOIN. Sa propre tête disait le piège : *« les
+ *  remettre un par un marcherait aujourd'hui et raterait le onzième qu'on
+ *  ajoutera demain, EN SILENCE »* — deux copies de la liste l'auraient raté
+ *  DEUX fois, et l'une des deux sans que personne le voie. Un organe que N
+ *  écrans fabriquent est un organe qu'on oublie : il n'y en a plus qu'un.
+ *
+ *  ⛔ IL NE TOUCHE PAS AU DOCUMENT : c'est de l'état d'ÉCRAN, et l'appelant
+ *  pose le document lui-même (un fichier ouvert, un personnage neuf). */
+function remettreLEcranAZero() {
+  annulerDestiny();
+  state.step = 0;
+  state.palier = 1;
+  state.cursor = 0;
+  state.lore = null;
+  state.destinyPhase = "porte";
+  state.destinyMode = "draw";
+  state.destinyDraw = null;
+  state.destinyFace = "down";
+  state.destinyDezoom = false;
+  state.destinyTaps = [];
+  state.destinyRang = null;
+  state.abilityRoll = null;
+  state.abilityRevele = 0;
+  /* ⭐ LOT 193 — DEUX DE PLUS, ET ILS ÉTAIENT DU MÊME BORD DEPUIS TOUJOURS :
+     le dernier refus de champ (`fieldErrors`) et la question de pile restée
+     ouverte (`pendingStack`) parlent du personnage qu'on vient de ranger. Les
+     laisser pendre afficherait, sur le personnage NEUF, un « name is too long »
+     qu'il n'a jamais provoqué, ou une confirmation qui n'attend plus rien. */
+  state.fieldErrors = {};
+  state.pendingStack = null;
+}
+
 /* ══ LOT 67 — LES TROIS PORTES DE REVIEW ═════════════════════════════════
    B9.4 et B9.5. Elles sortent des octets ; elles ne redessinent rien.
 
@@ -638,9 +756,16 @@ function porteEnPanne(quoi, cause) {
  *  ⭐ LOT 192 — `version` : la troisième voie de la confirmation du maître
  *  sauvegarde LA VERSION FATE'S HAND avant d'éteindre, et le nom du fichier le
  *  dit (`nomDeFichier`, review-step.mjs). Sans `version`, rien ne change pour
- *  le bouton `Save` : même nom qu'avant. */
-function exporterJson({ version } = {}) {
-  if (!state.document) { porteEnPanne("Export JSON", "the engine has not finished loading."); return false; }
+ *  le bouton `Save` : même nom qu'avant.
+ *
+ *  ⭐ LOT 193 — `quoi` : LE REFUS NOMME LA PORTE QUE LE JOUEUR A POUSSÉE.
+ *  📏 REGARDÉ AU NAVIGATEUR LE 10/09 : `Build a character` avec le
+ *  téléchargement bloqué affichait « This did not work: … » sous le titre
+ *  « Export JSON » — un geste que le joueur n'a pas fait, sur un bouton qu'il
+ *  n'a pas vu. Ce Save-là est une MOITIÉ d'un autre geste ; il en porte donc le
+ *  nom. Sans `quoi`, rien ne change pour `Save` ni pour Review. */
+function exporterJson({ version, quoi = "Export JSON" } = {}) {
+  if (!state.document) { porteEnPanne(quoi, "the engine has not finished loading."); return false; }
   try {
     telecharger({
       nom: nomDeFichier(state.document, "fh-char.json", version),
@@ -654,7 +779,7 @@ function exporterJson({ version } = {}) {
     });
     return true;
   } catch (cause) {
-    porteEnPanne("Export JSON", cause.message);
+    porteEnPanne(quoi, cause.message);
     return false;
   }
 }
@@ -1176,21 +1301,11 @@ function applyDecisionAction(action) {
         return;
       }
       /* Le magasin refuse : pas de rechargement possible. On repose ce qui
-         appartenait au personnage d'avant, puis on redérive. */
-      annulerDestiny();
-      state.step = 0;
-      state.palier = 1;
-      state.cursor = 0;
-      state.lore = null;
-      state.destinyPhase = "porte";
-      state.destinyMode = "draw";
-      state.destinyDraw = null;
-      state.destinyFace = "down";
-      state.destinyDezoom = false;
-      state.destinyTaps = [];
-      state.destinyRang = null;
-      state.abilityRoll = null;
-      state.abilityRevele = 0;
+         appartenait au personnage d'avant, puis on redérive.
+         ⭐ LOT 193 — LA LISTE A DÉMÉNAGÉ dans `remettreLEcranAZero`, seul
+         écrivain : « Build a character » en avait besoin mot pour mot, et deux
+         copies auraient raté le même champ à des dates différentes. */
+      remettreLEcranAZero();
       alignerLaPileSurLeDocument();                 // LOT 188 — même loi qu'au boot
       rebuild();
       refresh();
@@ -1245,13 +1360,81 @@ function applyDecisionAction(action) {
   /* 🎛️ LAYERS — la troisième branche de rang B du Menu (Eric, 09/09) : le
      tableau de commande des couches. Même compteur, même `pressBack`. */
   if (action.kind === "ouvrirLayers") { state.palier = 2; state.menuBranche = "layers"; openSurface(); return; }
-  /* 🧭 LE GESTE PRINCIPAL DU TABLEAU DE COMMANDE — Eric, 2026-09-08 :
-     *« la première itération viable du Menu permet de produire un perso de A
-     à Z »*. `Build a character` ouvre la première des huit étapes sur le
-     personnage courant. ⛔ Il ne crée rien et ne promet rien : le builder n'a
-     pas de personnage vierge (garde `D4`). C'est `goToStep(1)`, le même chemin
-     que le `Done` du Menu d'avant — un seul organe le porte désormais. */
-  if (action.kind === "construireLePersonnage") { goToStep(1); return; }
+  /* ══ 🧭 LE PREMIER PAS — « BUILD A CHARACTER » CRÉE UN PERSONNAGE ════════
+     ⚖️ Eric, 10/09 (`ARCHITECTURE.md`, § « LE PREMIER PAS ») : *« j'arrive dans
+     le menu, je tape Build a character, je suis débutant. Il me faut un perso
+     SRD mais je n'ai même pas regardé les menus du dessous. Un popup doit me
+     dire, avant même d'arriver à l'étape 1, tout de suite : tu veux SRD ou
+     FH ? — et faire le réglage pour moi. Le perso du navigateur est sauvegardé
+     automatiquement et dégage du navigateur ; tous les choix des étapes sont
+     réinitialisés. »*
+
+     📏 CE QUI ÉTAIT VRAI AVANT, ET QUI NE L'EST PLUS : ce verbe était
+     `goToStep(1)` — il ouvrait les huit étapes SUR LE PERSONNAGE COURANT, il ne
+     créait rien. Le MOT du bouton ne bouge pas (la dictée du 26/08) ; c'est le
+     GESTE qui change.
+
+     🔴 SAUVEGARDER PUIS REPARTIR, ET JAMAIS L'INVERSE — et la règle du 192
+     s'applique telle quelle : un Save qui a REFUSÉ n'efface rien. La séquence
+     est PURE et gardée (`creerUnPersonnage`, universe-step.mjs) : inversée,
+     elle sauvegarderait le personnage vide qu'elle vient de fabriquer.
+
+     ⭐ LE MÊME ORGANE QUE `Save` (`exporterJson`) — jamais un second chemin
+     d'écriture, et il rend `true`/`false` depuis le 192 exactement pour ça. Le
+     fichier porte le nom du personnage rangé (`nomDeFichier`, review-step.mjs),
+     SANS mot de version : ce n'est pas la copie d'une version FH avant
+     extinction (lot 192), c'est le personnage lui-même qui part sur le disque.
+
+     ⛔ ET LE MOTEUR PAS CHARGÉ EST UNE PORTE EN PANNE, comme pour `Save` : sans
+     schéma il n'y a pas de `composer`, sans pile il n'y a pas de manifeste. Un
+     bouton qui ne ferait rien en silence est le faux magasin que le mandat
+     interdit. */
+  if (action.kind === "construireLePersonnage") {
+    if (!state.engine || !state.docWriters) {
+      porteEnPanne("Build a character", "the engine has not finished loading.");
+      return;
+    }
+    const precedent = state.document;
+    try {
+      creerUnPersonnage({
+        personnage: Boolean(precedent),
+        sauvegarder: () => exporterJson({ quoi: "Build a character" }),
+        repartirAZero: () => {
+          state.document = personnageNeuf(precedent);
+          remettreLEcranAZero();
+          state.memoireIgnoree = null;
+          state.ouvertureRefusee = null;
+          /* ⛔ PAS DE `rebuild()` ICI : un personnage sans classe n'est pas
+             dérivable, `rebuild` le NOMME déjà (`derivationImpossible`) et
+             l'écran mort dit « pick a class ». Mais le faire MAINTENANT
+             laisserait ce mot derrière le popup, avant même que le joueur ait
+             dit à quel jeu il joue. Il tombe une ligne plus loin, quand la voie
+             est choisie (`choisirLeJeu`). */
+        },
+        demanderLeJeu: () => {
+          state.popup = popupDuJeu((pile) => applyDecisionAction({ kind: "choisirLeJeu", value: pile }));
+        }
+      });
+    } catch (cause) {
+      porteEnPanne("Build a character", cause.message);
+      return;
+    }
+    refresh();
+    return;
+  }
+  /* ══ ⚖️ LA RÉPONSE DU JOUEUR — « SRD » OU « FATE'S HAND » ════════════════
+     ⚖️ *« et faire le réglage pour moi »* : la voie RÈGLE LE MAÎTRE et ouvre
+     l'étape 1, dans cet ordre. ⛔ Deux voies, pas trois — c'est la réponse
+     d'Eric à sa propre question (« combien de voies au popup ? »), et les six
+     interrupteurs restent dans `Layers` pour qui veut aller plus loin.
+     ⭐ AUCUN CHEMIN NEUF POUR LA PILE : c'est `applyLayerStack`, le même que
+     l'interrupteur du Menu et que la confirmation du 192. */
+  if (action.kind === "choisirLeJeu") {
+    applyLayerStack(action.value);
+    declarerLaPileMontee();
+    goToStep(1);
+    return;
+  }
   /* ⭐ LE CRAN D'INTERFACE — la chaîne vide rend la main à l'automatique.
      🔴 L'ORDRE EST CELUI DU REDIMENSIONNEMENT, ET IL N'EST PAS NÉGOCIABLE :
      changer le cran change l'échelle, donc la place, donc la PORTE du double

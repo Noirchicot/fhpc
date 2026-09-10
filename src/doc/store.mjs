@@ -118,7 +118,7 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
      §1b/§2c) que ce bloc utilisait avant ce lot — `assertValid` en vient
      directement, elle aussi partagée plutôt que recopiée. */
   const writers = createDocWriters({ schema });
-  const { assertValid, rename, describe, DESCRIBABLE_FIELDS, SCHEMA_TAG } = writers;
+  const { assertValid, rename, describe, composer, DESCRIBABLE_FIELDS, SCHEMA_TAG } = writers;
   const ID_PATTERN = new RegExp(readFromSchema(schema, ["properties", "id", "pattern"]), "u");
   const FORBIDDEN_KEY = new RegExp(readFromSchema(schema, ["$defs", "safeKey", "not", "pattern"]), "u");
 
@@ -282,35 +282,13 @@ export function createDoc({ storage, schema, bus, now = platformNow } = {}) {
             "bloc à la place du joueur.");
         }
       }
-      const at = now();
-      const document = {
-        schema: SCHEMA_TAG,
-        id: freshId(),
-        name,
-        lang,
-        units,
-        created: at,
-        modified: at,
-        /* La forme exacte mesurée au §0.1 de la commande : un brouillon est
-           `fh-char/1` moins `resolved`, et RIEN d'autre ne change à `build`. */
-        build: { layers, choices: [], budgets: {}, overrides: [] }
-      };
-      /* LOT 48, §1c — LES CHAMPS DESCRIPTIFS DÈS LA NAISSANCE, TOUJOURS
-         FACULTATIFS. Même liste blanche que `describe` (`DESCRIBABLE_FIELDS`,
-         lue dans le schéma, pas recopiée) : un joueur qui crée son
-         personnage peut donner son genre et son alignement dans le même
-         écran que son nom. ⛔ Mais `create` ne les EXIGE JAMAIS — la boucle
-         D3 ci-dessus, elle, jette sur les quatre champs qu'elle nomme, et
-         SEULEMENT eux : « facultatif » n'est pas « deviné », c'est
-         « absent » (commande §1c). Toute autre clef du payload — y compris
-         un `id` forcé, voir le test dédié — reste ignorée, exactement comme
-         avant ce lot : `create` n'a jamais refusé un payload trop généreux,
-         il en garde seulement ce qu'il sait nommer. */
-      for (const key of DESCRIBABLE_FIELDS) {
-        if (Object.prototype.hasOwnProperty.call(options, key)) document[key] = options[key];
-      }
-      assertValid(document, "create");
-      return structuredClone(document);
+      /* ⭐ LOT 193 — LA FORME DU DOCUMENT NEUF N'EST PLUS ÉCRITE ICI : elle
+         vit dans `composer` (`writers.mjs`, PUR), que le navigateur appelle
+         aussi pour faire naître un personnage (« Build a character », Eric,
+         10/09). Ce verbe ne garde que ce que le bloc POSSÈDE — l'id qu'il
+         garantit unique, et son horloge. Les champs descriptifs du lot 48
+         (§1c) passent tels quels : `composer` lit la même liste blanche. */
+      return composer({ ...options, id: freshId(), at: now() }, "create");
     },
 
     /** LOT 47, §2b/§1d — LE HUITIÈME VERBE : `document.name` s'écrit ICI.

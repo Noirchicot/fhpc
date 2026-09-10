@@ -416,6 +416,37 @@ export function renderLayersEcran(ctx, onAction) {
   return section;
 }
 
+/** ⭐ LOT 193 — LE MANIFESTE D'UNE PILE MONTÉE, la forme de `$defs/layerRef`.
+ *
+ *  📏 CE N'EST PAS UNE FORME INVENTÉE ICI : c'est MOT POUR MOT celle que
+ *  `rebuild` compose pour adopter la pile (`mounted`, src/build/block.mjs) et
+ *  celle de `src/tools/exemple-fh-en.mjs` — `{id, version, hash}`, plus `name`
+ *  QUAND la couche en porte un, jamais une clef posée à vide.
+ *
+ *  🔴 POURQUOI LE NAVIGATEUR EN A BESOIN : `rebuild` n'adopte la pile QUE
+ *  lorsqu'il réussit à dériver, et un personnage NEUF ne dérive pas (pas de
+ *  classe). Sans cette fonction, le document du joueur qui vient de choisir son
+ *  jeu ne DÉCLARERAIT rien, et le Menu l'accuserait en rouge.
+ *
+ *  ⚠️ DEUX ÉCRIVAINS DE LA MÊME FORME, ET UN GARDE LES CONFRONTE
+ *  (`tests/premier-pas.test.mjs`) : le jour où `$defs/layerRef` gagne un champ,
+ *  c'est ce garde qui le dit, pas une fiche fausse chez un joueur.
+ *
+ *  ⛔ PURE, et elle reçoit la pile — elle ne va pas la chercher : c'est ce qui
+ *  la rend lisible par un test sans coquille et sans navigateur.
+ *
+ *  @param {{id: string, version: string, hash: string, name?: string, enabled: boolean}[]} pile ce que `layers.verbs.stack()` rend
+ *  @returns {{id: string, version: string, hash: string, name?: string}[]} */
+export function manifesteDeLaPile(pile) {
+  return (Array.isArray(pile) ? pile : [])
+    .filter((couche) => couche && couche.enabled)
+    .map((couche) => {
+      const ref = { id: couche.id, version: couche.version, hash: couche.hash };
+      if (typeof couche.name === "string") ref.name = couche.name;
+      return ref;
+    });
+}
+
 /* Les deux constantes sont réexportées pour que le garde des listes n'ait
    qu'un import : les ids des livres viennent de `universe-step.mjs`. */
 export { LIVRE_LAYER_IDS };
