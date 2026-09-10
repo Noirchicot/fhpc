@@ -64,37 +64,47 @@ function journal(saveRend) {
 
 /* ══ A — LA SÉQUENCE PURE ══════════════════════════════════════════════════ */
 
-test("A1 — 🔴 un personnage présent : Save UNE fois, PUIS le document neuf, PUIS le popup", () => {
+test("A1 — 🔴 un personnage présent : Save UNE fois, PUIS le document neuf, PUIS le popup", async () => {
   const j = journal(true);
-  const ne = creerUnPersonnage({ personnage: true, ...j.gestes });
+  const ne = await creerUnPersonnage({ personnage: true, ...j.gestes });
   assert.equal(ne, true, "le personnage neuf est né");
   assert.deepEqual(j.vus, ["sauvegarder", "repartirAZero", "demanderLeJeu"],
     "⛔ inverser Save et reset sauvegarderait le personnage vide qu'on vient de fabriquer");
 });
 
-test("A2 — ⚔️ SAVE REFUSÉ : rien ne bouge — ni reset, ni question (la règle du 192)", () => {
+test("A2 — ⚔️ SAVE REFUSÉ : rien ne bouge — ni reset, ni question (la règle du 192)", async () => {
   /* ⚖️ Eric, 10/09 : *« téléchargement bloqué = pas de reset »*. Le refus est
      déjà dit par la porte (`porteEnPanne`) ; ce que ce garde tient, c'est que
      le personnage du joueur est TOUJOURS LÀ. */
   const j = journal(false);
-  const ne = creerUnPersonnage({ personnage: true, ...j.gestes });
+  const ne = await creerUnPersonnage({ personnage: true, ...j.gestes });
   assert.equal(ne, false);
   assert.deepEqual(j.vus, ["sauvegarder"], "le document n'est pas remplacé et la question n'est pas posée");
 });
 
-test("A3 — ⚔️ UN SAVE QUI REND AUTRE CHOSE QUE `true` EST UN REFUS", () => {
+test("A3 — ⚔️ UN SAVE QUI REND AUTRE CHOSE QUE `true` EST UN REFUS", async () => {
   /* Une absence n'est jamais une réponse : `undefined` (une porte qui se tait)
      n'autorise pas plus l'effacement qu'un `false` franc. */
   for (const rendu of [undefined, null, 0, "", "true", 1]) {
     const j = journal(rendu);
-    assert.equal(creerUnPersonnage({ personnage: true, ...j.gestes }), false, `rendu ${JSON.stringify(rendu)}`);
+    assert.equal(await creerUnPersonnage({ personnage: true, ...j.gestes }), false, `rendu ${JSON.stringify(rendu)}`);
     assert.deepEqual(j.vus, ["sauvegarder"]);
+  }
+  /* ⚔️ LOT 195 — ET UNE PROMESSE NON TENUE EST UN REFUS. La séquence attend
+     désormais (le magasin range en différé) : un `await` oublié ferait de
+     TOUTE promesse — y compris `Promise.resolve(false)` — un accord, et le
+     personnage du joueur serait effacé sur un objet toujours vrai. */
+  for (const rendu of [false, undefined, null]) {
+    const j = journal(rendu);
+    const gestes = { ...j.gestes, sauvegarder: async () => { j.vus.push("sauvegarder"); return rendu; } };
+    assert.equal(await creerUnPersonnage({ personnage: true, ...gestes }), false, `promesse de ${JSON.stringify(rendu)}`);
+    assert.deepEqual(j.vus, ["sauvegarder"], "⛔ une promesse n'est pas un accord");
   }
 });
 
-test("A4 — 🔴 SANS PERSONNAGE : `sauvegarder` n'est JAMAIS appelé, et la question se pose quand même", () => {
+test("A4 — 🔴 SANS PERSONNAGE : `sauvegarder` n'est JAMAIS appelé, et la question se pose quand même", async () => {
   const j = journal(true);
-  assert.equal(creerUnPersonnage({ personnage: false, ...j.gestes }), true);
+  assert.equal(await creerUnPersonnage({ personnage: false, ...j.gestes }), true);
   assert.deepEqual(j.vus, ["repartirAZero", "demanderLeJeu"],
     "écrire un fichier de rien serait un téléchargement que personne n'a demandé");
 });
@@ -246,17 +256,34 @@ test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — la liste ne vit 
     "state.abilityRoll =", "state.abilityRevele ="
   ];
   for (const champ of CHAMPS) assert.ok(corps[1].includes(champ), `la liste porte « ${champ} »`);
+  /* ⭐ LOT 195 — L'ORGANE A GAGNÉ UN ÉTAGE, ET LE GARDE AVEC LUI. Le magasin
+     avait besoin, MOT POUR MOT, de ce que `ouvrirUnFichier` faisait après avoir
+     lu un fichier : `poserLeDocumentOuvert` est né de là. ⛔ Le garde ne s'est
+     pas desserré pour autant — il exige maintenant que les DEUX portes
+     (le fichier du disque, l'entrée du magasin) passent par cet organe, et
+     qu'AUCUNE ne recopie la liste. */
   const ouvrir = shell.slice(shell.indexOf('action.kind === "ouvrirUnFichier"'), shell.indexOf('action.kind === "oublierPersonnage"'));
-  assert.match(ouvrir, /remettreLEcranAZero\(\);/, "l'ouverture d'un fichier RÉEMPLOIE l'organe");
-  for (const champ of CHAMPS) {
-    assert.equal(ouvrir.includes(champ), false, `« ${champ} » a été recopié dans \`ouvrirUnFichier\` — le second écrivain est de retour`);
+  assert.match(ouvrir, /poserLeDocumentOuvert\(issue\.document\);/, "l'ouverture d'un fichier RÉEMPLOIE l'organe");
+  const entree = shell.slice(shell.indexOf('action.kind === "ouvrirUneEntree"'), shell.indexOf('action.kind === "choisirLaDestination"'));
+  assert.match(entree, /poserLeDocumentOuvert\(issue\.document\);/,
+    "rouvrir une sauvegarde du magasin est le MÊME atterrissage — ⛔ pas un second chemin");
+  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  assert.ok(pose, "l'organe existe");
+  assert.match(pose[1], /remettreLEcranAZero\(\);/, "et c'est LUI qui réemploie la liste");
+  for (const [ou, texte] of [["ouvrirUnFichier", ouvrir], ["ouvrirUneEntree", entree]]) {
+    for (const champ of CHAMPS) {
+      assert.equal(texte.includes(champ), false, `« ${champ} » a été recopié dans \`${ou}\` — le second écrivain est de retour`);
+    }
   }
   assert.match(shell, /repartirAZero: \(\) => \{[\s\S]{0,200}remettreLEcranAZero\(\);/, "…et le personnage neuf aussi");
 });
 
 test("E4 — ⛔ LE MOTEUR PAS CHARGÉ EST UNE PORTE EN PANNE, comme pour `Save` — jamais un bouton muet", () => {
   assert.match(shell, /if \(!state\.engine \|\| !state\.docWriters\) \{\s*porteEnPanne\("Build a character"/);
-  assert.match(shell, /catch \(cause\) \{\s*porteEnPanne\("Build a character", cause\.message\);/,
+  /* ⏳ LOT 195 — LA SÉQUENCE ATTEND, donc c'est la PROMESSE qui porte le refus.
+     ⛔ Rien n'est relâché : le mot est le même, la porte est la même, et un
+     `composer` qui jette se dit toujours au lieu de casser la page. */
+  assert.match(shell, /\}\)\.then\(\(\) => refresh\(\),[\s\S]{0,400}\(cause\) => porteEnPanne\("Build a character", cause\.message\)\);/,
     "un refus de `composer` se DIT, il ne casse pas la page en silence");
 });
 

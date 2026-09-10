@@ -527,3 +527,12 @@
 - 📏 **LE FAIT** : ce cas **n'existe pas aujourd'hui** — le boot retombe sur l'exemple commité, et `Forget` recharge dessus. `personnageNeuf` *(shell.mjs)* hérite donc langue et unités du personnage qu'il vient de ranger, et le bloc `doc` **refuse de les deviner** *(décision D3 : « une langue implicite serait une règle inventée à la place du joueur »)*.
 - ⛔ **LA LOI EST DÉJÀ ÉCRITE ET GARDÉE** — `creerUnPersonnage` n'appelle jamais `Save` sans personnage *(`tests/premier-pas.test.mjs`, A4)*. C'est la **naissance** qui n'aurait alors rien à hériter, pas la sauvegarde.
 - ➡️ Le mot appartient à Eric : *(a)* la langue de l'interface ; *(b)* celle de la couche SRD montée ; *(c)* une question de plus au popup — ⛔ mais il a répondu **deux voies** le 10/09.
+
+## C37 — Deux portes pour une seule pièce : `Open` et `My characters` { #c37 }
+
+**Question : maintenant que `Open` ouvre la page des sauvegardes, `My characters` reste-t-il ?**
+
+- 📏 **LE FAIT, POSÉ PAR LE LOT 195** : le rang B `characters` **est** le magasin, et **deux boutons de `R` y mènent** — `Open` *(la rangée du fichier, vert)* et `My characters` *(la porte large et bleue)*. Ils émettent le **même** verbe (`ouvrirLeMagasin`), et un garde tient qu'ils ne divergent pas *(`tests/universe-step.test.mjs`, R6)*.
+- ⚖️ **DEUX MOTS D'ERIC, VRAIS TOUS LES DEUX, DITS À DEUX JOURS D'ÉCART** : *« My characters bouton large bleu cadré à gauche »* **(08/09)**, et *« j'appuie sur **Open**, qui est sur R ; dans cette fenêtre, **toutes mes saves** »* **(10/09)**. Le second n'annule pas le premier — il décrit la même pièce par une autre porte.
+- ⛔ **LE LOT N'A PAS TRANCHÉ, ET C'EST VOULU** : on ne retire pas en silence un bouton qu'Eric a dicté, et on n'invente pas non plus une différence entre les deux pour justifier de les garder.
+- ➡️ Trois lectures : *(a)* les deux restent — `Open` est le geste, `My characters` est le lieu ; *(b)* `Open` sort de la rangée du fichier, qui redevient `Save · Forget` ; *(c)* `My characters` sort, et `R` gagne la place d'une porte large *(⚠️ c'est le seul bouton bleu de `R` — le retirer change le dessin qu'Eric a corrigé neuf fois le 08/09)*.

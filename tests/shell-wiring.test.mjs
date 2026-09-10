@@ -129,17 +129,31 @@ test("10 — requestLayerStack : le passage à SRD teste fhRefChoicesPresent AVA
 test("10 bis — 💾 la troisième voie de la confirmation : `exporterJson` (l'organe de Save) PUIS `applyLayerStack(\"srd\")`, par la séquence pure", () => {
   const voie = shellText.match(/action\.kind === "saveAndConfirmLayerStack"[\s\S]{0,600}?\n\s*\}\n/);
   assert.ok(voie, "la coquille répond à `saveAndConfirmLayerStack`");
-  assert.match(voie[0], /sauvegarderPuisEteindre\(\s*\{\s*sauvegarder:\s*\(\)\s*=>\s*exporterJson\(\s*\{\s*version:\s*NOM_DE_LA_VERSION_FH\s*\}\s*\),\s*eteindre:\s*\(\)\s*=>\s*applyLayerStack\("srd"\)/,
+  assert.match(voie[0], /sauvegarderPuisEteindre\(\{\s*sauvegarder:\s*\(\)\s*=>\s*exporterJson\(\s*\{\s*version:\s*NOM_DE_LA_VERSION_FH\s*\}\s*\),\s*eteindre:\s*\(\)\s*=>\s*applyLayerStack\("srd"\)/,
     "Save d'abord (l'organe de `exportJson`, avec la version dans le nom), l'extinction ensuite — et la séquence est celle de `universe-step.mjs`, pas une copie");
-  assert.match(voie[0], /if \(eteint\) state\.pendingStack = null/, "la question ne se ferme QUE si l'extinction a eu lieu : un Save refusé la laisse posée");
+  /* ⏳ LOT 195 — LA SÉQUENCE ATTEND (le magasin range en différé). ⛔ LA RÈGLE
+     NE BOUGE PAS : la question ne se ferme QUE si l'extinction a eu lieu, et
+     c'est maintenant le verdict de la promesse qui la ferme. ⚔️ Poser
+     `state.pendingStack = null` hors du `then` → rouge ici. */
+  assert.match(voie[0], /\}\)\.then\(\(eteint\) => \{\s*if \(eteint\) state\.pendingStack = null;/,
+    "la question ne se ferme QUE si l'extinction a eu lieu : un Save refusé la laisse posée");
   /* le bouton `Save` et la voie appellent la MÊME fonction */
-  assert.match(shellText, /action\.kind === "exportJson"\)\s*\{\s*exporterJson\(\);/, "témoin : `exportJson` → `exporterJson()`, sans version");
+  assert.match(shellText, /action\.kind === "exportJson"\)\s*\{\s*void exporterJson\(\);/, "témoin : `exportJson` → `exporterJson()`, sans version");
   assert.equal((shellText.match(/\bfunction exporterJson\b/g) || []).length, 1, "un seul organe d'écriture JSON");
-  /* et cet organe DIT s'il a écrit : `true` après `telecharger`, `false` sur chaque refus */
-  const organe = shellText.match(/function exporterJson\([\s\S]{0,900}?\n\}\n/);
+  /* ⭐ ET CET ORGANE DIT S'IL A RANGÉ — lot 195. `true` après l'entrée du
+     magasin (dossier : elle suffit, le joueur possède ses octets ; tiroir : le
+     téléchargement en plus), `false` sur chaque refus. ⚔️ Rendre `true` sans
+     attendre `ecrire` → rouge : le `await` est ce qui fait du verdict un
+     verdict. */
+  const organe = shellText.match(/async function exporterJson\([\s\S]{0,1600}?\n\}\n/);
   assert.ok(organe);
-  assert.match(organe[0], /telecharger\(\{[\s\S]*?\}\);\s*return true;/, "les octets partis → `true`");
-  assert.equal((organe[0].match(/return false;/g) || []).length, 2, "les deux refus (moteur pas chargé, navigateur qui jette) → `false`");
+  assert.match(organe[0], /const issue = await state\.magasin\.ecrire\(contenu, platformNow\(\)\);/,
+    "⛔ les octets passent par le magasin, jamais par un `telecharger` direct");
+  assert.match(organe[0], /if \(range\.possede\) return true;/,
+    "un dossier que le joueur possède : l'entrée rangée SUFFIT");
+  assert.match(organe[0], /telecharger\(\{[\s\S]*?\}\);\s*return true;/, "le tiroir : le téléchargement part AUSSI, et alors seulement `true`");
+  assert.equal((organe[0].match(/return false;/g) || []).length, 4,
+    "les quatre refus (moteur pas chargé, magasin pas monté, magasin qui refuse, navigateur qui jette) → `false`");
   /* ⛔ `Switch off` reste ce qu'il était : l'extinction sans Save */
   const off = shellText.match(/action\.kind === "confirmLayerStack"[\s\S]{0,200}?\n\s*\}\n/);
   assert.ok(off);

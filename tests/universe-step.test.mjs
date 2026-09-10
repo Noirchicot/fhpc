@@ -378,11 +378,15 @@ test("D6 — 🔴 LA SORTIE DE SECOURS EXISTE, et elle dit le geste, pas une pro
     "il émet un verbe, il n'efface pas lui-même — l'écran ne touche jamais le magasin");
 });
 
-test("D8 — 📂 OUVRIR UN PERSONNAGE : le bouton existe, il émet un verbe, et il n'est pas rouge", () => {
-  /* ⚖️ Eric, 2026-09-06 : *« chacun est propriétaire de ses données […] je
-     choisis où je range mes persos »*. Le builder savait SORTIR un personnage
-     et rien ne savait le relire — un fichier qu'on ne peut pas rouvrir n'est
-     pas une sauvegarde.
+test("D8 — 🗄️ `Open` OUVRE LA PAGE DU MAGASIN, plus la boîte de fichiers du système", () => {
+  /* ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
+     sauvegardes dedans »*. ⭐ LE GARDE EST RÉÉCRIT À LA NOUVELLE VÉRITÉ, ET IL
+     EST PLUS STRICT : il exigeait un verbe quelconque ; il exige maintenant
+     LEQUEL — `ouvrirLeMagasin`, jamais `ouvrirUnFichier`. ⚔️ Rebrancher `Open`
+     sur la boîte du système → rouge ici.
+     ⚠️ La boîte n'a pas disparu : elle vit dans la page (`Open a file…`), et
+     c'est `tests/magasin.test.mjs` (P4) qui l'y tient — la loi du 06/09
+     (*« je choisis où je range mes persos »*) n'a pas bougé.
      ⛔ ET IL N'EST PAS ROUGE : `--critical` est la teinte de ce qui DÉFAIT.
      La donner à un geste qui ouvre la rendrait illisible partout ailleurs. */
   const doc = draftDocument();
@@ -397,26 +401,37 @@ test("D8 — 📂 OUVRIR UN PERSONNAGE : le bouton existe, il émet un verbe, et
   assert.ok(!bouton.className.includes("universe-oubli"),
     "⛔ il ne porte pas la classe de ce qui efface — la teinte suit le verbe");
   bouton.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "ouvrirUnFichier" }],
-    "il émet un verbe : c'est la coquille qui touche le disque, jamais l'écran");
+  assert.deepEqual(gestes, [{ kind: "ouvrirLeMagasin" }],
+    "⛔ il n'ouvre plus la boîte du système : il ouvre le rang B où sont toutes les saves");
 });
 
-test("D9 — ⚠️ UNE OUVERTURE REFUSÉE SE DIT, avec le mot de la cause", () => {
+test("D9 — ⚠️ UNE OUVERTURE REFUSÉE SE DIT, avec le mot de la cause — ET LÀ OÙ LE GESTE A ÉTÉ FAIT", () => {
   /* Un fichier choisi qui ne rentre pas et un écran qui ne bouge pas, c'est un
      bouton mort du point de vue du joueur : il ne saura pas s'il a raté son
-     geste ou son fichier. Même loi que le personnage illisible du navigateur. */
+     geste ou son fichier. Même loi que le personnage illisible du navigateur.
+     ⭐ LOT 195 — LE MOT A SUIVI SON BOUTON, ET C'EST UN RESSERREMENT : la boîte
+     de fichiers ne s'ouvre plus depuis `R`, donc un mot posé dans la tête de `R`
+     parlerait d'un geste que le joueur n'a pas fait SUR CET ÉCRAN. Le garde
+     exige désormais les deux moitiés — rien en `R`, et le mot entier dans la
+     page du magasin. ⚔️ Remettre le message en tête de `R` → rouge ici. */
   const doc = draftDocument();
-  const sansRefus = renderUniverseStep(
-    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
-  assert.equal(sansRefus.querySelectorAll(".tdc-tete .doc-field-error").length, 0,
-    "⛔ rien à dire tant que rien n'a été refusé — un message permanent ne serait plus un message");
-
-  const avecRefus = renderUniverseStep({
+  const racineAvecRefus = renderUniverseStep({
     document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true },
     ouvertureRefusee: 'this file says it is "roll20/2", not a Fate\'s Hand character'
   }, () => {});
-  const dit = avecRefus.querySelectorAll(".tdc-tete .doc-field-error")
-    .map((p) => p.textContent).join(" ");
+  assert.equal(racineAvecRefus.querySelectorAll(".tdc-tete .doc-field-error").length, 0,
+    "⛔ le tableau de commande ne parle plus d'un fichier : il n'en ouvre plus");
+
+  const sansRefus = renderUniverseStep(
+    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true }, ecran: "characters" }, () => {});
+  assert.equal(sansRefus.querySelectorAll(".doc-field-error").length, 0,
+    "⛔ rien à dire tant que rien n'a été refusé — un message permanent ne serait plus un message");
+
+  const avecRefus = renderUniverseStep({
+    document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true }, ecran: "characters",
+    ouvertureRefusee: 'this file says it is "roll20/2", not a Fate\'s Hand character'
+  }, () => {});
+  const dit = avecRefus.querySelectorAll(".doc-field-error").map((p) => p.textContent).join(" ");
   assert.match(dit, /not opened/, "l'écran dit que le fichier n'est pas entré");
   assert.match(dit, /roll20\/2/, "et il RECOPIE la cause, il ne la résume pas");
 });
@@ -507,20 +522,30 @@ test("R5 — 🚪 LA RANGÉE DU BAS EST LA TRILOGIE : le livre, les trois portes
   assert.deepEqual(gestes, [{ kind: "ouvrirDisplay" }]);
 });
 
-test("R6 — 🧑 `My characters` est un bouton VIVANT (bleu, cadré à gauche) qui ouvre B1, et B1 dit la vérité : un personnage", () => {
+test("R6 — 🧑 `My characters` est un bouton VIVANT (bleu, cadré à gauche), et il ouvre LA MÊME PIÈCE QUE `Open`", () => {
+  /* ⚖️ DEUX MOTS D'ERIC, VRAIS TOUS LES DEUX, DITS À DEUX JOURS D'ÉCART :
+     *« My characters bouton large bleu cadré à gauche »* (08/09) et *« j'appuie
+     sur Open, qui est sur R ; dans cette fenêtre, toutes mes saves »* (10/09).
+     Depuis le lot 195 c'est le MÊME rang B. ⏳ Lequel des deux boutons reste est
+     une question pour Eric (A-TRANCHER §C37) : ⛔ on ne retire pas en silence un
+     bouton qu'il a dicté. Ce que ce garde tient, c'est qu'ils ne divergent pas —
+     deux portes, une seule pièce, jamais deux pièces qui se ressemblent. */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
   const b = node.querySelectorAll(".tdc-liste")[0];
   assert.equal(b.textContent, "My characters");
   assert.equal(b.disabled, false);
   b.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "ouvrirPersonnages" }]);
-  const b1 = renderUniverseStep({ document: draftDocument({ name: "Ilyra" }), query: () => null, fieldErrors: {}, memoire: { ok: true }, ecran: "characters" }, () => {});
+  const ouvre = node.querySelectorAll(".universe-ouvrir")[0];
+  ouvre.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirLeMagasin" }, { kind: "ouvrirLeMagasin" }],
+    "⛔ deux verbes différents feraient deux pièces qui se ressemblent");
+  const b1 = renderUniverseStep({
+    document: draftDocument({ name: "Ilyra" }), query: () => null, fieldErrors: {}, memoire: { ok: true },
+    ecran: "characters", magasin: { etat: "liste", groupes: [], entrees: [] }
+  }, () => {});
   assert.equal(b1.dataset.ecran, "characters");
   assert.equal(b1.dataset.sortieIci, "true", "rang B : la coquille pose Back · Done");
-  const lignes = b1.querySelectorAll(".tdc-personnage");
-  assert.equal(lignes.length, 1, "⛔ une ligne, pas une liste inventée : le navigateur garde UN personnage");
-  assert.match(lignes[0].textContent, /Ilyra/);
 });
 
 test("R7 — 💡 LE SRD EST UN VOYANT : même ligne, TOUJOURS allumé, et il n'est pas un contrôle", () => {

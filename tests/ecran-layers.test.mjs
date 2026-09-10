@@ -394,19 +394,37 @@ test("G1 — 🔴 « Lore » n'est plus un mot du joueur : ni sur Layers, ni sur
   assert.equal(porteLeMotLore('data-enfant="lore" fh-lore-en'), false, "un id n'est pas un mot de joueur");
 });
 
-test("G2 — 💾 la séquence pure : Save D'ABORD, l'extinction ENSUITE ; un Save qui refuse n'éteint pas", () => {
+test("G2 — 💾 la séquence pure : Save D'ABORD, l'extinction ENSUITE ; un Save qui refuse n'éteint pas", async () => {
+  /* ⏳ LOT 195 — LA SÉQUENCE ATTEND (le magasin range en différé), et le garde
+     attend avec elle. ⛔ LA RÈGLE N'EST PAS DESSERRÉE D'UN CRAN : ce qui suit
+     mesure exactement ce qu'il mesurait, plus une chose de plus — une PROMESSE
+     de refus est un refus, alors qu'un `await` oublié la rendrait « vraie ». */
   const journal = [];
-  const ok = sauvegarderPuisEteindre({ sauvegarder: () => { journal.push("save"); return true; }, eteindre: () => journal.push("off") });
+  const ok = await sauvegarderPuisEteindre({ sauvegarder: () => { journal.push("save"); return true; }, eteindre: () => journal.push("off") });
   assert.equal(ok, true);
   assert.deepEqual(journal, ["save", "off"], "⛔ éteint d'abord, le fichier serait la version SRD");
-  /* ⚔️ le Save a refusé (moteur pas chargé, navigateur qui jette) — il l'a dit ; on n'éteint pas */
+  /* ⚔️ le Save a refusé (moteur pas chargé, magasin qui jette) — il l'a dit ; on n'éteint pas */
   const refus = [];
-  assert.equal(sauvegarderPuisEteindre({ sauvegarder: () => { refus.push("save"); return false; }, eteindre: () => refus.push("off") }), false);
+  assert.equal(await sauvegarderPuisEteindre({ sauvegarder: () => { refus.push("save"); return false; }, eteindre: () => refus.push("off") }), false);
   assert.deepEqual(refus, ["save"], "la question était de garder la copie, pas de couper coûte que coûte");
   /* et un Save qui ne DIT rien (undefined) compte comme un refus : une absence n'est jamais une réponse */
   const muet = [];
-  assert.equal(sauvegarderPuisEteindre({ sauvegarder: () => { muet.push("save"); }, eteindre: () => muet.push("off") }), false);
+  assert.equal(await sauvegarderPuisEteindre({ sauvegarder: () => { muet.push("save"); }, eteindre: () => muet.push("off") }), false);
   assert.deepEqual(muet, ["save"]);
+  /* ⚔️ LOT 195 — UNE PROMESSE QUI REND `false` EST UN REFUS, et une promesse de
+     `true` est un accord : c'est la forme réelle depuis que le magasin range en
+     différé, et c'est celle qu'un `await` oublié ferait passer pour vraie dans
+     les deux sens. */
+  const differe = [];
+  assert.equal(await sauvegarderPuisEteindre({
+    sauvegarder: async () => { differe.push("save"); return false; }, eteindre: () => differe.push("off")
+  }), false, "⛔ une promesse n'est pas un accord");
+  assert.deepEqual(differe, ["save"]);
+  const tenu = [];
+  assert.equal(await sauvegarderPuisEteindre({
+    sauvegarder: async () => { tenu.push("save"); return true; }, eteindre: () => tenu.push("off")
+  }), true);
+  assert.deepEqual(tenu, ["save", "off"]);
 });
 
 test("G3 — 🎛️ la confirmation du maître porte TROIS voies, sur Layers comme sur R : Keep on n'émet rien qui éteigne, Save… émet la voie qui sauvegarde puis éteint, Switch off éteint sans sauvegarder", () => {
