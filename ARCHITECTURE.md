@@ -148,6 +148,31 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LE MAGASIN DE SAUVEGARDES — Open ouvre une page, pas une boîte de fichiers (10/09)
+
+⚖️ Eric, 10/09 : *« j'aimerais un **menu de sauvegarde dédié**, dans le site, sans avoir à me
+balader dans les menus, avec une **option discrète** sur où elles sont vraiment enregistrées. Donc
+quand j'appuie sur **Open**, j'ai une page avec **toutes mes sauvegardes** dedans. »* Puis, précisé :
+*« **popup la première fois** que je vais dans ce menu : "choisissez la destination de vos
+sauvegardes" — ça va vers le Finder ou autre chose, bref tu choisis la destination. Une fois que
+c'est fait, un **bouton reste présent : "save location"**. Après ça tout se passe dans la fenêtre B
+ouverte : j'appuie sur **Open**, qui est sur R ; dans cette fenêtre, **toutes mes saves**. Le DM
+aura plus évolué, mais idem. »*
+
+**Ce qui est possible, mesuré :** le navigateur sait **choisir un dossier une fois et le retenir**
+*(File System Access — `showDirectoryPicker`)*, y **lister** les fichiers, en **lire** et en
+**écrire** sans redemander. ⚠️ **Chrome et Edge sur Mac : oui. Safari, iPad : non** — là-bas, le
+magasin retombe sur le tiroir du navigateur, et `Save` reste un téléchargement. **Le popup ne se
+pose donc que là où le dossier est possible.**
+
+| | |
+|---|---|
+| **Le geste** | `Open` sur R ouvre **une page B** : la liste de toutes les sauvegardes. Plus de boîte de fichiers du système. |
+| **La première fois** | un popup : *« choisissez la destination de vos sauvegardes »*. Ensuite, un bouton discret **`Save location`** reste présent, et dit où c'est. |
+| **Ce que Save fait** | ⚖️ **une entrée datée à chaque Save** *(« Ilyra — 10 sept. 14:32 »)* : rien n'est écrasé, la page montre les versions par personnage. La sauvegarde de la version FH *(lot 192)* et le fichier automatique de `Build a character` *(lot 193)* y entrent naturellement. |
+| **Le repli** | pas de dossier possible → le tiroir du navigateur, et le bouton dit *« in this browser »*. ⛔ Jamais deux expériences pour le même geste : la page est la même, seule la ligne discrète change. |
+| **Le MJ** | *« le DM aura plus évolué, mais idem »* — même page, même magasin, plus de contenu. |
+
 #### ⚖️ LE PREMIER PAS — « Build a character » crée un personnage, et demande d'abord SRD ou Fate's Hand (10/09)
 
 ⚖️ Eric, 10/09, second fil SRD en débutant : *« j'arrive dans le menu, je tape Build a character,
