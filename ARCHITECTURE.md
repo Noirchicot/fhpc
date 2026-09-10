@@ -184,6 +184,31 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LES CHAPITRES TRAVAILLENT SUR LES CHOIX. UN SEUL CHAPITRE DÉDUIT : SHEET. (10/09)
+
+**La question d'Eric** : *« Ce que tu crées dans Sheet est un **précurseur de la fiche**, non ?
+Pourquoi ne pas **dériver tous ces éléments dans le bilan de Sheet** ? »*
+
+**La loi** : un chapitre du builder travaille sur **les choix** — les siens et ceux d'avant — et sur
+le **catalogue**. Un seul chapitre **déduit** : Sheet. C'est la fiche, à son premier tirage.
+
+**Ce qui en découle, et qui a été mesuré** :
+- ⛔ **Aucun chapitre ne meurt** faute d'une fiche. Un chapitre qui est la **source** d'un choix
+  exigé ne peut pas être fermé par l'absence de ce choix — c'était le cercle : *Abilities tué parce
+  que les scores manquaient, les scores manquant parce qu'il était tué.*
+- ⛔ **Et aucun ne ment.** Là où un chiffre déduit s'afficherait, la place **nomme** ce qui manque et
+  le cran où aller — les mots de l'écran mort, **employés, jamais recopiés**. *Complète, ou nommée,
+  jamais tronquée* (la bourse d'Equipment).
+- **Les chiffres déduits montrés en chemin** *(la colonne finale d'Abilities, le poids portable)*
+  sont un **confort** : présents quand la fiche existe, absents sinon, **jamais une porte**.
+- **Le cran déclare, la coquille lit** *(la forme du lot 186)* — et **un seul cran déclare** :
+  `review`. Une liste par nom dans la coquille ne dit jamais qu'elle est incomplète **ni qu'elle est
+  fausse** : elle contenait Destiny *(qui ne lit pas la fiche)* et Abilities *(le cercle)*.
+
+⚠️ **Deux brouillons à arrêter** : le mot de la bourse *(« Choose a class on Class to get your
+starting gold »)*, et le `Skills 0/0` affiché à côté du mot — le zéro est vrai mais peut se lire
+comme un solde.
+
 #### ⏳ CE QUE LES LOTS 195 ET 196 LAISSENT À ERIC (10/09)
 
 **Du magasin de sauvegardes (195)** :
