@@ -15,22 +15,35 @@
         deux plans rendaient `[]`, l'Acolyte n'avait ni liste ni sorts. C'est
         ce que ce fichier répare, et ce que ses gardes tiennent.
 
-     ② 🔴 ET LA DÉCLARATION, ELLE, MANQUE À LA PILE SRD — CE N'EST PAS
-        RÉPARABLE DANS CE DÉPÔT. `data.spell_list_choice` (les trois listes, 2
-        tours mineurs, 1 sort de niveau 1) est portée par `fh-feats-en`, une
-        couche Fate's Hand derrière l'interrupteur Destiny. La couche SRD ne la
-        porte pas, et elle est GÉNÉRÉE (`src/tools/gen-srd-layer.mjs`) depuis
-        les exports du dépôt `fh-srd` : on ne l'y écrit pas à la main.
-        ⇒ En pile SRD nue, Magic Initiate n'ouvre donc toujours rien — et
-        `tests/fil-srd-ecrans.test.mjs` le MESURE, plutôt que de le taire.
-        ⇒ La question « où doit vivre cette déclaration ? » revient à Eric :
-        c'est une mécanique du SRD 5.2.1 (elle est dans le texte du don), donc
-        sa place est l'export `fh-srd`, pas le convertisseur.
+     ② 🔴 ET LA DÉCLARATION, ELLE, MANQUAIT À LA PILE SRD — C'EST LE LOT 196
+        QUI L'A POSÉE, et il faut lire les deux états pour comprendre ce que ce
+        fichier garde. Jusqu'au 10/09, `data.spell_list_choice` (les trois
+        listes, 2 tours mineurs, 1 sort de niveau 1) n'était portée que par
+        `fh-feats-en`, derrière l'interrupteur Destiny ; ce fichier montait
+        donc une couche de FIXTURE pour prouver le câblage, et la question
+        « où doit vivre cette déclaration ? » revenait à Eric.
 
-   ⭐ CE FICHIER PROUVE LE MÉCANISME AVEC LA *VRAIE* DÉCLARATION, lue dans
-   `fh-feats-en` et montée par une couche de fixture. ⛔ Rien n'est retypé ici :
-   si la déclaration change, ce test change avec elle — et le jour où elle
-   arrive dans le SRD, l'Acolyte obtient ses écrans sans qu'une ligne bouge. */
+        ⚖️ IL A RÉPONDU LE 10/09 : *« Reproduis exactement dans backgrounds ce
+        que tu trouves pour Magic Initiate dans FH, rien ne change. Fais-le ! »*
+        La déclaration vit maintenant dans `srfh-mecaniques-en` — le rang du
+        lot 95, ce qui est AMBIGU et monte dans LES DEUX piles. ⛔ Ni dans la
+        couche SRD (GÉNÉRÉE depuis les exports `fh-srd` : on ne l'y écrit pas à
+        la main), ni dans `srfh-shelving-en` (GÉNÉRÉE aussi, et son générateur
+        n'accepte que le genre `shelving`).
+
+   ⭐ CE FICHIER NE MONTE DONC PLUS AUCUNE FIXTURE, ET C'EST TOUT LE GAIN : il
+   monte `PILE_SRD`, la pile que le joueur a VRAIMENT quand il choisit « SRD »
+   au tableau de commande. Ce qu'il mesurait par procuration, il le mesure
+   maintenant en vrai. ⛔ Rien n'est retypé ici : la déclaration est LUE dans sa
+   couche, donc si elle change, ce test change avec elle.
+
+   ⚔️ LA MUTATION QUI LE FAIT ROUGIR — retirer `data[spell_list_choice]` de
+   `layers/srfh-mecaniques-en.layer.json`. Elle a été JOUÉE, et voici ce qu'elle
+   a produit, mesuré : **8 gardes rouges sur 51**, dont **5 des 7 de ce
+   fichier** (les deux survivants ne touchent pas la déclaration : le routage de
+   la coquille, et l'attaque qui vérifie justement l'absence). Les 3 autres sont
+   `B0`/`BS` de `fh-arcana.test.mjs` et « UN PLAN REQUIS N'EST PAS UNE PORTE »
+   de `fil-srd-ecrans.test.mjs` — l'Acolyte reperd sa porte. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -39,7 +52,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
-import { makeHarness, manifestOf, uneCouche, readJson, SRD_EN } from "./build-harness.mjs";
+import { makeHarness, manifestOf, readJson, SRD_EN, PILE_SRD } from "./build-harness.mjs";
 import { itemsDeLEtape, porteUneDecisionOuverte } from "../ui/builder/parcours.mjs";
 
 globalThis.document = createTestDocument();
@@ -54,22 +67,21 @@ const MI = "srd:feat:en:magic-initiate";
 const ACOLYTE = "srd:background:en:acolyte";
 const SOLDIER = "srd:background:en:soldier";
 
-/** LA DÉCLARATION, LUE — jamais recopiée. C'est l'objet que `fh-feats-en`
- *  patche sur Magic Initiate, et le seul que ce test connaisse. */
-const DECLARATION = readJson("layers/fh-feats-en.layer.json")
+/** LA DÉCLARATION, LUE — jamais recopiée. C'est l'objet que
+ *  `srfh-mecaniques-en` patche sur Magic Initiate (lot 196), et le seul que ce
+ *  test connaisse. ⛔ Il ne sait pas ce qu'elle contient : il sait seulement
+ *  que l'écran doit en sortir ce qu'elle dit. */
+const DECLARATION = readJson("layers/srfh-mecaniques-en.layer.json")
   .records.feat[MI].changes["data[spell_list_choice]"];
 
-/** La même déclaration, montée SANS Fate's Hand : une couche de fixture qui ne
- *  lève aucun drapeau et n'ajoute rien d'autre. C'est le seul écart avec la
- *  pile SRD que le joueur a aujourd'hui. */
-const COUCHE = uneCouche("fixture-194-declaration", {
-  feat: { [MI]: { op: "patch", changes: { "data[spell_list_choice]": DECLARATION } } }
-});
-
+/** ⭐ DEUX PILES, ET LA DIFFÉRENCE ENTRE ELLES EST LE SUJET DU FICHIER :
+ *   · `pile(true)`  = `PILE_SRD` — la pile que le joueur a quand il choisit
+ *     « SRD » au tableau de commande : le livre, plus les DEUX couches `srfh`.
+ *   · `pile(false)` = `SRD_EN` seule — LE LIVRE, et rien d'autre. C'est un
+ *     TÉMOIN, pas un pli que quelqu'un monte : il sert à dire « le texte du
+ *     SRD, à lui tout seul, ne porte pas cette forme-là ». */
 function pile(avecDeclaration) {
-  return avecDeclaration
-    ? makeHarness({ layers: [SRD_EN], extra: COUCHE })
-    : makeHarness({ layers: [SRD_EN] });
+  return makeHarness({ layers: avecDeclaration ? PILE_SRD : [SRD_EN] });
 }
 
 function docDe(H, backgroundId, extra = []) {
@@ -100,16 +112,39 @@ const ctxDe = (H, report) => ({
 
 /* ══ ① LE TÉMOIN : CE QUE LA PILE SRD PORTE VRAIMENT ═══════════════════════ */
 
-test("📏 témoin — la couche SRD ne déclare AUCUN `spell_list_choice` : c'est `fh-feats-en` qui le porte, derrière un interrupteur", () => {
-  const nue = pile(false);
-  const don = nue.layers.verbs.query({ kind: "feat", id: MI });
-  assert.ok(don, "le don existe dans le SRD");
-  assert.equal(don.record.data.spell_list_choice, undefined,
-    "⇒ en pile SRD, il n'y a rien à configurer : le trou est DANS LA DONNÉE, pas dans l'écran");
-  assert.deepEqual([...nue.layers.verbs.flags()], [], "témoin : aucune couche FH montée");
-  /* et la déclaration lue est bien celle de Fate's Hand, entière */
+test("📏 témoin — le LIVRE seul ne déclare aucun `spell_list_choice` ; la PILE SRD, elle, le porte — et sans lever un seul drapeau FH", () => {
+  /* ① LE LIVRE NU : le trou est DANS LA DONNÉE, pas dans l'écran. C'est ce qui
+     rendait la mesure du lot 194 juste, et c'est toujours vrai du livre. */
+  const livre = pile(false);
+  const donNu = livre.layers.verbs.query({ kind: "feat", id: MI });
+  assert.ok(donNu, "le don existe dans le SRD");
+  assert.equal(donNu.record.data.spell_list_choice, undefined,
+    "le texte du SRD énonce le choix en prose — il ne porte pas la FORME que le moteur lit");
+
+  /* ② LA PILE SRD DU JOUEUR : elle le porte, et à l'octet près. */
+  const srd = pile(true);
+  const don = srd.layers.verbs.query({ kind: "feat", id: MI });
+  assert.deepEqual(don.record.data.spell_list_choice, DECLARATION,
+    "⇒ en pile SRD, il y a de quoi configurer : la déclaration est montée par `srfh-mecaniques-en`");
   assert.deepEqual(Object.keys(DECLARATION).sort(), ["cantrips", "from", "prepared"]);
   assert.equal(DECLARATION.from.length, 3);
+
+  /* ③ 🔴 ET AUCUN DRAPEAU FH NE S'EST LEVÉ. C'est la moitié qui prouve que la
+     déclaration est bien du `srfh` et non du Fate's Hand entré par la porte de
+     derrière : un drapeau ici allumerait des modules, et « SRD » cesserait de
+     vouloir dire SRD. */
+  assert.deepEqual([...srd.layers.verbs.flags()], [],
+    "la pile SRD ne lève aucun drapeau — `srfh` n'est pas Fate's Hand");
+  assert.deepEqual(srd.layers.verbs.stack().map((c) => c.id),
+    ["srd-5.2.1-en", "srfh-shelving-en", "srfh-mecaniques-en"],
+    "et elle monte trois couches, dans cet ordre — le patch a besoin de son record dessous");
+
+  /* ④ ⛔ UN SEUL ÉCRIVAIN. `fh-feats-en` posait ce champ jusqu'au lot 196 ; s'il
+     le reposait, les deux couches diraient la même chose aujourd'hui et
+     divergeraient en silence au premier réglage. */
+  const fhFeats = readJson("layers/fh-feats-en.layer.json").records.feat[MI].changes;
+  assert.deepEqual(Object.keys(fhFeats), ["data.blurb"],
+    "`fh-feats-en` ne porte plus que le TEXTE D'ÉCRAN — la mécanique a UN écrivain, et il est plus bas");
 });
 
 /* ══ ② LE CÂBLAGE — un don IMPOSÉ publie ses branches ══════════════════════ */

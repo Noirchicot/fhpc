@@ -23,7 +23,7 @@ import { join } from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
 
 import {
-  ROOT, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, makeHarness, manifestOf, uneCouche
+  ROOT, SRD_EN, SRFH_MECANIQUES_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, makeHarness, manifestOf, uneCouche
 } from "./build-harness.mjs";
 import { createFhDestinyStat, FH_DESTINY_FLAG, FH_DESTINY_ID } from "../src/modules/fh/destiny-stat.mjs";
 /* LOT 41 — `underived[].reason` → `{key, params}`. Le personnage de ce
@@ -114,7 +114,14 @@ const somme = (stat) => stat.breakdown.reduce((total, line) => total + line.valu
 const ligne = (stat, label) => stat.breakdown.find((line) => line.label === label);
 const declaration = (out, champ) => out.underived.find((entry) => entry.field === champ);
 
-const PILE_COMPLETE = [SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN];
+/* ⭐ LOT 196 — `srfh-mecaniques-en` ENTRE ICI, ET CE N'EST PAS UN AJOUT DE
+   CONFORT : c'est elle qui porte désormais `data[spell_list_choice]` sur
+   Magic Initiate (elle l'a repris de `fh-feats-en`, mot pour mot, pour qu'il
+   y ait UN écrivain et que la pile SRD l'ait aussi). Sans elle, les deux
+   gardes B0/BS ci-dessous mesureraient un don muet.
+   ⚠️ SA PLACE EST UNE CONTRAINTE : au-dessus du SRD (son patch a besoin du
+   record dessous), en dessous des couches FH (qui patchent le même record). */
+const PILE_COMPLETE = [SRD_EN, SRFH_MECANIQUES_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN];
 
 /* ══ LA COUCHE, AVANT MÊME QU'ON LA LISE ══════════════════════════════ */
 

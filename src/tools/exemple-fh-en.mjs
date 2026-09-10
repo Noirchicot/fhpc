@@ -69,6 +69,12 @@ export const PILE = [
      fh-srd, juste au-dessus du livre. Le garde 3 de `fiche-360` compare les
      deux listes, donc une seule des deux ne peut pas bouger. */
   "layers/srfh-shelving-en.layer.json",
+  /* LOT 196 — la SECONDE couche `srfh`, même place que dans `LAYER_FILES` et
+     `SRFH_LAYER_IDS` : au-dessus du livre, EN DESSOUS des couches FH. L'ordre
+     n'est pas cosmétique — elle PATCHE `srd:feat:en:magic-initiate`, donc son
+     record doit être dessous ; et `fh-feats-en`, qui patche le même record,
+     doit rester dessus. Le garde 3 de `fiche-360` compare les deux listes. */
+  "layers/srfh-mecaniques-en.layer.json",
   "layers/fh-species-en.layer.json",
   "layers/fh-skills-en.layer.json",
   /* LOT 184 — les deux interrupteurs sortis de `fh-skills-en`, même place que

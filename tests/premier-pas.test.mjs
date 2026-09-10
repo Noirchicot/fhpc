@@ -156,6 +156,14 @@ test("C1 — 🔴 UN SEUL MOT POUR LA MÊME ABSENCE : le Menu affiche celui de l
   const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
   assert.equal(node.querySelectorAll(".tdc-nom")[0].textContent, NOM_DU_PERSONNAGE_NEUF);
   assert.equal(NOM_DU_PERSONNAGE_NEUF.length > 0, true, "le schéma refuse une chaîne vide");
+  /* ⚖️ ET LE MOT EST CELUI D'ERIC — 2026-09-10, en entier : *« "Name
+     character" »*. ⛔ Il est écrit ICI, une fois, parce qu'une cote DONNÉE ne
+     se laisse pas remplacer par un défaut déduit : `Unnamed character` était
+     le mien, faute de son mot, et rien n'aurait rougi s'il revenait.
+     ⭐ Le changement de mot est aussi un changement de VOIX : l'ancien
+     DÉCRIVAIT un état, celui-ci DEMANDE un geste. */
+  assert.equal(NOM_DU_PERSONNAGE_NEUF, "Name character",
+    "le mot d'Eric, 10/09 — un défaut déduit ne le remplace pas en silence");
 });
 
 /* ══ D — ⚔️ LE MANIFESTE, CONFRONTÉ À CELUI QUE `rebuild` ADOPTE ═══════════ */

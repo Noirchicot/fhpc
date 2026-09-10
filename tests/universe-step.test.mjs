@@ -19,7 +19,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createTestDocument } from "./dom-stub.mjs";
-import { makeHarness, manifestOf, readJson, SRD_EN, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN }
+import { makeHarness, manifestOf, readJson, SRD_EN, PILE_SRD, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN }
   from "./build-harness.mjs";
 
 globalThis.document = createTestDocument();
@@ -73,8 +73,21 @@ test("A0 — la pile SRD+FH nommée est EXACTEMENT celle que le moteur monte", (
   const duMoteur = LAYER_FILES.map((f) => f.replace(/\.layer\.json$/, ""));
   assert.deepEqual([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS], duMoteur,
     "la pile nommée « SRD + FH » doit être la pile que `engine.mjs` monte, dans le même ordre");
-  assert.deepEqual(SRFH_LAYER_IDS, ["srfh-shelving-en"],
-    "la couche srfh est nommée à part — ni SRD, ni FH");
+  /* ⭐ LOT 196 — ELLES SONT DEUX. `srfh-mecaniques-en` déclare, dans la forme
+     que le moteur lit, une mécanique que le texte SRD énonce en prose
+     (`data[spell_list_choice]` sur Magic Initiate). Même rang, même raison :
+     le texte est du livre, la FORME est une décision d'ici — donc ni l'un ni
+     l'autre, donc les deux piles. */
+  assert.deepEqual(SRFH_LAYER_IDS, ["srfh-shelving-en", "srfh-mecaniques-en"],
+    "les couches srfh sont nommées à part — ni SRD, ni FH");
+  /* ⛔ ET LE HARNAIS DES SUITES MONTE LA MÊME PILE SRD QUE L'ÉCRAN. C'est une
+     QUATRIÈME liste (`PILE_SRD`, tests/build-harness.mjs) et elle divergerait
+     comme les trois autres l'ont fait au lot 77 : une suite qui mesure « ce
+     que le joueur a en SRD » sur une pile amputée est verte et ne prouve
+     rien. Les deux listes sont donc CONFRONTÉES, jamais recopiées. */
+  assert.deepEqual(PILE_SRD.map((f) => f.replace(/^layers\//, "").replace(/\.layer\.json$/, "")),
+    [SRD_LAYER_ID, ...SRFH_LAYER_IDS],
+    "la pile SRD des suites doit être la pile SRD de l'écran, dans le même ordre");
 });
 
 test("A1 — currentStack reconnaît « srd » et « srdfh », qui portent TOUTES DEUX la couche srfh", () => {

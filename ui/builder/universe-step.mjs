@@ -42,17 +42,17 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=618";
+import { renderConfirmDialog } from "./confirm.mjs?v=620";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=618";
+import { motDeLEchelon } from "./echelle.mjs?v=620";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
-import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=618";
+import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=620";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -88,7 +88,7 @@ export const LIVRE_FH_WEB = "https://noirchicot.github.io/fh-phb/";
  *  si Eric veut qu'« SRD seul » veuille dire « rien qui ne soit dans le livre »,
  *  cette liste sort de la pile `srd` — et il faudra alors répondre à ce que
  *  devient le tambour. */
-export const SRFH_LAYER_IDS = ["srfh-shelving-en"];
+export const SRFH_LAYER_IDS = ["srfh-shelving-en", "srfh-mecaniques-en"];
 
 /* ⭐ LOT 179 — `fh-soulforging-en` entre ici EN MÊME TEMPS que dans
    `engine.mjs`, MÊME PLACE et MÊME ORDRE : c'est la leçon du lot 77, où la
@@ -347,9 +347,12 @@ export function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
  *  est celui que le Menu affichait DÉJÀ pour un nom vide (`nomDuPersonnage`,
  *  juste en dessous, qui le lit ici désormais) — une seule absence, un seul
  *  mot ; deux auraient divergé au premier réglage.
- *  ⏳ C'est le défaut le plus sobre, pas une cote d'Eric : le jour où il donne
- *  son mot, il se change ICI, et le Menu comme la naissance le suivent. */
-export const NOM_DU_PERSONNAGE_NEUF = "Unnamed character";
+ *  ⚖️ ET LE MOT EST DÉSORMAIS CELUI D'ERIC — 2026-09-10, en entier : *« "Name
+ *  character" »*. Il remplace `Unnamed character`, qui n'était qu'un défaut
+ *  sobre posé faute de cote. ⭐ Le changement de mot est aussi un changement de
+ *  VOIX : `Unnamed character` DÉCRIVAIT un état (« celui-ci n'a pas de nom ») ;
+ *  `Name character` DEMANDE un geste. Une cote DONNÉE bat une cote déduite. */
+export const NOM_DU_PERSONNAGE_NEUF = "Name character";
 
 /** LA SÉQUENCE DU PREMIER PAS, PURE pour qu'un garde la lise sans coquille —
  *  MÊME FORME que `sauvegarderPuisEteindre` (lot 192) et pour la même raison :

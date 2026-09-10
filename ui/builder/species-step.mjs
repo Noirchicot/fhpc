@@ -34,23 +34,23 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=618";
-import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=618";
+import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=620";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=620";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=618";
-import { renderChoixGlisses } from "./glisser.mjs?v=618";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=620";
+import { renderChoixGlisses } from "./glisser.mjs?v=620";
 /* ⭐ LOT 194 — LE MOT ET LA FENÊTRE D'UNE COMPÉTENCE VIENNENT DE CLASS, comme
    le sélecteur qui les emploie. Species en tenait sa propre copie (par
    `motDuChoix`), qui ne sait pas lire un SLUG : voir la tête de `skillLabel`
    là-bas pour la mesure. */
-import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=618";
+import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=620";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=618";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=618";
-import { etapeParId } from "./etapes.mjs?v=618";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=618";
+import { motDuVerrou } from "./skills-step.mjs?v=620";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=620";
+import { etapeParId } from "./etapes.mjs?v=620";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=620";
 /* 📌 LOT 191 / LOT 194 — l'organe du « mot d'un choix » (`mot-du-choix.mjs`)
    n'est plus importé ICI : la seule chose que cet écran nommait était une
    COMPÉTENCE, et une compétence se nomme par SLUG — c'est `skillLabel`
@@ -246,7 +246,32 @@ const TRAITS_COUVERTS = {
   "species.lineage": ["elven-lineage", "gnomish-lineage", "hoddon-lineage",
     "draconic-ancestry", "giant-ancestry", "fiendish-legacy"],
   "species.skillBudget": ["keen-senses"],
-  "species.skills": []
+  /* ⚖️ LOT 196, ERIC 2026-09-10 : *« Keen Senses, pas granted, choix trois
+     tokens un collecteur drop. »*
+
+     📏 CE QUI A ÉTÉ MESURÉ AU LOT 194, ET LA LISTE ÉTAIT VIDE : en pile SRD,
+     l'Elfe publie `species.skills` (son `granted_skill_choice` — Insight,
+     Perception, Survival), et le mot **Keen Senses** s'écrivait DEUX FOIS sur
+     l'écran Species — sur la porte `Species skill` et sur la ligne « Granted
+     automatically ». La même faute que le 19/08 (*« tu évites les doublons
+     comme Keen Senses à deux endroits »*), à un chemin près : la table
+     couvrait la BOURSE FH (`species.skillBudget`) et pas le CHOIX SRD
+     (`species.skills`). Une couverture par chemin ne dit jamais toute seule
+     qu'il lui manque un chemin — une absence n'est jamais une réponse.
+
+     ⭐ ET LE TRAIT NE DISPARAÎT PAS, IL CHANGE DE PLACE (loi du 19/08, dix
+     lignes plus haut) : `traitQuiAccorde` le rend maintenant sur l'item
+     `species.skills`, donc la porte dit D'OÙ viennent ses trois jetons, et le
+     bloc accordé cesse de le redire. Le SÉLECTEUR, lui, ne bouge pas d'un
+     octet : c'est déjà `renderChoixGlisses` (lot 194), trois jetons par rangée
+     et un collecteur, tap = info (`Close · Select`), glisser = poser.
+
+     ⛔ ET RIEN NE BOUGE EN FATE'S HAND : là, Keen Senses est une BOURSE
+     (`granted_skill_budget`), `species.skills` n'est pas publié, et une
+     couverture ne s'applique qu'aux chemins que le carnet publie
+     (`planAt(decisions, chemin)`, `resumeDeLItem`). Les deux lignes du tableau
+     ne peuvent donc jamais s'allumer ensemble. */
+  "species.skills": ["keen-senses"]
 };
 
 /* ══ 🔴 LES TRAITS QUE LA LIGNÉE PORTE — Eric, 2026-09-02 ══════════════════
@@ -697,6 +722,34 @@ export const SPECIES_CATALOGUE = {
         const trait = record ? traitQuiAccorde(record, "species.skillBudget") : null;
         return (trait && trait.name) || "Skill budget";
       }
+    }
+    /* 🔴 LOT 196 — ET LE CHOIX SRD FAIT PAREIL, PARCE QUE LA LOI EST LA MÊME.
+       *« UN TRAIT COUVERT NE DISPARAÎT PAS, IL CHANGE DE PLACE »* — Eric,
+       19/08 : *« tu aurais pu noter Keen Senses au-dessus de Delve et
+       Vigilance »*. En sortant `keen-senses` du bloc accordé (voir
+       `TRAITS_COUVERTS`), on le faisait disparaître de l'écran Species
+       ENTIÈREMENT : mesuré, le mot passait de 1 occurrence à 0. Un joueur qui
+       lit « Species skill : Perception » sans savoir D'OÙ vient cette
+       compétence lit un résultat sans sa cause.
+       ⭐ Il revient donc là où l'autre chemin le met déjà : en TÊTE DU BILAN,
+       une fois l'item conclu — même organe (`traitQuiAccorde`), même table,
+       même moment. ⛔ Et il ne remplace pas le mot de la PORTE : tant que la
+       question est ouverte, la porte porte la QUESTION (« Species skill »),
+       jamais sa cause. Un trait n'est pas une question.
+       ⚠️ GÉNÉRIQUE, comme sa voisine : le nom sort de la TABLE, jamais d'un
+       `if (trait === "keen-senses")`. Une espèce dont le trait s'appelle
+       autrement affichera le sien. */
+    if (chemin === "species.skills") {
+      /* ⛔ ET SEULEMENT UNE FOIS LA COMPÉTENCE POSÉE — même condition que la
+         bourse juste au-dessus (`budgetDepense`), et pour la même raison : une
+         tête qui nomme la CAUSE d'une réponse qui n'existe pas encore annonce
+         un acquis que personne n'a pris. Le plan est le seul à savoir. */
+      const plan = planAt(ctx.decisions || [], "species.skills");
+      const pose = plan && Array.isArray(plan.selected) && plan.selected.filter(Boolean).length > 0;
+      if (!pose) return null;
+      const record = especeRetenue(ctx);
+      const trait = record ? traitQuiAccorde(record, "species.skills") : null;
+      return (trait && trait.name) || null;
     }
     return null;
   },

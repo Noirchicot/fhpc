@@ -11,7 +11,7 @@
    l'URL de CE module : sans elle, un moteur frais pouvait recharger des
    couches de la version d'avant, servies par le cache (max-age=600 PAR
    fichier). Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=618";
+import { versionQuery } from "./version.mjs?v=620";
 
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
@@ -30,6 +30,15 @@ export const LAYER_FILES = [
      rien — chaque record a son propre id et un `data.extends` vers l'objet
      SRD qu'il habille. ⚠️ EN seulement, comme la source. */
   "srfh-shelving-en.layer.json",
+  /* ⭐ LOT 196 — LA SECONDE COUCHE `srfh`, ET SA PLACE EST UNE CONTRAINTE, PAS
+     UN GOÛT. Elle DÉCLARE `data[spell_list_choice]` sur `srd:feat:en:magic-
+     initiate` — un patch tombe dans le vide si son record n'est pas dessous,
+     donc elle se monte au-dessus du SRD ; et `fh-feats-en`, qui patche le même
+     record pour son blurb, doit rester AU-DESSUS d'elle. Entre les deux, il
+     n'y a qu'une place, et c'est celle-ci.
+     ⛔ Elle entre ici EN MÊME TEMPS que dans `SRFH_LAYER_IDS` (universe-step)
+     et dans `PILE` (exemple-fh-en) : trois listes, un seul geste (lot 77). */
+  "srfh-mecaniques-en.layer.json",
   "fh-species-en.layer.json",
   "fh-skills-en.layer.json",
   /* ⭐ LOT 184 — `fh-skills-en` PORTAIT TROIS INTERRUPTEURS ; en voici deux,
@@ -92,8 +101,17 @@ export const LAYER_FILES = [
    d'une autre version) est rapporté dans `livresRefuses`, avec sa raison, pour
    que l'écran `Layers` le dise au lieu de le taire. */
 export const LIVRE_FILES = ["xphb-en.layer.json", "xdmg-en.layer.json"];
-/** Le fichier au-dessus duquel les livres se montent — le plancher `srfh`. */
-const SOUS_LES_LIVRES = "srfh-shelving-en.layer.json";
+/** Le fichier au-dessus duquel les livres se montent — le plancher `srfh`.
+ *  🔴 LOT 196 — IL SE DÉDUIT, IL NE S'ÉCRIT PLUS. Ce nom était `srfh-shelving-
+ *  en.layer.json` en dur, et c'était juste tant que `srfh` n'avait qu'une
+ *  couche. Le jour où `srfh-mecaniques-en` est arrivée juste au-dessus, la
+ *  constante a cessé de désigner « le haut de `srfh` » pour désigner « la
+ *  première des deux » — les livres se seraient montés ENTRE les deux couches
+ *  `srfh`, et la loi écrite dix lignes plus haut (« au-dessus du SRD ET de
+ *  `srfh` ») aurait été fausse sans qu'une seule ligne rougisse.
+ *  ⭐ La liste dit donc elle-même où est son plancher : la DERNIÈRE couche
+ *  `srfh` de la pile, quelle qu'elle soit et quel que soit leur nombre. */
+const SOUS_LES_LIVRES = LAYER_FILES.filter((f) => f.startsWith("srfh-")).at(-1);
 
 async function octetsDuLivre(root, file) {
   let reponse;
@@ -144,14 +162,14 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs?v=618");
-  const { createBuild } = await import("../../src/build/index.mjs?v=618");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=618");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=618");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=620");
+  const { createBuild } = await import("../../src/build/index.mjs?v=620");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=620");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=620");
   /* LOT 148 BIS — le module qui fait ARRIVER sur la fiche les traits que la
      couche des espèces AJOUTE (`Splinter of Anon`, `Outlasting`,
      `Twice-Born`). Sans lui, ils s'appliquent sans que le joueur les voie. */
-  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=618");
+  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=620");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
