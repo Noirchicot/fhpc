@@ -99,6 +99,42 @@ Destiny ; **c'est Destiny qui lève le drapeau**. `fh-species-en` ne lève plus 
 `fh.species` (`src/tools/fh-species-source.mjs`). ⏳ Si Eric veut qu'une espèce garde une Base
 **sans** Destiny, c'est une règle de jeu à lui — et elle se dira dans la source de la couche.
 
+#### 🔴 Le rang `srfh` porte DEUX métiers, et il n'est pilotable par personne (lot 196, 2026-09-10)
+
+`srfh` est le rang défini au lot 95 pour **ce qui est AMBIGU** — le test d'Eric porte sur le
+nom : *« si on change ça, est-ce que ça s'appelle encore le SRD ? »*. Il monte dans **les deux
+piles nommées**, et aucun interrupteur ne le touche.
+
+| couche | ce qu'elle porte | comment elle est faite |
+|---|---|---|
+| `srfh-shelving-en` | le **rangement** — 416 records `shelving` qui habillent un objet SRD (`data.extends`) | **générée** (`src/tools/gen-srfh-layer.mjs`) depuis `~/tools/fh-srd/exports` |
+| `srfh-mecaniques-en` | les **déclarations** — une mécanique que le texte SRD énonce en prose, réécrite dans la forme que le moteur lit | **écrite à la main**, dans ce dépôt |
+
+⚖️ **La question que le lot 196 a tranchée, et elle reviendra** : *où va une mécanique que le
+SRD ÉNONCE mais ne DÉCLARE pas ?* `Magic Initiate` en est le premier cas — son texte dit
+« Choose a class: Cleric, Druid, or Wizard […] Two Cantrips […] Level 1 Spell », et le moteur
+lit ça dans un champ `data[spell_list_choice]` que le SRD ne connaît pas.
+
+⛔ **Les deux places courtes sont fermées, et c'est mesuré** : `srd-5.2.1-en` est **générée**
+depuis les exports `fh-srd` (l'y écrire à la main est un no-op silencieux, écrasé à la
+génération suivante), et `srfh-shelving-en` est **générée** aussi — son générateur refuse tout
+genre autre que `shelving`, et l'enrichir ici reviendrait à inventer une source.
+
+⭐ **La règle qui en sort** : *le CONTENU est du livre, la FORME est une décision d'ici* — donc
+ni SRD ni FH, donc `srfh`, et la déclaration profite aux deux piles. ⛔ **Et un seul écrivain** :
+la couche FH qui patchait le même record (`fh-feats-en`) ne garde que ce qui est vraiment à elle
+(le `blurb`, un texte d'écran). Deux couches qui déclarent la même valeur sont vertes tant
+qu'elles disent la même chose, et divergent en silence au premier réglage.
+
+⚠️ **Une couche `srfh` neuve entre dans QUATRE listes, du même geste** — `LAYER_FILES`
+(`ui/builder/engine.mjs`), `PILE` (`src/tools/exemple-fh-en.mjs`), `SRFH_LAYER_IDS`
+(`ui/builder/universe-step.mjs`) et `PILE_SRD` (`tests/build-harness.mjs`) ; les quatre sont
+confrontées deux à deux par le garde A0 de `tests/universe-step.test.mjs`. Sa **place** est une
+contrainte, pas un goût : au-dessus du SRD *(un patch tombe dans le vide si son record n'est pas
+dessous)*, en dessous des couches FH *(qui patchent les mêmes records)* — et les livres du
+joueur se montent au-dessus du **dernier** `srfh`, ce que `engine.mjs` déduit désormais de la
+liste au lieu de le nommer.
+
 #### 🔴 Un sous-ensemble de couches est LÉGITIME, pas inconnu (lot 188)
 
 `currentStack` ne nomme que deux piles (`srd`, `srdfh`) et rend `null` entre les deux. Depuis

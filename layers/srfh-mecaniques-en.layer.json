@@ -1,0 +1,32 @@
+{
+  "schema": "fh-layer/1",
+  "id": "srfh-mecaniques-en",
+  "version": "0.1.0",
+  "name": "SRFH — Mechanics (EN)",
+  "lang": "en",
+  "flags": [],
+  "attribution": {
+    "license": "undecided",
+    "text": "Fate's Hand (Eric) — machine-readable declarations layered over the System Reference Document 5.2.1 by Wizards of the Coast LLC. No SRD text is rewritten and no SRD record is disabled: each patch only ADDS a field that states, in the shape this engine reads, a choice the SRD text already asks the player to make."
+  },
+  "description": "La deuxième couche `srfh` (lot 196) — ce qui est AMBIGU, ni le livre ni Fate's Hand, et qui monte donc dans LES DEUX piles. Elle ne range rien (c'est `srfh-shelving-en`) : elle DÉCLARE, dans la forme que le moteur lit, une mécanique que le texte SRD énonce déjà en prose. Une déclaration n'ajoute aucune règle — elle rend lisible celle qui est écrite.",
+  "records": {
+    "feat": {
+      "srd:feat:en:magic-initiate": {
+        "op": "patch",
+        "changes": {
+          "data[spell_list_choice]": {
+            "from": [
+              "srd:class:en:cleric",
+              "srd:class:en:druid",
+              "srd:class:en:wizard"
+            ],
+            "cantrips": 2,
+            "prepared": 1
+          }
+        },
+        "note": "⚖️ ERIC, 2026-09-10 : *« Reproduis exactement dans backgrounds ce que tu trouves pour Magic Initiate dans FH, rien ne change. Fais-le ! »*\n\n🔴 CE QUE « RIEN NE CHANGE » VEUT DIRE, ET C'EST LITTÉRAL : le moteur et l'écran étaient DÉJÀ prêts. `src/build/decisions.mjs` lit `data.spell_list_choice` sur le record du don, sans aucun cas particulier — ⛔ aucun `if (id === \"magic-initiate\")` nulle part, la loi des lots 39/42. Ce qui manquait n'était pas du code : c'était la DÉCLARATION du côté SRD. La voici, et rien d'autre ne bouge.\n\n📏 CE QUI A ÉTÉ MESURÉ AVANT DE CHOISIR CETTE COUCHE, en trois temps :\n  ① `layers/srd-5.2.1-en.layer.json` est GÉNÉRÉE (`src/tools/gen-srd-layer.mjs`) depuis `~/tools/fh-srd/exports`, et l'export amont NE PORTE PAS ce champ. ⛔ L'y écrire à la main serait un no-op silencieux : la prochaine génération l'écraserait sans un mot.\n  ② `layers/srfh-shelving-en.layer.json` est GÉNÉRÉE elle aussi (`src/tools/gen-srfh-layer.mjs`), depuis `exports/srfh/en/shelving.json`, et son générateur REFUSE tout ce qui n'est pas le genre `shelving`. Elle ne peut donc pas accueillir un `feat` — et même si elle le pouvait, un enrichissement décidé ici dans un fichier copié d'une source serait une source INVENTÉE.\n  ③ ⇒ Une couche `srfh` NEUVE, écrite à la main, et c'est le rang que le lot 95 a défini pour exactement ce cas : *« ce qui est AMBIGU, ni SRD ni FH, et qui monte dans LES DEUX piles »*.\n\n⭐ ET C'EST BIEN DU `srfh`, PAS DU FH — le test d'Eric porte sur le NOM : *« si on change ça, est-ce que ça s'appelle encore le SRD ? »*. Les trois listes, les deux tours mineurs et le sort de niveau 1 SONT le texte du don (« Choose a class: Cleric, Druid, or Wizard […] Two Cantrips […] Level 1 Spell »). Rien n'est ajouté au SRD : on le réécrit dans la forme que la machine sait lire. Mais la FORME, elle, est une décision d'ici — le SRD ne connaît pas `spell_list_choice`. Ni le livre, ni Fate's Hand : `srfh`.\n\n📌 LES IDENTIFIANTS SONT DES RECORDS DE CLASSE, jamais des noms d'affichage — c'est la forme que `fh-feats-en` portait depuis le 20/08 et elle est reprise à l'octet : le croisement des sorts se fait sur `spell.classes` (des NOMS), et c'est le moteur qui traduit l'un dans l'autre, une fois, là où `classSpellPlans` le fait déjà. Les OPTIONS ne sont pas déclarées ici : elles se déduisent de la liste choisie (`spell.classes` × `spell.level`). Les mots `cantrips` et `prepared` sont ceux que la classe emploie déjà (`class.cantrips[n]`, `class.prepared[n]`) — un sort toujours préparé EST un sort préparé, et un troisième vocabulaire pour la même chose est la divergence garantie.\n\n⛔ UN SEUL ÉCRIVAIN. `fh-feats-en` posait ce champ jusqu'au lot 196 ; il ne le pose plus. Deux couches qui déclarent la même valeur sur le même record sont vertes tant que les deux disent la même chose, et divergent en silence le jour où l'une bouge — la couche du dessus gagnerait sans que personne ne l'ait décidé. `fh-feats-en` ne garde donc que `data.blurb`, qui est un champ FH (un texte d'écran), pendant que la MÉCANIQUE vit ici, une fois, sous le SRD comme sous Fate's Hand."
+      }
+    }
+  }
+}

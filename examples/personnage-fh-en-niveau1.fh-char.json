@@ -28,6 +28,12 @@
         "name": "SRFH — Shelving (EN)"
       },
       {
+        "id": "srfh-mecaniques-en",
+        "version": "0.1.0",
+        "hash": "c625d426260fcbec674a96cc4bad353537c74b249223b3cab79d54873266adfc",
+        "name": "SRFH — Mechanics (EN)"
+      },
+      {
         "id": "fh-species-en",
         "version": "0.1.0",
         "hash": "0c0bf99db0a87d96f33fa8f41a56fe6ba5ee37f123708c6d80fa83df9fa510d9",
@@ -60,7 +66,7 @@
       {
         "id": "fh-feats-en",
         "version": "0.1.0",
-        "hash": "9e4aa9e7acd0322b25d00056a6115f0005305e69dcafd0a3457e186485e1f3d8",
+        "hash": "d6135a5e23806dd80967605270a6639b77d50e227d6671d5c7274ed2f70e9cf8",
         "name": "Fate's Hand — Feats (EN)"
       },
       {
@@ -438,6 +444,12 @@
           "name": "SRFH — Shelving (EN)"
         },
         {
+          "id": "srfh-mecaniques-en",
+          "version": "0.1.0",
+          "hash": "c625d426260fcbec674a96cc4bad353537c74b249223b3cab79d54873266adfc",
+          "name": "SRFH — Mechanics (EN)"
+        },
+        {
           "id": "fh-species-en",
           "version": "0.1.0",
           "hash": "0c0bf99db0a87d96f33fa8f41a56fe6ba5ee37f123708c6d80fa83df9fa510d9",
@@ -470,7 +482,7 @@
         {
           "id": "fh-feats-en",
           "version": "0.1.0",
-          "hash": "9e4aa9e7acd0322b25d00056a6115f0005305e69dcafd0a3457e186485e1f3d8",
+          "hash": "d6135a5e23806dd80967605270a6639b77d50e227d6671d5c7274ed2f70e9cf8",
           "name": "Fate's Hand — Feats (EN)"
         },
         {

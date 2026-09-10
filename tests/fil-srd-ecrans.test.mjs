@@ -18,7 +18,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createTestDocument } from "./dom-stub.mjs";
-import { makeHarness, manifestOf, fileBytes, SRD_EN, FH_FICHE_EN } from "./build-harness.mjs";
+import { makeHarness, manifestOf, fileBytes, PILE_SRD, FH_FICHE_EN } from "./build-harness.mjs";
 import { itemsDeLEtape } from "../ui/builder/parcours.mjs";
 import { FH_SKILLS_FLAG } from "../src/modules/fh/skill-pool.mjs";
 
@@ -40,8 +40,22 @@ const {
 const ELF = "srd:species:en:elf";
 const FIGHTER = "srd:class:en:fighter";
 
-/* ── la pile SRD seule, et un personnage juste assez complet pour `rebuild()` ── */
-const H = makeHarness({ layers: [SRD_EN] });
+/* ── la pile SRD, et un personnage juste assez complet pour `rebuild()` ──────
+   🔴 LOT 196 — CE HARNAIS MONTAIT `SRD_EN` SEUL, ET CE N'ÉTAIT PAS LA PILE DU
+   JOUEUR. « SRD » au tableau de commande veut dire trois couches : le livre,
+   plus les deux `srfh` (le rangement d'Eric et les mécaniques déclarées) — ce
+   qui est AMBIGU monte dans les DEUX piles, la bascule de `shell.mjs` ne
+   touche que `FH_LAYER_IDS`. Un fichier qui s'appelle « le fil SRD, écran par
+   écran » doit mesurer CE pli-là, sinon il décrit un écran que personne n'a.
+   📏 ET ÇA A COÛTÉ QUELQUE CHOSE : jusqu'au 10/09, ce fichier affirmait que
+   l'Acolyte n'ouvrait aucune porte de don « en pile SRD ». C'était vrai du
+   livre nu, faux du joueur dès que la déclaration est arrivée dans `srfh`.
+   ⛔ `PILE_SRD` est LUE, jamais recopiée, et `universe-step.test.mjs` (garde
+   A0) la confronte à `[SRD_LAYER_ID, ...SRFH_LAYER_IDS]`. */
+const H = makeHarness({ layers: PILE_SRD });
+/** Les ids de cette pile, DÉDUITS de la liste des fichiers — jamais réécrits :
+ *  c'est la recopie qui laisse deux listes diverger (lot 77). */
+const IDS_PILE_SRD = PILE_SRD.map((f) => f.replace(/^layers\//, "").replace(/\.layer\.json$/, ""));
 const Q = H.layers.verbs.query;
 function docSrd(id, choix = []) {
   return {
@@ -76,7 +90,9 @@ const blurbFh = (kind, id) => FH.layers.verbs.query({ kind, id }).record.data.bl
 
 test("témoin — la pile SRD seule ne lève aucun drapeau et ne monte aucune couche FH ; la pile FH porte un blurb sur l'Elfe et le Fighter", () => {
   assert.deepEqual([...H.layers.verbs.flags()], []);
-  assert.deepEqual(H.layers.verbs.stack().map((l) => l.id), ["srd-5.2.1-en"]);
+  assert.deepEqual(H.layers.verbs.stack().map((l) => l.id), IDS_PILE_SRD,
+    "la pile SRD du joueur : le livre et les deux `srfh` — aucune couche FH, aucun drapeau");
+  assert.equal(IDS_PILE_SRD.length, 3, "et elle en compte trois — si ce chiffre bouge, on veut le savoir ICI");
   assert.ok(blurbFh("species", ELF).length > 0);
   assert.ok(blurbFh("class", FIGHTER).length > 0);
   assert.equal(Q({ kind: "species", id: ELF }).record.data.blurb, undefined, "témoin : en SRD, le record n'a AUCUN blurb — c'est le trou");
@@ -102,7 +118,7 @@ test("🔴 en pile SRD, la fiche de l'Elfe et du Fighter portent l'image, le blu
     assert.equal(carte.querySelectorAll(".fiche-stat-row").length, 0, `${id} : aucune stat compressée de couche — les faits SRD sont des traits`);
   }
   /* ⛔ la porte de derrière est fermée : la pile n'a pas bougé */
-  assert.deepEqual(H.layers.verbs.stack().map((l) => l.id), ["srd-5.2.1-en"], "aucune couche montée pour obtenir le blurb");
+  assert.deepEqual(H.layers.verbs.stack().map((l) => l.id), IDS_PILE_SRD, "aucune couche montée pour obtenir le blurb");
   assert.deepEqual([...H.layers.verbs.flags()], []);
   assert.equal(Q({ kind: "species", id: ELF }).record.data.blurb, undefined, "la vue montée n'a pas été patchée : le secours travaille sur une copie");
   oublierLaFicheDeSecours();
@@ -350,6 +366,106 @@ test("⚔️ ATTAQUE — une compétence hors du `from` est REFUSÉE par le carn
   assert.equal(resume, null, "un bilan dit ce qu'on A — pas ce qu'on a tenté");
 });
 
+/* ══ ⑤ bis — KEEN SENSES N'EST PAS « GAGNÉ D'OFFICE » — lot 196 ════════════
+   ⚖️ ERIC, 2026-09-10 : *« Keen Senses, pas granted, choix trois tokens un
+   collecteur drop. »*
+
+   📏 CE QUI A ÉTÉ MESURÉ AVANT D'AGIR, sur l'Elfe en pile SRD, écran Species :
+   le mot **Keen Senses** paraissait UNE fois, et au mauvais endroit — sur la
+   ligne « Granted automatically », c'est-à-dire annoncé comme ACQUIS alors
+   que le joueur doit choisir laquelle des trois compétences il prend. La
+   cause : `TRAITS_COUVERTS` (species-step.mjs) couvrait la bourse Fate's Hand
+   (`species.skillBudget`) et laissait le choix SRD (`species.skills`) à VIDE.
+   Une couverture par chemin ne dit jamais toute seule qu'il lui manque un
+   chemin — une absence n'est jamais une réponse.
+
+   ⭐ ET LE TRAIT NE DISPARAÎT PAS, IL CHANGE DE PLACE (Eric, 19/08 : *« tu
+   aurais pu noter Keen Senses au-dessus de Delve et Vigilance »*). Ce garde
+   mesure donc les DEUX états de l'écran et NOMME les deux chiffres :
+     · question OUVERTE  → **0** — la porte porte la QUESTION (« Species
+       skill »), jamais sa cause. C'est exactement ce que fait la bourse FH,
+       dont la porte dit « Skill budget » tant qu'elle n'est pas dépensée.
+     · item SIGNÉ        → **1** — la tête du bilan porte le nom du trait qui
+       accorde, par le MÊME organe que la bourse (`traitQuiAccorde`).
+
+   ⚠️ ET CE QUI CHANGE N'EST PAS LE COMPTE, C'EST LA PLACE — mesuré, parce que
+   je m'étais annoncé le contraire. En remettant `"species.skills": []` dans
+   `TRAITS_COUVERTS` (la mutation ⚔️), les chiffres deviennent **1 et 1**, pas
+   1 et 2 : le mot ne se DOUBLE jamais, parce que les deux organes lisent la
+   MÊME table — couvert, il quitte le bloc accordé et paraît au bilan ; non
+   couvert, il reste dans le bloc accordé et le bilan se tait. Un organe unique
+   pour les deux, et c'est ce qui rend le doublon impossible par construction.
+   ⇒ Le défaut réparé n'est donc pas « deux fois », c'est **« au mauvais
+   endroit »** : `Keen Senses` était annoncé comme ACQUIS pendant que le joueur
+   avait encore à choisir laquelle des trois compétences il prend.
+
+   ⚔️ ÉPROUVÉ ROUGE : la mutation fait tomber la première moitié du garde,
+   `0` attendu, `1` mesuré — « ne doit plus être annoncé comme acquis ». */
+
+/** TOUT CE QUE L'ÉCRAN SPECIES MET SOUS LES YEUX DU JOUEUR, en une chaîne :
+ *  les mots de porte, les têtes de bilan, les corps de sélecteur, les
+ *  consignes, et le bloc « gagné d'office ». ⛔ On ne cherche pas le mot dans
+ *  UN organe choisi d'avance — c'est l'écran entier qui ne doit pas se répéter,
+ *  et un relevé qui ne regarde qu'un organe ne pourrait jamais accuser. */
+function motsDeLEcranEspece(report) {
+  const ctx = ctxDe(report, SPECIES_CATALOGUE);
+  const items = itemsDeLEtape({ decisions: report.decisions, document: report.document, racine: "species" });
+  const morceaux = [];
+  const dire = (v) => {
+    if (!v) return;
+    if (typeof v === "string") morceaux.push(v);
+    else if (typeof v === "object" && typeof v.mot === "string") morceaux.push(`${v.mot} ${v.sous || ""}`);
+    else if (typeof v.textContent === "string") morceaux.push(v.textContent);
+  };
+  for (const item of items) {
+    dire(SPECIES_CATALOGUE.itemLabel(item.path, ctx));
+    dire(SPECIES_CATALOGUE.bilanLabel(item.path, ctx));
+    dire(SPECIES_CATALOGUE.itemAiguilleur(item.path, ctx));
+    dire(SPECIES_CATALOGUE.itemCorps(item, ctx, () => {}));
+    dire(SPECIES_CATALOGUE.resumeItem(item, ctx, () => {}));
+  }
+  for (const ligne of SPECIES_CATALOGUE.lignesEnPlus || []) {
+    dire(SPECIES_CATALOGUE.resumeItem({ ...ligne, confirme: true }, ctx, () => {}));
+  }
+  return morceaux.join("\n");
+}
+
+const compter = (texte, mot) => (texte.match(new RegExp(mot, "g")) || []).length;
+
+test("🔴 en SRD, `Keen Senses` a QUITTÉ le bloc « gagné d'office » : 0 fois tant que la question est ouverte, 1 fois au bilan", () => {
+  const trait = Q({ kind: "species", id: ELF }).record.data.traits.find((t) => t.id === "keen-senses");
+  assert.ok(trait && trait.name === "Keen Senses", "témoin : le record de l'Elfe porte bien ce trait, sous ce nom");
+
+  /* ① LA QUESTION EST OUVERTE — le mot ne paraît nulle part. */
+  const ouvert = H.build.verbs.rebuild({ document: docSrd("keen-ouvert") });
+  const texteOuvert = motsDeLEcranEspece(ouvert);
+  assert.equal(compter(texteOuvert, trait.name), 0,
+    `« ${trait.name} » ne doit plus être annoncé comme acquis : le joueur ne l'a pas encore choisi`);
+  assert.match(texteOuvert, /Species skill/, "témoin : la porte est bien là, avec sa QUESTION");
+
+  /* ② L'ITEM EST SIGNÉ — le mot revient, une fois, en tête du bilan. */
+  const slug = Q({ kind: "species", id: ELF }).record.data.granted_skill_choice.from[1].split(":").pop();
+  const doc = docSrd("keen-signe", [{ path: "species.skills[0]", value: slug }]);
+  doc.build.confirmed = ["species.skills"];
+  const signe = H.build.verbs.rebuild({ document: doc });
+  const texteSigne = motsDeLEcranEspece(signe);
+  assert.equal(compter(texteSigne, trait.name), 1,
+    `« ${trait.name} » dit D'OÙ vient la compétence posée — une fois, et une seule`);
+});
+
+test("🔴 la porte `Species skill` de l'Elfe SRD : TROIS jetons, UN collecteur — le sélecteur du lot 194, tel quel", () => {
+  const report = H.build.verbs.rebuild({ document: docSrd("keen-selecteur") });
+  const bloc = corpsEspece(report);
+  assert.ok(bloc && bloc.className === "choix-glisse", "le corps de l'item EST le sélecteur");
+  const jetons = bloc.querySelectorAll(".glisse-jeton");
+  assert.equal(jetons.length, 3, "trois jetons");
+  assert.equal(bloc.querySelectorAll("[data-creneau]").length, 1, "un collecteur");
+  /* ⛔ les trois noms viennent du PLAN, jamais d'une liste écrite ici */
+  const plan = report.decisions.find((p) => p.path === "species.skills");
+  assert.deepEqual(jetons.map((j) => j.getAttribute("data-valeur")).sort(), [...plan.options].sort());
+  assert.equal(plan.options.length, 3, "témoin : le record de l'Elfe en offre trois");
+});
+
 /* ══ ⑥ BACKGROUND — la porte des caracs, l'outil, le don ═══════════════════ */
 
 test("🔴 la porte des caracs ouvre NEUTRE : rien de posé, aucun verrou, aucun refus à l'écran", () => {
@@ -391,9 +507,15 @@ test("🔴 Soldier porte une porte `Tool`, les trois autres arrière-plans n'en 
     portes[slug] = itemsDeLEtape({ decisions: report.decisions, document: report.document, racine: "background" })
       .map((i) => i.path);
   }
-  assert.deepEqual(portes.soldier, ["background.boost", "background.tool"]);
+  assert.ok(portes.soldier.includes("background.tool"), `soldier : sa porte d'outil (${portes.soldier.join(", ")})`);
   for (const slug of ["acolyte", "criminal", "sage"]) {
-    assert.deepEqual(portes[slug], ["background.boost"], `${slug} : son outil est imposé, donc pas de porte`);
+    /* ⛔ ON MESURE LA PORTE D'OUTIL, PAS LA LISTE ENTIÈRE — lot 196. Ce garde
+       comparait la liste complète des portes de l'étape, donc il rougissait
+       quand un AUTRE item en ouvrait une : depuis que `srfh-mecaniques-en`
+       déclare `spell_list_choice`, l'Acolyte porte aussi la porte de son don.
+       Un garde qui accuse pour ce qu'il ne mesure pas ne mesure plus rien. */
+    assert.ok(!portes[slug].includes("background.tool"),
+      `${slug} : son outil est imposé, donc pas de porte d'outil (${portes[slug].join(", ")})`);
     assert.equal(typeof Q({ kind: "background", id: `srd:background:en:${slug}` }).record.data.tool_id, "string",
       "témoin : c'est `tool_id` qui l'impose");
   }
@@ -418,17 +540,34 @@ test("🔴 le don ACCORDÉ se lit sur la ligne « gagné d'office », et son nom
 });
 
 test("🔴 UN PLAN REQUIS N'EST PAS UNE PORTE — sauf s'il porte, en dessous, une décision à prendre", () => {
-  /* 📏 MESURÉ SUR LA PILE SRD : les quatre arrière-plans imposent leur don, et
-     aucun ne publie de sous-décision — la déclaration `spell_list_choice` que
-     Magic Initiate demande vit dans `fh-feats-en`, derrière l'interrupteur
-     Destiny, PAS dans la couche SRD. Le don n'ouvre donc aucune porte ici, et
-     ce test le DIT au lieu de le taire. */
+  /* 📏 CE QUI A CHANGÉ LE 10/09, ET IL FAUT LIRE LES DEUX ÉTATS. Jusqu'au lot
+     196, les quatre arrière-plans SRD imposaient leur don et AUCUN ne publiait
+     de sous-décision : `spell_list_choice` ne vivait que dans `fh-feats-en`,
+     derrière l'interrupteur Destiny. Ce fichier le disait, et c'était honnête.
+     ⚖️ Eric, 10/09 : *« Reproduis exactement dans backgrounds ce que tu trouves
+     pour Magic Initiate dans FH, rien ne change. Fais-le ! »* La déclaration
+     est descendue dans `srfh-mecaniques-en`, qui monte dans les DEUX piles.
+     ⇒ L'Acolyte OUVRE désormais sa porte en SRD. La ligne de partage n'a pas
+     bougé d'un pouce — c'est toujours « y a-t-il une décision dessous ? » — et
+     c'est le SOLDIER qui tient maintenant le côté « rien à régler ».
+     ⚔️ Ce garde est éprouvé ROUGE en retirant `data[spell_list_choice]` de
+     `layers/srfh-mecaniques-en.layer.json` : l'Acolyte reperd sa porte. */
   const report = H.build.verbs.rebuild({ document: docSrd("bg-don", [fond(ACOLYTE)]) });
   const plan = report.decisions.find((p) => p.path === "background.originFeat[0]");
   assert.equal(plan.provenance.mode, "required", "témoin : l'arrière-plan l'impose");
-  assert.equal(porteUneDecisionOuverte(report.decisions, "background.originFeat[0]"), false,
-    "rien à régler dessous : la couche SRD ne déclare pas `spell_list_choice`");
-  assert.ok(!itemsDeLEtape({ decisions: report.decisions, document: report.document, racine: "background" })
+  assert.equal(porteUneDecisionOuverte(report.decisions, "background.originFeat[0]"), true,
+    "il y a de quoi régler dessous : la pile SRD déclare `spell_list_choice`");
+  assert.ok(itemsDeLEtape({ decisions: report.decisions, document: report.document, racine: "background" })
+    .some((i) => i.path === "background.originFeat[0]"), "donc une porte, et le don s'y configure");
+
+  /* ⛔ ET LE DON QUI N'A RIEN À RÉGLER N'EN PREND TOUJOURS PAS. Savage Attacker
+     ne déclare rien : il reste sur la ligne « gagné d'office ». C'est la
+     moitié qui prouve que le critère est la DONNÉE, pas le mode `required`. */
+  const soldat = H.build.verbs.rebuild({ document: docSrd("bg-don-sans", [fond(SOLDIER)]) });
+  assert.equal(soldat.decisions.find((p) => p.path === "background.originFeat[0]").provenance.mode, "required");
+  assert.equal(porteUneDecisionOuverte(soldat.decisions, "background.originFeat[0]"), false,
+    "Savage Attacker ne déclare rien — rien à régler dessous");
+  assert.ok(!itemsDeLEtape({ decisions: soldat.decisions, document: soldat.document, racine: "background" })
     .some((i) => i.path === "background.originFeat[0]"), "donc aucune porte (lot 190)");
 
   /* ⚔️ ET LE CONTRAIRE, SUR UN CARNET FABRIQUÉ : un plan requis SOUS lequel le

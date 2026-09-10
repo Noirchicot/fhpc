@@ -26,6 +26,22 @@ export const EXAMPLE_CHAR = "examples/personnage-srd-fr-niveau1.fh-char.json";
    C'est elle qui lève `fh.destiny`, et c'est la seule qui porte les Bases de
    Destinée. Lue depuis le dépôt, jamais recopiée. */
 export const SRD_EN = "layers/srd-5.2.1-en.layer.json";
+/* ══ 🔴 LE LIVRE N'EST PAS LA PILE SRD — LOT 196 ═══════════════════════════
+   `SRD_EN` est LE LIVRE, une couche. La pile que le joueur appelle « SRD »
+   en porte trois : le livre, et les deux couches `srfh` — ce qui est AMBIGU,
+   ni le livre ni Fate's Hand, et qui monte donc dans LES DEUX piles
+   (`SRFH_LAYER_IDS`, ui/builder/universe-step.mjs).
+   ⚠️ LA DISTINCTION N'EST PAS BAVARDE, elle décide de ce qu'une suite prouve :
+   une suite qui mesure « ce que le joueur a en SRD » sur `SRD_EN` SEUL mesure
+   un pli que personne n'a jamais monté. Elle reste verte, et elle ne prouve
+   rien. ⭐ Monter `SRD_EN` seul reste juste pour un TÉMOIN — « le livre, à lui
+   tout seul, ne porte pas ça » — et c'est le seul usage qui le justifie. */
+export const SRFH_SHELVING_EN = "layers/srfh-shelving-en.layer.json";
+export const SRFH_MECANIQUES_EN = "layers/srfh-mecaniques-en.layer.json";
+/** La pile « SRD » telle que l'écran la monte. ⛔ `tests/universe-step.test.mjs`
+ *  (garde A0) la CONFRONTE à `[SRD_LAYER_ID, ...SRFH_LAYER_IDS]` : les deux
+ *  listes ne peuvent plus diverger en silence, comme au lot 77. */
+export const PILE_SRD = [SRD_EN, SRFH_SHELVING_EN, SRFH_MECANIQUES_EN];
 export const FH_SPECIES_EN = "layers/fh-species-en.layer.json";
 /* Les deux couches du lot 20. Elles lèvent `fh.destiny` elles aussi — un
    personnage peut donc porter sa carte SANS la couche des espèces, et c'est ce
