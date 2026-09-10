@@ -184,6 +184,27 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⏳ CE QUE LES LOTS 195 ET 196 LAISSENT À ERIC (10/09)
+
+**Du magasin de sauvegardes (195)** :
+- **`Open` et `My characters` mènent à la même pièce.** Les deux mots d'Eric *(08/09 et 10/09)* sont
+  vrais tous les deux ; aucun bouton n'a été retiré, un garde tient seulement qu'ils ne divergent pas.
+- **Deux Save de la même minute rendent deux lignes que l'œil ne distingue pas** — le format est celui
+  de son exemple *(« 10 sept. 14:32 »)*. Ajouter les secondes est son mot.
+- **Les textes de la page sont des brouillons anglais**, sauf *« in this browser »*, repris de lui.
+- ⚠️ **Le vrai dossier n'a pas été éprouvé** : la boîte du système exige un clic humain. Le chemin
+  est prouvé par un sol de fixture ayant la forme exacte d'une poignée de dossier — **Eric sera le
+  premier à l'essayer en vrai**.
+
+**De Magic Initiate en SRD (196)** :
+- **Le champ Identity est pré-rempli avec « Name character »** alors qu'il porte déjà un
+  `placeholder` *(« Name »)* dont le corpus dit qu'il est fait exactement pour ça — *« il occupe la
+  place de la réponse tant qu'il n'y en a pas »*. **Deux organes pour la même absence** ; rien n'a été
+  tranché.
+- **Sélectionner le texte à l'ouverture** *(pour qu'une frappe le remplace)* : le canon n'en dit rien
+  et `ui/` ne contient **aucun** `select()` ni `focus()`. Ce serait une **règle générale neuve** —
+  elle a un lieu et s'annonce avant. Non fait.
+
 #### ⏳ DEUX QUESTIONS OUVERTES PAR LE PREMIER PAS (lot 193, 10/09)
 
 - **Le nom d'un personnage neuf.** Le schéma exige un mot *(`name.minLength: 1`)* : un document neuf
