@@ -278,28 +278,23 @@
       }
     },
     "resolved": {
-      "$comment": "La fiche jouable : valeurs finales uniquement, aucun pointeur vers une règle. Un personnage ouvert sans ses couches JOUE sur ce seul étage — et le dit (les couches de `build.layers` absentes du registre sont listées et affichées).",
+      "$comment": "La fiche jouable : valeurs finales uniquement, aucun pointeur vers une règle. Un personnage ouvert sans ses couches JOUE sur ce seul étage — et le dit (les couches de `build.layers` absentes du registre sont listées et affichées). ⚖️ LOT 198 (2026-09-10) — CE QUE LE MOTEUR PEUT DÉCLARER NON DÉRIVÉ, CE SCHÉMA NE L'EXIGE PAS. La loi de `derive` (src/build/derive.mjs) est : une rubrique qui ne se dérive pas est ABSENTE de `resolved` et DÉCLARÉE dans `underived` — jamais une valeur consolante (« pas un +2 consolant », dit-il du bonus de maîtrise). Cinq rubriques peuvent ainsi manquer : `proficiency` (progression sans bonus), `ac` (armure sans champs, ou deux bases), `saves` (sans bonus de maîtrise, ou classe sans jets), `spellcasting` (classe sans caractéristique d'incantation devant des sorts choisis — un Barbare avec Magic Initiate), `currency` (bourse pas encore choisie). 📏 MESURÉ SUR v621 : elles étaient `required`, donc le bloc `doc` (`assertValid`) refusait le document que le bloc `build` venait d'écrire — `confirm` jetait sur `Done` d'Abilities pour tout personnage neuf (bourse absente), puis pour le Barbare-Acolyte (Magic Initiate, sans incantation de classe) ; rien de ces personnages ne se signait ni ne se sauvait. Le garde qui tient cette loi : tests/naitre-derivable.test.mjs, E3 — chaque omission du moteur, provoquée, valide au schéma.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "derivation",
         "identity",
         "abilities",
-        "proficiency",
-        "ac",
         "vitals",
         "speeds",
         "senses",
         "languages",
-        "saves",
         "skills",
         "tools",
         "actions",
-        "spellcasting",
         "resources",
         "traits",
         "gear",
-        "currency",
         "craft",
         "stats",
         "notes"
@@ -1093,7 +1088,7 @@
           }
         },
         "currency": {
-          "$comment": "La bourse. Quatre dénominations SRD 5.2.1, toutes obligatoires (une bourse vide s'écrit en zéros, elle ne s'omet pas). L'ÉLECTRUM est volontairement absent : il ne fait plus partie des règles 2024. ATTESTATION : les exports fh-srd n'emploient que `pc`, `pa` et `po` dans les coûts ; `pp` (platine) est le seul champ non attesté par les fichiers relus — à confirmer par le lot 4, qui lit le SRD entier.",
+          "$comment": "La bourse — COMPLÈTE OU ABSENTE (lot 198, 2026-09-10). Quatre dénominations SRD 5.2.1, toutes obligatoires dès que la bourse est là : une bourse vide CHOISIE s'écrit en zéros. Mais la bourse est un CHOIX (contrat build §6 : le montant de départ se choisit, il ne se dérive pas), et le moteur n'invente jamais des zéros à la place du joueur — sans les quatre choix `currency.*`, `derive` OMET la rubrique et le DÉCLARE (`underived.currency-incomplete` : « on ne les invente pas »). 📏 MESURÉ SUR v621 : `currency` était `required` ici, donc le bloc `doc` refusait (« le champ obligatoire « currency » manque ») le document que le bloc `build` venait d'écrire, pour tout personnage dérivé avant sa bourse — c'est-à-dire tout personnage NEUF entre Abilities et Equipment ; `Done` sur Abilities jetait, et rien de ce personnage ne se signait ni ne se sauvait. Le README de ce dossier disait déjà « complète ou rien » : c'est ce mot-là que le schéma tient maintenant. L'ÉLECTRUM est volontairement absent : il ne fait plus partie des règles 2024. ATTESTATION : les exports fh-srd n'emploient que `pc`, `pa` et `po` dans les coûts ; `pp` (platine) est le seul champ non attesté par les fichiers relus — à confirmer par le lot 4, qui lit le SRD entier.",
           "type": "object",
           "additionalProperties": false,
           "required": [

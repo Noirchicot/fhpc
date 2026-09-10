@@ -48,7 +48,14 @@ const frUnderived = createLabels(FR_UNDERIVED, FH_UNDERIVED_FR);
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8"));
 /* LUE DANS LE SCHÉMA, JAMAIS RECOPIÉE — idiome de tests/build-derive.test.mjs.
    Une liste recopiée finit toujours par diverger de celle qu'elle imite. */
-const RUBRIQUES = schema.$defs.resolved.required;
+/* 🌱 LOT 198 — LES RUBRIQUES SONT LES PROPRIÉTÉS DU CONTRAT, PAS SES `required`.
+   Depuis ce lot, cinq rubriques (`proficiency`, `ac`, `saves`, `spellcasting`,
+   `currency`) peuvent être ABSENTES de `resolved` — déclarées dans `underived`
+   — et ne sont plus `required` ; lire `required` ici comptait 16 et laissait
+   cinq rubriques s'afficher sans que ce garde les connaisse. La liste vient
+   toujours du schéma : `additionalProperties: false` fait de `properties` la
+   liste fermée des 21. */
+const RUBRIQUES = Object.keys(schema.$defs.resolved.properties);
 
 /* Le personnage Fate's Hand anglais, monté UNE FOIS : la pile pèse 3 Mo et
    rien ici ne la modifie. */

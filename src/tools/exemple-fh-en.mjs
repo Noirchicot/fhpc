@@ -32,6 +32,11 @@ import { createBuild } from "../build/index.mjs";
 import { createFhDestinyStat } from "../modules/fh/destiny-stat.mjs";
 import { createFhSkillPoolStat } from "../modules/fh/skill-pool.mjs";
 import { createFhSpeciesTraits } from "../modules/fh/species-traits.mjs";
+/* 🌱 LOT 198 — L'EXEMPLE NAÎT DE L'ÉCRIVAIN DU BLOC `doc`, comme tout
+   personnage : c'est `composer` qui pose le niveau de naissance (voir sa
+   tête, writers.mjs). Ce fichier n'écrit plus `{ path: "level" }` — il était
+   le SEUL à l'écrire, et c'est ce qui cachait qu'aucun écran ne le faisait. */
+import { createDocWriters } from "../doc/index.mjs";
 import { itemsDeLEtape } from "../../ui/builder/parcours.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -119,7 +124,8 @@ function bus() {
 /** Les choix du personnage. Tout ce qui se décide se décide ICI : `resolved`
  *  en découle, et rien ne s'y ajoute après coup. */
 const CHOIX = [
-  { path: "level", value: 1, label: "Level 1" },
+  /* ⛔ PAS DE `level` ICI — il naît dans `composer` (lot 198). Un second
+     écrivain du même choix divergerait du premier en silence. */
   { path: "class", ref: { kind: "class", id: "srd:class:en:wizard" }, label: "Wizard" },
   { path: "species", ref: { kind: "species", id: "srd:species:en:elf" }, label: "Elf" },
   { path: "species.lineage", value: "high-elf", label: "High Elf" },
@@ -247,22 +253,25 @@ export function exempleFhEn() {
     .filter((couche) => couche.enabled)
     .map((couche) => ({ id: couche.id, version: couche.version, hash: couche.hash, name: couche.name }));
 
-  const document = {
-    schema: "fh-char/1",
-    id: "example-ilyra-fh-en",
+  /* 🌱 LOT 198 — LE DOCUMENT NAÎT DE `composer`, PUIS L'EXEMPLE LE REMPLIT.
+     `composer` pose la forme d'un brouillon ET le niveau de naissance ; ce
+     fichier ajoute ce qu'un joueur aurait choisi ensuite (`CHOIX`), les
+     surcharges, et sa signature de générateur. ⚠️ `generator` n'est pas un
+     champ descriptif (`describableFields` ne retient que les chaînes
+     facultatives), il se pose après — d'où sa place en queue du JSON depuis
+     ce lot ; l'ordre des clefs n'est lu par personne. */
+  const writers = createDocWriters({ schema: JSON.parse(readFileSync(join(ROOT, "schemas", "fh-char.schema.json"), "utf8")) });
+  const document = writers.composer({
     name: "Ilyra Duskleaf",
     lang: "en",
     units: { distance: "ft", weight: "lb" },
-    generator: { name: "src/tools/exemple-fh-en", version: "1.0.0" },
-    created: "2026-08-09T09:00:00Z",
-    modified: "2026-08-09T09:00:00Z",
-    build: {
-      layers: manifeste,
-      choices: structuredClone(CHOIX),
-      budgets: {},
-      overrides: structuredClone(OVERRIDES)
-    }
-  };
+    layers: manifeste,
+    id: "example-ilyra-fh-en",
+    at: "2026-08-09T09:00:00Z"
+  });
+  document.generator = { name: "src/tools/exemple-fh-en", version: "1.0.0" };
+  document.build.choices.push(...structuredClone(CHOIX));
+  document.build.overrides = structuredClone(OVERRIDES);
 
   /* ══ LES SIGNATURES D'UN PERSONNAGE FINI — 27/08 ══════════════════════════
      Mesuré au banc par l'architecte en formation : Ilyra affichait « High Elf

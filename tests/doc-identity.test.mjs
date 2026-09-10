@@ -79,7 +79,10 @@ test("1 — ⚔️ describe lit sa liste blanche DANS LE SCHÉMA : une propriét
 test("2 — les trois champs s'écrivent et se relisent à la racine, sans poser AUCUN choix", () => {
   const { verbs } = makeDoc();
   const draft = verbs.create(BASE);
-  assert.equal(draft.build.choices.length, 0);
+  /* 🌱 LOT 198 — un document neuf porte son niveau de naissance, et rien
+     d'autre ; « aucun choix posé » se mesure contre lui, pas contre zéro. */
+  const naissance = structuredClone(draft.build.choices);
+  assert.equal(naissance.filter((c) => c.path !== "level").length, 0, "rien que la naissance");
 
   const decrit = verbs.describe({
     document: draft, gender: "non-binaire, iel", alignment: "Chaotic Good (mostly)", campaign: "Le Sentier de Guilde"
@@ -87,7 +90,7 @@ test("2 — les trois champs s'écrivent et se relisent à la racine, sans poser
   assert.equal(decrit.gender, "non-binaire, iel");
   assert.equal(decrit.alignment, "Chaotic Good (mostly)");
   assert.equal(decrit.campaign, "Le Sentier de Guilde");
-  assert.equal(decrit.build.choices.length, 0, "décrire n'est pas décider : AUCUN choix posé");
+  assert.deepEqual(decrit.build.choices, naissance, "décrire n'est pas décider : AUCUN choix posé");
   assert.notEqual(decrit, draft, "l'appelant ne tient jamais l'objet d'entrée : c'est une COPIE");
   assert.equal("gender" in draft, false, "…preuve : le document d'entrée n'a pas bougé");
 });

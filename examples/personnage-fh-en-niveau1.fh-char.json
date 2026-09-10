@@ -7,10 +7,6 @@
     "distance": "ft",
     "weight": "lb"
   },
-  "generator": {
-    "name": "src/tools/exemple-fh-en",
-    "version": "1.0.0"
-  },
   "created": "2026-08-09T09:00:00Z",
   "modified": "2026-08-09T09:00:00Z",
   "build": {
@@ -426,6 +422,10 @@
       "species.lineage",
       "species.skillBudget"
     ]
+  },
+  "generator": {
+    "name": "src/tools/exemple-fh-en",
+    "version": "1.0.0"
   },
   "resolved": {
     "derivation": {

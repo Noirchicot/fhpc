@@ -34,7 +34,14 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 const enUnderived = createLabels(EN_UNDERIVED, FH_UNDERIVED_EN);
 
 const schema = JSON.parse(readFileSync(join(ROOT, "schemas/fh-char.schema.json"), "utf8"));
-const RUBRIQUES = schema.$defs.resolved.required;
+/* 🌱 LOT 198 — LES RUBRIQUES SONT LES PROPRIÉTÉS DU CONTRAT, PAS SES `required`.
+   Depuis ce lot, cinq rubriques (`proficiency`, `ac`, `saves`, `spellcasting`,
+   `currency`) peuvent être ABSENTES de `resolved` — déclarées dans `underived`
+   — et ne sont plus `required` ; lire `required` ici comptait 16 et laissait
+   cinq rubriques s'afficher sans que ce garde les connaisse. La liste vient
+   toujours du schéma : `additionalProperties: false` fait de `properties` la
+   liste fermée des 21. */
+const RUBRIQUES = Object.keys(schema.$defs.resolved.properties);
 
 const exemple = exempleFhEn();
 

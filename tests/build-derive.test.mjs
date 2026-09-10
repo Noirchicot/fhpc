@@ -51,12 +51,17 @@ test("le document reconstruit valide le schéma fh-char/1", () => {
   const out = h.verbs.rebuild({ document: acceptanceDocument(h.layers) });
   assert.equal(validateChar(out.document), true, ajv.errorsText(validateChar.errors));
   /* C'est ce qui justifie la règle « collection vide + déclaration » plutôt
-     que « collection absente » : les vingt clefs de `resolved` sont TOUTES
-     obligatoires, et un document invalide est un document injouable. */
-  assert.deepEqual(
-    Object.keys(out.resolved).sort(),
-    readJson("schemas/fh-char.schema.json").$defs.resolved.required.slice().sort()
-  );
+     que « collection absente » : les clefs de `resolved` sont celles du
+     contrat, et un document invalide est un document injouable.
+     🌱 LOT 198 — le personnage d'acceptation dérive TOUT : ses clefs sont les
+     21 propriétés du contrat, à l'unité. `required` n'en compte plus que 16
+     depuis ce lot (cinq rubriques peuvent manquer, DÉCLARÉES — voir
+     tests/naitre-derivable.test.mjs, E3) : il reste inclus dans les clefs
+     écrites, il ne les définit plus. */
+  const resolvedDef = readJson("schemas/fh-char.schema.json").$defs.resolved;
+  assert.deepEqual(Object.keys(out.resolved).sort(), Object.keys(resolvedDef.properties).sort(),
+    "un personnage qui dérive tout écrit chaque rubrique du contrat, ni plus ni moins");
+  for (const clef of resolvedDef.required) assert.ok(clef in out.resolved, `la rubrique exigée « ${clef} » est écrite`);
 });
 
 /* ── ce qui JETTE : le structurel et le hors-catalogue ──────────────── */

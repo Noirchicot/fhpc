@@ -49,31 +49,43 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=621";
-import { facteurZoomCourant } from "./echelle.mjs?v=621";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=621";
+import { renderPicker } from "./carnet.mjs?v=622";
+import { facteurZoomCourant } from "./echelle.mjs?v=622";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=622";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=621";
-import { swapContent } from "./socle.mjs?v=621";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=621";
+import { isGenre } from "../../src/layers/document.mjs?v=622";
+import { swapContent } from "./socle.mjs?v=622";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=622";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=621";
+import { armerJeton } from "./glisser.mjs?v=622";
 /* 🧍 B3 — LE DRESSING EN TROIS BANDES (lot 5, la couture) : une seule
    écriture (`b3-dressing.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLeDressing } from "./b3-dressing.mjs?v=621";
+import { construireLeDressing } from "./b3-dressing.mjs?v=622";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, additionneCouts, formatCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=621";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=621";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=622";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=622";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=621";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=622";
+/* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
+   *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
+   ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
+   travaillent sur les choix, un seul déduit : Sheet. L'or de départ se lit
+   dans le record de classe (`orDuDepart`) ; sans classe, en pile Fate's Hand,
+   l'aiguilleur offrait les 50 PO de l'Inheritance seuls, et une bourse prise
+   là n'aurait jamais reçu l'or de la classe choisie ensuite — une BOURSE
+   TRONQUÉE (mesuré le 10/09). Le premier passage de ce lot tuait l'écran ;
+   ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
+   d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
+   cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
+import { motDuCran } from "./ecran-mort.mjs?v=622";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -221,8 +233,23 @@ export function orDuDepart({ query, document } = {}) {
     { genre: "class", ...orDeLaSource(vueClasse, "class") },
     { genre: "background", ...orDeLaSource(origineDuDepart(q, document), "background") }
   ];
+  /* 🌱 LOT 198 — SANS CLASSE, AUCUN TOTAL : une bourse de départ sans l'or de
+     la classe est une bourse tronquée, et « tronquée » n'est ni « complète »
+     ni « nommée » — c'est un montant que le joueur croirait entier. `cout`
+     reste `null` (⛔ pas `{gp: 0}`, pas l'Inheritance seule), et `sansClasse`
+     dit pourquoi, pour que l'écran nomme la sortie au lieu d'un manque de
+     donnée. Une classe choisie dont le record ne se lit pas garde son sort
+     d'avant (lot 182 : nommé, jamais comblé). */
+  if (!refClasse) return { sources, cout: null, sansClasse: true };
   const lisibles = sources.filter((s) => s.cout);
-  return { sources, cout: lisibles.length ? additionneCouts(lisibles.map((s) => s.cout)) : null };
+  return { sources, cout: lisibles.length ? additionneCouts(lisibles.map((s) => s.cout)) : null, sansClasse: false };
+}
+
+/** LE MOT DE LA BOURSE QUAND IL N'Y A PAS DE CLASSE — `null` sinon. Un seul
+ *  écrivain pour B1, B2 et l'aiguilleur ; le nom du cran vient de la ceinture.
+ *  ⚠️ Brouillon (le mien, sur le mot de l'archi du 10/09) — à Eric. */
+export function motDeLaBourse(document) {
+  return currentClassRef(document) ? null : `Choose a class on ${motDuCran("class")} to get your starting gold.`;
 }
 
 function el(tag, className, children) {
@@ -1844,7 +1871,11 @@ export function renderEquipmentStep(ctx, onAction) {
        question. ⏳ Texte-brouillon (le mien), à corriger par Eric. */
     const depart = (docu && docu.build && Array.isArray(docu.build.choices)
       ? docu.build.choices.find((c) => c.path === "depart") : null);
-    if (!depart) {
+    /* 🌱 LOT 198 — SANS CLASSE, LA QUESTION N'A PAS D'OBJET : ni kit (il vient
+       de la classe) ni or (voir `orDuDepart`). L'aiguilleur ne se pose pas
+       tant que `class` manque, et se posera dès qu'elle est là — `depart`
+       reste non écrit. Le dressing et la boutique vivent ; la bourse nomme. */
+    if (!depart && currentClassRef(docu)) {
       /* 🔴 C'EST UN AIGUILLEUR — Eric, 2026-08-26 : *« c'est plutôt un
          aiguilleur, on a TOUJOURS besoin de lui »*.
          ⭐ SA PHRASE PORTE LE CRITÈRE, PAS SEULEMENT LE MOT. NORMES §7 définit
@@ -1936,7 +1967,17 @@ export function renderEquipmentStep(ctx, onAction) {
         b.addEventListener("click", () => montrer("b2"));
       }
       if (b.dataset.mot === "LOUPE") b.addEventListener("click", () => montrer("recherche"));
-      /* CRAFT : exclu du mandat · NEXT : appartient à la coquille (topbar). */
+      /* 🌱 LOT 198 — NEXT DÉCLARE SON VERBE, LA COQUILLE L'EXÉCUTE (NORMES §6 pré
+         quater). 📏 MESURÉ AU NAVIGATEUR LE 10/09 : ce bouton ne faisait RIEN.
+         Le commentaire disait « NEXT appartient à la coquille », et la coquille
+         (`renderBoutonsDEtape`) disait l'inverse — *« l'écran R porte son propre
+         NEXT »* — et ne posait donc pas sa paire sur Equipment. Deux organes qui
+         se renvoient un geste, et personne ne le fait : Eric, 10/09, *« Il manque
+         encore Équipement »*. Le verbe est `done`, celui que toute étape emploie
+         pour avancer (`pressDone` → `equipmentValidate`, toujours prêt, →
+         `cranVoisin(1)`) — Sheet en pile SRD, Sheet en pile Fate's Hand.
+         CRAFT reste inerte : exclu du mandat du 24/08. */
+      if (b.dataset.mot === "NEXT") b.addEventListener("click", () => act({ kind: "done" }));
     }
     return catalogue;
   }
@@ -1945,7 +1986,7 @@ export function renderEquipmentStep(ctx, onAction) {
     if (vue === "r") return construireCatalogue();
     if (vue === "b1" && ficheEnCours) {
       return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
-        bourse, onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r") });
+        bourse, motBourse: motDeLaBourse(docu), onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r") });
     }
     if (vue === "recherche") {
       /* le catalogue ENTIER, habillé une fois — et « once found, takes you
@@ -1963,8 +2004,9 @@ export function renderEquipmentStep(ctx, onAction) {
         return { ...l, nom: (rec && rec.name) || motDUnRecordAbsent(l.ref.id),
           cout: parseCout(rec && rec.data ? rec.data.cost : undefined) };
       });
-      if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, onAction: actArbitre, retour: () => montrer("r") });
-      return renderB2({ mode: "send", lignes: panier, bourse, onAction: actArbitre, retour: () => montrer("b3") });
+      const motBourse = motDeLaBourse(docu);
+      if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("r") });
+      return renderB2({ mode: "send", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("b3") });
     }
     if (vue === "sb31" || vue === "sb33") {
       const lieu = vue === "sb33" ? "storage" : "backpack";
@@ -2065,9 +2107,10 @@ export function construireLaCarteR({ tambour, grille }) {
     collecteurs.append(cible);
   }
 
-  /* 4 — LES BOUTONS. ⛔ Plus de `data-sim` : GEAR, CART et leurs suites sont
-     branchés par le PILOTE (`renderEquipmentStep`) — CRAFT reste inerte (le
-     mandat du 24/08 l'exclut), NEXT appartient à la coquille. Le compteur du
+  /* 4 — LES BOUTONS. ⛔ Plus de `data-sim` : GEAR, CART, NEXT et leurs suites
+     sont branchés par le PILOTE (`renderEquipmentStep`) — CRAFT reste inerte
+     (le mandat du 24/08 l'exclut). NEXT y déclare le verbe `done` (lot 198 :
+     il « appartenait à la coquille », qui ne le câblait pas). Le compteur du
      CART (croquis) vit dans `data-compte`, peint par la feuille. */
   const boutons = elt("div", "carte-r-boutons");
   for (const mot of BOUTONS) {

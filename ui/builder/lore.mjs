@@ -29,7 +29,7 @@
 
 /* LOT 191 — le mot d'un choix : le nom du record, sinon le slug humanisé et
    le refus nommé — jamais l'id nu (voir la tête de `mot-du-choix.mjs`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=621";
+import { motDuChoix } from "./mot-du-choix.mjs?v=622";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

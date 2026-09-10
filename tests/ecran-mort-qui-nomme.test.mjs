@@ -39,8 +39,13 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
    `document` au montage — même préparation que `tests/universe-step.test.mjs`. */
 globalThis.document = createTestDocument();
 
-const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_SANS_RAISON, MOT_CRAN_NON_MONTE }
+const { motDeLEcranMort, MOT_PILE_INCONNUE, MOT_SANS_CLASSE, MOT_SANS_RAISON, MOT_CRAN_NON_MONTE, MOT_SANS_NIVEAU }
   = await import("../ui/builder/ecran-mort.mjs");
+/* 🌱 LOT 198 — un document neuf porte son niveau de naissance (`composer`) ;
+   les sondes d'ici le portent aussi, lu à la constante. Les six scores se
+   lisent au moteur, jamais recopiés. */
+const { CHOIX_DE_NAISSANCE } = await import("../src/doc/index.mjs");
+const { ABILITY_KEYS } = await import("../src/build/index.mjs");
 const { STEPS, cransAlignes } = await import("../ui/builder/etapes.mjs");
 const { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, currentStack }
   = await import("../ui/builder/universe-step.mjs");
@@ -50,13 +55,14 @@ const { INTERRUPTEURS } = await import("../ui/builder/layers-ecran.mjs");
 const FT_LB = { distance: "ft", weight: "lb" };
 const manifestFor = (ids) => ids.map((id) => ({ id, version: "0.0.0", hash: "x".repeat(64), name: id }));
 
-function docAvec({ layers = [], choices = [] } = {}) {
+function docAvec({ layers = [], choices = [], naissance = true } = {}) {
   return {
     schema: "fh-char/1", id: "ecran-mort-test", name: "Sonde", lang: "en", units: FT_LB,
     created: "2026-09-09T00:00:00Z", modified: "2026-09-09T00:00:00Z",
-    build: { layers: manifestFor(layers), choices, budgets: {}, overrides: [] }
+    build: { layers: manifestFor(layers), choices: [...(naissance ? CHOIX_DE_NAISSANCE : []), ...choices], budgets: {}, overrides: [] }
   };
 }
+const SIX_SCORES = ABILITY_KEYS.map((clef) => ({ path: `abilities.${clef}`, value: 10 }));
 
 const PILE_COMPLETE = [SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS];
 const CHOIX_CLASSE = { path: "class", ref: { kind: "class", id: "srd:wizard" }, label: "Class" };
@@ -120,7 +126,11 @@ test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — av
    Il nommait déjà la cause et le geste ; le lot l'étend, il ne le refait pas. */
 
 test("le personnage sans classe garde EXACTEMENT le mot qu'il avait", () => {
-  const mot = motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: [] }));
+  /* 🌱 LOT 198 — le personnage de ce mot est celui du 2026-08-20 : ses SCORES
+     sont posés, et il retire sa classe (`I changed my mind` sur Class). Un
+     personnage neuf, lui, n'a ni classe ni scores, et son mot nomme les deux
+     (`tests/naitre-derivable.test.mjs`, C1). */
+  const mot = motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: SIX_SCORES }));
   assert.equal(mot, MOT_SANS_CLASSE);
   assert.match(mot, /no sheet without a class/, "la cause");
   assert.match(mot, /Choose one on Class/, "le geste, et l'écran où il se fait");
@@ -135,7 +145,7 @@ test("le personnage sans classe garde EXACTEMENT le mot qu'il avait", () => {
    qui ne change pas son problème — un écran qui ment poliment. */
 
 test("⚔️ UNE PILE VIDE N'EST PAS ACCUSÉE — elle n'empêche rien, `rebuild` l'adopte", () => {
-  const vide = docAvec({ layers: [], choices: [] });
+  const vide = docAvec({ layers: [], choices: SIX_SCORES });
   assert.equal(currentStack(vide), null,
     "témoin : la lecture partagée rend bien `null` ici — c'est CE piège qu'on désamorce");
   assert.equal(motDeLEcranMort(vide), MOT_SANS_CLASSE,
@@ -143,20 +153,27 @@ test("⚔️ UNE PILE VIDE N'EST PAS ACCUSÉE — elle n'empêche rien, `rebuild
 });
 
 /* ══ 4 — CE QUI RESTE MUET EST NOMMÉ COMME MUET ════════════════════════════
-   ⚠️ `derivationImpossible` a d'autres causes que ces deux-là : un fichier
-   ouvert sans `level` entier de 1 à 20, sans ses six scores de
-   caractéristique, un choix qui pointe un record qu'aucune couche montée ne
-   porte, un refus d'invariant du moteur. Aucune n'est produite par un geste
-   du builder aujourd'hui ; toutes sont atteignables par `Open`.
+   🌱 LOT 198 — DEUX CAUSES ONT REÇU LEUR MOT : les scores manquants (le
+   personnage neuf, sur l'écran même qui les pose — Abilities) et le niveau
+   absent (un fichier d'avant le lot). Ce qui reste muet : un choix qui pointe
+   un record qu'aucune couche montée ne porte, un refus d'invariant du moteur.
+   Aucune n'est produite par un geste du builder ; toutes sont atteignables par
+   `Open`.
    ⭐ CE TEST NE LES RÉPARE PAS, IL LES REND TROUVABLES : tant qu'il est vert,
    il reste un chemin par lequel un joueur lit une impasse sans sortie. Le
    jour où l'une reçoit son mot d'Eric, c'est ici qu'on vient le brancher. */
 
 test("⏳ LA PHRASE MUETTE SURVIT, ET ELLE EST DÉCLARÉE MUETTE — les causes restantes attendent un mot d'Eric", () => {
-  const complet = docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE] });
-  assert.equal(motDeLEcranMort(complet), MOT_SANS_RAISON);
+  const complet = docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE, ...SIX_SCORES] });
+  assert.equal(motDeLEcranMort(complet), MOT_SANS_RAISON,
+    "niveau, classe et scores posés : ce qui empêche encore de dériver n'a pas de mot");
   assert.doesNotMatch(MOT_SANS_RAISON, /Menu|Class|switch/,
     "elle ne prétend PAS donner une sortie — c'est ce qui la rend repérable");
+  /* ⚔️ et les deux causes qui viennent de recevoir leur mot ne tombent PLUS ici */
+  assert.notEqual(motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE] })), MOT_SANS_RAISON,
+    "⛔ sans scores, c'était le défaut de v621 : la phrase muette sur Abilities");
+  assert.equal(motDeLEcranMort(docAvec({ layers: PILE_COMPLETE, choices: [CHOIX_CLASSE, ...SIX_SCORES], naissance: false })), MOT_SANS_NIVEAU,
+    "sans niveau : un fichier d'avant le lot, nommé avec sa sortie");
 });
 
 /* ══ 4 bis — LOT 186 : LE CRAN QUE LA PILE NE MONTE PLUS ═══════════════════

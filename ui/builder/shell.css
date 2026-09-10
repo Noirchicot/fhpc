@@ -1665,6 +1665,10 @@ button { font: inherit; }
 .skills-comptes { display: grid; grid-template-columns: auto repeat(3, 1fr); column-gap: var(--sp-8); row-gap: var(--sp-4); align-items: baseline; font-size: var(--t2); line-height: 1.5; color: var(--text); }
 .skills-ligne-compte { display: contents; }
 .skills-compte-cellule { white-space: nowrap; }
+/* 🌱 LOT 198 — une PHRASE à la place des nombres (Skills sans fiche nomme ce
+   qui manque, à la place du pool) : la cellule prend les trois colonnes des
+   nombres et se plie, au lieu de déborder la dalle en `nowrap`. */
+.skills-compte-cellule[data-large="oui"] { grid-column: 2 / -1; white-space: normal; }
 /* L'ÉTIQUETTE EST UN BOUTON QUI OUVRE (le popup) : bleu foncé — `--lien`, le bleu
    des liens hors jeton (§1 ter bis³) —, T2, majuscules. Sa cible tactile fait
    44 sans coûter un blg à la ligne : le rembourrage qui l'y porte est repris en
@@ -2718,7 +2722,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=621") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=622") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3041,7 +3045,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=621") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=622") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4550,7 +4554,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=621") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=622") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7431,7 +7435,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=621");
+  background-image: url("./assets/tarot-dos.jpg?v=622");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7776,6 +7780,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-mygold { text-align: center; }
 .pipeline-mygold h3 { margin: 0; font-size: var(--t3); color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
 .pipeline-mygold-rang { margin: 0; display: flex; justify-content: center; gap: var(--sp-12); font-variant-numeric: tabular-nums; }
+/* 🌱 LOT 198 — le mot de la bourse sans classe, à la place des quatre clefs */
+.pipeline-mygold-mot { margin: 0; font-size: var(--t2); }
 
 .pipeline-reglages, .pipeline-sendto { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); flex-wrap: wrap; }
 .pipeline-libelle { color: var(--text-muted); font-size: var(--t2); text-transform: uppercase; letter-spacing: .06em; }

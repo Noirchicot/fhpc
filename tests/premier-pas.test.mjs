@@ -45,7 +45,7 @@ globalThis.document = createTestDocument();
 const { renderUniverseStep, creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF }
   = await import("../ui/builder/universe-step.mjs");
 const { manifesteDeLaPile } = await import("../ui/builder/layers-ecran.mjs");
-const { createDocWriters } = await import("../src/doc/writers.mjs");
+const { createDocWriters, CHOIX_DE_NAISSANCE } = await import("../src/doc/writers.mjs");
 
 /** Le journal des gestes — c'est l'ORDRE qu'on mesure, pas seulement le fait
  *  que chacun ait eu lieu. Un jeu de gestes qui s'exécutent tous dans le
@@ -312,11 +312,19 @@ const NEUF = {
   id: "premier-pas-neuf", at: "2026-09-10T02:24:10Z"
 };
 
-test("F1 — 🔴 un document NEUF est `fh-char/1` moins `resolved`, ZÉRO choix, la pile DÉCLARÉE", () => {
+test("F1 — 🔴 un document NEUF est `fh-char/1` moins `resolved`, LE NIVEAU DE NAISSANCE pour seul choix, la pile DÉCLARÉE", () => {
   const doc = writers.composer({ ...NEUF });
   assert.equal(doc.schema, "fh-char/1");
   assert.equal("resolved" in doc, false, "un brouillon ne dérive rien");
-  assert.deepEqual(doc.build.choices, []);
+  /* 🌱 LOT 198 — RÉÉCRIT À LA NOUVELLE VÉRITÉ, PAS RELÂCHÉ : ce garde disait
+     « ZÉRO choix ». Mesuré sur v621, un personnage né ainsi ne dérivait JAMAIS
+     (`derive` exige `level`, et aucun écran ne l'écrit). Un personnage naît
+     au niveau 1 — un fait du produit, écrit par `composer`, une fois. Ce que
+     le garde tient n'a pas molli : rien d'AUTRE que la naissance n'est posé,
+     et la naissance se lit à la constante, jamais recopiée. */
+  assert.deepEqual(doc.build.choices, [...CHOIX_DE_NAISSANCE].map((c) => ({ ...c })),
+    "le seul choix d'un document neuf est son niveau de naissance (lot 198)");
+  assert.equal(doc.build.choices.length, 1, "et rien d'autre : « à zéro à la création » — Eric, 10/09");
   assert.deepEqual(doc.build.budgets, {});
   assert.deepEqual(doc.build.overrides, []);
   assert.deepEqual(doc.build.layers, NEUF.layers, "il part avec la pile choisie DÉCLARÉE");

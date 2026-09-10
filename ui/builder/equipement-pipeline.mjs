@@ -28,8 +28,8 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=621";
-import { pageDeListe } from "./normes.mjs?v=621";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=622";
+import { pageDeListe } from "./normes.mjs?v=622";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
@@ -290,10 +290,16 @@ function panneauPoids(poids, surLieu) {
   return p;
 }
 
-/* ══ MY GOLD — la bourse en lecture, quatre clefs ══════════════════════════ */
-function blocMyGold(bourse) {
+/* ══ MY GOLD — la bourse en lecture, quatre clefs ══════════════════════════
+   🌱 LOT 198 — OU LE MOT DE LA BOURSE : sans classe, l'or de départ n'existe
+   pas (`orDuDepart`, equipment-step), et quatre tirets seraient une bourse
+   tronquée qui se tait. Le pilote tend `motBourse` (un seul écrivain,
+   `motDeLaBourse`) ; ici on l'affiche à la place des clefs. Complète, ou
+   nommée, jamais tronquée. */
+function blocMyGold(bourse, motBourse) {
   const b = elp("div", "pipeline-mygold");
   b.append(elp("h3", null, "My gold"));
+  if (motBourse) { b.append(elp("p", "pipeline-mygold-mot", motBourse)); return b; }
   const rang = elp("p", "pipeline-mygold-rang");
   for (const k of ["pp", "gp", "sp", "cp"]) {
     rang.append(elp("span", null, `${k.toUpperCase()} ${bourse[k] ?? "—"}`));
@@ -305,7 +311,7 @@ function blocMyGold(bourse) {
 /* ══ B1 — LA FICHE D'UN OBJET (croquis IMG_6107) ════════════════════════════
    `liste` : les objets de la page de grille d'où on vient — le « 1/x avec
    flèches » navigue DEDANS sans repasser par R (vault §1). */
-export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
+export function renderB1({ liste, index, bourse, motBourse = null, onAction, naviguer, fermer }) {
   const ecran = elp("section", "pipeline-ecran pipeline-b1");
   ecran.dataset.ecran = "B1";
   let i = index;
@@ -327,7 +333,7 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
   const gauche = bouton("←", "pipeline-fleche", () => { i = (i - 1 + liste.length) % liste.length; peindre(); }, "Previous item");
   const droite = bouton("→", "pipeline-fleche", () => { i = (i + 1) % liste.length; peindre(); }, "Next item");
 
-  const or = blocMyGold(bourse);
+  const or = blocMyGold(bourse, motBourse);
 
   /* PRICE (type in — rose au croquis : le joueur peut marchander) · QTY ± */
   const reglages = elp("div", "pipeline-reglages");
@@ -407,7 +413,7 @@ export function renderB1({ liste, index, bourse, onAction, naviguer, fermer }) {
    B3, SEND range des objets DÉJÀ à soi (aucun paiement), ⏳ FREE improvisé :
    la liste part SANS paiement (cadeau du DM, butin — le monde extérieur d'où
    les objets arrivent gratuitement). */
-export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = B2_LIGNES }) {
+export function renderB2({ mode, lignes, bourse, motBourse = null, onAction, retour, parPage = B2_LIGNES }) {
   const ecran = elp("section", "pipeline-ecran pipeline-b2");
   ecran.dataset.ecran = mode === "send" ? "SB3.2" : "B2";
   let page = 0;
@@ -421,7 +427,7 @@ export function renderB2({ mode, lignes, bourse, onAction, retour, parPage = B2_
 
   const listeHote = elp("div", "pipeline-lignes");
   const totalP = elp("p", "pipeline-total");
-  const or = blocMyGold(bourse);
+  const or = blocMyGold(bourse, motBourse);
   const alerte = elp("p", "pipeline-alerte");
 
   /* ⭐ RÈGLE D\u2019ERIC (24/08) : *« si aucun destinataire, ça va dans backpack —
