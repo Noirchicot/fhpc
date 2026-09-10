@@ -88,7 +88,7 @@
 
 > **Eric** : « Comment s'appelle l'écran des six interrupteurs ? » → « Layers » ; et sur le dessin : « Un tableau de commande, pas une liste d'options. Le socle, puis les couches qui s'empilent dessus. »
 
-**`Layers` est une branche du Menu au rang `B` — ouverte par une porte large et bleue sous les deux interrupteurs de `R`. Un enfant se coupe SANS confirmation (une couche éteinte dégrade, elle n'efface rien) ; le maître garde la sienne. Un livre absent du disque est PRÉSENT, éteint, avec son mot (« not on this device »).**
+**`Layers` est une branche du Menu au rang `B` — ouverte par une porte large et bleue sous les deux interrupteurs de `R`. Un enfant se coupe SANS confirmation (une couche éteinte dégrade, elle n'efface rien) ; le maître garde la sienne — à TROIS voies depuis le lot 192 : `Keep on` · `Save the Fate's Hand version first` (le geste `Save`, PUIS l'extinction ; le fichier dit sa version : `<nom>.fates-hand.fh-char.json`) · `Switch off`. Le cinquième enfant s'appelle `World` (Eric, 10/09 : « pas Lore mais World »). Un livre absent du disque est PRÉSENT, éteint, avec son mot (« not on this device »).**
 
 ### Un sous-ensemble de couches est légitime
 📍 `menu-sous-ensemble-legitime` · déployée, hors corpus · 09/09

@@ -4287,6 +4287,29 @@ avec popup.
 📌 Ces boutons portent déjà l'autre précaution du §6 : **un choix important → popup de
 confirmation.** Rouge **et** confirmé, jamais l'un sans l'autre.
 
+### 💾 LA TROISIÈME VOIE — une confirmation qui change de jeu propose de garder une copie *(10/09)*
+📍 `bouton-troisieme-voie-sauvegarde` · vivante · 10/09
+⚖️ **Avant d'éteindre ce qui change de jeu (le maître Fate's Hand), la confirmation offre une troisième voie : SAUVEGARDER LA VERSION D'AVANT, PUIS couper — par le même organe que `Save`, jamais un second chemin d'écriture ; un `Save` refusé ne coupe pas.**
+
+> Eric, 2026-09-10 : *« il faut que la version FH **reste sauvegardée**, donc ça duplique le perso.
+> Au moins poser la question : **voulez-vous garder une sauvegarde de la version FH ?** »*
+
+| la voie | ce qu'elle fait | sa couleur |
+|---|---|---|
+| **Keep on** | rien ne bouge | neutre *(annuler)* |
+| **Save the Fate's Hand version first** | `Save` — le fichier dit sa version : `<nom>.fates-hand.fh-char.json` — **puis** l'extinction | l'encre de `Save`, en contour *(vert)* |
+| **Switch off** | l'extinction, sans copie — le comportement d'avant | rouge *(il défait)* |
+
+⭐ **Un organe, pas trois** : `renderConfirmDialog` (`confirm.mjs`) gagne une `troisiemeVoie`
+facultative, posée **sur sa ligne, pleine largeur, au-dessus** de la paire annuler · confirmer
+*(regardé au navigateur : au milieu de la rangée, son libellé long pliait la paire en trois lignes
+ragées)* ; sans elle, la boîte rend ce qu'elle rendait. L'ordre du DOM est l'ordre visuel.
+
+📏 **La question ne se pose qu'au MAÎTRE.** Un enfant (Destiny, World…) se coupe sans confirmation
+*(lot 188 : il DÉGRADE, il n'efface rien, tout revient à l'allumage)* ; le maître **change de jeu**,
+et c'est au changement de jeu que la version mérite sa copie. Étendre la question aux enfants est un
+mot d'Eric, pas un lot.
+
 ### 🔴 LES TROIS VERBES — chaque famille de boutons en porte UN
 📍 `bouton-done-signe` · vivante · 26/08
 ⚖️ **`Done` signe ce qui est là, puis remonte d'un cran.**

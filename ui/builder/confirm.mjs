@@ -6,6 +6,20 @@
    (nommées — jamais un compte, jamais « êtes-vous sûr ? »), et deux
    callbacks vides de sens pour elle.
 
+   ⭐ LOT 192 — ET UNE TROISIÈME VOIE, FACULTATIVE. Eric, 10/09 : *« il faut
+   que la version FH reste sauvegardée, donc ça duplique le perso. Au moins
+   poser la question : voulez-vous garder une sauvegarde de la version
+   FH ? »*. Une confirmation qui coupe un jeu de règles a donc parfois trois
+   sorties, pas deux : garder, couper, ou GARDER UNE COPIE PUIS couper. Le
+   composant reste aussi ignorant qu'avant — `troisiemeVoie` est un libellé et
+   un callback sans argument, posé AU-DESSUS de la paire annuler · confirmer
+   (regardé au navigateur le 10/09 : au milieu de la rangée, son libellé long
+   faisait plier la paire en trois lignes ragées ; sur sa propre ligne, pleine
+   largeur, la paire reste une paire) ; c'est l'appelant
+   (`renderConfirmationPile`, universe-step.mjs) qui sait que ce clic
+   sauvegarde puis éteint. ⛔ Pas un `confirm()` du navigateur, pas une
+   seconde boîte : la même, avec une voie de plus quand l'appelant en donne une.
+
    MÊME LOI QUE `renderPicker` (`carnet.mjs`, tête de fichier) : « ce module
    ne connaît AUCUN verbe : onSelect/onClear reçoivent la valeur brute,
    c'est L'APPELANT qui choisit choose/set/clear ». Ici pareil —
@@ -34,8 +48,11 @@ function text(value) { return document.createTextNode(String(value)); }
  * @param {string} [opts.cancelLabel]   "Cancel" par défaut
  * @param {() => void} [opts.onConfirm]
  * @param {() => void} [opts.onCancel]
+ * @param {{label: string, onClick?: () => void}} [opts.troisiemeVoie]
+ *        une troisième sortie, sur sa ligne au-dessus de la paire — absente,
+ *        la boîte rend exactement ce qu'elle rendait avant le lot 192
  */
-export function renderConfirmDialog({ title, items, confirmLabel, cancelLabel, onConfirm, onCancel }) {
+export function renderConfirmDialog({ title, items, confirmLabel, cancelLabel, onConfirm, onCancel, troisiemeVoie }) {
   const wrap = el("div", "confirm-dialog");
   wrap.setAttribute("role", "alertdialog");
   wrap.append(el("p", "confirm-dialog-title", [text(title)]));
@@ -59,6 +76,20 @@ export function renderConfirmDialog({ title, items, confirmLabel, cancelLabel, o
   confirm.textContent = confirmLabel || "Confirm";
   confirm.addEventListener("click", () => { if (onConfirm) onConfirm(); });
 
+  /* La troisième voie se pose AVANT la paire, sur sa propre ligne (la feuille
+     lui donne toute la largeur) : elle n'est ni l'annulation (elle finit par
+     confirmer) ni la confirmation nue (elle fait quelque chose avant), et
+     l'ordre du DOM est l'ordre visuel — le clavier la rencontre là où l'œil
+     la voit. Un libellé sans texte n'est pas une voie : on ne rend pas un
+     bouton muet. */
+  if (troisiemeVoie && typeof troisiemeVoie.label === "string" && troisiemeVoie.label !== "") {
+    const voie = document.createElement("button");
+    voie.type = "button";
+    voie.className = "confirm-dialog-troisieme-voie";
+    voie.textContent = troisiemeVoie.label;
+    voie.addEventListener("click", () => { if (troisiemeVoie.onClick) troisiemeVoie.onClick(); });
+    actions.append(voie);
+  }
   actions.append(cancel, confirm);
   wrap.append(actions);
   return wrap;

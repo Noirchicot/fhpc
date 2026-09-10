@@ -116,6 +116,37 @@ test("10 — requestLayerStack : le passage à SRD teste fhRefChoicesPresent AVA
   assert.match(shellText, /state\.pendingStack\s*=\s*"srd"/);
 });
 
+/* ══ LOT 192 — « SAVE THE FATE'S HAND VERSION FIRST » ═════════════════════
+   Eric, 10/09 : *« au moins poser la question : voulez-vous garder une
+   sauvegarde de la version FH ? »*. La coquille n'a pas de harnais (tête de
+   ce fichier) : ce garde lit les OCTETS. Ce qu'il tient : la troisième voie
+   passe par `sauvegarderPuisEteindre` (la séquence pure, gardée en exécution
+   dans `tests/ecran-layers.test.mjs` G2) ; `sauvegarder` est `exporterJson` —
+   LE MÊME organe que le bouton `Save` (`exportJson`), pas un second chemin
+   d'écriture ; `eteindre` est `applyLayerStack("srd")` — le même geste que
+   `Switch off`. ⚔️ Mutation éprouvée : retirer l'appel à `exporterJson` de la
+   voie → rouge ici. */
+test("10 bis — 💾 la troisième voie de la confirmation : `exporterJson` (l'organe de Save) PUIS `applyLayerStack(\"srd\")`, par la séquence pure", () => {
+  const voie = shellText.match(/action\.kind === "saveAndConfirmLayerStack"[\s\S]{0,600}?\n\s*\}\n/);
+  assert.ok(voie, "la coquille répond à `saveAndConfirmLayerStack`");
+  assert.match(voie[0], /sauvegarderPuisEteindre\(\s*\{\s*sauvegarder:\s*\(\)\s*=>\s*exporterJson\(\s*\{\s*version:\s*NOM_DE_LA_VERSION_FH\s*\}\s*\),\s*eteindre:\s*\(\)\s*=>\s*applyLayerStack\("srd"\)/,
+    "Save d'abord (l'organe de `exportJson`, avec la version dans le nom), l'extinction ensuite — et la séquence est celle de `universe-step.mjs`, pas une copie");
+  assert.match(voie[0], /if \(eteint\) state\.pendingStack = null/, "la question ne se ferme QUE si l'extinction a eu lieu : un Save refusé la laisse posée");
+  /* le bouton `Save` et la voie appellent la MÊME fonction */
+  assert.match(shellText, /action\.kind === "exportJson"\)\s*\{\s*exporterJson\(\);/, "témoin : `exportJson` → `exporterJson()`, sans version");
+  assert.equal((shellText.match(/\bfunction exporterJson\b/g) || []).length, 1, "un seul organe d'écriture JSON");
+  /* et cet organe DIT s'il a écrit : `true` après `telecharger`, `false` sur chaque refus */
+  const organe = shellText.match(/function exporterJson\([\s\S]{0,900}?\n\}\n/);
+  assert.ok(organe);
+  assert.match(organe[0], /telecharger\(\{[\s\S]*?\}\);\s*return true;/, "les octets partis → `true`");
+  assert.equal((organe[0].match(/return false;/g) || []).length, 2, "les deux refus (moteur pas chargé, navigateur qui jette) → `false`");
+  /* ⛔ `Switch off` reste ce qu'il était : l'extinction sans Save */
+  const off = shellText.match(/action\.kind === "confirmLayerStack"[\s\S]{0,200}?\n\s*\}\n/);
+  assert.ok(off);
+  assert.match(off[0], /applyLayerStack\("srd"\)/);
+  assert.equal(/exporterJson|sauvegarder/.test(off[0]), false, "Switch off n'écrit aucun fichier");
+});
+
 test("11 — applyLayerStack pose bien layers.enable/disable PUIS build.layers = [] — jamais un verbe build/doc pour ce champ", () => {
   assert.match(shellText, /layersVerbs\.enable\(\s*\{\s*id\s*\}\s*\)/);
   assert.match(shellText, /layersVerbs\.disable\(\s*\{\s*id\s*\}\s*\)/);

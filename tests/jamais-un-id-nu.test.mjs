@@ -157,11 +157,13 @@ test("A1 — ⚔️ un Araag en pile SRD ne fait plus JETER la dérivation — `
 
 /* ══ B — L'ORGANE UNIQUE : LE MOT D'UN CHOIX ══════════════════════════════ */
 
-test("B1 — `motDuChoix` : le nom du record quand la pile le porte ; sinon le slug humanisé + L'INTERRUPTEUR qui le porte — jamais l'id, jamais « Fate's Hand » quand Lore suffit", () => {
+test("B1 — `motDuChoix` : le nom du record quand la pile le porte ; sinon le slug humanisé + L'INTERRUPTEUR qui le porte — jamais l'id, jamais « Fate's Hand » quand World suffit", () => {
   assert.equal(motDuChoix(FH.layers.verbs.query, "species", ARAAG), "Araag", "témoin : la pile FH nomme le record");
   const mot = motDuChoix(SRD.layers.verbs.query, "species", ARAAG);
-  /* ⚖️ Eric, 09/09, mot pour mot (ARCHITECTURE.md, « LES ESPÈCES FATE'S HAND SONT DU LORE ») */
-  assert.equal(mot, "Araag comes with Lore — switch it on in Layers");
+  /* ⚖️ Eric, 09/09, mot pour mot (ARCHITECTURE.md, « LES ESPÈCES FATE'S HAND SONT DU LORE ») —
+     et l'interrupteur s'appelle World depuis le lexique du 10/09 (lot 192) : le mot suit le label. */
+  assert.equal(mot, "Araag comes with World — switch it on in Layers");
+  assert.equal(/\bLore\b/.test(mot), false, "⛔ « Lore » n'est plus un mot du joueur (Eric, 10/09 : « pas Lore mais World »)");
   aucunIdNu(mot, ARAAG);
   assert.equal(mot.includes("Fate's Hand"), false, "⛔ jamais « Fate's Hand » en général quand un interrupteur précis suffit");
   assert.equal(motDuChoix(SRD.layers.verbs.query, "species", null), "", "sans id, rien à nommer — le libellé de l'étape prend");
@@ -176,11 +178,12 @@ test("B1 — `motDuChoix` : le nom du record quand la pile le porte ; sinon le s
   assert.equal(motDUnRecordAbsent("homebrew:feat:en:x"), `X — ${MOT_HORS_PILE}`);
 });
 
-test("B2 — le mot d'un VERROU du carnet ne porte plus l'id, et nomme l'interrupteur : « “Araag” isn't on the catalogue: it comes with Lore »", () => {
+test("B2 — le mot d'un VERROU du carnet ne porte plus l'id, et nomme l'interrupteur : « “Araag” isn't on the catalogue: it comes with World »", () => {
   const mot = decisionRefusalWord({ key: "decision.option-unavailable", params: { path: "species", selected: ARAAG, options: "" } });
   aucunIdNu(mot, ARAAG);
   assert.match(mot, /Araag/);
-  assert.match(mot, /comes with Lore/, "le verrou dit la même chose que le titre : quelle ligne de Layers pousser");
+  assert.match(mot, /comes with World/, "le verrou dit la même chose que le titre : quelle ligne de Layers pousser");
+  assert.equal(/\bLore\b/.test(mot), false, "⛔ « Lore » n'est plus un mot du joueur — lot 192");
 });
 
 /* ══ B3 — L'INTERRUPTEUR D'UN ID : UN REPLI PAR PRÉFIXE, GARDÉ CONTRE LE DISQUE ══
@@ -238,8 +241,9 @@ test("C1 — 🔴 SPECIES : l'Araag en pile SRD se NOMME, dit pourquoi il ne se 
   aucunIdNu(texte, ARAAG);
   assert.match(texte, /Araag/, "le nom humanisé est à l'écran");
   assert.equal(/settled/i.test(texte), false, "⛔ « settled » ne se dit pas d'un choix non résolu");
-  assert.match(texte, /Araag comes with Lore/, "la CAUSE nomme L'INTERRUPTEUR qui porte le record — Eric, 09/09");
-  assert.equal(texte.includes("Fate's Hand"), false, "⛔ jamais « Fate's Hand » en général quand Lore suffit");
+  assert.match(texte, /Araag comes with World/, "la CAUSE nomme L'INTERRUPTEUR qui porte le record — Eric, 09/09 ; World depuis le 10/09");
+  assert.equal(texte.includes("Fate's Hand"), false, "⛔ jamais « Fate's Hand » en général quand World suffit");
+  assert.equal(/\bLore\b/.test(texte), false, "⛔ « Lore » n'est plus un mot du joueur — lot 192");
   assert.match(texte, /Layers/, "la SORTIE nomme l'écran de l'interrupteur…");
   assert.match(texte, /change your mind/, "…et le bouton de ce pied, mot pour mot");
   assert.match(texte, /Nothing you chose has been erased/, "et le personnage ne se dissocie pas (Eric, 09/09)");
@@ -294,7 +298,7 @@ test("C4 — un JETON ou une PORTE dont le record manque passe par le même orga
      garde vérifie l'ORGANE qu'ils appellent : le seul repli possible est le mot
      de l'organe, et il n'est jamais l'id. */
   const q = SRD.layers.verbs.query;
-  for (const [kind, id, sw] of [["feat", AUSPICIOUS, "Destiny"], ["training", LANGUE_ELF, "Trainings"], ["species", ARAAG, "Lore"]]) {
+  for (const [kind, id, sw] of [["feat", AUSPICIOUS, "Destiny"], ["training", LANGUE_ELF, "Trainings"], ["species", ARAAG, "World"]]) {
     const mot = motDuChoix(q, kind, id);
     aucunIdNu(mot, id);
     assert.ok(mot.endsWith(`comes with ${sw} — switch it on in Layers`), `${id} nomme ${sw} : ${mot}`);
@@ -303,7 +307,7 @@ test("C4 — un JETON ou une PORTE dont le record manque passe par le même orga
 
 /* ══ D — LE SHEET ET L'ÉQUIPEMENT ═════════════════════════════════════════ */
 
-test("D1 — 🔴 LE SHEET : la ligne Species dit « Araag comes with Lore » et n'est pas « done » ; aucun id nu", () => {
+test("D1 — 🔴 LE SHEET : la ligne Species dit « Araag comes with World » et n'est pas « done » ; aucun id nu", () => {
   const etat = monter(SRD, personnage(SRD));
   const node = renderReviewStep({ document: etat.document, resolved: etat.resolved, decisions: etat.decisions, report: etat.report, violations: etat.violations }, () => {});
   const texte = node.textContent;
@@ -311,7 +315,7 @@ test("D1 — 🔴 LE SHEET : la ligne Species dit « Araag comes with Lore » et
   const ligne = node.querySelector('.review-line[data-step="species"]');
   assert.ok(ligne, "la ligne Species existe");
   assert.equal(ligne.dataset.done, "false", "⛔ elle disait « done » : le plan a une réponse, c'est le record qui manque");
-  assert.match(ligne.textContent, /Araag comes with Lore — switch it on in Layers/);
+  assert.match(ligne.textContent, /Araag comes with World — switch it on in Layers/);
   assert.equal(etapeFaite({ decisions: etat.decisions, document: etat.document, resolved: etat.resolved, violations: etat.violations }, "species"), false,
     "le juge du belt lit les mêmes refus");
   /* témoin : la pile FH montée, la ligne ne porte plus le refus */

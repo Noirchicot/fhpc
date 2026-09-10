@@ -40,7 +40,9 @@
 
    ⚖️ LE MOT NOMME L'INTERRUPTEUR QUI PORTE LE RECORD — Eric, 09/09, gravé
    dans `ARCHITECTURE.md` (§ « LES ESPÈCES FATE'S HAND SONT DU LORE ») :
-   *« Araag comes with Lore — switch it on in Layers »*. ⛔ Jamais « Fate's
+   *« Araag comes with World — switch it on in Layers »* (l'interrupteur
+   s'appelait Lore ; Eric l'a nommé World le 10/09, lot 192, et le mot suit
+   le LABEL de la table — rien n'est recopié ici). ⛔ Jamais « Fate's
    Hand » en général quand un interrupteur précis suffit : c'est ce qui rend
    le refus ACTIONNABLE — le joueur sait quelle ligne de `Layers` pousser.
    L'interrupteur se trouve par `interrupteurs.mjs` (une feuille sans import :
@@ -52,7 +54,7 @@
    stack no longer carries »*) — la pile est un jeu de règles pour le joueur,
    jamais « une couche ». */
 
-import { interrupteurDUnId } from "./interrupteurs.mjs?v=615";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=616";
 
 /** Le refus de DERNIER RECOURS — un record dont aucune couche connue ne
  *  répond (un préfixe étranger). Quand l'interrupteur se nomme, c'est lui
@@ -60,7 +62,7 @@ import { interrupteurDUnId } from "./interrupteurs.mjs?v=615";
 export const MOT_HORS_PILE = "not in this ruleset";
 
 /** Le refus qui nomme l'interrupteur — Eric, 09/09, mot pour mot :
- *  « comes with Lore — switch it on in Layers ». */
+ *  « comes with World — switch it on in Layers ». */
 export function motDuRefus(id) {
   const sw = interrupteurDUnId(id);
   return sw ? `comes with ${sw.label} — switch it on in Layers` : `— ${MOT_HORS_PILE}`;
@@ -76,7 +78,7 @@ export function motHumainDeLId(id) {
   return brut ? brut[0].toUpperCase() + brut.slice(1) : "";
 }
 
-/** Le mot d'un record que la pile NE PORTE PAS : « Araag comes with Lore —
+/** Le mot d'un record que la pile NE PORTE PAS : « Araag comes with World —
  *  switch it on in Layers ». ⛔ Jamais l'id. */
 export function motDUnRecordAbsent(id) {
   return `${motHumainDeLId(id) || "Unknown"} ${motDuRefus(id)}`;

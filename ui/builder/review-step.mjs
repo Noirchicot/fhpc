@@ -47,11 +47,11 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=615";
-import { lignageChoisi } from "./species-step.mjs?v=615";
+import { planAt } from "./carnet.mjs?v=616";
+import { lignageChoisi } from "./species-step.mjs?v=616";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
    jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=616";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -275,11 +275,24 @@ export function renderReviewStep(ctx, onAction) {
    joueur ne saurait plus lequel est à jour. Écraser est le comportement
    voulu — c'est SON fichier.
    ⚠️ `.fh-char.json` est la forme des fichiers du dépôt (`examples/`), pas
-   une invention de cet écran. */
-export function nomDeFichier(document, suffixe) {
+   une invention de cet écran.
+
+   ⭐ LOT 192 — SAUF QUAND LE FICHIER EST UNE VERSION, ET IL LE DIT. Eric,
+   10/09 : *« il faut que la version FH reste sauvegardée, donc ça duplique
+   le perso »*. Une sauvegarde faite AVANT d'éteindre Fate's Hand n'est pas
+   « le personnage à jour » : c'est sa version Fate's Hand, gardée à côté de
+   celle qui va continuer en SRD. Deux fichiers au même nom se seraient
+   écrasés — ou rangés `(1)` par le navigateur, sans dire lequel est lequel.
+   Le nom porte donc la version, ENTRE le nom et le type :
+   `ilyra.fates-hand.fh-char.json`. La règle « du nom du personnage et de
+   rien d'autre » tient pour un export ordinaire : sans `version`, rien ne
+   change. Le mot de la version est un slug déjà (même alphabet que le nom),
+   passé par le même filtre par sécurité. */
+export function nomDeFichier(document, suffixe, version) {
   const brut = document && typeof document.name === "string" ? document.name : "";
   const slug = brut.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  return `${slug || "character"}.${suffixe}`;
+  const versionSlug = typeof version === "string" ? version.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "";
+  return `${slug || "character"}.${versionSlug ? `${versionSlug}.` : ""}${suffixe}`;
 }
 
 /* Les trois portes. ⛔ Elles n'ont AUCUNE condition d'affichage : un

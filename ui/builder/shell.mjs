@@ -19,27 +19,27 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=615";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=615";
-import { mountPopup } from "./popup.mjs?v=615";
-import { renderLorePanel } from "./lore.mjs?v=615";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=615";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=616";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=616";
+import { mountPopup } from "./popup.mjs?v=616";
+import { renderLorePanel } from "./lore.mjs?v=616";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=616";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=615";
-import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=615";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=615";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=616";
+import { STEPS, ceinture, cransAlignes } from "./etapes.mjs?v=616";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=616";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=615";
+} from "./tutoriel.mjs?v=616";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=615";
-import { lireLeFichier } from "./ouvrir.mjs?v=615";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=616";
+import { lireLeFichier } from "./ouvrir.mjs?v=616";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -50,14 +50,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=615";
+} from "./echelle.mjs?v=616";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=615";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=616";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -68,69 +68,69 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=615";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=615";
+} from "./fonds.mjs?v=616";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=615";
-import { renderChoixGlisses } from "./glisser.mjs?v=615";
-import { renderConceptStep } from "./concept-step.mjs?v=615";
-import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS } from "./universe-step.mjs?v=615";
+import { planAt, planSlots } from "./carnet.mjs?v=616";
+import { renderChoixGlisses } from "./glisser.mjs?v=616";
+import { renderConceptStep } from "./concept-step.mjs?v=616";
+import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH } from "./universe-step.mjs?v=616";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement } from "./layers-ecran.mjs?v=615";
+import { couchesApresLeGeste, gestesDAlignement } from "./layers-ecran.mjs?v=616";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=615";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=616";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=615";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=615";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=616";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=616";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=615";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=615";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=615";
+} from "./catalogue.mjs?v=616";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=616";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=616";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=615";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=616";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=615";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=616";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=615";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=616";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=615";
+} from "./abilities-step.mjs?v=616";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=615";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=616";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=615";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=615";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=615";
+} from "./destiny-step.mjs?v=616";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=616";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=616";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=615";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=615";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=616";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=616";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=615";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=616";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -149,16 +149,16 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=615";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=615";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=616";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=615";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=615";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=616";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=616";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=615";
+import { versionQuery } from "./version.mjs?v=616";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -633,11 +633,17 @@ function porteEnPanne(quoi, cause) {
   refresh();
 }
 
-function exporterJson() {
-  if (!state.document) return porteEnPanne("Export JSON", "the engine has not finished loading.");
+/** `Save` / `Export JSON` — UN SEUL ORGANE, et il rend `true` quand les octets
+ *  sont partis, `false` quand il a refusé (et il l'a dit : `porteEnPanne`).
+ *  ⭐ LOT 192 — `version` : la troisième voie de la confirmation du maître
+ *  sauvegarde LA VERSION FATE'S HAND avant d'éteindre, et le nom du fichier le
+ *  dit (`nomDeFichier`, review-step.mjs). Sans `version`, rien ne change pour
+ *  le bouton `Save` : même nom qu'avant. */
+function exporterJson({ version } = {}) {
+  if (!state.document) { porteEnPanne("Export JSON", "the engine has not finished loading."); return false; }
   try {
     telecharger({
-      nom: nomDeFichier(state.document, "fh-char.json"),
+      nom: nomDeFichier(state.document, "fh-char.json", version),
       type: "application/json",
       /* ⭐ LES OCTETS DU MOTEUR, PAS UN `JSON.stringify` D'ÉCRAN : c'est la
          MÊME fonction que `toBytes` appelle (`canonical.mjs`, lot 67). Le
@@ -646,8 +652,10 @@ function exporterJson() {
          partout avec ses persos »), pas un détail. */
       contenu: canonicalText(state.document)
     });
+    return true;
   } catch (cause) {
     porteEnPanne("Export JSON", cause.message);
+    return false;
   }
 }
 
@@ -747,6 +755,24 @@ function applyDecisionAction(action) {
   if (action.kind === "confirmLayerStack") {
     applyLayerStack("srd");
     state.pendingStack = null;
+    refresh();
+    return;
+  }
+  /* ══ LOT 192 — LA TROISIÈME VOIE : « Save the Fate's Hand version first » ══
+     Eric, 10/09 : *« au moins poser la question : voulez-vous garder une
+     sauvegarde de la version FH ? »*. ⭐ LE MÊME ORGANE QUE `Save`
+     (`exporterJson`, juste au-dessus de `exportJson` plus bas) — jamais un
+     second chemin d'écriture — appelé AVANT `applyLayerStack("srd")` : le
+     document porte encore ses couches Fate's Hand, le fichier est la version
+     FH. La séquence est pure et gardée (`sauvegarderPuisEteindre`,
+     universe-step.mjs) : un Save qui a refusé n'éteint pas, et la question
+     reste posée (`pendingStack` ne bouge pas) — le refus est déjà dit. */
+  if (action.kind === "saveAndConfirmLayerStack") {
+    const eteint = sauvegarderPuisEteindre({
+      sauvegarder: () => exporterJson({ version: NOM_DE_LA_VERSION_FH }),
+      eteindre: () => applyLayerStack("srd")
+    });
+    if (eteint) state.pendingStack = null;
     refresh();
     return;
   }
