@@ -148,6 +148,16 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⏳ DEUX QUESTIONS OUVERTES PAR LE PREMIER PAS (lot 193, 10/09)
+
+- **Le nom d'un personnage neuf.** Le schéma exige un mot *(`name.minLength: 1`)* : un document neuf
+  ne peut pas naître sans nom. Le lot a posé **« Unnamed character »** — celui que le Menu affichait
+  déjà pour un nom vide, désormais lu au même endroit. ⚠️ **Vu au navigateur** : le champ d'Identity
+  arrive donc **pré-rempli**, et le joueur doit l'effacer. Laisser, ou vider le champ à l'affichage ?
+- **Un navigateur sans aucun personnage.** Ce cas n'existe pas aujourd'hui *(le boot retombe sur
+  l'exemple commité)*. La loi est gardée sur la fonction pure ; ce qui manquerait, c'est **d'où
+  viennent la langue et les unités** à la naissance — aujourd'hui héritées du personnage rangé.
+
 #### ⚖️ LE MAGASIN DE SAUVEGARDES — Open ouvre une page, pas une boîte de fichiers (10/09)
 
 ⚖️ Eric, 10/09 : *« j'aimerais un **menu de sauvegarde dédié**, dans le site, sans avoir à me
