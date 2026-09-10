@@ -148,6 +148,25 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ⚖️ LE PREMIER PAS — « Build a character » crée un personnage, et demande d'abord SRD ou Fate's Hand (10/09)
+
+⚖️ Eric, 10/09, second fil SRD en débutant : *« j'arrive dans le menu, je tape Build a character,
+je suis débutant. Il me faut un perso SRD mais je n'ai même pas regardé les menus du dessous. **Un
+popup doit me dire, avant même d'arriver à l'étape 1, tout de suite : tu veux SRD ou FH ? — et
+faire le réglage pour moi.** Le perso du navigateur est **sauvegardé automatiquement et dégage du
+navigateur** ; tous les choix des étapes sont **réinitialisés**. »*
+
+📏 **Ce qui était vrai avant** : `Build a character` ouvrait les huit étapes **sur le personnage
+courant** — il ne créait rien ; et le navigateur ne garde **qu'un** personnage *(loi tranchée : le
+fichier est le maître, le navigateur un cache)*.
+
+**Deux questions posées, deux réponses, gravées ensemble :**
+
+| la question | la réponse |
+|---|---|
+| **Quand je tape « Build a character » et qu'un personnage est déjà dans le navigateur, que devient-il ?** | **Fichier automatique, puis reset** — le personnage courant est téléchargé en fichier sans rien demander, puis le navigateur repart à zéro. ⛔ Si le navigateur bloque le téléchargement, **on ne reset pas** — même règle que le lot 192 : un Save refusé n'efface rien. |
+| **Le popup « SRD ou Fate's Hand ? » avant l'étape 1 — combien de voies ?** | **Deux : SRD · Fate's Hand.** Il règle le maître pour le joueur. Les livres du joueur et les six interrupteurs restent dans Layers pour qui veut aller plus loin. |
+
 #### ⚖️ LE LEXIQUE — cinq mots, un seul sens chacun (10/09, discussion jusqu'à l'alignement)
 
 ⚖️ Eric, 10/09, après avoir posé son modèle *(« le moteur FH = SRD + 1 couche moteur FH »)* et
