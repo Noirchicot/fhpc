@@ -20,19 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=616";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=616";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=617";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=617";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=616";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=617";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=616";
-import { renderConfirmDialog } from "./confirm.mjs?v=616";
-import { renderChoixGlisses } from "./glisser.mjs?v=616";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=616";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=617";
+import { renderConfirmDialog } from "./confirm.mjs?v=617";
+import { renderChoixGlisses } from "./glisser.mjs?v=617";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=617";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
    du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=616";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=617";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -95,7 +95,18 @@ function skillView(query, id) {
     .find((v) => v && v.record && (v.record.slug === id || String(v.id).endsWith(`:${id}`))) || null;
 }
 
-function skillLabel(query, id) {
+/* 📤 EXPORTÉ AU LOT 194 — Species lisait le mot d'une compétence par
+   `motDuChoix`, qui ne connaît que l'identifiant COMPLET. Or `species.skills`
+   et `species.skillBudget` publient des SLUGS (mesuré : `["insight",
+   "perception", "survival"]`), et l'écran affichait donc « Insight — not in
+   this ruleset » sur les trois jetons d'un Elfe SRD, en pile SRD, là où le
+   record existe. C'est mot pour mot le défaut que la tête de `skillView`
+   raconte pour le 20/08 — recopié dans un second écran, donc réparé une fois
+   de trop. *« Un organe que N écrans fabriquent sera oublié. »*
+   ⛔ Il n'est pas remonté dans `mot-du-choix.mjs` : cet organe-là ne connaît
+   que des identifiants et ne lit aucun catalogue par genre — lui apprendre à
+   chercher par slug lui donnerait un second métier. */
+export function skillLabel(query, id) {
   /* `skillView` cherche aussi par slug — on garde SA lecture, et seul le
      repli passe par l'organe : jamais l'id nu. */
   const view = skillView(query, id);
@@ -107,7 +118,10 @@ function skillLabel(query, id) {
  *  arme ; le sélecteur de Skills lit les mêmes champs (`texteDuDetail`).
  *  ⛔ Rien n'est écrit ici qui ne soit lu ; `null` quand le record n'a rien à
  *  dire, et le tap ne fait alors rien plutôt que d'ouvrir une fenêtre vide. */
-function skillInfo(query, id) {
+/* 📤 EXPORTÉ AU LOT 194 — le choix de compétence d'ESPÈCE (Keen Senses) prend
+   le sélecteur de la classe : même organe, donc même fenêtre d'info. La
+   recopier sous Species ferait deux façons d'expliquer une compétence. */
+export function skillInfo(query, id) {
   const view = skillView(query, id);
   const data = (view && view.record && view.record.data) || {};
   const lignes = [

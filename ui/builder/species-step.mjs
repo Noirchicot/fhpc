@@ -12,12 +12,18 @@
    de l'espèce :
      · `species.skillBudget` publié → LA BOURSE CAPTIVE (Elf, Elestu) : des
        points sur des compétences nommées, palier au choix par compétence ;
-     · `species.skills` publié → UN CHOIX IMPOSÉ — ⏳ **PLUS AUCUN
-       UTILISATEUR depuis le 2026-08-17** ; l'Humain et l'Araag le portaient,
-       et Eric a fait absorber ce don par leur barème de points (*« Fast
-       Learner qui recouvre tout »*, *« Skillful origine SRD écrase
-       Educated »*) parce qu'ils en recevaient DEUX. Le code reste : le
-       mécanisme est celui des classes, et une espèce peut le reprendre ;
+     · `species.skills` publié → UN CHOIX DE COMPÉTENCE, au sélecteur de
+       jetons (lot 194) ;
+       🔴 CETTE LIGNE A DIT « PLUS AUCUN UTILISATEUR » PENDANT TROIS SEMAINES,
+       ET C'ÉTAIT FAUX DEPUIS LE FIL SRD. En pile Fate's Hand, oui : l'Humain
+       et l'Araag le portaient, et Eric a fait absorber ce don par leur barème
+       de points (*« Fast Learner qui recouvre tout »*, *« Skillful origine SRD
+       écrase Educated »*) parce qu'ils en recevaient DEUX. Mais la BOURSE est
+       une mécanique Fate's Hand : couche éteinte, l'Elfe **du SRD** publie son
+       `granted_skill_choice` (Keen Senses — une compétence parmi Insight,
+       Perception, Survival), et c'est ce chemin-ci qu'il emprunte. Un écran
+       qui se croit mort ne se soigne pas : c'est ce qui a laissé le QCM
+       pourrir jusqu'à ce qu'Eric le voie *« moche »* le 10/09 ;
      · ni l'un ni l'autre (dix espèces sur douze) → RIEN.
    ⭐ ET CE TROISIÈME CAS EST CE QUE LE LOT 60 A DÛ TRANCHER : une espèce qui
    n'accorde rien n'a **QU'UN SEUL PALIER**. Un 2ᵉ appui sur un menu vide
@@ -28,22 +34,28 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, renderSlotQcm, decisionRefusalWord } from "./carnet.mjs?v=616";
-import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=616";
+import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=617";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=617";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=616";
-import { renderChoixGlisses } from "./glisser.mjs?v=616";
-import { spellInfo } from "./class-step.mjs?v=616";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=617";
+import { renderChoixGlisses } from "./glisser.mjs?v=617";
+/* ⭐ LOT 194 — LE MOT ET LA FENÊTRE D'UNE COMPÉTENCE VIENNENT DE CLASS, comme
+   le sélecteur qui les emploie. Species en tenait sa propre copie (par
+   `motDuChoix`), qui ne sait pas lire un SLUG : voir la tête de `skillLabel`
+   là-bas pour la mesure. */
+import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=617";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=616";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=616";
-import { etapeParId } from "./etapes.mjs?v=616";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=616";
-/* LOT 191 — le mot d'un choix : le nom du record, sinon le slug humanisé et
-   le refus nommé. Jamais l'id nu (voir la tête de `mot-du-choix.mjs`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=616";
+import { motDuVerrou } from "./skills-step.mjs?v=617";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=617";
+import { etapeParId } from "./etapes.mjs?v=617";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=617";
+/* 📌 LOT 191 / LOT 194 — l'organe du « mot d'un choix » (`mot-du-choix.mjs`)
+   n'est plus importé ICI : la seule chose que cet écran nommait était une
+   COMPÉTENCE, et une compétence se nomme par SLUG — c'est `skillLabel`
+   (class-step) qui sait le faire, et le refus nommé du lot 191 y vit aussi.
+   ⛔ Rien n'est perdu : c'est le même organe, lu une fois de moins. */
 
 /* ✅ LES DOUZE IMAGES SONT ARRIVÉES LE 2026-08-16, et la promesse écrite ici
    est tenue à la lettre : *« le jour où les images arrivent, elles arrivent
@@ -62,8 +74,16 @@ function el(tag, className, children) {
 }
 function text(value) { return document.createTextNode(String(value)); }
 
+/* 🔴 LOT 194 — CE MOT N'EST PLUS FABRIQUÉ ICI. `motDuChoix` interroge la pile
+   par IDENTIFIANT ; les plans de compétence d'espèce publient des SLUGS
+   (`insight`, `survival`), et l'écran écrivait donc « Insight — not in this
+   ruleset » sur un record que la pile SRD porte bel et bien — mesuré dans la
+   page le 2026-09-10, sur les trois jetons de l'Elfe. Le lecteur qui sait lire
+   les deux vit dans `class-step` depuis le 20/08 ; on le lit, on ne le recopie
+   pas. ⛔ Le repli sur le refus nommé (lot 191) n'est pas perdu : c'est
+   `skillLabel` là-bas qui le porte, par le même organe. */
 function skillLabel(query, id) {
-  return motDuChoix(query, "skill", id);
+  return motDeLaCompetence(query, id);
 }
 /* Capitalisation d'AFFICHAGE seulement (« half » → « Half ») — un mot
    d'écran, pas une règle (même famille que `CATEGORY_LABEL`, lot 39). */
@@ -137,18 +157,63 @@ function corpsDeLItem(item, ctx, act) {
       onAction: act
     });
   }
-  /* Le QCM de compétences, quand une espèce en porte un. */
-  if (item.path === "species.skills") {
-    return renderSlotQcm({
-      decisions: ctx.decisions || [], basePath: "species.skills", title: "Species skill",
-      labelOf: (id) => skillLabel(ctx.query, id), onAction: act
-    });
-  }
+  /* Le choix de compétence de l'espèce, quand une espèce en porte un. */
+  if (item.path === "species.skills") return renderChoixDeCompetence(ctx, act);
   /* ⛔ AUCUN REPLI SILENCIEUX : un item sans corps le DIT. Rendre le panneau
      entier « au cas où » est exactement la faute qu'Eric vient de voir. */
   return el("p", "parcours-refus", [text(
     `This choice has no screen yet — ${item.path}.`
   )]);
+}
+
+/* ══ LOT 194 — LA COMPÉTENCE DE L'ESPÈCE, AU SÉLECTEUR DE JETONS ═══════════
+   Eric, 2026-09-10, devant le fil SRD (v616), sur l'Elfe : *« SB skills
+   (moche) : mets des tokens avec les noms des compétences, avec des
+   collecteurs, avec les règles habituelles. »*
+
+   📏 CE QUE ÇA REMPLACE, MESURÉ DANS LA PAGE LE 10/09 (375 × 812, pile SRD
+   seule) : `renderSlotQcm` rendait une rangée de boutons-radio — un « — »
+   pour « aucune », puis les trois options — et chacune s'affichait
+   « Insight — not in this ruleset », parce que le mot passait par un lecteur
+   qui ne sait pas lire un slug (voir `skillLabel`, plus haut). Trois défauts
+   sur le même écran : la forme, le mot, et un « — » qui offre de ne rien
+   prendre là où l'espèce accorde.
+
+   ⭐ C'EST LE SÉLECTEUR DE LA CLASSE, MOT POUR MOT (lot 190, lui-même calqué
+   sur le sélecteur de Skills du lot 171) : le même organe
+   (`renderChoixGlisses`), le régime `sorts` (trois jetons par rangée),
+   `count` collecteurs en bas, et l'alternative au glisser d'Eric du 07/09 —
+   tap = info, avec `Close` · `Select` au pied de la fenêtre ; `Select` pose
+   dans le premier collecteur libre et disparaît quand tout est pris (un
+   bouton qui ne ferait rien mentirait). ⛔ Pas de `Drop` : une compétence ne
+   se prend qu'une fois, un jeton posé s'éteint, et il se rend en le glissant
+   hors du collecteur — le geste d'annulation d'Eric du 19/08.
+
+   ⛔ ET LE CHEMIN NE BOUGE PAS : `species.skills[n]`, une VALEUR (le slug),
+   ce que `derive.mjs` consomme déjà (« un choix est un choix de compétence
+   quand sa RACINE est celle d'une source qui en déclare un ET que sa valeur
+   est un slug LÉGAL »). Le sélecteur change le geste, pas la réponse. */
+function renderChoixDeCompetence(ctx, act) {
+  const decisions = ctx.decisions || [];
+  const plan = planAt(decisions, "species.skills");
+  if (!plan) return null;
+  const creneaux = planSlots(decisions, "species.skills");
+  const poseDans = (slot) => (Array.isArray(slot.selected) ? slot.selected[0] : slot.selected) || null;
+  return renderChoixGlisses({
+    plan, slots: creneaux,
+    /* titre: null — la dalle d'item nomme déjà l'écran (§1 quinquies) */
+    titre: null, mot: "Skill", rangee: "sorts",
+    labelOf: (id) => skillLabel(ctx.query, id), onAction: act,
+    /* la consigne vit dans l'AIGUILLEUR (`itemAiguilleur`), une voix, un lieu */
+    onInfo: (slug) => {
+      const info = skillInfo(ctx.query, slug);
+      if (!info) return;
+      const libre = creneaux.find((slot) => !poseDans(slot));
+      const revenir = { mot: "Close", faire: () => {} };
+      const choisir = libre ? { mot: "Select", faire: () => act({ kind: "set", path: libre.path, value: slug }) } : null;
+      act({ ...info, actions: [revenir, choisir].filter(Boolean) });
+    }
+  });
 }
 
 /** Ce que la ligne « gagné d'office » attend. Eric : *« granted automatically
@@ -449,7 +514,48 @@ function resumeDeLItem(item, ctx, act) {
     });
     return ligne;
   }
+
+  /* ── LA COMPÉTENCE CHOISIE — Eric, 2026-09-10 : *« B2 bilan : lineage bien,
+     species skill (noter les choix), granted bien. »* ────────────────────────
+     📏 MESURÉ AVANT CE LOT : `resumeDeLItem` connaissait le lignage et la
+     bourse, et rien d'autre — un Elfe SRD signait sa compétence et le bilan
+     n'en disait pas un mot. La porte disparaît une fois l'étape validée (loi
+     du 26/08) : sans cette ligne, la réponse n'était plus lisible NULLE PART.
+
+     ⭐ LA MÊME FORME QUE LA LIGNE « GAGNÉ D'OFFICE » DE L'ARRIÈRE-PLAN : « **Mot
+     :** » en gras, puis le nom — et le nom qui a une fenêtre d'info EST un
+     bouton (canon : tap = info), sans bleu. ⛔ Pas de lien vers le livre web
+     comme la bourse : celle-ci est une mécanique Fate's Hand et ses
+     compétences y ont une page ; une compétence SRD n'en a pas, et un lien
+     mort est pire qu'un mot. La fenêtre du tap dit ce que le record dit. */
+  if (item.path === "species.skills") {
+    const plan = planAt(decisions, "species.skills");
+    const choisies = (plan && Array.isArray(plan.selected) ? plan.selected : []).filter(Boolean);
+    if (choisies.length === 0) return null;
+    const ligne = el("p", "bilan-ligne");
+    ligne.append(el("strong", null, [text("Species skill : ")]));
+    choisies.forEach((slug, i) => {
+      if (i > 0) ligne.append(text(", "));
+      ligne.append(nomQuiOuvreLaCompetence(ctx.query, slug, act || (() => {})));
+    });
+    return ligne;
+  }
   return null;
+}
+
+/** Le nom d'une compétence, TAPPABLE quand le record a de quoi remplir une
+ *  fenêtre — sinon du texte. Même geste et même habit que le nom du don sur la
+ *  ligne « gagné d'office » de l'arrière-plan (`nomQuiOuvre`, background-step) ;
+ *  ⛔ un bouton qui ouvrirait une fenêtre vide mentirait, donc il n'existe pas. */
+function nomQuiOuvreLaCompetence(query, slug, act) {
+  const nom = skillLabel(query, slug);
+  const info = skillInfo(query, slug);
+  if (!info) return text(nom);
+  const bouton = el("button", "bilan-nom", [text(nom)]);
+  bouton.type = "button";
+  bouton.setAttribute("aria-label", `${nom} — details`);
+  bouton.addEventListener("click", () => act(info));
+  return bouton;
 }
 
 export const LIGNE_ACQUIS = {
@@ -541,8 +647,15 @@ export const SPECIES_CATALOGUE = {
      compte (« Ten ») est gardé contre la couche, il ne se croit pas sur
      parole. La seconde phrase est le socle de prévention, commun à tous. */
   itemAiguilleur: (chemin, ctx) => {
-    if (chemin !== "species.lineage") return null;
     const prevention = "Leaving this open marks nothing — only Done records the choice.";
+    /* 🔵 LOT 194 — LE SÉLECTEUR DE COMPÉTENCE DIT SON GESTE, comme celui de la
+       classe (`CLASS_CATALOGUE.itemAiguilleur`, lot 190) : une voix, un lieu.
+       ⛔ La phrase n'est pas recopiée d'un écran à l'autre par hasard : c'est
+       LE MÊME organe qui est derrière, donc le même geste à apprendre. */
+    if (chemin === "species.skills") {
+      return `Tap a skill to read what it covers — drag it into the slot to choose. ${prevention}`;
+    }
+    if (chemin !== "species.lineage") return null;
     if (LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx))) {
       return `Ten lineages, one element each — tap to read, drag one into the slot to choose. ${prevention}`;
     }
@@ -1457,17 +1570,18 @@ export function renderSpeciesChoices(ctx, onAction) {
   const lignage = record ? renderLineageBlock(ctx, record, act) : null;
   if (lignage) blocs.push(lignage);
 
-  /* LES CHOIX À FAIRE — la bourse captive OU le QCM, jamais les deux (voir
-     les états d'espèce en tête de fichier). Inchangés : ce lot les ENTOURE,
-     il ne les réécrit pas. */
+  /* LES CHOIX À FAIRE — la bourse captive OU le choix de compétence, jamais
+     les deux (voir les états d'espèce en tête de fichier).
+     🔴 LOT 194 — LE MÊME CORPS QUE LA DALLE D'ITEM, et c'est le point : ce
+     menu est le REPLI de l'item (2ᵉ palier hors parcours). Il portait sa
+     propre copie — le QCM — donc le sélecteur de jetons n'aurait vécu que
+     dans une des deux portes, et le joueur qui passe par l'autre aurait eu
+     l'ancien geste. *« Un organe que N écrans fabriquent sera oublié. »* */
   const budget = planAt(decisions, "species.skillBudget");
   if (budget) blocs.push(renderSpeciesBudget(ctx, budget, act));
   else {
-    const qcm = renderSlotQcm({
-      decisions, basePath: "species.skills", title: "Species skill",
-      labelOf: (id) => skillLabel(ctx.query, id), onAction: act
-    });
-    if (qcm) blocs.push(qcm);
+    const choix = renderChoixDeCompetence(ctx, act);
+    if (choix) blocs.push(choix);
   }
 
   if (record) blocs.push(renderAcquiredBlock(ctx, record));

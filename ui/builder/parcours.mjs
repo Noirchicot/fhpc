@@ -41,6 +41,18 @@ function planAt(decisions, chemin) {
   return liste.find((entry) => entry && entry.path === chemin) || null;
 }
 
+/** Ce plan porte-t-il, SOUS lui, un plan que le joueur doit encore répondre ?
+ *  ⛔ « Sous lui » se lit sur le CHEMIN (`background.originFeat[0].cantrips`
+ *  vit sous `background.originFeat[0]`), et « à répondre » sur la PROVENANCE —
+ *  jamais sur un nom d'étape ni sur un compte. Un plan requis qui n'en porte
+ *  aucun reste ce qu'il est depuis le lot 190 : un acquis, pas une porte. */
+export function porteUneDecisionOuverte(liste, chemin) {
+  const prefixe = `${chemin}.`;
+  return liste.some((autre) => autre && typeof autre.path === "string"
+    && autre.path.startsWith(prefixe)
+    && !(autre.provenance && autre.provenance.mode === "required"));
+}
+
 /** LES ITEMS D'UNE ÉTAPE — un par choix à faire, dans l'ordre du carnet.
  *
  *  ⭐ UN ITEM PAR CHOIX, ET PAS UN PAR CATÉGORIE. Eric : *« pour elfe tu auras
@@ -82,7 +94,23 @@ export function itemsDeLEtape({ decisions, document, racine }) {
        items ne bougent pas (`tests/background-step.test.mjs` le tient).
        ⛔ La règle est GÉNÉRALE (NORMES §6 pré quinquies) : elle vit ici, pas
        dans l'écran qui l'a rencontrée le premier. */
-    .filter((plan) => !(plan.provenance && plan.provenance.mode === "required"))
+    /* ⚠️ …SAUF S'IL PORTE, EN DESSOUS, UNE DÉCISION QUI RESTE À PRENDRE —
+       lot 194. Eric, 2026-09-10, sur l'Acolyte du fil SRD : *« Magic Initiate
+       nécessite un bouton, ça doit être configuré. »*
+       📏 CE QUE ÇA RÉPARE : l'arrière-plan IMPOSE son don (`feat_id`), donc le
+       plan est `required`, donc pas d'item — la règle de la ligne du dessus, et
+       elle est juste tant que le don n'a rien à régler. Magic Initiate en a :
+       le carnet publie ses tours mineurs et son sort de niveau 1 SOUS lui, et
+       personne n'ouvrait la porte qui y mène. Le don s'affichait « gagné
+       d'office » et le joueur ne pouvait pas choisir ses sorts.
+       ⭐ LE CRITÈRE EST LA DONNÉE, PAS LE NOM : « ce plan porte-t-il, plus bas,
+       un plan que le joueur doit encore répondre ? ». ⛔ Un sous-plan lui-même
+       `required` ne compte pas — la liste de sorts d'un « Magic Initiate
+       (Cleric) » est fixée par l'arrière-plan, elle n'ouvre aucune porte. Un
+       outil imposé, un don sans branches : rien en dessous, donc pas de porte,
+       exactement comme au lot 190. */
+    .filter((plan) => !(plan.provenance && plan.provenance.mode === "required")
+      || porteUneDecisionOuverte(liste, plan.path))
     /* ⚠️ UN CRÉNEAU NE S'EFFACE QUE S'IL A UN GROUPE. `species.skills[0]` vit
        sous `species.skills`, qui est l'item — le compter aussi ferait deux
        voyants pour une décision. Mais `background.originFeat[0]` n'a AUCUN

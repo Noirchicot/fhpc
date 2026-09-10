@@ -162,29 +162,52 @@ test("les SIX caractéristiques sont les lignes de boost, et le compteur lit ans
   assert.match(explication.textContent, /3 points/, `lu : « ${explication.textContent} »`);
 });
 
-test("⚠️ SURPRISE, trouvée en regardant l'écran — sans AUCUN boost posé, le plan `background.boost` est déjà LOCKED (total-mismatch, 0 ≠ 3) : l'écran l'affiche quand même, tel quel", () => {
-  /* Mesuré : contrairement à `class.skills`/`species.skills` (qui restent
-     `pending`, jamais `locked`, tant qu'aucun candidat n'existe — voir
-     `multiPlan`, `src/build/decisions.mjs`), `background.boost` n'a AUCUN
-     état intermédiaire : soit le total vaut EXACTEMENT 3, soit il est
-     `locked`, même à zéro candidat. Un personnage tout neuf affiche donc un
-     refus AVANT le moindre clic. Voir INVENTAIRE-LOT-46.md — la commande
-     interdit d'atténuer ce refus (« tu ne le prévien pas »), cet écran le
-     montre donc tel quel, sans idée de « pas encore commencé ». */
+test("🔴 LOT 194 — RIEN DE POSÉ N'EST PAS UNE FAUTE : `background.boost` ouvre NEUTRE, sans refus à l'écran", () => {
+  /* ⚖️ ERIC, 2026-09-10, sur le fil SRD : *« B1 : ability boost commence en
+     rouge »* — et c'est ce que ce test MESURAIT jusqu'ici, sous le titre
+     « ⚠️ SURPRISE » : à zéro candidat, le plan sortait `locked`
+     (`background.boost-total-mismatch`, total 0), donc l'écran s'ouvrait sur un
+     refus AVANT le moindre geste.
+
+     ⭐ L'ASYMÉTRIE ÉTAIT NOMMÉE DANS CE FICHIER MÊME, et elle disait la bonne
+     règle sans qu'on l'applique : `class.skills` / `species.skills` /
+     `species.skillBudget` restent `pending`, jamais `locked`, tant qu'aucun
+     candidat n'existe. Le compte du plan (0 sur 3) retient déjà la porte, le
+     `Done` et l'étape — un verrou par-dessus ne rendait pas la règle plus
+     stricte, il rendait « pas encore fait » indiscernable de « mal fait ».
+     ⛔ ET LA COMMANDE DU LOT 46 N'EST PAS TRAHIE (*« tu ne le préviens pas »*) :
+     ce qui ne doit pas s'atténuer, c'est le refus d'une répartition ILLÉGALE —
+     le test suivant le tient, ROUGE, dès le premier point posé. */
   const h = pile();
   const out = h.verbs.rebuild({ document: documentDe(h, baseChoices()) });
   const plan = out.decisions.find((d) => d.path === "background.boost");
-  assert.equal(plan.status, "locked");
-  assert.equal(plan.lock.key, "background.boost-total-mismatch");
-  assert.equal(plan.lock.params.total, 0);
+  assert.equal(plan.status, "pending", "neutre, comme tous les autres plans à zéro candidat");
+  assert.ok(!plan.lock, "aucun verrou");
+  assert.equal(plan.answered, 0, "…et c'est le COMPTE qui dit qu'il reste à faire");
+  assert.equal(plan.expected, 3);
 
   const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
   const explication = node.querySelectorAll(".inheritance-explain p")[0];
   assert.match(explication.textContent, /3 points/);
   assert.equal(node.querySelectorAll(".inheritance-boost").length, 6);
+  assert.equal(node.querySelectorAll(".skills-refusal").length, 0,
+    "aucun refus sur un écran où rien n'a encore été fait");
+});
+
+test("⚔️ ATTAQUE — UN GESTE COMMENCÉ ET INCOMPLET ROUGIT TOUJOURS : 2 points sur 3 = `boost-total-mismatch`, et l'écran le dit", () => {
+  /* ⛔ C'est le garde qui empêche le lot 194 d'être un desserrage : le verrou
+     du total n'a pas disparu, il a cessé de partir AVANT le premier geste. */
+  const h = pile();
+  const out = h.verbs.rebuild({ document: documentDe(h, [...baseChoices(), { path: "background.boost.str", value: 2 }]) });
+  const plan = out.decisions.find((d) => d.path === "background.boost");
+  assert.equal(plan.status, "locked");
+  assert.equal(plan.lock.key, "background.boost-total-mismatch");
+  assert.equal(plan.lock.params.total, 2);
+
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
   const refusal = node.querySelectorAll(".skills-refusal")[0];
-  assert.ok(refusal, "le refus s'affiche dès l'écran vide — le moteur prononce, l'écran ne le tait pas");
-  assert.equal(refusal.textContent, "0 points spent, 3 expected.");
+  assert.ok(refusal, "le moteur prononce, l'écran ne le tait pas");
+  assert.equal(refusal.textContent, "2 points spent, 3 expected.");
 });
 
 /* ══ 3 — POSER UN BOOST APPELLE `set`, ET LE DOCUMENT DU VERBE REPART AU

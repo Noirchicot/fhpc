@@ -232,7 +232,26 @@ function backgroundBoostPlan(choices, view) {
      hors catalogue, valeur illisible, plafond dépassé) a DÉJÀ son verrou — un
      second verrou de total par-dessus accuserait le total d'une faute qui est
      en réalité celle d'un seul candidat (exactement le défaut du §3e-bis). */
-  if (!lock && points !== BOOST_TOTAL) {
+  /* ══ 🔴 LOT 194 — ET IL N'Y A PAS DE TOTAL AVANT LE PREMIER GESTE ═════════
+     Eric, 2026-09-10, sur le fil SRD : *« B1 : ability boost commence en
+     rouge. »*
+
+     📏 MESURÉ (Soldier, pile SRD, rien de posé) : `background.boost` sortait
+     avec `lock: background.boost-total-mismatch`, donc l'écran ouvrait au
+     ROUGE — la porte accusée, le `Done` désarmé et la bande d'aiguilleur
+     remplacée par « 0 points spent, 3 expected. » — avant que le joueur ait
+     touché quoi que ce soit.
+
+     ⭐ UN COMPTE QUI N'A PAS COMMENCÉ N'EST PAS UN COMPTE FAUX. Le plan dit
+     déjà `answered: 0 / expected: 3` : c'est LUI qui retient la porte, le
+     `Done` et l'étape. Un verrou par-dessus ne rendait pas la règle plus
+     stricte — il rendait « pas encore fait » indiscernable de « mal fait ».
+     ⛔ ET LE GARDE NE SE DESSERRE PAS D'UN POUCE : un SEUL point posé sur trois
+     rougit toujours (le geste est commencé et incomplet), et le compte du plan
+     refuse toujours à zéro. C'est la mesure de la bourse d'espèce, à côté :
+     `species.skillBudget` à 0 sur 2 ne porte AUCUN verrou. Deux budgets, deux
+     jugements — c'était l'écart, pas la règle. */
+  if (!lock && candidates.length > 0 && points !== BOOST_TOTAL) {
     lock = buildViolation("background.boost-total-mismatch", {
       backgroundId: view.id, total: points, expected: BOOST_TOTAL
     }, "background.boost");
@@ -328,13 +347,27 @@ const FEAT_SPELL_GROUPS = Object.freeze([
   { champ: "prepared", segment: "prepared", niveau: 1 }
 ]);
 
-function featSpellListPlan(query, choices, featId) {
+/* @param {string|null} listeImposee  la liste que l'ARRIÈRE-PLAN fixe
+ *   (`feat_option`, « Magic Initiate (Cleric) ») — lot 194. Quand elle existe,
+ *   il n'y a rien à demander : le plan sort RÉPONDU et `required`, donc sans
+ *   porte, et les deux groupes de sorts savent quand même où puiser. */
+function featSpellListPlan(query, choices, featId, listeImposee) {
   const featView = featId ? query({ kind: "feat", id: featId }) : null;
   const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
   if (!declaration || typeof declaration !== "object" || !Array.isArray(declaration.from)) return [];
 
   const PATH = "background.originFeat[0].list";
   const options = sorted(declaration.from.filter((id) => typeof id === "string" && query({ kind: "class", id })));
+  /* ⛔ UNE LISTE IMPOSÉE QUE LE DON N'OFFRE PAS N'EST PAS IMPOSÉE : le record
+     du don dit ce qui est légal, l'arrière-plan ne peut que choisir DEDANS. Un
+     `feat_option` hors catalogue retombe donc sur la question — jamais sur une
+     réponse fabriquée ici. */
+  if (typeof listeImposee === "string" && options.includes(listeImposee)) {
+    return [finish({
+      path: PATH, options, selected: [listeImposee], expected: 1, answered: 1,
+      provenance: recordProvenance("required", "feat", featView, "spell_list_choice")
+    })];
+  }
   const choice = choices.find((entry) => entry && entry.path === PATH);
   const selected = choice && choice.ref && choice.ref.kind === "class" ? [choice.ref.id] : [];
   const from = recordProvenance("offered", "feat", featView, "spell_list_choice");
@@ -360,15 +393,17 @@ function featSpellListPlan(query, choices, featId) {
    options serait un magasin vide : on ne demande pas de choisir un sort avant
    de savoir dans quel livre le prendre. C'est aussi ce qui garde les deux
    lignes du bilan GRISÉES en B0 — elles annoncent sans mentir. */
-function featSpellPlans(query, choices, featId) {
+/* @param {string|null} listeId  la liste RETENUE, telle que le plan
+ *   `…​.list` vient de la publier — choisie par le joueur ou imposée par
+ *   l'arrière-plan (lot 194). ⛔ Ce fichier ne repose pas la question au
+ *   document : deux lecteurs d'une même question divergent (leçon du lot 71). */
+function featSpellPlans(query, choices, featId, listeId) {
   const featView = featId ? query({ kind: "feat", id: featId }) : null;
   const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
   if (!declaration || typeof declaration !== "object") return [];
 
-  const liste = choices.find((entry) => entry && entry.path === "background.originFeat[0].list" &&
-    entry.ref && entry.ref.kind === "class");
-  if (!liste) return [];
-  const classView = query({ kind: "class", id: liste.ref.id });
+  if (typeof listeId !== "string" || listeId === "") return [];
+  const classView = query({ kind: "class", id: listeId });
   if (!classView) return [];
 
   const className = classView.record.name;
@@ -1047,12 +1082,53 @@ export function projectDecisions({ query, choices }) {
      donnée de l'arrière-plan : le lire sous l'arrière-plan le ferait
      disparaître pour un personnage qui n'en porte aucun, alors que son don,
      lui, est bien là. */
+  /* ══ 🔴 LOT 194 — UN DON ACCORDÉ SE CONFIGURE COMME UN DON CHOISI ═════════
+     Eric, 2026-09-10, sur l'Acolyte du fil SRD : *« Magic Initiate nécessite un
+     bouton, ça doit être configuré — exactement le même chemin que dans FH, tu
+     as juste à recopier. »*
+
+     📏 LE TROU, MESURÉ : ces deux plans lisaient le don dans un `choose` du
+     DOCUMENT. En Fate's Hand le don d'origine se choisit, donc il y en a un ;
+     en SRD l'arrière-plan l'IMPOSE (`feat_id`) et aucun `choose` n'est jamais
+     posé — `featId` valait `null`, et un Acolyte n'avait ni liste ni sorts. Le
+     don était sur la ligne « gagné d'office » et s'arrêtait là.
+
+     ⭐ ON LIT LE PLAN QU'ON VIENT DE PUBLIER, PAS LE DOCUMENT. `backgroundFeatPlan`
+     répond déjà à « quel est le don d'origine ? » — pour un don imposé comme
+     pour un don choisi, et c'est lui qui porte le repli. Reposer la question au
+     document ici serait le SECOND ÉCRIVAIN que ce fichier a déjà payé une fois
+     (voir la tête de `resolvedRef`) : les deux réponses divergeraient le jour
+     où l'une des deux apprend un cas de plus. */
   {
+    const planDuDon = entries.find((entry) => entry && entry.path === "background.originFeat[0]");
+    const featPose = planDuDon && Array.isArray(planDuDon.selected) ? planDuDon.selected[0] || null : null;
+    /* ⚠️ ET LE REPLI SUR LE DOCUMENT RESTE, POUR LA RAISON ÉCRITE AU-DESSUS :
+       un personnage qui ne porte AUCUN arrière-plan n'a pas de plan de don du
+       tout, et son don, lui, est bien là (un `choose` posé). Le plan passe en
+       PREMIER parce que c'est lui qui tranche quand les deux existent — un
+       arrière-plan qui impose son don écrase un ancien choix, et
+       `backgroundFeatPlan` le dit déjà. */
     const featChoice = list.find((entry) => entry && entry.path === "background.originFeat[0]" &&
       entry.ref && entry.ref.kind === "feat");
-    const featId = featChoice ? featChoice.ref.id : null;
-    entries.push(...featSpellListPlan(query, list, featId));
-    entries.push(...featSpellPlans(query, list, featId));
+    const featId = featPose || (featChoice ? featChoice.ref.id : null);
+    /* ⚠️ ET LA LISTE PEUT ÊTRE IMPOSÉE, ELLE AUSSI. « Magic Initiate (Cleric) »
+       n'est pas « Magic Initiate » : l'arrière-plan fixe l'option du don
+       (`feat_option: {kind:"class", id:…}`), donc la liste de sorts est
+       RÉPONDUE d'avance et il n'y a pas de question à poser. Le plan sort alors
+       `required` — un plan requis n'est pas un item (NORMES §6 pré quinquies),
+       donc pas de porte « Spell list » — mais il reste PUBLIÉ, parce que c'est
+       lui que les deux groupes de sorts consultent pour savoir dans quel livre
+       on prend. ⛔ La donnée est celle du record, jamais une table de dons. */
+    const optionDuDon = backgroundView && (backgroundView.record.data || {}).feat_option;
+    const listeImposee = optionDuDon && typeof optionDuDon === "object" &&
+      optionDuDon.kind === "class" && typeof optionDuDon.id === "string" ? optionDuDon.id : null;
+    const plansDeLaListe = featSpellListPlan(query, list, featId, listeImposee);
+    entries.push(...plansDeLaListe);
+    /* ⭐ ET LES SORTS LISENT LE PLAN DE LA LISTE, pas le document : une seule
+       réponse à « dans quel livre prend-on ? » (la leçon du lot 71). */
+    const planDeLaListe = plansDeLaListe.find((entry) => entry && entry.path === "background.originFeat[0].list");
+    const listeId = planDeLaListe && Array.isArray(planDeLaListe.selected) ? planDeLaListe.selected[0] || null : null;
+    entries.push(...featSpellPlans(query, list, featId, listeId));
   }
 
   const unique = new Map();
