@@ -184,6 +184,32 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### 🖐️ UN GESTE NE VIT PAS SUR CE QU'IL TIENT (13/09)
+
+**La question d'Eric** : *« pourquoi le drag and drop bloque **un coup sur deux** ! »* — avec deux
+captures d'un jeton **figé** au-dessus d'un collecteur, et *« il reste bloqué là où tu le vois »*.
+
+**La loi** : un geste qui dure — glisser, redimensionner, tracer — **s'écoute sur une ancre qui
+survit au rendu** *(le document)*, jamais sur l'élément qu'il manipule. L'élément ne garde que
+l'appui, et ce que le navigateur n'envoie qu'à lui *(`lostpointercapture`)*.
+
+**Pourquoi**, et c'est ce que la mesure a montré : **le jeton quitte le DOM à chaque dépôt** — la
+scène entière est refaite. D'ordinaire après le relâchement. Mais tout repeint qui tombe **entre le
+soulèvement et le relâchement** tuait le geste **en silence** : ni le fantôme rangé, ni le dépôt.
+⇒ Ce n'était pas un cas rare, **c'était une course ouverte en permanence**.
+
+⭐ **Le déclencheur mesuré** : `window.resize` → `refresh()` → tout l'écran refait. **Un `resize` ne
+demande aucune action du joueur** — sur iOS la barre d'URL qui se replie en émet un toute seule, au
+milieu d'un geste. Un événement que l'appareil produit par intermittence : *« un coup sur deux »*.
+
+⚠️ **Ce que les gardes ne pouvaient pas voir** : les cinquante gardes du glisser éprouvent tous un
+jeton **qui reste en place**. Un banc headless a été nécessaire — et il a fallu **provoquer** la
+disparition pour que le défaut parle. ⛔ Corollaire : un organe dont la fin dépend d'un élément
+doit être éprouvé **avec cet élément retiré**.
+
+⏳ **Laissé ouvert** : faire survivre les jetons à un `resize` est une question de **rendu**, pas de
+geste — un autre lot.
+
 #### ⚖️ LES CHAPITRES TRAVAILLENT SUR LES CHOIX. UN SEUL CHAPITRE DÉDUIT : SHEET. (10/09)
 
 **La question d'Eric** : *« Ce que tu crées dans Sheet est un **précurseur de la fiche**, non ?
