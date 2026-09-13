@@ -184,6 +184,41 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### 📐 UNE COTE SE LIT DANS LE DESSIN, JAMAIS DANS LES PIXELS (13/09)
+
+**La question posée à Eric** : *« Sur “Ability boosts”, le jeton +1 fait **67 px** de large, mais la
+maison déclare **87** (ta cote du 19/08) — c'est la case qui ne l'honore plus, et le fantôme dit 87. »*
+**Sa réponse** : *« La cote descend à 67. »*
+
+🪤 **Et le « 67 » que je lui ai soumis était faux — c'était un pixel PEINT, pas une cote.** La page
+porte un agrandissement *(512 ÷ 375 = 1,365)* : la case rend **49,17** dans le système du dessin et se
+peint 67,13. Écrire `--glisse-case: 67` aurait posé **67 dans le dessin** — le fantôme aurait peint
+91,5 contre 67,1 *(huit fois la tolérance)* **et** rétréci quatre écrans encore au plafond, ce qu'Eric
+n'a pas demandé *(« les rangées gardent leur densité »)*.
+
+**La loi** : `--glisse-case` est un **plafond**, pas une taille — les cases se calculent en
+`min(plafond, ce que la rangée permet)`. ⇒ **ce qui « descend à 67 » est la cote que le fantôme
+déclare**, et elle n'a pas de nombre : il lit **ce que la case rend dans son bloc**. Les deux moitiés
+de la phrase d'Eric sont tenues, le plafond reste 87, et la question du plafond lui est **reposée**.
+📌 Norme : `jeton-cote-vive-et-pixel-peint`.
+
+⭐ **Corollaire de méthode** : une cote relevée au navigateur est **peinte**. Avant de la porter à
+Eric comme un nombre à trancher, la **ramener dans le système du dessin** — sinon on lui fait arbitrer
+une grandeur qui n'existe pas.
+
+#### 🎨 LE ROUGE EST POUR CE QUI DÉFAIT, PAS POUR CE QUI ATTEND (13/09)
+
+**La question posée** : *« Les dix carrés “roll 1…roll 10” du plateau sont rouges avant le premier jet
+— tu les avais demandés comme ça le 05/09. On les garde, ou ils passent au bleu comme les collecteurs
+d'ability boost ? »* · **Sa réponse** : *« **Bleus, comme les boosts.** »*
+
+**La loi** : au repos, rien n'emprunte l'alerte. Le rouge est pour ce qui **défait** *(`Cancel`,
+`Forget`, `Reset`)* et pour l'**illégal**. ⭐ Le balayage se fait **navigateur ouvert, pseudo-éléments
+compris** — sans eux, le témoin ne voit pas un bouton en relief et **ne peut jamais accuser**.
+⏳ **Laissé, nommé** : les `+`/`−` de la bourse B3 gardent le rouge — la même classe sert la barre du
+dressing, et le rouge y lit comme l'encre d'une **légende de croquis**. Les croquis font foi : séparer
+la légende est la décision d'Eric.
+
 #### 🎲 UN BUDGET EN COURS N'EST PAS UN BUDGET FAUTIF — ET UN DÉCOR NE SE LAISSE PAS SAISIR (13/09)
 
 **Le mot d'Eric** : *« Dans ability boost, ça passe en rouge dès le premier +1 posé, ça devrait passer
