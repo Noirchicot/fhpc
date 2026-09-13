@@ -6497,5 +6497,46 @@ fichier serait vert pour rien)*.
 
 ---
 
+## 7 bis. 👻 LE FANTÔME A LA BOÎTE DE CE QU'IL COPIE — **quoi qu'il copie** *(lot 205, 2026-09-13)*
+📍 `geste-fantome-a-la-boite-de-ce-qu-il-copie` · vivante · 13/09
+⚖️ **Un fantôme rend la largeur ET la hauteur de la boîte SAISIE, pour tout ce qui peut être saisi — pas pour une classe. Il est `position: fixed`, donc il n'a pas de cellule : aucune déclaration qui suppose une rangée ne s'adresse à lui.**
+
+> Eric, 2026-09-13 : *« Pour les abilities boost le retour de token sur son origine, le fantôme n'est plus carré, par contre tout est bleu durant le process. »*
+
+📏 **MESURÉ AU BANC** (site en ligne v628, Chromium 512 × 900 **avec WebGL**, « Ability boosts », les DEUX piles, verdict identique) :
+
+| geste | fantôme peint | `width` calculée | classe du clone |
+|---|---|---|---|
+| **aller** vivier → collecteur | 67,13 × 65,53 ✅ | `49,16px` | `glisse-jeton glisse-fantome` |
+| **retour** collecteur → vivier | **512,00** × 65,53 ⛔ | `375px` | `glisse-creneau glisse-fantome` |
+| collecteur → collecteur | **512,00** × 65,53 ⛔ | `375px` | `glisse-creneau glisse-fantome` |
+| lâché dans le vide | **512,00** × 65,53 ⛔ | `375px` | `glisse-creneau glisse-fantome` |
+
+🔴 **LA CAUSE N'EST PAS UNE CLASSE OUBLIÉE, C'EST UNE PHRASE MAL ADRESSÉE.** Un collecteur REMPLI est lui-même armé — c'est ainsi qu'on ressort un jeton (§ le geste d'annulation d'Eric, 19/08) — donc le clone du retour est un `.glisse-creneau`. La cascade, LUE au navigateur : `.choix-glisse .glisse-creneau` (0,2,0) porte `width: 100%` et bat `.glisse-fantome` (0,1,0). Or `width: 100%` veut dire *« la largeur de ta CELLULE »* : un `position: fixed` n'en a pas, son bloc conteneur est la **fenêtre** — 375 blg, la largeur sacrée, 512 px peints. ⛔ Et le jeton n'en réchappait pas par mérite : `.glisse-jeton.glisse-fantome` pèse (0,2,0) lui aussi, il gagnait par l'**ordre des lignes**.
+
+⭐ **LA RÉPARATION RETIRE AU LIEU D'AJOUTER** : on ne monte pas la voix du fantôme sur un second sélecteur (`.glisse-creneau.glisse-fantome` aurait fermé CE cas et laissé dehors le troisième organe armé de demain) — **on cesse de dire « remplis ta cellule » à ce qui n'a pas de cellule** (`:not(.glisse-fantome)` sur la recette). La cote reste déclarée **une fois**, chez le fantôme : `--case-vive` (§ lot 204). 📌 L'HABIT, lui, reste partagé (hauteur plancher, rayon, `box-sizing`) — un fantôme doit être IDENTIQUE, l'exclure de l'habit l'aurait rendu moins identique.
+
+📏 **APRÈS, MESURÉ AU MÊME BANC** (quatre gestes × deux piles, captures regardées) : écart de largeur **0,00 px** partout sauf **−0,01** (SRD, collecteur → collecteur), écart de hauteur **0,00 px**. Et la boîte peinte de **chaque** case du dépôt (quatre écrans × trois largeurs) est **identique** avant et après.
+
+📌 **CE QUI LA TIENT** : `tests/fantome-hors-du-flux.test.mjs` (il RÉSOUT la cascade pour chaque chose que le geste découvre saisissable, au lieu de chercher un sélecteur qui lui plaît) et `tests/fantome-a-la-cote-de-sa-case.test.mjs`.
+
+---
+
+## 7 ter. 🛡️ UN DÉCOR NE SE LAISSE PAS SAISIR, UNE SURFACE DE GESTE NE SE SÉLECTIONNE PAS *(lot 205, 2026-09-13)*
+📍 `geste-decor-inerte-et-surface-armee-non-selectionnable` · vivante · 13/09
+⚖️ **Une image de décor naît NON DÉPLAÇABLE — la propriété et l'attribut — et toute surface qu'`armerJeton` arme déclare son armement, d'où la feuille déduit qu'elle ne se sélectionne pas. Aucune de ces deux règles ne s'écrit par famille d'organe.**
+
+⚠️ **CE N'EST PAS UNE RÉPARATION PROUVÉE DE LA PANNE D'ERIC** (*« Abilities ne marche toujours pas »*, 13/09) : elle ne se reproduit pas au banc. Ce sont **deux portes restées ouvertes** après le lot 203, fautives en elles-mêmes.
+
+📏 **PORTE ① — MESURÉ APRÈS LE 203** (512 × 900, WebGL, Abilities → 4D6 → Flash) : les **douze** `img.fh-cd-static-snap` portaient `pointer-events: none` ✅ **et `draggable: true`** ⛔. Le 203 empêche le navigateur de VISER l'image ; il ne lui retire pas la propriété d'être arrachée. ⭐ La loi vit une fois (`decorInerte`, dice3d.mjs) et s'applique où le décor NAÎT. ⚠️ Il en faut **deux gestes** : la propriété est ce que le navigateur consulte, l'attribut est ce qu'un `cloneNode`, un `outerHTML` et un garde peuvent lire. ⏳ Et l'écart est à **porter en amont** (`fh-phb`, `fh-static-dice.js`) puis à recopier.
+
+📏 **PORTE ② — MESURÉ EN DÉCOUVRANT LES SURFACES ARMÉES PAR LE GESTE** (un `pointerdown` + `pointermove` sur chaque élément peint, on garde ceux qui répondent) : `identity` 12 × `.glisse-jeton` · `boosts SRD` 2 × `.glisse-jeton` · `boosts FH` 1 × `.glisse-creneau` rempli · `4D6` 6 × `.fs-de` — **toutes déjà à `user-select: none`**. ⛔ Et c'est ce qui rendait la situation trompeuse : la règle tenait par **quatre déclarations recopiées à la main**, une par famille d'organe, qui se trouvaient couvrir les quatre appels d'`armerJeton`. Une coïncidence entretenue à la main — le **cinquième** organe armé n'aurait rien reçu, et rien ne l'aurait dit. ⭐⭐ `armerJeton` pose donc sa marque (`data-arme`), la feuille lit la marque, et il n'y a plus qu'**un écrivain**. ⚠️ Le fantôme ne la porte pas : la copie n'est pas armée, elle EST le glissé (§ lot 203, étendu ici).
+
+⏳ **À ERIC** : `touch-action: none` porte exactement la même forme (quatre copies) et le même argument, mais c'est LA ligne qui rend le geste possible sur mobile — la déplacer se mesure sur un vrai iPad, pas au banc. Non touchée.
+
+📌 **CE QUI LA TIENT** : `tests/decor-ne-se-laisse-pas-saisir.test.mjs` (neuf cas, chacun vu rouge par mutation) et `tests/de-ne-prend-pas-le-pointeur.test.mjs` (lot 203, intact).
+
+---
+
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·
 `FHPCv2 entree R cahier charges` · `FHPCv2 hebergement donnees` · `FHPC norme des organes`.

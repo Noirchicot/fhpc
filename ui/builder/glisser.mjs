@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=628";
+import { pageDeListe } from "./normes.mjs?v=629";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=628";
-import { swapContent } from "./socle.mjs?v=628";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=629";
+import { swapContent } from "./socle.mjs?v=629";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=628";
+import { facteurZoomCourant } from "./echelle.mjs?v=629";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -342,7 +342,55 @@ function ancreDuGeste() { return document; }
    haut : ce qui est partagé se tient au module, pas dans une fermeture. */
 let gesteVivant = null;
 
+/* ══ ⭐ LA MARQUE DE L'ARMEMENT — lot 205, 2026-09-13 ═════════════════════
+
+   🔴 CE QU'ELLE REMPLACE, ET POURQUOI CE N'ÉTAIT PAS TENABLE. La surface d'un
+   geste ne doit pas se SÉLECTIONNER : sur un vrai pavé tactile, un glisser
+   parti d'un texte sélectionnable démarre une sélection et le navigateur
+   ANNULE le pointeur — le geste meurt en silence, et c'est exactement le mode
+   de panne que le lot 203 a mesuré pour l'image du dé. Un banc sans vrai
+   pavé ne le produit jamais.
+   📏 MESURÉ AU BANC LE 13/09 (512 × 900, WebGL), en DÉCOUVRANT les surfaces
+   armées par le geste lui-même — un `pointerdown` + `pointermove` sur CHAQUE
+   élément peint, et on retient ceux qui répondent — et non par une liste :
+       identity ......... 12 × `.glisse-jeton` ............ user-select: none ✅
+       boosts SRD ....... 2 × `.glisse-jeton` ............. user-select: none ✅
+       boosts FH ........ 1 × `.glisse-creneau` rempli .... user-select: none ✅
+       4D6 .............. 6 × `.fs-de` .................... user-select: none ✅
+   ⭐ AUCUNE SURFACE ARMÉE N'ÉTAIT DONC À `auto` AUJOURD'HUI, et c'est
+   précisément ce qui rendait la situation trompeuse : la règle tenait par
+   QUATRE déclarations recopiées à la main dans `shell.css`, une par famille
+   d'organe (`.fs-de`, `.glisse-jeton`, `.glisse-creneau[data-rempli]`,
+   `.carte-r .grille-jeton`), qui se trouvaient couvrir les QUATRE appels
+   d'`armerJeton`. Une coïncidence entretenue à la main : le cinquième organe
+   armé n'aurait rien reçu, et rien ne l'aurait dit. *« Une norme qui ne vit
+   que dans un document n'existe pas »* — ici elle vivait en quatre copies.
+
+   ⭐⭐ LA MARQUE RENVERSE LA CHARGE : ce n'est plus la feuille qui doit deviner
+   QUI est armé, c'est l'armement qui le DÉCLARE. Un organe armé demain porte
+   la marque par construction, sans qu'une ligne de style soit écrite.
+   ⚠️ ELLE EST POSÉE À L'ARMEMENT, PAS À L'APPUI : `data-glisse` dit « ce jeton
+   est en train d'être glissé » (il va et vient), la marque dit « cette surface
+   PEUT l'être » (elle reste). Deux états, deux attributs — et c'est la raison
+   pour laquelle la seconde ne se déduit pas de la première.
+   ⛔ `touch-action` N'A PAS SUIVI, ET C'EST DÉLIBÉRÉ : il porte la même forme
+   (quatre copies) et le même argument, mais c'est la ligne dont dépend
+   l'existence du geste sur mobile — la déplacer demande une mesure sur un vrai
+   iPad, pas un banc. Question portée au rapport, pas tranchée ici. */
+const MARQUE_ARME = "arme";
+
+/* ⛔ LES ATTRIBUTS QUE LE GESTE POSE SUR SON ORGANE — nommés UNE FOIS, parce
+   qu'ils sont exactement ce qu'une COPIE ne doit pas emporter (lot 203 : *« un
+   attribut décrit ce qu'un élément EST ; l'original est en train d'être
+   glissé, la copie EST le glissé »*). Une seconde liste ailleurs divergerait
+   au premier attribut ajouté — et c'est le fantôme qui mentirait. */
+const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
+
 export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible }) {
+  /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
+     seule ligne de ce fichier qui parle à la feuille de style, et elle ne lui
+     dit pas comment peindre : elle lui dit ce que cet organe EST. */
+  if (jeton && jeton.dataset) jeton.dataset[MARQUE_ARME] = "true";
   /* ⭐ LE JETON NE GARDE QUE L'APPUI. C'est le seul moment où il est
      nécessairement là : on ne peut pas presser un élément absent. Tout ce qui
      SUIT l'appui est écouté sur l'ancre (voir l'incident du 13/09 ci-dessus). */
@@ -668,12 +716,18 @@ function fantomeLever(jeton, x, y) {
   copie.className = `${jeton.className} glisse-fantome`;
   copie.disabled = true;
   copie.setAttribute("aria-hidden", "true");
-  /* ⛔ L'ATTRIBUT DU GESTE RESTE À L'ORIGINAL — voir la note ci-dessus. Le
+  /* ⛔ LES ATTRIBUTS DU GESTE RESTENT À L'ORIGINAL — voir la note ci-dessus. Le
      jeton est GLISSÉ, la copie EST le glissé : elle n'est pas dans cet état,
      elle le représente. `removeAttribute` plutôt qu'une valeur `"false"` :
      `[data-glisse="true"]` ne mord plus dans les deux cas, mais un attribut
-     absent dit « sans rapport » là où `"false"` dirait « pas encore ». */
-  if (typeof copie.removeAttribute === "function") copie.removeAttribute("data-glisse");
+     absent dit « sans rapport » là où `"false"` dirait « pas encore ».
+     🔵 ET ILS SE LISENT DANS `ATTRIBUTS_DU_GESTE` (lot 205), ils ne se citent
+     plus un par un : la marque de l'armement est arrivée le 13/09, et une
+     copie qui se dirait « armée » mentirait exactement comme celle qui se
+     disait « en train d'être glissée ». La liste est déclarée AVEC l'armement
+     qui les pose — deux listes éloignées divergent au premier ajout. */
+  if (typeof copie.removeAttribute === "function")
+    for (const attr of ATTRIBUTS_DU_GESTE) copie.removeAttribute(attr);
   fantomeGlisse = copie;
   /* 🔴 DANS `.app`, PAS SUR `<body>` — corrigé le 2026-08-30 au soir.
      Le zoom du builder vit sur `.app` (shell.css), et `.app` est un enfant de
