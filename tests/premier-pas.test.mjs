@@ -240,6 +240,34 @@ test("E2 — 🔌 la voie choisie RÈGLE LE MAÎTRE, DÉCLARE la pile, puis ouvr
     "on ne redéclare pas ce que `rebuild` a déjà adopté");
 });
 
+test("E6 — ⚖️ CRÉER OUVRE LE CHAPITRE 1, ET DÈS L'APPUI — pas seulement après le popup", () => {
+  /* ⚖️ Eric, 13/09 : *« quand je fais Build a character, je veux me retrouver
+     dans le CHAPITRE 1. »* Mesuré avant le lot : la voie y arrivait, mais
+     SEULEMENT une fois la question répondue — entre les deux, l'écran du
+     dessous restait le Menu.
+     ⛔ ET L'ORDRE EST TOUT : la remise à zéro rend le rang R ; poser le cran
+     AVANT elle, ce serait l'écrire puis l'effacer. */
+  assert.match(shell, /remettreLEcranAZero\(\);\s*goToStep\(CONCEPT_INDEX\);/,
+    "⛔ le cran s'ouvre APRÈS la remise à zéro, sinon elle l'efface");
+  /* ⭐ PAR L'ORGANE, JAMAIS PAR LE CHAMP — le garde D2 du lot 197 tient que
+     cette voie ne pose QUE le document ; `goToStep` est déjà le propriétaire
+     de l'atterrissage, et c'est lui que `choisirLeJeu` appelle ensuite. */
+  assert.doesNotMatch(shell, /state\.step = CONCEPT_INDEX/,
+    "⛔ écrire le champ à la main rouvrirait la liste par nom (197 · D2)");
+  /* 🔴 Trouvé PAR l'id — la loi de `REVIEW_INDEX`. Un `state.step = 1` dirait
+     la même chose aujourd'hui et mentirait le jour où un cran s'insère. */
+  assert.match(shell, /const CONCEPT_INDEX = STEPS\.findIndex\(\(step\) => step\.id === "concept"\)/,
+    "⛔ jamais un index écrit à la main");
+  /* ⚔️ ET C'EST LA VOIE DE CRÉATION SEULE : ouvrir un personnage rangé revient
+     au Menu (rang R du magasin). Un seul site pose ce cran. */
+  assert.equal((shell.match(/goToStep\(CONCEPT_INDEX\)/g) || []).length, 1,
+    "⛔ deux sites feraient deux propriétaires du même atterrissage");
+  const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
+  assert.ok(pose, "l'organe des deux portes existe");
+  assert.doesNotMatch(pose[1], /goToStep\(/,
+    "⛔ ouvrir un personnage rangé garde le Menu — c'est son rang R");
+});
+
 test("E3 — 🔴 UN SEUL ÉCRIVAIN REMET L'ÉCRAN À ZÉRO — et depuis le 197, il ne l'ÉNUMÈRE plus", () => {
   /* Un organe que N écrans fabriquent est un organe qu'on oublie : la liste
      était écrite dans `ouvrirUnFichier`, et sa propre tête disait déjà le

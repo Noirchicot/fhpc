@@ -17,7 +17,7 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { MOT_DU_TIROIR } from "./magasin.mjs?v=623";
+import { MOT_DU_TIROIR } from "./magasin.mjs?v=624";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

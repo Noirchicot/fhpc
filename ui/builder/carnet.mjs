@@ -25,7 +25,7 @@
 /* LOT 191 — le mot d'un choix vit dans `mot-du-choix.mjs`, qui ne lit que la
    feuille `interrupteurs.mjs` : ce fichier peut le lire sans cycle
    (`catalogue.mjs` importe `carnet.mjs`). */
-import { motHumainDeLId, motDuChoix, motDuRefus } from "./mot-du-choix.mjs?v=623";
+import { motHumainDeLId, motDuChoix, motDuRefus } from "./mot-du-choix.mjs?v=624";
 
 /** Le carnet, indexé par chemin — jamais par « le dernier segment » (le
  *  bogue nommé en tête de l'ancien fichier, lot 33). */

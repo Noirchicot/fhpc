@@ -36,8 +36,8 @@
    absent ou illisible laisse la fiche sans prose (le pied `Choose` y est
    quand même), et `etatDeLaFicheDeSecours()` porte la raison. */
 
-import { readLayer, applyPatch } from "../../src/layers/index.mjs?v=623";
-import { versionQuery } from "./version.mjs?v=623";
+import { readLayer, applyPatch } from "../../src/layers/index.mjs?v=624";
+import { versionQuery } from "./version.mjs?v=624";
 
 /* Le fichier, nommé UNE fois. C'est le seul nom de couche que `ui/` porte en
    dehors d'`engine.mjs` et d'`universe-step.mjs`, et il est là parce que le

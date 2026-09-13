@@ -34,13 +34,13 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=623";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=623";
-import { swapContent } from "./socle.mjs?v=623";
-import { renderChoixGlisses } from "./glisser.mjs?v=623";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=624";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=624";
+import { swapContent } from "./socle.mjs?v=624";
+import { renderChoixGlisses } from "./glisser.mjs?v=624";
 /* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
    dont la couche est éteinte (Trainings coupé depuis `Layers`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=623";
+import { motDuChoix } from "./mot-du-choix.mjs?v=624";
 /* 🌱 LOT 198 — SKILLS VIT SANS FICHE, ET IL NOMME. ⚖️ Eric, 10/09 : *« Ce que
    tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi ne pas
    dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -52,7 +52,7 @@ import { motDuChoix } from "./mot-du-choix.mjs?v=623";
    la place dit ce qui manque et où aller, avec LES MOTS DE L'ÉCRAN MORT —
    `motDuManque` en est le seul écrivain, cet écran ne recopie aucune phrase.
    Dès que la fiche existe, le pool s'affiche et le mot disparaît. */
-import { motDuManque, CAUSE_SANS_RAISON } from "./ecran-mort.mjs?v=623";
+import { motDuManque, CAUSE_SANS_RAISON } from "./ecran-mort.mjs?v=624";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
