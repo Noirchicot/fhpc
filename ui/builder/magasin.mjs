@@ -44,6 +44,31 @@
    tiroir : il le DIT, et la page offre de le rechoisir. Retomber ailleurs
    ferait disparaître les sauvegardes du joueur sans un mot.
 
+   ── 🔴 LOT 202 — AU CHARGEMENT ON REGARDE, ON NE DEMANDE PAS ─────────────
+   📏 MESURÉ LE 13/09 : Chrome retient la poignée d'une session à l'autre, mais
+   la permission RETOMBE À `"prompt"` à chaque rechargement — et
+   `requestPermission` hors d'un clic jette `SecurityError: User activation is
+   required to request permissions`. Le lot 195 demandait la permission dans
+   `permis()`, donc dans `lister()`, donc AU CHARGEMENT : la page `Open` disait
+   *« Your saves could not be listed: User activation is required… »* et
+   n'offrait aucune sortie d'un clic — seul `Save location` restait, qui rouvre
+   le sélecteur comme si aucun dossier n'avait jamais été choisi. ⚖️ Eric,
+   10/09 : *« le processus de sauvegarde ne semble pas fonctionnel »*.
+
+   ⭐ LA LOI : **une permission ne se DEMANDE que dans un geste du joueur ; hors
+   geste on la REGARDE** (`queryPermission`), et ce qu'on voit est un ÉTAT du
+   magasin — `{etat:"a-autoriser", dossier}` — pas un refus. Le sol du dossier
+   ne demande donc plus jamais de lui-même : il REGARDE (`acces`) et il DEMANDE
+   (`autoriser`) sur deux verbes séparés, et c'est l'appelant, qui sait s'il
+   est dans un clic, qui choisit. Deux gestes demandent : `autoriser()` (le
+   bouton « Allow access » de la page `Open`) et `ecrire()` (`Save`, toujours
+   cliqué). `lister()` et `lire()` ne demandent jamais.
+
+   ⛔ ET CET ÉTAT VIT ICI, AU-DESSUS DES SOLS, UNE FOIS — pas dans la page,
+   pas dans la coquille : c'est la loi *une interface, deux sols*. Le tiroir
+   n'a rien à demander, son magasin ne rend jamais cet état, et la page ne
+   PEUT pas savoir lequel elle a — elle rend l'état qu'on lui donne.
+
    ── ⚠️ CE QUI N'EST PAS ÉPROUVÉ ICI, ET C'EST DIT ───────────────────────
    `showDirectoryPicker` n'existe NI dans `node:test` NI dans le `dom-stub`, et
    **il exige un vrai clic humain** — aucun test ne peut le déclencher. C'est
@@ -52,9 +77,9 @@
    qui reste non couvert est le rideau le plus fin possible (`solDuDossier`,
    `baseIndexedDb`, `choisirUnDossier`). */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=625";
-import { compositionFh } from "./layers-ecran.mjs?v=625";
-import { MAITRE } from "./interrupteurs.mjs?v=625";
+import { lireLeFichier } from "./ouvrir.mjs?v=626";
+import { compositionFh } from "./layers-ecran.mjs?v=626";
+import { MAITRE } from "./interrupteurs.mjs?v=626";
 
 /** Le mot du tiroir — celui que `Save location` affiche quand il n'y a pas de
  *  destination à choisir. ⚖️ Le mot d'Eric, 10/09, mot pour mot. */
@@ -202,14 +227,18 @@ function plusRecenteEnTete(a, b) {
  * @property {() => Promise<string[]>} clefs
  * @property {(clef: string) => Promise<string|null>} lire
  * @property {(clef: string, texte: string) => Promise<void>} ecrire
+ * @property {() => Promise<"accorde"|"a-demander"|"refuse">} [acces]  REGARDER, sans rien demander
+ * @property {() => Promise<"accorde"|"refuse">} [autoriser]  DEMANDER — dans un geste du joueur
+ *   Un sol sans ces deux verbes n'a rien à demander (le tiroir).
  */
 
 /**
  * LE MAGASIN — l'interface UNIQUE, et ⛔ aucun écran ne sait quel sol il a.
  *
- * · `lister()`      → `{etat:"liste", groupes, entrees}` | `{etat:"refus", raison}`
+ * · `lister()`      → `{etat:"liste", groupes, entrees}` | `{etat:"a-autoriser", dossier}` | `{etat:"refus", raison}`
  * · `ecrire(texte, quand)` → `{ok:true, entree}` | `{ok:false, raison}`
  * · `lire(entree)`  → `{etat:"lu", document}` | `{etat:"refus", raison}`
+ * · `autoriser()`   → `{etat:"accorde"}` | `{etat:"refus", raison}` — ⚠️ DANS UN CLIC seulement
  * · `ouEstCeRange()` → la LIGNE DISCRÈTE : `{mot, choisissable, choisi, demandee, possede}`
  *
  * ⭐ `ouEstCeRange` EST DE LA DONNÉE, PAS UNE IDENTITÉ. La page lit
@@ -238,10 +267,22 @@ export function creerMagasin({ sol, ou }) {
     file = promesse.then(() => undefined, () => undefined);
     return promesse;
   };
+  /* ⭐ LOT 202 — REGARDER ET DEMANDER SONT DEUX VERBES, et c'est le magasin qui
+     sait lequel employer : un sol sans `acces` (le tiroir) n'a rien à demander,
+     il est toujours accordé. ⛔ Aucun écran ne voit cette différence. */
+  const accesDe = async () => (typeof sol.acces === "function" ? sol.acces() : "accorde");
   return {
     ouEstCeRange: () => range,
 
+    /** ⚠️ HORS GESTE — appelé au chargement de la page. Il REGARDE la
+     *  permission, il ne la demande jamais : un dossier à autoriser se DIT
+     *  comme un état, avec son nom, et la page offre le clic. ⛔ Ni un refus
+     *  (« User activation is required » était un refus qui ne nommait aucune
+     *  sortie), ni un repli vers le tiroir (C2). */
     async lister() {
+      try {
+        if (await accesDe() === "a-demander") return { etat: "a-autoriser", dossier: range.mot };
+      } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
       let clefs;
       try { clefs = await sol.clefs(); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
       const entrees = [];
@@ -282,6 +323,26 @@ export function creerMagasin({ sol, ou }) {
          en tête. Hors de la file, deux Save du même personnage dans la même
          seconde calculent la même clef et le second efface le premier. */
       return enFile(async () => {
+        /* ⚠️ `Save` EST UN CLIC : si le dossier est à autoriser, c'est ICI qu'on
+           demande — dans l'activation transitoire du joueur, qui survit aux
+           `await` de la file (📏 mesuré au banc Playwright du 13/09 :
+           `navigator.userActivation.isActive` vrai au moment de l'appel).
+           ⛔ Et si le navigateur refuse quand même, le refus NOMME la sortie —
+           le bouton de la page `Open` — au lieu de laisser le joueur devant
+           « User activation is required ». ⛔ Aucun téléchargement de secours :
+           `possede` dit que ces octets vivent dans le dossier, pas ailleurs. */
+        let acces;
+        try { acces = await accesDe(); } catch (cause) { return { ok: false, raison: motDe(cause) }; }
+        /* Une permission REFUSÉE ne se redemande pas (Chrome répond « denied »
+           sans rien montrer) : la sortie est `Save location`, et le mot le dit. */
+        if (acces === "refuse") return { ok: false, raison: MOT_PERMISSION_PERDUE };
+        if (acces === "a-demander") {
+          let verdict;
+          try { verdict = await autoriserDe(sol); } catch (cause) {
+            return { ok: false, raison: `${motDe(cause)} — ${motDAutoriser(range.mot)}` };
+          }
+          if (verdict !== "accorde") return { ok: false, raison: MOT_PERMISSION_PERDUE };
+        }
         let dejaLa;
         try { dejaLa = new Set(await sol.clefs()); } catch (cause) { return { ok: false, raison: motDe(cause) }; }
         const clef = clefDeLEntree(issue.document, quand, dejaLa);
@@ -299,8 +360,41 @@ export function creerMagasin({ sol, ou }) {
       try { texte = await sol.lire(clef); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
       if (texte === null || texte === undefined) return { etat: "refus", raison: "this save is no longer there" };
       return lireLeFichier(texte);
+    },
+
+    /** DEMANDER LA PERMISSION — ⚠️ DANS UN CLIC DU JOUEUR, et là seulement :
+     *  c'est le geste `autoriserLeDossier` de la coquille, derrière le bouton
+     *  « Allow access to ‹dossier› » de la page `Open`. Hors clic, Chrome jette
+     *  `SecurityError`, et ce refus se dit avec sa cause.
+     *  ⭐ Sur un sol qui n'a rien à demander, c'est accordé d'avance — ⛔ pas un
+     *  refus, pas une exception : la page ne sait pas quel sol elle a. */
+    async autoriser() {
+      let verdict;
+      try { verdict = await autoriserDe(sol); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+      if (verdict === "accorde") return { etat: "accorde" };
+      return { etat: "refus", raison: MOT_PERMISSION_PERDUE };
     }
   };
+}
+
+/** Le verbe qui DEMANDE, sur un sol qui sait — accordé d'avance sinon. */
+function autoriserDe(sol) {
+  return typeof sol.autoriser === "function" ? sol.autoriser() : Promise.resolve("accorde");
+}
+
+/** LE MOT D'UN DOSSIER QU'ON NE PEUT PLUS LIRE — la permission a été REFUSÉE
+ *  (ou a expiré et le navigateur a dit non). ⚖️ *« un bouton reste présent :
+ *  save location »* : c'est lui, la sortie, et le mot le nomme.
+ *  ⚠️ Brouillon anglais à Eric. Deux gardes (C2, I-famille) lisent
+ *  `permission` et `choose it again`. */
+export const MOT_PERMISSION_PERDUE = "this browser no longer has permission for that folder — choose it again from Save location";
+
+/** LE MOT D'UN `Save` QUE LE NAVIGATEUR N'A PAS LAISSÉ ENTRER dans un dossier
+ *  à autoriser — il NOMME le bouton de la page `Open`, la sortie d'un clic.
+ *  ⚠️ Brouillon anglais à Eric ; `MOT_AUTORISER` (magasin-ecran) est le
+ *  libellé du bouton lui-même, et les deux doivent dire le même mot. */
+export function motDAutoriser(dossier) {
+  return `this browser did not let Save into "${dossier}". Open My characters and press "Allow access to ${dossier}", then Save again`;
 }
 
 /* ══ LE SOL DU TIROIR — IndexedDB ══════════════════════════════════════════
@@ -328,17 +422,33 @@ export function solDuTiroir(base) {
  *  zéro décision — et la LOGIQUE au-dessus est prouvée par un sol de fixture
  *  qui a exactement cette forme. */
 export function solDuDossier(poignee) {
+  /* REGARDER — `queryPermission` ne demande rien au joueur et Chrome l'accepte
+     hors de tout geste. Une poignée sans garde-barrière n'a rien à demander. */
+  const acces = async () => {
+    if (typeof poignee.queryPermission !== "function") return "accorde";
+    const mot = await poignee.queryPermission({ mode: "readwrite" });
+    if (mot === "granted") return "accorde";
+    return mot === "prompt" ? "a-demander" : "refuse";
+  };
+  /* DEMANDER — `requestPermission` exige un geste du joueur (📏 hors clic :
+     `SecurityError: User activation is required to request permissions`).
+     ⛔ Le sol ne sait pas s'il est dans un clic : il ne l'appelle JAMAIS de
+     lui-même. C'est le magasin, au-dessus, qui le fait dans `ecrire` et
+     `autoriser` — les deux verbes qu'un clic déclenche. */
+  const autoriser = async () => {
+    if (typeof poignee.requestPermission !== "function") return acces();
+    return (await poignee.requestPermission({ mode: "readwrite" })) === "granted" ? "accorde" : "refuse";
+  };
+  /* LE GARDE-BARRIÈRE DE CHAQUE VERBE : il regarde, il ne demande pas. ⛔ ON NE
+     RETOMBE PAS DANS LE TIROIR. Les sauvegardes du joueur sont dans ce dossier ;
+     basculer ailleurs les ferait DISPARAÎTRE de la page sans un mot, et il
+     conclurait qu'elles sont perdues. */
   const permis = async () => {
-    if (typeof poignee.queryPermission !== "function") return;   // pas de garde-barrière : rien à demander
-    if (await poignee.queryPermission({ mode: "readwrite" }) === "granted") return;
-    if (typeof poignee.requestPermission === "function"
-        && await poignee.requestPermission({ mode: "readwrite" }) === "granted") return;
-    /* ⛔ ON NE RETOMBE PAS DANS LE TIROIR. Les sauvegardes du joueur sont dans
-       ce dossier ; basculer ailleurs les ferait DISPARAÎTRE de la page sans un
-       mot, et il conclurait qu'elles sont perdues. */
-    throw new Error("this browser no longer has permission for that folder — choose it again");
+    if (await acces() !== "accorde") throw new Error(MOT_PERMISSION_PERDUE);
   };
   return {
+    acces,
+    autoriser,
     async clefs() {
       await permis();
       const noms = [];

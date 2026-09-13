@@ -45,9 +45,10 @@ globalThis.document = createTestDocument();
 const {
   creerMagasin, solDuTiroir, solDuDossier, ouvrirLeMagasin, garderDansLeTiroir,
   clefDeLEntree, dateDeLaClef, entreeDe, parPersonnage, versionDuDocument,
-  MOT_DU_TIROIR, VERSION_SOCLE, SUFFIXE
+  MOT_DU_TIROIR, VERSION_SOCLE, SUFFIXE, MOT_PERMISSION_PERDUE, motDAutoriser
 } = await import("../ui/builder/magasin.mjs");
-const { renderMagasinEcran, popupDeLaDestination, motDeLaDate } = await import("../ui/builder/magasin-ecran.mjs");
+const { renderMagasinEcran, popupDeLaDestination, motDeLaDate, MOT_AUTORISER }
+  = await import("../ui/builder/magasin-ecran.mjs");
 const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, sauvegarderPuisEteindre, creerUnPersonnage }
   = await import("../ui/builder/universe-step.mjs");
 const { MAITRE } = await import("../ui/builder/interrupteurs.mjs");
@@ -328,11 +329,20 @@ test("C3 — 🔴 LA LIGNE DISCRÈTE EST UNE DONNÉE, jamais l'identité du sol"
   const dossier = magasinDeDossier().ouEstCeRange();
   assert.equal(dossier.mot, "Personnages", "le bouton dit OÙ c'est");
   assert.equal(dossier.possede, true, "et que le joueur possède ses octets");
-  /* ⭐ AUCUN VERBE « QUEL MAGASIN ES-TU ? » : la page n'aurait qu'à le lire. */
+  /* ⭐ AUCUN VERBE « QUEL MAGASIN ES-TU ? » : la page n'aurait qu'à le lire.
+     🔑 LOT 202 : `autoriser` est le cinquième verbe, et il est SUR LES DEUX —
+     sur le tiroir il dit « accordé » sans rien demander. Un verbe présent sur
+     un seul sol trahirait le sol. */
   for (const m of [magasinDeTiroir(), magasinDeDossier()]) {
-    assert.deepEqual(Object.keys(m).sort(), ["ecrire", "lire", "lister", "ouEstCeRange"],
+    assert.deepEqual(Object.keys(m).sort(), ["autoriser", "ecrire", "lire", "lister", "ouEstCeRange"],
       "⛔ une seule interface, et rien qui trahisse le sol");
   }
+});
+
+test("C3 bis — 🔑 SUR LE TIROIR, `autoriser()` EST ACCORDÉ D'AVANCE — rien à demander, rien qui trahisse", async () => {
+  const m = magasinDeTiroir();
+  assert.deepEqual(await m.autoriser(), { etat: "accorde" });
+  assert.equal((await m.lister()).etat, "liste", "⛔ le tiroir ne rend JAMAIS « à autoriser »");
 });
 
 /* ══ D — LA PAGE REND CE QUE `lister()` REND ══════════════════════════════ */
@@ -627,4 +637,161 @@ test("H3 — ⚔️ LE GROUPE DES ILLISIBLES NE PEUT PAS ÊTRE CONFONDU AVEC UN 
   assert.equal(groupes.length, 2);
   assert.deepEqual(groupes.map((g) => g.personnage), [null, "refus:a"],
     "l'illisible est le plus récent ici, et il n'a PAS de nom");
+});
+
+/* ══ I — 🔑 LOT 202 : LE DOSSIER À AUTORISER, hors geste et dans le geste ══
+   📏 LA FORME EXACTE DE CHROME AU RECHARGEMENT (mesurée le 13/09) : la
+   poignée est retenue, `queryPermission` rend `"prompt"`, et `requestPermission`
+   hors d'un clic JETTE `SecurityError: User activation is required to request
+   permissions`. Le lot 195 demandait dans `permis()`, donc dans `lister()`,
+   donc au chargement — et la page `Open` disait ce refus sans une sortie.
+
+   🔴 LA POIGNÉE DE SONDE COMPTE : `requestPermission` est un compteur, et il
+   jette tant qu'on ne lui a pas dit « on est dans un clic » (`enGeste`). C'est
+   la DONNÉE qu'on mesure — le nombre d'appels — jamais la forme du code. */
+
+function poigneeAAutoriser(nom = "Personnages") {
+  const p = poigneeDeFixture(nom, "prompt");
+  p.demandes = 0;
+  p.enGeste = false;
+  p.permission = "prompt";
+  p.queryPermission = async () => p.permission;
+  p.requestPermission = async () => {
+    p.demandes += 1;
+    if (!p.enGeste) throw new Error("User activation is required to request permissions.");
+    p.permission = "granted";
+    return "granted";
+  };
+  return p;
+}
+
+test("I1 — ⚔️ HORS GESTE, `lister()` REGARDE ET NE DEMANDE PAS : l'état « à autoriser », avec le nom du dossier", async () => {
+  /* ⚔️ LA MUTATION : remettre l'appel inconditionnel de `requestPermission`
+     dans le sol → `demandes` vaut 1 et l'état redevient un refus « User
+     activation is required » — rouge sur les deux lignes. */
+  const p = poigneeAAutoriser("Personnages");
+  const m = magasinDeDossier(p);
+  const liste = await m.lister();
+  assert.deepEqual(liste, { etat: "a-autoriser", dossier: "Personnages" },
+    "un ÉTAT nommé, avec le nom du dossier — ⛔ ni un refus, ni une liste vide");
+  assert.equal(p.demandes, 0, "⚔️ `requestPermission` n'a PAS été appelé hors geste");
+  /* ⚔️ ET AUCUN AUTRE VERBE NE DEMANDE DE LUI-MÊME : rouvrir une entrée hors
+     geste se refuse en nommant `Save location`, sans toucher `requestPermission`.
+     C'est la ligne qui rougit quand on remet la demande dans `permis()`. */
+  const relu = await m.lire({ clef: `ilyra.2026-09-10t14-32-00z${SUFFIXE}` });
+  assert.equal(relu.etat, "refus");
+  assert.equal(relu.raison, MOT_PERMISSION_PERDUE);
+  assert.equal(p.demandes, 0, "⚔️ le sol ne demande JAMAIS de lui-même — sur aucun verbe");
+  /* ⛔ Et le chemin de la coquille, par la base : `ouvrirLeMagasin` remonte le
+     dossier retenu et rend le MÊME état. */
+  const base = baseDeFixture();
+  await base.ecrire("reglages", "destination", { demandee: true, poignee: p });
+  const remonte = await ouvrirLeMagasin({ base, dossierPossible: true });
+  assert.deepEqual(await remonte.lister(), { etat: "a-autoriser", dossier: "Personnages" });
+  assert.equal(p.demandes, 0, "⚔️ toujours aucune demande au chargement");
+  assert.equal(remonte.ouEstCeRange().mot, "Personnages", "et `Save location` dit toujours le dossier");
+  /* ⛔ ET LE REFUS FRANC (« denied ») RESTE UN REFUS, pas « à autoriser » :
+     C2 le garde, on le redit ici pour la frontière. */
+  const refuse = magasinDeDossier(poigneeDeFixture("Personnages", "denied"));
+  assert.equal((await refuse.lister()).etat, "refus");
+});
+
+test("I2 — ⚔️ DANS LE GESTE, `autoriser()` DEMANDE UNE FOIS, puis la liste vient", async () => {
+  /* ⚔️ LES MUTATIONS : ne pas appeler `requestPermission` → `demandes` 0 et
+     l'état reste « à autoriser » ; l'appeler deux fois → `demandes` 2. */
+  const p = poigneeAAutoriser("Personnages");
+  const m = magasinDeDossier(p);
+  p.fichiers.set(`ilyra.2026-09-10t14-32-00z${SUFFIXE}`, texteDe(docDe("Ilyra", PILE_FH)));
+  p.enGeste = true;                                  // le clic sur « Allow access to Personnages »
+  assert.deepEqual(await m.autoriser(), { etat: "accorde" });
+  assert.equal(p.demandes, 1, "⚔️ UNE demande, exactement");
+  p.enGeste = false;                                 // la relecture, elle, n'est plus dans le clic
+  const liste = await m.lister();
+  assert.equal(liste.etat, "liste", "accordé → la liste, sans redemander");
+  assert.equal(liste.entrees.length, 1);
+  assert.equal(liste.entrees[0].personnage, "Ilyra");
+  assert.equal(p.demandes, 1, "⚔️ et la liste n'a pas redemandé");
+
+  /* Hors geste, Chrome jette : le refus se DIT avec sa cause, rien n'explose. */
+  const q = poigneeAAutoriser("Personnages");
+  const issue = await magasinDeDossier(q).autoriser();
+  assert.equal(issue.etat, "refus");
+  assert.match(issue.raison, /User activation is required/, "la cause de Chrome, recopiée");
+  /* Le joueur dit NON dans la boîte : la sortie est `Save location`, nommée. */
+  const r = poigneeAAutoriser("Personnages");
+  r.requestPermission = async () => { r.demandes += 1; return "denied"; };
+  const non = await magasinDeDossier(r).autoriser();
+  assert.equal(non.etat, "refus");
+  assert.equal(non.raison, MOT_PERMISSION_PERDUE);
+  assert.match(non.raison, /Save location/, "⚖️ « un bouton reste présent : save location » — c'est la sortie");
+});
+
+test("I3 — 🔑 `Save` SUR UN DOSSIER À AUTORISER DEMANDE DANS LE CLIC — et un refus NOMME le bouton de la page `Open`", async () => {
+  const p = poigneeAAutoriser("Personnages");
+  const m = magasinDeDossier(p);
+  p.enGeste = true;                                  // le clic sur `Save`
+  const ecrit = await m.ecrire(texteDe(docDe("Ilyra", PILE_FH)), "2026-09-10T14:32:00Z");
+  assert.equal(ecrit.ok, true, "le Save passe : la demande a eu lieu dans le clic");
+  assert.equal(p.demandes, 1, "⚔️ UNE demande, dans `ecrire`");
+  assert.equal(p.fichiers.has(ecrit.entree.clef), true, "et l'entrée est DANS le dossier");
+  p.enGeste = false;
+  const encore = await m.ecrire(texteDe(docDe("Ilyra", PILE_SRD)), "2026-09-10T15:00:00Z");
+  assert.equal(encore.ok, true, "accordé une fois, le Save suivant ne redemande pas");
+  assert.equal(p.demandes, 1);
+
+  /* ⛔ CHROME REFUSE QUAND MÊME (l'activation consommée trop tard) : la porte se
+     dit, elle NOMME le bouton de la page `Open`, et RIEN n'est écrit. */
+  const q = poigneeAAutoriser("Personnages");
+  const refuse = await magasinDeDossier(q).ecrire(texteDe(docDe("Ilyra", PILE_FH)), "2026-09-10T14:32:00Z");
+  assert.equal(refuse.ok, false);
+  assert.equal(q.demandes, 1, "il a bien essayé, dans le geste qu'il croyait tenir");
+  assert.match(refuse.raison, /User activation is required/, "la cause de Chrome");
+  assert.ok(refuse.raison.includes(MOT_AUTORISER("Personnages")),
+    "⚔️ et la sortie est NOMMÉE : le libellé exact du bouton de la page `Open`");
+  assert.equal(refuse.raison.includes(motDAutoriser("Personnages")), true);
+  assert.equal(q.fichiers.size, 0, "⛔ rien d'écrit, nulle part");
+  /* Une permission REFUSÉE (denied) ne se redemande pas : `Save location`. */
+  const r = poigneeDeFixture("Personnages", "denied");
+  const non = await magasinDeDossier(r).ecrire(texteDe(docDe("Ilyra", PILE_FH)), "2026-09-10T14:32:00Z");
+  assert.equal(non.ok, false);
+  assert.equal(non.raison, MOT_PERMISSION_PERDUE);
+});
+
+test("I4 — 🗄️ LA PAGE SUR « À AUTORISER » PORTE LE NOM DU DOSSIER ET LE BOUTON ; sur une liste, elle ne le porte pas", () => {
+  const ou = magasinDeDossier(poigneeDeFixture("Personnages")).ouEstCeRange();
+  const gestes = [];
+  const node = renderMagasinEcran({ magasin: { etat: "a-autoriser", dossier: "Personnages" }, ou }, (a) => gestes.push(a));
+  const b = node.querySelectorAll(".magasin-autoriser")[0];
+  assert.ok(b, "⚔️ le bouton d'un clic — la sortie que la v625 n'offrait pas");
+  assert.equal(b.textContent, MOT_AUTORISER("Personnages"));
+  assert.match(b.textContent, /Personnages/, "le bouton NOMME le dossier");
+  assert.match(node.querySelectorAll(".magasin-a-autoriser")[0].textContent, /"Personnages"/,
+    "et la page le nomme AVANT le bouton");
+  assert.equal(node.querySelectorAll(".magasin-refus").length, 0, "⛔ ce n'est pas un refus");
+  assert.equal(node.querySelectorAll(".magasin-vide").length, 0, "⛔ ni une liste vide");
+  assert.equal(node.querySelectorAll(".magasin-lieu").length, 1, "⚖️ `Save location` reste présent");
+  b.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "autoriserLeDossier" }], "il émet un verbe : c'est la coquille qui demande");
+
+  const liste = renderMagasinEcran({ magasin: { etat: "liste", groupes: [], entrees: [] }, ou }, () => {});
+  assert.equal(liste.querySelectorAll(".magasin-autoriser").length, 0, "⛔ accordé : pas de bouton");
+  const refus = renderMagasinEcran({ magasin: { etat: "refus", raison: MOT_PERMISSION_PERDUE }, ou }, () => {});
+  assert.equal(refus.querySelectorAll(".magasin-autoriser").length, 0, "⛔ refusé : la sortie est `Save location`, pas ce bouton");
+});
+
+test("I5 — 🔌 LA COQUILLE : le verbe demande DANS le clic, puis REMONTE par l'organe existant ; hors geste, personne ne demande", () => {
+  const porte = shell.slice(shell.indexOf('action.kind === "autoriserLeDossier"'),
+    shell.indexOf('action.kind === "ouvrirLayers"'));
+  assert.ok(porte.length > 0, "le geste existe");
+  assert.match(porte, /state\.magasin\.autoriser\(\)/, "la demande passe par le magasin — ⛔ jamais une poignée touchée ici");
+  assert.match(porte, /return monterLeMagasinEtLister\(\);/, "accordé → remonté et relisté par l'organe existant");
+  assert.match(porte, /state\.magasinListe = \{ etat: "refus", raison: issue\.raison \}/, "refusé → dit dans la page");
+  /* ⛔ UN SEUL APPELANT de `autoriser()` dans la coquille : le clic. Un second
+     (au montage, dans `rafraichirLeMagasin`) redemanderait hors geste. */
+  assert.equal((shell.match(/\.autoriser\(\)/g) || []).length, 1, "un seul geste demande");
+  const source = stripComments(fs.readFileSync(path.join(UI, "magasin.mjs"), "utf8"));
+  const sol = source.slice(source.indexOf("export function solDuDossier"), source.indexOf("export async function ouvrirLeMagasin"));
+  const verbes = sol.slice(sol.indexOf("const permis ="));
+  assert.equal(/requestPermission/.test(verbes), false,
+    "⚔️ `permis()` et les trois verbes du sol ne DEMANDENT jamais — ils regardent");
 });

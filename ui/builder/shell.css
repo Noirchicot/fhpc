@@ -2749,7 +2749,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=625") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=626") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3072,7 +3072,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=625") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=626") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4581,7 +4581,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=625") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=626") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -5693,6 +5693,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    est DISCRÈTE (Eric : « une option discrète ») : pas de teinte, un liseré, le
    corps sourd. ⛔ Jamais caché quand il ne peut rien choisir — présent, éteint,
    avec sa raison (📍 `menu-reglage-impossible-reste-visible`). */
+/* 🔑 LOT 202 — LE DOSSIER À AUTORISER : le nom du dossier, puis UN bouton, au
+   format réglementé des petits boutons (`.parcours-pied button`) et vert comme
+   `Open` · `Save` — il ouvre ce que le joueur possède, il ne signe rien. */
+.magasin-autorisation { margin-top: var(--sp-8); }
 .magasin-pied { margin-top: var(--sp-12); }
 .magasin-lieu {
   min-height: var(--touch); padding: 0 var(--sp-8);
@@ -7462,7 +7466,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=625");
+  background-image: url("./assets/tarot-dos.jpg?v=626");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
