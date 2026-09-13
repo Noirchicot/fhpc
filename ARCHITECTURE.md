@@ -184,6 +184,36 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### 🎲 UN BUDGET EN COURS N'EST PAS UN BUDGET FAUTIF — ET UN DÉCOR NE SE LAISSE PAS SAISIR (13/09)
+
+**Le mot d'Eric** : *« Dans ability boost, ça passe en rouge dès le premier +1 posé, ça devrait passer
+en bleu, car **en process pas illégal**, tu comprends ? »* — et : *« le drag and drop multi
+directionnel de abilities, **qui marchait très bien, ne marche plus du tout**. »*
+
+**Deux lois, mesurées le même jour** :
+
+⚖️ **Le rouge est pour l'illégal, pas pour l'inachevé.** Un budget **dépassé** ou une **pose refusée**
+rougissent ; un budget **entamé** est bleu. Ce qui retient la porte et le `Done`, c'est le **compte du
+plan** *(`answered` / `expected`)*, jamais un verrou par-dessus — sinon « pas encore fait » devient
+indiscernable de « mal fait ».
+🪤 **C'est l'arbitrage d'Eric qui remplace le mien** : au lot 194 j'avais écrit *« un SEUL point posé
+sur trois rougit toujours »*, alors que mon propre corpus notait l'incohérence — le budget d'espèce,
+lui, ne verrouillait pas. Sa règle **aligne les deux budgets**. Les gardes du 194 ont été **réécrits
+avec son mot**, ce qui n'est pas un desserrage.
+
+⚖️ **Un décor ne se laisse pas saisir.** L'image du dé 3D est **nativement déplaçable** : le navigateur
+ouvrait **son** glisser d'image et **annulait le pointeur**. ⇒ tout décor posé par-dessus un élément
+armé est **transparent au pointeur**, et la règle se pose **une fois**, sur l'hôte *(la propriété est
+héritée)*.
+⭐ **Et il ne mordait que là où la 3D fonctionne** — sur la machine d'Eric, jamais sur un banc headless
+ordinaire. **Un banc sans 3D ne voit pas la 3D** : le banc doit tourner dans les conditions du joueur.
+
+🪤 **Une hypothèse d'archi se vérifie avant de devenir une raison écrite.** Mon mandat affirmait que le
+décor « avalait le `pointerdown` » — faux, l'événement bulle. Codé sur ma foi, le corpus aurait menti.
+
+⏳ **Trouvé en passant** : le stub des tests n'avait pas `cloneNode` — **le fantôme du glisser n'était
+jamais construit sous les tests**, sur cinq écrans.
+
 #### 🔐 UNE PERMISSION SE DEMANDE DANS LE GESTE, JAMAIS AU CHARGEMENT (13/09)
 
 **Les mots d'Eric** : *« le processus de sauvegarde ne semble pas fonctionnel »* (10/09) ; et sa
