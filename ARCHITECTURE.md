@@ -184,6 +184,37 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### ❓ UNE QUESTION EXIGE UNE RÉPONSE — ET LA CRÉATION LAISSE UN MOTEUR COHÉRENT (13/09)
+
+**La question d'Eric** : *« next ne m'amène pas sur species ? pourquoi ? »* → un écran **vide** sur
+Species ; sa console : `snaps 0` *(le catalogue rendu avec zéro espèce)*, les quinze couches en 200,
+Layers s'affiche. Puis : *« bon ça fait chier, solutionne le problème. »*
+
+**La chaîne, mesurée** : la création remet le carnet du moteur à zéro *(197)* et ne le remplissait
+qu'à la réponse au popup *(193 — « pas de rebuild avant que le joueur ait dit à quel jeu il joue »,
+raison **morte** depuis le 198)*. Le popup « SRD or Fate's Hand? » se fermait **au clic à côté**, et
+— pire, trouvé par l'agent — **ses propres boutons héritaient de `pointer-events: none`** : un vrai
+clic sur « Fate's Hand » traversait le popup et tombait sur `Done` dessous. Le geste **normal**
+produisait l'écran vide. Et le 200 *(la création ouvre le chapitre 1 dès l'appui)* l'a rendu
+**visible** : avant, le joueur restait au Menu.
+
+**Les deux lois** :
+- **La création laisse toujours un moteur cohérent** — `repartirAZero` projette le carnet
+  aussitôt. Quoi qu'il arrive au popup, `state.decisions` n'est plus jamais vide sur un document vivant.
+- **Un popup qui pose une question ne se ferme que par une réponse** *(`exigeUneReponse`, une
+  DONNÉE du popup — jamais un `if` sur le titre)* : ni clic à côté, ni Échap ; **modal** par un voile
+  né et mort avec l'attribut ; et la rangée d'actions de tout popup reprend le pointeur.
+  Norme : `NORMES.md` §7.
+- **Un écran dont la carte rend zéro se nomme** *(`ecran-vide.mjs`, un seul écrivain)*.
+
+🪤 **La leçon de méthode** : mes bancs cliquaient par script *(`e.click()`)*, qui **ignore
+`pointer-events`** — ils n'ont jamais pu voir ce qu'un doigt faisait. **Un banc qui ne clique pas comme
+un doigt ne prouve pas ce qu'un doigt fait** : sonder `elementFromPoint` avant de cliquer.
+
+⏳ **Laissé, nommé** : `Tab` peut encore atteindre un bouton sous la question *(le voile bloque le
+pointeur, pas le focus — le remède propre est `<dialog>`)* ; les textes d'`ecran-vide.mjs` sont des
+brouillons.
+
 #### 🖐️ UN GESTE NE VIT PAS SUR CE QU'IL TIENT (13/09)
 
 **La question d'Eric** : *« pourquoi le drag and drop bloque **un coup sur deux** ! »* — avec deux
