@@ -398,7 +398,7 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
      quel que soit l'outil — c'est ce qu'on vérifie ici. */
   document.elementFromPoint = () => null;
   rayOfFrost.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  rayOfFrost.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
   assert.deepEqual(calls, [{
     kind: "choose", path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:ray-of-frost" }
   }]);

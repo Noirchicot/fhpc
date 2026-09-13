@@ -174,8 +174,8 @@ async function glisser(de, cible, attendreLeMaintien) {
   globalThis.document.elementFromPoint = () => cible || null;
   de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
   if (attendreLeMaintien) await new Promise((ok) => setTimeout(ok, MAINTIEN_MS + 10));
-  if (cible) de.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
-  de.dispatchEvent({ type: "pointerup", clientX: cible ? 40 : 0, clientY: 0, pointerId: 1 });
+  if (cible) document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: cible ? 40 : 0, clientY: 0, pointerId: 1 });
 }
 
 /** 🗑️ LÂCHER DANS LE VIDE — et ce n'est PAS `glisser(de, null)`.
@@ -188,8 +188,8 @@ async function glisser(de, cible, attendreLeMaintien) {
 async function glisserDansLeVide(de) {
   globalThis.document.elementFromPoint = () => null;
   de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  de.dispatchEvent({ type: "pointermove", clientX: 90, clientY: 90, pointerId: 1 });
-  de.dispatchEvent({ type: "pointerup", clientX: 90, clientY: 90, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 90, clientY: 90, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 90, clientY: 90, pointerId: 1 });
 }
 
 /* ⚠️ `method` VIT DANS LE `ctx`, PAS DANS LE DOCUMENT (B5.1c, lot 63) : « il

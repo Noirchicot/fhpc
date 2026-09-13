@@ -139,7 +139,7 @@ test("2bis — changer genre/alignement dispatche {kind:\"describe\", field, val
      `tests/glisser.test.mjs`, qui est la référence de ce geste. */
   const taper = (jeton) => {
     jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-    jeton.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
   };
   taper(jetonDe(genre, "Woman"));
   taper(jetonDe(alignement, "Chaotic Good"));

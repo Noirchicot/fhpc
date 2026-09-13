@@ -203,7 +203,7 @@ test("🔴 le sous-menu `class.skills` du Fighter SRD : neuf jetons en rangées 
 function tap(jeton, pointerType = "touch") {
   document.elementFromPoint = () => null;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType });
-  jeton.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
 }
 
 test("🔴 tap = info : la fenêtre de la compétence, avec Close · Select ; Select pose dans le PREMIER collecteur libre — et disparaît quand tout est pris", () => {

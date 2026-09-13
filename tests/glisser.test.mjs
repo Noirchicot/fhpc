@@ -57,8 +57,8 @@ function geste(jeton, { dx = 0, dy = 0, cible = null, maintenir = false } = {}) 
   document.elementFromPoint = () => cible;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
   if (maintenir) horloge.ecouler();     // le doigt a attendu : le jeton se soulève
-  if (dx || dy) jeton.dispatchEvent({ type: "pointermove", clientX: dx, clientY: dy, pointerId: 1 });
-  jeton.dispatchEvent({ type: "pointerup", clientX: dx, clientY: dy, pointerId: 1 });
+  if (dx || dy) document.dispatchEvent({ type: "pointermove", clientX: dx, clientY: dy, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: dx, clientY: dy, pointerId: 1 });
 }
 
 /* ══ L'HORLOGE — lot 79, étape 3 ═════════════════════════════════════════
@@ -239,9 +239,9 @@ test("11 — l'organe DIT le geste : lever une fois, bouger à chaque pas, poser
      qu'une fois quand `onBouger` en part trois. */
   document.elementFromPoint = () => creneaux(n)[1];
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  jeton.dispatchEvent({ type: "pointermove", clientX: 20, clientY: 0, pointerId: 1 });
-  jeton.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
-  jeton.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 20, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
   assert.deepEqual(trace, [], "sans rappels, rien n'est appelé — et rien ne casse");
 
   const t2 = [];
@@ -258,9 +258,9 @@ test("11 — l'organe DIT le geste : lever une fois, bouger à chaque pas, poser
   });
   document.elementFromPoint = () => creneaux(n2)[0];
   brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  brut.dispatchEvent({ type: "pointermove", clientX: 20, clientY: 0, pointerId: 1 });
-  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
-  brut.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 20, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
   assert.deepEqual(t2, ["lever", "bouger", "bouger", "poser", "depot"],
     "un seul lever, un bouger par pas, et le fantôme se range AVANT que le dépôt soit décidé");
 });
@@ -276,8 +276,8 @@ test("11 bis — ⚔️ un geste ANNULÉ range le fantôme aussi : rien ne survi
   });
   document.elementFromPoint = () => null;          // relâché dans le vide
   brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
-  brut.dispatchEvent({ type: "pointercancel", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointercancel", clientX: 40, clientY: 0, pointerId: 1 });
   assert.deepEqual(trace, ["lever", "poser"], "levé puis rangé, et AUCUN dépôt");
 });
 
@@ -290,7 +290,7 @@ test("11 ter — un TAP ne lève aucun fantôme (il n'y a rien à faire voler)",
   });
   document.elementFromPoint = () => null;
   brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  brut.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
   assert.deepEqual(trace, ["tap"], "sous le seuil, le fantôme n'existe jamais");
 });
 
@@ -315,8 +315,8 @@ test("11 quater — ⚔️ `viseur` déplace le POINT INTERROGÉ, et le seuil re
   });
   document.elementFromPoint = (x, y) => { vus.push([x, y]); return cible; };
   brut.dispatchEvent({ type: "pointerdown", clientX: 100, clientY: 200, pointerId: 1, button: 0, pointerType: "touch" });
-  brut.dispatchEvent({ type: "pointermove", clientX: 140, clientY: 200, pointerId: 1 });
-  brut.dispatchEvent({ type: "pointerup", clientX: 140, clientY: 200, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 140, clientY: 200, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 140, clientY: 200, pointerId: 1 });
   assert.deepEqual(vus, [[106, 166], [106, 166]],
     "en vol comme au dépôt : le point visé est celui du fantôme, jamais celui du doigt");
   assert.deepEqual(deposes, ["abilities.str"], "et le dépôt part bien de ce point-là");
@@ -331,8 +331,8 @@ test("11 quinquies — sans `viseur`, RIEN ne bouge : c'est le doigt qui vise", 
   armerJeton(brut, { onTap: () => {}, onDepot: () => {} });
   document.elementFromPoint = (x, y) => { vus.push([x, y]); return null; };
   brut.dispatchEvent({ type: "pointerdown", clientX: 100, clientY: 200, pointerId: 1, button: 0, pointerType: "touch" });
-  brut.dispatchEvent({ type: "pointermove", clientX: 140, clientY: 200, pointerId: 1 });
-  brut.dispatchEvent({ type: "pointerup", clientX: 140, clientY: 200, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 140, clientY: 200, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 140, clientY: 200, pointerId: 1 });
   assert.deepEqual(vus, [[140, 200], [140, 200]], "le point de contact, à l'octet");
 });
 
@@ -347,7 +347,7 @@ test("11 quinquies — sans `viseur`, RIEN ne bouge : c'est le doigt qui vise", 
 function tap(jeton, pointerType) {
   document.elementFromPoint = () => null;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType });
-  jeton.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
 }
 
 test("10 — AU DOIGT, le tap donne l'info et ne pose RIEN", () => {
@@ -437,8 +437,8 @@ test("5 bis — glisser le contenu HORS de son récepteur le vide", () => {
   const rempli = creneaux(n)[0];
   /* Un glisser franc (au-delà du seuil), relâché sur AUCUNE cible. */
   rempli.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  rempli.dispatchEvent({ type: "pointermove", clientX: 400, clientY: 400, pointerId: 1 });
-  rempli.dispatchEvent({ type: "pointerup", clientX: 400, clientY: 400, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 400, clientY: 400, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 400, clientY: 400, pointerId: 1 });
   assert.deepEqual(actions, [{ kind: "clear", path: "class.skills[0]" }],
     "le geste inverse du dépôt rend l'objet au vivier");
 });
@@ -826,10 +826,10 @@ test("12 — ⚔️ AUCUNE capture tant que le seuil n'est pas franchi : le doig
 
   /* Un doigt qui descend de 5 px n'a rien décidé : sous `SEUIL_GLISSER`, le
      navigateur doit rester libre de faire défiler. */
-  brut.dispatchEvent({ type: "pointermove", clientX: 0, clientY: 5, pointerId: 7 });
+  document.dispatchEvent({ type: "pointermove", clientX: 0, clientY: 5, pointerId: 7 });
   assert.deepEqual(captures, [], "sous le seuil, l'organe OBSERVE — il ne prend rien");
 
-  brut.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 5, pointerId: 7 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 5, pointerId: 7 });
   assert.deepEqual(captures, [], "et un tap tremblé n'aura jamais rien capturé du tout");
 });
 
@@ -838,15 +838,23 @@ test("12 bis — ⚔️ la capture EST prise au soulèvement, une seule fois, av
   const { brut, captures } = jetonMouchard({ onLever: () => trace.push("lever") });
   document.elementFromPoint = () => null;
   brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" });
-  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 7 });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 7 });
   assert.deepEqual(captures, [7], "franchi le seuil : sans capture, `pointerup` se perdrait hors de la boîte");
   assert.deepEqual(trace, ["lever"], "et elle tombe au MÊME instant que le soulèvement, pas avant, pas après");
 
   /* ⛔ Une capture par geste, pas une par image : `bouge` court à chaque
      pixel, et seul le passage à `glisse` doit la prendre. */
-  brut.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 0, pointerId: 7 });
-  brut.dispatchEvent({ type: "pointermove", clientX: 120, clientY: 0, pointerId: 7 });
+  document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 0, pointerId: 7 });
+  document.dispatchEvent({ type: "pointermove", clientX: 120, clientY: 0, pointerId: 7 });
   assert.deepEqual(captures, [7], "une seule capture pour tout le geste");
+
+  /* 🔴 AJOUTÉ AU LOT 199, ET CE N'EST PAS DU MÉNAGE : depuis que le geste est
+     ancré sur le `document`, un doigt qu'on laisse posé reste POSÉ — il n'y a
+     plus de jeton qui meurt pour le libérer. Ce garde n'assertait rien de
+     moins qu'avant ; il s'arrêtait simplement au milieu d'un geste, et le
+     doigt d'un test coulait dans le suivant. Un doigt se relève. */
+  document.dispatchEvent({ type: "pointerup", clientX: 120, clientY: 0, pointerId: 7 });
+  assert.deepEqual(captures, [7], "et le relâchement n'en prend pas une de plus");
 });
 
 test("12 ter — un jeton SANS `setPointerCapture` glisse quand même (le rappel reste facultatif)", () => {
@@ -859,7 +867,159 @@ test("12 ter — un jeton SANS `setPointerCapture` glisse quand même (le rappel
   armerJeton(brut, { onTap: () => deposes.push("tap"), onDepot: (c) => deposes.push(c) });
   document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "bag" } }) });
   brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
-  brut.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
-  brut.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
   assert.deepEqual(deposes, ["bag"], "aucune capture disponible, et le dépôt tombe quand même");
+});
+
+/* ══ 13 — LE GESTE VIT AU-DESSUS DU JETON (lot 199, incident du 13/09) ════
+   Eric, avec sa capture d'un `+1` figé en travers du collecteur DELVE :
+   *« pourquoi le drag and drop bloque UN COUP SUR DEUX ! »*, et sa précision
+   *« il reste bloqué là où tu le vois »*.
+
+   🔴 CE QUE CES GARDES TIENNENT, ET AUCUN DES CINQUANTE D'AU-DESSUS NE LE
+   POUVAIT : ils éprouvaient tous le CONTRAT du geste (le seuil, la cible, le
+   tap, le fantôme) sur un jeton qui reste sagement en place. Le défaut du
+   13/09 n'est pas dans le contrat — il est dans l'ANCRAGE : le jeton portait
+   les écouteurs du geste, donc un jeton qui quitte le DOM emportait le geste
+   avec lui. Un contrat parfait sur un support qui disparaît ne rend rien.
+
+   ⚠️ COMMENT ON SIMULE HONNÊTEMENT « LE JETON A QUITTÉ LE DOM » : on le détache,
+   puis on continue d'envoyer les événements AU DOCUMENT — parce que c'est
+   exactement ce que fait le navigateur. Une fois la capture rendue, un
+   `pointermove` va à l'élément sous le pointeur et remonte jusqu'au document ;
+   il ne va PLUS au nœud détaché. Envoyer la suite au jeton serait se donner
+   raison en trichant. */
+
+/** Un jeton armé, monté dans la page, qui note tout ce qu'on lui fait faire. */
+function jetonMonte(rappels = {}) {
+  const brut = document.createElement("button");
+  document.body.append(brut);
+  const trace = [];
+  armerJeton(brut, {
+    onTap: () => trace.push("tap"),
+    onDepot: (c) => trace.push(`depot:${c}`),
+    onLever: () => trace.push("lever"),
+    onPoser: () => trace.push("poser"),
+    onHorsCible: () => trace.push("horsCible"),
+    ...rappels
+  });
+  return { brut, trace };
+}
+
+test("13 — ⭐⚔️ LE GARDE CENTRAL : un jeton RETIRÉ DU DOM en plein geste finit quand même — fantôme rangé, aucun dépôt inventé", () => {
+  const { brut, trace } = jetonMonte();
+  /* Une cible existe et reste visable : si un dépôt tombait, il tomberait ici.
+     ⭐ C'EST LE TÉMOIN QUI ACCUSE : sans elle, « aucun dépôt » ne prouverait
+     rien — il n'y aurait simplement rien à déposer. */
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "class.skillBudget.delve" } }) });
+
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, ["lever"], "le geste est soulevé, le fantôme est en l'air");
+
+  /* ⚔️ L'ATTAQUE : un re-rendu emporte le jeton. `shell.mjs` répond à toute
+     action par un `refresh()` qui reconstruit la carte entière — c'est un
+     événement ordinaire de cet écran, pas un cas de laboratoire. */
+  brut.remove();
+  assert.equal(brut.parentNode, null, "témoin : le jeton n'est plus dans la page");
+
+  document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 0, pointerId: 1 });
+
+  assert.equal(trace.filter((t) => t === "poser").length, 1,
+    "⛔ LA PANNE D'ERIC : sans rangement, le fantôme reste figé là où il le voit");
+  assert.deepEqual(trace, ["lever", "poser", "depot:class.skillBudget.delve"],
+    "le geste va jusqu'au bout : le doigt tenait toujours le jeton, il le dépose");
+});
+
+test("13 bis — ⚔️ `lostpointercapture` termine le geste : fantôme rangé, AUCUN dépôt inventé", () => {
+  const { brut, trace } = jetonMonte();
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "class.skillBudget.delve" } }) });
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+
+  /* ⚔️ Le navigateur rend la capture — c'est ce qu'il fait quand l'élément
+     capturé quitte le document, et c'est le SEUL message qu'on recevait de la
+     panne du 13/09. Il est envoyé au jeton : c'est lui qui avait la capture. */
+  brut.dispatchEvent({ type: "lostpointercapture", pointerId: 1 });
+  assert.deepEqual(trace, ["lever", "poser"],
+    "⛔ ON N'INVENTE PAS DE DÉPÔT : le doigt n'a rien relâché, le créneau visé n'est pas un choix");
+
+  /* ⭐ ET LA FIN NE SE JOUE QU'UNE FOIS. Le relâchement arrive quand même
+     ensuite — il ne doit ni ranger un second fantôme ni poser quoi que ce soit. */
+  document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, ["lever", "poser"], "un geste fini est fini : une seule fin, pas deux");
+});
+
+test("13 ter — ⚔️ un geste NORMAL reçoit AUSSI `lostpointercapture` après coup, et ne finit pas deux fois", () => {
+  /* 🔴 CE GARDE EXISTE PARCE QUE LE PIÈGE EST DANS LA SPÉCIFICATION, pas dans
+     un cas rare : relâcher un pointeur CAPTURÉ libère la capture, donc
+     `lostpointercapture` SUIT chaque `pointerup` d'un glisser. Traiter ce
+     message comme « le jeton a disparu » rangerait un fantôme déjà rangé et
+     compterait une seconde fin à tous les gestes réussis du produit. */
+  const { brut, trace } = jetonMonte();
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "bag" } }) });
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  brut.dispatchEvent({ type: "lostpointercapture", pointerId: 1 });
+  assert.deepEqual(trace, ["lever", "poser", "depot:bag"],
+    "une fin, un rangement, un dépôt — le message qui suit ne rejoue rien");
+});
+
+test("13 quater — ⚔️ DEUX POINTEURS : un second appui pendant un geste ne détourne pas le premier", () => {
+  const a = jetonMonte();
+  const b = jetonMonte();
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "premier" } }) });
+  a.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(a.trace, ["lever"], "le premier doigt tient son jeton");
+
+  /* ⚔️ Un SECOND doigt se pose sur un AUTRE jeton, et bouge. Sur une ancre
+     partagée, ses `pointermove` traversent le geste du premier. */
+  b.brut.dispatchEvent({ type: "pointerdown", clientX: 300, clientY: 300, pointerId: 2, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 340, clientY: 300, pointerId: 2 });
+  document.dispatchEvent({ type: "pointerup", clientX: 340, clientY: 300, pointerId: 2 });
+  assert.deepEqual(b.trace, [], "⛔ le second doigt est INERTE : un geste est déjà en cours");
+  assert.deepEqual(a.trace, ["lever"], "et le premier n'a bougé d'aucun cran — ni fin, ni dépôt volé");
+
+  /* ⭐ LE PREMIER FINIT SON GESTE, INTACT. */
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(a.trace, ["lever", "poser", "depot:premier"], "il dépose là où LUI visait");
+});
+
+test("13 quinquies — ⚔️ un geste ABANDONNÉ ne condamne pas l'écran : le pointeur qui revient prouve que le précédent est mort", () => {
+  /* 🔴 CE GARDE SURVEILLE MA PROPRE RÉPARATION. Le billet unique du lot 199
+     (« un seul geste à la fois ») est ce qui empêche deux doigts de s'emmêler ;
+     sans porte de sortie, il transformerait un geste perdu en ÉCRAN MORT —
+     plus jamais un seul glisser, une panne PIRE que celle qu'on répare.
+     ⛔ Et la porte n'est pas un délai : elle se fonde sur `pointerId` (un
+     pointeur ne presse pas deux fois sans avoir été relâché) et sur
+     `isPrimary` (le premier actif de son type — donc aucun autre n'est posé). */
+  const a = jetonMonte();
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "apres" } }) });
+  a.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(a.trace, ["lever"], "un geste est en l'air…");
+  /* ⚔️ …et il n'est JAMAIS relâché : le pointeur a disparu sans un mot. */
+
+  const b = jetonMonte();
+  b.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(a.trace, ["lever", "poser"], "le geste perdu est CLOS — son fantôme ne survit pas non plus");
+  assert.deepEqual(b.trace, ["lever", "poser", "depot:apres"], "et l'écran glisse de nouveau");
+
+  /* ⭐ L'AUTRE DONNÉE : un pointeur PRIMAIRE d'un autre identifiant prouve la
+     même chose — il n'y a aucun autre pointeur de son type sur l'écran. */
+  const c = jetonMonte();
+  c.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 9 });
+  const d = jetonMonte();
+  d.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 12, button: 0, pointerType: "touch", isPrimary: true });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 12 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 12 });
+  assert.deepEqual(c.trace, ["lever", "poser"], "le geste orphelin est clos par la preuve, pas par un minuteur");
+  assert.deepEqual(d.trace, ["lever", "poser", "depot:apres"], "et le doigt primaire glisse normalement");
 });

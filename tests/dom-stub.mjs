@@ -346,8 +346,29 @@ class FakeDocument {
      dans le flux se ferait couper par le premier `overflow`. Sans `body`, la
      moitié « je vois ce que je déplace » du geste n'aurait aucun juge hors
      navigateur, et l'écran jetterait au premier `pointermove`. */
-  constructor() { this.body = new FakeElement("body"); }
+  constructor() { this.body = new FakeElement("body"); this._listeners = new Map(); }
   createElement(tag) { return new FakeElement(tag); }
+  /* ⭐ AJOUTÉ LE 2026-09-13 POUR LE LOT 199, et le stub grandit comme il a
+     toujours grandi : avec ce que `ui/` emploie RÉELLEMENT. Depuis que le
+     geste de glisser est ANCRÉ sur le document (`glisser.mjs` : un jeton qui
+     quitte le DOM en plein geste emportait les écouteurs avec lui), c'est ici
+     que `pointermove`, `pointerup`, `pointercancel` et `touchmove` sont
+     écoutés. Sans ces trois méthodes, l'organe jetterait au premier appui et
+     le geste n'aurait plus AUCUN juge hors navigateur.
+     ⚠️ Même modèle plat que `FakeElement` : pas de remontée, pas de phase de
+     capture. Un test dit où l'événement ARRIVE, exactement comme le navigateur
+     le livrerait à l'ancre. */
+  addEventListener(type, fn) {
+    if (!this._listeners.has(type)) this._listeners.set(type, new Set());
+    this._listeners.get(type).add(fn);
+  }
+  removeEventListener(type, fn) {
+    if (this._listeners.has(type)) this._listeners.get(type).delete(fn);
+  }
+  dispatchEvent(event) {
+    for (const fn of [...(this._listeners.get(event.type) || [])]) fn(event);
+    return true;
+  }
   /* ⭐ AJOUTÉ LE 2026-08-24 POUR B3 : la scène du dressing (`b3-scene.mjs`)
      est un SVG, et un SVG se crée avec `createElementNS`. Le stub ne
      distingue pas les espaces de noms — il n'en a pas besoin : les tests

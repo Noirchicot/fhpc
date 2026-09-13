@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=622";
+import { pageDeListe } from "./normes.mjs?v=623";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=622";
-import { swapContent } from "./socle.mjs?v=622";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=623";
+import { swapContent } from "./socle.mjs?v=623";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=622";
+import { facteurZoomCourant } from "./echelle.mjs?v=623";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -280,20 +280,128 @@ function creneauSous(x, y) {
    Une bande de la largeur du décalage devient donc invisable en haut à
    gauche de l'écran. Aucun de nos créneaux n'y vit — le collecteur est en
    bas — mais un écran qui en mettrait un là le paierait sans message. */
+/* ══ 🔴 L'INCIDENT DU 13/09 — « POURQUOI LE DRAG AND DROP BLOQUE UN COUP SUR
+   DEUX ! » ════════════════════════════════════════════════════════════════
+   Eric, avec sa capture : un `+1` figé EN TRAVERS du collecteur DELVE, et sa
+   précision — *« il reste bloqué là où tu le vois »*. Rien de posé, un fantôme
+   qui ne s'en va plus.
+
+   🔴 LA CAUSE, ET ELLE TENAIT EN UNE LIGNE : **le geste était écouté sur le
+   jeton qu'il déplace.** `pointermove`, `pointerup`, `pointercancel` et
+   `touchmove` étaient posés sur `jeton`, et la capture du pointeur était prise
+   sur lui au 6ᵉ pixel. Si un re-rendu retire ce jeton du DOM en plein geste —
+   et `shell.mjs` répond à TOUTE action par un `refresh()` qui reconstruit la
+   carte entière — le navigateur rend la capture, les événements cessent
+   d'arriver, et le relâchement ne revient JAMAIS :
+     · les écouteurs ne sont pas retirés ;
+     · `onPoser()` n'est pas appelé → **le fantôme reste figé à l'écran** ;
+     · `onDepot()` non plus → **rien n'est déposé**.
+   ⚠️ Aucun symptôme, aucune erreur en console : le geste meurt en silence.
+
+   ⭐ LA RÉPARATION EST UN DÉPLACEMENT, PAS UN RATTRAPAGE. Eric, règle debout :
+   *« réécris plutôt que faire des pirouettes »* — ⛔ donc ni `try/catch` ni
+   minuteur de secours, qui ne feraient qu'enterrer le silence sous un second
+   silence. **Le geste vit AU-DESSUS du jeton** : il s'écoute sur le `document`,
+   qui ne peut pas quitter le DOM. Le jeton ne garde que ce qui le concerne
+   vraiment — l'appui qui le choisit, et la perte de capture qui le tue.
+
+   📏 MESURÉ (banc Playwright, écran `class.skillBudget`, 3 prix · 7 collecteurs) :
+     · 12 glissers calmes (420 ms) ... 12/12 posés, 0 fantôme — AVANT comme APRÈS
+     · 12 glissers rapides (30 ms) ... 12/12 posés, 0 fantôme — AVANT comme APRÈS
+     · jeton retiré en plein geste ... AVANT ⛔ fantôme resté, rien posé
+                                       APRÈS ✅ fantôme rangé, geste fini
+   ⚔️ ET LE DÉCLENCHEUR A UN NOM — MESURÉ LE 13/09, PAS SUPPOSÉ. Le mandat le
+   donnait pour inconnu ; il ne l'est plus. `shell.mjs` finit par
+   `window.addEventListener("resize", surRedimensionnement)`, et
+   `surRedimensionnement()` appelle `refresh()`, qui fait
+   `swapContent(frame.stage, …)` : **tout l'écran est refait, jetons compris**.
+   Un `resize` n'a besoin d'aucune action du joueur — sur iOS, la barre d'URL
+   qui se replie en émet un toute seule, au milieu d'un geste. C'est un
+   événement que l'appareil produit tout seul, par intermittence : *« un coup
+   sur deux »*.
+   📏 BANC `banc-resize.mjs`, 40 px de hauteur en moins en plein glisser :
+     · AVANT ... le nœud tenu quitte le document · ⛔ fantôme resté, rien posé
+     · APRÈS ... le nœud tenu quitte le document · ✅ fantôme rangé, ✅ posé
+   ⏳ ⛔ ET ON NE LE RÉPARE PAS ICI, C'EST UN AUTRE LOT : faire survivre les
+   jetons à un `resize` est une question de RENDU (pourquoi tout l'écran est-il
+   refait quand seule la hauteur change ?), pas une question de geste. Ce lot
+   rend le geste indifférent à la réponse. */
+
+/* ⭐ L'ANCRE DU GESTE — celle qui ne peut pas disparaître.
+   `document` et pas `window` : c'est la racine que le stub des tests fournit,
+   donc le MÊME chemin est éprouvé au banc et hors navigateur. Un geste dont
+   l'ancre diffère selon l'endroit où on le mesure n'est pas mesuré. */
+function ancreDuGeste() { return document; }
+
+/* ══ ⚠️ UN SEUL GESTE À LA FOIS, ET IL SE NOMME ══════════════════════════
+   Tant que les écouteurs vivaient sur le jeton, deux doigts sur deux jetons
+   étaient deux gestes séparés par construction. Sur une ancre PARTAGÉE, ils
+   se croiseraient : le second `pointerdown` poserait un second jeu d'écouteurs
+   sur le même `document`, et les deux liraient les mêmes `pointermove`.
+   ⭐ D'où un billet unique, au module — la même loi que `pageDuVivier` plus
+   haut : ce qui est partagé se tient au module, pas dans une fermeture. */
+let gesteVivant = null;
+
 export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible }) {
+  /* ⭐ LE JETON NE GARDE QUE L'APPUI. C'est le seul moment où il est
+     nécessairement là : on ne peut pas presser un élément absent. Tout ce qui
+     SUIT l'appui est écouté sur l'ancre (voir l'incident du 13/09 ci-dessus). */
   jeton.addEventListener("pointerdown", (ev) => {
     if (jeton.disabled) return;
     /* ⛔ Le bouton par défaut d'un clic droit n'arme rien. */
     if (ev.button !== 0 && ev.pointerType === "mouse") return;
+
+    /* ══ ⚠️ UN GESTE EST DÉJÀ VIVANT — ET LA QUESTION N'EST PAS « QUI PASSE
+       D'ABORD », C'EST « L'AUTRE EXISTE-T-IL ENCORE » ════════════════════
+       🔴 LA FAUTE QUE CE BLOC ÉVITE, ET J'AI COMMENCÉ PAR L'ÉCRIRE : un billet
+       unique SANS porte de sortie transforme un geste perdu en ÉCRAN MORT —
+       plus jamais un seul glisser, c'est-à-dire une panne pire que celle qu'on
+       répare. Le garde 12 bis l'a montré le premier tour : un geste laissé
+       ouvert condamnait tous les suivants.
+       ⛔ ET LA PORTE NE PEUT PAS ÊTRE UN DÉLAI — « si ça fait plus de N ms,
+       c'est sûrement mort » est exactement la pirouette qu'Eric refuse. Elle se
+       fonde donc sur DEUX données que le navigateur donne, et sur rien d'autre :
+         · `pointerId` — un pointeur ne peut pas presser deux fois sans avoir
+           été relâché entre les deux. S'il revient, le geste précédent est mort.
+         · `isPrimary` — la spécification Pointer Events dit qu'un pointeur
+           primaire est le PREMIER actif de son type. S'il en arrive un, aucun
+           autre du même type n'est encore posé : le geste d'avant est mort.
+       ⭐ TOUT LE RESTE EST UN VRAI SECOND DOIGT, et il est INERTE : le premier
+       geste garde son jeton, son fantôme et sa visée. */
+    if (gesteVivant) {
+      const remplace = gesteVivant.pointeur === ev.pointerId || ev.isPrimary === true;
+      if (!remplace) return;
+      gesteVivant.clore();
+    }
+
+    const ancre = ancreDuGeste();
+    const pointeur = ev.pointerId;
     const x0 = ev.clientX, y0 = ev.clientY;
     let glisse = false;
     let vise = null;
+    /* ⭐ UN GESTE FINI EST FINI — et ce drapeau n'est pas une ceinture, c'est
+       la règle. Trois événements peuvent conclure le MÊME geste (`pointerup`,
+       `pointercancel`, `lostpointercapture`), et le navigateur en envoie
+       souvent DEUX : un relâchement normal libère la capture juste après, donc
+       `lostpointercapture` suit tout `pointerup` capturé. Sans ce drapeau, un
+       glisser rangerait son fantôme deux fois et pourrait déposer deux fois. */
+    let clos = false;
+
+    /* ⛔ LES ÉVÉNEMENTS D'UN AUTRE DOIGT NE NOUS REGARDENT PAS. Sur le jeton,
+       la question ne se posait pas ; sur une ancre partagée, tous les pointeurs
+       du document passent ici. On lit leur identité, pas leur ordre d'arrivée.
+       ⚠️ `undefined` est traité comme « le nôtre » : le stub des tests et
+       certains bancs n'émettent pas de `pointerId`, et un geste qui n'existe
+       que pour les événements parfaitement formés ne serait pas éprouvable. */
+    const dUnAutre = (e) => e && e.pointerId !== undefined && pointeur !== undefined
+      && e.pointerId !== pointeur;
+
     /* 🧊 LE JETON EST TOUJOURS SOULEVÉ. Il attendait 350 ms là où une grille
        défilait sous lui ; plus aucune ne défile (voir la tête du fichier). */
-    /* 🔴 LA CAPTURE NE SE PREND PLUS ICI — voir « L'INCIDENT DU 22/08 » en tête
-       de ce fichier. Elle est descendue dans `bouge`, à l'instant où le glisser
-       est DÉCIDÉ. La prendre à l'appui annulait le défilement natif d'iOS avant
-       que `touch-action: pan-y` ait eu sa chance. */
+    /* 🔴 LA CAPTURE NE SE PREND PLUS À L'APPUI — voir « L'INCIDENT DU 22/08 » en
+       tête de ce fichier. Elle est descendue dans `bouge`, à l'instant où le
+       glisser est DÉCIDÉ. La prendre à l'appui annulait le défilement natif
+       d'iOS avant que `touch-action: pan-y` ait eu sa chance. */
 
     /* 🔴 CE QUI EMPÊCHE LA GRILLE DE DÉFILER SOUS UN JETON SOULEVÉ, et c'est
        la SEULE chose qui le peut. `touch-action` est une déclaration prise à
@@ -303,8 +411,15 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
        ⚠️ L'écouteur est posé DÈS L'APPUI, avant même le soulèvement : un
        navigateur décide de défiler au PREMIER `touchmove`, et un écouteur
        arrivé après cette décision n'a plus rien à refuser. Il ne retient
-       qu'une fois soulevé — tant que le jeton dort, le doigt défile. */
+       qu'une fois soulevé — tant que le jeton dort, le doigt défile.
+       🔴 IL EST MONTÉ SUR L'ANCRE DEPUIS LE 13/09, avec le reste du geste : posé
+       sur le jeton, il mourait avec lui — et un doigt qui tient encore un jeton
+       disparu se remettait à faire défiler la page sous le fantôme figé.
+       ⚠️ ET IL SE TAIT UNE FOIS LE GESTE CLOS : sur l'ancre, un `touchmove` qui
+       n'appartient plus à notre geste appartient à la page, et refuser le
+       défilement de la page entière serait une panne, pas une parade. */
     const retenir = (e) => {
+      if (clos) return;
       if (typeof e.preventDefault === "function") e.preventDefault();
     };
 
@@ -320,6 +435,7 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     };
 
     const bouge = (e) => {
+      if (clos || dUnAutre(e)) return;
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
       if (!glisse) {
         glisse = true;
@@ -349,29 +465,80 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
       viser(creneauSous(...ouVise(e)));
     };
 
-    const fini = (e) => {
-      jeton.removeEventListener("pointermove", bouge);
-      jeton.removeEventListener("pointerup", fini);
-      jeton.removeEventListener("pointercancel", fini);
-      jeton.removeEventListener("touchmove", retenir);
+    /* ⭐ CLORE — LE SEUL ENDROIT QUI DÉMONTE LE GESTE, et il ne décide de rien.
+       Il retire les écouteurs, rend le billet, éteint le jeton et range le
+       fantôme. Les trois fins possibles (dépôt, annulation, capture perdue)
+       passent toutes par lui : une fin qui oublierait un morceau du démontage
+       est exactement la panne du 13/09.
+       ⚠️ LE FANTÔME SE RANGE AVANT TOUTE DÉCISION, et sans condition : un geste
+       annulé, renoncé ou relâché dans le vide doit le faire disparaître aussi.
+       Un fantôme qui survit à son geste est pire que pas de fantôme du tout.
+
+       ⚖️ L'UNICITÉ DE LA FIN TIENT PAR DEUX ORGANES, ET C'EST MESURÉ, PAS CRU.
+       Trois mutations sur le garde 13 ter (« un geste normal reçoit AUSSI
+       `lostpointercapture` après coup ») :
+         · `clos` retiré, retraits d'écouteurs gardés .... 54/54 VERT
+         · retraits retirés, `clos` gardé ................ 54/54 VERT
+         · **les deux retirés** ......................... ⛔ 13 ter ROUGE
+       ⭐ Chacun suffit seul ; aucun des deux n'est décoratif, et je le dis
+       plutôt que de laisser croire qu'une mutation les aurait attrapés
+       séparément. C'est le précédent ÉCRIT PLUS BAS dans ce fichier, pour le
+       verrou du défilement : *« deux organes indépendants plutôt qu'un — une
+       garantie qui tient par une seule déclaration se perd au premier
+       sélecteur oublié »*. Ici la déclaration oubliable serait un
+       `removeEventListener` de plus qu'on ajouterait sans le retirer. */
+    const clore = () => {
+      if (clos) return false;
+      clos = true;
+      ancre.removeEventListener("pointermove", bouge);
+      ancre.removeEventListener("pointerup", fini);
+      ancre.removeEventListener("pointercancel", fini);
+      ancre.removeEventListener("touchmove", retenir);
+      jeton.removeEventListener("lostpointercapture", perdu);
+      if (gesteVivant === billet) gesteVivant = null;
       delete jeton.dataset.glisse;
-      /* ⚠️ LE FANTÔME SE RANGE AVANT TOUTE DÉCISION, et sans condition : un
-         geste annulé, renoncé ou relâché dans le vide doit le faire
-         disparaître aussi. Un fantôme qui survit à son geste est pire que
-         pas de fantôme du tout. */
       if (glisse && onPoser) onPoser();
+      return true;
+    };
+
+    /* ══ ⭐ LA CAPTURE PERDUE — LA FIN QUE PERSONNE N'ÉCOUTAIT ════════════
+       Quand le jeton capturé quitte le DOM, le navigateur relâche la capture et
+       envoie `lostpointercapture` — sur le jeton, détaché ou non. C'est le SEUL
+       message qu'on recevait de la panne du 13/09, et il n'était écouté nulle
+       part : le geste mourait entre deux événements.
+       ⭐ ON LE TRAITE COMME UN RELÂCHEMENT DANS LE VIDE, et c'est la seule
+       lecture honnête : on ne sait pas où le doigt ira ensuite, donc on ne peut
+       rien déposer. ⛔ Surtout pas « le dernier créneau visé » — inventer un
+       dépôt que le joueur n'a pas achevé est pire que n'en faire aucun.
+       ⚠️ ET IL ARRIVE AUSSI APRÈS UN GESTE NORMAL : le relâchement d'un pointeur
+       capturé libère la capture, donc ce message SUIT chaque `pointerup`. C'est
+       `clos` qui fait la différence, pas l'ordre des événements. */
+    /* ⛔ PAS DE SECOND `if (clos)` ICI, ET C'EST UNE LIGNE QUE J'AVAIS ÉCRITE :
+       `clore()` porte DÉJÀ l'unicité, donc un test qui l'aurait retirée ici
+       serait resté vert — une ligne qui ne peut jamais accuser. On lit donc la
+       RÉPONSE de `clore()` : elle dit si c'est bien CE message qui a fini le
+       geste, et seule cette fois-là il y a une visée à éteindre. */
+    const perdu = () => { if (clore()) viser(null); };
+
+    function fini(e) {
+      if (clos || dUnAutre(e)) return;
+      const etaitGlisse = glisse;
+      clore();
       /* ⭐ LE DÉPÔT VISE OÙ LE GESTE VISAIT, pas où le doigt s'est levé —
          sinon le créneau allumé pendant tout le glisser ne serait pas celui
          qui reçoit, et le retour visuel deviendrait un mensonge à la
-         dernière milliseconde. */
-      const cible = glisse ? creneauSous(...ouVise(e)) : null;
+         dernière milliseconde.
+         ⚠️ APRÈS `clore()`, donc après le rangement du fantôme : l'ordre est
+         celui d'avant ce lot, et il compte — on interroge le point sans que le
+         décor du geste soit encore sur le chemin. */
+      const cible = etaitGlisse ? creneauSous(...ouVise(e)) : null;
       viser(null);
       /* ⭐ LE TAP PORTE SON OUTIL. Eric, 2026-08-16 : *« tap pour info, drag
          and drop to select ; sur desktop clic droit info, gauche select »* —
          le même appui court ne veut donc PAS dire la même chose au doigt et
          à la souris. C'est l'appelant qui tranche (voir `onInfo`), et il ne
          peut trancher que s'il sait avec quoi on a touché. */
-      if (!glisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
+      if (!etaitGlisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
       if (e.type === "pointercancel") return;
       if (cible) { onDepot(cible.dataset.creneau); return; }
       /* ⭐ LÂCHÉ HORS DE TOUTE CIBLE. Pour un jeton du vivier, c'est un
@@ -380,7 +547,10 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
          RÉCEPTEUR, c'est au contraire le geste d'annulation d'Eric — il faut
          donc pouvoir le distinguer, et seul l'appelant le sait. */
       if (onHorsCible) onHorsCible();
-    };
+    }
+
+    const billet = { pointeur, clore };
+    gesteVivant = billet;
 
     /* ⚠️ `passive: false` EST LE FOND DE L'AFFAIRE : un écouteur `touchmove`
        est passif PAR DÉFAUT sur mobile, et un écouteur passif n'a pas le droit
@@ -394,11 +564,19 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
        récepteur rempli), rien ne retenait le défilement.
        ⭐ DEUX ORGANES INDÉPENDANTS PLUTÔT QU'UN : une garantie qui tient par une
        seule déclaration se perd au premier sélecteur oublié. */
-    jeton.addEventListener("touchmove", retenir, { passive: false });
+    ancre.addEventListener("touchmove", retenir, { passive: false });
 
-    jeton.addEventListener("pointermove", bouge);
-    jeton.addEventListener("pointerup", fini);
-    jeton.addEventListener("pointercancel", fini);
+    /* 🔴 SUR L'ANCRE, ET C'EST TOUT LE LOT 199. Ces trois-là sont ce qui faisait
+       vivre le geste, et ils étaient posés sur la chose la plus fragile de
+       l'écran. Ils vivent maintenant sur ce qui ne peut pas disparaître. */
+    ancre.addEventListener("pointermove", bouge);
+    ancre.addEventListener("pointerup", fini);
+    ancre.addEventListener("pointercancel", fini);
+    /* ⛔ CELUI-CI RESTE SUR LE JETON, ET IL LE DOIT : le navigateur envoie
+       `lostpointercapture` à l'élément QUI AVAIT LA CAPTURE. Détaché du
+       document, ce jeton n'a plus de chemin vers l'ancre — l'écouter ailleurs,
+       ce serait ne jamais l'entendre au seul moment où il parle. */
+    jeton.addEventListener("lostpointercapture", perdu);
   });
 }
 
@@ -427,7 +605,21 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
 
    📌 LA DEMI-TAILLE EST LUE UNE FOIS, à la prise — pas à chaque `pointermove`.
    Mesurer par image force un recalcul de mise en page pendant le seul moment
-   de l'écran où il faut être fluide (la leçon du fantôme des dés). */
+   de l'écran où il faut être fluide (la leçon du fantôme des dés).
+
+   ⚠️ EN PLEIN GESTE, `[data-glisse="true"]` COMPTE **DEUX** ÉLÉMENTS — relevé
+   au banc le 13/09 (`enVol=2`), et nommé ici parce qu'il ne se voit pas. La
+   copie est prise APRÈS que `armerJeton` a posé `dataset.glisse`, donc elle
+   porte l'attribut elle aussi. ⛔ **Tout garde qui compterait les jetons en vol
+   comptera double**, et un total juste ne dit rien du contenu : il faut lire
+   les nœuds, pas les compter.
+   📏 SA CONSÉQUENCE PEINTE, MESURÉE SUR LA FEUILLE : `.glisse-jeton[data-glisse
+   ="true"]` (0,2,0) bat `.glisse-fantome` (0,1,0), donc le fantôme se peint à
+   `opacity: .35` et non au `.9` que shell.css déclare pour lui.
+   ⏳ ⛔ NON CORRIGÉ DANS CE LOT, ET DÉLIBÉRÉMENT : retirer l'attribut de la
+   copie changerait ce qu'Eric VOIT pendant chaque glisser du produit. C'est
+   une question de peinture, elle se tranche d'un mot de lui — pas au détour
+   d'un lot sur l'ancrage du geste. */
 let fantomeGlisse = null;
 let fantomeDemi = [0, 0];
 

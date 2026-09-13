@@ -72,7 +72,7 @@ function sousEcran(id, act) {
 function tap(jeton) {
   document.elementFromPoint = () => null;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
-  jeton.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
 }
 
 /* ══ 1. L'ÉCRAN NOMMÉ NE PORTE PLUS LA TABLE ═════════════════════════════ */
