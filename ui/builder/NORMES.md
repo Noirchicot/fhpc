@@ -6532,7 +6532,27 @@ fichier serait vert pour rien)*.
 
 📏 **PORTE ② — MESURÉ EN DÉCOUVRANT LES SURFACES ARMÉES PAR LE GESTE** (un `pointerdown` + `pointermove` sur chaque élément peint, on garde ceux qui répondent) : `identity` 12 × `.glisse-jeton` · `boosts SRD` 2 × `.glisse-jeton` · `boosts FH` 1 × `.glisse-creneau` rempli · `4D6` 6 × `.fs-de` — **toutes déjà à `user-select: none`**. ⛔ Et c'est ce qui rendait la situation trompeuse : la règle tenait par **quatre déclarations recopiées à la main**, une par famille d'organe, qui se trouvaient couvrir les quatre appels d'`armerJeton`. Une coïncidence entretenue à la main — le **cinquième** organe armé n'aurait rien reçu, et rien ne l'aurait dit. ⭐⭐ `armerJeton` pose donc sa marque (`data-arme`), la feuille lit la marque, et il n'y a plus qu'**un écrivain**. ⚠️ Le fantôme ne la porte pas : la copie n'est pas armée, elle EST le glissé (§ lot 203, étendu ici).
 
-⏳ **À ERIC** : `touch-action: none` porte exactement la même forme (quatre copies) et le même argument, mais c'est LA ligne qui rend le geste possible sur mobile — la déplacer se mesure sur un vrai iPad, pas au banc. Non touchée.
+✅ **RÉPONDU AU LOT 206** : `touch-action: none` a rejoint la marque, après la mesure sur un vrai iPad que ce paragraphe réclamait. ⚠️ Et la marque a changé de nom — `data-glissable`, pas `data-arme` : voir 7 quater.
+
+## 7 quater. 🔴 LE DOIGT N'EST PAS UN POINTEUR LENT — LA CAPTURE IMPLICITE *(lot 206, 2026-09-14)*
+📍 `geste-capture-perdue-d-un-enfant` · vivante · 14/09
+⚖️ **Un `lostpointercapture` dit de QUI la capture est perdue : celui d'un ENFANT du jeton n'est pas le nôtre et ne conclut rien. Et `touch-action` ne se lit pas sur le seul élément touché — le navigateur INTERSECTE la chaîne, de l'élément d'où le doigt part jusqu'au conteneur qui défile.**
+
+⚖️ **ERIC, 14/09** : *« ça marche sur mac mais pas sur ipad dans chrome »*, puis, précisément : *« LE DÉ NE VEUT PAS QUITTER SON EMPLACEMENT DE DÉPART. Et ça marche parfaitement sur Mac. »*
+
+🔴 **L'ANGLE MORT, ET IL EXPLIQUE DEUX JOURS DE CHASSE** : les bancs de ces lots jouaient tous à la **souris**. ⛔ Un pointeur de souris n'a **pas de capture implicite** ; un pointeur **tactile** en a une, et elle va à la **cible du `pointerdown`** — c'est-à-dire à l'**enfant** sous le doigt (`.porte-de`), pas au jeton armé. Quand `bouge` prend la capture explicite sur le jeton au 6ᵉ pixel, le navigateur la retire à l'enfant et lui envoie `lostpointercapture` — **qui bulle**. Il arrivait sur le jeton, où `perdu` le lisait comme « mon jeton a disparu » et clôturait le geste **à l'instant où il commençait**. ⛔ **Ce n'est pas un défaut WebKit** : mesuré identique en Chromium tactile. Le clivage est **doigt / pointeur**, pas WebKit / Chromium.
+
+📏 **MESURÉ SUR UN VRAI iPad** (iPad Pro 11 pouces, iOS 26.5, Safari, vrais événements tactiles, sonde d'événements dans la page), pendant le glisser qui échouait : `touchmove=9 · pointermove=10 · pointercancel=0 · scroll=0 · leve=1 · repose=1` · `CAPTURE: G→SPAN.porte-de  L→SPAN.porte-de  G→BUTTON.ability-de-gar`. ⭐ **Tout arrivait** — trois hypothèses éliminées d'un coup : les `pointerevents` ne manquent pas, rien n'est annulé, rien ne défile. Le dé se levait (`leve=1`) et se **reposait** aussitôt (`repose=1`).
+
+📏 **ET `touch-action` N'Y ÉTAIT POUR RIEN** : relevé de la chaîne depuis le point du doigt, en v629 comme en **v626** (avant le lot 203) — `SPAN.porte-de{auto}` ◂ `BUTTON.fs-de{none}`. L'élément de départ a changé au 203, **l'intersection non**. ⛔ Le corpus disait *« `touch-action` ne gouverne QUE l'élément d'où le doigt PART »* — **inexact**, et cette inexactitude a coûté la chasse : il gouverne la **chaîne**.
+
+⭐ **LA PORTE SE FONDE SUR LA DONNÉE** — la cible que le message porte —, jamais sur la classe de l'enfant. ⚠️ Et elle ne desserre pas le lot 199 : le message qui vise **le jeton** conclut toujours, sinon un jeton disparu en plein geste rouvrirait l'écran mort. Un `target` absent vaut « le nôtre », même argument que `dUnAutre`.
+
+## 7 quinquies. ⚖️ DEUX SENS POUR UN ATTRIBUT EST UNE DETTE *(lot 206, 2026-09-14)*
+📍 `ecriture-attribut-un-seul-sens` · vivante · 14/09
+⚖️ **Un attribut a UN sens dans toute la maison. Un sélecteur NU (`[data-x]`) attrape tout ce qui le porte, quel que soit le sens voulu — c'est donc le nouveau venu qui déménage, pas l'ancien.**
+
+📏 **MESURÉ** : `data-arme` disait déjà *« ce `Cancel` a quelque chose à abandonner »* (`shell.mjs`, Eric 06/09 : *« le cancel est rouge dès le début des tirages »* ; peint par `shell.css:959`). Le lot 205 l'a repris pour *« cette surface porte un glisser »*, avec un sélecteur **nu**. ⛔ Inoffensif tant qu'il ne portait que `user-select` ; il a cessé de l'être quand `touch-action: none` l'a rejoint — **un doigt posé sur `Cancel` n'aurait plus pu faire défiler la page**. ⭐ La marque du geste s'appelle donc `data-glissable`, qui dit ce que l'organe **EST** et fait la paire avec `data-glisse` (*« il est EN TRAIN de l'être »*).
 
 📌 **CE QUI LA TIENT** : `tests/decor-ne-se-laisse-pas-saisir.test.mjs` (neuf cas, chacun vu rouge par mutation) et `tests/de-ne-prend-pas-le-pointeur.test.mjs` (lot 203, intact).
 

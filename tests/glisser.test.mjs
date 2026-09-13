@@ -656,8 +656,14 @@ test("9 ter — la case porte `touch-action: none`, jamais `pan-y`", () => {
   const corps = regles.map(([, , c]) => c).join(" ");
   assert.doesNotMatch(corps, /touch-action\s*:\s*pan-y/,
     "plus rien ne dispute le geste au glisser — le jeton ne cède plus le doigt");
-  assert.match(corps, /touch-action\s*:\s*none/,
-    "et il verrouille le défilement pour toute la durée du geste");
+  /* ⭐ ET LA SECONDE MOITIÉ A DÉMÉNAGÉ, ELLE N'A PAS DISPARU — lot 206. Exiger
+     `touch-action: none` DANS CES SÉLECTEURS-CI était un garde sur la FORME :
+     il aurait été vert avec quatre copies et muet sur un cinquième organe armé
+     sans aucune. La loi se garde désormais là où elle vit, sur la MARQUE de
+     l'armement — `tests/decor-ne-se-laisse-pas-saisir.test.mjs`, ② f et ② g.
+     ⛔ On ne laisse donc PAS ici une assertion qui tolérerait les deux formes :
+     elle serait vraie quoi qu'il arrive, et une assertion toujours vraie protège
+     sa propre documentation au lieu du produit. */
 });
 
 test("7 — DÉPASSER LE BUDGET rend le bloc rouge, et il cesse d'être « complet »", () => {
@@ -1100,4 +1106,87 @@ test("13 quinquies — ⚔️ un geste ABANDONNÉ ne condamne pas l'écran : le 
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 12 });
   assert.deepEqual(c.trace, ["lever", "poser"], "le geste orphelin est clos par la preuve, pas par un minuteur");
   assert.deepEqual(d.trace, ["lever", "poser", "depot:apres"], "et le doigt primaire glisse normalement");
+});
+
+test("13 sexies — ⚔️ LA PANNE DU DOIGT : le `lostpointercapture` d'un ENFANT ne clôt pas le geste", () => {
+  /* ══ 🔴 CE GARDE EST LA PANNE D'ERIC, RÉDUITE À SON OS ═════════════════════
+     Eric, 14/09 : *« LE DÉ NE VEUT PAS QUITTER SON EMPLACEMENT DE DÉPART. Et ça
+     marche parfaitement sur Mac. »*
+
+     📏 MESURÉ SUR UN VRAI iPad (iPad Pro 11 pouces, iOS 26.5, Safari, vrais
+     événements tactiles, sonde d'événements dans la page), pendant le glisser
+     qui échouait :
+         touchmove=9  pointermove=10  pointercancel=0  scroll=0
+         leve=1  repose=1
+         CAPTURE : G→SPAN.porte-de  L→SPAN.porte-de  G→BUTTON.ability-de-gar
+     ⭐ TOUT ARRIVAIT : les dix `pointermove` étaient là, rien n'était annulé,
+     rien ne défilait. Le dé se soulevait (`leve=1`) et se REPOSAIT aussitôt
+     (`repose=1`), au milieu du geste. ⛔ Ce n'est donc ni `touch-action`, ni un
+     défilement volé, ni des événements manquants — trois pistes éliminées par
+     cette seule mesure.
+
+     ⭐⭐ LA CAUSE EST DANS LA LIGNE « CAPTURE ». Un pointeur TACTILE est capturé
+     IMPLICITEMENT par sa cible, et sa cible n'est pas le jeton armé : c'est
+     l'ENFANT sous le doigt (le décor du dé). Quand `bouge` prend la capture
+     explicite sur le jeton au 6ᵉ pixel, le navigateur RETIRE la capture
+     implicite de l'enfant et lui envoie `lostpointercapture` — un message qui
+     BULLE, donc qui arrivait ici, sur le jeton, et y passait pour « mon jeton a
+     disparu ». Le geste se clôturait à l'instant où il commençait.
+     ⛔ ET LA SOURIS NE LE VOIT PAS : pas de capture implicite, donc pas de
+     capture à retirer à un enfant, donc aucun message avant la fin. C'est
+     l'angle mort qui a rendu vingt bancs verts pendant que l'iPad restait bloqué.
+
+     ⚠️ CE QUE LE STUB PEUT ET NE PEUT PAS : il ne fait pas remonter les
+     événements. On dispatche donc sur le JETON un message dont la CIBLE est
+     l'enfant — c'est exactement la forme dans laquelle le navigateur le livre à
+     un écouteur de bulle, et c'est la donnée que la réparation lit. */
+  const { brut, trace } = jetonMonte();
+  const decor = document.createElement("span");   /* le décor du dé, sous le doigt */
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "str" } }) });
+  brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, ["lever"], "témoin — le dé s'est bien soulevé, sinon ce garde ne garderait rien");
+
+  /* ⚔️ LE MESSAGE DE L'ENFANT, au 6ᵉ pixel, pendant que le doigt tient encore. */
+  brut.dispatchEvent({ type: "lostpointercapture", pointerId: 1, target: decor });
+  assert.deepEqual(trace, ["lever"],
+    "⛔ LA PANNE D'ERIC : la capture perdue d'un ENFANT n'est pas la nôtre — le dé ne doit pas être reposé");
+
+  /* ⭐ ET LE GESTE VA JUSQU'AU BOUT : le score traverse. */
+  document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 0, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 0, pointerId: 1 });
+  assert.deepEqual(trace, ["lever", "poser", "depot:str"],
+    "⭐ le dé quitte son emplacement de départ — le mot d'Eric, à l'endroit");
+});
+
+test("13 septies — ⚔️ …ET LA VRAIE PERTE, ELLE, CONCLUT TOUJOURS : le garde du 199 n'est pas desserré", () => {
+  /* 🔴 LA PORTE NE DOIT PAS DEVENIR UNE PASSOIRE. Le message qui vise LE JETON
+     est le seul signal qu'on ait quand le jeton quitte le document en plein
+     geste (lot 199) — le refuser aussi rendrait l'écran mort que le 199 a
+     réparé. On éprouve donc les DEUX côtés de la porte dans le même garde.
+     ⚠️ ET UN `target` ABSENT VAUT « LE NÔTRE », par le même argument que
+     `dUnAutre` : un stub n'en émet pas, et une porte qui n'ouvrirait que pour
+     des événements parfaitement formés ne serait pas éprouvable. */
+  const a = jetonMonte();
+  document.elementFromPoint = () => ({ closest: () => ({ dataset: { creneau: "str" } }) });
+  a.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  a.brut.dispatchEvent({ type: "lostpointercapture", pointerId: 1, target: a.brut });
+  assert.deepEqual(a.trace, ["lever", "poser"],
+    "⛔ la capture perdue DU JETON reste une fin : sans elle, le geste du 13/09 restait ouvert pour toujours");
+
+  const b = jetonMonte();
+  b.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  b.brut.dispatchEvent({ type: "lostpointercapture", pointerId: 1 });
+  assert.deepEqual(b.trace, ["lever", "poser"], "et un message sans cible est traité comme le nôtre");
+
+  /* ⚔️ ET LE POINTEUR D'UN AUTRE DOIGT NE CLÔT RIEN NON PLUS. */
+  const c = jetonMonte();
+  c.brut.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 1 });
+  c.brut.dispatchEvent({ type: "lostpointercapture", pointerId: 77, target: c.brut });
+  assert.deepEqual(c.trace, ["lever"], "⛔ un autre pointeur ne termine pas notre geste");
+  document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 0, pointerId: 1 });
+  assert.deepEqual(c.trace, ["lever", "poser", "depot:str"], "et le nôtre se conclut normalement");
 });
