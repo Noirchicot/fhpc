@@ -35,7 +35,7 @@ import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { stripComments } from "./source-scan.mjs";
-import { acceptanceDocument, makeHarness, manifestOf, readJson } from "./build-harness.mjs";
+import { acceptanceDocument, makeHarness, manifestOf, readJson, PILE_SRD } from "./build-harness.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(ROOT, "ui", "builder");
@@ -392,4 +392,60 @@ test("F5 — ⚔️ UN DOCUMENT QUI NE VALIDE PAS EST REFUSÉ, avec le verbe qui
     (e) => /^fhpc\/doc: create : le document ne valide pas/.test(e.message));
   assert.throws(() => writers.composer({ ...NEUF, id: "pas d'espace ici" }),
     (e) => /composer : le document ne valide pas/.test(e.message));
+});
+
+/* ══ G — 🔴 LOT 201 : LA CRÉATION LAISSE TOUJOURS UN MOTEUR COHÉRENT, ET LA
+   QUESTION EXIGE UNE RÉPONSE ══════════════════════════════════════════════
+   📏 Eric, 13/09 : *« next ne m'amène pas sur species ? pourquoi ? »* — Species
+   vide, `snaps 0`, six interrupteurs allumés. Reproduit au banc (512 × 764) :
+   la question « SRD or Fate's Hand? » fermée sans réponse → `choisirLeJeu` ne
+   tourne jamais → le carnet vidé par `remettreAZero` (197) n'est jamais
+   regarni → Species n'a rien à lister. Deux verrous indépendants. */
+
+test("G1 — 🔴 SUR LA DONNÉE : le personnage neuf, dérivé SANS réponse, a déjà les espèces de la pile montée", () => {
+  /* Ce que `rebuild()` fait dans `repartirAZero` : sans classe, le moteur
+     REFUSE (`BuildError`) et la coquille pose le carnet par `verbs.decisions`.
+     Ce garde rejoue exactement ces deux verbes sur le document que `composer`
+     fait naître, sur la vraie pile EN. ⛔ Aucune espèce recopiée ici : le
+     témoin est le genre monté (`query`). */
+  const h = makeHarness({ layers: PILE_SRD });
+  const doc = writers.composer({ ...NEUF, layers: manifestOf(h.layers), id: "premier-pas-201" });
+  assert.throws(() => h.verbs.rebuild({ document: doc }), (e) => e.name === "BuildError",
+    "témoin : un personnage neuf n'a pas de classe, le moteur le dit");
+  const plans = h.verbs.decisions({ document: doc }).decisions || [];
+  const especes = plans.find((p) => p.path === "species");
+  assert.ok(especes, "le carnet d'un document vivant porte le plan `species`");
+  const montees = (h.layers.verbs.query({ kind: "species" }) || []).map((v) => v.id).sort();
+  assert.ok(montees.length >= 2, `témoin de portée : la pile monte plusieurs espèces (lu : ${montees.length})`);
+  assert.deepEqual((especes.options || []).slice().sort(), montees,
+    "⛔ zéro option ici, c'est l'écran vide d'Eric — le carnet doit porter les espèces montées");
+});
+
+test("G2 — 🔌 `repartirAZero` DÉRIVE tout de suite : le carnet ne dépend plus de la réponse au popup", () => {
+  /* Le 193 excluait ce `rebuild()` (« laisserait ce mot mort derrière le
+     popup ») ; sa raison est morte au 198 (seul Sheet nomme). */
+  const neuf = shell.slice(shell.indexOf("repartirAZero: () => {"), shell.indexOf("demanderLeJeu: () => {"));
+  assert.match(neuf, /goToStep\(CONCEPT_INDEX\);\s*rebuild\(\);/,
+    "⛔ sans `rebuild()` ici, une question esquivée laisse `state.decisions = []` sur un document vivant");
+  /* ⚠️ Et D2 (etat-neuf) tient toujours : un `rebuild()` n'est pas une pose de champ. */
+  assert.deepEqual([...neuf.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), ["state.document ="]);
+  /* Le second verrou, dans la même voie : la réponse repeint même quand
+     `goToStep(1)` n'a pas bougé (le 200 ouvre déjà le chapitre 1). */
+  const reponse = shell.slice(shell.indexOf('action.kind === "choisirLeJeu"'), shell.indexOf('action.kind === "cranChoisi"'));
+  assert.match(reponse, /goToStep\(1\);\s*refresh\(\);/,
+    "📏 mesuré au banc le 13/09 : sans ce `refresh`, la question restait à l'écran après la réponse");
+});
+
+test("G3 — ⚖️ LA QUESTION EXIGE UNE RÉPONSE, et c'est le popup qui le porte (Eric, 10/09)", () => {
+  /* *« Un popup doit me dire, avant même d'arriver à l'étape 1, tout de suite :
+     tu veux SRD ou FH ? — et faire le réglage pour moi. »* Un réglage qui ne se
+     fait que sur la réponse ne tolère pas une question esquivée. */
+  const popup = popupDuJeu(() => {});
+  assert.equal(popup.exigeUneReponse, true,
+    "⛔ sans ce champ, un clic à côté ferme la question et Species reste vide");
+  /* ⚔️ Et les AUTRES popups ne l'ont pas : le gendarme et le guide sans
+     actions se ferment toujours au clic dehors. Lu sur la coquille. */
+  assert.doesNotMatch(shell, /role: "gendarme"[^}]*exigeUneReponse/, "le gendarme ne retient personne");
+  assert.doesNotMatch(shell, /exigeUneReponse: true/,
+    "la coquille ne fait que LIRE le champ (paintPopup) — elle ne le pose nulle part");
 });

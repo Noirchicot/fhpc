@@ -371,6 +371,12 @@
      suit ; et elle bascule avec le thème sans redéclaration, puisque `--text`
      le fait déjà. */
   --chevron-trait: color-mix(in srgb, var(--text) var(--voile-simple), transparent);
+  /* 🔴 LOT 201 — LE VOILE D'ÉCRAN : ce qu'une question pose sur tout ce qu'elle
+     interdit. Il était écrit en dur dans `.aiguilleur` (26/08, « voile tout
+     l'écran à 72 % ») ; le popup qui exige une réponse (`.popup[data-exige-une-
+     reponse="true"]`) le pose aussi. Un même voile, UN jeton — une norme se
+     câble en défaut partagé au socle, jamais deux formules qui divergent. */
+  --voile-ecran: color-mix(in srgb, var(--bg) 72%, transparent);
   --belt-chevron: calc(var(--touch) - 2 * var(--sp-8));
   --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-8));
   --fiche-dalle-w: 242px;
@@ -715,14 +721,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=624");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=625");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=624");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=625");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -815,8 +821,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=624");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=624");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=625");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=625");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

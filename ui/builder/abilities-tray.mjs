@@ -106,9 +106,9 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=624";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=624";
-import { swapContent } from "./socle.mjs?v=624";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=625";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=625";
+import { swapContent } from "./socle.mjs?v=625";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */

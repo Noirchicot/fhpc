@@ -1144,6 +1144,33 @@ body {
      DOCUMENT en capture, pas sur lui. */
   pointer-events: none;
 }
+/* 🔴 LOT 201 — LE POPUP QUI POSE UNE QUESTION EST UN AUTRE OBJET (NORMES §7,
+   `popup-question-exige-une-reponse`). ⚖️ Eric, 10/09 : *« Un popup doit me
+   dire, avant même d'arriver à l'étape 1, tout de suite : tu veux SRD ou FH ? —
+   et faire le réglage pour moi. »* Il ne se ferme que par une réponse, donc :
+   · IL PREND LE POINTEUR. 📏 Mesuré le 13/09 : sous `pointer-events: none`, ses
+     propres boutons ne recevaient rien — `elementFromPoint` au centre de
+     « Fate's Hand » rendait la rangée `Done` du dessous, et ce clic « dehors »
+     fermait la question sans réponse. La raison du 20/08 (le lâcher du glisser
+     sous le popup) ne le concerne pas : aucun glisser ne vit sous une question.
+   · IL VOILE CE QU'IL COUVRE — le voile de l'aiguilleur (`--voile-ecran`), posé
+     par son propre `::before` en `fixed`, donc sur la page ENTIÈRE, belt
+     compris : rien dessous n'est atteignable tant que la question est ouverte.
+     ⭐ Un pseudo-élément et pas un nœud : le voile naît et meurt avec
+     l'attribut que `mountPopup` pose sur l'hôte, aucun second écrivain.
+     ⚠️ `z-index: -1` DANS le contexte du popup (`z-index: 3` en fait un) : le
+     voile passe sous le texte du popup et par-dessus tout le reste. */
+.popup[data-exige-une-reponse="true"] { pointer-events: auto; }
+.popup[data-exige-une-reponse="true"]::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background: var(--voile-ecran);
+}
+/* Et le PIED qui agit (NORMES, `geste-deux-methodes-pour-poser-un-jeton`, 07/09 :
+   *« boutons et back / select au pied de la description »*) prend le pointeur
+   lui aussi — la rangée seule, pour que le texte reste transparent au lâcher.
+   `data-actions` : la coquille le pose quand le popup porte des actions. */
+.popup[data-actions="true"] .popup-actions { pointer-events: auto; }
 .popup-texte { margin: 0; font-size: var(--t3); color: var(--text); }
 /* La rangée d'actions d'un popup (lot 173) — un groupe centré, comme toute rangée de
    boutons (§6 pré) ; le bouton est celui de la sortie, sa teinte suit son mot. */
@@ -2722,7 +2749,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=624") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=625") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3045,7 +3072,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=624") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=625") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4554,7 +4581,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=624") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=625") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7435,7 +7462,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=624");
+  background-image: url("./assets/tarot-dos.jpg?v=625");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7874,7 +7901,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur {
   position: absolute; inset: 0; z-index: 2;
   display: flex; align-items: center; justify-content: center;
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  /* LOT 201 — le voile est un jeton (`--voile-ecran`, tokens.css) : le popup
+     qui exige une réponse pose LE MÊME. */
+  background: var(--voile-ecran);
 }
 .aiguilleur-carte {
   max-width: calc(var(--glisse-case) * 3 + var(--sp-24));

@@ -183,3 +183,72 @@ test("D bis — B7.7c : le popup se réveille sur un écart NEUF, pas sur un ref
   assert.match(shellText, /if \(apres && apres !== avant\)/,
     "un refus qui PERSISTE n'est pas un écart neuf");
 });
+
+/* ══ E — 🔴 LOT 201 : LE POPUP QUI POSE UNE QUESTION NE SE FERME QUE PAR UNE
+   RÉPONSE ═══════════════════════════════════════════════════════════════════
+   ⚖️ Eric, 10/09 : *« Un popup doit me dire, avant même d'arriver à l'étape 1,
+   tout de suite : tu veux SRD ou FH ? — et faire le réglage pour moi. »*
+   📏 Mesuré le 13/09 (v624) : la question fermée d'un clic dehors laissait
+   Species sans une espèce. La règle vit dans la DONNÉE du popup
+   (`exigeUneReponse`), `show` la lit ; ⛔ sans le champ, B reste vrai. */
+
+test("E — un popup qui EXIGE une réponse ne se ferme pas au clic dehors", async () => {
+  const { host, popup, dehors } = surfaceNeuve();
+  popup.show([document.createElement("p")], { exigeUneReponse: true });
+  await attendreUnTour();
+  cliquerSur(document.createElement("button"));
+  assert.equal(dehors(), 0, "⛔ un clic à côté d'une question n'est pas une réponse");
+  assert.equal(host.dataset.exigeUneReponse, "true",
+    "et l'hôte le PORTE, pour que la feuille prenne le pointeur et pose le voile");
+});
+
+test("E bis — ⚔️ SANS le champ, le clic dehors ferme toujours (B n'est pas desserré)", async () => {
+  const { host, popup, dehors } = surfaceNeuve();
+  popup.show([document.createElement("p")], {});
+  await attendreUnTour();
+  cliquerSur(document.createElement("button"));
+  assert.equal(dehors(), 1);
+  assert.equal(host.dataset.exigeUneReponse, "false", "l'hôte dit « false », pas rien : une absence n'est pas une réponse");
+});
+
+test("E ter — fermé par une réponse puis rouvert SANS exigence, il redevient un popup ordinaire", async () => {
+  const { host, popup, dehors } = surfaceNeuve();
+  popup.show([document.createElement("p")], { exigeUneReponse: true });
+  await attendreUnTour();
+  popup.hide();                                   // la réponse : `state.popup = null` → `hide`
+  assert.equal(host.dataset.exigeUneReponse, "false", "l'attribut part avec le popup — pas de voile fantôme");
+  popup.show([document.createElement("p")]);
+  await attendreUnTour();
+  cliquerSur(document.createElement("button"));
+  assert.equal(dehors(), 1, "⛔ l'exigence ne survit pas à la question qui l'a posée");
+});
+
+test("E quater — 🔌 la coquille passe l'exigence DEPUIS la donnée du popup, jamais depuis son titre", () => {
+  assert.match(shellText, /frame\.popupLayer\.show\(contenu, \{ exigeUneReponse: state\.popup\.exigeUneReponse === true \}\)/,
+    "`paintPopup` lit `state.popup.exigeUneReponse`");
+  assert.doesNotMatch(shellText, /titre === "SRD or Fate's Hand\?"/,
+    "⛔ jamais un `if` sur le titre : le prochain popup-question n'aurait qu'à porter le champ");
+});
+
+test("E quinquies — 🔌 la feuille : le popup-question prend le pointeur et voile TOUT ; le pied qui agit prend le pointeur", () => {
+  /* 📏 Mesuré le 13/09 sur v624 : `.popup` est `pointer-events: none` (20/08) et
+     ses boutons l'héritaient — `elementFromPoint` au centre de « Fate's Hand »
+     rendait la rangée `Done` du dessous. Le clic sur le bouton de la question
+     était un clic dehors. Ce garde lit la feuille ; le banc (banc-esc.mjs) lit
+     le rendu. */
+  const css = fs.readFileSync(path.join(UI_DIR, "shell.css"), "utf8");
+  const question = css.match(/\.popup\[data-exige-une-reponse="true"\] \{([^}]*)\}/);
+  assert.ok(question && /pointer-events:\s*auto/.test(question[1]), "la question prend le pointeur");
+  const voile = css.match(/\.popup\[data-exige-une-reponse="true"\]::before \{([^}]*)\}/);
+  assert.ok(voile, "et elle voile par son propre `::before`");
+  assert.match(voile[1], /position:\s*fixed/, "sur la page ENTIÈRE — belt compris —, pas sur la scène seule");
+  assert.match(voile[1], /inset:\s*0/);
+  assert.match(voile[1], /background:\s*var\(--voile-ecran\)/, "le voile de l'aiguilleur, un seul jeton");
+  const pied = css.match(/\.popup\[data-actions="true"\] \.popup-actions \{([^}]*)\}/);
+  assert.ok(pied && /pointer-events:\s*auto/.test(pied[1]), "le pied qui agit (07/09) reçoit le doigt");
+  assert.match(shellText, /frame\.popup\.dataset\.actions = String\(actions\.length > 0\)/,
+    "et `data-actions` vient de la donnée du popup, pas d'une classe devinée");
+  const tokens = fs.readFileSync(path.join(UI_DIR, "tokens.css"), "utf8");
+  assert.match(tokens, /--voile-ecran:\s*color-mix\(in srgb, var\(--bg\) 72%, transparent\)/, "le jeton existe au socle");
+  assert.match(css, /\.aiguilleur \{[^}]*background:\s*var\(--voile-ecran\)/, "…et l'aiguilleur le lit, il ne garde pas sa copie");
+});

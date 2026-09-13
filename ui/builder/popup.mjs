@@ -12,6 +12,20 @@
    par croix ou swipe ; un popup se ferme en cliquant dehors. Ce fichier ne
    connaît que le second.
 
+   ── 🔴 LOT 201 — L'EXCEPTION : LE POPUP QUI POSE UNE QUESTION ──────────
+   ⚖️ Eric, 10/09 : *« Un popup doit me dire, avant même d'arriver à
+   l'étape 1, tout de suite : tu veux SRD ou FH ? — et faire le réglage pour
+   moi. »* Un popup qui pose une question NE SE FERME QUE PAR UNE RÉPONSE :
+   ni clic à côté, ni Échap. 📏 Mesuré le 13/09 : fermé d'un clic dehors, il
+   laissait le carnet vide et Species sans une espèce.
+   ⭐ C'EST LA DONNÉE DU POPUP QUI LE DIT — `show(children, { exigeUneReponse })`,
+   lu par la coquille sur `state.popup.exigeUneReponse` — et ce module la
+   PORTE SUR L'HÔTE (`data-exige-une-reponse`) pour que la feuille fasse le
+   reste : il prend le pointeur, et il voile ce qu'il couvre (shell.css). ⛔ Le
+   voile n'est pas un écouteur de plus ici : rien dessous ne reçoit un clic
+   parce que rien dessous n'est ATTEIGNABLE, pas parce qu'on l'intercepte.
+   Sans le champ, rien ne change : le clic dehors ferme, comme depuis le 62.
+
    ── OÙ VIT L'ÉTAT, ET POURQUOI PAS ICI ──────────────────────────────────
    `SOCLE.md` le dit d'avance : « l'état d'un popup DOIT SURVIVRE — il vivra
    dans `state` comme le reste, jamais dans le DOM ». Ce module ne retient
@@ -31,7 +45,7 @@
    clignoterait sans jamais s'afficher. D'où l'armement DIFFÉRÉ : l'écouteur
    ne mord qu'à partir du tour de boucle suivant. */
 
-import { swapContent } from "./socle.mjs?v=624";
+import { swapContent } from "./socle.mjs?v=625";
 
 /** Monte la surface de popup dans `host` (un nœud du cadre, persistant).
  *  Rend `{ show(children), hide() }` — `onOutside` est appelé quand le
@@ -42,9 +56,12 @@ import { swapContent } from "./socle.mjs?v=624";
 export function mountPopup(host, onOutside) {
   let arme = false;
   let differe = null;
+  /* LOT 201 — le popup ouvert exige-t-il une réponse ? Posé par `show`, lu par
+     `dehors` : un clic à côté d'une question n'est pas une réponse. */
+  let exige = false;
 
   const dehors = (event) => {
-    if (!arme) return;
+    if (!arme || exige) return;
     let node = event.target;
     while (node) {
       if (node === host) return; // le clic est DANS le popup : il ne ferme rien
@@ -64,8 +81,14 @@ export function mountPopup(host, onOutside) {
   };
 
   return {
-    show(children) {
+    /** @param {Node[]} children
+     *  @param {{exigeUneReponse?: boolean}} [options] LOT 201 — `true` : le popup
+     *  pose une question, il ne se ferme que par une de ses actions. */
+    show(children, { exigeUneReponse = false } = {}) {
       host.hidden = false;
+      exige = exigeUneReponse === true;
+      /* Sur l'hôte, pour la feuille : le pointeur et le voile (shell.css). */
+      host.dataset.exigeUneReponse = String(exige);
       swapContent(host, children);
       desarmer();
       /* Armé au tour de boucle SUIVANT : voir « le piège du clic qui ouvre
@@ -74,6 +97,8 @@ export function mountPopup(host, onOutside) {
     },
     hide() {
       host.hidden = true;
+      exige = false;
+      host.dataset.exigeUneReponse = "false";
       swapContent(host, []);
       desarmer();
     }
