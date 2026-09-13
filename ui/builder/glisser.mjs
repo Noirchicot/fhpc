@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=629";
+import { pageDeListe } from "./normes.mjs?v=630";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=629";
-import { swapContent } from "./socle.mjs?v=629";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=630";
+import { swapContent } from "./socle.mjs?v=630";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=629";
+import { facteurZoomCourant } from "./echelle.mjs?v=630";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -373,11 +373,24 @@ let gesteVivant = null;
    est en train d'être glissé » (il va et vient), la marque dit « cette surface
    PEUT l'être » (elle reste). Deux états, deux attributs — et c'est la raison
    pour laquelle la seconde ne se déduit pas de la première.
-   ⛔ `touch-action` N'A PAS SUIVI, ET C'EST DÉLIBÉRÉ : il porte la même forme
-   (quatre copies) et le même argument, mais c'est la ligne dont dépend
-   l'existence du geste sur mobile — la déplacer demande une mesure sur un vrai
-   iPad, pas un banc. Question portée au rapport, pas tranchée ici. */
-const MARQUE_ARME = "arme";
+   ⭐ `touch-action` A SUIVI AU LOT 206 : la mesure sur un vrai iPad que ce
+   paragraphe réclamait a été faite (iPad Pro 11 pouces, iOS 26.5, Safari, vrais
+   événements tactiles), les trois sens du glisser traversent, et les quatre
+   copies ont rejoint la marque. Voir `shell.css`, § lot 206. */
+/* ══ ⚠️ ET ELLE A CHANGÉ DE NOM AU LOT 206 — UNE COLLISION, PAS UN GOÛT ═══
+   `data-arme` avait DÉJÀ un sens dans cette maison, et plus ancien que celui-ci :
+   `shell.mjs` le pose sur le bouton d'annulation pour dire *« ce Cancel a
+   quelque chose à abandonner »* (Eric, 06/09 : *« le cancel est rouge dès le
+   début des tirages »*), et `shell.css:959` le peint en rouge à ce titre.
+   ⛔ Le sélecteur de la marque, lui, est NU (`[data-arme="true"]`) : il attrapait
+   donc le bouton d'annulation. Inoffensif tant qu'il ne portait que
+   `user-select`, il a cessé de l'être quand `touch-action: none` l'a rejoint au
+   lot 206 — un doigt posé sur `Cancel` n'aurait plus pu faire défiler la page.
+   ⭐ C'EST LE NOUVEAU VENU QUI DÉMÉNAGE, et le nom qu'il prend dit ce que
+   l'organe EST, pas ce qu'on lui fait : `data-glissable` — « cette surface PEUT
+   être glissée ». Il fait la paire avec `data-glisse`, « elle est EN TRAIN de
+   l'être », et la paire se lit d'un coup d'œil. */
+const MARQUE_ARME = "glissable";
 
 /* ⛔ LES ATTRIBUTS QUE LE GESTE POSE SUR SON ORGANE — nommés UNE FOIS, parce
    qu'ils sont exactement ce qu'une COPIE ne doit pas emporter (lot 203 : *« un
@@ -566,7 +579,44 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
        serait resté vert — une ligne qui ne peut jamais accuser. On lit donc la
        RÉPONSE de `clore()` : elle dit si c'est bien CE message qui a fini le
        geste, et seule cette fois-là il y a une visée à éteindre. */
-    const perdu = () => { if (clore()) viser(null); };
+    /* ══ 🔴 ET LE MESSAGE N'EST PAS TOUJOURS LE NÔTRE — LA PANNE DU DOIGT ══
+       Eric, 14/09 : *« ça marche sur mac mais pas sur ipad dans chrome »*, et
+       le même jour, précisément : *« LE DÉ NE VEUT PAS QUITTER SON EMPLACEMENT
+       DE DÉPART. Et ça marche parfaitement sur Mac. »*
+
+       📏 MESURÉ AU BANC TACTILE (vraies entrées du protocole, Chromium 512×900,
+       Abilities → 4D6 → Flash, `podium:0` → `str`) — la SUITE est la preuve :
+         gotpointercapture:SPAN.porte-de → lostpointercapture:SPAN.porte-de
+         → gotpointercapture:BUTTON.fs-de → … → pointerup (sans dépôt)
+       ⭐ UN POINTEUR TACTILE EST CAPTURÉ IMPLICITEMENT PAR SA CIBLE (Pointer
+       Events, « implicit pointer capture ») — et sa cible n'est PAS le jeton
+       armé : c'est l'ENFANT sous le doigt, le décor du dé (`.porte-de` depuis
+       le lot 203, `IMG.fh-cd-static-snap` avant lui — mesuré aux deux). Quand
+       `bouge` prend la capture EXPLICITE sur le jeton au 6ᵉ pixel, le
+       navigateur RETIRE la capture implicite de l'enfant et lui envoie
+       `lostpointercapture`. ⚠️ Or ce message BULLE (mesuré : `bubbles: true`,
+       `eventPhase: 3` sur le jeton) : il arrivait donc ici, et `perdu` clôturait
+       le geste À L'INSTANT MÊME OÙ IL COMMENÇAIT. Le dé se soulevait une image,
+       puis `clore()` le reposait — exactement les mots d'Eric.
+       ⛔ ET LA SOURIS NE LE VOIT PAS : il n'y a pas de capture implicite pour un
+       pointeur de souris, donc aucune capture à retirer à un enfant, donc aucun
+       message avant la fin. Voilà pourquoi vingt bancs à la souris — Chromium
+       comme WebKit — ont tous été verts pendant que l'iPad restait bloqué.
+       ⛔ CE N'EST PAS UN DÉFAUT WEBKIT : mesuré identique en Chromium tactile.
+       Le clivage est doigt/pointeur, pas WebKit/Chromium.
+
+       ⭐ LA PORTE SE FONDE SUR LA DONNÉE QUE LE MESSAGE PORTE — sa CIBLE. Un
+       `lostpointercapture` dit de QUI la capture est perdue ; celui d'un enfant
+       ne dit rien de la nôtre. On ne lit ni la classe de l'enfant, ni une liste
+       de décors : on demande au message s'il parle de CE jeton.
+       ⚠️ `target` ABSENTE VAUT « LA NÔTRE », par le même argument que `dUnAutre`
+       plus haut : un stub de test n'en émet pas, et un geste qui n'existerait
+       que pour les événements parfaitement formés ne serait pas éprouvable. */
+    const perdu = (e) => {
+      if (dUnAutre(e)) return;
+      if (e && e.target && e.target !== jeton) return;
+      if (clore()) viser(null);
+    };
 
     function fini(e) {
       if (clos || dUnAutre(e)) return;

@@ -120,7 +120,7 @@ test("① d — la loi, ÉPROUVÉE SUR UN VRAI NŒUD : la propriété ET l'attri
 
 /** La marque, lue sur un organe RÉELLEMENT armé — jamais recopiée du code. */
 function marqueDe(noeud) {
-  return noeud.getAttribute("data-arme");
+  return noeud.getAttribute("data-glissable");
 }
 
 test("② a — armer un organe le DÉCLARE : la marque est posée par le geste", () => {
@@ -187,9 +187,72 @@ test("② c — la feuille ne déclare `user-select: none` QUE sur la marque : u
     coupent.push(sel.replace(/\s+/g, " ").trim());
   }
   assert.ok(coupent.length >= 1, "témoin — la coupure de sélection existe bien quelque part");
-  const horsMarque = coupent.filter((s) => !/\[data-arme(=|\])/.test(s));
+  const horsMarque = coupent.filter((s) => !/\[data-glissable(=|\])/.test(s));
   assert.deepEqual(horsMarque, [],
     "⛔ un second écrivain : cette règle-là coupe la sélection sans passer par l'armement, donc elle peut en oublier un");
+});
+
+/** Les sélecteurs de la feuille qui déclarent une propriété à une valeur. */
+function declarent(source, propriete, valeur) {
+  const out = [];
+  for (const [, sel, corps] of source.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!new RegExp(`(?:^|[;\\s])${propriete}\\s*:\\s*${valeur}\\s*(?:;|$)`).test(corps)) continue;
+    out.push(sel.replace(/\s+/g, " ").trim());
+  }
+  return out;
+}
+
+test("② f — ⚔️ LA LIGNE DONT DÉPEND LE GESTE AU DOIGT N'A QU'UN ÉCRIVAIN — lot 206", () => {
+  /* ══ 🔴 POURQUOI CE GARDE N'EXISTAIT PAS AU 205, ET POURQUOI IL EXISTE ICI ══
+     Le 205 a déplacé `user-select` sur la marque et a LAISSÉ `touch-action` en
+     quatre copies, en écrivant pourquoi : *« c'est LA ligne qui rend le geste
+     possible sur mobile — la déplacer se mesure sur un vrai iPad, pas au banc »*.
+     ⭐ LA CONDITION A ÉTÉ TENUE : iPad Pro 11 pouces, iOS 26.5, Safari, vrais
+     événements tactiles — les trois sens du glisser (podium → carac, carac →
+     carac, carac → podium) traversent avec la marque pour seul écrivain.
+     ⚠️ ET LA PEUR QUI RESTAIT A ÉTÉ MESURÉE, PAS ARBITRÉE : on craignait de
+     couper le défilement sur un créneau VIDE (une zone morte de 144 × 48 px).
+     Le cas n'existe pas — l'`armerJeton` du créneau est sous `if (choisi)` dans
+     `glisser.mjs`, donc un créneau vide n'est jamais armé et ne porte jamais la
+     marque. C'est le garde ② h, plus bas, qui le tient sur la donnée. */
+  const coupent = declarent(SHELL, "touch-action", "none");
+  assert.ok(coupent.length >= 1, "témoin — la règle qui rend le geste possible au doigt existe bien");
+  const horsMarque = coupent.filter((s) => !/\[data-glissable(=|\])/.test(s));
+  assert.deepEqual(horsMarque, [],
+    "⛔ un second écrivain : cette règle-là verrouille le défilement sans passer par l'armement, donc elle peut en oublier un");
+});
+
+test("② g — ⚔️ ATTAQUE : une copie de `touch-action` écrite à la main est NOMMÉE", () => {
+  const faux = SHELL + "\n.mon-organe-glissant { touch-action: none; }\n";
+  const hors = declarent(faux, "touch-action", "none").filter((s) => !/\[data-glissable(=|\])/.test(s));
+  assert.deepEqual(hors, [".mon-organe-glissant"],
+    "⭐ NOMMÉE, pas comptée — et c'est ce qui manquait au cinquième organe armé");
+});
+
+test("② h — ⚔️ UN CRÉNEAU VIDE N'EST PAS ARMÉ : la zone morte que le 205 craignait n'existe pas", () => {
+  /* ⭐ SUR LA DONNÉE, PAS SUR LE SOURCE : on rend un bloc avec un créneau REMPLI
+     et un créneau VIDE, et on demande à chacun s'il porte la marque. Lire
+     `if (choisi)` dans le code aurait été lire une intention ; ceci lit le
+     résultat. C'est la différence qui autorise le déplacement du ② f. */
+  const bloc = renderChoixGlisses({
+    plan: { status: "pending", answered: 1, expected: 2 },
+    slots: [
+      { path: "y[0]", index: 0, options: ["a", "b"], selected: ["a"] },
+      { path: "y[1]", index: 1, options: ["a", "b"], selected: [] }
+    ],
+    titre: "Ability boosts", mot: "Ability", labelOf: (id) => id, onAction: () => {}
+  });
+  document.body.append(bloc);
+  const creneaux = [...bloc.querySelectorAll(".glisse-creneau")];
+  const remplis = creneaux.filter((c) => c.getAttribute("data-rempli") === "true");
+  const vides = creneaux.filter((c) => c.getAttribute("data-rempli") !== "true");
+  assert.ok(remplis.length >= 1 && vides.length >= 1,
+    `témoin — il faut un créneau de chaque pour que ce garde tranche (rempli ${remplis.length}, vide ${vides.length})`);
+  assert.deepEqual(remplis.filter((c) => marqueDe(c) !== "true").map((c) => c.className), [],
+    "⛔ un créneau REMPLI est une source de glisser : sans la marque, le doigt qui en part fait défiler (Eric, 19/08)");
+  assert.deepEqual(vides.filter((c) => marqueDe(c) === "true").map((c) => c.className), [],
+    "⛔ un créneau VIDE marqué perdrait son défilement pour rien : on paierait un bug par un autre");
+  bloc.remove();
 });
 
 test("② d — ⚔️ ATTAQUE : une cinquième copie écrite à la main est NOMMÉE", () => {
@@ -198,7 +261,7 @@ test("② d — ⚔️ ATTAQUE : une cinquième copie écrite à la main est NOM
   for (const [, sel, corps] of faux.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!/(?:^|[;\s])(?:-webkit-)?user-select\s*:\s*none/.test(corps)) continue;
     const s = sel.replace(/\s+/g, " ").trim();
-    if (!/\[data-arme(=|\])/.test(s)) hors.push(s);
+    if (!/\[data-glissable(=|\])/.test(s)) hors.push(s);
   }
   assert.deepEqual(hors, [".mon-organe"],
     "⭐ NOMMÉE, pas comptée : la leçon du total juste dont le contenu est faux");
@@ -217,14 +280,14 @@ test("② e — le FANTÔME ne porte aucun attribut du geste : il n'est pas arm�
   });
   document.body.append(bloc);
   const jeton = bloc.querySelectorAll(".glisse-jeton")[0];
-  assert.equal(jeton.getAttribute("data-arme"), "true", "témoin — l'original, lui, est bien armé");
+  assert.equal(jeton.getAttribute("data-glissable"), "true", "témoin — l'original, lui, est bien armé");
   document.elementFromPoint = () => null;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 1 });
 
   const fantome = bloc.querySelectorAll(".glisse-fantome")[0];
   assert.ok(fantome, "sonde — le fantôme existe, sinon ce garde ne garde rien");
-  assert.equal(fantome.getAttribute("data-arme"), null, "la copie ne se dit pas armée");
+  assert.equal(fantome.getAttribute("data-glissable"), null, "la copie ne se dit pas armée");
   assert.equal(fantome.getAttribute("data-glisse"), null, "ni en train d'être glissée (lot 203)");
   assert.equal(jeton.getAttribute("data-glisse"), "true", "⭐ et le geste appartient bien à l'ORIGINAL");
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 40, pointerId: 1 });

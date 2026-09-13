@@ -2749,7 +2749,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=629") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=630") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3072,7 +3072,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=629") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=630") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -3133,13 +3133,16 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   min-height: var(--touch);
   color: var(--text); font-size: var(--t2);
 }
-/* Le dé EST l'objet qu'on prend. `touch-action: none` : sans elle le doigt
-   ferait défiler la page au lieu de saisir (leçon du lot 79). */
+/* Le dé EST l'objet qu'on prend. Ce qui empêche le doigt de faire défiler la
+   page au lieu de saisir (leçon du lot 79) n'est plus écrit ici : il se déduit
+   de l'armement, avec `user-select` — voir la marque, § lot 206. */
 .fs-de {
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-2);
   padding: 0; border: 0; background: none; color: var(--text);
   font-family: inherit;
-  touch-action: none; cursor: grab;
+  /* ⛔ PLUS DE `touch-action` ICI — lot 206 : il se déduit de l'ARMEMENT, comme
+     `user-select` depuis le 205. Voir la marque, plus bas dans cette feuille. */
+  cursor: grab;
   /* LE DÉ PREND LA PLACE QUE LA COLONNE LUI DONNE, jamais une cote à lui —
      et c'est AUSSI la cible tactile : à 360, l'îlot laisse ~44 px de large,
      exactement le plancher `--touch`. */
@@ -3231,6 +3234,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    `.carte-r .grille-jeton`) — quatre copies qui se trouvaient couvrir les
    quatre appels d'`armerJeton`. ⛔ Une coïncidence, pas une loi : le cinquième
    organe armé n'aurait rien reçu, et rien ne l'aurait dit.
+   ⚠️ LA MARQUE S'APPELLE `data-glissable` DEPUIS LE LOT 206, ET PAS `data-arme` :
+   ce dernier avait déjà un sens plus ancien quinze cents lignes plus haut
+   (`.sortie-bouton.sortie-annule[data-arme="true"]`, le rouge de `Cancel`), et un
+   sélecteur NU l'attrapait. Deux sens pour un attribut est une dette ; elle a
+   cessé d'être inoffensive le jour où `touch-action` a rejoint cette règle.
    ⭐⭐ `armerJeton` POSE DÉSORMAIS SA MARQUE (`glisser.mjs`, `MARQUE_ARME`) :
    la feuille ne devine plus qui est armé, elle lit ce que l'organe DÉCLARE.
    Une surface armée demain est couverte sans qu'on écrive une ligne ici.
@@ -3238,11 +3246,30 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    glissé — `fantomeLever` retire les attributs du geste (lot 203, étendu au
    205). Un clone à `pointer-events: none` n'a de toute façon aucune sélection
    à démarrer.
-   ⛔ `touch-action` N'A PAS SUIVI, DÉLIBÉRÉMENT : il porte exactement la même
-   forme (quatre copies) et le même argument, mais c'est LA ligne qui rend le
-   geste possible sur mobile — la déplacer se mesure sur un vrai iPad, pas au
-   banc. Question posée à Eric dans le rapport du lot, pas tranchée ici. */
-[data-arme="true"] { -webkit-user-select: none; user-select: none; }
+   ⭐ `touch-action` A SUIVI AU LOT 206, et la condition que le 205 posait a été
+   tenue : *« la déplacer se mesure sur un vrai iPad, pas au banc »*. Elle l'a
+   été — voir la règle juste en dessous. */
+/* ══ ⭐⭐ ET `touch-action` A SUIVI — LOT 206, 2026-09-14 ══════════════════
+   Le 205 écrivait : *« la déplacer demande une mesure sur un vrai iPad, pas un
+   banc »*. La mesure a été faite, sur un iPad Pro 11 pouces (iOS 26.5, Safari,
+   vrais événements tactiles), et elle est au rapport du lot : les trois sens du
+   glisser traversent au doigt avec cette règle-ci et aucune autre.
+   ⛔ ET CE N'EST PAS ELLE QUI CAUSAIT LA PANNE D'ERIC — mesuré aussi, et il faut
+   le dire : le `touch-action` EFFECTIF d'un dé du podium valait déjà `none`
+   avant ce lot. `touch-action` ne se lit pas sur le seul élément touché ; le
+   navigateur INTERSECTE la valeur de la cible et de ses ancêtres. Le doigt part
+   de `.porte-de` (`auto`) mais son parent `.fs-de` disait `none`, et
+   l'intersection valait `none` — relevé identique en v626, avant que le lot 203
+   ne change l'élément de départ. La panne était ailleurs (`glisser.mjs`, la
+   capture implicite). On déplace donc une règle SAINE, pour qu'elle n'ait plus
+   qu'un écrivain — pas pour réparer quoi que ce soit.
+   ⚠️ UN CRÉNEAU VIDE N'EST TOUJOURS PAS COUVERT, et c'est voulu : il n'est pas
+   armé (voir la note à sa place). La marque dit « une surface d'où un geste
+   PART » — c'est exactement le domaine de `touch-action`. */
+[data-glissable="true"] {
+  -webkit-user-select: none; user-select: none;
+  touch-action: none;
+}
 
 /* ⭐ LE DÉFAUT DU CHEMIN IMAGE A ÉTÉ RÉPARÉ EN AMONT, ET LA RUSTINE EST PARTIE
    AVEC LUI. Mesuré ici le 2026-08-16 : un dé en mode image rendait 51 × 136 au
@@ -4320,11 +4347,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      rayon de 4 px, encore elle. */
   color: var(--text); font-family: inherit; font-size: var(--t1);
   cursor: grab;
-  /* 🔴 SANS `touch-action: none`, LE GESTE N'EXISTE PAS SUR MOBILE : le doigt
-     qui part d'un jeton ferait défiler la scène, et le navigateur annulerait la
-     séquence de pointeur en cours de route. C'est la ligne qui rend le
-     glisser possible ailleurs que sur un bureau. */
-  touch-action: none;
+  /* ⛔ PLUS DE `touch-action` ICI NON PLUS — lot 206. La ligne qui rend le geste
+     possible au doigt n'a pas disparu : elle a UN SEUL écrivain désormais, la
+     marque de l'armement. Une copie par famille d'organe, c'était quatre
+     écrivains et un cinquième organe sans aucun. */
 }
 .glisse-jeton:disabled { opacity: .4; cursor: default; }
 
@@ -4332,19 +4358,25 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    2026-08-19, sur iPad : *« quand je redéplace vers le haut, ça fait scroller
    mon affichage »*.
 
-   ⚠️ LE TROU ÉTAIT PILE ICI. `touch-action` ne gouverne QUE l'élément d'où le
-   doigt PART. Les jetons du vivier portaient `touch-action: none` depuis le
-   début ; le créneau, lui, n'avait rien — alors qu'il est armé par le MÊME
-   `armerJeton` dès qu'il contient quelque chose (c'est le geste d'annulation
-   d'Eric, « on annule en ressortant l'objet »). Partir de là, c'était donc
-   rendre le geste au navigateur, qui en fait un défilement.
-
-   ⛔ ET SEULEMENT QUAND IL EST REMPLI : un créneau VIDE ne se glisse pas. Lui
-   couper le défilement ferait une zone morte de 144 × 48 px où le doigt ne
-   peut plus faire défiler la page — on paierait un bug par un autre. */
-.glisse-creneau[data-rempli="true"] {
-  touch-action: none;
-}
+   ⚠️ LE TROU ÉTAIT PILE ICI, et la phrase qui l'explique demande une CORRECTION
+   que le lot 206 a mesurée. On lisait : *« `touch-action` ne gouverne QUE
+   l'élément d'où le doigt PART »*. ⛔ C'est inexact, et l'inexactitude a coûté
+   deux jours de chasse : le navigateur INTERSECTE la valeur de l'élément touché
+   ET DE SES ANCÊTRES jusqu'au conteneur qui défile. Un enfant à `auto` dans un
+   parent à `none` ne défile donc pas. La vraie règle est : **ce qui gouverne,
+   c'est la CHAÎNE depuis l'élément d'où le doigt part.**
+   ⭐ LE TROU DE 2026-08-19 ÉTAIT BIEN RÉEL POUR AUTANT : le créneau rempli
+   n'avait AUCUN ancêtre à `none`, donc son intersection valait `auto`. Il est
+   armé par le MÊME `armerJeton` dès qu'il contient quelque chose (le geste
+   d'annulation d'Eric, « on annule en ressortant l'objet »), et il porte donc
+   la marque — c'est elle qui le couvre depuis le lot 206. */
+/* ⭐ ET LA PEUR QUI RETENAIT CE DÉPLACEMENT A ÉTÉ MESURÉE, PAS ARBITRÉE — lot
+   206. Le 205 gardait cette copie parce qu'un créneau VIDE à `touch-action:
+   none` ferait une zone morte de 144 × 48 px. ⛔ Le cas n'existe pas : dans
+   `glisser.mjs`, l'`armerJeton` du créneau est SOUS `if (choisi)` — un créneau
+   vide n'est jamais armé, donc il ne porte jamais la marque, donc il garde son
+   défilement. La règle du vide tient toujours, et elle tient MIEUX : elle
+   découle de ce que le geste fait, au lieu d'un sélecteur qui l'imite. */
 .glisse-jeton[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 
 /* ══ LA GRILLE DÉFILANTE — lot 79, étape 3 ═══════════════════════════════
@@ -4692,7 +4724,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=629") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=630") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7663,7 +7695,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=629");
+  background-image: url("./assets/tarot-dos.jpg?v=630");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7811,7 +7843,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
    séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
    `.grille-jeton` non — il n'était pas glissable avant R1. */
-.carte-r .grille-jeton { touch-action: none; }
+/* ⛔ LA QUATRIÈME COPIE EST PARTIE AVEC LES TROIS AUTRES — lot 206 : ce jeton-ci
+   est armé par `armerJeton` (`equipment-step.mjs`), donc il porte la marque et
+   la feuille le couvre sans le nommer. */
 .carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }
 
 /* ⛔ LE COMPTE SUR LE CRAN A DÉGAGÉ — Eric, 2026-08-23 : *« enlève les chiffres
