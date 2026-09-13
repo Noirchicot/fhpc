@@ -2749,7 +2749,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=628") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=629") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3072,7 +3072,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=628") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=629") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -3140,7 +3140,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   padding: 0; border: 0; background: none; color: var(--text);
   font-family: inherit;
   touch-action: none; cursor: grab;
-  -webkit-user-select: none; user-select: none;
   /* LE DÉ PREND LA PLACE QUE LA COLONNE LUI DONNE, jamais une cote à lui —
      et c'est AUSSI la cible tactile : à 360, l'îlot laisse ~44 px de large,
      exactement le plancher `--touch`. */
@@ -3218,6 +3217,32 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    règle ci-dessous est une loi de FHPC sur un objet du moteur, et elle vit
    donc dans la feuille de FHPC, à côté des autres reprises de géométrie. */
 .fh-cd-static-die { pointer-events: none; }
+
+/* ══ 🔴 ET SA JUMELLE : UNE SURFACE DE GESTE NE SE SÉLECTIONNE PAS ════════
+   Lot 205, 2026-09-13. Même famille de panne que la règle du dessus, autre
+   porte : sur un vrai pavé tactile, un glisser parti d'une surface
+   SÉLECTIONNABLE démarre une sélection de texte, et le navigateur annule le
+   pointeur en cours. Le geste meurt sans une erreur — et un banc headless ne
+   le produit jamais, parce qu'il n'y a pas de vraie sélection à démarrer.
+
+   ⭐ ELLE SE DÉDUIT DE L'ARMEMENT, ET C'EST TOUT LE CHANGEMENT. Avant ce lot,
+   la même paire de déclarations était recopiée à la main sur QUATRE familles
+   d'organe (`.fs-de`, `.glisse-jeton`, `.glisse-creneau[data-rempli="true"]`,
+   `.carte-r .grille-jeton`) — quatre copies qui se trouvaient couvrir les
+   quatre appels d'`armerJeton`. ⛔ Une coïncidence, pas une loi : le cinquième
+   organe armé n'aurait rien reçu, et rien ne l'aurait dit.
+   ⭐⭐ `armerJeton` POSE DÉSORMAIS SA MARQUE (`glisser.mjs`, `MARQUE_ARME`) :
+   la feuille ne devine plus qui est armé, elle lit ce que l'organe DÉCLARE.
+   Une surface armée demain est couverte sans qu'on écrive une ligne ici.
+   ⚠️ ET LE FANTÔME NE LA PORTE PAS : la copie n'est pas armée, elle EST le
+   glissé — `fantomeLever` retire les attributs du geste (lot 203, étendu au
+   205). Un clone à `pointer-events: none` n'a de toute façon aucune sélection
+   à démarrer.
+   ⛔ `touch-action` N'A PAS SUIVI, DÉLIBÉRÉMENT : il porte exactement la même
+   forme (quatre copies) et le même argument, mais c'est LA ligne qui rend le
+   geste possible sur mobile — la déplacer se mesure sur un vrai iPad, pas au
+   banc. Question posée à Eric dans le rapport du lot, pas tranchée ici. */
+[data-arme="true"] { -webkit-user-select: none; user-select: none; }
 
 /* ⭐ LE DÉFAUT DU CHEMIN IMAGE A ÉTÉ RÉPARÉ EN AMONT, ET LA RUSTINE EST PARTIE
    AVEC LUI. Mesuré ici le 2026-08-16 : un dé en mode image rendait 51 × 136 au
@@ -4300,7 +4325,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      séquence de pointeur en cours de route. C'est la ligne qui rend le
      glisser possible ailleurs que sur un bureau. */
   touch-action: none;
-  -webkit-user-select: none; user-select: none;
 }
 .glisse-jeton:disabled { opacity: .4; cursor: default; }
 
@@ -4320,7 +4344,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    peut plus faire défiler la page — on paierait un bug par un autre. */
 .glisse-creneau[data-rempli="true"] {
   touch-action: none;
-  -webkit-user-select: none; user-select: none;
 }
 .glisse-jeton[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 
@@ -4669,7 +4692,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=628") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=629") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6063,19 +6086,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    ⛔ NE PAS LA REPOSER : une case porte son gabarit (87 × 48, `.glisse-jeton`
    et `.glisse-creneau` plus bas) et la rangée compte jusqu'à trois. Il n'y a
    pas de troisième chiffre à écrire. */
+/* 🔵 LA RECETTE DE LA CASE S'EST COUPÉE EN DEUX — lot 205, 2026-09-13, et la
+   coupure suit une LIGNE RÉELLE : d'un côté l'HABIT que toute case porte où
+   qu'elle soit, de l'autre l'ordre de REMPLIR SA CELLULE, qui ne s'adresse
+   qu'à une case POSÉE DANS UNE RANGÉE. Voir la règle suivante. */
 .choix-glisse .glisse-jeton,
 .choix-glisse .glisse-creneau {
-  /* 🔴 LA COTE STANDARD VAUT POUR TOUTE LA LIGNE — Eric, 2026-08-19 : *« donc
-     oui, émetteur = récepteur. Mais aussi taille standard sur toute la
-     ligne. »* Le tiers la donne SANS qu'aucune largeur soit écrite deux fois :
-     trois cellules d'un tiers font une ligne pleine, et une ligne incomplète
-     garde des cases de la même taille que les autres (c'est le `max-width`
-     posé plus haut qui l'empêche de s'étirer).
-     ⛔ ET LA COTE N'EST PAS ICI : elle est sur la CELLULE (voir la note du
-     pourcentage plus haut). Ce qu'on lit ici ne fait que la remplir. */
-  flex: 1 1 auto;
-  max-width: none;
-  width: 100%;
   /* 🔴 `min-height` ET NON `height` : à 92 px de case, « Stone's Endurance »
      et « The Mole People » se replient sur deux lignes. Une hauteur FERMÉE les
      couperait — c'est la leçon de la grille des sorts, *« c'est la LIGNE qui
@@ -6091,6 +6107,60 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      interdit de croire. */
   border-radius: var(--organe-rayon);
   box-sizing: border-box;
+}
+/* ══ ⭐ « REMPLIS TA CELLULE » NE SE DIT PAS À CE QUI N'EN A PAS — lot 205,
+   2026-09-13, sur le mot d'Eric : *« pour les abilities boost le retour de
+   token sur son origine, le fantôme n'est plus carré »* ═══════════════════
+
+   📏 LA MESURE QUI NOMME LE FAUTIF, relevée au banc (512 × 900, WebGL,
+   « Ability boosts », DANS LES DEUX PILES, verdict identique) :
+
+       geste                    fantôme PEINT      `width` calculée
+       aller  vivier→collecteur  67,13 × 65,53      49,16px   ✅ la case
+       retour collecteur→vivier  512,00 × 65,53     375px     ⛔ l'écran entier
+
+   ⭐ ET LA CAUSE N'EST PAS UNE CLASSE OUBLIÉE, C'EST UNE PHRASE MAL ADRESSÉE.
+   Un collecteur REMPLI est lui-même armé (`glisser.mjs` : c'est ainsi qu'on
+   ressort un jeton — *« on annule en ressortant l'objet »*), donc le clone du
+   retour est un `.glisse-creneau`, pas un `.glisse-jeton`. La cascade, LUE au
+   navigateur et non supposée, donnait pour lui :
+       `.glisse-creneau` ................................. flex: 1 1 0
+       `.choix-glisse .glisse-creneau` (0,2,0) ........... **width: 100%**  ← gagne
+       `.glisse-fantome` (0,1,0) ......................... width: var(--case-vive)
+   `width: 100%` veut dire « la largeur de ta CELLULE ». Le fantôme est
+   `position: fixed` : il n'a pas de cellule, son bloc conteneur est la
+   FENÊTRE. 100 % valait donc 375 blg — la largeur sacrée — soit 512 px peints.
+   ⛔ LE JETON N'EN RÉCHAPPAIT PAS PAR MÉRITE : `.glisse-jeton.glisse-fantome`
+   pèse (0,2,0) comme la recette et se trouve écrite PLUS BAS. Une égalité
+   tranchée par l'ordre du fichier, pas une loi.
+
+   ⭐⭐ D'OÙ LA RÉPARATION, ET ELLE RETIRE AU LIEU D'AJOUTER : on ne monte pas
+   la voix du fantôme sur un second sélecteur (`.glisse-creneau.glisse-fantome`
+   aurait fermé CE cas et laissé le troisième organe armé de demain dehors) —
+   **on cesse de dire « remplis ta cellule » à ce qui n'en a pas.** La cote du
+   fantôme reste déclarée UNE FOIS, chez lui, et elle n'a plus d'adversaire :
+   `--case-vive`, ce que la case rend dans ce bloc-ci (lot 204).
+   📌 ET L'HABIT RESTE PARTAGÉ (règle du dessus) : hauteur plancher, rayon,
+   `box-sizing`. Un fantôme doit être IDENTIQUE à ce qu'il copie ; l'exclure de
+   l'habit l'aurait rendu moins identique, pas plus. Seul l'ordre qui suppose
+   une rangée s'arrête à sa porte.
+   ⚠️ LE `:not()` MONTE LE POIDS DE (0,2,0) À (0,3,0) — vérifié au banc avant
+   d'y croire : la boîte peinte de CHAQUE case du dépôt (sept écrans × trois
+   largeurs) est identique avant et après. Les règles qui décidaient déjà de la
+   cote d'une case pèsent (0,4,0) et (0,5,0) ; aucune ne pesait (0,3,0). */
+.choix-glisse .glisse-jeton:not(.glisse-fantome),
+.choix-glisse .glisse-creneau:not(.glisse-fantome) {
+  /* 🔴 LA COTE STANDARD VAUT POUR TOUTE LA LIGNE — Eric, 2026-08-19 : *« donc
+     oui, émetteur = récepteur. Mais aussi taille standard sur toute la
+     ligne. »* Le tiers la donne SANS qu'aucune largeur soit écrite deux fois :
+     trois cellules d'un tiers font une ligne pleine, et une ligne incomplète
+     garde des cases de la même taille que les autres (c'est le `max-width`
+     posé plus haut qui l'empêche de s'étirer).
+     ⛔ ET LA COTE N'EST PAS ICI : elle est sur la CELLULE (voir la note du
+     pourcentage plus haut). Ce qu'on lit ici ne fait que la remplir. */
+  flex: 1 1 auto;
+  max-width: none;
+  width: 100%;
 }
 /* 🔴 LA RECETTE DU WIZARD DEVIENT LE STANDARD DE TOUTE CASE — Eric,
    2026-08-19 : *« bref, reviens à ce calcul qu'on a fait quand on bossait sur
@@ -7593,7 +7663,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=628");
+  background-image: url("./assets/tarot-dos.jpg?v=629");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -7741,7 +7811,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
    séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
    `.grille-jeton` non — il n'était pas glissable avant R1. */
-.carte-r .grille-jeton { touch-action: none; -webkit-user-select: none; user-select: none; }
+.carte-r .grille-jeton { touch-action: none; }
 .carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }
 
 /* ⛔ LE COMPTE SUR LE CRAN A DÉGAGÉ — Eric, 2026-08-23 : *« enlève les chiffres

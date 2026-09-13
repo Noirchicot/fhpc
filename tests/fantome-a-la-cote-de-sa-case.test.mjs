@@ -76,8 +76,24 @@ function blocs(css) {
 
 /* ══ 1 — LE FANTÔME LIT LA COTE VIVE, PAS LE PLAFOND ═════════════════════ */
 
+/** ⚠️ LES SÉLECTEURS QUI VISENT VRAIMENT LE FANTÔME — et pas ceux qui
+ *  l'EXCLUENT. 🔴 CORRIGÉ LE 13/09 (lot 205) SUR UNE PANNE VÉCUE : ce garde
+ *  cherchait `.glisse-fantome` en SOUS-CHAÎNE, et le lot 205 a écrit
+ *  `.choix-glisse .glisse-jeton:not(.glisse-fantome)` — une règle qui dit
+ *  « tout SAUF le fantôme » et qui porte `width: 100%`. Le garde l'a élue
+ *  comme « la règle du fantôme » et a rougi sur une réparation juste.
+ *  ⭐ C'est la loi du dépôt, mot pour mot : *« compter un mot compte AUSSI la
+ *  phrase qui le nie »*. On lit donc la FORME d'emploi — le fantôme doit être
+ *  le SUJET du sélecteur (un composé qui se termine par sa classe), jamais un
+ *  argument de `:not()`. ⛔ Ce n'est pas un desserrage : le garde vise mieux,
+ *  il n'exige pas moins. */
+function viseLeFantome(sel) {
+  const sansNegation = sel.replace(/:not\([^)]*\)/g, "");
+  return sansNegation.split(",").some((part) => /\.glisse-fantome\s*$/.test(part.trim()));
+}
+
 test("1 — la largeur du fantôme est `--case-vive` : ce que la case REND, pas la borne du socle", () => {
-  const regle = blocs(SHELL).find((b) => /(^|,)\s*\.glisse-fantome\s*$/.test(b.sel) || /\.glisse-fantome\b/.test(b.sel) && /width\s*:/.test(b.corps));
+  const regle = blocs(SHELL).find((b) => viseLeFantome(b.sel) && /width\s*:/.test(b.corps));
   assert.ok(regle, "témoin — la règle du fantôme doit exister, sinon ce garde ne garde rien");
   assert.match(regle.corps, /width\s*:\s*var\(\s*--case-vive\s*\)/,
     "⛔ `--glisse-case` est un PLAFOND (87) ; une case de six caracs rend 49,17, et le fantôme mentait de 51,65 px peints");

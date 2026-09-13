@@ -616,6 +616,10 @@
     if(!image){
       image=document.createElement("img");
       image.className="fh-cd-static-snap";image.alt="";
+      /* ⛔ UN DÉCOR NE SE LAISSE PAS ARRACHER — ruban FHPC, lot 205. Voir
+         `decorInerte`, plus bas : la loi y est écrite une fois, ici on
+         l'applique à l'instant où le décor naît. */
+      decorInerte(image);
       canvas.parentNode.insertBefore(image,canvas);
     }
     image.src=dataUrl;
@@ -744,6 +748,44 @@
       delay+=span+WAVE_GAP_MS;
     });
   }
+
+/* ══ ⛔ UN DÉCOR NE SE LAISSE PAS ARRACHER — ruban FHPC, lot 205, 2026-09-13
+   ════════════════════════════════════════════════════════════════════════
+
+   📏 CE QUI EST MESURÉ, ET C'EST LA MOITIÉ QUE LE LOT 203 N'AVAIT PAS FERMÉE.
+   Le 203 a posé `pointer-events: none` sur l'hôte (`shell.css`) parce qu'un
+   `<img>` sous le doigt ouvrait le glisser NATIF du navigateur et ANNULAIT le
+   pointeur en cours. Relevé au banc le 13/09 (512 × 900, WebGL, Abilities →
+   4D6 → Flash), les DOUZE images du moteur :
+
+       img.fh-cd-static-snap  ×12   pointer-events: none ✅   draggable: TRUE ⛔
+
+   `pointer-events` empêche le navigateur de VISER l'image ; il ne lui retire
+   pas la propriété d'être déplaçable. Une image que le navigateur peut
+   arracher est un défaut en elle-même — un clic droit, un geste de la plate-
+   forme, une extension, et le décor part. ⛔ ET CE N'EST PAS LA RÉPARATION DE
+   LA PANNE D'ERIC : je ne la reproduis pas à mon banc ; c'est une porte qu'on
+   ferme, pas une preuve qu'on donne.
+
+   ⭐ LA LOI VIT ICI, UNE FOIS, ET ELLE S'APPLIQUE OÙ LE DÉCOR NAÎT. Poser deux
+   lignes à chaque création aurait mis la loi dans autant de copies qu'il y a
+   d'images ; la nommer permet à un garde de l'ÉPROUVER sur un vrai nœud au
+   lieu de relire du texte.
+   ⚠️ LES DEUX GESTES, ET IL EN FAUT DEUX : la propriété (`node.draggable`) est
+   ce que le navigateur consulte, l'ATTRIBUT (`draggable="false"`) est ce qu'un
+   `cloneNode`, un `outerHTML` et un garde peuvent lire. L'un sans l'autre
+   laisse la moitié de la porte ouverte.
+   📌 ⏳ ET CET ÉCART-CI EST À REPORTER EN AMONT : le corps de ce fichier est
+   la copie verbatim de `fh-phb` (voir la tête), et `mountSnapshot` en fait
+   partie. La ligne d'appel y est UN appel, pas une réécriture du rendu — mais
+   la vraie place de ce défaut est `docs/javascripts/fh-static-dice.js`, et il
+   faudra l'y porter puis recopier. Dit ici pour qu'il ne se perde pas. */
+export function decorInerte(noeud) {
+  if (!noeud) return noeud;
+  noeud.draggable = false;
+  if (typeof noeud.setAttribute === "function") noeud.setAttribute("draggable", "false");
+  return noeud;
+}
 
 /* ══ LE CONSTRUCTEUR D'HÔTE — la moitié manquante du contrat ════════════
    🔴 MESURÉ AU NAVIGATEUR, 2026-08-15, ET C'EST CE QUI A RATÉ AU PREMIER
