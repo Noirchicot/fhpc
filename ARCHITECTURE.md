@@ -184,6 +184,36 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### 🔐 UNE PERMISSION SE DEMANDE DANS LE GESTE, JAMAIS AU CHARGEMENT (13/09)
+
+**Les mots d'Eric** : *« le processus de sauvegarde ne semble pas fonctionnel »* (10/09) ; et sa
+spécification du magasin : *« choisissez la destination — ça va vers le Finder. Une fois fait, un bouton
+reste présent : save location. Après ça, j'appuie sur Open, toutes mes saves. »*
+
+**La cause, prouvée en node** : au rechargement, le magasin retrouvait le dossier retenu et **redemandait
+la permission sans clic du joueur** — Chrome refuse *(« User activation is required »)* — et la page
+`Open` disait *« Your saves could not be listed »* **sans offrir une sortie d'un clic**. Après chaque
+rechargement.
+
+**La loi** : un navigateur n'accorde une permission que **dans un geste du joueur**. Donc :
+- **au chargement, on regarde, on ne demande pas** — `acces()` *(queryPermission)* partout ;
+  `autoriser()` *(requestPermission)* **seulement dans un clic** ;
+- l'état « à autoriser » est **un état de la donnée `ou`**, une fois au-dessus des deux sols — la page
+  montre **le nom du dossier** et un bouton **« Allow access to ‹dossier› »** ;
+- `Save` est un clic : la demande se fait dedans *(mesuré : l'activation survit aux `await` de la
+  file)* ; si Chrome refuse quand même, la porte le dit et nomme le bouton comme sortie ;
+- ⛔ jamais de repli silencieux vers le tiroir *(garde C2 du 195)* ; « denied » n'est pas redemandé,
+  le mot nomme `Save location`.
+  Norme : `NORMES.md` — `geste-permission-se-demande-dans-le-geste`.
+
+🪤 **Sur les gardes** : la première mutation de l'agent ne rougissait qu'un garde de **forme** — la
+liste interceptait l'état avant d'atteindre la demande. Renforcé sur le **compteur d'appels** : un
+`lire()` hors geste doit refuser **sans toucher** `requestPermission`. *Un garde qui ne rougit que sur
+la forme ne tient pas la loi.*
+
+⏳ **Laissé, nommé** : `Save location` **remplace** la poignée *(c'est « choose it again »)* ; le
+téléchargement à chaque `Save` sur le tiroir est le mot d'Eric ; les mots d'écran sont des brouillons.
+
 #### ❓ UNE QUESTION EXIGE UNE RÉPONSE — ET LA CRÉATION LAISSE UN MOTEUR COHÉRENT (13/09)
 
 **La question d'Eric** : *« next ne m'amène pas sur species ? pourquoi ? »* → un écran **vide** sur
