@@ -184,6 +184,39 @@ mettent leurs traits FH dans `data[fh_traits]` — le canal séparé que lit
 `modules/fh/traits.mjs:66`. **Deux conventions pour la même chose ; l'extraction doit
 les ramener à une.**
 
+#### 👆 LE DOIGT EST CAPTURÉ AVANT NOUS — ET UN BANC SANS DOIGT NE PROUVE RIEN (14/09)
+
+**Les mots d'Eric** : *« Abilities ne marche toujours pas »* → *« **ça marche sur mac mais pas sur
+ipad dans chrome** »* → *« **le dé ne veut pas quitter son emplacement de départ** »*. C'est la
+deuxième phrase qui a débloqué deux jours de chasse.
+
+🪤 **Et c'était une régression de mon lot 199, qui ne mord que le doigt.** Un pointeur **tactile** est
+capturé **implicitement** par sa cible — **l'enfant sous le doigt**, pas le jeton armé. Quand le geste
+prend la capture **explicite** au 6ᵉ pixel, le navigateur la retire à cet enfant et envoie
+`lostpointercapture`, **qui bulle** jusqu'au jeton — où le code du 199, écrit pour tenir *« mon jeton a
+disparu »*, le lisait comme tel et **tuait le geste à l'instant où il naissait**.
+
+⭐ **Une souris n'a pas de capture implicite.** Aucun message avant la fin. **Vingt bancs étaient
+verts** — et le **tap** marchait, parce qu'un tap ne franchit jamais le seuil, donc ne prend jamais la
+capture.
+
+**Les lois** :
+- **Un geste se ferme sur ce qu'il a lui-même ouvert.** Un signal du navigateur qui **bulle** depuis un
+  enfant n'est pas un fait sur l'élément qu'on tient : il se **trie** avant d'être cru.
+- **Un banc sans doigt ne prouve rien d'un doigt.** La matrice minimale : `souris × doigt` — et le
+  doigt sur **l'appareil**, pas seulement en émulation. *(Le tableau du 206 : une seule colonne bouge,
+  `0/3 → 3/3` au doigt ; les deux colonnes souris n'ont jamais rien vu.)*
+- ⛔ **Et le moteur n'était pas coupable** : mon intuition *« Chrome iPad est WebKit »* a désigné le
+  **bon banc pour la mauvaise raison** — mesuré identique en Chromium tactile. **C'est le doigt, pas le
+  moteur.**
+
+⛔ **CORRECTION AU CORPUS** : *« `touch-action` ne gouverne QUE l'élément d'où le doigt PART »* est
+**inexact** — le navigateur **intersecte la chaîne**. Cette phrase a coûté la chasse.
+
+🔭 **Ce qui a fini par trancher** : un **vrai iPad** *(simulateur iOS, `touch_path`)*. Trois mesures —
+glisser rapide ⛔, **tap ✅**, glisser lent ⛔ — ont éliminé trois hypothèses d'un coup. ⇒ **Quand un
+défaut ne vit que sur un support, aller sur le support.**
+
 #### 📐 UNE COTE SE LIT DANS LE DESSIN, JAMAIS DANS LES PIXELS (13/09)
 
 **La question posée à Eric** : *« Sur “Ability boosts”, le jeton +1 fait **67 px** de large, mais la
