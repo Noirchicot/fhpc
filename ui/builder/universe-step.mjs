@@ -42,22 +42,22 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=624";
+import { renderConfirmDialog } from "./confirm.mjs?v=625";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=624";
+import { motDeLEchelon } from "./echelle.mjs?v=625";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
-import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=624";
+import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=625";
 /* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
    rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
    ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
    n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=624";
+import { renderMagasinEcran } from "./magasin-ecran.mjs?v=625";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -425,12 +425,30 @@ const MOT_DU_JEU_FH = "Fate's Hand — the world of Nymedes and its rules.";
  *  ⛔ ELLE NE SAIT PAS CE QUE `choisir` FAIT — même loi que `confirm.mjs` en
  *  tête : le composant ne connaît aucun verbe, l'appelant décide.
  *
+ *  🔴 LOT 201 — ET ELLE EXIGE UNE RÉPONSE. ⚖️ Eric, 10/09 : *« Un popup doit
+ *  me dire, avant même d'arriver à l'étape 1, tout de suite : tu veux SRD ou
+ *  FH ? — et faire le réglage pour moi. »* Un réglage qui ne se fait que sur
+ *  la réponse ne peut pas tolérer une question esquivée.
+ *  📏 CE QU'ELLE COÛTAIT, MESURÉ AU BANC LE 13/09 (v624, 512 × 764, le chemin
+ *  d'Eric du jour — *« next ne m'amène pas sur species ? pourquoi ? »*) :
+ *  un clic HORS du popup le fermait sans réponse (III.4), `choisirLeJeu` ne
+ *  tournait jamais, et Species listait ZÉRO espèce. ⛔ Et le clic sur SON
+ *  PROPRE bouton était un clic dehors : `.popup` est `pointer-events: none`
+ *  (le lâcher du glisser, 20/08), `elementFromPoint` au centre de « Fate's
+ *  Hand » rendait la rangée `Done` du dessous. Le geste normal d'un joueur
+ *  produisait l'écran vide.
+ *  ⭐ LE CHAMP EST LA DONNÉE, `mountPopup` (popup.mjs) LA LIT : un popup qui
+ *  le porte ne se ferme que par une de ses actions — ni clic à côté, ni
+ *  Échap — et voile ce qu'il couvre. ⛔ Pas un `if (titre === …)` dans la
+ *  coquille : le prochain popup-question n'aura qu'à le porter aussi.
+ *
  *  @param {(pile: "srd" | "srdfh") => void} choisir
- *  @returns {{titre: string, role: string, texte: string, actions: {mot: string, faire: () => void}[]}} */
+ *  @returns {{titre: string, role: string, texte: string, exigeUneReponse: true, actions: {mot: string, faire: () => void}[]}} */
 export function popupDuJeu(choisir) {
   return {
     titre: "SRD or Fate's Hand?",
     role: "guide",
+    exigeUneReponse: true,
     texte: [MOT_DU_JEU_ENTREE, MOT_DU_JEU_SRD, MOT_DU_JEU_FH].join("\n"),
     actions: [
       { mot: "SRD", faire: () => choisir("srd") },

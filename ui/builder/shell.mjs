@@ -19,27 +19,33 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=624";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=624";
-import { mountPopup } from "./popup.mjs?v=624";
-import { renderLorePanel } from "./lore.mjs?v=624";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=624";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=625";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=625";
+import { mountPopup } from "./popup.mjs?v=625";
+import { renderLorePanel } from "./lore.mjs?v=625";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=625";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=624";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=624";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=624";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=625";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=625";
+/* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
+   REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
+   (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
+   Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
+   rendus. */
+import { nommerLeVide } from "./ecran-vide.mjs?v=625";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=625";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=624";
+} from "./tutoriel.mjs?v=625";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=624";
-import { lireLeFichier } from "./ouvrir.mjs?v=624";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=625";
+import { lireLeFichier } from "./ouvrir.mjs?v=625";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -50,14 +56,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=624";
+} from "./echelle.mjs?v=625";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=624";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=625";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -68,70 +74,70 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=624";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=624";
+} from "./fonds.mjs?v=625";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=624";
-import { renderChoixGlisses } from "./glisser.mjs?v=624";
-import { renderConceptStep } from "./concept-step.mjs?v=624";
+import { planAt, planSlots } from "./carnet.mjs?v=625";
+import { renderChoixGlisses } from "./glisser.mjs?v=625";
+import { renderConceptStep } from "./concept-step.mjs?v=625";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
-  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=624";
+  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=625";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=624";
+import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=625";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=624";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=625";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=624";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=624";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=625";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=625";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=624";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=624";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=624";
+} from "./catalogue.mjs?v=625";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=625";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=625";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=624";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=625";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=624";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=625";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=624";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=625";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=624";
+} from "./abilities-step.mjs?v=625";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=624";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=625";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=624";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=624";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=624";
+} from "./destiny-step.mjs?v=625";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=625";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=625";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=624";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=624";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=625";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=625";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=624";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=625";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -150,11 +156,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=624";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=624";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=625";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=624";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=625";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -163,8 +169,8 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=624";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=624";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=624";
+import { platformNow } from "../../src/doc/clock.mjs?v=625";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=625";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
    sauvegardes dedans »* · *« une entrée datée à chaque Save »*.
@@ -173,19 +179,19 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=624";
    la version FH du 192, le fichier automatique de `Build a character` du 193)
    y entrent SANS second chemin. */
 import { ouvrirLeMagasin as monterLeMagasin, choisirUnDossier, garderDansLeTiroir,
-  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=624";
-import { popupDeLaDestination } from "./magasin-ecran.mjs?v=624";
+  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=625";
+import { popupDeLaDestination } from "./magasin-ecran.mjs?v=625";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=624";
+import { versionQuery } from "./version.mjs?v=625";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=624";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=625";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -323,6 +329,30 @@ function motDuCranVoisin(sens) {
  *  un second (le choix `class`, pour Equipment), retiré avec son lecteur. */
 function faitsDuPersonnage() {
   return { derivable: !state.derivationImpossible };
+}
+
+/** 🔴 LOT 201 — CE QUE LA COQUILLE SAIT DE L'ÉCRAN, tendu au mot de l'écran
+ *  vide (`ecran-vide.mjs`). ⛔ Aucun jugement ici : des FAITS lus sur
+ *  `state`, que le mot recopie. Le nom du cran est celui de la ceinture
+ *  VISIBLE (`cransAlignes`, `motSi`) — « Inheritance » et pas « Background »
+ *  quand c'est ce que le joueur lit au-dessus de la carte. */
+function faitsDeLEcran() {
+  const step = STEPS[state.step];
+  const cran = cransAlignes(drapeauxMontes())[state.step];
+  const doc = state.document;
+  return {
+    etape: cran && cran.mot ? cran.mot : step.label,
+    rang: state.step,
+    palier: state.palier,
+    item: state.parcoursItem ? state.parcoursItem.path : null,
+    lore: Boolean(state.lore),
+    moteur: state.engine ? "loaded" : (state.engineError ? `failed to load — ${state.engineError}` : "still loading"),
+    document: Boolean(doc),
+    pile: doc ? currentStack(doc) : null,
+    couches: doc ? (((doc.build || {}).layers) || []).length : 0,
+    derivation: state.derivationImpossible,
+    plans: Array.isArray(state.decisions) ? state.decisions.length : 0
+  };
 }
 
 /* 🌱 LOT 197 — LA DÉCLARATION DE `state` A DÉMÉNAGÉ DANS `etat-neuf.mjs`, ET
@@ -1516,12 +1546,31 @@ function applyDecisionAction(action) {
            `choisirLeJeu` appelle une ligne plus loin. Un seul organe pour aller
            quelque part, appelé deux fois, plutôt que deux façons d'y aller. */
         goToStep(CONCEPT_INDEX);
-        /* ⛔ PAS DE `rebuild()` ICI : un personnage sans classe n'est pas
-           dérivable, `rebuild` le NOMME déjà (`derivationImpossible`) et
-           l'écran mort dit « pick a class ». Mais le faire MAINTENANT
-           laisserait ce mot derrière le popup, avant même que le joueur ait
-           dit à quel jeu il joue. Il tombe une ligne plus loin, quand la voie
-           est choisie (`choisirLeJeu`). */
+        /* 🔴 LOT 201 — ET LE PERSONNAGE NEUF EST DÉRIVÉ ICI, SANS ATTENDRE LA
+           RÉPONSE AU POPUP. Le lot 193 avait écrit « PAS DE `rebuild()` ICI :
+           le faire maintenant laisserait ce mot mort derrière le popup ». Sa
+           raison est morte depuis le 198 : plus aucun écran ne meurt faute de
+           fiche, seul Sheet nomme — Identity, derrière le popup, ne lit rien.
+           📏 CE QUE LE TROU COÛTAIT, MESURÉ AU BANC LE 13/09 (v624, 512 × 764) :
+           `remettreLEcranAZero` vide `state.decisions` (197) ; si la question
+           « SRD or Fate's Hand? » se ferme sans réponse, personne ne regarnit
+           le carnet — Identity se signe sans lui, `Next` mène à Species, et
+           `renderCatalogueCards` rend `null` sur zéro option : belt, fond, `?`,
+           rien. C'est la capture d'Eric du jour (*« next ne m'amène pas sur
+           species ? »*). Et le 200, qui ouvre le chapitre 1 dès l'appui, a
+           rendu le trou visible : avant, la question esquivée laissait au Menu.
+           ⭐ DEUX VERROUS INDÉPENDANTS : celui-ci — quoi qu'il arrive au popup,
+           un document vivant a son carnet (`rebuild` sans classe nomme
+           `derivationImpossible` et pose `state.decisions` par
+           `verbs.decisions`) ; et la question elle-même, qui n'accepte plus
+           qu'une réponse (`exigeUneReponse`, universe-step.mjs). Le document
+           déclare déjà la pile montée (`personnageNeuf`, ligne `layers`) :
+           dériver maintenant ne choisit rien à la place du joueur. La réponse
+           REDÉRIVE sur la voie choisie (`applyLayerStack` → `rebuild`).
+           ⚠️ APRÈS `goToStep`, pas avant : l'atterrissage n'a pas besoin du
+           carnet (Identity), et le popup repeint une ligne plus loin
+           (`.then(() => refresh())`). */
+        rebuild();
       },
       demanderLeJeu: () => {
         state.popup = popupDuJeu((pile) => applyDecisionAction({ kind: "choisirLeJeu", value: pile }));
@@ -1544,6 +1593,15 @@ function applyDecisionAction(action) {
     applyLayerStack(action.value);
     declarerLaPileMontee();
     goToStep(1);
+    /* 🔴 LOT 201 — ET L'ÉCRAN SE REPEINT, MÊME QUAND `goToStep` N'A PAS BOUGÉ.
+       📏 MESURÉ AU BANC LE 13/09 (sonde, 1 passage sur 6) : depuis le lot 200
+       `Build a character` ouvre déjà le chapitre 1, donc `goToStep(1)` sort par
+       son `if (target === state.step) return` — sans `refresh`. Le bouton du
+       popup a posé `state.popup = null`, mais rien ne le repeignait : le popup
+       restait À L'ÉCRAN après la réponse, jusqu'au prochain redessin venu
+       d'ailleurs (la relecture du magasin, quand elle arrivait après). Un
+       joueur qui voit encore la question croit qu'elle n'a pas été entendue. */
+    refresh();
     return;
   }
   /* ⭐ LE CRAN D'INTERFACE — la chaîne vide rend la main à l'automatique.
@@ -5126,6 +5184,14 @@ function poserLaSortie(contenu, sortie) {
      bilan d'Abilities déclare `Cancel · Next` — on regarde donc les hôtes même
      quand `sortie` est nulle ; un hôte muet, lui, ne reçoit rien (comme avant). */
   if (!contenu || typeof contenu.querySelectorAll !== "function") return noeuds;
+  /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME, ICI ET NULLE PART AILLEURS. C'est le
+     point que TOUT contenu traverse avant d'entrer dans la scène (l'actif par
+     `refresh`, le passif par `rendreLEcranDe`) : un écran ajouté demain est
+     couvert sans qu'on y pense. ⛔ Pas un `if` par écran dans `renderStepContent`
+     — un organe que N écrans fabriquent est un organe qu'on oublie.
+     Les bornes (`?`, livre) sont déjà posées à ce moment-là et ne comptent pas
+     comme contenu : c'est exactement ce que la capture du 13/09 montrait. */
+  nommerLeVide(contenu, faitsDeLEcran(), { bornes: contenu.querySelectorAll(BORNES) });
   /* 🔴 UNE SORTIE PAR HÔTE — Eric, 2026-09-03, en regardant le catalogue sur son
      iPad : *« les autres dalles n'ont que choose »*.
      ⛔ LE DÉFAUT ÉTAIT STRUCTUREL, PAS COSMÉTIQUE : la coquille fabrique UNE
@@ -5454,10 +5520,16 @@ function paintPopup() {
      est `{ mot, faire }` : le bouton n'émet qu'un geste, l'écran qui a ouvert le popup
      sait ce qu'il fait ; le popup se ferme d'abord, le geste redessine ensuite. Le mot
      dit le geste, et « Remove » DÉFAIT — donc le rouge de la famille (§6). */
-  if (Array.isArray(state.popup.actions) && state.popup.actions.length > 0) {
+  const actions = Array.isArray(state.popup.actions) ? state.popup.actions.filter((a) => a && typeof a.faire === "function") : [];
+  /* 🔴 LOT 201 — LE PIED QUI AGIT PREND LE POINTEUR, PAR LA DONNÉE : `.popup`
+     est `pointer-events: none` (le lâcher du glisser, 20/08) et ses boutons
+     l'héritaient — 📏 mesuré le 13/09, `elementFromPoint` au centre de « Fate's
+     Hand » rendait la rangée `Done` du dessous. L'attribut dit à la feuille
+     qu'il y a une rangée à atteindre ; la feuille ne rend le pointeur qu'à elle. */
+  frame.popup.dataset.actions = String(actions.length > 0);
+  if (actions.length > 0) {
     const rangee = el("div", "popup-actions");
-    for (const action of state.popup.actions) {
-      if (!action || typeof action.faire !== "function") continue;
+    for (const action of actions) {
       const b = button(action.mot, () => { state.popup = null; action.faire(); });
       /* ⛔ Pas la classe de la SORTIE (`sortie-back` n'a qu'un producteur, garde 17) :
          c'est un bouton de fiche (`fiche-action`, l'octogone à libellé), et l'état
@@ -5468,7 +5540,10 @@ function paintPopup() {
     }
     contenu.push(rangee);
   }
-  frame.popupLayer.show(contenu);
+  /* 🔴 LOT 201 — LA QUESTION EXIGE UNE RÉPONSE, ET C'EST LE POPUP QUI LE DIT
+     (`exigeUneReponse`, posé par `popupDuJeu`) : `mountPopup` ne ferme plus au
+     clic dehors et voile ce qu'il couvre. ⛔ Jamais `if (titre === …)` ici. */
+  frame.popupLayer.show(contenu, { exigeUneReponse: state.popup.exigeUneReponse === true });
 }
 
 /* Le rail (B0.19) : garni par l'écran qui en a un, vidé pour les autres.

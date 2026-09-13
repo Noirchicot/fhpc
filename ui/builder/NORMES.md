@@ -5317,6 +5317,55 @@ mentirait pendant toute l'animation mentirait précisément pendant qu'on le reg
 >
 > ⏳ Le chantier est ouvert au vault, `0.TASKS/Tasks RPG.md` — *« FHPC : les trois voix »*.
 
+### ❓ LE POPUP QUI POSE UNE QUESTION NE SE FERME QUE PAR UNE RÉPONSE *(Eric, 10/09 · lot 201, 13/09)*
+📍 `popup-question-exige-une-reponse` · vivante · 13/09
+⚖️ **Un popup qui pose une question ne se ferme que par une de ses réponses — ni clic à côté, ni Échap — et il est modal : rien dessous n'est atteignable tant qu'elle est ouverte.**
+📍 `popup-question-prend-le-pointeur` · vivante · 13/09
+⚖️ **Un popup dont le pied agit prend le pointeur sur ce pied ; un popup-question le prend en entier. `pointer-events: none` reste la loi du popup de statut, et d'aucun autre.**
+
+> ⚖️ **Eric**, 2026-09-10 : *« Un popup doit me dire, avant même d'arriver à l'étape 1, tout de
+> suite : tu veux SRD ou FH ? — et faire le réglage pour moi. »* Un réglage qui ne se fait que sur
+> la réponse ne peut pas tolérer une question esquivée.
+>
+> 📏 **CE QUE LA QUESTION ESQUIVÉE COÛTAIT — Eric, 13/09** : *« next ne m'amène pas sur species ?
+> pourquoi ? »* — Species vide, `snaps 0`, six interrupteurs allumés, toutes les couches en 200.
+> Reproduit au banc (v624, 512 × 764) : « SRD or Fate's Hand? » fermé par un clic hors de lui →
+> `choisirLeJeu` ne tourne jamais → le carnet vidé par la remise à zéro (197) n'est jamais regarni →
+> Species n'a rien à lister. **Et le clic sur son propre bouton était un clic dehors** : `.popup`
+> est `pointer-events: none` *(`geste-le-popup-ne-doit-pas-capter-le-lacher`, 20/08)*, ses boutons
+> l'héritaient, `elementFromPoint` au centre de « Fate's Hand » rendait la rangée `Done` du dessous.
+> **Le geste normal d'un joueur produisait l'écran vide.**
+>
+> ⭐ **DEUX VERROUS INDÉPENDANTS, PAS UN** : la création dérive le personnage neuf **tout de suite**
+> *(`repartirAZero` → `rebuild()` ; sans classe le moteur nomme `derivationImpossible` et pose le
+> carnet par `verbs.decisions` — plus jamais `state.decisions = []` sur un document vivant)* ; et la
+> question **exige une réponse**. Le second sans le premier laisserait le trou à la prochaine porte
+> qui vide le carnet ; le premier sans le second laisserait la question esquivable.
+>
+> 🔌 **COMMENT, ET PAR LA DONNÉE** : le popup porte `exigeUneReponse: true` *(`popupDuJeu`,
+> universe-step.mjs)* ; `paintPopup` le passe à `mountPopup.show`, qui n'appelle plus `onOutside`
+> et pose `data-exige-une-reponse` sur l'hôte ; la feuille fait le reste — `pointer-events: auto`
+> et un `::before` en `position: fixed; inset: 0` au voile de l'aiguilleur *(`--voile-ecran`,
+> tokens.css — le 72 % de l'aiguilleur devenu jeton, un seul voile pour deux objets)*.
+> ⛔ **Jamais un `if (titre === …)`** : le prochain popup-question n'aura qu'à porter le champ.
+> ⭐ **Pourquoi un voile et pas `inert`** : le belt vit hors du panneau, la scène et le rail dans
+> une autre branche — rendre inerte « tout sauf le popup » serait une liste de nœuds par nom, donc
+> incomplète par construction ; un voile `fixed` couvre la page entière sans nommer personne, et il
+> naît et meurt avec l'attribut que `mountPopup` pose — aucun second écrivain.
+> ⚠️ **Ce qu'il ne couvre pas** : le clavier. Un `Tab` peut encore atteindre un bouton du dessous ;
+> le produit se joue au doigt, et c'est laissé en l'état, dit ici.
+>
+> 🟢 **CE QUI NE CHANGE PAS** : le gendarme, le guide sans actions, le popup d'information d'un
+> jeton *(`Close` · `Select`)* se ferment toujours au clic dehors *(III.4, lot 62)* — la règle du
+> 07/09 *(« toujours possible aussi de tap / clic en dehors pour quitter le popup »)* reste entière ;
+> elle parle d'un popup qui **informe**, pas d'un popup qui **demande**. Et le `.popup` de statut ne
+> prend toujours pas le lâcher du glisser — seul le **pied qui agit** (`data-actions`) le prend, la
+> rangée et rien d'autre.
+>
+> 🛡️ Les gardes : `tests/popup.test.mjs` E–E quinquies · `tests/premier-pas.test.mjs` G1–G3 *(G1 sur
+> la donnée : le personnage neuf dérivé sans réponse porte les espèces montées)* · le banc
+> `banc-esc.mjs` *(quatre gestes → 12 espèces)*.
+
 ### ✅ CE QUI EST TRANCHÉ MALGRÉ LE STANDBY — le nom de l'objet du départ *(26/08)*
 📍 `popup-aiguilleur-nom-et-critere` · vivante · 26/08
 ⚖️ **Ce qu'on ne peut pas refuser n'est pas une aide : la fenêtre du départ est un AIGUILLEUR, pas un guide.**

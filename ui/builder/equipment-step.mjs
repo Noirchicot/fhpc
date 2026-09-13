@@ -49,31 +49,31 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=624";
-import { facteurZoomCourant } from "./echelle.mjs?v=624";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=624";
+import { renderPicker } from "./carnet.mjs?v=625";
+import { facteurZoomCourant } from "./echelle.mjs?v=625";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=625";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=624";
-import { swapContent } from "./socle.mjs?v=624";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=624";
+import { isGenre } from "../../src/layers/document.mjs?v=625";
+import { swapContent } from "./socle.mjs?v=625";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=625";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=624";
+import { armerJeton } from "./glisser.mjs?v=625";
 /* 🧍 B3 — LE DRESSING EN TROIS BANDES (lot 5, la couture) : une seule
    écriture (`b3-dressing.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLeDressing } from "./b3-dressing.mjs?v=624";
+import { construireLeDressing } from "./b3-dressing.mjs?v=625";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, additionneCouts, formatCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=624";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=624";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=625";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=625";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=624";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=625";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -85,7 +85,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=624";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=624";
+import { motDuCran } from "./ecran-mort.mjs?v=625";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
