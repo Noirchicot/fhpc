@@ -194,20 +194,50 @@ test("🔴 LOT 194 — RIEN DE POSÉ N'EST PAS UNE FAUTE : `background.boost` ou
     "aucun refus sur un écran où rien n'a encore été fait");
 });
 
-test("⚔️ ATTAQUE — UN GESTE COMMENCÉ ET INCOMPLET ROUGIT TOUJOURS : 2 points sur 3 = `boost-total-mismatch`, et l'écran le dit", () => {
-  /* ⛔ C'est le garde qui empêche le lot 194 d'être un desserrage : le verrou
-     du total n'a pas disparu, il a cessé de partir AVANT le premier geste. */
+test("🔴 LOT 203 — UN GESTE COMMENCÉ ET INCOMPLET EST EN COURS, PAS FAUTIF : 2 points sur 3 n'a AUCUN verrou, et l'écran ne refuse rien", () => {
+  /* ⚖️ ERIC, 2026-09-13 : *« Dans ability boost, ça passe en rouge dès le
+     premier +1 posé, ça devrait passer en bleu, car EN PROCESS PAS ILLÉGAL, tu
+     comprends ? »*
+
+     🪤 CE TEST DISAIT L'INVERSE JUSQU'À AUJOURD'HUI, sous le titre « UN GESTE
+     COMMENCÉ ET INCOMPLET ROUGIT TOUJOURS », et il défendait une phrase de
+     l'architecte du lot 194 (*« le garde ne se desserre pas d'un pouce »*).
+     ⛔ CE N'EST DONC PAS UN DESSERRAGE, C'EST UN ARBITRAGE D'ERIC QUI REMPLACE
+     CELUI DE L'ARCHITECTE — et il aligne enfin `background.boost` sur
+     `species.skillBudget`, l'écart que le 194 avait nommé sans le fermer.
+     ⭐ CE QUI RETIENT LA PORTE, LE `Done` ET L'ÉTAPE RESTE LE COMPTE DU PLAN :
+     `answered: 2 / expected: 3`, `status: "pending"`. Un verrou par-dessus
+     rendait « pas encore fait » indiscernable de « mal fait ». */
   const h = pile();
   const out = h.verbs.rebuild({ document: documentDe(h, [...baseChoices(), { path: "background.boost.str", value: 2 }]) });
   const plan = out.decisions.find((d) => d.path === "background.boost");
+  assert.ok(!plan.lock, "un budget EN COURS ne porte aucun verrou");
+  assert.equal(plan.status, "pending", "en attente, comme tous les budgets entamés du dépôt");
+  assert.equal(plan.answered, 2, "…et c'est le COMPTE qui dit qu'il reste à faire");
+  assert.equal(plan.expected, 3);
+
+  const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
+  assert.equal(node.querySelectorAll(".skills-refusal").length, 0,
+    "aucun refus affiché sur un geste commencé et légal");
+});
+
+test("⚔️ ATTAQUE — ET LE DÉPASSEMENT ROUGIT TOUJOURS : 4 points sur 3 = `boost-total-mismatch`, et l'écran le dit", () => {
+  /* ⛔ C'EST LE GARDE QUI EMPÊCHE LE LOT 203 D'ÊTRE UN DESSERRAGE. Ce qui a
+     changé, c'est le sens du refus — `points > 3` au lieu de `points !== 3` —
+     pas sa force : illégal veut toujours dire ROUGE, et le mot du noyau
+     s'affiche toujours mot pour mot. */
+  const h = pile();
+  const out = h.verbs.rebuild({ document: documentDe(h, [...baseChoices(),
+    { path: "background.boost.str", value: 2 }, { path: "background.boost.dex", value: 2 }]) });
+  const plan = out.decisions.find((d) => d.path === "background.boost");
   assert.equal(plan.status, "locked");
   assert.equal(plan.lock.key, "background.boost-total-mismatch");
-  assert.equal(plan.lock.params.total, 2);
+  assert.equal(plan.lock.params.total, 4);
 
   const node = renderInheritanceStep({ decisions: out.decisions, document: out.document, resolved: out.resolved, query: h.layers.verbs.query, open: "boost" }, () => {});
   const refusal = node.querySelectorAll(".skills-refusal")[0];
   assert.ok(refusal, "le moteur prononce, l'écran ne le tait pas");
-  assert.equal(refusal.textContent, "2 points spent, 3 expected.");
+  assert.equal(refusal.textContent, "4 points spent, 3 expected.");
 });
 
 /* ══ 3 — POSER UN BOOST APPELLE `set`, ET LE DOCUMENT DU VERBE REPART AU

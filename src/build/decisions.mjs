@@ -232,26 +232,40 @@ function backgroundBoostPlan(choices, view) {
      hors catalogue, valeur illisible, plafond dépassé) a DÉJÀ son verrou — un
      second verrou de total par-dessus accuserait le total d'une faute qui est
      en réalité celle d'un seul candidat (exactement le défaut du §3e-bis). */
-  /* ══ 🔴 LOT 194 — ET IL N'Y A PAS DE TOTAL AVANT LE PREMIER GESTE ═════════
-     Eric, 2026-09-10, sur le fil SRD : *« B1 : ability boost commence en
-     rouge. »*
+  /* ══ 🔴 UN BUDGET EN COURS N'EST PAS UN BUDGET FAUTIF — Eric, 2026-09-13 ═══
+     *« Dans ability boost, ça passe en rouge dès le premier +1 posé, ça devrait
+     passer en bleu, car EN PROCESS PAS ILLÉGAL, tu comprends ? »*
 
-     📏 MESURÉ (Soldier, pile SRD, rien de posé) : `background.boost` sortait
-     avec `lock: background.boost-total-mismatch`, donc l'écran ouvrait au
-     ROUGE — la porte accusée, le `Done` désarmé et la bande d'aiguilleur
-     remplacée par « 0 points spent, 3 expected. » — avant que le joueur ait
-     touché quoi que ce soit.
+     🪤 CE QU'IL RENVERSE EST UNE DÉCISION DU LOT 194, PAS UN ACCIDENT. Ce même
+     corpus écrivait, le 10/09 : *« ⛔ ET LE GARDE NE SE DESSERRE PAS D'UN
+     POUCE : un SEUL point posé sur trois rougit toujours (le geste est commencé
+     et incomplet). »* Ce n'est donc pas un desserrage — c'est l'arbitrage
+     d'Eric qui remplace celui de l'architecte, et il est cité ici avec sa
+     question pour qu'on ne le redécouvre pas à l'envers dans six semaines.
 
-     ⭐ UN COMPTE QUI N'A PAS COMMENCÉ N'EST PAS UN COMPTE FAUX. Le plan dit
-     déjà `answered: 0 / expected: 3` : c'est LUI qui retient la porte, le
-     `Done` et l'étape. Un verrou par-dessus ne rendait pas la règle plus
-     stricte — il rendait « pas encore fait » indiscernable de « mal fait ».
-     ⛔ ET LE GARDE NE SE DESSERRE PAS D'UN POUCE : un SEUL point posé sur trois
-     rougit toujours (le geste est commencé et incomplet), et le compte du plan
-     refuse toujours à zéro. C'est la mesure de la bourse d'espèce, à côté :
-     `species.skillBudget` à 0 sur 2 ne porte AUCUN verrou. Deux budgets, deux
-     jugements — c'était l'écart, pas la règle. */
-  if (!lock && candidates.length > 0 && points !== BOOST_TOTAL) {
+     📏 MESURÉ AVANT (Playwright, pile Fate's Hand, un seul `+1` posé sur 3) :
+       intact   → `status: "pending"`, `trop: false`, consigne « 0 of 3 points spent… »
+       après +1 → `status: "locked"`, `trop: TRUE`, **consigne DISPARUE**
+     La bande qui explique comment faire s'effaçait à l'instant précis où le
+     joueur venait de commencer à le faire.
+
+     ⭐ LA LOI, EN TROIS LIGNES, ET ELLE ALIGNE ENFIN LES DEUX BUDGETS :
+       · ILLÉGAL (rouge) = `points > BOOST_TOTAL`, ou une pose refusée (un
+         `stepLock` de candidat : clef hors catalogue, valeur illisible,
+         plafond de 2 dépassé) — tout cela est jugé PAR CANDIDAT, au-dessus ;
+       · EN COURS (bleu) = `0 < points < BOOST_TOTAL` ;
+       · et c'est le PLAN qui retient la porte, le `Done` et l'étape :
+         `answered: 1 / expected: 3` ne se déclare jamais satisfait.
+     ⭐ LE LOT 194 AVAIT DÉJÀ ÉCRIT LA PHRASE QUI TRANCHE, il ne l'appliquait
+     qu'à zéro : *« un verrou par-dessus rendait “pas encore fait” indiscernable
+     de “mal fait” »*. Elle vaut pour un point comme pour zéro.
+     ⭐ ET L'ÉCART QUE LE 194 AVAIT NOMMÉ SANS LE FERMER SE FERME ICI :
+     *« `species.skillBudget` à 0 sur 2 ne porte AUCUN verrou. Deux budgets,
+     deux jugements — c'était l'écart, pas la règle. »* Un seul jugement, désormais.
+     ⛔ CE QUI NE BOUGE PAS D'UN POUCE : un budget DÉPASSÉ rougit toujours (les
+     gardes 7 sexies et 7 septies de `glisser.test.mjs`), et le plafond de 2 par
+     caractéristique refuse toujours sa pose, par candidat. */
+  if (!lock && candidates.length > 0 && points > BOOST_TOTAL) {
     lock = buildViolation("background.boost-total-mismatch", {
       backgroundId: view.id, total: points, expected: BOOST_TOTAL
     }, "background.boost");
