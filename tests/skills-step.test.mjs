@@ -366,7 +366,7 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   const jeton = selecteur.querySelectorAll(".glisse-jeton")[0];
   assert.equal(jeton.getAttribute("aria-pressed"), "false", "libre : la bascule est déclarée, à faux");
   jeton.dispatchEvent({ type: "pointerdown", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
-  jeton.dispatchEvent({ type: "pointerup", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointerup", target: jeton, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.equal(skillsEcran().collecteurs.tool[0], null, "le tap au doigt LIT, il ne pose pas");
   const lu = actions.splice(0);
   assert.equal(lu.length, 1);
@@ -384,7 +384,7 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   assert.equal(nodePris.querySelectorAll(".skills-pied")[0].getAttribute("data-sortie-done-pret"), "true", "un collecteur pris : « Add tool » déclaré allumé — jamais la porte du Done de l'étape (Eric, 07/09 : « n'importe pas les tools choisis »)");
   assert.equal(pris.disabled, false, "et reste vivant");
   pris.dispatchEvent({ type: "pointerdown", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
-  pris.dispatchEvent({ type: "pointerup", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointerup", target: pris, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   const relu = actions.splice(0);
   assert.deepEqual(relu[0].actions.map((a) => `${a.mot}${a.defait ? "!" : ""}`), ["Close", "Drop!"], "sur un jeton pris : Close · Drop (rouge, il défait)");
   relu[0].actions[1].faire();
@@ -400,7 +400,7 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   const nodePlein = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   const jLibre = nodePlein.querySelectorAll(".glisse-jeton")[3];
   jLibre.dispatchEvent({ type: "pointerdown", target: jLibre, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
-  jLibre.dispatchEvent({ type: "pointerup", target: jLibre, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointerup", target: jLibre, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.deepEqual(actions.splice(0)[0].actions.map((a) => a.mot), ["Close"], "plein : Close seul");
   skillsEcran().collecteurs.tool.fill(null);
   /* 🖱️ MÉTHODE 2 AU CLIC GAUCHE : la souris POSE sans lire (le socle), et sur un jeton
@@ -408,7 +408,7 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   const nodeSouris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   const j2 = nodeSouris.querySelectorAll(".glisse-jeton")[1];
   j2.dispatchEvent({ type: "pointerdown", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
-  j2.dispatchEvent({ type: "pointerup", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointerup", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
   assert.equal(skillsEcran().collecteurs.tool[0], j2.getAttribute("data-valeur"), "clic gauche : posé, sans popup");
   assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }]);
   skillsEcran().collecteurs.tool[0] = null;
