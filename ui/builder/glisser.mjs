@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=626";
+import { pageDeListe } from "./normes.mjs?v=627";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=626";
-import { swapContent } from "./socle.mjs?v=626";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=627";
+import { swapContent } from "./socle.mjs?v=627";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=626";
+import { facteurZoomCourant } from "./echelle.mjs?v=627";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -607,19 +607,25 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
    Mesurer par image force un recalcul de mise en page pendant le seul moment
    de l'écran où il faut être fluide (la leçon du fantôme des dés).
 
-   ⚠️ EN PLEIN GESTE, `[data-glisse="true"]` COMPTE **DEUX** ÉLÉMENTS — relevé
-   au banc le 13/09 (`enVol=2`), et nommé ici parce qu'il ne se voit pas. La
-   copie est prise APRÈS que `armerJeton` a posé `dataset.glisse`, donc elle
-   porte l'attribut elle aussi. ⛔ **Tout garde qui compterait les jetons en vol
-   comptera double**, et un total juste ne dit rien du contenu : il faut lire
-   les nœuds, pas les compter.
-   📏 SA CONSÉQUENCE PEINTE, MESURÉE SUR LA FEUILLE : `.glisse-jeton[data-glisse
-   ="true"]` (0,2,0) bat `.glisse-fantome` (0,1,0), donc le fantôme se peint à
-   `opacity: .35` et non au `.9` que shell.css déclare pour lui.
-   ⏳ ⛔ NON CORRIGÉ DANS CE LOT, ET DÉLIBÉRÉMENT : retirer l'attribut de la
-   copie changerait ce qu'Eric VOIT pendant chaque glisser du produit. C'est
-   une question de peinture, elle se tranche d'un mot de lui — pas au détour
-   d'un lot sur l'ancrage du geste. */
+   ⭐ ET LA COPIE NE PORTE PAS L'ATTRIBUT DU GESTE — réparé le 13/09, lot 203.
+
+   🔴 CE QU'ELLE COÛTAIT, MESURÉ AU NAVIGATEUR (et non plus seulement lu) : la
+   copie est prise APRÈS qu'`armerJeton` a posé `dataset.glisse`, donc elle
+   emportait `data-glisse="true"`. Deux conséquences, la seconde visible :
+     · `[data-glisse="true"]` comptait **DEUX** éléments en plein geste
+       (`enVol=2` au banc) — tout garde qui aurait compté les jetons en vol
+       aurait compté double, et un total juste ne dit rien du contenu ;
+     · `.glisse-jeton[data-glisse="true"]` (0,2,0) bat `.glisse-fantome`
+       (0,1,0), donc le fantôme se peignait à `opacity: .35` — mesuré — au lieu
+       du `.9` que `shell.css` déclare pour lui.
+   ⭐ LE REMÈDE EST À LA SOURCE, PAS DANS LA FEUILLE : monter la spécificité du
+   fantôme aurait laissé la copie mentir sur son état, et le compte à deux
+   intact. **Un attribut décrit ce qu'un élément EST** ; le jeton d'origine est
+   en train d'être glissé, la copie ne l'est pas — elle EST le glissé. Elle ne
+   peut donc pas porter l'attribut, et la peinture se règle d'elle-même.
+   ⛔ RIEN D'AUTRE N'EST RETIRÉ de la copie : `cloneNode(true)` reste littéral,
+   c'est ce qui garantit qu'un fantôme ne peut pas diverger de son jeton. Seul
+   l'attribut du GESTE part — le geste appartient à l'original. */
 let fantomeGlisse = null;
 let fantomeDemi = [0, 0];
 
@@ -662,6 +668,12 @@ function fantomeLever(jeton, x, y) {
   copie.className = `${jeton.className} glisse-fantome`;
   copie.disabled = true;
   copie.setAttribute("aria-hidden", "true");
+  /* ⛔ L'ATTRIBUT DU GESTE RESTE À L'ORIGINAL — voir la note ci-dessus. Le
+     jeton est GLISSÉ, la copie EST le glissé : elle n'est pas dans cet état,
+     elle le représente. `removeAttribute` plutôt qu'une valeur `"false"` :
+     `[data-glisse="true"]` ne mord plus dans les deux cas, mais un attribut
+     absent dit « sans rapport » là où `"false"` dirait « pas encore ». */
+  if (typeof copie.removeAttribute === "function") copie.removeAttribute("data-glisse");
   fantomeGlisse = copie;
   /* 🔴 DANS `.app`, PAS SUR `<body>` — corrigé le 2026-08-30 au soir.
      Le zoom du builder vit sur `.app` (shell.css), et `.app` est un enfant de

@@ -2749,7 +2749,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=626") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=627") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3072,7 +3072,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=626") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=627") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -3174,6 +3174,50 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .fs-de .porte-de,
 .fs-de .fh-cd-static-die,
 .fs-de img.fh-cd-static-snap { width: 100%; height: auto; aspect-ratio: 1; }
+
+/* ══ 🔴 UN DÉ EST UN DESSIN : IL NE PREND JAMAIS LE POINTEUR ═════════════
+   Eric, 13/09 : *« Le drag and drop multi directionnel de abilities, qui
+   marchait très bien, ne marche plus du tout. »*
+
+   📏 CE QUI SE PASSAIT, MESURÉ AU NAVIGATEUR (Chromium 512 × 900, Abilities →
+   4D6 → Flash, `podium:0` → `str`) — et la suite d'événements est la preuve,
+   pas une déduction :
+     pointerdown:fh-cd-static-snap → pointermove → **dragstart** → **pointercancel**
+     → drag × 11 → dragend
+   Le décor du dé en mode image est un `<img>` (`mountSnapshot`, dice3d.mjs),
+   et un `<img>` est NATIVEMENT déplaçable dans un navigateur. Au deuxième
+   pixel, le navigateur ouvre son propre glisser d'image, **annule le
+   pointeur**, et notre geste se clôt proprement sans avoir rien à déposer.
+   ⛔ `glisser.mjs` N'EST POUR RIEN DANS CETTE PANNE : il fait exactement ce
+   qu'il doit d'un `pointercancel` — il range le fantôme et n'invente aucun
+   dépôt. Le défaut est que le décor a pris le geste.
+
+   ⚠️ ET IL NE SE VOIT QUE LÀ OÙ LA 3D FONCTIONNE. `dice3d.css` ne montre
+   l'image que sous `.is-webgl` ; sans WebGL c'est le repli (`<span>`, rien de
+   déplaçable) qui est sous le doigt et tout marche. Mesuré aux deux bancs :
+   sans WebGL le score se pose, **avec** WebGL rien ne se pose. C'est pourquoi
+   ce défaut vit sur la machine d'Eric et sur aucun banc headless ordinaire —
+   et pourquoi il est ANTÉRIEUR aux lots 199-202 (mesuré en v622, v623, v626).
+
+   ⭐ LA RÈGLE SE POSE UNE FOIS, SUR L'HÔTE, ET C'EST DÉDUIT — PAS RECOPIÉ.
+   `pointer-events` est une propriété HÉRITÉE : une seule déclaration sur
+   l'hôte couvre tout ce que le moteur met dedans — le canvas, l'image
+   instantanée, le repli, l'incrustation du chiffre, et les deux moitiés d'un
+   d100 (`.fh-cd-static-die-part`). Trois sélecteurs auraient laissé le
+   quatrième dehors au prochain ajout du moteur.
+   📌 ET ELLE SE DÉDUIT DE CE QUE LE MOTEUR DÉCLARE LUI-MÊME : `createDieHost`
+   pose `role="img"` sur cet hôte. Le dé dit qu'il est une image ; une image
+   est un dessin ; un dessin ne prend pas le geste de ce qui le porte.
+   ⛔ AUCUN DÉCOR DE DÉ N'A BESOIN D'ÊTRE CLIQUABLE ICI, et c'est vérifié : pas
+   un `addEventListener`, pas un `armerJeton`, pas un `closest` du dépôt ne vise
+   `.porte-de` ni `.fh-cd-static-*`. Ce qui est armé, c'est toujours le jeton
+   AUTOUR (`.fs-de`, `[data-creneau]`) — le dé n'est que ce qu'il peint.
+   ⛔ PAS DANS `dice3d.css` : cette feuille-là est une copie de l'amont
+   (`fh-phb`) et on n'y ajoute rien à nous — la même loi que le `display` du
+   repli, posé en ligne par le moteur plutôt qu'ajouté à sa feuille. La
+   règle ci-dessous est une loi de FHPC sur un objet du moteur, et elle vit
+   donc dans la feuille de FHPC, à côté des autres reprises de géométrie. */
+.fh-cd-static-die { pointer-events: none; }
 
 /* ⭐ LE DÉFAUT DU CHEMIN IMAGE A ÉTÉ RÉPARÉ EN AMONT, ET LA RUSTINE EST PARTIE
    AVEC LUI. Mesuré ici le 2026-08-16 : un dé en mode image rendait 51 × 136 au
@@ -3333,7 +3377,31 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      l'objet qu'on déplace. Il faisait 46 pour un dé de 41 (Eric, 05/09). */
   width: var(--de-pose);
   z-index: 50; pointer-events: none;
-  line-height: 0;
+  /* ══ 🔴 IL N'Y A PAS DE LIGNE DE TEXTE DANS UN FANTÔME ═══════════════════
+     Eric, 13/09 : *« les fantômes ne sont pas carrés »*.
+
+     📏 MESURÉ (Chromium, sans WebGL, 512 × 900) : le fantôme rendait **41 × 53**
+     pour une `.porte-de` de **41 × 41** — 12 px de trop, tout en bas, et ils
+     n'appartenaient à AUCUN enfant.
+     🔴 LA CAUSE N'EST PAS UNE COTE, C'EST UNE LIGNE DE BASE. `.porte-de` est un
+     `inline-block` : posé dans un bloc, il s'assoit sur la ligne de base d'une
+     LIGNE de texte. Or le repli du moteur (`fh-cd-static-die-fallback`) porte,
+     en ligne, `line-height: var(--fh-static-die-size)` — **96 px** à la
+     résolution du fantôme. La ligne de base de la boîte tombe donc 57,8 px sous
+     son sommet, et la ligne du fantôme s'étire jusque-là : 57,8 − 4,8 = **53**.
+     ⛔ `line-height: 0` ÉTAIT DÉJÀ LÀ ET NE SUFFISAIT PAS — c'est la moitié de
+     la parade, exactement comme la capture du 22/08 : elle mate le trait du
+     fantôme, pas celui de l'enfant qui déclare le sien. Une ligne de base ne se
+     corrige pas en rapetissant la ligne, elle se corrige en n'ayant pas de ligne.
+     ⭐ `flex` SUPPRIME LA CAUSE : un conteneur flex n'a pas de ligne, donc pas
+     de ligne de base à suivre. Le fantôme reprend la hauteur de ce qu'il porte,
+     et `aspect-ratio: 1` (plus bas) le rend carré comme le jeton copié.
+     ⚠️ CE DÉFAUT NE SE VOIT QUE SANS WebGL, et c'est mesuré aux deux bancs : la
+     feuille du moteur éteint le repli sous `.is-webgl`, donc sur la machine
+     d'Eric le fantôme d'Abilities est DÉJÀ carré (64,4 × 64,4 mesuré). On le
+     répare quand même — un décor dont la justesse dépend de la présence d'une
+     carte graphique n'est pas juste, il a de la chance. */
+  display: flex;
   /* 🔴 AUCUN `scale:` ICI, ET C'EST UNE CORRECTION MESURÉE (2026-08-17).
      Les propriétés `translate`/`rotate`/`scale` se composent AVANT la
      propriété `transform` : une échelle posée ici multiplierait la
@@ -4581,7 +4649,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=626") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=627") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6124,12 +6192,38 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .choix-glisse > .choix-glisse-compte,
 .choix-glisse > .glisse-consigne { text-align: center; }
 
-/* ② LE FANTÔME — un clone, donc identique. Inerte et au-dessus de tout. */
+/* ② LE FANTÔME — un clone, donc identique. Inerte et au-dessus de tout.
+   🔴 IL SE NOMME AVEC LA CLASSE DU JETON, ET C'EST OBLIGÉ (13/09, lot 203).
+   La copie EST un `.glisse-jeton` désactivé — `fantomeLever` pose
+   `copie.disabled = true` pour qu'un fantôme ne puisse rien actionner. Or
+   `.glisse-jeton:disabled` (0,1,1) battait `.glisse-fantome` (0,1,0) : le
+   fantôme se peignait à **.4**, mesuré au navigateur, pendant que cette
+   feuille annonçait `.9`. *« Une déclaration invalide crie, une déclaration
+   PERDANTE se tait. »*
+   📏 IL Y AVAIT DEUX VOLEURS DE CASCADE SUR CE MÊME `opacity`, ET LE PREMIER
+   MASQUAIT LE SECOND : `[data-glisse="true"]` (0,2,0) donnait **.35** tant que
+   la copie portait l'attribut du geste ; l'attribut retiré à la source
+   (`glisser.mjs`), la mesure est passée à **.4** — le `:disabled`, qui attendait
+   dessous. Une seule mesure n'aurait donné que la moitié de la réponse.
+   ⛔ ET ON NE RETIRE PAS `disabled` POUR GAGNER : c'est lui qui rend le fantôme
+   inerte. C'est la déclaration du fantôme qui doit porter — elle se nomme donc
+   avec la classe du jeton, à la même hauteur que ce qui la battait. */
+.glisse-jeton.glisse-fantome,
 .glisse-fantome {
   position: fixed; left: 0; top: 0; z-index: 60;
   pointer-events: none; opacity: .9;
   /* ⚠️ LA MÊME COTE QUE LA CASE, sinon le fantôme n'est plus « identique à
-     l'objet » (règle ② d'Eric) et ment sur ce qu'on est en train de poser. */
+     l'objet » (règle ② d'Eric) et ment sur ce qu'on est en train de poser.
+     🔴 ⏳ ET ELLE NE L'EST PAS — MESURÉ LE 13/09, NON RÉPARÉ ICI, voir la
+     question portée à Eric dans le message du lot 203 : sur « Ability boosts »
+     à 512 × 900, le jeton `+1` rend **67,1 × 65,5** et son fantôme **118,8 ×
+     65,5**. La cote déclarée ici (`--glisse-case`, **87**) est celle qu'Eric a
+     ratifiée le 19/08 ; la case, elle, rend **49,17** dans ce vivier. ⛔ Le
+     fantôme n'est donc PAS le fautif — il dit 87 parce que la maison dit 87 ;
+     c'est la CASE qui n'honore plus sa cote. Repeindre le fantôme à la volée
+     demanderait une taille en style EN LIGNE (garde 7 des jetons, qu'on ne
+     desserre pas), et corriger la case est une cote d'Eric : ni l'un ni
+     l'autre ne se tranche au détour d'un lot sur le pointeur. */
   width: var(--glisse-case); height: var(--glisse-h);
   box-shadow: 0 6px 18px var(--fantome-ombre);
 }
@@ -7466,7 +7560,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=626");
+  background-image: url("./assets/tarot-dos.jpg?v=627");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

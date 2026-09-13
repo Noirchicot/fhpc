@@ -240,6 +240,35 @@ class FakeElement extends FakeNode {
   set src(value) { this._attrs.set("src", String(value)); }
   get alt() { return this._attrs.get("alt") || ""; }
   set alt(value) { this._attrs.set("alt", String(value)); }
+  /* ══ LOT 203 — `cloneNode`, ET LE STUB GRANDIT AVEC CE QUE `ui/` EMPLOIE ══
+     🔴 IL MANQUAIT, ET SON ABSENCE CACHAIT UN ORGANE ENTIER. `fantomeLever`
+     (`glisser.mjs`) commence par `if (typeof jeton.cloneNode !== "function")
+     return;` : sans cette méthode, le fantôme du glisser n'était JAMAIS
+     construit sous les tests — cinq écrans de ce dépôt le montrent au doigt
+     d'Eric, et aucune suite ne l'avait jamais vu naître. Le repli du produit
+     (« pas de mise en page : pas de décor ») était devenu, au banc, un trou.
+     ⭐ IL COPIE CE QU'UN VRAI `cloneNode(true)` COPIE, ET RIEN DE PLUS : le nom
+     de balise, les attributs (donc `data-*` et `className`), le style en ligne,
+     `disabled`/`type`, et les enfants en profondeur. ⛔ PAS LES ÉCOUTEURS —
+     c'est la règle du DOM, et c'est elle qui fait qu'un fantôme est inerte ;
+     un stub qui les copierait rendrait le fantôme cliquable au banc et muet en
+     production, c'est-à-dire pire que pas de stub du tout.
+     ⚠️ ET PAS LA GÉOMÉTRIE : la copie n'a pas de mise en page, comme l'original
+     n'en a pas — ce stub ne fabrique toujours aucun rectangle. */
+  cloneNode(profond = false) {
+    const copie = new FakeElement(this.tagName);
+    for (const [nom, valeur] of this._attrs) copie._attrs.set(nom, valeur);
+    copie.style.cssText = this.style.cssText;
+    copie.disabled = this.disabled;
+    copie.type = this.type;
+    copie.hidden = this.hidden;
+    if (profond) {
+      for (const enfant of this.childNodes) {
+        copie.append(enfant.nodeType === 1 ? enfant.cloneNode(true) : enfant.textContent);
+      }
+    }
+    return copie;
+  }
   setAttribute(name, value) { this._attrs.set(name, String(value)); }
   getAttribute(name) { return this._attrs.has(name) ? this._attrs.get(name) : null; }
   hasAttribute(name) { return this._attrs.has(name); }

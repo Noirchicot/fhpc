@@ -197,15 +197,21 @@ test("§4.3 — ATTAQUE — `+9` sur une seule : `background.boost-cap-exceeded`
   assert.equal(plan.lock.params.value, 9);
 });
 
-test("§4.3 — ATTAQUE — un total de 2 : `background.boost-total-mismatch`", () => {
+test("§4.3 — 🔴 LOT 203 — un total de 2 est EN COURS, pas fautif : aucun verrou, `pending`, 2 sur 3", () => {
+  /* ⚖️ ERIC, 2026-09-13 : *« Dans ability boost, ça passe en rouge dès le
+     premier +1 posé, ça devrait passer en bleu, car EN PROCESS PAS ILLÉGAL, tu
+     comprends ? »* — ce test réclamait le verrou, il réclame maintenant son
+     absence. Le refus du DÉPASSEMENT (4 points, juste au-dessus) ne bouge pas :
+     c'est lui qui prouve que le sens du refus a changé, pas sa force. */
   const h = pile();
   const out = h.verbs.rebuild({
     document: documentDe(h, baseChoices({ extra: [{ path: "background.boost.int", value: 2 }] }))
   });
   const plan = byPath(out).get("background.boost");
-  assert.equal(plan.status, "locked");
-  assert.equal(plan.lock.key, "background.boost-total-mismatch");
-  assert.equal(plan.lock.params.total, 2);
+  assert.ok(!plan.lock, "un budget entamé et légal ne porte aucun verrou");
+  assert.equal(plan.status, "pending");
+  assert.equal(plan.answered, 2);
+  assert.equal(plan.expected, 3, "c'est le COMPTE qui retient la porte, pas un verrou");
 });
 
 /* ══ 4 — +2/+1 ET +1/+1/+1 RESTENT LÉGAUX ═════════════════════════════════ */

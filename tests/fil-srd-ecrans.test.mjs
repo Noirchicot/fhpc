@@ -496,7 +496,15 @@ test("🔴 +2/+1 et +1/+1/+1 sont TOUS DEUX acceptés ; ⚔️ +3 sur une seule 
   assert.equal(troisUns.answered, 3);
   /* ⚔️ les deux refus, intacts */
   assert.equal(boost([["str", 3]]).lock.key, "background.boost-cap-exceeded");
-  assert.equal(boost([["str", 2]]).lock.key, "background.boost-total-mismatch");
+  /* 🔴 LOT 203 — LE REFUS DU TOTAL NE VISE PLUS QUE LE DÉPASSEMENT. Eric,
+     2026-09-13 : *« Dans ability boost, ça passe en rouge dès le premier +1
+     posé, ça devrait passer en bleu, car EN PROCESS PAS ILLÉGAL, tu
+     comprends ? »* — un total de 2 sur 3 est EN COURS ; c'est `answered`/
+     `expected` qui retient la porte. Ce test lisait `boost([["str", 2]]).lock`
+     et attendait `background.boost-total-mismatch` : il attend maintenant
+     l'absence de verrou, et il vérifie le refus là où il vit, au-dessus de 3. */
+  assert.ok(!boost([["str", 2]]).lock, "2 sur 3 : en cours, pas illégal");
+  assert.equal(boost([["str", 2], ["dex", 2]]).lock.key, "background.boost-total-mismatch");
 });
 
 test("🔴 Soldier porte une porte `Tool`, les trois autres arrière-plans n'en ont pas — c'est `tool_choice` qui tranche", () => {

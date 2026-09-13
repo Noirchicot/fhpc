@@ -132,11 +132,16 @@ test("les refs, le grant d'espèce, les boosts et le don ferment chacun clear / 
       restore: () => h.verbs.set({ path: "species.keenSenses", value: "perception" })
     },
     {
-      /* LOT 43, §1d — retirer `background.boost.con` laisse le total à 2, et
-         2 ≠ 3 est maintenant un total illégal (`background.boost-total-
-         mismatch`), pas un plan simplement incomplet : `pending` décrivait un
-         garde qui ne comptait pas encore, avant ce lot. */
-      path: "background.boost.con", kind: "choice", projected: "background.boost", statusAfterClear: "locked",
+      /* 🔴 LOT 203 — RETIRER UN POINT REND LE PLAN INCOMPLET, PAS ILLÉGAL.
+         Eric, 2026-09-13 : *« Dans ability boost, ça passe en rouge dès le
+         premier +1 posé, ça devrait passer en bleu, car EN PROCESS PAS ILLÉGAL,
+         tu comprends ? »* — le total à 2 sur 3 redevient donc `pending`, comme
+         tous les autres plans entamés de cette liste.
+         🪤 LE LOT 43 AVAIT ÉCRIT L'INVERSE ICI (*« 2 ≠ 3 est maintenant un total
+         illégal »*), et le lot 194 l'avait confirmé pour tout total non atteint.
+         ⛔ Ce n'est pas un desserrage : c'est l'arbitrage d'Eric, et le refus du
+         DÉPASSEMENT (4 points sur 3) reste rouge, gardé ailleurs. */
+      path: "background.boost.con", kind: "choice", projected: "background.boost", statusAfterClear: "pending",
       restore: () => h.verbs.set({ path: "background.boost.con", value: 1 })
     },
     {

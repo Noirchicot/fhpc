@@ -702,6 +702,39 @@ const bourseDe = (...poses) => ["delve", "survival", "vigilance"].map((slug, ind
   options: ["novice", "adept"], selected: poses[index] ? [poses[index]] : [], lock: null
 }));
 
+test("11 sexies — 🔴 LOT 203 — LE FANTÔME NE PORTE PAS L'ATTRIBUT DU GESTE : UN seul jeton en vol, pas deux", () => {
+  /* ⚖️ ERIC, 13/09 : *« le fantôme n'est pas de la bonne taille »*, et le lot
+     199 avait nommé la moitié peinte de ce défaut sans le réparer :
+     `.glisse-jeton[data-glisse="true"]` (0,2,0) battait `.glisse-fantome`
+     (0,1,0), donc le fantôme se peignait à `.35` au lieu du `.9` déclaré.
+
+     🔴 LA CAUSE ÉTAIT DANS LA COPIE, PAS DANS LA FEUILLE : `cloneNode` est pris
+     APRÈS qu'`armerJeton` a posé `dataset.glisse`, donc la copie emportait
+     l'attribut. ⭐ Un attribut dit ce qu'un élément EST : l'original est EN
+     TRAIN d'être glissé, la copie EST le glissé. Elle ne peut pas le porter.
+     ⛔ ET ON NE COMPTE PAS POUR COMPTER — on lit QUI porte l'attribut. Un total
+     juste ne dit rien du contenu : le garde nomme le porteur. */
+  const actions = [];
+  const n = ecran(slotsDe(), actions);
+  const jeton = jetons(n)[0];
+  document.elementFromPoint = () => null;
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 1 });
+
+  const enVol = [...n.querySelectorAll('[data-glisse="true"]'),
+    ...document.body.querySelectorAll('[data-glisse="true"]')];
+  assert.equal(enVol.length, 1, "un doigt, un jeton glissé — le fantôme n'en est pas un second");
+  assert.equal(enVol[0], jeton, "⭐ et c'est bien l'ORIGINAL qui le porte, pas la copie");
+
+  const fantome = document.body.querySelectorAll(".glisse-fantome")[0];
+  assert.ok(fantome, "sonde : le fantôme existe bien — sinon ce garde ne garde rien");
+  assert.equal(fantome.getAttribute("data-glisse"), null,
+    "⛔ la copie ne porte pas l'attribut du geste : c'est ce qui rend sa peinture lisible dans la feuille");
+
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 40, pointerId: 1 });
+  assert.equal(document.body.querySelectorAll(".glisse-fantome").length, 0, "et rien ne survit au geste");
+});
+
 test("7 quater — un budget ENTIÈREMENT dépensé passe au vert, même avec une case libre", () => {
   const plan = { path: "species.skillBudget", status: "pending", answered: 2, expected: 2,
     options: ["novice", "adept"] };
@@ -726,6 +759,41 @@ test("7 quinquies — un budget ENTAMÉ reste bleu : le vert ne se dépense pas 
   const n = renderChoixGlisses({ plan, slots: bourseDe("novice"), titre: "Skill budget" });
   assert.equal(n.dataset.complet, "false", "1 point sur 2 : le choix n'est pas fini");
   assert.equal(n.dataset.trop, "false", "et ce n'est pas une faute non plus — juste un début");
+});
+
+test("7 quinquies bis — 🔴 LOT 203 — LA CONSIGNE SURVIT AU PREMIER POINT : en cours, l'écran explique encore comment faire", () => {
+  /* ⚖️ ERIC, 2026-09-13 : *« Dans ability boost, ça passe en rouge dès le
+     premier +1 posé, ça devrait passer en bleu, car EN PROCESS PAS ILLÉGAL, tu
+     comprends ? »*
+
+     📏 CE QUE 7 QUINQUIES NE VOYAIT PAS, ET QUI SE MESURAIT À L'ÉCRAN : le
+     rouge n'était pas la seule perte. Sous verrou, le pied REMPLACE la consigne
+     par le mot du refus (`motDuPied`) — mesuré au navigateur avant réparation,
+     un seul `+1` posé et la bande passait de « 1 of 3 points spent — drag +1 or
+     +2 onto an ability. » à « 1 points spent, 3 expected. ». La phrase qui
+     explique comment faire s'effaçait à l'instant où le joueur commençait à le
+     faire.
+     ⭐ CE GARDE LIT LA DONNÉE DU PIED, pas une couleur : un plan EN COURS
+     (`answered < expected`, aucun `lock`) garde SA consigne, et un plan
+     VERROUILLÉ la cède au mot du noyau. Les deux moitiés sont ici, parce qu'une
+     seule ne dirait pas laquelle a changé. */
+  const enCours = { path: "background.boost", status: "pending", answered: 1, expected: 3,
+    options: ["novice", "adept"] };
+  const motDuGeste = "1 of 3 points spent — drag +1 or +2 onto an ability.";
+  const n = renderChoixGlisses({ plan: enCours, slots: bourseDe("novice"), titre: "Ability boosts",
+    consigne: motDuGeste });
+  assert.equal(n.dataset.trop, "false", "en cours n'est pas illégal — le mot d'Eric du 13/09");
+  assert.equal(n.querySelectorAll(".glisse-consigne")[0].textContent, motDuGeste,
+    "la consigne reste : rien n'est refusé, il n'y a rien d'autre à dire");
+
+  /* ⚔️ L'AUTRE MOITIÉ — un VRAI refus reprend bien la bande. */
+  const refuse = { ...enCours, answered: 4,
+    lock: { key: "background.boost-total-mismatch", params: { total: 4, expected: 3 } } };
+  const r = renderChoixGlisses({ plan: refuse, slots: bourseDe("novice"), titre: "Ability boosts",
+    consigne: motDuGeste });
+  assert.equal(r.dataset.trop, "true", "dépassé : le rouge reste ce qu'il est");
+  assert.equal(r.querySelectorAll(".glisse-consigne")[0].textContent, "4 points spent, 3 expected.",
+    "⛔ et sous un vrai refus, la consigne cède au mot du noyau — c'est ce contraste qui donne son sens au premier cas");
 });
 
 test("7 sexies — un budget DÉPASSÉ rougit, et ne peut jamais verdir", () => {
