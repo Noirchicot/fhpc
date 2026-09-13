@@ -17,7 +17,27 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { MOT_DU_TIROIR } from "./magasin.mjs?v=625";
+import { MOT_DU_TIROIR } from "./magasin.mjs?v=626";
+
+/* ── 🔴 LOT 202 — LE DOSSIER À AUTORISER, ET LA SORTIE D'UN CLIC ─────────
+   📏 MESURÉ LE 13/09 : au rechargement, Chrome retient le dossier choisi mais
+   remet sa permission à « prompt », et la demander hors d'un clic est refusé
+   (`User activation is required to request permissions`). La page disait ce
+   refus tel quel et n'offrait RIEN à cliquer : seul `Save location`, qui
+   rouvre le sélecteur comme si aucun dossier n'avait jamais été choisi.
+   ⚖️ Eric, 10/09 : *« le processus de sauvegarde ne semble pas fonctionnel »*.
+
+   ⭐ DÉSORMAIS `lister()` rend un ÉTAT — `{etat:"a-autoriser", dossier}` — et
+   la page le rend comme elle rend les autres : le NOM du dossier, et UN bouton
+   dont le clic est le geste que Chrome exige. `Save location` reste, comme
+   Eric l'a dit — c'est la sortie de l'autre cas, celui où le joueur dit non. */
+
+/** Le libellé du bouton qui ré-autorise — ⚠️ brouillon anglais à Eric. Le
+ *  refus de `Save` (`motDAutoriser`, magasin.mjs) NOMME ce bouton : les deux
+ *  doivent dire le même mot. */
+export const MOT_AUTORISER = (dossier) => `Allow access to ${dossier}`;
+/** Ce que la page dit au-dessus du bouton — pourquoi on redemande. ⚠️ Brouillon. */
+export const MOT_A_AUTORISER = (dossier) => `Your saves live in "${dossier}". This browser asks for your permission again before it can open that folder.`;
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -65,12 +85,12 @@ export const MOT_DESTINATION = "Where should your saves go? Pick a folder and th
  * 🗄️ LA PAGE — la liste, groupée par personnage, la plus récente en tête.
  *
  * @param {object} ctx
- * @param {{etat:"chargement"}|{etat:"liste",groupes:object[]}|{etat:"refus",raison:string}} ctx.magasin
+ * @param {{etat:"chargement"}|{etat:"liste",groupes:object[]}|{etat:"a-autoriser",dossier:string}|{etat:"refus",raison:string}} ctx.magasin
  * @param {{mot:string, choisissable:boolean, choisi:boolean, possede:boolean}} ctx.ou
  * @param {string|null} [ctx.ouvertureRefusee]
  * @param {(action: object) => void} onAction
  *   `{kind:"ouvrirUneEntree", clef}` · `{kind:"ouvrirUnFichier"}` ·
- *   `{kind:"choisirLaDestination"}`
+ *   `{kind:"choisirLaDestination"}` · `{kind:"autoriserLeDossier"}`
  */
 export function renderMagasinEcran(ctx, onAction) {
   const section = el("section", "universe-step magasin-ecran dalle-intermediaire");
@@ -95,6 +115,16 @@ export function renderMagasinEcran(ctx, onAction) {
        « aucune sauvegarde » et « je n'ai pas fini de regarder » sont deux
        choses, et les confondre ferait croire au joueur qu'il a tout perdu. */
     section.append(el("p", "universe-note magasin-attente", [text("Looking for your saves…")]));
+  } else if (magasin.etat === "a-autoriser") {
+    /* ⭐ UN ÉTAT, PAS UN REFUS : le dossier est là, il attend un clic. Le nom
+       du dossier se lit AVANT le bouton — le joueur doit reconnaître ce qu'on
+       lui demande d'ouvrir. ⛔ Pas de `.magasin-refus` ici : rien n'a échoué. */
+    const dossier = typeof magasin.dossier === "string" && magasin.dossier !== "" ? magasin.dossier : ou.mot;
+    section.append(el("p", "universe-note magasin-a-autoriser", [text(MOT_A_AUTORISER(dossier))]));
+    const porte = el("div", "parcours-pied magasin-autorisation");
+    porte.append(bouton(MOT_AUTORISER(dossier), "tdc-vert magasin-autoriser",
+      () => onAction({ kind: "autoriserLeDossier" })));
+    section.append(porte);
   } else if (magasin.etat === "refus") {
     section.append(el("p", "doc-field-error magasin-refus", [
       text(`Your saves could not be listed: ${magasin.raison}`)

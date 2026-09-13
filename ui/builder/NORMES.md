@@ -5366,6 +5366,31 @@ mentirait pendant toute l'animation mentirait précisément pendant qu'on le reg
 > la donnée : le personnage neuf dérivé sans réponse porte les espèces montées)* · le banc
 > `banc-esc.mjs` *(quatre gestes → 12 espèces)*.
 
+### 🔑 UNE PERMISSION SE DEMANDE DANS LE GESTE — HORS GESTE, ON LA REGARDE *(lot 202, 13/09)*
+📍 `geste-permission-se-demande-dans-le-geste` · vivante · 13/09
+⚖️ **Une permission du navigateur (dossier, et demain n'importe laquelle) ne se DEMANDE que dans un clic du joueur ; hors clic on la REGARDE, et ce qu'on voit se dit comme un ÉTAT nommé — avec ce qu'il faut cliquer — jamais comme un refus, jamais par un repli silencieux.**
+
+> 📏 **MESURÉ LE 13/09** : Chrome retient le dossier choisi d'une session à l'autre, mais remet sa
+> permission à « prompt » à chaque rechargement, et `requestPermission` hors d'un geste jette
+> `SecurityError: User activation is required to request permissions`. Le magasin du lot 195
+> demandait au chargement : la page `Open` disait ce refus tel quel et n'offrait **rien à cliquer** —
+> seul `Save location`, qui rouvre le sélecteur comme si aucun dossier n'avait jamais été choisi.
+> ⚖️ Eric, 10/09 : *« le processus de sauvegarde ne semble pas fonctionnel »* ; 13/09, à « j'attaque
+> la sauvegarde seul ? » : *« non tu continues »*.
+>
+> ⭐ **LA FORME** : deux verbes, pas un — REGARDER (`queryPermission`, permis partout) et DEMANDER
+> (`requestPermission`, dans un clic). L'état « à autoriser » vit **une fois, au-dessus des sols**
+> (`lister()` → `{etat:"a-autoriser", dossier}`), et la page le rend avec **le nom du dossier** et **un
+> bouton** dont le clic est le geste : *« Allow access to ‹dossier› »*. `Save`, toujours cliqué,
+> demande lui-même dans son clic *(📏 l'activation transitoire survit aux `await` de la file — mesuré
+> en Chromium)* ; s'il est refusé quand même, la porte se dit et **nomme ce bouton** comme sortie.
+> `Save location` reste présent — c'est la sortie de l'autre cas, celui où le joueur a dit non.
+>
+> ⛔ **CE QUE ÇA INTERDIT** : demander dans un `permis()` appelé par tout le monde ; un état
+> « à autoriser » rendu comme un refus ; un repli vers le tiroir *(C2 du lot 195, gardé)* ; un
+> téléchargement de secours là où `possede` dit que les octets vivent dans le dossier.
+> 🛡️ Gardes : `tests/magasin.test.mjs` I1–I5 *(la fausse poignée COMPTE les demandes)*.
+
 ### ✅ CE QUI EST TRANCHÉ MALGRÉ LE STANDBY — le nom de l'objet du départ *(26/08)*
 📍 `popup-aiguilleur-nom-et-critere` · vivante · 26/08
 ⚖️ **Ce qu'on ne peut pas refuser n'est pas une aide : la fenêtre du départ est un AIGUILLEUR, pas un guide.**
