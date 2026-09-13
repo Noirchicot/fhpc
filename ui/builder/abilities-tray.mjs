@@ -106,9 +106,9 @@
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
    contexte vivant. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=627";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=627";
-import { swapContent } from "./socle.mjs?v=627";
+import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=628";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=628";
+import { swapContent } from "./socle.mjs?v=628";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
@@ -188,7 +188,12 @@ function poserLesDes(hote, des, anime) {
  *  reconstruire la rangée (et donc sans toucher aux canvas voisins). */
 /* 🔴 REDESSINÉE LE 2026-09-05 SUR LA DICTÉE D'ERIC : *« texte blanc dans carrés
    rouges — roll 1 (en T1) … roll 10 »*, puis *« c'est un trait qui délimite une
-   zone »*. Vide, la case est un carré au TRAIT rouge, sans fond, qui dit `roll N`.
+   zone »*. 🔵 LE ROUGE EST TOMBÉ LE 2026-09-13 — question posée à Eric : *« on
+   les garde rouges, ou ils passent au bleu comme les collecteurs d'ability
+   boost ? »* ; réponse : *« Bleus, comme les boosts. »* Une case VIDE n'a rien
+   à reprocher, et `--critical` est l'encre de ce qui défait ou de ce qui ne va
+   pas. La teinte vit dans la feuille (`.tray-case-num`), pas ici.
+   Vide, la case est donc un carré au TRAIT, sans fond, qui dit `roll N`.
    Pleine, elle porte un petit dé (instantané, sans WebGL) et le détail du jet.
    📏 `roll 10` mesure 27,6 en T1 Inter — il tient sur UNE ligne dans un carré
    de 30 (mesuré au `measureText` de la page, pas estimé). */

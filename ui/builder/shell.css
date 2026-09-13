@@ -2749,7 +2749,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=627") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=628") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3072,7 +3072,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=627") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=628") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4129,10 +4129,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .tray-cases[data-cases="6"] { --tray-cases: 6; }
 /* 🔴 REDESSINÉE LE 2026-09-05 — Eric : *« texte blanc dans carrés rouges »*, puis
-   *« c'est un trait qui délimite une zone »*. Vide : un carré au TRAIT
-   `--critical`, sans fond, qui dit `roll N` en T1. Pleine : le dé-socle
-   (instantané, sans WebGL) et le détail du jet dessous. Aucune boîte visible :
-   la case est SUR le tapis bleu, elle n'est pas une dalle. */
+   *« c'est un trait qui délimite une zone »*. Vide : un carré au TRAIT, sans
+   fond, qui dit `roll N` en T1. Pleine : le dé-socle (instantané, sans WebGL)
+   et le détail du jet dessous. Aucune boîte visible : la case est SUR le tapis
+   bleu, elle n'est pas une dalle.
+   🔵 ET LE TRAIT EST BLEU DEPUIS LE 2026-09-13 — voir `.tray-case-num`. */
 .tray-case {
   display: grid;
   place-items: center;
@@ -4147,10 +4148,29 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    habillage qui passe en verre ne peut pas garder son texte gris ».
    ⭐ Ce que le gris distinguait passe donc par le CORPS et l'opacité, jamais
    par la pâleur de l'encre. */
+/* 🔵 LE TRAIT PASSE AU BLEU — ERIC, 2026-09-13, ET C'EST UN ARBITRAGE QUI EN
+   REMPLACE UN AUTRE.
+   ❓ La question posée : *« Les dix carrés “roll 1…roll 10” du plateau de dés
+   sont rouges avant le premier jet. Tu les avais demandés comme ça le 05/09 —
+   on les garde, ou ils passent au bleu comme les collecteurs d'ability
+   boost ? »*  ✅ Sa réponse : *« Bleus, comme les boosts. »*
+   ⛔ CE QUE LE ROUGE DISAIT DE FAUX, et c'est la raison de fond : `--critical`
+   est l'encre de l'échelle d'Eric du 19/08 — *« rouge : ce n'est pas bon, ou
+   ça défait »* (la table des teintes, plus bas dans cette feuille). Une case
+   VIDE n'a rien à reprocher : elle attend un dé. Elle portait donc, seule de
+   tout le dépôt, l'encre de l'alerte au repos — mesuré au balayage du lot 204,
+   navigateur ouvert, pseudo-éléments compris : dix `.tray-case-num`, et rien
+   d'autre qui ne soit un `Cancel`, un `Forget` ou un `Reset` (ceux-là
+   DÉFONT, ils sont dans la loi).
+   ⭐ ET C'EST `--info` QU'ELLE EMPRUNTE, PAS UN BLEU ÉCRIT À LA MAIN : c'est le
+   jeton que porte déjà le liseré d'un collecteur qui a reçu quelque chose
+   (`.choix-glisse .glisse-creneau[data-rempli]`), donc littéralement *« comme
+   les boosts »*. Deux nombres égaux divergent au premier qui bouge ; un jeton
+   partagé, non. */
 .tray-case-num {
   display: grid; place-items: center;
   width: var(--tray-carre); aspect-ratio: 1;
-  box-shadow: inset 0 0 0 1px var(--critical);   /* le TRAIT, pas un fond */
+  box-shadow: inset 0 0 0 1px var(--info);       /* le TRAIT, pas un fond */
   border-radius: var(--radius-sm);
   font-size: var(--t1); line-height: 1;
   color: var(--encre-tapis);                       /* « écris en blanc dessus » */
@@ -4649,7 +4669,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=627") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=628") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6214,17 +6234,30 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   pointer-events: none; opacity: .9;
   /* ⚠️ LA MÊME COTE QUE LA CASE, sinon le fantôme n'est plus « identique à
      l'objet » (règle ② d'Eric) et ment sur ce qu'on est en train de poser.
-     🔴 ⏳ ET ELLE NE L'EST PAS — MESURÉ LE 13/09, NON RÉPARÉ ICI, voir la
-     question portée à Eric dans le message du lot 203 : sur « Ability boosts »
-     à 512 × 900, le jeton `+1` rend **67,1 × 65,5** et son fantôme **118,8 ×
-     65,5**. La cote déclarée ici (`--glisse-case`, **87**) est celle qu'Eric a
-     ratifiée le 19/08 ; la case, elle, rend **49,17** dans ce vivier. ⛔ Le
-     fantôme n'est donc PAS le fautif — il dit 87 parce que la maison dit 87 ;
-     c'est la CASE qui n'honore plus sa cote. Repeindre le fantôme à la volée
-     demanderait une taille en style EN LIGNE (garde 7 des jetons, qu'on ne
-     desserre pas), et corriger la case est une cote d'Eric : ni l'un ni
-     l'autre ne se tranche au détour d'un lot sur le pointeur. */
-  width: var(--glisse-case); height: var(--glisse-h);
+     🔵 RÉPARÉ LE 2026-09-13 (lot 204), SUR LA RÉPONSE D'ERIC À LA QUESTION DU
+     LOT 203 : *« Sur “Ability boosts”, le jeton +1 fait 67 px de large, mais la
+     maison déclare 87 (ta cote du 19/08) — c'est la case qui ne l'honore plus,
+     et le fantôme dit 87. »* ✅ *« La cote descend à 67 »* — la taille
+     réellement peinte est actée, les rangées gardent leur densité, le fantôme
+     rétrécit pour correspondre.
+
+     📏 CE QUE LE BANC A DIT, ET CE QUI CHANGE LA RÉPARATION. À 512 × 900, WebGL
+     allumé, `.app` porte `zoom: 1,36533` (512 ÷ 375, la largeur sacrée) :
+       · la case, en blg .......... `flex-basis: 49,1667px`
+       · le jeton, PEINT .......... 67,13 × 65,53  ← le « 67 px » de la question
+       · le fantôme, PEINT ........ 118,78 × 65,53 (87 blg)
+     ⛔ **67 EST DONC UNE COTE PEINTE**, pas une cote : `49,1667 × 1,36533 =
+     67,13`. Écrire 67 dans `--glisse-case` peindrait le fantôme à 91,5 contre
+     67,1 — 24 px d'écart, et toutes les rangées encore au plafond rétréciraient
+     pour rien. La cote qui « descend à 67 » est celle que le FANTÔME déclare, et
+     elle n'a pas de nombre : c'est `--case-vive`, ce que la case rend ici.
+     ⭐ SANS UN SEUL STYLE EN LIGNE (garde 7, qu'on ne desserre pas) : la copie
+     est montée dans le `.choix-glisse` de son jeton (`glisser.mjs`), donc elle
+     HÉRITE la cote du bloc au lieu qu'on la lui écrive. Le jour où un régime de
+     rangement change sa formule, le fantôme suit sans qu'on y revienne.
+     🧊 `--glisse-case` reste le PLAFOND et vaut toujours 87 — la cote du 19/08.
+     La hauteur, elle, était déjà juste : 48 blg des deux côtés, écart mesuré 0. */
+  width: var(--case-vive); height: var(--glisse-h);
   box-shadow: 0 6px 18px var(--fantome-ombre);
 }
 
@@ -7560,7 +7593,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=627");
+  background-image: url("./assets/tarot-dos.jpg?v=628");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle

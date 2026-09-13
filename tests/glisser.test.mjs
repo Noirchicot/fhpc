@@ -726,13 +726,23 @@ test("11 sexies — 🔴 LOT 203 — LE FANTÔME NE PORTE PAS L'ATTRIBUT DU GEST
   assert.equal(enVol.length, 1, "un doigt, un jeton glissé — le fantôme n'en est pas un second");
   assert.equal(enVol[0], jeton, "⭐ et c'est bien l'ORIGINAL qui le porte, pas la copie");
 
-  const fantome = document.body.querySelectorAll(".glisse-fantome")[0];
+  /* 🔵 OÙ ON LE CHERCHE A CHANGÉ AU LOT 204, ET LA SONDE LE DIT : la copie est
+     montée dans le `.choix-glisse` de son jeton, plus dans `.app`, pour hériter
+     `--case-vive` (la cote que la case REND) au lieu du plafond du socle.
+     ⛔ On cherche donc DES DEUX CÔTÉS — un garde qui n'interroge que l'ancien
+     hôte ne pourrait plus jamais accuser : il compterait zéro fantôme et
+     conclurait « rien ne survit », ce qui serait vrai et vide. */
+  const fantomes = () => [...n.querySelectorAll(".glisse-fantome"),
+    ...document.body.querySelectorAll(".glisse-fantome")];
+  const fantome = fantomes()[0];
   assert.ok(fantome, "sonde : le fantôme existe bien — sinon ce garde ne garde rien");
+  assert.equal(fantome.parentNode, n,
+    "⭐ LOT 204 — et il est monté DANS son bloc : c'est de là qu'il hérite la cote de la case");
   assert.equal(fantome.getAttribute("data-glisse"), null,
     "⛔ la copie ne porte pas l'attribut du geste : c'est ce qui rend sa peinture lisible dans la feuille");
 
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 40, pointerId: 1 });
-  assert.equal(document.body.querySelectorAll(".glisse-fantome").length, 0, "et rien ne survit au geste");
+  assert.equal(fantomes().length, 0, "et rien ne survit au geste");
 });
 
 test("7 quater — un budget ENTIÈREMENT dépensé passe au vert, même avec une case libre", () => {

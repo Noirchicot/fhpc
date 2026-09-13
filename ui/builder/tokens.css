@@ -487,6 +487,46 @@
   --glisse-case: 87px;
   --glisse-h: 48px;
 
+  /* ══ LA COTE QU'UNE CASE REND VRAIMENT ICI — lot 204, 2026-09-13 ═══════
+     🔴 `--glisse-case` EST UN PLAFOND, PAS UNE TAILLE, et c'est ce que la
+     maison avait fini par oublier. La case du vivier et celle du collecteur
+     se calculent en `min(--glisse-case, …)` (`listes.css`) : à la largeur
+     sacrée de 375 blg, six caracs ne peuvent valoir que `(335 − 5×8)/6`, donc
+     **49,17**. 87 est la borne qu'elles ne dépassent jamais ; ce n'est pas la
+     cote qu'elles rendent.
+
+     ❓ CE QUI L'A FAIT SORTIR — la question posée à Eric le 2026-09-13 :
+     *« Sur “Ability boosts”, le jeton +1 fait 67 px de large, mais la maison
+     déclare 87 (ta cote du 19/08) — c'est la case qui ne l'honore plus, et le
+     fantôme dit 87. »*  ✅ Sa réponse : *« La cote descend à 67 »* — on acte la
+     taille réellement peinte, les rangées gardent leur densité, et le fantôme
+     rétrécit pour correspondre.
+
+     📏 ET LE RELEVÉ AU BANC DIT OÙ VIT CE 67, mesuré le 13/09 à 512 × 900 avec
+     WebGL, dans LES DEUX PILES (SRD et Fate's Hand), verdict identique :
+       · `zoom` sur `.app` .............. **1,36533** (512 ÷ 375)
+       · la case, en blg ................ `flex-basis: 49,1667px`
+       · le jeton, PEINT ................ **67,13 × 65,53**
+       · le fantôme, PEINT .............. **118,78 × 65,53** (87 blg × 1,36533)
+     ⛔ **67 EST UNE COTE PEINTE, PAS UNE COTE.** `49,1667 × 1,36533 = 67,13`.
+     Écrire `--glisse-case: 67px` poserait 67 **blg** — le fantôme peindrait
+     alors 91,5 et le jeton toujours 67,1 : l'écart resterait de 24 px, quatre
+     fois la tolérance, et toutes les rangées encore au plafond (sorts, skills,
+     `Roll Options`) rétréciraient au passage. La demande d'Eric — *« le fantôme
+     rétrécit pour correspondre »*, *« les rangées gardent leur densité »* — se
+     tient donc en donnant au fantôme LA COTE DE LA CASE, pas en descendant le
+     plafond. Le plafond reste 87 (sa cote du 19/08) et la question lui est
+     reposée dans le rapport du lot.
+
+     ⭐ D'OÙ CE JETON, ET IL N'EST PAS UN SECOND NOM POUR 87 : `--glisse-case`
+     est le PLAFOND, `--case-vive` est **ce que la case rend dans ce bloc-ci**.
+     Par défaut les deux coïncident ; chaque régime de rangement le redéclare
+     dans la MÊME règle que sa formule (`listes.css`), donc les deux ne peuvent
+     pas diverger. Il existe pour qu'un organe monté HORS du bloc — le fantôme
+     du glisser, monté dans `.app` puis dans son `.choix-glisse` — puisse lire
+     la cote vraie au lieu de la borne. */
+  --case-vive: var(--glisse-case);
+
   /* ══ LES TROIS ORGANES — ratifiés par Eric le 2026-08-24 ═══════════════
      ⛔ LES COTES NE SONT PAS REDÉCLARÉES ICI. La case et la hauteur sont
      `--glisse-case` / `--glisse-h` juste au-dessus ; la cible tactile est
@@ -721,14 +761,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=627");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=628");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=627");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=628");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -821,8 +861,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=627");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=627");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=628");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=628");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

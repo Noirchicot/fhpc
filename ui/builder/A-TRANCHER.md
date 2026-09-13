@@ -536,3 +536,21 @@
 - ⚖️ **DEUX MOTS D'ERIC, VRAIS TOUS LES DEUX, DITS À DEUX JOURS D'ÉCART** : *« My characters bouton large bleu cadré à gauche »* **(08/09)**, et *« j'appuie sur **Open**, qui est sur R ; dans cette fenêtre, **toutes mes saves** »* **(10/09)**. Le second n'annule pas le premier — il décrit la même pièce par une autre porte.
 - ⛔ **LE LOT N'A PAS TRANCHÉ, ET C'EST VOULU** : on ne retire pas en silence un bouton qu'Eric a dicté, et on n'invente pas non plus une différence entre les deux pour justifier de les garder.
 - ➡️ Trois lectures : *(a)* les deux restent — `Open` est le geste, `My characters` est le lieu ; *(b)* `Open` sort de la rangée du fichier, qui redevient `Save · Forget` ; *(c)* `My characters` sort, et `R` gagne la place d'une porte large *(⚠️ c'est le seul bouton bleu de `R` — le retirer change le dessin qu'Eric a corrigé neuf fois le 08/09)*.
+
+## C38 — Les huit `+`/`−` de la bourse B3 sont rouges au repos { #c38 }
+
+**Question : `.b3-bouton` garde-t-il son trait rouge (l'encre « bouton » du croquis), ou le `+` passe-t-il au vert comme celui du pipeline ?**
+
+- 📏 **LE FAIT, MESURÉ LE 13/09** (balayage navigateur, huit chapitres, les deux piles, pseudo-éléments compris) : après la réparation des dix carrés du plateau, `.b3-bouton` est **le seul** organe du builder qui porte `--critical` **au repos** — huit rects SVG, les `+` et les `−` des quatre monnaies de la bourse (`b3-scene.mjs`). Tout le reste est `Cancel` / `Forget` / `Reset`, qui **défont**, donc sont dans la loi (`bouton-echelle-jamais-au-repos`).
+- ⚖️ **LE PRÉCÉDENT EXISTE, ET IL EST À ERIC** — 2026-08-26, sur `.pipeline-pas` : *« + et − sont aussi des boutons, avec leur propre forme, **l'un rouge l'autre vert** »*. Le corpus note alors que *« le `+` était rouge, c'est-à-dire qu'il disait “ce n'est pas bon” au moment précis où le joueur AJOUTE »*. `.b3-bouton` porte **exactement** ce défaut, et n'a jamais été repris.
+- ⛔ **LE LOT 204 NE L'A PAS TOUCHÉ, ET C'EST VOULU** : `.b3-bouton` sert AUSSI les boutons de la **barre** du dressing, et le rouge y lit comme l'encre « ceci est un bouton » d'une **légende de croquis** (`b3-info` border-strong · `b3-collecteur` accent · `b3-envoi` ok · `b3-bouton` critical). **Les croquis d'Eric font foi** : séparer la légende est sa décision, pas celle d'un lot sur la couleur du plateau.
+- ➡️ Trois lectures : *(a)* la légende du croquis reste telle quelle ; *(b)* le `+` passe au vert et le `−` garde le rouge, comme `.pipeline-pas` ; *(c)* toute la légende quitte `--critical` pour une encre neutre, et le rouge redevient l'alerte partout.
+
+## C39 — « La cote descend à 67 » : le plafond `--glisse-case` bouge-t-il ? { #c39 }
+
+**Question : `--glisse-case` reste-t-il à 87, ou descend-il vraiment à 67 blg — ce qui rétrécirait les sorts, les skills et `Roll Options` ?**
+
+- ⚖️ **LA QUESTION POSÉE LE 13/09** : *« Sur “Ability boosts”, le jeton +1 fait 67 px de large, mais la maison déclare 87 (ta cote du 19/08) — c'est la case qui ne l'honore plus, et le fantôme dit 87. »* **Sa réponse** : *« La cote descend à 67 »* — *« on acte la taille réellement peinte ; les rangées gardent leur densité, et le fantôme rétrécit pour correspondre »*.
+- 📏 **CE QUE LE BANC A MESURÉ ENSUITE** (512 × 900, WebGL, les deux piles) : `.app` porte `zoom: 1,36533`, la case rend `flex-basis: 49,1667` **blg**, et le jeton se peint **67,13**. ⛔ **Le « 67 px » de la question était un pixel PEINT, pas une cote** : `49,1667 × 1,36533 = 67,13`.
+- ⭐ **CE QUE LE LOT 204 A FAIT, ET POURQUOI** : il a donné au fantôme la cote que la case REND (`--case-vive`) — écart mesuré **51,65 px → −0,01 px**, donc *« le fantôme rétrécit pour correspondre »* est tenu, et *« les rangées gardent leur densité »* aussi. ⛔ Il n'a **pas** descendu le plafond : écrire `--glisse-case: 67px` poserait 67 **blg**, laisserait 24 px d'écart sur les boosts, et rétrécirait au passage tout ce qui est encore au plafond.
+- ➡️ Deux lectures : *(a)* 87 reste le plafond — la réponse d'Eric est honorée par `--case-vive`, et rien d'autre ne bouge ; *(b)* Eric veut vraiment **67 blg** comme plafond, et il faut alors mesurer et lui montrer ce que deviennent les sorts (87 → 67), les skills (78 → 67) et les trois boutons de `Roll Options`.

@@ -1655,7 +1655,7 @@ Eric a tranché **le CORPS**, pas l'habit complet. ⛔ Ne pas aligner le reste s
 ### ✅ LA TAILLE STANDARD — **le token ET son collecteur**, ratifié 26/08
 📍 `jeton-bonus-token` · vivante · 26/08
 ⚖️ **Un bonus token est un jeton ordinaire dont le libellé est un nombre.**
-📍 `jeton-cote` · vivante · 26/08
+📍 `jeton-cote` · vivante · 26/08 · bornée par `jeton-cote-vive-et-pixel-peint`
 ⚖️ **Un jeton mesure 87 × 48 blg.**
 📍 `jeton-deux-lecteurs-un-jeton-de-mesure` · vivante · 26/08
 ⚖️ **Le jeton et son collecteur lisent le MÊME jeton de mesure, jamais deux nombres égaux.**
@@ -1683,6 +1683,40 @@ fait. La feuille les habille par **une règle qui les nomme tous les deux** :
 📌 **Vocabulaire** : un **bonus token** est un token qui porte une valeur à poser (`+1`, `+2`, `+x`)
 au lieu d'un nom. ⛔ **Ce n'est pas une variante de jeton** *(il n'y en a pas — voir plus haut)* :
 c'est un jeton ordinaire dont le libellé est un nombre.
+
+---
+
+### 🔵 87 EST UN PLAFOND — la cote qu'une case REND, et le piège du pixel peint
+📍 `jeton-cote-vive-et-pixel-peint` · vivante · 13/09 · borne `jeton-cote`
+⚖️ **`--glisse-case` (87) est le PLAFOND d'une case, pas sa taille : ce qu'elle rend ici s'appelle `--case-vive`, et tout organe monté hors du bloc lit celle-là.**
+⚖️ **Une cote se dit en blg. Un nombre relevé à l'écran est un pixel PEINT — les deux ne coïncident qu'au cran 1, et les confondre écrit une cote fausse dans le socle.**
+
+> **La question posée à Eric**, 2026-09-13 : *« Sur “Ability boosts”, le jeton +1 fait 67 px de large,
+> mais la maison déclare 87 (ta cote du 19/08) — c'est la case qui ne l'honore plus, et le fantôme dit 87. »*
+> **Sa réponse** : *« La cote descend à 67 »* — on acte la taille réellement peinte ; les rangées
+> gardent leur densité, et le fantôme rétrécit pour correspondre.
+
+📏 **CE QUE LE BANC A MESURÉ LE 13/09** *(512 × 900, Chromium avec WebGL, les DEUX piles, verdict identique)* :
+
+| ce qu'on regarde | valeur |
+| --- | --- |
+| `zoom` sur `.app` | **1,36533** *(512 ÷ 375, la largeur sacrée)* |
+| la case, en blg | `flex-basis: 49,1667px` |
+| le jeton `+1`, **peint** | **67,13 × 65,53** ← le « 67 px » de la question |
+| le fantôme, **peint** | **118,78 × 65,53** *(87 blg × 1,36533)* |
+| écart fantôme ↔ jeton, avant / après | **51,65 px** / **−0,01 px** |
+
+⛔ **67 EST DONC UNE COTE PEINTE, PAS UNE COTE** : `49,1667 × 1,36533 = 67,13`. Écrire
+`--glisse-case: 67px` poserait 67 **blg** — le fantôme peindrait 91,5 contre 67,1 *(24 px d'écart)*, et
+toutes les rangées encore au plafond *(les sorts, les skills, les trois boutons de `Roll Options`)*
+rétréciraient au passage, ce qu'Eric ne demande pas. **La cote qui descend est celle que l'organe
+DÉCLARE, et elle n'a pas de nombre.** Le plafond reste 87.
+
+⭐ **LA FORME QUI TIENT** : chaque régime de rangement déclare, **dans la même règle que sa formule**,
+`--case-vive: var(--sa-formule)` ; le socle en pose le repli `var(--glisse-case)`. Deux déclarations
+collées ne peuvent pas diverger — deux déclarations éloignées, si *(cette cote s'est écrite quatre
+fois de suite, et chaque fois un organe est resté en arrière)*. Un organe monté hors du bloc se monte
+**dans** le bloc pour hériter la cote, ⛔ jamais en s'écrivant une taille en style en ligne.
 
 ---
 
@@ -3959,6 +3993,25 @@ cercle qu'on ne peut pas appuyer.
 vert, le next est bleu » — l'inverse de ce qu'il avait dicté)* : **`done` est VERT parce que c'est
 FINI**, **`next` est BLEU parce qu'on CONTINUE**. Ce ne sont pas deux conventions arbitraires,
 c'est **l'échelle elle-même**, et c'est elle qui a tranché.
+
+📍 `bouton-echelle-jamais-au-repos` · vivante · 13/09
+⚖️ **Un organe AU REPOS ne porte jamais `--critical` : le rouge dit « ce n'est pas bon » ou « ça défait », donc il exige un état, un refus ou une destruction. Une case vide attend, elle n'accuse pas.**
+
+> **La question posée à Eric**, 2026-09-13 : *« Les dix carrés “roll 1…roll 10” du plateau de dés
+> sont rouges avant le premier jet. Tu les avais demandés comme ça le 05/09 — on les garde, ou ils
+> passent au bleu comme les collecteurs d'ability boost ? »*
+> **Sa réponse** : *« Bleus, comme les boosts. »*
+
+📏 **LE BALAYAGE DU 13/09**, navigateur ouvert, huit chapitres, **les deux piles**, pseudo-éléments
+compris *(sans eux le témoin ne voit pas un bouton en relief, et ne peut donc jamais accuser)* :
+**deux familles** portaient le rouge au repos — les dix `.tray-case-num` *(réparés : ils empruntent
+`--info`, le jeton même du collecteur rempli)* et les huit `+`/`−` de la bourse B3 *(`.b3-bouton`,
+**laissés en l'état et nommés à Eric** : c'est l'encre d'un croquis, et les croquis font foi)*.
+Tout le reste était `Cancel`, `Forget`, `Reset` — **ceux-là défont, ils sont dans la loi.**
+
+⛔ **ET LE ROUGE SE PREND SUR LE JETON, JAMAIS SUR UN NOMBRE** : le bleu posé ici est `--info`,
+celui que porte déjà le liseré d'un collecteur qui a reçu quelque chose. Deux teintes égales
+divergent au premier lot qui en bouge une.
 
 ### 🔴 LE LIBELLÉ ET LA COULEUR SONT DEUX AXES INDÉPENDANTS
 📍 `bouton-deux-axes` · vivante · 26/08
