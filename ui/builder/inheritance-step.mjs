@@ -29,12 +29,12 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=627";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=627";
-import { renderChoixGlisses } from "./glisser.mjs?v=627";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=627";
+} from "./carnet.mjs?v=628";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=628";
+import { renderChoixGlisses } from "./glisser.mjs?v=628";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=628";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=627";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=628";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

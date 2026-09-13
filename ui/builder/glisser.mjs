@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=627";
+import { pageDeListe } from "./normes.mjs?v=628";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=627";
-import { swapContent } from "./socle.mjs?v=627";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=628";
+import { swapContent } from "./socle.mjs?v=628";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=627";
+import { facteurZoomCourant } from "./echelle.mjs?v=628";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -682,9 +682,33 @@ function fantomeLever(jeton, x, y) {
      87 — trois fois trop petit, pendant le seul geste où l'œil compare les
      deux. « TOUT LE BUILDER SUIT LE ZOOM » était faux ici, et aucun test ne
      pouvait le dire.
-     ⚠️ Le repli sur `<body>` reste, pour le seul cas où `.app` n'existe pas
-     (bancs, stub DOM) : un fantôme mal placé vaut mieux qu'un geste qui jette. */
-  (document.querySelector(".app") || document.body).append(copie);
+
+     🔵 ET DANS SON PROPRE BLOC D'ABORD — lot 204, 2026-09-13. `.app` suffisait
+     pour l'ÉCHELLE, jamais pour la COTE : la taille d'une case se déclare sur
+     le `.choix-glisse` (`--case-vive`, listes.css), et une copie montée deux
+     étages plus haut ne l'hérite pas. Elle retombait donc sur le plafond du
+     socle — mesuré le 13/09 à 512 × 900, WebGL allumé, dans les deux piles :
+     jeton **67,13** peint, fantôme **118,78**, soit 51,65 px de mensonge
+     pendant le seul geste où l'œil compare les deux.
+     ⭐ MONTER LA COPIE DANS LE BLOC RÈGLE LA COTE PAR L'HÉRITAGE, sans une
+     taille écrite en ligne — garde 7, qu'on ne desserre pas. Et elle y gagne
+     aussi le reste de l'habit du bloc (`.choix-glisse .glisse-jeton`, son
+     rembourrage serré), c'est-à-dire qu'elle devient plus identique, pas moins.
+     📏 ET LA POSITION NE BOUGE PAS, VÉRIFIÉ AU BANC AVANT D'Y CROIRE : un
+     `position: fixed` ne change de bloc conteneur que sous un ancêtre à
+     `transform` / `filter` / `perspective` / `contain` / `will-change`. La
+     chaîne `.choix-glisse → .app` n'en porte aucun (relevé le 13/09 : seul
+     `.app` déclare quelque chose, son `zoom`), et un témoin posé à
+     `translate(100px, 100px)` se peint au MÊME point (136,53) dans les deux
+     hôtes. ⚠️ Les deux seuls ancêtres à `perspective`/`will-change` du dépôt
+     sont la piste du tambour et les douze cartes de la cérémonie : aucun vivier
+     n'y vit. Le jour où l'un en accueillerait un, c'est ICI qu'il faudrait
+     revenir.
+     ⚠️ Le repli reste, en deux crans — `.app` quand le jeton n'est pas dans un
+     bloc, `<body>` quand `.app` n'existe pas (bancs, stub DOM) : un fantôme mal
+     placé vaut mieux qu'un geste qui jette. */
+  const bloc = typeof jeton.closest === "function" ? jeton.closest(".choix-glisse") : null;
+  (bloc || document.querySelector(".app") || document.body).append(copie);
   /* Mesurée APRÈS le montage : avant, la copie n'a pas de mise en page. */
   fantomeDemi = [(copie.offsetWidth || 0) / 2, (copie.offsetHeight || 0) / 2];
   fantomeSuivre(x, y);

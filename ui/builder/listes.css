@@ -133,6 +133,11 @@
        `(335 − 2×44 − 2×4 − 2×8) / 3 = 223 / 3 = 74,33` → case 74 blg. */
   --case-cedee: min(var(--glisse-case),
     calc((var(--colonne-dalle) - 2 * var(--touch) - 2 * var(--sp-4) - 2 * var(--sp-8)) / 3));
+  /* 🔴 ET LA COTE VIVE EST CELLE-LÀ — lot 204. Elle est déclarée DANS LA MÊME
+     RÈGLE que la formule, une ligne plus bas : un organe monté hors du bloc
+     (le fantôme du glisser) ne peut pas lire `--case-cedee` sans la nommer, et
+     deux déclarations éloignées divergent au premier lot qui en bouge une. */
+  --case-vive: var(--case-cedee);
 }
 .choix-glisse:has(.grille-rang) .glisse-creneaux > .glisse-creneau,
 /* ⭐ ET LE JETON LIT LA MÊME COTE, plus sa propre formule sur sa propre base. */
@@ -241,6 +246,11 @@
   --rangee-dense: var(--par-rangee);
   --collecteur-case: min(var(--glisse-case),
     calc((var(--colonne-dalle) - (var(--rangee-dense) - 1) * var(--sp-8)) / var(--rangee-dense)));
+  /* 🔴 ET LA COTE VIVE EST CELLE-LÀ — lot 204, même raison qu'au-dessus : c'est
+     ce que la case REND ici (49,17 sur les six caracs), là où `--glisse-case`
+     n'est que le plafond qu'elle ne dépasse pas. Le fantôme du glisser la lit,
+     et il cesse de mentir de 51,65 px peints (mesuré le 13/09). */
+  --case-vive: var(--collecteur-case);
 }
 /* la déclaration de l'émetteur — un attribut, jamais un style en ligne
    (garde 7) ; trois valeurs d'un même attribut, même spécificité.
