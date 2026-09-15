@@ -345,9 +345,11 @@ else window.addEventListener("load", releve);
        ① les COINS sont-ils NETS ? Un navigateur qui rastérise le SVG à sa
           taille intrinsèque (24 × 44) avant de le découper rendrait des coins
           flous sur Retina. Comparer la rangée ×1 et la rangée ×4.
-       ② l'habit tient-il sur une LARGEUR QUELCONQUE ? `Build a character`
-          (129,31 de mot) est la pire du site : si ses coupes restent à 8 et ses
-          bords ne bavent pas, la voie est bonne. -->
+       ② l'habit tient-il sur une LARGEUR QUELCONQUE ? `Turn tutorials off`
+          rend 159,44 blg — la plus large de la famille, mesurée le 16/09 : si
+          ses coupes restent à 8 et ses bords ne bavent pas, la voie est bonne.
+     ⛔ Et PAS `Build a character` : il rend 351 et n'a pas d'octogone, c'est
+     un `.tdc-majeur`. Je l'avais pris pour un bouton de la famille. -->
 <script type="module">
   import { borderImage, LARGEUR_TUILE, SLICE, anneau, svg } from "./bouton-relief.mjs?v=632";
 
@@ -374,10 +376,17 @@ else window.addEventListener("load", releve);
       pointer-events: none;
     }
     /* ⭐ LE GRIS N'A PAS DE LISERÉ (Eric, 15/09) — et son mot glisse vers le
-       gris « tout en restant visible ». ⚠️ Le contraste obtenu contre la face
-       graphite reste À MESURER : « on devine » n'est pas « on ne lit plus ». */
+       gris « tout en restant visible ».
+       🔴 LA PREMIÈRE VALEUR QUE J'AVAIS POSÉE, `#9a9186`, NE PASSAIT PAS : je
+       l'avais choisie au jugé, sans jamais l'avoir regardée. Mesurée contre la
+       face, elle rendait **2,61:1** sur le haut (`#554f46`) — sous le seuil de
+       3, donc pas même « gros texte ». Et le haut est le pire fond, là où le
+       mot est centré : c'est bien ce ratio-là qui compte.
+       ⭐ `#c9c0b3` rend **4,50:1** sur ce même haut, donc passe partout, et
+       reste franchement plus sourd que l'encre active (5,72:1 contre 8,46:1).
+       Le mot se lit, et il se lit éteint. */
     .essai-bi[data-role="gris"]::after { display: none; }
-    .essai-bi[data-role="gris"] { color: #9a9186; }
+    .essai-bi[data-role="gris"] { color: #c9c0b3; }
     .essai-loupe { zoom: 4; }
     .essai-rangee { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
   `;
@@ -400,7 +409,7 @@ else window.addEventListener("load", releve);
 
   for (const [titre, contenu] of [
     ["les quatre rôles, au gabarit 77", ["gris", "bleu", "vert", "rouge"].map((r) => essai("Choose", r))],
-    ["la pire largeur du site — `Build a character`", [essai("Build a character", "bleu")]],
+    ["la plus large de la famille — `Turn tutorials off`, 159,44 blg mesurés", [essai("Turn tutorials off", "bleu")]],
     ["×4 — les coins sont-ils nets ?", [essai("Choose", "vert")]]
   ]) {
     const t = document.createElement("div");

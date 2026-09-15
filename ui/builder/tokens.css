@@ -557,8 +557,24 @@
   --organe-rayon: 16px;
 
   /* Le pan coupé du bouton — sa signature exclusive. Rien d'autre dans
-     l'interface n'a de coins coupés. */
-  --bouton-coupe: 10px;
+     l'interface n'a de coins coupés.
+     🔴 8 DEPUIS LE 16/09, AVEC LE RELIEF — la valeur 10 était ANTÉRIEURE au
+     dessin. Le bouton à relief d'Eric est construit sur une coupe de 8 et un
+     rebord de 2 : les deux cotes viennent du même dessin, et en garder une
+     sans l'autre reviendrait à décider à la place du dessinateur sur un
+     équilibre qu'il a réglé à l'œil.
+     ⚖️ DÉCIDÉ PAR LA SESSION `documents-08` SOUS DÉLÉGATION EXPLICITE D'ERIC
+     — *« prends la décision pour moi ça me saoule »*, 16/09. ⛔ Ce n'est donc
+     PAS une décision d'Eric, et c'est écrit ainsi exprès : il a regardé et
+     approuvé LE DESSIN, pas ce nombre. Le bouton hybride (coin 10 + rebord 2)
+     n'a jamais été validé par personne — c'est un objet fabriqué pour poser
+     une question.
+     📏 MESURÉ AVANT DE CHANGER, sur le builder servi : les huit boutons du
+     pied rendent 77 × 44 blg à coupe 10, et 77 × 44 blg à coupe 8. Aucune
+     cote ne bouge — seule la forme change, ce qui est exactement le mandat.
+     ⛔ NORMES §6 `bouton-pans-coupes-nus` disait « la coupe extérieure reste
+     `--bouton-coupe` 10 » : cette phrase est corrigée dans le même lot. */
+  --bouton-coupe: 8px;
 
   /* La face du jeton au repos. ⚠️ À NE PAS CONFONDRE AVEC `--accent-wash`
      (10 %), qui teinte un fond de code : celui-ci est la MATIÈRE du jeton, et
@@ -608,8 +624,20 @@
      ⭐ LA LUMIÈRE VIENT TOUJOURS D'EN HAUT. Le dégradé de l'arête est large
      parce que seul son ruban de `--bouton-biseau-epaisseur` reste visible ; le
      dégradé de la face, plus doux, donne le bombage. Le bas et sa projection
-     sont allégés : ils détachent le bouton sans peser davantage que le haut. */
-  --bouton-biseau-epaisseur: 1.5px;
+     sont allégés : ils détachent le bouton sans peser davantage que le haut.
+
+     🔴 2 DEPUIS LE 16/09 — le rebord du bouton à relief d'Eric, mesuré
+     perpendiculairement au bord dans son SVG. Il va avec la coupe à 8 : même
+     dessin, même décision (voir `--bouton-coupe` plus haut, et la délégation
+     qui y est nommée). ⛔ Ne pas reprendre 1,5 sans reprendre 10 avec.
+     📐 ET LA COTE DU COIN N'EST PAS LA MÊME QUE CELLE DU BORD : à un retrait
+     parallèle `i`, le sommet d'une diagonale se décale de `i × (√2 − 1)`, pas
+     de `i`. C'est ce qui garde l'épaisseur CONSTANTE dans les pans coupés —
+     la formule vit dans `bouton-relief.mjs`, gardée par
+     `tests/bouton-geometrie.test.mjs`. ⚠️ Mesurer cette épaisseur entre deux
+     SOMMETS donne 1,5153 et ne veut rien dire : elle se mesure
+     PERPENDICULAIREMENT au bord, et vaut alors 1,4 — comme sur un bord droit. */
+  --bouton-biseau-epaisseur: 2px;
   --bouton-biseau:
     linear-gradient(to bottom,
       rgba(255,255,255,.72) 0,

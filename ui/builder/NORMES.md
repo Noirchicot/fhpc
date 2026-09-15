@@ -1516,8 +1516,25 @@ les pans, et l'objet se lit comme un aplat portant une ombre plutôt que comme u
 | **la projection de nuit** | reste une lueur blanche |
 
 ⭐ **Le médium change, pas la forme** : un premier octogone peint l'arête ; un second, en retrait,
-repeint la face bombée. Le ruban visible entre les deux suit mécaniquement les huit côtés. La coupe
-extérieure reste `--bouton-coupe` **10**, les cotes et l'opacité ne bougent pas.
+repeint la face bombée. Le ruban visible entre les deux suit mécaniquement les huit côtés. ~~La coupe
+extérieure reste `--bouton-coupe` **10**~~, les cotes et l'opacité ne bougent pas.
+
+🔴 **LA COUPE EST À 8 DEPUIS LE 16/09, ET LE REBORD À 2** *(lot 209)* — la valeur **10** était
+**antérieure au dessin**. Le bouton à relief qu'Eric a regardé et approuvé est construit sur une
+coupe de **8** et un rebord de **2** : les deux cotes viennent du même dessin, et en garder une sans
+l'autre reviendrait à décider à la place du dessinateur sur un équilibre qu'il a réglé à l'œil.
+⚖️ **Décidé par la session `documents-08` sous délégation explicite d'Eric** — *« prends la décision
+pour moi ça me saoule »*, 16/09. ⛔ **Ce n'est donc pas une décision d'Eric**, et c'est écrit ainsi
+exprès : il a approuvé **le dessin**, pas ce nombre. Le bouton hybride *(coin 10 + rebord 2)* n'a
+jamais été validé par personne — c'était un objet fabriqué pour poser une question.
+📏 **Mesuré avant et après le changement**, sur le builder servi, échelle 1,3653 : les huit boutons
+du pied rendent **77 × 44 blg** à coupe 10 **et** à coupe 8. ⭐ **Aucune cote ne bouge — seule la
+forme change**, ce qui est exactement ce que §6 exige de ce chapitre.
+⚠️ **Et la cote du coin n'est pas celle du bord** : à un retrait parallèle `i`, le sommet d'une
+diagonale se décale de `i × (√2 − 1)`, jamais de `i`. C'est ce qui garde l'épaisseur **constante**
+dans les pans coupés. ⛔ Mesurer cette épaisseur **entre deux sommets** donne **1,5153** et ne veut
+rien dire : elle se mesure **perpendiculairement au bord**, et vaut alors **1,4** — comme sur un bord
+droit. Deux nombres voisins qui ne mesurent pas la même grandeur.
 
 🔴 **Le liseré d'une zone de drop porte la couleur du corps du jeton attendu** — la cible annonce
 ce qu'elle accepte avant qu'on lâche.

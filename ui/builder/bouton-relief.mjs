@@ -10,11 +10,30 @@
    l'interdit deux fois : « ne pas agrandir un SVG de 77 pour obtenir celui de
    105 », « aucune multiplication des anciens sommets par W/77 » — étirer
    épaissirait les coupes et les biseaux. Or le site pose `min-width`, pas
-   `width` : un bouton grandit avec son mot. Relevé le 15/09 dans les neuf
-   modules : HUIT libellés dépassent même la place utile de 105 —
-   `Turn tutorials off`, `Build a character`, `My characters`, `Open a file…`,
-   `I understand`, `Expert view`, `Export JSON`, `Export HTML`. Deux largeurs
-   figées ne peuvent donc pas habiller ce site ; il faut recalculer.
+   `width` : un bouton grandit avec son mot quand son conteneur le permet.
+
+   📏 MESURÉ LE 16/09 AU NAVIGATEUR, dans le builder servi, sous `.app` — donc
+   sous `zoom: var(--echelle)`, échelle 1,3653, hauteur 44 partout. Témoins de
+   contrôle d'abord, pour que la méthode se prouve elle-même : `Export HTML`
+   dans un `.parcours-pied` rend **77,00** (le plancher tient, le mot déborde)
+   et `Inheritance.bouton-moyen` rend **105,00** (le gabarit large tient).
+   Puis les largeurs réelles hors gabarit :
+
+       .review-porte       Expert view  105,85 · Export JSON 113,69
+                           Export HTML  115,46
+       .tuto-pied button   I understand 128,64 · Turn tutorials off 159,44
+
+   ⭐ CINQ LARGEURS DISTINCTES ET NON RONDES, dont aucune n'est 77 ni 105 —
+   `Expert view` rate même le gabarit large de 0,85. Deux SVG figés ne peuvent
+   donc pas habiller ce site ; il faut recalculer.
+
+   ⛔ ET CE QUE J'AVAIS ÉCRIT AVANT ÉTAIT FAUX, sur le même argument. J'avais
+   listé « huit libellés », dont `Build a character` et `My characters` : ce
+   sont des largeurs de TEXTE, relevées sans regarder quel organe les porte.
+   Mesuré : ces deux-là sont des `.tdc-majeur` / `.tdc-liste`, **351 blg,
+   pleine largeur, SANS octogone** — ils ne sont pas de la famille. La
+   conclusion tenait, ses chiffres non. Un relevé qui ne dit pas quel organe
+   porte le mot est du DÉCLARÉ pris pour du RENDU.
 
    ⭐ L'ÉPREUVE VIT DANS `tests/bouton-geometrie.test.mjs` : ce module doit
    reproduire les deux fichiers d'origine À L'OCTET PRÈS (3 542 et 3 574 o),
@@ -140,8 +159,8 @@ ${cap.join("\n")}
 
 /* ══ LA VOIE SANS BALISAGE : `border-image`, le 9-zones ════════════════════
    🔴 LE PROBLÈME QU'ELLE RÉSOUT. Le dessin est livré en deux largeurs et la
-   recette interdit de l'étirer ; or huit libellés du site dépassent 105, et
-   les largeurs sont CONTINUES — elles suivent le mot, qui peut venir d'une
+   recette interdit de l'étirer ; or cinq largeurs mesurées du site tombent
+   entre 105,85 et 159,44, et elles suivent le mot — qui peut venir d'une
    donnée. Une image par largeur ne tient donc pas, et inliner un SVG
    demanderait de toucher les neuf fabriques : hors du lot 209.
 

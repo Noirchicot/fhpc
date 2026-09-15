@@ -2,12 +2,15 @@
 
    🔴 CE QU'IL PROUVE. `ui/builder/bouton-relief.mjs` recalcule la géométrie du
    bouton à toute largeur, parce que le site en a besoin : il pose `min-width`,
-   pas `width`, et HUIT libellés dépassent la place utile du gabarit moyen
-   (mesuré au navigateur, police du site, 16/600, place utile 89) —
-   `Build a character` 129,31 · `Turn tutorials off` 127,44 · `My characters`
-   110,63 · `Export HTML` 100,57 · `Export JSON` 98,44 · `Open a file…` 97,14 ·
-   `I understand` 96,64 · `Expert view` 90,16. Deux largeurs figées ne peuvent
-   pas habiller ce site.
+   pas `width`. 📏 Mesuré le 16/09 dans le builder servi, sous `.app` (donc
+   sous `zoom`, échelle 1,3653), hauteur 44 partout — largeurs de BOÎTE, pas
+   de texte :
+       témoins   `Export HTML` dans un `.parcours-pied` → 77,00 (le plancher)
+                 `Inheritance.bouton-moyen`             → 105,00 (le large)
+       réelles   Expert view 105,85 · Export JSON 113,69 · Export HTML 115,46
+                 I understand 128,64 · Turn tutorials off 159,44
+   Cinq largeurs distinctes, aucune à 77 ni à 105 — `Expert view` rate le
+   gabarit large de 0,85. Deux largeurs figées ne peuvent pas habiller ce site.
 
    ⭐ ET L'ÉPREUVE EST CELLE-CI, LA SEULE QUI VAILLE : le générateur doit
    reproduire À L'OCTET PRÈS les deux SVG d'origine, rangés en témoins sous
@@ -37,9 +40,10 @@ test("🔴 LE GÉNÉRATEUR REPRODUIT LES DEUX SVG D'ORIGINE, À L'OCTET PRÈS", 
 });
 
 test("📏 LES COTES NE S'ÉTIRENT PAS AVEC LA LARGEUR — c'est la raison d'être du recalcul", () => {
-  /* `Build a character` réclame 129,31 + 2 × 8 de marge : une largeur que le
-     dessin livré ne couvre pas, et où un étirement se verrait le plus. */
-  for (const w of [77, 105, 146, 200]) {
+  /* 77 et 105 sont les deux gabarits ; 116 et 159 sont deux largeurs RÉELLES
+     mesurées (`Export HTML` dans sa rangée, `Turn tutorials off` dans la
+     sienne) — c'est là qu'un étirement se verrait le plus. */
+  for (const w of [77, 105, 116, 159]) {
     const O = P(w, 0), I = P(w, B);
     assert.equal(O[0][0], C, `à ${w}, la coupe du haut-gauche reste ${C}`);
     assert.equal(O[1][0], w - C, `à ${w}, la coupe du haut-droit reste ${C}`);
