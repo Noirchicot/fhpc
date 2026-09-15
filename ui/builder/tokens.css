@@ -692,9 +692,31 @@
      non active (44 × 0,95 = 41,8), sa cible ne descend jamais sous `--touch`.
      ⭐ `--onglet-taille` (58) reste : il sert encore aux marges de la piste
      et aux ancrages des chevrons. Le jour où plus rien ne le lit, il tombe. */
-  --belt-cran: 44px;
-  --astre-cible: var(--touch);   /* la CIBLE : jamais sous le plancher du pouce */
-  --astre-dessin: calc(var(--belt-cran) * 0.95);
+  /* ⚖️ LOT 207 — LES COTES DU BELT, ÉCRITES. Eric, 2026-09-15 : *« fais pas
+     de zoom alors — définis les dimensions, ça simplifiera d'un écran à
+     l'autre »*.
+     🔴 POURQUOI PAS `zoom` : mesuré, il S'ANNULE. `zoom: p` met à l'échelle
+     jusqu'au `100%` que le `calc` de la tuile lit chez son parent — la base
+     devient `parent/p/3`, le zoom la remultiplie par `p`, et les trois tuiles
+     retombent identiques (relevé : dominante 79,4 contre normale 80).
+     ⭐ UNE SEULE COTE POUR DEUX ORGANES : la tuile secondaire ET l'astre
+     valent `--belt-tuile`. Eric : *« astres = tuiles secondaires = 41,xxx »*.
+     Écrite une fois, lue aux deux endroits — elles ne pourront pas diverger. */
+  --belt-cran: 44px;                                /* la base, relevée sur v630 */
+  --belt-tuile: calc(var(--belt-cran) * 0.95);      /* 41,8 — la secondaire */
+  --belt-tuile-dom: calc(var(--belt-cran) * 1.05);  /* 46,2 — la dominante */
+
+  /* L'ASTRE : deux cotes, et elles ne se confondent pas. */
+  --astre-dessin: var(--belt-tuile);   /* 41,8 — le DESSIN, égal à la secondaire */
+  --astre-cible: var(--touch);         /* 44 — la CIBLE, le plancher du pouce */
+
+  /* ⚖️ 15/09 — L'ENCRE DES ASTRES, et c'est le seul endroit du belt où une
+     couleur NE SUIT PAS LE THÈME. *« texte en blanc sur la lune, en noir sur
+     le soleil »*. Un astre ne bascule pas : le soleil est clair de jour comme
+     de nuit, le croissant sombre des deux côtés. */
+  --astre-encre-soleil: #241a06;
+  --astre-encre-lune: #f4f3f8;
+
   --astre-soleil: url("./assets/belt/soleil.webp?v=630");
   --astre-croissant: url("./assets/belt/croissant.webp?v=630");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la

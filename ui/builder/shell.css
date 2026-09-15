@@ -481,7 +481,7 @@ body {
 .belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash); }
 /* LOT 207 — la part dominante. Le voile (0,35 → 0,50) et le halo vivaient
    DÉJÀ ici et au 02/09 : ce lot n'ajoute que la part. */
-.belt-item[data-status="current"] { --belt-part: 1.05; }
+.belt-item[data-status="current"] { --belt-part: 1.05; height: var(--belt-tuile-dom); }
 
 /* ⚖️ LOT 207 — LA TROISIÈME LIGNE, Eric le 2026-09-15 : la tuile dominante
    porte *« Equipment (en t2) · pastille plus petite · fenêtre actuelle (en
@@ -562,8 +562,18 @@ body {
 .belt-item {
   scroll-snap-align: center;
   --belt-part: 0.95;
-  zoom: var(--belt-part);
-  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3);
+  /* ⛔ PLUS DE `zoom` : il s'annulait (voir `tokens.css`). Les deux cotes
+     s'écrivent, et la largeur reste DÉDUITE de la piste — un tiers moins ses
+     gouttières, modulé par la part. */
+  /* ⛔ `align-self: center` OU LA HAUTEUR NE SERT À RIEN. La piste est une
+     rangée flex : son `align-items: stretch` par défaut ÉTIRE chaque tuile à
+     la hauteur de la rangée et écrase la cote écrite ici. Mesuré : tuile à 44
+     alors que `--belt-tuile` vaut 41,8. ⭐ C'est aussi ce qui annulait l'écart
+     de HAUTEUR entre la dominante et les autres — étirées, elles étaient
+     égales quoi qu'on écrive. */
+  align-self: center;
+  height: var(--belt-tuile);
+  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3 * var(--belt-part));
 }
 /* ⏳ LOT 186 — CE `8` DÉCRIT LA PILE COMPLÈTE, ET LA CEINTURE EST DEVENUE
    VERSATILE. En pile SRD la piste ne porte que SEPT tuiles : divisée par huit,
@@ -806,9 +816,15 @@ body {
 
    📏 L'astre remplace le disque plein : plus de `--onglet-fond` derrière,
    l'image EST la pastille. Le mot reste par-dessus (`.belt-onglet-mot`). */
+/* ⚖️ 15/09 — ALIGNÉ SUR LES TUILES, ET À 4 DU BORD. *« astres alignés
+   verticalement avec les tuiles »*, *« marge de 4 blg avec le bord »*.
+   ⭐ `top: 50%` plutôt qu'une cote : les tuiles sont centrées par leur rangée,
+   donc l'astre se centre de la même façon — il suivra tout seul le jour où la
+   hauteur d'une tuile bougera. Une cote écrite ici aurait divergé. */
 .belt-onglet {
   position: absolute;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
   /* la CIBLE — jamais sous le plancher du pouce */
   width: var(--astre-cible);
   height: var(--astre-cible);
@@ -831,10 +847,18 @@ body {
    EN ENTIER, aucun ne déborde du cadre. Ils débordaient de moitié depuis le
    19/08, quand c'étaient des onglets de classeur — un astre, lui, ne se
    coupe pas au bord. */
-.belt-onglet[data-bout="menu"]  { left: 0;
-                                  box-shadow: inset 0 0 0 1px var(--onglet-liseré-menu); }
-.belt-onglet[data-bout="fiche"] { right: 0;
-                                  box-shadow: inset 0 0 0 1px var(--onglet-liseré-fiche); }
+/* ⛔ PLUS DE LISERÉ — Eric, 2026-09-15 : *« le contour des astres inutile
+   et moche »*. Il cerclait un disque PLEIN de surface, qui avait besoin d'être
+   détaché du décor ; un astre a son propre bord et sa propre lumière. */
+.belt-onglet[data-bout="menu"]  { left: var(--sp-4); }
+.belt-onglet[data-bout="fiche"] { right: var(--sp-4); }
+/* ⚖️ 15/09 — L'ENCRE SUIT SON ASTRE : *« texte en blanc sur la lune, en noir
+   sur le soleil »*. ⛔ Et elle ne passe pas par `--onglet-encre`, qui bascule
+   avec le thème : un astre ne bascule pas. Le soleil est clair de jour comme
+   de nuit, le croissant est sombre des deux côtés — leur encre est donc FIXE,
+   et c'est le seul endroit du belt où une couleur ne suit pas le thème. */
+.belt-onglet[data-bout="menu"]  .belt-onglet-mot { color: var(--astre-encre-soleil); }
+.belt-onglet[data-bout="fiche"] .belt-onglet-mot { color: var(--astre-encre-lune); }
 /* Le mot suit le bord, pas la lecture. Décalé vers la moitié VISIBLE : centré
    sur le disque, il tomberait à cheval sur le bord de l'écran. */
 /* ⚖️ LOT 207 — LE MOT REDEVIENT HORIZONTAL. Le croquis écrit « Menu »,
@@ -844,7 +868,9 @@ body {
   /* --t3 (14 px) et non --t2 (12) : monté d'un barreau le 2026-08-19. Le mot
      est tourné à la verticale, où l'œil lit moins vite — il paie ce que le
      corps de texte n'a pas à payer. */
-  font-size: var(--t3);
+  /* ⚖️ 15/09 : *« plus petit »* — t3 → t2. Le mot est posé SUR un astre, il
+     n'a plus à porter seul la lisibilité d'un disque nu. */
+  font-size: var(--t1);
   font-weight: 600;
   letter-spacing: .04em;
   line-height: 1;
