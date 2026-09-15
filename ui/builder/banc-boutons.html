@@ -1,0 +1,337 @@
+<!doctype html><meta charset="utf-8">
+<title>FHPC — banc d'essai de l'habit des boutons</title>
+<!-- ══ LE BANC DE L'HABIT — lot 209 ═══════════════════════════════════════
+     🔴 CE BANC NE JUGE RIEN. Il POSE, côte à côte et sur le vrai fond, tout
+     ce qu'un nouveau dessin de bouton doit traverser sans casser :
+       les trois GABARITS × les cinq ÉTATS × les deux THÈMES,
+       puis les onze FAMILLES, pour qu'aucune ne diverge en silence.
+
+     ⭐ IL NE RECOPIE AUCUNE VALEUR. Les deux thèmes sont lus dans le CSSOM de
+     `tokens.css` (la technique de `banc-mesure.html`, 26/08) ; les états
+     survol et pressé sont DÉRIVÉS des règles `:hover` / `:active` réellement
+     présentes dans la feuille. Le jour où Eric en écrit une, ce banc la montre
+     sans qu'on rouvre ce fichier — et tant qu'il n'y en a pas, il l'annonce.
+
+     🔴 LE FOND EST UNE IMAGE, PAS UNE COULEUR — et c'est la règle de preuve
+     du lot : un bouton n'est jamais posé sur un aplat dans le vrai builder.
+     Un contraste mesuré contre `--bg` parlerait d'un écran qui n'existe pas.
+     Chaque panneau porte donc `--bg-image`, exactement comme `.app`.
+
+     📏 LA MESURE EST EN BLG — `getBoundingClientRect()` ÷ `--echelle`. La
+     division est écrite même quand l'échelle vaut 1 : une formule qu'on
+     n'applique pas est une formule qu'on ne saura plus appliquer.
+
+     ⛔ CE QUI EST DU BANC ET N'EST PAS DE LA NORME, nommément :
+       · `--bouton-fond: var(--critical)` posé en ligne pour l'état verrouillé.
+         La Bible interdit la couleur dans le balisage (`#bouton-jamais-de-
+         couleur-dans-le-balisage`) et elle a raison — mais les six chemins qui
+         mènent au rouge (`.parcours-annuler`, `.sortie-annule`, `.pipeline-
+         danger`, `.popup-action[data-defait]`, `.carte-r-bouton`, `.dressing-
+         bouton`) arrivent tous au MÊME jeton. Un banc de dessin juge la
+         matière, pas le câblage : il pose le point d'arrivée commun.
+       · les familles sont posées dans leur parent de production quand elles en
+         exigent un (`.parcours-pied`, `.card-pied`, `.parcours-item`).
+
+     Usage : `preview_start` puis /ui/builder/banc-boutons.html -->
+<link rel="stylesheet" href="./tokens.css?v=632">
+<link rel="stylesheet" href="./shell.css?v=632">
+<style>
+  html, body { margin: 0; background: #14110c; }
+  body { font-family: var(--font, system-ui); }
+  .plateau { display: flex; align-items: flex-start; }
+  /* 🔴 LE PANNEAU EST UN ÉCRAN, PAS UNE VIGNETTE : il porte le fond d'image de
+     `.app` (shell.css ~96) — même jeton, même cadrage, même attachement. */
+  .panneau {
+    flex: 1 1 0; min-width: 0;
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+    color: var(--text);
+    padding: 12px 14px 20px;
+  }
+  .panneau-titre {
+    margin: 0 0 10px; font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--text); text-shadow: 0 1px 3px rgba(0,0,0,.9);
+  }
+  h2.section {
+    margin: 18px 0 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--text-soft); text-shadow: 0 1px 3px rgba(0,0,0,.9);
+    border-bottom: 1px solid var(--border); padding-bottom: 4px;
+  }
+  /* La grille des états : une colonne d'intitulé, puis les cinq états. */
+  .grille { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 10px 8px; align-items: center; }
+  .entete, .intitule {
+    font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--text-muted); text-shadow: 0 1px 2px rgba(0,0,0,.9);
+  }
+  .entete { text-align: center; }
+  .entete.absent { color: var(--critical); }
+  .intitule { text-align: right; padding-right: 4px; white-space: nowrap; }
+  .case { display: flex; justify-content: center; }
+  /* ⛔ Le pied et la case d'item sont des FLEX de production : ici ils ne
+     portent qu'un spécimen, leurs marges décaleraient la grille. */
+  .case > .parcours-pied, .case > .card-pied { margin: 0; padding: 0; display: block; }
+  .case > .parcours-item { margin: 0; display: block; }
+  /* la note de famille, sous chaque spécimen */
+  .note { font-size: 8px; color: var(--text-muted); text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,.9); }
+  #releve { padding: 14px; background: #14110c; color: #ddd; font: 11px/1.5 ui-monospace, monospace; }
+  #releve table { border-collapse: collapse; }
+  #releve th, #releve td { padding: 2px 10px 2px 0; text-align: left; white-space: nowrap; }
+  #releve th { color: #888; font-weight: 600; border-bottom: 1px solid #333; }
+  #releve .ok { color: #7ac77a; }
+  #releve .ko { color: #e07a7a; }
+</style>
+
+<div class="plateau">
+  <section class="panneau jour" id="jour"></section>
+  <section class="panneau nuit" id="nuit"></section>
+</div>
+<div id="releve"></div>
+
+<script>
+/* ═══ 1. LES DEUX THÈMES, LUS DANS LE CSSOM ══════════════════════════════
+   Repris de `banc-mesure.html` (26/08). ⛔ Aucune valeur n'est retranscrite :
+   ce qui est montré est ce que la feuille porte, quoi qu'elle porte. */
+function declarations(estLeBonBloc) {
+  const sortie = [];
+  for (const feuille of document.styleSheets) {
+    let regles;
+    try { regles = feuille.cssRules; } catch { continue; }
+    for (const regle of regles) {
+      if (regle.type === CSSRule.STYLE_RULE && estLeBonBloc(null) && regle.selectorText === ":root") {
+        sortie.push(regle.style.cssText);
+      }
+      if (regle.type === CSSRule.MEDIA_RULE && estLeBonBloc(regle.conditionText)) {
+        for (const interne of regle.cssRules) {
+          if (interne.selectorText === ":root") sortie.push(interne.style.cssText);
+        }
+      }
+    }
+  }
+  return sortie.join(" ");
+}
+const jour = declarations((c) => c === null);
+const nuit = declarations((c) => c !== null && /prefers-color-scheme\s*:\s*dark/.test(c));
+if (!jour || !nuit) document.title = "BANC CASSÉ — un des deux thèmes est vide";
+
+/* ═══ 2. LES ÉTATS SURVOL ET PRESSÉ, DÉRIVÉS DE LA FEUILLE ════════════════
+   🔴 On ne peut pas forcer `:hover` depuis un script. On RECOPIE donc chaque
+   règle qui en porte un vers une classe de banc — `:hover` → `.banc-survol`,
+   `:active` → `.banc-presse`. Le banc montre alors exactement ce que la
+   feuille déclare, et RIEN quand elle ne déclare rien.
+   ⚠️ Relevé le 15/09 : la feuille ne porte AUCUN `:hover` ni `:active` sur un
+   bouton (un seul `:hover` en tout, sur `.bilan-nom`, qui est un lien). Les
+   deux colonnes sont donc vides aujourd'hui — c'est un CONSTAT, pas un défaut
+   du banc, et l'en-tête le dit en rouge. */
+function miroirDEtat(pseudo, classe) {
+  const copies = [];
+  for (const feuille of document.styleSheets) {
+    let regles;
+    try { regles = feuille.cssRules; } catch { continue; }
+    for (const regle of regles) {
+      if (regle.type !== CSSRule.STYLE_RULE || !regle.selectorText) continue;
+      if (!regle.selectorText.includes(pseudo)) continue;
+      const sel = regle.selectorText.split(",")
+        .filter((s) => s.includes(pseudo))
+        .map((s) => s.trim().split(pseudo).join(classe))
+        .join(", ");
+      if (sel) copies.push(sel + " { " + regle.style.cssText + " }");
+    }
+  }
+  return copies;
+}
+const survolCopie = miroirDEtat(":hover", ".banc-survol");
+const presseCopie = miroirDEtat(":active", ".banc-presse");
+
+const feuilleBanc = document.createElement("style");
+feuilleBanc.textContent =
+  ".jour{" + jour + "} .nuit{" + nuit + "}\n" +
+  survolCopie.join("\n") + "\n" + presseCopie.join("\n");
+document.head.append(feuilleBanc);
+
+/* ═══ 3. LES CINQ ÉTATS ═══════════════════════════════════════════════════ */
+const ETATS = [
+  { cle: "repos",     mot: "repos",      pose: () => {} },
+  { cle: "survol",    mot: "survol",     absent: survolCopie.length === 0,
+    pose: (b) => b.classList.add("banc-survol") },
+  { cle: "presse",    mot: "pressé",     absent: presseCopie.length === 0,
+    pose: (b) => b.classList.add("banc-presse") },
+  { cle: "desarme",   mot: "désarmé",    pose: (b) => { b.disabled = true; } },
+  /* ⛔ du banc, pas de la norme — voir l'en-tête. */
+  { cle: "verrouille", mot: "verrouillé", pose: (b) => b.style.setProperty("--bouton-fond", "var(--critical)") }
+];
+
+/* ═══ 4. LES TROIS GABARITS — mots-témoins de la Bible §6 ═════════════════
+   small : 6 caractères (le témoin d'Eric est `Choose`)
+   medium : 11 (`Inheritance`, cité par Eric le 06/09)
+   sans contrainte : un libellé qui dépasse les deux cotes. */
+const GABARITS = [
+  { cle: "g77",    mot: "Choose",       classe: "",             note: "small · 77" },
+  { cle: "g105",   mot: "Inheritance",  classe: "bouton-moyen", note: "medium · 105" },
+  { cle: "glibre", mot: "Expert view",  classe: "",             note: "sans contrainte" }
+];
+
+/* ═══ 5. LES FAMILLES ═════════════════════════════════════════════════════
+   🔴 PORTE = l'habit des deux règles du socle (shell.css ~8612 / ~8643).
+      ÉQUIPEMENT = l'habit de la COPIE (shell.css ~9021 / ~9040) — hors lot.
+      CANDIDAT = de vrais boutons à mot qui ne portent aucun habit.
+   📏 `plancher` dit si la famille est dans `:is(…):not(…):not(…)` (~8903),
+   celui qui pose `min-width: --bouton-petit`. Deux porteuses n'y sont pas. */
+const FAMILLES = [
+  { classe: "sortie-bouton",       rang: "porte",      plancher: true,  parent: null },
+  { classe: "tray-bouton",         rang: "porte",      plancher: false, parent: null },
+  { classe: "species-done",        rang: "porte",      plancher: true,  parent: null },
+  { classe: "parcours-item-porte", rang: "porte",      plancher: true,  parent: "parcours-item" },
+  { classe: "",                    rang: "porte",      plancher: true,  parent: "parcours-pied", nom: ".parcours-pied button" },
+  { classe: "",                    rang: "porte",      plancher: true,  parent: "card-pied",     nom: ".card-pied button" },
+  { classe: "fiche-action",        rang: "porte",      plancher: true,  parent: null },
+  { classe: "ability-entry",       rang: "porte",      plancher: false, parent: null },
+  { classe: "pipeline-bouton",     rang: "equipement", plancher: false, parent: null },
+  { classe: "carte-r-bouton",      rang: "equipement", plancher: false, parent: null },
+  { classe: "dressing-bouton",     rang: "equipement", plancher: false, parent: null },
+  { classe: "aiguilleur-bouton",   rang: "equipement", plancher: false, parent: null },
+  { classe: "skills-onglet",       rang: "candidat",   plancher: false, parent: null },
+  { classe: "review-porte",        rang: "candidat",   plancher: false, parent: null },
+  { classe: "",                    rang: "candidat",   plancher: false, parent: "tuto-pied", nom: ".tuto-pied button" }
+];
+
+function bouton(mot, classes) {
+  const b = document.createElement("button");
+  b.type = "button";
+  if (classes) b.className = classes;
+  b.textContent = mot;
+  return b;
+}
+/* Un spécimen = le bouton, plus son parent de production s'il en exige un. */
+function specimen(mot, classes, parent) {
+  const b = bouton(mot, classes);
+  if (!parent) return { boite: b, bouton: b };
+  const p = document.createElement("div");
+  p.className = parent;
+  p.append(b);
+  return { boite: p, bouton: b };
+}
+
+/* ═══ 6. LE MONTAGE ═══════════════════════════════════════════════════════ */
+const mesures = [];   // rempli au montage, lu par le relevé
+
+function grille(panneau, titre, lignes, avecEntete) {
+  const h = document.createElement("h2");
+  h.className = "section";
+  h.textContent = titre;
+  panneau.append(h);
+  const g = document.createElement("div");
+  g.className = "grille";
+  if (avecEntete) {
+    g.append(document.createElement("div"));
+    for (const e of ETATS) {
+      const t = document.createElement("div");
+      t.className = "entete" + (e.absent ? " absent" : "");
+      t.textContent = e.absent ? e.mot + " ⛔" : e.mot;
+      t.title = e.absent ? "aucune règle dans la feuille" : "";
+      g.append(t);
+    }
+  }
+  for (const l of lignes) {
+    const i = document.createElement("div");
+    i.className = "intitule";
+    i.textContent = l.intitule;
+    g.append(i);
+    for (const c of l.cases) g.append(c);
+  }
+  panneau.append(g);
+}
+
+function monte(panneau, theme) {
+  const t = document.createElement("p");
+  t.className = "panneau-titre";
+  t.textContent = theme === "jour" ? "☀ jour" : "☾ nuit";
+  panneau.append(t);
+
+  /* — A. les trois gabarits × les cinq états — le banc de JUGEMENT — */
+  grille(panneau, "A · les gabarits × les états", GABARITS.map((g) => ({
+    intitule: g.note,
+    cases: ETATS.map((e) => {
+      const d = document.createElement("div");
+      d.className = "case";
+      const sp = specimen(g.mot, ("sortie-bouton " + g.classe).trim(), null);
+      e.pose(sp.bouton);
+      d.append(sp.boite);
+      if (theme === "jour" && e.cle === "repos") {
+        mesures.push({ quoi: g.note, sel: ".sortie-bouton" + (g.classe ? "." + g.classe : ""), el: sp.bouton });
+      }
+      return d;
+    })
+  })), true);
+
+  /* — B. les familles au repos — le banc de NON-RÉGRESSION — */
+  for (const [rang, titre] of [
+    ["porte",      "B · les 8 porteuses de l'habit (socle)"],
+    ["equipement", "C · les 4 de l'Équipement (copie de l'habit — hors lot)"],
+    ["candidat",   "D · les 3 candidates (aucun habit — en attente d'arbitrage)"]
+  ]) {
+    const membres = FAMILLES.filter((f) => f.rang === rang);
+    const lignes = [];
+    for (let i = 0; i < membres.length; i += 5) {
+      const tranche = membres.slice(i, i + 5);
+      lignes.push({
+        intitule: "",
+        cases: tranche.map((f) => {
+          const d = document.createElement("div");
+          d.className = "case";
+          d.style.flexDirection = "column";
+          d.style.gap = "3px";
+          const sp = specimen("Choose", f.classe, f.parent);
+          d.append(sp.boite);
+          const n = document.createElement("div");
+          n.className = "note";
+          n.textContent = (f.nom || "." + f.classe) + (f.plancher ? "" : " ·77⛔");
+          d.append(n);
+          if (theme === "jour") {
+            mesures.push({ quoi: rang, sel: f.nom || "." + f.classe, el: sp.bouton, plancher: f.plancher });
+          }
+          return d;
+        })
+      });
+    }
+    grille(panneau, titre, lignes, false);
+  }
+}
+
+monte(document.getElementById("jour"), "jour");
+monte(document.getElementById("nuit"), "nuit");
+
+/* ═══ 7. LE RELEVÉ — en blg, `getBoundingClientRect()` ÷ `--echelle` ══════
+   🔴 LA DIVISION EST ÉCRITE MÊME QUAND L'ÉCHELLE VAUT 1. C'est la formule du
+   lot, pas une commodité : `zoom: var(--echelle)` (shell.css:121) peint des
+   pixels que `getBoundingClientRect()` rend tels quels, et Eric donne ses
+   cotes en blg. Une mesure non divisée parle d'un autre écran que le sien. */
+function releve() {
+  const ech = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--echelle")) || 1;
+  const blg = (px) => Math.round((px / ech) * 100) / 100;
+  const lignes = mesures.map((m) => {
+    const r = m.el.getBoundingClientRect();
+    return { sel: m.sel, quoi: m.quoi, l: blg(r.width), h: blg(r.height), plancher: m.plancher };
+  });
+  let html = "<strong>RELEVÉ AVANT — lot 209, " + new Date().toISOString().slice(0, 10) +
+    "</strong> &nbsp; <span style='color:#888'>--echelle = " + ech +
+    " · largeur et hauteur en blg (rect ÷ échelle)</span><table>" +
+    "<tr><th>sélecteur</th><th>rang</th><th>largeur</th><th>hauteur</th><th>44 ?</th><th>plancher 77</th></tr>";
+  for (const l of lignes) {
+    const h44 = Math.abs(l.h - 44) < 0.5;
+    html += "<tr><td>" + l.sel + "</td><td>" + l.quoi + "</td><td>" + l.l + "</td><td>" + l.h + "</td>" +
+      "<td class='" + (h44 ? "ok" : "ko") + "'>" + (h44 ? "✅" : "⛔ " + l.h) + "</td>" +
+      "<td>" + (l.plancher === undefined ? "—" : (l.plancher ? "✅" : "⛔")) + "</td></tr>";
+  }
+  html += "</table>";
+  html += "<p style='color:#888'>survol : " + survolCopie.length + " règle(s) dans la feuille · " +
+          "pressé : " + presseCopie.length + " règle(s)</p>";
+  document.getElementById("releve").innerHTML = html;
+  window.__releve = lignes;
+  window.__etats = { survol: survolCopie.length, presse: presseCopie.length };
+}
+/* les polices embarquées changent la largeur d'un mot : on mesure après leur
+   chargement, jamais avant (leçon `police-embarquee`, lot 57). */
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(releve);
+else window.addEventListener("load", releve);
+</script>
