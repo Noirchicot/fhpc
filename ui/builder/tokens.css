@@ -348,6 +348,18 @@
        · `--belt-chevron`      le DESSIN — la largeur de la petite dalle ;
        · `--belt-chevron-zone` la PLACE RÉSERVÉE dans la piste : le dessin
          plus sa gouttière. C'est elle que le rembourrage de la piste lit.
+     ⚖️ 15/09 — LA GOUTTIÈRE PASSE DE 8 À 4, ET C'EST UNE RÈGLE D'ERIC QUI LA
+     FAIT BOUGER : *« les chevrons (lorsqu'il y en a) sont à équidistance de
+     l'astre et de la tuile »*.
+     📏 Mesuré avant : le dessin du chevron courait de 52 à 80, l'astre
+     finissait à 48 et la piste commençait à 88 — **4 d'un côté, 8 de
+     l'autre**. Avec la zone à `--belt-chevron + --sp-4`, la marge tombe à 84
+     et les deux écarts valent 4. Rien à déplacer : c'est la PISTE qui se
+     rapprochait mal, pas le chevron qui était mal posé.
+     ⭐ ET ÇA REND 4 BLG PAR BOUT À LA PISTE — 199 → 207, donc 2,6 de plus par
+     tuile. `Background`, le mot le plus long des huit, passait de 1,73 blg
+     TROP LARGE à 0,85 de reste. Une règle de dessin qui répare un
+     débordement : les deux venaient du même vide mal réparti.
      ⭐ ET LA ZONE TOMBE À ZÉRO EN VUE DOUBLE, en une ligne : le belt y est
      déroulé, les huit crans tiennent, il n'y a rien à faire défiler. Le
      rembourrage retombe alors exactement sur celui d'avant ce lot (37 blg).
@@ -378,7 +390,7 @@
      câble en défaut partagé au socle, jamais deux formules qui divergent. */
   --voile-ecran: color-mix(in srgb, var(--bg) 72%, transparent);
   --belt-chevron: calc(var(--touch) - 2 * var(--sp-8));
-  --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-8));
+  --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-4));
   --fiche-dalle-w: 242px;
   /* ══ 📏 L'INTERLIGNE DE PROSE — Eric, 2026-09-04 : *« interligne de la prose
      on peut normer comme pour destiny ? »* ═══════════════════════════════════
@@ -683,6 +695,103 @@
      deux côtés — ce que cet objet doit être, puisqu'il ne vient pas de
      l'interface mais de derrière elle. */
   --onglet-taille: 58px;
+
+  /* ⚖️ LOT 207 — LES DEUX COTES DE L'ASTRE, Eric le 2026-09-15.
+     `--belt-cran` est la hauteur NATURELLE d'une tuile, relevée sur v630 :
+     44 blg, et c'est exactement `--touch`. Les deux se rencontrent, ils ne se
+     confondent pas — l'un décrit un dessin, l'autre un plancher tactile.
+     ⛔ Et c'est pour ça que l'astre a DEUX cotes : son dessin suit la tuile
+     non active (44 × 0,95 = 41,8), sa cible ne descend jamais sous `--touch`.
+     ⭐ `--onglet-taille` (58) reste : il sert encore aux marges de la piste
+     et aux ancrages des chevrons. Le jour où plus rien ne le lit, il tombe. */
+  /* ⚖️ LOT 207 — LES COTES DU BELT, ÉCRITES. Eric, 2026-09-15 : *« fais pas
+     de zoom alors — définis les dimensions, ça simplifiera d'un écran à
+     l'autre »*.
+     🔴 POURQUOI PAS `zoom` : mesuré, il S'ANNULE. `zoom: p` met à l'échelle
+     jusqu'au `100%` que le `calc` de la tuile lit chez son parent — la base
+     devient `parent/p/3`, le zoom la remultiplie par `p`, et les trois tuiles
+     retombent identiques (relevé : dominante 79,4 contre normale 80).
+     ⭐ UNE SEULE COTE POUR DEUX ORGANES : la tuile secondaire ET l'astre
+     valent `--belt-tuile`. Eric : *« astres = tuiles secondaires = 41,xxx »*.
+     Écrite une fois, lue aux deux endroits — elles ne pourront pas diverger. */
+  /* ⚖️ 15/09 — LES TROIS COTES, DONNÉES PAR ERIC : *« 41 astres, 41 tuiles
+     non actives, 45 tuile active »*. ⛔ Elles ne se calculent plus depuis une
+     base : une cote DONNÉE bat une cote DÉDUITE, et 45/41 n'est pas
+     44 × 1,05 / 44 × 0,95. Ce sont ses chiffres, ronds, écrits tels quels.
+     ⭐ Et ils sont cohérents entre eux : 45 / 41 = +9,8 %, le « 10 % de plus »
+     qu'il donne aussi à la pleine lune. */
+  /* ⚖️ 15/09 — LES DEUX COTES SONT DES NOMBRES, ET C'EST CE QUI LES LIE.
+     Eric : *« les tuiles grandissent en largeur ET en hauteur aussi,
+     attention ! »*.
+     🔴 LE PIÈGE QU'IL A VU AVANT MOI : 41 et 45 sont des HAUTEURS, la largeur
+     est une PART de la piste. Écrites séparément, elles divergent — mesuré
+     sur l'état d'hier, la hauteur croissait de 45/41 = +9,76 % et la largeur
+     de 1,05/0,95 = +10,5 %. Deux agrandissements pour une seule tuile.
+     ⭐ LA SORTIE : les cotes s'écrivent SANS UNITÉ, le ratio se calcule une
+     fois, et les DEUX dimensions le lisent. CSS ne sait pas diviser une
+     longueur par une longueur ; il sait diviser un nombre par un nombre. */
+  --belt-cote: 41;          /* la secondaire — ET le dessin des astres */
+  --belt-cote-dom: 45;      /* la dominante — ET la pleine lune */
+  --belt-tuile: calc(var(--belt-cote) * 1px);
+  --belt-tuile-dom: calc(var(--belt-cote-dom) * 1px);
+  /* ⭐ L'UNIQUE RATIO. Une seule source pour l'agrandissement, lue par la
+     hauteur (la dalle peinte) et par la largeur (la part de piste). */
+  --belt-ratio-dom: calc(var(--belt-cote-dom) / var(--belt-cote));
+  /* ⭐ LES DEUX PARTS DE PISTE, DÉDUITES DU SEUL RATIO. Elles somment à 3, donc
+     la rangée remplit sa piste au blg près quelle qu'en soit la largeur :
+         2n + n·r = 3   →   n = 3 / (2 + r)
+     📏 Rendu à 199 de piste : 59,08 · 64,83 · 59,08 + deux gouttières de 8
+     = 198,99. Il ne reste rien, et il ne manque rien.
+     ⛔ EN JETONS ET PAS DANS LA RÈGLE : la piste en a besoin aussi, pour ses
+     deux espaceurs. Deux endroits qui recalculent la même part finiraient par
+     ne plus décrire la même tuile. */
+  --belt-part: calc(3 / (2 + var(--belt-ratio-dom)));
+  --belt-part-dom: calc(3 * var(--belt-ratio-dom) / (2 + var(--belt-ratio-dom)));
+  /* ⚖️ LE MOU DE CENTRAGE — une demi-piste moins une demi-dominante, de chaque
+     côté. C'est ce qui permet au PREMIER et au DERNIER cran d'atteindre le
+     centre : Eric, 14/09, *« toujours sous la tuile centrale »*.
+     ⭐ EN JETON, ET POUR LA MÊME RAISON QUE `--belt-chevron-zone` : il TOMBE À
+     ZÉRO EN VUE DOUBLE, en une ligne, et la feuille garde une seule formule
+     pour les deux vues. Un `100%` dans un jeton se résout chez qui le LIT —
+     ici la piste — exactement comme la zone du chevron.
+     🔴 ET LA VUE DOUBLE L'EXIGE, MESURÉ : à 90 blg par bout, les huit tuiles
+     déroulées tombaient à 27 de large et débordaient de 197 — sous un
+     `overflow: hidden`, c'est-à-dire INVISIBLEMENT. Un belt déroulé n'a pas
+     de course : il n'a rien à recentrer, donc rien à réserver. */
+  --belt-espaceur: calc((100% - (100% - 2 * var(--sp-8)) / 3 * var(--belt-part-dom)) / 2);
+
+  /* ⚖️ 15/09 — LE VOILE DU BELT, ET IL EST À LUI. Eric : *« tout le reste
+     passe à un voile à 10 % »*.
+     ⛔ PAS `--voile-simple`, ET C'EST LA RAISON DU JETON : le 35 % du socle
+     habille TOUS les panneaux du builder (les choix, les gros affichages).
+     Le descendre à 10 aurait effacé le verre partout pour régler le contraste
+     d'une rangée. Un voile de belt est un voile de belt.
+     📏 Mesuré : à 35 contre 50, la dominante ne se détachait pas — c'est ce
+     qu'Eric voyait quand il disait ne pas voir de tuile active. À 10 contre
+     50, le rapport de matière passe de 1,43 à 5. */
+  --belt-voile: 10%;
+  --belt-dalle: color-mix(in srgb, var(--surface) var(--belt-voile), transparent);
+
+  /* ⚖️ 15/09 — LE HALO DE LA DOMINANTE, FRANC DANS LES DEUX THÈMES.
+     📏 `--spy-halo` vaut 0,65 la nuit et 0,45 le jour : le jour est 31 % plus
+     faible, et c'est le thème où Eric regardait. Le belt a donc SON halo, à
+     égalité des deux côtés — le scrollspy garde le sien, il pose sa lueur sur
+     une tuile pleine, pas sur un verre à 10 %. */
+  --belt-halo: rgba(45, 44, 42, 0.62);
+
+  /* L'ASTRE : deux cotes, et elles ne se confondent pas. */
+  --astre-dessin: var(--belt-tuile);   /* 41 — le DESSIN, égal à la secondaire */
+  --astre-cible: var(--touch);         /* 44 — la CIBLE, le plancher du pouce */
+
+  /* ⚖️ 15/09 — L'ENCRE DES ASTRES, et c'est le seul endroit du belt où une
+     couleur NE SUIT PAS LE THÈME. *« texte en blanc sur la lune, en noir sur
+     le soleil »*. Un astre ne bascule pas : le soleil est clair de jour comme
+     de nuit, le croissant sombre des deux côtés. */
+  --astre-encre-soleil: #241a06;
+  --astre-encre-lune: #f4f3f8;
+
+  --astre-soleil: url("./assets/belt/soleil.webp?v=630");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=630");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne
@@ -957,6 +1066,16 @@
   /* ⛔ PAS DE CHEVRON EN VUE DOUBLE : le belt y est déroulé et ne défile
      plus (lot 120), donc il n'y a aucune course dont on serait au bout. */
   --belt-chevron-zone: 0px;
+  /* ⛔ ET LE MOU DE CENTRAGE AVEC LUI : le belt déroulé montre ses huit crans
+     en même temps, il n'y a aucune course, donc aucun centre à atteindre.
+     ⚠️ À ZÉRO IL NE SUFFISAIT PAS, ET LA MESURE L'A DIT : un enfant flex de
+     largeur NULLE compte quand même sa GOUTTIÈRE. Les deux espaceurs
+     ajoutaient 2 × 8 = 16 blg à une rangée dont la formule n'en prévoit que
+     sept — relevé : 20 blg de débordement, sous un `overflow: hidden`.
+     ⭐ C'est `content: none` (`shell.css`) qui tranche : le nœud n'est pas
+     GÉNÉRÉ, donc il n'a pas de gouttière. Ce jeton reste la cote ; le nœud,
+     lui, n'existe pas là-bas. Une largeur nulle n'est pas une absence. */
+  --belt-espaceur: 0px;
 }
 
 @font-face {
@@ -977,6 +1096,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --spy-halo: rgba(255, 255, 255, 0.65); /* la lueur — voir le jeton jour */
+    --belt-halo: rgba(255, 255, 255, 0.62); /* le halo du belt, à égalité du jour */
     --bg: #14120e;
     --surface: #1f1c16;
     --sunken: #2a261d;

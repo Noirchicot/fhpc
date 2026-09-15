@@ -3258,7 +3258,19 @@ function monterBelt() {
        d'un chargement, et surtout une SECONDE VOIX pour le même mot. */
     const num = el("span", "belt-index");
     const label = el("span", "belt-label");
-    item.append(num, label);
+    /* ⚖️ LOT 207 — LE NOM PASSE AU-DESSUS DE LA PASTILLE. Eric, 2026-09-15,
+       en dictant les deux présentations : *« Equipment (en t2) / pastille plus
+       petite »*, puis confirmé : *« oui le placement des noms sur la tuile me
+       convient »*. C'est l'INVERSE de l'ordre du 19/08 — le mot d'abord, le
+       numéro ensuite. ⭐ Et c'est ce qui laisse la troisième ligne se poser
+       sous la pastille sans que la tuile se relise de bas en haut. */
+    const fenetre = el("span", "belt-fenetre");
+    /* ⛔ VIDE ET CACHÉE AU MONTAGE, comme ses deux sœurs : ce module s'exécute
+       avant toute couche montée, et surtout la fenêtre ouverte n'est pas une
+       propriété de l'étape — elle change sans que le belt se remonte. C'est
+       `paintBelt` qui l'écrit, et lui seul (un seul écrivain). */
+    fenetre.hidden = true;
+    item.append(label, num, fenetre);
     track.append(item);
     return item;
   });
@@ -4535,6 +4547,27 @@ function goToStep(index) {
 
 /* ══ LES PEINTRES — ILS N'ÉCRIVENT QUE DES ATTRIBUTS ════════════════════ */
 
+/** Le mot de la fenêtre ouverte DANS le chapitre courant — « Backpack »,
+ *  « Tally », « Wares » — ou `""` quand on est sur le chapitre lui-même.
+ *
+ *  🔴 LE CHAPITRE DÉCLARE, LE BELT LIT. La coquille ne peut pas deviner
+ *  qu'Équipement a ouvert son sac : ces écrans-là vivent dans le chapitre, et
+ *  leur nom n'existe nulle part au socle. ⛔ Un `if` sur `state.step` ici
+ *  serait la seconde voix que ce dépôt a déjà payée trois fois — le belt
+ *  saurait des noms qui ne sont pas à lui, et ils divergeraient au premier
+ *  renommage (celui de la semaine : `Cart` est devenu `Tally`).
+ *
+ *  ⭐ D'OÙ LA COUTURE : un seul champ, écrit par le chapitre qui ouvre, lu par
+ *  le belt. Tant qu'aucun chapitre ne l'écrit, il vaut `""` et la troisième
+ *  ligne reste cachée — le belt se comporte exactement comme avant.
+ *
+ *  ⏳ Personne ne l'écrit encore : le câblage des quatre fenêtres d'Équipement
+ *  (sac · Tally · Wares · companions) est le lot du chapitre, pas celui-ci. */
+function fenetreOuverte() {
+  const mot = state.fenetre;
+  return typeof mot === "string" ? mot : "";
+}
+
 function paintBelt() {
   /* ⭐ LES DEUX HALOS DU BELT — Eric, 2026-09-02 : *« un halo fin autour du
      cran de l'écran inactif, un halo épais autour du cran de l'écran actif »*,
@@ -4649,6 +4682,26 @@ function paintBelt() {
       label.textContent = cran.mot;
       item.setAttribute("aria-label", cran.mot);
     }
+    /* ⚖️ LOT 207 — LA TROISIÈME LIGNE, Eric le 2026-09-15 : la tuile dominante
+       porte *« Equipment (en t2) · pastille plus petite · fenêtre actuelle (en
+       t2) »*.
+       ⭐ ET C'EST CETTE LIGNE QUI A RÉPONDU À LA QUESTION DU RAIL. On cherchait
+       où poser une sous-fenêtre (le sac, la Tally, Wares) qui n'a pas de cran à
+       elle : elle ne se pose nulle part. Le belt garde ses dix crans, les
+       numéros ne bougent jamais, et c'est la tuile dominante qui DIT où l'on
+       est descendu. Rien ne disparaît de la rangée.
+       ⛔ UN SEUL ÉCRIVAIN : le mot vient de `fenetreOuverte()`, pas d'un `if`
+       sur le chapitre. Un écran qui écrirait son propre nom ici serait la
+       seconde voix que `cran.mot` a déjà coûtée une fois.
+       ⏳ HYPOTHÈSE DU LOT, réversible en une ligne : sur le chapitre lui-même
+       la ligne reste CACHÉE — la tuile n'a alors que deux rangs, comme les
+       autres, en plus grand. Eric ne l'a pas tranché. */
+    const fenetre = item.querySelector(".belt-fenetre");
+    if (fenetre) {
+      const mot = index === state.step ? fenetreOuverte() : "";
+      fenetre.textContent = mot;
+      fenetre.hidden = !mot;
+    }
   });
   /* B0.3 — aucun chevron à gauche à la première étape, aucun à droite à la
      dernière, les deux au milieu. `hidden` plutôt qu'un `display:none` en
@@ -4661,7 +4714,18 @@ function paintBelt() {
      plus (Eric : *« belt totalement déroulé »*). Recentrer une piste sans mou
      ne fait rien — on ne le demande donc pas. */
   const current = belt.items[state.step];
-  if (!enDouble && current && belt.track.contains(current)) keepInView(belt.track, current, "x");
+  /* ⚖️ 15/09 — ET QUAND L'ACTIF EST UN ASTRE, LE RAIL VISE QUAND MÊME.
+     Menu et Sheet sont des crans (`STEPS[0]` et le dernier) mais ils ne sont
+     pas DANS la piste : sans cette ligne, la piste gardait la position qu'elle
+     avait — et au chargement, cette position est zéro, c'est-à-dire l'ESPACEUR
+     de tête. On voyait un vide là où il y a huit tuiles.
+     ⭐ Elle vise alors la tuile la plus proche de l'astre allumé : la première
+     côté Menu, la dernière côté Sheet. Aucune n'est dominante (aucune n'est
+     `current`) — le rail montre juste par quel bout on est entré. */
+  const dansLaPiste = current && belt.track.contains(current);
+  const tuiles = belt.items.filter((item) => !item.hidden && belt.track.contains(item));
+  const vise = dansLaPiste ? current : (state.step === 0 ? tuiles[0] : tuiles[tuiles.length - 1]);
+  if (!enDouble && vise) keepInView(belt.track, vise, "x");
   /* ⚠️ APRÈS le recentrage, jamais avant : les chevrons disent où l'on est
      dans la course, et `keepInView` vient de la déplacer. Lus avant, ils
      annonceraient la position d'avant le geste.

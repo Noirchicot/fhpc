@@ -41,6 +41,21 @@ function regle(css, motif) {
   return morceaux.length ? morceaux.join("\n") : null;
 }
 
+/** Les règles UNE PAR UNE, sélecteur compris — l'inverse de `regle`, qui les
+ *  concatène. ⭐ ET LES DEUX SONT NÉCESSAIRES : `regle` répond à « que porte
+ *  l'organe ? » (la cascade), celui-ci à « qui l'écrit ? ». Une question sur
+ *  un ÉCRIVAIN ne se pose jamais à une cascade — la cascade contient toujours
+ *  la déclaration innocente à côté de la coupable, et le garde jure sur la
+ *  mauvaise. C'est exactement ce qui est arrivé ici le 15/09. */
+function declarations(css, filtre) {
+  const trouvees = [];
+  for (const [, brut, corps] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selecteur = brut.replace(/\s+/g, " ").trim();
+    if (filtre(selecteur)) trouvees.push([selecteur, corps]);
+  }
+  return trouvees;
+}
+
 /** 🔴 LE SÉLECTEUR DU CRAN PORTE `:not([hidden])` DEPUIS LE LOT 186, et la
  *  garde reste ANCRÉE : `.belt-item` et `.belt-item:not([hidden])`, rien
  *  d'autre. ⛔ Pas un `.belt-item` non ancré — il ramasserait
@@ -68,8 +83,17 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
      d'avance »*. Et §1 ter bis : `flex: 0 0`, jamais `0 1` — un organe ne
      rétrécit pas sous sa cote (les bonus tokens tombés à 12 px le 26/08). */
   const etroit = regle(shellCss, CRAN);
-  assert.match(etroit, /flex:\s*0 0 calc\(\(100% - 2 \* var\(--sp-8\)\) \/ 3\)/,
+  /* ⚖️ LOT 207 — LA PART S'AJOUTE, LA LOI NE BOUGE PAS. Eric, 2026-09-15 :
+     *« rapetisse les autres tuiles de 5 %, la tuile dominante grandit de
+     5 % »*. La largeur reste DÉDUITE de la piste — elle gagne seulement un
+     facteur, `--belt-part` (0,95 par défaut, 1,05 sur la dominante).
+     ⛔ CE QUE LE GARDE CONTINUE D'INTERDIRE, et c'est tout son objet : une
+     cote ÉCRITE. `101.7px` sur la dominante aurait passé l'ancien motif si
+     on l'avait mis ailleurs ; il ne passe pas celui-ci. */
+  assert.match(etroit, /flex:\s*0 0 calc\(\(100% - 2 \* var\(--sp-8\)\) \/ 3(\s*\* var\(--belt-part\))?\)/,
     "en étroit : la piste moins ses deux gouttières, divisée par les TROIS crans du croquis");
+  assert.doesNotMatch(etroit, /flex:[^;]*\d+(\.\d+)?px/,
+    "une largeur de tuile ÉCRITE en pixels — elle se déduit de la piste, toujours");
   const double = regle(shellCss, /^:root\[data-vue="double"\] \.belt-item$/);
   assert.match(double, /flex:\s*0 0 calc\(\(100% - 7 \* var\(--sp-8\)\) \/ 8\)/,
     "en double : la même formule, avec les HUIT — « une tuile vaut la piste divisée par ce qu'elle montre »");
@@ -86,22 +110,35 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
   }
 });
 
-test("🔴 le libellé tient à T2 — parce que ce sont les VIDES qui ont cédé", () => {
-  /* ⚖️ ARBITRAGE D'ARCHI 30, 2026-09-02, et il a renversé mon défaut : j'avais
-     pris T1 comme une fatalité (`Inheritance` demandait 63,6 blg pour 63
-     offerts — il en manquait 0,6). ⛔ *« Avant de faire tomber l'organe le
-     plus regardé du builder de T4 à T1, fais céder le VIDE »* — c'est la loi
-     du §2 bis : **quand un écran déborde, ce sont les vides qui cèdent,
-     jamais les organes.**
-     📏 DEUX VIDES ONT CÉDÉ, ET ÇA A SUFFI : le rembourrage latéral (4 → 2) et
-     l'interligne (1,2 → 1). Mesuré sur la page rendue : place offerte **67**,
-     `Inheritance` en demande **64** — trois blg de reste, et **aucun des huit
-     mots ne déborde**. La ceinture reste à 60, la tuile à 71 × 44.
-     ⭐ La leçon vaut au-delà : un organe qu'on rétrécit « parce qu'il manque
-     un demi-pixel » est presque toujours un vide qu'on n'a pas regardé. */
+test("🔴 le libellé change de CRAN entre les deux états — T1 dessous, T2 sur la dominante", () => {
+  /* ⚖️ ARBITRAGE D'ARCHI 30, 2026-09-02, ET IL TIENT TOUJOURS : j'avais pris T1
+     comme une fatalité. ⛔ *« Avant de faire tomber l'organe le plus regardé du
+     builder de T4 à T1, fais céder le VIDE »* — la loi du §2 bis : **quand un
+     écran déborde, ce sont les vides qui cèdent, jamais les organes.**
+
+     ⚖️ ET ERIC L'A PRÉCISÉ LE 15/09, il n'y a pas renoncé : *« le texte descend
+     d'un incrément plutôt que de dézoomer aussi »*, *« idem sur
+     l'agrandissement »*. Le corps n'est donc plus UN, il est DEUX — et c'est
+     un axe à part entière, pas une conséquence de la taille de la tuile :
+     dézoomer le texte de 5 % rendrait 11,4 px, qui n'est aucun barreau.
+     ⭐ CE QUE LE GARDE TIENT MAINTENANT, et c'est plus que ce qu'il tenait :
+     les deux crans SONT nommés, et le mot doit RENTRER dans les deux états.
+     L'ancien garde ne vérifiait que le jeton ; il aurait laissé passer un
+     débordement. 📏 Mesuré au `measureText`, police embarquée, piste à 199 :
+         place offerte   inactive 55,08   ·   dominante 60,83
+         Inheritance     T1 53,01 ✅       ·   T2 63,61 ⛔
+         Equipment       T1 50,36 ✅       ·   T2 60,43 ✅
+         Background      T1 56,81 ⛔       ·   T2 68,17 ⛔ */
   const corps = regle(shellCss, /^\.belt-label$/);
   assert.ok(corps, "`.belt-label` doit porter son corps");
-  assert.match(corps, /font-size:\s*var\(--t2\)/, "T2 — le corps que les vides ont rendu possible");
+  assert.match(corps, /font-size:\s*var\(--t1\)/,
+    "T1 dessous — le cran du dessous, pas un facteur d'échelle");
+  const dominante = regle(shellCss, /^\.belt-item\[data-status="current"\] \.belt-label$/);
+  assert.ok(dominante, "la dominante doit porter SON cran, nommément");
+  assert.match(dominante, /font-size:\s*var\(--t2\)/,
+    "et T2 dessus — un barreau plus haut, pas 5 % de plus");
+  assert.ok(!/font-size:\s*calc|font-size:[^;]*%/.test(corps + dominante),
+    "⛔ jamais un facteur sur le corps : l'échelle du dépôt a des barreaux, on en saute un");
   assert.match(corps, /line-height:\s*1(?![.\d])/,
     "et l'interligne à 1 : c'est lui qui garde la tuile à 44 blg, donc la ceinture à 60");
   assert.match(corps, /white-space:\s*nowrap/,
@@ -135,6 +172,163 @@ test("🔴 LE BUDGET VERTICAL DE LA TUILE — les trois vides sont à leur planc
     "l'interligne : 1. À 1,2 la ceinture rend 62 et la scène perd deux blg");
   assert.match(tuile, /min-height:\s*var\(--touch\)/,
     "et la tuile ne descend jamais sous le plancher tactile");
+});
+
+/* ══ 1 bis — LA LOI DU RAIL : UN SEUL ACTIF, QUATRE AXES ══════════════════
+   Eric, 2026-09-15. Ces quatre gardes sont nés d'une nuit où TOUT était écrit
+   et où RIEN ne se voyait — c'est la famille de défaut qu'ils surveillent. */
+
+test("🔴 UN SEUL ÉCRIVAIN PEINT LA DALLE — et c'est la `::before`, jamais la boîte", () => {
+  /* 🔴 LE DÉFAUT QUE CE GARDE AURAIT ATTRAPÉ, et il a coûté une nuit : la
+     boîte `.belt-item` peignait `--dalle-simple` sur ses 44 blg pendant que
+     sa `::before` peignait la dalle à la cote (41/45) derrière, en z-index
+     -1. Les deux écrivaient la même surface ; celui du dessus gagnait.
+     📏 Relevé au navigateur : les huit tuiles rendaient 44 de haut,
+     DOMINANTE COMPRISE. L'écart de hauteur était écrit, testé, et invisible.
+     ⛔ Et c'est pour ça que le garde regarde QUI PEINT, pas ce qui est écrit :
+     une cote juste dans une règle perdante est indiscernable d'une cote juste.
+     ⭐ La règle générale : deux organes qui peignent la même surface sont UN
+     organe — celui qui la peint. L'autre doit se taire, pas se recouvrir. */
+  /* ⛔ ET CE GARDE A DÛ ÊTRE REFAIT — il est né FAUX, sur la faute même qu'il
+     surveille. Sa première version lisait `regle(shellCss, CRAN)`, qui
+     CONCATÈNE les règles `.belt-item` ET `.belt-item:not([hidden])`. Remettre
+     le fond fautif sur l'une laissait le `background: none` de l'autre dans
+     le texte lu : le garde restait VERT sur le défaut exact qu'il devait
+     tenir. Un témoin qui ne peut jamais accuser est pire qu'aucun témoin.
+     ⭐ Il énumère donc les règles UNE PAR UNE, et il accuse celle qui peint. */
+  /* ⚠️ LE FILTRE VISE LA TUILE ELLE-MÊME, pas sa descendance : un sélecteur
+     qui SE TERMINE par le compound `.belt-item…`. Sans cette précision il
+     ramassait `.belt-item[data-fait="true"] .belt-index` — la pastille verte,
+     qui a tout droit de peindre son disque. Un garde qui accuse un innocent
+     se fait desserrer, et c'est comme ça qu'on perd un garde. */
+  const estLaTuile = (sel) => sel.split(",").some((part) => /^\.belt-item[^\s]*$/.test(part.trim()));
+  const peintres = declarations(shellCss, (sel) => estLaTuile(sel) && !/::/.test(sel));
+  assert.ok(peintres.length >= 2, "les règles de la tuile doivent être lues une par une");
+  for (const [selecteur, corps] of peintres) {
+    const fond = corps.match(/(?:^|[;{\s])background(?:-color)?:\s*([^;]+)/);
+    assert.ok(!fond || /^none$/.test(fond[1].trim()),
+      "⛔ `" + selecteur + "` peint un fond (" + (fond && fond[1].trim()) +
+      ") — la dalle a UN écrivain, la `::before`, et la boîte fait 44 quand la dalle en fait 41");
+    assert.ok(!/box-shadow/.test(corps),
+      "⛔ `" + selecteur + "` pose une ombre : elle cerclerait 44 autour d'une dalle de 41");
+  }
+  const dalle = regle(shellCss, /^\.belt-item:not\(\[hidden\]\)::before$/);
+  assert.ok(dalle, "la dalle peinte doit exister, et c'est elle l'écrivain");
+  assert.match(dalle, /height:\s*var\(--belt-tuile\)/, "elle porte la cote non active");
+  assert.match(dalle, /background:\s*var\(--belt-dalle\)/, "elle porte le voile du belt");
+  assert.match(dalle, /box-shadow:\s*inset[^;]*--verre-lisere/,
+    "et le liseré, qui borde ce qu'il borde");
+});
+
+test("🔴 UN SEUL RATIO POUR LES DEUX DIMENSIONS — la tuile grandit, elle ne se déforme pas", () => {
+  /* ⚖️ Eric, 2026-09-15 : *« les tuiles grandissent en largeur ET en hauteur
+     aussi, attention ! »*
+     🔴 LE PIÈGE, MESURÉ : 41 et 45 sont des HAUTEURS, la largeur est une PART
+     de la piste. Écrites séparément (0,95 / 1,05 d'un côté, 41 / 45 de
+     l'autre), elles donnaient +10,5 % en largeur et +9,76 % en hauteur. Une
+     tuile qui grandit de deux pourcentages selon l'axe n'est pas la même
+     tuile en plus grand : c'est une autre forme.
+     ⭐ CE QUE LE GARDE TIENT : il n'existe qu'UNE source d'agrandissement, et
+     les deux axes la lisent. Un chiffre littéral dans une part le rouvrirait. */
+  assert.match(tokensCss, /--belt-ratio-dom:\s*calc\(var\(--belt-cote-dom\) \/ var\(--belt-cote\)\)/,
+    "le ratio se DÉDUIT des deux cotes — il ne s'écrit pas");
+  for (const jeton of ["--belt-part", "--belt-part-dom"]) {
+    const ligne = tokensCss.match(new RegExp(jeton + ":\\s*([^;]+);"));
+    assert.ok(ligne, "`" + jeton + "` doit exister en jeton — la piste le lit aussi");
+    assert.match(ligne[1], /var\(--belt-ratio-dom\)/,
+      "⛔ `" + jeton + "` doit se déduire du ratio, jamais d'un nombre écrit");
+  }
+  const dominante = regle(shellCss, /^\.belt-item\[data-status="current"\]$/);
+  assert.match(dominante, /--belt-part:\s*var\(--belt-part-dom\)/,
+    "et la largeur de la dominante lit ce jeton, elle ne le recalcule pas");
+  const cote = regle(shellCss, /^\.belt-item\[data-status="current"\]::before$/);
+  assert.match(cote, /height:\s*var\(--belt-tuile-dom\)/,
+    "pendant que la hauteur lit la cote dont ce même ratio est tiré");
+});
+
+test("🔴 LA LOI DU RAIL — un astre s'allume comme une tuile, à la même cote", () => {
+  /* ⚖️ Eric, 2026-09-15 : *« soleil actif : augmente la cote du soleil (45),
+     qui reste à gauche, mets-lui un halo, tout le reste passe à un voile à
+     10 % et rapetisse de 10 %. Idem quand lune active. »*
+     ⭐ ET LE MOTEUR LE SAVAIT DÉJÀ : Menu est `STEPS[0]`, Sheet le dernier, et
+     `paintBelt` écrit `data-status` sur les DIX items. La loi « un seul actif
+     à la fois » n'est pas câblée — elle est la conséquence de `state.step`,
+     qui est un nombre unique. Ce garde tient la PEINTURE, pas l'état.
+     ⚠️ 45 > 44 : `--touch` est un PLANCHER, pas une cote. L'astre allumé a le
+     droit de dépasser son plancher, jamais de passer dessous. */
+  const astre = regle(shellCss, /^\.belt-onglet\[data-status="current"\]$/);
+  assert.ok(astre, "l'astre allumé doit avoir sa règle — sinon la loi n'est pas peinte");
+  assert.match(astre, /width:\s*var\(--belt-tuile-dom\)/, "il prend la cote dominante");
+  assert.match(astre, /background-size:\s*var\(--belt-tuile-dom\)/,
+    "⛔ et son DESSIN suit sa boîte : à 45 dans une boîte de 44, le disque serait rogné");
+  for (const [quoi, corps] of [["l'astre", astre],
+       ["la dalle dominante", regle(shellCss, /^\.belt-item\[data-status="current"\]::before$/)]]) {
+    assert.match(corps, /var\(--belt-halo\)/, "le halo de " + quoi + " lit `--belt-halo`");
+    assert.match(corps, /0 0 var\(--halo-epais\) var\(--halo-fin\)/,
+      "⛔ et il a la grammaire du halo de la maison (panneau actif), pas la sienne");
+  }
+});
+
+test("🔴 LE VOILE DU BELT EST À LUI — le socle n'a pas bougé pour une rangée", () => {
+  /* 🔴 LA TENTATION, ET POURQUOI C'EST UN DÉFAUT : Eric demande 10 % pour les
+     tuiles éteintes. `--voile-simple` valait 35 et le belt le lisait — le
+     descendre à 10 aurait réglé la rangée EN EFFAÇANT LE VERRE DE TOUT LE
+     BUILDER, qui l'emploie pour ses choix et ses gros affichages.
+     ⭐ Un voile de belt est un voile de belt. Le garde tient les deux bouts :
+     le jeton local existe, et le jeton du socle n'a pas bougé.
+     📏 Le rapport de matière entre une tuile et la dominante passe de 1,43
+     (35/50) à 5 (10/50) — c'est cet écart-là qui manquait, pas des pixels. */
+  assert.match(tokensCss, /--belt-voile:\s*10%/, "le belt a SON voile, à 10 %");
+  assert.match(tokensCss, /--belt-dalle:\s*color-mix\(in srgb, var\(--surface\) var\(--belt-voile\), transparent\)/,
+    "et sa dalle s'en déduit, sur la surface du thème");
+  assert.match(tokensCss, /--voile-simple:\s*35%/,
+    "⛔ ET LE VOILE DU SOCLE N'A PAS BOUGÉ — il habille tous les panneaux du builder");
+  const dominante = regle(shellCss, /^\.belt-item\[data-status="current"\]::before$/);
+  assert.match(dominante, /background:\s*var\(--dalle-inter\)/,
+    "la dominante, elle, garde le verre moyen du socle (50 %) : c'est un panneau plein");
+});
+
+test("🔴 LES DEUX ESPACEURS LISENT LA MÊME PART QUE LES TUILES", () => {
+  /* ⚖️ Eric, 2026-09-14 : *« je veux que la fenêtre en cours soit TOUJOURS
+     sous la tuile centrale du belt »*.
+     📏 `keepInView(…, "x")` centrait déjà juste — mesuré sur les huit crans,
+     l'écart au centre valait −0,01 à +0,38 blg pour les six du milieu. Ce qui
+     manquait était le MOU aux deux bouts : `Identity` restait à −67,09 du
+     centre, `Equipment` à +67,46, la piste au bout de sa course.
+     ⭐ Les espaceurs le rendent — une demi-piste moins une demi-dominante. Et
+     ils lisent la MÊME part : un espaceur calculé à part décentrerait le jour
+     où la part bouge, et il décentrerait SILENCIEUSEMENT.
+     📏 Après : les huit crans se centrent entre −0,46 et +0,46 blg. */
+  const espaceur = regle(shellCss, /^\.belt-track::before,\s*\.belt-track::after$/);
+  assert.ok(espaceur, "les deux espaceurs doivent exister — sans eux, pas de « toujours »");
+  assert.match(espaceur, /flex:\s*0 0 var\(--belt-espaceur\)/,
+    "⛔ et ils lisent un JETON, pas une formule écrite sur place — voir pourquoi juste en dessous");
+  const mou = tokensCss.match(/--belt-espaceur:\s*([^;]+);/);
+  assert.ok(mou, "`--belt-espaceur` doit exister");
+  assert.match(mou[1], /var\(--belt-part-dom\)/,
+    "⛔ le mou lit la part de la dominante, il ne la recalcule pas : calculé à part, il "
+    + "décentrerait SILENCIEUSEMENT le jour où la part bouge");
+  assert.match(mou[1], /\(100% - 2 \* var\(--sp-8\)\) \/ 3/,
+    "et la même formule de piste que les tuiles — une seule géométrie");
+  /* 🔴 ET C'EST LA VUE DOUBLE QUI A IMPOSÉ LE JETON, pas le goût. Mesuré avec
+     la formule écrite dans la règle : en vue double les deux espaceurs
+     prenaient 90 blg chacun, les huit crans déroulés tombaient à 27 de large
+     et débordaient de 197 — sous le `overflow: hidden` du belt déroulé,
+     c'est-à-dire INVISIBLEMENT. Un belt déroulé n'a aucune course : il n'a
+     rien à recentrer, donc rien à réserver.
+     ⭐ Même grammaire que `--belt-chevron-zone`, et pour la même raison : une
+     seule formule pour les deux vues, aucune branche à ne jamais parcourir. */
+  assert.match(tokensCss, /:root\[data-vue="double"\]\s*\{[^}]*--belt-espaceur:\s*0px/,
+    "⛔ ET IL TOMBE À ZÉRO EN VUE DOUBLE — sinon le belt déroulé perd 180 blg au profit de deux vides");
+  /* ⚠️ ET ZÉRO NE SUFFISAIT PAS : un enfant flex de largeur NULLE compte quand
+     même sa gouttière. Mesuré : 2 × 8 blg ajoutés à une rangée dont la formule
+     n'en prévoit que sept, soit 20 de débordement sous `overflow: hidden`.
+     ⭐ UNE LARGEUR NULLE N'EST PAS UNE ABSENCE — c'est la leçon, et elle vaut
+     pour tout enfant flex qu'on croit avoir retiré en le mettant à zéro. */
+  const absents = regle(shellCss, /^:root\[data-vue="double"\] \.belt-track::before,\s*:root\[data-vue="double"\] \.belt-track::after$/);
+  assert.ok(absents, "en vue double, les deux espaceurs doivent être retirés, pas rétrécis");
+  assert.match(absents, /content:\s*none/,
+    "⛔ `content: none` — le nœud n'est pas GÉNÉRÉ. Une largeur nulle garderait sa gouttière");
 });
 
 /* ══ 2 — LE CHEVRON : LA CIBLE COMMANDE, LE DESSIN SUIT ════════════════════ */
@@ -190,7 +384,13 @@ test("🔴 en bout de course le chevron disparaît — et sa PLACE reste", () =>
   assert.match(corps, /position:\s*absolute/,
     "il est posé en ABSOLU sur une zone réservée : le retirer ne déplace aucune tuile");
   const piste = regle(shellCss, /^\.belt-track$/) + (regle(shellCss, /^\.belt-track$/) || "");
-  assert.match(shellCss, /margin-left:\s*calc\(var\(--onglet-taille\) \/ 2 \+ var\(--sp-8\) \+ var\(--belt-chevron-zone\)\)/,
+  /* ⚖️ LOT 207 — LE JETON CHANGE, LA LOI NON. L'astre est passé de
+     `--onglet-taille` (58, le disque du 19/08) à `--astre-cible` (`--touch`,
+     44), et il est désormais posé ENTIER dans la barre au lieu d'en déborder
+     de moitié — d'où la formule sans « / 2 ». Ce que ce garde protège reste
+     mot pour mot le même : c'est l'ÉCART DE LA PISTE qui réserve la place du
+     chevron, par UNE formule valable aux deux formats. */
+  assert.match(shellCss, /margin-left:\s*calc\(var\(--astre-cible\) \+ var\(--sp-8\) \+ var\(--belt-chevron-zone\)\)/,
     "et c'est l'écart de la piste qui la réserve — une seule formule pour les deux formats");
   assert.ok(piste !== null, "la piste doit être lisible");
 });
@@ -220,8 +420,23 @@ test("🔴 `Menu` et `Sheet` sont OPAQUES — Eric, 2026-09-02", () => {
 /* ══ 4 — DEUX FORMATS, UNE SEULE FORMULE ═══════════════════════════════════ */
 
 test("🔴 la zone du chevron est le SEUL interrupteur entre les deux formats", () => {
-  assert.match(tokensCss, /--belt-chevron-zone:\s*calc\(var\(--belt-chevron\) \+ var\(--sp-8\)\)/,
+  assert.match(tokensCss, /--belt-chevron-zone:\s*calc\(var\(--belt-chevron\) \+ var\(--sp-4\)\)/,
     "le dessin plus sa gouttière — la place que la piste réserve");
+  /* ⚖️ 15/09 — LA GOUTTIÈRE EST À 4, ET C'EST L'ÉQUIDISTANCE QUI LA FIXE.
+     Eric : *« les chevrons (lorsqu'il y en a) sont à équidistance de l'astre
+     et de la tuile »*. 📏 Avant, à 8 : le dessin courait de 52 à 80, l'astre
+     finissait à 48, la piste commençait à 88 — 4 d'un côté, 8 de l'autre.
+     ⭐ Le garde vérifie L'ÉGALITÉ, pas le chiffre, et il la vérifie sur les
+     cotes qui la produisent : marge de piste − (bord + astre + dessin) doit
+     se partager en deux parts égales.
+        écart gauche = (--sp-4 + --astre-cible) → dessin  = marge − astre-cible − sp-8 ... */
+  const zone = (jeton) => {
+    const m = tokensCss.match(new RegExp(jeton + ":\\s*([^;]+);"));
+    return m && m[1].trim();
+  };
+  assert.equal(zone("--belt-chevron-zone"), "calc(var(--belt-chevron) + var(--sp-4))",
+    "⛔ et la gouttière de la zone vaut --sp-4 : à --sp-8 le chevron colle à l'astre "
+    + "et s'éloigne de la tuile — mesuré 4 contre 8, l'équidistance était rompue");
   assert.match(tokensCss, /:root\[data-vue="double"\]\s*\{[^}]*--belt-chevron-zone:\s*0px/,
     "et elle tombe à zéro en vue double : le belt y est déroulé, il n'y a pas de course");
   /* ⛔ Le format ne se lit PAS dans un `@media` de largeur — §0 bis : il ne se

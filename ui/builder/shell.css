@@ -381,6 +381,35 @@ body {
      ⭐ L'affordance n'est pas perdue : les chevrons ‹ › encadrent déjà la
      piste (B0.2) et disent la même chose sans toucher aux dalles. */
 }
+/* ⚖️ 14/09 — LES DEUX ESPACEURS, ET C'EST LE MOT « TOUJOURS » QUI LES EXIGE.
+   Eric : *« je veux que la fenêtre en cours soit TOUJOURS sous la tuile
+   centrale du belt »*.
+   📏 `keepInView(…, "x")` centre déjà, et il centre juste — mesuré sur les
+   huit crans : l'écart au centre de la piste vaut de −0,01 à +0,38 blg pour
+   les six du milieu. ⛔ MAIS LES DEUX BOUTS NE POUVAIENT PAS : la piste était
+   au bout de sa course, `Identity` restait à −67,09 du centre et `Equipment`
+   à +67,46. Ce n'était pas un défaut de calcul, c'était un manque de mou.
+   ⭐ CE QUE LES ESPACEURS RENDENT, c'est exactement ce mou : une demi-piste
+   moins une demi-tuile dominante, de chaque côté. Ils lisent la MÊME part et
+   la MÊME formule que les tuiles — un espaceur qui se calculerait autrement
+   décentrerait le jour où la part bouge.
+   ⛔ Ils ne portent aucun `scroll-snap-align` : ce sont du vide, pas des
+   crans, et l'aimantation ne doit jamais se poser dessus. */
+.belt-track::before,
+.belt-track::after {
+  content: "";
+  flex: 0 0 var(--belt-espaceur);
+}
+/* ⛔ ET EN VUE DOUBLE LES DEUX ESPACEURS N'EXISTENT PAS — `content: none`, pas
+   une largeur nulle. 📏 Mesuré : à zéro, ils comptaient quand même leur
+   gouttière — 2 × 8 blg ajoutés à une rangée dont la formule n'en prévoit que
+   sept, soit 20 de débordement, INVISIBLE sous le `overflow: hidden` du belt
+   déroulé. Une largeur nulle n'est pas une absence.
+   ⭐ `content: none` plutôt qu'un `display: none` (garde 4) : on ne masque pas
+   un organe, on ne le fabrique pas. Le belt déroulé n'a aucune course, donc
+   aucun centre à atteindre, donc rien à réserver. */
+:root[data-vue="double"] .belt-track::before,
+:root[data-vue="double"] .belt-track::after { content: none; }
 /* LOT 69 — LA BARRE DE DÉFILEMENT NATIVE DES MOLETTES S'EFFACE. Les trois
    rangées-molettes (étapes, catégories de Compétences, catégories
    d'Equipment) ont DÉJÀ leurs affordances ratifiées : chevrons ‹ › (B0.2)
@@ -438,7 +467,17 @@ body {
      *« le belt doit être constitué de dalles transparentes »*. Avant, seul le
      cran COURANT avait un fond ; les neuf autres flottaient sans surface, et
      la ceinture ne se lisait pas comme une rangée de dalles. */
-  background: var(--dalle-simple);
+  /* 🔴 15/09 — ET C'EST LA `::before` QUI LA PEINT, ELLE SEULE. Cet élément
+     posait la MÊME dalle sur sa boîte de 44, par-dessus la dalle à la cote
+     (41/45) du pseudo-élément : deux écrivains pour une surface.
+     📏 Mesuré avant : les huit tuiles rendaient 44 de haut, dominante
+     comprise — l'écart de hauteur était écrit et INVISIBLE, masqué par le
+     fond de la boîte. C'est ce qu'Eric voyait en disant *« je ne vois
+     toujours pas de tuile active plus grande »*, et c'est aussi le bord clair
+     qu'il appelait *« les tuiles sont coupées »* : le fond débordait la dalle
+     de 1,5 blg en haut et en bas.
+     ⛔ Réparer, c'est SUPPRIMER le second écrivain, pas le recouvrir. */
+  background: none;
   text-align: center;
   /* ⚠️ 4 PARTOUT, ET LES DEUX AXES ONT LEUR RAISON :
        · en HAUTEUR, c'est ce qui garde la tuile à 44 blg avec deux rangs au
@@ -469,8 +508,18 @@ body {
      ⛔ EN `inset`, JAMAIS EN `border` : une bordure ajouterait 2 px à la
      boîte, et ce dépôt a mesuré ce que ça coûte — 2 px de bordure
      transparente avaient fait dériver les crans d'aimantation de 22 px sur
-     douze fiches (lot 60). Un liseré ne doit rien déplacer. */
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+     douze fiches (lot 60). Un liseré ne doit rien déplacer.
+     ⭐ 15/09 — IL A SUIVI LA DALLE, sur la `::before`. Posé ici, il cerclait
+     la boîte de 44 alors que la surface visible en fait 41 : un cadre plus
+     grand que ce qu'il encadre — l'autre moitié des *« tuiles coupées »*. */
+  /* 🔴 15/09 — `min-width: 0`, ET SANS LUI LA FORMULE DE LARGEUR NE SERT À
+     RIEN. Le défaut `min-width: auto` d'un enfant flex laisse le CONTENU
+     pousser la boîte : mesuré, `Inheritance` rendait 67,61 et `Equipment`
+     64,44 là où la formule donne 57,95 — trois largeurs différentes dans une
+     rangée qui en promet deux, et c'est ce qui se lisait *« centrage bof »*.
+     ⛔ Il ne coupe rien : c'est le corps du texte (un cran plus bas) qui fait
+     tenir le mot, pas un rognage. */
+  min-width: 0;
 }
 /* Le cran courant se distingue par son VOILE (intermédiaire, 50 %) et sa
    graisse, plus par son encre — `B0.23` : le régime de voile porte le rang.
@@ -478,7 +527,61 @@ body {
    et elle ne porte aucun mot (⛔ l'accent ne survit pas sur du verre non plus). */
 /* Le cran courant garde son liseré ET reçoit l'accent par-dessus : deux
    ombres internes, la seconde par-dessus la première. */
-.belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash); }
+/* ⛔ 15/09 — LA PEINTURE ET LA GRAISSE SONT TOMBÉES D'ICI. La peinture parce
+   qu'elle doublait celle de la dalle (voir plus haut) ; la graisse parce
+   qu'une mesure l'a condamnée : elle coûtait 2,09 blg sur `Inheritance`
+   (65,70 en 600 contre 63,61 en 400) pour un signal que la tuile porte
+   maintenant QUATRE fois — plus grande, plus dense, un cran de texte
+   au-dessus, et un halo. Un cinquième cri, payé en place, sur l'organe du
+   builder qui en manque le plus. */
+/* LOT 207 — la part dominante. Le voile (0,35 → 0,50) et le halo vivaient
+   DÉJÀ ici et au 02/09 : ce lot n'ajoute que la part. */
+/* La dalle PEINTE — à la cote d'Eric, centrée dans la cible tactile. */
+.belt-item:not([hidden])::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  translate: 0 -50%;
+  height: var(--belt-tuile);
+  border-radius: inherit;
+  /* ⚖️ 15/09 — LE VOILE DESCEND À 10 %. Eric : *« tout le reste passe à un
+     voile à 10 % »*. 📏 À 35 contre 50, le rapport de matière entre une tuile
+     et la dominante valait 1,43 ; à 10 contre 50, il en vaut 5. C'est cet
+     écart-là qui manquait, pas des pixels. */
+  background: var(--belt-dalle);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  z-index: -1;
+}
+/* ⚖️ 15/09 — LA DOMINANTE : la cote, le voile plein, et le halo.
+   ⭐ LE HALO EST UNE OMBRE PORTÉE, PAS UN LISERÉ DE PLUS — il déborde de
+   3 blg dans la gouttière, donc il se voit SANS rien prendre à la tuile (la
+   gouttière en fait 8). Un anneau `inset` aurait mangé le mot.
+   ⛔ Et il a son jeton, `--belt-halo` : `--spy-halo` vaut 0,45 le jour contre
+   0,65 la nuit — 31 % plus faible du côté où Eric regardait. */
+.belt-item[data-status="current"]::before {
+  height: var(--belt-tuile-dom);
+  background: var(--dalle-inter);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere),
+              inset 0 0 0 1px var(--accent-wash),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
+
+/* ⚖️ LOT 207 — LA TROISIÈME LIGNE, Eric le 2026-09-15 : la tuile dominante
+   porte *« Equipment (en t2) · pastille plus petite · fenêtre actuelle (en
+   t2) »*. Elle NOMME la fenêtre ouverte quand c'en est une qui n'a pas de
+   cran à elle — le sac, la Tally, Wares.
+   ⭐ C'EST CE QUI A RÉPONDU À LA QUESTION DU RAIL : le belt garde ses dix
+   crans, les numéros ne bougent jamais, et c'est la tuile qui dit où l'on est
+   descendu. Rien ne disparaît de la rangée.
+   ⏳ Sur le chapitre lui-même elle reste `hidden` — hypothèse du lot, un mot
+   d'Eric la renverse en une ligne. */
+.belt-fenetre {
+  font-size: var(--t2);
+  line-height: 1;
+  white-space: nowrap;   /* même loi que `.belt-label` : jamais deux lignes */
+  color: var(--accent);
+}
 /* B0.4 — « quand une étape est validée, son NUMÉRO passe en vert ». C'est le
    numéro seul qui change, pas la ligne : la ceinture disait « done » sur tout
    le libellé, ce qui rendait deux étapes faites indiscernables d'une étape
@@ -508,11 +611,26 @@ body {
    ⭐ C'est le même arbitrage qu'au jeton le 26/08 (*« 13 T1, on aura moins
    d'emmerdes »*) : à T1 tout rentre, donc aucun nom ne force à inventer une
    abréviation. ⛔ Et T1 est le plancher du barème, jamais franchi (§0 bis). */
+/* ⚖️ 15/09 — LE TEXTE CHANGE DE CRAN, IL NE SE MET PAS À L'ÉCHELLE. Eric :
+   *« le texte descend d'un incrément plutôt que de dézoomer aussi »*, puis
+   *« idem sur l'agrandissement »*.
+   ⭐ ET C'EST POURQUOI C'EST UN AXE À PART, pas une conséquence de la taille :
+   une tuile 5 % plus petite avec un texte 5 % plus petit rend un corps de
+   11,4 px, qui n'est aucun barreau de l'échelle. On saute un barreau entier.
+   📏 ET ÇA RÈGLE LE DÉBORDEMENT DU MÊME GESTE, mesuré au `measureText` avec
+   la police embarquée, sur la place réellement offerte (la tuile moins ses
+   deux rembourrages de 2) :
+       inactive, 55,08 de place  ·  T1 : `Background` 56,81 · `Inheritance` 53,01
+       dominante, 60,85 de place ·  T2 : `Background` 68,17 · `Inheritance` 63,61
+   ⏳ `Background` reste au-dessus de sa place dans les deux états — c'est le
+   mot le plus long des huit, et aucun vide du belt ne rend les 3 blg qui
+   manquent. Question posée à Eric, pas tranchée ici. */
 .belt-label {
-  font-size: var(--t2);
+  font-size: var(--t1);
   line-height: 1;
   white-space: nowrap;   /* ⛔ jamais deux lignes : le budget vertical n'en a pas */
 }
+.belt-item[data-status="current"] .belt-label { font-size: var(--t2); }
 
 /* 🔴 UNE TUILE, UNE COTE, DÉDUITE DE LA PISTE — *« toutes les tuiles du menu
    font la même taille »* (Eric, 2026-09-02).
@@ -524,10 +642,64 @@ body {
    et il ne vient d'aucun choix : c'est la piste qui n'a pas la même largeur.
    ⛔ `flex: 0 0`, jamais `0 1` : un organe ne rétrécit pas sous sa cote
    (§1 ter bis, la faute des bonus tokens tombés à 12 px le 26/08). */
+/* ⚖️ LOT 207 — LA TUILE DOMINANTE, Eric le 2026-09-15 : *« rapetisse les
+   autres tuiles de 5 %, la tuile dominante grandit de 5 % »*, puis, quand je
+   n'avais réduit que la largeur : *« pas en largeur uniquement — GLOBALEMENT »*.
+   🔴 DONC `zoom`, ET PAS UN FACTEUR SUR LA LARGEUR. Un facteur sur `flex`
+   n'aurait touché que la largeur ; la hauteur, le corps du texte et la
+   pastille seraient restés à leur taille — une tuile plus étroite, pas une
+   tuile plus petite. `zoom` met TOUT à l'échelle et REFLOWE (là où
+   `transform: scale` laisserait les voisines se chevaucher), et c'est le même
+   procédé que `.app` emploie déjà : on n'invente pas un dispositif.
+   ⭐ ET LA LARGEUR RESTE DÉDUITE : `flex` garde sa formule d'origine — un
+   tiers de la piste moins ses gouttières — que le zoom module ensuite. Aucune
+   cote écrite, la loi de `belt-deux-largeurs` est intacte.
+   📏 Mesuré à 512 : 0,95 + 1,05 + 0,95 = 2,95 tiers, soit 301,9 px sur une
+   piste de 312,7 — il reste 10,8 px, la gouttière n'a pas à bouger.
+   ⭐ L'écart vu par l'œil est celui qu'il demandait : 1,05 / 0,95 = +10,5 %.
+   ⛔ Le « +10 % au centre » d'abord dicté débordait, lui, de 3,7 px. */
 .belt-item {
   scroll-snap-align: center;
-  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3);
+  /* ⚖️ 15/09 — LA PART SE DÉDUIT DU RATIO, ET C'EST TOUT CE QUI LA DÉCIDE.
+     Eric : *« les tuiles grandissent en largeur ET en hauteur aussi »*.
+     🔴 AVANT : 0,95 et 1,05 écrits à la main, pendant que la hauteur lisait
+     41 et 45. Deux agrandissements pour une tuile — largeur +10,5 %, hauteur
+     +9,76 %. Une tuile qui grandit de deux pourcentages différents selon
+     l'axe n'est pas la même tuile en plus grand, c'est une autre forme.
+     ⭐ LA SORTIE : `--belt-ratio-dom` (45/41) est la SEULE source, et les
+     deux axes le lisent. Les trois parts somment à 3 — la rangée remplit sa
+     piste au blg près, quelle qu'en soit la largeur :
+         2n + n·r = 3   →   n = 3 / (2 + r)
+     📏 Rendu à 199 de piste : 59,08 · 64,83 · 59,08 + deux gouttières de 8
+     = 198,99. Il ne reste rien, et il ne manque rien.
+     📌 Les deux parts sont des JETONS (`tokens.css`) : la piste les lit aussi,
+     pour dimensionner ses espaceurs de centrage. */
+  /* ⛔ PLUS DE `zoom` : il s'annulait (voir `tokens.css`). Les deux cotes
+     s'écrivent, et la largeur reste DÉDUITE de la piste — un tiers moins ses
+     gouttières, modulé par la part. */
+  /* ⛔ `align-self: center` OU LA HAUTEUR NE SERT À RIEN. La piste est une
+     rangée flex : son `align-items: stretch` par défaut ÉTIRE chaque tuile à
+     la hauteur de la rangée et écrase la cote écrite ici. Mesuré : tuile à 44
+     alors que `--belt-tuile` vaut 41,8. ⭐ C'est aussi ce qui annulait l'écart
+     de HAUTEUR entre la dominante et les autres — étirées, elles étaient
+     égales quoi qu'on écrive. */
+  align-self: center;
+  /* ⚖️ 15/09 — LA MÊME RÉPONSE QUE POUR LES ASTRES, et c'est la même loi qui
+     l'impose. Eric donne 41 pour la tuile non active ; `min-height:
+     var(--touch)` la relève à 44, parce qu'une tuile EST un bouton et qu'un
+     contrôle ne descend pas sous le plancher du pouce (lot 58).
+     ⭐ D'où les DEUX cotes, comme il les a tranchées sur l'astre : la CIBLE
+     garde 44, le DESSIN vaut 41. La dalle peinte se pose en pseudo-élément à
+     la cote demandée, centrée dans une cible qui ne bouge pas.
+     ⛔ Descendre `min-height` aurait été l'autre voie, et elle est interdite :
+     « un contrôle ne se laisse pas dimensionner par un dessin ». */
+  position: relative;
+  background: none;
+  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3 * var(--belt-part));
 }
+/* ⭐ LE MÊME RATIO, SUR L'AUTRE AXE. Rien n'est écrit ici que le ratio ne
+   décide : la dominante prend `r` parts là où ses voisines en prennent une. */
+.belt-item[data-status="current"] { --belt-part: var(--belt-part-dom); }
 /* ⏳ LOT 186 — CE `8` DÉCRIT LA PILE COMPLÈTE, ET LA CEINTURE EST DEVENUE
    VERSATILE. En pile SRD la piste ne porte que SEPT tuiles : divisée par huit,
    elle en laisse un huitième vide au bout. ⛔ Je ne l'ai PAS changé, et la
@@ -636,8 +808,12 @@ body {
 
    ⭐ Une seule formule pour les deux vues : `--belt-chevron-zone` vaut 24 en
    étroit et 0 en double — l'écart rend 61 puis 37, la cote d'avant ce lot. */
-.belt-track { margin-left: calc(var(--onglet-taille) / 2 + var(--sp-8) + var(--belt-chevron-zone));
-              margin-right: calc(var(--onglet-taille) / 2 + var(--sp-8) + var(--belt-chevron-zone));
+/* ⚖️ LOT 207 — LA PISTE SE MESURE SUR L'ASTRE, PAS SUR L'ANCIEN DISQUE.
+   L'astre est passé de 58 à `--touch` 44 : garder 58 ici réserverait une
+   place que plus rien n'occupe. ⭐ Et c'est le gain qu'Eric attendait —
+   mesuré : 14 blg rendus au rail de chaque côté. */
+.belt-track { margin-left: calc(var(--astre-cible) + var(--sp-8) + var(--belt-chevron-zone));
+              margin-right: calc(var(--astre-cible) + var(--sp-8) + var(--belt-chevron-zone));
               padding-left: 0;
               padding-right: 0; }
 /* ══ LES DEUX CHEVRONS DU BELT ÉTROIT — lot 122 ═══════════════════════════
@@ -685,8 +861,8 @@ body {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.belt-chevron[data-sens="avant"] { left: calc(var(--onglet-taille) / 2); }
-.belt-chevron[data-sens="apres"] { right: calc(var(--onglet-taille) / 2); }
+.belt-chevron[data-sens="avant"] { left: var(--astre-cible); }
+.belt-chevron[data-sens="apres"] { right: var(--astre-cible); }
 .belt-chevron:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
 /* 🔴 LA FLÈCHE EST L'ORGANE, ET IL N'Y A PAS DE TUILE — Eric, 2026-09-02 :
    *« rends sa tuile invisible, voile 0 % ; je veux juste voir la flèche, qui
@@ -749,34 +925,104 @@ body {
 .belt-chevron[data-sens="avant"] .belt-chevron-fleche::before { transform: rotate(-135deg); }
 .belt-chevron[data-sens="apres"] .belt-chevron-fleche::before { transform: rotate(45deg); }
 
+/* ⚖️ LOT 207 — LE SOLEIL ET LA LUNE. Eric, 2026-09-15 : *« que le Menu et le
+   Sheet soient le soleil et la lune »*, *« les soleil lune doivent avoir le
+   même diamètre que la hauteur des tuiles non actives »*, et *« le soleil est
+   pour Menu · le croissant est pour Sheet »*.
+
+   🔴 DEUX COTES, PAS UNE — ET C'EST SA RÉPONSE « c ». Le DESSIN vaut la
+   hauteur d'une tuile non active (41,8 blg) ; la CIBLE garde `--touch` 44. Le
+   disque peint est donc plus petit que le bouton qui l'entoure.
+   ⭐ Et c'est ainsi qu'on HONORE la loi au lieu de la contourner : *« un
+   contrôle ne se laisse pas dimensionner par un dessin »*. Ici le dessin
+   rétrécit et le contrôle ne bouge pas — il ne dimensionne rien.
+   ⛔ L'inverse (le bouton à 41,8) aurait fait passer Menu et Sheet sous le
+   plancher tactile. Mesuré : 41,8 < 44.
+
+   📏 L'astre remplace le disque plein : plus de `--onglet-fond` derrière,
+   l'image EST la pastille. Le mot reste par-dessus (`.belt-onglet-mot`). */
+/* ⚖️ 15/09 — ALIGNÉ SUR LES TUILES, ET À 4 DU BORD. *« astres alignés
+   verticalement avec les tuiles »*, *« marge de 4 blg avec le bord »*.
+   ⭐ `top: 50%` plutôt qu'une cote : les tuiles sont centrées par leur rangée,
+   donc l'astre se centre de la même façon — il suivra tout seul le jour où la
+   hauteur d'une tuile bougera. Une cote écrite ici aurait divergé. */
 .belt-onglet {
   position: absolute;
-  top: 0;
-  width: var(--onglet-taille);
-  height: var(--onglet-taille);
+  top: 50%;
+  transform: translateY(-50%);
+  /* la CIBLE — jamais sous le plancher du pouce */
+  width: var(--astre-cible);
+  height: var(--astre-cible);
   border-radius: 50%;
   border: none;
   padding: 0;
   z-index: 2;
   display: grid;
   place-items: center;
-  background: var(--onglet-fond);
+  /* le DESSIN — la hauteur d'une tuile non active, centré dans la cible */
+  background: transparent no-repeat center / var(--astre-dessin) var(--astre-dessin);
   color: var(--onglet-encre);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.belt-onglet[data-bout="menu"]  { left: calc(var(--onglet-taille) / -2);
-                                  box-shadow: inset 0 0 0 1px var(--onglet-liseré-menu); }
-.belt-onglet[data-bout="fiche"] { right: calc(var(--onglet-taille) / -2);
-                                  box-shadow: inset 0 0 0 1px var(--onglet-liseré-fiche); }
+.belt-onglet[data-bout="menu"]  { background-image: var(--astre-soleil); }
+.belt-onglet[data-bout="fiche"] { background-image: var(--astre-croissant); }
+/* ⚖️ LOT 207 — L'ASTRE EST ENTIER DANS LA BARRE. Relevé sur le croquis du
+   14/09 (`IMG_6324`) : le soleil, la pleine lune et le croissant sont posés
+   EN ENTIER, aucun ne déborde du cadre. Ils débordaient de moitié depuis le
+   19/08, quand c'étaient des onglets de classeur — un astre, lui, ne se
+   coupe pas au bord. */
+/* ⛔ PLUS DE LISERÉ — Eric, 2026-09-15 : *« le contour des astres inutile
+   et moche »*. Il cerclait un disque PLEIN de surface, qui avait besoin d'être
+   détaché du décor ; un astre a son propre bord et sa propre lumière. */
+.belt-onglet[data-bout="menu"]  { left: var(--sp-4); }
+.belt-onglet[data-bout="fiche"] { right: var(--sp-4); }
+/* ⚖️ 15/09 — L'ENCRE SUIT SON ASTRE : *« texte en blanc sur la lune, en noir
+   sur le soleil »*. ⛔ Et elle ne passe pas par `--onglet-encre`, qui bascule
+   avec le thème : un astre ne bascule pas. Le soleil est clair de jour comme
+   de nuit, le croissant est sombre des deux côtés — leur encre est donc FIXE,
+   et c'est le seul endroit du belt où une couleur ne suit pas le thème. */
+.belt-onglet[data-bout="menu"]  .belt-onglet-mot { color: var(--astre-encre-soleil); }
+.belt-onglet[data-bout="fiche"] .belt-onglet-mot { color: var(--astre-encre-lune); }
+/* ⚖️ 15/09 — L'ASTRE ACTIF, ET C'EST LE MÊME ÉTAT QUE LA TUILE DOMINANTE.
+   Eric : *« soleil actif : augmente la cote du soleil (45), qui reste à
+   gauche, mets-lui un halo, tout le reste passe à un voile à 10 % et
+   rapetisse de 10 % (bref à 41). Idem quand lune active. »*
+
+   ⭐ ET LE MOTEUR LE SAVAIT DÉJÀ — il n'y avait rien à inventer. Menu est
+   `STEPS[0]` et Sheet `STEPS[dernier]` : `paintBelt` écrit `data-status` sur
+   les DIX items par index, astres compris. Vérifié au navigateur : un clic
+   sur le soleil le passe à `current` et repasse les huit tuiles à `upcoming`.
+   ⛔ Un second modèle d'état — un drapeau « astre actif » à côté de
+   `state.step` — aurait été la seconde voix que ce dépôt a déjà payée. La loi
+   du rail (UN actif à la fois, tuile OU astre) n'est pas à câbler : elle est
+   la conséquence de `state.step`, qui est un nombre unique.
+   ⭐ Les tuiles n'ont donc RIEN à faire quand un astre s'allume : plus aucune
+   n'est `current`, donc toutes rendent 41 et 10 % — c'est exactement le
+   *« tout le reste »* d'Eric, obtenu sans une ligne de plus.
+
+   ⚠️ LA CIBLE SUIT LE DESSIN ICI, ET ELLE NE VIOLE PAS SON PLANCHER : 45 > 44.
+   `--touch` est un plancher, pas une cote — un dessin de 45 dans une boîte de
+   44 serait rogné d'un demi-blg de chaque côté. Le bouton grandit avec son
+   astre, et son bord gauche ne bouge pas (`left: var(--sp-4)`). */
+.belt-onglet[data-status="current"] {
+  width: var(--belt-tuile-dom);
+  height: var(--belt-tuile-dom);
+  background-size: var(--belt-tuile-dom) var(--belt-tuile-dom);
+  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
 /* Le mot suit le bord, pas la lecture. Décalé vers la moitié VISIBLE : centré
    sur le disque, il tomberait à cheval sur le bord de l'écran. */
+/* ⚖️ LOT 207 — LE MOT REDEVIENT HORIZONTAL. Le croquis écrit « Menu »,
+   « Backpack » et « Sheet » À PLAT sur leur astre. La verticale venait de
+   l'onglet de classeur du 19/08 — ce geste-là n'existe plus. */
 .belt-onglet-mot {
-  writing-mode: vertical-rl;
   /* --t3 (14 px) et non --t2 (12) : monté d'un barreau le 2026-08-19. Le mot
      est tourné à la verticale, où l'œil lit moins vite — il paie ce que le
      corps de texte n'a pas à payer. */
-  font-size: var(--t3);
+  /* ⚖️ 15/09 : *« plus petit »* — t3 → t2. Le mot est posé SUR un astre, il
+     n'a plus à porter seul la lisibilité d'un disque nu. */
+  font-size: var(--t1);
   font-weight: 600;
   letter-spacing: .04em;
   line-height: 1;
@@ -794,14 +1040,14 @@ body {
    le centre du mot est au bord de l'écran (le disque est à moitié hors champ),
    donc le décaler d'une demi-largeur pose son flanc gauche exactement sur le
    bord. Un chiffre en dur casserait au premier changement de graisse. */
-.belt-onglet[data-bout="menu"]  .belt-onglet-mot { transform: translateX(calc(50% + 2px)); }
+
 /* ⭐ LE MOT DE DROITE EST RETOURNÉ. J'avais d'abord aligné les deux dans le
    même sens, en lisant la maquette d'Eric ainsi ; il a tranché en le voyant
    en ligne : *« Sheet pas dans le bon sens ! »*. C'est aussi la convention —
    sur une tranche, le mot de droite se lit du bas vers le haut, de sorte que
    les deux étiquettes tournent vers l'INTÉRIEUR de l'écran plutôt que dans le
    même sens. */
-.belt-onglet[data-bout="fiche"] .belt-onglet-mot { transform: translateX(calc(-50% - 2px)) rotate(180deg); }
+
 /* ⛔ L'ÉTAT COURANT ÉPAISSIT LE LISERÉ, IL NE LE REMPLACE PAS. Un premier
    essai posait `currentColor` — donc du blanc — et effaçait la couleur qui
    distingue les deux bouts. Mesuré à l'écran : l'oxblood disparaissait dès
@@ -812,8 +1058,17 @@ body {
    plus épais ou plus vif n'ajoutait qu'un cri de plus, et c'est précisément ce
    qu'Eric a reproché à la première pose. */
 .belt-onglet:focus-visible { outline: 2px solid var(--onglet-encre); outline-offset: -4px; }
+/* ⚖️ LOT 207 — LA PASTILLE RÉTRÉCIT. Eric, 2026-09-15, dans les deux
+   présentations : *« Equipment (en t2) · pastille PLUS PETITE »* — pour la
+   non active comme pour la dominante.
+   📏 22 → 15,4 blg, soit 30 % de moins (Eric, 15/09 : *« la pastille 30 %
+   plus petite »*). C'est ce qui libère la place de la troisième ligne sur la
+   dominante, et c'est aussi ce qui se VOIT : le disque est le plus gros
+   objet de la tuile, le réduire est ce qui change le dessin.
+   ⛔ Elle reste hors échelle (un rond, pas une carte) — la note d'origine
+   ci-dessous tient. */
 .belt-index {
-  width: 22px; height: 22px; border-radius: 50%; /* hors échelle : pastille ronde, pas une carte — 50% n'est pas un rayon du système */
+  width: 15.4px; height: 15.4px; border-radius: 50%; /* hors échelle : pastille ronde, pas une carte — 50% n'est pas un rayon du système */
   border: 1px solid currentColor;
   display: flex; align-items: center; justify-content: center;
   font-size: var(--t2);
@@ -10455,6 +10710,13 @@ button.tuto-point::before {
    bornes. Le reste est au socle. */
 /* (les deux règles utiles vivent plus haut : `display: contents` sur la sortie
    et le retrait de l'ancre verticale des deux bornes.) */
+/* 🔴 2026-09-15 — CETTE NOTE AVAIT PERDU SON OUVERTURE, et elle était donc de
+   la PROSE NUE dans la feuille, refermée par un délimiteur orphelin. Trouvée
+   par `tests/css-syntaxe.test.mjs` ; troisième occurrence de la même faute le
+   même jour (`tokens.css`, `dice3d.css`, ici). Aucun garde ne pouvait la
+   voir : tous lisent les feuilles à travers une expression régulière sur les
+   accolades, qui ne sait pas ce qu'est un commentaire.
+   ── la note, rendue à son bloc ──────────────────────────────────────────
    2026-09-03 : *« pourquoi tes boutons se baladent de manière aléatoire en
    hauteur ? »* · *« c'était bon avant »* · *« cadrer les boutons à 8 blg du bas
    et forcer 8 blg au-dessus »*.
