@@ -11,11 +11,18 @@ Serveur : `preview_start` nom **`fhpc-207`** → `http://localhost:8907/ui/build
 > **Il y a exactement UN élément actif sur le rail à la fois : une tuile OU un astre.**
 > L'actif grossit et porte le halo. **Tout le reste** rétrécit et s'efface.
 
-| | dessin | voile | halo |
-|---|---|---|---|
-| **l'actif** *(tuile OU soleil OU lune)* | **45** | plein | **oui** |
-| **tout le reste** | **41** | **10 %** | non |
-| la cible tactile, partout | **44** | — | — |
+⛔ **QUATRE AXES INDÉPENDANTS, et aucun n'en commande un autre.** Eric, 15/09 :
+*« le voile n'est pas un zoom »*. Un voile est une TRANSPARENCE, une taille est une DIMENSION,
+un cran de texte est un BARREAU D'ÉCHELLE, un halo est une OMBRE. Les écrire séparément.
+
+| l'axe | l'actif | tout le reste |
+|---|---|---|
+| ① **la taille** *(dimension écrite)* | **45** | **41** |
+| ② **le voile** *(transparence de la dalle)* | plein | **10 %** |
+| ③ **le texte** *(un cran de l'échelle)* | `--t2` | `--t1` |
+| ④ **le halo** *(une ombre)* | **oui** | non |
+
+⛔ **La cible tactile vaut 44 partout, sur les quatre états** — elle n'est aucun de ces axes.
 
 ⭐ **LE TEXTE CHANGE DE CRAN, IL NE SE MET PAS À L'ÉCHELLE.** Eric, 15/09 : *« le texte descend
 d'un incrément plutôt que de dézoomer aussi »*, *« idem sur l'agrandissement »*.
