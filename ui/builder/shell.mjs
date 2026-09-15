@@ -4714,7 +4714,18 @@ function paintBelt() {
      plus (Eric : *« belt totalement déroulé »*). Recentrer une piste sans mou
      ne fait rien — on ne le demande donc pas. */
   const current = belt.items[state.step];
-  if (!enDouble && current && belt.track.contains(current)) keepInView(belt.track, current, "x");
+  /* ⚖️ 15/09 — ET QUAND L'ACTIF EST UN ASTRE, LE RAIL VISE QUAND MÊME.
+     Menu et Sheet sont des crans (`STEPS[0]` et le dernier) mais ils ne sont
+     pas DANS la piste : sans cette ligne, la piste gardait la position qu'elle
+     avait — et au chargement, cette position est zéro, c'est-à-dire l'ESPACEUR
+     de tête. On voyait un vide là où il y a huit tuiles.
+     ⭐ Elle vise alors la tuile la plus proche de l'astre allumé : la première
+     côté Menu, la dernière côté Sheet. Aucune n'est dominante (aucune n'est
+     `current`) — le rail montre juste par quel bout on est entré. */
+  const dansLaPiste = current && belt.track.contains(current);
+  const tuiles = belt.items.filter((item) => !item.hidden && belt.track.contains(item));
+  const vise = dansLaPiste ? current : (state.step === 0 ? tuiles[0] : tuiles[tuiles.length - 1]);
+  if (!enDouble && vise) keepInView(belt.track, vise, "x");
   /* ⚠️ APRÈS le recentrage, jamais avant : les chevrons disent où l'on est
      dans la course, et `keepInView` vient de la déplacer. Lus avant, ils
      annonceraient la position d'avant le geste.

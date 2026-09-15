@@ -974,6 +974,33 @@ body {
    et c'est le seul endroit du belt où une couleur ne suit pas le thème. */
 .belt-onglet[data-bout="menu"]  .belt-onglet-mot { color: var(--astre-encre-soleil); }
 .belt-onglet[data-bout="fiche"] .belt-onglet-mot { color: var(--astre-encre-lune); }
+/* ⚖️ 15/09 — L'ASTRE ACTIF, ET C'EST LE MÊME ÉTAT QUE LA TUILE DOMINANTE.
+   Eric : *« soleil actif : augmente la cote du soleil (45), qui reste à
+   gauche, mets-lui un halo, tout le reste passe à un voile à 10 % et
+   rapetisse de 10 % (bref à 41). Idem quand lune active. »*
+
+   ⭐ ET LE MOTEUR LE SAVAIT DÉJÀ — il n'y avait rien à inventer. Menu est
+   `STEPS[0]` et Sheet `STEPS[dernier]` : `paintBelt` écrit `data-status` sur
+   les DIX items par index, astres compris. Vérifié au navigateur : un clic
+   sur le soleil le passe à `current` et repasse les huit tuiles à `upcoming`.
+   ⛔ Un second modèle d'état — un drapeau « astre actif » à côté de
+   `state.step` — aurait été la seconde voix que ce dépôt a déjà payée. La loi
+   du rail (UN actif à la fois, tuile OU astre) n'est pas à câbler : elle est
+   la conséquence de `state.step`, qui est un nombre unique.
+   ⭐ Les tuiles n'ont donc RIEN à faire quand un astre s'allume : plus aucune
+   n'est `current`, donc toutes rendent 41 et 10 % — c'est exactement le
+   *« tout le reste »* d'Eric, obtenu sans une ligne de plus.
+
+   ⚠️ LA CIBLE SUIT LE DESSIN ICI, ET ELLE NE VIOLE PAS SON PLANCHER : 45 > 44.
+   `--touch` est un plancher, pas une cote — un dessin de 45 dans une boîte de
+   44 serait rogné d'un demi-blg de chaque côté. Le bouton grandit avec son
+   astre, et son bord gauche ne bouge pas (`left: var(--sp-4)`). */
+.belt-onglet[data-status="current"] {
+  width: var(--belt-tuile-dom);
+  height: var(--belt-tuile-dom);
+  background-size: var(--belt-tuile-dom) var(--belt-tuile-dom);
+  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
 /* Le mot suit le bord, pas la lecture. Décalé vers la moitié VISIBLE : centré
    sur le disque, il tomberait à cheval sur le bord de l'écran. */
 /* ⚖️ LOT 207 — LE MOT REDEVIENT HORIZONTAL. Le croquis écrit « Menu »,
