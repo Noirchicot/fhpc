@@ -481,7 +481,20 @@ body {
 .belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash); }
 /* LOT 207 — la part dominante. Le voile (0,35 → 0,50) et le halo vivaient
    DÉJÀ ici et au 02/09 : ce lot n'ajoute que la part. */
-.belt-item[data-status="current"] { --belt-part: 1.05; height: var(--belt-tuile-dom); }
+/* La dalle PEINTE — à la cote d'Eric, centrée dans la cible tactile. */
+.belt-item:not([hidden])::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  translate: 0 -50%;
+  height: var(--belt-tuile);
+  border-radius: inherit;
+  background: var(--dalle-simple);
+  z-index: -1;
+}
+.belt-item[data-status="current"]::before { height: var(--belt-tuile-dom); background: var(--dalle-inter); }
+.belt-item[data-status="current"] { --belt-part: 1.05; }
 
 /* ⚖️ LOT 207 — LA TROISIÈME LIGNE, Eric le 2026-09-15 : la tuile dominante
    porte *« Equipment (en t2) · pastille plus petite · fenêtre actuelle (en
@@ -572,7 +585,17 @@ body {
      de HAUTEUR entre la dominante et les autres — étirées, elles étaient
      égales quoi qu'on écrive. */
   align-self: center;
-  height: var(--belt-tuile);
+  /* ⚖️ 15/09 — LA MÊME RÉPONSE QUE POUR LES ASTRES, et c'est la même loi qui
+     l'impose. Eric donne 41 pour la tuile non active ; `min-height:
+     var(--touch)` la relève à 44, parce qu'une tuile EST un bouton et qu'un
+     contrôle ne descend pas sous le plancher du pouce (lot 58).
+     ⭐ D'où les DEUX cotes, comme il les a tranchées sur l'astre : la CIBLE
+     garde 44, le DESSIN vaut 41. La dalle peinte se pose en pseudo-élément à
+     la cote demandée, centrée dans une cible qui ne bouge pas.
+     ⛔ Descendre `min-height` aurait été l'autre voie, et elle est interdite :
+     « un contrôle ne se laisse pas dimensionner par un dessin ». */
+  position: relative;
+  background: none;
   flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3 * var(--belt-part));
 }
 /* ⏳ LOT 186 — CE `8` DÉCRIT LA PILE COMPLÈTE, ET LA CEINTURE EST DEVENUE

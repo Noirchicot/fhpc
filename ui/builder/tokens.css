@@ -702,12 +702,17 @@
      ⭐ UNE SEULE COTE POUR DEUX ORGANES : la tuile secondaire ET l'astre
      valent `--belt-tuile`. Eric : *« astres = tuiles secondaires = 41,xxx »*.
      Écrite une fois, lue aux deux endroits — elles ne pourront pas diverger. */
-  --belt-cran: 44px;                                /* la base, relevée sur v630 */
-  --belt-tuile: calc(var(--belt-cran) * 0.95);      /* 41,8 — la secondaire */
-  --belt-tuile-dom: calc(var(--belt-cran) * 1.05);  /* 46,2 — la dominante */
+  /* ⚖️ 15/09 — LES TROIS COTES, DONNÉES PAR ERIC : *« 41 astres, 41 tuiles
+     non actives, 45 tuile active »*. ⛔ Elles ne se calculent plus depuis une
+     base : une cote DONNÉE bat une cote DÉDUITE, et 45/41 n'est pas
+     44 × 1,05 / 44 × 0,95. Ce sont ses chiffres, ronds, écrits tels quels.
+     ⭐ Et ils sont cohérents entre eux : 45 / 41 = +9,8 %, le « 10 % de plus »
+     qu'il donne aussi à la pleine lune. */
+  --belt-tuile: 41px;       /* la secondaire — ET le dessin des astres */
+  --belt-tuile-dom: 45px;   /* la dominante — ET la pleine lune */
 
   /* L'ASTRE : deux cotes, et elles ne se confondent pas. */
-  --astre-dessin: var(--belt-tuile);   /* 41,8 — le DESSIN, égal à la secondaire */
+  --astre-dessin: var(--belt-tuile);   /* 41 — le DESSIN, égal à la secondaire */
   --astre-cible: var(--touch);         /* 44 — la CIBLE, le plancher du pouce */
 
   /* ⚖️ 15/09 — L'ENCRE DES ASTRES, et c'est le seul endroit du belt où une
