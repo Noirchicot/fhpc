@@ -747,6 +747,18 @@
      ne plus décrire la même tuile. */
   --belt-part: calc(3 / (2 + var(--belt-ratio-dom)));
   --belt-part-dom: calc(3 * var(--belt-ratio-dom) / (2 + var(--belt-ratio-dom)));
+  /* ⚖️ LE MOU DE CENTRAGE — une demi-piste moins une demi-dominante, de chaque
+     côté. C'est ce qui permet au PREMIER et au DERNIER cran d'atteindre le
+     centre : Eric, 14/09, *« toujours sous la tuile centrale »*.
+     ⭐ EN JETON, ET POUR LA MÊME RAISON QUE `--belt-chevron-zone` : il TOMBE À
+     ZÉRO EN VUE DOUBLE, en une ligne, et la feuille garde une seule formule
+     pour les deux vues. Un `100%` dans un jeton se résout chez qui le LIT —
+     ici la piste — exactement comme la zone du chevron.
+     🔴 ET LA VUE DOUBLE L'EXIGE, MESURÉ : à 90 blg par bout, les huit tuiles
+     déroulées tombaient à 27 de large et débordaient de 197 — sous un
+     `overflow: hidden`, c'est-à-dire INVISIBLEMENT. Un belt déroulé n'a pas
+     de course : il n'a rien à recentrer, donc rien à réserver. */
+  --belt-espaceur: calc((100% - (100% - 2 * var(--sp-8)) / 3 * var(--belt-part-dom)) / 2);
 
   /* ⚖️ 15/09 — LE VOILE DU BELT, ET IL EST À LUI. Eric : *« tout le reste
      passe à un voile à 10 % »*.
@@ -1054,6 +1066,16 @@
   /* ⛔ PAS DE CHEVRON EN VUE DOUBLE : le belt y est déroulé et ne défile
      plus (lot 120), donc il n'y a aucune course dont on serait au bout. */
   --belt-chevron-zone: 0px;
+  /* ⛔ ET LE MOU DE CENTRAGE AVEC LUI : le belt déroulé montre ses huit crans
+     en même temps, il n'y a aucune course, donc aucun centre à atteindre.
+     ⚠️ À ZÉRO IL NE SUFFISAIT PAS, ET LA MESURE L'A DIT : un enfant flex de
+     largeur NULLE compte quand même sa GOUTTIÈRE. Les deux espaceurs
+     ajoutaient 2 × 8 = 16 blg à une rangée dont la formule n'en prévoit que
+     sept — relevé : 20 blg de débordement, sous un `overflow: hidden`.
+     ⭐ C'est `content: none` (`shell.css`) qui tranche : le nœud n'est pas
+     GÉNÉRÉ, donc il n'a pas de gouttière. Ce jeton reste la cote ; le nœud,
+     lui, n'existe pas là-bas. Une largeur nulle n'est pas une absence. */
+  --belt-espaceur: 0px;
 }
 
 @font-face {

@@ -301,12 +301,34 @@ test("🔴 LES DEUX ESPACEURS LISENT LA MÊME PART QUE LES TUILES", () => {
      📏 Après : les huit crans se centrent entre −0,46 et +0,46 blg. */
   const espaceur = regle(shellCss, /^\.belt-track::before,\s*\.belt-track::after$/);
   assert.ok(espaceur, "les deux espaceurs doivent exister — sans eux, pas de « toujours »");
-  assert.match(espaceur, /var\(--belt-part-dom\)/,
-    "⛔ ils lisent la part de la dominante, ils ne la recalculent pas");
-  assert.match(espaceur, /\(100% - 2 \* var\(--sp-8\)\) \/ 3/,
+  assert.match(espaceur, /flex:\s*0 0 var\(--belt-espaceur\)/,
+    "⛔ et ils lisent un JETON, pas une formule écrite sur place — voir pourquoi juste en dessous");
+  const mou = tokensCss.match(/--belt-espaceur:\s*([^;]+);/);
+  assert.ok(mou, "`--belt-espaceur` doit exister");
+  assert.match(mou[1], /var\(--belt-part-dom\)/,
+    "⛔ le mou lit la part de la dominante, il ne la recalcule pas : calculé à part, il "
+    + "décentrerait SILENCIEUSEMENT le jour où la part bouge");
+  assert.match(mou[1], /\(100% - 2 \* var\(--sp-8\)\) \/ 3/,
     "et la même formule de piste que les tuiles — une seule géométrie");
-  assert.ok(!/\d+(\.\d+)?px/.test(espaceur.replace(/var\([^)]*\)/g, "")),
-    "⛔ aucune cote écrite : le mou se déduit de la piste, comme la tuile");
+  /* 🔴 ET C'EST LA VUE DOUBLE QUI A IMPOSÉ LE JETON, pas le goût. Mesuré avec
+     la formule écrite dans la règle : en vue double les deux espaceurs
+     prenaient 90 blg chacun, les huit crans déroulés tombaient à 27 de large
+     et débordaient de 197 — sous le `overflow: hidden` du belt déroulé,
+     c'est-à-dire INVISIBLEMENT. Un belt déroulé n'a aucune course : il n'a
+     rien à recentrer, donc rien à réserver.
+     ⭐ Même grammaire que `--belt-chevron-zone`, et pour la même raison : une
+     seule formule pour les deux vues, aucune branche à ne jamais parcourir. */
+  assert.match(tokensCss, /:root\[data-vue="double"\]\s*\{[^}]*--belt-espaceur:\s*0px/,
+    "⛔ ET IL TOMBE À ZÉRO EN VUE DOUBLE — sinon le belt déroulé perd 180 blg au profit de deux vides");
+  /* ⚠️ ET ZÉRO NE SUFFISAIT PAS : un enfant flex de largeur NULLE compte quand
+     même sa gouttière. Mesuré : 2 × 8 blg ajoutés à une rangée dont la formule
+     n'en prévoit que sept, soit 20 de débordement sous `overflow: hidden`.
+     ⭐ UNE LARGEUR NULLE N'EST PAS UNE ABSENCE — c'est la leçon, et elle vaut
+     pour tout enfant flex qu'on croit avoir retiré en le mettant à zéro. */
+  const absents = regle(shellCss, /^:root\[data-vue="double"\] \.belt-track::before,\s*:root\[data-vue="double"\] \.belt-track::after$/);
+  assert.ok(absents, "en vue double, les deux espaceurs doivent être retirés, pas rétrécis");
+  assert.match(absents, /content:\s*none/,
+    "⛔ `content: none` — le nœud n'est pas GÉNÉRÉ. Une largeur nulle garderait sa gouttière");
 });
 
 /* ══ 2 — LE CHEVRON : LA CIBLE COMMANDE, LE DESSIN SUIT ════════════════════ */

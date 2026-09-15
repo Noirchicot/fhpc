@@ -398,8 +398,18 @@ body {
 .belt-track::before,
 .belt-track::after {
   content: "";
-  flex: 0 0 calc((100% - (100% - 2 * var(--sp-8)) / 3 * var(--belt-part-dom)) / 2);
+  flex: 0 0 var(--belt-espaceur);
 }
+/* ⛔ ET EN VUE DOUBLE LES DEUX ESPACEURS N'EXISTENT PAS — `content: none`, pas
+   une largeur nulle. 📏 Mesuré : à zéro, ils comptaient quand même leur
+   gouttière — 2 × 8 blg ajoutés à une rangée dont la formule n'en prévoit que
+   sept, soit 20 de débordement, INVISIBLE sous le `overflow: hidden` du belt
+   déroulé. Une largeur nulle n'est pas une absence.
+   ⭐ `content: none` plutôt qu'un `display: none` (garde 4) : on ne masque pas
+   un organe, on ne le fabrique pas. Le belt déroulé n'a aucune course, donc
+   aucun centre à atteindre, donc rien à réserver. */
+:root[data-vue="double"] .belt-track::before,
+:root[data-vue="double"] .belt-track::after { content: none; }
 /* LOT 69 — LA BARRE DE DÉFILEMENT NATIVE DES MOLETTES S'EFFACE. Les trois
    rangées-molettes (étapes, catégories de Compétences, catégories
    d'Equipment) ont DÉJÀ leurs affordances ratifiées : chevrons ‹ › (B0.2)
