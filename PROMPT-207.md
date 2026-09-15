@@ -17,12 +17,21 @@ un cran de texte est un BARREAU D'ÉCHELLE, un halo est une OMBRE. Les écrire s
 
 | l'axe | l'actif | tout le reste |
 |---|---|---|
-| ① **la taille** *(dimension écrite)* | **45** | **41** |
+| ① **la taille** — ⚠️ **LARGEUR *ET* HAUTEUR** | **45** de haut | **41** de haut |
 | ② **le voile** *(transparence de la dalle)* | plein | **10 %** |
 | ③ **le texte** *(un cran de l'échelle)* | `--t2` | `--t1` |
 | ④ **le halo** *(une ombre)* | **oui** | non |
 
 ⛔ **La cible tactile vaut 44 partout, sur les quatre états** — elle n'est aucun de ces axes.
+
+⚠️ **L'AXE ① PORTE SUR LES DEUX DIMENSIONS — Eric, 15/09 : *« les tuiles grandissent en largeur
+et en hauteur aussi, attention ! »***
+🔴 **ET C'EST LE PIÈGE** : 41 et 45 sont des HAUTEURS, alors que la largeur est une PART de la
+piste (`--belt-part`). Deux écritures indépendantes = deux ratios qui divergent. Mesuré sur
+l'état actuel : la hauteur croît de **45/41 = +9,76 %** et la largeur de **1,05/0,95 = +10,5 %**.
+**Ce n'est pas le même agrandissement.**
+➡️ **UN SEUL RATIO, dérivé de ses deux cotes** : `--belt-tuile-dom / --belt-tuile`. La largeur le
+lit aussi. La tuile grandit alors *homothétiquement*, et c'est ce qu'il demande.
 
 ⭐ **LE TEXTE CHANGE DE CRAN, IL NE SE MET PAS À L'ÉCHELLE.** Eric, 15/09 : *« le texte descend
 d'un incrément plutôt que de dézoomer aussi »*, *« idem sur l'agrandissement »*.
