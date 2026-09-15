@@ -56,9 +56,14 @@ une couleur littérale)*. Un astre ne bascule pas avec le thème.
 
 ## 3. LES QUATRE PIÈGES DÉJÀ PAYÉS — ne pas les repayer
 
-1. ⛔ **`zoom` s'annule tout seul.** Il met à l'échelle jusqu'au `100%` que le `calc` lit chez le
-   parent : base `parent/p/3`, remultipliée par `p` → les trois tuiles identiques (mesuré :
-   dominante 79,4 contre normale 80). **Écrire des dimensions, jamais `zoom`.**
+1. ⛔ **N'AJOUTE JAMAIS DE `zoom`. Écris des dimensions.** Un `zoom` posé sur la tuile s'annule
+   tout seul : il met à l'échelle jusqu'au `100%` que le `calc` lit chez le parent — base
+   `parent/p/3`, remultipliée par `p` → les trois tuiles identiques (mesuré : dominante 79,4
+   contre normale 80, l'inverse du but).
+   ⚠️ **À NE PAS CONFONDRE AVEC LE ZOOM DU DÉPÔT**, qui lui est la loi : `zoom: var(--echelle)`
+   sur `.app` (`shell.css:94`) — Eric, 30/08 : *« TOUT LE BUILDER SUIT LE ZOOM, les ratios ne
+   changent nulle part »*. C'est lui qui définit le **blg** : *un blg est ce que vaut un px de
+   feuille UNE FOIS le zoom appliqué*. Toutes les cotes de ce lot sont en blg et le suivent.
 2. ⛔ **La rangée flex étire les tuiles.** `align-items: stretch` écrase toute hauteur écrite.
    `align-self: center` sur la tuile, sinon l'écart de hauteur est nul quoi qu'on écrive.
 3. ⛔ **`min-height: var(--touch)` relève la tuile de 41 à 44.** Une tuile EST un bouton.
@@ -97,6 +102,8 @@ Si un garde rougit : **suivre sa loi, adapter son expression, jamais le desserre
 perceptif » ou « c'est réparé » en regardant une image ; trois fois la mesure suivante m'a
 contredit. **Mesurer d'abord, parler ensuite.**
 
-À chaque passe : `getBoundingClientRect()` **divisé par le zoom de `.app`** (1,307 — sinon on
-compare des pixels peints à des blg), sur l'actif ET un inactif, astres compris. Puis regarder
+À chaque passe : `getBoundingClientRect()` **divisé par `--echelle`** — ce n'est pas zoomer, c'est
+RECONVERTIR des pixels peints en blg, l'unité dans laquelle Eric donne ses cotes. Comparer des
+pixels peints à une cote en blg est une faute de mesure, pas une faute de dessin.
+Mesurer l'actif ET un inactif, astres compris. Puis regarder
 l'image. Puis `npm test`. Puis commettre avec un message qui dit ce qui a été **mesuré**.
