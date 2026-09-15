@@ -348,6 +348,18 @@
        · `--belt-chevron`      le DESSIN — la largeur de la petite dalle ;
        · `--belt-chevron-zone` la PLACE RÉSERVÉE dans la piste : le dessin
          plus sa gouttière. C'est elle que le rembourrage de la piste lit.
+     ⚖️ 15/09 — LA GOUTTIÈRE PASSE DE 8 À 4, ET C'EST UNE RÈGLE D'ERIC QUI LA
+     FAIT BOUGER : *« les chevrons (lorsqu'il y en a) sont à équidistance de
+     l'astre et de la tuile »*.
+     📏 Mesuré avant : le dessin du chevron courait de 52 à 80, l'astre
+     finissait à 48 et la piste commençait à 88 — **4 d'un côté, 8 de
+     l'autre**. Avec la zone à `--belt-chevron + --sp-4`, la marge tombe à 84
+     et les deux écarts valent 4. Rien à déplacer : c'est la PISTE qui se
+     rapprochait mal, pas le chevron qui était mal posé.
+     ⭐ ET ÇA REND 4 BLG PAR BOUT À LA PISTE — 199 → 207, donc 2,6 de plus par
+     tuile. `Background`, le mot le plus long des huit, passait de 1,73 blg
+     TROP LARGE à 0,85 de reste. Une règle de dessin qui répare un
+     débordement : les deux venaient du même vide mal réparti.
      ⭐ ET LA ZONE TOMBE À ZÉRO EN VUE DOUBLE, en une ligne : le belt y est
      déroulé, les huit crans tiennent, il n'y a rien à faire défiler. Le
      rembourrage retombe alors exactement sur celui d'avant ce lot (37 blg).
@@ -378,7 +390,7 @@
      câble en défaut partagé au socle, jamais deux formules qui divergent. */
   --voile-ecran: color-mix(in srgb, var(--bg) 72%, transparent);
   --belt-chevron: calc(var(--touch) - 2 * var(--sp-8));
-  --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-8));
+  --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-4));
   --fiche-dalle-w: 242px;
   /* ══ 📏 L'INTERLIGNE DE PROSE — Eric, 2026-09-04 : *« interligne de la prose
      on peut normer comme pour destiny ? »* ═══════════════════════════════════

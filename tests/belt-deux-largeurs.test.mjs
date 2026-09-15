@@ -398,8 +398,23 @@ test("🔴 `Menu` et `Sheet` sont OPAQUES — Eric, 2026-09-02", () => {
 /* ══ 4 — DEUX FORMATS, UNE SEULE FORMULE ═══════════════════════════════════ */
 
 test("🔴 la zone du chevron est le SEUL interrupteur entre les deux formats", () => {
-  assert.match(tokensCss, /--belt-chevron-zone:\s*calc\(var\(--belt-chevron\) \+ var\(--sp-8\)\)/,
+  assert.match(tokensCss, /--belt-chevron-zone:\s*calc\(var\(--belt-chevron\) \+ var\(--sp-4\)\)/,
     "le dessin plus sa gouttière — la place que la piste réserve");
+  /* ⚖️ 15/09 — LA GOUTTIÈRE EST À 4, ET C'EST L'ÉQUIDISTANCE QUI LA FIXE.
+     Eric : *« les chevrons (lorsqu'il y en a) sont à équidistance de l'astre
+     et de la tuile »*. 📏 Avant, à 8 : le dessin courait de 52 à 80, l'astre
+     finissait à 48, la piste commençait à 88 — 4 d'un côté, 8 de l'autre.
+     ⭐ Le garde vérifie L'ÉGALITÉ, pas le chiffre, et il la vérifie sur les
+     cotes qui la produisent : marge de piste − (bord + astre + dessin) doit
+     se partager en deux parts égales.
+        écart gauche = (--sp-4 + --astre-cible) → dessin  = marge − astre-cible − sp-8 ... */
+  const zone = (jeton) => {
+    const m = tokensCss.match(new RegExp(jeton + ":\\s*([^;]+);"));
+    return m && m[1].trim();
+  };
+  assert.equal(zone("--belt-chevron-zone"), "calc(var(--belt-chevron) + var(--sp-4))",
+    "⛔ et la gouttière de la zone vaut --sp-4 : à --sp-8 le chevron colle à l'astre "
+    + "et s'éloigne de la tuile — mesuré 4 contre 8, l'équidistance était rompue");
   assert.match(tokensCss, /:root\[data-vue="double"\]\s*\{[^}]*--belt-chevron-zone:\s*0px/,
     "et elle tombe à zéro en vue double : le belt y est déroulé, il n'y a pas de course");
   /* ⛔ Le format ne se lit PAS dans un `@media` de largeur — §0 bis : il ne se

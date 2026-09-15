@@ -10700,6 +10700,13 @@ button.tuto-point::before {
    bornes. Le reste est au socle. */
 /* (les deux règles utiles vivent plus haut : `display: contents` sur la sortie
    et le retrait de l'ancre verticale des deux bornes.) */
+/* 🔴 2026-09-15 — CETTE NOTE AVAIT PERDU SON OUVERTURE, et elle était donc de
+   la PROSE NUE dans la feuille, refermée par un délimiteur orphelin. Trouvée
+   par `tests/css-syntaxe.test.mjs` ; troisième occurrence de la même faute le
+   même jour (`tokens.css`, `dice3d.css`, ici). Aucun garde ne pouvait la
+   voir : tous lisent les feuilles à travers une expression régulière sur les
+   accolades, qui ne sait pas ce qu'est un commentaire.
+   ── la note, rendue à son bloc ──────────────────────────────────────────
    2026-09-03 : *« pourquoi tes boutons se baladent de manière aléatoire en
    hauteur ? »* · *« c'était bon avant »* · *« cadrer les boutons à 8 blg du bas
    et forcer 8 blg au-dessus »*.

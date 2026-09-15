@@ -73,10 +73,24 @@
 .fh-cd-static-die img.fh-cd-static-snap{transition:width .28s ease,height .28s ease}
 
 /* ── Laissées à l'amont (le cadre `is-judgment` n'existe pas ici) ──
-   /* The dice sit ON the sheet: a light drop shadow, nothing else. */
+
+   🔴 2026-09-15 — CE BLOC N'ÉTAIT PAS COMMENTÉ, IL SE CROYAIT COMMENTÉ.
+   CSS N'IMBRIQUE PAS LES COMMENTAIRES : les deux notes anglaises à
+   l'intérieur refermaient le bloc à la première d'entre elles, et les six
+   lignes suivantes étaient des règles VIVES, suivies d'un délimiteur de fin
+   orphelin. Les deux règles `is-judgment` étaient donc dans la feuille.
+   📏 Sans effet visible ici — `is-judgment` n'apparaît nulle part dans
+   `ui/` ni `src/`, vérifié — mais le délimiteur orphelin, lui, fait sauter
+   le moteur jusqu'au prochain `;`. Il n'y avait rien après : le fichier
+   s'arrête là. C'est le seul hasard qui a rendu la faute sans conséquence.
+   ⭐ Trouvé par `tests/css-syntaxe.test.mjs`, né le même jour de la MÊME
+   faute commise dans `tokens.css`. Les notes internes sont donc dégradées
+   en tirets — un bloc mis de côté doit être inerte pour de bon.
+
+   - The dice sit ON the sheet: a light drop shadow, nothing else.
    .fh-cd-frame.is-judgment .fh-cd-static-die{filter:drop-shadow(0 2px 3px rgba(60,40,10,.35))}
-   
-   /* The dice are lifted off the seat again, not pressed into a sheet. */
+
+   - The dice are lifted off the seat again, not pressed into a sheet.
    .fh-cd-frame.is-judgment .fh-cd-static-die,
    .fh-cd-frame.is-judgment .fh-cd-die svg,
    .fh-cd-frame.is-judgment .fh-cd-judgeask .fh-cd-die{filter:drop-shadow(0 3px 5px rgba(10,7,3,.55))}
