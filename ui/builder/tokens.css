@@ -683,6 +683,20 @@
      deux côtés — ce que cet objet doit être, puisqu'il ne vient pas de
      l'interface mais de derrière elle. */
   --onglet-taille: 58px;
+
+  /* ⚖️ LOT 207 — LES DEUX COTES DE L'ASTRE, Eric le 2026-09-15.
+     `--belt-cran` est la hauteur NATURELLE d'une tuile, relevée sur v630 :
+     44 blg, et c'est exactement `--touch`. Les deux se rencontrent, ils ne se
+     confondent pas — l'un décrit un dessin, l'autre un plancher tactile.
+     ⛔ Et c'est pour ça que l'astre a DEUX cotes : son dessin suit la tuile
+     non active (44 × 0,95 = 41,8), sa cible ne descend jamais sous `--touch`.
+     ⭐ `--onglet-taille` (58) reste : il sert encore aux marges de la piste
+     et aux ancrages des chevrons. Le jour où plus rien ne le lit, il tombe. */
+  --belt-cran: 44px;
+  --astre-cible: var(--touch);   /* la CIBLE : jamais sous le plancher du pouce */
+  --astre-dessin: calc(var(--belt-cran) * 0.95);
+  --astre-soleil: url("./assets/belt/soleil.webp?v=630");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=630");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne

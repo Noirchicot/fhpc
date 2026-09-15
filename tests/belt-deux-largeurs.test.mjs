@@ -199,7 +199,13 @@ test("🔴 en bout de course le chevron disparaît — et sa PLACE reste", () =>
   assert.match(corps, /position:\s*absolute/,
     "il est posé en ABSOLU sur une zone réservée : le retirer ne déplace aucune tuile");
   const piste = regle(shellCss, /^\.belt-track$/) + (regle(shellCss, /^\.belt-track$/) || "");
-  assert.match(shellCss, /margin-left:\s*calc\(var\(--onglet-taille\) \/ 2 \+ var\(--sp-8\) \+ var\(--belt-chevron-zone\)\)/,
+  /* ⚖️ LOT 207 — LE JETON CHANGE, LA LOI NON. L'astre est passé de
+     `--onglet-taille` (58, le disque du 19/08) à `--astre-cible` (`--touch`,
+     44), et il est désormais posé ENTIER dans la barre au lieu d'en déborder
+     de moitié — d'où la formule sans « / 2 ». Ce que ce garde protège reste
+     mot pour mot le même : c'est l'ÉCART DE LA PISTE qui réserve la place du
+     chevron, par UNE formule valable aux deux formats. */
+  assert.match(shellCss, /margin-left:\s*calc\(var\(--astre-cible\) \+ var\(--sp-8\) \+ var\(--belt-chevron-zone\)\)/,
     "et c'est l'écart de la piste qui la réserve — une seule formule pour les deux formats");
   assert.ok(piste !== null, "la piste doit être lisible");
 });
