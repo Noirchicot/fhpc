@@ -22,7 +22,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { svg, P, anneau, C, H, HAUT, B, TALON, COURSE } from "../ui/builder/bouton-relief.mjs";
+import { svg, P, anneau, C, H, HAUT, B, TALON, COURSE, LARGEUR_TUILE, SLICE, borderImage } from "../ui/builder/bouton-relief.mjs";
 
 const temoin = (w) => fs.readFileSync(new URL(`./fixtures/bouton-relief-${w}x44.svg`, import.meta.url), "utf8");
 
@@ -91,4 +91,43 @@ test("⚔️ L'ANNEAU DU LISERÉ A DEUX CONTOURS ET GARDE SON ÉPAISSEUR DANS LE
   const ecart = ((int[7][0] + int[7][1]) - (ext[7][0] + ext[7][1])) / Math.SQRT2;
   assert.ok(Math.abs(ecart - 1.4) < 1e-9,
     "l'épaisseur se conserve dans le coin coupé — mesurée " + ecart);
+});
+
+test("📐 LA TUILE `border-image` NE DÉFORME RIEN — les slices ne se recouvrent pas", () => {
+  /* ⛔ Sous 2×C + 1, les découpes gauche et droite se chevaucheraient et le
+     centre n'existerait plus : le navigateur abandonne alors la peinture. */
+  assert.ok(LARGEUR_TUILE > 2 * C, `la tuile (${LARGEUR_TUILE}) doit laisser un centre au-delà de 2 × ${C}`);
+  assert.equal(SLICE.haut, C);
+  assert.equal(SLICE.gauche, C);
+  assert.equal(SLICE.droite, C);
+  /* 📏 la seule cote qui ne se devine pas : le coin bas porte la coupe DU
+     DESSUS (qui finit à HAUT) ET le talon (qui court jusqu'à H). */
+  assert.equal(SLICE.bas, H - (HAUT - C), "le bas doit inclure le talon — 12, pas 8");
+  assert.equal(SLICE.bas, 12);
+
+  /* le centre restant, dans les deux sens */
+  assert.ok(LARGEUR_TUILE - SLICE.gauche - SLICE.droite > 0, "il reste un centre horizontal");
+  assert.ok(H - SLICE.haut - SLICE.bas > 0, "il reste un centre vertical");
+
+  /* 🔴 CHAQUE BORD DOIT ÊTRE UNIFORME DANS LA DIRECTION OÙ IL S'ÉTIRE, sinon
+     l'étirement se verrait. Le bord haut est un dégradé VERTICAL : ses deux
+     points de gradient partagent la même abscisse ? non — ils partagent la
+     même ABSCISSE de milieu, donc x1 === x2, et c'est ça qu'on vérifie. */
+  const s = svg(LARGEUR_TUILE);
+  const f0 = /id="f0"[^>]*x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/.exec(s);
+  assert.ok(f0, "le gradient du bord haut doit rester trouvable");
+  assert.equal(f0[1], f0[3], "le bord HAUT s'étire en x : son dégradé doit être purement vertical");
+  const f2 = /id="f2"[^>]*x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/.exec(s);
+  assert.equal(f2[2], f2[4], "le bord DROIT s'étire en y : son dégradé doit être purement horizontal");
+});
+
+test("⚔️ LE `border-image` EST COMPLET — source, slice, width, style, couleur", () => {
+  const d = borderImage();
+  assert.equal(d.length, 5, "cinq déclarations : sans `border-style`, rien ne se peint");
+  assert.match(d[0], /^border-image-source: url\("data:image\/svg\+xml,%3Csvg/);
+  assert.match(d[1], /fill$/, "sans `fill`, le CENTRE reste vide — la face disparaîtrait");
+  assert.ok(!/base64/.test(d[0]), "le SVG reste en clair : lisible dans la feuille, et compresse mieux");
+  /* le data-URI doit être réellement décodable, et redonner la tuile */
+  const uri = /url\("([^"]+)"\)/.exec(d[0])[1];
+  assert.equal(decodeURIComponent(uri.slice("data:image/svg+xml,".length)), svg(LARGEUR_TUILE));
 });

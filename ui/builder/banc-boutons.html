@@ -335,3 +335,90 @@ function releve() {
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(releve);
 else window.addEventListener("load", releve);
 </script>
+
+<!-- ══ E · LA VOIE `border-image` — À MESURER, PAS À CROIRE ═══════════════
+     🔴 CETTE SECTION NE PROUVE RIEN TANT QU'ON NE L'A PAS REGARDÉE. Elle pose
+     le dessin d'Eric par `border-image` (le 9-zones), la seule voie qui habille
+     toutes les largeurs SANS toucher au balisage — donc la seule qui tienne
+     dans le lot 209, puisque le 210 est celui de la fabrique unique.
+     Deux inconnues, et elles se tranchent À L'ŒIL ICI :
+       ① les COINS sont-ils NETS ? Un navigateur qui rastérise le SVG à sa
+          taille intrinsèque (24 × 44) avant de le découper rendrait des coins
+          flous sur Retina. Comparer la rangée ×1 et la rangée ×4.
+       ② l'habit tient-il sur une LARGEUR QUELCONQUE ? `Build a character`
+          (129,31 de mot) est la pire du site : si ses coupes restent à 8 et ses
+          bords ne bavent pas, la voie est bonne. -->
+<script type="module">
+  import { borderImage, LARGEUR_TUILE, SLICE, anneau, svg } from "./bouton-relief.mjs?v=632";
+
+  const ROLES = { bleu: "#6488aa", vert: "#599b77", rouge: "#bb6860" };
+
+  const hote = document.createElement("section");
+  hote.className = "panneau jour";
+  hote.style.cssText = "flex:1 1 100%;min-width:0";
+  hote.innerHTML = "<h2 class='section'>E · la voie <code>border-image</code> — ⚠️ à mesurer, pas à croire</h2>";
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .essai-bi {
+      position: relative; height: 44px; padding: 0 8px;
+      background: none; color: #f1e8d8; font: 600 16px/20px var(--font, system-ui);
+      cursor: pointer; ${borderImage().join("; ")};
+      box-sizing: border-box;
+    }
+    /* 🔴 LE LISERÉ EST UN ANNEAU, PAS UNE BORDURE : deux octogones et
+       `evenodd`. Une bordure perdrait son épaisseur dans les coins coupés. */
+    .essai-bi::after {
+      content: ""; position: absolute; inset: 0;
+      background: var(--role); clip-path: var(--anneau);
+      pointer-events: none;
+    }
+    /* ⭐ LE GRIS N'A PAS DE LISERÉ (Eric, 15/09) — et son mot glisse vers le
+       gris « tout en restant visible ». ⚠️ Le contraste obtenu contre la face
+       graphite reste À MESURER : « on devine » n'est pas « on ne lit plus ». */
+    .essai-bi[data-role="gris"]::after { display: none; }
+    .essai-bi[data-role="gris"] { color: #9a9186; }
+    .essai-loupe { zoom: 4; }
+    .essai-rangee { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  `;
+  document.head.append(style);
+
+  function essai(mot, role) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "essai-bi";
+    b.dataset.role = role;
+    b.textContent = mot;
+    if (ROLES[role]) b.style.setProperty("--role", ROLES[role]);
+    /* l'anneau se recalcule à la largeur RENDUE — c'est tout l'intérêt */
+    requestAnimationFrame(() => {
+      const w = b.getBoundingClientRect().width;
+      b.style.setProperty("--anneau", `path(evenodd, "${anneau(w)}")`);
+    });
+    return b;
+  }
+
+  for (const [titre, contenu] of [
+    ["les quatre rôles, au gabarit 77", ["gris", "bleu", "vert", "rouge"].map((r) => essai("Choose", r))],
+    ["la pire largeur du site — `Build a character`", [essai("Build a character", "bleu")]],
+    ["×4 — les coins sont-ils nets ?", [essai("Choose", "vert")]]
+  ]) {
+    const t = document.createElement("div");
+    t.className = "intitule";
+    t.style.cssText = "text-align:left;margin:6px 0 4px";
+    t.textContent = titre;
+    hote.append(t);
+    const r = document.createElement("div");
+    r.className = "essai-rangee" + (titre.startsWith("×4") ? " essai-loupe" : "");
+    for (const b of contenu) r.append(b);
+    hote.append(r);
+  }
+
+  const note = document.createElement("p");
+  note.className = "note";
+  note.style.cssText = "text-align:left;font-size:10px";
+  note.textContent = `tuile ${LARGEUR_TUILE}×44 · slices ${SLICE.haut}/${SLICE.droite}/${SLICE.bas}/${SLICE.gauche} fill · `
+    + `data-URI ${svg(LARGEUR_TUILE).length} o · anneau i=2→3,4 (épaisseur 1,4 perpendiculaire, coins compris)`;
+  hote.append(note);
+  document.querySelector(".plateau").insertAdjacentElement("afterend", hote);
+</script>

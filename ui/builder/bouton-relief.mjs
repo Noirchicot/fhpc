@@ -137,3 +137,58 @@ ${cap.join("\n")}
 </svg>
 `;
 }
+
+/* ══ LA VOIE SANS BALISAGE : `border-image`, le 9-zones ════════════════════
+   🔴 LE PROBLÈME QU'ELLE RÉSOUT. Le dessin est livré en deux largeurs et la
+   recette interdit de l'étirer ; or huit libellés du site dépassent 105, et
+   les largeurs sont CONTINUES — elles suivent le mot, qui peut venir d'une
+   donnée. Une image par largeur ne tient donc pas, et inliner un SVG
+   demanderait de toucher les neuf fabriques : hors du lot 209.
+
+   ⭐ `border-image` coupe l'image en NEUF zones : les quatre coins sont posés
+   SANS DÉFORMATION, les quatre bords ne s'étirent que dans leur propre
+   direction, et `fill` peint le centre. Une seule tuile sert donc toutes les
+   largeurs, en CSS pur.
+
+   📐 ET C'EST GÉOMÉTRIQUEMENT SAIN, parce que chaque bord est uniforme DANS
+   LA DIRECTION OÙ IL S'ÉTIRE : le bord haut va de y=0 à y=2 (dégradé
+   vertical, constant en x) · le bord droit de x=W à x=W−2 (horizontal,
+   constant en y) · la face est verticale et constante en x. L'étirement ne
+   peut rien déformer de visible. ⛔ Ce serait faux pour un dégradé oblique.
+
+   📏 LE BAS VAUT 12, PAS 8, et c'est la seule cote qui ne se devine pas :
+   le coin bas doit contenir la coupe DU DESSUS (qui finit à `HAUT`) ET le
+   talon (qui court jusqu'à `H`) — soit `H − (HAUT − C)` = 44 − 32 = 12.
+
+   ⚠️ NON MESURÉ AU NAVIGATEUR, et deux inconnues restent : la rastérisation
+   d'un SVG sous `border-image-slice` (des coins flous en Retina si la
+   découpe se fait à la taille intrinsèque), et `border-image` sur un
+   pseudo-élément en `inset: 0`. ⛔ Tant que ce n'est pas mesuré, rien de
+   ceci n'est branché dans `shell.css` — la règle de preuve du lot interdit
+   d'affirmer un rendu qu'on n'a pas regardé. */
+
+/* La tuile est la plus étroite largeur qui laisse un centre : 2×C de coins,
+   plus 8. ⛔ Ne pas descendre sous 2×C + 1, les slices se recouvriraient. */
+export const LARGEUR_TUILE = 2 * C + 8;
+
+/* Les quatre découpes, en pixels de l'image source. */
+export const SLICE = { haut: C, droite: C, bas: H - (HAUT - C), gauche: C };
+
+/* Le SVG encodé pour un `url()` de feuille de style. ⛔ Pas de base64 : un
+   SVG en clair reste lisible dans la feuille et compresse mieux. */
+export function dataURI(W = LARGEUR_TUILE) {
+  return "data:image/svg+xml," + encodeURIComponent(svg(W))
+    .replace(/'/g, "%27").replace(/"/g, "%22");
+}
+
+/* Les déclarations `border-image`, prêtes à poser sur un pseudo-élément. */
+export function borderImage(W = LARGEUR_TUILE) {
+  const s = SLICE;
+  return [
+    `border-image-source: url("${dataURI(W)}")`,
+    `border-image-slice: ${s.haut} ${s.droite} ${s.bas} ${s.gauche} fill`,
+    `border-image-width: ${s.haut}px ${s.droite}px ${s.bas}px ${s.gauche}px`,
+    "border-style: solid",
+    "border-color: transparent"
+  ];
+}
