@@ -1,8 +1,14 @@
 # INVENTAIRE — LOT 209, l'habit des boutons
 
-**Branche** `209-habit-boutons` · **5 commits** · arbre propre · `npm test` **2242 / 2242**
-⛔ **Rien n'est poussé** — le geste appartient à Eric.
+**Branche** `209-habit-boutons` · arbre propre · `npm test` **2242 / 2242**
 📅 15–16 septembre 2026.
+
+⛔ **CORRECTION DU 16/09 — CE RAPPORT A AFFIRMÉ UN FAIT FAUX.** Il disait *« rien n'est
+poussé »*. Vérifié par `git ls-remote` : **`origin/209-habit-boutons` = `d7a45c77`**, et la
+branche locale suit ce remote — **cinq des commits sont sur GitHub**, seuls les derniers sont
+locaux. Je n'ai jamais lancé `git push` ; la branche a été publiée hors de cette session, et je
+l'ai écrit sans le vérifier. ⭐ **L'état d'un remote se lit, il ne se déduit pas de ce qu'on a
+soi-même fait.** Le geste qui reste est donc `git push`, pas `push -u` — voir §6.
 
 > **Ce que le lot devait faire** : poser le nouveau dessin de bouton d'Eric sur tout le site,
 > d'un seul geste, sans qu'aucune cote ne bouge. Lot de **peinture**.
@@ -202,6 +208,39 @@ pour sauver la copie.
 
 ## 6. Le geste qui reste
 
+La branche est **déjà sur `origin`** *(voir la correction en tête)* : il ne reste qu'à pousser
+les commits qui lui manquent.
+
 ```bash
-git -C ~/tools/fh-worktrees/209-habit-boutons push -u origin 209-habit-boutons
+git -C ~/tools/fh-worktrees/209-habit-boutons push
 ```
+
+---
+
+## 7. Ce que ce lot a corrigé dans `NORMES.md`, et ce qu'il a laissé
+
+**Corrigé** — deux règles, parce que §6 en porte **deux** sur le bouton et qu'en corriger une seule
+donne exactement la confiance d'avoir corrigé le bouton :
+
+| règle | ce qui était faux | ce qui est écrit |
+|---|---|---|
+| `bouton-pans-coupes-nus` *(1500)* | « la coupe extérieure reste `--bouton-coupe` **10** » | ratré, **8** depuis le 16/09, avec sa raison et sa délégation |
+| `bouton-deux-largeurs` *(4543)* | « texte **T3** », « **deux** largeurs et deux seulement », « **Non tranché** » | **16 px / 600** *(Eric, 15/09 : « garde 16 et corrige la règle »)* · **petit · large · libre** · tranché |
+
+⛔ **Laissé, et signalé plutôt que décidé** :
+- 📍 `bouton-large-renomme-medium` *(26/08, vivante)* dit **« `large` s'appelle désormais
+  `medium` »** — **l'inverse exact** du renommage d'Eric du 15/09. Les deux ne peuvent pas être
+  vraies ensemble. C'est un arbitrage d'Eric, pas une correction d'écriture.
+- L'identifiant `bouton-deux-largeurs` est devenu un **faux nom** : il dit « deux », la règle en
+  porte trois. ⛔ On ne renomme pas un identifiant sous un lien.
+- **Cinq autres lignes disent encore T3 pour un bouton** *(≈ 930, 2563, 3946, 4860, 4861)*. Elles
+  parlent d'autres organes ou d'autres étages, et **trois corps coexistent réellement dans le
+  site** — 16/600, 14/600 *(Identity)*, 14/400 *(Skills)*. Les corriger sans les mesurer une par
+  une referait la faute que ce lot vient de payer.
+- ⛔ Le **code** garde `--bouton-moyen` et `.bouton-moyen` : **aucun `--bouton-large` n'existe**.
+  Dans une feuille on écrit `moyen`, dans le corpus on dit `large`. Le renommage du jeton est un
+  lot à lui seul.
+
+⭐ **La leçon, et elle est la jumelle de mon erreur ③** : *un chiffre juste sur le mauvais organe*
+devient ici *une phrase juste sur la mauvaise règle*. Deux règles voisines, même §6, même objet —
+corriger l'une donne le sentiment d'avoir corrigé l'objet.

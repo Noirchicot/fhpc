@@ -4539,9 +4539,13 @@ le `?`**, l'écran ne déclarant que **sa destination**. 📌 Le motif existe d�
 hôte et reçoit la paire de la coquille »* — et `shell.mjs:4407` **sait déjà** placer un livre à
 gauche ; il ne sait pas le créer. ⛔ **Lot à part**, après la fusion des cotes.
 
-### 🔴 DEUX LARGEURS DE BOUTON, ET DEUX SEULEMENT — **77 et 105** *(Eric, 2026-09-06)*
-📍 `bouton-deux-largeurs` · vivante · 06/09
-⚖️ **Deux largeurs de bouton et deux seulement — PETIT 77 pour ≤ 6 caractères, MOYEN 105 pour ≤ 11 — hauteur `--touch`, texte T3, écriture classique.**
+### 🔴 DEUX LARGEURS DE BOUTON — **77 et 105** *(Eric, 2026-09-06)* · **amendée le 15–16/09**
+📍 `bouton-deux-largeurs` · vivante · 06/09 · **amendée 15/09 (gabarits) et 16/09 (corps)**
+⚖️ **Deux largeurs de bouton — PETIT 77 pour ≤ 6 caractères, LARGE 105 pour ≤ 11 — hauteur `--touch`, texte **16 px / graisse 600**, écriture classique. Et un troisième gabarit sans cote : LIBRE.**
+
+⚠️ **L'IDENTIFIANT RESTE `bouton-deux-largeurs`, ET IL EST DEVENU UN FAUX NOM.** On ne renomme pas
+un identifiant sous un lien : le nom dit « deux », la règle en porte **trois**. ⏳ Le renommage est
+une décision d'Eric, signalée à l'architecte le 16/09, **pas prise ici**.
 
 > Eric, 2026-09-06 : *« je veux une taille standard pour tous les petits boutons sur tout le
 > site »* · *« **la cote 77** comme standard petit »* · *« **donc c'est 105**, c'est acté »*
@@ -4550,10 +4554,38 @@ gauche ; il ne sait pas le créer. ⛔ **Lot à part**, après la fusion des cot
 | | la cote | ce qu'elle porte |
 |---|---:|---|
 | **PETIT** | **77** | un libellé de **6 caractères ou moins** — `Done` · `Next` · `Cancel` · `Choose` · `Draw` · `FH 3D6` · `4D6` · `ARRAY` · `FREE` |
-| **MOYEN** | **105** | jusqu'à **11 caractères** — il porte **`Equipment`** et même **`Inheritance`**, le plus long nom de chapitre |
+| **LARGE** | **105** | jusqu'à **11 caractères** — il porte **`Equipment`** et même **`Inheritance`**, le plus long nom de chapitre |
+| **LIBRE** | — | largeur **déduite du mot**, hors échelle — `Expert view` 105,85 · `Export JSON` 113,69 · `Export HTML` 115,46 · `I understand` 128,64 · `Turn tutorials off` 159,44 *(mesurés le 16/09)* |
 
-⛔ **Hauteur `--touch` (44), texte **T3** (14), écriture **classique** — pas de capitales, Eric l'a
-retiré le jour même : *« j'ai pas demandé les capitales, j'ai dit AU CAS OÙ les capitales »***.
+🔴 **`MOYEN` S'APPELLE `LARGE` DEPUIS LE 15/09** *(Eric : « petit / large / libre, y'en a 3 »)*.
+⛔ **Mais le CODE dit toujours `moyen`** — `--bouton-moyen` *(`tokens.css`)* et `.bouton-moyen`
+*(`shell.css`)*, cinq emplois, et **aucun `--bouton-large` n'existe**. ➡️ Ne pas citer un jeton
+qui n'existe pas : dans une feuille on écrit `--bouton-moyen`, dans le corpus on dit **large**.
+Le renommage du jeton est un lot à lui seul.
+⚠️ **ET ELLE ENTRE EN TENSION AVEC UNE AUTRE RÈGLE, VIVANTE, DANS CE MÊME FICHIER** — l'ancre
+`bouton-large-renomme-medium` *(26/08)* dit **« `large` s'appelle désormais `medium` »**, soit
+l'inverse du vocabulaire du 15/09. Les deux ne peuvent pas être vraies ensemble.
+⏳ **ET RIEN N'EST PÉRIMÉ ICI, DÉLIBÉRÉMENT.** Périmer une règle demande un lien dans les deux
+sens et change son statut de `vivante` à `remplacée` : c'est une décision d'Eric, pas une
+correction d'écriture. Ce paragraphe **signale**, il ne tranche pas — l'architecte porte
+l'arbitrage. ⛔ Tant qu'il n'est pas rendu, les deux lignes restent lisibles côte à côte, et
+c'est la seule forme honnête d'une contradiction qu'on n'a pas le droit de résoudre.
+
+⛔ **Hauteur `--touch` (44), texte **16 px / graisse 600**, écriture **classique** — pas de
+capitales, Eric l'a retiré le jour même : *« j'ai pas demandé les capitales, j'ai dit AU CAS OÙ
+les capitales »***.
+
+🔴 **T3 (14) EST ABROGÉ POUR CETTE FAMILLE — Eric, 15/09 : *« garde 16 et corrige la règle »***.
+📏 **Mesuré le 16/09 sur le builder servi**, échelle 1,3653, sous `.app` : les six boutons du pied
+*(`Open` · `Save` · `Forget` · `Display` · `DM` · `Tools`)* rendent **16 px / 600**, pas 14. Le
+code rendait 16 depuis toujours et les écrans ont été validés ainsi ; c'est la **loi** qui avait
+tort, pas le code.
+⚠️ **Et l'abrogation vaut pour CETTE famille, pas pour tout le fichier.** Trois corps coexistent
+réellement dans le site — **16/600** *(Menu, Species, Inheritance, Destiny, Class)* · **14/600**
+*(Identity)* · **14/400** *(Skills)*. ⛔ Cinq autres lignes de ce fichier disent encore T3 pour un
+bouton *(≈ 930, 2563, 3946, 4860, 4861)* : elles parlent d'autres organes ou d'autres étages, et
+**aucune n'a été touchée ici**. Les corriger sans les avoir mesurées une par une serait refaire la
+faute que cette section-ci vient de payer.
 📌 Rembourrage **`--sp-8`**, et c'est lui qui rend les cotes possibles — voir plus bas.
 
 ⭐ **LES DEUX COTES NE SONT PAS CHOISIES, ELLES SONT DÉDUITES DE LA PLACE**, et c'est ce qui les
@@ -4586,9 +4618,12 @@ large DANS SA PROPRE CLASSE** — et c'est exactement le piège que la ligne sui
 par celui qui l'écrivait.
 
 ⚠️ **ET LA FAMILLE NE REND PAS T3.** `.parcours-pied button` rend **16 px / 600** là où cette loi
-dit T3 (14). C'est ce qui ramène la marge de `Cancel` à **7,6** au lieu de ~15. ⏳ Deux vérités
-coexistent donc ici : la loi dit T3, le code dit 16/600. **Non tranché** — ce n'est pas un réglage,
-c'est le corps d'une famille entière.
+disait T3 (14). C'est ce qui ramène la marge de `Cancel` à **7,6** au lieu de ~15.
+✅ **TRANCHÉ LE 15/09 — Eric : *« garde 16 et corrige la règle »***. ~~Non tranché~~ : c'est le
+**code** qui fait foi, la loi est amendée plus haut. Les deux vérités ne coexistent plus.
+⭐ **Et le sens de la correction mérite d'être retenu** : entre une loi écrite et un rendu validé à
+l'écran depuis des semaines, c'est la loi qui cède. Une règle qu'aucun écran n'applique n'est pas
+une règle, c'est une intention.
 
 ⚠️ **ET LE REMBOURRAGE EST LE VRAI LEVIER, PAS LA LARGEUR.** À `--sp-20` *(l'ancien)*, `Choose`
 réclamait **89,7** — aucune largeur ne pouvait satisfaire à la fois « le plus gros mot rentre » et
