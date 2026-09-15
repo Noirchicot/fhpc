@@ -486,6 +486,50 @@ export function echelleQuiTient(largeurFenetre, hauteurFenetre, racine, colonnes
   return Number.isFinite(f) && f > 0 ? f : 1;
 }
 
+/* ══ 🧱 LE PLANCHER DE L'ÉCHELLE — Eric, 2026-09-15 ════════════════════════
+   🔴 *« on zoom à 0,96 pour les petits écrans, mais pas en dessous »*.
+
+   ⛔ CE QU'IL RÉPARE, ET IL N'Y AVAIT RIEN : `echelleQuiTient` finissait par
+   `Math.min(largeur, hauteur)` puis `f > 0 ? f : 1` — ce `1` est un garde-fou
+   contre `NaN`, PAS un plancher. L'échelle descendait donc sans borne. Le seul
+   plancher du fichier (`tailleDuBarreau`) ne vaut que sur les barreaux, et son
+   propre commentaire dit qu'il ne s'applique pas à `mobile`.
+   📏 RELEVÉ AVANT, sur la cible tactile de 44 blg — la loi la plus dure du
+   dépôt, celle du pouce (lot 58) :
+       375 × 812 → ×1,000 → 44,0   ✅ la loi
+       360 × 640 → ×0,960 → 42,2
+       320 × 768 → ×0,853 → 37,5   ⛔
+       240 × 600 → ×0,640 → 28,2   ⛔
+       120 × 400 → ×0,320 → 14,1   ⛔
+   Vu par Eric sur un iPad, dans une fenêtre Chrome flottante : c'est la
+   HAUTEUR qui commandait, et les mots des boutons passaient à deux lignes.
+
+   ⭐ 0,96 EST SA COTE, ET ELLE N'EST PAS ARBITRAIRE : c'est 360 / 375, l'échelle
+   qu'il faut pour qu'un petit Android nu montre le panneau EN ENTIER. En
+   dessous, on ne rend pas un builder plus petit — on rend un builder qu'on ne
+   peut plus toucher. ⛔ Une cote DONNÉE bat une cote déduite : on écrit son
+   chiffre, avec sa provenance à côté, jamais `360 / --panneau-l`.
+   ⚠️ ET IL RESTE 4 % SOUS LE PLANCHER DU POUCE (42,2 pour 44). C'est son
+   arbitrage, pris en connaissance : le gain de largeur vaut ces deux blg.
+
+   🔴 OÙ IL VA, ET C'EST TOUT LE SOIN DE CE LOT : sur ce qu'on SERT, jamais sur
+   ce qui TIENT. `echelleQuiTient` répond à *« qu'est-ce qui rentre ? »* — une
+   question de PLACE, que `laPlaceDuDouble` pose pour ouvrir ou non la vue
+   double. La plancher là aurait fait répondre « 0,96 » à une fenêtre où deux
+   panneaux ne tiennent pas, c'est-à-dire mentir sur la place au nom du
+   confort. Les deux questions gardent donc leurs deux fonctions.
+   ⭐ Et au-delà du plancher les deux rendent le même nombre : la distinction
+   ne coûte rien tant qu'elle ne mord pas, et elle est là quand elle mord. */
+export const ECHELLE_PLANCHER = 0.96;
+
+/** L'échelle **SERVIE** — ce que l'œil recevra, plancher compris.
+ *  ⛔ Sous le plancher l'app ne rétrécit plus : elle DÉBORDE, et la page
+ *  défile. C'est le choix d'Eric — un organe qu'on ne peut plus toucher est
+ *  pire qu'un organe qu'on doit atteindre en faisant glisser. */
+export function echelleServie(largeurFenetre, hauteurFenetre, racine, colonnes, impose) {
+  return Math.max(ECHELLE_PLANCHER, echelleQuiTient(largeurFenetre, hauteurFenetre, racine, colonnes, impose));
+}
+
 /** 🚪 LA PORTE DU DOUBLE AFFICHAGE — lot 120.
  *
  *  Le double affichage n'est offert que si la fenêtre porte DEUX panneaux à
@@ -516,7 +560,11 @@ export function laPlaceDuDouble(largeurFenetre, hauteurFenetre, racine) {
  *  couche l'appareil. C'est le prix de la proportion, et Eric l'a redemandée
  *  après l'avoir vu chiffré. */
 export function cranAuto(largeurFenetre, hauteurFenetre, racine) {
-  return echelleQuiTient(largeurFenetre, hauteurFenetre, racine);
+  /* ⭐ SERVIE, pas « qui tient » : cette fonction alimente la ligne « Auto »
+     de l'écran Display, qui doit dire ce que l'œil REÇOIT. Un tableau qui
+     annoncerait ×0,43 pendant que la page rend ×0,96 mentirait là où le
+     joueur a besoin d'être informé. */
+  return echelleServie(largeurFenetre, hauteurFenetre, racine);
 }
 
 /** L'échelle RÉELLEMENT SERVIE — l'automatique, surchargé par le choix du
@@ -526,7 +574,9 @@ export function cranAuto(largeurFenetre, hauteurFenetre, racine) {
  *  confondre rendrait le tableau tautologique — l'auto dirait toujours ce que
  *  le joueur vient de demander. */
 export function cranEffectif(largeurFenetre, hauteurFenetre, racine) {
-  return echelleQuiTient(largeurFenetre, hauteurFenetre, racine, undefined, cranSurcharge());
+  /* ⭐ C'est LUI que `appliquerEchelle` pose sur `<html>` — donc c'est ici que
+     le plancher d'Eric prend effet sur la page. */
+  return echelleServie(largeurFenetre, hauteurFenetre, racine, undefined, cranSurcharge());
 }
 
 /** 📋 CE QUE L'ÉCRAN DISPLAY AFFICHE — tout lu ici, rien recalculé là-bas.
@@ -554,7 +604,9 @@ export function etatDeLEchelle(fenetre, racine) {
   const h = vue.innerHeight;
   const p = cotesDeLApp(html);
   const rendu = (impose) => {
-    const f = echelleQuiTient(l, h, html, undefined, impose);
+    /* ⭐ SERVIE — la note ci-dessus le dit : *« `rendu` EST CE QUE L'ŒIL
+       RECEVRA »*. Le plancher en fait partie. */
+    const f = echelleServie(l, h, html, undefined, impose);
     return { largeur: p.panneau * f, hauteur: p.hauteur * f, facteur: f };
   };
   const choisi = cranSurcharge();

@@ -66,6 +66,33 @@ html, body { height: 100dvh; }
    Poser le décor ailleurs demanderait un second nœud à tenir d'accord. */
 body {
   display: flex;
+  /* ⚖️ LOT 208 — `safe center`, ET C'EST LE PLANCHER D'ERIC QUI L'EXIGE.
+     Eric, 2026-09-15 : *« on zoom à 0,96 pour les petits écrans, mais pas en
+     dessous »*. Sous le plancher le panneau est plus large que la fenêtre —
+     c'est le prix assumé de la décision.
+     🔴 ET AUCUN CENTRAGE ORDINAIRE NE SAIT DÉBORDER. Mesuré au banc, dans un
+     `iframe` de 280 × 700 — le pane du navigateur émule l'image sans changer
+     `innerWidth`, il ne sait pas produire ce cas :
+         centrage           bord gauche   défilement   tout atteignable
+         `margin: auto`        −40            40            ⛔ NON
+         `center` dur          −40            40            ⛔ NON
+         `safe center`           0            80            ✅ OUI
+     Le panneau rend 360 peints dans 280 : 80 de trop, centrés, donc **40
+     coupés de CHAQUE côté** — et les 40 de gauche sont inatteignables PAR
+     CONSTRUCTION, parce qu'aucun défilement ne remonte avant l'origine. À
+     l'écran : `SRD` devenait « D », `Layers` « yers », `Campaign` « paign ».
+     ⭐ `safe` retombe sur `flex-start` dès que ça déborde : rien n'est coupé
+     du côté du départ, et le débordement passe tout entier du côté que le
+     défilement atteint. Le centrage reste exact partout où il y a la place —
+     un seul mécanisme pour les deux côtés du seuil.
+     ⛔ ET PAS D'`overflow` ICI : éprouvé au banc, le viendrait-il que rien ne
+     changerait — avec ou sans, le défilement du viewport vaut 80 et tout est
+     atteignable. Une déclaration qui ne fait rien est une explication fausse
+     de plus à lire. C'est le VIEWPORT qui défile, pas `body`.
+     ⛔ Et ce n'est pas un dispositif inventé : `.belt-track` emploie déjà
+     `justify-content: safe center`, pour exactement la même raison (lot 69). */
+  justify-content: safe center;
+  align-items: safe center;
   background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
@@ -122,7 +149,15 @@ body {
   width: calc(var(--panneau-l) * var(--colonnes) * 1px
               + var(--sp-8) * (var(--colonnes) - 1));
   height: calc(var(--panneau-h) * 1px);
-  margin: auto;
+  /* ⛔ LOT 208 — `margin: auto` EST PARTI, et son travail est passé au `body`.
+     Il centrait, mais comme tout centrage ordinaire il coupait des DEUX côtés
+     dès que le panneau dépassait la fenêtre (voir la note du `body`).
+     ⚠️ Et le laisser ici aurait annulé le `safe center` quoi qu'il arrive :
+     une marge automatique absorbe l'espace libre et bat `justify-content`.
+     ⚠️ ET `flex: none` PREND SA PLACE : sans marge automatique, l'app
+     redevient un enfant flex ordinaire, que `align-items: stretch`
+     étirerait — le même piège que la rangée du belt a payé la veille. */
+  flex: none;
   overflow: hidden;
   /* ⛔ PLUS DE DÉCOR ICI — il est descendu sur `body` (voir sa note). Le
      panneau laisse le sol traverser ; ce qui le distingue du fond, ce sont ses

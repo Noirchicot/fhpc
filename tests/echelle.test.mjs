@@ -23,6 +23,13 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+/** La feuille, commentaires retirés — ce garde-ci porte sur DEUX déclarations
+ *  que le module JS ne peut pas voir, et sans lesquelles son plancher fabrique
+ *  un builder coupé au lieu d'un builder atteignable. */
+const SHELL_CSS = readFileSync(new URL("../ui/builder/shell.css", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "");
 
 /* ── LE DÉCOR MINIMAL ────────────────────────────────────────────────── */
 
@@ -73,7 +80,8 @@ function poserDecor(racine) {
 
 const racine = faireRacine(JETONS);
 const magasin = poserDecor(racine);
-const { cranAuto, grandeurDe, appliquerEchelle } = await import("../ui/builder/echelle.mjs");
+const { cranAuto, grandeurDe, appliquerEchelle, echelleQuiTient, echelleServie,
+        laPlaceDuDouble, ECHELLE_PLANCHER } = await import("../ui/builder/echelle.mjs");
 
 /* ══ 1 — LA GRANDEUR SE LIT EN BLG, PAS EN PIXELS D'ÉCRAN ═════════════ */
 
@@ -174,14 +182,76 @@ test("⚔️ ATTAQUE — au-dessus du plein écran elle ne l'est PLUS, et c'est 
     "la règle continue rendrait 1,93 — la bande haute et étroite qu'Eric a refusée");
 });
 
-test("🔴 elle descend SOUS 1 plutôt que de couper — le plancher est renversé", () => {
-  /* ⛔ CE QUI EST RENVERSÉ, et c'est mieux : « le plancher c'est la taille 360 »
-     (30/08) faisait perdre 15 blg à la carte sur un téléphone de 360 — mesuré,
-     et Eric l'avait accepté. Avec une échelle continue rien n'est retiré : tout
-     est 4 % plus petit et la proportion tient. */
+test("🔴 elle descend SOUS 1 plutôt que de couper — jusqu'à 0,96, ET PAS PLUS BAS", () => {
+  /* ⛔ CE QUI A ÉTÉ RENVERSÉ LE 30/08, et c'était mieux : « le plancher c'est la
+     taille 360 » faisait perdre 15 blg à la carte sur un téléphone de 360 —
+     mesuré, et Eric l'avait accepté. Avec une échelle continue rien n'est
+     retiré : tout est 4 % plus petit et la proportion tient.
+
+     ⚖️ ET LE 15/09 IL A POSÉ LA BORNE QUE CE RENVERSEMENT AVAIT EMPORTÉE :
+     *« on zoom à 0,96 pour les petits écrans, mais pas en dessous »*.
+     🔴 Il n'y en avait AUCUNE — `echelleQuiTient` finissait par `f > 0 ? f : 1`,
+     un garde-fou contre `NaN` qu'on pouvait lire comme un plancher. Relevé sur
+     la cible tactile de 44 blg : 37,5 à 320 de large, 28,2 à 240, 14,1 à 120.
+     ⭐ 0,96 EST 360 / 375 — l'échelle qu'il faut pour qu'un petit Android nu
+     montre le panneau EN ENTIER. La borne et le témoin de ce test sont donc le
+     MÊME point, et ce n'est pas une coïncidence : c'est le même écran. */
   const f = cranAuto(360, 640, racine);
   assert.ok(f < 1 && f > 0.9, `à 360 × 640 l'échelle vaut ${f} — sous 1, et c'est voulu`);
   assert.equal(Math.round(f * 100) / 100, 0.96);
+  assert.equal(ECHELLE_PLANCHER, 0.96, "la cote d'Eric, écrite — pas déduite de 360 / 375");
+  for (const [l, h] of [[320, 768], [280, 700], [240, 600], [180, 500], [120, 400]]) {
+    assert.equal(echelleServie(l, h, racine), ECHELLE_PLANCHER,
+      `à ${l} × ${h} l'échelle SERVIE doit rester au plancher — sous lui, un contrôle de 44 blg `
+      + `rend ${Math.round(44 * echelleQuiTient(l, h, racine) * 10) / 10} px et ne se touche plus`);
+  }
+});
+
+test("⚔️ ATTAQUE — SOUS LE PLANCHER, LE PANNEAU DÉBORDE, ET C'EST LE PRIX ASSUMÉ", () => {
+  /* 🔴 CE QUE CETTE CLAUSE EXISTE POUR EMPÊCHER : qu'on « répare » le
+     débordement en retirant le plancher, ou en rognant le panneau. Eric a
+     tranché les deux fois — le dessin garde sa proportion, et un organe qu'on
+     ne peut plus TOUCHER est pire qu'un organe qu'on doit atteindre en faisant
+     glisser. Le débordement n'est pas un défaut résiduel : c'est la décision.
+     ⚠️ Et le garde du dessous (« ne fait jamais déborder ») ne pouvait pas le
+     dire : aucune fenêtre de son témoin n'était sous le plancher. Un témoin
+     sans le cas ne peut pas accuser. */
+  const f = echelleServie(240, 600, racine);
+  assert.equal(f, ECHELLE_PLANCHER);
+  assert.ok(f * 375 > 240, `le panneau rend ${f * 375} blg dans 240 — il DOIT déborder`);
+  /* ⚠️ SUR LA DIMENSION QUI MANQUE, PAS SUR LES DEUX — j'avais écrit « des deux
+     côtés » sans le vérifier, et la mesure a dit non : à 240 × 600 le panneau
+     planché rend 360 de large (il déborde de 120) mais 537,6 de haut dans 600
+     (il rentre). Le plancher ne déborde que là où la fenêtre est trop courte.
+     ⛔ ET LA PAGE DOIT POUVOIR LE MONTRER : un débordement assumé qu'on ne peut
+     pas atteindre au doigt n'est pas assumé, il est caché. Cette clause-là vit
+     au navigateur — ce module ne connaît aucun DOM. */
+  assert.ok(f * 375 > 240 || f * 560 > 600,
+    "au moins une dimension déborde — celle que la fenêtre ne porte pas");
+  assert.ok(f * 560 <= 600,
+    `et 240 × 600 ne déborde QUE en largeur : ${f * 560} blg de haut dans 600, ça rentre`);
+});
+
+test("🔴 LE PLANCHER NE RÉPOND PAS À LA QUESTION DE LA PLACE — deux fonctions, deux questions", () => {
+  /* ⭐ TOUT LE SOIN DU LOT TIENT ICI. `echelleQuiTient` répond à *« qu'est-ce
+     qui RENTRE ? »* — une question de place, que `laPlaceDuDouble` pose pour
+     ouvrir ou non la vue double. `echelleServie` répond à *« qu'est-ce qu'on
+     MONTRE ? »* — une question de confort, où vit le plancher d'Eric.
+     ⛔ LES CONFONDRE AURAIT FAIT RÉPONDRE « 0,96 » À UNE FENÊTRE OÙ DEUX
+     PANNEAUX NE TIENNENT PAS : mentir sur la place au nom du confort, et
+     ouvrir la vue double sur un écran qui ne la porte pas.
+     ⚠️ Au-dessus du plancher les deux rendent le même nombre — la distinction
+     ne coûte rien tant qu'elle ne mord pas, et elle est là quand elle mord. */
+  const petite = [240, 600];
+  assert.ok(echelleQuiTient(...petite, racine) < ECHELLE_PLANCHER,
+    "la question de la PLACE doit continuer à dire la vérité, si basse soit-elle");
+  assert.equal(echelleServie(...petite, racine), ECHELLE_PLANCHER,
+    "pendant que la question du RENDU répond le plancher");
+  assert.equal(laPlaceDuDouble(...petite, racine), false,
+    "⛔ et la porte du double reste FERMÉE — elle interroge la place, pas le rendu");
+  const grande = [1366, 1024];
+  assert.equal(echelleServie(...grande, racine), echelleQuiTient(...grande, racine),
+    "au-dessus du plancher, les deux réponses sont la même");
 });
 
 test("l'échelle ne fait jamais déborder le panneau, sur aucune des deux dimensions", () => {
@@ -190,6 +260,11 @@ test("l'échelle ne fait jamais déborder le panneau, sur aucune des deux dimens
      (formule de l'architecte, 30/08) laisse justement du vide autour — *« combien la fenêtre donne au
      builder, et combien elle laisse à côté »*. Ce qui reste vrai partout,
      c'est qu'on ne déborde pas. Le bord touché reste exigé SOUS `mobile`. */
+  /* ⚠️ 15/09 — ET SON TÉMOIN S'ARRÊTE AU PLANCHER, DÉLIBÉRÉMENT. Sous 0,96 le
+     panneau déborde PAR CONSTRUCTION (voir l'attaque plus haut) : y étendre ce
+     témoin ferait rougir un garde sur une décision d'Eric. ⛔ Mais le laisser
+     muet le ferait JURER « ne déborde jamais » sur un domaine où c'est faux —
+     c'est pourquoi la clause du débordement assumé existe, juste au-dessus. */
   for (const [l, h] of [[360, 640], [375, 812], [768, 1024], [1024, 1366],
                         [1366, 1024], [1440, 900], [1920, 1080], [3840, 2160]]) {
     const f = cranAuto(l, h, racine);
@@ -201,6 +276,41 @@ test("l'échelle ne fait jamais déborder le panneau, sur aucune des deux dimens
     assert.ok(f * 375 >= l - 1e-9 || f * 560 >= h - 1e-9,
       `à ${l} × ${h} — en plein écran le builder prend toute la place, il doit toucher un bord`);
   }
+});
+
+test("🔴 LE PLANCHER EXIGE `safe center` — sinon il fabrique un builder COUPÉ", () => {
+  /* ⚖️ LA MOITIÉ CSS DU LOT 208, et sans elle le plancher d'Eric est PIRE que
+     son absence : au lieu d'un builder trop petit, il rend un builder trop
+     grand dont on ne voit qu'une tranche.
+     📏 MESURÉ AU BANC, dans un `iframe` de 280 × 700 — le panneau y rend 360
+     peints, donc 80 de trop :
+         centrage           bord gauche   défilement   tout atteignable
+         `margin: auto`        −40            40            ⛔ NON
+         `center` dur          −40            40            ⛔ NON
+         `safe center`           0            80            ✅ OUI
+     Un centrage ordinaire coupe des DEUX côtés, et les 40 de gauche sont
+     inatteignables par construction : aucun défilement ne remonte avant
+     l'origine. À l'écran, `SRD` devenait « D » et `Campaign` « paign ».
+     ⛔ ET `margin: auto` SUR `.app` DOIT RESTER PARTI : une marge automatique
+     absorbe l'espace libre et bat `justify-content`, donc elle annulerait le
+     `safe` sans rien dire.
+     ⚠️ Ce garde lit les OCTETS de la feuille : la géométrie, elle, se regarde
+     au navigateur — c'est la loi de ce fichier depuis le 30/08. */
+  const corps = (motif) => {
+    for (const [, brut, dedans] of SHELL_CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      if (motif.test(brut.replace(/\s+/g, " ").trim())) return dedans;
+    }
+    return null;
+  };
+  const body = corps(/^body$/m) + "\n" + (SHELL_CSS.match(/(^|\n)body\s*\{[^}]*\}/g) || []).join("\n");
+  assert.match(body, /justify-content:\s*safe center/,
+    "⛔ `safe center` en largeur — sans lui, le panneau est coupé à gauche et inatteignable");
+  assert.match(body, /align-items:\s*safe center/,
+    "⛔ et en hauteur : une fenêtre trop COURTE coupe le haut de la même façon");
+  const app = corps(/^\.app$/);
+  assert.ok(app, "`.app` doit exister");
+  assert.ok(!/margin:\s*auto/.test(app),
+    "⛔ `margin: auto` sur `.app` annulerait le `safe center` — une marge automatique bat `justify-content`");
 });
 
 /* ══ 3 — DEUX ATTRIBUTS, AUCUN NŒUD ═══════════════════════════════════ */
