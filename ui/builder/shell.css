@@ -479,6 +479,25 @@ body {
 /* Le cran courant garde son liseré ET reçoit l'accent par-dessus : deux
    ombres internes, la seconde par-dessus la première. */
 .belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash); }
+/* LOT 207 — la part dominante. Le voile (0,35 → 0,50) et le halo vivaient
+   DÉJÀ ici et au 02/09 : ce lot n'ajoute que la part. */
+.belt-item[data-status="current"] { --belt-part: 1.05; }
+
+/* ⚖️ LOT 207 — LA TROISIÈME LIGNE, Eric le 2026-09-15 : la tuile dominante
+   porte *« Equipment (en t2) · pastille plus petite · fenêtre actuelle (en
+   t2) »*. Elle NOMME la fenêtre ouverte quand c'en est une qui n'a pas de
+   cran à elle — le sac, la Tally, Wares.
+   ⭐ C'EST CE QUI A RÉPONDU À LA QUESTION DU RAIL : le belt garde ses dix
+   crans, les numéros ne bougent jamais, et c'est la tuile qui dit où l'on est
+   descendu. Rien ne disparaît de la rangée.
+   ⏳ Sur le chapitre lui-même elle reste `hidden` — hypothèse du lot, un mot
+   d'Eric la renverse en une ligne. */
+.belt-fenetre {
+  font-size: var(--t2);
+  line-height: 1;
+  white-space: nowrap;   /* même loi que `.belt-label` : jamais deux lignes */
+  color: var(--accent);
+}
 /* B0.4 — « quand une étape est validée, son NUMÉRO passe en vert ». C'est le
    numéro seul qui change, pas la ligne : la ceinture disait « done » sur tout
    le libellé, ce qui rendait deux étapes faites indiscernables d'une étape
@@ -524,9 +543,22 @@ body {
    et il ne vient d'aucun choix : c'est la piste qui n'a pas la même largeur.
    ⛔ `flex: 0 0`, jamais `0 1` : un organe ne rétrécit pas sous sa cote
    (§1 ter bis, la faute des bonus tokens tombés à 12 px le 26/08). */
+/* ⚖️ LOT 207 — LA TUILE DOMINANTE, Eric le 2026-09-15 : *« rapetisse les
+   autres tuiles de 5 %, la tuile dominante grandit de 5 % »*.
+   🔴 ET LE ±5 % S'APPLIQUE À LA PART, PAS À UNE COTE. La tuile n'a jamais eu
+   de largeur : elle est UN TIERS DE LA PISTE moins ses deux gouttières. Écrire
+   ici `101,7px` poserait une cote que la piste contredirait au premier
+   changement de largeur d'écran — la faute que `--par-rangee` a déjà payée.
+   On module donc la PART, et les trois parts restent une division de la piste.
+   📏 Mesuré à 512 : 0,95 + 1,05 + 0,95 = 2,95 tiers, soit 301,9 px sur une
+   piste de 312,7 — il reste 10,8 px, la gouttière n'a pas à bouger.
+   ⭐ ET L'ÉCART VU PAR L'ŒIL EST BIEN CELUI QU'ERIC A DEMANDÉ : 1,05 / 0,95
+   = +10,5 %. Le contraste de « 10 % » sans le débordement du « +10 % au
+   centre » (mesuré : 316,4 sur 312,7, il manquait 3,7 px). */
 .belt-item {
   scroll-snap-align: center;
-  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3);
+  --belt-part: 0.95;
+  flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3 * var(--belt-part));
 }
 /* ⏳ LOT 186 — CE `8` DÉCRIT LA PILE COMPLÈTE, ET LA CEINTURE EST DEVENUE
    VERSATILE. En pile SRD la piste ne porte que SEPT tuiles : divisée par huit,

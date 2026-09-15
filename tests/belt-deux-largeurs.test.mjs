@@ -68,8 +68,17 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
      d'avance »*. Et §1 ter bis : `flex: 0 0`, jamais `0 1` — un organe ne
      rétrécit pas sous sa cote (les bonus tokens tombés à 12 px le 26/08). */
   const etroit = regle(shellCss, CRAN);
-  assert.match(etroit, /flex:\s*0 0 calc\(\(100% - 2 \* var\(--sp-8\)\) \/ 3\)/,
+  /* ⚖️ LOT 207 — LA PART S'AJOUTE, LA LOI NE BOUGE PAS. Eric, 2026-09-15 :
+     *« rapetisse les autres tuiles de 5 %, la tuile dominante grandit de
+     5 % »*. La largeur reste DÉDUITE de la piste — elle gagne seulement un
+     facteur, `--belt-part` (0,95 par défaut, 1,05 sur la dominante).
+     ⛔ CE QUE LE GARDE CONTINUE D'INTERDIRE, et c'est tout son objet : une
+     cote ÉCRITE. `101.7px` sur la dominante aurait passé l'ancien motif si
+     on l'avait mis ailleurs ; il ne passe pas celui-ci. */
+  assert.match(etroit, /flex:\s*0 0 calc\(\(100% - 2 \* var\(--sp-8\)\) \/ 3(\s*\* var\(--belt-part\))?\)/,
     "en étroit : la piste moins ses deux gouttières, divisée par les TROIS crans du croquis");
+  assert.doesNotMatch(etroit, /flex:[^;]*\d+(\.\d+)?px/,
+    "une largeur de tuile ÉCRITE en pixels — elle se déduit de la piste, toujours");
   const double = regle(shellCss, /^:root\[data-vue="double"\] \.belt-item$/);
   assert.match(double, /flex:\s*0 0 calc\(\(100% - 7 \* var\(--sp-8\)\) \/ 8\)/,
     "en double : la même formule, avec les HUIT — « une tuile vaut la piste divisée par ce qu'elle montre »");
