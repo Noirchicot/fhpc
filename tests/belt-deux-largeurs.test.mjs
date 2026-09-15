@@ -95,22 +95,35 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
   }
 });
 
-test("🔴 le libellé tient à T2 — parce que ce sont les VIDES qui ont cédé", () => {
-  /* ⚖️ ARBITRAGE D'ARCHI 30, 2026-09-02, et il a renversé mon défaut : j'avais
-     pris T1 comme une fatalité (`Inheritance` demandait 63,6 blg pour 63
-     offerts — il en manquait 0,6). ⛔ *« Avant de faire tomber l'organe le
-     plus regardé du builder de T4 à T1, fais céder le VIDE »* — c'est la loi
-     du §2 bis : **quand un écran déborde, ce sont les vides qui cèdent,
-     jamais les organes.**
-     📏 DEUX VIDES ONT CÉDÉ, ET ÇA A SUFFI : le rembourrage latéral (4 → 2) et
-     l'interligne (1,2 → 1). Mesuré sur la page rendue : place offerte **67**,
-     `Inheritance` en demande **64** — trois blg de reste, et **aucun des huit
-     mots ne déborde**. La ceinture reste à 60, la tuile à 71 × 44.
-     ⭐ La leçon vaut au-delà : un organe qu'on rétrécit « parce qu'il manque
-     un demi-pixel » est presque toujours un vide qu'on n'a pas regardé. */
+test("🔴 le libellé change de CRAN entre les deux états — T1 dessous, T2 sur la dominante", () => {
+  /* ⚖️ ARBITRAGE D'ARCHI 30, 2026-09-02, ET IL TIENT TOUJOURS : j'avais pris T1
+     comme une fatalité. ⛔ *« Avant de faire tomber l'organe le plus regardé du
+     builder de T4 à T1, fais céder le VIDE »* — la loi du §2 bis : **quand un
+     écran déborde, ce sont les vides qui cèdent, jamais les organes.**
+
+     ⚖️ ET ERIC L'A PRÉCISÉ LE 15/09, il n'y a pas renoncé : *« le texte descend
+     d'un incrément plutôt que de dézoomer aussi »*, *« idem sur
+     l'agrandissement »*. Le corps n'est donc plus UN, il est DEUX — et c'est
+     un axe à part entière, pas une conséquence de la taille de la tuile :
+     dézoomer le texte de 5 % rendrait 11,4 px, qui n'est aucun barreau.
+     ⭐ CE QUE LE GARDE TIENT MAINTENANT, et c'est plus que ce qu'il tenait :
+     les deux crans SONT nommés, et le mot doit RENTRER dans les deux états.
+     L'ancien garde ne vérifiait que le jeton ; il aurait laissé passer un
+     débordement. 📏 Mesuré au `measureText`, police embarquée, piste à 199 :
+         place offerte   inactive 55,08   ·   dominante 60,83
+         Inheritance     T1 53,01 ✅       ·   T2 63,61 ⛔
+         Equipment       T1 50,36 ✅       ·   T2 60,43 ✅
+         Background      T1 56,81 ⛔       ·   T2 68,17 ⛔ */
   const corps = regle(shellCss, /^\.belt-label$/);
   assert.ok(corps, "`.belt-label` doit porter son corps");
-  assert.match(corps, /font-size:\s*var\(--t2\)/, "T2 — le corps que les vides ont rendu possible");
+  assert.match(corps, /font-size:\s*var\(--t1\)/,
+    "T1 dessous — le cran du dessous, pas un facteur d'échelle");
+  const dominante = regle(shellCss, /^\.belt-item\[data-status="current"\] \.belt-label$/);
+  assert.ok(dominante, "la dominante doit porter SON cran, nommément");
+  assert.match(dominante, /font-size:\s*var\(--t2\)/,
+    "et T2 dessus — un barreau plus haut, pas 5 % de plus");
+  assert.ok(!/font-size:\s*calc|font-size:[^;]*%/.test(corps + dominante),
+    "⛔ jamais un facteur sur le corps : l'échelle du dépôt a des barreaux, on en saute un");
   assert.match(corps, /line-height:\s*1(?![.\d])/,
     "et l'interligne à 1 : c'est lui qui garde la tuile à 44 blg, donc la ceinture à 60");
   assert.match(corps, /white-space:\s*nowrap/,

@@ -381,6 +381,25 @@ body {
      ⭐ L'affordance n'est pas perdue : les chevrons ‹ › encadrent déjà la
      piste (B0.2) et disent la même chose sans toucher aux dalles. */
 }
+/* ⚖️ 14/09 — LES DEUX ESPACEURS, ET C'EST LE MOT « TOUJOURS » QUI LES EXIGE.
+   Eric : *« je veux que la fenêtre en cours soit TOUJOURS sous la tuile
+   centrale du belt »*.
+   📏 `keepInView(…, "x")` centre déjà, et il centre juste — mesuré sur les
+   huit crans : l'écart au centre de la piste vaut de −0,01 à +0,38 blg pour
+   les six du milieu. ⛔ MAIS LES DEUX BOUTS NE POUVAIENT PAS : la piste était
+   au bout de sa course, `Identity` restait à −67,09 du centre et `Equipment`
+   à +67,46. Ce n'était pas un défaut de calcul, c'était un manque de mou.
+   ⭐ CE QUE LES ESPACEURS RENDENT, c'est exactement ce mou : une demi-piste
+   moins une demi-tuile dominante, de chaque côté. Ils lisent la MÊME part et
+   la MÊME formule que les tuiles — un espaceur qui se calculerait autrement
+   décentrerait le jour où la part bouge.
+   ⛔ Ils ne portent aucun `scroll-snap-align` : ce sont du vide, pas des
+   crans, et l'aimantation ne doit jamais se poser dessus. */
+.belt-track::before,
+.belt-track::after {
+  content: "";
+  flex: 0 0 calc((100% - (100% - 2 * var(--sp-8)) / 3 * var(--belt-part-dom)) / 2);
+}
 /* LOT 69 — LA BARRE DE DÉFILEMENT NATIVE DES MOLETTES S'EFFACE. Les trois
    rangées-molettes (étapes, catégories de Compétences, catégories
    d'Equipment) ont DÉJÀ leurs affordances ratifiées : chevrons ‹ › (B0.2)
@@ -438,7 +457,17 @@ body {
      *« le belt doit être constitué de dalles transparentes »*. Avant, seul le
      cran COURANT avait un fond ; les neuf autres flottaient sans surface, et
      la ceinture ne se lisait pas comme une rangée de dalles. */
-  background: var(--dalle-simple);
+  /* 🔴 15/09 — ET C'EST LA `::before` QUI LA PEINT, ELLE SEULE. Cet élément
+     posait la MÊME dalle sur sa boîte de 44, par-dessus la dalle à la cote
+     (41/45) du pseudo-élément : deux écrivains pour une surface.
+     📏 Mesuré avant : les huit tuiles rendaient 44 de haut, dominante
+     comprise — l'écart de hauteur était écrit et INVISIBLE, masqué par le
+     fond de la boîte. C'est ce qu'Eric voyait en disant *« je ne vois
+     toujours pas de tuile active plus grande »*, et c'est aussi le bord clair
+     qu'il appelait *« les tuiles sont coupées »* : le fond débordait la dalle
+     de 1,5 blg en haut et en bas.
+     ⛔ Réparer, c'est SUPPRIMER le second écrivain, pas le recouvrir. */
+  background: none;
   text-align: center;
   /* ⚠️ 4 PARTOUT, ET LES DEUX AXES ONT LEUR RAISON :
        · en HAUTEUR, c'est ce qui garde la tuile à 44 blg avec deux rangs au
@@ -469,8 +498,18 @@ body {
      ⛔ EN `inset`, JAMAIS EN `border` : une bordure ajouterait 2 px à la
      boîte, et ce dépôt a mesuré ce que ça coûte — 2 px de bordure
      transparente avaient fait dériver les crans d'aimantation de 22 px sur
-     douze fiches (lot 60). Un liseré ne doit rien déplacer. */
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+     douze fiches (lot 60). Un liseré ne doit rien déplacer.
+     ⭐ 15/09 — IL A SUIVI LA DALLE, sur la `::before`. Posé ici, il cerclait
+     la boîte de 44 alors que la surface visible en fait 41 : un cadre plus
+     grand que ce qu'il encadre — l'autre moitié des *« tuiles coupées »*. */
+  /* 🔴 15/09 — `min-width: 0`, ET SANS LUI LA FORMULE DE LARGEUR NE SERT À
+     RIEN. Le défaut `min-width: auto` d'un enfant flex laisse le CONTENU
+     pousser la boîte : mesuré, `Inheritance` rendait 67,61 et `Equipment`
+     64,44 là où la formule donne 57,95 — trois largeurs différentes dans une
+     rangée qui en promet deux, et c'est ce qui se lisait *« centrage bof »*.
+     ⛔ Il ne coupe rien : c'est le corps du texte (un cran plus bas) qui fait
+     tenir le mot, pas un rognage. */
+  min-width: 0;
 }
 /* Le cran courant se distingue par son VOILE (intermédiaire, 50 %) et sa
    graisse, plus par son encre — `B0.23` : le régime de voile porte le rang.
@@ -478,7 +517,13 @@ body {
    et elle ne porte aucun mot (⛔ l'accent ne survit pas sur du verre non plus). */
 /* Le cran courant garde son liseré ET reçoit l'accent par-dessus : deux
    ombres internes, la seconde par-dessus la première. */
-.belt-item[data-status="current"] { background: var(--dalle-inter); font-weight: 600; box-shadow: inset 0 0 0 1px var(--verre-lisere), inset 0 0 0 1px var(--accent-wash); }
+/* ⛔ 15/09 — LA PEINTURE ET LA GRAISSE SONT TOMBÉES D'ICI. La peinture parce
+   qu'elle doublait celle de la dalle (voir plus haut) ; la graisse parce
+   qu'une mesure l'a condamnée : elle coûtait 2,09 blg sur `Inheritance`
+   (65,70 en 600 contre 63,61 en 400) pour un signal que la tuile porte
+   maintenant QUATRE fois — plus grande, plus dense, un cran de texte
+   au-dessus, et un halo. Un cinquième cri, payé en place, sur l'organe du
+   builder qui en manque le plus. */
 /* LOT 207 — la part dominante. Le voile (0,35 → 0,50) et le halo vivaient
    DÉJÀ ici et au 02/09 : ce lot n'ajoute que la part. */
 /* La dalle PEINTE — à la cote d'Eric, centrée dans la cible tactile. */
@@ -490,11 +535,27 @@ body {
   translate: 0 -50%;
   height: var(--belt-tuile);
   border-radius: inherit;
-  background: var(--dalle-simple);
+  /* ⚖️ 15/09 — LE VOILE DESCEND À 10 %. Eric : *« tout le reste passe à un
+     voile à 10 % »*. 📏 À 35 contre 50, le rapport de matière entre une tuile
+     et la dominante valait 1,43 ; à 10 contre 50, il en vaut 5. C'est cet
+     écart-là qui manquait, pas des pixels. */
+  background: var(--belt-dalle);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
   z-index: -1;
 }
-.belt-item[data-status="current"]::before { height: var(--belt-tuile-dom); background: var(--dalle-inter); }
-.belt-item[data-status="current"] { --belt-part: 1.05; }
+/* ⚖️ 15/09 — LA DOMINANTE : la cote, le voile plein, et le halo.
+   ⭐ LE HALO EST UNE OMBRE PORTÉE, PAS UN LISERÉ DE PLUS — il déborde de
+   3 blg dans la gouttière, donc il se voit SANS rien prendre à la tuile (la
+   gouttière en fait 8). Un anneau `inset` aurait mangé le mot.
+   ⛔ Et il a son jeton, `--belt-halo` : `--spy-halo` vaut 0,45 le jour contre
+   0,65 la nuit — 31 % plus faible du côté où Eric regardait. */
+.belt-item[data-status="current"]::before {
+  height: var(--belt-tuile-dom);
+  background: var(--dalle-inter);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere),
+              inset 0 0 0 1px var(--accent-wash),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
 
 /* ⚖️ LOT 207 — LA TROISIÈME LIGNE, Eric le 2026-09-15 : la tuile dominante
    porte *« Equipment (en t2) · pastille plus petite · fenêtre actuelle (en
@@ -540,11 +601,26 @@ body {
    ⭐ C'est le même arbitrage qu'au jeton le 26/08 (*« 13 T1, on aura moins
    d'emmerdes »*) : à T1 tout rentre, donc aucun nom ne force à inventer une
    abréviation. ⛔ Et T1 est le plancher du barème, jamais franchi (§0 bis). */
+/* ⚖️ 15/09 — LE TEXTE CHANGE DE CRAN, IL NE SE MET PAS À L'ÉCHELLE. Eric :
+   *« le texte descend d'un incrément plutôt que de dézoomer aussi »*, puis
+   *« idem sur l'agrandissement »*.
+   ⭐ ET C'EST POURQUOI C'EST UN AXE À PART, pas une conséquence de la taille :
+   une tuile 5 % plus petite avec un texte 5 % plus petit rend un corps de
+   11,4 px, qui n'est aucun barreau de l'échelle. On saute un barreau entier.
+   📏 ET ÇA RÈGLE LE DÉBORDEMENT DU MÊME GESTE, mesuré au `measureText` avec
+   la police embarquée, sur la place réellement offerte (la tuile moins ses
+   deux rembourrages de 2) :
+       inactive, 55,08 de place  ·  T1 : `Background` 56,81 · `Inheritance` 53,01
+       dominante, 60,85 de place ·  T2 : `Background` 68,17 · `Inheritance` 63,61
+   ⏳ `Background` reste au-dessus de sa place dans les deux états — c'est le
+   mot le plus long des huit, et aucun vide du belt ne rend les 3 blg qui
+   manquent. Question posée à Eric, pas tranchée ici. */
 .belt-label {
-  font-size: var(--t2);
+  font-size: var(--t1);
   line-height: 1;
   white-space: nowrap;   /* ⛔ jamais deux lignes : le budget vertical n'en a pas */
 }
+.belt-item[data-status="current"] .belt-label { font-size: var(--t2); }
 
 /* 🔴 UNE TUILE, UNE COTE, DÉDUITE DE LA PISTE — *« toutes les tuiles du menu
    font la même taille »* (Eric, 2026-09-02).
@@ -574,7 +650,20 @@ body {
    ⛔ Le « +10 % au centre » d'abord dicté débordait, lui, de 3,7 px. */
 .belt-item {
   scroll-snap-align: center;
-  --belt-part: 0.95;
+  /* ⚖️ 15/09 — LA PART SE DÉDUIT DU RATIO, ET C'EST TOUT CE QUI LA DÉCIDE.
+     Eric : *« les tuiles grandissent en largeur ET en hauteur aussi »*.
+     🔴 AVANT : 0,95 et 1,05 écrits à la main, pendant que la hauteur lisait
+     41 et 45. Deux agrandissements pour une tuile — largeur +10,5 %, hauteur
+     +9,76 %. Une tuile qui grandit de deux pourcentages différents selon
+     l'axe n'est pas la même tuile en plus grand, c'est une autre forme.
+     ⭐ LA SORTIE : `--belt-ratio-dom` (45/41) est la SEULE source, et les
+     deux axes le lisent. Les trois parts somment à 3 — la rangée remplit sa
+     piste au blg près, quelle qu'en soit la largeur :
+         2n + n·r = 3   →   n = 3 / (2 + r)
+     📏 Rendu à 199 de piste : 59,08 · 64,83 · 59,08 + deux gouttières de 8
+     = 198,99. Il ne reste rien, et il ne manque rien.
+     📌 Les deux parts sont des JETONS (`tokens.css`) : la piste les lit aussi,
+     pour dimensionner ses espaceurs de centrage. */
   /* ⛔ PLUS DE `zoom` : il s'annulait (voir `tokens.css`). Les deux cotes
      s'écrivent, et la largeur reste DÉDUITE de la piste — un tiers moins ses
      gouttières, modulé par la part. */
@@ -598,6 +687,9 @@ body {
   background: none;
   flex: 0 0 calc((100% - 2 * var(--sp-8)) / 3 * var(--belt-part));
 }
+/* ⭐ LE MÊME RATIO, SUR L'AUTRE AXE. Rien n'est écrit ici que le ratio ne
+   décide : la dominante prend `r` parts là où ses voisines en prennent une. */
+.belt-item[data-status="current"] { --belt-part: var(--belt-part-dom); }
 /* ⏳ LOT 186 — CE `8` DÉCRIT LA PILE COMPLÈTE, ET LA CEINTURE EST DEVENUE
    VERSATILE. En pile SRD la piste ne porte que SEPT tuiles : divisée par huit,
    elle en laisse un huitième vide au bout. ⛔ Je ne l'ai PAS changé, et la
