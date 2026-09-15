@@ -179,12 +179,32 @@ ${cap.join("\n")}
    le coin bas doit contenir la coupe DU DESSUS (qui finit à `HAUT`) ET le
    talon (qui court jusqu'à `H`) — soit `H − (HAUT − C)` = 44 − 32 = 12.
 
-   ⚠️ NON MESURÉ AU NAVIGATEUR, et deux inconnues restent : la rastérisation
-   d'un SVG sous `border-image-slice` (des coins flous en Retina si la
-   découpe se fait à la taille intrinsèque), et `border-image` sur un
-   pseudo-élément en `inset: 0`. ⛔ Tant que ce n'est pas mesuré, rien de
-   ceci n'est branché dans `shell.css` — la règle de preuve du lot interdit
-   d'affirmer un rendu qu'on n'a pas regardé. */
+   ✅ MESURÉ AU NAVIGATEUR LE 16/09, avec CETTE tuile — pas un témoin. La
+   tuile a été reconstruite dans la page servie et contrôlée par sa longueur
+   (3 534 o à 24, 3 542 à 77, 3 574 à 105 : les trois concordent), puis posée
+   en `border-image` sous `.app` :
+     · `border-image-slice` relu : `8 8 12 fill` — le navigateur normalise
+       `8 8 12 8` en `8 8 12`, la gauche reprenant la droite ;
+     · trois largeurs à la fois — 78,60 · 109,82 · 147,10 blg — hauteur 44
+       partout, la MÊME tuile, sans déformation visible des coupes ;
+     · à ×4, les coins restent FRANCS : le SVG est rastérisé à la taille
+       rendue, pas à ses 24 px intrinsèques. L'inquiétude ne se matérialise pas.
+
+   🔴 ET UNE LIMITE QUE LA MESURE A RÉVÉLÉE, elle n'était dans aucune note.
+   En `border-image`, le document ne peut pas toucher le DOM interne du SVG :
+   `data-state` est donc INACCESSIBLE, et seul le groupe `fh-rest` s'affiche.
+     · le groupe `fh-pressed` est du POIDS MORT dans la tuile — 228 octets
+       sur 3 534, transportés à chaque chargement pour rien ;
+     · l'état pressé demandera une SECONDE tuile (le `cap` à y=2) et une
+       permutation de `border-image-source`, pas une translation.
+   ⭐ Ce n'est pas bloquant aujourd'hui : relevé le 15/09, la feuille ne porte
+   AUCUN `:active` — l'état pressé n'est câblé nulle part. Mais qui le câblera
+   doit savoir que la voie coûte une seconde image, et non un réglage.
+
+   ⛔ RIEN N'EST ENCORE BRANCHÉ DANS `shell.css` : ce qui est prouvé, c'est que
+   la voie TIENT. Poser l'habit sur les huit familles est le geste suivant, et
+   il demande les deux arbitrages d'Eric encore ouverts (les trois candidates,
+   le duplicata de l'Équipement). */
 
 /* La tuile est la plus étroite largeur qui laisse un centre : 2×C de coins,
    plus 8. ⛔ Ne pas descendre sous 2×C + 1, les slices se recouvriraient. */

@@ -341,10 +341,18 @@ else window.addEventListener("load", releve);
      le dessin d'Eric par `border-image` (le 9-zones), la seule voie qui habille
      toutes les largeurs SANS toucher au balisage — donc la seule qui tienne
      dans le lot 209, puisque le 210 est celui de la fabrique unique.
-     Deux inconnues, et elles se tranchent À L'ŒIL ICI :
-       ① les COINS sont-ils NETS ? Un navigateur qui rastérise le SVG à sa
-          taille intrinsèque (24 × 44) avant de le découper rendrait des coins
-          flous sur Retina. Comparer la rangée ×1 et la rangée ×4.
+     ✅ LES DEUX INCONNUES SONT LEVÉES — mesuré le 16/09 avec CETTE tuile,
+     reconstruite dans la page servie et contrôlée par sa longueur (3 534 o) :
+     `border-image-slice` relu `8 8 12 fill`, trois largeurs (78,60 · 109,82 ·
+     147,10 blg) sur la même tuile sans déformation, et des coins FRANCS à ×4 —
+     le SVG est rastérisé à la taille rendue, pas à ses 24 px intrinsèques.
+     🔴 UNE LIMITE EST APPARUE À LA MESURE : en `border-image`, le document ne
+     peut pas toucher le DOM interne du SVG. `data-state` est inaccessible,
+     seul `fh-rest` s'affiche, et le groupe pressé est du poids mort (228 o).
+     L'état pressé demandera une SECONDE tuile, pas un réglage. Sans `:active`
+     dans la feuille, ce n'est pas bloquant — mais c'est à savoir.
+     Ce qui reste à juger ICI, et seulement à l'œil :
+       ① les COINS à ×4, sur les quatre rôles et les deux thèmes.
        ② l'habit tient-il sur une LARGEUR QUELCONQUE ? `Turn tutorials off`
           rend 159,44 blg — la plus large de la famille, mesurée le 16/09 : si
           ses coupes restent à 8 et ses bords ne bavent pas, la voie est bonne.
