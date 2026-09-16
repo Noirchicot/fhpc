@@ -254,9 +254,13 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   const vide = rendu({}).querySelector(".gear-collecteur");
   assert.equal(vide.children.length, 1, "un collecteur vide n'a QUE son nom");
   assert.equal(vide.children[0].className, "gear-nom");
-  const plein = rendu({ collecte: new Set(["a"]) }).querySelector(".gear-collecteur");
-  assert.equal(plein.children.length, 2, "plein, il porte son nom et ce qu'il retient");
-  assert.equal(plein.children[1].textContent, "1 to send");
+  /* ⚠️ LE CAS DÉGRADÉ, ET IL EST NOMMÉ POUR NE PAS ÊTRE PRIS POUR LA RÈGLE : une
+     collecte qui désigne un index qu'aucune boîte ne porte. L'écran ne peut pas
+     nommer ce qu'il ne trouve pas, alors il compte — plutôt que de mentir en se
+     disant vide. ⛔ Le cas NORMAL est plus bas : le collecteur NOMME son objet. */
+  const orphelin = rendu({ collecte: new Set(["introuvable"]) }).querySelector(".gear-collecteur");
+  assert.equal(orphelin.children.length, 2, "à défaut de le nommer, il dit qu'il retient quelque chose");
+  assert.equal(orphelin.children[1].textContent, "1 to send");
   /* et le mot du dropdown ne cède jamais sa place au select */
   assert.match(shell, /\.gear-destination-mot\s*\{\s*flex:\s*none/, "toujours visible, collé au haut");
   assert.match(tokens, /--icone-parchemin-party:\s*url\(/);
@@ -291,11 +295,31 @@ test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur V
   const emplacements = jetons.map((j) => CLEF_DE[j.nom]).sort();   // 20 emplacements + le collecteur
   assert.deepEqual(cibles, emplacements, "vide, chaque emplacement est une cible, le collecteur aussi");
   assert.equal(vide.querySelector('[data-organe="collecteur"]').dataset.compte, "0");
-  /* occupé, un emplacement n'est plus une cible (une case tient une chose) ; plein, le collecteur non plus */
+  /* occupé, un emplacement n'est plus une cible — une case tient une chose */
+  const porte = rendu({ boites: { tete1: { nom: "Helm", qte: 1, index: 3, equipped: true } } });
+  assert.equal(porte.querySelector('[data-organe="tete1"]').dataset.creneau, undefined, "occupé : plus une cible");
+  assert.equal(porte.querySelector('[data-organe="tete1"]').dataset.occupe, "oui");
+
+  /* ⚖️ COLLECTÉ, L'OBJET A QUITTÉ SA BOÎTE — Eric, 16/09 au soir : « il doit quitter
+     l'emplacement et rester dans le collecteur ». ⛔ CE GARDE TENAIT LES DEUX CAS POUR
+     UN SEUL et défendait donc l'ancien mensonge : la boîte restait « occupée » alors
+     que son objet était ailleurs, et on voyait la même chose à deux endroits.
+     ⭐ La place redevient VIDE, donc une CIBLE : on peut y reposer autre chose. */
   const plein = rendu({ boites: { tete1: { nom: "Helm", qte: 1, index: 3, equipped: true } }, collecte: new Set([3]) });
-  assert.equal(plein.querySelector('[data-organe="tete1"]').dataset.creneau, undefined, "occupé : plus une cible");
-  assert.equal(plein.querySelector('[data-organe="collecteur"]').dataset.creneau, undefined, "plein : le collecteur n'accepte pas un second objet");
-  assert.equal(plein.querySelector('[data-organe="collecteur"]').dataset.compte, "1");
+  const boiteVidee = plein.querySelector('[data-organe="tete1"]');
+  assert.equal(boiteVidee.dataset.occupe, undefined, "la boîte n'est plus occupée : son objet est dans le collecteur");
+  assert.equal(boiteVidee.dataset.creneau, "tete1", "et elle redevient une cible");
+  assert.equal(boiteVidee.querySelector(".gear-nom").textContent, "HEAD/FACE", "elle redit son nom");
+
+  const col = plein.querySelector('[data-organe="collecteur"]');
+  assert.equal(col.dataset.occupe, "oui", "c'est le collecteur qui porte l'objet");
+  assert.equal(col.querySelector(".gear-objet").textContent, "Helm", "et il le NOMME, il ne compte pas");
+  assert.match(col.getAttribute("aria-label"), /^Send collector — Helm$/);
+  assert.equal(col.dataset.creneau, undefined, "plein : le collecteur n'accepte pas un second objet");
+  assert.equal(col.dataset.compte, "1");
+  /* la quantité suit l'objet, comme dans une boîte */
+  const parPaquet = rendu({ boites: { tete1: { nom: "Arrow", qte: 20, index: 7 } }, collecte: new Set([7]) });
+  assert.equal(parPaquet.querySelector('[data-organe="collecteur"] .gear-qte').textContent, "×20");
 });
 
 test("5 ter bis — 🔴 shell.mjs porte le geste `placerGearLine` : la boîte choisie est un choix du personnage, le sol n'équipe pas", () => {

@@ -263,12 +263,27 @@ function emplacement(o, id, pose, options) {
  *  Eric, 16/09 — *« un item dans le collecteur, pas 2 ; si on veut plus c'est un
  *  Tally »*. Plein, il cesse d'être une cible (plus de `data-creneau`) : un
  *  second dépôt ne fait rien. `data-compte` dit ce qu'il retient ; Send le vide. */
-function collecteur(id, options) {
+function collecteur(id, options, retenu) {
   const c = eld("div", "gear-collecteur");
   c.dataset.organe = id;
   const n = options.collecte ? options.collecte.size : 0;
   if (n === 0) { c.dataset.creneau = "collecteur"; c.dataset.vise = "false"; }
   c.dataset.compte = String(n);
+  /* ⚖️ PLEIN, LE COLLECTEUR PORTE L'OBJET LUI-MÊME — Eric, 16/09 au soir : *« lorsqu'un
+     token va dans le collecteur, il ne doit pas rester à sa place initiale : il doit
+     quitter l'emplacement et rester dans le collecteur »*.
+     ⛔ CE QU'IL CORRIGE, ET C'ÉTAIT UN MENSONGE DE L'ÉCRAN : l'objet restait posé dans
+     sa boîte avec une simple marque, et le collecteur ne disait qu'un NOMBRE. On voyait
+     donc la même épée à deux endroits, et le geste qu'on venait de faire n'avait rien
+     déplacé. ⭐ Un panier montre ce qu'il contient ; une place qu'on a vidée est vide. */
+  if (retenu) {
+    c.dataset.occupe = "oui";
+    const objet = eld("span", "gear-objet", retenu.nom);
+    if (retenu.qte > 1) objet.append(" ", eld("span", "gear-qte", `×${retenu.qte}`));
+    c.append(objet);
+    c.setAttribute("aria-label", `Send collector — ${retenu.nom}`);
+    return c;
+  }
   c.append(eld("span", "gear-nom", "Send collector"));
   /* ⛔ PAS DE SPAN VIDE QUAND IL N'Y A RIEN — Eric, 16/09 au soir : *« italique
      collecteur, centré verticalement et horizontalement »*. Un élément vide reste un
@@ -451,6 +466,11 @@ export function construireLEcranGear(options = {}) {
     noeud.append(p);
   }
 
+  /* ce que la collecte retient, cherché UNE fois : les boîtes sont un dictionnaire,
+     la collecte un ensemble d'index — et le collecteur n'en tient qu'un (Eric, 16/09). */
+  const estCollecte = (p) => !!(p && options.collecte && options.collecte.has(p.index));
+  const retenu = Object.values(boites).find(estCollecte) || null;
+
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
     /* ⭐ UNE SEULE CONDITION, ET C'EST LA CLEF : les quatre lunes n'en ont pas
@@ -459,7 +479,12 @@ export function construireLEcranGear(options = {}) {
        est posé plus bas par sa donnée, et par elle seule. */
     if (!id) continue;
     if (o.sorte === "jeton") {
-      noeud.append(id === "collecteur" ? collecteur(id, options) : emplacement(o, id, boites[id] || null, options));
+      if (id === "collecteur") { noeud.append(collecteur(id, options, retenu)); continue; }
+      /* ⭐ UN OBJET COLLECTÉ A QUITTÉ SA BOÎTE : on le retire ICI, en amont, plutôt que
+         de demander à l'emplacement de se taire. La place redevient vide — donc une
+         CIBLE — sans qu'aucune règle d'affichage ait à connaître la collecte. */
+      const pose = boites[id] || null;
+      noeud.append(emplacement(o, id, pose && estCollecte(pose) ? null : pose, options));
     } else if (o.sorte === "voyant") {
       if (id === "montant") noeud.append(montantDeLaBourse(options));
     } else if (o.sorte === "bouton") {
