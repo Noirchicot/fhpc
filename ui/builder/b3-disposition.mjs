@@ -111,10 +111,10 @@ export const BOITES = [
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
   { clef: "fourreau3",   qte: "lateral", nom: "Pocket/weapon 1",   x: 40,  y: 280, attunable: true },
   { clef: "fourreau4",   qte: "lateral", nom: "Pocket/weapon 2",   x: 232, y: 280, attunable: true },
-  { clef: "pied1",   nom: "Foot/legs 1",     centre: true, y: 341, attunable: true },
+  { clef: "pied1",   nom: "Foot/leg 1",      centre: true, y: 341, attunable: true },
   { clef: "poche1",  qte: "medial", nom: "Extra storage 1", x: 11,  y: 377, attunable: true },
   { clef: "poche2",  qte: "medial", nom: "Extra storage 3", x: 261, y: 377, attunable: true },
-  { clef: "pied2",   nom: "Foot/legs 2",     centre: true, y: 397, attunable: true },
+  { clef: "pied2",   nom: "Foot/leg 2",      centre: true, y: 397, attunable: true },
   { clef: "poche3",  qte: "medial", nom: "Extra storage 2", x: 11,  y: 433, attunable: true },
   { clef: "poche4",  qte: "medial", nom: "Extra storage 4", x: 261, y: 433, attunable: true },
 ];
