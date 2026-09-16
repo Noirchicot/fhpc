@@ -264,7 +264,20 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   /* et le mot du dropdown ne cède jamais sa place au select */
   assert.match(shell, /\.gear-destination-mot\s*\{\s*flex:\s*none/, "toujours visible, collé au haut");
   assert.match(tokens, /--icone-parchemin-party:\s*url\(/);
-  assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
+  /* 🔴 LES TROIS PORTES SONT DANS LE GROUPE DE LA COLONNE DU MILIEU — et c'est la
+     rangée qui le pose, pas la coquille. ⛔ Eric l'a vu sur deux appareils le 16/09 :
+     sans lui, la première porte prend tout le `1fr` (274 blg au lieu de 77) et les
+     deux autres passent à la ligne. Le défaut n'apparaissait qu'APRÈS un geste, parce
+     que `poserLesBornes` ne repasse qu'au montage — c'est pour ça que je ne le voyais
+     pas en ouvrant l'écran. */
+  const rang = n.querySelector(".gear-rangee");
+  /* ⛔ pas `:scope >` : le DOM des tests ne le résout pas, et un garde qui rougit
+     pour son propre sélecteur ne dit rien de l'écran. On lit les enfants. */
+  const groupe = [...rang.children].find((e) => e.className === "rangee-majeurs");
+  assert.ok(groupe, "la rangée porte son propre groupe, même sans la coquille");
+  assert.deepEqual([...groupe.children].map((e) => e.dataset.porte), ["backpack", "send", "wares"],
+    "les trois portes sont DANS le groupe, dans l'ordre du plan");
+  assert.equal(tous(rang, ".gear-porte").length, 3, "trois portes dans la rangée");
   assert.equal(tous(n, ".gear-rangee").length, 1);
   assert.ok(n.querySelector(".gear-rangee").dataset.rangee, "la rangée déclare data-rangee (§6 pré, cinquième porte)");
   assert.equal(n.querySelector(".gear-rangee").children[0].className, "fiche-livre gear-livre", "le livre est la première borne");

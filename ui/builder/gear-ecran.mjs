@@ -423,14 +423,30 @@ function rangee(options) {
     livre.disabled = true;
   }
   r.append(livre);
+  /* 🔴 LA RANGÉE PORTE SON PROPRE GROUPE, ET ELLE NE L'EMPRUNTE À PERSONNE.
+     ⛔ CE QUE ÇA RÉPARE, ET ERIC L'A VU SUR DEUX APPAREILS (iPad et Mac, 16/09 au
+     soir) : les trois portes rendaient ~274 blg au lieu de 77 et débordaient sur
+     deux lignes. La grille du pied a trois colonnes — borne | 1fr | borne — et
+     c'est `.rangee-majeurs` qui occupe celle du milieu. Sans lui, les portes se
+     placent une par une : la première prend tout le `1fr`, les suivantes passent
+     à la ligne.
+     ⚠️ ET POURQUOI JE NE LE VOYAIS PAS : `poserLesBornes` (la coquille) crée ce
+     groupe au montage de l'écran. Un repeint qui ne repasse pas par elle — et
+     tout geste interne à Gear en est un — reconstruit la rangée SANS groupe. Le
+     défaut n'apparaît donc qu'APRÈS le premier geste, jamais à l'ouverture.
+     ⭐ `poserLesBornes` REPREND un groupe déjà là (`dejaLa`, shell.mjs) au lieu
+     d'en créer un second : le poser ici ne double rien, et rend l'écran juste
+     qu'elle passe ou non. */
+  const majeurs = eld("div", "rangee-majeurs");
   for (const o of ORGANES) {
     if (o.sorte !== "porte") continue;
     const id = CLEF_DE[o.nom];
     const note = id === "send" ? "Send — clears the collector and sends" : o.mot;
     const b = bouton("gear-porte", o.mot, note, () => options.surPorte && options.surPorte(id));
     b.dataset.porte = id;
-    r.append(b);
+    majeurs.append(b);
   }
+  r.append(majeurs);
   return r;
 }
 
