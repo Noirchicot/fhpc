@@ -84,7 +84,7 @@ export const CLEF_DE = Object.freeze({
   "ARM/HANDS 1": "fourreau1", "ARM/HANDS 2": "fourreau2",
   "BELT": "ceinture",
   "POCKET/WEAPON 1": "fourreau3", "POCKET/WEAPON 2": "fourreau4",
-  "FOOT/LEGS 1": "pied1",    "FOOT/LEGS 2": "pied2",
+  "FOOT/LEG 1": "pied1",     "FOOT/LEG 2": "pied2",
   "EXTRA STORAGE 1": "poche1", "EXTRA STORAGE 3": "poche2",
   "EXTRA STORAGE 2": "poche3", "EXTRA STORAGE 4": "poche4",
   "GROUND 1": "sol1",        "GROUND 2": "sol2",
@@ -98,13 +98,10 @@ export const CLEF_DE = Object.freeze({
 /* Le libellé d'un emplacement — l'écriture du croquis (Eric, 15/09), sans le
    numéro qui n'identifie que la table : `HEAD/FACE 1` et `HEAD/FACE 2` s'écrivent
    tous deux `HEAD/FACE`. `opt` devient un ÉTAT (`data-optionnelle`), pas un mot. */
-/* ⚖️ Eric, 16/09 : *« foot leg mieux »* — le libellé affiché corrige le mot du
-   plan (`FOOT/LEGS` → `FOOT/LEG`). ⏳ À porter dans la table du plan (Archi 34) ;
-   tant qu'elle dit LEGS, c'est ici que le mot d'Eric vit, nommé. */
-const LIBELLES = Object.freeze({ "FOOT/LEGS": "FOOT/LEG" });
+/* ⚖️ Eric, 16/09 : *« foot leg mieux »* — porté au plan par Archi 34 (FOOT/LEG) :
+   plus rien à corriger ici, le libellé EST celui de la table. */
 export function libelleDe(nom) {
-  const brut = nom.replace(/\s+opt$/, "").replace(/\s+\d+$/, "");
-  return LIBELLES[brut] || brut;
+  return nom.replace(/\s+opt$/, "").replace(/\s+\d+$/, "");
 }
 
 /** Le libellé posé dans la case : ⚖️ Eric, 16/09 — *« weapons sous pocket ! »*,

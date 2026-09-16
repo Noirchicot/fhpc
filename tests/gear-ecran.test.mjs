@@ -127,7 +127,7 @@ test("3 bis — les libellés sont ceux du croquis : sans numéro, sans `opt`", 
   assert.equal(libelleDe("HEAD/FACE 1"), "HEAD/FACE");
   assert.equal(libelleDe("BODY FORGING opt"), "BODY FORGING");
   assert.equal(libelleDe("BELT"), "BELT");
-  assert.equal(libelleDe("FOOT/LEGS 2"), "FOOT/LEG", "Eric, 16/09 : « foot leg mieux »");
+  assert.equal(libelleDe("FOOT/LEG 2"), "FOOT/LEG", "Eric, 16/09 : « foot leg mieux » — au plan depuis");
   /* et le dépôt ne dit plus « Sheath » nulle part dans sa table */
   assert.ok(!BOITES.some((b) => /sheath/i.test(b.nom)), "« Sheath » est périmé (croquis du 15/09)");
 });
