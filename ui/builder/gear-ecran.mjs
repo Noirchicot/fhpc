@@ -192,16 +192,17 @@ export const BOURSE = Object.freeze({
      que seul un joueur habitué lit. Le nom entier dessous la rend lisible par
      quelqu'un qui ouvre sa bourse pour la première fois — et le mot « pieces »
      dit que ce sont des PIÈCES qu'on compte, pas une valeur abstraite.
-     📏 MESURÉ À T0 : Platinium 34,94 · Copper 28,07 · pieces 24,85 · Silver 21 ·
-     Gold 17,61, tous dans les 44 de la colonne. C'est « Platinium » qui commande,
-     et il reste 9 de marge.
-     ⚠️ ORTHOGRAPHE : Eric écrit *« platinium »* ; l'anglais courant est
-     *« Platinum »*, et tout le reste de l'écran est en anglais (Backpack, Send,
-     Total in GP). ⛔ Je garde SON mot — la nomenclature lui appartient (mandat
-     212 : « demande à Eric quel nom gagne ») — et je le signale plutôt que de le
-     corriger dans son dos. */
+     📏 MESURÉ À T0 : Platinum 33 · Copper 28,07 · pieces 24,85 · Silver 21 ·
+     Gold 17,61, tous dans les 44 de la colonne. C'est « Platinum » qui commande,
+     et il reste 11 de marge.
+     ⚖️ ORTHOGRAPHE, ET LE DÉTOUR VALAIT LE COUP : Eric avait écrit *« platinium »*.
+     Je l'ai posé tel quel EN LE SIGNALANT plutôt qu'en le corrigeant dans son dos
+     — la nomenclature lui appartient (mandat 212 : « demande à Eric quel nom
+     gagne »). Il a répondu dans la minute : *« en anglais c'est platinum (j'ai
+     fait une faute) »*. ⛔ Corriger en silence aurait donné le même mot, mais il
+     n'aurait rien su : la prochaine faute serait passée aussi. */
   monnaies: Object.freeze([
-    Object.freeze({ clef: "pp", mot: "PP", nom: "Platinium" }),
+    Object.freeze({ clef: "pp", mot: "PP", nom: "Platinum" }),
     Object.freeze({ clef: "gp", mot: "GP", nom: "Gold" }),
     Object.freeze({ clef: "sp", mot: "SP", nom: "Silver" }),
     Object.freeze({ clef: "cp", mot: "CP", nom: "Copper" })
@@ -541,7 +542,11 @@ function bourseOuverte(options) {
     tete.append(eld("span", "gear-monnaie-nom", m.nom));
     tete.append(eld("span", "gear-monnaie-nom", BOURSE.piece));
     col.append(tete);
-    col.append(eld("span", "gear-monnaie-compte", String(n)));
+    /* ⛔ ET LE POSSÉDÉ SE SÉPARE AUSSI — je l'avais oublié en écrivant, deux lignes
+       plus bas, que « deux façons d'écrire un nombre dans un écran, c'est deux
+       façons de le lire ». Vu au rendu : le total disait « 152 210 » pendant que la
+       colonne au-dessus disait « 15221 ». */
+    col.append(eld("span", "gear-monnaie-compte", enMilliers(n)));
     const champ = eld("input", "gear-monnaie-saisie");
     champ.type = "text";
     champ.inputMode = "numeric";

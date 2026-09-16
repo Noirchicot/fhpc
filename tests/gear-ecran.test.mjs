@@ -423,6 +423,11 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
     .querySelector(".gear-bourse-total-valeur").textContent, "152\u202f210");
   assert.deepEqual(tous(pop, ".gear-monnaie").map((c) => c.dataset.monnaie), ["pp", "gp", "sp", "cp"]);
   assert.deepEqual(tous(pop, ".gear-monnaie-compte").map((c) => c.textContent), ["1", "5", "0", "9"]);
+  /* ⛔ LE POSSÉDÉ SE SÉPARE COMME LE TOTAL — vu au rendu : le total disait
+     « 152 210 » pendant que la colonne au-dessus disait « 15221 ». Une seule façon
+     d'écrire un nombre par écran, sinon on en lit deux. */
+  assert.equal(rendu({ bourseOuverte: true, bourse: { pp: 15221, gp: 0, sp: 0, cp: 0 } })
+    .querySelector('.gear-monnaie[data-monnaie="pp"] .gear-monnaie-compte').textContent, "15\u202f221");
 
   /* ⭐ L'ORDRE DE LA COLONNE DIT LE GESTE : possédé · `+` · la case · `−` */
   const col = pop.querySelector('.gear-monnaie[data-monnaie="gp"]');
@@ -436,7 +441,7 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
     const t = pop.querySelector(`.gear-monnaie[data-monnaie="${m.clef}"] .gear-monnaie-tete`);
     assert.deepEqual([...t.children].map((e) => e.textContent), [m.mot, m.nom, BOURSE.piece], m.clef);
   }
-  assert.deepEqual(BOURSE.monnaies.map((m) => m.nom), ["Platinium", "Gold", "Silver", "Copper"]);
+  assert.deepEqual(BOURSE.monnaies.map((m) => m.nom), ["Platinum", "Gold", "Silver", "Copper"]);
   assert.match(shell, /\.gear-monnaie-mot\s*\{[^}]*font-size:\s*var\(--t2\)/, "l'abréviation en T2");
   assert.match(shell, /\.gear-monnaie-nom\s*\{[^}]*font-size:\s*var\(--t0\)[^}]*font-style:\s*italic/, "la glose en T0 italique");
   assert.match(shell, /\.gear-bourse-titre\s*\{[^}]*margin:\s*0 0 var\(--sp-4\)/, "4 blg sous le titre");
