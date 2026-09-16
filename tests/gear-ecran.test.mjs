@@ -118,9 +118,25 @@ test("2 quater — ⚔️ ATTAQUE : une cible de 40 rougirait", () => {
 test("3 — chaque organe posé a une clef, chaque clef est unique, et les emplacements existent au dépôt", () => {
   const clefs = [];
   for (const o of ORGANES) {
-    /* hors création : les quatre lunes, et le Party Tally (Eric, 16/09 : « n'apparaît
-       que quand un des joueurs ou DM envoie vers le party inventory » — en jeu) */
-    if (o.creation === false) { assert.ok(o.sorte === "lune" || o.nom === "PARTY TALLY", `${o.nom} : seules les lunes et le Party Tally sont hors création`); assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`); continue; }
+    /* ⚖️ HORS CRÉATION, MAIS PAS DE LA MÊME FAÇON — et la nuance est tout le sujet.
+       Les quatre LUNES appartiennent à un autre écran (double vue, fiche) : elles
+       n'ont pas de clef du tout, rien ici ne les connaît.
+       Le GROUP TALLY, lui, appartient à CET écran mais à un autre MOMENT — Eric,
+       16/09 : « n'apparaît que quand un des joueurs ou DM envoie vers le party
+       inventory ». Il a donc une clef et une cote posée, et c'est la DONNÉE qui
+       décide s'il se montre. ⛔ Lui refuser sa clef obligerait à le poser plus tard
+       par une seconde règle écrite ailleurs — deux écrivains pour une place. */
+    if (o.creation === false) {
+      if (o.nom === "PARTY TALLY") {
+        assert.equal(CLEF_DE[o.nom], "party-tally", "le Group Tally a sa clef : sa place est réservée");
+        assert.ok(feuilleDesCotes().includes(`[data-organe="party-tally"]{left:${o.x}px`), "et sa cote est posée d'avance");
+        clefs.push(CLEF_DE[o.nom]);
+        continue;
+      }
+      assert.equal(o.sorte, "lune", `${o.nom} : hors création, seules les lunes n'ont pas de clef`);
+      assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`);
+      continue;
+    }
     assert.ok(CLEF_DE[o.nom], `« ${o.nom} » n'a pas de clef`);
     clefs.push(CLEF_DE[o.nom]);
   }
@@ -193,7 +209,21 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   if (!ORGANES.some((o) => o.nom === "MONTANT")) attendus.push("montant");
   assert.deepEqual(ids.sort(), attendus.sort());
   assert.equal(ORGANES.filter((o) => o.creation === false).length, 5, "les quatre lunes et le Party Tally sont au plan, hors création");
-  assert.equal(n.querySelector('[data-organe="party-tally"]'), null, "pas de Party Tally à la création");
+  /* ⚖️ LE GROUP TALLY EST ABSENT À LA CRÉATION ET PRÉSENT DÈS QUE LA DONNÉE EXISTE —
+     les deux côtés, sinon le garde laisserait passer un bouton qui ne vient jamais.
+     ⛔ Et c'est bien `undefined` qui décide, pas zéro : un party inventory OUVERT et
+     VIDE doit montrer son parchemin à zéro ligne, sinon il n'y a plus d'endroit où
+     regarder pour savoir qu'il est vide. */
+  assert.equal(n.querySelector('[data-organe="party-tally"]'), null, "pas de Group Tally à la création");
+  const avecParty = rendu({ compteParty: 0 });
+  const pt = avecParty.querySelector('[data-organe="party-tally"]');
+  assert.ok(pt, "un party inventary ouvert, même vide, montre son parchemin");
+  assert.equal(pt.dataset.compte, "0");
+  assert.equal(rendu({ compteParty: 7 }).querySelector('[data-organe="party-tally"]').dataset.compte, "7");
+  assert.match(rendu({ compteParty: 7 }).querySelector('[data-organe="party-tally"]').getAttribute("aria-label"), /^Party tally — 7 lines$/);
+  /* et la feuille lui donne SON parchemin, pas celui du Tally personnel */
+  assert.match(shell, /\[data-organe="party-tally"\]\s*\{\s*background-image:\s*var\(--icone-parchemin-party\)/);
+  assert.match(tokens, /--icone-parchemin-party:\s*url\(/);
   assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
   assert.equal(tous(n, ".gear-rangee").length, 1);
   assert.ok(n.querySelector(".gear-rangee").dataset.rangee, "la rangée déclare data-rangee (§6 pré, cinquième porte)");

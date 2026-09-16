@@ -9404,6 +9404,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
    première ligne, s'éteint vidé */
 .gear-bouton[data-organe="tally"] { background-image: var(--icone-parchemin); }
+/* le Group Tally — le même parchemin en BLEU (Eric, 16/09 au soir), à gauche du
+   personnel. ⛔ Il n'apparaît qu'en jeu : à la création, la donnée ne le porte pas
+   et le module ne le pose pas. Sa place lui est réservée par le plan. */
+.gear-bouton[data-organe="party-tally"] { background-image: var(--icone-parchemin-party); }
+.gear-bouton[data-organe="party-tally"]:not([data-compte="0"]),
 .gear-bouton[data-organe="tally"]:not([data-compte="0"]) {
   box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
 }

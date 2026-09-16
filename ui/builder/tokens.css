@@ -1003,6 +1003,11 @@
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   --icone-parchemin: url("./assets/parchemin.webp?v=635");
+  /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
+     gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
+     14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
+     TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=635");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
   --icone-bourse: url("./assets/bourse.webp?v=635");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la

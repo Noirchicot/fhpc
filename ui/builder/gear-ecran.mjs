@@ -90,7 +90,8 @@ export const CLEF_DE = Object.freeze({
   "GROUND 1": "sol1",        "GROUND 2": "sol2",
   "SEND COLLECTOR": "collecteur",
   "SEND TO": "send-to",
-  "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "COMPANIONS": "companions",
+  "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "PARTY TALLY": "party-tally",
+  "COMPANIONS": "companions",
   "BACKPACK": "backpack", "SEND": "send", "WARES": "wares",
   "livre": "livre", "?": "guide"
 });
@@ -160,9 +161,12 @@ export function feuilleDesCotes() {
   const regle = (id, corps) => regles.push(`.gear > [data-organe="${id}"]{${corps}}`);
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    /* `creation: false` : l'organe est dessiné au plan (Eric le regarde) mais
-       n'existe pas à la création — les lunes. La donnée le dit, pas ce fichier. */
-    if (!id || o.creation === false || o.sorte === "porte" || o.sorte === "rond") continue;
+    /* ⭐ LA COTE SE POSE POUR TOUT ORGANE QUI A UNE CLEF, MÊME HORS CRÉATION —
+       et c'est voulu : le Group Tally n'apparaît qu'en jeu, mais le jour où il
+       apparaît il doit être DÉJÀ à sa place, pas posé par une seconde règle
+       écrite ailleurs. ⛔ Les quatre lunes restent dehors sans condition de
+       `creation` : elles n'ont pas de clef du tout, et c'est `!id` qui les sort. */
+    if (!id || o.sorte === "porte" || o.sorte === "rond") continue;
     if (o.sorte === "jeton") {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))}`);
     } else if (o.sorte === "voyant") {
@@ -330,6 +334,22 @@ function montantDeLaBourse(options) {
   m.setAttribute("aria-hidden", "true");
   return m;
 }
+/** Le Group Tally — le parchemin BLEU, à gauche du personnel. Eric, 16/09 :
+ *  *« il y a 2 tally — un group tally (optionnel) n'apparaît que quand un des
+ *  joueurs ou DM envoie vers le party inventory »*.
+ *  ⛔ IL N'EXISTE DONC PAS À LA CRÉATION, et ce n'est pas ce module qui le
+ *  décide : il rend ce que la DONNÉE porte. Pas de party inventory, pas de
+ *  compte, pas de bouton — `null`, et l'écran n'a pas de trou puisque sa place
+ *  lui était réservée par le plan. */
+function boutonPartyTally(id, options) {
+  if (options.compteParty === undefined || options.compteParty === null) return null;
+  const n = options.compteParty;
+  const b = bouton("gear-bouton", undefined, n ? `Party tally — ${n} lines` : "Party tally",
+    () => options.surBouton && options.surBouton("party-tally"));
+  b.dataset.organe = id;
+  b.dataset.compte = String(n);
+  return b;
+}
 function boutonTally(id, options) {
   const n = options.compteTally || 0;
   const b = bouton("gear-bouton", undefined, n ? `Tally — ${n} lines` : "Tally", () => options.surBouton && options.surBouton("tally"));
@@ -413,7 +433,11 @@ export function construireLEcranGear(options = {}) {
 
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    if (!id || o.creation === false) continue;   // les lunes et le Party Tally : `creation: false` au plan
+    /* ⭐ UNE SEULE CONDITION, ET C'EST LA CLEF : les quatre lunes n'en ont pas
+       (elles sont d'un autre écran), donc elles sortent ici sans qu'on nomme
+       `creation`. Ce qui est hors création mais DE cet écran — le Group Tally —
+       est posé plus bas par sa donnée, et par elle seule. */
+    if (!id) continue;
     if (o.sorte === "jeton") {
       noeud.append(id === "collecteur" ? collecteur(id, options) : emplacement(o, id, boites[id] || null, options));
     } else if (o.sorte === "voyant") {
@@ -422,6 +446,7 @@ export function construireLEcranGear(options = {}) {
       if (id === "send-to") noeud.append(dropdown(id, options));
       else if (id === "purse") noeud.append(boutonPurse(id, options));
       else if (id === "tally") noeud.append(boutonTally(id, options));
+      else if (id === "party-tally") { const b = boutonPartyTally(id, options); if (b) noeud.append(b); }
       else if (id === "companions") noeud.append(boutonCompanions(id));
     }
     /* portes et ronds : dans la rangée, ci-dessous */
