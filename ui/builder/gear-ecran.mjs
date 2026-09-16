@@ -156,6 +156,31 @@ const haut = (y) => y - BELT_H;
  *  · les PORTES et les RONDS ne sont pas posés un par un : ils vivent dans la
  *    rangée, et c'est la grille de `[data-rangee]` (§6 pré) qui les place.
  *    La rangée, elle, est posée à `BARRE`. */
+/* ══ LA BOURSE — le popup qu'ouvre le bouton Purse ═════════════════════════
+   ⚖️ COTES ARRÊTÉES PAR ERIC LE 16/09, et pas une n'est devinée : *« la bourse
+   il faut la faire »* · *« fais des boutons de 40 »* · *« ça prend la place que
+   ça doit, c'est un popup »*. La passation du chapitre les fixe : **186 × 133**,
+   quatre monnaies PP · GP · SP · CP sur UNE seule rangée, chacune avec `+` et
+   `−`, chaque bouton dessin 40 / cible 44 — comme le Tally.
+   📐 LES QUATRE COLONNES SONT DES CIBLES JOINTIVES : x 5 · 49 · 93 · 137, soit
+   44 de pas, et 5 + 4 × 44 + 5 = 186. ⛔ C'est POUR ÇA que le popup fait 186 et
+   pas les 125 du dépôt : à 125, les `+`/`−` rendaient 23,75 de large, très loin
+   du plancher de 44. La largeur est la conséquence du plancher tactile, pas un
+   goût — et c'est ce qui rend ce popup non négociable.
+   ⚠️ `b3-disposition.mjs:147` porte encore l'ancienne cote : hors de ce lot. */
+export const BOURSE = Object.freeze({
+  l: 186, h: 133,
+  pas: 44,                       /* une colonne = une cible tactile, jointive */
+  marge: 5,                      /* 186 − 4 × 44 = 10, cinq de chaque côté */
+  bouton: 40,                    /* le dessin, dans la cible de 44 */
+  monnaies: Object.freeze([
+    Object.freeze({ clef: "pp", mot: "PP" }),
+    Object.freeze({ clef: "gp", mot: "GP" }),
+    Object.freeze({ clef: "sp", mot: "SP" }),
+    Object.freeze({ clef: "cp", mot: "CP" })
+  ])
+});
+
 export function feuilleDesCotes() {
   const regles = [];
   const regle = (id, corps) => regles.push(`.gear > [data-organe="${id}"]{${corps}}`);
@@ -188,6 +213,12 @@ export function feuilleDesCotes() {
     const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
     if (purse) regles.push(`.gear > .gear-montant{left:${px(purse.x)};top:${px(haut(purse.y + purse.h + MARGE))};width:${px(purse.l)}}`);
   }
+  /* le popup de la bourse : sa boîte et le pas de ses colonnes viennent de la
+     table ci-dessus, jamais de la feuille — `shell.css` ne porte aucune cote. */
+  regles.push(`.gear > .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
+  regles.push(`.gear-bourse > .gear-monnaie{width:${px(BOURSE.pas)}}`);
+  regles.push(`.gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
+    `border-width:${px((BOURSE.pas - BOURSE.bouton) / 2)}}`);
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
     `width:${px(DALLE.l - 2 * MARGE)};height:${px(BARRE.h)}}`);
   if (PANTIN) {
@@ -424,6 +455,54 @@ function boutonCompanions(id) {
   return b;
 }
 
+/** La bourse — le popup des quatre monnaies. Eric, 16/09 : *« la bourse il faut
+ *  la faire »*, *« ça prend la place que ça doit, c'est un popup »*.
+ *  ⭐ UN POPUP, DONC IL SE FERME — et par le VOILE, pas par un bouton : la
+ *  hauteur de 133 est entièrement prise par les quatre colonnes (5 + 12 + 44 +
+ *  16 + 44 + 5 = 126), et y loger un `BACK` aurait demandé de rogner ailleurs
+ *  une cote qu'Eric a arrêtée. Retaper la bourse la ferme aussi.
+ *  ⛔ LES `+`/`−` NE SONT PAS DES BOUTONS À MOT : ils portent un GLYPHE, donc ni
+ *  l'habit de la famille ni son liseré de rôle (NORMES : « un bouton à glyphe
+ *  n'en porte pas »). Ils prennent le corps et le rayon, rien de plus. */
+function bourseOuverte(options) {
+  const v = eld("div", "gear-voile");
+  v.dataset.organe = "bourse-voile";
+  /* ⛔ ON FERME SUR LE VOILE LUI-MÊME, PAS SUR CE QUI REMONTE : `e.target === v`
+     dit « le clic est tombé À CÔTÉ de la bourse ». ⭐ C'est plus sûr qu'un
+     `stopPropagation` posé dans le popup — celui-ci suppose que l'événement
+     remonte, donc il dépend du moteur, et il échoue en silence là où il n'y en a
+     pas. Ici, aucune supposition : on regarde où le doigt est tombé. */
+  if (options.surFermerBourse) {
+    v.addEventListener("click", (e) => { if (!e || e.target === v) options.surFermerBourse(); });
+  }
+  const b = eld("div", "gear-bourse");
+  b.setAttribute("role", "group");
+  b.setAttribute("aria-label", "Purse");
+  const sac = options.bourse || {};
+  for (const m of BOURSE.monnaies) {
+    const col = eld("div", "gear-monnaie");
+    col.dataset.monnaie = m.clef;
+    const n = Number.isInteger(sac[m.clef]) ? sac[m.clef] : 0;
+    col.append(eld("span", "gear-monnaie-mot", m.mot));
+    col.append(cranDeMonnaie("+", m, n + 1, `One more ${m.mot}`, options));
+    col.append(eld("span", "gear-monnaie-compte", String(n)));
+    /* ⛔ PLANCHER À ZÉRO, ET IL EST DIT DEUX FOIS EXPRÈS : `setCurrency` le tient
+       déjà (« une bourse n'a pas de dette »), mais un bouton qui ne fait rien au
+       lieu d'être éteint est un bouton cassé pour qui le regarde. */
+    col.append(cranDeMonnaie("−", m, n - 1, `One less ${m.mot}`, options, n === 0));
+    b.append(col);
+  }
+  v.append(b);
+  return v;
+}
+function cranDeMonnaie(glyphe, m, valeur, note, options, eteint) {
+  const b = bouton("gear-monnaie-bouton", glyphe, note,
+    () => options.surMonnaie && options.surMonnaie(m.clef, valeur));
+  b.dataset.cran = glyphe === "+" ? "plus" : "moins";
+  if (eteint) b.disabled = true;
+  return b;
+}
+
 /** La rangée du pied — la cinquième porte de §6 pré : `data-rangee`, deux
  *  bornes et un groupe. Le livre est posé ICI (par l'écran), le `?` y descend
  *  par la coquille (`poserLesBornes`). Les trois portes tiennent la MÊME
@@ -533,5 +612,8 @@ export function construireLEcranGear(options = {}) {
   /* ⏳ tant que le plan ne porte pas MONTANT, le montant se pose quand même — déduit */
   if (!ORGANES.some((o) => o.nom === "MONTANT")) noeud.append(montantDeLaBourse(options));
   noeud.append(rangee(options));
+  /* ⭐ EN DERNIER, DONC AU-DESSUS : un popup recouvre ce qu'il interrompt, et
+     l'ordre du DOM suffit à le dire — aucun `z-index` à accorder avec personne. */
+  if (options.bourseOuverte) noeud.append(bourseOuverte(options));
   return { noeud };
 }

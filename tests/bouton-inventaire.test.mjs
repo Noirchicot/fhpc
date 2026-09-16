@@ -98,7 +98,8 @@ const PAS_DES_BOUTONS_A_MOT = new Set([
   ".b3-bouton",          // un tracé SVG : `fill: none; stroke: …`
   ".b3-barre-bouton",    // la zone cliquable d'une barre du B3, pas un libellé
   ".bouton-moyen",       // un MODIFICATEUR de gabarit, posé sur un bouton déjà de la famille
-  ".gear-bouton"         // LOT 212 — Purse et Tally : une IMAGE (bourse, parchemin), pas un libellé — « pas de relief » (Eric, 16/09)
+  ".gear-bouton",        // LOT 212 — Purse et Tally : une IMAGE (bourse, parchemin), pas un libellé — « pas de relief » (Eric, 16/09)
+  ".gear-monnaie-bouton" // LOT 212 — les `+`/`−` de la bourse : un GLYPHE, pas un mot (NORMES : « un bouton à glyphe n'en porte pas »)
 ]);
 
 /* ── L'EXTRACTION ──────────────────────────────────────────────────────── */

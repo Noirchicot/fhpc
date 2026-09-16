@@ -9446,6 +9446,68 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    pièces au centre) : l'image est le bouton ; le montant est le voyant posé dessus */
 .gear-bouton[data-organe="purse"] { background-image: var(--icone-bourse); }
 
+/* ══ LA BOURSE — le popup des quatre monnaies (Eric, 16/09) ════════════════
+   ⛔ AUCUNE COTE ICI : la boîte, le pas des colonnes et le retrait des boutons
+   viennent de la table `BOURSE` par la feuille construite. Ce bloc ne pose que
+   la FORME — voile, fond, liseré, disposition.
+   ⭐ LE VOILE EST LE MÉCANISME DE FERMETURE, et il est aussi ce qui dit qu'on a
+   interrompu quelque chose : l'écran reste visible dessous, assombri. */
+.gear-voile {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  /* ⚖️ OPAQUE, PAS TRANSLUCIDE — Eric, 16/09 au soir : *« voile 100 % pour la
+     bourse je pense »*. ⛔ Ce n'est donc PAS `--voile-ecran` (72 %), qui sert
+     les voiles où l'on doit continuer de voir ce qu'on interrompt.
+     ⭐ CE QUE ÇA DIT, ET C'EST COHÉRENT AVEC LA BOURSE : compter son argent n'est
+     pas une interruption de l'habillage, c'est un moment à soi. L'écran ne
+     transparaît pas derrière, et les quatre monnaies n'ont rien à concurrencer.
+     📌 Le belt reste visible au-dessus : on ne perd jamais où l'on est (loi du
+     rang X, 16/09 — « x1 a le droit de tout recouvrir sauf le belt »). */
+  background: var(--bg);
+}
+.gear-bourse {
+  display: flex; align-items: stretch; gap: 0;
+  border-radius: var(--organe-rayon);
+  background: var(--surface);
+  /* ⛔ AUCUNE OMBRE PORTÉE, ET LE GARDE DES COULEURS ME L'A APPRIS EN ROUGISSANT :
+     j'en avais écrit une en `rgba()` clair, ce que `shell.css` interdit — une
+     ombre littérale échappe au thème. ⭐ Et elle n'avait pas lieu d'être : c'est
+     le VOILE qui détache le popup, en assombrissant tout autour. Une ombre
+     par-dessus aurait dit deux fois la même chose. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+.gear-monnaie {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-2);
+}
+/* le nom de la monnaie : une étiquette, comme les places en attente */
+.gear-monnaie-mot {
+  font-size: var(--t1); font-style: italic; letter-spacing: .04em;
+  color: var(--text-soft);
+}
+.gear-monnaie-compte { font-size: var(--t3); font-weight: 600; color: var(--text); }
+/* ⛔ UN BOUTON À GLYPHE N'EST PAS UN BOUTON À MOT : ni octogone hier, ni liseré
+   de rôle aujourd'hui (NORMES, `bouton-octogone`). Il prend le corps et le rayon
+   de la famille — c'est la même matière — et rien d'autre.
+   ⭐ Dessin 40 dans une cible de 44 : le retrait est posé en `border-width` par
+   la feuille construite, exactement comme le Tally. */
+/* ⭐ ET IL PORTE SA MATIÈRE LUI-MÊME, SANS PSEUDO-ÉLÉMENT — le garde du patron
+   me l'a appris en rougissant : poser `--bouton-corps` dans un second `::before`
+   faisait de ce bouton un DEUXIÈME ÉCRIVAIN du dessin de la famille, et la
+   première repeinture les aurait fait diverger. Le patron a besoin d'un pseudo
+   parce qu'il a deux étages (corps + liseré) ; celui-ci n'en a qu'un.
+   📐 `background-clip: padding-box` : le corps s'arrête au dessin de 40, la
+   bordure transparente de 2 porte la cible de 44. */
+.gear-monnaie-bouton {
+  padding: 0; border: 0 solid transparent;
+  border-radius: var(--bouton-rayon);
+  background: var(--bouton-corps); background-clip: padding-box;
+  box-shadow: var(--bouton-aretes);
+  color: var(--bouton-encre); font: inherit; font-size: var(--t3); font-weight: 600;
+  line-height: 1; cursor: pointer;
+}
+.gear-monnaie-bouton:disabled { opacity: var(--organe-eteint); cursor: default; }
+
 /* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
 .gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
 /* ⚖️ LA BOÎTE DU DROPDOWN — Eric, 16/09 au soir : le mot « destination » collé au
