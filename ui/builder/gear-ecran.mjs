@@ -215,8 +215,13 @@ export function feuilleDesCotes() {
   }
   /* le popup de la bourse : sa boîte et le pas de ses colonnes viennent de la
      table ci-dessus, jamais de la feuille — `shell.css` ne porte aucune cote. */
-  regles.push(`.gear > .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
-  regles.push(`.gear-bourse > .gear-monnaie{width:${px(BOURSE.pas)}}`);
+  /* ⛔ PAS `.gear > .gear-bourse` : le popup n'est pas un enfant DIRECT de la dalle,
+     il vit dans son voile. Mesuré au navigateur, la règle ne s'appliquait pas et le
+     popup se dimensionnait sur son contenu — 176 au lieu de 186, hauteur libre.
+     ⭐ La leçon est plus large que le bug : un sélecteur d'enfant direct enferme une
+     cote dans une STRUCTURE, et la structure bouge quand l'écran grandit. */
+  regles.push(`.gear .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
+  regles.push(`.gear .gear-monnaie{width:${px(BOURSE.pas)}}`);
   regles.push(`.gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
     `border-width:${px((BOURSE.pas - BOURSE.bouton) / 2)}}`);
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
