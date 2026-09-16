@@ -9270,7 +9270,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
 }
 /* la bourse d'Eric (déposée le 16/09) : le mot et le montant se posent dessus */
-.gear-bouton[data-organe="purse"] { background-image: var(--icone-bourse); }
+.gear-bouton[data-organe="purse"] {
+  background-image: var(--icone-bourse);
+  /* Eric, 16/09 : « le montant en gp en blanc bien centré sur la bourse, mets Purse
+     au-dessus en blanc aussi » — l'encre fixe de la lune, elle ne suit pas le thème */
+  color: var(--astre-encre-lune);
+}
 
 /* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
 .gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
