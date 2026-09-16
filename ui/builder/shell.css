@@ -9254,7 +9254,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-bouton {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 0; margin: 0;
-  border-style: solid; border-color: transparent; border-radius: 0;
+  /* bordure NULLE par défaut : quand dessin = cible (Purse 44 × 44), aucun écart ;
+     la feuille des cotes pose `border-width` là où une cible dépasse le dessin
+     (Tally). Sans ce 0, le navigateur mettait ses 3 px « medium ». */
+  border: 0 solid transparent; border-radius: 0;
   background: transparent no-repeat center / contain; background-clip: padding-box;
   background-origin: padding-box;
   color: var(--astre-encre-soleil); box-shadow: none;
