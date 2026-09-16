@@ -329,6 +329,13 @@ test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur V
   assert.equal(col.querySelector(".gear-objet").textContent, "Helm", "et il le NOMME, il ne compte pas");
   assert.match(col.getAttribute("aria-label"), /^Send collector — Helm$/);
   assert.equal(col.dataset.creneau, undefined, "plein : le collecteur n'accepte pas un second objet");
+  /* ⚖️ ET L'OBJET EN RESSORT PAR LE MÊME GESTE QU'IL Y EST ENTRÉ — Eric, 16/09 au soir.
+     ⭐ Rien de neuf côté données : `surPlacer` retire déjà la ligne de la collecte avant
+     de la poser. Ce qui manquait était le geste — une chose qu'on voit mais qu'on ne
+     peut pas reprendre est une impasse. */
+  assert.equal(col.dataset.glissable, "true", "le collecteur plein se saisit comme un jeton");
+  assert.equal(plein.querySelector('[data-organe="tete1"]').dataset.glissable, undefined,
+    "⛔ et la boîte vidée ne se saisit plus : il n'y a plus rien dedans");
   assert.equal(col.dataset.compte, "1");
   /* la quantité suit l'objet, comme dans une boîte */
   const parPaquet = rendu({ boites: { tete1: { nom: "Arrow", qte: 20, index: 7 } }, collecte: new Set([7]) });
