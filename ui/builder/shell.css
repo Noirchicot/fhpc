@@ -9304,7 +9304,15 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    d'ÉTAT ; mais *« le liseré des tokens ! »* — un jeton porte SON liseré, celui
    d'un contrôle (`--border-strong`, la cible 3:1 de `.glisse-jeton`), et il le
    garde ici. Le nom du slot reste, en étiquette, au-dessus de l'objet. */
-.gear-emplacement[data-occupe] {
+/* ⚖️ ET LE COLLECTEUR PLEIN LE PORTE AUSSI — Eric, 16/09 au soir : *« il n'y a pas
+   de token dans le collecteur, juste le nom »*. ⛔ Il avait raison et le mot est le
+   bon : un objet qui a quitté sa boîte doit ARRIVER quelque part, pas seulement y
+   être écrit. Le collecteur qui retient quelque chose est une case OCCUPÉE, donc il
+   prend la teinte et le relief du jeton — comme n'importe quelle autre. Son liseré
+   de rôle (le seul de l'écran) reste par-dessus : il dit qu'il retient, la teinte dit
+   CE QU'il retient. */
+.gear-emplacement[data-occupe],
+.gear-collecteur[data-occupe] {
   border-color: var(--border-strong);
   background: var(--jeton-teinte); box-shadow: var(--relief);
   /* Eric, 16/09 : « un peu de place au-dessus pour marquer le statut équipé,
