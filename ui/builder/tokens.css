@@ -1010,8 +1010,12 @@
      la lumière AUTOUR d'un objet déjà pleinement présent — il faut donc examiner le
      pourtour pour savoir. Une image qui n'est presque pas là dit son état par sa
      PRÉSENCE même, au premier coup d'œil, et sans rien ajouter à l'écran.
-     📏 10 % pour commencer ; 5 % est à un mot d'Eric. */
-  --tally-eteint: .10;
+     📏 20 % — ET C'EST MESURÉ À L'ŒIL, PAS DEVINÉ : posé d'abord à 10 %, Eric l'a vu
+     sur le fond clair et a tranché *« il faut plus que 5 %, passe à 20 % »*. En
+     dessous, le parchemin ne disparaît pas seulement : on cesse de savoir qu'il y a
+     quelque chose là, et un organe qu'on ne sait pas trouver n'est plus éteint, il
+     est absent. ⭐ Le voile dit « rien dedans », il ne doit pas dire « rien ici ». */
+  --tally-eteint: .20;
   --icone-parchemin: url("./assets/parchemin.webp?v=637");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
