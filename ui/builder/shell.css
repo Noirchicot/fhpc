@@ -9209,6 +9209,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-emplacement[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 /* retenu par le collecteur, en attente d'envoi : l'état est sur le nœud
    (`data-collecte`), c'est le collecteur qui le montre — pas de liseré ici. */
+/* la case VISÉE par un jeton en vol s'allume, comme le collecteur (le seul
+   liseré de couleur hors collecteur : l'instant du dépôt, pas un état) */
+.gear-emplacement[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
 
 /* — LES TROIS VOYANTS — ⛔ des voyants, pas des boutons : on les lit, on ne
    les tape pas, le plancher de 44 ne s'applique pas (artefact 15/09). Eric :

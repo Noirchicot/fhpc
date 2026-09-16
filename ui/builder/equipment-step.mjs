@@ -316,7 +316,9 @@ export function currentGearLines(document) {
   const byIndex = new Map();
   /* `location` (PIPELINE 24/08) : self | backpack | storage — facultative,
      absente = « backpack » (rien n'est porté sans geste). */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location))?$/;
+  /* `boite` (LOT 212) : l'emplacement CHOISI au doigt sur R — facultatif, une
+     ligne sans boîte se range par son slot (`attribuerBoites`). */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -326,6 +328,7 @@ export function currentGearLines(document) {
     if (match[2] === "quantity") line.quantity = choice.value;
     else if (match[2] === "equipped") line.equipped = choice.value;
     else if (match[2] === "location") line.location = choice.value;
+    else if (match[2] === "boite") line.boite = choice.value;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -1798,12 +1801,20 @@ function candidatesDuSlot(slot) {
 }
 function attribuerBoites(portees, cherche) {
   const prises = new Map();
+  const pose = (ligne, boite) => prises.set(boite, { nom: ligne.nomAffiche, qte: ligne.quantity || 1, index: ligne.index, equipped: ligne.equipped === true });
+  /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
+     déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle
+     est libre ; la règle du slot ne sert qu'aux autres. */
   for (const ligne of portees) {
+    if (ligne.boite && !prises.has(ligne.boite)) pose(ligne, ligne.boite);
+  }
+  for (const ligne of portees) {
+    if (ligne.boite && prises.get(ligne.boite)?.index === ligne.index) continue;
     const libre = candidatesDuSlot(cherche.slot(ligne.ref)).find((b) => !prises.has(b));
     /* LOT 212 — la boîte porte aussi l'INDEX (le collecteur retient des lignes)
        et l'état ÉQUIPÉ (le voyant ⭕). `attuned`/`locked` : pas de lecteur tant
        que X1 n'écrit pas la donnée (Archi 34, 16/09). */
-    if (libre) prises.set(libre, { nom: ligne.nomAffiche, qte: ligne.quantity || 1, index: ligne.index, equipped: ligne.equipped === true });
+    if (libre) pose(ligne, libre);
   }
   return Object.fromEntries(prises);
 }
@@ -1836,7 +1847,7 @@ export function renderEquipmentStep(ctx, onAction) {
      « self » sans boîte libre devient « backpack », l'objet va au sac. */
   function actArbitre(a) {
     if ((a.kind === "addGearLine" || a.kind === "moveGearLine") && a.location === "self") {
-      const prises = new Set(Object.keys(attribuerBoites(lignesParLieu(lignes, "self"), cherche)));
+      const prises = new Set(Object.keys(attribuerBoites(surR(), cherche)));
       const ref = a.ref || (lignes.find((l) => l.index === a.index) || {}).ref;
       const libre = candidatesDuSlot(cherche.slot(ref)).some((b) => !prises.has(b));
       if (!libre) a = { ...a, location: "backpack", equipped: false };
@@ -1877,9 +1888,12 @@ export function renderEquipmentStep(ctx, onAction) {
     for (const index of retenus) actArbitre({ kind: "moveGearLine", index, location });
     peindre();
   }
+  /* les lignes qui vivent sur R : portées (self) et au sol (ground — « tu portes
+     pas, tu n'équipes pas », Eric 16/09) ; le sac et la remise sont ailleurs */
+  const surR = () => lignes.filter((l) => ["self", "ground"].includes(l.location || "backpack"));
   function construireGear() {
     const { noeud } = construireLEcranGear({
-      boites: attribuerBoites(lignesParLieu(lignes, "self"), cherche),
+      boites: attribuerBoites(surR(), cherche),
       bourse,
       compteTally: cartCompte(docu),
       collecte: collecteEnvoi,
@@ -1893,7 +1907,10 @@ export function renderEquipmentStep(ctx, onAction) {
         if (id === "tally") montrer("sb32");
         /* purse : ⏳ le popup de la bourse attend sa cote dans la table (Archi 34) */
       },
-      surCollecte: (index) => { collecteEnvoi.add(index); peindre(); },
+      /* un seul objet dans le collecteur (Eric, 16/09) — la cible se ferme, ceinture ici */
+      surCollecte: (index) => { if (collecteEnvoi.size === 0) { collecteEnvoi.add(index); peindre(); } },
+      /* posé sur un emplacement : la boîte devient un choix du personnage */
+      surPlacer: (index, boite) => { collecteEnvoi.delete(index); act({ kind: "placerGearLine", index, boite }); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
     });
 

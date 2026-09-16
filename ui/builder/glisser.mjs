@@ -1245,3 +1245,13 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
   if (motDuPied) bloc.append(el("p", "glisse-consigne", [text(motDuPied)]));
   return bloc;
 }
+
+/* ══ LOT 212 — LE FANTÔME S'EXPORTE ═══════════════════════════════════════
+   Eric, 16/09, sur l'écran R : *« ils ont un fantôme »*. Les jetons posés sur
+   le pantin se glissent (vers le collecteur, vers un autre emplacement) et
+   doivent suivre le doigt comme ceux d'un vivier. ⛔ Pas une seconde copie
+   du fantôme dans `gear-ecran.mjs` : les trois gestes ci-dessus sont LE
+   fantôme du dépôt, ils s'exportent tels quels. La copie porte les classes
+   du jeton d'origine + `glisse-fantome` : c'est l'habit de l'organe copié qui
+   la peint (`.gear-emplacement` pour R), montée dans `.app` pour l'échelle. */
+export const fantome = { lever: fantomeLever, suivre: fantomeSuivre, ranger: fantomeRanger };

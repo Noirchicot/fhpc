@@ -309,10 +309,13 @@ test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réé
    `.equipped` de la boucle des suffixes laisserait des choix orphelins dans
    `build.choices` — mesuré de la même façon que ci-dessus (aucun garde
    comportemental ne relit `shell.mjs`). */
-test("garde — shell.mjs retire VRAIMENT les trois chemins de removeGearLine (pas seulement le ref)", () => {
+test("garde — shell.mjs retire VRAIMENT les cinq chemins de removeGearLine (pas seulement le ref)", () => {
+  /* LOT 212 : `.location` (pipeline) et `.boite` (l'emplacement choisi sur R)
+     partent avec la ligne — deux orphelines de plus, sinon. Réécrit à la
+     nouvelle vérité, non relâché : les trois d'avant y sont toujours. */
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /\[""\s*,\s*"\.quantity"\s*,\s*"\.equipped"\]/,
-    "sans les trois suffixes, un retrait laisserait `gear[N].quantity`/`gear[N].equipped` orphelins dans build.choices");
+  assert.match(shellText, /\[""\s*,\s*"\.quantity"\s*,\s*"\.equipped"\s*,\s*"\.location"\s*,\s*"\.boite"\]/,
+    "sans les cinq suffixes, un retrait laisserait `gear[N].quantity`/`.equipped`/`.location`/`.boite` orphelins dans build.choices");
 });
 
 /* ══ LOT 181 — LES GEMMES, ET LA LISTE DE GENRES QUI AVAIT SURVÉCU ═══════

@@ -60,7 +60,7 @@
 
 import * as D from "./gear-disposition.mjs?v=632";
 import { BOITES } from "./b3-disposition.mjs?v=632";
-import { armerJeton } from "./glisser.mjs?v=632";
+import { armerJeton, fantome } from "./glisser.mjs?v=632";
 import { versionQuery } from "./version.mjs?v=632";
 import { enGP } from "./equipement-pipeline.mjs?v=632";
 
@@ -213,6 +213,10 @@ function emplacement(o, id, pose, options) {
   if (!pose) {
     e.append(poserLeLibelle(eld("span", "gear-nom"), mot));
     e.setAttribute("aria-label", `${mot} — empty`);
+    /* vide, c'est une CIBLE : Eric, 16/09 — « les items peuvent se déplacer dans
+       tous les sens ». Occupée, elle n'en est plus une (une case tient une chose). */
+    e.dataset.creneau = id;
+    e.dataset.vise = "false";
     return e;
   }
   /* ⚖️ Eric, 16/09 (b) : le nom du slot S'EFFACE quand un objet est posé — comme
@@ -235,24 +239,31 @@ function emplacement(o, id, pose, options) {
   if (options.collecte && options.collecte.has(pose.index)) e.dataset.collecte = "oui";
   e.setAttribute("aria-label",
     `${mot} — ${pose.nom}${pose.qte > 1 ? ` ×${pose.qte}` : ""}${pose.equipped ? ", equipped" : ""}`);
-  /* Le geste : glisser vers le collecteur. Le tap (la fiche X1) n'est pas de ce lot. */
+  /* Le geste : glisser vers le collecteur, ou vers n'importe quel emplacement
+     vide (Eric, 16/09 : « dans tous les sens ») — avec le fantôme du dépôt
+     (« ils ont un fantôme »). Le tap (la fiche X1) n'est pas de ce lot. */
   armerJeton(e, {
     onTap: () => {},
+    onLever: (x, y) => fantome.lever(e, x, y),
+    onBouger: (x, y) => fantome.suivre(x, y),
+    onPoser: () => fantome.ranger(),
     onDepot: (creneau) => {
-      if (creneau === "collecteur" && options.surCollecte) options.surCollecte(pose.index);
+      if (creneau === "collecteur") { if (options.surCollecte) options.surCollecte(pose.index); }
+      else if (options.surPlacer) options.surPlacer(pose.index, creneau);
     }
   });
   return e;
 }
 
-/** Le collecteur d'envoi — UN jeton (loi du 29/08), la seule cible de dépôt
- *  de cet écran. `data-compte` dit ce qu'il retient ; Send le vide. */
+/** Le collecteur d'envoi — UN jeton (loi du 29/08), et il ne retient qu'UN objet :
+ *  Eric, 16/09 — *« un item dans le collecteur, pas 2 ; si on veut plus c'est un
+ *  Tally »*. Plein, il cesse d'être une cible (plus de `data-creneau`) : un
+ *  second dépôt ne fait rien. `data-compte` dit ce qu'il retient ; Send le vide. */
 function collecteur(id, options) {
   const c = eld("div", "gear-collecteur");
   c.dataset.organe = id;
-  c.dataset.creneau = "collecteur";
-  c.dataset.vise = "false";
   const n = options.collecte ? options.collecte.size : 0;
+  if (n === 0) { c.dataset.creneau = "collecteur"; c.dataset.vise = "false"; }
   c.dataset.compte = String(n);
   c.append(eld("span", "gear-nom", "Send collector"));
   c.append(eld("span", "gear-objet", n ? `${n} to send` : ""));
@@ -359,6 +370,7 @@ function rangee(options) {
  * @param {(id:string)=>void} [options.surPorte]      backpack · send · wares
  * @param {(id:string)=>void} [options.surBouton]     purse · tally
  * @param {(index:number)=>void} [options.surCollecte]
+ * @param {(index:number, boite:string)=>void} [options.surPlacer]   un jeton posé sur un emplacement vide
  * @param {(valeur:string)=>void} [options.surDestination]
  * @param {{href?:string}} [options.livreDe]
  * @returns {{ noeud: HTMLElement }}

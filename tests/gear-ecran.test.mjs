@@ -206,12 +206,25 @@ test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois 
   assert.equal(nom.querySelectorAll("wbr").length, 1, "la barre est une occasion de retour, pas un retour (« on superpose quand ça dépasse »)");
 });
 
-test("5 ter — le collecteur est la seule cible de dépôt, et il compte ce qu'il retient", () => {
-  const n = rendu({ collecte: new Set([1, 4]) });
-  const cibles = tous(n, "[data-creneau]");
-  assert.deepEqual(cibles.map((c) => c.dataset.creneau), ["collecteur"]);
-  assert.equal(cibles[0].dataset.compte, "2");
-  assert.equal(rendu({}).querySelector('[data-organe="collecteur"]').dataset.compte, "0");
+test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur VIDE (Eric, 16/09 : « dans tous les sens », « un item, pas 2 »)", () => {
+  const vide = rendu({});
+  const cibles = tous(vide, "[data-creneau]").map((c) => c.dataset.creneau).sort();
+  const emplacements = jetons.map((j) => CLEF_DE[j.nom]).sort();   // 20 emplacements + le collecteur
+  assert.deepEqual(cibles, emplacements, "vide, chaque emplacement est une cible, le collecteur aussi");
+  assert.equal(vide.querySelector('[data-organe="collecteur"]').dataset.compte, "0");
+  /* occupé, un emplacement n'est plus une cible (une case tient une chose) ; plein, le collecteur non plus */
+  const plein = rendu({ boites: { tete1: { nom: "Helm", qte: 1, index: 3, equipped: true } }, collecte: new Set([3]) });
+  assert.equal(plein.querySelector('[data-organe="tete1"]').dataset.creneau, undefined, "occupé : plus une cible");
+  assert.equal(plein.querySelector('[data-organe="collecteur"]').dataset.creneau, undefined, "plein : le collecteur n'accepte pas un second objet");
+  assert.equal(plein.querySelector('[data-organe="collecteur"]').dataset.compte, "1");
+});
+
+test("5 ter bis — 🔴 shell.mjs porte le geste `placerGearLine` : la boîte choisie est un choix du personnage, le sol n'équipe pas", () => {
+  const shellText = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+  assert.ok(shellText.includes('action.kind === "placerGearLine"'), "le geste existe dans la coquille");
+  assert.match(shellText, /gear\[\$\{action\.index\}\]\.boite/, "il écrit `gear[N].boite`");
+  assert.match(shellText, /auSol \? "ground" : "self"/, "le sol est le troisième état : location « ground »");
+  assert.match(shellText, /value: !auSol/, "…jamais équipé au sol (Eric : « tu portes pas, tu n'équipes pas »)");
 });
 
 test("5 quater — les portes et les boutons publient leur geste ; Companions et le livre sans cible sont `disabled`", () => {

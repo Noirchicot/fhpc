@@ -2075,6 +2075,22 @@ function applyDecisionAction(action) {
   /* PIPELINE (24/08) — DÉPLACER une ligne à l'intérieur du personnage :
      self ↔ backpack ↔ storage. `equipped` SUIT la position (porté = self),
      jamais l'inverse — une seule écriture de la vérité. */
+  /* LOT 212 — PLACER une ligne dans un emplacement de R, au doigt (Eric, 16/09 :
+     « les items peuvent se déplacer dans tous les sens »). La boîte est un CHOIX
+     du personnage (`gear[N].boite`), comme la position. Le sol (`sol1`, `sol2`)
+     est le troisième état d'une boîte — *« ground : tu portes pas, tu n'équipes
+     pas »* : `location: "ground"`, jamais équipé. Ailleurs sur R : porté. */
+  if (action.kind === "placerGearLine") {
+    let document = state.document;
+    const auSol = /^sol\d+$/.test(String(action.boite));
+    document = verbs.set({ document, path: `gear[${action.index}].boite`, value: action.boite }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].location`, value: auSol ? "ground" : "self" }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: !auSol }).document;
+    state.document = document;
+    rebuild();
+    refresh();
+    return;
+  }
   if (action.kind === "moveGearLine") {
     let document = state.document;
     document = verbs.set({ document, path: `gear[${action.index}].location`, value: action.location }).document;
@@ -2189,7 +2205,9 @@ function applyDecisionAction(action) {
      `tests/build-derive.test.mjs`, « SRD PUR »). */
   if (action.kind === "removeGearLine") {
     let document = state.document;
-    for (const suffix of ["", ".quantity", ".equipped"]) {
+    /* LOT 212 : `.location` et `.boite` partent avec la ligne — deux orphelines de
+       plus, sinon (une boîte sans objet, une position sans rien à poser). */
+    for (const suffix of ["", ".quantity", ".equipped", ".location", ".boite"]) {
       document = verbs.clear({ document, path: `gear[${action.index}]${suffix}`, kind: "choice" }).document;
     }
     state.document = document;
