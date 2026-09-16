@@ -8594,7 +8594,21 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    bouton à glyphe (`+`, `?`) n'en porte pas ; ceux-ci, si. */
 .ability-entry,
 .gear-porte /* LOT 212 — les trois portes du pied de R : Backpack · Send · Wares */ {
-  --bouton-fond: var(--text-muted);
+  /* 🔴 LE DÉFAUT EST `transparent` DEPUIS LE 16/09, ET C'EST TOUT LE
+     RECÂBLAGE — Eric : *« la couleur du liseré = la couleur du bouton
+     d'origine »*, et *« le bouton gris n'a pas de liseré »*.
+     ⭐ CE JETON A CHANGÉ DE MÉTIER SANS CHANGER DE NOM. Il peignait le CORPS ;
+     le relief porte maintenant sa propre matière, donc il ne colore plus que
+     l'ANNEAU. Il suffit que son défaut cesse d'être une couleur pour que le
+     gris perde son liseré — et les 24 déclarations qui le posent ailleurs
+     (7 `--positive`, 7 `--info`, 6 `--critical`, 4 `--text-muted`) deviennent
+     des couleurs de liseré **sans qu'on en touche une seule**.
+     ⛔ ET LES TEINTES RESTENT CELLES DU SITE, pas celles du dessin livré
+     (#599b77 · #6488aa · #bb6860). Raison, tranchée avec Eric : la couleur
+     d'un bouton et celle de son anneau sont le MÊME fait, pas deux réglages à
+     synchroniser — un liseré qui ne suivrait pas `--positive` mentirait le
+     jour où le thème bouge. */
+  --bouton-fond: transparent;
   /* 🔴 LA COUPE ET L'OMBRE NE PEUVENT PAS TENIR SUR LE MÊME ÉLÉMENT, ET C'EST
      MESURÉ (26/08, Chrome 151 sans écran, sonde à quatre variantes) : un
      `clip-path` s'applique APRÈS le `filter`, donc il rogne l'ombre portée que
@@ -8663,18 +8677,30 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      jamais écrit en littéral : 40 peut rebouger, les 2 suivront seuls. */
   inset: var(--bouton-retrait-v) 0;
   z-index: -2;
-  background-color: var(--bouton-fond);
-  background-image: var(--bouton-biseau);
-  clip-path: polygon(
-    var(--bouton-coupe) 0,
-    calc(100% - var(--bouton-coupe)) 0,
-    100% var(--bouton-coupe),
-    100% calc(100% - var(--bouton-coupe)),
-    calc(100% - var(--bouton-coupe)) 100%,
-    var(--bouton-coupe) 100%,
-    0 calc(100% - var(--bouton-coupe)),
-    0 var(--bouton-coupe)
-  );
+  /* 🔴 LE RELIEF REMPLACE LES DEUX OCTOGONES PEINTS — Eric, 2026-09-16 :
+     *« le design, ça reste le bouton avec liseret sur les boutons petits et
+     larges »*.
+     ⭐ `border-image` COUPE LA TUILE EN NEUF ZONES : les quatre coins posés
+     sans déformation, les bords étirés chacun dans sa seule direction, `fill`
+     pour le centre. Une tuile de 24 habille donc 77 comme 159 — et c'est ce
+     qu'il fallait, puisque les largeurs du site suivent le mot : mesuré,
+     `Expert view` rend 105,85 et `Turn tutorials off` 159,44, deux cotes qu'un
+     SVG figé ne couvre pas.
+     📐 ET LA HAUTEUR TOMBE JUSTE SANS RIEN REDIMENSIONNER : ce pseudo est déjà
+     en retrait de `--bouton-retrait-v`, donc il fait 40 dans une cible de 44 —
+     l'image y rend sa hauteur native.
+     ⛔ `--bouton-fond` NE PEINT PLUS LE CORPS : le relief porte sa propre
+     matière, la même pour tous les boutons. Ce jeton ne sert plus qu'à colorer
+     l'ANNEAU, sur `::after`. C'est ce qui rend le recâblage inutile — les 24
+     déclarations qui le posent deviennent des couleurs de liseré sans qu'on en
+     touche une seule.
+     ⚠️ Le `clip-path` a disparu avec elles, et l'octogone est maintenant DANS
+     l'image : ne pas le remettre ici, il rognerait la tuile. */
+  border-image-source: var(--bouton-relief);
+  border-image-slice: 8 8 12 8 fill;
+  border-image-width: 8px 8px 12px 8px;
+  border-style: solid;
+  border-color: transparent;
 }
 
 /* 🔴 LA FACE EN RETRAIT — le second octogone laisse visible un ruban tout
@@ -8702,20 +8728,18 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   /* la face suit le corps : le retrait vertical du dessin, PLUS son propre
      biseau. ⛔ Ne pas écrire `calc(2px + 1.5px)` — les deux nombres ont chacun
      leur nom et leur raison, et ils ne bougent pas ensemble. */
-  inset: calc(var(--bouton-retrait-v) + var(--bouton-biseau-epaisseur)) var(--bouton-biseau-epaisseur);
+  /* 🔴 CE PSEUDO N'EST PLUS LA FACE, C'EST L'ANNEAU DU LISERÉ — 16/09.
+     La face bombée est passée DANS la tuile du relief (`::before`) ; ce qui
+     reste ici est le seul organe qui porte encore une couleur de rôle.
+     ⭐ ET IL EST ALIGNÉ SUR LE CORPS, PAS EN RETRAIT DE SON BISEAU : l'anneau
+     est dessiné dans le repère de la tuile (ses sommets valent 2 et 3,4 depuis
+     le bord), donc il doit partager exactement la boîte du relief. */
+  inset: var(--bouton-retrait-v) 0;
   z-index: -1;
-  background-color: var(--bouton-fond);
-  background-image: var(--bouton-bombage);
-  clip-path: polygon(
-    var(--bouton-coupe) 0,
-    calc(100% - var(--bouton-coupe)) 0,
-    100% var(--bouton-coupe),
-    100% calc(100% - var(--bouton-coupe)),
-    calc(100% - var(--bouton-coupe)) 100%,
-    var(--bouton-coupe) 100%,
-    0 calc(100% - var(--bouton-coupe)),
-    0 var(--bouton-coupe)
-  );
+  /* ⛔ UNE COULEUR PLEINE, PAS UN DÉGRADÉ : c'est le `clip-path` qui fait
+     l'anneau en creusant le milieu, pas la peinture. */
+  background: var(--bouton-fond);
+  clip-path: var(--bouton-anneau);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -8773,7 +8797,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    Même place que `.parcours-annuler` juste au-dessus, même raison. */
 .parcours-pied button.tdc-vert { --bouton-fond: var(--positive); }   /* Open · Save — verts (Eric) */
 .parcours-pied button.tdc-porte { --bouton-fond: var(--info); }      /* une porte NAVIGUE : bleue */
-.parcours-pied button.tdc-porte:disabled { --bouton-fond: var(--text-muted); } /* réservée : grise */
+.parcours-pied button.tdc-porte:disabled { --bouton-fond: transparent; } /* réservée : GRISE, donc SANS liseré — Eric, 16/09 : « le bouton gris n'a pas de liseré ». ⛔ Ce n'était pas couvert par le seul changement de défaut : cette ligne posait `--text-muted` EXPLICITEMENT, et un gris explicite peint un anneau gris. Mesuré au navigateur : `DM` et `Tools` rendaient rgb(146,140,127) autour d'eux. */
 
 /* ── LE MOUVEMENT NON IMPACTANT — bleu ───────────────────────────────────
    ⛔ Le test de §6 tient en une question : *après ce clic, le document a-t-il
@@ -8873,7 +8897,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    `font-weight: 600` : la tuile choisie reste distincte **par la graisse**, ce
    qui dissout l'objection *« quatre tuiles bleues affaiblissent le choix »*. */
 .ability-entry { --bouton-fond: var(--info); }
-.ability-entry:disabled { --bouton-fond: var(--text-muted); }
+.ability-entry:disabled { --bouton-fond: transparent; } /* désarmée : pas de liseré, même raison qu'au-dessus */
 
 /* ══ 📏 LES DEUX COTES DU BOUTON À MOT — Eric, 2026-09-06 ═════════
    *« je veux une taille standard pour tous les petits boutons sur tout le
