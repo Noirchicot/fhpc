@@ -89,24 +89,34 @@ export const PILE = 8;
 export const BOITES = [
   { clef: "forge1",  nom: "Body forging",    x: 11,  y: 12,  attunable: true },
   { clef: "forge2",  nom: "Body forging 2",  x: 11,  y: 68,  attunable: true, optionnelle: true },
-  { clef: "tete1",   nom: "Head gear 1",     centre: true, y: 36,  attunable: true },
-  { clef: "tete2",   nom: "Head gear 2",     centre: true, y: 92,  attunable: true },
+  /* ⚖️ LOT 212 — LES LIBELLÉS SONT CEUX DU CROQUIS D'ERIC (15/09), LES CLEFS
+     NE BOUGENT PAS (Archi 34, 16/09 : « libellés du plan, clefs du dépôt — on
+     ne renomme pas sous un lien »). `Sheath` et `Pocket/Sheath` sont périmés :
+     ARM/HANDS, POCKET/WEAPON, EXTRA STORAGE, HEAD/FACE, TORSO/BACK, FOOT/LEGS.
+     ⚠️ EXTRA STORAGE est numéroté par COLONNE au plan (1·2 à gauche, 3·4 à
+     droite) : `poche2` (en haut à droite) porte donc le 3. */
+  { clef: "tete1",   nom: "Head/face 1",     centre: true, y: 36,  attunable: true },
+  { clef: "tete2",   nom: "Head/face 2",     centre: true, y: 92,  attunable: true },
   /* la PAIRE du torse : DEUX boîtes pleines de 87, à 4 px (« 4 pixels entre
      torso 1 et 2 »), centrées ENSEMBLE — deux clefs vraies, pour que la
      carte slot → boîte ne vise jamais un fantôme. */
-  { clef: "torse1",  nom: "Torso gear 1",    x: 90,  y: 165, attunable: true },
-  { clef: "torse2",  nom: "Torso gear 2",    x: 181, y: 165, attunable: true },
-  { clef: "fourreau1",   nom: "Sheath 1",          x: 40,  y: 224, attunable: true },
-  { clef: "fourreau2",   nom: "Sheath 2",          x: 232, y: 224, attunable: true },
+  { clef: "torse1",  nom: "Torso/back 1",    x: 90,  y: 165, attunable: true },
+  { clef: "torse2",  nom: "Torso/back 2",    x: 181, y: 165, attunable: true },
+  /* LOT 212 — le plan du 15/09 (Eric) en compte TROIS : la troisième entre à
+     4 de la deuxième, comme la paire. Sur R sa place vient de la table
+     générée ; ici la cote ne sert plus qu'au banc de l'ancienne scène. */
+  { clef: "torse3",  nom: "Torso/back 3",    x: 272, y: 165, attunable: true },
+  { clef: "fourreau1",   nom: "Arm/hands 1",       x: 40,  y: 224, attunable: true },
+  { clef: "fourreau2",   nom: "Arm/hands 2",       x: 232, y: 224, attunable: true },
   { clef: "ceinture", nom: "Belt",           centre: true, y: 250, attunable: true },
-  { clef: "fourreau3",   qte: "lateral", nom: "Pocket/Sheath 3",   x: 40,  y: 280, attunable: true },
-  { clef: "fourreau4",   qte: "lateral", nom: "Pocket/Sheath 4",   x: 232, y: 280, attunable: true },
-  { clef: "pied1",   nom: "Foot/leg gear 1", centre: true, y: 341, attunable: true },
-  { clef: "poche1",  qte: "medial", nom: "Pocket 1",        x: 11,  y: 377, attunable: true },
-  { clef: "poche2",  qte: "medial", nom: "Pocket 2",        x: 261, y: 377, attunable: true },
-  { clef: "pied2",   nom: "Foot/leg gear 2", centre: true, y: 397, attunable: true },
-  { clef: "poche3",  qte: "medial", nom: "Pocket 3",        x: 11,  y: 433, attunable: true },
-  { clef: "poche4",  qte: "medial", nom: "Pocket 4",        x: 261, y: 433, attunable: true },
+  { clef: "fourreau3",   qte: "lateral", nom: "Pocket/weapon 1",   x: 40,  y: 280, attunable: true },
+  { clef: "fourreau4",   qte: "lateral", nom: "Pocket/weapon 2",   x: 232, y: 280, attunable: true },
+  { clef: "pied1",   nom: "Foot/leg 1",      centre: true, y: 341, attunable: true },
+  { clef: "poche1",  qte: "medial", nom: "Extra storage 1", x: 11,  y: 377, attunable: true },
+  { clef: "poche2",  qte: "medial", nom: "Extra storage 3", x: 261, y: 377, attunable: true },
+  { clef: "pied2",   nom: "Foot/leg 2",      centre: true, y: 397, attunable: true },
+  { clef: "poche3",  qte: "medial", nom: "Extra storage 2", x: 11,  y: 433, attunable: true },
+  { clef: "poche4",  qte: "medial", nom: "Extra storage 4", x: 261, y: 433, attunable: true },
 ];
 
 /** ⭐ SLOT → BOÎTES — RATIFIÉ PAR ERIC LE 24/08, ligne à ligne : « neck non,
@@ -122,8 +132,8 @@ export const SLOT_VERS_BOITES = {
   head:     ["tete1", "tete2"],
   eyes:     ["tete1", "tete2"],
   neck:     ["tete1", "tete2"],
-  torso:    ["torse1", "torse2"],
-  back:     ["torse1", "torse2"],
+  torso:    ["torse1", "torse2", "torse3"],   /* LOT 212 — la troisième boîte du plan */
+  back:     ["torse1", "torse2", "torse3"],
   waist:    ["ceinture"],
   forearms: ["fourreau1", "fourreau2", "fourreau3", "fourreau4"],
   hands:    ["fourreau1", "fourreau2", "fourreau3", "fourreau4"],

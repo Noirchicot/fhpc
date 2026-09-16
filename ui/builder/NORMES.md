@@ -1516,8 +1516,25 @@ les pans, et l'objet se lit comme un aplat portant une ombre plutôt que comme u
 | **la projection de nuit** | reste une lueur blanche |
 
 ⭐ **Le médium change, pas la forme** : un premier octogone peint l'arête ; un second, en retrait,
-repeint la face bombée. Le ruban visible entre les deux suit mécaniquement les huit côtés. La coupe
-extérieure reste `--bouton-coupe` **10**, les cotes et l'opacité ne bougent pas.
+repeint la face bombée. Le ruban visible entre les deux suit mécaniquement les huit côtés. ~~La coupe
+extérieure reste `--bouton-coupe` **10**~~, les cotes et l'opacité ne bougent pas.
+
+🔴 **LA COUPE EST À 8 DEPUIS LE 16/09, ET LE REBORD À 2** *(lot 209)* — la valeur **10** était
+**antérieure au dessin**. Le bouton à relief qu'Eric a regardé et approuvé est construit sur une
+coupe de **8** et un rebord de **2** : les deux cotes viennent du même dessin, et en garder une sans
+l'autre reviendrait à décider à la place du dessinateur sur un équilibre qu'il a réglé à l'œil.
+⚖️ **Décidé par la session `documents-08` sous délégation explicite d'Eric** — *« prends la décision
+pour moi ça me saoule »*, 16/09. ⛔ **Ce n'est donc pas une décision d'Eric**, et c'est écrit ainsi
+exprès : il a approuvé **le dessin**, pas ce nombre. Le bouton hybride *(coin 10 + rebord 2)* n'a
+jamais été validé par personne — c'était un objet fabriqué pour poser une question.
+📏 **Mesuré avant et après le changement**, sur le builder servi, échelle 1,3653 : les huit boutons
+du pied rendent **77 × 44 blg** à coupe 10 **et** à coupe 8. ⭐ **Aucune cote ne bouge — seule la
+forme change**, ce qui est exactement ce que §6 exige de ce chapitre.
+⚠️ **Et la cote du coin n'est pas celle du bord** : à un retrait parallèle `i`, le sommet d'une
+diagonale se décale de `i × (√2 − 1)`, jamais de `i`. C'est ce qui garde l'épaisseur **constante**
+dans les pans coupés. ⛔ Mesurer cette épaisseur **entre deux sommets** donne **1,5153** et ne veut
+rien dire : elle se mesure **perpendiculairement au bord**, et vaut alors **1,4** — comme sur un bord
+droit. Deux nombres voisins qui ne mesurent pas la même grandeur.
 
 🔴 **Le liseré d'une zone de drop porte la couleur du corps du jeton attendu** — la cible annonce
 ce qu'elle accepte avant qu'on lâche.
@@ -3925,14 +3942,62 @@ gabarits**. ⚠️ À T4, `medium` n'a plus que 8 px — **un mot un peu large d
 se verrait que sur ce gabarit-là.
 
 ### La hauteur
-📍 `bouton-hauteur` · vivante · 26/08
-⚖️ **Un bouton fait 44 à un étage, 48 à deux étages en T3, 56 à deux étages en T4.**
+📍 `bouton-hauteur` · vivante · 26/08 · **amendée 16/09 — le dessin et la cible se séparent**
+⚖️ **Le DESSIN d'un bouton fait 40, sa CIBLE tactile reste 44 — le dessin est centré, la cible déborde de 2 en haut et de 2 en bas.**
 
-| | |
-|---|---|
-| **un étage** | 🔴 **44** — le texte n'en demande que ~33, **c'est `--touch` qui décide** |
-| **deux étages** *(T3)* | **48** |
-| **deux étages** *(T4)* | **56** |
+> Eric, 2026-09-16 : *« passe tous les boutons à hauteur **40 blg** (cible tactile reste à **44**
+> donc dépasse de 2 au dessus et en dessous) »*.
+
+🔴 **DEUX COTES LÀ OÙ IL N'Y EN AVAIT QU'UNE.** Jusqu'au 16/09 cette règle disait *« un bouton fait
+44 »*, et `--touch` servait à la fois de zone touchable et de hauteur peinte. Elles se séparent :
+ce qui rétrécit est le **dessin**, jamais la **cible**.
+⛔ **`jeton-sacre` n'est pas entamé** — *« les jetons et les boutons sont SACRÉS : leur cote et leur
+corps ne cèdent jamais »*. Le pouce garde ses 44 blg exactement comme avant.
+⭐ **Et le dépôt connaissait déjà cette distinction sans l'appliquer au bouton** : l'astre du belt
+porte `--astre-dessin` / `--astre-cible` depuis le 15/09. Le 16/09 ne l'invente pas, il l'étend.
+
+📏 **MESURÉ SUR LE SITE, avant et après le changement** *(builder servi, sous `.app`)* :
+
+| | cible rendue | dessin peint | retrait |
+|---|---:|---:|---:|
+| **avant** | 77 × **44** | **44** | 0 / 0 |
+| **après** | 77 × **44** | **40** | **2** en haut · **2** en bas |
+
+⭐ **La cible est inchangée au centième** — c'est la preuve que la loi sacrée tient.
+📐 Le retrait **se dérive** (`--bouton-retrait-v`, moitié de l'écart entre les deux cotes) : ⛔ ne
+jamais l'écrire en littéral, sinon 40 peut rebouger sans que les 2 suivent.
+
+### Les cotes de chaque famille — Eric, 16/09
+📍 `bouton-cotes-par-famille` · vivante · 16/09
+⚖️ **Chaque famille de bouton a sa cote de DESSIN, et toutes partagent la même cible de 44 : petit 77 × 40 · large 105 × 40 · carré 44 × 44 · `+`/`−` 40 × 40 · collecteur de caractéristique 48 × 44 · collecteur classique 87 × 48.**
+
+| famille | dessin | cible |
+|---|---:|---:|
+| **petit** *(`Cancel`, `Next`, `Done`…)* | **77 × 40** | 77 × 44 |
+| **large** *(`Inheritance`…)* | **105 × 40** | 105 × 44 |
+| **carré** *(le Tally, la bourse)* | **44 × 44** | 44 × 44 |
+| **`+` / `−`** | **40 × 40** | 44 × 44 |
+| **dropdown / collecteur de caractéristique** | **48 × 44** | — |
+| **dropdown / collecteur classique** | **87 × 48** | — |
+
+⛔ **LE BELT EST HORS DE CETTE NORME — Eric, 16/09 : *« le belt is off limits de tout ça »***.
+La lune et le soleil ne figurent pas dans le tableau, et leurs jetons (`--astre-dessin` 41) ne
+sont pas touchés. J'avais écrit la lune à Ø 40 et fait passer `--astre-dessin` à 40 : les deux
+sont annulés. ⭐ Le belt appartient au lot 207, fusionné et en ligne ; **une cote juste posée dans
+le mauvais lot reste une cote posée par quelqu'un qui n'en répond pas.**
+
+⭐ **Le CARRÉ est le seul dont le dessin égale sa cible** : à 44 il remplit la zone touchable et n'a
+aucune marge à laisser. Tous les autres sont à 40 dans 44.
+⭐ **Et le collecteur classique était DÉJÀ juste** : `--glisse-case` 87 × `--glisse-h` 48 rendaient
+exactement ces cotes avant qu'on les redemande. Une cote déduite de la place a tenu quand elle a
+été redictée de mémoire.
+
+⏳ **DEUX ÉTAGES — RÈGLE CONSERVÉE, PREUVE SUSPENDUE.** Cette section disait *« 48 à deux étages en
+T3, 56 en T4 »*. Ces deux nombres sont **déduits**, jamais mesurés.
+📏 **Mesuré le 16/09**, un bouton à deux lignes, corps 16/600, `line-height: normal` : **38,82 blg**
+— il tenait dans 44 avec 5,18 de reste. ⚠️ **Dans 40 il ne reste plus que 1,18**, soit 0,59 de
+chaque côté. ⛔ **Aucune de ces trois valeurs — 48, 56, 40 à deux étages — ne se reconduit sans une
+mesure neuve**, et celle du 16/09 ne porte que sur UN bouton là où la règle en vise tous.
 
 ⭐ **Le plancher tactile gouverne la hauteur d'un bouton à un étage** : la typographie n'y arrive
 pas. C'est encore *« un contrôle ne se laisse jamais dimensionner par un dessin »*.
@@ -4522,9 +4587,13 @@ le `?`**, l'écran ne déclarant que **sa destination**. 📌 Le motif existe d�
 hôte et reçoit la paire de la coquille »* — et `shell.mjs:4407` **sait déjà** placer un livre à
 gauche ; il ne sait pas le créer. ⛔ **Lot à part**, après la fusion des cotes.
 
-### 🔴 DEUX LARGEURS DE BOUTON, ET DEUX SEULEMENT — **77 et 105** *(Eric, 2026-09-06)*
-📍 `bouton-deux-largeurs` · vivante · 06/09
-⚖️ **Deux largeurs de bouton et deux seulement — PETIT 77 pour ≤ 6 caractères, MOYEN 105 pour ≤ 11 — hauteur `--touch`, texte T3, écriture classique.**
+### 🔴 DEUX LARGEURS DE BOUTON — **77 et 105** *(Eric, 2026-09-06)* · **amendée le 15–16/09**
+📍 `bouton-deux-largeurs` · vivante · 06/09 · **amendée 15/09 (gabarits) et 16/09 (corps)**
+⚖️ **Deux largeurs de bouton — PETIT 77 pour ≤ 6 caractères, LARGE 105 pour ≤ 11 — hauteur `--touch`, texte **16 px / graisse 600**, écriture classique. Et un troisième gabarit sans cote : LIBRE.**
+
+⚠️ **L'IDENTIFIANT RESTE `bouton-deux-largeurs`, ET IL EST DEVENU UN FAUX NOM.** On ne renomme pas
+un identifiant sous un lien : le nom dit « deux », la règle en porte **trois**. ⏳ Le renommage est
+une décision d'Eric, signalée à l'architecte le 16/09, **pas prise ici**.
 
 > Eric, 2026-09-06 : *« je veux une taille standard pour tous les petits boutons sur tout le
 > site »* · *« **la cote 77** comme standard petit »* · *« **donc c'est 105**, c'est acté »*
@@ -4533,10 +4602,38 @@ gauche ; il ne sait pas le créer. ⛔ **Lot à part**, après la fusion des cot
 | | la cote | ce qu'elle porte |
 |---|---:|---|
 | **PETIT** | **77** | un libellé de **6 caractères ou moins** — `Done` · `Next` · `Cancel` · `Choose` · `Draw` · `FH 3D6` · `4D6` · `ARRAY` · `FREE` |
-| **MOYEN** | **105** | jusqu'à **11 caractères** — il porte **`Equipment`** et même **`Inheritance`**, le plus long nom de chapitre |
+| **LARGE** | **105** | jusqu'à **11 caractères** — il porte **`Equipment`** et même **`Inheritance`**, le plus long nom de chapitre |
+| **LIBRE** | — | largeur **déduite du mot**, hors échelle — `Expert view` 105,85 · `Export JSON` 113,69 · `Export HTML` 115,46 · `I understand` 128,64 · `Turn tutorials off` 159,44 *(mesurés le 16/09)* |
 
-⛔ **Hauteur `--touch` (44), texte **T3** (14), écriture **classique** — pas de capitales, Eric l'a
-retiré le jour même : *« j'ai pas demandé les capitales, j'ai dit AU CAS OÙ les capitales »***.
+🔴 **`MOYEN` S'APPELLE `LARGE` DEPUIS LE 15/09** *(Eric : « petit / large / libre, y'en a 3 »)*.
+⛔ **Mais le CODE dit toujours `moyen`** — `--bouton-moyen` *(`tokens.css`)* et `.bouton-moyen`
+*(`shell.css`)*, cinq emplois, et **aucun `--bouton-large` n'existe**. ➡️ Ne pas citer un jeton
+qui n'existe pas : dans une feuille on écrit `--bouton-moyen`, dans le corpus on dit **large**.
+Le renommage du jeton est un lot à lui seul.
+⚠️ **ET ELLE ENTRE EN TENSION AVEC UNE AUTRE RÈGLE, VIVANTE, DANS CE MÊME FICHIER** — l'ancre
+`bouton-large-renomme-medium` *(26/08)* dit **« `large` s'appelle désormais `medium` »**, soit
+l'inverse du vocabulaire du 15/09. Les deux ne peuvent pas être vraies ensemble.
+⏳ **ET RIEN N'EST PÉRIMÉ ICI, DÉLIBÉRÉMENT.** Périmer une règle demande un lien dans les deux
+sens et change son statut de `vivante` à `remplacée` : c'est une décision d'Eric, pas une
+correction d'écriture. Ce paragraphe **signale**, il ne tranche pas — l'architecte porte
+l'arbitrage. ⛔ Tant qu'il n'est pas rendu, les deux lignes restent lisibles côte à côte, et
+c'est la seule forme honnête d'une contradiction qu'on n'a pas le droit de résoudre.
+
+⛔ **Hauteur `--touch` (44), texte **16 px / graisse 600**, écriture **classique** — pas de
+capitales, Eric l'a retiré le jour même : *« j'ai pas demandé les capitales, j'ai dit AU CAS OÙ
+les capitales »***.
+
+🔴 **T3 (14) EST ABROGÉ POUR CETTE FAMILLE — Eric, 15/09 : *« garde 16 et corrige la règle »***.
+📏 **Mesuré le 16/09 sur le builder servi**, échelle 1,3653, sous `.app` : les six boutons du pied
+*(`Open` · `Save` · `Forget` · `Display` · `DM` · `Tools`)* rendent **16 px / 600**, pas 14. Le
+code rendait 16 depuis toujours et les écrans ont été validés ainsi ; c'est la **loi** qui avait
+tort, pas le code.
+⚠️ **Et l'abrogation vaut pour CETTE famille, pas pour tout le fichier.** Trois corps coexistent
+réellement dans le site — **16/600** *(Menu, Species, Inheritance, Destiny, Class)* · **14/600**
+*(Identity)* · **14/400** *(Skills)*. ⛔ Cinq autres lignes de ce fichier disent encore T3 pour un
+bouton *(≈ 930, 2563, 3946, 4860, 4861)* : elles parlent d'autres organes ou d'autres étages, et
+**aucune n'a été touchée ici**. Les corriger sans les avoir mesurées une par une serait refaire la
+faute que cette section-ci vient de payer.
 📌 Rembourrage **`--sp-8`**, et c'est lui qui rend les cotes possibles — voir plus bas.
 
 ⭐ **LES DEUX COTES NE SONT PAS CHOISIES, ELLES SONT DÉDUITES DE LA PLACE**, et c'est ce qui les
@@ -4569,9 +4666,12 @@ large DANS SA PROPRE CLASSE** — et c'est exactement le piège que la ligne sui
 par celui qui l'écrivait.
 
 ⚠️ **ET LA FAMILLE NE REND PAS T3.** `.parcours-pied button` rend **16 px / 600** là où cette loi
-dit T3 (14). C'est ce qui ramène la marge de `Cancel` à **7,6** au lieu de ~15. ⏳ Deux vérités
-coexistent donc ici : la loi dit T3, le code dit 16/600. **Non tranché** — ce n'est pas un réglage,
-c'est le corps d'une famille entière.
+disait T3 (14). C'est ce qui ramène la marge de `Cancel` à **7,6** au lieu de ~15.
+✅ **TRANCHÉ LE 15/09 — Eric : *« garde 16 et corrige la règle »***. ~~Non tranché~~ : c'est le
+**code** qui fait foi, la loi est amendée plus haut. Les deux vérités ne coexistent plus.
+⭐ **Et le sens de la correction mérite d'être retenu** : entre une loi écrite et un rendu validé à
+l'écran depuis des semaines, c'est la loi qui cède. Une règle qu'aucun écran n'applique n'est pas
+une règle, c'est une intention.
 
 ⚠️ **ET LE REMBOURRAGE EST LE VRAI LEVIER, PAS LA LARGEUR.** À `--sp-20` *(l'ancien)*, `Choose`
 réclamait **89,7** — aucune largeur ne pouvait satisfaire à la fois « le plus gros mot rentre » et

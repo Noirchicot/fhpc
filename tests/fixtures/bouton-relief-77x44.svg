@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="77" height="44" viewBox="0 0 77 44" class="fh-relief" data-state="repos">
+  <style>svg.fh-relief>.fh-pressed{display:none}svg.fh-relief[data-state="presse"]>.fh-rest{display:none}svg.fh-relief[data-state="presse"]>.fh-pressed{display:inline}</style>
+  <defs>
+    <linearGradient id="f0" gradientUnits="userSpaceOnUse" x1="38.5" y1="0" x2="38.5" y2="2">
+      <stop stop-color="#c0b6a4"/><stop offset="1" stop-color="#746d61"/>
+    </linearGradient>
+    <linearGradient id="f1" gradientUnits="userSpaceOnUse" x1="73" y1="4" x2="71.586" y2="5.414">
+      <stop stop-color="#9c9383"/><stop offset="1" stop-color="#5b554b"/>
+    </linearGradient>
+    <linearGradient id="f2" gradientUnits="userSpaceOnUse" x1="77" y1="20" x2="75" y2="20">
+      <stop stop-color="#36332d"/><stop offset="1" stop-color="#625d53"/>
+    </linearGradient>
+    <linearGradient id="f3" gradientUnits="userSpaceOnUse" x1="73" y1="36" x2="71.586" y2="34.586">
+      <stop stop-color="#282620"/><stop offset="1" stop-color="#484238"/>
+    </linearGradient>
+    <linearGradient id="f4" gradientUnits="userSpaceOnUse" x1="38.5" y1="40" x2="38.5" y2="38">
+      <stop stop-color="#25231e"/><stop offset="1" stop-color="#474137"/>
+    </linearGradient>
+    <linearGradient id="f5" gradientUnits="userSpaceOnUse" x1="4" y1="36" x2="5.414" y2="34.586">
+      <stop stop-color="#363128"/><stop offset="1" stop-color="#62594a"/>
+    </linearGradient>
+    <linearGradient id="f6" gradientUnits="userSpaceOnUse" x1="0" y1="20" x2="2" y2="20">
+      <stop stop-color="#8c826f"/><stop offset="1" stop-color="#4c473d"/>
+    </linearGradient>
+    <linearGradient id="f7" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="5.414" y2="5.414">
+      <stop stop-color="#b8ae9b"/><stop offset="1" stop-color="#70695d"/>
+    </linearGradient>
+    <linearGradient id="face" x2="0" y2="1">
+      <stop stop-color="#554f46"/><stop offset=".35" stop-color="#454037"/><stop offset="1" stop-color="#35312b"/>
+    </linearGradient>
+    <linearGradient id="side" gradientUnits="userSpaceOnUse" x1="0" y1="32" x2="0" y2="44">
+      <stop stop-color="#36332d"/><stop offset="1" stop-color="#1d1b18"/>
+    </linearGradient>
+    <g id="cap">
+      <polygon points="8,0 69,0 77,8 77,32 69,40 8,40 0,32 0,8" fill="#454037"/>
+      <polygon points="8,0 69,0 68.172,2 8.828,2" fill="url(#f0)"/>
+      <polygon points="69,0 77,8 75,8.828 68.172,2" fill="url(#f1)"/>
+      <polygon points="77,8 77,32 75,31.172 75,8.828" fill="url(#f2)"/>
+      <polygon points="77,32 69,40 68.172,38 75,31.172" fill="url(#f3)"/>
+      <polygon points="69,40 8,40 8.828,38 68.172,38" fill="url(#f4)"/>
+      <polygon points="8,40 0,32 2,31.172 8.828,38" fill="url(#f5)"/>
+      <polygon points="0,32 0,8 2,8.828 2,31.172" fill="url(#f6)"/>
+      <polygon points="0,8 8,0 8.828,2 2,8.828" fill="url(#f7)"/>
+      <polygon points="8.828,2 68.172,2 75,8.828 75,31.172 68.172,38 8.828,38 2,31.172 2,8.828" fill="url(#face)"/>
+    </g>
+  </defs>
+  <polygon points="8,4 69,4 77,12 77,36 69,44 8,44 0,36 0,12" fill="#161512"/>
+  <g class="fh-rest">
+    <path d="M77,8 L77,32 L77,36 L77,12Z M77,32 L69,40 L69,44 L77,36Z M69,40 L8,40 L8,44 L69,44Z M8,40 L0,32 L0,36 L8,44Z M0,32 L0,8 L0,12 L0,36Z" fill="url(#side)"/>
+    <use href="#cap" y="0"/>
+  </g>
+  <g class="fh-pressed">
+    <path d="M77,10 L77,34 L77,36 L77,12Z M77,34 L69,42 L69,44 L77,36Z M69,42 L8,42 L8,44 L69,44Z M8,42 L0,34 L0,36 L8,44Z M0,34 L0,10 L0,12 L0,36Z" fill="url(#side)"/>
+    <use href="#cap" y="2"/>
+  </g>
+</svg>

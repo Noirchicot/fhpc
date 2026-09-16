@@ -49,31 +49,34 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=632";
-import { facteurZoomCourant } from "./echelle.mjs?v=632";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=632";
+import { renderPicker } from "./carnet.mjs?v=633";
+import { facteurZoomCourant } from "./echelle.mjs?v=633";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=633";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=632";
-import { swapContent } from "./socle.mjs?v=632";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=632";
+import { isGenre } from "../../src/layers/document.mjs?v=633";
+import { swapContent } from "./socle.mjs?v=633";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=633";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=632";
-/* 🧍 B3 — LE DRESSING EN TROIS BANDES (lot 5, la couture) : une seule
-   écriture (`b3-dressing.mjs`), le banc `ecran-b3.html` regarde la même. */
-import { construireLeDressing } from "./b3-dressing.mjs?v=632";
+import { armerJeton } from "./glisser.mjs?v=633";
+/* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
+   emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
+   trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
+   SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
+   la disposition : la table générée `gear-disposition.mjs`. */
+import { construireLEcranGear } from "./gear-ecran.mjs?v=633";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, additionneCouts, formatCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=632";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=632";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=633";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=633";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=632";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=633";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -85,7 +88,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=632";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=632";
+import { motDuCran } from "./ecran-mort.mjs?v=633";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -313,7 +316,9 @@ export function currentGearLines(document) {
   const byIndex = new Map();
   /* `location` (PIPELINE 24/08) : self | backpack | storage — facultative,
      absente = « backpack » (rien n'est porté sans geste). */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location))?$/;
+  /* `boite` (LOT 212) : l'emplacement CHOISI au doigt sur R — facultatif, une
+     ligne sans boîte se range par son slot (`attribuerBoites`). */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -323,6 +328,7 @@ export function currentGearLines(document) {
     if (match[2] === "quantity") line.quantity = choice.value;
     else if (match[2] === "equipped") line.equipped = choice.value;
     else if (match[2] === "location") line.location = choice.value;
+    else if (match[2] === "boite") line.boite = choice.value;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -1699,9 +1705,19 @@ export const EQUIPMENT_CATEGORIES = [
    `vueEquipement` et `ficheEnCours` sont de l'ÉTAT D'ÉCRAN (même loi que la
    position du tambour) : ils survivent aux re-rendus de la coquille, jamais
    au personnage — rien d'eux n'est une donnée. */
-let vueEquipement = "b3";
+let vueEquipement = "gear";
 let ficheEnCours = null;
 let piloteEquipement = null;
+/* LOT 212 — l'état du collecteur d'envoi : les index `gear[N]` retenus, et la
+   destination choisie au dropdown. De l'ÉTAT D'ÉCRAN, comme la vue : il
+   survit au `refresh()` de la coquille, jamais au personnage — Send le vide. */
+const collecteEnvoi = new Set();
+let destinationEnvoi = "backpack";
+/* LOT 212 — le mot que chaque vue écrit dans la 3ᵉ ligne du belt. Les
+   BRANCHES écrivent ; ⛔ une fiche (b1) n'écrit pas — elle garde le mot de la
+   branche d'où on l'a ouverte (Eric, 16/09 : « les x ne s'inscrivent pas dans
+   le belt »). `recherche` et `b2` sont des vues de Wares. */
+const FENETRE_DE = { gear: "Gear", sb31: "Backpack", sb33: "Backpack", r: "Wares", recherche: "Wares", b2: "Wares", sb32: "Tally" };
 
 /** Un item de grille → la matière de B1/du panier. Le PRIX vient du record
  *  (`data.cost`, chaîne SRD), jamais d'un tarif écrit ici. */
@@ -1785,9 +1801,20 @@ function candidatesDuSlot(slot) {
 }
 function attribuerBoites(portees, cherche) {
   const prises = new Map();
+  const pose = (ligne, boite) => prises.set(boite, { nom: ligne.nomAffiche, qte: ligne.quantity || 1, index: ligne.index, equipped: ligne.equipped === true });
+  /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
+     déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle
+     est libre ; la règle du slot ne sert qu'aux autres. */
   for (const ligne of portees) {
+    if (ligne.boite && !prises.has(ligne.boite)) pose(ligne, ligne.boite);
+  }
+  for (const ligne of portees) {
+    if (ligne.boite && prises.get(ligne.boite)?.index === ligne.index) continue;
     const libre = candidatesDuSlot(cherche.slot(ligne.ref)).find((b) => !prises.has(b));
-    if (libre) prises.set(libre, { nom: ligne.nomAffiche, qte: ligne.quantity || 1 });
+    /* LOT 212 — la boîte porte aussi l'INDEX (le collecteur retient des lignes)
+       et l'état ÉQUIPÉ (le voyant ⭕). `attuned`/`locked` : pas de lecteur tant
+       que X1 n'écrit pas la donnée (Archi 34, 16/09). */
+    if (libre) pose(ligne, libre);
   }
   return Object.fromEntries(prises);
 }
@@ -1806,7 +1833,13 @@ export function renderEquipmentStep(ctx, onAction) {
     l.nomAffiche = (rec && rec.name) || motDUnRecordAbsent(l.ref.id);
   }
 
-  const montrer = (vue) => { vueEquipement = vue; peindre(); };
+  const montrer = (vue) => {
+    vueEquipement = vue;
+    /* la branche écrit son mot au belt ; la coquille repeint (et `peindre` sert
+       le cas où personne ne l'écoute — les bancs, les tests) */
+    if (FENETRE_DE[vue]) act({ kind: "fenetre", mot: FENETRE_DE[vue] });
+    peindre();
+  };
 
   /* ⭐ L'ARBITRE DU PORTAGE — la règle ratifiée d'Eric (24/08) : *« si c'est
      libre l'item prend son slot, sinon Pocket, sinon backpack »*. Le tri se
@@ -1814,7 +1847,7 @@ export function renderEquipmentStep(ctx, onAction) {
      « self » sans boîte libre devient « backpack », l'objet va au sac. */
   function actArbitre(a) {
     if ((a.kind === "addGearLine" || a.kind === "moveGearLine") && a.location === "self") {
-      const prises = new Set(Object.keys(attribuerBoites(lignesParLieu(lignes, "self"), cherche)));
+      const prises = new Set(Object.keys(attribuerBoites(surR(), cherche)));
       const ref = a.ref || (lignes.find((l) => l.index === a.index) || {}).ref;
       const libre = candidatesDuSlot(cherche.slot(ref)).some((b) => !prises.has(b));
       if (!libre) a = { ...a, location: "backpack", equipped: false };
@@ -1837,31 +1870,49 @@ export function renderEquipmentStep(ctx, onAction) {
     },
   };
 
-  function construireDressing() {
-    /* ══ LA COUTURE DU LOT 5 (26/08) — le pilote monte les TROIS BANDES.
-       La scène d'hier (titre + barre dans le SVG) n'est plus montée par
-       personne ici : le titre vit dans la bande haute, la barre dans la
-       bande basse, et le flux porte la pièce puis le sac puis la remise.
-       Les écrans SB3.1/SB3.3 restent des portes (Gear weight) — leur sort
-       est sur la table d'Eric. */
-    const dressing = construireLeDressing({
-      lignes,
-      onAction: actArbitre,
-      surBouton: (mot) => {
-        if (mot === "Equipment") montrer("r");
-        if (mot === "Send") montrer("sb32");
-        /* Craft · Companions : le mandat du 24/08 les exclut — muets. */
+  /* ══ LOT 212 — L'ÉCRAN R (Gear) : le pilote monte le hub. Les branches vivent
+     derrière ses portes : Backpack → la liste du sac (SB3.1 d'aujourd'hui, en
+     attendant le lot B1) · Wares → le catalogue (le « Equipment Browser », en
+     attendant le lot B2) · Send → vide le collecteur vers la destination
+     choisie, ou, s'il est vide, ouvre la liste d'envoi · Tally → cette même
+     liste (X3, en attendant son lot) · Purse ⏳ → le popup de la bourse, dont
+     la cote arrive par la table. */
+  function envoyer() {
+    if (collecteEnvoi.size === 0) { montrer("sb32"); return; }
+    const location = destinationEnvoi === "self" ? "self" : "backpack";
+    /* ⚠️ VIDÉ AVANT LE PREMIER GESTE, pas après : chaque geste fait repeindre la
+       coquille (`refresh`), et une collecte vidée APRÈS aurait été peinte pleine
+       — mesuré au navigateur : « 1 to send » survivait à l'envoi. */
+    const retenus = [...collecteEnvoi];
+    collecteEnvoi.clear();
+    for (const index of retenus) actArbitre({ kind: "moveGearLine", index, location });
+    peindre();
+  }
+  /* les lignes qui vivent sur R : portées (self) et au sol (ground — « tu portes
+     pas, tu n'équipes pas », Eric 16/09) ; le sac et la remise sont ailleurs */
+  const surR = () => lignes.filter((l) => ["self", "ground"].includes(l.location || "backpack"));
+  function construireGear() {
+    const { noeud } = construireLEcranGear({
+      boites: attribuerBoites(surR(), cherche),
+      bourse,
+      compteTally: cartCompte(docu),
+      collecte: collecteEnvoi,
+      destination: destinationEnvoi,
+      surPorte: (porte) => {
+        if (porte === "backpack") montrer("sb31");
+        if (porte === "wares") montrer("r");
+        if (porte === "send") envoyer();
       },
-      contenu: {
-        boites: attribuerBoites(lignesParLieu(lignes, "self"), cherche),
-        bourse,
-        poids: poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data })),
-        surBourse: (clef, delta) => act({ kind: "setCurrency", key: clef, value: (bourse[clef] || 0) + delta }),
-        surBourseValeur: (clef, valeur) => act({ kind: "setCurrency", key: clef, value: valeur }),
-        surLieu: (lieu) => { if (lieu === "backpack") montrer("sb31"); if (lieu === "storage") montrer("sb33"); },
+      surBouton: (id) => {
+        if (id === "tally") montrer("sb32");
+        /* purse : ⏳ le popup de la bourse attend sa cote dans la table (Archi 34) */
       },
+      /* un seul objet dans le collecteur (Eric, 16/09) — la cible se ferme, ceinture ici */
+      surCollecte: (index) => { if (collecteEnvoi.size === 0) { collecteEnvoi.add(index); peindre(); } },
+      /* posé sur un emplacement : la boîte devient un choix du personnage */
+      surPlacer: (index, boite) => { collecteEnvoi.delete(index); act({ kind: "placerGearLine", index, boite }); },
+      surDestination: (valeur) => { destinationEnvoi = valeur; },
     });
-    const noeud = dressing.noeud;
 
     /* ══ LA DÉCISION DU DÉPART — kit de classe OU 50 po (Eric, 24/08).
        🔴 REQUALIFIÉE le 26/08 (Archi 27) : un objet qui EXIGE une réponse et
@@ -1961,7 +2012,7 @@ export function renderEquipmentStep(ctx, onAction) {
     const catalogue = renderGearBlock({ query, onAction: act });
     const boutons = catalogue.querySelectorAll(".carte-r-bouton, .carte-r-loupe");
     for (const b of boutons) {
-      if (b.dataset.mot === "GEAR") b.addEventListener("click", () => montrer("b3"));
+      if (b.dataset.mot === "GEAR") b.addEventListener("click", () => montrer("gear"));
       if (b.dataset.mot === "CART") {
         b.dataset.compte = String(cartCompte(docu));
         b.addEventListener("click", () => montrer("b2"));
@@ -2006,15 +2057,15 @@ export function renderEquipmentStep(ctx, onAction) {
       });
       const motBourse = motDeLaBourse(docu);
       if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("r") });
-      return renderB2({ mode: "send", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("b3") });
+      return renderB2({ mode: "send", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("gear") });
     }
     if (vue === "sb31" || vue === "sb33") {
       const lieu = vue === "sb33" ? "storage" : "backpack";
       return renderSacs({ lieu, lignes, chercheRecord: (ref) => ({ data: cherche.record(ref)?.data }),
-        onAction: actArbitre, retour: () => montrer("b3"),
-        surLieu: (l) => { if (l === "backpack") montrer("sb31"); else if (l === "storage") montrer("sb33"); else montrer("b3"); } });
+        onAction: actArbitre, retour: () => montrer("gear"),
+        surLieu: (l) => { if (l === "backpack") montrer("sb31"); else if (l === "storage") montrer("sb33"); else montrer("gear"); } });
     }
-    return construireDressing();
+    return construireGear();
   }
 
   function peindre() {

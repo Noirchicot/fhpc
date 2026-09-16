@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=632") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=633") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=632") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=633") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=632") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=633") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7985,7 +7985,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=632");
+  background-image: url("./assets/tarot-dos.jpg?v=633");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8230,7 +8230,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .carte-r-bouton {
   min-height: var(--touch); min-width: var(--touch); padding-inline: var(--sp-8);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  /* LOT 212 — le liseré `1px solid --border-strong` est parti : le patron
+     octogone (plus bas) pose `border: 0`, il ne rendait plus rien. */
+  border-radius: var(--radius-sm);
   background: var(--surface); color: var(--text);
   font: inherit; font-size: var(--t2); letter-spacing: .06em;
 }
@@ -8359,7 +8361,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-pas {
   min-width: var(--touch); min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
+  /* LOT 212 — le liseré de base est parti (écrasé par `border: 0` du patron). */
 }
 .pipeline-pas-plus { border-color: var(--positive); }
 .pipeline-pas-moins { border-color: var(--critical); }
@@ -8404,7 +8406,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-libre[data-actif="oui"] { background: var(--critical); color: var(--surface); }
 .pipeline-ligne-envoi {
   min-height: var(--touch); font: inherit; font-size: var(--t2); cursor: pointer;
-  background: none; color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: none; color: var(--text); border-radius: var(--radius-sm); /* LOT 212 — liseré mort retiré */
 }
 .pipeline-danger { border-color: var(--critical); color: var(--critical); }
 .pipeline-total { margin: 0; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -8559,6 +8561,27 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point)),
 .card-pied button,
 .fiche-action, /* CHOOSE — un libellé, donc l'octogone (Eric, 28/08) */
+/* 🔴 LE CHAPITRE ÉQUIPEMENT A REJOINT LE PATRON — Eric, 2026-09-16 :
+   *« 2 oui une seule apparence partout »*.
+   ⛔ CE QU'IL Y AVAIT AVANT, ET POURQUOI ÇA NE POUVAIT PAS DURER : une COPIE
+   mot pour mot de ces trois règles vivait 540 lignes plus bas, écrite pour le
+   chapitre. Comparée déclaration par déclaration avant de la retirer, elle
+   était identique AU CARACTÈRE — mais deux copies d'un même dessin sont deux
+   écrivains pour une seule loi, et la première repeinture du socle les aurait
+   fait diverger en silence.
+   ⭐ LA RÉPARATION EST LA SUPPRESSION DU SECOND ÉCRIVAIN, pas la
+   synchronisation de deux copies.
+   ⚠️ ET ELLE NE POUVAIT PAS ÊTRE UN SIMPLE DÉPLACEMENT : remonter ces six-là
+   ici les fait passer AVANT des déclarations qui étaient jusqu'alors écrasées
+   par la copie. Une seule l'était réellement (`.dressing-bouton`, son liseré
+   rouge et son encre) — retirée au même endroit, dans le même geste. ⛔ Une
+   fusion qui ne regarde que le contenu des blocs manque ce piège-là. */
+.pipeline-bouton,
+.dressing-bouton,
+.carte-r-bouton,
+.pipeline-ligne-envoi,
+.pipeline-pas,
+.aiguilleur-bouton,
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
    loi »*.
@@ -8569,7 +8592,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    LIBELLÉ (`FH 3D6`, `4D6`, `ARRAY`, `FREE`, `INFO`), donc ils sont du gabarit
    à mot — et *« l'octogone est l'habit des trois gabarits À LIBELLÉ »*. Un
    bouton à glyphe (`+`, `?`) n'en porte pas ; ceux-ci, si. */
-.ability-entry {
+.ability-entry,
+.gear-porte /* LOT 212 — les trois portes du pied de R : Backpack · Send · Wares */ {
   --bouton-fond: var(--text-muted);
   /* 🔴 LA COUPE ET L'OMBRE NE PEUVENT PAS TENIR SUR LE MÊME ÉLÉMENT, ET C'EST
      MESURÉ (26/08, Chrome 151 sans écran, sonde à quatre variantes) : un
@@ -8616,10 +8640,28 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::before,
 .card-pied button::before,
 .fiche-action::before,
-.ability-entry::before {
+.ability-entry::before,
+/* le chapitre Équipement — une seule apparence partout (Eric, 16/09) */
+.pipeline-bouton::before,
+.dressing-bouton::before,
+.carte-r-bouton::before,
+.pipeline-ligne-envoi::before,
+.pipeline-pas::before,
+.aiguilleur-bouton::before,
+.gear-porte::before {
   content: "";
   position: absolute;
-  inset: 0;
+  /* 🔴 LE DESSIN FAIT 40, LA CIBLE RESTE 44 — Eric, 2026-09-16 : *« passe tous
+     les boutons à hauteur 40 blg (cible tactile reste à 44 donc dépasse de 2
+     au dessus et en dessous) »*.
+     ⭐ C'EST ICI QUE ÇA SE JOUE, ET NULLE PART AILLEURS. Le bouton lui-même ne
+     bouge pas d'un blg : sa boîte, son `min-height`, sa zone touchable restent
+     à 44. Seul le CORPS PEINT se retire de `--bouton-retrait-v` en haut et en
+     bas. ⛔ Rétrécir le bouton aurait rétréci la cible avec lui, et
+     `jeton-sacre` l'interdit — *« leur cote et leur corps ne cèdent jamais »*.
+     📐 Le retrait est DÉRIVÉ de l'écart entre les deux cotes (`tokens.css`),
+     jamais écrit en littéral : 40 peut rebouger, les 2 suivront seuls. */
+  inset: var(--bouton-retrait-v) 0;
   z-index: -2;
   background-color: var(--bouton-fond);
   background-image: var(--bouton-biseau);
@@ -8646,10 +8688,21 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::after,
 .card-pied button::after,
 .fiche-action::after,
-.ability-entry::after {
+.ability-entry::after,
+/* le chapitre Équipement — une seule apparence partout (Eric, 16/09) */
+.pipeline-bouton::after,
+.dressing-bouton::after,
+.carte-r-bouton::after,
+.pipeline-ligne-envoi::after,
+.pipeline-pas::after,
+.aiguilleur-bouton::after,
+.gear-porte::after {
   content: "";
   position: absolute;
-  inset: var(--bouton-biseau-epaisseur);
+  /* la face suit le corps : le retrait vertical du dessin, PLUS son propre
+     biseau. ⛔ Ne pas écrire `calc(2px + 1.5px)` — les deux nombres ont chacun
+     leur nom et leur raison, et ils ne bougent pas ensemble. */
+  inset: calc(var(--bouton-retrait-v) + var(--bouton-biseau-epaisseur)) var(--bouton-biseau-epaisseur);
   z-index: -1;
   background-color: var(--bouton-fond);
   background-image: var(--bouton-bombage);
@@ -8899,7 +8952,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
     .parcours-item-porte,
     .card-pied button,
     .fiche-action,
-    .parcours-pied button):not(.fiche-livre):not(.tuto-point) {
+    .parcours-pied button,
+    .gear-porte):not(.fiche-livre):not(.tuto-point) {
   min-width: var(--bouton-petit);
   padding-inline: var(--sp-8);
 }
@@ -8927,7 +8981,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
     .parcours-item-porte,
     .card-pied button,
     .fiche-action,
-    .parcours-pied button):not(.fiche-livre):not(.tuto-point).bouton-moyen {
+    .parcours-pied button,
+    .gear-porte):not(.fiche-livre):not(.tuto-point).bouton-moyen {
   min-width: var(--bouton-moyen);
 }
 
@@ -8994,7 +9049,22 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   /* T3 : le corps recommandé du §6 — la seule taille qui laisse la même marge
      aux gabarits small et medium. Même largeur sur la ligne, par la grille. */
   min-height: var(--touch); font: inherit; font-size: var(--t3); cursor: pointer; text-transform: uppercase;
-  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+  /* ⛔ NI `color`, NI `border`, NI `border-radius` ICI — retirés le 16/09 avec la
+     fusion du duplicata. Ils étaient DÉJÀ MORTS : le bloc du chapitre, écrit
+     plus bas, posait `border: 0` et gagnait par l'ordre. En remontant le patron
+     au socle (bien plus haut dans la feuille), ces trois-là seraient
+     RESSUSCITÉS — un liseré rouge et une encre sombre reviendraient sur un
+     bouton opaque, à spécificité égale, par le seul déplacement d'un bloc.
+     🔴 C'est le piège de l'ORDRE, le frère de celui de la spécificité : une
+     fusion qui ne regarde que le contenu des blocs le manque entièrement.
+     📏 Mesuré avant de toucher : c'était le SEUL des six sélecteurs du chapitre
+     dont une déclaration morte vivait APRÈS le bloc du socle (L8992 contre
+     L8461) ; les cinq autres sont écrites avant et restent écrasées.
+     ⛔ ET PAS DE `background: none` NON PLUS — le patron le pose déjà. Le garde
+     du défaut n° 4 a rougi quand il restait seul : *« un `<button>` n'hérite pas
+     de `color` ; sans encre déclarée, l'agent utilisateur lui impose du noir »*.
+     Une règle qui habille garde donc ses DEUX moitiés ensemble, ou n'en garde
+     aucune. Ici : aucune — le patron les porte toutes les deux. */
 }
 
 /* ══ LOT 3 (chapitre Équipement) — LES ORGANES DU 26/08 SUR LE CHAPITRE ══════
@@ -9006,56 +9076,29 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    `--bouton-fond` selon les trois verbes ratifiés (a244326) — naviguer
    (bleu) · valider (vert) · défaire (rouge) · muet (gris défaut). */
 
-/* — LE BOUTON : la forme, patron du socle — */
-.pipeline-bouton, .dressing-bouton, .carte-r-bouton,
-.pipeline-ligne-envoi, .pipeline-pas, .aiguilleur-bouton {
-  --bouton-fond: var(--text-muted);
-  position: relative;
-  background: none;
-  color: var(--on-accent);
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  filter: var(--bouton-ombre);
-}
-.pipeline-bouton::before, .dressing-bouton::before, .carte-r-bouton::before,
-.pipeline-ligne-envoi::before, .pipeline-pas::before, .aiguilleur-bouton::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background-color: var(--bouton-fond);
-  background-image: var(--bouton-biseau);
-  clip-path: polygon(
-    var(--bouton-coupe) 0,
-    calc(100% - var(--bouton-coupe)) 0,
-    100% var(--bouton-coupe),
-    100% calc(100% - var(--bouton-coupe)),
-    calc(100% - var(--bouton-coupe)) 100%,
-    var(--bouton-coupe) 100%,
-    0 calc(100% - var(--bouton-coupe)),
-    0 var(--bouton-coupe)
-  );
-}
-.pipeline-bouton::after, .dressing-bouton::after, .carte-r-bouton::after,
-.pipeline-ligne-envoi::after, .pipeline-pas::after, .aiguilleur-bouton::after {
-  content: "";
-  position: absolute;
-  inset: var(--bouton-biseau-epaisseur);
-  z-index: -1;
-  background-color: var(--bouton-fond);
-  background-image: var(--bouton-bombage);
-  clip-path: polygon(
-    var(--bouton-coupe) 0,
-    calc(100% - var(--bouton-coupe)) 0,
-    100% var(--bouton-coupe),
-    100% calc(100% - var(--bouton-coupe)),
-    calc(100% - var(--bouton-coupe)) 100%,
-    var(--bouton-coupe) 100%,
-    0 calc(100% - var(--bouton-coupe)),
-    0 var(--bouton-coupe)
-  );
-}
+/* — LE BOUTON : sa forme vient du PATRON DU SOCLE, et plus d'ici — */
+/* 🔴 LA COPIE A ÉTÉ RETIRÉE LE 16/09 — Eric : *« 2 oui une seule apparence
+   partout »*. Les six sélecteurs du chapitre sont désormais DANS les trois
+   règles du socle (§5, ~8555 · ~8600 · ~8650) : un seul écrivain pour un seul
+   dessin.
+   ⛔ CE QU'IL Y AVAIT ICI : ces trois mêmes règles, recopiées. Comparées
+   déclaration par déclaration AVANT le retrait — corps trié, caractère par
+   caractère — elles étaient **identiques**. Rien n'a donc été perdu. Mais deux
+   copies d'un même dessin sont deux écrivains pour une seule loi : la première
+   repeinture du socle les aurait fait diverger sans bruit, et le site aurait
+   porté deux habits.
+   ⭐ LA RÉPARATION EST LA SUPPRESSION DU SECOND ÉCRIVAIN, jamais la
+   synchronisation de deux copies.
+   ⚠️ ET ELLE NE POUVAIT PAS ÊTRE UN SIMPLE DÉPLACEMENT. Remonter ces six-là
+   dans le socle les fait passer AVANT des déclarations qui n'étaient mortes
+   que parce que cette copie-ci, écrite plus bas, les écrasait. Mesuré : une
+   seule l'était vraiment — le liseré rouge et l'encre de `.dressing-bouton` —
+   et elle est retirée dans le même geste. ⛔ Une fusion qui ne compare que le
+   CONTENU des blocs manque ce piège, qui est celui de l'ORDRE.
+   📌 `.pipeline-fleche` reste DEHORS, juste plus bas : elle porte le filtre
+   mais aucun pseudo-élément — *« les flèches restent RONDES »*. Elle n'a
+   jamais été de ce patron, elle ne le rejoint pas. */
+
 /* — l'état par les trois verbes (le libellé ne change jamais, la couleur dit
    le verbe) : NAVIGUER = bleu · VALIDER = vert · DÉFAIRE = rouge. Les muets
    (CRAFT, COMPANIONS, réserve) restent au gris du défaut. — */
@@ -9112,6 +9155,206 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   display: flex; flex-direction: column;
 }
 .equipment-step > .dressing { flex: 1 1 auto; min-height: 0; height: auto; }
+
+
+/* ══ LOT 212 — L'ÉCRAN R (Gear) : LE CORPS OÙ L'ON S'HABILLE ═══════════════
+   ⛔ AUCUNE COTE DE POSITION ICI. Chaque organe est posé par une feuille que
+   `gear-ecran.mjs` construit depuis la table GÉNÉRÉE (`gear-disposition.mjs`,
+   sortie de `Plan-ecran-R/R_gen.py`) — le précédent de `fonds.mjs` : une
+   valeur qui vient de la donnée ne se recopie pas dans cette feuille. Ce bloc
+   ne porte que l'HABIT : la forme, l'encre, les états.
+   ⭐ LA DALLE DE R EST TOUT LE PANNEAU — plan du 15/09, validé par Eric :
+   « DALLE 375 × 560, belt compris », les 4 blg de marge sont DEDANS. Elle
+   déborde donc la gouttière du stage des deux côtés ; c'est une dalle, et une
+   dalle a le droit d'occuper la marge (NORMES §1 bis). Rien ne défile : le
+   budget vertical est fermé au blg près (60 + 4 + 8 × 48 + 48 + 8 + 44 + 12). */
+.decision-card:has(> .equipment-step > .gear) {
+  height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
+  display: flex; flex-direction: column;
+}
+.decision-card:has(> .equipment-step > .gear) > .equipment-step {
+  flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
+}
+.gear {
+  position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
+  width: calc(var(--panneau-l) * 1px);
+  margin-inline: calc(-1 * var(--stage-gouttiere));
+  overflow: hidden;
+}
+/* chaque organe est posé en absolu par la feuille construite ; ici on ne dit
+   que le MODE, jamais la place */
+.gear > [data-organe], .gear > .gear-rangee, .gear > .gear-pantin, .gear > .gear-montant {
+  position: absolute; box-sizing: border-box;
+}
+
+/* le pantin — un repère en filigrane, second plan (même encre que `.b3-scene-corps`) */
+.gear-pantin {
+  background: var(--text-soft); opacity: .18; pointer-events: none;
+  mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+}
+
+/* — L'EMPLACEMENT ET LE COLLECTEUR : un jeton, la cote des tokens (jamais un
+   nombre d'ici). Vide : un COLLECTEUR au sens de NORMES §2 ter — CREUX
+   (`--creux`), très arrondi, ⛔ aucun liseré visible : la bordure reste, en
+   transparent, à la cote du liseré rempli, pour que la case ne saute pas au
+   moment où elle se remplit (le patron de `.glisse-creneau`). Eric, 16/09 :
+   *« un collecteur a un relief »* · *« un token a un relief »* — le creux dit
+   « pose ici », le relief dit « quelque chose est posé ». — */
+.gear-emplacement, .gear-collecteur {
+  width: var(--glisse-case); height: var(--glisse-h);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding-inline: var(--sp-4);
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
+  background: none; box-shadow: var(--creux); color: var(--text);
+  text-align: center; line-height: 1.1;
+}
+.gear-nom {
+  font-size: var(--t1); text-transform: uppercase; letter-spacing: .04em;
+  color: var(--text-muted); max-width: 100%;
+}
+/* Body forging 2 : « optional when feat » — présent en creux tant que le don
+   n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`). */
+.gear-emplacement[data-optionnelle] { opacity: .6; }
+/* occupé : l'habit du JETON — teinte et relief (le relief REMPLACE le creux, il
+   ne s'y ajoute pas). ⛔ AUCUN liseré de couleur — Eric, 16/09 : *« les liserés
+   de couleur sont inutiles dans Gear, sauf pour le collecteur »* : la bordure
+   d'ÉTAT ; mais *« le liseré des tokens ! »* — un jeton porte SON liseré, celui
+   d'un contrôle (`--border-strong`, la cible 3:1 de `.glisse-jeton`), et il le
+   garde ici. Le nom du slot reste, en étiquette, au-dessus de l'objet. */
+.gear-emplacement[data-occupe] {
+  border-color: var(--border-strong);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  /* Eric, 16/09 : « un peu de place au-dessus pour marquer le statut équipé,
+     attuned ou locked » — la bande des voyants ; le nom prend le reste.
+     Puis : « descendre le mot de 2 blg » → 8 + 2. */
+  padding-top: calc(var(--sp-8) + var(--sp-2)); justify-content: flex-start;
+  cursor: grab;
+}
+/* ⚖️ Eric, 16/09 : *« pour le descriptif des wares faut passer en T1 »* — le nom
+   de l'objet posé descend de T2 à T1 (le plan disait T2/600) ; la graisse reste. */
+/* « ce qui laisse la possibilité de 3 lignes en hauteur et plus de largeur pour
+   les titres à rallonge » (Eric, 16/09) : le nom se replie, trois lignes au plus
+   (3 × 11 = 33 dans les 44 − 8 utiles), et la quantité le suit sur sa ligne. */
+.gear-objet {
+  font-size: var(--t1); font-weight: 600; max-width: 100%;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;
+}
+.gear-qte { font-size: var(--t1); color: var(--text-muted); }
+.gear-emplacement[data-glisse="true"] { opacity: .35; cursor: grabbing; }
+/* retenu par le collecteur, en attente d'envoi : l'état est sur le nœud
+   (`data-collecte`), c'est le collecteur qui le montre — pas de liseré ici. */
+/* la case VISÉE par un jeton en vol s'allume, comme le collecteur (le seul
+   liseré de couleur hors collecteur : l'instant du dépôt, pas un état) */
+.gear-emplacement[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
+
+/* — LES TROIS VOYANTS — ⛔ des voyants, pas des boutons : on les lit, on ne
+   les tape pas, le plancher de 44 ne s'applique pas (artefact 15/09). Eric :
+   « il faut qu'elles soient minuscules » · « si c'est les deux à la fois ils
+   sont l'un dans l'autre ». Le verrou en haut à gauche ; l'anneau vert ⭕ en
+   haut à droite ; le cœur violet ♥ (--magie : violet = magie) DANS l'anneau. — */
+.gear-voyants { position: absolute; inset: 0; pointer-events: none; }
+.gear-voyant { position: absolute; display: block; opacity: 0; }
+.gear-voyant[data-etat="oui"] { opacity: 1; }
+/* ⚖️ Eric, 16/09 : « ton cercle vert équipé, déplace de 4 blg vers la gauche »,
+   puis « le cercle vert descend de 2 blg (arm hands disparaît sous le token) »,
+   puis « décaler le rond vert de 1 blg vers la droite » (6 → 5, la moitié de
+   --sp-2 : un rapport, pas une cote nue) — le ♥ suit, il se loge dedans. */
+.gear-voyant[data-voyant="equipe"] {
+  top: var(--sp-4); right: calc(var(--sp-4) + var(--sp-2) / 2); width: var(--sp-8); height: var(--sp-8);
+  border-radius: 50%; box-shadow: inset 0 0 0 1px var(--positive);
+}
+.gear-voyant[data-voyant="harmonise"] {
+  top: var(--sp-4); right: calc(var(--sp-4) + var(--sp-2) / 2); width: var(--sp-8); height: var(--sp-8);
+  color: var(--magie); font-size: var(--t0); line-height: 1; text-align: center;
+}
+.gear-voyant[data-voyant="harmonise"]::before { content: "♥"; }
+.gear-voyant[data-voyant="verrou"] {
+  top: var(--sp-4); left: var(--sp-4); width: var(--sp-4); height: var(--sp-4);
+  background: var(--text); border-radius: var(--radius-sm);
+}
+.gear-voyant[data-voyant="verrou"]::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--sp-4);
+  box-sizing: border-box; border: 1px solid var(--text); border-bottom: 0;
+  border-radius: var(--radius-pill) var(--radius-pill) 0 0;
+}
+
+/* — LE COLLECTEUR : le SEUL organe de Gear à porter un liseré de couleur
+   (Eric, 16/09) — la cible s'allume quand on l'approche, et le liseré bleu dit
+   qu'il retient quelque chose. — */
+.gear-collecteur[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
+.gear-collecteur:not([data-compte="0"]) { border-color: var(--info); }
+
+/* — LES DEUX BOUTONS À IMAGE (Purse · Tally) — Eric, 16/09 : « pas de relief
+   sur tally et purse », « juste une image en transparence ». L'image EST le
+   bouton, comme un astre du belt ; le mot se pose dessus, à l'encre fixe des
+   astres (l'image ne bascule pas avec le thème). ⭐ Dessin et cible sont DEUX
+   cotes : l'image se peint dans le padding-box, et les bords TRANSPARENTS (posés
+   par la feuille des cotes) portent l'écart cible − dessin. — */
+.gear-bouton {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0; margin: 0;
+  /* bordure NULLE par défaut : quand dessin = cible (Purse 44 × 44), aucun écart ;
+     la feuille des cotes pose `border-width` là où une cible dépasse le dessin
+     (Tally). Sans ce 0, le navigateur mettait ses 3 px « medium ». */
+  border: 0 solid transparent; border-radius: 0;
+  background: transparent no-repeat center / contain; background-clip: padding-box;
+  background-origin: padding-box;
+  color: var(--astre-encre-soleil); box-shadow: none;
+  font: inherit; font-size: var(--t1); font-weight: 600; line-height: 1.2;
+  cursor: pointer;
+}
+.gear-bouton:disabled { opacity: .4; cursor: default; }
+/* le montant seul sur la bourse (Eric, 16/09) — T2/600 : « 999 gp » demande 41,05
+   dans 44 (la fiche du plan) ; au-delà de trois chiffres, la cote est à Eric */
+/* le montant de la bourse, SOUS le bouton, sur UNE ligne (Eric, 16/09, « b » puis
+   « en dessous sur une ligne oui ») : un voyant qu'on lit — T1/600, centré */
+.gear-montant {
+  text-align: center; color: var(--text); font-size: var(--t1); font-weight: 600;
+  line-height: 1; white-space: nowrap; pointer-events: none;
+}
+/* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
+   première ligne, s'éteint vidé */
+.gear-bouton[data-organe="tally"] { background-image: var(--icone-parchemin); }
+.gear-bouton[data-organe="tally"]:not([data-compte="0"]) {
+  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
+}
+/* la bourse d'Eric (déposée le 16/09) : le mot et le montant se posent dessus */
+.gear-bouton[data-organe="purse"] {
+  background-image: var(--icone-bourse);
+  /* Eric, 16/09 : « le montant en gp en blanc bien centré sur la bourse, mets Purse
+     au-dessus en blanc aussi » — l'encre fixe de la lune, elle ne suit pas le thème */
+  color: var(--astre-encre-lune);
+}
+
+/* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
+.gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
+
+/* — LA RANGÉE DU PIED : la cinquième porte de §6 pré (`data-rangee`), deux
+   bornes et un groupe ; la grille place le livre, les trois portes et le `?`.
+   ⚖️ L'EXCEPTION NOMMÉE : `--bouton-cran-serre`. Eric : « Backpack bouton même
+   taille que Send ! … même si le mot est un peu long » — donc trois portes de
+   77. Au cran ratifié 16/600, `Backpack` demande 75,46 pour 61 de place utile :
+   impossible. À T2/600 il rend 56,95 → il tient, 4,05 de reste. ⛔ Le mot n'est
+   pas réduit, la largeur ne bouge pas : c'est le CRAN qui est l'exception, et
+   il ne vaut que dans cette rangée. — */
+.gear { --bouton-cran-serre: var(--t2); }
+.gear-porte {
+  /* le plancher du pouce : la famille ne le pose pas pour tous, chaque organe
+     le dit (mesuré : 16,64 de haut sans lui) */
+  min-height: var(--touch);
+  font-size: var(--bouton-cran-serre); font-weight: 600;
+  /* naviguer = bleu (les trois verbes de la rangée, §6) */
+  --bouton-fond: var(--info);
+}
+/* ⚖️ COMPANIONS — le sur-mesure du plan : T1/600, rembourrage --sp-4 (« Companions »
+   demande 60,97 dans 69 ; à T2 il fait 73,17 dans 61 et sort — Eric, 16/09 :
+   « companions centré ! »). ⚠️ (0,3,1), à égalité avec le plancher des gabarits
+   `:is(…):not():not()` et posé après : il gagne par l'ordre, pas par un artifice. */
+button.gear-porte[data-organe="companions"][data-porte] {
+  font-size: var(--t1); padding-inline: var(--sp-4);
+}
 
 
 /* ══════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,348 @@
+{
+ "dalle": {
+  "l": 375,
+  "h": 560
+ },
+ "belt": 60,
+ "marge": 4,
+ "touch": 44,
+ "jeton": {
+  "l": 87,
+  "h": 48
+ },
+ "petit": 77,
+ "moyen": 105,
+ "Y": [
+  64,
+  120,
+  176,
+  232,
+  288,
+  344,
+  396,
+  448
+ ],
+ "y_barre": 504,
+ "h_barre": 44,
+ "pantin": {
+  "image": "pantin-h.png",
+  "source": "b3-ancrages.mjs:31",
+  "l": 441,
+  "h": 1400,
+  "echelle": 0.20714,
+  "x": 141.82,
+  "y": 85,
+  "rendu_h": 290.0
+ },
+ "lunes_y": [
+  119,
+  163,
+  207,
+  251
+ ],
+ "boites": [
+  {
+   "nom": "BODY FORGING",
+   "x": 4,
+   "y": 64,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "HEAD/FACE 1",
+   "x": 99,
+   "y": 64,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "HEAD/FACE 2",
+   "x": 190,
+   "y": 64,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "TORSO/BACK 1",
+   "x": 49,
+   "y": 120,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "TORSO/BACK 2",
+   "x": 144,
+   "y": 120,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "TORSO/BACK 3",
+   "x": 239,
+   "y": 120,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "ARM/HANDS 1",
+   "x": 49,
+   "y": 176,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "BELT",
+   "x": 144,
+   "y": 176,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "ARM/HANDS 2",
+   "x": 239,
+   "y": 176,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "POCKET/WEAPON 1",
+   "x": 57,
+   "y": 232,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "POCKET/WEAPON 2",
+   "x": 231,
+   "y": 232,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "BODY FORGING opt",
+   "x": 4,
+   "y": 288,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "FOOT/LEG 1",
+   "x": 99,
+   "y": 288,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "FOOT/LEG 2",
+   "x": 190,
+   "y": 288,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "EXTRA STORAGE 1",
+   "x": 4,
+   "y": 344,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "EXTRA STORAGE 3",
+   "x": 284,
+   "y": 344,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "EXTRA STORAGE 2",
+   "x": 4,
+   "y": 396,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "SEND COLLECTOR",
+   "x": 144,
+   "y": 396,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "EXTRA STORAGE 4",
+   "x": 284,
+   "y": 396,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "GROUND 1",
+   "x": 4,
+   "y": 448,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "GROUND 2",
+   "x": 284,
+   "y": 448,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "SEND TO",
+   "x": 137.5,
+   "y": 450,
+   "l": 100,
+   "h": 44,
+   "cible": 44,
+   "mot": "Send to",
+   "cran": "T2/600",
+   "sorte": "bouton"
+  },
+  {
+   "nom": "PURSE",
+   "x": 323,
+   "y": 66,
+   "l": 44,
+   "h": 44,
+   "cible": 44,
+   "mot": "Purse",
+   "cran": "T1/600",
+   "sorte": "bouton"
+  },
+  {
+   "nom": "TALLY",
+   "x": 327,
+   "y": 236,
+   "l": 40,
+   "h": 40,
+   "cible": 44,
+   "mot": "Tally",
+   "cran": "T1/600",
+   "sorte": "bouton"
+  },
+  {
+   "nom": "COMPANIONS",
+   "x": 290,
+   "y": 292,
+   "l": 77,
+   "h": 40,
+   "cible": 44,
+   "mot": "Companions",
+   "cran": "T1/600",
+   "sorte": "bouton"
+  },
+  {
+   "nom": "BACKPACK",
+   "x": 64.0,
+   "y": 504,
+   "l": 77,
+   "h": 44,
+   "cible": 44,
+   "mot": "Backpack",
+   "cran": "T2/600",
+   "sorte": "porte"
+  },
+  {
+   "nom": "SEND",
+   "x": 149.0,
+   "y": 504,
+   "l": 77,
+   "h": 44,
+   "cible": 44,
+   "mot": "Send",
+   "cran": "T2/600",
+   "sorte": "porte"
+  },
+  {
+   "nom": "WARES",
+   "x": 234.0,
+   "y": 504,
+   "l": 77,
+   "h": 44,
+   "cible": 44,
+   "mot": "Wares",
+   "cran": "T2/600",
+   "sorte": "porte"
+  },
+  {
+   "nom": "livre",
+   "x": 15.0,
+   "y": 515.0,
+   "l": 22,
+   "h": 22,
+   "cible": 44,
+   "cible_x": 4,
+   "cible_y": 504,
+   "sorte": "rond"
+  },
+  {
+   "nom": "?",
+   "x": 338.0,
+   "y": 515.0,
+   "l": 22,
+   "h": 22,
+   "cible": 44,
+   "cible_x": 327,
+   "cible_y": 504,
+   "sorte": "rond"
+  },
+  {
+   "nom": "lune Backpack",
+   "x": 4,
+   "y": 119,
+   "l": 30,
+   "h": 30,
+   "cible": 44,
+   "sorte": "lune"
+  },
+  {
+   "nom": "lune Tally",
+   "x": 4,
+   "y": 163,
+   "l": 30,
+   "h": 30,
+   "cible": 44,
+   "sorte": "lune"
+  },
+  {
+   "nom": "lune Craft",
+   "x": 4,
+   "y": 207,
+   "l": 30,
+   "h": 30,
+   "cible": 44,
+   "sorte": "lune"
+  },
+  {
+   "nom": "lune Wares",
+   "x": 4,
+   "y": 251,
+   "l": 30,
+   "h": 30,
+   "cible": 44,
+   "sorte": "lune"
+  }
+ ]
+}

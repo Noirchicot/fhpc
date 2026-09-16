@@ -307,9 +307,9 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
     assert.ok(mot && mot.includes(motDuCran("class")), `pile ${nom} : le mot de la bourse nomme le cran Class`);
     const node = renderEquipmentStep({ document: doc, resolved: null, query: Q }, () => {});
     assert.equal(node.querySelector(".aiguilleur"), null, `pile ${nom} : sans classe, la question kit/or n'a pas d'objet — aucun aiguilleur, aucun « Take the »`);
-    /* la boutique : le dressing → Equipment → R, ses rayons et ses boutons */
-    const versR = [...node.querySelectorAll("button")].find((b) => b.textContent.trim() === "Equipment");
-    assert.ok(versR, `pile ${nom} : le dressing porte le bouton Equipment`);
+    /* la boutique : R (Gear) → Wares → le catalogue, ses rayons et ses boutons (lot 212) */
+    const versR = node.querySelector('.gear-porte[data-porte="wares"]');
+    assert.ok(versR, `pile ${nom} : le personnage équipé porte la porte Wares`);
     versR.dispatchEvent({ type: "click", preventDefault() {} });
     assert.ok(node.querySelector('.carte-r-bouton[data-mot="CART"]'), `pile ${nom} : la carte R est là`);
     /* le panier (B2) porte « My gold » : le mot, pas quatre tirets */
@@ -323,7 +323,7 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
        suivant et pour F1 */
     [...node.querySelectorAll("button")].find((b) => b.textContent.trim() === "BACK").dispatchEvent({ type: "click", preventDefault() {} });
     node.querySelector('.carte-r-bouton[data-mot="GEAR"]').dispatchEvent({ type: "click", preventDefault() {} });
-    assert.ok([...node.querySelectorAll("button")].some((b) => b.textContent.trim() === "Equipment"), `pile ${nom} : retour au dressing`);
+    assert.ok(node.querySelector(".gear"), `pile ${nom} : retour au personnage équipé`);
     /* avec classe : l'or de départ vient du record, le mot n'existe plus */
     const avecClasse = avec(doc, [CLASSE, ...SIX]);
     assert.equal(motDeLaBourse(avecClasse), null, `pile ${nom} : avec classe, aucun mot`);
@@ -491,14 +491,16 @@ test("F1 — 🔴 le `NEXT` de l'écran R d'Equipment DÉCLARE `done` — la coq
   const out = H.verbs.rebuild({ document: avec(neuf(H, "f1"), [CLASSE, ...SIX]) });
   const actions = [];
   const node = renderEquipmentStep({ document: out.document, resolved: out.resolved, query: H.layers.verbs.query }, (a) => actions.push(a));
-  /* le dressing (B3) ouvre l'écran ; son bouton `Equipment` mène à R */
-  const versR = [...node.querySelectorAll("button")].find((b) => b.textContent.trim() === "Equipment");
-  assert.ok(versR, "témoin : le dressing porte le bouton Equipment (→ R)");
+  /* R (Gear) ouvre l'écran ; sa porte `Wares` mène au catalogue (lot 212) */
+  const versR = node.querySelector('.gear-porte[data-porte="wares"]');
+  assert.ok(versR, "témoin : le personnage équipé porte la porte Wares (→ le catalogue)");
   versR.dispatchEvent({ type: "click", preventDefault() {} });
   const next = node.querySelector('.carte-r-bouton[data-mot="NEXT"]');
   assert.ok(next, "témoin : R porte son NEXT (croquis : GEAR CART CRAFT NEXT)");
   next.dispatchEvent({ type: "click", preventDefault() {} });
-  assert.deepEqual(actions, [{ kind: "done" }], "⛔ NEXT ne fait rien, ou fait autre chose que le verbe `done` de l'étape");
+  /* lot 212 : la porte Wares écrit d'abord son mot au belt (`fenetre`) — la
+     3ᵉ ligne de la tuile dominante — puis NEXT déclare `done`, et rien d'autre */
+  assert.deepEqual(actions, [{ kind: "fenetre", mot: "Wares" }, { kind: "done" }], "⛔ NEXT ne fait rien, ou fait autre chose que le verbe `done` de l'étape");
   /* et le verbe est celui que toute étape emploie pour avancer, par la
      coquille : `pressDone` → `equipmentValidate` (toujours prête, `next:
      "step"`) → `cranVoisin(1)` */
