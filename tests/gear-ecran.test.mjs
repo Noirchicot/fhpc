@@ -191,8 +191,9 @@ test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois 
   assert.equal(e.dataset.occupe, "oui");
   assert.equal(e.querySelector(".gear-nom"), null, "(b) Eric 16/09 : le nom du slot s'efface quand un objet est posé");
   assert.match(e.getAttribute("aria-label"), /^HEAD\/FACE — Winged helmet/, "…mais il reste dans le nom accessible");
-  assert.equal(e.querySelector(".gear-objet").textContent, "Winged helmet");
-  assert.equal(e.querySelector(".gear-qte").textContent, "×2");
+  assert.match(e.querySelector(".gear-objet").textContent, /^Winged helmet/);
+  /* la quantité suit le nom sur sa ligne (Eric, 16/09 : trois lignes au plus pour l'objet) */
+  assert.equal(e.querySelector(".gear-objet .gear-qte").textContent, "×2");
   const etats = Object.fromEntries(tous(e, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat]));
   assert.deepEqual(etats, { verrou: "non", equipe: "oui", harmonise: "non" });
   assert.equal(n.querySelector('[data-organe="tete2"]').dataset.occupe, undefined, "le voisin reste vide");

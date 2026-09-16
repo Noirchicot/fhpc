@@ -9189,13 +9189,20 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-emplacement[data-occupe] {
   border-color: var(--border-strong);
   background: var(--jeton-teinte); box-shadow: var(--relief);
+  /* Eric, 16/09 : « un peu de place au-dessus pour marquer le statut équipé,
+     attuned ou locked » — la bande des voyants ; le nom prend le reste */
+  padding-top: var(--sp-8); justify-content: flex-start;
   cursor: grab;
 }
 /* ⚖️ Eric, 16/09 : *« pour le descriptif des wares faut passer en T1 »* — le nom
    de l'objet posé descend de T2 à T1 (le plan disait T2/600) ; la graisse reste. */
+/* « ce qui laisse la possibilité de 3 lignes en hauteur et plus de largeur pour
+   les titres à rallonge » (Eric, 16/09) : le nom se replie, trois lignes au plus
+   (3 × 11 = 33 dans les 44 − 8 utiles), et la quantité le suit sur sa ligne. */
 .gear-objet {
   font-size: var(--t1); font-weight: 600; max-width: 100%;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;
 }
 .gear-qte { font-size: var(--t1); color: var(--text-muted); }
 .gear-emplacement[data-glisse="true"] { opacity: .35; cursor: grabbing; }

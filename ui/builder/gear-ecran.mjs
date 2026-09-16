@@ -196,8 +196,10 @@ function emplacement(o, id, pose, options) {
      le « drop it here » d'un collecteur. ⛔ Pas masqué, pas rendu (garde 4) :
      le nom reste dans l'aria-label, le lecteur d'écran l'entend. */
   e.dataset.occupe = "oui";
-  e.append(eld("span", "gear-objet", pose.nom));
-  if (pose.qte > 1) e.append(eld("span", "gear-qte", `×${pose.qte}`));
+  const objet = eld("span", "gear-objet", pose.nom);
+  /* la quantité suit le nom sur sa ligne : trois lignes au plus pour les deux */
+  if (pose.qte > 1) objet.append(" ", eld("span", "gear-qte", `×${pose.qte}`));
+  e.append(objet);
   const voyants = eld("span", "gear-voyants");
   for (const [voyant, etat] of [["verrou", pose.locked], ["equipe", pose.equipped], ["harmonise", pose.attuned]]) {
     const v = eld("span", "gear-voyant");
