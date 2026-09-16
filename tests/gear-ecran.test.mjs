@@ -129,7 +129,11 @@ test("3 — chaque organe posé a une clef, chaque clef est unique, et les empla
     if (o.creation === false) {
       if (o.nom === "PARTY TALLY") {
         assert.equal(CLEF_DE[o.nom], "party-tally", "le Group Tally a sa clef : sa place est réservée");
-        assert.ok(feuilleDesCotes().includes(`[data-organe="party-tally"]{left:${o.x}px`), "et sa cote est posée d'avance");
+        /* ⛔ SA CIBLE, PAS SON DESSIN : depuis qu'Eric a réduit les parchemins à 40
+           (16/09 au soir), la règle pose la BOÎTE DE CIBLE et laisse des bords
+           transparents porter l'écart. Comparer `o.x` ici aurait rougi pour la
+           bonne raison — je l'ai écrit, et le garde me l'a dit. */
+        assert.ok(feuilleDesCotes().includes(`[data-organe="party-tally"]{left:${cibleDe(o).x}px`), "et sa cote est posée d'avance");
         clefs.push(CLEF_DE[o.nom]);
         continue;
       }
@@ -223,6 +227,19 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   assert.match(rendu({ compteParty: 7 }).querySelector('[data-organe="party-tally"]').getAttribute("aria-label"), /^Party tally — 7 lines$/);
   /* et la feuille lui donne SON parchemin, pas celui du Tally personnel */
   assert.match(shell, /\[data-organe="party-tally"\]\s*\{\s*background-image:\s*var\(--icone-parchemin-party\)/);
+  /* ⚖️ UN TALLY VIDE S'EFFACE AU LIEU DE S'ENTOURER — Eric, 16/09 au soir : « plutôt
+     que de faire un halo… mets un voile à 10 % sur l'image ». ⛔ Et le halo ne doit
+     pas revenir par une autre porte : il disait la même chose une seconde fois. */
+  assert.match(shell, /\.gear-bouton\[data-organe="party-tally"\]\s*\{\s*opacity:\s*var\(--tally-eteint\)/);
+  assert.match(shell, /:not\(\[data-compte="0"\]\)\s*\{\s*opacity:\s*1\s*;?\s*\}/, "plein dès la première ligne");
+  assert.match(tokens, /--tally-eteint:\s*\.\d+/, "le voile est un jeton, pas un littéral perdu dans la feuille");
+  assert.ok(!/opacity:\s*var\(--tally-eteint\)[^}]*box-shadow/.test(shell), "⛔ le halo du tally est retiré, il ne revient pas");
+  /* ⚖️ ET LE NOM D'UNE PLACE EN ATTENTE EST EN ITALIQUE, encre douce — Eric, 16/09 :
+     « pour les emplacements et les collecteurs, idem ». ⭐ Une seule règle les tient
+     tous les deux : `.gear-nom` est porté par l'emplacement vide ET par le collecteur. */
+  assert.match(shell, /\.gear-nom\s*\{[^}]*font-style:\s*italic/);
+  assert.match(shell, /\.gear-nom\s*\{[^}]*color:\s*var\(--text-soft\)/);
+  assert.match(shell, /\.gear-nom\s*\{[^}]*font-size:\s*var\(--t1\)/);
   assert.match(tokens, /--icone-parchemin-party:\s*url\(/);
   assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
   assert.equal(tous(n, ".gear-rangee").length, 1);
@@ -286,6 +303,20 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions et
   const options = tous(n, "option");
   assert.deepEqual(options.map((o) => o.textContent), DESTINATIONS.map((d) => d.mot));
   assert.deepEqual(options.map((o) => o.disabled === true), DESTINATIONS.map((d) => !d.actif));
+  /* ⚖️ LE MOT « destination » EST COLLÉ AU HAUT DE LA BOÎTE, PAS DANS LE SELECT —
+     Eric, 16/09 au soir. ⛔ Un `<select>` ne rend que ses `<option>` : le mot vit
+     donc dans la boîte qui porte l'organe, et le select la remplit. */
+  const boite = n.querySelector('[data-organe="send-to"]');
+  assert.equal(boite.tagName, "DIV", "l'organe du plan est la BOÎTE — c'est elle qui reçoit la cote");
+  assert.equal(boite.children[0].className, "gear-destination-mot", "le mot vient EN PREMIER : c'est ce qui le colle au haut");
+  assert.equal(boite.children[0].textContent, "destination");
+  assert.equal(boite.children[0].getAttribute("aria-hidden"), "true", "le select porte déjà le nom accessible");
+  assert.equal(boite.children[1].tagName, "SELECT", "et le select est dessous, entier");
+  assert.equal(boite.querySelector("select").getAttribute("aria-label"), "Send to");
+  assert.match(shell, /\.gear-destination-mot\s*\{[^}]*font-size:\s*var\(--t1\)/, "T1");
+  assert.match(shell, /\.gear-destination-mot\s*\{[^}]*font-style:\s*italic/, "italique");
+  assert.match(shell, /\.gear-destination-mot\s*\{[^}]*color:\s*var\(--text-soft\)/,
+    "une encre douce qui bascule — « un peu moins blanc flashy », et un blanc fixe aurait crié la nuit");
 });
 
 test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {

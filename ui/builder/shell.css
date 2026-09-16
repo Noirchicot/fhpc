@@ -9276,9 +9276,17 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   background: none; box-shadow: var(--creux); color: var(--text);
   text-align: center; line-height: 1.1;
 }
+/* ⚖️ LE NOM D'UN EMPLACEMENT VIDE — Eric, 16/09 au soir : *« pour les emplacements
+   et les collecteurs, idem : italique, T1, blanc discret »*, « idem » renvoyant au
+   mot « destination » du dropdown posé juste avant.
+   ⭐ CE QUE ÇA DIT, ET C'EST LA MÊME CHOSE DES DEUX CÔTÉS : ces mots ne nomment pas
+   un contenu, ils nomment une PLACE EN ATTENTE. L'italique les distingue du nom d'un
+   objet POSÉ (`.gear-objet`, droit et gras) sans qu'on ait à comparer deux tailles.
+   ⛔ LA CASSE NE CHANGE PAS : « HEAD/FACE », « POCKET/WEAPON » sont l'écriture du
+   croquis d'Eric (15/09), pas un effet de style — et il n'a pas demandé à y toucher. */
 .gear-nom {
   font-size: var(--t1); text-transform: uppercase; letter-spacing: .04em;
-  color: var(--text-muted); max-width: 100%;
+  font-style: italic; color: var(--text-soft); max-width: 100%;
 }
 /* Body forging 2 : « optional when feat » — présent en creux tant que le don
    n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`). */
@@ -9408,16 +9416,37 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    personnel. ⛔ Il n'apparaît qu'en jeu : à la création, la donnée ne le porte pas
    et le module ne le pose pas. Sa place lui est réservée par le plan. */
 .gear-bouton[data-organe="party-tally"] { background-image: var(--icone-parchemin-party); }
-.gear-bouton[data-organe="party-tally"]:not([data-compte="0"]),
-.gear-bouton[data-organe="tally"]:not([data-compte="0"]) {
-  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
-}
+/* 🔴 LE TALLY VIDE S'EFFACE, IL NE S'ENTOURE PAS — Eric, 16/09 au soir. Le halo
+   est retiré : c'est l'OPACITÉ de l'image qui porte l'état, et elle le porte mieux.
+   ⭐ Un parchemin à 10 % se lit « il n'y a rien là » d'un coup d'œil ; un halo
+   demandait de comparer deux pourtours.
+   ⛔ CE N'EST PAS `visibility`, NI UN RETRAIT DU DOM : le bouton reste là, cliquable
+   et nommé — on ouvre un tally vide, c'est même ainsi qu'on y met la première ligne.
+   Seule sa PEINTURE recule. */
+.gear-bouton[data-organe="tally"],
+.gear-bouton[data-organe="party-tally"] { opacity: var(--tally-eteint); }
+.gear-bouton[data-organe="tally"]:not([data-compte="0"]),
+.gear-bouton[data-organe="party-tally"]:not([data-compte="0"]) { opacity: 1; }
 /* la bourse d'Eric (la seconde, déposée le 16/09 au soir — vue de dessus, les
    pièces au centre) : l'image est le bouton ; le montant est le voyant posé dessus */
 .gear-bouton[data-organe="purse"] { background-image: var(--icone-bourse); }
 
 /* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
 .gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
+/* ⚖️ LA BOÎTE DU DROPDOWN — Eric, 16/09 au soir : le mot « destination » collé au
+   haut, la valeur choisie dessous. ⭐ C'EST LA BOÎTE QUI REÇOIT LA COTE du plan
+   (`[data-organe="send-to"]`, 100 × 44) ; le select prend ce que le mot laisse. */
+.gear-destination { display: flex; flex-direction: column; overflow: hidden; }
+.gear-destination .gear-send-to { flex: 1 1 auto; min-height: 0; }
+/* 📏 T1, ITALIQUE, ET UNE ENCRE DOUCE — *« couleur un peu moins blanc flashy »* :
+   `--text-soft`, qui bascule avec le thème là où un blanc fixe aurait crié la nuit
+   et disparu le jour. ⛔ Le mot ne se clique pas : c'est une étiquette, le select
+   dessous porte le geste et son nom accessible. */
+.gear-destination-mot {
+  font-size: var(--t1); font-style: italic; font-weight: 400; line-height: 1;
+  color: var(--text-soft); text-align: center; pointer-events: none;
+  padding-top: var(--sp-2);
+}
 
 /* — LA RANGÉE DU PIED : la cinquième porte de §6 pré (`data-rangee`), deux
    bornes et un groupe ; la grille place le livre, les trois portes et le `?`.

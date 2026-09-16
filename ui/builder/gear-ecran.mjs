@@ -278,8 +278,19 @@ function collecteur(id, options) {
 /** Le dropdown `Send to` — l'organe du §8 (`.pipeline-dropdown`) : très large,
  *  peu haut, aucun liseré. Les quatre destinations de la création. */
 function dropdown(id, options) {
+  /* ⚖️ UNE BOÎTE AUTOUR DU SELECT, ET C'EST LE `<select>` NATIF QUI L'IMPOSE —
+     Eric, 16/09 au soir : *« dans le dropdown rajoute collé au haut, en T1, en
+     italique, couleur un peu moins blanc flashy : destination »*. ⛔ On ne peut
+     rien écrire DANS un `<select>` : il ne rend que ses `<option>`, et ses
+     pseudo-éléments ne sont pas fiables d'un moteur à l'autre. La boîte porte donc
+     le mot et l'organe ; le select, lui, ne perd ni son rôle ni son clavier.
+     ⭐ C'EST LA BOÎTE QUI PORTE `data-organe` : elle EST l'organe du plan, celui
+     dont la cote est posée. Le select la remplit. */
+  const boite = eld("div", "gear-destination");
+  boite.dataset.organe = id;
+  const mot = eld("span", "gear-destination-mot", "destination");
+  mot.setAttribute("aria-hidden", "true");   /* le select dit déjà « Send to » */
   const s = eld("select", "pipeline-dropdown gear-send-to");
-  s.dataset.organe = id;
   s.setAttribute("aria-label", "Send to");
   for (const d of DESTINATIONS) {
     const opt = eld("option", null, d.mot);
@@ -289,7 +300,8 @@ function dropdown(id, options) {
     s.append(opt);
   }
   s.addEventListener("change", () => { if (options.surDestination) options.surDestination(s.value); });
-  return s;
+  boite.append(mot, s);
+  return boite;
 }
 
 /* Les trois boutons libres du corps de l'écran (gabarit « libre », Eric 16/09 :
