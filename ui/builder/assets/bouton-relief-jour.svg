@@ -1,50 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="26" height="40" viewBox="0 0 26 40">
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="40" viewBox="0 0 26 40" class="fh-relief" data-state="repos">
+  <style>svg.fh-relief>.fh-pressed{display:none}svg.fh-relief[data-state="presse"]>.fh-rest{display:none}svg.fh-relief[data-state="presse"]>.fh-pressed{display:inline}</style>
   <defs>
-    <linearGradient id="j0" gradientUnits="userSpaceOnUse" x1="13" y1="0" x2="13" y2="2">
-      <stop offset="0" stop-color="#e9967a"/><stop offset="1" stop-color="#cf7454"/>
+    <linearGradient id="f0" gradientUnits="userSpaceOnUse" x1="13" y1="0" x2="13" y2="2">
+      <stop stop-color="#c0b6a4"/><stop offset="1" stop-color="#746d61"/>
     </linearGradient>
-    <linearGradient id="j1" gradientUnits="userSpaceOnUse" x1="22" y1="4" x2="20.586" y2="5.414">
-      <stop offset="0" stop-color="#dc8466"/><stop offset="1" stop-color="#bf6646"/>
+    <linearGradient id="f1" gradientUnits="userSpaceOnUse" x1="22" y1="4" x2="20.586" y2="5.414">
+      <stop stop-color="#9c9383"/><stop offset="1" stop-color="#5b554b"/>
     </linearGradient>
-    <linearGradient id="j2" gradientUnits="userSpaceOnUse" x1="26" y1="18" x2="24" y2="18">
-      <stop offset="0" stop-color="#c3694a"/><stop offset="1" stop-color="#9d4c2d"/>
+    <linearGradient id="f2" gradientUnits="userSpaceOnUse" x1="26" y1="18" x2="24" y2="18">
+      <stop stop-color="#36332d"/><stop offset="1" stop-color="#625d53"/>
     </linearGradient>
-    <linearGradient id="j3" gradientUnits="userSpaceOnUse" x1="22" y1="32" x2="20.586" y2="30.586">
-      <stop offset="0" stop-color="#994830"/><stop offset="1" stop-color="#78371f"/>
+    <linearGradient id="f3" gradientUnits="userSpaceOnUse" x1="22" y1="32" x2="20.586" y2="30.586">
+      <stop stop-color="#282620"/><stop offset="1" stop-color="#484238"/>
     </linearGradient>
-    <linearGradient id="j4" gradientUnits="userSpaceOnUse" x1="13" y1="36" x2="13" y2="34">
-      <stop offset="0" stop-color="#8a3f26"/><stop offset="1" stop-color="#682d17"/>
+    <linearGradient id="f4" gradientUnits="userSpaceOnUse" x1="13" y1="36" x2="13" y2="34">
+      <stop stop-color="#25231e"/><stop offset="1" stop-color="#474137"/>
     </linearGradient>
-    <linearGradient id="j5" gradientUnits="userSpaceOnUse" x1="4" y1="32" x2="5.414" y2="30.586">
-      <stop offset="0" stop-color="#9f4c30"/><stop offset="1" stop-color="#7e3a22"/>
+    <linearGradient id="f5" gradientUnits="userSpaceOnUse" x1="4" y1="32" x2="5.414" y2="30.586">
+      <stop stop-color="#363128"/><stop offset="1" stop-color="#62594a"/>
     </linearGradient>
-    <linearGradient id="j6" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="2" y2="18">
-      <stop offset="0" stop-color="#c96e4c"/><stop offset="1" stop-color="#a3502f"/>
+    <linearGradient id="f6" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="2" y2="18">
+      <stop stop-color="#8c826f"/><stop offset="1" stop-color="#4c473d"/>
     </linearGradient>
-    <linearGradient id="j7" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="5.414" y2="5.414">
-      <stop offset="0" stop-color="#e28b6d"/><stop offset="1" stop-color="#c56b4a"/>
+    <linearGradient id="f7" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="5.414" y2="5.414">
+      <stop stop-color="#b8ae9b"/><stop offset="1" stop-color="#70695d"/>
     </linearGradient>
-    <linearGradient id="jt" gradientUnits="userSpaceOnUse" x1="13" y1="36" x2="13" y2="40">
-      <stop offset="0" stop-color="#6a2e17"/><stop offset="1" stop-color="#45200f"/>
+    <linearGradient id="face" x2="0" y2="1">
+      <stop stop-color="#554f46"/><stop offset=".35" stop-color="#454037"/><stop offset="1" stop-color="#35312b"/>
     </linearGradient>
-    <linearGradient id="jf" gradientUnits="userSpaceOnUse" x1="13" y1="2" x2="13" y2="34">
-      <stop offset="0" stop-color="#c1653f"/>
-      <stop offset="0.45" stop-color="#ad5433"/>
-      <stop offset="1" stop-color="#984626"/>
+    <linearGradient id="side" gradientUnits="userSpaceOnUse" x1="0" y1="28" x2="0" y2="40">
+      <stop stop-color="#36332d"/><stop offset="1" stop-color="#1d1b18"/>
     </linearGradient>
+    <g id="cap">
+      <polygon points="8,0 18,0 26,8 26,28 18,36 8,36 0,28 0,8" fill="#454037"/>
+      <polygon points="8,0 18,0 17.172,2 8.828,2" fill="url(#f0)"/>
+      <polygon points="18,0 26,8 24,8.828 17.172,2" fill="url(#f1)"/>
+      <polygon points="26,8 26,28 24,27.172 24,8.828" fill="url(#f2)"/>
+      <polygon points="26,28 18,36 17.172,34 24,27.172" fill="url(#f3)"/>
+      <polygon points="18,36 8,36 8.828,34 17.172,34" fill="url(#f4)"/>
+      <polygon points="8,36 0,28 2,27.172 8.828,34" fill="url(#f5)"/>
+      <polygon points="0,28 0,8 2,8.828 2,27.172" fill="url(#f6)"/>
+      <polygon points="0,8 8,0 8.828,2 2,8.828" fill="url(#f7)"/>
+      <polygon points="8.828,2 17.172,2 24,8.828 24,27.172 17.172,34 8.828,34 2,27.172 2,8.828" fill="url(#face)"/>
+    </g>
   </defs>
-  <polygon points="8,4 18,4 26,12 26,32 18,40 8,40 0,32 0,12" fill="#2f150a"/>
-  <polygon points="26,28 18,36 18,40 26,32" fill="url(#jt)"/>
-  <polygon points="18,36 8,36 8,40 18,40" fill="url(#jt)"/>
-  <polygon points="8,36 0,28 0,32 8,40" fill="url(#jt)"/>
-  <polygon points="8,0 18,0 26,8 26,28 18,36 8,36 0,28 0,8" fill="#b45a3a"/>
-  <polygon points="8,0 18,0 17.172,2 8.828,2" fill="url(#j0)"/>
-  <polygon points="18,0 26,8 24,8.828 17.172,2" fill="url(#j1)"/>
-  <polygon points="26,8 26,28 24,27.172 24,8.828" fill="url(#j2)"/>
-  <polygon points="26,28 18,36 17.172,34 24,27.172" fill="url(#j3)"/>
-  <polygon points="18,36 8,36 8.828,34 17.172,34" fill="url(#j4)"/>
-  <polygon points="8,36 0,28 2,27.172 8.828,34" fill="url(#j5)"/>
-  <polygon points="0,28 0,8 2,8.828 2,27.172" fill="url(#j6)"/>
-  <polygon points="0,8 8,0 8.828,2 2,8.828" fill="url(#j7)"/>
-  <polygon points="8.828,2 17.172,2 24,8.828 24,27.172 17.172,34 8.828,34 2,27.172 2,8.828" fill="url(#jf)"/>
+  <polygon points="8,4 18,4 26,12 26,32 18,40 8,40 0,32 0,12" fill="#161512"/>
+  <g class="fh-rest">
+    <path d="M26,8 L26,28 L26,32 L26,12Z M26,28 L18,36 L18,40 L26,32Z M18,36 L8,36 L8,40 L18,40Z M8,36 L0,28 L0,32 L8,40Z M0,28 L0,8 L0,12 L0,32Z" fill="url(#side)"/>
+    <use href="#cap" y="0"/>
+  </g>
+  <g class="fh-pressed">
+    <path d="M26,10 L26,30 L26,32 L26,12Z M26,30 L18,38 L18,40 L26,32Z M18,38 L8,38 L8,40 L18,40Z M8,38 L0,30 L0,32 L8,40Z M0,30 L0,10 L0,12 L0,32Z" fill="url(#side)"/>
+    <use href="#cap" y="2"/>
+  </g>
 </svg>

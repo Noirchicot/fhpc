@@ -777,13 +777,15 @@
      bords étirés chacun dans SA direction. Et chaque bord est uniforme dans la
      direction où il s'étire (le haut est un dégradé vertical, le droit
      horizontal), donc l'étirement ne peut rien déformer de visible. */
-  /* 🔴 16/09 SOIR — LA TUILE N'EST PLUS CELLE DU GÉNÉRATEUR. Eric : « 3D moche »,
-     « je veux un bouton ivoire pour nuit et terracotta pour jour ». Les deux tuiles
-     sont LIVRÉES (ChatGPT, sur le prompt d'Eric, couleurs arrêtées), collées telles
-     quelles, et gardées à l'octet par `tests/fixtures/bouton-relief-{jour,nuit}.svg`.
-     26 × 40, coins de 9 (le chanfrein va jusqu'à 8,828 : un coin de 8 le coupait, et le
-     bord haut étiré en répétait l'oblique — le « bord supérieur gauche » manquant).
-     `bouton-relief.mjs` reste la preuve de la géométrie, il ne produit plus la tuile. */
+  /* 🔴 16/09 SOIR — DEUX TUILES, UNE PAR THÈME, gardées à l'octet par
+     `tests/fixtures/bouton-relief-{jour,nuit}.svg`. 26 × 40, coins de 9 : le chanfrein
+     va jusqu'à 8,828, un coin de 8 le coupait et le bord haut étiré en répétait
+     l'oblique — le « bord supérieur gauche » manquant (Eric).
+     ⛔ L'ESSAI IVOIRE / TERRACOTTA (v634) EST RETIRÉ LE SOIR MÊME : « ultra moche et hors
+     sujet », « t'as tout mis sur des boutons rouges » — un orange saturé sans relief
+     lisible, et l'anneau de rôle noyé dedans. Les teintes étaient de mon prompt. Les deux
+     thèmes relisent le graphite de la planche d'Eric, produit par `svg(26, 40)` ; la
+     prochaine matière se choisit À L'ŒIL sur `banc-boutons.html`, pas en hexadécimal. */
   --bouton-relief: url("./assets/bouton-relief-jour.svg?v=633");
 
   /* 🔴 L'ANNEAU DU LISERÉ, EN CSS PUR — et c'est la trouvaille du lot.
