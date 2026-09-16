@@ -9410,8 +9410,16 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      sous un dé, jamais une ligne à lire »*. Le montant EST un détail posé sur
      une image, pas une ligne de texte — et l'information reste entière pour qui
      ne peut pas le lire, dans l'`aria-label` du bouton (« Purse — 85565 gp »).
-     📏 Mesuré à ce cran : « 99 999 » rend 26,26 dans les 40 de la zone. */
-  font-size: var(--t0); font-weight: 400;
+     🔴 REMONTÉ À T1 LE 17/09, ET C'EST LE `K` QUI LE PERMET — Eric : *« comme on
+     met des K au-dessus de 10 000, tu peux augmenter d'un incrément le chiffre total
+     visible à nu sur la fiche »*. ⭐ Le raccourci d'écriture a LIBÉRÉ de la place :
+     le pire cas n'est plus « 152 210 » mais « 1 234K ».
+     📏 MESURÉ AVANT DE MONTER : à T1, « 1 234K » rend 31,34 dans les 40 de la zone,
+     « 999K » 25,32. ⛔ Le cas qui commande n'est pas le plus fréquent, c'est le plus
+     LONG — et il reste 8,66 de marge.
+     ⚖️ Et ça sort `--t0` de cet organe, dont le corpus dit qu'il n'est « jamais une
+     ligne à lire » : la tension que j'avais signalée le 16/09 se dissout d'elle-même. */
+  font-size: var(--t1); font-weight: 400;
   line-height: 1.2; pointer-events: none;
   /* ⚖️ EN LIGNE JUSQU'À DEUX CHIFFRES, EMPILÉ AU-DELÀ — Eric, 16/09 au soir :
      *« les gp sous le chiffre au-delà de 2 digits »*. ⭐ L'écart entre le nombre

@@ -566,9 +566,9 @@ test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vi
      gras et descends d'un incrément ». La table le porte, la feuille le rend : les
      deux doivent dire la même chose, sinon le garde des libellés du plan mesure un
      mot dans une taille que personne ne sert. */
-  assert.equal(montant.cran, "T0/400", "le plan porte le cran maigre du montant");
-  assert.match(shell, /\.gear-montant\s*\{[^}]*font-size:\s*var\(--t0\)[^}]*font-weight:\s*400/,
-    "la feuille sert le cran que le plan déclare — T0, maigre");
+  assert.equal(montant.cran, "T1/400", "le plan porte le cran du montant — remonté le 17/09 grâce au K");
+  assert.match(shell, /\.gear-montant\s*\{[^}]*font-size:\s*var\(--t1\)[^}]*font-weight:\s*400/,
+    "la feuille sert le cran que le plan déclare — T1, maigre");
   assert.match(tokens, /--bourse-encre:\s*#/, "le jeton existe");
   assert.match(shell, /\.gear-porte\[data-porte="send"\]\s*\{\s*--bouton-fond:\s*var\(--positive\)/, "Send : liseré vert (une conséquence) ; les autres portes restent bleues");
   if (montant) assert.ok(feuilleDesCotes().includes(`[data-organe="montant"]{left:${montant.x}px;top:${montant.y - BELT_H}px;width:${montant.l}px;height:${montant.h}px}`), "le montant est posé par la table");
