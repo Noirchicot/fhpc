@@ -200,8 +200,8 @@ test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois 
   assert.equal(n.querySelector('[data-organe="tete2"]').dataset.occupe, undefined, "le voisin reste vide");
   /* Eric, 16/09 : la barre d'un libellé est un retour à la ligne (« weapons sous pocket ») */
   const nom = n.querySelector('[data-organe="tete2"]').querySelector(".gear-nom");
-  assert.equal(nom.textContent, "HEADFACE");
-  assert.equal(nom.querySelectorAll("br").length, 1, "HEAD et FACE sur deux lignes");
+  assert.equal(nom.textContent, "HEAD/FACE");
+  assert.equal(nom.querySelectorAll("wbr").length, 1, "la barre est une occasion de retour, pas un retour (« on superpose quand ça dépasse »)");
 });
 
 test("5 ter — le collecteur est la seule cible de dépôt, et il compte ce qu'il retient", () => {

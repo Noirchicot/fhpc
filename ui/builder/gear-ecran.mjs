@@ -108,12 +108,12 @@ export function libelleDe(nom) {
 }
 
 /** Le libellé posé dans la case : ⚖️ Eric, 16/09 — *« weapons sous pocket ! »*,
- *  *« legs sous foot »* : la barre d'un libellé devient un RETOUR À LA LIGNE —
- *  HEAD / FACE, TORSO / BACK, ARM / HANDS, POCKET / WEAPON, FOOT / LEGS, chacun
- *  sur deux lignes. Le croquis les écrit avec la barre ; l'écran les empile. */
+ *  puis *« non, on superpose quand ça dépasse »* : la barre reste, et elle
+ *  devient une OCCASION de retour (`<wbr>`) — le libellé tient sur une ligne
+ *  quand il y tient, se superpose quand il déborde. Rien de forcé. */
 function poserLeLibelle(span, mot) {
   const parts = mot.split("/");
-  parts.forEach((p, i) => { if (i) span.append(document.createElement("br")); span.append(p); });
+  parts.forEach((p, i) => { if (i) span.append("/", document.createElement("wbr")); span.append(p); });
   return span;
 }
 
@@ -294,6 +294,7 @@ function boutonCompanions(id) {
      porte vers B4, posée par la feuille des cotes comme les autres organes */
   const b = bouton("gear-porte", "Companions", "Companions");
   b.dataset.organe = id;
+  b.dataset.porte = id;   /* le cran du plan (T1/600, rembourrage 4) se pose sur cette paire d'attributs */
   /* B4 est un lot à part : le bouton se montre, il ne répond pas encore —
      `disabled`, jamais un bouton muet qui passerait pour cassé. */
   b.disabled = true;

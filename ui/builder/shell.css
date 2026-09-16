@@ -9304,6 +9304,13 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   /* naviguer = bleu (les trois verbes de la rangée, §6) */
   --bouton-fond: var(--info);
 }
+/* ⚖️ COMPANIONS — le sur-mesure du plan : T1/600, rembourrage --sp-4 (« Companions »
+   demande 60,97 dans 69 ; à T2 il fait 73,17 dans 61 et sort — Eric, 16/09 :
+   « companions centré ! »). ⚠️ (0,3,1), à égalité avec le plancher des gabarits
+   `:is(…):not():not()` et posé après : il gagne par l'ordre, pas par un artifice. */
+button.gear-porte[data-organe="companions"][data-porte] {
+  font-size: var(--t1); padding-inline: var(--sp-4);
+}
 
 
 /* ══════════════════════════════════════════════════════════════════════════
