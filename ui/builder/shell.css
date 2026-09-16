@@ -9181,11 +9181,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`). */
 .gear-emplacement[data-optionnelle] { opacity: .6; }
 /* occupé : l'habit du JETON — teinte et relief (le relief REMPLACE le creux, il
-   ne s'y ajoute pas) — et le liseré bleu du collecteur rempli (NORMES §2 ter :
-   le fond dit ce qu'il porte, le liseré dit son état). Le nom du slot reste,
-   en étiquette, au-dessus de l'objet. */
+   ne s'y ajoute pas). ⛔ AUCUN liseré de couleur — Eric, 16/09 : *« les liserés
+   de couleur sont inutiles dans Gear, sauf pour le collecteur »* : la bordure
+   reste transparente, à sa cote. Le nom du slot reste, en étiquette, au-dessus
+   de l'objet. */
 .gear-emplacement[data-occupe] {
-  border-color: var(--info);
   background: var(--jeton-teinte); box-shadow: var(--relief);
   cursor: grab;
 }
@@ -9195,8 +9195,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .gear-qte { font-size: var(--t1); color: var(--text-muted); }
 .gear-emplacement[data-glisse="true"] { opacity: .35; cursor: grabbing; }
-/* retenu par le collecteur, en attente d'envoi */
-.gear-emplacement[data-collecte] { border-color: var(--positive); }
+/* retenu par le collecteur, en attente d'envoi : l'état est sur le nœud
+   (`data-collecte`), c'est le collecteur qui le montre — pas de liseré ici. */
 
 /* — LES TROIS VOYANTS — ⛔ des voyants, pas des boutons : on les lit, on ne
    les tape pas, le plancher de 44 ne s'applique pas (artefact 15/09). Eric :
@@ -9228,8 +9228,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   border-radius: var(--radius-pill) var(--radius-pill) 0 0;
 }
 
-/* — LE COLLECTEUR : la cible s'allume quand on l'approche, et le liseré dit
-   qu'il retient quelque chose — */
+/* — LE COLLECTEUR : le SEUL organe de Gear à porter un liseré de couleur
+   (Eric, 16/09) — la cible s'allume quand on l'approche, et le liseré bleu dit
+   qu'il retient quelque chose. — */
 .gear-collecteur[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
 .gear-collecteur:not([data-compte="0"]) { border-color: var(--info); }
 
