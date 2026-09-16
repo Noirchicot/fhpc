@@ -8559,6 +8559,27 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point)),
 .card-pied button,
 .fiche-action, /* CHOOSE — un libellé, donc l'octogone (Eric, 28/08) */
+/* 🔴 LE CHAPITRE ÉQUIPEMENT A REJOINT LE PATRON — Eric, 2026-09-16 :
+   *« 2 oui une seule apparence partout »*.
+   ⛔ CE QU'IL Y AVAIT AVANT, ET POURQUOI ÇA NE POUVAIT PAS DURER : une COPIE
+   mot pour mot de ces trois règles vivait 540 lignes plus bas, écrite pour le
+   chapitre. Comparée déclaration par déclaration avant de la retirer, elle
+   était identique AU CARACTÈRE — mais deux copies d'un même dessin sont deux
+   écrivains pour une seule loi, et la première repeinture du socle les aurait
+   fait diverger en silence.
+   ⭐ LA RÉPARATION EST LA SUPPRESSION DU SECOND ÉCRIVAIN, pas la
+   synchronisation de deux copies.
+   ⚠️ ET ELLE NE POUVAIT PAS ÊTRE UN SIMPLE DÉPLACEMENT : remonter ces six-là
+   ici les fait passer AVANT des déclarations qui étaient jusqu'alors écrasées
+   par la copie. Une seule l'était réellement (`.dressing-bouton`, son liseré
+   rouge et son encre) — retirée au même endroit, dans le même geste. ⛔ Une
+   fusion qui ne regarde que le contenu des blocs manque ce piège-là. */
+.pipeline-bouton,
+.dressing-bouton,
+.carte-r-bouton,
+.pipeline-ligne-envoi,
+.pipeline-pas,
+.aiguilleur-bouton,
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
    loi »*.
@@ -8616,7 +8637,14 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::before,
 .card-pied button::before,
 .fiche-action::before,
-.ability-entry::before {
+.ability-entry::before,
+/* le chapitre Équipement — une seule apparence partout (Eric, 16/09) */
+.pipeline-bouton::before,
+.dressing-bouton::before,
+.carte-r-bouton::before,
+.pipeline-ligne-envoi::before,
+.pipeline-pas::before,
+.aiguilleur-bouton::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -8646,7 +8674,14 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .parcours-pied button:not(.fiche-livre):where(:not(.tuto-point))::after,
 .card-pied button::after,
 .fiche-action::after,
-.ability-entry::after {
+.ability-entry::after,
+/* le chapitre Équipement — une seule apparence partout (Eric, 16/09) */
+.pipeline-bouton::after,
+.dressing-bouton::after,
+.carte-r-bouton::after,
+.pipeline-ligne-envoi::after,
+.pipeline-pas::after,
+.aiguilleur-bouton::after {
   content: "";
   position: absolute;
   inset: var(--bouton-biseau-epaisseur);
@@ -8994,7 +9029,22 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   /* T3 : le corps recommandé du §6 — la seule taille qui laisse la même marge
      aux gabarits small et medium. Même largeur sur la ligne, par la grille. */
   min-height: var(--touch); font: inherit; font-size: var(--t3); cursor: pointer; text-transform: uppercase;
-  background: none; color: var(--text); border: 1px solid var(--critical); border-radius: var(--radius-sm);
+  /* ⛔ NI `color`, NI `border`, NI `border-radius` ICI — retirés le 16/09 avec la
+     fusion du duplicata. Ils étaient DÉJÀ MORTS : le bloc du chapitre, écrit
+     plus bas, posait `border: 0` et gagnait par l'ordre. En remontant le patron
+     au socle (bien plus haut dans la feuille), ces trois-là seraient
+     RESSUSCITÉS — un liseré rouge et une encre sombre reviendraient sur un
+     bouton opaque, à spécificité égale, par le seul déplacement d'un bloc.
+     🔴 C'est le piège de l'ORDRE, le frère de celui de la spécificité : une
+     fusion qui ne regarde que le contenu des blocs le manque entièrement.
+     📏 Mesuré avant de toucher : c'était le SEUL des six sélecteurs du chapitre
+     dont une déclaration morte vivait APRÈS le bloc du socle (L8992 contre
+     L8461) ; les cinq autres sont écrites avant et restent écrasées.
+     ⛔ ET PAS DE `background: none` NON PLUS — le patron le pose déjà. Le garde
+     du défaut n° 4 a rougi quand il restait seul : *« un `<button>` n'hérite pas
+     de `color` ; sans encre déclarée, l'agent utilisateur lui impose du noir »*.
+     Une règle qui habille garde donc ses DEUX moitiés ensemble, ou n'en garde
+     aucune. Ici : aucune — le patron les porte toutes les deux. */
 }
 
 /* ══ LOT 3 (chapitre Équipement) — LES ORGANES DU 26/08 SUR LE CHAPITRE ══════
@@ -9006,56 +9056,29 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    `--bouton-fond` selon les trois verbes ratifiés (a244326) — naviguer
    (bleu) · valider (vert) · défaire (rouge) · muet (gris défaut). */
 
-/* — LE BOUTON : la forme, patron du socle — */
-.pipeline-bouton, .dressing-bouton, .carte-r-bouton,
-.pipeline-ligne-envoi, .pipeline-pas, .aiguilleur-bouton {
-  --bouton-fond: var(--text-muted);
-  position: relative;
-  background: none;
-  color: var(--on-accent);
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  filter: var(--bouton-ombre);
-}
-.pipeline-bouton::before, .dressing-bouton::before, .carte-r-bouton::before,
-.pipeline-ligne-envoi::before, .pipeline-pas::before, .aiguilleur-bouton::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  background-color: var(--bouton-fond);
-  background-image: var(--bouton-biseau);
-  clip-path: polygon(
-    var(--bouton-coupe) 0,
-    calc(100% - var(--bouton-coupe)) 0,
-    100% var(--bouton-coupe),
-    100% calc(100% - var(--bouton-coupe)),
-    calc(100% - var(--bouton-coupe)) 100%,
-    var(--bouton-coupe) 100%,
-    0 calc(100% - var(--bouton-coupe)),
-    0 var(--bouton-coupe)
-  );
-}
-.pipeline-bouton::after, .dressing-bouton::after, .carte-r-bouton::after,
-.pipeline-ligne-envoi::after, .pipeline-pas::after, .aiguilleur-bouton::after {
-  content: "";
-  position: absolute;
-  inset: var(--bouton-biseau-epaisseur);
-  z-index: -1;
-  background-color: var(--bouton-fond);
-  background-image: var(--bouton-bombage);
-  clip-path: polygon(
-    var(--bouton-coupe) 0,
-    calc(100% - var(--bouton-coupe)) 0,
-    100% var(--bouton-coupe),
-    100% calc(100% - var(--bouton-coupe)),
-    calc(100% - var(--bouton-coupe)) 100%,
-    var(--bouton-coupe) 100%,
-    0 calc(100% - var(--bouton-coupe)),
-    0 var(--bouton-coupe)
-  );
-}
+/* — LE BOUTON : sa forme vient du PATRON DU SOCLE, et plus d'ici — */
+/* 🔴 LA COPIE A ÉTÉ RETIRÉE LE 16/09 — Eric : *« 2 oui une seule apparence
+   partout »*. Les six sélecteurs du chapitre sont désormais DANS les trois
+   règles du socle (§5, ~8555 · ~8600 · ~8650) : un seul écrivain pour un seul
+   dessin.
+   ⛔ CE QU'IL Y AVAIT ICI : ces trois mêmes règles, recopiées. Comparées
+   déclaration par déclaration AVANT le retrait — corps trié, caractère par
+   caractère — elles étaient **identiques**. Rien n'a donc été perdu. Mais deux
+   copies d'un même dessin sont deux écrivains pour une seule loi : la première
+   repeinture du socle les aurait fait diverger sans bruit, et le site aurait
+   porté deux habits.
+   ⭐ LA RÉPARATION EST LA SUPPRESSION DU SECOND ÉCRIVAIN, jamais la
+   synchronisation de deux copies.
+   ⚠️ ET ELLE NE POUVAIT PAS ÊTRE UN SIMPLE DÉPLACEMENT. Remonter ces six-là
+   dans le socle les fait passer AVANT des déclarations qui n'étaient mortes
+   que parce que cette copie-ci, écrite plus bas, les écrasait. Mesuré : une
+   seule l'était vraiment — le liseré rouge et l'encre de `.dressing-bouton` —
+   et elle est retirée dans le même geste. ⛔ Une fusion qui ne compare que le
+   CONTENU des blocs manque ce piège, qui est celui de l'ORDRE.
+   📌 `.pipeline-fleche` reste DEHORS, juste plus bas : elle porte le filtre
+   mais aucun pseudo-élément — *« les flèches restent RONDES »*. Elle n'a
+   jamais été de ce patron, elle ne le rejoint pas. */
+
 /* — l'état par les trois verbes (le libellé ne change jamais, la couleur dit
    le verbe) : NAVIGUER = bleu · VALIDER = vert · DÉFAIRE = rouge. Les muets
    (CRAFT, COMPANIONS, réserve) restent au gris du défaut. — */

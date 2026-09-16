@@ -37,7 +37,15 @@ test("le patron commun porte deux octogones : arête complète puis face en retr
   assert.match(TOKENS, /--bouton-bombage:\s*linear-gradient\(to bottom/);
 
   const faces = [...CLEAN_SHELL.matchAll(/([^{}]+::after[^{}]*)\{([^{}]*background-image:\s*var\(--bouton-bombage\)[^{}]*)\}/g)];
-  assert.equal(faces.length, 2, "les deux familles du patron partagent la même face bombée");
+  /* 🔴 UNE SEULE FAMILLE DEPUIS LE 16/09 — Eric : *« 2 oui une seule apparence
+     partout »*. Ce garde attendait DEUX faces, parce que le chapitre Équipement
+     portait une copie du patron ; elle est retirée, ses six sélecteurs sont
+     entrés dans le patron. ⛔ « une seule » est PLUS strict que « deux » : une
+     copie qui reparaîtrait ferait rougir ce garde, alors que l'ancienne
+     écriture l'aurait accueillie sans rien dire. */
+  assert.equal(faces.length, 1,
+    "une seule famille porte la face bombée — un second bloc serait un second " +
+    "écrivain pour un seul dessin, et la première repeinture les ferait diverger");
   for (const [, selecteur, corps] of faces) {
     assert.ok(selecteur.split(",").every((branche) => /::after\s*$/.test(branche.trim())),
       "la face ne doit atteindre que les pseudo-éléments du patron");
