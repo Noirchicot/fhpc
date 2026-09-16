@@ -211,18 +211,20 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond").map((o) => CLEF_DE[o.nom]);
   /* le montant : de la table s'il y est, déduit de PURSE sinon — dans les deux cas rendu une fois */
   if (!ORGANES.some((o) => o.nom === "MONTANT")) attendus.push("montant");
+  attendus.push("party-tally");   /* posé bien que `creation: false` : son voile dit qu'il est vide */
   assert.deepEqual(ids.sort(), attendus.sort());
   assert.equal(ORGANES.filter((o) => o.creation === false).length, 5, "les quatre lunes et le Party Tally sont au plan, hors création");
-  /* ⚖️ LE GROUP TALLY EST ABSENT À LA CRÉATION ET PRÉSENT DÈS QUE LA DONNÉE EXISTE —
-     les deux côtés, sinon le garde laisserait passer un bouton qui ne vient jamais.
-     ⛔ Et c'est bien `undefined` qui décide, pas zéro : un party inventory OUVERT et
-     VIDE doit montrer son parchemin à zéro ligne, sinon il n'y a plus d'endroit où
-     regarder pour savoir qu'il est vide. */
-  assert.equal(n.querySelector('[data-organe="party-tally"]'), null, "pas de Group Tally à la création");
-  const avecParty = rendu({ compteParty: 0 });
-  const pt = avecParty.querySelector('[data-organe="party-tally"]');
-  assert.ok(pt, "un party inventary ouvert, même vide, montre son parchemin");
+  /* ⚖️ LE GROUP TALLY EST TOUJOURS POSÉ, ET C'EST LE VOILE QUI DIT SON ÉTAT — Eric,
+     16/09 au soir : *« tu l'as pas mis »*. Il avait raison : rien n'alimente encore
+     `compteParty`, donc « conditionnel » voulait dire « jamais », et une place
+     réservée que rien n'occupe n'est pas un organe, c'est un trou.
+     ⛔ CE GARDE TENAIT LE CONTRAIRE ET IL AVAIT TORT AVEC MOI : il vérifiait
+     l'absence, donc il aurait défendu la faute. Il tient maintenant la présence, et
+     l'état se lit sur `data-compte` — que le voile à 20 % traduit à l'œil. */
+  const pt = n.querySelector('[data-organe="party-tally"]');
+  assert.ok(pt, "le Group Tally est posé, même vide — son voile dit qu'il est vide");
   assert.equal(pt.dataset.compte, "0");
+  assert.equal(rendu({ compteParty: 0 }).querySelector('[data-organe="party-tally"]').dataset.compte, "0");
   assert.equal(rendu({ compteParty: 7 }).querySelector('[data-organe="party-tally"]').dataset.compte, "7");
   assert.match(rendu({ compteParty: 7 }).querySelector('[data-organe="party-tally"]').getAttribute("aria-label"), /^Party tally — 7 lines$/);
   /* et la feuille lui donne SON parchemin, pas celui du Tally personnel */
