@@ -9191,8 +9191,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   background: var(--jeton-teinte); box-shadow: var(--relief);
   cursor: grab;
 }
+/* ⚖️ Eric, 16/09 : *« pour le descriptif des wares faut passer en T1 »* — le nom
+   de l'objet posé descend de T2 à T1 (le plan disait T2/600) ; la graisse reste. */
 .gear-objet {
-  font-size: var(--t2); font-weight: 600; max-width: 100%;
+  font-size: var(--t1); font-weight: 600; max-width: 100%;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .gear-qte { font-size: var(--t1); color: var(--text-muted); }
