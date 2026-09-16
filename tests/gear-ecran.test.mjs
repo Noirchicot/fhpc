@@ -382,70 +382,102 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions et
     "une encre douce qui bascule — « un peu moins blanc flashy », et un blanc fixe aurait crié la nuit");
 });
 
-test("5 sexies — LA BOURSE : un popup coté par la table, quatre monnaies, un plancher à zéro", () => {
-  /* ⚖️ COTES D'ERIC, 16/09 — « fais des boutons de 40 », « ça prend la place que ça
-     doit, c'est un popup ». 186 × 133, quatre colonnes de 44 jointives à x 5 · 49 ·
-     93 · 137. ⛔ 186 n'est pas un goût : à 125 (l'ancienne cote du dépôt) les `+`/`−`
-     rendaient 23,75 de large, sous le plancher tactile de 44. La largeur est la
-     CONSÉQUENCE du plancher. */
+test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DANS QUEL SENS", () => {
+  /* 🔴 LA LOGIQUE VIENT DU CROQUIS D'ERIC, ET JE L'AVAIS MANQUÉE. Ma première
+     version faisait `+1` par appui : poser cinquante pièces d'or demandait
+     cinquante appuis, et je l'ai livrée en la disant « conforme au mandat ».
+     ⭐ LE CROQUIS DIT AUTRE CHOSE, ET IL LE DIT PAR SA DISPOSITION : en haut ce
+     qu'on POSSÈDE, puis `+` qui pousse vers lui, LA CASE qu'on remplit, puis `−`
+     qui tire de l'autre côté. La case n'est pas décorative : elle porte le
+     COMBIEN, et les deux crans ne portent que le SENS.
+     ⛔ Un garde qui ne tient que « le cran publie une valeur » aurait laissé
+     passer le `+1` — il faut tenir ce que la valeur VAUT. */
   assert.equal(BOURSE.l, 186);
-  assert.equal(BOURSE.h, 133);
   assert.equal(BOURSE.marge * 2 + BOURSE.monnaies.length * BOURSE.pas, BOURSE.l,
     "les quatre colonnes et les deux marges FONT la largeur — sinon l'une des deux est fausse");
   assert.equal(BOURSE.pas, TOUCH, "une colonne EST une cible tactile");
   assert.deepEqual(BOURSE.monnaies.map((m) => m.clef), ["pp", "gp", "sp", "cp"]);
+  /* ⚠️ LA HAUTEUR N'EST PLUS 133 : les 133 couvraient « quatre monnaies avec + et
+     − », rien d'autre. Le croquis porte sept lignes, dont DEUX cibles de 44 et une
+     saisie touchable. Rogner ici, c'est rogner un plancher tactile. */
+  assert.ok(BOURSE.h >= 2 * TOUCH + BOURSE.saisie, "les deux crans et la case ne se compriment pas");
 
   /* fermée par défaut : un popup ne s'ouvre que sur un geste */
   assert.equal(rendu({}).querySelector(".gear-bourse"), null);
 
   const n = rendu({ bourseOuverte: true, bourse: { pp: 1, gp: 5, sp: 0, cp: 9 } });
   const pop = n.querySelector(".gear-bourse");
-  assert.ok(pop, "ouverte, elle est le dernier organe — donc au-dessus, sans z-index à accorder");
+  assert.ok(pop);
   const enfants = [...n.children];
   assert.equal(enfants[enfants.length - 1].className, "gear-voile",
     "posée en DERNIER : l'ordre du DOM suffit à la mettre au-dessus, sans z-index à accorder");
+  /* le titre et le total sont DU CROQUIS : ce sont eux qui en font une bourse */
+  assert.equal(pop.querySelector(".gear-bourse-titre").textContent, "Purse");
+  assert.equal(pop.querySelector(".gear-bourse-total-mot").textContent, "Total in GP");
+  assert.equal(pop.querySelector(".gear-bourse-total-valeur").textContent, "15",
+    "1 pp + 5 gp + 9 cp = 15 gp — le total se CALCULE, il ne se tape pas");
   assert.deepEqual(tous(pop, ".gear-monnaie").map((c) => c.dataset.monnaie), ["pp", "gp", "sp", "cp"]);
   assert.deepEqual(tous(pop, ".gear-monnaie-compte").map((c) => c.textContent), ["1", "5", "0", "9"]);
 
-  /* ⛔ LE `−` D'UNE MONNAIE À ZÉRO EST ÉTEINT : `setCurrency` tient déjà le plancher,
-     mais un bouton qui ne fait rien au lieu d'être éteint est cassé pour qui le regarde. */
-  const crans = (clef, cran) => pop.querySelector(`.gear-monnaie[data-monnaie="${clef}"] [data-cran="${cran}"]`);
-  assert.equal(crans("sp", "moins").disabled, true, "zéro : on ne descend pas");
-  assert.equal(crans("gp", "moins").disabled, false);
+  /* ⭐ L'ORDRE DE LA COLONNE DIT LE GESTE : possédé · `+` · la case · `−` */
+  const col = pop.querySelector('.gear-monnaie[data-monnaie="gp"]');
+  assert.deepEqual([...col.children].map((e) => e.className),
+    ["gear-monnaie-mot", "gear-monnaie-compte", "gear-monnaie-bouton", "gear-monnaie-saisie", "gear-monnaie-bouton"]);
 
   const gestes = [];
   const n2 = rendu({ bourseOuverte: true, bourse: { pp: 0, gp: 5, sp: 0, cp: 0 },
     surMonnaie: (k, v) => gestes.push(`${k}:${v}`), surFermerBourse: () => gestes.push("fermer") });
-  const p2 = n2.querySelector(".gear-bourse");
-  p2.querySelector('.gear-monnaie[data-monnaie="gp"] [data-cran="plus"]').click();
-  p2.querySelector('.gear-monnaie[data-monnaie="gp"] [data-cran="moins"]').click();
-  assert.deepEqual(gestes, ["gp:6", "gp:4"], "chaque cran publie la valeur VOULUE, pas un delta");
-  /* le voile ferme ; un clic DANS le popup ne ferme pas */
-  p2.click();
-  assert.deepEqual(gestes, ["gp:6", "gp:4"], "un clic dans la bourse ne la ferme pas");
-  n2.querySelector(".gear-voile").click();
-  assert.deepEqual(gestes, ["gp:6", "gp:4", "fermer"], "le voile la ferme");
+  const c2 = n2.querySelector('.gear-monnaie[data-monnaie="gp"]');
+  const champ = c2.querySelector(".gear-monnaie-saisie");
+  const cran = (sens) => c2.querySelector(`[data-cran="${sens}"]`);
 
-  /* la cote des crans vient de la table, pas de la feuille */
+  /* ⚖️ VIDE VAUT UN — le croquis montre les cases vides, et une case vide dont le
+     cran ne ferait rien serait un piège. Le placeholder le dit à l'œil. */
+  assert.equal(champ.placeholder, "1");
+  cran("plus").click();
+  assert.deepEqual(gestes, ["gp:6"], "vide : on bouge de 1");
+
+  /* 🔴 ET VOICI CE QUE MA PREMIÈRE VERSION NE POUVAIT PAS FAIRE : cinquante d'un coup */
+  champ.value = "50";
+  cran("plus").click();
+  cran("moins").click();
+  assert.deepEqual(gestes, ["gp:6", "gp:55", "gp:-45"],
+    "le cran publie la valeur VOULUE, calculée depuis la case — pas un delta, pas une unité");
+  /* ⛔ le plancher à zéro est tenu par `setCurrency`, pas ici : on publie ce qui est
+     demandé, le noyau refuse la dette. Ce garde dit que l'écran ne le devine pas. */
+
+  champ.value = "12abc3";
+  gestes.length = 0;
+  cran("plus").click();
+  assert.deepEqual(gestes, ["gp:128"], "ce qui n'est pas un chiffre est ignoré, jamais interprété");
+
+  /* le voile ferme ; un clic DANS la bourse ne ferme pas */
+  gestes.length = 0;
+  n2.querySelector(".gear-bourse").click();
+  assert.deepEqual(gestes, [], "un clic dans la bourse ne la ferme pas");
+  n2.querySelector(".gear-voile").click();
+  assert.deepEqual(gestes, ["fermer"], "le voile la ferme");
+
+  /* ⚖️ ET LE VOILE NE PEINT RIEN — Eric, 16/09 : « écran noir derrière la bourse ;
+     on veut qu'elle se superpose, pas qu'elle shunte le background ». */
+  assert.match(shell, /\.gear-voile\s*\{[^}]*background:\s*transparent/);
+
+  /* les cotes viennent de la table, pas de la feuille */
   const f = feuilleDesCotes();
   assert.ok(f.includes(`.gear .gear-bourse{width:${BOURSE.l}px;height:${BOURSE.h}px;padding:${BOURSE.marge}px}`));
-  /* ⛔ ET PAS EN ENFANT DIRECT : le popup vit dans son voile, pas dans la dalle.
-     Mesuré au navigateur avant de le voir — la règle ne s'appliquait pas, et le popup
-     se dimensionnait sur son contenu (176 au lieu de 186). */
   assert.ok(!f.includes(".gear > .gear-bourse"), "un sélecteur d'enfant direct enfermerait la cote dans une structure");
+  assert.ok(f.includes(`.gear .gear-monnaie-bouton{width:${BOURSE.pas}px;height:${BOURSE.pas}px;border-width:${(BOURSE.pas - BOURSE.bouton) / 2}px}`),
+    "dessin 40 dans une cible de 44 — le retrait est porté par des bords transparents, comme le Tally");
+  assert.ok(f.includes(`.gear .gear-monnaie-saisie{height:${BOURSE.saisie}px}`));
+  assert.ok(!/\.gear-bourse\s*\{[^}]*width:\s*\d/.test(shell), "⛔ aucune cote de la bourse dans shell.css");
+
   /* ⚖️ CENTRÉE SUR LE BOUTON QUI L'OUVRE, PUIS SERRÉE DANS LA DALLE — Eric, 16/09.
      ⛔ Le serrage n'est pas un détail : centré sur la bourse (x 342,5), le popup
-     irait jusqu'à 435,5 et sortirait de 64. La moitié des monnaies serait hors de
-     l'écran sans qu'aucune cote ait l'air fausse. */
+     irait jusqu'à 435,5 et sortirait de 64. */
   const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
   const gaucheAttendue = DALLE.l - MARGE - BOURSE.l;
   assert.ok(purse.x + purse.l / 2 - BOURSE.l / 2 > gaucheAttendue, "centré, il déborderait — c'est ce que le serrage rattrape");
   assert.ok(f.includes(`.gear .gear-bourse{left:${gaucheAttendue}px;`), "serré à la marge droite");
-  const sommetAttendu = purse.y - BELT_H + purse.h / 2 - BOURSE.h / 2;
-  assert.ok(f.includes(`top:${sommetAttendu}px}`), "et centré en hauteur sur le bouton");
-  assert.ok(f.includes(`.gear-monnaie-bouton{width:${BOURSE.pas}px;height:${BOURSE.pas}px;border-width:${(BOURSE.pas - BOURSE.bouton) / 2}px}`),
-    "dessin 40 dans une cible de 44 — le retrait est porté par des bords transparents, comme le Tally");
-  assert.ok(!/\.gear-bourse\s*\{[^}]*width:\s*\d/.test(shell), "⛔ aucune cote de la bourse dans shell.css");
 });
 
 test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {

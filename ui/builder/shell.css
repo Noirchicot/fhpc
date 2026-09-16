@@ -9454,34 +9454,65 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    interrompu quelque chose : l'écran reste visible dessous, assombri. */
 .gear-voile {
   position: absolute; inset: 0; z-index: 2;
-  /* ⚖️ OPAQUE, PAS TRANSLUCIDE — Eric, 16/09 au soir : *« voile 100 % pour la
-     bourse je pense »*. ⛔ Ce n'est donc PAS `--voile-ecran` (72 %), qui sert
-     les voiles où l'on doit continuer de voir ce qu'on interrompt.
-     ⭐ CE QUE ÇA DIT, ET C'EST COHÉRENT AVEC LA BOURSE : compter son argent n'est
-     pas une interruption de l'habillage, c'est un moment à soi. L'écran ne
-     transparaît pas derrière, et les quatre monnaies n'ont rien à concurrencer.
-     📌 Le belt reste visible au-dessus : on ne perd jamais où l'on est (loi du
-     rang X, 16/09 — « x1 a le droit de tout recouvrir sauf le belt »). */
-  background: var(--bg);
+  /* ⚖️ TRANSPARENT — Eric, 16/09 au soir, EN REGARDANT LE RÉSULTAT : *« écran noir
+     derrière la bourse. On veut qu'elle se superpose, pas qu'elle shunte le
+     background »*.
+     ⛔ J'AVAIS POSÉ `--bg` OPAQUE SUR SON « voile 100 % pour la bourse je pense » —
+     et « je pense » était une hypothèse, pas une cote. Vu à l'écran, l'opaque ne
+     suspend pas l'habillage : il l'EFFACE, et la bourse s'ouvre alors sur un vide
+     au lieu de s'ouvrir sur son écran.
+     ⭐ CE QUI RESTE À CE VOILE, ET C'EST TOUT CE QU'IL LUI FAUT : capter le clic
+     tombé à côté, pour fermer. Il ne peint rien. */
+  background: transparent;
 }
 .gear-bourse {
   /* posée par la feuille construite, sur le bouton qui l'ouvre — jamais centrée
      dans l'écran : on ouvre sa bourse là où on l'a prise. */
   position: absolute;
-  display: flex; align-items: stretch; gap: 0;
+  display: flex; flex-direction: column; align-items: stretch;
   border-radius: var(--organe-rayon);
   background: var(--surface);
-  /* ⛔ AUCUNE OMBRE PORTÉE, ET LE GARDE DES COULEURS ME L'A APPRIS EN ROUGISSANT :
-     j'en avais écrit une en `rgba()` clair, ce que `shell.css` interdit — une
-     ombre littérale échappe au thème. ⭐ Et elle n'avait pas lieu d'être : c'est
-     le VOILE qui détache le popup, en assombrissant tout autour. Une ombre
-     par-dessus aurait dit deux fois la même chose. */
+  /* ⛔ AUCUNE OMBRE PORTÉE : `shell.css` n'écrit pas de couleur littérale, et le
+     liseré de verre suffit à la détacher du fond qu'on continue de voir. */
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+/* ⭐ LE TITRE ET LE TOTAL SONT DU CROQUIS, pas des ajouts : « PURSE » en tête,
+   « TOTAL IN GP » en pied. Ce sont eux qui font de ce popup une BOURSE et non
+   quatre compteurs côte à côte. */
+.gear-bourse-titre {
+  margin: 0; text-align: center;
+  font-size: var(--t2); font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text);
+}
+.gear-bourse-grille { display: flex; align-items: stretch; flex: 1 1 auto; min-height: 0; }
+.gear-bourse-total {
+  display: flex; align-items: baseline; justify-content: flex-end; gap: var(--sp-4);
+}
+.gear-bourse-total-mot {
+  font-size: var(--t1); font-style: italic; letter-spacing: .04em; color: var(--text-soft);
+}
+/* ⭐ LE TOTAL EST ENCADRÉ COMME AU CROQUIS — le seul chiffre de la bourse qui ne
+   se tape pas : il se CALCULE. Son cadre dit « lecture », pas « saisie ». */
+.gear-bourse-total-valeur {
+  font-size: var(--t2); font-weight: 600; color: var(--text);
+  padding: 0 var(--sp-4);
+  border-radius: var(--radius-sm);
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
 .gear-monnaie {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--sp-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
 }
+/* ⚖️ LA CASE DU MILIEU — c'est ELLE qui porte toute la logique du croquis : on y
+   tape COMBIEN on veut bouger, et les deux crans disent DANS QUEL SENS. ⛔ Sans
+   elle, `+` valait 1 et poser cinquante pièces d'or demandait cinquante appuis.
+   ⭐ Vide, elle vaut 1 — son placeholder le dit à l'œil. */
+.gear-monnaie-saisie {
+  width: 100%; min-width: 0; text-align: center;
+  border: 0; border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  color: var(--text); font: inherit; font-size: var(--t2); font-weight: 600;
+}
+.gear-monnaie-saisie::placeholder { color: var(--text-soft); font-style: italic; font-weight: 400; }
 /* le nom de la monnaie : une étiquette, comme les places en attente */
 .gear-monnaie-mot {
   font-size: var(--t1); font-style: italic; letter-spacing: .04em;
