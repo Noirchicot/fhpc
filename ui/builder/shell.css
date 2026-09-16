@@ -9480,13 +9480,23 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    « TOTAL IN GP » en pied. Ce sont eux qui font de ce popup une BOURSE et non
    quatre compteurs côte à côte. */
 .gear-bourse-titre {
-  margin: 0; text-align: center;
+  /* ⚖️ QUATRE BLG SOUS LE TITRE — Eric, 17/09 : « 4 blg entre purse et première
+     ligne ». ⛔ Un jeton, pas un littéral : `shell.css` ne porte aucune cote
+     d'espacement en clair, et les trois gardes me l'ont déjà appris ce soir. */
+  margin: 0 0 var(--sp-4); text-align: center;
   font-size: var(--t2); font-weight: 600; letter-spacing: .06em;
   text-transform: uppercase; color: var(--text);
 }
 .gear-bourse-grille { display: flex; align-items: stretch; flex: 1 1 auto; min-height: 0; }
+/* ⚖️ CENTRÉ — Eric, 17/09 : « total centré au passage aussi ». Il était rangé à
+   droite, ce qui le faisait flotter sous la dernière colonne au lieu d'appartenir
+   à la bourse entière. Centré, il se lit comme la SOMME des quatre, pas comme la
+   suite de la dernière. */
 .gear-bourse-total {
-  display: flex; align-items: baseline; justify-content: flex-end; gap: var(--sp-4);
+  display: flex; align-items: baseline; justify-content: center; gap: var(--sp-4);
+  /* ⚖️ QUATRE BLG AU-DESSUS ET EN DESSOUS — Eric, 17/09. Le total est la seule
+     ligne de la bourse qui ne se tape pas : l'air autour est ce qui l'en détache. */
+  margin: var(--sp-4) 0;
 }
 .gear-bourse-total-mot {
   font-size: var(--t1); font-style: italic; letter-spacing: .04em; color: var(--text-soft);
@@ -9513,10 +9523,21 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   color: var(--text); font: inherit; font-size: var(--t2); font-weight: 600;
 }
 .gear-monnaie-saisie::placeholder { color: var(--text-soft); font-style: italic; font-weight: 400; }
-/* le nom de la monnaie : une étiquette, comme les places en attente */
+/* ⚖️ L'EN-TÊTE À TROIS LIGNES — Eric, 17/09 : « PP (T2 centré) / Platinium (T0
+   italique centré) / pieces (T0 italique centré) ». L'abréviation porte, le nom
+   entier explique, « pieces » dit qu'on compte des objets et non une valeur. */
+.gear-monnaie-tete {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
 .gear-monnaie-mot {
-  font-size: var(--t1); font-style: italic; letter-spacing: .04em;
-  color: var(--text-soft);
+  font-size: var(--t2); font-weight: 600; letter-spacing: .04em; color: var(--text);
+}
+/* ⛔ `--t0` : le corpus le réserve à « un détail sous un dé, jamais une ligne à
+   lire ». C'en est un — une glose sous une abréviation, pas une phrase. Et c'est
+   Eric qui l'a choisi en connaissant les deux crans (il a dit T2 pour l'un et T0
+   pour les deux autres dans la même phrase). */
+.gear-monnaie-nom {
+  font-size: var(--t0); font-style: italic; line-height: 1.15; color: var(--text-soft);
 }
 .gear-monnaie-compte { font-size: var(--t3); font-weight: 600; color: var(--text); }
 /* ⛔ UN BOUTON À GLYPHE N'EST PAS UN BOUTON À MOT : ni octogone hier, ni liseré

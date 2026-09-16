@@ -178,17 +178,35 @@ export const BOURSE = Object.freeze({
      LA FORCER. Les 133 ont été calculés pour « quatre monnaies avec + et − » —
      rien d'autre. Le croquis d'Eric en porte SEPT lignes : le titre, l'en-tête,
      le montant possédé, le `+`, LA CASE DE SAISIE, le `−`, et le total en GP.
-     📐 5 + 15 + 12 + 15 + 44 + 28 + 44 + 15 + 5 = 183, et aucune de ces lignes
-     n'est négociable : deux cibles de 44, une saisie qu'on doit pouvoir toucher,
-     et quatre lignes de texte. ⛔ Rogner ici, c'est rogner un plancher tactile.
-     ➡️ Porté à Eric : 183 au lieu de 133, la largeur ne bouge pas. */
-  h: 183,
+     📐 5 + 15 + 4 + 15 + 10 + 10 + 15 + 44 + 28 + 44 + 4 + 15 + 4 + 5 = 218 —
+     dont les quatre blg sous le titre et les quatre de part et d'autre du total,
+     qu'Eric a demandés le 17/09. Aucune de ces
+     lignes n'est négociable : deux cibles de 44, une saisie qu'on doit pouvoir
+     toucher, et six lignes de texte — dont les deux que le nom entier a ajoutées
+     le 17/09. ⛔ Rogner ici, c'est rogner un plancher tactile.
+     ➡️ Porté à Eric : 206 au lieu de 133, la largeur ne bouge pas. */
+  h: 218,
+  /* ⚖️ TROIS LIGNES D'EN-TÊTE PAR COLONNE — Eric, 17/09 : *« PP (T2 centré) /
+     Platinium (T0 italique centré) / pieces (T0 italique centré) »*.
+     ⭐ CE QUE ÇA AJOUTE, ET CE N'EST PAS DÉCORATIF : « PP » est une abréviation
+     que seul un joueur habitué lit. Le nom entier dessous la rend lisible par
+     quelqu'un qui ouvre sa bourse pour la première fois — et le mot « pieces »
+     dit que ce sont des PIÈCES qu'on compte, pas une valeur abstraite.
+     📏 MESURÉ À T0 : Platinium 34,94 · Copper 28,07 · pieces 24,85 · Silver 21 ·
+     Gold 17,61, tous dans les 44 de la colonne. C'est « Platinium » qui commande,
+     et il reste 9 de marge.
+     ⚠️ ORTHOGRAPHE : Eric écrit *« platinium »* ; l'anglais courant est
+     *« Platinum »*, et tout le reste de l'écran est en anglais (Backpack, Send,
+     Total in GP). ⛔ Je garde SON mot — la nomenclature lui appartient (mandat
+     212 : « demande à Eric quel nom gagne ») — et je le signale plutôt que de le
+     corriger dans son dos. */
   monnaies: Object.freeze([
-    Object.freeze({ clef: "pp", mot: "PP" }),
-    Object.freeze({ clef: "gp", mot: "GP" }),
-    Object.freeze({ clef: "sp", mot: "SP" }),
-    Object.freeze({ clef: "cp", mot: "CP" })
-  ])
+    Object.freeze({ clef: "pp", mot: "PP", nom: "Platinium" }),
+    Object.freeze({ clef: "gp", mot: "GP", nom: "Gold" }),
+    Object.freeze({ clef: "sp", mot: "SP", nom: "Silver" }),
+    Object.freeze({ clef: "cp", mot: "CP", nom: "Copper" })
+  ]),
+  piece: "pieces"
 });
 
 export function feuilleDesCotes() {
@@ -518,7 +536,11 @@ function bourseOuverte(options) {
     /* ⭐ L'ORDRE EST CELUI DU CROQUIS, ET IL DIT LE GESTE : ce qu'on A en haut,
        puis `+` qui pousse VERS lui, la case qu'on remplit, puis `−` qui tire
        de l'autre côté. Un `+` sous la case aurait dit le contraire. */
-    col.append(eld("span", "gear-monnaie-mot", m.mot));
+    const tete = eld("span", "gear-monnaie-tete");
+    tete.append(eld("span", "gear-monnaie-mot", m.mot));
+    tete.append(eld("span", "gear-monnaie-nom", m.nom));
+    tete.append(eld("span", "gear-monnaie-nom", BOURSE.piece));
+    col.append(tete);
     col.append(eld("span", "gear-monnaie-compte", String(n)));
     const champ = eld("input", "gear-monnaie-saisie");
     champ.type = "text";
@@ -548,7 +570,11 @@ function bourseOuverte(options) {
      300 sp), et un champ qui accepte ce qu'il ne sait pas rendre est un piège. */
   const pied = eld("div", "gear-bourse-total");
   pied.append(eld("span", "gear-bourse-total-mot", "Total in GP"));
-  pied.append(eld("span", "gear-bourse-total-valeur", String(Math.floor(enGP(sac)))));
+  /* ⭐ LES MILLIERS SE SÉPARENT ICI AUSSI, et par la même fonction que le montant
+     posé sur la bourse : un total est le nombre qu'on lit le plus vite et le plus
+     souvent. ⛔ Deux façons d'écrire un nombre dans le même écran, c'est deux
+     façons de le lire. */
+  pied.append(eld("span", "gear-bourse-total-valeur", enMilliers(Math.floor(enGP(sac)))));
   b.append(pied);
   v.append(b);
   return v;
