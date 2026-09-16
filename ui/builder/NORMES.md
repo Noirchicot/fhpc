@@ -1491,31 +1491,40 @@ vide **à l'écran, sous les yeux du joueur**. ⛔ Deux objets, deux règles.
 identifiant sous un lien : `bouton-octogone` est devenu un **faux nom**, et c'est assumé — le
 renommage est une décision d'Eric, signalée, pas prise ici.
 
-🔴 **ET LA PHRASE D'AVANT DISAIT PLUS QUE LA FORME** : *« la coupe d'angle lui appartient **seul** »*,
-et §2 s'en servait — *« c'est ce qui interdit de le confondre avec un jeton, quelle que soit la
-couleur »*. **Cette garantie tombe avec la coupe.**
+🔴 **ET LA PHRASE D'AVANT DISAIT PLUS QUE LA FORME** : *« la coupe d'angle lui appartient **seul** »* —
+c'est-à-dire qu'**un seul trait, catégorique**, séparait le bouton du jeton. Ce trait a disparu.
 
-✅ **ET §2 RÉPONDAIT DÉJÀ, DEPUIS LE 26/08** — sa phrase normative dit que les quatre organes du
-glisser se distinguent par leur **REMPLISSAGE**, pas par leur forme. ⛔ Les deux règles étaient donc
-**contradictoires dès le premier jour**, et personne ne l'a vu tant que le bouton avait une forme à
-lui. Le retrait de l'octogone ne crée pas la tension : il la met au jour.
-➡️ **C'est §2 qui fait foi** — la distinction vit dans le remplissage, et il n'a pas bougé.
+### ✅ CE QUI SÉPARE UN BOUTON D'UN JETON — tranché par Eric le 17/09
+📍 `bouton-trois-traits-le-separent-du-jeton` · vivante · 17/09
+⚖️ **Trois traits séparent le bouton du jeton — l'OPACITÉ, la FORME et la COULEUR — et aucun ne suffit seul.**
 
-⏳ **CE QUI RESTE À TRANCHER EST PLUS ÉTROIT QUE JE NE L'AI D'ABORD ÉCRIT** : non pas *« qu'est-ce
-qui distingue un bouton d'un jeton »* (§2 le dit), mais *« la forme doit-elle encore les
-distinguer ? »*. Les trois écarts mesurés le 16/09 :
+> Eric, 2026-09-17 : *« visuellement l'opacité, la forme et la couleur font la différence. y'a pas
+> de doute de mon point de vue. »*
 
 | | bouton | jeton |
 |---|---|---|
-| **rayon** | **6** | `--organe-rayon` **16** |
-| **remplissage** | **opaque**, face `#3d3424`, encre claire | **teinté** — 20 % d'accent, encre sombre |
-| **cote** | petit **77 × 40** | **87 × 48** |
+| **opacité** | **opaque** — `--bouton-face` `#3d3424` | **translucide**, teinté à 20 % d'accent |
+| **forme** | rayon **6** | `--organe-rayon` **16** |
+| **couleur** | encre **claire fixe** sur corps sombre | encre **sombre** sur teinte dorée |
+| *(cote)* | petit **77 × 40** | **87 × 48** |
 
-⭐ **À l'écran ils ne se ressemblent pas** — l'un est sombre et plein, l'autre translucide et doré.
-La distinction survit donc **par la matière**, là où elle vivait **par la forme**. ⚠️ Mais c'est un
-fait nouveau, pas la règle d'avant : elle disait *la forme*, elle dirait maintenant *le
-remplissage*. ⛔ Non tranché — la question est posée à Eric, et §2 *(le tableau des quatre organes
-du glisser)* dépend de sa réponse.
+🔴 **CE QUI A CHANGÉ N'EST PAS LA VALEUR, C'EST LA NATURE DE LA DISTINCTION.** Avant : **un trait
+unique et catégorique** — un objet a une coupe d'angle ou il n'en a pas. Depuis le 17/09 : **un
+faisceau de trois**, et chacun n'est qu'une différence de **degré**.
+⛔ **ET LA FORME N'A PAS CESSÉ DE DISTINGUER** — c'est une correction d'Eric à la façon dont la
+question lui a été posée. On lui a présenté *« ils ont désormais la même forme »* : **c'était trop
+fort.** Un rectangle à rayon 16 et un à rayon 6 ne sont pas la même forme à l'œil ; ce qui a disparu
+est **la coupe**, pas la distinction de forme.
+⚠️ **UNE DISTINCTION DE DEGRÉ SE PERD QUAND ON « HARMONISE »** : quiconque rapprocherait les deux
+rayons au nom de la cohérence retirerait un des trois traits sans s'en apercevoir. ⛔ Le rayon 6 du
+bouton et le 16 du jeton ne sont pas deux valeurs d'un même réglage : ils sont **ce qui les
+sépare**.
+
+📌 **ET §2 DISAIT DÉJÀ UNE PART DE CETTE RÉPONSE, DEPUIS LE 26/08** — que les quatre organes du
+glisser se distinguent par leur **REMPLISSAGE**. ⛔ Elle contredisait alors `bouton-octogone`, qui
+attribuait la distinction à la forme seule ; personne ne l'a vu tant que le bouton avait une forme à
+lui. ⭐ La réponse d'Eric **absorbe les deux** : l'opacité et la couleur sont du remplissage, la
+forme reste un trait — mais aucun des trois ne porte seul ce que la coupe portait.
 📍 `interrupteur-deux-especes` · vivante · 26/08
 ⚖️ **Il y a deux espèces d'interrupteur : le sélecteur exclusif et la bascule simple.**
 📍 `popup-parle-on-ne-l-appuie-pas` · vivante · 26/08
@@ -4897,7 +4906,17 @@ D'AVANCEMENT** — gris, bleu, vert, rouge — et **un interrupteur ne la parcou
 *« c'est faux »*, il dit *« c'est éteint »*.
 
 ➡️ **Deux sens du rouge sur le même écran, c'est un rouge qui ne signale plus rien.** La collision
-se règle donc **par la FORME**, exactement comme la coupe d'angle distingue le bouton du jeton.
+se règle donc **par la FORME**. ~~exactement comme la coupe d'angle distingue le bouton du jeton~~
+
+⚠️ **SON ANALOGIE EST RÉÉCRITE, PAS SEULEMENT RE-POINTÉE — 17/09.** Elle s'appuyait sur la coupe
+d'angle, c'est-à-dire sur **un trait unique et catégorique** : un objet l'a ou ne l'a pas, et la
+frontière est nette. Depuis qu'Eric a retiré l'octogone, ce qui sépare un bouton d'un jeton est un
+**faisceau de trois traits de degré** — opacité, forme, couleur *(`bouton-trois-traits-le-separent-du-jeton`)*.
+🔴 **UN ARGUMENT QUI REPOSAIT SUR UNE FRONTIÈRE NETTE ET QUI REPOSE MAINTENANT SUR UNE CONVERGENCE
+N'EST PAS LE MÊME ARGUMENT.** ⛔ Ne pas le croire intact parce que sa conclusion n'a pas changé : ici
+la forme sépare **encore**, mais elle ne sépare plus **à elle seule**. La comparaison reste juste
+pour dire *« la forme peut porter une distinction »* ; elle ne l'est plus pour dire *« et cela
+suffit »*.
 
 ### 🔴 DEUX ESPÈCES D'INTERRUPTEUR — et une seule pose une question
 📍 `interrupteur-trois-sens-du-vert` · vivante · 26/08

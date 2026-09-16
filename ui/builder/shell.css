@@ -8472,10 +8472,22 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      |---------------|-----------------------|---------------------------------|
      | zone de drop  | très arrondie         | CREUX — texte + liseré, AUCUN fond |
      | jeton         | très arrondi          | TEINTÉ                          |
-     | bouton        | OCTOGONE à coupe      | PLEIN, en signal, 🔴 OPAQUE      |
+     | bouton        | rectangle rayon 6     | PLEIN, en signal, 🔴 OPAQUE      |
 
-   ⭐ LA COUPE D'ANGLE APPARTIENT AU BOUTON SEUL : c'est ce qui interdit de le
-   confondre avec un jeton, quelle que soit sa couleur.
+   ⛔ 17/09 — LA LIGNE DU BOUTON DISAIT « OCTOGONE à coupe », ET LA SUIVANTE
+   « LA COUPE D'ANGLE APPARTIENT AU BOUTON SEUL : c'est ce qui interdit de le
+   confondre avec un jeton, quelle que soit sa couleur ». Eric a retiré
+   l'octogone le 16/09 au soir ; cette garantie-là est tombée avec lui.
+   ⭐ CE QUI LA REMPLACE, ses mots du 17/09 : *« visuellement l'opacité, la
+   forme et la couleur font la différence. y'a pas de doute de mon point de
+   vue. »* — TROIS traits au lieu d'un, et aucun ne suffit seul :
+     · opacité — le bouton est opaque, le jeton translucide à 20 % d'accent ;
+     · forme — rayon 6 contre `--organe-rayon` 16 ;
+     · couleur — encre claire fixe sur corps sombre, contre encre sombre.
+   ⚠️ LA DIFFÉRENCE EST DE DEGRÉ, PLUS DE NATURE. Un objet avait une coupe ou
+   n'en avait pas : la frontière était nette. Trois écarts de degré se perdent
+   si l'on « harmonise » — ⛔ rapprocher les deux rayons retirerait un des trois
+   traits sans que rien ne le signale. (Norme : `bouton-trois-traits-le-separent-du-jeton`.)
 
    ⚠️ ÉCRIT EN FIN DE FEUILLE, ET LE PIÈGE N°1 DU DÉPÔT EST CONNU (un bloc
    générique posé ici vole la cascade de tout ce qui précède). Celui-ci ne le
