@@ -260,7 +260,9 @@ function boutonPurse(id, options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const b = bouton("gear-bouton", undefined, `Purse — ${total} gp`, () => options.surBouton && options.surBouton("purse"));
   b.dataset.organe = id;
-  b.append(eld("span", "gear-bouton-mot", "Purse"), eld("span", "gear-bouton-montant", `${total} gp`));
+  /* Eric, 16/09 : « la priorité est de bien voir le montant » — le mot « Purse »
+     ne s'écrit plus sur l'image, il vit dans l'aria-label ; le montant seul, centré. */
+  b.append(eld("span", "gear-bouton-montant", `${total} gp`));
   return b;
 }
 function boutonTally(id, options) {

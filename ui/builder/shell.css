@@ -9265,7 +9265,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   cursor: pointer;
 }
 .gear-bouton:disabled { opacity: .4; cursor: default; }
-.gear-bouton-montant { font-weight: 600; }
+/* le montant seul sur la bourse (Eric, 16/09) — T2/600 : « 999 gp » demande 41,05
+   dans 44 (la fiche du plan) ; au-delà de trois chiffres, la cote est à Eric */
+.gear-bouton-montant { font-size: var(--t2); font-weight: 600; white-space: nowrap; }
 /* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
    première ligne, s'éteint vidé */
 .gear-bouton[data-organe="tally"] { background-image: var(--icone-parchemin); }
