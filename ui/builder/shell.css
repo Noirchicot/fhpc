@@ -9257,7 +9257,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-bouton[data-organe="tally"]:not([data-compte="0"]) {
   box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
 }
-/* ⏳ la bourse (l'image d'Eric, à venir au Drop) prendra `--icone-bourse` ici */
+/* la bourse d'Eric (déposée le 16/09) : le mot et le montant se posent dessus */
+.gear-bouton[data-organe="purse"] { background-image: var(--icone-bourse); }
 
 /* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
 .gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }

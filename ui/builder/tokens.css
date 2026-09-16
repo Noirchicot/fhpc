@@ -795,6 +795,8 @@
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   --icone-parchemin: url("./assets/parchemin.webp?v=632");
+  /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
+  --icone-bourse: url("./assets/bourse.webp?v=632");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne
