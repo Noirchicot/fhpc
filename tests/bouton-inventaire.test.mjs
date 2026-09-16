@@ -120,8 +120,13 @@ test("🔴 LES DEUX RÈGLES DU PATRON LISTENT LES MÊMES SÉLECTEURS — corps e
      corps et l'ANNEAU du liseré sur la face. Ce garde suit ses deux nouveaux
      marqueurs — ce qu'il vérifie reste le même : les deux listes sont
      identiques, membre pour membre, sinon un bouton rend faux en silence. */
-  const corps = basesDeLaRegle("var(--bouton-relief)", "::before");
-  const faces = basesDeLaRegle("var(--bouton-anneau)", "::after");
+  /* 🔴 ET ILS ONT CHANGÉ UNE SECONDE FOIS LE 16/09 AU SOIR, TOUJOURS SANS QUE LA
+     LOI BOUGE : Eric a retiré l'octogone, donc la tuile `border-image` et
+     l'anneau découpé. Le corps porte maintenant sa MATIÈRE, la face son LISERÉ.
+     ⭐ Ce garde a suivi trois dessins en un jour sans changer d'une virgule ce
+     qu'il exige — c'est le signe qu'il tenait la bonne chose. */
+  const corps = basesDeLaRegle("var(--bouton-corps)", "::before");
+  const faces = basesDeLaRegle("var(--bouton-lisere-epaisseur)", "::after");
   /* 🔴 UNE SEULE, DEPUIS LE 16/09. Ce garde exigeait DEUX familles, parce que
      le chapitre Équipement portait sa copie. Il a rougi à la fusion : c'était
      son travail. ⛔ Et « une seule » est plus strict que « deux » — une copie
@@ -129,7 +134,7 @@ test("🔴 LES DEUX RÈGLES DU PATRON LISTENT LES MÊMES SÉLECTEURS — corps e
   assert.equal(corps.length, 1,
     "une seule famille porte le patron. Un SECOND bloc, c'est un second écrivain " +
     "pour un seul dessin : la première repeinture les fait diverger sans bruit");
-  assert.equal(faces.length, 1, "à ce corps sa face — sans elle, le bouton perd son bombage en silence");
+  assert.equal(faces.length, 1, "à ce corps sa face — sans elle, le bouton perd son liseré de rôle en silence");
 
   assert.deepEqual(corps[0], faces[0],
     "le corps (::before) et la face (::after) doivent lister EXACTEMENT les mêmes sélecteurs — " +
@@ -137,7 +142,7 @@ test("🔴 LES DEUX RÈGLES DU PATRON LISTENT LES MÊMES SÉLECTEURS — corps e
 });
 
 test("🔴 L'INVENTAIRE DES PORTEUSES EST CELUI QUE LA FEUILLE PORTE", () => {
-  const [socle] = basesDeLaRegle("var(--bouton-relief)", "::before");
+  const [socle] = basesDeLaRegle("var(--bouton-corps)", "::before");
   assert.deepEqual(socle, SOCLE,
     "l'habit a changé de membres : mettre à jour SOCLE ici, en le sachant");
 });
