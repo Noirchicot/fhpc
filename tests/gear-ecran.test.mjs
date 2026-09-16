@@ -232,10 +232,16 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   /* ⚖️ UN TALLY VIDE S'EFFACE AU LIEU DE S'ENTOURER — Eric, 16/09 au soir : « plutôt
      que de faire un halo… mets un voile à 10 % sur l'image ». ⛔ Et le halo ne doit
      pas revenir par une autre porte : il disait la même chose une seconde fois. */
-  assert.match(shell, /\.gear-bouton\[data-organe="party-tally"\]\s*\{\s*opacity:\s*var\(--tally-eteint\)/);
+  assert.match(shell, /\.gear-bouton\[data-organe="party-tally"\]\s*\{\s*opacity:\s*var\(--organe-eteint\)/);
+  /* ⚖️ LE MÊME VOILE HABILLE L'EMPLACEMENT OPTIONNEL — Eric, 16/09 : « le body forging,
+     mets-le à 20 %, idem », « l'optionnel uniquement ». ⛔ UN SEUL JETON POUR LES DEUX :
+     deux nombres de même valeur auraient divergé au premier réglage. */
+  assert.match(shell, /\.gear-emplacement\[data-optionnelle\]\s*\{\s*opacity:\s*var\(--organe-eteint\)/);
+  assert.ok(!/opacity:\s*\.6/.test(shell.slice(shell.indexOf(".gear-emplacement[data-optionnelle]"))),
+    "⛔ le .6 hérité d'un autre écran ne revient pas");
   assert.match(shell, /:not\(\[data-compte="0"\]\)\s*\{\s*opacity:\s*1\s*;?\s*\}/, "plein dès la première ligne");
-  assert.match(tokens, /--tally-eteint:\s*\.\d+/, "le voile est un jeton, pas un littéral perdu dans la feuille");
-  assert.ok(!/opacity:\s*var\(--tally-eteint\)[^}]*box-shadow/.test(shell), "⛔ le halo du tally est retiré, il ne revient pas");
+  assert.match(tokens, /--organe-eteint:\s*\.\d+/, "le voile est un jeton, pas un littéral perdu dans la feuille");
+  assert.ok(!/opacity:\s*var\(--organe-eteint\)[^}]*box-shadow/.test(shell), "⛔ le halo du tally est retiré, il ne revient pas");
   /* ⚖️ ET LE NOM D'UNE PLACE EN ATTENTE EST EN ITALIQUE, encre douce — Eric, 16/09 :
      « pour les emplacements et les collecteurs, idem ». ⭐ Une seule règle les tient
      tous les deux : `.gear-nom` est porté par l'emplacement vide ET par le collecteur. */

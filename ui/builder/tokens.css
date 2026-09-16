@@ -1002,7 +1002,7 @@
   --astre-croissant: url("./assets/belt/croissant.webp?v=639");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
-  /* ⚖️ LE PARCHEMIN ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
+  /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
      je suggère la suivante : lorsque le tally n'est pas actif, mets un voile à 10 %
      sur l'image, voire 5 %, donc elle est 95 % invisible. Quand le tally est actif
      le voile passe à 100 % »*.
@@ -1014,8 +1014,16 @@
      sur le fond clair et a tranché *« il faut plus que 5 %, passe à 20 % »*. En
      dessous, le parchemin ne disparaît pas seulement : on cesse de savoir qu'il y a
      quelque chose là, et un organe qu'on ne sait pas trouver n'est plus éteint, il
-     est absent. ⭐ Le voile dit « rien dedans », il ne doit pas dire « rien ici ». */
-  --tally-eteint: .20;
+     est absent. ⭐ Le voile dit « rien dedans », il ne doit pas dire « rien ici ».
+
+     ⚖️ UN SEUL NOM POUR DEUX EMPLOIS, ET C'EST ERIC QUI LES A RÉUNIS : *« le body
+     forging, mets-le à 20 % de voile, idem »*, puis *« l'optionnel uniquement »*.
+     Le tally vide dit « rien dedans » ; l'emplacement optionnel dit « pas encore à
+     toi » — deux phrases différentes, mais le MÊME geste visuel, et Eric l'a réglé
+     d'un seul nombre en regardant les deux. ⛔ Un second jeton de même valeur aurait
+     été deux nombres à tenir d'accord, et ils auraient divergé au premier réglage.
+     ⏳ Le jour où les deux sens demanderont deux valeurs, c'est LÀ qu'il se scinde. */
+  --organe-eteint: .20;
   --icone-parchemin: url("./assets/parchemin.webp?v=639");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
