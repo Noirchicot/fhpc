@@ -90,7 +90,7 @@ export const CLEF_DE = Object.freeze({
   "GROUND 1": "sol1",        "GROUND 2": "sol2",
   "SEND COLLECTOR": "collecteur",
   "SEND TO": "send-to",
-  "PURSE": "purse", "TALLY": "tally", "COMPANIONS": "companions",
+  "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "COMPANIONS": "companions",
   "BACKPACK": "backpack", "SEND": "send", "WARES": "wares",
   "livre": "livre", "?": "guide"
 });
@@ -165,6 +165,9 @@ export function feuilleDesCotes() {
     if (!id || o.creation === false || o.sorte === "porte" || o.sorte === "rond") continue;
     if (o.sorte === "jeton") {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))}`);
+    } else if (o.sorte === "voyant") {
+      /* un VOYANT : une boîte qu'on lit, aucune cible — posée telle quelle */
+      regle(id, `left:${px(o.x)};top:${px(haut(o.y))};width:${px(o.l)};height:${px(o.h)}`);
     } else if (o.cible) {
       const c = o.cible;
       regle(id, `left:${px(c.x)};top:${px(haut(c.y))};width:${px(c.l)};height:${px(c.h)};` +
@@ -173,11 +176,14 @@ export function feuilleDesCotes() {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))};width:${px(o.l)};height:${px(o.h)}`);
     }
   }
-  /* le montant de la bourse : DÉDUIT de PURSE — juste dessous, à --sp-4 (MARGE),
-     même largeur. ⏳ À entrer dans la table du plan (Archi 34) ; en attendant il
-     ne recopie rien, il se calcule. */
-  const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
-  if (purse) regles.push(`.gear > .gear-montant{left:${px(purse.x)};top:${px(haut(purse.y + purse.h + MARGE))};width:${px(purse.l)}}`);
+  /* le montant de la bourse : tant que la table ne le porte pas (⏳ Archi 34, la
+     cote est en cours — sa première boîte mordait TORSO/BACK 3), il est DÉDUIT de
+     PURSE — juste dessous, à --sp-4 (MARGE), même largeur. Dès que MONTANT est
+     dans ORGANES, c'est la règle `[data-organe="montant"]` ci-dessus qui le pose. */
+  if (!ORGANES.some((o) => o.nom === "MONTANT")) {
+    const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
+    if (purse) regles.push(`.gear > .gear-montant{left:${px(purse.x)};top:${px(haut(purse.y + purse.h + MARGE))};width:${px(purse.l)}}`);
+  }
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
     `width:${px(DALLE.l - 2 * MARGE)};height:${px(BARRE.h)}}`);
   if (PANTIN) {
@@ -289,6 +295,7 @@ function boutonPurse(id, options) {
 function montantDeLaBourse(options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const m = eld("div", "gear-montant", `${total} gp`);
+  m.dataset.organe = "montant";
   m.setAttribute("aria-hidden", "true");
   return m;
 }
@@ -377,14 +384,18 @@ export function construireLEcranGear(options = {}) {
     if (!id || o.creation === false) continue;   // les lunes : `creation: false` au plan
     if (o.sorte === "jeton") {
       noeud.append(id === "collecteur" ? collecteur(id, options) : emplacement(o, id, boites[id] || null, options));
+    } else if (o.sorte === "voyant") {
+      if (id === "montant") noeud.append(montantDeLaBourse(options));
     } else if (o.sorte === "bouton") {
       if (id === "send-to") noeud.append(dropdown(id, options));
-      else if (id === "purse") noeud.append(boutonPurse(id, options), montantDeLaBourse(options));
+      else if (id === "purse") noeud.append(boutonPurse(id, options));
       else if (id === "tally") noeud.append(boutonTally(id, options));
       else if (id === "companions") noeud.append(boutonCompanions(id));
     }
     /* portes et ronds : dans la rangée, ci-dessous */
   }
+  /* ⏳ tant que le plan ne porte pas MONTANT, le montant se pose quand même — déduit */
+  if (!ORGANES.some((o) => o.nom === "MONTANT")) noeud.append(montantDeLaBourse(options));
   noeud.append(rangee(options));
   return { noeud };
 }

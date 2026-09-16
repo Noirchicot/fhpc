@@ -177,6 +177,8 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   const n = rendu({});
   const ids = tous(n, "[data-organe]").map((e) => e.dataset.organe);
   const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond").map((o) => CLEF_DE[o.nom]);
+  /* le montant : de la table s'il y est, déduit de PURSE sinon — dans les deux cas rendu une fois */
+  if (!ORGANES.some((o) => o.nom === "MONTANT")) attendus.push("montant");
   assert.deepEqual(ids.sort(), attendus.sort());
   assert.equal(ORGANES.filter((o) => o.creation === false).length, 4, "les quatre lunes sont au plan, hors création");
   assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
@@ -238,5 +240,7 @@ test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vi
   assert.match(n.querySelector('[data-organe="purse"]').getAttribute("aria-label"), /^Purse — 0 gp$/);
   /* posé sous la bourse, à la marge, même largeur — déduit, pas retapé */
   const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
-  assert.ok(feuilleDesCotes().includes(`.gear > .gear-montant{left:${purse.x}px;top:${purse.y + purse.h + MARGE - BELT_H}px;width:${purse.l}px}`));
+  const montant = ORGANES.find((o) => o.nom === "MONTANT");
+  if (montant) assert.ok(feuilleDesCotes().includes(`[data-organe="montant"]{left:${montant.x}px;top:${montant.y - BELT_H}px;width:${montant.l}px;height:${montant.h}px}`), "le montant est posé par la table");
+  else assert.ok(feuilleDesCotes().includes(`.gear > .gear-montant{left:${purse.x}px;top:${purse.y + purse.h + MARGE - BELT_H}px;width:${purse.l}px}`));
 });
