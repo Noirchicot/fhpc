@@ -169,10 +169,20 @@ const haut = (y) => y - BELT_H;
    goût — et c'est ce qui rend ce popup non négociable.
    ⚠️ `b3-disposition.mjs:147` porte encore l'ancienne cote : hors de ce lot. */
 export const BOURSE = Object.freeze({
-  l: 186, h: 133,
+  l: 186,                        /* 5 + 4 × 44 + 5 — la largeur EST le plancher tactile */
   pas: 44,                       /* une colonne = une cible tactile, jointive */
   marge: 5,                      /* 186 − 4 × 44 = 10, cinq de chaque côté */
   bouton: 40,                    /* le dessin, dans la cible de 44 */
+  saisie: 28,                    /* la case du croquis : plus basse que les boutons */
+  /* ⚠️ LA HAUTEUR N'EST PLUS 133, ET C'EST UNE COTE QUE JE SIGNALE PLUTÔT QUE DE
+     LA FORCER. Les 133 ont été calculés pour « quatre monnaies avec + et − » —
+     rien d'autre. Le croquis d'Eric en porte SEPT lignes : le titre, l'en-tête,
+     le montant possédé, le `+`, LA CASE DE SAISIE, le `−`, et le total en GP.
+     📐 5 + 15 + 12 + 15 + 44 + 28 + 44 + 15 + 5 = 183, et aucune de ces lignes
+     n'est négociable : deux cibles de 44, une saisie qu'on doit pouvoir toucher,
+     et quatre lignes de texte. ⛔ Rogner ici, c'est rogner un plancher tactile.
+     ➡️ Porté à Eric : 183 au lieu de 133, la largeur ne bouge pas. */
+  h: 183,
   monnaies: Object.freeze([
     Object.freeze({ clef: "pp", mot: "PP" }),
     Object.freeze({ clef: "gp", mot: "GP" }),
@@ -237,8 +247,9 @@ export function feuilleDesCotes() {
   }
   regles.push(`.gear .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
   regles.push(`.gear .gear-monnaie{width:${px(BOURSE.pas)}}`);
-  regles.push(`.gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
+  regles.push(`.gear .gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
     `border-width:${px((BOURSE.pas - BOURSE.bouton) / 2)}}`);
+  regles.push(`.gear .gear-monnaie-saisie{height:${px(BOURSE.saisie)}}`);
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
     `width:${px(DALLE.l - 2 * MARGE)};height:${px(BARRE.h)}}`);
   if (PANTIN) {
@@ -488,36 +499,63 @@ function bourseOuverte(options) {
   const v = eld("div", "gear-voile");
   v.dataset.organe = "bourse-voile";
   /* ⛔ ON FERME SUR LE VOILE LUI-MÊME, PAS SUR CE QUI REMONTE : `e.target === v`
-     dit « le clic est tombé À CÔTÉ de la bourse ». ⭐ C'est plus sûr qu'un
-     `stopPropagation` posé dans le popup — celui-ci suppose que l'événement
-     remonte, donc il dépend du moteur, et il échoue en silence là où il n'y en a
-     pas. Ici, aucune supposition : on regarde où le doigt est tombé. */
+     dit « le clic est tombé À CÔTÉ de la bourse ». ⭐ Plus sûr qu'un
+     `stopPropagation` dans le popup — celui-ci suppose que l'événement remonte,
+     donc dépend du moteur, et échoue en silence là où il n'y en a pas. */
   if (options.surFermerBourse) {
     v.addEventListener("click", (e) => { if (!e || e.target === v) options.surFermerBourse(); });
   }
   const b = eld("div", "gear-bourse");
   b.setAttribute("role", "group");
   b.setAttribute("aria-label", "Purse");
+  b.append(eld("h3", "gear-bourse-titre", "Purse"));
+  const grille = eld("div", "gear-bourse-grille");
   const sac = options.bourse || {};
   for (const m of BOURSE.monnaies) {
     const col = eld("div", "gear-monnaie");
     col.dataset.monnaie = m.clef;
     const n = Number.isInteger(sac[m.clef]) ? sac[m.clef] : 0;
+    /* ⭐ L'ORDRE EST CELUI DU CROQUIS, ET IL DIT LE GESTE : ce qu'on A en haut,
+       puis `+` qui pousse VERS lui, la case qu'on remplit, puis `−` qui tire
+       de l'autre côté. Un `+` sous la case aurait dit le contraire. */
     col.append(eld("span", "gear-monnaie-mot", m.mot));
-    col.append(cranDeMonnaie("+", m, n + 1, `One more ${m.mot}`, options));
     col.append(eld("span", "gear-monnaie-compte", String(n)));
-    /* ⛔ PLANCHER À ZÉRO, ET IL EST DIT DEUX FOIS EXPRÈS : `setCurrency` le tient
-       déjà (« une bourse n'a pas de dette »), mais un bouton qui ne fait rien au
-       lieu d'être éteint est un bouton cassé pour qui le regarde. */
-    col.append(cranDeMonnaie("−", m, n - 1, `One less ${m.mot}`, options, n === 0));
-    b.append(col);
+    const champ = eld("input", "gear-monnaie-saisie");
+    champ.type = "text";
+    champ.inputMode = "numeric";
+    champ.setAttribute("aria-label", `How many ${m.mot} to add or remove`);
+    /* ⚖️ VIDE VAUT UN — le croquis montre les cases vides, et une case vide dont
+       le bouton ne ferait rien serait un piège. Le placeholder le dit à l'œil :
+       on tape 50 pour bouger de 50, on ne tape rien pour bouger de 1. */
+    champ.placeholder = "1";
+    const pas = () => {
+      const brut = String(champ.value || "").replace(/[^\d]/g, "");
+      return brut === "" ? 1 : Math.min(Number(brut), 999999);
+    };
+    col.append(cranDeMonnaie("+", m, n, pas, options));
+    col.append(champ);
+    col.append(cranDeMonnaie("−", m, n, pas, options, n === 0));
+    grille.append(col);
   }
+  b.append(grille);
+  /* ⭐ LE TOTAL EN GP — la ligne du bas du croquis. Il ne se saisit pas : convertir
+     un total vers quatre monnaies n'a pas de réponse unique (30 gp, c'est 3 pp ou
+     300 sp), et un champ qui accepte ce qu'il ne sait pas rendre est un piège. */
+  const pied = eld("div", "gear-bourse-total");
+  pied.append(eld("span", "gear-bourse-total-mot", "Total in GP"));
+  pied.append(eld("span", "gear-bourse-total-valeur", String(Math.floor(enGP(sac)))));
+  b.append(pied);
   v.append(b);
   return v;
 }
-function cranDeMonnaie(glyphe, m, valeur, note, options, eteint) {
-  const b = bouton("gear-monnaie-bouton", glyphe, note,
-    () => options.surMonnaie && options.surMonnaie(m.clef, valeur));
+/** Un cran : il applique LE MONTANT SAISI, pas une unité. C'est toute la logique
+ *  du croquis, et c'est ce que ma première version avait manqué — elle demandait
+ *  cinquante appuis pour cinquante pièces d'or. */
+function cranDeMonnaie(glyphe, m, actuel, pas, options, eteint) {
+  const signe = glyphe === "+" ? 1 : -1;
+  const b = bouton("gear-monnaie-bouton", glyphe,
+    glyphe === "+" ? `Add ${m.mot}` : `Remove ${m.mot}`,
+    () => { if (options.surMonnaie) options.surMonnaie(m.clef, actuel + signe * pas()); });
   b.dataset.cran = glyphe === "+" ? "plus" : "moins";
   if (eteint) b.disabled = true;
   return b;
