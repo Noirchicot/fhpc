@@ -350,16 +350,20 @@ function montantDeLaBourse(options) {
   m.setAttribute("aria-hidden", "true");
   return m;
 }
-/** Le Group Tally — le parchemin BLEU, à gauche du personnel. Eric, 16/09 :
- *  *« il y a 2 tally — un group tally (optionnel) n'apparaît que quand un des
- *  joueurs ou DM envoie vers le party inventory »*.
- *  ⛔ IL N'EXISTE DONC PAS À LA CRÉATION, et ce n'est pas ce module qui le
- *  décide : il rend ce que la DONNÉE porte. Pas de party inventory, pas de
- *  compte, pas de bouton — `null`, et l'écran n'a pas de trou puisque sa place
- *  lui était réservée par le plan. */
+/** Le Group Tally — le parchemin BLEU, à gauche du personnel.
+ *  ⚖️ IL EST TOUJOURS POSÉ, ET C'EST LE VOILE QUI DIT SON ÉTAT. Eric avait
+ *  d'abord dit *« un group tally (optionnel) n'apparaît que quand un des joueurs
+ *  ou DM envoie vers le party inventory »* — je l'avais donc rendu absent tant
+ *  qu'aucune donnée ne le portait. ⛔ ET C'ÉTAIT LE SERVIR MAL : rien n'alimente
+ *  `compteParty` aujourd'hui, donc « conditionnel » voulait dire « jamais », et
+ *  Eric ne l'a pas vu à l'écran — *« tu l'as pas mis »*, 16/09 au soir. Il avait
+ *  raison : une place réservée que rien n'occupe n'est pas un organe, c'est un trou.
+ *  ⭐ ET SES DEUX RÈGLES SE REJOIGNENT, C'EST CE QUI TRANCHE : le voile qu'il a
+ *  inventé une heure plus tard (*« le tally pas actif, voile à 20 % »*) dit DÉJÀ
+ *  « il n'y a rien là-dedans ». Le parchemin vide à 20 % porte donc exactement le
+ *  message que son absence portait — en laissant voir où il est. */
 function boutonPartyTally(id, options) {
-  if (options.compteParty === undefined || options.compteParty === null) return null;
-  const n = options.compteParty;
+  const n = options.compteParty || 0;
   const b = bouton("gear-bouton", undefined, n ? `Party tally — ${n} lines` : "Party tally",
     () => options.surBouton && options.surBouton("party-tally"));
   b.dataset.organe = id;
@@ -462,7 +466,7 @@ export function construireLEcranGear(options = {}) {
       if (id === "send-to") noeud.append(dropdown(id, options));
       else if (id === "purse") noeud.append(boutonPurse(id, options));
       else if (id === "tally") noeud.append(boutonTally(id, options));
-      else if (id === "party-tally") { const b = boutonPartyTally(id, options); if (b) noeud.append(b); }
+      else if (id === "party-tally") noeud.append(boutonPartyTally(id, options));
       else if (id === "companions") noeud.append(boutonCompanions(id));
     }
     /* portes et ronds : dans la rangée, ci-dessous */
