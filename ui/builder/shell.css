@@ -9183,9 +9183,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* occupé : l'habit du JETON — teinte et relief (le relief REMPLACE le creux, il
    ne s'y ajoute pas). ⛔ AUCUN liseré de couleur — Eric, 16/09 : *« les liserés
    de couleur sont inutiles dans Gear, sauf pour le collecteur »* : la bordure
-   reste transparente, à sa cote. Le nom du slot reste, en étiquette, au-dessus
-   de l'objet. */
+   d'ÉTAT ; mais *« le liseré des tokens ! »* — un jeton porte SON liseré, celui
+   d'un contrôle (`--border-strong`, la cible 3:1 de `.glisse-jeton`), et il le
+   garde ici. Le nom du slot reste, en étiquette, au-dessus de l'objet. */
 .gear-emplacement[data-occupe] {
+  border-color: var(--border-strong);
   background: var(--jeton-teinte); box-shadow: var(--relief);
   cursor: grab;
 }
