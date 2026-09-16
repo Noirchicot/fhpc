@@ -38,6 +38,13 @@ const dessins = ORGANES.filter((o) => o.creation !== false);   // les lunes : `c
 const rect = (o) => ({ x: o.x, y: o.y, l: o.l, h: o.h });
 const cibleDe = (o) => (o.cible ? { x: o.cible.x, y: o.cible.y, l: o.cible.l, h: o.cible.h } : rect(o));
 const secants = (a, b) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.h && b.y < a.y + a.h;
+/* ⚖️ L'EXCEPTION NOMMÉE, ET ELLE EST GELÉE : la boîte du MONTANT (323..367 ×
+   114..124) mord TORSO/BACK 3 de 3 × 4 — vu le 16/09, porté à Eric, qui a gelé
+   le montant le 17/09 (« je ne sais pas quoi faire pour le moment »). Le garde
+   du générateur l'accuse encore, celui-ci le NOMME : tout autre chevauchement
+   rougit. ⛔ Au dégel, cette ligne part avec le gel. */
+const CHEVAUCHEMENTS_GELES = [["TORSO/BACK 3", "MONTANT"]];
+const gele = (a, b) => CHEVAUCHEMENTS_GELES.some(([u, v]) => (a.nom === u && b.nom === v) || (a.nom === v && b.nom === u));
 
 /* ══ 1 — LA DÉCLARATION EST LA TABLE, PAS UNE COPIE QUI DÉRIVE ═══════════ */
 
@@ -85,11 +92,13 @@ test("2 bis — les huit rangées ne sont séparées que par 4 ou 8, et le budge
 
 test("2 ter — aucun dessin n'en chevauche un autre, aucune cible non plus, et toute cible atteint 44 dans les deux sens", () => {
   for (let i = 0; i < dessins.length; i++) for (let j = i + 1; j < dessins.length; j++) {
+    if (gele(dessins[i], dessins[j])) { assert.ok(secants(rect(dessins[i]), rect(dessins[j])), "le chevauchement gelé existe encore — sinon retirer l'exception"); continue; }
     assert.ok(!secants(rect(dessins[i]), rect(dessins[j])), `dessins sécants : ${dessins[i].nom} × ${dessins[j].nom}`);
     assert.ok(!secants(cibleDe(dessins[i]), cibleDe(dessins[j])), `cibles sécantes : ${dessins[i].nom} × ${dessins[j].nom}`);
   }
   for (const o of dessins) {
     if (o.sorte === "jeton") continue;    // un jeton est plus grand que la cible dans les deux sens (48 > 44 ; 87 > 44)
+    if (o.sorte === "voyant") continue;   // un voyant se lit, il n'a AUCUNE cible (artefact 15/09)
     const c = cibleDe(o);
     assert.ok(c.l >= TOUCH && c.h >= TOUCH, `⛔ ${o.nom} : cible ${c.l} × ${c.h} sous le plancher 44`);
     /* et la cible CONTIENT le dessin */

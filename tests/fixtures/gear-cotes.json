@@ -233,10 +233,10 @@
   },
   {
    "nom": "TALLY",
-   "x": 327,
-   "y": 236,
-   "l": 40,
-   "h": 40,
+   "x": 323,
+   "y": 234,
+   "l": 44,
+   "h": 44,
    "cible": 44,
    "mot": "Tally",
    "cran": "T1/600",
@@ -252,6 +252,16 @@
    "mot": "Companions",
    "cran": "T1/600",
    "sorte": "bouton"
+  },
+  {
+   "nom": "MONTANT",
+   "x": 323,
+   "y": 114,
+   "l": 44,
+   "h": 10,
+   "mot": "999 gp",
+   "cran": "T1/600",
+   "sorte": "voyant"
   },
   {
    "nom": "BACKPACK",
