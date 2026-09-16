@@ -178,8 +178,12 @@ test("🔴 LE LISERÉ TIENT SANS JAVASCRIPT — un seul polygone, aucune largeur
   assert.match(a, /^polygon\(evenodd, /, "un seul polygone, pas deux chemins");
   assert.equal((a.match(/polygon\(/g) || []).length, 1, "une seule forme");
 
-  /* 📐 SEIZE SOMMETS : huit pour le contour extérieur, huit pour le retour. */
-  assert.equal((a.match(/,/g) || []).length, 16, "8 + 8 sommets, plus le mot-clé evenodd");
+  /* 📐 DIX-HUIT SOMMETS : huit pour le contour extérieur ET son premier sommet
+     répété, huit pour le retour ET le sien. 🔴 Eric, 16/09 : « il manque le bord
+     supérieur gauche » — à 8 + 8, les deux ponts entre les contours différaient et
+     le trou s'ouvrait par le chanfrein haut-gauche. Refermer chaque contour fait
+     des deux ponts un seul segment aller-retour, qui s'annule. */
+  assert.equal((a.match(/,/g) || []).length, 18, "(8 + 1) + (8 + 1) sommets, plus le mot-clé evenodd");
 
   /* 🔴 AUCUNE LARGEUR EN DUR — c'est toute la propriété. Chaque sommet de
      droite s'exprime en `calc(100% − Npx)`, jamais en pixels absolus. */
@@ -204,11 +208,11 @@ test("🔴 LE LISERÉ TIENT SANS JAVASCRIPT — un seul polygone, aucune largeur
   const kInt = +(C + 3.4 * (Math.SQRT2 - 1)).toFixed(3);
   const sommets = a.slice(a.indexOf("evenodd,") + 8).replace(/\)$/, "").split(", ")
     .map((s) => s.trim()).filter(Boolean);
-  assert.equal(sommets.length, 16, "huit sommets par contour");
-  /* ⛔ ET LE RETOUR COMMENCE À L'INDEX 8, PAS 16 — j'avais compté les deux
-     contours au lieu d'un. Les 16 sommets vont de 0 à 15 ; le contour
-     intérieur occupe la seconde moitié. */
-  assert.equal(sommets[8], `3.4px ${kInt}px`,
+  assert.equal(sommets.length, 18, "neuf sommets par contour — le premier répété");
+  assert.equal(sommets[8], sommets[0], "le contour extérieur se referme sur son premier sommet");
+  assert.equal(sommets[17], sommets[9], "le contour intérieur se referme sur le sien");
+  /* ⛔ ET LE RETOUR COMMENCE À L'INDEX 9, après la fermeture de l'extérieur. */
+  assert.equal(sommets[9], `3.4px ${kInt}px`,
     "le retour commence par le DERNIER sommet intérieur — le contour est inversé, " +
     "et c'est ce qui garantit le trou quel que soit le moteur");
 

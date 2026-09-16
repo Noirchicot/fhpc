@@ -786,7 +786,7 @@
      📏 Épaisseur 1,4, mesurée PERPENDICULAIREMENT au bord — y compris dans les
      pans coupés, ce qu'une `border` ne sait pas faire. ⚠️ Entre deux SOMMETS on
      lit 1,5153 : deux nombres voisins qui ne mesurent pas la même grandeur. */
-  --bouton-anneau: polygon(evenodd, 8.828px 2px, calc(100% - 8.828px) 2px, calc(100% - 2px) 8.828px, calc(100% - 2px) 27.172px, calc(100% - 8.828px) 34px, 8.828px 34px, 2px 27.172px, 2px 8.828px, 3.4px 9.408px, 3.4px 26.592px, 9.408px 32.6px, calc(100% - 9.408px) 32.6px, calc(100% - 3.4px) 26.592px, calc(100% - 3.4px) 9.408px, calc(100% - 9.408px) 3.4px, 9.408px 3.4px);
+  --bouton-anneau: polygon(evenodd, 8.828px 2px, calc(100% - 8.828px) 2px, calc(100% - 2px) 8.828px, calc(100% - 2px) 27.172px, calc(100% - 8.828px) 34px, 8.828px 34px, 2px 27.172px, 2px 8.828px, 8.828px 2px, 3.4px 9.408px, 3.4px 26.592px, 9.408px 32.6px, calc(100% - 9.408px) 32.6px, calc(100% - 3.4px) 26.592px, calc(100% - 3.4px) 9.408px, calc(100% - 9.408px) 3.4px, 9.408px 3.4px, 3.4px 9.408px);
 
   /* ══ 📏 LES COTES DES AUTRES BOUTONS — même jour, mêmes mots ═════════
      *« bouton carré 44x44 : tally / purse »* · *« bouton + / - : 40x40 »* ·
