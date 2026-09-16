@@ -685,7 +685,11 @@
      197,3 (Δ 45,8) ; la nuit, de 18,1 à 15,2 — **Δ 2,9, seize fois moins**.
      Du noir posé sur du presque-noir ne peut rien assombrir : sous 5 % de
      luminance il n'y a plus de marge à descendre. */
-  --bouton-ombre: drop-shadow(0 1px 3px rgba(0,0,0,.24));
+  /* 16/09 soir — les deux ombres livrées avec les tuiles (ChatGPT, sur le prompt
+     d'Eric, Plan-ecran-R/PROMPT-chatgpt-relief-ivoire-terracotta.md) : une ombre
+     de contact et une ombre portée le jour ; la nuit, un halo blanc d'abord, puis
+     l'ombre de contact sous le bouton ivoire. */
+  --bouton-ombre: drop-shadow(0 1px 2px rgba(0,0,0,.30)) drop-shadow(0 2px 5px rgba(0,0,0,.18));
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -773,7 +777,14 @@
      bords étirés chacun dans SA direction. Et chaque bord est uniforme dans la
      direction où il s'étire (le haut est un dégradé vertical, le droit
      horizontal), donc l'étirement ne peut rien déformer de visible. */
-  --bouton-relief: url("./assets/bouton-relief.svg?v=633");
+  /* 🔴 16/09 SOIR — LA TUILE N'EST PLUS CELLE DU GÉNÉRATEUR. Eric : « 3D moche »,
+     « je veux un bouton ivoire pour nuit et terracotta pour jour ». Les deux tuiles
+     sont LIVRÉES (ChatGPT, sur le prompt d'Eric, couleurs arrêtées), collées telles
+     quelles, et gardées à l'octet par `tests/fixtures/bouton-relief-{jour,nuit}.svg`.
+     26 × 40, coins de 9 (le chanfrein va jusqu'à 8,828 : un coin de 8 le coupait, et le
+     bord haut étiré en répétait l'oblique — le « bord supérieur gauche » manquant).
+     `bouton-relief.mjs` reste la preuve de la géométrie, il ne produit plus la tuile. */
+  --bouton-relief: url("./assets/bouton-relief-jour.svg?v=633");
 
   /* 🔴 L'ANNEAU DU LISERÉ, EN CSS PUR — et c'est la trouvaille du lot.
      Un `path()` aurait exigé une chaîne par largeur, donc un script posé
@@ -1282,7 +1293,8 @@
        pas la force qui change, c'est le SENS.
        ⛔ Ne pas remonter l'alpha du noir « pour compenser » : il n'y a rien à
        compenser, la marge n'existe pas. */
-    --bouton-ombre: drop-shadow(0 1px 3px rgba(255,255,255,.18));
+    --bouton-ombre: drop-shadow(0 0 3px rgba(255,255,255,.16)) drop-shadow(0 2px 4px rgba(0,0,0,.55));
+    --bouton-relief: url("./assets/bouton-relief-nuit.svg?v=633");   /* l'ivoire, la nuit */
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul

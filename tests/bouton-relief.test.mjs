@@ -85,3 +85,39 @@ test("l'ombre reste un filtre et la nuit reste une lueur blanche", () => {
       && /--bouton-(?:biseau|bombage)/.test(corps));
   for (const [, , corps] of pseudoBlocks) assert.doesNotMatch(corps, /box-shadow:/);
 });
+
+/* ══ 16/09 SOIR — LES DEUX TUILES LIVRÉES, GARDÉES À L'OCTET ══════════════
+   Eric : « 3D moche », « ivoire pour nuit et terracotta pour jour ». Les tuiles ne
+   sortent plus du générateur : elles sont LIVRÉES (ChatGPT, sur le prompt d'Eric,
+   couleurs arrêtées) et collées telles quelles. Un témoin par tuile sous
+   `tests/fixtures/` ; le jour lit l'une, la nuit l'autre ; les coupes du 9-zones
+   suivent la géométrie de la tuile, pas l'inverse. */
+test("les tuiles servies sont celles livrées — jour terracotta, nuit ivoire — et les coupes les contiennent", () => {
+  const lire = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");
+  for (const t of ["jour", "nuit"]) {
+    assert.equal(lire(`../ui/builder/assets/bouton-relief-${t}.svg`), lire(`./fixtures/bouton-relief-${t}.svg`),
+      `bouton-relief-${t}.svg a dérivé de son témoin — la tuile est livrée, jamais retouchée`);
+  }
+  const jour = lire("../ui/builder/assets/bouton-relief-jour.svg");
+  const m = /viewBox="0 0 (\d+) (\d+)"/.exec(jour);
+  assert.ok(m, "la tuile déclare son viewBox");
+  const [L, H] = [Number(m[1]), Number(m[2])];
+  /* le jour sur `:root`, la nuit dans le bloc sombre — et pas l'inverse */
+  /* ⛔ la RÈGLE, pas sa première mention : un commentaire de tokens.css cite le
+     bloc sombre bien avant lui (ligne 683), et l'indexOf naïf s'y arrêtait */
+  const nuitIdx = TOKENS.indexOf("@media (prefers-color-scheme: dark)");
+  assert.ok(nuitIdx > 0, "le bloc sombre existe");
+  assert.ok(TOKENS.slice(0, nuitIdx).includes('--bouton-relief: url("./assets/bouton-relief-jour.svg'), "le jour lit la terracotta");
+  assert.ok(TOKENS.slice(nuitIdx).includes('--bouton-relief: url("./assets/bouton-relief-nuit.svg'), "la nuit lit l'ivoire");
+  /* les coupes : le chanfrein va jusqu'à C + B(√2 − 1) = 8,828 — un coin de 8 le coupait */
+  const s = /border-image-slice:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+fill/.exec(CLEAN_SHELL);
+  assert.ok(s, "les quatre coupes sont écrites");
+  const [haut, droite, bas, gauche] = s.slice(1, 5).map(Number);
+  const chanfrein = C + B * (Math.SQRT2 - 1);
+  for (const c of [haut, droite, gauche]) assert.ok(c >= chanfrein, `une coupe de ${c} couperait le chanfrein (${chanfrein.toFixed(3)})`);
+  assert.ok(bas >= chanfrein + 4, "le coin bas contient le chanfrein ET le talon de 4");
+  assert.ok(L - gauche - droite > 0 && H - haut - bas > 0, "il reste un centre à étirer");
+  assert.match(CLEAN_SHELL, new RegExp(`border-image-width:\\s*${haut}px\\s+${droite}px\\s+${bas}px\\s+${gauche}px`), "largeurs = coupes, en px");
+  /* la nuit garde son halo blanc EN PREMIER, puis une ombre de contact */
+  assert.match(TOKENS.slice(nuitIdx), /--bouton-ombre:\s*drop-shadow\(0 0 3px rgba\(255,255,255,[^)]*\)\)\s*drop-shadow\([^)]*rgba\(0,0,0,/);
+});

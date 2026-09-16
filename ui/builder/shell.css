@@ -8697,8 +8697,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      ⚠️ Le `clip-path` a disparu avec elles, et l'octogone est maintenant DANS
      l'image : ne pas le remettre ici, il rognerait la tuile. */
   border-image-source: var(--bouton-relief);
-  border-image-slice: 8 8 12 8 fill;
-  border-image-width: 8px 8px 12px 8px;
+  /* 9 · 9 · 13 · 9 depuis le 16/09 soir : les coins contiennent le chanfrein ENTIER
+     (il va jusqu'à 8,828), le bas contient en plus le talon de 4. Tuile 26 × 40. */
+  border-image-slice: 9 9 13 9 fill;
+  border-image-width: 9px 9px 13px 9px;
   border-style: solid;
   border-color: transparent;
 }

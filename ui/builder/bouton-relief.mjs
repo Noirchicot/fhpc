@@ -1,4 +1,9 @@
 /* ══ LA GÉOMÉTRIE DU BOUTON À RELIEF — lot 209, 2026-09-15 ════════════════
+   🔴 16/09 SOIR — CE MODULE NE PRODUIT PLUS LA TUILE SERVIE. Eric a fait refaire
+   la matière (« 3D moche » : ivoire de nuit, terracotta de jour) ; les deux tuiles
+   vivent sous `assets/bouton-relief-{jour,nuit}.svg`, livrées et gardées à l'octet
+   (fixtures). Ce qui reste ici fait foi pour la GÉOMÉTRIE (sommets, anneau,
+   9 zones) — `anneauCSS()` engendre toujours `--bouton-anneau`.
    ⛔ RIEN N'APPELLE CE MODULE AUJOURD'HUI, ET C'EST DÉLIBÉRÉ. Le dessin
    d'Eric est arrivé ; son INTÉGRATION ne l'est pas — elle demande deux
    arbitrages qui lui appartiennent (voir plus bas). Poser la géométrie sans
