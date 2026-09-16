@@ -499,6 +499,31 @@
   --glisse-case: 87px;
   --glisse-h: 48px;
 
+  /* ══ 📏 LES DEUX COLLECTEURS, ET ILS N'ONT PAS LA MÊME COTE ═══════════
+     Eric, 2026-09-16 : *« dropdown / collecteur de carac : 48x44 »* ·
+     *« dropdown / collecteur classique : 87x48 »*.
+     ⭐ LE CLASSIQUE ÉTAIT DÉJÀ JUSTE : `--glisse-case` 87 × `--glisse-h` 48
+     rendent exactement la cote qu'Eric vient de dicter. La norme le CONFIRME,
+     elle ne le change pas — et c'est une information en soi : ce qui a été
+     déduit de la place tient encore quand on le redemande de mémoire.
+     🔴 CELUI DES CARACTÉRISTIQUES EST PLUS ÉTROIT ET MOINS HAUT : 48 × 44 —
+     sa hauteur retombe sur la cible tactile au lieu de la dépasser.
+
+     ⏳ ET SON PORTEUR RESTE À DÉSIGNER, DÉLIBÉRÉMENT. J'ai d'abord écrit ici
+     que c'était `.ability-collecteur` et qu'il portait « un score, deux
+     chiffres » : les DEUX étaient faux. Mesuré : `.ability-collecteur` est la
+     DALLE entière (`section.choix-glisse.ability-glisse`, qui contient
+     « DRAG AND DROP HERE » et les six cibles), et la case individuelle est
+     `.glisse-creneau.ability-creneau` — qui porte un DÉ posé (`--de-pose`,
+     `aspect-ratio: 1`) et un nom, pas un score.
+     ⛔ Je pose donc la COTE, pas son porteur. Rattacher 48 × 44 au mauvais
+     sélecteur redimensionnerait une dalle entière au lieu d'une case, et ça ne
+     se verrait qu'à l'écran. ⭐ La désignation appartient à Eric — c'est le
+     précédent de `--bouton-moyen`, cote arrêtée et portée par aucun organe
+     jusqu'à ce qu'il en nomme un. */
+  --collecteur-carac-l: 48px;
+  --collecteur-carac-h: var(--touch);   /* 44 */
+
   /* ══ LA COTE QU'UNE CASE REND VRAIMENT ICI — lot 204, 2026-09-13 ═══════
      🔴 `--glisse-case` EST UN PLAFOND, PAS UNE TAILLE, et c'est ce que la
      maison avait fini par oublier. La case du vivier et celle du collecteur
@@ -557,8 +582,24 @@
   --organe-rayon: 16px;
 
   /* Le pan coupé du bouton — sa signature exclusive. Rien d'autre dans
-     l'interface n'a de coins coupés. */
-  --bouton-coupe: 10px;
+     l'interface n'a de coins coupés.
+     🔴 8 DEPUIS LE 16/09, AVEC LE RELIEF — la valeur 10 était ANTÉRIEURE au
+     dessin. Le bouton à relief d'Eric est construit sur une coupe de 8 et un
+     rebord de 2 : les deux cotes viennent du même dessin, et en garder une
+     sans l'autre reviendrait à décider à la place du dessinateur sur un
+     équilibre qu'il a réglé à l'œil.
+     ⚖️ DÉCIDÉ PAR LA SESSION `documents-08` SOUS DÉLÉGATION EXPLICITE D'ERIC
+     — *« prends la décision pour moi ça me saoule »*, 16/09. ⛔ Ce n'est donc
+     PAS une décision d'Eric, et c'est écrit ainsi exprès : il a regardé et
+     approuvé LE DESSIN, pas ce nombre. Le bouton hybride (coin 10 + rebord 2)
+     n'a jamais été validé par personne — c'est un objet fabriqué pour poser
+     une question.
+     📏 MESURÉ AVANT DE CHANGER, sur le builder servi : les huit boutons du
+     pied rendent 77 × 44 blg à coupe 10, et 77 × 44 blg à coupe 8. Aucune
+     cote ne bouge — seule la forme change, ce qui est exactement le mandat.
+     ⛔ NORMES §6 `bouton-pans-coupes-nus` disait « la coupe extérieure reste
+     `--bouton-coupe` 10 » : cette phrase est corrigée dans le même lot. */
+  --bouton-coupe: 8px;
 
   /* La face du jeton au repos. ⚠️ À NE PAS CONFONDRE AVEC `--accent-wash`
      (10 %), qui teinte un fond de code : celui-ci est la MATIÈRE du jeton, et
@@ -608,8 +649,20 @@
      ⭐ LA LUMIÈRE VIENT TOUJOURS D'EN HAUT. Le dégradé de l'arête est large
      parce que seul son ruban de `--bouton-biseau-epaisseur` reste visible ; le
      dégradé de la face, plus doux, donne le bombage. Le bas et sa projection
-     sont allégés : ils détachent le bouton sans peser davantage que le haut. */
-  --bouton-biseau-epaisseur: 1.5px;
+     sont allégés : ils détachent le bouton sans peser davantage que le haut.
+
+     🔴 2 DEPUIS LE 16/09 — le rebord du bouton à relief d'Eric, mesuré
+     perpendiculairement au bord dans son SVG. Il va avec la coupe à 8 : même
+     dessin, même décision (voir `--bouton-coupe` plus haut, et la délégation
+     qui y est nommée). ⛔ Ne pas reprendre 1,5 sans reprendre 10 avec.
+     📐 ET LA COTE DU COIN N'EST PAS LA MÊME QUE CELLE DU BORD : à un retrait
+     parallèle `i`, le sommet d'une diagonale se décale de `i × (√2 − 1)`, pas
+     de `i`. C'est ce qui garde l'épaisseur CONSTANTE dans les pans coupés —
+     la formule vit dans `bouton-relief.mjs`, gardée par
+     `tests/bouton-geometrie.test.mjs`. ⚠️ Mesurer cette épaisseur entre deux
+     SOMMETS donne 1,5153 et ne veut rien dire : elle se mesure
+     PERPENDICULAIREMENT au bord, et vaut alors 1,4 — comme sur un bord droit. */
+  --bouton-biseau-epaisseur: 2px;
   --bouton-biseau:
     linear-gradient(to bottom,
       rgba(255,255,255,.72) 0,
@@ -683,6 +736,38 @@
      MOT — deux organes, deux cotes, et le 06/09 les a séparées. */
   --bouton-petit: 77px;
   --bouton-moyen: 105px;
+
+  /* ══ 📏 LA HAUTEUR DU BOUTON — Eric, 2026-09-16 ═══════════════════════
+     *« passe tous les boutons à hauteur 40 blg (cible tactile reste à 44 donc
+     dépasse de 2 au dessus et en dessous) »*.
+
+     🔴 DEUX COTES, ET ELLES NE SE CONFONDENT PLUS. Jusqu'ici le bouton n'en
+     avait qu'une : `--touch` 44 servait à la fois de cible et de dessin. Elles
+     se séparent — le DESSIN fait 40, la CIBLE reste 44, et le pouce garde son
+     plancher intact. ⭐ C'est la même distinction que l'astre porte déjà
+     (`--astre-dessin` / `--astre-cible`, plus bas) : le dépôt la connaissait,
+     le bouton ne l'appliquait pas.
+
+     ⛔ LA CIBLE NE CÈDE JAMAIS — `jeton-sacre` : *« les jetons et les boutons
+     sont SACRÉS : leur cote et leur corps ne cèdent jamais »*. Ce qui rétrécit
+     ici est le dessin, pas la zone qu'on touche. Un bouton reste attrapable
+     sur 44 blg de haut, exactement comme avant.
+
+     📐 LE RETRAIT SE DÉRIVE, IL NE S'ÉCRIT PAS. Deux blg de chaque côté sont
+     la MOITIÉ de l'écart entre les deux cotes : l'écrire en littéral, c'est
+     poser un troisième nombre que rien ne tient à jour le jour où 40 bouge. */
+  --bouton-hauteur: 40px;
+  --bouton-retrait-v: calc((var(--touch) - var(--bouton-hauteur)) / 2);
+
+  /* ══ 📏 LES COTES DES AUTRES BOUTONS — même jour, mêmes mots ═════════
+     *« bouton carré 44x44 : tally / purse »* · *« bouton + / - : 40x40 »* ·
+     *« bouton lune : 40 diam »*.
+     ⭐ Le CARRÉ est le seul dont le dessin égale sa cible : à 44 il remplit la
+     zone tactile, il n'a pas de marge à laisser. Le GLYPHE et l'ASTRE sont à
+     40, donc en retrait de 2 dans la même cible de 44 — la règle du bouton à
+     mot, appliquée à un dessin rond ou carré au lieu d'un octogone. */
+  --bouton-carre: var(--touch);        /* 44 — le Tally et la bourse */
+  --bouton-glyphe: var(--bouton-hauteur);  /* 40 — le `+` et le `−` */
 
   /* ══ LES DEUX ONGLETS DE BOUT (Eric, 2026-08-19) ═════════════════════
      Deux demi-pastilles happées par les bords, collées en haut de l'écran.
@@ -779,7 +864,15 @@
      une tuile pleine, pas sur un verre à 10 %. */
   --belt-halo: rgba(45, 44, 42, 0.62);
 
-  /* L'ASTRE : deux cotes, et elles ne se confondent pas. */
+  /* L'ASTRE : deux cotes, et elles ne se confondent pas.
+     ⏳ LA NORME DU 16/09 DIT *« bouton lune : 40 diam »*, et cette ligne rend
+     41. ⛔ ELLE N'EST PAS CHANGÉE ICI : le belt appartient au lot 207, fusionné
+     et en ligne, et le mandat du 209 l'exclut nommément — *« le belt n'est pas
+     touché »*. J'avais fait passer `--astre-dessin` à 40 ; Eric l'a arrêté net
+     (*« pas touche au belt »*), et il a eu raison : une cote juste posée dans
+     le mauvais lot reste une cote posée par quelqu'un qui n'en répond pas.
+     ➡️ La norme est écrite au corpus (`bouton-hauteur`, §6) ; sa DISTRIBUTION
+     sur l'astre revient au lot qui tient le belt. */
   --astre-dessin: var(--belt-tuile);   /* 41 — le DESSIN, égal à la secondaire */
   --astre-cible: var(--touch);         /* 44 — la CIBLE, le plancher du pouce */
 
