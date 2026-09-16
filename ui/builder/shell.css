@@ -9454,7 +9454,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    interrompu quelque chose : l'écran reste visible dessous, assombri. */
 .gear-voile {
   position: absolute; inset: 0; z-index: 2;
-  display: flex; align-items: center; justify-content: center;
   /* ⚖️ OPAQUE, PAS TRANSLUCIDE — Eric, 16/09 au soir : *« voile 100 % pour la
      bourse je pense »*. ⛔ Ce n'est donc PAS `--voile-ecran` (72 %), qui sert
      les voiles où l'on doit continuer de voir ce qu'on interrompt.
@@ -9466,6 +9465,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   background: var(--bg);
 }
 .gear-bourse {
+  /* posée par la feuille construite, sur le bouton qui l'ouvre — jamais centrée
+     dans l'écran : on ouvre sa bourse là où on l'a prise. */
+  position: absolute;
   display: flex; align-items: stretch; gap: 0;
   border-radius: var(--organe-rayon);
   background: var(--surface);

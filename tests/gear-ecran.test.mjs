@@ -433,6 +433,16 @@ test("5 sexies — LA BOURSE : un popup coté par la table, quatre monnaies, un 
      Mesuré au navigateur avant de le voir — la règle ne s'appliquait pas, et le popup
      se dimensionnait sur son contenu (176 au lieu de 186). */
   assert.ok(!f.includes(".gear > .gear-bourse"), "un sélecteur d'enfant direct enfermerait la cote dans une structure");
+  /* ⚖️ CENTRÉE SUR LE BOUTON QUI L'OUVRE, PUIS SERRÉE DANS LA DALLE — Eric, 16/09.
+     ⛔ Le serrage n'est pas un détail : centré sur la bourse (x 342,5), le popup
+     irait jusqu'à 435,5 et sortirait de 64. La moitié des monnaies serait hors de
+     l'écran sans qu'aucune cote ait l'air fausse. */
+  const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
+  const gaucheAttendue = DALLE.l - MARGE - BOURSE.l;
+  assert.ok(purse.x + purse.l / 2 - BOURSE.l / 2 > gaucheAttendue, "centré, il déborderait — c'est ce que le serrage rattrape");
+  assert.ok(f.includes(`.gear .gear-bourse{left:${gaucheAttendue}px;`), "serré à la marge droite");
+  const sommetAttendu = purse.y - BELT_H + purse.h / 2 - BOURSE.h / 2;
+  assert.ok(f.includes(`top:${sommetAttendu}px}`), "et centré en hauteur sur le bouton");
   assert.ok(f.includes(`.gear-monnaie-bouton{width:${BOURSE.pas}px;height:${BOURSE.pas}px;border-width:${(BOURSE.pas - BOURSE.bouton) / 2}px}`),
     "dessin 40 dans une cible de 44 — le retrait est porté par des bords transparents, comme le Tally");
   assert.ok(!/\.gear-bourse\s*\{[^}]*width:\s*\d/.test(shell), "⛔ aucune cote de la bourse dans shell.css");

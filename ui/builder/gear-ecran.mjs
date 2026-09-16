@@ -220,6 +220,21 @@ export function feuilleDesCotes() {
      popup se dimensionnait sur son contenu — 176 au lieu de 186, hauteur libre.
      ⭐ La leçon est plus large que le bug : un sélecteur d'enfant direct enferme une
      cote dans une STRUCTURE, et la structure bouge quand l'écran grandit. */
+  /* ⚖️ CENTRÉ SUR LE BOUTON QUI L'OUVRE — Eric, 16/09 au soir : *« centre-le sur
+     l'emplacement de la bourse dans la fiche »*. ⭐ Un popup qui naît AILLEURS que
+     là où on a tapé oblige l'œil à retrouver ce qu'il vient de désigner ; celui-ci
+     s'ouvre sur place, et le doigt sait déjà où il est.
+     📐 PUIS IL SE SERRE DANS LA DALLE, et ce serrage n'est pas un détail : centré
+     sur la bourse (x 342,5), le popup irait de 249,5 à 435,5 — il sortirait de 64.
+     On le ramène donc à la marge. ⛔ Sans ce serrage, la moitié des monnaies
+     serait hors de l'écran, et aucune cote n'aurait l'air fausse. */
+  const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
+  if (purse) {
+    const serre = (v, max) => Math.min(Math.max(v, MARGE), max - MARGE);
+    const gauche = serre(purse.x + purse.l / 2 - BOURSE.l / 2, DALLE.l - BOURSE.l);
+    const sommet = serre(haut(purse.y) + purse.h / 2 - BOURSE.h / 2, DALLE.h - BELT_H - BOURSE.h);
+    regles.push(`.gear .gear-bourse{left:${px(gauche)};top:${px(sommet)}}`);
+  }
   regles.push(`.gear .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
   regles.push(`.gear .gear-monnaie{width:${px(BOURSE.pas)}}`);
   regles.push(`.gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
