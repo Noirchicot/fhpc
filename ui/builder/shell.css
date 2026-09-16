@@ -9503,7 +9503,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
 }
 /* ⚖️ LA CASE DU MILIEU — c'est ELLE qui porte toute la logique du croquis : on y
-   tape COMBIEN on veut bouger, et les deux crans disent DANS QUEL SENS. ⛔ Sans
+   tape COMBIEN on ajoute ou retire, et les deux crans disent LEQUEL DES DEUX. ⛔ Sans
    elle, `+` valait 1 et poser cinquante pièces d'or demandait cinquante appuis.
    ⭐ Vide, elle vaut 1 — son placeholder le dit à l'œil. */
 .gear-monnaie-saisie {

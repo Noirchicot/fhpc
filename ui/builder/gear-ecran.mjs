@@ -526,7 +526,12 @@ function bourseOuverte(options) {
     champ.setAttribute("aria-label", `How many ${m.mot} to add or remove`);
     /* ⚖️ VIDE VAUT UN — le croquis montre les cases vides, et une case vide dont
        le bouton ne ferait rien serait un piège. Le placeholder le dit à l'œil :
-       on tape 50 pour bouger de 50, on ne tape rien pour bouger de 1. */
+       on tape 50 pour ajouter ou retirer 50, on ne tape rien pour aller de 1.
+       ⚖️ ET LE VERBE COMPTE — Eric, 17/09 : *« on ne déplace rien, on ajoute, on
+       retire »*. J'écrivais « bouger », qui laisse croire que l'argent VA quelque
+       part. Il n'y a pas de destination ici : une bourse se remplit et se vide.
+       ⛔ Ce qui SORT vraiment de la bourse a son propre chemin, et il existe déjà :
+       acheter un objet la débite (le geste `payer` du pipeline, 24/08). */
     champ.placeholder = "1";
     const pas = () => {
       const brut = String(champ.value || "").replace(/[^\d]/g, "");
