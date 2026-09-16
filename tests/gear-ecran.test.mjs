@@ -416,13 +416,34 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
   assert.equal(pop.querySelector(".gear-bourse-total-mot").textContent, "Total in GP");
   assert.equal(pop.querySelector(".gear-bourse-total-valeur").textContent, "15",
     "1 pp + 5 gp + 9 cp = 15 gp — le total se CALCULE, il ne se tape pas");
+  /* ⭐ ET SES MILLIERS SE SÉPARENT, par la MÊME fonction que le montant posé sur la
+     bourse : deux façons d'écrire un nombre dans un écran, c'est deux façons de le
+     lire. Eric, 17/09 : « montre-moi un 152 210 gp en total ». */
+  assert.equal(rendu({ bourseOuverte: true, bourse: { pp: 15221, gp: 0, sp: 0, cp: 0 } })
+    .querySelector(".gear-bourse-total-valeur").textContent, "152\u202f210");
   assert.deepEqual(tous(pop, ".gear-monnaie").map((c) => c.dataset.monnaie), ["pp", "gp", "sp", "cp"]);
   assert.deepEqual(tous(pop, ".gear-monnaie-compte").map((c) => c.textContent), ["1", "5", "0", "9"]);
 
   /* ⭐ L'ORDRE DE LA COLONNE DIT LE GESTE : possédé · `+` · la case · `−` */
   const col = pop.querySelector('.gear-monnaie[data-monnaie="gp"]');
   assert.deepEqual([...col.children].map((e) => e.className),
-    ["gear-monnaie-mot", "gear-monnaie-compte", "gear-monnaie-bouton", "gear-monnaie-saisie", "gear-monnaie-bouton"]);
+    ["gear-monnaie-tete", "gear-monnaie-compte", "gear-monnaie-bouton", "gear-monnaie-saisie", "gear-monnaie-bouton"]);
+  /* ⚖️ TROIS LIGNES D'EN-TÊTE, POUR CHACUNE DES QUATRE — Eric, 17/09 : « PP (T2
+     centré) / Platinium (T0 italique centré) / pieces (T0 italique centré) », puis
+     « tu fais idem pour chacune des monnaies ». ⛔ Le garde vérifie les QUATRE :
+     une seule colonne servie aurait passé un test écrit sur une seule. */
+  for (const m of BOURSE.monnaies) {
+    const t = pop.querySelector(`.gear-monnaie[data-monnaie="${m.clef}"] .gear-monnaie-tete`);
+    assert.deepEqual([...t.children].map((e) => e.textContent), [m.mot, m.nom, BOURSE.piece], m.clef);
+  }
+  assert.deepEqual(BOURSE.monnaies.map((m) => m.nom), ["Platinium", "Gold", "Silver", "Copper"]);
+  assert.match(shell, /\.gear-monnaie-mot\s*\{[^}]*font-size:\s*var\(--t2\)/, "l'abréviation en T2");
+  assert.match(shell, /\.gear-monnaie-nom\s*\{[^}]*font-size:\s*var\(--t0\)[^}]*font-style:\s*italic/, "la glose en T0 italique");
+  assert.match(shell, /\.gear-bourse-titre\s*\{[^}]*margin:\s*0 0 var\(--sp-4\)/, "4 blg sous le titre");
+  assert.match(shell, /\.gear-bourse-total\s*\{[^}]*justify-content:\s*center/,
+    "le total est la SOMME des quatre colonnes, pas la suite de la dernière — il se centre");
+  assert.match(shell, /\.gear-bourse-total\s*\{[^}]*margin:\s*var\(--sp-4\) 0/,
+    "4 blg au-dessus et en dessous : l'air autour détache la seule ligne qui ne se tape pas");
 
   const gestes = [];
   const n2 = rendu({ bourseOuverte: true, bourse: { pp: 0, gp: 5, sp: 0, cp: 0 },
