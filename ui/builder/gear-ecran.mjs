@@ -306,9 +306,26 @@ function boutonPurse(id, options) {
  *  « 99999 » (31,99) puis « gp » — sur les deux lignes que la zone offre.
  *  Un VOYANT, pas un bouton — on le lit, le bouton porte déjà le montant dans
  *  son nom accessible. */
+/** Les milliers, séparés par une espace fine INSÉCABLE — Eric, 16/09 au soir, qui
+ *  écrit lui-même « 85 565 gp » en demandant à voir. Mesuré à T1/600 : « 99 999 »
+ *  rend 33,64 dans les 40 de la zone (contre 31,99 sans séparateur), et l'espace
+ *  insécable garde le nombre sur UNE ligne — il se coupe au blanc avant « gp »,
+ *  jamais au milieu du nombre.
+ *  ⛔ PAS `toLocaleString` : il rend selon la locale de la machine qui l'exécute,
+ *  donc autre chose en test qu'au navigateur, et une virgule en anglais. */
+function enMilliers(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+}
 function montantDeLaBourse(options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
-  const m = eld("div", "gear-montant", `${total} gp`);
+  const m = eld("div", "gear-montant");
+  /* ⚖️ « gp » PASSE SOUS LE NOMBRE AU-DELÀ DE DEUX CHIFFRES — Eric, 16/09 au
+     soir. ⛔ C'est le COMPTE DES CHIFFRES qui décide, pas la largeur rendue ni
+     la longueur de la chaîne : « 1 234 » fait cinq signes et quatre chiffres.
+     ⭐ Et ce module ne fait que DIRE l'état : la disposition est peinte par la
+     feuille (`[data-empile]`), comme partout ailleurs. */
+  m.dataset.empile = String(String(total).length > 2);
+  m.append(eld("span", "gear-montant-nombre", enMilliers(total)), eld("span", "gear-montant-unite", "gp"));
   m.dataset.organe = "montant";
   m.setAttribute("aria-hidden", "true");
   return m;

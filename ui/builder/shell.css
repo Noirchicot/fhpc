@@ -8630,7 +8630,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      sans qu'aucun test de source ne s'en aperçoive. */
   position: relative;
   background: none;
-  color: var(--on-accent);
+  /* ⚠️ PAS `--on-accent`, ET C'EST LA FACE UNIQUE QUI L'INTERDIT — 16/09 au
+     soir. Ce jeton BASCULE (#ffffff le jour, #14120e la nuit) ; la face du
+     bouton, elle, est la même sur les deux fonds (Eric : « version sombre bien
+     sur les 2 fonds »). L'encre de nuit serait donc presque noire sur presque
+     noir. Le bouton prend son encre à lui, comme l'astre du belt. */
+  color: var(--bouton-encre);
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -8695,14 +8700,23 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      déclarations qui le posent deviennent des couleurs de liseré sans qu'on en
      touche une seule.
      ⚠️ Le `clip-path` a disparu avec elles, et l'octogone est maintenant DANS
-     l'image : ne pas le remettre ici, il rognerait la tuile. */
-  border-image-source: var(--bouton-relief);
-  /* 9 · 9 · 13 · 9 depuis le 16/09 soir : les coins contiennent le chanfrein ENTIER
-     (il va jusqu'à 8,828), le bas contient en plus le talon de 4. Tuile 26 × 40. */
-  border-image-slice: 9 9 13 9 fill;
-  border-image-width: 9px 9px 13px 9px;
-  border-style: solid;
-  border-color: transparent;
+     l'image : ne pas le remettre ici, il rognerait la tuile.
+
+     ⛔ FIN DE L'ARCHIVE — 16/09 AU SOIR, ERIC A RETIRÉ L'OCTOGONE. Ce pseudo ne
+     porte plus une IMAGE mais une MATIÈRE : un rectangle à angles légèrement
+     arrondis, peint par trois jetons et rien d'autre.
+     ⭐ CE QUE LE CHANGEMENT DE FORME A RENDU POSSIBLE, et qui était interdit
+     depuis le 26/08 : sans `clip-path`, un `box-shadow` n'est plus rogné. Les
+     deux arêtes d'un pixel qui font tout le relief sont donc des ombres
+     INTERNES, là où l'octogone devait les peindre en dégradé. ⚠️ La mesure du
+     26/08 n'est pas fausse pour autant — elle reste vraie partout où un organe
+     découpe ET filtre ; elle a seulement cessé de contraindre CE patron-ci.
+     📐 LA HAUTEUR NE BOUGE PAS D'UN BLG : `inset: var(--bouton-retrait-v) 0`
+     donne toujours 40 dans une cible de 44, et c'est toujours la seule règle
+     qui le fait. */
+  border-radius: var(--bouton-rayon);
+  background: var(--bouton-corps);
+  box-shadow: var(--bouton-aretes);
 }
 
 /* 🔴 LA FACE EN RETRAIT — le second octogone laisse visible un ruban tout
@@ -8735,13 +8749,25 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      reste ici est le seul organe qui porte encore une couleur de rôle.
      ⭐ ET IL EST ALIGNÉ SUR LE CORPS, PAS EN RETRAIT DE SON BISEAU : l'anneau
      est dessiné dans le repère de la tuile (ses sommets valent 2 et 3,4 depuis
-     le bord), donc il doit partager exactement la boîte du relief. */
-  inset: var(--bouton-retrait-v) 0;
+     le bord), donc il doit partager exactement la boîte du relief.
+
+     ⛔ FIN DE L'ARCHIVE — 16/09 AU SOIR. L'anneau découpé au `clip-path` était
+     la seule façon de border un octogone à épaisseur constante ; un rectangle
+     arrondi se borde avec une BORDURE, et le polygone à seize sommets disparaît
+     avec la forme qu'il suivait.
+     ⭐ SON MÉTIER, LUI, NE CHANGE PAS : `--bouton-fond` colore ce liseré et rien
+     d'autre, et son défaut `transparent` retire son liseré au bouton gris — les
+     vingt-quatre déclarations de rôle du dépôt traversent le changement de forme
+     sans qu'on en touche une.
+     📐 LES DEUX COTES SONT DÉRIVÉES, PAS ÉCRITES : le liseré est à
+     `--bouton-lisere-marge` du bord DU DESSIN (donc ce retrait s'ajoute à celui
+     du corps sur l'axe vertical, et le remplace sur l'axe horizontal où le corps
+     n'en a pas), et son rayon est celui du corps MOINS la même marge — un
+     contour parallèle ne peut pas garder le rayon extérieur sans croiser le coin. */
+  inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge)) var(--bouton-lisere-marge);
   z-index: -1;
-  /* ⛔ UNE COULEUR PLEINE, PAS UN DÉGRADÉ : c'est le `clip-path` qui fait
-     l'anneau en creusant le milieu, pas la peinture. */
-  background: var(--bouton-fond);
-  clip-path: var(--bouton-anneau);
+  border-radius: calc(var(--bouton-rayon) - var(--bouton-lisere-marge));
+  border: var(--bouton-lisere-epaisseur) solid var(--bouton-fond);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -9339,9 +9365,27 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    comme celle des astres : la bourse ne bascule pas avec le thème. */
 .gear-montant {
   display: flex; align-items: center; justify-content: center; text-align: center;
-  color: var(--bourse-encre); font-size: var(--t1); font-weight: 600;
+  color: var(--bourse-encre);
+  /* ⚖️ T0 ET MAIGRE — Eric, 16/09 au soir, en regardant « 85 565 gp » sur la
+     bourse : *« ne mets pas en gras et descends d'un incrément »*. ⚠️ ET JE LE
+     SIGNALE PLUTÔT QUE DE LE TAIRE : le commentaire de `--t0` dit *« un détail
+     sous un dé, jamais une ligne à lire »*. Le montant EST un détail posé sur
+     une image, pas une ligne de texte — et l'information reste entière pour qui
+     ne peut pas le lire, dans l'`aria-label` du bouton (« Purse — 85565 gp »).
+     📏 Mesuré à ce cran : « 99 999 » rend 26,26 dans les 40 de la zone. */
+  font-size: var(--t0); font-weight: 400;
   line-height: 1.2; pointer-events: none;
+  /* ⚖️ EN LIGNE JUSQU'À DEUX CHIFFRES, EMPILÉ AU-DELÀ — Eric, 16/09 au soir :
+     *« les gp sous le chiffre au-delà de 2 digits »*. ⭐ L'écart entre le nombre
+     et son unité est une GOUTTIÈRE, pas une espace du texte : en ligne elle vaut
+     `--sp-2`, empilée elle disparaît — une espace écrite dans le mot aurait tenu
+     les deux rôles à la fois, donc mal.
+     ⛔ ET C'EST UN JETON, PAS UN LITTÉRAL : j'avais écrit `.25em`, et les trois
+     gardes de l'espacement ont rougi ensemble — ils ont eu raison, `shell.css` ne
+     porte aucune cote d'espacement en clair. */
+  flex-direction: row; gap: var(--sp-2);
 }
+.gear-montant[data-empile="true"] { flex-direction: column; gap: 0; }
 /* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
    première ligne, s'éteint vidé */
 .gear-bouton[data-organe="tally"] { background-image: var(--icone-parchemin); }
