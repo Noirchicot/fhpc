@@ -784,7 +784,7 @@
      26 × 40, coins de 9 (le chanfrein va jusqu'à 8,828 : un coin de 8 le coupait, et le
      bord haut étiré en répétait l'oblique — le « bord supérieur gauche » manquant).
      `bouton-relief.mjs` reste la preuve de la géométrie, il ne produit plus la tuile. */
-  --bouton-relief: url("./assets/bouton-relief-jour.svg?v=633");
+  --bouton-relief: url("./assets/bouton-relief-jour.svg?v=634");
 
   /* 🔴 L'ANNEAU DU LISERÉ, EN CSS PUR — et c'est la trouvaille du lot.
      Un `path()` aurait exigé une chaîne par largeur, donc un script posé
@@ -926,13 +926,13 @@
      du blanc ») : fixe elle aussi, l'image ne suit pas le thème. */
   --bourse-encre: #fff8dc;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=633");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=633");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=634");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=634");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
-  --icone-parchemin: url("./assets/parchemin.webp?v=633");
+  --icone-parchemin: url("./assets/parchemin.webp?v=634");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=633");
+  --icone-bourse: url("./assets/bourse.webp?v=634");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne
@@ -1011,14 +1011,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=633");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=634");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=633");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=634");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1111,8 +1111,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=633");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=633");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=634");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=634");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
@@ -1294,7 +1294,7 @@
        ⛔ Ne pas remonter l'alpha du noir « pour compenser » : il n'y a rien à
        compenser, la marge n'existe pas. */
     --bouton-ombre: drop-shadow(0 0 3px rgba(255,255,255,.16)) drop-shadow(0 2px 4px rgba(0,0,0,.55));
-    --bouton-relief: url("./assets/bouton-relief-nuit.svg?v=633");   /* l'ivoire, la nuit */
+    --bouton-relief: url("./assets/bouton-relief-nuit.svg?v=634");   /* l'ivoire, la nuit */
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
