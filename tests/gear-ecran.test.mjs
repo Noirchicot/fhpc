@@ -189,6 +189,8 @@ test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois 
   const n = rendu({ boites: { tete1: { nom: "Winged helmet", qte: 2, index: 3, equipped: true } } });
   const e = n.querySelector('[data-organe="tete1"]');
   assert.equal(e.dataset.occupe, "oui");
+  assert.equal(e.querySelector(".gear-nom"), null, "(b) Eric 16/09 : le nom du slot s'efface quand un objet est posé");
+  assert.match(e.getAttribute("aria-label"), /^HEAD\/FACE — Winged helmet/, "…mais il reste dans le nom accessible");
   assert.equal(e.querySelector(".gear-objet").textContent, "Winged helmet");
   assert.equal(e.querySelector(".gear-qte").textContent, "×2");
   const etats = Object.fromEntries(tous(e, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat]));

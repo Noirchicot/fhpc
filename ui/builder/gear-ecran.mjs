@@ -186,12 +186,15 @@ function emplacement(o, id, pose, options) {
   const e = eld("div", "gear-emplacement");
   e.dataset.organe = id;
   const mot = libelleDe(o.nom);
-  e.append(eld("span", "gear-nom", mot));
   if (boite && boite.optionnelle) e.dataset.optionnelle = "oui";
   if (!pose) {
+    e.append(eld("span", "gear-nom", mot));
     e.setAttribute("aria-label", `${mot} — empty`);
     return e;
   }
+  /* ⚖️ Eric, 16/09 (b) : le nom du slot S'EFFACE quand un objet est posé — comme
+     le « drop it here » d'un collecteur. ⛔ Pas masqué, pas rendu (garde 4) :
+     le nom reste dans l'aria-label, le lecteur d'écran l'entend. */
   e.dataset.occupe = "oui";
   e.append(eld("span", "gear-objet", pose.nom));
   if (pose.qte > 1) e.append(eld("span", "gear-qte", `×${pose.qte}`));
