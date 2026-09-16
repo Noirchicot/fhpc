@@ -270,7 +270,11 @@ function collecteur(id, options) {
   if (n === 0) { c.dataset.creneau = "collecteur"; c.dataset.vise = "false"; }
   c.dataset.compte = String(n);
   c.append(eld("span", "gear-nom", "Send collector"));
-  c.append(eld("span", "gear-objet", n ? `${n} to send` : ""));
+  /* ⛔ PAS DE SPAN VIDE QUAND IL N'Y A RIEN — Eric, 16/09 au soir : *« italique
+     collecteur, centré verticalement et horizontalement »*. Un élément vide reste un
+     enfant du flex : il ne se voit pas, mais il compte, et le mot cessait d'être au
+     milieu sans qu'on voie pourquoi. Le vide ne se peint pas, il ne se pose pas. */
+  if (n) c.append(eld("span", "gear-objet", `${n} to send`));
   c.setAttribute("aria-label", n ? `Send collector — ${n} to send` : "Send collector — empty");
   return c;
 }

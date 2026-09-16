@@ -9437,6 +9437,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    haut, la valeur choisie dessous. ⭐ C'EST LA BOÎTE QUI REÇOIT LA COTE du plan
    (`[data-organe="send-to"]`, 100 × 44) ; le select prend ce que le mot laisse. */
 .gear-destination { display: flex; flex-direction: column; overflow: hidden; }
+/* ⛔ LE MOT NE SE COMPRIME JAMAIS — Eric : *« italique dropdown, toujours visible,
+   collée en haut »*. `flex: none` le met hors du partage : c'est le select qui cède
+   la place, jamais l'étiquette. Sans ça, un select natif plus haut que sa boîte
+   aurait mangé le mot d'abord, et seulement sur certains moteurs. */
+.gear-destination-mot { flex: none; }
 .gear-destination .gear-send-to { flex: 1 1 auto; min-height: 0; }
 /* 📏 T1, ITALIQUE, ET UNE ENCRE DOUCE — *« couleur un peu moins blanc flashy »* :
    `--text-soft`, qui bascule avec le thème là où un blanc fixe aurait crié la nuit

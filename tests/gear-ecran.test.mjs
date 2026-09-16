@@ -240,6 +240,17 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   assert.match(shell, /\.gear-nom\s*\{[^}]*font-style:\s*italic/);
   assert.match(shell, /\.gear-nom\s*\{[^}]*color:\s*var\(--text-soft\)/);
   assert.match(shell, /\.gear-nom\s*\{[^}]*font-size:\s*var\(--t1\)/);
+  /* ⚖️ CENTRÉ DANS LES DEUX SENS, DONC SANS ENFANT VIDE — Eric, 16/09 au soir. Un
+     `<span>` vide ne se voit pas mais compte dans le flex : le mot cessait d'être au
+     milieu sans qu'on voie pourquoi. ⛔ Le vide ne se pose pas. */
+  const vide = rendu({}).querySelector(".gear-collecteur");
+  assert.equal(vide.children.length, 1, "un collecteur vide n'a QUE son nom");
+  assert.equal(vide.children[0].className, "gear-nom");
+  const plein = rendu({ collecte: new Set(["a"]) }).querySelector(".gear-collecteur");
+  assert.equal(plein.children.length, 2, "plein, il porte son nom et ce qu'il retient");
+  assert.equal(plein.children[1].textContent, "1 to send");
+  /* et le mot du dropdown ne cède jamais sa place au select */
+  assert.match(shell, /\.gear-destination-mot\s*\{\s*flex:\s*none/, "toujours visible, collé au haut");
   assert.match(tokens, /--icone-parchemin-party:\s*url\(/);
   assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
   assert.equal(tous(n, ".gear-rangee").length, 1);
