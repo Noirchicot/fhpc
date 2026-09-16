@@ -29,9 +29,11 @@
    *« OPTIONS FOR LARGER SCREENS ONLY — IN DOUBLE VIEW (IN CHARACTER SHEET
    ONLY) »*, et Eric le 16/09 : *« les lunes sont pour les écrans plus
    grands »*. Elles appartiennent au miroir « Équipement en jeu », pas à la
-   création. La colonne x 0..44 reste VIDE et c'est voulu : elle leur est
-   réservée par construction (les rangées L2..L4 commencent à x 49). ⛔ Un
-   lot qui la remplirait prendrait la place des lunes.
+   création. Le plan les porte avec `creation: false` (Archi 34, 16/09 : elles
+   restent dessinées et cotées, la déclaration dit de ne pas les poser). La
+   colonne x 0..44 reste VIDE et c'est voulu : elle leur est réservée par
+   construction (les rangées L2..L4 commencent à x 49). ⛔ Un lot qui la
+   remplirait prendrait la place des lunes.
 
    📌 CRÉATION OU JEU — la liste de ce que ce module reprend de `b3-*` /
    `equipment-step.mjs`, et la réponse (loi d'Eric, 15/09 : « à la création
@@ -146,7 +148,9 @@ export function feuilleDesCotes() {
   const regle = (id, corps) => regles.push(`.gear > [data-organe="${id}"]{${corps}}`);
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    if (!id || o.sorte === "porte" || o.sorte === "rond" || o.sorte === "lune") continue;
+    /* `creation: false` : l'organe est dessiné au plan (Eric le regarde) mais
+       n'existe pas à la création — les lunes. La donnée le dit, pas ce fichier. */
+    if (!id || o.creation === false || o.sorte === "porte" || o.sorte === "rond") continue;
     if (o.sorte === "jeton") {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))}`);
     } else if (o.cible) {
@@ -335,7 +339,7 @@ export function construireLEcranGear(options = {}) {
 
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    if (!id) continue;                       // les lunes : voir la tête du fichier
+    if (!id || o.creation === false) continue;   // les lunes : `creation: false` au plan
     if (o.sorte === "jeton") {
       noeud.append(id === "collecteur" ? collecteur(id, options) : emplacement(o, id, boites[id] || null, options));
     } else if (o.sorte === "bouton") {

@@ -9201,14 +9201,15 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-voyants { position: absolute; inset: 0; pointer-events: none; }
 .gear-voyant { position: absolute; display: block; opacity: 0; }
 .gear-voyant[data-etat="oui"] { opacity: 1; }
-/* ⚖️ Eric, 16/09 : « ton cercle vert équipé, déplace de 4 blg vers la gauche » —
+/* ⚖️ Eric, 16/09 : « ton cercle vert équipé, déplace de 4 blg vers la gauche »,
+   puis « le cercle vert descend de 2 blg (arm hands disparaît sous le token) » —
    le ♥ suit, il se loge dedans. */
 .gear-voyant[data-voyant="equipe"] {
-  top: var(--sp-2); right: calc(var(--sp-2) + var(--sp-4)); width: var(--sp-8); height: var(--sp-8);
+  top: var(--sp-4); right: calc(var(--sp-2) + var(--sp-4)); width: var(--sp-8); height: var(--sp-8);
   border-radius: 50%; box-shadow: inset 0 0 0 1px var(--positive);
 }
 .gear-voyant[data-voyant="harmonise"] {
-  top: var(--sp-2); right: calc(var(--sp-2) + var(--sp-4)); width: var(--sp-8); height: var(--sp-8);
+  top: var(--sp-4); right: calc(var(--sp-2) + var(--sp-4)); width: var(--sp-8); height: var(--sp-8);
   color: var(--magie); font-size: var(--t0); line-height: 1; text-align: center;
 }
 .gear-voyant[data-voyant="harmonise"]::before { content: "♥"; }

@@ -34,7 +34,7 @@ const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"))
 
 const { DALLE, BELT_H, MARGE, TOUCH, JETON, ORGANES, LIGNES, BARRE } = D;
 const jetons = ORGANES.filter((o) => o.sorte === "jeton");
-const dessins = ORGANES.filter((o) => o.sorte !== "lune");   // les lunes ne sont pas posées (voir gear-ecran.mjs)
+const dessins = ORGANES.filter((o) => o.creation !== false);   // les lunes : `creation: false` au plan
 const rect = (o) => ({ x: o.x, y: o.y, l: o.l, h: o.h });
 const cibleDe = (o) => (o.cible ? { x: o.cible.x, y: o.cible.y, l: o.cible.l, h: o.cible.h } : rect(o));
 const secants = (a, b) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.h && b.y < a.y + a.h;
@@ -108,7 +108,7 @@ test("2 quater — ⚔️ ATTAQUE : une cible de 40 rougirait", () => {
 test("3 — chaque organe posé a une clef, chaque clef est unique, et les emplacements existent au dépôt", () => {
   const clefs = [];
   for (const o of ORGANES) {
-    if (o.sorte === "lune") { assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`); continue; }
+    if (o.creation === false) { assert.equal(o.sorte, "lune", "seules les lunes sont hors création"); assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`); continue; }
     assert.ok(CLEF_DE[o.nom], `« ${o.nom} » n'a pas de clef`);
     clefs.push(CLEF_DE[o.nom]);
   }
@@ -177,6 +177,7 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   const ids = tous(n, "[data-organe]").map((e) => e.dataset.organe);
   const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond").map((o) => CLEF_DE[o.nom]);
   assert.deepEqual(ids.sort(), attendus.sort());
+  assert.equal(ORGANES.filter((o) => o.creation === false).length, 4, "les quatre lunes sont au plan, hors création");
   assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
   assert.equal(tous(n, ".gear-rangee").length, 1);
   assert.ok(n.querySelector(".gear-rangee").dataset.rangee, "la rangée déclare data-rangee (§6 pré, cinquième porte)");
