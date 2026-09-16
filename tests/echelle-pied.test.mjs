@@ -35,9 +35,14 @@ test("le Done d'un item verdit quand l'item est répondu — canal data-avance",
 });
 
 test("CHOOSE est vert — Eric, 27/08 : « bouton grisé choose bizarre, vert mieux non ? »", () => {
-  /* la règle vient APRÈS le défaut gris de la famille (même poids 0,1,0 :
-     l'ordre tranche) — vérifié par la position des deux dans le fichier. */
-  const defaut = SHELL_CSS.indexOf("--bouton-fond: var(--text-muted)");
+  /* la règle vient APRÈS le défaut de la famille (même poids 0,1,0 :
+     l'ordre tranche) — vérifié par la position des deux dans le fichier.
+     🔴 LE DÉFAUT N'EST PLUS GRIS DEPUIS LE 16/09 : `--bouton-fond` ne peint
+     plus le corps du bouton mais l'ANNEAU de son liseré, et un bouton gris n'en
+     porte pas (Eric) — il vaut donc `transparent`. La loi de ce garde est
+     intacte, seul le marqueur suit. ⛔ `indexOf` prend la première occurrence,
+     celle du patron : deux autres `transparent` vivent plus bas. */
+  const defaut = SHELL_CSS.indexOf("--bouton-fond: transparent");
   const vert = SHELL_CSS.search(/\.fiche-action \{[^}]*--bouton-fond:\s*var\(--positive\)/);
   assert.ok(defaut > -1 && vert > -1, "les deux règles existent");
   assert.ok(vert > defaut, "le vert du CHOOSE est déclaré après le défaut gris");

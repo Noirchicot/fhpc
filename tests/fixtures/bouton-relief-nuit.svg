@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="40" viewBox="0 0 26 40">
+  <defs>
+    <linearGradient id="n0" gradientUnits="userSpaceOnUse" x1="13" y1="0" x2="13" y2="2">
+      <stop offset="0" stop-color="#fffbf0"/><stop offset="1" stop-color="#eee4cb"/>
+    </linearGradient>
+    <linearGradient id="n1" gradientUnits="userSpaceOnUse" x1="22" y1="4" x2="20.586" y2="5.414">
+      <stop offset="0" stop-color="#f6efdd"/><stop offset="1" stop-color="#d9ccae"/>
+    </linearGradient>
+    <linearGradient id="n2" gradientUnits="userSpaceOnUse" x1="26" y1="18" x2="24" y2="18">
+      <stop offset="0" stop-color="#e1d5ba"/><stop offset="1" stop-color="#bfb293"/>
+    </linearGradient>
+    <linearGradient id="n3" gradientUnits="userSpaceOnUse" x1="22" y1="32" x2="20.586" y2="30.586">
+      <stop offset="0" stop-color="#c7bb9c"/><stop offset="1" stop-color="#a5987a"/>
+    </linearGradient>
+    <linearGradient id="n4" gradientUnits="userSpaceOnUse" x1="13" y1="36" x2="13" y2="34">
+      <stop offset="0" stop-color="#b9ac8b"/><stop offset="1" stop-color="#968a6b"/>
+    </linearGradient>
+    <linearGradient id="n5" gradientUnits="userSpaceOnUse" x1="4" y1="32" x2="5.414" y2="30.586">
+      <stop offset="0" stop-color="#cdc1a2"/><stop offset="1" stop-color="#ab9e7f"/>
+    </linearGradient>
+    <linearGradient id="n6" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="2" y2="18">
+      <stop offset="0" stop-color="#e6dbc1"/><stop offset="1" stop-color="#c5b899"/>
+    </linearGradient>
+    <linearGradient id="n7" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="5.414" y2="5.414">
+      <stop offset="0" stop-color="#fbf5e6"/><stop offset="1" stop-color="#dfd2b6"/>
+    </linearGradient>
+    <linearGradient id="nt" gradientUnits="userSpaceOnUse" x1="13" y1="36" x2="13" y2="40">
+      <stop offset="0" stop-color="#a4967a"/><stop offset="1" stop-color="#6b6150"/>
+    </linearGradient>
+    <linearGradient id="nf" gradientUnits="userSpaceOnUse" x1="13" y1="2" x2="13" y2="34">
+      <stop offset="0" stop-color="#f7f0dd"/>
+      <stop offset="0.45" stop-color="#ede3c9"/>
+      <stop offset="1" stop-color="#ddd1b2"/>
+    </linearGradient>
+  </defs>
+  <polygon points="8,4 18,4 26,12 26,32 18,40 8,40 0,32 0,12" fill="#443d31"/>
+  <polygon points="26,28 18,36 18,40 26,32" fill="url(#nt)"/>
+  <polygon points="18,36 8,36 8,40 18,40" fill="url(#nt)"/>
+  <polygon points="8,36 0,28 0,32 8,40" fill="url(#nt)"/>
+  <polygon points="8,0 18,0 26,8 26,28 18,36 8,36 0,28 0,8" fill="#e6dcc4"/>
+  <polygon points="8,0 18,0 17.172,2 8.828,2" fill="url(#n0)"/>
+  <polygon points="18,0 26,8 24,8.828 17.172,2" fill="url(#n1)"/>
+  <polygon points="26,8 26,28 24,27.172 24,8.828" fill="url(#n2)"/>
+  <polygon points="26,28 18,36 17.172,34 24,27.172" fill="url(#n3)"/>
+  <polygon points="18,36 8,36 8.828,34 17.172,34" fill="url(#n4)"/>
+  <polygon points="8,36 0,28 2,27.172 8.828,34" fill="url(#n5)"/>
+  <polygon points="0,28 0,8 2,8.828 2,27.172" fill="url(#n6)"/>
+  <polygon points="0,8 8,0 8.828,2 2,8.828" fill="url(#n7)"/>
+  <polygon points="8.828,2 17.172,2 24,8.828 24,27.172 17.172,34 8.828,34 2,27.172 2,8.828" fill="url(#nf)"/>
+</svg>

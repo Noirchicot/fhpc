@@ -38,6 +38,13 @@ const dessins = ORGANES.filter((o) => o.creation !== false);   // les lunes : `c
 const rect = (o) => ({ x: o.x, y: o.y, l: o.l, h: o.h });
 const cibleDe = (o) => (o.cible ? { x: o.cible.x, y: o.cible.y, l: o.cible.l, h: o.cible.h } : rect(o));
 const secants = (a, b) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.h && b.y < a.y + a.h;
+/* ⚖️ LA SEULE INCLUSION ADMISE : un voyant `dans` un bouton (le MONTANT sur la
+   bourse, Eric 16/09 soir). Ce n'est pas un chevauchement, c'est une inclusion,
+   et elle se VÉRIFIE : la boîte tient entièrement dans son hôte. Tout autre
+   croisement rougit. (Le gel du 17/09 — MONTANT mordait TORSO/BACK 3 — est
+   levé par la descente de la bourse : plus d'exception nommée.) */
+const hote = (a, b) => (a.dans === b.nom ? b : b.dans === a.nom ? a : null);
+const contenu = (d, h) => h.x <= d.x && h.y <= d.y && d.x + d.l <= h.x + h.l && d.y + d.h <= h.y + h.h;
 
 /* ══ 1 — LA DÉCLARATION EST LA TABLE, PAS UNE COPIE QUI DÉRIVE ═══════════ */
 
@@ -85,11 +92,14 @@ test("2 bis — les huit rangées ne sont séparées que par 4 ou 8, et le budge
 
 test("2 ter — aucun dessin n'en chevauche un autre, aucune cible non plus, et toute cible atteint 44 dans les deux sens", () => {
   for (let i = 0; i < dessins.length; i++) for (let j = i + 1; j < dessins.length; j++) {
+    const h = hote(dessins[i], dessins[j]);
+    if (h) { const d = h === dessins[i] ? dessins[j] : dessins[i]; assert.ok(contenu(d, h), `${d.nom} sort de son hôte ${h.nom}`); continue; }
     assert.ok(!secants(rect(dessins[i]), rect(dessins[j])), `dessins sécants : ${dessins[i].nom} × ${dessins[j].nom}`);
     assert.ok(!secants(cibleDe(dessins[i]), cibleDe(dessins[j])), `cibles sécantes : ${dessins[i].nom} × ${dessins[j].nom}`);
   }
   for (const o of dessins) {
     if (o.sorte === "jeton") continue;    // un jeton est plus grand que la cible dans les deux sens (48 > 44 ; 87 > 44)
+    if (o.sorte === "voyant") continue;   // un voyant se lit, il n'a AUCUNE cible (artefact 15/09)
     const c = cibleDe(o);
     assert.ok(c.l >= TOUCH && c.h >= TOUCH, `⛔ ${o.nom} : cible ${c.l} × ${c.h} sous le plancher 44`);
     /* et la cible CONTIENT le dessin */
@@ -108,7 +118,9 @@ test("2 quater — ⚔️ ATTAQUE : une cible de 40 rougirait", () => {
 test("3 — chaque organe posé a une clef, chaque clef est unique, et les emplacements existent au dépôt", () => {
   const clefs = [];
   for (const o of ORGANES) {
-    if (o.creation === false) { assert.equal(o.sorte, "lune", "seules les lunes sont hors création"); assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`); continue; }
+    /* hors création : les quatre lunes, et le Party Tally (Eric, 16/09 : « n'apparaît
+       que quand un des joueurs ou DM envoie vers le party inventory » — en jeu) */
+    if (o.creation === false) { assert.ok(o.sorte === "lune" || o.nom === "PARTY TALLY", `${o.nom} : seules les lunes et le Party Tally sont hors création`); assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`); continue; }
     assert.ok(CLEF_DE[o.nom], `« ${o.nom} » n'a pas de clef`);
     clefs.push(CLEF_DE[o.nom]);
   }
@@ -180,7 +192,8 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   /* le montant : de la table s'il y est, déduit de PURSE sinon — dans les deux cas rendu une fois */
   if (!ORGANES.some((o) => o.nom === "MONTANT")) attendus.push("montant");
   assert.deepEqual(ids.sort(), attendus.sort());
-  assert.equal(ORGANES.filter((o) => o.creation === false).length, 4, "les quatre lunes sont au plan, hors création");
+  assert.equal(ORGANES.filter((o) => o.creation === false).length, 5, "les quatre lunes et le Party Tally sont au plan, hors création");
+  assert.equal(n.querySelector('[data-organe="party-tally"]'), null, "pas de Party Tally à la création");
   assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
   assert.equal(tous(n, ".gear-rangee").length, 1);
   assert.ok(n.querySelector(".gear-rangee").dataset.rangee, "la rangée déclare data-rangee (§6 pré, cinquième porte)");
@@ -248,12 +261,19 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions et
 test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {
   assert.equal(rendu({ bourse: { pp: 1, gp: 5, sp: 9, cp: 9 } }).querySelector(".gear-montant").textContent, "15 gp");
   const n = rendu({});
-  assert.equal(n.querySelector(".gear-montant").textContent, "0 gp", "une ligne (Eric, 16/09)");
-  assert.equal(n.querySelector('[data-organe="purse"]').textContent, "", "(b) Eric 16/09 : rien d'écrit sur la bourse — le montant est dessous");
+  assert.equal(n.querySelector(".gear-montant").textContent, "0 gp");
+  assert.equal(n.querySelector('[data-organe="purse"]').textContent, "", "rien d'écrit DANS le bouton : le montant est le voyant posé dessus");
   assert.match(n.querySelector('[data-organe="purse"]').getAttribute("aria-label"), /^Purse — 0 gp$/);
-  /* posé sous la bourse, à la marge, même largeur — déduit, pas retapé */
+  /* le voyant est SUR la bourse (Eric, 16/09 soir) : `dans: "PURSE"` au plan, 40 dans 50,
+     et sa règle vient de la table — pas retapée */
   const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
   const montant = ORGANES.find((o) => o.nom === "MONTANT");
+  assert.equal(montant.dans, "PURSE"); assert.ok(contenu(montant, purse), "le montant tient dans la bourse");
+  assert.equal(purse.l, purse.h, "la bourse est un carré"); assert.ok(purse.l >= TOUCH, "le dessin de la bourse est sa propre cible");
+  assert.equal(purse.cible, undefined, "50 ≥ 44 : aucune cible à porter, donc aucun bord transparent");
+  assert.match(shell, /\.gear-montant\s*\{[^}]*color:\s*var\(--bourse-encre\)/, "l'encre du montant est le jeton de la bourse");
+  assert.match(tokens, /--bourse-encre:\s*#/, "le jeton existe");
+  assert.match(shell, /\.gear-porte\[data-porte="send"\]\s*\{\s*--bouton-fond:\s*var\(--positive\)/, "Send : liseré vert (une conséquence) ; les autres portes restent bleues");
   if (montant) assert.ok(feuilleDesCotes().includes(`[data-organe="montant"]{left:${montant.x}px;top:${montant.y - BELT_H}px;width:${montant.l}px;height:${montant.h}px}`), "le montant est posé par la table");
   else assert.ok(feuilleDesCotes().includes(`.gear > .gear-montant{left:${purse.x}px;top:${purse.y + purse.h + MARGE - BELT_H}px;width:${purse.l}px}`));
 });

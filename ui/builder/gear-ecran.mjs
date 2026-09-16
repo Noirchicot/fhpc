@@ -294,15 +294,18 @@ function boutonPurse(id, options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const b = bouton("gear-bouton", undefined, `Purse — ${total} gp`, () => options.surBouton && options.surBouton("purse"));
   b.dataset.organe = id;
-  /* Eric, 16/09 : « la priorité est de bien voir le montant », puis (b) : le
-     montant SOUS la bourse, pas dessus — l'image reste entière, le mot « Purse »
-     vit dans l'aria-label. Le montant est un organe à part (`montantDeLaBourse`). */
+  /* Eric, 16/09 (soir) : « fais rentrer l'image dans un carré de 50 × 50 » — le
+     dessin EST la cible (50 ≥ --touch), l'image est le bouton, le mot « Purse »
+     vit dans l'aria-label. Le montant est un VOYANT posé SUR elle (`MONTANT`,
+     `dans: "PURSE"` au plan), un organe à part : `montantDeLaBourse`. */
   return b;
 }
-/** Le montant, sous la bourse, SUR UNE LIGNE (Eric, 16/09 : « pas joli
- *  superposé — en dessous sur une ligne oui ») : « 999 gp » en T1/600, 34 dans
- *  44. Un VOYANT, pas un bouton — on le lit, le bouton porte déjà le montant
- *  dans son nom accessible. ⏳ Cinq chiffres feraient 44,5 : question chez Archi 34. */
+/** Le montant, SUR la bourse, dans sa zone de 40 × 40 (Eric, 16/09 soir : « la
+ *  zone de texte 40 × 40 suffit », « jaune très proche du blanc ») : « 999 gp »
+ *  en T1/600 tient sur une ligne (34,21) ; au-delà il se coupe au blanc —
+ *  « 99999 » (31,99) puis « gp » — sur les deux lignes que la zone offre.
+ *  Un VOYANT, pas un bouton — on le lit, le bouton porte déjà le montant dans
+ *  son nom accessible. */
 function montantDeLaBourse(options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const m = eld("div", "gear-montant", `${total} gp`);
@@ -393,7 +396,7 @@ export function construireLEcranGear(options = {}) {
 
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    if (!id || o.creation === false) continue;   // les lunes : `creation: false` au plan
+    if (!id || o.creation === false) continue;   // les lunes et le Party Tally : `creation: false` au plan
     if (o.sorte === "jeton") {
       noeud.append(id === "collecteur" ? collecteur(id, options) : emplacement(o, id, boites[id] || null, options));
     } else if (o.sorte === "voyant") {

@@ -100,8 +100,17 @@ test("7.8 — les trois boutons du plateau : famille octogone, bleu du mouvement
   assert.match(corpsDe(".tray-bouton"), /flex:\s*0 0 var\(--glisse-case\)/, "trois boutons identiques, à la cote partagée");
   /* ⚠️ LE BLEU SE POSE APRÈS LA FAMILLE : le défaut gris vit dans son bloc, à
      spécificité égale — écrit avant, il gagnerait et la règle serait perdante. */
+  /* 🔴 LE MARQUEUR DU DÉFAUT A CHANGÉ LE 16/09, PAS LA LOI. Le défaut de la
+     famille valait `var(--text-muted)` — il vaut `transparent` depuis que
+     `--bouton-fond` ne peint plus le corps mais l'ANNEAU du liseré, et qu'un
+     bouton gris n'en porte pas (Eric, 16/09). Ce garde suit la nouvelle
+     valeur ; ce qu'il vérifie est inchangé, et reste nécessaire : à
+     spécificité égale, c'est l'ordre qui départage.
+     ⛔ `indexOf` prend la PREMIÈRE occurrence, celle du patron — deux autres
+     `transparent` existent plus bas (les deux `:disabled`), et elles sont
+     écrites après le bleu : les viser rendrait ce garde faux. */
   const bleu = SHELL.indexOf(".tray-bouton { --bouton-fond: var(--info); }");
-  const famille = SHELL.indexOf("--bouton-fond: var(--text-muted)");
+  const famille = SHELL.indexOf("--bouton-fond: transparent");
   assert.ok(bleu > 0 && famille > 0 && bleu > famille, "la teinte du plateau doit être écrite APRÈS le défaut de la famille");
   assert.match(corpsDe(".tray-boutons"), /justify-self:\s*stretch/, "la cellule s'étire…");
   assert.match(corpsDe(".tray-boutons"), /justify-content:\s*center/, "…et son contenu se centre");

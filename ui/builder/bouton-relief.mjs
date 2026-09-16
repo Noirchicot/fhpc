@@ -1,4 +1,9 @@
 /* ══ LA GÉOMÉTRIE DU BOUTON À RELIEF — lot 209, 2026-09-15 ════════════════
+   🔴 16/09 SOIR — CE MODULE NE PRODUIT PLUS LA TUILE SERVIE. Eric a fait refaire
+   la matière (« 3D moche » : ivoire de nuit, terracotta de jour) ; les deux tuiles
+   vivent sous `assets/bouton-relief-{jour,nuit}.svg`, livrées et gardées à l'octet
+   (fixtures). Ce qui reste ici fait foi pour la GÉOMÉTRIE (sommets, anneau,
+   9 zones) — `anneauCSS()` engendre toujours `--bouton-anneau`.
    ⛔ RIEN N'APPELLE CE MODULE AUJOURD'HUI, ET C'EST DÉLIBÉRÉ. Le dessin
    d'Eric est arrivé ; son INTÉGRATION ne l'est pas — elle demande deux
    arbitrages qui lui appartiennent (voir plus bas). Poser la géométrie sans
@@ -123,7 +128,19 @@ export function anneau(W, iExt = 2, iInt = 3.4) {
    une ligne de balisage ni de JS.
 
    ⛔ LE SENS DU SECOND CONTOUR COMPTE. Il est parcouru à l'envers : c'est ce
-   qui garantit le trou quel que soit le moteur, `evenodd` ou `nonzero`. */
+   qui garantit le trou quel que soit le moteur, `evenodd` ou `nonzero`.
+
+   🔴 ET CHAQUE CONTOUR SE REFERME SUR SON PREMIER SOMMET — vu par Eric le
+   16/09 : *« il manque le bord supérieur gauche »*. Un `polygon()` n'a qu'une
+   suite de sommets : passer du contour extérieur au contour intérieur trace un
+   PONT, et revenir au premier sommet en trace un second. Avec 8 + 8 sommets
+   les deux ponts étaient DIFFÉRENTS (p7 → q0 à l'aller, q7 → p0 au retour) :
+   le contour intérieur n'était pas fermé, le trou s'ouvrait jusqu'au bord par
+   le chanfrein supérieur gauche, et l'anneau y manquait — mesuré à l'écran, le
+   liseré vert de Send s'arrêtait net des deux côtés du coin.
+   ⭐ Le remède : répéter le premier sommet de chaque contour. Les deux ponts
+   deviennent LE MÊME segment parcouru dans les deux sens, et ils s'annulent
+   quel que soit le moteur. 18 sommets, toujours un seul polygone. */
 export function anneauCSS(haut = H_DESSIN - TALON, iExt = 2, iInt = 3.4) {
   const contour = (i, sens) => {
     const k = n(C + i * R2), bas = n(haut - k), I = n(i), J = n(haut - i);
@@ -133,7 +150,8 @@ export function anneauCSS(haut = H_DESSIN - TALON, iExt = 2, iInt = 3.4) {
       [`calc(100% - ${k}px)`, `${J}px`], [`${k}px`, `${J}px`],
       [`${I}px`, `${bas}px`], [`${I}px`, `${k}px`]
     ];
-    return (sens < 0 ? p.slice().reverse() : p).map((a) => a[0] + " " + a[1]).join(", ");
+    const suite = sens < 0 ? p.slice().reverse() : p;
+    return suite.concat([suite[0]]).map((a) => a[0] + " " + a[1]).join(", ");
   };
   return `polygon(evenodd, ${contour(iExt, 1)}, ${contour(iInt, -1)})`;
 }

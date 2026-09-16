@@ -34,32 +34,47 @@ test("le patron commun porte deux octogones : arête complète puis face en retr
   assert.notEqual(cote("bouton-coupe"), 10, "la coupe 10 est antérieure au dessin — elle ne revient pas");
   assert.notEqual(cote("bouton-biseau-epaisseur"), 1.5, "le rebord 1,5 est antérieur au dessin");
 
-  assert.match(TOKENS, /--bouton-bombage:\s*linear-gradient\(to bottom/);
+  /* 🔴 LE MÉDIUM A CHANGÉ LE 16/09, ET LA LOI RESTE. Le patron peignait deux
+     octogones en CSS ; il porte maintenant le RELIEF d'Eric en `border-image`
+     sur le corps, et l'ANNEAU du liseré sur la face. ⛔ Le garde ne s'est pas
+     desserré en suivant : il exige désormais que les deux jetons du dessin
+     existent, qu'une SEULE famille les porte, et que le corps n'ait plus de
+     `clip-path` — l'octogone est DANS l'image, un clip ici la rognerait. */
+  assert.match(TOKENS, /--bouton-relief:\s*url\(/, "la tuile du relief est un jeton");
+  assert.match(TOKENS, /--bouton-anneau:\s*polygon\(evenodd,/, "l'anneau du liseré est un jeton");
 
-  const faces = [...CLEAN_SHELL.matchAll(/([^{}]+::after[^{}]*)\{([^{}]*background-image:\s*var\(--bouton-bombage\)[^{}]*)\}/g)];
-  /* 🔴 UNE SEULE FAMILLE DEPUIS LE 16/09 — Eric : *« 2 oui une seule apparence
-     partout »*. Ce garde attendait DEUX faces, parce que le chapitre Équipement
-     portait une copie du patron ; elle est retirée, ses six sélecteurs sont
-     entrés dans le patron. ⛔ « une seule » est PLUS strict que « deux » : une
-     copie qui reparaîtrait ferait rougir ce garde, alors que l'ancienne
-     écriture l'aurait accueillie sans rien dire. */
-  assert.equal(faces.length, 1,
-    "une seule famille porte la face bombée — un second bloc serait un second " +
-    "écrivain pour un seul dessin, et la première repeinture les ferait diverger");
+  const corpsRegles = [...CLEAN_SHELL.matchAll(/([^{}]+::before[^{}]*)\{([^{}]*border-image-source:\s*var\(--bouton-relief\)[^{}]*)\}/g)];
+  assert.equal(corpsRegles.length, 1,
+    "une seule famille porte le relief — un second bloc serait un second écrivain " +
+    "pour un seul dessin, et la première repeinture les ferait diverger");
+  for (const [, , corps] of corpsRegles) {
+    assert.match(corps, /border-image-slice:[^;]*fill/,
+      "sans `fill`, le centre reste vide et la face du bouton disparaît");
+    assert.match(corps, /border-style:\s*solid/, "sans `border-style`, rien ne se peint");
+    assert.match(corps, /inset:\s*var\(--bouton-retrait-v\)\s+0/,
+      "le corps fait 40 dans une cible de 44 — c'est ce retrait qui donne la hauteur");
+    assert.doesNotMatch(corps, /clip-path:/,
+      "⛔ l'octogone est DANS la tuile : un `clip-path` ici la rognerait");
+  }
+
+  const faces = [...CLEAN_SHELL.matchAll(/([^{}]+::after[^{}]*)\{([^{}]*clip-path:\s*var\(--bouton-anneau\)[^{}]*)\}/g)];
+  assert.equal(faces.length, 1, "à ce corps son anneau, et un seul");
   for (const [, selecteur, corps] of faces) {
     assert.ok(selecteur.split(",").every((branche) => /::after\s*$/.test(branche.trim())),
-      "la face ne doit atteindre que les pseudo-éléments du patron");
-    /* 🔴 LE RETRAIT VERTICAL S'EST AJOUTÉ LE 16/09 — Eric : le dessin fait 40,
-       la cible reste 44. La face porte donc DEUX retraits qui ne se confondent
-       pas : celui du DESSIN (vertical, partagé avec le corps) et son propre
-       BISEAU (horizontal et vertical). ⛔ Ce garde exige les deux nommés : un
-       `calc()` qui les additionnerait en littéral perdrait la raison de
-       chacun, et ils ne bougent pas ensemble. */
-    assert.match(corps, /inset:\s*calc\(var\(--bouton-retrait-v\)\s*\+\s*var\(--bouton-biseau-epaisseur\)\)\s+var\(--bouton-biseau-epaisseur\)/,
-      "la face se retire du dessin ET de son biseau, chacun par son nom");
-    assert.equal((corps.match(/var\(--bouton-coupe\)/g) || []).length, 8,
-      "l'octogone intérieur conserve les huit sommets du patron");
+      "l'anneau ne doit atteindre que les pseudo-éléments du patron");
+    /* ⭐ L'ANNEAU PARTAGE EXACTEMENT LA BOÎTE DU CORPS — ses sommets sont
+       dessinés dans le repère de la tuile (2 et 3,4 depuis le bord), donc un
+       retrait supplémentaire le décalerait de son propre dessin. */
+    assert.match(corps, /inset:\s*var\(--bouton-retrait-v\)\s+0/,
+      "l'anneau est aligné sur le corps, pas en retrait de son biseau");
+    assert.match(corps, /background:\s*var\(--bouton-fond\)/,
+      "c'est `--bouton-fond` qui colore l'anneau — il ne peint plus le corps");
   }
+
+  /* 🔴 ET LE DÉFAUT DE `--bouton-fond` EST `transparent` : c'est lui qui retire
+     son liseré au bouton gris, sans qu'aucune des 24 déclarations bouge. */
+  assert.match(CLEAN_SHELL, /--bouton-fond:\s*transparent/,
+     "le défaut transparent EST le recâblage — le gris n'a pas de liseré (Eric, 16/09)");
 });
 
 test("l'ombre reste un filtre et la nuit reste une lueur blanche", () => {
@@ -69,4 +84,40 @@ test("l'ombre reste un filtre et la nuit reste une lueur blanche", () => {
     .filter(([, selecteur, corps]) => /::(?:before|after)/.test(selecteur)
       && /--bouton-(?:biseau|bombage)/.test(corps));
   for (const [, , corps] of pseudoBlocks) assert.doesNotMatch(corps, /box-shadow:/);
+});
+
+/* ══ 16/09 SOIR — LES DEUX TUILES LIVRÉES, GARDÉES À L'OCTET ══════════════
+   Eric : « 3D moche », « ivoire pour nuit et terracotta pour jour ». Les tuiles ne
+   sortent plus du générateur : elles sont LIVRÉES (ChatGPT, sur le prompt d'Eric,
+   couleurs arrêtées) et collées telles quelles. Un témoin par tuile sous
+   `tests/fixtures/` ; le jour lit l'une, la nuit l'autre ; les coupes du 9-zones
+   suivent la géométrie de la tuile, pas l'inverse. */
+test("les tuiles servies sont celles livrées — jour terracotta, nuit ivoire — et les coupes les contiennent", () => {
+  const lire = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");
+  for (const t of ["jour", "nuit"]) {
+    assert.equal(lire(`../ui/builder/assets/bouton-relief-${t}.svg`), lire(`./fixtures/bouton-relief-${t}.svg`),
+      `bouton-relief-${t}.svg a dérivé de son témoin — la tuile est livrée, jamais retouchée`);
+  }
+  const jour = lire("../ui/builder/assets/bouton-relief-jour.svg");
+  const m = /viewBox="0 0 (\d+) (\d+)"/.exec(jour);
+  assert.ok(m, "la tuile déclare son viewBox");
+  const [L, H] = [Number(m[1]), Number(m[2])];
+  /* le jour sur `:root`, la nuit dans le bloc sombre — et pas l'inverse */
+  /* ⛔ la RÈGLE, pas sa première mention : un commentaire de tokens.css cite le
+     bloc sombre bien avant lui (ligne 683), et l'indexOf naïf s'y arrêtait */
+  const nuitIdx = TOKENS.indexOf("@media (prefers-color-scheme: dark)");
+  assert.ok(nuitIdx > 0, "le bloc sombre existe");
+  assert.ok(TOKENS.slice(0, nuitIdx).includes('--bouton-relief: url("./assets/bouton-relief-jour.svg'), "le jour lit la terracotta");
+  assert.ok(TOKENS.slice(nuitIdx).includes('--bouton-relief: url("./assets/bouton-relief-nuit.svg'), "la nuit lit l'ivoire");
+  /* les coupes : le chanfrein va jusqu'à C + B(√2 − 1) = 8,828 — un coin de 8 le coupait */
+  const s = /border-image-slice:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+fill/.exec(CLEAN_SHELL);
+  assert.ok(s, "les quatre coupes sont écrites");
+  const [haut, droite, bas, gauche] = s.slice(1, 5).map(Number);
+  const chanfrein = C + B * (Math.SQRT2 - 1);
+  for (const c of [haut, droite, gauche]) assert.ok(c >= chanfrein, `une coupe de ${c} couperait le chanfrein (${chanfrein.toFixed(3)})`);
+  assert.ok(bas >= chanfrein + 4, "le coin bas contient le chanfrein ET le talon de 4");
+  assert.ok(L - gauche - droite > 0 && H - haut - bas > 0, "il reste un centre à étirer");
+  assert.match(CLEAN_SHELL, new RegExp(`border-image-width:\\s*${haut}px\\s+${droite}px\\s+${bas}px\\s+${gauche}px`), "largeurs = coupes, en px");
+  /* la nuit garde son halo blanc EN PREMIER, puis une ombre de contact */
+  assert.match(TOKENS.slice(nuitIdx), /--bouton-ombre:\s*drop-shadow\(0 0 3px rgba\(255,255,255,[^)]*\)\)\s*drop-shadow\([^)]*rgba\(0,0,0,/);
 });

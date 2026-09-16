@@ -685,7 +685,11 @@
      197,3 (Δ 45,8) ; la nuit, de 18,1 à 15,2 — **Δ 2,9, seize fois moins**.
      Du noir posé sur du presque-noir ne peut rien assombrir : sous 5 % de
      luminance il n'y a plus de marge à descendre. */
-  --bouton-ombre: drop-shadow(0 1px 3px rgba(0,0,0,.24));
+  /* 16/09 soir — les deux ombres livrées avec les tuiles (ChatGPT, sur le prompt
+     d'Eric, Plan-ecran-R/PROMPT-chatgpt-relief-ivoire-terracotta.md) : une ombre
+     de contact et une ombre portée le jour ; la nuit, un halo blanc d'abord, puis
+     l'ombre de contact sous le bouton ivoire. */
+  --bouton-ombre: drop-shadow(0 1px 2px rgba(0,0,0,.30)) drop-shadow(0 2px 5px rgba(0,0,0,.18));
   /* L'OMBRE PORTÉE DU FANTÔME (2026-08-19). Elle vit ICI parce que `shell.css`
      interdit toute couleur littérale — et elle a raison : une ombre écrite en
      `rgba()` dans la feuille échappe au thème. */
@@ -758,6 +762,42 @@
      poser un troisième nombre que rien ne tient à jour le jour où 40 bouge. */
   --bouton-hauteur: 40px;
   --bouton-retrait-v: calc((var(--touch) - var(--bouton-hauteur)) / 2);
+
+  /* ══ 🔴 LE RELIEF, ET SON ANNEAU — le dessin d'Eric, 16/09 ════════════
+     ⭐ LA TUILE EST UN FICHIER, PAS UN LITTÉRAL. Elle porte dix dégradés et
+     seize couleurs de facette ; les écrire ici en `data:` aurait mis 3 534
+     octets de valeurs en dur dans un jeton — et `shell.css` n'a pas le droit
+     d'en recopier une seule. Elle vit donc sous `assets/`, comme les astres.
+     ⛔ ET ELLE EST GÉNÉRÉE : `bouton-relief.mjs` la produit, un garde vérifie
+     qu'elle est identique à `svg(LARGEUR_TUILE, H_DESSIN)`. Ne jamais l'éditer
+     à la main — c'est la source qui décide, le fichier n'est qu'un dépôt.
+
+     📐 POURQUOI UNE TUILE DE 24 SUFFIT À TOUTES LES LARGEURS : `border-image`
+     la coupe en NEUF zones — les quatre coins posés sans déformation, les
+     bords étirés chacun dans SA direction. Et chaque bord est uniforme dans la
+     direction où il s'étire (le haut est un dégradé vertical, le droit
+     horizontal), donc l'étirement ne peut rien déformer de visible. */
+  /* 🔴 16/09 SOIR — LA TUILE N'EST PLUS CELLE DU GÉNÉRATEUR. Eric : « 3D moche »,
+     « je veux un bouton ivoire pour nuit et terracotta pour jour ». Les deux tuiles
+     sont LIVRÉES (ChatGPT, sur le prompt d'Eric, couleurs arrêtées), collées telles
+     quelles, et gardées à l'octet par `tests/fixtures/bouton-relief-{jour,nuit}.svg`.
+     26 × 40, coins de 9 (le chanfrein va jusqu'à 8,828 : un coin de 8 le coupait, et le
+     bord haut étiré en répétait l'oblique — le « bord supérieur gauche » manquant).
+     `bouton-relief.mjs` reste la preuve de la géométrie, il ne produit plus la tuile. */
+  --bouton-relief: url("./assets/bouton-relief-jour.svg?v=633");
+
+  /* 🔴 L'ANNEAU DU LISERÉ, EN CSS PUR — et c'est la trouvaille du lot.
+     Un `path()` aurait exigé une chaîne par largeur, donc un script posé
+     bouton par bouton. Un `polygon(evenodd, …)` UNIQUE qui fait le tour
+     extérieur puis revient par l'intérieur creuse le trou tout seul, et ses
+     huit sommets de droite s'écrivent `calc(100% − Npx)` : aucun ne dépend de
+     la largeur rendue. Une seule règle sert toutes les cotes.
+     ⛔ LE SECOND CONTOUR EST PARCOURU À L'ENVERS — c'est ce qui garantit le
+     trou quel que soit le moteur, et ce n'est pas décoratif.
+     📏 Épaisseur 1,4, mesurée PERPENDICULAIREMENT au bord — y compris dans les
+     pans coupés, ce qu'une `border` ne sait pas faire. ⚠️ Entre deux SOMMETS on
+     lit 1,5153 : deux nombres voisins qui ne mesurent pas la même grandeur. */
+  --bouton-anneau: polygon(evenodd, 8.828px 2px, calc(100% - 8.828px) 2px, calc(100% - 2px) 8.828px, calc(100% - 2px) 27.172px, calc(100% - 8.828px) 34px, 8.828px 34px, 2px 27.172px, 2px 8.828px, 8.828px 2px, 3.4px 9.408px, 3.4px 26.592px, 9.408px 32.6px, calc(100% - 9.408px) 32.6px, calc(100% - 3.4px) 26.592px, calc(100% - 3.4px) 9.408px, calc(100% - 9.408px) 3.4px, 9.408px 3.4px, 3.4px 9.408px);
 
   /* ══ 📏 LES COTES DES AUTRES BOUTONS — même jour, mêmes mots ═════════
      *« bouton carré 44x44 : tally / purse »* · *« bouton + / - : 40x40 »* ·
@@ -882,6 +922,9 @@
      de nuit, le croissant sombre des deux côtés. */
   --astre-encre-soleil: #241a06;
   --astre-encre-lune: #f4f3f8;
+  /* LOT 212 — l'encre du montant sur la bourse (Eric, 16/09 : « jaune très proche
+     du blanc ») : fixe elle aussi, l'image ne suit pas le thème. */
+  --bourse-encre: #fff8dc;
 
   --astre-soleil: url("./assets/belt/soleil.webp?v=633");
   --astre-croissant: url("./assets/belt/croissant.webp?v=633");
@@ -1250,7 +1293,8 @@
        pas la force qui change, c'est le SENS.
        ⛔ Ne pas remonter l'alpha du noir « pour compenser » : il n'y a rien à
        compenser, la marge n'existe pas. */
-    --bouton-ombre: drop-shadow(0 1px 3px rgba(255,255,255,.18));
+    --bouton-ombre: drop-shadow(0 0 3px rgba(255,255,255,.16)) drop-shadow(0 2px 4px rgba(0,0,0,.55));
+    --bouton-relief: url("./assets/bouton-relief-nuit.svg?v=633");   /* l'ivoire, la nuit */
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
