@@ -9319,9 +9319,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-bouton {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 0; margin: 0;
-  /* bordure NULLE par défaut : quand dessin = cible (Purse 44 × 44), aucun écart ;
-     la feuille des cotes pose `border-width` là où une cible dépasse le dessin
-     (Tally). Sans ce 0, le navigateur mettait ses 3 px « medium ». */
+  /* bordure NULLE par défaut : quand dessin = cible (Tally 44 × 44, bourse 50 × 50),
+     aucun écart ; la feuille des cotes pose `border-width` là où une cible
+     dépasserait le dessin. Sans ce 0, le navigateur mettait ses 3 px « medium ». */
   border: 0 solid transparent; border-radius: 0;
   background: transparent no-repeat center / contain; background-clip: padding-box;
   background-origin: padding-box;
@@ -9330,13 +9330,15 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   cursor: pointer;
 }
 .gear-bouton:disabled { opacity: .4; cursor: default; }
-/* le montant seul sur la bourse (Eric, 16/09) — T2/600 : « 999 gp » demande 41,05
-   dans 44 (la fiche du plan) ; au-delà de trois chiffres, la cote est à Eric */
-/* le montant de la bourse, SOUS le bouton, sur UNE ligne (Eric, 16/09, « b » puis
-   « en dessous sur une ligne oui ») : un voyant qu'on lit — T1/600, centré */
+/* le montant de la bourse, SUR l'image, dans sa zone de 40 × 40 (Eric, 16/09 soir :
+   « la zone de texte 40 × 40 suffit », « couleur du texte jaune très proche du
+   blanc ») : un voyant qu'on lit — T1/600, centré dans les deux sens, deux lignes
+   possibles (« 99999 » puis « gp », le plan les a mesurées). L'encre est FIXE
+   comme celle des astres : la bourse ne bascule pas avec le thème. */
 .gear-montant {
-  text-align: center; color: var(--text); font-size: var(--t1); font-weight: 600;
-  line-height: 1; white-space: nowrap; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  color: var(--bourse-encre); font-size: var(--t1); font-weight: 600;
+  line-height: 1.2; pointer-events: none;
 }
 /* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
    première ligne, s'éteint vidé */
@@ -9344,13 +9346,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-bouton[data-organe="tally"]:not([data-compte="0"]) {
   box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
 }
-/* la bourse d'Eric (déposée le 16/09) : le mot et le montant se posent dessus */
-.gear-bouton[data-organe="purse"] {
-  background-image: var(--icone-bourse);
-  /* Eric, 16/09 : « le montant en gp en blanc bien centré sur la bourse, mets Purse
-     au-dessus en blanc aussi » — l'encre fixe de la lune, elle ne suit pas le thème */
-  color: var(--astre-encre-lune);
-}
+/* la bourse d'Eric (la seconde, déposée le 16/09 au soir — vue de dessus, les
+   pièces au centre) : l'image est le bouton ; le montant est le voyant posé dessus */
+.gear-bouton[data-organe="purse"] { background-image: var(--icone-bourse); }
 
 /* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
 .gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
@@ -9369,9 +9367,14 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      le dit (mesuré : 16,64 de haut sans lui) */
   min-height: var(--touch);
   font-size: var(--bouton-cran-serre); font-weight: 600;
-  /* naviguer = bleu (les trois verbes de la rangée, §6) */
+  /* naviguer = bleu (les trois verbes de la rangée, §6). Depuis le 209, ce jeton
+     ne peint plus le corps (graphite pour tous) mais l'ANNEAU du liseré. */
   --bouton-fond: var(--info);
 }
+/* Eric, 16/09 : « Send a un liseré vert (ça a une action avec conséquence), les
+   autres sont juste de la navigation donc liseré bleu ». Companions compris, bien
+   que `disabled` : Eric l'a nommé dans les bleus. */
+.gear-porte[data-porte="send"] { --bouton-fond: var(--positive); }
 /* ⚖️ COMPANIONS — le sur-mesure du plan : T1/600, rembourrage --sp-4 (« Companions »
    demande 60,97 dans 69 ; à T2 il fait 73,17 dans 61 et sort — Eric, 16/09 :
    « companions centré ! »). ⚠️ (0,3,1), à égalité avec le plancher des gabarits

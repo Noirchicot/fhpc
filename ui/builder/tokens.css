@@ -911,6 +911,9 @@
      de nuit, le croissant sombre des deux côtés. */
   --astre-encre-soleil: #241a06;
   --astre-encre-lune: #f4f3f8;
+  /* LOT 212 — l'encre du montant sur la bourse (Eric, 16/09 : « jaune très proche
+     du blanc ») : fixe elle aussi, l'image ne suit pas le thème. */
+  --bourse-encre: #fff8dc;
 
   --astre-soleil: url("./assets/belt/soleil.webp?v=633");
   --astre-croissant: url("./assets/belt/croissant.webp?v=633");

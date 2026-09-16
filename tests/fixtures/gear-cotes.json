@@ -115,7 +115,7 @@
   },
   {
    "nom": "POCKET/WEAPON 1",
-   "x": 57,
+   "x": 61,
    "y": 232,
    "l": 87,
    "h": 48,
@@ -123,7 +123,7 @@
   },
   {
    "nom": "POCKET/WEAPON 2",
-   "x": 231,
+   "x": 227,
    "y": 232,
    "l": 87,
    "h": 48,
@@ -221,28 +221,6 @@
    "sorte": "bouton"
   },
   {
-   "nom": "PURSE",
-   "x": 323,
-   "y": 66,
-   "l": 44,
-   "h": 44,
-   "cible": 44,
-   "mot": "Purse",
-   "cran": "T1/600",
-   "sorte": "bouton"
-  },
-  {
-   "nom": "TALLY",
-   "x": 323,
-   "y": 234,
-   "l": 44,
-   "h": 44,
-   "cible": 44,
-   "mot": "Tally",
-   "cran": "T1/600",
-   "sorte": "bouton"
-  },
-  {
    "nom": "COMPANIONS",
    "x": 290,
    "y": 292,
@@ -254,14 +232,51 @@
    "sorte": "bouton"
   },
   {
+   "nom": "PURSE",
+   "x": 317.5,
+   "y": 231.0,
+   "l": 50,
+   "h": 50,
+   "cible": 44,
+   "mot": "Purse",
+   "cran": "T1/600",
+   "sorte": "bouton"
+  },
+  {
    "nom": "MONTANT",
-   "x": 323,
-   "y": 114,
-   "l": 44,
-   "h": 10,
+   "x": 322.5,
+   "y": 236.0,
+   "l": 40,
+   "h": 40,
    "mot": "999 gp",
    "cran": "T1/600",
-   "sorte": "voyant"
+   "sorte": "voyant",
+   "dans": "PURSE",
+   "lignes": 2
+  },
+  {
+   "nom": "TALLY",
+   "x": 327,
+   "y": 66,
+   "l": 44,
+   "h": 44,
+   "cible": 44,
+   "mot": "Tally",
+   "cran": "T1/600",
+   "sorte": "bouton"
+  },
+  {
+   "nom": "PARTY TALLY",
+   "x": 279,
+   "y": 66,
+   "l": 44,
+   "h": 44,
+   "cible": 44,
+   "mot": "Party Tally",
+   "cran": "T1/600",
+   "sorte": "bouton",
+   "creation": false,
+   "lignes": 2
   },
   {
    "nom": "BACKPACK",
