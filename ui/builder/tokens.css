@@ -682,23 +682,15 @@
      `tests/bouton-geometrie.test.mjs`. ⚠️ Mesurer cette épaisseur entre deux
      SOMMETS donne 1,5153 et ne veut rien dire : elle se mesure
      PERPENDICULAIREMENT au bord, et vaut alors 1,4 — comme sur un bord droit. */
-  --bouton-biseau-epaisseur: 2px;
-  --bouton-biseau:
-    linear-gradient(to bottom,
-      rgba(255,255,255,.72) 0,
-      rgba(255,255,255,.44) 28%,
-      rgba(255,255,255,.18) 55%,
-      rgba(0,0,0,.22) 100%),
-    linear-gradient(to right,
-      rgba(255,255,255,.16) 0,
-      rgba(255,255,255,0) 50%,
-      rgba(0,0,0,.14) 100%);
-  --bouton-bombage:
-    linear-gradient(to bottom,
-      rgba(255,255,255,.18) 0,
-      rgba(255,255,255,.06) 32%,
-      rgba(255,255,255,0) 58%,
-      rgba(0,0,0,.12) 100%);
+  /* ⛔ RETIRÉS LE 16/09 AU SOIR, AVEC L'OCTOGONE QU'ILS PEIGNAIENT.
+     `--bouton-biseau-epaisseur`, `--bouton-biseau` et `--bouton-bombage` étaient
+     déjà ORPHELINS depuis le matin (le lot 209 les avait sortis du patron au
+     profit de sa tuile) ; le rectangle leur retire tout avenir. ⭐ Le motif est
+     écrit ici parce qu'un jeton retiré sans motif revient six semaines plus tard
+     — et parce qu'un jeton déclaré que plus personne ne lit est pire : le
+     prochain lot le trouve et le croit disponible.
+     📐 Ce qu'ils faisaient vit maintenant dans `--bouton-corps` (le dégradé) et
+     `--bouton-aretes` (les deux arêtes d'un pixel), tous deux DÉRIVÉS de la face. */
   /* 🔴 L'OMBRE DU BOUTON EST UNE OMBRE **LE JOUR SEULEMENT** — voir sa jumelle
      de nuit dans le bloc `prefers-color-scheme: dark`. Mesuré au navigateur
      sans écran le 2026-08-26 : sous le bord bas, le jour tombe de 243,1 à

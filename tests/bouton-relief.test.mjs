@@ -104,14 +104,15 @@ test("les sept jetons du dessin existent, et la face ne bascule PAS avec le thè
     "le défaut transparent EST le recâblage — le gris n'a pas de liseré (Eric, 16/09)");
 });
 
-test("⛔ les quatre jetons de l'octogone sont retirés, pas seulement débranchés", () => {
+test("⛔ les SIX jetons de l'octogone sont retirés, pas seulement débranchés", () => {
   /* ⚖️ LA DEMANDE D'ARCHI 34, LE 16/09 : *« ne les laisse pas mourir en
      silence — un jeton retiré sans motif écrit revient six semaines plus
      tard »*. Le motif est écrit dans `tokens.css`, en archive datée ; ce garde
      tient l'autre moitié, qu'ils ne soient pas seulement débranchés.
      ⛔ Un jeton déclaré que plus personne ne lit est un piège : le prochain
      dessin le retrouve, le croit vivant, et rebâtit sur une forme abrogée. */
-  for (const mort of ["--bouton-coupe", "--bouton-relief", "--bouton-anneau"]) {
+  for (const mort of ["--bouton-coupe", "--bouton-relief", "--bouton-anneau",
+                      "--bouton-biseau-epaisseur", "--bouton-biseau", "--bouton-bombage"]) {
     assert.doesNotMatch(CLEAN_TOKENS, new RegExp(mort + ":"),
       `${mort} appartient à l'octogone, qu'Eric a retiré le 16/09 — il ne se redéclare pas`);
     assert.ok(!CLEAN_SHELL.includes("var(" + mort + ")"), `${mort} ne doit plus être lu nulle part`);

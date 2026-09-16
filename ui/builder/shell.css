@@ -8524,6 +8524,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    que le jeton, reportées en `--bouton-biseau` (fond) et `--bouton-ombre`
    (`filter`) — voir la table de report dans `tokens.css`.
 
+   ⏳ ÉTAT D'AVANT v635 — l'octogone a été retiré par Eric le 16/09 au soir, et ce
+   qui suit le décrit au présent parce qu'il était vrai quand il a été écrit. ⛔ Ne pas
+   chercher `--bouton-coupe` : il n'existe plus. Ne pas le recréer non plus en
+   croyant réparer — c'est `--bouton-rayon` qui donne la forme depuis v635.
    📐 L'OCTOGONE : huit sommets, la même coupe aux quatre coins,
    `--bouton-coupe` (10). ⛔ Aucun nombre n'est écrit ici — la coupe est le
    jeton, et les 100 % sont les bords de l'élément. */
@@ -8642,7 +8646,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   filter: var(--bouton-ombre);
 }
 
-/* 🔴 L'ARÊTE DU BOUTON — c'est ELLE qui est découpée, pas le bouton.
+/* ⏳ ÉTAT D'AVANT v635 — l'octogone a été retiré par Eric le 16/09 au soir, et ce
+   qui suit le décrit au présent parce qu'il était vrai quand il a été écrit.
+   ⛔ `--bouton-coupe` et `--bouton-biseau-epaisseur` sont retirés : le corps
+   porte `--bouton-rayon`, `--bouton-corps` et `--bouton-aretes`, plus bas.
+
+   🔴 L'ARÊTE DU BOUTON — c'est ELLE qui est découpée, pas le bouton.
    📐 L'OCTOGONE : huit sommets, la même coupe aux quatre coins,
    `--bouton-coupe` (10). ⛔ Aucun nombre n'est écrit ici.
    🔴 LE FOND EN DEUX COUCHES : la teinte de l'échelle reste seule à décider de
@@ -8719,7 +8728,13 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   box-shadow: var(--bouton-aretes);
 }
 
-/* 🔴 LA FACE EN RETRAIT — le second octogone laisse visible un ruban tout
+/* ⏳ ÉTAT D'AVANT v635 — l'octogone a été retiré par Eric le 16/09 au soir, et ce
+   qui suit le décrit au présent parce qu'il était vrai quand il a été écrit.
+   ⛔ Il n'y a plus de second octogone : ce pseudo porte le LISERÉ, une bordure
+   à `--bouton-lisere-marge` du bord. La raison, elle, a survécu telle quelle —
+   un contour qui suit la forme, et non quatre bandes dans une boîte.
+
+   🔴 LA FACE EN RETRAIT — le second octogone laisse visible un ruban tout
    autour du premier. C'est ce ruban géométrique, et non quatre bandes dans
    une boîte, qui fait suivre l'arête aux huit côtés. La coupe extérieure reste
    exactement `--bouton-coupe` ; ce retrait ne change aucune cote du bouton. */
