@@ -207,7 +207,20 @@ export const BOURSE = Object.freeze({
     Object.freeze({ clef: "sp", mot: "SP", nom: "Silver" }),
     Object.freeze({ clef: "cp", mot: "CP", nom: "Copper" })
   ]),
-  piece: "pieces"
+  piece: "pieces",
+  /* ⚖️ PLAFOND À CINQ CHIFFRES PAR MONNAIE — Eric, 17/09 : « plafond à 5 chiffres
+     sur les montants ». ⭐ Ce n'est pas une limite de jeu, c'est une limite de
+     COLONNE : 44 blg tiennent « 99 999 » à T2 (40,37 mesuré) et rien de plus. Une
+     sixième chiffre déborderait sans qu'aucune règle n'ait l'air fausse.
+     ⛔ Et l'écran ne PUBLIE jamais au-delà : il ne compte pas sur le noyau pour
+     refuser ce qu'il n'aurait pas dû demander. */
+  plafond: 99999,
+  /* ⚖️ LE TOTAL PASSE EN K AU-DELÀ DE DIX MILLE — Eric : « pour le total, au-delà
+     de 10 000, mets 10K ». ⭐ C'est son propre langage : le croquis du 23/08 écrit
+     déjà « 99K » dans la colonne SP. Le total est une SOMME (15 221 pp valent
+     152 210 gp), il n'a donc pas de plafond à lui — c'est l'écriture qui se
+     raccourcit, pas le nombre qui se bride. */
+  seuilK: 10000
 });
 
 export function feuilleDesCotes() {
@@ -450,6 +463,14 @@ function boutonPurse(id, options) {
 function enMilliers(n) {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
 }
+/** Le total, écrit court : au-delà de dix mille, en milliers suffixés `K`.
+ *  ⛔ ON TRONQUE, ON N'ARRONDIT PAS : « 9 999 » affiché « 10K » ferait croire au
+ *  joueur qu'il a passé un seuil qu'il n'a pas passé. Une bourse ne ment jamais
+ *  vers le haut. */
+function totalCourt(n) {
+  if (n < BOURSE.seuilK) return enMilliers(n);
+  return `${enMilliers(Math.floor(n / 1000))}K`;
+}
 function montantDeLaBourse(options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const m = eld("div", "gear-montant");
@@ -459,7 +480,10 @@ function montantDeLaBourse(options) {
      ⭐ Et ce module ne fait que DIRE l'état : la disposition est peinte par la
      feuille (`[data-empile]`), comme partout ailleurs. */
   m.dataset.empile = String(String(total).length > 2);
-  m.append(eld("span", "gear-montant-nombre", enMilliers(total)), eld("span", "gear-montant-unite", "gp"));
+  /* ⚖️ LA MÊME ÉCRITURE COURTE QUE DANS LA BOURSE — Eric, 17/09 : « le total en bas
+     ET dans la bourse sur la fiche R ». ⭐ C'est le MÊME nombre vu à deux endroits :
+     l'écrire de deux façons ferait douter que ce soit le même. */
+  m.append(eld("span", "gear-montant-nombre", totalCourt(total)), eld("span", "gear-montant-unite", "gp"));
   m.dataset.organe = "montant";
   m.setAttribute("aria-hidden", "true");
   return m;
@@ -562,9 +586,11 @@ function bourseOuverte(options) {
     champ.placeholder = "1";
     const pas = () => {
       const brut = String(champ.value || "").replace(/[^\d]/g, "");
-      return brut === "" ? 1 : Math.min(Number(brut), 999999);
+      return brut === "" ? 1 : Math.min(Number(brut), BOURSE.plafond);
     };
-    col.append(cranDeMonnaie("+", m, n, pas, options));
+    /* ⛔ LE `+` S'ÉTEINT AU PLAFOND, comme le `−` s'éteint à zéro : un cran qui ne
+       peut plus rien faire se DIT, il ne se contente pas de ne rien faire. */
+    col.append(cranDeMonnaie("+", m, n, pas, options, n >= BOURSE.plafond));
     col.append(champ);
     col.append(cranDeMonnaie("−", m, n, pas, options, n === 0));
     grille.append(col);
@@ -579,7 +605,7 @@ function bourseOuverte(options) {
      posé sur la bourse : un total est le nombre qu'on lit le plus vite et le plus
      souvent. ⛔ Deux façons d'écrire un nombre dans le même écran, c'est deux
      façons de le lire. */
-  pied.append(eld("span", "gear-bourse-total-valeur", enMilliers(Math.floor(enGP(sac)))));
+  pied.append(eld("span", "gear-bourse-total-valeur", totalCourt(Math.floor(enGP(sac)))));
   b.append(pied);
   v.append(b);
   return v;
@@ -591,7 +617,13 @@ function cranDeMonnaie(glyphe, m, actuel, pas, options, eteint) {
   const signe = glyphe === "+" ? 1 : -1;
   const b = bouton("gear-monnaie-bouton", glyphe,
     glyphe === "+" ? `Add ${m.mot}` : `Remove ${m.mot}`,
-    () => { if (options.surMonnaie) options.surMonnaie(m.clef, actuel + signe * pas()); });
+    () => {
+      if (!options.surMonnaie) return;
+      /* les deux bords sont tenus ICI : jamais au-dessus du plafond de colonne,
+         jamais sous zéro (le noyau refuse déjà la dette, l'écran ne la demande pas) */
+      const voulu = actuel + signe * pas();
+      options.surMonnaie(m.clef, Math.max(0, Math.min(voulu, BOURSE.plafond)));
+    });
   b.dataset.cran = glyphe === "+" ? "plus" : "moins";
   if (eteint) b.disabled = true;
   return b;

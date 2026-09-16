@@ -9520,7 +9520,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   width: 100%; min-width: 0; text-align: center;
   border: 0; border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--text) 10%, transparent);
-  color: var(--text); font: inherit; font-size: var(--t2); font-weight: 600;
+  /* ⚖️ T1 — Eric, 17/09 : « réduis les chiffres dans les boîtes d'un incrément »,
+     puis « passe-les en T1 ». C'est la case qu'on remplit, pas celle qu'on lit :
+     elle n'a pas à peser autant que le montant possédé juste au-dessus. */
+  color: var(--text); font: inherit; font-size: var(--t1); font-weight: 600;
 }
 .gear-monnaie-saisie::placeholder { color: var(--text-soft); font-style: italic; font-weight: 400; }
 /* ⚖️ L'EN-TÊTE À TROIS LIGNES — Eric, 17/09 : « PP (T2 centré) / Platinium (T0
@@ -9539,7 +9542,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-monnaie-nom {
   font-size: var(--t0); font-style: italic; line-height: 1.15; color: var(--text-soft);
 }
-.gear-monnaie-compte { font-size: var(--t3); font-weight: 600; color: var(--text); }
+/* ⚠️ T2, ET C'EST UN DÉBORD MESURÉ, PAS UN GOÛT : à T3, « 99 999 » rend 47,1 dans
+   une colonne de 44 — il sortait. À T2 il rend 40,37, avec 3,6 de reste. ⛔ Un
+   nombre qui déborde ne se voit pas tant qu'on ne compte que des petites sommes,
+   et la bourse est faite pour en tenir de grandes. */
+.gear-monnaie-compte { font-size: var(--t2); font-weight: 600; color: var(--text); }
 /* ⛔ UN BOUTON À GLYPHE N'EST PAS UN BOUTON À MOT : ni octogone hier, ni liseré
    de rôle aujourd'hui (NORMES, `bouton-octogone`). Il prend le corps et le rayon
    de la famille — c'est la même matière — et rien d'autre.

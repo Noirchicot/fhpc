@@ -420,7 +420,9 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
      bourse : deux façons d'écrire un nombre dans un écran, c'est deux façons de le
      lire. Eric, 17/09 : « montre-moi un 152 210 gp en total ». */
   assert.equal(rendu({ bourseOuverte: true, bourse: { pp: 15221, gp: 0, sp: 0, cp: 0 } })
-    .querySelector(".gear-bourse-total-valeur").textContent, "152\u202f210");
+    .querySelector(".gear-bourse-total-valeur").textContent, "152K");
+  assert.equal(rendu({ bourseOuverte: true, bourse: { gp: 9999 } })
+    .querySelector(".gear-bourse-total-valeur").textContent, "9\u202f999", "sous dix mille, le nombre entier");
   assert.deepEqual(tous(pop, ".gear-monnaie").map((c) => c.dataset.monnaie), ["pp", "gp", "sp", "cp"]);
   assert.deepEqual(tous(pop, ".gear-monnaie-compte").map((c) => c.textContent), ["1", "5", "0", "9"]);
   /* ⛔ LE POSSÉDÉ SE SÉPARE COMME LE TOTAL — vu au rendu : le total disait
@@ -443,6 +445,12 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
   }
   assert.deepEqual(BOURSE.monnaies.map((m) => m.nom), ["Platinum", "Gold", "Silver", "Copper"]);
   assert.match(shell, /\.gear-monnaie-mot\s*\{[^}]*font-size:\s*var\(--t2\)/, "l'abréviation en T2");
+  assert.match(shell, /\.gear-monnaie-saisie\s*\{[^}]*font-size:\s*var\(--t1\)/,
+    "la case qu'on REMPLIT ne pèse pas autant que le montant qu'on LIT (Eric, 17/09)");
+  /* ⚠️ ET LE POSSÉDÉ EST À T2 PAR MESURE : à T3, « 99 999 » rend 47,1 dans 44 — il
+     sortait de sa colonne. Un débord ne se voit pas tant qu'on ne compte que de
+     petites sommes, et une bourse est faite pour en tenir de grandes. */
+  assert.match(shell, /\.gear-monnaie-compte \{[^}]*font-size:\s*var\(--t2\)/, "le possédé tient dans sa colonne");
   assert.match(shell, /\.gear-monnaie-nom\s*\{[^}]*font-size:\s*var\(--t0\)[^}]*font-style:\s*italic/, "la glose en T0 italique");
   assert.match(shell, /\.gear-bourse-titre\s*\{[^}]*margin:\s*0 0 var\(--sp-4\)/, "4 blg sous le titre");
   assert.match(shell, /\.gear-bourse-total\s*\{[^}]*justify-content:\s*center/,
@@ -467,10 +475,20 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
   champ.value = "50";
   cran("plus").click();
   cran("moins").click();
-  assert.deepEqual(gestes, ["gp:6", "gp:55", "gp:-45"],
+  assert.deepEqual(gestes, ["gp:6", "gp:55", "gp:0"],
     "le cran publie la valeur VOULUE, calculée depuis la case — pas un delta, pas une unité");
-  /* ⛔ le plancher à zéro est tenu par `setCurrency`, pas ici : on publie ce qui est
-     demandé, le noyau refuse la dette. Ce garde dit que l'écran ne le devine pas. */
+  /* ⚖️ LES DEUX BORDS SONT TENUS PAR L'ÉCRAN, pas devinés : jamais sous zéro, jamais
+     au-dessus du plafond de colonne. ⛔ Le noyau refuse déjà la dette, mais un écran
+     qui DEMANDE ce qu'il sait refusé s'en remet à quelqu'un d'autre pour sa propre
+     règle. Eric, 17/09 : « plafond à 5 chiffres sur les montants ». */
+  gestes.length = 0;
+  champ.value = "999999";
+  cran("plus").click();
+  assert.deepEqual(gestes, [`gp:${BOURSE.plafond}`], "cinq chiffres au plus, jamais six");
+  const plein = rendu({ bourseOuverte: true, bourse: { gp: BOURSE.plafond } });
+  assert.equal(plein.querySelector('.gear-monnaie[data-monnaie="gp"] [data-cran="plus"]').disabled, true,
+    "au plafond, le `+` s'éteint — un cran qui ne peut plus rien faire se DIT");
+  gestes.length = 0;
 
   champ.value = "12abc3";
   gestes.length = 0;
@@ -527,9 +545,16 @@ test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vi
      blanc avant « gp » le peut. ⛔ Et le séparateur ne vient pas de la locale de la
      machine : `toLocaleString` rendrait une virgule en anglais et autre chose en test
      qu'au navigateur. */
-  assert.deepEqual(lire(rendu({ bourse: { gp: 85565 } })), ["85\u202f565", "gp", "true"]);
+  /* ⚖️ AU-DELÀ DE DIX MILLE, L'ÉCRITURE SE RACCOURCIT — Eric, 17/09, et la règle vaut
+     des DEUX côtés : « le total en bas et dans la bourse sur la fiche R ». C'est le
+     même nombre vu à deux endroits ; l'écrire de deux façons ferait douter que ce
+     soit le même. ⛔ On TRONQUE, on n'arrondit pas : « 9 999 » affiché « 10K » ferait
+     croire au joueur qu'il a passé un seuil qu'il n'a pas passé. */
+  assert.deepEqual(lire(rendu({ bourse: { gp: 85565 } })), ["85K", "gp", "true"]);
+  assert.deepEqual(lire(rendu({ bourse: { gp: 9999 } })), ["9\u202f999", "gp", "true"], "sous le seuil, le nombre entier");
+  assert.deepEqual(lire(rendu({ bourse: { gp: 10000 } })), ["10K", "gp", "true"], "au seuil, il passe en K");
   assert.deepEqual(lire(rendu({ bourse: { gp: 999 } })), ["999", "gp", "true"], "sous mille, rien à séparer — mais trois chiffres, donc empilé");
-  assert.deepEqual(lire(rendu({ bourse: { gp: 1234567 } })), ["1\u202f234\u202f567", "gp", "true"], "tous les groupes, pas seulement le premier");
+  assert.deepEqual(lire(rendu({ bourse: { gp: 1234567 } })), ["1\u202f234K", "gp", "true"], "les milliers du K se séparent aussi");
   /* ⚖️ LA BASCULE EST À TROIS CHIFFRES, ET ELLE SE PROUVE DES DEUX CÔTÉS — Eric,
      16/09 : « les gp sous le chiffre au-delà de 2 digits ». ⛔ 99 en ligne, 100
      empilé : un garde qui ne testerait qu'un côté laisserait passer un `>=`. */
