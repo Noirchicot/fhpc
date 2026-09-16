@@ -9159,14 +9159,18 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 
 /* — L'EMPLACEMENT ET LE COLLECTEUR : un jeton, la cote des tokens (jamais un
-   nombre d'ici). Vide : une ZONE DE DROP (§2) — creuse, très arrondie, le
-   liseré porte la couleur du jeton attendu. — */
+   nombre d'ici). Vide : un COLLECTEUR au sens de NORMES §2 ter — CREUX
+   (`--creux`), très arrondi, ⛔ aucun liseré visible : la bordure reste, en
+   transparent, à la cote du liseré rempli, pour que la case ne saute pas au
+   moment où elle se remplit (le patron de `.glisse-creneau`). Eric, 16/09 :
+   *« un collecteur a un relief »* · *« un token a un relief »* — le creux dit
+   « pose ici », le relief dit « quelque chose est posé ». — */
 .gear-emplacement, .gear-collecteur {
   width: var(--glisse-case); height: var(--glisse-h);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding-inline: var(--sp-4);
-  border: 1px dashed var(--accent); border-radius: var(--organe-rayon);
-  background: none; color: var(--text);
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
+  background: none; box-shadow: var(--creux); color: var(--text);
   text-align: center; line-height: 1.1;
 }
 .gear-nom {
@@ -9176,11 +9180,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* Body forging 2 : « optional when feat » — présent en creux tant que le don
    n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`). */
 .gear-emplacement[data-optionnelle] { opacity: .6; }
-/* occupé : l'habit du JETON — teinte et relief — et le liseré bleu du
-   collecteur rempli (NORMES §2 ter : le fond dit ce qu'il porte, le liseré dit
-   son état). Le nom du slot reste, en étiquette, au-dessus de l'objet. */
+/* occupé : l'habit du JETON — teinte et relief (le relief REMPLACE le creux, il
+   ne s'y ajoute pas) — et le liseré bleu du collecteur rempli (NORMES §2 ter :
+   le fond dit ce qu'il porte, le liseré dit son état). Le nom du slot reste,
+   en étiquette, au-dessus de l'objet. */
 .gear-emplacement[data-occupe] {
-  border: var(--creneau-lisere-rempli) solid var(--info);
+  border-color: var(--info);
   background: var(--jeton-teinte); box-shadow: var(--relief);
   cursor: grab;
 }
@@ -9225,8 +9230,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 
 /* — LE COLLECTEUR : la cible s'allume quand on l'approche, et le liseré dit
    qu'il retient quelque chose — */
-.gear-collecteur[data-vise="true"] { border-style: solid; border-color: var(--accent); background: var(--accent-wash); }
-.gear-collecteur:not([data-compte="0"]) { border-style: solid; border-color: var(--info); }
+.gear-collecteur[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
+.gear-collecteur:not([data-compte="0"]) { border-color: var(--info); }
 
 /* — LES DEUX BOUTONS À IMAGE (Purse · Tally) — Eric, 16/09 : « pas de relief
    sur tally et purse », « juste une image en transparence ». L'image EST le
