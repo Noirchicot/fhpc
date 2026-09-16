@@ -435,7 +435,7 @@ test("5 sexies — LA BOURSE : on tape COMBIEN dans la case, les crans disent DA
      cran ne ferait rien serait un piège. Le placeholder le dit à l'œil. */
   assert.equal(champ.placeholder, "1");
   cran("plus").click();
-  assert.deepEqual(gestes, ["gp:6"], "vide : on bouge de 1");
+  assert.deepEqual(gestes, ["gp:6"], "vide : on ajoute 1");
 
   /* 🔴 ET VOICI CE QUE MA PREMIÈRE VERSION NE POUVAIT PAS FAIRE : cinquante d'un coup */
   champ.value = "50";
