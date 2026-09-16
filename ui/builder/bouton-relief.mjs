@@ -54,11 +54,25 @@
    calque disponible là où il n'y en avait que deux. */
 
 export const C = 8;        // coupe, horizontale et verticale
-export const H = 44;       // hauteur extérieure — la boîte et la cible tactile
-export const HAUT = 40;    // hauteur du DESSUS : le talon occupe les 4 derniers
 export const B = 2;        // biseau, perpendiculaire au bord
 export const TALON = 4;    // talon au repos
 export const COURSE = 2;   // descente du dessus à l'appui
+
+/* 🔴 LA HAUTEUR EST UN PARAMÈTRE DEPUIS LE 16/09, ET C'EST TOUT L'ENJEU.
+   Eric a séparé les deux cotes du bouton : le DESSIN fait 40, la CIBLE reste
+   44 (`bouton-hauteur`, NORMES §6). Or les deux SVG d'origine sont dessinés à
+   44 — ils sont la seule référence qui prouve que cette géométrie est juste.
+   ⛔ LES AJUSTER À 40 AURAIT FAIT PASSER LE GARDE ET DÉTRUIT LA PREUVE : une
+   référence qu'on retouche pour verdir un test n'est plus une référence.
+   ⭐ D'où la forme : `H` reste **44 par défaut** — les témoins se reproduisent
+   à l'octet, le critère d'épreuve est intact — et la PRODUCTION appelle
+   `svg(W, 40)`. Un seul générateur, deux hauteurs, une seule preuve. */
+export const H = 44;       // hauteur PAR DÉFAUT — celle des deux témoins d'origine
+export const HAUT = H - TALON;  // 40 — le dessus ; le talon occupe le reste
+
+/* La hauteur de DESSIN posée par la norme du 16/09. ⛔ Ce n'est pas `H` : la
+   cible reste 44, c'est le dessin qui se retire de 2 en haut et 2 en bas. */
+export const H_DESSIN = 40;
 
 const R2 = Math.SQRT2 - 1; // 0.4142135623730951 — conservé avant arrondi
 
@@ -66,16 +80,16 @@ const R2 = Math.SQRT2 - 1; // 0.4142135623730951 — conservé avant arrondi
    ⛔ `k` n'est pas `c + i` : sur une diagonale, un retrait parallèle décale le
    sommet de i × (√2 − 1) — c'est ce qui garde l'épaisseur constante dans les
    coins, là où une bordure la perdrait. */
-export function P(W, i, y = 0) {
+export function P(W, i, y = 0, haut = HAUT) {
   const k = C + i * R2;
   return [
     [k,       i + y],
     [W - k,   i + y],
     [W - i,   k + y],
-    [W - i,   HAUT - k + y],
-    [W - k,   HAUT - i + y],
-    [k,       HAUT - i + y],
-    [i,       HAUT - k + y],
+    [W - i,   haut - k + y],
+    [W - k,   haut - i + y],
+    [k,       haut - i + y],
+    [i,       haut - k + y],
     [i,       k + y]
   ];
 }
@@ -98,8 +112,10 @@ const FACETTES = [
   ["#25231e", "#474137"], ["#363128", "#62594a"], ["#8c826f", "#4c473d"], ["#b8ae9b", "#70695d"]
 ];
 
-export function svg(W) {
-  const O = P(W, 0), I = P(W, B), Bas = P(W, 0, TALON);
+export function svg(W, hTotal = H) {
+  /* le dessus prend ce que le talon laisse : la boîte MOINS le talon. */
+  const haut = hTotal - TALON;
+  const O = P(W, 0, 0, haut), I = P(W, B, 0, haut), Bas = P(W, 0, TALON, haut);
   const d = [];
 
   for (let j = 0; j < 8; j++) {
@@ -112,7 +128,7 @@ export function svg(W) {
   d.push(`    <linearGradient id="face" x2="0" y2="1">
       <stop stop-color="#554f46"/><stop offset=".35" stop-color="#454037"/><stop offset="1" stop-color="#35312b"/>
     </linearGradient>`);
-  d.push(`    <linearGradient id="side" gradientUnits="userSpaceOnUse" x1="0" y1="${HAUT - C}" x2="0" y2="${H}">
+  d.push(`    <linearGradient id="side" gradientUnits="userSpaceOnUse" x1="0" y1="${haut - C}" x2="0" y2="${hTotal}">
       <stop stop-color="#36332d"/><stop offset="1" stop-color="#1d1b18"/>
     </linearGradient>`);
 
@@ -127,7 +143,7 @@ export function svg(W) {
   /* les flancs de j=2 à 6 : les deux verticaux ont une projection nulle, les
      deux coins bas et la façade montrent le talon */
   const flancs = (dep) => {
-    const T = P(W, 0, dep);
+    const T = P(W, 0, dep, haut);
     const ch = [];
     for (let j = 2; j <= 6; j++) {
       const q = [T[j], T[(j + 1) % 8], Bas[(j + 1) % 8], Bas[j]];
@@ -136,7 +152,7 @@ export function svg(W) {
     return ch.join(" ");
   };
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="fh-relief" data-state="repos">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${hTotal}" viewBox="0 0 ${W} ${hTotal}" class="fh-relief" data-state="repos">
   <style>svg.fh-relief>.fh-pressed{display:none}svg.fh-relief[data-state="presse"]>.fh-rest{display:none}svg.fh-relief[data-state="presse"]>.fh-pressed{display:inline}</style>
   <defs>
 ${d.join("\n")}
@@ -211,7 +227,11 @@ ${cap.join("\n")}
 export const LARGEUR_TUILE = 2 * C + 8;
 
 /* Les quatre découpes, en pixels de l'image source. */
-export const SLICE = { haut: C, droite: C, bas: H - (HAUT - C), gauche: C };
+/* ⭐ ET LE BAS NE DÉPEND PAS DE LA HAUTEUR — il vaut `TALON + C`, jamais `H`.
+   `H − (HAUT − C)` se simplifie en `H − (H − TALON) + C` = `TALON + C` : la
+   hauteur s'annule. Vérifié aux deux cotes : 12 à H = 44 comme à H = 40.
+   ➡️ Une seule tuile, un seul jeu de slices, que le bouton fasse 44 ou 40. */
+export const SLICE = { haut: C, droite: C, bas: TALON + C, gauche: C };
 
 /* Le SVG encodé pour un `url()` de feuille de style. ⛔ Pas de base64 : un
    SVG en clair reste lisible dans la feuille et compresse mieux. */

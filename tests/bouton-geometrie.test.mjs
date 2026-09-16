@@ -25,7 +25,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { svg, P, anneau, C, H, HAUT, B, TALON, COURSE, LARGEUR_TUILE, SLICE, borderImage } from "../ui/builder/bouton-relief.mjs";
+import { svg, P, anneau, C, H, HAUT, H_DESSIN, B, TALON, COURSE, LARGEUR_TUILE, SLICE, borderImage } from "../ui/builder/bouton-relief.mjs";
 
 const temoin = (w) => fs.readFileSync(new URL(`./fixtures/bouton-relief-${w}x44.svg`, import.meta.url), "utf8");
 
@@ -134,4 +134,37 @@ test("⚔️ LE `border-image` EST COMPLET — source, slice, width, style, coul
   /* le data-URI doit être réellement décodable, et redonner la tuile */
   const uri = /url\("([^"]+)"\)/.exec(d[0])[1];
   assert.equal(decodeURIComponent(uri.slice("data:image/svg+xml,".length)), svg(LARGEUR_TUILE));
+});
+
+test("🔴 LA HAUTEUR EST UN PARAMÈTRE, ET LE DÉFAUT RESTE CELUI DES TÉMOINS", () => {
+  /* ⛔ LE PIÈGE QUE CE GARDE FERME. La norme du 16/09 pose le dessin à 40 ; les
+     deux SVG d'origine sont dessinés à 44. La pente naturelle était de
+     « corriger » les témoins pour que tout retombe juste — et une référence
+     qu'on retouche pour verdir un test n'est plus une référence. Le défaut
+     reste donc 44, et c'est la PRODUCTION qui demande 40. */
+  assert.equal(H, 44, "le défaut reste la cote des deux témoins");
+  assert.equal(H_DESSIN, 40, "la hauteur de DESSIN posée par la norme du 16/09");
+  assert.equal(HAUT, H - TALON, "le dessus prend ce que le talon laisse");
+
+  for (const w of [77, 105]) {
+    assert.equal(svg(w), temoin(w), `svg(${w}) sans hauteur doit rester le témoin, à l'octet`);
+    const court = svg(w, H_DESSIN);
+    assert.match(court, new RegExp(`viewBox="0 0 ${w} ${H_DESSIN}"`),
+      "la boîte du SVG suit la hauteur demandée");
+    assert.notEqual(court, temoin(w),
+      "à 40 le dessin doit différer du témoin — sinon le paramètre ne sert à rien");
+  }
+
+  /* 📐 ET LA GÉOMÉTRIE RESTE JUSTE À 40 : coupe, biseau et talon ne bougent pas,
+     c'est le DESSUS qui absorbe la différence. */
+  const haut40 = H_DESSIN - TALON;
+  const O = P(90, 0, 0, haut40), I = P(90, B, 0, haut40);
+  assert.equal(O[0][0], C, "la coupe reste 8 à 40 de haut");
+  assert.equal(I[0][1], B, "le biseau reste 2");
+  assert.equal(O[4][1], haut40, "le dessus s'arrête exactement où le talon commence");
+
+  /* ⭐ ET LE SLICE DU BAS EST INVARIANT — il vaut `TALON + C`, la hauteur
+     s'annule dans `H − (HAUT − C)`. Une seule tuile sert les deux cotes. */
+  assert.equal(SLICE.bas, TALON + C);
+  assert.equal(SLICE.bas, 12, "12 à 44 comme à 40");
 });
