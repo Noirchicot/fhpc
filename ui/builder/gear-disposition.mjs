@@ -39,7 +39,7 @@ export const ORGANES = [
   { nom: "PURSE",            sorte: "bouton", x:  317.5, y:    231, l:    50, h:   50, mot: "Purse", cran: "T1/600" },
   { nom: "POCKET/WEAPON 1",  sorte: "jeton",  x:     61, y:    232, l:    87, h:   48 },
   { nom: "POCKET/WEAPON 2",  sorte: "jeton",  x:    227, y:    232, l:    87, h:   48 },
-  { nom: "MONTANT",          sorte: "voyant", x:  322.5, y:    236, l:    40, h:   40, mot: "999 gp", cran: "T1/600", dans: "PURSE", lignes: 2 },
+  { nom: "MONTANT",          sorte: "voyant", x:  322.5, y:    236, l:    40, h:   40, mot: "999 gp", cran: "T0/400", dans: "PURSE", lignes: 2 },
   { nom: "lune Wares",       sorte: "lune",   x:      4, y:    251, l:    30, h:   30, cible: { x: 0, y: 244, l: 44, h: 44 }, creation: false },
   { nom: "BODY FORGING opt", sorte: "jeton",  x:      4, y:    288, l:    87, h:   48 },
   { nom: "FOOT/LEG 1",       sorte: "jeton",  x:     99, y:    288, l:    87, h:   48 },

@@ -999,8 +999,12 @@
   --astre-encre-soleil: #241a06;
   --astre-encre-lune: #f4f3f8;
   /* LOT 212 — l'encre du montant sur la bourse (Eric, 16/09 : « jaune très proche
-     du blanc ») : fixe elle aussi, l'image ne suit pas le thème. */
-  --bourse-encre: #fff8dc;
+     du blanc ») : fixe elle aussi, l'image ne suit pas le thème.
+     🔴 RÉCHAUFFÉE LE SOIR MÊME, sur le rendu — Eric : *« utilise un blanc qui vire
+     un tout petit peu plus sur le jaune »*. Le bleu descend de 220 à 200 et le vert
+     de 248 à 245 : c'est tout l'écart, et il se voit sur le cuir sépia de la bourse
+     là où #fff8dc s'y confondait. */
+  --bourse-encre: #fff5c8;
 
   --astre-soleil: url("./assets/belt/soleil.webp?v=633");
   --astre-croissant: url("./assets/belt/croissant.webp?v=633");

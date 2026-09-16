@@ -259,9 +259,10 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions et
 });
 
 test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {
-  assert.equal(rendu({ bourse: { pp: 1, gp: 5, sp: 9, cp: 9 } }).querySelector(".gear-montant").textContent, "15 gp");
+  const lire = (n) => { const m = n.querySelector(".gear-montant"); return [m.querySelector(".gear-montant-nombre").textContent, m.querySelector(".gear-montant-unite").textContent, m.dataset.empile]; };
+  assert.deepEqual(lire(rendu({ bourse: { pp: 1, gp: 5, sp: 9, cp: 9 } })), ["15", "gp", "false"], "deux chiffres : « gp » reste en ligne");
   const n = rendu({});
-  assert.equal(n.querySelector(".gear-montant").textContent, "0 gp");
+  assert.deepEqual(lire(n), ["0", "gp", "false"]);
   assert.equal(n.querySelector('[data-organe="purse"]').textContent, "", "rien d'écrit DANS le bouton : le montant est le voyant posé dessus");
   assert.match(n.querySelector('[data-organe="purse"]').getAttribute("aria-label"), /^Purse — 0 gp$/);
   /* le voyant est SUR la bourse (Eric, 16/09 soir) : `dans: "PURSE"` au plan, 40 dans 50,
@@ -272,6 +273,29 @@ test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vi
   assert.equal(purse.l, purse.h, "la bourse est un carré"); assert.ok(purse.l >= TOUCH, "le dessin de la bourse est sa propre cible");
   assert.equal(purse.cible, undefined, "50 ≥ 44 : aucune cible à porter, donc aucun bord transparent");
   assert.match(shell, /\.gear-montant\s*\{[^}]*color:\s*var\(--bourse-encre\)/, "l'encre du montant est le jeton de la bourse");
+  /* 🔴 LES MILLIERS SE SÉPARENT, ET PAR UNE ESPACE FINE INSÉCABLE — Eric, 16/09 au
+     soir, qui écrit lui-même « 85 565 gp » en demandant à voir. L'insécable est le
+     fond de l'affaire : le nombre ne doit JAMAIS se couper en deux lignes, seul le
+     blanc avant « gp » le peut. ⛔ Et le séparateur ne vient pas de la locale de la
+     machine : `toLocaleString` rendrait une virgule en anglais et autre chose en test
+     qu'au navigateur. */
+  assert.deepEqual(lire(rendu({ bourse: { gp: 85565 } })), ["85\u202f565", "gp", "true"]);
+  assert.deepEqual(lire(rendu({ bourse: { gp: 999 } })), ["999", "gp", "true"], "sous mille, rien à séparer — mais trois chiffres, donc empilé");
+  assert.deepEqual(lire(rendu({ bourse: { gp: 1234567 } })), ["1\u202f234\u202f567", "gp", "true"], "tous les groupes, pas seulement le premier");
+  /* ⚖️ LA BASCULE EST À TROIS CHIFFRES, ET ELLE SE PROUVE DES DEUX CÔTÉS — Eric,
+     16/09 : « les gp sous le chiffre au-delà de 2 digits ». ⛔ 99 en ligne, 100
+     empilé : un garde qui ne testerait qu'un côté laisserait passer un `>=`. */
+  assert.equal(lire(rendu({ bourse: { gp: 99 } }))[2], "false", "99 : deux chiffres, en ligne");
+  assert.equal(lire(rendu({ bourse: { gp: 100 } }))[2], "true", "100 : trois chiffres, empilé");
+  assert.match(shell, /\.gear-montant\[data-empile="true"\]\s*\{[^}]*flex-direction:\s*column/,
+    "c'est la feuille qui empile, sur l'état que le module déclare");
+  /* ⚖️ ET LE CRAN DU MONTANT EST LE SEUL MAIGRE DE L'ÉCRAN — Eric : « ne mets pas en
+     gras et descends d'un incrément ». La table le porte, la feuille le rend : les
+     deux doivent dire la même chose, sinon le garde des libellés du plan mesure un
+     mot dans une taille que personne ne sert. */
+  assert.equal(montant.cran, "T0/400", "le plan porte le cran maigre du montant");
+  assert.match(shell, /\.gear-montant\s*\{[^}]*font-size:\s*var\(--t0\)[^}]*font-weight:\s*400/,
+    "la feuille sert le cran que le plan déclare — T0, maigre");
   assert.match(tokens, /--bourse-encre:\s*#/, "le jeton existe");
   assert.match(shell, /\.gear-porte\[data-porte="send"\]\s*\{\s*--bouton-fond:\s*var\(--positive\)/, "Send : liseré vert (une conséquence) ; les autres portes restent bleues");
   if (montant) assert.ok(feuilleDesCotes().includes(`[data-organe="montant"]{left:${montant.x}px;top:${montant.y - BELT_H}px;width:${montant.l}px;height:${montant.h}px}`), "le montant est posé par la table");

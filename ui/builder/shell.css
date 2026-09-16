@@ -9365,9 +9365,27 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    comme celle des astres : la bourse ne bascule pas avec le thème. */
 .gear-montant {
   display: flex; align-items: center; justify-content: center; text-align: center;
-  color: var(--bourse-encre); font-size: var(--t1); font-weight: 600;
+  color: var(--bourse-encre);
+  /* ⚖️ T0 ET MAIGRE — Eric, 16/09 au soir, en regardant « 85 565 gp » sur la
+     bourse : *« ne mets pas en gras et descends d'un incrément »*. ⚠️ ET JE LE
+     SIGNALE PLUTÔT QUE DE LE TAIRE : le commentaire de `--t0` dit *« un détail
+     sous un dé, jamais une ligne à lire »*. Le montant EST un détail posé sur
+     une image, pas une ligne de texte — et l'information reste entière pour qui
+     ne peut pas le lire, dans l'`aria-label` du bouton (« Purse — 85565 gp »).
+     📏 Mesuré à ce cran : « 99 999 » rend 26,26 dans les 40 de la zone. */
+  font-size: var(--t0); font-weight: 400;
   line-height: 1.2; pointer-events: none;
+  /* ⚖️ EN LIGNE JUSQU'À DEUX CHIFFRES, EMPILÉ AU-DELÀ — Eric, 16/09 au soir :
+     *« les gp sous le chiffre au-delà de 2 digits »*. ⭐ L'écart entre le nombre
+     et son unité est une GOUTTIÈRE, pas une espace du texte : en ligne elle vaut
+     `--sp-2`, empilée elle disparaît — une espace écrite dans le mot aurait tenu
+     les deux rôles à la fois, donc mal.
+     ⛔ ET C'EST UN JETON, PAS UN LITTÉRAL : j'avais écrit `.25em`, et les trois
+     gardes de l'espacement ont rougi ensemble — ils ont eu raison, `shell.css` ne
+     porte aucune cote d'espacement en clair. */
+  flex-direction: row; gap: var(--sp-2);
 }
+.gear-montant[data-empile="true"] { flex-direction: column; gap: 0; }
 /* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
    première ligne, s'éteint vidé */
 .gear-bouton[data-organe="tally"] { background-image: var(--icone-parchemin); }
