@@ -114,8 +114,14 @@ function basesDeLaRegle(decl, pseudo) {
 }
 
 test("🔴 LES DEUX RÈGLES DU PATRON LISTENT LES MÊMES SÉLECTEURS — corps et face, membre pour membre", () => {
-  const corps = basesDeLaRegle("var(--bouton-biseau)", "::before");
-  const faces = basesDeLaRegle("var(--bouton-bombage)", "::after");
+  /* 🔴 LES DEUX MARQUEURS ONT CHANGÉ LE 16/09, ET LA LOI N'A PAS BOUGÉ. Le
+     patron peignait deux octogones (`--bouton-biseau` sur le corps,
+     `--bouton-bombage` sur la face) ; il porte maintenant le RELIEF sur le
+     corps et l'ANNEAU du liseré sur la face. Ce garde suit ses deux nouveaux
+     marqueurs — ce qu'il vérifie reste le même : les deux listes sont
+     identiques, membre pour membre, sinon un bouton rend faux en silence. */
+  const corps = basesDeLaRegle("var(--bouton-relief)", "::before");
+  const faces = basesDeLaRegle("var(--bouton-anneau)", "::after");
   /* 🔴 UNE SEULE, DEPUIS LE 16/09. Ce garde exigeait DEUX familles, parce que
      le chapitre Équipement portait sa copie. Il a rougi à la fusion : c'était
      son travail. ⛔ Et « une seule » est plus strict que « deux » — une copie
@@ -131,7 +137,7 @@ test("🔴 LES DEUX RÈGLES DU PATRON LISTENT LES MÊMES SÉLECTEURS — corps e
 });
 
 test("🔴 L'INVENTAIRE DES PORTEUSES EST CELUI QUE LA FEUILLE PORTE", () => {
-  const [socle] = basesDeLaRegle("var(--bouton-biseau)", "::before");
+  const [socle] = basesDeLaRegle("var(--bouton-relief)", "::before");
   assert.deepEqual(socle, SOCLE,
     "l'habit a changé de membres : mettre à jour SOCLE ici, en le sachant");
 });

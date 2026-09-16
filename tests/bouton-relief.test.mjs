@@ -34,32 +34,47 @@ test("le patron commun porte deux octogones : arête complète puis face en retr
   assert.notEqual(cote("bouton-coupe"), 10, "la coupe 10 est antérieure au dessin — elle ne revient pas");
   assert.notEqual(cote("bouton-biseau-epaisseur"), 1.5, "le rebord 1,5 est antérieur au dessin");
 
-  assert.match(TOKENS, /--bouton-bombage:\s*linear-gradient\(to bottom/);
+  /* 🔴 LE MÉDIUM A CHANGÉ LE 16/09, ET LA LOI RESTE. Le patron peignait deux
+     octogones en CSS ; il porte maintenant le RELIEF d'Eric en `border-image`
+     sur le corps, et l'ANNEAU du liseré sur la face. ⛔ Le garde ne s'est pas
+     desserré en suivant : il exige désormais que les deux jetons du dessin
+     existent, qu'une SEULE famille les porte, et que le corps n'ait plus de
+     `clip-path` — l'octogone est DANS l'image, un clip ici la rognerait. */
+  assert.match(TOKENS, /--bouton-relief:\s*url\(/, "la tuile du relief est un jeton");
+  assert.match(TOKENS, /--bouton-anneau:\s*polygon\(evenodd,/, "l'anneau du liseré est un jeton");
 
-  const faces = [...CLEAN_SHELL.matchAll(/([^{}]+::after[^{}]*)\{([^{}]*background-image:\s*var\(--bouton-bombage\)[^{}]*)\}/g)];
-  /* 🔴 UNE SEULE FAMILLE DEPUIS LE 16/09 — Eric : *« 2 oui une seule apparence
-     partout »*. Ce garde attendait DEUX faces, parce que le chapitre Équipement
-     portait une copie du patron ; elle est retirée, ses six sélecteurs sont
-     entrés dans le patron. ⛔ « une seule » est PLUS strict que « deux » : une
-     copie qui reparaîtrait ferait rougir ce garde, alors que l'ancienne
-     écriture l'aurait accueillie sans rien dire. */
-  assert.equal(faces.length, 1,
-    "une seule famille porte la face bombée — un second bloc serait un second " +
-    "écrivain pour un seul dessin, et la première repeinture les ferait diverger");
+  const corpsRegles = [...CLEAN_SHELL.matchAll(/([^{}]+::before[^{}]*)\{([^{}]*border-image-source:\s*var\(--bouton-relief\)[^{}]*)\}/g)];
+  assert.equal(corpsRegles.length, 1,
+    "une seule famille porte le relief — un second bloc serait un second écrivain " +
+    "pour un seul dessin, et la première repeinture les ferait diverger");
+  for (const [, , corps] of corpsRegles) {
+    assert.match(corps, /border-image-slice:[^;]*fill/,
+      "sans `fill`, le centre reste vide et la face du bouton disparaît");
+    assert.match(corps, /border-style:\s*solid/, "sans `border-style`, rien ne se peint");
+    assert.match(corps, /inset:\s*var\(--bouton-retrait-v\)\s+0/,
+      "le corps fait 40 dans une cible de 44 — c'est ce retrait qui donne la hauteur");
+    assert.doesNotMatch(corps, /clip-path:/,
+      "⛔ l'octogone est DANS la tuile : un `clip-path` ici la rognerait");
+  }
+
+  const faces = [...CLEAN_SHELL.matchAll(/([^{}]+::after[^{}]*)\{([^{}]*clip-path:\s*var\(--bouton-anneau\)[^{}]*)\}/g)];
+  assert.equal(faces.length, 1, "à ce corps son anneau, et un seul");
   for (const [, selecteur, corps] of faces) {
     assert.ok(selecteur.split(",").every((branche) => /::after\s*$/.test(branche.trim())),
-      "la face ne doit atteindre que les pseudo-éléments du patron");
-    /* 🔴 LE RETRAIT VERTICAL S'EST AJOUTÉ LE 16/09 — Eric : le dessin fait 40,
-       la cible reste 44. La face porte donc DEUX retraits qui ne se confondent
-       pas : celui du DESSIN (vertical, partagé avec le corps) et son propre
-       BISEAU (horizontal et vertical). ⛔ Ce garde exige les deux nommés : un
-       `calc()` qui les additionnerait en littéral perdrait la raison de
-       chacun, et ils ne bougent pas ensemble. */
-    assert.match(corps, /inset:\s*calc\(var\(--bouton-retrait-v\)\s*\+\s*var\(--bouton-biseau-epaisseur\)\)\s+var\(--bouton-biseau-epaisseur\)/,
-      "la face se retire du dessin ET de son biseau, chacun par son nom");
-    assert.equal((corps.match(/var\(--bouton-coupe\)/g) || []).length, 8,
-      "l'octogone intérieur conserve les huit sommets du patron");
+      "l'anneau ne doit atteindre que les pseudo-éléments du patron");
+    /* ⭐ L'ANNEAU PARTAGE EXACTEMENT LA BOÎTE DU CORPS — ses sommets sont
+       dessinés dans le repère de la tuile (2 et 3,4 depuis le bord), donc un
+       retrait supplémentaire le décalerait de son propre dessin. */
+    assert.match(corps, /inset:\s*var\(--bouton-retrait-v\)\s+0/,
+      "l'anneau est aligné sur le corps, pas en retrait de son biseau");
+    assert.match(corps, /background:\s*var\(--bouton-fond\)/,
+      "c'est `--bouton-fond` qui colore l'anneau — il ne peint plus le corps");
   }
+
+  /* 🔴 ET LE DÉFAUT DE `--bouton-fond` EST `transparent` : c'est lui qui retire
+     son liseré au bouton gris, sans qu'aucune des 24 déclarations bouge. */
+  assert.match(CLEAN_SHELL, /--bouton-fond:\s*transparent/,
+     "le défaut transparent EST le recâblage — le gris n'a pas de liseré (Eric, 16/09)");
 });
 
 test("l'ombre reste un filtre et la nuit reste une lueur blanche", () => {
