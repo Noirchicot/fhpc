@@ -883,13 +883,13 @@
   --astre-encre-soleil: #241a06;
   --astre-encre-lune: #f4f3f8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=632");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=632");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=633");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=633");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
-  --icone-parchemin: url("./assets/parchemin.webp?v=632");
+  --icone-parchemin: url("./assets/parchemin.webp?v=633");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=632");
+  --icone-bourse: url("./assets/bourse.webp?v=633");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne
@@ -968,14 +968,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=632");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=633");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=632");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=633");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1068,8 +1068,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=632");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=632");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=633");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=633");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
