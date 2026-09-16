@@ -1002,6 +1002,16 @@
   --astre-croissant: url("./assets/belt/croissant.webp?v=636");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
+  /* ⚖️ LE PARCHEMIN ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
+     je suggère la suivante : lorsque le tally n'est pas actif, mets un voile à 10 %
+     sur l'image, voire 5 %, donc elle est 95 % invisible. Quand le tally est actif
+     le voile passe à 100 % »*.
+     ⭐ ET C'EST MIEUX QU'UN HALO, POUR UNE RAISON QUI SE MESURE : un halo AJOUTE de
+     la lumière AUTOUR d'un objet déjà pleinement présent — il faut donc examiner le
+     pourtour pour savoir. Une image qui n'est presque pas là dit son état par sa
+     PRÉSENCE même, au premier coup d'œil, et sans rien ajouter à l'écran.
+     📏 10 % pour commencer ; 5 % est à un mot d'Eric. */
+  --tally-eteint: .10;
   --icone-parchemin: url("./assets/parchemin.webp?v=636");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps

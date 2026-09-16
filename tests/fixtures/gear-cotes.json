@@ -255,28 +255,28 @@
    "lignes": 2
   },
   {
-   "nom": "TALLY",
-   "x": 327,
-   "y": 66,
-   "l": 44,
-   "h": 44,
-   "cible": 44,
-   "mot": "Tally",
-   "cran": "T1/600",
-   "sorte": "bouton"
-  },
-  {
    "nom": "PARTY TALLY",
-   "x": 279,
-   "y": 66,
-   "l": 44,
-   "h": 44,
+   "x": 285,
+   "y": 68.0,
+   "l": 40,
+   "h": 40,
    "cible": 44,
    "mot": "Party Tally",
    "cran": "T1/600",
    "sorte": "bouton",
    "creation": false,
    "lignes": 2
+  },
+  {
+   "nom": "TALLY",
+   "x": 329,
+   "y": 68.0,
+   "l": 40,
+   "h": 40,
+   "cible": 44,
+   "mot": "Tally",
+   "cran": "T1/600",
+   "sorte": "bouton"
   },
   {
    "nom": "BACKPACK",
