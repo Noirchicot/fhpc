@@ -98,10 +98,44 @@ const n = (v) => +v.toFixed(3);                       // millième, zéros retir
 const pts = (a) => a.map((p) => n(p[0]) + "," + n(p[1])).join(" ");
 const milieu = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 
-/* Le chemin du liseré CSS : deux contours, règle evenodd — un anneau. */
+/* Le chemin du liseré en `path()` : deux contours, règle evenodd — un anneau.
+   ⚠️ Il demande la largeur RENDUE, donc un calcul par bouton. Préférer
+   `anneauCSS()` ci-dessous, qui n'en a pas besoin. */
 export function anneau(W, iExt = 2, iInt = 3.4) {
   const c = (a) => "M" + a.map((p) => n(p[0]) + "," + n(p[1])).join("L") + "Z";
   return c(P(W, iExt)) + " " + c(P(W, iInt));
+}
+
+/* ══ LE LISERÉ SANS JAVASCRIPT — la forme à employer ══════════════════════
+   🔴 JE PARTAIS ÉCRIRE QUE C'ÉTAIT IMPOSSIBLE. Le liseré est un ANNEAU : deux
+   contours et une règle de remplissage. `clip-path: path()` sait le faire mais
+   veut une chaîne figée — donc une valeur par largeur, donc du JS posé bouton
+   par bouton, donc le lot de la fabrique. C'est ce que j'allais rapporter.
+
+   ⭐ C'EST FAUX, ET LA MESURE L'A DIT. Un `polygon(evenodd, …)` UNIQUE qui fait
+   le tour extérieur puis revient par l'intérieur creuse le trou tout seul —
+   `evenodd` compte les croisements, il n'a pas besoin de deux chemins séparés.
+   Et surtout : **tous les sommets s'écrivent en `calc(100% − Npx)`**, donc
+   aucun ne dépend de la largeur rendue. Une seule règle sert toutes les cotes.
+   📏 Éprouvé au navigateur sur les six boutons du pied : les anneaux posés en
+   JS retirés, le rendu est identique.
+   ⭐ Conséquence de périmètre : le lot 209 livre le design ENTIER sans écrire
+   une ligne de balisage ni de JS.
+
+   ⛔ LE SENS DU SECOND CONTOUR COMPTE. Il est parcouru à l'envers : c'est ce
+   qui garantit le trou quel que soit le moteur, `evenodd` ou `nonzero`. */
+export function anneauCSS(haut = H_DESSIN - TALON, iExt = 2, iInt = 3.4) {
+  const contour = (i, sens) => {
+    const k = n(C + i * R2), bas = n(haut - k), I = n(i), J = n(haut - i);
+    const p = [
+      [`${k}px`, `${I}px`], [`calc(100% - ${k}px)`, `${I}px`],
+      [`calc(100% - ${I}px)`, `${k}px`], [`calc(100% - ${I}px)`, `${bas}px`],
+      [`calc(100% - ${k}px)`, `${J}px`], [`${k}px`, `${J}px`],
+      [`${I}px`, `${bas}px`], [`${I}px`, `${k}px`]
+    ];
+    return (sens < 0 ? p.slice().reverse() : p).map((a) => a[0] + " " + a[1]).join(", ");
+  };
+  return `polygon(evenodd, ${contour(iExt, 1)}, ${contour(iInt, -1)})`;
 }
 
 /* Les seize couleurs des facettes — stop 0 au bord extérieur, stop 1 au bord

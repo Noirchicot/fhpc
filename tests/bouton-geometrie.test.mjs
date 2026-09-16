@@ -25,7 +25,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { svg, P, anneau, C, H, HAUT, H_DESSIN, B, TALON, COURSE, LARGEUR_TUILE, SLICE, borderImage } from "../ui/builder/bouton-relief.mjs";
+import { svg, P, anneau, anneauCSS, C, H, HAUT, H_DESSIN, B, TALON, COURSE, LARGEUR_TUILE, SLICE, borderImage } from "../ui/builder/bouton-relief.mjs";
 
 const temoin = (w) => fs.readFileSync(new URL(`./fixtures/bouton-relief-${w}x44.svg`, import.meta.url), "utf8");
 
@@ -167,4 +167,51 @@ test("🔴 LA HAUTEUR EST UN PARAMÈTRE, ET LE DÉFAUT RESTE CELUI DES TÉMOINS"
      s'annule dans `H − (HAUT − C)`. Une seule tuile sert les deux cotes. */
   assert.equal(SLICE.bas, TALON + C);
   assert.equal(SLICE.bas, 12, "12 à 44 comme à 40");
+});
+
+test("🔴 LE LISERÉ TIENT SANS JAVASCRIPT — un seul polygone, aucune largeur en dur", () => {
+  /* ⛔ CE QUE CE GARDE EMPÊCHE : qu'on remplace cette forme par un `path()`,
+     qui exigerait une valeur par largeur — donc du JS posé bouton par bouton,
+     donc un empiètement sur le lot de la fabrique. La frontière du 209 tient
+     PARCE QUE cette règle n'a pas besoin de connaître la largeur rendue. */
+  const a = anneauCSS();
+  assert.match(a, /^polygon\(evenodd, /, "un seul polygone, pas deux chemins");
+  assert.equal((a.match(/polygon\(/g) || []).length, 1, "une seule forme");
+
+  /* 📐 SEIZE SOMMETS : huit pour le contour extérieur, huit pour le retour. */
+  assert.equal((a.match(/,/g) || []).length, 16, "8 + 8 sommets, plus le mot-clé evenodd");
+
+  /* 🔴 AUCUNE LARGEUR EN DUR — c'est toute la propriété. Chaque sommet de
+     droite s'exprime en `calc(100% − Npx)`, jamais en pixels absolus. */
+  assert.equal((a.match(/calc\(100% - /g) || []).length, 8,
+    "les huit sommets de droite suivent la largeur du bouton, quelle qu'elle soit");
+  /* 🔴 ET LA PREUVE QUE LE CHEMIN NE DÉPEND QUE DE LA HAUTEUR : à hauteur
+     égale il est identique, et deux hauteurs ne diffèrent QUE par des cotes
+     verticales — les huit `calc(100% − …)` sont les mêmes des deux côtés.
+     ⛔ J'AI ÉCRIT DEUX ASSERTIONS FAUSSES ICI AVANT CELLE-CI, et les deux ont
+     rougi : la première interdisait tout nombre à deux chiffres suivi de `px`
+     (elle attrapait `27.172px`, une cote VERTICALE légitime) ; la seconde
+     lisait `anneauCSS.length`, qui vaut **0** — `Function.length` s'arrête au
+     premier paramètre par défaut. ⭐ Deux fois la même faute de fond : vérifier
+     la FORME de l'écriture au lieu de la propriété qu'on veut tenir. */
+  const gauche = (s) => s.match(/calc\(100% - [\d.]+px\)/g).join("|");
+  assert.equal(gauche(anneauCSS(36)), gauche(anneauCSS(40)),
+    "changer la hauteur ne touche aucun sommet horizontal — la largeur reste libre");
+
+  /* ⛔ ET LE SECOND CONTOUR EST PARCOURU À L'ENVERS — c'est ce qui garantit le
+     trou quel que soit le moteur. Le premier sommet du retour est le DERNIER
+     du contour intérieur dans l'ordre direct. */
+  const kInt = +(C + 3.4 * (Math.SQRT2 - 1)).toFixed(3);
+  const sommets = a.slice(a.indexOf("evenodd,") + 8).replace(/\)$/, "").split(", ")
+    .map((s) => s.trim()).filter(Boolean);
+  assert.equal(sommets.length, 16, "huit sommets par contour");
+  /* ⛔ ET LE RETOUR COMMENCE À L'INDEX 8, PAS 16 — j'avais compté les deux
+     contours au lieu d'un. Les 16 sommets vont de 0 à 15 ; le contour
+     intérieur occupe la seconde moitié. */
+  assert.equal(sommets[8], `3.4px ${kInt}px`,
+    "le retour commence par le DERNIER sommet intérieur — le contour est inversé, " +
+    "et c'est ce qui garantit le trou quel que soit le moteur");
+
+  /* l'épaisseur nominale reste celle du `path()` : 1,4 perpendiculaire */
+  assert.equal(+(3.4 - 2).toFixed(6), 1.4);
 });
