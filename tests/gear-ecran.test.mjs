@@ -1,0 +1,228 @@
+/* ══ LE GARDE DE L'ÉCRAN R (Gear) — lot 212, 2026-09-16 ═══════════════════════
+
+   🔴 CE QU'IL DÉFEND : que la disposition posée au dépôt soit BIEN la table
+   générée (`Plan-ecran-R/R_cotes.json` → `R_declaration.js`), et que cette
+   table tienne les lois du 15/09 — la dalle, la marge, les deux gouttières,
+   le jeton des tokens, le plancher des cibles, aucun chevauchement, le budget
+   vertical fermé. Les neuf gardes du générateur sont en Python, dans le vault :
+   ils ne tournent pas ici. Ceux-ci sont leur écho en `node:test`, pour que
+   `npm test` rougisse le jour où quelqu'un retouche un nombre à la main.
+
+   ⛔ SA LIMITE : il lit la table et le DOM du stub. Il ne mesure aucun rendu —
+   la preuve en blg (`getBoundingClientRect() ÷ --echelle`) se prend au
+   navigateur, et elle est dans le rapport du lot. */
+
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { createTestDocument } from "./dom-stub.mjs";
+import { stripComments } from "./source-scan.mjs";
+globalThis.document = createTestDocument();
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+const UI = path.join(ROOT, "ui", "builder");
+const D = await import("../ui/builder/gear-disposition.mjs");
+const { construireLEcranGear, feuilleDesCotes, CLEF_DE, DESTINATIONS, libelleDe } =
+  await import("../ui/builder/gear-ecran.mjs");
+const { BOITES, SLOT_VERS_BOITES } = await import("../ui/builder/b3-disposition.mjs");
+const TABLE = JSON.parse(fs.readFileSync(path.join(ROOT, "tests", "fixtures", "gear-cotes.json"), "utf8"));
+const tokens = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
+const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
+
+const { DALLE, BELT_H, MARGE, TOUCH, JETON, ORGANES, LIGNES, BARRE } = D;
+const jetons = ORGANES.filter((o) => o.sorte === "jeton");
+const dessins = ORGANES.filter((o) => o.sorte !== "lune");   // les lunes ne sont pas posées (voir gear-ecran.mjs)
+const rect = (o) => ({ x: o.x, y: o.y, l: o.l, h: o.h });
+const cibleDe = (o) => (o.cible ? { x: o.cible.x, y: o.cible.y, l: o.cible.l, h: o.cible.h } : rect(o));
+const secants = (a, b) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.h && b.y < a.y + a.h;
+
+/* ══ 1 — LA DÉCLARATION EST LA TABLE, PAS UNE COPIE QUI DÉRIVE ═══════════ */
+
+test("1 — la déclaration posée au dépôt EST la table du plan (mêmes organes, mêmes cotes)", () => {
+  const parNom = Object.fromEntries(TABLE.boites.map((b) => [b.nom, b]));
+  assert.equal(ORGANES.length, TABLE.boites.length, "même compte d'organes que la table");
+  for (const o of ORGANES) {
+    const t = parNom[o.nom];
+    assert.ok(t, `« ${o.nom} » est dans la déclaration mais pas dans la table`);
+    for (const k of ["x", "y", "l", "h", "sorte"]) assert.equal(o[k], t[k], `${o.nom}.${k}`);
+  }
+  assert.deepEqual([DALLE.l, DALLE.h, BELT_H, MARGE, TOUCH], [TABLE.dalle.l, TABLE.dalle.h, TABLE.belt, TABLE.marge, TABLE.touch]);
+  assert.deepEqual(LIGNES, TABLE.Y);
+});
+
+test("1 bis — le jeton de la déclaration EST celui des tokens, et la cible est `--touch`", () => {
+  const [, caseL] = tokens.match(/--glisse-case:\s*(\d+)px/) || [];
+  const [, caseH] = tokens.match(/--glisse-h:\s*(\d+)px/) || [];
+  const [, touche] = tokens.match(/--touch:\s*(\d+)px/) || [];
+  assert.equal(JETON.l, Number(caseL)); assert.equal(JETON.h, Number(caseH));
+  assert.equal(TOUCH, Number(touche));
+  for (const j of jetons) assert.deepEqual([j.l, j.h], [JETON.l, JETON.h], `${j.nom} n'est pas un jeton 87 × 48`);
+});
+
+/* ══ 2 — LES LOIS DU PLAN ══════════════════════════════════════════════════ */
+
+test("2 — rien à moins de 4 d'un bord, et rien hors de la dalle (les dessins)", () => {
+  for (const o of dessins) {
+    assert.ok(o.x >= MARGE && o.y >= BELT_H + MARGE && o.x + o.l <= DALLE.l - MARGE && o.y + o.h <= DALLE.h - MARGE,
+      `⛔ ${o.nom} mord la marge : ${o.x},${o.y} ${o.l}×${o.h}`);
+  }
+});
+
+test("2 bis — les huit rangées ne sont séparées que par 4 ou 8, et le budget vertical est fermé à 560", () => {
+  for (let i = 0; i + 1 < LIGNES.length; i++) {
+    const ecart = LIGNES[i + 1] - (LIGNES[i] + JETON.h);
+    assert.ok(ecart === 4 || ecart === 8, `rangée ${i + 1} → ${i + 2} : écart ${ecart}`);
+  }
+  assert.equal(LIGNES[0], BELT_H + MARGE, "la première rangée colle au belt, à la marge près");
+  assert.equal(BARRE.y - (LIGNES[7] + JETON.h), 8, "8 entre la dernière rangée et la barre");
+  assert.equal(BARRE.h, TOUCH, "la barre vaut la cible");
+  /* 12 sous la barre = 8 sous la rangée (§6 pré) + les 4 de marge de la dalle */
+  assert.equal(DALLE.h - (BARRE.y + BARRE.h), 8 + MARGE);
+});
+
+test("2 ter — aucun dessin n'en chevauche un autre, aucune cible non plus, et toute cible atteint 44 dans les deux sens", () => {
+  for (let i = 0; i < dessins.length; i++) for (let j = i + 1; j < dessins.length; j++) {
+    assert.ok(!secants(rect(dessins[i]), rect(dessins[j])), `dessins sécants : ${dessins[i].nom} × ${dessins[j].nom}`);
+    assert.ok(!secants(cibleDe(dessins[i]), cibleDe(dessins[j])), `cibles sécantes : ${dessins[i].nom} × ${dessins[j].nom}`);
+  }
+  for (const o of dessins) {
+    if (o.sorte === "jeton") continue;    // un jeton est plus grand que la cible dans les deux sens (48 > 44 ; 87 > 44)
+    const c = cibleDe(o);
+    assert.ok(c.l >= TOUCH && c.h >= TOUCH, `⛔ ${o.nom} : cible ${c.l} × ${c.h} sous le plancher 44`);
+    /* et la cible CONTIENT le dessin */
+    assert.ok(c.x <= o.x && c.y <= o.y && c.x + c.l >= o.x + o.l && c.y + c.h >= o.y + o.h, `${o.nom} : le dessin sort de sa cible`);
+  }
+});
+
+test("2 quater — ⚔️ ATTAQUE : une cible de 40 rougirait", () => {
+  const faux = { nom: "X", sorte: "bouton", x: 327, y: 236, l: 40, h: 40, cible: { x: 327, y: 234, l: 40, h: 44 } };
+  const c = cibleDe(faux);
+  assert.equal(c.l >= TOUCH && c.h >= TOUCH, false, "le plancher se voit bien sur la largeur aussi — c'est la faute que le plan portait");
+});
+
+/* ══ 3 — LA TABLE NOM → CLEF, ET LE DÉPÔT QUI LA PORTE ═════════════════════ */
+
+test("3 — chaque organe posé a une clef, chaque clef est unique, et les emplacements existent au dépôt", () => {
+  const clefs = [];
+  for (const o of ORGANES) {
+    if (o.sorte === "lune") { assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`); continue; }
+    assert.ok(CLEF_DE[o.nom], `« ${o.nom} » n'a pas de clef`);
+    clefs.push(CLEF_DE[o.nom]);
+  }
+  assert.equal(new Set(clefs).size, clefs.length, "deux organes se partagent une clef");
+  const boites = new Set(BOITES.map((b) => b.clef));
+  for (const j of jetons) {
+    const clef = CLEF_DE[j.nom];
+    if (["collecteur", "sol1", "sol2"].includes(clef)) continue;   // hors personnage : pas des boîtes du rangement
+    assert.ok(boites.has(clef), `${j.nom} → ${clef} n'existe pas dans BOITES`);
+  }
+  assert.ok(SLOT_VERS_BOITES.torso.includes("torse3") && SLOT_VERS_BOITES.back.includes("torse3"),
+    "la troisième boîte du torse reçoit torso et back");
+});
+
+test("3 bis — les libellés sont ceux du croquis : sans numéro, sans `opt`", () => {
+  assert.equal(libelleDe("HEAD/FACE 1"), "HEAD/FACE");
+  assert.equal(libelleDe("BODY FORGING opt"), "BODY FORGING");
+  assert.equal(libelleDe("BELT"), "BELT");
+  /* et le dépôt ne dit plus « Sheath » nulle part dans sa table */
+  assert.ok(!BOITES.some((b) => /sheath/i.test(b.nom)), "« Sheath » est périmé (croquis du 15/09)");
+});
+
+/* ══ 4 — LA FEUILLE DES COTES : une règle par organe, les px de la table ════ */
+
+test("4 — la feuille construite pose chaque organe à ses px du plan, sous le belt", () => {
+  const css = feuilleDesCotes();
+  for (const o of dessins) {
+    const id = CLEF_DE[o.nom];
+    if (o.sorte === "porte" || o.sorte === "rond") {
+      assert.ok(!css.includes(`[data-organe="${id}"]`), `${o.nom} est placé par la grille de la rangée, pas par la feuille`);
+      continue;
+    }
+    const m = css.match(new RegExp(`\\[data-organe="${id}"\\]\\{([^}]*)\\}`));
+    assert.ok(m, `pas de règle pour ${o.nom}`);
+    const boite = o.sorte === "jeton" ? rect(o) : cibleDe(o);
+    assert.ok(m[1].includes(`left:${boite.x}px`), `${o.nom} : left`);
+    assert.ok(m[1].includes(`top:${boite.y - BELT_H}px`), `${o.nom} : top ${boite.y - BELT_H}`);
+    if (o.sorte === "jeton") assert.ok(!/width|height/.test(m[1]), "un jeton lit sa cote dans les tokens, pas dans la feuille");
+    else assert.ok(m[1].includes(`width:${boite.l}px`) && m[1].includes(`height:${boite.h}px`), `${o.nom} : la boîte est la cible`);
+  }
+  const r = css.match(/\.gear > \.gear-rangee\{([^}]*)\}/);
+  assert.ok(r && r[1].includes(`left:${MARGE}px`) && r[1].includes(`top:${BARRE.y - BELT_H}px`)
+    && r[1].includes(`width:${DALLE.l - 2 * MARGE}px`) && r[1].includes(`height:${BARRE.h}px`), "la rangée est posée à BARRE");
+});
+
+test("4 bis — shell.css ne porte AUCUNE position de l'écran : les cotes sont dans la table", () => {
+  const bloc = shell.slice(shell.indexOf(".gear {"), shell.indexOf(".gear-porte {"));
+  assert.ok(bloc.length > 0, "le bloc de l'écran existe");
+  assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur dans shell.css serait une cote recopiée");
+  assert.match(shell, /\.gear \{ --bouton-cran-serre: var\(--t2\); \}/, "l'exception du cran est nommée sur l'écran");
+  /* les trois portes sont de la famille : corps, face et plancher les listent */
+  for (const marque of [".gear-porte::before {", ".gear-porte::after {", ".gear-porte):not(.fiche-livre):not(.tuto-point) {"]) {
+    assert.ok(shell.includes(marque), `la famille des boutons ne liste pas ${marque}`);
+  }
+});
+
+/* ══ 5 — LE DOM : ce que l'écran rend ══════════════════════════════════════ */
+
+function rendu(options) {
+  return construireLEcranGear(options).noeud;
+}
+const tous = (n, sel) => [...n.querySelectorAll(sel)];
+
+test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lunes", () => {
+  const n = rendu({});
+  const ids = tous(n, "[data-organe]").map((e) => e.dataset.organe);
+  const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond").map((o) => CLEF_DE[o.nom]);
+  assert.deepEqual(ids.sort(), attendus.sort());
+  assert.equal(tous(n.querySelector(".gear-rangee"), ".gear-porte").length, 3, "trois portes dans la rangée");
+  assert.equal(tous(n, ".gear-rangee").length, 1);
+  assert.ok(n.querySelector(".gear-rangee").dataset.rangee, "la rangée déclare data-rangee (§6 pré, cinquième porte)");
+  assert.equal(n.querySelector(".gear-rangee").children[0].className, "fiche-livre gear-livre", "le livre est la première borne");
+  assert.ok(n.querySelector("style"), "la feuille des cotes est dans l'écran");
+});
+
+test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois voyants — seul ⭕ s'allume", () => {
+  const n = rendu({ boites: { tete1: { nom: "Winged helmet", qte: 2, index: 3, equipped: true } } });
+  const e = n.querySelector('[data-organe="tete1"]');
+  assert.equal(e.dataset.occupe, "oui");
+  assert.equal(e.querySelector(".gear-objet").textContent, "Winged helmet");
+  assert.equal(e.querySelector(".gear-qte").textContent, "×2");
+  const etats = Object.fromEntries(tous(e, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat]));
+  assert.deepEqual(etats, { verrou: "non", equipe: "oui", harmonise: "non" });
+  assert.equal(n.querySelector('[data-organe="tete2"]').dataset.occupe, undefined, "le voisin reste vide");
+  assert.equal(n.querySelector('[data-organe="tete2"]').querySelector(".gear-nom").textContent, "HEAD/FACE");
+});
+
+test("5 ter — le collecteur est la seule cible de dépôt, et il compte ce qu'il retient", () => {
+  const n = rendu({ collecte: new Set([1, 4]) });
+  const cibles = tous(n, "[data-creneau]");
+  assert.deepEqual(cibles.map((c) => c.dataset.creneau), ["collecteur"]);
+  assert.equal(cibles[0].dataset.compte, "2");
+  assert.equal(rendu({}).querySelector('[data-organe="collecteur"]').dataset.compte, "0");
+});
+
+test("5 quater — les portes et les boutons publient leur geste ; Companions et le livre sans cible sont `disabled`", () => {
+  const gestes = [];
+  const n = rendu({ surPorte: (p) => gestes.push(`porte:${p}`), surBouton: (b) => gestes.push(`bouton:${b}`),
+    surDestination: (v) => gestes.push(`dest:${v}`), compteTally: 3 });
+  for (const b of tous(n, ".gear-porte")) b.click();
+  n.querySelector('[data-organe="purse"]').click();
+  n.querySelector('[data-organe="tally"]').click();
+  assert.deepEqual(gestes, ["porte:backpack", "porte:send", "porte:wares", "bouton:purse", "bouton:tally"]);
+  assert.equal(n.querySelector('[data-organe="tally"]').dataset.compte, "3");
+  assert.equal(n.querySelector('[data-organe="companions"]').disabled, true);
+  assert.equal(n.querySelector('[data-organe="companions"]').className, "gear-porte", "Companions est un petit de la famille, pas un bouton à image");
+  assert.equal(n.querySelector(".gear-livre").disabled, true);
+  /* le dropdown : les quatre destinations de la création, deux encore fermées */
+  const options = tous(n, "option");
+  assert.deepEqual(options.map((o) => o.textContent), DESTINATIONS.map((d) => d.mot));
+  assert.deepEqual(options.map((o) => o.disabled === true), DESTINATIONS.map((d) => !d.actif));
+});
+
+test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {
+  assert.equal(rendu({ bourse: { pp: 1, gp: 5, sp: 9, cp: 9 } }).querySelector(".gear-bouton-montant").textContent, "15 gp");
+  assert.equal(rendu({}).querySelector(".gear-bouton-montant").textContent, "0 gp");
+});

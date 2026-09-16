@@ -332,10 +332,14 @@ test("D2 — ÉQUIPEMENT : une ligne dont le record manque porte le mot de l'org
     { path: "gear[0].location", value: "backpack" }
   ] } };
   const node = renderEquipmentStep({ document: doc, resolved: null, query: SRD.layers.verbs.query, search: true }, () => {});
+  /* lot 212 : le sac ne se lit plus sur l'écran d'entrée — derrière sa porte */
+  node.querySelector('.gear-porte[data-porte="backpack"]').click();
   const texte = node.textContent || "";
   aucunIdNu(texte, "fh:gem:en:nulle-part");
   /* Une gemme est du catalogue : pas d'enfant, c'est le maître qu'on nomme. */
   assert.match(texte, /Nulle part comes with Fate's Hand — switch it on in Layers/);
+  /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci */
+  [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK").click();
 });
 
 /* ══ E — LA COQUILLE, SUR SES OCTETS (elle n'a pas de harnais de rendu) ═══ */

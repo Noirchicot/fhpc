@@ -314,7 +314,8 @@ test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occup
      `FREE` de ligne du panier (B2/SB3.2) est un VRAI interrupteur du croquis
      — lui s'annonce (`aria-pressed`), et il est le SEUL admis. */
   const node = renderEquipmentStep({ document: report.document, resolved: report.resolved, query }, () => {});
-  const porte = node.querySelector('[aria-label="Equipment"]');
+  /* lot 212 : la porte du catalogue est `Wares`, sur l'écran R */
+  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
   if (porte) porte.click();
   assert.deepEqual(elementsActifs(node), [],
     "ni cran ni jeton n'est un interrupteur : aucun n'a d'état à annoncer");

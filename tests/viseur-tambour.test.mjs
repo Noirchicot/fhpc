@@ -129,11 +129,11 @@ const fixture = exempleFhEn();
 const query = fixture.layers.verbs.query;
 function ctx() { return { document: { build: { choices: [] } }, resolved: null, query, search: true }; }
 
-/** On entre comme le joueur : l'étape ouvre sur B3 (le dressing) depuis
- *  l'inversion du 24/08, et le catalogue est derrière le bouton Equipment. */
+/** On entre comme le joueur : l'étape ouvre sur le personnage équipé (R, le
+ *  lot 212) et le catalogue est derrière sa porte `Wares`. */
 function monterCatalogue() {
   const node = renderEquipmentStep(ctx(), () => {});
-  const porte = node.querySelector('[aria-label="Equipment"]');
+  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
   if (porte) porte.click();
   return node;
 }

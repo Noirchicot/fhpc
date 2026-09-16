@@ -152,8 +152,8 @@ test("⭐ LE PARCOURS ENTIER — dépôt au panier (document), CART → B2, BUY 
   const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
   if (gear) gear.click();
   node = rendre();
-  assert.equal(node.querySelectorAll(".b3-scene").length, 1, "le dressing d'abord");
-  node.querySelector('[aria-label="Equipment"]').click();
+  assert.equal(node.querySelectorAll(".gear").length, 1, "le personnage équipé (R) d'abord — lot 212");
+  node.querySelector('.gear-porte[data-porte="wares"]').click();
   node = rendre();
   const cart = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART");
   assert.equal(cart.dataset.compte, "1", "le compteur du CART lit le document");
@@ -185,7 +185,7 @@ test("⚔️ ATTAQUE — BUY refuse quand la bourse ne couvre pas, et n'écrit R
   const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
   if (gear) gear.click();
   node = rendre();
-  node.querySelector('[aria-label="Equipment"]').click();
+  node.querySelector('.gear-porte[data-porte="wares"]').click();
   node = rendre();
   [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
   node = rendre();
@@ -206,7 +206,7 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
   let node = rendre();
   for (let i = 0; i < 4 && !node.querySelector(".carte-r"); i++) {
     const sortie = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
-      || node.querySelector('[aria-label="Equipment"]');
+      || node.querySelector('.gear-porte[data-porte="wares"]');
     if (sortie) sortie.click();
     node = rendre();
   }
@@ -238,7 +238,7 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
   for (let i = 0; i < 5 && !node.querySelector(".aiguilleur"); i++) {
     const porte = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
       || [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR")
-      || node.querySelector('[aria-label="Equipment"]');
+      || node.querySelector('.gear-porte[data-porte="wares"]');
     if (porte) porte.click();
     node = rendre();
   }

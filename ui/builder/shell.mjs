@@ -1789,6 +1789,16 @@ function applyDecisionAction(action) {
     goToStep(STEPS.findIndex((step) => step.id === action.value));
     return;
   }
+  /* LOT 212 — LA FENÊTRE OUVERTE, écrite par le chapitre qui ouvre (lot 207 :
+     « un seul champ, écrit par le chapitre qui ouvre, lu par le belt »). Les
+     branches l'écrivent (Gear · Backpack · Wares · Tally) ; ⛔ une fiche
+     d'objet (X1, X2) n'écrit jamais — Eric, 16/09 : « les x ne s'inscrivent
+     pas dans le belt ». `null` rend la main au mot déclaré du cran. */
+  if (action.kind === "fenetre") {
+    state.fenetre = typeof action.mot === "string" ? action.mot : null;
+    refresh();
+    return;
+  }
   if (action.kind === "popup") {
     /* §7 (26/08) — le RÔLE voyage avec l'état : guide (parchemin, défaut —
        il ne signale rien) · aiguilleur (bleu, il prévient) · gendarme
@@ -4049,10 +4059,10 @@ const GUIDES = {
   equipment: {
     titre: "Gear",
     texte:
-      "The dressing shows what your character wears and carries.\n" +
-      "Equipment opens the catalogue: turn the two wheels, tap an item for its card, " +
+      "Gear shows what your character wears: drag a worn item onto the send collector, then Send it where the list says.\n" +
+      "Backpack opens the bag. Wares opens the catalogue: turn the two wheels, tap an item for its card, " +
       "drag it onto a target to act at once.\n" +
-      "The cart gathers purchases; BUY pays once for everything."
+      "The tally gathers purchases; BUY pays once for everything."
   },
   review: {
     titre: "Sheet",
@@ -4494,6 +4504,9 @@ function goToStep(index) {
      décision d'Eric. */
   if (vueDoubleRendue() && target === state.stepSecond) state.stepSecond = state.step;
   state.step = target;
+  /* LOT 212 — un cran neuf oublie la fenêtre de l'ancien : la 3ᵉ ligne du belt
+     redit le mot que le cran déclare (`fenetreOuverte`), jamais celui d'avant. */
+  state.fenetre = null;
   /* Un écran neuf repart à son PREMIER palier, jamais à celui d'avant. */
   state.palier = 1;
   /* ⭐ ET SANS PANNEAU DE LORE OUVERT (lot 82). Il appartient à l'écran où on
@@ -4565,7 +4578,13 @@ function goToStep(index) {
  *  (sac · Tally · Wares · companions) est le lot du chapitre, pas celui-ci. */
 function fenetreOuverte() {
   const mot = state.fenetre;
-  return typeof mot === "string" ? mot : "";
+  if (typeof mot === "string") return mot;
+  /* LOT 212 — rien n'a été écrit depuis l'arrivée sur le cran : la racine du
+     chapitre DÉCLARE son mot dans `etapes.mjs` (`fenetre`), et c'est lui qu'on
+     lit. Eric, 15/09 : « quand on est sur R, elle dit Gear » — la ligne n'est
+     jamais vide sur un chapitre qui a nommé sa racine. */
+  const cran = STEPS[state.step];
+  return cran && typeof cran.fenetre === "string" ? cran.fenetre : "";
 }
 
 function paintBelt() {

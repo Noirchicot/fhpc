@@ -154,7 +154,12 @@ export const STEPS = [
      les pose. Sans le drapeau, ce cran ouvrait un magasin sans marchandise :
      la coupe est la même qu'à Destiny, deux lignes plus haut. */
   { id: "skills",     label: "Skills", exige: "fh.skills" },
-  { id: "equipment",  label: "Equipment" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
+  /* LOT 212 — `fenetre` : le mot que la 3ᵉ ligne du belt porte quand on est
+     sur la RACINE du chapitre (Eric, 15/09 : « quand on est sur R, elle dit
+     Gear » — ce qui renverse l'hypothèse du lot 207). Le chapitre DÉCLARE son
+     mot ici ; la coquille le lit quand rien d'autre n'a été écrit
+     (`fenetreOuverte`, shell.mjs). ⛔ Pas un `if` sur le cran dans le belt. */
+  { id: "equipment",  label: "Equipment", fenetre: "Gear" }, // LOT 49 — le paquet de la classe (une phrase, affichée telle quelle) + la bourse
   /* 🔴 LE SEUL CRAN QUI DÉCLARE UNE LECTURE — Eric, 10/09 : un seul chapitre
      déduit. Un second `lit` ici serait un chapitre qui meurt de ce qu'il ne
      déduit pas (garde : tests/naitre-derivable.test.mjs, B1). */

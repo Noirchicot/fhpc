@@ -227,30 +227,32 @@ test("7 — clear est SÛR sur gear[N] : rebuild ne jette pas, la ligne dispara�
    organes reviennent avec la géométrie du croquis — et leurs tests avec eux.
    Les versions retirées sont dans l'historique ; ⛔ elles ne se recopient pas
    telles quelles, elles éprouvaient une mise en page qu'Eric a écartée. */
-test("⛔ l'étape Équipement OUVRE SUR B3, et une seule vue vit à la fois (l'inversion du 24/08)", () => {
+test("⛔ l'étape Équipement OUVRE SUR R (Gear), et une seule vue vit à la fois (l'inversion du 24/08)", () => {
   /* 🔴 RÉÉCRIT À LA NOUVELLE VÉRITÉ LE 2026-08-24, ET NON RELÂCHÉ. Ce garde
      exigeait « la carte de R, seule » ; Eric a INVERSÉ les positions le jour
-     même (*« inverse les positions de R et de B3 »*) : le dressing devient
-     l'écran d'entrée, le catalogue vit derrière son bouton Equipment.
-     Ce que le garde tient n'a pas molli : UNE vue à la fois, et aucun organe
-     mort ne revient. */
+     même (*« inverse les positions de R et de B3 »*) : le personnage équipé
+     devient l'écran d'entrée, le catalogue vit derrière sa porte.
+     🔴 RÉÉCRIT UNE SECONDE FOIS LE 2026-09-16 (lot 212) : l'écran d'entrée est
+     R (Gear), le pantin coté du 15/09, et sa porte vers le catalogue s'appelle
+     `Wares` (croquis d'Eric). Ce que le garde tient n'a pas molli : UNE vue à
+     la fois, et aucun organe mort ne revient. */
   const node = renderEquipmentStep({
     document: fixture.document, resolved: fixture.resolved, query
   }, () => {});
 
-  assert.equal(rows(node, ".b3-scene").length, 1, "le dressing est l'écran d'entrée");
+  assert.equal(rows(node, ".gear").length, 1, "le personnage équipé (R) est l'écran d'entrée");
   assert.equal(rows(node, ".carte-r").length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
 
-  const porte = node.querySelector('[aria-label="Equipment"]');
-  assert.ok(porte, "la barre B3 porte la porte vers le catalogue");
+  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
+  assert.ok(porte, "la rangée du pied de R porte la porte Wares vers le catalogue");
   porte.click();
-  assert.equal(rows(node, ".carte-r").length, 1, "Equipment ouvre le catalogue…");
-  assert.equal(rows(node, ".b3-scene").length, 0, "…et le dressing s'efface — jamais deux vues empilées");
+  assert.equal(rows(node, ".carte-r").length, 1, "Wares ouvre le catalogue…");
+  assert.equal(rows(node, ".gear").length, 0, "…et R s'efface — jamais deux vues empilées");
 
   const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
-  assert.ok(gear, "la carte R porte GEAR");
+  assert.ok(gear, "la carte du catalogue porte GEAR");
   gear.click();
-  assert.equal(rows(node, ".b3-scene").length, 1, "GEAR ramène au dressing — l'aller-retour est complet");
+  assert.equal(rows(node, ".gear").length, 1, "GEAR ramène à R — l'aller-retour est complet");
 
   for (const mort of [".equipment-gear-list", ".equipment-ac-readout", ".equipment-search-block",
                       ".equipment-topbar", ".equipment-catbar", ".equipment-currency-block",
@@ -361,6 +363,8 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
     }
   };
   const node = renderEquipmentStep({ document: doc, resolved: null, query, search: true }, () => {});
+  /* lot 212 : la ligne vit dans le sac, derrière la porte Backpack de R */
+  node.querySelector('.gear-porte[data-porte="backpack"]').click();
   const texte = node.textContent || "";
   assert.match(texte, /Azurite/, "le nom du record doit arriver jusqu'à la ligne");
   /* ⛔ LE PIÈGE, ET IL EST EXACTEMENT CELUI DE `TRAPS.md` — « un identifiant qui
@@ -371,6 +375,8 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
     "un id nu à l'écran est le symptôme exact d'un genre que le chercheur ne résout pas");
   assert.ok("srfh:gem:en:azurite".includes("fh:gem:en:azurite"),
     "témoin : l'ancien id est une SOUS-CHAÎNE du nouveau — un garde qui cherche l'ancien ne garde rien");
+  /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci */
+  [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK").click();
 });
 
 /* ══ LOT 182 — L'OR DE DÉPART SE LIT DANS LA DONNÉE, DES DEUX CÔTÉS ═══════

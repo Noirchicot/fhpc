@@ -75,13 +75,14 @@ const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, p
    mesures, sur la fonction partagée. */
 const { pageDeListe, LISTE_PAR_PAGE } = await import("../ui/builder/normes.mjs");
 
-/* ⭐ DEPUIS L'INVERSION DU 24/08 (mandat d'Eric), l'étape OUVRE SUR B3 — le
-   dressing. Ces suites regardent le CATALOGUE : on y entre comme le joueur,
-   par le bouton Equipment de la barre B3. L'état de vue persiste entre les
-   rendus (c'est le produit), le clic est donc conditionnel. */
+/* ⭐ DEPUIS L'INVERSION DU 24/08 (mandat d'Eric), l'étape OUVRE SUR LE PERSONNAGE
+   ÉQUIPÉ — depuis le lot 212, c'est l'écran R (Gear), et le catalogue est
+   derrière sa porte `Wares` (croquis du 15/09). Ces suites regardent le
+   CATALOGUE : on y entre comme le joueur, par cette porte. L'état de vue
+   persiste entre les rendus (c'est le produit), le clic est donc conditionnel. */
 function monterR(ctx, onAction) {
   const node = renderEquipmentStep(ctx, onAction || (() => {}));
-  const porte = node.querySelector('[aria-label="Equipment"]');
+  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
   if (porte) porte.click();
   return node;
 }
