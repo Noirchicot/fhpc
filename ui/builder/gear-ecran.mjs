@@ -282,6 +282,24 @@ function collecteur(id, options, retenu) {
     if (retenu.qte > 1) objet.append(" ", eld("span", "gear-qte", `×${retenu.qte}`));
     c.append(objet);
     c.setAttribute("aria-label", `Send collector — ${retenu.nom}`);
+    /* ⚖️ ET IL EN RESSORT PAR LE MÊME GESTE QU'IL Y EST ENTRÉ — Eric, 16/09 au soir :
+       *« un token dans le collecteur doit pouvoir en ressortir »*. ⭐ Rien de neuf
+       n'était nécessaire côté données : `surPlacer` retire DÉJÀ la ligne de la collecte
+       avant de la poser dans sa boîte, parce qu'un objet ne peut pas être à deux
+       endroits. Ce qui manquait était le GESTE — le collecteur portait l'objet sans
+       le rendre saisissable, et une chose qu'on voit mais qu'on ne peut pas reprendre
+       est une impasse.
+       ⛔ Un dépôt sur le collecteur lui-même ne fait rien : il est déjà là. */
+    armerJeton(c, {
+      onTap: () => {},
+      onLever: (x, y) => fantome.lever(c, x, y),
+      onBouger: (x, y) => fantome.suivre(x, y),
+      onPoser: () => fantome.ranger(),
+      onDepot: (creneau) => {
+        if (creneau === "collecteur") return;
+        if (options.surPlacer) options.surPlacer(retenu.index, creneau);
+      }
+    });
     return c;
   }
   c.append(eld("span", "gear-nom", "Send collector"));
