@@ -428,7 +428,11 @@ test("5 sexies — LA BOURSE : un popup coté par la table, quatre monnaies, un 
 
   /* la cote des crans vient de la table, pas de la feuille */
   const f = feuilleDesCotes();
-  assert.ok(f.includes(`.gear-bourse{width:${BOURSE.l}px;height:${BOURSE.h}px;padding:${BOURSE.marge}px}`));
+  assert.ok(f.includes(`.gear .gear-bourse{width:${BOURSE.l}px;height:${BOURSE.h}px;padding:${BOURSE.marge}px}`));
+  /* ⛔ ET PAS EN ENFANT DIRECT : le popup vit dans son voile, pas dans la dalle.
+     Mesuré au navigateur avant de le voir — la règle ne s'appliquait pas, et le popup
+     se dimensionnait sur son contenu (176 au lieu de 186). */
+  assert.ok(!f.includes(".gear > .gear-bourse"), "un sélecteur d'enfant direct enfermerait la cote dans une structure");
   assert.ok(f.includes(`.gear-monnaie-bouton{width:${BOURSE.pas}px;height:${BOURSE.pas}px;border-width:${(BOURSE.pas - BOURSE.bouton) / 2}px}`),
     "dessin 40 dans une cible de 44 — le retrait est porté par des bords transparents, comme le Tally");
   assert.ok(!/\.gear-bourse\s*\{[^}]*width:\s*\d/.test(shell), "⛔ aucune cote de la bourse dans shell.css");
