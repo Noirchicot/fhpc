@@ -17,7 +17,7 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { MOT_DU_TIROIR } from "./magasin.mjs?v=641";
+import { MOT_DU_TIROIR } from "./magasin.mjs?v=642";
 
 /* ── 🔴 LOT 202 — LE DOSSIER À AUTORISER, ET LA SORTIE D'UN CLIC ─────────
    📏 MESURÉ LE 13/09 : au rechargement, Chrome retient le dossier choisi mais
