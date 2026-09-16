@@ -9147,7 +9147,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 /* chaque organe est posé en absolu par la feuille construite ; ici on ne dit
    que le MODE, jamais la place */
-.gear > [data-organe], .gear > .gear-rangee, .gear > .gear-pantin {
+.gear > [data-organe], .gear > .gear-rangee, .gear > .gear-pantin, .gear > .gear-montant {
   position: absolute; box-sizing: border-box;
 }
 
@@ -9269,7 +9269,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-bouton:disabled { opacity: .4; cursor: default; }
 /* le montant seul sur la bourse (Eric, 16/09) — T2/600 : « 999 gp » demande 41,05
    dans 44 (la fiche du plan) ; au-delà de trois chiffres, la cote est à Eric */
-.gear-bouton-montant { font-size: var(--t2); font-weight: 600; white-space: nowrap; }
+/* le montant de la bourse, SOUS le bouton, sur UNE ligne (Eric, 16/09, « b » puis
+   « en dessous sur une ligne oui ») : un voyant qu'on lit — T1/600, centré */
+.gear-montant {
+  text-align: center; color: var(--text); font-size: var(--t1); font-weight: 600;
+  line-height: 1; white-space: nowrap; pointer-events: none;
+}
 /* le Tally EST le parchemin d'Eric (déposé le 15/09) ; le halo s'allume dès la
    première ligne, s'éteint vidé */
 .gear-bouton[data-organe="tally"] { background-image: var(--icone-parchemin); }

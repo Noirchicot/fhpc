@@ -176,6 +176,11 @@ export function feuilleDesCotes() {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))};width:${px(o.l)};height:${px(o.h)}`);
     }
   }
+  /* le montant de la bourse : DÉDUIT de PURSE — juste dessous, à --sp-4 (MARGE),
+     même largeur. ⏳ À entrer dans la table du plan (Archi 34) ; en attendant il
+     ne recopie rien, il se calcule. */
+  const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
+  if (purse) regles.push(`.gear > .gear-montant{left:${px(purse.x)};top:${px(haut(purse.y + purse.h + MARGE))};width:${px(purse.l)}}`);
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
     `width:${px(DALLE.l - 2 * MARGE)};height:${px(BARRE.h)}}`);
   if (PANTIN) {
@@ -275,10 +280,20 @@ function boutonPurse(id, options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const b = bouton("gear-bouton", undefined, `Purse — ${total} gp`, () => options.surBouton && options.surBouton("purse"));
   b.dataset.organe = id;
-  /* Eric, 16/09 : « la priorité est de bien voir le montant » — le mot « Purse »
-     ne s'écrit plus sur l'image, il vit dans l'aria-label ; le montant seul, centré. */
-  b.append(eld("span", "gear-bouton-montant", `${total} gp`));
+  /* Eric, 16/09 : « la priorité est de bien voir le montant », puis (b) : le
+     montant SOUS la bourse, pas dessus — l'image reste entière, le mot « Purse »
+     vit dans l'aria-label. Le montant est un organe à part (`montantDeLaBourse`). */
   return b;
+}
+/** Le montant, sous la bourse, SUR UNE LIGNE (Eric, 16/09 : « pas joli
+ *  superposé — en dessous sur une ligne oui ») : « 999 gp » en T1/600, 34 dans
+ *  44. Un VOYANT, pas un bouton — on le lit, le bouton porte déjà le montant
+ *  dans son nom accessible. ⏳ Cinq chiffres feraient 44,5 : question chez Archi 34. */
+function montantDeLaBourse(options) {
+  const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
+  const m = eld("div", "gear-montant", `${total} gp`);
+  m.setAttribute("aria-hidden", "true");
+  return m;
 }
 function boutonTally(id, options) {
   const n = options.compteTally || 0;
@@ -367,7 +382,7 @@ export function construireLEcranGear(options = {}) {
       noeud.append(id === "collecteur" ? collecteur(id, options) : emplacement(o, id, boites[id] || null, options));
     } else if (o.sorte === "bouton") {
       if (id === "send-to") noeud.append(dropdown(id, options));
-      else if (id === "purse") noeud.append(boutonPurse(id, options));
+      else if (id === "purse") noeud.append(boutonPurse(id, options), montantDeLaBourse(options));
       else if (id === "tally") noeud.append(boutonTally(id, options));
       else if (id === "companions") noeud.append(boutonCompanions(id));
     }

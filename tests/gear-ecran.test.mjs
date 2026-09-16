@@ -231,6 +231,12 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions et
 });
 
 test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {
-  assert.equal(rendu({ bourse: { pp: 1, gp: 5, sp: 9, cp: 9 } }).querySelector(".gear-bouton-montant").textContent, "15 gp");
-  assert.equal(rendu({}).querySelector(".gear-bouton-montant").textContent, "0 gp");
+  assert.equal(rendu({ bourse: { pp: 1, gp: 5, sp: 9, cp: 9 } }).querySelector(".gear-montant").textContent, "15 gp");
+  const n = rendu({});
+  assert.equal(n.querySelector(".gear-montant").textContent, "0 gp", "une ligne (Eric, 16/09)");
+  assert.equal(n.querySelector('[data-organe="purse"]').textContent, "", "(b) Eric 16/09 : rien d'écrit sur la bourse — le montant est dessous");
+  assert.match(n.querySelector('[data-organe="purse"]').getAttribute("aria-label"), /^Purse — 0 gp$/);
+  /* posé sous la bourse, à la marge, même largeur — déduit, pas retapé */
+  const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
+  assert.ok(feuilleDesCotes().includes(`.gear > .gear-montant{left:${purse.x}px;top:${purse.y + purse.h + MARGE - BELT_H}px;width:${purse.l}px}`));
 });
