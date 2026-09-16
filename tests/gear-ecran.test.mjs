@@ -197,7 +197,10 @@ test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois 
   const etats = Object.fromEntries(tous(e, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat]));
   assert.deepEqual(etats, { verrou: "non", equipe: "oui", harmonise: "non" });
   assert.equal(n.querySelector('[data-organe="tete2"]').dataset.occupe, undefined, "le voisin reste vide");
-  assert.equal(n.querySelector('[data-organe="tete2"]').querySelector(".gear-nom").textContent, "HEAD/FACE");
+  /* Eric, 16/09 : la barre d'un libellé est un retour à la ligne (« weapons sous pocket ») */
+  const nom = n.querySelector('[data-organe="tete2"]').querySelector(".gear-nom");
+  assert.equal(nom.textContent, "HEADFACE");
+  assert.equal(nom.querySelectorAll("br").length, 1, "HEAD et FACE sur deux lignes");
 });
 
 test("5 ter — le collecteur est la seule cible de dépôt, et il compte ce qu'il retient", () => {

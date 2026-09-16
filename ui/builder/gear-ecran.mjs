@@ -102,6 +102,16 @@ export function libelleDe(nom) {
   return nom.replace(/\s+opt$/, "").replace(/\s+\d+$/, "");
 }
 
+/** Le libellé posé dans la case : ⚖️ Eric, 16/09 — *« weapons sous pocket ! »*,
+ *  *« legs sous foot »* : la barre d'un libellé devient un RETOUR À LA LIGNE —
+ *  HEAD / FACE, TORSO / BACK, ARM / HANDS, POCKET / WEAPON, FOOT / LEGS, chacun
+ *  sur deux lignes. Le croquis les écrit avec la barre ; l'écran les empile. */
+function poserLeLibelle(span, mot) {
+  const parts = mot.split("/");
+  parts.forEach((p, i) => { if (i) span.append(document.createElement("br")); span.append(p); });
+  return span;
+}
+
 /** Les destinations du dropdown À LA CRÉATION — les quatre qui ont un
  *  destinataire. `actif: false` : la destination existe (X3 Tally, B3 Craft)
  *  mais son écran n'est pas encore là — on la montre, on ne la laisse pas
@@ -188,7 +198,7 @@ function emplacement(o, id, pose, options) {
   const mot = libelleDe(o.nom);
   if (boite && boite.optionnelle) e.dataset.optionnelle = "oui";
   if (!pose) {
-    e.append(eld("span", "gear-nom", mot));
+    e.append(poserLeLibelle(eld("span", "gear-nom"), mot));
     e.setAttribute("aria-label", `${mot} — empty`);
     return e;
   }
