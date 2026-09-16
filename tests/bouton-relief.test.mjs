@@ -49,7 +49,14 @@ test("le patron commun porte deux octogones : arête complète puis face en retr
   for (const [, selecteur, corps] of faces) {
     assert.ok(selecteur.split(",").every((branche) => /::after\s*$/.test(branche.trim())),
       "la face ne doit atteindre que les pseudo-éléments du patron");
-    assert.match(corps, /inset:\s*var\(--bouton-biseau-epaisseur\)/);
+    /* 🔴 LE RETRAIT VERTICAL S'EST AJOUTÉ LE 16/09 — Eric : le dessin fait 40,
+       la cible reste 44. La face porte donc DEUX retraits qui ne se confondent
+       pas : celui du DESSIN (vertical, partagé avec le corps) et son propre
+       BISEAU (horizontal et vertical). ⛔ Ce garde exige les deux nommés : un
+       `calc()` qui les additionnerait en littéral perdrait la raison de
+       chacun, et ils ne bougent pas ensemble. */
+    assert.match(corps, /inset:\s*calc\(var\(--bouton-retrait-v\)\s*\+\s*var\(--bouton-biseau-epaisseur\)\)\s+var\(--bouton-biseau-epaisseur\)/,
+      "la face se retire du dessin ET de son biseau, chacun par son nom");
     assert.equal((corps.match(/var\(--bouton-coupe\)/g) || []).length, 8,
       "l'octogone intérieur conserve les huit sommets du patron");
   }

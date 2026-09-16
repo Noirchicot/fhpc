@@ -8647,7 +8647,17 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-bouton::before {
   content: "";
   position: absolute;
-  inset: 0;
+  /* 🔴 LE DESSIN FAIT 40, LA CIBLE RESTE 44 — Eric, 2026-09-16 : *« passe tous
+     les boutons à hauteur 40 blg (cible tactile reste à 44 donc dépasse de 2
+     au dessus et en dessous) »*.
+     ⭐ C'EST ICI QUE ÇA SE JOUE, ET NULLE PART AILLEURS. Le bouton lui-même ne
+     bouge pas d'un blg : sa boîte, son `min-height`, sa zone touchable restent
+     à 44. Seul le CORPS PEINT se retire de `--bouton-retrait-v` en haut et en
+     bas. ⛔ Rétrécir le bouton aurait rétréci la cible avec lui, et
+     `jeton-sacre` l'interdit — *« leur cote et leur corps ne cèdent jamais »*.
+     📐 Le retrait est DÉRIVÉ de l'écart entre les deux cotes (`tokens.css`),
+     jamais écrit en littéral : 40 peut rebouger, les 2 suivront seuls. */
+  inset: var(--bouton-retrait-v) 0;
   z-index: -2;
   background-color: var(--bouton-fond);
   background-image: var(--bouton-biseau);
@@ -8684,7 +8694,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-bouton::after {
   content: "";
   position: absolute;
-  inset: var(--bouton-biseau-epaisseur);
+  /* la face suit le corps : le retrait vertical du dessin, PLUS son propre
+     biseau. ⛔ Ne pas écrire `calc(2px + 1.5px)` — les deux nombres ont chacun
+     leur nom et leur raison, et ils ne bougent pas ensemble. */
+  inset: calc(var(--bouton-retrait-v) + var(--bouton-biseau-epaisseur)) var(--bouton-biseau-epaisseur);
   z-index: -1;
   background-color: var(--bouton-fond);
   background-image: var(--bouton-bombage);

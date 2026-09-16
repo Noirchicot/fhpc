@@ -3942,14 +3942,62 @@ gabarits**. ⚠️ À T4, `medium` n'a plus que 8 px — **un mot un peu large d
 se verrait que sur ce gabarit-là.
 
 ### La hauteur
-📍 `bouton-hauteur` · vivante · 26/08
-⚖️ **Un bouton fait 44 à un étage, 48 à deux étages en T3, 56 à deux étages en T4.**
+📍 `bouton-hauteur` · vivante · 26/08 · **amendée 16/09 — le dessin et la cible se séparent**
+⚖️ **Le DESSIN d'un bouton fait 40, sa CIBLE tactile reste 44 — le dessin est centré, la cible déborde de 2 en haut et de 2 en bas.**
 
-| | |
-|---|---|
-| **un étage** | 🔴 **44** — le texte n'en demande que ~33, **c'est `--touch` qui décide** |
-| **deux étages** *(T3)* | **48** |
-| **deux étages** *(T4)* | **56** |
+> Eric, 2026-09-16 : *« passe tous les boutons à hauteur **40 blg** (cible tactile reste à **44**
+> donc dépasse de 2 au dessus et en dessous) »*.
+
+🔴 **DEUX COTES LÀ OÙ IL N'Y EN AVAIT QU'UNE.** Jusqu'au 16/09 cette règle disait *« un bouton fait
+44 »*, et `--touch` servait à la fois de zone touchable et de hauteur peinte. Elles se séparent :
+ce qui rétrécit est le **dessin**, jamais la **cible**.
+⛔ **`jeton-sacre` n'est pas entamé** — *« les jetons et les boutons sont SACRÉS : leur cote et leur
+corps ne cèdent jamais »*. Le pouce garde ses 44 blg exactement comme avant.
+⭐ **Et le dépôt connaissait déjà cette distinction sans l'appliquer au bouton** : l'astre du belt
+porte `--astre-dessin` / `--astre-cible` depuis le 15/09. Le 16/09 ne l'invente pas, il l'étend.
+
+📏 **MESURÉ SUR LE SITE, avant et après le changement** *(builder servi, sous `.app`)* :
+
+| | cible rendue | dessin peint | retrait |
+|---|---:|---:|---:|
+| **avant** | 77 × **44** | **44** | 0 / 0 |
+| **après** | 77 × **44** | **40** | **2** en haut · **2** en bas |
+
+⭐ **La cible est inchangée au centième** — c'est la preuve que la loi sacrée tient.
+📐 Le retrait **se dérive** (`--bouton-retrait-v`, moitié de l'écart entre les deux cotes) : ⛔ ne
+jamais l'écrire en littéral, sinon 40 peut rebouger sans que les 2 suivent.
+
+### Les cotes de chaque famille — Eric, 16/09
+📍 `bouton-cotes-par-famille` · vivante · 16/09
+⚖️ **Chaque famille de bouton a sa cote de DESSIN, et toutes partagent la même cible de 44 : petit 77 × 40 · large 105 × 40 · carré 44 × 44 · `+`/`−` 40 × 40 · collecteur de caractéristique 48 × 44 · collecteur classique 87 × 48.**
+
+| famille | dessin | cible |
+|---|---:|---:|
+| **petit** *(`Cancel`, `Next`, `Done`…)* | **77 × 40** | 77 × 44 |
+| **large** *(`Inheritance`…)* | **105 × 40** | 105 × 44 |
+| **carré** *(le Tally, la bourse)* | **44 × 44** | 44 × 44 |
+| **`+` / `−`** | **40 × 40** | 44 × 44 |
+| **dropdown / collecteur de caractéristique** | **48 × 44** | — |
+| **dropdown / collecteur classique** | **87 × 48** | — |
+
+⛔ **LE BELT EST HORS DE CETTE NORME — Eric, 16/09 : *« le belt is off limits de tout ça »***.
+La lune et le soleil ne figurent pas dans le tableau, et leurs jetons (`--astre-dessin` 41) ne
+sont pas touchés. J'avais écrit la lune à Ø 40 et fait passer `--astre-dessin` à 40 : les deux
+sont annulés. ⭐ Le belt appartient au lot 207, fusionné et en ligne ; **une cote juste posée dans
+le mauvais lot reste une cote posée par quelqu'un qui n'en répond pas.**
+
+⭐ **Le CARRÉ est le seul dont le dessin égale sa cible** : à 44 il remplit la zone touchable et n'a
+aucune marge à laisser. Tous les autres sont à 40 dans 44.
+⭐ **Et le collecteur classique était DÉJÀ juste** : `--glisse-case` 87 × `--glisse-h` 48 rendaient
+exactement ces cotes avant qu'on les redemande. Une cote déduite de la place a tenu quand elle a
+été redictée de mémoire.
+
+⏳ **DEUX ÉTAGES — RÈGLE CONSERVÉE, PREUVE SUSPENDUE.** Cette section disait *« 48 à deux étages en
+T3, 56 en T4 »*. Ces deux nombres sont **déduits**, jamais mesurés.
+📏 **Mesuré le 16/09**, un bouton à deux lignes, corps 16/600, `line-height: normal` : **38,82 blg**
+— il tenait dans 44 avec 5,18 de reste. ⚠️ **Dans 40 il ne reste plus que 1,18**, soit 0,59 de
+chaque côté. ⛔ **Aucune de ces trois valeurs — 48, 56, 40 à deux étages — ne se reconduit sans une
+mesure neuve**, et celle du 16/09 ne porte que sur UN bouton là où la règle en vise tous.
 
 ⭐ **Le plancher tactile gouverne la hauteur d'un bouton à un étage** : la typographie n'y arrive
 pas. C'est encore *« un contrôle ne se laisse jamais dimensionner par un dessin »*.
