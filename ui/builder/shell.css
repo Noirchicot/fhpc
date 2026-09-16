@@ -8797,7 +8797,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    Même place que `.parcours-annuler` juste au-dessus, même raison. */
 .parcours-pied button.tdc-vert { --bouton-fond: var(--positive); }   /* Open · Save — verts (Eric) */
 .parcours-pied button.tdc-porte { --bouton-fond: var(--info); }      /* une porte NAVIGUE : bleue */
-.parcours-pied button.tdc-porte:disabled { --bouton-fond: var(--text-muted); } /* réservée : grise */
+.parcours-pied button.tdc-porte:disabled { --bouton-fond: transparent; } /* réservée : GRISE, donc SANS liseré — Eric, 16/09 : « le bouton gris n'a pas de liseré ». ⛔ Ce n'était pas couvert par le seul changement de défaut : cette ligne posait `--text-muted` EXPLICITEMENT, et un gris explicite peint un anneau gris. Mesuré au navigateur : `DM` et `Tools` rendaient rgb(146,140,127) autour d'eux. */
 
 /* ── LE MOUVEMENT NON IMPACTANT — bleu ───────────────────────────────────
    ⛔ Le test de §6 tient en une question : *après ce clic, le document a-t-il
@@ -8897,7 +8897,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    `font-weight: 600` : la tuile choisie reste distincte **par la graisse**, ce
    qui dissout l'objection *« quatre tuiles bleues affaiblissent le choix »*. */
 .ability-entry { --bouton-fond: var(--info); }
-.ability-entry:disabled { --bouton-fond: var(--text-muted); }
+.ability-entry:disabled { --bouton-fond: transparent; } /* désarmée : pas de liseré, même raison qu'au-dessus */
 
 /* ══ 📏 LES DEUX COTES DU BOUTON À MOT — Eric, 2026-09-06 ═════════
    *« je veux une taille standard pour tous les petits boutons sur tout le

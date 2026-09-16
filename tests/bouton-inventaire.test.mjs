@@ -142,6 +142,65 @@ test("🔴 L'INVENTAIRE DES PORTEUSES EST CELUI QUE LA FEUILLE PORTE", () => {
     "l'habit a changé de membres : mettre à jour SOCLE ici, en le sachant");
 });
 
+test("⚔️ LE DÉFAUT `transparent` N'ÉTEINT AUCUN RÔLE ÉCRIT AVANT LUI", () => {
+  /* 🔴 LE PIÈGE QUE CE GARDE FERME, ET IL SE REPAIE EN SILENCE. Depuis le
+     16/09, `--bouton-fond` ne peint plus le corps : il ne colore que l'anneau,
+     et son défaut est `transparent` — c'est ce qui retire son liseré au bouton
+     gris. Mais ce défaut vit dans le patron, à mi-feuille, et QUATRE rôles sont
+     écrits AVANT lui (L1235 · L1248 · L2159 · L2820). À spécificité égale,
+     l'ordre les éteindrait : quatre boutons perdraient leur liseré sans qu'un
+     seul test de couleur ne bronche.
+     📏 MESURÉ : ils gagnent tous, par SPÉCIFICITÉ et non par position —
+     `.sortie-bouton.sortie-done[data-lit]` vaut (0,3,0) contre (0,1,0) pour la
+     branche `.sortie-bouton` du patron. ⭐ Mais c'est un équilibre, pas une
+     garantie : quiconque simplifie un de ces sélecteurs éteint son liseré.
+
+     ⛔ ET LE CALCUL SE FAIT PAR BRANCHE, JAMAIS SUR LE GROUPE. Ma première
+     version comptait les classes des 15 sélecteurs du patron d'un coup et
+     trouvait (0,19,2) — elle déclarait cinq rôles « perdus » alors qu'aucun ne
+     l'est. Une spécificité de groupe n'existe pas : chaque branche a la sienne. */
+  const lignes = (i) => CSS.slice(0, i).split("\n").length;
+  const spec = (s) => {
+    s = s.replace(/:where\([^)]*\)/g, "");
+    return (s.match(/\.[a-zA-Z_-][\w-]*/g) || []).length + (s.match(/\[[^\]]*\]/g) || []).length;
+  };
+  let defaut = null; const roles = [];
+  for (const m of CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const d of m[2].matchAll(/--bouton-fond:\s*([^;]+)/g)) {
+      const e = { branches: m[1].split(",").map((x) => x.trim()).filter(Boolean),
+                  val: d[1].trim(), ligne: lignes(m.index) };
+      /* 🔴 LE DÉFAUT EST CELUI DU PATRON, PAS N'IMPORTE QUEL `transparent`.
+         Ce garde a rougi sur ce point le jour même où il est né : en retirant
+         le liseré des deux `:disabled` gris, j'ai créé deux autres
+         `transparent`, écrits PLUS BAS — et il prenait le dernier, donc il
+         comparait tous les rôles à `.ability-entry:disabled`. ⭐ Le défaut se
+         reconnaît à son groupe : c'est celui que TOUTE la famille porte. */
+      if (e.val === "transparent" && e.branches.length === SOCLE.length) defaut = e;
+      else if (e.val !== "transparent") roles.push(e);
+    }
+  }
+  assert.ok(defaut, "le défaut `transparent` doit rester déclaré — c'est lui qui retire le liseré du gris");
+
+  const eteints = [];
+  for (const r of roles.filter((x) => x.ligne < defaut.ligne)) {
+    for (const rb of r.branches) {
+      const classesDuRole = rb.match(/\.[a-zA-Z_-][\w-]*/g) || [];
+      const concernee = defaut.branches.find((db) => {
+        const dc = db.replace(/:not\([^)]*\)/g, "").replace(/:where\([^)]*\)/g, "")
+          .match(/\.[a-zA-Z_-][\w-]*/g) || [];
+        return dc.length && dc.every((c) => classesDuRole.includes(c));
+      });
+      if (concernee && spec(rb) <= spec(concernee)) {
+        eteints.push(`L${r.ligne} ${rb} (${spec(rb)}) ≤ patron ${concernee} (${spec(concernee)})`);
+      }
+    }
+  }
+  assert.deepEqual(eteints, [],
+    "un rôle écrit avant le défaut ne le bat plus : son bouton a perdu son liseré. " +
+    "⛔ Ne pas déplacer le défaut pour réparer — remonter la spécificité du rôle, " +
+    "ou le réécrire après le patron.");
+});
+
 test("⛔ `.pipeline-fleche` PORTE LE FILTRE SANS PORTER LE PATRON — et ça reste vrai", () => {
   /* ⭐ Elle serait la prise la plus naturelle d'un balayage « tout ce qui a
      `filter: var(--bouton-ombre)` » — et ce serait faux : une flèche est ronde,
