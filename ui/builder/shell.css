@@ -9289,8 +9289,15 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   font-style: italic; color: var(--text-soft); max-width: 100%;
 }
 /* Body forging 2 : « optional when feat » — présent en creux tant que le don
-   n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`). */
-.gear-emplacement[data-optionnelle] { opacity: .6; }
+   n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`).
+   ⚖️ 20 % DEPUIS LE 16/09 AU SOIR, et c'est le MÊME voile que le tally vide — Eric
+   les a réglés d'un seul nombre en les regardant : *« le body forging, mets-le à
+   20 % de voile, idem »*, puis *« l'optionnel uniquement »*. ⛔ Le premier BODY
+   FORGING n'est pas concerné : il est acquis, pas en attente d'un don.
+   ⚠️ Il valait .6, une valeur héritée de `.b3-boite-scene` que personne n'avait
+   regardée sur CET écran — c'est la deuxième fois aujourd'hui qu'une cote copiée
+   d'un autre organe ne tenait pas devant l'œil. */
+.gear-emplacement[data-optionnelle] { opacity: var(--organe-eteint); }
 /* occupé : l'habit du JETON — teinte et relief (le relief REMPLACE le creux, il
    ne s'y ajoute pas). ⛔ AUCUN liseré de couleur — Eric, 16/09 : *« les liserés
    de couleur sont inutiles dans Gear, sauf pour le collecteur »* : la bordure
@@ -9424,7 +9431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    et nommé — on ouvre un tally vide, c'est même ainsi qu'on y met la première ligne.
    Seule sa PEINTURE recule. */
 .gear-bouton[data-organe="tally"],
-.gear-bouton[data-organe="party-tally"] { opacity: var(--tally-eteint); }
+.gear-bouton[data-organe="party-tally"] { opacity: var(--organe-eteint); }
 .gear-bouton[data-organe="tally"]:not([data-compte="0"]),
 .gear-bouton[data-organe="party-tally"]:not([data-compte="0"]) { opacity: 1; }
 /* la bourse d'Eric (la seconde, déposée le 16/09 au soir — vue de dessus, les
