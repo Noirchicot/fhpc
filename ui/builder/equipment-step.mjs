@@ -1712,6 +1712,10 @@ let piloteEquipement = null;
    destination choisie au dropdown. De l'ÉTAT D'ÉCRAN, comme la vue : il
    survit au `refresh()` de la coquille, jamais au personnage — Send le vide. */
 const collecteEnvoi = new Set();
+/* ⛔ L'ÉTAT D'UN POPUP VIT DANS L'ÉCRAN, PAS AU DOCUMENT : il ne se sauvegarde
+   pas, il ne se partage pas, et rouvrir le chapitre le referme. Même espèce que
+   `vueEquipement` — une question d'affichage, jamais une décision du personnage. */
+let bourseOuverte = false;
 let destinationEnvoi = "backpack";
 /* LOT 212 — le mot que chaque vue écrit dans la 3ᵉ ligne du belt. Les
    BRANCHES écrivent ; ⛔ une fiche (b1) n'écrit pas — elle garde le mot de la
@@ -1905,8 +1909,18 @@ export function renderEquipmentStep(ctx, onAction) {
       },
       surBouton: (id) => {
         if (id === "tally") montrer("sb32");
-        /* purse : ⏳ le popup de la bourse attend sa cote dans la table (Archi 34) */
+        /* ⚖️ LA BOURSE EST UN POPUP, PAS UNE VUE — Eric, 16/09 : *« ça prend la place
+           que ça doit, c'est un popup »*. ⛔ Elle ne passe donc PAS par `montrer()` :
+           une vue remplacerait l'écran et écrirait la 3ᵉ ligne du belt. Un popup
+           recouvre et n'écrit rien — même loi que les fiches X (*« les x ne
+           s'inscrivent pas dans le belt »*). Retaper la bourse la referme. */
+        if (id === "purse") { bourseOuverte = !bourseOuverte; peindre(); }
       },
+      bourseOuverte,
+      surFermerBourse: () => { bourseOuverte = false; peindre(); },
+      /* ⛔ `setCurrency` tient déjà le plancher à zéro (« une bourse n'a pas de
+         dette ») : on ne le redit pas ici, on s'appuie dessus. */
+      surMonnaie: (key, value) => act({ kind: "setCurrency", key, value }),
       /* un seul objet dans le collecteur (Eric, 16/09) — la cible se ferme, ceinture ici */
       surCollecte: (index) => { if (collecteEnvoi.size === 0) { collecteEnvoi.add(index); peindre(); } },
       /* posé sur un emplacement : la boîte devient un choix du personnage */

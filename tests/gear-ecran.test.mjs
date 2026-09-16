@@ -25,7 +25,7 @@ globalThis.document = createTestDocument();
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(ROOT, "ui", "builder");
 const D = await import("../ui/builder/gear-disposition.mjs");
-const { construireLEcranGear, feuilleDesCotes, CLEF_DE, DESTINATIONS, libelleDe } =
+const { construireLEcranGear, feuilleDesCotes, CLEF_DE, DESTINATIONS, libelleDe, BOURSE } =
   await import("../ui/builder/gear-ecran.mjs");
 const { BOITES, SLOT_VERS_BOITES } = await import("../ui/builder/b3-disposition.mjs");
 const TABLE = JSON.parse(fs.readFileSync(path.join(ROOT, "tests", "fixtures", "gear-cotes.json"), "utf8"));
@@ -380,6 +380,58 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions et
   assert.match(shell, /\.gear-destination-mot\s*\{[^}]*font-style:\s*italic/, "italique");
   assert.match(shell, /\.gear-destination-mot\s*\{[^}]*color:\s*var\(--text-soft\)/,
     "une encre douce qui bascule — « un peu moins blanc flashy », et un blanc fixe aurait crié la nuit");
+});
+
+test("5 sexies — LA BOURSE : un popup coté par la table, quatre monnaies, un plancher à zéro", () => {
+  /* ⚖️ COTES D'ERIC, 16/09 — « fais des boutons de 40 », « ça prend la place que ça
+     doit, c'est un popup ». 186 × 133, quatre colonnes de 44 jointives à x 5 · 49 ·
+     93 · 137. ⛔ 186 n'est pas un goût : à 125 (l'ancienne cote du dépôt) les `+`/`−`
+     rendaient 23,75 de large, sous le plancher tactile de 44. La largeur est la
+     CONSÉQUENCE du plancher. */
+  assert.equal(BOURSE.l, 186);
+  assert.equal(BOURSE.h, 133);
+  assert.equal(BOURSE.marge * 2 + BOURSE.monnaies.length * BOURSE.pas, BOURSE.l,
+    "les quatre colonnes et les deux marges FONT la largeur — sinon l'une des deux est fausse");
+  assert.equal(BOURSE.pas, TOUCH, "une colonne EST une cible tactile");
+  assert.deepEqual(BOURSE.monnaies.map((m) => m.clef), ["pp", "gp", "sp", "cp"]);
+
+  /* fermée par défaut : un popup ne s'ouvre que sur un geste */
+  assert.equal(rendu({}).querySelector(".gear-bourse"), null);
+
+  const n = rendu({ bourseOuverte: true, bourse: { pp: 1, gp: 5, sp: 0, cp: 9 } });
+  const pop = n.querySelector(".gear-bourse");
+  assert.ok(pop, "ouverte, elle est le dernier organe — donc au-dessus, sans z-index à accorder");
+  const enfants = [...n.children];
+  assert.equal(enfants[enfants.length - 1].className, "gear-voile",
+    "posée en DERNIER : l'ordre du DOM suffit à la mettre au-dessus, sans z-index à accorder");
+  assert.deepEqual(tous(pop, ".gear-monnaie").map((c) => c.dataset.monnaie), ["pp", "gp", "sp", "cp"]);
+  assert.deepEqual(tous(pop, ".gear-monnaie-compte").map((c) => c.textContent), ["1", "5", "0", "9"]);
+
+  /* ⛔ LE `−` D'UNE MONNAIE À ZÉRO EST ÉTEINT : `setCurrency` tient déjà le plancher,
+     mais un bouton qui ne fait rien au lieu d'être éteint est cassé pour qui le regarde. */
+  const crans = (clef, cran) => pop.querySelector(`.gear-monnaie[data-monnaie="${clef}"] [data-cran="${cran}"]`);
+  assert.equal(crans("sp", "moins").disabled, true, "zéro : on ne descend pas");
+  assert.equal(crans("gp", "moins").disabled, false);
+
+  const gestes = [];
+  const n2 = rendu({ bourseOuverte: true, bourse: { pp: 0, gp: 5, sp: 0, cp: 0 },
+    surMonnaie: (k, v) => gestes.push(`${k}:${v}`), surFermerBourse: () => gestes.push("fermer") });
+  const p2 = n2.querySelector(".gear-bourse");
+  p2.querySelector('.gear-monnaie[data-monnaie="gp"] [data-cran="plus"]').click();
+  p2.querySelector('.gear-monnaie[data-monnaie="gp"] [data-cran="moins"]').click();
+  assert.deepEqual(gestes, ["gp:6", "gp:4"], "chaque cran publie la valeur VOULUE, pas un delta");
+  /* le voile ferme ; un clic DANS le popup ne ferme pas */
+  p2.click();
+  assert.deepEqual(gestes, ["gp:6", "gp:4"], "un clic dans la bourse ne la ferme pas");
+  n2.querySelector(".gear-voile").click();
+  assert.deepEqual(gestes, ["gp:6", "gp:4", "fermer"], "le voile la ferme");
+
+  /* la cote des crans vient de la table, pas de la feuille */
+  const f = feuilleDesCotes();
+  assert.ok(f.includes(`.gear-bourse{width:${BOURSE.l}px;height:${BOURSE.h}px;padding:${BOURSE.marge}px}`));
+  assert.ok(f.includes(`.gear-monnaie-bouton{width:${BOURSE.pas}px;height:${BOURSE.pas}px;border-width:${(BOURSE.pas - BOURSE.bouton) / 2}px}`),
+    "dessin 40 dans une cible de 44 — le retrait est porté par des bords transparents, comme le Tally");
+  assert.ok(!/\.gear-bourse\s*\{[^}]*width:\s*\d/.test(shell), "⛔ aucune cote de la bourse dans shell.css");
 });
 
 test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vide elle dit 0", () => {
