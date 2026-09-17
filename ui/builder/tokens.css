@@ -1102,6 +1102,10 @@
      le dessin de 20, ça rend 0,75 blg de trait — c'est le régime des glyphes fins de la
      fiche, pas celui des boutons. ⭐ L'épaisseur d'un glyphe se règle à sa taille finale,
      jamais dans l'éditeur où il est grand. */
+  /* ⚖️ L'ŒIL DU MODE LECTURE — Eric, 17/09 au soir, image à l'appui : l'amande et sa
+     pupille, en traits. Même régime que le presse-papiers : un glyphe FIN, 0,9, parce
+     qu'il se dessine à 20 blg. */
+  --icone-oeil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='0.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1.8 12S5.9 5.2 12 5.2 22.2 12 22.2 12 18.1 18.8 12 18.8 1.8 12 1.8 12Z'/%3E%3Ccircle cx='12' cy='12' r='3.6'/%3E%3C/svg%3E");
   --icone-copie: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='0.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4.2H7.2A1.8 1.8 0 0 0 5.4 6v13.2a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8V6a1.8 1.8 0 0 0-1.8-1.8H15'/%3E%3Crect x='8.8' y='2.6' width='6.4' height='3.2' rx='0.6'/%3E%3Cpath d='M8.6 9.6h6.8M8.6 12.5h6.8M8.6 15.4h6.8M8.6 18.3h6.8'/%3E%3C/svg%3E");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).

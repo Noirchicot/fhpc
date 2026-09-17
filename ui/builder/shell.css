@@ -11419,20 +11419,30 @@ button.tuto-point::before {
    les deux écrans du chapitre recouvrent la même surface, et une seule règle le
    dit. */
 .x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat; }
+/* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
+   soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
+   ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT
+   UTILISATEUR, et l'organe reste peint — vu au banc : le texte s'étendait SOUS les
+   organes qu'on croyait retirés. C'est la loi que NORMES écrit déjà pour le chevron du
+   belt : la règle d'auteur se borne à `:not([hidden])`. Chaque organe qui se retire
+   porte donc cette borne dans SON sélecteur, ⛔ jamais un `display: none` collectif
+   (garde 4).
+   ⭐ Et leur PLACE reste : les cotes sont posées par `[data-organe]`, qui ne dit rien du
+   display — le jour où l'œil se rallume, rien n'a bougé. */
 /* chaque organe est posé en absolu par la feuille construite ; ici on ne dit
    que le MODE, jamais la place */
 .x1 [data-organe] { position: absolute; box-sizing: border-box; }
 
 /* — LE NOM, entre ses deux flèches. T4, l'écriture d'un titre d'objet : c'est
    le seul mot de l'écran qui nomme la CHOSE, tout le reste la décrit. */
-.x1-nom {
+.x1-nom:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
   font-size: var(--t4); font-weight: 600; color: var(--x1-encre);
   text-align: center; line-height: 1.1; overflow-wrap: break-word;
 }
 /* — LA QUANTITÉ, à gauche du titre et cadrée à gauche (Eric, 17/09 au soir). Elle ne
    nomme pas l'objet, elle le compte : encre sourde, comme la pagination. */
-.x1-qte {
+.x1-qte:not([hidden]) {
   display: flex; align-items: center; justify-content: flex-start;
   font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
   font-variant-numeric: tabular-nums;
@@ -11449,13 +11459,13 @@ button.tuto-point::before {
   -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
 }
 /* — CE QUE L'OBJET EST : un mot, pas un menu (Eric, 17/09 au soir). */
-.x1-is-quoi {
+.x1-is-quoi:not([hidden]) {
   display: flex; align-items: center; justify-content: flex-start;
   font-size: var(--t2); font-weight: 600; color: var(--x1-encre);
 }
 /* — LA PAGINATION, à droite du nom (Eric, 17/09 : *« le nombre de pages à droite
    du titre »*). Elle dit un rang, pas une donnée : encre sourde. */
-.x1-pagination {
+.x1-pagination:not([hidden]) {
   display: flex; align-items: center; justify-content: flex-end;
   font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
   font-variant-numeric: tabular-nums;
@@ -11463,7 +11473,7 @@ button.tuto-point::before {
 /* — PRIX ET POIDS : deux mentions qu'on LIT, hautes de ce que leur texte
    mesure (Eric, 17/09 : *« prix poids, pas 44 de haut, 8 ! »*). ⛔ Elles ne se
    touchent pas : aucun plancher tactile ne s'y applique. */
-.x1-chiffres {
+.x1-chiffres:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
   font-size: var(--t1); font-weight: 600; color: var(--x1-encre);
   white-space: nowrap; line-height: 1;
@@ -11488,7 +11498,7 @@ button.tuto-point::before {
 /* — LES MOTS DE LIAISON (`is`, `Send`, `to`) : ils ne nomment pas une donnée,
    ils cousent une phrase. Même habit que le nom d'un emplacement en attente
    sur l'écran R — T1, italique, encre douce (Eric, 16/09). */
-.x1-mot {
+.x1-mot:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
   font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); line-height: 1;
 }
@@ -11496,7 +11506,7 @@ button.tuto-point::before {
    17/09 : *« tout se passe dans le petit carré, pas en dessous »*. Le mot
    n'apparaît que si l'état est vrai ; sa place, elle, reste (`hidden`, jamais
    un `display: none` — défaut n°3 du dépôt). */
-.x1-etat {
+.x1-etat:not([hidden]) {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; line-height: 1.1;
 }
@@ -11520,7 +11530,7 @@ button.tuto-point::before {
    ⭐ ET C'EST LE SIGNE QUI REMPLACE LE DISQUE, il ne s'y pose pas : à gauche un disque
    nu, à droite le symbole, blanc. C'est le dessin qu'Eric décrivait dès le matin pour
    le verrou (*« soit vide à gauche, ou avec un cadenas blanc quand à droite »*). */
-.x1-bascule {
+.x1-bascule:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
   border-style: solid; border-color: transparent;
   padding: 0; background: none; cursor: pointer;
@@ -11569,6 +11579,21 @@ button.tuto-point::before {
   padding: 0; background: none; cursor: pointer;
   color: var(--x1-etat-encre);
 }
+/* — L'ŒIL DU MODE LECTURE : le miroir de la copie, dans l'autre marge. Même matière,
+   même taille, même absence d'habit — deux glyphes frères. */
+.x1-oeil {
+  border-style: solid; border-color: transparent;
+  padding: 0; background: none; cursor: pointer;
+  color: var(--x1-etat-encre);
+}
+.x1-oeil::before {
+  content: ""; display: block; width: 100%; height: 100%;
+  background: currentColor;
+  mask: var(--icone-oeil) center / contain no-repeat;
+  -webkit-mask: var(--icone-oeil) center / contain no-repeat;
+}
+/* allumé, il dit qu'on est en lecture — la même encre, pleine au lieu de sourde */
+.x1-oeil[data-on="oui"] { color: var(--x1-encre); }
 .x1-copier::before {
   content: ""; display: block; width: 100%; height: 100%;
   background: currentColor;
@@ -11577,7 +11602,7 @@ button.tuto-point::before {
 }
 /* — LES DEUX MENUS ET LA SAISIE : la boîte porte l'organe, le select la remplit
    (on n'écrit rien DANS un `<select>`). */
-.x1-destination { display: flex; flex-direction: column; justify-content: center; }
+.x1-destination:not([hidden]) { display: flex; flex-direction: column; justify-content: center; }
 /* ⭐ LES DEUX MENUS ET LA SAISIE PRENNENT L'ENCRE DE LA FICHE, pas celle du site :
    ils sont posés sur le parchemin, pas sur la dalle. ⛔ On ne retouche pas
    `.pipeline-dropdown` pour autant — c'est le MÊME organe ailleurs, sur un autre
@@ -11594,7 +11619,7 @@ button.tuto-point::before {
 /* — LE CHAMP DE L'ENVOI : « 1/2 », et le 1 se tape (Eric, 17/09 au soir). La BOÎTE
    porte l'habit, le nombre et le stock la remplissent — on ne peut rien écrire dans un
    `<input type="number">` à côté de son nombre. */
-.x1-saisie {
+.x1-saisie:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
   border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
   background: color-mix(in srgb, var(--x1-encre) 8%, transparent); background-clip: padding-box;

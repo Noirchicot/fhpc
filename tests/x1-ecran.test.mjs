@@ -376,6 +376,54 @@ test("15 — prix et poids : la quantité se dit UNE fois, sur la ligne du prix"
 
 /* ══ 16 — LE GESTE QUI L'OUVRE ═══════════════════════════════════════════ */
 
+test("15 bis — 👁️ LE MODE LECTURE : il retire les OPTIONS, et rien d'autre", () => {
+  /* ⚖️ Eric, 17/09 au soir : *« à l'opposé du copy, à droite, ce symbole permet de
+     cacher tout ce qui est au-dessus des boutons pour laisser plus de place au texte »*,
+     puis *« la barre inf de texte descend jusqu'à 8 blg au-dessus des boutons et cache
+     les options »*, puis *« tu laisses la partie supérieure, titre etc., tranquille »*.
+     ⭐ Les trois phrases se lisent ensemble : ce qui se retire, ce sont les trois rangées
+     qui vivent SOUS le texte. La tête ne bouge pas. */
+  const lu = rendu({ lecture: true, surLecture: () => {} });
+  const retires = ["is", "is-quoi", "equip", "attune", "lock", "equip-on", "attune-on",
+                   "lock-on", "send", "send-n", "to", "send-vers"];
+  for (const id of retires) {
+    assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, true, `${id} se retire`);
+  }
+  /* ⛔ ET LA TÊTE RESTE TRANQUILLE — c'est la clause qu'Eric a ajoutée en regardant. */
+  for (const id of ["qte", "nom", "pagination", "prix", "poids"]) {
+    assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} reste`);
+  }
+  for (const id of ["description", "filet-haut", "filet-bas", "jauge", "copier", "oeil",
+                    "close", "use", "envoyer", "trash"]) {
+    assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} reste`);
+  }
+  assert.equal(lu.dataset.lecture, "oui", "la fiche DIT qu'elle est en lecture : la feuille en tire les cotes");
+  /* ⚔️ ET HORS LECTURE, TOUT EST LÀ — sans cette moitié, le garde passerait sur une
+     fiche qui cacherait ses options en permanence. */
+  const plein = rendu();
+  assert.equal(plein.dataset.lecture, undefined, "hors lecture, la fiche ne dit rien");
+  for (const id of retires) assert.equal(plein.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} est là`);
+});
+
+test("15 ter — 📏 en lecture, le texte descend à 8 des portes, et ses cotes viennent de la table", () => {
+  const css = feuilleDesCotesX1();
+  const porte = ORGANES.find((o) => o.nom === "BACK");
+  const filet = ORGANES.find((o) => o.nom === "FILET HAUT");
+  const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
+  const bas = (porte.cible ? porte.cible.y : porte.y) - 8;
+  const regle = (id) => (new RegExp(`\\.x1\\[data-lecture="oui"\\] \\[data-organe="${id}"\\]\\{([^}]*)\\}`).exec(css) || [])[1];
+  assert.equal(regle("filet-bas"), `top:${bas - filet.h}px`, "le filet du bas s'arrête à 8 des portes");
+  assert.equal(regle("description"), `height:${bas - filet.h - desc.y}px`,
+    "et le texte prend tout jusqu'à lui — ⛔ son SOMMET ne bouge pas, la tête reste tranquille");
+  for (const fixe of ["filet-haut", "copier", "oeil"]) {
+    assert.doesNotMatch(css, new RegExp(`data-lecture="oui"\\] \\[data-organe="${fixe}"`),
+      `⛔ rien ne repose ${fixe} : ce qui ne bouge pas ne se réécrit pas`);
+  }
+  /* ⚖️ *« l'œil et le copy restent où ils sont »* (Eric, 17/09 au soir) : ils vivent dans
+     les MARGES, pas dans la zone — deux repères fixes qu'on retrouve au même endroit
+     qu'on lise ou qu'on règle. */
+});
+
 test("16 — le clic droit sur un jeton porté ouvre la fiche, et il nomme la LIGNE, pas la boîte", () => {
   const ouverts = [];
   const { noeud } = construireLEcranGear({

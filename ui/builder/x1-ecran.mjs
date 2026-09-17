@@ -63,7 +63,7 @@ const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
    nomme le GESTE — c'est la distinction qu'Eric a posée le 17/09. */
 export const CLEF_DE = Object.freeze({
   "QTE": "qte", "NOM": "nom", "PAGINATION": "pagination",
-  "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge",
+  "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge", "OEIL": "oeil",
   "PRIX": "prix", "POIDS": "poids", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
   "EQUIP": "equip", "ATTUNE": "attune", "LOCKED": "lock",
@@ -116,6 +116,27 @@ export function feuilleDesCotesX1() {
      bords (la marge de 20 du texte), pas l'image qui grandit.
      ⭐ Le débord reste une cote de la table : à 0 elle rend `100% 100%`, et le jour
      où il revaut autre chose, la feuille suit sans qu'on la rouvre. */
+  /* ══ LE MODE LECTURE — Eric, 17/09 au soir : *« ce symbole permet de cacher tout ce
+     qui est au-dessus des boutons pour laisser plus de place au texte »*, puis, précis :
+     *« la barre inf de texte descend jusqu'à 8 blg au-dessus des boutons et cache les
+     options »* et *« tu laisses la partie supérieure, titre etc., tranquille »*.
+     ⭐ CE QUI BOUGE EST DONC LE BAS, ET LUI SEUL : le nom, la quantité, la pagination,
+     le prix et le poids restent où ils sont ; ce sont les trois rangées d'OPTIONS qui se
+     retirent, et le texte descend prendre leur place.
+     ⛔ Pas un second plan : le même, dont on retire des organes. Les cotes de lecture se
+     DÉDUISENT de la table (le pied des portes, la hauteur du filet) — aucun nombre neuf. */
+  const porte = ORGANES.find((o) => o.nom === "BACK");
+  const filet = ORGANES.find((o) => o.nom === "FILET HAUT");
+  const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
+  const basL = (porte.cible ? porte.cible.y : porte.y) - 8;
+  const lire = (id, corps) => regles.push(`.x1[data-lecture="oui"] [data-organe="${id}"]{${corps}}`);
+  lire("description", `height:${px(basL - filet.h - desc.y)}`);
+  lire("filet-bas", `top:${px(basL - filet.h)}`);
+  lire("jauge", `height:${px(basL - filet.h - desc.y - 44)}`);
+  /* ⛔ LA COPIE ET L'ŒIL NE SUIVENT PAS — Eric, 17/09 au soir : *« l'œil et le copy
+     restent où ils sont »*. ⭐ Ils vivent dans les MARGES, pas dans la zone : deux
+     repères fixes, qu'on retrouve au même endroit qu'on lise ou qu'on règle. Un organe
+     qui se déplace à chaque mode demande qu'on le cherche. */
   const deux = 2 * PARCHEMIN_DEBORD;
   regles.push(deux
     ? `.x1{background-size:calc(100% + ${px(deux)}) calc(100% + ${px(deux)})}`
@@ -302,6 +323,10 @@ export function construireLaFicheX1(options = {}) {
   noeud.dataset.objet = "x1";
   noeud.setAttribute("role", "group");
   noeud.setAttribute("aria-label", objet.nom ? `${objet.nom} — item sheet` : "Item sheet");
+  /* ⚖️ LE MODE LECTURE SE DIT SUR LA FICHE, et la feuille en tire les cotes : un seul
+     attribut, et tout ce qui doit se retirer se retire (⛔ `hidden`, jamais
+     `display:none` — défaut n°3 du dépôt). */
+  if (options.lecture) noeud.dataset.lecture = "oui";
 
   const feuille = eld("style");
   feuille.setAttribute("data-fhpc", "x1");
@@ -311,6 +336,9 @@ export function construireLaFicheX1(options = {}) {
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
     if (!id) continue;
+    /* ⛔ CE QUE LA LECTURE RETIRE : tout sauf le texte, ses deux filets, sa jauge, les
+       deux glyphes de sa marge et les quatre portes. Les organes restent POSÉS — leur
+       place attend leur retour. */
     if (id === "nom") {
       /* ⭐ CENTRÉ SUR LA PAGE, PAS ENTRE SES VOISINS — Eric, 17/09 : *« le titre reste
          centré par rapport à la page »*. Sa boîte est posée par la table, au centre de
@@ -361,6 +389,15 @@ export function construireLaFicheX1(options = {}) {
          disparaissait — et la réparation n'était pas d'en changer l'organe, mais de
          l'ARMER. Un menu qui s'ouvre se voit. */
       noeud.append(menuIs(id, options));
+    } else if (id === "oeil") {
+      /* ⚖️ L'ŒIL EST LE MIROIR DE LA COPIE — même dessin de 20, même cible calée contre
+         le bord, même pied de zone, l'autre marge. ⭐ Et il porte son ÉTAT : allumé, il
+         dit qu'on est en lecture, et c'est lui qui en sort. */
+      const b = bouton("x1-oeil", "", options.lecture ? "Show the whole sheet" : "More room for the text",
+        () => options.surLecture && options.surLecture(!options.lecture));
+      b.dataset.organe = id;
+      b.dataset.on = options.lecture ? "oui" : "non";
+      noeud.append(b);
     } else if (id === "copier") {
       /* ⭐ UN BOUTON À GLYPHE, pas à mot : 40 × 40 dans la cible de 44, et il ne
          porte ni l'habit de la famille ni son liseré de rôle (la loi des `+`/`−`
@@ -388,6 +425,15 @@ export function construireLaFicheX1(options = {}) {
       noeud.append(porte(id, o.mot, "Send it", options));
     } else if (id === "trash") {
       noeud.append(porte(id, o.mot, "Throw it away", options));
+    }
+  }
+  if (options.lecture) {
+    for (const e of [...noeud.children]) {
+      const id = e.dataset ? e.dataset.organe : null;
+      /* ⛔ LES OPTIONS, ET ELLES SEULES : les trois rangées qui vivent sous le texte.
+         La tête reste tranquille (Eric, 17/09 au soir), et les quatre portes aussi. */
+      if (id && ["is", "is-quoi", "equip", "attune", "lock", "equip-on", "attune-on",
+                 "lock-on", "send", "send-n", "to", "send-vers"].includes(id)) e.hidden = true;
     }
   }
   return { noeud };

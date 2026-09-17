@@ -1738,6 +1738,11 @@ let destinationEnvoi = "backpack";
    ⛔ ET C'EST DE L'ÉTAT D'ÉCRAN : rouvrir le chapitre referme la fiche. */
 let ficheX1 = null;
 let nombreX1 = 1;
+/* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
+   n'est pas le texte et les quatre portes (Eric, 17/09 au soir). ⛔ C'est de l'ÉTAT
+   D'ÉCRAN, comme la bourse : il ne se sauvegarde pas, et fermer la fiche le rend à
+   `false` — on rouvre un objet pour le VOIR, pas pour retrouver un réglage. */
+let lectureX1 = false;
 /* LOT 212 — le mot que chaque vue écrit dans la 3ᵉ ligne du belt. Les
    BRANCHES écrivent ; ⛔ une fiche (b1) n'écrit pas — elle garde le mot de la
    branche d'où on l'a ouverte (Eric, 16/09 : « les x ne s'inscrivent pas dans
@@ -1960,7 +1965,7 @@ export function renderEquipmentStep(ctx, onAction) {
          ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
          l'objet tapé, avec son nombre à envoyer remis à 1 : un envoi est une
          intention, elle ne se garde pas d'un objet à l'autre. */
-      surJeton: (index) => { ficheX1 = index; nombreX1 = 1; montrer("x1"); },
+      surJeton: (index) => { ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
     });
 
     /* ══ LA DÉCISION DU DÉPART — kit de classe OU 50 po (Eric, 24/08).
@@ -2128,6 +2133,8 @@ export function renderEquipmentStep(ctx, onAction) {
       rang: { position: rangDansLeLieu + 1, total: voisines.length },
       nombre: nombreX1,
       destination: destinationEnvoi,
+      lecture: lectureX1,
+      surLecture: (v) => { lectureX1 = v; peindre(); },
       surNombre: (n) => { nombreX1 = Math.max(1, Math.min(n, qte)); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ TROIS ÉTATS, DEUX ÉCRITURES DIFFÉRENTES, ET C'EST LE DÉPÔT QUI LE DIT :
@@ -2144,7 +2151,7 @@ export function renderEquipmentStep(ctx, onAction) {
       surEst: (valeur) => act({ kind: "setGearChamp", index: ligne.index, champ: "is", value: valeur }),
       surCopier: () => copierLObjet(ligne, data),
       surPorte: (porte) => {
-        if (porte === "close") { ficheX1 = null; montrer("gear"); }
+        if (porte === "close") { ficheX1 = null; lectureX1 = false; montrer("gear"); }
         if (porte === "envoyer") {
           /* ⏳ LE NOMBRE N'EST PAS ENCORE UNE SCISSION : envoyer 1 d'une pile de 2
              déplace toute la ligne. Scinder une pile touche la FORME des données

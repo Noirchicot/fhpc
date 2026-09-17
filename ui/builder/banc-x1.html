@@ -47,6 +47,7 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=651";
    donnée du produit : elles viennent du croquis d'Eric. */
 const etat = { equipped: true, attuned: true, locked: true };
 let nombre = 1;
+let lecture = false;
 
 function poser() {
   const { noeud } = construireLaFicheX1({
@@ -84,6 +85,8 @@ function poser() {
     surNombre: (n) => { nombre = n; },
     surDestination: () => {},
     surEtat: (clef, valeur) => { etat[clef] = valeur; peindre(); },
+    lecture,
+    surLecture: (v) => { lecture = v; peindre(); },
     surCopier: () => {},
     surPorte: () => {}
   });
