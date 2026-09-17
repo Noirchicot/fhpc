@@ -3091,6 +3091,14 @@ en TAPANT une chose — un jeton — et on la referme pour retrouver exactement 
 | la 3ᵉ ligne du belt | ⛔ **jamais écrite** — elle continue de dire le lieu d'où l'on vient |
 | le retour | il **ferme** et rend l'écran d'avant ; ⛔ il ne recule d'aucune étape |
 | l'état | **aucun ne survit** à sa fermeture : ce qu'il change, il l'écrit au document |
+| le livre et le `?` | ⛔ **ni l'un ni l'autre** — Eric, 17/09 : *« pas de livre ni de ? »* |
+
+⛔ **ET LA TRILOGIE NE LUI EST PAS DUE.** La règle *« livre · boutons majeurs · `?` est DUE à
+tout écran »* vise un écran du PARCOURS, où le joueur avance et peut avoir besoin d'aide ou du
+livre. Une fiche de rang X n'est pas une étape : elle s'ouvre sur UNE chose, elle la montre, elle
+se ferme. ⭐ Le `?` parle de l'écran d'où l'on vient, et il y est déjà ; le livre parle du jeu, et
+la fiche n'est pas une porte vers le jeu. Eric l'a tranché en cinq mots le 17/09, et c'est
+l'exception argumentée que la trilogie prévoit.
 
 🔴 **POURQUOI L'ABSENCE D'ÉCRITURE EST UNE LOI ET PAS UN DÉTAIL.** La 3ᵉ ligne dit *où l'on est*. Une
 fiche d'objet n'est pas un lieu : elle est ce qu'on regarde SANS quitter le lieu où l'on est. Le jour

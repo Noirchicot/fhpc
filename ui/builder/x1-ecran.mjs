@@ -54,7 +54,8 @@ const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
    alors que son mot est « Lock » (l'acte) : le plan nomme l'ÉTAT, le bouton
    nomme le GESTE — c'est la distinction qu'Eric a posée le 17/09. */
 export const CLEF_DE = Object.freeze({
-  "NOM": "nom", "PAGINATION": "pagination",
+  "QTE": "qte", "NOM": "nom", "PAGINATION": "pagination",
+  "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas",
   "PRECEDENT": "precedent", "SUIVANT": "suivant",
   "PRIX": "prix", "POIDS": "poids", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
@@ -67,11 +68,14 @@ export const CLEF_DE = Object.freeze({
 /* La clef de document que chaque interrupteur écrit. ⭐ Elle voyage avec
    l'organe : personne n'a à se rappeler que `lock-on` écrit `locked`. */
 const ETAT_DE = Object.freeze({ "equip-on": "equipped", "attune-on": "attuned", "lock-on": "locked" });
-/* Le signe que porte un interrupteur ALLUMÉ — Eric, 17/09 : *« locked est un
-   bouton noir, soit vide à gauche, ou avec un cadenas blanc quand à droite »*,
-   *« attuned idem, bouton noir, avec un cœur quand à droite »*. ⛔ `equip` n'en
-   a pas : il garde la pastille de la famille. */
-const SIGNE_DE = Object.freeze({ "attune-on": "coeur", "lock-on": "cadenas" });
+/* ⚖️ RENVERSÉ LE 17/09 AU SOIR PAR ERIC : *« equip, attune = bouton on/off du menu,
+   avec les variations de couleur que je t'ai données »*. ⭐ Les deux reprennent donc
+   l'interrupteur de `Layers` — piste 36 × 20, pouce 16, ROUGE à gauche et VERT à
+   droite — et la fiche cesse d'inventer un gabarit.
+   ⛔ `lock` GARDE SON CORPS NOIR ET SON CADENAS : Eric l'a décrit ainsi le matin et
+   ne l'a pas repris dans cette correction, qui ne nomme que les deux autres. ⏳ Un mot
+   de lui et il rejoint les deux — c'est signalé dans le rapport, pas décidé ici. */
+const SIGNE_DE = Object.freeze({ "lock-on": "cadenas" });
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 
@@ -97,15 +101,18 @@ export function feuilleDesCotesX1() {
        dès qu'un organe se loge dans un groupe. */
     regles.push(`.x1 [data-organe="${id}"]{${corps}}`);
   }
-  /* ⚖️ LE PARCHEMIN DÉBORDE DE LA DALLE, ET C'EST UNE COTE, PAS UN GOÛT — Eric,
-     17/09 : *« les rebords comme les rebords d'un parchemin »*. Sa partie PLATE
-     doit couvrir les 375 × 500 ; ses bords déchirés mordent au-delà, où la dalle
-     les rogne. ⛔ Sans ce débord, la déchirure rentre dans la marge de 4 et mange
-     le premier caractère de la description — vu au banc, au premier rendu.
-     ⭐ La valeur vient de la table générée (mesurée sur l'image), donc elle est
-     ici par la donnée et pas par un nombre écrit dans une feuille. */
+  /* ⚖️ LE PARCHEMIN TIENT DANS LA DALLE — Eric, 17/09 au soir, en regardant le
+     rendu : *« redimensionne ton parchemin pour qu'il corresponde à la cote, pas
+     qu'il soit coupé en bas »*, *« et donc qu'on voie les déchirures en bas »*.
+     ⛔ CE QUE LE DÉBORD FAISAIT : il poussait les bords hors de la dalle, donc il
+     EFFAÇAIT la déchirure — qui est le sujet. C'est le CONTENU qui s'écarte des
+     bords (la marge de 20 du texte), pas l'image qui grandit.
+     ⭐ Le débord reste une cote de la table : à 0 elle rend `100% 100%`, et le jour
+     où il revaut autre chose, la feuille suit sans qu'on la rouvre. */
   const deux = 2 * PARCHEMIN_DEBORD;
-  regles.push(`.x1{background-size:calc(100% + ${px(deux)}) calc(100% + ${px(deux)})}`);
+  regles.push(deux
+    ? `.x1{background-size:calc(100% + ${px(deux)}) calc(100% + ${px(deux)})}`
+    : ".x1{background-size:100% 100%}");
   return regles.join("\n");
 }
 
@@ -151,10 +158,15 @@ function voyant(id, classe, texte, note) {
 /** Une flèche de feuilletage : le gabarit du livre et du `?` — dessin 22 dans
  *  une cible de 44 (NORMES §2, `paire-partout`). ⛔ Elle n'a pas l'habit de la
  *  famille à libellé : un bouton à GLYPHE n'a pas de mot à cadrer. */
-function fleche(id, mot, note, surClic, eteint) {
+function fleche(id, mot, note, surClic, eteint, absent) {
   const b = bouton("x1-fleche", mot, note, surClic);
   b.dataset.organe = id;
   if (eteint) b.disabled = true;
+  /* ⚖️ UNE SEULE PAGE NE SE FEUILLETTE PAS — Eric, 17/09 : *« la pagination, s'il y a
+     plusieurs pages »*, et une flèche sans page où aller dit la même chose qu'un
+     « 1/1 ». ⛔ `hidden`, jamais un `display:none` en feuille (défaut n°3) : la PLACE
+     reste, donc le nom ne se décale pas quand on feuillette un lieu à deux objets. */
+  if (absent) b.hidden = true;
   return b;
 }
 
@@ -204,10 +216,13 @@ function bascule(id, allume, options) {
  *  porte le mot « destination » (on n'écrit rien DANS un `<select>`) et le
  *  select natif, qui garde son rôle et son clavier. */
 function menuDestination(id, options) {
+  /* ⛔ PAS DE MOT « destination » AU-DESSUS — Eric, 17/09 au soir : *« pas besoin de
+     destination au-dessus de backpack »*. ⭐ Sur l'écran R le mot sert : le menu y est
+     seul, sans phrase autour. Ici il est DANS une phrase — « Send 1 to Backpack » —
+     et la phrase dit déjà ce que le menu choisit. Le même organe, deux contextes, et
+     c'est le contexte qui décide. */
   const boite = eld("div", "x1-destination");
   boite.dataset.organe = id;
-  const mot = eld("span", "x1-destination-mot", "destination");
-  mot.setAttribute("aria-hidden", "true");
   const s = eld("select", "pipeline-dropdown x1-select");
   s.setAttribute("aria-label", "Send to");
   for (const d of DESTINATIONS) {
@@ -218,24 +233,6 @@ function menuDestination(id, options) {
     s.append(opt);
   }
   s.addEventListener("change", () => { if (options.surDestination) options.surDestination(s.value); });
-  boite.append(mot, s);
-  return boite;
-}
-
-/** Le menu `is` — POSÉ, DÉSARMÉ. Sa source n'est pas tranchée (⏳ ci-dessus) :
- *  un réglage montré et non câblé se lit comme tel (NORMES §2 bis), et un menu
- *  qui écrirait une donnée qu'Eric n'a pas décidée serait pire qu'un menu gris. */
-function menuIs(id) {
-  const boite = eld("div", "x1-destination");
-  boite.dataset.organe = id;
-  const s = eld("select", "pipeline-dropdown x1-select");
-  s.setAttribute("aria-label", "Is — where this item sits on the character sheet");
-  s.disabled = true;
-  for (const mot of D.EST) {
-    const opt = eld("option", null, mot);
-    opt.value = mot;
-    s.append(opt);
-  }
   boite.append(s);
   return boite;
 }
@@ -293,16 +290,35 @@ export function construireLaFicheX1(options = {}) {
     const id = CLEF_DE[o.nom];
     if (!id) continue;
     if (id === "nom") {
+      /* ⭐ CENTRÉ SUR LA PAGE, PAS ENTRE SES VOISINS — Eric, 17/09 : *« le titre reste
+         centré par rapport à la page »*. Sa boîte est posée par la table, au centre de
+         la dalle : ce qui l'entoure peut grandir, le nom ne bouge pas. */
       noeud.append(voyant(id, "x1-nom", objet.nom || o.mot));
+    } else if (id === "qte") {
+      /* ⚖️ LA QUANTITÉ À GAUCHE DU TITRE — Eric, 17/09 au soir. ⛔ Et elle ne s'écrit
+         que si elle dit quelque chose : « ×1 » est du bruit, la place reste vide. */
+      noeud.append(voyant(id, "x1-qte", objet.qte > 1 ? `×${objet.qte}` : "",
+        objet.qte > 1 ? `Quantity ${objet.qte}` : undefined));
+    } else if (id === "filet-haut" || id === "filet-bas") {
+      /* ⚖️ LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — Eric, 17/09 au soir : *« délimite
+         la zone descriptive du texte par des traits, comme l'image donnée »*. Ils ne
+         disent rien à un lecteur d'écran : c'est la zone qui porte le sens. */
+      const f = eld("div", "x1-filet");
+      f.dataset.organe = id;
+      f.setAttribute("aria-hidden", "true");
+      noeud.append(f);
     } else if (id === "pagination") {
-      /* ⭐ LE RANG DANS LE LIEU, pas dans tout l'équipement : on feuillette ce
-         qu'on portait quand on a ouvert la fiche. */
-      const mot = rang.total ? `${rang.position}/${rang.total}` : "";
-      noeud.append(voyant(id, "x1-pagination", mot, mot ? `Item ${rang.position} of ${rang.total}` : undefined));
+      /* ⚖️ UNE PAGE = UN OBJET, et ⛔ la pagination ne paraît QUE s'il y a plusieurs
+         pages — Eric, 17/09 au soir. Un « 1/1 » ne dit rien à personne. */
+      const plusieurs = rang.total > 1;
+      const mot = plusieurs ? `${rang.position}/${rang.total}` : "";
+      noeud.append(voyant(id, "x1-pagination", mot, plusieurs ? `Item ${rang.position} of ${rang.total}` : undefined));
     } else if (id === "precedent") {
-      noeud.append(fleche(id, "←", "Previous item", options.surPrecedent, !options.surPrecedent || rang.position <= 1));
+      noeud.append(fleche(id, "←", "Previous item", options.surPrecedent,
+        !options.surPrecedent || rang.position <= 1, !(rang.total > 1)));
     } else if (id === "suivant") {
-      noeud.append(fleche(id, "→", "Next item", options.surSuivant, !options.surSuivant || rang.position >= rang.total));
+      noeud.append(fleche(id, "→", "Next item", options.surSuivant,
+        !options.surSuivant || rang.position >= rang.total, !(rang.total > 1)));
     } else if (id === "prix") {
       noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
     } else if (id === "poids") {
@@ -314,7 +330,16 @@ export function construireLaFicheX1(options = {}) {
     } else if (id === "is") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "is-quoi") {
-      noeud.append(menuIs(id));
+      /* ⚖️ PAS DE MENU, JUSTE LE MOT — Eric, 17/09 au soir : *« le dropdown `is` pas
+         visible, pas de dropdown, juste du texte ? »*. ⭐ Il avait raison deux fois :
+         le menu était désarmé, et désarmé il portait le voile des 20 % — il ne se
+         voyait plus. Un menu qu'on ne peut pas ouvrir n'est pas un menu, c'est une
+         valeur : elle s'écrit.
+         ⏳ ET LA VALEUR EST CELLE QUE LE DÉPÔT SAIT : le GENRE du record (`weapon`,
+         `armor`, `gear`). ⛔ Le rangement dans la fiche de personnage — « une attaque »,
+         « un sort » — demande une source qu'Eric n'a pas tranchée : on n'invente pas
+         une donnée pour remplir un mot. */
+      noeud.append(voyant(id, "x1-is-quoi", objet.genre || ""));
     } else if (id === "copier") {
       /* ⭐ UN BOUTON À GLYPHE, pas à mot : 40 × 40 dans la cible de 44, et il ne
          porte ni l'habit de la famille ni son liseré de rôle (la loi des `+`/`−`

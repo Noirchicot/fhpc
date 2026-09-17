@@ -11415,6 +11415,25 @@ button.tuto-point::before {
   font-size: var(--t4); font-weight: 600; color: var(--x1-encre);
   text-align: center; line-height: 1.1; overflow-wrap: break-word;
 }
+/* — LA QUANTITÉ, à gauche du titre et cadrée à gauche (Eric, 17/09 au soir). Elle ne
+   nomme pas l'objet, elle le compte : encre sourde, comme la pagination. */
+.x1-qte {
+  display: flex; align-items: center; justify-content: flex-start;
+  font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
+  font-variant-numeric: tabular-nums;
+}
+/* — LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — l'image d'Eric, posée en masque : la
+   teinte vient de la fiche, jamais du dessin. */
+.x1-filet {
+  background: var(--x1-trait);
+  mask: var(--icone-filet) center / 100% auto no-repeat;
+  -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
+}
+/* — CE QUE L'OBJET EST : un mot, pas un menu (Eric, 17/09 au soir). */
+.x1-is-quoi {
+  display: flex; align-items: center; justify-content: flex-start;
+  font-size: var(--t2); font-weight: 600; color: var(--x1-encre);
+}
 /* — LA PAGINATION, à droite du nom (Eric, 17/09 : *« le nombre de pages à droite
    du titre »*). Elle dit un rang, pas une donnée : encre sourde. */
 .x1-pagination {
@@ -11510,26 +11529,29 @@ button.tuto-point::before {
   background: var(--x1-bascule-signe); mask: var(--icone-cadenas) center / contain no-repeat;
   -webkit-mask: var(--icone-cadenas) center / contain no-repeat;
 }
-/* ⚖️ LE CŒUR EST VIOLET, comme le voyant que l'écran R dessine déjà sur le jeton :
-   violet = magie (NORMES §7). Le même fait vu à deux endroits ne prend pas deux
-   couleurs. */
-.x1-bascule[data-signe="coeur"][data-on="true"] .x1-bascule-pouce {
-  background: var(--magie); mask: var(--icone-coeur) center / contain no-repeat;
-  -webkit-mask: var(--icone-coeur) center / contain no-repeat;
-}
 /* — LE BOUTON DE COPIE : un glyphe en oxblood, à droite du menu `is`. */
+/* — LE BOUTON DE COPIE : 20 de dessin dans 44 de cible (Eric, 17/09 au soir), deux
+   pages superposées en traits. ⛔ Ni fond ni cadre : c'est un GLYPHE, il n'a pas de
+   mot à cadrer — donc pas d'habit de la famille. Sa teinte est l'oxblood. */
+/* ⛔ `border: 0` TUE LE CREUX, ET C'EST SILENCIEUX — mesuré au banc : le glyphe rendait
+   44 au lieu de 20. La feuille construite pose la boîte de la CIBLE et met l'écart dans
+   la BORDURE ; `border: 0` remet `border-style: none`, et une bordure sans style vaut
+   zéro quelle que soit sa largeur. On déclare donc le STYLE et la COULEUR, jamais la
+   largeur — elle vient de la table. */
 .x1-copier {
-  display: flex; align-items: center; justify-content: center;
-  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
-  background: var(--x1-etat-encre); background-clip: padding-box;
-  color: var(--x1-bascule-vide); font-size: var(--t1); font-weight: 600; cursor: pointer;
+  border-style: solid; border-color: transparent;
+  padding: 0; background: none; cursor: pointer;
+  color: var(--x1-etat-encre);
+}
+.x1-copier::before {
+  content: ""; display: block; width: 100%; height: 100%;
+  background: currentColor;
+  mask: var(--icone-copie) center / contain no-repeat;
+  -webkit-mask: var(--icone-copie) center / contain no-repeat;
 }
 /* — LES DEUX MENUS ET LA SAISIE : la boîte porte l'organe, le select la remplit
    (on n'écrit rien DANS un `<select>`). */
 .x1-destination { display: flex; flex-direction: column; justify-content: center; }
-.x1-destination-mot {
-  font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); text-align: center; line-height: 1;
-}
 /* ⭐ LES DEUX MENUS ET LA SAISIE PRENNENT L'ENCRE DE LA FICHE, pas celle du site :
    ils sont posés sur le parchemin, pas sur la dalle. ⛔ On ne retouche pas
    `.pipeline-dropdown` pour autant — c'est le MÊME organe ailleurs, sur un autre

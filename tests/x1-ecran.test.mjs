@@ -104,16 +104,27 @@ test("4 — aucun chevauchement de dessins, aucun chevauchement de cibles", () =
 test("5 — le budget vertical est fermé : la description prend ce qui reste, et rien ne déborde", () => {
   const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
   const pied = ORGANES.filter((o) => o.y > desc.y + desc.h).map((o) => cibleDe(o));
-  const bas = Math.max(...pied.map((b) => b.y + b.h));
-  assert.equal(bas, DALLE.h - MARGE, "la dernière rangée finit à 4 du bas, pile");
-  const haut = Math.min(...ORGANES.map((o) => cibleDe(o).y));
-  assert.equal(haut, MARGE, "et la première commence à 4 du haut");
-  /* ⭐ LA DESCRIPTION EST BIEN LA ZONE ÉLASTIQUE : elle occupe tout l'écart entre
-     ce qui la précède et ce qui la suit, moins les deux gouttières de 8. */
-  const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= desc.y).map((o) => cibleDe(o).y + cibleDe(o).h));
-  const apres = Math.min(...ORGANES.filter((o) => o.y >= desc.y + desc.h).map((o) => cibleDe(o).y));
-  assert.equal(desc.y - avant, 8, "8 au-dessus de la description");
-  assert.equal(apres - (desc.y + desc.h), 8, "8 en dessous");
+  assert.equal(Math.max(...pied.map((b) => b.y + b.h)), DALLE.h - MARGE,
+    "la dernière rangée finit à 4 du bas, pile");
+  assert.equal(Math.min(...ORGANES.map((o) => cibleDe(o).y)), MARGE, "et la première commence à 4 du haut");
+  /* ⭐ LA ZONE DU TEXTE EST UN GROUPE DE TROIS : un filet, la description, un filet
+     — Eric, 17/09 au soir. Les filets sont COLLÉS à la description (ils la délimitent,
+     ils ne la voisinent pas) ; la gouttière de 8 est au-dessus et au-dessous du GROUPE.
+     🔴 RÉÉCRIT À LA NOUVELLE VÉRITÉ, pas relâché : la version d'avant mesurait 8 contre
+     la description elle-même, et elle a rougi le jour où les filets sont arrivés. */
+  const haut = ORGANES.find((o) => o.nom === "FILET HAUT");
+  const bas = ORGANES.find((o) => o.nom === "FILET BAS");
+  assert.equal(haut.y + haut.h, desc.y, "le filet du haut touche la description");
+  assert.equal(desc.y + desc.h, bas.y, "et celui du bas aussi");
+  assert.deepEqual([haut.x, haut.l, bas.x, bas.l], [desc.x, desc.l, desc.x, desc.l],
+    "les filets partagent la colonne du texte — même marge, même largeur");
+  const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
+  const apres = Math.min(...ORGANES.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));
+  assert.equal(haut.y - avant, 8, "8 au-dessus du groupe");
+  assert.equal(apres - (bas.y + bas.h), 8, "8 en dessous");
+  /* ⚖️ ET LA MARGE DU TEXTE EST CELLE D'ERIC : 20, pas la marge de page. */
+  assert.equal(desc.x, 20, "« une marge à gauche de 20 blg pour le texte » (17/09)");
+  assert.equal(DALLE.l - (desc.x + desc.l), 20, "et la même à droite : filet et texte partagent une colonne");
 });
 
 /* ══ 6 — LA FEUILLE CONSTRUITE POSE TOUT, ET shell.css NE POSE RIEN ══════ */
@@ -179,6 +190,22 @@ const rendu = (options = {}) => construireLaFicheX1({
 }).noeud;
 const tous = (n, sel) => [...n.querySelectorAll(sel)];
 
+test("9 bis — la quantité se cale à gauche du titre, et ne s'écrit que si elle dit quelque chose", () => {
+  const deux = rendu();
+  assert.equal(deux.querySelector('[data-organe="qte"]').textContent, "×2");
+  const seul = construireLaFicheX1({ objet: { ...objetTemoin, qte: 1 }, rang: { position: 1, total: 1 } }).noeud;
+  assert.equal(seul.querySelector('[data-organe="qte"]').textContent, "", "« ×1 » est du bruit");
+});
+
+test("9 ter — les deux filets encadrent le texte, et ils ne parlent pas aux lecteurs d'écran", () => {
+  const n = rendu();
+  for (const id of ["filet-haut", "filet-bas"]) {
+    const f = n.querySelector(`[data-organe="${id}"]`);
+    assert.ok(f, `${id} est posé`);
+    assert.equal(f.getAttribute("aria-hidden"), "true", "c'est la ZONE qui porte le sens, pas son trait");
+  }
+});
+
 test("10 — la fiche rend chaque organe de la table, une fois", () => {
   const n = rendu();
   const ids = tous(n, "[data-organe]").map((e) => e.dataset.organe).sort();
@@ -230,13 +257,27 @@ test("13 — les quatre portes publient leur geste ; `Use` et le menu `is` sont 
   ]);
   for (const b of tous(n, ".x1-porte")) { if (!b.disabled) b.dispatchEvent({ type: "click" }); }
   assert.deepEqual(gestes, ["close", "envoyer", "trash"]);
-  const menu = n.querySelector('[data-organe="is-quoi"] select');
-  assert.equal(menu.disabled, true, "le menu `is` attend que sa SOURCE soit tranchée — il ne ment pas");
+  /* 🔴 RÉÉCRIT LE 17/09 AU SOIR : `is` n'a plus de menu. Eric — *« le dropdown `is`
+     pas visible, pas de dropdown, juste du texte ? »* — a vu qu'un menu désarmé
+     portait le voile des 20 % et disparaissait. Un menu qu'on ne peut pas ouvrir est
+     une valeur : elle s'écrit. ⛔ Le garde ne se relâche pas, il change d'objet. */
+  assert.equal(n.querySelector('[data-organe="is-quoi"] select'), null, "plus aucun menu pour `is`");
+  assert.equal(n.querySelector('[data-organe="is-quoi"]').className, "x1-is-quoi", "c'est un mot, pas un contrôle");
 });
 
 test("14 — la pagination dit le rang dans le lieu, et les flèches s'éteignent aux deux bouts", () => {
   const premier = rendu({ rang: { position: 1, total: 3 }, surPrecedent: () => {}, surSuivant: () => {} });
   assert.equal(premier.querySelector('[data-organe="pagination"]').textContent, "1/3");
+  /* ⚖️ UNE SEULE PAGE NE SE PAGINE PAS — Eric, 17/09 : *« s'il y a plusieurs pages »*. */
+  const seule = rendu({ rang: { position: 1, total: 1 } });
+  assert.equal(seule.querySelector('[data-organe="pagination"]').textContent, "",
+    "un « 1/1 » ne dit rien à personne");
+  /* ⭐ ET LES FLÈCHES SUIVENT LA PAGINATION : sans seconde page, elles se retirent —
+     `hidden`, donc leur place reste et rien ne se décale. */
+  for (const id of ["precedent", "suivant"]) {
+    assert.equal(seule.querySelector(`[data-organe="${id}"]`).hidden, true, `${id} se retire`);
+    assert.equal(premier.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} reste quand il y a des pages`);
+  }
   assert.equal(premier.querySelector('[data-organe="precedent"]').disabled, true, "rien avant le premier");
   assert.equal(premier.querySelector('[data-organe="suivant"]').disabled, false);
   const dernier = rendu({ rang: { position: 3, total: 3 }, surPrecedent: () => {}, surSuivant: () => {} });

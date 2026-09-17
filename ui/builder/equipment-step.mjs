@@ -2119,6 +2119,11 @@ export function renderEquipmentStep(ctx, onAction) {
         poidsUnite: typeof data.weight === "string" ? data.weight : "",
         poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
         prose: recordProse({ record: rec }),
+        /* ⏳ CE QUE `is` MONTRE, faute d'une source tranchée : le GENRE du record, que
+           le dépôt connaît (`weapon`, `armor`, `gear`). ⛔ Le rangement dans la fiche de
+           personnage — « une attaque », « un sort » — demande une décision d'Eric : on
+           ne fabrique pas une donnée pour remplir un mot. */
+        genre: (ligne.ref && ligne.ref.kind) || "",
         equipped: ligne.equipped === true,
         attuned: ligne.attuned === true,
         locked: ligne.locked === true
