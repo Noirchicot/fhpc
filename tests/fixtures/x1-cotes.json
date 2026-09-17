@@ -22,8 +22,8 @@
  "y": {
   "nom": 18,
   "chiffres": 62,
-  "desc": 90,
-  "h_desc": 164,
+  "desc": 86,
+  "h_desc": 172,
   "pied1": 274,
   "pied2": 322,
   "pied3": 370,
@@ -104,10 +104,10 @@
   },
   {
    "nom": "FILET HAUT",
-   "x": 77.5,
+   "x": 66.0,
    "y": 78,
-   "l": 220,
-   "h": 12,
+   "l": 243,
+   "h": 8,
    "mot": "",
    "cran": "T1/600",
    "sorte": "zone"
@@ -115,19 +115,19 @@
   {
    "nom": "DESCRIPTION",
    "x": 30,
-   "y": 90,
+   "y": 86,
    "l": 315,
-   "h": 164,
+   "h": 172,
    "mot": "Description",
    "cran": "T2/400",
    "sorte": "zone"
   },
   {
    "nom": "FILET BAS",
-   "x": 77.5,
-   "y": 254,
-   "l": 220,
-   "h": 12,
+   "x": 66.0,
+   "y": 258,
+   "l": 243,
+   "h": 8,
    "mot": "",
    "cran": "T1/600",
    "sorte": "zone"

@@ -147,7 +147,8 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      recompterait en JavaScript — et les deux ne tranchent pas un demi de la même façon
      (`round(220.5)` rend 220 là-bas, 221 ici). Le garde tient la RÈGLE (70 %), pas
      l'arrondi, qui appartient à celui qui génère. */
-  assert.ok(Math.abs(haut.l - desc.l * 0.7) <= 1, "70 % de la colonne du texte, à un blg près");
+  assert.ok(Math.abs(haut.l - desc.l * 0.7 * 1.1) <= 1,
+    "77 % de la colonne du texte, à un blg près — 0,7 réduit puis 1,1 élargi (Eric, 17/09 au soir)");
   assert.equal(haut.x, (DALLE.l - haut.l) / 2, "et centré sur la dalle");
   const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
   const apres = Math.min(...ORGANES.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));

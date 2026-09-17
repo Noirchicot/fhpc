@@ -11439,7 +11439,7 @@ button.tuto-point::before {
    parchemin plein, l'oxblood passe (Eric, le matin), et la fiche n'a donc qu'un rouge.
    L'épaisseur, elle, vit dans le dessin du jeton — pas ici. */
 .x1-filet {
-  background: var(--x1-etat-encre);
+  background: var(--x1-filet-encre);
   mask: var(--icone-filet) center / 100% auto no-repeat;
   -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
 }
@@ -11578,13 +11578,27 @@ button.tuto-point::before {
   color: var(--x1-encre); background: color-mix(in srgb, var(--x1-encre) 8%, transparent);
   border-color: var(--x1-trait);
 }
+/* — LE CHAMP DE L'ENVOI : « 1/2 », et le 1 se tape (Eric, 17/09 au soir). La BOÎTE
+   porte l'habit, le nombre et le stock la remplissent — on ne peut rien écrire dans un
+   `<input type="number">` à côté de son nombre. */
 .x1-saisie {
-  width: 100%; text-align: center;
+  display: flex; align-items: center; justify-content: center;
   border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
   background: color-mix(in srgb, var(--x1-encre) 8%, transparent); background-clip: padding-box;
   box-shadow: inset 0 0 0 1px var(--x1-trait);
   color: var(--x1-encre); font-size: var(--t2); font-weight: 600;
 }
+/* ⭐ LA SAISIE SE SERRE SUR SES CHIFFRES — `2ch`, une cote tirée du TEXTE et non un
+   nombre de pixels : deux chiffres tiennent, et le stock reste collé au nombre. */
+.x1-saisie-nombre {
+  width: 2ch; min-width: 0; padding: 0; border: 0; background: none;
+  color: inherit; font: inherit; text-align: right;
+  -moz-appearance: textfield; appearance: textfield;
+}
+.x1-saisie-nombre::-webkit-outer-spin-button,
+.x1-saisie-nombre::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+/* le stock : on le LIT, il ne se tape pas — encre douce, comme la pagination. */
+.x1-saisie-sur { color: var(--x1-encre-douce); }
 /* — LES QUATRE PORTES : l'habit de la famille (déclaré plus haut), et le liseré
    dit le verbe — bleu on navigue, vert on agit, rouge on défait (Eric, 16/09 sur
    la rangée de R : *« Send a un liseré vert, les autres sont juste de la

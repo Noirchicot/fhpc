@@ -260,18 +260,29 @@ function menuDestination(id, options) {
   return boite;
 }
 
-/** Le champ du nombre à envoyer : une saisie, pas un bouton. Elle est bornée
- *  par la quantité possédée — ⛔ on n'envoie pas ce qu'on n'a pas. */
+/** Le champ du nombre à envoyer : ⚖️ **« 1/2 », et le 1 est modifiable** — Eric,
+ *  17/09 au soir. ⭐ CE QUE LE DÉNOMINATEUR APPORTE : on ne tape pas un nombre dans le
+ *  vide, on prélève sur un STOCK qu'on a sous les yeux. Le champ dit à la fois ce
+ *  qu'on envoie et ce qu'on a — et il dit donc aussi, sans un mot, pourquoi 3 est
+ *  refusé quand on en possède 2.
+ *  ⛔ UN `<input type="number">` NE PEUT PAS CONTENIR « /2 » : le nombre est la saisie,
+ *  le reste est un voyant à côté de lui, dans la même boîte. Le lecteur d'écran, lui,
+ *  entend la phrase entière par l'étiquette. */
 function champNombre(id, options) {
-  const n = eld("input", "x1-saisie");
-  n.dataset.organe = id;
+  const qte = Math.max(1, (options.objet && options.objet.qte) || 1);
+  const boite = eld("div", "x1-saisie");
+  boite.dataset.organe = id;
+  const n = eld("input", "x1-saisie-nombre");
   n.type = "number";
   n.min = "1";
-  n.max = String(Math.max(1, options.objet && options.objet.qte || 1));
+  n.max = String(qte);
   n.value = String(options.nombre || 1);
-  n.setAttribute("aria-label", "How many to send");
+  n.setAttribute("aria-label", `How many to send, out of ${qte}`);
   n.addEventListener("change", () => { if (options.surNombre) options.surNombre(Number(n.value) || 1); });
-  return n;
+  const sur = eld("span", "x1-saisie-sur", `/${qte}`);
+  sur.setAttribute("aria-hidden", "true");   /* l'étiquette du champ le dit déjà */
+  boite.append(n, sur);
+  return boite;
 }
 
 /** Une porte : le gabarit PETIT de la famille (77 × 40 dans 44), et son liseré
