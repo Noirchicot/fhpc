@@ -143,15 +143,26 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      70 % de sa largeur, centrés sur la dalle. ⛔ Le garde ne se relâche pas — il tient
      maintenant la proportion ET le centrage, qui sont ce qu'Eric a demandé. */
   assert.deepEqual([haut.x, haut.l], [bas.x, bas.l], "les deux filets sont le même trait");
-  assert.equal(haut.l, Math.round(desc.l * 0.7), "70 % de la colonne du texte");
+  /* ⚠️ À UN BLG PRÈS, ET C'EST VOULU : le générateur arrondit en Python, ce garde
+     recompterait en JavaScript — et les deux ne tranchent pas un demi de la même façon
+     (`round(220.5)` rend 220 là-bas, 221 ici). Le garde tient la RÈGLE (70 %), pas
+     l'arrondi, qui appartient à celui qui génère. */
+  assert.ok(Math.abs(haut.l - desc.l * 0.7) <= 1, "70 % de la colonne du texte, à un blg près");
   assert.equal(haut.x, (DALLE.l - haut.l) / 2, "et centré sur la dalle");
   const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
   const apres = Math.min(...ORGANES.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));
   assert.equal(haut.y - avant, 8, "8 au-dessus du groupe");
   assert.equal(apres - (bas.y + bas.h), 8, "8 en dessous");
-  /* ⚖️ ET LA MARGE DU TEXTE EST CELLE D'ERIC : 20, pas la marge de page. */
-  assert.equal(desc.x, 20, "« une marge à gauche de 20 blg pour le texte » (17/09)");
-  assert.equal(DALLE.l - (desc.x + desc.l), 20, "et la même à droite : filet et texte partagent une colonne");
+  /* ⚖️ ET LA MARGE DU TEXTE EST CELLE D'ERIC, prise dans la TABLE et jamais recopiée
+     ici — elle a bougé deux fois dans la même soirée (20, puis 30 : *« moins de place
+     pour le texte, plus pour la marge ! »*). 🔴 La version d'avant écrivait le nombre,
+     et c'est exactement ce qui fait rougir un garde pour une raison qui n'est pas la
+     sienne. Ce qu'il tient est l'INVARIANT : le texte s'écarte des deux bords, autant
+     à gauche qu'à droite, et plus que la page. */
+  assert.equal(desc.x, TABLE.marge_texte, "le texte s'écarte de la marge que la table porte");
+  assert.equal(DALLE.l - (desc.x + desc.l), TABLE.marge_texte, "autant à droite qu'à gauche");
+  assert.ok(TABLE.marge_texte > TABLE.marge_cote, "et plus que les organes, qui s'écartent déjà de la page");
+  assert.equal(D.MARGE_TEXTE, TABLE.marge_texte, "la déclaration porte la même colonne que la table");
 });
 
 /* ══ 6 — LA FEUILLE CONSTRUITE POSE TOUT, ET shell.css NE POSE RIEN ══════ */

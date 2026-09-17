@@ -18,6 +18,7 @@
  "marge_tete": 14,
  "marge_pied": 34,
  "marge_cote": 14,
+ "marge_texte": 30,
  "y": {
   "nom": 18,
   "chiffres": 62,
@@ -103,9 +104,9 @@
   },
   {
    "nom": "FILET HAUT",
-   "x": 70.5,
+   "x": 77.5,
    "y": 78,
-   "l": 234,
+   "l": 220,
    "h": 8,
    "mot": "",
    "cran": "T1/600",
@@ -113,9 +114,9 @@
   },
   {
    "nom": "DESCRIPTION",
-   "x": 20,
+   "x": 30,
    "y": 86,
-   "l": 335,
+   "l": 315,
    "h": 172,
    "mot": "Description",
    "cran": "T2/400",
@@ -123,9 +124,9 @@
   },
   {
    "nom": "FILET BAS",
-   "x": 70.5,
+   "x": 77.5,
    "y": 258,
-   "l": 234,
+   "l": 220,
    "h": 8,
    "mot": "",
    "cran": "T1/600",

@@ -12,6 +12,9 @@ export const MARGE = 4;
    portes. Le pied a donc SA marge, et elle n'est pas celle de la page. */
 export const MARGE_TETE = 14;
 export const MARGE_COTE = 14;
+/* la colonne du texte — Eric, 17/09 au soir : « moins de place pour le texte, plus
+   pour la marge ! ». C'est le sens de la fiche : la déchirure mord, le texte s'écarte. */
+export const MARGE_TEXTE = 30;
 export const MARGE_PIED = 34;
 export const TOUCH = 44;                          /* --touch, plancher de toute cible */
 export const PETIT = 77, LARGE = 105;             /* --bouton-petit, --bouton-moyen */
@@ -37,9 +40,9 @@ export const ORGANES = [
   { nom: "SUIVANT",       sorte: "rond",          x:    328, y:     29, l:    22, h:   22, cible: { x: 317, y: 18, l: 44, h: 44 } },
   { nom: "PRIX",          sorte: "voyant",        x:     90, y:     62, l:    84, h:    8, mot: "15 gp · ×2 · 30 gp", cran: "T1/600" },
   { nom: "POIDS",         sorte: "voyant",        x:    241, y:     62, l:    44, h:    8, mot: "3 lb · 6 lb", cran: "T1/600" },
-  { nom: "FILET HAUT",    sorte: "zone",          x:   70.5, y:     78, l:   234, h:    8, mot: "", cran: "T1/600" },
-  { nom: "DESCRIPTION",   sorte: "zone",          x:     20, y:     86, l:   335, h:  172, mot: "Description", cran: "T2/400" },
-  { nom: "FILET BAS",     sorte: "zone",          x:   70.5, y:    258, l:   234, h:    8, mot: "", cran: "T1/600" },
+  { nom: "FILET HAUT",    sorte: "zone",          x:   77.5, y:     78, l:   220, h:    8, mot: "", cran: "T1/600" },
+  { nom: "DESCRIPTION",   sorte: "zone",          x:     30, y:     86, l:   315, h:  172, mot: "Description", cran: "T2/400" },
+  { nom: "FILET BAS",     sorte: "zone",          x:   77.5, y:    258, l:   220, h:    8, mot: "", cran: "T1/600" },
   { nom: "EQUIP",         sorte: "voyant",        x:   47.5, y:    276, l:    40, h:   40, mot: "Equip", cran: "T1/600", sous: "Equipped", cranSous: "T0/600" },
   { nom: "ATTUNE",        sorte: "voyant",        x:  143.5, y:    276, l:    40, h:   40, mot: "Attune", cran: "T1/600", sous: "Attuned", cranSous: "T0/600" },
   { nom: "LOCKED",        sorte: "voyant",        x:  239.5, y:    276, l:    40, h:   40, mot: "Lock", cran: "T1/600", sous: "Locked", cranSous: "T0/600" },
