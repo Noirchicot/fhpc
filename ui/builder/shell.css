@@ -11472,9 +11472,19 @@ button.tuto-point::before {
    que les autres rangées rendent lui revient (Eric, 17/09). */
 .x1-description {
   overflow-y: auto; overscroll-behavior: contain;
+  /* ⛔ PAS D'ASCENSEUR — Eric, 17/09 au soir : *« dégage la barre de navigation »*.
+     ⭐ CE QUI LE REMPLACE EXISTE DÉJÀ : les chevrons de la marge droite, qu'il venait de
+     demander pour ça. Et l'ascenseur ne remplaçait rien lui-même — sur iOS il est en
+     surimpression et n'apparaît QUE pendant le geste (mesuré le 03/09, c'est l'argument
+     qui a fait naître les chevrons).
+     ⛔ `width: 0`, JAMAIS `display: none` : le garde 4 des jetons l'interdit dans cette
+     feuille, et l'exception nommée est ailleurs. La largeur nulle rend le même service
+     sans demander de dérogation. */
+  scrollbar-width: none;
   font-size: var(--t2); font-weight: 400; color: var(--x1-encre);
   line-height: 1.45; text-align: left; white-space: pre-line;
 }
+.x1-description::-webkit-scrollbar { width: 0; height: 0; }
 /* — LES MOTS DE LIAISON (`is`, `Send`, `to`) : ils ne nomment pas une donnée,
    ils cousent une phrase. Même habit que le nom d'un emplacement en attente
    sur l'écran R — T1, italique, encre douce (Eric, 16/09). */
