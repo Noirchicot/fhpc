@@ -11497,47 +11497,46 @@ button.tuto-point::before {
    disque translucide du dé (1,24:1) ; ceci est une ENCRE sur un parchemin
    opaque, et ce n'est pas la même mesure. */
 .x1-etat-mot { font-size: var(--t0); font-weight: 600; color: var(--x1-etat-encre); }
-/* — L'INTERRUPTEUR DE LA FICHE : ⛔ ELLE N'EN DESSINE AUCUN. Eric, 17/09 au soir :
-   *« bouton du menu, la base de laquelle tu dois partir ! »*, puis *« t'es pas foutu de
-   récupérer le bouton du menu et de le mettre ici ! »*.
-   ⭐ CE QUI RESTE ICI EST LA CIBLE, ET RIEN D'AUTRE : un carré de 44 qui centre la
-   piste du menu. Les teintes, les proportions et l'état vivent dans le bloc de
-   `.interrupteur-piste`, plus haut, et il n'y a toujours qu'un seul écrivain.
-   ⛔ J'avais recopié ses formules dans une classe à moi — deux copies d'un même dessin
-   sont deux écrivains pour une seule loi, la faute que le patron des boutons a déjà
-   payée le 16/09. La réparation est la SUPPRESSION de la copie. */
+/* — L'INTERRUPTEUR DE LA FICHE : L'ORGANE DU MENU, HABILLÉ EN BOUTON ═══════
+   ⭐ LA STRUCTURE EST CELLE DU MENU — `pisteDInterrupteur()`, la piste et son pouce,
+   pris tels quels (Eric : *« bouton du menu, la base de laquelle tu dois partir ! »*).
+   ⚖️ LA TEINTE EST CELLE DES BOUTONS STANDARDS — Eric, 17/09 au soir : *« les boutons
+   on/off, fais-les de la même couleur que les boutons standards ; l'icône qui apparaît
+   est blanche, aussi pour attuned »*, *« equiped, ce sera un symbole + »*, *« quand les
+   boutons sont à gauche, pas de symbole »*.
+   ⛔ LE ROUGE ET LE VERT TOMBENT DONC ICI, et seulement ici : sur le tableau de commande
+   ils disent « allumé / éteint » entre six lignes qui se ressemblent ; sur la fiche, la
+   POSITION le dit déjà, et le symbole le redit. Trois canaux pour un état, c'est un de
+   trop quand deux suffisent — et la fiche gagne l'unité de matière du chapitre.
+   ⭐ ET C'EST LE SIGNE QUI REMPLACE LE DISQUE, il ne s'y pose pas : à gauche un disque
+   nu, à droite le symbole, blanc. C'est le dessin qu'Eric décrivait dès le matin pour
+   le verrou (*« soit vide à gauche, ou avec un cadenas blanc quand à droite »*). */
 .x1-bascule {
   display: flex; align-items: center; justify-content: center;
   border-style: solid; border-color: transparent;
   padding: 0; background: none; cursor: pointer;
-  /* l'encre, parce qu'un bouton qui pose un fond pose son encre (garde 6) — ici
-     elle ne sert qu'au focus et aux lecteurs, la piste porte tout le dessin. */
-  color: var(--x1-encre);
+  color: var(--bouton-encre);
 }
-/* ⚖️ LE SIGNE EST DANS LE POUCE, ET PLUS PETIT QUE LUI — Eric, 17/09 au soir : *« le
-   verrou doit clairement être plus petit pour rentrer dans le petit cercle vert contenu
-   dans le bouton »*, *« idem pour le cœur »*. 58 % est une PROPORTION : le jour où le
-   pouce change de taille, le signe suit.
-   ⭐ ET SEULEMENT QUAND L'ÉTAT EST VRAI : *« vide à gauche, un cadenas blanc quand à
-   droite »*. À gauche, le disque est nu. */
-.x1-bascule[data-signe][data-on="true"] .interrupteur-pouce {
-  display: flex; align-items: center; justify-content: center;
+.x1-bascule .interrupteur-piste {
+  background: var(--bouton-corps);
+  box-shadow: var(--bouton-aretes);
 }
-.x1-bascule[data-signe][data-on="true"] .interrupteur-pouce::before {
-  content: ""; display: block; width: 58%; height: 58%;
-}
-.x1-bascule[data-signe="cadenas"][data-on="true"] .interrupteur-pouce::before {
+.x1-bascule .interrupteur-pouce { background: var(--bouton-encre); }
+/* ⛔ À GAUCHE, PAS DE SYMBOLE — Eric, 17/09 au soir. Le disque nu dit « pas encore »,
+   et un symbole grisé dirait « peut-être ». */
+.x1-bascule[data-on="true"] .interrupteur-pouce {
   background-color: var(--x1-bascule-signe);
-  mask: var(--icone-cadenas) center / contain no-repeat;
-  -webkit-mask: var(--icone-cadenas) center / contain no-repeat;
+  mask-position: center; mask-repeat: no-repeat; mask-size: contain;
+  -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; -webkit-mask-size: contain;
 }
-/* ⚖️ LE CŒUR EST VIOLET, comme le voyant que l'écran R dessine déjà sur le jeton :
-   violet = magie (NORMES §7). Le même fait vu à deux endroits ne prend pas deux
-   couleurs. */
-.x1-bascule[data-signe="coeur"][data-on="true"] .interrupteur-pouce::before {
-  background-color: var(--magie);
-  mask: var(--icone-coeur) center / contain no-repeat;
-  -webkit-mask: var(--icone-coeur) center / contain no-repeat;
+.x1-bascule[data-signe="plus"][data-on="true"] .interrupteur-pouce {
+  mask-image: var(--icone-plus); -webkit-mask-image: var(--icone-plus);
+}
+.x1-bascule[data-signe="coeur"][data-on="true"] .interrupteur-pouce {
+  mask-image: var(--icone-coeur); -webkit-mask-image: var(--icone-coeur);
+}
+.x1-bascule[data-signe="cadenas"][data-on="true"] .interrupteur-pouce {
+  mask-image: var(--icone-cadenas); -webkit-mask-image: var(--icone-cadenas);
 }
 /* — LE BOUTON DE COPIE : un glyphe en oxblood, à droite du menu `is`. */
 /* — LE BOUTON DE COPIE : 20 de dessin dans 44 de cible (Eric, 17/09 au soir), deux
