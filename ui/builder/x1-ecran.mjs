@@ -75,7 +75,7 @@ const ETAT_DE = Object.freeze({ "equip-on": "equipped", "attune-on": "attuned", 
    ⛔ `lock` GARDE SON CORPS NOIR ET SON CADENAS : Eric l'a décrit ainsi le matin et
    ne l'a pas repris dans cette correction, qui ne nomme que les deux autres. ⏳ Un mot
    de lui et il rejoint les deux — c'est signalé dans le rapport, pas décidé ici. */
-const SIGNE_DE = Object.freeze({ "lock-on": "cadenas" });
+const SIGNE_DE = Object.freeze({ "attune-on": "coeur", "lock-on": "cadenas" });
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 

@@ -1071,6 +1071,10 @@
      pour le cadenas, `--magie` pour le cœur), jamais du dessin. ⛔ Et ce sont des
      FORMES, pas des glyphes de police : un glyphe se juge sur son raster de 12 px,
      et les courbes d'une police n'y survivent pas (TRAPS, 06/08). */
+  /* ⚖️ LE CŒUR DE L'HARMONISATION — il revient le 17/09 au soir : Eric le veut DANS le
+     pouce, plus petit que lui (*« idem pour le cœur »*). Violet, comme le voyant du
+     jeton sur l'écran R : violet = magie, et le même fait ne prend pas deux couleurs. */
+  --icone-coeur: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 21S3 14.6 3 9.1A4.6 4.6 0 0 1 7.6 4.5 5 5 0 0 1 12 7a5 5 0 0 1 4.4-2.5A4.6 4.6 0 0 1 21 9.1C21 14.6 12 21 12 21Z'/%3E%3C/svg%3E");
   --icone-cadenas: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M7 10V7a5 5 0 0 1 10 0v3h1.5a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5v-8A1.5 1.5 0 0 1 5.5 10H7Zm2 0h6V7a3 3 0 0 0-6 0v3Z'/%3E%3C/svg%3E");
   /* ⚖️ LE FILET QUI DÉLIMITE LE TEXTE — Eric, 17/09 au soir, en donnant l'image : un
      trait qui s'affine aux deux bouts, et au milieu losange · point · losange. ⛔ Il

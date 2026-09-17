@@ -7,6 +7,10 @@
 
 export const DALLE = { l: 375, h: 500, y: 60 };  /* posée SOUS le belt, qui reste visible */
 export const MARGE = 4;
+/* ⚖️ Eric, 17/09 au soir : « remonte tout ce qui est sous le trait de séparation
+   inférieur du texte de 20 blg » — la déchirure du bas mordait dans la rangée des
+   portes. Le pied a donc SA marge, et elle n'est pas celle de la page. */
+export const MARGE_PIED = 34;
 export const TOUCH = 44;                          /* --touch, plancher de toute cible */
 export const PETIT = 77, LARGE = 105;             /* --bouton-petit, --bouton-moyen */
 
@@ -32,25 +36,25 @@ export const ORGANES = [
   { nom: "PRIX",          sorte: "voyant",        x:     90, y:     52, l:    84, h:    8, mot: "15 gp · ×2 · 30 gp", cran: "T1/600" },
   { nom: "POIDS",         sorte: "voyant",        x:    241, y:     52, l:    44, h:    8, mot: "3 lb · 6 lb", cran: "T1/600" },
   { nom: "FILET HAUT",    sorte: "zone",          x:     20, y:     68, l:   335, h:    8, mot: "", cran: "T1/600" },
-  { nom: "DESCRIPTION",   sorte: "zone",          x:     20, y:     76, l:   335, h:  212, mot: "Description", cran: "T2/400" },
-  { nom: "FILET BAS",     sorte: "zone",          x:     20, y:    288, l:   335, h:    8, mot: "", cran: "T1/600" },
-  { nom: "IS",            sorte: "voyant",        x:   73.5, y:    306, l:    16, h:   40, mot: "is", cran: "T1/600" },
-  { nom: "IS QUOI",       sorte: "voyant",        x:   93.5, y:    306, l:   160, h:   40, mot: "An attack", cran: "T2/600" },
-  { nom: "COPIER",        sorte: "copier",        x:  269.5, y:    316, l:    20, h:   20, cible: { x: 257.5, y: 304, l: 44, h: 44 }, mot: "", cran: "T1/600" },
-  { nom: "EQUIP",         sorte: "voyant",        x:   47.5, y:    354, l:    40, h:   40, mot: "Equip", cran: "T1/600", sous: "Equipped", cranSous: "T0/600" },
-  { nom: "ATTUNE",        sorte: "voyant",        x:  143.5, y:    354, l:    40, h:   40, mot: "Attune", cran: "T1/600", sous: "Attuned", cranSous: "T0/600" },
-  { nom: "LOCKED",        sorte: "voyant",        x:  239.5, y:    354, l:    40, h:   40, mot: "Lock", cran: "T1/600", sous: "Locked", cranSous: "T0/600" },
-  { nom: "EQUIP ON",      sorte: "interrupteur",  x:   95.5, y:    364, l:    36, h:   20, cible: { x: 91.5, y: 352, l: 44, h: 44 }, etat: "on" },
-  { nom: "ATTUNE ON",     sorte: "interrupteur",  x:  191.5, y:    364, l:    36, h:   20, cible: { x: 187.5, y: 352, l: 44, h: 44 }, etat: "on" },
-  { nom: "LOCKED ON",     sorte: "interrupteur",  x:  287.5, y:    364, l:    36, h:   20, cible: { x: 283.5, y: 352, l: 44, h: 44 }, etat: "on" },
-  { nom: "SEND",          sorte: "voyant",        x:   58.5, y:    402, l:    36, h:   40, mot: "Send", cran: "T1/600" },
-  { nom: "SEND N",        sorte: "champ",         x:   98.5, y:    402, l:    44, h:   40, cible: { x: 98.5, y: 400, l: 44, h: 44 }, mot: "1", cran: "T2/600" },
-  { nom: "TO",            sorte: "voyant",        x:  146.5, y:    402, l:    16, h:   40, mot: "to", cran: "T1/600" },
-  { nom: "SEND VERS",     sorte: "dropdown",      x:  166.5, y:    402, l:   150, h:   40, cible: { x: 166.5, y: 400, l: 150, h: 44 }, mot: "Merchant / NPC", cran: "T2/600" },
-  { nom: "BACK",          sorte: "porte",         x:   21.5, y:    454, l:    77, h:   40, cible: { x: 21.5, y: 452, l: 77, h: 44 }, role: "retour", cran: "T2/600" },
-  { nom: "USE",           sorte: "porte",         x:  106.5, y:    454, l:    77, h:   40, cible: { x: 106.5, y: 452, l: 77, h: 44 }, mot: "Use", cran: "T2/600" },
-  { nom: "SEND !",        sorte: "porte",         x:  191.5, y:    454, l:    77, h:   40, cible: { x: 191.5, y: 452, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
-  { nom: "TRASH",         sorte: "porte",         x:  276.5, y:    454, l:    77, h:   40, cible: { x: 276.5, y: 452, l: 77, h: 44 }, mot: "Trash", cran: "T2/600" },
+  { nom: "DESCRIPTION",   sorte: "zone",          x:     20, y:     76, l:   335, h:  182, mot: "Description", cran: "T2/400" },
+  { nom: "FILET BAS",     sorte: "zone",          x:     20, y:    258, l:   335, h:    8, mot: "", cran: "T1/600" },
+  { nom: "IS",            sorte: "voyant",        x:   73.5, y:    276, l:    16, h:   40, mot: "is", cran: "T1/600" },
+  { nom: "IS QUOI",       sorte: "voyant",        x:   93.5, y:    276, l:   160, h:   40, mot: "An attack", cran: "T2/600" },
+  { nom: "COPIER",        sorte: "copier",        x:  269.5, y:    286, l:    20, h:   20, cible: { x: 257.5, y: 274, l: 44, h: 44 }, mot: "", cran: "T1/600" },
+  { nom: "EQUIP",         sorte: "voyant",        x:   47.5, y:    324, l:    40, h:   40, mot: "Equip", cran: "T1/600", sous: "Equipped", cranSous: "T0/600" },
+  { nom: "ATTUNE",        sorte: "voyant",        x:  143.5, y:    324, l:    40, h:   40, mot: "Attune", cran: "T1/600", sous: "Attuned", cranSous: "T0/600" },
+  { nom: "LOCKED",        sorte: "voyant",        x:  239.5, y:    324, l:    40, h:   40, mot: "Lock", cran: "T1/600", sous: "Locked", cranSous: "T0/600" },
+  { nom: "EQUIP ON",      sorte: "interrupteur",  x:   95.5, y:    334, l:    36, h:   20, cible: { x: 91.5, y: 322, l: 44, h: 44 }, etat: "on" },
+  { nom: "ATTUNE ON",     sorte: "interrupteur",  x:  191.5, y:    334, l:    36, h:   20, cible: { x: 187.5, y: 322, l: 44, h: 44 }, etat: "on" },
+  { nom: "LOCKED ON",     sorte: "interrupteur",  x:  287.5, y:    334, l:    36, h:   20, cible: { x: 283.5, y: 322, l: 44, h: 44 }, etat: "on" },
+  { nom: "SEND",          sorte: "voyant",        x:   58.5, y:    372, l:    36, h:   40, mot: "Send", cran: "T1/600" },
+  { nom: "SEND N",        sorte: "champ",         x:   98.5, y:    372, l:    44, h:   40, cible: { x: 98.5, y: 370, l: 44, h: 44 }, mot: "1", cran: "T2/600" },
+  { nom: "TO",            sorte: "voyant",        x:  146.5, y:    372, l:    16, h:   40, mot: "to", cran: "T1/600" },
+  { nom: "SEND VERS",     sorte: "dropdown",      x:  166.5, y:    372, l:   150, h:   40, cible: { x: 166.5, y: 370, l: 150, h: 44 }, mot: "Merchant / NPC", cran: "T2/600" },
+  { nom: "BACK",          sorte: "porte",         x:   27.5, y:    424, l:    77, h:   40, cible: { x: 27.5, y: 422, l: 77, h: 44 }, role: "retour", cran: "T2/600" },
+  { nom: "USE",           sorte: "porte",         x:  108.5, y:    424, l:    77, h:   40, cible: { x: 108.5, y: 422, l: 77, h: 44 }, mot: "Use", cran: "T2/600" },
+  { nom: "SEND !",        sorte: "porte",         x:  189.5, y:    424, l:    77, h:   40, cible: { x: 189.5, y: 422, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
+  { nom: "TRASH",         sorte: "porte",         x:  270.5, y:    424, l:    77, h:   40, cible: { x: 270.5, y: 422, l: 77, h: 44 }, mot: "Trash", cran: "T2/600" },
 ];
 
 /* ═══ CE QUE LA FICHE COMMANDE, ET QUI N'EXISTE PAS ENCORE ═══

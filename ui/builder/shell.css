@@ -11495,39 +11495,72 @@ button.tuto-point::before {
    vit dans une LIGNE de tableau de commande, celui-ci est une CASE d'un plan.
    Deux organes, deux familles — ⏳ les réunir est une cote d'Eric, pas une
    fusion décidée dans un lot. */
+/* ⚖️ LA BASE EST CELLE DU MENU — Eric, 17/09 au soir, en renvoyant le bouton de
+   `Layers` : *« bouton du menu, la base de laquelle tu dois partir ! »*. Les deux
+   proportions sont les siennes, telles quelles : la piste compose la teinte à **26 %**,
+   son anneau à **55 %**, et le pouce est la teinte pleine.
+   ⛔ CE QUI CHANGE, ET C'EST LA SEULE CHOSE : le FOND sur lequel elles composent. Au
+   menu c'est `--sunken`, une surface sombre ; sur le parchemin, clair, la même formule
+   rend une piste délavée — vue au banc, c'est le défaut qu'Eric a repris. La fiche
+   apporte donc sa propre matière sombre, celle que le verrou porte déjà, et les trois
+   interrupteurs se composent sur le même corps.
+   ⭐ Une formule ne se juge jamais seule : elle se juge sur son fond. */
 .x1-bascule {
   display: flex; align-items: center; justify-content: flex-start;
   padding: var(--sp-2);
   border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--critical) 26%, var(--sunken)); background-clip: padding-box;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 55%, var(--border-strong));
+  /* ⛔ `background-color`, JAMAIS LE RACCOURCI `background` — mesuré au banc le 17/09 :
+     la règle de l'état allumé posait `background: …` et le raccourci REMET
+     `background-clip` à `border-box`. La piste se peignait alors sur la CIBLE de 44,
+     en pilule — le « cercle moche autour » qu'Eric a vu. Une propriété qu'on pose une
+     fois et qu'un raccourci efface ailleurs est un défaut qui ne se voit qu'au rendu. */
+  background-color: color-mix(in srgb, var(--critical) 26%, var(--x1-bascule-corps));
+  background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 55%, var(--x1-bascule-corps));
   color: var(--text); cursor: pointer;
 }
 /* ⭐ LA COTE DU POUCE SE DÉDUIT, elle ne s'écrit pas : il prend toute la hauteur
-   utile de la piste (22 du plan, moins les deux `--sp-2` de rembourrage) et reste
-   carré. Un nombre écrit ici mentirait le jour où le plan bouge de 22. */
+   utile de la piste (20 du plan, moins les deux `--sp-2` de rembourrage) et reste
+   carré. Un nombre écrit ici mentirait le jour où le plan bouge de 20. */
 .x1-bascule-pouce {
   height: 100%; aspect-ratio: 1;
-  border-radius: var(--radius-pill); background: var(--critical);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-pill); background-color: var(--critical);
+}
+/* ⚖️ LE SIGNE EST DANS LE POUCE, ET IL Y TIENT LARGE — Eric, 17/09 au soir : *« le
+   verrou doit clairement être plus petit pour rentrer dans le petit cercle vert contenu
+   dans le bouton »*, *« idem pour le cœur »*.
+   ⛔ CE QU'IL CORRIGE : le signe REMPLAÇAIT le pouce, donc il prenait tout son disque et
+   le débordait. Il est maintenant DEDANS, à 58 % — une proportion, pas une cote : le
+   jour où le pouce change de taille, le signe suit.
+   ⭐ ET SEULEMENT QUAND L'ÉTAT EST VRAI : *« soit vide à gauche, ou avec un cadenas
+   blanc quand à droite »*. À gauche, le disque est nu. */
+.x1-bascule[data-signe][data-on="true"] .x1-bascule-pouce::before {
+  content: ""; display: block; width: 58%; height: 58%;
 }
 .x1-bascule[data-on="true"] {
   justify-content: flex-end;
-  background: color-mix(in srgb, var(--positive) 26%, var(--sunken));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--border-strong));
+  background-color: color-mix(in srgb, var(--positive) 26%, var(--x1-bascule-corps));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--x1-bascule-corps));
 }
-.x1-bascule[data-on="true"] .x1-bascule-pouce { background: var(--positive); }
-/* les deux interrupteurs NOIRS — le corps ne bascule pas de teinte, seul le
-   signe apparaît : c'est le dessin qu'Eric a décrit, et il est le même de jour
-   comme de nuit. */
-.x1-bascule[data-signe] {
-  background: var(--x1-bascule-corps);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-.x1-bascule[data-signe] .x1-bascule-pouce { background: var(--x1-bascule-vide); }
-.x1-bascule[data-signe][data-on="true"] { background: var(--x1-bascule-corps); }
-.x1-bascule[data-signe="cadenas"][data-on="true"] .x1-bascule-pouce {
-  background: var(--x1-bascule-signe); mask: var(--icone-cadenas) center / contain no-repeat;
+.x1-bascule[data-on="true"] .x1-bascule-pouce { background-color: var(--positive); }
+/* 🔴 LE CORPS NOIR A VÉCU UNE JOURNÉE. Eric l'avait décrit le matin (*« locked est un
+   bouton noir »*), puis a renvoyé le soir le bouton du menu comme base pour TOUS. Les
+   trois interrupteurs ont donc la même piste ; ce qui les distingue est le SIGNE que
+   porte leur pouce, et rien d'autre. ⭐ Un organe se reconnaît à sa forme, pas à sa
+   couleur (NORMES §2) : ici la forme est commune, et c'est le signe qui nomme. */
+.x1-bascule[data-signe="cadenas"][data-on="true"] .x1-bascule-pouce::before {
+  background-color: var(--x1-bascule-signe);
+  mask: var(--icone-cadenas) center / contain no-repeat;
   -webkit-mask: var(--icone-cadenas) center / contain no-repeat;
+}
+/* ⚖️ LE CŒUR EST VIOLET, comme le voyant que l'écran R dessine déjà sur le jeton :
+   violet = magie (NORMES §7). Le même fait vu à deux endroits ne prend pas deux
+   couleurs. */
+.x1-bascule[data-signe="coeur"][data-on="true"] .x1-bascule-pouce::before {
+  background-color: var(--magie);
+  mask: var(--icone-coeur) center / contain no-repeat;
+  -webkit-mask: var(--icone-coeur) center / contain no-repeat;
 }
 /* — LE BOUTON DE COPIE : un glyphe en oxblood, à droite du menu `is`. */
 /* — LE BOUTON DE COPIE : 20 de dessin dans 44 de cible (Eric, 17/09 au soir), deux

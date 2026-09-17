@@ -104,8 +104,15 @@ test("4 — aucun chevauchement de dessins, aucun chevauchement de cibles", () =
 test("5 — le budget vertical est fermé : la description prend ce qui reste, et rien ne déborde", () => {
   const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
   const pied = ORGANES.filter((o) => o.y > desc.y + desc.h).map((o) => cibleDe(o));
-  assert.equal(Math.max(...pied.map((b) => b.y + b.h)), DALLE.h - MARGE,
-    "la dernière rangée finit à 4 du bas, pile");
+  /* ⚖️ LE PIED A SA PROPRE MARGE — Eric, 17/09 au soir : *« remonte tout ce qui est
+     sous le trait de séparation inférieur du texte de 20 blg »*. La déchirure du bas
+     du parchemin mordait dans la rangée des portes. 🔴 RÉÉCRIT À CETTE VÉRITÉ : la
+     version d'avant attendait la marge de PAGE, et c'est justement ce qui a changé.
+     ⛔ Et le garde lit la valeur dans la TABLE, il ne la recopie pas. */
+  assert.equal(TABLE.marge_pied, MARGE + 30, "le pied s'écarte du bas de 30 de plus que la page");
+  assert.equal(D.MARGE_PIED, TABLE.marge_pied, "la déclaration porte la même marge que la table");
+  assert.equal(Math.max(...pied.map((b) => b.y + b.h)), DALLE.h - TABLE.marge_pied,
+    "la dernière rangée finit à 24 du bas, pile");
   assert.equal(Math.min(...ORGANES.map((o) => cibleDe(o).y)), MARGE, "et la première commence à 4 du haut");
   /* ⭐ LA ZONE DU TEXTE EST UN GROUPE DE TROIS : un filet, la description, un filet
      — Eric, 17/09 au soir. Les filets sont COLLÉS à la description (ils la délimitent,
