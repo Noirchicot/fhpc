@@ -11434,8 +11434,12 @@ button.tuto-point::before {
 }
 /* — LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — l'image d'Eric, posée en masque : la
    teinte vient de la fiche, jamais du dessin. */
+/* ⚖️ ROUGE, ET DEUX FOIS PLUS ÉPAIS — Eric, 17/09 au soir : *« ligne de séparation
+   2× plus épaisse, trait rouge »*. ⭐ C'est le MÊME rouge que les mots d'état : sur un
+   parchemin plein, l'oxblood passe (Eric, le matin), et la fiche n'a donc qu'un rouge.
+   L'épaisseur, elle, vit dans le dessin du jeton — pas ici. */
 .x1-filet {
-  background: var(--x1-trait);
+  background: var(--x1-etat-encre);
   mask: var(--icone-filet) center / 100% auto no-repeat;
   -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
 }

@@ -1083,7 +1083,7 @@
   /* ⚖️ LE FILET QUI DÉLIMITE LE TEXTE — Eric, 17/09 au soir, en donnant l'image : un
      trait qui s'affine aux deux bouts, et au milieu losange · point · losange. ⛔ Il
      est posé en MASQUE : sa teinte est celle de la fiche, pas une encre écrite ici. */
-  --icone-filet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' fill='%23000'%3E%3Cpath d='M0 6.3 L164 4.5 L164 7.5 Z'/%3E%3Cpath d='M400 6.3 L236 4.5 L236 7.5 Z'/%3E%3Cpath d='M168 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3Ccircle cx='200' cy='6' r='3.6'/%3E%3Cpath d='M214 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3C/svg%3E");
+  --icone-filet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 20' fill='%23000'%3E%3Cpath d='M0 10.5 L164 7 L164 13 Z'/%3E%3Cpath d='M400 10.5 L236 7 L236 13 Z'/%3E%3Cpath d='M166 10 l10 -8 l10 8 l-10 8 z'/%3E%3Ccircle cx='200' cy='10' r='7'/%3E%3Cpath d='M214 10 l10 -8 l10 8 l-10 8 z'/%3E%3C/svg%3E");
   /* ⚖️ LA COPIE — Eric, 17/09 au soir : *« deux pages superposées, très simple et
      petit, juste des traits »*. Dessin de 20 dans la cible de 44. */
   --icone-copie: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round'%3E%3Crect x='9' y='3' width='12' height='15' rx='2'/%3E%3Cpath d='M15 21H5a2 2 0 0 1-2-2V7'/%3E%3C/svg%3E");
