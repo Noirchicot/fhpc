@@ -6026,16 +6026,26 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 55%, var(--border-strong));
 }
 .interrupteur-pouce { width: 16px; height: 16px; border-radius: var(--radius-pill); background: var(--critical); }
-.interrupteur[data-on="true"] .interrupteur-piste {
+/* ⭐ LOT 213 — LES ÉTATS SE DÉTACHENT DE LEUR ÉCRAN, l'organe reste le même. Eric,
+   17/09 au soir : *« bouton du menu, la base de laquelle tu dois partir ! »* — la fiche
+   X1 prend LA piste, pas une copie de ses formules. Pour ça, l'état ne peut plus
+   s'ancrer sur `.interrupteur` (la LIGNE du tableau de commande) : il s'ancre sur
+   `data-on`, que l'hôte porte — la ligne du menu comme le bouton de la fiche.
+   ⛔ Rien d'autre n'a bougé : mêmes teintes, mêmes proportions, même ordre. */
+[data-on="true"] > .interrupteur-piste {
   justify-content: flex-end;
   background: color-mix(in srgb, var(--positive) 26%, var(--sunken));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--border-strong));
 }
-.interrupteur[data-on="true"] .interrupteur-pouce { background: var(--positive); }
+[data-on="true"] > .interrupteur-piste > .interrupteur-pouce { background: var(--positive); }
 /* Un réglage qui dort garde sa POSITION (elle dit l'état) mais perd sa
    teinte : le gris dit « pas à toi de le toucher ». */
-.interrupteur:disabled .interrupteur-piste { background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
-.interrupteur:disabled .interrupteur-pouce { background: var(--text-muted); }
+/* ⚠️ `[disabled]` ET PAS `:disabled` — le compte de spécificité, parce qu'il se
+   repaierait : la règle de l'état allumé vaut (0,2,0) depuis qu'elle s'ancre sur un
+   attribut ; `:disabled >` ne vaudrait que (0,1,1) et PERDRAIT. L'attribut la met à
+   (0,2,0), et l'ordre tranche — le gris d'un réglage qui dort passe après le vert. */
+[disabled] > .interrupteur-piste { background: var(--sunken); box-shadow: inset 0 0 0 1px var(--border-strong); }
+[disabled] > .interrupteur-piste > .interrupteur-pouce { background: var(--text-muted); }
 
 /* ══ LE VOYANT — une lampe, pas un contrôle (Eric, 09/09) ══════════════════
    La MÊME ligne que l'interrupteur (hauteur `--touch`, mot à gauche en 600, la
@@ -11487,69 +11497,36 @@ button.tuto-point::before {
    disque translucide du dé (1,24:1) ; ceci est une ENCRE sur un parchemin
    opaque, et ce n'est pas la même mesure. */
 .x1-etat-mot { font-size: var(--t0); font-weight: 600; color: var(--x1-etat-encre); }
-/* — L'INTERRUPTEUR DE X1 : dessin 40 × 22 dans la cible de 44 du plan, corps
-   NOIR, et le pouce devient un signe quand il est à droite (Eric, 17/09 :
-   *« locked est un bouton noir, soit vide à gauche ou avec un cadenas blanc
-   quand à droite »* · *« attuned idem, avec un cœur »*).
-   ⚠️ CE N'EST PAS L'INTERRUPTEUR DE `Layers` (piste 36 × 20, pouce 16) : celui-là
-   vit dans une LIGNE de tableau de commande, celui-ci est une CASE d'un plan.
-   Deux organes, deux familles — ⏳ les réunir est une cote d'Eric, pas une
-   fusion décidée dans un lot. */
-/* ⚖️ LA BASE EST CELLE DU MENU — Eric, 17/09 au soir, en renvoyant le bouton de
-   `Layers` : *« bouton du menu, la base de laquelle tu dois partir ! »*. Les deux
-   proportions sont les siennes, telles quelles : la piste compose la teinte à **26 %**,
-   son anneau à **55 %**, et le pouce est la teinte pleine.
-   ⛔ CE QUI CHANGE, ET C'EST LA SEULE CHOSE : le FOND sur lequel elles composent. Au
-   menu c'est `--sunken`, une surface sombre ; sur le parchemin, clair, la même formule
-   rend une piste délavée — vue au banc, c'est le défaut qu'Eric a repris. La fiche
-   apporte donc sa propre matière sombre, celle que le verrou porte déjà, et les trois
-   interrupteurs se composent sur le même corps.
-   ⭐ Une formule ne se juge jamais seule : elle se juge sur son fond. */
+/* — L'INTERRUPTEUR DE LA FICHE : ⛔ ELLE N'EN DESSINE AUCUN. Eric, 17/09 au soir :
+   *« bouton du menu, la base de laquelle tu dois partir ! »*, puis *« t'es pas foutu de
+   récupérer le bouton du menu et de le mettre ici ! »*.
+   ⭐ CE QUI RESTE ICI EST LA CIBLE, ET RIEN D'AUTRE : un carré de 44 qui centre la
+   piste du menu. Les teintes, les proportions et l'état vivent dans le bloc de
+   `.interrupteur-piste`, plus haut, et il n'y a toujours qu'un seul écrivain.
+   ⛔ J'avais recopié ses formules dans une classe à moi — deux copies d'un même dessin
+   sont deux écrivains pour une seule loi, la faute que le patron des boutons a déjà
+   payée le 16/09. La réparation est la SUPPRESSION de la copie. */
 .x1-bascule {
-  display: flex; align-items: center; justify-content: flex-start;
-  padding: var(--sp-2);
-  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--radius-pill);
-  /* ⛔ `background-color`, JAMAIS LE RACCOURCI `background` — mesuré au banc le 17/09 :
-     la règle de l'état allumé posait `background: …` et le raccourci REMET
-     `background-clip` à `border-box`. La piste se peignait alors sur la CIBLE de 44,
-     en pilule — le « cercle moche autour » qu'Eric a vu. Une propriété qu'on pose une
-     fois et qu'un raccourci efface ailleurs est un défaut qui ne se voit qu'au rendu. */
-  background-color: color-mix(in srgb, var(--critical) 26%, var(--x1-bascule-corps));
-  background-clip: padding-box;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 55%, var(--x1-bascule-corps));
-  color: var(--text); cursor: pointer;
-}
-/* ⭐ LA COTE DU POUCE SE DÉDUIT, elle ne s'écrit pas : il prend toute la hauteur
-   utile de la piste (20 du plan, moins les deux `--sp-2` de rembourrage) et reste
-   carré. Un nombre écrit ici mentirait le jour où le plan bouge de 20. */
-.x1-bascule-pouce {
-  height: 100%; aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
-  border-radius: var(--radius-pill); background-color: var(--critical);
+  border-style: solid; border-color: transparent;
+  padding: 0; background: none; cursor: pointer;
+  /* l'encre, parce qu'un bouton qui pose un fond pose son encre (garde 6) — ici
+     elle ne sert qu'au focus et aux lecteurs, la piste porte tout le dessin. */
+  color: var(--x1-encre);
 }
-/* ⚖️ LE SIGNE EST DANS LE POUCE, ET IL Y TIENT LARGE — Eric, 17/09 au soir : *« le
+/* ⚖️ LE SIGNE EST DANS LE POUCE, ET PLUS PETIT QUE LUI — Eric, 17/09 au soir : *« le
    verrou doit clairement être plus petit pour rentrer dans le petit cercle vert contenu
-   dans le bouton »*, *« idem pour le cœur »*.
-   ⛔ CE QU'IL CORRIGE : le signe REMPLAÇAIT le pouce, donc il prenait tout son disque et
-   le débordait. Il est maintenant DEDANS, à 58 % — une proportion, pas une cote : le
-   jour où le pouce change de taille, le signe suit.
-   ⭐ ET SEULEMENT QUAND L'ÉTAT EST VRAI : *« soit vide à gauche, ou avec un cadenas
-   blanc quand à droite »*. À gauche, le disque est nu. */
-.x1-bascule[data-signe][data-on="true"] .x1-bascule-pouce::before {
+   dans le bouton »*, *« idem pour le cœur »*. 58 % est une PROPORTION : le jour où le
+   pouce change de taille, le signe suit.
+   ⭐ ET SEULEMENT QUAND L'ÉTAT EST VRAI : *« vide à gauche, un cadenas blanc quand à
+   droite »*. À gauche, le disque est nu. */
+.x1-bascule[data-signe][data-on="true"] .interrupteur-pouce {
+  display: flex; align-items: center; justify-content: center;
+}
+.x1-bascule[data-signe][data-on="true"] .interrupteur-pouce::before {
   content: ""; display: block; width: 58%; height: 58%;
 }
-.x1-bascule[data-on="true"] {
-  justify-content: flex-end;
-  background-color: color-mix(in srgb, var(--positive) 26%, var(--x1-bascule-corps));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--x1-bascule-corps));
-}
-.x1-bascule[data-on="true"] .x1-bascule-pouce { background-color: var(--positive); }
-/* 🔴 LE CORPS NOIR A VÉCU UNE JOURNÉE. Eric l'avait décrit le matin (*« locked est un
-   bouton noir »*), puis a renvoyé le soir le bouton du menu comme base pour TOUS. Les
-   trois interrupteurs ont donc la même piste ; ce qui les distingue est le SIGNE que
-   porte leur pouce, et rien d'autre. ⭐ Un organe se reconnaît à sa forme, pas à sa
-   couleur (NORMES §2) : ici la forme est commune, et c'est le signe qui nomme. */
-.x1-bascule[data-signe="cadenas"][data-on="true"] .x1-bascule-pouce::before {
+.x1-bascule[data-signe="cadenas"][data-on="true"] .interrupteur-pouce::before {
   background-color: var(--x1-bascule-signe);
   mask: var(--icone-cadenas) center / contain no-repeat;
   -webkit-mask: var(--icone-cadenas) center / contain no-repeat;
@@ -11557,7 +11534,7 @@ button.tuto-point::before {
 /* ⚖️ LE CŒUR EST VIOLET, comme le voyant que l'écran R dessine déjà sur le jeton :
    violet = magie (NORMES §7). Le même fait vu à deux endroits ne prend pas deux
    couleurs. */
-.x1-bascule[data-signe="coeur"][data-on="true"] .x1-bascule-pouce::before {
+.x1-bascule[data-signe="coeur"][data-on="true"] .interrupteur-pouce::before {
   background-color: var(--magie);
   mask: var(--icone-coeur) center / contain no-repeat;
   -webkit-mask: var(--icone-coeur) center / contain no-repeat;
@@ -11589,15 +11566,15 @@ button.tuto-point::before {
    ils sont posés sur le parchemin, pas sur la dalle. ⛔ On ne retouche pas
    `.pipeline-dropdown` pour autant — c'est le MÊME organe ailleurs, sur un autre
    fond ; c'est ici qu'on dit le fond, pas là-bas. */
+/* ⚖️ 40 DE HAUT — Eric, 17/09 au soir : *« le dropdown fait 40 blg de hauteur »*.
+   ⭐ Il prend donc TOUTE la boîte de son organe, que la table pose à 40 : `height: 100%`
+   et non un nombre écrit ici. Un `<select>` natif se dimensionne sur sa police si on ne
+   le lui dit pas — c'est ce qu'il faisait, et il rendait la moitié de sa place. */
 .x1-select {
-  width: 100%; min-width: 0;
+  width: 100%; height: 100%; min-width: 0;
   color: var(--x1-encre); background: color-mix(in srgb, var(--x1-encre) 8%, transparent);
   border-color: var(--x1-trait);
 }
-/* ⚖️ NON COLORÉ = NON CLIQUABLE (NORMES §6) : le menu `is` attend que sa SOURCE
-   soit tranchée, et il le dit de la même façon que le bouton `Use` — le même
-   voile que tout organe éteint du chapitre. */
-.x1-select:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
 .x1-saisie {
   width: 100%; text-align: center;
   border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);

@@ -44,6 +44,9 @@ import * as D from "./x1-disposition.mjs?v=651";
    plan, elle ne pilote pas l'écran — un besoin satisfait deux fois est une
    occasion de diverger (NORMES §5). */
 import { DESTINATIONS } from "./gear-ecran.mjs?v=651";
+/* ⭐ L'INTERRUPTEUR DU MENU, PRIS TEL QUEL — il est descendu dans une feuille sans
+   import (lot 213) pour que la fiche le prenne sans traîner `Layers` derrière elle. */
+import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=651";
 
 const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
 
@@ -188,14 +191,13 @@ function carreDEtat(id, o, allume) {
   return boite;
 }
 
-/** Un interrupteur : dessin 40 × 22 dans la cible de 44 du plan.
- *  ⚖️ `role="switch"` ET PAS `aria-pressed` — la loi de `layers-ecran.mjs` :
- *  un interrupteur est un état vrai ou faux, pas un bouton qu'on enfonce.
- *  ⚠️ CE N'EST PAS L'INTERRUPTEUR DE `Layers` (piste 36 × 20, pouce 16, posé
- *  dans une LIGNE de tableau de commande) : celui-ci est une CASE du plan de
- *  X1, noire, et son pouce devient un signe. Deux organes, deux familles —
- *  ⏳ et le jour où Eric veut une seule piste pour les deux, c'est une cote de
- *  lui, pas une fusion décidée ici. */
+/** Un interrupteur : ⛔ CE N'EST PAS UN DESSIN DE LA FICHE, c'est CELUI DU MENU.
+ *  La fiche pose la CIBLE de 44 du plan et y centre `pisteDInterrupteur()` —
+ *  l'organe de `Layers`, pris tel quel (Eric, 17/09 au soir : *« bouton du menu,
+ *  la base de laquelle tu dois partir ! »*).
+ *  ⚖️ `role="switch"` ET PAS `aria-pressed` — la loi de l'organe : un interrupteur
+ *  est un état vrai ou faux, pas un bouton qu'on enfonce. C'est `data-on` que la
+ *  feuille lit, et il est posé ici comme il l'est là-bas. */
 function bascule(id, allume, options) {
   const b = eld("button", "x1-bascule");
   b.type = "button";
@@ -207,9 +209,30 @@ function bascule(id, allume, options) {
   if (signe) b.dataset.signe = signe;
   const clef = ETAT_DE[id];
   b.setAttribute("aria-label", MOTS_ETAT[clef] || clef);
-  b.append(eld("span", "x1-bascule-pouce"));
+  b.append(pisteDInterrupteur());
   if (options.surEtat) b.addEventListener("click", () => options.surEtat(clef, !allume));
   return b;
+}
+
+/** Le menu `is` — où l'objet se range dans la fiche de personnage.
+ *  ⏳ SA LISTE EST CELLE DU CROQUIS, portée par la table générée ; ⛔ sa SOURCE — une
+ *  propriété que la règle donne, ou un choix du joueur ? — n'est pas tranchée. Le lot
+ *  l'écrit donc comme un choix (`gear[N].is`), qui est ce qu'un menu FAIT, et la
+ *  question reste au rapport. */
+function menuIs(id, options) {
+  const boite = eld("div", "x1-destination");
+  boite.dataset.organe = id;
+  const s = eld("select", "pipeline-dropdown x1-select");
+  s.setAttribute("aria-label", "Is — where this item sits on the character sheet");
+  for (const mot of D.EST) {
+    const opt = eld("option", null, mot);
+    opt.value = mot;
+    if (mot === options.est) opt.selected = true;
+    s.append(opt);
+  }
+  s.addEventListener("change", () => { if (options.surEst) options.surEst(s.value); });
+  boite.append(s);
+  return boite;
 }
 
 /** Le menu d'une destination — même organe que sur l'écran R : une boîte qui
@@ -330,16 +353,12 @@ export function construireLaFicheX1(options = {}) {
     } else if (id === "is") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "is-quoi") {
-      /* ⚖️ PAS DE MENU, JUSTE LE MOT — Eric, 17/09 au soir : *« le dropdown `is` pas
-         visible, pas de dropdown, juste du texte ? »*. ⭐ Il avait raison deux fois :
-         le menu était désarmé, et désarmé il portait le voile des 20 % — il ne se
-         voyait plus. Un menu qu'on ne peut pas ouvrir n'est pas un menu, c'est une
-         valeur : elle s'écrit.
-         ⏳ ET LA VALEUR EST CELLE QUE LE DÉPÔT SAIT : le GENRE du record (`weapon`,
-         `armor`, `gear`). ⛔ Le rangement dans la fiche de personnage — « une attaque »,
-         « un sort » — demande une source qu'Eric n'a pas tranchée : on n'invente pas
-         une donnée pour remplir un mot. */
-      noeud.append(voyant(id, "x1-is-quoi", objet.genre || ""));
+      /* ⚖️ C'EST UN DROPDOWN — Eric, 17/09 au soir, en deux temps : la question (*« pas
+         de dropdown, juste du texte ? »*), puis la réponse (*« is est un dropdown »*).
+         ⭐ Il avait raison sur le FAIT — désarmé, le menu portait le voile des 20 % et
+         disparaissait — et la réparation n'était pas d'en changer l'organe, mais de
+         l'ARMER. Un menu qui s'ouvre se voit. */
+      noeud.append(menuIs(id, options));
     } else if (id === "copier") {
       /* ⭐ UN BOUTON À GLYPHE, pas à mot : 40 × 40 dans la cible de 44, et il ne
          porte ni l'habit de la famille ni son liseré de rôle (la loi des `+`/`−`

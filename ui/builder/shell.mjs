@@ -2114,12 +2114,16 @@ function applyDecisionAction(action) {
      ça dit : la fiche de personnage ne les LIT pas encore. Le jour où
      l'harmonisation compte (le plafond du SRD), c'est `derive.mjs` qui
      consommera `attuned`, et ce verbe n'aura pas à changer. */
-  if (action.kind === "setGearFlag") {
-    if (action.flag !== "attuned" && action.flag !== "locked") return;
+  if (action.kind === "setGearChamp") {
+    /* ⛔ UNE LISTE BLANCHE, ET ELLE DIT AUSSI LE TYPE : deux drapeaux qu'on inverse,
+       un mot qu'on choisit. ⭐ `is` est entré le 17/09 au soir (*« is est un
+       dropdown »*) : un menu ÉCRIT, sinon ce n'est pas un menu. */
+    const booleen = action.champ === "attuned" || action.champ === "locked";
+    if (!booleen && action.champ !== "is") return;
     state.document = verbs.set({
       document: state.document,
-      path: `gear[${action.index}].${action.flag}`,
-      value: action.value === true
+      path: `gear[${action.index}].${action.champ}`,
+      value: booleen ? action.value === true : String(action.value)
     }).document;
     rebuild();
     refresh();

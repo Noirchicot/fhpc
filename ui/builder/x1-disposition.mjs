@@ -10,6 +10,8 @@ export const MARGE = 4;
 /* ⚖️ Eric, 17/09 au soir : « remonte tout ce qui est sous le trait de séparation
    inférieur du texte de 20 blg » — la déchirure du bas mordait dans la rangée des
    portes. Le pied a donc SA marge, et elle n'est pas celle de la page. */
+export const MARGE_TETE = 14;
+export const MARGE_COTE = 14;
 export const MARGE_PIED = 34;
 export const TOUCH = 44;                          /* --touch, plancher de toute cible */
 export const PETIT = 77, LARGE = 105;             /* --bouton-petit, --bouton-moyen */
@@ -28,18 +30,18 @@ export const ROND = 22;   /* la flèche : le gabarit du livre et du `?` de l'éc
 export const PARCHEMIN_DEBORD = 0;
 
 export const ORGANES = [
-  { nom: "QTE",           sorte: "voyant",        x:     52, y:      6, l:    40, h:   40, mot: "×2", cran: "T1/600" },
-  { nom: "NOM",           sorte: "voyant",        x:     96, y:      6, l:   183, h:   40, mot: "Winged Helmet", cran: "T4/600" },
-  { nom: "PAGINATION",    sorte: "voyant",        x:    283, y:      6, l:    40, h:   40, mot: "1/12", cran: "T1/600" },
-  { nom: "PRECEDENT",     sorte: "rond",          x:     15, y:     15, l:    22, h:   22, cible: { x: 4, y: 4, l: 44, h: 44 } },
-  { nom: "SUIVANT",       sorte: "rond",          x:    338, y:     15, l:    22, h:   22, cible: { x: 327, y: 4, l: 44, h: 44 } },
-  { nom: "PRIX",          sorte: "voyant",        x:     90, y:     52, l:    84, h:    8, mot: "15 gp · ×2 · 30 gp", cran: "T1/600" },
-  { nom: "POIDS",         sorte: "voyant",        x:    241, y:     52, l:    44, h:    8, mot: "3 lb · 6 lb", cran: "T1/600" },
-  { nom: "FILET HAUT",    sorte: "zone",          x:     20, y:     68, l:   335, h:    8, mot: "", cran: "T1/600" },
-  { nom: "DESCRIPTION",   sorte: "zone",          x:     20, y:     76, l:   335, h:  182, mot: "Description", cran: "T2/400" },
-  { nom: "FILET BAS",     sorte: "zone",          x:     20, y:    258, l:   335, h:    8, mot: "", cran: "T1/600" },
+  { nom: "QTE",           sorte: "voyant",        x:     62, y:     20, l:    40, h:   40, mot: "×2", cran: "T1/600" },
+  { nom: "NOM",           sorte: "voyant",        x:    106, y:     20, l:   163, h:   40, mot: "Winged Helmet", cran: "T4/600" },
+  { nom: "PAGINATION",    sorte: "voyant",        x:    273, y:     20, l:    40, h:   40, mot: "1/12", cran: "T1/600" },
+  { nom: "PRECEDENT",     sorte: "rond",          x:     25, y:     29, l:    22, h:   22, cible: { x: 14, y: 18, l: 44, h: 44 } },
+  { nom: "SUIVANT",       sorte: "rond",          x:    328, y:     29, l:    22, h:   22, cible: { x: 317, y: 18, l: 44, h: 44 } },
+  { nom: "PRIX",          sorte: "voyant",        x:     90, y:     62, l:    84, h:    8, mot: "15 gp · ×2 · 30 gp", cran: "T1/600" },
+  { nom: "POIDS",         sorte: "voyant",        x:    241, y:     62, l:    44, h:    8, mot: "3 lb · 6 lb", cran: "T1/600" },
+  { nom: "FILET HAUT",    sorte: "zone",          x:   70.5, y:     78, l:   234, h:    8, mot: "", cran: "T1/600" },
+  { nom: "DESCRIPTION",   sorte: "zone",          x:     20, y:     86, l:   335, h:  172, mot: "Description", cran: "T2/400" },
+  { nom: "FILET BAS",     sorte: "zone",          x:   70.5, y:    258, l:   234, h:    8, mot: "", cran: "T1/600" },
   { nom: "IS",            sorte: "voyant",        x:   73.5, y:    276, l:    16, h:   40, mot: "is", cran: "T1/600" },
-  { nom: "IS QUOI",       sorte: "voyant",        x:   93.5, y:    276, l:   160, h:   40, mot: "An attack", cran: "T2/600" },
+  { nom: "IS QUOI",       sorte: "dropdown",      x:   93.5, y:    276, l:   160, h:   40, cible: { x: 93.5, y: 274, l: 160, h: 44 }, mot: "An attack", cran: "T2/600" },
   { nom: "COPIER",        sorte: "copier",        x:  269.5, y:    286, l:    20, h:   20, cible: { x: 257.5, y: 274, l: 44, h: 44 }, mot: "", cran: "T1/600" },
   { nom: "EQUIP",         sorte: "voyant",        x:   47.5, y:    324, l:    40, h:   40, mot: "Equip", cran: "T1/600", sous: "Equipped", cranSous: "T0/600" },
   { nom: "ATTUNE",        sorte: "voyant",        x:  143.5, y:    324, l:    40, h:   40, mot: "Attune", cran: "T1/600", sous: "Attuned", cranSous: "T0/600" },

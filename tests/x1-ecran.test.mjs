@@ -113,7 +113,22 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
   assert.equal(D.MARGE_PIED, TABLE.marge_pied, "la déclaration porte la même marge que la table");
   assert.equal(Math.max(...pied.map((b) => b.y + b.h)), DALLE.h - TABLE.marge_pied,
     "la dernière rangée finit à 24 du bas, pile");
-  assert.equal(Math.min(...ORGANES.map((o) => cibleDe(o).y)), MARGE, "et la première commence à 4 du haut");
+  /* ⚖️ LA TÊTE A SA MARGE, comme le pied — Eric, 17/09 au soir : *« descendre tout ce
+     qui est au-dessus du trait supérieur de 10 blg »*. La déchirure du parchemin mord
+     en haut comme en bas. 🔴 Réécrit à cette vérité : la version d'avant attendait la
+     marge de page. */
+  assert.equal(TABLE.marge_tete, MARGE + 10, "la tête descend de 10 de plus que la page");
+  assert.equal(D.MARGE_TETE, TABLE.marge_tete, "la déclaration porte la même marge que la table");
+  /* ⭐ ET LA LIGNE DU NOM GLISSE DE 4 DANS SON CRÉNEAU — Eric : *« descend juste la
+     ligne du haut de 4 blg »*, *« descends pas le reste »*. Elle mange la gouttière qui
+     la séparait des chiffres ; rien d'autre ne bouge, et la somme reste la même. */
+  const nom = ORGANES.find((o) => o.nom === "NOM");
+  const chiffres = ORGANES.find((o) => o.nom === "PRIX");
+  assert.equal(Math.min(...ORGANES.map((o) => cibleDe(o).y)), TABLE.marge_tete + 4,
+    "la première rangée commence à 18 : la marge de tête, plus le glissement du nom");
+  assert.equal(chiffres.y, TABLE.marge_tete + TOUCH + 4,
+    "⛔ et la ligne des chiffres, elle, est restée comptée depuis la marge de tête");
+  assert.ok(nom.y > TABLE.marge_tete, "le nom est bien descendu dans son créneau");
   /* ⭐ LA ZONE DU TEXTE EST UN GROUPE DE TROIS : un filet, la description, un filet
      — Eric, 17/09 au soir. Les filets sont COLLÉS à la description (ils la délimitent,
      ils ne la voisinent pas) ; la gouttière de 8 est au-dessus et au-dessous du GROUPE.
@@ -123,8 +138,13 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
   const bas = ORGANES.find((o) => o.nom === "FILET BAS");
   assert.equal(haut.y + haut.h, desc.y, "le filet du haut touche la description");
   assert.equal(desc.y + desc.h, bas.y, "et celui du bas aussi");
-  assert.deepEqual([haut.x, haut.l, bas.x, bas.l], [desc.x, desc.l, desc.x, desc.l],
-    "les filets partagent la colonne du texte — même marge, même largeur");
+  /* 🔴 RÉÉCRIT LE 17/09 AU SOIR — Eric : *« réduis de 30 % la largeur du trait de
+     délimitation du texte »*. Les filets ne bornent plus la colonne, ils la PONCTUENT :
+     70 % de sa largeur, centrés sur la dalle. ⛔ Le garde ne se relâche pas — il tient
+     maintenant la proportion ET le centrage, qui sont ce qu'Eric a demandé. */
+  assert.deepEqual([haut.x, haut.l], [bas.x, bas.l], "les deux filets sont le même trait");
+  assert.equal(haut.l, Math.round(desc.l * 0.7), "70 % de la colonne du texte");
+  assert.equal(haut.x, (DALLE.l - haut.l) / 2, "et centré sur la dalle");
   const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
   const apres = Math.min(...ORGANES.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));
   assert.equal(haut.y - avant, 8, "8 au-dessus du groupe");
@@ -268,8 +288,13 @@ test("13 — les quatre portes publient leur geste ; `Use` et le menu `is` sont 
      pas visible, pas de dropdown, juste du texte ? »* — a vu qu'un menu désarmé
      portait le voile des 20 % et disparaissait. Un menu qu'on ne peut pas ouvrir est
      une valeur : elle s'écrit. ⛔ Le garde ne se relâche pas, il change d'objet. */
-  assert.equal(n.querySelector('[data-organe="is-quoi"] select'), null, "plus aucun menu pour `is`");
-  assert.equal(n.querySelector('[data-organe="is-quoi"]').className, "x1-is-quoi", "c'est un mot, pas un contrôle");
+  /* 🔴 RÉÉCRIT DEUX FOIS DANS LA MÊME SOIRÉE, ET C'EST LA SECONDE QUI TIENT : Eric a
+     d'abord demandé un mot (*« pas de dropdown, juste du texte ? »*, une question posée
+     devant un menu qui avait disparu sous le voile des 20 %), puis tranché — *« is est
+     un dropdown »*. Le garde exige donc un menu ARMÉ : c'est ce qui manquait. */
+  const menuIs = n.querySelector('[data-organe="is-quoi"] select');
+  assert.ok(menuIs, "`is` est un dropdown");
+  assert.equal(menuIs.disabled, false, "et il s'ouvre — un menu désarmé n'est pas un menu");
 });
 
 test("14 — la pagination dit le rang dans le lieu, et les flèches s'éteignent aux deux bouts", () => {
@@ -319,13 +344,15 @@ test("16 — le clic droit sur un jeton porté ouvre la fiche, et il nomme la LI
 test("17 — 🔴 les deux états que la fiche écrit passent par un verbe, et par UN SEUL", () => {
   /* `equipped` reste le revers de la position (`moveGearLine`) : lui ouvrir un
      second écrivain ferait diverger l'état et le lieu. */
-  assert.match(coquille, /action\.kind === "setGearFlag"/, "le verbe existe dans la coquille");
-  const bloc = coquille.slice(coquille.indexOf('action.kind === "setGearFlag"'));
-  assert.match(bloc.slice(0, 400), /action\.flag !== "attuned" && action\.flag !== "locked"/,
-    "et il n'accepte QUE les deux états que X1 possède");
-  assert.doesNotMatch(bloc.slice(0, 400), /\.equipped/, "⛔ `equipped` n'entre pas par ce chemin");
+  assert.match(coquille, /action\.kind === "setGearChamp"/, "le verbe existe dans la coquille");
+  const bloc = coquille.slice(coquille.indexOf('action.kind === "setGearChamp"'), coquille.indexOf('action.kind === "setGearChamp"') + 700);
+  assert.match(bloc, /action\.champ === "attuned" \|\| action\.champ === "locked"/,
+    "les deux drapeaux sont nommés");
+  assert.match(bloc, /action\.champ !== "is"/, "et le troisième champ, le mot du menu `is`");
+  assert.doesNotMatch(bloc, /\.equipped/, "⛔ `equipped` n'entre pas par ce chemin : il est le revers de la position");
   /* ⚔️ et l'écran l'appelle bien avec la clef, pas avec un booléen anonyme */
-  assert.match(etape, /kind: "setGearFlag", index: ligne\.index, flag: clef, value: valeur/);
+  assert.match(etape, /kind: "setGearChamp", index: ligne\.index, champ: clef, value: valeur/);
+  assert.match(etape, /champ: "is", value: valeur/, "le menu `is` écrit, sinon ce n'est pas un menu");
 });
 
 test("18 — 🔴 l'écran R lit enfin les deux voyants que X1 écrit (la dette du 16/09 est payée)", () => {

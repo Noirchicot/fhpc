@@ -329,7 +329,7 @@ export function currentGearLines(document) {
      son emplacement ou vendu »* (Eric, 17/09). 📏 Mesurés contre les verbes avant
      d'être posés : zéro violation, ils ressortent `unconsumed` — la fiche de
      personnage ne les lit pas encore, l'écran si. */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked))?$/;
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -342,6 +342,7 @@ export function currentGearLines(document) {
     else if (match[2] === "boite") line.boite = choice.value;
     else if (match[2] === "attuned") line.attuned = choice.value;
     else if (match[2] === "locked") line.locked = choice.value;
+    else if (match[2] === "is") line.is = choice.value;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -2143,8 +2144,10 @@ export function renderEquipmentStep(ctx, onAction) {
          verbe. ⛔ Écrire `equipped` à la main ferait diverger l'état et le lieu. */
       surEtat: (clef, valeur) => {
         if (clef === "equipped") actArbitre({ kind: "moveGearLine", index: ligne.index, location: valeur ? "self" : "backpack" });
-        else act({ kind: "setGearFlag", index: ligne.index, flag: clef, value: valeur });
+        else act({ kind: "setGearChamp", index: ligne.index, champ: clef, value: valeur });
       },
+      est: ligne.is || "",
+      surEst: (valeur) => act({ kind: "setGearChamp", index: ligne.index, champ: "is", value: valeur }),
       surCopier: () => copierLObjet(ligne, data),
       surPorte: (porte) => {
         if (porte === "close") { ficheX1 = null; montrer("gear"); }
