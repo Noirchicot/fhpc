@@ -49,19 +49,19 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=651";
-import { facteurZoomCourant } from "./echelle.mjs?v=651";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=651";
+import { renderPicker } from "./carnet.mjs?v=652";
+import { facteurZoomCourant } from "./echelle.mjs?v=652";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=652";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=651";
-import { swapContent } from "./socle.mjs?v=651";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=651";
+import { isGenre } from "../../src/layers/document.mjs?v=652";
+import { swapContent } from "./socle.mjs?v=652";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=652";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=651";
+import { armerJeton } from "./glisser.mjs?v=652";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
@@ -82,7 +82,7 @@ import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=651";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=651";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=652";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -94,7 +94,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=651";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=651";
+import { motDuCran } from "./ecran-mort.mjs?v=652";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
