@@ -8597,7 +8597,13 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    à mot — et *« l'octogone est l'habit des trois gabarits À LIBELLÉ »*. Un
    bouton à glyphe (`+`, `?`) n'en porte pas ; ceux-ci, si. */
 .ability-entry,
-.gear-porte /* LOT 212 — les trois portes du pied de R : Backpack · Send · Wares */ {
+.gear-porte, /* LOT 212 — les trois portes du pied de R : Backpack · Send · Wares */
+/* LOT 213 — les quatre portes du pied de X1 : Close · Use · Send · Trash. ⭐ Elles
+   entrent par la liste, pas par une copie : le garde `bouton-inventaire` exige que
+   les deux listes (`::before`, `::after`) soient identiques membre pour membre, et
+   c'est son travail de rougir quand une famille entre — on met l'inventaire à jour
+   EN LE SACHANT. */
+.x1-porte {
   /* 🔴 LE DÉFAUT EST `transparent` DEPUIS LE 16/09, ET C'EST TOUT LE
      RECÂBLAGE — Eric : *« la couleur du liseré = la couleur du bouton
      d'origine »*, et *« le bouton gris n'a pas de liseré »*.
@@ -8676,7 +8682,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi::before,
 .pipeline-pas::before,
 .aiguilleur-bouton::before,
-.gear-porte::before {
+.gear-porte::before,
+.x1-porte::before {
   content: "";
   position: absolute;
   /* 🔴 LE DESSIN FAIT 40, LA CIBLE RESTE 44 — Eric, 2026-09-16 : *« passe tous
@@ -8753,7 +8760,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi::after,
 .pipeline-pas::after,
 .aiguilleur-bouton::after,
-.gear-porte::after {
+.gear-porte::after,
+.x1-porte::after {
   content: "";
   position: absolute;
   /* la face suit le corps : le retrait vertical du dessin, PLUS son propre
@@ -9020,7 +9028,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
     .card-pied button,
     .fiche-action,
     .parcours-pied button,
-    .gear-porte):not(.fiche-livre):not(.tuto-point) {
+    .gear-porte,
+    .x1-porte):not(.fiche-livre):not(.tuto-point) {
   min-width: var(--bouton-petit);
   padding-inline: var(--sp-8);
 }
@@ -9049,7 +9058,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
     .card-pied button,
     .fiche-action,
     .parcours-pied button,
-    .gear-porte):not(.fiche-livre):not(.tuto-point).bouton-moyen {
+    .gear-porte,
+    .x1-porte):not(.fiche-livre):not(.tuto-point).bouton-moyen {
   min-width: var(--bouton-moyen);
 }
 
@@ -9235,14 +9245,18 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    déborde donc la gouttière du stage des deux côtés ; c'est une dalle, et une
    dalle a le droit d'occuper la marge (NORMES §1 bis). Rien ne défile : le
    budget vertical est fermé au blg près (60 + 4 + 8 × 48 + 48 + 8 + 44 + 12). */
-.decision-card:has(> .equipment-step > .gear) {
+/* ⭐ LOT 213 — `:is(.gear, .x1)` ET PAS UNE SECONDE RÈGLE : X1 recouvre la même
+   dalle que R, donc elle a la même boîte. Écrire un second bloc identique serait
+   deux écrivains pour une seule loi (l'incident du patron des boutons, 16/09) ;
+   ajouter la classe à l'`:is` n'en fait qu'un. */
+.decision-card:has(> .equipment-step > :is(.gear, .x1)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > .gear) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x1)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
-.gear {
+.gear, .x1 {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));
@@ -11379,3 +11393,175 @@ button.tuto-point::before {
    apprend au joueur à ne plus y croire, et il ne le recroira pas en SB2 où le
    lien, lui, ouvre vraiment. Encre de corps ici, `--lien` là-bas. */
 .card-final-rang-nom { color: var(--text-soft); }
+
+/* ══ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════════════════════
+   ⛔ AUCUNE COTE DE POSITION ICI. Chaque organe est posé par la feuille que
+   `x1-ecran.mjs` construit depuis la table générée `x1-disposition.mjs`
+   (`Plan-ecran-X1/X1_gen.py`). Ce bloc ne porte que l'HABIT — la forme,
+   l'encre, les états. Même partage que l'écran R, et pour la même raison :
+   une valeur qui vient de la donnée ne se recopie pas dans cette feuille.
+   ⭐ LA DALLE, ELLE, EST DÉCLARÉE PLUS HAUT AVEC CELLE DE R (`:is(.gear, .x1)`) :
+   les deux écrans du chapitre recouvrent la même surface, et une seule règle le
+   dit. */
+.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat; }
+/* chaque organe est posé en absolu par la feuille construite ; ici on ne dit
+   que le MODE, jamais la place */
+.x1 [data-organe] { position: absolute; box-sizing: border-box; }
+
+/* — LE NOM, entre ses deux flèches. T4, l'écriture d'un titre d'objet : c'est
+   le seul mot de l'écran qui nomme la CHOSE, tout le reste la décrit. */
+.x1-nom {
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--t4); font-weight: 600; color: var(--x1-encre);
+  text-align: center; line-height: 1.1; overflow-wrap: break-word;
+}
+/* — LA PAGINATION, à droite du nom (Eric, 17/09 : *« le nombre de pages à droite
+   du titre »*). Elle dit un rang, pas une donnée : encre sourde. */
+.x1-pagination {
+  display: flex; align-items: center; justify-content: flex-end;
+  font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
+  font-variant-numeric: tabular-nums;
+}
+/* — LES DEUX FLÈCHES : le gabarit du livre et du `?` — un rond de 22 dans la
+   cible de 44 (NORMES §2). ⛔ Pas l'habit de la famille à libellé : un bouton à
+   GLYPHE n'a pas de mot à cadrer, donc pas de corps à bomber. */
+.x1-fleche {
+  display: flex; align-items: center; justify-content: center;
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--radius-pill);
+  background: none; box-shadow: inset 0 0 0 1px var(--x1-trait);
+  color: var(--x1-encre); font-size: var(--t3); line-height: 1; cursor: pointer;
+}
+.x1-fleche:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
+/* — PRIX ET POIDS : deux mentions qu'on LIT, hautes de ce que leur texte
+   mesure (Eric, 17/09 : *« prix poids, pas 44 de haut, 8 ! »*). ⛔ Elles ne se
+   touchent pas : aucun plancher tactile ne s'y applique. */
+.x1-chiffres {
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--t1); font-weight: 600; color: var(--x1-encre);
+  white-space: nowrap; line-height: 1;
+}
+/* — LA DESCRIPTION : la seule zone élastique, et la seule qui défile. Tout ce
+   que les autres rangées rendent lui revient (Eric, 17/09). */
+.x1-description {
+  overflow-y: auto; overscroll-behavior: contain;
+  font-size: var(--t2); font-weight: 400; color: var(--x1-encre);
+  line-height: 1.45; text-align: left; white-space: pre-line;
+}
+/* — LES MOTS DE LIAISON (`is`, `Send`, `to`) : ils ne nomment pas une donnée,
+   ils cousent une phrase. Même habit que le nom d'un emplacement en attente
+   sur l'écran R — T1, italique, encre douce (Eric, 16/09). */
+.x1-mot {
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); line-height: 1;
+}
+/* — LE PETIT CARRÉ D'UN ÉTAT : son titre, et SOUS lui le mot de l'état — Eric,
+   17/09 : *« tout se passe dans le petit carré, pas en dessous »*. Le mot
+   n'apparaît que si l'état est vrai ; sa place, elle, reste (`hidden`, jamais
+   un `display: none` — défaut n°3 du dépôt). */
+.x1-etat {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; line-height: 1.1;
+}
+.x1-etat-titre { font-size: var(--t1); font-weight: 600; color: var(--x1-encre); }
+/* 🩸 L'OXBLOOD, ET ICI IL PASSE — Eric, 17/09 : *« on est sur un fond plein,
+   oxblood passe »*. ⛔ Le contre-exemple de `tokens.css` visait un LISERÉ sur le
+   disque translucide du dé (1,24:1) ; ceci est une ENCRE sur un parchemin
+   opaque, et ce n'est pas la même mesure. */
+.x1-etat-mot { font-size: var(--t0); font-weight: 600; color: var(--x1-etat-encre); }
+/* — L'INTERRUPTEUR DE X1 : dessin 40 × 22 dans la cible de 44 du plan, corps
+   NOIR, et le pouce devient un signe quand il est à droite (Eric, 17/09 :
+   *« locked est un bouton noir, soit vide à gauche ou avec un cadenas blanc
+   quand à droite »* · *« attuned idem, avec un cœur »*).
+   ⚠️ CE N'EST PAS L'INTERRUPTEUR DE `Layers` (piste 36 × 20, pouce 16) : celui-là
+   vit dans une LIGNE de tableau de commande, celui-ci est une CASE d'un plan.
+   Deux organes, deux familles — ⏳ les réunir est une cote d'Eric, pas une
+   fusion décidée dans un lot. */
+.x1-bascule {
+  display: flex; align-items: center; justify-content: flex-start;
+  padding: var(--sp-2);
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--critical) 26%, var(--sunken)); background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--critical) 55%, var(--border-strong));
+  color: var(--text); cursor: pointer;
+}
+/* ⭐ LA COTE DU POUCE SE DÉDUIT, elle ne s'écrit pas : il prend toute la hauteur
+   utile de la piste (22 du plan, moins les deux `--sp-2` de rembourrage) et reste
+   carré. Un nombre écrit ici mentirait le jour où le plan bouge de 22. */
+.x1-bascule-pouce {
+  height: 100%; aspect-ratio: 1;
+  border-radius: var(--radius-pill); background: var(--critical);
+}
+.x1-bascule[data-on="true"] {
+  justify-content: flex-end;
+  background: color-mix(in srgb, var(--positive) 26%, var(--sunken));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--positive) 55%, var(--border-strong));
+}
+.x1-bascule[data-on="true"] .x1-bascule-pouce { background: var(--positive); }
+/* les deux interrupteurs NOIRS — le corps ne bascule pas de teinte, seul le
+   signe apparaît : c'est le dessin qu'Eric a décrit, et il est le même de jour
+   comme de nuit. */
+.x1-bascule[data-signe] {
+  background: var(--x1-bascule-corps);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.x1-bascule[data-signe] .x1-bascule-pouce { background: var(--x1-bascule-vide); }
+.x1-bascule[data-signe][data-on="true"] { background: var(--x1-bascule-corps); }
+.x1-bascule[data-signe="cadenas"][data-on="true"] .x1-bascule-pouce {
+  background: var(--x1-bascule-signe); mask: var(--icone-cadenas) center / contain no-repeat;
+  -webkit-mask: var(--icone-cadenas) center / contain no-repeat;
+}
+/* ⚖️ LE CŒUR EST VIOLET, comme le voyant que l'écran R dessine déjà sur le jeton :
+   violet = magie (NORMES §7). Le même fait vu à deux endroits ne prend pas deux
+   couleurs. */
+.x1-bascule[data-signe="coeur"][data-on="true"] .x1-bascule-pouce {
+  background: var(--magie); mask: var(--icone-coeur) center / contain no-repeat;
+  -webkit-mask: var(--icone-coeur) center / contain no-repeat;
+}
+/* — LE BOUTON DE COPIE : un glyphe en oxblood, à droite du menu `is`. */
+.x1-copier {
+  display: flex; align-items: center; justify-content: center;
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
+  background: var(--x1-etat-encre); background-clip: padding-box;
+  color: var(--x1-bascule-vide); font-size: var(--t1); font-weight: 600; cursor: pointer;
+}
+/* — LES DEUX MENUS ET LA SAISIE : la boîte porte l'organe, le select la remplit
+   (on n'écrit rien DANS un `<select>`). */
+.x1-destination { display: flex; flex-direction: column; justify-content: center; }
+.x1-destination-mot {
+  font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); text-align: center; line-height: 1;
+}
+/* ⭐ LES DEUX MENUS ET LA SAISIE PRENNENT L'ENCRE DE LA FICHE, pas celle du site :
+   ils sont posés sur le parchemin, pas sur la dalle. ⛔ On ne retouche pas
+   `.pipeline-dropdown` pour autant — c'est le MÊME organe ailleurs, sur un autre
+   fond ; c'est ici qu'on dit le fond, pas là-bas. */
+.x1-select {
+  width: 100%; min-width: 0;
+  color: var(--x1-encre); background: color-mix(in srgb, var(--x1-encre) 8%, transparent);
+  border-color: var(--x1-trait);
+}
+/* ⚖️ NON COLORÉ = NON CLIQUABLE (NORMES §6) : le menu `is` attend que sa SOURCE
+   soit tranchée, et il le dit de la même façon que le bouton `Use` — le même
+   voile que tout organe éteint du chapitre. */
+.x1-select:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
+.x1-saisie {
+  width: 100%; text-align: center;
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
+  background: color-mix(in srgb, var(--x1-encre) 8%, transparent); background-clip: padding-box;
+  box-shadow: inset 0 0 0 1px var(--x1-trait);
+  color: var(--x1-encre); font-size: var(--t2); font-weight: 600;
+}
+/* — LES QUATRE PORTES : l'habit de la famille (déclaré plus haut), et le liseré
+   dit le verbe — bleu on navigue, vert on agit, rouge on défait (Eric, 16/09 sur
+   la rangée de R : *« Send a un liseré vert, les autres sont juste de la
+   navigation »*). ⛔ La teinte se déduit de `data-porte`, elle ne s'écrit jamais
+   dans le balisage. */
+.x1-porte {
+  min-height: var(--touch); font-size: var(--bouton-cran-serre); font-weight: 600;
+  --bouton-fond: var(--info);
+}
+.x1-porte[data-porte="envoyer"] { --bouton-fond: var(--positive); }
+.x1-porte[data-porte="trash"] { --bouton-fond: var(--critical); }
+/* ⚖️ UN BOUTON DÉSARMÉ N'A PAS DE LISERÉ — Eric, 16/09 : *« le bouton gris n'a pas
+   de liseré »*, et NORMES : non coloré = non cliquable. `Use` attend son chantier,
+   il le dit. */
+.x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }

@@ -1032,6 +1032,47 @@
   --icone-parchemin-party: url("./assets/parchemin-party.webp?v=651");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
   --icone-bourse: url("./assets/bourse.webp?v=651");
+
+  /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
+     ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
+     d'un parchemin · derrière, le background ; la dalle sous-jacente n'est pas
+     visible, juste le belt au-dessus »*. L'image porte SES bords déchirés ; la
+     fiche n'a donc pas d'arête droite, et ce qu'on voit à travers les déchirures
+     est le décor du site. 📏 Servie en 806 × 1056 (deux fois la cote), 57 Ko
+     contre 1,18 Mo : détourée par remplissage depuis les bords, ⛔ jamais par un
+     seuil global — le parchemin est clair, un seuil l'aurait troué partout. */
+  --x1-parchemin: url("./assets/parchemin-x1.webp?v=651");
+  /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE. Le parchemin est
+     OPAQUE et CLAIR sur les deux fonds : l'encre du site (`--text`, qui bascule
+     avec le thème) y devient illisible la nuit — mesuré au banc le 17/09, premier
+     rendu, le nom se lisait à peine. ⭐ Même raison que `--bouton-encre` : *« ce
+     jeton bascule ; la face du bouton, elle, est la même sur les deux fonds »*.
+     Un organe qui apporte son propre fond apporte son propre contraste. */
+  --x1-encre: #2a1c10;
+  --x1-encre-douce: #6d573e;
+  --x1-trait: #8d7352;
+  /* 🩸 L'OXBLOOD DES MOTS D'ÉTAT ET DU BOUTON DE COPIE — Eric, 17/09 : *« on est
+     sur un fond plein, oxblood passe »*, et *« Equip / Equipped (apparaît en
+     oxblood quand c'est le cas) »*.
+     ⚠️ LE MÊME NOMBRE EST UN CONTRE-EXEMPLE VINGT LIGNES PLUS BAS, et les deux
+     sont vrais : #4a0e13 tombe à 1,24:1 sur le disque NOIR du dé, où il est un
+     LISERÉ et disparaît ; ici il est une ENCRE sur un parchemin opaque et clair.
+     ⛔ Une teinte ne se juge jamais seule : elle se juge sur son fond. */
+  --x1-etat-encre: #4a0e13;
+  /* ⚖️ LES DEUX INTERRUPTEURS NOIRS — Eric, 17/09 : *« locked est un bouton noir,
+     soit vide à gauche, ou avec un cadenas blanc quand à droite »*, *« attuned
+     idem, avec un cœur »*. ⛔ Le corps NE BASCULE PAS avec le thème : c'est un
+     dessin qu'Eric a décrit noir, et il est noir de jour comme de nuit — comme la
+     face du bouton, qui est la même sur les deux fonds. */
+  --x1-bascule-corps: #14100c;
+  --x1-bascule-vide: #ffffff;
+  --x1-bascule-signe: #ffffff;
+  /* Les deux signes, en masque : la teinte vient de la règle qui les porte (blanc
+     pour le cadenas, `--magie` pour le cœur), jamais du dessin. ⛔ Et ce sont des
+     FORMES, pas des glyphes de police : un glyphe se juge sur son raster de 12 px,
+     et les courbes d'une police n'y survivent pas (TRAPS, 06/08). */
+  --icone-cadenas: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M7 10V7a5 5 0 0 1 10 0v3h1.5a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 18.5 21h-13A1.5 1.5 0 0 1 4 19.5v-8A1.5 1.5 0 0 1 5.5 10H7Zm2 0h6V7a3 3 0 0 0-6 0v3Z'/%3E%3C/svg%3E");
+  --icone-coeur: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 21S3 14.6 3 9.1A4.6 4.6 0 0 1 7.6 4.5 5 5 0 0 1 12 7a5 5 0 0 1 4.4-2.5A4.6 4.6 0 0 1 21 9.1C21 14.6 12 21 12 21Z'/%3E%3C/svg%3E");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne

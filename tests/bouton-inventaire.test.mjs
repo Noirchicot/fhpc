@@ -64,7 +64,13 @@ const SOCLE = [
   /* — LOT 212, entré à la fusion du 16/09 : les portes de l'écran R (Gear) —
      Backpack · Send · Wares dans la rangée du pied, et Companions. Un ajout au
      CORPUS, déclaré ici en le sachant, pas une réparation de garde. — */
-  ".gear-porte"
+  ".gear-porte",
+  /* — LOT 213, 17/09 : les quatre portes du pied de la fiche X1 — Close · Use ·
+     Send · Trash. ⭐ CE GARDE A ROUGI SUR SON ENTRÉE, ET C'EST SON TRAVAIL : une
+     famille n'entre pas dans l'habit sans qu'on le sache, et la mise à jour de
+     cette liste EST la façon de le savoir. ⛔ Elle n'est pas une réparation du
+     garde : elle est la déclaration du lot. — */
+  ".x1-porte"
 ];
 
 /* ⛔ CE QUI RESTE DEHORS, ET NOMMÉMENT : `.pipeline-fleche` porte le filtre du
@@ -73,7 +79,9 @@ const SOCLE = [
 const HORS_PATRON_MAIS_PORTE_LE_FILTRE = [".pipeline-fleche"];
 
 /* Le PLANCHER DES GABARITS — shell.css ~8903, `min-width: --bouton-petit`.
-   ⚠️ IL NE COUVRE QUE SIX DES HUIT PORTEUSES. `.tray-bouton` et
+   ⚠️ IL NE LES COUVRE PAS TOUTES (sept sur neuf depuis le lot 213 ; le titre de
+   ce garde comptait, il nomme maintenant l'écart au lieu de le chiffrer — un
+   compte dans un titre vieillit à chaque entrée). `.tray-bouton` et
    `.ability-entry` portent l'habit SANS la cote 77 : leur largeur vient
    d'ailleurs. Ce n'est pas un oubli à réparer dans un lot de peinture —
    c'est un écart à connaître avant de mesurer, sinon on lit deux cotes
@@ -85,7 +93,8 @@ const PLANCHER = [
   ".card-pied button",
   ".fiche-action",
   ".parcours-pied button",
-  ".gear-porte"          // LOT 212 — le petit 77, comme les autres portes à mot
+  ".gear-porte",         // LOT 212 — le petit 77, comme les autres portes à mot
+  ".x1-porte"            // LOT 213 — les quatre portes de X1, même gabarit petit
 ];
 
 /* Les familles à mot QUI NE PORTENT AUCUN HABIT — en attente de l'arbitrage
@@ -220,7 +229,7 @@ test("⛔ `.pipeline-fleche` PORTE LE FILTRE SANS PORTER LE PATRON — et ça re
   }
 });
 
-test("📏 LE PLANCHER DES GABARITS NE COUVRE QUE SIX DES HUIT PORTEUSES", () => {
+test("📏 LE PLANCHER DES GABARITS NE COUVRE PAS TOUTES LES PORTEUSES", () => {
   const bloc = /:is\(([^)]*)\):not\(\.fiche-livre\):not\(\.tuto-point\)\s*\{([^{}]*min-width:\s*var\(--bouton-petit\)[^{}]*)\}/
     .exec(CSS);
   assert.ok(bloc, "le plancher `min-width: var(--bouton-petit)` doit rester trouvable");

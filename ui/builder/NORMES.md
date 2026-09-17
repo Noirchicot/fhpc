@@ -3071,6 +3071,43 @@ fiche, le régime d'une dalle avait du sens ; depuis que le corps rend la sienne
 sous une plaque. 📌 **Aucune règle n'était fausse le jour où elle a été écrite. C'est le contexte qui
 a bougé sous elle, et rien ne le signale.**
 
+### 🗂️ LE RANG X — LA FICHE D'UN OBJET, ET ELLE NE S'INSCRIT PAS DANS LE BELT
+📍 `cadre-rang-x-fiche-d-un-objet` · vivante · 17/09
+⚖️ **Un écran de rang `X` est la fiche d'UN objet : il recouvre toute la dalle, le belt reste, et ⛔ il n'écrit JAMAIS la 3ᵉ ligne de la ceinture.**
+
+> Eric, 16/09 : **« les x ne s'inscrivent pas dans le belt »** · **« maintenant, clic droit ou tap
+> sur un token doit produire une fiche X1 »**.
+
+⭐ **`X` EST UN RANG, PAS UN NOM DE PAGE** — il entre dans la famille `R` · `B` · `SB`, et il s'écrit
+comme eux : **« Équipement › X1 »**, jamais « X1 » seul. Ce qu'il ajoute au vocabulaire est un rang
+qui **ne se range pas dans le chemin** : on n'y descend pas depuis un `R` par une porte, on l'ouvre
+en TAPANT une chose — un jeton — et on la referme pour retrouver exactement l'écran qu'on avait.
+
+⚖️ **CE QUE LE RANG X DÉCIDE** — et il ne décide rien d'autre :
+
+| | ce qu'un rang X fait |
+|---|---|
+| la dalle | il la recouvre **entière** (375 × 500), le belt reste **visible et inchangé** |
+| la 3ᵉ ligne du belt | ⛔ **jamais écrite** — elle continue de dire le lieu d'où l'on vient |
+| le retour | il **ferme** et rend l'écran d'avant ; ⛔ il ne recule d'aucune étape |
+| l'état | **aucun ne survit** à sa fermeture : ce qu'il change, il l'écrit au document |
+
+🔴 **POURQUOI L'ABSENCE D'ÉCRITURE EST UNE LOI ET PAS UN DÉTAIL.** La 3ᵉ ligne dit *où l'on est*. Une
+fiche d'objet n'est pas un lieu : elle est ce qu'on regarde SANS quitter le lieu où l'on est. Le jour
+où elle s'y inscrirait, le joueur qui la ferme retrouverait une ceinture qui parle d'un écran qu'il
+ne voit plus. ⭐ En code, la loi tient à une seule chose, vérifiable : **le rang X n'a pas de mot
+dans la table des fenêtres** (`FENETRE_DE`, `equipment-step.mjs`) — et c'est le garde de X1 qui le
+tient (`tests/x1-ecran.test.mjs`, « 8 »).
+
+⛔ **ET SON RETOUR NE DIT PAS `Back`.** Le mot appartient à la coquille, qui seule le pose
+(`bouton-la-classe-et-le-verbe-font-l-organe`, la table des mots : *« `Back` — `shell.mjs` seul —
+🔒 exclusif »*). Une fiche qui ferme **ne recule de rien** : son mot est **`Close`**,
+celui qu'Eric a ratifié le 07/09 pour la fenêtre d'information d'un jeton. ⏳ Le croquis de X1 écrit
+« back » : la question est rendue à Eric, et c'est lui qui tranchera si le mot du croquis doit
+l'emporter sur la loi du dépôt.
+
+---
+
 ### ⛔ CE QUI NE SE DEVINE JAMAIS — sept drapeaux déclarés
 📍 `socle-ce-qui-ne-se-devine-jamais` · vivante · 27/08
 ⚖️ **L'écran DÉCLARE son gabarit par sept drapeaux nommés et le catalogue DESSINE — ⛔ rien ne se devine d'après les nœuds rendus.**

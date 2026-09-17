@@ -188,14 +188,38 @@ test("4 — la feuille construite pose chaque organe à ses px du plan, sous le 
 });
 
 test("4 bis — shell.css ne porte AUCUNE position de l'écran : les cotes sont dans la table", () => {
-  const bloc = shell.slice(shell.indexOf(".gear {"), shell.indexOf(".gear-porte {"));
-  assert.ok(bloc.length > 0, "le bloc de l'écran existe");
+  /* 🔴 RÉÉCRIT LE 2026-09-17 (lot 213), ET LA RAISON EST DANS TRAPS : ce garde
+     épelait une IMPLÉMENTATION — le texte exact `.gear {` et `.gear-porte::before {`
+     — au lieu de l'invariant. La fiche X1 recouvre la même dalle que R, donc les
+     deux écrans partagent leur bloc (`.gear, .x1 {`) et leur place dans la famille
+     des boutons (`.gear-porte::before, .x1-porte::before {`).
+     ⛔ CE QUE ÇA A PRODUIT, ET C'EST LE DÉFAUT QU'ON NE VOIT PAS : `.gear {` ne
+     matchait plus que la ligne du cran serré, 365 lignes plus bas — le garde a
+     continué de passer en mesurant un bloc de trois lignes au lieu du bloc de
+     l'écran. Une preuve qui cesse de prouver EN RESTANT VERTE.
+     ⭐ Il cherche donc maintenant le bloc par ce qu'il EST (le sélecteur de la
+     dalle, seul ou accompagné) et la famille par APPARTENANCE à une liste, pas par
+     une fin de ligne. */
+  const debut = shell.search(/^\.gear(?:,\s*\.[\w-]+)*\s*\{$/m);
+  assert.ok(debut > 0, "le bloc de la dalle existe, seul ou partagé avec la fiche X1");
+  const bloc = shell.slice(debut, shell.indexOf(".gear-porte", debut));
+  assert.ok(bloc.length > 100, "et le garde mesure bien le bloc de l'écran, pas trois lignes");
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur dans shell.css serait une cote recopiée");
   assert.match(shell, /\.gear \{ --bouton-cran-serre: var\(--t2\); \}/, "l'exception du cran est nommée sur l'écran");
-  /* les trois portes sont de la famille : corps, face et plancher les listent */
-  for (const marque of [".gear-porte::before {", ".gear-porte::after {", ".gear-porte):not(.fiche-livre):not(.tuto-point) {"]) {
-    assert.ok(shell.includes(marque), `la famille des boutons ne liste pas ${marque}`);
+  /* les trois portes sont de la famille : corps, face et plancher les listent —
+     ⭐ en tête de liste OU au milieu, ce qui compte est d'y être. */
+  for (const marque of [".gear-porte::before", ".gear-porte::after"]) {
+    assert.match(shell, new RegExp(marque.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*[,{]"),
+      `la famille des boutons ne liste pas ${marque}`);
   }
+  /* et le PLANCHER de 77 : on cherche la règle par ce qu'elle POSE (la cote de la
+     famille petite), puis on demande si la porte est dans sa liste. ⛔ Recopier la
+     fin du sélecteur reviendrait à épeler l'implémentation, ce que ce garde vient
+     de payer. */
+  const plancher = shell.match(/:is\(([^)]*)\)[^{]*\{[^}]*min-width: var\(--bouton-petit\)/);
+  assert.ok(plancher, "la règle du gabarit petit existe et pose `--bouton-petit`");
+  assert.ok(plancher[1].split(",").map((m) => m.trim()).includes(".gear-porte"),
+    "la porte de R est dans la liste du gabarit petit");
 });
 
 /* ══ 5 — LE DOM : ce que l'écran rend ══════════════════════════════════════ */

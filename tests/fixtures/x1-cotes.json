@@ -1,0 +1,287 @@
+{
+ "dalle": {
+  "l": 375,
+  "h": 500,
+  "y": 60
+ },
+ "marge": 4,
+ "touch": 44,
+ "petit": 77,
+ "large": 105,
+ "interrupteur": {
+  "l": 40,
+  "h": 22
+ },
+ "rond": 22,
+ "oxblood": "#4a0e13",
+ "parchemin_debord": 14,
+ "y": {
+  "nom": 4,
+  "chiffres": 52,
+  "desc": 68,
+  "h_desc": 232,
+  "pied1": 308,
+  "pied2": 356,
+  "pied3": 404,
+  "pied4": 452
+ },
+ "boites": [
+  {
+   "nom": "PRECEDENT",
+   "x": 15.0,
+   "y": 15.0,
+   "l": 22,
+   "h": 22,
+   "cible": 44,
+   "cible_x": 4,
+   "cible_y": 4,
+   "sorte": "rond"
+  },
+  {
+   "nom": "NOM",
+   "x": 52,
+   "y": 6.0,
+   "l": 207,
+   "h": 40,
+   "mot": "Winged Helmet",
+   "cran": "T4/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "PAGINATION",
+   "x": 263,
+   "y": 6.0,
+   "l": 60,
+   "h": 40,
+   "mot": "1/12",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "SUIVANT",
+   "x": 338.0,
+   "y": 15.0,
+   "l": 22,
+   "h": 22,
+   "cible": 44,
+   "cible_x": 327,
+   "cible_y": 4,
+   "sorte": "rond"
+  },
+  {
+   "nom": "PRIX",
+   "x": 119.5,
+   "y": 52,
+   "l": 84,
+   "h": 8,
+   "mot": "15 gp · ×2 · 30 gp",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "POIDS",
+   "x": 211.5,
+   "y": 52,
+   "l": 44,
+   "h": 8,
+   "mot": "3 lb · 6 lb",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "DESCRIPTION",
+   "x": 4,
+   "y": 68,
+   "l": 367,
+   "h": 232,
+   "mot": "Description",
+   "cran": "T2/400",
+   "sorte": "zone"
+  },
+  {
+   "nom": "IS",
+   "x": 75.5,
+   "y": 310.0,
+   "l": 16,
+   "h": 40,
+   "mot": "is",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "IS QUOI",
+   "x": 95.5,
+   "y": 310.0,
+   "l": 160,
+   "h": 40,
+   "cible": 44,
+   "mot": "An attack",
+   "cran": "T2/600",
+   "sorte": "dropdown"
+  },
+  {
+   "nom": "COPIER",
+   "x": 259.5,
+   "y": 310.0,
+   "l": 40,
+   "h": 40,
+   "cible": 44,
+   "mot": "copy",
+   "cran": "T1/600",
+   "sorte": "copier"
+  },
+  {
+   "nom": "EQUIP",
+   "x": 47.5,
+   "y": 358.0,
+   "l": 40,
+   "h": 40,
+   "mot": "Equip",
+   "cran": "T1/600",
+   "sorte": "voyant",
+   "sous": "Equipped"
+  },
+  {
+   "nom": "EQUIP ON",
+   "x": 93.5,
+   "y": 367.0,
+   "l": 40,
+   "h": 22,
+   "cible": 44,
+   "sorte": "interrupteur",
+   "etat": "on"
+  },
+  {
+   "nom": "ATTUNE",
+   "x": 143.5,
+   "y": 358.0,
+   "l": 40,
+   "h": 40,
+   "mot": "Attune",
+   "cran": "T1/600",
+   "sorte": "voyant",
+   "sous": "Attuned"
+  },
+  {
+   "nom": "ATTUNE ON",
+   "x": 189.5,
+   "y": 367.0,
+   "l": 40,
+   "h": 22,
+   "cible": 44,
+   "sorte": "interrupteur",
+   "etat": "on",
+   "noir": true,
+   "signe": "coeur"
+  },
+  {
+   "nom": "LOCKED",
+   "x": 239.5,
+   "y": 358.0,
+   "l": 40,
+   "h": 40,
+   "mot": "Lock",
+   "cran": "T1/600",
+   "sorte": "voyant",
+   "sous": "Locked"
+  },
+  {
+   "nom": "LOCKED ON",
+   "x": 285.5,
+   "y": 367.0,
+   "l": 40,
+   "h": 22,
+   "cible": 44,
+   "sorte": "interrupteur",
+   "etat": "on",
+   "noir": true,
+   "signe": "cadenas"
+  },
+  {
+   "nom": "SEND",
+   "x": 58.5,
+   "y": 406.0,
+   "l": 36,
+   "h": 40,
+   "mot": "Send",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "SEND N",
+   "x": 98.5,
+   "y": 406.0,
+   "l": 44,
+   "h": 40,
+   "cible": 44,
+   "mot": "1",
+   "cran": "T2/600",
+   "sorte": "champ"
+  },
+  {
+   "nom": "TO",
+   "x": 146.5,
+   "y": 406.0,
+   "l": 16,
+   "h": 40,
+   "mot": "to",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "SEND VERS",
+   "x": 166.5,
+   "y": 406.0,
+   "l": 150,
+   "h": 40,
+   "cible": 44,
+   "mot": "Merchant / NPC",
+   "cran": "T2/600",
+   "sorte": "dropdown"
+  },
+  {
+   "nom": "BACK",
+   "x": 21.5,
+   "y": 454.0,
+   "l": 77,
+   "h": 40,
+   "cible": 44,
+   "mot": "Back",
+   "cran": "T2/600",
+   "sorte": "porte"
+  },
+  {
+   "nom": "USE",
+   "x": 106.5,
+   "y": 454.0,
+   "l": 77,
+   "h": 40,
+   "cible": 44,
+   "mot": "Use",
+   "cran": "T2/600",
+   "sorte": "porte"
+  },
+  {
+   "nom": "SEND !",
+   "x": 191.5,
+   "y": 454.0,
+   "l": 77,
+   "h": 40,
+   "cible": 44,
+   "mot": "Send",
+   "cran": "T2/600",
+   "sorte": "porte"
+  },
+  {
+   "nom": "TRASH",
+   "x": 276.5,
+   "y": 454.0,
+   "l": 77,
+   "h": 40,
+   "cible": 44,
+   "mot": "Trash",
+   "cran": "T2/600",
+   "sorte": "porte"
+  }
+ ]
+}

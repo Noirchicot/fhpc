@@ -68,9 +68,15 @@ import { armerJeton } from "./glisser.mjs?v=651";
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
 import { construireLEcranGear } from "./gear-ecran.mjs?v=651";
+/* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
+   un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
+   3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
+   c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=651";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
-import { parseCout, additionneCouts, formatCout, currentCartLines, cartCompte, lignesParLieu, poidsParLieu,
+import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
+  lignesParLieu, poidsParLieu,
   renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=651";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=651";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
@@ -318,7 +324,12 @@ export function currentGearLines(document) {
      absente = « backpack » (rien n'est porté sans geste). */
   /* `boite` (LOT 212) : l'emplacement CHOISI au doigt sur R — facultatif, une
      ligne sans boîte se range par son slot (`attribuerBoites`). */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite))?$/;
+  /* `attuned` · `locked` (LOT 213) : les deux états que la fiche X1 écrit —
+     l'harmonisation du SRD, et le verrou qui *« empêche un item d'être bougé de
+     son emplacement ou vendu »* (Eric, 17/09). 📏 Mesurés contre les verbes avant
+     d'être posés : zéro violation, ils ressortent `unconsumed` — la fiche de
+     personnage ne les lit pas encore, l'écran si. */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -329,6 +340,8 @@ export function currentGearLines(document) {
     else if (match[2] === "equipped") line.equipped = choice.value;
     else if (match[2] === "location") line.location = choice.value;
     else if (match[2] === "boite") line.boite = choice.value;
+    else if (match[2] === "attuned") line.attuned = choice.value;
+    else if (match[2] === "locked") line.locked = choice.value;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -1717,6 +1730,13 @@ const collecteEnvoi = new Set();
    `vueEquipement` — une question d'affichage, jamais une décision du personnage. */
 let bourseOuverte = false;
 let destinationEnvoi = "backpack";
+/* LOT 213 — l'objet dont la fiche X1 est ouverte : son INDEX `gear[N]`, jamais
+   une copie de la ligne. ⭐ Un index survit à un rebuild du document, une copie
+   non — et la fiche montrerait alors l'état d'avant le geste qu'on vient d'y
+   faire. `null` = aucune fiche ouverte.
+   ⛔ ET C'EST DE L'ÉTAT D'ÉCRAN : rouvrir le chapitre referme la fiche. */
+let ficheX1 = null;
+let nombreX1 = 1;
 /* LOT 212 — le mot que chaque vue écrit dans la 3ᵉ ligne du belt. Les
    BRANCHES écrivent ; ⛔ une fiche (b1) n'écrit pas — elle garde le mot de la
    branche d'où on l'a ouverte (Eric, 16/09 : « les x ne s'inscrivent pas dans
@@ -1805,7 +1825,16 @@ function candidatesDuSlot(slot) {
 }
 function attribuerBoites(portees, cherche) {
   const prises = new Map();
-  const pose = (ligne, boite) => prises.set(boite, { nom: ligne.nomAffiche, qte: ligne.quantity || 1, index: ligne.index, equipped: ligne.equipped === true });
+  const pose = (ligne, boite) => prises.set(boite, {
+    nom: ligne.nomAffiche, qte: ligne.quantity || 1, index: ligne.index,
+    equipped: ligne.equipped === true,
+    /* ⭐ LOT 213 — LES DEUX AUTRES VOYANTS S'ALLUMENT ENFIN. L'écran R dessine ♥
+       et 🔒 depuis le lot 212 ; il leur manquait un écrivain, et c'est la fiche
+       X1. ⛔ La dette du 16/09 (*« pas de lecteur tant que X1 n'écrit pas la
+       donnée »*) est donc payée ici, pas contournée. */
+    attuned: ligne.attuned === true,
+    locked: ligne.locked === true
+  });
   /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
      déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle
      est libre ; la règle du slot ne sert qu'aux autres. */
@@ -1816,8 +1845,8 @@ function attribuerBoites(portees, cherche) {
     if (ligne.boite && prises.get(ligne.boite)?.index === ligne.index) continue;
     const libre = candidatesDuSlot(cherche.slot(ligne.ref)).find((b) => !prises.has(b));
     /* LOT 212 — la boîte porte aussi l'INDEX (le collecteur retient des lignes)
-       et l'état ÉQUIPÉ (le voyant ⭕). `attuned`/`locked` : pas de lecteur tant
-       que X1 n'écrit pas la donnée (Archi 34, 16/09). */
+       et l'état ÉQUIPÉ (le voyant ⭕) ; LOT 213 — et les deux autres états, que la
+       fiche X1 écrit maintenant. */
     if (libre) pose(ligne, libre);
   }
   return Object.fromEntries(prises);
@@ -1926,6 +1955,11 @@ export function renderEquipmentStep(ctx, onAction) {
       /* posé sur un emplacement : la boîte devient un choix du personnage */
       surPlacer: (index, boite) => { collecteEnvoi.delete(index); act({ kind: "placerGearLine", index, boite }); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
+      /* ⭐ LOT 213 — LE TAP OUVRE LA FICHE. Eric, 16/09 : *« maintenant, clic droit
+         ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
+         l'objet tapé, avec son nombre à envoyer remis à 1 : un envoi est une
+         intention, elle ne se garde pas d'un objet à l'autre. */
+      surJeton: (index) => { ficheX1 = index; nombreX1 = 1; montrer("x1"); },
     });
 
     /* ══ LA DÉCISION DU DÉPART — kit de classe OU 50 po (Eric, 24/08).
@@ -2047,8 +2081,117 @@ export function renderEquipmentStep(ctx, onAction) {
     return catalogue;
   }
 
+  /* ══ X1 — LA FICHE D'UN OBJET POSSÉDÉ (lot 213) ═════════════════════════
+     ⭐ TOUT CE QU'ELLE MONTRE SE LIT, RIEN NE SE RECOPIE : le nom, le prix, le
+     poids et la prose viennent du RECORD par le chercheur ; la quantité, la
+     position et les trois états viennent du DOCUMENT. La fiche n'a pas de
+     mémoire à elle — sauf le nombre à envoyer, qui est une intention d'écran. */
+  function construireX1() {
+    const ligne = lignes.find((l) => l.index === ficheX1);
+    /* ⛔ LA LIGNE A PU DISPARAÎTRE SOUS LA FICHE (corbeille, envoi) : on ne rend
+       pas une fiche vide, on revient à l'écran d'où l'on vient. */
+    if (!ligne) { ficheX1 = null; vueEquipement = "gear"; return construireGear(); }
+    const rec = cherche.record(ligne.ref);
+    const data = (rec && rec.data) || {};
+    const qte = ligne.quantity || 1;
+    const cout = parseCout(data.cost);
+    const poids = parsePoids(data.weight);
+    /* le feuilletage : les objets du LIEU courant, dans l'ordre du document —
+       on tourne les pages de ce qu'on portait en ouvrant la fiche. */
+    const voisines = lignes.filter((l) => (l.location || "backpack") === (ligne.location || "backpack"));
+    const rangDansLeLieu = voisines.findIndex((l) => l.index === ligne.index);
+    const allerA = (pas) => {
+      const v = voisines[rangDansLeLieu + pas];
+      if (!v) return;
+      ficheX1 = v.index; nombreX1 = 1; peindre();
+    };
+    const { noeud } = construireLaFicheX1({
+      objet: {
+        index: ligne.index, nom: ligne.nomAffiche, qte,
+        prixUnite: typeof data.cost === "string" ? data.cost : "",
+        /* ⭐ EN MINUSCULES, COMME LE LIVRE L'ÉCRIT : la source dit « 15 gp », et
+           `formatCout` rend « 30 GP » (sa casse sert le panier, où le montant est
+           un TOTAL qu'on lit seul). Sur la fiche, le prix unitaire et le prix
+           total se lisent côte à côte : deux casses pour deux fois le même mot se
+           lisent comme deux choses. 📏 Et la boîte du plan est mesurée sur la
+           minuscule (82,75 dans 84). */
+        prixTotal: cout ? formatCout(multiplieCout(cout, qte)).toLowerCase() : "",
+        poidsUnite: typeof data.weight === "string" ? data.weight : "",
+        poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
+        prose: recordProse({ record: rec }),
+        equipped: ligne.equipped === true,
+        attuned: ligne.attuned === true,
+        locked: ligne.locked === true
+      },
+      rang: { position: rangDansLeLieu + 1, total: voisines.length },
+      nombre: nombreX1,
+      destination: destinationEnvoi,
+      surPrecedent: () => allerA(-1),
+      surSuivant: () => allerA(1),
+      surNombre: (n) => { nombreX1 = Math.max(1, Math.min(n, qte)); },
+      surDestination: (valeur) => { destinationEnvoi = valeur; },
+      /* ⚖️ TROIS ÉTATS, DEUX ÉCRITURES DIFFÉRENTES, ET C'EST LE DÉPÔT QUI LE DIT :
+         `equipped` n'est pas un drapeau libre — il est le REVERS de la position
+         (*« tu portes pas, tu n'équipes pas »*, Eric 16/09), donc on déplace
+         l'objet et `moveGearLine` pose l'état. `attuned` et `locked`, eux, sont
+         des choix du personnage que rien ne déduit : ils passent par leur propre
+         verbe. ⛔ Écrire `equipped` à la main ferait diverger l'état et le lieu. */
+      surEtat: (clef, valeur) => {
+        if (clef === "equipped") actArbitre({ kind: "moveGearLine", index: ligne.index, location: valeur ? "self" : "backpack" });
+        else act({ kind: "setGearFlag", index: ligne.index, flag: clef, value: valeur });
+      },
+      surCopier: () => copierLObjet(ligne, data),
+      surPorte: (porte) => {
+        if (porte === "close") { ficheX1 = null; montrer("gear"); }
+        if (porte === "envoyer") {
+          /* ⏳ LE NOMBRE N'EST PAS ENCORE UNE SCISSION : envoyer 1 d'une pile de 2
+             déplace toute la ligne. Scinder une pile touche la FORME des données
+             (deux lignes pour un même record), et c'est une question ouverte chez
+             Eric — ⛔ on ne l'invente pas dans un lot d'écran. */
+          actArbitre({ kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });
+          ficheX1 = null; montrer("gear");
+        }
+        if (porte === "trash") {
+          /* 🔴 LA FAMILLE DÉFAIRE EST ROUGE ET TOUJOURS ACCOMPAGNÉE D'UN POPUP
+             (NORMES §6) : jeter efface cinq chemins du document, et rien ne le
+             rend. ⏳ Eric n'a pas tranché entre DÉTRUIRE et POSER AU SOL (les deux
+             emplacements GROUND de l'écran R) — la question est au rapport. */
+          act({ kind: "popup", titre: ligne.nomAffiche,
+            texte: "Throw this away? It is gone for good.",
+            actions: [{ mot: "Throw away", defait: true,
+              faire: () => { ficheX1 = null; vueEquipement = "gear"; act({ kind: "removeGearLine", index: ligne.index }); } }] });
+        }
+      }
+    });
+    return noeud;
+  }
+
+  /** Ce que le bouton de copie met dans le presse-papier : de quoi COLLER
+   *  l'objet ailleurs — son nom, ce qu'il coûte, ce qu'il pèse, et sa prose.
+   *  ⛔ PAS DE REPLI SILENCIEUX (TRAPS) : là où le presse-papier n'existe pas ou
+   *  refuse (Safari hors geste, permission coupée), le texte s'affiche dans un
+   *  popup et le joueur le prend lui-même. Un bouton qui ne fait rien en silence
+   *  est pire qu'un bouton absent. */
+  function copierLObjet(ligne, data) {
+    const qte = ligne.quantity || 1;
+    const texte = [
+      qte > 1 ? `${ligne.nomAffiche} ×${qte}` : ligne.nomAffiche,
+      typeof data.cost === "string" && data.cost ? `Cost: ${data.cost}` : "",
+      typeof data.weight === "string" && data.weight ? `Weight: ${data.weight}` : "",
+      recordProse({ record: (cherche.record(ligne.ref) || null) })
+    ].filter(Boolean).join("\n");
+    const montrerLeTexte = () => act({ kind: "popup", titre: ligne.nomAffiche, texte });
+    const presse = typeof navigator !== "undefined" && navigator ? navigator.clipboard : null;
+    if (!presse || typeof presse.writeText !== "function") { montrerLeTexte(); return; }
+    try {
+      const promesse = presse.writeText(texte);
+      if (promesse && typeof promesse.catch === "function") promesse.catch(montrerLeTexte);
+    } catch { montrerLeTexte(); }
+  }
+
   function construireVue(vue) {
     if (vue === "r") return construireCatalogue();
+    if (vue === "x1" && ficheX1 !== null) return construireX1();
     if (vue === "b1" && ficheEnCours) {
       return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
         bourse, motBourse: motDeLaBourse(docu), onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r") });

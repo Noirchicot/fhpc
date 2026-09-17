@@ -2100,6 +2100,31 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
+  /* ══ LOT 213 — LES DEUX ÉTATS QUE X1 ÉCRIT ═══════════════════════════════
+     `attuned` (l'harmonisation du SRD) et `locked` (« empêche un item d'être
+     bougé de son emplacement ou vendu », Eric 17/09) sont des CHOIX du
+     personnage que rien ne déduit. ⛔ `equipped` n'entre pas ici : il est le
+     revers de la position (`moveGearLine` juste au-dessus le pose), et lui
+     ouvrir un second écrivain ferait diverger l'état et le lieu.
+
+     📏 MESURÉ AVANT D'ÉCRIRE, sur le personnage d'exemple : les deux chemins
+     passent les verbes, `rebuild` rend **zéro violation** et ils ressortent
+     dans `unconsumed` — au même titre que `species.lineage`, `feat.extra` et
+     les `gear[N].location` / `.boite` du pipeline. ⭐ Ce qui veut dire ce que
+     ça dit : la fiche de personnage ne les LIT pas encore. Le jour où
+     l'harmonisation compte (le plafond du SRD), c'est `derive.mjs` qui
+     consommera `attuned`, et ce verbe n'aura pas à changer. */
+  if (action.kind === "setGearFlag") {
+    if (action.flag !== "attuned" && action.flag !== "locked") return;
+    state.document = verbs.set({
+      document: state.document,
+      path: `gear[${action.index}].${action.flag}`,
+      value: action.value === true
+    }).document;
+    rebuild();
+    refresh();
+    return;
+  }
   /* PIPELINE (24/08) — PAYER : soustrait un coût de la bourse, les quatre
      clefs d'un coup. ⛔ REFUSE de produire un négatif — l'écran vérifie avant
      (`bourseCouvre`), ce garde-ci est la ceinture : si une clef manque, RIEN

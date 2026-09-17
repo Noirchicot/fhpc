@@ -339,9 +339,24 @@ function emplacement(o, id, pose, options) {
     `${mot} — ${pose.nom}${pose.qte > 1 ? ` ×${pose.qte}` : ""}${pose.equipped ? ", equipped" : ""}`);
   /* Le geste : glisser vers le collecteur, ou vers n'importe quel emplacement
      vide (Eric, 16/09 : « dans tous les sens ») — avec le fantôme du dépôt
-     (« ils ont un fantôme »). Le tap (la fiche X1) n'est pas de ce lot. */
+     (« ils ont un fantôme »).
+     ⭐ LOT 213 — ET LE TAP OUVRE LA FICHE X1. Eric, 16/09 : *« maintenant, clic
+     droit ou tap sur un token doit produire une fiche X1 »*. C'est la doctrine du
+     16/08 déjà posée sur le vivier du carnet (`glisser.mjs`) : *« tap pour info,
+     drag and drop to select ; sur desktop, clic droit info, gauche select »*.
+     ⛔ ICI LES DEUX GESTES OUVRENT LA MÊME FICHE, sans distinguer le doigt de la
+     souris : un jeton POSÉ n'a rien à « sélectionner » au clic gauche, et lui
+     laisser un clic mort serait pire que la divergence (le patron de
+     `renderTraitTardif`, `abilities-step.mjs`).
+     ⛔ `armerJeton` ne voit pas le clic droit (il ne s'arme que sur le bouton 0) :
+     le `contextmenu` se pose donc à côté, sur le même nœud. */
+  const ouvrirLaFiche = (ev) => {
+    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
+    if (options.surJeton) options.surJeton(pose.index);
+  };
+  e.addEventListener("contextmenu", ouvrirLaFiche);
   armerJeton(e, {
-    onTap: () => {},
+    onTap: () => ouvrirLaFiche(),
     onLever: (x, y) => fantome.lever(e, x, y),
     onBouger: (x, y) => fantome.suivre(x, y),
     onPoser: () => fantome.ranger(),
@@ -383,9 +398,17 @@ function collecteur(id, options, retenu) {
        endroits. Ce qui manquait était le GESTE — le collecteur portait l'objet sans
        le rendre saisissable, et une chose qu'on voit mais qu'on ne peut pas reprendre
        est une impasse.
-       ⛔ Un dépôt sur le collecteur lui-même ne fait rien : il est déjà là. */
+       ⛔ Un dépôt sur le collecteur lui-même ne fait rien : il est déjà là.
+       ⭐ LOT 213 — ET LUI AUSSI OUVRE LA FICHE au tap et au clic droit : *« tap sur
+       un token »* (Eric, 16/09) ne dit pas « sur un token DANS SA BOÎTE ». Un objet
+       retenu est le même objet ; le regarder ne l'a jamais sorti du panier. */
+    const ouvrirLaFiche = (ev) => {
+      if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
+      if (options.surJeton) options.surJeton(retenu.index);
+    };
+    c.addEventListener("contextmenu", ouvrirLaFiche);
     armerJeton(c, {
-      onTap: () => {},
+      onTap: () => ouvrirLaFiche(),
       onLever: (x, y) => fantome.lever(c, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),

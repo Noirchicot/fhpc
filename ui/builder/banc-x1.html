@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — banc de X1, la fiche d'un objet possédé</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LE BANC DE X1 (lot 213) — la fiche seule, sur sa dalle, sans le builder.
+     Il existe pour une raison précise : REGARDER le rendu. NORMES §0 :
+     *« une norme se vérifie sur la PAGE RENDUE, pas dans la source »*, et les
+     gardes de `tests/x1-ecran.test.mjs` lisent des fichiers — ils ne voient
+     pas ce que l'œil reçoit.
+
+     ⛔ IL NE PORTE AUCUNE COTE ET AUCUN HABIT. Tout vient de `tokens.css`,
+     `shell.css` et de la feuille que `x1-ecran.mjs` construit depuis la table
+     générée. Ce fichier ne fait que MONTER l'écran avec un objet de démons-
+     tration — si quelque chose est faux ici, c'est faux dans le produit.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=651">
+<link rel="stylesheet" href="./shell.css?v=651">
+<style>
+  /* ⛔ L'ÉCHAFAUDAGE, ET RIEN D'AUTRE : la dalle du builder n'est pas là pour
+     porter la fiche, on la simule au strict minimum — la largeur du panneau et
+     la hauteur d'une scène (560 − 60 de belt). */
+  body { margin: 0; background: var(--bg, #1b1712); display: flex; justify-content: center; }
+  .banc { width: 375px; height: 560px; display: flex; flex-direction: column; }
+  .banc-belt {
+    height: 60px; flex: none; display: flex; align-items: center; justify-content: center;
+    font: 600 12px/1 system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-soft); box-shadow: inset 0 -1px 0 var(--border-strong);
+  }
+  .banc-scene { flex: 1 1 auto; min-height: 0; position: relative; display: flex; }
+</style>
+</head>
+<body>
+<div class="banc">
+  <div class="banc-belt">belt — X1 ne le recouvre jamais</div>
+  <div class="banc-scene" id="scene"></div>
+</div>
+<script type="module">
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=651";
+
+/* L'OBJET DE DÉMONSTRATION — le même que le plan coté montre, pour qu'on
+   compare le rendu au dessin sans traduire. ⛔ Aucune de ces valeurs n'est une
+   donnée du produit : elles viennent du croquis d'Eric. */
+const etat = { equipped: true, attuned: true, locked: true };
+let nombre = 1;
+
+function poser() {
+  const { noeud } = construireLaFicheX1({
+    objet: {
+      index: 0, nom: "Winged Helmet", qte: 2,
+      prixUnite: "15 gp", prixTotal: "30 gp",
+      poidsUnite: "3 lb", poidsTotal: "6 lb",
+      prose: "A winged helmet, its plumes catching light that is not there.\n" +
+             "While wearing it, you can cast the Levitate spell once per day.\n" +
+             "Properties: light, finesse\nAC: 13 + Dex modifier",
+      ...etat
+    },
+    rang: { position: 3, total: 12 },
+    nombre,
+    destination: "backpack",
+    surPrecedent: () => {}, surSuivant: () => {},
+    surNombre: (n) => { nombre = n; },
+    surDestination: () => {},
+    surEtat: (clef, valeur) => { etat[clef] = valeur; peindre(); },
+    surCopier: () => {},
+    surPorte: () => {}
+  });
+  return noeud;
+}
+function peindre() {
+  const scene = document.getElementById("scene");
+  while (scene.firstChild) scene.removeChild(scene.firstChild);
+  scene.append(poser());
+}
+peindre();
+</script>
+</body>
+</html>
