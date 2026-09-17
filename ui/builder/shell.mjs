@@ -127,7 +127,7 @@ import {
   DESTINY_ARCANA_PATH, arcanaNumeral
 } from "./destiny-step.mjs?v=653";
 import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=653";
-import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, orDuDepart } from "./equipment-step.mjs?v=653";
+import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines, orDuDepart } from "./equipment-step.mjs?v=653";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
 import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=653";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=653";
@@ -2095,6 +2095,38 @@ function applyDecisionAction(action) {
     let document = state.document;
     document = verbs.set({ document, path: `gear[${action.index}].location`, value: action.location }).document;
     document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: action.location === "self" }).document;
+    state.document = document;
+    rebuild();
+    refresh();
+    return;
+  }
+  /* ══ LOT 213 — SCINDER UNE PILE ══════════════════════════════════════════
+     Eric, 2026-09-17 : *« c'est un tu choisis combien »* · *« un item Qty 2 peut
+     devenir 2 items qty 1 »* · *« oui scinder »*.
+     ⛔ CE N'EST PAS UNE FORME DE DONNÉE NEUVE, et c'est ce qui rend ce verbe
+     court : `addGearLine` n'a JAMAIS fusionné. Deux lignes du même record
+     existent déjà dans tout document où la même chose a été achetée deux fois —
+     j'avais écrit l'inverse au rapport du lot, et c'était faux.
+     ⭐ LA PART DÉTACHÉE NAÎT NUE — Eric : *« la part détachée perd tous ces :
+     attunned locked equiped »*. Ces trois états parlent de L'EXEMPLAIRE QU'ON
+     GARDE : une dague harmonisée ne se duplique pas parce qu'on coupe la pile en
+     deux. Le verbe ne les recopie donc pas — il ne les EFFACE pas non plus, il
+     ne les écrit simplement jamais sur la ligne neuve.
+     ⛔ ET IL NE SCINDE PAS CE QU'IL NE PEUT PAS : `n` hors de `1 … qte − 1` n'est
+     pas une scission, c'est un déplacement — l'appelant l'envoie alors à
+     `moveGearLine`, et ce verbe refuse plutôt que d'inventer une pile de 0. */
+  if (action.kind === "splitGearLine") {
+    const source = currentGearLines(state.document).find((l) => l.index === action.index);
+    const total = Number(source && source.quantity) || 1;
+    const part = Math.floor(Number(action.quantity));
+    if (!source || !(part >= 1) || part >= total) return;
+    const index = nextGearIndex(state.document);
+    let document = state.document;
+    document = verbs.set({ document, path: `gear[${action.index}].quantity`, value: total - part }).document;
+    document = verbs.choose({ document, path: `gear[${index}]`, ref: source.ref }).document;
+    document = verbs.set({ document, path: `gear[${index}].quantity`, value: part }).document;
+    document = verbs.set({ document, path: `gear[${index}].equipped`, value: false }).document;
+    document = verbs.set({ document, path: `gear[${index}].location`, value: action.location }).document;
     state.document = document;
     rebuild();
     refresh();

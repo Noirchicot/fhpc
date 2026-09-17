@@ -1885,7 +1885,7 @@ export function renderEquipmentStep(ctx, onAction) {
      fait AU MOMENT DU GESTE (un rendu n'écrit rien) : une destination
      « self » sans boîte libre devient « backpack », l'objet va au sac. */
   function actArbitre(a) {
-    if ((a.kind === "addGearLine" || a.kind === "moveGearLine") && a.location === "self") {
+    if ((a.kind === "addGearLine" || a.kind === "moveGearLine" || a.kind === "splitGearLine") && a.location === "self") {
       const prises = new Set(Object.keys(attribuerBoites(surR(), cherche)));
       const ref = a.ref || (lignes.find((l) => l.index === a.index) || {}).ref;
       const libre = candidatesDuSlot(cherche.slot(ref)).some((b) => !prises.has(b));
@@ -2147,11 +2147,20 @@ export function renderEquipmentStep(ctx, onAction) {
       surPorte: (porte) => {
         if (porte === "close") { ficheX1 = null; lectureX1 = false; montrer("gear"); }
         if (porte === "envoyer") {
-          /* ⏳ LE NOMBRE N'EST PAS ENCORE UNE SCISSION : envoyer 1 d'une pile de 2
-             déplace toute la ligne. Scinder une pile touche la FORME des données
-             (deux lignes pour un même record), et c'est une question ouverte chez
-             Eric — ⛔ on ne l'invente pas dans un lot d'écran. */
-          actArbitre({ kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });
+          /* ⚖️ LE NOMBRE TRANCHE, ET C'EST TOUT CE QU'IL FAIT — Eric, 17/09 :
+             *« c'est un tu choisis combien »* · *« un item Qty 2 peut devenir 2
+             items qty 1 »*. Sous le total, c'est une SCISSION ; au total, c'est la
+             pile entière qui part. Un seul bouton, deux gestes, et le champ que
+             l'écran montrait déjà (borné `1 … qté`) cesse de mentir.
+             ⛔ J'AVAIS ÉCRIT QUE SCINDER TOUCHAIT LA FORME DES DONNÉES. Mesuré
+             depuis : `addGearLine` ne fusionne jamais, deux lignes du même record
+             existent dans tout document où l'on a acheté deux fois la même chose.
+             La forme n'a pas bougé d'un octet. */
+          const total = Math.max(1, Number(ligne.qte) || 1);
+          const part = Math.max(1, Math.min(Number(nombreX1) || 1, total));
+          actArbitre(part < total
+            ? { kind: "splitGearLine", index: ligne.index, quantity: part, location: destinationEnvoi }
+            : { kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });
           ficheX1 = null; montrer("gear");
         }
         if (porte === "trash") {

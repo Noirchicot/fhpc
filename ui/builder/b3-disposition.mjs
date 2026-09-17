@@ -92,7 +92,7 @@ export const BOITES = [
   /* ⚖️ LOT 212 — LES LIBELLÉS SONT CEUX DU CROQUIS D'ERIC (15/09), LES CLEFS
      NE BOUGENT PAS (Archi 34, 16/09 : « libellés du plan, clefs du dépôt — on
      ne renomme pas sous un lien »). `Sheath` et `Pocket/Sheath` sont périmés :
-     ARM/HANDS, POCKET/WEAPON, EXTRA STORAGE, HEAD/FACE, TORSO/BACK, FOOT/LEGS.
+     ARM/HAND, POCKET/WEAPON, EXTRA STORAGE, HEAD/NECK, TORSO/BACK, FOOT/LEG.
      ⚠️ EXTRA STORAGE est numéroté par COLONNE au plan (1·2 à gauche, 3·4 à
      droite) : `poche2` (en haut à droite) porte donc le 3. */
   { clef: "tete1",   nom: "Head/face 1",     centre: true, y: 36,  attunable: true },

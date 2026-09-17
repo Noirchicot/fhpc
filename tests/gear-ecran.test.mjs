@@ -156,7 +156,7 @@ test("3 — chaque organe posé a une clef, chaque clef est unique, et les empla
 });
 
 test("3 bis — les libellés sont ceux du croquis : sans numéro, sans `opt`", () => {
-  assert.equal(libelleDe("HEAD/FACE 1"), "HEAD/FACE");
+  assert.equal(libelleDe("HEAD/NECK 1"), "HEAD/NECK");
   assert.equal(libelleDe("BODY FORGING opt"), "BODY FORGING");
   assert.equal(libelleDe("BELT"), "BELT");
   assert.equal(libelleDe("FOOT/LEG 2"), "FOOT/LEG", "Eric, 16/09 : « foot leg mieux » — au plan depuis");
@@ -308,21 +308,50 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
   assert.ok(n.querySelector("style"), "la feuille des cotes est dans l'écran");
 });
 
-test("5 bis — un emplacement occupé porte l'objet, sa quantité et ses trois voyants — seul ⭕ s'allume", () => {
+test("5 bis — un emplacement occupé porte l'objet et QUATRE marques dans sa bande (croquis d'Eric, 17/09)", () => {
   const n = rendu({ boites: { tete1: { nom: "Winged helmet", qte: 2, index: 3, equipped: true } } });
   const e = n.querySelector('[data-organe="tete1"]');
   assert.equal(e.dataset.occupe, "oui");
   assert.equal(e.querySelector(".gear-nom"), null, "(b) Eric 16/09 : le nom du slot s'efface quand un objet est posé");
-  assert.match(e.getAttribute("aria-label"), /^HEAD\/FACE — Winged helmet/, "…mais il reste dans le nom accessible");
-  assert.match(e.querySelector(".gear-objet").textContent, /^Winged helmet/);
-  /* la quantité suit le nom sur sa ligne (Eric, 16/09 : trois lignes au plus pour l'objet) */
-  assert.equal(e.querySelector(".gear-objet .gear-qte").textContent, "×2");
+  assert.match(e.getAttribute("aria-label"), /^HEAD\/NECK 1 — Winged helmet/, "…mais il reste dans le nom accessible");
+  /* 🔴 RÉÉCRIT LE 17/09 — LA QUANTITÉ A CHANGÉ D'ORGANE. Elle suivait le nom sur
+     sa ligne ; le croquis d'Eric la met au centre de la bande des marques, encadrée
+     et en T0 : *« la quantité encadrée ou pas avec un x99 en t0 ça devrait passer »*.
+     ⭐ CE QUE CE GARDE PROTÈGE N'A PAS BOUGÉ — que la quantité soit LUE quelque part
+     et qu'elle ne soit écrite qu'UNE fois — mais il le vérifie là où elle vit
+     maintenant, et il exige en plus que le nom reste seul sur ses trois lignes. */
+  assert.equal(e.querySelector(".gear-objet").textContent, "Winged helmet",
+    "⛔ le nom et RIEN d'autre : la quantité ne lui mange plus de caractères");
+  assert.equal(e.querySelector(".gear-voyants .gear-qte").textContent, "×2",
+    "la quantité est une MARQUE, dans la bande, avec le verrou et l'anneau");
+  assert.equal(e.querySelector(".gear-voyants .gear-qte").getAttribute("aria-hidden"), "true",
+    "…et muette : l'aria-label de la case la dit déjà");
   const etats = Object.fromEntries(tous(e, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat]));
   assert.deepEqual(etats, { verrou: "non", equipe: "oui", harmonise: "non" });
+  /* ⭐ ET LES TROIS S'ALLUMENT VRAIMENT DEPUIS QUE X1 LES ÉCRIT (lot 213) : la
+     condition du 16/09 — « pas un lecteur pour une donnée que personne n'écrit » —
+     est levée par l'écrivain. Le témoin le prouve plutôt que de le croire. */
+  const tout = rendu({ boites: { tete1: { nom: "Belt of Dwarvenkind", qte: 2, index: 3,
+    equipped: true, attuned: true, locked: true } } });
+  const b = tout.querySelector('[data-organe="tete1"]');
+  assert.deepEqual(Object.fromEntries(tous(b, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat])),
+    { verrou: "oui", equipe: "oui", harmonise: "oui" }, "les trois marques allumées ensemble");
+  assert.equal(b.getAttribute("aria-label"),
+    "HEAD/NECK 1 — Belt of Dwarvenkind ×2, equipped, attuned, locked",
+    "⛔ une marque visible que rien ne prononce serait réservée aux voyants");
   assert.equal(n.querySelector('[data-organe="tete2"]').dataset.occupe, undefined, "le voisin reste vide");
   /* Eric, 16/09 : la barre d'un libellé est un retour à la ligne (« weapons sous pocket ») */
   const nom = n.querySelector('[data-organe="tete2"]').querySelector(".gear-nom");
-  assert.equal(nom.textContent, "HEAD/FACE");
+  /* ⚖️ ET LE NUMÉRO EST À L'ÉCRAN DEPUIS LE 17/09 — Eric : *« pour pas se paumer,
+     numéroter les emplacements de même nom est essentiel »*, *« le chiffre, mets-le
+     en petit, un incrément en dessous »*. Il était dans la table et nulle part
+     ailleurs : deux cases disaient « HEAD/NECK » sans qu'on puisse les nommer. */
+  assert.equal(nom.textContent, "HEAD/NECK 2");
+  assert.equal(nom.querySelector(".gear-numero").textContent, "2", "le chiffre est un organe à lui, pour être plus petit");
+  assert.equal(n.querySelector('[data-organe="tete2"]').getAttribute("aria-label"), "HEAD/NECK 2 — empty",
+    "…et le nom accessible le porte aussi : deux « HEAD/NECK — empty » identiques sont la confusion qu'Eric nomme");
+  assert.equal(n.querySelector('[data-organe="ceinture"]').querySelector(".gear-nom").textContent, "BELT",
+    "⛔ et une case SEULE de son nom n'en porte pas : le numéro distingue, il ne décore pas");
   assert.equal(nom.querySelectorAll("wbr").length, 1, "la barre est une occasion de retour, pas un retour (« on superpose quand ça dépasse »)");
 });
 
@@ -346,7 +375,8 @@ test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur V
   const boiteVidee = plein.querySelector('[data-organe="tete1"]');
   assert.equal(boiteVidee.dataset.occupe, undefined, "la boîte n'est plus occupée : son objet est dans le collecteur");
   assert.equal(boiteVidee.dataset.creneau, "tete1", "et elle redevient une cible");
-  assert.equal(boiteVidee.querySelector(".gear-nom").textContent, "HEAD/FACE", "elle redit son nom");
+  assert.equal(boiteVidee.querySelector(".gear-nom").textContent, "HEAD/NECK 1",
+    "elle redit son nom — AVEC son numéro (Eric, 17/09 : « pour pas se paumer »)");
 
   const col = plein.querySelector('[data-organe="collecteur"]');
   assert.equal(col.dataset.occupe, "oui", "c'est le collecteur qui porte l'objet");

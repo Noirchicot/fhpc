@@ -50,7 +50,7 @@
    "sorte": "jeton"
   },
   {
-   "nom": "HEAD/FACE 1",
+   "nom": "HEAD/NECK 1",
    "x": 99,
    "y": 64,
    "l": 87,
@@ -58,7 +58,7 @@
    "sorte": "jeton"
   },
   {
-   "nom": "HEAD/FACE 2",
+   "nom": "HEAD/NECK 2",
    "x": 190,
    "y": 64,
    "l": 87,
@@ -90,7 +90,7 @@
    "sorte": "jeton"
   },
   {
-   "nom": "ARM/HANDS 1",
+   "nom": "ARM/HAND 1",
    "x": 49,
    "y": 176,
    "l": 87,
@@ -106,7 +106,7 @@
    "sorte": "jeton"
   },
   {
-   "nom": "ARM/HANDS 2",
+   "nom": "ARM/HAND 2",
    "x": 239,
    "y": 176,
    "l": 87,

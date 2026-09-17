@@ -3110,9 +3110,114 @@ tient (`tests/x1-ecran.test.mjs`, « 8 »).
 ⛔ **ET SON RETOUR NE DIT PAS `Back`.** Le mot appartient à la coquille, qui seule le pose
 (`bouton-la-classe-et-le-verbe-font-l-organe`, la table des mots : *« `Back` — `shell.mjs` seul —
 🔒 exclusif »*). Une fiche qui ferme **ne recule de rien** : son mot est **`Close`**,
-celui qu'Eric a ratifié le 07/09 pour la fenêtre d'information d'un jeton. ⏳ Le croquis de X1 écrit
-« back » : la question est rendue à Eric, et c'est lui qui tranchera si le mot du croquis doit
-l'emporter sur la loi du dépôt.
+celui qu'Eric a ratifié le 07/09 pour la fenêtre d'information d'un jeton. ✅ **ET IL L'A RATIFIÉ UNE
+SECONDE FOIS, POUR X1, LE 17/09** — *« le close est très bien »*. Le croquis de X1 écrivait « back » ;
+la loi du dépôt l'emporte, et ⛔ **la question est close** : elle ne se rouvre pas dans un lot.
+⭐ Ce que la ratification confirme au-delà du mot : `Close` est désormais le mot des QUATRE fermetures
+du produit — les popups de Class, de Species, de Skills, et la fiche de rang X.
+
+### 🪨 LE SOL ALLÈGE, LA CORBEILLE DÉTRUIT — ⛔ ET L'UN NE REMPLACE PAS L'AUTRE
+📍 `equipement-sol-allege-corbeille-detruit` · vivante · 17/09
+⚖️ **Le sol est un LIEU qui ALLÈGE : l'objet posé reste au document et sur l'écran R, il sort seulement du calcul de poids. La corbeille, elle, DÉTRUIT, derrière un avertissement.**
+
+> Eric, 2026-09-17 : **« la corbeille détruit »** · **« ground c'est juste pour que le joueur puisse
+> poser un item trop lourd et voir l'incidence sur sa carrying capacity. ground = exclu du calcul de
+> poids. mais ça ne part pas à la poubelle, les subtilités se règlent en jeu »** · **« l'item reste
+> sur la fiche, mais ne compte pas en poids »** · **« trash détruit, prompt de warning quand poussé »**.
+
+| le geste | ce qu'il fait au poids | ce qu'il laisse |
+|---|---|---|
+| **poser au sol** (`location: "ground"`, les deux cases de R) | l'objet **sort** du poids porté | il RESTE — au document, sur R, repris d'un geste |
+| **`Trash`** | plus rien à peser | **rien** : cinq chemins effacés, d'où le popup rouge de la famille défaire (§6) |
+
+⛔ **LE SOL N'EST DONC PAS UNE CORBEILLE DOUCE, ET LA CORBEILLE NE POSE RIEN AU SOL.** Deux organes,
+deux gestes, aucun recouvrement. ⭐ Et le produit n'arbitre pas ce qu'un objet posé devient à la
+table : *« les subtilités se règlent en jeu »* — poser, c'est retirer un poids, pas raconter une
+histoire.
+
+⏳ **CE QUE LA RÈGLE ATTEND, ET C'EST MESURÉ** : au 17/09, **aucun calcul de poids n'existe dans le
+dépôt** — ni total porté, ni capacité de charge ; `grep -ri "carrying\|encumbr"` ne rend que deux
+lignes sans rapport, et la fiche X1 ne montre qu'un poids **par ligne**. Cette règle est donc un
+**dépôt** : le jour où la capacité se calcule, elle somme les lignes dont `location !== "ground"`,
+et ce jour-là un garde la tient. ⛔ Ne pas la redécouvrir, ⛔ ne pas la rediscuter.
+
+---
+
+### 🏷️ LES QUATRE MARQUES D'UN JETON, ET LA BANDE QUI LEUR EST RÉSERVÉE
+📍 `jeton-quatre-marques-de-la-bande` · vivante · 17/09
+⚖️ **Un jeton porte QUATRE marques dans une bande haute de 12 qui lui est réservée — verrou, quantité encadrée, anneau d'encre (porté), disque violet (harmonisé) — et ⛔ le nom ne monte JAMAIS dedans.**
+
+> Eric, 2026-09-17, croquis en main : **« un rond noir (pas vert) vide = equiped »** · **« on lâche
+> le cœur, on met le rond violet pour attuned »** · **« mon verrou dessiné à la main est parfait,
+> mieux que le tien, et il rentre dans l'espace »** · **« la quantité encadrée ou pas avec un x99 en
+> t0, ça devrait passer »** · et la formulation qu'il a corrigée trois fois jusqu'à ce qu'elle soit
+> juste : **« cercle noir autour d'un centre rond transparent »**, **« le attuned remplit le
+> transparent par du violet »**, **« attuned not equiped : juste un rond violet »**.
+
+| la marque | son dessin | ce qu'elle dit |
+|---|---|---|
+| en haut à **gauche** | le **verrou** : corps plein 10 × 8, anse arquée de 6 × 4 au-dessus | `locked` |
+| au **centre** | la **quantité encadrée**, en T0 — `×99` y tient avec 14 de marge | la pile, ⛔ seulement si > 1 |
+| à **droite** | un **cercle d'encre de 12, 2 d'encre, centre rond transparent** | `equipped` |
+| **dans ce centre** | un **disque violet de 8** (`--magie`) | `attuned` — seul, il se passe de l'anneau |
+
+📐 **LA BANDE, ET LA COTE QUI LA TIENT** : la tuile fait 87 × 48 en `border-box`, liseré 2, donc
+**83 × 44 utiles**. La bande va de 2 à 14 sous le bord interne (`--jeton-bande: 14`), les quatre
+marques font 12 (`--jeton-marque`), et **le nom commence à 14**.
+🔴 **ELLE VALAIT 10, ET LES DEUX SE RECOUVRAIENT DE 2** — les marques descendaient à 12, le nom
+commençait à 10. Eric l'a vu à l'œil : *« j'ai mesuré que l'espace haut du token soit libre pour ces
+petits marquages et pas de conflit avec le texte »*.
+⭐ **ET LA TROISIÈME LIGNE DU NOM EST SAUVE SANS RIEN NÉGOCIER** : 44 − 14 = 30 = 3 × 10 — l'interligne
+du nom passe de 1.1 à 1, et les trois lignes du 16/09 tiennent SOUS la bande au lieu de commencer
+dedans. C'est la seule valeur qui loge les deux règles ensemble.
+⭐ **« L'UN DANS L'AUTRE » SANS UNE COTE EN DOUBLE** : 12 d'anneau moins 2 × 2 d'encre = 8 de vide,
+et le disque fait 8. Les deux marques ne sont pas voisines — **c'est le même centre, vide ou rempli**.
+⛔ **ET LE MOT « CŒUR » NE DÉSIGNE PLUS RIEN ICI** : il nommait un SYMBOLE (celui que l'harmonisation
+portait), et deux sens pour un mot dans une règle de dessin, c'est une relecture fausse garantie.
+📌 **La quantité a changé d'organe** : elle suivait le nom sur sa ligne et lui mangeait des
+caractères. Elle est une MARQUE, pas un morceau du nom.
+
+---
+
+### 🔢 DEUX CASES DU MÊME NOM PORTENT LEUR NUMÉRO
+📍 `equipement-numero-de-la-case` · vivante · 17/09
+⚖️ **Un emplacement dont le nom est porté par plusieurs cases affiche son NUMÉRO, sous le mot et d'un cran plus petit ; ⛔ une case seule de son nom n'en porte pas.**
+
+> Eric, 2026-09-17 : **« pour pas se paumer, numéroter les emplacements de même nom est essentiel je
+> pense »** · **« le chiffre, mets-le en petit, un incrément en dessous »** · **« chiffre en dessous
+> plus propre »** · **« un seul élément, pas de chiffre »**.
+
+⛔ **IL ÉTAIT DANS LA TABLE ET NULLE PART AILLEURS.** Sept noms sont portés par deux cases ou plus —
+HEAD/NECK, ARM/HAND, POCKET/WEAPON, FOOT/LEG, GROUND (deux), TORSO/BACK (trois), EXTRA STORAGE
+(quatre) — et rien à l'écran ne les distinguait : **on ne pouvait pas DIRE de laquelle on parlait.**
+⭐ **« UN INCRÉMENT » EST UNE MARCHE DE L'ÉCHELLE, PAS UNE VALEUR** : le mot est en T1, le chiffre est
+donc en T0, et le jour où l'échelle bouge il descend avec elle.
+⭐ **Le numéro vient du NOM DÉCLARÉ**, pas d'un compteur de rendu : il ne peut pas se décaler d'une
+case à l'autre. Et il vit dans les DEUX états — vide il désigne la case qu'on vise, occupée il dit
+laquelle des deux porte cet objet. Le nom accessible le porte aussi : deux « HEAD/NECK — empty »
+identiques sont exactement la confusion qu'Eric nomme.
+📌 **Et deux noms ont été corrigés le même jour** : *« arm/hand au singulier »* et *« c'est head neck »*
+— repris dans `R_gen.py`, régénérés, recopiés verbatim. ⛔ Jamais à la main dans le dépôt.
+
+---
+
+### ✂️ UNE PILE SE SCINDE, ET LA PART DÉTACHÉE NAÎT NUE
+📍 `equipement-scinder-une-pile` · vivante · 17/09
+⚖️ **`Send n` sur une pile de N SCINDE : la pile garde N − n, une ligne neuve de n part à destination — et elle perd `equipped`, `attuned` et `locked`.**
+
+> Eric, 2026-09-17 : **« c'est un tu choisis combien »** · **« oui, un item Qty 2 peut devenir 2 items
+> qty 1 »** · **« oui scinder »** · **« la part détachée perd tous ces : attunned locked equiped »**.
+
+⛔ **ET CE N'EST PAS UNE FORME DE DONNÉE NEUVE — je l'avais écrit, c'était faux.** `addGearLine` n'a
+JAMAIS fusionné : deux lignes du même record existent déjà dans tout document où la même chose a été
+achetée deux fois. Scinder retire n de la pile et pose une ligne de n. La forme n'a pas bougé.
+⭐ **POURQUOI LA PART DÉTACHÉE NAÎT NUE** : ces trois états parlent de **l'exemplaire qu'on garde**.
+Une dague harmonisée ne se duplique pas parce qu'on coupe la pile en deux.
+📌 **L'écran le promettait déjà** : le champ est borné `1 … qté` et affiche `/N`. Il disait *« choisis
+combien »* pendant que le code déplaçait tout — un libellé qui ment, ce que §6 interdit.
+⏳ **CE QUI N'EST PAS TRANCHÉ ET NE DOIT PAS ÊTRE INVENTÉ** : rien ne REFUSIONNE deux piles, et les
+plafonds de quantité (Eric : *« un max théorique 99 »*, *« sinon moi j'en mets une, c'est 10, et pour
+les projectiles c'est 20 »*, *« le contenant, on laisse voir en jeu »*) sont **à débattre**.
 
 ---
 

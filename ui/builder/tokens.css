@@ -627,6 +627,22 @@
      de sa dalle que de 1,20. */
   --jeton-teinte: color-mix(in srgb, var(--accent) 20%, transparent);
 
+  /* ⚖️ LA BANDE DES MARQUES D'UN JETON — Eric, 2026-09-17, croquis en main :
+     *« j'ai mesuré que l'espace haut du token soit libre pour ces petits
+     marquages et pas de conflit avec le texte »*.
+     📐 MESURÉ AVANT D'ÉCRIRE, et c'est la cote qui tient tout le reste : la tuile
+     fait 87 × 48 en `border-box`, liseré 2 → **83 × 44 utiles**. La bande valait
+     10 et le nom commençait DEDANS (les marques descendaient à 12) : deux
+     organes dans le même espace, et c'est ce qu'Eric a vu.
+     ⭐ LES QUATRE MARQUES ONT LA MÊME HAUTEUR — 12 — parce que le croquis les
+     dessine à la même taille : le verrou, la quantité encadrée et l'anneau s'y
+     alignent sans qu'aucun ne déborde sur le mot.
+     ⛔ ET LA TROISIÈME LIGNE DU NOM EST SAUVE : 44 − 14 = 30, soit 3 × 10 —
+     l'interligne du nom passe à 1 pour que les trois lignes d'Eric (16/09)
+     tiennent SOUS la bande au lieu de commencer dedans. */
+  --jeton-marque: 12px;   /* la hauteur commune aux quatre marques */
+  --jeton-bande: 14px;    /* --sp-2 de garde + les 12 : là où le nom commence */
+
   /* ⭐ LES DEUX RELIEFS. Ils ne portent AUCUNE couleur du thème : ce sont des
      arêtes de lumière et d'ombre, elles marchent sur n'importe quelle face et
      ne basculent pas. */

@@ -23,8 +23,8 @@ export const PANTIN = { image: "pantin-h.png", l: 441, h: 1400, echelle: 0.20714
 
 export const ORGANES = [
   { nom: "BODY FORGING",     sorte: "jeton",  x:      4, y:     64, l:    87, h:   48 },
-  { nom: "HEAD/FACE 1",      sorte: "jeton",  x:     99, y:     64, l:    87, h:   48 },
-  { nom: "HEAD/FACE 2",      sorte: "jeton",  x:    190, y:     64, l:    87, h:   48 },
+  { nom: "HEAD/NECK 1",      sorte: "jeton",  x:     99, y:     64, l:    87, h:   48 },
+  { nom: "HEAD/NECK 2",      sorte: "jeton",  x:    190, y:     64, l:    87, h:   48 },
   { nom: "PARTY TALLY",      sorte: "bouton", x:    285, y:     68, l:    40, h:   40, cible: { x: 283, y: 66, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600", creation: false, lignes: 2 },
   { nom: "TALLY",            sorte: "bouton", x:    329, y:     68, l:    40, h:   40, cible: { x: 327, y: 66, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "lune Backpack",    sorte: "lune",   x:      4, y:    119, l:    30, h:   30, cible: { x: 0, y: 112, l: 44, h: 44 }, creation: false },
@@ -32,9 +32,9 @@ export const ORGANES = [
   { nom: "TORSO/BACK 2",     sorte: "jeton",  x:    144, y:    120, l:    87, h:   48 },
   { nom: "TORSO/BACK 3",     sorte: "jeton",  x:    239, y:    120, l:    87, h:   48 },
   { nom: "lune Tally",       sorte: "lune",   x:      4, y:    163, l:    30, h:   30, cible: { x: 0, y: 156, l: 44, h: 44 }, creation: false },
-  { nom: "ARM/HANDS 1",      sorte: "jeton",  x:     49, y:    176, l:    87, h:   48 },
+  { nom: "ARM/HAND 1",       sorte: "jeton",  x:     49, y:    176, l:    87, h:   48 },
   { nom: "BELT",             sorte: "jeton",  x:    144, y:    176, l:    87, h:   48 },
-  { nom: "ARM/HANDS 2",      sorte: "jeton",  x:    239, y:    176, l:    87, h:   48 },
+  { nom: "ARM/HAND 2",       sorte: "jeton",  x:    239, y:    176, l:    87, h:   48 },
   { nom: "lune Craft",       sorte: "lune",   x:      4, y:    207, l:    30, h:   30, cible: { x: 0, y: 200, l: 44, h: 44 }, creation: false },
   { nom: "PURSE",            sorte: "bouton", x:  317.5, y:    231, l:    50, h:   50, mot: "Purse", cran: "T1/600" },
   { nom: "POCKET/WEAPON 1",  sorte: "jeton",  x:     61, y:    232, l:    87, h:   48 },

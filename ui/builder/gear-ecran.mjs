@@ -79,9 +79,9 @@ const PANTIN = D.PANTIN || null;
    POSITION, pas le chiffre. */
 export const CLEF_DE = Object.freeze({
   "BODY FORGING": "forge1",  "BODY FORGING opt": "forge2",
-  "HEAD/FACE 1": "tete1",    "HEAD/FACE 2": "tete2",
+  "HEAD/NECK 1": "tete1",    "HEAD/NECK 2": "tete2",
   "TORSO/BACK 1": "torse1",  "TORSO/BACK 2": "torse2",  "TORSO/BACK 3": "torse3",
-  "ARM/HANDS 1": "fourreau1", "ARM/HANDS 2": "fourreau2",
+  "ARM/HAND 1": "fourreau1", "ARM/HAND 2": "fourreau2",
   "BELT": "ceinture",
   "POCKET/WEAPON 1": "fourreau3", "POCKET/WEAPON 2": "fourreau4",
   "FOOT/LEG 1": "pied1",     "FOOT/LEG 2": "pied2",
@@ -96,22 +96,40 @@ export const CLEF_DE = Object.freeze({
   "livre": "livre", "?": "guide"
 });
 
-/* Le libellé d'un emplacement — l'écriture du croquis (Eric, 15/09), sans le
-   numéro qui n'identifie que la table : `HEAD/FACE 1` et `HEAD/FACE 2` s'écrivent
-   tous deux `HEAD/FACE`. `opt` devient un ÉTAT (`data-optionnelle`), pas un mot. */
+/* Le MOT d'un emplacement — l'écriture du croquis (Eric, 15/09) sans son numéro :
+   `HEAD/NECK 1` et `HEAD/NECK 2` disent tous deux `HEAD/NECK`. `opt` devient un
+   ÉTAT (`data-optionnelle`), pas un mot. */
 /* ⚖️ Eric, 16/09 : *« foot leg mieux »* — porté au plan par Archi 34 (FOOT/LEG) :
    plus rien à corriger ici, le libellé EST celui de la table. */
 export function libelleDe(nom) {
   return nom.replace(/\s+opt$/, "").replace(/\s+\d+$/, "");
 }
 
+/** ⚖️ LE NUMÉRO D'UN EMPLACEMENT — Eric, 2026-09-17 : *« pour pas se paumer,
+ *  numéroter les emplacements de même nom est essentiel je pense »*, puis
+ *  *« le chiffre, mets-le en petit, un incrément en dessous »*.
+ *  ⛔ IL ÉTAIT DANS LA TABLE ET PAS À L'ÉCRAN : cinq noms sont portés par deux
+ *  cases ou plus (HEAD/NECK, ARM/HAND, POCKET/WEAPON, FOOT/LEG, GROUND), trois
+ *  par trois ou quatre (TORSO/BACK, EXTRA STORAGE) — et rien à l'écran ne les
+ *  distinguait. On ne pouvait pas DIRE de laquelle on parlait.
+ *  ⭐ C'est le numéro DE LA TABLE, pas un compteur de rendu : il vient du nom
+ *  déclaré, donc il ne peut pas se décaler d'une case à l'autre.
+ *  @returns {string|null} le chiffre, ou `null` quand le nom n'en porte pas. */
+export function numeroDe(nom) {
+  const m = /\s+(\d+)$/.exec(nom.replace(/\s+opt$/, ""));
+  return m ? m[1] : null;
+}
+
 /** Le libellé posé dans la case : ⚖️ Eric, 16/09 — *« weapons sous pocket ! »*,
  *  puis *« non, on superpose quand ça dépasse »* : la barre reste, et elle
  *  devient une OCCASION de retour (`<wbr>`) — le libellé tient sur une ligne
- *  quand il y tient, se superpose quand il déborde. Rien de forcé. */
-function poserLeLibelle(span, mot) {
+ *  quand il y tient, se superpose quand il déborde. Rien de forcé.
+ *  ⭐ ET LE NUMÉRO LE SUIT, D'UN CRAN PLUS PETIT (T1 → T0, « un incrément en
+ *  dessous ») : il ne se lit pas comme un mot, il DÉSIGNE la case. */
+function poserLeLibelle(span, mot, numero) {
   const parts = mot.split("/");
   parts.forEach((p, i) => { if (i) span.append("/", document.createElement("wbr")); span.append(p); });
+  if (numero) span.append(" ", eld("span", "gear-numero", numero));
   return span;
 }
 
@@ -298,19 +316,26 @@ export function feuilleDesCotes() {
 /** Un emplacement — vide, il dit son nom ; occupé, il porte le jeton posé, sa
  *  quantité et ses trois voyants. ⛔ CE SONT DES VOYANTS, PAS DES BOUTONS
  *  (artefact 15/09 : « la tuile montre l'état ; la fiche le change ») : on les
- *  lit, on ne les tape pas, le plancher de 44 ne s'applique pas. Seul ⭕ (équipé)
- *  s'allume ce lot ; ♥ (harmonisé) et 🔒 (verrou) restent éteints tant que X1
- *  n'écrit pas la donnée — arbitrage d'Archi 34, 16/09, ⛔ pas un lecteur pour
- *  une donnée que personne n'écrit. */
+ *  lit, on ne les tape pas, le plancher de 44 ne s'applique pas. ⭐ LES TROIS
+ *  S'ALLUMENT DEPUIS LE LOT 213 : X1 écrit `attuned` et `locked` au document, et
+ *  la condition posée le 16/09 — *« pas un lecteur pour une donnée que personne
+ *  n'écrit »* — est levée par l'écrivain, pas contournée. */
 function emplacement(o, id, pose, options) {
   const boite = BOITES.find((b) => b.clef === id) || null;
   const e = eld("div", "gear-emplacement");
   e.dataset.organe = id;
   const mot = libelleDe(o.nom);
+  /* ⭐ LE NUMÉRO SERT DANS LES DEUX ÉTATS : vide, il désigne la case qu'on vise ;
+     occupée, il dit LAQUELLE des deux porte cet objet. Il ne se lit qu'une fois
+     et se compose ici (`nom` = le mot + son chiffre) pour les deux chemins. */
+  const numero = numeroDe(o.nom);
+  const nomDeLaCase = `${mot}${numero ? ` ${numero}` : ""}`;
   if (boite && boite.optionnelle) e.dataset.optionnelle = "oui";
   if (!pose) {
-    e.append(poserLeLibelle(eld("span", "gear-nom"), mot));
-    e.setAttribute("aria-label", `${mot} — empty`);
+    e.append(poserLeLibelle(eld("span", "gear-nom"), mot, numero));
+    /* le nom accessible porte le numéro AUSSI : deux « HEAD/NECK — empty »
+       identiques dans une liste sont exactement la confusion qu'Eric nomme. */
+    e.setAttribute("aria-label", `${nomDeLaCase} — empty`);
     /* vide, c'est une CIBLE : Eric, 16/09 — « les items peuvent se déplacer dans
        tous les sens ». Occupée, elle n'en est plus une (une case tient une chose). */
     e.dataset.creneau = id;
@@ -322,10 +347,20 @@ function emplacement(o, id, pose, options) {
      le nom reste dans l'aria-label, le lecteur d'écran l'entend. */
   e.dataset.occupe = "oui";
   const objet = eld("span", "gear-objet", pose.nom);
-  /* la quantité suit le nom sur sa ligne : trois lignes au plus pour les deux */
-  if (pose.qte > 1) objet.append(" ", eld("span", "gear-qte", `×${pose.qte}`));
   e.append(objet);
   const voyants = eld("span", "gear-voyants");
+  /* ⚖️ LA QUANTITÉ EST UNE MARQUE, PLUS UN MORCEAU DU NOM — Eric, 17/09 :
+     *« la quantité encadrée ou pas avec un x99 en t0 »*, dessinée au centre de la
+     bande. ⛔ Elle suivait le nom sur sa ligne et lui mangeait des caractères :
+     un nom long perdait la fin pour afficher « ×2 ». Elle monte donc dans la
+     bande, avec les trois autres marques, et le nom récupère ses trois lignes
+     entières. ⭐ Elle reste MUETTE pour le lecteur d'écran : l'`aria-label` de la
+     case la dit déjà, en toutes lettres et une seule fois. */
+  if (pose.qte > 1) {
+    const q = eld("span", "gear-qte", `×${pose.qte}`);
+    q.setAttribute("aria-hidden", "true");
+    voyants.append(q);
+  }
   for (const [voyant, etat] of [["verrou", pose.locked], ["equipe", pose.equipped], ["harmonise", pose.attuned]]) {
     const v = eld("span", "gear-voyant");
     v.dataset.voyant = voyant;
@@ -335,8 +370,12 @@ function emplacement(o, id, pose, options) {
   }
   e.append(voyants);
   if (options.collecte && options.collecte.has(pose.index)) e.dataset.collecte = "oui";
+  /* ⭐ ET LE NOM ACCESSIBLE DIT LES TROIS ÉTATS, pas seulement le port : depuis
+     que X1 écrit `attuned` et `locked`, trois marques s'allument à l'écran — une
+     marque visible que rien ne prononce est une information réservée aux voyants. */
   e.setAttribute("aria-label",
-    `${mot} — ${pose.nom}${pose.qte > 1 ? ` ×${pose.qte}` : ""}${pose.equipped ? ", equipped" : ""}`);
+    `${nomDeLaCase} — ${pose.nom}${pose.qte > 1 ? ` ×${pose.qte}` : ""}` +
+    `${pose.equipped ? ", equipped" : ""}${pose.attuned ? ", attuned" : ""}${pose.locked ? ", locked" : ""}`);
   /* Le geste : glisser vers le collecteur, ou vers n'importe quel emplacement
      vide (Eric, 16/09 : « dans tous les sens ») — avec le fantôme du dépôt
      (« ils ont un fantôme »).

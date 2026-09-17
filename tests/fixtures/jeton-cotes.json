@@ -1,0 +1,64 @@
+{
+ "tuile": {
+  "l": 87,
+  "h": 48
+ },
+ "lisere": 2,
+ "interieur": {
+  "l": 83,
+  "h": 44
+ },
+ "garde": 2,
+ "marque": 12,
+ "bande": 14,
+ "encre": 2,
+ "nom": {
+  "lignes": 3,
+  "interligne": 10,
+  "y": 14,
+  "h": 30
+ },
+ "marques": [
+  {
+   "nom": "VERROU",
+   "dit": "locked",
+   "x": 4,
+   "y": 2,
+   "l": 10,
+   "h": 12,
+   "forme": "verrou",
+   "cran": "corps 10x8, anse 6x4"
+  },
+  {
+   "nom": "QUANTITE",
+   "dit": "qty > 1",
+   "x": 31.0,
+   "y": 2,
+   "l": 21,
+   "h": 12,
+   "forme": "cadre",
+   "cran": "T0 encadre, centre"
+  },
+  {
+   "nom": "ANNEAU",
+   "dit": "equipped",
+   "x": 66,
+   "y": 2,
+   "l": 12,
+   "h": 12,
+   "forme": "anneau",
+   "cran": "2 d encre, centre rond transparent"
+  },
+  {
+   "nom": "DISQUE",
+   "dit": "attuned",
+   "x": 68,
+   "y": 4,
+   "l": 8,
+   "h": 8,
+   "forme": "disque",
+   "dans": "ANNEAU",
+   "cran": "remplit le transparent ; seul quand non porte"
+  }
+ ]
+}

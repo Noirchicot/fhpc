@@ -616,6 +616,37 @@ famille n'était donc jamais nécessaire — c'était un raccourci, et il tombe 
 📌 **Le découpage en quatre fichiers sert à TROUVER, pas à CLOISONNER** *(en-tête de ce fichier,
 29/08)* : la famille dit **de quoi** la règle parle, jamais **où** elle est écrite.
 
+## 🔒 COMMENT UN ARTEFACT SE RANGE — le dixième sacré *(Eric, 2026-09-17)*
+📍 `socle-artefact-schemas-puis-vrai-puis-histoire` · vivante · 17/09
+⚖️ 🔒 **Un artefact se range dans CET ordre, de haut en bas : les SCHÉMAS, puis tout ce qui est VRAI AUJOURD'HUI, puis l'HISTORIQUE de ce qui ne l'est plus.**
+
+> Eric, 2026-09-17 : *« dans tes artefacts, schémas en haut, tout ce qui est juste aujourd'hui
+> en dessous, ce qui ne l'est plus, l'historique, en dessous »* · *« je veux que ça rentre dans
+> les sacrés, ça »*.
+
+| l'étage | ce qu'il porte | pourquoi il est là |
+|---|---|---|
+| **① les schémas** | le dessin coté, la figure générée | on OUVRE un artefact pour voir, pas pour lire |
+| **② ce qui est vrai** | les tables, les cotes, les règles en vigueur | ce qu'on vient vérifier |
+| **③ l'historique** | ce qui a été vrai et ne l'est plus, daté | il ne se jette pas, il descend |
+
+⛔ **ET C'EST POURQUOI C'EST UN SACRÉ ET PAS UNE RÈGLE DE MISE EN PAGE.** Un artefact où
+l'ancien et le neuf sont mêlés ne se relit pas : il se DEVINE. Le 17/09, le croquis de R disait
+`HEAD/NECK` pendant que les tables de la même page disaient encore `HEAD/FACE` — deux
+paragraphes d'écart, deux vérités, et rien pour dire laquelle datait. ⭐ Le lecteur n'a pas à
+savoir quel paragraphe a été écrit le premier : **la position dans la page le lui dit**.
+
+⭐ **L'HISTORIQUE NE SE RETOUCHE JAMAIS.** Il descend, il ne se corrige pas : une ligne qui
+raconte *« les deux FOOT/LEGS »* garde ses anciens noms parce qu'elle raconte un jour où ils
+étaient vrais. ⛔ La réécrire falsifierait le journal — et le journal est la seule chose qui
+explique POURQUOI une cote vaut ce qu'elle vaut.
+
+⚖️ **CE QUE ÇA OBLIGE À FAIRE, CONCRÈTEMENT** : quand une figure est réingérée, le texte qui la
+commente ne suit pas tout seul — il vit ailleurs dans la page. Réingérer sans relire les tables
+produit un artefact qui se contredit à deux paragraphes d'intervalle, ⛔ et c'est arrivé.
+
+---
+
 🔒 **② LES SACRÉS SE CONNAISSENT PAR CŒUR — donc ils sont peu.**
 
 ⚠️ **Un agent ne peut pas retenir 500 règles. Il peut en retenir dix.** C'est la seule raison

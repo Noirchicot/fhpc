@@ -9306,12 +9306,22 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    ⭐ CE QUE ÇA DIT, ET C'EST LA MÊME CHOSE DES DEUX CÔTÉS : ces mots ne nomment pas
    un contenu, ils nomment une PLACE EN ATTENTE. L'italique les distingue du nom d'un
    objet POSÉ (`.gear-objet`, droit et gras) sans qu'on ait à comparer deux tailles.
-   ⛔ LA CASSE NE CHANGE PAS : « HEAD/FACE », « POCKET/WEAPON » sont l'écriture du
+   ⛔ LA CASSE NE CHANGE PAS : « HEAD/NECK », « POCKET/WEAPON » sont l'écriture du
    croquis d'Eric (15/09), pas un effet de style — et il n'a pas demandé à y toucher. */
 .gear-nom {
   font-size: var(--t1); text-transform: uppercase; letter-spacing: .04em;
   font-style: italic; color: var(--text-soft); max-width: 100%;
 }
+/* ⚖️ LE NUMÉRO DE LA CASE — Eric, 17/09 : *« numéroter les emplacements de même
+   nom est essentiel »*, *« le chiffre, mets-le en petit, un incrément en
+   dessous »*. ⭐ « Un incrément » est une marche de l'échelle, pas une valeur :
+   le mot est en T1, le chiffre est donc en T0 — et le jour où l'échelle bouge,
+   il descend avec elle.
+   ⭐ ET IL PASSE SOUS LE MOT — Eric, en le regardant : *« chiffre en dessous plus
+   propre »*. Un `display: block` suffit : le chiffre quitte la ligne du mot, se
+   centre comme lui, et un libellé qui se replie sur deux lignes le garde dessous
+   au lieu de le pousser au bout d'une phrase. */
+.gear-numero { display: block; font-size: var(--t0); letter-spacing: 0; }
 /* Body forging 2 : « optional when feat » — présent en creux tant que le don
    n'est pas pris (même état que `.b3-boite-scene[data-optionnelle]`).
    ⚖️ 20 % DEPUIS LE 16/09 AU SOIR, et c'est le MÊME voile que le tally vide — Eric
@@ -9339,22 +9349,38 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-collecteur[data-occupe] {
   border-color: var(--border-strong);
   background: var(--jeton-teinte); box-shadow: var(--relief);
-  /* Eric, 16/09 : « un peu de place au-dessus pour marquer le statut équipé,
-     attuned ou locked » — la bande des voyants ; le nom prend le reste.
-     Puis : « descendre le mot de 2 blg » → 8 + 2. */
-  padding-top: calc(var(--sp-8) + var(--sp-2)); justify-content: flex-start;
+  justify-content: flex-start;
   cursor: grab;
 }
+/* ⚖️ Eric, 16/09 : « un peu de place au-dessus pour marquer le statut équipé,
+   attuned ou locked » — la bande des marques ; le nom prend le reste. Puis :
+   « descendre le mot de 2 blg » → 8 + 2 = 10.
+   🔴 ET CE 10 ÉTAIT TROP COURT, mesuré le 17/09 : les marques descendaient à 12,
+   le nom commençait à 10 — ils se recouvraient de 2. Eric l'a vu et a posé la
+   règle : *« l'espace haut du token doit être libre pour ces petits marquages,
+   et pas de conflit avec le texte »*. La bande fait donc 14, et c'est `tokens.css`
+   qui la nomme parce que QUATRE organes la lisent.
+   ⛔ LE COLLECTEUR N'EN EST PAS : il ne porte aucune marque — *« il n'y a pas de
+   token dans le collecteur, juste le nom »* (Eric, 16/09) — donc il garde son 10,
+   et son mot ne descend pas de 4 pour une bande qu'il n'a pas. */
+.gear-emplacement[data-occupe] { padding-top: var(--jeton-bande); }
+.gear-collecteur[data-occupe] { padding-top: calc(var(--sp-8) + var(--sp-2)); }
 /* ⚖️ Eric, 16/09 : *« pour le descriptif des wares faut passer en T1 »* — le nom
    de l'objet posé descend de T2 à T1 (le plan disait T2/600) ; la graisse reste. */
 /* « ce qui laisse la possibilité de 3 lignes en hauteur et plus de largeur pour
    les titres à rallonge » (Eric, 16/09) : le nom se replie, trois lignes au plus
    (3 × 11 = 33 dans les 44 − 8 utiles), et la quantité le suit sur sa ligne. */
+/* 📐 ET L'INTERLIGNE PAIE LA BANDE — la seule cote qui bouge pour que les DEUX
+   règles d'Eric tiennent ensemble : trois lignes (16/09) ET une bande libre
+   (17/09). 44 utiles − 14 de bande = 30 ; à 1.1 les trois lignes en veulent 33
+   et débordent, à 1 elles en font exactement 30. ⛔ Ce n'est pas un réglage de
+   goût : c'est la seule valeur qui loge les deux. */
 .gear-objet {
-  font-size: var(--t1); font-weight: 600; max-width: 100%;
+  font-size: var(--t1); font-weight: 600; max-width: 100%; line-height: 1;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
   overflow: hidden; overflow-wrap: anywhere;
 }
+/* la quantité du COLLECTEUR, qui suit le nom sur sa ligne (il n'a pas de bande) */
 .gear-qte { font-size: var(--t1); color: var(--text-muted); }
 .gear-emplacement[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 /* retenu par le collecteur, en attente d'envoi : l'état est sur le nœud
@@ -9363,35 +9389,75 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    liseré de couleur hors collecteur : l'instant du dépôt, pas un état) */
 .gear-emplacement[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
 
-/* — LES TROIS VOYANTS — ⛔ des voyants, pas des boutons : on les lit, on ne
-   les tape pas, le plancher de 44 ne s'applique pas (artefact 15/09). Eric :
-   « il faut qu'elles soient minuscules » · « si c'est les deux à la fois ils
-   sont l'un dans l'autre ». Le verrou en haut à gauche ; l'anneau vert ⭕ en
-   haut à droite ; le cœur violet ♥ (--magie : violet = magie) DANS l'anneau. — */
+/* — LES QUATRE MARQUES DU JETON — ⛔ des voyants, pas des boutons : on les lit,
+   on ne les tape pas, le plancher de 44 ne s'applique pas (artefact 15/09). Eric,
+   16/09 : « il faut qu'elles soient minuscules » · « si c'est les deux à la fois
+   ils sont l'un dans l'autre » — et les deux phrases tiennent toujours.
+   🔴 LE CROQUIS DU 17/09 LES REDESSINE, ET IL CORRIGE DEUX DE MES CHOIX :
+   > *« un rond noir (pas vert) vide = equiped »* — le vert disait « bon », pas
+   >   « porté » ; l'encre dit l'état sans le juger.
+   > *« on lâche le cœur, on met le rond violet pour attuned »* — un disque plein
+   >   se lit à 8 px, un ♥ non ; le violet reste `--magie`.
+   > *« mon verrou dessiné à la main est parfait, mieux que le tien »* — corps
+   >   plein, anse arquée, et il remplit la bande au lieu de faire 8 de haut.
+   > *« la quantité encadrée ou pas avec un x99 en t0 »* — elle QUITTE la ligne du
+   >   nom, où elle mangeait des caractères, pour le centre de la bande.
+   📐 LES QUATRE FONT 12 DE HAUT (`--jeton-marque`) et vivent entre 2 et 14 :
+   verrou à gauche, quantité au centre, anneau à droite, disque DANS l'anneau. — */
 .gear-voyants { position: absolute; inset: 0; pointer-events: none; }
 .gear-voyant { position: absolute; display: block; opacity: 0; }
 .gear-voyant[data-etat="oui"] { opacity: 1; }
 /* ⚖️ Eric, 16/09 : « ton cercle vert équipé, déplace de 4 blg vers la gauche »,
-   puis « le cercle vert descend de 2 blg (arm hands disparaît sous le token) »,
    puis « décaler le rond vert de 1 blg vers la droite » (6 → 5, la moitié de
-   --sp-2 : un rapport, pas une cote nue) — le ♥ suit, il se loge dedans. */
+   --sp-2 : un rapport, pas une cote nue). La colonne ne bouge pas le 17/09 —
+   seuls la teinte et le calibre changent. */
+/* ⚖️ ÉQUIPÉ = **UN CERCLE NOIR AUTOUR D'UN CENTRE ROND TRANSPARENT**, et
+   HARMONISÉ **REMPLIT CE TRANSPARENT PAR DU VIOLET** — Eric, 17/09, qui a
+   corrigé le mot lui-même jusqu'à ce qu'il soit juste : *« cœur blanc »*, puis
+   *« cœur transparent, pardon »*, puis *« pas cœur mais centre rond transparent
+   — qu'on se comprenne bien »*.
+   ⛔ LE MOT COMPTE ICI PLUS QU'AILLEURS : « cœur » nommait déjà un SYMBOLE dans
+   ce dépôt — celui que l'harmonisation portait avant ce croquis — et deux sens
+   pour un mot dans une règle de dessin, c'est une relecture fausse garantie.
+   ⭐ ET LES DEUX MARQUES N'EN FONT QU'UNE : ce n'est pas un anneau À CÔTÉ d'un
+   disque, c'est **le même centre**, vide ou rempli. D'où les cotes qui suivent —
+   12 avec 2 d'encre laissent un vide de 8, et le disque fait 8. */
 .gear-voyant[data-voyant="equipe"] {
-  top: var(--sp-4); right: calc(var(--sp-4) + var(--sp-2) / 2); width: var(--sp-8); height: var(--sp-8);
-  border-radius: 50%; box-shadow: inset 0 0 0 1px var(--positive);
+  top: var(--sp-2); right: calc(var(--sp-4) + var(--sp-2) / 2);
+  width: var(--jeton-marque); height: var(--jeton-marque);
+  border-radius: 50%; box-shadow: inset 0 0 0 var(--sp-2) var(--text);
 }
+/* ⭐ « L'UN DANS L'AUTRE » SANS UNE SEULE COTE EN DOUBLE : l'anneau fait 12 avec
+   2 d'encre, son vide fait donc 8 — exactement le disque. Les deux marques se
+   touchent, comme le croquis les dessine, et aucun jour ne se calcule. */
 .gear-voyant[data-voyant="harmonise"] {
-  top: var(--sp-4); right: calc(var(--sp-4) + var(--sp-2) / 2); width: var(--sp-8); height: var(--sp-8);
-  color: var(--magie); font-size: var(--t0); line-height: 1; text-align: center;
+  top: calc(var(--sp-2) * 2); right: calc(var(--sp-4) + var(--sp-2) / 2 + var(--sp-2));
+  width: var(--sp-8); height: var(--sp-8);
+  border-radius: 50%; background: var(--magie);
 }
-.gear-voyant[data-voyant="harmonise"]::before { content: "♥"; }
+/* 🔒 LE VERROU D'ERIC : un corps plein de 10 × 8 posé à 6, une anse de 6 × 4
+   au-dessus — 4 + 8 = les 12 de la bande, et sa largeur reste dans les 10 qui
+   le séparent du mot. */
 .gear-voyant[data-voyant="verrou"] {
-  top: var(--sp-4); left: var(--sp-4); width: var(--sp-4); height: var(--sp-4);
-  background: var(--text); border-radius: var(--radius-sm);
+  top: calc(var(--sp-4) + var(--sp-2)); left: var(--sp-4);
+  width: calc(var(--sp-8) + var(--sp-2)); height: var(--sp-8);
+  background: var(--text); border-radius: var(--sp-2);
 }
 .gear-voyant[data-voyant="verrou"]::before {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--sp-4);
+  content: ""; position: absolute; left: var(--sp-2); right: var(--sp-2);
+  bottom: 100%; height: var(--sp-4);
   box-sizing: border-box; border: 1px solid var(--text); border-bottom: 0;
   border-radius: var(--radius-pill) var(--radius-pill) 0 0;
+}
+/* ⚖️ LA QUANTITÉ, AU CENTRE DE LA BANDE — encadrée : le cadre dit qu'elle COMPTE
+   l'objet au lieu de le nommer, et c'est ce que le croquis dessine. Elle tient
+   `×99` en T0 dans les 21 qui restent entre le verrou (14) et l'anneau (70). */
+.gear-voyants .gear-qte {
+  position: absolute; top: var(--sp-2); left: 50%; transform: translateX(-50%);
+  height: var(--jeton-marque); box-sizing: border-box;
+  display: flex; align-items: center; padding-inline: var(--sp-2);
+  border: 1px solid var(--text); border-radius: var(--radius-sm);
+  font-size: var(--t0); line-height: 1; color: var(--text);
 }
 
 /* — LE COLLECTEUR : le SEUL organe de Gear à porter un liseré de couleur
