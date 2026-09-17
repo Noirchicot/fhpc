@@ -252,13 +252,22 @@ export function lignesParLieu(lignes, lieu) {
  *  `unite` est celle du LIVRE (`lb` en anglais, `kg` en français), jamais une
  *  conversion ; `melange` dit qu'une même pile a rendu deux unités, ce qui est
  *  une faute de données et non une somme à arrondir. */
+const LIEUX_PESES = ["self", "backpack", "storage", "ground"];
+
 export function poidsParLieu(lignes, chercheRecord) {
-  const somme = { self: 0, backpack: 0, storage: 0 };
-  const compte = { self: 0, backpack: 0, storage: 0 };
-  const inconnus = { self: 0, backpack: 0, storage: 0 };
+  /* 🔴 LES QUATRE LIEUX SONT DÉCLARÉS, Y COMPRIS LE SOL — et c'est une
+     réparation, pas un ajout. Trois seaux étaient déclarés ; une ligne au sol
+     tombait dans un quatrième que personne n'avait nommé, et `compte[lieu] += n`
+     y écrivait `NaN`. ⛔ Le résultat était JUSTE (le panneau ne lisait pas ce
+     seau) et il tenait à un oubli : la première ligne « Ground » ajoutée au
+     panneau aurait affiché `NaN`. ⭐ Le sol est maintenant COMPTÉ, et c'est
+     l'encombrement qui l'exclut — par une clause écrite, lisible, qui dit
+     pourquoi. */
+  const vide = () => Object.fromEntries(LIEUX_PESES.map((l) => [l, 0]));
+  const somme = vide(), compte = vide(), inconnus = vide();
   const unites = new Set();
   for (const l of lignes) {
-    const lieu = l.location || "backpack";
+    const lieu = LIEUX_PESES.includes(l.location) ? l.location : "backpack";
     const n = l.quantity || 1;
     compte[lieu] += n;
     const rec = chercheRecord(l.ref);
@@ -266,27 +275,52 @@ export function poidsParLieu(lignes, chercheRecord) {
     if (pesee) { somme[lieu] += pesee.valeur * n; unites.add(pesee.unite); }
     else inconnus[lieu] += n;
   }
-  return { somme, compte, inconnus,
+  /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-18, en trois lignes : *« Gear : xxxxxx ·
+     Backpack : xxxxxx · Encumbrance = (Gear + Backpack) xxxxx »*.
+     ⛔ NI LE SOL, NI LA REMISE. Le sol parce qu'Eric l'a dit le 17/09 — *« poser
+     un item trop lourd et voir l'incidence sur sa carrying capacity ; ground =
+     exclu du calcul de poids »* : c'est la RAISON D'ÊTRE du sol, et un sol qui
+     pèserait ne servirait à rien. La remise parce qu'elle n'est pas sur le
+     personnage — on ne porte pas ce qu'on a laissé quelque part.
+     ⭐ Et les objets SANS poids connu suivent la même somme : l'écran doit
+     pouvoir dire « 12 lb, plus 3 objets qu'on ne sait pas peser ». */
+  const encombrement = {
+    somme: somme.self + somme.backpack,
+    compte: compte.self + compte.backpack,
+    inconnus: inconnus.self + inconnus.backpack
+  };
+  return { somme, compte, inconnus, encombrement,
     unite: unites.size === 1 ? [...unites][0] : null, melange: unites.size > 1 };
 }
 
+/* ⚖️ LE PANNEAU, DICTÉ PAR ERIC LE 18/09, EN TROIS LIGNES ET PAS QUATRE :
+     Gear : xxxxxx · Backpack : xxxxxx · Encumbrance = (Gear + Backpack) xxxxx
+   ⛔ `Self` DEVIENT `Gear` : c'est le mot de l'écran R, celui du menu d'envoi, et
+   celui du belt. Un même lieu portait deux noms selon la page.
+   ⛔ ET LA REMISE QUITTE LE PANNEAU : elle n'entre pas dans l'encombrement, et
+   une ligne qui ne compte pas au milieu de deux qui comptent se lit comme si elle
+   comptait. Elle reste un LIEU (on y range, on y reprend) — elle cesse d'être un
+   poids. ⭐ Sa porte vit ailleurs : le panneau n'était pas son seul chemin. */
 function panneauPoids(poids, surLieu) {
   const p = elp("aside", "pipeline-poids");
   p.append(elp("h3", null, "Gear weight"));
-  for (const [lieu, mot] of [["self", "Self"], ["backpack", "Backpack"], ["storage", "Storage"]]) {
+  const mesure = (compte, somme, inconnus) =>
+    `${compte} obj. · ${Math.round(somme * 10) / 10} ${poids.unite || "lb"}`
+    + (inconnus ? ` (+${inconnus} sans poids)` : "");
+  for (const [lieu, mot] of [["self", "Gear"], ["backpack", "Backpack"]]) {
     /* ⚠️ Le nombre d'objets SANS poids connu s'affiche à côté de la somme :
        sans lui, la somme se lit comme si elle portait tout le sac. */
-    const ignores = poids.inconnus[lieu];
-    const ligne = bouton(
-      `${mot} — ${poids.compte[lieu]} obj. · ${Math.round(poids.somme[lieu] * 10) / 10} ${poids.unite || "lb"}`
-      + (ignores ? ` (+${ignores} sans poids)` : ""),
-      "pipeline-poids-ligne",
-      () => surLieu && surLieu(lieu),
-      `Open ${mot}`
-    );
+    const ligne = bouton(`${mot} — ${mesure(poids.compte[lieu], poids.somme[lieu], poids.inconnus[lieu])}`,
+      "pipeline-poids-ligne", () => surLieu && surLieu(lieu), `Open ${mot}`);
     ligne.dataset.lieu = lieu;
     p.append(ligne);
   }
+  /* ⛔ L'ENCOMBREMENT N'EST PAS UNE PORTE : on ne l'ouvre pas, on le LIT. C'est
+     un voyant, et il ne prend donc ni bouton, ni cible tactile. */
+  const total = elp("p", "pipeline-poids-total",
+    `Encumbrance — ${mesure(poids.encombrement.compte, poids.encombrement.somme, poids.encombrement.inconnus)}`);
+  total.dataset.lieu = "encombrement";
+  p.append(total);
   return p;
 }
 

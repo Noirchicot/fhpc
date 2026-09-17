@@ -3135,11 +3135,23 @@ deux gestes, aucun recouvrement. ⭐ Et le produit n'arbitre pas ce qu'un objet 
 table : *« les subtilités se règlent en jeu »* — poser, c'est retirer un poids, pas raconter une
 histoire.
 
-⏳ **CE QUE LA RÈGLE ATTEND, ET C'EST MESURÉ** : au 17/09, **aucun calcul de poids n'existe dans le
-dépôt** — ni total porté, ni capacité de charge ; `grep -ri "carrying\|encumbr"` ne rend que deux
-lignes sans rapport, et la fiche X1 ne montre qu'un poids **par ligne**. Cette règle est donc un
-**dépôt** : le jour où la capacité se calcule, elle somme les lignes dont `location !== "ground"`,
-et ce jour-là un garde la tient. ⛔ Ne pas la redécouvrir, ⛔ ne pas la rediscuter.
+🔴 **J'AI ÉCRIT ICI, LE 17/09, QU'AUCUN CALCUL DE POIDS N'EXISTAIT. C'ÉTAIT FAUX, ET VOICI
+COMMENT.** J'avais cherché `carrying` et `encumbr` — les mots de la RÈGLE — et conclu de leur
+absence que la chose n'existait pas. ⛔ **Un grep qui ne trouve pas prouve que le MOT est absent,
+jamais que la CHOSE l'est.** `poidsParLieu` (`equipement-pipeline.mjs`) somme les poids depuis le
+24/08, par lieu, et les écrans de sacs l'affichent sous le titre *« Gear weight »* — trois lignes,
+`Self` · `Backpack` · `Storage`, avec le compte des objets dont le poids est inconnu.
+
+✅ **CE QUI EXISTE, MESURÉ CETTE FOIS EN LISANT LE CODE** : un **total par lieu**, affiché.
+⛔ **CE QUI N'EXISTE PAS** : la **capacité de charge** — le plafond auquel comparer ce total. C'est
+elle que la règle d'Eric attend, et elle seule.
+
+⚠️ **ET LE SOL EST DÉJÀ HORS DU COMPTE, MAIS PAR ACCIDENT — pas par décision.** `poidsParLieu`
+déclare trois seaux (`self`, `backpack`, `storage`) ; une ligne au sol tombe dans un quatrième que
+personne n'a déclaré, et le panneau ne lit que les trois premiers. ⭐ Le résultat est JUSTE
+aujourd'hui et il est FRAGILE : il tient à ce que personne n'ajoute une ligne « Ground » au panneau.
+➡️ Le jour où la capacité se calcule, `ground` s'exclut **par une clause écrite**, pas par un seau
+oublié — et ce jour-là un garde la tient. ⛔ Ne pas la redécouvrir, ⛔ ne pas la rediscuter.
 
 ---
 
