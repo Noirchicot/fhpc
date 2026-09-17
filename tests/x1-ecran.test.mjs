@@ -153,7 +153,14 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
   const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
   const apres = Math.min(...ORGANES.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));
   assert.equal(haut.y - avant, 8, "8 au-dessus du groupe");
-  assert.equal(apres - (bas.y + bas.h), 8, "8 en dessous");
+  /* 🔴 RÉÉCRIT LE 17/09 AU SOIR — Eric : *« descends la marge du bas de 8 blg »*, puis
+     *« pas ce qui est en dessous »*. La zone du texte s'allonge donc par le BAS : le
+     filet vient toucher la rangée des états, et la gouttière qui les séparait passe à
+     zéro. ⛔ Le garde ne se relâche pas, il tient l'autre fait : rien ne se CHEVAUCHE
+     (le test 4 le prouve), et la rangée du dessous n'a pas bougé d'un blg. */
+  assert.equal(apres - (bas.y + bas.h), 0, "le filet du bas touche la rangée des états");
+  assert.equal(apres, ORGANES.find((o) => o.nom === "EQUIP ON").cible.y,
+    "et c'est bien la rangée des états qui commence là, sans avoir bougé");
   /* ⚖️ ET LA MARGE DU TEXTE EST CELLE D'ERIC, prise dans la TABLE et jamais recopiée
      ici — elle a bougé deux fois dans la même soirée (20, puis 30 : *« moins de place
      pour le texte, plus pour la marge ! »*). 🔴 La version d'avant écrivait le nombre,
