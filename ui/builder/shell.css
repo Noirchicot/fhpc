@@ -11562,9 +11562,14 @@ button.tuto-point::before {
    la cote vient de la table. ⛔ Ici on ne dit que sa PLACE dans sa boîte — son dessin
    (8 de large, 6 de chevron, les opacités) vit dans son propre bloc et n'a qu'un
    écrivain. Elle ne prend pas le pointeur : elle informe, elle ne se touche pas. */
-.x1 [data-organe="jauge"] {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: var(--sp-4); pointer-events: none;
+/* ⚖️ LES CHEVRONS ENCADRENT L'ŒIL — Eric, 17/09 au soir : *« les chevrons passeront
+   au-dessus et en dessous de l'œil, du coup »*. ⭐ `space-between` : l'un au sommet de
+   la jauge, l'autre au pied, et l'œil au milieu — la jauge le CONTIENT (elle déborde de
+   16 de chaque côté de sa cible) et ne prend pas le pointeur, donc c'est lui qui le
+   reçoit. Trois signes, une colonne, un seul sujet : le texte. */
+.x1 [data-organe="jauge"]:not([hidden]) {
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  pointer-events: none;
 }
 /* — LE BOUTON DE COPIE : 20 de dessin dans 44 de cible (Eric, 17/09 au soir), deux
    pages superposées en traits. ⛔ Ni fond ni cadre : c'est un GLYPHE, il n'a pas de

@@ -132,11 +132,11 @@ export function feuilleDesCotesX1() {
   const lire = (id, corps) => regles.push(`.x1[data-lecture="oui"] [data-organe="${id}"]{${corps}}`);
   lire("description", `height:${px(basL - filet.h - desc.y)}`);
   lire("filet-bas", `top:${px(basL - filet.h)}`);
-  lire("jauge", `height:${px(basL - filet.h - desc.y - 44)}`);
-  /* ⛔ LA COPIE ET L'ŒIL NE SUIVENT PAS — Eric, 17/09 au soir : *« l'œil et le copy
-     restent où ils sont »*. ⭐ Ils vivent dans les MARGES, pas dans la zone : deux
-     repères fixes, qu'on retrouve au même endroit qu'on lise ou qu'on règle. Un organe
-     qui se déplace à chaque mode demande qu'on le cherche. */
+
+  /* ⛔ LA COPIE, L'ŒIL ET SES DEUX CHEVRONS NE SUIVENT PAS — Eric, 17/09 au soir :
+     *« l'œil et le copy restent où ils sont »*. ⭐ Ils vivent dans les MARGES, pas dans
+     la zone : trois repères fixes, qu'on retrouve au même endroit qu'on lise ou qu'on
+     règle. Un organe qui se déplace à chaque mode demande qu'on le cherche. */
   const deux = 2 * PARCHEMIN_DEBORD;
   regles.push(deux
     ? `.x1{background-size:calc(100% + ${px(deux)}) calc(100% + ${px(deux)})}`

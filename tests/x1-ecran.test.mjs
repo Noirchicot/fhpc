@@ -93,7 +93,18 @@ test("4 — aucun chevauchement de dessins, aucun chevauchement de cibles", () =
     for (let j = i + 1; j < ORGANES.length; j += 1) {
       const a = ORGANES[i];
       const b = ORGANES[j];
-      if (secants(rect(a), rect(b))) dessins.push(`${a.nom} × ${b.nom}`);
+      /* ⚖️ UNE INCLUSION DÉCLARÉE N'EST PAS UN CHEVAUCHEMENT : la jauge CONTIENT l'œil
+         (`dans`), parce qu'Eric a demandé que ses deux chevrons l'encadrent. ⛔ Et elle
+         se vérifie : le contenu tient entièrement dans son hôte, sinon c'est bien un
+         croisement. C'est la règle que le plan de l'écran R porte déjà pour le montant
+         de la bourse. */
+      const hote = a.dans === b.nom ? b : b.dans === a.nom ? a : null;
+      if (hote) {
+        const d = hote === a ? b : a;
+        assert.ok(hote.x <= d.x && hote.y <= d.y
+          && d.x + d.l <= hote.x + hote.l && d.y + d.h <= hote.y + hote.h,
+          `${d.nom} se déclare DANS ${hote.nom} mais en sort`);
+      } else if (secants(rect(a), rect(b))) dessins.push(`${a.nom} × ${b.nom}`);
       /* 🔴 DEUX CIBLES NE SE CROISENT PAS — mais une CIBLE a le droit de couvrir une
          ZONE qu'on ne tape pas. Eric, 17/09 au soir : *« le copy text va passer dans la
          marge à gauche »* ; sa cible de 44 ne tient pas dans une marge de 39, elle se
@@ -415,7 +426,7 @@ test("15 ter — 📏 en lecture, le texte descend à 8 des portes, et ses cotes
   assert.equal(regle("filet-bas"), `top:${bas - filet.h}px`, "le filet du bas s'arrête à 8 des portes");
   assert.equal(regle("description"), `height:${bas - filet.h - desc.y}px`,
     "et le texte prend tout jusqu'à lui — ⛔ son SOMMET ne bouge pas, la tête reste tranquille");
-  for (const fixe of ["filet-haut", "copier", "oeil"]) {
+  for (const fixe of ["filet-haut", "copier", "oeil", "jauge"]) {
     assert.doesNotMatch(css, new RegExp(`data-lecture="oui"\\] \\[data-organe="${fixe}"`),
       `⛔ rien ne repose ${fixe} : ce qui ne bouge pas ne se réécrit pas`);
   }

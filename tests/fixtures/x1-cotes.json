@@ -124,16 +124,6 @@
    "cible_y": 222
   },
   {
-   "nom": "JAUGE",
-   "x": 351.5,
-   "y": 86,
-   "l": 8,
-   "h": 136,
-   "mot": "",
-   "cran": "T1/600",
-   "sorte": "zone"
-  },
-  {
    "nom": "OEIL",
    "x": 345.5,
    "y": 234.0,
@@ -144,7 +134,18 @@
    "cran": "T1/600",
    "sorte": "copier",
    "cible_x": 327,
-   "cible_y": 222
+   "cible_y": 222,
+   "dans": "JAUGE"
+  },
+  {
+   "nom": "JAUGE",
+   "x": 345.5,
+   "y": 218.0,
+   "l": 20,
+   "h": 52,
+   "mot": "",
+   "cran": "T1/600",
+   "sorte": "zone"
   },
   {
    "nom": "IS",
