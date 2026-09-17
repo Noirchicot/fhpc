@@ -248,11 +248,11 @@ test("H — les deux fenêtres de prose défilent, et l'exception est BORNÉE", 
      est PIRE que la coupe visible qu'on vient de retirer.
      ⛔ L'ASCENSEUR N'EST PAS LE SIGNE : Eric l'a refusé (*« pas des barres »*), et
      sur iOS il n'apparaît qu'en surimpression PENDANT le geste. */
-  assert.ok(css.includes(".card-final-chevron"),
+  assert.ok(css.includes(".chevron-defile"),
     "les chevrons doivent exister : ils sont le seul signe qui dit « il y en a encore » AVANT " +
     "qu'on touche. Eric, 2026-09-03 : « des chevrons », « dans la marge gauche », « entre le bloc " +
     "et le bord de la dalle ».");
-  const jauge = corps(".card-final-defile") || "";
+  const jauge = corps(".jauge-defile") || "";
   assert.match(jauge, /margin-left:\s*-/,
     "la jauge doit sortir vers la GAUCHE par une marge négative : elle vit dans une colonne de " +
     "largeur NULLE et déborde dans le rembourrage de la dalle. C'est ce qui lui évite de prendre " +

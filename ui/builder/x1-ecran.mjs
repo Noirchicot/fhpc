@@ -47,6 +47,11 @@ import { DESTINATIONS } from "./gear-ecran.mjs?v=651";
 /* ⭐ L'INTERRUPTEUR DU MENU, PRIS TEL QUEL — il est descendu dans une feuille sans
    import (lot 213) pour que la fiche le prenne sans traîner `Layers` derrière elle. */
 import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=651";
+/* ⭐ ET LA JAUGE DE DÉFILEMENT, du même tiroir : l'organe des fenêtres de prose de
+   Destiny (03/09), descendu dans une feuille sans import. Eric a demandé ici la même
+   chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
+   informer le lecteur »* — donc c'est le même organe, pas un second. */
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=651";
 
 const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
 
@@ -58,8 +63,7 @@ const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
    nomme le GESTE — c'est la distinction qu'Eric a posée le 17/09. */
 export const CLEF_DE = Object.freeze({
   "QTE": "qte", "NOM": "nom", "PAGINATION": "pagination",
-  "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas",
-  "PRECEDENT": "precedent", "SUIVANT": "suivant",
+  "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge",
   "PRIX": "prix", "POIDS": "poids", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
   "EQUIP": "equip", "ATTUNE": "attune", "LOCKED": "lock",
@@ -156,21 +160,6 @@ function voyant(id, classe, texte, note) {
   n.dataset.organe = id;
   if (note) n.setAttribute("aria-label", note);
   return n;
-}
-
-/** Une flèche de feuilletage : le gabarit du livre et du `?` — dessin 22 dans
- *  une cible de 44 (NORMES §2, `paire-partout`). ⛔ Elle n'a pas l'habit de la
- *  famille à libellé : un bouton à GLYPHE n'a pas de mot à cadrer. */
-function fleche(id, mot, note, surClic, eteint, absent) {
-  const b = bouton("x1-fleche", mot, note, surClic);
-  b.dataset.organe = id;
-  if (eteint) b.disabled = true;
-  /* ⚖️ UNE SEULE PAGE NE SE FEUILLETTE PAS — Eric, 17/09 : *« la pagination, s'il y a
-     plusieurs pages »*, et une flèche sans page où aller dit la même chose qu'un
-     « 1/1 ». ⛔ `hidden`, jamais un `display:none` en feuille (défaut n°3) : la PLACE
-     reste, donc le nom ne se décale pas quand on feuillette un lieu à deux objets. */
-  if (absent) b.hidden = true;
-  return b;
 }
 
 /** Le petit carré d'un état : son titre, et SOUS lui le mot de l'état, en
@@ -303,10 +292,9 @@ function porte(id, mot, note, options, eteint) {
 /** @param {object} options
  *   · `objet` : `{ index, nom, qte, prixUnite, prixTotal, poidsUnite, poidsTotal,
  *     prose, equipped, attuned, locked, harmonisable }`
- *   · `rang` : `{ position, total }` — le feuilletage, dans le lieu courant
+ *   · `rang` : `{ position, total }` — où l'on est dans le lieu courant
  *   · `nombre`, `destination` : l'envoi en cours
- *   · rappels : `surPrecedent` `surSuivant` `surEtat` `surNombre`
- *     `surDestination` `surPorte` `surCopier` */
+ *   · rappels : `surEtat` `surNombre` `surEst` `surDestination` `surPorte` `surCopier` */
 export function construireLaFicheX1(options = {}) {
   const objet = options.objet || {};
   const rang = options.rang || {};
@@ -347,12 +335,6 @@ export function construireLaFicheX1(options = {}) {
       const plusieurs = rang.total > 1;
       const mot = plusieurs ? `${rang.position}/${rang.total}` : "";
       noeud.append(voyant(id, "x1-pagination", mot, plusieurs ? `Item ${rang.position} of ${rang.total}` : undefined));
-    } else if (id === "precedent") {
-      noeud.append(fleche(id, "←", "Previous item", options.surPrecedent,
-        !options.surPrecedent || rang.position <= 1, !(rang.total > 1)));
-    } else if (id === "suivant") {
-      noeud.append(fleche(id, "→", "Next item", options.surSuivant,
-        !options.surSuivant || rang.position >= rang.total, !(rang.total > 1)));
     } else if (id === "prix") {
       noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
     } else if (id === "poids") {
@@ -361,6 +343,15 @@ export function construireLaFicheX1(options = {}) {
       const z = eld("div", "x1-description", objet.prose || "");
       z.dataset.organe = id;
       noeud.append(z);
+      /* ⭐ LA JAUGE VEILLE SUR CETTE ZONE : elle lit son débordement et allume ses
+         chevrons. ⛔ Elle est posée À CÔTÉ d'elle, jamais dedans — un signe qui défile
+         avec le texte qu'il annonce ne sert à rien.
+         ⚠️ Et elle est posée ICI, dans la boucle, parce qu'elle a besoin du nœud du
+         texte : la table la déclare (`JAUGE`), l'écran la branche. */
+      const j = veilleLeDebordement(z);
+      if (j) { j.dataset.organe = CLEF_DE["JAUGE"]; noeud.append(j); }
+    } else if (id === "jauge") {
+      /* posée par la branche de la description, juste au-dessus — elle a besoin d'elle */
     } else if (id === "is") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "is-quoi") {

@@ -18,7 +18,7 @@
  "marge_tete": 14,
  "marge_pied": 34,
  "marge_cote": 14,
- "marge_texte": 34,
+ "marge_texte": 39,
  "y": {
   "nom": 18,
   "chiffres": 62,
@@ -31,19 +31,8 @@
  },
  "boites": [
   {
-   "nom": "PRECEDENT",
-   "x": 25.0,
-   "y": 29.0,
-   "l": 22,
-   "h": 22,
-   "cible": 44,
-   "cible_x": 14,
-   "cible_y": 18,
-   "sorte": "rond"
-  },
-  {
    "nom": "QTE",
-   "x": 62,
+   "x": 14,
    "y": 20.0,
    "l": 40,
    "h": 40,
@@ -53,9 +42,9 @@
   },
   {
    "nom": "NOM",
-   "x": 106.0,
+   "x": 58.0,
    "y": 20.0,
-   "l": 163,
+   "l": 259,
    "h": 40,
    "mot": "Winged Helmet",
    "cran": "T4/600",
@@ -63,24 +52,13 @@
   },
   {
    "nom": "PAGINATION",
-   "x": 273,
+   "x": 321,
    "y": 20.0,
    "l": 40,
    "h": 40,
    "mot": "1/12",
    "cran": "T1/600",
    "sorte": "voyant"
-  },
-  {
-   "nom": "SUIVANT",
-   "x": 328.0,
-   "y": 29.0,
-   "l": 22,
-   "h": 22,
-   "cible": 44,
-   "cible_x": 317,
-   "cible_y": 18,
-   "sorte": "rond"
   },
   {
    "nom": "PRIX",
@@ -104,9 +82,9 @@
   },
   {
    "nom": "FILET HAUT",
-   "x": 69.5,
+   "x": 73.0,
    "y": 78,
-   "l": 236,
+   "l": 229,
    "h": 8,
    "mot": "",
    "cran": "T1/600",
@@ -114,9 +92,9 @@
   },
   {
    "nom": "DESCRIPTION",
-   "x": 34,
+   "x": 39,
    "y": 86,
-   "l": 307,
+   "l": 297,
    "h": 180,
    "mot": "Description",
    "cran": "T2/400",
@@ -124,10 +102,33 @@
   },
   {
    "nom": "FILET BAS",
-   "x": 69.5,
+   "x": 73.0,
    "y": 266,
-   "l": 236,
+   "l": 229,
    "h": 8,
+   "mot": "",
+   "cran": "T1/600",
+   "sorte": "zone"
+  },
+  {
+   "nom": "COPIER",
+   "x": 9.5,
+   "y": 246,
+   "l": 20,
+   "h": 20,
+   "cible": 44,
+   "mot": "",
+   "cran": "T1/600",
+   "sorte": "copier",
+   "cible_x": 4,
+   "cible_y": 234.0
+  },
+  {
+   "nom": "JAUGE",
+   "x": 351.5,
+   "y": 86,
+   "l": 8,
+   "h": 180,
    "mot": "",
    "cran": "T1/600",
    "sorte": "zone"
@@ -152,17 +153,6 @@
    "mot": "An attack",
    "cran": "T2/600",
    "sorte": "dropdown"
-  },
-  {
-   "nom": "COPIER",
-   "x": 70.5,
-   "y": 334.0,
-   "l": 20,
-   "h": 20,
-   "cible": 44,
-   "mot": "",
-   "cran": "T1/600",
-   "sorte": "copier"
   },
   {
    "nom": "EQUIP",

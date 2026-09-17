@@ -94,7 +94,13 @@ test("4 — aucun chevauchement de dessins, aucun chevauchement de cibles", () =
       const a = ORGANES[i];
       const b = ORGANES[j];
       if (secants(rect(a), rect(b))) dessins.push(`${a.nom} × ${b.nom}`);
-      if (secants(cibleDe(a), cibleDe(b))) cibles.push(`${a.nom} × ${b.nom}`);
+      /* 🔴 DEUX CIBLES NE SE CROISENT PAS — mais une CIBLE a le droit de couvrir une
+         ZONE qu'on ne tape pas. Eric, 17/09 au soir : *« le copy text va passer dans la
+         marge à gauche »* ; sa cible de 44 ne tient pas dans une marge de 39, elle se
+         cale donc contre le bord de page et déborde sur la colonne du texte. ⭐ Ça ne
+         coûte rien — un texte ne se tape pas — et le garde le DIT au lieu de l'interdire
+         en bloc : il ne compare que ce qui a une cible. */
+      if (a.cible && b.cible && secants(cibleDe(a), cibleDe(b))) cibles.push(`${a.nom} × ${b.nom}`);
     }
   }
   assert.deepEqual(dessins, [], "deux dessins qui se croisent sont un plan faux");
@@ -124,8 +130,13 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      la séparait des chiffres ; rien d'autre ne bouge, et la somme reste la même. */
   const nom = ORGANES.find((o) => o.nom === "NOM");
   const chiffres = ORGANES.find((o) => o.nom === "PRIX");
-  assert.equal(Math.min(...ORGANES.map((o) => cibleDe(o).y)), TABLE.marge_tete + 4,
-    "la première rangée commence à 18 : la marge de tête, plus le glissement du nom");
+  /* 🔴 RÉÉCRIT LE 17/09 AU SOIR, QUAND LES FLÈCHES SONT PARTIES : elles occupaient la
+     rangée entière (22 dans une cible de 44) et donnaient donc son sommet. Ce qui reste
+     se DESSINE à 40 dans les 44, donc deux plus bas. ⭐ Le garde tient l'invariant, pas
+     le nombre : la rangée du nom est posée là où la table la met, et rien ne monte
+     au-dessus d'elle. */
+  assert.equal(TABLE.y.nom, TABLE.marge_tete + 4, "la rangée du nom : la marge de tête plus son glissement");
+  assert.ok(Math.min(...ORGANES.map((o) => cibleDe(o).y)) >= TABLE.y.nom, "et rien ne monte au-dessus d'elle");
   assert.equal(chiffres.y, TABLE.marge_tete + TOUCH + 4,
     "⛔ et la ligne des chiffres, elle, est restée comptée depuis la marge de tête");
   assert.ok(nom.y > TABLE.marge_tete, "le nom est bien descendu dans son créneau");
@@ -150,8 +161,13 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
   assert.ok(Math.abs(haut.l - desc.l * 0.7 * 1.1) <= 1,
     "77 % de la colonne du texte, à un blg près — 0,7 réduit puis 1,1 élargi (Eric, 17/09 au soir)");
   assert.equal(haut.x, (DALLE.l - haut.l) / 2, "et centré sur la dalle");
-  const avant = Math.max(...ORGANES.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
-  const apres = Math.min(...ORGANES.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));
+  /* ⛔ LA COPIE ET LA JAUGE SORTENT DU COMPTE : elles vivent DANS la bande du texte, à
+     ses côtés, et pas au-dessus ni au-dessous. Les compter ferait dire au garde que la
+     gouttière vaut zéro alors qu'elle n'a pas bougé. */
+  const bande = new Set(["COPIER", "JAUGE"]);
+  const voisins = ORGANES.filter((o) => !bande.has(o.nom));
+  const avant = Math.max(...voisins.filter((o) => o.y + o.h <= haut.y).map((o) => cibleDe(o).y + cibleDe(o).h));
+  const apres = Math.min(...voisins.filter((o) => o.y >= bas.y + bas.h).map((o) => cibleDe(o).y));
   assert.equal(haut.y - avant, 8, "8 au-dessus du groupe");
   /* 🔴 RÉÉCRIT LE 17/09 AU SOIR — Eric : *« descends la marge du bas de 8 blg »*, puis
      *« pas ce qui est en dessous »*. La zone du texte s'allonge donc par le BAS : le
@@ -316,23 +332,35 @@ test("13 — les quatre portes publient leur geste ; `Use` et le menu `is` sont 
   assert.equal(menuIs.disabled, false, "et il s'ouvre — un menu désarmé n'est pas un menu");
 });
 
-test("14 — la pagination dit le rang dans le lieu, et les flèches s'éteignent aux deux bouts", () => {
-  const premier = rendu({ rang: { position: 1, total: 3 }, surPrecedent: () => {}, surSuivant: () => {} });
+test("14 — la pagination DIT le rang, elle ne sert plus à se déplacer", () => {
+  /* 🔴 RÉÉCRIT LE 17/09 AU SOIR — Eric : *« on va enlever les flèches de navigation
+     latérales et on va rendre la zone de texte scrollable »*. La pagination reste, et
+     c'est délibéré : elle dit OÙ L'ON EST, elle n'a jamais servi à se déplacer. Ce garde
+     perd donc ses clauses sur les flèches et gagne celle qui les remplace — ⛔ aucune
+     flèche ne doit reparaître sans qu'on le sache. */
+  const premier = rendu({ rang: { position: 1, total: 3 } });
   assert.equal(premier.querySelector('[data-organe="pagination"]').textContent, "1/3");
   /* ⚖️ UNE SEULE PAGE NE SE PAGINE PAS — Eric, 17/09 : *« s'il y a plusieurs pages »*. */
   const seule = rendu({ rang: { position: 1, total: 1 } });
   assert.equal(seule.querySelector('[data-organe="pagination"]').textContent, "",
     "un « 1/1 » ne dit rien à personne");
-  /* ⭐ ET LES FLÈCHES SUIVENT LA PAGINATION : sans seconde page, elles se retirent —
-     `hidden`, donc leur place reste et rien ne se décale. */
   for (const id of ["precedent", "suivant"]) {
-    assert.equal(seule.querySelector(`[data-organe="${id}"]`).hidden, true, `${id} se retire`);
-    assert.equal(premier.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} reste quand il y a des pages`);
+    assert.equal(premier.querySelector(`[data-organe="${id}"]`), null, `⛔ ${id} n'existe plus`);
   }
-  assert.equal(premier.querySelector('[data-organe="precedent"]').disabled, true, "rien avant le premier");
-  assert.equal(premier.querySelector('[data-organe="suivant"]').disabled, false);
-  const dernier = rendu({ rang: { position: 3, total: 3 }, surPrecedent: () => {}, surSuivant: () => {} });
-  assert.equal(dernier.querySelector('[data-organe="suivant"]').disabled, true, "rien après le dernier");
+  assert.ok(!ORGANES.some((o) => o.sorte === "rond"), "et le plan n'en porte plus non plus");
+});
+
+test("14 bis — la jauge de défilement veille sur le texte, et elle ne se touche pas", () => {
+  /* ⚖️ Eric, 17/09 au soir : *« juste des chevrons discrets dans la marge droite pour
+     informer le lecteur »*. ⭐ C'est l'organe des fenêtres de prose de Destiny (03/09),
+     descendu dans une feuille sans import — le MÊME, pas un second. */
+  const n = rendu();
+  const jauge = n.querySelector('[data-organe="jauge"]');
+  assert.ok(jauge, "la jauge est posée");
+  assert.equal(jauge.getAttribute("aria-hidden"), "true", "elle informe l'œil, pas le lecteur d'écran");
+  assert.equal(jauge.querySelectorAll(".chevron-defile").length, 2,
+    "deux chevrons : le haut compte autant que le bas (leçon du 03/09)");
+  assert.match(source, /veilleLeDebordement/, "et c'est bien l'organe partagé qui la fabrique");
 });
 
 test("15 — prix et poids : la quantité se dit UNE fois, sur la ligne du prix", () => {

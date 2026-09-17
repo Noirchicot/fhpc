@@ -54,16 +54,33 @@ function poser() {
       index: 0, nom: "Winged Helmet", qte: 2,
       prixUnite: "15 gp", prixTotal: "30 gp",
       poidsUnite: "3 lb", poidsTotal: "6 lb",
-      prose: "A winged helmet, its plumes catching light that is not there.\n" +
-             "While wearing it, you can cast the Levitate spell once per day.\n" +
-             "Properties: light, finesse\nAC: 13 + Dex modifier",
+      /* ⭐ UN TEXTE LOURD, ET C'EST LE POINT DU BANC — Eric, 17/09 au soir : *« mets un
+         objet magique lourd en texte pour voir »*. La zone défile, et les chevrons de la
+         marge droite doivent s'allumer : c'est ce qu'on vient regarder ici.
+         ⛔ Prose écrite pour ce banc, pas recopiée d'un livre : le dépôt est public. */
+      prose: "A winged helmet of hammered bronze, its plumes catching a light that is " +
+             "not in the room.\n" +
+             "While wearing it you gain a flying speed of 30 feet, and you can hover. " +
+             "If you are not proficient with medium armor, your speed is halved and you " +
+             "have disadvantage on Dexterity saves while aloft.\n" +
+             "The helmet has 3 charges and regains 1d3 expended charges daily at dawn. " +
+             "While wearing it, you can expend 1 charge to cast Feather Fall, or 2 to " +
+             "cast Levitate. A creature that sees you cast either spell this way must " +
+             "succeed on a DC 13 Wisdom save or believe, for one minute, that you are " +
+             "owed a debt it cannot name.\n" +
+             "If you expend the last charge, roll a d20. On a 1, the plumes fall still " +
+             "and the helmet becomes a nonmagical, rather heavy hat until someone tells " +
+             "it a true story about flight.\n" +
+             "Curse: while attuned, you cannot bring yourself to descend a staircase " +
+             "that you could instead jump down.\n" +
+             "Properties: light, finesse\nAC: 13 + Dex modifier\n" +
+             "Weight: 3 lb. · Rarity: rare · Attunement: required",
       genre: "armor",
       ...etat
     },
     rang: { position: 3, total: 12 },
     nombre,
     destination: "backpack",
-    surPrecedent: () => {}, surSuivant: () => {},
     surNombre: (n) => { nombre = n; },
     surDestination: () => {},
     surEtat: (clef, valeur) => { etat[clef] = valeur; peindre(); },

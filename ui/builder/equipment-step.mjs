@@ -2097,15 +2097,11 @@ export function renderEquipmentStep(ctx, onAction) {
     const qte = ligne.quantity || 1;
     const cout = parseCout(data.cost);
     const poids = parsePoids(data.weight);
-    /* le feuilletage : les objets du LIEU courant, dans l'ordre du document —
-       on tourne les pages de ce qu'on portait en ouvrant la fiche. */
+    /* ⭐ LE RANG DANS LE LIEU — il se LIT, il ne se parcourt plus : Eric a retiré les
+       deux flèches le 17/09 au soir, et la pagination reste parce qu'elle dit où l'on
+       est, pas parce qu'elle sert à se déplacer. */
     const voisines = lignes.filter((l) => (l.location || "backpack") === (ligne.location || "backpack"));
     const rangDansLeLieu = voisines.findIndex((l) => l.index === ligne.index);
-    const allerA = (pas) => {
-      const v = voisines[rangDansLeLieu + pas];
-      if (!v) return;
-      ficheX1 = v.index; nombreX1 = 1; peindre();
-    };
     const { noeud } = construireLaFicheX1({
       objet: {
         index: ligne.index, nom: ligne.nomAffiche, qte,
@@ -2132,8 +2128,6 @@ export function renderEquipmentStep(ctx, onAction) {
       rang: { position: rangDansLeLieu + 1, total: voisines.length },
       nombre: nombreX1,
       destination: destinationEnvoi,
-      surPrecedent: () => allerA(-1),
-      surSuivant: () => allerA(1),
       surNombre: (n) => { nombreX1 = Math.max(1, Math.min(n, qte)); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ TROIS ÉTATS, DEUX ÉCRITURES DIFFÉRENTES, ET C'EST LE DÉPÔT QUI LE DIT :

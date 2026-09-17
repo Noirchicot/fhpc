@@ -9016,7 +9016,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    *« on garde le box constraint sous la main pour les cas particuliers »*.
 
    ⛔ CE QUI RESTE DEHORS, ET ERIC LES A NOMMÉS UN PAR UN : les chevrons
-   (`.stage-chevron`, `.card-final-chevron`), les onglets `Menu`/`Sheet`
+   (`.stage-chevron`, `.chevron-defile`), les onglets `Menu`/`Sheet`
    (58 × 58, `--onglet-taille`, un organe déclaré à part), les interrupteurs
    on/off (`.bascule-ligne`, `.universe-bascule` — *« un interrupteur n'est pas
    un bouton »*, §6). Aucun n'est de la famille octogone : ils ne sont pas
@@ -10915,7 +10915,7 @@ button.tuto-point::before {
 .aire-meaning > .card-final-etiq { grid-area: etiq; }
 .aire-power > .card-final-cadre,
 .aire-meaning > .card-final-cadre { grid-area: fenetre; }
-.card-final-defile {
+.jauge-defile {
   grid-area: chevrons;
   align-self: center;
   margin-left: -12px;
@@ -10924,7 +10924,7 @@ button.tuto-point::before {
   flex-direction: column;
   gap: var(--sp-4);
 }
-.card-final-chevron {
+.chevron-defile {
   width: 6px; height: 6px;
   border-right: 1.5px solid var(--text-soft);
   border-bottom: 1.5px solid var(--text-soft);
@@ -10940,12 +10940,17 @@ button.tuto-point::before {
   opacity: 0;
   transition: opacity .15s ease;
 }
-.card-final-chevron.vers-le-haut { transform: rotate(-135deg); }
-.card-final-cadre.deborde-bas  + .card-final-defile > .card-final-chevron,
-.card-final-cadre.deborde-haut + .card-final-defile > .card-final-chevron { opacity: .18; }
-.card-final-cadre.deborde-bas  + .card-final-defile > .vers-le-bas  { opacity: .85; }
-.card-final-cadre.deborde-haut + .card-final-defile > .vers-le-haut { opacity: .85; }
-@media (prefers-reduced-motion: reduce) { .card-final-chevron { transition: none; } }
+.chevron-defile.vers-le-haut { transform: rotate(-135deg); }
+/* ⭐ LOT 213 — LE SÉLECTEUR SE DÉTACHE DE SON ÉCRAN, comme l'organe : il s'ancrait sur
+   `.card-final-cadre`, la fenêtre de prose de Destiny, et ne pouvait donc pas servir la
+   zone de texte de X1. Il s'ancre maintenant sur la CLASSE D'ÉTAT que la veille pose —
+   `deborde-haut` / `deborde-bas` — et sur la jauge qui suit la boîte. ⛔ Aucun dessin
+   n'a bougé : mêmes opacités, même ordre. */
+.deborde-bas  + .jauge-defile > .chevron-defile,
+.deborde-haut + .jauge-defile > .chevron-defile { opacity: .18; }
+.deborde-bas  + .jauge-defile > .vers-le-bas  { opacity: .85; }
+.deborde-haut + .jauge-defile > .vers-le-haut { opacity: .85; }
+@media (prefers-reduced-motion: reduce) { .chevron-defile { transition: none; } }
 
 
 /* ══ LES HUIT CASES DE L'ÉCRAN FINAL — figées le 2026-09-03 ═══════════════ */
@@ -11455,16 +11460,6 @@ button.tuto-point::before {
   font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
   font-variant-numeric: tabular-nums;
 }
-/* — LES DEUX FLÈCHES : le gabarit du livre et du `?` — un rond de 22 dans la
-   cible de 44 (NORMES §2). ⛔ Pas l'habit de la famille à libellé : un bouton à
-   GLYPHE n'a pas de mot à cadrer, donc pas de corps à bomber. */
-.x1-fleche {
-  display: flex; align-items: center; justify-content: center;
-  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--radius-pill);
-  background: none; box-shadow: inset 0 0 0 1px var(--x1-trait);
-  color: var(--x1-encre); font-size: var(--t3); line-height: 1; cursor: pointer;
-}
-.x1-fleche:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
 /* — PRIX ET POIDS : deux mentions qu'on LIT, hautes de ce que leur texte
    mesure (Eric, 17/09 : *« prix poids, pas 44 de haut, 8 ! »*). ⛔ Elles ne se
    touchent pas : aucun plancher tactile ne s'y applique. */
@@ -11543,6 +11538,14 @@ button.tuto-point::before {
   mask-image: var(--icone-cadenas); -webkit-mask-image: var(--icone-cadenas);
 }
 /* — LE BOUTON DE COPIE : un glyphe en oxblood, à droite du menu `is`. */
+/* — LA JAUGE DE DÉFILEMENT, dans la marge droite du texte : l'organe de Destiny, dont
+   la cote vient de la table. ⛔ Ici on ne dit que sa PLACE dans sa boîte — son dessin
+   (8 de large, 6 de chevron, les opacités) vit dans son propre bloc et n'a qu'un
+   écrivain. Elle ne prend pas le pointeur : elle informe, elle ne se touche pas. */
+.x1 [data-organe="jauge"] {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4); pointer-events: none;
+}
 /* — LE BOUTON DE COPIE : 20 de dessin dans 44 de cible (Eric, 17/09 au soir), deux
    pages superposées en traits. ⛔ Ni fond ni cadre : c'est un GLYPHE, il n'a pas de
    mot à cadrer — donc pas d'habit de la famille. Sa teinte est l'oxblood. */

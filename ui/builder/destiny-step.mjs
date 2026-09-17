@@ -31,6 +31,9 @@ import { renderCardRows } from "./catalogue.mjs?v=651";
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
 import { versionQuery } from "./version.mjs?v=651";
+/* ⭐ LOT 213 — la jauge de défilement est descendue dans une feuille sans import, pour
+   que la fiche X1 la prenne sans traîner Destiny derrière elle. Même dessin, nom neutre. */
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=651";
 
 export { drawArcana };
 
@@ -361,48 +364,11 @@ export function renderDestinyFinal(ctx, onAction) {
     return b;
   };
 
-  /* 🔴 LES CHEVRONS QUI DISENT « IL Y EN A ENCORE » — Eric, 2026-09-03, a
-     ouvert une exception à sa loi du non-défilement pour les deux fenêtres de
-     prose, puis a nommé le signe : *« des chevrons sur le côté de boîte à
-     l'extérieur à droite »*.
-     ⭐ ALORS LE DÉFILEMENT DOIT SE VOIR : un joueur qui ne sait pas qu'il manque
-     du texte croit avoir lu la règle entière — ce qui est PIRE que la coupe
-     visible qu'on vient de retirer, parce que rien ne l'avertit.
-     ⛔ L'ASCENSEUR NE SUFFIT PAS, ET C'EST MESURABLE : sur iOS il est en
-     surimpression et n'apparaît QUE pendant le geste. Le chevron est le seul
-     signe qui existe AVANT qu'on touche.
-     ⚠️ POURQUOI CE N'EST PAS DU CSS : aucune règle ne sait dire « ce texte
-     dépasse sa boîte ». Il faut mesurer, donc du code — mais le code ne fait que
-     POSER UNE CLASSE, la feuille garde tout le dessin.
-     ⭐ ET LE HAUT COMPTE AUTANT QUE LE BAS : arrivé en bas, ce qui reste à dire
-     est qu'il y a du texte AU-DESSUS. Un seul chevron mentirait la moitié du
-     temps. */
-  const veilleLeDebordement = (cadre) => {
-    if (!cadre) return null;
-    const jauge = el("div", "card-final-defile");
-    jauge.setAttribute("aria-hidden", "true");
-    jauge.append(el("i", "card-final-chevron vers-le-haut"));
-    jauge.append(el("i", "card-final-chevron vers-le-bas"));
-    const relire = () => {
-      cadre.classList.toggle("deborde-haut", cadre.scrollTop > 1);
-      cadre.classList.toggle("deborde-bas",
-        cadre.scrollHeight - cadre.clientHeight - cadre.scrollTop > 1);
-    };
-    /* ⚠️ RIEN N'EST MESURABLE AVANT LA MISE EN PAGE : au moment où ce nœud est
-       fabriqué il n'est pas encore au document, et les trois hauteurs valent 0.
-       Un appel direct ICI rendrait « ne déborde pas », toujours.
-       ⛔ ET L'OBSERVATEUR SEUL NE SUFFIT PAS — mesuré au banc le 2026-09-03 : il
-       ne se déclenche que sur un changement de TAILLE, et la boîte est plafonnée
-       à 4 lignes. Un texte deux fois plus long n'en change pas la taille d'un
-       blg : le contenu déborde et aucun événement ne le dit.
-       ⭐ D'OÙ LES DEUX : une lecture programmée pour la première mise en page,
-       et l'observateur pour ce qui bouge après (largeur du panneau, cran de la
-       ceinture). Aucun des deux ne couvre le cas de l'autre. */
-    if (typeof requestAnimationFrame === "function") requestAnimationFrame(relire);
-    if (typeof ResizeObserver === "function") new ResizeObserver(relire).observe(cadre);
-    cadre.addEventListener("scroll", relire, { passive: true });
-    return jauge;
-  };
+  /* ⭐ LOT 213 — L'ORGANE A DÉMÉNAGÉ DANS UNE FEUILLE SANS IMPORT (`defilement-
+     chevrons.mjs`), pour que la fiche X1 le prenne sans traîner Destiny derrière
+     elle. ⛔ Rien de son dessin n'a bougé : seuls ses noms de classe sont devenus
+     neutres, parce qu'un organe qui sert deux écrans ne porte pas le nom du
+     premier. */
 
   /* 🔴 LES HUIT BLOCS SONT DES ENFANTS DIRECTS DE LA GRILLE — Eric, 2026-09-03 :
      *« tu as 7 blocs texte et un bloc image, place-les et fige-les »*.
