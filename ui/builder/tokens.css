@@ -1096,11 +1096,13 @@
      ⭐ QUATRE LIGNES ET NON CINQ : le dessin fait 20 blg de côté, et cinq traits y
      tomberaient à moins de 2 blg l'un de l'autre — un glyphe se juge sur son raster,
      pas sur son chemin (TRAPS, 06/08). Quatre gardent l'idée et restent lisibles.
-     ⚖️ ET LE TRAIT EST LÉGER — Eric, 17/09 au soir : *« bien plus léger le trait »*. À
-     1,9 il faisait une tache à 20 blg ; à 1,2 le presse-papiers se lit comme un DESSIN
-     et non comme un bouton plein. ⭐ L'épaisseur d'un glyphe se règle à sa taille finale,
+     ⚖️ ET LE TRAIT EST LÉGER — Eric, 17/09 au soir : *« bien plus léger le trait »*,
+     puis *« plus léger encore »*. 1,9 faisait une tache à 20 blg ; 1,2 restait épais ;
+     à 0,9 le presse-papiers se lit comme un DESSIN et non comme un bouton plein. 📏 Sur
+     le dessin de 20, ça rend 0,75 blg de trait — c'est le régime des glyphes fins de la
+     fiche, pas celui des boutons. ⭐ L'épaisseur d'un glyphe se règle à sa taille finale,
      jamais dans l'éditeur où il est grand. */
-  --icone-copie: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4.2H7.2A1.8 1.8 0 0 0 5.4 6v13.2a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8V6a1.8 1.8 0 0 0-1.8-1.8H15'/%3E%3Crect x='8.8' y='2.6' width='6.4' height='3.2' rx='0.6'/%3E%3Cpath d='M8.6 9.6h6.8M8.6 12.5h6.8M8.6 15.4h6.8M8.6 18.3h6.8'/%3E%3C/svg%3E");
+  --icone-copie: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='0.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4.2H7.2A1.8 1.8 0 0 0 5.4 6v13.2a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8V6a1.8 1.8 0 0 0-1.8-1.8H15'/%3E%3Crect x='8.8' y='2.6' width='6.4' height='3.2' rx='0.6'/%3E%3Cpath d='M8.6 9.6h6.8M8.6 12.5h6.8M8.6 15.4h6.8M8.6 18.3h6.8'/%3E%3C/svg%3E");
   /* ⏳ ESSAI DU 2026-08-19 — le disque en VOILE au lieu du noir plein, à la
      demande d'Eric (« je veux voir la dalle transparente, 65 % de voile ? »).
      ⛔ ET LE CALCUL DIT QUE ÇA TUE LES LISERÉS, dans les DEUX thèmes : ils ne
