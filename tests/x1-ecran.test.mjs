@@ -31,7 +31,7 @@ globalThis.document = createTestDocument();
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(ROOT, "ui", "builder");
 const D = await import("../ui/builder/x1-disposition.mjs");
-const { construireLaFicheX1, feuilleDesCotesX1, CLEF_DE } = await import("../ui/builder/x1-ecran.mjs");
+const { construireLaFicheX1, feuilleDesCotesX1, CLEF_DE, PLAFOND_HARMONISATION } = await import("../ui/builder/x1-ecran.mjs");
 const { construireLEcranGear } = await import("../ui/builder/gear-ecran.mjs");
 const TABLE = JSON.parse(fs.readFileSync(path.join(ROOT, "tests", "fixtures", "x1-cotes.json"), "utf8"));
 const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
@@ -304,6 +304,35 @@ test("11 — les trois interrupteurs disent leur état sur trois canaux, et écr
   assert.deepEqual(ecrits, [["equipped", false], ["attuned", false], ["locked", true]]);
 });
 
+test("11 bis — 🔒 VERROUILLÉ : la fiche désarme ce qui DÉPLACE, et rien d'autre (Eric, 18/09)", () => {
+  /* ⚖️ *« lock : l'item reste collé à son collecteur, ne bouge pas, ne peut être
+     vendu, ni détruit tant qu'il est locked »*.
+     ⭐ CE QUE CE GARDE SÉPARE, ET C'EST TOUT LE SUJET : porter ou dévêtir DÉPLACE
+     (l'état suit le lieu), donc le verrou l'interdit ; harmoniser ne déplace rien,
+     donc il reste libre ; et le verrou lui-même reste libre, ⛔ sinon c'est une
+     porte murée et l'objet ne se rouvre jamais. */
+  const ecrits = [];
+  const n = rendu({ objet: { ...objetTemoin, locked: true }, surEtat: (clef, v) => ecrits.push([clef, v]),
+    surPorte: (id) => ecrits.push(["porte", id]) });
+  const parOrgane = Object.fromEntries(tous(n, "[data-organe]").map((e) => [e.dataset.organe, e]));
+
+  assert.equal(parOrgane["equip-on"].disabled, true, "porter DÉPLACE : le verrou l'éteint");
+  assert.match(parOrgane["equip-on"].title || "", /Locked/,
+    "⛔ et il DIT pourquoi : un contrôle éteint sans raison se lit comme une panne");
+  assert.notEqual(parOrgane["attune-on"].disabled, true, "harmoniser ne déplace rien");
+  assert.notEqual(parOrgane["lock-on"].disabled, true, "⛔ le verrou s'ouvre, sinon il n'est pas un verrou");
+  assert.equal(parOrgane["envoyer"].disabled, true, "« ne peut être vendu »");
+  assert.equal(parOrgane["trash"].disabled, true, "« ni détruit »");
+
+  /* ⭐ ET LES ORGANES ÉTEINTS SONT MUETS : taper n'écrit rien. C'est ce que le
+     garde vérifie vraiment — `disabled` est un dessin, l'absence d'écriture est
+     le fait. */
+  parOrgane["equip-on"].dispatchEvent({ type: "click" });
+  parOrgane["attune-on"].dispatchEvent({ type: "click" });
+  assert.deepEqual(ecrits, [["attuned", true]],
+    "seule l'harmonisation a parlé — ni le port, ni les deux portes");
+});
+
 test("12 — le mot d'état vit DANS le petit carré, et seulement quand il est vrai", () => {
   const n = rendu({ objet: { ...objetTemoin, equipped: true, attuned: false, locked: false } });
   const carres = tous(n, ".x1-etat");
@@ -462,6 +491,66 @@ test("17 — 🔴 les deux états que la fiche écrit passent par un verbe, et p
   /* ⚔️ et l'écran l'appelle bien avec la clef, pas avec un booléen anonyme */
   assert.match(etape, /kind: "setGearChamp", index: ligne\.index, champ: clef, value: valeur/);
   assert.match(etape, /champ: "is", value: valeur/, "le menu `is` écrit, sinon ce n'est pas un menu");
+});
+
+test("17 bis — 🔒 LE VERROU VIT DANS LA COQUILLE, UNE FOIS, ET IL PARLE (Eric, 18/09)", () => {
+  /* ⚖️ *« lock : l'item reste collé à son collecteur, ne bouge pas, ne peut être
+     vendu, ni détruit tant qu'il est locked »*.
+     ⭐ POURQUOI CE GARDE EST UN GARDE DE PROPRIÉTAIRE, PAS DE FORME : quatre
+     verbes venus de trois écrans déplacent ou détruisent une ligne. L'interdit
+     écrit dans les écrans ferait trois copies, et la QUATRIÈME porte — celle
+     qu'un lot ajoutera — passerait au travers sans que rien ne rougisse. Il vit
+     donc là où les quatre verbes vivent, et ce garde tient cet endroit. */
+  assert.match(coquille, /const VERBES_QUI_DEPLACENT = new Set\(\[([^\]]+)\]\)/,
+    "la liste est nommée UNE fois, au module");
+  const liste = /const VERBES_QUI_DEPLACENT = new Set\(\[([^\]]+)\]\)/.exec(coquille)[1];
+  assert.deepEqual(liste.match(/"[a-zA-Z]+"/g).map((s) => s.slice(1, -1)).sort(),
+    ["moveGearLine", "placerGearLine", "removeGearLine", "splitGearLine"],
+    "les quatre gestes qui déplacent ou détruisent — ⛔ ni plus, ni moins");
+
+  const i = coquille.indexOf("VERBES_QUI_DEPLACENT.has(action.kind)");
+  assert.ok(i > 0, "et la liste est LUE, pas seulement déclarée");
+  const bloc = coquille.slice(i, i + 700);
+  assert.match(bloc, /ligne\.locked === true/, "c'est bien le verrou qui refuse");
+  assert.match(bloc, /state\.popup = \{[^}]*role: "gendarme"/,
+    "⛔ ET IL NE SE TAIT PAS (loi §0.5) : un refus muet se lit comme une panne");
+  assert.match(bloc, /Lock off/, "…et il dit le geste qui défait le refus, pas seulement l'état");
+
+  /* ⛔ ET `attuned` RESTE LIBRE : harmoniser ne déplace rien. Le garde le prouve
+     par ce que la liste NE contient pas, sinon un jour elle avalerait tout. */
+  assert.doesNotMatch(liste, /setGearChamp/,
+    "harmoniser et déverrouiller ne sont pas des mouvements — sinon le verrou se murerait lui-même");
+});
+
+test("17 ter — 🔮 LE PLAFOND D'HARMONISATION : trois, et la quatrième ne se propose pas", () => {
+  /* ⚖️ Eric, 18/09, rappelant le SRD : *« a creature can be attuned to a maximum of
+     3 magic items at once ; attempting to attune to a 4th has no effect until one is
+     unattuned »*.
+     ⛔ ET C'EST LA SEULE PART DU SRD QUE CET ÉCRAN MODÉLISE — le repos court, les
+     prérequis, la rupture à 24 heures se passent EN JEU. Ce qu'un créateur tient,
+     c'est le budget : on ne sort pas de la création avec quatre objets harmonisés. */
+  assert.equal(PLAFOND_HARMONISATION, 3, "le plafond est nommé une fois, et c'est celui du SRD");
+
+  const ecrits = [];
+  const plein = rendu({ objet: { ...objetTemoin, attuned: false }, harmonises: 3,
+    surEtat: (clef, v) => ecrits.push([clef, v]) });
+  const b = plein.querySelector('[data-organe="attune-on"]');
+  assert.equal(b.disabled, true);
+  assert.match(b.title || "", /3 items are already attuned/, "il dit le plafond, pas « impossible »");
+  b.dispatchEvent({ type: "click" });
+  assert.deepEqual(ecrits, [], "et il n'écrit rien");
+
+  /* ⭐ LE TÉMOIN QUI EMPÊCHE LE PIÈGE : un objet DÉJÀ harmonisé garde son
+     interrupteur même à trois — sinon le plafond enfermerait au lieu de borner. */
+  const sien = rendu({ objet: { ...objetTemoin, attuned: true }, harmonises: 3 });
+  assert.notEqual(sien.querySelector('[data-organe="attune-on"]').disabled, true,
+    "⛔ on peut toujours DÉFAIRE une harmonisation quand le plafond est atteint");
+
+  const i = coquille.indexOf('action.champ === "attuned" && action.value === true');
+  assert.ok(i > 0, "le dernier rempart existe dans la coquille");
+  const rempart = coquille.slice(i, i + 600);
+  assert.match(rempart, /l\.index !== action\.index/, "il compte les AUTRES lignes, pas celle qu'on rallume");
+  assert.match(rempart, /role: "gendarme"/, "⛔ et il ne se tait pas");
 });
 
 test("18 — 🔴 l'écran R lit enfin les deux voyants que X1 écrit (la dette du 16/09 est payée)", () => {

@@ -72,17 +72,33 @@ export const CLEF_DE = Object.freeze({
   "BACK": "close", "USE": "use", "SEND !": "envoyer", "TRASH": "trash"
 });
 
+/** ⚖️ LE PLAFOND D'HARMONISATION DU SRD — Eric, 2026-09-18 : *« a creature can be
+ *  attuned to a maximum of 3 magic items at once ; attempting to attune to a 4th
+ *  has no effect until one is unattuned »*.
+ *  ⛔ ET C'EST LA SEULE PART DE L'HARMONISATION QUE CET ÉCRAN MODÉLISE. Le SRD en
+ *  dit bien plus — un repos court d'une heure, des prérequis par objet (*« by a
+ *  Wizard »*), la rupture au bout de 24 heures loin de l'objet, la fin quand une
+ *  autre créature s'harmonise. ⭐ Tout cela se passe EN JEU, pas à la création :
+ *  un créateur de personnage ne fait pas passer le temps. Ce qu'il doit tenir,
+ *  c'est le BUDGET — on ne sort pas de la création avec quatre objets harmonisés,
+ *  comme on n'en sort pas avec sept compétences. */
+export const PLAFOND_HARMONISATION = 3;
+
 /* La clef de document que chaque interrupteur écrit. ⭐ Elle voyage avec
    l'organe : personne n'a à se rappeler que `lock-on` écrit `locked`. */
 const ETAT_DE = Object.freeze({ "equip-on": "equipped", "attune-on": "attuned", "lock-on": "locked" });
 /* ⚖️ RENVERSÉ LE 17/09 AU SOIR PAR ERIC : *« equip, attune = bouton on/off du menu,
-   avec les variations de couleur que je t'ai données »*. ⭐ Les deux reprennent donc
-   l'interrupteur de `Layers` — piste 36 × 20, pouce 16, ROUGE à gauche et VERT à
-   droite — et la fiche cesse d'inventer un gabarit.
-   ⛔ `lock` GARDE SON CORPS NOIR ET SON CADENAS : Eric l'a décrit ainsi le matin et
-   ne l'a pas repris dans cette correction, qui ne nomme que les deux autres. ⏳ Un mot
-   de lui et il rejoint les deux — c'est signalé dans le rapport, pas décidé ici. */
-const SIGNE_DE = Object.freeze({ "equip-on": "plus", "attune-on": "coeur", "lock-on": "cadenas" });
+   avec les variations de couleur que je t'ai données »*. ⭐ Les trois reprennent donc
+   l'interrupteur de `Layers` — piste 36 × 20, pouce 16 — et la fiche cesse d'inventer
+   un gabarit.
+   ⚖️ ET LE 18/09, LES SIGNES DEVIENNENT CEUX DE LA TUILE — Eric : *« pour éviter les
+   confusions, equip idem que token : cercle noir, centre rond transparent »* · *« attune,
+   pas un cœur, un rond violet »* · *« lock, un cadenas »*.
+   ⛔ LE `+` ET LE ♥ SONT MORTS. Un même état se disait de deux façons sur deux écrans :
+   la tuile montrait un anneau, la fiche un `+` ; la tuile un rond violet, la fiche un
+   cœur. ⭐ Un joueur qui apprend qu'un rond violet veut dire « harmonisé » ne doit pas
+   l'apprendre deux fois. Le cadenas, lui, ne bougeait pas — il était déjà commun. */
+const SIGNE_DE = Object.freeze({ "equip-on": "anneau", "attune-on": "disque", "lock-on": "cadenas" });
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 
@@ -208,7 +224,7 @@ function carreDEtat(id, o, allume) {
  *  ⚖️ `role="switch"` ET PAS `aria-pressed` — la loi de l'organe : un interrupteur
  *  est un état vrai ou faux, pas un bouton qu'on enfonce. C'est `data-on` que la
  *  feuille lit, et il est posé ici comme il l'est là-bas. */
-function bascule(id, allume, options) {
+function bascule(id, allume, options, eteint, pourquoi) {
   const b = eld("button", "x1-bascule");
   b.type = "button";
   b.dataset.organe = id;
@@ -219,8 +235,11 @@ function bascule(id, allume, options) {
   if (signe) b.dataset.signe = signe;
   const clef = ETAT_DE[id];
   b.setAttribute("aria-label", MOTS_ETAT[clef] || clef);
+  /* ⛔ ÉTEINT PAR LE VERROU, ET IL LE DIT — un contrôle désarmé sans raison est
+     une panne pour qui le regarde. Le titre porte la raison ET le remède. */
+  if (eteint) { b.disabled = true; b.title = pourquoi || "Locked — turn Lock off first"; }
   b.append(pisteDInterrupteur());
-  if (options.surEtat) b.addEventListener("click", () => options.surEtat(clef, !allume));
+  if (!eteint && options.surEtat) b.addEventListener("click", () => options.surEtat(clef, !allume));
   return b;
 }
 
@@ -402,7 +421,20 @@ export function construireLaFicheX1(options = {}) {
       const clef = id === "equip" ? "equipped" : id === "attune" ? "attuned" : "locked";
       noeud.append(carreDEtat(id, o, Boolean(objet[clef])));
     } else if (id === "equip-on" || id === "attune-on" || id === "lock-on") {
-      noeud.append(bascule(id, Boolean(objet[ETAT_DE[id]]), options));
+      /* ⚖️ LE VERROU DÉSARME `equip`, ET LUI SEUL — Eric, 18/09 : *« l'item reste
+         collé à son collecteur, ne bouge pas »*. ⭐ Porter ou dévêtir DÉPLACE
+         (l'état suit le lieu, `moveGearLine`) : c'est donc un mouvement, et le
+         verrou l'interdit. ⛔ `attune` n'est pas concerné — harmoniser ne déplace
+         rien ; et `lock` encore moins, sinon on ne pourrait plus l'ouvrir. */
+      /* ⛔ ET LA QUATRIÈME HARMONISATION NE SE PROPOSE PAS : trois sont posées,
+         celle-ci ne l'est pas, l'interrupteur s'éteint et dit le plafond. ⭐ Un
+         objet DÉJÀ harmonisé garde le sien — sinon on ne pourrait plus en défaire
+         un, et le plafond deviendrait un piège au lieu d'un budget. */
+      const plafond = id === "attune-on" && objet.attuned !== true
+        && Number(options.harmonises) >= PLAFOND_HARMONISATION;
+      noeud.append(bascule(id, Boolean(objet[ETAT_DE[id]]), options,
+        (id === "equip-on" && objet.locked === true) || plafond,
+        plafond ? `${PLAFOND_HARMONISATION} items are already attuned — the SRD cap` : null));
     } else if (id === "send" || id === "to") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "send-n") {
@@ -414,9 +446,17 @@ export function construireLaFicheX1(options = {}) {
     } else if (id === "use") {
       noeud.append(porte(id, o.mot, "Use — not wired yet", options, true));
     } else if (id === "envoyer") {
-      noeud.append(porte(id, o.mot, "Send it", options));
+      noeud.append(objet.locked === true
+        ? porte(id, o.mot, "Locked — turn Lock off first", options, true)
+        : porte(id, o.mot, "Send it", options));
     } else if (id === "trash") {
-      noeud.append(porte(id, o.mot, "Throw it away", options));
+      /* ⛔ *« ne peut être vendu, ni détruit tant qu'il est locked »* (Eric, 18/09) :
+         la corbeille s'éteint avant le popup rouge, pas après. ⭐ Un geste qu'on
+         DOIT refuser ne se laisse pas commencer — la coquille refuse encore
+         derrière, mais elle ne devrait jamais avoir à le faire depuis cet écran. */
+      noeud.append(objet.locked === true
+        ? porte(id, o.mot, "Locked — turn Lock off first", options, true)
+        : porte(id, o.mot, "Throw it away", options));
     }
   }
   if (options.lecture) {

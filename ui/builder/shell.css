@@ -9383,6 +9383,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* la quantité du COLLECTEUR, qui suit le nom sur sa ligne (il n'a pas de bande) */
 .gear-qte { font-size: var(--t1); color: var(--text-muted); }
 .gear-emplacement[data-glisse="true"] { opacity: .35; cursor: grabbing; }
+/* ⚖️ VERROUILLÉ — Eric, 18/09 : *« l'item reste collé à son collecteur, ne bouge
+   pas »*. ⛔ Le curseur ne promet donc plus une prise : il dit ce qui reste
+   possible, OUVRIR la fiche. ⭐ Et rien d'autre ne change — ni voile, ni teinte :
+   l'objet n'est pas éteint, il est TENU, et c'est le verrou de la bande qui le
+   dit déjà. Un second signe pour le même état serait un signe de trop. */
+.gear-emplacement[data-verrouille="oui"] { cursor: pointer; }
 /* retenu par le collecteur, en attente d'envoi : l'état est sur le nœud
    (`data-collecte`), c'est le collecteur qui le montre — pas de liseré ici. */
 /* la case VISÉE par un jeton en vol s'allume, comme le collecteur (le seul
@@ -11602,19 +11608,24 @@ button.tuto-point::before {
 .x1-bascule .interrupteur-pouce { background: var(--bouton-encre); }
 /* ⛔ À GAUCHE, PAS DE SYMBOLE — Eric, 17/09 au soir. Le disque nu dit « pas encore »,
    et un symbole grisé dirait « peut-être ». */
-.x1-bascule[data-on="true"] .interrupteur-pouce {
-  background-color: var(--x1-bascule-signe);
-  mask-position: center; mask-repeat: no-repeat; mask-size: contain;
-  -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; -webkit-mask-size: contain;
+/* ⚖️ LES SIGNES SONT CEUX DE LA TUILE — Eric, 18/09 : *« pour éviter les confusions,
+   equip idem que token »* · *« attune, pas un cœur, un rond violet »* · *« lock, un
+   cadenas »*. ⭐ MÊME ÉTAT, MÊME SIGNE, SUR LES DEUX ÉCRANS : la tuile MONTRE l'état,
+   la fiche le CHANGE — et un joueur n'apprend le vocabulaire qu'une fois.
+   📐 Le pouce fait 16 ; l'anneau y garde les 2 d'encre de la tuile, donc un centre de
+   12 où la piste passe au travers. ⛔ C'est la même règle qu'à 12 : le centre n'est
+   pas peint, il est TRAVERSÉ. */
+.x1-bascule[data-signe="anneau"][data-on="true"] .interrupteur-pouce {
+  background: none; box-shadow: inset 0 0 0 var(--sp-2) var(--bouton-encre);
 }
-.x1-bascule[data-signe="plus"][data-on="true"] .interrupteur-pouce {
-  mask-image: var(--icone-plus); -webkit-mask-image: var(--icone-plus);
-}
-.x1-bascule[data-signe="coeur"][data-on="true"] .interrupteur-pouce {
-  mask-image: var(--icone-coeur); -webkit-mask-image: var(--icone-coeur);
+.x1-bascule[data-signe="disque"][data-on="true"] .interrupteur-pouce {
+  background: var(--magie);
 }
 .x1-bascule[data-signe="cadenas"][data-on="true"] .interrupteur-pouce {
+  background-color: var(--x1-bascule-signe);
   mask-image: var(--icone-cadenas); -webkit-mask-image: var(--icone-cadenas);
+  mask-position: center; mask-repeat: no-repeat; mask-size: contain;
+  -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; -webkit-mask-size: contain;
 }
 /* — LE BOUTON DE COPIE : un glyphe en oxblood, à droite du menu `is`. */
 /* — LA JAUGE DE DÉFILEMENT, dans la marge droite du texte : l'organe de Destiny, dont

@@ -394,16 +394,27 @@ function emplacement(o, id, pose, options) {
     if (options.surJeton) options.surJeton(pose.index);
   };
   e.addEventListener("contextmenu", ouvrirLaFiche);
-  armerJeton(e, {
-    onTap: () => ouvrirLaFiche(),
-    onLever: (x, y) => fantome.lever(e, x, y),
-    onBouger: (x, y) => fantome.suivre(x, y),
-    onPoser: () => fantome.ranger(),
-    onDepot: (creneau) => {
-      if (creneau === "collecteur") { if (options.surCollecte) options.surCollecte(pose.index); }
-      else if (options.surPlacer) options.surPlacer(pose.index, creneau);
-    }
-  });
+  /* ⚖️ VERROUILLÉ, IL NE SE LÈVE PAS — Eric, 18/09 : *« l'item reste collé à son
+     collecteur, ne bouge pas »*. ⛔ Le glisser n'est donc pas ARMÉ : pas de
+     fantôme, pas de cible qui s'allume, rien qui promet un dépôt qui sera refusé.
+     ⭐ MAIS IL S'OUVRE TOUJOURS, et c'est la condition pour que le verrou ne soit
+     pas une impasse : c'est dans sa fiche qu'on le déverrouille. Le tap ne passe
+     plus par `armerJeton` (qui arme le geste entier), il se pose seul. */
+  if (pose.locked === true) {
+    e.dataset.verrouille = "oui";
+    e.addEventListener("click", ouvrirLaFiche);
+  } else {
+    armerJeton(e, {
+      onTap: () => ouvrirLaFiche(),
+      onLever: (x, y) => fantome.lever(e, x, y),
+      onBouger: (x, y) => fantome.suivre(x, y),
+      onPoser: () => fantome.ranger(),
+      onDepot: (creneau) => {
+        if (creneau === "collecteur") { if (options.surCollecte) options.surCollecte(pose.index); }
+        else if (options.surPlacer) options.surPlacer(pose.index, creneau);
+      }
+    });
+  }
   return e;
 }
 

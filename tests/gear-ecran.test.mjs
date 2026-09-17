@@ -355,6 +355,29 @@ test("5 bis — un emplacement occupé porte l'objet et QUATRE marques dans sa b
   assert.equal(nom.querySelectorAll("wbr").length, 1, "la barre est une occasion de retour, pas un retour (« on superpose quand ça dépasse »)");
 });
 
+test("5 bis ter — 🔒 VERROUILLÉ : le jeton ne se lève pas, mais il s'ouvre (Eric, 18/09)", () => {
+  /* ⚖️ *« l'item reste collé à son collecteur, ne bouge pas »*.
+     ⛔ LE GLISSER N'EST PAS ARMÉ — pas de fantôme, pas de cible qui s'allume :
+     rien ne promet un dépôt que la coquille refusera trois gestes plus tard.
+     ⭐ ET LA CONDITION POUR QUE LE VERROU NE SOIT PAS UNE IMPASSE : le jeton
+     s'OUVRE toujours, puisque c'est dans sa fiche qu'on le déverrouille. */
+  const ouvertes = [];
+  const n = rendu({ boites: { tete1: { nom: "Belt of Dwarvenkind", qte: 1, index: 3, equipped: true, locked: true } },
+    surJeton: (i) => ouvertes.push(i) });
+  const e = n.querySelector('[data-organe="tete1"]');
+  assert.equal(e.dataset.verrouille, "oui", "l'état est sur le nœud : la feuille peint, l'écran n'écrit aucune teinte");
+  assert.equal(e.dataset.glissable, undefined, "⛔ le geste n'est pas armé");
+  e.dispatchEvent({ type: "click" });
+  assert.deepEqual(ouvertes, [3], "…mais le tap ouvre la fiche — sinon on ne pourrait plus le déverrouiller");
+
+  /* ⭐ ET LE TÉMOIN INVERSE, sans lequel le garde ne prouve rien : le même jeton
+     NON verrouillé s'arme, et ne porte pas la marque. */
+  const libre = rendu({ boites: { tete1: { nom: "Belt of Dwarvenkind", qte: 1, index: 3, equipped: true } } })
+    .querySelector('[data-organe="tete1"]');
+  assert.equal(libre.dataset.verrouille, undefined);
+  assert.equal(libre.dataset.glissable, "true", "un jeton libre se saisit");
+});
+
 test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur VIDE (Eric, 16/09 : « dans tous les sens », « un item, pas 2 »)", () => {
   const vide = rendu({});
   const cibles = tous(vide, "[data-creneau]").map((c) => c.dataset.creneau).sort();

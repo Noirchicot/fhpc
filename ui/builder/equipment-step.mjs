@@ -2116,10 +2116,12 @@ export function renderEquipmentStep(ctx, onAction) {
         poidsUnite: typeof data.weight === "string" ? data.weight : "",
         poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
         prose: recordProse({ record: rec }),
-        /* ⏳ CE QUE `is` MONTRE, faute d'une source tranchée : le GENRE du record, que
-           le dépôt connaît (`weapon`, `armor`, `gear`). ⛔ Le rangement dans la fiche de
-           personnage — « une attaque », « un sort » — demande une décision d'Eric : on
-           ne fabrique pas une donnée pour remplir un mot. */
+        /* ⚖️ TRANCHÉ LE 18/09 : `is` RANGE l'objet dans la fiche de personnage — *« ça
+           permet de mettre l'action de lancer une boule de feu avec un parchemin dans les
+           actions / bonus action / réaction. Ou de le mettre dans les sorts. »* ⛔ Le genre
+           du record (`weapon`, `armor`) ne peut donc PAS le remplir : c'est un rangement,
+           et il dépend *« de ce que fait l'objet, et des capacités du perso »*. Il reste
+           au joueur. Le genre voyage encore pour la prose, pas pour le menu. */
         genre: (ligne.ref && ligne.ref.kind) || "",
         equipped: ligne.equipped === true,
         attuned: ligne.attuned === true,
@@ -2127,6 +2129,14 @@ export function renderEquipmentStep(ctx, onAction) {
       },
       nombre: nombreX1,
       destination: destinationEnvoi,
+      /* ⚖️ LE PLAFOND D'HARMONISATION DU SRD — trois, et Eric l'a rappelé le 18/09 :
+         *« a creature can be attuned to a maximum of 3 magic items at once ; attempting
+         to attune to a 4th has no effect until one is unattuned »*.
+         ⭐ IL SE COMPTE SUR LE DOCUMENT, PAS SUR L'ÉCRAN : toutes les lignes du
+         personnage comptent, où qu'elles soient rangées — le sac harmonise autant que
+         le corps. ⛔ Et il ne verrouille QUE la quatrième : la fiche d'un objet déjà
+         harmonisé garde son interrupteur, sinon on ne pourrait plus en défaire un. */
+      harmonises: lignes.filter((l) => l.attuned === true).length,
       lecture: lectureX1,
       surLecture: (v) => { lectureX1 = v; peindre(); },
       surNombre: (n) => { nombreX1 = Math.max(1, Math.min(n, qte)); },

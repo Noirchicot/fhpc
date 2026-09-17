@@ -128,6 +128,9 @@ import {
 } from "./destiny-step.mjs?v=653";
 import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=653";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines, orDuDepart } from "./equipment-step.mjs?v=653";
+/* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
+   seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=653";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
 import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=653";
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=653";
@@ -2054,6 +2057,33 @@ function applyDecisionAction(action) {
      calculé ICI par `nextGearIndex` (importée d'`equipment-step.mjs`, jamais
      une seconde copie) — du bookkeeping d'écran pur (où placer le prochain
      élément d'un tableau), aucune règle de jeu. */
+  /* ══ LOT 213 — LE VERROU REFUSE, ET IL LE DIT ════════════════════════════
+     Eric, 2026-09-18 : *« lock : l'item reste collé à son collecteur, ne bouge
+     pas, ne peut être vendu, ni détruit tant qu'il est locked »*.
+     ⭐ UN SEUL POINT POUR QUATRE VERBES, ET C'EST POURQUOI IL EST ICI. Déplacer
+     (`moveGearLine`), placer au doigt sur R (`placerGearLine`), scinder
+     (`splitGearLine`) et jeter (`removeGearLine`) sont quatre gestes venus de
+     TROIS écrans — le glisser du dressing, les portes de X1, la corbeille.
+     L'interdit écrit dans chaque écran ferait trois copies, et trois copies
+     divergent : la quatrième porte qu'on ajoutera un jour l'oublierait.
+     ⛔ ET IL NE REFUSE PAS EN SILENCE (loi §0.5) : un verrou muet se lit comme
+     une panne — le joueur tape, rien ne bouge, et rien ne dit pourquoi. Il lève
+     donc le GENDARME (le popup rouge, §7), qui dit l'état et le geste qui le
+     défait. Les écrans désarment déjà leurs boutons : ce refus-ci est le
+     dernier rempart, pas le premier.
+     ⭐ CE QUI N'EST PAS CONCERNÉ, ET POURQUOI : `attuned` ne déplace rien, donc
+     il reste libre. Et `locked` lui-même reste libre — ⛔ un verrou qui
+     s'interdirait d'être ouvert serait une porte murée, pas un verrou. */
+  if (VERBES_QUI_DEPLACENT.has(action.kind)) {
+    const ligne = currentGearLines(state.document).find((l) => l.index === action.index);
+    if (ligne && ligne.locked === true) {
+      state.popup = { titre: "Locked", role: "gendarme",
+        texte: "This item is locked: it stays in its slot, and it cannot be sent, split or thrown away. " +
+               "Open its sheet and turn Lock off first.", actions: null };
+      refresh();
+      return;
+    }
+  }
   if (action.kind === "addGearLine") {
     const index = nextGearIndex(state.document);
     let document = state.document;
@@ -2152,6 +2182,23 @@ function applyDecisionAction(action) {
        dropdown »*) : un menu ÉCRIT, sinon ce n'est pas un menu. */
     const booleen = action.champ === "attuned" || action.champ === "locked";
     if (!booleen && action.champ !== "is") return;
+    /* ⛔ LE PLAFOND DU SRD, ET LE MÊME DERNIER REMPART QUE LE VERROU — Eric, 18/09 :
+       *« a creature can be attuned to a maximum of 3 magic items at once ; attempting
+       to attune to a 4th has no effect until one is unattuned »*.
+       ⭐ La fiche éteint déjà l'interrupteur ; ceci tient le chemin, pour le jour où
+       une autre porte écrira `attuned`. ⛔ Et il compte les AUTRES lignes : rallumer
+       un objet déjà harmonisé n'est pas une quatrième harmonisation. */
+    if (action.champ === "attuned" && action.value === true) {
+      const ailleurs = currentGearLines(state.document)
+        .filter((l) => l.index !== action.index && l.attuned === true).length;
+      if (ailleurs >= PLAFOND_HARMONISATION) {
+        state.popup = { titre: "Attunement", role: "gendarme",
+          texte: `A creature can be attuned to ${PLAFOND_HARMONISATION} magic items at once. ` +
+                 "Turn one off before attuning this.", actions: null };
+        refresh();
+        return;
+      }
+    }
     state.document = verbs.set({
       document: state.document,
       path: `gear[${action.index}].${action.champ}`,
@@ -2382,6 +2429,11 @@ function skillsCtx() {
     signe: Boolean(state.docWriters && state.document && estConfirme(state.document, "skills"))
   };
 }
+/** Les quatre verbes qu'un objet VERROUILLÉ refuse — Eric, 18/09. ⛔ Nommés une
+ *  fois : la cinquième porte qui déplacera un objet s'ajoute ICI, ou elle passe
+ *  au travers du verrou sans que rien ne rougisse. */
+const VERBES_QUI_DEPLACENT = new Set(["moveGearLine", "placerGearLine", "splitGearLine", "removeGearLine"]);
+
 function equipmentCtx() {
   return {
     document: state.document, resolved: state.resolved, query: state.engine.layers.verbs.query

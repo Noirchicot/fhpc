@@ -3179,6 +3179,87 @@ caractères. Elle est une MARQUE, pas un morceau du nom.
 
 ---
 
+### 🎚️ CE QUE VEULENT DIRE LES TROIS ÉTATS D'UN OBJET
+📍 `equipement-trois-etats-d-un-objet` · vivante · 18/09
+⚖️ **`equipped` = posé dans une case de Gear hors sol, donc UTILISABLE · `attuned` = harmonisé, et sans lui l'objet n'est PAS utilisable · `locked` = collé à sa case : il ne bouge pas, ne se vend pas, ne se détruit pas.**
+
+> Eric, 2026-09-18 : **« equipé, c'est utilisable par le perso car dans les cases gear (hors
+> ground) »** · **« si un item n'est pas attuned il n'est pas utilisable — incidences sur la fiche
+> de perso »** · **« lock : l'item reste collé à son collecteur, ne bouge pas, ne peut être vendu,
+> ni détruit tant qu'il est locked »**.
+
+| l'état | ce qu'il dit | ce qu'il change |
+|---|---|---|
+| `equipped` | l'objet est **dans une case de Gear**, ⛔ le sol excepté | il devient utilisable par le personnage |
+| `attuned` | il est **harmonisé** | sans harmonisation, ⛔ il n'est pas utilisable — et la fiche de personnage devra le dire |
+| `locked` | il est **collé à sa case** | ⛔ ni déplacé, ni vendu, ni détruit, tant qu'il l'est |
+
+⭐ **ET C'EST POURQUOI `equipped` NE S'ÉCRIT PAS À LA MAIN** : il est le REVERS de la position.
+`moveGearLine` et `placerGearLine` le posent avec le lieu — le sol met `location: "ground"` et
+`equipped: false` d'un même geste. Deux écrivains pour un état feraient diverger l'état et le lieu.
+Le lien avec le sol est déjà écrit : [[equipement-sol-allege-corbeille-detruit]].
+
+✅ **ET L'INTERDIT EST POSÉ, LE 18/09 MÊME** — *« pose le lock maintenant »*. Il vit **dans la
+coquille**, là où les quatre verbes vivent ensemble (`VERBES_QUI_DEPLACENT`, nommés une fois) :
+`moveGearLine`, `placerGearLine`, `splitGearLine`, `removeGearLine`. ⛔ **L'écrire dans les écrans
+aurait fait trois copies** — le glisser du dressing, les portes de X1, la corbeille — et la
+quatrième porte qu'un lot ajoutera serait passée au travers sans que rien ne rougisse.
+⛔ **ET IL NE REFUSE PAS EN SILENCE** (loi §0.5) : il lève le gendarme, qui dit l'état **et le geste
+qui le défait**. Un verrou muet se lit comme une panne.
+⭐ **TROIS ÉTAGES, ET CHACUN SON RÔLE** : l'écran R **n'arme pas** le glisser d'un jeton verrouillé
+(pas de fantôme, pas de cible qui s'allume — rien ne promet un dépôt qui sera refusé) mais le TAP
+l'ouvre toujours, ⛔ sinon le verrou serait une impasse ; la fiche X1 **éteint** `Send`, `Trash` et
+l'interrupteur `equip` en disant pourquoi ; la coquille **refuse** en dernier, et ne devrait jamais
+avoir à le faire.
+⭐ **CE QUE LE VERROU NE TOUCHE PAS, ET POURQUOI** : `attuned` (harmoniser ne déplace rien) et
+`locked` lui-même — ⛔ un verrou qui s'interdirait d'être ouvert serait une porte murée.
+
+---
+
+### 🔮 LE PLAFOND D'HARMONISATION — trois, et rien d'autre du SRD
+📍 `equipement-plafond-d-harmonisation` · vivante · 18/09
+⚖️ **Un personnage ne peut être harmonisé qu'à TROIS objets : la quatrième harmonisation ne se propose pas. ⛔ Et c'est la SEULE part de l'harmonisation du SRD que la création modélise.**
+
+> Eric, 2026-09-18, rappelant le SRD : **« a creature can be attuned to a maximum of 3 magic items
+> at once ; attempting to attune to a 4th has no effect until one is unattuned »**.
+
+⛔ **CE QUE LA CRÉATION NE MODÉLISE PAS, ET CE N'EST PAS UN OUBLI.** Le SRD dit aussi le **repos
+court d'une heure**, les **prérequis** par objet (*« requires attunement by a Wizard »*), la rupture
+au bout de **24 heures** loin de l'objet, la fin quand une autre créature s'y harmonise, et qu'on
+peut porter ou **vendre** un objet sans y être harmonisé. ⭐ **Tout cela se passe EN JEU** — un
+créateur de personnage ne fait pas passer le temps et ne joue pas de repos. Ce qu'il doit tenir,
+c'est le **budget** : on ne sort pas de la création avec quatre objets harmonisés, comme on n'en
+sort pas avec sept compétences.
+⭐ **IL SE COMPTE SUR LE DOCUMENT, PAS SUR L'ÉCRAN** : toutes les lignes comptent, où qu'elles
+soient rangées — le sac harmonise autant que le corps.
+⛔ **ET IL NE VERROUILLE QUE LA QUATRIÈME** : un objet déjà harmonisé garde son interrupteur, sinon
+le plafond enfermerait au lieu de borner — et personne ne pourrait plus en défaire un.
+📌 Le plafond est nommé **une fois** (`PLAFOND_HARMONISATION`, `x1-ecran.mjs`) et la coquille
+l'importe : deux constantes divergeraient le jour où il bougerait.
+
+---
+
+### 🏷️ CE QUE `is` DÉCIDE — la rubrique de la fiche de personnage
+📍 `equipement-is-range-l-objet-dans-la-fiche` · vivante · 18/09
+⚖️ **`is` est une donnée DESTINÉE À LA FICHE DE PERSONNAGE : elle dit dans quelle rubrique l'objet apparaît — une action, une action bonus, une réaction, une attaque, un sort.**
+
+> Eric, 2026-09-18 : **« c'est des données destinées à la fiche de personnage. Ça risque de
+> changer, mais ça permet de mettre l'action de lancer une boule de feu avec un parchemin dans les
+> actions / bonus action / réaction, par exemple. Ou de le mettre dans les sorts. Certains seront
+> une action (pas le droit de le mettre en bonus action) — ça dépend de ce que fait l'objet, et des
+> capacités du perso. »**
+
+⭐ **CE QUE ÇA TRANCHE, ET ÇA TRANCHE PEU EXPRÈS** : la liste n'est pas une taxonomie de l'objet,
+c'est un **rangement**. Un parchemin de boule de feu n'EST pas une action bonus — on le RANGE
+là, parce que c'est là que le joueur le cherchera pendant sa partie.
+⛔ **DONC LA LISTE N'EST PAS DÉDUCTIBLE DU RECORD** : ni le genre (`weapon`, `armor`), ni le SRD ne
+peuvent la remplir à la place du joueur — *« ça dépend de ce que fait l'objet, et des capacités du
+perso »*. C'est un choix, et il reste au joueur.
+⏳ **ET RIEN NE LE LIT ENCORE** : `gear[N].is` s'écrit et ressort dans `unconsumed`. La fiche de
+personnage le consommera — *« ça risque de changer »* est d'Eric, et la règle est datée pour ça.
+
+---
+
 ### 🔢 DEUX CASES DU MÊME NOM PORTENT LEUR NUMÉRO
 📍 `equipement-numero-de-la-case` · vivante · 17/09
 ⚖️ **Un emplacement dont le nom est porté par plusieurs cases affiche son NUMÉRO, sous le mot et d'un cran plus petit ; ⛔ une case seule de son nom n'en porte pas.**
