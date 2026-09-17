@@ -444,7 +444,17 @@ export function construireLaFicheX1(options = {}) {
     } else if (id === "close") {
       noeud.append(porte(id, "Close", "Close this sheet", options));
     } else if (id === "use") {
-      noeud.append(porte(id, o.mot, "Use — not wired yet", options, true));
+      /* ⚖️ `Use` RESTE, ET IL RESTE DÉSARMÉ — Eric, 18/09 : *« le use va varier d'un
+         objet à l'autre ; il ne sert à rien en création. Il sera très utile pour
+         utiliser un anneau d'invisibilité, une baguette de boule de feu, etc. Laisse
+         le bouton qu'on oublie pas de le traiter quand c'est utile. »*
+         ⭐ IL N'EST DONC PAS UN BOUTON MORT, C'EST UN RENDEZ-VOUS : sa place est
+         tenue au pied de la fiche pour le miroir « Équipement en jeu ». ⛔ Et sa note
+         le DIT au joueur — *« not wired yet »* laissait croire à une panne, alors que
+         rien ne manque : ce geste n'appartient pas à la création.
+         ⛔ ET LE VERROU NE L'ÉTEINT JAMAIS : verrouiller empêche de DÉPLACER, pas
+         d'utiliser (Eric, 18/09 : *« surtout l'utiliser »*). */
+      noeud.append(porte(id, o.mot, "Use happens in play, not while building", options, true));
     } else if (id === "envoyer") {
       noeud.append(objet.locked === true
         ? porte(id, o.mot, "Locked — turn Lock off first", options, true)

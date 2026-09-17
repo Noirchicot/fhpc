@@ -3214,6 +3214,22 @@ avoir à le faire.
 ⭐ **CE QUE LE VERROU NE TOUCHE PAS, ET POURQUOI** : `attuned` (harmoniser ne déplace rien) et
 `locked` lui-même — ⛔ un verrou qui s'interdirait d'être ouvert serait une porte murée.
 
+🔴 **ET IL N'EST PAS UNE RESTRICTION FONCTIONNELLE — Eric l'a précisé le 18/09, et c'est ce qui
+donne sa mesure à toute la règle :**
+
+> **« un jeton verrouillé ne se déplace pas, mais il est équipé et tu peux faire tout le reste :
+> profiter de ses avantages AC pour une armure, bonus de toucher, type de dégâts, etc. — surtout
+> l'utiliser. L'objectif, c'est de ne pas le déplacer par mégarde. »**
+
+⚖️ **LE VERROU EST UN GARDE-FOU CONTRE LA MÉGARDE, PAS UN INTERDIT DE JEU.** Un objet verrouillé
+**reste équipé**, **rend tous ses effets** — CA d'armure, bonus de toucher, type de dégâts — et
+⛔ **`Use` ne s'éteint JAMAIS sous lui**. Ce qu'il empêche tient en un mot : le **déplacement
+involontaire** d'un objet qu'on ne veut plus voir bouger.
+⛔ **D'OÙ LA LIMITE EXACTE DE CE QU'ON ÉTEINT** : `equip` seulement parce que porter et dévêtir
+DÉPLACENT (l'état suit le lieu) ; `Send` parce qu'il déplace ; `Trash` parce qu'il détruit.
+⛔ **Rien d'autre.** Le jour où un lot éteindrait un organe de plus sous le verrou, il transformerait
+un garde-fou en carcan — et cette ligne est là pour l'en empêcher.
+
 ---
 
 ### 🔮 LE PLAFOND D'HARMONISATION — trois, et rien d'autre du SRD
@@ -3237,6 +3253,14 @@ le plafond enfermerait au lieu de borner — et personne ne pourrait plus en dé
 📌 Le plafond est nommé **une fois** (`PLAFOND_HARMONISATION`, `x1-ecran.mjs`) et la coquille
 l'importe : deux constantes divergeraient le jour où il bougerait.
 
+⚖️ **ET LE BODY FORGING Y ENTRE — Eric, 18/09 : *« le body forging, si, rentre dans les 3
+attunements, sauf si un perso a un feat spécial »*.** ⭐ Rien à faire pour ça, et c'est le signe que
+le compte est au bon endroit : il porte sur **les lignes du document**, pas sur les cases de
+l'écran. Un objet harmonisé compte, qu'il soit au corps, au sac, dans une forge ou au sol.
+⏳ **L'EXCEPTION PAR DON N'EST PAS MODÉLISÉE** : *« sauf si un perso a un feat spécial »* — le jour
+où un don relèvera le plafond, il le relèvera **là où les dons vivent**, pas dans cet écran. ⛔ Ne
+pas l'inventer : aucun don du SRD ne le fait.
+
 ---
 
 ### 🏷️ CE QUE `is` DÉCIDE — la rubrique de la fiche de personnage
@@ -3257,6 +3281,42 @@ peuvent la remplir à la place du joueur — *« ça dépend de ce que fait l'ob
 perso »*. C'est un choix, et il reste au joueur.
 ⏳ **ET RIEN NE LE LIT ENCORE** : `gear[N].is` s'écrit et ressort dans `unconsumed`. La fiche de
 personnage le consommera — *« ça risque de changer »* est d'Eric, et la règle est datée pour ça.
+
+---
+
+### ⏳ `USE` EST UN RENDEZ-VOUS, PAS UN BOUTON MORT
+📍 `equipement-use-est-un-rendez-vous` · vivante · 18/09
+⚖️ **`Use` garde sa place au pied de la fiche et reste DÉSARMÉ pendant la création : il n'y sert à rien, et sa note le dit — ⛔ il n'annonce pas une panne.**
+
+> Eric, 2026-09-18 : **« le use va varier d'un objet à l'autre. Il ne sert à rien en création. Il
+> sera très utile pour utiliser un anneau d'invisibilité, utiliser une baguette de boule de feu,
+> etc. Laisse le bouton qu'on oublie pas de le traiter quand c'est utile. »**
+
+⭐ **POURQUOI ON GARDE UN BOUTON QUI NE FAIT RIEN**, alors que la règle ordinaire l'interdirait : sa
+place EST l'information. Le retirer ferait oublier le geste ; le laisser tient le rendez-vous avec
+le miroir « Équipement en jeu ». C'est la même loi que **les quatre lunes du plan de R** — dessinées
+et cotées, non posées : *« les lunes sont pour les écrans plus grands »*.
+⛔ **MAIS SA NOTE NE MENT PLUS** : elle disait *« not wired yet »*, ce qui se lit comme un travail
+en retard. Elle dit maintenant que ce geste appartient au jeu, pas à la création — rien ne manque.
+⛔ **ET LE VERROU NE L'ÉTEINT JAMAIS** : verrouiller empêche de déplacer, pas d'utiliser.
+
+---
+
+### 📜 LA DÉCHIRURE DU PARCHEMIN TOMBE HORS DE LA DALLE, ET C'EST ACCEPTÉ
+📍 `cadre-dechirure-du-parchemin-hors-dalle` · vivante · 18/09
+⚖️ **On ne voit que le DÉBUT de la déchirure au bord de la fiche X1 : la montrer entière coûterait 14 de marge sur les quatre côtés, donc 28 de large au texte — et le texte les vaut.**
+
+> Eric, 2026-09-18 : **« les 28 de large en moins, c'est ok. On laisse le parchemin comme ça. »**
+
+📏 **LE CHIFFRE EST MESURÉ, PAS ESTIMÉ** : en balayant l'alpha de l'image d'Eric ligne par ligne, la
+déchirure rentre de 3,4 % à gauche et 2,8 % à droite, soit **12,9 blg au pire** — d'où les 14 qu'il
+faudrait rendre de chaque côté.
+⭐ **CE QUE LA DÉCISION PROTÈGE** : la description est la **seule zone élastique** de la fiche, et
+toute la soirée du 17/09 a consisté à lui rendre de la place — le titre retiré (44), les chiffres
+amincis (32), la bande de rappel (40) : de 116 à 232. ⛔ En reprendre 28 pour une dent complète
+aurait défait le tiers de ce travail.
+⭐ **ET LA DÉCHIRURE AMORCÉE SUFFIT À DIRE « PARCHEMIN »** : ce qu'on voit au bord est un bord
+déchiré, pas un bord droit — et c'est tout ce que l'œil avait à comprendre.
 
 ---
 
