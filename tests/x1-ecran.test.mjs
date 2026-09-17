@@ -343,22 +343,25 @@ test("13 — les quatre portes publient leur geste ; `Use` et le menu `is` sont 
   assert.equal(menuIs.disabled, false, "et il s'ouvre — un menu désarmé n'est pas un menu");
 });
 
-test("14 — la pagination DIT le rang, elle ne sert plus à se déplacer", () => {
-  /* 🔴 RÉÉCRIT LE 17/09 AU SOIR — Eric : *« on va enlever les flèches de navigation
-     latérales et on va rendre la zone de texte scrollable »*. La pagination reste, et
-     c'est délibéré : elle dit OÙ L'ON EST, elle n'a jamais servi à se déplacer. Ce garde
-     perd donc ses clauses sur les flèches et gagne celle qui les remplace — ⛔ aucune
-     flèche ne doit reparaître sans qu'on le sache. */
-  const premier = rendu({ rang: { position: 1, total: 3 } });
-  assert.equal(premier.querySelector('[data-organe="pagination"]').textContent, "1/3");
-  /* ⚖️ UNE SEULE PAGE NE SE PAGINE PAS — Eric, 17/09 : *« s'il y a plusieurs pages »*. */
-  const seule = rendu({ rang: { position: 1, total: 1 } });
-  assert.equal(seule.querySelector('[data-organe="pagination"]').textContent, "",
-    "un « 1/1 » ne dit rien à personne");
-  for (const id of ["precedent", "suivant"]) {
-    assert.equal(premier.querySelector(`[data-organe="${id}"]`), null, `⛔ ${id} n'existe plus`);
+test("14 — ⛔ NI FLÈCHES NI PAGINATION : la tête ne porte plus que la quantité et le nom", () => {
+  /* 🔴 RÉÉCRIT DEUX FOIS DANS LA MÊME HEURE, ET LA SECONDE EFFACE LA PREMIÈRE. Eric a
+     d'abord retiré les flèches (*« on va enlever les flèches de navigation latérales »*)
+     en gardant la pagination ; puis, dix minutes plus tard : *« le 3/12 ne sert à
+     rien »*. ⭐ Il avait raison, et sa première décision l'expliquait : sans flèches, un
+     rang qu'on ne peut pas parcourir ne dit plus où l'on VA, seulement où l'on est — et
+     on le sait, on vient de taper l'objet. La pagination survivait à sa raison.
+     ⚖️ Et la quantité rentre de 20 : collée au bord elle se lisait comme un numéro de
+     page ; rentrée, elle se lit comme une propriété de l'objet, voisine de son nom. */
+  const n = rendu();
+  for (const parti of ["pagination", "precedent", "suivant"]) {
+    assert.equal(n.querySelector(`[data-organe="${parti}"]`), null, `⛔ ${parti} n'existe plus`);
   }
-  assert.ok(!ORGANES.some((o) => o.sorte === "rond"), "et le plan n'en porte plus non plus");
+  assert.ok(!ORGANES.some((o) => ["PAGINATION", "PRECEDENT", "SUIVANT"].includes(o.nom)),
+    "et le plan ne les porte plus non plus");
+  const qte = ORGANES.find((o) => o.nom === "QTE");
+  const nom = ORGANES.find((o) => o.nom === "NOM");
+  assert.equal(qte.x, TABLE.marge_cote + 20, "la quantité rentre de 20 depuis la marge des côtés");
+  assert.equal(nom.x, (DALLE.l - nom.l) / 2, "et le nom reste centré sur la page");
 });
 
 test("14 bis — la jauge de défilement veille sur le texte, et elle ne se touche pas", () => {
@@ -401,7 +404,7 @@ test("15 bis — 👁️ LE MODE LECTURE : il retire les OPTIONS, et rien d'autr
     assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, true, `${id} se retire`);
   }
   /* ⛔ ET LA TÊTE RESTE TRANQUILLE — c'est la clause qu'Eric a ajoutée en regardant. */
-  for (const id of ["qte", "nom", "pagination", "prix", "poids"]) {
+  for (const id of ["qte", "nom", "prix", "poids"]) {
     assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} reste`);
   }
   for (const id of ["description", "filet-haut", "filet-bas", "jauge", "copier", "oeil",

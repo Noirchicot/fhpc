@@ -33,9 +33,8 @@ export const ROND = 22;   /* la flèche : le gabarit du livre et du `?` de l'éc
 export const PARCHEMIN_DEBORD = 0;
 
 export const ORGANES = [
-  { nom: "QTE",           sorte: "voyant",        x:     14, y:     20, l:    40, h:   40, mot: "×2", cran: "T1/600" },
-  { nom: "NOM",           sorte: "voyant",        x:     58, y:     20, l:   259, h:   40, mot: "Winged Helmet", cran: "T4/600" },
-  { nom: "PAGINATION",    sorte: "voyant",        x:    321, y:     20, l:    40, h:   40, mot: "1/12", cran: "T1/600" },
+  { nom: "QTE",           sorte: "voyant",        x:     34, y:     20, l:    40, h:   40, mot: "×2", cran: "T1/600" },
+  { nom: "NOM",           sorte: "voyant",        x:     78, y:     20, l:   219, h:   40, mot: "Winged Helmet", cran: "T4/600" },
   { nom: "PRIX",          sorte: "voyant",        x:     90, y:     62, l:    84, h:    8, mot: "15 gp · ×2 · 30 gp", cran: "T1/600" },
   { nom: "POIDS",         sorte: "voyant",        x:    241, y:     62, l:    44, h:    8, mot: "3 lb · 6 lb", cran: "T1/600" },
   { nom: "FILET HAUT",    sorte: "zone",          x:     73, y:     78, l:   229, h:    8, mot: "", cran: "T1/600" },

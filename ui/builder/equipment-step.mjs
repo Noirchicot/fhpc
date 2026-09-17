@@ -2102,11 +2102,6 @@ export function renderEquipmentStep(ctx, onAction) {
     const qte = ligne.quantity || 1;
     const cout = parseCout(data.cost);
     const poids = parsePoids(data.weight);
-    /* ⭐ LE RANG DANS LE LIEU — il se LIT, il ne se parcourt plus : Eric a retiré les
-       deux flèches le 17/09 au soir, et la pagination reste parce qu'elle dit où l'on
-       est, pas parce qu'elle sert à se déplacer. */
-    const voisines = lignes.filter((l) => (l.location || "backpack") === (ligne.location || "backpack"));
-    const rangDansLeLieu = voisines.findIndex((l) => l.index === ligne.index);
     const { noeud } = construireLaFicheX1({
       objet: {
         index: ligne.index, nom: ligne.nomAffiche, qte,
@@ -2130,7 +2125,6 @@ export function renderEquipmentStep(ctx, onAction) {
         attuned: ligne.attuned === true,
         locked: ligne.locked === true
       },
-      rang: { position: rangDansLeLieu + 1, total: voisines.length },
       nombre: nombreX1,
       destination: destinationEnvoi,
       lecture: lectureX1,

@@ -11463,13 +11463,6 @@ button.tuto-point::before {
   display: flex; align-items: center; justify-content: flex-start;
   font-size: var(--t2); font-weight: 600; color: var(--x1-encre);
 }
-/* — LA PAGINATION, à droite du nom (Eric, 17/09 : *« le nombre de pages à droite
-   du titre »*). Elle dit un rang, pas une donnée : encre sourde. */
-.x1-pagination:not([hidden]) {
-  display: flex; align-items: center; justify-content: flex-end;
-  font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
-  font-variant-numeric: tabular-nums;
-}
 /* — PRIX ET POIDS : deux mentions qu'on LIT, hautes de ce que leur texte
    mesure (Eric, 17/09 : *« prix poids, pas 44 de haut, 8 ! »*). ⛔ Elles ne se
    touchent pas : aucun plancher tactile ne s'y applique. */

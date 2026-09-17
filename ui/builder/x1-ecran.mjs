@@ -62,7 +62,7 @@ const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
    alors que son mot est « Lock » (l'acte) : le plan nomme l'ÉTAT, le bouton
    nomme le GESTE — c'est la distinction qu'Eric a posée le 17/09. */
 export const CLEF_DE = Object.freeze({
-  "QTE": "qte", "NOM": "nom", "PAGINATION": "pagination",
+  "QTE": "qte", "NOM": "nom",
   "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge", "OEIL": "oeil",
   "PRIX": "prix", "POIDS": "poids", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
@@ -313,12 +313,10 @@ function porte(id, mot, note, options, eteint) {
 /** @param {object} options
  *   · `objet` : `{ index, nom, qte, prixUnite, prixTotal, poidsUnite, poidsTotal,
  *     prose, equipped, attuned, locked, harmonisable }`
- *   · `rang` : `{ position, total }` — où l'on est dans le lieu courant
  *   · `nombre`, `destination` : l'envoi en cours
  *   · rappels : `surEtat` `surNombre` `surEst` `surDestination` `surPorte` `surCopier` */
 export function construireLaFicheX1(options = {}) {
   const objet = options.objet || {};
-  const rang = options.rang || {};
   const noeud = eld("section", "x1");
   noeud.dataset.objet = "x1";
   noeud.setAttribute("role", "group");
@@ -357,12 +355,6 @@ export function construireLaFicheX1(options = {}) {
       f.dataset.organe = id;
       f.setAttribute("aria-hidden", "true");
       noeud.append(f);
-    } else if (id === "pagination") {
-      /* ⚖️ UNE PAGE = UN OBJET, et ⛔ la pagination ne paraît QUE s'il y a plusieurs
-         pages — Eric, 17/09 au soir. Un « 1/1 » ne dit rien à personne. */
-      const plusieurs = rang.total > 1;
-      const mot = plusieurs ? `${rang.position}/${rang.total}` : "";
-      noeud.append(voyant(id, "x1-pagination", mot, plusieurs ? `Item ${rang.position} of ${rang.total}` : undefined));
     } else if (id === "prix") {
       noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
     } else if (id === "poids") {
