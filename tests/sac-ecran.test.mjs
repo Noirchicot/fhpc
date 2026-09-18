@@ -441,3 +441,49 @@ test("18 — 🔴 LE DÉFILEMENT PAR LA MARGE : un seul minuteur, au MODULE, et 
   assert.equal((source.match(/glisserDuSac\(/g) || []).length, 3,
     "sa définition, la case, le collecteur");
 });
+
+test("19 — ⚖️ LE BALAYAGE TOURNE LA PAGE, et il sait ne PAS être un glisser", () => {
+  /* ⚖️ Eric, 18/09 au soir, après avoir tranché que les tuners sont une affaire de
+     souris : *« reste le balayage, qui est accessible »*. ⭐ La molette tourne la page
+     à la souris, le balayage la tourne au doigt — et c'est LUI le geste que tout le
+     monde peut faire.
+     📏 MESURÉ AU NAVIGATEUR, les cinq cas : gauche → 2/2 · droite → 1/2 · vertical →
+     rien · trop court → rien · depuis un jeton → rien. */
+  const tours = [];
+  const n = rendu({ pages: 2, surPage: (s) => tours.push(s),
+    objets: [{ index: 1, nom: "Dagger", qte: 1 }] });
+  const vide = tous(n, ".sac-case").find((c) => c.dataset.occupe === undefined);
+  const jeton = n.querySelector('[data-organe="case-1-1"]');
+  const balaye = (cible, dx, dy) => {
+    n.dispatchEvent({ type: "pointerdown", target: cible, clientX: 200, clientY: 100 });
+    n.dispatchEvent({ type: "pointerup", target: cible, clientX: 200 + dx, clientY: 100 + dy });
+  };
+
+  balaye(vide, -90, 0);
+  assert.deepEqual(tours, [1], "⭐ vers la GAUCHE = la page SUIVANTE, la convention du téléphone");
+  balaye(vide, 90, 0);
+  assert.deepEqual(tours, [1, -1], "et vers la droite, la précédente");
+
+  /* ⛔ LES TROIS REFUS, et chacun a sa raison. */
+  balaye(vide, -10, 90);
+  balaye(vide, -20, 0);
+  balaye(jeton, -90, 0);
+  assert.deepEqual(tours, [1, -1],
+    "⛔ un geste vertical appartient au défilement · un geste plus court qu'une CIBLE (44) " +
+    "est un tap qui a tremblé · et un geste parti d'un JETON est un GLISSER, pas un balayage — " +
+    "sans cette dernière règle, prendre un objet pour le déplacer tournerait la page sous lui.");
+
+  /* ⛔ ET UNE SEULE PAGE NE SE BALAIE PAS : un écran qui réagit à un geste sans rien
+     changer apprend à ne plus faire le geste. */
+  const muets = [];
+  const une = rendu({ pages: 1, surPage: (s) => muets.push(s) });
+  const seule = tous(une, ".sac-case")[0];
+  une.dispatchEvent({ type: "pointerdown", target: seule, clientX: 200, clientY: 100 });
+  une.dispatchEvent({ type: "pointerup", target: seule, clientX: 110, clientY: 100 });
+  assert.deepEqual(muets, []);
+
+  /* ⭐ ET LE SEUIL NE S'INVENTE PAS : c'est le plancher tactile, pas un nombre choisi. */
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  assert.match(source, /const SEUIL_BALAYAGE = TOUCH;/,
+    "⛔ un seuil écrit en clair serait un nombre de plus à tenir d'accord avec le plan");
+});

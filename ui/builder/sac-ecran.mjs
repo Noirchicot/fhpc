@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=660";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=660";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=661";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=661";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=660";
+import { armerJeton, fantome } from "./glisser.mjs?v=661";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=660";
+import { facteurZoomCourant } from "./echelle.mjs?v=661";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -344,6 +344,47 @@ function glisserDuSac(noeud, index, options, surDepot) {
   });
 }
 
+/* ══ LE BALAYAGE DE LA GRILLE — Eric, 18/09 au soir ════════════════════════
+   ⚖️ *« reste le balayage, qui est accessible »* — dit APRÈS avoir tranché que les
+   tuners sont une affaire de souris. ⭐ La molette tourne la page à la souris ; le
+   balayage la tourne au doigt, et c'est LUI le geste que tout le monde peut faire.
+   ⛔ UN GESTE QUI PART D'UN JETON EST UN GLISSER, PAS UN BALAYAGE — c'est la seule
+   règle qui les sépare, et elle se lit sur le nœud (`data-glissable`, la marque que
+   `armerJeton` pose). Sans elle, prendre un objet pour le déplacer tournerait la
+   page sous lui. ⭐ Et c'est la convention du téléphone : on glisse une icône, on
+   balaie la page. */
+
+/** ⛔ LE SEUIL NE S'INVENTE PAS : un mouvement plus court qu'une CIBLE TACTILE n'est
+ *  pas un balayage, c'est un tap qui a tremblé. `TOUCH` est déjà ce plancher-là. */
+const SEUIL_BALAYAGE = TOUCH;
+
+function balayageDeLaGrille(noeud, options) {
+  let depart = null;
+  const oublie = () => { depart = null; };
+  noeud.addEventListener("pointerdown", (ev) => {
+    oublie();
+    if (!options.pages || options.pages < 2) return;
+    const cible = ev && ev.target;
+    if (!cible || typeof cible.closest !== "function") return;
+    if (cible.closest('[data-glissable="true"]')) return;   /* c'est un glisser */
+    if (!cible.closest(".sac-case")) return;                /* le balayage vit sur la GRILLE */
+    depart = { x: ev.clientX, y: ev.clientY };
+  });
+  noeud.addEventListener("pointercancel", oublie);
+  noeud.addEventListener("pointerup", (ev) => {
+    if (!depart) return;
+    const dx = ev.clientX - depart.x;
+    const dy = ev.clientY - depart.y;
+    oublie();
+    /* ⛔ ET IL DOIT ÊTRE FRANCHEMENT HORIZONTAL : sur un écran qui défile, un geste
+       ambigu appartient au défilement, jamais à nous. */
+    if (Math.abs(dx) < SEUIL_BALAYAGE || Math.abs(dx) <= Math.abs(dy)) return;
+    /* ⭐ vers la GAUCHE = la page SUIVANTE, la convention du téléphone : on pousse la
+       page courante hors de l'écran pour faire venir la suivante. */
+    if (options.surPage) options.surPage(dx < 0 ? 1 : -1);
+  });
+}
+
 /** Un tuner — chevron au repos, flèche circulaire au survol *(la feuille le peint)*,
  *  et la molette le fait tourner. ⚖️ Eric, 18/09 : *« le chevron devient un bouton
  *  tuner avec une flèche circulaire »* · *« hover avec souris le déclenche »*.
@@ -463,8 +504,8 @@ function collecteur(options, retenu) {
  *   · `objets`   : les douze places, `null` pour une case vide ;
  *   · `poids`    : `{ gear, backpack, encombrement }`, déjà mis en mots ;
  *   · `compteurs`: `{ tally, "party-tally" }` — ce que chaque parchemin porte ;
- *   · `page` / `pages` : la fraction déjà en mots, et le NOMBRE de pages (la
- *     molette ne tourne que s'il y en a plus d'une) ;
+ *   · `page` / `pages` : la fraction déjà en mots, et le NOMBRE de pages — la
+ *     molette ET le balayage ne tournent que s'il y en a plus d'une ;
  *   · les gestes : `surTourner`, `surSection`, `surJeton`, `surTrier`,
  *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surPage`,
  *     `surCollecte`, `surPlacer`, `surDrop`, `surDestination`, `surPorte`.
@@ -497,6 +538,10 @@ export function construireLeSac(options = {}) {
   feuille.dataset.fhpc = "sac";
   feuille.textContent = feuilleDesCotesSac();
   noeud.append(feuille);
+
+  /* ⭐ LE BALAYAGE ÉCOUTE SUR LA DALLE, PAS SUR CHAQUE CASE : douze écouteurs pour un
+     seul geste, c'est douze occasions d'en oublier un. La délégation lit la cible. */
+  balayageDeLaGrille(noeud, options);
 
   /* ⛔ LES TUNERS SONT POSÉS SUR LA DALLE, pas dans la roue : la table les
      déclare `dans: "ROUE"` pour dire qu'ils LUI APPARTIENNENT — un voyant dans

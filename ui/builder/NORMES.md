@@ -3401,6 +3401,36 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+### 👆 UN ORGANE À DEUX VISAGES : UN SEUL RÉCLAME LE PLANCHER TACTILE
+📍 `cadre-le-plancher-tactile-se-mesure-sur-le-visage-qui-se-tape` · vivante · 18/09
+⚖️ **Le plancher de 44 se mesure sur le visage qu'on TAPE, pas sur celui qui n'existe qu'à la souris. ⭐ Et une cible qui le réclame ne sort JAMAIS de la dalle : ce qui dépasse est clippé, donc perdu.**
+
+> Eric, 2026-09-18 au soir : **« les tuners sont pour la souris, donc les 44 hors sujet. Les chevrons
+> eux ont besoin des 44 ; pas grave si ça dépasse un peu sur la dalle adjacente. »**
+
+⭐ **LE MÊME ORGANE, DEUX VISAGES** : au repos c'est un **chevron**, qu'on tape — il lui faut ses 44.
+Au survol il devient le **tuner** à molette, qui n'existe qu'à la souris. Je mesurais le plancher sur
+le mauvais visage, et j'en concluais une impasse qui n'en était pas une.
+📏 **CE QUI L'A RÉVÉLÉ, ET IL A FALLU REGARDER AU TÉLÉPHONE** : `.sac` porte `overflow: hidden`, donc
+une cible qui sort de la dalle est **clippée — partout**, pas seulement sur un petit écran. Le
+chevron gauche, centré sur un dessin de 10 posé à 4 du bord, courait de **−13 à 31** : il n'en
+restait que **31 de touchable**.
+⛔ **ET LE GARDE DES CIBLES NE POUVAIT PAS LE VOIR** : il vérifie la boîte **déclarée**, jamais ce
+qu'il en reste à l'écran. Un plancher se mesure sur ce que le doigt atteint.
+⚖️ **CE QUE LE RABATTEMENT COÛTE, ET ERIC L'ACCEPTE** : la cible mord alors **22 blg sur le cran
+voisin** au lieu de 9. *« Pas grave si ça dépasse un peu sur la dalle adjacente »* — ⭐ et la raison
+tient : un cran est un organe **du tambour**, dont la cible est la roue entière ; un chevron est un
+bouton à lui seul.
+🔴 **J'AVAIS FAIT L'INVERSE D'ABORD, ET JE L'AI ANNULÉ** : j'ai rabattu, vu les 22 blg volés au cran,
+et reculé — en croyant réparer, j'avais rendu l'écran pire. ⭐ C'est Eric qui a tranché le vrai
+partage, et il n'était dans aucune de mes deux versions : *le plancher n'appartient pas à l'organe,
+il appartient au GESTE*.
+📌 **CONSÉQUENCE SUR LA FEUILLE** : les quatre bords transparents se déduisent des **écarts réels**
+dessin/cible, ⛔ plus d'une symétrie. Pour toute cible centrée ils rendent les mêmes nombres — c'est
+une généralisation, qui attendait qu'une cible cesse d'être centrée pour devenir nécessaire.
+
+---
+
 ### 🖐️ LE GLISSER SURVIT AU REPEINT — DONC SON RAPPEL DOIT RELIRE L'ÉCRAN
 📍 `equipement-glisser-dans-la-marge-relit-l-ecran` · vivante · 18/09
 ⚖️ **Un glisser qui fait défiler l'écran sous lui doit LIRE l'état au moment du DÉPÔT, jamais celui du rendu qui l'a armé. ⛔ Sinon on glisse jusqu'à la section 3 et l'objet atterrit dans la 1 — sans que rien ne crie.**
