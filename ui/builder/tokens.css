@@ -640,6 +640,20 @@
   --icone-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.5 4 L3.5 12 L8.5 20'/%3E%3C/svg%3E");
   --icone-tuner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M20 12a8 8 0 1 1-2.3-5.6'/%3E%3Cpath d='M18 2.5 L18 7 L13.5 7' stroke-linejoin='round'/%3E%3C/svg%3E");
 
+  /* ⚖️ LES DEUX OUTILS DU SAC — Eric, 2026-09-18, en dictant l'écran : *« un petit
+     bouton 40 × 40 à droite du titre de section qui ressemble à un CADRILLAGE ; un
+     autre à gauche qui fait un RANGEMENT LOCAL (choix alphabétique, etc.) »*.
+     ⛔ Ils étaient nus — deux rectangles bruns, sans un signe — et c'est ce qu'Eric
+     a vu en ligne le 18/09. Un bouton sans mot ET sans glyphe n'est pas un organe
+     discret, c'est un organe muet.
+     ⭐ AUCUN MOT NE LES ACCOMPAGNE, ET C'EST LA COTE QUI LE DÉCIDE : 40 × 40 ne
+     tient pas « Sections » au cran T1. Le mot vit donc dans l'`aria-label`, comme
+     au livre et au `?` — l'information reste entière pour qui ne voit pas l'écran.
+     📌 Ils se peignent en MASQUE, comme le cadenas de X1 et le chevron du tuner :
+     l'encre vient du thème, jamais du fichier. */
+  --icone-trier: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M4 6h13M4 12h9M4 18h5'/%3E%3Cpath d='M18 10.5 L18 19.5 M14.8 16.3 L18 19.5 L21.2 16.3' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --icone-grille: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round'%3E%3Crect x='3.2' y='3.2' width='17.6' height='17.6' rx='2'/%3E%3Cpath d='M3.2 9.1h17.6M3.2 14.9h17.6M9.1 3.2v17.6M14.9 3.2v17.6'/%3E%3C/svg%3E");
+
   /* ⚖️ LA BANDE DES MARQUES D'UN JETON — Eric, 2026-09-17, croquis en main :
      *« j'ai mesuré que l'espace haut du token soit libre pour ces petits
      marquages et pas de conflit avec le texte »*.
@@ -1027,8 +1041,8 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=658");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=658");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=659");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=659");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1053,14 +1067,14 @@
      été deux nombres à tenir d'accord, et ils auraient divergé au premier réglage.
      ⏳ Le jour où les deux sens demanderont deux valeurs, c'est LÀ qu'il se scinde. */
   --organe-eteint: .20;
-  --icone-parchemin: url("./assets/parchemin.webp?v=658");
+  --icone-parchemin: url("./assets/parchemin.webp?v=659");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=658");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=659");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=658");
+  --icone-bourse: url("./assets/bourse.webp?v=659");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
@@ -1070,7 +1084,7 @@
      est le décor du site. 📏 Servie en 806 × 1056 (deux fois la cote), 57 Ko
      contre 1,18 Mo : détourée par remplissage depuis les bords, ⛔ jamais par un
      seuil global — le parchemin est clair, un seuil l'aurait troué partout. */
-  --x1-parchemin: url("./assets/parchemin-x1.webp?v=658");
+  --x1-parchemin: url("./assets/parchemin-x1.webp?v=659");
   /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE. Le parchemin est
      OPAQUE et CLAIR sur les deux fonds : l'encre du site (`--text`, qui bascule
      avec le thème) y devient illisible la nuit — mesuré au banc le 17/09, premier
@@ -1210,14 +1224,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=658");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=659");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=658");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=659");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1310,8 +1324,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=658");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=658");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=659");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=659");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

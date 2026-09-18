@@ -3374,6 +3374,72 @@ les projectiles c'est 20 »*, *« le contenant, on laisse voir en jeu »*) sont 
 
 ---
 
+### 🎒 LE SAC — CE QU'UN RANG B PORTE, ET D'OÙ ÇA VIENT
+📍 `equipement-le-sac-porte-ce-que-la-source-dit` · vivante · 18/09
+⚖️ **B1 porte une grille de jetons, le COMPTE à gauche et la PAGE à droite, le parchemin permanent, QUATRE lignes de poids, `DROP` et `SEND TO ▾` — et son pied dit `Gear · Send · Wares`.**
+
+> La source du chapitre *(l'artefact « Équipement à la création », état au 16/09)* : **« B1 Backpack —
+> une grille de jetons · le compte total à gauche, la page à droite · le parchemin à droite
+> (permanent) · GEAR WEIGHT · DROP · SEND TO ▾ | GEAR · SEND · WARES »**, et **« l'encart passe donc
+> de trois à quatre lignes, sur R et sur B1 »**.
+
+🔴 **CETTE LIGNE EXISTE PARCE QUE J'AI CONSTRUIT L'ÉCRAN SANS LIRE LA SOURCE, ET QUE JE L'AI DÉPLOYÉ
+TROIS FOIS.** Eric a dû dire deux fois *« et l'artefact te dit tout »*. Trois organes manquaient —
+le compte et la page, la quatrième ligne de poids, `DROP` — et aucun garde ne pouvait les réclamer :
+un garde vérifie que l'écran suit **son** plan, jamais que le plan suit **la source**.
+⭐ **CE QUE LA DICTÉE D'ERIC A AJOUTÉ PAR-DESSUS (17–18/09), ET QUI PRIME** : le tambour des
+sections et ses deux tuners, `Sort` et `Sections`, un **collecteur** (*« il nous manque un
+collecteur, il faut faire sauter une rangée »* — d'où 12 jetons et non 15), la bourse et les deux
+Tally autour de lui, les trois lunes des grands écrans.
+⛔ **ET LA « PAGE » DU SAC EST SA SECTION** : la source décrit un sac d'avant les compartiments, qui
+se feuilletait. Eric les a remplacés par des sections nommées et le tambour EST le feuilleteur — la
+fraction dit donc où l'on en est dans la liste. ⛔ Un second paginateur aurait donné deux organes
+pour un seul geste.
+⏳ **NON TRANCHÉ, ET À NE PAS DEVINER** : ce que fait *« tighten up »* dans une grille qui se tasse
+déjà toute seule ; ce qui arrive à une section qui déborde de douze ; et si le rangement local doit
+se graver au document ou rester un coup d'œil.
+
+---
+
+### 🔴 UNE MESURE NE VAUT QUE CONTRE UNE SOURCE EXTÉRIEURE
+📍 `socle-mesurer-contre-la-source-jamais-contre-son-plan` · vivante · 18/09
+⚖️ **Un écran se mesure contre l'ARTEFACT, une loi de NORMES, un écran déjà en production ou l'œil d'Eric. ⛔ Jamais contre la table qu'on vient d'écrire soi-même.**
+
+> Eric, 2026-09-18, en regardant l'écran en ligne après trois déploiements : **« heu, il manque plein
+> de choses, tu as déployé, t'as fait quoi ? »** · **« t'as fait de la grosse merde là »**.
+
+⛔ **LA FAUTE, NOMMÉE** : chaque *« ✓ mesuré »* que j'annonçais comparait l'écran au plan que j'avais
+écrit **moi-même**. Une boucle fermée est cohérente ; elle ne peut pas voir qu'elle est fausse.
+⭐ **ET LES CINQ FAUTES QUI ONT COMPTÉ ONT TOUTES PASSÉ LES GARDES** — la dalle au voile de R au lieu
+du sien, les trois images absentes, les deux glyphes absents, la roue qui refusait de boucler, le
+livre et le `?` dont le cercle s'était décroché. Les 2308 tests étaient verts à chaque fois.
+📌 **D'OÙ LA CONDUITE** : ① lire la source **avant** d'ouvrir un fichier ; ② regarder l'écran RENDU,
+à côté d'un écran du même rang, **avant** d'annoncer quoi que ce soit ; ③ écrire le garde **après**
+avoir vu la faute, et l'éprouver **rouge** avant de le laisser vert.
+
+---
+
+### 📏 UNE MESURE DE POSITION NE VOIT PAS UN DESSIN QUI SE DÉCROCHE
+📍 `cadre-les-bornes-gardent-leur-ancre` · vivante · 18/09
+⚖️ **Le livre et le `?` restent `position: relative` dans une rangée. ⛔ `static` les décroche de leur cercle — et une mesure de leur BOÎTE ne le voit pas.**
+
+> Eric, 2026-09-18, sur le sac en ligne : **« je ne parle même pas du livre et du ? qui sont mal
+> centrés »**.
+
+⛔ **C'ÉTAIT DÉJÀ ÉCRIT DANS `shell.css` (§6 pré, 02/09), mot pour mot** : *« `relative`, JAMAIS
+`static` — et ça a coûté une livraison. Ces deux bornes portent leur cercle en `::before` ABSOLU ;
+passées en `static`, le cercle s'ancre sur l'ancêtre positionné le plus proche et se dessine À CÔTÉ
+du glyphe »*. Je l'ai reproduit en posant `data-organe` sur les enfants de la rangée du sac, puis en
+défaisant leur `absolute` avec un `static`.
+📏 **CE QUE J'AVAIS MESURÉ, ET POURQUOI ÇA NE DISAIT RIEN** : 44 × 44, colonnes 44 / 279 / 44 —
+identiques à R. Les **boîtes** l'étaient ; c'est le **dessin** qui était parti, `::before` à
+`left: 11px` dans une rangée de 367, soit ~300 blg du glyphe.
+⭐ **LA PARADE EST DE TUER LA CAUSE, PAS DE POSER UNE EXCEPTION** : aucun écran ne marque les enfants
+de sa rangée de pied avec `data-organe`. R ne l'a jamais fait — ses portes portent `data-porte`, ses
+bornes ne portent rien, et la grille partagée les range.
+
+---
+
 ### ⛔ CE QUI NE SE DEVINE JAMAIS — sept drapeaux déclarés
 📍 `socle-ce-qui-ne-se-devine-jamais` · vivante · 27/08
 ⚖️ **L'écran DÉCLARE son gabarit par sept drapeaux nommés et le catalogue DESSINE — ⛔ rien ne se devine d'après les nœuds rendus.**

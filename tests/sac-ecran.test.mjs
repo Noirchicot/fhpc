@@ -177,3 +177,170 @@ test("10 — le tuner écoute la MOLETTE en plus du tap, et il l'empêche de dé
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
   assert.match(source, /passive:\s*false/, "sans lui le navigateur refuse le preventDefault");
 });
+
+/* ══ LES GARDES DE LA REPRISE — 18/09 ════════════════════════════════════════
+   🔴 LES CINQ QUI SUIVENT NAISSENT D'UNE FAUTE QU'AUCUN GARDE N'AVAIT VUE, et
+   qu'Eric a vue à l'œil sur l'écran en ligne. Ils ne mesurent donc PAS ce que la
+   table dit — les dix premiers le font déjà — mais ce que l'écran REND : sa
+   matière, ses images, ses glyphes, et le fait que ses deux bornes gardent leur
+   ancre. ⭐ Chacun a été éprouvé ROUGE sur le code de la veille avant d'être
+   écrit ; un garde vert qui n'a jamais été rouge ne prouve rien. */
+
+test("11 — 🔴 LA DALLE PORTE LE VOILE DE SON RANG, et la cote se lit sur un TÉMOIN", () => {
+  /* ⚖️ Eric, 18/09, en regardant l'écran en ligne : *« la dalle de fond 35 % de
+     voile pfffff »*. Le sac est un rang B posé DANS la dalle de R — il relève donc
+     de la ligne des blocs intérieurs, pas des 50 % d'un écran de parcours.
+     ⛔ CE GARDE NE CONNAÎT AUCUN POURCENTAGE, et c'est exprès : il LIT la classe que
+     porte le témoin du rang B — `.parcours-guide`, « la dalle du rang B qui rend
+     Species, Inheritance et Class » (`dalle-du-rang.test.mjs`) — et exige la même.
+     Le jour où Eric change le voile d'un rang B, ce garde suit tout seul ; s'il
+     recopiait « 35 », il figerait la valeur d'aujourd'hui. */
+  const parcours = fs.readFileSync(path.join(UI, "parcours-ecrans.mjs"), "utf8");
+  const temoin = parcours.match(/"parcours-guide\s+(dalle-[a-z]+)"/);
+  assert.ok(temoin, "⛔ le témoin du rang B ne déclare plus sa dalle dans parcours-ecrans.mjs : " +
+    "sans lui ce garde ne mesure plus rien et passerait sur n'importe quoi.");
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  const mienne = source.match(/el\("section",\s*"sac\s+(dalle-[a-z]+)"\)/);
+  assert.ok(mienne, "⛔ le sac ne déclare plus sa dalle par une classe — il la peindrait donc lui-même");
+  assert.equal(mienne[1], temoin[1],
+    `le sac porte \`${mienne[1]}\` là où le témoin du rang B porte \`${temoin[1]}\`. ` +
+    "Un rang décide de son voile ; copier celui du voisin est la faute du 18/09.");
+  assert.equal(rendu().className, `sac ${temoin[1]}`, "et c'est bien ce que l'écran rend");
+});
+
+test("12 — 🔴 LES DEUX BORNES DU PIED GARDENT LEUR ANCRE (le livre et le `?`)", () => {
+  /* ⚖️ Eric, 18/09 : *« le livre et le ? qui sont mal centrés »*.
+     ⛔ LA CAUSE : `.sac [data-organe]` pose `position: absolute`, et la règle qui le
+     défaisait dans la rangée (`position: static`) attrapait les deux bornes. Or
+     `shell.css` §6 pré l'écrit déjà : *« `relative`, JAMAIS `static` — ces deux
+     bornes portent leur cercle en `::before` ABSOLU ; passées en `static` le cercle
+     s'ancre sur l'ancêtre positionné le plus proche et se dessine À CÔTÉ du glyphe »*.
+     📏 Mesuré au navigateur avant correction : `::before` du livre à `left: 11px`
+     dans une rangée de 367 — son cercle collé au bord GAUCHE, à ~300 blg du glyphe.
+     ⭐ LA PARADE EST DE TUER LA CAUSE : aucun enfant de la rangée ne porte
+     `data-organe`, donc rien n'a d'`absolute` à défaire. C'est ce que fait R. */
+  const n = rendu();
+  const rangee = n.querySelector(".sac-rangee");
+  assert.ok(rangee, "la rangée du pied existe");
+  assert.equal(rangee.dataset.organe, "rangee", "⭐ la RANGÉE, elle, en porte un : c'est elle que la feuille pose");
+  const marques = tous(rangee, "[data-organe]");
+  assert.equal(marques.length, 0,
+    "⛔ " + marques.map((e) => e.dataset.organe).join(", ") + " porte(nt) `data-organe` DANS la rangée. " +
+    "La grille des rangées les range ; un `absolute` posé là oblige à le défaire, et le défaire " +
+    "décroche le dessin des deux bornes.");
+  assert.doesNotMatch(feuille, /\.sac-rangee\s*\[data-organe\]/,
+    "⛔ la règle qui rendait les enfants `static` est revenue — avec elle revient la faute du 18/09");
+  /* ⛔ ET L'ÉCRAN NE FABRIQUE PAS SON `?` : la source du chapitre le dit en toutes
+     lettres — *« `.tuto-point`, posé par la COQUILLE, pas par l'écran »*. Le mien
+     n'avait pas de `data-vu` (le parchemin plein / le cercle creux, §7) et aurait
+     fait DOUBLON avec celui que `poserLesBornes` descend dans la dernière rangée. */
+  assert.equal(n.querySelector(".tuto-point"), null,
+    "⛔ le sac fabrique un `?` : la coquille en pose déjà un, et le sien n'a pas d'état");
+  const livre = n.querySelector(".fiche-livre");
+  assert.ok(livre, "le livre, lui, est posé par l'écran — comme sur R");
+  assert.equal(livre.disabled, true,
+    "⛔ sans cible FH WEB il est GRISÉ, jamais muet : « chaque conversion demande une CIBLE »");
+});
+
+test("13 — 🔴 LES TROIS ORGANES D'ÉCHANGE SONT CEUX DE R, ET ILS PORTENT LEURS IMAGES", () => {
+  /* ⚖️ Eric, 18/09 : *« les images de la bourse, des Tally »* — il les a vues nues.
+     ⭐ Elles existent depuis le 16/09, déposées par lui : `--icone-bourse`,
+     `--icone-parchemin`, `--icone-parchemin-party`. ⛔ On ne recopie pas leur habit :
+     les trois boutons REPRENNENT `gear-bouton`, la classe de R. */
+  const tokens = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+  const n = rendu({ compteurs: { tally: 2, "party-tally": 0 } });
+  for (const [id, jeton] of [["purse", "--icone-bourse"], ["tally", "--icone-parchemin"],
+                             ["party-tally", "--icone-parchemin-party"]]) {
+    const b = n.querySelector(`[data-organe="${id}"]`);
+    assert.ok(b, `${id} est posé`);
+    assert.ok(b.className.split(/\s+/).includes("gear-bouton"),
+      `⛔ \`${id}\` porte « ${b.className} » au lieu de \`gear-bouton\` : une seconde famille ` +
+      "recopie un habit, et deux habits divergent au premier réglage.");
+    assert.match(feuille, new RegExp(`\\.gear-bouton\\[data-organe="${id}"\\][^}]*background-image:\\s*var\\(${jeton}\\)`),
+      `⛔ rien ne peint \`${id}\` : il rendrait un rectangle nu, ce qu'Eric a vu le 18/09`);
+    assert.match(tokens, new RegExp(`${jeton}:\\s*url\\(`), `⛔ le jeton ${jeton} n'existe plus`);
+  }
+  /* ⚖️ ET LE PARCHEMIN DIT SON ÉTAT — la source du chapitre, 15/09 : *« dès le
+     premier item il porte un halo, et reste ainsi jusqu'à ce qu'il soit vidé »*.
+     ⛔ Le vide ne s'entoure pas, il RECULE (Eric, 16/09) : c'est `data-compte`. */
+  assert.equal(n.querySelector('[data-organe="tally"]').dataset.compte, "2");
+  assert.equal(n.querySelector('[data-organe="party-tally"]').dataset.compte, "0");
+  assert.equal(n.querySelector('[data-organe="purse"]').dataset.compte, undefined,
+    "⛔ la bourse n'est pas un parchemin : elle ne s'efface pas quand elle est vide");
+});
+
+test("14 — 🔴 LES DEUX OUTILS PORTENT UN SIGNE, et leur mot vit dans l'aria-label", () => {
+  /* ⚖️ Eric, 18/09 : *« un petit bouton 40 × 40 à droite du titre de section qui
+     ressemble à un CADRILLAGE ; un autre à gauche qui fait un RANGEMENT LOCAL »*.
+     ⛔ Ils étaient nus. Un bouton sans mot ET sans glyphe n'est pas discret, il est
+     muet — et 40 × 40 ne tient pas « Sections » au cran T1, donc le mot ne peut
+     vivre que dans l'`aria-label`. */
+  const tokens = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+  const n = rendu();
+  for (const [id, jeton] of [["trier", "--icone-trier"], ["sections", "--icone-grille"]]) {
+    const b = n.querySelector(`[data-organe="${id}"]`);
+    assert.ok(b, `${id} est posé`);
+    assert.ok(b.getAttribute("aria-label"), `⛔ \`${id}\` n'a pas de mot du tout`);
+    assert.match(tokens, new RegExp(`${jeton}:\\s*url\\(`), `⛔ le jeton ${jeton} n'existe pas`);
+    assert.match(feuille, new RegExp(`\\.sac-outil\\[data-organe="${id}"\\][^{]*::before[^}]*mask-image:\\s*var\\(${jeton}\\)`),
+      `⛔ rien ne peint le glyphe de \`${id}\` — il rendrait un rectangle nu`);
+  }
+});
+
+test("15 — 🔴 LE MODE ÉDITION DE LA ROUE : le champ, le `+`, le `−`", () => {
+  /* ⚖️ Eric, 18/09 : *« le bouton pack devient sections, et la roue passe en mode
+     édition »* · *« tap pour modifier, chevrons pour défiler »* · *« le bouton +
+     crée, le bouton − supprime »* · *« supprimer une section si elle est vide »*.
+     ⛔ CE QUI MANQUAIT, ET QU'ERIC A NOMMÉ : *« la navigation des compartiments »* —
+     la roue ne faisait que tourner. */
+  const trois = [{ nom: "Potions" }, { nom: "Camp" }, { nom: "Trésor" }];
+  const gestes = [];
+  const n = rendu({ sections: trois, section: 1, edition: true,
+    surAjouter: () => gestes.push("ajouter"),
+    surRenommer: (i, nom) => gestes.push(`renommer:${i}:${nom}`),
+    surSupprimer: () => gestes.push("supprimer") });
+  assert.equal(n.dataset.mode, "edition", "⭐ le mode vit sur la DALLE, pas dans cinq organes");
+
+  /* ① le cran dominant est un CHAMP — on renomme SUR PLACE */
+  const champ = n.querySelector(".sac-cran-champ");
+  assert.ok(champ, "⛔ pas de champ : il n'y a alors aucun moyen de renommer une section");
+  assert.equal(champ.dataset.dominant, "oui", "et c'est celui sous le viseur");
+  assert.equal(champ.value, "Camp");
+  assert.equal(champ.maxLength, 22, "la cote du cran sur deux étages");
+  champ.value = "Potions de soin";
+  champ.dispatchEvent({ type: "keydown", key: "Enter", preventDefault: () => {} });
+  assert.deepEqual(gestes, ["renommer:1:Potions de soin"],
+    "⛔ et on n'écrit QU'À LA VALIDATION : un verbe par frappe redessinerait sous les doigts");
+
+  /* ② le `+` est un CRAN au bout de la liste, ⛔ pas un organe neuf */
+  const plus = tous(n, '[data-role="ajouter"]');
+  assert.equal(plus.length, 1, "un seul `+`, et il est au bout");
+  assert.ok(plus[0].className.split(/\s+/).includes("sac-cran"),
+    "⛔ le `+` prend la boîte et la cote du cran où il tombe — aucune cote ne s'invente pour lui");
+  plus[0].dispatchEvent({ type: "click" });
+
+  /* ③ le `−` prend la place du `Sort`, qui n'a rien à faire pendant qu'on édite */
+  const moins = n.querySelector('[data-organe="trier"]');
+  assert.equal(moins.dataset.role, "supprimer");
+  assert.equal(moins.textContent, "−", "le caractère, comme les ± de la bourse et du pipeline");
+  moins.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, ["renommer:1:Potions de soin", "ajouter", "supprimer"]);
+
+  /* ④ l'interrupteur du mode s'allume, et il ne bouge pas de place */
+  const bascule = n.querySelector('[data-organe="sections"]');
+  assert.equal(bascule.dataset.on, "true");
+  assert.equal(bascule.getAttribute("aria-pressed"), "true");
+  assert.match(feuille, /\.sac-outil\[data-organe="sections"\]\[data-on="true"\]/,
+    "⛔ et l'état se voit : sans halo, rien ne dit qu'on est en édition");
+
+  /* ⑤ ⛔ EN ÉDITION LE RUBAN NE BOUCLE PLUS — une liste a un début et une fin, sans
+     quoi le `+` du bout ne serait jamais au bout. */
+  const cinq = [1, 2, 3, 4, 5].map((i) => ({ nom: `S${i}` }));
+  const bout = rendu({ sections: cinq, section: 4, edition: true });
+  assert.deepEqual(tous(bout, ".sac-cran").map((c) => c.textContent || c.value),
+    ["S3", "S4", "S5", "+"], "⛔ rien avant S3, et le `+` juste après la dernière");
+  const repos = rendu({ sections: cinq, section: 0 });
+  assert.equal(tous(repos, ".sac-cran").length, 5,
+    "⚖️ au repos, lui, le ruban boucle : *« un belt infini déroulant »* (Eric, 18/09)");
+  assert.equal(tous(repos, '[data-role="ajouter"]').length, 0, "⛔ et il ne porte aucun `+`");
+});

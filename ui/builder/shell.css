@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=658") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=659") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=658") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=659") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=658") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=659") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=658");
+  background-image: url("./assets/tarot-dos.jpg?v=659");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11733,6 +11733,13 @@ button.tuto-point::before {
 /* ⚖️ UN BOUTON DÉSARMÉ N'A PAS DE LISERÉ — Eric, 16/09 : *« le bouton gris n'a pas
    de liseré »*, et NORMES : non coloré = non cliquable. `Use` attend son chantier,
    il le dit. */
+/* ⭐ ET `gear-porte` ENTRE DANS LA RÈGLE (18/09) : `Drop`, sur le sac, est désarmé
+   tant que le collecteur ne retient rien — et sans cette ligne il rendait exactement
+   comme un bouton actif. ⛔ Les deux familles partagent déjà leur habit (la règle
+   `.gear-porte, .x1-porte` plus haut) : leur état DÉSARMÉ ne pouvait pas diverger
+   sans mentir. 📏 Aucune porte de R n'est désarmée aujourd'hui, donc aucun rendu
+   existant ne change. */
+.gear-porte:disabled,
 .x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
 
 /* ══ L'ÉCRAN SB3.1 — LE SAC (lot 214) ═══════════════════════════════════════
@@ -11743,16 +11750,20 @@ button.tuto-point::before {
    (`jeton-nom`, `jeton-marques`, `jeton-marque`), peintes plus haut avec celles
    de l'écran R — le même organe, un seul habit. */
 /* ⛔ NI SA BOÎTE NI SA MATIÈRE NE S'ÉCRIVENT ICI : la boîte vient de la règle
-   partagée `.gear, .x1, .sac`, et la matière de `dalle-intermediaire`, que le
-   nœud porte comme celui de R. Deux écrivains pour une seule loi, c'est ce qui
-   avait donné une plaque opaque au milieu d'un produit translucide. */
+   partagée `.gear, .x1, .sac`, et la matière de `dalle-simple` — le voile à 35 %
+   d'un rang B, que le module pose sur le nœud. Deux écrivains pour une seule loi,
+   c'est ce qui avait donné une plaque opaque au milieu d'un produit translucide. */
 .sac [data-organe] { position: absolute; box-sizing: border-box; }
-/* 🔴 SAUF DANS LA RANGÉE DU BAS, ET C'EST LA TROISIÈME FOIS QUE CETTE FAMILLE DE
-   FAUTE SORT : une règle qui vise TOUT `[data-organe]` attrape aussi les enfants
-   d'un organe qui en contient d'autres. Les cinq boutons du pied doivent être
-   rangés par la GRILLE des rangées de contrôles — absolus, ils se superposaient
-   tous au même endroit et seul le dernier se voyait. */
-.sac-rangee [data-organe] { position: static; }
+/* 🔴 ET AUCUN ENFANT DE LA RANGÉE DU BAS NE PORTE `data-organe` — la règle qui
+   les rendait `static` a été RETIRÉE avec sa cause (18/09).
+   ⛔ CE QU'ELLE CASSAIT : les deux bornes (`.fiche-livre`, `.tuto-point`) doivent
+   rester `relative`, sinon leur cercle en `::before` absolu s'ancre sur la RANGÉE
+   et se dessine à 300 blg du glyphe — c'est écrit plus haut dans cette feuille,
+   §6 pré, *« `relative`, JAMAIS `static` — et ça a coûté une livraison »*. Eric
+   l'a revu ici le 18/09 : *« le livre et le ? qui sont mal centrés »*.
+   ⭐ La parade est celle de R : ses portes portent `data-porte`, ses bornes ne
+   portent rien, et la grille des rangées les range sans qu'on lui retire un
+   `absolute` qu'on ne leur a jamais donné. */
 
 /* — LA ROUE : un tambour à UN étage, sans perspective. Eric, 18/09 : *« on va pas
      se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
@@ -11779,6 +11790,34 @@ button.tuto-point::before {
   box-shadow: inset 0 0 0 1px var(--verre-lisere),
               inset 0 0 0 1px var(--accent-wash),
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
+/* ══ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« la roue passe en mode
+   édition »* · *« tap pour modifier »* · *« le bouton + crée, le bouton −
+   supprime »*. ⛔ AUCUNE COTE ICI NON PLUS : le champ et le `+` occupent la boîte
+   du cran où ils tombent, posée par la feuille construite. ═══════════════════ */
+/* ⭐ LE CHAMP EST UN CRAN QU'ON PEUT ÉCRIRE — il garde la boîte, le rayon et le
+   halo du dominant, et ne se distingue que par le liseré d'accent et le curseur.
+   ⛔ Un champ qui ressemblerait à un formulaire ferait sortir la roue de sa
+   famille : on renomme SUR PLACE, pas dans une boîte de dialogue. */
+/* ⛔ LE SÉLECTEUR PORTE `[data-dominant]`, ET CE N'EST PAS DU CONFORT : la règle
+   du dominant vaut (0,2,0) et est écrite PLUS HAUT — un `.sac-cran-champ` seul
+   (0,1,0) perdait son liseré sans que rien ne prévienne. La spécificité bat
+   l'ordre, et c'est la faute que `shell.css` nomme déjà au livre (02/09). */
+.sac-cran-champ[data-dominant="oui"] {
+  /* ⛔ UN `<input>` N'HÉRITE NI DE LA POLICE NI DE L'ENCRE : sans ces deux lignes
+     il rend dans la police de l'agent utilisateur, au milieu d'une roue qui est
+     dans celle du site. Même famille que le `color` d'un `<button>` (garde 6). */
+  font-family: inherit; color: var(--text);
+  text-align: center; cursor: text;
+  -webkit-line-clamp: none; overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--accent),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
+/* ⭐ LE `+` EST UN CRAN, ET IL SE VOIT COMME UN GESTE : le vert de ce qui AJOUTE
+   (§6), sur la même boîte que ses voisins. */
+.sac-cran[data-role="ajouter"] {
+  color: var(--positive); font-size: var(--t3); -webkit-line-clamp: none;
+  cursor: pointer;
 }
 /* — LE TUNER : chevron au repos, flèche circulaire au survol. ⭐ `hover: hover`
      n'est pas une détection d'appareil : c'est une question posée au POINTEUR.
@@ -11819,6 +11858,49 @@ button.tuto-point::before {
   border-style: solid; border-color: transparent; padding: 0;
   background: var(--bouton-corps); box-shadow: var(--bouton-aretes);
   border-radius: var(--organe-rayon); cursor: pointer;
+  /* le `−` du mode édition est un CARACTÈRE, comme les ± de la bourse et du
+     pipeline — la famille du dépôt, pas un glyphe de plus à dessiner */
+  display: grid; place-items: center;
+  font: inherit; font-size: var(--t3); font-weight: 600; line-height: 1;
+}
+/* 🔴 ET CHACUN PORTE SON SIGNE — sans quoi ce sont deux rectangles muets, ce
+   qu'Eric a vu en ligne le 18/09. Le glyphe se peint EN MASQUE sur un fond
+   d'encre : la teinte vient donc du thème, et les deux outils basculent avec lui.
+   ⛔ Le masque se pose dans le `content-box` — les bords transparents portent
+   l'écart cible − dessin, et rien ne doit peindre dessus (la jumelle du *« pas de
+   cercle moche autour »* d'Eric, 17/09).
+   ⛔ ET LE `::before` N'EXISTE QUE LÀ OÙ IL Y A UN GLYPHE : sur le `−` du mode
+   édition il aurait été une boîte vide de 40 qui pousse le caractère hors du
+   bouton. Deux sélecteurs nommés, pas un `.sac-outil::before` général. */
+.sac-outil[data-organe="trier"]:not([data-role="supprimer"])::before,
+.sac-outil[data-organe="sections"]::before {
+  content: ""; display: block; inline-size: 100%; block-size: 100%;
+  background-color: currentColor;
+  mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+  -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+}
+.sac-outil[data-organe="trier"]:not([data-role="supprimer"])::before {
+  mask-image: var(--icone-trier); -webkit-mask-image: var(--icone-trier);
+}
+.sac-outil[data-organe="sections"]::before {
+  mask-image: var(--icone-grille); -webkit-mask-image: var(--icone-grille);
+}
+/* ⚖️ L'INTERRUPTEUR DU MODE — Eric, 18/09 : *« le bouton pack devient sections, et
+   la roue passe en mode édition »*. ⭐ Il s'allume comme les bascules de X1 : le
+   halo du belt, la même ombre qui dit « c'est ici que ça se passe ». */
+.sac-outil[data-organe="sections"][data-on="true"] {
+  color: var(--accent);
+  box-shadow: var(--bouton-aretes),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
+/* ⛔ ET LE `−` DIT CE QU'IL COÛTE : il DÉFAIT, donc le rouge de la famille (§6).
+   ⭐ LE ROUGE VA SUR L'ANNEAU, PAS SUR L'ENCRE — la doctrine du 16/09, *« la
+   couleur du liseré = la couleur du bouton d'origine »* : le corps d'un bouton est
+   sombre au jour comme à la nuit, et une encre `--critical` posée dessus se lisait
+   mal en clair (vu au banc, thème clair, le 18/09). L'anneau, lui, se détache des
+   deux côtés. */
+.sac-outil[data-role="supprimer"] {
+  box-shadow: var(--bouton-aretes), inset 0 0 0 1px var(--critical);
 }
 /* — LES TROIS LIGNES DE POIDS : des voyants, on les lit. — */
 .sac-poids {
@@ -11826,36 +11908,42 @@ button.tuto-point::before {
   display: flex; align-items: center;
 }
 .sac-poids[data-organe="poids-3"] { color: var(--text); font-weight: 600; }
-/* — LES CASES ET LE COLLECTEUR : le creux dit « pose ici », le relief dit
-     « quelque chose est posé » — les mêmes deux états que sur R. — */
-.sac-case, .sac-collecteur {
+/* ⭐ LE COMPTE ET LA PAGE ENCADRENT LA GRILLE — la source du chapitre : *« le compte
+   total à gauche, la page à droite »*. ⛔ Deux voyants : on ne tourne pas la page en
+   tapant la fraction. Ils prennent les deux bords de la grille, donc l'un se range à
+   gauche et l'autre à droite — c'est la SEULE chose que ce bloc dit d'eux. */
+.sac-compte {
+  margin: 0; font-size: var(--t0); line-height: 1.1; color: var(--text-soft);
+  display: flex; align-items: center;
+}
+.sac-compte[data-organe="page"] { justify-content: flex-end; }
+/* — LES CASES : le creux dit « pose ici », le relief dit « quelque chose est
+     posé » — les mêmes deux états que sur R. —
+   ⛔ PAS DE `.sac-collecteur` : le collecteur du sac EST celui de R
+   (`gear-collecteur`), et son habit se lit plus haut, une seule fois. Une seconde
+   famille aurait recopié le creux, le relief et le liseré d'info — trois valeurs
+   qui divergent au premier réglage. */
+.sac-case {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   padding-inline: var(--sp-4); padding-top: var(--jeton-bande);
   border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
   background: none; box-shadow: var(--creux); color: var(--text);
   text-align: center; line-height: 1.1;
 }
-.sac-case[data-occupe], .sac-collecteur[data-occupe] {
+.sac-case[data-occupe] {
   border-color: var(--border-strong);
   background: var(--jeton-teinte); box-shadow: var(--relief);
   cursor: grab;
 }
 .sac-case[data-verrouille="oui"] { cursor: pointer; }
-.sac-case[data-vise="true"], .sac-collecteur[data-vise="true"] {
-  border-color: var(--accent); background: var(--accent-wash);
-}
-/* ⛔ le collecteur n'a PAS de bande : *« il n'y a pas de token dans le collecteur,
-   juste le nom »* (Eric, 16/09). */
-.sac-collecteur { padding-top: calc(var(--sp-8) + var(--sp-2)); }
-/* — LES TROIS ORGANES D'ÉCHANGE : des boutons à glyphe, pas à mot. — */
-.sac-echange {
-  /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
-     l'agent utilisateur impose du noir (garde 6, défaut n°4). */
-  color: var(--bouton-encre);
-  border-style: solid; border-color: transparent; padding: 0;
-  background: var(--bouton-corps); box-shadow: var(--bouton-aretes);
-  border-radius: var(--organe-rayon); cursor: pointer;
-}
+.sac-case[data-vise="true"] { border-color: var(--accent); background: var(--accent-wash); }
+/* ⛔ PAS DE FAMILLE `.sac-echange` NON PLUS — LES TROIS ORGANES D'ÉCHANGE SONT
+   CEUX DE R (`gear-bouton`), et ils portent DÉJÀ leurs images : `--icone-bourse`,
+   `--icone-parchemin` et `--icone-parchemin-party`, déposées par Eric le 16/09.
+   ⛔ J'en avais fait trois rectangles bruns, sans image — *« les images de la
+   bourse, des Tally »* (Eric, 18/09). Une seconde famille recopiait un habit ; la
+   classe de R le donne, avec l'opacité du parchemin vide (`--organe-eteint`) et
+   l'encre fixe des astres, sans qu'on écrive une ligne ici. */
 /* ⛔ PAS DE FAMILLE `.sac-porte` : les trois portes du bas SONT celles de R
    (`gear-porte`) — la même classe, donc le même gabarit et les mêmes teintes. Une
    seconde famille aurait recopié un habit, et deux habits divergent. */

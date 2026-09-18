@@ -49,41 +49,41 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=658";
-import { facteurZoomCourant } from "./echelle.mjs?v=658";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=658";
+import { renderPicker } from "./carnet.mjs?v=659";
+import { facteurZoomCourant } from "./echelle.mjs?v=659";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=659";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=658";
-import { swapContent } from "./socle.mjs?v=658";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=658";
+import { isGenre } from "../../src/layers/document.mjs?v=659";
+import { swapContent } from "./socle.mjs?v=659";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=659";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=658";
+import { armerJeton } from "./glisser.mjs?v=659";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=658";
-import { construireLeSac } from "./sac-ecran.mjs?v=658";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=659";
+import { construireLeSac } from "./sac-ecran.mjs?v=659";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=658";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=659";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
-  lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=658";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=658";
+  enGP, lignesParLieu, poidsParLieu,
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=659";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=659";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=658";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=659";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -95,7 +95,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=658";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=658";
+import { motDuCran } from "./ecran-mort.mjs?v=659";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -1781,6 +1781,53 @@ let destinationEnvoi = "backpack";
    question d'affichage, ⛔ jamais une décision du personnage. Elle ne s'écrit donc
    pas au document. */
 let sectionSac = 0;
+/* ⭐ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« le bouton pack devient sections,
+   et la roue passe en mode édition »*. ⛔ État d'écran lui aussi : on ne rouvre pas
+   le sac en train d'éditer ses sections. */
+let editionSac = false;
+/* ⭐ LE RANGEMENT LOCAL D'UNE SECTION (le bouton `Sort`). ⛔ `null` = l'ordre du
+   document, qui est celui où le joueur a rangé ses objets. Voir `ordonner`. */
+let triSac = null;
+
+/* ══ LE RANGEMENT LOCAL — lot 214 ═══════════════════════════════════════════
+   ⚖️ Eric, 18/09 : *« on garde un sort local plus simple. on ne fait pas all
+   sections ; tu peux rajouter quantity »*.
+   ⛔ TROIS ENTRÉES, PAS QUATRE. Eric en a nommé une quatrième — *« tighten up »* —
+   et je ne l'écris pas, parce que je ne sais pas ce qu'elle veut dire ICI : la
+   grille du sac ne porte pas de places fixes (`gear[N].boite` dit la SECTION, pas
+   le rang), donc les objets se tassent déjà tout seuls et il n'y a aucun trou à
+   fermer. Un bouton qui ne ferait rien est exactement ce qu'Eric a refusé le 18/09.
+   ⏳ Question posée, pas devinée : fusionner les piles identiques ? autre chose ?
+   ⭐ ET AUCUNE RÈGLE DE JEU N'EST ÉCRITE ICI : la valeur passe par `enGP`, l'unique
+   lecteur de monnaie du chapitre. */
+const TRIS = Object.freeze([
+  { clef: "nom", mot: "A → Z" },
+  { clef: "qte", mot: "Quantity" },
+  { clef: "valeur", mot: "Value" }
+]);
+
+/** Range les lignes d'une section pour l'AFFICHAGE. `mode` à `null` rend l'ordre
+ *  du document — celui où le joueur a rangé ses objets, qui est le défaut.
+ *  ⛔ Elle ne mute jamais son entrée : `dedans` est la liste du document. */
+function ordonner(lignes, mode, cherche) {
+  if (!mode) return lignes;
+  const nom = (l) => {
+    const rec = cherche.record(l.ref);
+    return ((rec && rec.name) || motDUnRecordAbsent(l.ref.id)).toLocaleLowerCase();
+  };
+  const valeur = (l) => {
+    const rec = cherche.record(l.ref);
+    return enGP(parseCout(rec && rec.data ? rec.data.cost : undefined)) * (l.quantity || 1);
+  };
+  const copie = [...lignes];
+  /* ⭐ LE NOM DÉPARTAGE TOUJOURS — deux piles de 4, deux objets à 5 gp : sans
+     second critère leur ordre dépendrait de la stabilité du tri, donc de rien de
+     lisible. Un rangement doit rendre le MÊME écran deux fois de suite. */
+  if (mode === "nom") copie.sort((a, b) => nom(a).localeCompare(nom(b)));
+  if (mode === "qte") copie.sort((a, b) => ((b.quantity || 1) - (a.quantity || 1)) || nom(a).localeCompare(nom(b)));
+  if (mode === "valeur") copie.sort((a, b) => (valeur(b) - valeur(a)) || nom(a).localeCompare(nom(b)));
+  return copie;
+}
 let ficheX1 = null;
 let nombreX1 = 1;
 /* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
@@ -2167,16 +2214,33 @@ export function renderEquipmentStep(ctx, onAction) {
     /* les lignes DU SAC, et seulement celles de la section regardée */
     const dedans = lignes.filter((l) => (l.location || "backpack") === "backpack"
       && (l.boite || boiteDeSection(sections.length ? sections[0].index : 0)) === boite);
+    /* ══ LE RANGEMENT LOCAL — Eric, 18/09 : *« un bouton à gauche qui fait un
+       rangement local (choix alphabétique, etc.) »* · *« on garde un sort local plus
+       simple, on ne fait pas all sections ; tu peux rajouter quantity »*.
+       ⭐ C'EST UN ORDRE D'ÉCRAN, PAS UNE ÉCRITURE AU DOCUMENT, et c'est délibéré :
+       le document ne porte AUCUN champ d'ordre dans une section — `gear[N].boite`
+       dit dans QUELLE section une ligne vit, jamais à quelle place. Écrire un ordre
+       demanderait un chemin neuf, donc un lot de données mesuré contre le moteur.
+       ⛔ Trier en réordonnant le tableau `gear` serait pire : l'index d'une ligne
+       est son IDENTITÉ (la fiche X1 s'ouvre dessus), et le permuter déplacerait la
+       fiche sous les doigts du joueur.
+       ⏳ CE QUE ÇA COÛTE, ET JE LE DIS : le tri ne survit pas au rechargement.
+       Question ouverte pour Eric — le graver, ou le laisser être un coup d'œil. */
+    const rangees = ordonner(dedans, triSac, cherche);
     const places = Array.from({ length: 12 }, (_, i) => {
-      const l = dedans[i];
+      const l = rangees[i];
       if (!l) return null;
       const rec = cherche.record(l.ref);
       return { index: l.index, nom: (rec && rec.name) || motDUnRecordAbsent(l.ref.id),
         qte: l.quantity || 1, equipped: l.equipped === true,
         attuned: l.attuned === true, locked: l.locked === true };
     });
-    /* ⚖️ LES TROIS LIGNES DE POIDS — Eric, 18/09 : *« Gear · Backpack · Encumbrance
-       = (Gear + Backpack) »*. ⛔ La remise n'y entre pas, le sol non plus. */
+    /* ⚖️ QUATRE LIGNES DE POIDS — Eric, 18/09 : *« Gear · Backpack · Encumbrance =
+       (Gear + Backpack) »*, puis *« other storage ne rentre pas dans encumbrance »*.
+       ⛔ La remise n'entre pas dans le total, le sol non plus — mais la remise SE
+       LIT, et c'est la 4ᵉ ligne que la source du chapitre réclame (16/09 : *« l'encart
+       passe donc de trois à quatre lignes, sur R et sur B1 »*). ⭐ Un objet rangé
+       ailleurs doit se compter quelque part, sans quoi il disparaît de l'écran. */
     const p = poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data }));
     const mot = (compte, somme, inconnus, titre) =>
       `${titre} — ${compte} obj. · ${Math.round(somme * 10) / 10} ${p.unite || "lb"}`
@@ -2184,28 +2248,105 @@ export function renderEquipmentStep(ctx, onAction) {
     const { noeud } = construireLeSac({
       sections: sections.map((s) => ({ nom: s.nom })),
       section: sectionSac,
+      edition: editionSac,
       objets: places,
       poids: {
         gear: mot(p.compte.self, p.somme.self, p.inconnus.self, "Gear"),
         backpack: mot(p.compte.backpack, p.somme.backpack, p.inconnus.backpack, "Backpack"),
-        encombrement: mot(p.encombrement.compte, p.encombrement.somme, p.encombrement.inconnus, "Encumbrance")
+        encombrement: mot(p.encombrement.compte, p.encombrement.somme, p.encombrement.inconnus, "Encumbrance"),
+        autre: mot(p.compte.storage, p.somme.storage, p.inconnus.storage, "Other")
       },
+      /* ⚖️ LE COMPTE ET LA PAGE — LA SOURCE DU CHAPITRE : *« le compte à gauche de la
+         grille est le total d'objets (23 au backpack) ; la fraction à droite est la
+         page (1/2) »*.
+         ⭐ ET LA « PAGE » DU SAC EST SA SECTION. La source décrit un sac d'avant les
+         sections : il se feuilletait par pages. Eric les a remplacées le 18/09 par
+         des compartiments nommés, et le tambour EST le feuilleteur — la fraction dit
+         donc où l'on en est dans la liste des sections. ⛔ Inventer un second
+         paginateur aurait donné deux organes pour un seul geste.
+         📌 Le compte, lui, reste celui du SAC ENTIER : c'est ce qu'annonce la source
+         (« 23 au backpack »), et c'est le seul chiffre qu'on ne peut pas lire ailleurs. */
+      compte: `${p.compte.backpack} item${p.compte.backpack === 1 ? "" : "s"}`,
+      page: `${sectionSac + 1}/${sections.length}`,
+      /* ⭐ LE COLLECTEUR DU SAC EST CELUI DE R, ET IL PARTAGE SON ÉTAT : un objet
+         retenu l'est pour le chapitre entier, pas pour un écran. ⛔ Deux collectes
+         auraient laissé un objet « dans le panier » sur un écran et pas sur l'autre. */
+      retenu: [...collecteEnvoi][0] ?? null,
+      surCollecte: (index) => { if (collecteEnvoi.size === 0) { collecteEnvoi.add(index); peindre(); } },
+      /* ⭐ POSÉ SUR UNE CASE, L'OBJET REJOINT LA SECTION QU'ON REGARDE : dans le sac
+         une case n'a pas d'identité propre (la grille se tasse), donc le dépôt dit
+         « ici », c'est-à-dire cette SECTION. C'est `gear[N].boite` qui l'écrit. */
+      surPlacer: (index) => {
+        collecteEnvoi.delete(index);
+        act({ kind: "placerGearLine", index, boite });
+      },
+      /* ⚖️ `DROP` VIENT DE LA SOURCE : *« DROP | Backpack | sort l'objet du conteneur
+         | sur place »*. ⭐ Il sort ce que le collecteur retient, vers le personnage —
+         donc il est DÉSARMÉ tant que rien n'y est posé : un bouton qui agit sur rien
+         est un bouton qui ment. */
+      dropArme: collecteEnvoi.size > 0,
+      surDrop: () => {
+        const retenus = [...collecteEnvoi];
+        collecteEnvoi.clear();
+        for (const index of retenus) actArbitre({ kind: "moveGearLine", index, location: "self" });
+        peindre();
+      },
+      /* ⚖️ LE PARCHEMIN EST PERMANENT, C'EST SON HALO QUI PARLE — la source du
+         chapitre, 15/09 : *« le Tally est toujours présent sur toutes les fiches à
+         droite ; dès le premier item il porte un halo, et reste ainsi jusqu'à ce
+         qu'il soit vidé »* — sur R, B1 et B2. ⛔ Le Group Tally n'existe qu'EN JEU :
+         à la création la donnée ne le porte pas, sa place lui est réservée. */
+      compteurs: { tally: cartCompte(docu), "party-tally": 0 },
       destinations: DESTINATIONS, destination: destinationEnvoi,
       surSection: (i) => { sectionSac = i; peindre(); },
+      /* ⛔ EN ÉDITION LE RUBAN NE BOUCLE PAS, ET IL PORTE UNE PLACE DE PLUS (le `+`) :
+         la borne haute change avec le mode. Une seule règle pour les deux aurait soit
+         rendu le `+` injoignable, soit fait boucler une liste qu'on est en train de
+         modifier. */
       surTourner: (sens) => {
         const n = Math.max(1, sections.length);
-        sectionSac = (sectionSac + sens + n) % n;
+        sectionSac = editionSac
+          ? Math.min(Math.max(0, sectionSac + sens), n)
+          : (sectionSac + sens + n) % n;
         peindre();
       },
       surJeton: (index) => { ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       surTrier: () => act({ kind: "popup", titre: "Sort",
-        texte: "Sorting this section is not wired yet.", role: "aiguilleur" }),
-      surSections: () => act({ kind: "ajouterSection" }),
+        texte: "Order this section. It changes what you see, not what you own.",
+        role: "aiguilleur",
+        actions: TRIS.map((t) => ({ mot: t.mot, faire: () => { triSac = t.clef; peindre(); } })) }),
+      /* ⚖️ *« le bouton pack devient sections, et la roue passe en mode édition »* —
+         il BASCULE le mode, il ne crée rien. C'est le `+` de la roue qui crée. */
+      surSections: () => { editionSac = !editionSac; peindre(); },
+      surAjouter: () => {
+        /* la neuve devient celle qu'on regarde : on vient de la faire, on y va */
+        sectionSac = sections.length;
+        act({ kind: "ajouterSection" });
+      },
+      surRenommer: (i, nom) => act({ kind: "renommerSection", index: sections[i].index, nom }),
+      surSupprimer: () => {
+        const s = sections[sectionSac];
+        if (!s) return;
+        /* ⛔ LA SECTION IMPLICITE NE SE SUPPRIME PAS : quand le sac n'en déclare
+           aucune, l'écran en montre UNE qui n'existe pas au document. La retirer
+           n'aurait rien à effacer — et le verbe irait chercher une clef absente. */
+        if (!declarees.length) {
+          act({ kind: "popup", titre: "Section", role: "gendarme",
+            texte: "This is the bag itself, not a section you made. Add one first." });
+          return;
+        }
+        if (sectionSac >= declarees.length - 1) sectionSac = Math.max(0, declarees.length - 2);
+        act({ kind: "supprimerSection", index: s.index });
+      },
       surPorte: (id) => {
         if (id === "gear") montrer("gear");
         if (id === "wares") montrer("r");
-        if (id === "send") montrer("sb32");
+        /* ⭐ `Send` FAIT ICI CE QU'IL FAIT SUR R, et par le MÊME point : il vide le
+           collecteur vers la destination choisie, ou, s'il est vide, ouvre la liste
+           d'envoi. ⛔ Il ouvrait la liste dans tous les cas — un bouton qui ne
+           dépend pas de l'état est un bouton qui ne dit rien de l'état. */
+        if (id === "send") envoyer();
       }
     });
     return noeud;
