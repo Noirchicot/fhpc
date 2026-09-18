@@ -23,8 +23,8 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=657";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=657";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=658";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=658";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -197,7 +197,14 @@ function case_(id, objet, options) {
  *     `surSections`, `surDestination`, `surPorte`.
  *  @returns {{noeud: HTMLElement}} */
 export function construireLeSac(options = {}) {
-  const noeud = el("div", "sac");
+  /* 🔴 `dalle-intermediaire` — ET SON ABSENCE EST LA FAUTE QUI A FAIT DÉPLOYER UN
+     ÉCRAN FAUX. L'écran R porte cette classe : elle pose `--dalle-inter`, une
+     matière TRANSLUCIDE (le voile intermédiaire), et c'est par elle que le décor
+     du site se voit à travers la dalle. ⛔ Sans elle j'avais peint un `--surface`
+     OPAQUE : une plaque de crème posée sur le décor, au milieu d'un produit qui
+     ne fait ça nulle part. ⭐ Une dalle ne peint pas sa matière — elle porte la
+     classe qui la lui donne, comme R et comme le rang X. */
+  const noeud = el("section", "sac dalle-intermediaire");
   noeud.dataset.ecran = "SB3.1";
 
   const feuille = el("style");

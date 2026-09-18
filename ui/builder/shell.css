@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=657") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=658") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=657") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=658") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=657") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=658") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=657");
+  background-image: url("./assets/tarot-dos.jpg?v=658");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11742,9 +11742,10 @@ button.tuto-point::before {
    ⭐ LE JETON N'Y EST PAS NON PLUS : il porte ses classes neutres
    (`jeton-nom`, `jeton-marques`, `jeton-marque`), peintes plus haut avec celles
    de l'écran R — le même organe, un seul habit. */
-/* ⛔ SA BOÎTE VIENT DE LA RÈGLE PARTAGÉE `.gear, .x1, .sac` — ici on ne dit que
-   sa MATIÈRE. Redéclarer sa boîte ferait deux écrivains pour une seule loi. */
-.sac { background: var(--surface); }
+/* ⛔ NI SA BOÎTE NI SA MATIÈRE NE S'ÉCRIVENT ICI : la boîte vient de la règle
+   partagée `.gear, .x1, .sac`, et la matière de `dalle-intermediaire`, que le
+   nœud porte comme celui de R. Deux écrivains pour une seule loi, c'est ce qui
+   avait donné une plaque opaque au milieu d'un produit translucide. */
 .sac [data-organe] { position: absolute; box-sizing: border-box; }
 /* 🔴 SAUF DANS LA RANGÉE DU BAS, ET C'EST LA TROISIÈME FOIS QUE CETTE FAMILLE DE
    FAUTE SORT : une règle qui vise TOUT `[data-organe]` attrape aussi les enfants
