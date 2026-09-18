@@ -320,13 +320,13 @@ test("5 bis — un emplacement occupé porte l'objet et QUATRE marques dans sa b
      ⭐ CE QUE CE GARDE PROTÈGE N'A PAS BOUGÉ — que la quantité soit LUE quelque part
      et qu'elle ne soit écrite qu'UNE fois — mais il le vérifie là où elle vit
      maintenant, et il exige en plus que le nom reste seul sur ses trois lignes. */
-  assert.equal(e.querySelector(".gear-objet").textContent, "Winged helmet",
+  assert.equal(e.querySelector(".jeton-nom").textContent, "Winged helmet",
     "⛔ le nom et RIEN d'autre : la quantité ne lui mange plus de caractères");
-  assert.equal(e.querySelector(".gear-voyants .gear-qte").textContent, "×2",
+  assert.equal(e.querySelector(".jeton-marques .jeton-qte").textContent, "×2",
     "la quantité est une MARQUE, dans la bande, avec le verrou et l'anneau");
-  assert.equal(e.querySelector(".gear-voyants .gear-qte").getAttribute("aria-hidden"), "true",
+  assert.equal(e.querySelector(".jeton-marques .jeton-qte").getAttribute("aria-hidden"), "true",
     "…et muette : l'aria-label de la case la dit déjà");
-  const etats = Object.fromEntries(tous(e, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat]));
+  const etats = Object.fromEntries(tous(e, ".jeton-marque").map((v) => [v.dataset.marque, v.dataset.etat]));
   assert.deepEqual(etats, { verrou: "non", equipe: "oui", harmonise: "non" });
   /* ⭐ ET LES TROIS S'ALLUMENT VRAIMENT DEPUIS QUE X1 LES ÉCRIT (lot 213) : la
      condition du 16/09 — « pas un lecteur pour une donnée que personne n'écrit » —
@@ -334,7 +334,7 @@ test("5 bis — un emplacement occupé porte l'objet et QUATRE marques dans sa b
   const tout = rendu({ boites: { tete1: { nom: "Belt of Dwarvenkind", qte: 2, index: 3,
     equipped: true, attuned: true, locked: true } } });
   const b = tout.querySelector('[data-organe="tete1"]');
-  assert.deepEqual(Object.fromEntries(tous(b, ".gear-voyant").map((v) => [v.dataset.voyant, v.dataset.etat])),
+  assert.deepEqual(Object.fromEntries(tous(b, ".jeton-marque").map((v) => [v.dataset.marque, v.dataset.etat])),
     { verrou: "oui", equipe: "oui", harmonise: "oui" }, "les trois marques allumées ensemble");
   assert.equal(b.getAttribute("aria-label"),
     "HEAD/NECK 1 — Belt of Dwarvenkind ×2, equipped, attuned, locked",
@@ -403,7 +403,7 @@ test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur V
 
   const col = plein.querySelector('[data-organe="collecteur"]');
   assert.equal(col.dataset.occupe, "oui", "c'est le collecteur qui porte l'objet");
-  assert.equal(col.querySelector(".gear-objet").textContent, "Helm", "et il le NOMME, il ne compte pas");
+  assert.equal(col.querySelector(".jeton-nom").textContent, "Helm", "et il le NOMME, il ne compte pas");
   assert.match(col.getAttribute("aria-label"), /^Send collector — Helm$/);
   assert.equal(col.dataset.creneau, undefined, "plein : le collecteur n'accepte pas un second objet");
   /* ⚖️ ET L'OBJET EN RESSORT PAR LE MÊME GESTE QU'IL Y EST ENTRÉ — Eric, 16/09 au soir.

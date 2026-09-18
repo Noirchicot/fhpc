@@ -61,6 +61,9 @@
 import * as D from "./gear-disposition.mjs?v=654";
 import { BOITES } from "./b3-disposition.mjs?v=654";
 import { armerJeton, fantome } from "./glisser.mjs?v=654";
+/* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
+   feuille sans import, que le sac porte aussi. */
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=654";
 import { versionQuery } from "./version.mjs?v=654";
 import { enGP } from "./equipement-pipeline.mjs?v=654";
 
@@ -346,36 +349,13 @@ function emplacement(o, id, pose, options) {
      le « drop it here » d'un collecteur. ⛔ Pas masqué, pas rendu (garde 4) :
      le nom reste dans l'aria-label, le lecteur d'écran l'entend. */
   e.dataset.occupe = "oui";
-  const objet = eld("span", "gear-objet", pose.nom);
-  e.append(objet);
-  const voyants = eld("span", "gear-voyants");
-  /* ⚖️ LA QUANTITÉ EST UNE MARQUE, PLUS UN MORCEAU DU NOM — Eric, 17/09 :
-     *« la quantité encadrée ou pas avec un x99 en t0 »*, dessinée au centre de la
-     bande. ⛔ Elle suivait le nom sur sa ligne et lui mangeait des caractères :
-     un nom long perdait la fin pour afficher « ×2 ». Elle monte donc dans la
-     bande, avec les trois autres marques, et le nom récupère ses trois lignes
-     entières. ⭐ Elle reste MUETTE pour le lecteur d'écran : l'`aria-label` de la
-     case la dit déjà, en toutes lettres et une seule fois. */
-  if (pose.qte > 1) {
-    const q = eld("span", "gear-qte", `×${pose.qte}`);
-    q.setAttribute("aria-hidden", "true");
-    voyants.append(q);
-  }
-  for (const [voyant, etat] of [["verrou", pose.locked], ["equipe", pose.equipped], ["harmonise", pose.attuned]]) {
-    const v = eld("span", "gear-voyant");
-    v.dataset.voyant = voyant;
-    v.dataset.etat = etat === true ? "oui" : "non";
-    v.setAttribute("aria-hidden", "true");
-    voyants.append(v);
-  }
-  e.append(voyants);
+  /* ⭐ LE CORPS DU JETON VIENT DE SON ORGANE, il ne se redessine pas ici : le sac
+     (lot 214) porte le MÊME, et deux copies divergeraient à la première marque
+     ajoutée. C'est la troisième fois que cette doctrine s'applique — après
+     l'interrupteur du menu et les chevrons de Destiny. */
+  e.append(...corpsDuJeton(pose));
   if (options.collecte && options.collecte.has(pose.index)) e.dataset.collecte = "oui";
-  /* ⭐ ET LE NOM ACCESSIBLE DIT LES TROIS ÉTATS, pas seulement le port : depuis
-     que X1 écrit `attuned` et `locked`, trois marques s'allument à l'écran — une
-     marque visible que rien ne prononce est une information réservée aux voyants. */
-  e.setAttribute("aria-label",
-    `${nomDeLaCase} — ${pose.nom}${pose.qte > 1 ? ` ×${pose.qte}` : ""}` +
-    `${pose.equipped ? ", equipped" : ""}${pose.attuned ? ", attuned" : ""}${pose.locked ? ", locked" : ""}`);
+  e.setAttribute("aria-label", `${nomDeLaCase} — ${motDuJeton(pose)}`);
   /* Le geste : glisser vers le collecteur, ou vers n'importe quel emplacement
      vide (Eric, 16/09 : « dans tous les sens ») — avec le fantôme du dépôt
      (« ils ont un fantôme »).
@@ -437,7 +417,12 @@ function collecteur(id, options, retenu) {
      déplacé. ⭐ Un panier montre ce qu'il contient ; une place qu'on a vidée est vide. */
   if (retenu) {
     c.dataset.occupe = "oui";
-    const objet = eld("span", "gear-objet", retenu.nom);
+    /* ⭐ LE MÊME NOM QUE DANS UNE CASE (`jeton-nom`) — un collecteur EST un jeton
+       (loi du 29/08), et son mot doit donc porter la même encre et le même
+       repli. ⛔ MAIS PAS SA BANDE : *« il n'y a pas de token dans le collecteur,
+       juste le nom »* (Eric, 16/09) — il n'a ni marque ni quantité encadrée, et
+       sa quantité reste sur la ligne du mot. */
+    const objet = eld("span", "jeton-nom", retenu.nom);
     if (retenu.qte > 1) objet.append(" ", eld("span", "gear-qte", `×${retenu.qte}`));
     c.append(objet);
     c.setAttribute("aria-label", `Send collector — ${retenu.nom}`);
@@ -474,7 +459,7 @@ function collecteur(id, options, retenu) {
      collecteur, centré verticalement et horizontalement »*. Un élément vide reste un
      enfant du flex : il ne se voit pas, mais il compte, et le mot cessait d'être au
      milieu sans qu'on voie pourquoi. Le vide ne se peint pas, il ne se pose pas. */
-  if (n) c.append(eld("span", "gear-objet", `${n} to send`));
+  if (n) c.append(eld("span", "jeton-nom", `${n} to send`));
   c.setAttribute("aria-label", n ? `Send collector — ${n} to send` : "Send collector — empty");
   return c;
 }

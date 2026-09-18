@@ -562,7 +562,7 @@ test("18 — 🔴 l'écran R lit enfin les deux voyants que X1 écrit (la dette 
     boites: { tete1: { nom: "Winged Helmet", qte: 1, index: 7, equipped: true, attuned: true, locked: true } }
   });
   const etats = {};
-  for (const v of tous(noeud.querySelector('[data-organe="tete1"]'), "[data-voyant]")) etats[v.dataset.voyant] = v.dataset.etat;
+  for (const v of tous(noeud.querySelector('[data-organe="tete1"]'), "[data-marque]")) etats[v.dataset.marque] = v.dataset.etat;
   assert.deepEqual(etats, { verrou: "oui", equipe: "oui", harmonise: "oui" },
     "les trois voyants s'allument maintenant — ils attendaient X1, pas un dessin");
 });

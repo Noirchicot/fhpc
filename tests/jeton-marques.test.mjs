@@ -74,7 +74,7 @@ test("2 — `tokens.css` porte les cotes du plan, au chiffre près", () => {
 test("3 — `shell.css` pose la bande, et le nom commence dessous", () => {
   assert.match(regle('.gear-emplacement[data-occupe]'), /padding-top:\s*var\(--jeton-bande\)/,
     "⛔ jamais un calc recopié : la bande a UN nom, et quatre organes le lisent");
-  const nom = regle(".gear-objet");
+  const nom = regle(".jeton-nom");
   assert.match(nom, /line-height:\s*1\b/,
     "⭐ l'interligne paie la bande : à 1.1 les trois lignes débordent de 3");
   assert.match(nom, new RegExp(`-webkit-line-clamp:\\s*${PLAN.nom.lignes}`),
@@ -85,24 +85,24 @@ test("3 — `shell.css` pose la bande, et le nom commence dessous", () => {
 });
 
 test("4 — les quatre marques sont dessinées aux cotes du plan", () => {
-  const anneau = regle('.gear-voyant[data-voyant="equipe"]');
+  const anneau = regle('.jeton-marque[data-marque="equipe"]');
   assert.match(anneau, /width:\s*var\(--jeton-marque\);\s*height:\s*var\(--jeton-marque\)/);
   assert.match(anneau, /box-shadow:\s*inset 0 0 0 var\(--sp-2\) var\(--text\)/,
     "« un cercle NOIR (pas vert) » — l'encre du thème, jamais --positive");
   assert.doesNotMatch(anneau, /background(-color)?:/,
     "⛔ « centre rond transparent » — Eric s'est repris deux fois pour ce mot");
 
-  const disque = regle('.gear-voyant[data-voyant="harmonise"]');
+  const disque = regle('.jeton-marque[data-marque="harmonise"]');
   assert.match(disque, /background:\s*var\(--magie\)/, "« le rond violet pour attuned »");
   assert.match(disque, /border-radius:\s*50%/);
-  assert.ok(!feuille.includes('.gear-voyant[data-voyant="harmonise"]::before'),
+  assert.ok(!feuille.includes('.jeton-marque[data-marque="harmonise"]::before'),
     "⛔ ET LE CŒUR EST MORT : « on lâche le cœur ». Un ::before qui le redessine serait le survivant");
 
-  const verrou = regle('.gear-voyant[data-voyant="verrou"]');
+  const verrou = regle('.jeton-marque[data-marque="verrou"]');
   assert.match(verrou, /width:\s*calc\(var\(--sp-8\) \+ var\(--sp-2\)\);\s*height:\s*var\(--sp-8\)/,
     `le corps du verrou d'Eric : ${marque("VERROU").cran}`);
 
-  const qte = regle(".gear-voyants .gear-qte");
+  const qte = regle(".jeton-marques .jeton-qte");
   assert.match(qte, /height:\s*var\(--jeton-marque\)/, "la quantité fait la hauteur des trois autres");
   assert.match(qte, /font-size:\s*var\(--t0\)/, "« un x99 en t0 »");
   assert.match(qte, /border:\s*1px solid var\(--text\)/, "« encadrée »");
