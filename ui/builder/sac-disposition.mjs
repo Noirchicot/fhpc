@@ -53,7 +53,7 @@ export const ORGANES = [
   { nom: "PARTY TALLY", sorte: "bouton",   x:     32, y:    346, l:     40, h:    40, cible: { x: 30, y: 344, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
   { nom: "TALLY",       sorte: "bouton",   x:     80, y:    346, l:     40, h:    40, cible: { x: 78, y: 344, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "DROP",        sorte: "bouton",   x:     49, y:    402, l:     77, h:    44, cible: { x: 49, y: 402, l: 77, h: 44 }, mot: "Drop", cran: "T2/600" },
-  { nom: "SEND VERS",   sorte: "dropdown", x:    134, y:    404, l:    192, h:    40, cible: { x: 134, y: 402, l: 192, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
+  { nom: "SEND VERS",   sorte: "dropdown", x:    134, y:    404, l:    138, h:    40, cible: { x: 134, y: 402, l: 138, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
   { nom: "RANGEE",      sorte: "rangee",   x:      4, y:    448, l:    367, h:    44, cran: "—" },
   { nom: "livre",       sorte: "rond",     x:     15, y:    459, l:     22, h:    22, cible: { x: 4, y: 448, l: 44, h: 44 }, mot: "livre" },
   { nom: "GEAR",        sorte: "porte",    x:     64, y:    448, l:     77, h:    44, cible: { x: 64, y: 448, l: 77, h: 44 }, mot: "Gear", cran: "T2/600" },
