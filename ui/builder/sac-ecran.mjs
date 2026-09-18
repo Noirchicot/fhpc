@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=659";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=659";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=660";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=660";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=659";
+import { armerJeton, fantome } from "./glisser.mjs?v=660";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=659";
+import { facteurZoomCourant } from "./echelle.mjs?v=660";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -92,9 +92,19 @@ const pose = (o) => {
   const dx = h ? (h.cible ? h.cible.x : h.x) : 0;
   const dy = h ? (h.cible ? h.cible.y : h.y) : 0;
   const c = o.cible;
+  /* 🔴 LES QUATRE BORDS SE DÉDUISENT DES ÉCARTS RÉELS, ⛔ PLUS D'UNE SYMÉTRIE.
+     J'écrivais `(c.l - o.l) / 2` de chaque côté — ce qui suppose le dessin CENTRÉ
+     dans sa cible. C'était vrai tant qu'aucune cible n'était rabattue.
+     ⚖️ Depuis le 18/09 une cible ne sort plus de la dalle (mesure au téléphone : les
+     tuners débordaient de 13, il ne restait que 31 de touchable sous le plancher
+     sacré de 44). Les deux tuners ont donc un dessin DÉCENTRÉ dans leur cible — et
+     la formule symétrique aurait peint leur chevron 13 blg à côté de sa place.
+     ⭐ Écrite ainsi, elle rend exactement les mêmes nombres qu'avant pour toute
+     cible centrée : c'est une généralisation, pas un changement de loi. */
   return c
     ? `left:${px(c.x - dx)};top:${px(c.y - dy)};width:${px(c.l)};height:${px(c.h)};` +
-      `border-width:${px((c.h - o.h) / 2)} ${px((c.l - o.l) / 2)}`
+      `border-width:${px(o.y - c.y)} ${px((c.x + c.l) - (o.x + o.l))} ` +
+      `${px((c.y + c.h) - (o.y + o.h))} ${px(o.x - c.x)}`
     : `left:${px(o.x - dx)};top:${px(o.y - dy)};width:${px(o.l)};height:${px(o.h)}`;
 };
 
