@@ -68,7 +68,10 @@ import { armerJeton } from "./glisser.mjs?v=659";
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
 import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=659";
-import { construireLeSac } from "./sac-ecran.mjs?v=659";
+/* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
+   12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
+   cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=659";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
@@ -330,7 +333,21 @@ export function currentGearLines(document) {
      son emplacement ou vendu »* (Eric, 17/09). 📏 Mesurés contre les verbes avant
      d'être posés : zéro violation, ils ressortent `unconsumed` — la fiche de
      personnage ne les lit pas encore, l'écran si. */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is))?$/;
+  /* `place` (LOT 214, seconde passe) : la PLACE de la ligne dans sa section — un
+     entier, 0 pour la première case. ⚖️ Eric, 2026-09-18 : *« le rangement fait
+     partie des caracs du perso ; ça doit survivre à la session au même titre que
+     les autres changements »*. ⛔ C'est donc une écriture au DOCUMENT, pas un ordre
+     d'écran comme l'était le tri de la première passe.
+     ⭐ ET C'EST CE CHAMP QUI DONNE UN SENS À TOUT LE RESTE : une grille sans places
+     se tasse toute seule — il n'y a alors ni trou à fermer (*« tighten up »*), ni
+     page suivante où déborder, ni rangement à garder.
+     📏 MESURÉ CONTRE LE MOTEUR AVANT D'ÊTRE POSÉ, même protocole que `boite`,
+     `attuned` et `locked` : `rebuild` rend ZÉRO violation, zéro `underived` neuf,
+     les chemins ressortent dans `unconsumed`, et `clear` ne laisse rien derrière.
+     ⭐ UNE LIGNE SANS `place` GARDE SON RANG DE DOCUMENT : les personnages déjà
+     sauvegardés s'ouvrent sans rien perdre, et la première remise en ordre leur en
+     écrit une. Une absence n'est pas une faute, c'est l'état d'avant. */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -344,6 +361,7 @@ export function currentGearLines(document) {
     else if (match[2] === "attuned") line.attuned = choice.value;
     else if (match[2] === "locked") line.locked = choice.value;
     else if (match[2] === "is") line.is = choice.value;
+    else if (match[2] === "place") line.place = choice.value;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -388,6 +406,97 @@ export const sectionDeBoite = (boite) => {
   const m = /^s(\d+)$/.exec(String(boite || ""));
   return m ? Number(m[1]) : null;
 };
+
+/* ══ LES PLACES D'UNE SECTION — lot 214, seconde passe ═══════════════════════
+   ⚖️ Eric, 2026-09-18, en tranchant trois questions d'un coup :
+   ① *« tighten up ok »* · ② *« plus de place, ça va dans la page suivante ou celle
+   d'après, prochain emplacement dispo, voire ça crée une page supplémentaire si
+   besoin »* · ③ *« le rangement fait partie des caracs du perso ; ça doit survivre
+   à la session au même titre que les autres changements »*.
+
+   ⭐ LES TROIS RÉPONSES NE FONT QU'UN SEUL MODÈLE, et c'est ce qui les rend courtes :
+   **chaque objet du sac occupe une PLACE numérotée dans sa section**. La page n'est
+   pas un organe, c'est une DIVISION de la suite des places — page = place ÷ 12. Dès
+   lors : un trou est une place vide, donc *« tighten up »* veut dire quelque chose ;
+   un objet qui arrive prend la première place libre, donc il déborde tout seul sur
+   la page suivante ; et la place s'écrit au document, donc le rangement survit.
+   ⛔ SANS CE CHAMP LES TROIS RÉPONSES ÉTAIENT IMPOSSIBLES À TENIR : une grille qui
+   se tasse toute seule n'a ni trou, ni page suivante, ni rangement à garder. C'est
+   pour ça que j'avais refusé d'écrire *« tighten up »* à la première passe.
+   📏 Le chemin est mesuré contre le moteur — voir `currentGearLines`. */
+
+/** Les lignes d'une section, RANGÉES PAR LEUR PLACE. ⭐ Une ligne sans place suit,
+ *  dans l'ordre du document : un personnage sauvegardé avant ce lot s'ouvre sans
+ *  rien perdre. */
+export function lignesDeSection(lignes, boite, boiteParDefaut) {
+  return lignes
+    .filter((l) => (l.location || "backpack") === "backpack" && (l.boite || boiteParDefaut) === boite)
+    .sort((a, b) => {
+      const pa = Number.isInteger(a.place) ? a.place : Infinity;
+      const pb = Number.isInteger(b.place) ? b.place : Infinity;
+      return pa - pb || a.index - b.index;
+    });
+}
+
+/** La grille d'une section : `places[i]` est la ligne posée à la place `i`, ou
+ *  `null`. Sa longueur est un multiple de `parPage` — au minimum une page.
+ *  ⭐ ELLE PORTE LES TROUS, et c'est tout son intérêt : c'est ce qui distingue
+ *  « rangé » de « tassé ». */
+export function grilleDeSection(lignes, parPage) {
+  const places = [];
+  const enAttente = [];
+  for (const l of lignes) {
+    if (!Number.isInteger(l.place) || l.place < 0) { enAttente.push(l); continue; }
+    while (places.length <= l.place) places.push(null);
+    /* ⛔ DEUX LIGNES SUR LA MÊME PLACE NE S'ÉCRASENT PAS — ça n'arrive pas par un
+       geste de l'écran, mais un document édité à la main le peut. La seconde
+       reprend la file : on ne perd jamais un objet pour une donnée douteuse. */
+    if (places[l.place]) enAttente.push(l); else places[l.place] = l;
+  }
+  for (const l of enAttente) {
+    let i = places.indexOf(null);
+    if (i < 0) { i = places.length; places.push(null); }
+    places[i] = l;
+  }
+  const pages = Math.max(1, Math.ceil(places.length / parPage));
+  while (places.length < pages * parPage) places.push(null);
+  return places;
+}
+
+/** La première place libre d'une section — ⚖️ *« prochain emplacement dispo, voire
+ *  ça crée une page supplémentaire si besoin »*. ⛔ Elle ne se borne pas : une
+ *  section peut avoir autant de pages qu'il le faut. */
+export function premierePlaceLibre(lignes, parPage) {
+  const grille = grilleDeSection(lignes, parPage);
+  const libre = grille.indexOf(null);
+  return libre >= 0 ? libre : grille.length;
+}
+
+/** Les quatre rangements du bouton `Sort`. ⚖️ Eric, 18/09 : *« on garde un sort
+ *  local plus simple, on ne fait pas all sections ; tu peux rajouter quantity et
+ *  tighten up »*. ⛔ `tasser` ne TRIE PAS : il ferme les trous en gardant l'ordre —
+ *  c'est le seul des quatre qui respecte le rangement du joueur. */
+export const RANGEMENTS = Object.freeze([
+  { clef: "tasser", mot: "Tighten up" },
+  { clef: "nom", mot: "A → Z" },
+  { clef: "qte", mot: "Quantity" },
+  { clef: "valeur", mot: "Value" }
+]);
+
+/** Ce qu'un rangement écrit : `[{ index, place }]`, une entrée par ligne de la
+ *  section. ⛔ Elle ne touche pas au document — c'est le verbe qui écrit. */
+export function rangement(lignes, mode, mesures) {
+  const nom = (l) => String(mesures.nom(l) || "").toLocaleLowerCase();
+  const suite = [...lignes];
+  /* ⭐ LE NOM DÉPARTAGE TOUJOURS : deux piles de 4, deux objets à 5 gp — sans second
+     critère leur ordre dépendrait de la stabilité du tri, donc de rien de lisible.
+     Un rangement doit rendre le MÊME écran deux fois de suite. */
+  if (mode === "nom") suite.sort((a, b) => nom(a).localeCompare(nom(b)));
+  if (mode === "qte") suite.sort((a, b) => ((b.quantity || 1) - (a.quantity || 1)) || nom(a).localeCompare(nom(b)));
+  if (mode === "valeur") suite.sort((a, b) => (mesures.valeur(b) - mesures.valeur(a)) || nom(a).localeCompare(nom(b)));
+  /* `tasser` ne réordonne rien : `lignes` arrive DÉJÀ dans l'ordre des places. */
+  return suite.map((l, i) => ({ index: l.index, place: i }));
+}
 
 /** Le prochain index `gear[N]` libre — jamais réutilisé après un retrait
  *  (un index qui a existé ne redevient pas anonyme, même loi que
@@ -1785,49 +1894,14 @@ let sectionSac = 0;
    et la roue passe en mode édition »*. ⛔ État d'écran lui aussi : on ne rouvre pas
    le sac en train d'éditer ses sections. */
 let editionSac = false;
-/* ⭐ LE RANGEMENT LOCAL D'UNE SECTION (le bouton `Sort`). ⛔ `null` = l'ordre du
-   document, qui est celui où le joueur a rangé ses objets. Voir `ordonner`. */
-let triSac = null;
-
-/* ══ LE RANGEMENT LOCAL — lot 214 ═══════════════════════════════════════════
-   ⚖️ Eric, 18/09 : *« on garde un sort local plus simple. on ne fait pas all
-   sections ; tu peux rajouter quantity »*.
-   ⛔ TROIS ENTRÉES, PAS QUATRE. Eric en a nommé une quatrième — *« tighten up »* —
-   et je ne l'écris pas, parce que je ne sais pas ce qu'elle veut dire ICI : la
-   grille du sac ne porte pas de places fixes (`gear[N].boite` dit la SECTION, pas
-   le rang), donc les objets se tassent déjà tout seuls et il n'y a aucun trou à
-   fermer. Un bouton qui ne ferait rien est exactement ce qu'Eric a refusé le 18/09.
-   ⏳ Question posée, pas devinée : fusionner les piles identiques ? autre chose ?
-   ⭐ ET AUCUNE RÈGLE DE JEU N'EST ÉCRITE ICI : la valeur passe par `enGP`, l'unique
-   lecteur de monnaie du chapitre. */
-const TRIS = Object.freeze([
-  { clef: "nom", mot: "A → Z" },
-  { clef: "qte", mot: "Quantity" },
-  { clef: "valeur", mot: "Value" }
-]);
-
-/** Range les lignes d'une section pour l'AFFICHAGE. `mode` à `null` rend l'ordre
- *  du document — celui où le joueur a rangé ses objets, qui est le défaut.
- *  ⛔ Elle ne mute jamais son entrée : `dedans` est la liste du document. */
-function ordonner(lignes, mode, cherche) {
-  if (!mode) return lignes;
-  const nom = (l) => {
-    const rec = cherche.record(l.ref);
-    return ((rec && rec.name) || motDUnRecordAbsent(l.ref.id)).toLocaleLowerCase();
-  };
-  const valeur = (l) => {
-    const rec = cherche.record(l.ref);
-    return enGP(parseCout(rec && rec.data ? rec.data.cost : undefined)) * (l.quantity || 1);
-  };
-  const copie = [...lignes];
-  /* ⭐ LE NOM DÉPARTAGE TOUJOURS — deux piles de 4, deux objets à 5 gp : sans
-     second critère leur ordre dépendrait de la stabilité du tri, donc de rien de
-     lisible. Un rangement doit rendre le MÊME écran deux fois de suite. */
-  if (mode === "nom") copie.sort((a, b) => nom(a).localeCompare(nom(b)));
-  if (mode === "qte") copie.sort((a, b) => ((b.quantity || 1) - (a.quantity || 1)) || nom(a).localeCompare(nom(b)));
-  if (mode === "valeur") copie.sort((a, b) => (valeur(b) - valeur(a)) || nom(a).localeCompare(nom(b)));
-  return copie;
-}
+/* ⭐ LA PAGE QU'ON REGARDE DANS LA SECTION — état d'écran : on rouvre le sac à sa
+   première page, jamais là où on l'avait laissé. ⛔ Ce qui SURVIT, c'est la place de
+   chaque objet (`gear[N].place`), pas le regard qu'on porte dessus.
+   ⚖️ Le RANGEMENT, lui, a quitté l'écran le 18/09 : Eric — *« oui, évidemment, le
+   rangement fait partie des caracs du perso ; ça doit survivre à la session au même
+   titre que les autres changements »*. Il s'écrit donc au document, par le verbe
+   `rangerSection`, et il n'y a plus d'ordre d'écran du tout. */
+let pageSac = 0;
 let ficheX1 = null;
 let nombreX1 = 1;
 /* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
@@ -2211,30 +2285,26 @@ export function renderEquipmentStep(ctx, onAction) {
     const sections = declarees.length ? declarees : [{ index: 0, nom: "Backpack" }];
     if (sectionSac >= sections.length) sectionSac = 0;
     const boite = boiteDeSection(sections.length ? sections[sectionSac].index : 0);
-    /* les lignes DU SAC, et seulement celles de la section regardée */
-    const dedans = lignes.filter((l) => (l.location || "backpack") === "backpack"
-      && (l.boite || boiteDeSection(sections.length ? sections[0].index : 0)) === boite);
-    /* ══ LE RANGEMENT LOCAL — Eric, 18/09 : *« un bouton à gauche qui fait un
-       rangement local (choix alphabétique, etc.) »* · *« on garde un sort local plus
-       simple, on ne fait pas all sections ; tu peux rajouter quantity »*.
-       ⭐ C'EST UN ORDRE D'ÉCRAN, PAS UNE ÉCRITURE AU DOCUMENT, et c'est délibéré :
-       le document ne porte AUCUN champ d'ordre dans une section — `gear[N].boite`
-       dit dans QUELLE section une ligne vit, jamais à quelle place. Écrire un ordre
-       demanderait un chemin neuf, donc un lot de données mesuré contre le moteur.
-       ⛔ Trier en réordonnant le tableau `gear` serait pire : l'index d'une ligne
-       est son IDENTITÉ (la fiche X1 s'ouvre dessus), et le permuter déplacerait la
-       fiche sous les doigts du joueur.
-       ⏳ CE QUE ÇA COÛTE, ET JE LE DIS : le tri ne survit pas au rechargement.
-       Question ouverte pour Eric — le graver, ou le laisser être un coup d'œil. */
-    const rangees = ordonner(dedans, triSac, cherche);
-    const places = Array.from({ length: 12 }, (_, i) => {
-      const l = rangees[i];
+    /* les lignes DU SAC, celles de la section regardée, RANGÉES PAR LEUR PLACE */
+    const dedans = lignesDeSection(lignes, boite,
+      boiteDeSection(sections.length ? sections[0].index : 0));
+    /* ══ LA GRILLE, LES TROUS ET LES PAGES — Eric, 18/09 : *« plus de place, ça va
+       dans la page suivante ou celle d'après, prochain emplacement dispo, voire ça
+       crée une page supplémentaire si besoin »*.
+       ⭐ LA PAGE N'EST PAS UN ORGANE, C'EST UNE DIVISION DE LA SUITE DES PLACES :
+       page = place ÷ 12. Rien à stocker, rien à tenir d'accord — le nombre de pages
+       se DÉDUIT de la place la plus haute. */
+    const grille = grilleDeSection(dedans, CASES_DU_SAC);
+    const pages = Math.max(1, Math.ceil(grille.length / CASES_DU_SAC));
+    if (pageSac >= pages) pageSac = pages - 1;
+    const enMots = (l) => {
       if (!l) return null;
       const rec = cherche.record(l.ref);
       return { index: l.index, nom: (rec && rec.name) || motDUnRecordAbsent(l.ref.id),
         qte: l.quantity || 1, equipped: l.equipped === true,
         attuned: l.attuned === true, locked: l.locked === true };
-    });
+    };
+    const places = grille.slice(pageSac * CASES_DU_SAC, (pageSac + 1) * CASES_DU_SAC).map(enMots);
     /* ⚖️ QUATRE LIGNES DE POIDS — Eric, 18/09 : *« Gear · Backpack · Encumbrance =
        (Gear + Backpack) »*, puis *« other storage ne rentre pas dans encumbrance »*.
        ⛔ La remise n'entre pas dans le total, le sol non plus — mais la remise SE
@@ -2267,7 +2337,14 @@ export function renderEquipmentStep(ctx, onAction) {
          📌 Le compte, lui, reste celui du SAC ENTIER : c'est ce qu'annonce la source
          (« 23 au backpack »), et c'est le seul chiffre qu'on ne peut pas lire ailleurs. */
       compte: `${p.compte.backpack} item${p.compte.backpack === 1 ? "" : "s"}`,
-      page: `${sectionSac + 1}/${sections.length}`,
+      /* ⭐ LA FRACTION DIT LA PAGE DE LA SECTION — et c'est la lecture de la source
+         du chapitre, retrouvée par la réponse d'Eric du 18/09 : une section déborde
+         sur une page suivante, donc une section a des pages. ⛔ Ce n'est PAS le
+         numéro de section : le tambour le dit déjà, et deux organes pour un seul
+         fait, c'est deux occasions de se contredire. */
+      page: `${pageSac + 1}/${pages}`,
+      pages,
+      surPage: (sens) => { pageSac = ((pageSac + sens) % pages + pages) % pages; peindre(); },
       /* ⭐ LE COLLECTEUR DU SAC EST CELUI DE R, ET IL PARTAGE SON ÉTAT : un objet
          retenu l'est pour le chapitre entier, pas pour un écran. ⛔ Deux collectes
          auraient laissé un objet « dans le panier » sur un écran et pas sur l'autre. */
@@ -2276,9 +2353,17 @@ export function renderEquipmentStep(ctx, onAction) {
       /* ⭐ POSÉ SUR UNE CASE, L'OBJET REJOINT LA SECTION QU'ON REGARDE : dans le sac
          une case n'a pas d'identité propre (la grille se tasse), donc le dépôt dit
          « ici », c'est-à-dire cette SECTION. C'est `gear[N].boite` qui l'écrit. */
-      surPlacer: (index) => {
+      /* ⚖️ POSÉ SUR UNE CASE PRÉCISE, L'OBJET Y RESTE — c'est ce que *« le rangement
+         fait partie des caracs du perso »* veut dire au doigt. ⭐ La place se DÉDUIT
+         de la case et de la page : `case-2-3` en page 2 → 12 + 5. ⛔ Aucun nombre
+         retapé : la largeur de la grille vient du plan. */
+      surPlacer: (index, creneau) => {
         collecteEnvoi.delete(index);
-        act({ kind: "placerGearLine", index, boite });
+        const m = /^case-(\d+)-(\d+)$/.exec(String(creneau || ""));
+        const place = m
+          ? pageSac * CASES_DU_SAC + (Number(m[1]) - 1) * COLS_GRILLE + (Number(m[2]) - 1)
+          : undefined;
+        act({ kind: "placerGearLine", index, boite, place });
       },
       /* ⚖️ `DROP` VIENT DE LA SOURCE : *« DROP | Backpack | sort l'objet du conteneur
          | sur place »*. ⭐ Il sort ce que le collecteur retient, vers le personnage —
@@ -2312,10 +2397,23 @@ export function renderEquipmentStep(ctx, onAction) {
       },
       surJeton: (index) => { ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
+      /* ⚖️ LE RANGEMENT S'ÉCRIT AU DOCUMENT — Eric, 18/09 : *« oui, évidemment, le
+         rangement fait partie des caracs du perso ; ça doit survivre à la session au
+         même titre que les autres changements »*. ⛔ Ce n'est donc plus un ordre
+         d'écran : chaque entrée écrit `gear[N].place` pour toute la section.
+         ⭐ ET `Tighten up` EST LE PREMIER, parce qu'il est le seul qui RESPECTE le
+         rangement du joueur : il ferme les trous sans rien réordonner. */
       surTrier: () => act({ kind: "popup", titre: "Sort",
-        texte: "Order this section. It changes what you see, not what you own.",
+        texte: "Order this section. It is kept with the character.",
         role: "aiguilleur",
-        actions: TRIS.map((t) => ({ mot: t.mot, faire: () => { triSac = t.clef; peindre(); } })) }),
+        actions: RANGEMENTS.map((r) => ({ mot: r.mot, faire: () => act({
+          kind: "rangerSection",
+          places: rangement(dedans, r.clef, {
+            nom: (l) => { const rec = cherche.record(l.ref); return (rec && rec.name) || motDUnRecordAbsent(l.ref.id); },
+            valeur: (l) => { const rec = cherche.record(l.ref);
+              return enGP(parseCout(rec && rec.data ? rec.data.cost : undefined)) * (l.quantity || 1); }
+          })
+        }) })) }),
       /* ⚖️ *« le bouton pack devient sections, et la roue passe en mode édition »* —
          il BASCULE le mode, il ne crée rien. C'est le `+` de la roue qui crée. */
       surSections: () => { editionSac = !editionSac; peindre(); },

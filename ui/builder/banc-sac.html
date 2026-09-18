@@ -54,7 +54,8 @@ let retenu = null;
 
 /* ⭐ DOUZE PLACES, dont des trous : une grille pleine cacherait le creux d'une
    case vide, et c'est lui qui dit « pose ici ». */
-const OBJETS = [
+let page = 0;
+const TOUT = [
   { index: 1, nom: "Belt of Dwarvenkind", qte: 1, equipped: true, attuned: true, locked: true },
   { index: 2, nom: "Potion of Healing", qte: 4 },
   { index: 3, nom: "Rope, hempen (50 feet)", qte: 1 },
@@ -64,17 +65,28 @@ const OBJETS = [
   { index: 7, nom: "Dagger", qte: 2, locked: true },
   null, null,
   { index: 10, nom: "Spellbook", qte: 1, attuned: true },
-  null, null
+  null, null,
+  /* ⭐ QUATRE DE PLUS QUE LA GRILLE : le banc doit montrer le DÉBORD, sinon on ne
+     voit jamais la seconde page ni la molette qui la tourne. */
+  { index: 11, nom: "Torch", qte: 10 },
+  { index: 12, nom: "Rations (1 day)", qte: 5 },
+  { index: 13, nom: "Hooded Lantern", qte: 1 },
+  { index: 14, nom: "Oil (flask)", qte: 3 }
 ];
+const PAGES = Math.ceil(TOUT.length / 12);
+const OBJETS = () => TOUT.slice(page * 12, (page + 1) * 12);
 
 function peindre() {
   const { noeud } = construireLeSac({
-    sections: SECTIONS, section, edition, objets: OBJETS,
+    sections: SECTIONS, section, edition, objets: OBJETS(),
     poids: { gear: "Gear — 12 obj. · 34,5 lb",
              backpack: "Backpack — 8 obj. · 12 lb",
              encombrement: "Encumbrance — 20 obj. · 46,5 lb",
              autre: "Other — 3 obj. · 61 lb" },
-    compte: "23 items", page: "1/2", dropArme: retenu !== null, retenu,
+    compte: `${TOUT.filter(Boolean).length} items`,
+    page: `${page + 1}/${PAGES}`, pages: PAGES,
+    surPage: (sens) => { page = ((page + sens) % PAGES + PAGES) % PAGES; rendre(); },
+    dropArme: retenu !== null, retenu,
     /* le parchemin personnel porte trois lignes, celui du groupe est vide : on
        voit ainsi les DEUX états de l'image, allumé et effacé */
     compteurs: { tally: 3, "party-tally": 0 },

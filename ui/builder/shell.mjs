@@ -128,7 +128,12 @@ import {
 } from "./destiny-step.mjs?v=659";
 import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=659";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
-         currentSections, nextSectionIndex, boiteDeSection, orDuDepart } from "./equipment-step.mjs?v=659";
+         currentSections, nextSectionIndex, boiteDeSection, orDuDepart,
+         lignesDeSection, premierePlaceLibre } from "./equipment-step.mjs?v=659";
+/* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
+   (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
+   serait faux le jour où le plan rend sa cinquième rangée. */
+import { CASES_DU_SAC } from "./sac-ecran.mjs?v=659";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
 import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=659";
@@ -2155,9 +2160,47 @@ function applyDecisionAction(action) {
   if (action.kind === "placerGearLine") {
     let document = state.document;
     const auSol = /^sol\d+$/.test(String(action.boite));
+    /* ⚖️ UNE SECTION DU SAC N'EST PAS UN EMPLACEMENT DU CORPS, et le verbe le dit :
+       poser dans `s3` ne met rien sur le personnage — ça le range. ⛔ Sans cette
+       branche, un objet glissé dans le sac s'y retrouvait « équipé » et `location:
+       self`, donc compté sur le corps. */
+    const dansLeSac = /^s\d+$/.test(String(action.boite));
     document = verbs.set({ document, path: `gear[${action.index}].boite`, value: action.boite }).document;
-    document = verbs.set({ document, path: `gear[${action.index}].location`, value: auSol ? "ground" : "self" }).document;
-    document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: !auSol }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].location`,
+      value: dansLeSac ? "backpack" : (auSol ? "ground" : "self") }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].equipped`,
+      value: !auSol && !dansLeSac }).document;
+    /* ⚖️ ET LA PLACE S'ÉCRIT — Eric, 18/09 : *« le rangement fait partie des caracs
+       du perso »*. ⭐ `action.place` quand l'écran DÉSIGNE une case (un dépôt sur un
+       creux précis) ; sinon la première libre, *« prochain emplacement dispo »*. */
+    if (dansLeSac) {
+      const place = Number.isInteger(action.place)
+        ? action.place
+        : premierePlaceLibre(
+            lignesDeSection(currentGearLines(document).filter((l) => l.index !== action.index),
+              action.boite, action.boite), CASES_DU_SAC);
+      document = verbs.set({ document, path: `gear[${action.index}].place`, value: place }).document;
+    } else {
+      document = verbs.clear({ document, path: `gear[${action.index}].place`, kind: "choice" }).document;
+    }
+    state.document = document;
+    rebuild();
+    refresh();
+    return;
+  }
+  /* ══ RANGER UNE SECTION — le bouton `Sort` ═══════════════════════════════════
+     ⚖️ Eric, 18/09 : *« on garde un sort local plus simple »* · *« tighten up ok »*
+     · *« le rangement fait partie des caracs du perso ; ça doit survivre à la
+     session »*. ⭐ Le verbe reçoit les places DÉJÀ CALCULÉES par l'écran, qui seul
+     sait lire un nom et un prix ; lui n'écrit que ce qu'on lui donne. ⛔ Une règle
+     de tri ici aurait mis du vocabulaire de catalogue dans la coquille. */
+  if (action.kind === "rangerSection") {
+    const places = Array.isArray(action.places) ? action.places : [];
+    let document = state.document;
+    for (const { index, place } of places) {
+      if (!Number.isInteger(index) || !Number.isInteger(place)) continue;
+      document = verbs.set({ document, path: `gear[${index}].place`, value: place }).document;
+    }
     state.document = document;
     rebuild();
     refresh();
@@ -2175,6 +2218,10 @@ function applyDecisionAction(action) {
        ⛔ On l'EFFACE plutôt que de la réécrire : où l'objet atterrit dans son
        nouveau lieu est une décision de l'écran d'arrivée, pas de ce verbe. */
     document = verbs.clear({ document, path: `gear[${action.index}].boite`, kind: "choice" }).document;
+    /* ⛔ ET LA PLACE PART AVEC LA BOÎTE : elle numérote une case DANS une section.
+       Un objet qui quitte le sac n'a plus de place, et celui qui y revient en
+       recevra une neuve — la première libre. */
+    document = verbs.clear({ document, path: `gear[${action.index}].place`, kind: "choice" }).document;
     state.document = document;
     rebuild();
     refresh();

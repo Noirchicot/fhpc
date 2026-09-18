@@ -13,7 +13,7 @@ import { createTestDocument } from "./dom-stub.mjs";
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
-const { construireLeSac, feuilleDesCotesSac, CLEF_DE } = await import("../ui/builder/sac-ecran.mjs");
+const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -343,4 +343,52 @@ test("15 — 🔴 LE MODE ÉDITION DE LA ROUE : le champ, le `+`, le `−`", () 
   assert.equal(tous(repos, ".sac-cran").length, 5,
     "⚖️ au repos, lui, le ruban boucle : *« un belt infini déroulant »* (Eric, 18/09)");
   assert.equal(tous(repos, '[data-role="ajouter"]').length, 0, "⛔ et il ne porte aucun `+`");
+});
+
+test("16 — 🔴 LA GRILLE SE COMPTE DANS LA TABLE, ⛔ elle ne s'écrit pas dans le module", () => {
+  /* ⛔ LA FAUTE QUE CE GARDE TIENT : je bouclais sur `r < 4` et `c < 3` — deux
+     nombres retapés, dans le seul fichier du lot qui a le droit de n'en porter
+     aucun. Le jour où le plan rend sa cinquième rangée (elle a été retirée pour le
+     collecteur, elle peut revenir), la boucle aurait menti sans rougir. */
+  const rangs = new Set(D.ORGANES.filter((o) => /^CASE \d+\.\d+$/.test(o.nom))
+    .map((o) => Number(/^CASE (\d+)\./.exec(o.nom)[1])));
+  const cols = new Set(D.ORGANES.filter((o) => /^CASE \d+\.\d+$/.test(o.nom))
+    .map((o) => Number(/\.(\d+)$/.exec(o.nom)[1])));
+  assert.equal(RANGS_GRILLE, rangs.size, "les rangées se comptent dans le plan");
+  assert.equal(COLS_GRILLE, cols.size, "les colonnes aussi");
+  assert.equal(CASES_DU_SAC, rangs.size * cols.size);
+  assert.equal(tous(rendu(), ".sac-case").length, CASES_DU_SAC,
+    "⛔ et l'écran en rend exactement autant — pas un de plus, pas un de moins");
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  assert.doesNotMatch(source, /r\s*<\s*\d+;|c\s*<\s*\d+;/,
+    "⛔ une borne de boucle écrite en clair : la taille de la grille vient de la TABLE");
+  /* ⛔ ET LE NOM DE LA COTE N'EST PAS CELUI DE LA NORME : l'ancien nom local de la
+     page de listes est INTERDIT dans `ui/`, et c'est `tests/listes.test.mjs` qui le
+     tient — ⭐ pas ce fichier-ci. Un second garde pour la même loi, c'est deux
+     occasions de diverger ; et il m'a mordu ici, sur le COMMENTAIRE qui l'explique.
+     📌 La cote du sac s'appelle `CASES_DU_SAC`, et elle est une DÉROGATION assumée à
+     la norme du produit (15), pour la cause qu'on voit à l'écran : le collecteur. */
+});
+
+test("17 — 🔴 LA MOLETTE SUR LA GRILLE TOURNE LA PAGE, et se tait quand il n'y en a qu'une", () => {
+  /* ⚖️ Eric, 18/09 : *« plus de place, ça va dans la page suivante ou celle d'après…
+     voire ça crée une page supplémentaire si besoin »* — donc une section a des
+     pages, et il faut pouvoir les atteindre. ⭐ C'est l'idiome du tuner, celui qu'il
+     a demandé pour la roue. */
+  const tours = [];
+  const deux = rendu({ pages: 2, surPage: (s) => tours.push(s) });
+  const c = deux.querySelector('[data-organe="case-1-1"]');
+  let empeche = false;
+  c.dispatchEvent({ type: "wheel", deltaY: 1, preventDefault: () => { empeche = true; } });
+  c.dispatchEvent({ type: "wheel", deltaY: -1, preventDefault: () => {} });
+  assert.deepEqual(tours, [1, -1], "un cran par coup de molette, dans les deux sens");
+  assert.equal(empeche, true, "⛔ sinon la page du navigateur défilerait DERRIÈRE la grille");
+
+  /* ⛔ UNE SEULE PAGE, AUCUN GESTE : un écran qui réagit à un geste sans rien changer
+     apprend à ne plus faire le geste. */
+  const muets = [];
+  const une = rendu({ pages: 1, surPage: (s) => muets.push(s) });
+  une.querySelector('[data-organe="case-1-1"]')
+    .dispatchEvent({ type: "wheel", deltaY: 1, preventDefault: () => { muets.push("empeche"); } });
+  assert.deepEqual(muets, [], "⛔ et il ne prend même pas la molette au navigateur");
 });

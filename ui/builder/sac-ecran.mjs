@@ -47,6 +47,31 @@ export const CLEF_DE = Object.freeze({
 /* les douze cases prennent leur clef de leur nom : CASE 2.3 → case-2-3 */
 const clefDeCase = (nom) => nom.toLowerCase().replace(/\s/g, "-").replace(".", "-");
 
+/* 🔴 LA TAILLE DE LA GRILLE SE COMPTE DANS LA TABLE, ⛔ ELLE NE S'ÉCRIT PAS ICI.
+   Je bouclais sur `r < 4` et `c < 3` : deux nombres retapés, dans le seul fichier
+   du lot qui a le droit de n'en porter aucun. Le jour où le plan rend sa cinquième
+   rangée — elle a été retirée pour le collecteur, elle peut revenir — la boucle
+   aurait menti sans que rien ne rougisse.
+   ⭐ ET LA GRILLE EST AUSSI LA TAILLE D'UNE PAGE : *« ça va dans la page suivante…
+   voire ça crée une page supplémentaire si besoin »* (Eric, 18/09). Le document
+   compte des PLACES ; c'est cette cote qui les découpe en pages. `equipment-step`
+   l'importe plutôt que d'en tenir une seconde copie. */
+const CASE_RE = /^CASE (\d+)\.(\d+)$/;
+const cases = ORGANES.map((o) => CASE_RE.exec(o.nom)).filter(Boolean);
+export const RANGS_GRILLE = cases.reduce((m, c) => Math.max(m, Number(c[1])), 0);
+export const COLS_GRILLE = cases.reduce((m, c) => Math.max(m, Number(c[2])), 0);
+/* ⛔ `CASES_DU_SAC`, ET SURTOUT PAS `CASES_PAR_PAGE` : ce nom-là est INTERDIT dans
+   `ui/` — c'était l'ancien nom local de la page de listes, et un garde veille à ce
+   qu'il ne revienne pas (« deux noms pour un nombre, c'est déjà une recopie »). La
+   norme du produit est `LISTE_PAR_PAGE` = 15, au socle.
+   ⭐ ET LE SAC A LE DROIT DE FAIRE AUTREMENT, comme Wares : sa grille vaut 12 parce
+   que le COLLECTEUR lui a pris une rangée — *« il nous manque un collecteur, il faut
+   faire sauter une rangée »* (Eric, 18/09). C'est une DÉROGATION avec une cause
+   visible à l'écran, exactement ce que le garde autorise : *« si cet écran a une
+   RAISON de faire autrement, il passe SON nombre »*. ⛔ Et il ne l'écrit pas : il le
+   COMPTE dans son plan. */
+export const CASES_DU_SAC = RANGS_GRILLE * COLS_GRILLE;
+
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 /* 🔴 UN ORGANE NICHÉ SE POSE PAR RAPPORT À SON HÔTE, PAS À LA DALLE — faute vue
    au banc, premier rendu : les cinq crans portaient les `x` de la TABLE (32, 93,
@@ -249,6 +274,19 @@ function tuner(sens, options) {
 function case_(id, objet, options) {
   const c = el("div", "sac-case");
   c.dataset.organe = id;
+  /* ⚖️ LA MOLETTE SUR LA GRILLE TOURNE LA PAGE — Eric, 18/09 : *« plus de place, ça
+     va dans la page suivante… voire ça crée une page supplémentaire si besoin »*,
+     donc une section a des pages et il faut pouvoir les atteindre.
+     ⭐ C'EST L'IDIOME DU TUNER, celui qu'Eric a demandé pour la roue : *« utiliser le
+     scroll de la souris peut aider le défilement »*. La roue tourne les SECTIONS, la
+     grille tourne les PAGES — deux surfaces, deux sujets, le même geste.
+     ⏳ ET LE GESTE TACTILE N'EST PAS TRANCHÉ : à la souris on y est, au doigt il
+     manque un balayage. ⛔ Je ne l'invente pas — question posée à Eric. */
+  c.addEventListener("wheel", (ev) => {
+    if (!options.pages || options.pages < 2) return;
+    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
+    if (options.surPage) options.surPage((ev && ev.deltaY < 0) ? -1 : 1);
+  }, { passive: false });
   if (!objet) {
     c.dataset.creneau = id;
     c.dataset.vise = "false";
@@ -344,9 +382,11 @@ function collecteur(options, retenu) {
  *   · `objets`   : les douze places, `null` pour une case vide ;
  *   · `poids`    : `{ gear, backpack, encombrement }`, déjà mis en mots ;
  *   · `compteurs`: `{ tally, "party-tally" }` — ce que chaque parchemin porte ;
+ *   · `page` / `pages` : la fraction déjà en mots, et le NOMBRE de pages (la
+ *     molette ne tourne que s'il y en a plus d'une) ;
  *   · les gestes : `surTourner`, `surSection`, `surJeton`, `surTrier`,
- *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`,
- *     `surDestination`, `surPorte`.
+ *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surPage`,
+ *     `surCollecte`, `surPlacer`, `surDrop`, `surDestination`, `surPorte`.
  *  @returns {{noeud: HTMLElement}} */
 export function construireLeSac(options = {}) {
   /* 🔴 `dalle-simple` — LE VOILE D'UN RANG B, ET J'AVAIS PRIS CELUI DE R. Eric,
@@ -437,9 +477,9 @@ export function construireLeSac(options = {}) {
      règle d'affichage ait à connaître la collecte. */
   const objets = options.objets || [];
   const retenu = objets.find((o) => o && o.index === options.retenu) || null;
-  for (let r = 0; r < 4; r += 1) {
-    for (let c = 0; c < 3; c += 1) {
-      const o = objets[r * 3 + c] || null;
+  for (let r = 0; r < RANGS_GRILLE; r += 1) {
+    for (let c = 0; c < COLS_GRILLE; c += 1) {
+      const o = objets[r * COLS_GRILLE + c] || null;
       noeud.append(case_(`case-${r + 1}-${c + 1}`, o && o === retenu ? null : o, options));
     }
   }

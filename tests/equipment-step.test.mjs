@@ -36,7 +36,8 @@ const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui
 
 const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
-  orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart
+  orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
+  lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection
 } = await import("../ui/builder/equipment-step.mjs");
 
 const fixture = exempleFhEn();
@@ -578,4 +579,113 @@ test("182 — la bourse POSÉE est celle qui a été ANNONCÉE (le même lecteur
   const apres = applyAddStartingPurse(vide);
   assert.deepEqual(currentCurrency(apres), { cp: 0, sp: 0, gp: 205, pp: 0 },
     "155 (Fighter) + 50 (Inheritance) — le montant du bouton, à la pièce près");
+});
+
+/* ══ LES PLACES DU SAC — lot 214, seconde passe ═══════════════════════════════
+   ⚖️ Eric, 2026-09-18, trois réponses qui ne font qu'un modèle : *« tighten up
+   ok »* · *« plus de place, ça va dans la page suivante ou celle d'après, prochain
+   emplacement dispo, voire ça crée une page supplémentaire si besoin »* · *« oui,
+   évidemment, le rangement fait partie des caracs du perso ; ça doit survivre à la
+   session au même titre que les autres changements »*. */
+
+test("P1 — 📏 `gear[N].place` EST MESURÉ CONTRE LE MOTEUR, et la mesure reste un test", () => {
+  /* 🔴 CE GARDE EST LE PROTOCOLE LUI-MÊME, DEVENU PERMANENT. Les chemins de ce
+     chapitre (`boite`, `attuned`, `locked`) ont tous été mesurés à la main avant
+     d'être posés, puis la mesure était perdue. ⭐ Ici elle reste : si une couche ou
+     une règle future faisait de `place` un champ VIOLANT, le jour se saurait. */
+  const avant = rebuild(fixture.document);
+  let doc = fixture.document;
+  for (const [i, v] of [[0, 0], [1, 5], [2, 13]]) {
+    doc = build.verbs.set({ document: doc, path: `gear[${i}].place`, value: v }).document;
+  }
+  const apres = rebuild(doc);
+  /* ⛔ LE RAPPORT NE PORTE PAS DE CLEF `violations` — mesuré, il en porte onze
+     autres. Un garde qui lirait un nom absent comparerait `undefined` à `undefined`
+     et serait vert pour toujours : c'est `moduleViolations` et `warnings` qui
+     parlent ici, et on les NOMME plutôt que d'inventer le nom qu'on attendait. */
+  assert.deepEqual(apres.moduleViolations, avant.moduleViolations,
+    "⛔ une place ne fâche aucun module : ce n'est pas une règle de jeu");
+  assert.equal(apres.warnings.length, avant.warnings.length,
+    "⛔ et elle n'ajoute aucun avertissement");
+  assert.equal(apres.underived.length, avant.underived.length,
+    "⛔ et elle ne rend aucune dérivation impossible — zéro `underived` NEUF");
+  for (const i of [0, 1, 2]) {
+    assert.ok(apres.unconsumed.includes(`gear[${i}].place`),
+      `gear[${i}].place doit ressortir en \`unconsumed\` : la fiche de personnage ne le lit pas encore, l'écran si`);
+  }
+  /* ⛔ ET `clear` EST SÛR : un objet qui quitte le sac perd sa place, et rien ne reste. */
+  let net = doc;
+  for (const i of [0, 1, 2]) {
+    net = build.verbs.clear({ document: net, path: `gear[${i}].place`, kind: "choice" }).document;
+  }
+  const efface = rebuild(net);
+  assert.ok(!efface.unconsumed.some((p) => String(p).endsWith(".place")),
+    "⛔ `clear` doit ne rien laisser derrière — sinon une place fantôme survit à son objet");
+});
+
+test("P2 — ⚖️ LE DÉBORD : la première place libre, et une page de plus s'il le faut", () => {
+  const PAR_PAGE = 12;
+  const ligne = (index, place) => ({ index, location: "backpack", boite: "s0",
+    ...(place === null ? {} : { place }) });
+  /* une section pleine, sauf un trou en 4 */
+  const pleine = [...Array(PAR_PAGE).keys()].filter((i) => i !== 4).map((i) => ligne(i, i));
+  assert.equal(premierePlaceLibre(pleine, PAR_PAGE), 4,
+    "⚖️ *« prochain emplacement dispo »* — le trou d'abord, pas la fin");
+
+  /* vraiment pleine : la place suivante ouvre une SECONDE PAGE */
+  const bourree = [...Array(PAR_PAGE).keys()].map((i) => ligne(i, i));
+  assert.equal(premierePlaceLibre(bourree, PAR_PAGE), PAR_PAGE,
+    "⚖️ *« voire ça crée une page supplémentaire si besoin »*");
+  const grille = grilleDeSection(bourree.concat(ligne(99, PAR_PAGE)), PAR_PAGE);
+  assert.equal(grille.length, PAR_PAGE * 2, "la grille fait deux pages pleines, pas 13 cases");
+  assert.equal(grille[PAR_PAGE].index, 99, "et le treizième objet est la 1ʳᵉ case de la page 2");
+
+  /* ⭐ UNE LIGNE SANS PLACE NE SE PERD PAS : les personnages sauvegardés avant ce
+     lot n'en ont aucune, et ils doivent s'ouvrir entiers. */
+  const ancienne = [ligne(0, null), ligne(1, null), ligne(2, 5)];
+  const g = grilleDeSection(ancienne, PAR_PAGE);
+  assert.equal(g[5].index, 2, "celle qui a une place la garde");
+  assert.deepEqual([g[0].index, g[1].index], [0, 1], "les autres prennent les premières libres");
+  assert.equal(g.filter(Boolean).length, 3, "⛔ et aucune ne disparaît");
+});
+
+test("P3 — ⚖️ `TIGHTEN UP` FERME LES TROUS SANS RIEN RÉORDONNER, les trois autres rangent", () => {
+  /* ⛔ C'EST CE QUI LE DISTINGUE D'UN TRI, et pourquoi il est le premier du popup :
+     il respecte le rangement du joueur. Un « tasser » qui trierait au passage
+     détruirait ce qu'Eric appelle *« les caracs du perso »*. */
+  const l = (index, place, nom, qte, gp) => ({ index, place, nom, quantity: qte, gp });
+  const mesures = { nom: (x) => x.nom, valeur: (x) => x.gp * (x.quantity || 1) };
+  /* la section arrive DÉJÀ rangée par ses places, avec des trous en 1 et 3 */
+  const dedans = [l(7, 0, "Zither", 1, 30), l(3, 2, "Arrow", 20, 0.05), l(5, 4, "Book", 2, 25)];
+
+  assert.deepEqual(rangement(dedans, "tasser", mesures),
+    [{ index: 7, place: 0 }, { index: 3, place: 1 }, { index: 5, place: 2 }],
+    "⛔ l'ordre ne bouge pas : 0 · 2 · 4 devient 0 · 1 · 2");
+  assert.deepEqual(rangement(dedans, "nom", mesures).map((r) => r.index), [3, 5, 7],
+    "A → Z : Arrow · Book · Zither");
+  assert.deepEqual(rangement(dedans, "qte", mesures).map((r) => r.index), [3, 5, 7],
+    "Quantity : 20 · 2 · 1, du plus grand au plus petit");
+  assert.deepEqual(rangement(dedans, "valeur", mesures).map((r) => r.index), [5, 7, 3],
+    "Value : 50 gp · 30 gp · 1 gp, la quantité comprise");
+  /* ⭐ ET LES QUATRE RENDENT UNE SUITE SANS TROU : ranger, c'est aussi tasser. */
+  for (const r of RANGEMENTS) {
+    assert.deepEqual(rangement(dedans, r.clef, mesures).map((x) => x.place), [0, 1, 2],
+      `« ${r.mot} » doit rendre des places contiguës depuis 0`);
+  }
+  assert.equal(RANGEMENTS[0].clef, "tasser",
+    "⭐ et `Tighten up` est le PREMIER : c'est le seul qui respecte le rangement du joueur");
+});
+
+test("P4 — ⛔ UNE SECTION NE VOIT QUE SES LIGNES, et elle les voit DANS L'ORDRE DE LEURS PLACES", () => {
+  const lignes = [
+    { index: 0, location: "backpack", boite: "s0", place: 2 },
+    { index: 1, location: "backpack", boite: "s1", place: 0 },
+    { index: 2, location: "backpack", boite: "s0", place: 0 },
+    { index: 3, location: "self", boite: "tete1" },
+    { index: 4, location: "backpack", place: 1 }          /* sans boîte : la section par défaut */
+  ];
+  assert.deepEqual(lignesDeSection(lignes, "s0", "s0").map((l) => l.index), [2, 4, 0],
+    "places 0 · 1 · 2 — et la ligne sans boîte tombe dans la section par défaut");
+  assert.deepEqual(lignesDeSection(lignes, "s1", "s0").map((l) => l.index), [1]);
+  assert.equal(boiteDeSection(3), "s3", "la clef se déduit de l'index, elle ne se stocke pas");
 });

@@ -3401,6 +3401,39 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+### 📦 CHAQUE OBJET DU SAC OCCUPE UNE PLACE, ET ELLE EST AU DOCUMENT
+📍 `equipement-une-place-dans-une-section` · vivante · 18/09
+⚖️ **`gear[N].place` numérote la case d'un objet DANS sa section. La page n'est pas un organe : c'est une division de la suite des places — page = place ÷ la grille.**
+
+> Eric, 2026-09-18, trois réponses d'un coup : **« tighten up ok »** · **« plus de place, ça
+> va dans la page suivante ou celle d'après, prochain emplacement dispo, voire ça crée une page
+> supplémentaire si besoin »** · **« oui évidemment, le rangement fait partie des caracs du perso ;
+> ça doit survivre à la session au même titre que les autres changements »**.
+
+⭐ **LES TROIS RÉPONSES NE FONT QU'UN SEUL MODÈLE, et c'est ce qui les rend courtes.** Une grille
+qui se tasse toute seule n'a **ni trou à fermer** (donc *« tighten up »* ne veut rien dire), **ni
+page suivante** où déborder, **ni rangement à garder**. Dès que chaque objet a une place : le trou
+existe, le débord prend la première place libre, et le rangement s'écrit.
+⛔ **C'EST POUR ÇA QUE J'AVAIS REFUSÉ D'ÉCRIRE `tighten up` À LA PREMIÈRE PASSE** — et j'avais
+raison de refuser plutôt que de deviner : dans le modèle d'alors, le bouton n'aurait rien fait.
+📏 **LE CHEMIN EST MESURÉ CONTRE LE MOTEUR**, même protocole que `boite`, `attuned` et `locked` :
+zéro `moduleViolation` neuve, zéro `warning` neuf, zéro `underived` neuf, les chemins ressortent en
+`unconsumed`, et `clear` ne laisse rien. ⭐ **Et la mesure est restée un test** (`P1`) au lieu d'être
+perdue avec la session qui l'a faite.
+⛔ **UNE LIGNE SANS PLACE GARDE SON RANG DE DOCUMENT** : les personnages sauvegardés avant ce lot
+s'ouvrent entiers, et le premier rangement leur en écrit une. Une absence n'est pas une faute, c'est
+l'état d'avant.
+⭐ **`Tighten up` EST LE PREMIER DU POPUP, et ce n'est pas un hasard** : c'est le seul des quatre qui
+**respecte** le rangement du joueur — il ferme les trous sans rien réordonner. Les trois autres
+rangent, donc ils effacent ce qu'il a fait ; lui le condense.
+⛔ **ET LA PLACE PART AVEC LA BOÎTE** : elle numérote une case DANS une section. Un objet qui quitte
+le sac n'a plus de place ; celui qui y revient en reçoit une neuve, la première libre.
+⏳ **CE QUI N'EST PAS TRANCHÉ** : le geste TACTILE qui tourne la page. À la souris, la molette sur la
+grille la tourne — l'idiome du tuner, qu'Eric a demandé pour la roue. Au doigt, il manque un
+balayage, et ⛔ il ne s'invente pas.
+
+---
+
 ### 🔴 UNE MESURE NE VAUT QUE CONTRE UNE SOURCE EXTÉRIEURE
 📍 `socle-mesurer-contre-la-source-jamais-contre-son-plan` · vivante · 18/09
 ⚖️ **Un écran se mesure contre l'ARTEFACT, une loi de NORMES, un écran déjà en production ou l'œil d'Eric. ⛔ Jamais contre la table qu'on vient d'écrire soi-même.**
