@@ -23,8 +23,8 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=656";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=656";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=657";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=657";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -124,19 +124,26 @@ function roue(options) {
   r.setAttribute("role", "tablist");
   r.setAttribute("aria-label", "Sections");
   const sections = options.sections || [];
-  const actif = Math.min(Math.max(0, options.section | 0), Math.max(0, sections.length - 1));
-  /* cinq crans : deux avant, le dominant, deux après — la roue tourne, la table
-     ne connaît que des PLACES, jamais des sections. */
+  const n = sections.length;
+  const actif = Math.min(Math.max(0, options.section | 0), Math.max(0, n - 1));
+  /* ⚖️ CINQ PLACES, PAS CINQ CRANS — deux avant, le dominant, deux après. La table
+     ne connaît que des PLACES ; c'est la roue qui décide combien elle en remplit.
+     🔴 ET EN DESSOUS DE CINQ SECTIONS, ELLE N'EN REMPLIT PAS CINQ : avec le modulo,
+     une seule section s'affichait cinq fois, et un sac neuf — qui n'en a AUCUNE —
+     montrait cinq crans nus. ⛔ Une roue qui tourne sur elle-même ment sur ce
+     qu'elle contient. Vu dans l'application, pas au banc. */
   for (let i = 0; i < 5; i += 1) {
     const dom = i === 2;
-    const s = sections[(actif - 2 + i + sections.length * 2) % (sections.length || 1)];
-    const c = el("button", "sac-cran", s ? s.nom : "");
+    const brut = actif - 2 + i;
+    const idx = n > 5 ? ((brut % n) + n) % n : (brut >= 0 && brut < n ? brut : -1);
+    if (idx < 0) continue;                       /* cette place reste vide */
+    const c = el("button", "sac-cran", sections[idx].nom);
     c.type = "button";
     c.dataset.organe = `cran-${i + 1}`;
     c.dataset.dominant = dom ? "oui" : "non";
     c.setAttribute("role", "tab");
     c.setAttribute("aria-selected", String(dom));
-    if (!dom && options.surSection) c.addEventListener("click", () => options.surSection((actif - 2 + i + sections.length * 2) % (sections.length || 1)));
+    if (!dom && options.surSection) c.addEventListener("click", () => options.surSection(idx));
     r.append(c);
   }
   return r;

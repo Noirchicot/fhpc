@@ -378,8 +378,12 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
     "un id nu à l'écran est le symptôme exact d'un genre que le chercheur ne résout pas");
   assert.ok("srfh:gem:en:azurite".includes("fh:gem:en:azurite"),
     "témoin : l'ancien id est une SOUS-CHAÎNE du nouveau — un garde qui cherche l'ancien ne garde rien");
-  /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci */
-  [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK").click();
+  /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci.
+     🔴 RÉÉCRIT AU LOT 214 : la porte `Backpack` ouvre le SAC, qui rend par sa porte
+     `Gear` — l'ancien sac du pipeline avait un bouton `BACK`, le nouveau a la
+     rangée du bas de R. ⭐ Ce que le test vérifiait n'a pas bougé d'un pouce : que
+     la ligne porte le NOM du record. Seul le chemin du retour a changé. */
+  node.querySelector('[data-organe="gear"][data-porte="gear"]').click();
 });
 
 /* ══ LOT 182 — L'OR DE DÉPART SE LIT DANS LA DONNÉE, DES DEUX CÔTÉS ═══════

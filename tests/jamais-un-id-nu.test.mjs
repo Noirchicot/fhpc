@@ -339,7 +339,10 @@ test("D2 — ÉQUIPEMENT : une ligne dont le record manque porte le mot de l'org
   /* Une gemme est du catalogue : pas d'enfant, c'est le maître qu'on nomme. */
   assert.match(texte, /Nulle part comes with Fate's Hand — switch it on in Layers/);
   /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci */
-  [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK").click();
+  /* 🔴 RÉÉCRIT AU LOT 214 : `Backpack` ouvre le SAC, qui rend par sa porte `Gear`.
+     ⭐ Ce que le test tient n'a pas bougé : une ligne sans record porte le mot de
+     l'organe, jamais son id nu. */
+  node.querySelector('[data-organe="gear"][data-porte="gear"]').click();
 });
 
 /* ══ E — LA COQUILLE, SUR SES OCTETS (elle n'a pas de harnais de rendu) ═══ */

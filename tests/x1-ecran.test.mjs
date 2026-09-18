@@ -227,8 +227,12 @@ test("7 — shell.css ne porte AUCUNE position de la fiche : les cotes sont dans
   assert.ok(debut > 0, "le bloc d'habit de la fiche existe");
   const bloc = shell.slice(debut);
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur serait une cote recopiée");
-  /* la fiche partage la boîte de la dalle avec l'écran R — une seule règle le dit */
-  assert.match(shell, /\.gear,\s*\.x1\s*\{/, "la dalle est déclarée UNE fois pour les deux écrans");
+  /* ⭐ LA FICHE PARTAGE LA BOÎTE DE LA DALLE — une seule règle le dit, et elle
+     s'allonge quand un écran la rejoint. Le sac y est entré au lot 214 : ⛔ ce que
+     ce garde tient n'est pas la LISTE, c'est qu'il n'y ait qu'UN écrivain. */
+  assert.match(shell, /\.gear,\s*\.x1,\s*\.sac\s*\{/, "la dalle est déclarée UNE fois pour tous ses écrans");
+  assert.equal((shell.match(/position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;/g) || []).length, 1,
+    "⛔ et une seule fois : un second bloc identique serait deux écrivains pour une loi");
 });
 
 /* ══ 8 — LA LOI DU RANG X ════════════════════════════════════════════════ */

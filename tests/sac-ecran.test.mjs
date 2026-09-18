@@ -80,12 +80,33 @@ test("5 — ⛔ `shell.css` ne porte AUCUNE cote du sac : elles vivent dans la f
     "⛔ une position écrite ici serait une cote recopiée — elles sortent de la table");
 });
 
-test("6 — la roue porte CINQ crans, un seul dominant, et deux tuners", () => {
-  const n = rendu();
-  const crans = tous(n, ".sac-cran");
+test("6 — la roue remplit CINQ PLACES, pas cinq crans — et elle ne tourne pas sur elle-même", () => {
+  /* 🔴 VU DANS L'APPLICATION, PAS AU BANC : avec le modulo, une seule section
+     s'affichait CINQ fois, et un sac neuf — qui n'en a aucune — montrait cinq crans
+     nus. ⛔ Une roue qui tourne sur elle-même ment sur ce qu'elle contient.
+     ⭐ La table ne connaît que des PLACES ; c'est la roue qui dit combien elle en
+     remplit, et elle n'en remplit jamais plus qu'il n'y a de sections. */
+  const cinq = rendu({ sections: [1, 2, 3, 4, 5, 6].map((i) => ({ nom: `S${i}` })), section: 2 });
+  const crans = tous(cinq, ".sac-cran");
   assert.equal(crans.length, 5, "deux de chaque côté du dominant (Eric, 18/09)");
   assert.deepEqual(crans.map((c) => c.dataset.dominant), ["non", "non", "oui", "non", "non"]);
-  assert.equal(crans[2].getAttribute("aria-selected"), "true", "le dominant est celui qu'on regarde");
+  assert.deepEqual(crans.map((c) => c.textContent), ["S1", "S2", "S3", "S4", "S5"],
+    "⛔ et chaque place porte une section DIFFÉRENTE");
+
+  /* ⭐ LE TÉMOIN QUI TIENT LA FAUTE : une seule section ne se répète pas. */
+  const une = rendu({ sections: [{ nom: "Backpack" }], section: 0 });
+  const seul = tous(une, ".sac-cran");
+  assert.equal(seul.length, 1, "une section, un cran — pas cinq copies");
+  assert.equal(seul[0].dataset.dominant, "oui", "et c'est le dominant qui la porte");
+  assert.equal(seul[0].dataset.organe, "cran-3", "à la place du milieu, celle du viseur");
+
+  const n = rendu({ sections: [{ nom: "A" }, { nom: "B" }, { nom: "C" }] });
+  /* ⭐ ET LA PREMIÈRE SECTION EST LE PREMIER CRAN RENDU : les deux places de gauche
+     restent vides parce qu'il n'y a rien avant elle — la roue ne rembobine pas. */
+  const dom = tous(n, ".sac-cran").find((c) => c.dataset.dominant === "oui");
+  assert.equal(dom.getAttribute("aria-selected"), "true", "le dominant est celui qu'on regarde");
+  assert.equal(dom.dataset.organe, "cran-3", "et il occupe toujours la place du viseur");
+  assert.equal(tous(n, ".sac-cran").length, 3, "trois sections, trois crans");
   assert.equal(tous(n, ".sac-tuner").length, 2);
   /* ⛔ ET LA ROUE NOMME L'ÉCRAN — NORMES §1 quinquies, « le tambour désigne » :
      aucun titre n'est dû, donc aucun n'est posé. */

@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=656") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=657") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=656") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=657") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=656") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=657") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=656");
+  background-image: url("./assets/tarot-dos.jpg?v=657");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -9255,18 +9255,22 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    déborde donc la gouttière du stage des deux côtés ; c'est une dalle, et une
    dalle a le droit d'occuper la marge (NORMES §1 bis). Rien ne défile : le
    budget vertical est fermé au blg près (60 + 4 + 8 × 48 + 48 + 8 + 44 + 12). */
-/* ⭐ LOT 213 — `:is(.gear, .x1)` ET PAS UNE SECONDE RÈGLE : X1 recouvre la même
+/* ⭐ LOT 213 — `:is(.gear, .x1, .sac)` ET PAS UNE SECONDE RÈGLE : X1 recouvre la même
    dalle que R, donc elle a la même boîte. Écrire un second bloc identique serait
    deux écrivains pour une seule loi (l'incident du patron des boutons, 16/09) ;
-   ajouter la classe à l'`:is` n'en fait qu'un. */
-.decision-card:has(> .equipment-step > :is(.gear, .x1)) {
+   ajouter la classe à l'`:is` n'en fait qu'un.
+   🔴 LOT 214 — LE SAC Y ENTRE, ET SON ABSENCE NE SE VOYAIT PAS DANS LE DOM : il
+   rendait ses huit jetons et ses trois lignes de poids, mais la carte ne lui
+   donnait pas la dalle, donc l'écran était VIDE à l'œil. ⛔ Le DOM disait que tout
+   allait bien. C'est la page rendue qui l'a dit, pas un garde. */
+.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x1)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
-.gear, .x1 {
+.gear, .x1, .sac {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));
@@ -11490,7 +11494,7 @@ button.tuto-point::before {
    (`Plan-ecran-X1/X1_gen.py`). Ce bloc ne porte que l'HABIT — la forme,
    l'encre, les états. Même partage que l'écran R, et pour la même raison :
    une valeur qui vient de la donnée ne se recopie pas dans cette feuille.
-   ⭐ LA DALLE, ELLE, EST DÉCLARÉE PLUS HAUT AVEC CELLE DE R (`:is(.gear, .x1)`) :
+   ⭐ LA DALLE, ELLE, EST DÉCLARÉE PLUS HAUT AVEC CELLE DE R (`:is(.gear, .x1, .sac)`) :
    les deux écrans du chapitre recouvrent la même surface, et une seule règle le
    dit. */
 .x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat; }
@@ -11738,10 +11742,9 @@ button.tuto-point::before {
    ⭐ LE JETON N'Y EST PAS NON PLUS : il porte ses classes neutres
    (`jeton-nom`, `jeton-marques`, `jeton-marque`), peintes plus haut avec celles
    de l'écran R — le même organe, un seul habit. */
-.sac {
-  position: relative; flex: 1 1 auto; min-height: 0;
-  background: var(--surface); overflow: hidden;
-}
+/* ⛔ SA BOÎTE VIENT DE LA RÈGLE PARTAGÉE `.gear, .x1, .sac` — ici on ne dit que
+   sa MATIÈRE. Redéclarer sa boîte ferait deux écrivains pour une seule loi. */
+.sac { background: var(--surface); }
 .sac [data-organe] { position: absolute; box-sizing: border-box; }
 /* 🔴 SAUF DANS LA RANGÉE DU BAS, ET C'EST LA TROISIÈME FOIS QUE CETTE FAMILLE DE
    FAUTE SORT : une règle qui vise TOUT `[data-organe]` attrape aussi les enfants

@@ -49,40 +49,41 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=656";
-import { facteurZoomCourant } from "./echelle.mjs?v=656";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=656";
+import { renderPicker } from "./carnet.mjs?v=657";
+import { facteurZoomCourant } from "./echelle.mjs?v=657";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=657";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=656";
-import { swapContent } from "./socle.mjs?v=656";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=656";
+import { isGenre } from "../../src/layers/document.mjs?v=657";
+import { swapContent } from "./socle.mjs?v=657";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=657";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=656";
+import { armerJeton } from "./glisser.mjs?v=657";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear } from "./gear-ecran.mjs?v=656";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=657";
+import { construireLeSac } from "./sac-ecran.mjs?v=657";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=656";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=657";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=656";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=656";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=657";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=657";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=656";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=657";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -94,7 +95,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=656";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=656";
+import { motDuCran } from "./ecran-mort.mjs?v=657";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -347,6 +348,46 @@ export function currentGearLines(document) {
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
 }
+
+/* ══ LES SECTIONS DU SAC — lot 214 ═══════════════════════════════════════════
+   ⚖️ Eric, 18/09 : les tuiles du sac s'appellent des SECTIONS, le joueur les crée,
+   les renomme et les supprime quand elles sont vides.
+   📏 MESURÉ CONTRE LE MOTEUR AVANT D'ÉCRIRE (même protocole que `attuned` et
+   `locked`) : `backpack.sections[N].name` et `gear[N].boite` passent les verbes,
+   `rebuild` rend ZÉRO violation, zéro `underived` neuf, et les deux ressortent
+   dans `unconsumed`. ⭐ Le choix est donc de CONCEPTION, pas de moteur :
+   · l'APPARTENANCE va dans `gear[N].boite` — le champ qui veut déjà dire « quelle
+     case dans ce lieu » (`tete1` sur R, `sol1` au sol). ⛔ Pas de second nom ;
+   · les NOMS vont dans `backpack.sections[N].name`, la forme de `gear[N].quantity`.
+     ⛔ Pas un tableau sous un chemin unique : il se réécrirait en entier à chaque
+     renommage, et le document perdrait la finesse de ses diffs. */
+const SECTION_RE = /^backpack\.sections\[(\d+)\]\.name$/;
+
+/** Les sections déclarées, dans l'ordre de leur index. ⛔ Aucune n'est inventée :
+ *  un sac neuf n'a pas de section, et l'écran le dira. */
+export function currentSections(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const par = new Map();
+  for (const c of choices) {
+    const m = typeof c.path === "string" ? SECTION_RE.exec(c.path) : null;
+    if (m) par.set(Number(m[1]), { index: Number(m[1]), nom: String(c.value ?? "") });
+  }
+  return [...par.values()].sort((a, b) => a.index - b.index);
+}
+
+/** Le prochain index de section libre — même loi que `nextGearIndex` : un index
+ *  qui a existé ne redevient pas anonyme. */
+export function nextSectionIndex(document) {
+  return currentSections(document).reduce((max, s) => Math.max(max, s.index + 1), 0);
+}
+
+/** La clef de boîte d'une section — `s0`, `s1`… ⭐ Elle se DÉDUIT de l'index, elle
+ *  ne se stocke pas : deux sources pour une même appartenance divergeraient. */
+export const boiteDeSection = (index) => `s${index}`;
+export const sectionDeBoite = (boite) => {
+  const m = /^s(\d+)$/.exec(String(boite || ""));
+  return m ? Number(m[1]) : null;
+};
 
 /** Le prochain index `gear[N]` libre — jamais réutilisé après un retrait
  *  (un index qui a existé ne redevient pas anonyme, même loi que
@@ -1736,6 +1777,10 @@ let destinationEnvoi = "backpack";
    non — et la fiche montrerait alors l'état d'avant le geste qu'on vient d'y
    faire. `null` = aucune fiche ouverte.
    ⛔ ET C'EST DE L'ÉTAT D'ÉCRAN : rouvrir le chapitre referme la fiche. */
+/* ⭐ LA SECTION QU'ON REGARDE est de l'ÉTAT D'ÉCRAN, comme `vueEquipement` : une
+   question d'affichage, ⛔ jamais une décision du personnage. Elle ne s'écrit donc
+   pas au document. */
+let sectionSac = 0;
 let ficheX1 = null;
 let nombreX1 = 1;
 /* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
@@ -1747,7 +1792,12 @@ let lectureX1 = false;
    BRANCHES écrivent ; ⛔ une fiche (b1) n'écrit pas — elle garde le mot de la
    branche d'où on l'a ouverte (Eric, 16/09 : « les x ne s'inscrivent pas dans
    le belt »). `recherche` et `b2` sont des vues de Wares. */
-const FENETRE_DE = { gear: "Gear", sb31: "Backpack", sb33: "Backpack", r: "Wares", recherche: "Wares", b2: "Wares", sb32: "Tally" };
+/* ⛔ `sac` Y MANQUAIT, ET LE BELT SE TAISAIT — trouvé à l'audit du lot 214 : la 3ᵉ
+   ligne de la ceinture NOMME la fenêtre ouverte, et le sac n'y avait pas de mot.
+   L'écran s'ouvrait sans que rien ne dise où l'on était. ⭐ `x1` n'y est pas non
+   plus, mais c'est une LOI (le rang X ne s'inscrit pas dans le belt) ; ici c'était
+   un oubli. */
+const FENETRE_DE = { gear: "Gear", sac: "Backpack", sb31: "Backpack", sb33: "Backpack", r: "Wares", recherche: "Wares", b2: "Wares", sb32: "Tally" };
 
 /** Un item de grille → la matière de B1/du panier. Le PRIX vient du record
  *  (`data.cost`, chaîne SRD), jamais d'un tarif écrit ici. */
@@ -1938,7 +1988,7 @@ export function renderEquipmentStep(ctx, onAction) {
       collecte: collecteEnvoi,
       destination: destinationEnvoi,
       surPorte: (porte) => {
-        if (porte === "backpack") montrer("sb31");
+        if (porte === "backpack") montrer("sac");
         if (porte === "wares") montrer("r");
         if (porte === "send") envoyer();
       },
@@ -2092,6 +2142,68 @@ export function renderEquipmentStep(ctx, onAction) {
      poids et la prose viennent du RECORD par le chercheur ; la quantité, la
      position et les trois états viennent du DOCUMENT. La fiche n'a pas de
      mémoire à elle — sauf le nombre à envoyer, qui est une intention d'écran. */
+  /* ══ LE SAC (SB3.1) — lot 214 ══════════════════════════════════════════════
+     ⛔ L'ÉCRAN NE SAIT RIEN DU DOCUMENT, et c'est ce qui le rend regardable au
+     banc : cette fonction traduit le document en ce qu'il attend — des sections,
+     douze places, trois lignes de poids déjà mises en mots.
+     ⭐ LES DOUZE PLACES SONT DES PLACES, PAS UNE LISTE : une case vide est un
+     creux qui dit « pose ici », et une grille qui se tasserait toute seule
+     effacerait le rangement que le joueur a fait. */
+  function construireSac() {
+    /* ⚖️ UN SAC NEUF N'A AUCUNE SECTION, et on ne lui en invente pas au document :
+       l'écran en montre UNE, implicite, qui porte tout ce qui n'a pas de boîte.
+       ⭐ Elle n'existe que le temps du rendu — le premier `+` en écrit une vraie. */
+    const declarees = currentSections(docu);
+    const sections = declarees.length ? declarees : [{ index: 0, nom: "Backpack" }];
+    if (sectionSac >= sections.length) sectionSac = 0;
+    const boite = boiteDeSection(sections.length ? sections[sectionSac].index : 0);
+    /* les lignes DU SAC, et seulement celles de la section regardée */
+    const dedans = lignes.filter((l) => (l.location || "backpack") === "backpack"
+      && (l.boite || boiteDeSection(sections.length ? sections[0].index : 0)) === boite);
+    const places = Array.from({ length: 12 }, (_, i) => {
+      const l = dedans[i];
+      if (!l) return null;
+      const rec = cherche.record(l.ref);
+      return { index: l.index, nom: (rec && rec.name) || motDUnRecordAbsent(l.ref.id),
+        qte: l.quantity || 1, equipped: l.equipped === true,
+        attuned: l.attuned === true, locked: l.locked === true };
+    });
+    /* ⚖️ LES TROIS LIGNES DE POIDS — Eric, 18/09 : *« Gear · Backpack · Encumbrance
+       = (Gear + Backpack) »*. ⛔ La remise n'y entre pas, le sol non plus. */
+    const p = poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data }));
+    const mot = (compte, somme, inconnus, titre) =>
+      `${titre} — ${compte} obj. · ${Math.round(somme * 10) / 10} ${p.unite || "lb"}`
+      + (inconnus ? ` (+${inconnus} sans poids)` : "");
+    const { noeud } = construireLeSac({
+      sections: sections.map((s) => ({ nom: s.nom })),
+      section: sectionSac,
+      objets: places,
+      poids: {
+        gear: mot(p.compte.self, p.somme.self, p.inconnus.self, "Gear"),
+        backpack: mot(p.compte.backpack, p.somme.backpack, p.inconnus.backpack, "Backpack"),
+        encombrement: mot(p.encombrement.compte, p.encombrement.somme, p.encombrement.inconnus, "Encumbrance")
+      },
+      destinations: DESTINATIONS, destination: destinationEnvoi,
+      surSection: (i) => { sectionSac = i; peindre(); },
+      surTourner: (sens) => {
+        const n = Math.max(1, sections.length);
+        sectionSac = (sectionSac + sens + n) % n;
+        peindre();
+      },
+      surJeton: (index) => { ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+      surDestination: (valeur) => { destinationEnvoi = valeur; },
+      surTrier: () => act({ kind: "popup", titre: "Sort",
+        texte: "Sorting this section is not wired yet.", role: "aiguilleur" }),
+      surSections: () => act({ kind: "ajouterSection" }),
+      surPorte: (id) => {
+        if (id === "gear") montrer("gear");
+        if (id === "wares") montrer("r");
+        if (id === "send") montrer("sb32");
+      }
+    });
+    return noeud;
+  }
+
   function construireX1() {
     const ligne = lignes.find((l) => l.index === ficheX1);
     /* ⛔ LA LIGNE A PU DISPARAÎTRE SOUS LA FICHE (corbeille, envoi) : on ne rend
@@ -2238,6 +2350,7 @@ export function renderEquipmentStep(ctx, onAction) {
       if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("r") });
       return renderB2({ mode: "send", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("gear") });
     }
+    if (vue === "sac") return construireSac();
     if (vue === "sb31" || vue === "sb33") {
       const lieu = vue === "sb33" ? "storage" : "backpack";
       return renderSacs({ lieu, lignes, chercheRecord: (ref) => ({ data: cherche.record(ref)?.data }),
