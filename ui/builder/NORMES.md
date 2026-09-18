@@ -3401,6 +3401,34 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+### 🖐️ LE GLISSER SURVIT AU REPEINT — DONC SON RAPPEL DOIT RELIRE L'ÉCRAN
+📍 `equipement-glisser-dans-la-marge-relit-l-ecran` · vivante · 18/09
+⚖️ **Un glisser qui fait défiler l'écran sous lui doit LIRE l'état au moment du DÉPÔT, jamais celui du rendu qui l'a armé. ⛔ Sinon on glisse jusqu'à la section 3 et l'objet atterrit dans la 1 — sans que rien ne crie.**
+
+> Eric, 2026-09-18 : **« le drag dans la marge fait défiler latéralement les sections en maintenant
+> le fantôme, ce qui permet de le déplacer d'une section à l'autre »**.
+
+⭐ **CE GESTE N'EST POSSIBLE QUE PARCE QUE `glisser.mjs` A DÉJÀ PAYÉ LA FACTURE** (lot 205,
+*« il reste bloqué là où tu le vois »*) : les écouteurs vivent sur `document`, le fantôme sur
+`document.body`, et la visée passe par `elementFromPoint`. Le geste ne tient donc à **aucun nœud de
+l'écran** — on peut reconstruire toute la grille sous lui.
+🔴 **ET C'EST EXACTEMENT CE QUI CRÉE LE PIÈGE.** Le rappel qui s'exécute au dépôt est la fermeture du
+rendu **d'AVANT** le défilement. S'il referme sur la section et la page, il écrit les anciennes.
+⭐ **LA PARADE** : ce qui peut changer pendant le geste se tient en état de **MODULE**
+(`sectionSac`, `pageSac`) et se **relit** dans le rappel. ⛔ Jamais dans la fermeture.
+⭐ **ET LE MINUTEUR AUSSI SE TIENT AU MODULE** — la loi de `gesteVivant`, *« ce qui est partagé se
+tient au module, pas dans une fermeture »*. En fermeture il **fuit** : chaque cran repeint, donc crée
+un nouvel objet d'écran, pendant que l'ancien minuteur continue. La roue serait partie toute seule.
+📏 **MESURÉ AU NAVIGATEUR, PAS À PAS** : `Potions` → seuil franchi, fantôme posé → entré dans la
+marge à +30 ms : `Composants` → maintenu à +500 ms : `Trésor` → relâché : `Trésor`, et plus rien ne
+tourne.
+⛔ **LA MARGE NE S'INVENTE PAS** : c'est tout ce qui est HORS de la largeur de la grille, et cette
+largeur vient du plan. Et le facteur du zoom se **lit** (`facteurZoomCourant`) — un rectangle rend
+des pixels PEINTS quand la mise en page est en blg, et mélanger les deux familles donne un résultat
+juste au cran 1 et faux partout ailleurs.
+
+---
+
 ### 🗄️ `STORAGE` N'EST PAS UNE DESTINATION DU CHAPITRE — SEULEMENT UNE LIGNE DE POIDS
 📍 `equipement-storage-nest-plus-une-destination` · vivante · 18/09
 ⚖️ **On n'envoie plus rien vers `storage` : le chapitre ne lui donne aucun écran, et un envoi vers un endroit qu'on ne peut pas regarder est un objet perdu. ⭐ Ce qui y est déjà rangé se LIT, sur la ligne `Other` du panneau de poids.**

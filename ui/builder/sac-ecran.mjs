@@ -31,6 +31,13 @@ import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=659";
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
 import { armerJeton, fantome } from "./glisser.mjs?v=659";
+/* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
+   `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
+   `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
+   donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
+   silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
+   qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
+import { facteurZoomCourant } from "./echelle.mjs?v=659";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -251,6 +258,82 @@ function roue(options) {
   return r;
 }
 
+/* ══ LE DÉFILEMENT PAR LA MARGE — Eric, 18/09 ══════════════════════════════
+   ⚖️ *« le drag dans la marge fait défiler latéralement les sections en maintenant
+   le fantôme, ce qui permet de le déplacer d'une section à l'autre »*.
+
+   ⭐ ET CE GESTE SURVIT AU REPEINT, CE QUI N'ALLAIT PAS DE SOI : tourner une section
+   reconstruit toute la grille, donc le jeton qu'on tient QUITTE le DOM en plein
+   geste. C'est exactement la panne du lot 205 — *« il reste bloqué là où tu le
+   vois »* —, et `glisser.mjs` l'a réglée pour de bon : les écouteurs vivent sur
+   `document`, le fantôme sur `document.body`, et la visée passe par
+   `elementFromPoint`, donc elle rencontre les cases NEUVES. Le geste ne tient à
+   aucun nœud de l'écran. ⛔ Sans cette propriété, ce défilement serait impossible.
+
+   ⭐ ET LE MINUTEUR SE TIENT AU MODULE, PAS DANS UNE FERMETURE — la même loi que le
+   `gesteVivant` de `glisser.mjs` : *« ce qui est partagé se tient au module »*.
+   🔴 En fermeture il aurait FUI : chaque cran repeint l'écran, donc crée un nouvel
+   objet d'écran, pendant que l'ancien minuteur continue de tourner. La roue serait
+   partie toute seule et ne se serait plus arrêtée. */
+let defilementVivant = null;
+
+/** ⏱️ LA CADENCE DE REPRISE. ⛔ Aucune donnée ne la dicte, et je ne prétends pas le
+ *  contraire : elle doit être plus longue qu'un coup d'œil sur le nom qui arrive, et
+ *  plus courte que l'impatience. ⭐ Le PREMIER cran, lui, part tout de suite — sinon
+ *  la marge semble morte. ⏳ Un mot d'Eric et elle bouge. */
+const REPRISE_MS = 450;
+
+/** Le sens du défilement pour une abscisse d'écran : `-1` à gauche de la grille,
+ *  `+1` à sa droite, `0` dessus.
+ *  ⛔ LA MARGE NE S'INVENTE PAS : c'est tout ce qui est HORS de la largeur de la
+ *  grille, et cette largeur vient du plan (`COLONNES`, `JETON`). Un pour-cent écrit
+ *  ici serait un nombre de plus à tenir d'accord avec la table. */
+function margeDuGlisser(x) {
+  const dalle = document.querySelector(".sac");
+  if (!dalle || typeof dalle.getBoundingClientRect !== "function") return 0;
+  /* ⛔ ON NE LIT DU RECTANGLE QUE SON BORD GAUCHE, et c'est volontaire : `x` vient
+     de `clientX`, donc du MÊME repère peint. ⭐ La conversion blg → peint passe par
+     le facteur de la racine d'échelle, jamais par une largeur qu'on diviserait soi-
+     même — deux lecteurs du zoom finiraient par ne plus dire la même chose. */
+  const gauche = dalle.getBoundingClientRect().left;
+  const k = facteurZoomCourant(document);
+  if (!k) return 0;
+  if (x < gauche + COLONNES[0] * k) return -1;
+  if (x > gauche + (COLONNES[COLONNES.length - 1] + JETON.l) * k) return 1;
+  return 0;
+}
+
+/** Arrête le défilement. ⭐ Appelée au dépôt ET au lâcher — un geste qui se termine
+ *  n'importe comment doit rendre la roue immobile. */
+export function arreteLeDefilement() {
+  if (defilementVivant && defilementVivant.minuteur) clearInterval(defilementVivant.minuteur);
+  defilementVivant = null;
+}
+
+/** Le pointeur a bougé pendant un glisser : entre-t-il, sort-il, ou reste-t-il dans
+ *  la même marge ? ⛔ On ne relance rien tant que le sens ne change pas. */
+function regardeLaMarge(x, options) {
+  const sens = margeDuGlisser(x);
+  if (defilementVivant && defilementVivant.sens === sens) return;
+  arreteLeDefilement();
+  if (sens === 0 || !options.surTourner) return;
+  options.surTourner(sens);                    /* le premier cran, tout de suite */
+  defilementVivant = { sens, minuteur: setInterval(() => options.surTourner(sens), REPRISE_MS) };
+}
+
+/** Le glisser d'un jeton du sac — le même partout : la marge défile, le dépôt pose.
+ *  ⭐ Écrit UNE fois et donné aux deux organes qui glissent (une case, le
+ *  collecteur) : deux copies divergeraient au premier réglage. */
+function glisserDuSac(noeud, index, options, surDepot) {
+  armerJeton(noeud, {
+    onTap: () => options.surJeton && options.surJeton(index),
+    onLever: (x, y) => fantome.lever(noeud, x, y),
+    onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, options); },
+    onPoser: () => { fantome.ranger(); arreteLeDefilement(); },
+    onDepot: (creneau) => { arreteLeDefilement(); surDepot(creneau); }
+  });
+}
+
 /** Un tuner — chevron au repos, flèche circulaire au survol *(la feuille le peint)*,
  *  et la molette le fait tourner. ⚖️ Eric, 18/09 : *« le chevron devient un bouton
  *  tuner avec une flèche circulaire »* · *« hover avec souris le déclenche »*.
@@ -312,15 +395,9 @@ function case_(id, objet, options) {
     c.dataset.verrouille = "oui";
     c.addEventListener("click", ouvrirLaFiche);
   } else {
-    armerJeton(c, {
-      onTap: () => ouvrirLaFiche(),
-      onLever: (x, y) => fantome.lever(c, x, y),
-      onBouger: (x, y) => fantome.suivre(x, y),
-      onPoser: () => fantome.ranger(),
-      onDepot: (creneau) => {
-        if (creneau === "collecteur") { if (options.surCollecte) options.surCollecte(objet.index); }
-        else if (options.surPlacer) options.surPlacer(objet.index, creneau);
-      }
+    glisserDuSac(c, objet.index, options, (creneau) => {
+      if (creneau === "collecteur") { if (options.surCollecte) options.surCollecte(objet.index); }
+      else if (options.surPlacer) options.surPlacer(objet.index, creneau);
     });
   }
   return c;
@@ -360,15 +437,9 @@ function collecteur(options, retenu) {
     if (options.surJeton) options.surJeton(retenu.index);
   };
   c.addEventListener("contextmenu", ouvrirLaFiche);
-  armerJeton(c, {
-    onTap: () => ouvrirLaFiche(),
-    onLever: (x, y) => fantome.lever(c, x, y),
-    onBouger: (x, y) => fantome.suivre(x, y),
-    onPoser: () => fantome.ranger(),
-    onDepot: (creneau) => {
-      if (creneau === "collecteur") return;
-      if (options.surPlacer) options.surPlacer(retenu.index, creneau);
-    }
+  glisserDuSac(c, retenu.index, options, (creneau) => {
+    if (creneau === "collecteur") return;       /* il est déjà là */
+    if (options.surPlacer) options.surPlacer(retenu.index, creneau);
   });
   return c;
 }

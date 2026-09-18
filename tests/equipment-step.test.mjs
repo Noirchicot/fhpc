@@ -697,3 +697,32 @@ test("P4 — ⛔ UNE SECTION NE VOIT QUE SES LIGNES, et elle les voit DANS L'ORD
   assert.deepEqual(lignesDeSection(lignes, "s1", "s0").map((l) => l.index), [1]);
   assert.equal(boiteDeSection(3), "s3", "la clef se déduit de l'index, elle ne se stocke pas");
 });
+
+test("P5 — 🔴 LA PORTE `Backpack` OUVRE LE SAC B1, et `Storage` n'est plus offert sans écran", () => {
+  /* ⚖️ Eric, 18/09, devant l'ancien écran : *« rassure-moi, ça c'est pas le backpack
+     sur lequel t'es en train de bosser ? »*. Non — et la porte a basculé le soir même,
+     APRÈS vérification dans la vraie application.
+     ⛔ CE GARDE TIENT LES DEUX MOITIÉS DU MÊME GESTE, parce qu'elles ne peuvent pas
+     être séparées : la porte qui bascule rend l'ancienne liste injoignable, et
+     l'ancienne liste était la SEULE porte au monde vers l'écran de la remise. */
+  const ecran = stripComments(fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8"));
+  assert.match(ecran, /porte === "backpack"\) montrer\("sac"\)/,
+    "la porte `Backpack` ouvre le sac B1");
+  assert.doesNotMatch(ecran, /porte === "backpack"\) montrer\("sb31"\)/,
+    "⛔ elle ne revient pas sur l'ancienne liste");
+
+  /* ⭐ LA RÈGLE QUI EN SORT, ET ELLE VAUT POUR TOUT LE PRODUIT : *une destination
+     n'existe que si son écran existe.* Le dropdown le disait déjà pour `Tally` et
+     `Craft` — il les montre `actif: false` plutôt que de laisser choisir. `Storage`
+     n'avait pas ce garde-fou : deux écrans l'offraient vers un endroit devenu
+     invisible, et un objet envoyé là n'aurait plus jamais pu être regardé. */
+  const pipeline = stripComments(fs.readFileSync(path.join(UI_DIR, "equipement-pipeline.mjs"), "utf8"));
+  assert.doesNotMatch(pipeline, /\["storage",\s*"Storage"\]/,
+    "⛔ `Storage` est offert comme destination alors qu'aucune porte ne mène à son écran : " +
+    "c'est un envoi vers l'invisible. Le jour où Eric lui donne une porte, la destination " +
+    "revient AVEC elle — pas avant.");
+  /* ⛔ ET RIEN N'EST PERDU : le compte de la remise se lit toujours, sur la 4ᵉ ligne
+     du panneau de poids. Un objet déjà rangé là est compté, pas effacé. */
+  assert.match(ecran, /autre: mot\(p\.compte\.storage/,
+    "la ligne `Other` doit continuer de dire ce qui est rangé à la remise");
+});

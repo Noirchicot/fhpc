@@ -2356,14 +2356,26 @@ export function renderEquipmentStep(ctx, onAction) {
       /* ⚖️ POSÉ SUR UNE CASE PRÉCISE, L'OBJET Y RESTE — c'est ce que *« le rangement
          fait partie des caracs du perso »* veut dire au doigt. ⭐ La place se DÉDUIT
          de la case et de la page : `case-2-3` en page 2 → 12 + 5. ⛔ Aucun nombre
-         retapé : la largeur de la grille vient du plan. */
+         retapé : la largeur de la grille vient du plan.
+
+         🔴 ET LA SECTION SE RELIT AU MOMENT DU DÉPÔT, ⛔ PAS À CELUI DU RENDU — c'est
+         le défilement par la marge qui a révélé le piège, et il n'existait pas avant
+         lui. Le glisser survit au repeint (ses écouteurs vivent sur `document`), donc
+         le rappel qui s'exécute au dépôt est celui de l'écran D'AVANT le défilement.
+         S'il refermait sur `boite` et `pageSac`, on aurait glissé jusqu'à la section
+         3 pour voir l'objet atterrir dans la 1 — et rien n'aurait crié.
+         ⭐ `sectionSac` et `pageSac` sont de l'état de MODULE : les relire ici, c'est
+         lire l'écran qu'on a sous les yeux au moment où l'on lâche. */
       surPlacer: (index, creneau) => {
         collecteEnvoi.delete(index);
+        const vivantes = currentSections(docu);
+        const vive = boiteDeSection(vivantes.length
+          ? vivantes[Math.min(sectionSac, vivantes.length - 1)].index : 0);
         const m = /^case-(\d+)-(\d+)$/.exec(String(creneau || ""));
         const place = m
           ? pageSac * CASES_DU_SAC + (Number(m[1]) - 1) * COLS_GRILLE + (Number(m[2]) - 1)
           : undefined;
-        act({ kind: "placerGearLine", index, boite, place });
+        act({ kind: "placerGearLine", index, boite: vive, place });
       },
       /* ⚖️ `DROP` VIENT DE LA SOURCE : *« DROP | Backpack | sort l'objet du conteneur
          | sur place »*. ⭐ Il sort ce que le collecteur retient, vers le personnage —

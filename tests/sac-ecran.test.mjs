@@ -392,3 +392,52 @@ test("17 — 🔴 LA MOLETTE SUR LA GRILLE TOURNE LA PAGE, et se tait quand il n
     .dispatchEvent({ type: "wheel", deltaY: 1, preventDefault: () => { muets.push("empeche"); } });
   assert.deepEqual(muets, [], "⛔ et il ne prend même pas la molette au navigateur");
 });
+
+test("18 — 🔴 LE DÉFILEMENT PAR LA MARGE : un seul minuteur, au MODULE, et il s'arrête", () => {
+  /* ⚖️ Eric, 18/09 : *« le drag dans la marge fait défiler latéralement les sections
+     en maintenant le fantôme, ce qui permet de le déplacer d'une section à l'autre »*.
+     📏 MESURÉ AU NAVIGATEUR, pas à pas : Potions → (seuil franchi, fantôme posé) →
+     entré dans la marge gauche à +30 ms : Composants → maintenu à +500 ms : Trésor →
+     relâché : Trésor, et plus rien ne tourne.
+     ⛔ CE GARDE NE REJOUE PAS CE GESTE — il tient les trois invariants de STRUCTURE
+     qui, eux, pourrissent en silence. */
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+
+  /* ① LE MINUTEUR SE TIENT AU MODULE. 🔴 En fermeture il FUIT : chaque cran repeint
+     l'écran, donc crée un nouvel objet d'écran, pendant que l'ancien minuteur
+     continue — la roue serait partie toute seule et ne se serait plus arrêtée.
+     C'est la loi de `gesteVivant` dans `glisser.mjs` : *« ce qui est partagé se tient
+     au module, pas dans une fermeture »*. */
+  assert.match(source, /^let defilementVivant = null;$/m,
+    "⛔ le minuteur du défilement doit être une variable de MODULE");
+  const dansUneFonction = source.slice(source.indexOf("function construireLeSac"));
+  assert.doesNotMatch(dansUneFonction, /setInterval/,
+    "⛔ un `setInterval` posé dans la construction de l'écran est un minuteur par repeint");
+
+  /* ② LA MARGE VIENT DU PLAN, ⛔ pas d'un pour-cent écrit à la main : c'est tout ce
+     qui est HORS de la largeur de la grille, et cette largeur est dans la table. */
+  const marge = source.slice(source.indexOf("function margeDuGlisser"),
+                            source.indexOf("export function arreteLeDefilement"));
+  assert.match(marge, /COLONNES\[0\]/, "le bord gauche est la première colonne de la grille");
+  assert.match(marge, /COLONNES\[COLONNES\.length - 1\] \+ JETON\.l/, "le bord droit est la fin de la dernière");
+  assert.doesNotMatch(marge, /\d+\s*\/\s*100|0\.\d+\s*\*/, "⛔ aucun pour-cent inventé");
+  /* ⛔ ET LE ZOOM SE LIT PAR SON ORGANE : un rectangle rend des pixels PEINTS, la
+     mise en page des blg. Deux lecteurs du facteur finiraient par diverger. */
+  assert.match(marge, /facteurZoomCourant\(document\)/,
+    "⛔ le facteur du zoom se LIT sur la racine d'échelle, il ne se recalcule pas ici");
+
+  /* ③ LE GESTE S'ARRÊTE PAR LES DEUX SORTIES. ⛔ Un geste qui se termine n'importe
+     comment — dépôt, lâcher dans le vide, annulation — doit rendre la roue immobile. */
+  const organe = source.slice(source.indexOf("function glisserDuSac"),
+                              source.indexOf("/** Un tuner"));
+  assert.match(organe, /onPoser:[^\n]*arreteLeDefilement\(\)/, "le lâcher arrête le défilement");
+  assert.match(organe, /onDepot:[^\n]*arreteLeDefilement\(\)/, "le dépôt aussi");
+
+  /* ④ ET LES DEUX ORGANES QUI GLISSENT PARTAGENT LE MÊME : une case et le collecteur.
+     ⛔ Deux copies divergeraient au premier réglage — c'est la doctrine payée cinq
+     fois dans ce chapitre (l'interrupteur, les chevrons, le jeton, le collecteur). */
+  assert.equal((source.match(/armerJeton\(/g) || []).length, 1,
+    "⛔ un seul `armerJeton` dans tout l'écran : le glisser est UN organe");
+  assert.equal((source.match(/glisserDuSac\(/g) || []).length, 3,
+    "sa définition, la case, le collecteur");
+});
