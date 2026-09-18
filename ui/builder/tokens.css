@@ -627,6 +627,19 @@
      de sa dalle que de 1,20. */
   --jeton-teinte: color-mix(in srgb, var(--accent) 20%, transparent);
 
+  /* ⚖️ LES DEUX VISAGES DU TUNER — Eric, 2026-09-18 : *« le chevron devient un
+     bouton tuner avec une flèche circulaire »* · *« hover avec souris le
+     déclenche »*. ⛔ Deux glyphes pour un organe, et c'est voulu : au repos il
+     promet UN CRAN, au survol il promet une MOLETTE. */
+  /* ⭐ LE CHEVRON A UNE BOÎTE ÉTROITE (12 × 24) ET C'EST VOULU : le dessin du
+     tuner fait 10 × 20 depuis qu'Eric l'a aminci (18/09), et `mask-size: contain`
+     rend un glyphe carré à 10 × 10 dans cette boîte — le chevron aurait perdu la
+     moitié de sa hauteur. Avec une boîte au même rapport, il la prend entière.
+     ⛔ La molette, elle, garde sa boîte carrée : *« elle sera plus petite, c'est
+     tout »* — un rond ne s'étire pas. */
+  --icone-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.5 4 L3.5 12 L8.5 20'/%3E%3C/svg%3E");
+  --icone-tuner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M20 12a8 8 0 1 1-2.3-5.6'/%3E%3Cpath d='M18 2.5 L18 7 L13.5 7' stroke-linejoin='round'/%3E%3C/svg%3E");
+
   /* ⚖️ LA BANDE DES MARQUES D'UN JETON — Eric, 2026-09-17, croquis en main :
      *« j'ai mesuré que l'espace haut du token soit libre pour ces petits
      marquages et pas de conflit avec le texte »*.

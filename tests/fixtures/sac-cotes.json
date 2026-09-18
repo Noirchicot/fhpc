@@ -4,10 +4,10 @@
   "h": 500
  },
  "roue": {
-  "piste": 311,
-  "budget": 279,
-  "dominant": 67,
-  "secondaire": 53,
+  "piste": 331,
+  "budget": 299,
+  "dominant": 71,
+  "secondaire": 57,
   "marge_pct": 0.075
  },
  "grille": {
@@ -31,14 +31,14 @@
   {
    "nom": "ROUE",
    "sorte": "roue",
-   "x": 32,
+   "x": 22,
    "y": 4,
-   "l": 311,
+   "l": 331,
    "h": 40,
    "cible": {
-    "x": 32.0,
+    "x": 22.0,
     "y": 2.0,
-    "l": 311,
+    "l": 331,
     "h": 44
    },
    "cran": "T1/600"
@@ -46,9 +46,9 @@
   {
    "nom": "CRAN 1",
    "sorte": "cran",
-   "x": 32,
+   "x": 22,
    "y": 6.0,
-   "l": 53,
+   "l": 57,
    "h": 36,
    "dans": "ROUE",
    "dominant": false,
@@ -58,9 +58,9 @@
   {
    "nom": "CRAN 2",
    "sorte": "cran",
-   "x": 93,
+   "x": 87,
    "y": 6.0,
-   "l": 53,
+   "l": 57,
    "h": 36,
    "dans": "ROUE",
    "dominant": false,
@@ -70,9 +70,9 @@
   {
    "nom": "CRAN 3",
    "sorte": "cran",
-   "x": 154,
+   "x": 152,
    "y": 4.0,
-   "l": 67,
+   "l": 71,
    "h": 40,
    "dans": "ROUE",
    "dominant": true,
@@ -82,9 +82,9 @@
   {
    "nom": "CRAN 4",
    "sorte": "cran",
-   "x": 229,
+   "x": 231,
    "y": 6.0,
-   "l": 53,
+   "l": 57,
    "h": 36,
    "dans": "ROUE",
    "dominant": false,
@@ -94,9 +94,9 @@
   {
    "nom": "CRAN 5",
    "sorte": "cran",
-   "x": 290,
+   "x": 296,
    "y": 6.0,
-   "l": 53,
+   "l": 57,
    "h": 36,
    "dans": "ROUE",
    "dominant": false,
@@ -108,10 +108,10 @@
    "sorte": "tuner",
    "x": 4,
    "y": 14.0,
-   "l": 20,
+   "l": 10,
    "h": 20,
    "cible": {
-    "x": -8.0,
+    "x": -13.0,
     "y": 2.0,
     "l": 44,
     "h": 44
@@ -122,12 +122,12 @@
   {
    "nom": "TUNER D",
    "sorte": "tuner",
-   "x": 351,
+   "x": 361,
    "y": 14.0,
-   "l": 20,
+   "l": 10,
    "h": 20,
    "cible": {
-    "x": 339.0,
+    "x": 344.0,
     "y": 2.0,
     "l": 44,
     "h": 44

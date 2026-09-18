@@ -11730,3 +11730,121 @@ button.tuto-point::before {
    de liseré »*, et NORMES : non coloré = non cliquable. `Use` attend son chantier,
    il le dit. */
 .x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
+
+/* ══ L'ÉCRAN SB3.1 — LE SAC (lot 214) ═══════════════════════════════════════
+   ⛔ AUCUNE COTE ICI : les positions sortent de la table, dans la feuille que
+   `sac-ecran.mjs` construit. Ce bloc ne porte que l'HABIT — la forme, l'encre,
+   les états. Un `left` écrit ici serait une cote recopiée.
+   ⭐ LE JETON N'Y EST PAS NON PLUS : il porte ses classes neutres
+   (`jeton-nom`, `jeton-marques`, `jeton-marque`), peintes plus haut avec celles
+   de l'écran R — le même organe, un seul habit. */
+.sac {
+  position: relative; flex: 1 1 auto; min-height: 0;
+  background: var(--surface); overflow: hidden;
+}
+.sac [data-organe] { position: absolute; box-sizing: border-box; }
+
+/* — LA ROUE : un tambour à UN étage, sans perspective. Eric, 18/09 : *« on va pas
+     se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
+     le HALO, comme sur le belt. — */
+.sac-roue { display: block; }
+.sac-cran {
+  position: absolute; box-sizing: border-box;
+  border: 0; background: var(--dalle-inter); color: var(--text-soft);
+  border-radius: var(--organe-rayon); cursor: pointer;
+  font-size: var(--t0); line-height: 1.15; font-weight: 600;
+  /* ⚖️ DEUX ÉTAGES — Eric, 18/09 : *« on peut écrire sur deux étages aussi »*, ce
+     qui porte un nom à ~22 signes au lieu de 11. 🔴 ET UN MOT LONG DOIT POUVOIR
+     SE COUPER : faute vue au banc, « Composants » débordait d'une ligne et se
+     tronquait en « Composa… » alors que deux étages l'attendaient. Un mot ne se
+     replie pas tout seul — il faut le lui permettre. */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow-wrap: anywhere; overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+/* ⚖️ LE DOMINANT — la cote vient de la table, le HALO vient du belt : c'est la
+   même ombre portée, qui déborde dans la gouttière sans rien prendre au cran. */
+.sac-cran[data-dominant="oui"] {
+  color: var(--text); font-size: var(--t1); cursor: default;
+  box-shadow: inset 0 0 0 1px var(--verre-lisere),
+              inset 0 0 0 1px var(--accent-wash),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
+/* — LE TUNER : chevron au repos, flèche circulaire au survol. ⭐ `hover: hover`
+     n'est pas une détection d'appareil : c'est une question posée au POINTEUR.
+     Un téléphone garde son chevron, une souris reçoit la molette. — */
+.sac-tuner {
+  /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
+     l'agent utilisateur impose du noir (garde 6, défaut n°4). */
+  color: var(--text-soft);
+  border-style: solid; border-color: transparent; padding: 0;
+  background: none; cursor: pointer;
+  background-color: var(--text-soft);
+  /* 🔴 LE GLYPHE SE PEINT DANS LE DESSIN, PAS DANS LA CIBLE — faute vue au banc :
+     sans `content-box`, le masque s'étalait sur les 44 de la cible et le chevron
+     faisait plus du double de sa cote. C'est la jumelle du « pas de cercle moche
+     autour » d'Eric (17/09) : les bords transparents portent l'écart cible −
+     dessin, et rien ne doit peindre dessus. */
+  background-clip: content-box;
+  mask-image: var(--icone-chevron); -webkit-mask-image: var(--icone-chevron);
+  mask-origin: content-box; mask-clip: content-box;
+  -webkit-mask-origin: content-box; -webkit-mask-clip: content-box;
+  mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+  -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+}
+.sac-tuner[data-sens="droite"] { transform: scaleX(-1); }
+@media (hover: hover) {
+  .sac-tuner:hover {
+    background-color: var(--text);
+    mask-image: var(--icone-tuner); -webkit-mask-image: var(--icone-tuner);
+  }
+  .sac-tuner[data-sens="droite"]:hover { transform: scaleX(-1) scaleX(-1); }
+}
+/* — LES DEUX OUTILS — même famille que les glyphes de X1 : un dessin de 40 dans
+     une cible de 44, sans l'habit de la famille des boutons. — */
+.sac-outil {
+  /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
+     l'agent utilisateur impose du noir (garde 6, défaut n°4). */
+  color: var(--bouton-encre);
+  border-style: solid; border-color: transparent; padding: 0;
+  background: var(--bouton-corps); box-shadow: var(--bouton-aretes);
+  border-radius: var(--organe-rayon); cursor: pointer;
+}
+/* — LES TROIS LIGNES DE POIDS : des voyants, on les lit. — */
+.sac-poids {
+  margin: 0; font-size: var(--t0); line-height: 1.1; color: var(--text-soft);
+  display: flex; align-items: center;
+}
+.sac-poids[data-organe="poids-3"] { color: var(--text); font-weight: 600; }
+/* — LES CASES ET LE COLLECTEUR : le creux dit « pose ici », le relief dit
+     « quelque chose est posé » — les mêmes deux états que sur R. — */
+.sac-case, .sac-collecteur {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  padding-inline: var(--sp-4); padding-top: var(--jeton-bande);
+  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
+  background: none; box-shadow: var(--creux); color: var(--text);
+  text-align: center; line-height: 1.1;
+}
+.sac-case[data-occupe], .sac-collecteur[data-occupe] {
+  border-color: var(--border-strong);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  cursor: grab;
+}
+.sac-case[data-verrouille="oui"] { cursor: pointer; }
+.sac-case[data-vise="true"], .sac-collecteur[data-vise="true"] {
+  border-color: var(--accent); background: var(--accent-wash);
+}
+/* ⛔ le collecteur n'a PAS de bande : *« il n'y a pas de token dans le collecteur,
+   juste le nom »* (Eric, 16/09). */
+.sac-collecteur { padding-top: calc(var(--sp-8) + var(--sp-2)); }
+/* — LES TROIS ORGANES D'ÉCHANGE : des boutons à glyphe, pas à mot. — */
+.sac-echange {
+  /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
+     l'agent utilisateur impose du noir (garde 6, défaut n°4). */
+  color: var(--bouton-encre);
+  border-style: solid; border-color: transparent; padding: 0;
+  background: var(--bouton-corps); box-shadow: var(--bouton-aretes);
+  border-radius: var(--organe-rayon); cursor: pointer;
+}
+.sac-destination { display: flex; align-items: center; }
+.sac-destination > .pipeline-dropdown { width: 100%; }
