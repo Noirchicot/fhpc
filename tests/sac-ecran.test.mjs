@@ -269,21 +269,46 @@ test("13 — 🔴 LES TROIS ORGANES D'ÉCHANGE SONT CEUX DE R, ET ILS PORTENT LE
     "⛔ la bourse n'est pas un parchemin : elle ne s'efface pas quand elle est vide");
 });
 
-test("14 — 🔴 LES DEUX OUTILS PORTENT UN SIGNE, et leur mot vit dans l'aria-label", () => {
-  /* ⚖️ Eric, 18/09 : *« un petit bouton 40 × 40 à droite du titre de section qui
-     ressemble à un CADRILLAGE ; un autre à gauche qui fait un RANGEMENT LOCAL »*.
-     ⛔ Ils étaient nus. Un bouton sans mot ET sans glyphe n'est pas discret, il est
-     muet — et 40 × 40 ne tient pas « Sections » au cran T1, donc le mot ne peut
-     vivre que dans l'`aria-label`. */
-  const tokens = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+test("14 — ⚖️ LES DEUX OUTILS PORTENT LEUR MOT, EN VERT — et plus un glyphe", () => {
+  /* ⚖️ Eric, 2026-09-19 : *« le bouton d'édition est trop grossier ; je préfère un
+     carré vert simple : edit / sections. Et un autre bouton classique vert : Sort. »*
+     🔴 CE GARDE DISAIT L'INVERSE HIER, et il avait raison hier : les deux boutons
+     étaient NUS, et un glyphe valait mieux que rien. ⭐ Un mot vaut mieux qu'un
+     glyphe — et Eric a tranché en regardant, ce qu'aucun garde ne sait faire. */
   const n = rendu();
-  for (const [id, jeton] of [["trier", "--icone-trier"], ["sections", "--icone-grille"]]) {
-    const b = n.querySelector(`[data-organe="${id}"]`);
-    assert.ok(b, `${id} est posé`);
-    assert.ok(b.getAttribute("aria-label"), `⛔ \`${id}\` n'a pas de mot du tout`);
-    assert.match(tokens, new RegExp(`${jeton}:\\s*url\\(`), `⛔ le jeton ${jeton} n'existe pas`);
-    assert.match(feuille, new RegExp(`\\.sac-outil\\[data-organe="${id}"\\][^{]*::before[^}]*mask-image:\\s*var\\(${jeton}\\)`),
-      `⛔ rien ne peint le glyphe de \`${id}\` — il rendrait un rectangle nu`);
+  const trier = n.querySelector('[data-organe="trier"]');
+  const sections = n.querySelector('[data-organe="sections"]');
+  assert.equal(trier.textContent, "Sort", "⭐ le mot est VISIBLE, plus caché dans l'aria-label");
+  assert.equal(sections.textContent, "editsections",
+    "⭐ deux étages, deux nœuds — ⛔ un `\\n` dans le texte finirait dans l'aria-label");
+  assert.deepEqual(tous(sections, ".sac-outil-etage").map((e) => e.textContent), ["edit", "sections"]);
+  assert.equal(n.querySelector('[data-organe="sections"]').getAttribute("aria-label"), "Edit sections",
+    "et le mot complet reste dit à qui ne voit pas l'écran");
+
+  /* ⚖️ *« carré vert = bouton classique »* — Eric, 19/09, en tranchant sa propre
+     phrase de la veille. ⭐ LES DEUX SONT DU MÊME GABARIT, et le mot « carré »
+     désignait le VERT, pas la forme.
+     🔴 J'AVAIS SORTI LE SECOND DE LA FAMILLE POUR ÉCHAPPER À SON `min-width` DE 77 —
+     mesuré : posé à 44, il rendait 77 et SORTAIT de la dalle de 29, parce que la
+     famille impose sa largeur sous un sélecteur à (0,3,1) (*« `:not(.tuto-point)`
+     porte la spécificité de son argument »*). ⭐ Eric a tranché l'inverse : c'est au
+     PLAN de lui donner ses 77. ⛔ On ne contourne pas une famille, on lui fait de la
+     place — et la rangée s'est redisposée autour, le total prenant sa propre ligne. */
+  for (const b of [trier, sections]) {
+    assert.ok(b.className.split(/\s+/).includes("gear-porte"),
+      `⛔ « ${b.className} » : les deux outils sont des boutons CLASSIQUES, ceux du pied`);
+  }
+  const plan = (nom) => D.ORGANES.find((o) => o.nom === nom);
+  assert.equal(plan("TRIER").l, plan("TASSER").l,
+    "⛔ et le plan leur donne la MÊME largeur : deux boutons du même gabarit au même endroit");
+  assert.match(feuille, /\.sac-outil \{ --bouton-fond: var\(--positive\); \}/,
+    "⚖️ *« vert »* — le liseré dit le verbe (§6), il ne se peint pas dans le balisage");
+
+  /* ⛔ ET LES DEUX GLYPHES SONT MORTS AVEC EUX : un jeton que plus personne ne lit est
+     un jeton à retirer — la leçon du lot 213 (`--icone-plus`, `--icone-coeur`). */
+  const tokens = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+  for (const mort of ["--icone-trier", "--icone-grille"]) {
+    assert.doesNotMatch(tokens, new RegExp(`${mort}\\s*:`), `⛔ ${mort} ne sert plus à personne`);
   }
 });
 
@@ -333,16 +358,28 @@ test("15 — 🔴 LE MODE ÉDITION DE LA ROUE : le champ, le `+`, le `−`", () 
   assert.match(feuille, /\.sac-outil\[data-organe="sections"\]\[data-on="true"\]/,
     "⛔ et l'état se voit : sans halo, rien ne dit qu'on est en édition");
 
-  /* ⑤ ⛔ EN ÉDITION LE RUBAN NE BOUCLE PLUS — une liste a un début et une fin, sans
-     quoi le `+` du bout ne serait jamais au bout. */
+  /* ⑤ ⚖️ LA ROUE EST INFINIE DANS LES DEUX MODES — Eric, 2026-09-19 : *« ça doit être
+     une roue infinie ; le halo et le zoom restent au centre, et les boîtes défilent
+     dans le halo »* · *« il doit toujours y avoir 2 sections à gauche et 2 à droite »*.
+     🔴 CE GARDE DISAIT L'INVERSE HIER, et il avait raison hier : j'avais mis le `+`
+     AU BOUT de la liste, donc l'édition ne pouvait pas boucler — un ruban infini n'a
+     pas de bout. ⭐ Le `+` est devenu un CRAN DE PLUS SUR L'ANNEAU : l'édition tourne
+     sur `n + 1`, le repos sur `n`, et les deux bouclent. */
   const cinq = [1, 2, 3, 4, 5].map((i) => ({ nom: `S${i}` }));
   const bout = rendu({ sections: cinq, section: 4, edition: true });
   assert.deepEqual(tous(bout, ".sac-cran").map((c) => c.textContent || c.value),
-    ["S3", "S4", "S5", "+"], "⛔ rien avant S3, et le `+` juste après la dernière");
+    ["S3", "S4", "S5", "+", "S1"],
+    "⭐ l'anneau de six passe par le `+` et revient à S1 — deux crans de chaque côté, toujours");
   const repos = rendu({ sections: cinq, section: 0 });
-  assert.equal(tous(repos, ".sac-cran").length, 5,
-    "⚖️ au repos, lui, le ruban boucle : *« un belt infini déroulant »* (Eric, 18/09)");
+  assert.deepEqual(tous(repos, ".sac-cran").map((c) => c.textContent),
+    ["S4", "S5", "S1", "S2", "S3"],
+    "⚖️ au repos l'anneau vaut n : *« un belt infini déroulant »* (Eric, 18/09)");
   assert.equal(tous(repos, '[data-role="ajouter"]').length, 0, "⛔ et il ne porte aucun `+`");
+  /* ⛔ ET LE VISEUR NE BOUGE JAMAIS : le dominant est TOUJOURS la place du milieu. */
+  for (const n of [bout, repos]) {
+    assert.deepEqual(tous(n, ".sac-cran").map((c) => c.dataset.dominant),
+      ["non", "non", "oui", "non", "non"], "le halo et le zoom restent au centre");
+  }
 });
 
 test("16 — 🔴 LA GRILLE SE COMPTE DANS LA TABLE, ⛔ elle ne s'écrit pas dans le module", () => {

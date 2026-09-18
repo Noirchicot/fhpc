@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=661";
-import { facteurZoomCourant } from "./echelle.mjs?v=661";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=661";
+import { renderPicker } from "./carnet.mjs?v=667";
+import { facteurZoomCourant } from "./echelle.mjs?v=667";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=667";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=661";
-import { swapContent } from "./socle.mjs?v=661";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=661";
+import { isGenre } from "../../src/layers/document.mjs?v=667";
+import { swapContent } from "./socle.mjs?v=667";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=667";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=661";
+import { armerJeton } from "./glisser.mjs?v=667";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=661";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=667";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=661";
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=667";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=661";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=667";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=661";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=661";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=667";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=667";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=661";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=667";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=661";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=661";
+import { motDuCran } from "./ecran-mort.mjs?v=667";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -393,15 +393,57 @@ export function currentSections(document) {
   return [...par.values()].sort((a, b) => a.index - b.index);
 }
 
+/* ══ LE PARTY INVENTORY — Eric, 2026-09-19 ══════════════════════════════════
+   ⚖️ *« pour les sections du backpack, il faut que d'entrée de jeu il y ait un party
+   inventory »*.
+   ⭐ C'EST UNE SECTION QUI EXISTE SANS QUE PERSONNE NE L'AIT CRÉÉE, et c'est sa seule
+   différence : elle a la grille, les places, le rangement et le glisser de toutes les
+   autres. ⛔ Mais elle ne se supprime pas et ne se renomme pas — on n'efface pas une
+   place qu'on n'a pas faite.
+   🔴 SA CLEF EST UN MOT, PAS UN NUMÉRO, et c'est ce qui la rend sûre : `s0`, `s1`…
+   sont distribués par `nextSectionIndex`, donc une section créée par le joueur
+   finirait un jour sur le même numéro. `party` ne peut entrer en collision avec rien.
+   ⚠️ ET LA SOURCE DU CHAPITRE DIT L'INVERSE, JE LE SIGNALE PLUTÔT QUE DE LE TAIRE :
+   elle range `PARTY INVENTORY` parmi les quatre entrées qui *« dorment pendant la
+   création »* — *« exige un inventaire DU GROUPE »*. Eric la réveille ici ; c'est sa
+   page, et ce mot-ci est le plus récent. ⏳ L'artefact est à mettre à jour.
+   ⚠️ ET CE QU'ELLE COÛTE, PARCE QUE ÇA NE SE VOIT PAS : une section du sac est DANS
+   le sac, donc ce qu'on y range PÈSE sur le personnage et entre dans son encombrement.
+   Si le party inventory ne doit pas peser, ce n'est pas une section — c'est un lieu,
+   comme `storage`. ⏳ Question posée à Eric, non devinée. */
+export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party inventory" });
+
+/* ══ LES SIX SECTIONS DU SAC — Eric, 2026-09-19 ════════════════════════════
+   ⚖️ *« chaque section fait en 6. Backpack section 1 · Backpack section 2 · etc.
+   6 en tout. »*
+   ⭐ ELLES SONT LÀ D'ENTRÉE DE JEU, ET LE DOCUMENT N'EN SAIT RIEN TANT QU'ON N'Y
+   TOUCHE PAS : six tiroirs vides ne sont pas six décisions du joueur. La première
+   qu'il renomme s'écrit ; les autres restent des places que l'écran compose.
+   ⭐ ET LEUR NOM TIENT SUR DEUX ÉTAGES, comme Eric l'écrit — c'est précisément ce
+   pour quoi le cran a deux lignes depuis le 18/09 (*« on peut écrire sur deux étages
+   aussi »*). ⛔ Le retour à la ligne n'est pas dans la donnée : c'est le cran qui
+   replie, et un `\n` dans un nom se retrouverait dans l'`aria-label`.
+   ⛔ SIX N'EST PAS UN PLAFOND : le `+` en ajoute au-delà, le `−` ne retire que
+   celles-là. On ne supprime pas un tiroir qu'on n'a pas fait. */
+export const SECTIONS_DU_SAC = 6;
+export const nomDeSectionParDefaut = (index) => `Backpack section ${index + 1}`;
+
 /** Le prochain index de section libre — même loi que `nextGearIndex` : un index
- *  qui a existé ne redevient pas anonyme. */
+ *  qui a existé ne redevient pas anonyme.
+ *  🔴 ET IL PART APRÈS LES SIX DU SOCLE (Eric, 19/09 : *« 6 en tout »*). ⛔ Sans ce
+ *  plancher, le `+` d'un sac neuf écrivait l'index 0 — c'est-à-dire qu'il RENOMMAIT
+ *  la première des six au lieu d'en créer une septième, et rien ne l'aurait dit.
+ *  ⭐ Les six occupent 0..5 qu'elles soient écrites ou non : une place réservée l'est
+ *  même vide, sinon elle n'est pas réservée. */
 export function nextSectionIndex(document) {
-  return currentSections(document).reduce((max, s) => Math.max(max, s.index + 1), 0);
+  return currentSections(document)
+    .reduce((max, s) => Math.max(max, s.index + 1), SECTIONS_DU_SAC);
 }
 
 /** La clef de boîte d'une section — `s0`, `s1`… ⭐ Elle se DÉDUIT de l'index, elle
- *  ne se stocke pas : deux sources pour une même appartenance divergeraient. */
-export const boiteDeSection = (index) => `s${index}`;
+ *  ne se stocke pas : deux sources pour une même appartenance divergeraient.
+ *  ⭐ Sauf le party inventory, dont la clef est un MOT : voir `SECTION_PARTY`. */
+export const boiteDeSection = (index) => (index === SECTION_PARTY.clef ? index : `s${index}`);
 export const sectionDeBoite = (boite) => {
   const m = /^s(\d+)$/.exec(String(boite || ""));
   return m ? Number(m[1]) : null;
@@ -2280,9 +2322,22 @@ export function renderEquipmentStep(ctx, onAction) {
   function construireSac() {
     /* ⚖️ UN SAC NEUF N'A AUCUNE SECTION, et on ne lui en invente pas au document :
        l'écran en montre UNE, implicite, qui porte tout ce qui n'a pas de boîte.
-       ⭐ Elle n'existe que le temps du rendu — le premier `+` en écrit une vraie. */
+       ⭐ Elle n'existe que le temps du rendu — le premier `+` en écrit une vraie.
+       ⚖️ ET LE PARTY INVENTORY EST LÀ D'ENTRÉE DE JEU — Eric, 19/09. ⭐ EN DERNIER, et
+       c'est un choix : le sac s'ouvre sur TES affaires ; le commun vient après. */
+    /* ⭐ LES SIX SONT TOUJOURS LÀ ; celles que le joueur a nommées prennent la place
+       de leur rang, les autres gardent leur nom par défaut. `fige` marque celles
+       qu'on ne supprime pas — les six et le party — ⛔ mais elles se RENOMMENT
+       toutes, sauf le party : renommer un tiroir, c'est le sien. */
     const declarees = currentSections(docu);
-    const sections = declarees.length ? declarees : [{ index: 0, nom: "Backpack" }];
+    const parIndex = new Map(declarees.map((x) => [x.index, x]));
+    const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
+      index: i, nom: (parIndex.get(i) || {}).nom || nomDeSectionParDefaut(i), fige: true
+    }));
+    const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC);
+    const miennes = [...socle, ...ajoutees];
+    const sections = [...miennes,
+      { index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom, fige: true }];
     if (sectionSac >= sections.length) sectionSac = 0;
     const boite = boiteDeSection(sections.length ? sections[sectionSac].index : 0);
     /* les lignes DU SAC, celles de la section regardée, RANGÉES PAR LEUR PLACE */
@@ -2312,18 +2367,30 @@ export function renderEquipmentStep(ctx, onAction) {
        passe donc de trois à quatre lignes, sur R et sur B1 »*). ⭐ Un objet rangé
        ailleurs doit se compter quelque part, sans quoi il disparaît de l'écran. */
     const p = poidsParLieu(lignes, (ref) => ({ data: cherche.record(ref)?.data }));
+    /* ⭐ DEUX FORMES POUR DEUX RÔLES — Eric, 19/09 : le TOTAL se lit en entier et nomme
+       son calcul ; le DÉTAIL est court, trois parts sur une ligne. ⛔ Le détail ne
+       répète ni « obj. » ni l'unité : elle est dite une fois, au-dessus. */
+    const unite = p.unite || "lb";
+    const rond = (x) => Math.round(x * 10) / 10;
     const mot = (compte, somme, inconnus, titre) =>
-      `${titre} — ${compte} obj. · ${Math.round(somme * 10) / 10} ${p.unite || "lb"}`
-      + (inconnus ? ` (+${inconnus} sans poids)` : "");
+      `${titre} ${rond(somme)}${inconnus ? ` +${inconnus}?` : ""}`;
+    /* ⛔ SANS L'UNITÉ, ET C'EST MESURÉ : avec elle la ligne demande 234,2 pour 230 de
+       place, donc elle se replie sur deux étages. ⭐ Eric l'écrit d'ailleurs sans —
+       *« encumbrance (gear + Backpack) xxxx »* — et le détail juste dessous porte les
+       mêmes nombres : une unité dite deux fois sur deux lignes voisines n'apprend
+       rien à personne. */
+    const motTotal = (e) =>
+      `Encumbrance (Gear + Backpack) ${rond(e.somme)}`
+      + (e.inconnus ? ` · ${e.inconnus} sans poids` : "");
     const { noeud } = construireLeSac({
-      sections: sections.map((s) => ({ nom: s.nom })),
+      sections: sections.map((s) => ({ nom: s.nom, fige: s.fige === true })),
       section: sectionSac,
       edition: editionSac,
       objets: places,
       poids: {
         gear: mot(p.compte.self, p.somme.self, p.inconnus.self, "Gear"),
         backpack: mot(p.compte.backpack, p.somme.backpack, p.inconnus.backpack, "Backpack"),
-        encombrement: mot(p.encombrement.compte, p.encombrement.somme, p.encombrement.inconnus, "Encumbrance"),
+        encombrement: motTotal(p.encombrement),
         autre: mot(p.compte.storage, p.somme.storage, p.inconnus.storage, "Other")
       },
       /* ⚖️ LE COMPTE ET LA PAGE — LA SOURCE DU CHAPITRE : *« le compte à gauche de la
@@ -2368,9 +2435,14 @@ export function renderEquipmentStep(ctx, onAction) {
          lire l'écran qu'on a sous les yeux au moment où l'on lâche. */
       surPlacer: (index, creneau) => {
         collecteEnvoi.delete(index);
-        const vivantes = currentSections(docu);
-        const vive = boiteDeSection(vivantes.length
-          ? vivantes[Math.min(sectionSac, vivantes.length - 1)].index : 0);
+        /* ⛔ LA LISTE RELUE EST LA LISTE COMPOSÉE, party inventory compris : sans lui
+           un jeton glissé jusqu'à la section du groupe atterrirait dans la dernière
+           des miennes. C'est le même piège que le défilement par la marge, un cran
+           plus loin. */
+        const dites = currentSections(docu);
+        const vivantes = [...(dites.length ? dites : [{ index: 0, nom: "Backpack" }]),
+                          { index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom }];
+        const vive = boiteDeSection(vivantes[Math.min(sectionSac, vivantes.length - 1)].index);
         const m = /^case-(\d+)-(\d+)$/.exec(String(creneau || ""));
         const place = m
           ? pageSac * CASES_DU_SAC + (Number(m[1]) - 1) * COLS_GRILLE + (Number(m[2]) - 1)
@@ -2430,23 +2502,39 @@ export function renderEquipmentStep(ctx, onAction) {
          il BASCULE le mode, il ne crée rien. C'est le `+` de la roue qui crée. */
       surSections: () => { editionSac = !editionSac; peindre(); },
       surAjouter: () => {
-        /* la neuve devient celle qu'on regarde : on vient de la faire, on y va */
-        sectionSac = sections.length;
+        /* ⭐ LA NEUVE SE RANGE APRÈS LES MIENNES, AVANT LE PARTY : c'est là qu'elle
+           tombera au prochain rendu, et le viseur doit l'y suivre — sinon le joueur
+           vient de créer une section et en regarde une autre. */
+        sectionSac = miennes.length;
         act({ kind: "ajouterSection" });
       },
-      surRenommer: (i, nom) => act({ kind: "renommerSection", index: sections[i].index, nom }),
+      surRenommer: (i, nom) => {
+        const s = sections[i];
+        /* ⛔ LE PARTY INVENTORY NE SE RENOMME PAS : on ne rebaptise pas une place
+           qu'on n'a pas faite, et son nom dit à qui elle est. */
+        if (!s || s.index === SECTION_PARTY.clef) return;
+        act({ kind: "renommerSection", index: s.index, nom });
+      },
       surSupprimer: () => {
         const s = sections[sectionSac];
         if (!s) return;
-        /* ⛔ LA SECTION IMPLICITE NE SE SUPPRIME PAS : quand le sac n'en déclare
-           aucune, l'écran en montre UNE qui n'existe pas au document. La retirer
-           n'aurait rien à effacer — et le verbe irait chercher une clef absente. */
-        if (!declarees.length) {
-          act({ kind: "popup", titre: "Section", role: "gendarme",
-            texte: "This is the bag itself, not a section you made. Add one first." });
+        /* ⛔ LE PARTY INVENTORY NE SE SUPPRIME PAS NON PLUS — Eric, 19/09 : il est là
+           *« d'entrée de jeu »*, donc il ne dépend d'aucun geste, donc aucun geste ne
+           le retire. */
+        if (s.index === SECTION_PARTY.clef) {
+          act({ kind: "popup", titre: "Party inventory", role: "gendarme",
+            texte: "The party inventory is always there. It is not a section you made." });
           return;
         }
-        if (sectionSac >= declarees.length - 1) sectionSac = Math.max(0, declarees.length - 2);
+        /* ⛔ ET LES SIX DU SOCLE NON PLUS — Eric, 19/09 : *« 6 en tout »*. Elles sont
+           là d'entrée de jeu, donc aucun geste ne les retire. Le `−` ne rend que ce
+           que le `+` a donné. */
+        if (s.fige === true) {
+          act({ kind: "popup", titre: "Section", role: "gendarme",
+            texte: "The six backpack sections are always there. Rename one instead." });
+          return;
+        }
+        if (sectionSac >= sections.length - 2) sectionSac = Math.max(0, sections.length - 3);
         act({ kind: "supprimerSection", index: s.index });
       },
       surPorte: (id) => {

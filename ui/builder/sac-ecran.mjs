@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=661";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=661";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=667";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=667";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=661";
+import { armerJeton, fantome } from "./glisser.mjs?v=667";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=661";
+import { facteurZoomCourant } from "./echelle.mjs?v=667";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -45,7 +45,7 @@ export const CLEF_DE = Object.freeze({
   "ROUE": "roue", "TUNER G": "tuner-g", "TUNER D": "tuner-d",
   "CRAN 1": "cran-1", "CRAN 2": "cran-2", "CRAN 3": "cran-3", "CRAN 4": "cran-4", "CRAN 5": "cran-5",
   "TRIER": "trier", "TASSER": "sections",
-  "POIDS 1": "poids-1", "POIDS 2": "poids-2", "POIDS 3": "poids-3", "POIDS 4": "poids-4",
+  "POIDS TOTAL": "poids-total", "POIDS DETAIL": "poids-detail",
   "COMPTE": "compte", "PAGE": "page",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
   "DROP": "drop", "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
@@ -178,7 +178,7 @@ function roue(options) {
   r.setAttribute("aria-label", "Sections");
   const sections = options.sections || [];
   const n = sections.length;
-  const actif = Math.min(Math.max(0, options.section | 0), Math.max(0, n - 1));
+  const actif = Math.max(0, options.section | 0);
   /* ⚖️ CINQ PLACES, PAS CINQ CRANS — deux avant, le dominant, deux après. La table
      ne connaît que des PLACES ; c'est la roue qui décide combien elle en remplit.
      🔴 ET EN DESSOUS DE CINQ SECTIONS, ELLE N'EN REMPLIT PAS CINQ : avec le modulo,
@@ -209,13 +209,25 @@ function roue(options) {
      faire pendant qu'on édite. Un cran qui porte à la fois un nom, un champ et une
      croix ne se lit plus. */
   const edition = options.edition === true;
-  /* en édition la roue porte une place de plus — le `+`, après la dernière section */
-  const dernier = edition ? n : n - 1;
+  /* ⚖️ UNE ROUE INFINIE — Eric, 2026-09-19 : *« ça doit être une roue infinie ; le halo
+     et le zoom restent au centre, et les boîtes défilent dans le halo »* · *« il doit
+     toujours y avoir 2 sections à gauche et 2 à droite »*.
+     ⭐ L'ANNEAU PORTE `n` CRANS AU REPOS ET `n + 1` EN ÉDITION — le `+` est un cran de
+     plus SUR l'anneau, pas une butée à son bout. ⛔ C'est ce qui rend les deux
+     compatibles : un ruban infini n'a pas de bout où poser quoi que ce soit.
+     ⭐ ET LE VISEUR NE BOUGE JAMAIS : le halo et le zoom vivent à la place du MILIEU,
+     ce sont les noms qui défilent dessous. Les deux voisins de chaque côté sont donc
+     toujours là — c'est la conséquence de l'anneau, pas une règle de plus.
+     ⛔ ON NE BOUCLE PAS SOUS CINQ CRANS : une section paraîtrait deux fois, et une
+     roue qui se répète ment sur ce qu'elle contient. Avec les six du socle et le
+     party inventory, le cas ne se présente plus — mais un banc peut l'appeler. */
+  const anneau = edition ? n + 1 : n;
   for (let i = 0; i < 5; i += 1) {
     const dom = i === 2;
     const brut = actif - 2 + i;
-    const boucle = !edition && n >= 5;
-    const idx = boucle ? ((brut % n) + n) % n : (brut >= 0 && brut <= dernier ? brut : -1);
+    const idx = anneau >= 5
+      ? ((brut % anneau) + anneau) % anneau
+      : (brut >= 0 && brut < anneau ? brut : -1);
     if (idx < 0) continue;                       /* cette place reste vide */
     /* ⭐ LE `+` EST UN CRAN, PAS UN ORGANE NEUF : il prend la boîte, la cote et le
        halo de la place où il tombe. Aucune cote ne s'invente pour lui. */
@@ -234,7 +246,11 @@ function roue(options) {
        la boîte du cran (la feuille lui donne le même habit) ; ce qui change est
        qu'on peut écrire dedans. ⛔ On n'écrit au document QU'À LA VALIDATION : un
        verbe par frappe redessinerait l'écran sous les doigts du joueur. */
-    if (edition && dom) {
+    /* ⛔ UNE SECTION FIGÉE NE DEVIENT PAS UN CHAMP — le party inventory est là
+       *« d'entrée de jeu »* (Eric, 19/09) : on ne rebaptise pas une place qu'on n'a
+       pas faite, et son nom dit à qui elle est. ⭐ Elle garde tout le reste : la
+       grille, les places, le rangement, le glisser. */
+    if (edition && dom && sections[idx].fige !== true) {
       const champ = el("input", "sac-cran sac-cran-champ");
       champ.type = "text";
       champ.value = sections[idx].nom;
@@ -358,16 +374,19 @@ function glisserDuSac(noeud, index, options, surDepot) {
  *  pas un balayage, c'est un tap qui a tremblé. `TOUCH` est déjà ce plancher-là. */
 const SEUIL_BALAYAGE = TOUCH;
 
-function balayageDeLaGrille(noeud, options) {
+/** ⭐ DEUX SURFACES, DEUX SUJETS, LE MÊME GESTE. Sur la GRILLE il tourne la PAGE ; sur
+ *  la ROUE il tourne la SECTION — Eric, 19/09 : *« les sections de sacs, le swipe doit
+ *  fonctionner »*. ⛔ Écrit UNE fois : deux copies divergeraient au premier réglage. */
+function balayage(noeud, { surface, actif, agit }) {
   let depart = null;
   const oublie = () => { depart = null; };
   noeud.addEventListener("pointerdown", (ev) => {
     oublie();
-    if (!options.pages || options.pages < 2) return;
+    if (!actif()) return;
     const cible = ev && ev.target;
     if (!cible || typeof cible.closest !== "function") return;
     if (cible.closest('[data-glissable="true"]')) return;   /* c'est un glisser */
-    if (!cible.closest(".sac-case")) return;                /* le balayage vit sur la GRILLE */
+    if (!cible.closest(surface)) return;
     depart = { x: ev.clientX, y: ev.clientY };
   });
   noeud.addEventListener("pointercancel", oublie);
@@ -379,9 +398,9 @@ function balayageDeLaGrille(noeud, options) {
     /* ⛔ ET IL DOIT ÊTRE FRANCHEMENT HORIZONTAL : sur un écran qui défile, un geste
        ambigu appartient au défilement, jamais à nous. */
     if (Math.abs(dx) < SEUIL_BALAYAGE || Math.abs(dx) <= Math.abs(dy)) return;
-    /* ⭐ vers la GAUCHE = la page SUIVANTE, la convention du téléphone : on pousse la
-       page courante hors de l'écran pour faire venir la suivante. */
-    if (options.surPage) options.surPage(dx < 0 ? 1 : -1);
+    /* ⭐ vers la GAUCHE = la SUITE, la convention du téléphone : on pousse ce qu'on
+       regarde hors de l'écran pour faire venir la suite. */
+    agit(dx < 0 ? 1 : -1);
   });
 }
 
@@ -498,7 +517,8 @@ function collecteur(options, retenu) {
 /* ══ L'ÉCRAN ══════════════════════════════════════════════════════════════ */
 
 /** @param {object} options
- *   · `sections` : `[{ nom }]` — celles que le joueur a créées ;
+ *   · `sections` : `[{ nom, fige? }]` — celles que le joueur a créées, plus celles
+ *     qui sont là d'entrée de jeu (`fige: true` : ni renommées, ni supprimées) ;
  *   · `section`  : l'index de celle qu'on regarde ;
  *   · `edition`  : la roue est-elle en mode édition (le bouton `Sections`) ;
  *   · `objets`   : les douze places, `null` pour une case vide ;
@@ -539,9 +559,15 @@ export function construireLeSac(options = {}) {
   feuille.textContent = feuilleDesCotesSac();
   noeud.append(feuille);
 
-  /* ⭐ LE BALAYAGE ÉCOUTE SUR LA DALLE, PAS SUR CHAQUE CASE : douze écouteurs pour un
-     seul geste, c'est douze occasions d'en oublier un. La délégation lit la cible. */
-  balayageDeLaGrille(noeud, options);
+  /* ⭐ LES DEUX BALAYAGES ÉCOUTENT SUR LA DALLE, PAS SUR CHAQUE ORGANE : douze
+     écouteurs pour un seul geste, c'est douze occasions d'en oublier un. La
+     délégation lit la cible, et c'est ELLE qui dit de quel sujet il s'agit. */
+  balayage(noeud, { surface: ".sac-case",
+    actif: () => options.pages > 1,
+    agit: (sens) => options.surPage && options.surPage(sens) });
+  balayage(noeud, { surface: ".sac-roue",
+    actif: () => (options.sections || []).length > 1,
+    agit: (sens) => options.surTourner && options.surTourner(sens) });
 
   /* ⛔ LES TUNERS SONT POSÉS SUR LA DALLE, pas dans la roue : la table les
      déclare `dans: "ROUE"` pour dire qu'ils LUI APPARTIENNENT — un voyant dans
@@ -558,14 +584,46 @@ export function construireLeSac(options = {}) {
      Il devient le `−` — *« le bouton − supprime »*. Le droit, lui, ne bouge pas :
      c'est l'interrupteur du mode, et un interrupteur qui se déplace n'en est plus
      un. Il s'allume (`data-on`), comme les bascules de X1. */
+  /* ⛔ ET LE `−` SE DÉSARME SUR UNE SECTION FIGÉE : un bouton qui s'allume pour
+     refuser est pire qu'un bouton éteint — NORMES, *« non coloré = non cliquable »*.
+     ⭐ Le refus parlé reste, pour qui l'atteint autrement. */
+  const figee = (options.sections || [])[Math.min(Math.max(0, options.section | 0),
+    Math.max(0, (options.sections || []).length - 1))];
+  /* ⚖️ DES MOTS, PLUS DES GLYPHES — Eric, 19/09 : *« le bouton d'édition est trop
+     grossier ; je préfère un carré vert simple : edit / sections. Et un autre bouton
+     classique vert : Sort. »*
+     ⛔ LES DEUX GLYPHES SONT MORTS AVEC EUX : un cadrillage et une flèche de tri ne
+     disaient pas assez ce qu'ils font. ⭐ Et les deux boutons reprennent `gear-porte`,
+     la famille des boutons à verbe — ⛔ pas une troisième famille à habiller. Le
+     liseré dit le verbe (§6), et Eric les veut VERTS : on agit. */
   const trier = edition
-    ? bouton("sac-outil", "−", "Delete this section", () => options.surSupprimer && options.surSupprimer())
-    : bouton("sac-outil", "", "Sort this section", () => options.surTrier && options.surTrier());
+    ? bouton("bouton gear-porte sac-outil", "−", "Delete this section",
+        () => options.surSupprimer && options.surSupprimer())
+    : bouton("bouton gear-porte sac-outil", "Sort", "Sort this section",
+        () => options.surTrier && options.surTrier());
   trier.dataset.organe = "trier";
-  if (edition) trier.dataset.role = "supprimer";
-  const sections = bouton("sac-outil", "", edition ? "Done editing sections" : "Edit sections",
+  trier.dataset.porte = "trier";
+  if (edition) {
+    trier.dataset.role = "supprimer";
+    if (figee && figee.fige === true) trier.disabled = true;
+  }
+  /* ⭐ LE CARRÉ PORTE SON MOT SUR DEUX ÉTAGES — c'est ce qu'Eric a dessiné : `edit`
+     au-dessus de `sections`. ⛔ Le retour à la ligne n'est PAS dans le texte : deux
+     nœuds, sinon un `\n` se retrouverait dans l'`aria-label`. */
+  /* ⚖️ *« carré vert = bouton classique »* — Eric, 19/09, en tranchant sa propre
+     phrase de la veille. ⭐ Les deux outils sont donc du MÊME gabarit, le PETIT, et
+     le mot « carré » désignait le vert, pas la forme.
+     📏 ET C'EST LA MESURE QUI A RENDU CE MOT NÉCESSAIRE : mis à 44 de large, ce
+     bouton rendait quand même 77 — la famille impose `min-width: var(--bouton-petit)`
+     sous un sélecteur à (0,3,1), et il SORTAIT de la dalle. Le plan lui donne
+     maintenant ses 77, et la rangée s'est redisposée autour. */
+  const sections = bouton("bouton gear-porte sac-outil", "",
+    edition ? "Done editing sections" : "Edit sections",
     () => options.surSections && options.surSections());
+  sections.append(el("span", "sac-outil-etage", edition ? "done" : "edit"),
+                  el("span", "sac-outil-etage", "sections"));
   sections.dataset.organe = "sections";
+  sections.dataset.porte = "sections";
   sections.dataset.on = edition ? "true" : "false";
   sections.setAttribute("aria-pressed", edition ? "true" : "false");
   noeud.append(trier, sections);
@@ -579,18 +637,24 @@ export function construireLeSac(options = {}) {
      dise où il est passé.
      ⛔ CE SONT DES VOYANTS : on les lit, on ne les tape pas. */
   const p = options.poids || {};
-  [["poids-1", p.gear], ["poids-2", p.backpack], ["poids-3", p.encombrement],
-   ["poids-4", p.autre]].forEach(([id, mot]) => {
-    const v = el("p", "sac-poids", mot || "");
-    v.dataset.organe = id;
-    noeud.append(v);
-  });
+  const total = el("p", "sac-poids", p.encombrement || "");
+  total.dataset.organe = "poids-total";
+  /* ⭐ LE DÉTAIL EST UNE LIGNE À TROIS PARTS, et chacune se centre dans la sienne :
+     Eric écrit *« Gear xxxx  Backpack xxxx  other xxxx (centrés) »*. ⛔ Trois nœuds,
+     pas une chaîne avec des espaces — des espaces ne se centrent pas. */
+  const detail = el("p", "sac-poids");
+  detail.dataset.organe = "poids-detail";
+  for (const mot of [p.gear, p.backpack, p.autre]) {
+    detail.append(el("span", "sac-poids-part", mot || ""));
+  }
+  noeud.append(total, detail);
 
-  /* ⚖️ LE COMPTE ET LA PAGE — LA SOURCE DU CHAPITRE : B1 porte *« une grille de
-     jetons, le compte total à gauche, la page à droite »*, et elle mesure : *« le
-     compte à gauche de la grille est le total d'objets (23 au backpack) ; la
-     fraction à droite est la page (1/2) »*. ⛔ Deux voyants, pas deux contrôles :
-     on ne tourne pas la page en tapant la fraction. */
+  /* ⚖️ LE COMPTE ET LA PAGE ENCADRENT CE DÉTAIL — Eric, 19/09 : *« si tu mets les
+     pages et le nombre d'items au même niveau que la deuxième ligne de
+     l'encumbrance »*. ⭐ Trois mesures du même sac, sur une seule ligne, lues d'un
+     regard — au lieu d'une rangée de plus sous la grille. ⛔ Deux voyants, pas deux
+     contrôles : on ne tourne pas la page en tapant la fraction (le balayage et la
+     molette le font). */
   [["compte", options.compte], ["page", options.page]].forEach(([id, mot]) => {
     const v = el("p", "sac-compte", mot || "");
     v.dataset.organe = id;
