@@ -3401,6 +3401,28 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+### 🎒 LA PORTE VERS LE PARTY INVENTORY ATTEND QUE LE `?` ET LE LIVRE PARTENT
+📍 `equipement-porte-party-inventory-au-pied` · vivante · 19/09
+⚖️ **Le jour où le `?` et le livre quittent la fiche du joueur, un bouton vers le PARTY INVENTORY prend leur place, à GAUCHE de `Gear`. ⛔ Pas avant.**
+
+> Eric, 2026-09-19, en demandant explicitement qu'on la mémorise : **« lorsqu'on n'aura plus besoin
+> de `?` et livre, un bouton qui va vers le party inventory à gauche de Gear. Note importante à
+> mémoriser. »**
+
+⭐ **CE N'EST PAS UNE TÂCHE, C'EST UN RENDEZ-VOUS**, et c'est pour ça qu'elle est écrite ici plutôt
+que faite. Le `?` et le livre occupent aujourd'hui les **deux bornes** de la rangée du pied (§6 pré,
+la grille `borne | 1fr | borne`). Tant qu'ils sont dus, poser ce bouton ferait **six organes dans
+une rangée qui en tient cinq**.
+📌 **ET SA PLACE EST DANS LE GROUPE DES MAJEURS, PAS SUR UNE BORNE** : *« à gauche de Gear »* — donc
+dans le `1fr` du milieu, avec les portes, pas à l'extérieur avec les ronds.
+⭐ **POURQUOI CETTE PORTE EXISTE** : le party inventory est *« un autre backpack »* (Eric, 19/09),
+partagé par tout le groupe, et on n'y entre aujourd'hui que par un **cran de la roue** du sac. Une
+porte au pied de la fiche le rendrait atteignable sans passer par l'équipement.
+⏳ **Ce qui la déclenche n'est pas daté** : c'est le jour où le guide et le livre cessent d'être dus,
+et cette décision-là n'est pas prise.
+
+---
+
 ### 👆 UN ORGANE À DEUX VISAGES : UN SEUL RÉCLAME LE PLANCHER TACTILE
 📍 `cadre-le-plancher-tactile-se-mesure-sur-le-visage-qui-se-tape` · vivante · 18/09
 ⚖️ **Le plancher de 44 se mesure sur le visage qu'on TAPE, pas sur celui qui n'existe qu'à la souris. ⭐ Et une cible qui le réclame ne sort JAMAIS de la dalle : ce qui dépasse est clippé, donc perdu.**
