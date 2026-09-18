@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=667";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=667";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=670";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=670";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=667";
+import { armerJeton, fantome } from "./glisser.mjs?v=670";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=667";
+import { facteurZoomCourant } from "./echelle.mjs?v=670";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -46,7 +46,7 @@ export const CLEF_DE = Object.freeze({
   "CRAN 1": "cran-1", "CRAN 2": "cran-2", "CRAN 3": "cran-3", "CRAN 4": "cran-4", "CRAN 5": "cran-5",
   "TRIER": "trier", "TASSER": "sections",
   "POIDS TOTAL": "poids-total", "POIDS DETAIL": "poids-detail",
-  "COMPTE": "compte", "PAGE": "page",
+  "COMPTE": "compte", "PAGE": "page", "EFFACER": "effacer", "EDITER": "editer",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
   "DROP": "drop", "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
   "RANGEE": "rangee", "livre": "livre", "?": "guide"
@@ -250,7 +250,10 @@ function roue(options) {
        *« d'entrée de jeu »* (Eric, 19/09) : on ne rebaptise pas une place qu'on n'a
        pas faite, et son nom dit à qui elle est. ⭐ Elle garde tout le reste : la
        grille, les places, le rangement, le glisser. */
-    if (edition && dom && sections[idx].fige !== true) {
+    /* ⚖️ ET LE CHAMP N'APPARAÎT PLUS TOUT SEUL — Eric, 19/09 a donné au renommage sa
+       propre poignée (`/`). ⛔ Avant, entrer en édition ouvrait un champ sur la boîte
+       regardée : on ne pouvait plus la lire sans être en train de la modifier. */
+    if (edition && dom && options.renommage === true && sections[idx].renommable !== false) {
       const champ = el("input", "sac-cran sac-cran-champ");
       champ.type = "text";
       champ.value = sections[idx].nom;
@@ -276,6 +279,10 @@ function roue(options) {
     c.type = "button";
     c.dataset.organe = `cran-${i + 1}`;
     c.dataset.dominant = dom ? "oui" : "non";
+    /* ⚖️ LE LISERÉ DIT LE LIEU — Eric, 19/09 : *« liseré doré = hors backpack, liseré
+       blanc = dans backpack »*. ⛔ L'attribut ne se pose que pour l'AILLEURS : le
+       blanc est le défaut de la maison, et un défaut qu'on réécrit cesse d'en être un. */
+    if (sections[idx].dehors === true) c.dataset.lieu = "dehors";
     c.setAttribute("role", "tab");
     c.setAttribute("aria-selected", String(dom));
     if (!dom && options.surSection) c.addEventListener("click", () => options.surSection(idx));
@@ -517,17 +524,19 @@ function collecteur(options, retenu) {
 /* ══ L'ÉCRAN ══════════════════════════════════════════════════════════════ */
 
 /** @param {object} options
- *   · `sections` : `[{ nom, fige? }]` — celles que le joueur a créées, plus celles
- *     qui sont là d'entrée de jeu (`fige: true` : ni renommées, ni supprimées) ;
+ *   · `sections` : `[{ nom, fige?, renommable?, dehors? }]` — celles que le joueur a
+ *     créées, plus celles qui sont là d'entrée de jeu (`fige` : pas supprimable ·
+ *     `renommable: false` : pas renommable · `dehors` : liseré doré, hors du sac) ;
  *   · `section`  : l'index de celle qu'on regarde ;
- *   · `edition`  : la roue est-elle en mode édition (le bouton `Sections`) ;
+ *   · `edition`  : la roue est-elle en mode édition (le bouton `sections`) ;
+ *   · `renommage`: le champ est-il ouvert sur la boîte regardée (la poignée `/`) ;
  *   · `objets`   : les douze places, `null` pour une case vide ;
  *   · `poids`    : `{ gear, backpack, encombrement }`, déjà mis en mots ;
  *   · `compteurs`: `{ tally, "party-tally" }` — ce que chaque parchemin porte ;
  *   · `page` / `pages` : la fraction déjà en mots, et le NOMBRE de pages — la
  *     molette ET le balayage ne tournent que s'il y en a plus d'une ;
  *   · les gestes : `surTourner`, `surSection`, `surJeton`, `surTrier`,
- *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surPage`,
+ *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surEditer`, `surPage`,
  *     `surCollecte`, `surPlacer`, `surDrop`, `surDestination`, `surPorte`.
  *  @returns {{noeud: HTMLElement}} */
 export function construireLeSac(options = {}) {
@@ -576,6 +585,41 @@ export function construireLeSac(options = {}) {
   const r = roue(options);
   noeud.append(r, tuner(-1, options), tuner(1, options));
 
+  /* ⭐ LA BOÎTE SOUS LE VISEUR — celle dont parlent les deux poignées. ⛔ `undefined`
+     quand le viseur est sur le `+` : la liste des sections ne le porte pas, et c'est
+     par cette forme-là que les poignées savent se taire, pas par un test de plus. */
+  const sectionsVues = options.sections || [];
+  /* ⛔ ET ON NE BORNE PAS L'INDEX : borné, le viseur posé sur le `+` retombait sur la
+     DERNIÈRE section, et les deux poignées paraissaient en proposant de renommer une
+     boîte qu'on ne regardait pas. ⭐ Hors liste = `undefined`, et les poignées se
+     taisent par la forme des données, pas par un test de plus. */
+  const figee = sectionsVues[Math.max(0, options.section | 0)];
+
+  /* ⚖️ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 : *« dans le mode edit
+     mettre un x (carré 40 × 40 à gauche, À CHEVAL) et un / (carré 40 × 40 à droite)
+     de la boîte sélectionnée : on peut l'éditer ou l'effacer. Le swipe et les
+     chevrons permettent de naviguer. »*
+     ⭐ À CHEVAL, ET C'EST LE MOT QUI COMPTE : elles sont centrées sur les deux arêtes
+     du cran dominant, donc à moitié dessus. Elles disent ainsi de QUELLE boîte elles
+     parlent — posées à côté, elles auraient pu désigner la voisine.
+     ⛔ ELLES NE SONT PAS DES ORGANES DE LA ROUE : la roue défile, elles non. Elles
+     restent accrochées au VISEUR, qui ne bouge jamais.
+     ⛔ ET ELLES NE PARAISSENT PAS SUR LE `+` : il n'y a rien à renommer ni à effacer
+     dans une place qui n'existe pas encore. ⭐ Rien à écrire pour ça — la liste des
+     sections ne porte pas le `+`, donc `figee` est absente quand le viseur est
+     dessus. Un cas qui se règle par la forme des données ne se règle pas deux fois. */
+  if (edition && figee) {
+    const effacer = bouton("sac-poignee", "×", "Delete this section",
+      () => options.surSupprimer && options.surSupprimer());
+    effacer.dataset.organe = "effacer";
+    if (figee.fige === true) effacer.disabled = true;
+    const editer = bouton("sac-poignee", "/", "Rename this section",
+      () => options.surEditer && options.surEditer());
+    editer.dataset.organe = "editer";
+    if (figee.renommable === false) editer.disabled = true;
+    noeud.append(effacer, editer);
+  }
+
   /* ⚖️ LES DEUX OUTILS — Eric, 18/09 : *« un petit bouton 40 × 40 à droite du titre
      de section qui ressemble à un cadrillage ; un autre à gauche qui fait un
      rangement local »*.
@@ -584,11 +628,6 @@ export function construireLeSac(options = {}) {
      Il devient le `−` — *« le bouton − supprime »*. Le droit, lui, ne bouge pas :
      c'est l'interrupteur du mode, et un interrupteur qui se déplace n'en est plus
      un. Il s'allume (`data-on`), comme les bascules de X1. */
-  /* ⛔ ET LE `−` SE DÉSARME SUR UNE SECTION FIGÉE : un bouton qui s'allume pour
-     refuser est pire qu'un bouton éteint — NORMES, *« non coloré = non cliquable »*.
-     ⭐ Le refus parlé reste, pour qui l'atteint autrement. */
-  const figee = (options.sections || [])[Math.min(Math.max(0, options.section | 0),
-    Math.max(0, (options.sections || []).length - 1))];
   /* ⚖️ DES MOTS, PLUS DES GLYPHES — Eric, 19/09 : *« le bouton d'édition est trop
      grossier ; je préfère un carré vert simple : edit / sections. Et un autre bouton
      classique vert : Sort. »*
@@ -596,17 +635,15 @@ export function construireLeSac(options = {}) {
      disaient pas assez ce qu'ils font. ⭐ Et les deux boutons reprennent `gear-porte`,
      la famille des boutons à verbe — ⛔ pas une troisième famille à habiller. Le
      liseré dit le verbe (§6), et Eric les veut VERTS : on agit. */
-  const trier = edition
-    ? bouton("bouton gear-porte sac-outil", "−", "Delete this section",
-        () => options.surSupprimer && options.surSupprimer())
-    : bouton("bouton gear-porte sac-outil", "Sort", "Sort this section",
-        () => options.surTrier && options.surTrier());
+  /* ⛔ `Sort` RESTE `Sort`, DANS LES DEUX MODES — Eric, 19/09, a sorti la suppression
+     de cette place en lui donnant la sienne : *« un x (carré 40 × 40 à gauche, à
+     cheval) et un / (carré 40 × 40 à droite) de la boîte sélectionnée »*.
+     ⭐ Un outil qui change de métier selon le mode est un outil qu'on relit à chaque
+     fois. Celui-ci ne change plus. */
+  const trier = bouton("bouton gear-porte sac-outil", "Sort", "Sort this section",
+    () => options.surTrier && options.surTrier());
   trier.dataset.organe = "trier";
   trier.dataset.porte = "trier";
-  if (edition) {
-    trier.dataset.role = "supprimer";
-    if (figee && figee.fige === true) trier.disabled = true;
-  }
   /* ⭐ LE CARRÉ PORTE SON MOT SUR DEUX ÉTAGES — c'est ce qu'Eric a dessiné : `edit`
      au-dessus de `sections`. ⛔ Le retour à la ligne n'est PAS dans le texte : deux
      nœuds, sinon un `\n` se retrouverait dans l'`aria-label`. */

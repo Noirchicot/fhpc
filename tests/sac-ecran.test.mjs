@@ -312,59 +312,83 @@ test("14 — ⚖️ LES DEUX OUTILS PORTENT LEUR MOT, EN VERT — et plus un gly
   }
 });
 
-test("15 — 🔴 LE MODE ÉDITION DE LA ROUE : le champ, le `+`, le `−`", () => {
-  /* ⚖️ Eric, 18/09 : *« le bouton pack devient sections, et la roue passe en mode
-     édition »* · *« tap pour modifier, chevrons pour défiler »* · *« le bouton +
-     crée, le bouton − supprime »* · *« supprimer une section si elle est vide »*.
-     ⛔ CE QUI MANQUAIT, ET QU'ERIC A NOMMÉ : *« la navigation des compartiments »* —
-     la roue ne faisait que tourner. */
+test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte regardée", () => {
+  /* ⚖️ Eric, 2026-09-19 : *« dans le mode edit mettre un x (carré 40 × 40 à gauche, À
+     CHEVAL) et un / (carré 40 × 40 à droite) de la boîte sélectionnée : on peut
+     l'éditer ou l'effacer. Le swipe et les chevrons permettent de naviguer. »* ·
+     *« quand je dis 40 c'est 40 de hauteur, pour les sections »*.
+     🔴 CE GARDE DÉCRIVAIT UNE AUTRE FORME HIER — le `−` prenait la place de `Sort` et
+     le champ s'ouvrait tout seul en entrant en édition. ⭐ Les deux étaient des
+     raccourcis : un outil qui change de métier selon le mode se relit à chaque fois,
+     et une boîte qu'on ne peut plus LIRE sans être en train de la modifier n'est plus
+     une liste. Eric a donné au renommage et à la suppression leurs propres poignées. */
   const trois = [{ nom: "Potions" }, { nom: "Camp" }, { nom: "Trésor" }];
   const gestes = [];
   const n = rendu({ sections: trois, section: 1, edition: true,
     surAjouter: () => gestes.push("ajouter"),
+    surEditer: () => gestes.push("editer"),
     surRenommer: (i, nom) => gestes.push(`renommer:${i}:${nom}`),
     surSupprimer: () => gestes.push("supprimer") });
   assert.equal(n.dataset.mode, "edition", "⭐ le mode vit sur la DALLE, pas dans cinq organes");
 
-  /* ① le cran dominant est un CHAMP — on renomme SUR PLACE */
-  const champ = n.querySelector(".sac-cran-champ");
-  assert.ok(champ, "⛔ pas de champ : il n'y a alors aucun moyen de renommer une section");
-  assert.equal(champ.dataset.dominant, "oui", "et c'est celui sous le viseur");
+  /* ① LES DEUX POIGNÉES, ET LEUR PLACE EST DANS LE PLAN — ⛔ pas dans le module. */
+  const effacer = n.querySelector('[data-organe="effacer"]');
+  const editer = n.querySelector('[data-organe="editer"]');
+  assert.ok(effacer && editer, "⛔ sans elles, on ne peut ni renommer ni supprimer");
+  assert.equal(effacer.textContent, "×");
+  assert.equal(editer.textContent, "/");
+  const dom = D.ORGANES.find((o) => o.nom === "CRAN 3");
+  const pose = (nom) => D.ORGANES.find((o) => o.nom === nom);
+  assert.equal(pose("EFFACER").x + pose("EFFACER").l / 2, dom.x,
+    "⚖️ *« à cheval »* : le `×` est CENTRÉ sur l'arête gauche du cran dominant");
+  assert.equal(pose("EDITER").x + pose("EDITER").l / 2, dom.x + dom.l,
+    "⚖️ et le `/` sur son arête droite — c'est ce qui dit de QUELLE boîte elles parlent");
+  for (const p of ["EFFACER", "EDITER"]) {
+    assert.deepEqual([pose(p).l, pose(p).h], [40, 40], "⚖️ *« carré 40 × 40 »*");
+  }
+
+  /* ② `Sort` NE CHANGE PLUS DE MÉTIER — il était devenu le `−` en édition. */
+  assert.equal(n.querySelector('[data-organe="trier"]').textContent, "Sort");
+
+  /* ③ LE CHAMP NE S'OUVRE QUE PAR LE `/` */
+  assert.equal(n.querySelector(".sac-cran-champ"), null,
+    "⛔ entrer en édition n'ouvre pas un champ : on doit pouvoir LIRE la liste");
+  editer.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, ["editer"]);
+  const ouvert = rendu({ sections: trois, section: 1, edition: true, renommage: true,
+    surRenommer: (i, nom) => gestes.push(`renommer:${i}:${nom}`) });
+  const champ = ouvert.querySelector(".sac-cran-champ");
+  assert.ok(champ, "⭐ et le `/` l'ouvre sur la boîte regardée");
   assert.equal(champ.value, "Camp");
   assert.equal(champ.maxLength, 22, "la cote du cran sur deux étages");
   champ.value = "Potions de soin";
   champ.dispatchEvent({ type: "keydown", key: "Enter", preventDefault: () => {} });
-  assert.deepEqual(gestes, ["renommer:1:Potions de soin"],
+  assert.deepEqual(gestes, ["editer", "renommer:1:Potions de soin"],
     "⛔ et on n'écrit QU'À LA VALIDATION : un verbe par frappe redessinerait sous les doigts");
 
-  /* ② le `+` est un CRAN au bout de la liste, ⛔ pas un organe neuf */
-  const plus = tous(n, '[data-role="ajouter"]');
-  assert.equal(plus.length, 1, "un seul `+`, et il est au bout");
-  assert.ok(plus[0].className.split(/\s+/).includes("sac-cran"),
-    "⛔ le `+` prend la boîte et la cote du cran où il tombe — aucune cote ne s'invente pour lui");
-  plus[0].dispatchEvent({ type: "click" });
+  effacer.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, ["editer", "renommer:1:Potions de soin", "supprimer"]);
 
-  /* ③ le `−` prend la place du `Sort`, qui n'a rien à faire pendant qu'on édite */
-  const moins = n.querySelector('[data-organe="trier"]');
-  assert.equal(moins.dataset.role, "supprimer");
-  assert.equal(moins.textContent, "−", "le caractère, comme les ± de la bourse et du pipeline");
-  moins.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, ["renommer:1:Potions de soin", "ajouter", "supprimer"]);
+  /* ④ UNE BOÎTE FIGÉE DÉSARME SA POIGNÉE — ⛔ un bouton qui s'allume pour refuser est
+     pire qu'un bouton éteint (*« non coloré = non cliquable »*). */
+  const socle = rendu({ sections: [{ nom: "Backpack section 1", fige: true },
+                                   { nom: "Party inventory", fige: true, renommable: false }],
+                        section: 1, edition: true });
+  assert.equal(socle.querySelector('[data-organe="effacer"]').disabled, true,
+    "⛔ on ne supprime pas une place qu'on n'a pas faite");
+  assert.equal(socle.querySelector('[data-organe="editer"]').disabled, true,
+    "⛔ ni ne rebaptise celle dont le nom dit à qui elle est");
 
-  /* ④ l'interrupteur du mode s'allume, et il ne bouge pas de place */
+  /* ⑤ L'INTERRUPTEUR DU MODE s'allume, et il ne bouge pas de place */
   const bascule = n.querySelector('[data-organe="sections"]');
   assert.equal(bascule.dataset.on, "true");
   assert.equal(bascule.getAttribute("aria-pressed"), "true");
-  assert.match(feuille, /\.sac-outil\[data-organe="sections"\]\[data-on="true"\]/,
-    "⛔ et l'état se voit : sans halo, rien ne dit qu'on est en édition");
 
-  /* ⑤ ⚖️ LA ROUE EST INFINIE DANS LES DEUX MODES — Eric, 2026-09-19 : *« ça doit être
-     une roue infinie ; le halo et le zoom restent au centre, et les boîtes défilent
-     dans le halo »* · *« il doit toujours y avoir 2 sections à gauche et 2 à droite »*.
-     🔴 CE GARDE DISAIT L'INVERSE HIER, et il avait raison hier : j'avais mis le `+`
-     AU BOUT de la liste, donc l'édition ne pouvait pas boucler — un ruban infini n'a
-     pas de bout. ⭐ Le `+` est devenu un CRAN DE PLUS SUR L'ANNEAU : l'édition tourne
-     sur `n + 1`, le repos sur `n`, et les deux bouclent. */
+  /* ⑥ ⚖️ LA ROUE EST INFINIE DANS LES DEUX MODES — Eric, 19/09 : *« ça doit être une
+     roue infinie ; le halo et le zoom restent au centre, les boîtes défilent dans le
+     halo »* · *« il doit toujours y avoir 2 sections à gauche et 2 à droite »*.
+     ⭐ Le `+` est un cran DE PLUS SUR L'ANNEAU, pas une butée à son bout : c'est ce
+     qui rend l'infini et le `+` compatibles. */
   const cinq = [1, 2, 3, 4, 5].map((i) => ({ nom: `S${i}` }));
   const bout = rendu({ sections: cinq, section: 4, edition: true });
   assert.deepEqual(tous(bout, ".sac-cran").map((c) => c.textContent || c.value),
@@ -375,11 +399,22 @@ test("15 — 🔴 LE MODE ÉDITION DE LA ROUE : le champ, le `+`, le `−`", () 
     ["S4", "S5", "S1", "S2", "S3"],
     "⚖️ au repos l'anneau vaut n : *« un belt infini déroulant »* (Eric, 18/09)");
   assert.equal(tous(repos, '[data-role="ajouter"]').length, 0, "⛔ et il ne porte aucun `+`");
-  /* ⛔ ET LE VISEUR NE BOUGE JAMAIS : le dominant est TOUJOURS la place du milieu. */
-  for (const n of [bout, repos]) {
-    assert.deepEqual(tous(n, ".sac-cran").map((c) => c.dataset.dominant),
+  for (const x of [bout, repos]) {
+    assert.deepEqual(tous(x, ".sac-cran").map((c) => c.dataset.dominant),
       ["non", "non", "oui", "non", "non"], "le halo et le zoom restent au centre");
   }
+  /* ⛔ ET LES POIGNÉES NE PARAISSENT PAS SUR LE `+` : rien à renommer ni à effacer
+     dans une place qui n'existe pas encore. */
+  const surLePlus = rendu({ sections: cinq, section: 5, edition: true });
+  assert.equal(surLePlus.querySelector('[data-organe="effacer"]'), null);
+
+  /* ⑦ ⚖️ *« la hauteur des sections = 40 »* — et le zoom vit en largeur et en corps.
+     ⛔ Une boîte qui change de hauteur en entrant dans le halo ne défile pas : elle
+     saute. */
+  for (const c of ["CRAN 1", "CRAN 3", "CRAN 5"]) {
+    assert.equal(pose(c).h, 40, `${c} doit faire 40 de haut`);
+  }
+  assert.ok(pose("CRAN 3").l > pose("CRAN 1").l, "⭐ c'est la LARGEUR qui dit le dominant");
 });
 
 test("16 — 🔴 LA GRILLE SE COMPTE DANS LA TABLE, ⛔ elle ne s'écrit pas dans le module", () => {

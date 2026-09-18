@@ -64,7 +64,18 @@ const CSS = path.join(ROOT, "ui", "builder", "shell.css");
 
 const shell = stripComments(fs.readFileSync(SHELL, "utf8"));
 const etapes = stripComments(fs.readFileSync(ETAPES, "utf8"));
-const css = fs.readFileSync(CSS, "utf8");
+/* 🔴 LA FEUILLE SE LIT SANS SES COMMENTAIRES, ET IL A FALLU QU'ELLE M'ACCUSE À TORT
+   POUR QUE JE LE VOIE — 2026-09-19. Ce fichier lisait `shell.mjs` et `etapes.mjs`
+   dépouillés, et `shell.css` BRUT. Le lecteur du test B2 découpe la feuille en
+   `([^{}]*)\{([^}]*)\}` : le morceau « avant l'accolade » contient donc le
+   COMMENTAIRE qui précède la règle. Le jour où un commentaire a cité `.tuto-point`
+   pour expliquer un défaut de peinture qu'il partage, le garde a lu cette prose
+   comme un sélecteur et accusé une règle qui ne touche pas la pastille.
+   ⭐ MÊME FAMILLE QUE LA FAUTE DU LOT 213 (le mot « RÉÉCRIT » lu comme une
+   supersession) : *un garde qui lit de la prose comme du code accuse le mauvais.*
+   ⛔ Et la parade n'est pas de censurer le commentaire — c'est le lecteur qui apprend
+   à ne pas le lire. */
+const css = stripComments(fs.readFileSync(CSS, "utf8"));
 
 /** Les `id` déclarés par `STEPS`, lus dans la source de la coquille — la
  *  coquille elle-même ne s'importe pas sous Node (elle monte le cadre au

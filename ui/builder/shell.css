@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=667") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=670") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=667") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=670") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=667") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=670") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=667");
+  background-image: url("./assets/tarot-dos.jpg?v=670");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11783,6 +11783,15 @@ button.tuto-point::before {
   overflow-wrap: anywhere; overflow: hidden;
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
+/* ⚖️ LE LISERÉ DIT LE LIEU — Eric, 2026-09-19 : *« sections liseré DORÉ = hors
+   backpack, liseré BLANC = dans backpack »*.
+   ⭐ LE BLANC EST DÉJÀ LE DÉFAUT (`--verre-lisere`, le liseré de verre de toute la
+   maison) : il n'y a donc rien à écrire pour « dans le sac », et c'est le signe que
+   le défaut était le bon. Seul l'AILLEURS se déclare.
+   ⛔ L'or n'est pas une couleur de l'échelle : il ne dit ni bien ni mal, il dit un
+   LIEU — un objet rangé là n'est pas sur toi. Son jeton le dit (`--dehors`). */
+.sac-cran[data-lieu="dehors"] { box-shadow: inset 0 0 0 1px var(--dehors); }
+
 /* ⚖️ LE DOMINANT — la cote vient de la table, le HALO vient du belt : c'est la
    même ombre portée, qui déborde dans la gouttière sans rien prendre au cran. */
 .sac-cran[data-dominant="oui"] {
@@ -11791,6 +11800,57 @@ button.tuto-point::before {
               inset 0 0 0 1px var(--accent-wash),
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
+/* ⛔ ET LE DOMINANT GARDE SON LIEU : sans cette ligne, la boîte sous le viseur
+   perdait son or en y entrant — c'est-à-dire exactement quand on la regarde. */
+.sac-cran[data-dominant="oui"][data-lieu="dehors"] {
+  box-shadow: inset 0 0 0 1px var(--dehors),
+              inset 0 0 0 1px var(--accent-wash),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
+/* ══ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 ═══════════════════
+   ⚖️ *« un x (carré 40 × 40 à gauche, à cheval) et un / (carré 40 × 40 à droite) de
+   la boîte sélectionnée : on peut l'éditer ou l'effacer »*.
+   ⭐ À CHEVAL, ET TRANSPARENTES — Eric le précise le 19/09 : *« à cheval dépasse de 20
+   à l'intérieur et à l'extérieur de la section ; ils sont TRANSPARENTS, laissant voir
+   ce qu'il y a en dessous »*.
+   ⛔ J'AVAIS COMMENCÉ PAR LEUR DONNER UN CORPS OPAQUE, et c'était l'inverse de ce
+   qu'elles sont : un bouton posé sur l'arête d'une boîte la CACHE à moitié, et la
+   boîte est précisément ce dont on parle. Sans corps, le signe flotte au-dessus de
+   l'arête et la boîte reste entière.
+   ⛔ Aucune cote ici — leur boîte vient du plan, qui porte l'exception « à cheval » en
+   toutes lettres et un garde qui la connaît.
+   ⛔ ET LE `×` EST ROUGE, LE `/` NEUTRE : l'un DÉFAIT (§6), l'autre ouvre un champ. */
+.sac-poignee {
+  display: grid; place-items: center;
+  z-index: 1;
+  border-style: solid; border-color: transparent; padding: 0;
+  background: none; box-shadow: none; cursor: pointer;
+  font: inherit; font-size: var(--t3); font-weight: 600; line-height: 1;
+  /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color` (garde 6, défaut n°4) */
+  color: var(--bouton-encre);
+}
+/* ⭐ ET LE SIGNE VIT DANS UN PETIT CARRÉ COLORÉ — Eric, 19/09 : *« le signe dans un
+   petit carré vert ou rouge, mais transparent par ailleurs »*. ⛔ Ce n'est donc PAS le
+   bouton qui est coloré : c'est une pastille au milieu de lui. Les 40 restent
+   traversants, et l'arête de la boîte se lit dessous.
+   📌 Sa cote vient des jetons d'espacement, ⛔ pas d'un littéral : `--sp-24` est le
+   plus petit carré qui tienne un signe au cran T3 sans le serrer. */
+/* 🔴 ET LA PASTILLE PASSE DERRIÈRE LE SIGNE, PAS DEVANT — vu au banc : un `::before`
+   absolu peint AU-DESSUS du texte en flux, donc les deux carrés rendaient des blocs
+   de couleur pleins et le `×` comme le `/` avaient disparu. ⭐ C'est le défaut que
+   `.tuto-point` documente trente lignes plus haut, mot pour mot : *« le `::before` est
+   `position: absolute` sans `z-index`, donc il PEINT AU-DESSUS du texte en flux »*.
+   ⭐ `z-index: -1` le range derrière — et il ne s'échappe pas : la poignée porte
+   `z-index: 1`, donc elle ouvre un contexte d'empilement qui le retient. */
+.sac-poignee::before {
+  content: ""; position: absolute; z-index: -1;
+  inline-size: var(--sp-24); block-size: var(--sp-24);
+  border-radius: var(--radius-sm);
+  background: var(--positive);
+}
+.sac-poignee[data-organe="effacer"]::before { background: var(--critical); }
+.sac-poignee:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
+
 /* ══ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« la roue passe en mode
    édition »* · *« tap pour modifier »* · *« le bouton + crée, le bouton −
    supprime »*. ⛔ AUCUNE COTE ICI NON PLUS : le champ et le `+` occupent la boîte
