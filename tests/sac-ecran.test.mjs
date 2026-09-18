@@ -117,8 +117,15 @@ test("8 — la rangée d'échange porte les DEUX Tally, le collecteur et la bour
   assert.equal(purse.l, 50, "la bourse garde la cote de R");
   assert.equal(purse.x + purse.l, D.COLONNES[2] + D.JETON.l,
     "⭐ et son bord droit se cale sur la ligne de la 3ᵉ colonne (« tout reste sur une grille »)");
+  /* ⚖️ ET LA PAIRE EST COTÉE AU BORD, PLUS À LA COLONNE — Eric, 18/09 : *« le
+     premier à 24 du bord gauche, 8, le second Tally qui est à 24 du collecteur »*.
+     🔴 Ses trois nombres ne fermaient pas : 24 + 40 + 8 + 40 + 24 = 136 quand le
+     collecteur commence à 144. ⭐ Le premier a cédé — 32 — parce que c'était le
+     moins coûteux : la gouttière reste légale et le « 24 du collecteur » tient. */
   const party = D.ORGANES.find((o) => o.nom === "PARTY TALLY");
-  assert.equal(party.x, D.COLONNES[0], "la paire de Tally s'ancre sur la première colonne");
+  const tally = D.ORGANES.find((o) => o.nom === "TALLY");
+  assert.equal(tally.x - (party.x + party.l), 8, "la gouttière entre les deux vaut 8");
+  assert.equal(D.COLONNES[1] - (tally.x + tally.l), 24, "et le second est à 24 du collecteur");
 });
 
 test("9 — ⛔ les lunes sont cotées et NON POSÉES", () => {

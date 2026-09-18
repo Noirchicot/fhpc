@@ -23,8 +23,8 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=655";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=655";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=656";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=656";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -34,7 +34,8 @@ export const CLEF_DE = Object.freeze({
   "TRIER": "trier", "TASSER": "sections",
   "POIDS 1": "poids-1", "POIDS 2": "poids-2", "POIDS 3": "poids-3",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
-  "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares"
+  "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
+  "RANGEE": "rangee", "livre": "livre", "?": "guide"
 });
 /* les douze cases prennent leur clef de leur nom : CASE 2.3 → case-2-3 */
 const clefDeCase = (nom) => nom.toLowerCase().replace(/\s/g, "-").replace(".", "-");
@@ -70,6 +71,10 @@ export function feuilleDesCotesSac() {
     if (o.creation === false) continue;          /* ⛔ les lunes : cotées, pas posées */
     const id = CLEF_DE[o.nom] || (o.nom.startsWith("CASE ") ? clefDeCase(o.nom) : null);
     if (!id) continue;
+    /* ⛔ LES ENFANTS DE LA RANGÉE NE SE POSENT PAS : c'est la grille partagée des
+       rangées de contrôles qui les range (cinq listes de `shell.css` la disent
+       ensemble). Leur `x` au plan dit où ils TOMBENT, il ne les y met pas. */
+    if (o.sorte === "porte" || o.sorte === "rond") continue;
     /* ⛔ SÉLECTEUR DESCENDANT, JAMAIS `>` : un enfant direct enferme une cote dans
        une STRUCTURE, et la structure bouge dès qu'un organe se loge dans un groupe. */
     regles.push(`.sac [data-organe="${id}"]{${pose(o)}}`);
@@ -248,11 +253,51 @@ export function construireLeSac(options = {}) {
   envoi.append(s);
   noeud.append(envoi);
 
+  /* ⚖️ LA BARRE DU BAS EST CELLE DE R, ORGANE COMPRIS — Eric, 18/09 : *« et ici on
+     veut le livre et le ? »*, puis *« ce sont des petits boutons »*.
+     ⛔ ET ELLE CORRIGE UNE NON-CONFORMITÉ DE MON PREMIER JET : mes portes faisaient
+     105 × 40 (le gabarit MOYEN) quand celles de R font **77 × 44**, le PETIT. Trois
+     portes du même chapitre, au même endroit, ne peuvent pas avoir deux tailles :
+     un joueur qui passe de R au sac verrait la rangée bouger sous lui.
+     ⭐ ELLES REPRENNENT `gear-porte`, LA CLASSE DE R — pas une copie de son habit :
+     la même, donc les mêmes cotes et les mêmes teintes par construction. Le liseré
+     dit le verbe (§6) : bleu on navigue, vert on agit — `Send` est le seul à porter
+     une conséquence, et c'est la règle d'Eric du 16/09.
+     ⏳ DETTE DE NOM, ET ELLE EST NOMMÉE : `gear-porte` dit encore l'écran qui l'a
+     portée la première. Le jour où Wares la prendra — il est au programme — elle
+     descendra dans un organe au nom neutre, comme l'interrupteur et le jeton. */
+  /* ⭐ LA RANGÉE DU BAS EST UN ORGANE, comme sur R : elle porte `data-rangee`, et
+     c'est LUI qui donne au livre et au `?` leur habit — il est déclaré pour un
+     enfant direct d'une rangée. ⛔ Les poser à même la dalle les laissait nus :
+     un disque blanc au lieu d'un livre. */
+  const rangee = el("div", "sac-rangee");
+  rangee.dataset.organe = "rangee";
+  rangee.dataset.rangee = "sac";
+  noeud.append(rangee);
+  for (const [id, classe, note] of [["livre", "fiche-livre", "The book"]]) {
+    const b = bouton(classe, undefined, note, () => options.surPorte && options.surPorte(id));
+    b.dataset.organe = id;
+    rangee.append(b);
+  }
+  /* 🔴 LES TROIS PORTES VIVENT DANS UN GROUPE, ET CE N'EST PAS UN ENVELOPPEUR DE
+     CONFORT — la faute est déjà écrite dans R : la grille du pied a TROIS colonnes
+     (borne | 1fr | borne), et c'est `.rangee-majeurs` qui occupe celle du milieu.
+     ⛔ Sans lui, la première porte prend tout le `1fr` et les suivantes passent à
+     la ligne : Eric l'avait vu sur deux appareils le 16/09. Je l'ai refait ici. */
+  const majeurs = el("div", "rangee-majeurs");
+  rangee.append(majeurs);
   for (const [id, mot] of [["gear", "Gear"], ["send", "Send"], ["wares", "Wares"]]) {
-    const b = bouton("bouton sac-porte", mot, mot, () => options.surPorte && options.surPorte(id));
+    const b = bouton("bouton gear-porte", mot, mot, () => options.surPorte && options.surPorte(id));
     b.dataset.organe = id;
     b.dataset.porte = id;
-    noeud.append(b);
+    majeurs.append(b);
   }
+  /* le livre et le `?` encadrent la rangée — deux ronds de 22 dans des cibles de 44.
+     ⛔ Ils sont DUS à un écran du parcours (la trilogie de NORMES §6) : le sac en
+     est un, contrairement à la fiche de rang X qui s'en passe. */
+  const guide = bouton("tuto-point", "?", "What is this screen?",
+    () => options.surPorte && options.surPorte("guide"));
+  guide.dataset.organe = "guide";
+  rangee.append(guide);
   return { noeud };
 }

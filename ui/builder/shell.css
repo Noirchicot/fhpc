@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=655") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=656") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=655") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=656") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=655") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=656") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=655");
+  background-image: url("./assets/tarot-dos.jpg?v=656");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11743,6 +11743,12 @@ button.tuto-point::before {
   background: var(--surface); overflow: hidden;
 }
 .sac [data-organe] { position: absolute; box-sizing: border-box; }
+/* 🔴 SAUF DANS LA RANGÉE DU BAS, ET C'EST LA TROISIÈME FOIS QUE CETTE FAMILLE DE
+   FAUTE SORT : une règle qui vise TOUT `[data-organe]` attrape aussi les enfants
+   d'un organe qui en contient d'autres. Les cinq boutons du pied doivent être
+   rangés par la GRILLE des rangées de contrôles — absolus, ils se superposaient
+   tous au même endroit et seul le dernier se voyait. */
+.sac-rangee [data-organe] { position: static; }
 
 /* — LA ROUE : un tambour à UN étage, sans perspective. Eric, 18/09 : *« on va pas
      se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
@@ -11846,5 +11852,12 @@ button.tuto-point::before {
   background: var(--bouton-corps); box-shadow: var(--bouton-aretes);
   border-radius: var(--organe-rayon); cursor: pointer;
 }
+/* ⛔ PAS DE FAMILLE `.sac-porte` : les trois portes du bas SONT celles de R
+   (`gear-porte`) — la même classe, donc le même gabarit et les mêmes teintes. Une
+   seconde famille aurait recopié un habit, et deux habits divergent. */
 .sac-destination { display: flex; align-items: center; }
 .sac-destination > .pipeline-dropdown { width: 100%; }
+/* ⭐ LA RANGÉE DU BAS — elle porte `data-rangee`, donc la grille partagée des
+   rangées de contrôles la range : le livre à gauche, les trois portes au milieu,
+   le `?` à droite. ⛔ Aucune cote ici : sa boîte vient de la table. */
+.sac-rangee { align-items: center; }
