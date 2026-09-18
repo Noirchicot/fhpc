@@ -58,11 +58,11 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=653";
-import { BOITES } from "./b3-disposition.mjs?v=653";
-import { armerJeton, fantome } from "./glisser.mjs?v=653";
-import { versionQuery } from "./version.mjs?v=653";
-import { enGP } from "./equipement-pipeline.mjs?v=653";
+import * as D from "./gear-disposition.mjs?v=654";
+import { BOITES } from "./b3-disposition.mjs?v=654";
+import { armerJeton, fantome } from "./glisser.mjs?v=654";
+import { versionQuery } from "./version.mjs?v=654";
+import { enGP } from "./equipement-pipeline.mjs?v=654";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
