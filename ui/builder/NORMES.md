@@ -3401,6 +3401,33 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+### 🗄️ `STORAGE` N'EST PAS UNE DESTINATION DU CHAPITRE — SEULEMENT UNE LIGNE DE POIDS
+📍 `equipement-storage-nest-plus-une-destination` · vivante · 18/09
+⚖️ **On n'envoie plus rien vers `storage` : le chapitre ne lui donne aucun écran, et un envoi vers un endroit qu'on ne peut pas regarder est un objet perdu. ⭐ Ce qui y est déjà rangé se LIT, sur la ligne `Other` du panneau de poids.**
+
+> Eric, 2026-09-18, devant l'ancien sac : **« le remise c'est quoi ? »** — et la question était la
+> bonne réponse. « La remise » est un mot que j'avais inventé pour `storage` ; lui l'appelle
+> **Other**, et il l'a défini le 16/09 : **« Other c'est des trucs que tu portes pas — genre mon
+> cheval ce qu'il porte, coffre dans mon château etc… nommable par le joueur »**.
+
+⛔ **LA SOURCE DU CHAPITRE NE LE PORTE PAS COMME DESTINATION.** Son `SEND TO ▾` a huit entrées —
+*« Backpack · Gear · Party inventory · Companion · Group PC · Merchant/NPC · Tally · Craft »* — et
+`Storage` n'en est pas. C'était un reste de la tuyauterie d'avant l'écran R.
+📏 **MESURÉ LE 18/09, ET C'EST CE QUI A TRANCHÉ** : la SEULE porte au monde vers l'écran de la remise
+(`sb33`) était l'ANCIENNE liste du sac, atteinte par la porte `Backpack`. Le jour où cette porte
+ouvre le sac B1, `sb33` devient injoignable — mais **deux écrans offraient encore `→ Storage`**
+(`renderB1`, `renderB2`). Un objet envoyé là n'aurait plus jamais pu être regardé.
+⭐ **LA RÈGLE QUI EN SORT, ET ELLE VAUT POUR TOUT LE PRODUIT** : *une destination n'existe que si son
+écran existe.* Le dropdown le disait déjà pour `Tally` et `Craft` — il les montre `actif: false`
+plutôt que de laisser choisir. `Storage` n'avait pas ce garde-fou.
+⛔ **RIEN N'EST SUPPRIMÉ, ET RIEN N'EST PERDU** : le code de `sb33` dort, `poidsParLieu` compte
+toujours `storage`, et la 4ᵉ ligne du panneau le dit à l'écran. Un personnage sauvegardé garde ses
+objets ; on ne peut simplement plus en ajouter.
+⏳ **ET LE PÉRIMÈTRE D'OTHER EST EXPLICITEMENT NON TRANCHÉ DANS LA SOURCE** (*« si la monture est un
+conteneur ou un companion »*). Le jour où Eric lui donne une porte, la destination revient avec elle.
+
+---
+
 ### 📦 CHAQUE OBJET DU SAC OCCUPE UNE PLACE, ET ELLE EST AU DOCUMENT
 📍 `equipement-une-place-dans-une-section` · vivante · 18/09
 ⚖️ **`gear[N].place` numérote la case d'un objet DANS sa section. La page n'est pas un organe : c'est une division de la suite des places — page = place ÷ la grille.**

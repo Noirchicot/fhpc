@@ -2116,7 +2116,7 @@ export function renderEquipmentStep(ctx, onAction) {
            ⭐ Il n'est pas supprimé : il vit, avec ses gardes et son banc
            (`banc-sac.html`), et il reprendra cette porte quand il sera fini —
            construit depuis la SOURCE du chapitre, pas depuis un premier jet. */
-        if (porte === "backpack") montrer("sb31");
+        if (porte === "backpack") montrer("sac");
         if (porte === "wares") montrer("r");
         if (porte === "send") envoyer();
       },

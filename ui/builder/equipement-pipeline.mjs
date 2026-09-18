@@ -396,7 +396,21 @@ export function renderB1({ liste, index, bourse, motBourse = null, onAction, nav
   const destRang = elp("div", "pipeline-sendto");
   destRang.append(elp("span", "pipeline-libelle", "Send to"));
   const dest = elp("select", "pipeline-dropdown");
-  for (const [v, mot] of [["self", "Slot (auto)"], ["backpack", "Backpack"], ["storage", "Storage"]]) {
+  /* 🔴 `Storage` EST SORTI DE CETTE LISTE LE 18/09, ET CE N'EST PAS UN CAPRICE —
+     c'était devenu un ENVOI VERS L'INVISIBLE. ⛔ Mesuré ce jour-là : la seule porte
+     au monde vers l'écran de la remise (`sb33`) était l'ANCIENNE liste du sac, et
+     celle-ci n'est plus dans le chemin du joueur depuis que `Backpack` ouvre le sac
+     B1. Un objet envoyé là n'aurait plus jamais pu être regardé.
+     ⚖️ ET LA SOURCE DU CHAPITRE NE LE PORTE PAS : son `SEND TO ▾` a huit entrées —
+     *« Backpack · Gear · Party inventory · Companion · Group PC · Merchant/NPC ·
+     Tally · Craft »* — et `Storage` n'en est pas. C'est un reste de la tuyauterie
+     d'avant l'écran R.
+     ⭐ CE QUI RESTE, ET QUI SUFFIT À NE RIEN PERDRE : la ligne `Other` du panneau de
+     poids compte ce qui est déjà rangé là (Eric, 16/09 : *« other storage ne rentre
+     pas dans encumbrance »*), et le code de l'écran `sb33` n'est pas supprimé — il
+     dort. ⏳ Le périmètre d'OTHER est explicitement NON TRANCHÉ dans la source ; le
+     jour où Eric lui donne une porte, la destination revient avec elle. */
+  for (const [v, mot] of [["self", "Slot (auto)"], ["backpack", "Backpack"]]) {
     const o = elp("option", null, mot); o.value = v; dest.append(o);
   }
   destRang.append(dest);
@@ -470,7 +484,7 @@ export function renderB2({ mode, lignes, bourse, motBourse = null, onAction, ret
   const destRang = elp("div", "pipeline-sendto");
   destRang.append(elp("span", "pipeline-libelle", "Send to"));
   const dest = elp("select", "pipeline-dropdown");
-  for (const [v, mot] of [["backpack", "Backpack"], ["self", "Slot (auto)"], ["storage", "Storage"]]) {
+  for (const [v, mot] of [["backpack", "Backpack"], ["self", "Slot (auto)"]]) {
     const o = elp("option", null, mot); o.value = v; dest.append(o);
   }
   destRang.append(dest);
@@ -548,7 +562,8 @@ export function renderB2({ mode, lignes, bourse, motBourse = null, onAction, ret
  *  les écrans SB3.1/SB3.3 la paginent, le FLUX du dressing (trois bandes,
  *  26/08) la déroule — une seule écriture du geste d'échange. */
 export function rangeeEchange(l, lieu, onAction) {
-  const DESTS = [["self", "Worn"], ["backpack", "Backpack"], ["storage", "Storage"]];
+  /* ⛔ `Storage` retiré aussi ici — voir la note de `renderB1` : envoi vers l'invisible. */
+  const DESTS = [["self", "Worn"], ["backpack", "Backpack"]];
   const rang = elp("div", "pipeline-ligne");
   rang.append(elp("span", "pipeline-ligne-nom", `${l.nomAffiche} ×${l.quantity || 1}`));
   for (const [v, mot] of DESTS) {

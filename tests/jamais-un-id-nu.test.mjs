@@ -338,8 +338,11 @@ test("D2 — ÉQUIPEMENT : une ligne dont le record manque porte le mot de l'org
   aucunIdNu(texte, "fh:gem:en:nulle-part");
   /* Une gemme est du catalogue : pas d'enfant, c'est le maître qu'on nomme. */
   assert.match(texte, /Nulle part comes with Fate's Hand — switch it on in Layers/);
-  /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci */
-  [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK").click();
+  /* 🔴 ET LE RETOUR PASSE PAR LA PORTE `Gear` — 18/09, le jour où `Backpack` a cessé
+     d'ouvrir l'ancienne liste. ⭐ Le garde n'a rien perdu : ses deux assertions sont
+     passées sur le NOUVEAU sac. C'est l'ancien écran qui portait un `BACK` ; le pied
+     du sac porte `Gear · Send · Wares`, et §6 réserve le mot `Back` à la coquille. */
+  node.querySelector('.gear-porte[data-porte="gear"]').click();
 });
 
 /* ══ E — LA COQUILLE, SUR SES OCTETS (elle n'a pas de harnais de rendu) ═══ */

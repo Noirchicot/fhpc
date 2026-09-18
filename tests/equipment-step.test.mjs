@@ -379,8 +379,16 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
     "un id nu à l'écran est le symptôme exact d'un genre que le chercheur ne résout pas");
   assert.ok("srfh:gem:en:azurite".includes("fh:gem:en:azurite"),
     "témoin : l'ancien id est une SOUS-CHAÎNE du nouveau — un garde qui cherche l'ancien ne garde rien");
-  /* et on revient à R : la vue est un état de MODULE, le test suivant hérite de celle-ci */
-  [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK").click();
+  /* 🔴 ET ON REVIENT À R PAR LA PORTE `Gear`, PLUS PAR UN `BACK` — 18/09, le jour
+     où la porte `Backpack` a cessé d'ouvrir l'ancienne liste pour ouvrir le sac B1.
+     ⭐ CE GARDE A BIEN FAIT DE TOMBER, ET IL N'A RIEN PERDU DE SES DENTS : les deux
+     assertions du dessus (le nom qui arrive, l'id nu qui n'arrive pas) sont passées
+     sur le NOUVEAU sac avant qu'il ne bute sur le retour. C'est l'ancien écran qui
+     portait un bouton `BACK` ; le pied du sac porte `Gear · Send · Wares`, et §6 dit
+     depuis toujours que le mot `Back` n'appartient qu'à la coquille.
+     ⛔ La vue est un état de MODULE : sans ce retour, les trois gardes suivants
+     rendraient le sac au lieu de R — c'est exactement ce qui vient d'arriver. */
+  node.querySelector('.gear-porte[data-porte="gear"]').click();
 });
 
 /* ══ LOT 182 — L'OR DE DÉPART SE LIT DANS LA DONNÉE, DES DEUX CÔTÉS ═══════
