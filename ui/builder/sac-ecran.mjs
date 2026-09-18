@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=670";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=670";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=673";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=673";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=670";
+import { armerJeton, fantome } from "./glisser.mjs?v=673";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=670";
+import { facteurZoomCourant } from "./echelle.mjs?v=673";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -46,7 +46,7 @@ export const CLEF_DE = Object.freeze({
   "CRAN 1": "cran-1", "CRAN 2": "cran-2", "CRAN 3": "cran-3", "CRAN 4": "cran-4", "CRAN 5": "cran-5",
   "TRIER": "trier", "TASSER": "sections",
   "POIDS TOTAL": "poids-total", "POIDS DETAIL": "poids-detail",
-  "COMPTE": "compte", "PAGE": "page", "EFFACER": "effacer", "EDITER": "editer",
+  "EFFACER": "effacer", "EDITER": "editer",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
   "DROP": "drop", "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
   "RANGEE": "rangee", "livre": "livre", "?": "guide"
@@ -221,27 +221,36 @@ function roue(options) {
      ⛔ ON NE BOUCLE PAS SOUS CINQ CRANS : une section paraîtrait deux fois, et une
      roue qui se répète ment sur ce qu'elle contient. Avec les six du socle et le
      party inventory, le cas ne se présente plus — mais un banc peut l'appeler. */
-  const anneau = edition ? n + 1 : n;
+  /* ⚖️ LES DEUX `+` OCCUPENT LES DEUX BOUTS DE LA ROUE — croquis d'Eric, 19/09 :
+     `Backpack + section` au bout gauche, `Outside backpack + section` au bout droit,
+     son `+` doré. ⭐ CE SONT DES PLACES FIXES, PAS DES CRANS DE L'ANNEAU : elles ne
+     défilent pas. ⛔ Conséquence assumée et visible sur son croquis : en édition on ne
+     voit plus que TROIS sections, une de chaque côté du viseur.
+     🔴 ET C'EST L'INVERSE DE CE QUE J'AVAIS FAIT HIER — j'avais mis un `+` unique SUR
+     l'anneau, pour qu'un ruban infini garde un endroit où créer. Eric le sort de
+     l'anneau : un bouton qui défile est un bouton qu'on doit chercher. */
+  const bouts = edition ? 1 : 0;
+  const fenetre = 5 - 2 * bouts;                 /* 5 au repos, 3 en édition */
   for (let i = 0; i < 5; i += 1) {
     const dom = i === 2;
-    const brut = actif - 2 + i;
-    const idx = anneau >= 5
-      ? ((brut % anneau) + anneau) % anneau
-      : (brut >= 0 && brut < anneau ? brut : -1);
-    if (idx < 0) continue;                       /* cette place reste vide */
-    /* ⭐ LE `+` EST UN CRAN, PAS UN ORGANE NEUF : il prend la boîte, la cote et le
-       halo de la place où il tombe. Aucune cote ne s'invente pour lui. */
-    if (edition && idx === n) {
+    if (edition && (i === 0 || i === 4)) {
+      const dehors = i === 4;
       const p = el("button", "sac-cran", "+");
       p.type = "button";
       p.dataset.organe = `cran-${i + 1}`;
-      p.dataset.dominant = dom ? "oui" : "non";
+      p.dataset.dominant = "non";
       p.dataset.role = "ajouter";
-      p.setAttribute("aria-label", "New section");
-      if (options.surAjouter) p.addEventListener("click", () => options.surAjouter());
+      if (dehors) p.dataset.lieu = "dehors";
+      p.setAttribute("aria-label", dehors ? "New section outside the backpack" : "New backpack section");
+      p.addEventListener("click", () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
       r.append(p);
       continue;
     }
+    const brut = actif - Math.floor(fenetre / 2) + (i - bouts);
+    const idx = n >= fenetre
+      ? ((brut % n) + n) % n
+      : (brut >= 0 && brut < n ? brut : -1);
+    if (idx < 0) continue;                       /* cette place reste vide */
     /* ⭐ LE CRAN DOMINANT EN ÉDITION EST UN CHAMP — *« tap pour modifier »*. Il garde
        la boîte du cran (la feuille lui donne le même habit) ; ce qui change est
        qu'on peut écrire dedans. ⛔ On n'écrit au document QU'À LA VALIDATION : un
@@ -282,7 +291,11 @@ function roue(options) {
     /* ⚖️ LE LISERÉ DIT LE LIEU — Eric, 19/09 : *« liseré doré = hors backpack, liseré
        blanc = dans backpack »*. ⛔ L'attribut ne se pose que pour l'AILLEURS : le
        blanc est le défaut de la maison, et un défaut qu'on réécrit cesse d'en être un. */
+    /* ⚖️ TROIS LISERÉS, TROIS GENRES — croquis du 19/09 : blanc = une section du sac,
+       BLEU = le party inventory, DORÉ = hors du sac. ⛔ Le blanc est le défaut de la
+       maison : il ne se déclare pas, et c'est le signe que le défaut était le bon. */
     if (sections[idx].dehors === true) c.dataset.lieu = "dehors";
+    else if (sections[idx].party === true) c.dataset.lieu = "party";
     c.setAttribute("role", "tab");
     c.setAttribute("aria-selected", String(dom));
     if (!dom && options.surSection) c.addEventListener("click", () => options.surSection(idx));
@@ -681,8 +694,17 @@ export function construireLeSac(options = {}) {
      pas une chaîne avec des espaces — des espaces ne se centrent pas. */
   const detail = el("p", "sac-poids");
   detail.dataset.organe = "poids-detail";
-  for (const mot of [p.gear, p.backpack, p.autre]) {
-    detail.append(el("span", "sac-poids-part", mot || ""));
+  /* ⚖️ CHAQUE PART SUR DEUX LIGNES — croquis d'Eric, 19/09 : *« GEAR : X / 5 ITEMS »*,
+     *« BACKPACK X / 22 ITEMS »*, *« OTHER X / 7 ITEMS »*. ⭐ Le compte d'objets quitte
+     le bout de la ligne pour rejoindre le poids qu'il accompagne : chaque part dit
+     désormais SON poids et SON compte, au lieu d'un seul compte pour tout le sac.
+     ⛔ Deux nœuds par part, pas un `\n` : un saut de ligne dans le texte finirait
+     dans l'`aria-label`. */
+  for (const part of [p.gear, p.backpack, p.autre]) {
+    const n = el("span", "sac-poids-part");
+    n.append(el("span", "sac-poids-mesure", (part && part.poids) || ""),
+             el("span", "sac-poids-compte", (part && part.compte) || ""));
+    detail.append(n);
   }
   noeud.append(total, detail);
 
@@ -692,11 +714,13 @@ export function construireLeSac(options = {}) {
      regard — au lieu d'une rangée de plus sous la grille. ⛔ Deux voyants, pas deux
      contrôles : on ne tourne pas la page en tapant la fraction (le balayage et la
      molette le font). */
-  [["compte", options.compte], ["page", options.page]].forEach(([id, mot]) => {
-    const v = el("p", "sac-compte", mot || "");
-    v.dataset.organe = id;
-    noeud.append(v);
-  });
+  /* ⛔ NI COMPTE GLOBAL NI COMPTEUR DE PAGES — Eric, 19/09 : *« j'ai mis le nombre
+     d'items sous les Gear, Back, Other »* · *« inutile de compter les pages »*.
+     ⭐ Le compte du sac EST « Backpack 22 items » : un chiffre écrit deux fois diverge
+     au premier réglage. Ce que la source du chapitre demandait (*« le compte total à
+     gauche »*) est donc tenu, et mieux — trois comptes au lieu d'un.
+     ⭐ ET LES PAGES EXISTENT TOUJOURS : la grille déborde, le balayage et la molette la
+     tournent. C'est le COMPTEUR qui s'en va, pas la pagination. */
 
   /* ⭐ UN OBJET RETENU A QUITTÉ SA CASE, et on le retire ICI plutôt que de demander
      à la case de se taire — Eric, 16/09 : *« il doit quitter l'emplacement et rester

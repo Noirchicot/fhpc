@@ -107,12 +107,12 @@
    "nom": "EFFACER",
    "sorte": "bouton",
    "x": 132.0,
-   "y": 4,
+   "y": 24.0,
    "l": 40,
    "h": 40,
    "cible": {
     "x": 130.0,
-    "y": 2.0,
+    "y": 22.0,
     "l": 44,
     "h": 44
    },
@@ -125,12 +125,12 @@
    "nom": "EDITER",
    "sorte": "bouton",
    "x": 203.0,
-   "y": 4,
+   "y": 24.0,
    "l": 40,
    "h": 40,
    "cible": {
     "x": 201.0,
-    "y": 2.0,
+    "y": 22.0,
     "l": 44,
     "h": 44
    },
@@ -174,28 +174,29 @@
   {
    "nom": "TRIER",
    "sorte": "bouton",
-   "x": 4,
+   "x": 8,
    "y": 52,
    "l": 40,
    "h": 40,
    "cible": {
-    "x": 2.0,
+    "x": 6.0,
     "y": 50.0,
     "l": 44,
     "h": 44
    },
    "mot": "Sort",
-   "cran": "T0/600"
+   "cran": "T0/600",
+   "lignes": 2
   },
   {
    "nom": "TASSER",
    "sorte": "bouton",
-   "x": 331,
+   "x": 327,
    "y": 52,
    "l": 40,
    "h": 40,
    "cible": {
-    "x": 329.0,
+    "x": 325.0,
     "y": 50.0,
     "l": 44,
     "h": 44
@@ -207,42 +208,22 @@
   {
    "nom": "POIDS TOTAL",
    "sorte": "voyant",
-   "x": 52,
-   "y": 61.0,
-   "l": 271,
+   "x": 56,
+   "y": 60,
+   "l": 263,
    "h": 14,
-   "mot": "Encumbrance (Gear + Backpack) 46,5",
+   "mot": "Encumbrance : 46,5",
    "cran": "T2/600"
-  },
-  {
-   "nom": "COMPTE",
-   "sorte": "voyant",
-   "x": 52,
-   "y": 75.0,
-   "l": 44,
-   "h": 12,
-   "mot": "23 items",
-   "cran": "T0/400"
   },
   {
    "nom": "POIDS DETAIL",
    "sorte": "voyant",
-   "x": 96,
-   "y": 75.0,
-   "l": 203,
-   "h": 12,
+   "x": 56,
+   "y": 74,
+   "l": 263,
+   "h": 22,
    "mot": "Gear 34,5   Backpack 12   Other 61",
    "cran": "T1/400"
-  },
-  {
-   "nom": "PAGE",
-   "sorte": "voyant",
-   "x": 299,
-   "y": 75.0,
-   "l": 24,
-   "h": 12,
-   "mot": "1/2",
-   "cran": "T0/400"
   },
   {
    "nom": "CASE 1.1",

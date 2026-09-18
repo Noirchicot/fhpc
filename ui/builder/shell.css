@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=670") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=673") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=670") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=673") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=670") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=673") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=670");
+  background-image: url("./assets/tarot-dos.jpg?v=673");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11791,6 +11791,16 @@ button.tuto-point::before {
    ⛔ L'or n'est pas une couleur de l'échelle : il ne dit ni bien ni mal, il dit un
    LIEU — un objet rangé là n'est pas sur toi. Son jeton le dit (`--dehors`). */
 .sac-cran[data-lieu="dehors"] { box-shadow: inset 0 0 0 1px var(--dehors); }
+/* ⭐ ET LE BLEU EST CELUI DU PARTY INVENTORY — Eric, 19/09 : *« party inventory vient
+   dedans ; c'est une partie accessible par tout le monde. Non éditable : on peut
+   changer sa position, mais pas l'effacer ni la renommer. »* ⛔ `--info` est la teinte
+   de ce qui PRÉVIENT (§7) : ici elle ne prévient pas, elle dit *« ceci n'est pas qu'à
+   toi »*. C'est le même emploi que sur le liseré des portes de navigation — une
+   appartenance, pas un signal. */
+.sac-cran[data-lieu="party"] { box-shadow: inset 0 0 0 1px var(--info); }
+/* ⭐ ET LE `+` DU BOUT DROIT PORTE L'OR DE L'AILLEURS : les deux boutons sont
+   identiques, seule leur destination change — et elle se voit. */
+.sac-cran[data-role="ajouter"][data-lieu="dehors"] { color: var(--dehors); }
 
 /* ⚖️ LE DOMINANT — la cote vient de la table, le HALO vient du belt : c'est la
    même ombre portée, qui déborde dans la gouttière sans rien prendre au cran. */
@@ -11949,6 +11959,11 @@ button.tuto-point::before {
 .sac-outil {
   flex-direction: column; gap: 0;
   font-size: var(--t0); line-height: 1.1;
+  /* ⚖️ *« et centre le texte sur tes boutons »* — Eric, 19/09. ⛔ La famille des
+     boutons à mot aligne son libellé sur la LIGNE DE BASE de son relief, ce qui
+     convient à un mot posé sur une seule ligne ; deux étages dans un carré, eux,
+     doivent se centrer dans les DEUX sens. */
+  align-items: center; justify-content: center; text-align: center;
 }
 .sac-outil-etage { display: block; }
 /* ⚖️ L'INTERRUPTEUR DU MODE — il s'allume comme les bascules de X1 : le halo du belt,
@@ -11976,24 +11991,19 @@ button.tuto-point::before {
 /* ⭐ TROIS PARTS ÉGALES, chacune centrée dans la sienne — *« (centrés) »*. ⛔ Des
    espaces dans une chaîne ne se centrent pas : trois nœuds, trois parts. */
 .sac-poids[data-organe="poids-detail"] { font-size: var(--t1); justify-content: space-between; }
-.sac-poids-part { flex: 1 1 0; text-align: center; }
+/* ⭐ CHAQUE PART TIENT SUR DEUX ÉTAGES — son poids, puis son compte d'objets (croquis
+   du 19/09). ⛔ Le compte est plus discret que le poids : c'est le poids qu'on
+   compare, le compte qu'on vérifie. */
+.sac-poids-part {
+  flex: 1 1 0; text-align: center;
+  display: flex; flex-direction: column; gap: 0; line-height: 1.1;
+}
+.sac-poids-compte { color: var(--text-muted); }
 /* ⭐ LE COMPTE ET LA PAGE ENCADRENT LA GRILLE — la source du chapitre : *« le compte
    total à gauche, la page à droite »*. ⛔ Deux voyants : on ne tourne pas la page en
    tapant la fraction. Ils prennent les deux bords de la grille, donc l'un se range à
    gauche et l'autre à droite — c'est la SEULE chose que ce bloc dit d'eux. */
-/* ⭐ LE COMPTE ET LA PAGE ENCADRENT LE DÉTAIL, sur sa ligne — Eric, 19/09 : *« si tu
-   mets les pages et le nombre d'items au même niveau que la deuxième ligne de
-   l'encumbrance »*. ⛔ Deux voyants : on ne tourne pas la page en tapant la fraction
-   (le balayage et la molette le font). */
-.sac-compte {
-  margin: 0; font-size: var(--t0); line-height: 1.1; color: var(--text-soft);
-  display: flex; align-items: center;
-}
-.sac-compte[data-organe="page"] { justify-content: flex-end; }
-/* ⭐ ILS ENCADRENT LE TOTAL, PAS LE DÉTAIL — et c'est une mesure qui l'a décidé : sur
-   la ligne du détail il manquait 8 blg aux trois ensemble, sur celle du total il en
-   reste 146. L'intention d'Eric — ne pas dépenser une rangée pour eux — tient dans
-   les deux cas ; la place, non. */
+
 /* — LES CASES : le creux dit « pose ici », le relief dit « quelque chose est
      posé » — les mêmes deux états que sur R. —
    ⛔ PAS DE `.sac-collecteur` : le collecteur du sac EST celui de R

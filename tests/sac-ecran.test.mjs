@@ -340,9 +340,17 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
   const dom = D.ORGANES.find((o) => o.nom === "CRAN 3");
   const pose = (nom) => D.ORGANES.find((o) => o.nom === nom);
   assert.equal(pose("EFFACER").x + pose("EFFACER").l / 2, dom.x,
-    "⚖️ *« à cheval »* : le `×` est CENTRÉ sur l'arête gauche du cran dominant");
+    "⚖️ le `×` est centré sur le coin BAS-GAUCHE du cran dominant");
   assert.equal(pose("EDITER").x + pose("EDITER").l / 2, dom.x + dom.l,
-    "⚖️ et le `/` sur son arête droite — c'est ce qui dit de QUELLE boîte elles parlent");
+    "⚖️ et le `/` sur son coin bas-droit — c'est ce qui dit de QUELLE boîte ils parlent");
+  /* ⚖️ ET LE CHEVAL EST VERTICAL, SUR L'ARÊTE DU BAS — croquis d'Eric, 19/09 : les
+     deux signes PENDENT sous le cran. 🔴 Je les avais mis aux côtés, à mi-hauteur :
+     ils mordaient alors sur les deux crans VOISINS, et un signe posé sur la boîte
+     d'à-côté ment sur ce qu'il désigne. Sous le cran, il n'y a personne. */
+  for (const p of ["EFFACER", "EDITER"]) {
+    assert.equal(pose(p).y + pose(p).h / 2, dom.y + dom.h,
+      `${p} doit être centré sur l'arête BASSE du dominant — 20 dedans, 20 dessous`);
+  }
   for (const p of ["EFFACER", "EDITER"]) {
     assert.deepEqual([pose(p).l, pose(p).h], [40, 40], "⚖️ *« carré 40 × 40 »*");
   }
@@ -390,10 +398,24 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      ⭐ Le `+` est un cran DE PLUS SUR L'ANNEAU, pas une butée à son bout : c'est ce
      qui rend l'infini et le `+` compatibles. */
   const cinq = [1, 2, 3, 4, 5].map((i) => ({ nom: `S${i}` }));
-  const bout = rendu({ sections: cinq, section: 4, edition: true });
+  /* ⚖️ EN ÉDITION, LES DEUX BOUTS SONT LES DEUX `+` — croquis du 19/09 : `Backpack +
+     section` à gauche, `Outside backpack + section` à droite. ⛔ Il ne reste donc que
+     TROIS sections visibles, et c'est ce que son croquis montre.
+     🔴 C'EST L'INVERSE DE CE QUE J'AVAIS FAIT LA VEILLE : j'avais posé un `+` unique
+     SUR l'anneau, pour qu'un ruban infini garde un endroit où créer. Eric l'en sort —
+     un bouton qui défile est un bouton qu'on doit chercher. */
+  const bout = rendu({ sections: cinq, section: 4, edition: true,
+    surAjouter: (ou) => gestes.push(`ajouter:${ou}`) });
   assert.deepEqual(tous(bout, ".sac-cran").map((c) => c.textContent || c.value),
-    ["S3", "S4", "S5", "+", "S1"],
-    "⭐ l'anneau de six passe par le `+` et revient à S1 — deux crans de chaque côté, toujours");
+    ["+", "S4", "S5", "S1", "+"],
+    "⭐ deux `+` aux bouts, et l'anneau des sections continue de tourner entre eux");
+  const [gauche, droite] = tous(bout, '[data-role="ajouter"]');
+  assert.equal(gauche.dataset.lieu, undefined, "le `+` de gauche crée DANS le sac");
+  assert.equal(droite.dataset.lieu, "dehors", "⚖️ celui de droite crée DEHORS — et son `+` est doré");
+  gauche.dispatchEvent({ type: "click" });
+  droite.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes.slice(-2), ["ajouter:sac", "ajouter:dehors"],
+    "⛔ et le geste dit LEQUEL : deux boutons, deux destinations");
   const repos = rendu({ sections: cinq, section: 0 });
   assert.deepEqual(tous(repos, ".sac-cran").map((c) => c.textContent),
     ["S4", "S5", "S1", "S2", "S3"],
@@ -403,10 +425,17 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
     assert.deepEqual(tous(x, ".sac-cran").map((c) => c.dataset.dominant),
       ["non", "non", "oui", "non", "non"], "le halo et le zoom restent au centre");
   }
-  /* ⛔ ET LES POIGNÉES NE PARAISSENT PAS SUR LE `+` : rien à renommer ni à effacer
-     dans une place qui n'existe pas encore. */
-  const surLePlus = rendu({ sections: cinq, section: 5, edition: true });
-  assert.equal(surLePlus.querySelector('[data-organe="effacer"]'), null);
+  /* ⚖️ ET TROIS LISERÉS DISENT TROIS GENRES — croquis du 19/09 : blanc = une section
+     du sac, BLEU = le party inventory, DORÉ = hors du sac. ⛔ Le blanc ne se déclare
+     pas : c'est le défaut de la maison, et un défaut qu'on réécrit cesse d'en être un. */
+  const genres = rendu({ section: 1, sections: [
+    { nom: "Weapons" }, { nom: "Party inventory", party: true }, { nom: "Red chest", dehors: true }] });
+  const parNom = Object.fromEntries(tous(genres, ".sac-cran").map((c) => [c.textContent, c.dataset.lieu]));
+  assert.equal(parNom["Weapons"], undefined, "une section du sac n'a pas de lieu déclaré : blanc");
+  assert.equal(parNom["Party inventory"], "party", "⚖️ le party inventory est BLEU");
+  assert.equal(parNom["Red chest"], "dehors", "⚖️ et ce qui est hors du sac est DORÉ");
+  assert.match(feuille, /\.sac-cran\[data-lieu="party"\][^}]*var\(--info\)/);
+  assert.match(feuille, /\.sac-cran\[data-lieu="dehors"\][^}]*var\(--dehors\)/);
 
   /* ⑦ ⚖️ *« la hauteur des sections = 40 »* — et le zoom vit en largeur et en corps.
      ⛔ Une boîte qui change de hauteur en entrant dans le halo ne défile pas : elle
