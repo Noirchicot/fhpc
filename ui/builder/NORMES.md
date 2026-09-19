@@ -3454,6 +3454,34 @@ une généralisation, qui attendait qu'une cible cesse d'être centrée pour dev
 
 ---
 
+### 📐 UNE BOÎTE A DEUX DIMENSIONS — ET LA SORTIE EST CELLE QU'ERIC A NOMMÉE
+📍 `cadre-une-taille-se-valide-sur-les-deux-dimensions` · vivante · 19/09
+⚖️ **Une taille ne « passe » que si elle passe en LARGEUR *et* en HAUTEUR. ⛔ Et quand elle ne passe pas, on prend la sortie qu'Eric a nommée — on ne serre pas une cote qu'il n'a pas donnée pour sauver la sienne.**
+
+> Eric, 2026-09-19 au soir, sur les deux mots du `+` : **« si ça passe en T1 fais en T1 italique »** · **« ou T0 italique »**.
+
+⭐ **SA RÈGLE EST UNE MESURE, PAS UN GOÛT** : essaie le grand, tombe au petit s'il ne rentre pas.
+🔴 **ET J'AI FAILLI M'ARRÊTER À LA PREMIÈRE DIMENSION.** En largeur T1 passait : `backpack` rend
+**48,05** pour **48,46** utiles — de **0,41 blg**, et j'allais conclure. C'est la **hauteur** qui
+refusait : la pile `10 + 14 + 10` à l'interligne du cran (1,15) fait trois lignes de
+**12 + 17 + 12 = 41** dans un cran de **40**. Relevé dans l'application : `scrollHeight 41 >
+clientHeight 40`, et `.sac-cran` porte `overflow: hidden` — ⛔ **un blg rogné, en silence**.
+⛔ **ET LA TENTATION ÉTAIT DE SERRER L'INTERLIGNE** pour garder le T1. C'eût été inventer une cote
+qu'Eric n'a pas donnée, alors qu'il avait lui-même nommé la sortie. ⭐ *Quand un contenu ne rentre
+pas, on lui retire quelque chose ou on prend la porte qu'on nous a montrée ;* ⛔ *on ne rétrécit pas
+la pièce autour de lui.*
+🛡️ **LE TÉMOIN** : `tests/sac-ecran.test.mjs` n° 21 — il **refait l'addition** depuis les jetons
+(`--t0`, `--t3`), l'interligne écrit dans `.sac-cran` et la hauteur du cran **dans le plan** ;
+⛔ il ne recopie aucun nombre, donc il refait le calcul si un jeton bouge. Éprouvé rouge en
+remettant `--t1` : *« les trois étages font 41 blg (12 + 17 + 12, interligne 1.15) dans un cran de
+40 »* — **les mêmes nombres que le navigateur**, obtenus autrement. ⭐ Deux témoins indépendants
+qui tombent sur le même chiffre, c'est ce qui distingue une mesure d'une coïncidence.
+📌 **LA LARGEUR, ELLE, NE SE CALCULE PAS SOUS NODE** (pas de métrique de police) : elle se mesure
+dans l'application, et le chiffre est écrit dans `shell.css`. ⛔ Un garde qui prétendrait la tenir
+mentirait sur ce qu'il sait.
+
+---
+
 ### 📐 UNE COTE DU PLAN QUE NUL ORGANE PEINT NE LIT EST INERTE
 📍 `cadre-une-cote-que-nul-organe-ne-lit-est-inerte` · vivante · 19/09
 ⚖️ **Un organe dont le DESSIN est peint par un enfant (`::before`, pastille, corps) doit faire lire à cet enfant la boîte que la feuille construite pose. ⛔ Une taille propre à l'enfant est un SECOND ÉCRIVAIN : le plan peut alors bouger sans que rien ne suive, et sans que rien ne le dise.**

@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=692";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=692";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=694";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=694";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=692";
+import { armerJeton, fantome } from "./glisser.mjs?v=694";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=692";
+import { facteurZoomCourant } from "./echelle.mjs?v=694";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -235,12 +235,27 @@ function roue(options) {
     const dom = i === 2;
     if (edition && (i === 0 || i === 4)) {
       const dehors = i === 4;
-      const p = el("button", "sac-cran", "+");
+      const p = el("button", "sac-cran");
       p.type = "button";
       p.dataset.organe = `cran-${i + 1}`;
       p.dataset.dominant = "non";
       p.dataset.role = "ajouter";
       if (dehors) p.dataset.lieu = "dehors";
+      /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE, EN TROIS ÉTAGES — Eric, 2026-09-19 :
+        *« au dessus et en dessous du + vert : backpack / + / Storage »* ·
+        *« au dessus et en dessous du + doré : Other / + / Storage »*.
+        ⭐ LES DEUX MOTS SONT LA PHRASE, PAS UNE DÉCORATION : le vert crée un rangement
+        qui pèse dans `Backpack`, le doré un rangement qui compte dans `Other` — et c'est
+        `Other` lui-même, le mot du panneau de poids, qui le dit. ⛔ Un `+` nu obligeait
+        à connaître la couleur pour savoir ce qu'on allait créer.
+        ⛔ ET LE MOT N'EST PAS RECOPIÉ DEUX FOIS : `Storage` est celui que
+        `nomDeSectionParDefaut` donne déjà aux sections créées — le `+` montre le nom
+        que la section portera. */
+      p.append(
+        el("span", "sac-etage", dehors ? "Other" : "backpack"),
+        el("span", "sac-cran-signe", "+"),
+        el("span", "sac-etage", "Storage"),
+      );
       p.setAttribute("aria-label", dehors ? "New section outside the backpack" : "New backpack section");
       p.addEventListener("click", () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
       r.append(p);
@@ -670,8 +685,8 @@ export function construireLeSac(options = {}) {
   const sections = bouton("bouton gear-porte sac-outil", "",
     edition ? "Done editing sections" : "Edit sections",
     () => options.surSections && options.surSections());
-  sections.append(el("span", "sac-outil-etage", edition ? "done" : "edit"),
-                  el("span", "sac-outil-etage", "sections"));
+  sections.append(el("span", "sac-etage", edition ? "done" : "edit"),
+                  el("span", "sac-etage", "sections"));
   sections.dataset.organe = "sections";
   sections.dataset.porte = "sections";
   sections.dataset.on = edition ? "true" : "false";

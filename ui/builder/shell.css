@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=692") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=694") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=692") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=694") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=692") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=694") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=692");
+  background-image: url("./assets/tarot-dos.jpg?v=694");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11907,7 +11907,32 @@ button.tuto-point::before {
 .sac-cran[data-role="ajouter"] {
   color: var(--positive); font-size: var(--t3); -webkit-line-clamp: none;
   cursor: pointer;
+  /* 🔴 LE `display` SE REDÉCLARE, ET CE N'EST PAS DU CONFORT : `.sac-cran` rend
+     `-webkit-box` pour son clamp à deux étages. Poser `align-items` / `justify-content`
+     par-dessus sans changer le `display` les aurait rendus INERTES — la faute que ce
+     lot a déjà payée sur la famille des boutons (le texte flottait hors du corps). */
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
+/* ⚖️ LES DEUX MOTS DU `+` — Eric, 2026-09-19 au soir : *« si ça passe en T1 fais en T1
+   italique »* · *« ou T0 italique »*. ⭐ SA RÈGLE EST UNE MESURE, PAS UN GOÛT — elle dit
+   d'essayer le grand et de tomber au petit s'il ne rentre pas. Alors on MESURE.
+   📏 T1 ITALIQUE ÉCHOUE, ET PAS OÙ JE REGARDAIS. En LARGEUR il passait : `backpack`
+   rend **48,05** dans **48,46** utiles (57 moins deux marges de 7,5 %) — de 0,41 blg.
+   🔴 C'est la HAUTEUR qui refuse : la pile `10 + 14 + 10` à l'interligne du cran (1,15)
+   fait trois lignes de **12 + 17 + 12 = 41** dans un cran de **40**. Relevé dans
+   l'application : `scrollHeight 41 > clientHeight 40`, et `.sac-cran` porte
+   `overflow: hidden` — donc **un blg rogné, en silence**.
+   ⛔ ET JE N'AI PAS SERRÉ L'INTERLIGNE POUR SAUVER LE T1 : ce serait inventer une cote
+   qu'Eric n'a pas donnée, quand il a lui-même nommé la sortie. ⭐ T0 italique : `backpack`
+   demande **38,43** pour 48,46, et la pile fait **10 + 17 + 10 = 37** pour 40. Les deux
+   dimensions respirent.
+   ⛔ L'ITALIQUE N'EST PAS UN ORNEMENT : ces deux mots ne sont pas le nom du cran, ils
+   disent ce que le `+` va FAIRE. Le romain les aurait fait lire comme des sections. */
+.sac-cran[data-role="ajouter"] .sac-etage {
+  font-size: var(--t0); font-style: italic;
+}
+/* ⭐ ET LE SIGNE GARDE SON CRAN À LUI (T3) : il hérite du cran, donc il n'a rien à
+   déclarer — il est nommé pour que le garde puisse le désigner, pas pour être habillé. */
 /* — LE TUNER : chevron au repos, flèche circulaire au survol. ⭐ `hover: hover`
      n'est pas une détection d'appareil : c'est une question posée au POINTEUR.
      Un téléphone garde son chevron, une souris reçoit la molette. — */
@@ -12013,7 +12038,11 @@ button.tuto-point::before {
      ne valait rien tant que la boîte n'était pas en `flex`. */
   font-size: var(--t1); line-height: 1.05;
 }
-.sac-outil-etage { display: block; }
+/* ⭐ UN ÉTAGE — une ligne empilée dans un bouton du sac. ⛔ PARTAGÉ, PAS DUPLIQUÉ :
+   les deux outils l'emploient depuis le 19/09, les deux `+` depuis le soir même.
+   Une seconde classe qui dirait `display: block` serait un second écrivain pour une
+   seule idée. ⛔ Et la TAILLE ne vit pas ici : chaque hôte donne la sienne. */
+.sac-etage { display: block; }
 /* ⚖️ L'INTERRUPTEUR DU MODE — il s'allume comme les bascules de X1 : le halo du belt,
    la même ombre qui dit « c'est ici que ça se passe ». */
 .sac-outil[data-organe="sections"][data-on="true"] {

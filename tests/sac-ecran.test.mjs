@@ -285,7 +285,7 @@ test("14 — ⚖️ LES DEUX OUTILS PORTENT LEUR MOT, EN VERT — et plus un gly
   assert.equal(trier.textContent, "Sort", "⭐ le mot est VISIBLE, plus caché dans l'aria-label");
   assert.equal(sections.textContent, "editsections",
     "⭐ deux étages, deux nœuds — ⛔ un `\\n` dans le texte finirait dans l'aria-label");
-  assert.deepEqual(tous(sections, ".sac-outil-etage").map((e) => e.textContent), ["edit", "sections"]);
+  assert.deepEqual(tous(sections, ".sac-etage").map((e) => e.textContent), ["edit", "sections"]);
   assert.equal(n.querySelector('[data-organe="sections"]').getAttribute("aria-label"), "Edit sections",
     "et le mot complet reste dit à qui ne voit pas l'écran");
 
@@ -437,9 +437,28 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      un bouton qui défile est un bouton qu'on doit chercher. */
   const bout = rendu({ sections: cinq, section: 4, edition: true,
     surAjouter: (ou) => gestes.push(`ajouter:${ou}`) });
-  assert.deepEqual(tous(bout, ".sac-cran").map((c) => c.textContent || c.value),
-    ["+", "S4", "S5", "S1", "+"],
+  const crans = tous(bout, ".sac-cran");
+  assert.deepEqual(crans.map((c) => c.dataset.role || "section"),
+    ["ajouter", "section", "section", "section", "ajouter"],
     "⭐ deux `+` aux bouts, et l'anneau des sections continue de tourner entre eux");
+  assert.deepEqual(crans.slice(1, 4).map((c) => c.textContent || c.value), ["S4", "S5", "S1"],
+    "⛔ et l'anneau ne saute pas un cran : les trois du milieu sont ceux du viseur");
+
+  /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE — Eric, 2026-09-19 au soir : *« au dessus et en
+     dessous du + vert : backpack / + / Storage »* · *« au dessus et en dessous du +
+     doré : Other / + / Storage »*.
+     🔴 CE GARDE A ROUGI SUR CE CHANGEMENT, ET IL AVAIT RAISON : il épinglait un `+` NU
+     (`textContent === "+"`). ⛔ On ne rattrape pas ça en concaténant les trois étages —
+     `"backpack+Storage"` serait vert pour n'importe quel ORDRE. ⭐ Il lit donc les
+     étages un par un, dans l'ordre où ils sont empilés : c'est l'ordre qui porte la
+     phrase, le mot du dessus disant OÙ et celui du dessous disant QUOI. */
+  const etages = (c) => [...c.childNodes].map((n) => n.textContent);
+  assert.deepEqual(etages(crans[0]), ["backpack", "+", "Storage"],
+    "⚖️ le `+` vert crée un rangement qui pèse dans `Backpack`");
+  assert.deepEqual(etages(crans[4]), ["Other", "+", "Storage"],
+    "⚖️ et le `+` doré un rangement qui compte dans `Other` — le mot du panneau de poids");
+  assert.equal(crans[4].dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
+  assert.equal(crans[0].dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
   const [gauche, droite] = tous(bout, '[data-role="ajouter"]');
   assert.equal(gauche.dataset.lieu, undefined, "le `+` de gauche crée DANS le sac");
   assert.equal(droite.dataset.lieu, "dehors", "⚖️ celui de droite crée DEHORS — et son `+` est doré");
@@ -656,4 +675,61 @@ test("20 — 🪞 UN DESSIN DÉCENTRÉ NE SE MIROITE PAS AUTOUR DE SA CIBLE", ()
     `(écarts ${decentres.map((o) => ecart(o).join("/")).join(" · ")}), et la feuille les mire.\n` +
     "   Sans `transform-box: content-box`, le miroir se prend sur la CIBLE et le dessin\n" +
     "   repart de la somme des deux écarts — 26 blg le 19/09.");
+});
+test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALCULE", () => {
+  /* ⚖️ Eric, 2026-09-19 au soir : *« si ça passe en T1 fais en T1 italique »* · *« ou T0
+     italique »*. ⭐ SA RÈGLE EST UNE MESURE, PAS UN GOÛT — essaie le grand, tombe au petit
+     s'il ne rentre pas. Ce témoin fait l'essai à la place de celui qui écrira demain.
+     🔴 CE QUI A ÉTÉ PAYÉ EN LE POSANT : T1 passait en LARGEUR (`backpack` rend 48,05 pour
+     48,46 utiles — de 0,41 blg) et j'ai failli m'arrêter là. C'est la HAUTEUR qui refusait,
+     et `.sac-cran` porte `overflow: hidden` : un blg rogné, en silence, sans une ligne de
+     console. ⛔ Regarder une seule dimension d'une boîte à deux dimensions.
+     ⭐ ET CE GARDE NE RECOPIE AUCUN NOMBRE : il lit les jetons, l'interligne du cran et la
+     hauteur du cran DANS LE PLAN, et refait l'addition. Si un jeton bouge, il refait.
+     ⛔ La LARGEUR, elle, ne se calcule pas ici — il n'y a pas de métrique de police sous
+     Node. Elle a été mesurée dans l'application, et c'est écrit dans `shell.css`. */
+  const css = stripComments(feuille);
+  const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
+  const jeton = (nom) => {
+    const m = jetons.match(new RegExp(`--${nom}\\s*:\\s*([\\d.]+)px`));
+    assert.ok(m, `⛔ le jeton --${nom} a disparu : ce garde doit être réécrit, pas supprimé`);
+    return parseFloat(m[1]);
+  };
+  const bloc = (selecteur) => {
+    const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+      .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+      .find((x) => x.sel === selecteur);
+    assert.ok(b, `⛔ la règle \`${selecteur}\` n'existe plus : ce garde doit être réécrit`);
+    return b.corps;
+  };
+
+  /* ① l'interligne et la hauteur viennent d'où ils sont ÉCRITS */
+  const lh = parseFloat(bloc(".sac-cran").match(/line-height:\s*([\d.]+)/)[1]);
+  const cran = D.ORGANES.find((o) => o.nom === "CRAN 1");
+  assert.ok(cran && cran.h > 0, "⛔ le plan ne déclare plus de cran : ce garde a changé de sujet");
+
+  /* ② les deux tailles de la pile : celle des mots, celle du signe */
+  const taille = (corps) => {
+    const m = corps.match(/font-size:\s*var\(--(t\d)\)/);
+    assert.ok(m, "⛔ une taille en littéral ici serait un nombre de plus à tenir d'accord");
+    return jeton(m[1]);
+  };
+  const mot = taille(bloc('.sac-cran[data-role="ajouter"] .sac-etage'));
+  const signe = taille(bloc('.sac-cran[data-role="ajouter"]'));
+
+  /* ③ L'ADDITION — une ligne occupe `ceil(taille × interligne)`, comme le navigateur */
+  const ligne = (px) => Math.ceil(px * lh);
+  const pile = ligne(mot) + ligne(signe) + ligne(mot);
+  assert.ok(pile <= cran.h,
+    `⛔ les trois étages font ${pile} blg (${ligne(mot)} + ${ligne(signe)} + ${ligne(mot)}, ` +
+    `interligne ${lh}) dans un cran de ${cran.h} — et \`.sac-cran\` porte \`overflow: hidden\`, ` +
+    "donc le débord se ROGNE sans rien dire.\n" +
+    "   ⭐ Eric a nommé la sortie lui-même : si ça ne passe pas en T1, c'est T0 (19/09).\n" +
+    "   ⛔ Ne serre PAS l'interligne pour sauver la taille du dessus : ce serait inventer\n" +
+    "      une cote qu'il n'a pas donnée.");
+
+  /* ④ ET L'ITALIQUE EST LA PHRASE, PAS L'ORNEMENT : ces deux mots ne nomment pas le cran,
+     ils disent ce que le `+` va FAIRE. En romain ils se liraient comme des sections. */
+  assert.match(bloc('.sac-cran[data-role="ajouter"] .sac-etage'), /font-style:\s*italic/,
+    "⚖️ *« T1 italique »* · *« ou T0 italique »* — l'italique, lui, n'était pas au choix");
 });
