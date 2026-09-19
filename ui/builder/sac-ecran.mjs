@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=739";
-import { versionQuery } from "./version.mjs?v=739";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=739";
+import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=741";
+import { versionQuery } from "./version.mjs?v=741";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=741";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=739";
+import { armerJeton, fantome } from "./glisser.mjs?v=741";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=739";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=741";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=739";
+import { facteurZoomCourant } from "./echelle.mjs?v=741";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -228,10 +228,19 @@ export function feuilleDesCotesSac() {
      D'AUTRE de ce rectangle. Deux huit distincts, que j'avais fondus en un seul. */
   const jourHaut = DALLES.y - gouttiere;
   const jourBas = DALLES.y + DALLES.h + gouttiere;
-  const jour = `linear-gradient(to bottom,#000 0 ${px(jourHaut)},` +
-    `transparent ${px(jourHaut)} ${px(DALLES.y)},#000 ${px(DALLES.y)} ${px(DALLES.y + DALLES.h)},` +
-    `transparent ${px(DALLES.y + DALLES.h)} ${px(jourBas)},#000 ${px(jourBas)})`;
-  regles.push(`.sac{-webkit-mask-image:${jour};mask-image:${jour}}`);
+  /* ⭐ LES DEUX BANDES FIXES — leurs boîtes se déduisent de la mobile et du jour. ⛔ Plus
+     de masque : la dalle du sac ne porte plus de voile, donc il n'y a plus rien à percer.
+     C'était une rustine sur un défaut de structure. */
+  regles.push(`.sac > [data-bande="bande-haut"]{left:0;top:0;` +
+    `width:${px(DALLE.l)};height:${px(jourHaut)}}`);
+  regles.push(`.sac > [data-bande="bande-bas"]{left:0;top:${px(jourBas)};` +
+    `width:${px(DALLE.l)};height:${px(DALLE.h - jourBas)}}`);
+  /* ⚖️ ET 8 BLG DE JOUR ENTRE DEUX PLAQUES — Eric, 19/09 : *« une marge de 8 blg entre les
+     deux dalles qui défilent latéralement »*. ⭐ Pendant la transition on voit le fond
+     passer entre celle qui part et celle qui arrive ; au repos il est hors champ.
+     ⛔ Le pas d'une plaque n'est donc plus sa largeur : c'est sa largeur PLUS le jour — et
+     c'est pour ça que le verrou lit `offsetLeft` au lieu de multiplier. */
+  regles.push(`.sac .sac-dalles{gap:${px(gouttiere)}}`);
 
   /* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en
      fond transparent derrière »*. ⭐ C'est le PANTIN de R, même rôle et même place au plan :
@@ -893,7 +902,7 @@ export function construireLeSac(options = {}) {
      ⚠️ J'avais d'abord peint un `--surface` OPAQUE, puis copié `dalle-intermediaire`
      « parce que R l'a ». Les deux fautes sont la même : copier un voisin au lieu de
      lire la loi de son propre rang. */
-  const noeud = el("section", "sac dalle-simple");
+  const noeud = el("section", "sac");
   /* 🎯 LE RUBAN DE DALLES NAÎT ICI, avant la roue, parce que c'est LUI que les chevrons
      poussent et que la roue suit. ⛔ Il se remplit plus bas, à la place de la grille. */
   const piste = el("div", "sac-dalles");
@@ -909,6 +918,23 @@ export function construireLeSac(options = {}) {
   feuille.dataset.fhpc = "sac";
   feuille.textContent = feuilleDesCotesSac();
   noeud.append(feuille);
+  /* ⚖️ LES TROIS BANDES PORTENT LA MÊME MATIÈRE — Eric, 2026-09-19 : *« une transparence
+     identique entre les dalles fixes et mobiles »*.
+     🔴 ET ELLE NE L'ÉTAIT PAS : `.sac` portait déjà `dalle-simple`, et je venais d'en poser
+     un SECOND sur la plaque mobile. 35 % sur 35 % — la plaque était plus sombre que ses
+     voisines, et c'est exactement ce qu'il a vu. ⛔ Un voile qui se superpose à lui-même
+     n'est pas un réglage à corriger, c'est deux écrivains pour une matière.
+     ⭐ LA DALLE DU SAC NE PORTE DONC PLUS RIEN, et les trois bandes en portent une chacune.
+     Le jour entre elles montre le fond tout seul — plus besoin du masque qui perçait le
+     voile, il n'y a plus de voile à percer.
+     📐 Leurs boîtes se DÉDUISENT de la bande mobile : la fixe du haut va du bord au jour
+     qui précède, celle du bas du jour qui suit au bord de la dalle. */
+  for (const clef of ["bande-haut", "bande-bas"]) {
+    const bande = el("div", "sac-bande dalle-simple");
+    bande.dataset.bande = clef;
+    bande.setAttribute("aria-hidden", "true");
+    noeud.append(bande);
+  }
 
   /* 🎒 LE FILIGRANE, POSÉ EN PREMIER — c'est l'ordre du document qui le met DESSOUS :
      tous les organes qui suivent sont absolus comme lui et se peignent par-dessus.

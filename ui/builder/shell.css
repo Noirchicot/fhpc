@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=739") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=741") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=739") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=741") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=739") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=741") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=739");
+  background-image: url("./assets/tarot-dos.jpg?v=741");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11754,6 +11754,11 @@ button.tuto-point::before {
    d'un rang B, que le module pose sur le nœud. Deux écrivains pour une seule loi,
    c'est ce qui avait donné une plaque opaque au milieu d'un produit translucide. */
 .sac [data-organe] { position: absolute; box-sizing: border-box; }
+/* ⭐ LES DEUX BANDES FIXES SONT DES FONDS, pas des organes : elles ne portent rien, elles
+   sont la MATIÈRE de leur zone. ⛔ Elles ne prennent donc pas `data-organe` — la marque dit
+   « un organe du plan », et une bande n'en est pas un ; elle porte `data-bande`, et la
+   feuille construite lui donne sa boîte, déduite de la bande mobile. */
+.sac > [data-bande] { position: absolute; box-sizing: border-box; }
 /* 🔴 ET AUCUN ENFANT DE LA RANGÉE DU BAS NE PORTE `data-organe` — la règle qui
    les rendait `static` a été RETIRÉE avec sa cause (18/09).
    ⛔ CE QU'ELLE CASSAIT : les deux bornes (`.fiche-livre`, `.tuto-point`) doivent

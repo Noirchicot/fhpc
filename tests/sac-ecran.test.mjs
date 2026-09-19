@@ -282,12 +282,28 @@ test("11 — 🔴 LA DALLE PORTE LE VOILE DE SON RANG, et la cote se lit sur un 
   assert.ok(temoin, "⛔ le témoin du rang B ne déclare plus sa dalle dans parcours-ecrans.mjs : " +
     "sans lui ce garde ne mesure plus rien et passerait sur n'importe quoi.");
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
-  const mienne = source.match(/el\("section",\s*"sac\s+(dalle-[a-z]+)"\)/);
-  assert.ok(mienne, "⛔ le sac ne déclare plus sa dalle par une classe — il la peindrait donc lui-même");
-  assert.equal(mienne[1], temoin[1],
-    `le sac porte \`${mienne[1]}\` là où le témoin du rang B porte \`${temoin[1]}\`. ` +
-    "Un rang décide de son voile ; copier celui du voisin est la faute du 18/09.");
-  assert.equal(rendu().className, `sac ${temoin[1]}`, "et c'est bien ce que l'écran rend");
+
+  /* 🔄 LE VOILE A CHANGÉ DE PORTEUR LE 19/09, ⛔ PAS DE LOI. Eric : *« une transparence
+     identique entre les dalles fixes et mobiles »*.
+     🔴 CE QU'IL AVAIT VU : `.sac` portait le voile, et je venais d'en poser un SECOND sur
+     la plaque mobile pour qu'elle se détache. 35 % sur 35 % — la plaque était plus sombre
+     que ses voisines. ⛔ Un voile qui se superpose à lui-même n'est pas un réglage à
+     corriger, c'est DEUX ÉCRIVAINS pour une seule matière.
+     ⭐ La dalle du sac ne porte donc plus rien, et les TROIS bandes en portent une chacune
+     — la même, celle du rang B. La question de ce garde ne bouge pas d'un mot : *le sac
+     porte-t-il le voile de son rang, ou en peint-il un à lui ?* */
+  assert.doesNotMatch(source, /el\("section",\s*"sac\s+dalle-/,
+    "⛔ la dalle du sac ne porte plus de voile : sous les bandes, il se superposerait au leur");
+  assert.equal(rendu().className, "sac", "et c'est bien ce que l'écran rend");
+
+  const bandes = [...source.matchAll(/el\("div",\s*"sac-(?:bande|dalle)\s+(dalle-[a-z]+)"\)/g)]
+    .map((m) => m[1]);
+  assert.equal(bandes.length, 2, "⭐ deux déclarations : la bande fixe et la plaque mobile");
+  for (const v of bandes) {
+    assert.equal(v, temoin[1],
+      `une bande porte \`${v}\` là où le témoin du rang B porte \`${temoin[1]}\`. ` +
+      "Un rang décide de son voile ; copier celui du voisin est la faute du 18/09.");
+  }
 });
 
 test("12 — 🔴 LES DEUX BORNES DU PIED GARDENT LEUR ANCRE (le livre et le `?`)", () => {
