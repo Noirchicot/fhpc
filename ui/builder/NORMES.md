@@ -3454,6 +3454,37 @@ une généralisation, qui attendait qu'une cible cesse d'être centrée pour dev
 
 ---
 
+### 📐 UNE COTE DU PLAN QUE NUL ORGANE PEINT NE LIT EST INERTE
+📍 `cadre-une-cote-que-nul-organe-ne-lit-est-inerte` · vivante · 19/09
+⚖️ **Un organe dont le DESSIN est peint par un enfant (`::before`, pastille, corps) doit faire lire à cet enfant la boîte que la feuille construite pose. ⛔ Une taille propre à l'enfant est un SECOND ÉCRIVAIN : le plan peut alors bouger sans que rien ne suive, et sans que rien ne le dise.**
+
+> Eric, 2026-09-19 au soir : **« j'ai demandé dessin 30×30 / tactile 44×44 »**.
+
+🔴 **CE QUI L'A RÉVÉLÉ EST UN QUASI-ACCIDENT.** J'allais changer `POIGNEE` de 40 à 30 dans
+`backpack_gen.py`, régénérer, recopier verbatim — le geste juste, dans le bon ordre — et **rien
+n'aurait bougé à l'écran**. La pastille colorée, seul dessin visible d'une poignée, valait
+`--sp-24` **en dur** pendant que la table déclarait 40. ⛔ Deux cotes pour un organe, dont aucune
+ne tenait l'autre d'accord.
+⚠️ **ET LE SILENCE ÉTAIT TOTAL** : les tests seraient restés verts (ils lisent la table), le diff
+aurait été propre, la Bible régénérée, et j'aurais rapporté un changement qui n'existait pas.
+📏 **CE QUI L'A ATTRAPÉ** : avoir demandé *« avec quoi ce vert est-il peint ? »* **avant** de
+toucher aux bords — et la réponse fut un troisième mécanisme que je n'avais pas dans ma liste
+(`gear-porte::before` peint déjà son 40 par `--bouton-retrait-v`, `.sac-tuner` par un masque sur
+sa boîte de contenu, `.sac-poignee` par une pastille à cote propre). ⭐ **Trois familles, trois
+mécanismes** : une mesure qui n'en connaît qu'un conclut faux sur les deux autres.
+🔴 **J'AI D'AILLEURS CONCLU FAUX EN CHEMIN, ET C'EST LA MÊME FAUTE** : ayant relevé que
+`border-width` sans `border-style` calcule `0`, j'ai annoncé *« 5 cotes de bord sur 12 sont
+jetées »*. ⛔ **Inexact** — pour la famille `gear-porte`, le dessin de 40 est bel et bien peint,
+par `::before`, et le `border-width` n'y est que redondant. ⭐ *Une mesure demande trois lectures :
+déclaré · rendu · **et par quel organe***.
+⭐ **LA RÉPARATION EST UN RETRAIT** : `inset: 0` fait tenir à l'enfant la boîte de contenu du
+parent — c'est-à-dire exactement le dessin que `feuilleDesCotesSac()` pose. ⛔ Plus aucun littéral,
+et un seul écrivain.
+🛡️ **LE TÉMOIN** : `tests/sac-ecran.test.mjs` n° 15, ③ — il exige `inset: 0` **et refuse** toute
+`inline-size`/`block-size` propre à la pastille. Éprouvé rouge en lui rendant son `--sp-24`.
+
+---
+
 ### 🪞 UN MIROIR SE PREND SUR LE DESSIN, PAS SUR LA CIBLE
 📍 `cadre-un-miroir-se-prend-sur-le-dessin` · vivante · 19/09
 ⚖️ **Dès qu'un dessin est DÉCENTRÉ dans sa cible, toute transformation qui le retourne doit prendre son origine sur le DESSIN — `transform-box: content-box`. ⛔ Par défaut `transform-origin` se résout sur la boîte de BORDURE, et le glyphe se déplace de la différence des deux bords.**
