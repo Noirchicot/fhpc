@@ -353,16 +353,43 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      d'à-côté ment sur ce qu'il désigne. Sous le cran, il n'y a personne. */
   for (const p of ["EFFACER", "EDITER"]) {
     assert.equal(pose(p).y + pose(p).h / 2, dom.y + dom.h,
-      `${p} doit être centré sur l'arête BASSE du dominant — 20 dedans, 20 dessous`);
+      `${p} doit être centré sur l'arête BASSE du dominant — moitié dedans, moitié dessous`);
   }
+  /* ⚖️ ERIC, 2026-09-19 AU SOIR, ET IL CORRIGE SON PROPRE 40 : *« j'ai demandé dessin
+     30×30 / tactile 44×44 »* · *« x = effacer, / = editer »* · *« seulement × et / —
+     les quatre autres restent à 40 »*. ⭐ Le `40 × 40` qu'il avait dicté le matin
+     visait la HAUTEUR des sections ; ces deux poignées-ci portent un GLYPHE, pas un
+     mot, et elles n'ont donc pas besoin de la largeur d'un mot.
+     ⛔ CE GARDE A ROUGI SUR CE CHANGEMENT, ET IL AVAIT RAISON DE ROUGIR : c'est sa
+     fonction de tenir une cote dictée contre la dérive. On le réécrit AVEC sa date,
+     ⛔ on ne retourne pas un nombre en silence.
+     📌 ET LE PARTAGE SURVIT À LA RÉDUCTION : le dessin enjambe 15/15 l'arête du cran,
+     la CIBLE (44, inchangée) l'enjambe 22/22 — ce que *« dépasse de 20 à l'intérieur
+     et à l'extérieur »* voulait dire au doigt. */
   for (const p of ["EFFACER", "EDITER"]) {
-    assert.deepEqual([pose(p).l, pose(p).h], [40, 40], "⚖️ *« carré 40 × 40 »*");
+    assert.deepEqual([pose(p).l, pose(p).h], [30, 30], "⚖️ *« dessin 30×30 »* (19/09 au soir)");
+    assert.deepEqual([pose(p).cible.l, pose(p).cible.h], [D.TOUCH, D.TOUCH],
+      "⚖️ *« tactile 44×44 »* — ⛔ le dessin rétrécit, la cible ne descend jamais sous le plancher");
   }
 
-  /* ② `Sort` NE CHANGE PLUS DE MÉTIER — il était devenu le `−` en édition. */
+  /* ③ 🔴 ET LA PASTILLE DOIT LIRE CE DESSIN, SINON LA COTE EST INERTE. Faute mesurée le
+     19/09 : la table déclarait 40 et la pastille valait `--sp-24` en dur — deux cotes
+     pour un seul organe, dont aucune ne tenait l'autre d'accord. Le plan pouvait bouger
+     sans que rien ne suive, ET SANS QUE RIEN NE LE DISE. ⭐ `inset: 0` la fait tenir la
+     boîte de contenu, c'est-à-dire le dessin que la feuille construite pose. */
+  const regleDeLaPastille = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+    .find((b) => b.sel === ".sac-poignee::before");
+  assert.ok(regleDeLaPastille, "⛔ la pastille des poignées n'est plus habillée : ce garde doit être réécrit");
+  assert.match(regleDeLaPastille.corps, /inset:\s*0/,
+    "⛔ la pastille doit prendre la boîte de contenu — donc le DESSIN du plan");
+  assert.doesNotMatch(regleDeLaPastille.corps, /(inline|block)-size\s*:/,
+    "⛔ une cote propre à la pastille serait un second écrivain : 30 vit dans `backpack_gen.py`");
+
+  /* ④ `Sort` NE CHANGE PLUS DE MÉTIER — il était devenu le `−` en édition. */
   assert.equal(n.querySelector('[data-organe="trier"]').textContent, "Sort");
 
-  /* ③ LE CHAMP NE S'OUVRE QUE PAR LE `/` */
+  /* ⑤ LE CHAMP NE S'OUVRE QUE PAR LE `/` */
   assert.equal(n.querySelector(".sac-cran-champ"), null,
     "⛔ entrer en édition n'ouvre pas un champ : on doit pouvoir LIRE la liste");
   editer.dispatchEvent({ type: "click" });

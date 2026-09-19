@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=691") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=692") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=691") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=692") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=691") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=692") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=691");
+  background-image: url("./assets/tarot-dos.jpg?v=692");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11862,7 +11862,18 @@ button.tuto-point::before {
    `z-index: 1`, donc elle ouvre un contexte d'empilement qui le retient. */
 .sac-poignee::before {
   content: ""; position: absolute; z-index: -1;
-  inline-size: var(--sp-24); block-size: var(--sp-24);
+  /* ⚖️ ERIC, 2026-09-19 : *« j'ai demandé dessin 30×30 / tactile 44×44 »* — et
+     *« x = effacer, / = editer »*, donc la cote vise CES DEUX POIGNÉES.
+     🔴 LA PASTILLE ÉTAIT LE SEUL DESSIN, ET ELLE NE LISAIT PAS LE PLAN : elle
+     valait `--sp-24` en dur, pendant que la table déclarait un dessin de 40 dans
+     une cible de 44. Deux cotes pour un seul organe, dont une que rien ne tenait
+     d'accord avec l'autre — le plan pouvait bouger sans que la pastille suive.
+     ⭐ `inset: 0` LA FAIT TENIR LA BOÎTE DE CONTENU, c'est-à-dire le DESSIN que la
+     feuille construite pose (les bords transparents portent l'écart cible − dessin,
+     NORMES §0, et `.sac-poignee` les honore — elle déclare `border-style: solid`).
+     ⛔ Donc plus aucun littéral ici : 30 vit dans `backpack_gen.py`, et le jour où
+     il rebouge la pastille suit toute seule. */
+  inset: 0;
   border-radius: var(--radius-sm);
   background: var(--positive);
 }

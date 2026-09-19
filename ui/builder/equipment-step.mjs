@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=691";
-import { facteurZoomCourant } from "./echelle.mjs?v=691";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=691";
+import { renderPicker } from "./carnet.mjs?v=692";
+import { facteurZoomCourant } from "./echelle.mjs?v=692";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=692";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=691";
-import { swapContent } from "./socle.mjs?v=691";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=691";
+import { isGenre } from "../../src/layers/document.mjs?v=692";
+import { swapContent } from "./socle.mjs?v=692";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=692";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=691";
+import { armerJeton } from "./glisser.mjs?v=692";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=691";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=692";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=691";
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=692";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=691";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=692";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=691";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=691";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=692";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=692";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=691";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=692";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=691";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=691";
+import { motDuCran } from "./ecran-mort.mjs?v=692";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -411,7 +411,16 @@ export function currentSections(document) {
    le sac, donc ce qu'on y range PÈSE sur le personnage et entre dans son encombrement.
    Si le party inventory ne doit pas peser, ce n'est pas une section — c'est un lieu,
    comme `storage`. ⏳ Question posée à Eric, non devinée. */
-export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party inventory dropdown" });
+/* 📏 ET SON NOM EST MESURÉ, PAS CHOISI — Eric, 2026-09-19 : *« Party bag »*.
+   ⛔ *« Party inventory dropdown »* NE POUVAIT PAS TENIR, et ce n'était pas une
+   question de goût : le cran dominant offre **60,34 blg** de texte utile sur
+   **2 lignes** (clamp), et le nom en demandait **125,76** — aucune coupure de mots
+   ne tombant sous 60,34 (« Party inventory » 74,23 · « inventory dropdown » ~98).
+   Il se tronquait donc, toujours, sur tous les écrans.
+   ⭐ *« Party bag »* tient **sur une seule ligne**, et il dit le CONTENANT — ce qu'Eric
+   avait déjà nommé le 19/09 : le party inventory est *« un autre backpack »*.
+   ⛔ Et *« dropdown »* était un mot de la SOURCE, jamais un mot du joueur. */
+export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party bag" });
 
 /* ══ LES SIX SECTIONS DU SAC — Eric, 2026-09-19 ════════════════════════════
    ⚖️ *« chaque section fait en 6. Backpack section 1 · Backpack section 2 · etc.
@@ -2388,6 +2397,9 @@ export function renderEquipmentStep(ctx, onAction) {
     const miennes = [...socle, ...ajoutees];
     /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE, il ne la ferme plus — Eric, 19/09 :
        *« Party inventory dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*.
+       ⚠️ C'EST L'ORDRE QUI FAIT LOI ICI, PAS LE MOT : le premier cran s'appelle
+       « Party bag » depuis le 19/09 au soir (§ `SECTION_PARTY`). La citation garde
+       le mot d'Eric à sa date, ⛔ elle ne dit pas le nom courant.
        🔴 Je l'avais mis EN DERNIER la veille, avec une raison qui semblait bonne : le
        sac s'ouvre sur tes affaires, le commun vient après. ⛔ Elle était fausse — ce
        qui ouvre une liste est ce qu'on veut voir d'abord, et le commun se consulte
