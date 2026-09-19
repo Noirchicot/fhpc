@@ -1196,6 +1196,34 @@ titre. La loi tient sans amendement.
 au milieu · contrôles collés en bas. ➡️ **Un écran qui défile a trois bandes, pas deux** — et les
 deux du dehors ne bougent jamais.
 
+### ✅ LE SAC défile aussi — et il est le premier à le faire **à l'horizontale** *(Eric, 19/09)*
+📍 `geste-sac-defile-a-l-horizontale` · vivante · 19/09
+⚖️ **Le sac (`Équipement › B1`) est le troisième écran à défiler, et le premier dont le flux va de côté.**
+
+Eric, 2026-09-19, croquis à l'appui : *« dalle fixe »* en haut · *« dalle qui défile »* au milieu ·
+*« dalle fixe »* en bas — puis, quand je cherchais ailleurs : *« regarde species en écran R »* ·
+*« la loi du défilement ! »*.
+
+| la bande | ce qu'elle porte | elle bouge ? |
+|---|---|---|
+| **ce qui reste, en haut** | la roue des sections · `Sort` · `Encumbrance` et ses trois parts · `edit sections` | ⛔ non |
+| **le flux** | la grille de douze jetons — **une dalle par section**, et elles glissent **de côté** | 🔴 oui |
+| **ce qui reste, en bas** | les deux `Tally` · le collecteur · la bourse · `Send to ▾` · `Gear` `Send` `Wares` | ⛔ non |
+
+⭐ **LA LOI TIENT SANS AMENDEMENT SUR L'AUTRE AXE**, et c'est ce qui la confirme : elle ne parlait
+pas de verticalité, elle parlait de **couches** — *le flux, et ce qui reste*. Tourner l'axe ne
+change rien à ce qu'elle interdit.
+
+⭐ **ET LE BLEED EST LA MARQUE DE LA COUPE** — Eric : *« line bleed de 8 au-dessus et en dessous »*.
+Les deux bandes fixes **tranchent** la bande qui coule : sa rangée du haut et celle du bas saignent
+de **8 blg**. ⛔ Une bande qui contiendrait exactement son contenu aurait l'air FINIE ; c'est la
+coupe qui dit *« ça continue »*. C'est ce que font les cartes de Species, coupées par le bord de
+l'écran — **un cadre coupe, un contenant tient**.
+
+⚠️ **Et la troisième exception ressemble aux deux autres** : le sac est un écran dont le contenu
+**grandit avec le personnage**, comme le Seuil et le dressing. La loi du non-défilement (§5) n'est
+pas entamée — elle vaut pour les pages de travail dont tout doit se lire d'un coup d'œil.
+
 ⭐ **Et les deux exceptions se ressemblent, ce qui confirme la règle** : le Seuil et le dressing
 sont tous deux des écrans dont **le contenu grandit sans qu'aucun compte n'ait à se lire d'un coup
 d'œil**. Un vestibule, une garde-robe. ⛔ Une **liste de choix** — jetons, sorts, dons — n'est ni

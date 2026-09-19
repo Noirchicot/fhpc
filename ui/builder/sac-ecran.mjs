@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=729";
-import { versionQuery } from "./version.mjs?v=729";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=729";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=730";
+import { versionQuery } from "./version.mjs?v=730";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=730";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=729";
+import { armerJeton, fantome } from "./glisser.mjs?v=730";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=729";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=730";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=729";
+import { facteurZoomCourant } from "./echelle.mjs?v=730";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -1087,6 +1087,23 @@ export function construireLeSac(options = {}) {
      chercher une mesure qu'il connaît déjà. */
   let largeurCache = 0;
   const largeurDalle = () => (largeurCache || (largeurCache = piste.clientWidth || DALLE.l));
+
+  /* 🔴 LA PLACE D'UNE DALLE SE LIT, ⛔ ELLE NE SE MULTIPLIE PAS — Eric, 19/09 : *« à
+     l'arrêt on ne voit qu'une dalle »*.
+     📏 CE QUE LA MULTIPLICATION COÛTAIT, MESURÉ À L'ÉCRAN : `clientWidth` rend **374** là
+     où le plan dit 375 — le zoom de la maison arrondit vers le bas. Deux dalles plus loin,
+     `374 × 2 = 748` au lieu de 750, et une lichette de **2 blg** de la dalle précédente
+     traînait à gauche, À L'ARRÊT. ⛔ Et l'erreur GRANDIT avec le rang : au dixième cran
+     elle vaudrait 10.
+     ⭐ La mise en page connaît la réponse exacte : on la lui DEMANDE. C'est la loi du pas
+     du belt, lu dans la mise en page et jamais recopié — *une cote DONNÉE bat une cote
+     DÉDUITE*.
+     📌 Le repli sur la multiplication reste pour les bancs : hors navigateur il n'y a pas
+     de mise en page, et `offsetLeft` n'existe pas. */
+  const xDeLaDalle = (k) => {
+    const n = piste.children[Math.max(0, Math.min(piste.children.length - 1, k))];
+    return (n && typeof n.offsetLeft === "number") ? n.offsetLeft : largeurDalle() * k;
+  };
   /* ⭐ LA PREMIÈRE DALLE D'UNE SECTION — une LECTURE, ⛔ pas un calcul : c'est la dalle
      elle-même qui dit à quelle section elle appartient. */
   const premiereDalleDe = (section) => {
@@ -1111,7 +1128,7 @@ export function construireLeSac(options = {}) {
        à l'autre pendant que le ruban, lui, glisserait. */
     const a = dalleDuCran(bas);
     const b = dalleDuCran(bas + 1);
-    piste.scrollLeft = l * (a + (b - a) * f);
+    piste.scrollLeft = xDeLaDalle(a) + (xDeLaDalle(b) - xDeLaDalle(a)) * f;
     r.marquer(Math.round(p));
   };
 
@@ -1153,7 +1170,7 @@ export function construireLeSac(options = {}) {
     if (typeof r.scrollTo === "function") r.scrollTo({ left: x, behavior: "auto" });
     else r.scrollLeft = x;
     const pris = Math.round(r.scrollLeft) === Math.round(x);
-    if (pris) { piste.scrollLeft = largeurDalle() * (options.dalle | 0); r.marquer(r.vise); }
+    if (pris) { piste.scrollLeft = xDeLaDalle(options.dalle | 0); r.marquer(r.vise); }
     return pris;
   };
 
