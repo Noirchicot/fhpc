@@ -1035,6 +1035,16 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
      des donn\u00e9es \u00e0 la main ment le jour o\u00f9 le socle change. */
   assert.deepEqual(tous(notice, ".sac-notice-signe").map((n) => n.dataset.signe),
     ["reculer", "avancer", "effacer", "editer"], "\u26d4 les quatre l\u00e9gendes, dans l'ordre du croquis");
+  /* \ud83d\udd34 ET ELLE EST OPAQUE \u2014 faute vue \u00c0 L'\u00c9CRAN au premier rendu, pas au banc : avec la
+     mati\u00e8re d'un bloc int\u00e9rieur (35 %) on lisait `Belt of Dwarvenkind` \u00c0 TRAVERS la notice.
+     \u26d4 Une notice qu'on voit au travers fait croire que les jetons sont encore
+     atteignables \u2014 or elle les recouvre. \u2b50 Le mot est celui de la maison
+     (`--voile-majeure`, 100 %), pas une couleur \u00e9crite \u00e0 la main. */
+  const habitDeLaNotice = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps })).find((b) => b.sel === ".sac-notice");
+  assert.ok(habitDeLaNotice, "\u26d4 la notice n'est plus habill\u00e9e");
+  assert.match(habitDeLaNotice.corps, /var\(--voile-majeure\)/,
+    "\u26d4 la notice doit MASQUER la grille, pas la voiler");
   const fige = rendu({ sections: [{ nom: "Party bag", fige: true, renommable: false }, { nom: "B" }],
                        section: 1, edition: true }).querySelector(".sac-notice-fige");
   assert.match(fige.textContent, /Party bag cannot be deleted/);
