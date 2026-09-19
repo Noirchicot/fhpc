@@ -410,7 +410,7 @@ test("14 — ⚖️ LES DEUX OUTILS PORTENT LEUR MOT, EN VERT — et plus un gly
   }
 });
 
-test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte regardée", () => {
+test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux arêtes de la boîte regardée", () => {
   /* ⚖️ Eric, 2026-09-19 : *« dans le mode edit mettre un x (carré 40 × 40 à gauche, À
      CHEVAL) et un / (carré 40 × 40 à droite) de la boîte sélectionnée : on peut
      l'éditer ou l'effacer. Le swipe et les chevrons permettent de naviguer. »* ·
@@ -509,6 +509,21 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
     surRenommer: (i, nom) => gestes.push(`renommer:${i}:${nom}`) });
   const champ = ouvert.querySelector(".sac-cran-champ");
   assert.ok(champ, "⭐ et le `/` l'ouvre sur la boîte regardée");
+  /* ⭐ ET LE CURSEUR EST DÉJÀ DEDANS — Eric, 2026-09-20 : *« / renommer (faire apparaître un
+     curseur directement pour écrire, éviterait de devoir resélectionner) »*.
+     ⛔ ET ÇA NE PEUT PAS SE FAIRE À LA CONSTRUCTION : un nœud hors document ne prend pas le
+     focus — l'appel réussit et ne fait RIEN, en silence. C'est le piège du placement du
+     ruban, et il se règle au même endroit : après la pose.
+     ⭐ Le texte est SÉLECTIONNÉ : on renomme plus souvent qu'on ne complète, donc la
+     première frappe doit remplacer. */
+  const vu = [];
+  champ.focus = () => vu.push("focus");
+  champ.select = () => vu.push("select");
+  assert.deepEqual(vu, [], "⛔ rien ne doit se passer avant que l'écran soit posé");
+  poserLesDalles();
+  assert.deepEqual(vu, ["focus", "select"], "⛔ le curseur doit arriver avec le champ");
+  poserLesDalles();
+  assert.deepEqual(vu, ["focus", "select"], "⛔ et une seule fois : un focus qui se rejoue vole le clavier");
   assert.equal(champ.value, "Camp");
   assert.equal(champ.maxLength, 22, "la cote du cran sur deux étages");
   champ.value = "Potions de soin";
@@ -940,68 +955,93 @@ test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent 
      « LE FIL DE LA BOURSE DU SAC ». Celui-ci garde ce qu'il sait garder — que l'écran
      PUBLIE, et que l'inerte se montre inerte. */
 });
-test("23 — ⚖️ LE MODE DÉPLACEMENT : les poignées et les `+` s'EFFACENT, la roue sort du verre", () => {
-  /* ⚖️ Croquis d'Eric, 19/09 : *« hold one section for 1,5 second and this mode comes
-     on »* · *« le x, +, / disparaissent pour voir l'ordre des sections »*, et il montre
-     **toute la roue sur un fond crème**. Eric, le soir : *« edit mode comprenant le
-     déplacement des storage »*.
-     ⭐ CE GARDE TIENT CE QUI DISPARAÎT, pas ce qui apparaît — parce que c'est ÇA que le
-     croquis dit, et parce qu'un organe qu'on croit caché se tape encore. */
+test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacent le maintien de 1,5 s", async () => {
+  /* \u2696\ufe0f Eric, 2026-09-19 au soir, croquis \u00ab EDIT MODE 1 \u00bb \u00e0 l'appui : *\u00ab il n'y a d\u00e9sormais
+     qu'un seul edit mode \u00bb* \u00b7 *\u00ab les fl\u00e8ches permettent de d\u00e9placer le storage \u00e0 droite et
+     \u00e0 gauche \u00bb*.
+     \ud83d\udd34 CE GARDE TENAIT LE MODE QUI DISPARA\u00ceT, et il le tenait bien : *\u00ab le x, +, /
+     disparaissent pour voir l'ordre des sections \u00bb*, toute la roue sur un fond cr\u00e8me,
+     ouverte par un maintien de 1,5 s. \u26d4 On ne retourne pas une dict\u00e9e en silence \u2014 celle
+     du 19/09 au matin est ABROG\u00c9E PAR SON AUTEUR le m\u00eame soir, et ce garde change de
+     question avec sa date.
+     \u2b50 CE QUI SE GAGNE : un mode qu'on d\u00e9couvre en maintenant est un mode que personne ne
+     trouve, et deux modes dans un mode, personne ne les distingue. Deux boutons visibles
+     disent la m\u00eame chose, tout le temps. \ud83d\udccc Ce qui meurt avec : un minuteur de 1,5 s, un
+     seuil de tremblement, trois phases, un `elementFromPoint` par image, l'\u00e9tat `tenu`
+     sur les crans et un r\u00e9gime de dessin pour toute la roue. */
   const cinq = [{ nom: "A" }, { nom: "B" }, { nom: "C" }, { nom: "D" }, { nom: "E" }];
+  const gestes = [];
+  const edite = rendu({ sections: cinq, section: 1, edition: true,
+    surDeplacerSection: (sens) => gestes.push(sens) });
 
-  /* ① EN ÉDITION SEULE : les deux `+` et les deux poignées sont là */
-  const edite = rendu({ sections: cinq, section: 1, edition: true });
+  /* \u2460 LES QUATRE POIGN\u00c9ES SONT L\u00c0, ET LES DEUX `+` AUSSI */
+  for (const clef of ["reculer", "avancer", "effacer", "editer"])
+    assert.ok(edite.querySelector(`[data-organe="${clef}"]`), `\u26d4 la poign\u00e9e ${clef} manque`);
   assert.equal(tous(edite, '.sac-cran[data-role="ajouter"]').length, 2, "les deux `+` aux bouts");
-  assert.ok(edite.querySelector('[data-organe="effacer"]') && edite.querySelector('[data-organe="editer"]'));
 
-  /* ② EN DÉPLACEMENT : plus rien de tout ça — et ABSENTS, pas cachés */
-  const bouge = rendu({ sections: cinq, section: 1, edition: true, deplacement: 1 });
-  assert.equal(tous(bouge, '.sac-cran[data-role="ajouter"]').length, 0,
-    "⛔ *« le x, +, / disparaissent »* — un `+` caché se taperait encore");
-  assert.equal(bouge.querySelector('[data-organe="effacer"]'), null);
-  assert.equal(bouge.querySelector('[data-organe="editer"]'), null);
+  /* \u2461 LES FL\u00c8CHES D\u00c9PLACENT, ET ELLES DISENT LEUR SENS */
+  edite.querySelector('[data-organe="reculer"]').dispatchEvent({ type: "click" });
+  edite.querySelector('[data-organe="avancer"]').dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [-1, 1], "\u26d4 un seul geste pour deux sens serait \u00e0 deviner");
 
-  /* ③ LE MODE VIT SUR LA DALLE, comme le mode édition — ⛔ pas dans cinq organes */
-  assert.equal(bouge.dataset.deplacement, "oui");
-  assert.equal(edite.dataset.deplacement, undefined, "et il ne s'allume pas tout seul");
+  /* \u2462 \u26d4 ET UNE FL\u00c8CHE S'\u00c9TEINT AU BOUT DE LA COURSE \u2014 *\u00ab non color\u00e9 = non cliquable \u00bb* :
+     un bouton qui s'allume pour refuser est pire qu'un bouton \u00e9teint. */
+  const premier = rendu({ sections: cinq, section: 0, edition: true });
+  assert.equal(premier.querySelector('[data-organe="reculer"]').disabled, true, "\u26d4 rien \u00e0 gauche du premier");
+  assert.equal(premier.querySelector('[data-organe="avancer"]').disabled, false);
+  const dernier = rendu({ sections: cinq, section: 4, edition: true });
+  assert.equal(dernier.querySelector('[data-organe="avancer"]').disabled, true, "\u26d4 ni \u00e0 droite du dernier");
 
-  /* ④ ET LA PLACE LIBÉRÉE REVIENT AUX SECTIONS : le ruban ne porte plus QUE des
-     sections. ⛔ Et il n'en peint qu'une copie — en déplacement on regarde un ORDRE,
-     et un ordre qui se répète ne se lit plus (Eric, 20/09 : la boucle est pour NAVIGUER). */
-  assert.equal(tous(bouge, ".sac-cran").length, cinq.length,
-    "⭐ sans les deux `+`, le ruban ne porte plus que les sections — c'est bien « pour voir l'ordre »");
-  const ordre = tous(bouge, ".sac-cran").map((c) => c.dataset.position);
-  assert.equal(new Set(ordre).size, ordre.length,
-    "⛔ un ordre ne se lit pas s'il se répète — et depuis le 19/09 plus rien ne se répète");
+  /* \u2463 \ud83e\uddf9 ET LE SECOND MODE N'EXISTE PLUS NULLE PART \u2014 \u26d4 pas \u00ab cach\u00e9 \u00bb : un \u00e9tat qui
+     survit dans le code revient par une porte qu'on n'a pas referm\u00e9e. */
+  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  for (const mort of ["armerLeDeplacement", "surDeplacer\\(", "data-tenu", "dataset\\.tenu",
+                      "options\\.deplacement", "dataset\\.deplacement"])
+    assert.doesNotMatch(source, new RegExp(mort),
+      `\u26d4 \`${mort}\` survit au mode qui l'employait \u2014 il n'a plus personne pour l'appeler`);
+  assert.equal(rendu({ sections: cinq, section: 1, edition: true }).dataset.deplacement, undefined,
+    "\u26d4 et la dalle ne porte plus son \u00e9tat");
 
-  /* ⑤ CELUI QU'ON TIENT SE VOIT — sinon on déplace à l'aveugle */
-  assert.equal(bouge.querySelector('.sac-cran[data-tenu="oui"]').dataset.position, "1");
-  assert.equal(tous(bouge, '[data-tenu="oui"]').length, 1, "⛔ un seul à la fois");
+  /* \u2464 \ud83d\udcd0 LA ROUE DESCEND DE 11 EN \u00c9DITION, ET `Encumbrance` SE CACHE \u2014 Eric, 19/09 :
+     *\u00ab la roue descend de 11, en \u00e9dition seulement \u00bb* \u00b7 20/09 : *\u00ab tu peux cacher
+     encumbrance temporairement \u00bb*.
+     \u2b50 ET LE 11 SE D\u00c9DUIT : c'est ce qui manque \u00e0 une poign\u00e9e de 30 centr\u00e9e sur l'ar\u00eate
+     haute pour ne pas mordre sur le belt. \u26d4 Un `translate`, pas un `top` : la mise en
+     page ne bouge pas, donc la sortie d'\u00e9dition ne co\u00fbte pas un repeint. */
+  const emise = feuilleDesCotesSac();
+  const descente = emise.match(/\.sac\[data-mode="edition"\] :is\(([^)]*)\)\{translate:0 ([^}]*)\}/);
+  assert.ok(descente, "\u26d4 plus personne ne descend en \u00e9dition : les fl\u00e8cnes mordent sur le belt");
+  assert.equal(descente[2], `${D.EDITION.decalage}px`);
+  for (const clef of ["roue", "tuner-g", "tuner-d", "trier", "sections"])
+    assert.match(descente[1], new RegExp(`\\[data-organe="${clef}"\\]`),
+      `\u26d4 ${clef} reste en haut pendant que la roue descend : ils se chevaucheraient`);
+  assert.match(emise, /\.sac\[data-mode="edition"\] :is\(\[data-organe="poids-total"\],\[data-organe="poids-detail"\]\)\{visibility:hidden\}/,
+    "\u26d4 `Encumbrance` doit se cacher \u2014 c'est ce qui rend la descente gratuite");
 
-  /* ⑥ CHAQUE CRAN DIT SA PLACE — c'est par là que le doigt saura où il passe.
-     ⛔ ET L'ORDRE N'EST PAS `0,1,2,3,4` : la roue est un ANNEAU centré sur le viseur,
-     donc elle commence où il faut pour que le regardé tombe au milieu. J'avais écrit la
-     suite plate, et c'est l'anneau qui m'a repris. ⭐ Ce qui se tient, c'est que les
-     cinq places soient TOUTES là, une fois chacune — *« assez pour remplir les places
-     SANS répéter »*. */
-  const places = tous(bouge, ".sac-cran").map((c) => c.dataset.position);
-  assert.deepEqual(places, ["0", "1", "2", "3", "4"],
-    "⭐ LE RUBAN EST DANS L'ORDRE, du premier au dernier — ⛔ plus une fenêtre d'anneau.\n" +
-    "   C'est ce qui permet de LIRE l'ordre pendant qu'on le change.");
-  assert.equal(bouge.querySelector('.sac-cran[data-tenu="oui"]').dataset.position, "1",
-    "⭐ et celui qu'on tient est marqué — le viseur, lui, est la LOUPE, qui ne bouge jamais");
-
-  /* ⑦ ET LE MAINTIEN EST CELUI D'ERIC, pas un nombre choisi */
-  assert.equal(MAINTIEN_MS, 1500, "⚖️ *« hold one section for 1,5 second »*");
-
-  /* ⑧ 🔴 LE FOND CRÈME NE S'ÉCRIT PAS EN CLAIR : `--surface` EST ce crème, et il bascule
-     la nuit. Un `#ebe8e1` recopié ici aurait brillé dans le noir. */
-  const regle = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
-    .find((b) => b.sel === '.sac[data-deplacement="oui"] .sac-roue');
-  assert.ok(regle, "⛔ la roue ne change pas d'habit : le mode ne se verrait pas");
-  assert.match(regle.corps, /background:\s*var\(--surface\)/);
-  assert.doesNotMatch(regle.corps, /#[0-9a-fA-F]{3,8}/, "⛔ aucune teinte en clair");
+  /* \u2465 \ud83d\udccb LA NOTICE RECOUVRE LA GRILLE \u2014 *\u00ab elle recouvre la grille (elle ne remplace
+     pas) \u00bb* : sa bo\u00eete est EXACTEMENT celle des douze jetons, donc les 8 blg de marge de la
+     plaque restent visibles tout autour. \u26d4 Une notice qui mangerait la plaque ferait
+     croire \u00e0 un autre \u00e9cran. */
+  const notice = edite.querySelector('[data-organe="notice"]');
+  assert.ok(notice, "\u26d4 la notice du mode edit manque");
+  assert.equal(rendu({ sections: cinq, section: 1 }).querySelector('[data-organe="notice"]'), null,
+    "\u26d4 et elle ne para\u00eet QUE en \u00e9dition");
+  const boite = D.ORGANES.find((o) => o.nom === "NOTICE");
+  assert.deepEqual([boite.x, boite.y], [D.COLONNES[0], D.RANGEES[0]], "\u2696\ufe0f elle commence \u00e0 la grille");
+  assert.deepEqual([boite.x + boite.l, boite.y + boite.h],
+    [D.COLONNES[2] + D.JETON.l, D.RANGEES[3] + D.JETON.h], "\u2696\ufe0f et elle finit avec elle");
+  /* \u2696\ufe0f *\u00ab l\u00e9gendes des 4 poign\u00e9es, explication des couleurs, ce qui s'efface ce qui ne
+     s'efface pas \u00bb*. \u26d4 ET LA DERNI\u00c8RE LIGNE SE D\u00c9DUIT DES SECTIONS : un texte qui nomme
+     des donn\u00e9es \u00e0 la main ment le jour o\u00f9 le socle change. */
+  assert.deepEqual(tous(notice, ".sac-notice-signe").map((n) => n.dataset.signe),
+    ["reculer", "avancer", "effacer", "editer"], "\u26d4 les quatre l\u00e9gendes, dans l'ordre du croquis");
+  const fige = rendu({ sections: [{ nom: "Party bag", fige: true, renommable: false }, { nom: "B" }],
+                       section: 1, edition: true }).querySelector(".sac-notice-fige");
+  assert.match(fige.textContent, /Party bag cannot be deleted/);
+  assert.match(fige.textContent, /Party bag cannot be renamed/);
+  assert.doesNotMatch(rendu({ sections: cinq, section: 1, edition: true })
+    .querySelector(".sac-notice-fige").textContent, /cannot/,
+    "\u26d4 quand rien n'est fig\u00e9, la notice ne doit pas inventer une contrainte");
 });
 test("24 — 🎒 LE SAC EN FILIGRANE : derrière, muet, et sa cote se DÉDUIT de la grille", () => {
   /* ⚖️ Eric, 2026-09-20 : *« peux-tu faire avec ceci comme avec le bonhomme dans Gear, en

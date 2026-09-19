@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=750") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=751") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=750") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=751") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=750") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=751") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=750");
+  background-image: url("./assets/tarot-dos.jpg?v=751");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -12206,7 +12206,52 @@ button.tuto-point::before {
   border-radius: var(--radius-sm);
   background: var(--positive);
 }
+/* 🎨 ET CHAQUE POIGNÉE PORTE SON VERBE EN COULEUR — croquis d'Eric du 19/09 au soir,
+   « EDIT MODE 1 » : les deux flèches BLEUES, le `×` ROUGE, le `/` VERT.
+   ⭐ CE NE SONT PAS TROIS TEINTES CHOISIES, ce sont les trois verbes de la maison :
+   `--critical` refuse, `--positive` approuve, `--info` ne juge rien — il déplace. Un
+   déplacement n'est ni bien ni mal, et c'est exactement ce que le bleu dit déjà
+   partout ailleurs dans le produit. ⛔ Une quatrième couleur aurait été un quatrième
+   sens à apprendre.
+   📌 Le vert reste le défaut de la famille, donc seul ce qui s'en écarte se déclare. */
 .sac-poignee[data-organe="effacer"]::before { background: var(--critical); }
+.sac-poignee[data-organe="reculer"]::before,
+.sac-poignee[data-organe="avancer"]::before { background: var(--info); }
+
+/* 📋 LA NOTICE DU MODE EDIT — Eric, 2026-09-20 : *« la notice de l'edit mode apparaît
+   au-dessus de la dalle 2 »*, et *« elle RECOUVRE la grille (elle ne remplace pas) »*.
+   ⭐ SA BOÎTE VIENT DU PLAN (`NOTICE`), et c'est exactement celle des douze jetons : les
+   8 blg de marge de la plaque restent donc visibles tout autour, et on voit qu'il y a une
+   plaque DESSOUS. ⛔ Rien à écrire ici de sa place — la feuille construite la pose.
+   📌 ET ELLE PREND LA MATIÈRE D'UN BLOC INTÉRIEUR (`dalle-inter`), ⛔ pas une opacité à
+   elle : elle doit MASQUER la grille, pas la voiler. Une notice à travers laquelle on
+   lit les jetons ferait croire qu'ils sont encore atteignables. */
+.sac-notice {
+  z-index: 2;
+  display: grid; align-content: start; gap: var(--sp-8);
+  padding: var(--sp-16);
+  border-radius: var(--radius-md);
+  background-color: var(--dalle-inter);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+  color: var(--text);
+  font-size: var(--t0); line-height: 1.35;
+}
+.sac-notice-titre { margin: 0; font-size: var(--t1); font-weight: 700; }
+.sac-notice-liste { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--sp-4); }
+.sac-notice-liste li { display: grid; grid-template-columns: var(--touch) 1fr; align-items: center; gap: var(--sp-8); }
+/* ⭐ LE SIGNE EST PEINT COMME LA POIGNÉE QU'IL NOMME, et il prend sa couleur à la même
+   source — ⛔ une teinte recopiée ici divergerait du bouton au premier réglage. */
+.sac-notice-signe {
+  display: grid; place-items: center;
+  block-size: var(--sp-24); inline-size: var(--sp-24);
+  border-radius: var(--radius-sm);
+  background: var(--positive); color: var(--bouton-encre);
+  font-weight: 600;
+}
+.sac-notice-signe[data-signe="effacer"] { background: var(--critical); }
+.sac-notice-signe[data-signe="reculer"],
+.sac-notice-signe[data-signe="avancer"] { background: var(--info); }
+.sac-notice-fige { margin: 0; color: var(--text-soft); }
 .sac-poignee:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
 
 /* ══ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« la roue passe en mode
