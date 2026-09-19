@@ -910,3 +910,26 @@ test("24 — 🎒 LE SAC EN FILIGRANE : derrière, muet, et sa cote se DÉDUIT d
   assert.match(regle.corps, /pointer-events:\s*none/, "⛔ il ne prend pas le doigt");
   assert.doesNotMatch(regle.corps, /#[0-9a-fA-F]{3,8}|rgb\(/, "⛔ aucune teinte en clair");
 });
+test("25 — 🔒 VERROUILLÉ : le filigrane est à la place qu'Eric a ratifiée (20/09)", () => {
+  /* ⚖️ Eric, 2026-09-20, après trois passages devant l'écran : *« c'est parfait exactement
+     ça, bon positionnement, fige cela »*.
+     🔒 CE TÉMOIN NE DÉFEND PAS UNE MÉCANIQUE, IL DÉFEND UNE DÉCISION. Il tient les
+     nombres EXACTS qu'Eric a regardés et acceptés. ⛔ Ils ne se retouchent pas en
+     passant : il faut son mot, et la date qu'on écrira ici à la place de celle-ci.
+     ⚠️ ET IL EST EN TENSION AVEC LE GARDE 24, DÉLIBÉRÉMENT — les deux ne posent pas la
+     même question. Le 24 demande *« la cote se DÉDUIT-elle encore de la grille ? »* ;
+     celui-ci demande *« est-ce encore la place qu'il a dite ? »*. Le jour où une rangée
+     bougera, le 24 restera vert et CELUI-CI rougira — c'est exactement ce qu'on veut :
+     la mécanique aura tenu, et la décision devra repasser par Eric. */
+  assert.deepEqual(
+    [D.FOND.x, D.FOND.y, D.FOND.l, D.FOND.h],
+    [90.48, 98, 194.03, 228],
+    "🔒 la boîte du filigrane est celle du 20/09 — mesurée à l'écran, acceptée par Eric.\n" +
+    "   ⛔ Si ce garde rougit, ce n'est pas lui qu'on corrige : c'est la question qu'on pose.");
+  assert.equal(D.FOND.rapport, 0.851,
+    "🔒 et le rapport est celui du modèle simplifié qu'il a choisi — un autre dessin, un autre garde");
+
+  /* 🔒 LE VOILE AUSSI : trois valeurs regardées avant celle-là (.20, .42, .6, .28). */
+  assert.match(jetons, /--filigrane:\s*\.40\s*;/,
+    "🔒 .40 — *« rends-le encore un peu plus discret »* (20/09), puis *« c'est parfait »*");
+});
