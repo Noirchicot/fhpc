@@ -67,4 +67,4 @@ export const ORGANES = [
    ⛔ AUCUN DE CES NOMBRES N'EST TAPÉ : la hauteur est celle de la grille plus un débord égal
    en haut et en bas, la largeur suit le RAPPORT MESURÉ de l'image détourée, et l'abscisse
    centre le tout sur la dalle. Une rangée qui bouge emmène le fond avec elle. */
-export const FOND = { image: "sac-fond.webp", x: 73.86, y: 92, l: 227.28, h: 240, rapport: 0.947 };
+export const FOND = { image: "sac-fond.webp", x: 85.38, y: 92, l: 204.24, h: 240, rapport: 0.851 };
