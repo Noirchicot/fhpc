@@ -1435,3 +1435,34 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
   assert.match(bloc('.sac-case[data-glissable="true"]'), /touch-action:\s*pan-x/,
     "⛔ le jeton du sac doit laisser passer le défilement horizontal jusqu'au péage");
 });
+
+test("32 — 📐 LE JOUR EST À LA PLAQUE CE QUE LA GOUTTIÈRE EST À LA TUILE", () => {
+  /* ⚖️ Eric, 2026-09-19, après deux essais : *« on crée un décalage, c'est pas bon — à
+     quel espacement entre dalles j'ai un mouvement PROPORTIONNEL ? »*.
+     ⭐ LA RÉPONSE SE DÉDUIT, ⛔ elle ne se choisit pas : pour que le ruban de plaques soit
+     le ruban de tuiles AGRANDI — la même image à deux échelles — il faut que le jour soit
+     à la plaque ce que la gouttière est à la tuile.
+     🔴 8 ET 24 N'ÉTAIENT PAS DES RÉGLAGES, C'ÉTAIENT DES ESSAIS : à 8 le rapport valait
+     5,89, à 24 il valait 6,14, et il en fallait 6,579. Les plaques traînaient derrière les
+     tuiles — de moins en moins, mais elles traînaient. C'est ce qu'Eric appelait le
+     décalage, et il avait raison contre mes deux nombres.
+     ⚠️ ET ÇA COÛTE DU MOUVEMENT : une plaque parcourt 427,6 par tuile au lieu de 399. La
+     proportionnalité et « moins de mouvement » tirent en sens inverse — on ne peut pas
+     avoir les deux, et c'est la proportionnalité qu'il a choisie. */
+  const gouttiere = D.RANGEES[1] - D.RANGEES[0] - D.JETON.h;
+  assert.equal(D.DALLES.jour, Math.round(D.DALLE.l * gouttiere / D.ROUE.tuile * 100) / 100,
+    "⭐ le jour se DÉDUIT : largeur de plaque × gouttière ÷ largeur de tuile");
+
+  /* ⭐ ET LE TÉMOIN EST LE RAPPORT DES PAS — c'est lui qu'on regarde à l'écran : le pas
+     d'une plaque sur le pas d'une tuile doit valoir la largeur d'une plaque sur celle
+     d'une tuile. ⛔ Sinon un ruban avance pendant que l'autre traîne. */
+  const pasPlaque = D.DALLE.l + D.DALLES.jour;
+  assert.ok(Math.abs(pasPlaque / D.ROUE.pas - D.DALLE.l / D.ROUE.tuile) < 0.001,
+    `les deux rubans ne sont pas homothétiques : ${(pasPlaque / D.ROUE.pas).toFixed(4)} ` +
+    `contre ${(D.DALLE.l / D.ROUE.tuile).toFixed(4)}`);
+
+  /* ⛔ ET LA FEUILLE POSE CE JOUR-LÀ, pas un autre : un `gap` écrit à la main ici
+     rouvrirait la question que ce garde vient de fermer. */
+  assert.ok(feuilleDesCotesSac().includes(`.sac .sac-dalles{gap:${D.DALLES.jour}px}`),
+    "le ruban de plaques doit espacer du jour du plan");
+});
