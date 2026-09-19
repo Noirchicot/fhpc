@@ -416,3 +416,44 @@ test("poids — ce qui ne se pèse pas se COMPTE à part, au lieu de peser 0", (
   assert.equal(mixte.melange, true, "livre et kilo dans la même pile : la somme ne veut rien dire");
   assert.equal(mixte.unite, null);
 });
+test("🔴 LE FIL DE LA BOURSE DU SAC — on CLIQUE, et le popup doit s'ouvrir", () => {
+  /* 🔴 LA FAUTE, MESURÉE À L'ÉCRAN LE 19/09 AU SOIR : un clic sur la bourse du sac ne
+     produisait RIEN. Son bouton existait depuis le 18/09, il publiait bien
+     `surPorte("purse")` — et le `surPorte` du sac ne connaissait que `gear`, `wares`
+     et `send`. ⛔ Un organe posé sans son fil, pour la QUATRIÈME fois dans ce lot.
+     ⚠️ ET DEUX GARDES PLUS FAIBLES ONT ÉTÉ ÉCRITS AVANT CELUI-CI, TOUS DEUX VERTS SUR
+     LA FAUTE : l'un éprouvait l'ÉCRAN (qui faisait son travail), l'autre cherchait
+     `id === "purse"` dans la source — chaîne qui existe AUSSI chez R. ⭐ Seul un témoin
+     qui CLIQUE pour de vrai, dans l'écran monté, pouvait accuser. Il le fait. */
+  let doc = fixture.document;
+  const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
+    (a) => { doc = appliquer(doc, a); });
+
+  let node = rendre();
+  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
+  if (gear) gear.click();
+  node = rendre();
+  /* la porte `Backpack` de R ouvre le sac B1 */
+  const porte = node.querySelector('.gear-porte[data-porte="backpack"]');
+  assert.ok(porte, "⛔ la porte du sac a disparu de R : ce garde doit être réécrit");
+  porte.click();
+  node = rendre();
+
+  const sac = node.querySelector(".sac");
+  assert.ok(sac, "on est bien dans le sac");
+  assert.equal(sac.querySelector('[data-organe="bourse-voile"]'), null, "elle est fermée d'abord");
+
+  const bourse = sac.querySelector('[data-organe="purse"]');
+  assert.ok(bourse, "⛔ le bouton de la bourse a disparu du sac");
+  bourse.click();
+  node = rendre();
+  assert.ok(node.querySelector('[data-organe="bourse-voile"]'),
+    "🔴 CLIQUER LA BOURSE DU SAC DOIT L'OUVRIR — c'est exactement ce qui ne se passait pas le 19/09.\n" +
+    "   Un organe qui publie son geste et que personne n'écoute est un organe MORT.");
+
+  /* ⭐ ET RETAPER LA REFERME — le même geste que sur R, parce que c'est le MÊME état. */
+  node.querySelector('.sac [data-organe="purse"]').click();
+  node = rendre();
+  assert.equal(node.querySelector('[data-organe="bourse-voile"]'), null,
+    "⚖️ *« retaper la bourse la referme »* — et l'état est celui de R, pas un second");
+});

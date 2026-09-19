@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=690") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=701") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=690") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=701") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=690") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=701") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=690");
+  background-image: url("./assets/tarot-dos.jpg?v=701");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11769,6 +11769,29 @@ button.tuto-point::before {
      se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
      le HALO, comme sur le belt. — */
 .sac-roue { display: block; }
+/* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
+   ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
+   disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
+   sur un fond crème**.
+   ⭐ `--surface` EST CE CRÈME (`#ebe8e1`) — ⛔ et ce n'est pas une couleur choisie : c'est
+   la surface de la maison, celle dont toutes les dalles sont faites à un voile près. La
+   roue passe simplement à l'OPAQUE (`--voile-majeure`), donc elle SORT DU VERRE. C'est
+   ce que le geste dit : on a pris la roue en main, elle n'est plus le fond de l'écran.
+   ⭐ ET ELLE BASCULE TOUTE SEULE LA NUIT, là où un `#ebe8e1` écrit ici aurait brillé
+   dans le noir. Une teinte recopiée est une teinte qui ne suit plus son thème.
+   📌 Les `+` et les poignées, eux, ne sont pas CACHÉS : ils ne sont pas RENDUS. Un
+   organe caché se tape encore. */
+.sac[data-deplacement="oui"] .sac-roue {
+  background: var(--surface);
+  border-radius: var(--organe-rayon);
+}
+/* ⛔ ET LE CRAN QU'ON TIENT SE VOIT — sans ça on déplace à l'aveugle : la roue bouge et
+   rien ne dit lequel des cinq suit le doigt. Le halo du belt, celui qui dit déjà
+   « c'est ici que ça se passe » partout ailleurs. */
+.sac[data-deplacement="oui"] .sac-cran[data-tenu="oui"] {
+  box-shadow: inset 0 0 0 1px var(--accent),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
 .sac-cran {
   position: absolute; box-sizing: border-box;
   border: 0; background: var(--dalle-inter); color: var(--text-soft);
@@ -11862,7 +11885,18 @@ button.tuto-point::before {
    `z-index: 1`, donc elle ouvre un contexte d'empilement qui le retient. */
 .sac-poignee::before {
   content: ""; position: absolute; z-index: -1;
-  inline-size: var(--sp-24); block-size: var(--sp-24);
+  /* ⚖️ ERIC, 2026-09-19 : *« j'ai demandé dessin 30×30 / tactile 44×44 »* — et
+     *« x = effacer, / = editer »*, donc la cote vise CES DEUX POIGNÉES.
+     🔴 LA PASTILLE ÉTAIT LE SEUL DESSIN, ET ELLE NE LISAIT PAS LE PLAN : elle
+     valait `--sp-24` en dur, pendant que la table déclarait un dessin de 40 dans
+     une cible de 44. Deux cotes pour un seul organe, dont une que rien ne tenait
+     d'accord avec l'autre — le plan pouvait bouger sans que la pastille suive.
+     ⭐ `inset: 0` LA FAIT TENIR LA BOÎTE DE CONTENU, c'est-à-dire le DESSIN que la
+     feuille construite pose (les bords transparents portent l'écart cible − dessin,
+     NORMES §0, et `.sac-poignee` les honore — elle déclare `border-style: solid`).
+     ⛔ Donc plus aucun littéral ici : 30 vit dans `backpack_gen.py`, et le jour où
+     il rebouge la pastille suit toute seule. */
+  inset: 0;
   border-radius: var(--radius-sm);
   background: var(--positive);
 }
@@ -11896,7 +11930,32 @@ button.tuto-point::before {
 .sac-cran[data-role="ajouter"] {
   color: var(--positive); font-size: var(--t3); -webkit-line-clamp: none;
   cursor: pointer;
+  /* 🔴 LE `display` SE REDÉCLARE, ET CE N'EST PAS DU CONFORT : `.sac-cran` rend
+     `-webkit-box` pour son clamp à deux étages. Poser `align-items` / `justify-content`
+     par-dessus sans changer le `display` les aurait rendus INERTES — la faute que ce
+     lot a déjà payée sur la famille des boutons (le texte flottait hors du corps). */
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
+/* ⚖️ LES DEUX MOTS DU `+` — Eric, 2026-09-19 au soir : *« si ça passe en T1 fais en T1
+   italique »* · *« ou T0 italique »*. ⭐ SA RÈGLE EST UNE MESURE, PAS UN GOÛT — elle dit
+   d'essayer le grand et de tomber au petit s'il ne rentre pas. Alors on MESURE.
+   📏 T1 ITALIQUE ÉCHOUE, ET PAS OÙ JE REGARDAIS. En LARGEUR il passait : `backpack`
+   rend **48,05** dans **48,46** utiles (57 moins deux marges de 7,5 %) — de 0,41 blg.
+   🔴 C'est la HAUTEUR qui refuse : la pile `10 + 14 + 10` à l'interligne du cran (1,15)
+   fait trois lignes de **12 + 17 + 12 = 41** dans un cran de **40**. Relevé dans
+   l'application : `scrollHeight 41 > clientHeight 40`, et `.sac-cran` porte
+   `overflow: hidden` — donc **un blg rogné, en silence**.
+   ⛔ ET JE N'AI PAS SERRÉ L'INTERLIGNE POUR SAUVER LE T1 : ce serait inventer une cote
+   qu'Eric n'a pas donnée, quand il a lui-même nommé la sortie. ⭐ T0 italique : `backpack`
+   demande **38,43** pour 48,46, et la pile fait **10 + 17 + 10 = 37** pour 40. Les deux
+   dimensions respirent.
+   ⛔ L'ITALIQUE N'EST PAS UN ORNEMENT : ces deux mots ne sont pas le nom du cran, ils
+   disent ce que le `+` va FAIRE. Le romain les aurait fait lire comme des sections. */
+.sac-cran[data-role="ajouter"] .sac-etage {
+  font-size: var(--t0); font-style: italic;
+}
+/* ⭐ ET LE SIGNE GARDE SON CRAN À LUI (T3) : il hérite du cran, donc il n'a rien à
+   déclarer — il est nommé pour que le garde puisse le désigner, pas pour être habillé. */
 /* — LE TUNER : chevron au repos, flèche circulaire au survol. ⭐ `hover: hover`
      n'est pas une détection d'appareil : c'est une question posée au POINTEUR.
      Un téléphone garde son chevron, une souris reçoit la molette. — */
@@ -11918,6 +11977,22 @@ button.tuto-point::before {
   -webkit-mask-origin: content-box; -webkit-mask-clip: content-box;
   mask-size: contain; mask-repeat: no-repeat; mask-position: center;
   -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+  /* 🧿 LE MIROIR SE PREND SUR LE DESSIN, PAS SUR LA CIBLE — Eric, 19/09 : le chevron
+     droit *« est mal placé »*. 🔴 LA BOÎTE ÉTAIT JUSTE ET LE DESSIN FAUX, exactement
+     comme le livre et le `?` la veille : la cible mesure 0..44 à gauche et 331..375 à
+     droite, symétrique au blg près — donc `getBoundingClientRect` ne voyait RIEN, et
+     les 2322 gardes non plus. C'est le DESSIN qui s'était décroché.
+     📏 MESURÉ DANS L'APPLICATION le 19/09 (une sonde qui REMPLIT la boîte de contenu :
+     son rect subit le transform de son parent, donc il dit où le dessin se peint) :
+     déclaré 361..371, peint **335..345** — 26 blg à gauche, SUR le mot du dernier cran.
+     ⚠️ LA CAUSE : `transform-origin` se résout par défaut sur la boîte de BORDURE, dont
+     le centre vaut 22. Or depuis le 18/09 le dessin d'un tuner est DÉCENTRÉ dans sa
+     cible (centre 35), parce qu'une cible ne sort plus de la dalle. Mirer autour de 22
+     déplace un dessin qui n'y est pas centré ; mirer autour de 35 le laisse en place.
+     ⭐ `transform-box: content-box` REND L'ORIGINE AU DESSIN. C'est la même phrase que
+     `background-clip: content-box` dit du glyphe, dite au miroir. ⛔ Et elle n'écrit
+     AUCUNE cote : 26 ne figure nulle part, il se déduit des bords. */
+  transform-box: content-box;
 }
 .sac-tuner[data-sens="droite"] { transform: scaleX(-1); }
 @media (hover: hover) {
@@ -11925,7 +12000,11 @@ button.tuto-point::before {
     background-color: var(--text);
     mask-image: var(--icone-tuner); -webkit-mask-image: var(--icone-tuner);
   }
-  .sac-tuner[data-sens="droite"]:hover { transform: scaleX(-1) scaleX(-1); }
+  /* ⛔ `scaleX(-1) scaleX(-1)` DISAIT « identité » EN CHARADE — un lecteur pressé l'aurait
+     « simplifié » en un seul `scaleX(-1)` et rendu la flèche à l'envers. ⭐ La flèche
+     circulaire ne se miroite PAS : elle porte son propre sens de rotation. On garde une
+     matrice — et donc le contexte d'empilement qu'a le repos — et on cesse la charade. */
+  .sac-tuner[data-sens="droite"]:hover { transform: scaleX(1); }
 }
 /* ══ LES DEUX OUTILS — Eric, 2026-09-19 ═══════════════════════════════════════
    ⚖️ *« le bouton d'édition est trop grossier ; je préfère un carré vert simple :
@@ -11982,7 +12061,11 @@ button.tuto-point::before {
      ne valait rien tant que la boîte n'était pas en `flex`. */
   font-size: var(--t1); line-height: 1.05;
 }
-.sac-outil-etage { display: block; }
+/* ⭐ UN ÉTAGE — une ligne empilée dans un bouton du sac. ⛔ PARTAGÉ, PAS DUPLIQUÉ :
+   les deux outils l'emploient depuis le 19/09, les deux `+` depuis le soir même.
+   Une seconde classe qui dirait `display: block` serait un second écrivain pour une
+   seule idée. ⛔ Et la TAILLE ne vit pas ici : chaque hôte donne la sienne. */
+.sac-etage { display: block; }
 /* ⚖️ L'INTERRUPTEUR DU MODE — il s'allume comme les bascules de X1 : le halo du belt,
    la même ombre qui dit « c'est ici que ça se passe ». */
 .sac-outil[data-organe="sections"][data-on="true"] {

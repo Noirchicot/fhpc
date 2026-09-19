@@ -9,11 +9,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createTestDocument } from "./dom-stub.mjs";
+/* ⛔ UN COMMENTAIRE N'EST PAS UN SÉLECTEUR — le garde du `?` a déjà rougi
+   en lisant de la prose pour de la règle (18/09). Toute lecture de feuille
+   passe par là. */
+import { stripComments } from "./source-scan.mjs";
 
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
-const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC } = await import("../ui/builder/sac-ecran.mjs");
+const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
+        ORGANES_D_ECHANGE, MAINTIEN_MS } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -281,7 +286,7 @@ test("14 — ⚖️ LES DEUX OUTILS PORTENT LEUR MOT, EN VERT — et plus un gly
   assert.equal(trier.textContent, "Sort", "⭐ le mot est VISIBLE, plus caché dans l'aria-label");
   assert.equal(sections.textContent, "editsections",
     "⭐ deux étages, deux nœuds — ⛔ un `\\n` dans le texte finirait dans l'aria-label");
-  assert.deepEqual(tous(sections, ".sac-outil-etage").map((e) => e.textContent), ["edit", "sections"]);
+  assert.deepEqual(tous(sections, ".sac-etage").map((e) => e.textContent), ["edit", "sections"]);
   assert.equal(n.querySelector('[data-organe="sections"]').getAttribute("aria-label"), "Edit sections",
     "et le mot complet reste dit à qui ne voit pas l'écran");
 
@@ -349,16 +354,43 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      d'à-côté ment sur ce qu'il désigne. Sous le cran, il n'y a personne. */
   for (const p of ["EFFACER", "EDITER"]) {
     assert.equal(pose(p).y + pose(p).h / 2, dom.y + dom.h,
-      `${p} doit être centré sur l'arête BASSE du dominant — 20 dedans, 20 dessous`);
+      `${p} doit être centré sur l'arête BASSE du dominant — moitié dedans, moitié dessous`);
   }
+  /* ⚖️ ERIC, 2026-09-19 AU SOIR, ET IL CORRIGE SON PROPRE 40 : *« j'ai demandé dessin
+     30×30 / tactile 44×44 »* · *« x = effacer, / = editer »* · *« seulement × et / —
+     les quatre autres restent à 40 »*. ⭐ Le `40 × 40` qu'il avait dicté le matin
+     visait la HAUTEUR des sections ; ces deux poignées-ci portent un GLYPHE, pas un
+     mot, et elles n'ont donc pas besoin de la largeur d'un mot.
+     ⛔ CE GARDE A ROUGI SUR CE CHANGEMENT, ET IL AVAIT RAISON DE ROUGIR : c'est sa
+     fonction de tenir une cote dictée contre la dérive. On le réécrit AVEC sa date,
+     ⛔ on ne retourne pas un nombre en silence.
+     📌 ET LE PARTAGE SURVIT À LA RÉDUCTION : le dessin enjambe 15/15 l'arête du cran,
+     la CIBLE (44, inchangée) l'enjambe 22/22 — ce que *« dépasse de 20 à l'intérieur
+     et à l'extérieur »* voulait dire au doigt. */
   for (const p of ["EFFACER", "EDITER"]) {
-    assert.deepEqual([pose(p).l, pose(p).h], [40, 40], "⚖️ *« carré 40 × 40 »*");
+    assert.deepEqual([pose(p).l, pose(p).h], [30, 30], "⚖️ *« dessin 30×30 »* (19/09 au soir)");
+    assert.deepEqual([pose(p).cible.l, pose(p).cible.h], [D.TOUCH, D.TOUCH],
+      "⚖️ *« tactile 44×44 »* — ⛔ le dessin rétrécit, la cible ne descend jamais sous le plancher");
   }
 
-  /* ② `Sort` NE CHANGE PLUS DE MÉTIER — il était devenu le `−` en édition. */
+  /* ③ 🔴 ET LA PASTILLE DOIT LIRE CE DESSIN, SINON LA COTE EST INERTE. Faute mesurée le
+     19/09 : la table déclarait 40 et la pastille valait `--sp-24` en dur — deux cotes
+     pour un seul organe, dont aucune ne tenait l'autre d'accord. Le plan pouvait bouger
+     sans que rien ne suive, ET SANS QUE RIEN NE LE DISE. ⭐ `inset: 0` la fait tenir la
+     boîte de contenu, c'est-à-dire le dessin que la feuille construite pose. */
+  const regleDeLaPastille = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+    .find((b) => b.sel === ".sac-poignee::before");
+  assert.ok(regleDeLaPastille, "⛔ la pastille des poignées n'est plus habillée : ce garde doit être réécrit");
+  assert.match(regleDeLaPastille.corps, /inset:\s*0/,
+    "⛔ la pastille doit prendre la boîte de contenu — donc le DESSIN du plan");
+  assert.doesNotMatch(regleDeLaPastille.corps, /(inline|block)-size\s*:/,
+    "⛔ une cote propre à la pastille serait un second écrivain : 30 vit dans `backpack_gen.py`");
+
+  /* ④ `Sort` NE CHANGE PLUS DE MÉTIER — il était devenu le `−` en édition. */
   assert.equal(n.querySelector('[data-organe="trier"]').textContent, "Sort");
 
-  /* ③ LE CHAMP NE S'OUVRE QUE PAR LE `/` */
+  /* ⑤ LE CHAMP NE S'OUVRE QUE PAR LE `/` */
   assert.equal(n.querySelector(".sac-cran-champ"), null,
     "⛔ entrer en édition n'ouvre pas un champ : on doit pouvoir LIRE la liste");
   editer.dispatchEvent({ type: "click" });
@@ -406,9 +438,28 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      un bouton qui défile est un bouton qu'on doit chercher. */
   const bout = rendu({ sections: cinq, section: 4, edition: true,
     surAjouter: (ou) => gestes.push(`ajouter:${ou}`) });
-  assert.deepEqual(tous(bout, ".sac-cran").map((c) => c.textContent || c.value),
-    ["+", "S4", "S5", "S1", "+"],
+  const crans = tous(bout, ".sac-cran");
+  assert.deepEqual(crans.map((c) => c.dataset.role || "section"),
+    ["ajouter", "section", "section", "section", "ajouter"],
     "⭐ deux `+` aux bouts, et l'anneau des sections continue de tourner entre eux");
+  assert.deepEqual(crans.slice(1, 4).map((c) => c.textContent || c.value), ["S4", "S5", "S1"],
+    "⛔ et l'anneau ne saute pas un cran : les trois du milieu sont ceux du viseur");
+
+  /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE — Eric, 2026-09-19 au soir : *« au dessus et en
+     dessous du + vert : backpack / + / Storage »* · *« au dessus et en dessous du +
+     doré : Other / + / Storage »*.
+     🔴 CE GARDE A ROUGI SUR CE CHANGEMENT, ET IL AVAIT RAISON : il épinglait un `+` NU
+     (`textContent === "+"`). ⛔ On ne rattrape pas ça en concaténant les trois étages —
+     `"backpack+Storage"` serait vert pour n'importe quel ORDRE. ⭐ Il lit donc les
+     étages un par un, dans l'ordre où ils sont empilés : c'est l'ordre qui porte la
+     phrase, le mot du dessus disant OÙ et celui du dessous disant QUOI. */
+  const etages = (c) => [...c.childNodes].map((n) => n.textContent);
+  assert.deepEqual(etages(crans[0]), ["backpack", "+", "Storage"],
+    "⚖️ le `+` vert crée un rangement qui pèse dans `Backpack`");
+  assert.deepEqual(etages(crans[4]), ["Other", "+", "Storage"],
+    "⚖️ et le `+` doré un rangement qui compte dans `Other` — le mot du panneau de poids");
+  assert.equal(crans[4].dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
+  assert.equal(crans[0].dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
   const [gauche, droite] = tous(bout, '[data-role="ajouter"]');
   assert.equal(gauche.dataset.lieu, undefined, "le `+` de gauche crée DANS le sac");
   assert.equal(droite.dataset.lieu, "dehors", "⚖️ celui de droite crée DEHORS — et son `+` est doré");
@@ -587,4 +638,201 @@ test("19 — ⚖️ LE BALAYAGE TOURNE LA PAGE, et il sait ne PAS être un gliss
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
   assert.match(source, /const SEUIL_BALAYAGE = TOUCH;/,
     "⛔ un seuil écrit en clair serait un nombre de plus à tenir d'accord avec le plan");
+});
+test("20 — 🪞 UN DESSIN DÉCENTRÉ NE SE MIROITE PAS AUTOUR DE SA CIBLE", () => {
+  /* 🔴 LA FAUTE DU 19/09, mesurée dans l'application : le chevron droit se peignait
+     335..345 là où le plan le déclare 361..371 — 26 blg, SUR le mot du dernier cran.
+     ⛔ ET AUCUNE COTE NE POUVAIT LE DIRE : la cible est symétrique au blg près (0..44
+     et 331..375), donc la boîte était juste. C'est `transform-origin`, résolu par
+     défaut sur la boîte de BORDURE, qui mirait un dessin décentré autour du mauvais
+     centre — 22 au lieu de 35.
+     ⭐ CE TÉMOIN NE MESURE PAS UNE COTE. Il demande à la feuille de DIRE sur quoi son
+     miroir se prend, et il ne le demande QUE pour les organes que la TABLE dit
+     décentrés : si le plan recentre un jour les tuners, la question tombe d'elle-même. */
+
+  /* ① LA DONNÉE : le plan décentre-t-il encore le dessin des tuners dans leur cible ? */
+  const ecart = (o) => [o.x - o.cible.x, (o.cible.x + o.cible.l) - (o.x + o.l)];
+  const decentre = (o) => { const [g, d] = ecart(o); return Math.abs(g - d) > 0.01; };
+  const tuners = D.ORGANES.filter((o) => o.sorte === "tuner");
+  assert.ok(tuners.length >= 2, "⛔ le sac a perdu ses tuners : ce garde a changé de sujet");
+  const decentres = tuners.filter((o) => o.cible && decentre(o));
+  if (decentres.length === 0) return;   /* ⭐ plan recentré : plus de piège, plus de dette */
+
+  /* ② LA FEUILLE : miroite-t-elle un de ces organes ? ⛔ sur le texte SANS commentaires */
+  const REGLE = /([^{}]*)\{([^{}]*)\}/g;
+  const blocs = [...stripComments(feuille).matchAll(REGLE)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+    .filter((b) => b.sel.includes(".sac-tuner"));
+  assert.ok(blocs.length > 0, "⛔ `.sac-tuner` n'est plus habillé : le garde doit être réécrit");
+  const mire = blocs.some((b) => /transform\s*:[^;]*scale[XxYy]?\(\s*-\s*1/.test(b.corps));
+  assert.ok(mire,
+    "⛔ plus aucun miroir sur `.sac-tuner` — si le chevron droit est peint autrement,\n" +
+    "   ce garde ne protège plus rien et doit être réécrit, pas supprimé.");
+
+  /* ③ ALORS ELLE DOIT RENDRE L'ORIGINE AU DESSIN */
+  const rend = blocs.some((b) => /transform-box\s*:\s*content-box/.test(b.corps));
+  assert.ok(rend,
+    `⛔ ${decentres.map((o) => o.nom).join(" et ")} ont un dessin DÉCENTRÉ dans leur cible ` +
+    `(écarts ${decentres.map((o) => ecart(o).join("/")).join(" · ")}), et la feuille les mire.\n` +
+    "   Sans `transform-box: content-box`, le miroir se prend sur la CIBLE et le dessin\n" +
+    "   repart de la somme des deux écarts — 26 blg le 19/09.");
+});
+test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALCULE", () => {
+  /* ⚖️ Eric, 2026-09-19 au soir : *« si ça passe en T1 fais en T1 italique »* · *« ou T0
+     italique »*. ⭐ SA RÈGLE EST UNE MESURE, PAS UN GOÛT — essaie le grand, tombe au petit
+     s'il ne rentre pas. Ce témoin fait l'essai à la place de celui qui écrira demain.
+     🔴 CE QUI A ÉTÉ PAYÉ EN LE POSANT : T1 passait en LARGEUR (`backpack` rend 48,05 pour
+     48,46 utiles — de 0,41 blg) et j'ai failli m'arrêter là. C'est la HAUTEUR qui refusait,
+     et `.sac-cran` porte `overflow: hidden` : un blg rogné, en silence, sans une ligne de
+     console. ⛔ Regarder une seule dimension d'une boîte à deux dimensions.
+     ⭐ ET CE GARDE NE RECOPIE AUCUN NOMBRE : il lit les jetons, l'interligne du cran et la
+     hauteur du cran DANS LE PLAN, et refait l'addition. Si un jeton bouge, il refait.
+     ⛔ La LARGEUR, elle, ne se calcule pas ici — il n'y a pas de métrique de police sous
+     Node. Elle a été mesurée dans l'application, et c'est écrit dans `shell.css`. */
+  const css = stripComments(feuille);
+  const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
+  const jeton = (nom) => {
+    const m = jetons.match(new RegExp(`--${nom}\\s*:\\s*([\\d.]+)px`));
+    assert.ok(m, `⛔ le jeton --${nom} a disparu : ce garde doit être réécrit, pas supprimé`);
+    return parseFloat(m[1]);
+  };
+  const bloc = (selecteur) => {
+    const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+      .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+      .find((x) => x.sel === selecteur);
+    assert.ok(b, `⛔ la règle \`${selecteur}\` n'existe plus : ce garde doit être réécrit`);
+    return b.corps;
+  };
+
+  /* ① l'interligne et la hauteur viennent d'où ils sont ÉCRITS */
+  const lh = parseFloat(bloc(".sac-cran").match(/line-height:\s*([\d.]+)/)[1]);
+  const cran = D.ORGANES.find((o) => o.nom === "CRAN 1");
+  assert.ok(cran && cran.h > 0, "⛔ le plan ne déclare plus de cran : ce garde a changé de sujet");
+
+  /* ② les deux tailles de la pile : celle des mots, celle du signe */
+  const taille = (corps) => {
+    const m = corps.match(/font-size:\s*var\(--(t\d)\)/);
+    assert.ok(m, "⛔ une taille en littéral ici serait un nombre de plus à tenir d'accord");
+    return jeton(m[1]);
+  };
+  const mot = taille(bloc('.sac-cran[data-role="ajouter"] .sac-etage'));
+  const signe = taille(bloc('.sac-cran[data-role="ajouter"]'));
+
+  /* ③ L'ADDITION — une ligne occupe `ceil(taille × interligne)`, comme le navigateur */
+  const ligne = (px) => Math.ceil(px * lh);
+  const pile = ligne(mot) + ligne(signe) + ligne(mot);
+  assert.ok(pile <= cran.h,
+    `⛔ les trois étages font ${pile} blg (${ligne(mot)} + ${ligne(signe)} + ${ligne(mot)}, ` +
+    `interligne ${lh}) dans un cran de ${cran.h} — et \`.sac-cran\` porte \`overflow: hidden\`, ` +
+    "donc le débord se ROGNE sans rien dire.\n" +
+    "   ⭐ Eric a nommé la sortie lui-même : si ça ne passe pas en T1, c'est T0 (19/09).\n" +
+    "   ⛔ Ne serre PAS l'interligne pour sauver la taille du dessus : ce serait inventer\n" +
+    "      une cote qu'il n'a pas donnée.");
+
+  /* ④ ET L'ITALIQUE EST LA PHRASE, PAS L'ORNEMENT : ces deux mots ne nomment pas le cran,
+     ils disent ce que le `+` va FAIRE. En romain ils se liraient comme des sections. */
+  assert.match(bloc('.sac-cran[data-role="ajouter"] .sac-etage'), /font-style:\s*italic/,
+    "⚖️ *« T1 italique »* · *« ou T0 italique »* — l'italique, lui, n'était pas au choix");
+});
+test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent inertes", () => {
+  /* 🔴 LA FAUTE, MESURÉE À L'ÉCRAN LE 19/09 AU SOIR : un clic sur la bourse du sac ne
+     produisait RIEN. Les trois boutons existaient depuis le 18/09 et appelaient bien
+     `surPorte(id)` — mais le `surPorte` du sac ne connaissait que `gear`, `wares` et
+     `send`. ⛔ Trois organes posés sans leur fil, et c'est la QUATRIÈME fois que ce lot
+     paie cette faute, après la poignée `/`, le `×` et le `+`.
+     ⭐ CE GARDE NE VÉRIFIE PAS QU'UN BOUTON EXISTE — il vérifie qu'il PARLE. Un témoin
+     qui compte des boutons aurait été vert tout du long. */
+  const gestes = [];
+  const n = rendu({ surPorte: (id) => gestes.push(id), compteurs: { tally: 3, "party-tally": 0 } });
+
+  const bourse = n.querySelector('[data-organe="purse"]');
+  const tally = n.querySelector('[data-organe="tally"]');
+  const groupe = n.querySelector('[data-organe="party-tally"]');
+  assert.ok(bourse && tally && groupe, "les trois sont là");
+
+  bourse.dispatchEvent({ type: "click" });
+  tally.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, ["purse", "tally"],
+    "⭐ les deux qui ont un destinataire publient leur geste — c'est ce qui manquait");
+
+  /* ⚖️ ET LE GROUP TALLY SE MONTRE INERTE — la loi du produit : *« une place réservée
+     se montre inerte »*. ⛔ Il n'existe qu'EN JEU ; un bouton qui accepte le doigt et
+     ne répond jamais apprend à ne plus toucher. */
+  assert.equal(groupe.disabled, true, "⛔ il ne fait pas SEMBLANT d'écouter");
+  assert.equal(groupe.dataset.compte, "0");
+
+  /* ⭐ ET LA BOURSE EST CELLE DE R, PAS UNE SECONDE — même organe, même habit. */
+  const ouverte = rendu({ bourseOuverte: true, bourse: { gp: 8, sp: 12, cp: 4, pp: 0 } });
+  const voile = ouverte.querySelector('[data-organe="bourse-voile"]');
+  assert.ok(voile, "⛔ le popup se peint DANS le sac : sans lui le bouton bascule un état que rien ne montre");
+  assert.equal(voile.querySelector(".gear-bourse").getAttribute("aria-label"), "Purse",
+    "⭐ `gear-bourse` — la classe de R : une seconde bourse divergerait au premier réglage");
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  assert.match(source, /import \{ popupDeLaBourse \} from "\.\/gear-ecran\.mjs/,
+    "⛔ le sac IMPORTE l'organe, il ne le redessine pas");
+
+  /* ⑤ ⚠️ ET CE GARDE-CI NE VOIT QUE L'ÉCRAN — il est INCAPABLE de voir le fil. Je l'ai
+     éprouvé : en retirant l'écouteur dans `equipment-step.mjs`, il est resté VERT, et
+     une première version qui cherchait `id === "purse"` dans la source est restée verte
+     aussi — cette chaîne existe AUSSI chez R. *Un témoin qui ne peut jamais accuser est
+     le pire de tous.*
+     ➡️ LE VRAI TÉMOIN EST AILLEURS, et il clique pour de bon : `equipement-pipeline`,
+     « LE FIL DE LA BOURSE DU SAC ». Celui-ci garde ce qu'il sait garder — que l'écran
+     PUBLIE, et que l'inerte se montre inerte. */
+});
+test("23 — ⚖️ LE MODE DÉPLACEMENT : les poignées et les `+` s'EFFACENT, la roue sort du verre", () => {
+  /* ⚖️ Croquis d'Eric, 19/09 : *« hold one section for 1,5 second and this mode comes
+     on »* · *« le x, +, / disparaissent pour voir l'ordre des sections »*, et il montre
+     **toute la roue sur un fond crème**. Eric, le soir : *« edit mode comprenant le
+     déplacement des storage »*.
+     ⭐ CE GARDE TIENT CE QUI DISPARAÎT, pas ce qui apparaît — parce que c'est ÇA que le
+     croquis dit, et parce qu'un organe qu'on croit caché se tape encore. */
+  const cinq = [{ nom: "A" }, { nom: "B" }, { nom: "C" }, { nom: "D" }, { nom: "E" }];
+
+  /* ① EN ÉDITION SEULE : les deux `+` et les deux poignées sont là */
+  const edite = rendu({ sections: cinq, section: 1, edition: true });
+  assert.equal(tous(edite, '.sac-cran[data-role="ajouter"]').length, 2, "les deux `+` aux bouts");
+  assert.ok(edite.querySelector('[data-organe="effacer"]') && edite.querySelector('[data-organe="editer"]'));
+
+  /* ② EN DÉPLACEMENT : plus rien de tout ça — et ABSENTS, pas cachés */
+  const bouge = rendu({ sections: cinq, section: 1, edition: true, deplacement: 1 });
+  assert.equal(tous(bouge, '.sac-cran[data-role="ajouter"]').length, 0,
+    "⛔ *« le x, +, / disparaissent »* — un `+` caché se taperait encore");
+  assert.equal(bouge.querySelector('[data-organe="effacer"]'), null);
+  assert.equal(bouge.querySelector('[data-organe="editer"]'), null);
+
+  /* ③ LE MODE VIT SUR LA DALLE, comme le mode édition — ⛔ pas dans cinq organes */
+  assert.equal(bouge.dataset.deplacement, "oui");
+  assert.equal(edite.dataset.deplacement, undefined, "et il ne s'allume pas tout seul");
+
+  /* ④ ET LA PLACE LIBÉRÉE REVIENT AUX SECTIONS : cinq crans au lieu de trois */
+  assert.equal(tous(bouge, ".sac-cran").length, 5,
+    "⭐ sans les deux `+`, la roue remontre ses cinq crans — c'est bien « pour voir l'ordre »");
+
+  /* ⑤ CELUI QU'ON TIENT SE VOIT — sinon on déplace à l'aveugle */
+  assert.equal(bouge.querySelector('.sac-cran[data-tenu="oui"]').dataset.position, "1");
+  assert.equal(tous(bouge, '[data-tenu="oui"]').length, 1, "⛔ un seul à la fois");
+
+  /* ⑥ CHAQUE CRAN DIT SA PLACE — c'est par là que le doigt saura où il passe.
+     ⛔ ET L'ORDRE N'EST PAS `0,1,2,3,4` : la roue est un ANNEAU centré sur le viseur,
+     donc elle commence où il faut pour que le regardé tombe au milieu. J'avais écrit la
+     suite plate, et c'est l'anneau qui m'a repris. ⭐ Ce qui se tient, c'est que les
+     cinq places soient TOUTES là, une fois chacune — *« assez pour remplir les places
+     SANS répéter »*. */
+  const places = tous(bouge, ".sac-cran").map((c) => c.dataset.position);
+  assert.equal(places.length, 5);
+  assert.deepEqual([...places].sort(), ["0", "1", "2", "3", "4"], "les cinq, une fois chacune");
+  assert.equal(places[2], "1", "⭐ et le REGARDÉ est au milieu — le viseur ne bouge jamais");
+
+  /* ⑦ ET LE MAINTIEN EST CELUI D'ERIC, pas un nombre choisi */
+  assert.equal(MAINTIEN_MS, 1500, "⚖️ *« hold one section for 1,5 second »*");
+
+  /* ⑧ 🔴 LE FOND CRÈME NE S'ÉCRIT PAS EN CLAIR : `--surface` EST ce crème, et il bascule
+     la nuit. Un `#ebe8e1` recopié ici aurait brillé dans le noir. */
+  const regle = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+    .find((b) => b.sel === '.sac[data-deplacement="oui"] .sac-roue');
+  assert.ok(regle, "⛔ la roue ne change pas d'habit : le mode ne se verrait pas");
+  assert.match(regle.corps, /background:\s*var\(--surface\)/);
+  assert.doesNotMatch(regle.corps, /#[0-9a-fA-F]{3,8}/, "⛔ aucune teinte en clair");
 });

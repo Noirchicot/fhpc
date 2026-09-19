@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=690";
-import { facteurZoomCourant } from "./echelle.mjs?v=690";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=690";
+import { renderPicker } from "./carnet.mjs?v=701";
+import { facteurZoomCourant } from "./echelle.mjs?v=701";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=701";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=690";
-import { swapContent } from "./socle.mjs?v=690";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=690";
+import { isGenre } from "../../src/layers/document.mjs?v=701";
+import { swapContent } from "./socle.mjs?v=701";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=701";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=690";
+import { armerJeton } from "./glisser.mjs?v=701";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=690";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=701";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=690";
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=701";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=690";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=701";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=690";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=690";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=701";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=701";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=690";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=701";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=690";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=690";
+import { motDuCran } from "./ecran-mort.mjs?v=701";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -380,6 +380,13 @@ export function currentGearLines(document) {
      ⛔ Pas un tableau sous un chemin unique : il se réécrirait en entier à chaque
      renommage, et le document perdrait la finesse de ses diffs. */
 const SECTION_RE = /^backpack\.sections\[(\d+)\]\.name$/;
+const RANG_RE = /^backpack\.sections\[(\d+)\]\.rang$/;
+/* ⛔ LE PARTY BAG N'A PAS D'INDEX — sa clef est un MOT (§ `SECTION_PARTY`), donc son
+   rang ne peut pas vivre sous `backpack.sections[N]`. Il a le SIEN, de même forme :
+   une seule idée, deux lieux que la donnée impose. */
+export const CHEMIN_RANG_PARTY = "backpack.party.rang";
+export const cheminDuRang = (clef) =>
+  (clef === SECTION_PARTY.clef ? CHEMIN_RANG_PARTY : `backpack.sections[${clef}].rang`);
 
 /** Les sections déclarées, dans l'ordre de leur index. ⛔ Aucune n'est inventée :
  *  un sac neuf n'a pas de section, et l'écran le dira. */
@@ -391,6 +398,25 @@ export function currentSections(document) {
     if (m) par.set(Number(m[1]), { index: Number(m[1]), nom: String(c.value ?? "") });
   }
   return [...par.values()].sort((a, b) => a.index - b.index);
+}
+
+/** ⚖️ LE RANG DE CHAQUE SECTION — la position que le JOUEUR a donnée à la roue.
+ *  ⭐ Eric, 19/09 : *« on peut changer sa position [du party], mais pas l'effacer ni la
+ *  renommer »* — donc l'ordre porte AUSSI le party, et c'est pourquoi il a son chemin.
+ *  📏 MESURÉ CONTRE LE MOTEUR AVANT D'ÊTRE ÉCRIT (protocole P1, 19/09 au soir) : le
+ *  scalaire passe propre — 0 violation, il ressort en `unconsumed`, `clear` ne laisse
+ *  rien. ⛔ ET LA LISTE A ÉTÉ REFUSÉE : *« set n'accepte qu'un scalaire — une structure
+ *  serait une règle déguisée »*. L'ordre est donc N scalaires, jamais un tableau. */
+export function rangsDesSections(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const par = new Map();
+  for (const c of choices) {
+    if (typeof c.path !== "string") continue;
+    if (c.path === CHEMIN_RANG_PARTY) { par.set(SECTION_PARTY.clef, Number(c.value)); continue; }
+    const m = RANG_RE.exec(c.path);
+    if (m) par.set(Number(m[1]), Number(c.value));
+  }
+  return par;
 }
 
 /* ══ LE PARTY INVENTORY — Eric, 2026-09-19 ══════════════════════════════════
@@ -411,7 +437,16 @@ export function currentSections(document) {
    le sac, donc ce qu'on y range PÈSE sur le personnage et entre dans son encombrement.
    Si le party inventory ne doit pas peser, ce n'est pas une section — c'est un lieu,
    comme `storage`. ⏳ Question posée à Eric, non devinée. */
-export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party inventory dropdown" });
+/* 📏 ET SON NOM EST MESURÉ, PAS CHOISI — Eric, 2026-09-19 : *« Party bag »*.
+   ⛔ *« Party inventory dropdown »* NE POUVAIT PAS TENIR, et ce n'était pas une
+   question de goût : le cran dominant offre **60,34 blg** de texte utile sur
+   **2 lignes** (clamp), et le nom en demandait **125,76** — aucune coupure de mots
+   ne tombant sous 60,34 (« Party inventory » 74,23 · « inventory dropdown » ~98).
+   Il se tronquait donc, toujours, sur tous les écrans.
+   ⭐ *« Party bag »* tient **sur une seule ligne**, et il dit le CONTENANT — ce qu'Eric
+   avait déjà nommé le 19/09 : le party inventory est *« un autre backpack »*.
+   ⛔ Et *« dropdown »* était un mot de la SOURCE, jamais un mot du joueur. */
+export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party bag" });
 
 /* ══ LES SIX SECTIONS DU SAC — Eric, 2026-09-19 ════════════════════════════
    ⚖️ *« chaque section fait en 6. Backpack section 1 · Backpack section 2 · etc.
@@ -453,6 +488,85 @@ export const SECTIONS_DU_SAC = 4;
 export const SECTION_DEPOT = 0;
 export const nomDeSectionParDefaut = (index) =>
   (index === SECTION_DEPOT ? "Backpack dropdown" : `Storage ${index}`);
+
+/* 🔴 LA LISTE DES SECTIONS SE COMPOSE UNE FOIS, ET LES DEUX LECTEURS LISENT LA MÊME.
+   ⛔ CE N'EST PAS UN RANGEMENT DE CONFORT — c'est la réparation d'une faute mesurée
+   dans l'application le 19/09 au soir : le RENDU composait `[party, …les miennes]`
+   (le party a pris la tête le 19/09), pendant que `surPlacer` recomposait
+   `[…les miennes, party]` pour retrouver la section visée. Or `sectionSac` indexe
+   ce qu'on VOIT. Les deux listes divergeaient donc d'un cran ET par leur source
+   (`currentSections` seul contre le socle complété), et `Math.min(…, length - 1)`
+   bornait l'écart au lieu de le crier.
+   📏 CE QUE ÇA FAISAIT, MESURÉ : un objet lâché sur une case de `Backpack dropdown`
+   partait dans `Party bag` — et comme la clef du party n'est pas `sN`, il finissait
+   `location: "self"`, c'est-à-dire **équipé sur le corps**. Trois pas, aucun cri.
+   ⭐ C'EST LA TROISIÈME VICTIME DU MÊME DÉPLACEMENT, après la boîte par défaut des
+   envois et le viseur du `+`. *Une position déduite d'une liste qu'on réordonne est
+   une bombe à retardement* — on ne la désamorce qu'en n'ayant qu'UNE liste. */
+export function sectionsDuSac(document) {
+  const declarees = currentSections(document);
+  const parIndex = new Map(declarees.map((x) => [x.index, x]));
+  /* ⭐ LES SIX SONT TOUJOURS LÀ ; celles que le joueur a nommées prennent la place de
+     leur rang, les autres gardent leur nom par défaut. ⛔ `??` et non `||` : un nom
+     VIDÉ par le `×` est un nom écrit, pas un nom absent. */
+  const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
+    index: i, nom: (parIndex.get(i) || {}).nom ?? nomDeSectionParDefaut(i),
+    renommable: i !== SECTION_DEPOT
+  }));
+  const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC);
+  /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE — Eric, 19/09 : *« Party inventory
+     dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*. ⚠️ C'est l'ORDRE qui fait
+     loi ; le cran s'appelle « Party bag » depuis le soir même (§ `SECTION_PARTY`). */
+  const naturel = [{ index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom,
+                     party: true, fige: true, renommable: false }, ...socle, ...ajoutees];
+
+  /* ⚖️ ET LE JOUEUR PEUT LES DÉPLACER — Eric, 19/09 au soir : *« edit mode comprenant
+     le déplacement des storage »*, et pour le party : *« on peut changer sa position,
+     mais pas l'effacer ni la renommer »*.
+     ⭐ CE QUI N'A PAS DE RANG PASSE APRÈS, DANS SON ORDRE NATUREL — et c'est délibéré :
+     une section créée APRÈS un rangement apparaît au bout, là où on l'attend. ⛔ Le
+     contraire (l'ordre naturel qui reprend la main dès qu'un rang manque) aurait fait
+     s'effondrer tout le rangement du joueur à la première section neuve.
+     ⛔ ET LE TRI EST TOTAL : à rang égal — ce qui ne devrait pas arriver, puisqu'un
+     déplacement RENUMÉROTE tout — c'est la place naturelle qui départage. Un tri qui
+     laisse deux éléments interchangeables rend un ordre différent d'un rendu à l'autre,
+     et personne ne voit pourquoi l'écran bouge. */
+  const rangs = rangsDesSections(document);
+  const clef = (s) => rangs.get(s.index);
+  return naturel
+    .map((s, naturelle) => ({ s, naturelle, rang: Number.isInteger(clef(s)) ? clef(s) : null }))
+    .sort((a, b) => {
+      if (a.rang === null && b.rang === null) return a.naturelle - b.naturelle;
+      if (a.rang === null) return 1;
+      if (b.rang === null) return -1;
+      return a.rang - b.rang || a.naturelle - b.naturelle;
+    })
+    .map((x) => x.s);
+}
+
+/** ⚖️ LE LIEU D'UNE BOÎTE — UNE SEULE LOI, ET ELLE SE TESTE.
+ *  ⛔ ELLE VIVAIT DANS `shell.mjs`, QUI N'EXPORTE RIEN : aucun garde ne pouvait donc
+ *  l'interroger, et c'est précisément là qu'une faute a vécu jusqu'au 19/09 au soir.
+ *  Le test portait sur la FORME de la clef (`/^s\d+$/`) ; or la clef du party bag est
+ *  un MOT. Un objet déposé dans le sac commun tombait dans le `else` final et
+ *  ressortait **équipé sur le personnage**.
+ *  ⭐ ON TESTE DÉSORMAIS LA NATURE DU LIEU : `sN` et `party` sont deux écritures d'une
+ *  même idée — *« ça se range, ça ne se porte pas »*.
+ *  📌 `storage` pour le party : c'est la ligne **`Other`** du panneau, hors
+ *  `Encumbrance` (`LIEUX_PESES` ne somme que `self + backpack`) — *« un autre backpack,
+ *  partagé par tout le groupe »* (19/09) et *« other storage ne rentre pas dans
+ *  encumbrance »* (18/09). ⏳ C'est la seule règle que ce lot tranche sans Eric ; elle
+ *  se renverse ici, en un mot. */
+export function lieuDeLaBoite(boite) {
+  const b = String(boite);
+  if (b === boiteDeSection(SECTION_PARTY.clef)) return "storage";
+  if (/^s\d+$/.test(b)) return "backpack";
+  if (/^sol\d+$/.test(b)) return "ground";
+  return "self";
+}
+
+/** ⭐ Ce qui se RANGE ne se PORTE pas — le corollaire, nommé une fois. */
+export const seRange = (boite) => ["backpack", "storage"].includes(lieuDeLaBoite(boite));
 
 /** Le prochain index de section libre — même loi que `nextGearIndex` : un index
  *  qui a existé ne redevient pas anonyme.
@@ -498,12 +612,43 @@ export const sectionDeBoite = (boite) => {
  *  rien perdre. */
 export function lignesDeSection(lignes, boite, boiteParDefaut) {
   return lignes
-    .filter((l) => (l.location || "backpack") === "backpack" && (l.boite || boiteParDefaut) === boite)
+    /* 🔴 UNE SECTION MONTRE CE QU'ELLE CONTIENT, ⛔ PAS SEULEMENT CE QUI PÈSE — faute
+       mesurée dans l'application le 19/09 au soir. Ce filtre ne retenait que
+       `location: "backpack"` ; or un objet envoyé au `Party bag` vit en `storage`
+       (c'est la ligne `Other`, hors `Encumbrance`). Il était donc rangé POUR DE VRAI
+       — le compte le disait, « Other 1 item » — et **sa section le montrait vide**.
+       ⭐ LE DÉPARTAGE EST LA BOÎTE, PAS LE LIEU. Et il doit l'être finement, sinon on
+       réveille des fantômes : la REMISE (SB3.3) porte elle aussi `location: "storage"`,
+       mais SANS boîte — élargir sans cette condition l'aurait fait tomber tout entière
+       dans le dépôt, qui est justement ce qui accueille les lignes sans boîte.
+       ⚖️ DONC : une ligne du sac (`backpack`) peut ne pas nommer sa boîte — elle tombe
+       au dépôt ; une ligne rangée AILLEURS (`storage`) n'entre que si elle NOMME sa
+       section. ⭐ Et c'est déjà la porte des sections dorées à venir. */
+    .filter((l) => {
+      const lieu = l.location || "backpack";
+      if (lieu === "backpack") return (l.boite || boiteParDefaut) === boite;
+      if (lieu === "storage") return !!l.boite && l.boite === boite;
+      return false;
+    })
     .sort((a, b) => {
       const pa = Number.isInteger(a.place) ? a.place : Infinity;
       const pb = Number.isInteger(b.place) ? b.place : Infinity;
       return pa - pb || a.index - b.index;
     });
+}
+
+/** ⚖️ LA PLACE NEUVE D'UN OBJET DANS UNE SECTION — *« prochain emplacement dispo »*.
+ *  🔴 CETTE FONCTION EXISTE POUR TENIR UN ARGUMENT QUI S'EST TROMPÉ. `lignesDeSection`
+ *  prend DEUX boîtes : celle qu'on veut, et celle où vivent les lignes qui n'en
+ *  nomment aucune. La coquille lui passait la MÊME aux deux places — donc, en envoyant
+ *  vers le `Party bag`, tout le sac comptait comme déjà dans le party : la première
+ *  place libre tombait à **7**, et l'objet atterrissait au milieu d'une section vide.
+ *  Mesuré à l'écran le 19/09 au soir.
+ *  ⭐ LA BOÎTE PAR DÉFAUT EST LE DÉPÔT, ET ELLE NE SE PASSE PLUS : elle se NOMME, ici,
+ *  une fois. ⛔ Un défaut exprimé par la POSITION d'un argument est un défaut qu'on
+ *  redonne faux un jour — c'est la même leçon que `SECTION_DEPOT` a déjà value. */
+export function placeNeuveDans(lignes, boite, parPage) {
+  return premierePlaceLibre(lignesDeSection(lignes, boite, boiteDeSection(SECTION_DEPOT)), parPage);
 }
 
 /** La grille d'une section : `places[i]` est la ligne posée à la place `i`, ou
@@ -1972,6 +2117,22 @@ let editionSac = false;
 /* ⭐ LE CHAMP NE S'OUVRE QUE PAR LA POIGNÉE `/` — Eric, 19/09. ⛔ État d'écran : on
    rouvre le sac en le LISANT, pas en train de le modifier. */
 let renommageSac = false;
+/* ⚖️ LA SECTION QU'ON DÉPLACE — croquis d'Eric, 19/09 : *« hold one section for 1,5
+   second and this mode comes on »*. ⭐ `null` = personne ; sinon, la POSITION du cran
+   tenu dans la liste affichée. ⛔ De l'état d'ÉCRAN, pas de document : ce qui s'écrit,
+   c'est l'ORDRE (`backpack…rang`), jamais « qui est en train d'être déplacé ». */
+let deplacementSac = null;
+/* 🔴 LE REPEINT DU SAC, ATTEIGNABLE DEPUIS UN GESTE QUI A COMMENCÉ AVANT LUI.
+   ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU (`swapContent(section, …)`), et la
+   coquille en fabrique un neuf à chaque `act`. Or le déplacement d'une section ÉCRIT à
+   chaque croisement — donc, au moment du lâcher, la fermeture qu'on tient est celle
+   d'AVANT, et elle repeint un nœud détaché : le mode restait allumé à l'écran alors que
+   l'état était déjà retombé. Mesuré dans l'application le 19/09 au soir.
+   ⭐ C'EST LA MÊME LOI QUE `NORMES` ÉNONCE POUR LA MARGE — *« un glisser qui fait
+   défiler l'écran sous lui doit LIRE l'état au moment du DÉPÔT, jamais celui du rendu
+   qui l'a armé »* — et elle vaut aussi pour ÉCRIRE : le repeint se relit, il ne se
+   capture pas. */
+let repeindreLeSac = () => {};
 /* ⭐ LA PAGE QU'ON REGARDE DANS LA SECTION — état d'écran : on rouvre le sac à sa
    première page, jamais là où on l'avait laissé. ⛔ Ce qui SURVIT, c'est la place de
    chaque objet (`gear[N].place`), pas le regard qu'on porte dessus.
@@ -2167,13 +2328,27 @@ export function renderEquipmentStep(ctx, onAction) {
      la cote arrive par la table. */
   function envoyer() {
     if (collecteEnvoi.size === 0) { montrer("sb32"); return; }
-    const location = destinationEnvoi === "self" ? "self" : "backpack";
     /* ⚠️ VIDÉ AVANT LE PREMIER GESTE, pas après : chaque geste fait repeindre la
        coquille (`refresh`), et une collecte vidée APRÈS aurait été peinte pleine
        — mesuré au navigateur : « 1 to send » survivait à l'envoi. */
     const retenus = [...collecteEnvoi];
     collecteEnvoi.clear();
-    for (const index of retenus) actArbitre({ kind: "moveGearLine", index, location });
+    /* ⚖️ ENVOYER VERS LE PARTY BAG, C'EST DÉSIGNER UNE BOÎTE, PAS UN LIEU — Eric,
+       19/09 : *« les envois vers party bag »*. ⭐ `moveGearLine` EFFACE la boîte (à
+       raison : où l'objet atterrit dans son nouveau lieu appartient à l'écran
+       d'arrivée). Le party, lui, EST la boîte d'arrivée — c'est donc `placerGearLine`
+       qui le porte, le même verbe que le glisser, ⛔ pas une seconde écriture.
+       ⭐ ET LE RESTE NE CHANGE PAS : `Backpack` sans boîte tombe dans le DÉPÔT, ce qui
+       est exactement *« quand je fais un send to backpack, ça va dans backpack
+       dropdown »* (Eric, 19/09) — le défaut le dit déjà, on ne le redit pas ici. */
+    for (const index of retenus) {
+      if (destinationEnvoi === SECTION_PARTY.clef) {
+        actArbitre({ kind: "placerGearLine", index, boite: boiteDeSection(SECTION_PARTY.clef) });
+      } else {
+        const location = destinationEnvoi === "self" ? "self" : "backpack";
+        actArbitre({ kind: "moveGearLine", index, location });
+      }
+    }
     peindre();
   }
   /* les lignes qui vivent sur R : portées (self) et au sol (ground — « tu portes
@@ -2365,8 +2540,6 @@ export function renderEquipmentStep(ctx, onAction) {
        de leur rang, les autres gardent leur nom par défaut. `fige` marque celles
        qu'on ne supprime pas — les six et le party — ⛔ mais elles se RENOMMENT
        toutes, sauf le party : renommer un tiroir, c'est le sien. */
-    const declarees = currentSections(docu);
-    const parIndex = new Map(declarees.map((x) => [x.index, x]));
     /* 🔴 LES SIX NE SONT PLUS IMMORTELLES — Eric : *« le mode edit et delete ne sont
        pas effectifs »*. Je les avais marquées `fige`, donc le `×` refusait sur TOUTES
        les sections et ne servait jamais à rien. ⛔ Un bouton qui refuse toujours est un
@@ -2380,20 +2553,17 @@ export function renderEquipmentStep(ctx, onAction) {
     /* ⚖️ *« les storage sont éditables »* · *« et la backpack dropdown non plus »* —
        Eric, 19/09. ⭐ Le dépôt ne se renomme donc PAS : son nom dit sa fonction, et
        c'est la seule chose qui garantit qu'on sait où atterrit un envoi. */
-    const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
-      index: i, nom: (parIndex.get(i) || {}).nom ?? nomDeSectionParDefaut(i),
-      renommable: i !== SECTION_DEPOT
-    }));
-    const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC);
-    const miennes = [...socle, ...ajoutees];
+
     /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE, il ne la ferme plus — Eric, 19/09 :
        *« Party inventory dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*.
+       ⚠️ C'EST L'ORDRE QUI FAIT LOI ICI, PAS LE MOT : le premier cran s'appelle
+       « Party bag » depuis le 19/09 au soir (§ `SECTION_PARTY`). La citation garde
+       le mot d'Eric à sa date, ⛔ elle ne dit pas le nom courant.
        🔴 Je l'avais mis EN DERNIER la veille, avec une raison qui semblait bonne : le
        sac s'ouvre sur tes affaires, le commun vient après. ⛔ Elle était fausse — ce
        qui ouvre une liste est ce qu'on veut voir d'abord, et le commun se consulte
        plus souvent qu'un rangement. */
-    const sections = [{ index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom,
-                        party: true, fige: true, renommable: false }, ...miennes];
+    const sections = sectionsDuSac(docu);
     if (sectionSac === null) {
       const depot = sections.findIndex((x) => x.index === SECTION_DEPOT);
       sectionSac = depot >= 0 ? depot : 0;
@@ -2516,9 +2686,11 @@ export function renderEquipmentStep(ctx, onAction) {
            un jeton glissé jusqu'à la section du groupe atterrirait dans la dernière
            des miennes. C'est le même piège que le défilement par la marge, un cran
            plus loin. */
-        const dites = currentSections(docu);
-        const vivantes = [...(dites.length ? dites : [{ index: 0, nom: "Backpack" }]),
-                          { index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom }];
+        /* 🔴 LA MÊME LISTE QUE CELLE QU'ON REGARDE — ⛔ plus de seconde composition.
+           `sectionsDuSac` est l'écrivain unique ; la relire ICI (et non à la fermeture)
+           reste indispensable, parce que le glisser survit au repeint : on lâche sur
+           l'écran d'APRÈS le défilement par la marge, pas sur celui qui a armé. */
+        const vivantes = sectionsDuSac(docu);
         const vive = boiteDeSection(vivantes[Math.min(sectionSac, vivantes.length - 1)].index);
         const m = /^case-(\d+)-(\d+)$/.exec(String(creneau || ""));
         const place = m
@@ -2533,8 +2705,45 @@ export function renderEquipmentStep(ctx, onAction) {
          qu'il soit vidé »* — sur R, B1 et B2. ⛔ Le Group Tally n'existe qu'EN JEU :
          à la création la donnée ne le porte pas, sa place lui est réservée. */
       compteurs: { tally: cartCompte(docu), "party-tally": 0 },
+      /* ⚖️ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son
+         bouton existait depuis le 18/09 et n'était câblé NULLE PART ; il appelait
+         `surPorte("purse")`, que le sac ne connaissait pas. ⛔ Un organe posé sans son
+         fil est un organe mort — la faute que ce lot a déjà payée trois fois.
+         ⭐ MÊME ÉTAT, MÊME ORGANE, MÊMES GESTES : `bourseOuverte` est de l'état de
+         MODULE, donc la bourse ouverte sur R l'est encore quand on passe au sac. Deux
+         états auraient laissé une bourse ouverte d'un côté et fermée de l'autre. */
+      bourse, bourseOuverte,
+      surFermerBourse: () => { bourseOuverte = false; peindre(); },
+      surMonnaie: (key, value) => act({ kind: "setCurrency", key, value }),
       destinations: DESTINATIONS, destination: destinationEnvoi,
       surSection: (i) => { sectionSac = i; peindre(); },
+      deplacement: deplacementSac,
+      /* ⚖️ DÉPLACER UNE SECTION — Eric, 19/09 au soir : *« edit mode comprenant le
+         déplacement des storage »*, et le croquis : *« hold one section for 1,5 second…
+         if you drag up to a chevron the selector moves »*.
+         ⭐ L'ORDRE S'ÉCRIT À CHAQUE CROISEMENT, pas au lâcher. Une copie de travail
+         qu'on ne commettrait qu'à la fin diverge de ce qu'on VOIT dès que le rendu se
+         refait sous le doigt — et il se refait, puisque la roue bouge. ⛔ C'est la même
+         leçon que le glisser dans la marge : on lit et on écrit l'écran qu'on a sous
+         les yeux, jamais une mémoire d'avant.
+         ⭐ ET LE VISEUR SUIT CE QU'ON TIENT : sans ça, on déplace une section et on se
+         retrouve à en regarder une autre. */
+      surDeplacer: (e) => {
+        if (!e) return;
+        /* ⛔ `repeindreLeSac`, PAS `peindre` : ce geste traverse les rendus (il écrit à
+           chaque croisement), donc la fermeture qu'on tient est périmée dès le premier. */
+        if (e.phase === "prendre") { deplacementSac = e.position; sectionSac = e.position; repeindreLeSac(); return; }
+        if (e.phase === "poser") { deplacementSac = null; repeindreLeSac(); return; }
+        if (e.phase !== "bouger" || deplacementSac === null) return;
+        const vers = e.vers;
+        if (!Number.isInteger(vers) || vers === deplacementSac || vers >= sections.length) return;
+        const ordre = sections.map((x) => x.index);
+        const [pris] = ordre.splice(deplacementSac, 1);
+        ordre.splice(vers, 0, pris);
+        deplacementSac = vers;
+        sectionSac = vers;
+        act({ kind: "ordonnerSections", ordre });
+      },
       /* ⛔ EN ÉDITION LE RUBAN NE BOUCLE PAS, ET IL PORTE UNE PLACE DE PLUS (le `+`) :
          la borne haute change avec le mode. Une seule règle pour les deux aurait soit
          rendu le `+` injoignable, soit fait boucler une liste qu'on est en train de
@@ -2633,6 +2842,14 @@ export function renderEquipmentStep(ctx, onAction) {
            d'envoi. ⛔ Il ouvrait la liste dans tous les cas — un bouton qui ne
            dépend pas de l'état est un bouton qui ne dit rien de l'état. */
         if (id === "send") envoyer();
+        /* 🔴 LES TROIS ORGANES D'ÉCHANGE APPELAIENT CE POINT DEPUIS LE 18/09, ET IL NE
+           LES ÉCOUTAIT PAS. Mesuré à l'écran le 19/09 au soir : un clic sur la bourse
+           du sac ne produisait RIEN. ⭐ Les deux qui ont un destinataire le reçoivent
+           ici, et par le MÊME geste que sur R — retaper la bourse la referme.
+           ⛔ Le `party-tally`, lui, n'en a pas : il se montre inerte (`disabled`), il
+           ne fait pas semblant d'écouter. */
+        if (id === "purse") { bourseOuverte = !bourseOuverte; peindre(); }
+        if (id === "tally") montrer("sb32");
       }
     });
     return noeud;
@@ -2797,6 +3014,10 @@ export function renderEquipmentStep(ctx, onAction) {
   function peindre() {
     swapContent(section, [construireVue(vueEquipement)]);
   }
+  /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
+     deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un
+     déplacement peignait dans un nœud détaché. */
+  repeindreLeSac = peindre;
   peindre();
   return section;
 }

@@ -3450,6 +3450,147 @@ il appartient au GESTE*.
 📌 **CONSÉQUENCE SUR LA FEUILLE** : les quatre bords transparents se déduisent des **écarts réels**
 dessin/cible, ⛔ plus d'une symétrie. Pour toute cible centrée ils rendent les mêmes nombres — c'est
 une généralisation, qui attendait qu'une cible cesse d'être centrée pour devenir nécessaire.
+⚠️ **ET ELLE A UNE SECONDE CONSÉQUENCE, PAYÉE LE LENDEMAIN** — la section suivante.
+
+---
+
+### 🔑 UN LIEU SE RECONNAÎT À SA NATURE, ⛔ PAS À LA FORME DE SA CLEF
+📍 `equipement-le-lieu-ne-se-lit-pas-dans-la-forme-de-la-clef` · vivante · 19/09
+⚖️ **Une décision qui porte sur ce qu'une chose EST ne se prend jamais sur la FORME de son identifiant. ⛔ Et une décision qu'aucun garde ne peut interroger vit dans un fichier qui n'exporte rien : sortez-la.**
+
+> Eric, 2026-09-19 au soir : **« que le drag and drop fonctionne à nouveau car ce n'est plus le cas »**.
+
+🔴 **CE QUE ÇA FAISAIT.** `placerGearLine` décidait `location` en testant `/^s\d+$/` sur la boîte.
+Or la clef du party bag est un **MOT** (`party`), choisie précisément pour ne pouvoir entrer en
+collision avec aucun numéro. Elle échouait donc au test, tombait dans le `else` final, et l'objet
+déposé dans le sac du groupe ressortait **`location: "self"`, équipé sur le personnage**.
+⚠️ **ET LE COMMENTAIRE JUSTE AU-DESSUS DÉCRIVAIT LA FAUTE** : *« sans cette branche, un objet glissé
+dans le sac s'y retrouvait équipé »*. La branche existait. Elle ne couvrait pas ce cas — et une prose
+juste au-dessus d'un test étroit **endort** au lieu d'alerter.
+⛔ **AUCUN GARDE NE POUVAIT L'ATTRAPER**, parce que la décision vivait dans `shell.mjs`, **qui
+n'exporte rien**. Le seul témoin qui la visait lisait son TEXTE (`/auSol \? "ground" : "self"/`) : il
+tenait la forme d'une décision, jamais son résultat. ⭐ La loi est sortie (`lieuDeLaBoite`,
+`seRange`) ; elle a maintenant un témoin qui l'interroge, et il rougit sur `'self' !== 'storage'`.
+⭐ **LE CRITÈRE EST DEVENU SÉMANTIQUE** : `sN` et `party` sont deux écritures d'une même idée — *« ça
+se range, ça ne se porte pas »*.
+
+---
+
+### 🖌️ UN GESTE QUI TRAVERSE LES RENDUS NE PEUT PAS CAPTURER SON REPEINT
+📍 `cadre-le-repeint-se-relit-il-ne-se-capture-pas` · vivante · 19/09
+⚖️ **Un rappel de fin de geste doit RELIRE le repeint courant, jamais garder celui du rendu qui l'a armé. ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU : appelé après un `act`, il peint dans un nœud détaché — et l'écran reste figé sur un état qui n'existe plus.**
+
+🔴 **MESURÉ DANS L'APPLICATION LE 19/09 AU SOIR**, en posant le déplacement des sections. Le geste
+ÉCRIT l'ordre à chaque croisement ; chaque écriture fait refabriquer le nœud de l'étape par la
+coquille. Au lâcher, la fermeture qu'on tenait était celle d'avant le PREMIER croisement : l'état
+retombait (`deplacementSac = null`) et **le mode restait allumé à l'écran**. Deux `pointerup`
+successifs n'y changeaient rien — la preuve que ce n'était pas l'événement qui manquait.
+⭐ **C'EST LA MÊME LOI QUE LA MARGE, DANS L'AUTRE SENS.** `equipement-glisser-dans-la-marge-relit-l-ecran`
+dit déjà qu'un glisser doit **LIRE** l'état au dépôt, pas celui du rendu qui l'a armé. Elle vaut
+aussi pour **ÉCRIRE** : le repeint se relit (`repeindreLeSac`, réassigné à chaque rendu), il ne se
+capture pas.
+📌 **CE QUI DISTINGUE CE CAS DES AUTRES RAPPELS** : tous les autres (`surSection`, `surTourner`…)
+partent d'un clic sur le DOM courant, donc leur fermeture est fraîche par construction. Seul un
+geste qui **dure** traverse les rendus. ⛔ La règle ne vise donc que ceux-là — l'élargir à tous
+serait une indirection payée pour rien.
+
+---
+
+### 📐 UNE BOÎTE A DEUX DIMENSIONS — ET LA SORTIE EST CELLE QU'ERIC A NOMMÉE
+📍 `cadre-une-taille-se-valide-sur-les-deux-dimensions` · vivante · 19/09
+⚖️ **Une taille ne « passe » que si elle passe en LARGEUR *et* en HAUTEUR. ⛔ Et quand elle ne passe pas, on prend la sortie qu'Eric a nommée — on ne serre pas une cote qu'il n'a pas donnée pour sauver la sienne.**
+
+> Eric, 2026-09-19 au soir, sur les deux mots du `+` : **« si ça passe en T1 fais en T1 italique »** · **« ou T0 italique »**.
+
+⭐ **SA RÈGLE EST UNE MESURE, PAS UN GOÛT** : essaie le grand, tombe au petit s'il ne rentre pas.
+🔴 **ET J'AI FAILLI M'ARRÊTER À LA PREMIÈRE DIMENSION.** En largeur T1 passait : `backpack` rend
+**48,05** pour **48,46** utiles — de **0,41 blg**, et j'allais conclure. C'est la **hauteur** qui
+refusait : la pile `10 + 14 + 10` à l'interligne du cran (1,15) fait trois lignes de
+**12 + 17 + 12 = 41** dans un cran de **40**. Relevé dans l'application : `scrollHeight 41 >
+clientHeight 40`, et `.sac-cran` porte `overflow: hidden` — ⛔ **un blg rogné, en silence**.
+⛔ **ET LA TENTATION ÉTAIT DE SERRER L'INTERLIGNE** pour garder le T1. C'eût été inventer une cote
+qu'Eric n'a pas donnée, alors qu'il avait lui-même nommé la sortie. ⭐ *Quand un contenu ne rentre
+pas, on lui retire quelque chose ou on prend la porte qu'on nous a montrée ;* ⛔ *on ne rétrécit pas
+la pièce autour de lui.*
+🛡️ **LE TÉMOIN** : `tests/sac-ecran.test.mjs` n° 21 — il **refait l'addition** depuis les jetons
+(`--t0`, `--t3`), l'interligne écrit dans `.sac-cran` et la hauteur du cran **dans le plan** ;
+⛔ il ne recopie aucun nombre, donc il refait le calcul si un jeton bouge. Éprouvé rouge en
+remettant `--t1` : *« les trois étages font 41 blg (12 + 17 + 12, interligne 1.15) dans un cran de
+40 »* — **les mêmes nombres que le navigateur**, obtenus autrement. ⭐ Deux témoins indépendants
+qui tombent sur le même chiffre, c'est ce qui distingue une mesure d'une coïncidence.
+📌 **LA LARGEUR, ELLE, NE SE CALCULE PAS SOUS NODE** (pas de métrique de police) : elle se mesure
+dans l'application, et le chiffre est écrit dans `shell.css`. ⛔ Un garde qui prétendrait la tenir
+mentirait sur ce qu'il sait.
+
+---
+
+### 📐 UNE COTE DU PLAN QUE NUL ORGANE PEINT NE LIT EST INERTE
+📍 `cadre-une-cote-que-nul-organe-ne-lit-est-inerte` · vivante · 19/09
+⚖️ **Un organe dont le DESSIN est peint par un enfant (`::before`, pastille, corps) doit faire lire à cet enfant la boîte que la feuille construite pose. ⛔ Une taille propre à l'enfant est un SECOND ÉCRIVAIN : le plan peut alors bouger sans que rien ne suive, et sans que rien ne le dise.**
+
+> Eric, 2026-09-19 au soir : **« j'ai demandé dessin 30×30 / tactile 44×44 »**.
+
+🔴 **CE QUI L'A RÉVÉLÉ EST UN QUASI-ACCIDENT.** J'allais changer `POIGNEE` de 40 à 30 dans
+`backpack_gen.py`, régénérer, recopier verbatim — le geste juste, dans le bon ordre — et **rien
+n'aurait bougé à l'écran**. La pastille colorée, seul dessin visible d'une poignée, valait
+`--sp-24` **en dur** pendant que la table déclarait 40. ⛔ Deux cotes pour un organe, dont aucune
+ne tenait l'autre d'accord.
+⚠️ **ET LE SILENCE ÉTAIT TOTAL** : les tests seraient restés verts (ils lisent la table), le diff
+aurait été propre, la Bible régénérée, et j'aurais rapporté un changement qui n'existait pas.
+📏 **CE QUI L'A ATTRAPÉ** : avoir demandé *« avec quoi ce vert est-il peint ? »* **avant** de
+toucher aux bords — et la réponse fut un troisième mécanisme que je n'avais pas dans ma liste
+(`gear-porte::before` peint déjà son 40 par `--bouton-retrait-v`, `.sac-tuner` par un masque sur
+sa boîte de contenu, `.sac-poignee` par une pastille à cote propre). ⭐ **Trois familles, trois
+mécanismes** : une mesure qui n'en connaît qu'un conclut faux sur les deux autres.
+🔴 **J'AI D'AILLEURS CONCLU FAUX EN CHEMIN, ET C'EST LA MÊME FAUTE** : ayant relevé que
+`border-width` sans `border-style` calcule `0`, j'ai annoncé *« 5 cotes de bord sur 12 sont
+jetées »*. ⛔ **Inexact** — pour la famille `gear-porte`, le dessin de 40 est bel et bien peint,
+par `::before`, et le `border-width` n'y est que redondant. ⭐ *Une mesure demande trois lectures :
+déclaré · rendu · **et par quel organe***.
+⭐ **LA RÉPARATION EST UN RETRAIT** : `inset: 0` fait tenir à l'enfant la boîte de contenu du
+parent — c'est-à-dire exactement le dessin que `feuilleDesCotesSac()` pose. ⛔ Plus aucun littéral,
+et un seul écrivain.
+🛡️ **LE TÉMOIN** : `tests/sac-ecran.test.mjs` n° 15, ③ — il exige `inset: 0` **et refuse** toute
+`inline-size`/`block-size` propre à la pastille. Éprouvé rouge en lui rendant son `--sp-24`.
+
+---
+
+### 🪞 UN MIROIR SE PREND SUR LE DESSIN, PAS SUR LA CIBLE
+📍 `cadre-un-miroir-se-prend-sur-le-dessin` · vivante · 19/09
+⚖️ **Dès qu'un dessin est DÉCENTRÉ dans sa cible, toute transformation qui le retourne doit prendre son origine sur le DESSIN — `transform-box: content-box`. ⛔ Par défaut `transform-origin` se résout sur la boîte de BORDURE, et le glyphe se déplace de la différence des deux bords.**
+
+> Eric, 2026-09-19, sur le sac en ligne : **« le chevron droit est mal placé »**.
+
+🔴 **LA BOÎTE ÉTAIT JUSTE ET LE DESSIN FAUX** — exactement la famille du livre et du `?` de la veille,
+et pour la même raison : ce qui s'était décroché n'était pas la boîte. La cible du chevron gauche
+mesure `0..44`, celle du droit `331..375` : **symétriques au blg près**. Donc `getBoundingClientRect`
+ne voyait rien, le garde des cotes ne voyait rien, et **2322 témoins verts ne disaient rien**.
+📏 **MESURÉ DANS L'APPLICATION, PAR LA PORTE `Backpack`, AVEC UN VRAI PERSONNAGE** : dessin déclaré
+`361..371`, **peint `335..345`** — 26 blg à gauche, **par-dessus le mot du dernier cran**, qui lisait
+« Storage » au lieu de « Storage 2 ». ⭐ Le symptôme visible n'était pas le chevron : c'était un mot
+tronqué qu'on aurait cherché dans la largeur du cran.
+⚖️ **LA CAUSE** : `transform-origin` prend par défaut le centre de la boîte de bordure — **22**. Or
+depuis le 18/09 (section ci-dessus) le dessin d'un tuner est décentré dans sa cible, centre **35**.
+Mirer autour de 22 ce qui est centré sur 35 le déplace de `2 × (35 − 22)` = **26**, soit exactement
+`bord gauche − bord droit` (`30 − 4`). ⭐ **Zéro tant que la cible est centrée** : voilà pourquoi la
+faute est née le jour même du rabattement, et pas avant.
+⭐ **LA RÉPARATION DIT LA MÊME PHRASE QUE LE GLYPHE, AU MIROIR** : `background-clip: content-box` dit
+déjà *« peins-toi dans le dessin, pas dans la cible »* ; `transform-box: content-box` dit
+*« retourne-toi autour du dessin, pas autour de la cible »*. ⛔ **Elle n'écrit aucune cote** : 26 ne
+figure nulle part, il se déduit des bords.
+
+🔬 **ET LE PIÈGE DE MESURE, QUI COMPTE PLUS QUE LA FAUTE** : `getComputedStyle(n).transformOrigin`
+rend **`22px 22px` dans les deux cas** — avec et sans `transform-box`. Un témoin bâti dessus aurait
+conclu *« rien n'a changé »* et **menti dans le sens rassurant**. ⭐ Ce qui a tranché est une **sonde
+posée dans la boîte de contenu** (un enfant à `width/height: 100%`) : son rect subit le transform de
+son parent, donc il dit où le dessin **se peint**. ⚖️ *Une origine ne se lit pas dans la propriété qui
+la nomme — elle se lit dans ce qu'elle déplace.*
+
+🛡️ **LE TÉMOIN** : `tests/sac-ecran.test.mjs` n° 20, **éprouvé rouge** (message : *« TUNER G et TUNER D
+ont un dessin DÉCENTRÉ dans leur cible (écarts 4/30 · 30/4), et la feuille les mire »*). ⭐ Il
+s'ancre sur la **DONNÉE** — il ne pose la question que pour les organes que `sac-disposition.mjs` dit
+décentrés, et se tait tout seul si le plan les recentre. ⛔ Et il **refuse d'être tautologique** : il
+exige d'abord qu'un miroir existe, sinon il accuse au lieu de passer vert sur un écran vide.
 
 ---
 

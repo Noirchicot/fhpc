@@ -37,8 +37,14 @@ const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui
 const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
-  lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection
+  lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection,
+  sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans,
+  rangsDesSections, cheminDuRang, CHEMIN_RANG_PARTY
 } = await import("../ui/builder/equipment-step.mjs");
+/* ⛔ LA TAILLE D'UNE PAGE NE SE RETAPE PAS : elle se compte dans le plan du sac
+   (`sac-disposition.mjs` → `CASES_DU_SAC`). Un 12 écrit ici serait un nombre de plus
+   à tenir d'accord avec la grille. */
+const { CASES_DU_SAC } = await import("../ui/builder/sac-ecran.mjs");
 
 const fixture = exempleFhEn();
 const { build, layers } = fixture;
@@ -725,4 +731,163 @@ test("P5 — 🔴 LA PORTE `Backpack` OUVRE LE SAC B1, et `Storage` n'est plus o
      du panneau de poids. Un objet déjà rangé là est compté, pas effacé. */
   assert.match(ecran, /autre: mot\(p\.compte\.storage/,
     "la ligne `Other` doit continuer de dire ce qui est rangé à la remise");
+});
+test("P8 — 🔴 UNE SEULE LISTE DE SECTIONS, et c'est CELLE QU'ON REGARDE", () => {
+  /* 🔴 LA FAUTE, MESURÉE DANS L'APPLICATION LE 19/09 AU SOIR. Le rendu composait
+     `[party, …les miennes]` — le party a pris la tête ce jour-là — pendant que
+     `surPlacer` recomposait `[…les miennes, party]` pour retrouver la section visée.
+     Or l'index du viseur (`sectionSac`) compte sur ce qu'on VOIT. Les deux listes
+     divergeaient donc par leur ORDRE **et** par leur SOURCE (`currentSections` seul
+     contre le socle complété), et `Math.min(…, length - 1)` bornait l'écart au lieu
+     de le crier.
+     📏 CE QUE ÇA FAISAIT : un objet lâché sur une case de `Backpack dropdown` partait
+     dans `Party bag`, et de là — sa clef n'étant pas `sN` — ressortait **équipé sur le
+     corps**. Trois pas, aucun cri, 2324 témoins verts.
+     ⭐ C'EST LA TROISIÈME VICTIME DU MÊME DÉPLACEMENT (après la boîte par défaut des
+     envois et le viseur du `+`) : *une position déduite d'une liste qu'on réordonne
+     est une bombe à retardement*. On ne la désamorce qu'en n'ayant qu'UNE liste. */
+
+  /* ① LE PARTY OUVRE LA LISTE — Eric, 19/09 */
+  const nue = sectionsDuSac({});
+  assert.equal(nue[0].index, SECTION_PARTY.clef, "⚖️ *« Party inventory · Backpack dropdown · Storage 1… »*");
+  assert.equal(nue[0].party, true);
+  assert.equal(nue[0].renommable, false, "⛔ on ne rebaptise pas une place qu'on n'a pas faite");
+
+  /* ② LE DÉPÔT EST LE PREMIER DES MIENNES, ⛔ pas le premier de la liste */
+  assert.equal(nue[1].index, SECTION_DEPOT, "c'est là que tombe un envoi sans boîte");
+  assert.equal(nue.length, 1 + SECTIONS_DU_SAC, "le party, puis les six du socle");
+
+  /* ③ UNE SECTION AJOUTÉE SE RANGE APRÈS LE SOCLE, et le party garde la tête */
+  const avecUne = sectionsDuSac({ build: { choices: [
+    { path: `backpack.sections[${SECTIONS_DU_SAC}].name`, value: "Cheval" }] } });
+  assert.equal(avecUne[0].index, SECTION_PARTY.clef, "⛔ une section neuve ne détrône pas le party");
+  assert.equal(avecUne.length, 1 + SECTIONS_DU_SAC + 1);
+  assert.equal(avecUne[avecUne.length - 1].nom, "Cheval");
+
+  /* ④ ET IL N'Y A PLUS DE SECONDE COMPOSITION DANS LE FICHIER — ⛔ c'était ÇA, la faute */
+  const source = stripComments(fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8"));
+  const compositions = [...source.matchAll(/SECTION_PARTY\.clef,\s*nom:\s*SECTION_PARTY\.nom/g)].length;
+  assert.equal(compositions, 1,
+    "⛔ le party ne se compose dans une liste qu'à UN endroit : `sectionsDuSac`.\n" +
+    "   Une seconde composition rediverge au premier réordonnancement — elle l'a déjà fait.");
+});
+test("P9 — 🔴 UNE SECTION MONTRE CE QU'ELLE CONTIENT, ⛔ pas seulement ce qui pèse", () => {
+  /* 🔴 LA FAUTE, MESURÉE DANS L'APPLICATION LE 19/09 AU SOIR, et elle était SILENCIEUSE
+     À MOITIÉ — ce qui est pire qu'un silence entier. Un objet envoyé au `Party bag`
+     était rangé POUR DE VRAI : le panneau affichait « Other · 1 item », le sac avait
+     perdu sa ligne, rien n'était équipé. ⛔ Et sa section le montrait **vide**, parce
+     que le filtre ne retenait que `location: "backpack"`.
+     ⭐ UN COMPTE JUSTE NE DIT RIEN DU CONTENU : c'est la règle du corpus, prise en
+     défaut par son propre écran.
+     ⚠️ ET L'ÉLARGIR NAÏVEMENT RÉVEILLAIT DES FANTÔMES : la REMISE (SB3.3) porte elle
+     aussi `storage`, mais SANS boîte — or une ligne sans boîte tombe au DÉPÔT. Toute
+     la remise y serait apparue. Le départage est donc fin, et ce garde le tient. */
+  const DEPOT = boiteDeSection(SECTION_DEPOT);
+  const PARTY = boiteDeSection(SECTION_PARTY.clef);
+  const l = (index, location, boite, place) => ({ index, location, ...(boite ? { boite } : {}), ...(place === undefined ? {} : { place }) });
+
+  const lignes = [
+    l(1, "backpack", DEPOT, 0),      /* dans le dépôt, nommé */
+    l(2, "backpack", undefined, 1),  /* sans boîte → le dépôt, c'est le défaut */
+    l(3, "storage", PARTY, 0),       /* 🔴 le sac du groupe : rangé, et il doit SE VOIR */
+    l(4, "storage", undefined),      /* ⚠️ LA REMISE : storage SANS boîte */
+    l(5, "self", "tete1"),           /* porté */
+    l(6, "ground", "sol1"),          /* au sol */
+  ];
+
+  assert.deepEqual(lignesDeSection(lignes, DEPOT, DEPOT).map((x) => x.index), [1, 2],
+    "⭐ le dépôt prend les siennes ET celles qui ne nomment pas de boîte");
+  assert.deepEqual(lignesDeSection(lignes, PARTY, DEPOT).map((x) => x.index), [3],
+    "🔴 le party bag montre ce qu'on lui a envoyé — c'est la faute du 19/09");
+  assert.ok(!lignesDeSection(lignes, DEPOT, DEPOT).some((x) => x.index === 4),
+    "⛔ ET LA REMISE NE TOMBE PAS DANS LE DÉPÔT : elle est `storage` SANS boîte, donc elle n'est d'aucune section");
+  assert.deepEqual(lignesDeSection(lignes, boiteDeSection(1), DEPOT).map((x) => x.index), [],
+    "une section vide reste vide");
+  for (const b of [DEPOT, PARTY]) {
+    assert.ok(!lignesDeSection(lignes, b, DEPOT).some((x) => [5, 6].includes(x.index)),
+      "⛔ ni le porté ni le sol n'entrent dans une section du sac");
+  }
+});
+test("P10 — 🔴 UNE PLACE NEUVE SE COMPTE DANS SA SECTION, ⛔ pas dans tout le sac", () => {
+  /* 🔴 LA FAUTE, MESURÉE À L'ÉCRAN LE 19/09 AU SOIR, et c'est la QUATRIÈME du même
+     genre en un jour. `lignesDeSection` prend DEUX boîtes : celle qu'on veut, et celle
+     où vivent les lignes qui n'en nomment aucune. La coquille passait la MÊME aux deux
+     places. Envoyer un objet vers le `Party bag` faisait donc compter TOUT le sac comme
+     étant déjà dans le party — la première place libre tombait à 7, et l'objet
+     atterrissait au milieu d'une section vide, sans que rien ne crie.
+     ⭐ *Un défaut exprimé par la POSITION d'un argument est un défaut qu'on redonne faux
+     un jour.* Le dépôt se NOMME maintenant, dans `placeNeuveDans`, une seule fois. */
+  const PARTY = boiteDeSection(SECTION_PARTY.clef);
+  /* sept objets du sac qui ne nomment PAS leur boîte : ils vivent au dépôt */
+  const sansBoite = [...Array(7).keys()].map((i) => ({ index: i, location: "backpack", place: i }));
+
+  assert.equal(placeNeuveDans(sansBoite, PARTY, CASES_DU_SAC), 0,
+    "⭐ le party est VIDE : le premier objet qu'on y envoie va en haut à gauche");
+  assert.equal(placeNeuveDans(sansBoite, boiteDeSection(SECTION_DEPOT), CASES_DU_SAC), 7,
+    "⛔ et dans le DÉPÔT, les sept comptent bel et bien — c'est là qu'elles vivent");
+
+  /* ⭐ ET UNE SECTION QUI PORTE DÉJÀ COMPTE LES SIENNES, pas celles des voisines */
+  const melange = [...sansBoite,
+    { index: 20, location: "storage", boite: PARTY, place: 0 },
+    { index: 21, location: "storage", boite: PARTY, place: 1 }];
+  assert.equal(placeNeuveDans(melange, PARTY, CASES_DU_SAC), 2,
+    "deux dans le party → la place 2 ; ⛔ les sept du dépôt n'y sont pour rien");
+
+  /* ⭐ ET LE TROU SE REMPLIT AVANT LA FIN — *« prochain emplacement dispo »* */
+  const troue = [{ index: 30, location: "storage", boite: PARTY, place: 0 },
+                 { index: 31, location: "storage", boite: PARTY, place: 2 }];
+  assert.equal(placeNeuveDans(troue, PARTY, CASES_DU_SAC), 1, "le trou d'abord, pas la fin");
+});
+test("P11 — ⚖️ L'ORDRE DES SECTIONS SURVIT AU PERSONNAGE, et le party se déplace aussi", () => {
+  /* ⚖️ Eric, 19/09 au soir : *« edit mode comprenant le déplacement des storage »*, et
+     pour le sac du groupe : *« on peut changer sa position, mais pas l'effacer ni la
+     renommer »*. ⭐ Donc l'ordre PORTE le party — et c'est ce qui a forcé la forme.
+     📏 MESURÉ CONTRE LE MOTEUR AVANT D'ÊTRE ÉCRIT (protocole P1) : un scalaire par
+     section passe propre. ⛔ ET LA LISTE A ÉTÉ REFUSÉE, mot pour mot : *« set n'accepte
+     qu'un scalaire — une structure serait une règle déguisée »*. L'ordre est donc N
+     scalaires, jamais un tableau, et le party a SON chemin puisqu'il n'a pas d'index. */
+
+  /* ① LES DEUX CHEMINS, ET POURQUOI ILS SONT DEUX */
+  assert.equal(cheminDuRang(3), "backpack.sections[3].rang");
+  assert.equal(cheminDuRang(SECTION_PARTY.clef), CHEMIN_RANG_PARTY,
+    "⛔ la clef du party est un MOT : son rang ne peut pas vivre sous `sections[N]`");
+
+  /* ② LE LECTEUR PREND LES DEUX */
+  const doc = { build: { choices: [
+    { path: CHEMIN_RANG_PARTY, value: 2 },
+    { path: "backpack.sections[0].rang", value: 0 },
+    { path: "backpack.sections[1].rang", value: 1 }] } };
+  const rangs = rangsDesSections(doc);
+  assert.equal(rangs.get(SECTION_PARTY.clef), 2);
+  assert.equal(rangs.get(0), 0);
+
+  /* ③ ET LA ROUE OBÉIT — le party n'ouvre plus la liste s'il a été déplacé */
+  const vue = sectionsDuSac(doc).map((x) => x.index);
+  assert.deepEqual(vue.slice(0, 3), [0, 1, SECTION_PARTY.clef],
+    "⚖️ *« on peut changer sa position »* — le party est descendu en 3ᵉ, et la roue le suit");
+
+  /* ④ 🔴 CE QUI N'A PAS DE RANG PASSE APRÈS, DANS SON ORDRE NATUREL — et c'est délibéré.
+     ⛔ L'inverse (l'ordre naturel qui reprend la main dès qu'un rang manque) aurait fait
+     s'effondrer tout le rangement du joueur à la PREMIÈRE section créée ensuite. */
+  /* ⛔ LE RESTE SE DÉDUIT DU SOCLE, il ne se retape pas : j'avais écrit `[2, 3, 4, 5]`
+     en croyant le socle à six, et il en porte QUATRE. Un nombre recopié dans un garde
+     est un nombre qui ment le jour où la source bouge — ici il a menti tout de suite. */
+  const restantes = [...Array(SECTIONS_DU_SAC).keys()].filter((i) => i >= 2);
+  assert.deepEqual(vue.slice(3), restantes,
+    "les sans-rang suivent, dans leur ordre naturel — une section neuve apparaît au bout");
+
+  /* ⑤ UN SAC VIERGE GARDE L'ORDRE NATUREL : le party ouvre la liste (19/09) */
+  assert.equal(sectionsDuSac({})[0].index, SECTION_PARTY.clef);
+
+  /* ⑥ ⛔ ET LE TRI EST TOTAL : à rang égal — ce qui ne devrait pas arriver, puisqu'un
+     déplacement RENUMÉROTE tout — c'est la place naturelle qui départage. Un tri qui
+     laisse deux éléments interchangeables rend un ordre différent d'un rendu à l'autre,
+     et personne ne voit pourquoi l'écran bouge. */
+  const exaequo = { build: { choices: [
+    { path: "backpack.sections[0].rang", value: 1 },
+    { path: "backpack.sections[2].rang", value: 1 }] } };
+  const a = sectionsDuSac(exaequo).map((x) => x.index);
+  const b = sectionsDuSac(exaequo).map((x) => x.index);
+  assert.deepEqual(a, b, "deux rendus, le même ordre");
+  assert.ok(a.indexOf(0) < a.indexOf(2), "⭐ à rang égal, la place naturelle tranche");
 });

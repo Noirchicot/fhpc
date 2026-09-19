@@ -23,21 +23,26 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=690";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=690";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=701";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=701";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=690";
+import { armerJeton, fantome } from "./glisser.mjs?v=701";
+/* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
+   existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
+   fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
+   ⛔ On importe l'organe, on ne le redessine pas. */
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=701";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=690";
+import { facteurZoomCourant } from "./echelle.mjs?v=701";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -229,18 +234,40 @@ function roue(options) {
      🔴 ET C'EST L'INVERSE DE CE QUE J'AVAIS FAIT HIER — j'avais mis un `+` unique SUR
      l'anneau, pour qu'un ruban infini garde un endroit où créer. Eric le sort de
      l'anneau : un bouton qui défile est un bouton qu'on doit chercher. */
-  const bouts = edition ? 1 : 0;
+  /* ⛔ EN DÉPLACEMENT, LES DEUX `+` S'EFFACENT — *« le x, +, / disparaissent pour voir
+     l'ordre des sections »*. ⭐ On ne les CACHE pas, on ne les REND pas : un organe
+     absent ne se tape pas, un organe caché se tape encore. */
+  const deplacement = options.deplacement != null;
+  const bouts = (edition && !deplacement) ? 1 : 0;
   const fenetre = 5 - 2 * bouts;                 /* 5 au repos, 3 en édition */
   for (let i = 0; i < 5; i += 1) {
     const dom = i === 2;
-    if (edition && (i === 0 || i === 4)) {
+    /* ⛔ `bouts` ET NON `edition` : c'est `bouts` qui dit si les deux places du bout
+       appartiennent aux `+`. Tester `edition` ici laissait les deux `+` rendus alors
+       que la fenêtre était déjà passée à cinq — ils recouvraient deux sections. */
+    if (bouts && (i === 0 || i === 4)) {
       const dehors = i === 4;
-      const p = el("button", "sac-cran", "+");
+      const p = el("button", "sac-cran");
       p.type = "button";
       p.dataset.organe = `cran-${i + 1}`;
       p.dataset.dominant = "non";
       p.dataset.role = "ajouter";
       if (dehors) p.dataset.lieu = "dehors";
+      /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE, EN TROIS ÉTAGES — Eric, 2026-09-19 :
+        *« au dessus et en dessous du + vert : backpack / + / Storage »* ·
+        *« au dessus et en dessous du + doré : Other / + / Storage »*.
+        ⭐ LES DEUX MOTS SONT LA PHRASE, PAS UNE DÉCORATION : le vert crée un rangement
+        qui pèse dans `Backpack`, le doré un rangement qui compte dans `Other` — et c'est
+        `Other` lui-même, le mot du panneau de poids, qui le dit. ⛔ Un `+` nu obligeait
+        à connaître la couleur pour savoir ce qu'on allait créer.
+        ⛔ ET LE MOT N'EST PAS RECOPIÉ DEUX FOIS : `Storage` est celui que
+        `nomDeSectionParDefaut` donne déjà aux sections créées — le `+` montre le nom
+        que la section portera. */
+      p.append(
+        el("span", "sac-etage", dehors ? "Other" : "backpack"),
+        el("span", "sac-cran-signe", "+"),
+        el("span", "sac-etage", "Storage"),
+      );
       p.setAttribute("aria-label", dehors ? "New section outside the backpack" : "New backpack section");
       p.addEventListener("click", () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
       r.append(p);
@@ -298,10 +325,90 @@ function roue(options) {
     else if (sections[idx].party === true) c.dataset.lieu = "party";
     c.setAttribute("role", "tab");
     c.setAttribute("aria-selected", String(dom));
+    /* ⭐ SA POSITION DANS LA LISTE, AU DOM : c'est par elle que le doigt saura, en
+       plein glisser, SUR QUELLE section il passe. ⛔ Recalculer la place depuis les
+       coordonnées serait refaire, en moins sûr, ce que la mise en page sait déjà. */
+    c.dataset.position = String(idx);
+    /* ⭐ ET CELUI QU'ON TIENT LE DIT — sans ça on déplace à l'aveugle. */
+    if (options.deplacement === idx) c.dataset.tenu = "oui";
     if (!dom && options.surSection) c.addEventListener("click", () => options.surSection(idx));
+    armerLeDeplacement(c, idx, options);
     r.append(c);
   }
   return r;
+}
+
+/* ══ LE DÉPLACEMENT D'UNE SECTION — croquis d'Eric, 19/09 ═══════════════════
+   ⚖️ *« hold one section for 1,5 second and this mode comes on ; if you drag up to a
+   chevron the selector moves »* · *« le x, +, / disparaissent pour voir l'ordre des
+   sections »* · *« edit mode comprenant le déplacement des storage »* (19/09 au soir).
+   ⭐ LE MAINTIEN EST LA PORTE, ET IL DOIT L'ÊTRE : un simple glisser sur la roue est
+   déjà pris — c'est le BALAYAGE qui tourne les sections. Deux gestes sur la même
+   surface se départagent par le TEMPS, pas par la direction.
+   ⛔ ET UN MOUVEMENT AVANT L'ARMEMENT ANNULE : qui balaie ne maintient pas. Sans cette
+   règle, un balayage un peu lent serait devenu un déplacement, et l'ordre des sections
+   aurait bougé sous un geste qui voulait seulement naviguer. */
+export const MAINTIEN_MS = 1500;
+
+/** ⭐ LE MÊME MINUTEUR QUE LA MARGE — ⛔ pas un second. Tenir un chevron fait défiler la
+ *  roue cran par cran, et relâcher l'arrête. La règle « on ne relance rien tant que le
+ *  sens ne change pas » est celle de `regardeLaMarge`, et elle vaut ici pour la même
+ *  raison : deux minuteurs sur un même geste accélèrent sans que personne l'ait voulu. */
+function regardeLeChevron(sens, options) {
+  if (defilementVivant && defilementVivant.sens === sens) return;
+  arreteLeDefilement();
+  if (!options.surTourner) return;
+  options.surTourner(sens);
+  defilementVivant = { sens, minuteur: setInterval(() => options.surTourner(sens), REPRISE_MS) };
+}
+
+/** ⭐ LES ÉCOUTEURS VIVENT SUR `document`, PAS SUR LE CRAN — parce qu'entrer en mode
+ *  DÉPLACEMENT repeint la roue : le cran qu'on tient disparaît du DOM sous le doigt.
+ *  C'est la même loi que le glisser d'un jeton, et elle a déjà été payée ici. */
+function armerLeDeplacement(noeud, position, options) {
+  if (!options.surDeplacer) return;
+  noeud.addEventListener("pointerdown", (ev) => {
+    if (!ev || (typeof ev.button === "number" && ev.button > 0)) return;
+    const depart = { x: ev.clientX, y: ev.clientY };
+    let arme = false;
+    const fin = () => {
+      clearTimeout(minuteur);
+      document.removeEventListener("pointermove", bouger);
+      document.removeEventListener("pointerup", lacher);
+      document.removeEventListener("pointercancel", fin);
+    };
+    const bouger = (e) => {
+      if (!arme) {
+        /* ⛔ QUI BALAIE NE MAINTIENT PAS — le seuil est le plancher tactile, pas un
+           nombre choisi : en dessous, c'est un doigt qui tremble. */
+        if (Math.abs(e.clientX - depart.x) > TOUCH || Math.abs(e.clientY - depart.y) > TOUCH) fin();
+        return;
+      }
+      /* ⭐ LA DÉTECTION EST DU RESSORT DE L'ÉCRAN : c'est lui qui sait ce qu'il y a
+         sous le doigt. L'étape, elle, ne reçoit qu'une POSITION — elle n'a pas à
+         connaître le DOM. ⛔ `elementFromPoint` et pas la cible de l'événement : la
+         capture implicite du tactile renvoie l'élément où le doigt s'est POSÉ, pas
+         celui qu'il survole. C'est la faute que le banc au doigt a déjà coûtée. */
+      const sous = document.elementFromPoint
+        ? document.elementFromPoint(e.clientX, e.clientY) : null;
+      if (!sous || typeof sous.closest !== "function") return;
+      /* ⚖️ *« if you drag up to a chevron the selector moves »* — porter la section
+         jusqu'au bout fait défiler la roue sous elle. ⭐ C'est le MÊME défilement que
+         celui de la marge du sac, avec son minuteur : ⛔ pas un second. */
+      const chevron = sous.closest(".sac-tuner");
+      if (chevron) { regardeLeChevron(chevron.dataset.sens === "droite" ? 1 : -1, options); return; }
+      arreteLeDefilement();
+      const cible = sous.closest('.sac-cran[data-position]');
+      if (!cible) return;
+      const vers = Number(cible.dataset.position);
+      if (Number.isInteger(vers)) options.surDeplacer({ phase: "bouger", vers });
+    };
+    const lacher = () => { arreteLeDefilement(); if (arme) options.surDeplacer({ phase: "poser" }); fin(); };
+    const minuteur = setTimeout(() => { arme = true; options.surDeplacer({ phase: "prendre", position }); }, MAINTIEN_MS);
+    document.addEventListener("pointermove", bouger);
+    document.addEventListener("pointerup", lacher);
+    document.addEventListener("pointercancel", fin);
+  });
 }
 
 /* ══ LE DÉFILEMENT PAR LA MARGE — Eric, 18/09 ══════════════════════════════
@@ -534,6 +641,22 @@ function collecteur(options, retenu) {
   return c;
 }
 
+/** ⚖️ LES TROIS ORGANES D'ÉCHANGE, DÉCLARÉS UNE FOIS — et c'est ce qui permet de
+ *  les TENIR. 🔴 Le 19/09 au soir, les trois publiaient `surPorte(id)` et l'écouteur
+ *  n'en connaissait aucun : cliquer la bourse du sac ne produisait RIEN. Un garde qui
+ *  regardait l'écran était vert — l'écran, lui, faisait son travail.
+ *  ⭐ LA TABLE EST DONC EXPORTÉE : le témoin la lit et exige que CHAQUE organe qui a un
+ *  destinataire soit écouté. Un quatrième organe ajouté ici étend le garde tout seul.
+ *  ⛔ `inerte` n'est pas « désactivé pour l'instant » : c'est *« une place réservée se
+ *  montre inerte »* — le Group Tally n'existe qu'EN JEU, la donnée ne le porte pas à la
+ *  création, et un bouton qui accepte le doigt sans jamais répondre apprend à ne plus
+ *  toucher. */
+export const ORGANES_D_ECHANGE = Object.freeze([
+  Object.freeze({ id: "party-tally", mot: "Party Tally", inerte: true }),
+  Object.freeze({ id: "tally", mot: "Tally" }),
+  Object.freeze({ id: "purse", mot: "Purse" })
+]);
+
 /* ══ L'ÉCRAN ══════════════════════════════════════════════════════════════ */
 
 /** @param {object} options
@@ -601,6 +724,13 @@ export function construireLeSac(options = {}) {
   /* ⭐ LA BOÎTE SOUS LE VISEUR — celle dont parlent les deux poignées. ⛔ `undefined`
      quand le viseur est sur le `+` : la liste des sections ne le porte pas, et c'est
      par cette forme-là que les poignées savent se taire, pas par un test de plus. */
+  /* ⚖️ LE MODE DÉPLACEMENT VIT SUR LA DALLE, comme le mode édition — ⛔ pas dans cinq
+     organes. C'est LUI qui efface les poignées et qui rend la roue opaque : *« le x, +,
+     / disparaissent pour voir l'ordre des sections »*, et le croquis montre toute la
+     roue sur un fond crème. ⭐ `--surface` EST ce crème (`#ebe8e1`), et il bascule tout
+     seul la nuit — la roue sort du verre, ce qui dit exactement le geste en cours. */
+  const deplacementVu = options.deplacement != null;
+  if (deplacementVu) noeud.dataset.deplacement = "oui";
   const sectionsVues = options.sections || [];
   /* ⛔ ET ON NE BORNE PAS L'INDEX : borné, le viseur posé sur le `+` retombait sur la
      DERNIÈRE section, et les deux poignées paraissaient en proposant de renommer une
@@ -621,7 +751,7 @@ export function construireLeSac(options = {}) {
      dans une place qui n'existe pas encore. ⭐ Rien à écrire pour ça — la liste des
      sections ne porte pas le `+`, donc `figee` est absente quand le viseur est
      dessus. Un cas qui se règle par la forme des données ne se règle pas deux fois. */
-  if (edition && figee) {
+  if (edition && !deplacementVu && figee) {
     const effacer = bouton("sac-poignee", "×", "Delete this section",
       () => options.surSupprimer && options.surSupprimer());
     effacer.dataset.organe = "effacer";
@@ -670,8 +800,8 @@ export function construireLeSac(options = {}) {
   const sections = bouton("bouton gear-porte sac-outil", "",
     edition ? "Done editing sections" : "Edit sections",
     () => options.surSections && options.surSections());
-  sections.append(el("span", "sac-outil-etage", edition ? "done" : "edit"),
-                  el("span", "sac-outil-etage", "sections"));
+  sections.append(el("span", "sac-etage", edition ? "done" : "edit"),
+                  el("span", "sac-etage", "sections"));
   sections.dataset.organe = "sections";
   sections.dataset.porte = "sections";
   sections.dataset.on = edition ? "true" : "false";
@@ -752,10 +882,15 @@ export function construireLeSac(options = {}) {
      📌 `data-compte` porte l'état du parchemin : à `"0"` il s'efface (Eric, 16/09 :
      le tally vide ne s'entoure pas, il RECULE). */
   const compteurs = options.compteurs || {};
-  for (const [id, mot] of [["party-tally", "Party Tally"], ["tally", "Tally"], ["purse", "Purse"]]) {
+  for (const { id, mot } of ORGANES_D_ECHANGE) {
     const b = bouton("gear-bouton", "", mot, () => options.surPorte && options.surPorte(id));
     b.dataset.organe = id;
     if (id !== "purse") b.dataset.compte = String(compteurs[id] || 0);
+    /* ⚖️ ET LE GROUP TALLY SE MONTRE INERTE, il ne fait pas SEMBLANT — la loi du
+       produit : *« une place réservée se montre inerte »*. ⛔ Il n'existe qu'EN JEU ;
+       à la création la donnée ne le porte pas. Un bouton qui accepte le doigt et ne
+       répond jamais apprend à ne plus toucher — c'est pire qu'un bouton éteint. */
+    if (ORGANES_D_ECHANGE.find((o) => o.id === id).inerte) b.disabled = true;
     noeud.append(b);
   }
   /* ⛔ ET PAS DE BOUTON `party inventory` DANS CETTE RANGÉE — Eric l'a demandé le
@@ -867,5 +1002,12 @@ export function construireLeSac(options = {}) {
      ⚠️ Conséquence assumée : au banc la rangée n'a pas de `?`, parce que le banc
      n'a pas de coquille. Un banc qui en fabriquerait un mentirait dans l'autre
      sens — il montrerait un organe que l'écran ne porte pas. */
+
+  /* ⚖️ LA BOURSE EST UN POPUP, PAS UNE VUE — Eric, 16/09 : *« ça prend la place que ça
+     doit, c'est un popup »*. ⛔ Elle ne passe donc pas par une vue : une vue
+     remplacerait l'écran et écrirait la 3ᵉ ligne du belt ; un popup recouvre et
+     n'écrit rien. ⭐ ET C'EST L'ORGANE DE R, importé — le sac n'a pas sa bourse à lui.
+     📌 EN DERNIER DANS LE NŒUD, comme sur R : il recouvre, donc il vient après. */
+  if (options.bourseOuverte) noeud.append(popupDeLaBourse(options));
   return { noeud };
 }

@@ -58,14 +58,14 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=690";
-import { BOITES } from "./b3-disposition.mjs?v=690";
-import { armerJeton, fantome } from "./glisser.mjs?v=690";
+import * as D from "./gear-disposition.mjs?v=701";
+import { BOITES } from "./b3-disposition.mjs?v=701";
+import { armerJeton, fantome } from "./glisser.mjs?v=701";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=690";
-import { versionQuery } from "./version.mjs?v=690";
-import { enGP } from "./equipement-pipeline.mjs?v=690";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=701";
+import { versionQuery } from "./version.mjs?v=701";
+import { enGP } from "./equipement-pipeline.mjs?v=701";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -140,11 +140,18 @@ function poserLeLibelle(span, mot, numero) {
  *  destinataire. `actif: false` : la destination existe (X3 Tally, B3 Craft)
  *  mais son écran n'est pas encore là — on la montre, on ne la laisse pas
  *  choisir : un envoi vers nulle part serait un objet perdu. */
+/* ⚖️ ET LE PARTY BAG EN EST UNE, MÊME SANS SON ÉCRAN — Eric, 2026-09-19 au soir :
+   *« les envois vers party bag, même si party bag n'existe pas encore »*.
+   ⭐ SA DESTINATION EXISTE DÉJÀ POUR DE VRAI : c'est un cran de la roue du sac depuis
+   le 19/09, avec sa grille et ses places. Ce qui n'existe pas, c'est son ÉCRAN à lui —
+   or on n'envoie pas vers un écran, on envoie vers un LIEU. ⛔ Elle est donc `actif`,
+   contrairement à Tally et Craft, dont le destinataire, lui, n'a pas de lieu. */
 export const DESTINATIONS = Object.freeze([
-  { valeur: "backpack", mot: "Backpack", actif: true },
-  { valeur: "self",     mot: "Gear",     actif: true },
-  { valeur: "tally",    mot: "Tally",    actif: false },
-  { valeur: "craft",    mot: "Craft",    actif: false }
+  { valeur: "backpack", mot: "Backpack",  actif: true },
+  { valeur: "self",     mot: "Gear",      actif: true },
+  { valeur: "party",    mot: "Party bag", actif: true },
+  { valeur: "tally",    mot: "Tally",     actif: false },
+  { valeur: "craft",    mot: "Craft",     actif: false }
 ]);
 
 function eld(balise, classe, texte) {
@@ -596,7 +603,13 @@ function boutonCompanions(id) {
  *  ⛔ LES `+`/`−` NE SONT PAS DES BOUTONS À MOT : ils portent un GLYPHE, donc ni
  *  l'habit de la famille ni son liseré de rôle (NORMES : « un bouton à glyphe
  *  n'en porte pas »). Ils prennent le corps et le rayon, rien de plus. */
-function bourseOuverte(options) {
+/* ⭐ EXPORTÉ LE 19/09 AU SOIR : le sac ouvre LA MÊME bourse. ⛔ Pas une copie — c'est
+   la quatrième fois que la doctrine d'organe s'applique dans ce lot, après
+   l'interrupteur, le collecteur et le jeton. Deux bourses divergeraient au premier
+   réglage, et celle-ci porte déjà le plafond à cinq chiffres et le total en K.
+   ⏳ DETTE DE NOM, NOMMÉE : `gear-voile` et `gear-bourse` disent encore l'écran qui
+   l'a portée le premier, comme `gear-collecteur`. Les deux descendront ensemble. */
+export function popupDeLaBourse(options) {
   const v = eld("div", "gear-voile");
   v.dataset.organe = "bourse-voile";
   /* ⛔ ON FERME SUR LE VOILE LUI-MÊME, PAS SUR CE QUI REMONTE : `e.target === v`
@@ -798,6 +811,6 @@ export function construireLEcranGear(options = {}) {
   noeud.append(rangee(options));
   /* ⭐ EN DERNIER, DONC AU-DESSUS : un popup recouvre ce qu'il interrompt, et
      l'ordre du DOM suffit à le dire — aucun `z-index` à accorder avec personne. */
-  if (options.bourseOuverte) noeud.append(bourseOuverte(options));
+  if (options.bourseOuverte) noeud.append(popupDeLaBourse(options));
   return { noeud };
 }
