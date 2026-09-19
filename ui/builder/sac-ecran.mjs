@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=730";
-import { versionQuery } from "./version.mjs?v=730";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=730";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=731";
+import { versionQuery } from "./version.mjs?v=731";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=731";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=730";
+import { armerJeton, fantome } from "./glisser.mjs?v=731";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=730";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=731";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=730";
+import { facteurZoomCourant } from "./echelle.mjs?v=731";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -470,6 +470,16 @@ export function poserLesDalles() {
 
 export const MAINTIEN_MS = 1500;
 
+/** ⏱️ LE PÉAGE DU JETON — Eric, 2026-09-19 : *« 350 ms sur jeton, swipe désactivé, fait
+ *  tout passer en mode drag'n'drop… si on n'est pas en mode drag le swipe fonctionne »*.
+ *  🧊 ET CE N'EST PAS UNE COTE NEUVE : c'est celle que le jeton portait jusqu'au 20/08,
+ *  quand la grille des sorts avait encore un ascenseur. Eric l'avait fait retirer avec sa
+ *  cause ; le sac fait revenir la cause, la cote revient avec.
+ *  ⭐ ET C'EST LE SPRINGBOARD D'iOS, son autre mot du même soir : on tient une app avant
+ *  de pouvoir la porter. Le péage n'est pas une rustine, c'est le prix universel de deux
+ *  gestes sur les mêmes pixels. */
+export const PEAGE_JETON_MS = 350;
+
 /** ⭐ LE MÊME MINUTEUR QUE LA MARGE — ⛔ pas un second. Tenir un chevron fait défiler la
  *  roue cran par cran, et relâcher l'arrête. La règle « on ne relance rien tant que le
  *  sens ne change pas » est celle de `regardeLaMarge`, et elle vaut ici pour la même
@@ -628,6 +638,9 @@ function regardeLaMarge(x, options, pisteNoeud) {
  *  collecteur) : deux copies divergeraient au premier réglage. */
 function glisserDuSac(noeud, index, options, surDepot, pisteNoeud) {
   armerJeton(noeud, {
+    /* ⏱️ LE PÉAGE, ET IL N'EST PAS GÉNÉRAL : il vit ici parce que le sac a un ascenseur.
+       ⛔ Species et les sorts n'en ont pas, donc pas de péage — la loi du 20/08 tient. */
+    maintien: PEAGE_JETON_MS,
     onTap: () => options.surJeton && options.surJeton(index),
     onLever: (x, y) => fantome.lever(noeud, x, y),
     onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, options, pisteNoeud); },
@@ -1111,13 +1124,34 @@ export function construireLeSac(options = {}) {
     return k < 0 ? 0 : k;
   };
   const dalleDuCran = (cran) => premiereDalleDe(Math.max(0, r.section(cran)));
+  /* ⭐ ET SA RÉCIPROQUE : de quelle section parle la dalle `k` ? ⛔ Une LECTURE — c'est la
+     dalle elle-même qui le dit, parce qu'une section peut en valoir deux. */
+  const sectionDeLaDalle = (k) => {
+    const d = dalles[Math.max(0, Math.min(dalles.length - 1, k))];
+    return d ? (d.section | 0) : 0;
+  };
 
   let enAttente = false;
+  let enAttenteDalles = false;
   let repos = null;
   let derniereDalle = options.dalle | 0;
 
+  /* ══ 🎚️ L'ARBITRE — un maître par geste, ⛔ jamais deux ═══════════════════════
+     ⚖️ Eric, 2026-09-19 : *« si on n'est pas en mode drag le swipe fonctionne »* — donc
+     les DEUX surfaces défilent au doigt, la roue et les dalles.
+     🔴 ET DEUX DÉFILEURS VERROUILLÉS L'UN À L'AUTRE OSCILLENT : chacun lit l'autre et le
+     corrige à l'image suivante, indéfiniment. ⛔ Ce n'est pas une question de réglage,
+     c'est une boucle.
+     ⭐ LA PARADE TIENT EN UN MOT : celui que le doigt a TOUCHÉ mène, et il n'écrit que
+     dans l'autre. Le `pointerdown` le désigne, et rien d'autre ne le change — donc il n'y
+     a jamais deux écrivains en même temps, par construction et pas par réglage. */
+  let maitre = "roue";
+  r.addEventListener("pointerdown", () => { maitre = "roue"; }, { passive: true });
+  piste.addEventListener("pointerdown", () => { maitre = "dalles"; }, { passive: true });
+
   const suivre = () => {
     enAttente = false;
+    if (maitre !== "roue") return;
     const l = largeurDalle();
     if (!(l > 0)) return;
     const p = r.scrollLeft / ROUE.pas;          /* la position du ruban, en tuiles */
@@ -1151,6 +1185,41 @@ export function construireLeSac(options = {}) {
     }
     if (repos) clearTimeout(repos);
     repos = setTimeout(arrete, REPOS_MS);
+  }, { passive: true });
+
+  /* ⭐ ET LE CHEMIN INVERSE : quand c'est la DALLE qu'on pousse, c'est la roue qui suit.
+     ⛔ Le même calcul lu à l'envers — on cherche la tuile de la dalle courante, et on
+     interpole entre elle et sa voisine. Une seconde formule dériverait de la première. */
+  const suivreLesTuiles = () => {
+    enAttenteDalles = false;
+    if (maitre !== "dalles") return;
+    const l = largeurDalle();
+    if (!(l > 0) || typeof r.placer !== "function") return;
+    const p = piste.scrollLeft / l;
+    const bas = Math.floor(p);
+    const f = p - bas;
+    const a = r.rang(sectionDeLaDalle(bas));
+    const b = r.rang(sectionDeLaDalle(bas + 1));
+    r.scrollLeft = ROUE.pas * (a + (b - a) * f);
+    r.marquer(Math.round(a + (b - a) * f));
+  };
+
+  const arreteLesDalles = () => {
+    repos = null;
+    if (piste.isConnected === false || maitre !== "dalles") return;
+    const k = Math.round(piste.scrollLeft / largeurDalle());
+    if (k === derniereDalle || !dalles[k]) return;
+    derniereDalle = k;
+    if (options.surDalle) options.surDalle(k);
+  };
+
+  piste.addEventListener("scroll", () => {
+    if (!enAttenteDalles) {
+      enAttenteDalles = true;
+      (typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout)(suivreLesTuiles);
+    }
+    if (repos) clearTimeout(repos);
+    repos = setTimeout(maitre === "dalles" ? arreteLesDalles : arrete, REPOS_MS);
   }, { passive: true });
 
   /* ⭐ ET LES CHEVRONS POUSSENT LA ROUE D'UNE TUILE — du MÊME mouvement aimanté que le

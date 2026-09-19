@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=730";
+import { pageDeListe } from "./normes.mjs?v=731";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=730";
-import { swapContent } from "./socle.mjs?v=730";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=731";
+import { swapContent } from "./socle.mjs?v=731";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=730";
+import { facteurZoomCourant } from "./echelle.mjs?v=731";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -399,7 +399,21 @@ const MARQUE_ARME = "glissable";
    au premier attribut ajouté — et c'est le fantôme qui mentirait. */
 const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
 
-export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible }) {
+/* ══ 🔄 LE MAINTIEN REVIENT — EN OPTION, ET SEULEMENT LÀ OÙ SA CAUSE EST REVENUE ══
+   ⚖️ Eric, 2026-09-19 : *« 350 ms sur jeton, swipe désactivé, fait tout passer en mode
+   drag'n'drop… si on n'est pas en mode drag le swipe fonctionne »*.
+   🧊 IL AVAIT ÉTÉ RETIRÉ LE 20/08, PAR LUI, ET POUR UNE RAISON QUI TENAIT : *« il ne faut
+   plus d'ascenseurs couplés avec des actions drag and drop »*. En supprimant l'ascenseur
+   de la grille des sorts, on supprimait la CAUSE du péage.
+   ⭐ LE SAC FAIT REVENIR LA CAUSE : ses dalles défilent. Le péage revient donc AVEC elle,
+   et nulle part ailleurs — ⛔ Species et les sorts n'ont pas d'ascenseur, donc pas de
+   péage. C'est pour ça que c'est une OPTION et pas un retour global : la loi du 20/08
+   reste entière partout où elle s'applique.
+   📐 ET LA SÉQUENCE SE DÉPARTAGE TOUTE SEULE, sans rien arbitrer à la main : un doigt qui
+   BOUGE part au défilement natif bien avant 350 ms ; un doigt qui RESTE n'a rien
+   déclenché quand le minuteur tombe. C'est exactement le springboard d'iOS — on tient une
+   app avant de pouvoir la porter. */
+export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien }) {
   /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
      seule ligne de ce fichier qui parle à la feuille de style, et elle ne lui
      dit pas comment peindre : elle lui dit ce que cet organe EST. */
@@ -438,6 +452,12 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     const ancre = ancreDuGeste();
     const pointeur = ev.pointerId;
     const x0 = ev.clientX, y0 = ev.clientY;
+    /* ⏱️ LE PÉAGE : tant qu'il n'est pas payé, ce geste n'est pas un glisser. */
+    const peage = Number.isFinite(maintien) && maintien > 0;
+    let arme = !peage;
+    let minuteurDuPeage = peage
+      ? setTimeout(() => { arme = true; if (jeton.dataset) jeton.dataset.porte = "true"; }, maintien)
+      : null;
     let glisse = false;
     let vise = null;
     /* ⭐ UN GESTE FINI EST FINI — et ce drapeau n'est pas une ceinture, c'est
@@ -497,6 +517,10 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
 
     const bouge = (e) => {
       if (clos || dUnAutre(e)) return;
+      /* ⛔ SOUS PÉAGE, UN DOIGT QUI BOUGE N'EST PAS UN GLISSER : il appartient à
+         l'ascenseur, qui l'a déjà pris. ⭐ On n'a RIEN à annuler — le navigateur a
+         tranché avant nous, et c'est ce qui rend l'arbitrage gratuit. */
+      if (peage && !arme) return;
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
       if (!glisse) {
         glisse = true;
@@ -551,6 +575,11 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     const clore = () => {
       if (clos) return false;
       clos = true;
+      /* ⛔ ET LE PÉAGE MEURT AVEC SON GESTE : un minuteur qui survit arme un glisser sur
+         un doigt déjà parti — c'est la faute que ce dépôt a payée trois fois ce mois-ci
+         (le repos de la roue, le défilement de la marge, la roue jetée). */
+      if (minuteurDuPeage) { clearTimeout(minuteurDuPeage); minuteurDuPeage = null; }
+      if (peage && jeton.dataset) delete jeton.dataset.porte;
       ancre.removeEventListener("pointermove", bouge);
       ancre.removeEventListener("pointerup", fini);
       ancre.removeEventListener("pointercancel", fini);

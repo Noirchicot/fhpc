@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=730") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=731") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=730") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=731") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=730") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=731") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=730");
+  background-image: url("./assets/tarot-dos.jpg?v=731");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11789,14 +11789,35 @@ button.tuto-point::before {
    📌 La sortie qu'on n'a pas prise, pour mémoire : un balayage écrit à la main sur les
    dalles, qui aurait cédé au maintien du jeton. Elle marchait, mais elle ajoutait un
    second régime de mouvement sur une surface qui en avait déjà un. */
+/* ⏱️ ET LE JETON DU SAC LAISSE PASSER LE DÉFILEMENT TANT QU'IL N'EST PAS PORTÉ — Eric,
+   2026-09-19 : *« si on n'est pas en mode drag le swipe fonctionne »*.
+   🔴 `[data-glissable="true"]` pose `touch-action: none` sur toute surface armée, et
+   c'est juste partout ailleurs : rien ne dispute le geste à un glisser. ⛔ Ici si : les
+   dalles défilent. Le jeton rend donc l'axe horizontal au navigateur, et ne prend la main
+   qu'après le péage de 350 ms — exactement ce que faisait la grille des sorts en `pan-y`
+   jusqu'au 20/08, l'axe tourné.
+   ⚠️ ET `touch-action` S'INTERSECTE AVEC LES ANCÊTRES (mesuré au lot 206, sur iPad) : c'est
+   pour ça que la bande ne dit rien — une valeur posée plus haut écraserait celle-ci. */
+.sac-case[data-glissable="true"] { touch-action: pan-x; }
+
+/* 🔄 ET ELLES REDEVIENNENT UNE SURFACE DE GESTE — Eric, 2026-09-19 : *« si on n'est pas en
+   mode drag le swipe fonctionne »*. Elles avaient été mises en `hidden` quelques heures
+   plus tôt, sur ma réponse trop absolue (« les deux ne peuvent pas coexister ») ; le
+   springboard d'iOS prouve le contraire, et le péage de 350 ms est ce qui l'achète.
+   ⛔ DEUX DÉFILEURS QUI SE COMMANDENT L'UN L'AUTRE FONT UNE BOUCLE — chacun corrige
+   l'autre à l'image suivante, et le geste part en oscillation. ⭐ La parade n'est pas
+   dans la feuille : c'est un ARBITRE au module (`sac-ecran.mjs`), qui note lequel des
+   deux le doigt a touché et n'écrit QUE dans l'autre. Un maître par geste. */
 .sac-dalles {
   display: flex;
-  /* 🔴 `hidden` : LES DALLES SUIVENT, ELLES NE COMMANDENT PAS — Eric, 19/09 : *« le swipe
-     fait bouger les tuiles, les dalles suivent »*. ⭐ `hidden` laisse `scrollLeft`
-     s'écrire ; il n'interdit que le geste. ⛔ Deux surfaces qui se commandent l'une
-     l'autre font une boucle, et l'inertie du système se perd entre les deux. */
-  overflow: hidden;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* ⛔ `pan-x` : le geste vertical reste à la page, l'horizontal est à nous. */
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
 }
+.sac-dalles::-webkit-scrollbar { inline-size: 0; block-size: 0; }
 /* ⭐ UNE DALLE FAIT UNE LARGEUR D'ÉCRAN, et c'est ce qui rend le rapport exact : une
    tuile avance de 65 pendant qu'une dalle avance de 375. ⛔ `relative`, parce que les
    douze cases se posent DEDANS — le plan les déclare hôtées par la bande. */

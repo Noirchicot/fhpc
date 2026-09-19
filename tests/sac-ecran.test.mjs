@@ -19,7 +19,7 @@ globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
 const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
-        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, poserLesDalles } = await import("../ui/builder/sac-ecran.mjs");
+        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, poserLesDalles } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -1343,37 +1343,62 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
     "⛔ une tuile porte de nouveau le halo : il est à la LOUPE, qui ne bouge pas");
 });
 
-test("31 — ⛔ LES DALLES NE PRENNENT PAS LE DOIGT : un seul maître, et c'est la roue", () => {
-  /* ⚖️ Eric, 2026-09-19, en trois temps : *« le swipe fait bouger les tuiles, les dalles
-     suivent »* · *« les deux si ça ne crée pas de conflits »* · puis, la mesure faite :
-     *« donc pas de swipe de dalle »*.
-     🔴 LE CONFLIT QU'IL A TRANCHÉ, ET IL EST RÉEL : porter un jeton d'une dalle à l'autre
-     est un geste HORIZONTAL. Un défileur natif s'empare d'un geste horizontal dès trois
-     ou quatre pixels — il le VOLE au jeton, avant même que le maintien qui arme le
-     glisser ait eu le temps de se faire. ⛔ Les deux ne peuvent pas être natifs sur les
-     mêmes pixels.
-     ⭐ CE GARDE TIENT UNE ABSENCE, ET C'EST POUR ÇA QU'IL EXISTE : rendre les dalles
-     défilables est une ligne, elle paraît inoffensive, et ce qu'elle casse — le glisser
-     d'un objet — ne rougit nulle part. */
+test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maître par geste", () => {
+  /* ⚖️ Eric, 2026-09-19, en trois temps : *« les deux si ça ne crée pas de conflits »* ·
+     puis, sur ma réponse trop absolue, *« donc pas de swipe de dalle »* · puis, le
+     springboard d'iOS à l'appui : *« 350 ms sur jeton, swipe désactivé, fait tout passer
+     en mode drag'n'drop… si on n'est pas en mode drag le swipe fonctionne »*.
+     🔴 CE GARDE A TENU LA DÉCISION INVERSE PENDANT UNE HEURE, et c'est ma faute : j'avais
+     répondu que le swipe et le glisser ne pouvaient PAS coexister. iOS le fait. Ce qui
+     l'achète est un PÉAGE — on tient une app avant de pouvoir la porter.
+     ⭐ ET LE PÉAGE N'EST PAS UNE RUSTINE : c'est le prix universel de deux gestes sur les
+     mêmes pixels, et ce dépôt l'avait déjà payé (grille des sorts, `pan-y` + 350 ms,
+     jusqu'au 20/08). Il revient parce que SA CAUSE revient — un ascenseur. */
   const css = stripComments(feuille);
-  const bloc = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-    .map(([, sel, corps]) => ({ sel: sel.trim(), corps })).find((b) => b.sel === ".sac-dalles");
-  assert.ok(bloc, "⛔ le ruban de dalles n'est plus habillé");
-  assert.match(bloc.corps, /overflow:\s*hidden/,
-    "⭐ `hidden` laisse `scrollLeft` s'écrire — il n'interdit que le GESTE");
-  assert.doesNotMatch(bloc.corps, /overflow-x:\s*(auto|scroll)/,
-    "⛔ les dalles redeviennent une surface de geste : le glisser d'un jeton se fera voler");
-  assert.doesNotMatch(bloc.corps, /scroll-snap-type/,
-    "⛔ une aimantation ici dit qu'on attend un geste ici");
-  assert.doesNotMatch(bloc.corps, /touch-action/,
-    "⛔ et une règle de `touch-action` est le signe qu'on se dispute le doigt");
+  const bloc = (sel) => {
+    const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+      .map(([, s2, c]) => ({ sel: s2.trim(), corps: c })).find((x) => x.sel === sel);
+    assert.ok(b, `⛔ ${sel} n'est plus habillé`);
+    return b.corps;
+  };
 
-  /* ⭐ ET LES QUATRE CHEMINS QUI RESTENT SONT BIEN LÀ — l'absence ci-dessus n'est
-     défendable que parce qu'il en reste quatre autres pour naviguer. */
-  const n = rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `S${i}` })), section: 2 });
-  assert.ok(n.querySelector('[data-organe="tuner-g"]'), "le chevron gauche");
-  assert.ok(n.querySelector('[data-organe="tuner-d"]'), "le chevron droit");
-  const roue = n.querySelector(".sac-roue");
-  assert.equal(typeof roue.placer, "function", "la roue se pose — c'est elle qui défile");
-  assert.ok(tous(roue, ".sac-cran").length >= 5, "et chaque tuile se tape");
+  /* ① LES DEUX DÉFILENT — l'une comme l'autre */
+  assert.match(bloc(".sac-roue"), /overflow-x:\s*auto/, "la roue défile");
+  assert.match(bloc(".sac-dalles"), /overflow-x:\s*auto/, "et les dalles aussi");
+
+  /* ② 🔴 ET C'EST EXACTEMENT POURQUOI IL FAUT UN ARBITRE : deux défileurs verrouillés
+     l'un à l'autre OSCILLENT — chacun lit l'autre et le corrige à l'image suivante. ⛔ Ce
+     n'est pas une question de réglage, c'est une boucle. ⭐ Celui que le doigt a touché
+     mène, et il n'écrit que dans l'autre. */
+  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  assert.match(source, /r\.addEventListener\("pointerdown",[^\n]*maitre = "roue"/,
+    "⛔ toucher la roue doit la désigner maître");
+  assert.match(source, /piste\.addEventListener\("pointerdown",[^\n]*maitre = "dalles"/,
+    "⛔ toucher les dalles doit les désigner maîtres");
+  assert.match(source, /const suivre = \(\) => \{\s*enAttente = false;\s*if \(maitre !== "roue"\) return;/,
+    "⛔ la roue n'écrit dans les dalles que si c'est ELLE qu'on pousse");
+  assert.match(source, /if \(maitre !== "dalles"\) return;/,
+    "⛔ et réciproquement — sinon les deux s'écrivent dessus et le geste oscille");
+
+  /* ③ ⏱️ LE PÉAGE, ET IL EST UNE OPTION — ⛔ pas un retour global. Eric, 20/08 :
+     *« il ne faut plus d'ascenseurs couplés avec des actions drag and drop »*, et la
+     parade d'alors fut de supprimer l'ascenseur. Species et les sorts n'en ont toujours
+     pas : ils gardent leur glisser IMMÉDIAT. ⭐ « Laisse les autres écrans en dehors de
+     ça » — Eric, 19/09. */
+  assert.equal(PEAGE_JETON_MS, 350, "⏱️ la cote qu'il a dite, et celle d'avant le 20/08");
+  assert.match(source, /maintien: PEAGE_JETON_MS/, "le sac paie le péage");
+  const organe = stripComments(fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8"));
+  assert.match(organe, /const peage = Number\.isFinite\(maintien\) && maintien > 0;/,
+    "⭐ et l'organe ne le prend que si on le lui donne — sans option, pas de péage");
+  const autres = ["skills-step.mjs", "species-step.mjs", "b3-dressing.mjs"]
+    .filter((f) => fs.existsSync(path.join(UI, f)))
+    .filter((f) => /maintien:/.test(stripComments(fs.readFileSync(path.join(UI, f), "utf8"))));
+  assert.deepEqual(autres, [],
+    "⛔ un autre écran vient de prendre le péage : il n'a pas d'ascenseur, donc pas de cause");
+
+  /* ④ ET LE JETON REND L'AXE AU NAVIGATEUR TANT QU'IL N'EST PAS PORTÉ. ⛔ Sans ça
+     `[data-glissable]` lui donne `touch-action: none` et AUCUN swipe ne peut naître sur
+     un jeton — or la grille est faite de jetons. */
+  assert.match(bloc('.sac-case[data-glissable="true"]'), /touch-action:\s*pan-x/,
+    "⛔ le jeton du sac doit laisser passer le défilement horizontal jusqu'au péage");
 });
