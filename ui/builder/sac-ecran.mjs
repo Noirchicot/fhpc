@@ -23,21 +23,21 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=677";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=677";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=686";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=686";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=677";
+import { armerJeton, fantome } from "./glisser.mjs?v=686";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=677";
+import { facteurZoomCourant } from "./echelle.mjs?v=686";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -48,7 +48,7 @@ export const CLEF_DE = Object.freeze({
   "POIDS TOTAL": "poids-total", "POIDS DETAIL": "poids-detail",
   "EFFACER": "effacer", "EDITER": "editer",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
-  "DROP": "drop", "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
+  "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
   "RANGEE": "rangee", "livre": "livre", "?": "guide"
 });
 /* les douze cases prennent leur clef de leur nom : CASE 2.3 → case-2-3 */
@@ -765,19 +765,13 @@ export function construireLeSac(options = {}) {
      de la roue, comme dans n'importe quelle autre section. Deux portes pour un seul
      lieu, c'est une porte de trop. */
 
-  /* ⚖️ `DROP` VIENT DE LA SOURCE DU CHAPITRE, ET DE NULLE PART AILLEURS : le pied
-     de B1 y porte *« GEAR WEIGHT · DROP · SEND TO ▾ »*, et sa table des verbes le
-     définit — *« DROP | Backpack | sort l'objet du conteneur | sur place »*.
-     ⭐ C'EST LE SEUL VERBE PROPRE AU SAC : `Send` envoie ailleurs et le dropdown dit
-     où ; `Drop` sort du sac sans rien choisir. Deux gestes, deux boutons.
-     ⛔ IL AGIT, DONC IL EST VERT (§6) — et il est GRISÉ quand le collecteur est
-     vide : on ne sort pas un objet qu'on n'a pas désigné. */
-  const drop = bouton("bouton gear-porte", "Drop", "Drop — takes it out of the bag",
-    () => options.surDrop && options.surDrop());
-  drop.dataset.organe = "drop";
-  drop.dataset.porte = "drop";
-  if (options.dropArme !== true) drop.disabled = true;
-  noeud.append(drop);
+  /* ⛔ PAS DE BOUTON `Drop` — Eric, 2026-09-19 : *« le bouton drop est inutile »*.
+     ⚠️ ET LA SOURCE DU CHAPITRE LE PORTE, je le signale plutôt que de le taire : elle
+     range `DROP` parmi les organes de B1 et le définit — *« sort l'objet du conteneur,
+     sur place »*. ⭐ Mais l'écran a changé depuis : le `Send to` porte `Gear` parmi ses
+     destinations, donc sortir un objet du sac se fait DÉJÀ, par le même geste que tout
+     le reste. Un second bouton pour un verbe que le dropdown tient est un bouton de
+     trop. ⏳ L'artefact est à mettre à jour. */
 
   const envoi = el("div", "sac-destination");
   envoi.dataset.organe = "send-vers";

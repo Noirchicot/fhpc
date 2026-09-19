@@ -436,22 +436,6 @@
    "lignes": 1
   },
   {
-   "nom": "DROP",
-   "sorte": "bouton",
-   "x": 49,
-   "y": 402.0,
-   "l": 77,
-   "h": 44,
-   "cible": {
-    "x": 49.0,
-    "y": 402.0,
-    "l": 77,
-    "h": 44
-   },
-   "mot": "Drop",
-   "cran": "T2/600"
-  },
-  {
    "nom": "SEND VERS",
    "sorte": "dropdown",
    "x": 139.5,

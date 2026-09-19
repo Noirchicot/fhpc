@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=677";
-import { facteurZoomCourant } from "./echelle.mjs?v=677";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=677";
+import { renderPicker } from "./carnet.mjs?v=686";
+import { facteurZoomCourant } from "./echelle.mjs?v=686";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=686";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=677";
-import { swapContent } from "./socle.mjs?v=677";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=677";
+import { isGenre } from "../../src/layers/document.mjs?v=686";
+import { swapContent } from "./socle.mjs?v=686";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=686";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=677";
+import { armerJeton } from "./glisser.mjs?v=686";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=677";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=686";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=677";
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=686";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=677";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=686";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=677";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=677";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=686";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=686";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=677";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=686";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=677";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=677";
+import { motDuCran } from "./ecran-mort.mjs?v=686";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -411,7 +411,7 @@ export function currentSections(document) {
    le sac, donc ce qu'on y range PÈSE sur le personnage et entre dans son encombrement.
    Si le party inventory ne doit pas peser, ce n'est pas une section — c'est un lieu,
    comme `storage`. ⏳ Question posée à Eric, non devinée. */
-export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party inventory" });
+export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party inventory dropdown" });
 
 /* ══ LES SIX SECTIONS DU SAC — Eric, 2026-09-19 ════════════════════════════
    ⚖️ *« chaque section fait en 6. Backpack section 1 · Backpack section 2 · etc.
@@ -425,8 +425,34 @@ export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party inventor
    replie, et un `\n` dans un nom se retrouverait dans l'`aria-label`.
    ⛔ SIX N'EST PAS UN PLAFOND : le `+` en ajoute au-delà, le `−` ne retire que
    celles-là. On ne supprime pas un tiroir qu'on n'a pas fait. */
-export const SECTIONS_DU_SAC = 6;
-export const nomDeSectionParDefaut = (index) => `Backpack section ${index + 1}`;
+/* ⚖️ LA LISTE, ARRÊTÉE PAR ERIC LE 19/09 : *« donc en somme : Party inventory
+   dropdown · Backpack dropdown · Storage 1 · Storage 2 · Storage 3 »*.
+   ⭐ CINQ, ET C'EST EXACTEMENT LE PLANCHER DU TAMBOUR : la roue est pleine dès le
+   premier regard, sans trou ni répétition. ⛔ Ce n'est pas une coïncidence qu'on
+   exploite — c'est une cote qui tombe juste, et je la nomme pour qu'on le voie si
+   l'une des deux bouge.
+   📌 QUATRE PORTENT UN INDEX (le dépôt, puis trois rangements) ; la cinquième, le
+   party inventory, porte une CLEF EN MOT — voir `SECTION_PARTY`. */
+export const SECTIONS_DU_SAC = 4;
+
+/* ══ LE DÉPÔT DU SAC, ET LES CINQ RANGEMENTS — Eric, 2026-09-19 ═══════════════
+   ⚖️ *« une des sections va s'appeler `backpack dropdown` ; tout ce qu'on met dans le
+   backpack va dedans. Cette section ne s'efface pas non plus. »* · *« change `section`
+   par : storage 1, storage 2 (c'est éditable) »* · *« pas backpack storage, juste
+   storage »*.
+   ⭐ LE DÉPÔT EST LA SECTION IMPLICITE, DEVENUE VISIBLE ET NOMMÉE. Une ligne du sac
+   sans `boite` y tombait déjà — c'était « la première section » du rendu, anonyme.
+   Elle a maintenant un nom, la première place, et une protection.
+   ⛔ ELLE NE S'EFFACE PAS, et la raison n'est pas décorative : c'est là qu'atterrit
+   tout ce que `Send to ▾ → Backpack` envoie. Une destination qu'on peut supprimer est
+   une destination qui peut manquer au pire moment.
+   ⭐ ELLE SE RENOMME, elle : Eric n'a interdit que l'effacement. ⛔ Le party inventory,
+   lui, ne se renomme pas — son nom dit à QUI il est, pas ce qu'il contient.
+   📌 ET LES CINQ AUTRES SONT DES `Storage`, PAS DES `Section` : *« juste storage »*.
+   Un nom qui dit ce qu'on y met vaut mieux qu'un nom qui dit ce que c'est. */
+export const SECTION_DEPOT = 0;
+export const nomDeSectionParDefaut = (index) =>
+  (index === SECTION_DEPOT ? "Backpack dropdown" : `Storage ${index}`);
 
 /** Le prochain index de section libre — même loi que `nextGearIndex` : un index
  *  qui a existé ne redevient pas anonyme.
@@ -1936,6 +1962,9 @@ let sectionSac = 0;
    et la roue passe en mode édition »*. ⛔ État d'écran lui aussi : on ne rouvre pas
    le sac en train d'éditer ses sections. */
 let editionSac = false;
+/* ⭐ LE CHAMP NE S'OUVRE QUE PAR LA POIGNÉE `/` — Eric, 19/09. ⛔ État d'écran : on
+   rouvre le sac en le LISANT, pas en train de le modifier. */
+let renommageSac = false;
 /* ⭐ LA PAGE QU'ON REGARDE DANS LA SECTION — état d'écran : on rouvre le sac à sa
    première page, jamais là où on l'avait laissé. ⛔ Ce qui SURVIT, c'est la place de
    chaque objet (`gear[N].place`), pas le regard qu'on porte dessus.
@@ -2331,13 +2360,29 @@ export function renderEquipmentStep(ctx, onAction) {
        toutes, sauf le party : renommer un tiroir, c'est le sien. */
     const declarees = currentSections(docu);
     const parIndex = new Map(declarees.map((x) => [x.index, x]));
+    /* 🔴 LES SIX NE SONT PLUS IMMORTELLES — Eric : *« le mode edit et delete ne sont
+       pas effectifs »*. Je les avais marquées `fige`, donc le `×` refusait sur TOUTES
+       les sections et ne servait jamais à rien. ⛔ Un bouton qui refuse toujours est un
+       bouton mort — c'est la faute que ce lot a passé deux jours à corriger ailleurs.
+       ⭐ SIX EST UN POINT DE DÉPART, PAS UNE LOI : c'est ce que porte un sac neuf. Seul
+       le party inventory reste figé — *« on peut changer sa position, mais pas
+       l'effacer ni la renommer »* (Eric, 19/09).
+       ⛔ `??` ET NON `||` : un nom VIDÉ par le `×` est un nom écrit, pas un nom absent.
+       Avec `||` il serait retombé sur son nom par défaut, et le vidage n'aurait rien
+       fait de visible. */
     const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
-      index: i, nom: (parIndex.get(i) || {}).nom || nomDeSectionParDefaut(i), fige: true
+      index: i, nom: (parIndex.get(i) || {}).nom ?? nomDeSectionParDefaut(i)
     }));
     const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC);
     const miennes = [...socle, ...ajoutees];
-    const sections = [...miennes,
-      { index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom, fige: true }];
+    /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE, il ne la ferme plus — Eric, 19/09 :
+       *« Party inventory dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*.
+       🔴 Je l'avais mis EN DERNIER la veille, avec une raison qui semblait bonne : le
+       sac s'ouvre sur tes affaires, le commun vient après. ⛔ Elle était fausse — ce
+       qui ouvre une liste est ce qu'on veut voir d'abord, et le commun se consulte
+       plus souvent qu'un rangement. */
+    const sections = [{ index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom,
+                        party: true, fige: true, renommable: false }, ...miennes];
     if (sectionSac >= sections.length) sectionSac = 0;
     const boite = boiteDeSection(sections.length ? sections[sectionSac].index : 0);
     /* les lignes DU SAC, celles de la section regardée, RANGÉES PAR LEUR PLACE */
@@ -2372,8 +2417,17 @@ export function renderEquipmentStep(ctx, onAction) {
        répète ni « obj. » ni l'unité : elle est dite une fois, au-dessus. */
     const unite = p.unite || "lb";
     const rond = (x) => Math.round(x * 10) / 10;
-    const mot = (compte, somme, inconnus, titre) =>
-      `${titre} ${rond(somme)}${inconnus ? ` +${inconnus}?` : ""}`;
+    /* 🔴 CHAQUE PART EST UN COUPLE, PAS UNE CHAÎNE — et j'ai livré la faute : l'écran
+       lit `{ poids, compte }` depuis le croquis du 19/09 (*« j'ai mis le nombre
+       d'items sous les Gear, Back, Other »*), pendant que ce module rendait encore la
+       chaîne d'avant. ⛔ Une chaîne n'a pas de `.poids` : la ligne du détail sortait
+       VIDE, et aucun garde ne l'a dit — ils lisent des fichiers, pas un écran branché
+       sur un document. C'est Eric qui l'a vue, en ligne, après avoir vidé ses cookies.
+       ⭐ La leçon est celle du lot : *un contrat changé d'un côté se change des DEUX*. */
+    const mot = (compte, somme, inconnus, titre) => ({
+      poids: `${titre} ${rond(somme)}${inconnus ? ` +${inconnus}?` : ""}`,
+      compte: `${compte} item${compte === 1 ? "" : "s"}`
+    });
     /* ⚖️ JUSTE `Encumbrance` — Eric, 19/09 : *« Encumbrance (gear + backpack), c'est
        moche. Juste Encumbrance. »* ⭐ Et il a raison pour une raison qui se mesure :
        la parenthèse disait ce que la LIGNE DU DESSOUS montre déjà, en toutes lettres
@@ -2387,6 +2441,7 @@ export function renderEquipmentStep(ctx, onAction) {
       sections: sections.map((s) => ({ nom: s.nom, fige: s.fige === true })),
       section: sectionSac,
       edition: editionSac,
+      renommage: renommageSac,
       objets: places,
       poids: {
         gear: mot(p.compte.self, p.somme.self, p.inconnus.self, "Gear"),
@@ -2450,17 +2505,7 @@ export function renderEquipmentStep(ctx, onAction) {
           : undefined;
         act({ kind: "placerGearLine", index, boite: vive, place });
       },
-      /* ⚖️ `DROP` VIENT DE LA SOURCE : *« DROP | Backpack | sort l'objet du conteneur
-         | sur place »*. ⭐ Il sort ce que le collecteur retient, vers le personnage —
-         donc il est DÉSARMÉ tant que rien n'y est posé : un bouton qui agit sur rien
-         est un bouton qui ment. */
-      dropArme: collecteEnvoi.size > 0,
-      surDrop: () => {
-        const retenus = [...collecteEnvoi];
-        collecteEnvoi.clear();
-        for (const index of retenus) actArbitre({ kind: "moveGearLine", index, location: "self" });
-        peindre();
-      },
+
       /* ⚖️ LE PARCHEMIN EST PERMANENT, C'EST SON HALO QUI PARLE — la source du
          chapitre, 15/09 : *« le Tally est toujours présent sur toutes les fiches à
          droite ; dès le premier item il porte un halo, et reste ainsi jusqu'à ce
@@ -2501,7 +2546,12 @@ export function renderEquipmentStep(ctx, onAction) {
         }) })) }),
       /* ⚖️ *« le bouton pack devient sections, et la roue passe en mode édition »* —
          il BASCULE le mode, il ne crée rien. C'est le `+` de la roue qui crée. */
-      surSections: () => { editionSac = !editionSac; peindre(); },
+      surSections: () => { editionSac = !editionSac; renommageSac = false; peindre(); },
+      /* 🔴 LA POIGNÉE `/` N'ÉTAIT PAS CÂBLÉE DU TOUT — Eric : *« le mode edit et delete
+         ne sont pas effectifs »*. J'avais posé le bouton dans l'écran et oublié son
+         fil ici : un organe qui existe sans geste est un organe mort, et c'est
+         exactement ce que ce lot a passé deux jours à corriger ailleurs. */
+      surEditer: () => { renommageSac = !renommageSac; peindre(); },
       surAjouter: () => {
         /* ⭐ LA NEUVE SE RANGE APRÈS LES MIENNES, AVANT LE PARTY : c'est là qu'elle
            tombera au prochain rendu, et le viseur doit l'y suivre — sinon le joueur
@@ -2510,6 +2560,7 @@ export function renderEquipmentStep(ctx, onAction) {
         act({ kind: "ajouterSection" });
       },
       surRenommer: (i, nom) => {
+        renommageSac = false;
         const s = sections[i];
         /* ⛔ LE PARTY INVENTORY NE SE RENOMME PAS : on ne rebaptise pas une place
            qu'on n'a pas faite, et son nom dit à qui elle est. */
@@ -2527,14 +2578,21 @@ export function renderEquipmentStep(ctx, onAction) {
             texte: "The party inventory is always there. It is not a section you made." });
           return;
         }
-        /* ⛔ ET LES SIX DU SOCLE NON PLUS — Eric, 19/09 : *« 6 en tout »*. Elles sont
-           là d'entrée de jeu, donc aucun geste ne les retire. Le `−` ne rend que ce
-           que le `+` a donné. */
-        if (s.fige === true) {
-          act({ kind: "popup", titre: "Section", role: "gendarme",
-            texte: "The six backpack sections are always there. Rename one instead." });
+        /* ⛔ NI LE DÉPÔT — Eric, 19/09 : *« cette section ne s'efface pas non plus »*.
+           C'est là qu'atterrit tout ce que `Send to ▾ → Backpack` envoie ; une
+           destination qu'on peut supprimer peut manquer au pire moment. */
+        if (s.index === SECTION_DEPOT) {
+          act({ kind: "popup", titre: "Backpack dropdown", role: "gendarme",
+            texte: "Everything sent to the backpack lands here. It cannot be removed." });
           return;
         }
+        /* ⚖️ LE PLANCHER DU TAMBOUR — Eric, 19/09 : *« si moins de 5 items dans le
+           tambour, n'efface pas la tuile, juste nomme-la blank, quand on efface »*.
+           ⭐ ET ÇA RÉSOUT UN CAS QUE J'AVAIS LAISSÉ OUVERT : sous cinq crans la roue
+           cesse de boucler, et l'écran montre des trous aux deux bouts. Un tiroir vidé
+           qui reste en place garde la roue pleine — et il dit vrai : la place existe,
+           elle ne contient rien. */
+        if (sections.length <= 5) { act({ kind: "viderSection", index: s.index }); return; }
         if (sectionSac >= sections.length - 2) sectionSac = Math.max(0, sections.length - 3);
         act({ kind: "supprimerSection", index: s.index });
       },

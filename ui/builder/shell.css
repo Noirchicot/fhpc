@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=677") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=686") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=677") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=686") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=677") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=686") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=677");
+  background-image: url("./assets/tarot-dos.jpg?v=686");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11817,6 +11817,14 @@ button.tuto-point::before {
               inset 0 0 0 1px var(--accent-wash),
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
+/* ⛔ ET LE PARTY INVENTORY GARDE SON BLEU SOUS LE VISEUR, pour la même raison : une
+   boîte qui perd son genre au moment où on la regarde ne le dit jamais quand ça
+   compte. Vu au banc — la règle du dominant écrasait le liseré bleu. */
+.sac-cran[data-dominant="oui"][data-lieu="party"] {
+  box-shadow: inset 0 0 0 1px var(--info),
+              inset 0 0 0 1px var(--accent-wash),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
 /* ══ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 ═══════════════════
    ⚖️ *« un x (carré 40 × 40 à gauche, à cheval) et un / (carré 40 × 40 à droite) de
    la boîte sélectionnée : on peut l'éditer ou l'effacer »*.
@@ -11957,13 +11965,22 @@ button.tuto-point::before {
    cran serré des portes ne tient pas « sections » dans 44 : les deux descendent à T0,
    comme les petites tuiles de la roue. */
 .sac-outil {
-  flex-direction: column; gap: 0;
-  font-size: var(--t0); line-height: 1.1;
-  /* ⚖️ *« et centre le texte sur tes boutons »* — Eric, 19/09. ⛔ La famille des
-     boutons à mot aligne son libellé sur la LIGNE DE BASE de son relief, ce qui
-     convient à un mot posé sur une seule ligne ; deux étages dans un carré, eux,
-     doivent se centrer dans les DEUX sens. */
+  /* 🔴 `display: flex`, ET SANS LUI RIEN DE CE QUI SUIT NE VAUT — mesuré dans la VRAIE
+     application le 19/09 : la famille des boutons à mot rend `display: block`, donc
+     `flex-direction`, `align-items` et `justify-content` étaient INERTES et le texte
+     flottait au-dessus du corps. ⛔ Eric l'a vu en ligne après avoir vidé ses cookies ;
+     le banc ne le montrait pas, parce qu'il ne charge pas la même cascade.
+     ⭐ La leçon : *une propriété de flex posée sur un bloc ne prévient pas.* C'est la
+     cousine du `1fr` posé dans une boîte que personne n'étire (§6 pré).
+     ⚖️ Et c'est ce qu'Eric demandait : *« centre le texte sur tes boutons »* — deux
+     étages dans un carré se centrent dans les DEUX sens. */
+  display: flex; flex-direction: column; gap: 0;
   align-items: center; justify-content: center; text-align: center;
+  /* ⚖️ *« mets-les en T1 »* · *« centre-les verticalement »* — Eric, 19/09. ⛔ T0 est
+     le cran d'un DÉTAIL sous un dé, pas d'un mot qu'on lit ; ces deux-là sont des
+     verbes. ⭐ Et le centrage vertical est celui du `justify-content` ci-dessus, qui
+     ne valait rien tant que la boîte n'était pas en `flex`. */
+  font-size: var(--t1); line-height: 1.05;
 }
 .sac-outil-etage { display: block; }
 /* ⚖️ L'INTERRUPTEUR DU MODE — il s'allume comme les bascules de X1 : le halo du belt,
