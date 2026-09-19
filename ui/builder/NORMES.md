@@ -1220,6 +1220,29 @@ de **8 blg**. ⛔ Une bande qui contiendrait exactement son contenu aurait l'air
 coupe qui dit *« ça continue »*. C'est ce que font les cartes de Species, coupées par le bord de
 l'écran — **un cadre coupe, un contenant tient**.
 
+### ✅ UN CADRE TÉMOIN qui désigne une arête **se superpose à elle** *(Eric, 19/09)*
+📍 `equipement-loupe-se-superpose-au-rebord` · vivante · 19/09
+⚖️ **Un cadre qui dit « c'est celle-ci » se pose SUR le rebord de la boîte, il ne s'ajoute pas autour.**
+
+Eric, 2026-09-19 : *« plutôt qu'entourer, le halo souligne précisément le rebord de la tuile
+maîtresse ; l'actuel halo est moche »* · puis, devant le rendu : *« la loupe doit parfaitement se
+superposer, donc **trait plus fin, forme identique, même taille que le bord de la tuile** »*.
+
+📏 **Ce que la photo montrait, et c'est DEUX traits — pas un trop épais.** Une boîte porte déjà son
+liseré, dessiné `inset` donc **à l'intérieur** de son bord ; un `outline` se pose **à l'extérieur**,
+contre lui. Les deux ne se superposent pas, ils **s'additionnent** : une bande de 3 blg à deux
+couleurs, claire dehors et sombre dedans. ⛔ C'est ça qui fait l'autocollant.
+
+⛔ **Et une superposition n'est pas une ressemblance.** Si la boîte désignée est **agrandie** — la
+tuile posée de la roue l'est de 1,2456 — son rayon PEINT et son liseré PEINT le sont aussi. Un trait
+recopié tel quel rate les quatre coins. ⭐ La règle se **génère** donc là où l'agrandissement est une
+cote : le cadre reprend le rayon et l'épaisseur **du rebord lui-même**, multipliés par le facteur.
+Seule sa **couleur** change, et elle seule reste dans la feuille.
+
+⛔ **Ceci ne touche pas `collecteur-lisere-entoure-ne-recouvre-pas`** *(26/08)* : ce liseré-là dit
+l'**état** d'un jeton et doit rester dehors pour ne rien manger du contenu. Un cadre témoin, lui, ne
+dit rien du contenu — il désigne une **arête**. Deux organes, deux questions.
+
 ⚠️ **Et la troisième exception ressemble aux deux autres** : le sac est un écran dont le contenu
 **grandit avec le personnage**, comme le Seuil et le dressing. La loi du non-défilement (§5) n'est
 pas entamée — elle vaut pour les pages de travail dont tout doit se lire d'un coup d'œil.

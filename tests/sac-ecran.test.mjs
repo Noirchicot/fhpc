@@ -1311,14 +1311,50 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
     "⛔ `--organe-rayon` est le rayon de la famille du JETON : sur 57 × 40 il arrondissait " +
     "presque toute la hauteur, et la rangée ressemblait à un chapelet de pastilles");
 
-  /* ② LE CADRE EST MARQUÉ, DE LA MÊME FORME, ET IL ENTOURE SANS RECOUVRIR */
+  /* ② 🔴 LE CADRE SE SUPERPOSE AU REBORD, ⛔ IL NE S'AJOUTE PAS AUTOUR.
+     ⚖️ Eric, 2026-09-19, en deux temps : *« plutôt qu'entourer, le halo souligne
+     précisément le rebord de la tuile maîtresse ; l'actuel halo est moche »*, puis, en
+     regardant le rendu : *« la loupe doit parfaitement se superposer, donc trait plus fin,
+     forme identique, même taille que le bord de la tuile »*.
+     📏 CE QUE LA PHOTO MONTRAIT, ET C'EST DEUX TRAITS, PAS UN TROP ÉPAIS : la tuile porte
+     déjà son liseré, dessiné `inset` donc À L'INTÉRIEUR de son bord ; un `outline` se pose
+     À L'EXTÉRIEUR, contre lui. Les deux s'ADDITIONNENT en une bande de 3 blg à deux
+     couleurs — clair dehors, sombre dedans. C'est ça, l'autocollant.
+     ⛔ ET UNE SUPERPOSITION N'EST PAS UNE RESSEMBLANCE : la tuile posée est AGRANDIE de
+     1,2456, donc son rayon PEINT vaut `--radius-md × 1,2456` et son liseré `1 × 1,2456`.
+     Un trait recopié tel quel raterait les quatre coins de 2 blg. La règle se GÉNÈRE
+     donc, là où l'agrandissement est une cote du plan.
+     ⭐ ET CE GARDE LIT LE REBORD PLUTÔT QUE DE LE RETAPER : si la tuile change de rayon ou
+     d'épaisseur demain, il exige que la loupe suive. Deux copies à la main divergeraient
+     au premier réglage — et une superposition qui diverge est exactement le défaut qu'on
+     vient de réparer. */
   const loupe = bloc(".sac-loupe");
-  assert.match(loupe, /outline:\s*var\(--creneau-lisere-rempli\)\s+solid/,
-    "⭐ 2 blg, et c'est le jeton d'Eric — ⛔ pas un `2px` sans nom");
-  assert.match(loupe, /border-radius:\s*var\(--radius-md\)/,
-    "⚖️ « de la même forme » : le cadre et la tuile portent le MÊME rayon");
-  assert.doesNotMatch(loupe, /box-shadow/,
-    "⛔ plus d'ombre portée : un halo flou n'est pas un encadré, et Eric a demandé « bien marqué »");
+  assert.doesNotMatch(loupe, /outline/,
+    "⛔ un `outline` se pose DEHORS du bord : il s'ajoute au liseré de la tuile au lieu de " +
+    "s'y superposer, et les deux font un autocollant");
+  assert.doesNotMatch(loupe, /border-radius|box-shadow/,
+    "⛔ la forme ne s'écrit pas dans la feuille : elle porte l'agrandissement, donc elle " +
+    "se génère — ⛔ et deux écrivains pour une forme divergent");
+  assert.match(loupe, /--loupe-trait:\s*var\(--verre-lisere\)/,
+    "⭐ ce qui reste ici est la FENTE de couleur : un seul écrivain pour la teinte");
+  assert.match(bloc('.sac-loupe[data-lieu="dehors"]'), /--loupe-trait:\s*var\(--dehors\)/,
+    "🟡 et le genre passe par la fente");
+  assert.match(bloc('.sac-loupe[data-lieu="party"]'), /--loupe-trait:\s*var\(--info\)/,
+    "🔵 idem pour le bleu");
+
+  /* → et la règle générée REPRODUIT le rebord de la tuile, agrandi du même facteur */
+  const rebordEp = (cran.match(/box-shadow:\s*inset 0 0 0 (\S+) var\(--verre-lisere\)/) || [])[1];
+  const rebordRayon = (cran.match(/border-radius:\s*(var\(--[a-z-]+\))/) || [])[1];
+  assert.ok(rebordEp && rebordRayon, "⛔ le rebord de la tuile ne se lit plus : ce garde est aveugle");
+  const emise = feuilleDesCotesSac();
+  const regle = (emise.match(/\.sac \.sac-loupe\{([^}]*)\}/) || [])[1];
+  assert.ok(regle, "⛔ la loupe n'a plus de règle générée : plus rien ne porte l'agrandissement");
+  const echappe = (s2) => s2.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  assert.match(regle, new RegExp(`border-radius:calc\\(${echappe(rebordRayon)} \\* ${D.ROUE.loupe}\\)`),
+    "⚖️ « forme identique » : le rayon DE LA TUILE, multiplié par l'agrandissement");
+  assert.match(regle, new RegExp(`inset 0 0 0 calc\\(${echappe(rebordEp)} \\* ${D.ROUE.loupe}\\)`),
+    "⚖️ « trait plus fin, même taille » : l'épaisseur DU REBORD, multipliée par l'agrandissement");
+  assert.match(regle, /var\(--loupe-trait\)/, "⭐ et la couleur vient de la fente, pas d'ici");
 
   /* ③ LES DEUX REFLETS SE VOIENT — et le blanc reste le défaut muet de la maison */
   assert.match(bloc('.sac-cran[data-lieu="party"]'),

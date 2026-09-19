@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=748";
-import { versionQuery } from "./version.mjs?v=748";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=748";
+import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=749";
+import { versionQuery } from "./version.mjs?v=749";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=749";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=748";
+import { armerJeton, fantome } from "./glisser.mjs?v=749";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=748";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=749";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=748";
+import { facteurZoomCourant } from "./echelle.mjs?v=749";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -201,6 +201,27 @@ export function feuilleDesCotesSac() {
      pour que `scale` ne la grossisse pas. Le soir il a demandé l'inverse. ⛔ C'est lui qui
      a abrogé sa règle, pas le code en passant. */
   regles.push(`.sac .sac-cran[data-dominant="oui"]{scale:${ROUE.loupe}}`);
+  /* ⚖️ ET LA LOUPE SE SUPERPOSE AU REBORD, ⛔ elle ne s'ajoute pas autour — Eric,
+     2026-09-19 : *« plutôt qu'entourer, le halo souligne précisément le rebord de la tuile
+     maîtresse ; l'actuel halo est moche »*, puis, en regardant le rendu : *« la loupe doit
+     parfaitement se superposer, donc trait plus fin, forme identique, même taille que le
+     bord de la tuile »*.
+     📏 CE QUE LA PHOTO MONTRAIT, ET C'EST DEUX TRAITS, PAS UN TROP ÉPAIS : la tuile porte
+     déjà son liseré, dessiné `inset` donc À L'INTÉRIEUR de son bord ; un `outline` se pose
+     À L'EXTÉRIEUR, contre lui. Les deux s'ADDITIONNENT en une bande de 3 blg à deux
+     couleurs — un trait clair dehors, un trait sombre dedans. C'est ça, l'autocollant.
+     🔴 ET C'EST POUR ÇA QUE LA RÈGLE EST ICI ET PAS DANS LA FEUILLE : la tuile posée est
+     AGRANDIE, donc son rayon PEINT vaut `--radius-md × 1,2456` et son liseré `1 × 1,2456`.
+     Un trait de 8 et de 1 ne peut pas se superposer au sien : il raterait les quatre coins
+     de 2 blg. ⛔ Une superposition n'est pas une ressemblance — elle se CALCULE avec
+     l'agrandissement, et l'agrandissement est une cote du plan.
+     ⭐ LE TRAIT SE RECOPIE DONC DU REBORD LUI-MÊME : `inset`, la même unité, le même
+     rayon, la même boîte (la loupe EST déjà la boîte de la posée). Ce qui change est la
+     seule chose qui doive changer : sa COULEUR, prise dans la fente laissée par la
+     feuille. ⛔ `1px` n'est pas une cote du plan, c'est l'épaisseur minimale visible d'un
+     liseré — le seul littéral que le garde excepte, et celui que la tuile emploie déjà. */
+  regles.push(`.sac .sac-loupe{border-radius:calc(var(--radius-md) * ${ROUE.loupe});`
+    + `box-shadow:inset 0 0 0 calc(1px * ${ROUE.loupe}) var(--loupe-trait)}`);
   /* ⚖️ DU JOUR ENTRE LES DALLES — Eric, 2026-09-19 : *« je veux voir une séparation avec
      le fond visible au-dessus et en dessous de la dalle »*.
      🔴 UN TRAIT NE SUFFISAIT PAS, et il avait raison de le redemander : deux bandes qui se

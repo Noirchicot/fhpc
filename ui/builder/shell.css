@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=748") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=749") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=748") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=749") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=748") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=749") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=748");
+  background-image: url("./assets/tarot-dos.jpg?v=749");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11975,16 +11975,39 @@ button.tuto-point::before {
    l'a refusé — à raison : `calc(-1 * …)` est un nombre écrit à la main. `outline` pose la
    même question sans y répondre par un chiffre, et son arrondi suit celui de la tuile
    tout seul, concentrique par construction. */
+/* 🔴 ET IL CHEVAUCHE LE REBORD, ⛔ IL NE S'AJOUTE PAS AUTOUR — Eric, 2026-09-19 :
+   *« plutôt qu'entourer, le halo souligne précisément le rebord de la tuile maîtresse ;
+   l'actuel halo est moche »* · *« déborde de 1 ou 2 blg autour »*.
+   📏 CE QUE LA PHOTO MONTRAIT, ET C'EST MESURÉ : la tuile porte DÉJÀ son liseré, dessiné
+   `inset` — donc À L'INTÉRIEUR de son bord. Un `outline` sans décalage se pose
+   À L'EXTÉRIEUR, contre lui. Les deux traits ne se superposent pas : ils s'ADDITIONNENT
+   en une bande de 3 blg à deux couleurs, un trait clair dehors et un trait sombre dedans.
+   ⛔ C'est ça, l'autocollant — pas un halo trop épais, DEUX traits.
+   ⛔ ET UN DEMI-JETON DE DÉCALAGE NÉGATIF NE SUFFISAIT PAS — je l'ai essayé, Eric l'a
+   regardé : *« la loupe doit PARFAITEMENT se superposer, donc trait plus fin, forme
+   identique, même taille que le bord de la tuile »*. Chevaucher n'est pas se superposer.
+   ⭐ Le trait se recopie donc du rebord lui-même, agrandi du même facteur — la règle est
+   générée, parce que l'agrandissement est une cote du plan.
+   ⛔ ET LA LOI DU COLLECTEUR NE S'APPLIQUE PAS ICI. `collecteur-lisere-entoure-ne-recouvre-pas`
+   (NORMES, 26/08) parle d'un liseré qui dit l'ÉTAT d'un jeton : il doit rester dehors pour
+   ne rien manger du contenu. La loupe, elle, ne dit rien du contenu — elle désigne une
+   ARÊTE. Deux organes, deux questions. */
 .sac-loupe {
   pointer-events: none;
-  outline: var(--creneau-lisere-rempli) solid var(--verre-lisere);
-  border-radius: var(--radius-md);
+  /* ⭐ LA COULEUR RESTE ICI, LA GÉOMÉTRIE PART AU PLAN. Le trait doit se superposer au
+     rebord de la tuile POSÉE, or celle-ci est AGRANDIE de 1,2456 : son rayon peint vaut
+     8 × 1,2456 ≈ 10 et son liseré 1,25, pas 8 et 1. ⛔ Un rayon écrit ici serait une cote
+     à la main ET il raterait les coins. La règle se génère donc avec l'agrandissement,
+     dans `feuilleDesCotesSac` — voir `equipement-loupe-se-superpose-au-rebord` (NORMES, 19/09).
+     📌 Ce qui reste ici est une FENTE de couleur, le motif local déjà employé 46 fois
+     dans cette feuille : un seul écrivain pour la forme, un seul pour la teinte. */
+  --loupe-trait: var(--verre-lisere);
 }
 /* ⛔ ET LA LOUPE GARDE LE GENRE DE CE QU'ELLE CADRE — la règle des trois liserés du
    19/09 : un cadre qui perdrait l'or ou le bleu au moment où on regarde la boîte ne le
    dirait jamais quand ça compte. */
-.sac-loupe[data-lieu="dehors"] { outline-color: var(--dehors); }
-.sac-loupe[data-lieu="party"] { outline-color: var(--info); }
+.sac-loupe[data-lieu="dehors"] { --loupe-trait: var(--dehors); }
+.sac-loupe[data-lieu="party"] { --loupe-trait: var(--info); }
 /* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
    ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
    disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
