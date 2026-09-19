@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=752";
-import { versionQuery } from "./version.mjs?v=752";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=752";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=753";
+import { versionQuery } from "./version.mjs?v=753";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=753";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=752";
+import { armerJeton, fantome } from "./glisser.mjs?v=753";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=752";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=753";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=752";
+import { facteurZoomCourant } from "./echelle.mjs?v=753";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -63,8 +63,10 @@ export const CLEF_DE = Object.freeze({
      flèches BLEUES à cheval sur l'arête du haut, le `×` ROUGE et le `/` VERT sur celle du
      bas. *« les flèches permettent de déplacer le storage à droite et à gauche »*. */
   "RECULER": "reculer", "AVANCER": "avancer", "EFFACER": "effacer", "EDITER": "editer",
-  /* 📋 LA NOTICE DU MODE EDIT — *« elle recouvre la grille (elle ne remplace pas) »*. */
-  "NOTICE": "notice",
+  /* 📋 LE PANNEAU DU MODE EDIT — *« on recouvre toute la section sous le sélecteur »*
+     (Eric, 20/09). Il porte les six boutons ; le septième, `Done sections`, est
+     l'interrupteur du mode et il ne bouge pas de sa place. */
+  "NOTICE": "notice", "ENCART": "encart", "AJOUT SAC": "ajout-sac", "AJOUT DEHORS": "ajout-dehors",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
   "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
   "RANGEE": "rangee", "livre": "livre", "?": "guide"
@@ -183,25 +185,16 @@ export function feuilleDesCotesSac() {
      ⭐ LA COTE EXISTAIT DEPUIS LE DÉBUT, au plan : *« la hauteur des sections = 40 »*
      (19/09). Elle n avait simplement jamais été ÉCRITE — une cote qui vit dans la table
      et que la feuille n emploie pas ne dessine rien. */
-  /* ✏️ LE MODE EDIT DESCEND LE HAUT DE L'ÉCRAN DE 11 — Eric, 2026-09-19 : *« la roue
-     descend de 11, en édition seulement »*.
-     📏 ET 11 EST MESURÉ, ⛔ pas choisi : une poignée de 30 centrée sur l'arête HAUTE de la
-     tuile tombe à `4 − 15 = −11`, donc sur le belt, qui occupe tout ce qui est au-dessus
-     de la dalle. Le décalage EST ce qui manque à la flèche — il vit au plan sous
-     `EDITION.decalage` et se recalcule si la poignée change de taille.
-     ⭐ ET C'EST UN `translate`, ⛔ PAS UN `top` : rien ne bouge dans la mise en page, donc
-     rien ne se re-calcule et la sortie d'édition ne coûte pas un repeint. Les cotes du
-     plan restent celles de l'écran au repos, qui est l'état normal.
-     ⚖️ ET `Encumbrance` SE CACHE PENDANT CE TEMPS — *« tu peux cacher encumbrance
-     temporairement »* (20/09). C'est ce qui rend la descente gratuite : la rangée d'outils
-     descend avec la roue (63..103), la grille commence à 112, et la gouttière de 8 tient.
-     ⛔ `visibility`, pas `display` : la loi de la maison interdit le second, et une boîte
-     qui disparaît de la mise en page ferait remonter ce qui la suit. */
-  const DESCENDENT = ["roue", "tuner-g", "tuner-d", "trier", "sections"];
-  regles.push(`.sac[data-mode="edition"] :is(${DESCENDENT.map((k) => `[data-organe="${k}"]`).join(",")})` +
-    `{translate:0 ${px(EDITION.decalage)}}`);
-  regles.push(`.sac[data-mode="edition"] :is([data-organe="poids-total"],[data-organe="poids-detail"])` +
-    `{visibility:hidden}`);
+  /* 🧹 PLUS DE DESCENTE, PLUS DE MASQUAGE — et c'est le montage du 20/09 qui les supprime.
+     🔴 CE QUI ÉTAIT ÉCRIT ICI : la roue et la rangée d'outils descendaient de 11 en
+     édition, et `Encumbrance` se cachait. Les deux servaient UNE chose — faire de la place
+     à deux flèches à cheval sur l'arête HAUTE de la tuile, qui sans ça tombaient à −11,
+     donc sur le belt.
+     ⭐ ERIC A DÉPLACÉ LES BOUTONS, PAS LES ORGANES : *« les 4 boutons × / → ← sont juste
+     sous le bouton à éditer »*. Plus de chevauchement sur l'arête haute, donc plus rien à
+     descendre ni à cacher — le panneau recouvre la rangée d'outils de toute façon.
+     📌 C'est la troisième fois ce soir qu'un problème disparaît parce que la QUESTION a
+     changé de forme, et non parce qu'on l'a résolu. */
   regles.push(`.sac .sac-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
     `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);
   /* ⭐ LA PISTE S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE PUISSE SE CENTRER —
@@ -363,22 +356,11 @@ function roue(options, loupeNoeud, pisteNoeud) {
   /* ⚖️ LES DEUX `+` OCCUPENT LES DEUX BOUTS — croquis d'Eric, 19/09. ⭐ Ils sont DANS le
      ruban et défilent avec lui : c'est ce qui les rend atteignables sans les sortir du
      geste. ⛔ Ils ne paraissent pas en déplacement (*« le x, +, / disparaissent »*). */
-  const bout = (dehors) => {
-    const p = el("button", "sac-cran");
-    p.type = "button";
-    p.dataset.role = "ajouter";
-    p.dataset.snap = "oui";
-    if (dehors) p.dataset.lieu = "dehors";
-    p.append(
-      el("span", "sac-etage", dehors ? "Other" : "backpack"),
-      el("span", "sac-cran-signe", "+"),
-      el("span", "sac-etage", "Storage"),
-    );
-    p.setAttribute("aria-label", dehors ? "New section outside the backpack" : "New backpack section");
-    p.addEventListener("click", () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
-    return p;
-  };
-  if (edition) ruban.append(bout(false));
+  /* 🧹 LES DEUX `+` ONT QUITTÉ LE RUBAN — Eric, 2026-09-20 : *« les 2 boutons de création
+     ne sont plus à l'intérieur des sections »*. Ils étaient deux crans aux deux bouts, et
+     ils défilaient avec lui. ⛔ Un bouton qui défile est un bouton qu'on doit chercher —
+     et surtout ils occupaient deux places dans une LISTE de sections alors qu'ils n'en
+     sont pas une : on ne range rien dans un `+`. ⭐ Ils vivent dans le panneau. */
 
   {
     for (let i = 0; i < n; i += 1) {
@@ -432,7 +414,6 @@ function roue(options, loupeNoeud, pisteNoeud) {
       ruban.append(t);
     }
   }
-  if (edition) ruban.append(bout(true));
 
   /* 🔴 LA ROUE N'EST PLUS UN DÉFILEUR — Eric, 2026-09-19 : *« le glisser sur la grille
      change de section »*. Ce sont les DALLES qui portent le geste ; la roue est
@@ -443,7 +424,11 @@ function roue(options, loupeNoeud, pisteNoeud) {
      ⭐ CE QUI SURVIT DE L'ANCIENNE : l'arithmétique. Centrer la tuile `k` demande
      `pas × k`, exactement comme avant — seulement c'est un `translate` maintenant, pas
      un `scrollLeft`. */
-  const rang = (i) => i + (edition ? 1 : 0);   /* le `+` de gauche décale */
+  /* ⭐ PLUS DE DÉCALAGE : le `+` de gauche a quitté le ruban (20/09), donc la tuile `i`
+     est au rang `i` dans les deux modes. ⛔ Une traduction qui ne traduit plus rien est
+     une occasion de diverger — mais elle reste NOMMÉE, parce que la roue et le verrou la
+     lisent tous les deux et qu'un jour un autre organe pourrait la décaler. */
+  const rang = (i) => i;
   const vise = rang(actif);
   r.dataset.vise = String(vise);
 
@@ -516,7 +501,7 @@ function roue(options, loupeNoeud, pisteNoeud) {
   /* ⭐ ET SON INVERSE : de quelle section parle la tuile `k` ? ⛔ Le verrou ne peut pas le
      recalculer — le `+` de gauche du mode édition décale tout d'un cran, et deux formules
      pour une seule traduction divergeraient au premier mode. */
-  r.section = (k) => k - (edition ? 1 : 0);
+  r.section = (k) => k;
   r.marquer = marquer;
   r.vise = vise;
   return r;
@@ -784,40 +769,125 @@ function balayage(noeud, { surface, actif, agit }) {
  *  ce qui s'efface ce qui ne s'efface pas \u00bb*.
  *  \u26d4 ET LA DERNI\u00c8RE LIGNE SE D\u00c9DUIT DES SECTIONS, elle ne nomme pas des donn\u00e9es \u00e0 la
  *  main : un texte qui \u00e9crit \u00ab Party bag \u00bb ment le jour o\u00f9 le socle change. */
-function notice(options) {
+function notice(options, figee) {
   const n = el("div", "sac-notice");
   n.dataset.organe = "notice";
-  n.setAttribute("role", "note");
-  n.append(el("p", "sac-notice-titre", "Edit sections"));
-  const liste = el("ul", "sac-notice-liste");
-  /* \u2b50 LE SIGNE EST LE M\u00caME QUE SUR LA POIGN\u00c9E, et il porte la m\u00eame clef : c'est elle qui
-     le colore. \u26d4 Une couleur recopi\u00e9e ici divergerait de celle du bouton. */
-  for (const [clef, signe, quoi] of [
-    ["reculer", "\u2190", "Move this section one place left"],
-    ["avancer", "\u2192", "\u2026 or one place right"],
-    ["effacer", "\u00d7", "Delete it"],
-    ["editer", "/", "Rename it"],
-  ]) {
+  n.setAttribute("role", "group");
+  n.setAttribute("aria-label", "Edit sections");
+
+  /* \u2b50 LES SIX BOUTONS, ET LEUR PLACE VIENT DU PLAN \u2014 ils sont d\u00e9clar\u00e9s `dans: NOTICE`,
+     donc la feuille construite les pose RELATIVEMENT au panneau, comme les douze cases
+     dans la plaque. \u26d4 Aucune cote ici. */
+  const poignee = (clef, mot, aide, faire, eteinte) => {
+    const b = bouton("sac-poignee", mot, aide, faire);
+    b.dataset.organe = clef;
+    if (eteinte) b.disabled = true;
+    return b;
+  };
+  const bouge = (sens) => options.surDeplacerSection && options.surDeplacerSection(sens);
+  const rang = options.section | 0;
+  const dernier = (options.sections || []).length - 1;
+  /* \u2696\ufe0f L'ORDRE DU MONTAGE : `/` et `\u00d7` en haut, les deux fl\u00e8ches dessous, et le `/` \u00c0
+     GAUCHE du `\u00d7`. \u2b50 Ce n'est pas indiff\u00e9rent : renommer est le geste courant, effacer
+     celui qu'on regrette. Le courant vient en premier dans le sens de lecture. */
+  n.append(
+    poignee("editer", "/", "Rename this section",
+      () => options.surEditer && options.surEditer(), figee.renommable === false),
+    poignee("effacer", "\u00d7", "Delete this section",
+      () => options.surSupprimer && options.surSupprimer(), figee.fige === true),
+    /* \u26d4 ET UNE FL\u00c8CHE S'\u00c9TEINT AU BOUT DE LA COURSE : un bouton qui s'allume pour
+       refuser est pire qu'un bouton \u00e9teint (*\u00ab non color\u00e9 = non cliquable \u00bb*). */
+    poignee("reculer", "\u2190", "Move this section left", () => bouge(-1), rang <= 0),
+    poignee("avancer", "\u2192", "Move this section right", () => bouge(1), rang >= dernier),
+  );
+
+  /* \u2696\ufe0f LES DEUX CR\u00c9ATIONS, DE PART ET D'AUTRE DE LA PAIRE \u2014 le vert \u00e0 gauche (dans le
+     sac), le dor\u00e9 \u00e0 droite (dehors) : le m\u00eame c\u00f4t\u00e9 que les `+` d'avant, donc le geste
+     appris ne change pas de main. */
+  for (const [clef, dehors, quoi] of [["ajout-sac", false, "Backpack"], ["ajout-dehors", true, "Other"]]) {
+    const b = bouton("sac-ajout", "", dehors ? "New section outside the backpack" : "New backpack section",
+      () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
+    b.dataset.organe = clef;
+    if (dehors) b.dataset.lieu = "dehors";
+    b.append(el("span", "sac-ajout-ou", quoi), el("span", "sac-ajout-quoi", "+ Storage"));
+    n.append(b);
+  }
+
+  n.append(encart(options));
+  return n;
+}
+
+/** \ud83d\udcd6 L'ENCART D'EXPLICATIONS \u2014 Eric, 2026-09-20 : *\u00ab le texte explicatif d\u00e9taill\u00e9 en
+ *  dessous dans un encart \u00bb*, et il en dicte le fond : *\u00ab implication des other storage :
+ *  ne compte pas dans l'\u00e9quipement, c'est ailleurs \u2014 le cheval, un coffre dans le manoir,
+ *  etc. \u00bb*.
+ *  \u2b50 ET C'EST LA SEULE CHOSE QUE CET \u00c9CRAN NE PEUT PAS MONTRER : un liser\u00e9 dor\u00e9 dit
+ *  \u00ab ailleurs \u00bb, il ne dit pas *\u00ab et donc \u00e7a ne te p\u00e8se pas \u00bb*. Une cons\u00e9quence ne se
+ *  dessine pas ; elle s'\u00e9crit.
+ *  \u26d4 ET LA DERNI\u00c8RE LIGNE SE D\u00c9DUIT DES SECTIONS : un texte qui \u00e9crit \u00ab Party bag \u00bb \u00e0 la
+ *  main ment le jour o\u00f9 le socle change. */
+function encart(options) {
+  const e = el("div", "sac-encart");
+  e.dataset.organe = "encart";
+  const ligne = (clef, signe, texte) => {
     const li = el("li");
     const s2 = el("span", "sac-notice-signe", signe);
     s2.dataset.signe = clef;
-    li.append(s2, el("span", "sac-notice-quoi", quoi));
-    liste.append(li);
-  }
-  n.append(liste);
+    li.append(s2, el("span", "sac-notice-quoi", texte));
+    return li;
+  };
+  const liste = el("ul", "sac-notice-liste");
+  liste.append(
+    ligne("editer", "/", "Rename the section under the viewfinder \u2014 the cursor opens in its name."),
+    ligne("effacer", "\u00d7", "Delete it. Whatever it holds comes back to you first."),
+    ligne("reculer", "\u2190", "Move it one place left\u2026"),
+    ligne("avancer", "\u2192", "\u2026 or one place right."),
+  );
+  e.append(el("p", "sac-encart-titre", "Editing your sections"), liste);
+  /* \u2696\ufe0f LES DEUX CR\u00c9ATIONS, ET CE QU'ELLES IMPLIQUENT \u2014 la dict\u00e9e d'Eric du 20/09. */
+  const deux = el("dl", "sac-encart-deux");
+  deux.append(
+    el("dt", "", "Backpack + Storage"),
+    el("dd", "", "A new section you carry. What you put there weighs on you: it is counted in Encumbrance."),
+    el("dt", "", "Other + Storage"),
+    el("dd", "", "A place away from you \u2014 your horse, a chest in the manor, a room at the inn. "
+      + "Its contents never weigh on you and never count in Encumbrance; they are listed apart, under Other."),
+  );
+  e.append(deux);
   const sections = options.sections || [];
-  const nommer = (liste2) => liste2.map((s3) => s3.nom).join(", ");
-  const sansEffacer = sections.filter((s3) => s3 && s3.fige === true);
-  const sansRenommer = sections.filter((s3) => s3 && s3.renommable === false);
+  /* \u2696\ufe0f LES DEUX SECTIONS QU'ON NE PEUT PAS EFFACER S'EXPLIQUENT \u2014 Eric, 2026-09-20 :
+     *\u00ab on ne peut pas effacer le party bag : le party bag explications \u00bb* \u00b7 *\u00ab le backpack
+     dropdown non plus : explication de ce que c'est aussi \u2014 TOUT ATTERRIT L\u00c0 \u00bb*.
+     \u2b50 ET ELLES SE D\u00c9SIGNENT PAR CE QU'ELLES SONT, \u26d4 pas par leur nom \u00e9crit ici : le party
+     porte `party`, le d\u00e9p\u00f4t est la section fig\u00e9e qui n'est pas lui. Un texte qui \u00e9crit
+     \u00ab Party bag \u00bb \u00e0 la main ment le jour o\u00f9 le socle change de mot \u2014 et c'est arriv\u00e9
+     deux fois en deux jours sur cet \u00e9cran.
+     \ud83d\udccc UN BOUTON \u00c9TEINT NE DIT PAS POURQUOI, et c'est tout l'objet de ces deux lignes :
+     l'\u00e9cran montre d\u00e9j\u00e0 que la poign\u00e9e refuse ; il ne dit pas ce que la section EST. */
+  /* ⛔ UNE CLASSE PROPRE, ⛔ PAS CELLE DES CRÉATIONS : deux listes de définitions dans le
+     même encart, et un sélecteur qui prendrait la première parlerait de l'autre. */
+  const lesDeux = el("dl", "sac-encart-figees");
+  for (const x of sections.filter((y) => y && y.fige === true)) {
+    lesDeux.append(el("dt", "", x.nom), el("dd", "",
+      x.party === true
+        ? "The whole party reaches into this one. It is not yours alone, so it cannot be "
+          + "deleted or renamed \u2014 you can only move it in the order."
+        : "Where everything lands. Anything sent to the backpack without a chosen section "
+          + "arrives here, so it has to exist: it cannot be deleted."));
+  }
+  if (lesDeux.childNodes.length) e.append(lesDeux);
+  const nommer = (l) => l.map((x) => x.nom).join(", ");
+  const sansEffacer = sections.filter((x) => x && x.fige === true);
+  const sansRenommer = sections.filter((x) => x && x.renommable === false);
   const phrases = [];
   if (sansEffacer.length) phrases.push(`${nommer(sansEffacer)} cannot be deleted`);
   if (sansRenommer.length) phrases.push(`${nommer(sansRenommer)} cannot be renamed`);
-  /* \u26d4 UN BOUTON \u00c9TEINT NE DIT PAS POURQUOI \u2014 c'est la seule chose que la notice ajoute
+  /* \u26d4 UN BOUTON \u00c9TEINT NE DIT PAS POURQUOI \u2014 c'est la seule chose que l'encart ajoute
      \u00e0 ce que l'\u00e9cran montre d\u00e9j\u00e0. */
-  n.append(el("p", "sac-notice-fige",
+  e.append(el("p", "sac-encart-fige",
     phrases.length ? `${phrases.join(" \u00b7 ")} \u2014 a greyed handle refuses that action.`
                    : "Every section here can be moved, renamed and deleted."));
-  return n;
+  return e;
 }
 
 /** Un tuner — chevron au repos, flèche circulaire au survol *(la feuille le peint)*,
@@ -1089,39 +1159,14 @@ export function construireLeSac(options = {}) {
      dans une place qui n'existe pas encore. ⭐ Rien à écrire pour ça — la liste des
      sections ne porte pas le `+`, donc `figee` est absente quand le viseur est
      dessus. Un cas qui se règle par la forme des données ne se règle pas deux fois. */
-  /* ⚖️ ET ELLES SONT QUATRE DEPUIS LE CROQUIS « EDIT MODE 1 » (Eric, 19/09 au soir) :
-     les deux flèches BLEUES à cheval sur l'arête du HAUT, le `×` ROUGE et le `/` VERT sur
-     celle du BAS. *« les flèches permettent de déplacer le storage à droite et à gauche »*.
-     ⭐ ET C'EST CE QUI TUE LE MODE DÉPLACEMENT — *« il n'y a désormais qu'un seul edit
-     mode »*. Il s'ouvrait par un maintien de 1,5 s, sortait la roue du verre, faisait
-     disparaître les `+` et les poignées, et portait son propre glisser. ⛔ Un mode qu'on
-     découvre en maintenant est un mode que personne ne trouve ; deux modes dans un mode,
-     personne ne les distingue. Deux boutons visibles disent la même chose, tout le temps.
-     📌 LE ROUGE ET LE VERT NE SONT PAS DÉCORATIFS : ils portent les deux verbes de la
-     maison — `--critical` refuse, `--positive` approuve — et le bleu des flèches est
-     `--info`, qui ne juge rien : il déplace. */
-  if (edition && figee) {
-    const poignee = (clef, mot, aide, faire, eteinte) => {
-      const b = bouton("sac-poignee", mot, aide, faire);
-      b.dataset.organe = clef;
-      if (eteinte) b.disabled = true;
-      return b;
-    };
-    const bouge = (sens) => options.surDeplacerSection && options.surDeplacerSection(sens);
-    /* ⛔ ET UNE FLÈCHE S'ÉTEINT AU BOUT DE LA COURSE : un bouton qui s'allume pour
-       refuser est pire qu'un bouton éteint (*« non coloré = non cliquable »*). */
-    const rang = options.section | 0;
-    const dernier = (options.sections || []).length - 1;
-    noeud.append(
-      poignee("reculer", "\u2190", "Move this section left", () => bouge(-1), rang <= 0),
-      poignee("avancer", "\u2192", "Move this section right", () => bouge(1), rang >= dernier),
-      poignee("effacer", "×", "Delete this section",
-        () => options.surSupprimer && options.surSupprimer(), figee.fige === true),
-      poignee("editer", "/", "Rename this section",
-        () => options.surEditer && options.surEditer(), figee.renommable === false),
-    );
-    noeud.append(notice(options));
-  }
+  /* ⚖️ TOUT LE MODE EDIT TIENT DANS UN PANNEAU — Eric, 2026-09-20, montage à l'appui :
+     *« on recouvre toute la section sous le sélecteur »* · *« les 4 boutons × / → ← sont
+     juste sous le bouton à éditer »* · *« les 2 boutons de création ne sont plus à
+     l'intérieur des sections »*.
+     ⭐ SEPT BOUTONS, ET LE SEPTIÈME NE BOUGE PAS : `Done sections` est l'interrupteur du
+     mode, il garde sa place et le panneau passe dessous. ⛔ Un interrupteur qui se déplace
+     n'en est plus un — c'est la loi écrite plus bas, et elle tient. */
+  if (edition && figee) noeud.append(notice(options, figee));
 
   /* ⚖️ LES DEUX OUTILS — Eric, 18/09 : *« un petit bouton 40 × 40 à droite du titre
      de section qui ressemble à un cadrillage ; un autre à gauche qui fait un

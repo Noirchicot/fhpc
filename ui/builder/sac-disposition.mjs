@@ -26,18 +26,22 @@ export const COLONNES = [49, 144, 239];
 export const RANGEES = [112, 168, 224, 280];
 
 /* ✏️ LE MODE EDIT — et il n'y en a plus qu'UN (Eric, 2026-09-20). Le mode déplacement,
-   qui s'ouvrait par un maintien de 1,5 s, a disparu : les deux flècnes bleues font son
-   travail. ⛔ `decalage` ne se tape pas — c'est exactement ce qui manque à une poignée de
-   30 centrée sur l'arête haute de la roue pour ne pas mordre sur le belt. */
-export const EDITION = { decalage: 11.0, notice: { x: 49, y: 112, l: 277, h: 216 } };
+   qui s'ouvrait par un maintien de 1,5 s, a disparu : les deux flèches bleues font son
+   travail. ⭐ ET LE PANNEAU COUVRE TOUT CE QUI EST SOUS LE SÉLECTEUR — *« on recouvre toute
+   la section sous le sélecteur »* : ses deux bornes SONT celles des organes qu'il
+   recouvre, de la rangée d'outils au bas de la plaque. */
+export const EDITION = { notice: { x: 0, y: 44, l: 375, h: 456 } };
 
 export const ORGANES = [
   { nom: "ROUE",        sorte: "roue",     x:     22, y:      4, l:    331, h:    40, cible: { x: 22, y: 2, l: 331, h: 44 }, cran: "T1/600" },
   { nom: "LOUPE",       sorte: "loupe",    x:    152, y:      4, l:     71, h:    40, dans: "ROUE", mot: "Potions", cran: "T1/600", dominant: true },
-  { nom: "RECULER",     sorte: "bouton",   x:    137, y:      0, l:     30, h:    30, cible: { x: 130, y: 0, l: 44, h: 44 }, mot: "←", cran: "T3/600" },
-  { nom: "AVANCER",     sorte: "bouton",   x:    208, y:      0, l:     30, h:    30, cible: { x: 201, y: 0, l: 44, h: 44 }, mot: "→", cran: "T3/600" },
-  { nom: "EFFACER",     sorte: "bouton",   x:    137, y:     40, l:     30, h:    30, cible: { x: 130, y: 33, l: 44, h: 44 }, mot: "×", cran: "T3/600" },
-  { nom: "EDITER",      sorte: "bouton",   x:    208, y:     40, l:     30, h:    30, cible: { x: 201, y: 33, l: 44, h: 44 }, mot: "/", cran: "T3/600" },
+  { nom: "EDITER",      sorte: "bouton",   x:  153.5, y:      7, l:     30, h:    30, cible: { x: 146.5, y: 0, l: 44, h: 44 }, dans: "NOTICE", mot: "/", cran: "T3/600" },
+  { nom: "EFFACER",     sorte: "bouton",   x:  191.5, y:      7, l:     30, h:    30, cible: { x: 184.5, y: 0, l: 44, h: 44 }, dans: "NOTICE", mot: "×", cran: "T3/600" },
+  { nom: "RECULER",     sorte: "bouton",   x:  153.5, y:     45, l:     30, h:    30, cible: { x: 146.5, y: 38, l: 44, h: 44 }, dans: "NOTICE", mot: "←", cran: "T3/600" },
+  { nom: "AVANCER",     sorte: "bouton",   x:  191.5, y:     45, l:     30, h:    30, cible: { x: 184.5, y: 38, l: 44, h: 44 }, dans: "NOTICE", mot: "→", cran: "T3/600" },
+  { nom: "ENCART",      sorte: "bande",    x:      4, y:     83, l:    367, h:   369, dans: "NOTICE", mot: "les explications detaillees" },
+  { nom: "AJOUT SAC",   sorte: "bouton",   x:   58.5, y:      0, l:     87, h:    44, cible: { x: 58.5, y: 0, l: 87, h: 44 }, dans: "NOTICE", mot: "+ Storage", cran: "T0/600" },
+  { nom: "AJOUT DEHORS", sorte: "bouton",   x:  229.5, y:      0, l:     87, h:    44, cible: { x: 229.5, y: 0, l: 87, h: 44 }, dans: "NOTICE", mot: "+ Storage", cran: "T0/600" },
   { nom: "TUNER G",     sorte: "tuner",    x:      4, y:     14, l:     10, h:    20, cible: { x: 0, y: 2, l: 44, h: 44 }, dans: "ROUE" },
   { nom: "TUNER D",     sorte: "tuner",    x:    361, y:     14, l:     10, h:    20, cible: { x: 331, y: 2, l: 44, h: 44 }, dans: "ROUE" },
   { nom: "TRIER",       sorte: "bouton",   x:      8, y:     52, l:     40, h:    40, cible: { x: 6, y: 50, l: 44, h: 44 }, mot: "Sort", cran: "T0/600" },
@@ -57,7 +61,7 @@ export const ORGANES = [
   { nom: "CASE 4.1",    sorte: "jeton",    x:     49, y:    280, l:     87, h:    48, dans: "DALLES" },
   { nom: "CASE 4.2",    sorte: "jeton",    x:    144, y:    280, l:     87, h:    48, dans: "DALLES" },
   { nom: "CASE 4.3",    sorte: "jeton",    x:    239, y:    280, l:     87, h:    48, dans: "DALLES" },
-  { nom: "NOTICE",      sorte: "bande",    x:     49, y:    112, l:    277, h:   216, mot: "la notice du mode edit" },
+  { nom: "NOTICE",      sorte: "bande",    x:      0, y:     44, l:    375, h:   456, mot: "le panneau du mode edit" },
   { nom: "lune Wares",  sorte: "lune",     x:      4, y:    161, l:     30, h:    30, cible: { x: 0, y: 154, l: 44, h: 44 }, mot: "Wares", creation: false },
   { nom: "lune Gear",   sorte: "lune",     x:      4, y:    205, l:     30, h:    30, cible: { x: 0, y: 198, l: 44, h: 44 }, mot: "Gear", creation: false },
   { nom: "lune Craft",  sorte: "lune",     x:      4, y:    249, l:     30, h:    30, cible: { x: 0, y: 242, l: 44, h: 44 }, mot: "Craft", creation: false },

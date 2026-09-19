@@ -37,12 +37,11 @@
   "jour": 52.63
  },
  "edition": {
-  "decalage": 11.0,
   "notice": {
-   "x": 49,
-   "y": 112,
-   "l": 277,
-   "h": 216
+   "x": 0,
+   "y": 44,
+   "l": 375,
+   "h": 456
   }
  },
  "organes": [
@@ -75,76 +74,124 @@
    "creation": true
   },
   {
-   "nom": "RECULER",
-   "sorte": "bouton",
-   "x": 137.0,
-   "y": 0.0,
-   "l": 30,
-   "h": 30,
-   "cible": {
-    "x": 130.0,
-    "y": 0,
-    "l": 44,
-    "h": 44
-   },
-   "mot": "←",
-   "cran": "T3/600",
-   "edition": true,
-   "cheval": true
-  },
-  {
-   "nom": "AVANCER",
-   "sorte": "bouton",
-   "x": 208.0,
-   "y": 0.0,
-   "l": 30,
-   "h": 30,
-   "cible": {
-    "x": 201.0,
-    "y": 0,
-    "l": 44,
-    "h": 44
-   },
-   "mot": "→",
-   "cran": "T3/600",
-   "edition": true,
-   "cheval": true
-  },
-  {
-   "nom": "EFFACER",
-   "sorte": "bouton",
-   "x": 137.0,
-   "y": 40.0,
-   "l": 30,
-   "h": 30,
-   "cible": {
-    "x": 130.0,
-    "y": 33.0,
-    "l": 44,
-    "h": 44
-   },
-   "mot": "×",
-   "cran": "T3/600",
-   "edition": true,
-   "cheval": true
-  },
-  {
    "nom": "EDITER",
    "sorte": "bouton",
-   "x": 208.0,
-   "y": 40.0,
+   "x": 153.5,
+   "y": 7.0,
    "l": 30,
    "h": 30,
    "cible": {
-    "x": 201.0,
-    "y": 33.0,
+    "x": 146.5,
+    "y": 0.0,
     "l": 44,
     "h": 44
    },
    "mot": "/",
    "cran": "T3/600",
    "edition": true,
-   "cheval": true
+   "dans": "NOTICE"
+  },
+  {
+   "nom": "EFFACER",
+   "sorte": "bouton",
+   "x": 191.5,
+   "y": 7.0,
+   "l": 30,
+   "h": 30,
+   "cible": {
+    "x": 184.5,
+    "y": 0.0,
+    "l": 44,
+    "h": 44
+   },
+   "mot": "×",
+   "cran": "T3/600",
+   "edition": true,
+   "dans": "NOTICE"
+  },
+  {
+   "nom": "RECULER",
+   "sorte": "bouton",
+   "x": 153.5,
+   "y": 45.0,
+   "l": 30,
+   "h": 30,
+   "cible": {
+    "x": 146.5,
+    "y": 38.0,
+    "l": 44,
+    "h": 44
+   },
+   "mot": "←",
+   "cran": "T3/600",
+   "edition": true,
+   "dans": "NOTICE"
+  },
+  {
+   "nom": "AVANCER",
+   "sorte": "bouton",
+   "x": 191.5,
+   "y": 45.0,
+   "l": 30,
+   "h": 30,
+   "cible": {
+    "x": 184.5,
+    "y": 38.0,
+    "l": 44,
+    "h": 44
+   },
+   "mot": "→",
+   "cran": "T3/600",
+   "edition": true,
+   "dans": "NOTICE"
+  },
+  {
+   "nom": "ENCART",
+   "sorte": "bande",
+   "x": 4,
+   "y": 83.0,
+   "l": 367,
+   "h": 369.0,
+   "edition": true,
+   "dans": "NOTICE",
+   "mot": "les explications detaillees"
+  },
+  {
+   "nom": "AJOUT SAC",
+   "sorte": "bouton",
+   "x": 58.5,
+   "y": 0.0,
+   "l": 87,
+   "h": 44,
+   "cible": {
+    "x": 58.5,
+    "y": 0.0,
+    "l": 87,
+    "h": 44
+   },
+   "mot": "+ Storage",
+   "cran": "T0/600",
+   "edition": true,
+   "dans": "NOTICE"
+  },
+  {
+   "nom": "AJOUT DEHORS",
+   "sorte": "bouton",
+   "x": 229.5,
+   "y": 0.0,
+   "l": 87,
+   "h": 44,
+   "cible": {
+    "x": 229.5,
+    "y": 0.0,
+    "l": 87,
+    "h": 44
+   },
+   "mot": "+ Storage",
+   "cran": "T0/600",
+   "edition": true,
+   "dans": "NOTICE",
+   "lieu": "dehors"
   },
   {
    "nom": "TUNER G",
@@ -352,12 +399,12 @@
   {
    "nom": "NOTICE",
    "sorte": "bande",
-   "x": 49,
-   "y": 112,
-   "l": 277,
-   "h": 216,
+   "x": 0,
+   "y": 44,
+   "l": 375,
+   "h": 456,
    "edition": true,
-   "mot": "la notice du mode edit"
+   "mot": "le panneau du mode edit"
   },
   {
    "nom": "lune Wares",

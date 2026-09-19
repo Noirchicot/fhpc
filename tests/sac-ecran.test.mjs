@@ -442,46 +442,40 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
      occupe la place exacte qu'avait le dominant. */
   const dom = D.ORGANES.find((o) => o.nom === "LOUPE");
   const pose = (nom) => D.ORGANES.find((o) => o.nom === nom);
-  /* ⚖️ QUATRE POIGNÉES, AUX QUATRE COINS — croquis d'Eric du 19/09 au soir, « EDIT MODE 1 » :
-     les deux flèches BLEUES à cheval sur l'arête du HAUT, le `×` ROUGE et le `/` VERT sur
-     celle du BAS. *« les flèches permettent de déplacer le storage à droite et à gauche »*.
-     ⭐ ET IL N'Y A PLUS QU'UN SEUL MODE EDIT — sa phrase exacte, 19/09. Le mode DÉPLACEMENT,
-     qui s'ouvrait par un maintien de 1,5 s et sortait la roue du verre, DISPARAÎT : les
-     flèches font son travail. ⛔ Un mode qu'on découvre en maintenant est un mode que
-     personne ne trouve — et deux modes dans un mode, personne ne les distingue.
-     📏 ET LA ROUE DESCEND DE 11 EN ÉDITION, mesuré : une poignée de 30 centrée sur l'arête
-     HAUTE tombe à `4 − 15 = −11`, donc sur le belt. Eric : *« la roue descend de 11, en
-     édition seulement »*. ⭐ Le nombre ne se tape pas, il EST ce qui manque à la flèche. */
-  assert.equal(D.EDITION.decalage, D.ORGANES.find((o) => o.nom === "RECULER").l / 2 - dom.y,
-    "⛔ le décalage se DÉDUIT : demi-poignée moins la place libre au-dessus de la roue");
-  const hautEdition = dom.y + D.EDITION.decalage;
-  for (const [p2, bord, cote] of [["RECULER", "haut", "gauche"], ["AVANCER", "haut", "droite"],
-                                  ["EFFACER", "bas", "gauche"], ["EDITER", "bas", "droite"]]) {
-    assert.equal(pose(p2).x + pose(p2).l / 2, cote === "gauche" ? dom.x : dom.x + dom.l,
-      `⚖️ ${p2} est centré sur le coin ${bord}-${cote} — c'est ce qui dit de QUELLE boîte il parle`);
-    assert.equal(pose(p2).y + pose(p2).h / 2, bord === "haut" ? hautEdition : hautEdition + dom.h,
-      `⚖️ et à cheval sur l'arête du ${bord} de la tuile DESCENDUE`);
+  /* ⚖️ QUATRE POIGNÉES, SOUS LA TUILE, DANS LE PANNEAU — Eric, 2026-09-20, montage sur
+     capture : *« les 4 boutons × / → ← sont juste sous le bouton à éditer »* · *« les 2
+     boutons de création ne sont plus à l'intérieur des sections »*.
+     🔴 CE QUE CE MONTAGE A SUPPRIMÉ, ET C'EST BEAUCOUP : elles étaient À CHEVAL sur les
+     arêtes de la tuile, donc la flèche du haut tombait à −11 et mordait sur le belt ; il
+     avait fallu descendre la roue ET la rangée d'outils de 11, et cacher `Encumbrance`
+     pour que la place existe. ⭐ Tout cela disparaît parce que la QUESTION a changé de
+     forme, pas parce qu'on l'a résolue.
+     📌 ELLES SONT `dans: NOTICE`, donc leurs cotes sont relatives au panneau — le même
+     mécanisme que les douze cases dans la plaque. Deux rangées de deux, centrées sous le
+     viseur, `/` à gauche du `×` : renommer est le geste courant, effacer celui qu'on
+     regrette, et le courant vient en premier dans le sens de lecture. */
+  const centre = dom.x + dom.l / 2;
+  for (const [p2, rangee, cote] of [["EDITER", 1, "gauche"], ["EFFACER", 1, "droite"],
+                                    ["RECULER", 2, "gauche"], ["AVANCER", 2, "droite"]]) {
+    assert.equal(pose(p2).dans, "NOTICE", `⛔ ${p2} doit vivre DANS le panneau`);
     assert.deepEqual([pose(p2).l, pose(p2).h], [30, 30], "⚖️ *« dessin 30×30 »* (19/09 au soir)");
     assert.deepEqual([pose(p2).cible.l, pose(p2).cible.h], [D.TOUCH, D.TOUCH],
       "⚖️ *« tactile 44×44 »* — ⛔ le dessin rétrécit, la cible ne descend jamais sous le plancher");
+    const x = pose(p2).x + (cote === "gauche" ? pose(p2).l : 0);
+    assert.equal(x, centre + (cote === "gauche" ? -4 : 4),
+      `⚖️ ${p2} borde le centre du viseur, à une demi-gouttière — c'est ça, « juste sous le bouton à éditer »`);
   }
-  /* ⚖️ ET LE CHEVAL EST VERTICAL, SUR L'ARÊTE DU BAS — croquis d'Eric, 19/09 : les
-     deux signes PENDENT sous le cran. 🔴 Je les avais mis aux côtés, à mi-hauteur :
-     ils mordaient alors sur les deux crans VOISINS, et un signe posé sur la boîte
-     d'à-côté ment sur ce qu'il désigne. Sous le cran, il n'y a personne. */
-
-  /* ⚖️ ERIC, 2026-09-19 AU SOIR, ET IL CORRIGE SON PROPRE 40 : *« j'ai demandé dessin
-     30×30 / tactile 44×44 »* · *« x = effacer, / = editer »* · *« seulement × et / —
-     les quatre autres restent à 40 »*. ⭐ Le `40 × 40` qu'il avait dicté le matin
-     visait la HAUTEUR des sections ; ces deux poignées-ci portent un GLYPHE, pas un
-     mot, et elles n'ont donc pas besoin de la largeur d'un mot.
-     ⛔ CE GARDE A ROUGI SUR CE CHANGEMENT, ET IL AVAIT RAISON DE ROUGIR : c'est sa
-     fonction de tenir une cote dictée contre la dérive. On le réécrit AVEC sa date,
-     ⛔ on ne retourne pas un nombre en silence.
-     📌 ET LE PARTAGE SURVIT À LA RÉDUCTION : le dessin enjambe 15/15 l'arête du cran,
-     la CIBLE (44, inchangée) l'enjambe 22/22 — ce que *« dépasse de 20 à l'intérieur
-     et à l'extérieur »* voulait dire au doigt. */
-
+  assert.equal(pose("RECULER").y - pose("EDITER").y, pose("EDITER").h + 8,
+    "⚖️ la seconde rangée tombe une gouttière sous la première");
+  assert.equal(pose("EDITER").y, pose("EFFACER").y, "⚖️ et les deux du haut sont de niveau");
+  /* ⛔ ET LA DESCENTE N'EXISTE PLUS : plus rien ne mord sur le belt, donc plus rien à
+     descendre ni à cacher. Un reste de ce mécanisme serait un organe sans cause. */
+  assert.equal(D.EDITION.decalage, undefined, "⛔ `decalage` a perdu sa raison d'être");
+  const emiseSansDescente = feuilleDesCotesSac();
+  assert.doesNotMatch(emiseSansDescente, /data-mode="edition"\] :is\([^)]*\)\{translate/,
+    "⛔ plus personne ne descend en édition");
+  assert.doesNotMatch(emiseSansDescente, /visibility:hidden/,
+    "⛔ et `Encumbrance` n'a plus à se cacher : le panneau la recouvre");
 
   /* ③ 🔴 ET LA PASTILLE DOIT LIRE CE DESSIN, SINON LA COTE EST INERTE. Faute mesurée le
      19/09 : la table déclarait 40 et la pastille valait `--sp-24` en dur — deux cotes
@@ -555,51 +549,43 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
      ⭐ Le `+` est un cran DE PLUS SUR L'ANNEAU, pas une butée à son bout : c'est ce
      qui rend l'infini et le `+` compatibles. */
   const cinq = [1, 2, 3, 4, 5].map((i) => ({ nom: `S${i}` }));
-  /* ⚖️ EN ÉDITION, LES DEUX BOUTS SONT LES DEUX `+` — croquis du 19/09 : `Backpack +
-     section` à gauche, `Outside backpack + section` à droite. ⛔ Il ne reste donc que
-     TROIS sections visibles, et c'est ce que son croquis montre.
-     🔴 C'EST L'INVERSE DE CE QUE J'AVAIS FAIT LA VEILLE : j'avais posé un `+` unique
-     SUR l'anneau, pour qu'un ruban infini garde un endroit où créer. Eric l'en sort —
-     un bouton qui défile est un bouton qu'on doit chercher. */
+  /* 🧹 LE RUBAN NE PORTE PLUS DE `+` — Eric, 2026-09-20 : *« les 2 boutons de création ne
+     sont plus à l'intérieur des sections »*.
+     🔴 CE GARDE A TENU TROIS ÉTATS DE CETTE ROUE, et c'est la même question à chaque
+     fois : *que porte le ruban ?* Cinq places dont le texte change · trois copies et une
+     téléportation · la liste nue plus deux `+` aux bouts · et maintenant la liste NUE.
+     ⭐ CE QUI LE JUSTIFIE : un `+` n'est pas une section. Il occupait deux places dans une
+     LISTE de sections, et il défilait — un bouton qui défile est un bouton qu'on cherche.
+     ⛔ Le décalage du rang meurt avec lui : la tuile `i` est au rang `i` dans les deux
+     modes, et une traduction qui ne traduit plus rien est une occasion de diverger. */
   const bout = rendu({ sections: cinq, section: 4, edition: true,
     surAjouter: (ou) => gestes.push(`ajouter:${ou}`) });
   const crans = tous(bout, ".sac-cran");
-  /* 🔴 CE GARDE DÉCRIVAIT UNE FENÊTRE D'ANNEAU — cinq places, deux `+` aux bouts, trois
-     sections qui tournent entre eux. ⛔ La roue DÉFILE depuis le 20/09 : en édition le
-     ruban porte TOUTES les sections, du premier au dernier, avec un `+` à chaque bout.
-     ⭐ C'est ce qui rend les deux `+` atteignables sans les sortir du geste — et c'est
-     pourquoi l'édition ne boucle pas : un anneau n'a pas de bout où poser un `+`. */
-  assert.deepEqual(crans.map((c) => c.dataset.role || "section"),
-    ["ajouter", ...cinq.map(() => "section"), "ajouter"],
-    "⭐ un `+` à chaque bout, et toutes les sections entre eux");
-  assert.deepEqual(crans.slice(1, -1).map((c) => c.textContent || c.value),
-    cinq.map((x) => x.nom), "⛔ dans l'ordre, du premier au dernier");
-  /* 🧊 ET CHAQUE SECTION N'Y EST QU'UNE FOIS — c'était la marque du mode édition
-     (« on édite une LISTE, pas un anneau ») ; depuis le 19/09 c'est la loi de tout le
-     ruban, Eric ayant retiré la boucle. La question ne change pas, sa réponse s'étend. */
-  const rangs = crans.slice(1, -1).map((c) => c.dataset.position);
+  assert.deepEqual(crans.map((c) => c.dataset.role || "section"), cinq.map(() => "section"),
+    "⛔ le ruban ne porte QUE des sections, dans les deux modes");
+  assert.deepEqual(crans.map((c) => c.textContent || c.value), cinq.map((x) => x.nom),
+    "⛔ dans l'ordre, du premier au dernier");
+  const rangs = crans.map((c) => c.dataset.position);
   assert.equal(new Set(rangs).size, rangs.length, "⛔ une section y paraît deux fois");
 
-  /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE — Eric, 2026-09-19 au soir : *« au dessus et en
-     dessous du + vert : backpack / + / Storage »* · *« au dessus et en dessous du +
-     doré : Other / + / Storage »*.
-     🔴 CE GARDE A ROUGI SUR CE CHANGEMENT, ET IL AVAIT RAISON : il épinglait un `+` NU
-     (`textContent === "+"`). ⛔ On ne rattrape pas ça en concaténant les trois étages —
-     `"backpack+Storage"` serait vert pour n'importe quel ORDRE. ⭐ Il lit donc les
-     étages un par un, dans l'ordre où ils sont empilés : c'est l'ordre qui porte la
-     phrase, le mot du dessus disant OÙ et celui du dessous disant QUOI. */
-  const etages = (c) => [...c.childNodes].map((n) => n.textContent);
-  assert.deepEqual(etages(crans[0]), ["backpack", "+", "Storage"],
-    "⚖️ le `+` vert crée un rangement qui pèse dans `Backpack`");
-  assert.deepEqual(etages(crans[crans.length - 1]), ["Other", "+", "Storage"],
-    "⚖️ et le `+` doré un rangement qui compte dans `Other` — le mot du panneau de poids");
-  assert.equal(crans[crans.length - 1].dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
-  assert.equal(crans[0].dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
-  const [gauche, droite] = tous(bout, '[data-role="ajouter"]');
-  assert.equal(gauche.dataset.lieu, undefined, "le `+` de gauche crée DANS le sac");
-  assert.equal(droite.dataset.lieu, "dehors", "⚖️ celui de droite crée DEHORS — et son `+` est doré");
-  gauche.dispatchEvent({ type: "click" });
-  droite.dispatchEvent({ type: "click" });
+  /* ⚖️ ET LES DEUX CRÉATIONS VIVENT DANS LE PANNEAU, chacune disant CE QU'ELLE CRÉE —
+     Eric, 19/09 au soir : *« au-dessus et en dessous du + vert : backpack / + / Storage »*
+     · *« au-dessus et en dessous du + doré : Other / + / Storage »*. ⭐ Le mot du dessus
+     dit OÙ, celui du dessous dit QUOI : c'est l'ORDRE qui porte la phrase. */
+  const etages = (c) => [...c.childNodes].map((x) => x.textContent);
+  const ajoutSac = bout.querySelector('[data-organe="ajout-sac"]');
+  const ajoutDehors = bout.querySelector('[data-organe="ajout-dehors"]');
+  assert.ok(ajoutSac && ajoutDehors, "⛔ les deux créations ont disparu du panneau");
+  assert.deepEqual(etages(ajoutSac), ["Backpack", "+ Storage"],
+    "⚖️ le vert crée un rangement qui pèse dans `Backpack`");
+  assert.deepEqual(etages(ajoutDehors), ["Other", "+ Storage"],
+    "⚖️ et le doré un rangement qui compte dans `Other` — le mot du panneau de poids");
+  assert.equal(ajoutDehors.dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
+  assert.equal(ajoutSac.dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
+  for (const clef of ["AJOUT SAC", "AJOUT DEHORS"])
+    assert.equal(pose(clef).dans, "NOTICE", `⛔ ${clef} doit vivre DANS le panneau`);
+  ajoutSac.dispatchEvent({ type: "click" });
+  ajoutDehors.dispatchEvent({ type: "click" });
   assert.deepEqual(gestes.slice(-2), ["ajouter:sac", "ajouter:dehors"],
     "⛔ et le geste dit LEQUEL : deux boutons, deux destinations");
   const repos = rendu({ sections: cinq, section: 0 });
@@ -613,6 +599,7 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
   assert.deepEqual(auRepos.map((c) => c.textContent), cinq.map((x) => x.nom),
     "⛔ et dans son ordre, du premier au dernier");
   assert.equal(tous(repos, '[data-role="ajouter"]').length, 0, "⛔ et il ne porte aucun `+`");
+  assert.equal(repos.querySelector('[data-organe="notice"]'), null, "⛔ ni le panneau d'édition");
   /* ⭐ UN SEUL DOMINANT DANS CHAQUE ÉTAT — le halo est une LOUPE FIXE, et c'est la tuile
      qui passe dessous qui s'allume. ⛔ Deux allumées voudraient dire deux viseurs. */
   for (const x of [bout, repos]) {
@@ -977,7 +964,11 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
   /* \u2460 LES QUATRE POIGN\u00c9ES SONT L\u00c0, ET LES DEUX `+` AUSSI */
   for (const clef of ["reculer", "avancer", "effacer", "editer"])
     assert.ok(edite.querySelector(`[data-organe="${clef}"]`), `\u26d4 la poign\u00e9e ${clef} manque`);
-  assert.equal(tous(edite, '.sac-cran[data-role="ajouter"]').length, 2, "les deux `+` aux bouts");
+  /* 🧹 ET LES DEUX CRÉATIONS ONT QUITTÉ LE RUBAN (20/09) : elles sont dans le panneau. */
+  assert.equal(tous(edite, '.sac-cran[data-role="ajouter"]').length, 0,
+    "⛔ un `+` dans le ruban est un bouton qui défile — et une place dans une liste de sections");
+  for (const clef of ["ajout-sac", "ajout-dehors"])
+    assert.ok(edite.querySelector(`[data-organe="${clef}"]`), `⛔ la création ${clef} manque au panneau`);
 
   /* \u2461 LES FL\u00c8CHES D\u00c9PLACENT, ET ELLES DISENT LEUR SENS */
   edite.querySelector('[data-organe="reculer"]').dispatchEvent({ type: "click" });
@@ -1002,22 +993,6 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
   assert.equal(rendu({ sections: cinq, section: 1, edition: true }).dataset.deplacement, undefined,
     "\u26d4 et la dalle ne porte plus son \u00e9tat");
 
-  /* \u2464 \ud83d\udcd0 LA ROUE DESCEND DE 11 EN \u00c9DITION, ET `Encumbrance` SE CACHE \u2014 Eric, 19/09 :
-     *\u00ab la roue descend de 11, en \u00e9dition seulement \u00bb* \u00b7 20/09 : *\u00ab tu peux cacher
-     encumbrance temporairement \u00bb*.
-     \u2b50 ET LE 11 SE D\u00c9DUIT : c'est ce qui manque \u00e0 une poign\u00e9e de 30 centr\u00e9e sur l'ar\u00eate
-     haute pour ne pas mordre sur le belt. \u26d4 Un `translate`, pas un `top` : la mise en
-     page ne bouge pas, donc la sortie d'\u00e9dition ne co\u00fbte pas un repeint. */
-  const emise = feuilleDesCotesSac();
-  const descente = emise.match(/\.sac\[data-mode="edition"\] :is\(([^)]*)\)\{translate:0 ([^}]*)\}/);
-  assert.ok(descente, "\u26d4 plus personne ne descend en \u00e9dition : les fl\u00e8cnes mordent sur le belt");
-  assert.equal(descente[2], `${D.EDITION.decalage}px`);
-  for (const clef of ["roue", "tuner-g", "tuner-d", "trier", "sections"])
-    assert.match(descente[1], new RegExp(`\\[data-organe="${clef}"\\]`),
-      `\u26d4 ${clef} reste en haut pendant que la roue descend : ils se chevaucheraient`);
-  assert.match(emise, /\.sac\[data-mode="edition"\] :is\(\[data-organe="poids-total"\],\[data-organe="poids-detail"\]\)\{visibility:hidden\}/,
-    "\u26d4 `Encumbrance` doit se cacher \u2014 c'est ce qui rend la descente gratuite");
-
   /* \u2465 \ud83d\udccb LA NOTICE RECOUVRE LA GRILLE \u2014 *\u00ab elle recouvre la grille (elle ne remplace
      pas) \u00bb* : sa bo\u00eete est EXACTEMENT celle des douze jetons, donc les 8 blg de marge de la
      plaque restent visibles tout autour. \u26d4 Une notice qui mangerait la plaque ferait
@@ -1027,14 +1002,21 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
   assert.equal(rendu({ sections: cinq, section: 1 }).querySelector('[data-organe="notice"]'), null,
     "\u26d4 et elle ne para\u00eet QUE en \u00e9dition");
   const boite = D.ORGANES.find((o) => o.nom === "NOTICE");
-  assert.deepEqual([boite.x, boite.y], [D.COLONNES[0], D.RANGEES[0]], "\u2696\ufe0f elle commence \u00e0 la grille");
-  assert.deepEqual([boite.x + boite.l, boite.y + boite.h],
-    [D.COLONNES[2] + D.JETON.l, D.RANGEES[3] + D.JETON.h], "\u2696\ufe0f et elle finit avec elle");
+  /* \u2696\ufe0f *\u00ab recouvre parfaitement la dalle pour faire bien joli, sans recouvrir le
+     s\u00e9lecteur \u00bb* (Eric, 20/09). \u26d4 Ses deux bornes ne se tapent pas : il commence \u00e0
+     l'ar\u00eate BASSE de la roue et finit au bas de la dalle. \u00ab Parfaitement \u00bb veut dire
+     qu'on ne voit rien d\u00e9passer \u2014 ni en haut, ni en bas, ni sur les c\u00f4t\u00e9s. */
+  const roueOrg = D.ORGANES.find((o) => o.nom === "ROUE");
+  assert.deepEqual([boite.x, boite.l], [0, D.DALLE.l], "\u2696\ufe0f toute la largeur, bord \u00e0 bord");
+  assert.equal(boite.y, roueOrg.y + roueOrg.h, "\u2696\ufe0f il commence o\u00f9 le s\u00e9lecteur finit \u2014 et ne le recouvre pas");
+  assert.equal(boite.y + boite.h, D.DALLE.h, "\u2696\ufe0f et il finit au bas de la dalle");
   /* \u2696\ufe0f *\u00ab l\u00e9gendes des 4 poign\u00e9es, explication des couleurs, ce qui s'efface ce qui ne
      s'efface pas \u00bb*. \u26d4 ET LA DERNI\u00c8RE LIGNE SE D\u00c9DUIT DES SECTIONS : un texte qui nomme
      des donn\u00e9es \u00e0 la main ment le jour o\u00f9 le socle change. */
   assert.deepEqual(tous(notice, ".sac-notice-signe").map((n) => n.dataset.signe),
-    ["reculer", "avancer", "effacer", "editer"], "\u26d4 les quatre l\u00e9gendes, dans l'ordre du croquis");
+    ["editer", "effacer", "reculer", "avancer"],
+    "\u26d4 l'encart lit les quatre boutons DANS L'ORDRE O\u00d9 ILS SONT POS\u00c9S \u2014 une l\u00e9gende qui " +
+    "ne suit pas le dessin oblige \u00e0 chercher");
   /* \ud83d\udd34 ET ELLE EST OPAQUE \u2014 faute vue \u00c0 L'\u00c9CRAN au premier rendu, pas au banc : avec la
      mati\u00e8re d'un bloc int\u00e9rieur (35 %) on lisait `Belt of Dwarvenkind` \u00c0 TRAVERS la notice.
      \u26d4 Une notice qu'on voit au travers fait croire que les jetons sont encore
@@ -1043,14 +1025,38 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
   const habitDeLaNotice = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
     .map(([, sel, corps]) => ({ sel: sel.trim(), corps })).find((b) => b.sel === ".sac-notice");
   assert.ok(habitDeLaNotice, "\u26d4 la notice n'est plus habill\u00e9e");
-  assert.match(habitDeLaNotice.corps, /var\(--voile-majeure\)/,
-    "\u26d4 la notice doit MASQUER la grille, pas la voiler");
+  /* \u2696\ufe0f *\u00ab bo\u00eete noire comme pour Sort \u00bb* \u00b7 *\u00ab avec contour bleu \u00bb* \u00b7 *\u00ab enfin, m\u00eame
+     couleur que les boutons quoi \u00bb* \u2014 Eric, 20/09, en trois temps. \u2b50 C'est donc la FACE
+     des boutons, pas une teinte \u00e0 elle : celle de `Sort`, `Gear`, `Send`, `Wares`.
+     \ud83d\udd35 Et le liser\u00e9 est BLEU l\u00e0 o\u00f9 le popup l'a rouge : ce panneau ne pr\u00e9vient de rien,
+     il \u00e9dite. \ud83d\udd34 Opaque : au premier rendu on lisait `Belt of Dwarvenkind` \u00c0 TRAVERS. */
+  assert.match(habitDeLaNotice.corps, /background:\s*var\(--bouton-face\)/,
+    "\u26d4 le panneau doit MASQUER, pas voiler \u2014 et c'est la face des boutons");
+  assert.match(habitDeLaNotice.corps, /border:[^;]*var\(--info\)/,
+    "\u2696\ufe0f *\u00ab bo\u00eete noire avec contour bleu \u00bb*");
   const fige = rendu({ sections: [{ nom: "Party bag", fige: true, renommable: false }, { nom: "B" }],
-                       section: 1, edition: true }).querySelector(".sac-notice-fige");
+                       section: 1, edition: true }).querySelector(".sac-encart-fige");
   assert.match(fige.textContent, /Party bag cannot be deleted/);
   assert.match(fige.textContent, /Party bag cannot be renamed/);
+  /* \u2696\ufe0f ET LES DEUX SECTIONS QU'ON NE PEUT PAS EFFACER S'EXPLIQUENT \u2014 Eric, 20/09 :
+     *\u00ab on ne peut pas effacer le party bag : le party bag explications \u00bb* \u00b7 *\u00ab le backpack
+     dropdown non plus : explication de ce que c'est aussi \u2014 tout atterrit l\u00e0 \u00bb*.
+     \u2b50 ELLES SE D\u00c9SIGNENT PAR CE QU'ELLES SONT, \u26d4 pas par leur nom \u00e9crit dans le code : le
+     party porte `party`, le d\u00e9p\u00f4t est la section fig\u00e9e qui n'est pas lui. Un texte qui
+     \u00e9crit \u00ab Party bag \u00bb \u00e0 la main ment le jour o\u00f9 le socle change de mot \u2014 et il a chang\u00e9
+     deux fois en deux jours sur cet \u00e9cran.
+     \ud83d\udccc UN BOUTON \u00c9TEINT NE DIT PAS POURQUOI : l'\u00e9cran montre d\u00e9j\u00e0 que la poign\u00e9e refuse,
+     il ne dit pas ce que la section EST. */
+  const deux = rendu({ sections: [{ nom: "Party bag", party: true, fige: true, renommable: false },
+                                  { nom: "Backpack dropdown", fige: true }, { nom: "B" }],
+                       section: 2, edition: true }).querySelector(".sac-encart-figees");
+  const dits = [...deux.childNodes].map((x) => x.textContent);
+  assert.equal(dits[0], "Party bag");
+  assert.match(dits[1], /whole party/, "\u26d4 le party bag doit dire ce qu'il EST");
+  assert.equal(dits[2], "Backpack dropdown");
+  assert.match(dits[3], /Where everything lands/, "\u2696\ufe0f *\u00ab tout atterrit l\u00e0 \u00bb*");
   assert.doesNotMatch(rendu({ sections: cinq, section: 1, edition: true })
-    .querySelector(".sac-notice-fige").textContent, /cannot/,
+    .querySelector(".sac-encart-fige").textContent, /cannot/,
     "\u26d4 quand rien n'est fig\u00e9, la notice ne doit pas inventer une contrainte");
 });
 test("24 — 🎒 LE SAC EN FILIGRANE : derrière, muet, et sa cote se DÉDUIT de la grille", () => {
