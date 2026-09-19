@@ -77,12 +77,12 @@
    "nom": "EDITER",
    "sorte": "bouton",
    "x": 153.5,
-   "y": 7.0,
+   "y": 13.0,
    "l": 30,
    "h": 30,
    "cible": {
     "x": 146.5,
-    "y": 0.0,
+    "y": 6.0,
     "l": 44,
     "h": 44
    },
@@ -95,12 +95,12 @@
    "nom": "EFFACER",
    "sorte": "bouton",
    "x": 191.5,
-   "y": 7.0,
+   "y": 13.0,
    "l": 30,
    "h": 30,
    "cible": {
     "x": 184.5,
-    "y": 0.0,
+    "y": 6.0,
     "l": 44,
     "h": 44
    },
@@ -113,12 +113,12 @@
    "nom": "RECULER",
    "sorte": "bouton",
    "x": 153.5,
-   "y": 45.0,
+   "y": 51.0,
    "l": 30,
    "h": 30,
    "cible": {
     "x": 146.5,
-    "y": 38.0,
+    "y": 44.0,
     "l": 44,
     "h": 44
    },
@@ -131,12 +131,12 @@
    "nom": "AVANCER",
    "sorte": "bouton",
    "x": 191.5,
-   "y": 45.0,
+   "y": 51.0,
    "l": 30,
    "h": 30,
    "cible": {
     "x": 184.5,
-    "y": 38.0,
+    "y": 44.0,
     "l": 44,
     "h": 44
    },
@@ -146,27 +146,16 @@
    "dans": "NOTICE"
   },
   {
-   "nom": "ENCART",
-   "sorte": "bande",
-   "x": 4,
-   "y": 83.0,
-   "l": 367,
-   "h": 369.0,
-   "edition": true,
-   "dans": "NOTICE",
-   "mot": "les explications detaillees"
-  },
-  {
    "nom": "AJOUT SAC",
    "sorte": "bouton",
-   "x": 58.5,
-   "y": 0.0,
-   "l": 87,
-   "h": 44,
+   "x": 74.5,
+   "y": 8,
+   "l": 71,
+   "h": 40,
    "cible": {
-    "x": 58.5,
-    "y": 0.0,
-    "l": 87,
+    "x": 74.5,
+    "y": 6.0,
+    "l": 71,
     "h": 44
    },
    "mot": "+ Storage",
@@ -178,13 +167,13 @@
    "nom": "AJOUT DEHORS",
    "sorte": "bouton",
    "x": 229.5,
-   "y": 0.0,
-   "l": 87,
-   "h": 44,
+   "y": 8,
+   "l": 71,
+   "h": 40,
    "cible": {
     "x": 229.5,
-    "y": 0.0,
-    "l": 87,
+    "y": 6.0,
+    "l": 71,
     "h": 44
    },
    "mot": "+ Storage",
@@ -192,6 +181,24 @@
    "edition": true,
    "dans": "NOTICE",
    "lieu": "dehors"
+  },
+  {
+   "nom": "DONE",
+   "sorte": "bouton",
+   "x": 327,
+   "y": 8,
+   "l": 40,
+   "h": 40,
+   "cible": {
+    "x": 325.0,
+    "y": 6.0,
+    "l": 44,
+    "h": 44
+   },
+   "mot": "done sections",
+   "cran": "T0/600",
+   "edition": true,
+   "dans": "NOTICE"
   },
   {
    "nom": "TUNER G",

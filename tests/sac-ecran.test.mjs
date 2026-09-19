@@ -576,9 +576,9 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
   const ajoutSac = bout.querySelector('[data-organe="ajout-sac"]');
   const ajoutDehors = bout.querySelector('[data-organe="ajout-dehors"]');
   assert.ok(ajoutSac && ajoutDehors, "⛔ les deux créations ont disparu du panneau");
-  assert.deepEqual(etages(ajoutSac), ["Backpack", "+ Storage"],
+  assert.deepEqual(etages(ajoutSac), ["+", "Backpack", "Storage"],
     "⚖️ le vert crée un rangement qui pèse dans `Backpack`");
-  assert.deepEqual(etages(ajoutDehors), ["Other", "+ Storage"],
+  assert.deepEqual(etages(ajoutDehors), ["+", "Other", "Storage"],
     "⚖️ et le doré un rangement qui compte dans `Other` — le mot du panneau de poids");
   assert.equal(ajoutDehors.dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
   assert.equal(ajoutSac.dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
@@ -590,10 +590,23 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
     .map(([, sel, corps]) => ({ sel: sel.trim(), corps }));
   const base = habits.find((b) => b.sel === ".sac-ajout");
   assert.ok(base, "⛔ les deux créations ne sont plus habillées");
-  assert.match(base.corps, /background:\s*var\(--positive\)/, "⚖️ le vert : on crée dans le sac");
-  assert.match(base.corps, /display:\s*grid/, "⚖️ deux étages, donc une grille");
+  /* ⚖️ *« bouton classique 40x71 (liseré vert fond sombre) »* · *« (liseré jaune fond
+     sombre) »* — Eric, 20/09. ⭐ C'est la famille `gear-porte` : corps graphite pour tous,
+     et l'ANNEAU du liseré porte le verbe par `--bouton-fond`. ⛔ Pas un fond plein : le
+     jeton ne peint plus le corps depuis le lot 209, et une teinte écrite ici serait une
+     troisième famille à habiller. */
+  assert.match(base.corps, /--bouton-fond:\s*var\(--positive\)/, "⚖️ liseré VERT : on crée dans le sac");
+  assert.match(base.corps, /display:\s*grid/, "⚖️ deux étages plus un `+`, donc une grille");
   assert.match(habits.find((b) => b.sel === '.sac-ajout[data-lieu="dehors"]').corps,
-    /background:\s*var\(--dehors\)/, "⚖️ et le doré dit un ailleurs");
+    /--bouton-fond:\s*var\(--dehors\)/, "⚖️ liseré JAUNE : ce qu'on crée là est un ailleurs");
+  /* ⚖️ *« + en T3, texte du bouton en T1 ou T2 »* — le `+` est ce qu'on cherche des yeux,
+     les mots ne font que dire OÙ ça atterrit. ⭐ T1 plutôt que T2 : `Backpack` et le `+`
+     partagent 71 blg de large, et T2 les met à l'étroit. */
+  assert.match(habits.find((b) => b.sel === ".sac-ajout-plus").corps, /font-size:\s*var\(--t3\)/,
+    "⚖️ le `+` en T3");
+  for (const sel of [".sac-ajout-ou", ".sac-ajout-quoi"])
+    assert.match(habits.find((b) => b.sel === sel).corps, /font-size:\s*var\(--t1\)/,
+      `⚖️ ${sel} en T1 — le cran en dessous, parce que le `+` prime`);
   for (const clef of ["AJOUT SAC", "AJOUT DEHORS"])
     assert.equal(pose(clef).dans, "NOTICE", `⛔ ${clef} doit vivre DANS le panneau`);
   ajoutSac.dispatchEvent({ type: "click" });

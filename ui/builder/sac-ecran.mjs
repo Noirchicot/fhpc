@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=754";
-import { versionQuery } from "./version.mjs?v=754";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=754";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=755";
+import { versionQuery } from "./version.mjs?v=755";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=755";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=754";
+import { armerJeton, fantome } from "./glisser.mjs?v=755";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=754";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=755";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=754";
+import { facteurZoomCourant } from "./echelle.mjs?v=755";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -67,6 +67,10 @@ export const CLEF_DE = Object.freeze({
      (Eric, 20/09). Il porte les six boutons ; le septième, `Done sections`, est
      l'interrupteur du mode et il ne bouge pas de sa place. */
   "NOTICE": "notice", "ENCART": "encart", "AJOUT SAC": "ajout-sac", "AJOUT DEHORS": "ajout-dehors",
+  /* ⚖️ LE SEPTIÈME BOUTON — Eric, 20/09 : *« à droite du bouton jaune, done sections ! »*.
+     ⭐ C'est le MÊME organe que l'interrupteur de la rangée d'outils : il ne se dédouble
+     pas, il prend sa place d'édition. Une seule identité, une place par mode. */
+  "DONE": "done",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
   "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
   "RANGEE": "rangee", "livre": "livre", "?": "guide"
@@ -157,6 +161,15 @@ export function feuilleDesCotesSac() {
        rangées de contrôles qui les range (cinq listes de `shell.css` la disent
        ensemble). Leur `x` au plan dit où ils TOMBENT, il ne les y met pas. */
     if (o.sorte === "porte" || o.sorte === "rond") continue;
+    /* ⚖️ `DONE` N'EST PAS UN SEPTIÈME ORGANE, C'EST LA PLACE D'ÉDITION DU TROISIème —
+       Eric, 2026-09-20 : *« à droite du bouton jaune done sections ! »*. ⭐ L'interrupteur
+       du mode garde son identité (`data-organe="sections"`) et change de place AVEC le
+       mode : la règle est donc portée par l'état de la dalle. ⛔ Un second bouton aurait
+       été deux organes qui disent la même chose. */
+    if (o.nom === "DONE") {
+      regles.push(`.sac[data-mode="edition"] [data-organe="sections"]{${pose(o)}}`);
+      continue;
+    }
     /* ⛔ SÉLECTEUR DESCENDANT, JAMAIS `>` : un enfant direct enferme une cote dans
        une STRUCTURE, et la structure bouge dès qu'un organe se loge dans un groupe. */
     regles.push(`.sac [data-organe="${id}"]{${pose(o)}}`);
@@ -804,14 +817,33 @@ function notice(options, figee) {
   /* \u2696\ufe0f LES DEUX CR\u00c9ATIONS, DE PART ET D'AUTRE DE LA PAIRE \u2014 le vert \u00e0 gauche (dans le
      sac), le dor\u00e9 \u00e0 droite (dehors) : le m\u00eame c\u00f4t\u00e9 que les `+` d'avant, donc le geste
      appris ne change pas de main. */
-  for (const [clef, dehors, quoi] of [["ajout-sac", false, "Backpack"], ["ajout-dehors", true, "Other"]]) {
-    const b = bouton("sac-ajout", "", dehors ? "New section outside the backpack" : "New backpack section",
+  /* ⚖️ DEUX BOUTONS CLASSIQUES, 71 × 40, FOND SOMBRE — Eric, 2026-09-20 : *« bouton
+     classique 40x71 (liseré vert fond sombre) »* · *« (liseré jaune fond sombre) »* ·
+     *« + (T3) Backpack (centré) / Storage (centré) »*.
+     ⭐ C'EST LA FAMILLE DÉJÀ LÀ (`gear-porte`) : corps graphite, liseré qui dit le verbe.
+     ⛔ Pas une troisième famille à habiller — et la teinte passe par `--bouton-fond`,
+     le jeton de l'anneau, comme pour `Sort` et les trois portes du pied.
+     📌 LE `+` EST EN T3, plus gros que les deux mots : c'est lui qu'on cherche des yeux,
+     les mots ne font que dire OÙ ça atterrit. */
+  for (const [clef, dehors, ou] of [["ajout-sac", false, "Backpack"], ["ajout-dehors", true, "Other"]]) {
+    const b = bouton("bouton gear-porte sac-ajout", "",
+      dehors ? "New section outside the backpack" : "New backpack section",
       () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
     b.dataset.organe = clef;
     if (dehors) b.dataset.lieu = "dehors";
-    b.append(el("span", "sac-ajout-ou", quoi), el("span", "sac-ajout-quoi", "+ Storage"));
+    /* ⚖️ *« + en T3, texte en T1 »* — Eric, 20/09. ⭐ Le `+` est ce qu'on cherche des
+       yeux ; les deux mots ne font que dire OÙ ça atterrit, donc ils s'effacent d'un cran.
+       ⛔ Trois nœuds, pas un texte : un `+` fondu dans la phrase ne pourrait pas grossir. */
+    b.append(el("span", "sac-ajout-plus", "+"),
+             el("span", "sac-ajout-ou", ou),
+             el("span", "sac-ajout-quoi", "Storage"));
     n.append(b);
   }
+  /* ⚖️ ET LE SEPTIÈME, à 8 du bord droit — *« à droite du bouton jaune done sections ! »*.
+     ⛔ Il n'est pas construit ici : c'est l'interrupteur du mode, et le construire une
+     seconde fois en ferait DEUX boutons qui disent la même chose. ⭐ L'écran le dépose
+     dans le panneau, et le plan lui donne sa place d'édition (`DONE`). */
+  if (options.interrupteur) n.append(options.interrupteur);
 
   n.append(encart(options));
   return n;
@@ -1166,7 +1198,9 @@ export function construireLeSac(options = {}) {
      ⭐ SEPT BOUTONS, ET LE SEPTIÈME NE BOUGE PAS : `Done sections` est l'interrupteur du
      mode, il garde sa place et le panneau passe dessous. ⛔ Un interrupteur qui se déplace
      n'en est plus un — c'est la loi écrite plus bas, et elle tient. */
-  if (edition && figee) noeud.append(notice(options, figee));
+  /* ⛔ LE PANNEAU SE POSE PLUS BAS, APRÈS L'INTERRUPTEUR : il l'ACCUEILLE (Eric, 20/09 :
+     *« à droite du bouton jaune done sections ! »*), et on ne peut pas déposer un organe
+     qui n'existe pas encore. */
 
   /* ⚖️ LES DEUX OUTILS — Eric, 18/09 : *« un petit bouton 40 × 40 à droite du titre
      de section qui ressemble à un cadrillage ; un autre à gauche qui fait un
@@ -1211,7 +1245,13 @@ export function construireLeSac(options = {}) {
   sections.dataset.porte = "sections";
   sections.dataset.on = edition ? "true" : "false";
   sections.setAttribute("aria-pressed", edition ? "true" : "false");
-  noeud.append(trier, sections);
+  /* ⭐ EN ÉDITION L'INTERRUPTEUR ENTRE DANS LE PANNEAU — le MÊME bouton, pas un second :
+     une seule identité, une place par mode. ⛔ En construire un deuxième ferait deux
+     organes qui disent la même chose, et c'est la faute que ce chapitre a déjà payée
+     cinq fois (l'interrupteur, les chevrons, le jeton, le collecteur, le glisser). */
+  noeud.append(trier);
+  if (edition && figee) noeud.append(notice({ ...options, interrupteur: sections }, figee));
+  else noeud.append(sections);
 
   /* ⚖️ QUATRE LIGNES DE POIDS — LA SOURCE DU CHAPITRE (16/09) : *« l'encart passe
      donc de trois à quatre lignes, sur R et sur B1 »* — SELF · BACKPACK · TOTAL ·
