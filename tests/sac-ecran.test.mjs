@@ -18,7 +18,7 @@ const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
-        ORGANES_D_ECHANGE } = await import("../ui/builder/sac-ecran.mjs");
+        ORGANES_D_ECHANGE, MAINTIEN_MS } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -779,4 +779,60 @@ test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent 
      ➡️ LE VRAI TÉMOIN EST AILLEURS, et il clique pour de bon : `equipement-pipeline`,
      « LE FIL DE LA BOURSE DU SAC ». Celui-ci garde ce qu'il sait garder — que l'écran
      PUBLIE, et que l'inerte se montre inerte. */
+});
+test("23 — ⚖️ LE MODE DÉPLACEMENT : les poignées et les `+` s'EFFACENT, la roue sort du verre", () => {
+  /* ⚖️ Croquis d'Eric, 19/09 : *« hold one section for 1,5 second and this mode comes
+     on »* · *« le x, +, / disparaissent pour voir l'ordre des sections »*, et il montre
+     **toute la roue sur un fond crème**. Eric, le soir : *« edit mode comprenant le
+     déplacement des storage »*.
+     ⭐ CE GARDE TIENT CE QUI DISPARAÎT, pas ce qui apparaît — parce que c'est ÇA que le
+     croquis dit, et parce qu'un organe qu'on croit caché se tape encore. */
+  const cinq = [{ nom: "A" }, { nom: "B" }, { nom: "C" }, { nom: "D" }, { nom: "E" }];
+
+  /* ① EN ÉDITION SEULE : les deux `+` et les deux poignées sont là */
+  const edite = rendu({ sections: cinq, section: 1, edition: true });
+  assert.equal(tous(edite, '.sac-cran[data-role="ajouter"]').length, 2, "les deux `+` aux bouts");
+  assert.ok(edite.querySelector('[data-organe="effacer"]') && edite.querySelector('[data-organe="editer"]'));
+
+  /* ② EN DÉPLACEMENT : plus rien de tout ça — et ABSENTS, pas cachés */
+  const bouge = rendu({ sections: cinq, section: 1, edition: true, deplacement: 1 });
+  assert.equal(tous(bouge, '.sac-cran[data-role="ajouter"]').length, 0,
+    "⛔ *« le x, +, / disparaissent »* — un `+` caché se taperait encore");
+  assert.equal(bouge.querySelector('[data-organe="effacer"]'), null);
+  assert.equal(bouge.querySelector('[data-organe="editer"]'), null);
+
+  /* ③ LE MODE VIT SUR LA DALLE, comme le mode édition — ⛔ pas dans cinq organes */
+  assert.equal(bouge.dataset.deplacement, "oui");
+  assert.equal(edite.dataset.deplacement, undefined, "et il ne s'allume pas tout seul");
+
+  /* ④ ET LA PLACE LIBÉRÉE REVIENT AUX SECTIONS : cinq crans au lieu de trois */
+  assert.equal(tous(bouge, ".sac-cran").length, 5,
+    "⭐ sans les deux `+`, la roue remontre ses cinq crans — c'est bien « pour voir l'ordre »");
+
+  /* ⑤ CELUI QU'ON TIENT SE VOIT — sinon on déplace à l'aveugle */
+  assert.equal(bouge.querySelector('.sac-cran[data-tenu="oui"]').dataset.position, "1");
+  assert.equal(tous(bouge, '[data-tenu="oui"]').length, 1, "⛔ un seul à la fois");
+
+  /* ⑥ CHAQUE CRAN DIT SA PLACE — c'est par là que le doigt saura où il passe.
+     ⛔ ET L'ORDRE N'EST PAS `0,1,2,3,4` : la roue est un ANNEAU centré sur le viseur,
+     donc elle commence où il faut pour que le regardé tombe au milieu. J'avais écrit la
+     suite plate, et c'est l'anneau qui m'a repris. ⭐ Ce qui se tient, c'est que les
+     cinq places soient TOUTES là, une fois chacune — *« assez pour remplir les places
+     SANS répéter »*. */
+  const places = tous(bouge, ".sac-cran").map((c) => c.dataset.position);
+  assert.equal(places.length, 5);
+  assert.deepEqual([...places].sort(), ["0", "1", "2", "3", "4"], "les cinq, une fois chacune");
+  assert.equal(places[2], "1", "⭐ et le REGARDÉ est au milieu — le viseur ne bouge jamais");
+
+  /* ⑦ ET LE MAINTIEN EST CELUI D'ERIC, pas un nombre choisi */
+  assert.equal(MAINTIEN_MS, 1500, "⚖️ *« hold one section for 1,5 second »*");
+
+  /* ⑧ 🔴 LE FOND CRÈME NE S'ÉCRIT PAS EN CLAIR : `--surface` EST ce crème, et il bascule
+     la nuit. Un `#ebe8e1` recopié ici aurait brillé dans le noir. */
+  const regle = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+    .find((b) => b.sel === '.sac[data-deplacement="oui"] .sac-roue');
+  assert.ok(regle, "⛔ la roue ne change pas d'habit : le mode ne se verrait pas");
+  assert.match(regle.corps, /background:\s*var\(--surface\)/);
+  assert.doesNotMatch(regle.corps, /#[0-9a-fA-F]{3,8}/, "⛔ aucune teinte en clair");
 });

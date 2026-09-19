@@ -38,7 +38,8 @@ const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
   lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection,
-  sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans
+  sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans,
+  rangsDesSections, cheminDuRang, CHEMIN_RANG_PARTY
 } = await import("../ui/builder/equipment-step.mjs");
 /* ⛔ LA TAILLE D'UNE PAGE NE SE RETAPE PAS : elle se compte dans le plan du sac
    (`sac-disposition.mjs` → `CASES_DU_SAC`). Un 12 écrit ici serait un nombre de plus
@@ -836,4 +837,57 @@ test("P10 — 🔴 UNE PLACE NEUVE SE COMPTE DANS SA SECTION, ⛔ pas dans tout 
   const troue = [{ index: 30, location: "storage", boite: PARTY, place: 0 },
                  { index: 31, location: "storage", boite: PARTY, place: 2 }];
   assert.equal(placeNeuveDans(troue, PARTY, CASES_DU_SAC), 1, "le trou d'abord, pas la fin");
+});
+test("P11 — ⚖️ L'ORDRE DES SECTIONS SURVIT AU PERSONNAGE, et le party se déplace aussi", () => {
+  /* ⚖️ Eric, 19/09 au soir : *« edit mode comprenant le déplacement des storage »*, et
+     pour le sac du groupe : *« on peut changer sa position, mais pas l'effacer ni la
+     renommer »*. ⭐ Donc l'ordre PORTE le party — et c'est ce qui a forcé la forme.
+     📏 MESURÉ CONTRE LE MOTEUR AVANT D'ÊTRE ÉCRIT (protocole P1) : un scalaire par
+     section passe propre. ⛔ ET LA LISTE A ÉTÉ REFUSÉE, mot pour mot : *« set n'accepte
+     qu'un scalaire — une structure serait une règle déguisée »*. L'ordre est donc N
+     scalaires, jamais un tableau, et le party a SON chemin puisqu'il n'a pas d'index. */
+
+  /* ① LES DEUX CHEMINS, ET POURQUOI ILS SONT DEUX */
+  assert.equal(cheminDuRang(3), "backpack.sections[3].rang");
+  assert.equal(cheminDuRang(SECTION_PARTY.clef), CHEMIN_RANG_PARTY,
+    "⛔ la clef du party est un MOT : son rang ne peut pas vivre sous `sections[N]`");
+
+  /* ② LE LECTEUR PREND LES DEUX */
+  const doc = { build: { choices: [
+    { path: CHEMIN_RANG_PARTY, value: 2 },
+    { path: "backpack.sections[0].rang", value: 0 },
+    { path: "backpack.sections[1].rang", value: 1 }] } };
+  const rangs = rangsDesSections(doc);
+  assert.equal(rangs.get(SECTION_PARTY.clef), 2);
+  assert.equal(rangs.get(0), 0);
+
+  /* ③ ET LA ROUE OBÉIT — le party n'ouvre plus la liste s'il a été déplacé */
+  const vue = sectionsDuSac(doc).map((x) => x.index);
+  assert.deepEqual(vue.slice(0, 3), [0, 1, SECTION_PARTY.clef],
+    "⚖️ *« on peut changer sa position »* — le party est descendu en 3ᵉ, et la roue le suit");
+
+  /* ④ 🔴 CE QUI N'A PAS DE RANG PASSE APRÈS, DANS SON ORDRE NATUREL — et c'est délibéré.
+     ⛔ L'inverse (l'ordre naturel qui reprend la main dès qu'un rang manque) aurait fait
+     s'effondrer tout le rangement du joueur à la PREMIÈRE section créée ensuite. */
+  /* ⛔ LE RESTE SE DÉDUIT DU SOCLE, il ne se retape pas : j'avais écrit `[2, 3, 4, 5]`
+     en croyant le socle à six, et il en porte QUATRE. Un nombre recopié dans un garde
+     est un nombre qui ment le jour où la source bouge — ici il a menti tout de suite. */
+  const restantes = [...Array(SECTIONS_DU_SAC).keys()].filter((i) => i >= 2);
+  assert.deepEqual(vue.slice(3), restantes,
+    "les sans-rang suivent, dans leur ordre naturel — une section neuve apparaît au bout");
+
+  /* ⑤ UN SAC VIERGE GARDE L'ORDRE NATUREL : le party ouvre la liste (19/09) */
+  assert.equal(sectionsDuSac({})[0].index, SECTION_PARTY.clef);
+
+  /* ⑥ ⛔ ET LE TRI EST TOTAL : à rang égal — ce qui ne devrait pas arriver, puisqu'un
+     déplacement RENUMÉROTE tout — c'est la place naturelle qui départage. Un tri qui
+     laisse deux éléments interchangeables rend un ordre différent d'un rendu à l'autre,
+     et personne ne voit pourquoi l'écran bouge. */
+  const exaequo = { build: { choices: [
+    { path: "backpack.sections[0].rang", value: 1 },
+    { path: "backpack.sections[2].rang", value: 1 }] } };
+  const a = sectionsDuSac(exaequo).map((x) => x.index);
+  const b = sectionsDuSac(exaequo).map((x) => x.index);
+  assert.deepEqual(a, b, "deux rendus, le même ordre");
+  assert.ok(a.indexOf(0) < a.indexOf(2), "⭐ à rang égal, la place naturelle tranche");
 });

@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=699") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=701") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=699") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=701") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=699") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=701") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=699");
+  background-image: url("./assets/tarot-dos.jpg?v=701");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11769,6 +11769,29 @@ button.tuto-point::before {
      se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
      le HALO, comme sur le belt. — */
 .sac-roue { display: block; }
+/* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
+   ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
+   disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
+   sur un fond crème**.
+   ⭐ `--surface` EST CE CRÈME (`#ebe8e1`) — ⛔ et ce n'est pas une couleur choisie : c'est
+   la surface de la maison, celle dont toutes les dalles sont faites à un voile près. La
+   roue passe simplement à l'OPAQUE (`--voile-majeure`), donc elle SORT DU VERRE. C'est
+   ce que le geste dit : on a pris la roue en main, elle n'est plus le fond de l'écran.
+   ⭐ ET ELLE BASCULE TOUTE SEULE LA NUIT, là où un `#ebe8e1` écrit ici aurait brillé
+   dans le noir. Une teinte recopiée est une teinte qui ne suit plus son thème.
+   📌 Les `+` et les poignées, eux, ne sont pas CACHÉS : ils ne sont pas RENDUS. Un
+   organe caché se tape encore. */
+.sac[data-deplacement="oui"] .sac-roue {
+  background: var(--surface);
+  border-radius: var(--organe-rayon);
+}
+/* ⛔ ET LE CRAN QU'ON TIENT SE VOIT — sans ça on déplace à l'aveugle : la roue bouge et
+   rien ne dit lequel des cinq suit le doigt. Le halo du belt, celui qui dit déjà
+   « c'est ici que ça se passe » partout ailleurs. */
+.sac[data-deplacement="oui"] .sac-cran[data-tenu="oui"] {
+  box-shadow: inset 0 0 0 1px var(--accent),
+              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+}
 .sac-cran {
   position: absolute; box-sizing: border-box;
   border: 0; background: var(--dalle-inter); color: var(--text-soft);

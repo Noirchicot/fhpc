@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=699";
-import { facteurZoomCourant } from "./echelle.mjs?v=699";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=699";
+import { renderPicker } from "./carnet.mjs?v=701";
+import { facteurZoomCourant } from "./echelle.mjs?v=701";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=701";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=699";
-import { swapContent } from "./socle.mjs?v=699";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=699";
+import { isGenre } from "../../src/layers/document.mjs?v=701";
+import { swapContent } from "./socle.mjs?v=701";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=701";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=699";
+import { armerJeton } from "./glisser.mjs?v=701";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=699";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=701";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=699";
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=701";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=699";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=701";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=699";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=699";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=701";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=701";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=699";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=701";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=699";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=699";
+import { motDuCran } from "./ecran-mort.mjs?v=701";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -380,6 +380,13 @@ export function currentGearLines(document) {
      ⛔ Pas un tableau sous un chemin unique : il se réécrirait en entier à chaque
      renommage, et le document perdrait la finesse de ses diffs. */
 const SECTION_RE = /^backpack\.sections\[(\d+)\]\.name$/;
+const RANG_RE = /^backpack\.sections\[(\d+)\]\.rang$/;
+/* ⛔ LE PARTY BAG N'A PAS D'INDEX — sa clef est un MOT (§ `SECTION_PARTY`), donc son
+   rang ne peut pas vivre sous `backpack.sections[N]`. Il a le SIEN, de même forme :
+   une seule idée, deux lieux que la donnée impose. */
+export const CHEMIN_RANG_PARTY = "backpack.party.rang";
+export const cheminDuRang = (clef) =>
+  (clef === SECTION_PARTY.clef ? CHEMIN_RANG_PARTY : `backpack.sections[${clef}].rang`);
 
 /** Les sections déclarées, dans l'ordre de leur index. ⛔ Aucune n'est inventée :
  *  un sac neuf n'a pas de section, et l'écran le dira. */
@@ -391,6 +398,25 @@ export function currentSections(document) {
     if (m) par.set(Number(m[1]), { index: Number(m[1]), nom: String(c.value ?? "") });
   }
   return [...par.values()].sort((a, b) => a.index - b.index);
+}
+
+/** ⚖️ LE RANG DE CHAQUE SECTION — la position que le JOUEUR a donnée à la roue.
+ *  ⭐ Eric, 19/09 : *« on peut changer sa position [du party], mais pas l'effacer ni la
+ *  renommer »* — donc l'ordre porte AUSSI le party, et c'est pourquoi il a son chemin.
+ *  📏 MESURÉ CONTRE LE MOTEUR AVANT D'ÊTRE ÉCRIT (protocole P1, 19/09 au soir) : le
+ *  scalaire passe propre — 0 violation, il ressort en `unconsumed`, `clear` ne laisse
+ *  rien. ⛔ ET LA LISTE A ÉTÉ REFUSÉE : *« set n'accepte qu'un scalaire — une structure
+ *  serait une règle déguisée »*. L'ordre est donc N scalaires, jamais un tableau. */
+export function rangsDesSections(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const par = new Map();
+  for (const c of choices) {
+    if (typeof c.path !== "string") continue;
+    if (c.path === CHEMIN_RANG_PARTY) { par.set(SECTION_PARTY.clef, Number(c.value)); continue; }
+    const m = RANG_RE.exec(c.path);
+    if (m) par.set(Number(m[1]), Number(c.value));
+  }
+  return par;
 }
 
 /* ══ LE PARTY INVENTORY — Eric, 2026-09-19 ══════════════════════════════════
@@ -491,8 +517,31 @@ export function sectionsDuSac(document) {
   /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE — Eric, 19/09 : *« Party inventory
      dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*. ⚠️ C'est l'ORDRE qui fait
      loi ; le cran s'appelle « Party bag » depuis le soir même (§ `SECTION_PARTY`). */
-  return [{ index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom,
-            party: true, fige: true, renommable: false }, ...socle, ...ajoutees];
+  const naturel = [{ index: SECTION_PARTY.clef, nom: SECTION_PARTY.nom,
+                     party: true, fige: true, renommable: false }, ...socle, ...ajoutees];
+
+  /* ⚖️ ET LE JOUEUR PEUT LES DÉPLACER — Eric, 19/09 au soir : *« edit mode comprenant
+     le déplacement des storage »*, et pour le party : *« on peut changer sa position,
+     mais pas l'effacer ni la renommer »*.
+     ⭐ CE QUI N'A PAS DE RANG PASSE APRÈS, DANS SON ORDRE NATUREL — et c'est délibéré :
+     une section créée APRÈS un rangement apparaît au bout, là où on l'attend. ⛔ Le
+     contraire (l'ordre naturel qui reprend la main dès qu'un rang manque) aurait fait
+     s'effondrer tout le rangement du joueur à la première section neuve.
+     ⛔ ET LE TRI EST TOTAL : à rang égal — ce qui ne devrait pas arriver, puisqu'un
+     déplacement RENUMÉROTE tout — c'est la place naturelle qui départage. Un tri qui
+     laisse deux éléments interchangeables rend un ordre différent d'un rendu à l'autre,
+     et personne ne voit pourquoi l'écran bouge. */
+  const rangs = rangsDesSections(document);
+  const clef = (s) => rangs.get(s.index);
+  return naturel
+    .map((s, naturelle) => ({ s, naturelle, rang: Number.isInteger(clef(s)) ? clef(s) : null }))
+    .sort((a, b) => {
+      if (a.rang === null && b.rang === null) return a.naturelle - b.naturelle;
+      if (a.rang === null) return 1;
+      if (b.rang === null) return -1;
+      return a.rang - b.rang || a.naturelle - b.naturelle;
+    })
+    .map((x) => x.s);
 }
 
 /** ⚖️ LE LIEU D'UNE BOÎTE — UNE SEULE LOI, ET ELLE SE TESTE.
@@ -2068,6 +2117,22 @@ let editionSac = false;
 /* ⭐ LE CHAMP NE S'OUVRE QUE PAR LA POIGNÉE `/` — Eric, 19/09. ⛔ État d'écran : on
    rouvre le sac en le LISANT, pas en train de le modifier. */
 let renommageSac = false;
+/* ⚖️ LA SECTION QU'ON DÉPLACE — croquis d'Eric, 19/09 : *« hold one section for 1,5
+   second and this mode comes on »*. ⭐ `null` = personne ; sinon, la POSITION du cran
+   tenu dans la liste affichée. ⛔ De l'état d'ÉCRAN, pas de document : ce qui s'écrit,
+   c'est l'ORDRE (`backpack…rang`), jamais « qui est en train d'être déplacé ». */
+let deplacementSac = null;
+/* 🔴 LE REPEINT DU SAC, ATTEIGNABLE DEPUIS UN GESTE QUI A COMMENCÉ AVANT LUI.
+   ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU (`swapContent(section, …)`), et la
+   coquille en fabrique un neuf à chaque `act`. Or le déplacement d'une section ÉCRIT à
+   chaque croisement — donc, au moment du lâcher, la fermeture qu'on tient est celle
+   d'AVANT, et elle repeint un nœud détaché : le mode restait allumé à l'écran alors que
+   l'état était déjà retombé. Mesuré dans l'application le 19/09 au soir.
+   ⭐ C'EST LA MÊME LOI QUE `NORMES` ÉNONCE POUR LA MARGE — *« un glisser qui fait
+   défiler l'écran sous lui doit LIRE l'état au moment du DÉPÔT, jamais celui du rendu
+   qui l'a armé »* — et elle vaut aussi pour ÉCRIRE : le repeint se relit, il ne se
+   capture pas. */
+let repeindreLeSac = () => {};
 /* ⭐ LA PAGE QU'ON REGARDE DANS LA SECTION — état d'écran : on rouvre le sac à sa
    première page, jamais là où on l'avait laissé. ⛔ Ce qui SURVIT, c'est la place de
    chaque objet (`gear[N].place`), pas le regard qu'on porte dessus.
@@ -2652,6 +2717,33 @@ export function renderEquipmentStep(ctx, onAction) {
       surMonnaie: (key, value) => act({ kind: "setCurrency", key, value }),
       destinations: DESTINATIONS, destination: destinationEnvoi,
       surSection: (i) => { sectionSac = i; peindre(); },
+      deplacement: deplacementSac,
+      /* ⚖️ DÉPLACER UNE SECTION — Eric, 19/09 au soir : *« edit mode comprenant le
+         déplacement des storage »*, et le croquis : *« hold one section for 1,5 second…
+         if you drag up to a chevron the selector moves »*.
+         ⭐ L'ORDRE S'ÉCRIT À CHAQUE CROISEMENT, pas au lâcher. Une copie de travail
+         qu'on ne commettrait qu'à la fin diverge de ce qu'on VOIT dès que le rendu se
+         refait sous le doigt — et il se refait, puisque la roue bouge. ⛔ C'est la même
+         leçon que le glisser dans la marge : on lit et on écrit l'écran qu'on a sous
+         les yeux, jamais une mémoire d'avant.
+         ⭐ ET LE VISEUR SUIT CE QU'ON TIENT : sans ça, on déplace une section et on se
+         retrouve à en regarder une autre. */
+      surDeplacer: (e) => {
+        if (!e) return;
+        /* ⛔ `repeindreLeSac`, PAS `peindre` : ce geste traverse les rendus (il écrit à
+           chaque croisement), donc la fermeture qu'on tient est périmée dès le premier. */
+        if (e.phase === "prendre") { deplacementSac = e.position; sectionSac = e.position; repeindreLeSac(); return; }
+        if (e.phase === "poser") { deplacementSac = null; repeindreLeSac(); return; }
+        if (e.phase !== "bouger" || deplacementSac === null) return;
+        const vers = e.vers;
+        if (!Number.isInteger(vers) || vers === deplacementSac || vers >= sections.length) return;
+        const ordre = sections.map((x) => x.index);
+        const [pris] = ordre.splice(deplacementSac, 1);
+        ordre.splice(vers, 0, pris);
+        deplacementSac = vers;
+        sectionSac = vers;
+        act({ kind: "ordonnerSections", ordre });
+      },
       /* ⛔ EN ÉDITION LE RUBAN NE BOUCLE PAS, ET IL PORTE UNE PLACE DE PLUS (le `+`) :
          la borne haute change avec le mode. Une seule règle pour les deux aurait soit
          rendu le `+` injoignable, soit fait boucler une liste qu'on est en train de
@@ -2922,6 +3014,10 @@ export function renderEquipmentStep(ctx, onAction) {
   function peindre() {
     swapContent(section, [construireVue(vueEquipement)]);
   }
+  /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
+     deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un
+     déplacement peignait dans un nœud détaché. */
+  repeindreLeSac = peindre;
   peindre();
   return section;
 }
