@@ -442,18 +442,34 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      occupe la place exacte qu'avait le dominant. */
   const dom = D.ORGANES.find((o) => o.nom === "LOUPE");
   const pose = (nom) => D.ORGANES.find((o) => o.nom === nom);
-  assert.equal(pose("EFFACER").x + pose("EFFACER").l / 2, dom.x,
-    "⚖️ le `×` est centré sur le coin BAS-GAUCHE du cran dominant");
-  assert.equal(pose("EDITER").x + pose("EDITER").l / 2, dom.x + dom.l,
-    "⚖️ et le `/` sur son coin bas-droit — c'est ce qui dit de QUELLE boîte ils parlent");
+  /* ⚖️ QUATRE POIGNÉES, AUX QUATRE COINS — croquis d'Eric du 19/09 au soir, « EDIT MODE 1 » :
+     les deux flèches BLEUES à cheval sur l'arête du HAUT, le `×` ROUGE et le `/` VERT sur
+     celle du BAS. *« les flèches permettent de déplacer le storage à droite et à gauche »*.
+     ⭐ ET IL N'Y A PLUS QU'UN SEUL MODE EDIT — sa phrase exacte, 19/09. Le mode DÉPLACEMENT,
+     qui s'ouvrait par un maintien de 1,5 s et sortait la roue du verre, DISPARAÎT : les
+     flèches font son travail. ⛔ Un mode qu'on découvre en maintenant est un mode que
+     personne ne trouve — et deux modes dans un mode, personne ne les distingue.
+     📏 ET LA ROUE DESCEND DE 11 EN ÉDITION, mesuré : une poignée de 30 centrée sur l'arête
+     HAUTE tombe à `4 − 15 = −11`, donc sur le belt. Eric : *« la roue descend de 11, en
+     édition seulement »*. ⭐ Le nombre ne se tape pas, il EST ce qui manque à la flèche. */
+  assert.equal(D.EDITION.decalage, D.ORGANES.find((o) => o.nom === "RECULER").l / 2 - dom.y,
+    "⛔ le décalage se DÉDUIT : demi-poignée moins la place libre au-dessus de la roue");
+  const hautEdition = dom.y + D.EDITION.decalage;
+  for (const [p2, bord, cote] of [["RECULER", "haut", "gauche"], ["AVANCER", "haut", "droite"],
+                                  ["EFFACER", "bas", "gauche"], ["EDITER", "bas", "droite"]]) {
+    assert.equal(pose(p2).x + pose(p2).l / 2, cote === "gauche" ? dom.x : dom.x + dom.l,
+      `⚖️ ${p2} est centré sur le coin ${bord}-${cote} — c'est ce qui dit de QUELLE boîte il parle`);
+    assert.equal(pose(p2).y + pose(p2).h / 2, bord === "haut" ? hautEdition : hautEdition + dom.h,
+      `⚖️ et à cheval sur l'arête du ${bord} de la tuile DESCENDUE`);
+    assert.deepEqual([pose(p2).l, pose(p2).h], [30, 30], "⚖️ *« dessin 30×30 »* (19/09 au soir)");
+    assert.deepEqual([pose(p2).cible.l, pose(p2).cible.h], [D.TOUCH, D.TOUCH],
+      "⚖️ *« tactile 44×44 »* — ⛔ le dessin rétrécit, la cible ne descend jamais sous le plancher");
+  }
   /* ⚖️ ET LE CHEVAL EST VERTICAL, SUR L'ARÊTE DU BAS — croquis d'Eric, 19/09 : les
      deux signes PENDENT sous le cran. 🔴 Je les avais mis aux côtés, à mi-hauteur :
      ils mordaient alors sur les deux crans VOISINS, et un signe posé sur la boîte
      d'à-côté ment sur ce qu'il désigne. Sous le cran, il n'y a personne. */
-  for (const p of ["EFFACER", "EDITER"]) {
-    assert.equal(pose(p).y + pose(p).h / 2, dom.y + dom.h,
-      `${p} doit être centré sur l'arête BASSE du dominant — moitié dedans, moitié dessous`);
-  }
+
   /* ⚖️ ERIC, 2026-09-19 AU SOIR, ET IL CORRIGE SON PROPRE 40 : *« j'ai demandé dessin
      30×30 / tactile 44×44 »* · *« x = effacer, / = editer »* · *« seulement × et / —
      les quatre autres restent à 40 »*. ⭐ Le `40 × 40` qu'il avait dicté le matin
@@ -465,11 +481,7 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
      📌 ET LE PARTAGE SURVIT À LA RÉDUCTION : le dessin enjambe 15/15 l'arête du cran,
      la CIBLE (44, inchangée) l'enjambe 22/22 — ce que *« dépasse de 20 à l'intérieur
      et à l'extérieur »* voulait dire au doigt. */
-  for (const p of ["EFFACER", "EDITER"]) {
-    assert.deepEqual([pose(p).l, pose(p).h], [30, 30], "⚖️ *« dessin 30×30 »* (19/09 au soir)");
-    assert.deepEqual([pose(p).cible.l, pose(p).cible.h], [D.TOUCH, D.TOUCH],
-      "⚖️ *« tactile 44×44 »* — ⛔ le dessin rétrécit, la cible ne descend jamais sous le plancher");
-  }
+
 
   /* ③ 🔴 ET LA PASTILLE DOIT LIRE CE DESSIN, SINON LA COTE EST INERTE. Faute mesurée le
      19/09 : la table déclarait 40 et la pastille valait `--sp-24` en dur — deux cotes
