@@ -1466,3 +1466,71 @@ test("32 — 📐 LE JOUR EST À LA PLAQUE CE QUE LA GOUTTIÈRE EST À LA TUILE"
   assert.ok(feuilleDesCotesSac().includes(`.sac .sac-dalles{gap:${D.DALLES.jour}px}`),
     "le ruban de plaques doit espacer du jour du plan");
 });
+
+test("33 — \u2194\ufe0f LE CHEMIN INVERSE N'H\u00c9RITE DE RIEN : il lit le PAS, et il POSE la roue", async () => {
+  /* \ud83d\udcf8 LE REL\u00c9V\u00c9 QUI L'A OUVERT \u2014 capture d'Eric sur son iPad, 19/09 \u00e0 22:52, l\u00e9gend\u00e9e
+     *\u00ab r\u00e9sultat du premier d\u00e9calage suite \u00e0 un swipe sur dalle \u00bb* : la plaque \u00e9tait juste
+     (grille de `Storage 1`, vide), et la ROUE \u00e9tait fausse \u2014 `Storage 1` dessin\u00e9e \u00e0 cheval
+     sur `Storage 2`. Une tuile arr\u00eat\u00e9e ENTRE deux crans.
+     \ud83d\udd34 TROIS FAUTES, ET ELLES SONT TOUTES LA M\u00caME : j'ai \u00e9crit le verrou dans le sens
+     roue \u2192 plaques, puis je l'ai *retourn\u00e9*, et un retournement h\u00e9rite du calcul sans
+     h\u00e9riter de ce qui l'entoure.
+       \u2460 le pas \u2014 le sens direct LIT `offsetLeft` ; l'inverse divisait par la LARGEUR, or
+         entre deux plaques il y a un JOUR (52,63). 374 au lieu de 426,63 : 14 % de d\u00e9rive
+         \u00e0 la deuxi\u00e8me plaque, 28 % \u00e0 la troisi\u00e8me, 42 % \u00e0 la quatri\u00e8me.
+       \u2461 la pose \u2014 le sens direct pose le suiveur exactement \u00e0 l'arr\u00eat ; l'inverse ne
+         posait rien, et l'aimantation du suiveur est COUP\u00c9E par construction. Rien ne
+         ramenait la roue sur son cran.
+       \u2462 l'arbitre \u2014 et celle-ci mangeait les deux autres : le minuteur de repos
+         choisissait son ex\u00e9cutant \u00c0 L'ARMEMENT. Le suivi \u00e9crit `r.scrollLeft`, \u00e7a \u00e9met un
+         `scroll` sur la roue, et l'\u00e9couteur de la roue r\u00e9armait le repos avec `arrete`.
+         \u26d4 `arreteLesDalles` ne tournait jamais. */
+  const vues = [];
+  /* ⛔ ET LE RUBAN SE PEUPLE POUR DE VRAI : sans `dalles`, l'écran n'en pose qu'UNE,
+     et un ruban d'une seule plaque ne peut rien décaler — le témoin serait resté vert
+     sur la faute qu'il défend. */
+  const noeud = rendu({ surDalle: (k) => vues.push(k),
+    dalles: [0, 1, 2].map((i) => ({ section: i, objets: [] })) });
+  const piste = noeud.querySelector('[data-organe="dalles"]');
+  const roue = noeud.querySelector(".sac-roue");
+  poserLesDalles();
+
+  /* \u2192 ON DONNE AUX PLAQUES LA MISE EN PAGE QU'ELLES ONT DANS LE NAVIGATEUR \u2014 une
+     largeur, PLUS un jour. \u26d4 Sans \u00e7a le banc ne peut RIEN accuser : hors navigateur
+     `offsetLeft` n'existe pas, le repli multiplie par la largeur, largeur et pas se
+     confondent et la faute \u2460 dort. C'est exactement pourquoi 2340 gardes verts n'ont
+     pas vu ce qu'Eric a vu du premier coup d'\u0153il. */
+  const pas = D.DALLE.l + D.DALLES.jour;
+  [...piste.children].forEach((n, k) => { n.offsetLeft = pas * k; });
+
+  /* \u2192 et c'est LA PLAQUE qu'on pousse \u2014 le doigt s'y pose, elle m\u00e8ne */
+  piste.dispatchEvent({ type: "pointerdown", target: piste });
+  /* ⛔ ET LE DOIGT LÂCHE ENTRE DEUX PLAQUES, — pas pile sur un cran. C'est le cas RÉEL,
+     et c'est le seul qui puisse accuser la pose : le repos tire à 140 ms, bien avant que
+     l'aimantation du MAÎTRE ait fini de ranger sa plaque. Pendant ce temps le suiveur,
+     lui, a son aimantation COUPÉE par construction — donc si personne ne le pose, il
+     reste où l'interpolation l'a laissé.
+     🔴 MA PREMIÈRE ÉCRITURE DE CE TÉMOIN POSAIT LA PLAQUE PILE SUR SON CRAN, et elle
+     restait VERTE en retirant la pose : à une position entière, le suivi tombe juste tout
+     seul. Un témoin qui ne peut jamais accuser est le pire de tous. */
+  piste.scrollLeft = pas + 40;
+  await new Promise((r) => setTimeout(r, REPOS_MS + 160));
+
+  assert.equal(Math.round(roue.scrollLeft), D.ROUE.pas,
+    `\u26d4 la roue s'est arr\u00eat\u00e9e \u00e0 ${roue.scrollLeft} au lieu de ${D.ROUE.pas} : ` +
+    "une tuile \u00e0 cheval sur sa voisine, exactement la capture du 19/09");
+  assert.deepEqual(vues, [1], "\u26d4 et la section doit \u00eatre commise une fois, \u00e0 l'arr\u00eat");
+
+  /* \u2192 ET LA SYM\u00c9TRIE SE TIENT DANS LA SOURCE, parce qu'elle ne se voit pas \u00e0 l'\u0153il :
+     \u26d4 aucune position de plaque ne se d\u00e9duit d'une largeur. */
+  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  assert.doesNotMatch(source, /piste\.scrollLeft\s*\/\s*l\b|piste\.scrollLeft\s*\/\s*largeurDalle\(\)/,
+    "\u26d4 une LARGEUR n'est pas un PAS : entre deux plaques il y a un jour");
+  assert.match(source, /const positionDesDalles = \(x\) => \{/,
+    "\u2b50 l'inverse de `xDeLaDalle` se LIT dans la mise en page, comme lui");
+  assert.match(source, /const repose = \(\) => \{\s*repos = null;\s*if \(maitre === "dalles"\)/,
+    "\u26d4 le repos doit choisir son ex\u00e9cutant \u00c0 L'ARRIV\u00c9E : entre l'armement et le tir, " +
+    "le suivi fait parler l'autre surface");
+  assert.equal((source.match(/setTimeout\(repose, REPOS_MS\)/g) || []).length, 2,
+    "\u26d4 les deux \u00e9couteurs arment LE M\u00caME repos");
+});

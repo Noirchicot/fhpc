@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=746";
-import { versionQuery } from "./version.mjs?v=746";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=746";
+import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=747";
+import { versionQuery } from "./version.mjs?v=747";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=747";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=746";
+import { armerJeton, fantome } from "./glisser.mjs?v=747";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=746";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=747";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=746";
+import { facteurZoomCourant } from "./echelle.mjs?v=747";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -1206,6 +1206,30 @@ export function construireLeSac(options = {}) {
     return d ? (d.section | 0) : 0;
   };
 
+  /* 🔴 ET SON INVERSE SE LIT AUSSI — ⛔ IL NE SE DIVISE PAS PAR LA LARGEUR.
+     ⚠️ LA FAUTE QUE ÇA RÉPARE, et c'est celle qu'Eric a photographiée le 19/09 à 22:52 :
+     le chemin inverse faisait `piste.scrollLeft / largeurDalle()`. Une LARGEUR n'est pas
+     un PAS — entre deux plaques il y a un JOUR de 52,63. Le pas vaut 374 + 52,63 = 426,63,
+     et diviser par 374 rend **1,14** là où la plaque 1 est pleine cadre.
+     📐 Donc la roue se posait 14 % après son cran — une tuile à cheval sur sa voisine,
+     exactement l'image `Storage 1` chevauchant `Storage 2`. ⛔ ET L'ERREUR GRANDIT AVEC LE
+     RANG : 14 % à la deuxième plaque, 28 % à la troisième, 42 % à la quatrième — au
+     huitième cran elle désignerait la plaque d'à côté.
+     🔴 ET ELLE EST NÉE AVEC LE JOUR : tant que le jour valait 0, largeur ET pas valaient
+     374 et la faute dormait. Elle s'est réveillée à 8, a doublé à 24, triplé à 52,63 —
+     et le sens roue→plaques, lui, n'a jamais souffert : il LIT `offsetLeft`.
+     ⭐ La parade est celle de `xDeLaDalle` à l'endroit : on ENCADRE la position entre deux
+     plaques lues dans la mise en page, et on interpole entre elles. Aucun pas déduit. */
+  const positionDesDalles = (x) => {
+    const n = piste.children.length;
+    if (n < 1) return 0;
+    let k = 0;
+    while (k + 1 < n && xDeLaDalle(k + 1) <= x) k += 1;
+    const a = xDeLaDalle(k);
+    const b = k + 1 < n ? xDeLaDalle(k + 1) : a + (a - xDeLaDalle(Math.max(0, k - 1)));
+    return b > a ? k + (x - a) / (b - a) : k;
+  };
+
   let enAttente = false;
   let enAttenteDalles = false;
   let repos = null;
@@ -1259,6 +1283,12 @@ export function construireLeSac(options = {}) {
 
   const arrete = () => {
     repos = null;
+    /* 🔴 ET IL NE PARLE QUE S'IL MÈNE — sans ce mot, la roue écrit DANS LE DOIGT.
+       ⚠️ LA CHAÎNE, ET ELLE EST LA TÊTE DE SÉRIE DU 19/09 : les plaques mènent → le
+       suivi écrit `r.scrollLeft` → ça émet un `scroll` SUR LA ROUE → et l'écouteur de
+       la roue réarme le repos AVEC `arrete`. Le décideur avait donc changé en cours de
+       geste, à l'insu de tout le monde. ⛔ `arreteLesDalles` ne tournait même pas. */
+    if (maitre !== "roue") return;
     /* 👻 ⛔ UNE ROUE QUI N'EST PLUS À L'ÉCRAN NE PARLE PAS. Un défileur détaché voit son
        `scrollLeft` retomber à zéro, cette retombée émet un `scroll`, et un minuteur
        survivant commettrait la première section — relevé le 19/09, deux fois. */
@@ -1281,13 +1311,27 @@ export function construireLeSac(options = {}) {
     if (options.surDalle) options.surDalle(k);
   };
 
+  /* ⭐ UN SEUL MINUTEUR DE REPOS POUR LES DEUX SURFACES, ET IL CHOISIT À L'ARRIVÉE.
+     ⚠️ LA FAUTE QU'IL REMPLACE, et c'est celle qui a fait la capture d'Eric à 22:52 : le
+     minuteur choisissait son exécutant AU MOMENT DE L'ARMER. Or entre l'armement et le
+     tir, le suivi écrit dans l'autre surface, cette écriture émet un `scroll`, et
+     l'écouteur d'en face réarme le repos avec SON handler. Le geste était mené par les
+     plaques et terminé par la roue.
+     🔴 LA LEÇON, plus large que ce bogue : *un arbitre ne se lit pas au départ.* Toute
+     décision gélée à l'armement d'un minuteur est une décision prise avant les faits. */
+  const repose = () => {
+    repos = null;
+    if (maitre === "dalles") arreteLesDalles();
+    else arrete();
+  };
+
   r.addEventListener("scroll", () => {
     if (!enAttente) {
       enAttente = true;
       (typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout)(suivre);
     }
     if (repos) clearTimeout(repos);
-    repos = setTimeout(arrete, REPOS_MS);
+    repos = setTimeout(repose, REPOS_MS);
   }, { passive: true });
 
   /* ⭐ ET LE CHEMIN INVERSE : quand c'est la DALLE qu'on pousse, c'est la roue qui suit.
@@ -1298,7 +1342,7 @@ export function construireLeSac(options = {}) {
     if (maitre !== "dalles") return;
     const l = largeurDalle();
     if (!(l > 0) || typeof r.placer !== "function") return;
-    const p = piste.scrollLeft / l;
+    const p = positionDesDalles(piste.scrollLeft);
     const bas = Math.floor(p);
     const f = p - bas;
     const a = r.rang(sectionDeLaDalle(bas));
@@ -1310,7 +1354,21 @@ export function construireLeSac(options = {}) {
   const arreteLesDalles = () => {
     repos = null;
     if (piste.isConnected === false || maitre !== "dalles") return;
-    const k = Math.round(piste.scrollLeft / largeurDalle());
+    const k = Math.round(positionDesDalles(piste.scrollLeft));
+    /* ⭐ ET LA ROUE SE POSE EXACTEMENT ICI — LA SYMÉTRIE DE `arrete()`, et elle manquait.
+       ⚠️ LA FAUTE : quand les plaques mènent, la roue est le SUIVEUR, donc son aimantation
+       est coupée (`[data-mene="non"]`). Rien ne la ramène sur son cran — elle reste où
+       l'interpolation l'a laissée. C'est la moitié du décalage qu'Eric a vu.
+       🔴 LA LEÇON, plus large que ce bogue : j'ai écrit le verrou dans un sens, puis je l'ai
+       *retourné* dans l'autre — et j'ai retourné le calcul sans retourner les deux
+       corrections qui l'accompagnaient (le pas lu, la pose exacte). Un chemin inverse
+       n'hérite de rien : il se relit ligne à ligne contre celui qu'il reflète. */
+    const cran = r.rang(sectionDeLaDalle(k));
+    const x = ROUE.pas * cran;
+    if (Math.round(r.scrollLeft) !== Math.round(x)) {
+      r.scrollLeft = x;
+      r.marquer(cran);
+    }
     if (k === derniereDalle || !dalles[k]) return;
     derniereDalle = k;
     if (options.surDalle) options.surDalle(k);
@@ -1322,7 +1380,7 @@ export function construireLeSac(options = {}) {
       (typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout)(suivreLesTuiles);
     }
     if (repos) clearTimeout(repos);
-    repos = setTimeout(maitre === "dalles" ? arreteLesDalles : arrete, REPOS_MS);
+    repos = setTimeout(repose, REPOS_MS);
   }, { passive: true });
 
   /* ⭐ ET LES CHEVRONS POUSSENT LA ROUE D'UNE TUILE — du MÊME mouvement aimanté que le
