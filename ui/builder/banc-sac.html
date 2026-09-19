@@ -83,9 +83,32 @@ const TOUT = [
 const PAGES = Math.ceil(TOUT.length / 12);
 const OBJETS = () => TOUT.slice(page * 12, (page + 1) * 12);
 
+/* ══ LE RUBAN DE PLAQUES — une plaque par (section, page) ════════════════
+   🔴 CE BANC N'EN CONSTRUISAIT QU'UNE, ET C'EST LE TROU QUI A LAISSÉ PASSER LE
+   DÉCALAGE DU 19/09. Sans `dalles`, l'écran retombe sur une plaque unique : le ruban
+   ne peut alors RIEN décaler, aucun relevé fait ici ne pouvait voir le chemin
+   inverse, et la faute a vécu jusqu'à ce qu'Eric la voie sur son iPad.
+   ⛔ Un banc qui ne peut pas montrer l'organe ne prouve rien de lui — après
+   *« une souris ne prouve rien d'un doigt »* et *« le volet occulté suspend les
+   images »*, c'est le troisième de la série.
+   ⭐ La première section porte le DÉBORD (seize objets, donc deux plaques) : on voit
+   ainsi une section qui vaut DEUX plaques, le cas que le lien roue↔plaques doit
+   traiter et qu'une simple multiplication raterait. */
+const DALLES = [];
+for (let i = 0; i < SECTIONS.length; i += 1) {
+  const siens = i === 0 ? TOUT : TOUT.slice(i * 3, i * 3 + 5);
+  const pagesI = Math.max(1, Math.ceil(siens.length / 12));
+  for (let pg = 0; pg < pagesI; pg += 1)
+    DALLES.push({ section: i, page: pg, objets: siens.slice(pg * 12, (pg + 1) * 12) });
+}
+const DALLE_DE = () => Math.max(0, DALLES.findIndex((d) => d.section === section && d.page === page));
+
 function peindre() {
   const { noeud } = construireLeSac({
     sections: SECTIONS, section, edition, renommage, objets: OBJETS(),
+    /* ⭐ ET LE RUBAN EST PASSÉ POUR DE VRAI — avec sa plaque courante. */
+    dalles: DALLES, dalle: DALLE_DE(),
+    surDalle: (k) => { const d = DALLES[k]; if (!d) return; section = d.section; page = d.page; },
     poids: { gear: { poids: "Gear : 5", compte: "5 items" },
              backpack: { poids: "Backpack 22", compte: "22 items" },
              autre: { poids: "Other 61", compte: "7 items" },
