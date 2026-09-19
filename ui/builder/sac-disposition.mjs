@@ -14,11 +14,16 @@ export const JETON = { l: 87, h: 48 };
    deviendraient faux au premier ajustement. */
 export const ROUE = { piste: 331, budget: 299, dominant: 71, secondaire: 57, margePct: 0.075,
                       tuile: 57, pas: 65, loupe: 1.2456, loupeX: 152.0,
-                      hauteur: 40, hauteurDominante: 32.11 };
+                      hauteur: 32.11, hauteurDominante: 40 };
 
 /* les trois colonnes et les cinq rangées de la grille — la grille de R au blg près */
+/* 🎯 LA BANDE QUI DEFILE — une dalle de douze jetons par section, et elles glissent
+   ensemble sous la roue. ⛔ Ses bords ne s inventent pas : la grille, plus 8 au-dessus du
+   premier jeton et 8 sous le dernier (croquis d Eric, 19/09). */
+export const DALLES = { x: 0, y: 104, l: 375, h: 232 };
+
 export const COLONNES = [49, 144, 239];
-export const RANGEES = [104, 160, 216, 272];
+export const RANGEES = [112, 168, 224, 280];
 
 export const ORGANES = [
   { nom: "ROUE",        sorte: "roue",     x:     22, y:      4, l:    331, h:    40, cible: { x: 22, y: 2, l: 331, h: 44 }, cran: "T1/600" },
@@ -31,25 +36,26 @@ export const ORGANES = [
   { nom: "TASSER",      sorte: "bouton",   x:    327, y:     52, l:     40, h:    40, cible: { x: 325, y: 50, l: 44, h: 44 }, mot: "sections", cran: "T0/600" },
   { nom: "POIDS TOTAL", sorte: "voyant",   x:     56, y:     60, l:    263, h:    14, mot: "Encumbrance : 46,5", cran: "T2/600" },
   { nom: "POIDS DETAIL", sorte: "voyant",   x:     56, y:     74, l:    263, h:    22, mot: "Gear 34,5   Backpack 12   Other 61", cran: "T1/400" },
-  { nom: "CASE 1.1",    sorte: "jeton",    x:     49, y:    104, l:     87, h:    48 },
-  { nom: "CASE 1.2",    sorte: "jeton",    x:    144, y:    104, l:     87, h:    48 },
-  { nom: "CASE 1.3",    sorte: "jeton",    x:    239, y:    104, l:     87, h:    48 },
-  { nom: "CASE 2.1",    sorte: "jeton",    x:     49, y:    160, l:     87, h:    48 },
-  { nom: "CASE 2.2",    sorte: "jeton",    x:    144, y:    160, l:     87, h:    48 },
-  { nom: "CASE 2.3",    sorte: "jeton",    x:    239, y:    160, l:     87, h:    48 },
-  { nom: "CASE 3.1",    sorte: "jeton",    x:     49, y:    216, l:     87, h:    48 },
-  { nom: "CASE 3.2",    sorte: "jeton",    x:    144, y:    216, l:     87, h:    48 },
-  { nom: "CASE 3.3",    sorte: "jeton",    x:    239, y:    216, l:     87, h:    48 },
-  { nom: "CASE 4.1",    sorte: "jeton",    x:     49, y:    272, l:     87, h:    48 },
-  { nom: "CASE 4.2",    sorte: "jeton",    x:    144, y:    272, l:     87, h:    48 },
-  { nom: "CASE 4.3",    sorte: "jeton",    x:    239, y:    272, l:     87, h:    48 },
-  { nom: "lune Wares",  sorte: "lune",     x:      4, y:    153, l:     30, h:    30, cible: { x: 0, y: 146, l: 44, h: 44 }, mot: "Wares", creation: false },
-  { nom: "lune Gear",   sorte: "lune",     x:      4, y:    197, l:     30, h:    30, cible: { x: 0, y: 190, l: 44, h: 44 }, mot: "Gear", creation: false },
-  { nom: "lune Craft",  sorte: "lune",     x:      4, y:    241, l:     30, h:    30, cible: { x: 0, y: 234, l: 44, h: 44 }, mot: "Craft", creation: false },
+  { nom: "DALLES",      sorte: "bande",    x:      0, y:    104, l:    375, h:   232, mot: "une dalle par section" },
+  { nom: "CASE 1.1",    sorte: "jeton",    x:     49, y:    112, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 1.2",    sorte: "jeton",    x:    144, y:    112, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 1.3",    sorte: "jeton",    x:    239, y:    112, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 2.1",    sorte: "jeton",    x:     49, y:    168, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 2.2",    sorte: "jeton",    x:    144, y:    168, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 2.3",    sorte: "jeton",    x:    239, y:    168, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 3.1",    sorte: "jeton",    x:     49, y:    224, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 3.2",    sorte: "jeton",    x:    144, y:    224, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 3.3",    sorte: "jeton",    x:    239, y:    224, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 4.1",    sorte: "jeton",    x:     49, y:    280, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 4.2",    sorte: "jeton",    x:    144, y:    280, l:     87, h:    48, dans: "DALLES" },
+  { nom: "CASE 4.3",    sorte: "jeton",    x:    239, y:    280, l:     87, h:    48, dans: "DALLES" },
+  { nom: "lune Wares",  sorte: "lune",     x:      4, y:    161, l:     30, h:    30, cible: { x: 0, y: 154, l: 44, h: 44 }, mot: "Wares", creation: false },
+  { nom: "lune Gear",   sorte: "lune",     x:      4, y:    205, l:     30, h:    30, cible: { x: 0, y: 198, l: 44, h: 44 }, mot: "Gear", creation: false },
+  { nom: "lune Craft",  sorte: "lune",     x:      4, y:    249, l:     30, h:    30, cible: { x: 0, y: 242, l: 44, h: 44 }, mot: "Craft", creation: false },
   { nom: "COLLECTEUR",  sorte: "collecteur", x:    144, y:    348, l:     87, h:    48, cible: { x: 144, y: 348, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
-  { nom: "PURSE",       sorte: "bouton",   x:    276, y:    341, l:     50, h:    50, cible: { x: 276, y: 341, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
-  { nom: "PARTY TALLY", sorte: "bouton",   x:     32, y:    346, l:     40, h:    40, cible: { x: 30, y: 344, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
-  { nom: "TALLY",       sorte: "bouton",   x:     80, y:    346, l:     40, h:    40, cible: { x: 78, y: 344, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
+  { nom: "PURSE",       sorte: "bouton",   x:    276, y:    345, l:     50, h:    50, cible: { x: 276, y: 345, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
+  { nom: "PARTY TALLY", sorte: "bouton",   x:     32, y:    350, l:     40, h:    40, cible: { x: 30, y: 348, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
+  { nom: "TALLY",       sorte: "bouton",   x:     80, y:    350, l:     40, h:    40, cible: { x: 78, y: 348, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "SEND VERS",   sorte: "dropdown", x:  139.5, y:    404, l:     96, h:    40, cible: { x: 139.5, y: 402, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
   { nom: "RANGEE",      sorte: "rangee",   x:      4, y:    448, l:    367, h:    44, cran: "—" },
   { nom: "livre",       sorte: "rond",     x:     15, y:    459, l:     22, h:    22, cible: { x: 4, y: 448, l: 44, h: 44 }, mot: "livre" },
@@ -65,4 +71,4 @@ export const ORGANES = [
    ⛔ AUCUN DE CES NOMBRES N'EST TAPÉ : la hauteur est celle de la grille plus un débord égal
    en haut et en bas, la largeur suit le RAPPORT MESURÉ de l'image détourée, et l'abscisse
    centre le tout sur la dalle. Une rangée qui bouge emmène le fond avec elle. */
-export const FOND = { image: "sac-fond.webp", x: 90.48, y: 98, l: 194.03, h: 228, rapport: 0.851 };
+export const FOND = { image: "sac-fond.webp", x: 90.48, y: 106, l: 194.03, h: 228, rapport: 0.851 };

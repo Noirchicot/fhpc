@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=722") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=727") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=722") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=727") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=722") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=727") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=722");
+  background-image: url("./assets/tarot-dos.jpg?v=727");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11765,6 +11765,47 @@ button.tuto-point::before {
    portent rien, et la grille des rangées les range sans qu'on lui retire un
    `absolute` qu'on ne leur a jamais donné. */
 
+/* ══ LE RUBAN DE DALLES — Eric, 2026-09-19 ═══════════════════════════════════
+   ⚖️ *« je fais défiler une tuile à travers le viseur, je fais défiler une dalle en même
+   temps… je vois les deux défiler en même temps, ILS SONT LIÉS »* · *« les deux dalles,
+   supérieure et inférieure, restent immobiles bien sûr »* · *« le sac à dos reste en fond
+   et immobile »*.
+   ⭐ DES TROIS DALLES, UNE SEULE BOUGE, et c'est celle des douze jetons. Sa boîte vient
+   du plan (`DALLES`), bornée par son croquis : 8 blg au-dessus du premier jeton, 8 sous
+   le dernier. ⛔ Aucune cote ici.
+   🔴 ET C'EST ELLE QUI PORTE LE GESTE, pas la roue — *« le glisser sur la grille change
+   de section »* (19/09). La roue devient un affichage que ce défileur commande : deux
+   surfaces de geste pour un seul mouvement se battraient, et c'est l'inertie du système
+   qu'on perdrait. */
+/* ⛔ ET IL N'Y A PAS DE SWIPE DE DALLE — Eric l'a demandé, puis retiré le 19/09 quand la
+   mesure est tombée : *« donc pas de swipe de dalle »*.
+   🔴 LE CONFLIT, NOMMÉ : porter un jeton d'une dalle à l'autre est un geste HORIZONTAL.
+   Un défileur natif s'empare d'un geste horizontal dès trois ou quatre pixels — il le
+   VOLE au jeton, avant même que le maintien qui arme le glisser ait eu le temps de se
+   faire. ⛔ Les deux ne peuvent pas être natifs sur les mêmes pixels.
+   ⭐ CE QUI RESTE POUR NAVIGUER, et ça fait quatre : les chevrons, la molette du tuner,
+   le tap d'une tuile, et le swipe de la ROUE. La grille, elle, garde son geste à elle —
+   porter un objet — et il n'est plus disputé.
+   📌 La sortie qu'on n'a pas prise, pour mémoire : un balayage écrit à la main sur les
+   dalles, qui aurait cédé au maintien du jeton. Elle marchait, mais elle ajoutait un
+   second régime de mouvement sur une surface qui en avait déjà un. */
+.sac-dalles {
+  display: flex;
+  /* 🔴 `hidden` : LES DALLES SUIVENT, ELLES NE COMMANDENT PAS — Eric, 19/09 : *« le swipe
+     fait bouger les tuiles, les dalles suivent »*. ⭐ `hidden` laisse `scrollLeft`
+     s'écrire ; il n'interdit que le geste. ⛔ Deux surfaces qui se commandent l'une
+     l'autre font une boucle, et l'inertie du système se perd entre les deux. */
+  overflow: hidden;
+}
+/* ⭐ UNE DALLE FAIT UNE LARGEUR D'ÉCRAN, et c'est ce qui rend le rapport exact : une
+   tuile avance de 65 pendant qu'une dalle avance de 375. ⛔ `relative`, parce que les
+   douze cases se posent DEDANS — le plan les déclare hôtées par la bande. */
+.sac-dalle {
+  position: relative; flex: 0 0 auto;
+  inline-size: 100%; block-size: 100%;
+  scroll-snap-align: center;
+}
+
 /* — LA ROUE : un tambour à UN étage, sans perspective. Eric, 18/09 : *« on va pas
      se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
      le HALO, comme sur le belt. — */
@@ -11807,12 +11848,18 @@ button.tuto-point::before {
    🔴 ELLE ÉTAIT UNE FAUSSE ROUE : cinq boîtes à `x` fixes dont le TEXTE changeait. Rien
    ne bougeait jamais — ça sautait d'un cran à l'autre, et c'est exactement ce qui
    n'était pas fluide. ⭐ L'aimantation est celle du belt, native, ⛔ pas une seconde. */
+/* ⚖️ ET C'EST ELLE QUI PREND LE DOIGT — Eric, 2026-09-19 : *« le swipe fait bouger les
+   tuiles, les dalles suivent »*.
+   🔴 J'AVAIS MIS LE MAÎTRE DE L'AUTRE CÔTÉ une heure plus tôt, sur la foi de sa réponse
+   précédente (*« le glisser sur la grille change de section »*) — les deux phrases disent
+   qui COMMANDE, et c'est la seconde qui tranche. ⛔ Un seul maître : deux surfaces qui se
+   commandent l'une l'autre font une boucle où chacune corrige l'autre.
+   ⭐ `mandatory` ET NON `proximity` : *« toujours cadré sur le halo »*. `proximity` laisse
+   le ruban s'arrêter entre deux tuiles quand le geste est franc — précisément quand on
+   va vite. */
 .sac-roue {
   display: block;
   overflow-x: auto; overflow-y: hidden;
-  /* ⭐ `mandatory` ET NON `proximity` : Eric veut que ce soit *« toujours cadré sur le
-     halo »*. `proximity` laisse le ruban s'arrêter entre deux tuiles quand le geste est
-     franc — c'est-à-dire précisément quand on va vite. */
   scroll-snap-type: x mandatory;
   /* ⛔ `touch-action: pan-x` : sans lui un glissé un peu oblique part au défilement
      VERTICAL de la page, et la roue rate un geste sur deux. */
@@ -11843,33 +11890,32 @@ button.tuto-point::before {
 }
 /* ⭐ ET LA LOUPE EST UN CADRE FIXE : posé une fois au centre de la piste, et les tuiles
    passent dessous. ⛔ Elle ne prend pas le doigt — ce qu'on tape, ce sont les tuiles.
-   ⚖️ UN RECTANGLE, PAS UN HALO — Eric, 2026-09-19 : *« une forme géométrique simple, un
-   rectangle à la place d'un halo pour la zone de zoom »*.
-   ⭐ ET C'EST LE BON DESSIN, pas seulement le plus simple : un halo DÉBORDE, et ce qui
-   déborde désigne la chose qu'il entoure. Ici rien n'est entouré — le cadre ne bouge
-   jamais, c'est le ruban qui passe. Un CADRE se dessine net, sur ses quatre arêtes.
-   ⚠️ Eric le proposait pour économiser des calculs : l'économie-là est négligeable (une
-   ombre portée se peint une fois et se composite), la vraie dépense par image était le
-   viseur — elle est corrigée dans `sac-ecran.mjs`. Celui-ci est un choix de DESSIN.
-   🔴 ET SON RAYON EST CELUI DE LA TUILE, PAS UN AUTRE — mesuré à l'écran le 19/09 :
-   depuis que la posée peint 71 × 40, le cadre et elle sont LA MÊME BOÎTE au centième
-   près. ⛔ Un rayon plus petit y dessinerait donc quatre ergots aux coins, dehors du
-   cran arrondi. ⭐ Et ça donne au cadre son bon régime : invisible quand une tuile est
-   POSÉE dedans (les deux liserés coïncident), visible dès que le ruban bouge, quand il
-   n'y a plus sous lui que la piste. La zone se montre quand elle sert. */
+   ⚖️ UN ENCADRÉ DE ZOOM, BIEN MARQUÉ, DE LA MÊME FORME QUE LES TUILES — Eric,
+   2026-09-19. ⛔ Il était d'abord un halo flou (l'ombre portée du belt), puis un trait
+   de 1 blg qui se confondait avec le liseré de la tuile posée : *« bien marqué »* est
+   le mot qui tranche, et il vient après deux essais trop discrets.
+   ⭐ SON ÉPAISSEUR EST LE JETON D'ERIC, ET IL A DIT QU'IL ÉTAIT GLOBAL : *« le
+   collecteur doit doubler son épaisseur de liseré témoin, trop fin pas assez visible »*
+   puis *« ça c'est global à tout le site »* (26/08). ⛔ Écrire `2px` ici serait poser
+   une cote sans nom, et rougir le garde des littéraux.
+   🔴 ET IL ENTOURE, IL NE RECOUVRE PAS — la loi `collecteur-lisere-entoure-ne-recouvre-pas`
+   (NORMES, 26/08). D'où `outline` et non `border` : la boîte que le plan donne (71 × 40)
+   reste celle de la TUILE POSÉE, et le trait se dessine DEHORS, sans rien prendre au mot
+   qu'il encadre et sans toucher à la mise en page.
+   ⛔ J'AI ESSAYÉ D'ABORD `content-box` + une marge négative, et le garde des littéraux
+   l'a refusé — à raison : `calc(-1 * …)` est un nombre écrit à la main. `outline` pose la
+   même question sans y répondre par un chiffre, et son arrondi suit celui de la tuile
+   tout seul, concentrique par construction. */
 .sac-loupe {
   pointer-events: none;
-  border-radius: var(--organe-rayon);
-  box-shadow: inset 0 0 0 1px var(--verre-lisere),
-              inset 0 0 0 1px var(--accent-wash);
+  outline: var(--creneau-lisere-rempli) solid var(--verre-lisere);
+  border-radius: var(--radius-md);
 }
 /* ⛔ ET LA LOUPE GARDE LE GENRE DE CE QU'ELLE CADRE — la règle des trois liserés du
    19/09 : un cadre qui perdrait l'or ou le bleu au moment où on regarde la boîte ne le
    dirait jamais quand ça compte. */
-.sac-loupe[data-lieu="dehors"] { box-shadow: inset 0 0 0 1px var(--dehors),
-    inset 0 0 0 1px var(--accent-wash); }
-.sac-loupe[data-lieu="party"] { box-shadow: inset 0 0 0 1px var(--info),
-    inset 0 0 0 1px var(--accent-wash); }
+.sac-loupe[data-lieu="dehors"] { outline-color: var(--dehors); }
+.sac-loupe[data-lieu="party"] { outline-color: var(--info); }
 /* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
    ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
    disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
@@ -11901,8 +11947,17 @@ button.tuto-point::before {
   /* ⭐ CHAQUE TUILE EST UN CRAN D'AIMANTATION, centré — c'est LUI qui garantit
      *« toujours cadré sur le halo »*. */
   scroll-snap-align: center;
-  border: 0; background: var(--dalle-inter); color: var(--text-soft);
-  border-radius: var(--organe-rayon); cursor: pointer;
+  /* ⚖️ DE TRANSPARENT À PLEIN — Eric, 2026-09-19, en regardant le belt : *« de transparent
+     à plein, c'est plus efficace »*. ⛔ Toutes les tuiles portaient le même fond, et la
+     posée ne se distinguait que par sa taille. ⭐ Le fond devient le SIGNE : ce qui est plein
+     est ce qui est choisi, et le reste attend. C'est la loi du belt, où le cran courant
+     *« ne s'épaissit pas, il se RALLUME »*. */
+  border: 0; background-color: transparent; color: var(--text-soft);
+  /* ⚖️ PLUS RECTANGULAIRES — Eric, 2026-09-19 : *« fais-moi des tuiles plus rectangulaires
+     que ça »*. ⛔ Elles portaient `--organe-rayon` (16), le rayon de la FAMILLE DU JETON :
+     sur une tuile de 57 × 40 il arrondissait presque toute la hauteur, et la rangée
+     ressemblait à un chapelet de pastilles. Un cran de section n'est pas un jeton. */
+  border-radius: var(--radius-md); cursor: pointer;
   font-size: var(--t0); line-height: 1.15; font-weight: 600;
   /* ⚖️ DEUX ÉTAGES — Eric, 18/09 : *« on peut écrire sur deux étages aussi »*, ce
      qui porte un nom à ~22 signes au lieu de 11. 🔴 ET UN MOT LONG DOIT POUVOIR
@@ -11920,14 +11975,24 @@ button.tuto-point::before {
    le défaut était le bon. Seul l'AILLEURS se déclare.
    ⛔ L'or n'est pas une couleur de l'échelle : il ne dit ni bien ni mal, il dit un
    LIEU — un objet rangé là n'est pas sur toi. Son jeton le dit (`--dehors`). */
-.sac-cran[data-lieu="dehors"] { box-shadow: inset 0 0 0 1px var(--dehors); }
+/* 🔴 ET ILS SE VOIENT : 1 blg ne suffisait pas — Eric, 19/09 : *« n'oublie pas le reflet
+   bleuté sur la tuile inventory, et le reflet doré sur les tuiles ''outer'' s'il y en a »*.
+   Ils étaient bien là, et c'est le pire cas : posés, câblés, et illisibles. Ils prennent
+   donc l'épaisseur du liseré témoin — le jeton dont Eric a dit *« trop fin pas assez
+   visible »* et *« c'est global à tout le site »*. ⛔ Le BLANC reste à 1 : c'est le
+   défaut de la maison, il n'a rien à annoncer. */
+.sac-cran[data-lieu="dehors"] {
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--dehors);
+}
 /* ⭐ ET LE BLEU EST CELUI DU PARTY INVENTORY — Eric, 19/09 : *« party inventory vient
    dedans ; c'est une partie accessible par tout le monde. Non éditable : on peut
    changer sa position, mais pas l'effacer ni la renommer. »* ⛔ `--info` est la teinte
    de ce qui PRÉVIENT (§7) : ici elle ne prévient pas, elle dit *« ceci n'est pas qu'à
    toi »*. C'est le même emploi que sur le liseré des portes de navigation — une
    appartenance, pas un signal. */
-.sac-cran[data-lieu="party"] { box-shadow: inset 0 0 0 1px var(--info); }
+.sac-cran[data-lieu="party"] {
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info);
+}
 /* ⭐ ET LE `+` DU BOUT DROIT PORTE L'OR DE L'AILLEURS : les deux boutons sont
    identiques, seule leur destination change — et elle se voit. */
 .sac-cran[data-role="ajouter"][data-lieu="dehors"] { color: var(--dehors); }
@@ -11943,25 +12008,35 @@ button.tuto-point::before {
    (`scale`, feuille construite). ⛔ Plus de `font-size` ici : le `scale` grossit le
    texte avec la boîte, et deux écrivains pour un même grandissement divergeraient. */
 .sac-cran[data-dominant="oui"] {
-  color: var(--text); cursor: default;
-  /* ⛔ La transition ne porte QUE l'agrandissement : une transition sur la couleur
-     traînerait derrière le doigt pendant une lancée. */
-  transition: scale 120ms ease-out;
+  background-color: var(--dalle-inter); color: var(--text); cursor: default;
+}
+/* ⏱️ 60 ms, ET LA DURÉE EST D'ERIC — 2026-09-19 : *« tu fais une transition de 60 ms »*.
+   🔴 ELLE PORTE LE ZOOM ET LE REMPLISSAGE ENSEMBLE : c'est UN changement d'état, et deux
+   durées pour un seul état se verraient se courir après.
+   📏 POURQUOI PAS 120 : le ruban traverse une tuile toutes les ~50 ms en lancée. Une
+   transition de 120 ms ne FINIT jamais — elle montre en permanence l'état d'il y a deux
+   tuiles. ⛔ Ce n'est pas cher, c'est EN RETARD, ce qui est pire parce que ça se voit.
+   ⭐ Et elle est posée sur TOUTES les tuiles, pas sur la seule posée : le dé-zoom de celle
+   qui s'en va doit s'animer aussi — *« il va y avoir un zoom et un dé-zoom de transition au
+   passage du halo »*. Une transition portée par le seul état allumé ne joue qu'à l'aller. */
+.sac-cran {
+  transition: scale 60ms ease-out, background-color 60ms ease-out, color 60ms ease-out;
 }
 /* ⛔ ET LE DOMINANT GARDE SON LIEU : sans cette ligne, la boîte sous le viseur
    perdait son or en y entrant — c'est-à-dire exactement quand on la regarde. */
 .sac-cran[data-dominant="oui"][data-lieu="dehors"] {
-  box-shadow: inset 0 0 0 1px var(--dehors),
-              inset 0 0 0 1px var(--accent-wash),
-              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--dehors),
+              inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
 }
 /* ⛔ ET LE PARTY INVENTORY GARDE SON BLEU SOUS LE VISEUR, pour la même raison : une
    boîte qui perd son genre au moment où on la regarde ne le dit jamais quand ça
    compte. Vu au banc — la règle du dominant écrasait le liseré bleu. */
+/* ⛔ ET PLUS DE HALO ICI : il a suivi la LOUPE le 20/09 (*« le halo doit rester
+   centré »*), et ces deux règles-ci le repeignaient encore sur la tuile — donc un halo
+   qui voyageait, exactement ce qu'on avait retiré. Vu en relisant, pas à l'écran. */
 .sac-cran[data-dominant="oui"][data-lieu="party"] {
-  box-shadow: inset 0 0 0 1px var(--info),
-              inset 0 0 0 1px var(--accent-wash),
-              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info),
+              inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
 }
 /* ══ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 ═══════════════════
    ⚖️ *« un x (carré 40 × 40 à gauche, à cheval) et un / (carré 40 × 40 à droite) de
