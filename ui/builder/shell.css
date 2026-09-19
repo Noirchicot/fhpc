@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=731") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=735") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=731") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=735") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=731") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=735") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=731");
+  background-image: url("./assets/tarot-dos.jpg?v=735");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11810,6 +11810,25 @@ button.tuto-point::before {
    deux le doigt a touché et n'écrit QUE dans l'autre. Un maître par geste. */
 .sac-dalles {
   display: flex;
+  /* 🔴 LE TRAIT DE COUPE — Eric, 2026-09-19, devant l'écran : *« où est le line bleed ? la
+     dalle ne se détache pas, tokens coupés ? »*.
+     ⭐ SES DEUX QUESTIONS N'EN FONT QU'UNE, et la mesure le disait déjà : la coupe EXISTE
+     (les rangées débordent de 8 en haut et en bas, relevé au blg près) — mais rien ne la
+     DESSINE. Sans trait, l'œil n'attribue pas le sommet plat d'un jeton à un cadre : il
+     croit que le jeton est fait comme ça.
+     ⚖️ « LINE bleed » est le mot juste, et c'est un mot d'imprimeur : le trait de coupe.
+     Sur iOS la coupe se lit sans trait parce que le bord est celui de l'ÉCRAN ; ici elle
+     tombe au milieu d'une dalle translucide, où rien ne dit qu'un bord commence.
+     ⛔ `box-shadow` inset et non `border` : un bord changerait la boîte, donc la cote —
+     et les cotes viennent du plan.
+     📏 ET IL SE VOIT, PARCE QUE `--verre-lisere` NE SUFFISAIT PAS : mesuré, il vaut .14
+     d'alpha la nuit — un trait qu'on ne voit pas ne coupe rien, et Eric a demandé deux
+     fois *« la dalle ne se détache pas »*. Le trait prend donc les deux jetons qui
+     existent pour ça : `--border-strong`, l'encre d'un bord de CONTRÔLE (3:1 garanti sur
+     le fond, §3b), à l'épaisseur du liseré témoin — celle dont Eric a dit *« trop fin pas
+     assez visible »* puis *« c'est global à tout le site »*. */
+  box-shadow: inset 0 var(--creneau-lisere-rempli) 0 var(--border-strong),
+              inset 0 calc(-1 * var(--creneau-lisere-rempli)) 0 var(--border-strong);
   overflow-x: auto; overflow-y: hidden;
   scroll-snap-type: x mandatory;
   /* ⛔ `pan-x` : le geste vertical reste à la page, l'horizontal est à nous. */
