@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=753") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=754") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=753") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=754") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=753") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=754") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=753");
+  background-image: url("./assets/tarot-dos.jpg?v=754");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -12275,6 +12275,23 @@ button.tuto-point::before {
 .sac-encart-deux dt, .sac-encart-figees dt { font-weight: 700; }
 .sac-encart-deux dd, .sac-encart-figees dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }
 .sac-encart-fige { margin: 0; color: var(--text-soft); }
+/* ⚖️ LES DEUX CRÉATIONS PORTENT LEUR PHRASE SUR DEUX ÉTAGES — Eric, 19/09 : *« au-dessus
+   et en dessous du + vert : backpack / + / Storage »* · *« au-dessus et en dessous du +
+   doré : Other / + / Storage »*. ⭐ Le mot du dessus dit OÙ, celui du dessous dit QUOI :
+   c'est l'ORDRE qui porte la phrase, et deux étages sont ce qui le rend lisible.
+   🔴 ET CES RÈGLES ONT MANQUÉ UN TOUR, EN SILENCE : le `replace` qui devait les écrire
+   visait un sélecteur que je venais de renommer deux commandes plus tôt. Il n'a rien
+   trouvé, rien dit, et les deux boutons sont sortis en BLANC — l'habit par défaut du
+   navigateur. ⛔ Une écriture qui échoue sans bruit est pire qu'une lecture fausse. */
+.sac-ajout {
+  display: grid; place-content: center; gap: 0;
+  border: 0; border-radius: var(--radius-md); cursor: pointer;
+  background: var(--positive); color: var(--bouton-encre);
+  font: inherit; font-size: var(--t0); font-weight: 600; line-height: 1.15; text-align: center;
+}
+/* ⚖️ LE DORÉ DIT UN AILLEURS — le même jeton que le genre des sections hors du sac. */
+.sac-ajout[data-lieu="dehors"] { background: var(--dehors); }
+.sac-ajout-ou { font-weight: 700; }
 .sac-poignee:disabled { opacity: var(--organe-eteint); cursor: not-allowed; }
 
 /* ══ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« la roue passe en mode

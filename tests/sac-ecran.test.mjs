@@ -582,6 +582,18 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
     "⚖️ et le doré un rangement qui compte dans `Other` — le mot du panneau de poids");
   assert.equal(ajoutDehors.dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
   assert.equal(ajoutSac.dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
+  /* 🔴 ET LES DEUX SONT HABILLÉS — faute vue À L'ÉCRAN : leurs règles avaient manqué un
+     tour EN SILENCE (un `replace` visant un sélecteur renommé deux commandes plus tôt), et
+     ils sont sortis en BLANC, l'habit par défaut du navigateur, leurs deux étages sur une
+     seule ligne. ⛔ Une écriture qui échoue sans bruit est pire qu'une lecture fausse. */
+  const habits = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }));
+  const base = habits.find((b) => b.sel === ".sac-ajout");
+  assert.ok(base, "⛔ les deux créations ne sont plus habillées");
+  assert.match(base.corps, /background:\s*var\(--positive\)/, "⚖️ le vert : on crée dans le sac");
+  assert.match(base.corps, /display:\s*grid/, "⚖️ deux étages, donc une grille");
+  assert.match(habits.find((b) => b.sel === '.sac-ajout[data-lieu="dehors"]').corps,
+    /background:\s*var\(--dehors\)/, "⚖️ et le doré dit un ailleurs");
   for (const clef of ["AJOUT SAC", "AJOUT DEHORS"])
     assert.equal(pose(clef).dans, "NOTICE", `⛔ ${clef} doit vivre DANS le panneau`);
   ajoutSac.dispatchEvent({ type: "click" });
