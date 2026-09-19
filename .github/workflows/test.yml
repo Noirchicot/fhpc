@@ -1,0 +1,64 @@
+# ══ LA SUITE, RELANCÉE SUR UNE MACHINE VIERGE ════════════════════════════════
+#
+# ⚖️ POURQUOI CE FICHIER EXISTE, ET CE QU'IL AJOUTE AU VEILLEUR LOCAL.
+#    `npm test` lancé sur un worktree prouve que le code est juste DANS CET
+#    ÉTAT-LÀ. Il ne prouve pas qu'il l'est sur un CLONE FRAIS — et l'écart n'est
+#    pas théorique ici : `.gitignore` retire du dépôt les livres du joueur
+#    (`sources-livres/`, `layers-livres/`) et dit lui-même qu'« une version
+#    construite depuis un clone frais ne les a pas — par ABSENCE, pas par
+#    discipline ». Un worktree de travail les a. Cette machine-ci, non.
+#    ⭐ C'est exactement ce qu'aucun lancement local ne peut voir.
+#
+# ⛔ ET UNE PR SANS PASTILLE N'EST PAS UNE PR VERTE. Avant ce fichier, une PR de
+#    ce dépôt n'affichait AUCUN check — ce qui ressemble à « rien n'a échoué »
+#    alors que ça veut dire « on n'a rien demandé ». Le silence n'est pas une
+#    réponse.
+#
+# 📌 `on: push` SEUL, ET C'EST DÉLIBÉRÉ : GitHub rattache les runs d'un commit à
+#    la PR qui le porte, donc la pastille apparaît quand même sur la PR — sans
+#    lancer deux fois la même suite (le doublon `push` + `pull_request`).
+#    ⚠️ Conséquence assumée : une PR venue d'un FORK ne déclencherait rien. Ce
+#    dépôt n'en reçoit pas ; le jour où il en reçoit, ajouter `pull_request`.
+#
+# ⛔ LA VERSION DE NODE N'EST PAS ÉCRITE ICI : elle vit dans `package.json`
+#    (`engines.node`), et `node-version-file` l'y lit. Deux endroits auraient
+#    divergé au premier changement — c'est la faute que le corpus nomme partout.
+
+name: suite
+
+# ⚠️ `on:` SE LIT `true` SOUS UN PARSEUR YAML 1.1 (le mot est un booléen réservé) :
+#    un linter affichera la clef `true`, et ce n'est PAS une faute — GitHub le lit
+#    comme le déclencheur. ⛔ Ne pas « réparer » ce qui n'est pas cassé.
+on:
+  push:
+  workflow_dispatch:      # ⭐ pour relancer à la main sans pousser un commit vide
+
+# ⛔ LE JETON NE PEUT QUE LIRE : rien ici n'écrit dans le dépôt.
+permissions:
+  contents: read
+
+# ⭐ Une poussée qui en suit une autre sur la même branche annule la précédente :
+#    seul le dernier état compte, et on ne paie pas deux fois pour le savoir.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      # ⛔ `npm ci` ET PAS `npm install` : il installe EXACTEMENT le
+      #    `package-lock.json`, et il refuse si le lock et le manifeste divergent.
+      #    `install`, lui, réparerait l'écart en silence — donc ne le dirait jamais.
+      - run: npm ci
+
+      # ⭐ `npm test` = `node --test` : toute la suite, y compris `tree-immuable`,
+      #    qui la rejoue dans un sous-processus entre deux empreintes de l'arbre.
+      - run: npm test
