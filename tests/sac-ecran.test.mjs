@@ -1534,3 +1534,51 @@ test("33 — \u2194\ufe0f LE CHEMIN INVERSE N'H\u00c9RITE DE RIEN : il lit le PA
   assert.equal((source.match(/setTimeout\(repose, REPOS_MS\)/g) || []).length, 2,
     "\u26d4 les deux \u00e9couteurs arment LE M\u00caME repos");
 });
+
+test("34 — 👆 UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT : il rend la main à la roue", async () => {
+  /* ⚖️ Eric, 2026-09-19, juste après la réparation du chemin inverse : *« le drag and drop
+     maintenant il ne fonctionne plus, mettre le token dans la marge fait défiler les tuiles
+     mais pas les dalles »*.
+     🔴 LA CHAÎNE : un `pointerdown` sur un jeton BULLE jusqu'à la piste — et il le doit,
+     puisqu'avant le péage de 350 ms ce même doigt peut encore balayer les plaques. Mais une
+     fois l'objet PORTÉ, plus personne ne fait glisser de plaque : la marge pousse la ROUE,
+     et le verrou refusait de la suivre parce que l'arbitre désignait encore les plaques.
+     ⭐ LA LOI : *l'arbitre nomme la surface que le DOIGT fait glisser.* Chevrons, tuner,
+     marge, placement d'ouverture — aucun n'est un doigt, donc chacun rend la main.
+     ⛔ ET C'EST MA FAUTE DU TOUR D'AVANT : en donnant un maître à chaque geste, j'ai fait
+     dépendre de lui des défilements qui n'ont pas de doigt du tout. Un arbitre qui tranche
+     entre deux doigts ne dit RIEN d'un mouvement qui n'en a pas. */
+  const noeud = rendu({ dalles: [0, 1, 2].map((i) => ({ section: i, objets: [] })) });
+  const piste = noeud.querySelector('[data-organe="dalles"]');
+  const roue = noeud.querySelector(".sac-roue");
+  poserLesDalles();
+  const pas = D.DALLE.l + D.DALLES.jour;
+  [...piste.children].forEach((n, k) => { n.offsetLeft = pas * k; });
+
+  /* → LE DOIGT SE POSE SUR UN JETON, donc sur la piste : l'arbitre désigne les plaques */
+  piste.dispatchEvent({ type: "pointerdown", target: piste });
+  assert.equal(piste.dataset.mene, "oui", "le doigt a bien désigné les plaques");
+
+  /* → et c'est la MARGE qui pousse, pas le doigt — le même chemin que les chevrons, le
+     tuner et le défilement du glisser (`agir = () => pisteNoeud.pousser(sens)`) */
+  piste.pousser(1);
+  await new Promise((r) => setTimeout(r, REPOS_MS + 160));
+
+  /* 📏 ROUGE MESURÉ en retirant le mot : la roue ne rend pas 65 mais **0**. Elle avance
+     bien d'une tuile, puis la fin de geste des PLAQUES — qui mènent toujours, aux yeux de
+     l'arbitre — la repose sur la plaque courante et la ramène au départ. ⭐ La pose exacte
+     du garde 33 est juste ; c'est l'arbitre qui la fait tirer du mauvais côté. */
+  assert.equal(Math.round(roue.scrollLeft), D.ROUE.pas, "la roue a bien avancé d'une tuile");
+  assert.equal(Math.round(piste.scrollLeft), Math.round(pas),
+    `⛔ les plaques sont restées à ${piste.scrollLeft} : la marge fait défiler les tuiles ` +
+    "et pas les dalles — exactement ce qu'Eric a vu le 19/09");
+
+  /* → ET LE MÊME MOT SUR LES DEUX CHEMINS PROGRAMMÉS, parce qu'il ne se voit pas à l'œil */
+  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  const pousse = source.slice(source.indexOf("piste.pousser = (sens)"));
+  assert.match(pousse.slice(0, 200), /mener\("roue"\)/,
+    "⛔ chevrons, tuner et marge passent tous par `pousser` : il doit rendre la main");
+  const ouverture = source.slice(source.indexOf("placementEnAttente = () =>"));
+  assert.match(ouverture.slice(0, 200), /mener\("roue"\)/,
+    "⛔ le placement d'ouverture non plus n'est pas un doigt");
+});

@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=747";
-import { versionQuery } from "./version.mjs?v=747";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=747";
+import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=748";
+import { versionQuery } from "./version.mjs?v=748";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=748";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=747";
+import { armerJeton, fantome } from "./glisser.mjs?v=748";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=747";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=748";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=747";
+import { facteurZoomCourant } from "./echelle.mjs?v=748";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -1386,6 +1386,21 @@ export function construireLeSac(options = {}) {
   /* ⭐ ET LES CHEVRONS POUSSENT LA ROUE D'UNE TUILE — du MÊME mouvement aimanté que le
      doigt. ⛔ Pas un saut : deux régimes sur une seule surface la rendent illisible. */
   piste.pousser = (sens) => {
+    /* 🔴 ET UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT — il rend donc la main à la roue.
+       ⚠️ LA FAUTE QUE ÇA RÉPARE, Eric le 19/09 : *« mettre le token dans la marge fait
+       défiler les tuiles mais pas les dalles »*. Un `pointerdown` sur un jeton BULLE
+       jusqu'à la piste — et il le doit, puisqu'avant le péage ce même doigt peut encore
+       balayer les plaques. Mais une fois qu'il PORTE un objet, plus personne ne fait
+       glisser de plaque : la marge pousse la ROUE, et le verrou refusait de la suivre
+       parce que l'arbitre désignait encore les plaques.
+       ⭐ LA LOI EST LÀ : *l'arbitre nomme la surface que le DOIGT fait glisser.* Chevrons,
+       tuner, marge, placement d'ouverture — aucun n'est un doigt sur une surface, donc
+       chacun repasse la main à celui qu'il écrit. ⛔ Sans ce mot, tout défilement
+       programmé n'entraîne que la moitié de l'écran.
+       ⛔ ET C'EST MA FAUTE DU TOUR D'AVANT : en donnant un maître à chaque geste, j'ai
+       fait dépendre de lui des défilements qui n'ont pas de doigt du tout. Un arbitre qui
+       tranche entre deux doigts ne dit RIEN d'un mouvement qui n'en a pas. */
+    mener("roue");
     const x = (Math.round(r.scrollLeft / ROUE.pas) + sens) * ROUE.pas;
     if (typeof r.scrollTo === "function") r.scrollTo({ left: x, behavior: "smooth" });
     else r.scrollLeft = x;
@@ -1396,6 +1411,8 @@ export function construireLeSac(options = {}) {
      s'il se relit. ⭐ Poser la ROUE suffit : les dalles suivent par le même chemin que
      sous le doigt, donc il n'y a qu'un seul placement à écrire. */
   placementEnAttente = () => {
+    /* ⭐ MÊME LOI : le placement d'ouverture n'est pas un doigt. */
+    mener("roue");
     const x = ROUE.pas * r.vise;
     if (typeof r.scrollTo === "function") r.scrollTo({ left: x, behavior: "auto" });
     else r.scrollLeft = x;
