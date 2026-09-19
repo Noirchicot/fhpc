@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=697";
-import { facteurZoomCourant } from "./echelle.mjs?v=697";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=697";
+import { renderPicker } from "./carnet.mjs?v=699";
+import { facteurZoomCourant } from "./echelle.mjs?v=699";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=699";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=697";
-import { swapContent } from "./socle.mjs?v=697";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=697";
+import { isGenre } from "../../src/layers/document.mjs?v=699";
+import { swapContent } from "./socle.mjs?v=699";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=699";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=697";
+import { armerJeton } from "./glisser.mjs?v=699";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=697";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=699";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=697";
+import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=699";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=697";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=699";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=697";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=697";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=699";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=699";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=697";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=699";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=697";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=697";
+import { motDuCran } from "./ecran-mort.mjs?v=699";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -2640,6 +2640,16 @@ export function renderEquipmentStep(ctx, onAction) {
          qu'il soit vidé »* — sur R, B1 et B2. ⛔ Le Group Tally n'existe qu'EN JEU :
          à la création la donnée ne le porte pas, sa place lui est réservée. */
       compteurs: { tally: cartCompte(docu), "party-tally": 0 },
+      /* ⚖️ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son
+         bouton existait depuis le 18/09 et n'était câblé NULLE PART ; il appelait
+         `surPorte("purse")`, que le sac ne connaissait pas. ⛔ Un organe posé sans son
+         fil est un organe mort — la faute que ce lot a déjà payée trois fois.
+         ⭐ MÊME ÉTAT, MÊME ORGANE, MÊMES GESTES : `bourseOuverte` est de l'état de
+         MODULE, donc la bourse ouverte sur R l'est encore quand on passe au sac. Deux
+         états auraient laissé une bourse ouverte d'un côté et fermée de l'autre. */
+      bourse, bourseOuverte,
+      surFermerBourse: () => { bourseOuverte = false; peindre(); },
+      surMonnaie: (key, value) => act({ kind: "setCurrency", key, value }),
       destinations: DESTINATIONS, destination: destinationEnvoi,
       surSection: (i) => { sectionSac = i; peindre(); },
       /* ⛔ EN ÉDITION LE RUBAN NE BOUCLE PAS, ET IL PORTE UNE PLACE DE PLUS (le `+`) :
@@ -2740,6 +2750,14 @@ export function renderEquipmentStep(ctx, onAction) {
            d'envoi. ⛔ Il ouvrait la liste dans tous les cas — un bouton qui ne
            dépend pas de l'état est un bouton qui ne dit rien de l'état. */
         if (id === "send") envoyer();
+        /* 🔴 LES TROIS ORGANES D'ÉCHANGE APPELAIENT CE POINT DEPUIS LE 18/09, ET IL NE
+           LES ÉCOUTAIT PAS. Mesuré à l'écran le 19/09 au soir : un clic sur la bourse
+           du sac ne produisait RIEN. ⭐ Les deux qui ont un destinataire le reçoivent
+           ici, et par le MÊME geste que sur R — retaper la bourse la referme.
+           ⛔ Le `party-tally`, lui, n'en a pas : il se montre inerte (`disabled`), il
+           ne fait pas semblant d'écouter. */
+        if (id === "purse") { bourseOuverte = !bourseOuverte; peindre(); }
+        if (id === "tally") montrer("sb32");
       }
     });
     return noeud;

@@ -17,7 +17,8 @@ import { stripComments } from "./source-scan.mjs";
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
-const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC } = await import("../ui/builder/sac-ecran.mjs");
+const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
+        ORGANES_D_ECHANGE } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -732,4 +733,50 @@ test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALC
      ils disent ce que le `+` va FAIRE. En romain ils se liraient comme des sections. */
   assert.match(bloc('.sac-cran[data-role="ajouter"] .sac-etage'), /font-style:\s*italic/,
     "⚖️ *« T1 italique »* · *« ou T0 italique »* — l'italique, lui, n'était pas au choix");
+});
+test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent inertes", () => {
+  /* 🔴 LA FAUTE, MESURÉE À L'ÉCRAN LE 19/09 AU SOIR : un clic sur la bourse du sac ne
+     produisait RIEN. Les trois boutons existaient depuis le 18/09 et appelaient bien
+     `surPorte(id)` — mais le `surPorte` du sac ne connaissait que `gear`, `wares` et
+     `send`. ⛔ Trois organes posés sans leur fil, et c'est la QUATRIÈME fois que ce lot
+     paie cette faute, après la poignée `/`, le `×` et le `+`.
+     ⭐ CE GARDE NE VÉRIFIE PAS QU'UN BOUTON EXISTE — il vérifie qu'il PARLE. Un témoin
+     qui compte des boutons aurait été vert tout du long. */
+  const gestes = [];
+  const n = rendu({ surPorte: (id) => gestes.push(id), compteurs: { tally: 3, "party-tally": 0 } });
+
+  const bourse = n.querySelector('[data-organe="purse"]');
+  const tally = n.querySelector('[data-organe="tally"]');
+  const groupe = n.querySelector('[data-organe="party-tally"]');
+  assert.ok(bourse && tally && groupe, "les trois sont là");
+
+  bourse.dispatchEvent({ type: "click" });
+  tally.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, ["purse", "tally"],
+    "⭐ les deux qui ont un destinataire publient leur geste — c'est ce qui manquait");
+
+  /* ⚖️ ET LE GROUP TALLY SE MONTRE INERTE — la loi du produit : *« une place réservée
+     se montre inerte »*. ⛔ Il n'existe qu'EN JEU ; un bouton qui accepte le doigt et
+     ne répond jamais apprend à ne plus toucher. */
+  assert.equal(groupe.disabled, true, "⛔ il ne fait pas SEMBLANT d'écouter");
+  assert.equal(groupe.dataset.compte, "0");
+
+  /* ⭐ ET LA BOURSE EST CELLE DE R, PAS UNE SECONDE — même organe, même habit. */
+  const ouverte = rendu({ bourseOuverte: true, bourse: { gp: 8, sp: 12, cp: 4, pp: 0 } });
+  const voile = ouverte.querySelector('[data-organe="bourse-voile"]');
+  assert.ok(voile, "⛔ le popup se peint DANS le sac : sans lui le bouton bascule un état que rien ne montre");
+  assert.equal(voile.querySelector(".gear-bourse").getAttribute("aria-label"), "Purse",
+    "⭐ `gear-bourse` — la classe de R : une seconde bourse divergerait au premier réglage");
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  assert.match(source, /import \{ popupDeLaBourse \} from "\.\/gear-ecran\.mjs/,
+    "⛔ le sac IMPORTE l'organe, il ne le redessine pas");
+
+  /* ⑤ ⚠️ ET CE GARDE-CI NE VOIT QUE L'ÉCRAN — il est INCAPABLE de voir le fil. Je l'ai
+     éprouvé : en retirant l'écouteur dans `equipment-step.mjs`, il est resté VERT, et
+     une première version qui cherchait `id === "purse"` dans la source est restée verte
+     aussi — cette chaîne existe AUSSI chez R. *Un témoin qui ne peut jamais accuser est
+     le pire de tous.*
+     ➡️ LE VRAI TÉMOIN EST AILLEURS, et il clique pour de bon : `equipement-pipeline`,
+     « LE FIL DE LA BOURSE DU SAC ». Celui-ci garde ce qu'il sait garder — que l'écran
+     PUBLIE, et que l'inerte se montre inerte. */
 });

@@ -58,14 +58,14 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=697";
-import { BOITES } from "./b3-disposition.mjs?v=697";
-import { armerJeton, fantome } from "./glisser.mjs?v=697";
+import * as D from "./gear-disposition.mjs?v=699";
+import { BOITES } from "./b3-disposition.mjs?v=699";
+import { armerJeton, fantome } from "./glisser.mjs?v=699";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=697";
-import { versionQuery } from "./version.mjs?v=697";
-import { enGP } from "./equipement-pipeline.mjs?v=697";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=699";
+import { versionQuery } from "./version.mjs?v=699";
+import { enGP } from "./equipement-pipeline.mjs?v=699";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -603,7 +603,13 @@ function boutonCompanions(id) {
  *  ⛔ LES `+`/`−` NE SONT PAS DES BOUTONS À MOT : ils portent un GLYPHE, donc ni
  *  l'habit de la famille ni son liseré de rôle (NORMES : « un bouton à glyphe
  *  n'en porte pas »). Ils prennent le corps et le rayon, rien de plus. */
-function bourseOuverte(options) {
+/* ⭐ EXPORTÉ LE 19/09 AU SOIR : le sac ouvre LA MÊME bourse. ⛔ Pas une copie — c'est
+   la quatrième fois que la doctrine d'organe s'applique dans ce lot, après
+   l'interrupteur, le collecteur et le jeton. Deux bourses divergeraient au premier
+   réglage, et celle-ci porte déjà le plafond à cinq chiffres et le total en K.
+   ⏳ DETTE DE NOM, NOMMÉE : `gear-voile` et `gear-bourse` disent encore l'écran qui
+   l'a portée le premier, comme `gear-collecteur`. Les deux descendront ensemble. */
+export function popupDeLaBourse(options) {
   const v = eld("div", "gear-voile");
   v.dataset.organe = "bourse-voile";
   /* ⛔ ON FERME SUR LE VOILE LUI-MÊME, PAS SUR CE QUI REMONTE : `e.target === v`
@@ -805,6 +811,6 @@ export function construireLEcranGear(options = {}) {
   noeud.append(rangee(options));
   /* ⭐ EN DERNIER, DONC AU-DESSUS : un popup recouvre ce qu'il interrompt, et
      l'ordre du DOM suffit à le dire — aucun `z-index` à accorder avec personne. */
-  if (options.bourseOuverte) noeud.append(bourseOuverte(options));
+  if (options.bourseOuverte) noeud.append(popupDeLaBourse(options));
   return { noeud };
 }

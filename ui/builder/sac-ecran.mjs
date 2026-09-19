@@ -23,21 +23,26 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=697";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=697";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=699";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=699";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=697";
+import { armerJeton, fantome } from "./glisser.mjs?v=699";
+/* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
+   existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
+   fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
+   ⛔ On importe l'organe, on ne le redessine pas. */
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=699";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=697";
+import { facteurZoomCourant } from "./echelle.mjs?v=699";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -549,6 +554,22 @@ function collecteur(options, retenu) {
   return c;
 }
 
+/** ⚖️ LES TROIS ORGANES D'ÉCHANGE, DÉCLARÉS UNE FOIS — et c'est ce qui permet de
+ *  les TENIR. 🔴 Le 19/09 au soir, les trois publiaient `surPorte(id)` et l'écouteur
+ *  n'en connaissait aucun : cliquer la bourse du sac ne produisait RIEN. Un garde qui
+ *  regardait l'écran était vert — l'écran, lui, faisait son travail.
+ *  ⭐ LA TABLE EST DONC EXPORTÉE : le témoin la lit et exige que CHAQUE organe qui a un
+ *  destinataire soit écouté. Un quatrième organe ajouté ici étend le garde tout seul.
+ *  ⛔ `inerte` n'est pas « désactivé pour l'instant » : c'est *« une place réservée se
+ *  montre inerte »* — le Group Tally n'existe qu'EN JEU, la donnée ne le porte pas à la
+ *  création, et un bouton qui accepte le doigt sans jamais répondre apprend à ne plus
+ *  toucher. */
+export const ORGANES_D_ECHANGE = Object.freeze([
+  Object.freeze({ id: "party-tally", mot: "Party Tally", inerte: true }),
+  Object.freeze({ id: "tally", mot: "Tally" }),
+  Object.freeze({ id: "purse", mot: "Purse" })
+]);
+
 /* ══ L'ÉCRAN ══════════════════════════════════════════════════════════════ */
 
 /** @param {object} options
@@ -767,10 +788,15 @@ export function construireLeSac(options = {}) {
      📌 `data-compte` porte l'état du parchemin : à `"0"` il s'efface (Eric, 16/09 :
      le tally vide ne s'entoure pas, il RECULE). */
   const compteurs = options.compteurs || {};
-  for (const [id, mot] of [["party-tally", "Party Tally"], ["tally", "Tally"], ["purse", "Purse"]]) {
+  for (const { id, mot } of ORGANES_D_ECHANGE) {
     const b = bouton("gear-bouton", "", mot, () => options.surPorte && options.surPorte(id));
     b.dataset.organe = id;
     if (id !== "purse") b.dataset.compte = String(compteurs[id] || 0);
+    /* ⚖️ ET LE GROUP TALLY SE MONTRE INERTE, il ne fait pas SEMBLANT — la loi du
+       produit : *« une place réservée se montre inerte »*. ⛔ Il n'existe qu'EN JEU ;
+       à la création la donnée ne le porte pas. Un bouton qui accepte le doigt et ne
+       répond jamais apprend à ne plus toucher — c'est pire qu'un bouton éteint. */
+    if (ORGANES_D_ECHANGE.find((o) => o.id === id).inerte) b.disabled = true;
     noeud.append(b);
   }
   /* ⛔ ET PAS DE BOUTON `party inventory` DANS CETTE RANGÉE — Eric l'a demandé le
@@ -882,5 +908,12 @@ export function construireLeSac(options = {}) {
      ⚠️ Conséquence assumée : au banc la rangée n'a pas de `?`, parce que le banc
      n'a pas de coquille. Un banc qui en fabriquerait un mentirait dans l'autre
      sens — il montrerait un organe que l'écran ne porte pas. */
+
+  /* ⚖️ LA BOURSE EST UN POPUP, PAS UNE VUE — Eric, 16/09 : *« ça prend la place que ça
+     doit, c'est un popup »*. ⛔ Elle ne passe donc pas par une vue : une vue
+     remplacerait l'écran et écrirait la 3ᵉ ligne du belt ; un popup recouvre et
+     n'écrit rien. ⭐ ET C'EST L'ORGANE DE R, importé — le sac n'a pas sa bourse à lui.
+     📌 EN DERNIER DANS LE NŒUD, comme sur R : il recouvre, donc il vient après. */
+  if (options.bourseOuverte) noeud.append(popupDeLaBourse(options));
   return { noeud };
 }
