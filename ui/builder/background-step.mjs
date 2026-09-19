@@ -58,17 +58,17 @@
    paquet »). Une carte qui l'afficherait inviterait à un choix que cet écran
    n'offre pas — le « faux magasin » que ce dépôt interdit. */
 
-import { planAt, planSlots } from "./carnet.mjs?v=755";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=755";
-import { renderChoixGlisses } from "./glisser.mjs?v=755";
-import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=755";
-import { STEPS } from "./etapes.mjs?v=755";
+import { planAt, planSlots } from "./carnet.mjs?v=756";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=756";
+import { renderChoixGlisses } from "./glisser.mjs?v=756";
+import { renderBoostGlisse, featInfo } from "./inheritance-step.mjs?v=756";
+import { STEPS } from "./etapes.mjs?v=756";
 /* LOT 194 — « ce plan porte-t-il encore une décision ? ». Le MÊME lecteur que
    celui qui décide s'il y a une porte (`itemsDeLEtape`) : deux réponses à cette
    question-là feraient une porte sans son résumé, ou l'inverse. */
-import { porteUneDecisionOuverte } from "./parcours.mjs?v=755";
+import { porteUneDecisionOuverte } from "./parcours.mjs?v=756";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=755";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=756";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

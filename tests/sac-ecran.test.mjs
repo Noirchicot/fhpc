@@ -1035,6 +1035,22 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
   assert.deepEqual([boite.x, boite.l], [0, D.DALLE.l], "\u2696\ufe0f toute la largeur, bord \u00e0 bord");
   assert.equal(boite.y, roueOrg.y + roueOrg.h, "\u2696\ufe0f il commence o\u00f9 le s\u00e9lecteur finit \u2014 et ne le recouvre pas");
   assert.equal(boite.y + boite.h, D.DALLE.h, "\u2696\ufe0f et il finit au bas de la dalle");
+  /* 🔴 ET TOUT CE QUE LE PANNEAU PORTE A UNE BOÎTE AU PLAN — faute vue À L'ÉCRAN :
+     en réécrivant le bloc du générateur j'ai avalé la déclaration de `ENCART`. Le nœud
+     a continué d'exister, il a simplement perdu sa place : sans règle il retombe dans
+     le FLUX, remonte en haut du panneau et se peint PAR-DESSUS les sept boutons.
+     ⛔ Et rien ne rougissait : le garde du plan ne voit que ce qui est déclaré, et
+     l'écran ne se plaint pas d'un organe qu'il pose sans cote. ⭐ Ce témoin ferme le
+     trou par les DEUX bouts : il énumère les enfants réels du panneau et exige que la
+     feuille construite les pose — donc qu'ils existent dans la table. */
+  const posees = feuilleDesCotesSac();
+  for (const enfant of [...notice.childNodes]) {
+    const clef = enfant.dataset && enfant.dataset.organe;
+    assert.ok(clef, "⛔ un enfant du panneau sans `data-organe` ne peut pas être posé");
+    assert.ok(posees.includes(`[data-organe="${clef}"]`),
+      `⛔ \`${clef}\` est posé dans le panneau mais n'a pas de boîte au plan : ` +
+      "il retombera dans le flux et se peindra par-dessus les autres");
+  }
   /* \u2696\ufe0f *\u00ab l\u00e9gendes des 4 poign\u00e9es, explication des couleurs, ce qui s'efface ce qui ne
      s'efface pas \u00bb*. \u26d4 ET LA DERNI\u00c8RE LIGNE SE D\u00c9DUIT DES SECTIONS : un texte qui nomme
      des donn\u00e9es \u00e0 la main ment le jour o\u00f9 le socle change. */

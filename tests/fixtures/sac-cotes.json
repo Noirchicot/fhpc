@@ -183,6 +183,17 @@
    "lieu": "dehors"
   },
   {
+   "nom": "ENCART",
+   "sorte": "bande",
+   "x": 4,
+   "y": 89.0,
+   "l": 367,
+   "h": 363.0,
+   "edition": true,
+   "dans": "NOTICE",
+   "mot": "les explications detaillees"
+  },
+  {
    "nom": "DONE",
    "sorte": "bouton",
    "x": 327,

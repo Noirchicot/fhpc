@@ -41,6 +41,7 @@ export const ORGANES = [
   { nom: "AVANCER",     sorte: "bouton",   x:  191.5, y:     51, l:     30, h:    30, cible: { x: 184.5, y: 44, l: 44, h: 44 }, dans: "NOTICE", mot: "→", cran: "T3/600" },
   { nom: "AJOUT SAC",   sorte: "bouton",   x:   74.5, y:      8, l:     71, h:    40, cible: { x: 74.5, y: 6, l: 71, h: 44 }, dans: "NOTICE", mot: "+ Storage", cran: "T0/600" },
   { nom: "AJOUT DEHORS", sorte: "bouton",   x:  229.5, y:      8, l:     71, h:    40, cible: { x: 229.5, y: 6, l: 71, h: 44 }, dans: "NOTICE", mot: "+ Storage", cran: "T0/600" },
+  { nom: "ENCART",      sorte: "bande",    x:      4, y:     89, l:    367, h:   363, dans: "NOTICE", mot: "les explications detaillees" },
   { nom: "DONE",        sorte: "bouton",   x:    327, y:      8, l:     40, h:    40, cible: { x: 325, y: 6, l: 44, h: 44 }, dans: "NOTICE", mot: "done sections", cran: "T0/600" },
   { nom: "TUNER G",     sorte: "tuner",    x:      4, y:     14, l:     10, h:    20, cible: { x: 0, y: 2, l: 44, h: 44 }, dans: "ROUE" },
   { nom: "TUNER D",     sorte: "tuner",    x:    361, y:     14, l:     10, h:    20, cible: { x: 331, y: 2, l: 44, h: 44 }, dans: "ROUE" },
