@@ -31,9 +31,9 @@
  },
  "dalles": {
   "x": 0,
-  "y": 120,
+  "y": 104,
   "l": 375,
-  "h": 200
+  "h": 232
  },
  "organes": [
   {
@@ -190,9 +190,9 @@
    "nom": "DALLES",
    "sorte": "bande",
    "x": 0,
-   "y": 120,
+   "y": 104,
    "l": 375,
-   "h": 200,
+   "h": 232,
    "mot": "une dalle par section"
   },
   {

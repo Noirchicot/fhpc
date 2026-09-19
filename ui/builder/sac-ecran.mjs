@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=735";
-import { versionQuery } from "./version.mjs?v=735";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=735";
+import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=737";
+import { versionQuery } from "./version.mjs?v=737";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=737";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=735";
+import { armerJeton, fantome } from "./glisser.mjs?v=737";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=735";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=737";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=735";
+import { facteurZoomCourant } from "./echelle.mjs?v=737";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -212,22 +212,25 @@ export function feuilleDesCotesSac() {
      📏 ET LE JOUR VAUT 8 — Eric : *« séparation de 8 blg »* — mais ce 8 se DÉDUIT : c'est
      la gouttière de la grille, le pas d'une rangée moins la hauteur d'un jeton. ⛔ Un 8
      tapé ici serait un huitième huit à tenir d'accord avec les sept autres.
-     ⛔ ET CE NE SONT PAS LES BORDS DE LA BANDE : la part qui SAIGNE vit juste à
-     l'intérieur, et la percer effacerait le bleed qu'on vient de dessiner. Le jour se
-     pose donc AU-DESSUS de la première rangée et SOUS la dernière (104→112, 328→336).
+     ⭐ ET IL VA DEHORS DU CADRE : de la fin du panneau de poids au bord haut de la bande
+     (96 → 104), et du bord bas au pied de la dalle fixe (336 → 344). Son croquis écrit
+     « MARGE 8 BLG » DE PART ET D'AUTRE du rectangle, et « 8 blg » encore à l'intérieur —
+     deux huit distincts, que j'avais fondus en un seul.
      ⚠️ Un masque coupe aussi les enfants — c'est voulu, et c'est sans effet : ces deux
      bandes-là sont vides par construction. */
   /* 📏 LA GOUTTIÈRE SE DÉDUIT DE LA GRILLE, ⛔ elle ne se tape pas : c'est ce qui sépare
      deux rangées — le pas d'une rangée moins la hauteur d'un jeton. Eric : *« séparation
      de 8 blg »*, et 8 est ce nombre-là, pas un huit de plus. */
   const gouttiere = RANGEES[1] - RANGEES[0] - JETON.h;
-  const grilleHaut = RANGEES[0];
-  const grilleBas = RANGEES[RANGEES.length - 1] + JETON.h;
-  const jourHaut = grilleHaut - gouttiere;
-  const jourBas = grilleBas + gouttiere;
+  /* 🔴 LE JOUR VA DEHORS DU CADRE, ⛔ pas dedans — c'est le croquis qui tranche, et je
+     l'avais lu à l'envers. Il montre un RECTANGLE tracé autour de la grille, tokens
+     ENTIERS, avec 8 de respiration à l'intérieur, et « MARGE 8 BLG » écrit DE PART ET
+     D'AUTRE de ce rectangle. Deux huit distincts, que j'avais fondus en un seul. */
+  const jourHaut = DALLES.y - gouttiere;
+  const jourBas = DALLES.y + DALLES.h + gouttiere;
   const jour = `linear-gradient(to bottom,#000 0 ${px(jourHaut)},` +
-    `transparent ${px(jourHaut)} ${px(grilleHaut)},#000 ${px(grilleHaut)} ${px(grilleBas)},` +
-    `transparent ${px(grilleBas)} ${px(jourBas)},#000 ${px(jourBas)})`;
+    `transparent ${px(jourHaut)} ${px(DALLES.y)},#000 ${px(DALLES.y)} ${px(DALLES.y + DALLES.h)},` +
+    `transparent ${px(DALLES.y + DALLES.h)} ${px(jourBas)},#000 ${px(jourBas)})`;
   regles.push(`.sac{-webkit-mask-image:${jour};mask-image:${jour}}`);
 
   /* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en

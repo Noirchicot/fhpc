@@ -20,7 +20,7 @@ export const ROUE = { piste: 331, budget: 299, dominant: 71, secondaire: 57, mar
 /* 🎯 LA BANDE QUI DEFILE — une dalle de douze jetons par section, et elles glissent
    ensemble sous la roue. ⛔ Ses bords ne s inventent pas : la grille, plus 8 au-dessus du
    premier jeton et 8 sous le dernier (croquis d Eric, 19/09). */
-export const DALLES = { x: 0, y: 120, l: 375, h: 200 };
+export const DALLES = { x: 0, y: 104, l: 375, h: 232 };
 
 export const COLONNES = [49, 144, 239];
 export const RANGEES = [112, 168, 224, 280];
@@ -36,7 +36,7 @@ export const ORGANES = [
   { nom: "TASSER",      sorte: "bouton",   x:    327, y:     52, l:     40, h:    40, cible: { x: 325, y: 50, l: 44, h: 44 }, mot: "sections", cran: "T0/600" },
   { nom: "POIDS TOTAL", sorte: "voyant",   x:     56, y:     60, l:    263, h:    14, mot: "Encumbrance : 46,5", cran: "T2/600" },
   { nom: "POIDS DETAIL", sorte: "voyant",   x:     56, y:     74, l:    263, h:    22, mot: "Gear 34,5   Backpack 12   Other 61", cran: "T1/400" },
-  { nom: "DALLES",      sorte: "bande",    x:      0, y:    120, l:    375, h:   200, mot: "une dalle par section" },
+  { nom: "DALLES",      sorte: "bande",    x:      0, y:    104, l:    375, h:   232, mot: "une dalle par section" },
   { nom: "CASE 1.1",    sorte: "jeton",    x:     49, y:    112, l:     87, h:    48, dans: "DALLES" },
   { nom: "CASE 1.2",    sorte: "jeton",    x:    144, y:    112, l:     87, h:    48, dans: "DALLES" },
   { nom: "CASE 1.3",    sorte: "jeton",    x:    239, y:    112, l:     87, h:    48, dans: "DALLES" },
