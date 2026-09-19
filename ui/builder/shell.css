@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=701") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=707") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=701") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=707") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=701") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=707") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=701");
+  background-image: url("./assets/tarot-dos.jpg?v=707");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11768,6 +11768,37 @@ button.tuto-point::before {
 /* — LA ROUE : un tambour à UN étage, sans perspective. Eric, 18/09 : *« on va pas
      se faire chier avec la perspective »*. La profondeur se dit par la TAILLE et
      le HALO, comme sur le belt. — */
+/* ══ LE SAC EN FILIGRANE — Eric, 2026-09-20 ═══════════════════════════════════
+   ⚖️ *« peux-tu faire avec ceci comme avec le bonhomme dans Gear, en fond transparent
+   derrière »*. ⭐ C'est le PANTIN de R : un repère de second plan, qu'on ne tape pas.
+   ⛔ MAIS PAS SON TRAITEMENT. Le pantin est un MASQUE — une silhouette plate qui découpe
+   un aplat de `--text-soft`, donc il perd tout détail. La maquette d'Eric montre le sac
+   AVEC ses cordes, sa lanterne et ses boucles : c'est une IMAGE, pas une découpe.
+   ⭐ Le rôle se copie, le traitement suit ce que le dessin demande.
+   📌 L'OPACITÉ EST CELLE DU SECOND PLAN, pas un nombre choisi : `--organe-eteint` dit
+   déjà dans cette maison « présent, mais en retrait ». */
+.sac-fond {
+  position: absolute;
+  /* ⭐ UN APLAT DÉCOUPÉ, EXACTEMENT COMME LE PANTIN — et c'est ce qui le rend
+     THÉMATIQUE : `--text-soft` est sombre le jour, clair la nuit, donc le filigrane
+     reste lisible dans les deux. ⛔ L'image posée telle quelle (elle est SOMBRE) se
+     serait évanouie sur le fond de nuit — vérifié à l'écran avant d'en arriver là. */
+  background: var(--text-soft);
+  /* ⛔ LE VOILE EST UN JETON — `--filigrane`, où sa valeur est justifiée. Écrit en
+     clair ici, il a été REFUSÉ par un garde de R, et à raison : c'est exactement ce
+     que ce garde défend (*« le voile est un jeton, pas un littéral perdu dans la
+     feuille »*). ⭐ Sa portée est large — il refuse la chaîne `opacity: .6` dans tout
+     le reste de la feuille — et c'est ce qui l'a fait tomber sur un organe qu'il ne
+     visait pas. La sortie n'était pas de l'assouplir, c'était de le suivre. */
+  opacity: var(--filigrane);
+  pointer-events: none;
+  /* ⭐ ET LE MASQUE PORTE LES NUANCES, PAS UNE SILHOUETTE : l'alpha de l'actif vaut
+     `255 − la noirceur du dessin`, donc les cordes, la lanterne et les boucles
+     survivent. Le pantin, lui, est plat — c'est la seule différence, et elle vient de
+     ce que la maquette d'Eric montre du détail. */
+  mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+}
 .sac-roue { display: block; }
 /* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
    ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /

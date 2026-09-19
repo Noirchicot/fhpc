@@ -23,26 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES } from "./sac-disposition.mjs?v=701";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=701";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=707";
+import { versionQuery } from "./version.mjs?v=707";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=707";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=701";
+import { armerJeton, fantome } from "./glisser.mjs?v=707";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=701";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=707";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=701";
+import { facteurZoomCourant } from "./echelle.mjs?v=707";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -147,6 +148,18 @@ export function feuilleDesCotesSac() {
     const id = CLEF_DE[o.nom];
     if (!id || !id.startsWith("cran-")) continue;
     regles.push(`.sac [data-organe="${id}"]{padding-inline:${px(o.l * ROUE.margePct)}}`);
+  }
+  /* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en
+     fond transparent derrière »*. ⭐ C'est le PANTIN de R, même rôle et même place au plan :
+     une image qu'on ne tape pas, derrière la grille, dont la cote vit dans `FOND`.
+     ⛔ ET SON URL PORTE LA VERSION DU GRAPHE, comme le masque du pantin : une image sans
+     `?v=` reste dans le cache dix minutes après un déploiement, et on cherche le défaut
+     dans le dessin. */
+  if (FOND) {
+    regles.push(`.sac > .sac-fond{left:${px(FOND.x)};top:${px(FOND.y)};` +
+      `width:${px(FOND.l)};height:${px(FOND.h)};` +
+      `mask-image:url(./assets/${FOND.image}${versionQuery(import.meta.url)});` +
+      `-webkit-mask-image:url(./assets/${FOND.image}${versionQuery(import.meta.url)})}`);
   }
   return regles.join("\n");
 }
@@ -703,6 +716,18 @@ export function construireLeSac(options = {}) {
   feuille.dataset.fhpc = "sac";
   feuille.textContent = feuilleDesCotesSac();
   noeud.append(feuille);
+
+  /* 🎒 LE FILIGRANE, POSÉ EN PREMIER — c'est l'ordre du document qui le met DESSOUS :
+     tous les organes qui suivent sont absolus comme lui et se peignent par-dessus.
+     ⛔ Pas de `z-index` : un empilement déclaré serait un nombre de plus à tenir
+     d'accord avec un ordre qui le dit déjà.
+     ⛔ ET IL NE PREND PAS LE DOIGT (`pointer-events: none`, à la feuille) ni la parole
+     (`aria-hidden`) : c'est un repère, pas un organe — exactement comme le pantin. */
+  if (FOND) {
+    const f = el("div", "sac-fond");
+    f.setAttribute("aria-hidden", "true");
+    noeud.append(f);
+  }
 
   /* ⭐ LES DEUX BALAYAGES ÉCOUTENT SUR LA DALLE, PAS SUR CHAQUE ORGANE : douze
      écouteurs pour un seul geste, c'est douze occasions d'en oublier un. La

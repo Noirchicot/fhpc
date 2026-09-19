@@ -17,6 +17,7 @@ import { stripComments } from "./source-scan.mjs";
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
+const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
         ORGANES_D_ECHANGE, MAINTIEN_MS } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
@@ -835,4 +836,100 @@ test("23 — ⚖️ LE MODE DÉPLACEMENT : les poignées et les `+` s'EFFACENT, 
   assert.ok(regle, "⛔ la roue ne change pas d'habit : le mode ne se verrait pas");
   assert.match(regle.corps, /background:\s*var\(--surface\)/);
   assert.doesNotMatch(regle.corps, /#[0-9a-fA-F]{3,8}/, "⛔ aucune teinte en clair");
+});
+test("24 — 🎒 LE SAC EN FILIGRANE : derrière, muet, et sa cote se DÉDUIT de la grille", () => {
+  /* ⚖️ Eric, 2026-09-20 : *« peux-tu faire avec ceci comme avec le bonhomme dans Gear, en
+     fond transparent derrière »*, avec une maquette qui montre le placement.
+     ⭐ C'EST LE PANTIN DE R : même rôle, même place au plan, même mécanique — un MASQUE
+     sur un aplat de `--text-soft`, donc un filigrane qui suit le thème.
+     ⛔ MAIS PAS SON TRAITEMENT : le pantin est une silhouette PLATE. Posée telle quelle,
+     elle aurait perdu les cordes, la lanterne et les boucles que la maquette montre. Ici
+     l'alpha de l'actif vaut « 255 − la noirceur du dessin », donc le détail survit.
+     🔴 ET L'IMAGE NE POUVAIT PAS ÊTRE POSÉE TELLE QUELLE : elle est SOMBRE. Vérifié à
+     l'écran — sur le fond de nuit, elle s'évanouissait. C'est ce que le masque répare. */
+
+  /* ① IL EST LÀ, UNE FOIS, ET IL SE TAIT */
+  const n = rendu();
+  const fonds = tous(n, ".sac-fond");
+  assert.equal(fonds.length, 1, "un seul filigrane");
+  assert.equal(fonds[0].getAttribute("aria-hidden"), "true",
+    "⛔ un repère n'a rien à dire à un lecteur d'écran");
+  assert.equal(fonds[0].textContent, "", "il ne porte aucun mot");
+
+  /* ② IL EST DERRIÈRE — et c'est l'ORDRE du document qui le dit, ⛔ pas un `z-index` */
+  const enfants = [...n.children];
+  const iFond = enfants.indexOf(fonds[0]);
+  const iRoue = enfants.findIndex((e) => e.className === "sac-roue");
+  assert.ok(iFond >= 0 && iRoue >= 0 && iFond < iRoue,
+    "⛔ posé avant la roue : tous les organes qui suivent sont absolus comme lui et le recouvrent");
+  const feuilleCss = stripComments(feuille);
+  assert.doesNotMatch(feuilleCss, /\.sac-fond[^{]*\{[^}]*z-index/,
+    "⛔ un empilement déclaré serait un nombre de plus à tenir d'accord avec un ordre qui le dit déjà");
+
+  /* ③ SA COTE VIENT DU PLAN, ET LA FEUILLE CONSTRUITE LA POSE */
+  const css = feuilleDesCotesSac();
+  assert.ok(D.FOND, "⛔ le plan ne déclare plus de fond : ce garde a changé de sujet");
+  assert.ok(css.includes(`.sac > .sac-fond{left:${D.FOND.x}px;top:${D.FOND.y}px;` +
+                         `width:${D.FOND.l}px;height:${D.FOND.h}px;`),
+    "la boîte du filigrane est celle du plan, au blg près");
+  assert.match(css, new RegExp(`mask-image:url\\(\\./assets/${D.FOND.image}`),
+    "⭐ un MASQUE, ⛔ pas une `background-image` : c'est ce qui le rend THÉMATIQUE");
+  assert.match(css, new RegExp(`-webkit-mask-image:url\\(\\./assets/${D.FOND.image}`),
+    "et son jumeau préfixé, sans quoi le filigrane disparaît sur WebKit");
+  /* ⚠️ LA VERSION NE SE VÉRIFIE PAS ICI, ET IL FAUT LE DIRE : sous test le module est
+     importé SANS `?v=`, donc `versionQuery` rend une chaîne vide — une assertion sur
+     `?v=` serait verte pour une mauvaise raison le jour où l'appel disparaîtrait.
+     ⭐ Ce qui se tient, c'est que la feuille APPELLE `versionQuery` : sans ça l'image
+     resterait dans le cache dix minutes après un déploiement, et on chercherait le
+     défaut dans le dessin. */
+  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  assert.match(source, /mask-image:url\(\.\/assets\/\$\{FOND\.image\}\$\{versionQuery\(import\.meta\.url\)\}/,
+    "⛔ l'URL de l'actif porte la version du graphe, comme le masque du pantin");
+
+  /* ④ 🔴 ET CETTE COTE SE DÉDUIT, ⛔ ELLE NE SE TAPE PAS. C'est ce qui fait qu'une rangée
+     qui bouge emmène le fond avec elle — sinon le filigrane resterait où il était, et
+     personne ne verrait pourquoi il a glissé. */
+  const debord = D.FOND.y === D.RANGEES[0] - (D.FOND.h - ((D.RANGEES[D.RANGEES.length - 1] + D.JETON.h) - D.RANGEES[0])) / 2;
+  assert.ok(debord, "⚖️ il déborde de la grille d'autant en haut qu'en bas");
+  assert.equal(D.FOND.h, (D.RANGEES[D.RANGEES.length - 1] + D.JETON.h) - D.RANGEES[0] + 2 * (D.RANGEES[0] - D.FOND.y),
+    "la hauteur est celle de la GRILLE, plus son débord");
+  assert.ok(Math.abs(D.FOND.l - D.FOND.h * D.FOND.rapport) < 0.01,
+    "⭐ la largeur suit le RAPPORT MESURÉ de l'image détourée — une propriété de l'actif, pas un goût");
+  assert.ok(Math.abs((D.FOND.x + D.FOND.l / 2) - D.DALLE.l / 2) < 0.01,
+    "⚖️ et il est centré sur la dalle, comme la maquette le montre");
+
+  /* ⑤ L'HABIT SUIT LE THÈME, et ⛔ aucune valeur n'y est écrite en clair */
+  const regle = [...feuilleCss.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps })).find((b) => b.sel === ".sac-fond");
+  assert.ok(regle, "⛔ le filigrane n'est plus habillé");
+  assert.match(regle.corps, /background:\s*var\(--text-soft\)/,
+    "🔴 un aplat qui suit le thème — l'image, elle, est SOMBRE et disparaissait la nuit");
+  assert.match(regle.corps, /opacity:\s*var\(--filigrane\)/,
+    "⛔ le voile est un JETON : écrit en clair, un garde de R l'a refusé, et il avait raison");
+  assert.match(jetons, /--filigrane:\s*\.\d+/, "et le jeton existe, avec sa valeur justifiée");
+  assert.match(regle.corps, /pointer-events:\s*none/, "⛔ il ne prend pas le doigt");
+  assert.doesNotMatch(regle.corps, /#[0-9a-fA-F]{3,8}|rgb\(/, "⛔ aucune teinte en clair");
+});
+test("25 — 🔒 VERROUILLÉ : le filigrane est à la place qu'Eric a ratifiée (20/09)", () => {
+  /* ⚖️ Eric, 2026-09-20, après trois passages devant l'écran : *« c'est parfait exactement
+     ça, bon positionnement, fige cela »*.
+     🔒 CE TÉMOIN NE DÉFEND PAS UNE MÉCANIQUE, IL DÉFEND UNE DÉCISION. Il tient les
+     nombres EXACTS qu'Eric a regardés et acceptés. ⛔ Ils ne se retouchent pas en
+     passant : il faut son mot, et la date qu'on écrira ici à la place de celle-ci.
+     ⚠️ ET IL EST EN TENSION AVEC LE GARDE 24, DÉLIBÉRÉMENT — les deux ne posent pas la
+     même question. Le 24 demande *« la cote se DÉDUIT-elle encore de la grille ? »* ;
+     celui-ci demande *« est-ce encore la place qu'il a dite ? »*. Le jour où une rangée
+     bougera, le 24 restera vert et CELUI-CI rougira — c'est exactement ce qu'on veut :
+     la mécanique aura tenu, et la décision devra repasser par Eric. */
+  assert.deepEqual(
+    [D.FOND.x, D.FOND.y, D.FOND.l, D.FOND.h],
+    [90.48, 98, 194.03, 228],
+    "🔒 la boîte du filigrane est celle du 20/09 — mesurée à l'écran, acceptée par Eric.\n" +
+    "   ⛔ Si ce garde rougit, ce n'est pas lui qu'on corrige : c'est la question qu'on pose.");
+  assert.equal(D.FOND.rapport, 0.851,
+    "🔒 et le rapport est celui du modèle simplifié qu'il a choisi — un autre dessin, un autre garde");
+
+  /* 🔒 LE VOILE AUSSI : trois valeurs regardées avant celle-là (.20, .42, .6, .28). */
+  assert.match(jetons, /--filigrane:\s*\.40\s*;/,
+    "🔒 .40 — *« rends-le encore un peu plus discret »* (20/09), puis *« c'est parfait »*");
 });

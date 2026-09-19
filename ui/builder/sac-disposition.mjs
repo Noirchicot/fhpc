@@ -60,3 +60,11 @@ export const ORGANES = [
   { nom: "WARES",       sorte: "porte",    x:    234, y:    448, l:     77, h:    44, cible: { x: 234, y: 448, l: 77, h: 44 }, mot: "Wares", cran: "T2/600" },
   { nom: "?",           sorte: "rond",     x:    338, y:    459, l:     22, h:    22, cible: { x: 327, y: 448, l: 44, h: 44 }, mot: "?" },
 ];
+
+/* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en fond
+   transparent derrière »*. ⭐ MÊME RÔLE ET MÊME PLACE QUE LE PANTIN DE R : une image qu'on ne
+   tape pas, derrière la grille, et dont la cote vit AU PLAN.
+   ⛔ AUCUN DE CES NOMBRES N'EST TAPÉ : la hauteur est celle de la grille plus un débord égal
+   en haut et en bas, la largeur suit le RAPPORT MESURÉ de l'image détourée, et l'abscisse
+   centre le tout sur la dalle. Une rangée qui bouge emmène le fond avec elle. */
+export const FOND = { image: "sac-fond.webp", x: 90.48, y: 98, l: 194.03, h: 228, rapport: 0.851 };
