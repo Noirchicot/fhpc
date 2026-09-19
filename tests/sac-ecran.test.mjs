@@ -19,7 +19,7 @@ globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
 const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
-        ORGANES_D_ECHANGE, MAINTIEN_MS } = await import("../ui/builder/sac-ecran.mjs");
+        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, poserLaRoue } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -51,31 +51,72 @@ test("2 — 🔴 LA RÈGLE D'ERIC (18/09) se vérifie sur la table, elle ne se d
   assert.equal(D.ROUE.dominant + 4 * D.ROUE.secondaire, D.ROUE.budget);
 });
 
-test("3 — 🔴 LA MARGE D'UN CRAN SE DÉDUIT DE SA LARGEUR, ⛔ jamais d'un pour-cent CSS", () => {
+test("3 — 🔴 LA MARGE D'UNE TUILE SE DÉDUIT DE SA LARGEUR, ⛔ jamais d'un pour-cent CSS", () => {
   /* 🔴 FAUTE VUE AU BANC, premier rendu : `padding-inline: 7.5%` se résout sur la
-     largeur du CONTENANT (la roue, 311), pas sur celle du cran — 23,3 de chaque
-     côté, et tous les crans affichaient « P… ». ⭐ Le pourcentage reste dans la
-     table, la feuille en DÉDUIT deux nombres. */
+     largeur du CONTENANT, pas sur celle du cran — 23,3 de chaque côté, et tous les
+     crans affichaient « P… ». ⭐ Le pourcentage reste dans la table, la feuille en
+     DÉDUIT un nombre.
+     ⭐ ET IL N'EN DÉDUIT PLUS QU'UN SEUL depuis que la roue défile (Eric, 20/09) :
+     toutes les tuiles font la MÊME largeur, c'est la LOUPE qui agrandit la posée et
+     non sa boîte. Deux marges pour deux largeurs, c'était le monde d'avant. */
   const css = feuilleDesCotesSac();
   assert.doesNotMatch(css, /padding-inline:\s*[\d.]+%/,
     "⛔ un pour-cent de padding se résout chez le CONTENANT : il ne peut pas porter cette règle");
-  for (const nom of ["CRAN 3", "CRAN 1"]) {
-    const o = D.ORGANES.find((x) => x.nom === nom);
-    const attendu = Math.round(o.l * D.ROUE.margePct * 100) / 100;
-    assert.ok(css.includes(`[data-organe="${CLEF_DE[nom]}"]{padding-inline:${attendu}px}`),
-      `${nom} : la marge devrait valoir ${attendu}`);
-  }
+  const attendu = Math.round(D.ROUE.tuile * D.ROUE.margePct * 100) / 100;
+  assert.ok(css.includes(
+    `.sac .sac-cran{inline-size:${D.ROUE.tuile}px;block-size:${D.ROUE.hauteur}px;padding-inline:${attendu}px}`),
+    `la tuile fait ${D.ROUE.tuile} × ${D.ROUE.hauteur} et sa marge ${attendu}`);
+
+  /* 🔴 ET LA HAUTEUR EST LA MÊME POUR TOUTES — loi du plan (19/09) : *« 40 pour tout
+     le monde en hauteur »*, parce que *« une boîte qui change de hauteur en entrant dans
+     le halo ne défile pas, elle saute »*. ⛔ Elle manquait, et rien ne le disait : chaque
+     tuile prenait la hauteur de son texte — 11 pour `Party bag`, 25 pour `Backpack
+     dropdown`, mesuré à l'écran le 19/09.
+     ⭐ LA POSÉE LA COMPENSE au lieu d'y échapper : `scale` grossit les DEUX axes, donc sa
+     boîte vaut `hauteur / loupe` pour repeindre 40 pile. C'est ce qui fait tomber le cadre
+     de la loupe EXACTEMENT sur elle — même largeur (71), même hauteur (40). */
+  assert.equal(D.ROUE.hauteurDominante, Math.round(D.ROUE.hauteur / D.ROUE.loupe * 100) / 100,
+    "⭐ la hauteur de la posée se DÉDUIT de la loupe — ⛔ elle ne se tape pas");
+  assert.ok(css.includes(
+    `.sac .sac-cran[data-dominant="oui"]{block-size:${D.ROUE.hauteurDominante}px;scale:${D.ROUE.loupe}}`),
+    "⛔ sans cette hauteur, la loupe grossirait aussi en hauteur et la posée sauterait");
+  const loupe = D.ORGANES.find((o) => o.nom === "LOUPE");
+  assert.equal(D.ROUE.hauteur, loupe.h,
+    "⚖️ et le cadre fait la hauteur d'une tuile — les deux boîtes se superposent");
 });
 
-test("4 — 🔴 UN ORGANE NICHÉ SE POSE PAR RAPPORT À SON HÔTE", () => {
-  /* 🔴 FAUTE VUE AU BANC : les crans portaient les `x` de la table alors qu'ils
-     vivent DANS la roue, elle-même posée à 32. Ils partaient 32 trop à droite. */
+test("4 — 🔴 LE RUBAN S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE SE CENTRE", () => {
+  /* 🔴 CE GARDE TENAIT L'INVERSE HIER : les crans étaient NICHÉS dans la roue, et il
+     vérifiait qu'ils se posaient par rapport à elle. ⛔ Plus aucun cran n'est posé —
+     ils vivent dans le flux d'un ruban qui défile (Eric, 20/09).
+     ⭐ CE QUI LE REMPLACE EST L'ARITHMÉTIQUE DU PAS, et elle est tout aussi exacte :
+     pour que la tuile `k` puisse arriver SOUS LA LOUPE, le ruban doit s'écarter de
+     `(piste − tuile) / 2` de chaque côté. C'est cette marge qui rend
+     `scrollLeft = pas × k` vrai — la formule du belt (`87 × (n − 1)`), même raison.
+     ⛔ Sans elle, la première et la dernière tuile ne pourraient JAMAIS se centrer. */
   const css = feuilleDesCotesSac();
-  const roue = D.ORGANES.find((o) => o.nom === "ROUE");
-  const cran = D.ORGANES.find((o) => o.nom === "CRAN 1");
-  const attendu = cran.x - (roue.cible ? roue.cible.x : roue.x);
-  assert.ok(css.includes(`[data-organe="cran-1"]{left:${attendu}px`),
-    `le premier cran devrait se poser à ${attendu} DANS sa roue, pas à ${cran.x}`);
+  const marge = (D.ROUE.piste - D.ROUE.tuile) / 2;
+  assert.ok(css.includes(`.sac .sac-ruban{gap:${D.ROUE.pas - D.ROUE.tuile}px;padding-inline:${marge}px}`),
+    `le ruban devrait s'écarter de ${marge} et espacer de ${D.ROUE.pas - D.ROUE.tuile}`);
+  /* ⭐ ET LE PAS EST LA SOMME — ⛔ pas un nombre de plus */
+  assert.equal(D.ROUE.pas, D.ROUE.tuile + (D.ROUE.pas - D.ROUE.tuile));
+  assert.equal(D.ROUE.loupeX + D.ROUE.dominant / 2, D.DALLE.l / 2,
+    "⚖️ la loupe est au centre de la dalle — donc à la place exacte qu'occupait le dominant");
+
+  /* 🔴 ET CETTE MARGE NE COMPTE DANS LA COURSE QUE SI LE RUBAN A SA PROPRE LARGEUR.
+     📏 Mesuré à l'écran le 19/09, en retirant `max-content` puis en le remettant :
+     course **1241 avec, 1104 sans**, et l'écart vaut EXACTEMENT la marge de fin (137).
+     ⚠️ La faute ne paraît pas là où on la cherche : les tuiles gardent leur 57 et le
+     ruban défile quand même. Seulement, sans largeur propre, sa boîte est celle de sa
+     fenêtre et la marge qui DÉPASSE ne compte pas : le dernier cran demande `pas × 14
+     = 910` quand la course n'en offre que 773, et il n'arrive JAMAIS sous la loupe.
+     ⛔ Un défileur qui défile n'est pas un défileur qui arrive — et c'est pour ça que
+     ce garde-ci, celui de la marge, est aussi celui de `max-content`. */
+  const bloc = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps })).find((b) => b.sel === ".sac-ruban");
+  assert.ok(bloc, "⛔ le ruban n'est plus habillé");
+  assert.match(bloc.corps, /inline-size:\s*max-content/,
+    "🔴 sans elle, la marge de fin sort de la course et les derniers crans n'atteignent plus la loupe");
 });
 
 test("5 — ⛔ `shell.css` ne porte AUCUNE cote du sac : elles vivent dans la feuille construite", () => {
@@ -86,36 +127,39 @@ test("5 — ⛔ `shell.css` ne porte AUCUNE cote du sac : elles vivent dans la f
     "⛔ une position écrite ici serait une cote recopiée — elles sortent de la table");
 });
 
-test("6 — la roue remplit CINQ PLACES, pas cinq crans — et elle ne tourne pas sur elle-même", () => {
-  /* 🔴 VU DANS L'APPLICATION, PAS AU BANC : avec le modulo, une seule section
-     s'affichait CINQ fois, et un sac neuf — qui n'en a aucune — montrait cinq crans
-     nus. ⛔ Une roue qui tourne sur elle-même ment sur ce qu'elle contient.
-     ⭐ La table ne connaît que des PLACES ; c'est la roue qui dit combien elle en
-     remplit, et elle n'en remplit jamais plus qu'il n'y a de sections. */
-  const cinq = rendu({ sections: [1, 2, 3, 4, 5, 6].map((i) => ({ nom: `S${i}` })), section: 2 });
-  const crans = tous(cinq, ".sac-cran");
-  assert.equal(crans.length, 5, "deux de chaque côté du dominant (Eric, 18/09)");
-  assert.deepEqual(crans.map((c) => c.dataset.dominant), ["non", "non", "oui", "non", "non"]);
-  assert.deepEqual(crans.map((c) => c.textContent), ["S1", "S2", "S3", "S4", "S5"],
-    "⛔ et chaque place porte une section DIFFÉRENTE");
+test("6 — 🔴 LE RUBAN PORTE LES SECTIONS, ET LA BOUCLE EST UNE RÉPÉTITION", () => {
+  /* ⚖️ Eric, 2026-09-20 : *« boucle simulée, mais pas de perspective de roue, on
+     téléporte »*. ⭐ La roue a cessé d'être CINQ PLACES dont le texte change : elle est
+     un ruban qui porte TOUTES les sections et qui glisse. La boucle se fait en peignant
+     la liste TROIS fois et en ramenant le défilement d'une longueur de liste — le saut
+     vaut exactement `n × pas`, donc rien ne bouge sous l'œil.
+     🔴 ET LA FAUTE D'HIER RESTE INTERDITE, par une autre route : une roue qui se répète
+     ment sur ce qu'elle contient. En dessous de trois sections il n'y a PAS de copies —
+     sans quoi la même section paraîtrait deux fois dans la fenêtre. */
+  const six = rendu({ sections: [1,2,3,4,5,6].map((i) => ({ nom: `S${i}` })), section: 2 });
+  const crans = tous(six, ".sac-cran");
+  assert.equal(crans.length, 18, "⭐ six sections peintes trois fois : c'est ça, la boucle");
+  assert.deepEqual(crans.slice(0, 6).map((c) => c.textContent), ["S1","S2","S3","S4","S5","S6"]);
+  assert.deepEqual([...new Set(crans.map((c) => c.dataset.copie))], ["0", "1", "2"]);
+  /* ⭐ UN SEUL DOMINANT, ET IL EST DANS LA COPIE DU MILIEU — c'est là qu'on démarre,
+     pour avoir autant de marge des deux côtés avant la première téléportation. */
+  const dom = crans.filter((c) => c.dataset.dominant === "oui");
+  assert.equal(dom.length, 1);
+  assert.equal(dom[0].dataset.copie, "1");
+  assert.equal(dom[0].dataset.position, "2", "et c'est la section qu'on regarde");
 
-  /* ⭐ LE TÉMOIN QUI TIENT LA FAUTE : une seule section ne se répète pas. */
+  /* 🔴 LE TÉMOIN QUI TIENT LA FAUTE : une seule section ne se répète pas. */
   const une = rendu({ sections: [{ nom: "Backpack" }], section: 0 });
-  const seul = tous(une, ".sac-cran");
-  assert.equal(seul.length, 1, "une section, un cran — pas cinq copies");
-  assert.equal(seul[0].dataset.dominant, "oui", "et c'est le dominant qui la porte");
-  assert.equal(seul[0].dataset.organe, "cran-3", "à la place du milieu, celle du viseur");
+  assert.equal(tous(une, ".sac-cran").length, 1, "une section, un cran — ⛔ pas trois copies");
+  assert.equal(tous(une, ".sac-cran")[0].dataset.dominant, "oui");
+
+  /* ⭐ ET LE DÉFILEMENT VISÉ EST UN MULTIPLE EXACT DU PAS — l'arithmétique du belt */
+  assert.equal(Number(six.querySelector(".sac-roue").dataset.vise), 6 + 2,
+    "la tuile visée est la 2ᵉ de la copie du milieu : 6 + 2");
 
   const n = rendu({ sections: [{ nom: "A" }, { nom: "B" }, { nom: "C" }] });
-  /* ⭐ ET LA PREMIÈRE SECTION EST LE PREMIER CRAN RENDU : les deux places de gauche
-     restent vides parce qu'il n'y a rien avant elle — la roue ne rembobine pas. */
-  const dom = tous(n, ".sac-cran").find((c) => c.dataset.dominant === "oui");
-  assert.equal(dom.getAttribute("aria-selected"), "true", "le dominant est celui qu'on regarde");
-  assert.equal(dom.dataset.organe, "cran-3", "et il occupe toujours la place du viseur");
-  assert.equal(tous(n, ".sac-cran").length, 3, "trois sections, trois crans");
   assert.equal(tous(n, ".sac-tuner").length, 2);
-  /* ⛔ ET LA ROUE NOMME L'ÉCRAN — NORMES §1 quinquies, « le tambour désigne » :
-     aucun titre n'est dû, donc aucun n'est posé. */
+  /* ⛔ ET LA ROUE NOMME L'ÉCRAN — NORMES §1 quinquies : aucun titre n'est dû. */
   assert.equal(n.querySelector("h1, h2"), null, "⛔ pas de titre : la roue désigne");
 });
 
@@ -169,16 +213,29 @@ test("9 — ⛔ les lunes sont cotées et NON POSÉES", () => {
   assert.doesNotMatch(feuilleDesCotesSac(), /lune/, "⛔ et la feuille ne leur fait pas de place");
 });
 
-test("10 — le tuner écoute la MOLETTE en plus du tap, et il l'empêche de défiler la page", () => {
-  /* ⚖️ Eric, 18/09 : *« utiliser le scroll de la souris sur un chevron peut aider
-     le défilement »*. ⛔ Et la molette S'AJOUTE : le tap marche toujours. */
-  const tours = [];
-  const n = rendu({ surTourner: (s) => tours.push(s) });
+test("10 — 🔴 LE CHEVRON POUSSE LE RUBAN D'UNE TUILE, ⛔ il ne saute plus", () => {
+  /* ⚖️ Eric, 2026-09-20 : *« ils font défiler d'une tuile »*, et le tout doit être
+     *« aussi fluide que dans le belt »*.
+     🔴 CE GARDE TENAIT L'INVERSE : il vérifiait que le chevron appelait `surTourner`,
+     c'est-à-dire qu'il SAUTAIT d'un cran. ⛔ Deux régimes de mouvement sur une même
+     surface — l'un qui glisse, l'autre qui téléporte — rendent un écran illisible au
+     doigt. Le chevron pousse maintenant du MÊME pas aimanté que le doigt.
+     ⭐ ET LA MOLETTE S'AJOUTE TOUJOURS (Eric, 18/09) : le tap marche encore. */
+  const n = rendu({ sections: [1,2,3,4,5,6].map((i) => ({ nom: `S${i}` })), section: 2 });
+  const roue = n.querySelector(".sac-roue");
   const g = n.querySelector('[data-organe="tuner-g"]');
+  const d = n.querySelector('[data-organe="tuner-d"]');
+  assert.equal(typeof roue.pousser, "function", "⛔ la roue doit savoir se pousser elle-même");
+
+  roue.scrollLeft = D.ROUE.pas * 8;              /* posé sur la 8ᵉ tuile du ruban */
+  d.dispatchEvent({ type: "click" });
+  assert.equal(roue.scrollLeft, D.ROUE.pas * 9, "⭐ le chevron droit avance d'UNE tuile");
   g.dispatchEvent({ type: "click" });
+  assert.equal(roue.scrollLeft, D.ROUE.pas * 8, "et le gauche recule d'autant");
+
   let empeche = false;
   g.dispatchEvent({ type: "wheel", deltaY: -1, preventDefault: () => { empeche = true; } });
-  assert.deepEqual(tours, [-1, -1], "le tap et la molette tournent tous les deux");
+  assert.equal(roue.scrollLeft, D.ROUE.pas * 7, "la molette pousse aussi — elle s'AJOUTE au tap");
   assert.equal(empeche, true, "⛔ sinon la page défilerait DERRIÈRE la roue");
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
   assert.match(source, /passive:\s*false/, "sans lui le navigateur refuse le preventDefault");
@@ -343,7 +400,12 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
   assert.ok(effacer && editer, "⛔ sans elles, on ne peut ni renommer ni supprimer");
   assert.equal(effacer.textContent, "×");
   assert.equal(editer.textContent, "/");
-  const dom = D.ORGANES.find((o) => o.nom === "CRAN 3");
+  /* ⭐ ELLES S'ACCROCHENT À LA LOUPE, PAS À UN CRAN — et c'est ce qui les rend STABLES
+     depuis que la roue défile (Eric, 20/09) : le cran passe, la loupe reste. ⛔ Le
+     croquis disait déjà *« de la boîte sélectionnée »*, et la boîte sélectionnée est
+     désormais celle qui est SOUS la loupe. Leur cote n'a pas bougé d'un blg : la loupe
+     occupe la place exacte qu'avait le dominant. */
+  const dom = D.ORGANES.find((o) => o.nom === "LOUPE");
   const pose = (nom) => D.ORGANES.find((o) => o.nom === nom);
   assert.equal(pose("EFFACER").x + pose("EFFACER").l / 2, dom.x,
     "⚖️ le `×` est centré sur le coin BAS-GAUCHE du cran dominant");
@@ -440,11 +502,18 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
   const bout = rendu({ sections: cinq, section: 4, edition: true,
     surAjouter: (ou) => gestes.push(`ajouter:${ou}`) });
   const crans = tous(bout, ".sac-cran");
+  /* 🔴 CE GARDE DÉCRIVAIT UNE FENÊTRE D'ANNEAU — cinq places, deux `+` aux bouts, trois
+     sections qui tournent entre eux. ⛔ La roue DÉFILE depuis le 20/09 : en édition le
+     ruban porte TOUTES les sections, du premier au dernier, avec un `+` à chaque bout.
+     ⭐ C'est ce qui rend les deux `+` atteignables sans les sortir du geste — et c'est
+     pourquoi l'édition ne boucle pas : un anneau n'a pas de bout où poser un `+`. */
   assert.deepEqual(crans.map((c) => c.dataset.role || "section"),
-    ["ajouter", "section", "section", "section", "ajouter"],
-    "⭐ deux `+` aux bouts, et l'anneau des sections continue de tourner entre eux");
-  assert.deepEqual(crans.slice(1, 4).map((c) => c.textContent || c.value), ["S4", "S5", "S1"],
-    "⛔ et l'anneau ne saute pas un cran : les trois du milieu sont ceux du viseur");
+    ["ajouter", ...cinq.map(() => "section"), "ajouter"],
+    "⭐ un `+` à chaque bout, et toutes les sections entre eux");
+  assert.deepEqual(crans.slice(1, -1).map((c) => c.textContent || c.value),
+    cinq.map((x) => x.nom), "⛔ dans l'ordre, du premier au dernier");
+  assert.deepEqual([...new Set(crans.slice(1, -1).map((c) => c.dataset.copie))], ["0"],
+    "⛔ et une seule copie : on édite une LISTE, pas un anneau");
 
   /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE — Eric, 2026-09-19 au soir : *« au dessus et en
      dessous du + vert : backpack / + / Storage »* · *« au dessus et en dessous du +
@@ -457,9 +526,9 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
   const etages = (c) => [...c.childNodes].map((n) => n.textContent);
   assert.deepEqual(etages(crans[0]), ["backpack", "+", "Storage"],
     "⚖️ le `+` vert crée un rangement qui pèse dans `Backpack`");
-  assert.deepEqual(etages(crans[4]), ["Other", "+", "Storage"],
+  assert.deepEqual(etages(crans[crans.length - 1]), ["Other", "+", "Storage"],
     "⚖️ et le `+` doré un rangement qui compte dans `Other` — le mot du panneau de poids");
-  assert.equal(crans[4].dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
+  assert.equal(crans[crans.length - 1].dataset.lieu, "dehors", "⭐ c'est ce `data-lieu` qui le dore");
   assert.equal(crans[0].dataset.lieu, undefined, "⛔ et le vert ne le porte pas");
   const [gauche, droite] = tous(bout, '[data-role="ajouter"]');
   assert.equal(gauche.dataset.lieu, undefined, "le `+` de gauche crée DANS le sac");
@@ -469,14 +538,22 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
   assert.deepEqual(gestes.slice(-2), ["ajouter:sac", "ajouter:dehors"],
     "⛔ et le geste dit LEQUEL : deux boutons, deux destinations");
   const repos = rendu({ sections: cinq, section: 0 });
-  assert.deepEqual(tous(repos, ".sac-cran").map((c) => c.textContent),
-    ["S4", "S5", "S1", "S2", "S3"],
-    "⚖️ au repos l'anneau vaut n : *« un belt infini déroulant »* (Eric, 18/09)");
+  /* ⚖️ AU REPOS LE RUBAN BOUCLE — *« un belt infini déroulant »* (Eric, 18/09), et
+     *« boucle simulée, on téléporte »* (20/09). ⛔ Il ne rembobine plus une FENÊTRE :
+     il peint la liste trois fois, et le défilement revient d'une longueur quand il
+     quitte la copie du milieu. */
+  const auRepos = tous(repos, ".sac-cran");
+  assert.equal(auRepos.length, cinq.length * 3, "trois copies : c'est ça, la boucle");
+  assert.deepEqual(auRepos.slice(0, cinq.length).map((c) => c.textContent), cinq.map((x) => x.nom),
+    "⛔ et chaque copie est la liste DANS SON ORDRE");
   assert.equal(tous(repos, '[data-role="ajouter"]').length, 0, "⛔ et il ne porte aucun `+`");
+  /* ⭐ UN SEUL DOMINANT DANS CHAQUE ÉTAT — le halo est une LOUPE FIXE, et c'est la tuile
+     qui passe dessous qui s'allume. ⛔ Deux allumées voudraient dire deux viseurs. */
   for (const x of [bout, repos]) {
-    assert.deepEqual(tous(x, ".sac-cran").map((c) => c.dataset.dominant),
-      ["non", "non", "oui", "non", "non"], "le halo et le zoom restent au centre");
+    assert.equal(tous(x, '.sac-cran[data-dominant="oui"]').length, 1,
+      "le halo et le zoom restent au centre — une seule tuile les porte à la fois");
   }
+  assert.ok(repos.querySelector(".sac-loupe"), "⭐ et la LOUPE est là, fixe, sœur de la roue");
   /* ⚖️ ET TROIS LISERÉS DISENT TROIS GENRES — croquis du 19/09 : blanc = une section
      du sac, BLEU = le party inventory, DORÉ = hors du sac. ⛔ Le blanc ne se déclare
      pas : c'est le défaut de la maison, et un défaut qu'on réécrit cesse d'en être un. */
@@ -489,13 +566,24 @@ test("15 — ⚖️ LE MODE ÉDITION : deux poignées À CHEVAL sur la boîte re
   assert.match(feuille, /\.sac-cran\[data-lieu="party"\][^}]*var\(--info\)/);
   assert.match(feuille, /\.sac-cran\[data-lieu="dehors"\][^}]*var\(--dehors\)/);
 
-  /* ⑦ ⚖️ *« la hauteur des sections = 40 »* — et le zoom vit en largeur et en corps.
-     ⛔ Une boîte qui change de hauteur en entrant dans le halo ne défile pas : elle
-     saute. */
-  for (const c of ["CRAN 1", "CRAN 3", "CRAN 5"]) {
-    assert.equal(pose(c).h, 40, `${c} doit faire 40 de haut`);
-  }
-  assert.ok(pose("CRAN 3").l > pose("CRAN 1").l, "⭐ c'est la LARGEUR qui dit le dominant");
+  /* ⑦ ⚖️ *« la hauteur des sections = 40 »* (Eric, 19/09) — et depuis le 20/09 c'est la
+     LOUPE qui la déclare, parce que la table ne connaît plus cinq crans mais le cadre
+     sous lequel ils passent.
+     🔴 ET LA LARGEUR NE DIT PLUS LE DOMINANT — c'est le renversement de ce lot. Une
+     boîte qui s'élargit en entrant dans le halo DÉCALE le défilement : c'est pour ça
+     que le belt garde des tuiles égales et *« rallume »* la courante. ⭐ Ici la loupe
+     AGRANDIT ce qui passe dessous, sans toucher à la mise en page. Toutes les tuiles
+     font donc `ROUE.tuile`, et le rapport d'agrandissement est celui du plan. */
+  assert.equal(pose("LOUPE").h, 40, "la loupe fait 40 de haut, comme les sections");
+  assert.equal(pose("LOUPE").l, D.ROUE.dominant, "et sa largeur est celle du dominant d'avant");
+  assert.ok(Math.abs(D.ROUE.loupe - D.ROUE.dominant / D.ROUE.tuile) < 0.001,
+    "⭐ l'agrandissement EST `dominant / tuile` — ⛔ pas un facteur choisi");
+  const t0 = parseFloat(jetons.match(/--t0:\s*([\d.]+)px/)[1]);
+  const t1 = parseFloat(jetons.match(/--t1:\s*([\d.]+)px/)[1]);
+  assert.ok(Math.abs(D.ROUE.loupe - t1 / t0) < 0.01,
+    "🔴 ET C'EST AUSSI `T1 / T0` : les deux règles dictées le 18/09 sont LE MÊME RAPPORT.\n" +
+    "   Un seul agrandissement les rend toutes les deux — c'est ce qui permet de\n" +
+    "   supprimer le `font-size` du dominant sans rien perdre.");
 });
 
 test("16 — 🔴 LA GRILLE SE COMPTE DANS LA TABLE, ⛔ elle ne s'écrit pas dans le module", () => {
@@ -707,8 +795,11 @@ test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALC
 
   /* ① l'interligne et la hauteur viennent d'où ils sont ÉCRITS */
   const lh = parseFloat(bloc(".sac-cran").match(/line-height:\s*([\d.]+)/)[1]);
-  const cran = D.ORGANES.find((o) => o.nom === "CRAN 1");
-  assert.ok(cran && cran.h > 0, "⛔ le plan ne déclare plus de cran : ce garde a changé de sujet");
+  /* ⭐ LA HAUTEUR D'UNE TUILE EST CELLE DE LA LOUPE — depuis que la roue défile, la
+     table ne déclare plus cinq crans : elle déclare le cadre sous lequel ils passent,
+     et toutes les tuiles font sa hauteur. */
+  const cran = D.ORGANES.find((o) => o.nom === "LOUPE");
+  assert.ok(cran && cran.h > 0, "⛔ le plan ne déclare plus de loupe : ce garde a changé de sujet");
 
   /* ② les deux tailles de la pile : celle des mots, celle du signe */
   const taille = (corps) => {
@@ -806,9 +897,13 @@ test("23 — ⚖️ LE MODE DÉPLACEMENT : les poignées et les `+` s'EFFACENT, 
   assert.equal(bouge.dataset.deplacement, "oui");
   assert.equal(edite.dataset.deplacement, undefined, "et il ne s'allume pas tout seul");
 
-  /* ④ ET LA PLACE LIBÉRÉE REVIENT AUX SECTIONS : cinq crans au lieu de trois */
-  assert.equal(tous(bouge, ".sac-cran").length, 5,
-    "⭐ sans les deux `+`, la roue remontre ses cinq crans — c'est bien « pour voir l'ordre »");
+  /* ④ ET LA PLACE LIBÉRÉE REVIENT AUX SECTIONS : le ruban ne porte plus QUE des
+     sections. ⛔ Et il n'en peint qu'une copie — en déplacement on regarde un ORDRE,
+     et un ordre qui se répète ne se lit plus (Eric, 20/09 : la boucle est pour NAVIGUER). */
+  assert.equal(tous(bouge, ".sac-cran").length, cinq.length,
+    "⭐ sans les deux `+`, le ruban ne porte plus que les sections — c'est bien « pour voir l'ordre »");
+  assert.deepEqual([...new Set(tous(bouge, ".sac-cran").map((c) => c.dataset.copie))], ["0"],
+    "⛔ une seule copie : un ordre ne se lit pas s'il se répète");
 
   /* ⑤ CELUI QU'ON TIENT SE VOIT — sinon on déplace à l'aveugle */
   assert.equal(bouge.querySelector('.sac-cran[data-tenu="oui"]').dataset.position, "1");
@@ -821,9 +916,11 @@ test("23 — ⚖️ LE MODE DÉPLACEMENT : les poignées et les `+` s'EFFACENT, 
      cinq places soient TOUTES là, une fois chacune — *« assez pour remplir les places
      SANS répéter »*. */
   const places = tous(bouge, ".sac-cran").map((c) => c.dataset.position);
-  assert.equal(places.length, 5);
-  assert.deepEqual([...places].sort(), ["0", "1", "2", "3", "4"], "les cinq, une fois chacune");
-  assert.equal(places[2], "1", "⭐ et le REGARDÉ est au milieu — le viseur ne bouge jamais");
+  assert.deepEqual(places, ["0", "1", "2", "3", "4"],
+    "⭐ LE RUBAN EST DANS L'ORDRE, du premier au dernier — ⛔ plus une fenêtre d'anneau.\n" +
+    "   C'est ce qui permet de LIRE l'ordre pendant qu'on le change.");
+  assert.equal(bouge.querySelector('.sac-cran[data-tenu="oui"]').dataset.position, "1",
+    "⭐ et celui qu'on tient est marqué — le viseur, lui, est la LOUPE, qui ne bouge jamais");
 
   /* ⑦ ET LE MAINTIEN EST CELUI D'ERIC, pas un nombre choisi */
   assert.equal(MAINTIEN_MS, 1500, "⚖️ *« hold one section for 1,5 second »*");
@@ -932,4 +1029,181 @@ test("25 — 🔒 VERROUILLÉ : le filigrane est à la place qu'Eric a ratifiée
   /* 🔒 LE VOILE AUSSI : trois valeurs regardées avant celle-là (.20, .42, .6, .28). */
   assert.match(jetons, /--filigrane:\s*\.40\s*;/,
     "🔒 .40 — *« rends-le encore un peu plus discret »* (20/09), puis *« c'est parfait »*");
+});
+
+test("26 — 🔄 LA RECOUTURE REMARQUE LA TUILE : sous la loupe, ce n'est plus le même NŒUD", async () => {
+  /* ⚖️ Eric, 2026-09-20 : *« on téléporte, et ça doit tomber juste dans le halo »*.
+     🔴 LA FAUTE QUE CE GARDE TIENT, ET ELLE EST INVISIBLE À L'ARRÊT : quand le ruban
+     s'arrête sur une copie voisine, on le repose à la place JUMELLE du tour du milieu.
+     La position ne change pas d'un blg — le contenu est identique — donc le viseur voit
+     `k === derniere` et se tait. ⛔ Mais le nœud, lui, a changé : le cran grossi restait
+     à un tour de là, sur une tuile que personne ne regardait, et la loupe cadrait du
+     vide. ⭐ Une position identique ne dit RIEN de l'identité du nœud.
+     📌 Ce garde ne peut exister que depuis que `scrollLeft` émet un `scroll` dans le
+     stub (`dom-stub.mjs`, lot 214) : l'axe horizontal n'était déclenchable par personne. */
+  const vus = [];
+  const n = rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `S${i}` })), section: 0,
+                    surSection: (i) => vus.push(i) });
+  const roue = n.querySelector(".sac-roue");
+  const ruban = roue.querySelector(".sac-ruban");
+  assert.equal(ruban.childNodes.length, 15, "cinq sections, trois tours");
+
+  /* → on pose le ruban sur la 3ᵉ section du TROISIÈME tour */
+  roue.scrollLeft = D.ROUE.pas * (2 * 5 + 2);
+  await new Promise((r) => setTimeout(r, REPOS_MS + 80));
+
+  assert.equal(roue.scrollLeft, D.ROUE.pas * (1 * 5 + 2),
+    "⭐ la recouture ramène au tour du milieu, à la place jumelle");
+  const allumes = tous(ruban, '[data-dominant="oui"]');
+  assert.equal(allumes.length, 1, "⛔ une seule tuile allumée — deux, et le ruban a deux centres");
+  assert.equal(allumes[0].dataset.copie, "1", "🔴 et c'est celle du tour du MILIEU");
+  assert.equal(allumes[0].dataset.position, "2", "— la section qu'on regarde");
+  assert.deepEqual(vus, [2], "⚖️ et la sélection ne se commet QU'À L'ARRÊT, une fois");
+});
+
+test("27 — \u26d4 LA ROUE NE SE POSE PAS TOUTE SEULE : c'est CELUI QUI L'INS\u00c8RE qui la pose", () => {
+  /* \U0001f534 CE GARDE VIENT D'UN RELEV\u00c9, PAS D'UNE ID\u00c9E. Le 19/09, dans l'application, en
+     \u00e9chantillonnant la roue toutes les 40 ms pendant qu'on la faisait d\u00e9filer :
+         t=2722  scrollLeft 910   (le ruban est au bout)
+         t=2841  scrollLeft **0** (la section a chang\u00e9 \u2192 tout l'\u00e9cran repeint)
+         t=3762  scrollLeft 585   (la bonne place, enfin)
+     \u26d4 Entre les deux, le ruban montrait son D\u00c9BUT. La roue attendait une image
+     (`requestAnimationFrame`) pour se replacer \u2014 et sur un onglet en arri\u00e8re-plan cette
+     image ne vient JAMAIS : le ruban y restait \u00e0 z\u00e9ro pour de bon, ce qui m'a d'abord
+     fait croire \u00e0 une roue morte et chercher la faute dans le CSS pendant une heure.
+     \U0001f534 ET LA R\u00c9PARATION \u00c9VIDENTE \u00c9TAIT FAUSSE : poser la roue \u00e0 la fin du `peindre()` de
+     l'\u00e9tape ne marche pas non plus, et \u2014 c'est le pire \u2014 \u00e7a ne dit rien. Mesur\u00e9 au
+     navigateur : \u00e0 cet instant l'\u00e9tape est encore D\u00c9TACH\u00c9E (`isConnected: false`,
+     `clientWidth: 0`), la coquille ne l'ins\u00e8re qu'apr\u00e8s. Une \u00e9criture de `scrollLeft`
+     sur un n\u0153ud d\u00e9tach\u00e9 ne l\u00e8ve rien : elle tombe dans le vide en silence.
+     \u2b50 DONC LA ROUE PUBLIE SON PLACEMENT et le laisse \u00e0 qui l'ins\u00e8re \u2014 la coquille, au
+     m\u00eame point de passage o\u00f9 elle cadre d\u00e9j\u00e0 les rang\u00e9es. Un organe pos\u00e9 avec son fil. */
+  const n = rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `S${i}` })), section: 2 });
+  const roue = n.querySelector(".sac-roue");
+  const vise = Number(roue.dataset.vise);
+  assert.equal(vise, 5 + 2, "\u2b50 le tour du milieu, plus la section regard\u00e9e");
+
+  /* \u2460 \u26d4 CONSTRUIRE NE POSE RIEN, et c'est la moiti\u00e9 du contrat */
+  assert.equal(roue.scrollLeft, 0,
+    "\u26d4 la roue ne doit pas s'\u00e9crire une position \u00e0 elle-m\u00eame : au moment o\u00f9 elle existe, " +
+    "elle n'est pas dans la page, et cette \u00e9criture-l\u00e0 tombe dans le vide sans rien dire");
+
+  /* \u2461 \u2b50 ET C'EST L'APPEL DE CELUI QUI L'INS\u00c8RE QUI LA POSE */
+  poserLaRoue();
+  assert.equal(roue.scrollLeft, D.ROUE.pas * vise,
+    "\u2b50 `pas \u00d7 vis\u00e9e` \u2014 la m\u00eame arithm\u00e9tique que le belt, et elle tombe juste");
+
+  /* \u2462 \u26d4 ET IL NE SE REJOUE PAS : un second appel rejetterait le ruban \u00e0 la place du
+     rendu pr\u00e9c\u00e9dent alors que le doigt l'a d\u00e9j\u00e0 d\u00e9plac\u00e9. */
+  roue.scrollLeft = D.ROUE.pas * (vise + 2);
+  poserLaRoue();
+  assert.equal(roue.scrollLeft, D.ROUE.pas * (vise + 2),
+    "\u26d4 le placement se consomme une fois \u2014 sinon il reviendrait tirer le ruban en arri\u00e8re");
+
+  /* \u2462bis \U0001f534 MAIS IL NE SE CONSOMME QUE S'IL A PRIS. Deux \u00e9crans l'appellent, et l'un des
+     deux peint parfois d\u00e9tach\u00e9 : `scrollLeft` n'y l\u00e8ve rien et n'y garde rien. Un
+     placement aval\u00e9 par cet appel-l\u00e0 laisserait le ruban \u00e0 z\u00e9ro pour l'autre \u2014 c'est
+     exactement ce qui s'est vu dans l'application (`sl 0 / vis\u00e9e 9`).
+     \u2b50 On refait donc le tour avec une roue QUI REFUSE D'\u00c9CRIRE, comme un n\u0153ud d\u00e9tach\u00e9 : */
+  const n2 = rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `T${i}` })), section: 1 });
+  const roue2 = n2.querySelector(".sac-roue");
+  const vise2 = Number(roue2.dataset.vise);
+  let sourd = true;
+  Object.defineProperty(roue2, "scrollLeft", {
+    configurable: true, get: () => 0, set: () => { if (!sourd) throw new Error("\u00e9crit"); }
+  });
+  poserLaRoue();                                   /* l'\u00e9cran d\u00e9tach\u00e9 appelle en premier */
+  delete roue2.scrollLeft;                         /* \u2192 la roue entre dans la page */
+  roue2.scrollLeft = 0;
+  poserLaRoue();                                   /* \u2026 et le second appel la trouve encore l\u00e0 */
+  assert.equal(roue2.scrollLeft, D.ROUE.pas * vise2,
+    "\u26d4 le premier appel a \u00e9crit dans le vide : il ne doit PAS avoir mang\u00e9 le placement");
+
+  /* \u2463 \u2696\ufe0f ET LA COQUILLE L'APPELLE L\u00c0 O\u00d9 LE CONTENU ENTRE DANS LE DOCUMENT \u2014 la m\u00eame
+     ligne que `cadrerLesRangees`, qui existe pour exactement la m\u00eame raison. */
+  const coquille = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+  assert.match(coquille, /cadrerLesRangees\(frame\.stage\);\s*poserLaRoue\(\);/,
+    "\u26d4 la coquille doit poser la roue au point de passage o\u00f9 elle cadre d\u00e9j\u00e0 les rang\u00e9es");
+  /* \u2464 \U0001f534 ET L'\u00c9TAPE L'APPELLE AUSSI \u2014 \u26d4 pas \u00ab \u00e0 la place \u00bb : EN PLUS, parce qu'il y a
+     DEUX entr\u00e9es dans le document et que j'ai cru une heure qu'il n'y en avait qu'une.
+     \u2022 changer de SECTION repeint par l'\u00e9tape, dont la section est d\u00e9j\u00e0 mont\u00e9e ;
+     \u2022 changer de VUE passe par la coquille, qui reconstruit l'\u00e9tape D\u00c9TACH\u00c9E puis l'ins\u00e8re.
+     \U0001f4cf N'en c\u00e2bler qu'un laissait le ruban \u00e0 z\u00e9ro une fois sur deux \u2014 relev\u00e9 dans
+     l'application : `sl 0 / vis\u00e9e 9`. \u2b50 Et les deux appels ne se marchent pas dessus
+     parce que le placement SE RELIT avant de se consommer (\u2462 ci-dessus). */
+  const etape = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
+  assert.match(etape, /swapContent\(section, \[construireVue\(vueEquipement\)\]\);\s*poserLaRoue\(\);/,
+    "\u26d4 l'\u00e9tape doit poser la roue juste apr\u00e8s son propre \u00e9change de contenu");
+});
+
+test("28 — 👻 UN MINUTEUR QUI SURVIT \u00c0 SON N\u0152UD PARLE APR\u00c8S SA MORT", async () => {
+  /* \U0001f534 RELEV\u00c9 DANS L'APPLICATION LE 19/09, en jetant le ruban jusqu'au bout :
+         910  (le doigt l\u00e2che au bout)  \u2192  585  (recouture + s\u00e9lection : JUSTE)
+                                          \u2192  **325, \u00ab Party bag \u00bb**  \u2014 tout seul, 160 ms plus tard
+     \u26d4 LA CHA\u00ceNE : la recouture \u00e9crit `scrollLeft` \u2192 cette \u00e9criture \u00e9met un `scroll` \u2192
+     le `scroll` r\u00e9arme l'attente de repos \u2192 la s\u00e9lection repeint l'\u00e9cran et la roue est
+     jet\u00e9e \u2192 le minuteur, lui, survit. 140 ms plus tard il s'ex\u00e9cute sur un n\u0153ud
+     D\u00c9TACH\u00c9, o\u00f9 `scrollLeft` vaut 0, en conclut \u00ab premier cran \u00bb et commet la premi\u00e8re
+     section. \u2b50 Un minuteur appartient au rendu qui l'a arm\u00e9, et un rendu mort se tait.
+     \U0001f4cc Ici la roue n'est pas d\u00e9tach\u00e9e (le stub n'a pas de document), donc le fant\u00f4me
+     ne dit pas \u00ab z\u00e9ro \u00bb : il R\u00c9P\u00c8TE la s\u00e9lection. La faute est la m\u00eame \u2014 une parole de
+     trop \u2014 et elle se compte exactement. */
+  const vus = [];
+  const n = rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `S${i}` })), section: 0,
+                    surSection: (i) => vus.push(i) });
+  const roue = n.querySelector(".sac-roue");
+
+  roue.scrollLeft = D.ROUE.pas * (2 * 5 + 4);      /* le doigt jette jusqu'au dernier tour */
+  await new Promise((r) => setTimeout(r, REPOS_MS + 60));
+  assert.deepEqual(vus, [4], "\u2696\ufe0f la s\u00e9lection se commet \u00e0 l'arr\u00eat, une fois");
+
+  /* \u2192 et on laisse passer DEUX repos de plus : le fant\u00f4me, s'il existe, parle l\u00e0 */
+  await new Promise((r) => setTimeout(r, REPOS_MS * 2 + 80));
+  assert.deepEqual(vus, [4],
+    "\u26d4 la roue a reparl\u00e9 apr\u00e8s son arr\u00eat : c'est notre propre \u00e9criture qui a r\u00e9arm\u00e9 " +
+    "l'attente, et ce minuteur-l\u00e0 survit au rendu qui l'a pos\u00e9");
+});
+
+test("29 — 👻 UNE ROUE JET\u00c9E NE COMMET PLUS RIEN, m\u00eame si son minuteur survit", async () => {
+  /* \U0001f534 LE RELEV\u00c9, DANS L'APPLICATION, EN JETANT LE RUBAN JUSQU'AU BOUT :
+         910  \u2192  585, \u00ab Storage 3 \u00bb   (recouture + s\u00e9lection : JUSTE)
+              \u2192  **325, \u00ab Party bag \u00bb**  \u2014 160 ms plus tard, sans que personne ne touche rien
+     \u26d4 ET LA CHA\u00ceNE NE PASSE PAS O\u00d9 JE L'AI CHERCH\u00c9E DEUX FOIS. La s\u00e9lection repeint
+     l'\u00e9cran, donc la roue est RETIR\u00c9E du document \u2014 et un d\u00e9fileur d\u00e9tach\u00e9 voit son
+     `scrollLeft` retomber \u00e0 z\u00e9ro. Cette retomb\u00e9e \u00e9met un `scroll`, qui ressemble \u00e0 un
+     geste, arme l'attente de repos, et fait commettre \u00ab cran 0 \u00bb \u00e0 une roue morte.
+     \u26a0\ufe0f J'AI \u00c9CRIT DEUX PARADES FAUSSES AVANT CELLE-CI, et chacune \u00e9tait juste sur une
+     autre question : un drapeau \u00ab c'est nous qui \u00e9crivons \u00bb (il s'est COINC\u00c9 \u2014 le
+     `scroll` du placement d'ouverture n'est pas toujours \u00e9mis, et c'est le premier vrai
+     geste qui se faisait avaler), puis la comparaison de position du belt (elle ne peut
+     pas voir celui-ci : la position a VRAIMENT chang\u00e9). \u2b50 Ce n'est pas \u00ab notre
+     \u00e9criture \u00bb, c'est UN MORT QUI BOUGE \u2014 et le seul crit\u00e8re juste est l'IDENTIT\u00c9. */
+  const vus = [];
+  const morte = rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `S${i}` })), section: 2,
+                        surSection: (i) => vus.push(i) });
+  const roue = morte.querySelector(".sac-roue");
+  /* \u26d4 ET ON LA POSE POUR DE VRAI \u2014 sinon elle est d\u00e9j\u00e0 \u00e0 z\u00e9ro, la retomb\u00e9e ne change
+     rien, aucun `scroll` n'est \u00e9mis et ce garde ne peut RIEN accuser. \U0001f534 C'est l'erreur
+     que je viens de faire : la premi\u00e8re \u00e9criture de ce t\u00e9moin restait verte sans la
+     r\u00e9paration qu'elle pr\u00e9tendait d\u00e9fendre. Un t\u00e9moin se v\u00e9rifie ROUGE avant d'\u00eatre cru. */
+  poserLaRoue();
+  assert.equal(roue.scrollLeft, D.ROUE.pas * (5 + 2), "la roue jet\u00e9e \u00e9tait bien pos\u00e9e quelque part");
+
+  /* \u2192 LE REPEINT, POUR DE VRAI : un h\u00f4te porte le premier rendu, puis le second le
+     remplace \u2014 et c'est \u00e7a qui jette le premier hors du document. \u26d4 Construire un second
+     rendu ne suffit PAS : j'ai cru un moment que \u00ab la derni\u00e8re roue construite \u00bb \u00e9tait le
+     bon crit\u00e8re, et il \u00e9tait faux d'un cran \u2014 une roue b\u00e2tie apr\u00e8s puis JET\u00c9E aurait
+     fait taire celle qui est \u00e0 l'\u00e9cran. Mesur\u00e9 dans l'application : la s\u00e9lection ne se
+     commettait plus du tout. C'est l'appartenance au DOCUMENT qui tranche, rien d'autre. */
+  const hote = document.createElement("div");
+  hote.append(morte);
+  assert.equal(roue.isConnected, true, "tant qu'elle est port\u00e9e, elle est \u00e0 l'\u00e9cran");
+  hote.replaceChildren(rendu({ sections: [1,2,3,4,5].map((i) => ({ nom: `S${i}` })), section: 4 }));
+  assert.equal(roue.isConnected, false, "\u2026 et le repeint l'en a sortie");
+
+  /* \u2192 et la roue jet\u00e9e voit son d\u00e9filement retomber \u00e0 z\u00e9ro, comme au d\u00e9tachement */
+  roue.scrollLeft = 0;
+  await new Promise((r) => setTimeout(r, REPOS_MS + 120));
+  assert.deepEqual(vus, [],
+    "\u26d4 une roue qui n'est plus \u00e0 l'\u00e9cran vient de choisir une section \u00e0 la place du joueur");
 });

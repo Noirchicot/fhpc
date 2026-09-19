@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=707") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=722") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=707") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=722") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=707") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=722") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=707");
+  background-image: url("./assets/tarot-dos.jpg?v=722");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11799,7 +11799,77 @@ button.tuto-point::before {
   mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
   mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
 }
-.sac-roue { display: block; }
+/* ══ LA ROUE EST UN VRAI DÉFILEUR — Eric, 2026-09-20 ═══════════════════════════
+   ⚖️ *« je veux qu'on puisse naviguer les storage de manière aussi fluide que dans le
+   belt »* · *« une forme plus rectangulaire comme dans le belt et un défilement »* ·
+   *« le halo doit rester centré et les items défilent dessous et s'agrandissent »* ·
+   *« une continuité dans le mouvement et un côté magnétique quand ça s'arrête »*.
+   🔴 ELLE ÉTAIT UNE FAUSSE ROUE : cinq boîtes à `x` fixes dont le TEXTE changeait. Rien
+   ne bougeait jamais — ça sautait d'un cran à l'autre, et c'est exactement ce qui
+   n'était pas fluide. ⭐ L'aimantation est celle du belt, native, ⛔ pas une seconde. */
+.sac-roue {
+  display: block;
+  overflow-x: auto; overflow-y: hidden;
+  /* ⭐ `mandatory` ET NON `proximity` : Eric veut que ce soit *« toujours cadré sur le
+     halo »*. `proximity` laisse le ruban s'arrêter entre deux tuiles quand le geste est
+     franc — c'est-à-dire précisément quand on va vite. */
+  scroll-snap-type: x mandatory;
+  /* ⛔ `touch-action: pan-x` : sans lui un glissé un peu oblique part au défilement
+     VERTICAL de la page, et la roue rate un geste sur deux. */
+  touch-action: pan-x;
+  /* ⛔ Et le geste ne déborde pas sur l'écran d'à côté : `contain` coupe la chaîne. */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+/* ⛔ LA BARRE DE DÉFILEMENT NE SE MONTRE PAS : elle mangerait 15 blg de haut sur une
+   roue qui en fait 40, et le croquis n'en porte aucune.
+   🔴 ET PAS PAR `display: none` — la maison l'interdit dans cette feuille (défaut n°3,
+   un garde le tient et il m'a repris). On la réduit à rien, ce qui la masque sans
+   employer la propriété bannie. */
+.sac-roue::-webkit-scrollbar { inline-size: 0; block-size: 0; }
+/* ⭐ LE RUBAN EST CE QUI GLISSE — sa marge et son écart viennent du plan (la feuille
+   construite), parce que c'est d'eux que dépend `scrollLeft = pas × k`. */
+.sac-ruban {
+  display: flex; align-items: center; block-size: 100%;
+  /* 🔴 `max-content`, ET C EST LA MARGE DE FIN QUI EN DEPEND — mesure a l ecran
+     le 2026-09-19, en la retirant puis en la remettant : course 1241 avec, 1104 sans,
+     et l ecart vaut EXACTEMENT la marge de fin (331 − 57) / 2 = 137.
+     ⚠️ La faute ne se voit pas la ou on la cherche : les tuiles gardent leur 57, le
+     ruban defile quand meme — seulement, sans `max-content` sa boite est celle de sa
+     fenetre, et la marge qui DEPASSE ne compte pas dans la course. Le dernier cran
+     demande `pas × 14 = 910` et la course n en offre que 773 : il ne peut JAMAIS
+     arriver sous la loupe. ⛔ Un defileur qui defile n est pas un defileur qui arrive. */
+  inline-size: max-content;
+}
+/* ⭐ ET LA LOUPE EST UN CADRE FIXE : posé une fois au centre de la piste, et les tuiles
+   passent dessous. ⛔ Elle ne prend pas le doigt — ce qu'on tape, ce sont les tuiles.
+   ⚖️ UN RECTANGLE, PAS UN HALO — Eric, 2026-09-19 : *« une forme géométrique simple, un
+   rectangle à la place d'un halo pour la zone de zoom »*.
+   ⭐ ET C'EST LE BON DESSIN, pas seulement le plus simple : un halo DÉBORDE, et ce qui
+   déborde désigne la chose qu'il entoure. Ici rien n'est entouré — le cadre ne bouge
+   jamais, c'est le ruban qui passe. Un CADRE se dessine net, sur ses quatre arêtes.
+   ⚠️ Eric le proposait pour économiser des calculs : l'économie-là est négligeable (une
+   ombre portée se peint une fois et se composite), la vraie dépense par image était le
+   viseur — elle est corrigée dans `sac-ecran.mjs`. Celui-ci est un choix de DESSIN.
+   🔴 ET SON RAYON EST CELUI DE LA TUILE, PAS UN AUTRE — mesuré à l'écran le 19/09 :
+   depuis que la posée peint 71 × 40, le cadre et elle sont LA MÊME BOÎTE au centième
+   près. ⛔ Un rayon plus petit y dessinerait donc quatre ergots aux coins, dehors du
+   cran arrondi. ⭐ Et ça donne au cadre son bon régime : invisible quand une tuile est
+   POSÉE dedans (les deux liserés coïncident), visible dès que le ruban bouge, quand il
+   n'y a plus sous lui que la piste. La zone se montre quand elle sert. */
+.sac-loupe {
+  pointer-events: none;
+  border-radius: var(--organe-rayon);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere),
+              inset 0 0 0 1px var(--accent-wash);
+}
+/* ⛔ ET LA LOUPE GARDE LE GENRE DE CE QU'ELLE CADRE — la règle des trois liserés du
+   19/09 : un cadre qui perdrait l'or ou le bleu au moment où on regarde la boîte ne le
+   dirait jamais quand ça compte. */
+.sac-loupe[data-lieu="dehors"] { box-shadow: inset 0 0 0 1px var(--dehors),
+    inset 0 0 0 1px var(--accent-wash); }
+.sac-loupe[data-lieu="party"] { box-shadow: inset 0 0 0 1px var(--info),
+    inset 0 0 0 1px var(--accent-wash); }
 /* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
    ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
    disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
@@ -11824,7 +11894,13 @@ button.tuto-point::before {
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
 .sac-cran {
-  position: absolute; box-sizing: border-box;
+  /* 🔴 PLUS `absolute` — la tuile vit maintenant DANS LE FLUX du ruban, parce que c'est
+     le ruban qui défile. Une tuile posée à un `x` ne peut pas glisser : c'était toute
+     la raison pour laquelle l'ancienne roue sautait. */
+  position: relative; flex: 0 0 auto; box-sizing: border-box;
+  /* ⭐ CHAQUE TUILE EST UN CRAN D'AIMANTATION, centré — c'est LUI qui garantit
+     *« toujours cadré sur le halo »*. */
+  scroll-snap-align: center;
   border: 0; background: var(--dalle-inter); color: var(--text-soft);
   border-radius: var(--organe-rayon); cursor: pointer;
   font-size: var(--t0); line-height: 1.15; font-weight: 600;
@@ -11858,11 +11934,19 @@ button.tuto-point::before {
 
 /* ⚖️ LE DOMINANT — la cote vient de la table, le HALO vient du belt : c'est la
    même ombre portée, qui déborde dans la gouttière sans rien prendre au cran. */
+/* 🔴 LE DOMINANT NE PORTE PLUS LE HALO — la LOUPE l'a pris, et c'est la demande
+   d'Eric : *« le halo doit rester centré »*. Un halo qui voyage avec la tuile serait
+   centré lui aussi (l'aimantation le veut), mais il CLIGNOTERAIT à chaque tuile
+   franchie pendant une lancée. Fixe, il ne bouge jamais.
+   ⭐ CE QU'IL GARDE : l'encre pleine — le belt disait déjà *« l'état courant ne
+   l'épaissit pas, il le RALLUME »* — et l'AGRANDISSEMENT, qui vient du plan
+   (`scale`, feuille construite). ⛔ Plus de `font-size` ici : le `scale` grossit le
+   texte avec la boîte, et deux écrivains pour un même grandissement divergeraient. */
 .sac-cran[data-dominant="oui"] {
-  color: var(--text); font-size: var(--t1); cursor: default;
-  box-shadow: inset 0 0 0 1px var(--verre-lisere),
-              inset 0 0 0 1px var(--accent-wash),
-              0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+  color: var(--text); cursor: default;
+  /* ⛔ La transition ne porte QUE l'agrandissement : une transition sur la couleur
+     traînerait derrière le doigt pendant une lancée. */
+  transition: scale 120ms ease-out;
 }
 /* ⛔ ET LE DOMINANT GARDE SON LIEU : sans cette ligne, la boîte sous le viseur
    perdait son or en y entrant — c'est-à-dire exactement quand on la regarde. */

@@ -12,7 +12,9 @@ export const JETON = { l: 87, h: 48 };
    de la grande tuile » — donc W/D = T0/T1 = 0,8 — et « la proportionnalité en largeur prime, on a
    amplement la place en hauteur ». La marge intérieure s'écrit en POUR-CENT : deux nombres fixes
    deviendraient faux au premier ajustement. */
-export const ROUE = { piste: 331, budget: 299, dominant: 71, secondaire: 57, margePct: 0.075 };
+export const ROUE = { piste: 331, budget: 299, dominant: 71, secondaire: 57, margePct: 0.075,
+                      tuile: 57, pas: 65, loupe: 1.2456, loupeX: 152.0,
+                      hauteur: 40, hauteurDominante: 32.11 };
 
 /* les trois colonnes et les cinq rangées de la grille — la grille de R au blg près */
 export const COLONNES = [49, 144, 239];
@@ -20,11 +22,7 @@ export const RANGEES = [104, 160, 216, 272];
 
 export const ORGANES = [
   { nom: "ROUE",        sorte: "roue",     x:     22, y:      4, l:    331, h:    40, cible: { x: 22, y: 2, l: 331, h: 44 }, cran: "T1/600" },
-  { nom: "CRAN 1",      sorte: "cran",     x:     22, y:      4, l:     57, h:    40, dans: "ROUE", mot: "Section 1", cran: "T0/600" },
-  { nom: "CRAN 2",      sorte: "cran",     x:     87, y:      4, l:     57, h:    40, dans: "ROUE", mot: "Section 2", cran: "T0/600" },
-  { nom: "CRAN 3",      sorte: "cran",     x:    152, y:      4, l:     71, h:    40, dans: "ROUE", mot: "Potions", cran: "T1/600", dominant: true },
-  { nom: "CRAN 4",      sorte: "cran",     x:    231, y:      4, l:     57, h:    40, dans: "ROUE", mot: "Section 4", cran: "T0/600" },
-  { nom: "CRAN 5",      sorte: "cran",     x:    296, y:      4, l:     57, h:    40, dans: "ROUE", mot: "Section 5", cran: "T0/600" },
+  { nom: "LOUPE",       sorte: "loupe",    x:    152, y:      4, l:     71, h:    40, dans: "ROUE", mot: "Potions", cran: "T1/600", dominant: true },
   { nom: "EFFACER",     sorte: "bouton",   x:    137, y:     29, l:     30, h:    30, cible: { x: 130, y: 22, l: 44, h: 44 }, mot: "×", cran: "T3/600" },
   { nom: "EDITER",      sorte: "bouton",   x:    208, y:     29, l:     30, h:    30, cible: { x: 201, y: 22, l: 44, h: 44 }, mot: "/", cran: "T3/600" },
   { nom: "TUNER G",     sorte: "tuner",    x:      4, y:     14, l:     10, h:    20, cible: { x: 0, y: 2, l: 44, h: 44 }, dans: "ROUE" },

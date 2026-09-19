@@ -23,33 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=707";
-import { versionQuery } from "./version.mjs?v=707";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=707";
+import { DALLE, MARGE, TOUCH, JETON, ROUE, COLONNES, ORGANES, FOND } from "./sac-disposition.mjs?v=722";
+import { versionQuery } from "./version.mjs?v=722";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=722";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=707";
+import { armerJeton, fantome } from "./glisser.mjs?v=722";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=707";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=722";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=707";
+import { facteurZoomCourant } from "./echelle.mjs?v=722";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
 export const CLEF_DE = Object.freeze({
   "ROUE": "roue", "TUNER G": "tuner-g", "TUNER D": "tuner-d",
-  "CRAN 1": "cran-1", "CRAN 2": "cran-2", "CRAN 3": "cran-3", "CRAN 4": "cran-4", "CRAN 5": "cran-5",
+  /* ⭐ UNE LOUPE, PLUS CINQ CRANS — Eric, 20/09 : la roue est devenue un DÉFILEUR, donc
+     les crans ne sont plus des places posées ; ils glissent. Ce qui reste au plan est
+     le halo fixe sous lequel ils passent. */
+  "LOUPE": "loupe",
   "TRIER": "trier", "TASSER": "sections",
   "POIDS TOTAL": "poids-total", "POIDS DETAIL": "poids-detail",
   "EFFACER": "effacer", "EDITER": "editer",
@@ -144,11 +147,39 @@ export function feuilleDesCotesSac() {
      ⭐ Le pourcentage reste donc dans la TABLE, où il est vrai, et la feuille en
      DÉDUIT deux nombres — qui ne sont pas retapés : ils se recalculent si une
      cote bouge. */
-  for (const o of ORGANES) {
-    const id = CLEF_DE[o.nom];
-    if (!id || !id.startsWith("cran-")) continue;
-    regles.push(`.sac [data-organe="${id}"]{padding-inline:${px(o.l * ROUE.margePct)}}`);
-  }
+  /* ⚖️ LA MARGE D'UNE TUILE VAUT 7,5 % DE SA LARGEUR — la règle d'Eric du 18/09, et elle
+     ne change pas parce que la roue défile. ⭐ ELLE NE S'ÉCRIT PLUS CINQ FOIS : toutes
+     les tuiles font la MÊME largeur maintenant (c'est la loupe qui agrandit la posée,
+     pas sa boîte), donc une seule règle les habille.
+     🔴 ET TOUJOURS PAS `padding-inline: 7.5%` — un pour-cent de `padding` se résout sur
+     la largeur du CONTENANT, jamais sur celle de l'élément. Faute vue au banc : 7,5 % de
+     la roue faisaient 23,3 de chaque côté et tous les crans affichaient « P… ». */
+  /* 🔴 ET UNE TUILE A UNE HAUTEUR — ⛔ elle n en avait aucune, et personne ne l a dit.
+     📏 Mesuré à l écran le 19/09 : `Party bag` peignait 11 de haut, `Backpack dropdown`
+     25 — chaque tuile faisait la hauteur de SON texte. Une rangée de pilules dépareillées
+     là où Eric demandait *« une forme plus rectangulaire comme dans le belt »*.
+     ⭐ LA COTE EXISTAIT DEPUIS LE DÉBUT, au plan : *« la hauteur des sections = 40 »*
+     (19/09). Elle n avait simplement jamais été ÉCRITE — une cote qui vit dans la table
+     et que la feuille n emploie pas ne dessine rien. */
+  regles.push(`.sac .sac-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
+    `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);
+  /* ⭐ LA PISTE S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE PUISSE SE CENTRER —
+     `(piste − tuile) / 2`. ⛔ C'est cette marge qui rend `scrollLeft = pas × k` exact ;
+     sans elle, la première et la dernière ne pourraient jamais atteindre la loupe. */
+  regles.push(`.sac .sac-ruban{gap:${px(ROUE.pas - ROUE.tuile)};` +
+    `padding-inline:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
+  /* ⭐ ET L'AGRANDISSEMENT EST CELUI DU PLAN : `dominant / secondaire`, qui est AUSSI
+     `T1 / T0`. Les deux règles dictées le 18/09 sont le même rapport — un seul
+     agrandissement les rend toutes les deux, et ⛔ sans toucher à la mise en page. */
+  /* 🔴 ET LA HAUTEUR SE COMPENSE, SINON LA LOUPE LA GROSSIT AUSSI — la loi du plan dit
+     *« 40 pour tout le monde en hauteur »* : *« une boîte qui change de hauteur en y entrant
+     ne défile pas, elle saute »*. ⛔ Or `scale` grossit LES DEUX AXES : la posée peignait
+     49,8 dans une piste de 44. ⭐ On lui donne donc une hauteur réduite d autant que la
+     loupe grossit (`hauteur / loupe`) : peinte, elle refait 40 pile, et le CADRE de la
+     loupe (71 × 40) tombe exactement dessus — le cadre et la tuile posée sont la même
+     boîte. ⚠️ Les deux nombres viennent du plan, ⛔ aucun n est tapé ici. */
+  regles.push(`.sac .sac-cran[data-dominant="oui"]{block-size:${px(ROUE.hauteurDominante)};` +
+    `scale:${ROUE.loupe}}`);
   /* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en
      fond transparent derrière »*. ⭐ C'est le PANTIN de R, même rôle et même place au plan :
      une image qu'on ne tape pas, derrière la grille, dont la cote vit dans `FOND`.
@@ -185,169 +216,281 @@ function bouton(classe, mot, note, surClic) {
  *  étage, zoom + halo idem belt sur l'élément actif, les autres en plus petit,
  *  2 de chaque côté »*. ⭐ Le cran sous le viseur NOMME l'écran — NORMES §1
  *  quinquies, *« le tambour désigne »* — donc ⛔ aucun titre n'est dû. */
-function roue(options) {
+function roue(options, loupeNoeud) {
   const r = el("div", "sac-roue");
   r.dataset.organe = "roue";
   /* ⛔ `tablist` SEULEMENT AU REPOS : en édition la roue porte un champ de saisie et
      un `+`, qui ne sont pas des onglets. Un rôle qui ment sur ce qu'il contient est
-     pire qu'aucun rôle — un lecteur d'écran annoncerait « onglet 3 sur 5 » devant
-     une zone de texte. */
+     pire qu'aucun rôle. */
   r.setAttribute("role", options.edition === true ? "group" : "tablist");
   r.setAttribute("aria-label", "Sections");
+
   const sections = options.sections || [];
   const n = sections.length;
-  const actif = Math.max(0, options.section | 0);
-  /* ⚖️ CINQ PLACES, PAS CINQ CRANS — deux avant, le dominant, deux après. La table
-     ne connaît que des PLACES ; c'est la roue qui décide combien elle en remplit.
-     🔴 ET EN DESSOUS DE CINQ SECTIONS, ELLE N'EN REMPLIT PAS CINQ : avec le modulo,
-     une seule section s'affichait cinq fois, et un sac neuf — qui n'en a AUCUNE —
-     montrait cinq crans nus. ⛔ Une roue qui tourne sur elle-même ment sur ce
-     qu'elle contient. Vu dans l'application, pas au banc.
-
-     🔴 MAIS LE SEUIL ÉTAIT `> 5`, ET IL FAUT `>= 5` — vu au banc le 18/09, avec
-     CINQ sections : la roue refusait de boucler et n'en montrait que trois, le
-     dominant collé à gauche au lieu d'être sous le viseur. ⭐ Le critère n'est pas
-     « plus que les places », c'est *« assez pour remplir les places SANS répéter »* :
-     à n = 5, cinq places portent cinq sections différentes — il n'y a pas de
-     mensonge. À n = 4, une section paraîtrait deux fois, et là il y en aurait un.
-     ⚖️ Et le défilement doit boucler : Eric, 18/09, *« un belt infini déroulant pour
-     naviguer dans les sous-sections »*.
-
-     ══ LE MODE ÉDITION ══════════════════════════════════════════════════════
-     ⚖️ Eric, 18/09 : *« le bouton pack devient sections, et la roue passe en mode
-     édition »* · *« tap pour modifier, chevrons pour défiler »* · *« le bouton +
-     crée, le bouton − supprime »* · *« possibilité de supprimer une section si elle
-     est vide »*.
-     ⭐ TROIS DIFFÉRENCES, ET PAS UNE DE PLUS : ① le cran dominant devient un CHAMP —
-     on tape dedans, c'est le renommage sur place ; ② une place de plus au bout de la
-     liste porte le `+` ; ③ la roue NE BOUCLE PLUS. Le ruban infini est bon pour
-     naviguer, mauvais pour éditer : en édition on regarde une LISTE, et une liste a
-     un début et une fin — sans quoi le `+` du bout ne serait jamais au bout.
-     ⛔ Le `−` ne vit PAS sur la roue : il prend la place du `Sort`, qui n'a rien à
-     faire pendant qu'on édite. Un cran qui porte à la fois un nom, un champ et une
-     croix ne se lit plus. */
   const edition = options.edition === true;
-  /* ⚖️ UNE ROUE INFINIE — Eric, 2026-09-19 : *« ça doit être une roue infinie ; le halo
-     et le zoom restent au centre, et les boîtes défilent dans le halo »* · *« il doit
-     toujours y avoir 2 sections à gauche et 2 à droite »*.
-     ⭐ L'ANNEAU PORTE `n` CRANS AU REPOS ET `n + 1` EN ÉDITION — le `+` est un cran de
-     plus SUR l'anneau, pas une butée à son bout. ⛔ C'est ce qui rend les deux
-     compatibles : un ruban infini n'a pas de bout où poser quoi que ce soit.
-     ⭐ ET LE VISEUR NE BOUGE JAMAIS : le halo et le zoom vivent à la place du MILIEU,
-     ce sont les noms qui défilent dessous. Les deux voisins de chaque côté sont donc
-     toujours là — c'est la conséquence de l'anneau, pas une règle de plus.
-     ⛔ ON NE BOUCLE PAS SOUS CINQ CRANS : une section paraîtrait deux fois, et une
-     roue qui se répète ment sur ce qu'elle contient. Avec les six du socle et le
-     party inventory, le cas ne se présente plus — mais un banc peut l'appeler. */
-  /* ⚖️ LES DEUX `+` OCCUPENT LES DEUX BOUTS DE LA ROUE — croquis d'Eric, 19/09 :
-     `Backpack + section` au bout gauche, `Outside backpack + section` au bout droit,
-     son `+` doré. ⭐ CE SONT DES PLACES FIXES, PAS DES CRANS DE L'ANNEAU : elles ne
-     défilent pas. ⛔ Conséquence assumée et visible sur son croquis : en édition on ne
-     voit plus que TROIS sections, une de chaque côté du viseur.
-     🔴 ET C'EST L'INVERSE DE CE QUE J'AVAIS FAIT HIER — j'avais mis un `+` unique SUR
-     l'anneau, pour qu'un ruban infini garde un endroit où créer. Eric le sort de
-     l'anneau : un bouton qui défile est un bouton qu'on doit chercher. */
-  /* ⛔ EN DÉPLACEMENT, LES DEUX `+` S'EFFACENT — *« le x, +, / disparaissent pour voir
-     l'ordre des sections »*. ⭐ On ne les CACHE pas, on ne les REND pas : un organe
-     absent ne se tape pas, un organe caché se tape encore. */
   const deplacement = options.deplacement != null;
-  const bouts = (edition && !deplacement) ? 1 : 0;
-  const fenetre = 5 - 2 * bouts;                 /* 5 au repos, 3 en édition */
-  for (let i = 0; i < 5; i += 1) {
-    const dom = i === 2;
-    /* ⛔ `bouts` ET NON `edition` : c'est `bouts` qui dit si les deux places du bout
-       appartiennent aux `+`. Tester `edition` ici laissait les deux `+` rendus alors
-       que la fenêtre était déjà passée à cinq — ils recouvraient deux sections. */
-    if (bouts && (i === 0 || i === 4)) {
-      const dehors = i === 4;
-      const p = el("button", "sac-cran");
-      p.type = "button";
-      p.dataset.organe = `cran-${i + 1}`;
-      p.dataset.dominant = "non";
-      p.dataset.role = "ajouter";
-      if (dehors) p.dataset.lieu = "dehors";
-      /* ⚖️ CHAQUE `+` DIT CE QU'IL CRÉE, EN TROIS ÉTAGES — Eric, 2026-09-19 :
-        *« au dessus et en dessous du + vert : backpack / + / Storage »* ·
-        *« au dessus et en dessous du + doré : Other / + / Storage »*.
-        ⭐ LES DEUX MOTS SONT LA PHRASE, PAS UNE DÉCORATION : le vert crée un rangement
-        qui pèse dans `Backpack`, le doré un rangement qui compte dans `Other` — et c'est
-        `Other` lui-même, le mot du panneau de poids, qui le dit. ⛔ Un `+` nu obligeait
-        à connaître la couleur pour savoir ce qu'on allait créer.
-        ⛔ ET LE MOT N'EST PAS RECOPIÉ DEUX FOIS : `Storage` est celui que
-        `nomDeSectionParDefaut` donne déjà aux sections créées — le `+` montre le nom
-        que la section portera. */
-      p.append(
-        el("span", "sac-etage", dehors ? "Other" : "backpack"),
-        el("span", "sac-cran-signe", "+"),
-        el("span", "sac-etage", "Storage"),
-      );
-      p.setAttribute("aria-label", dehors ? "New section outside the backpack" : "New backpack section");
-      p.addEventListener("click", () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
-      r.append(p);
-      continue;
+  const actif = n ? Math.max(0, Math.min(options.section | 0, n - 1)) : 0;
+
+  /* ⭐ LE RUBAN EST CE QUI DÉFILE ; la roue, elle, est la FENÊTRE. Deux nœuds parce
+     que ce sont deux rôles : l'une est clippée et reçoit le geste, l'autre glisse. */
+  const ruban = el("div", "sac-ruban");
+  r.append(ruban);
+
+  /* ⚖️ LA BOUCLE EST UNE RÉPÉTITION, PAS UNE PERSPECTIVE — Eric, 2026-09-20 : *« boucle
+     simulée, mais pas de perspective de roue, on téléporte »*. On peint la liste TROIS
+     fois et on ramène le défilement d'une longueur de liste quand il quitte la copie du
+     milieu. Le saut vaut EXACTEMENT `n × pas`, donc ce qui est sous l'œil ne change pas
+     d'un pixel : la téléportation est invisible.
+     ⛔ PAS DE BOUCLE EN ÉDITION NI EN DÉPLACEMENT — et ce n'est pas une exception de
+     confort : en édition les deux `+` vivent AUX BOUTS, et un anneau n'a pas de bout ;
+     en déplacement on regarde un ORDRE, et un ordre qui se répète ne se lit plus.
+     ⛔ NI SOUS TROIS SECTIONS : une même section paraîtrait deux fois dans la fenêtre,
+     et une roue qui se répète ment sur ce qu'elle contient. */
+  const boucle = !edition && !deplacement && n >= 3;
+  const copies = boucle ? 3 : 1;
+  const milieu = boucle ? 1 : 0;
+
+  /* ⚖️ LES DEUX `+` OCCUPENT LES DEUX BOUTS — croquis d'Eric, 19/09. ⭐ Ils sont DANS le
+     ruban et défilent avec lui : c'est ce qui les rend atteignables sans les sortir du
+     geste. ⛔ Ils ne paraissent pas en déplacement (*« le x, +, / disparaissent »*). */
+  const bout = (dehors) => {
+    const p = el("button", "sac-cran");
+    p.type = "button";
+    p.dataset.role = "ajouter";
+    p.dataset.snap = "oui";
+    if (dehors) p.dataset.lieu = "dehors";
+    p.append(
+      el("span", "sac-etage", dehors ? "Other" : "backpack"),
+      el("span", "sac-cran-signe", "+"),
+      el("span", "sac-etage", "Storage"),
+    );
+    p.setAttribute("aria-label", dehors ? "New section outside the backpack" : "New backpack section");
+    p.addEventListener("click", () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
+    return p;
+  };
+  if (edition && !deplacement) ruban.append(bout(false));
+
+  for (let c = 0; c < copies; c += 1) {
+    for (let i = 0; i < n; i += 1) {
+      const s = sections[i];
+      const souslaLoupe = (c === milieu && i === actif);
+
+      /* ⭐ LE CRAN SOUS LA LOUPE DEVIENT UN CHAMP EN RENOMMAGE — *« tap pour modifier »*.
+         ⛔ Une section figée ne devient pas un champ : on ne rebaptise pas une place
+         qu'on n'a pas faite. */
+      if (edition && souslaLoupe && options.renommage === true && s.renommable !== false) {
+        const champ = el("input", "sac-cran sac-cran-champ");
+        champ.type = "text";
+        champ.value = s.nom;
+        champ.maxLength = 22;                    /* la cote du cran sur deux étages */
+        champ.dataset.dominant = "oui";
+        champ.dataset.snap = "oui";
+        champ.dataset.position = String(i);
+        champ.setAttribute("aria-label", "Section name");
+        const valider = () => {
+          if (champ.value.trim() === s.nom) return;
+          if (options.surRenommer) options.surRenommer(i, champ.value);
+        };
+        champ.addEventListener("keydown", (ev) => {
+          if (ev && ev.key === "Enter") { ev.preventDefault(); valider(); }
+          /* ⛔ Échap REND LE NOM D'AVANT : une frappe abandonnée ne laisse pas de trace. */
+          if (ev && ev.key === "Escape") { champ.value = s.nom; champ.blur(); }
+        });
+        champ.addEventListener("blur", valider);
+        ruban.append(champ);
+        continue;
+      }
+
+      const t = el("button", "sac-cran", s.nom);
+      t.type = "button";
+      t.dataset.snap = "oui";
+      t.dataset.position = String(i);
+      t.dataset.copie = String(c);
+      t.dataset.dominant = souslaLoupe ? "oui" : "non";
+      /* ⚖️ TROIS LISERÉS, TROIS GENRES — croquis du 19/09 : blanc = une section du sac,
+         BLEU = le party inventory, DORÉ = hors du sac. ⛔ Le blanc est le défaut de la
+         maison : il ne se déclare pas. */
+      if (s.dehors === true) t.dataset.lieu = "dehors";
+      else if (s.party === true) t.dataset.lieu = "party";
+      if (!edition) { t.setAttribute("role", "tab"); t.setAttribute("aria-selected", String(souslaLoupe)); }
+      if (options.deplacement === i && c === milieu) t.dataset.tenu = "oui";
+      /* ⚖️ TAPER UN CRAN NE CHOISIT RIEN — la loi du catalogue (II.3) : il AIMANTE, et
+         c'est le viseur qui choisit. ⭐ Le surligné et le choisi sont ainsi le même
+         nombre PAR CONSTRUCTION, jamais deux chemins qui doivent rester d'accord. */
+      t.addEventListener("click", () => viser(c * n + i));
+      armerLeDeplacement(t, i, options, r);
+      ruban.append(t);
     }
-    const brut = actif - Math.floor(fenetre / 2) + (i - bouts);
-    const idx = n >= fenetre
-      ? ((brut % n) + n) % n
-      : (brut >= 0 && brut < n ? brut : -1);
-    if (idx < 0) continue;                       /* cette place reste vide */
-    /* ⭐ LE CRAN DOMINANT EN ÉDITION EST UN CHAMP — *« tap pour modifier »*. Il garde
-       la boîte du cran (la feuille lui donne le même habit) ; ce qui change est
-       qu'on peut écrire dedans. ⛔ On n'écrit au document QU'À LA VALIDATION : un
-       verbe par frappe redessinerait l'écran sous les doigts du joueur. */
-    /* ⛔ UNE SECTION FIGÉE NE DEVIENT PAS UN CHAMP — le party inventory est là
-       *« d'entrée de jeu »* (Eric, 19/09) : on ne rebaptise pas une place qu'on n'a
-       pas faite, et son nom dit à qui elle est. ⭐ Elle garde tout le reste : la
-       grille, les places, le rangement, le glisser. */
-    /* ⚖️ ET LE CHAMP N'APPARAÎT PLUS TOUT SEUL — Eric, 19/09 a donné au renommage sa
-       propre poignée (`/`). ⛔ Avant, entrer en édition ouvrait un champ sur la boîte
-       regardée : on ne pouvait plus la lire sans être en train de la modifier. */
-    if (edition && dom && options.renommage === true && sections[idx].renommable !== false) {
-      const champ = el("input", "sac-cran sac-cran-champ");
-      champ.type = "text";
-      champ.value = sections[idx].nom;
-      champ.maxLength = 22;                      /* la cote du cran sur deux étages */
-      champ.dataset.organe = `cran-${i + 1}`;
-      champ.dataset.dominant = "oui";
-      champ.setAttribute("aria-label", "Section name");
-      const valider = () => {
-        if (champ.value.trim() === sections[idx].nom) return;
-        if (options.surRenommer) options.surRenommer(idx, champ.value);
-      };
-      champ.addEventListener("keydown", (ev) => {
-        if (ev && ev.key === "Enter") { ev.preventDefault(); valider(); }
-        /* ⛔ Échap REND LE NOM D'AVANT, il n'écrit rien : une frappe abandonnée ne
-           doit pas laisser de trace au document. */
-        if (ev && ev.key === "Escape") { champ.value = sections[idx].nom; champ.blur(); }
-      });
-      champ.addEventListener("blur", valider);
-      r.append(champ);
-      continue;
-    }
-    const c = el("button", "sac-cran", sections[idx].nom);
-    c.type = "button";
-    c.dataset.organe = `cran-${i + 1}`;
-    c.dataset.dominant = dom ? "oui" : "non";
-    /* ⚖️ LE LISERÉ DIT LE LIEU — Eric, 19/09 : *« liseré doré = hors backpack, liseré
-       blanc = dans backpack »*. ⛔ L'attribut ne se pose que pour l'AILLEURS : le
-       blanc est le défaut de la maison, et un défaut qu'on réécrit cesse d'en être un. */
-    /* ⚖️ TROIS LISERÉS, TROIS GENRES — croquis du 19/09 : blanc = une section du sac,
-       BLEU = le party inventory, DORÉ = hors du sac. ⛔ Le blanc est le défaut de la
-       maison : il ne se déclare pas, et c'est le signe que le défaut était le bon. */
-    if (sections[idx].dehors === true) c.dataset.lieu = "dehors";
-    else if (sections[idx].party === true) c.dataset.lieu = "party";
-    c.setAttribute("role", "tab");
-    c.setAttribute("aria-selected", String(dom));
-    /* ⭐ SA POSITION DANS LA LISTE, AU DOM : c'est par elle que le doigt saura, en
-       plein glisser, SUR QUELLE section il passe. ⛔ Recalculer la place depuis les
-       coordonnées serait refaire, en moins sûr, ce que la mise en page sait déjà. */
-    c.dataset.position = String(idx);
-    /* ⭐ ET CELUI QU'ON TIENT LE DIT — sans ça on déplace à l'aveugle. */
-    if (options.deplacement === idx) c.dataset.tenu = "oui";
-    if (!dom && options.surSection) c.addEventListener("click", () => options.surSection(idx));
-    armerLeDeplacement(c, idx, options);
-    r.append(c);
   }
+  if (edition && !deplacement) ruban.append(bout(true));
+
+  /* ⭐ LA PLACE D'UN CRAN DANS LE RUBAN → LE DÉFILEMENT QUI LE CENTRE, et c'est de
+     l'ARITHMÉTIQUE, pas une mesure : la piste s'écarte de `(piste − tuile) / 2` de
+     chaque côté, donc centrer la tuile `k` demande `scrollLeft = pas × k`. Exactement
+     la formule du belt (`87 × (n − 1)`), pour exactement la même raison. */
+  const rang = (i) => i + (edition && !deplacement ? 1 : 0);   /* le `+` de gauche décale */
+  const vise = rang(milieu * n + actif);
+  r.dataset.vise = String(vise);
+
+  /* 🔴 CE QUE NOUS VENONS D'ÉCRIRE N'EST PAS UN GESTE — et sans ce drapeau, la roue
+     laissait un FANTÔME derrière elle. Relevé dans l'application le 19/09, en jetant le
+     ruban jusqu'au bout : la recouture écrit `scrollLeft`, cette écriture émet un
+     `scroll`, le `scroll` REARME l'attente de repos — puis la sélection repeint l'écran
+     et la roue est jetée. ⛔ Le minuteur, lui, survit à son nœud : 140 ms plus tard il
+     s'exécute sur une roue DÉTACHÉE, où `scrollLeft` vaut 0, en conclut « premier cran »
+     et ramène la section à la première. Mesuré : 910 → 585 (juste) → **325, Party bag**,
+     sans que personne n'ait touché l'écran.
+     ⭐ C'EST LA LOI DU BELT, DÉJÀ ÉCRITE ICI (`monterRoue`, equipment-step) : *« la
+     position que nous venons d'écrire »* n'est pas un doigt, et *« la position, elle, ne
+     court pas »*.
+     🔴 ET C'EST UNE POSITION, ⛔ PAS UN DRAPEAU — j'ai essayé le drapeau d'abord, et il
+     s'est coincé en une minute : le `scroll` du placement d'ouverture n'est pas toujours
+     émis, le drapeau restait levé, et c'est le PREMIER VRAI GESTE qui se faisait avaler.
+     Mesuré à l'écran : le ruban partait à 910 et il ne s'y passait plus rien du tout.
+     ⭐ Une position ne se coince pas : tant que le défilement est encore là où nous
+     l'avons posé, il est de nous ; dès qu'il en bouge, il est d'un doigt.
+     📌 Une lancée DOUCE (les chevrons) passe par cent positions intermédiaires, qui
+     arment le repos normalement — le chevron commet donc bien sa section.
+     ⚠️ CE QUE ÇA NE COUVRE PAS, ET JE LE DIS : un repos armé par un VRAI geste, puis un
+     repeint venu d'ailleurs dans les 140 ms. Le fantôme serait le même ; il n'est
+     simplement plus atteignable par le chemin qu'on sait déclencher. */
+  let positionEcrite = NaN;
+  const poser = (k, doux) => {
+    const x = ROUE.pas * k;
+    positionEcrite = x;
+    if (typeof r.scrollTo === "function") r.scrollTo({ left: x, behavior: doux ? "smooth" : "auto" });
+    else r.scrollLeft = x;
+  };
+  const viser = (i) => poser(rang(i), true);
+
+  /* ⛔ ON NE PEUT PAS POSER LE DÉFILEMENT SUR UN NŒUD DÉTACHÉ : la roue se construit
+     avant d'entrer dans la page, et `scrollLeft` ne s'écrit pas hors du document.
+     🔴 ET IL NE PEUT PAS ATTENDRE UNE IMAGE NON PLUS — c'est ce que faisait la ligne
+     d'avant (`requestAnimationFrame`), et le relevé du 19/09 la condamne. Un changement
+     de section repeint tout l'écran : la roue est reconstruite à zéro, et entre le
+     repeint et l'image suivante elle montrait son DÉBUT. Mesuré à 40 ms d'intervalle :
+         910 (le ruban est au bout)  →  0 (repeint)  →  585 (la bonne place)
+     ⛔ Et sur un onglet en arrière-plan l'image ne vient JAMAIS : le ruban reste à zéro
+     pour de bon, ce qui a d'abord passé pour une roue morte.
+     ⭐ LA ROUE PUBLIE DONC SON PLACEMENT, ET C'EST L'ÉCRAN QUI L'INSÈRE QUI L'APPELLE,
+     juste après l'insertion — un organe posé avec son fil.
+     🔴 ET IL DIT S'IL A PRIS, parce qu'il y a DEUX endroits où le sac entre dans la
+     page — le repeint local de l'étape (sa section est déjà montée) et celui de la
+     coquille (elle reconstruit l'étape entière, détachée, puis l'insère). ⛔ Les deux
+     appellent, et un placement qui se consommerait à l'aveugle serait avalé par le
+     premier des deux — celui qui écrit dans le vide. Il ne se consomme donc que
+     lorsqu'il se RELIT : une écriture qui n'a pas pris n'est pas une écriture. */
+  placementEnAttente = () => {
+    poser(vise, false);
+    return Math.round(r.scrollLeft) === Math.round(ROUE.pas * vise);
+  };
+
+  /* ══ LE VISEUR, À DEUX VITESSES — et c'est LA décision de ce lot ═══════════
+     🔴 SI LE VISEUR PRÉVENAIT L'ÉTAPE À CHAQUE TUILE FRANCHIE, CHAQUE REPEINT TUERAIT
+     LA LANCÉE. Une lancée traverse trois ou quatre tuiles ; trois repeints, et le doigt
+     sent l'écran accrocher. ⛔ C'est le défaut que « fluide comme le belt » interdit.
+     ⭐ DONC DEUX VITESSES : la LOUPE suit en continu — un attribut qui bascule, aucun
+     repeint — et la SÉLECTION ne se commet QU'À L'ARRÊT. C'est mot pour mot ce qu'Eric
+     demande : *« une continuité dans le mouvement et un côté magnétique quand ça
+     s'arrête »*. */
+  let derniere = vise;
+  let marque = ruban.children[vise] || null;
+  let enAttente = false;
+  let repos = null;
+
+  /* ⭐ MARQUER, C'EST ÉTEINDRE UN SEUL NŒUD ET EN ALLUMER UN — ⛔ pas parcourir le ruban.
+     📏 L'écriture d'avant posait l'attribut sur LES QUINZE tuiles à chaque image, donc
+     quinze recalculs de style sur la seule surface qui doit rester fluide — et le prix
+     montait avec le contenu : trente sections, trente écritures par image. ⛔ Un
+     défilement ne supporte pas un coût qui grandit avec ce qu'on y range.
+     ⭐ Ici deux écritures, quel que soit le nombre de sections. */
+  const marquer = (k) => {
+    if (marque) marque.dataset.dominant = "non";
+    marque = ruban.children[k] || null;
+    if (marque) marque.dataset.dominant = "oui";
+    habillerLaLoupe(marque);
+  };
+
+  const lu = () => {
+    enAttente = false;
+    const k = Math.round(r.scrollLeft / ROUE.pas);
+    if (k === derniere) return;
+    derniere = k;
+    marquer(k);                                  /* la loupe suit — ⛔ aucun repeint */
+  };
+
+  /* ⚖️ LE HALO RESTE CENTRÉ — Eric, 2026-09-20 : *« le halo doit rester centré, les
+     items défilent dessous »*. ⛔ Il ne voyage donc PLUS avec le cran : c'est un cadre
+     fixe, et les tuiles passent dessous. C'est ça, la loupe.
+     ⭐ MAIS IL GARDE LE GENRE DE CE QU'IL CADRE — la règle du 19/09 : *« liseré doré =
+     hors backpack, bleu = party »*. Une boîte qui perdrait son genre au moment où on la
+     regarde ne le dirait jamais quand ça compte. */
+  function habillerLaLoupe(item) {
+    if (!loupeNoeud) return;
+    const lieu = item && item.dataset ? item.dataset.lieu : undefined;
+    if (lieu) loupeNoeud.dataset.lieu = lieu;
+    else delete loupeNoeud.dataset.lieu;
+  }
+  habillerLaLoupe(ruban.children[vise]);
+
+  const arrete = () => {
+    repos = null;
+    /* 👻 ⛔ UNE ROUE QUI N'EST PLUS À L'ÉCRAN NE PARLE PAS.
+       🔴 Relevé dans l'application le 19/09, en jetant le ruban jusqu'au bout :
+           910  →  585, « Storage 3 » (juste)  →  **325, « Party bag »**, tout seul, 160 ms
+       après. La sélection repeint l'écran, donc cette roue-ci est RETIRÉE du document —
+       et un défileur détaché voit son `scrollLeft` retomber à zéro. Cette retombée émet
+       un `scroll`, qui ressemble à un geste, arme l'attente, et fait commettre « cran 0 »
+       à une roue morte.
+       ⚠️ J'AI ÉCRIT TROIS PARADES AVANT CELLE-CI, et les deux premières étaient justes sur
+       une autre question : un drapeau « c'est nous qui écrivons » (il s'est COINCÉ : le
+       `scroll` du placement d'ouverture n'est pas toujours émis, et c'est le premier vrai
+       geste qui se faisait avaler), puis la comparaison de position du belt (elle ne voit
+       pas celui-ci : la position a VRAIMENT changé). ⛔ Et la troisième — « seule la
+       DERNIÈRE roue construite parle » — était fausse d'un cran : une roue bâtie APRÈS
+       puis jetée faisait taire celle qui était à l'écran. Mesuré : la sélection ne se
+       commettait plus du tout.
+       ⭐ LA SEULE QUESTION JUSTE EST CELLE-CI, et c'est le navigateur qui y répond : suis-je
+       encore dans le document ? ⛔ `=== false` et pas `!`: là où la réponse n'existe pas,
+       on ne fait taire personne. */
+    if (r.isConnected === false) return;
+    const k = Math.round(r.scrollLeft / ROUE.pas);
+    const item = ruban.children[k];
+    if (!item) return;
+    /* ⭐ LA TÉLÉPORTATION SE FAIT À L'ARRÊT, jamais en pleine lancée : poser
+       `scrollLeft` pendant une inertie la TUE sur iOS, et c'est le hoquet qu'Eric a
+       accepté de risquer. À l'arrêt, il n'y a rien à tuer. */
+    if (boucle && item.dataset.copie !== String(milieu)) {
+      const saut = (Number(item.dataset.copie) - milieu) * n;
+      derniere = k - saut;
+      poser(derniere, false);
+      /* 🔴 ET ON REMARQUE APRÈS LE SAUT : sous la loupe il n'y a plus le MÊME NŒUD,
+         il y a sa jumelle du tour du milieu. Sans cette ligne, `lu()` voit
+         `k === derniere` et se tait — le cran grossi restait à un tour de là, sur un
+         nœud que personne ne regardait, et la loupe cadrait une tuile éteinte. */
+      marquer(derniere);
+    }
+    const i = Number(item.dataset.position);
+    if (Number.isInteger(i) && i !== actif && options.surSection) options.surSection(i);
+  };
+
+  r.addEventListener("scroll", () => {
+    /* ⭐ LA LOUPE SUIT TOUJOURS, même notre propre écriture : ce qui est sous le cadre est
+       sous le cadre, quelle que soit la main qui l'y a mis. */
+    if (!enAttente) { enAttente = true; (typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout)(lu); }
+    /* ⛔ MAIS NOTRE PROPRE ÉCRITURE N'ARME PAS LE REPOS — voir `poser` : c'est par là que
+       la roue laissait un minuteur derrière elle, qui parlait après sa mort.
+       ⭐ Et un doigt qui s'arrête PILE sur le pixel qu'on vient d'écrire n'a rien bougé :
+       il n'y a rien à commettre, donc rien à armer. */
+    if (Math.abs(r.scrollLeft - positionEcrite) < 1) return;
+    if (repos) clearTimeout(repos);
+    repos = setTimeout(arrete, REPOS_MS);
+  }, { passive: true });
+
+  /* ⭐ ET LES CHEVRONS POUSSENT LE RUBAN D'UNE TUILE — Eric, 20/09 : *« ils font défiler
+     d'une tuile »*. ⛔ Pas un saut : le MÊME mouvement aimanté que le doigt, sinon deux
+     régimes cohabitent sur une seule surface et l'écran cesse d'être lisible au doigt. */
+  r.pousser = (sens) => poser(Math.round(r.scrollLeft / ROUE.pas) + sens, true);
   return r;
 }
 
@@ -361,24 +504,53 @@ function roue(options) {
    ⛔ ET UN MOUVEMENT AVANT L'ARMEMENT ANNULE : qui balaie ne maintient pas. Sans cette
    règle, un balayage un peu lent serait devenu un déplacement, et l'ordre des sections
    aurait bougé sous un geste qui voulait seulement naviguer. */
+/** ⏱️ LE TEMPS D'ARRÊT — au bout de quoi on considère que le ruban s'est POSÉ.
+ *  ⚖️ Eric, 2026-09-20 : *« un côté magnétique quand ça s'arrête »*. ⭐ C'est ce délai
+ *  qui sépare les deux vitesses du viseur : la loupe suit à chaque image, la SÉLECTION
+ *  attend le silence. ⛔ Trop court, on repeint en pleine lancée et on la tue ; trop
+ *  long, la grille tarde à suivre l'œil. 140 ms : plus long qu'un creux entre deux
+ *  images (16 ms) et plus court qu'un battement de paupière. */
+export const REPOS_MS = 140;
+
+/** ⭐ LE PLACEMENT EN ATTENTE — la roue le dépose ici en se construisant, et l'écran
+ *  qui l'insère dans la page l'appelle juste après.
+ *  ⛔ IL NE SE REJOUE PAS une fois posé : un second appel ramènerait le ruban à la place
+ *  du rendu précédent alors que le doigt l'a déjà déplacé.
+ *  🔴 MAIS IL NE SE CONSOMME QUE S'IL A PRIS — il rend `true` quand il se relit. Deux
+ *  écrans appellent (l'étape et la coquille) et l'un des deux peint parfois détaché :
+ *  là, `scrollLeft` ne lève rien et ne garde rien. Un placement consommé à l'aveugle
+ *  serait donc avalé par l'appel qui écrit dans le vide, et le ruban resterait à zéro
+ *  — relevé dans l'application, deux fois, avant que cette ligne existe. */
+let placementEnAttente = null;
+
+export function poserLaRoue() {
+  const f = placementEnAttente;
+  if (!f) return;
+  if (f() === true) placementEnAttente = null;
+}
+
 export const MAINTIEN_MS = 1500;
 
 /** ⭐ LE MÊME MINUTEUR QUE LA MARGE — ⛔ pas un second. Tenir un chevron fait défiler la
  *  roue cran par cran, et relâcher l'arrête. La règle « on ne relance rien tant que le
  *  sens ne change pas » est celle de `regardeLaMarge`, et elle vaut ici pour la même
  *  raison : deux minuteurs sur un même geste accélèrent sans que personne l'ait voulu. */
-function regardeLeChevron(sens, options) {
+function regardeLeChevron(sens, options, roueNoeud) {
   if (defilementVivant && defilementVivant.sens === sens) return;
   arreteLeDefilement();
-  if (!options.surTourner) return;
-  options.surTourner(sens);
-  defilementVivant = { sens, minuteur: setInterval(() => options.surTourner(sens), REPRISE_MS) };
+  /* ⭐ IL POUSSE LE RUBAN, comme le chevron tapé — ⛔ pas un second régime. */
+  const agir = (roueNoeud && typeof roueNoeud.pousser === "function")
+    ? () => roueNoeud.pousser(sens)
+    : (options.surTourner ? () => options.surTourner(sens) : null);
+  if (!agir) return;
+  agir();
+  defilementVivant = { sens, minuteur: setInterval(agir, REPRISE_MS) };
 }
 
 /** ⭐ LES ÉCOUTEURS VIVENT SUR `document`, PAS SUR LE CRAN — parce qu'entrer en mode
  *  DÉPLACEMENT repeint la roue : le cran qu'on tient disparaît du DOM sous le doigt.
  *  C'est la même loi que le glisser d'un jeton, et elle a déjà été payée ici. */
-function armerLeDeplacement(noeud, position, options) {
+function armerLeDeplacement(noeud, position, options, roueNoeud) {
   if (!options.surDeplacer) return;
   noeud.addEventListener("pointerdown", (ev) => {
     if (!ev || (typeof ev.button === "number" && ev.button > 0)) return;
@@ -409,7 +581,7 @@ function armerLeDeplacement(noeud, position, options) {
          jusqu'au bout fait défiler la roue sous elle. ⭐ C'est le MÊME défilement que
          celui de la marge du sac, avec son minuteur : ⛔ pas un second. */
       const chevron = sous.closest(".sac-tuner");
-      if (chevron) { regardeLeChevron(chevron.dataset.sens === "droite" ? 1 : -1, options); return; }
+      if (chevron) { regardeLeChevron(chevron.dataset.sens === "droite" ? 1 : -1, options, roueNoeud); return; }
       arreteLeDefilement();
       const cible = sous.closest('.sac-cran[data-position]');
       if (!cible) return;
@@ -548,16 +720,24 @@ function balayage(noeud, { surface, actif, agit }) {
  *  et la molette le fait tourner. ⚖️ Eric, 18/09 : *« le chevron devient un bouton
  *  tuner avec une flèche circulaire »* · *« hover avec souris le déclenche »*.
  *  ⛔ LA MOLETTE S'AJOUTE, elle ne remplace rien : le tuner se TAPE toujours. */
-function tuner(sens, options) {
-  const b = bouton("sac-tuner", "", sens < 0 ? "Previous section" : "Next section",
-    () => options.surTourner && options.surTourner(sens));
+function tuner(sens, options, roueNoeud) {
+  /* ⚖️ ERIC, 2026-09-20 : *« ils font défiler d'une tuile »*. ⛔ PLUS UN SAUT : le chevron
+     POUSSE le ruban du même pas aimanté que le doigt. Deux régimes de mouvement sur une
+     seule surface — l'un qui glisse, l'autre qui téléporte — rendent un écran illisible
+     au doigt, et c'est précisément ce que « fluide comme le belt » interdit. */
+  const pousse = () => {
+    if (roueNoeud && typeof roueNoeud.pousser === "function") roueNoeud.pousser(sens);
+    else if (options.surTourner) options.surTourner(sens);
+  };
+  const b = bouton("sac-tuner", "", sens < 0 ? "Previous section" : "Next section", pousse);
   b.dataset.organe = sens < 0 ? "tuner-g" : "tuner-d";
   b.dataset.sens = sens < 0 ? "gauche" : "droite";
   /* ⛔ `passive: false` — sans lui le navigateur refuse le `preventDefault`, et la
      page défilerait DERRIÈRE la roue pendant qu'on la tourne. */
   b.addEventListener("wheel", (ev) => {
     if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-    if (options.surTourner) options.surTourner((ev && ev.deltaY < 0) ? -1 : 1);
+    if (roueNoeud && typeof roueNoeud.pousser === "function") roueNoeud.pousser((ev && ev.deltaY < 0) ? -1 : 1);
+    else if (options.surTourner) options.surTourner((ev && ev.deltaY < 0) ? -1 : 1);
   }, { passive: false });
   return b;
 }
@@ -735,16 +915,26 @@ export function construireLeSac(options = {}) {
   balayage(noeud, { surface: ".sac-case",
     actif: () => options.pages > 1,
     agit: (sens) => options.surPage && options.surPage(sens) });
-  balayage(noeud, { surface: ".sac-roue",
-    actif: () => (options.sections || []).length > 1,
-    agit: (sens) => options.surTourner && options.surTourner(sens) });
+  /* ⛔ PLUS DE BALAYAGE MAISON SUR LA ROUE — Eric, 20/09 : *« aussi fluide que dans le
+     belt »*. Le défilement est NATIF maintenant ; un balayage écrit à la main par-dessus
+     se battrait avec lui, et c'est l'inertie du système qu'on perdrait — exactement ce
+     qu'on cherchait à gagner. ⭐ Celui de la GRILLE reste : elle, ne défile pas. */
 
   /* ⛔ LES TUNERS SONT POSÉS SUR LA DALLE, pas dans la roue : la table les
      déclare `dans: "ROUE"` pour dire qu'ils LUI APPARTIENNENT — un voyant dans
      un bouton, la seule inclusion admise — mais au DOM ils sont frères d'elle,
      sinon leur cible déborderait de sa boîte. */
-  const r = roue(options);
-  noeud.append(r, tuner(-1, options), tuner(1, options));
+  /* ⚖️ LA LOUPE — Eric, 2026-09-20 : *« le halo doit rester centré, les items défilent
+     dessous et s'agrandissent »* · *« le halo qui est comme une loupe »*.
+     ⭐ C'EST UN CADRE FIXE, sœur de la roue et non sa fille : dans le ruban elle aurait
+     défilé avec lui. Sa cote vient du plan (`LOUPE`), à la place exacte qu'occupait le
+     cran dominant — donc les deux poignées, qui s'y accrochent, n'ont pas bougé d'un blg.
+     ⛔ Elle ne prend pas le doigt et ne dit rien : ce qu'on tape, ce sont les tuiles. */
+  const loupe = el("div", "sac-loupe");
+  loupe.dataset.organe = "loupe";
+  loupe.setAttribute("aria-hidden", "true");
+  const r = roue(options, loupe);
+  noeud.append(r, loupe, tuner(-1, options, r), tuner(1, options, r));
 
   /* ⭐ LA BOÎTE SOUS LE VISEUR — celle dont parlent les deux poignées. ⛔ `undefined`
      quand le viseur est sur le `+` : la liste des sections ne le porte pas, et c'est

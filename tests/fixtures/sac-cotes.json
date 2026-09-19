@@ -8,7 +8,9 @@
   "budget": 299,
   "dominant": 71,
   "secondaire": 57,
-  "marge_pct": 0.075
+  "marge_pct": 0.075,
+  "hauteur": 40,
+  "hauteur_dominante": 32.11
  },
  "grille": {
   "colonnes": [
@@ -44,72 +46,25 @@
    "cran": "T1/600"
   },
   {
-   "nom": "CRAN 1",
-   "sorte": "cran",
-   "x": 22,
-   "y": 4.0,
-   "l": 57,
-   "h": 40,
-   "dans": "ROUE",
-   "dominant": false,
-   "cran": "T0/600",
-   "mot": "Section 1"
-  },
-  {
-   "nom": "CRAN 2",
-   "sorte": "cran",
-   "x": 87,
-   "y": 4.0,
-   "l": 57,
-   "h": 40,
-   "dans": "ROUE",
-   "dominant": false,
-   "cran": "T0/600",
-   "mot": "Section 2"
-  },
-  {
-   "nom": "CRAN 3",
-   "sorte": "cran",
-   "x": 152,
-   "y": 4.0,
+   "nom": "LOUPE",
+   "sorte": "loupe",
+   "x": 152.0,
+   "y": 4,
    "l": 71,
    "h": 40,
    "dans": "ROUE",
    "dominant": true,
    "cran": "T1/600",
-   "mot": "Potions"
-  },
-  {
-   "nom": "CRAN 4",
-   "sorte": "cran",
-   "x": 231,
-   "y": 4.0,
-   "l": 57,
-   "h": 40,
-   "dans": "ROUE",
-   "dominant": false,
-   "cran": "T0/600",
-   "mot": "Section 4"
-  },
-  {
-   "nom": "CRAN 5",
-   "sorte": "cran",
-   "x": 296,
-   "y": 4.0,
-   "l": 57,
-   "h": 40,
-   "dans": "ROUE",
-   "dominant": false,
-   "cran": "T0/600",
-   "mot": "Section 5"
+   "mot": "Potions",
+   "creation": true
   },
   {
    "nom": "EFFACER",
    "sorte": "bouton",
-   "x": 132.0,
-   "y": 24.0,
-   "l": 40,
-   "h": 40,
+   "x": 137.0,
+   "y": 29.0,
+   "l": 30,
+   "h": 30,
    "cible": {
     "x": 130.0,
     "y": 22.0,
@@ -124,10 +79,10 @@
   {
    "nom": "EDITER",
    "sorte": "bouton",
-   "x": 203.0,
-   "y": 24.0,
-   "l": 40,
-   "h": 40,
+   "x": 208.0,
+   "y": 29.0,
+   "l": 30,
+   "h": 30,
    "cible": {
     "x": 201.0,
     "y": 22.0,

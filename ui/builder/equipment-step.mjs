@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=707";
-import { facteurZoomCourant } from "./echelle.mjs?v=707";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=707";
+import { renderPicker } from "./carnet.mjs?v=722";
+import { facteurZoomCourant } from "./echelle.mjs?v=722";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=722";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=707";
-import { swapContent } from "./socle.mjs?v=707";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=707";
+import { isGenre } from "../../src/layers/document.mjs?v=722";
+import { swapContent } from "./socle.mjs?v=722";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=722";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=707";
+import { armerJeton } from "./glisser.mjs?v=722";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=707";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=722";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=707";
+import { construireLeSac, poserLaRoue, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=722";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=707";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=722";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=707";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=707";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=722";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=722";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=707";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=722";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=707";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=707";
+import { motDuCran } from "./ecran-mort.mjs?v=722";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -3013,6 +3013,13 @@ export function renderEquipmentStep(ctx, onAction) {
 
   function peindre() {
     swapContent(section, [construireVue(vueEquipement)]);
+    /* ⭐ ET LA ROUE DU SAC SE POSE ICI AUSSI — ⛔ pas « plutôt qu'à la coquille » : EN PLUS.
+       Un changement de section repeint par ce chemin-ci, où la section est déjà montée ;
+       un changement de vue passe par la coquille, qui reconstruit l'étape DÉTACHÉE avant
+       de l'insérer. 🔴 Les deux existent, mesurés à l'écran, et n'en câbler qu'un laissait
+       le ruban à zéro une fois sur deux. ⭐ Le placement se relit avant de se consommer,
+       donc l'appel qui écrit dans le vide ne mange pas celui de l'autre. */
+    poserLaRoue();
   }
   /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
      deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un

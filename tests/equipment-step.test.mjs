@@ -45,6 +45,7 @@ const {
    (`sac-disposition.mjs` → `CASES_DU_SAC`). Un 12 écrit ici serait un nombre de plus
    à tenir d'accord avec la grille. */
 const { CASES_DU_SAC } = await import("../ui/builder/sac-ecran.mjs");
+const { ROUE } = await import("../ui/builder/sac-disposition.mjs");
 
 const fixture = exempleFhEn();
 const { build, layers } = fixture;

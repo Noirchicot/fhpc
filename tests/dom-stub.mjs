@@ -62,24 +62,41 @@ class FakeNode {
   constructor() {
     this.parentNode = null;
     this.childNodes = [];
+    /* 🔴 LOT 214 — « AI-JE ÉTÉ RETIRÉ ? », ET C'EST UNE VRAIE QUESTION DE PRODUIT.
+       Un organe jeté par un repeint peut garder des minuteurs : le navigateur, lui, le
+       dit (`isConnected`), et la roue du sac s'en sert pour se taire une fois morte.
+       ⚠️ CE N'EST PAS LE `isConnected` DU NAVIGATEUR, et je le dis : ici un arbre qu'on
+       vient de construire est « connecté », parce que ce stub n'a pas de document et que
+       toutes les suites bâtissent des arbres libres. Il répond à la question qu'on lui
+       pose vraiment : *est-ce que ce nœud a été ARRACHÉ de ce qui le portait ?* ⛔ Un
+       stub qui répondrait « faux » à tout ferait taire tous les gardes d'un coup, ce qui
+       est la pire façon de passer au vert. */
+    this._retire = false;
   }
   get children() {
     return this.childNodes.filter((node) => node.nodeType === 1);
+  }
+  get isConnected() {
+    let n = this;
+    while (n) { if (n._retire === true) return false; n = n.parentNode; }
+    return true;
   }
   append(...items) {
     for (const item of items) {
       const node = typeof item === "string" ? new FakeTextNode(item) : item;
       node.parentNode = this;
+      node._retire = false;
       this.childNodes.push(node);
     }
   }
   prepend(...items) {
     const nodes = items.map((item) => (typeof item === "string" ? new FakeTextNode(item) : item));
-    for (const node of nodes) node.parentNode = this;
+    for (const node of nodes) { node.parentNode = this; node._retire = false; }
     this.childNodes = [...nodes, ...this.childNodes];
   }
   appendChild(node) {
     node.parentNode = this;
+    node._retire = false;
     this.childNodes.push(node);
     return node;
   }
@@ -88,6 +105,7 @@ class FakeNode {
       this.parentNode.childNodes = this.parentNode.childNodes.filter((node) => node !== this);
       this.parentNode = null;
     }
+    this._retire = true;
   }
 }
 
@@ -156,7 +174,7 @@ class FakeElement extends FakeNode {
        perdue » ou « elle a été gardée », rien de plus — et c'est
        exactement la question que pose le §RENDU. */
     this._scrollTop = 0;
-    this.scrollLeft = 0;
+    this._scrollLeft = 0;
     /* ══ LOT 68 — LA GÉOMÉTRIE, ET ELLE EST OPTIONNELLE ═══════════════════
        `_geometrie` reste `null` tant qu'un test ne la POSE pas (voir
        `poserUneColonne` en bas de ce fichier). Tant qu'elle est nulle,
@@ -191,6 +209,20 @@ class FakeElement extends FakeNode {
   set scrollTop(value) {
     const avant = this._scrollTop;
     this._scrollTop = value;
+    if (value !== avant) this.dispatchEvent({ type: "scroll", target: this });
+  }
+  /* 🔴 LOT 214 — ET `scrollLeft` FAIT PAREIL, PARCE QUE LE TROU ÉTAIT LE MÊME.
+     Le commentaire du dessus raconte un spy resté sans test parce que le stub
+     posait la valeur sans prévenir personne. ⛔ L'axe HORIZONTAL était resté
+     dans cet état exact — et c'est l'axe de la roue du sac, dont tout le
+     mouvement (la loupe qui suit, l'arrêt aimanté, la recouture de l'anneau)
+     pend à un écouteur `scroll` que AUCUNE suite ne pouvait déclencher.
+     ⭐ Deux axes, une seule loi : une leçon écrite sur un seul côté n'est pas
+     apprise, elle est recopiée. */
+  get scrollLeft() { return this._scrollLeft; }
+  set scrollLeft(value) {
+    const avant = this._scrollLeft;
+    this._scrollLeft = value;
     if (value !== avant) this.dispatchEvent({ type: "scroll", target: this });
   }
   /** La mise en page, UNIQUEMENT si un test l'a déclarée (`poserUneColonne`).
@@ -277,6 +309,9 @@ class FakeElement extends FakeNode {
    *  position de défilement, et ne la rend jamais. Les deux seuls chemins de
    *  vidage du stub passent par ici — sinon l'un des deux mentirait. */
   _clearChildren() {
+    /* ⛔ ET CE QU'ON JETTE EST JETÉ : sans cette ligne, un enfant retiré continuait de
+       désigner son ancien parent, et se croyait donc toujours à l'écran. */
+    for (const n of this.childNodes) { n.parentNode = null; n._retire = true; }
     this.childNodes = [];
     this.scrollTop = 0;
     this.scrollLeft = 0;
