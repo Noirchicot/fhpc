@@ -20,7 +20,7 @@ export const ROUE = { piste: 331, budget: 299, dominant: 71, secondaire: 57, mar
 /* 🎯 LA BANDE QUI DEFILE — une dalle de douze jetons par section, et elles glissent
    ensemble sous la roue. ⛔ Ses bords ne s inventent pas : la grille, plus 8 au-dessus du
    premier jeton et 8 sous le dernier (croquis d Eric, 19/09). */
-export const DALLES = { x: 0, y: 104, l: 375, h: 232 };
+export const DALLES = { x: 0, y: 104, l: 375, h: 232, jour: 24 };
 
 export const COLONNES = [49, 144, 239];
 export const RANGEES = [112, 168, 224, 280];

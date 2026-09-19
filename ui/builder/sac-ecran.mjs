@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=743";
-import { versionQuery } from "./version.mjs?v=743";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=743";
+import { DALLE, DALLES, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=744";
+import { versionQuery } from "./version.mjs?v=744";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=744";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=743";
+import { armerJeton, fantome } from "./glisser.mjs?v=744";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=743";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=744";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=743";
+import { facteurZoomCourant } from "./echelle.mjs?v=744";
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -235,12 +235,18 @@ export function feuilleDesCotesSac() {
     `width:${px(DALLE.l)};height:${px(jourHaut)}}`);
   regles.push(`.sac > [data-bande="bande-bas"]{left:0;top:${px(jourBas)};` +
     `width:${px(DALLE.l)};height:${px(DALLE.h - jourBas)}}`);
-  /* ⚖️ ET 8 BLG DE JOUR ENTRE DEUX PLAQUES — Eric, 19/09 : *« une marge de 8 blg entre les
-     deux dalles qui défilent latéralement »*. ⭐ Pendant la transition on voit le fond
+  /* ⚖️ LE JOUR ENTRE DEUX PLAQUES — Eric, 19/09 : d'abord *« une marge de 8 blg entre les
+     deux dalles qui défilent latéralement »*, puis, l'ayant vu glisser : *« augmente la
+     séparation entre deux dalles à 24 blg »*. ⭐ Pendant la transition on voit le fond
      passer entre celle qui part et celle qui arrive ; au repos il est hors champ.
-     ⛔ Le pas d'une plaque n'est donc plus sa largeur : c'est sa largeur PLUS le jour — et
-     c'est pour ça que le verrou lit `offsetLeft` au lieu de multiplier. */
-  regles.push(`.sac .sac-dalles{gap:${px(gouttiere)}}`);
+     ⛔ ET CE N'EST PLUS LA GOUTTIÈRE DE LA GRILLE : 8 était celle-là, 24 est une cote à
+     elle, nommée au plan. Continuer à la déduire de la grille aurait fait bouger le jour
+     au premier réglage des rangées — deux grandeurs qui n'ont aucune raison de rester
+     égales, et qui ont divergé dès qu'Eric a regardé.
+     ⭐ ET LA SYNCHRONICITÉ TIENT SANS RIEN CHANGER : le pas d'une plaque se LIT dans la
+     mise en page (`offsetLeft`), il ne se multiplie pas. C'est exactement pourquoi ce
+     verrou a cessé de multiplier — le jour peut valoir ce qu'il veut. */
+  regles.push(`.sac .sac-dalles{gap:${px(DALLES.jour)}}`);
 
   /* 🎒 LE SAC EN FILIGRANE — Eric, 2026-09-20 : *« comme avec le bonhomme dans Gear, en
      fond transparent derrière »*. ⭐ C'est le PANTIN de R, même rôle et même place au plan :
