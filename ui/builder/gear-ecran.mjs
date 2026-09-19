@@ -58,14 +58,14 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=694";
-import { BOITES } from "./b3-disposition.mjs?v=694";
-import { armerJeton, fantome } from "./glisser.mjs?v=694";
+import * as D from "./gear-disposition.mjs?v=697";
+import { BOITES } from "./b3-disposition.mjs?v=697";
+import { armerJeton, fantome } from "./glisser.mjs?v=697";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=694";
-import { versionQuery } from "./version.mjs?v=694";
-import { enGP } from "./equipement-pipeline.mjs?v=694";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=697";
+import { versionQuery } from "./version.mjs?v=697";
+import { enGP } from "./equipement-pipeline.mjs?v=697";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -140,11 +140,18 @@ function poserLeLibelle(span, mot, numero) {
  *  destinataire. `actif: false` : la destination existe (X3 Tally, B3 Craft)
  *  mais son écran n'est pas encore là — on la montre, on ne la laisse pas
  *  choisir : un envoi vers nulle part serait un objet perdu. */
+/* ⚖️ ET LE PARTY BAG EN EST UNE, MÊME SANS SON ÉCRAN — Eric, 2026-09-19 au soir :
+   *« les envois vers party bag, même si party bag n'existe pas encore »*.
+   ⭐ SA DESTINATION EXISTE DÉJÀ POUR DE VRAI : c'est un cran de la roue du sac depuis
+   le 19/09, avec sa grille et ses places. Ce qui n'existe pas, c'est son ÉCRAN à lui —
+   or on n'envoie pas vers un écran, on envoie vers un LIEU. ⛔ Elle est donc `actif`,
+   contrairement à Tally et Craft, dont le destinataire, lui, n'a pas de lieu. */
 export const DESTINATIONS = Object.freeze([
-  { valeur: "backpack", mot: "Backpack", actif: true },
-  { valeur: "self",     mot: "Gear",     actif: true },
-  { valeur: "tally",    mot: "Tally",    actif: false },
-  { valeur: "craft",    mot: "Craft",    actif: false }
+  { valeur: "backpack", mot: "Backpack",  actif: true },
+  { valeur: "self",     mot: "Gear",      actif: true },
+  { valeur: "party",    mot: "Party bag", actif: true },
+  { valeur: "tally",    mot: "Tally",     actif: false },
+  { valeur: "craft",    mot: "Craft",     actif: false }
 ]);
 
 function eld(balise, classe, texte) {

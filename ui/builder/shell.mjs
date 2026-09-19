@@ -19,33 +19,33 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=694";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=694";
-import { mountPopup } from "./popup.mjs?v=694";
-import { renderLorePanel } from "./lore.mjs?v=694";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=694";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=697";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=697";
+import { mountPopup } from "./popup.mjs?v=697";
+import { renderLorePanel } from "./lore.mjs?v=697";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=697";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=694";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=694";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=697";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=697";
 /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
    REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
    (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
    Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
    rendus. */
-import { nommerLeVide } from "./ecran-vide.mjs?v=694";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=694";
+import { nommerLeVide } from "./ecran-vide.mjs?v=697";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=697";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=694";
+} from "./tutoriel.mjs?v=697";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=694";
-import { lireLeFichier } from "./ouvrir.mjs?v=694";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=697";
+import { lireLeFichier } from "./ouvrir.mjs?v=697";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -56,14 +56,14 @@ import {
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
   setCranVoulu, etatDeLEchelle
-} from "./echelle.mjs?v=694";
+} from "./echelle.mjs?v=697";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=694";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=697";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -74,79 +74,79 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=694";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=694";
+} from "./fonds.mjs?v=697";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=694";
-import { renderChoixGlisses } from "./glisser.mjs?v=694";
-import { renderConceptStep } from "./concept-step.mjs?v=694";
+import { planAt, planSlots } from "./carnet.mjs?v=697";
+import { renderChoixGlisses } from "./glisser.mjs?v=697";
+import { renderConceptStep } from "./concept-step.mjs?v=697";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
-  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=694";
+  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=697";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=694";
+import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=697";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=694";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=697";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=694";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=694";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=697";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=697";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=694";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=694";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=694";
+} from "./catalogue.mjs?v=697";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=697";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=697";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=694";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=697";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=694";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=697";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=694";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=697";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=694";
+} from "./abilities-step.mjs?v=697";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=694";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=697";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=694";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=694";
+} from "./destiny-step.mjs?v=697";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=697";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, orDuDepart,
-         lignesDeSection, premierePlaceLibre } from "./equipment-step.mjs?v=694";
+         lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans } from "./equipment-step.mjs?v=697";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
-import { CASES_DU_SAC } from "./sac-ecran.mjs?v=694";
+import { CASES_DU_SAC } from "./sac-ecran.mjs?v=697";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
-import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=694";
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=697";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=694";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=694";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=697";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=697";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=694";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=697";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -165,11 +165,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=694";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=694";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=697";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=694";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=697";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -178,8 +178,8 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=694";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=694";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=694";
+import { platformNow } from "../../src/doc/clock.mjs?v=697";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=697";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
    sauvegardes dedans »* · *« une entrée datée à chaque Save »*.
@@ -188,19 +188,19 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=694";
    la version FH du 192, le fichier automatique de `Build a character` du 193)
    y entrent SANS second chemin. */
 import { ouvrirLeMagasin as monterLeMagasin, choisirUnDossier, garderDansLeTiroir,
-  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=694";
-import { popupDeLaDestination } from "./magasin-ecran.mjs?v=694";
+  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=697";
+import { popupDeLaDestination } from "./magasin-ecran.mjs?v=697";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=694";
+import { versionQuery } from "./version.mjs?v=697";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=694";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=697";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2176,26 +2176,36 @@ function applyDecisionAction(action) {
      pas »* : `location: "ground"`, jamais équipé. Ailleurs sur R : porté. */
   if (action.kind === "placerGearLine") {
     let document = state.document;
-    const auSol = /^sol\d+$/.test(String(action.boite));
-    /* ⚖️ UNE SECTION DU SAC N'EST PAS UN EMPLACEMENT DU CORPS, et le verbe le dit :
-       poser dans `s3` ne met rien sur le personnage — ça le range. ⛔ Sans cette
-       branche, un objet glissé dans le sac s'y retrouvait « équipé » et `location:
-       self`, donc compté sur le corps. */
-    const dansLeSac = /^s\d+$/.test(String(action.boite));
+    /* ⚖️ LE LIEU VIENT DE LA LOI, ⛔ IL NE SE REFAIT PAS ICI — `lieuDeLaBoite`
+       (`equipment-step.mjs`). Cette décision vivait dans ce fichier, qui n'exporte
+       RIEN : aucun garde ne pouvait l'interroger, et une faute y a vécu jusqu'au
+       19/09 au soir — le test portait sur la FORME de la clef (`/^s\d+$/`), or celle
+       du party bag est un MOT, donc un objet déposé dans le sac commun ressortait
+       **équipé sur le personnage**. ⭐ Sortie d'ici, elle a un témoin. */
+    const lieu = lieuDeLaBoite(action.boite);
+    const range = seRange(action.boite);
     document = verbs.set({ document, path: `gear[${action.index}].boite`, value: action.boite }).document;
-    document = verbs.set({ document, path: `gear[${action.index}].location`,
-      value: dansLeSac ? "backpack" : (auSol ? "ground" : "self") }).document;
-    document = verbs.set({ document, path: `gear[${action.index}].equipped`,
-      value: !auSol && !dansLeSac }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].location`, value: lieu }).document;
+    document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: lieu === "self" }).document;
     /* ⚖️ ET LA PLACE S'ÉCRIT — Eric, 18/09 : *« le rangement fait partie des caracs
        du perso »*. ⭐ `action.place` quand l'écran DÉSIGNE une case (un dépôt sur un
        creux précis) ; sinon la première libre, *« prochain emplacement dispo »*. */
-    if (dansLeSac) {
+    /* ⛔ `seRange` ET NON `dansLeSac` : le party bag a une grille comme les autres, et
+       tester la forme de la clef lui refusait sa place — l'objet y serait entré sans
+       rangement, donc il aurait sauté à la première case libre au prochain rendu. */
+    if (range) {
       const place = Number.isInteger(action.place)
         ? action.place
-        : premierePlaceLibre(
-            lignesDeSection(currentGearLines(document).filter((l) => l.index !== action.index),
-              action.boite, action.boite), CASES_DU_SAC);
+        /* 🔴 LA BOÎTE PAR DÉFAUT EST LE DÉPÔT, ⛔ JAMAIS LA BOÎTE VISÉE — faute mesurée
+           dans l'application le 19/09 au soir : le second argument de `lignesDeSection`
+           dit où vivent les lignes qui NE NOMMENT PAS leur boîte, et on lui passait
+           `action.boite`. Envoyer au `Party bag` faisait donc compter tout le sac comme
+           étant DÉJÀ dans le party : la première place libre tombait à 7, et l'objet
+           atterrissait au milieu d'une section vide.
+           ⭐ C'est encore *« un défaut exprimé par une POSITION »* — ici la position
+           d'un argument. Le dépôt se NOMME. */
+        : placeNeuveDans(currentGearLines(document).filter((l) => l.index !== action.index),
+                          action.boite, CASES_DU_SAC);
       document = verbs.set({ document, path: `gear[${action.index}].place`, value: place }).document;
     } else {
       document = verbs.clear({ document, path: `gear[${action.index}].place`, kind: "choice" }).document;

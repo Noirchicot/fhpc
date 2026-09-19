@@ -28,6 +28,10 @@ const D = await import("../ui/builder/gear-disposition.mjs");
 const { construireLEcranGear, feuilleDesCotes, CLEF_DE, DESTINATIONS, libelleDe, BOURSE } =
   await import("../ui/builder/gear-ecran.mjs");
 const { BOITES, SLOT_VERS_BOITES } = await import("../ui/builder/b3-disposition.mjs");
+/* ⭐ LA LOI DU LIEU EST SORTIE DE LA COQUILLE LE 19/09 au soir, justement pour
+   qu'un garde puisse l'interroger au lieu de lire du texte. */
+const { lieuDeLaBoite, seRange, boiteDeSection, SECTION_PARTY } =
+  await import("../ui/builder/equipment-step.mjs");
 const TABLE = JSON.parse(fs.readFileSync(path.join(ROOT, "tests", "fixtures", "gear-cotes.json"), "utf8"));
 const tokens = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
@@ -419,12 +423,42 @@ test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur V
   assert.equal(parPaquet.querySelector('[data-organe="collecteur"] .gear-qte').textContent, "×20");
 });
 
-test("5 ter bis — 🔴 shell.mjs porte le geste `placerGearLine` : la boîte choisie est un choix du personnage, le sol n'équipe pas", () => {
+test("5 ter bis — 🔴 LE LIEU D'UNE BOÎTE EST UNE LOI, ⛔ pas une forme de clef", () => {
+  /* 🔴 CE GARDE LISAIT LE TEXTE DE `shell.mjs` — `/auSol \? "ground" : "self"/`. Il
+     tenait donc la FORME d'une décision, jamais son RÉSULTAT, et c'est exactement
+     sous lui qu'une faute a vécu : le test portait sur la forme de la clef
+     (`/^s\d+$/`), or celle du party bag est un MOT. Un objet déposé dans le sac
+     commun sortait **équipé sur le personnage** — mesuré dans l'application le 19/09
+     au soir, et les 2324 témoins étaient verts.
+     ⭐ LA LOI A ÉTÉ SORTIE DE LA COQUILLE POUR ÇA : `shell.mjs` n'exporte rien, donc
+     rien n'y était interrogeable. On interroge maintenant `lieuDeLaBoite`. */
+
+  /* ① LES QUATRE LIEUX, PAR LEUR RÉSULTAT */
+  assert.equal(lieuDeLaBoite("s0"), "backpack", "une section du sac se PORTE");
+  assert.equal(lieuDeLaBoite("s3"), "backpack");
+  assert.equal(lieuDeLaBoite("sol1"), "ground",
+    "⚖️ le sol est le troisième état — Eric : « tu portes pas, tu n'équipes pas »");
+  assert.equal(lieuDeLaBoite("tete1"), "self", "un emplacement du corps, lui, s'équipe");
+
+  /* ② 🔴 LE PARTY BAG — la faute du 19/09, nommée par son résultat */
+  const bp = boiteDeSection(SECTION_PARTY.clef);
+  assert.doesNotMatch(String(bp), /^s\d+$/,
+    "⭐ sa clef est un MOT, et c'est précisément ce qui la faisait tomber dans le `else`");
+  assert.equal(lieuDeLaBoite(bp), "storage",
+    "⛔ déposer dans le sac du groupe ne l'ÉQUIPE pas — `storage`, donc la ligne `Other`, hors `Encumbrance`");
+
+  /* ③ CE QUI SE RANGE NE SE PORTE PAS — le corollaire, sur les deux écritures */
+  assert.deepEqual(["s0", bp].map(seRange), [true, true],
+    "les deux sont des rangements, quelle que soit la forme de leur clef");
+  assert.deepEqual(["sol1", "tete1"].map(seRange), [false, false]);
+
+  /* ④ ET LA COQUILLE DÉLÈGUE — ⛔ elle ne REFAIT pas la décision */
   const shellText = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
-  assert.ok(shellText.includes('action.kind === "placerGearLine"'), "le geste existe dans la coquille");
+  assert.ok(shellText.includes('action.kind === "placerGearLine"'), "le geste vit toujours dans la coquille");
   assert.match(shellText, /gear\[\$\{action\.index\}\]\.boite/, "il écrit `gear[N].boite`");
-  assert.match(shellText, /auSol \? "ground" : "self"/, "le sol est le troisième état : location « ground »");
-  assert.match(shellText, /value: !auSol/, "…jamais équipé au sol (Eric : « tu portes pas, tu n'équipes pas »)");
+  assert.match(shellText, /lieuDeLaBoite\(action\.boite\)/, "et il LIT la loi");
+  assert.doesNotMatch(shellText, /\? "ground" : "self"/,
+    "⛔ un second écrivain pour le même choix : c'est la faute qu'on vient de retirer");
 });
 
 test("5 quater — les portes et les boutons publient leur geste ; Companions et le livre sans cible sont `disabled`", () => {
