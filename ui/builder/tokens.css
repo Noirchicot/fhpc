@@ -79,6 +79,36 @@
   --dehors: #b08b2e;
   --critical: #aa3f2f;
   --info: #396496;
+  /* 🔵 L'HABIT DU PARTY BAG — Eric, 2026-09-19 : *« le party bag doit avoir une écriture
+     bleu marine, fond bleu proche du bleu du parchemin tally »*.
+     ⭐ CE N'EST PAS UNE COULEUR NEUVE, C'EST UN GENRE QUI PREND SON FOND. La règle existe
+     déjà pour l'or, et elle est citée trois lignes plus haut dans les mots d'Eric :
+     *« outside your gear (horse, chest, house), COULEUR DE FOND dorée »*. Un lieu ne se
+     dit pas qu'au liseré — il porte un habit.
+     📏 ET LE POUR-CENT EST MESURÉ, ⛔ pas choisi : `parchemin-party.webp` rend **#a6b6c7**
+     en moyenne sur ses bleus (#7a92ad sur les plus francs), échantillonné sur ses 160 × 160
+     pixels. `--info` à 35 % dans `--surface` rend **#adbac7** — le parchemin à 7 points
+     près sur le rouge et 4 sur le vert. ⛔ Recopier #a6b6c7 aurait donné une teinte qui ne
+     bascule plus la nuit ; mélangée, elle suit ses deux parents tout seule.
+     ⭐ ET LE MARINE EST LE MÊME BLEU, ENCRÉ : `--info` assombri par l'encre de la maison.
+     Deux teintes d'une seule famille — ⛔ un marine écrit à part dériverait du bleu qu'il
+     est censé foncer. */
+  --party-fond: color-mix(in srgb, var(--info) 35%, var(--surface));
+  --party-encre: color-mix(in srgb, var(--info) 55%, var(--text));
+  /* 🟡 ET L'OR PREND LE SIEN, AU MÊME CRAN — Eric, 2026-09-19 : *« la couleur dorée pour
+     other aussi »*, juste après avoir validé le 35 % du bleu.
+     ⭐ CE N'EST PAS UNE SYMÉTRIE DÉCORATIVE : c'est sa propre phrase du 19/09 au matin,
+     *« outside your gear (horse, chest, house), COULEUR DE FOND dorée »* — l'or attendait
+     son fond depuis le début, il n'avait qu'un liseré. Le bleu a seulement montré la forme
+     que prend un habit de lieu.
+     ⛔ ET LE MÊME CRAN, PAS UN CRAN CHOISI À PART : deux genres qui disent la même chose
+     — *un ailleurs* — se lisent ensemble ou pas du tout. Un or à 45 % pèserait plus lourd
+     que le bleu à 35 % et la roue aurait deux poids pour une seule idée.
+     📌 `--dehors` ne bascule pas avec le thème (*« ce qui nomme un LIEU ne bascule pas avec
+     la lumière »*) — mais `--surface` et `--text`, si. L'habit suit donc la nuit par ses
+     deux autres parents, sans que l'or ait à bouger. */
+  --dehors-fond: color-mix(in srgb, var(--dehors) 35%, var(--surface));
+  --dehors-encre: color-mix(in srgb, var(--dehors) 55%, var(--text));
   /* 🔗 L'ENCRE D'UN LIEN — Eric, 2026-08-29 : *« le lien doit être plus
      discret encore : on sait qu'il est là, mais on le voit à peine. Choisis
      un bleu très proche du noir. »* Un bleu à un souffle de l'encre (#2d2c2a),
@@ -1037,8 +1067,8 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=749");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=749");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=750");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=750");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1074,14 +1104,14 @@
      (*« le voile est un jeton, pas un littéral perdu dans la feuille »*), et c'est LUI
      qui a refusé mon `.6` écrit en clair. Il avait raison. */
   --filigrane: .40;
-  --icone-parchemin: url("./assets/parchemin.webp?v=749");
+  --icone-parchemin: url("./assets/parchemin.webp?v=750");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=749");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=750");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=749");
+  --icone-bourse: url("./assets/bourse.webp?v=750");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
@@ -1091,7 +1121,7 @@
      est le décor du site. 📏 Servie en 806 × 1056 (deux fois la cote), 57 Ko
      contre 1,18 Mo : détourée par remplissage depuis les bords, ⛔ jamais par un
      seuil global — le parchemin est clair, un seuil l'aurait troué partout. */
-  --x1-parchemin: url("./assets/parchemin-x1.webp?v=749");
+  --x1-parchemin: url("./assets/parchemin-x1.webp?v=750");
   /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE. Le parchemin est
      OPAQUE et CLAIR sur les deux fonds : l'encre du site (`--text`, qui bascule
      avec le thème) y devient illisible la nuit — mesuré au banc le 17/09, premier
@@ -1231,14 +1261,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=749");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=750");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=749");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=750");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1331,8 +1361,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=749");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=749");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=750");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=750");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────

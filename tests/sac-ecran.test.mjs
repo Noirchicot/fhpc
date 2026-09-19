@@ -1366,6 +1366,34 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
   assert.match(cran, /box-shadow:\s*inset 0 0 0 1px var\(--verre-lisere\)/,
     "⭐ et le blanc reste à 1 : c'est le défaut de la maison, il n'a rien à annoncer");
 
+  /* ③ bis 🔵 ET LE PARTY BAG PORTE UN HABIT, ⛔ pas qu'un trait — Eric, 2026-09-19 :
+     *« le party bag doit avoir une écriture bleu marine, fond bleu proche du bleu du
+     parchemin tally »*. ⭐ C'est la règle de l'or appliquée au bleu : du 19/09 aussi,
+     *« outside your gear (horse, chest, house), COULEUR DE FOND dorée »*.
+     📏 LES DEUX TEINTES SE DÉRIVENT, ⛔ elles ne se recopient pas : `parchemin-party.webp`
+     rend #a6b6c7 en moyenne sur ses bleus, et `--info` à 35 % dans `--surface` rend
+     #adbac7. Un hex recopié ne basculerait plus la nuit.
+     🔴 ET LE DOMINANT DOIT LE REPRENDRE : sa règle pose `--dalle-inter` à la même
+     spécificité et PLUS BAS dans la feuille — sans la reprise, le Party bag redeviendrait
+     gris au moment précis où on le regarde. ⛔ Ce piège a déjà été payé ici, sur le
+     liseré ; ce garde est ce qui l'empêche de l'être une troisième fois. */
+  for (const [genre, source] of [["party", "--info"], ["dehors", "--dehors"]]) {
+    for (const [sel, quoi] of [[`.sac-cran[data-lieu="${genre}"]`, "au repos"],
+                               [`.sac-cran[data-dominant="oui"][data-lieu="${genre}"]`, "sous le viseur"]]) {
+      assert.match(bloc(sel), new RegExp(`background-color:\\s*var\\(--${genre}-fond\\)`),
+        `le fond du genre « ${genre} », ${quoi}`);
+      assert.match(bloc(sel), new RegExp(`color:\\s*var\\(--${genre}-encre\\)`),
+        `et son encre, ${quoi}`);
+    }
+    const t = jetons.match(new RegExp(`--${genre}-fond:\\s*([^;]+);\\s*--${genre}-encre:\\s*([^;]+);`));
+    assert.ok(t, `⛔ les deux teintes du genre « ${genre} » ont disparu des jetons`);
+    assert.equal(t[1].trim(), `color-mix(in srgb, var(${source}) 35%, var(--surface))`,
+      `📏 le fond est \`${source}\` à 35 % dans la surface — le cran mesuré sur le parchemin, ` +
+      "et Eric l'a confirmé à l'œil (*« 35% »*, 19/09)");
+    assert.equal(t[2].trim(), `color-mix(in srgb, var(${source}) 55%, var(--text))`,
+      `⭐ et l'encre est le MÊME ton, encré — ⛔ pas une seconde teinte qui dériverait de la première`);
+  }
+
   /* ④ ⚖️ DE TRANSPARENT À PLEIN, EN 60 ms — Eric, 19/09 : *« de transparent à plein, c'est
      plus efficace »* · *« tu fais une transition de 60 ms »*.
      ⭐ LE FOND EST LE SIGNE : ce qui est plein est ce qui est choisi. ⛔ Avant, toutes les

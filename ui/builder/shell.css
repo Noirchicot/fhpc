@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=749") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=750") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=749") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=750") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=749") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=750") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=749");
+  background-image: url("./assets/tarot-dos.jpg?v=750");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -12073,7 +12073,11 @@ button.tuto-point::before {
    donc l'épaisseur du liseré témoin — le jeton dont Eric a dit *« trop fin pas assez
    visible »* et *« c'est global à tout le site »*. ⛔ Le BLANC reste à 1 : c'est le
    défaut de la maison, il n'a rien à annoncer. */
+/* 🟡 ET L'OR PORTE SON HABIT LUI AUSSI — Eric, 2026-09-19 : *« la couleur dorée pour other
+   aussi »*. ⭐ Sa phrase du matin le demandait déjà : *« outside your gear (horse, chest,
+   house), COULEUR DE FOND dorée »* — l'or attendait son fond, il n'avait qu'un trait. */
 .sac-cran[data-lieu="dehors"] {
+  background-color: var(--dehors-fond); color: var(--dehors-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--dehors);
 }
 /* ⭐ ET LE BLEU EST CELUI DU PARTY INVENTORY — Eric, 19/09 : *« party inventory vient
@@ -12082,7 +12086,19 @@ button.tuto-point::before {
    de ce qui PRÉVIENT (§7) : ici elle ne prévient pas, elle dit *« ceci n'est pas qu'à
    toi »*. C'est le même emploi que sur le liseré des portes de navigation — une
    appartenance, pas un signal. */
+/* 🔵 ET LE PARTY BAG PORTE SON HABIT, ⛔ pas seulement un liseré — Eric, 2026-09-19 :
+   *« le party bag doit avoir une écriture bleu marine, fond bleu proche du bleu du
+   parchemin tally »*.
+   ⭐ CE N'EST PAS UNE EXCEPTION, C'EST LA RÈGLE DE L'OR APPLIQUÉE AU BLEU : le 19/09
+   aussi, *« outside your gear (horse, chest, house), COULEUR DE FOND dorée »*. Un lieu
+   porte un fond, pas un trait — le trait dit seulement où il s'arrête.
+   ⛔ ET ÇA N'ABROGE PAS « DE TRANSPARENT À PLEIN » : cette loi-là départage les tuiles
+   NEUTRES, dont le fond est le signe de ce qui est choisi. Une tuile de genre, elle, dit
+   d'abord un LIEU — et un lieu ne cesse pas d'exister quand on regarde ailleurs.
+   📏 Les deux teintes sont mesurées sur `parchemin-party.webp` et dérivées de `--info` :
+   voir leurs jetons dans `tokens.css`. */
 .sac-cran[data-lieu="party"] {
+  background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info);
 }
 /* ⭐ ET LE `+` DU BOUT DROIT PORTE L'OR DE L'AILLEURS : les deux boutons sont
@@ -12117,6 +12133,9 @@ button.tuto-point::before {
 /* ⛔ ET LE DOMINANT GARDE SON LIEU : sans cette ligne, la boîte sous le viseur
    perdait son or en y entrant — c'est-à-dire exactement quand on la regarde. */
 .sac-cran[data-dominant="oui"][data-lieu="dehors"] {
+  /* 🔴 ET L'HABIT AVEC, pour la raison déjà payée sur le liseré : la règle du dominant pose
+     `--dalle-inter` à la même spécificité et plus bas dans la feuille. */
+  background-color: var(--dehors-fond); color: var(--dehors-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--dehors),
               inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
 }
@@ -12127,6 +12146,11 @@ button.tuto-point::before {
    centré »*), et ces deux règles-ci le repeignaient encore sur la tuile — donc un halo
    qui voyageait, exactement ce qu'on avait retiré. Vu en relisant, pas à l'écran. */
 .sac-cran[data-dominant="oui"][data-lieu="party"] {
+  /* 🔴 ET L'HABIT AUSSI, POUR EXACTEMENT LA MÊME RAISON QUE LE LISERÉ CI-DESSUS : la règle
+     du dominant pose `--dalle-inter` et `--text`, à la même spécificité et PLUS BAS dans la
+     feuille — elle gagnerait donc, et le Party bag redeviendrait gris au moment précis où
+     on le regarde. ⛔ Ce piège a déjà été payé une fois ici, sur le liseré. */
+  background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info),
               inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
 }
