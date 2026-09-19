@@ -3454,6 +3454,48 @@ une généralisation, qui attendait qu'une cible cesse d'être centrée pour dev
 
 ---
 
+### 🔑 UN LIEU SE RECONNAÎT À SA NATURE, ⛔ PAS À LA FORME DE SA CLEF
+📍 `equipement-le-lieu-ne-se-lit-pas-dans-la-forme-de-la-clef` · vivante · 19/09
+⚖️ **Une décision qui porte sur ce qu'une chose EST ne se prend jamais sur la FORME de son identifiant. ⛔ Et une décision qu'aucun garde ne peut interroger vit dans un fichier qui n'exporte rien : sortez-la.**
+
+> Eric, 2026-09-19 au soir : **« que le drag and drop fonctionne à nouveau car ce n'est plus le cas »**.
+
+🔴 **CE QUE ÇA FAISAIT.** `placerGearLine` décidait `location` en testant `/^s\d+$/` sur la boîte.
+Or la clef du party bag est un **MOT** (`party`), choisie précisément pour ne pouvoir entrer en
+collision avec aucun numéro. Elle échouait donc au test, tombait dans le `else` final, et l'objet
+déposé dans le sac du groupe ressortait **`location: "self"`, équipé sur le personnage**.
+⚠️ **ET LE COMMENTAIRE JUSTE AU-DESSUS DÉCRIVAIT LA FAUTE** : *« sans cette branche, un objet glissé
+dans le sac s'y retrouvait équipé »*. La branche existait. Elle ne couvrait pas ce cas — et une prose
+juste au-dessus d'un test étroit **endort** au lieu d'alerter.
+⛔ **AUCUN GARDE NE POUVAIT L'ATTRAPER**, parce que la décision vivait dans `shell.mjs`, **qui
+n'exporte rien**. Le seul témoin qui la visait lisait son TEXTE (`/auSol \? "ground" : "self"/`) : il
+tenait la forme d'une décision, jamais son résultat. ⭐ La loi est sortie (`lieuDeLaBoite`,
+`seRange`) ; elle a maintenant un témoin qui l'interroge, et il rougit sur `'self' !== 'storage'`.
+⭐ **LE CRITÈRE EST DEVENU SÉMANTIQUE** : `sN` et `party` sont deux écritures d'une même idée — *« ça
+se range, ça ne se porte pas »*.
+
+---
+
+### 🖌️ UN GESTE QUI TRAVERSE LES RENDUS NE PEUT PAS CAPTURER SON REPEINT
+📍 `cadre-le-repeint-se-relit-il-ne-se-capture-pas` · vivante · 19/09
+⚖️ **Un rappel de fin de geste doit RELIRE le repeint courant, jamais garder celui du rendu qui l'a armé. ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU : appelé après un `act`, il peint dans un nœud détaché — et l'écran reste figé sur un état qui n'existe plus.**
+
+🔴 **MESURÉ DANS L'APPLICATION LE 19/09 AU SOIR**, en posant le déplacement des sections. Le geste
+ÉCRIT l'ordre à chaque croisement ; chaque écriture fait refabriquer le nœud de l'étape par la
+coquille. Au lâcher, la fermeture qu'on tenait était celle d'avant le PREMIER croisement : l'état
+retombait (`deplacementSac = null`) et **le mode restait allumé à l'écran**. Deux `pointerup`
+successifs n'y changeaient rien — la preuve que ce n'était pas l'événement qui manquait.
+⭐ **C'EST LA MÊME LOI QUE LA MARGE, DANS L'AUTRE SENS.** `equipement-glisser-dans-la-marge-relit-l-ecran`
+dit déjà qu'un glisser doit **LIRE** l'état au dépôt, pas celui du rendu qui l'a armé. Elle vaut
+aussi pour **ÉCRIRE** : le repeint se relit (`repeindreLeSac`, réassigné à chaque rendu), il ne se
+capture pas.
+📌 **CE QUI DISTINGUE CE CAS DES AUTRES RAPPELS** : tous les autres (`surSection`, `surTourner`…)
+partent d'un clic sur le DOM courant, donc leur fermeture est fraîche par construction. Seul un
+geste qui **dure** traverse les rendus. ⛔ La règle ne vise donc que ceux-là — l'élargir à tous
+serait une indirection payée pour rien.
+
+---
+
 ### 📐 UNE BOÎTE A DEUX DIMENSIONS — ET LA SORTIE EST CELLE QU'ERIC A NOMMÉE
 📍 `cadre-une-taille-se-valide-sur-les-deux-dimensions` · vivante · 19/09
 ⚖️ **Une taille ne « passe » que si elle passe en LARGEUR *et* en HAUTEUR. ⛔ Et quand elle ne passe pas, on prend la sortie qu'Eric a nommée — on ne serre pas une cote qu'il n'a pas donnée pour sauver la sienne.**
