@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=737") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=739") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=737") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=739") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=737") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=739") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=737");
+  background-image: url("./assets/tarot-dos.jpg?v=739");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11811,7 +11811,8 @@ button.tuto-point::before {
 .sac-dalles {
   display: flex;
   /* 🔴 LE TRAIT DE COUPE — Eric, 2026-09-19, devant l'écran : *« où est le line bleed ? la
-     dalle ne se détache pas, tokens coupés ? »*.
+     dalle ne se détache pas, tokens coupés ? »*. 📌 Il vit sur CHAQUE DALLE (plus bas), pas
+     ici : une fenêtre encadrée montre un trou fixe, une dalle encadrée voyage avec le sien.
      ⭐ SES DEUX QUESTIONS N'EN FONT QU'UNE, et la mesure le disait déjà : la coupe EXISTE
      (les rangées débordent de 8 en haut et en bas, relevé au blg près) — mais rien ne la
      DESSINE. Sans trait, l'œil n'attribue pas le sommet plat d'un jeton à un cadre : il
@@ -11832,8 +11833,6 @@ button.tuto-point::before {
      existent pour ça : `--border-strong`, l'encre d'un bord de CONTRÔLE (3:1 garanti sur
      le fond, §3b), à l'épaisseur du liseré témoin — celle dont Eric a dit *« trop fin pas
      assez visible »* puis *« c'est global à tout le site »*. */
-  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--border-strong);
-  border-radius: var(--radius-md);
   overflow-x: auto; overflow-y: hidden;
   scroll-snap-type: x mandatory;
   /* ⛔ `pan-x` : le geste vertical reste à la page, l'horizontal est à nous. */
@@ -11845,6 +11844,14 @@ button.tuto-point::before {
 /* ⭐ UNE DALLE FAIT UNE LARGEUR D'ÉCRAN, et c'est ce qui rend le rapport exact : une
    tuile avance de 65 pendant qu'une dalle avance de 375. ⛔ `relative`, parce que les
    douze cases se posent DEDANS — le plan les déclare hôtées par la bande. */
+/* ⚖️ UNE PLAQUE, ET C'EST TOUT CE QUI MANQUAIT — Eric, 2026-09-19, schéma à l'appui : sa
+   *« zone mouvante »* est un objet qui traverse le champ visible. Une par section, posées
+   côte à côte sur le rail ; l'écran est une fenêtre fixe, et pendant la transition on voit
+   les DEUX — celle qui part et celle qui arrive, coupées par les bords.
+   ⛔ AUCUN TRAIT N'EST TRACÉ ICI, et c'est la leçon : j'en avais dessiné un sur la fenêtre,
+   puis un par dalle, parce que mes plaques étaient TRANSPARENTES et que je cherchais à
+   faire voir une frontière qui n'existait pas. ⭐ Une plaque se délimite par sa matière —
+   `dalle-simple`, que le module lui donne en classe. */
 .sac-dalle {
   position: relative; flex: 0 0 auto;
   inline-size: 100%; block-size: 100%;
