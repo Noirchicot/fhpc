@@ -1037,8 +1037,8 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=701");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=701");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=705");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=705");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1063,14 +1063,24 @@
      été deux nombres à tenir d'accord, et ils auraient divergé au premier réglage.
      ⏳ Le jour où les deux sens demanderont deux valeurs, c'est LÀ qu'il se scinde. */
   --organe-eteint: .20;
-  --icone-parchemin: url("./assets/parchemin.webp?v=701");
+  /* 🎒 LE VOILE D'UN FILIGRANE DE FOND — un dessin posé DERRIÈRE un écran, qu'on ne
+     tape pas : le sac de B1 aujourd'hui, le pantin de R le jour où il le prendra.
+     📏 .6, ET C'EST UNE VALEUR REGARDÉE, PAS CHOISIE : à `--organe-eteint` (.20) puis
+     à .42, le sac restait au bord du visible en thème CLAIR, là où la maquette d'Eric
+     (20/09) le montre franchement présent. À .6 il se lit dans les DEUX thèmes —
+     vérifié à l'écran, jour et nuit — et les jetons restent nets par-dessus.
+     ⛔ ET C'EST UN JETON, PAS UN LITTÉRAL : un garde de R le dit déjà pour les voiles
+     (*« le voile est un jeton, pas un littéral perdu dans la feuille »*), et c'est LUI
+     qui a refusé mon `.6` écrit en clair. Il avait raison. */
+  --filigrane: .6;
+  --icone-parchemin: url("./assets/parchemin.webp?v=705");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=701");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=705");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=701");
+  --icone-bourse: url("./assets/bourse.webp?v=705");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
@@ -1080,7 +1090,7 @@
      est le décor du site. 📏 Servie en 806 × 1056 (deux fois la cote), 57 Ko
      contre 1,18 Mo : détourée par remplissage depuis les bords, ⛔ jamais par un
      seuil global — le parchemin est clair, un seuil l'aurait troué partout. */
-  --x1-parchemin: url("./assets/parchemin-x1.webp?v=701");
+  --x1-parchemin: url("./assets/parchemin-x1.webp?v=705");
   /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE. Le parchemin est
      OPAQUE et CLAIR sur les deux fonds : l'encre du site (`--text`, qui bascule
      avec le thème) y devient illisible la nuit — mesuré au banc le 17/09, premier
@@ -1220,14 +1230,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=701");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=705");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=701");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=705");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1320,8 +1330,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=701");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=701");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=705");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=705");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
