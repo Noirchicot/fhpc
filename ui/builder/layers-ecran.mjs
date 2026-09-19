@@ -58,10 +58,10 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=690";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=691";
 /* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
    se réexporte d'ici pour l'écran, la coquille et les gardes. */
-import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=690";
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=691";
 export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
 
 function el(tag, className, children) {
@@ -75,7 +75,7 @@ function text(value) { return document.createTextNode(String(value)); }
 /* ⭐ LOT 213 — L'ORGANE A DÉMÉNAGÉ DANS UNE FEUILLE SANS IMPORT, pour que la
    fiche X1 le prenne sans traîner `Layers` derrière elle. ⛔ Rien d'autre n'a
    bougé : la fabrique est la même, ses appelants ne changent pas d'adresse. */
-import { interrupteur } from "./interrupteur-organe.mjs?v=690";
+import { interrupteur } from "./interrupteur-organe.mjs?v=691";
 export { interrupteur };
 
 /* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════

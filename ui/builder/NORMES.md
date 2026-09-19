@@ -3450,6 +3450,46 @@ il appartient au GESTE*.
 📌 **CONSÉQUENCE SUR LA FEUILLE** : les quatre bords transparents se déduisent des **écarts réels**
 dessin/cible, ⛔ plus d'une symétrie. Pour toute cible centrée ils rendent les mêmes nombres — c'est
 une généralisation, qui attendait qu'une cible cesse d'être centrée pour devenir nécessaire.
+⚠️ **ET ELLE A UNE SECONDE CONSÉQUENCE, PAYÉE LE LENDEMAIN** — la section suivante.
+
+---
+
+### 🪞 UN MIROIR SE PREND SUR LE DESSIN, PAS SUR LA CIBLE
+📍 `cadre-un-miroir-se-prend-sur-le-dessin` · vivante · 19/09
+⚖️ **Dès qu'un dessin est DÉCENTRÉ dans sa cible, toute transformation qui le retourne doit prendre son origine sur le DESSIN — `transform-box: content-box`. ⛔ Par défaut `transform-origin` se résout sur la boîte de BORDURE, et le glyphe se déplace de la différence des deux bords.**
+
+> Eric, 2026-09-19, sur le sac en ligne : **« le chevron droit est mal placé »**.
+
+🔴 **LA BOÎTE ÉTAIT JUSTE ET LE DESSIN FAUX** — exactement la famille du livre et du `?` de la veille,
+et pour la même raison : ce qui s'était décroché n'était pas la boîte. La cible du chevron gauche
+mesure `0..44`, celle du droit `331..375` : **symétriques au blg près**. Donc `getBoundingClientRect`
+ne voyait rien, le garde des cotes ne voyait rien, et **2322 témoins verts ne disaient rien**.
+📏 **MESURÉ DANS L'APPLICATION, PAR LA PORTE `Backpack`, AVEC UN VRAI PERSONNAGE** : dessin déclaré
+`361..371`, **peint `335..345`** — 26 blg à gauche, **par-dessus le mot du dernier cran**, qui lisait
+« Storage » au lieu de « Storage 2 ». ⭐ Le symptôme visible n'était pas le chevron : c'était un mot
+tronqué qu'on aurait cherché dans la largeur du cran.
+⚖️ **LA CAUSE** : `transform-origin` prend par défaut le centre de la boîte de bordure — **22**. Or
+depuis le 18/09 (section ci-dessus) le dessin d'un tuner est décentré dans sa cible, centre **35**.
+Mirer autour de 22 ce qui est centré sur 35 le déplace de `2 × (35 − 22)` = **26**, soit exactement
+`bord gauche − bord droit` (`30 − 4`). ⭐ **Zéro tant que la cible est centrée** : voilà pourquoi la
+faute est née le jour même du rabattement, et pas avant.
+⭐ **LA RÉPARATION DIT LA MÊME PHRASE QUE LE GLYPHE, AU MIROIR** : `background-clip: content-box` dit
+déjà *« peins-toi dans le dessin, pas dans la cible »* ; `transform-box: content-box` dit
+*« retourne-toi autour du dessin, pas autour de la cible »*. ⛔ **Elle n'écrit aucune cote** : 26 ne
+figure nulle part, il se déduit des bords.
+
+🔬 **ET LE PIÈGE DE MESURE, QUI COMPTE PLUS QUE LA FAUTE** : `getComputedStyle(n).transformOrigin`
+rend **`22px 22px` dans les deux cas** — avec et sans `transform-box`. Un témoin bâti dessus aurait
+conclu *« rien n'a changé »* et **menti dans le sens rassurant**. ⭐ Ce qui a tranché est une **sonde
+posée dans la boîte de contenu** (un enfant à `width/height: 100%`) : son rect subit le transform de
+son parent, donc il dit où le dessin **se peint**. ⚖️ *Une origine ne se lit pas dans la propriété qui
+la nomme — elle se lit dans ce qu'elle déplace.*
+
+🛡️ **LE TÉMOIN** : `tests/sac-ecran.test.mjs` n° 20, **éprouvé rouge** (message : *« TUNER G et TUNER D
+ont un dessin DÉCENTRÉ dans leur cible (écarts 4/30 · 30/4), et la feuille les mire »*). ⭐ Il
+s'ancre sur la **DONNÉE** — il ne pose la question que pour les organes que `sac-disposition.mjs` dit
+décentrés, et se tait tout seul si le plan les recentre. ⛔ Et il **refuse d'être tautologique** : il
+exige d'abord qu'un miroir existe, sinon il accuse au lieu de passer vert sur un écran vide.
 
 ---
 

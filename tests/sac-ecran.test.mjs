@@ -9,6 +9,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createTestDocument } from "./dom-stub.mjs";
+/* ⛔ UN COMMENTAIRE N'EST PAS UN SÉLECTEUR — le garde du `?` a déjà rougi
+   en lisant de la prose pour de la règle (18/09). Toute lecture de feuille
+   passe par là. */
+import { stripComments } from "./source-scan.mjs";
 
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
@@ -587,4 +591,42 @@ test("19 — ⚖️ LE BALAYAGE TOURNE LA PAGE, et il sait ne PAS être un gliss
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
   assert.match(source, /const SEUIL_BALAYAGE = TOUCH;/,
     "⛔ un seuil écrit en clair serait un nombre de plus à tenir d'accord avec le plan");
+});
+test("20 — 🪞 UN DESSIN DÉCENTRÉ NE SE MIROITE PAS AUTOUR DE SA CIBLE", () => {
+  /* 🔴 LA FAUTE DU 19/09, mesurée dans l'application : le chevron droit se peignait
+     335..345 là où le plan le déclare 361..371 — 26 blg, SUR le mot du dernier cran.
+     ⛔ ET AUCUNE COTE NE POUVAIT LE DIRE : la cible est symétrique au blg près (0..44
+     et 331..375), donc la boîte était juste. C'est `transform-origin`, résolu par
+     défaut sur la boîte de BORDURE, qui mirait un dessin décentré autour du mauvais
+     centre — 22 au lieu de 35.
+     ⭐ CE TÉMOIN NE MESURE PAS UNE COTE. Il demande à la feuille de DIRE sur quoi son
+     miroir se prend, et il ne le demande QUE pour les organes que la TABLE dit
+     décentrés : si le plan recentre un jour les tuners, la question tombe d'elle-même. */
+
+  /* ① LA DONNÉE : le plan décentre-t-il encore le dessin des tuners dans leur cible ? */
+  const ecart = (o) => [o.x - o.cible.x, (o.cible.x + o.cible.l) - (o.x + o.l)];
+  const decentre = (o) => { const [g, d] = ecart(o); return Math.abs(g - d) > 0.01; };
+  const tuners = D.ORGANES.filter((o) => o.sorte === "tuner");
+  assert.ok(tuners.length >= 2, "⛔ le sac a perdu ses tuners : ce garde a changé de sujet");
+  const decentres = tuners.filter((o) => o.cible && decentre(o));
+  if (decentres.length === 0) return;   /* ⭐ plan recentré : plus de piège, plus de dette */
+
+  /* ② LA FEUILLE : miroite-t-elle un de ces organes ? ⛔ sur le texte SANS commentaires */
+  const REGLE = /([^{}]*)\{([^{}]*)\}/g;
+  const blocs = [...stripComments(feuille).matchAll(REGLE)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
+    .filter((b) => b.sel.includes(".sac-tuner"));
+  assert.ok(blocs.length > 0, "⛔ `.sac-tuner` n'est plus habillé : le garde doit être réécrit");
+  const mire = blocs.some((b) => /transform\s*:[^;]*scale[XxYy]?\(\s*-\s*1/.test(b.corps));
+  assert.ok(mire,
+    "⛔ plus aucun miroir sur `.sac-tuner` — si le chevron droit est peint autrement,\n" +
+    "   ce garde ne protège plus rien et doit être réécrit, pas supprimé.");
+
+  /* ③ ALORS ELLE DOIT RENDRE L'ORIGINE AU DESSIN */
+  const rend = blocs.some((b) => /transform-box\s*:\s*content-box/.test(b.corps));
+  assert.ok(rend,
+    `⛔ ${decentres.map((o) => o.nom).join(" et ")} ont un dessin DÉCENTRÉ dans leur cible ` +
+    `(écarts ${decentres.map((o) => ecart(o).join("/")).join(" · ")}), et la feuille les mire.\n` +
+    "   Sans `transform-box: content-box`, le miroir se prend sur la CIBLE et le dessin\n" +
+    "   repart de la somme des deux écarts — 26 blg le 19/09.");
 });

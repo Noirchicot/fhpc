@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=690") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=691") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=690") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=691") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=690") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=691") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=690");
+  background-image: url("./assets/tarot-dos.jpg?v=691");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11918,6 +11918,22 @@ button.tuto-point::before {
   -webkit-mask-origin: content-box; -webkit-mask-clip: content-box;
   mask-size: contain; mask-repeat: no-repeat; mask-position: center;
   -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+  /* 🧿 LE MIROIR SE PREND SUR LE DESSIN, PAS SUR LA CIBLE — Eric, 19/09 : le chevron
+     droit *« est mal placé »*. 🔴 LA BOÎTE ÉTAIT JUSTE ET LE DESSIN FAUX, exactement
+     comme le livre et le `?` la veille : la cible mesure 0..44 à gauche et 331..375 à
+     droite, symétrique au blg près — donc `getBoundingClientRect` ne voyait RIEN, et
+     les 2322 gardes non plus. C'est le DESSIN qui s'était décroché.
+     📏 MESURÉ DANS L'APPLICATION le 19/09 (une sonde qui REMPLIT la boîte de contenu :
+     son rect subit le transform de son parent, donc il dit où le dessin se peint) :
+     déclaré 361..371, peint **335..345** — 26 blg à gauche, SUR le mot du dernier cran.
+     ⚠️ LA CAUSE : `transform-origin` se résout par défaut sur la boîte de BORDURE, dont
+     le centre vaut 22. Or depuis le 18/09 le dessin d'un tuner est DÉCENTRÉ dans sa
+     cible (centre 35), parce qu'une cible ne sort plus de la dalle. Mirer autour de 22
+     déplace un dessin qui n'y est pas centré ; mirer autour de 35 le laisse en place.
+     ⭐ `transform-box: content-box` REND L'ORIGINE AU DESSIN. C'est la même phrase que
+     `background-clip: content-box` dit du glyphe, dite au miroir. ⛔ Et elle n'écrit
+     AUCUNE cote : 26 ne figure nulle part, il se déduit des bords. */
+  transform-box: content-box;
 }
 .sac-tuner[data-sens="droite"] { transform: scaleX(-1); }
 @media (hover: hover) {
@@ -11925,7 +11941,11 @@ button.tuto-point::before {
     background-color: var(--text);
     mask-image: var(--icone-tuner); -webkit-mask-image: var(--icone-tuner);
   }
-  .sac-tuner[data-sens="droite"]:hover { transform: scaleX(-1) scaleX(-1); }
+  /* ⛔ `scaleX(-1) scaleX(-1)` DISAIT « identité » EN CHARADE — un lecteur pressé l'aurait
+     « simplifié » en un seul `scaleX(-1)` et rendu la flèche à l'envers. ⭐ La flèche
+     circulaire ne se miroite PAS : elle porte son propre sens de rotation. On garde une
+     matrice — et donc le contexte d'empilement qu'a le repos — et on cesse la charade. */
+  .sac-tuner[data-sens="droite"]:hover { transform: scaleX(1); }
 }
 /* ══ LES DEUX OUTILS — Eric, 2026-09-19 ═══════════════════════════════════════
    ⚖️ *« le bouton d'édition est trop grossier ; je préfère un carré vert simple :
