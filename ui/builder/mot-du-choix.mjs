@@ -54,7 +54,7 @@
    stack no longer carries »*) — la pile est un jeu de règles pour le joueur,
    jamais « une couche ». */
 
-import { interrupteurDUnId } from "./interrupteurs.mjs?v=688";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=690";
 
 /** Le refus de DERNIER RECOURS — un record dont aucune couche connue ne
  *  répond (un préfixe étranger). Quand l'interrupteur se nomme, c'est lui
