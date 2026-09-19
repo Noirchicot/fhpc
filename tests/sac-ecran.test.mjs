@@ -1387,10 +1387,27 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
      n'est pas une question de réglage, c'est une boucle. ⭐ Celui que le doigt a touché
      mène, et il n'écrit que dans l'autre. */
   const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
-  assert.match(source, /r\.addEventListener\("pointerdown",[^\n]*maitre = "roue"/,
+  assert.match(source, /r\.addEventListener\("pointerdown", \(\) => mener\("roue"\)/,
     "⛔ toucher la roue doit la désigner maître");
-  assert.match(source, /piste\.addEventListener\("pointerdown",[^\n]*maitre = "dalles"/,
+  assert.match(source, /piste\.addEventListener\("pointerdown", \(\) => mener\("dalles"\)/,
     "⛔ toucher les dalles doit les désigner maîtres");
+
+  /* ② bis 🔴 ET LE SUIVEUR N'AIMANTE PAS — sinon il ne peut pas suivre, et c'est MESURÉ.
+     📏 19/09, roue immobilisée à mi-chemin (97 = 65 × 1,5) : les dalles rendaient **383**
+     au lieu de 563. Une aimantation `mandatory` REFUSE une position intermédiaire ; le
+     navigateur la corrige à l'image suivante. Le suiveur sautait de cran en cran pendant
+     que le meneur glissait.
+     ⛔ ET AUCUN DE MES RELEVÉS NE POUVAIT L'ATTRAPER : ils tombaient tous sur des
+     positions DÉJÀ alignées (65 × 3, 375 × 3), où l'aimantation ne corrige rien. ⭐ Une
+     mesure qui ne visite que les crans ne dit RIEN de l'entre-deux — c'est Eric qui l'a vu
+     à l'œil, après trois de mes relevés « verts ». */
+  assert.match(source, /r\.dataset\.mene = qui === "roue" \? "oui" : "non";/,
+    "⛔ la roue doit dire si elle mène");
+  assert.match(source, /piste\.dataset\.mene = qui === "dalles" \? "oui" : "non";/,
+    "⛔ et les dalles aussi");
+  assert.match(css, /\.sac-roue\[data-mene="non"\], \.sac-dalles\[data-mene="non"\] \{[^}]*scroll-snap-type:\s*none/,
+    "⛔ le suiveur garde son aimantation : il ne peut alors se poser que sur des crans, " +
+    "et il saute au lieu de suivre");
   assert.match(source, /const suivre = \(\) => \{\s*enAttente = false;\s*if \(maitre !== "roue"\) return;/,
     "⛔ la roue n'écrit dans les dalles que si c'est ELLE qu'on pousse");
   assert.match(source, /if \(maitre !== "dalles"\) return;/,

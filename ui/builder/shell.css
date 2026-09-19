@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=741") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=743") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=741") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=743") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=741") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=743") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=741");
+  background-image: url("./assets/tarot-dos.jpg?v=743");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11846,6 +11846,18 @@ button.tuto-point::before {
   scrollbar-width: none;
 }
 .sac-dalles::-webkit-scrollbar { inline-size: 0; block-size: 0; }
+
+/* 🔴 LE SUIVEUR N'AIMANTE PAS, ET C'EST MESURÉ — 19/09, roue immobilisée à mi-chemin
+   (97 = 65 × 1,5) : les dalles rendaient 383 au lieu de 563. Une aimantation `mandatory`
+   REFUSE une position intermédiaire ; le navigateur la corrige à l'image suivante. Le
+   suiveur sautait donc de cran en cran pendant que le meneur glissait — Eric : *« je ne
+   vois toujours pas les dalles défiler en même temps que les tuiles »*.
+   ⛔ ET AUCUN DE MES RELEVÉS NE POUVAIT L'ATTRAPER : ils tombaient tous sur des positions
+   déjà alignées, où l'aimantation ne corrige rien. Une mesure qui ne visite que les crans
+   ne dit rien de l'entre-deux.
+   ⭐ L'aimantation appartient au MENEUR — celui que le doigt a touché — et se coupe chez
+   l'autre. C'est l'idiome du belt (`data-couture`), à un mot près. */
+.sac-roue[data-mene="non"], .sac-dalles[data-mene="non"] { scroll-snap-type: none; }
 /* ⭐ UNE DALLE FAIT UNE LARGEUR D'ÉCRAN, et c'est ce qui rend le rapport exact : une
    tuile avance de 65 pendant qu'une dalle avance de 375. ⛔ `relative`, parce que les
    douze cases se posent DEDANS — le plan les déclare hôtées par la bande. */
