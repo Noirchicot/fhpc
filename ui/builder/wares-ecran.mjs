@@ -131,7 +131,7 @@ export function feuilleDesCotesWares() {
      15,2 blg rendus au lieu de 40. `block-size: 100%` sur un cran se résout sur le RUBAN, et un
      flex en hauteur automatique se réduit à son contenu. ⛔ Aucun garde de fichier ne pouvait le
      voir : c'est une hauteur RENDUE, pas une hauteur déclarée. Il a fallu regarder. */
-  r.push(`.wares-ruban{display:flex;block-size:100%;align-items:stretch;` +
+  r.push(`.wares-ruban{display:flex;block-size:100%;align-items:center;` +
          `gap:${px(ROUE.pas - ROUE.tuile)}}`);
   /* ⭐ LA CALE PORTE LE VIDE DES DEUX BOUTS — ⛔ plus un `padding`, qui ne compte pas dans le
      `scrollWidth` d'un flex en défilement (mesuré : le premier cran ne pouvait pas atteindre le
@@ -218,8 +218,30 @@ export function feuilleDesCotesWares() {
     if (o) boite(CLEF_DE[nom], o);
   }
   /* la tuile de la roue : un dominant et quatre secondaires, la règle d'Eric du 18/09 */
-  r.push(`.wares-cran{inline-size:${px(ROUE.secondaire)}}`);
-  r.push(`.wares-cran[data-dominant="oui"]{inline-size:${px(ROUE.dominant)};scale:${ROUE.loupe}}`);
+  /* 🔴 LA TUILE POSE SES DEUX COTES, ET AUCUNE NE VIENT DE SON CONTENANT. Eric, 20/09 :
+     *« le rectangle foncé doit remplir uniquement la tuile »*. 📏 Après avoir réparé la
+     LARGEUR, la hauteur débordait encore de 13,4 px : le cran prenait `100 %` de la piste (40)
+     puis l'échelle le portait à 49,8, quand le viseur en fait 40.
+     ⭐ LA MÊME LOI SUR LES DEUX AXES : un cran fait `tuile × hauteur` (57 × 32,11), et
+     l'agrandissement le porte à `dominant × hauteurDominante` (71 × 40) — exactement le
+     viseur. ⛔ Une cote prise au contenant (`100 %`) est une cote qu'on agrandit deux fois.
+     ⭐ Et la marge intérieure est celle du sac, à la lettre : 7,5 % de la largeur DU CRAN
+     (Eric, 18/09) — ⛔ jamais un pour-cent de `padding`, qui se résout sur le CONTENANT. */
+  r.push(`.wares-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
+         `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);
+  /* 🔴 LE DOMINANT NE CHANGE PAS DE LARGEUR — C'EST L'ÉCHELLE QUI LE FAIT, ET ELLE SEULE.
+     Eric, 2026-09-20 : *« le rectangle foncé doit remplir uniquement la tuile, là tu remplis
+     les marges du token principal »*.
+     📏 MESURÉ : le cran dominant rendait **120,7 × 68 px** pour un viseur de **96,9 × 54,6** —
+     23,8 de trop en largeur, 13,4 en hauteur. Son fond débordait donc du cadre de 12 px de
+     chaque côté, et c'est ce débord qu'Eric appelle « les marges du token ».
+     ⛔ LA CAUSE EST UNE DOUBLE APPLICATION : j'écrivais `inline-size: 71` (la cote DOMINANTE du
+     plan) **et** `scale: 1,2456`. 71 × 1,2456 = 88,4 blg, quand le viseur en fait 71.
+     ⭐ LE SAC NE FAIT QUE LA SECONDE : tous ses crans font `ROUE.tuile` (57), et l'échelle porte
+     le posé à 57 × 1,2456 = **71** — exactement la largeur du viseur. `ROUE.dominant` au plan
+     est donc le RÉSULTAT de l'agrandissement, ⛔ pas une largeur à poser : la poser, c'est
+     agrandir deux fois. */
+  r.push(`.wares-cran[data-dominant="oui"]{scale:${ROUE.loupe}}`);
   /* ⭐ LE VISEUR SE SUPERPOSE AU REBORD DE LA TUILE POSÉE, et sa règle se GÉNÈRE avec
      l'agrandissement — NORMES `equipement-loupe-se-superpose-au-rebord` (19/09). ⛔ Un rayon
      écrit à la main raterait les coins : la tuile dominante est grossie de ${ROUE.loupe}, donc

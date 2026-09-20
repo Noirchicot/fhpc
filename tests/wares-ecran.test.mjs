@@ -428,3 +428,45 @@ test("22 · les Tally et la bourse sont les organes de R, ⛔ pas trois rectangl
   assert.equal(tous(n, '[data-organe="tally"]')[0].dataset.compte, "3", "le Tally lit le document");
   assert.equal(tous(n, '[data-organe="party-tally"]')[0].disabled, true, "et le party se montre inerte");
 });
+
+/* ══ 23 · 🔴 L'AGRANDISSEMENT NE S'APPLIQUE QU'UNE FOIS ═════════════════════════
+   ⭐ TÉMOIN : le cran dominant ne pose AUCUNE largeur — c'est l'échelle, et elle seule, qui
+   le porte de `tuile` à `dominant`. Et le plan est cohérent : `dominant = tuile × loupe`.
+
+   🔴 CE GARDE NAÎT D'UNE FAUTE QU'ERIC A VUE ET QUE RIEN NE TENAIT : *« le rectangle foncé
+   doit remplir uniquement la tuile, là tu remplis les marges du token principal »*.
+   📏 Mesuré au navigateur : le dominant rendait **120,7 × 68 px** pour un viseur de
+   **96,9 × 54,6** — son fond débordait du cadre de 12 px de chaque côté. La cause : j'écrivais
+   `inline-size: ROUE.dominant` **et** `scale: ROUE.loupe`, donc 71 × 1,2456 = 88,4 blg.
+   ⭐ `ROUE.dominant` EST LE RÉSULTAT DE L'AGRANDISSEMENT, ⛔ pas une largeur à poser : la
+   poser, c'est agrandir deux fois. Le sac ne fait que la seconde, et c'est pour ça que son
+   viseur cadre exactement sa tuile.
+   ⛔ ET LE GARDE TIENT LES DEUX BOUTS : la feuille ne repose pas de largeur, ET le plan reste
+   cohérent — sans quoi on pourrait « réparer » en changeant le mauvais des deux nombres. */
+test("23 · 🔴 le dominant est agrandi UNE fois — ⛔ pas une largeur ET une échelle", () => {
+  const f = feuilleDesCotesWares();
+  const regle = /\.wares-cran\[data-dominant="oui"\]\{([^}]*)\}/.exec(f);
+  assert.ok(regle, "⛔ la règle du cran dominant a disparu");
+  assert.match(regle[1], /scale:/, "l'échelle est ce qui agrandit");
+  assert.doesNotMatch(regle[1], /inline-size|block-size|width|height/,
+    "⛔ une cote POSÉE en plus de l'échelle agrandit DEUX fois : le fond déborde du viseur");
+
+  /* ⭐ ET LA TUILE POSE SES DEUX COTES DEPUIS LE PLAN, ⛔ aucune prise au contenant : un
+     `100 %` est une cote qu'on agrandit deux fois, exactement comme une largeur posée.
+     📏 C'est la moitié que j'ai ratée au premier jet : largeur réparée, hauteur encore à
+     13,4 px de trop. Deux axes, une seule loi. */
+  const base = /\.wares-cran\{([^}]*)\}/.exec(f);
+  assert.match(base[1], new RegExp(`inline-size:${D.ROUE.tuile}px`), "⛔ la largeur d'une tuile vient du plan");
+  assert.match(base[1], new RegExp(`block-size:${D.ROUE.hauteur}px`), "⛔ sa hauteur aussi");
+  assert.doesNotMatch(base[1], /100%/, "⛔ une cote prise au contenant s'agrandit avec lui");
+
+  /* ⭐ et le plan se tient : la cote dominante EST la tuile agrandie */
+  assert.equal(Math.round(D.ROUE.tuile * D.ROUE.loupe), D.ROUE.dominant,
+    `⛔ le plan n'est plus cohérent : ${D.ROUE.tuile} × ${D.ROUE.loupe} devrait faire ${D.ROUE.dominant}`);
+  assert.equal(Math.round(D.ROUE.hauteur * D.ROUE.loupe), D.ROUE.hauteurDominante,
+    `⛔ sur l'autre axe non plus : ${D.ROUE.hauteur} × ${D.ROUE.loupe} devrait faire ${D.ROUE.hauteurDominante}`);
+  /* ⛔ et le viseur fait la tuile AGRANDIE, sur les deux axes — c'est lui qui la cadre */
+  const loupe = D.ORGANES.find((o) => o.sorte === "loupe");
+  assert.equal(loupe.l, D.ROUE.dominant, "⛔ le viseur ne cadre plus la largeur de la tuile posée");
+  assert.equal(loupe.h, D.ROUE.hauteurDominante, "⛔ ni sa hauteur");
+});
