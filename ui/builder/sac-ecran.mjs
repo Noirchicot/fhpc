@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=763";
-import { versionQuery } from "./version.mjs?v=763";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=763";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=764";
+import { versionQuery } from "./version.mjs?v=764";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=764";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=763";
+import { armerJeton, fantome } from "./glisser.mjs?v=764";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=763";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=764";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=763";
+import { facteurZoomCourant } from "./echelle.mjs?v=764";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -231,14 +231,17 @@ export function feuilleDesCotesSac() {
      la bourse DU SAC : *« centrée sur l'emplacement de la bourse dans B1 »*.
      📌 Le sac ne compte pas sous le belt — son `y` est déjà celui de la dalle. */
   regles.push(...reglesDeLaBourse(".sac", ORGANES.find((o) => o.nom === "PURSE"), DALLE));
-  /* ⚖️ ET LE MONTANT SE POSE SOUS LA BOURSE — Eric, 2026-09-20 : *« le montant total n'est
-     visible sur la bourse »*. ⛔ Sa place ne se tape pas : c'est la bourse, plus une
-     gouttiere, même largeur — la même déduction que dans R. */
+  /* ⚖️ LE MONTANT SE POSE **SUR** LA BOURSE — Eric, 2026-09-20 : *« le montant doit être
+     SUR la bourse »*. 🔴 Je l'avais mis DESSOUS, en recopiant le repli de R — or R a de la
+     place sous sa bourse et le sac n'en a pas : la rangée d'échange finit là. ⛔ Recopier
+     une DISPOSITION d'un écran à l'autre, c'est recopier ses contraintes avec.
+     ⭐ Sa boîte est celle de la bourse, exactement : le nombre se lit dans l'image, comme
+     une pièce posée dessus. ⛔ Aucune cote à la main — c'est l'organe qu'il annote. */
   const ancreDuMontant = ORGANES.find((o) => o.nom === "PURSE");
   if (ancreDuMontant) {
-    regles.push(`.sac .gear-montant{position:absolute;box-sizing:border-box;` +
-      `left:${px(ancreDuMontant.x)};top:${px(ancreDuMontant.y + ancreDuMontant.h + MARGE)};` +
-      `width:${px(ancreDuMontant.l)}}`);
+    regles.push(`.sac .gear-montant{position:absolute;box-sizing:border-box;pointer-events:none;` +
+      `left:${px(ancreDuMontant.x)};top:${px(ancreDuMontant.y)};` +
+      `width:${px(ancreDuMontant.l)};height:${px(ancreDuMontant.h)}}`);
   }
   regles.push(`.sac .sac-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
     `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);

@@ -971,8 +971,15 @@ test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent 
   const placeDuMontant = feuilleDesCotesSac().match(/\.sac \.gear-montant\{[^}]*top:([\d.]+)px/);
   assert.ok(placeDuMontant, "⛔ et il n'a pas de place : il retomberait dans le flux");
   const ancreP = D.ORGANES.find((o) => o.nom === "PURSE");
-  assert.equal(Number(placeDuMontant[1]), ancreP.y + ancreP.h + D.MARGE,
-    "⚖️ sous la bourse, à une gouttière — la même déduction que dans R");
+  /* ⚖️ **SUR** LA BOURSE, pas dessous — Eric, 2026-09-20 : *« le montant doit être SUR la
+     bourse »*. 🔴 Je l'avais mis DESSOUS en recopiant le repli de R — or R a de la place
+     sous sa bourse et le sac n'en a pas : la rangée d'échange finit là. ⛔ Recopier une
+     DISPOSITION d'un écran à l'autre, c'est recopier ses contraintes avec. */
+  assert.equal(Number(placeDuMontant[1]), ancreP.y,
+    "⚖️ le montant se pose SUR la bourse : sa boîte est celle de la bourse");
+  const hauteurDuMontant = feuilleDesCotesSac().match(/\.sac \.gear-montant\{[^}]*height:([\d.]+)px/);
+  assert.ok(hauteurDuMontant && Number(hauteurDuMontant[1]) === ancreP.h,
+    "… et sa hauteur aussi — le nombre se lit DANS l'image");
   /* 🔴 ET LES COTES VIENNENT AVEC LUI — Eric, 2026-09-20 : *« la bourse, je veux la même
      que dans Gear, et centrée sur l'emplacement de la bourse dans B1 »*.
      ⛔ LE POPUP SORTAIT SANS COTES : ses règles n'existaient que sous `.gear`, donc il se
