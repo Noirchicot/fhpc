@@ -1898,3 +1898,36 @@ test("36 — \ud83d\udd0c LE CONTRAT D'UNE SECTION TRAVERSE L'\u00c9TAPE, \u26d4
   assert.equal(parNom["Party bag"], "party", "\ud83d\udd35");
   assert.equal(parNom["Red chest"], "dehors", "\ud83d\udfe1");
 });
+
+test("37 — \ud83d\udcd0 LE BAS DU BLOC DE POIDS EST \u00c0 8 DE L'AR\u00caTE DE SA BANDE", () => {
+  /* \u2696\ufe0f Eric, 2026-09-20 : *\u00ab as-tu oubli\u00e9 de mettre 8 blg entre le bas de la cellule et la
+     fin de la dalle ? \u00bb*.
+     \ud83d\udd34 OUI, ET LE COMMENTAIRE DU PLAN AFFIRMAIT LE CONTRAIRE : *\u00ab cal\u00e9 en bas, il reste
+     ses 8 sous le bloc avant la grille \u00bb*. \ud83d\udccf Mesur\u00e9 \u00e0 l'\u00e9cran : le bloc finissait \u00e0 96,
+     et la bande HAUTE finit \u00e0 96 elle aussi. Z\u00e9ro jeu \u2014 le texte \u00e9tait coll\u00e9 \u00e0 l'ar\u00eate.
+     \u26d4 LES 8 QUE LA PHRASE COMPTAIT SONT CEUX DU JOUR ENTRE LES DEUX BANDES, pas ceux du
+     bloc dans la sienne. Un m\u00eame nombre \u00e0 deux endroits, et j'ai lu l'un pour l'autre \u2014
+     c'est la faute des *deux nombres voisins qui ne mesurent pas la m\u00eame grandeur*, une
+     fois de plus.
+     \u2b50 ET CE T\u00c9MOIN MESURE LES DEUX S\u00c9PAR\u00c9MENT, parce que c'est leur CONFUSION qui a
+     co\u00fbt\u00e9 : le jour entre bandes, et la marge du bloc dans la sienne. */
+  const org = (nom) => D.ORGANES.find((o) => o.nom === nom);
+  const bandeHaute = D.DALLES.y - 8;                   /* la plaque, moins le jour */
+  const basDuBloc = org("POIDS DETAIL").y + org("POIDS DETAIL").h;
+  assert.equal(bandeHaute - basDuBloc, 8,
+    `\u26d4 le bloc de poids finit \u00e0 ${basDuBloc} et sa bande \u00e0 ${bandeHaute} : le texte touche l'ar\u00eate`);
+  assert.equal(D.DALLES.y - bandeHaute, 8,
+    "\u26d4 et le jour entre les deux bandes reste 8 \u2014 ce sont DEUX huit, pas un seul");
+
+  /* \u2b50 ET LE BLOC S'ALIGNE SUR LES DEUX BOUTONS DE SA RANG\u00c9E : une rang\u00e9e se lit sur une
+     seule ligne d'horizon. \u26d4 Avant, il partait 8 plus bas qu'eux. */
+  assert.equal(org("POIDS TOTAL").y, org("TRIER").y,
+    "\u2696\ufe0f le total part au niveau du haut de `Sort`");
+  assert.equal(org("POIDS TOTAL").y, org("TASSER").y, "\u2026 et de `edit sections`");
+
+  /* \ud83d\udd12 ET LE BAS DE L'\u00c9CRAN TENAIT D\u00c9J\u00c0 \u2014 NORMES : *\u00ab \u00e0 8 blg du bord bas de la dalle \u00bb*.
+     \u26d4 Ce garde le tient aussi, pour qu'on sache lequel des deux a boug\u00e9 le jour o\u00f9 l'un
+     des deux cassera. */
+  assert.equal(D.DALLE.h - (org("RANGEE").y + org("RANGEE").h), 8,
+    "\u2696\ufe0f la derni\u00e8re rang\u00e9e est \u00e0 8 du bas de la dalle");
+});
