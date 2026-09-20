@@ -8640,6 +8640,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    bouton à glyphe (`+`, `?`) n'en porte pas ; ceux-ci, si. */
 .ability-entry,
 .gear-porte, /* LOT 212 — les trois portes du pied de R : Backpack · Send · Wares */
+/* LOT 218 — les trois portes du pied de Wares : Gear · Send · Backpack. ⭐ Elles entrent
+   par la LISTE, pas par une copie : le relief d'un bouton a un seul écrivain, et le garde
+   `bouton-inventaire` rougit si une famille n'entre que dans deux listes sur trois. */
+.wares-porte,
 /* LOT 213 — les quatre portes du pied de X1 : Close · Use · Send · Trash. ⭐ Elles
    entrent par la liste, pas par une copie : le garde `bouton-inventaire` exige que
    les deux listes (`::before`, `::after`) soient identiques membre pour membre, et
@@ -8725,6 +8729,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-pas::before,
 .aiguilleur-bouton::before,
 .gear-porte::before,
+.wares-porte::before,
 .x1-porte::before {
   content: "";
   position: absolute;
@@ -8803,6 +8808,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-pas::after,
 .aiguilleur-bouton::after,
 .gear-porte::after,
+.wares-porte::after,
 .x1-porte::after {
   content: "";
   position: absolute;
@@ -9071,6 +9077,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
     .fiche-action,
     .parcours-pied button,
     .gear-porte,
+    .wares-porte,
     .x1-porte):not(.fiche-livre):not(.tuto-point) {
   min-width: var(--bouton-petit);
   padding-inline: var(--sp-8);
@@ -9742,8 +9749,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    impossible. À T2/600 il rend 56,95 → il tient, 4,05 de reste. ⛔ Le mot n'est
    pas réduit, la largeur ne bouge pas : c'est le CRAN qui est l'exception, et
    il ne vaut que dans cette rangée. — */
-.gear { --bouton-cran-serre: var(--t2); }
-.gear-porte {
+.gear, .wares { --bouton-cran-serre: var(--t2); }
+.gear-porte, .wares-porte {
   /* le plancher du pouce : la famille ne le pose pas pour tous, chaque organe
      le dit (mesuré : 16,64 de haut sans lui) */
   min-height: var(--touch);
@@ -9755,7 +9762,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* Eric, 16/09 : « Send a un liseré vert (ça a une action avec conséquence), les
    autres sont juste de la navigation donc liseré bleu ». Companions compris, bien
    que `disabled` : Eric l'a nommé dans les bleus. */
-.gear-porte[data-porte="send"] { --bouton-fond: var(--positive); }
+.gear-porte[data-porte="send"],
+.wares-porte[data-porte="send"] { --bouton-fond: var(--positive); }
 /* ⚖️ COMPANIONS — le sur-mesure du plan : T1/600, rembourrage --sp-4 (« Companions »
    demande 60,97 dans 69 ; à T2 il fait 73,17 dans 61 et sort — Eric, 16/09 :
    « companions centré ! »). ⚠️ (0,3,1), à égalité avec le plancher des gabarits
@@ -12590,3 +12598,136 @@ button.tuto-point::before {
    rangées de contrôles la range : le livre à gauche, les trois portes au milieu,
    le `?` à droite. ⛔ Aucune cote ici : sa boîte vient de la table. */
 .sac-rangee { align-items: center; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   🛒 WARES — LA PEAU (lot 218, dictée par Eric le 2026-09-20)
+   ⛔ AUCUNE COTE ICI. La géométrie vit dans `wares-disposition.mjs` et arrive par la feuille
+   que `construireLesWares` pose dans son nœud. Ce bloc ne porte que la MATIÈRE : les voiles,
+   les encres, les reliefs, les états. ⭐ Deux écrivains pour une cote, c'est deux cotes.
+   ⚠️ ET LES TOKENS SONT CEUX DE LA MAISON, jamais des littéraux : `--dalle-simple` pour le
+   voile à 35 % qu'Eric a demandé, `--jeton-teinte`, `--organe-rayon`, `--bouton-rayon`,
+   `--verre-lisere`, `--filigrane`, `--text-soft`.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ⚖️ « VOILE 35 % » (Eric, 20/09) — et c'est `--voile-simple`, le verre léger du socle, pas
+   une valeur neuve. ⭐ Le liseré est ce qui rend la séparation VISIBLE : l'écart seul ne
+   suffit pas, deux verres sombres séparés par du fond sombre se lisent comme une seule
+   surface. Il n'entoure pas la dalle, il ATTRAPE LA LUMIÈRE sur son bord.
+   ⛔ En `inset`, jamais en `border` : une bordure déplacerait la géométrie de 2 blg, et ce
+   fichier a passé une journée à traquer ce genre de dérive. */
+.wares-dalle {
+  background: var(--dalle-simple);
+  border-radius: var(--organe-rayon);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+
+/* — LE TAMBOUR : deux étages, même matière, même mécanique que le sac — */
+.wares-roue {
+  display: block;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* ⛔ `touch-action: pan-x` : sans lui un glissé un peu oblique part au défilement VERTICAL
+     de la page, et la roue rate un geste sur deux. */
+  touch-action: pan-x;
+  /* ⛔ et le geste ne déborde pas sur l'écran d'à côté */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+/* ⛔ PAS PAR `display: none` — la maison l'interdit dans cette feuille (défaut n° 3). On la
+   réduit à rien, ce qui la masque sans la retirer du flux. */
+.wares-roue::-webkit-scrollbar { inline-size: 0; block-size: 0; }
+
+.wares-cran {
+  position: relative; flex: 0 0 auto; box-sizing: border-box;
+  /* ⭐ chaque tuile est un cran d'aimantation, centré — c'est lui qui garantit
+     *« toujours cadré sur le halo »* */
+  scroll-snap-align: center;
+  block-size: 100%;   /* ⛔ la LARGEUR vient du plan, par la feuille de l'écran */
+  display: grid; place-items: center;
+  padding-inline: 7.5%;                 /* la règle d'Eric du 18/09, en POUR-CENT de la tuile */
+  border: 0; background-color: transparent; color: var(--text-soft);
+  border-radius: var(--bouton-rayon);
+  font: inherit; font-size: var(--t1); font-weight: 600;
+  text-align: center; line-height: 1.1; overflow: hidden;
+  /* ⏱️ 60 ms, la durée d'Eric (19/09) — elle porte le remplissage et le corps ENSEMBLE :
+     c'est UN changement d'état, et deux durées pour un seul état se courraient après. */
+  transition: background-color 60ms linear, color 60ms linear, font-size 60ms linear;
+}
+/* ⚖️ DE TRANSPARENT À PLEIN — Eric, 19/09 : *« de transparent à plein, c'est plus
+   efficace »*. Le fond devient le SIGNE : ce qui est plein est ce qui est choisi. */
+.wares-cran[data-dominant="oui"] {
+  background-color: var(--dalle-inter); color: var(--text);
+  font-size: var(--t2); cursor: default;
+}
+
+/* — LA GRILLE ET SES DEUX GOUTTIÈRES — */
+.wares-gouttiere {
+  display: grid; place-items: center; align-content: center;
+  gap: var(--sp-4); color: var(--text-soft); font-size: var(--t1);
+  font-variant-numeric: tabular-nums;
+}
+.wares-chevron {
+  border: 0; background: none; color: var(--text-soft);
+  font: inherit; font-size: var(--t4); line-height: 1; cursor: pointer;
+  /* 🔒 le plancher du pouce — il ne cède pas à la taille du dessin */
+  min-inline-size: var(--touch); min-block-size: var(--touch);
+}
+.wares-compte { color: var(--accent); }
+
+/* — LE JETON : celui du sac, à l'identique. ⛔ Wares ne le redessine pas — */
+.wares-case { display: grid; }
+.wares-jeton {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  inline-size: 100%; block-size: 100%;
+  padding-inline: var(--sp-4); padding-top: var(--jeton-bande);
+  border: var(--creneau-lisere-rempli) solid var(--border-strong);
+  border-radius: var(--organe-rayon);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  color: var(--text); font: inherit; font-size: var(--t1);
+  text-align: center; line-height: 1.1; cursor: pointer;
+}
+/* ⭐ LE FILIGRANE — un masque rempli d'une encre THÉMATIQUE, donc lisible le jour comme la
+   nuit. ⛔ L'image posée telle quelle (elle est NOIRE) s'évanouirait sur le fond de nuit.
+   ⛔ Et le voile est un JETON (`--filigrane`), pas un littéral perdu dans la feuille — un
+   garde de R le refuse, et il a raison. */
+.wares-fond {
+  background: var(--text-soft);
+  opacity: var(--filigrane);
+  pointer-events: none;
+  mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+}
+
+/* — LE PIED : le collecteur, les Tally, la bourse, la destination — */
+/* ⚖️ UN COLLECTEUR EST UN CREUX (NORMES §2 ter) : très arrondi, ⛔ aucun liseré visible — la
+   bordure reste, en transparent, à la cote du liseré rempli, pour que la case ne saute pas au
+   moment où elle se remplit. Le creux dit « pose ici », le relief dit « quelque chose est
+   posé ». */
+.wares-collecteur {
+  display: grid; place-items: center;
+  border: var(--creneau-lisere-rempli) solid transparent;
+  border-radius: var(--organe-rayon);
+  box-shadow: var(--creux);
+  color: var(--text-soft); font-size: var(--t0); letter-spacing: .08em;
+}
+.wares-tally, .wares-purse {
+  display: grid; place-items: center;
+  border: 0; border-radius: var(--organe-rayon);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  color: var(--text); font: inherit; font-size: var(--t1); cursor: pointer;
+  min-inline-size: var(--touch); min-block-size: var(--touch);
+}
+.wares-purse { border-radius: 50%; }
+/* ⚖️ INACTIF N'EST PAS UNE NUANCE DE GRIS (Eric, 20/09) : un vrai bouton inactif n'a pas de
+   liseré, mais garde la capacité de devenir actif. ⛔ Il ne fait pas semblant d'écouter. */
+.wares-tally:disabled { box-shadow: none; opacity: var(--organe-eteint); cursor: default; }
+.wares-send-vers {
+  border: 1px solid var(--border-strong); border-radius: var(--bouton-rayon);
+  background: var(--dalle-inter); color: var(--text);
+  font: inherit; font-size: var(--t1);
+}
+/* ⭐ LA RANGÉE DU PIED est celle de §6 pré — `[data-rangee]` la place, et ⛔ ce bloc n'en
+   redit rien : sa grille `borne | 1fr | borne` a UN écrivain, et ce n'est pas ici. */
+/* ⭐ `.wares-porte` N'A PAS DE BLOC À ELLE : elle est entrée dans les listes de `.gear-porte`
+   ci-dessus. ⛔ Une règle vide posée « pour la forme » serait une règle qui ment sur son
+   existence, et le jour où quelqu'un la remplit il aurait DEUX écrivains pour une porte. */

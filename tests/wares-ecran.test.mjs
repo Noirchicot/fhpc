@@ -38,7 +38,11 @@ function monter(extra = {}) {
    séparateur en dur serait un quatrième enfant, et le garde le verrait. */
 test("1 · trois dalles, dans l'ordre : le tambour, la grille, le pied", () => {
   const n = monter();
-  const dalles = [...n.children];
+  /* ⛔ ON COMPTE LES DALLES, PAS LES ENFANTS — mon premier jet comptait les enfants, et il a
+     rougi dès que la feuille des cotes est entrée dans le nœud : un `<style>` est un enfant,
+     ce n'est pas une dalle. ⭐ Le garde avait raison de rougir, et sa question était mal
+     posée : ce qui compte est qu'il y ait TROIS dalles, dans l'ordre. */
+  const dalles = tous(n, ".wares-dalle");
   assert.equal(dalles.length, 3, "⛔ l'écran n'a pas exactement trois dalles");
   assert.ok(dalles[0].className.includes("wares-tambour"), "la première est le tambour");
   assert.ok(dalles[1].className.includes("wares-grille"), "la deuxième est la grille");
@@ -171,6 +175,10 @@ test("10 · le pied dit Gear · Send · Backpack, et publie son geste", () => {
    c'est que les organes sont dans les bonnes cellules, sans quoi il n'y a rien à centrer. */
 test("11 · les deux Tally à gauche, la bourse à droite, le collecteur au milieu", () => {
   const n = monter({ bourse: "155 gp", compteTally: 2 });
+  /* ⚖️ la loi de R : rien d'écrit DANS la bourse, le montant va au nom accessible */
+  const p = tous(n, '[data-organe="purse"]')[0];
+  assert.equal(p.textContent, "", "⛔ un montant écrit dans le corps du bouton");
+  assert.match(p.getAttribute("aria-label"), /155 gp/, "⛔ et il doit se dire à voix haute");
   const cotes = tous(n, ".wares-cote");
   assert.equal(cotes.length, 2, "⛔ deux cellules de côté");
   assert.deepEqual(tous(cotes[0], "button").map((b) => b.dataset.organe), ["party-tally", "tally"],

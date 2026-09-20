@@ -20,6 +20,7 @@
 import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
+  ORGANES,
 } from "./wares-disposition.mjs?v=767";
 import { monterLeTambour } from "./roue-tambour.mjs?v=767";
 import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=767";
@@ -104,6 +105,22 @@ export function feuilleDesCotesWares() {
   r.push(`.wares-pied > [data-organe="collecteur"]{grid-column:2;grid-row:1;justify-self:center}`);
   r.push(`.wares-pied > [data-organe="send-vers"]{grid-column:2;grid-row:2;align-self:center}`);
   r.push(`.wares-pied > [data-rangee]{grid-column:1 / -1;grid-row:3}`);
+
+  /* ── LES BOÎTES DES ORGANES, DEPUIS LE PLAN ───────────────────────────────────
+     🔴 ELLES ÉTAIENT DANS `shell.css`, ET UN GARDE DE R ME L'A REPRIS : *« shell.css ne
+     porte AUCUNE position de l'écran : les cotes sont dans la table »*. Il visait R ; la
+     règle vaut pour tout écran à plan, et je l'avais enfreinte dans le fichier dont le
+     premier commentaire dit que les cotes vivent au plan. ⭐ Deux écrivains pour une cote,
+     c'est deux cotes — et celle de la feuille aurait gagné en silence. */
+  const boite = (clef, o) => r.push(`.wares [data-organe="${clef}"]{` +
+    `inline-size:${px(o.l)};block-size:${px(o.h)}}`);
+  for (const nom of ["COLLECTEUR", "PURSE", "SEND VERS", "PARTY TALLY", "TALLY"]) {
+    const o = ORGANES.find((x) => x.nom === nom);
+    if (o) boite(CLEF_DE[nom], o);
+  }
+  /* la tuile de la roue : un dominant et quatre secondaires, la règle d'Eric du 18/09 */
+  r.push(`.wares-cran{inline-size:${px(ROUE.secondaire)}}`);
+  r.push(`.wares-cran[data-dominant="oui"]{inline-size:${px(ROUE.dominant)}}`);
   return r.join("\n");
 }
 
@@ -204,6 +221,14 @@ function gouttiere(sens, compte, actif, surPage) {
 export function construireLesWares(o = {}) {
   const noeud = el("div", "wares");
   noeud.dataset.ecran = "wares";
+  /* ⭐ LES COTES VOYAGENT AVEC L'ÉCRAN, comme celles du sac : une feuille posée dans le nœud,
+     écrite depuis le PLAN. ⛔ Elles ne vivent pas dans `shell.css` — un lot qui y toucherait
+     les ferait diverger de la table, et c'est la table qui fait foi. La feuille du site, elle,
+     porte la PEAU (matières, encres, reliefs) ; ici, seule la géométrie. */
+  const feuille = el("style");
+  feuille.dataset.fhpc = "wares";
+  feuille.textContent = feuilleDesCotesWares();
+  noeud.append(feuille);
   /* ⛔ AUCUN TITRE. Eric, 20/09 : *« Equipment browser dégage »*. Le cran sous le viseur NOMME
      l'écran (NORMES §1 quinquies, « le tambour désigne »), et la 3ᵉ ligne du belt dit déjà
      `Wares`. Deux noms pour un écran sont un libellé qui ment, en plus discret. */
@@ -261,7 +286,13 @@ export function construireLesWares(o = {}) {
   /* la bourse, à droite — symétrique des Tally, et centrée par la même déclaration */
   const droite = el("div", "wares-cote");
   droite.dataset.cote = "droite";
-  const purse = bouton("wares-purse", o.bourse || "", "Purse", () => o.surBouton && o.surBouton("purse"));
+  /* ⚖️ RIEN D'ÉCRIT DANS LE BOUTON — la loi de R, tenue par son garde 5 quinquies :
+     *« le montant est le voyant posé DESSUS »*. ⛔ Le mot va au nom accessible, pas au corps.
+     ⏳ ET LE VOYANT LUI-MÊME N'EST PAS DANS LA DICTÉE D'ERIC pour Wares : R en a un
+     (`MONTANT`, `dans: "PURSE"` à son plan), celui de Wares n'est pas posé. Je ne l'invente
+     pas — la bourse dit son montant à voix haute, et l'œil l'aura quand Eric le dira. */
+  const purse = bouton("wares-purse", undefined, `Purse — ${o.bourse || "0 gp"}`,
+    () => o.surBouton && o.surBouton("purse"));
   purse.dataset.organe = "purse";
   droite.append(purse);
   pied.append(droite);

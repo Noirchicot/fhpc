@@ -65,6 +65,13 @@ const SOCLE = [
      Backpack · Send · Wares dans la rangée du pied, et Companions. Un ajout au
      CORPUS, déclaré ici en le sachant, pas une réparation de garde. — */
   ".gear-porte",
+  /* — LOT 218, 20/09 : les trois portes du pied de Wares — Gear · Send · Backpack. ⭐ Elles
+     entrent par la LISTE, pas par une copie : le relief d'un bouton a un seul écrivain.
+     🔴 ET CE GARDE A ROUGI SUR LEUR ENTRÉE, DEUX FOIS ET POUR DEUX RAISONS — c'est son
+     travail : l'inventaire a changé de membres, ET le garde du défaut `transparent`
+     reconnaît ce défaut à ce que TOUTE la famille le porte, donc il ne le trouvait plus
+     tant que cette liste-ci n'était pas à jour. Un seul ajout, deux gardes satisfaits. — */
+  ".wares-porte",
   /* — LOT 213, 17/09 : les quatre portes du pied de la fiche X1 — Close · Use ·
      Send · Trash. ⭐ CE GARDE A ROUGI SUR SON ENTRÉE, ET C'EST SON TRAVAIL : une
      famille n'entre pas dans l'habit sans qu'on le sache, et la mise à jour de
@@ -93,7 +100,14 @@ const PLANCHER = [
   ".card-pied button",
   ".fiche-action",
   ".parcours-pied button",
-  ".gear-porte",         // LOT 212 — le petit 77, comme les autres portes à mot
+  ".gear-porte",
+  /* — LOT 218, 20/09 : les trois portes du pied de Wares — Gear · Send · Backpack. ⭐ Elles
+     entrent par la LISTE, pas par une copie : le relief d'un bouton a un seul écrivain.
+     🔴 ET CE GARDE A ROUGI SUR LEUR ENTRÉE, DEUX FOIS ET POUR DEUX RAISONS — c'est son
+     travail : l'inventaire a changé de membres, ET le garde du défaut `transparent`
+     reconnaît ce défaut à ce que TOUTE la famille le porte, donc il ne le trouvait plus
+     tant que cette liste-ci n'était pas à jour. Un seul ajout, deux gardes satisfaits. — */
+  ".wares-porte",         // LOT 212 — le petit 77, comme les autres portes à mot
   ".x1-porte"            // LOT 213 — les quatre portes de X1, même gabarit petit
 ];
 
