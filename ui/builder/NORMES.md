@@ -3704,6 +3704,49 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+### ✨ UN HALO RECOUVRE LE REBORD, ⛔ IL NE L'ENTOURE PAS
+📍 `cadre-le-halo-recouvre-le-rebord` · vivante · 20/09
+⚖️ **Le halo d'un organe DÉSIGNÉ est entièrement `inset` : il entre par le rebord et diffuse vers l'intérieur. ⛔ Rien ne sort — ⛔ jamais un anneau posé contre le bord.**
+
+> Eric, 2026-09-20, en regardant le tambour de Wares : **« fais en sorte que le halo recouvre
+> plutôt qu'entourer sur le premier pixel du bord, mais aussi en dessous »** — puis, en donnant
+> l'objectif qui tranche : **« objectif qu'on voie la marge autour de la tuile »**.
+
+⭐ **ET C'EST L'OBJECTIF QUI DIT COMBIEN SORT : RIEN.** 📏 Mesuré sur le tambour : la tuile posée
+est agrandie de 1,2456, donc elle déborde de **7 blg** de chaque côté sur un écart qui en vaut 8 —
+il ne reste qu'**UN blg** de marge, et la moindre part extérieure du halo l'avale. Un halo qui sort
+d'un blg ne « déborde » pas un peu : il **supprime** la marge.
+⏳ **ET LE BLG QUI RESTE EST MINCE — c'est une COTE, pas un réglage.** Pour une marge de 8 VISIBLE
+il faudrait un écart de `8 + 7 = 15`, donc un `pas` de 72 au lieu de 65. ⛔ Le pas est ce qui rend
+`scrollLeft = pas × k` exact, sur les DEUX tambours : il ne se change pas en passant.
+
+⭐ **C'EST LA MÊME QUESTION QUE LA LOUPE, POSÉE SUR UN AUTRE ORGANE.** La loi du 19/09
+*(`equipement-loupe-se-superpose-au-rebord`)* dit d'un cadre témoin qu'il *« se pose SUR le rebord
+de la boîte, il ne s'ajoute pas autour »*, et la raison y est écrite : **deux traits qui se touchent
+sans se superposer s'ADDITIONNENT**, et ça fait l'autocollant. Un halo purement extérieur a le même
+défaut — il dessine une **seconde arête** contre la première.
+📌 **CE QUE LA PHRASE D'ERIC DIT EXACTEMENT, MOT PAR MOT** : *« recouvre »* → l'`inset`, qui
+**remplace** le trait au lieu de s'y ajouter ; *« sur le premier pixel du bord »* → il commence à
+l'arête même, pas un blg plus loin ; *« mais aussi en dessous »* → et de là il diffuse vers
+l'**intérieur** de la tuile. ⭐ Les trois morceaux décrivent UNE ombre, pas deux.
+🗄️ **ARCHIVÉ, et l'erreur vaut d'être gardée** : j'ai d'abord lu la phrase comme deux ombres — une
+`inset` plus une extérieure sans étalement, « à cheval sur l'arête ». Elle a vécu une heure, jusqu'à
+l'objectif. ⛔ Une part extérieure, fût-elle d'un blg, mange la seule marge qui reste.
+⭐ **L'ENCRE RESTE CELLE DU BELT** — `--belt-halo`, le jeton qui dit déjà *« c'est ici que ça se
+passe »* sur le cran courant, sur les bascules de X1 et sur l'interrupteur du mode du sac. ⛔ Ce
+n'est pas une lueur neuve : c'est la même, autrement posée.
+📏 **ET ELLE VAUT POUR LES DEUX TAMBOURS** — le sac et Wares partagent la règle. Eric compare les
+deux écrans ; deux tambours qui ne s'allument pas pareil seraient deux tambours.
+
+🔴 **ET J'AI FAILLI ÉCRIRE CETTE LOI SUR UN RENDU FAUX.** En rédigeant le commentaire de `shell.css`
+j'ai fermé le bloc **une seconde fois** : le moteur CSS, tombant sur de la prose, a sauté jusqu'au
+prochain `;` — **celui du `box-shadow`** — et la déclaration a disparu. Le navigateur montrait donc
+le liseré nu, le halo n'a **jamais** été appliqué, et **j'ai accusé le cache**. ⭐ C'est le garde
+`css-syntaxe` *(né du même accident le 15/09)* qui a donné la ligne exacte. 📌 **La leçon se répète
+mot pour mot** : *quand tous les gardes lisent un fichier à travers le même extracteur, aucun ne
+peut accuser l'extracteur* — et un rendu qui manque ne prouve pas que la règle est absente du
+fichier ; il peut prouver que **le fichier est cassé plus haut**.
+
 ---
 
 ### 🛒 WARES — TROIS DALLES, UN TAMBOUR À DEUX ÉTAGES, UNE GRILLE DE DOUZE

@@ -12168,8 +12168,37 @@ button.tuto-point::before {
      lueur neuve : le même jeton, `--belt-halo`, aux mêmes cotes.
      📌 ET IL ENTRE SUR LES DEUX ÉCRANS À LA FOIS, parce que la règle est partagée. C'est voulu :
      Eric compare Wares au sac, et deux tambours qui ne s'allument pas pareil seraient deux
-     tambours. Le sac gagne l'aura qu'il n'avait pas non plus. */
-  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
+     tambours. Le sac gagne l'aura qu'il n'avait pas non plus.
+
+     🔴 ET IL RECOUVRE LE REBORD, ⛔ IL NE L'ENTOURE PLUS — Eric, 2026-09-20 : *« fais en sorte
+     que le halo recouvre plutôt qu'entourer sur le premier pixel du bord, mais aussi en
+     dessous »*.
+     ⭐ C'EST LA MÊME QUESTION QUE LA LOUPE, POSÉE SUR UN AUTRE ORGANE. La loi du 19/09
+     (`equipement-loupe-se-superpose-au-rebord`) dit d'un cadre témoin qu'il *« se pose SUR le
+     rebord de la boîte, il ne s'ajoute pas autour »*, et la raison y est écrite : deux traits
+     qui se touchent sans se superposer s'ADDITIONNENT, et ça fait l'autocollant. Un halo
+     purement extérieur a le même défaut — il dessine une seconde arête contre la première.
+     ⭐ D'OÙ DEUX OMBRES, ET C'EST LE SENS EXACT DE LA PHRASE : l'`inset` entre par le bord et
+     diffuse EN DESSOUS, dans la tuile ; l'extérieure, sans étalement, ne fait que mordre le
+     premier pixel. Le halo est donc à cheval sur l'arête au lieu d'être posé contre elle.
+     ⛔ ET SON ÉTALEMENT NE SORT PAS : `--halo-fin` ne vaut que pour la part qui recouvre.
+
+     🗄️ CE QUI PRÉCÈDE EST ARCHIVÉ — les deux ombres ont vécu une heure. Le paragraphe reste,
+     avec l'incident qui l'a payé : en le refermant, j'ai fermé le commentaire UNE SECONDE FOIS,
+     et le moteur CSS a mangé la déclaration `box-shadow` qui suit. ⭐ Le garde de `css-syntaxe`,
+     né du même accident le 15/09, l'a dit à la ligne près ; le navigateur, lui, montrait
+     seulement un liseré, et j'ai d'abord accusé le cache.
+     🔴 ET IL NE SORT PLUS DU TOUT — Eric, 20/09, en donnant l'objectif : *« objectif qu'on
+     voie la marge autour de la tuile »*. 📏 Mesuré : la tuile posée est agrandie de 1,2456,
+     donc elle déborde de (71 − 57) / 2 = **7 blg** de chaque côté, sur un écart qui en vaut 8.
+     Il ne reste qu'**UN blg** de marge visible — et la part extérieure du halo, même sans
+     étalement, l'avalait entièrement. ⭐ Entièrement `inset`, le halo ne mange plus rien : la
+     marge redevient du fond, et c'est ELLE qui détache la tuile de ses voisines.
+     ⏳ LE BLG QUI RESTE EST MINCE, ET C'EST UNE COTE, PAS UN RÉGLAGE : pour une marge de 8
+     VISIBLE il faudrait un écart de 8 + 7 = 15, donc un `pas` de 72 au lieu de 65 — et le pas
+     est ce qui rend `scrollLeft = pas × k` exact, sur les DEUX tambours. ⛔ Je ne le change pas
+     tout seul. */
+  box-shadow: inset 0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
 /* ⏱️ 60 ms, ET LA DURÉE EST D'ERIC — 2026-09-19 : *« tu fais une transition de 60 ms »*.
    🔴 ELLE PORTE LE ZOOM ET LE REMPLISSAGE ENSEMBLE : c'est UN changement d'état, et deux
