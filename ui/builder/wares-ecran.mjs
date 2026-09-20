@@ -21,13 +21,13 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES,
-} from "./wares-disposition.mjs?v=775";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=775";
+} from "./wares-disposition.mjs?v=776";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=776";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=775";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=775";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=775";
+import { REPOS_MS } from "./sac-ecran.mjs?v=776";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=776";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=776";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -38,10 +38,10 @@ import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=775";
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=775";
+import { popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=776";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton } from "./glisser.mjs?v=775";
-import { versionQuery } from "./version.mjs?v=775";
+import { armerJeton } from "./glisser.mjs?v=776";
+import { versionQuery } from "./version.mjs?v=776";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
