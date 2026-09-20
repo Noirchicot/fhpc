@@ -1350,8 +1350,22 @@ CSS. *(Voir juste ci-dessous : le mot en porte deux sens.)*
 |---|---|---|---|
 | **zone de drop** | rectangle **très arrondi** | **creux** : texte d'attente + liseré, aucun fond | max, voire nulle |
 | **jeton** | rectangle **très arrondi** | **teinté** *(doré)* | +20 % d'accent → **68 % cumulés** *(sur une dalle à 50)* |
-| **bouton** | 🔴 **OCTOGONE à coupe** | **plein, en signal** | 🔴 **100 % — OPAQUE** |
+| **bouton** | rectangle **peu arrondi** *(rayon 6)* — ~~octogone à coupe~~, retiré le 16/09 | **plein, en signal** | 🔴 **100 % — OPAQUE** |
 | **collecteur** | comme le jeton | 🔴 **vide : creux, tireté · REMPLI : l'habit du jeton** *(voir §2 ter)* | — |
+
+⭐ **ET CETTE RÈGLE A SURVÉCU AU RETRAIT DE L'OCTOGONE SANS QU'ON AIT À LA TOUCHER — c'est sa phrase
+qui le dit.** Elle pose que les quatre organes se distinguent par leur **REMPLISSAGE**, pas par leur
+forme : la colonne « forme » décrit, elle ne départage pas. Le bouton reste **opaque et plein**, le
+jeton **teinté à 20 %** — l'écart qui les sépare n'a pas bougé d'un point.
+
+🔴 **ET ÇA RÉVÈLE UNE CONTRADICTION QUI DORMAIT DEPUIS LE 26/08, dans ce fichier.** `bouton-octogone`
+écrivait que la coupe *« interdit de le confondre avec un jeton, quelle que soit la couleur »* —
+donc que la **forme** départage. §2 écrivait le contraire le même jour : le **remplissage**
+départage. ⛔ **Les deux ne pouvaient pas être vraies ensemble**, et personne ne s'en est aperçu
+tant que le bouton avait une forme à lui.
+⭐ **Le retrait de l'octogone ne crée pas la tension : il la met au jour.** Une règle de secours
+n'est jamais éprouvée tant que la règle principale tient — et c'est en la retirant qu'on découvre
+qu'on en avait deux, ou aucune. *(Relevé le 16/09, en amendant `bouton-octogone`.)*
 
 ### 🔴 2 ter — LE COLLECTEUR : LE FOND DIT CE QU'IL PORTE, LE LISERÉ DIT SON ÉTAT
 📍 `collecteur-relief-remplace-le-creux` · vivante · 26/08
@@ -1516,8 +1530,52 @@ c'est une place réservée »)* — celle-là décrit une place vide dans le COR
 vide **à l'écran, sous les yeux du joueur**. ⛔ Deux objets, deux règles.
 
 ### 🔴 LES AUTRES ORGANES — le registre complet *(Eric, 26/08 : « rajoute le voyant et le on/off »)*
-📍 `bouton-octogone` · vivante · 26/08
-⚖️ **Un bouton à libellé est un OCTOGONE à coupe, et la coupe d'angle lui appartient seul.**
+📍 `bouton-octogone` · vivante · 26/08 · **corps réécrit 16/09 — l'octogone est retiré**
+⚖️ **Un bouton à libellé est un RECTANGLE à angles arrondis — rayon 6, face sombre unique, liseré de rôle à 2 du bord.**
+
+> Eric, 2026-09-16, devant le rendu en ligne : *« ultra moche et hors sujet »*, *« bouton beaucoup
+> trop épais »*, *« le relief est beaucoup trop marqué »*. Puis, devant six essais posés sur les
+> deux fonds réels : *« leger liseré à 2 est celui qui me convient le mieux on garde celui-ci. donc
+> tous les boutons standards passent à ce format »*.
+
+⛔ **L'OCTOGONE A VÉCU DU 26/08 AU 16/09, ET SON NOM RESTE SUR CETTE ANCRE.** On ne renomme pas un
+identifiant sous un lien : `bouton-octogone` est devenu un **faux nom**, et c'est assumé — le
+renommage est une décision d'Eric, signalée, pas prise ici.
+
+🔴 **ET LA PHRASE D'AVANT DISAIT PLUS QUE LA FORME** : *« la coupe d'angle lui appartient **seul** »* —
+c'est-à-dire qu'**un seul trait, catégorique**, séparait le bouton du jeton. Ce trait a disparu.
+
+### ✅ CE QUI SÉPARE UN BOUTON D'UN JETON — tranché par Eric le 17/09
+📍 `bouton-trois-traits-le-separent-du-jeton` · vivante · 17/09
+⚖️ **Trois traits séparent le bouton du jeton — l'OPACITÉ, la FORME et la COULEUR — et aucun ne suffit seul.**
+
+> Eric, 2026-09-17 : *« visuellement l'opacité, la forme et la couleur font la différence. y'a pas
+> de doute de mon point de vue. »*
+
+| | bouton | jeton |
+|---|---|---|
+| **opacité** | **opaque** — `--bouton-face` `#3d3424` | **translucide**, teinté à 20 % d'accent |
+| **forme** | rayon **6** | `--organe-rayon` **16** |
+| **couleur** | encre **claire fixe** sur corps sombre | encre **sombre** sur teinte dorée |
+| *(cote)* | petit **77 × 40** | **87 × 48** |
+
+🔴 **CE QUI A CHANGÉ N'EST PAS LA VALEUR, C'EST LA NATURE DE LA DISTINCTION.** Avant : **un trait
+unique et catégorique** — un objet a une coupe d'angle ou il n'en a pas. Depuis le 17/09 : **un
+faisceau de trois**, et chacun n'est qu'une différence de **degré**.
+⛔ **ET LA FORME N'A PAS CESSÉ DE DISTINGUER** — c'est une correction d'Eric à la façon dont la
+question lui a été posée. On lui a présenté *« ils ont désormais la même forme »* : **c'était trop
+fort.** Un rectangle à rayon 16 et un à rayon 6 ne sont pas la même forme à l'œil ; ce qui a disparu
+est **la coupe**, pas la distinction de forme.
+⚠️ **UNE DISTINCTION DE DEGRÉ SE PERD QUAND ON « HARMONISE »** : quiconque rapprocherait les deux
+rayons au nom de la cohérence retirerait un des trois traits sans s'en apercevoir. ⛔ Le rayon 6 du
+bouton et le 16 du jeton ne sont pas deux valeurs d'un même réglage : ils sont **ce qui les
+sépare**.
+
+📌 **ET §2 DISAIT DÉJÀ UNE PART DE CETTE RÉPONSE, DEPUIS LE 26/08** — que les quatre organes du
+glisser se distinguent par leur **REMPLISSAGE**. ⛔ Elle contredisait alors `bouton-octogone`, qui
+attribuait la distinction à la forme seule ; personne ne l'a vu tant que le bouton avait une forme à
+lui. ⭐ La réponse d'Eric **absorbe les deux** : l'opacité et la couleur sont du remplissage, la
+forme reste un trait — mais aucun des trois ne porte seul ce que la coupe portait.
 📍 `interrupteur-deux-especes` · vivante · 26/08
 ⚖️ **Il y a deux espèces d'interrupteur : le sélecteur exclusif et la bascule simple.**
 📍 `popup-parle-on-ne-l-appuie-pas` · vivante · 26/08
@@ -1547,9 +1605,23 @@ ne signale rien)*. ➡️ **Un organe qui n'emprunte pas à l'échelle ne peut p
 ⭐ **La coupe d'angle appartient au bouton SEUL.** C'est ce qui interdit de le confondre avec un
 jeton, quelle que soit la couleur.
 
-### 🔴 LES QUATRE PANS COUPÉS PORTENT L'ARÊTE — rouvert et tranché 02/09
-📍 `bouton-pans-coupes-nus` · vivante · 26/08
-⚖️ **Les quatre pans coupés ne portent pas d'arête, et c'est voulu.**
+### 🔴 LES QUATRE PANS COUPÉS PORTENT L'ARÊTE — rouvert et tranché 02/09, **sans objet depuis le 16/09**
+📍 `bouton-pans-coupes-nus` · dépréciée · 26/08
+⚖️ ~~**Les quatre pans coupés ne portent pas d'arête, et c'est voulu.**~~ **Le bouton n'a plus de pans coupés : cette règle est sans objet depuis le 16/09.**
+
+⛔ **DÉPRÉCIÉE, PAS REMPLACÉE — et j'ai d'abord voulu inventer un troisième mot.** J'avais posé le
+statut *« sans objet »* : le garde des adresses l'a refusé, et il a raison — *« un statut inventé
+est une règle dont personne ne sait si elle oblige »*. Le jeu est fermé à six.
+⭐ **Mais la nuance que je cherchais est vraie, alors je l'écris dans le CORPS, là où elle ne casse
+aucun contrat** : une règle *remplacée* cède la place à une autre qui dit mieux la même chose ;
+celle-ci décrit une **partie du dessin qui n'existe plus**, et rien ne lui succède. Un rectangle
+arrondi n'a pas de pan coupé, donc pas de question d'arête sur ce pan. ⭐ Elle reste lisible pour
+qui lit l'histoire du bouton, et elle n'oriente plus personne.
+
+📌 **CE QUI EN SURVIT, ET QUI VALAIT PLUS QUE SON OBJET** : *« le médium change, pas la forme »*. Le
+dessin du 16/09 le démontre à l'envers — le médium ET la forme ont changé, et ce qui n'a pas bougé
+est ailleurs : la **cible 44**, le **dessin 40**, les **deux cotes 77 et 105**, et le fait que la
+couleur de rôle vive à **un seul endroit**.
 📍 `collecteur-zone-de-drop` · vivante · 26/08
 ⚖️ **Une zone de drop est un rectangle très arrondi, creux, dont le liseré porte la couleur du corps du jeton attendu.**
 
@@ -4568,16 +4640,31 @@ l'était pour §6 pré.
 | **no constraint** | libre | — |
 | 🔴 **`+` / `−`** | un glyphe | **le plus petit possible** *(voir ci-dessous)* |
 
-#### ✅ LA FORME EST L'OCTOGONE, TEL QU'IL EST DESSINÉ AUJOURD'HUI *(Eric, 2026-09-06)*
-📍 `bouton-forme-octogone-ratifiee` · vivante · 06/09
-⚖️ **La forme du bouton est l'OCTOGONE que la feuille dessine aujourd'hui et elle ne se rediscute plus ; les trois gabarits restent `small` 6 · `medium` 12 · `no constraint`.**
+#### ✅ LA FORME EST CELLE QUE LA FEUILLE DESSINE AUJOURD'HUI *(Eric, 2026-09-06 · corps réécrit 16/09)*
+📍 `bouton-forme-octogone-ratifiee` · vivante · 06/09 · **corps réécrit 16/09**
+⚖️ **La forme du bouton est celle que la feuille dessine AUJOURD'HUI — depuis le 16/09, un rectangle à angles arrondis ; les gabarits restent `petit` · `large` · `libre`.**
 
 > Eric, 2026-09-06 : **« garde le gabarit, mais la forme octogone actuelle est la norme »**.
+> Eric, 2026-09-16 : **« tous les boutons standards passent à ce format »** — le rectangle arrondi.
 
-🔴 **CE QUE ÇA FERME** : la forme du bouton ne se rediscute plus. C'est l'octogone que la feuille
-dessine **aujourd'hui** — une coupe d'angle de `--bouton-coupe` sur les quatre coins, posée en
-`clip-path`. ⛔ Aucun nombre ne se recopie ici : la cote vit dans `tokens.css`, et c'est elle qui
-fait foi *(§1 ter)*.
+🔴 **CE QUE ÇA FERME, ET CE QUE ÇA NE FERMAIT PAS.** Cette règle disait que la forme *« ne se
+rediscute plus »*, et elle a été rediscutée dix jours plus tard. ⛔ Ce n'était pas une
+désobéissance : elle ratifiait **ce que la feuille dessine aujourd'hui**, et « aujourd'hui » a
+changé quand Eric a vu le rendu en ligne.
+⭐ **Sa clause utile n'était donc pas « octogone », c'était « aujourd'hui »** — elle interdit de
+rediscuter la forme *entre deux décisions d'Eric*, jamais de suivre la sienne. C'est pourquoi son
+corps se réécrit sans que son statut bouge.
+
+📏 **LA FORME DU 16/09**, mesurée sur le site servi *(v635)*, les deux thèmes : rayon **6** · face
+`#3d3424` **identique jour et nuit** · encre **fixe** `#efe6d2` · liseré à **2** du bord, épaisseur
+**1,4**, rayon **4** *(= rayon du bouton − marge)*.
+⛔ Aucun nombre ne se recopie ici : les cotes vivent dans `tokens.css`, et ce sont elles qui font
+foi *(§1 ter)*. Ceux-ci sont un **relevé daté**, pas une source.
+
+⚠️ **ET L'ENCRE NE BASCULE PAS, contrairement à tout le reste du site.** `--on-accent` vaut
+`#ffffff` le jour et `#14120e` la nuit ; sur une face qui ne bascule pas, l'encre de nuit serait
+presque noire sur presque noir. C'est la même espèce que `--de-encre` : une encre d'**objet**, pas
+une encre de **page**.
 
 ⭐ **ET LES TROIS GABARITS NE BOUGENT PAS.** Eric a d'abord dit *« 14 caractères »* pour `medium`,
 puis **« garde le 12 carac »** dans le même échange. La table ci-dessus est donc inchangée :
@@ -5520,7 +5607,17 @@ D'AVANCEMENT** — gris, bleu, vert, rouge — et **un interrupteur ne la parcou
 *« c'est faux »*, il dit *« c'est éteint »*.
 
 ➡️ **Deux sens du rouge sur le même écran, c'est un rouge qui ne signale plus rien.** La collision
-se règle donc **par la FORME**, exactement comme la coupe d'angle distingue le bouton du jeton.
+se règle donc **par la FORME**. ~~exactement comme la coupe d'angle distingue le bouton du jeton~~
+
+⚠️ **SON ANALOGIE EST RÉÉCRITE, PAS SEULEMENT RE-POINTÉE — 17/09.** Elle s'appuyait sur la coupe
+d'angle, c'est-à-dire sur **un trait unique et catégorique** : un objet l'a ou ne l'a pas, et la
+frontière est nette. Depuis qu'Eric a retiré l'octogone, ce qui sépare un bouton d'un jeton est un
+**faisceau de trois traits de degré** — opacité, forme, couleur *(`bouton-trois-traits-le-separent-du-jeton`)*.
+🔴 **UN ARGUMENT QUI REPOSAIT SUR UNE FRONTIÈRE NETTE ET QUI REPOSE MAINTENANT SUR UNE CONVERGENCE
+N'EST PAS LE MÊME ARGUMENT.** ⛔ Ne pas le croire intact parce que sa conclusion n'a pas changé : ici
+la forme sépare **encore**, mais elle ne sépare plus **à elle seule**. La comparaison reste juste
+pour dire *« la forme peut porter une distinction »* ; elle ne l'est plus pour dire *« et cela
+suffit »*.
 
 ### 🔴 DEUX ESPÈCES D'INTERRUPTEUR — et une seule pose une question
 📍 `interrupteur-trois-sens-du-vert` · vivante · 26/08
