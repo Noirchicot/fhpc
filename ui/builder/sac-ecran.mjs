@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=760";
-import { versionQuery } from "./version.mjs?v=760";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=760";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=761";
+import { versionQuery } from "./version.mjs?v=761";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=761";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=760";
+import { armerJeton, fantome } from "./glisser.mjs?v=761";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=760";
+import { popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=761";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=760";
+import { facteurZoomCourant } from "./echelle.mjs?v=761";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -221,6 +221,16 @@ export function feuilleDesCotesSac() {
      descendre ni à cacher — le panneau recouvre la rangée d'outils de toute façon.
      📌 C'est la troisième fois ce soir qu'un problème disparaît parce que la QUESTION a
      changé de forme, et non parce qu'on l'a résolu. */
+  /* ⚖️ LA BOURSE DU SAC EST CELLE DE GEAR, ET CENTRÉE SUR SA PROPRE PLACE — Eric,
+     2026-09-20 : *« la bourse, je veux la même que dans Gear, et centrée sur l'emplacement
+     de la bourse dans B1 »*.
+     🔴 LE POPUP ÉTAIT DÉJÀ IMPORTÉ ICI, ET IL SORTAIT SANS COTES : ses règles n'existaient
+     que sous `.gear`. Un organe partagé dont la moitié reste chez son premier hôte n'est
+     pas partagé — et c'est la faute de ce lot en entier, payée une fois de plus.
+     ⭐ ON ÉMET LES MÊMES RÈGLES POUR CETTE PORTÉE, ⛔ on ne les recopie pas. Et l'ancre est
+     la bourse DU SAC : *« centrée sur l'emplacement de la bourse dans B1 »*.
+     📌 Le sac ne compte pas sous le belt — son `y` est déjà celui de la dalle. */
+  regles.push(...reglesDeLaBourse(".sac", ORGANES.find((o) => o.nom === "PURSE"), DALLE));
   regles.push(`.sac .sac-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
     `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);
   /* ⭐ LA PISTE S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE PUISSE SE CENTRER —

@@ -956,8 +956,27 @@ test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent 
   assert.equal(voile.querySelector(".gear-bourse").getAttribute("aria-label"), "Purse",
     "⭐ `gear-bourse` — la classe de R : une seconde bourse divergerait au premier réglage");
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
-  assert.match(source, /import \{ popupDeLaBourse \} from "\.\/gear-ecran\.mjs/,
-    "⛔ le sac IMPORTE l'organe, il ne le redessine pas");
+  assert.match(source, /import \{ popupDeLaBourse, reglesDeLaBourse \} from "\.\/gear-ecran\.mjs/,
+    "⛔ le sac IMPORTE l'organe, il ne le redessine pas — le dessin ET ses cotes");
+  /* 🔴 ET LES COTES VIENNENT AVEC LUI — Eric, 2026-09-20 : *« la bourse, je veux la même
+     que dans Gear, et centrée sur l'emplacement de la bourse dans B1 »*.
+     ⛔ LE POPUP SORTAIT SANS COTES : ses règles n'existaient que sous `.gear`, donc il se
+     dimensionnait sur son contenu et naissait n'importe où. Un organe partagé dont la
+     MOITIÉ reste chez son premier hôte n'est pas partagé — c'est la faute de ce lot en
+     entier (le collecteur, les chevrons, le jeton, le glisser, l'interrupteur), payée une
+     fois de plus. ⭐ Les mêmes règles s'ÉMETTENT pour l'autre portée ; deux listes
+     divergeraient au premier réglage de la bourse. */
+  const emiseBourse = feuilleDesCotesSac();
+  assert.match(emiseBourse, /\.sac \.gear-bourse\{width:/,
+    "⛔ la bourse du sac n'a pas de boîte : elle se dimensionnerait sur son contenu");
+  const ancre = D.ORGANES.find((o) => o.nom === "PURSE");
+  const place = emiseBourse.match(/\.sac \.gear-bourse\{left:([\d.]+)px;top:([\d.]+)px\}/);
+  assert.ok(place, "⛔ et elle n'a pas de place : *« centrée sur l'emplacement de la bourse dans B1 »*");
+  /* ⚖️ CENTRÉE SUR SA PROPRE PLACE, puis serrée dans la dalle — un popup centré sur une
+     bourse posée près du bord sortirait de l'écran sans qu'aucune cote ait l'air fausse. */
+  const attendu = Math.min(Math.max(ancre.x + ancre.l / 2 - 186 / 2, D.MARGE), D.DALLE.l - 186 - D.MARGE);
+  assert.ok(Math.abs(Number(place[1]) - attendu) < 0.01,
+    `⚖️ centrée sur la bourse du SAC (x ${ancre.x}), pas sur celle de R`);
 
   /* ⑤ ⚠️ ET CE GARDE-CI NE VOIT QUE L'ÉCRAN — il est INCAPABLE de voir le fil. Je l'ai
      éprouvé : en retirant l'écouteur dans `equipment-step.mjs`, il est resté VERT, et

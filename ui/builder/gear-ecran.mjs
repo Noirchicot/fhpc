@@ -58,14 +58,14 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=760";
-import { BOITES } from "./b3-disposition.mjs?v=760";
-import { armerJeton, fantome } from "./glisser.mjs?v=760";
+import * as D from "./gear-disposition.mjs?v=761";
+import { BOITES } from "./b3-disposition.mjs?v=761";
+import { armerJeton, fantome } from "./glisser.mjs?v=761";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=760";
-import { versionQuery } from "./version.mjs?v=760";
-import { enGP } from "./equipement-pipeline.mjs?v=760";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=761";
+import { versionQuery } from "./version.mjs?v=761";
+import { enGP } from "./equipement-pipeline.mjs?v=761";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -196,6 +196,40 @@ const haut = (y) => y - BELT_H;
    du plancher de 44. La largeur est la conséquence du plancher tactile, pas un
    goût — et c'est ce qui rend ce popup non négociable.
    ⚠️ `b3-disposition.mjs:147` porte encore l'ancienne cote : hors de ce lot. */
+/** ⚖️ LES COTES DU POPUP DE LA BOURSE, POUR UNE PORTÉE DONNÉE — Eric, 2026-09-20 :
+ *  *« la bourse, je veux la même que dans Gear, et centrée sur l'emplacement de la bourse
+ *  dans B1 »*.
+ *  🔴 LE POPUP ÉTAIT DÉJÀ IMPORTÉ PAR LE SAC, et il sortait SANS COTES : ces règles-ci
+ *  n'existaient que sous `.gear`. Un organe partagé dont la moitié reste chez son premier
+ *  hôte n'est pas partagé — c'est la faute du lot 214 en entier, payée une fois de plus.
+ *  ⭐ ON ÉMET DONC LES MÊMES RÈGLES POUR L'AUTRE PORTÉE, ⛔ on ne les recopie pas : deux
+ *  listes divergeraient au premier réglage de la bourse.
+ *  ⚖️ *« centre-le sur l'emplacement de la bourse »* (16/09) vaut pour les deux écrans,
+ *  et le serrage dans la dalle aussi : centré sur une bourse posée près du bord, le popup
+ *  sortirait de l'écran sans qu'aucune cote n'ait l'air fausse.
+ *  📌 `hautDeLaDalle` est ce qui diffère : R compte sous le belt, le sac non. Il se donne,
+ *  ⛔ il ne se devine pas. */
+export function reglesDeLaBourse(portee, ancre, dalle, hautDeLaDalle = 0) {
+  const r = [];
+  if (ancre) {
+    const serre = (v, max) => Math.min(Math.max(v, MARGE), max - MARGE);
+    const gauche = serre(ancre.x + ancre.l / 2 - BOURSE.l / 2, dalle.l - BOURSE.l);
+    const sommet = serre(ancre.y + ancre.h / 2 - BOURSE.h / 2, dalle.h - hautDeLaDalle - BOURSE.h);
+    r.push(`${portee} .gear-bourse{left:${px(gauche)};top:${px(sommet)}}`);
+  }
+  /* ⛔ PAS `> .gear-bourse` : le popup n'est pas un enfant DIRECT de la dalle, il vit dans
+     son voile. Mesuré au navigateur : la règle ne s'appliquait pas et le popup se
+     dimensionnait sur son contenu — 176 au lieu de 186, hauteur libre. ⭐ La leçon est
+     plus large que le bogue : un sélecteur d'enfant direct enferme une cote dans une
+     STRUCTURE, et la structure bouge quand l'écran grandit. */
+  r.push(`${portee} .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
+  r.push(`${portee} .gear-monnaie{width:${px(BOURSE.pas)}}`);
+  r.push(`${portee} .gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
+    `border-width:${px((BOURSE.pas - BOURSE.bouton) / 2)}}`);
+  r.push(`${portee} .gear-monnaie-saisie{height:${px(BOURSE.saisie)}}`);
+  return r;
+}
+
 export const BOURSE = Object.freeze({
   l: 186,                        /* 5 + 4 × 44 + 5 — la largeur EST le plancher tactile */
   pas: 44,                       /* une colonne = une cible tactile, jointive */
@@ -285,31 +319,11 @@ export function feuilleDesCotes() {
   }
   /* le popup de la bourse : sa boîte et le pas de ses colonnes viennent de la
      table ci-dessus, jamais de la feuille — `shell.css` ne porte aucune cote. */
-  /* ⛔ PAS `.gear > .gear-bourse` : le popup n'est pas un enfant DIRECT de la dalle,
-     il vit dans son voile. Mesuré au navigateur, la règle ne s'appliquait pas et le
-     popup se dimensionnait sur son contenu — 176 au lieu de 186, hauteur libre.
-     ⭐ La leçon est plus large que le bug : un sélecteur d'enfant direct enferme une
-     cote dans une STRUCTURE, et la structure bouge quand l'écran grandit. */
-  /* ⚖️ CENTRÉ SUR LE BOUTON QUI L'OUVRE — Eric, 16/09 au soir : *« centre-le sur
-     l'emplacement de la bourse dans la fiche »*. ⭐ Un popup qui naît AILLEURS que
-     là où on a tapé oblige l'œil à retrouver ce qu'il vient de désigner ; celui-ci
-     s'ouvre sur place, et le doigt sait déjà où il est.
-     📐 PUIS IL SE SERRE DANS LA DALLE, et ce serrage n'est pas un détail : centré
-     sur la bourse (x 342,5), le popup irait de 249,5 à 435,5 — il sortirait de 64.
-     On le ramène donc à la marge. ⛔ Sans ce serrage, la moitié des monnaies
-     serait hors de l'écran, et aucune cote n'aurait l'air fausse. */
-  const purse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
-  if (purse) {
-    const serre = (v, max) => Math.min(Math.max(v, MARGE), max - MARGE);
-    const gauche = serre(purse.x + purse.l / 2 - BOURSE.l / 2, DALLE.l - BOURSE.l);
-    const sommet = serre(haut(purse.y) + purse.h / 2 - BOURSE.h / 2, DALLE.h - BELT_H - BOURSE.h);
-    regles.push(`.gear .gear-bourse{left:${px(gauche)};top:${px(sommet)}}`);
-  }
-  regles.push(`.gear .gear-bourse{width:${px(BOURSE.l)};height:${px(BOURSE.h)};padding:${px(BOURSE.marge)}}`);
-  regles.push(`.gear .gear-monnaie{width:${px(BOURSE.pas)}}`);
-  regles.push(`.gear .gear-monnaie-bouton{width:${px(BOURSE.pas)};height:${px(BOURSE.pas)};` +
-    `border-width:${px((BOURSE.pas - BOURSE.bouton) / 2)}}`);
-  regles.push(`.gear .gear-monnaie-saisie{height:${px(BOURSE.saisie)}}`);
+  /* ⛔ R COMPTE SOUS LE BELT : l'ancre se donne dans le repère de la dalle, donc on
+     applique `haut()` ICI — l'organe partagé n'a pas à connaître le cadre de son hôte. */
+  const ancreDeLaBourse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
+  regles.push(...reglesDeLaBourse(".gear",
+    ancreDeLaBourse && { ...ancreDeLaBourse, y: haut(ancreDeLaBourse.y) }, DALLE, BELT_H));
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
     `width:${px(DALLE.l - 2 * MARGE)};height:${px(BARRE.h)}}`);
   if (PANTIN) {
