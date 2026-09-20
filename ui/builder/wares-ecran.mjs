@@ -22,7 +22,7 @@ import {
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES,
 } from "./wares-disposition.mjs?v=775";
-import { monterLeTambour } from "./roue-tambour.mjs?v=775";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=775";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
 import { REPOS_MS } from "./sac-ecran.mjs?v=775";
@@ -156,7 +156,14 @@ export function feuilleDesCotesWares() {
      ⛔ ET AUCUN GARDE DE FICHIER NE POUVAIT LE DIRE : la cale est DÉCLARÉE avec sa largeur, elle
      est DANS le DOM, la bijection plan ↔ DOM est verte. C'est une hauteur RENDUE qui manquait —
      la même famille que « le ruban prend la hauteur de sa roue », dix lignes plus haut. */
-  r.push(`.roue-cale{flex:0 0 auto;align-self:stretch;inline-size:${px(ROUE.cale)}}`);
+  /* 🔴 ET LA COTE VIENT DU MODULE, ⛔ PLUS DU PLAN — 21/09. Le plan garde `ROUE.cale` comme
+     CONSTAT *(un garde le compare à la formule)*, mais c'est `roue-tambour.mjs` qui POSE la cale,
+     donc c'est lui qui dit de quelle taille elle est. Deux écrans qui calculeraient chacun leur
+     cale finiraient par diverger — c'est exactement ce qui est arrivé au sac, qui n'en calculait
+     aucune. ⭐ Et le sélecteur est PORTÉ : `.wares .roue-cale`, sinon deux feuilles écriraient la
+     même classe globale. */
+  r.push(`.wares .roue-cale{flex:0 0 auto;align-self:stretch;` +
+         `inline-size:${px(coteDeLaCale(ROUE))}}`);
 
   /* ── dalle 2 : deux gouttières et la grille, sans écart entre elles ──
      ⛔ LES GOUTTIÈRES NE PARTICIPENT PAS AU `gap` : si elles le faisaient, la dalle vaudrait

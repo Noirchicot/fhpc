@@ -27,7 +27,7 @@ import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, O
 import { versionQuery } from "./version.mjs?v=775";
 import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=775";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour } from "./roue-tambour.mjs?v=775";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=775";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
@@ -247,11 +247,23 @@ export function feuilleDesCotesSac() {
   }
   regles.push(`.sac .sac-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
     `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);
-  /* ⭐ LA PISTE S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE PUISSE SE CENTRER —
-     `(piste − tuile) / 2`. ⛔ C'est cette marge qui rend `scrollLeft = pas × k` exact ;
-     sans elle, la première et la dernière ne pourraient jamais atteindre la loupe. */
-  regles.push(`.sac .sac-ruban{gap:${px(ROUE.pas - ROUE.tuile)};` +
-    `padding-inline:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
+  /* 🔴 LE VIDE DES DEUX BOUTS EST PORTÉ PAR LA CALE, ⛔ PLUS PAR UN REMBOURRAGE — 21/09.
+     📏 CE QUE LE REMBOURRAGE FAISAIT DEPUIS LE LOT 218, mesuré au navigateur : le tambour
+     partagé POSE deux cales, la feuille du sac ne les dimensionnait pas, elles rendaient donc
+     **0 × 0** — et une cale vide reste un ÉLÉMENT FLEX, donc elle ajoutait un `gap` de 8 entre
+     le rembourrage de 137 et le premier cran. Le premier cran commençait à 145 au lieu de 137,
+     centrer le cran `k` réclamait `8 + pas × k`, et le module écrit `pas × k`.
+     ⭐ LE `scroll-snap` RATTRAPAIT LES 8, ce qui a rendu la faute invisible pendant trois jours
+     — et c'est une régression que J'AI introduite en extrayant le module, sur un écran qui
+     marchait. ⛔ Un organe qui n'est juste que grâce à un correcteur n'est pas juste.
+     ⭐ ET LA COTE VIENT DU MODULE QUI POSE LA CALE (`coteDeLaCale`), ⛔ pas d'une formule
+     recopiée ici : c'est l'autre moitié de la même leçon. Elle vaut `piste/2 − tuile/2 − écart`
+     — la moitié du vide MOINS l'écart que le flex pose devant le premier cran.
+     📌 `align-self: stretch` n'est pas décoratif : une cale sans hauteur ne compte pas dans le
+     `scrollWidth`, et le dernier cran ne peut alors jamais atteindre la loupe. */
+  regles.push(`.sac .sac-ruban{gap:${px(ROUE.pas - ROUE.tuile)}}`);
+  regles.push(`.sac .roue-cale{flex:0 0 auto;align-self:stretch;` +
+    `inline-size:${px(coteDeLaCale(ROUE))}}`);
   /* ⭐ ET L'AGRANDISSEMENT EST CELUI DU PLAN : `dominant / secondaire`, qui est AUSSI
      `T1 / T0`. Les deux règles dictées le 18/09 sont le même rapport — un seul
      agrandissement les rend toutes les deux, et ⛔ sans toucher à la mise en page. */

@@ -17,7 +17,43 @@
      · à vous — ce qu'un cran EST (son nœud, son libellé, ses attributs, son rôle ARIA), la
                 fenêtre qui le clippe, et la feuille qui les habille.
    ⛔ Il n'ajoute aucune classe : l'appelant lui donne des nœuds déjà vêtus. Un module qui
-   choisirait les classes déciderait de la peau de trois écrans à leur place. */
+   choisirait les classes déciderait de la peau de trois écrans à leur place.
+
+   🔴 AMENDEMENT DU 2026-09-21 — *« aucune cote »* NE VEUT PAS DIRE *« aucune identité »*, et
+   l'incident qui le prouve est celui-ci. Au lot 218 j'ai descendu ici la CALE — l'élément qui
+   tient le vide des deux bouts — mais j'ai laissé à chaque appelant le soin de la DIMENSIONNER.
+   📏 Résultat mesuré le 21/09 sur le sac : les deux cales rendaient **0 × 0**, parce que la
+   feuille du sac ne les connaît pas ; son ancien `padding-inline: 137px` était toujours là, et
+   la cale vide ajoutait un ÉCART de 8 entre le rembourrage et le premier cran. Centrer le cran
+   `k` y réclamait donc `8 + pas × k` quand ce module écrit `pas × k`. Le `scroll-snap` le
+   rattrapait, ce qui l'a rendu invisible — et c'est une **régression que j'ai introduite** en
+   extrayant le module, sur un écran qui marchait.
+   ⭐ LA LEÇON : un organe que le module POSE, c'est le module qui doit dire de quelle taille il
+   est. Personne d'autre ne sait POURQUOI il a cette taille-là — elle n'est pas décorative, elle
+   est la condition de l'invariant que ce module tient (`scrollLeft = pas × k`). Laisser cette
+   moitié chez l'appelant, c'est exactement *« un organe partagé dont la moitié reste chez son
+   premier hôte n'est pas partagé »*.
+   ⛔ ET ÇA N'INTRODUIT AUCUN NOMBRE ICI : `coteDeLaCale` est une FONCTION PURE des cotes que
+   l'appelant lui donne. Le module reste sans chiffre ; il porte l'identité, pas la valeur. */
+
+/** ⚖️ LA COTE DE LA CALE — l'identité qui rend `scrollLeft = pas × k` exact.
+ *
+ *  ⭐ CE QU'ELLE DOIT RENDRE : à `scrollLeft = 0`, le CENTRE du premier cran tombe au centre de
+ *  la piste. Le ruban étant un flex, il pose un écart entre la cale et le premier cran —
+ *  exactement comme entre deux crans. La cale n'est donc PAS la moitié du vide :
+ *
+ *      cale + écart + tuile / 2 = piste / 2       avec écart = pas − tuile
+ *
+ *  ⛔ LA MOITIÉ DU VIDE `(piste − tuile) / 2` EST LE PIÈGE, et il a coûté deux soirées : elle
+ *  oublie l'écart, donc elle décale TOUS les crans de sa valeur. Le `scroll-snap` rattrape tant
+ *  qu'il reste de la course, et ment donc sur la faute jusqu'au dernier cran.
+ *
+ *  📌 ET ELLE PORTE UNE DIMENSION TRANSVERSE, dans la feuille de l'appelant : une cale vide dans
+ *  un ruban centré rend une hauteur NULLE, et une boîte de hauteur nulle ne crée aucun
+ *  débordement — mesuré le 20/09 sur Wares, `scrollWidth` 527 au lieu de 672. */
+export function coteDeLaCale({ piste, tuile, pas }) {
+  return piste / 2 - tuile / 2 - (pas - tuile);
+}
 
 /** Décore une fenêtre de roue avec le mécanisme du tambour.
  *

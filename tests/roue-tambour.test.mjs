@@ -17,7 +17,7 @@ import assert from "node:assert/strict";
 import { createTestDocument } from "./dom-stub.mjs";
 
 globalThis.document = createTestDocument();
-const { monterLeTambour } = await import("../ui/builder/roue-tambour.mjs");
+const { monterLeTambour, coteDeLaCale } = await import("../ui/builder/roue-tambour.mjs");
 
 const PAS = 65;
 
@@ -143,4 +143,40 @@ test("9 · zéro cran ne lève rien", () => {
   assert.equal(roue.dataset.vise, "0", "une roue vide vise zéro");
   roue.placer(0);
   roue.marquer(0);
+});
+
+/* ══ 10 · LA COTE DE LA CALE EST UNE IDENTITÉ, ET ELLE VAUT POUR TOUS LES TAMBOURS ══
+   🔴 CE QUI L'A FAIT NAÎTRE : au lot 218 ce module s'est mis à POSER deux cales, en laissant à
+   chaque écran le soin de les dimensionner. 📏 Mesuré le 21/09 : le sac ne les dimensionnait
+   pas — elles rendaient 0 × 0 — et une cale vide reste un élément flex, donc elle ajoutait un
+   écart de 8 entre l'ancien `padding-inline: 137px` et le premier cran. Centrer le cran `k` y
+   réclamait `8 + pas × k` quand ce module écrit `pas × k`. ⛔ Une régression que j'ai introduite
+   sur un écran qui marchait, et que le `scroll-snap` a cachée trois jours.
+   ⭐ TÉMOIN : l'identité de centrage, vérifiée sur les cotes RÉELLES des deux tambours.
+   ⛔ Éprouvé ROUGE avec la « moitié du vide » `(piste − tuile) / 2`, qui est la formule fautive. */
+test("10 — la cale met le premier cran au centre : `cale + écart + tuile/2 = piste/2`", async () => {
+  const sac = await import("../ui/builder/sac-disposition.mjs");
+  const wares = await import("../ui/builder/wares-disposition.mjs");
+  for (const [nom, ROUE] of [["le sac", sac.ROUE], ["Wares", wares.ROUE]]) {
+    const cale = coteDeLaCale(ROUE);
+    const ecart = ROUE.pas - ROUE.tuile;
+    assert.equal(cale + ecart + ROUE.tuile / 2, ROUE.piste / 2,
+      `⛔ ${nom} : à scrollLeft = 0 le premier cran n'est pas sous le viseur ` +
+      `(cale ${cale} + écart ${ecart} + ${ROUE.tuile / 2} ≠ ${ROUE.piste / 2})`);
+    /* ⭐ et la course doit permettre au DERNIER cran d'arriver, quel que soit leur nombre */
+    for (const n of [1, 2, 5, 6, 12, 33]) {
+      const contenu = 2 * cale + n * ROUE.tuile + (n + 1) * ecart;
+      assert.ok(contenu - ROUE.piste >= ROUE.pas * (n - 1),
+        `⛔ ${nom} à ${n} crans : course ${contenu - ROUE.piste} pour ${ROUE.pas * (n - 1)} réclamés`);
+    }
+  }
+});
+
+/* ══ 11 · LE CONSTAT DU PLAN DE WARES SUIT LA FORMULE ═══════════════════════════
+   ⭐ `wares-disposition.mjs` porte `ROUE.cale` comme CONSTAT. ⛔ Un constat qui dérive de sa
+   formule est un second écrivain silencieux : ce garde les tient d'accord. */
+test("11 — `ROUE.cale` du plan de Wares est bien ce que la formule rend", async () => {
+  const wares = await import("../ui/builder/wares-disposition.mjs");
+  assert.equal(wares.ROUE.cale, coteDeLaCale(wares.ROUE),
+    "⛔ le constat du plan a divergé de la formule du module");
 });

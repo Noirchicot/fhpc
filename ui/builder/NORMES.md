@@ -3980,8 +3980,23 @@ est dans le DOM, sa largeur est juste, la bijection plan ↔ DOM est verte. Ce q
 dimension **transverse**, que personne ne regardait. ⭐ Même famille que *« le ruban prend la hauteur
 de sa roue »* : une hauteur **rendue** n'est pas une hauteur **déclarée**.
 
-📌 **LE GARDE DE L'IDENTITÉ EST ARITHMÉTIQUE** *(`tests/wares-plan.test.mjs` §13)*, et il a été
-éprouvé rouge à 137. ⚠️ **Le garde de la course *(§14)* reste VERT à 137, et je l'écris** : la
+🔴 **AMENDEMENT DU 21/09 — LA FORMULE VIT DANS LE MODULE QUI POSE LA CALE**, ⛔ plus chez chaque
+écran. 📏 Mesuré sur le sac : depuis le lot 218, `roue-tambour.mjs` POSE deux cales, et la feuille
+du sac ne les dimensionnait pas — elles rendaient **0 × 0**. Son ancien `padding-inline: 137px` était
+toujours là, et **une cale vide reste un élément flex** : elle ajoutait un écart de 8 ENTRE le
+rembourrage et le premier cran. Relevé avant / après : `scrollLeft` de centrage
+**8 · 73 · 138 · 203 · 268** contre un code qui écrit **0 · 65 · 130 · 195 · 260** ; après, les deux
+listes sont **identiques**.
+⛔ **ET C'EST UNE RÉGRESSION QUE J'AI INTRODUITE** en extrayant le module, sur un écran qui marchait
+— cachée trois jours par le `scroll-snap`. ⭐ **La leçon : un organe que le module POSE, c'est le
+module qui dit de quelle taille il est.** Personne d'autre ne sait *pourquoi* il a cette taille-là :
+elle n'est pas décorative, elle est la condition de l'invariant que ce module tient. Laisser cette
+moitié chez l'appelant, c'est la loi `cadre-organe-partage-voyage-avec-ses-cotes` prise à l'envers.
+📌 `coteDeLaCale({piste, tuile, pas})` est une **fonction pure** : le module reste sans chiffre.
+
+📌 **LE GARDE DE L'IDENTITÉ EST ARITHMÉTIQUE** *(`tests/roue-tambour.test.mjs` §10, qui vérifie les
+DEUX tambours sur leurs cotes réelles, et `tests/wares-plan.test.mjs` §13)*, et il a été éprouvé
+rouge avec la formule fautive. ⚠️ **Le garde de la course *(§14)* reste VERT à 137, et je l'écris** : la
 géométrie permettait la course, c'est le rendu qui la refusait. Un témoin qui ne peut pas accuser
 l'incident qui l'a fait naître doit le DIRE, sans quoi son vert se lit comme une innocence.
 

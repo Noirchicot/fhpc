@@ -22,6 +22,7 @@ const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
         ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, poserLesDalles,
         CHAMPS_DE_SECTION } = await import("../ui/builder/sac-ecran.mjs");
+const { coteDeLaCale } = await import("../ui/builder/roue-tambour.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -126,15 +127,33 @@ test("4 — 🔴 LE RUBAN S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE
   /* 🔴 CE GARDE TENAIT L'INVERSE HIER : les crans étaient NICHÉS dans la roue, et il
      vérifiait qu'ils se posaient par rapport à elle. ⛔ Plus aucun cran n'est posé —
      ils vivent dans le flux d'un ruban qui défile (Eric, 20/09).
-     ⭐ CE QUI LE REMPLACE EST L'ARITHMÉTIQUE DU PAS, et elle est tout aussi exacte :
-     pour que la tuile `k` puisse arriver SOUS LA LOUPE, le ruban doit s'écarter de
-     `(piste − tuile) / 2` de chaque côté. C'est cette marge qui rend
-     `scrollLeft = pas × k` vrai — la formule du belt (`87 × (n − 1)`), même raison.
-     ⛔ Sans elle, la première et la dernière tuile ne pourraient JAMAIS se centrer. */
+     ⭐ CE QUI LE REMPLACE EST L'ARITHMÉTIQUE DU PAS : pour que la tuile `k` arrive SOUS LA
+     LOUPE, il faut un vide aux deux bouts, et c'est lui qui rend `scrollLeft = pas × k` vrai.
+
+     🔴 ET CE GARDE EXIGEAIT LA FORMULE FAUTIVE — il demandait `padding-inline: (piste − tuile)/2`,
+     soit **137**. 📏 Mesuré le 21/09 : depuis le lot 218, le tambour partagé POSE deux cales que
+     la feuille du sac ne dimensionnait pas. Une cale vide reste un élément flex, donc elle
+     ajoutait un `gap` de 8 ENTRE le rembourrage et le premier cran : celui-ci commençait à 145,
+     et centrer le cran `k` réclamait `8 + pas × k`. Le `scroll-snap` rattrapait les 8.
+     ⛔ LE GARDE NE POUVAIT PAS LE VOIR, parce qu'il épelait un MÉCANISME (« un rembourrage de
+     137 ») au lieu de vérifier ce que ce mécanisme doit RENDRE. Il aurait accusé la réparation,
+     et c'est exactement ce qu'il a fait le 21/09.
+     ⭐ IL DEMANDE DONC L'IDENTITÉ, et il la lit là où elle vit — dans le module qui POSE la cale :
+     `cale + écart + tuile/2 = piste/2`. ⛔ Et le rembourrage doit avoir DISPARU : un ruban qui
+     porterait les deux compterait le vide deux fois. */
   const css = feuilleDesCotesSac();
-  const marge = (D.ROUE.piste - D.ROUE.tuile) / 2;
-  assert.ok(css.includes(`.sac .sac-ruban{gap:${D.ROUE.pas - D.ROUE.tuile}px;padding-inline:${marge}px}`),
-    `le ruban devrait s'écarter de ${marge} et espacer de ${D.ROUE.pas - D.ROUE.tuile}`);
+  const ecart = D.ROUE.pas - D.ROUE.tuile;
+  assert.ok(css.includes(`.sac .sac-ruban{gap:${ecart}px}`),
+    `le ruban espace les crans de ${ecart}`);
+  assert.doesNotMatch(css, /\.sac-ruban\{[^}]*padding/,
+    "⛔ le ruban porte ENCORE un rembourrage : avec les cales, le vide serait compté deux fois");
+  const cale = coteDeLaCale(D.ROUE);
+  assert.match(css, new RegExp(`\\.sac \\.roue-cale\\{[^}]*inline-size:${cale}px`),
+    `⛔ la cale du sac ne vaut pas ${cale} : le premier cran ne tombera pas sous la loupe`);
+  assert.match(css, /\.sac \.roue-cale\{[^}]*align-self:stretch/,
+    "⛔ une cale sans hauteur ne compte pas dans le `scrollWidth` : le dernier cran n'arrive jamais");
+  assert.equal(cale + ecart + D.ROUE.tuile / 2, D.ROUE.piste / 2,
+    "⚖️ l'identité : cale + écart + demi-tuile = demi-piste");
   /* ⭐ ET LE PAS EST LA SOMME — ⛔ pas un nombre de plus */
   assert.equal(D.ROUE.pas, D.ROUE.tuile + (D.ROUE.pas - D.ROUE.tuile));
   assert.equal(D.ROUE.loupeX + D.ROUE.dominant / 2, D.DALLE.l / 2,
