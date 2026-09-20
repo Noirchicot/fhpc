@@ -20,19 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=772";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=772";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=773";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=773";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=772";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=773";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=772";
-import { renderConfirmDialog } from "./confirm.mjs?v=772";
-import { renderChoixGlisses } from "./glisser.mjs?v=772";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=772";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=773";
+import { renderConfirmDialog } from "./confirm.mjs?v=773";
+import { renderChoixGlisses } from "./glisser.mjs?v=773";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=773";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
    du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=772";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=773";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
