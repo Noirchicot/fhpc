@@ -1071,7 +1071,7 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
      des boutons, pas une teinte \u00e0 elle : celle de `Sort`, `Gear`, `Send`, `Wares`.
      \ud83d\udd35 Et le liser\u00e9 est BLEU l\u00e0 o\u00f9 le popup l'a rouge : ce panneau ne pr\u00e9vient de rien,
      il \u00e9dite. \ud83d\udd34 Opaque : au premier rendu on lisait `Belt of Dwarvenkind` \u00c0 TRAVERS. */
-  assert.match(habitDeLaNotice.corps, /background:\s*var\(--bouton-face\)/,
+  assert.match(habitDeLaNotice.corps, /background:[^;]*var\(--bouton-face\)/,
     "\u26d4 le panneau doit MASQUER, pas voiler \u2014 et c'est la face des boutons");
   assert.match(habitDeLaNotice.corps, /border:[^;]*var\(--info\)/,
     "\u2696\ufe0f *\u00ab bo\u00eete noire avec contour bleu \u00bb*");
@@ -1754,4 +1754,55 @@ test("34 — 👆 UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT : il rend la main
   const ouverture = source.slice(source.indexOf("placementEnAttente = () =>"));
   assert.match(ouverture.slice(0, 200), /mener\("roue"\)/,
     "⛔ le placement d'ouverture non plus n'est pas un doigt");
+});
+
+test("35 — \ud83c\udfa8 LE GENRE D'UNE SECTION PERSISTE, et l'or ne p\u00e8se pas", async () => {
+  /* \u2696\ufe0f Eric, 2026-09-20 : *\u00ab je veux mon bleu pour le party bag, et mon dor\u00e9 pour les
+     other \u00bb* \u00b7 *\u00ab implication des other storage : ne compte pas dans l'\u00e9quipement, c'est
+     ailleurs \u2014 le cheval, un coffre dans le manoir \u00bb*.
+     \ud83d\udd34 LE LISER\u00c9 DOR\u00c9 EXISTAIT DEPUIS DEUX JOURS, ET IL N'AVAIT AUCUN SUJET : le `+` de
+     droite cr\u00e9ait une section ORDINAIRE. Le genre vivait \u00e0 l'\u00e9cran et rien ne l'\u00c9CRIVAIT
+     au document \u2014 donc il mourait au premier repeint. \u26d4 Un genre qui ne persiste pas
+     n'est pas un genre, c'est une couleur.
+     \ud83d\udd34 ET LA CONS\u00c9QUENCE, JE L'AVAIS \u00c9CRITE DANS L'ENCART SANS QU'ELLE SOIT VRAIE DU
+     CODE : une ligne rang\u00e9e dans une place dor\u00e9e gardait `backpack` et pesait dans
+     `Encumbrance`. \u26d4 Un texte qui promet une r\u00e8gle que le code ne tient pas est pire
+     qu'un texte absent \u2014 le joueur le croit.
+     \u2b50 LE M\u00c9CANISME \u00c9TAIT ENTIER : le party bag rend `storage` pour cette raison exacte,
+     et `LIEUX_PESES` ne somme que `self + backpack`. Il n'y avait rien \u00e0 inventer. */
+  const E = await import("../ui/builder/equipment-step.mjs");
+  const doc = { build: { choices: [
+    { path: "backpack.sections[3].name", value: "Red chest" },
+    { path: "backpack.sections[3].dehors", value: 1 },
+  ] } };
+
+  /* \u2460 LE GENRE SE LIT AU DOCUMENT */
+  assert.deepEqual([...E.sectionsDehors(doc)], [3], "\u26d4 le `+` dor\u00e9 doit \u00c9CRIRE le genre");
+  assert.deepEqual([...E.boitesDehors(doc)], [E.boiteDeSection(3)]);
+  const dite = E.sectionsDuSac(doc).find((x) => x.index === 3);
+  assert.equal(dite.dehors, true, "\u26d4 et la liste des sections doit le porter");
+  assert.equal(E.sectionsDuSac({ build: { choices: [] } }).some((x) => x.dehors), false,
+    "\u26d4 aucune section n'est dehors par d\u00e9faut : c'est le joueur qui le dit");
+
+  /* \u2461 ET UNE PLACE DOR\u00c9E PESE COMME LE PARTY BAG \u2014 hors `Encumbrance` */
+  assert.equal(E.lieuDeLaBoite(E.boiteDeSection(3)), "backpack",
+    "\u26d4 sans le fait, la loi ne peut pas deviner : une bo\u00eete `sN` est dans le sac");
+  assert.equal(E.lieuDeLaBoite(E.boiteDeSection(3), E.boitesDehors(doc)), "storage",
+    "\u2b50 avec le fait, elle rend `storage` \u2014 la ligne `Other`, hors encombrement");
+  assert.equal(E.lieuDeLaBoite(E.boiteDeSection(2), E.boitesDehors(doc)), "backpack",
+    "\u26d4 et les voisines ne changent pas : le genre est PAR SECTION");
+
+  /* \u2462 \ud83c\udfa8 LES DEUX HABITS, ET LEURS DEUX \u00c9TATS \u2014 d\u00e9j\u00e0 tenus par le garde 30 ; ici on
+     v\u00e9rifie que l'\u00c9CRAN pose le `data-lieu` \u00e0 partir de la DONN\u00c9E. */
+  const n = rendu({ section: 1, sections: [
+    { nom: "Weapons" }, { nom: "Party bag", party: true }, { nom: "Red chest", dehors: true }] });
+  const parNom = Object.fromEntries(tous(n, ".sac-cran").map((c) => [c.textContent, c.dataset.lieu]));
+  assert.equal(parNom["Weapons"], undefined, "une section du sac n'a pas de lieu d\u00e9clar\u00e9");
+  assert.equal(parNom["Party bag"], "party", "\ud83d\udd35 le bleu");
+  assert.equal(parNom["Red chest"], "dehors", "\ud83d\udfe1 et l'or");
+
+  /* \u2463 \u26d4 ET LE BANC EN MONTRE UNE : un banc qui ne peut pas montrer l'organe ne prouve
+     rien de lui \u2014 c'est le d\u00e9faut du ruban \u00e0 une seule plaque, une seconde fois. */
+  const banc = fs.readFileSync(path.join(UI, "banc-sac.html"), "utf8");
+  assert.match(banc, /dehors: true/, "\u26d4 le banc doit porter une place hors du sac");
 });

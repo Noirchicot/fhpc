@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=756") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=757") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=756") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=757") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=756") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=757") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=756");
+  background-image: url("./assets/tarot-dos.jpg?v=757");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -12246,12 +12246,21 @@ button.tuto-point::before {
      voit au travers fait croire que les jetons sont encore atteignables.
      🔵 Le liseré est BLEU là où le popup l'a rouge : ce panneau ne prévient de rien, il
      édite. */
-  background: var(--bouton-face);
+  /* ⚖️ *« il faut éclaircir un peu le fond de la notice de sections »* — Eric, 20/09,
+     après l'avoir regardée. ⭐ UN CRAN VERS SA PROPRE ENCRE, ⛔ pas une teinte nouvelle :
+     la face des boutons mêlée à l'encre qu'ils portent reste de la même famille, et elle
+     s'éclaircit dans les DEUX thèmes — un mélange vers `--surface` aurait éclairci le
+     jour et assombri la nuit. */
+  background: color-mix(in srgb, var(--bouton-face) 88%, var(--bouton-encre));
   border: 1px solid var(--info);
   color: var(--bouton-encre);
-  font-size: var(--t0); line-height: 1.35;
+  /* ⚖️ *« augmente d'un incrément tout le texte explicatif dans edit sections »* —
+     Eric, 2026-09-20, après l'avoir lu à l'écran. ⭐ T1 et non T0 : T0 est le RENFORT
+     (*« un détail sous un dé, jamais une ligne à lire »*, tokens.css) — or ceci est
+     exactement une ligne à lire. Le jeton disait déjà que je l'employais mal. */
+  font-size: var(--t1); line-height: 1.35;
 }
-.sac-notice-titre { margin: 0; font-size: var(--t1); font-weight: 700; }
+.sac-notice-titre { margin: 0; font-size: var(--t2); font-weight: 700; }
 .sac-encart {
   display: grid; align-content: start; gap: var(--sp-8);
   overflow: hidden;
@@ -12270,7 +12279,7 @@ button.tuto-point::before {
 .sac-notice-signe[data-signe="effacer"] { background: var(--critical); }
 .sac-notice-signe[data-signe="reculer"],
 .sac-notice-signe[data-signe="avancer"] { background: var(--info); }
-.sac-encart-titre { margin: 0; font-size: var(--t1); font-weight: 700; }
+.sac-encart-titre { margin: 0; font-size: var(--t2); font-weight: 700; }
 .sac-encart-deux, .sac-encart-figees { margin: 0; display: grid; gap: var(--sp-2); }
 .sac-encart-deux dt, .sac-encart-figees dt { font-weight: 700; }
 .sac-encart-deux dd, .sac-encart-figees dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }

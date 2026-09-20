@@ -456,7 +456,14 @@ test("5 ter bis — 🔴 LE LIEU D'UNE BOÎTE EST UNE LOI, ⛔ pas une forme de 
   const shellText = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
   assert.ok(shellText.includes('action.kind === "placerGearLine"'), "le geste vit toujours dans la coquille");
   assert.match(shellText, /gear\[\$\{action\.index\}\]\.boite/, "il écrit `gear[N].boite`");
-  assert.match(shellText, /lieuDeLaBoite\(action\.boite\)/, "et il LIT la loi");
+  /* ⭐ ET IL LUI DONNE CE QU'ELLE NE PEUT PAS DEVINER : quelles boîtes sont DEHORS.
+     ⚖️ Eric, 2026-09-20 : *« implication des other storage : ne compte pas dans
+     l'équipement, c'est ailleurs — le cheval, un coffre dans le manoir »*. ⛔ La loi ne
+     peut pas le lire dans un nom de boîte : c'est le joueur qui l'a dit, en tapant le
+     `+` doré, et ça vit au DOCUMENT. La coquille délègue toujours la décision — elle
+     fournit seulement le fait. */
+  assert.match(shellText, /lieuDeLaBoite\(action\.boite, boitesDehors\(state\.document\)\)/,
+    "et il LIT la loi, en lui passant les boîtes rangées dehors");
   assert.doesNotMatch(shellText, /\? "ground" : "self"/,
     "⛔ un second écrivain pour le même choix : c'est la faute qu'on vient de retirer");
 });

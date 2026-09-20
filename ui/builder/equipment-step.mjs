@@ -49,44 +49,44 @@
    `searchField`, définis en tête de fichier, dont le PROPRE `document`
    référencé est toujours le DOM global (portée de module, jamais ombragée). */
 
-import { renderPicker } from "./carnet.mjs?v=756";
-import { facteurZoomCourant } from "./echelle.mjs?v=756";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=756";
+import { renderPicker } from "./carnet.mjs?v=757";
+import { facteurZoomCourant } from "./echelle.mjs?v=757";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=757";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=756";
-import { swapContent } from "./socle.mjs?v=756";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=756";
+import { isGenre } from "../../src/layers/document.mjs?v=757";
+import { swapContent } from "./socle.mjs?v=757";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=757";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=756";
+import { armerJeton } from "./glisser.mjs?v=757";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=756";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=757";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=756";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE } from "./sac-ecran.mjs?v=757";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=756";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=757";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=756";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=756";
+  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=757";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=757";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=756";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=757";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -98,7 +98,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=756";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=756";
+import { motDuCran } from "./ecran-mort.mjs?v=757";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -381,6 +381,37 @@ export function currentGearLines(document) {
      renommage, et le document perdrait la finesse de ses diffs. */
 const SECTION_RE = /^backpack\.sections\[(\d+)\]\.name$/;
 const RANG_RE = /^backpack\.sections\[(\d+)\]\.rang$/;
+/* ⚖️ LE GENRE D'UNE SECTION — Eric, 2026-09-19 : *« outside your gear (horse, chest,
+   house) »* · croquis « EDIT MODE 1 » : `OUTSIDE BACKPACK + SECTION` crée une place
+   dorée, et 20/09 : *« je veux mon doré pour les other »*.
+   🔴 CE CHEMIN MANQUAIT, ET C'EST TOUT CE QUI MANQUAIT : le `+` de droite créait une
+   section ORDINAIRE. Le liseré doré existait, le genre existait à l'écran, et rien ne
+   l'ÉCRIVAIT au document — donc il mourait au premier repeint. ⛔ Un genre qui ne
+   persiste pas n'est pas un genre, c'est une couleur.
+   ⭐ UN SCALAIRE, DE LA MÊME FORME QUE LE RANG : *« set n'accepte qu'un scalaire — une
+   structure serait une règle déguisée »*. Le chemin existe ou il n'existe pas ; il n'y a
+   pas de « faux » à écrire, et c'est ce qui rend la lecture sûre. */
+const DEHORS_RE = /^backpack\.sections\[(\d+)\]\.dehors$/;
+export const cheminDuDehors = (clef) => `backpack.sections[${clef}].dehors`;
+
+/** Les sections rangées HORS du sac. ⛔ Leur contenu ne pèse pas sur le personnage —
+ *  c'est la conséquence qu'Eric a dictée le 20/09 : *« ne compte pas dans l'équipement,
+ *  c'est ailleurs : le cheval, un coffre dans le manoir »*. */
+export function boitesDehors(document) {
+  return new Set([...sectionsDehors(document)].map((i) => boiteDeSection(i)));
+}
+
+export function sectionsDehors(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const hors = new Set();
+  for (const c of choices) {
+    const m = typeof c.path === "string" ? DEHORS_RE.exec(c.path) : null;
+    /* ⛔ UNE VALEUR FAUSSE EFFACE LE GENRE : le jour où un écran offrira de rapatrier une
+       place, il écrira 0 ici plutôt que de retirer la ligne. */
+    if (m && String(c.value) !== "0" && String(c.value) !== "false") hors.add(Number(m[1]));
+  }
+  return hors;
+}
 /* ⛔ LE PARTY BAG N'A PAS D'INDEX — sa clef est un MOT (§ `SECTION_PARTY`), donc son
    rang ne peut pas vivre sous `backpack.sections[N]`. Il a le SIEN, de même forme :
    une seule idée, deux lieux que la donnée impose. */
@@ -509,11 +540,16 @@ export function sectionsDuSac(document) {
   /* ⭐ LES SIX SONT TOUJOURS LÀ ; celles que le joueur a nommées prennent la place de
      leur rang, les autres gardent leur nom par défaut. ⛔ `??` et non `||` : un nom
      VIDÉ par le `×` est un nom écrit, pas un nom absent. */
+  /* ⭐ ET LE GENRE SE LIT AU DOCUMENT, ⛔ il ne se déduit pas du rang ni du nom : une
+     place hors du sac peut s'appeler n'importe comment et vivre n'importe où dans
+     l'ordre. C'est le joueur qui l'a dite dehors, en tapant le `+` doré. */
+  const hors = sectionsDehors(document);
   const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
     index: i, nom: (parIndex.get(i) || {}).nom ?? nomDeSectionParDefaut(i),
-    renommable: i !== SECTION_DEPOT
+    renommable: i !== SECTION_DEPOT, ...(hors.has(i) ? { dehors: true } : {})
   }));
-  const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC);
+  const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC)
+    .map((x) => (hors.has(x.index) ? { ...x, dehors: true } : x));
   /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE — Eric, 19/09 : *« Party inventory
      dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*. ⚠️ C'est l'ORDRE qui fait
      loi ; le cran s'appelle « Party bag » depuis le soir même (§ `SECTION_PARTY`). */
@@ -557,16 +593,28 @@ export function sectionsDuSac(document) {
  *  partagé par tout le groupe »* (19/09) et *« other storage ne rentre pas dans
  *  encumbrance »* (18/09). ⏳ C'est la seule règle que ce lot tranche sans Eric ; elle
  *  se renverse ici, en un mot. */
-export function lieuDeLaBoite(boite) {
+export function lieuDeLaBoite(boite, horsDuSac) {
   const b = String(boite);
   if (b === boiteDeSection(SECTION_PARTY.clef)) return "storage";
+  /* ⚖️ ET UNE SECTION DORÉE PESE COMME LE PARTY : Eric, 2026-09-20 : *« implication des
+     other storage : ne compte pas dans l'équipement, c'est ailleurs — le cheval, un
+     coffre dans le manoir »*.
+     🔴 ET C'EST LA CONSÉQUENCE QUE J'AVAIS ÉCRITE DANS L'ENCART SANS QU'ELLE SOIT VRAIE DU
+     CODE : une ligne rangée dans une place dorée gardait `backpack` et pèsait dans
+     `Encumbrance`. ⛔ Un texte qui promet une règle que le code ne tient pas est pire
+     qu'un texte absent — le joueur le croit.
+     ⭐ LE MÉCANISME EXISTAIT DÉJÀ, ENTIER : le party bag rend `storage` pour cette
+     raison exacte, et `LIEUX_PESES` ne somme que `self + backpack`. Il n'y avait rien
+     à inventer, seulement à dire QUELLES boîtes sont dehors — et ça, seul le document
+     le sait, donc ça se passe en argument. */
+  if (horsDuSac && typeof horsDuSac.has === "function" && horsDuSac.has(b)) return "storage";
   if (/^s\d+$/.test(b)) return "backpack";
   if (/^sol\d+$/.test(b)) return "ground";
   return "self";
 }
 
 /** ⭐ Ce qui se RANGE ne se PORTE pas — le corollaire, nommé une fois. */
-export const seRange = (boite) => ["backpack", "storage"].includes(lieuDeLaBoite(boite));
+export const seRange = (boite, horsDuSac) => ["backpack", "storage"].includes(lieuDeLaBoite(boite, horsDuSac));
 
 /** Le prochain index de section libre — même loi que `nextGearIndex` : un index
  *  qui a existé ne redevient pas anonyme.

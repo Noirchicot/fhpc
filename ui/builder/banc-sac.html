@@ -17,9 +17,9 @@
 <!-- ⚠️ LES TROIS FEUILLES DU PRODUIT, DANS SON ORDRE. `fiche.css` porte l'habit
      du livre et du `?` ; sans elle le banc les rendait nus et j'ai failli croire
      que l'écran était faux. ⛔ Un banc qui charge moins que le produit MENT. -->
-<link rel="stylesheet" href="./tokens.css?v=756">
-<link rel="stylesheet" href="./shell.css?v=756">
-<link rel="stylesheet" href="./fiche.css?v=756">
+<link rel="stylesheet" href="./tokens.css?v=757">
+<link rel="stylesheet" href="./shell.css?v=757">
+<link rel="stylesheet" href="./fiche.css?v=757">
 <style>
   /* ⛔ L'ÉCHAFAUDAGE, ET RIEN D'AUTRE : la largeur du panneau et la hauteur
      d'une scène (560 − 60 de belt). */
@@ -39,7 +39,7 @@
   <div class="banc-scene" id="scene"></div>
 </div>
 <script type="module">
-import { construireLeSac, poserLesDalles } from "./sac-ecran.mjs?v=756";
+import { construireLeSac, poserLesDalles } from "./sac-ecran.mjs?v=757";
 
 /* LES SECTIONS DE DÉMONSTRATION — celles qu'un joueur aurait créées. ⛔ Aucune
    de ces valeurs n'est une donnée du produit. */
@@ -49,7 +49,13 @@ import { construireLeSac, poserLesDalles } from "./sac-ecran.mjs?v=756";
 const SECTIONS = [
   { nom: "Party bag", party: true, fige: true, renommable: false },
   { nom: "Backpack dropdown", renommable: false },
-  { nom: "Storage 1" }, { nom: "Storage 2" }, { nom: "Storage 3" }];
+  { nom: "Storage 1" }, { nom: "Storage 2" },
+  /* ⭐ ET UNE PLACE HORS DU SAC — Eric, 2026-09-20 : *« je veux mon doré pour les
+     other »*. ⛔ Sans elle le banc ne peut RIEN montrer de l'or : aucun des cinq crans
+     ne portait `dehors`, et le genre restait une règle sans sujet. C'est le même
+     défaut que le ruban à une seule plaque — un banc qui ne peut pas montrer l'organe
+     ne prouve rien de lui. */
+  { nom: "Red chest", dehors: true }];
 let section = 0;
 /* ⭐ LE MODE ÉDITION SE REGARDE, DONC LE BANC LE PORTE : le bouton `Sections`
    l'allume, et on voit le champ, le `+` et le `−` comme le joueur les verra. */
