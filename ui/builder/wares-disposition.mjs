@@ -143,7 +143,11 @@ export const ORGANES = [
   { nom: "GEAR",                sorte: "porte",      dalle: "PIED",    x: 64,     y: 452, l: 77,  h: 44, cible: { x: 64, y: 452, l: 77, h: 44 }, mot: "Gear", cran: "T2/600" },
   { nom: "SEND",                sorte: "porte",      dalle: "PIED",    x: 149,    y: 452, l: 77,  h: 44, cible: { x: 149, y: 452, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
   { nom: "BACKPACK",            sorte: "porte",      dalle: "PIED",    x: 234,    y: 452, l: 77,  h: 44, cible: { x: 234, y: 452, l: 77, h: 44 }, mot: "Backpack", cran: "T2/600" },
-  { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 338,    y: 463, l: 22,  h: 22, cible: { x: 327, y: 452, l: 44, h: 44 }, mot: "?" },
+  /* ⛔ LE `?` EST POSÉ PAR LA COQUILLE, UNE FOIS, SUR TOUTES LES ÉTAPES — jamais par un écran,
+     qui pourrait l'oublier (NORMES). Il est AU PLAN parce qu'il occupe une borne de la rangée
+     et que sa place compte ; il n'est pas CONSTRUIT ici, et le garde de la bijection doit le
+     savoir, sans quoi il accuserait l'écran d'une absence qui est une loi. */
+  { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 338,    y: 463, l: 22,  h: 22, cible: { x: 327, y: 452, l: 44, h: 44 }, mot: "?", coquille: true },
 ];
 
 /* ── LE FILIGRANE DE LA DALLE 2 ───────────────────────────────────────────────

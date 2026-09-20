@@ -12677,6 +12677,15 @@ button.tuto-point::before {
 /* — LE JETON : celui du sac, à l'identique. ⛔ Wares ne le redessine pas — */
 .wares-case { display: grid; }
 .wares-jeton {
+  /* 🔴 `position: relative` PORTE UNE FAUTE MESURÉE, ⛔ CE N'EST PAS UN RÉFLEXE. `.jeton-marques`
+     — la bande des quatre marques — est posée en ABSOLU par la famille du jeton. Sans hôte
+     positionné ici, elle remonte jusqu'au premier ancêtre qui l'est : 📏 mesuré au banc le 20/09,
+     le `×2` d'un jeton de la dalle 2 se peignait à **y = 2**, en haut de la dalle 1, par-dessus
+     le tambour. ⭐ C'est « un organe niché se pose par rapport à son HÔTE, pas à la dalle » — la
+     même faute que `sac-ecran` raconte au premier rendu de son banc.
+     ⛔ ET AUCUN GARDE DE FICHIER NE POUVAIT LA VOIR : c'est une position RENDUE. Il a fallu
+     regarder l'image. Qui retire cette ligne renvoie les marques en haut de l'écran. */
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
   inline-size: 100%; block-size: 100%;
   padding-inline: var(--sp-4); padding-top: var(--jeton-bande);

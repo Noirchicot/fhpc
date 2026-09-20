@@ -226,3 +226,56 @@ test("14 · le filigrane est un masque, et son actif est là", () => {
   assert.equal(tous(monter(), ".wares-fond")[0].getAttribute("aria-hidden"), "true",
     "⛔ un décor qui se lit à voix haute");
 });
+
+/* ══ 15 · 🔴 LA BIJECTION PLAN ↔ DOM — LE GARDE QUI MANQUAIT ═══════════════════
+   ⭐ TÉMOIN : chaque organe du plan est POSÉ par l'écran, et chaque organe posé est AU plan.
+
+   🔴 CE GARDE EXISTE PARCE QUE QUATORZE AUTRES N'ONT RIEN VU. Le plan déclarait QUATRE tuners ;
+   l'écran n'en posait AUCUN, et la suite était verte. Mesuré au banc, au navigateur : dix des
+   vingt-et-un organes du plan manquaient au DOM.
+   ⭐ ET C'EST LA LEÇON DE LA MAISON, APPLIQUÉE : *« une liste par nom de ce qu'on remet à zéro
+   est incomplète par construction : l'INVERSER »*. Mes quatorze gardes nommaient chacun ce
+   qu'ils voulaient voir — aucun ne pouvait dire ce qu'il IGNORAIT. Seule l'inversion accuse une
+   absence : on part du PLAN, qui est la liste complète, et on demande au DOM.
+   ⛔ ET IL SE LIT DANS LES DEUX SENS : une bijection fausse est cohérente, et seule la seconde
+   lecture l'attrape. Un organe posé qui n'est pas au plan est une cote que personne ne tient. */
+test("15 · 🔴 chaque organe du plan est posé, et chaque organe posé est au plan", () => {
+  const n = monter();
+  const poses = new Set(tous(n, "[data-organe]").map((e) => e.dataset.organe));
+
+  /* ⛔ LE `?` EST L'EXCEPTION, ET ELLE EST UNE LOI, PAS UN OUBLI : la coquille le pose une
+     fois, sur toutes les étapes — *« jamais par un écran, qui pourrait l'oublier »*. Le plan
+     le marque `coquille: true`, donc le garde le sait sans qu'on lui écrive un nom en dur.
+     ⭐ C'est ce qui distingue une exception NOMMÉE d'une liste d'exceptions par nom : celle-ci
+     vit dans la donnée, et elle ne peut pas devenir incomplète en silence. */
+  const dus = D.ORGANES.filter((o) => o.coquille !== true).map((o) => D.CLEF_DE[o.nom]);
+  const manquants = dus.filter((c) => !poses.has(c));
+  assert.deepEqual(manquants, [],
+    `⛔ le plan les déclare et l'écran ne les pose pas : ${manquants.join(", ")}`);
+
+  const connus = new Set(Object.values(D.CLEF_DE));
+  const orphelins = [...poses].filter((c) => !connus.has(c));
+  assert.deepEqual(orphelins, [],
+    `⛔ posés sans être au plan — leur cote n'est tenue par personne : ${orphelins.join(", ")}`);
+});
+
+/* ⭐ TÉMOIN : les quatre tuners tournent leur PROPRE roue, ⛔ pas celle du voisin.
+   🔴 Quatre organes identiques à deux exemplaires sont le terrain exact de la faute que le
+   dépôt nomme « la ressemblance des organes » — un copier-coller qui vise la mauvaise roue
+   rend un écran où l'étage du haut commande celui du bas, et rien ne le dit. */
+test("16 · chaque tuner tourne SA roue, et vers son côté", () => {
+  const n = monter();
+  const roues = tous(n, ".wares-roue");
+  const tuners = tous(n, ".wares-tuner");
+  assert.equal(tuners.length, 4, "⛔ deux tuners par étage, et il y a deux étages");
+  /* l'étage 1 est à zéro : son tuner droit doit l'avancer, et ⛔ ne pas toucher l'étage 2 */
+  roues[1].scrollLeft = 0;
+  tuners[1].dispatchEvent(new (globalThis.Event || Object)("click"));
+  assert.ok(roues[0].scrollLeft > 0, "⛔ le tuner droit de l'étage 1 ne l'a pas fait avancer");
+  assert.equal(roues[1].scrollLeft, 0, "⛔ il a bougé l'étage 2 : un tuner qui vise la mauvaise roue");
+  /* et le gauche du second étage ne doit pas ramener le premier */
+  const avant = roues[0].scrollLeft;
+  roues[1].scrollLeft = 2 * 65;
+  tuners[2].dispatchEvent(new (globalThis.Event || Object)("click"));
+  assert.equal(roues[0].scrollLeft, avant, "⛔ le tuner de l'étage 2 a bougé l'étage 1");
+});

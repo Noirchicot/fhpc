@@ -66,11 +66,37 @@ export function feuilleDesCotesWares() {
   r.push(`.wares-tambour{display:grid;grid-template-rows:${px(ROUE.hauteurDominante)} ${px(ROUE.hauteurDominante)};` +
          `row-gap:${px(ECART_ETAGES)};padding:${px(REMBOURRAGE)} 0;` +
          `grid-template-columns:${px(22)} 1fr ${px(22)}}`);
-  r.push(`.wares-etage{grid-column:1 / -1;display:block;height:${px(ROUE.hauteurDominante)}}`);
+  /* ⭐ LA ROUE PREND LA COLONNE DU MILIEU, ⛔ PLUS TOUTE LA LARGEUR : `375 − 2 × 22 = 331`, et 331
+     est exactement `ROUE.piste` au plan. Les deux bornes de 22 ne sont pas décoratives — ce sont
+     les places des tuners, et je les avais laissées vides. */
+  r.push(`.wares-etage{grid-column:2;display:block;height:${px(ROUE.hauteurDominante)}}`);
+  r.push(`.wares-tuner{align-self:center;justify-self:center;` +
+         `border:0;background:none;color:var(--text-soft);font:inherit;` +
+         `font-size:${px(16)};line-height:1;cursor:pointer;` +
+         `min-inline-size:${px(TOUCH)};min-block-size:${px(TOUCH)}}`);
+  /* ⛔ ET CHACUN SA COLONNE, NOMMÉE : `grid-auto-flow` les rangerait dans l'ordre du DOM, ce qui
+     marche par accident tant que l'ordre ne bouge pas. Une place qui se DÉCLARE ne se découvre
+     pas à l'exécution — c'est ce que le sacré n° 3 retire à `flex-wrap`. */
+  /* 🔴 ET ILS SE RABATTENT SUR LE BORD, ⛔ ILS NE SE CENTRENT PAS DANS LEUR BORNE — mesuré au
+     navigateur : centré dans une borne de 22, un bouton de 44 rend à **x = −11**, donc il SORT
+     de la dalle. C'est mot pour mot la faute du 18/09 sur le sac (*« le chevron gauche courait
+     de −13 à 31 : il n'en restait que 31 de touchable »*), et ce qui dépasse est CLIPPÉ.
+     ⛔ AUCUN GARDE DE FICHIER NE POUVAIT LE VOIR : le plan déclare la cible à x = 0, et elle y
+     est — c'est la GRILLE qui la déplace. Un garde lit la boîte déclarée, jamais ce qu'il en
+     reste à l'écran. Il a fallu regarder.
+     ⭐ Rabattus, ils mordent 22 sur la piste de la roue — ce qu'Eric accepte explicitement
+     (*« pas grave si ça dépasse un peu sur la dalle adjacente »*), et le plan le dit déjà par
+     `dans: "ROUE …"` : un tuner est le contrôle de sa roue, posé sur son bord. */
+  r.push(`.wares-tuner[data-organe$="-g"]{grid-column:1;justify-self:start}`);
+  r.push(`.wares-tuner[data-organe$="-d"]{grid-column:3;justify-self:end}`);
   /* la marge du ruban laisse le premier et le dernier cran arriver au centre — c'est elle
      qui rend `scrollLeft = pas × k` exact, et c'est la même que celle du sac */
-  r.push(`.wares-ruban{display:flex;gap:${px(ROUE.pas - ROUE.tuile)};` +
-         `padding-inline:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
+  /* 🔴 LE RUBAN PREND LA HAUTEUR DE SA ROUE, ET SANS ÇA LES CRANS S'ÉCRASENT — mesuré au banc :
+     15,2 blg rendus au lieu de 40. `block-size: 100%` sur un cran se résout sur le RUBAN, et un
+     flex en hauteur automatique se réduit à son contenu. ⛔ Aucun garde de fichier ne pouvait le
+     voir : c'est une hauteur RENDUE, pas une hauteur déclarée. Il a fallu regarder. */
+  r.push(`.wares-ruban{display:flex;block-size:100%;align-items:stretch;` +
+         `gap:${px(ROUE.pas - ROUE.tuile)};padding-inline:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
 
   /* ── dalle 2 : deux gouttières et la grille, sans écart entre elles ──
      ⛔ LES GOUTTIÈRES NE PARTICIPENT PAS AU `gap` : si elles le faisaient, la dalle vaudrait
@@ -128,6 +154,22 @@ export function feuilleDesCotesWares() {
    ⚖️ « fonctionnement exactement celui de backpack » (Eric, 20/09) — même roue, même
    navigation, ⛔ et elle ne tourne plus à l'infini. Le second étage n'est pas un second
    mécanisme : c'est le MÊME, monté deux fois. */
+/* ⚖️ LES DEUX TUNERS D'UN ÉTAGE — Eric, 18/09 : *« les tuners sont pour la souris »*. Au repos
+   c'est un CHEVRON qu'on tape ; au survol il devient la molette. ⭐ Le même organe, deux visages,
+   et c'est le visage TAPÉ qui réclame les 44 (NORMES `cadre-le-plancher-tactile-…`).
+   🔴 ILS MANQUAIENT, ET AUCUN DE MES QUATORZE GARDES NE L'A VU : le plan en déclarait quatre,
+   l'écran n'en posait aucun. C'est la bijection plan ↔ DOM qui l'a attrapé, écrite APRÈS —
+   une liste par nom de ce qu'un écran doit porter est incomplète par construction ; seule
+   l'INVERSION (partir du plan, demander au DOM) peut accuser une absence. */
+function tuner(clef, sens, roue, nb) {
+  const b = bouton("wares-tuner", sens < 0 ? "‹" : "›",
+    sens < 0 ? "Previous" : "Next",
+    () => { const k = Math.round(roue.scrollLeft / ROUE.pas) + sens;
+            roue.viser(Math.max(0, Math.min(k, nb - 1))); });
+  b.dataset.organe = clef;
+  return b;
+}
+
 function etage(nom, items, actif, surViser) {
   const roue = el("div", "wares-roue wares-etage");
   roue.dataset.organe = CLEF_DE[nom];
@@ -151,7 +193,13 @@ function etage(nom, items, actif, surViser) {
     const k = Math.round(roue.scrollLeft / ROUE.pas);
     if (k !== actif && surViser) surViser(Math.max(0, Math.min(k, items.length - 1)));
   });
-  return monterLeTambour({ roue, ruban, crans, actif, pas: ROUE.pas });
+  monterLeTambour({ roue, ruban, crans, actif, pas: ROUE.pas });
+  /* ⭐ L'ÉTAGE EST LES TROIS ENSEMBLE — les deux bornes de 22 et la piste de 331 au milieu.
+     ⛔ Un tuner posé « à côté » de la roue serait un organe que la grille du tambour ne place
+     pas, et le sacré n° 3 l'interdit : tout est dans une boîte, les boîtes sont sur une grille. */
+  const court = nom === "ROUE CATEGORIES" ? "categories" : "sous-categories";
+  return [tuner(`tuner-${court}-g`, -1, roue, items.length), roue,
+          tuner(`tuner-${court}-d`, +1, roue, items.length)];
 }
 
 /* ══ UN JETON DE LA GRILLE ═════════════════════════════════════════════════════
@@ -236,8 +284,8 @@ export function construireLesWares(o = {}) {
   /* ── DALLE 1 ─────────────────────────────────────────────────────────────── */
   const tambour = el("div", "wares-tambour wares-dalle");
   tambour.append(
-    etage("ROUE CATEGORIES", o.categories || [], o.categorie | 0, o.surCategorie),
-    etage("ROUE SOUS-CATEGORIES", o.sousCategories || [], o.sousCategorie | 0, o.surSousCategorie),
+    ...etage("ROUE CATEGORIES", o.categories || [], o.categorie | 0, o.surCategorie),
+    ...etage("ROUE SOUS-CATEGORIES", o.sousCategories || [], o.sousCategorie | 0, o.surSousCategorie),
   );
 
   /* ── DALLE 2 ─────────────────────────────────────────────────────────────── */
@@ -324,7 +372,9 @@ export function construireLesWares(o = {}) {
 function rangeeDuPied(o) {
   const r = el("div", "wares-rangee");
   r.dataset.rangee = "wares";
+  r.dataset.organe = "rangee";
   const livre = bouton("fiche-livre wares-livre", undefined, "Rules");
+  livre.dataset.organe = "livre";
   if (o.livreDe && o.livreDe.href) {
     livre.addEventListener("click", () => { window.open(o.livreDe.href, "_blank", "noopener"); });
   } else {
@@ -337,6 +387,10 @@ function rangeeDuPied(o) {
     const note = id === "send" ? "Send — clears the collector and sends" : mot;
     const b = bouton("wares-porte", mot, note, () => o.surPorte && o.surPorte(id));
     b.dataset.porte = id;
+    /* ⭐ ET IL PORTE AUSSI SA CLEF DU PLAN. ⛔ `data-porte` dit son RÔLE dans la rangée ;
+       `data-organe` dit QUI il est au plan. Sans le second, la bijection plan ↔ DOM ne peut
+       pas le trouver, et une absence se lirait comme un choix. */
+    b.dataset.organe = id;
     majeurs.append(b);
   }
   r.append(majeurs);
