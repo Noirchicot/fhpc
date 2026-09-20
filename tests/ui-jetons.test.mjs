@@ -1334,3 +1334,12 @@ test("⚔️ ATTAQUE — un cran nu (`--t4: 16px`) ou hors compensation rougit",
   assert.deepEqual(cransCompenses("--t4: calc(16px / var(--echelle));"), {}, "divisé par l'échelle directement : c'est contourner l'interrupteur");
   assert.deepEqual(cransCompenses("--t4: calc(16px / var(--compense-texte));"), { t4: 16 }, "la forme attendue est vue");
 });
+
+test("🔴 20/09 — `body` NOMME son corps (T4) : l'héritage d'un défaut n'est pas un cran", () => {
+  /* Mesuré sur le site après v766 : six boutons du Menu rendaient 20,48 px
+     (16 × 1,28) pendant que tout le reste rendait son cran. Leur corps était
+     le défaut du navigateur, hérité d'un `body` muet — ni un cran, ni compensé. */
+  const corps = stripComments(shellCssRaw).match(/(^|\n)body\s*\{([^}]*)\}/g) || [];
+  assert.ok(corps.some((r) => /font-size\s*:\s*var\(--t4\)/.test(r)),
+    "une règle `body { … }` porte `font-size: var(--t4)` — sans elle, tout ce qui hérite sans rien dire rend 16 × échelle");
+});

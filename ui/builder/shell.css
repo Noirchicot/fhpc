@@ -5,7 +5,18 @@
    produit, c'est changer un jeton — jamais une ligne d'ici. */
 
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+/* 🔴 LE CORPS DU SOCLE EST NOMMÉ — 2026-09-20, après la mise en ligne de v766.
+   Eric, sur le Mac : *« ce sont les boutons qui posent problème, le reste nickel »*.
+   📏 MESURÉ SUR LE SITE (Chromium, 1440 × 900, échelle 1,28) : 27 textes sur
+   l'écran Menu, 21 rendent leur cran, **6 rendent 20,48 px** — les six boutons.
+   Leur corps calculé valait 16 px exactement : pas un cran, le DÉFAUT du
+   navigateur, hérité de `body` qui ne disait rien. `button { font: inherit }`
+   héritait donc d'une absence, et une absence n'est jamais une réponse — elle
+   n'est ni un cran T, ni compensée par `--compense-texte`.
+   ⭐ Le socle nomme son corps : T4, le corps qu'on lit. Tout ce qui hérite
+   sans rien dire hérite désormais d'un cran, et le garde de `ui-jetons` le
+   tient. */
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: var(--t4); }
 
 /* ══ LA SONDE DU TEXTE — amendement du 2026-09-20 (NORMES §0 bis) ═══════════
    Deux témoins invisibles que `echelle.mjs` compare : le même texte dans un
@@ -3048,7 +3059,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=766") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=767") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3371,7 +3382,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=766") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=767") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5023,7 +5034,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=766") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=767") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8004,7 +8015,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=766");
+  background-image: url("./assets/tarot-dos.jpg?v=767");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
