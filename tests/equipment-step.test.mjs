@@ -398,6 +398,75 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
   node.querySelector('.gear-porte[data-porte="gear"]').click();
 });
 
+/* ══ LOT 215 — UNE FICHE REVIENT D'OÙ ELLE A ÉTÉ OUVERTE ══════════════════
+
+   🔴 CE QUE CE GARDE DÉFEND, ET ERIC L'A VU AVANT LUI (20/09) : *« je visite un
+   item et je le referme, je ne reviens pas au point d'origine, je reviens dans
+   gear, problématique »*.
+   ⛔ LA CAUSE : `surPorte` nommait `"gear"` EN DUR — quatre fois — et les deux
+   `surJeton` qui ouvrent la fiche n'enregistraient pas l'origine. L'information
+   n'existait pas au moment de fermer.
+   ⭐ ET L'IDIOME JUSTE ÉTAIT DÉJÀ DANS LE FICHIER : `renderB1` ferme par
+   `montrer(ficheEnCours.retour || "r")` — B1 LIT son appelant. X1, plus récent, ne
+   l'a pas hérité. C'est la loi du 19/09 en habit neuf : *un retournement — ou un
+   réemploi — hérite du calcul sans hériter de ce qui l'entoure.*
+
+   ⚔️ LE TÉMOIN VISITE LES DEUX CHEMINS, et c'est ce qui le rend capable
+   d'accuser : depuis GEAR il était DÉJÀ vert (c'est le seul cas que le code
+   servait) ; depuis le SAC il était ROUGE. Un garde qui n'aurait testé que le sac
+   aurait pu être « réparé » en cassant Gear sans que rien ne rougisse. */
+test("lot 215 — 🔴 la fiche d'un objet revient D'OÙ ELLE VIENT, ⛔ pas toujours dans Gear", () => {
+  const doc = {
+    build: {
+      choices: [
+        /* un objet PORTÉ — il se voit depuis Gear */
+        { path: "gear[0]", ref: { kind: "gem", id: "srfh:gem:en:azurite" } },
+        { path: "gear[0].quantity", value: 1 },
+        { path: "gear[0].location", value: "self" },
+        /* et un objet RANGÉ — il se voit depuis le sac */
+        { path: "gear[1]", ref: { kind: "gem", id: "srfh:gem:en:azurite" } },
+        { path: "gear[1].quantity", value: 1 },
+        { path: "gear[1].location", value: "backpack" }
+      ]
+    }
+  };
+  const node = renderEquipmentStep({ document: doc, resolved: null, query, search: true }, () => {});
+  const dansLeSac = () => !!node.querySelector('[data-ecran="SB3.1"]');
+  /* ⛔ `armerJeton` ne s'arme que sur le bouton 0 ; le `contextmenu` posé à côté
+     ouvre la même fiche, et c'est le chemin que ce banc peut emprunter.
+     ⚠️ Ce qu'il ne prouve donc PAS : le tap au DOIGT, qui passe par le pointeur. */
+  const ouvrirUneFiche = () => {
+    const jeton = node.querySelector('[data-occupe="oui"]');
+    assert.ok(jeton, "l'écran doit porter au moins un jeton occupé à ouvrir");
+    jeton.dispatchEvent({ type: "contextmenu", target: jeton });
+    const close = node.querySelector('.x1-porte[data-porte="close"]');
+    assert.ok(close, "la fiche X1 doit être ouverte, avec sa porte Close");
+    return close;
+  };
+
+  /* ① DEPUIS GEAR — déjà juste avant le correctif, et il doit le rester. */
+  assert.equal(dansLeSac(), false, "on démarre sur Gear, pas dans le sac");
+  ouvrirUneFiche().click();
+  assert.equal(dansLeSac(), false,
+    "une fiche ouverte depuis GEAR rend GEAR — ⛔ le correctif ne doit pas l'échanger contre le sac");
+
+  /* ② DEPUIS LE SAC — le chemin d'Eric, et celui qui était rouge. */
+  node.querySelector('.gear-porte[data-porte="backpack"]').click();
+  assert.ok(dansLeSac(), "témoin de départ : la porte Backpack ouvre bien le sac");
+  const close = ouvrirUneFiche();
+  assert.equal(dansLeSac(), false, "la fiche a bien remplacé le sac à l'écran");
+  close.click();
+  assert.ok(dansLeSac(),
+    "🔴 fermer une fiche ouverte DEPUIS LE SAC doit rendre LE SAC, jamais Gear");
+
+  /* ⛔ LA VUE EST UN ÉTAT DE MODULE : sans cette sortie, les gardes suivants
+     recevraient le sac au lieu de Gear. Avant le correctif le test finissait sur
+     Gear PAR LA FAUTE elle-même — c'est exactement le genre de propreté que la
+     réparation retire, et qu'il faut donc rendre explicite. */
+  node.querySelector('.gear-porte[data-porte="gear"]').click();
+  assert.equal(dansLeSac(), false, "la suite hérite de Gear, comme elle l'attend");
+});
+
 /* ══ LOT 182 — L'OR DE DÉPART SE LIT DANS LA DONNÉE, DES DEUX CÔTÉS ═══════
 
    🔴 CE QUE CES GARDES DÉFENDENT, ET IL A ÉTÉ MESURÉ AVANT D'ÊTRE ÉCRIT.
