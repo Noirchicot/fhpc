@@ -44,7 +44,27 @@ export function monterLeTambour(o) {
   const n = crans.length;
   const actif = n ? Math.max(0, Math.min(o.actif | 0, n - 1)) : 0;
 
+  /* 🔴 DEUX CALES, ⛔ PLUS UN `padding` — ET C'EST UNE MESURE, PAS UN GOÛT. Eric, 20/09 :
+     *« il faut que tu autorises les espaces vides à droite et à gauche des tokens »*.
+     📏 Le ruban portait `padding-inline: (piste − tuile) / 2` — 137 de chaque côté — et ça ne
+     marchait PAS : dans un défileur, le `padding-inline-end` d'un enfant `flex` n'entre pas
+     dans le `scrollWidth`. Relevé au navigateur : piste 331, centre 166, et le PREMIER cran
+     avait son centre à **226** (60 trop à droite) tandis que le DERNIER ne descendait jamais
+     sous 487. Aucun des deux ne pouvait atteindre le viseur.
+     ⛔ ET LE SAC A LE MÊME DÉFAUT, mesuré dans la même minute : 1er à 226, dernier à 321 au
+     défilement maximal. Ce n'est donc pas une régression de Wares — c'est un défaut PARTAGÉ,
+     que six catégories rendent visible là où cinq sections le cachaient.
+     ⭐ UNE CALE EST UN ÉLÉMENT : elle compte toujours, dans tous les moteurs. Et elle est
+     `aria-hidden` — un vide qui se lit à voix haute est un vide qui ment. */
+  const cale = () => {
+    const c = document.createElement("span");
+    c.className = "roue-cale";
+    c.setAttribute("aria-hidden", "true");
+    return c;
+  };
+  ruban.append(cale());
   for (const cran of crans) ruban.append(cran);
+  ruban.append(cale());
 
   /* ⭐ LA TRADUCTION SORT AVEC LA ROUE, dans les DEUX sens. ⛔ La recopier chez l'appelant
      en ferait une seconde vérité, et un jour un cran de service (un `+`, un `blank`) la
@@ -62,6 +82,11 @@ export function monterLeTambour(o) {
      poser sera oublié par celui qui l'oublie : Wares en monte deux de plus, et rien ne le lui
      aurait rappelé. Le module marque donc d'abord, et l'appelant peut le redire — c'est la même
      valeur, et l'idempotence est ce qui rend le déménagement sans risque. */
+  /* 🔴 LE MARQUAGE LIT LE TABLEAU DES CRANS, ⛔ PLUS `ruban.children[k]` — les deux cales sont
+     des enfants, donc l'index du DOM n'est plus celui du cran. ⭐ Et c'est plus juste de toute
+     façon : le module reçoit ses crans, il n'a jamais eu besoin de les retrouver par position
+     dans un parent qu'il ne possède pas. Un index qui traverse une frontière est un index qui
+     se décale au premier voisin. */
   let marque = null;
 
   /* ⚖️ LE HALO RESTE CENTRÉ — Eric : *« le halo doit rester centré, les items défilent
@@ -81,7 +106,7 @@ export function monterLeTambour(o) {
      le contenu. ⭐ Ici deux écritures, quel que soit le nombre de crans. */
   const marquer = (k) => {
     if (marque) marque.dataset.dominant = "non";
-    marque = ruban.children[k] || null;
+    marque = crans[k] || null;
     if (marque) marque.dataset.dominant = "oui";
     habillerLaLoupe(marque);
   };

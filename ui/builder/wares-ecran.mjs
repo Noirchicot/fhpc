@@ -132,7 +132,11 @@ export function feuilleDesCotesWares() {
      flex en hauteur automatique se réduit à son contenu. ⛔ Aucun garde de fichier ne pouvait le
      voir : c'est une hauteur RENDUE, pas une hauteur déclarée. Il a fallu regarder. */
   r.push(`.wares-ruban{display:flex;block-size:100%;align-items:stretch;` +
-         `gap:${px(ROUE.pas - ROUE.tuile)};padding-inline:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
+         `gap:${px(ROUE.pas - ROUE.tuile)}}`);
+  /* ⭐ LA CALE PORTE LE VIDE DES DEUX BOUTS — ⛔ plus un `padding`, qui ne compte pas dans le
+     `scrollWidth` d'un flex en défilement (mesuré : le premier cran ne pouvait pas atteindre le
+     viseur, le dernier non plus). Sa largeur laisse une tuile arriver au CENTRE de la piste. */
+  r.push(`.roue-cale{flex:0 0 auto;inline-size:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
 
   /* ── dalle 2 : deux gouttières et la grille, sans écart entre elles ──
      ⛔ LES GOUTTIÈRES NE PARTICIPENT PAS AU `gap` : si elles le faisaient, la dalle vaudrait
@@ -410,7 +414,13 @@ export function construireLesWares(o = {}) {
      `Wares`. Deux noms pour un écran sont un libellé qui ment, en plus discret. */
 
   /* ── DALLE 1 ─────────────────────────────────────────────────────────────── */
-  const tambour = el("div", "wares-tambour wares-dalle");
+  /* 🔴 LE TAMBOUR N'EST PLUS UNE DALLE — Eric, 20/09 : *« il faut aussi dégager le fond
+     sombre »*. 📏 Mesuré : dans le SAC, la roue et TOUS ses ancêtres sont transparents — elle
+     flotte sur le fond de scène, et c'est ce qui fait que son viseur et son cran dominant se
+     détachent. Wares portait `--dalle-simple` à 35 % derrière la roue : le cadre du viseur s'y
+     noyait, et l'aura avec. ⭐ La dictée du 20/09 disait « Voile 35 % » ; elle vaut pour les
+     dalles qui portent du CONTENU (la grille, le pied), ⛔ pas pour la bande où passe la roue. */
+  const tambour = el("div", "wares-tambour");
   tambour.append(
     ...etage("ROUE CATEGORIES", o.categories || [], o.categorie | 0, o.surCategorie),
     ...etage("ROUE SOUS-CATEGORIES", o.sousCategories || [], o.sousCategorie | 0, o.surSousCategorie),

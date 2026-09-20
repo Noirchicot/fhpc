@@ -61,11 +61,19 @@ test("1 · trois dalles, dans l'ordre : le tambour, la grille, le pied", () => {
      rougi dès que la feuille des cotes est entrée dans le nœud : un `<style>` est un enfant,
      ce n'est pas une dalle. ⭐ Le garde avait raison de rougir, et sa question était mal
      posée : ce qui compte est qu'il y ait TROIS dalles, dans l'ordre. */
-  const dalles = tous(n, ".wares-dalle");
-  assert.equal(dalles.length, 3, "⛔ l'écran n'a pas exactement trois dalles");
-  assert.ok(dalles[0].className.includes("wares-tambour"), "la première est le tambour");
-  assert.ok(dalles[1].className.includes("wares-grille"), "la deuxième est la grille");
-  assert.ok(dalles[2].className.includes("wares-pied"), "la troisième est le pied");
+  /* 🔄 TROIS BANDES, ⛔ MAIS PLUS TROIS DALLES (lot 222). Eric, 20/09 : *« il faut aussi dégager
+     le fond sombre »*. 📏 Mesuré dans le SAC : la roue et tous ses ancêtres sont transparents —
+     elle flotte sur le fond de scène, et c'est ce qui fait que son viseur et son cran dominant
+     se détachent. Le tambour de Wares n'est donc plus une DALLE ; la grille et le pied, qui
+     portent du contenu, gardent leur voile de 35 %. */
+  const bandes = [...n.children].filter((e) => e.tagName !== "STYLE");
+  assert.equal(bandes.length, 3, "⛔ l'écran n'a pas exactement trois bandes");
+  assert.ok(bandes[0].className.includes("wares-tambour"), "la première est le tambour");
+  assert.ok(bandes[1].className.includes("wares-grille"), "la deuxième est la grille");
+  assert.ok(bandes[2].className.includes("wares-pied"), "la troisième est le pied");
+  assert.ok(!bandes[0].className.includes("wares-dalle"),
+    "⛔ le tambour ne porte plus de voile : le viseur s'y noyait, et l'aura avec");
+  assert.equal(tous(n, ".wares-dalle").length, 2, "⛔ seules la grille et le pied sont des dalles");
 });
 
 /* ⭐ TÉMOIN : ⛔ AUCUN TITRE. Eric, 20/09 : *« Equipment browser dégage »*.

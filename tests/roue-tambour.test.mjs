@@ -43,9 +43,21 @@ function monter(nb, actif = 0, options = {}) {
    ⛔ « une seule fois » n'est pas une évidence : la roue actuelle de Wares peint la liste
    DOUZE fois pour boucler. Eric, 19/09 : *« que ça tourne à l'infini n'aide pas »*. */
 test("1 · le ruban porte les crans une seule fois, dans l'ordre — ⛔ il ne boucle pas", () => {
+  /* 🔄 ON COMPTE LES CRANS, ⛔ PLUS LES ENFANTS (lot 222). Le ruban porte aussi DEUX CALES, une
+     à chaque bout, pour qu'un cran d'extrémité puisse arriver au centre du viseur — un
+     `padding` ne le permettait pas (il n'entre pas dans le `scrollWidth` d'un flex en
+     défilement). ⭐ Un enfant n'est pas un cran, et le garde doit compter la CHOSE. C'est la
+     même leçon que le `<style>` qui n'est pas une dalle, trois lots plus tôt. */
   const { ruban, crans } = monter(6, 2);
-  assert.equal(ruban.children.length, 6, "⛔ six crans donnés, six crans posés — ni copies, ni trous");
-  for (let i = 0; i < 6; i += 1) assert.equal(ruban.children[i], crans[i], `le cran ${i} n'est pas à son rang`);
+  const poses = [...ruban.children].filter((n) => n.className !== "roue-cale");
+  assert.equal(poses.length, 6, "⛔ six crans donnés, six crans posés — ni copies, ni trous");
+  for (let i = 0; i < 6; i += 1) assert.equal(poses[i], crans[i], `le cran ${i} n'est pas à son rang`);
+  /* ⛔ ET LES DEUX CALES SONT LÀ, AUX DEUX BOUTS : une seule ne servirait qu'un côté. */
+  assert.equal(ruban.children[0].className, "roue-cale", "⛔ pas de vide avant le premier cran");
+  assert.equal(ruban.children[ruban.children.length - 1].className, "roue-cale",
+    "⛔ pas de vide après le dernier : il ne pourra jamais arriver au viseur");
+  assert.equal(ruban.children[0].getAttribute("aria-hidden"), "true",
+    "⛔ un vide qui se lit à voix haute est un vide qui ment");
 });
 
 /* ⭐ TÉMOIN : UN seul cran est dominant, et c'est celui qu'on a visé. */

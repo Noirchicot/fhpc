@@ -12161,6 +12161,15 @@ button.tuto-point::before {
 .sac-cran[data-dominant="oui"],
 .wares-cran[data-dominant="oui"] {
   background-color: var(--dalle-inter); color: var(--text); cursor: default;
+  /* ⚖️ L'ESTHÉTIQUE DU BELT SUR LE CRAN POSÉ — Eric, 2026-09-20 : *« donne au token dominant
+     l'esthétique du belt »* · *« je ne vois pas l'aura qu'il y a dans le backpack »*.
+     ⭐ C'EST LE HALO DE LA MAISON, celui qui dit déjà « c'est ici que ça se passe » sur le cran
+     courant du belt, sur les bascules de X1 et sur l'interrupteur du mode du sac. ⛔ Pas une
+     lueur neuve : le même jeton, `--belt-halo`, aux mêmes cotes.
+     📌 ET IL ENTRE SUR LES DEUX ÉCRANS À LA FOIS, parce que la règle est partagée. C'est voulu :
+     Eric compare Wares au sac, et deux tambours qui ne s'allument pas pareil seraient deux
+     tambours. Le sac gagne l'aura qu'il n'avait pas non plus. */
+  box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
 /* ⏱️ 60 ms, ET LA DURÉE EST D'ERIC — 2026-09-19 : *« tu fais une transition de 60 ms »*.
    🔴 ELLE PORTE LE ZOOM ET LE REMPLISSAGE ENSEMBLE : c'est UN changement d'état, et deux
