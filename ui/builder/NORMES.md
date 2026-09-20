@@ -3899,6 +3899,46 @@ il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la l
 
 ---
 
+### 📦 LE COLLECTEUR DE WARES PORTE UNE ÉTAPE DE PLUS, ⛔ PAS CELUI DU SAC
+📍 `equipement-le-collecteur-de-wares-a-une-etape-de-plus` · vivante · 21/09
+⚖️ **Déposer dans le collecteur de Wares n'envoie rien. `Send` ouvre une fiche X2 qui demande la destination et TRANCHE LE PAIEMENT. ⛔ UNE exception : le Tally, qui ne paie pas — c'est un contenant PROVISOIRE, et le paiement a lieu SUR lui.**
+
+> Eric, 2026-09-21 : **« le collecteur de Wares fait une étape supplémentaire. Après l'appui sur
+> Send, Gear, Backpack, Party bag, Craft. Il faut décider si on paye ou si c'est gratuit, donc
+> fiche X2. Exception les fiches Tally, car elles sont un container provisoire, et c'est sur le
+> Tally qu'aura lieu le paiement. »**
+
+⭐ **CE QUI DISTINGUE WARES DU SAC, ET C'EST TOUT L'ÉCART.** Dans le sac, le collecteur déplace un
+objet **qu'on possède déjà** d'un contenant à un autre : rien à payer, donc `Send` suffit. Dans
+Wares, le collecteur fait **entrer** un objet du catalogue dans le personnage — et une entrée pose
+une question que le sac n'a jamais à poser : *cet objet, on le paie ou il est offert ?*
+⛔ **CE N'EST DONC PAS LE MÊME ORGANE À UNE ÉTAPE PRÈS** — c'est le même organe avec une DÉCISION
+derrière. Un `Send` de Wares qui se contenterait d'envoyer ferait entrer gratuitement tout ce que le
+joueur touche.
+
+⚖️ **LE TALLY EST L'EXCEPTION, ET SA RAISON EST SA NATURE** : il ne possède pas, il **retient**.
+Y déposer n'est pas acquérir, c'est mettre de côté. ⭐ Le paiement se déplace donc avec l'objet :
+il aura lieu **au Tally**, à la sortie, ⛔ pas à l'entrée. Un contenant provisoire qui ferait payer
+transformerait une hésitation en achat.
+📌 C'est la même famille que *« CART c'est Tally »* (20/09) : le Tally **est** le panier, et un
+panier se paie une fois, au passage en caisse.
+
+⏳ **CE QUI N'EST PAS TRANCHÉ, ET JE NE LE DEVINE PAS** *(posé à Eric le 21/09)* :
+1. les quatre destinations *(Gear · Backpack · Party bag · Craft)* — c'est le menu `Send to` du pied
+   qui les porte, ou la fiche X2 qui les demande ?
+2. *« payer ou gratuit »* — le joueur **choisit** sur la X2, ou le système le **déduit** du contexte
+   *(équipement de départ offert, achat payé)* et la X2 ne fait que l'annoncer ?
+3. le Tally — il **saute** la X2 entièrement, ou la X2 s'ouvre sans la question du paiement ?
+
+⏳ **ET L'ORDRE DES TRAVAUX EST DICTÉ** *(Eric, 21/09)* : *« on câblera l'aller-retour Send juste
+avant d'attaquer la fiche X2 »*. ⛔ **Donc pas maintenant, et ce n'est pas un oubli.**
+📏 Ce qui existe aujourd'hui, mesuré : le dépôt sur le collecteur de Wares part **droit au panier**
+(`cartAdd`), et le collecteur est un `<div>` qui porte le mot *« SEND COLLECTOR »* — il reçoit, mais
+il ne **montre** pas ce qu'il tient. ⭐ C'est pour ça que l'aller-**retour** ne marche pas : il n'y a
+rien à reprendre. Le jour venu, on prend l'organe du sac, ⛔ on n'en redessine pas un second.
+
+---
+
 ### 🎚️ LA TUILE AU REPOS EST VOILÉE À 20 %, ⛔ PLUS TRANSPARENTE
 📍 `cadre-la-tuile-au-repos-est-voilee` · vivante · 21/09
 ⚖️ **Une tuile de tambour au repos porte `--dalle-cran` (20 %). La posée garde `--dalle-inter` (50 %). ⛔ L'écart entre les deux est ce qui DÉSIGNE — il ne se referme pas.**
