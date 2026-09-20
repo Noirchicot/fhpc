@@ -26,6 +26,8 @@
 import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=767";
 import { versionQuery } from "./version.mjs?v=767";
 import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=767";
+/* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
+import { monterLeTambour } from "./roue-tambour.mjs?v=767";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
@@ -388,6 +390,9 @@ function roue(options, loupeNoeud, pisteNoeud) {
      que ce sont deux rôles : l'une est clippée et reçoit le geste, l'autre glisse. */
   const ruban = el("div", "sac-ruban");
   r.append(ruban);
+  /* ⭐ LES CRANS SE COLLECTENT, ⛔ ILS NE S'APPENDENT PLUS ICI : c'est le tambour qui les
+     pose et qui les arme. Cette fonction ne décide plus que de ce qu'un cran EST. */
+  const crans = [];
 
   /* 🔴 LE RUBAN NE BOUCLE PLUS, ET C'EST ERIC QUI L'A TRANCHÉ — 2026-09-19 :
      *« que ça tourne à l'infini n'aide pas ; autorise l'absence de tuiles à droite et à
@@ -440,7 +445,10 @@ function roue(options, loupeNoeud, pisteNoeud) {
         /* ⭐ LE CURSEUR ARRIVE AVEC LE CHAMP — Eric, 20/09. ⛔ Pas ici : un nœud hors
            document ne prend pas le focus. On le PUBLIE, `poserLesDalles` le consomme. */
         champEnAttente = champ;
-        ruban.append(champ);
+        /* ⛔ UN CHAMP NE S'AIMANTE PAS : taper dedans pose le curseur, ça ne vise pas un
+           cran. Le tambour ne sait pas distinguer un champ d'un bouton — on le lui DIT. */
+        champ.dataset.inerte = "oui";
+        crans.push(champ);
         continue;
       }
 
@@ -455,104 +463,25 @@ function roue(options, loupeNoeud, pisteNoeud) {
       if (s.dehors === true) t.dataset.lieu = "dehors";
       else if (s.party === true) t.dataset.lieu = "party";
       if (!edition) { t.setAttribute("role", "tab"); t.setAttribute("aria-selected", String(souslaLoupe)); }
-      /* ⚖️ TAPER UN CRAN NE CHOISIT RIEN — la loi du catalogue (II.3) : il AIMANTE, et
-         c'est le viseur qui choisit. ⭐ Le surligné et le choisi sont ainsi le même
-         nombre PAR CONSTRUCTION, jamais deux chemins qui doivent rester d'accord. */
-      t.addEventListener("click", () => viser(i));
-      ruban.append(t);
+      /* ⚖️ TAPER UN CRAN NE CHOISIT RIEN — la loi du catalogue (II.3) : il AIMANTE, et c'est
+         le viseur qui choisit. ⭐ L'écouteur est posé par le TAMBOUR, une fois, pour tous les
+         crans : ⛔ deux endroits qui arment le même geste finissent par en armer un et demi. */
+      crans.push(t);
     }
   }
 
-  /* 🔴 LA ROUE N'EST PLUS UN DÉFILEUR — Eric, 2026-09-19 : *« le glisser sur la grille
-     change de section »*. Ce sont les DALLES qui portent le geste ; la roue est
-     l'affichage qu'elles commandent.
-     ⛔ POURQUOI PAS LES DEUX : deux surfaces qui défilent et qui se commandent l'une
-     l'autre font une boucle — chacune corrige l'autre, et l'inertie du système se perd
-     entre les deux. Un seul maître, un seul mouvement.
-     ⭐ CE QUI SURVIT DE L'ANCIENNE : l'arithmétique. Centrer la tuile `k` demande
-     `pas × k`, exactement comme avant — seulement c'est un `translate` maintenant, pas
-     un `scrollLeft`. */
-  /* ⭐ PLUS DE DÉCALAGE : le `+` de gauche a quitté le ruban (20/09), donc la tuile `i`
-     est au rang `i` dans les deux modes. ⛔ Une traduction qui ne traduit plus rien est
-     une occasion de diverger — mais elle reste NOMMÉE, parce que la roue et le verrou la
-     lisent tous les deux et qu'un jour un autre organe pourrait la décaler. */
-  const rang = (i) => i;
-  const vise = rang(actif);
-  r.dataset.vise = String(vise);
-
-  let marque = ruban.children[vise] || null;
-
-  /* ⭐ MARQUER, C'EST ÉTEINDRE UN SEUL NŒUD ET EN ALLUMER UN — ⛔ pas parcourir le ruban.
-     📏 L'écriture d'avant posait l'attribut sur LES QUINZE tuiles à chaque image, donc
-     quinze recalculs de style sur la seule surface qui doit rester fluide — et le prix
-     montait avec le contenu. ⭐ Ici deux écritures, quel que soit le nombre de sections. */
-  const marquer = (k) => {
-    if (marque) marque.dataset.dominant = "non";
-    marque = ruban.children[k] || null;
-    if (marque) marque.dataset.dominant = "oui";
-    habillerLaLoupe(marque);
-  };
-
-  /* ⚖️ LE HALO RESTE CENTRÉ — Eric : *« le halo doit rester centré, les items défilent
-     dessous »* · *« le halo reste en place comme témoin »*. ⛔ Il ne voyage donc PAS avec
-     le cran : c'est un cadre fixe, et les tuiles passent dessous.
-     ⭐ MAIS IL GARDE LE GENRE DE CE QU'IL CADRE — la règle des trois liserés du 19/09. */
-  function habillerLaLoupe(item) {
-    if (!loupeNoeud) return;
-    const lieu = item && item.dataset ? item.dataset.lieu : undefined;
-    if (lieu) loupeNoeud.dataset.lieu = lieu;
-    else delete loupeNoeud.dataset.lieu;
-  }
-  habillerLaLoupe(ruban.children[vise]);
-
-  /* ⭐ ET VOICI TOUT LE VERROU : une position de ruban, en tuiles, éventuellement
-     fractionnaire. `placer(6.4)` met le ruban entre la 6ᵉ et la 7ᵉ tuile — c'est ce qui
-     rend le mouvement CONTINU au lieu de cranté, et c'est ce qu'Eric décrit : *« je vois
-     les deux défiler en même temps »*.
-     ⛔ `translate`, ⛔ pas `left` : une transformation est composée, une position
-     rejouerait la mise en page à chaque image.
-     ⚠️ ET C'EST ÉCRIT DEPUIS UN ÉCOUTEUR DE DÉFILEMENT, donc au pire une image en retard.
-     ⏳ L'étape d'après est de le confier au compositeur (`animation-timeline: scroll()`,
-     la technique que la roue d'Équipement emploie déjà) — mais ce lien-ci n'est PAS une
-     pente droite (une section peut valoir deux dalles), donc ça demande une image-clé par
-     dalle, et ça se pose une fois la forme vue à l'écran. */
-  /* ⚖️ TAPER UN CRAN NE CHOISIT RIEN — la loi du catalogue (II.3) : il AIMANTE, et c'est
-     le viseur qui choisit. ⭐ Le surligné et le choisi sont ainsi le même nombre PAR
-     CONSTRUCTION, jamais deux chemins qui doivent rester d'accord.
-     🔴 ET IL AVAIT DISPARU DANS LA CHIRURGIE DU 19/09 : le tap appelait un `viser()` que
-     je venais de supprimer. ⛔ Aucun garde de l'écran ne l'a vu — c'est celui des
-     ORPHELINS qui l'a attrapé, en cherchant les noms appelés sans être déclarés. Un tap
-     de tuile rendait un `ReferenceError` au joueur. */
-  const viser = (i) => {
-    const x = ROUE.pas * rang(i);
-    if (typeof r.scrollTo === "function") r.scrollTo({ left: x, behavior: "smooth" });
-    else r.scrollLeft = x;
-  };
-
-  /* 📌 GARDÉ POUR LE BANC ET LES GARDES : poser le ruban à une position en tuiles. Le
-     produit, lui, passe par `scrollLeft` — la roue EST le défileur. */
-  r.placer = (k) => {
-    /* ⭐ `scrollLeft`, ⛔ PAS UN `translate` — et ce n'est pas un détail de goût : écrire
-       une transformation demanderait un style EN LIGNE, que le garde 7 interdit dans tout
-       `ui/`. Un défilement, lui, s'écrit sans toucher au style.
-       ⭐ ET LA ROUE NE PREND PLUS LE DOIGT : sa feuille la met en `overflow: hidden`, donc
-       elle n'est plus qu'une FENÊTRE qu'on fait glisser. Le geste vit sur les dalles.
-       📐 `k` peut être fractionnaire : à mi-chemin entre deux dalles, le ruban est à
-       mi-chemin entre deux tuiles. C'est ça, « les deux défilent en même temps ». */
-    r.scrollLeft = ROUE.pas * k;
-    marquer(Math.round(k));
-  };
-  /* ⭐ ET LE RANG SORT AVEC LA ROUE : c'est lui qui traduit « section n » en « tuile n »,
-     et il porte le décalage du `+` de gauche en mode édition. ⛔ Le recopier dans le
-     verrou en ferait une seconde vérité. */
-  r.rang = rang;
-  /* ⭐ ET SON INVERSE : de quelle section parle la tuile `k` ? ⛔ Le verrou ne peut pas le
-     recalculer — le `+` de gauche du mode édition décale tout d'un cran, et deux formules
-     pour une seule traduction divergeraient au premier mode. */
-  r.section = (k) => k;
-  r.marquer = marquer;
-  r.vise = vise;
-  return r;
+  /* ⭐ LE MÉCANISME EST DESCENDU EN MODULE FEUILLE — `roue-tambour.mjs`, lot 218.
+     🔴 POURQUOI MAINTENANT : Wares en réclame DEUX de plus (les catégories, puis les
+     sous-catégories). Trois porteurs pour un mécanisme, c'est la doctrine qui a déjà fait
+     naître `jeton-objet.mjs` — et la phrase d'Eric du 17/09 qui l'a payée : *« t'es pas foutu
+     de récupérer le bouton du menu et de le mettre ici, bordel ! »*.
+     ⛔ RIEN N'A CHANGÉ DE COMPORTEMENT : le ruban qui ne boucle plus, le marquage à deux
+     écritures, le placement fractionnaire, l'aimantation au tap, la traduction rang ↔ cran —
+     tout est parti tel quel. Ce qui reste ICI est ce que le tambour ne peut pas savoir : ce
+     qu'un cran EST. Le témoin du déménagement, ce sont les 2367 gardes de la suite.
+     ⭐ `r.placer`, `r.rang`, `r.section`, `r.marquer` et `r.vise` sont posés par le module —
+     le verrou et le banc les lisent, et ils les lisent au même endroit qu'avant. */
+  return monterLeTambour({ roue: r, ruban, crans, actif, pas: ROUE.pas, loupe: loupeNoeud });
 }
 
 /* ══ LE DÉPLACEMENT D'UNE SECTION — croquis d'Eric, 19/09 ═══════════════════

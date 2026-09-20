@@ -55,7 +55,14 @@ export function monterLeTambour(o) {
   const vise = rang(actif);
   roue.dataset.vise = String(vise);
 
-  let marque = ruban.children[vise] || null;
+  /* 🔴 LE MARQUAGE DE DÉPART APPARTIENT AU MODULE, ⛔ PLUS À L'APPELANT — trouvé par le garde 2
+     du tambour, qui a rougi sur un module que je croyais fini. Le sac marquait son cran dominant
+     LUI-MÊME, dans sa boucle (`t.dataset.dominant = souslaLoupe ? "oui" : "non"`), et le module
+     ne faisait que déplacer la marque ensuite. ⭐ Un organe que CHAQUE écran doit se rappeler de
+     poser sera oublié par celui qui l'oublie : Wares en monte deux de plus, et rien ne le lui
+     aurait rappelé. Le module marque donc d'abord, et l'appelant peut le redire — c'est la même
+     valeur, et l'idempotence est ce qui rend le déménagement sans risque. */
+  let marque = null;
 
   /* ⚖️ LE HALO RESTE CENTRÉ — Eric : *« le halo doit rester centré, les items défilent
      dessous »*. ⛔ Il ne voyage donc PAS avec le cran : c'est un cadre fixe, et les tuiles
@@ -78,7 +85,7 @@ export function monterLeTambour(o) {
     if (marque) marque.dataset.dominant = "oui";
     habillerLaLoupe(marque);
   };
-  habillerLaLoupe(ruban.children[vise]);
+  marquer(vise);   /* ⭐ et c'est LUI qui habille la loupe, une fois, par le même chemin */
 
   /* ⚖️ TAPER UN CRAN NE CHOISIT RIEN — la loi du catalogue (II.3) : il AIMANTE, et c'est le
      viseur qui choisit. ⭐ Le surligné et le choisi sont ainsi le même nombre PAR
