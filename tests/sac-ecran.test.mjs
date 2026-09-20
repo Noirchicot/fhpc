@@ -19,7 +19,8 @@ globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
 const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
-        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, poserLesDalles } = await import("../ui/builder/sac-ecran.mjs");
+        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, poserLesDalles,
+        CHAMPS_DE_SECTION } = await import("../ui/builder/sac-ecran.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -1818,4 +1819,46 @@ test("35 — \ud83c\udfa8 LE GENRE D'UNE SECTION PERSISTE, et l'or ne p\u00e8se 
      rien de lui \u2014 c'est le d\u00e9faut du ruban \u00e0 une seule plaque, une seconde fois. */
   const banc = fs.readFileSync(path.join(UI, "banc-sac.html"), "utf8");
   assert.match(banc, /dehors: true/, "\u26d4 le banc doit porter une place hors du sac");
+});
+
+test("36 — \ud83d\udd0c LE CONTRAT D'UNE SECTION TRAVERSE L'\u00c9TAPE, \u26d4 il ne s'y fait pas rogner", () => {
+  /* \u2696\ufe0f Eric, 2026-09-20, capture \u00e0 l'appui : *\u00ab absolument rien de bleu \u00bb* \u00b7 *\u00ab je ne
+     l'ai jamais vu, ni sur iPad ni sur Mac \u00bb*.
+     \ud83d\udd34 ET IL DISAIT VRAI : le bleu n'a JAMAIS exist\u00e9 dans l'application. L'\u00e9tape recopiait
+     les sections en ne gardant que `nom` et `fige` \u2014 `party`, `dehors` et `renommable`
+     \u00e9taient jet\u00e9s en route. Donc `data-lieu` n'\u00e9tait jamais pos\u00e9, donc ni bleu ni or, et
+     la poign\u00e9e `/` restait arm\u00e9e sur une place qui refuse d'\u00eatre renomm\u00e9e.
+     \u26d4 ET LE BANC NE POUVAIT PAS LE VOIR : lui passe les objets ENTIERS. Le genre \u00e9tait
+     VERT au banc et ABSENT \u00e0 l'\u00e9cran \u2014 c'est pour \u00e7a que j'ai cherch\u00e9 une teinte, puis un
+     cran de nuit, puis un th\u00e8me, pendant qu'il manquait un CHAMP. Trois heures.
+     \u2b50 LA LE\u00c7ON EST CELLE D\u00c9J\u00c0 PAY\u00c9E SUR LES POIDS, LE 19/09 : *un contrat chang\u00e9 d'un
+     c\u00f4t\u00e9 se change des DEUX*. La parade n'est pas de recopier mieux, c'est de n'avoir
+     plus qu'UNE liste \u2014 et que celle qui LIT la publie. */
+  const source = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
+
+  /* \u2460 L'\u00c9TAPE NE RETAPE PLUS LA LISTE : elle lit celle de l'\u00e9cran. */
+  assert.match(source, /CHAMPS_DE_SECTION/,
+    "\u26d4 l'\u00e9tape doit employer la liste publi\u00e9e par l'\u00e9cran");
+  assert.doesNotMatch(source, /sections: sections\.map\(\(s\) => \(\{ nom:/,
+    "\u26d4 une seconde liste \u00e9crite \u00e0 la main : c'est exactement ce qui a mang\u00e9 le genre");
+
+  /* \u2461 ET LA LISTE COUVRE TOUT CE QUE L'\u00c9CRAN LIT \u2014 le t\u00e9moin qui compte, parce qu'il
+     rougira au prochain champ ajout\u00e9 sans \u00eatre publi\u00e9. */
+  const ecran = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  const lus = new Set();
+  for (const m of ecran.matchAll(/\bs\.([a-z]+)\b/g)) lus.add(m[1]);
+  for (const m of ecran.matchAll(/\bfigee\.([a-z]+)\b/g)) lus.add(m[1]);
+  for (const champ of ["nom", "fige", "renommable", "party", "dehors"]) {
+    assert.ok(lus.has(champ), `\u26d4 l'\u00e9cran ne lit plus \`${champ}\` : ce garde est p\u00e9rim\u00e9`);
+    assert.ok(CHAMPS_DE_SECTION.includes(champ),
+      `\u26d4 \`${champ}\` est lu par l'\u00e9cran mais ne traverse pas l'\u00e9tape \u2014 il arrivera \`undefined\``);
+  }
+
+  /* \u2462 ET L'\u00c9CRAN POSE BIEN LE GENRE \u00c0 PARTIR DE LA DONN\u00c9E QU'IL RE\u00c7OIT */
+  const n = rendu({ section: 0, sections: [
+    { nom: "Party bag", party: true, fige: true, renommable: false },
+    { nom: "Red chest", dehors: true }] });
+  const parNom = Object.fromEntries(tous(n, ".sac-cran").map((c) => [c.textContent, c.dataset.lieu]));
+  assert.equal(parNom["Party bag"], "party", "\ud83d\udd35");
+  assert.equal(parNom["Red chest"], "dehors", "\ud83d\udfe1");
 });

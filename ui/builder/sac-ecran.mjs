@@ -23,27 +23,40 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=758";
-import { versionQuery } from "./version.mjs?v=758";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=758";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=759";
+import { versionQuery } from "./version.mjs?v=759";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=759";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=758";
+import { armerJeton, fantome } from "./glisser.mjs?v=759";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=758";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=759";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=758";
+import { facteurZoomCourant } from "./echelle.mjs?v=759";
+
+/** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
+ *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
+ *  recopiait les sections en ne gardant QUE `nom` et `fige` : `party`, `dehors` et
+ *  `renommable` étaient jetés en route. Donc `data-lieu` n'était jamais posé, donc ni
+ *  bleu ni or — et la poignée `/` restait armée sur une place qui refuse d'être renommée.
+ *  ⛔ ET LE BANC NE POUVAIT PAS LE VOIR : lui passe les objets ENTIERS. Le genre était
+ *  vert au banc, absent à l'écran — c'est exactement pourquoi j'ai cherché une teinte
+ *  pendant qu'il manquait un champ.
+ *  ⭐ LA LEÇON EST CELLE DÉJÀ PAYÉE SUR LES POIDS (19/09) : *un contrat changé d'un côté
+ *  se change des DEUX*. La parade est de ne plus avoir deux listes : celle-ci est LA
+ *  liste, l'étape s'en sert pour filtrer, et un champ de plus la traverse tout seul. */
+export const CHAMPS_DE_SECTION = Object.freeze(["nom", "fige", "renommable", "party", "dehors"]);
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
