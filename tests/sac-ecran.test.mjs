@@ -1076,6 +1076,23 @@ test("23 — \u2702\ufe0f UN SEUL MODE EDIT : les quatre poign\u00e9es remplacen
     "\u26d4 le panneau doit MASQUER, pas voiler \u2014 et c'est la face des boutons");
   assert.match(habitDeLaNotice.corps, /border:[^;]*var\(--info\)/,
     "\u2696\ufe0f *\u00ab bo\u00eete noire avec contour bleu \u00bb*");
+  /* 🔴 ET LE SECOND PLAN DE L'ENCART SE PREND DANS L'ENCRE DU PANNEAU — Eric, 20/09,
+     capture iPad de nuit : *« rendu du texte sur iPad en nuit pas bon »*.
+     ⛔ `--text-soft` est calibré contre `--surface`, la surface de la PAGE, pas contre une
+     face de BOUTON : sur le brun du panneau il rendait ~2,7:1 et les paragraphes
+     mouraient, pendant que les titres tenaient (ils héritent de `--bouton-encre`).
+     ⭐ Un jeton se lit DANS SA FAMILLE : le second plan est l'encre du panneau,
+     affaiblie — et elle suit le thème toute seule, comme son parent. */
+  const tous2 = [...stripComments(feuille).matchAll(/([^{}]*)\{([^{}]*)\}/g)]
+    .map(([, sel, corps]) => ({ sel: sel.trim(), corps }));
+  for (const sel of [".sac-encart-fige", ".sac-encart-deux dd, .sac-encart-figees dd"]) {
+    const b2 = tous2.find((x) => x.sel === sel);
+    assert.ok(b2, `⛔ ${sel} n'est plus habillé`);
+    assert.doesNotMatch(b2.corps, /var\(--text-soft\)/,
+      "⛔ `--text-soft` est l'encre douce de la PAGE : sur une face de bouton elle meurt");
+    assert.match(b2.corps, /var\(--bouton-encre\)/,
+      "⭐ le second plan se prend dans l'encre du panneau lui-même");
+  }
   const fige = rendu({ sections: [{ nom: "Party bag", fige: true, renommable: false }, { nom: "B" }],
                        section: 1, edition: true }).querySelector(".sac-encart-fige");
   assert.match(fige.textContent, /Party bag cannot be deleted/);

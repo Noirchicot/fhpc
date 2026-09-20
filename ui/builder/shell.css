@@ -3039,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=759") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=760") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3362,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=759") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=760") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5014,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=759") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=760") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7995,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=759");
+  background-image: url("./assets/tarot-dos.jpg?v=760");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -12282,8 +12282,20 @@ button.tuto-point::before {
 .sac-encart-titre { margin: 0; font-size: var(--t2); font-weight: 700; }
 .sac-encart-deux, .sac-encart-figees { margin: 0; display: grid; gap: var(--sp-2); }
 .sac-encart-deux dt, .sac-encart-figees dt { font-weight: 700; }
-.sac-encart-deux dd, .sac-encart-figees dd { margin: 0 0 var(--sp-4); color: var(--text-soft); }
-.sac-encart-fige { margin: 0; color: var(--text-soft); }
+/* 🔴 LE SECOND PLAN SE PREND DANS L'ENCRE DU PANNEAU, ⛔ PAS DANS CELLE DE LA PAGE —
+   Eric, 2026-09-20, capture iPad de nuit : *« rendu du texte sur iPad en nuit pas bon »*.
+   📏 CE QUI ÉTAIT ÉCRIT ICI : `--text-soft`. ⛔ Et ce jeton est calibré contre
+   `--surface`, la surface de la PAGE — pas contre une face de BOUTON. Sur le brun du
+   panneau il rend #989286 sur #494030, soit ~2,7:1 : les paragraphes mouraient pendant
+   que les titres, eux, tenaient (ils héritent de `--bouton-encre`).
+   ⭐ UN JETON SE LIT DANS SA FAMILLE. L'encre de ce panneau est celle des boutons ; son
+   second plan est donc cette MÊME encre, affaiblie — ⛔ pas une autre encre empruntée à
+   une autre surface. Et elle suit le thème toute seule, comme son parent. */
+.sac-encart-deux dd, .sac-encart-figees dd {
+  margin: 0 0 var(--sp-4);
+  color: color-mix(in srgb, var(--bouton-encre) 76%, transparent);
+}
+.sac-encart-fige { margin: 0; color: color-mix(in srgb, var(--bouton-encre) 76%, transparent); }
 /* ⚖️ LES DEUX CRÉATIONS PORTENT LEUR PHRASE SUR DEUX ÉTAGES — Eric, 19/09 : *« au-dessus
    et en dessous du + vert : backpack / + / Storage »* · *« au-dessus et en dessous du +
    doré : Other / + / Storage »*. ⭐ Le mot du dessus dit OÙ, celui du dessous dit QUOI :
