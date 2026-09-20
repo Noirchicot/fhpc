@@ -26,6 +26,39 @@ const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
 const tous = (n, sel) => [...n.querySelectorAll(sel)];
+
+/* ══ ⏱️ ON ATTEND UNE CONDITION, ⛔ JAMAIS UNE DURÉE ═══════════════════════════
+   🔴 CE QUE ÇA RÉPARE, ET C'EST ARRIVÉ LE 20/09 : le garde 26 est tombé sur `main`
+   — `vues` rendait `[]` au lieu de `[2]` — et le code était JUSTE. Un sommeil fixe
+   de `REPOS_MS + 80` doit CONTENIR un minuteur de 140 ms : 80 ms de marge. Sous
+   charge (deux suites en parallèle sur la même machine), le corps du test a mis
+   272,98 ms et l'assertion a mesuré trop tôt.
+   ⛔ UN GARDE DONT LE VERDICT DÉPEND DE LA CHARGE DE LA MACHINE N'EST PAS UN GARDE,
+   C'EST UN TIRAGE.
+
+   ⭐ LA DISTINCTION QUI TRANCHE, et elle vaut pour tout ce fichier :
+     · une attente qui doit CONTENIR un événement est une COURSE — elle se perd
+       sous charge, et c'est elle qu'on remplace ;
+     · une attente qui ne fait qu'AJOUTER DU TEMPS APRÈS coup (laisser un fantôme
+       parler, vérifier qu'une roue jetée se TAIT) n'est pas une course : sous
+       charge elle s'allonge, elle ne change pas de verdict. ⛔ Celles-là restent
+       fixes — on ne peut pas attendre une ABSENCE.
+
+   ⚠️ ET LA CONDITION DOIT ÊTRE MONOTONE. `vues.length > 0` l'est : un tableau qui
+   ne fait que croître ne peut pas être surpris au mauvais instant. Une grandeur
+   RÉVERSIBLE ne convient pas — guetter `roue.scrollLeft === pas` rendrait vert un
+   code qui avance d'une tuile PUIS revient à zéro (le rouge du garde 34).
+
+   ⭐ LE GARDE NE PERD PAS UNE DENT : si la condition n'arrive jamais, on brûle
+   l'échéance entière et l'assertion qui suit accuse exactement comme avant. */
+async function jusqua(condition, echeance = 3000) {
+  const fin = Date.now() + echeance;
+  while (Date.now() < fin) {
+    if (condition()) return true;
+    await new Promise((r) => setTimeout(r, 10));
+  }
+  return condition();
+}
 const rendu = (o = {}) => construireLeSac({
   sections: [{ nom: "Potions" }, { nom: "Camp" }, { nom: "Trésor" }],
   section: 0, objets: [], poids: {}, destinations: [], ...o
@@ -1305,7 +1338,11 @@ test("26 — 🧊 LES DEUX BOUTS SONT VIDES, et c'est le ruban de DALLES qui le 
      dalles suivent »*. ⛔ Le maître est la roue, et il n'y en a qu'un. */
   const large = piste.clientWidth || D.DALLE.l;
   roue.scrollLeft = D.ROUE.pas * 2;
-  await new Promise((r) => setTimeout(r, REPOS_MS + 80));
+  /* 🏁 la COURSE devient une condition — et le repos qui suit ne court contre rien :
+     il garde la fenêtre où une parole de TROP se verrait (elle valait 220 ms, elle
+     vaut maintenant l'arrivée + 140). */
+  await jusqua(() => vues.length > 0);
+  await new Promise((r) => setTimeout(r, REPOS_MS));
   assert.equal(piste.scrollLeft, large * 2, "🔗 deux tuiles franchies, deux dalles");
   assert.deepEqual(vues, [2], "⚖️ et la section se commet à l'arrêt, une fois");
   const dom = tous(roue, '[data-dominant="oui"]');
@@ -1413,7 +1450,8 @@ test("28 — 👻 UN MINUTEUR QUI SURVIT À SON NŒUD PARLE APRÈS SA MORT", asy
   const roue = n.querySelector(".sac-roue");
 
   roue.scrollLeft = D.ROUE.pas * 4;                /* le doigt jette jusqu'au dernier cran */
-  await new Promise((r) => setTimeout(r, REPOS_MS + 60));
+  /* 🏁 la course seule : le repos de décantation est JUSTE EN DESSOUS, et lui reste fixe */
+  await jusqua(() => vus.length > 0);
   assert.deepEqual(vus, [4], "⚖️ la sélection se commet à l'arrêt, une fois");
 
   /* → et on laisse passer DEUX repos de plus : le fantôme, s'il existe, parle là */
@@ -1762,7 +1800,10 @@ test("33 — \u2194\ufe0f LE CHEMIN INVERSE N'H\u00c9RITE DE RIEN : il lit le PA
      restait VERTE en retirant la pose : à une position entière, le suivi tombe juste tout
      seul. Un témoin qui ne peut jamais accuser est le pire de tous. */
   piste.scrollLeft = pas + 40;
-  await new Promise((r) => setTimeout(r, REPOS_MS + 160));
+  /* 🏁 même conversion : `vues` est monotone, donc on peut la guetter sans risque de
+     l'attraper dans un état transitoire. Le repos qui suit ne court contre rien. */
+  await jusqua(() => vues.length > 0);
+  await new Promise((r) => setTimeout(r, REPOS_MS));
 
   assert.equal(Math.round(roue.scrollLeft), D.ROUE.pas,
     `\u26d4 la roue s'est arr\u00eat\u00e9e \u00e0 ${roue.scrollLeft} au lieu de ${D.ROUE.pas} : ` +
@@ -1810,6 +1851,12 @@ test("34 — 👆 UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT : il rend la main
   /* → et c'est la MARGE qui pousse, pas le doigt — le même chemin que les chevrons, le
      tuner et le défilement du glisser (`agir = () => pisteNoeud.pousser(sens)`) */
   piste.pousser(1);
+  /* ⛔ CELUI-CI NE SE CONVERTIT PAS, et c'est délibéré. La grandeur sous test est
+     RÉVERSIBLE : le rouge documenté ci-dessous est « la roue avance à 65, puis
+     l'arbitre la repose à 0 ». Guetter `roue.scrollLeft === pas` attraperait le
+     TRANSITOIRE et rendrait ce garde vert sur du code cassé — on échangerait une
+     sensibilité à la charge contre une dent en moins, ce qui est pire.
+     ⏳ Il reste donc une course, avec 160 ms de marge. Assumé et nommé. */
   await new Promise((r) => setTimeout(r, REPOS_MS + 160));
 
   /* 📏 ROUGE MESURÉ en retirant le mot : la roue ne rend pas 65 mais **0**. Elle avance

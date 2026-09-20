@@ -1299,6 +1299,151 @@ de la ligne de flottaison** n'est pas tranché.
 
 ---
 
+## 1 septies. 🎒 DEUX SURFACES QUI DÉFILENT ENSEMBLE — la plaque, le jour, et qui mène *(19–20/09)*
+
+Le sac (`Équipement › B1`) a été le premier écran à faire défiler **deux rubans en même temps** : la
+roue des sections et le ruban des plaques. Huit lois en sont sorties en une nuit ; ⛔ **sept
+vivaient dans des commentaires de code** et n'étaient donc lisibles par personne — c'est ce que
+répare cette section.
+
+### ✅ UNE BANDE QUI DÉFILE EST UNE PLAQUE *(Eric, 19/09)*
+📍 `cadre-bande-mobile-est-une-plaque` · vivante · 19/09
+⚖️ **Une bande qui défile est une PLAQUE : elle porte la classe de matière de son rang, ⛔ jamais un cadre dessiné sur la fenêtre.**
+
+Eric, 2026-09-19, devant l'écran : *« la dalle ne se détache pas »*, puis *« dalles identiquement
+délimitées »*.
+
+🔴 **CE QUI MANQUAIT TENAIT EN UN MOT : les dalles n'avaient pas de MATIÈRE.** Transparentes, rien
+ne « part » et rien n'« arrive » — on voyait des jetons **se substituer**, jamais une plaque
+**glisser**. Il demandait un objet qui traverse le champ ; on répondait par un **trait**.
+
+⭐ **Et elle PORTE la classe, ⛔ elle n'en recopie pas les déclarations** — `dalle-simple` reste le
+seul écrivain de la matière. Le cadre qu'on avait tracé disparaît avec : *ce qui délimite une
+plaque, c'est la plaque*.
+
+⛔ **Trois symptômes avaient été réparés avant la cause** : un cadre sur la fenêtre, puis un cadre
+par dalle, puis un second voile. C'est Eric qui a nommé la cause — *« tu as superposé des plaques
+sur les mobiles »*.
+
+### ✅ UN SEUL VOILE PAR BANDE *(Eric, 19/09)*
+📍 `cadre-un-seul-voile-par-bande` · vivante · 19/09
+⚖️ **Un voile se pose UNE fois : une dalle qui porte des bandes ne porte plus le sien.**
+
+Eric, 2026-09-19 : *« une transparence identique entre les dalles fixes et mobiles »*.
+
+🔴 **ET ELLE NE L'ÉTAIT PAS** : `.sac` portait déjà `dalle-simple`, et un **second** venait d'être
+posé sur la plaque mobile. **35 % sur 35 %** — la plaque était plus sombre que ses voisines, et
+c'est exactement ce qu'il a vu.
+
+⛔ **Un voile qui se superpose à lui-même n'est pas un réglage à corriger, c'est DEUX ÉCRIVAINS pour
+une matière.** ⭐ La dalle du sac ne porte donc plus rien, et les trois bandes en portent une
+chacune ; le jour entre elles montre le fond tout seul — plus besoin du masque qui perçait le voile,
+il n'y a plus de voile à percer.
+
+### ✅ LE JOUR EST À LA PLAQUE CE QUE LA GOUTTIÈRE EST À LA TUILE *(Eric, 19/09)*
+📍 `budget-le-jour-est-a-la-plaque-ce-que-la-gouttiere-est-a-la-tuile` · vivante · 19/09
+⚖️ **Le jour entre deux plaques se DÉDUIT du rapport de la tuile à sa gouttière, ⛔ il ne se choisit pas.**
+
+```
+jour / 375 = 8 / 57        ⇒  jour = 52,63
+(375 + 52,63) / 65 = 375 / 57 = 6,5789
+```
+
+⭐ **Ce que la loi achète** : les deux rubans deviennent **la même image à deux échelles**. Un doigt
+qui parcourt une tuile parcourt exactement une plaque, quelle que soit l'échelle à laquelle on
+regarde. ⛔ Avec un jour choisi à la main, les deux rapports divergent et le suiveur « décale » —
+visiblement, et de plus en plus loin du centre.
+
+📏 **Vérifiée sur la page déployée, six plaques** *(dont une section qui en vaut deux)* :
+`0 · 428 · 855 · 1283 · 1711 · 2138`. Le pas **alterne 428 / 427**, parce que 52,63 ne tombe pas
+rond — et c'est l'argument décisif pour la loi du pas, ci-dessous.
+
+⛔ **8 et 24 étaient des ESSAIS, pas des réglages.** Eric demandait une **loi** ; on proposait des
+**valeurs**. ⚠️ Et le croquis portait **deux huit distincts** — la marge intérieure du cadre et la
+gouttière de la grille : se ressembler ne les rend pas identiques, l'une dimensionne une *plaque*,
+l'autre sépare des *jetons*.
+
+### ✅ CELUI QUE LE DOIGT TOUCHE MÈNE *(Eric, 19/09)*
+📍 `geste-celui-que-le-doigt-touche-mene` · vivante · 19/09
+⚖️ **Quand deux surfaces défilent ensemble, celle que le doigt a TOUCHÉE mène et n'écrit que dans l'autre ; le `pointerdown` la désigne, et rien d'autre ne la change.**
+
+Eric, 2026-09-19 : *« si on n'est pas en mode drag **le swipe fonctionne** »* — donc les **deux**
+surfaces défilent au doigt.
+
+🔴 **ET DEUX DÉFILEURS VERROUILLÉS L'UN À L'AUTRE OSCILLENT** : chacun lit l'autre et le corrige à
+l'image suivante, indéfiniment. ⛔ Ce n'est pas une question de réglage, **c'est une boucle**.
+
+⭐ **La parade ne se règle pas, elle se construit** : il n'y a jamais deux écrivains en même temps
+**par construction**. ⛔ Et ce n'est pas un meneur *permanent* : une pente supposerait un ruban mené
+par l'autre, ce qu'Eric a précisément refusé.
+
+### ✅ LE SUIVEUR N'AIMANTE PAS *(mesuré le 19/09)*
+📍 `geste-le-suiveur-n-aimante-pas` · vivante · 19/09
+⚖️ **L'aimantation appartient au MENEUR et se coupe chez l'autre : un suiveur qui aimante refuse les positions intermédiaires et saute de cran en cran.**
+
+📏 **Relevé à l'écran le 19/09**, roue immobilisée à mi-chemin (**97 = 65 × 1,5**) : les plaques
+rendaient **383** là où la position demandée valait **563**. Une aimantation `mandatory` *refuse*
+toute position intermédiaire — le navigateur la corrige à l'image suivante.
+
+⛔ **ET LE BANC NE POUVAIT PAS LE VOIR** : tous les relevés tombaient sur des positions **déjà
+alignées** (65 × 3, 375 × 3), là où l'aimantation ne corrige rien. ⭐ *Une mesure qui ne visite que
+les crans ne dit rien de l'entre-deux* — c'est Eric qui l'a vu, à l'œil, après trois vérifications
+vertes.
+
+### ✅ LE PAS D'UNE PLAQUE SE LIT, DANS LES DEUX SENS *(19/09)*
+📍 `geste-le-pas-d-une-plaque-se-lit` · vivante · 19/09
+⚖️ **Le pas d'une plaque se LIT dans la mise en page (`offsetLeft`), dans les DEUX sens du lien — ⛔ une largeur n'est pas un pas.**
+
+⛔ **Entre deux plaques il y a le jour** : le pas vaut `375 + 52,63`, pas 375.
+
+📏 **Ce que la faute coûtait, mesuré** : le chemin inverse divisait par la **largeur** → **14 %** de
+dérive à la deuxième plaque, **28 %** à la troisième, **42 %** à la quatrième ; au huitième cran
+elle aurait désigné la plaque d'à côté. Eric l'a photographiée le 19/09 à 22:52 — une tuile arrêtée
+**entre** deux crans, `Storage 1` à cheval sur `Storage 2`.
+
+⭐ **ET LA FAUTE EST NÉE AVEC LE JOUR.** Tant qu'il valait 0, largeur et pas se confondaient et elle
+dormait ; elle s'est réveillée à 8, a doublé à 24, et à 52,63 elle valait une demi-tuile. 🔴 C'est
+la réponse exacte à *« le 24 crée un décalage, le 8 en crée moins »* : **le décalage ne venait pas
+de la loi du jour**, qui est juste, mais d'une formule qui l'ignorait. On avait réglé une loi pour
+compenser un bogue.
+
+⭐ **Et c'est aussi pourquoi un pas ne se CALCULE pas** : un pas calculé dirait 427,63 partout et
+dériverait d'un demi-blg par plaque ; un pas **lu** tombe sur le bord que le navigateur a vraiment
+posé — 428 ici, 427 là. Aucune formule ne devine cet arrondi.
+
+### ✅ UN ARBITRE SE LIT À L'ARRIVÉE *(19/09)*
+📍 `socle-un-arbitre-se-lit-a-l-arrivee` · vivante · 19/09
+⚖️ **Un minuteur choisit son exécutant au moment où il TIRE, jamais au moment où on l'arme.**
+
+🔴 **LA CHAÎNE, ET ELLE EST LA TÊTE DE SÉRIE DU 19/09** : les plaques mènent → le suivi écrit
+`r.scrollLeft` → cette écriture émet un `scroll` **sur la roue** → et l'écouteur de la roue réarme
+le repos avec **son** handler. Le geste était **mené par les plaques et terminé par la roue** ; la
+fin de geste des plaques ne tournait **jamais**.
+
+⭐ **LA LEÇON EST PLUS LARGE QUE CE BOGUE** : *toute décision gelée à l'armement d'un minuteur est
+une décision prise **avant les faits**.* Entre l'armement et le tir, le monde a le temps de changer
+— et ici il changeait à cause de nous.
+
+### ✅ UN RETOURNEMENT N'HÉRITE PAS DE SON ENTOURAGE *(vérifié deux fois, 19 et 20/09)*
+📍 `socle-un-retournement-n-herite-pas-de-son-entourage` · vivante · 20/09
+⚖️ **Un calcul retourné ou réemployé hérite de la FORMULE, ⛔ pas de ce qui l'entoure : ses gardes, sa pose et son arbitre se réécrivent.**
+
+🔴 **PREMIER CAS, 19/09 — le verrou.** Écrit dans le sens roue → plaques, puis *retourné*. Trois
+fautes en sont sorties, toutes filles de celle-ci : le **pas** divisé par une largeur, la **pose**
+qui ne se faisait plus, l'**arbitre** figé à l'armement.
+
+🔴 **SECOND CAS, 20/09 — la fiche d'un objet.** `renderB1` ferme par
+`montrer(ficheEnCours.retour || "r")` : **il LIT son appelant**. La fiche X1, plus récente, ne l'a
+pas hérité — elle nommait `"gear"` **en dur**, quatre fois, et les deux `surJeton` qui l'ouvrent
+n'enregistraient pas l'origine. Eric : *« je visite un item et je le referme, je ne reviens pas au
+point d'origine, je reviens dans gear, problématique »*.
+
+⭐ **DEUX ORGANES, DEUX NUITS, LA MÊME FAUTE — c'est ce qui en fait une loi du socle** et pas une
+anecdote du sac. ⛔ Le symptôme ne se voit jamais là où le calcul est juste : il se voit là où le
+*contexte* d'origine manquait.
+
+---
+
 ## 2. LES ORGANES — forme ET remplissage
 📍 `jeton-forme` · vivante · 26/08
 ⚖️ **Un jeton est un rectangle très arrondi, et sa forme ne change jamais.**

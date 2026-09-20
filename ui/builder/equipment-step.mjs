@@ -2189,6 +2189,14 @@ let repeindreLeSac = () => {};
    `rangerSection`, et il n'y a plus d'ordre d'écran du tout. */
 let pageSac = 0;
 let ficheX1 = null;
+/* ⚖️ D'OÙ LA FICHE A ÉTÉ OUVERTE — Eric, 20/09 : *« je visite un item et je le
+   referme, je ne reviens pas au point d'origine, je reviens dans gear »*.
+   ⛔ LA FICHE NE DÉCIDE PAS DE SON RETOUR, elle le REÇOIT. C'est exactement ce que
+   `renderB1` fait depuis toujours (`ficheEnCours.retour`) ; X1, plus récent, nommait
+   `"gear"` en dur — le calcul réemployé sans ce qui l'entoure.
+   ⭐ ET C'EST `vueEquipement` LUI-MÊME, pris à l'instant du tap : aucune seconde
+   vérité à tenir d'accord, juste la vue courante mise de côté avant qu'on la quitte. */
+let origineX1 = "gear";
 let nombreX1 = 1;
 /* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
    n'est pas le texte et les quatre portes (Eric, 17/09 au soir). ⛔ C'est de l'ÉTAT
@@ -2443,7 +2451,7 @@ export function renderEquipmentStep(ctx, onAction) {
          ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
          l'objet tapé, avec son nombre à envoyer remis à 1 : un envoi est une
          intention, elle ne se garde pas d'un objet à l'autre. */
-      surJeton: (index) => { ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
     });
 
     /* ══ LA DÉCISION DU DÉPART — kit de classe OU 50 po (Eric, 24/08).
@@ -2840,7 +2848,7 @@ export function renderEquipmentStep(ctx, onAction) {
           : (sectionSac + sens + n) % n;
         peindre();
       },
-      surJeton: (index) => { ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ LE RANGEMENT S'ÉCRIT AU DOCUMENT — Eric, 18/09 : *« oui, évidemment, le
          rangement fait partie des caracs du perso ; ça doit survivre à la session au
@@ -2943,8 +2951,11 @@ export function renderEquipmentStep(ctx, onAction) {
   function construireX1() {
     const ligne = lignes.find((l) => l.index === ficheX1);
     /* ⛔ LA LIGNE A PU DISPARAÎTRE SOUS LA FICHE (corbeille, envoi) : on ne rend
-       pas une fiche vide, on revient à l'écran d'où l'on vient. */
-    if (!ligne) { ficheX1 = null; vueEquipement = "gear"; return construireGear(); }
+       pas une fiche vide, on revient à l'écran d'où l'on vient.
+       🔴 CE COMMENTAIRE S'ACCUSAIT LUI-MÊME : il disait « d'où l'on vient » et le code
+       rendait Gear. ⛔ Aucune récursion à craindre — `ficheX1` vient d'être remis à
+       `null`, donc même une origine `"x1"` retomberait sur le repli de `construireVue`. */
+    if (!ligne) { ficheX1 = null; vueEquipement = origineX1; return construireVue(origineX1); }
     const rec = cherche.record(ligne.ref);
     const data = (rec && rec.data) || {};
     const qte = ligne.quantity || 1;
@@ -3003,7 +3014,7 @@ export function renderEquipmentStep(ctx, onAction) {
       surEst: (valeur) => act({ kind: "setGearChamp", index: ligne.index, champ: "is", value: valeur }),
       surCopier: () => copierLObjet(ligne, data),
       surPorte: (porte) => {
-        if (porte === "close") { ficheX1 = null; lectureX1 = false; montrer("gear"); }
+        if (porte === "close") { ficheX1 = null; lectureX1 = false; montrer(origineX1); }
         if (porte === "envoyer") {
           /* ⚖️ LE NOMBRE TRANCHE, ET C'EST TOUT CE QU'IL FAIT — Eric, 17/09 :
              *« c'est un tu choisis combien »* · *« un item Qty 2 peut devenir 2
@@ -3019,7 +3030,7 @@ export function renderEquipmentStep(ctx, onAction) {
           actArbitre(part < total
             ? { kind: "splitGearLine", index: ligne.index, quantity: part, location: destinationEnvoi }
             : { kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });
-          ficheX1 = null; montrer("gear");
+          ficheX1 = null; montrer(origineX1);
         }
         if (porte === "trash") {
           /* 🔴 LA FAMILLE DÉFAIRE EST ROUGE ET TOUJOURS ACCOMPAGNÉE D'UN POPUP
@@ -3029,7 +3040,7 @@ export function renderEquipmentStep(ctx, onAction) {
           act({ kind: "popup", titre: ligne.nomAffiche,
             texte: "Throw this away? It is gone for good.",
             actions: [{ mot: "Throw away", defait: true,
-              faire: () => { ficheX1 = null; vueEquipement = "gear"; act({ kind: "removeGearLine", index: ligne.index }); } }] });
+              faire: () => { ficheX1 = null; vueEquipement = origineX1; act({ kind: "removeGearLine", index: ligne.index }); } }] });
         }
       }
     });
