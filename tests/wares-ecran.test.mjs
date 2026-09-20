@@ -279,3 +279,62 @@ test("16 · chaque tuner tourne SA roue, et vers son côté", () => {
   tuners[2].dispatchEvent(new (globalThis.Event || Object)("click"));
   assert.equal(roues[0].scrollLeft, avant, "⛔ le tuner de l'étage 2 a bougé l'étage 1");
 });
+
+/* ══ 17 · 🔒 DESSIN ET CIBLE SONT DEUX COTES ═══════════════════════════════════
+   ⭐ TÉMOIN : la feuille sert la boîte de la CIBLE, et le dessin vit en creux dedans.
+
+   🔴 CE GARDE NAÎT D'UN DOUTE D'ERIC, LE 20/09 : *« j'en reviens à me demander si tu as
+   respecté le plan »*. Il avait raison. Relevé du rendu contre le plan, deux écarts :
+     · `Send to` servait son DESSIN (40) — ⛔ sa cible tactile passait SOUS le plancher de 44 ;
+     · le Tally servait la taille de la CIBLE (44) à la position du DESSIN.
+   ⛔ Et aucun de mes seize gardes ne pouvait le dire : ils lisaient le plan, ou le DOM, jamais
+   les DEUX l'un contre l'autre. La tête du plan l'écrit pourtant en toutes lettres — *« DESSIN
+   et CIBLE sont DEUX cotes »*. Une loi qu'aucun garde ne tient est une loi qui se repaie. */
+test("17 · 🔒 la feuille sert la CIBLE, et le dessin vit en creux dedans", () => {
+  const f = feuilleDesCotesWares();
+  for (const o of D.ORGANES) {
+    const clef = D.CLEF_DE[o.nom];
+    const regle = new RegExp(`\\[data-organe="${clef}"\\]\\{([^}]*)\\}`).exec(f);
+    if (!regle) continue;                       /* tout organe n'a pas de boîte servie */
+    const corps = regle[1];
+    const c = o.cible || o;
+    if (!/inline-size/.test(corps)) continue;
+    assert.ok(corps.includes(`inline-size:${c.l}px`),
+      `⛔ ${o.nom} : la feuille sert ${corps.match(/inline-size:[^;]*/)} au lieu de la cible (${c.l})`);
+    assert.ok(corps.includes(`block-size:${c.h}px`),
+      `⛔ ${o.nom} : hauteur servie ≠ cible (${c.h}) — sa cible tactile serait fausse`);
+    /* et quand le dessin est plus petit, les bords transparents portent l'écart RÉEL */
+    if (o.cible && (o.l !== c.l || o.h !== c.h)) {
+      assert.ok(/border-width:/.test(corps),
+        `⛔ ${o.nom} : dessin ${o.l}×${o.h} dans une cible ${c.l}×${c.h}, et aucun bord ne porte l'écart`);
+      const lus = corps.match(/border-width:([^;}]*)/)[1].trim().split(/\s+/).map((v) => parseFloat(v));
+      assert.deepEqual(lus, [o.y - c.y, (c.x + c.l) - (o.x + o.l), (c.y + c.h) - (o.y + o.h), o.x - c.x],
+        `⛔ ${o.nom} : les bords ne sont pas les écarts réels — ⛔ une symétrie peindrait le dessin à côté`);
+    }
+  }
+});
+
+/* ⭐ TÉMOIN : toute place se DÉCLARE. ⛔ Un organe placé par l'ordre du DOM tombe juste par
+   accident, et le sacré n° 3 retire exactement ça : *« une grille dit COMBIEN et OÙ »*. */
+test("18 · aucune place ne se découvre à l'exécution", () => {
+  const f = feuilleDesCotesWares();
+  for (const sel of ['.wares-cote[data-cote="gauche"]', '.wares-cote[data-cote="droite"]',
+                     '.wares-tuner[data-organe$="-g"]', '.wares-tuner[data-organe$="-d"]']) {
+    const re = new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\{[^}]*grid-column:");
+    assert.match(f, re, `⛔ ${sel} n'a pas de colonne déclarée : sa place dépend de l'ordre du DOM`);
+  }
+});
+
+/* ⭐ TÉMOIN : l'écart de 8 du sacré n° 3 se mesure entre les DESSINS, ⛔ pas entre les boîtes.
+   🔴 Mesuré au banc sur cache froid : à `gap: 8` les deux Tally rendaient **12** entre leurs
+   dessins, parce que le `gap` sépare des BOÎTES et que chacune porte 2 blg de bord transparent.
+   Le plan dit 8 (27,75 → 67,75 puis 75,75), le sac aussi (32 → 72 puis 80). C'est le rendu qui
+   divergeait. ⛔ Et le 4 ne s'écrit pas : il se DÉDUIT, donc il suivra si un creux change. */
+test("19 · l'écart de 8 est celui des DESSINS, et le gap s'en déduit", () => {
+  const [pt, tl] = ["PARTY TALLY", "TALLY"].map((n) => D.ORGANES.find((o) => o.nom === n));
+  assert.equal(tl.x - (pt.x + pt.l), D.ECART, "⛔ le plan lui-même doit poser 8 entre les dessins");
+  const bords = ((pt.cible.x + pt.cible.l) - (pt.x + pt.l)) + (tl.x - tl.cible.x);
+  const attendu = D.ECART - bords;
+  assert.match(feuilleDesCotesWares(), new RegExp(`\\.wares-cote\\{[^}]*gap:${attendu}px`),
+    `⛔ le gap des cellules de côté doit valoir ${attendu} — 8 moins les deux bords transparents`);
+});

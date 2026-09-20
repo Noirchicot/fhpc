@@ -126,8 +126,24 @@ export function feuilleDesCotesWares() {
   r.push(`.wares-pied{display:grid;grid-template-columns:1fr ${px(PIED.colonnes[1])} 1fr;` +
          `grid-template-rows:${px(48)} ${px(TOUCH)} ${px(TOUCH)};row-gap:${px(ECART)};` +
          `padding:${px(REMBOURRAGE)} ${px(REMBOURRAGE)}}`);
+  /* 🔴 L'ÉCART DE 8 SE MESURE ENTRE LES **DESSINS**, ⛔ PAS ENTRE LES CIBLES — mesuré au banc
+     sur cache froid : à `gap: 8` les deux Tally rendaient **12** entre leurs dessins, parce que
+     le `gap` sépare des BOÎTES et que chaque boîte porte 2 blg de bord transparent.
+     ⭐ Et le sac fait bien 8 entre ses dessins (PARTY 32→72, TALLY 80→120) : le plan de Wares
+     aussi (27,75→67,75 puis 75,75). C'est le rendu qui divergeait, pas la cote.
+     ⛔ ET LE 4 NE S'ÉCRIT PAS : il se DÉDUIT du plan — l'écart voulu moins les deux bords que
+     les boîtes ajoutent. Le jour où un dessin change de creux, il suit tout seul. */
+  const [pt, tl] = ["PARTY TALLY", "TALLY"].map((n) => ORGANES.find((o) => o.nom === n));
+  const ecartDessins = tl.x - (pt.x + pt.l);
+  const bords = ((pt.cible.x + pt.cible.l) - (pt.x + pt.l)) + (tl.x - tl.cible.x);
   r.push(`.wares-cote{grid-row:1 / 3;display:grid;place-self:center;place-items:center;` +
-         `grid-auto-flow:column;gap:${px(ECART)}}`);
+         `grid-auto-flow:column;gap:${px(ecartDessins - bords)}}`);
+  /* ⛔ ET CHACUNE DÉCLARE SA COLONNE. Elles tombaient juste par l'ORDRE DU DOM — `colauto` au
+     relevé — ce qui marche par accident tant que personne ne réordonne. Le sacré n° 3 retire
+     exactement ça : *« une grille dit COMBIEN et OÙ ; un repli le découvre à l'exécution »*.
+     ⭐ Et je l'avais déjà écrit pour les tuners dix lignes plus haut, sans le faire ici. */
+  r.push(`.wares-cote[data-cote="gauche"]{grid-column:1}`);
+  r.push(`.wares-cote[data-cote="droite"]{grid-column:3}`);
   r.push(`.wares-pied > [data-organe="collecteur"]{grid-column:2;grid-row:1;justify-self:center}`);
   r.push(`.wares-pied > [data-organe="send-vers"]{grid-column:2;grid-row:2;align-self:center}`);
   r.push(`.wares-pied > [data-rangee]{grid-column:1 / -1;grid-row:3}`);
@@ -138,8 +154,25 @@ export function feuilleDesCotesWares() {
      règle vaut pour tout écran à plan, et je l'avais enfreinte dans le fichier dont le
      premier commentaire dit que les cotes vivent au plan. ⭐ Deux écrivains pour une cote,
      c'est deux cotes — et celle de la feuille aurait gagné en silence. */
-  const boite = (clef, o) => r.push(`.wares [data-organe="${clef}"]{` +
-    `inline-size:${px(o.l)};block-size:${px(o.h)}}`);
+  /* 🔴 LA BOÎTE EST CELLE DE LA **CIBLE**, ET LE DESSIN VIT EN CREUX DEDANS. J'avais servi le
+     DESSIN, et deux organes en sont sortis faux — trouvé en relisant le plan contre le rendu,
+     à la demande d'Eric :
+       · `Send to` rendait une cible de **40**, ⛔ sous le plancher sacré de 44 ;
+       · le Tally rendait **44 × 44** (la taille de la cible) à la position du **dessin**.
+     ⭐ C'est la confusion que la tête de `wares-disposition.mjs` interdit en toutes lettres :
+     *« DESSIN et CIBLE sont DEUX cotes »*. La formule ci-dessous est celle du sac, reprise
+     telle quelle : les quatre bords transparents portent l'écart RÉEL cible − dessin, ⛔ pas
+     une symétrie — une cible rabattue a un dessin décentré, et la formule symétrique le
+     peindrait à côté de sa place. */
+  const boite = (clef, o) => {
+    const c = o.cible || o;
+    const bords = [o.y - c.y, (c.x + c.l) - (o.x + o.l), (c.y + c.h) - (o.y + o.h), o.x - c.x];
+    r.push(`.wares [data-organe="${clef}"]{inline-size:${px(c.l)};block-size:${px(c.h)}` +
+      (bords.some((b) => b !== 0)
+        ? `;border-style:solid;border-color:transparent;background-clip:padding-box` +
+          `;border-width:${bords.map(px).join(" ")}`
+        : "") + `}`);
+  };
   for (const nom of ["COLLECTEUR", "PURSE", "SEND VERS", "PARTY TALLY", "TALLY"]) {
     const o = ORGANES.find((x) => x.nom === nom);
     if (o) boite(CLEF_DE[nom], o);

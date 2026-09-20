@@ -3856,6 +3856,30 @@ il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la l
 
 ---
 
+---
+
+### ➡️ `NEXT` VIT DANS **R**, ⛔ PAS DANS WARES — ET LE CART EST LE TALLY
+📍 `equipement-next-vit-dans-r` · vivante · 20/09
+⚖️ **Le bouton qui termine l'étape Équipement appartient à `R` (Gear). ⛔ Wares ne le porte pas — et ce qui s'appelait `CART` est le `Tally`, qui existe déjà.**
+
+> Eric, 2026-09-20, en relisant ce qui manquait au nouveau Wares : **« en fait le next devra être
+> dans R »** · **« Cart c'est tally tu l'as déjà fait »** · **« sur ton plan il y a un collecteur,
+> une go to et un send juste en dessous. donc rien à faire de plus »**.
+
+🔴 **ET C'EST MOI QUI AVAIS SURESTIMÉ LE TROU.** J'avais compté CINQ organes perdus en passant de
+l'ancien Wares au neuf — `NEXT`, la loupe, `CART`, `CRAFT`, `TO GEAR DROP`. 📏 Vérifié contre le
+plan, il en restait **deux** : `CART` est le `Tally` *(posé)*, `TO GEAR DROP` est le
+`SEND COLLECTOR` *(posé)*, et `CRAFT` est **mort** — mesuré au navigateur, aucun écouteur.
+⭐ **Un inventaire par NOM d'un écran qu'on remplace compte les libellés, pas les fonctions.** Deux
+mots différents pour le même organe se comptent deux fois, et un organe mort se compte comme vivant.
+⛔ La bonne lecture n'est pas *« quels boutons disparaissent »* mais *« quelle FONCTION n'a plus de
+porte »*.
+⏳ **CE QUI RESTE DÛ, ET LES DEUX SONT DATÉS** : `NEXT` doit naître dans R *(il n'y est pas
+aujourd'hui — mesuré)*, et la **loupe** attend son lot — Eric : *« une chose que nous devons faire
+oui. Pas ce soir. »*
+
+---
+
 ### 🎒 LA PORTE VERS LE PARTY INVENTORY ATTEND QUE LE `?` ET LE LIVRE PARTENT
 📍 `equipement-porte-party-inventory-au-pied` · vivante · 19/09
 ⚖️ **Le jour où le `?` et le livre quittent la fiche du joueur, un bouton vers le PARTY INVENTORY prend leur place, à GAUCHE de `Gear`. ⛔ Pas avant.**

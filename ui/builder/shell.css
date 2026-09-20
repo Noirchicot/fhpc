@@ -12724,7 +12724,10 @@ button.tuto-point::before {
   border: 0; border-radius: var(--organe-rayon);
   background: var(--jeton-teinte); box-shadow: var(--relief);
   color: var(--text); font: inherit; font-size: var(--t1); cursor: pointer;
-  min-inline-size: var(--touch); min-block-size: var(--touch);
+  /* ⛔ PAS DE `min-*-size` ICI : il gonflerait le DESSIN à la cote de la CIBLE, et c'est
+     exactement la faute qu'Eric m'a fait trouver le 20/09 — le Tally rendait 44 au lieu de 40.
+     La cible vient de la feuille de l'écran, qui la porte en BORDS transparents. */
+  box-sizing: border-box;
 }
 .wares-purse { border-radius: 50%; }
 /* ⚖️ INACTIF N'EST PAS UNE NUANCE DE GRIS (Eric, 20/09) : un vrai bouton inactif n'a pas de
