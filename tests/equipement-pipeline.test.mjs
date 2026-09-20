@@ -142,21 +142,44 @@ test("lieux — location absente se lit « backpack », jamais « porté »", ()
   assert.equal(lignesParLieu(lignes, "storage").length, 1);
 });
 
+/* ══ 🔄 PORTÉ SUR WARES v2 — lot 219, 20/09 ════════════════════════════════════
+   ⚖️ LA LOI NE BOUGE PAS, L'ORGANE CHANGE DE NOM. Eric, 20/09 : *« Cart c'est tally tu l'as
+   déjà fait »*. Le bouton `CART` de l'ancien catalogue est le `Tally` de Wares ; ces gardes
+   suivent donc la FONCTION, pas le libellé.
+   🔴 ET C'EST L'UN D'EUX QUI A TROUVÉ UNE FAUTE DE BRANCHEMENT : le Tally de Wares ouvrait la
+   liste d'ENVOI (le geste de R, recopié) au lieu du PANIER. Un organe qui porte le même nom
+   sur deux écrans n'y fait pas forcément la même chose, et rien ne le disait. */
+const versLeCatalogue = (node) => node.querySelector('.gear-porte[data-porte="wares"]');
+/* ⭐ UN SEUL CHEMIN VERS LE CATALOGUE, ET IL PART DE N'IMPORTE OÙ. La vue persiste entre les
+   tests (c'est le produit), donc chaque garde doit pouvoir s'y rendre comme un joueur perdu.
+   ⛔ Ces quatre lignes étaient recopiées dans trois gardes, chacune avec sa propre porte de
+   sortie — trois chemins pour un voyage, et c'est le genre d'écriture qui diverge au premier
+   écran renommé. */
+function allerAuCatalogue(rendre) {
+  let node = rendre();
+  for (let i = 0; i < 5 && !leCatalogue(node); i += 1) {
+    const sortie = versLeCatalogue(node)
+      || node.querySelector('[data-porte="gear"]')
+      || [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK");
+    if (!sortie) break;
+    sortie.click();
+    node = rendre();
+  }
+  return node;
+}
+const leTally = (node) => node.querySelector('[data-organe="tally"]');
+const leCatalogue = (node) => node.querySelector('[data-ecran="wares"]');
+
 test("⭐ LE PARCOURS ENTIER — dépôt au panier (document), CART → B2, BUY paie UNE fois, envoie tout, vide le panier", () => {
   let doc = verbs.set({ document: fixture.document, path: "currency.gp", value: 100 }).document;
   doc = appliquer(doc, { kind: "cartAdd", ref: { kind: "gear", id: "srd:gear:en:crowbar" } });
   const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
     (a) => { doc = appliquer(doc, a); });
 
-  let node = rendre();
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
-  if (gear) gear.click();
-  node = rendre();
-  assert.equal(node.querySelectorAll(".gear").length, 1, "le personnage équipé (R) d'abord — lot 212");
-  node.querySelector('.gear-porte[data-porte="wares"]').click();
-  node = rendre();
-  const cart = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART");
-  assert.equal(cart.dataset.compte, "1", "le compteur du CART lit le document");
+  let node = allerAuCatalogue(rendre);
+  const cart = leTally(node);
+  assert.ok(cart, "⛔ la porte du panier : le `Tally` de Wares (Eric, 20/09 : « Cart c'est tally »)");
+  assert.equal(cart.dataset.compte, "1", "le compteur du panier lit le document");
   cart.click();
   node = rendre();
   const b2 = node.querySelector('[data-ecran="B2"]');
@@ -181,13 +204,8 @@ test("⚔️ ATTAQUE — BUY refuse quand la bourse ne couvre pas, et n'écrit R
   const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
     (a) => { doc = appliquer(doc, a); });
 
-  let node = rendre();
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
-  if (gear) gear.click();
-  node = rendre();
-  node.querySelector('.gear-porte[data-porte="wares"]').click();
-  node = rendre();
-  [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
+  let node = allerAuCatalogue(rendre);
+  leTally(node).click();
   node = rendre();
   [...node.querySelectorAll('[data-ecran="B2"] button')].find((b) => b.textContent === "BUY").click();
 
@@ -203,15 +221,9 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
 
   /* la vue persiste entre les tests (c'est le produit) : on NAVIGUE vers le
      catalogue depuis n'importe où, comme un joueur perdu le ferait. */
-  let node = rendre();
-  for (let i = 0; i < 4 && !node.querySelector(".carte-r"); i++) {
-    const sortie = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
-      || node.querySelector('.gear-porte[data-porte="wares"]');
-    if (sortie) sortie.click();
-    node = rendre();
-  }
-  assert.ok(node.querySelector(".carte-r"), "témoin : on a bien retrouvé le catalogue");
-  [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
+  let node = allerAuCatalogue(rendre);
+  assert.ok(leCatalogue(node), "témoin : on a bien retrouvé le catalogue");
+  leTally(node).click();
   node = rendre();
 
   const b2 = node.querySelector('[data-ecran="B2"]');
@@ -219,7 +231,7 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
   assert.equal(cartCompte(doc), 1, "BACK recule, il n'efface pas");
 
   node = rendre();
-  [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
+  leTally(node).click();
   node = rendre();
   [...node.querySelectorAll('[data-ecran="B2"] button')].find((b) => b.textContent === "CANCEL").click();
   assert.equal(cartCompte(doc), 0, "CANCEL efface — c'est son seul métier");
@@ -234,11 +246,15 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
 
   /* la vue persiste entre les tests : on rejoint le dressing depuis
      n'importe où, par les portes du joueur. */
+  /* 🔄 PORTÉ (lot 219) : l'aiguilleur vit sur **R**, et le chemin du retour a changé de nom.
+     ⛔ L'ancien catalogue offrait un bouton `GEAR` ; le neuf offre la porte `[data-porte="gear"]`
+     de sa rangée du pied. Sans elle, ce garde suivait la porte `Wares` et s'éloignait de R à
+     chaque tour — il cherchait l'aiguilleur en lui tournant le dos. */
   let node = rendre();
   for (let i = 0; i < 5 && !node.querySelector(".aiguilleur"); i++) {
     const porte = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
-      || [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR")
-      || node.querySelector('.gear-porte[data-porte="wares"]');
+      || node.querySelector('[data-porte="gear"]')
+      || versLeCatalogue(node);
     if (porte) porte.click();
     node = rendre();
   }

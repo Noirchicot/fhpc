@@ -59,6 +59,10 @@ import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=768";
 import { isGenre } from "../../src/layers/document.mjs?v=768";
 import { swapContent } from "./socle.mjs?v=768";
 import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=768";
+/* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
+   fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
+import { construireLesWares } from "./wares-ecran.mjs?v=768";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=768";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
 import { armerJeton } from "./glisser.mjs?v=768";
@@ -2158,6 +2162,13 @@ let destinationEnvoi = "backpack";
    position se CALCULE au premier rendu : une position écrite en dur aurait suivi le
    prochain réordonnancement de la liste sans rien dire. */
 let sectionSac = null;
+/* ── L'ÉTAT DE WARES (lot 218) ─────────────────────────────────────────────────
+   ⛔ TROIS NOMBRES, ET PAS UN DE PLUS : le rang de la catégorie, celui de la sous-catégorie,
+   et la page. ⭐ Ils sont des RANGS, jamais des identités — l'écran est un tambour, et un
+   tambour désigne par position. L'identité `aisle:shelf` reste dans l'arbre, qui la porte. */
+let rayonWares = 0;
+let etagereWares = 0;
+let pageWares = 0;
 /* ⭐ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« le bouton pack devient sections,
    et la roue passe en mode édition »*. ⛔ État d'écran lui aussi : on ne rouvre pas
    le sac en train d'éditer ses sections. */
@@ -3070,8 +3081,87 @@ export function renderEquipmentStep(ctx, onAction) {
     } catch { montrerLeTexte(); }
   }
 
+  /* ══ WARES (lot 218) — LE PILOTE TRADUIT, L'ÉCRAN NE LIT RIEN ════════════════════
+     ⭐ Tout ce que cet écran reçoit est déjà en mots : des crans, une page de jetons, deux
+     comptes. Il ne connaît ni `query`, ni le document, ni le mot « personnage ».
+     ⚖️ ET IL PAGINE PAR DOUZE, pas par quinze — `pageDeListe(objets, page, WARES_PAR_PAGE)` :
+     l'écran passe SON nombre, explicitement, comme NORMES l'exige d'un écran qui dévie.
+     ⛔ CE QUE LE NOUVEL ÉCRAN NE PORTE PAS ENCORE, et c'est dit, pas caché : la LOUPE (Eric,
+     20/09 : *« une chose que nous devons faire oui. Pas ce soir »*) et `NEXT`, qui ira dans
+     Gear (loi `equipement-next-vit-dans-r`). 📏 Et perdre `NEXT` ne casse rien : mesuré,
+     `equipmentValidate()` rend `action: null` — il n'écrit RIEN, il avance d'un cran, et
+     taper un cran du belt fait déjà ce voyage. ⛔ J'avais annoncé l'inverse trois fois sans
+     l'avoir mesuré. */
+  function construireWares() {
+    const arbre = rayonsEtEtageres(query);
+    const rayon = arbre[Math.min(rayonWares, Math.max(0, arbre.length - 1))] || null;
+    const etageres = rayon ? rayon.etageres : [];
+    const etagere = etageres[Math.min(etagereWares, Math.max(0, etageres.length - 1))] || null;
+    const tous = etagere ? etagere.objets : [];
+    const vue = pageDeListe(tous, pageWares, WARES_PAR_PAGE);
+    pageWares = vue.page;
+
+    /* ⭐ LA PAGE COURANTE EST PUBLIÉE POUR LA FICHE : `itemsDeLaPage` est ce que X2 feuillette
+       (*« un x/x permet de passer d'un objet au suivant sans revenir à R »*). ⛔ Une seule
+       écriture — la même que celle de l'ancien catalogue, au même endroit. */
+    itemsDeLaPage.clear();
+    for (const item of vue.objets) itemsDeLaPage.set(item.view.id, item);
+
+    const { noeud } = construireLesWares({
+      categories: arbre.map((r) => ({ nom: r.label })),
+      categorie: rayonWares,
+      sousCategories: etageres.map((e) => ({ nom: e.label })),
+      sousCategorie: etagereWares,
+      /* ⛔ AUCUN PRIX SUR LE JETON — la loi du 20/09. Ce que la tuile reçoit est le nom, et
+         rien d'autre ; le prix vit sur la fiche et dans la recherche. */
+      objets: vue.objets.map((item) => ({ ref: item.view.id, nom: recordLabel(item.view) || item.view.id })),
+      compte: tous.length,
+      page: pageWares,
+      pages: vue.pages,
+      bourse: motDeLaBourse(docu),
+      compteTally: cartCompte(docu),
+      /* ⛔ ON N'OFFRE QUE LES DESTINATIONS ACTIVES : une option qu'on peut choisir et qui ne
+         mène nulle part est un libellé qui ment, ce que §6 interdit. */
+      sections: DESTINATIONS.filter((d) => d.actif).map((d) => ({ valeur: d.valeur, mot: d.mot })),
+      destination: destinationEnvoi,
+      /* ⚖️ CHANGER DE CATÉGORIE REMET LA SOUS-CATÉGORIE ET LA PAGE À ZÉRO — sans quoi on
+         arrive au rang 4 d'une catégorie qui n'en a que deux, et l'écran se tait. */
+      surCategorie: (i) => { rayonWares = i; etagereWares = 0; pageWares = 0; peindre(); },
+      surSousCategorie: (i) => { etagereWares = i; pageWares = 0; peindre(); },
+      surPage: (sens) => { pageWares += sens; peindre(); },
+      /* ⚖️ UN TAP OUVRE UN X2 — la fiche d'un objet du CATALOGUE (loi du 20/09). ⛔ Pas un X1 :
+         celui-là est la fiche d'un objet qu'on POSSÈDE, et on ne possède rien sur une étagère. */
+      surJeton: (ref) => {
+        const liste = [...itemsDeLaPage.values()].map(ficheItem);
+        const index = Math.max(0, liste.findIndex((f) => f.ref.id === ref));
+        ficheEnCours = { liste, index, retour: "r" };
+        montrer("b1");
+      },
+      surPorte: (id) => {
+        if (id === "gear") montrer("gear");
+        if (id === "backpack") montrer("sac");
+        /* ⭐ `Send` FAIT ICI CE QU'IL FAIT PARTOUT, et par le MÊME point. */
+        if (id === "send") envoyer();
+      },
+      surBouton: (id) => {
+        /* 🔴 LE TALLY DE WARES OUVRE LE PANIER, ⛔ PAS LA LISTE D'ENVOI — et c'est un garde du
+           parcours d'achat qui me l'a appris, pas une relecture. Eric, 20/09 : *« Cart c'est
+           tally tu l'as déjà fait »*. J'avais recopié le geste de R (`montrer("sb32")`, la
+           liste d'envoi) sans voir que le mot y désigne autre chose.
+           ⭐ ET LES DEUX LECTURES SE TIENNENT : dans une BOUTIQUE, ton tally est ce que tu es
+           en train d'acheter ; sur ta fiche, c'est ce que tu t'apprêtes à envoyer. Le mot suit
+           l'écran, et c'est l'écran qui dit lequel. ⛔ Un organe qui porte le même nom sur deux
+           écrans n'y fait pas forcément la même chose — et rien ne le disait. */
+        if (id === "tally") montrer("b2");
+        if (id === "purse") { bourseOuverte = !bourseOuverte; peindre(); }
+      },
+      surDestination: (v) => { destinationEnvoi = v; peindre(); },
+    });
+    return noeud;
+  }
+
   function construireVue(vue) {
-    if (vue === "r") return construireCatalogue();
+    if (vue === "r") return construireWares();
     if (vue === "x1" && ficheX1 !== null) return construireX1();
     if (vue === "b1" && ficheEnCours) {
       return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,

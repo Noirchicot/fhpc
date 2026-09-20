@@ -37,6 +37,7 @@ import { fileURLToPath } from "node:url";
 import { createTestDocument } from "./dom-stub.mjs";
 import { stripComments } from "./source-scan.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
+import { PAR_PAGE } from "../ui/builder/wares-disposition.mjs";
 
 globalThis.document = createTestDocument();
 
@@ -80,6 +81,10 @@ const { pageDeListe, LISTE_PAR_PAGE } = await import("../ui/builder/normes.mjs")
    derrière sa porte `Wares` (croquis du 15/09). Ces suites regardent le
    CATALOGUE : on y entre comme le joueur, par cette porte. L'état de vue
    persiste entre les rendus (c'est le produit), le clic est donc conditionnel. */
+/* 🔄 LOT 219 — DERRIÈRE LA PORTE `Wares`, C'EST WARES v2 (dicté par Eric le 20/09). L'entrée
+   ne change pas — on y va comme le joueur — mais l'écran qu'on y trouve est le neuf, et ses
+   organes portent d'autres noms. ⛔ La vue persiste entre les rendus (c'est le produit), donc
+   le clic reste conditionnel. */
 function monterR(ctx, onAction) {
   const node = renderEquipmentStep(ctx, onAction || (() => {}));
   const porte = node.querySelector('.gear-porte[data-porte="wares"]');
@@ -423,62 +428,51 @@ test("9 — la page BOUCLE aux deux bouts, et le compte reste dans ses bornes", 
 
 /* ══ L'ÉCRAN — CE QUI SE VOIT SANS MISE EN PAGE ══════════════════════════ */
 
-test("10 — l'écran porte les deux roues SANS chevron-bouton, les deux gouttières de la grille et ses quinze cases", () => {
+test("10 — l'écran porte DEUX roues, leurs quatre tuners, les deux gouttières et ses DOUZE cases", () => {
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219). La loi tient — deux étages, deux gouttières, une grille —
+     et DEUX de ses nombres ont été renversés par Eric le 20/09 :
+
+     · QUINZE CASES → DOUZE. *« 5 rangées de 3 tokens, si on a la place »*, puis, la mesure
+       faite : *« eh ben 4 rangées alors »*. À cinq rangées l'écran demande 556 blg pour une
+       scène qui en offre 500.
+     · PAS DE CHEVRON → QUATRE TUNERS. Ce test exigeait leur absence (*« enlève les chevrons du
+       haut à côté des tambours »*, 24/08). ⚖️ LA LOI DES DEUX ÂGES TRANCHE : la roue du SAC les
+       porte depuis le 18/09 (*« les tuners sont pour la souris »*, et au repos ce sont des
+       chevrons qui réclament leurs 44), et Eric a dit le 20/09 *« fonctionnement exactement
+       celui de backpack »*. La règle du 18/09 est la plus récente ; elle fait foi.
+     ⛔ ET ON NE LES COMPTE PAS EN DOUCE : quatre, deux par étage, sans quoi un étage ne se
+     tourne pas à la souris. */
   const node = monterR(ctx());
-  assert.equal(rows(node, ".equipment-drum").length, 1);
-  assert.equal(rows(node, ".roue").length, 2, "DEUX étages — le troisième niveau est une grille, plus une roue");
-  /* 🔴 ZÉRO CHEVRON SUR LE TAMBOUR, ET C'EST UN GARDE, PAS UN TROU — Eric,
-     2026-08-24 : *« enlève les chevrons du haut à côté des tambours, ça fait
-     trop moche »*. Deuxième fois qu'il les retire (déjà le 15/08) : ce test
-     exigeait « une paire par étage », il exige maintenant l'inverse, pour
-     qu'un lot suivant ne les rapporte pas sans qu'on le sache.
-     ⭐ Et la souris n'est pas prise au piège : un cran est cliquable, `viser`
-     le ramène sous le viseur — l'affordance est le CONTENU, pas un bouton à
-     côté. Le trait posé à l'intérieur du bord l'annonce (`.roue::before/after`,
-     `pointer-events: none` pour qu'il montre sans recevoir). */
-  assert.equal(rows(node, ".roue-fleche").length, 0, "les chevrons-boutons ont dégagé, et ne reviennent pas");
-  assert.match(CSS, /\.roue::before[^{]*\{[^}]*pointer-events:\s*none/s,
-    "le chevron dessiné laisse passer le clic vers le cran qu'il désigne");
-  assert.equal(rows(node, ".grille-rang").length, 1, "la grille et ses deux gouttières sur UNE rangée");
-  assert.equal(rows(node, ".grille-gouttiere").length, 2, "une gouttière de chaque côté des jetons");
-  assert.equal(rows(node, ".grille-fleche").length, 2);
-  /* 🔴 DEUX CHIFFRES DEPUIS LE 2026-08-23, UN PAR GOUTTIÈRE — et ce n'est pas
-     un doublon. Eric a fait dégager les comptes collés aux crans de la roue
-     (*« les chiffres tout moches »*) puis les a fait revenir ailleurs :
-     *« mets le compte des items sous le chevron gauche »*.
-     ⭐ ILS NE DISENT PAS LA MÊME CHOSE, et c'est ce que ce garde tient : à
-     gauche COMBIEN IL Y EN A dans l'étagère, à droite OÙ L'ON EST dans les
-     pages. Un seul des deux, et l'écran perd une des deux questions. */
-  const chiffres = rows(node, ".grille-compte");
-  assert.equal(chiffres.length, 2, "un compte par gouttière : le total à gauche, la page à droite");
-  const gouttieres = rows(node, ".grille-gouttiere");
-  assert.equal(gouttieres[0].querySelectorAll(".grille-compte").length, 1,
-    "le total vit sous le chevron GAUCHE");
-  assert.equal(gouttieres[1].querySelectorAll(".grille-compte").length, 1,
-    "la page vit sous le chevron DROIT");
-  /* ⛔ AU MONTAGE LES DEUX SONT ÉTEINTS ENSEMBLE : la grille est en attente
-     (test 11), donc aucun des deux ne décrit ce qu'on voit. Un total qui
-     survivrait au tiret des pages parlerait d'une étagère qui n'est pas là. */
-  assert.equal(chiffres[0].textContent, "—");
-  assert.equal(chiffres[1].textContent, "—");
-  assert.equal(rows(node, ".grille-case").length, LISTE_PAR_PAGE, "quinze cases — 5 lignes × 3 colonnes");
+  assert.equal(rows(node, '[data-ecran="wares"]').length, 1, "on est bien derrière la porte");
+  assert.equal(rows(node, ".wares-roue").length, 2, "DEUX étages — le troisième niveau est une grille");
+  assert.equal(rows(node, ".wares-tuner").length, 4, "deux tuners par étage, et il y a deux étages");
+  assert.equal(rows(node, ".wares-gouttiere").length, 2, "le compte d'objets et le compte de pages");
+  /* ⛔ « DOUZE » EST UN PLAFOND DE PAGE, PAS UN COMPTE DE CASES — et c'est le garde qui me
+     l'a appris : la première sous-catégorie de ce montage n'a que TROIS objets, et une page
+     courte n'en invente pas. ⭐ Ce que la loi dit est « au plus douze », et le nombre lui-même
+     vit au plan : on le LIT, on ne le retape pas. */
+  const cases = rows(node, ".wares-case").length;
+  assert.ok(cases > 0 && cases <= PAR_PAGE,
+    `⛔ ${cases} cases : la page en porte au plus ${PAR_PAGE} (Eric, 20/09 — plus quinze)`);
+  assert.equal(PAR_PAGE, 12, "et le plafond du plan est bien douze");
 });
 
-test("10 bis — ⛔ LE TITRE DE L'ÉTAGÈRE A DÉGAGÉ, ET SA BARRE AVEC — Eric, 23/08", () => {
-  /* *« le titre n'a pas lieu d'être, il est porté par le rouleau »*. Un nom
-     écrit à deux endroits est un nom qui finit par diverger : celui du cran de
-     la roue est le seul qui reste. 📏 Et la barre pesait 52 px dans une carte
-     qui en cherchait 12 — la coupe n'est pas cosmétique. */
+test("10 bis — ⛔ LE TITRE A DÉGAGÉ, ET SA BARRE AVEC — Eric, 23/08, toujours vrai le 20/09", () => {
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219), et la loi n'a pas bougé d'un mot : un nom écrit à deux
+     endroits finit par diverger ; celui du cran de la roue est le seul qui reste.
+     ⭐ ET ERIC L'A REDITE LE 20/09, PLUS LARGEMENT : *« Equipment browser dégage »* — l'écran
+     n'a plus de titre du tout, pas seulement l'étagère. Le compte, lui, reste : il compte des
+     PAGES, donc il vit avec les chevrons qui les tournent. */
   const node = monterR(ctx());
-  assert.equal(rows(node, ".grille-titre").length, 0, "plus aucun nœud de titre");
+  assert.equal(rows(node, ".grille-titre").length + rows(node, ".wares-titre").length, 0,
+    "plus aucun nœud de titre");
   assert.equal(rows(node, ".grille-barre").length, 0, "et plus de barre horizontale pour le porter");
-
-  /* ⭐ MAIS LE COMPTE RESTE, et il est DANS une gouttière : Eric n'a retiré que
-     le titre — décider que le compte part avec aurait été décider à sa place. */
-  const compte = rows(node, ".grille-compte")[0];
+  assert.equal(node.querySelectorAll("h1").length + node.querySelectorAll("h2").length, 0,
+    "⛔ ni titre de rang : le cran sous le viseur NOMME l'écran");
+  const compte = node.querySelector('[data-organe="compte-pages"]');
   assert.ok(compte, "le compte de pages est toujours là");
-  assert.equal(compte.parentNode.className, "grille-gouttiere",
-    "il compte des PAGES, donc il vit avec les flèches qui les tournent");
+  assert.ok(compte.parentNode.className.includes("wares-gouttiere"),
+    "il compte des PAGES, donc il vit avec les chevrons qui les tournent");
 });
 
 test("10 ter — 🔴 UNE SEULE PAGE : LA RANGÉE N'EST QUE SES TOKENS — Eric, 26/08", () => {
@@ -520,74 +514,60 @@ test("10 ter — 🔴 UNE SEULE PAGE : LA RANGÉE N'EST QUE SES TOKENS — Eric,
   }
 });
 
-test("11 — L'ÉTAT DE DÉPART DU CROQUIS : rayons remplis, étagères ☆ ☉ ☾, grille FACE CACHÉE", () => {
+/* ══ 🗄️ ARCHIVÉ LE 20/09 — L'ÉTAT D'ATTENTE N'EST PLUS DANS L'ÉCRAN ═══════════════════
+   Ce garde tenait le croquis du 23/08 : au rendu, la roue du bas montrait ☆ ☉ ☾ et la grille
+   des dos de carte de tarot, tant qu'aucune étagère n'était choisie.
+   ⛔ LA DICTÉE D'ERIC DU 20/09 NE LE REPREND PAS. Wares v2 s'ouvre sur un choix : première
+   catégorie, première sous-catégorie, première page — il n'y a plus d'instant où l'écran ne
+   sait pas quoi montrer, donc plus rien à masquer.
+   ⚖️ LOI DES DEUX ÂGES : rien ne se supprime, une règle périmée est ARCHIVÉE — elle porte
+   l'incident qui l'a fait naître, et cet incident se repaie si on l'oublie. Ce qu'elle avait
+   coûté : cinq passes en un jour pour trouver le bon MOMENT du masquage, et un défaut vu au
+   téléphone (*« j'ai bougé, la 2ᵉ et la 3ᵉ montrent des items — pas normal »*).
+   ⏳ SI L'ATTENTE REVIENT — par exemple le jour où une sous-catégorie se charge lentement —
+   c'est CE texte qu'on relit avant d'en réécrire une. */
+
+/* ══ 🗄️ ARCHIVÉ LE 20/09 — LA ROUE NE BOUCLE PLUS, DONC ELLE NE SE RÉPÈTE PLUS ═════════
+   Ce garde tenait la parade de l'anneau infini : peindre la liste TROIS fois et répéter
+   jusqu'à douze crans par bloc, pour que la couture ne tire pas à chaque geste (7 rayons →
+   42 crans). Eric l'avait entendu avant de le voir : *« la roue A bien fluide, la roue B pas
+   bien, ça clignote »*, à code identique.
+   🔴 ABROGÉ PAR ERIC, DEUX FOIS ET EXPLICITEMENT : le 19/09 pour le sac (*« que ça tourne à
+   l'infini n'aide pas ; autorise l'absence de tuiles à droite et à gauche »*), puis le 20/09
+   pour Wares (*« ça ne tourne plus à l'infini »* · *« les tambours ne sont plus à l'infini
+   bien sûr »*).
+   ⭐ CE QUI DISPARAÎT AVEC LA BOUCLE : les copies, la téléportation à l'arrêt, le tour du
+   milieu, et le remarquage de la tuile jumelle. Un anneau n'a pas de bout, donc il ne pouvait
+   dire ni « tu es au début » ni « tu es à la fin » — et c'est exactement ce qu'Eric veut voir :
+   du VIDE au bout de la liste. 📏 L'ancienne roue de Wares en portait DOUZE copies dans le DOM.
+   ⚖️ Le garde qui tient la règle neuve vit désormais dans `roue-tambour.test.mjs` n° 1 et
+   `wares-ecran.test.mjs` n° 4 : « trois crans, trois nœuds ». */
+
+test("13 — un cran annonce son état, ⛔ JAMAIS par `aria-pressed` (ce n'est pas une bascule)", () => {
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219). ⭐ CE QUE LA LOI INTERDIT N'A PAS BOUGÉ D'UN MOT :
+     `aria-pressed` dirait « bouton à bascule » à un lecteur d'écran, et un cran n'en est pas un.
+     ⚖️ CE QUI CHANGE EST LA FORME DE L'ANNONCE, ET C'EST LE SAC QUI LA POSE : ses crans sont des
+     `role="tab"` qui portent `aria-selected`. Eric, 20/09 : *« fonctionnement exactement celui
+     de backpack »* — la forme suit. ⛔ Les deux annoncent ; une seule ment, et c'est celle-là
+     qui reste interdite.
+     ⛔ ET LE GARDE EXIGE QU'UNE ANNONCE EXISTE : se contenter d'interdire `aria-pressed`
+     laisserait passer un cran parfaitement MUET, ce qui est pire. */
   const node = monterR(ctx());
-  const pistes = rows(node, ".roue-piste");
-  assert.equal(pistes[0].dataset.attente, undefined, "la ligne du HAUT est remplie dès l'ouverture");
-  assert.equal(pistes[1].dataset.attente, "oui", "la ligne du BAS attend");
-  assert.equal(rows(node, ".grille-cases")[0].dataset.attente, "oui", "et la grille attend aussi (nouveau le 23/08)");
-
-  /* 🔴 LES ☆ ☉ ☾ RESTENT SUR LA ROUE, ET SEULEMENT LÀ — Eric, 2026-08-23 :
-     *« le 3 doit être des étoiles soleil lune, répartition dans l'ordre que
-     j'ai dit »*, puis, le soir même : *« mets le dos de carte de tarot à la
-     place des étoiles SUR LES ITEMS »*.
-     ⭐ Les deux ordres ne se contredisent pas, ils nomment deux organes. Un
-     cran de roue est un NOM masqué — un glyphe suffit. Une case de grille est
-     une CARTE À RETOURNER — elle montre son dos. */
-  const cransB = [...pistes[1].querySelectorAll(".roue-marqueur")].map((m) => m.textContent);
-  assert.deepEqual(cransB, ["☆", "☉", "☾"], "la roue du bas garde la série, dans l'ordre");
-
-  const marqueurs = rows(node, ".grille-marqueur");
-  assert.equal(marqueurs.length, LISTE_PAR_PAGE);
-  for (const m of marqueurs) {
-    /* ⛔ AUCUN CARACTÈRE DERRIÈRE L'IMAGE : un symbole laissé dessous se
-       devinerait en transparence, et un lecteur d'écran dirait deux choses là
-       où l'écran n'en montre qu'une. */
-    assert.equal(m.textContent, "", "une case face cachée ne porte aucun texte : la carte est peinte par la feuille");
-    assert.equal(m.getAttribute("aria-hidden"), "true", "un dos de carte n'a rien à annoncer");
-    assert.equal(m.tagName, "SPAN", "un marqueur n'est PAS un bouton : il n'y a rien à choisir");
-  }
-
-  /* ⚔️ ET LA CARTE EST VRAIMENT PEINTE — sans cette ligne, tout ce qui précède
-     passerait sur quinze cases VIDES, ce qui est exactement le défaut qu'on
-     risque en retirant un texte. Le garde lit la feuille, pas la promesse. */
-  assert.match(CSS, /\.grille-marqueur[^}]*background-image:\s*url\("\.\/assets\/tarot-dos\.jpg\?v=\d+"\)/,
-    "`.grille-marqueur` peint le dos de carte, et son `url()` porte sa version");
-
-  assert.equal(rows(node, ".grille-compte")[0].textContent, "—",
-    "et le compte ne MENT pas pendant l'attente — pas de « 1/1 » sur une grille qui ne montre rien");
-});
-
-test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 7 rayons deviennent 42 crans, pas 21", () => {
-  /* 🔴 LE PIÈGE N°4, ET IL EST MUET : la roue pose trois blocs et saute d'un
-     bloc dès qu'on quitte celui du milieu. Avec 4 crans, un bloc fait 484 px
-     pour une fenêtre de 359 — on en sort au moindre geste et la couture tire
-     presque en permanence. Eric l'a entendu avant de le voir : « la roue A bien
-     fluide, la roue B pas bien, ça clignote », À CODE IDENTIQUE.
-     ⭐ La parade : répéter la liste DANS le bloc jusqu'à 12 crans. */
-  const node = monterR(ctx());
-  const crans = rows(node, ".roue-piste")[0].querySelectorAll(".roue-cran");
-  /* ⭐ LE TOTAL N'A PAS BOUGÉ EN PASSANT DE 4 À 6 RAYONS, ET CE N'EST PAS UNE
-     COÏNCIDENCE HEUREUSE : la règle vise un PLANCHER de 12 crans par bloc, donc
-     4 se répète 3 fois et 6 se répète 2 fois — 12 dans les deux cas. ⛔ C'est
-     aussi pourquoi « 36 » ne prouve rien tout seul : c'est la liste des quatre
-     premiers libellés, en dessous, qui dit quels rayons on regarde. */
-  assert.equal(crans.length, 42, "3 tours × ceil(12 / 7) × 7 rayons = 42 crans");
-  assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent),
-    ["Adventuring", "Arcana", "Battlefield", "Crafting"],
-    "les rayons d'Eric, pas les genres de records");
-  assert.deepEqual(crans.slice(0, 4).map((c) => c.dataset.rang), ["0", "1", "2", "3"],
-    "chaque cran connaît son RANG dans la vraie liste — c'est ce qui rend la répétition invisible");
-});
-
-test("13 — un cran s'annonce par `aria-current`, jamais par `aria-pressed` (ce n'est pas une bascule)", () => {
-  const node = monterR(ctx());
-  const crans = rows(node, ".roue-cran").filter((c) => c.tagName === "BUTTON");
-  assert.ok(crans.length > 0);
+  const crans = rows(node, ".wares-cran").filter((c) => c.tagName === "BUTTON");
+  assert.ok(crans.length > 0, "témoin : il y a bien des crans à lire");
   for (const cran of crans) {
-    assert.ok(cran.hasAttribute("aria-current"));
     assert.equal(cran.getAttribute("aria-pressed"), null,
       "`aria-pressed` dirait « bouton à bascule » à un lecteur d'écran — un cran n'en est pas un");
+    assert.ok(cran.hasAttribute("aria-selected") || cran.hasAttribute("aria-current"),
+      "⛔ un cran muet : il faut que son état se DISE, par l'une ou l'autre forme");
+  }
+  /* ⛔ UN CHOISI PAR ÉTAGE, ET LE GARDE DOIT COMPTER PAR ÉTAGE — ma première écriture comptait
+     sur les DEUX roues et trouvait deux, ce qui est juste et ne prouve rien. ⭐ Deux organes qui
+     se ressemblent se comptent séparément, sinon le total masque le détail. */
+  for (const roue of rows(node, ".wares-roue")) {
+    const choisis = [...roue.querySelectorAll('.wares-cran[aria-selected="true"]')];
+    assert.equal(choisis.length, 1,
+      `⛔ ${choisis.length} crans choisis sur l'étage « ${roue.dataset.organe} » — il en faut UN`);
   }
 });
 
@@ -629,15 +609,12 @@ test("13 bis — 🔧 DETTE SOLDÉE : le courant s'ANNONCE une fois, et s'ALLUME
     "les autres portent `false` plutôt que rien : on voit qu'on a répondu, pas qu'on a oublié");
 });
 
-test("13 ter — au rendu, RIEN n'est annoncé : l'état d'attente du croquis n'a pas de cran courant", () => {
-  /* ⭐ CE N'EST PAS UN CAS DÉGÉNÉRÉ, C'EST L'ÉTAT DE DÉPART (test 11) : tant que
-     le joueur n'a rien touché, aucun rayon n'est choisi. Un `aria-current` posé
-     là annoncerait un choix qui n'a pas eu lieu. */
-  const node = monterR(ctx());
-  const crans = rows(node, ".roue-piste")[0].querySelectorAll(".roue-cran");
-  assert.equal(crans.filter((c) => c.getAttribute("aria-current") === "true").length, 0);
-  assert.equal(crans.filter((c) => c.dataset.courant === "true").length, 0);
-});
+/* ══ 🗄️ ARCHIVÉ LE 20/09 — IL TENAIT L'ÉTAT D'ATTENTE, QUI N'EXISTE PLUS ═══════════════
+   Ce garde disait : au rendu, aucun cran n'est `aria-current`, parce que le joueur n'a rien
+   touché et qu'un choix annoncé sans choix est un mensonge au lecteur d'écran.
+   ⛔ IL TOMBE AVEC SON SUJET (voir l'archive du n° 11) : Wares v2 s'ouvre sur un choix réel —
+   première catégorie, première sous-catégorie — et l'annoncer est alors la VÉRITÉ.
+   ⭐ LA MOITIÉ QUI SURVIT EST DANS LE N° 13 : ⛔ jamais `aria-pressed`. Elle, rien ne l'abroge. */
 
 test("14 — ⛔ LA LIGNE DE PROFONDEUR A QUITTÉ L'ÉCRAN, et elle ne peut pas y revenir", () => {
   /* 🔴 RENVERSÉ LE 2026-08-23, ET C'EST ERIC QUI L'A RENVERSÉ. Ce test gardait
@@ -674,30 +651,23 @@ test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui
 });
 
 test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran n'en invente aucun", () => {
-  /* Mesuré le 2026-08-23 : 0 des 258 `item` porte un `cost`, 0 porte un
-     `weight`. Un autre chantier les remplira. En attendant, l'écran ne doit
-     ni planter, ni inventer un « 0 gp » qui serait un mensonge.
-     🔴 CE QUI A CHANGÉ LE 23/08 AU SOIR : le chercheur a dégagé avec tout ce
-     qui était sous la carte, donc la ligne de résultat qui MONTRAIT l'absence
-     par un tiret n'existe plus. Le constat se fait maintenant là où les objets
-     se voient — dans la grille — et il est même plus fort : une case ne porte
-     que le NOM. Il n'y a plus d'endroit où un prix inventé POURRAIT paraître.
-     ⭐ Le témoin sur le corpus reste, et c'est lui qui donne son sens au reste :
-     sans lui, ce test passerait aussi sur un catalogue vide. */
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219), et la loi en sort RENFORCÉE. 258 records du corpus n'ont
+     ni `cost` ni `weight` ; l'écran ne doit ni planter, ni inventer un « 0 gp » qui mentirait.
+     ⭐ ET ERIC A FERMÉ LA PORTE PLUS LOIN LE 20/09 : *« les jetons EXACTEMENT la même règle que
+     dans les menus Gear/Backpack »* — donc AUCUN prix sur un jeton, jamais, même quand le
+     record en porte un. Il n'y a plus d'endroit où un prix inventé POURRAIT paraître.
+     ⭐ Le témoin sur le corpus reste, et c'est lui qui donne son sens au reste : sans lui, ce
+     test passerait aussi sur un catalogue vide. */
   const sansPrix = query({ kind: "item" }).filter((v) => v.record.data.cost === undefined);
   assert.equal(sansPrix.length, 258, "témoin : c'est bien le corpus entier qui est sans prix");
-
   const node = monterR(ctx());
   assert.equal(rows(node, ".equipment-item-meta").length, 0,
-    "aucune ligne de méta ne subsiste où un prix pourrait être inventé");
-  /* ⚠️ AU MONTAGE LA GRILLE EST EN ATTENTE (☆ ☉ ☾) — c'est l'état de départ du
-     croquis, éprouvé par le test 11. Le témoin de CE test n'est donc pas « des
-     objets s'affichent », c'est « la grille est bien là et n'a aucune place où
-     loger un prix ». Prendre l'autre témoin ferait échouer un test juste. */
-  assert.equal(rows(node, ".grille-cases").length, 1, "témoin : la grille est bien montée");
-  for (const c of rows(node, ".grille-case")) {
-    assert.doesNotMatch(c.textContent, /\bgp\b|\blb\b/i,
-      "une case ne porte que le nom : ni prix, ni poids");
+    "aucune ligne de méta : la case ne porte que le NOM");
+  const cases = rows(node, ".wares-jeton");
+  assert.ok(cases.length > 0, "témoin : la grille porte bien des jetons");
+  for (const c of cases) {
+    assert.ok(!/\d\s*(gp|sp|cp|lb)/i.test(c.textContent),
+      `⛔ un prix ou un poids sur le jeton « ${c.textContent.trim()} » — ils vivent sur la fiche`);
   }
 });
 /* ══ LES HUIT PIÈGES PAYÉS, GARDÉS SUR LES OCTETS DE LA FEUILLE ═══════════

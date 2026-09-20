@@ -249,15 +249,19 @@ test("⛔ l'étape Équipement OUVRE SUR R (Gear), et une seule vue vit à la fo
   }, () => {});
 
   assert.equal(rows(node, ".gear").length, 1, "le personnage équipé (R) est l'écran d'entrée");
-  assert.equal(rows(node, ".carte-r").length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219) : le catalogue est `[data-ecran="wares"]`. La loi ne bouge
+     pas d'un mot — UNE vue à la fois, c'est l'inversion du 24/08. */
+  assert.equal(rows(node, '[data-ecran="wares"]').length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
 
   const porte = node.querySelector('.gear-porte[data-porte="wares"]');
   assert.ok(porte, "la rangée du pied de R porte la porte Wares vers le catalogue");
   porte.click();
-  assert.equal(rows(node, ".carte-r").length, 1, "Wares ouvre le catalogue…");
+  assert.equal(rows(node, '[data-ecran="wares"]').length, 1, "Wares ouvre le catalogue…");
   assert.equal(rows(node, ".gear").length, 0, "…et R s'efface — jamais deux vues empilées");
 
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
+  /* ⭐ ET LE RETOUR SE FAIT PAR LA PORTE DU PIED, plus par un bouton du catalogue : le pied de
+     Wares dit `Gear · Send · Backpack` (Eric, 20/09 — le triangle se referme). */
+  const gear = node.querySelector('[data-porte="gear"]');
   assert.ok(gear, "la carte du catalogue porte GEAR");
   gear.click();
   assert.equal(rows(node, ".gear").length, 1, "GEAR ramène à R — l'aller-retour est complet");
