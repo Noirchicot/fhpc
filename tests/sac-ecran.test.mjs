@@ -12,6 +12,7 @@ import { createTestDocument } from "./dom-stub.mjs";
 /* ⛔ UN COMMENTAIRE N'EST PAS UN SÉLECTEUR — le garde du `?` a déjà rougi
    en lisant de la prose pour de la règle (18/09). Toute lecture de feuille
    passe par là. */
+import { cranTypo } from "./source-scan.mjs";
 import { stripComments } from "./source-scan.mjs";
 
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
@@ -657,8 +658,8 @@ test("15 — ⚖️ LE MODE ÉDITION : quatre poignées À CHEVAL sur les deux a
   assert.equal(pose("LOUPE").l, D.ROUE.dominant, "et sa largeur est celle du dominant d'avant");
   assert.ok(Math.abs(D.ROUE.loupe - D.ROUE.dominant / D.ROUE.tuile) < 0.001,
     "⭐ l'agrandissement EST `dominant / tuile` — ⛔ pas un facteur choisi");
-  const t0 = parseFloat(jetons.match(/--t0:\s*([\d.]+)px/)[1]);
-  const t1 = parseFloat(jetons.match(/--t1:\s*([\d.]+)px/)[1]);
+  const t0 = parseFloat(cranTypo(jetons, "--t0"));
+  const t1 = parseFloat(cranTypo(jetons, "--t1"));
   assert.ok(Math.abs(D.ROUE.loupe - t1 / t0) < 0.01,
     "🔴 ET C'EST AUSSI `T1 / T0` : les deux règles dictées le 18/09 sont LE MÊME RAPPORT.\n" +
     "   Un seul agrandissement les rend toutes les deux — c'est ce qui permet de\n" +
@@ -877,6 +878,8 @@ test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALC
   const css = stripComments(feuille);
   const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
   const jeton = (nom) => {
+    const cran = cranTypo(jetons, `--${nom}`);
+    if (cran) return parseFloat(cran);
     const m = jetons.match(new RegExp(`--${nom}\\s*:\\s*([\\d.]+)px`));
     assert.ok(m, `⛔ le jeton --${nom} a disparu : ce garde doit être réécrit, pas supprimé`);
     return parseFloat(m[1]);

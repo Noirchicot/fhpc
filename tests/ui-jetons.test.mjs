@@ -56,7 +56,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { stripComments, walkSources } from "./source-scan.mjs";
+import { stripComments, walkSources, cranTypo } from "./source-scan.mjs";
 import { createLayers } from "../src/layers/index.mjs";
 import { createBuild } from "../src/build/index.mjs";
 import { createFhDestinyStat } from "../src/modules/fh/destiny-stat.mjs";
@@ -920,7 +920,9 @@ const darkTokens = extractCustomProps(darkBlock);
 
 test("les sept barreaux T1..T7 existent, dans l'ordre, et aucun n'est à moins de 12,5% du suivant", () => {
   const rungs = ["t1", "t2", "t3", "t4", "t5", "t6", "t7"].map((name) => {
-    const raw = lightTokens.get(name);
+    /* Depuis le 20/09 le cran s'écrit `calc(N px / var(--compense-texte))` :
+       on le lit à travers sa compensation, le nombre reste le barreau. */
+    const raw = cranTypo(tokensCssRaw, `--${name}`) ?? lightTokens.get(name);
     assert.ok(raw, `--${name} doit exister dans tokens.css`);
     const px = Number(raw.replace("px", ""));
     assert.ok(Number.isFinite(px) && px > 0, `--${name} doit être une longueur positive (lu: "${raw}")`);
@@ -1292,4 +1294,43 @@ test("garde 12 — aucun plancher TACTILE en pixels dans les feuilles de `ui/bui
     "témoin : le garde voit bien le littéral qui vient de partir");
   assert.deepEqual(vu("  min-height: 0;\n  min-height: 1.2em;\n  min-height: var(--touch);"), [],
     "⛔ et il laisse passer l'idiome flex, le rythme en `em` et le jeton — sinon il crierait sur trente règles justes");
+});
+
+/* ══ LE TEXTE GARDE SA TAILLE — amendement du 2026-09-20 (NORMES §0 bis) ═══
+   Les huit crans passent par `--compense-texte`, et par rien d'autre ; la
+   compensation n'existe que sous l'attribut que la sonde pose. Un garde sur
+   la DONNÉE (les déclarations), pas sur les commentaires — la feuille est
+   dépouillée de ses commentaires avant lecture. */
+const TOKENS_NUS = stripComments(tokensCssRaw);
+
+/** Les crans tels que la feuille les ÉCRIT : { t0: 8, … } ou une absence. */
+function cransCompenses(css) {
+  const out = {};
+  for (const m of css.matchAll(/--(t[0-7])\s*:\s*calc\(\s*(\d+)px\s*\/\s*var\(--compense-texte\)\s*\)\s*;/g)) out[m[1]] = Number(m[2]);
+  return out;
+}
+
+test("🔴 20/09 — les huit crans T0…T7 sont `calc(N px / var(--compense-texte))`, N = le barème ratifié", () => {
+  /* Le barème : ratifié le 13/08 (§3c), T0 ajouté le 05/09. Le nombre reste
+     sur la ligne — c'est lui qu'on lit, et lui qu'on garde. */
+  assert.deepEqual(cransCompenses(TOKENS_NUS), { t0: 8, t1: 10, t2: 12, t3: 14, t4: 16, t5: 18, t6: 22, t7: 44 });
+  for (const [t, n] of Object.entries(cransCompenses(TOKENS_NUS)))
+    assert.equal(cranTypo(tokensCssRaw, `--${t}`), `${n}px`, "l'extracteur partagé lit la même chose que ce garde");
+  assert.equal(cranTypo("--t4: 16px;", "--t4"), null, "et il refuse un cran nu");
+  assert.equal(cranTypo("--t4: calc(16px / var(--echelle));", "--t4"), null, "et un cran qui contourne l'interrupteur");
+  assert.equal((TOKENS_NUS.match(/--t[0-7]\s*:/g) || []).length, 8, "huit écritures, pas une de plus : un cran n'a qu'un écrivain");
+});
+
+test("🔴 `--compense-texte` vaut 1 au socle et `var(--echelle)` sous le SEUL sélecteur de la sonde", () => {
+  const ecritures = [...TOKENS_NUS.matchAll(/--compense-texte\s*:\s*([^;]+);/g)].map((m) => m[1].trim());
+  assert.deepEqual(ecritures, ["1", "var(--echelle)"], "deux écritures, dans cet ordre : le défaut, puis la compensation");
+  assert.match(TOKENS_NUS, /html\[data-texte-suit-zoom="oui"\]\s*\{\s*--compense-texte\s*:\s*var\(--echelle\)\s*;\s*\}/,
+    "la compensation n'existe que sous l'attribut « oui » — ni [data-grandeur], ni @media : c'est le moteur, mesuré");
+  assert.doesNotMatch(stripComments(shellCssRaw), /--compense-texte\s*:|--t[0-7]\s*:/, "shell.css ne réécrit ni la compensation ni un cran");
+});
+
+test("⚔️ ATTAQUE — un cran nu (`--t4: 16px`) ou hors compensation rougit", () => {
+  assert.deepEqual(cransCompenses("--t4: 16px;"), {}, "nu : pas vu comme compensé");
+  assert.deepEqual(cransCompenses("--t4: calc(16px / var(--echelle));"), {}, "divisé par l'échelle directement : c'est contourner l'interrupteur");
+  assert.deepEqual(cransCompenses("--t4: calc(16px / var(--compense-texte));"), { t4: 16 }, "la forme attendue est vue");
 });

@@ -370,3 +370,69 @@ test("localStorage qui JETTE ne fait pas tomber le builder", () => {
   window.localStorage = vrai;
 });
 
+/* ══ LE TEXTE GARDE SA TAILLE — amendement du 2026-09-20 ═════════════════ */
+const { texteSuitLeZoom, poserSondeTexte, TEXTE_FIXE, SONDE_TEXTE_ID } =
+  await import("../ui/builder/echelle.mjs");
+
+/** Un document factice qui ne porte qu'une sonde aux largeurs choisies. */
+function docAvecSonde(largeurZoome, largeurTemoin) {
+  const etage = (w) => ({ firstElementChild: { getBoundingClientRect: () => ({ width: w }) } });
+  const sonde = { children: [etage(largeurZoome), etage(largeurTemoin)] };
+  return { getElementById: (id) => (id === SONDE_TEXTE_ID ? sonde : null) };
+}
+
+test("🔴 20/09 — la sonde dit « oui » quand le texte double sous zoom 2, « non » quand il ne bouge pas", () => {
+  assert.equal(texteSuitLeZoom(docAvecSonde(200, 100)), "oui", "Chrome Mac : 2,00");
+  assert.equal(texteSuitLeZoom(docAvecSonde(195, 100)), "oui", "Safari Mac : 1,95, l'arrondi ne bascule pas");
+  assert.equal(texteSuitLeZoom(docAvecSonde(100, 100)), "non", "Safari iPad : 1,00");
+  assert.equal(texteSuitLeZoom(docAvecSonde(112, 100)), "non", "le rehaussement iPad (8 → 9) reste du côté « non »");
+});
+
+test("⚔️ ATTAQUE — sans sonde, sans géométrie : `null`, jamais un verdict inventé", () => {
+  assert.equal(texteSuitLeZoom({ getElementById: () => null }), null, "pas de sonde");
+  assert.equal(texteSuitLeZoom(docAvecSonde(0, 0)), null, "pas de géométrie (stub, page cachée)");
+  assert.equal(texteSuitLeZoom(null), null, "pas de document du tout");
+});
+
+test("⭐ LE SAUF-CONDUIT — l'interrupteur baissé rend `null` même quand le moteur zoome le texte", () => {
+  assert.equal(TEXTE_FIXE, true, "dans le dépôt, l'interrupteur est LEVÉ : c'est la règle du 20/09");
+  assert.equal(texteSuitLeZoom(docAvecSonde(200, 100), false), null,
+    "baissé : aucun attribut ne sera posé, --compense-texte reste 1, le builder rend comme avant");
+});
+
+test("🔴 le stub sans DOM : `appliquerEchelle` ne pose pas l'attribut, ne jette pas, et rend `texte: null`", () => {
+  delete racine.dataset.texteSuitZoom;
+  const r = appliquerEchelle(window, racine);
+  assert.equal(r.texte, null, "sans sonde, pas de verdict");
+  assert.equal(racine.dataset.texteSuitZoom, undefined, "et pas d'attribut fantôme");
+});
+
+test("🔴 `appliquerEchelle` pose l'attribut d'après la sonde, et le RETIRE si elle se tait", () => {
+  const html = { ...racine, dataset: {}, ownerDocument: docAvecSonde(200, 100) };
+  html.style = racine.style;
+  assert.equal(appliquerEchelle(window, html).texte, "oui");
+  assert.equal(html.dataset.texteSuitZoom, "oui", "Chrome : compensé");
+  html.ownerDocument = docAvecSonde(100, 100);
+  assert.equal(appliquerEchelle(window, html).texte, "non");
+  assert.equal(html.dataset.texteSuitZoom, "non", "iPad : posé « non », et tokens.css ne compense que « oui »");
+  html.ownerDocument = { getElementById: () => null };
+  appliquerEchelle(window, html);
+  assert.equal(html.dataset.texteSuitZoom, undefined, "sonde disparue : l'attribut part avec elle");
+});
+
+test("poserSondeTexte écrit DEUX témoins une seule fois, et rend le même nœud ensuite", () => {
+  const corps = { enfants: [], append(n) { this.enfants.push(n); } };
+  const doc = {
+    body: corps,
+    createElement: () => ({ enfants: [], setAttribute() {}, append(...n) { this.enfants.push(...n); } }),
+    getElementById: (id) => corps.enfants.find((n) => n.id === id) || null
+  };
+  const a = poserSondeTexte(doc);
+  const b = poserSondeTexte(doc);
+  assert.equal(a, b, "idempotente");
+  assert.equal(corps.enfants.length, 1, "un seul nœud dans le corps");
+  assert.equal(a.className, "sonde-texte", "habillée par shell.css, jamais en ligne");
+  assert.deepEqual(a.enfants.map((e) => e.className), ["sonde-zoome", "sonde-temoin"], "deux étages, le zoomé d'abord");
+  assert.ok(a.enfants.every((e) => e.enfants.length === 1 && e.enfants[0].textContent === "0000000000"), "le même texte dans chaque étage");
+  assert.equal(poserSondeTexte({}), null, "sans DOM : rien, sans jeter");
+});

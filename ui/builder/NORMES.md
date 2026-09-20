@@ -140,17 +140,52 @@
 ⚖️ **Le reflux survit, le redimensionnement meurt : une rangée peut passer de 4 cases à 3, une cote ne peut pas doubler sur grand écran.**
 📍 `panneau-touch-sans-max` · vivante · 30/08
 ⚖️ **`--touch` n'a plus de `max()` : 44 blg valent toujours ≥ 44 px.**
-📍 `panneau-zoom-sans-exception` · vivante · 30/08
-⚖️ **Aucune valeur n'échappe au zoom — ni les filets d'un blg, ni les ombres, ni `--touch`.**
+📍 `panneau-zoom-sans-exception` · vivante · 30/08 · bornée par `panneau-texte-fixe`
+⚖️ **Aucune valeur n'échappe au zoom — ni les filets d'un blg, ni les ombres, ni `--touch`.** ~~Aucune exception.~~ **Une seule depuis le 20/09 : le texte** — voir l'amendement du 2026-09-20 ci-dessous (`panneau-texte-fixe`).
 
 | loi | détail |
 |---|---|
-| 🔴 **aucune exception** | ni les filets d'un blg, ni les ombres, ni `--touch`. Une valeur qui resterait fixe pendant que le reste grandit **change un rapport** — c'est ce que la loi interdit |
+| 🔴 **aucune exception** ~~(sauf aucune)~~ **sauf le texte, depuis le 20/09** | ni les filets d'un blg, ni les ombres, ni `--touch`. Une valeur qui resterait fixe pendant que le reste grandit **change un rapport** — c'est ce que la loi interdit. ⚠️ **Le texte est l'exception ratifiée le 20/09** : Eric a vu sur l'iPad un texte qui ne grandit pas dans des boîtes qui grandissent, et l'a préféré |
 | 📌 **plancher = 1** | *« la taille 360 sur laquelle on travaille »*. Rien ne rétrécit sous le barème ratifié : **aucun texte ne peut passer sous T1** |
 | ⭐ **`--touch` n'a plus de `max()`** | 44 blg valent toujours ≥ 44 px sur une échelle qui ne descend jamais. La loi d'Apple et celle d'Eric disent la même chose — *tant que le plancher tient*, et un garde le mesure |
 | ⛔ **le reflux survit, le redimensionnement meurt** | une rangée qui passe de 4 cases à 3 ne change **aucun** rapport (loi du 19/08, *« si on peut faire 4, on fait 4 »*). Une cote qui double sur grand écran, si |
 | ⛔ **jamais un `@media` de largeur** | il **ne se réévalue pas** sous `zoom` — mesuré au banc : à 1920 au cran 5, `min-width: 1140px` matchait encore et le rail rendait **600 px réels**. La grandeur passe par `data-grandeur`, calculé sur `innerWidth / échelle` |
 | ~~⚠️ **le cran est borné, jamais clampé**~~ | **renversé le 2026-09-02** — Eric : *« si l'auto fait bien son travail, effectivement les boutons sont obsolètes »*. La rampe de crans du Menu est **retirée** (lot 118) : depuis l'échelle continue, Auto rend déjà le plus grand facteur que la fenêtre porte, et un cran manuel ne pouvait que **rapetisser** (mesuré à 1366 × 1024 : Auto ×1,83, « Large » ×1,25 — le libellé mentait). La taille se règle en **redimensionnant la fenêtre** ; sur téléphone et tablette, l'appareil décide. Les clefs `fhpc.echelle.cran*` sont effacées à chaque lecture. ⚖️ **Et la RAISON de ce retrait tombe le même jour** — voir l'amendement du 02/09 ci-dessous : avec le partage, un réglage joueur peut agrandir |
+
+### 🔴 AMENDEMENT DU 2026-09-20 — **LE TEXTE GARDE SA TAILLE**
+📍 `panneau-texte-fixe` · vivante · 20/09 · borne `panneau-zoom-sans-exception`
+⚖️ **Les boîtes suivent le zoom, le texte non : T0…T7 sont des pixels d'écran. Le moteur qui zoome le texte est compensé ; celui qui ne le zoome pas (Safari iPad) est laissé tel quel. Un sauf-conduit d'une ligne (`TEXTE_FIXE`, `echelle.mjs`) rend l'état d'avant.**
+
+> **« les organes de taille identique, mais pas le texte »** *(deux captures côte à côte, Mac et iPad)*
+> **« le webkit donne un rendu plus joli que celui du mac »**
+> **« 1 »** *(à la question « le Mac s'aligne sur l'iPad, ou l'inverse ? »)* · **« mets en place un sauf-conduit si on se rend compte que ça marche pas »**
+
+**Ce que la loi du 30/08 disait, et ce qui change.** *« Tout le builder suit le zoom, les ratios ne changent nulle part. »* Depuis le 20/09 le texte est la **seule** exception : le rapport texte/boîte **change** avec la fenêtre, et c'est voulu. Tout le reste de §0 bis tient — plancher, grandeur, `--touch`, jamais de `@media` de largeur.
+
+**Mesuré avant d'écrire** *(banc « Le texte suit-il le zoom ? », mêmes `shell.css`, `tokens.css` et Inter que le builder ; témoin = rapport largeur du texte / largeur de sa boîte, sous `.app` à 1,28 et hors zoom)* :
+
+| appareil · moteur | heure | `text-size-adjust` | le texte suit-il ? |
+|---|---|---|---|
+| iPad Pro 13 · Safari | 02:28 · 02:37 · 02:47 | 100 % · auto · none | ⛔ **non** — écart 21,9 %, six largeurs identiques au dixième dans les trois modes |
+| iPad Pro 13 · Safari, **page nue** sans nos feuilles | 02:51 | — | ⛔ **non** — 8 → 9, 12 → 13, 16 → 16 déclarés, et le zoom ignoré |
+| Mac · Chrome | 02:38 | auto · 100 % | ✅ oui — 0,03 % |
+| Mac · Safari | 02:31 · 02:32 | auto · 100 % | ✅ oui — 2,8 % |
+
+⭐ **Donc c'est le moteur, pas nos feuilles** : Safari iPad calcule le texte depuis la taille **déclarée** (avec un petit rehaussement sous 16) et ignore le `zoom` du conteneur ; aucune des trois valeurs de `text-size-adjust` ne l'en empêche. Chrome, et Safari macOS, zooment le texte. PC et Android tournent sur le moteur de Chrome.
+
+⛔ **Ce qui a été cru puis réfuté la même nuit** : la ligne `html { text-size-adjust: 100% }` (commit 01d0107b, 02:59) posée sur l'hypothèse *« WebKit recalcule par-dessus le zoom, cette ligne l'en empêche »*. Mesurée : inerte sur les trois appareils. Retirée.
+
+**Le mécanisme, en trois pièces** :
+
+| pièce | où | ce qu'elle fait |
+|---|---|---|
+| la **sonde** | `echelle.mjs` · `poserSondeTexte` (posée par `shell.mjs` au démarrage) | deux témoins invisibles, le même texte avec et sans `zoom: 2` ; `texteSuitLeZoom` compare leurs largeurs — 2 = le moteur zoome le texte, 1 = il ne le zoome pas. ⛔ Jamais l'agent : l'iPad se présente comme un Mac |
+| l'**attribut** | `appliquerEchelle` → `<html data-texte-suit-zoom="oui">` | posé seulement quand le moteur zoome le texte ; troisième attribut sur `<html>`, toujours aucun nœud |
+| la **compensation** | `tokens.css` · `--compense-texte` | 1 par défaut ; `var(--echelle)` sous `html[data-texte-suit-zoom="oui"]`. Les huit crans sont `calc(N px / var(--compense-texte))` : division et zoom s'annulent, le texte rend N px. Le nombre reste sur chaque ligne |
+
+⭐ **Le sauf-conduit** : `TEXTE_FIXE = false` dans `echelle.mjs`. Une ligne. L'attribut n'est plus posé, `--compense-texte` reste 1, Mac, PC et Android rendent comme avant l'amendement ; l'iPad n'a jamais changé. Le garde `echelle.test.mjs` éprouve les deux positions.
+
+⚠️ **Ce que ça touche d'autre** : les 40 cotes en `em` de `shell.css` (interlettrages, hauteurs de lignes, réserve de `--touch` autour d'un texte) suivent le texte, comme elles le doivent. Aucune cote de boîte n'est en `em`.
 
 ### 🔴 AMENDEMENT DU 2026-09-02 — **LE BUILDER EST UN PARTAGE DE L'ÉCRAN**
 📍 `panneau-amendement-2026-09-02` · vivante · 02/09

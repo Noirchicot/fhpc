@@ -482,3 +482,16 @@ export function declarationDe(regles, selecteur, propriete) {
   }
   return dernier;
 }
+
+/** Le cran typographique tel que `tokens.css` l'écrit depuis l'amendement du
+ *  2026-09-20 (NORMES §0 bis, « le texte garde sa taille ») :
+ *      --t4: calc(16px / var(--compense-texte));
+ *  rend `"16px"` — le NOMBRE ratifié, celui que les gardes comparent. Toute
+ *  autre forme (un cran nu `--t4: 16px`, une division par `--echelle` qui
+ *  contournerait l'interrupteur) rend `null` : un garde qui lit un cran lit
+ *  aussi sa compensation, sans le savoir. */
+export function cranTypo(tokensCss, nom) {
+  const n = nom.replace(/^--/, "");
+  const m = new RegExp(`(^|[;{\\s])--${n}\\s*:\\s*calc\\(\\s*(-?[\\d.]+)px\\s*/\\s*var\\(--compense-texte\\)\\s*\\)\\s*;`, "m").exec(stripComments(tokensCss));
+  return m ? `${m[2]}px` : null;
+}

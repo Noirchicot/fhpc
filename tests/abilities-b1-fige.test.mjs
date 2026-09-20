@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { cranTypo } from "./source-scan.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
@@ -79,7 +80,7 @@ test("7.5 — le chiffre : T2 sur un grand dé, T1 sur un petit, T0 pour la somm
   assert.match(corpsDe(".valeur"), /font-size:\s*var\(--t2\)/);
   assert.match(corpsDe(".tray-case-de .valeur"), /font-size:\s*var\(--t1\)/);
   assert.match(corpsDe(".tray-case-detail"), /font-size:\s*var\(--t0\)/);
-  assert.equal(jeton("--t0"), "8px", "le huitième barreau, né pour cette ligne");
+  assert.equal(cranTypo(TOKENS, "--t0"), "8px", "le huitième barreau, né pour cette ligne (lu à travers sa compensation du 20/09)");
 });
 
 test("7.6 — aucun artefact brun pendant le geste : rien de peint en --accent au survol, au podium comme aux collecteurs", () => {

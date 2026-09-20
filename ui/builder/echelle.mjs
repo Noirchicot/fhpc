@@ -684,6 +684,86 @@ export function grandeurDe(largeurBlg) {
   return "large";
 }
 
+/* ══ LE TEXTE GARDE SA TAILLE — Eric, 2026-09-20 ═══════════════════════════
+ *  🔴 L'AMENDEMENT DU 20/09 À LA LOI DU 30/08 (NORMES §0 bis) : les boîtes
+ *  suivent le zoom, LE TEXTE NON. Les crans T0…T7 sont des pixels d'écran,
+ *  pas des blg. Eric a vu ce rendu sur son iPad, l'a préféré au Mac, et l'a
+ *  choisi pour tous les appareils (*« 1 »*, 03:0x).
+ *
+ *  📏 MESURÉ AVANT D'ÉCRIRE (banc « Le texte suit-il le zoom ? », 02:31-02:51) :
+ *    iPad Pro 13, Safari  : texte sous `.app` = texte hors `.app`, au dixième
+ *                            de pixel, avec `text-size-adjust` auto, 100 % ET
+ *                            none — et sur une page NUE, sans nos feuilles.
+ *                            Safari iPad calcule le texte depuis la taille
+ *                            DÉCLARÉE (8 → 9, 12 → 13, 16 → 16) et ignore
+ *                            le zoom du conteneur. On ne peut pas l'éteindre.
+ *    Mac, Chrome et Safari : le texte suit le zoom (0,03 % et 2,8 % d'écart).
+ *    PC et Android         : même moteur que Chrome Mac — ils suivent.
+ *
+ *  ⭐ DONC LE MOTEUR DÉCIDE, ET ON LE MESURE : deux témoins permanents et
+ *  invisibles, le même texte avec et sans `zoom: 2`. Si le zoomé est deux
+ *  fois plus large, le moteur zoome le texte et `tokens.css` le COMPENSE
+ *  (`--compense-texte: var(--echelle)`, les huit crans divisés par lui — la
+ *  division et le zoom s'annulent, le texte rend sa taille déclarée). S'il a
+ *  la même largeur, le moteur ne zoome pas le texte (Safari iPad) et rien ne
+ *  se compense. ⛔ Pas de reniflage d'agent : l'iPad se présente comme un Mac.
+ *
+ *  ⭐ LE SAUF-CONDUIT (Eric, 20/09 : *« mets en place un sauf-conduit si on se
+ *  rend compte que ça marche pas »*) : `TEXTE_FIXE = false` ci-dessous, et
+ *  UNE ligne suffit — l'attribut n'est plus posé, `--compense-texte` reste
+ *  à 1, tout le builder rend comme avant l'amendement (le texte suit le zoom
+ *  sur Mac, PC, Android ; l'iPad, lui, n'a jamais changé). Le garde
+ *  `echelle.test.mjs` éprouve les DEUX positions de l'interrupteur.
+ *
+ *  ⚠️ LA SONDE SE POSE UNE FOIS, PAR `shell.mjs` (l'écrivain du DOM), au
+ *  démarrage. `appliquerEchelle` ne fait que la LIRE : elle n'écrit toujours
+ *  aucun nœud, seulement des attributs sur `<html>` — la règle du socle. */
+export const TEXTE_FIXE = true;
+export const SONDE_TEXTE_ID = "sonde-texte-zoom";
+
+/** Pose les deux témoins dans `doc.body` s'ils n'y sont pas. Idempotent ;
+ *  rend le nœud, ou `null` sans DOM (le stub des tests). */
+export function poserSondeTexte(doc) {
+  const d = doc || (typeof document !== "undefined" ? document : null);
+  if (!d || typeof d.createElement !== "function" || !d.body) return null;
+  let sonde = d.getElementById(SONDE_TEXTE_ID);
+  if (sonde) return sonde;
+  sonde = d.createElement("div");
+  sonde.id = SONDE_TEXTE_ID;
+  sonde.className = "sonde-texte";
+  sonde.setAttribute("aria-hidden", "true");
+  /* ⛔ AUCUN STYLE EN LIGNE (garde 7) : l'habit vit dans `shell.css`
+     (`.sonde-texte`). Deux étages comme dans le builder — un conteneur qui
+     porte le zoom, un texte dedans — parce que c'est LÀ que l'iPad diverge. */
+  for (const etage of ["sonde-zoome", "sonde-temoin"]) {
+    const boite = d.createElement("div");
+    boite.className = etage;
+    const texte = d.createElement("span");
+    texte.textContent = "0000000000";
+    boite.append(texte);
+    sonde.append(boite);
+  }
+  d.body.append(sonde);
+  return sonde;
+}
+
+/** « oui » si le moteur zoome le texte, « non » s'il ne le zoome pas, `null`
+ *  sans sonde, sans géométrie, ou interrupteur baissé. */
+export function texteSuitLeZoom(doc, fixe = TEXTE_FIXE) {
+  if (!fixe) return null;
+  const d = doc || (typeof document !== "undefined" ? document : null);
+  const sonde = d && typeof d.getElementById === "function" ? d.getElementById(SONDE_TEXTE_ID) : null;
+  if (!sonde || !sonde.children || sonde.children.length < 2) return null;
+  const zoome = sonde.children[0].firstElementChild, temoin = sonde.children[1].firstElementChild;
+  if (!zoome || !temoin || typeof zoome.getBoundingClientRect !== "function") return null;
+  const lz = zoome.getBoundingClientRect().width;
+  const lt = temoin.getBoundingClientRect().width;
+  if (!(lz > 0 && lt > 0)) return null;
+  /* 2 quand le texte suit, 1 quand il ne suit pas ; 1,5 sépare les deux.
+     Mesuré : 2,00 (Chrome Mac), 1,95 (Safari Mac, arrondi), 1,00 (iPad). */
+  return lz / lt > 1.5 ? "oui" : "non";
+}
+
 /** Pose l'échelle et la grandeur sur `<html>`, et rend ce qu'elle a posé.
  *
  *  ⛔ DEUX ATTRIBUTS, AUCUN NŒUD. C'est la règle du socle (SOCLE.md, « le
@@ -701,6 +781,11 @@ export function appliquerEchelle(fenetre, racine) {
      inopérant sans qu'aucun test ne bronche. */
   const cran = cranEffectif(vue.innerWidth, vue.innerHeight, html);
   html.style.setProperty("--echelle", String(cran));
+  /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — lu sur la sonde, jamais déduit de
+     l'agent. Un troisième attribut, et toujours aucun nœud. */
+  const texte = texteSuitLeZoom(html.ownerDocument || (typeof document !== "undefined" ? document : null));
+  if (texte) html.dataset.texteSuitZoom = texte;
+  else if (html.dataset && "texteSuitZoom" in html.dataset) delete html.dataset.texteSuitZoom;
   /* 🔴 LA GRANDEUR SE LIT SUR LE PANNEAU, PLUS SUR LA FENÊTRE — 2026-08-31.
      C'est la suite exacte du défaut que le lot 85 avait trouvé (« un seuil lu
      sur la fenêtre brute est juste au cran 1 et faux à tous les autres ») :
@@ -716,5 +801,5 @@ export function appliquerEchelle(fenetre, racine) {
      où l'on ouvre un second panneau, alors qu'aucun écran n'a gagné un pixel. */
   const grandeur = grandeurDe(cotesDeLApp(html).panneau);
   html.dataset.grandeur = grandeur;
-  return { cran, grandeur };
+  return { cran, grandeur, texte };
 }

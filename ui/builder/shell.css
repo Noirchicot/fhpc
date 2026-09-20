@@ -7,6 +7,15 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
 
+/* ══ LA SONDE DU TEXTE — amendement du 2026-09-20 (NORMES §0 bis) ═══════════
+   Deux témoins invisibles que `echelle.mjs` compare : le même texte dans un
+   étage zoomé ×2 et dans un étage nu. Si le zoomé est deux fois plus large, le
+   moteur zoome le texte et `tokens.css` compense ; sinon (Safari iPad,
+   mesuré) rien ne se compense. Hors du flux, invisible, hors du doigt. */
+.sonde-texte { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; white-space: nowrap; font-family: monospace; font-size: var(--t4); line-height: 1; }
+.sonde-texte > div { display: inline-block; }
+.sonde-texte > .sonde-zoome { zoom: 2; }
+
 /* ══ LE CADRE — lot 58, §N d'ERGONOMIE-BUILDER.md (B0.21) ═══════════════
    Molette · ligne de commande · fiche. 🔴 RIEN NE DÉFILE SAUF LA FICHE
    (B0.21a, mot pour mot : « ils ne scrollent pas du tout ») — d'où

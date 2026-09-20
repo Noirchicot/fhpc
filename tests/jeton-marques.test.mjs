@@ -23,6 +23,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { cranTypo } from "./source-scan.mjs";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 const UI = path.join(ICI, "..", "ui", "builder");
@@ -33,6 +34,9 @@ const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 /** la valeur d'un jeton de `tokens.css`, en px — la PREMIÈRE déclaration, celle
  *  du thème clair ; les thèmes ne redéclarent que des couleurs. */
 function px(nom) {
+  /* Un cran typo (t0…t7) se lit à travers sa compensation du 20/09. */
+  const cran = cranTypo(tokens, `--${nom}`);
+  if (cran) return Number(cran.replace("px", ""));
   const m = new RegExp(`--${nom}:\\s*(-?[\\d.]+)px`).exec(tokens);
   assert.ok(m, `\`--${nom}\` manque à tokens.css`);
   return Number(m[1]);

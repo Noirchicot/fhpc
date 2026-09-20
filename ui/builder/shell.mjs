@@ -55,7 +55,10 @@ import {
      l'écran Display affiche. ⛔ `etatDeLEchelle` est lu ICI et passé à l'écran :
      un écran qui referait l'arithmétique de l'échelle pourrait annoncer un
      cran que le builder ne sert pas. */
-  setCranVoulu, etatDeLEchelle
+  setCranVoulu, etatDeLEchelle,
+  /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — la sonde se pose ICI, une fois : la
+     coquille est l'écrivain du DOM, `echelle.mjs` ne fait que la lire. */
+  poserSondeTexte
 } from "./echelle.mjs?v=766";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
@@ -6245,6 +6248,7 @@ function surRedimensionnement() { reglerLaVue(); appliquerEchelle(); refresh(); 
 window.addEventListener("resize", surRedimensionnement);
 /* Au démarrage, le même ordre qu'au redimensionnement : la vue dit combien de
    colonnes, l'échelle mesure ce que la fenêtre en porte, le rendu suit. */
+poserSondeTexte(document);
 reglerLaVue();
 appliquerEchelle();
 refresh();

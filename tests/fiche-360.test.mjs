@@ -50,6 +50,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { cranTypo } from "./source-scan.mjs";
 
 import { LAYER_FILES } from "../ui/builder/engine.mjs";
 import { PILE } from "../src/tools/exemple-fh-en.mjs";
@@ -702,7 +703,7 @@ test("garde 6 — la feuille pose bien la bande que le garde suppose", () => {
      rougit, ce qu'il ne ferait pas si la ligne portait ses propres nombres. */
   assert.match(css, /--fiche-ligne:\s*calc\(var\(--t2\) \* var\(--interligne-texte\)\)/,
     "une ligne à T2 — le corps est NOMMÉ, jamais recopié, et son rythme aussi");
-  assert.match(tokens, /--t2:\s*12px/, "et T2 vaut 12…");
+  assert.equal(cranTypo(tokens, "--t2"), "12px", "et T2 vaut 12… (lu à travers sa compensation du 20/09)");
   assert.match(tokens, /--interligne-texte:\s*1\.21\b/,
     "…et le rythme vaut 1,21 : la ligne rend donc bien 14,52 blg");
   assert.match(css, /--fiche-infos-h:\s*calc\(var\(--fiche-ligne\) \* 5\)/, "la bande : CINQ lignes");

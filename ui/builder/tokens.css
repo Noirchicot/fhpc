@@ -186,14 +186,24 @@
      en ligne : jamais pour du texte courant. Valeurs LOCALES à cette zone (le
      builder est plein écran ; le dock est une fenêtre flottante et ne partage
      que les NOMS, pas les nombres). */
-  --t0: 8px;  /* renfort — un détail sous un dé, jamais une ligne à lire */
-  --t1: 10px; /* micro */
-  --t2: 12px; /* mention — étiquette, verdict, coût */
-  --t3: 14px; /* libellé */
-  --t4: 16px; /* corps — la ligne qu'on lit */
-  --t5: 18px; /* accent — entre le corps et le titre */
-  --t6: 22px; /* titre */
-  --t7: 44px; /* grand nombre */
+  /* 🔴 AMENDEMENT DU 2026-09-20 — LE TEXTE GARDE SA TAILLE (NORMES §0 bis).
+     Les crans sont des PIXELS D'ÉCRAN, plus des blg : les boîtes suivent le
+     zoom, le texte non. Chaque cran est divisé par `--compense-texte`, qui
+     vaut l'échelle quand le moteur zoome le texte (Mac, PC, Android — la
+     division et le zoom s'annulent) et 1 quand il ne le zoome pas (Safari
+     iPad, mesuré : il calcule le texte depuis la taille déclarée et ignore
+     le zoom). Le NOMBRE reste sur chaque ligne : T4 = 16, à tout cran.
+     ⭐ Le sauf-conduit vit dans `echelle.mjs` (`TEXTE_FIXE`) : baissé, aucun
+     attribut n'est posé, `--compense-texte` reste 1, et T4 redevient 16 blg. */
+  --compense-texte: 1;
+  --t0: calc(8px / var(--compense-texte));  /* renfort — un détail sous un dé, jamais une ligne à lire */
+  --t1: calc(10px / var(--compense-texte)); /* micro */
+  --t2: calc(12px / var(--compense-texte)); /* mention — étiquette, verdict, coût */
+  --t3: calc(14px / var(--compense-texte)); /* libellé */
+  --t4: calc(16px / var(--compense-texte)); /* corps — la ligne qu'on lit */
+  --t5: calc(18px / var(--compense-texte)); /* accent — entre le corps et le titre */
+  --t6: calc(22px / var(--compense-texte)); /* titre */
+  --t7: calc(44px / var(--compense-texte)); /* grand nombre */
 
   /* ── L'ÉCHELLE D'ESPACEMENT — grille de 4, cran de 2 en dessous (§3d).
      Le nom EST la valeur : rien à mémoriser, un garde peut le vérifier. */
@@ -1628,3 +1638,10 @@
    ⚠️ `--fiche-w: 88ch` et `--frame-w: 96ch` étaient les deux rescapées de la
    migration `ch` → px du 29/08 (CADRES §2 bis). Elles s'éteignent ici sans
    qu'on ait à les convertir — le défaut meurt avec son porteur. */
+
+/* ══ LE TEXTE GARDE SA TAILLE — l'attribut que `appliquerEchelle` pose ═══════
+   `data-texte-suit-zoom="oui"` = le moteur zoome le texte (sonde de
+   `echelle.mjs`). Alors, et alors seulement, les crans se compensent par
+   l'échelle. ⛔ Ni `[data-grandeur]` ni `@media` : c'est le MOTEUR, mesuré,
+   pas la place. Sans attribut (iPad, ou sauf-conduit baissé) : rien. */
+html[data-texte-suit-zoom="oui"] { --compense-texte: var(--echelle); }
