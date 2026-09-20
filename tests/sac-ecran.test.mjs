@@ -956,8 +956,23 @@ test("22 — 🔴 LES TROIS ORGANES D'ÉCHANGE ONT LEUR FIL, ⛔ ou se montrent 
   assert.equal(voile.querySelector(".gear-bourse").getAttribute("aria-label"), "Purse",
     "⭐ `gear-bourse` — la classe de R : une seconde bourse divergerait au premier réglage");
   const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
-  assert.match(source, /import \{ popupDeLaBourse, reglesDeLaBourse \} from "\.\/gear-ecran\.mjs/,
-    "⛔ le sac IMPORTE l'organe, il ne le redessine pas — le dessin ET ses cotes");
+  assert.match(source, /import \{ popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse \} from "\.\/gear-ecran\.mjs/,
+    "⛔ le sac IMPORTE l'organe, il ne le redessine pas — le dessin, ses cotes ET son montant");
+  /* 🔴 ET LE MONTANT SE VOIT SANS OUVRIR LA BOURSE — Eric, 2026-09-20 : *« le montant
+     total n'est visible sur la bourse »*. ⛔ Il n'existait que dans R : même organe, même
+     moitié laissée chez son premier hôte que les cotes du popup une heure plus tôt. Le sac
+     montrait donc une bourse MUETTE — on l'ouvrait pour savoir ce qu'elle contient, quand
+     R le dit sans l'ouvrir. ⭐ Et c'est le MÊME nombre vu à deux endroits : l'écrire de
+     deux façons ferait douter que ce soit le même (Eric, 17/09). */
+  const avecOr = rendu({ bourse: { gp: 8, sp: 12, cp: 4, pp: 0 } });
+  const montant = avecOr.querySelector('[data-organe="montant"]');
+  assert.ok(montant, "⛔ la bourse du sac est muette : il faut l'ouvrir pour la lire");
+  assert.match(montant.textContent, /gp/, "⭐ et il porte son unité, comme dans R");
+  const placeDuMontant = feuilleDesCotesSac().match(/\.sac \.gear-montant\{[^}]*top:([\d.]+)px/);
+  assert.ok(placeDuMontant, "⛔ et il n'a pas de place : il retomberait dans le flux");
+  const ancreP = D.ORGANES.find((o) => o.nom === "PURSE");
+  assert.equal(Number(placeDuMontant[1]), ancreP.y + ancreP.h + D.MARGE,
+    "⚖️ sous la bourse, à une gouttière — la même déduction que dans R");
   /* 🔴 ET LES COTES VIENNENT AVEC LUI — Eric, 2026-09-20 : *« la bourse, je veux la même
      que dans Gear, et centrée sur l'emplacement de la bourse dans B1 »*.
      ⛔ LE POPUP SORTAIT SANS COTES : ses règles n'existaient que sous `.gear`, donc il se

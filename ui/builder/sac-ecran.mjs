@@ -23,27 +23,27 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=762";
-import { versionQuery } from "./version.mjs?v=762";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=762";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=763";
+import { versionQuery } from "./version.mjs?v=763";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=763";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=762";
+import { armerJeton, fantome } from "./glisser.mjs?v=763";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=762";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=763";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=762";
+import { facteurZoomCourant } from "./echelle.mjs?v=763";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -231,6 +231,15 @@ export function feuilleDesCotesSac() {
      la bourse DU SAC : *« centrée sur l'emplacement de la bourse dans B1 »*.
      📌 Le sac ne compte pas sous le belt — son `y` est déjà celui de la dalle. */
   regles.push(...reglesDeLaBourse(".sac", ORGANES.find((o) => o.nom === "PURSE"), DALLE));
+  /* ⚖️ ET LE MONTANT SE POSE SOUS LA BOURSE — Eric, 2026-09-20 : *« le montant total n'est
+     visible sur la bourse »*. ⛔ Sa place ne se tape pas : c'est la bourse, plus une
+     gouttiere, même largeur — la même déduction que dans R. */
+  const ancreDuMontant = ORGANES.find((o) => o.nom === "PURSE");
+  if (ancreDuMontant) {
+    regles.push(`.sac .gear-montant{position:absolute;box-sizing:border-box;` +
+      `left:${px(ancreDuMontant.x)};top:${px(ancreDuMontant.y + ancreDuMontant.h + MARGE)};` +
+      `width:${px(ancreDuMontant.l)}}`);
+  }
   regles.push(`.sac .sac-cran{inline-size:${px(ROUE.tuile)};block-size:${px(ROUE.hauteur)};` +
     `padding-inline:${px(ROUE.tuile * ROUE.margePct)}}`);
   /* ⭐ LA PISTE S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE PUISSE SE CENTRER —
@@ -1775,6 +1784,10 @@ export function construireLeSac(options = {}) {
      remplacerait l'écran et écrirait la 3ᵉ ligne du belt ; un popup recouvre et
      n'écrit rien. ⭐ ET C'EST L'ORGANE DE R, importé — le sac n'a pas sa bourse à lui.
      📌 EN DERNIER DANS LE NŒUD, comme sur R : il recouvre, donc il vient après. */
+  /* ⭐ LE MONTANT EST L'ORGANE DE R, IMPORTÉ — ⛔ pas un second qui dirait le même nombre
+     d'une autre façon. Eric, 17/09 : *« le total en bas ET dans la bourse »* ; écrire un
+     même nombre de deux façons ferait douter que ce soit le même. */
+  noeud.append(montantDeLaBourse(options));
   if (options.bourseOuverte) noeud.append(popupDeLaBourse(options));
   return { noeud };
 }

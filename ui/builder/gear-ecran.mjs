@@ -58,14 +58,14 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=762";
-import { BOITES } from "./b3-disposition.mjs?v=762";
-import { armerJeton, fantome } from "./glisser.mjs?v=762";
+import * as D from "./gear-disposition.mjs?v=763";
+import { BOITES } from "./b3-disposition.mjs?v=763";
+import { armerJeton, fantome } from "./glisser.mjs?v=763";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=762";
-import { versionQuery } from "./version.mjs?v=762";
-import { enGP } from "./equipement-pipeline.mjs?v=762";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=763";
+import { versionQuery } from "./version.mjs?v=763";
+import { enGP } from "./equipement-pipeline.mjs?v=763";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -550,7 +550,13 @@ function totalCourt(n) {
   if (n < BOURSE.seuilK) return enMilliers(n);
   return `${enMilliers(Math.floor(n / 1000))}K`;
 }
-function montantDeLaBourse(options) {
+/** ⚖️ LE MONTANT POSÉ SOUS LA BOURSE — Eric, 2026-09-20 : *« le montant total n'est
+ *  visible sur la bourse »* (en B1).
+ *  🔴 IL N'EXISTAIT QUE DANS GEAR, comme les cotes du popup une heure plus tôt : même
+ *  organe, même moitié laissée chez son premier hôte. ⛔ Le sac montrait donc une bourse
+ *  muette — on l'ouvrait pour savoir ce qu'elle contient, alors que R le dit sans
+ *  l'ouvrir. ⭐ Il s'EXPORTE, il ne se redessine pas. */
+export function montantDeLaBourse(options) {
   const total = options.bourse ? Math.floor(enGP(options.bourse)) : 0;
   const m = eld("div", "gear-montant");
   /* ⚖️ « gp » PASSE SOUS LE NOMBRE AU-DELÀ DE DEUX CHIFFRES — Eric, 16/09 au
