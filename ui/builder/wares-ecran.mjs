@@ -21,10 +21,10 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES,
-} from "./wares-disposition.mjs?v=767";
-import { monterLeTambour } from "./roue-tambour.mjs?v=767";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=767";
-import { versionQuery } from "./version.mjs?v=767";
+} from "./wares-disposition.mjs?v=768";
+import { monterLeTambour } from "./roue-tambour.mjs?v=768";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=768";
+import { versionQuery } from "./version.mjs?v=768";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
