@@ -12071,7 +12071,8 @@ button.tuto-point::before {
   box-shadow: inset 0 0 0 1px var(--accent),
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
-.sac-cran {
+.sac-cran,
+.wares-cran {
   /* 🔴 PLUS `absolute` — la tuile vit maintenant DANS LE FLUX du ruban, parce que c'est
      le ruban qui défile. Une tuile posée à un `x` ne peut pas glisser : c'était toute
      la raison pour laquelle l'ancienne roue sautait. */
@@ -12116,7 +12117,8 @@ button.tuto-point::before {
 /* 🟡 ET L'OR PORTE SON HABIT LUI AUSSI — Eric, 2026-09-19 : *« la couleur dorée pour other
    aussi »*. ⭐ Sa phrase du matin le demandait déjà : *« outside your gear (horse, chest,
    house), COULEUR DE FOND dorée »* — l'or attendait son fond, il n'avait qu'un trait. */
-.sac-cran[data-lieu="dehors"] {
+.sac-cran[data-lieu="dehors"],
+.wares-cran[data-lieu="dehors"] {
   background-color: var(--dehors-fond); color: var(--dehors-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--dehors);
 }
@@ -12137,7 +12139,8 @@ button.tuto-point::before {
    d'abord un LIEU — et un lieu ne cesse pas d'exister quand on regarde ailleurs.
    📏 Les deux teintes sont mesurées sur `parchemin-party.webp` et dérivées de `--info` :
    voir leurs jetons dans `tokens.css`. */
-.sac-cran[data-lieu="party"] {
+.sac-cran[data-lieu="party"],
+.wares-cran[data-lieu="party"] {
   background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info);
 }
@@ -12155,7 +12158,8 @@ button.tuto-point::before {
    l'épaissit pas, il le RALLUME »* — et l'AGRANDISSEMENT, qui vient du plan
    (`scale`, feuille construite). ⛔ Plus de `font-size` ici : le `scale` grossit le
    texte avec la boîte, et deux écrivains pour un même grandissement divergeraient. */
-.sac-cran[data-dominant="oui"] {
+.sac-cran[data-dominant="oui"],
+.wares-cran[data-dominant="oui"] {
   background-color: var(--dalle-inter); color: var(--text); cursor: default;
 }
 /* ⏱️ 60 ms, ET LA DURÉE EST D'ERIC — 2026-09-19 : *« tu fais une transition de 60 ms »*.
@@ -12637,28 +12641,16 @@ button.tuto-point::before {
    réduit à rien, ce qui la masque sans la retirer du flux. */
 .wares-roue::-webkit-scrollbar { inline-size: 0; block-size: 0; }
 
-.wares-cran {
-  position: relative; flex: 0 0 auto; box-sizing: border-box;
-  /* ⭐ chaque tuile est un cran d'aimantation, centré — c'est lui qui garantit
-     *« toujours cadré sur le halo »* */
-  scroll-snap-align: center;
-  block-size: 100%;   /* ⛔ la LARGEUR vient du plan, par la feuille de l'écran */
-  display: grid; place-items: center;
-  padding-inline: 7.5%;                 /* la règle d'Eric du 18/09, en POUR-CENT de la tuile */
-  border: 0; background-color: transparent; color: var(--text-soft);
-  border-radius: var(--bouton-rayon);
-  font: inherit; font-size: var(--t1); font-weight: 600;
-  text-align: center; line-height: 1.1; overflow: hidden;
-  /* ⏱️ 60 ms, la durée d'Eric (19/09) — elle porte le remplissage et le corps ENSEMBLE :
-     c'est UN changement d'état, et deux durées pour un seul état se courraient après. */
-  transition: background-color 60ms linear, color 60ms linear, font-size 60ms linear;
-}
-/* ⚖️ DE TRANSPARENT À PLEIN — Eric, 19/09 : *« de transparent à plein, c'est plus
-   efficace »*. Le fond devient le SIGNE : ce qui est plein est ce qui est choisi. */
-.wares-cran[data-dominant="oui"] {
-  background-color: var(--dalle-inter); color: var(--text);
-  font-size: var(--t2); cursor: default;
-}
+/* 🗄️ `.wares-cran` N'A PLUS DE BLOC À LUI — retiré le 2026-09-20. Eric : *« prends l'exemple
+   des tuiles dans backpack, même morphologie, aura idem »*. ⛔ J'avais redessiné la tuile —
+   mon rayon, mon corps, ma transition — alors que `.sac-cran` la porte déjà, avec ses trois
+   liserés de genre et l'aura du belt. ⭐ `.wares-cran` entre donc dans SES listes (plus haut
+   dans cette feuille) : la forme, l'aura et les genres ont UN écrivain, et une tuile qui
+   change change pour les deux écrans.
+   ⭐ Ce qui reste à Wares vit dans la feuille de l'écran, et c'est de la GÉOMÉTRIE, pas de la
+   matière : la largeur d'un cran (secondaire 57, dominant 71) et son échelle de 1,2456.
+   📌 C'est la troisième fois du lot que la réponse est « reprendre, ⛔ jamais redessiner » —
+   après `.wares-porte` et les trois organes d'échange. */
 
 /* — LA GRILLE ET SES DEUX GOUTTIÈRES — */
 .wares-gouttiere {

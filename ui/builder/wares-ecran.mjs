@@ -42,6 +42,24 @@ const px = (n) => `${Math.round(n * 1000) / 1000}px`;
    ⛔ Deux chaînes égales dans deux fichiers sont deux chaînes, et elles divergent. */
 const CRENEAU_COLLECTEUR = "wares:collecteur";
 
+/* ⭐ LES ROUES DU DERNIER RENDU, EN ATTENTE DE PLACEMENT. ⛔ Un nœud hors du document n'a pas
+   de `scrollLeft` utilisable : placer à la construction réussit et ne fait RIEN, en silence.
+   C'est le même piège que `poserLesDalles` pour le sac, et il se règle au même endroit —
+   après que l'écran est posé. 🔴 Sans ça, la tuile choisie RESSAUTE À L'ORIGINE (Eric, 20/09).
+   ⛔ ET LA LISTE SE REMPLACE À CHAQUE RENDU, elle ne s'accumule pas : garder les roues d'un
+   écran démonté, c'est poser un ruban dans un nœud que personne ne regarde. */
+let rouesEnAttente = [];
+
+/** Pose les deux rubans sur leur cran visé. ⭐ À appeler APRÈS que l'écran est dans le
+ *  document — comme `poserLesDalles()` pour le sac, et pour la même raison. */
+export function poserLesRoues() {
+  const roues = rouesEnAttente;
+  rouesEnAttente = [];
+  let posees = 0;
+  for (const r of roues) { if (r.poser && r.poser() === true) posees += 1; }
+  return posees;
+}
+
 function el(balise, classe, texte) {
   const n = document.createElement(balise);
   if (classe) n.className = classe;
@@ -269,12 +287,17 @@ function etage(nom, items, actif, surViser) {
      la dominante EN CONTINU, elle, parce que c'est du dessin — aucun rendu ne s'y rejoue. */
   let minuteur = null;
   roue.addEventListener("scroll", () => {
+    /* ⛔ NOS PROPRES ÉCRITURES NE SONT PAS UN GESTE — le module les marque. Sans ce test, poser
+       le ruban au montage se relirait comme un choix du joueur, et l'écran se repeindrait en
+       boucle sur sa propre voix. */
+    if (roue.estProgrammatique && roue.estProgrammatique()) return;
     const k = Math.max(0, Math.min(Math.round(roue.scrollLeft / ROUE.pas), items.length - 1));
     roue.marquer(k);
     if (minuteur) clearTimeout(minuteur);
     minuteur = setTimeout(() => { if (k !== actif && surViser) surViser(k); }, REPOS_MS);
   });
   monterLeTambour({ roue, ruban, crans, actif, pas: ROUE.pas, loupe });
+  rouesEnAttente.push(roue);
   /* ⭐ L'ÉTAGE EST LES TROIS ENSEMBLE — les deux bornes de 22 et la piste de 331 au milieu.
      ⛔ Un tuner posé « à côté » de la roue serait un organe que la grille du tambour ne place
      pas, et le sacré n° 3 l'interdit : tout est dans une boîte, les boîtes sont sur une grille. */
@@ -373,6 +396,7 @@ function gouttiere(sens, compte, actif, surPage) {
 export function construireLesWares(o = {}) {
   const noeud = el("div", "wares");
   noeud.dataset.ecran = "wares";
+  rouesEnAttente = [];   /* ⛔ un rendu neuf remplace les roues du précédent */
   /* ⭐ LES COTES VOYAGENT AVEC L'ÉCRAN, comme celles du sac : une feuille posée dans le nœud,
      écrite depuis le PLAN. ⛔ Elles ne vivent pas dans `shell.css` — un lot qui y toucherait
      les ferait diverger de la table, et c'est la table qui fait foi. La feuille du site, elle,

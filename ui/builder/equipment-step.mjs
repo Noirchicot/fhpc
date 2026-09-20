@@ -61,7 +61,7 @@ import { swapContent } from "./socle.mjs?v=770";
 import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=770";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares } from "./wares-ecran.mjs?v=770";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=770";
 import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=770";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
@@ -3220,6 +3220,12 @@ export function renderEquipmentStep(ctx, onAction) {
        le ruban à zéro une fois sur deux. ⭐ Le placement se relit avant de se consommer,
        donc l'appel qui écrit dans le vide ne mange pas celui de l'autre. */
     poserLesDalles();
+    /* ⭐ ET LES ROUES DE WARES SE POSENT ICI AUSSI, pour la MÊME raison que les dalles du
+       sac : un ruban placé sur un nœud détaché ne bouge pas. ⛔ Les deux chemins de
+       repeint existent — celui-ci, section déjà montée, et celui de la coquille, qui
+       reconstruit l'étape détachée — et n'en câbler qu'un laisse le ruban à zéro une
+       fois sur deux. C'est mesuré, sur le sac, au lot 214. */
+    poserLesRoues();
   }
   /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
      deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un

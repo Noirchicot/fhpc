@@ -917,10 +917,14 @@ test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALC
     assert.ok(m, `⛔ le jeton --${nom} a disparu : ce garde doit être réécrit, pas supprimé`);
     return parseFloat(m[1]);
   };
+  /* 🔄 DANS LA LISTE, ⛔ PAS UNE ÉGALITÉ — même correction que le second `bloc` de ce fichier
+     (lot 221) : une règle partagée avec `.wares-cran` est la MÊME règle, et exiger que le
+     sélecteur soit seul, c'est épeler une implémentation. On compare des membres DÉCOUPÉS,
+     donc `.sac-cran-champ` ne répond pas pour `.sac-cran`. */
   const bloc = (selecteur) => {
     const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
-      .find((x) => x.sel === selecteur);
+      .map(([, sel, corps]) => ({ membres: sel.split(",").map((m) => m.trim()), corps }))
+      .find((x) => x.membres.includes(selecteur));
     assert.ok(b, `⛔ la règle \`${selecteur}\` n'existe plus : ce garde doit être réécrit`);
     return b.corps;
   };
@@ -1518,9 +1522,19 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
      dont il a dit *« ça c'est global à tout le site »*. Une demande qui revient sous une
      autre forme se sert de la règle déjà écrite. */
   const css = stripComments(feuille);
+  /* 🔄 IL CHERCHE LE SÉLECTEUR DANS LA LISTE, ⛔ PLUS UNE ÉGALITÉ EXACTE (lot 221, 20/09).
+     Une règle PARTAGÉE est la même règle : depuis qu'Eric a demandé que la tuile de Wares ait
+     *« la même morphologie, aura idem »* que celle du sac, elle entre dans SES listes plutôt
+     que d'être recopiée — et `.sac-cran, .wares-cran { … }` cessait de répondre à `=== ".sac-cran"`.
+     ⭐ CE N'EST PAS AFFAIBLIR LE GARDE : il tient toujours exactement le même corps de règle,
+     sur exactement le même sélecteur. Il cesse seulement d'exiger que ce sélecteur soit SEUL —
+     ce qui était épeler une implémentation, la faute que ce dépôt repaie tous les quinze jours.
+     ⛔ Et il refuse toujours une fausse correspondance : `.sac-cran-champ` ne contient pas le
+     membre `.sac-cran`, parce qu'on compare des membres DÉCOUPÉS, pas des sous-chaînes. */
   const bloc = (sel) => {
     const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, s2, c]) => ({ sel: s2.trim(), corps: c })).find((x) => x.sel === sel);
+      .map(([, s2, c]) => ({ membres: s2.split(",").map((m) => m.trim()), corps: c }))
+      .find((x) => x.membres.includes(sel));
     assert.ok(b, `⛔ ${sel} n'est plus habillé`);
     return b.corps;
   };
@@ -1657,9 +1671,19 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
      mêmes pixels, et ce dépôt l'avait déjà payé (grille des sorts, `pan-y` + 350 ms,
      jusqu'au 20/08). Il revient parce que SA CAUSE revient — un ascenseur. */
   const css = stripComments(feuille);
+  /* 🔄 IL CHERCHE LE SÉLECTEUR DANS LA LISTE, ⛔ PLUS UNE ÉGALITÉ EXACTE (lot 221, 20/09).
+     Une règle PARTAGÉE est la même règle : depuis qu'Eric a demandé que la tuile de Wares ait
+     *« la même morphologie, aura idem »* que celle du sac, elle entre dans SES listes plutôt
+     que d'être recopiée — et `.sac-cran, .wares-cran { … }` cessait de répondre à `=== ".sac-cran"`.
+     ⭐ CE N'EST PAS AFFAIBLIR LE GARDE : il tient toujours exactement le même corps de règle,
+     sur exactement le même sélecteur. Il cesse seulement d'exiger que ce sélecteur soit SEUL —
+     ce qui était épeler une implémentation, la faute que ce dépôt repaie tous les quinze jours.
+     ⛔ Et il refuse toujours une fausse correspondance : `.sac-cran-champ` ne contient pas le
+     membre `.sac-cran`, parce qu'on compare des membres DÉCOUPÉS, pas des sous-chaînes. */
   const bloc = (sel) => {
     const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, s2, c]) => ({ sel: s2.trim(), corps: c })).find((x) => x.sel === sel);
+      .map(([, s2, c]) => ({ membres: s2.split(",").map((m) => m.trim()), corps: c }))
+      .find((x) => x.membres.includes(sel));
     assert.ok(b, `⛔ ${sel} n'est plus habillé`);
     return b.corps;
   };

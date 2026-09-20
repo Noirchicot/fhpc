@@ -138,6 +138,8 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
 import { CASES_DU_SAC, poserLesDalles } from "./sac-ecran.mjs?v=770";
+/* ⭐ MÊME LOI POUR LES ROUES DE WARES : un ruban posé sur un nœud détaché ne bouge pas. */
+import { poserLesRoues } from "./wares-ecran.mjs?v=770";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
 import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=770";
@@ -6178,6 +6180,7 @@ function refresh() {
      suivante elle montrait son début — et sur un onglet en arrière-plan, jamais.
      📌 Muet quand aucune roue n'a été construite dans ce rendu. */
   poserLesDalles();
+  poserLesRoues();
   frame.spy.settle();
   /* LOT 70 — la géométrie des chevrons et de l'amorce se relit ici, comme
      le spy : un remplacement de contenu n'émet aucun `scroll`, et `resize`
@@ -6202,6 +6205,7 @@ function peindreLePassif() {
      tableau dans le DOM. */
   swapContent(passif.stage, rendreLEcranDe(state.stepSecond));
   poserLesDalles();            /* ⭐ même loi pour le second panneau — voir `refresh` */
+  poserLesRoues();
   passif.spy.settle();
   passif.scroller.settle();
 }

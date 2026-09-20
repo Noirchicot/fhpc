@@ -112,9 +112,32 @@ export function monterLeTambour(o) {
      toucher au style.
      📐 `k` peut être FRACTIONNAIRE : à mi-chemin entre deux dalles, le ruban est à mi-chemin
      entre deux tuiles. C'est ça, *« je vois les deux défiler en même temps »*. */
+  /* 🔴 NOS PROPRES ÉCRITURES SE MARQUENT, sans quoi elles se relisent comme un GESTE. Poser le
+     ruban déclenche un événement `scroll` ; si l'appelant l'écoute pour savoir ce que le
+     joueur a choisi, il entend sa propre voix et repeint en boucle. ⭐ Le sac le dit déjà :
+     *« nos écritures de scrollLeft sont marquées, sans quoi l'aval se révélerait tout seul »*. */
+  let programmatique = false;
+  roue.estProgrammatique = () => programmatique;
   roue.placer = (k) => {
+    programmatique = true;
     roue.scrollLeft = pas * k;
     marquer(Math.round(k));
+    /* ⛔ ON NE REND LA MAIN QU'APRÈS L'IMAGE : l'événement `scroll` arrive APRÈS l'écriture,
+       donc lever le drapeau tout de suite le lèverait avant qu'on l'ait lu. */
+    (globalThis.requestAnimationFrame || setTimeout)(() => { programmatique = false; }, 0);
+  };
+  /* ⭐ ET LE PLACEMENT DE DÉPART SE PUBLIE, ⛔ IL NE SE FAIT PAS ICI. Un nœud qui n'est pas
+     encore dans le document n'a ni `scrollWidth` ni `scrollLeft` utilisable : l'appel réussit
+     et ne fait RIEN, en silence. C'est le piège que `poserLesDalles` règle pour le sac, et il
+     se règle au même endroit — après que l'écran est posé.
+     🔴 SANS LUI, LA TUILE CHOISIE RESSAUTE À L'ORIGINE : Eric, 20/09 — *« la tuile ne reste
+     pas, elle ressaute à l'origine, pas normal. Problème avec le magnet ? »*. 📏 Mesuré : après
+     un repeint, `data-vise` valait bien 2 et `scrollLeft` valait 0. Le marquage suivait le
+     choix, le ruban non — et `scroll-snap: mandatory` ramenait au premier cran. */
+  roue.poser = () => {
+    if (roue.isConnected === false) return false;
+    roue.placer(vise);
+    return true;
   };
   roue.rang = rang;
   roue.section = section;
