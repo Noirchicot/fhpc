@@ -12098,7 +12098,13 @@ button.tuto-point::before {
      posée ne se distinguait que par sa taille. ⭐ Le fond devient le SIGNE : ce qui est plein
      est ce qui est choisi, et le reste attend. C'est la loi du belt, où le cran courant
      *« ne s'épaissit pas, il se RALLUME »*. */
-  border: 0; background-color: transparent; color: var(--text-soft);
+  /* 🔄 AMENDÉ LE 2026-09-21 — Eric : *« pour les tuiles non sélectionnées rajouter du voile sur
+     le fond à 20 ou 35 % serait plus joli »*, puis *« voile des tuiles à 20% »*.
+     🗄️ Le repos n'est plus TRANSPARENT, il est à peine voilé (`--dalle-cran`, 20 %). Ce que la
+     règle du 19/09 dit reste vrai — le fond est le SIGNE — mais l'échelle va désormais de
+     *à peine* à *plein* (50 %) au lieu de *rien* à *plein* : le contraste qui désigne est
+     conservé, la tuile au repos cesse d'être un trou. */
+  border: 0; background-color: var(--dalle-cran); color: var(--text-soft);
   /* ⚖️ PLUS RECTANGULAIRES — Eric, 2026-09-19 : *« fais-moi des tuiles plus rectangulaires
      que ça »*. ⛔ Elles portaient `--organe-rayon` (16), le rayon de la FAMILLE DU JETON :
      sur une tuile de 57 × 40 il arrondissait presque toute la hauteur, et la rangée

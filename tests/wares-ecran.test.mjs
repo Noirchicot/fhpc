@@ -206,11 +206,28 @@ test("10 · le pied dit Gear · Send · Backpack, et publie son geste", () => {
    ⛔ Le centrage ne se vérifie pas ici (c'est la grille qui le fait) — ce qui se vérifie,
    c'est que les organes sont dans les bonnes cellules, sans quoi il n'y a rien à centrer. */
 test("11 · les deux Tally à gauche, la bourse à droite, le collecteur au milieu", () => {
-  const n = monter({ bourse: "155 gp", compteTally: 2 });
-  /* ⚖️ la loi de R : rien d'écrit DANS la bourse, le montant va au nom accessible */
+  /* 🔴 ET LA BOURSE EST LA DONNÉE, ⛔ PLUS UNE CHAÎNE — 21/09. Wares recevait
+     `motDeLaBourse(docu)`, qui ne rend pas le contenu de la bourse mais `null` ou la phrase
+     *« Choose a class … »*. Ce banc entretenait la faute en passant `"155 gp"`. */
+  const n = monter({ bourse: { gp: 155 }, compteTally: 2 });
+  /* ⚖️ la loi de R : rien d'écrit DANS la bourse — le corps du bouton est son IMAGE.
+     🔄 AMENDÉ LE 21/09 : le montant n'est plus dans le nom accessible, il est dans le VOYANT
+     posé dessus (Eric : *« la bourse toujours pas le montant posé dessus »*). ⛔ Et c'est
+     exactement ce que fait le sac : le bouton dit `Purse`, le voyant dit la somme.
+     ⭐ UN ORGANE, UN MESSAGE : deux endroits qui annoncent la même somme divergeraient au
+     premier arrondi. Le garde vérifie donc qu'elle est dite UNE fois, et par le voyant.
+     🔴 C'EST CE GARDE QUI A ATTRAPÉ `Purse — [object Object]`, au moment où la bourse est
+     devenue la donnée : il exigeait la somme dans le nom, et le nom la fabriquait par
+     interpolation. Un nom fabriqué à partir d'une donnée dont on ne connaît pas la FORME est
+     une bombe à retardement — elle rend « [object Object] » le jour où la forme change. */
   const p = tous(n, '[data-organe="purse"]')[0];
   assert.equal(p.textContent, "", "⛔ un montant écrit dans le corps du bouton");
-  assert.match(p.getAttribute("aria-label"), /155 gp/, "⛔ et il doit se dire à voix haute");
+  assert.equal(p.getAttribute("aria-label"), "Purse",
+    "⛔ le nom de la bourse est celui de la liste des organes d'échange, ⛔ pas une phrase fabriquée");
+  const voyant = tous(n, '[data-organe="montant"]')[0];
+  assert.ok(voyant, "⛔ le voyant du montant manque : la somme ne se lit nulle part");
+  assert.match(voyant.textContent.replace(/\s+/g, ""), /155/,
+    `⛔ le voyant ne dit pas la somme : « ${voyant.textContent} »`);
   const cotes = tous(n, ".wares-cote");
   assert.equal(cotes.length, 2, "⛔ deux cellules de côté");
   assert.deepEqual(tous(cotes[0], "button").map((b) => b.dataset.organe), ["party-tally", "tally"],

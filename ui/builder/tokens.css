@@ -1387,6 +1387,7 @@
      ⚠️ Le verre léger valait 20 % jusqu'au 2026-08-14 ; Eric l'a porté à
      35 % parce qu'à 20 % une dalle claire posée sur un fond contrastant ne
      lisait plus comme du parchemin — elle lisait comme le fond. */
+  --voile-cran: 20%;      /* verre à peine — une tuile de tambour AU REPOS (Eric, 21/09) */
   --voile-simple: 35%;    /* verre léger  — les choix, les gros affichages */
   --voile-inter: 50%;     /* verre moyen  — un peu de texte, pas de couleur */
   --voile-majeure: 100%;  /* opaque       — beaucoup de contenu, ou des images */
@@ -1395,6 +1396,14 @@
      source pour la surface, le voile la module. */
   --dalle-simple: color-mix(in srgb, var(--surface) var(--voile-simple), transparent);
   --dalle-inter: color-mix(in srgb, var(--surface) var(--voile-inter), transparent);
+  /* ⚖️ LA TUILE AU REPOS — Eric, 2026-09-21 : *« pour les tuiles non sélectionnées rajouter du
+     voile sur le fond à 20 ou 35 % serait plus joli »*, puis *« voile des tuiles à 20% »*.
+     ⭐ ET C'EST LE MÊME PATRON QUE LES DEUX AU-DESSUS : une surface, un voile qui la module.
+     ⛔ Pas une couleur neuve — le jour où `--surface` change, les trois suivent ensemble.
+     🗄️ CE QUE ÇA AMENDE : *« de transparent à plein »* (Eric, 19/09, sur le belt). Le repos
+     n'est plus transparent, il est à peine voilé — le contraste avec la posée
+     (`--dalle-inter`, 50 %) reste ce qui DÉSIGNE, il est seulement moins brutal. */
+  --dalle-cran: color-mix(in srgb, var(--surface) var(--voile-cran), transparent);
 
   /* ── LE FOND D'UN DROPDOWN (§8, ratifié le 2026-08-26) ─────────────────
      🔴 *« Il reste rectangulaire, très large, peu haut, transparence 20 %,

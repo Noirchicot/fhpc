@@ -1658,10 +1658,25 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
      d'il y a deux tuiles. ⛔ Ce n'est pas cher, c'est EN RETARD — ce qui se voit.
      🔴 ET ELLE EST PORTÉE PAR TOUTES LES TUILES, pas par le seul état allumé : sinon le
      DÉ-zoom de celle qui s'en va ne s'anime pas, et Eric a demandé les deux sens. */
-  assert.match(cran, /background-color:\s*transparent/,
-    "⛔ une tuile au repos est transparente : le plein est réservé à la posée");
+  /* 🔄 AMENDÉ LE 2026-09-21 — Eric : *« pour les tuiles non sélectionnées rajouter du voile sur
+     le fond à 20 ou 35 % serait plus joli »*, puis *« voile des tuiles à 20% »*.
+     🗄️ Le repos n'est plus `transparent` : il porte `--dalle-cran` (20 %). ⭐ CE QUE LA LOI DU
+     19/09 DIT RESTE VRAI — le fond est le SIGNE — mais l'échelle va de *à peine* à *plein* au
+     lieu de *rien* à *plein*. ⛔ ET LE GARDE NE SE CONTENTE PAS DE LÂCHER : il vérifie que
+     l'écart SUBSISTE, parce que c'est lui qui désigne. Un garde qui accepterait deux voiles
+     égaux laisserait disparaître la distinction qu'il est là pour tenir. */
+  assert.match(cran, /background-color:\s*var\(--dalle-cran\)/,
+    "⛔ la tuile au repos porte le voile de 20 % (Eric, 21/09)");
   assert.match(bloc('.sac-cran[data-dominant="oui"]'), /background-color:\s*var\(--dalle-inter\)/,
     "⭐ et la posée est pleine");
+  {
+    const jetons = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+    const pct = (nom) => Number((jetons.match(new RegExp("--" + nom + ":\\s*(\\d+)%")) || [])[1]);
+    const repos = pct("voile-cran"), posee = pct("voile-inter");
+    assert.ok(repos > 0 && posee > 0, "⛔ les deux voiles doivent exister et être chiffrés");
+    assert.ok(posee - repos >= 20,
+      `⛔ le repos (${repos} %) et la posée (${posee} %) se ressemblent trop : le fond ne DÉSIGNE plus`);
+  }
   const transitions = [...css.matchAll(/\.sac-cran\s*\{([^}]*)\}/g)].map((m) => m[1])
     .filter((c) => /transition:/.test(c));
   assert.equal(transitions.length, 1, "une seule règle porte la transition des tuiles");

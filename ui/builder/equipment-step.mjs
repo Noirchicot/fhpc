@@ -3118,7 +3118,16 @@ export function renderEquipmentStep(ctx, onAction) {
       compte: tous.length,
       page: pageWares,
       pages: vue.pages,
-      bourse: motDeLaBourse(docu),
+      /* 🔴 C'ÉTAIT `motDeLaBourse(docu)`, ET C'EST UNE FAUTE DE CÂBLAGE À MOI — 21/09.
+         `motDeLaBourse` ne rend PAS le contenu de la bourse : il rend `null`, ou la phrase
+         *« Choose a class … to get your starting gold »*. Wares recevait donc une PHRASE là où
+         R et le sac reçoivent les quatre monnaies. Le nom accessible du bouton devenait la
+         phrase entière, et le popup lisait `enGP(<phrase>)`.
+         ⭐ LE NOM M'A TROMPÉ, et c'est l'enseignement : `motDeLaBourse` sonne comme « la bourse,
+         en mots » ; il dit en réalité *« ce qu'on annonce à qui n'a pas encore de classe »*.
+         ⛔ Un nom qui décrit une FORME (« un mot ») sans dire de quoi il parle se branche tout
+         seul au mauvais endroit. Le sac, lui, prend `currentCurrency(docu)` — la donnée. */
+      bourse: currentCurrency(docu),
       compteTally: cartCompte(docu),
       /* ⭐ LA BOURSE S'OUVRE ICI COMME SUR R ET SUR LE SAC — même état de module, donc une
          bourse ouverte sur R l'est encore en passant par Wares. Deux états en auraient laissé

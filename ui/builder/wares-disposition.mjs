@@ -159,6 +159,13 @@ export const ORGANES = [
   { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 374, l: 40,  h: 40, cible: { x: 73.75, y: 372, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   { nom: "COLLECTEUR",          sorte: "collecteur", dalle: "PIED",    x: 144,    y: 344, l: 87,  h: 48, cible: { x: 144, y: 344, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
   { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 369, l: 50,  h: 50, cible: { x: 278.25, y: 369, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
+  /* ⚖️ LE MONTANT EST UN VOYANT POSÉ **SUR** LA BOURSE — Eric, 2026-09-21 : *« la bourse
+     toujours pas le montant posé dessus »*. ⭐ Même boîte que la bourse, `dans: "PURSE"` :
+     le nombre se lit DANS l'image, comme une pièce dessus. R le porte depuis le 16/09 et le
+     sac depuis le 20/09 ; Wares était le seul à ne pas l'avoir, et je l'avais écrit dans le
+     fichier — *« l'œil l'aura quand Eric le dira »*. Il l'a dit.
+     ⛔ AUCUNE CIBLE : on ne le tape pas, on le lit. C'est la bourse dessous qui reçoit. */
+  { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 369, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
   { nom: "SEND VERS",           sorte: "dropdown",   dalle: "PIED",    x: 139.5,  y: 402, l: 96,  h: 40, cible: { x: 139.5, y: 400, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
   { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: 452, l: 367, h: 44, cran: "—" },
   { nom: "livre",               sorte: "rond",       dalle: "PIED",    x: 15,     y: 463, l: 22,  h: 22, cible: { x: 4, y: 452, l: 44, h: 44 }, mot: "livre" },
@@ -228,6 +235,7 @@ export const CLEF_DE = Object.freeze({
   "TALLY": "tally",
   "COLLECTEUR": "collecteur",
   "PURSE": "purse",
+  "MONTANT": "montant",
   "SEND VERS": "send-vers",
   "RANGEE": "rangee",
   "livre": "livre",

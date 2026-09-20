@@ -38,7 +38,7 @@ import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=776";
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=776";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=776";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
 import { armerJeton } from "./glisser.mjs?v=776";
 import { versionQuery } from "./version.mjs?v=776";
@@ -211,6 +211,16 @@ export function feuilleDesCotesWares() {
      ⭐ Et je l'avais déjà écrit pour les tuners dix lignes plus haut, sans le faire ici. */
   r.push(`.wares-cote[data-cote="gauche"]{grid-column:1}`);
   r.push(`.wares-cote[data-cote="droite"]{grid-column:3}`);
+  /* ⚖️ LE VOYANT DU MONTANT SE POSE **SUR** LA BOURSE — même cellule, même boîte, et c'est le
+     plan qui les donne (`MONTANT`, `dans: "PURSE"`). ⛔ On ne le tape pas : `pointer-events:none`
+     laisse le doigt à la bourse dessous. Sans ça le voyant volerait le tap de l'organe qu'il
+     annote, et la bourse ne s'ouvrirait plus. */
+  {
+    const m = ORGANES.find((o) => o.nom === "MONTANT");
+    r.push(`.wares-cote[data-cote="droite"] > *{grid-area:1 / 1}`);
+    r.push(`.wares [data-organe="montant"]{inline-size:${px(m.l)};block-size:${px(m.h)};` +
+           `place-self:center;pointer-events:none}`);
+  }
   r.push(`.wares-pied > [data-organe="collecteur"]{grid-column:2;grid-row:1;justify-self:center}`);
   r.push(`.wares-pied > [data-organe="send-vers"]{grid-column:2;grid-row:2;align-self:center}`);
   r.push(`.wares-pied > [data-rangee]{grid-column:1 / -1;grid-row:3}`);
@@ -557,16 +567,29 @@ export function construireLesWares(o = {}) {
   droite.dataset.cote = "droite";
   /* ⚖️ RIEN D'ÉCRIT DANS LE BOUTON — la loi de R, tenue par son garde 5 quinquies :
      *« le montant est le voyant posé DESSUS »*. ⛔ Le mot va au nom accessible, pas au corps.
-     ⏳ ET LE VOYANT LUI-MÊME N'EST PAS DANS LA DICTÉE D'ERIC pour Wares : R en a un
-     (`MONTANT`, `dans: "PURSE"` à son plan), celui de Wares n'est pas posé. Je ne l'invente
-     pas — la bourse dit son montant à voix haute, et l'œil l'aura quand Eric le dira. */
+     🔴 ET LE VOYANT EST LÀ DEPUIS LE 21/09 — la dette écrite trois lignes plus bas est payée.
+     Eric : *« la bourse toujours pas le montant posé dessus »*. ⭐ C'est `montantDeLaBourse`,
+     l'organe de R, importé — ⛔ pas un second qui dirait le même nombre. */
   /* ⭐ ET LA BOURSE EST LE MÊME ORGANE, avec son image (`--icone-bourse`). ⛔ Rien d'écrit
      dans son corps : le montant va au nom accessible, et le voyant qui le PEINT appartient à R
      (loi du 16/09 : *« le montant est le voyant posé DESSUS »*). */
-  const purse = bouton("gear-bouton", "", `Purse — ${o.bourse || "0 gp"}`,
+  /* 🔴 LE NOM DE LA BOURSE EST CELUI DE LA LISTE, ⛔ PLUS UNE PHRASE FABRIQUÉE ICI — 21/09.
+     Il disait `Purse — ${o.bourse}`, ce qui a rendu **« Purse — [object Object] »** à la minute
+     où `o.bourse` est devenue la donnée (les quatre monnaies) au lieu d'une chaîne.
+     ⭐ ET LA RÉPARATION N'EST PAS DE REFORMATER LE NOMBRE ICI : le sac dit `Purse` tout court et
+     laisse le VOYANT dire le montant — un organe, un message. Deux endroits qui annoncent la
+     même somme divergeraient au premier arrondi. `ORGANES_D_ECHANGE` porte déjà ce mot. */
+  const motDeLOrgane = (ORGANES_D_ECHANGE.find((x) => x.id === "purse") || {}).mot || "Purse";
+  const purse = bouton("gear-bouton", "", motDeLOrgane,
     () => o.surBouton && o.surBouton("purse"));
   purse.dataset.organe = "purse";
-  droite.append(purse);
+  /* ⭐ LES DEUX DANS LA MÊME CELLULE — la feuille les y déclare (`grid-area: 1 / 1`), donc le
+     voyant se pose SUR la bourse sans qu'aucun `left` ne soit écrit. ⛔ C'est la réponse du
+     sacré n° 3 à ce que R et le sac font en absolu : la superposition est une GRILLE à une
+     cellule, pas une position. */
+  const montant = montantDeLaBourse(o);
+  montant.dataset.organe = "montant";
+  droite.append(purse, montant);
   pied.append(droite);
 
   const envoi = el("select", "wares-send-vers");

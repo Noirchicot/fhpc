@@ -3899,6 +3899,53 @@ il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la l
 
 ---
 
+### 🎚️ LA TUILE AU REPOS EST VOILÉE À 20 %, ⛔ PLUS TRANSPARENTE
+📍 `cadre-la-tuile-au-repos-est-voilee` · vivante · 21/09
+⚖️ **Une tuile de tambour au repos porte `--dalle-cran` (20 %). La posée garde `--dalle-inter` (50 %). ⛔ L'écart entre les deux est ce qui DÉSIGNE — il ne se referme pas.**
+
+> Eric, 2026-09-21 : **« pour les tuiles non sélectionnées rajouter du voile sur le fond à 20 ou
+> 35 % serait plus joli je pense »**, puis, tranché : **« voile des tuiles à 20% »**.
+
+🗄️ **CE QU'ELLE REPREND, ET LA RÈGLE D'AVANT N'ÉTAIT NULLE PART ICI.** Eric avait dit le 19/09,
+en regardant le belt : *« de transparent à plein, c'est plus efficace »* — et **le fond est le
+SIGNE** reste vrai. ⛔ Mais cette règle-là ne vivait que dans un commentaire de `shell.css` et dans
+l'assertion d'un garde, **pas dans ce corpus** : il n'y a donc aucune ancre à citer, et c'est
+précisément pour ça que celle-ci s'écrit ici. 📌 *Une règle orale n'existe pas* — et une règle qui
+ne vit que dans le test qui la tient ne peut être ni relue, ni amendée, ni même contredite
+proprement.
+⭐ **CE QUI CHANGE EST L'ÉCHELLE** : elle va désormais **d'à peine à plein** au lieu de **rien à
+plein**. La tuile au repos cesse d'être un trou dans la dalle sans cesser d'être en retrait.
+⭐ **ET C'EST UN JETON, ⛔ PAS UNE COULEUR** : `--voile-cran: 20%` et
+`--dalle-cran: color-mix(in srgb, var(--surface) var(--voile-cran), transparent)` — le même patron
+que `--dalle-simple` et `--dalle-inter`. Le jour où `--surface` change, les trois suivent ensemble.
+📌 **ET LE GARDE NE SE CONTENTE PAS D'ACCEPTER LA NOUVELLE VALEUR** : il vérifie que l'**écart**
+entre le repos et la posée subsiste *(au moins 20 points)*. Un garde qui lâcherait la contrainte
+en même temps que la valeur laisserait disparaître la distinction qu'il est là pour tenir.
+
+---
+
+### 🏷️ UN NOM QUI DIT UNE FORME NE DIT PAS DE QUOI IL PARLE
+📍 `socle-un-nom-qui-dit-une-forme` · vivante · 21/09
+⚖️ **Un identifiant qui nomme la FORME de ce qu'il rend *(« un mot », « une chaîne », « une liste »)* sans dire de QUOI il parle se branche tout seul au mauvais endroit. ⛔ Et la faute ne se voit qu'au rendu.**
+
+🔴 **L'INCIDENT, MESURÉ LE 21/09.** Wares recevait `bourse: motDeLaBourse(docu)`. `motDeLaBourse`
+ne rend **pas** le contenu de la bourse : il rend `null`, ou la phrase *« Choose a class … to get
+your starting gold »*. Wares affichait donc une **phrase** là où R et le sac reçoivent les quatre
+monnaies, et le popup lisait `enGP(<phrase>)` — soit **0**, silencieusement.
+⭐ **LE NOM M'A TROMPÉ** : *« mot de la bourse »* s'entend comme *« la bourse, en mots »* ; il dit
+en réalité *« ce qu'on annonce à qui n'a pas encore de classe »*. Le sac, lui, prend
+`currentCurrency(docu)` — un nom qui dit **la chose**.
+
+⭐ **ET L'AUTRE MOITIÉ DE LA LEÇON EST SUR L'INTERPOLATION.** Le nom accessible se fabriquait par
+`` `Purse — ${o.bourse}` ``. Le jour où la donnée est devenue un objet, le bouton a rendu
+**« Purse — [object Object] »**. 📏 Un gabarit qui interpole une donnée dont on ne connaît pas la
+FORME est une bombe à retardement : il est juste tant que la forme ne change pas, et muet le jour où
+elle change. ⛔ **La réparation n'est pas de reformater le nombre à cet endroit** — c'est de le dire
+**une seule fois**, par l'organe dont c'est le métier *(le voyant du montant)*. Un organe, un
+message ; deux endroits qui annoncent la même somme divergent au premier arrondi.
+
+---
+
 ### 🪟 UN ÉCRAN QUI DÉCLARE LA SCÈNE ENTRE DANS LA LISTE DU SOCLE
 📍 `cadre-un-ecran-entre-dans-la-liste-du-socle` · vivante · 21/09
 ⚖️ **Un écran qui déclare la largeur de SCÈNE (375) doit être membre de la règle du socle qui ressort de la gouttière de la carte. ⛔ Sinon il est plus large que la boîte qui le tient, et son bord droit est coupé — sans qu'aucune cote ait l'air fausse.**
