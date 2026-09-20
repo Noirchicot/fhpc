@@ -1953,24 +1953,3 @@ test("37 — \ud83d\udcd0 LE BAS DU BLOC DE POIDS EST \u00c0 8 DE L'AR\u00caTE D
   assert.equal(D.DALLE.h - (org("RANGEE").y + org("RANGEE").h), 8,
     "\u2696\ufe0f la derni\u00e8re rang\u00e9e est \u00e0 8 du bas de la dalle");
 });
-
-test("38 — \ud83d\udcf1 LE TEXTE SUIT LE `zoom` COMME LE RESTE, sur iOS aussi", () => {
-  /* \u2696\ufe0f Eric, 2026-09-20, deux captures c\u00f4te \u00e0 c\u00f4te macOS / iOS : *\u00ab les organes de
-     taille identique, mais pas le texte \u00bb*.
-     \ud83d\udccf ET C'EST CETTE PHRASE QUI TRANCHE, \u26d4 pas les images : si les BO\u00ceTES sont
-     identiques, l'\u00e9chelle est la m\u00eame des deux c\u00f4t\u00e9s. Donc ce n'est PAS `--echelle` \u2014 et
-     toutes mes comparaisons de la soir\u00e9e portaient sur le mauvais suspect. J'ai mesur\u00e9
-     des \u00e9chelles, compar\u00e9 des pour-cent, invoqu\u00e9 la densit\u00e9 des captures ; il suffisait
-     de savoir QUOI variait et quoi ne variait pas.
-     \u26d4 LA CAUSE EST L'AUTO-DIMENSIONNEMENT DU TEXTE DE WEBKIT : actif par d\u00e9faut sur
-     iOS, il recalcule les tailles depuis sa propre base au lieu de suivre le `zoom` du
-     conteneur \u2014 une mise en page qui suit, un texte qui d\u00e9croche.
-     \ud83d\udccc ET LE D\u00c9P\u00d4T LE SAVAIT : `diag.html` porte la ligne depuis toujours. Elle manquait
-     \u00e0 la feuille du PRODUIT \u2014 pr\u00e9sente dans l'outil de diagnostic, absente de ce qu'il
-     diagnostique. */
-  const css = stripComments(feuille);
-  assert.match(css, /html\s*\{[^}]*-webkit-text-size-adjust:\s*100%/,
-    "\u26d4 sans elle, iOS recalcule les tailles de texte et elles d\u00e9crochent du `zoom`");
-  assert.match(css, /html\s*\{[^}]*[^-]text-size-adjust:\s*100%/,
-    "\u2026 et la forme sans pr\u00e9fixe, pour ce qui l'implante d\u00e9j\u00e0");
-});

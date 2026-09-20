@@ -5,21 +5,6 @@
    produit, c'est changer un jeton — jamais une ligne d'ici. */
 
 * { box-sizing: border-box; }
-/* 🔴 LE TEXTE SUIT LE `zoom` COMME LE RESTE — Eric, 2026-09-20, deux captures côte à
-   côte : *« les organes de taille identique, mais pas le texte »*.
-   📏 ET C'EST CETTE PHRASE QUI TRANCHE, pas les images : si les BOÎTES sont identiques,
-   l'échelle est la même des deux côtés — donc ce n'est pas `--echelle`, et toutes mes
-   comparaisons de cette nuit portaient sur le mauvais suspect.
-   ⛔ LA CAUSE EST L'AUTO-DIMENSIONNEMENT DU TEXTE DE WEBKIT : sur iOS il est ACTIF par
-   défaut, et il recalcule les tailles depuis sa propre base au lieu de suivre le `zoom`
-   du conteneur. Le résultat est exactement ce qu'Eric décrit : une mise en page qui
-   suit, un texte qui décroche. Sur macOS il n'existe pas, donc le texte suit.
-   ⭐ `text-size-adjust: 100%` désactive ce recalcul : le texte redevient une cote comme
-   une autre, et les deux appareils rendent la même chose.
-   📌 ET LE DÉPÔT LE SAVAIT DÉJÀ : `diag.html` le porte depuis toujours. Il manquait à la
-   feuille du produit — une ligne présente dans l'outil de diagnostic et absente de ce
-   qu'il diagnostique. */
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
 
 /* ══ LE CADRE — lot 58, §N d'ERGONOMIE-BUILDER.md (B0.21) ═══════════════
@@ -3054,7 +3039,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=765") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=766") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3377,7 +3362,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=765") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=766") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5029,7 +5014,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=765") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=766") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8010,7 +7995,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=765");
+  background-image: url("./assets/tarot-dos.jpg?v=766");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
