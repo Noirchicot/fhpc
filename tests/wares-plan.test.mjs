@@ -194,6 +194,24 @@ test("10 · les deux écarts qui dévient du 8 sont nommés dans NORMES", () => 
   }
 });
 
+/* ══ 12 · LE FILIGRANE SE DÉDUIT DE LA GRILLE ══════════════════════════════════
+   ⭐ TÉMOIN : les quatre cotes du fond se recalculent depuis la grille et le rapport de
+   l'image. ⛔ Aucune ne se tape — c'est la règle que le fond du sac porte déjà, et c'est
+   elle qui fait qu'une rangée qui bouge emmène le fond avec elle. */
+test("12 · le filigrane se déduit de la grille, il ne se tape pas", () => {
+  const grille = D.DALLES.find((d) => d.nom === "GRILLE");
+  const premiere = grille.y + D.REMBOURRAGE_GRILLE;
+  const debord = (D.FOND.h - D.RENDU_GRILLE.jetons.h) / 2;
+  assert.equal(premiere - debord, D.FOND.y, "le fond déborde autant en haut qu'en bas de la grille");
+  assert.equal(D.FOND.rapport, D.FOND.px.l / D.FOND.px.h,
+    "⛔ le rapport se lit sur l'actif, il ne s'arrondit pas — un rapport arrondi est un second écrivain");
+  assert.equal(D.FOND.l, D.FOND.h * D.FOND.rapport, "⛔ la largeur suit le rapport de l'image détourée");
+  assert.equal(D.FOND.x, (D.DALLE.l - D.FOND.l) / 2, "et l'abscisse la centre sur la dalle");
+  assert.ok(D.FOND.y >= grille.y && D.FOND.y + D.FOND.h <= grille.y + grille.h,
+    `⛔ le fond sort de sa dalle : ${D.FOND.y} → ${D.FOND.y + D.FOND.h} hors de ${grille.y} → ${grille.y + grille.h}`);
+  assert.ok(fs.existsSync(path.join(UI, "assets", D.FOND.image)), `⛔ l'actif ${D.FOND.image} n'est pas là`);
+});
+
 /* ══ 11 · LA ROUE PORTE CINQ CRANS ═════════════════════════════════════════════
    ⭐ TÉMOIN : le budget de la piste est exactement un dominant et quatre secondaires.
    ⛔ Un cinquième cran qui ne tiendrait pas se verrait au banc, pas ici — mais une piste

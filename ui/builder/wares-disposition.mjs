@@ -146,6 +146,41 @@ export const ORGANES = [
   { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 338,    y: 463, l: 22,  h: 22, cible: { x: 327, y: 452, l: 44, h: 44 }, mot: "?" },
 ];
 
+/* ── LE FILIGRANE DE LA DALLE 2 ───────────────────────────────────────────────
+   🛒 Eric, 2026-09-20, en déposant l'image : *« dans drop, image à mettre en fond, couleurs
+   idem backpack, derrière la dalle 2, suggéré discret mais visible »* · *« il faut un rendu
+   similaire à Backpack et Gear »*.
+   ⭐ MÊME RÔLE, MÊME PLACE ET MÊME RECETTE QUE LE FOND DU SAC : une image qu'on ne tape pas,
+   derrière la grille, dont la cote vit AU PLAN. ⛔ Aucun de ces nombres n'est tapé : la
+   hauteur est celle de la grille plus un débord égal en haut et en bas, la largeur suit le
+   RAPPORT MESURÉ de l'image détourée, et l'abscisse centre le tout sur la dalle.
+   ⛔ ET CE N'EST PAS UNE IMAGE, C'EST UN MASQUE. `background: var(--text-soft)` +
+   `mask-image` : l'encre est thématique, donc lisible le jour comme la nuit. L'image posée
+   telle quelle (elle est NOIRE) s'évanouirait sur le fond de nuit.
+   📏 SA MATIÈRE EST MESURÉE SUR CELLE DU SAC, ⛔ pas choisie : `sac-fond.webp` porte une
+   médiane d'alpha de 122, une moyenne de 135, un plafond de 214 — un LAVIS à contours plus
+   sombres, pas un trait et pas un aplat. La silhouette d'Eric, plate, a été passée au même
+   régime : intérieur à 122, contour à 214.
+   ⏳ CE QUE J'AI REGARDÉ ET QUI RESTE À TRANCHER PAR ERIC : à ce poids-là il est bien au
+   niveau du sac, mais il se LIT moins — le sac porte des sangles et des boucles qui coupent
+   toutes les gouttières, là où un marchand centré passe surtout sous la colonne du milieu,
+   et la grille de Wares est TOUJOURS pleine (un catalogue n'a pas de case vide).
+   🔴 ET LE RAPPORT NE S'ARRONDIT PAS — un garde l'a attrapé à 0,01 près, et il avait raison :
+   j'avais écrit `rapport: 1.0817` au plan et calculé la largeur sur le rapport EXACT. Deux
+   écrivains pour un nombre, donc un nombre faux le jour où on relit l'autre. ⭐ La seule
+   mesure est celle de l'actif — 649 × 600 px — et tout le reste en DÉCOULE. */
+const PX = { l: 649, h: 600 };            /* la taille de `wares-fond.webp`, mesurée */
+const FOND_H = 228;                       /* la grille (216) plus 6 de débord en haut et en bas */
+export const FOND = {
+  image: "wares-fond.webp",
+  px: PX,
+  rapport: PX.l / PX.h,
+  h: FOND_H,
+  l: FOND_H * (PX.l / PX.h),
+  x: (DALLE.l - FOND_H * (PX.l / PX.h)) / 2,
+  y: 102,
+};
+
 /* ── LA CLEF D'UN ORGANE ──────────────────────────────────────────────────────
    ⭐ Le nom du plan et l'attribut `data-organe` sont DEUX vocabulaires, et cette table est
    la bijection. ⛔ Un garde la relit dans les DEUX sens : une bijection fausse est cohérente,
