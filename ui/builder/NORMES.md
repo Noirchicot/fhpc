@@ -3704,6 +3704,158 @@ se graver au document ou rester un coup d'œil.
 
 ---
 
+---
+
+### 🛒 WARES — TROIS DALLES, UN TAMBOUR À DEUX ÉTAGES, UNE GRILLE DE DOUZE
+📍 `equipement-wares-trois-dalles` · vivante · 20/09
+⚖️ **Wares est fait des MÊMES organes que le sac : un tambour *(deux étages au lieu d'un)*, une grille de jetons, un pied. ⛔ Il ne redessine rien — il importe.**
+
+> Eric, 2026-09-20, en dictant l'écran : **« Voile 35 %. Equipment browser dégage. »** · **« pas de
+> menu d'éditions »** · **« première ligne du tambour de Wares, les catégories, fonctionnement
+> exactement celui de backpack. Ça ne tourne plus à l'infini, navigation identique. »** · **« 4
+> blg »** · **« deuxième ligne porte les sous-catégories. Même fonctionnement que backpack, même
+> navigation, on a juste un deuxième étage de navigation. »**
+
+| la dalle | ce qu'elle porte | hauteur |
+|---|---|---|
+| **1** | le tambour, **deux étages** — les catégories, puis les sous-catégories | **92** |
+| **2** | la grille de jetons et ses deux gouttières *(compte d'objets à gauche, compte de pages à droite)* | **232** |
+| **3** | les deux Tally · le collecteur · la bourse · `Send to ▾` · la rangée du pied | **160** |
+
+⭐ **`92 + 8 + 232 + 8 + 160 = 500`, PILE.** Les deux `8` sont les line bleeds (§8 bis).
+⛔ **CE QUE WARES NE PORTE PAS**, et c'est la dictée qui l'enlève : aucun mode édition *(ni `/`, ni
+`×`, ni `+ Storage`, ni `done sections`)*, ni `Sort`, ni `Encumbrance`, ni `sections`. ⭐ **C'est
+exactement ce qui libère les 92 blg pour DEUX étages là où le sac n'en loge qu'un.**
+🔴 **ET LE TITRE `EQUIPMENT BROWSER` DÉGAGE.** L'écran avait deux noms — celui de son titre et celui
+que la 3ᵉ ligne du belt écrit déjà. §6 interdit un libellé qui ment ; deux noms pour un écran sont
+la même faute, en plus discret.
+
+---
+
+### 🥁 LE SWIPE DE WARES PAGINE — ⛔ ET CE N'EST PAS CE QUE FAIT LE SAC
+📍 `equipement-wares-swipe-pagine` · vivante · 20/09
+⚖️ **Le glisser de dalle, dans Wares, déplace dans les PAGES de la sous-catégorie. ⛔ Il ne change jamais de sous-catégorie — c'est le tambour qui en change.**
+
+> Eric, 2026-09-20 : **« le swipe de dalle […] déplace dans les pages de la catégorie, pas d'une
+> sous-catégorie à l'autre (ATTENTION LÀ C'EST DIFFÉRENT DE BACKPACK) »**.
+
+⭐ **ERIC A NOMMÉ LA DIFFÉRENCE LUI-MÊME, EN MAJUSCULES, ET C'EST LA RAISON DE CETTE LIGNE.** Dans le
+sac, une dalle EST une section : glisser change de section. Dans Wares, une sous-catégorie ne tient
+pas sur une dalle — elle en fait plusieurs. Le geste garde donc sa forme et change de sens.
+📌 **Les deux gouttières restent** : une sous-catégorie a plusieurs pages, donc `‹` `›`, le compte
+d'objets et le compte de pages. ⭐ La règle `liste-une-seule-page-pas-de-fleches` s'applique quand
+même : une sous-catégorie de **douze ou moins** n'a pas de chevrons.
+
+---
+
+### 🔢 WARES PAGINE PAR **DOUZE**, ⛔ PAS PAR QUINZE — ET C'EST LA HAUTEUR QUI LE DIT
+📍 `equipement-wares-douze-par-page` · vivante · 20/09
+⚖️ **La grille de Wares fait QUATRE rangées de trois, soit douze jetons par page. ⛔ L'écran passe son nombre à `pageDeListe(objets, page, 12)` ; il ne recopie pas le 15, et il ne le tait pas.**
+
+> Eric, 2026-09-20, en dictant : **« 5 rangées de 3 tokens, si on a la place »** — puis, la mesure
+> faite : **« eh ben 4 rangées alors »**.
+
+📏 **LA MESURE QUI A TRANCHÉ, ET ELLE EST ARITHMÉTIQUE.** À cinq rangées la dalle 2 vaut
+`8 + 5×48 + 4×8 + 8 = 288`, et l'écran demande `92 + 8 + 288 + 8 + 160 = 556` pour une scène qui en
+offre **500** : ⛔ **56 de trop**.
+⛔ **ET AUCUN RACLAGE NE LES RÉCUPÈRE** : écarts de rangée 8 → 4 *(−16)*, les deux line bleeds 8 → 4
+*(−8)*, rembourrages de la dalle 2 *(−8, et ça contredit le croquis du 19/09)*, hauteur du jeton
+48 → 44 *(−20, et 🔒 44 est le plancher)* — **−52 au total, il manque encore 4**, pour un écran
+devenu illisible. La seule autre sortie était de fondre le collecteur et `Send to` sur une rangée,
+c'est-à-dire de décider du produit à la place d'Eric.
+⭐ **`NORMES` PRÉVOYAIT DÉJÀ CE CAS** : *« un écran qui dévie passe SON nombre à `pageDeListe`,
+explicitement, et le garde reste muet. Ce qu'il interdit, c'est de recopier le 15. »*
+
+---
+
+### 📦 LES REMBOURRAGES DE DALLE VALENT 4, LES ÉCARTS ENTRE ORGANES VALENT 8
+📍 `equipement-wares-rembourrage-quatre` · vivante · 20/09
+⚖️ **Dans Wares, le rembourrage d'une dalle vaut `4` ; l'écart entre deux organes garde le `8` du sacré n° 3. ⛔ Une exception, un argument : le budget vertical.**
+
+🔴 **CETTE LIGNE EXISTE PARCE QUE LE SACRÉ N° 3 A CASSÉ MON BUDGET, ET IL AVAIT RAISON.** J'avais coté
+la dalle 3 à **156** en recopiant deux entorses du sac : un écart de `4` avant la rangée du pied, et
+un `Send to` dessiné **40** de haut au lieu de sa BOÎTE de **44** — 🔒 le plancher `--touch`, laissé
+filer. Aux 8 réglementaires la dalle 3 vaut **160**, et la somme passait à 504.
+⭐ **CE SONT LES REMBOURRAGES QUI CÈDENT, JAMAIS LES ÉCARTS.** Un écart porte le rythme entre deux
+organes ; un rembourrage ne sépare rien, il borde. Le précédent est d'Eric lui-même *(06/09 :
+« faut récupérer des blg »)*, et il porte le même argument.
+⛔ **ET LA DALLE 2 GARDE SES 8** : son rembourrage est fixé par le croquis du 19/09 *(« 8 au-dessus
+du premier jeton et 8 sous le dernier »)*. ⭐ Un croquis d'Eric prime sur une généralisation.
+
+---
+
+### 🎫 LE JETON DE WARES EST CELUI DU SAC — ⛔ UNE SEULE DIFFÉRENCE, ET C'EST LE TAP
+📍 `equipement-wares-jeton-et-x2` · vivante · 20/09
+⚖️ **Wares importe `jeton-objet.mjs` sans le toucher : le nom sur trois lignes au plus, la bande des quatre marques. ⛔ Pas de prix sur le jeton. La SEULE différence : un tap ouvre un `X2`, pas un `X1`.**
+
+> Eric, 2026-09-20 : **« les jetons EXACTEMENT la même règle que dans les menus Gear/Backpack.
+> Différence une seule : un tap sur token, mène à un écran X2 pas X1. »**
+
+⭐ **ET ÇA TRANCHE UNE QUESTION QUE J'ALLAIS POSER** : fallait-il poser le prix sous le mot, puisque
+la fiche et la recherche chiffrent ? Non. *« Exactement la même règle »* ferme la porte — le prix
+vit sur la fiche, ⛔ jamais sur le jeton.
+⭐ **`jeton-objet.mjs` EST UN MODULE FEUILLE** — aucun import, aucune cote, aucune couleur — et c'est
+précisément ce qui rend un troisième porteur gratuit. ⛔ Wares ne le redessine pas.
+⏳ **CE QUI N'EST PAS TRANCHÉ, ET QUE JE N'INVENTE PAS** : la bande des quatre marques décrit un
+objet **possédé** *(`locked`, `equipped`, `attuned`, la quantité)*. Sur une étagère de boutique les
+quatre tombent à « non » et la bande rend **14 blg sur 48** qui ne disent rien. On garde la bande
+vide *(le comportement actuel)* ; dire *« ce que tu possèdes déjà »* serait une règle neuve.
+
+---
+
+### 🔴 `b1` DÉSIGNE DEUX OBJETS — LA FICHE DU CATALOGUE S'APPELLE `X2`
+📍 `equipement-la-fiche-du-catalogue-est-un-x2` · vivante · 20/09
+⚖️ **La fiche d'un objet du CATALOGUE est un `X2` ; celle d'un objet POSSÉDÉ est un `X1`. ⛔ Aucune des deux n'écrit dans le belt.**
+
+> Eric, 2026-09-16, déjà dans le code : **« les x ne s'inscrivent pas dans le belt »** —
+> `shell.mjs` le cite et nomme la paire : *« une fiche d'objet (X1, X2) n'écrit jamais »*.
+
+🔴 **LE MOT EXISTAIT DANS LA LOI ET NULLE PART AILLEURS.** Le dépôt ne porte que `x1-ecran.mjs` et
+`x1-disposition.mjs` ; la fiche qui s'ouvre depuis Wares est codée sous le nom de vue **`b1`** — *le
+même mot que le rang B1, qui est le sac*. ⛔ **Un nom, deux objets** : c'est la faute que ce dépôt
+repaie tous les quinze jours, et elle se répare en prenant le nom que la loi donnait déjà.
+📌 **ET CE N'EST PAS UN ÉCRAN NEUF** : il existe, il marche, et son `BACK` rend Wares avec son rayon,
+sa sous-catégorie et sa page — 📏 mesuré au navigateur le 20/09. Seul son nom change.
+
+---
+
+### 🪙 LA BOURSE À DROITE, LES DEUX TALLY À GAUCHE — CENTRÉS PAR LA GRILLE
+📍 `equipement-wares-bourse-et-tally-centres` · vivante · 20/09
+⚖️ **Sur la dalle 3, la bourse occupe la cellule de DROITE et les deux Tally celle de GAUCHE, centrés sur les deux axes. ⛔ Le centre ne s'écrit pas — c'est une cellule `1fr` qui enjambe les rangées et porte `place-self: center`.**
+
+> Eric, 2026-09-20 : **« la bourse peut se trouver à droite, les Tally à gauche, centrés
+> horizontalement et verticalement dans le rectangle vide »** · **« sur la 3e dalle »** · puis, en
+> le voyant venir : **« ils seront effectivement entre 2 lignes »**.
+
+⭐ **LA COLONNE DU MILIEU VAUT 96 PARCE QUE `Send to` EST LE PLUS LARGE**, ⛔ pas 87, la largeur du
+collecteur. C'est le plus large qui pose la piste ; le collecteur se centre dedans.
+🔴 **ET CETTE RÈGLE CORRIGE UNE DÉRIVE QUE LE SAC TRAÎNE.** 📏 Mesuré dans `sac-disposition.mjs` :
+la bourse y est centrée sur une marge de **4** *(x 276)* et les deux Tally sur une marge de **8**
+*(x 32 et 80)* — **deux règles pour une même rangée**, et 2 blg d'écart vertical entre les trois.
+⭐ La phrase d'Eric n'en pose qu'UNE, et les trois organes retombent sur le même axe.
+⛔ **J'AVAIS D'ABORD CENTRÉ SUR LA BANDE DU COLLECTEUR, ET C'ÉTAIT TROP ÉTROIT.** Le rectangle vide
+est ce qui reste de la dalle **entière** une fois retirées la colonne centrale et la rangée du pied
+— il enjambe donc les deux lignes, ce qu'Eric a confirmé avant que je le montre.
+
+---
+
+### 🚪 LE PIED DE WARES DIT `Gear · Send · Backpack` — LE TRIANGLE SE REFERME
+📍 `equipement-wares-pied-triangle` · vivante · 20/09
+⚖️ **Chaque écran d'équipement porte les DEUX portes qu'il n'est pas. ⛔ `Equipment` est le nom de l'ÉTAPE, jamais d'un écran.**
+
+> Eric, 2026-09-20 : **« le 3e bouton c'est backpack »**.
+
+| l'écran | son pied |
+|---|---|
+| **R** *(Gear)* | `Backpack · Send · Wares` |
+| **B1** *(le sac)* | `Gear · Send · Wares` |
+| **Wares** | `Gear · Send · Backpack` |
+
+⭐ **PAS DE TROU, PAS DE PORTE VERS SOI-MÊME**, et le `Send` du milieu fait partout la même chose :
+il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la liste d'envoi.
+
+---
+
 ### 🎒 LA PORTE VERS LE PARTY INVENTORY ATTEND QUE LE `?` ET LE LIVRE PARTENT
 📍 `equipement-porte-party-inventory-au-pied` · vivante · 19/09
 ⚖️ **Le jour où le `?` et le livre quittent la fiche du joueur, un bouton vers le PARTY INVENTORY prend leur place, à GAUCHE de `Gear`. ⛔ Pas avant.**
