@@ -907,6 +907,66 @@ d'effrayer autant qu'au premier jour.*
 ⏳ **Deux autres points restent ouverts après les réponses d'Eric** : l'outil ajouté a-t-il un
 maximum ? · un rond touché après `Done` dé-signe-t-il *(mesuré : oui, il le fait)* — est-ce voulu ?
 
+⭐ **LA MOITIÉ « LIBRE » DE L'ALTERNATIVE A ÉTÉ TRANCHÉE LE 20/09**, voir
+`skills-bound-est-un-plancher` : *« si je veux un tool, je crée la ligne, et je dépense des free
+points dedans […] ILS NE SONT PAS BOUND. »* Le tool qu'on **crée dans l'écran Skills** se paie donc
+aux **points libres**, plancher zéro. ⛔ Ce qui reste `à trancher` ici est **l'autre moitié** — y
+a-t-il, en plus, des **points d'outil LIÉS** au départ *(`bound_tool_points`)*, combien, et à quel
+palier. 📏 Mesuré le 20/09 sur la pile FH : `bound_tool_points` y vaut **0**, l'écran affiche
+« Tools 0/0 », et **aucune étape n'en place** — l'état d'aujourd'hui est donc « tout libre », par
+absence et non par décision. **Le mot est à Eric.**
+
+### ⚖️ `bound` est un PLANCHER posé par l'ORIGINE du point — pas une propriété de la ligne
+📍 `skills-bound-est-un-plancher` · vivante · 20/09
+⚖️ **Un point LIÉ pose un plancher qu'on ne peut pas descendre ; un point LIBRE n'en pose aucun. Une ligne créée et payée aux points libres a donc un plancher de ZÉRO : ronds libres, aucun halo, `Remove` offert, et elle se défait entièrement.**
+
+> **Eric**, 20/09 : « À la création du perso il y a des **bound points**, qu'on répartit avant même
+> d'arriver dans l'écran skills. Mais quand j'arrive dans l'écran skills et que j'ai des **free
+> points** à dépenser, si je veux un tool, je crée la ligne, et je dépense des free points dedans,
+> je répartis exactement comme des free points — **ILS NE SONT PAS BOUND**. Ça a toujours été le
+> cas dans ma tête. »
+
+⛔ **Une ligne n'est pas « liée » parce qu'elle EXISTE** ; elle l'est parce qu'un point venu
+d'ailleurs l'a posée. C'est `skills-lie-est-un-halo-violet-captif` lu à l'envers : le halo dit *d'où
+ça vient*, donc une ligne dont tout vient du joueur n'en porte aucun.
+
+📏 **MESURÉ LE 20/09, SUR LE BUILDER SERVI** *(Wizard Elf, 10 points libres)* — Skills › Tools &
+Trainings › `Add a tool` › Calligrapher's Supplies › tap sur le 2ᵉ rond. **Avant** : `Spent 2`, halo
+violet sur les deux ronds, `data-lie="oui"`, `Tools 1/0` au bandeau, aucun `Remove`, et le popup
+**« Bound »** qui renvoyait le joueur vers *« the step that placed them »* — **une étape qui
+n'existe pas**, puisque c'est lui qui avait payé. Ses 2 points étaient **irrécupérables**.
+**Après** : ronds verts sans halo, `Tools 0/0`, et le geste inverse rend `Spent 2 → 1 → 0`, jusqu'à
+« No tools yet. ».
+
+🔴 **LA CAUSE, ET C'EST LA LEÇON QUI VOYAGE — DEUX VOCABULAIRES POUR UNE MÊME CHOSE.** La ligne du
+pool nomme sa source par l'**ID DE RECORD** (`srd:tool:en:calligrapher-s-supplies`) : c'est le
+contrat de `source.id`, partagé par `class`, `skill` et `feat`, et `classIdFromBreakdown` en dépend
+— **le moteur avait raison**. Tout l'écran Skills, lui, parle **SLUG** : `resolved.tools[].id`,
+`fh.skills.spend.<slug>`, `dataset.ligne`. L'écran demandait `has(slug)` à un ensemble d'**ids** :
+*« non »* pour tout le monde, **toujours**, sans un mot. ⇒ `lie = owned && !achetes.has(slug)` valait
+`owned`, donc **tout outil possédé était lié**. ⭐ Et sur la pile FH **aucun arrière-plan n'accorde
+d'outil** *(l'héritage le retire, addendums §4)* : `resolved.tools[]` n'y est rempli **que** par la
+dépense du pool — le défaut était donc **total**, pas marginal. ⛔ Un ensemble porte désormais son
+vocabulaire **dans son nom** (`achetesParSlug`), pour que `has(unId)` saute aux yeux.
+
+⚠️ **ET LE COMPTEUR DESCENDAIT QUAND MÊME** — `10 → 8`, `Spent 2`. Le registre **enregistrait**,
+sous la **mauvaise clef**. La question *« est-ce que le compteur baisse ? »* l'aurait donc
+**innocenté à tort** : une bijection fausse est cohérente dans son propre sens, seule une **seconde
+lecture en sens inverse** l'attrape — repartir du slug de l'écran et chercher la ligne qui le paie.
+
+📌 **CE QUI LA TIENT** : `tests/outil-libre-non-lie.test.mjs`, **deux sens** — l'outil *payé libre*
+n'est pas lié *(vu rouge avant le lot)*, et le **témoin contraire**, un outil *accordé* par
+l'arrière-plan et jamais acheté, **reste** lié *(vu rouge en forçant `lie = false`)*. Sans le
+second, un `lie = false` écrit en dur passerait le premier en souriant.
+
+🕳️ **CE QUE CE LOT NE COUVRE PAS** *(mesuré, pas supposé)* : le plancher du moteur (`tierBySlug`,
+`skill-pool.mjs`) est semé par les **imposés** et la **bourse**, jamais par l'outil d'arrière-plan.
+Un outil accordé à Adept peut donc être **descendu** à Novice par le canal de dépense — et cela
+**coûte un point** pour rendre le personnage moins bon *(`pool 10 → 9`, bonus `+4 → +3`)*, **sans
+refus**. ⛔ Inatteignable par l'écran, avant comme après ce lot *(un outil accordé non dépensé garde
+ses ronds captifs)* ; atteignable par un document importé. **Trou du moteur, pas de l'écran — il
+reste ouvert.**
+
 ## 8 · Equipment
 
 ### L'entrée de l'étape est le dressing
