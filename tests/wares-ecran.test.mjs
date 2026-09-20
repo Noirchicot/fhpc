@@ -17,6 +17,25 @@ const { construireLesWares, feuilleDesCotesWares } = await import("../ui/builder
 
 const tous = (n, sel) => [...n.querySelectorAll(sel)];
 
+/** ⭐ UN TAP, AU SENS DE `glisser.mjs` — appui puis relâché sans avoir bougé. ⛔ PLUS UN
+ *  `click` : depuis que le jeton est armé pour le GLISSER (lot 220), c'est le pointeur qui
+ *  porte les deux gestes, et un `click` seul ne dit plus rien au module. ⚖️ Le geste a changé
+ *  de nature, donc le témoin aussi — ⛔ mais pas d'un cran vers le faible : c'est exactement
+ *  la forme que `glisser.test.mjs` et `fil-srd-ecrans.test.mjs` emploient déjà. */
+function tap(jeton, pointerType = "touch") {
+  document.elementFromPoint = () => null;
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+}
+
+/** ⭐ UN GLISSER JUSQU'À UN CRÉNEAU — le geste qui CHOISIT (tap = info, glisser = choisir). */
+function glisserVers(jeton, creneau) {
+  document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? creneau : null) });
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
+  document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });
+}
+
 const CATS = [{ nom: "Armory" }, { nom: "Arcana" }, { nom: "Marvels" }];
 const SOUS = [{ nom: "Rings" }, { nom: "Clothing" }, { nom: "Jewellery" }];
 const objets = (n) => Array.from({ length: n }, (_, i) => ({
@@ -120,7 +139,7 @@ test("6 · le jeton porte le nom et la bande — ⛔ jamais un prix", () => {
 test("7 · un tap sur un jeton publie sa référence — le chemin vers le X2", () => {
   const vus = [];
   const n = monter({ surJeton: (ref) => vus.push(ref) });
-  tous(n, ".wares-jeton")[4].dispatchEvent(new (globalThis.Event || Object)("click"));
+  tap(tous(n, ".wares-jeton")[4]);
   assert.deepEqual(vus, ["srd:item:en:o4"], "⛔ le tap n'a rien publié, ou a publié le mauvais objet");
 });
 
@@ -337,4 +356,67 @@ test("19 · l'écart de 8 est celui des DESSINS, et le gap s'en déduit", () => 
   const attendu = D.ECART - bords;
   assert.match(feuilleDesCotesWares(), new RegExp(`\\.wares-cote\\{[^}]*gap:${attendu}px`),
     `⛔ le gap des cellules de côté doit valoir ${attendu} — 8 moins les deux bords transparents`);
+});
+
+/* ══ 20 · 🔴 LE GLISSER ÉTAIT PROMIS ET JAMAIS ARMÉ ════════════════════════════
+   ⭐ TÉMOIN : glisser un jeton jusqu'au collecteur publie sa référence.
+
+   🔴 CE GARDE NAÎT D'UNE PANNE QU'ERIC A VUE EN LIGNE : *« l'équipement n'est pas totalement
+   branché »*. 📏 Mesuré : ZÉRO appel à `armerJeton` dans tout l'écran. Les jetons portaient
+   `data-glissable="true"` — un attribut qui PROMET un geste que personne n'écoutait — et le
+   collecteur n'était la cible de rien. ⛔ §6 l'interdit : un libellé qui ment.
+   ⛔ ET AUCUN DE MES DIX-HUIT GARDES NE POUVAIT LE DIRE : ils lisaient l'attribut, jamais
+   l'écouteur. Un attribut est une déclaration ; seul un GESTE prouve qu'elle est tenue.
+   ⚖️ TAP = INFO, GLISSER = CHOISIR — les deux gestes vivent sur le même organe, et ce garde
+   les sépare : le tap ouvre le X2, le dépôt met au panier. */
+test("20 · glisser un jeton sur le collecteur le publie — ⛔ et ce n'est pas un tap", () => {
+  const deposes = [];
+  const taps = [];
+  const n = monter({ surDepot: (ref) => deposes.push(ref), surJeton: (ref) => taps.push(ref) });
+  const collecteur = tous(n, '[data-organe="collecteur"]')[0];
+  assert.ok(collecteur.dataset.creneau, "⛔ le collecteur n'annonce pas qu'il accueille un dépôt");
+
+  glisserVers(tous(n, ".wares-jeton")[2], collecteur);
+  assert.deepEqual(deposes, ["srd:item:en:o2"], "⛔ le glisser n'a rien déposé");
+  assert.deepEqual(taps, [], "⛔ un glisser a aussi ouvert la fiche : les deux gestes se confondent");
+
+  /* et le tap, lui, ouvre la fiche et ne dépose RIEN */
+  tap(tous(n, ".wares-jeton")[5]);
+  assert.deepEqual(taps, ["srd:item:en:o5"], "⛔ le tap n'ouvre plus la fiche");
+  assert.equal(deposes.length, 1, "⛔ un tap a déposé : il ne choisit pas, il informe");
+});
+
+/* ⭐ TÉMOIN : le viseur existe, un par étage, et il ne se tape pas.
+   🔴 IL MANQUAIT AU PLAN *ET* À L'ÉCRAN — et c'est pour ça que la bijection plan ↔ DOM, mon
+   garde 15, ne pouvait rien dire : elle compare deux listes, et l'organe manquait des deux.
+   ⛔ Une liste par nom ne peut pas nommer ce qu'elle ignore. Eric l'a vu en ligne. */
+test("21 · chaque étage a son viseur, et ⛔ on ne le tape pas", () => {
+  const n = monter();
+  const loupes = tous(n, ".wares-loupe");
+  assert.equal(loupes.length, 2, "⛔ un viseur par étage — le halo reste centré, les items défilent dessous");
+  for (const l of loupes) {
+    assert.equal(l.getAttribute("aria-hidden"), "true", "⛔ un cadre qui se lit à voix haute");
+    assert.equal(l.tagName, "DIV", "⛔ ce n'est pas un bouton : il désigne, il ne reçoit pas");
+  }
+  assert.deepEqual(loupes.map((l) => l.dataset.organe), ["loupe-categories", "loupe-sous-categories"],
+    "⛔ et chacun porte sa clef du plan, sinon la bijection ne peut pas l'accuser");
+  assert.match(feuilleDesCotesWares(), /\.wares-loupe\{[^}]*box-shadow:inset/,
+    "⛔ le viseur se superpose au rebord de la tuile posée (NORMES, 19/09)");
+});
+
+/* ⭐ TÉMOIN : les organes d'échange sont CEUX DE R, avec leurs images.
+   🔴 LE DÉPÔT M'AVAIT ÉCRIT CETTE FAUTE D'AVANCE, dans `sac-ecran.mjs` : *« LES TROIS ORGANES
+   D'ÉCHANGE SONT CEUX DE R (`gear-bouton`), et ils portent DÉJÀ leurs images… ⛔ J'en avais
+   fait trois rectangles bruns, sans image »*. Je l'ai refaite mot pour mot. */
+test("22 · les Tally et la bourse sont les organes de R, ⛔ pas trois rectangles bruns", () => {
+  const n = monter({ compteTally: 3 });
+  for (const id of ["party-tally", "tally", "purse"]) {
+    const b = tous(n, `[data-organe="${id}"]`)[0];
+    assert.ok(b, `⛔ ${id} manque`);
+    assert.ok(b.className.includes("gear-bouton"),
+      `⛔ ${id} est redessiné (${b.className}) au lieu de reprendre l'organe de R, qui porte son image`);
+    assert.equal(b.textContent, "", "⛔ rien d'écrit dans le corps : l'image le dit, et le nom accessible aussi");
+  }
+  assert.equal(tous(n, '[data-organe="tally"]')[0].dataset.compte, "3", "le Tally lit le document");
+  assert.equal(tous(n, '[data-organe="party-tally"]')[0].disabled, true, "et le party se montre inerte");
 });

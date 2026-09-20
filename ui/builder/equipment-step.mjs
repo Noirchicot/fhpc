@@ -3120,6 +3120,12 @@ export function renderEquipmentStep(ctx, onAction) {
       pages: vue.pages,
       bourse: motDeLaBourse(docu),
       compteTally: cartCompte(docu),
+      /* ⭐ LA BOURSE S'OUVRE ICI COMME SUR R ET SUR LE SAC — même état de module, donc une
+         bourse ouverte sur R l'est encore en passant par Wares. Deux états en auraient laissé
+         une ouverte d'un côté et fermée de l'autre. */
+      bourseOuverte,
+      surFermerBourse: () => { bourseOuverte = false; peindre(); },
+      surMonnaie: (key, value) => actArbitre({ kind: "setCurrency", key, value }),
       /* ⛔ ON N'OFFRE QUE LES DESTINATIONS ACTIVES : une option qu'on peut choisir et qui ne
          mène nulle part est un libellé qui ment, ce que §6 interdit. */
       sections: DESTINATIONS.filter((d) => d.actif).map((d) => ({ valeur: d.valeur, mot: d.mot })),
@@ -3156,6 +3162,14 @@ export function renderEquipmentStep(ctx, onAction) {
         if (id === "purse") { bourseOuverte = !bourseOuverte; peindre(); }
       },
       surDestination: (v) => { destinationEnvoi = v; peindre(); },
+      /* ⚖️ GLISSER UN JETON SUR LE COLLECTEUR LE MET AU PANIER. ⭐ C'est la seule lecture qui
+         tienne : Wares n'a qu'UN collecteur, et Eric a dit le 20/09 que le panier est le Tally
+         — donc déposer, c'est mettre au Tally. ⛔ Et le panier vit au DOCUMENT : l'acte passe
+         par la coquille, le compteur se remet à jour au rendu qui suit. */
+      surDepot: (ref) => {
+        const item = itemsDeLaPage.get(ref);
+        if (item) act({ kind: "cartAdd", ref: { kind: item.kind, id: item.view.id } });
+      },
     });
     return noeud;
   }

@@ -121,6 +121,16 @@ export const ORGANES = [
      📌 ET UN TUNER N'A PAS BESOIN DES 44 — Eric, 18/09 : *« les tuners sont pour la souris,
      donc les 44 hors sujet »*. On les lui garde : une cible qui existe ne se retire pas parce
      qu'un geste ne la vise pas, et le chevron qu'il devient au repos, lui, les réclame. */
+  /* 🔴 LE VISEUR MANQUAIT AU PLAN *ET* À L'ÉCRAN, ET C'EST POUR ÇA QU'AUCUN GARDE NE L'A VU.
+     Eric, 20/09, en regardant l'écran en ligne : *« il n'y a pas de viseur »*. ⭐ Ma bijection
+     plan ↔ DOM ne pouvait rien dire : elle compare deux listes, et l'organe manquait DANS LES
+     DEUX. Une liste par nom est incomplète par construction — elle ne peut pas nommer ce
+     qu'elle ignore. ⛔ Ce qui l'aurait attrapé est la comparaison avec le SAC, qui en a un.
+     ⚖️ LE HALO RESTE CENTRÉ, LES ITEMS DÉFILENT DESSOUS (Eric, 19/09) : il ne voyage pas avec
+     le cran, c'est un cadre FIXE sur la tuile dominante. Et il garde le GENRE de ce qu'il
+     cadre. ⛔ On ne le tape pas : `aria-hidden`, `pointer-events: none`. */
+  { nom: "LOUPE CATEGORIES",    sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 152, y: 4,  l: 71, h: 40, cran: "T1/600", dominant: true },
+  { nom: "LOUPE SOUS-CAT",      sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 152, y: 48, l: 71, h: 40, cran: "T1/600", dominant: true },
   { nom: "TUNER CATEGORIES G",  sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 4,   y: 18, l: 10, h: 20, cible: { x: 0, y: 2, l: 44, h: 44 } },
   { nom: "TUNER CATEGORIES D",  sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 361, y: 18, l: 10, h: 20, cible: { x: 331, y: 2, l: 44, h: 44 } },
   { nom: "TUNER SOUS-CAT G",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 4,   y: 62, l: 10, h: 20, cible: { x: 0, y: 46, l: 44, h: 44 } },
@@ -192,6 +202,8 @@ export const FOND = {
 export const CLEF_DE = Object.freeze({
   "ROUE CATEGORIES": "roue-categories",
   "ROUE SOUS-CATEGORIES": "roue-sous-categories",
+  "LOUPE CATEGORIES": "loupe-categories",
+  "LOUPE SOUS-CAT": "loupe-sous-categories",
   "TUNER CATEGORIES G": "tuner-categories-g",
   "TUNER CATEGORIES D": "tuner-categories-d",
   "TUNER SOUS-CAT G": "tuner-sous-categories-g",

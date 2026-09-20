@@ -23,10 +23,24 @@ import {
   ORGANES,
 } from "./wares-disposition.mjs?v=769";
 import { monterLeTambour } from "./roue-tambour.mjs?v=769";
+/* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
+   considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
+import { REPOS_MS } from "./sac-ecran.mjs?v=769";
 import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=769";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=769";
+/* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
+   matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
+   d'accord, et elles divergeraient au premier réglage. */
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=769";
+/* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
+import { armerJeton } from "./glisser.mjs?v=769";
 import { versionQuery } from "./version.mjs?v=769";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
+
+/* ⭐ LE NOM DU CRÉNEAU DU COLLECTEUR — écrit UNE fois, lu par la cible et par le dépôt.
+   ⛔ Deux chaînes égales dans deux fichiers sont deux chaînes, et elles divergent. */
+const CRENEAU_COLLECTEUR = "wares:collecteur";
 
 function el(balise, classe, texte) {
   const n = document.createElement(balise);
@@ -70,6 +84,10 @@ export function feuilleDesCotesWares() {
      est exactement `ROUE.piste` au plan. Les deux bornes de 22 ne sont pas décoratives — ce sont
      les places des tuners, et je les avais laissées vides. */
   r.push(`.wares-etage{grid-column:2;display:block;height:${px(ROUE.hauteurDominante)}}`);
+  /* ⛔ ET LE RANG SE DÉCLARE POUR LES QUATRE ORGANES D'UN ÉTAGE — roue, viseur et deux tuners.
+     Sans lui, l'auto-placement invente des rangées dès qu'un organe s'ajoute. */
+  r.push(`.wares-tambour > [data-etage="1"]{grid-row:1}`);
+  r.push(`.wares-tambour > [data-etage="2"]{grid-row:2}`);
   r.push(`.wares-tuner{align-self:center;justify-self:center;` +
          `border:0;background:none;color:var(--text-soft);font:inherit;` +
          `font-size:${px(16)};line-height:1;cursor:pointer;` +
@@ -179,7 +197,15 @@ export function feuilleDesCotesWares() {
   }
   /* la tuile de la roue : un dominant et quatre secondaires, la règle d'Eric du 18/09 */
   r.push(`.wares-cran{inline-size:${px(ROUE.secondaire)}}`);
-  r.push(`.wares-cran[data-dominant="oui"]{inline-size:${px(ROUE.dominant)}}`);
+  r.push(`.wares-cran[data-dominant="oui"]{inline-size:${px(ROUE.dominant)};scale:${ROUE.loupe}}`);
+  /* ⭐ LE VISEUR SE SUPERPOSE AU REBORD DE LA TUILE POSÉE, et sa règle se GÉNÈRE avec
+     l'agrandissement — NORMES `equipement-loupe-se-superpose-au-rebord` (19/09). ⛔ Un rayon
+     écrit à la main raterait les coins : la tuile dominante est grossie de ${ROUE.loupe}, donc
+     son rayon peint et son liseré le sont aussi. */
+  r.push(`.wares-loupe{grid-column:2;place-self:center;` +
+         `inline-size:${px(ROUE.dominant)};block-size:${px(ROUE.hauteurDominante)};` +
+         `border-radius:calc(var(--radius-md) * ${ROUE.loupe});` +
+         `box-shadow:inset 0 0 0 calc(1px * ${ROUE.loupe}) var(--loupe-trait)}`);
   return r.join("\n");
 }
 
@@ -211,6 +237,17 @@ function etage(nom, items, actif, surViser) {
   const ruban = el("div", "wares-ruban");
   roue.append(ruban);
 
+  /* 🔴 LE VISEUR — IL MANQUAIT, ET ERIC L'A VU EN LIGNE AVANT MOI (*« il n'y a pas de
+     viseur »*). ⚖️ Le halo reste CENTRÉ et les items défilent dessous (19/09) : c'est un cadre
+     fixe posé sur la place de la tuile dominante, ⛔ pas une décoration qui voyage avec elle.
+     ⭐ Il prend le GENRE de ce qu'il cadre — le module feuille s'en charge, par `data-lieu`.
+     ⛔ ET ON NE LE TAPE PAS : `aria-hidden` pour qu'il ne se lise pas, `pointer-events: none`
+     dans la feuille pour qu'il ne reçoive rien. Un cadre qui intercepte le doigt vole le geste
+     du cran qu'il désigne. */
+  const loupe = el("div", "wares-loupe");
+  loupe.dataset.organe = nom === "ROUE CATEGORIES" ? "loupe-categories" : "loupe-sous-categories";
+  loupe.setAttribute("aria-hidden", "true");
+
   const crans = items.map((it, i) => {
     const c = bouton("wares-cran", it.nom, it.nom);
     c.dataset.snap = "oui";
@@ -219,20 +256,42 @@ function etage(nom, items, actif, surViser) {
     c.setAttribute("aria-selected", String(i === actif));
     return c;
   });
-  /* ⛔ LE CHOIX N'EST PAS LE TAP : le tambour aimante, et c'est le viseur qui choisit — la loi
-     du catalogue (II.3). L'écran écoute donc le DÉFILEMENT, pas le clic ; le clic n'a qu'à
-     amener le cran sous le viseur, ce que le module fait déjà. */
+  /* ⛔ LE CHOIX N'EST PAS LE TAP : le tambour aimante, et c'est le VISEUR qui choisit — la loi
+     du catalogue (II.3). L'écran écoute donc le DÉFILEMENT.
+     🔴 ET IL NE REPEINT PLUS SOUS LE DOIGT — Eric, 20/09 : *« la molette ne fonctionne pas
+     bien »*. Ma première écriture appelait le pilote à CHAQUE événement de défilement, donc
+     soixante reconstructions par seconde : l'écran rebâtissait le ruban pendant qu'on le
+     faisait glisser, et le geste se perdait à chaque image. C'est très exactement la boucle
+     que le sac nomme — *« deux surfaces qui se commandent l'une l'autre »*, où chacune corrige
+     l'autre et l'inertie se perd entre les deux.
+     ⭐ LE REMÈDE EST CELUI DE LA MAISON : un compte d'IMMOBILITÉ, pas de temps. Chaque
+     événement le réarme ; on ne prévient le pilote qu'une fois le ruban POSÉ. ⛔ Et on marque
+     la dominante EN CONTINU, elle, parce que c'est du dessin — aucun rendu ne s'y rejoue. */
+  let minuteur = null;
   roue.addEventListener("scroll", () => {
-    const k = Math.round(roue.scrollLeft / ROUE.pas);
-    if (k !== actif && surViser) surViser(Math.max(0, Math.min(k, items.length - 1)));
+    const k = Math.max(0, Math.min(Math.round(roue.scrollLeft / ROUE.pas), items.length - 1));
+    roue.marquer(k);
+    if (minuteur) clearTimeout(minuteur);
+    minuteur = setTimeout(() => { if (k !== actif && surViser) surViser(k); }, REPOS_MS);
   });
-  monterLeTambour({ roue, ruban, crans, actif, pas: ROUE.pas });
+  monterLeTambour({ roue, ruban, crans, actif, pas: ROUE.pas, loupe });
   /* ⭐ L'ÉTAGE EST LES TROIS ENSEMBLE — les deux bornes de 22 et la piste de 331 au milieu.
      ⛔ Un tuner posé « à côté » de la roue serait un organe que la grille du tambour ne place
      pas, et le sacré n° 3 l'interdit : tout est dans une boîte, les boîtes sont sur une grille. */
   const court = nom === "ROUE CATEGORIES" ? "categories" : "sous-categories";
-  return [tuner(`tuner-${court}-g`, -1, roue, items.length), roue,
-          tuner(`tuner-${court}-d`, +1, roue, items.length)];
+  /* 🔴 CHAQUE ORGANE DE L'ÉTAGE DIT SON RANG, ET J'AI ENFREINT MA PROPRE RÈGLE EN L'OUBLIANT.
+     En ajoutant le viseur, le tambour est passé de six enfants à HUIT, et sa grille ne déclare
+     que deux rangées : les deux de trop ont créé des rangées IMPLICITES, et tout l'étage a
+     glissé — 📏 vu à l'écran, `Adventuring` tombait sur la ligne du bas et `Camp` chevauchait
+     la grille.
+     ⭐ C'est mot pour mot ce que j'avais écrit dix lignes plus haut pour les tuners : *« une
+     place qui se DÉCLARE ne se découvre pas à l'exécution »*. Le sacré n° 3 retire exactement
+     ça — un repli le découvre à l'exécution, et le découvre autrement au premier ajout. */
+  const rang = nom === "ROUE CATEGORIES" ? "1" : "2";
+  const organes = [tuner(`tuner-${court}-g`, -1, roue, items.length), roue, loupe,
+                   tuner(`tuner-${court}-d`, +1, roue, items.length)];
+  for (const n of organes) n.dataset.etage = rang;
+  return organes;
 }
 
 /* ══ UN JETON DE LA GRILLE ═════════════════════════════════════════════════════
@@ -244,14 +303,26 @@ function etage(nom, items, actif, surViser) {
    quatre tombent à « non », et `corpsDuJeton` le fait déjà tout seul : la bande rend ses 14
    blg sans rien dire. On garde — dire *« ce que tu possèdes déjà »* serait une règle neuve,
    et elle appartient à Eric. */
-function jeton(item, surJeton) {
+function jeton(item, o) {
   const b = bouton("wares-jeton", undefined, motDuJeton(item));
   b.dataset.refId = item.ref;
-  b.dataset.glissable = "true";
   b.append(...corpsDuJeton(item));
-  /* ⭐ UN TAP OUVRE UN X2 — la fiche d'un objet du CATALOGUE. ⛔ Pas un X1 : celui-là est la
-     fiche d'un objet qu'on POSSÈDE, et on ne possède rien sur une étagère. */
-  if (surJeton) b.addEventListener("click", () => surJeton(item.ref));
+  /* 🔴 `data-glissable="true"` ÉTAIT POSÉ ET RIEN NE L'ARMAIT — mesuré : zéro appel à
+     `armerJeton` dans tout ce fichier. L'attribut PROMETTAIT un geste que personne n'écoutait,
+     ce que §6 interdit : un libellé qui ment. Eric l'a vu en ligne — *« l'équipement n'est pas
+     totalement branché »*. ⛔ Et aucun de mes gardes ne pouvait le dire : ils lisaient
+     l'attribut, pas l'écouteur.
+     ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` vit dans `glisser.mjs` et c'est
+     lui qui porte le fantôme, la capture du doigt et la sortie de secours d'un geste perdu.
+     ⚖️ TAP = INFO, GLISSER = CHOISIR (la loi du geste) : le tap ouvre le X2, le dépôt sur le
+     collecteur met au panier — et le panier, c'est le Tally (Eric, 20/09). */
+  armerJeton(b, {
+    onTap: () => o.surJeton && o.surJeton(item.ref),
+    /* ⛔ `onDepot` REÇOIT LE `data-creneau` DE LA CIBLE, ⛔ PAS SON NŒUD — lu dans
+       `glisser.mjs` (`onDepot(cible.dataset.creneau)`), pas supposé. Mon premier jet attendait
+       un élément et testait `cible.dataset.organe` : il n'aurait JAMAIS déposé, en silence. */
+    onDepot: (creneau) => { if (creneau === CRENEAU_COLLECTEUR && o.surDepot) o.surDepot(item.ref); },
+  });
   return b;
 }
 
@@ -334,7 +405,7 @@ export function construireLesWares(o = {}) {
   for (const item of objets) {
     const c = el("div", "wares-case");
     c.setAttribute("role", "listitem");
-    c.append(jeton(item, o.surJeton));
+    c.append(jeton(item, o));
     cases.append(c);
   }
   grille.append(
@@ -347,21 +418,41 @@ export function construireLesWares(o = {}) {
   const pied = el("div", "wares-pied wares-dalle");
 
   /* les deux Tally, à gauche — centrés dans la cellule par la grille, ⛔ pas par un calcul */
+  /* 🔴 LES TROIS ORGANES D'ÉCHANGE SONT CEUX DE R, ET LE DÉPÔT ME L'AVAIT ÉCRIT D'AVANCE.
+     `sac-ecran.mjs` porte ce commentaire depuis le 19/09 : *« LES TROIS ORGANES D'ÉCHANGE SONT
+     CEUX DE R (`gear-bouton`), et ils portent DÉJÀ leurs images : `--icone-bourse`,
+     `--icone-parchemin` et `--icone-parchemin-party`, déposées par Eric le 16/09. ⛔ J'en avais
+     fait trois rectangles bruns, sans image »*.
+     ⛔ J'AI REFAIT EXACTEMENT CETTE FAUTE — `.wares-tally` et `.wares-purse`, trois rectangles
+     bruns sans image — dans un lot dont le premier commentaire dit « il ne redessine rien de ce
+     qui existe ». Eric l'a vu en ligne : *« tally les images le branchement · la bourse le
+     branchement »*.
+     ⭐ `ORGANES_D_ECHANGE` est la LISTE, et elle vient du sac : un quatrième organe la
+     traverserait tout seul. ⛔ La recopier ici en ferait une seconde vérité. */
   const gauche = el("div", "wares-cote");
   gauche.dataset.cote = "gauche";
-  for (const [id, mot, note] of [["party-tally", "◇", "Party Tally"], ["tally", "◆", "Tally"]]) {
-    const b = bouton("wares-tally", mot, note, () => o.surBouton && o.surBouton(id));
+  const compteurs = { "party-tally": 0, tally: o.compteTally || 0 };
+  for (const { id, mot, inerte } of ORGANES_D_ECHANGE) {
+    if (id === "purse") continue;                 /* elle vit dans la cellule de DROITE */
+    const b = bouton("gear-bouton", "", mot, () => o.surBouton && o.surBouton(id));
     b.dataset.organe = id;
-    if (id === "tally" && o.compteTally) b.dataset.compte = String(o.compteTally);
-    /* ⛔ LE PARTY TALLY N'A PAS DE DESTINATAIRE, ET IL LE DIT : il se montre inerte plutôt
-       que de faire semblant d'écouter — la règle du sac, reprise telle quelle. */
-    if (id === "party-tally") b.disabled = true;
+    b.dataset.compte = String(compteurs[id] || 0);
+    /* ⚖️ ET LE PARTY TALLY SE MONTRE INERTE, il ne fait pas SEMBLANT — la loi du produit :
+       une place réservée se montre inerte. Un bouton qui accepte le doigt et ne répond jamais
+       apprend à ne plus toucher. */
+    if (inerte) b.disabled = true;
     gauche.append(b);
   }
   pied.append(gauche);
 
   const collecteur = el("div", "wares-collecteur", "SEND COLLECTOR");
   collecteur.dataset.organe = "collecteur";
+  /* ⭐ IL DIT QU'IL EST UNE CIBLE — `glisser.mjs` lit cet attribut pour savoir où un jeton peut
+     se poser. ⛔ Un creux qui n'annonce pas qu'il accueille est un creux qui refuse en silence. */
+  /* ⭐ IL DIT QU'IL EST UNE CIBLE, et il le dit dans le vocabulaire de `glisser.mjs` :
+     `data-creneau`. ⛔ Un creux qui n'annonce pas qu'il accueille refuse en silence — et
+     `creneauSous` cherche exactement cet attribut, rien d'autre. */
+  collecteur.dataset.creneau = CRENEAU_COLLECTEUR;
   pied.append(collecteur);
 
   /* la bourse, à droite — symétrique des Tally, et centrée par la même déclaration */
@@ -372,7 +463,10 @@ export function construireLesWares(o = {}) {
      ⏳ ET LE VOYANT LUI-MÊME N'EST PAS DANS LA DICTÉE D'ERIC pour Wares : R en a un
      (`MONTANT`, `dans: "PURSE"` à son plan), celui de Wares n'est pas posé. Je ne l'invente
      pas — la bourse dit son montant à voix haute, et l'œil l'aura quand Eric le dira. */
-  const purse = bouton("wares-purse", undefined, `Purse — ${o.bourse || "0 gp"}`,
+  /* ⭐ ET LA BOURSE EST LE MÊME ORGANE, avec son image (`--icone-bourse`). ⛔ Rien d'écrit
+     dans son corps : le montant va au nom accessible, et le voyant qui le PEINT appartient à R
+     (loi du 16/09 : *« le montant est le voyant posé DESSUS »*). */
+  const purse = bouton("gear-bouton", "", `Purse — ${o.bourse || "0 gp"}`,
     () => o.surBouton && o.surBouton("purse"));
   purse.dataset.organe = "purse";
   droite.append(purse);
@@ -393,6 +487,10 @@ export function construireLesWares(o = {}) {
   pied.append(rangeeDuPied(o));
 
   noeud.append(tambour, grille, pied);
+  /* ⚖️ LA BOURSE EST UN POPUP, PAS UNE VUE — Eric, 16/09 : *« ça prend la place que ça doit,
+     c'est un popup »*. ⛔ Elle ne passe donc pas par `montrer()` : une vue remplacerait l'écran
+     et écrirait la 3ᵉ ligne du belt. Un popup recouvre et n'écrit rien. */
+  if (o.bourseOuverte) noeud.append(popupDeLaBourse(o));
   return { noeud };
 }
 

@@ -12719,20 +12719,21 @@ button.tuto-point::before {
   box-shadow: var(--creux);
   color: var(--text-soft); font-size: var(--t0); letter-spacing: .08em;
 }
-.wares-tally, .wares-purse {
-  display: grid; place-items: center;
-  border: 0; border-radius: var(--organe-rayon);
-  background: var(--jeton-teinte); box-shadow: var(--relief);
-  color: var(--text); font: inherit; font-size: var(--t1); cursor: pointer;
-  /* ⛔ PAS DE `min-*-size` ICI : il gonflerait le DESSIN à la cote de la CIBLE, et c'est
-     exactement la faute qu'Eric m'a fait trouver le 20/09 — le Tally rendait 44 au lieu de 40.
-     La cible vient de la feuille de l'écran, qui la porte en BORDS transparents. */
-  box-sizing: border-box;
+/* 🗄️ `.wares-tally` ET `.wares-purse` ONT ÉTÉ RETIRÉS LE 20/09, ET C'EST UNE FAUTE RÉPARÉE.
+   C'étaient trois rectangles bruns sans image, redessinés alors que R porte DÉJÀ ces organes
+   avec leurs icônes (`--icone-bourse`, `--icone-parchemin`, `--icone-parchemin-party`, déposées
+   par Eric le 16/09). ⛔ `sac-ecran.mjs` raconte exactement cette faute depuis le 19/09 — je
+   l'ai refaite mot pour mot, dans un lot dont le premier commentaire dit qu'il ne redessine
+   rien. Eric l'a vu en ligne : *« tally les images le branchement · la bourse le branchement »*.
+   ⭐ Wares emploie donc `.gear-bouton`, comme le sac. Rien à écrire ici. */
+/* ⭐ LE VISEUR — sa GÉOMÉTRIE se génère avec l'agrandissement (feuille de l'écran), parce que
+   le trait doit se superposer au rebord de la tuile POSÉE, qui est grossie. ⛔ Un rayon écrit
+   ici raterait les coins. Ce qui reste est une FENTE de couleur : un seul écrivain pour la
+   forme, un seul pour la teinte. */
+.wares-loupe {
+  pointer-events: none;
+  --loupe-trait: var(--verre-lisere);
 }
-.wares-purse { border-radius: 50%; }
-/* ⚖️ INACTIF N'EST PAS UNE NUANCE DE GRIS (Eric, 20/09) : un vrai bouton inactif n'a pas de
-   liseré, mais garde la capacité de devenir actif. ⛔ Il ne fait pas semblant d'écouter. */
-.wares-tally:disabled { box-shadow: none; opacity: var(--organe-eteint); cursor: default; }
 .wares-send-vers {
   border: 1px solid var(--border-strong); border-radius: var(--bouton-rayon);
   background: var(--dalle-inter); color: var(--text);
