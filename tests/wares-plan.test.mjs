@@ -228,3 +228,44 @@ test("11 · la piste du tambour tient un dominant et quatre secondaires", () => 
   assert.equal(D.ORGANES.filter((o) => o.sorte === "tuner").length, 2 * etages.length,
     "⛔ il manque une paire de tuners : un étage ne se tourne pas");
 });
+
+/* ══ 13 · LA CALE, ET C'EST UNE IDENTITÉ ═══════════════════════════════════════
+   🔴 CE QUI L'A FAIT NAÎTRE — Eric, 2026-09-20 : *« problème de centrage sur les crans de
+   droite, et ça bloque »*. La cale valait la MOITIÉ DU VIDE (137) et oubliait que le ruban
+   pose aussi un écart entre elle et le premier cran. Centrer le cran k demandait donc
+   `écart + pas × k`, quand le module écrit `pas × k`.
+   ⭐ POURQUOI PERSONNE NE L'A VU PENDANT DEUX JOURS : le `scroll-snap` rattrapait les 8 blg.
+   L'organe était faux et rendait juste — tant qu'il restait de la course. Il ne rendait plus
+   juste qu'au bout, là où la course manque. ⛔ Un organe qui n'est juste que grâce à un
+   correcteur attend le jour où le correcteur n'a plus de marge.
+   ⭐ TÉMOIN NOMMÉ AVANT MESURE : l'identité de centrage. Éprouvé ROUGE à 137. */
+test("13 · la cale met le premier cran au centre de la piste — et `scrollLeft = pas × k` est exact", () => {
+  const ecart = D.ROUE.pas - D.ROUE.tuile;
+  assert.equal(D.ROUE.cale + ecart + D.ROUE.tuile / 2, D.ROUE.piste / 2,
+    `⛔ à scrollLeft = 0 le premier cran n'est pas sous le viseur : ` +
+    `${D.ROUE.cale} + ${ecart} + ${D.ROUE.tuile / 2} ≠ ${D.ROUE.piste / 2}`);
+});
+
+/* ══ 14 · ET LE DERNIER CRAN PEUT ATTEINDRE LE CENTRE ══════════════════════════
+   🔴 L'AUTRE MOITIÉ DU *« ça bloque »*, et elle est arithmétique : centrer le DERNIER cran
+   demande `pas × (n − 1)` de course, et la course maximale vaut `contenu − piste`. Si la
+   seconde est plus courte que la première, le navigateur SERRE le défilement — la roue
+   s'arrête, le cran marqué n'est pas celui qui est sous le viseur, et rien n'accuse.
+   📏 MESURÉ AU NAVIGATEUR sur six crans : course maximale **196**, course réclamée **325**.
+   Seuls les trois premiers crans pouvaient se poser.
+   ⚠️ ET JE DIS CE QUE CE GARDE NE PEUT PAS ACCUSER, parce que je l'ai éprouvé : à la cale
+   fautive de 137 il reste **VERT**. La géométrie permettait la course ; c'est le RENDU qui la
+   refusait — la cale de queue avait une hauteur nulle, donc elle ne comptait pas dans le
+   `scrollWidth`. Ce témoin-ci ne garde donc pas l'incident du 20/09 : il garde la géométrie
+   contre un futur réglage de `cale`, `pas` ou `piste`. ⭐ Le témoin de l'incident, lui, vit
+   dans `tests/wares-ecran.test.mjs` — c'est la hauteur déclarée de la cale.
+   ⛔ Éprouvé ROUGE en rétrécissant la cale : à 60 la course manque dès 12 crans. */
+test("14 · le dernier cran atteint le viseur, quel que soit le nombre de crans", () => {
+  const ecart = D.ROUE.pas - D.ROUE.tuile;
+  for (const n of [1, 2, 3, 6, 12, 33]) {
+    const contenu = 2 * D.ROUE.cale + n * D.ROUE.tuile + (n + 1) * ecart;
+    const course = contenu - D.ROUE.piste;
+    assert.ok(course >= D.ROUE.pas * (n - 1),
+      `⛔ à ${n} crans la course manque : ${course} disponible pour ${D.ROUE.pas * (n - 1)} réclamés`);
+  }
+});

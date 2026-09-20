@@ -50,6 +50,18 @@ export const ROUE = {
   piste: 331, budget: 299, dominant: 71, secondaire: 57, margePct: 0.075,
   tuile: 57, pas: 65, loupe: 1.2456, loupeX: 152.0,
   hauteur: 32.11, hauteurDominante: 40,
+  /* 🔴 LA CALE — ET ELLE VAUT 129, ⛔ PAS 137. Eric, 2026-09-20 : *« problème de centrage sur
+     les crans de droite, et ça bloque »*.
+     📏 MESURÉ AU NAVIGATEUR, et c'est une identité, pas un goût : le ruban est un flex qui pose
+     un ÉCART entre la cale et le premier cran, exactement comme entre deux crans. La cale n'est
+     donc pas la moitié du vide — c'est la moitié du vide MOINS cet écart.
+     ⭐ CE QUE L'IDENTITÉ DOIT RENDRE : `cale + écart + tuile / 2 = piste / 2`, sans quoi
+     `scrollLeft = pas × k` — l'invariant de tout le tambour — désigne le mauvais point.
+     À 137 il désignait `8 + pas × k` : le rattrapage venait du `scroll-snap`, donc INVISIBLE
+     tant qu'il restait de la course, et faux dès qu'il n'en restait plus. ⛔ Un organe qui n'est
+     juste que grâce à un correcteur n'est pas juste : il attend le jour où le correcteur
+     n'a plus de marge. */
+  cale: 129,
 };
 
 /* ⚖️ L'ÉCART ENTRE LES DEUX ÉTAGES VAUT 4 — dicté par Eric le 20/09 (« 4 blg »). C'est une

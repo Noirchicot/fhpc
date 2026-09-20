@@ -9302,14 +9302,27 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    rendait ses huit jetons et ses trois lignes de poids, mais la carte ne lui
    donnait pas la dalle, donc l'écran était VIDE à l'œil. ⛔ Le DOM disait que tout
    allait bien. C'est la page rendue qui l'a dit, pas un garde. */
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac)) {
+/* 🔴 ET `.wares` ENTRE DANS CES TROIS LISTES — Eric, 2026-09-20 : *« le bord droit de la dalle
+   n'a pas de liseré, est-ce à cause d'une superposition ? ou autre chose ? »*. ⭐ Autre chose,
+   et c'est mesurable : `.decision-card` rend **367** blg — la scène moins la gouttière de 4 de
+   chaque côté — tandis qu'un écran d'équipement déclare **375**. `.gear`, `.x1` et `.sac`
+   ressortent de la gouttière par `margin-inline: calc(-1 * var(--stage-gouttiere))` ; `.wares`,
+   absent de la liste, restait **collé à gauche** et débordait de 8 blg à droite, où `.stage`
+   (`overflow: auto`) le coupait. Le liseré du bord droit tombait dans les 8 blg coupés.
+   📌 CE N'ÉTAIT DONC NI UNE SUPERPOSITION NI UN DÉFAUT DE PEINTURE : la dalle était **plus
+   large que la boîte qui la tient**, et c'est le seul bord où ça se voit, parce que le débord
+   est d'un seul côté. 📏 Mesuré : `.wares` 375 · `.decision-card` 367 · débord à droite 4 blg
+   au-delà de `.stage`, quand `.sac` rend 375 **à fleur** de `.stage`.
+   ⭐ C'est la QUATRIÈME fois du lot que la réponse est *« reprendre, ⛔ jamais redessiner »* —
+   après `.wares-porte`, les organes d'échange et la tuile. */
+.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac, .wares)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac, .wares)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
-.gear, .x1, .sac {
+.gear, .x1, .sac, .wares {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));

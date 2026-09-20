@@ -31,7 +31,14 @@ import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=774";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=774";
+/* 🔴 ET ON PREND SES **RÈGLES** AVEC LUI, ⛔ PAS SEULEMENT SON DOM — Eric, 2026-09-20 :
+   *« je veux le popup de la bourse centré sur celle-ci et que son rendu soit idem à Gear et
+   backpack »*. J'importais `popupDeLaBourse` sans jamais appeler `reglesDeLaBourse` : le popup
+   sortait donc **sans cotes**, dimensionné par son contenu, posé où le flux voulait.
+   ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
+   organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
+   est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
+import { popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=774";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
 import { armerJeton } from "./glisser.mjs?v=774";
 import { versionQuery } from "./version.mjs?v=774";
@@ -135,8 +142,21 @@ export function feuilleDesCotesWares() {
          `gap:${px(ROUE.pas - ROUE.tuile)}}`);
   /* ⭐ LA CALE PORTE LE VIDE DES DEUX BOUTS — ⛔ plus un `padding`, qui ne compte pas dans le
      `scrollWidth` d'un flex en défilement (mesuré : le premier cran ne pouvait pas atteindre le
-     viseur, le dernier non plus). Sa largeur laisse une tuile arriver au CENTRE de la piste. */
-  r.push(`.roue-cale{flex:0 0 auto;inline-size:${px((ROUE.piste - ROUE.tuile) / 2)}}`);
+     viseur, le dernier non plus). Sa largeur vient du plan : `cale + écart + tuile / 2` vaut
+     la demi-piste, et c'est ce qui rend `scrollLeft = pas × k` exact.
+
+     🔴 ET ELLE PORTE UNE HAUTEUR, ⛔ SANS QUOI ELLE N'EXISTE PAS POUR LE DÉFILEMENT — Eric,
+     2026-09-20 : *« problème de centrage sur les crans de droite, et ça bloque »*.
+     📏 TÉMOIN DIRECT, fait au navigateur sur la page servie : la cale est un élément VIDE dans
+     un ruban en `align-items: center`, donc sa hauteur rendue vaut **0**. Une boîte de hauteur
+     nulle ne crée **aucun débordement** : `scrollWidth` s'arrêtait au dernier CRAN — 527 au lieu
+     de 672 — et la course maximale tombait à 196 quand le dernier cran en réclame 325.
+     ⭐ En lui donnant une hauteur (n'importe laquelle : `10px`, ou un simple `.` de contenu),
+     `scrollWidth` saute de **527 à 672**. C'est le témoin qui a tranché, et il est reproductible.
+     ⛔ ET AUCUN GARDE DE FICHIER NE POUVAIT LE DIRE : la cale est DÉCLARÉE avec sa largeur, elle
+     est DANS le DOM, la bijection plan ↔ DOM est verte. C'est une hauteur RENDUE qui manquait —
+     la même famille que « le ruban prend la hauteur de sa roue », dix lignes plus haut. */
+  r.push(`.roue-cale{flex:0 0 auto;align-self:stretch;inline-size:${px(ROUE.cale)}}`);
 
   /* ── dalle 2 : deux gouttières et la grille, sans écart entre elles ──
      ⛔ LES GOUTTIÈRES NE PARTICIPENT PAS AU `gap` : si elles le faisaient, la dalle vaudrait
@@ -250,6 +270,16 @@ export function feuilleDesCotesWares() {
          `inline-size:${px(ROUE.dominant)};block-size:${px(ROUE.hauteurDominante)};` +
          `border-radius:calc(var(--radius-md) * ${ROUE.loupe});` +
          `box-shadow:inset 0 0 0 calc(1px * ${ROUE.loupe}) var(--loupe-trait)}`);
+
+  /* ── le popup de la bourse : LES MÊMES RÈGLES QUE R ET LE SAC, pour la portée `.wares` ──
+     ⚖️ *« centré sur celle-ci »* (Eric, 20/09) et *« centre-le sur l'emplacement de la bourse »*
+     (16/09) sont la même loi, dite deux fois : elle vaut pour les trois écrans.
+     ⭐ ON N'ÉCRIT RIEN ICI — on donne à `reglesDeLaBourse` la portée, l'ANCRE (la bourse du
+     plan de Wares) et la dalle. Le centrage, le serrage dans la dalle et les quatre cotes du
+     popup ont UN écrivain, chez R. ⛔ Recopier `left`/`top` ferait une seconde bourse.
+     📌 `hautDeLaDalle` vaut 0 : les `y` du plan de Wares comptent déjà SOUS le belt, contrairement
+     à ceux de R. Il se donne, ⛔ il ne se devine pas. */
+  r.push(...reglesDeLaBourse(".wares", ORGANES.find((o) => CLEF_DE[o.nom] === "purse"), DALLE, 0));
   return r.join("\n");
 }
 
@@ -442,7 +472,11 @@ export function construireLesWares(o = {}) {
      détachent. Wares portait `--dalle-simple` à 35 % derrière la roue : le cadre du viseur s'y
      noyait, et l'aura avec. ⭐ La dictée du 20/09 disait « Voile 35 % » ; elle vaut pour les
      dalles qui portent du CONTENU (la grille, le pied), ⛔ pas pour la bande où passe la roue. */
-  const tambour = el("div", "wares-tambour");
+  /* ⚖️ ET LE TAMBOUR A SA DALLE — Eric, 2026-09-20 : *« il doit y avoir une dalle sous les 2
+     tambours »*. ⭐ `wares-dalle` est la MÊME classe que la grille et le pied : le voile à 35 %
+     et le liseré qui attrape la lumière. ⛔ Rien de neuf — les trois dalles de l'écran se
+     ressemblent parce qu'elles sont la même matière, pas parce qu'on les a accordées. */
+  const tambour = el("div", "wares-tambour wares-dalle");
   tambour.append(
     ...etage("ROUE CATEGORIES", o.categories || [], o.categorie | 0, o.surCategorie),
     ...etage("ROUE SOUS-CATEGORIES", o.sousCategories || [], o.sousCategorie | 0, o.surSousCategorie),

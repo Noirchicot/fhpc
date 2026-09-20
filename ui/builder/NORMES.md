@@ -3899,6 +3899,116 @@ il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la l
 
 ---
 
+### 🪟 UN ÉCRAN QUI DÉCLARE LA SCÈNE ENTRE DANS LA LISTE DU SOCLE
+📍 `cadre-un-ecran-entre-dans-la-liste-du-socle` · vivante · 21/09
+⚖️ **Un écran qui déclare la largeur de SCÈNE (375) doit être membre de la règle du socle qui ressort de la gouttière de la carte. ⛔ Sinon il est plus large que la boîte qui le tient, et son bord droit est coupé — sans qu'aucune cote ait l'air fausse.**
+
+> Eric, 2026-09-21, en regardant Wares en ligne : **« tu dois aussi constater que le bord droit de
+> la dalle n'a pas de liseré, est-ce à cause d'une superposition ? ou autre chose ? »**
+
+⭐ **AUTRE CHOSE, ET C'EST MESURABLE.** 📏 Relevé au navigateur le 21/09 : `.decision-card` rend
+**367** blg — la scène moins la gouttière de 4 de chaque côté — quand un écran d'équipement déclare
+**375**. `.gear`, `.x1` et `.sac` ressortent de cette gouttière par
+`margin-inline: calc(-1 * var(--stage-gouttiere))` et rendent donc **375 à fleur de `.stage`**.
+`.wares`, absent de la liste, restait **collé à gauche** et débordait de **4 blg à droite au-delà de
+`.stage`**, dont l'`overflow: auto` coupait le dépassement. Le liseré du bord droit tombait
+exactement dans ce qui était coupé.
+
+📌 **POURQUOI SEUL LE BORD DROIT SE VOYAIT** : le débord est d'un SEUL côté. Une boîte trop large
+mais centrée perdrait ses deux bords, et la symétrie ferait croire à un défaut de peinture ; une
+boîte trop large et alignée à gauche n'en perd qu'un, et l'œil lit *« il manque un trait »* au lieu
+de *« la boîte est trop large »*. ⭐ **Le symptôme désigne le bord ; la cause est la LARGEUR.**
+
+⛔ **ET AUCUN GARDE DE FICHIER NE POUVAIT LE DIRE** : la cote 375 est juste, elle vient du plan, elle
+est dans la feuille. Ce qui manquait est une APPARTENANCE — et une appartenance absente ne s'écrit
+nulle part. ⭐ C'est la famille de *« une absence n'est jamais une réponse »* appliquée à une liste :
+un écran qui n'est pas dans la liste n'y est pas écrit en creux, il n'y est pas.
+
+⭐ **ET LA RÉPARATION EST TOUJOURS LA MÊME** : entrer dans la liste, ⛔ jamais recopier son bloc.
+C'était la **quatrième** fois du chantier Wares — après `.wares-porte`, les trois organes d'échange
+et la tuile du tambour. 📌 Le garde qui tient ça vit dans `tests/x1-ecran.test.mjs` §7, et il a
+fallu le **généraliser** : il épelait la liste `.gear, .x1, .sac` et accusait donc l'arrivée d'un
+membre — c'est-à-dire exactement ce que la loi veut. ⛔ **Un garde qui épelle une liste garde la
+liste, pas la règle.**
+
+---
+
+### 🥁 LE TAMBOUR DE WARES EST UNE DALLE, COMME SES DEUX VOISINES
+📍 `equipement-wares-tambour-est-une-dalle` · vivante · 21/09 · remplace la règle orale du lot 222
+⚖️ **Les trois bandes de Wares sont trois DALLES : même voile à 35 %, même liseré. ⛔ Le tambour n'est pas une exception.**
+
+> Eric, 2026-09-21 : **« il doit y avoir une dalle sous les 2 tambours »**.
+
+🗄️ **CE QUI EST ARCHIVÉ, AVEC L'INCIDENT QUI L'A PAYÉ.** Au lot 222 j'avais RETIRÉ cette dalle, et
+le garde de l'écran exigeait le contraire : *« le tambour ne porte plus de voile : le viseur s'y
+noyait, et l'aura avec »*. 🔴 Je l'avais tiré d'un mot d'Eric du 20/09 — *« il faut aussi dégager le
+fond sombre »* — **et ce mot parlait du fond des TOKENS**, dans une phrase qui ne parle que d'eux
+*(« il faut que tu autorises les espaces vides à droite et à gauche des tokens »)*.
+⛔ **J'AI ÉLARGI UNE CONSIGNE D'UN ORGANE À SON CONTENANT.** C'est la faute générale, et elle a un
+nom : une consigne porte sur ce qu'elle NOMME. Le contenant n'est pas « le fond » de ce qu'il
+contient — il est un organe à lui, avec sa propre matière, et il aurait fallu le demander.
+⭐ **ET LA RÈGLE RETIRÉE N'AVAIT JAMAIS ÉTÉ ÉCRITE ICI** : elle vivait dans un commentaire de garde,
+c'est-à-dire nulle part. 📌 *Une règle orale n'existe pas* — et une règle qui ne vit que dans le
+test qui la tient ne peut pas être relue par celui qui la contredit.
+
+---
+
+### 📏 LA CALE D'UN RUBAN : UNE IDENTITÉ, ET UNE HAUTEUR
+📍 `cadre-la-cale-d-un-ruban` · vivante · 21/09
+⚖️ **La cale qui permet au premier et au dernier cran d'atteindre le viseur vaut `piste / 2 − tuile / 2 − écart`. ⛔ Pas la moitié du vide. Et elle porte une DIMENSION TRANSVERSE, sans quoi elle n'existe pas pour le défilement.**
+
+> Eric, 2026-09-21 : **« problème de centrage sur les crans de droite, et ça bloque »**.
+
+⭐ **DEUX FAUTES DANS UN SEUL ORGANE, ET AUCUNE NE SE VOYAIT DANS UN FICHIER.**
+
+**1 · L'IDENTITÉ.** Le ruban est un flex : il pose un écart entre la cale et le premier cran, comme
+entre deux crans. La cale n'est donc pas la moitié du vide — c'est la moitié du vide **moins cet
+écart**. À 137 au lieu de 129, centrer le cran `k` réclamait `écart + pas × k` quand le module écrit
+`pas × k`. 🔴 **ET LE `scroll-snap` RATTRAPAIT LES 8 BLG** : l'organe était faux et rendait juste,
+tant qu'il restait de la course. ⛔ **Un organe qui n'est juste que grâce à un correcteur n'est pas
+juste** — il attend le jour où le correcteur n'a plus de marge, et ce jour-là c'est le dernier cran.
+
+**2 · LA HAUTEUR.** La cale est un élément VIDE dans un ruban en `align-items: center` : sa hauteur
+rendue vaut **0**. 📏 **Une boîte de hauteur nulle ne crée aucun débordement** — `scrollWidth`
+s'arrêtait au dernier CRAN (**527**) au lieu d'inclure la cale de queue (**672**), la course maximale
+tombait à **196** là où le dernier cran en réclame **325**, et les crans de droite ne pouvaient plus
+atteindre le viseur. ⭐ **Témoin direct et reproductible en une ligne** : donner une hauteur à la
+cale — `10px`, ou même un `.` de contenu — fait sauter `scrollWidth` de **527 à 672**.
+
+⛔ **ET C'EST UNE LARGEUR NULLE QUI N'EST PAS UNE ABSENCE, RETOURNÉE** : la cale est déclarée, elle
+est dans le DOM, sa largeur est juste, la bijection plan ↔ DOM est verte. Ce qui manquait est une
+dimension **transverse**, que personne ne regardait. ⭐ Même famille que *« le ruban prend la hauteur
+de sa roue »* : une hauteur **rendue** n'est pas une hauteur **déclarée**.
+
+📌 **LE GARDE DE L'IDENTITÉ EST ARITHMÉTIQUE** *(`tests/wares-plan.test.mjs` §13)*, et il a été
+éprouvé rouge à 137. ⚠️ **Le garde de la course *(§14)* reste VERT à 137, et je l'écris** : la
+géométrie permettait la course, c'est le rendu qui la refusait. Un témoin qui ne peut pas accuser
+l'incident qui l'a fait naître doit le DIRE, sans quoi son vert se lit comme une innocence.
+
+---
+
+### 👛 UN ORGANE PARTAGÉ VOYAGE AVEC SES COTES
+📍 `cadre-organe-partage-voyage-avec-ses-cotes` · vivante · 21/09
+⚖️ **Importer le DOM d'un organe partagé sans importer ses RÈGLES n'est pas le partager : c'est en refaire un second, en creux. ⛔ Un organe est un DOM *et* ses cotes.**
+
+> Eric, 2026-09-21 : **« je veux le popup de la bourse centré sur celle-ci et que son rendu soit
+> idem à Gear et backpack »**.
+
+🔴 **MESURÉ : Wares importait `popupDeLaBourse` et n'appelait jamais `reglesDeLaBourse`.** Le popup
+sortait donc **sans cotes**, dimensionné par son contenu, posé où le flux voulait. ⭐ C'est **mot
+pour mot** la faute réparée sur le sac la veille, et elle y était déjà écrite : *« un organe partagé
+dont la moitié reste chez son premier hôte n'est pas partagé »*.
+📌 **CE QUI SE DONNE À L'APPEL, ⛔ ET NE SE DEVINE PAS** : la portée *(`.wares`)*, l'ANCRE *(la
+bourse du plan de l'écran)*, la dalle, et le haut de la dalle — R compte sous le belt, les autres non.
+
+⚖️ **ET LE SERRAGE EST LA LOI, PAS UN DÉFAUT** *(Eric, 16/09)* : centré sur une bourse posée près du
+bord, le popup sortirait de l'écran. 📏 Relevé le 21/09 sur Wares : bourse centrée en `x = 303,25`,
+popup de 186 — un centrage exact le poserait de `210` à `396`, soit **21 blg hors d'une dalle de
+375**. Il est donc serré à `x = 185`. ⭐ *« Centré sur celle-ci »* et *« serré dans la dalle »* ne
+se contredisent pas : le serrage est ce qui rend le centrage tenable au bord.
+
+---
+
 ---
 
 ### ➡️ `NEXT` VIT DANS **R**, ⛔ PAS DANS WARES — ET LE CART EST LE TALLY

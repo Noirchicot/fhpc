@@ -230,7 +230,18 @@ test("7 — shell.css ne porte AUCUNE position de la fiche : les cotes sont dans
   /* ⭐ LA FICHE PARTAGE LA BOÎTE DE LA DALLE — une seule règle le dit, et elle
      s'allonge quand un écran la rejoint. Le sac y est entré au lot 214 : ⛔ ce que
      ce garde tient n'est pas la LISTE, c'est qu'il n'y ait qu'UN écrivain. */
-  assert.match(shell, /\.gear,\s*\.x1,\s*\.sac\s*\{/, "la dalle est déclarée UNE fois pour tous ses écrans");
+  /* 🔴 CE GARDE ÉPELAIT LA LISTE — `.gear, .x1, .sac` — alors que la ligne au-dessus dit qu'il
+     tient l'écrivain UNIQUE, pas ses membres. Il a rougi le 21/09 quand `.wares` est entré dans
+     la liste : un écran de plus partageant la même loi, ce qui est exactement ce que la loi
+     VEUT. ⭐ Un garde qui accuse l'arrivée d'un membre garde la liste, pas la règle — et c'est
+     la troisième fois du chantier que cette correction se fait.
+     ⛔ Il demande donc ce qu'il dit : `.x1` est membre d'une liste, cette liste est la SEULE à
+     porter le bloc, et le bloc n'est écrit qu'une fois (l'assertion suivante). */
+  const porteuses = [...shell.matchAll(/^([^{}\n][^{}]*?)\{\s*\n\s*position: relative; flex: 1 1 auto;/gm)]
+    .map((m) => m[1].split(",").map((x) => x.trim()).filter(Boolean));
+  assert.equal(porteuses.length, 1, "⛔ deux règles portent la boîte de la dalle : deux écrivains pour une loi");
+  assert.ok(porteuses[0].includes(".x1"),
+    `⛔ la fiche n'est pas dans la liste qui déclare la dalle — membres trouvés : ${porteuses[0].join(", ")}`);
   assert.equal((shell.match(/position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;/g) || []).length, 1,
     "⛔ et une seule fois : un second bloc identique serait deux écrivains pour une loi");
 });

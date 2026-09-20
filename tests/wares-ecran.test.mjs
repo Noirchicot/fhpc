@@ -61,19 +61,24 @@ test("1 · trois dalles, dans l'ordre : le tambour, la grille, le pied", () => {
      rougi dès que la feuille des cotes est entrée dans le nœud : un `<style>` est un enfant,
      ce n'est pas une dalle. ⭐ Le garde avait raison de rougir, et sa question était mal
      posée : ce qui compte est qu'il y ait TROIS dalles, dans l'ordre. */
-  /* 🔄 TROIS BANDES, ⛔ MAIS PLUS TROIS DALLES (lot 222). Eric, 20/09 : *« il faut aussi dégager
-     le fond sombre »*. 📏 Mesuré dans le SAC : la roue et tous ses ancêtres sont transparents —
-     elle flotte sur le fond de scène, et c'est ce qui fait que son viseur et son cran dominant
-     se détachent. Le tambour de Wares n'est donc plus une DALLE ; la grille et le pied, qui
-     portent du contenu, gardent leur voile de 35 %. */
+  /* 🗄️ CE QUE CE GARDE A DIT PENDANT UN JOUR, ET POURQUOI IL NE LE DIT PLUS (loi des deux âges).
+     Au lot 222 il exigeait le CONTRAIRE : *« le tambour ne porte plus de voile : le viseur s'y
+     noyait, et l'aura avec »*. Je l'avais tiré d'un mot d'Eric du 20/09, *« il faut aussi dégager
+     le fond sombre »* — ⛔ et ce mot parlait du fond des TOKENS, pas de la dalle du tambour. J'ai
+     élargi une consigne d'un organe à son contenant, et retiré une dalle que personne n'avait
+     demandé de retirer.
+     ⚖️ ERIC A TRANCHÉ EN LA REDEMANDANT, 2026-09-21 : *« il doit y avoir une dalle sous les 2
+     tambours »*. ⭐ Les trois bandes redeviennent trois DALLES : même voile à 35 %, même liseré.
+     ⛔ Et la raison invoquée en 222 n'est pas oubliée — si le viseur se noie, ça se REGARDE en
+     image, ça ne se déduit pas d'une classe. */
   const bandes = [...n.children].filter((e) => e.tagName !== "STYLE");
   assert.equal(bandes.length, 3, "⛔ l'écran n'a pas exactement trois bandes");
   assert.ok(bandes[0].className.includes("wares-tambour"), "la première est le tambour");
   assert.ok(bandes[1].className.includes("wares-grille"), "la deuxième est la grille");
   assert.ok(bandes[2].className.includes("wares-pied"), "la troisième est le pied");
-  assert.ok(!bandes[0].className.includes("wares-dalle"),
-    "⛔ le tambour ne porte plus de voile : le viseur s'y noyait, et l'aura avec");
-  assert.equal(tous(n, ".wares-dalle").length, 2, "⛔ seules la grille et le pied sont des dalles");
+  assert.ok(bandes[0].className.includes("wares-dalle"),
+    "⛔ le tambour n'a pas sa dalle (Eric, 21/09 : « il doit y avoir une dalle sous les 2 tambours »)");
+  assert.equal(tous(n, ".wares-dalle").length, 3, "⛔ les trois bandes sont des dalles");
 });
 
 /* ⭐ TÉMOIN : ⛔ AUCUN TITRE. Eric, 20/09 : *« Equipment browser dégage »*.
@@ -228,10 +233,21 @@ test("12 · le party Tally n'a pas de destinataire, et il le dit", () => {
 /* ══ 13 · LA FEUILLE DÉCLARE DES PISTES ════════════════════════════════════════
    🔒 TÉMOIN : ⛔ AUCUN `left` ni `top` dans la feuille de Wares. C'est LA divergence
    assumée avec le sac, et c'est le sacré n° 3 qui la commande.
-   ⭐ Et le témoin est éprouvable : écrire un seul `left:` le fait tomber. */
-test("13 · 🔒 la feuille de Wares pose des PISTES, ⛔ jamais un `left`", () => {
+   ⭐ Et le témoin est éprouvable : écrire un seul `left:` le fait tomber.
+
+   ⚖️ UNE SEULE EXCEPTION, ET ELLE EST NOMMÉE : le popup de la bourse. ⛔ Ce n'est pas une boîte
+   de l'écran — c'est un FLOTTANT posé dans le voile, par-dessus la grille, et la maison le pose
+   déjà en `left`/`top` chez R et chez le sac (`reglesDeLaBourse`). Le sacré n° 3 range des
+   boîtes sur une grille ; un flottant n'est sur aucune grille, par définition.
+   ⛔ ET L'EXCEPTION EST BORNÉE AU SÉLECTEUR, pas au fichier : un `left:` ailleurs fait toujours
+   tomber le garde. Une exception qui vaudrait pour toute la feuille ne garderait plus rien. */
+test("13 · 🔒 la feuille de Wares pose des PISTES, ⛔ jamais un `left` (sauf le flottant de la bourse)", () => {
   const f = feuilleDesCotesWares();
-  assert.ok(!/\bleft:/.test(f), "⛔ un `left` dans la feuille : le sacré n° 3 exige une grille");
+  const horsBourse = f.split("\n").filter((l) => !l.includes(".gear-bourse")).join("\n");
+  assert.ok(!/\bleft:/.test(horsBourse), "⛔ un `left` dans la feuille : le sacré n° 3 exige une grille");
+  /* ⭐ et l'exception doit SERVIR : si la bourse n'est plus posée, l'exception est un trou */
+  assert.match(f, /\.wares \.gear-bourse\{left:/,
+    "⛔ l'exception du flottant ne sert plus : retire-la plutôt que de la laisser ouverte");
   assert.ok(!/\btop:/.test(f.replace(/top:\d/g, "")) || true, "—");
   assert.ok(f.includes("display:grid"), "⛔ aucune grille déclarée");
   assert.ok(f.includes("1fr"), "⛔ aucun `1fr` : les centres seraient calculés à la main");
@@ -469,4 +485,52 @@ test("23 · 🔴 le dominant est agrandi UNE fois — ⛔ pas une largeur ET une
   const loupe = D.ORGANES.find((o) => o.sorte === "loupe");
   assert.equal(loupe.l, D.ROUE.dominant, "⛔ le viseur ne cadre plus la largeur de la tuile posée");
   assert.equal(loupe.h, D.ROUE.hauteurDominante, "⛔ ni sa hauteur");
+});
+
+/* ══ 24 · LA CALE A UNE HAUTEUR, ET C'EST ELLE QUI LA FAIT EXISTER ═════════════
+   🔴 L'INCIDENT DU 2026-09-20, et Eric l'a vu avant moi : *« problème de centrage sur les
+   crans de droite, et ça bloque »*.
+   📏 MESURÉ AU NAVIGATEUR, sur la page servie : la cale est un `<span>` VIDE dans un ruban en
+   `align-items: center` — sa hauteur rendue vaut **0**. Une boîte de hauteur nulle ne crée
+   aucun débordement : `scrollWidth` s'arrêtait au dernier CRAN (**527**) au lieu d'inclure la
+   cale de queue (**672**), la course maximale tombait à **196** là où le dernier cran en
+   réclame **325**, et les crans de droite ne pouvaient plus atteindre le viseur.
+   ⭐ LE TÉMOIN DIRECT, reproductible en une ligne : donner une hauteur à la cale de queue
+   (`10px`, ou même un `.` de contenu) fait sauter `scrollWidth` de **527 à 672**.
+   ⛔ ET C'EST LE SEUL GARDE QUI PEUT ACCUSER CETTE FAUTE : la cale est déclarée, elle est dans
+   le DOM, sa largeur est juste, la bijection plan ↔ DOM est verte. Rien d'autre ne regarde sa
+   dimension TRANSVERSE. C'est la même famille que *« le ruban prend la hauteur de sa roue »* —
+   une hauteur RENDUE, jamais une hauteur déclarée.
+   ⚠️ IL LIT UNE DÉCLARATION, PAS UN RENDU, et je le dis : il ne prouve pas que la cale rend
+   une hauteur, il prouve qu'on lui en a demandé une. Le rendu, lui, se regarde au banc. */
+test("24 · la cale du ruban réclame une dimension transverse — sans elle, le tambour bloque", () => {
+  const f = feuilleDesCotesWares();
+  const bloc = f.match(/\.roue-cale\{([^}]*)\}/);
+  assert.ok(bloc, "⛔ la feuille ne porte plus de règle pour `.roue-cale`");
+  assert.match(bloc[1], /align-self:stretch|block-size:|height:/,
+    "⛔ la cale n'a aucune hauteur : elle ne comptera pas dans le `scrollWidth`, et les crans " +
+    "de droite ne pourront pas atteindre le viseur.\n   Mesuré le 20/09 : 527 au lieu de 672.");
+});
+
+/* ══ 25 · LA BOURSE SORT AVEC SES COTES ════════════════════════════════════════
+   🔴 Eric, 2026-09-20 : *« je veux le popup de la bourse centré sur celle-ci et que son rendu
+   soit idem à Gear et backpack »*. J'importais `popupDeLaBourse` — le DOM — sans jamais appeler
+   `reglesDeLaBourse` : le popup sortait SANS cotes, dimensionné par son contenu.
+   ⭐ C'est mot pour mot la faute réparée sur le sac la veille : *« un organe partagé dont la
+   moitié reste chez son premier hôte n'est pas partagé »*. ⛔ Éprouvé ROUGE en retirant l'appel.
+   ⭐ ET LE TÉMOIN NE LIT PAS LE NOM DE LA FONCTION — il lit la FEUILLE : ce sont les règles
+   rendues sous la portée `.wares` qui prouvent que la bourse est habillée ici. */
+test("25 · le popup de la bourse est coté sous `.wares`, et il est centré sur la bourse du plan", () => {
+  const f = feuilleDesCotesWares();
+  assert.match(f, /\.wares \.gear-bourse\{[^}]*width:/,
+    "⛔ la bourse sort sans boîte sous `.wares` : son rendu ne peut pas être celui de Gear");
+  const pose = f.match(/\.wares \.gear-bourse\{left:([-\d.]+)px;top:([-\d.]+)px\}/);
+  assert.ok(pose, "⛔ la bourse n'est pas POSÉE sous `.wares` : elle ne peut pas être centrée sur la bourse");
+  const purse = D.ORGANES.find((o) => D.CLEF_DE[o.nom] === "purse");
+  /* ⭐ le centre du popup tombe sur le centre de la bourse — sauf serrage au bord de la dalle,
+     qui est la loi du 16/09 et qu'on ne combat pas : on vérifie donc l'un OU l'autre. */
+  const cx = Number(pose[1]) + 186 / 2;
+  const serre = Number(pose[1]) === 4 || Number(pose[1]) + 186 === D.DALLE.l - 4;
+  assert.ok(serre || Math.abs(cx - (purse.x + purse.l / 2)) < 0.01,
+    `⛔ le popup n'est ni centré sur la bourse (${purse.x + purse.l / 2}) ni serré dans la dalle : centre à ${cx}`);
 });
