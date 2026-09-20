@@ -21,20 +21,20 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES,
-} from "./wares-disposition.mjs?v=773";
-import { monterLeTambour } from "./roue-tambour.mjs?v=773";
+} from "./wares-disposition.mjs?v=774";
+import { monterLeTambour } from "./roue-tambour.mjs?v=774";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=773";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=773";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=773";
+import { REPOS_MS } from "./sac-ecran.mjs?v=774";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=774";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=774";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
-import { popupDeLaBourse } from "./gear-ecran.mjs?v=773";
+import { popupDeLaBourse } from "./gear-ecran.mjs?v=774";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton } from "./glisser.mjs?v=773";
-import { versionQuery } from "./version.mjs?v=773";
+import { armerJeton } from "./glisser.mjs?v=774";
+import { versionQuery } from "./version.mjs?v=774";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
