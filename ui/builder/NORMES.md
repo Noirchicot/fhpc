@@ -5707,6 +5707,77 @@ Le poser aujourd'hui, c'est livrer une suite rouge ; l'assouplir pour qu'il pass
 garde creux. Il se pose **le jour où Eric a tranché**, il se fonde sur la **DONNÉE** (`disabled`,
 la teinte calculée), ⛔ jamais sur la forme d'un sélecteur.
 
+### 🔴 INACTIF N'EST PAS UNE NUANCE DE GRIS — c'est un TROISIÈME ÉTAT *(Eric, 20/09)*
+📍 `bouton-inactif-garde-sa-couleur` · vivante · 20/09 · **ferme la moitié restée ouverte de `A-TRANCHER § C24`**
+
+> Eric, 2026-09-20, sur `COMPANIONS` : *« quand il sera actif ce sera un liseré bleu, il est
+> inactif, pas de destinations, mets réduit son voile comme pour les tally, comme ça on oublie
+> pas qu'ils existent. Un vrai bouton inactif n'a pas de liseré, mais aussi la capacité de
+> devenir actif. »*
+
+⚖️ **Un bouton INACTIF garde la couleur qu'il portera une fois actif, n'affiche AUCUN liseré
+tant qu'il dort, et porte le voile `--organe-eteint` — le même que le tally vide.**
+
+⭐ **CE QUE CETTE RÈGLE AJOUTE — ce n'est pas une redite de `bouton-gris-non-cliquable`.** Le
+corpus ne connaissait que **deux** termes : *gris* ⇒ pas cliquable, *coloré* ⇒ cliquable. Eric
+en pose un **troisième**, qui ne se range sous aucun des deux :
+
+| l'état | sa couleur | son liseré | ce qu'il dit au joueur |
+|---|---|---|---|
+| **actif** | le verbe qu'il fait | **oui**, de cette couleur | *« vas-y »* |
+| **gris** | `--text-muted` | aucun | *« tu ne peux pas »* |
+| ⭐ **inactif** | **celle de son réveil** *(latente)* | **aucun** | *« pas encore — mais je serai là »* |
+
+➡️ **La couleur appartient au BOUTON, la présence du liseré appartient à son ÉTAT.** Les deux
+règles que le siège croyait en conflit sur `COMPANIONS` — *« Eric l'a nommé dans les bleus »* et
+*« un bouton gris n'a pas de liseré »* — **sont vraies toutes les deux et ne se rencontrent
+jamais** : la première parle de l'identité, la seconde de l'état. ⛔ Il n'y avait rien à arbitrer.
+
+⭐ **ET LE VOILE N'EST PAS UN ORNEMENT, C'EST SA RAISON D'ÊTRE.** *« comme ça on oublie pas
+qu'ils existent »* — un bouton retiré de l'écran ne promet rien ; un bouton voilé à 20 % dit
+qu'une porte existe et qu'elle s'ouvrira. ⛔ **Donc on ne « nettoie » pas un inactif en le
+retirant** : le retirer détruit l'information que le voile porte.
+
+✅ **DÉJÀ CONFORME, MESURÉ — pas déduit.** `getComputedStyle` sur
+`button.gear-porte[data-organe=companions]`, feuilles `tokens.css?v=767` + `shell.css?v=767`,
+le 20/09 à 14:52 :
+
+| | `disabled` *(aujourd'hui)* | le même, armé |
+|---|---|---|
+| `--bouton-fond` *(la couleur du liseré, `shell.css:8835`)* | **`transparent`** | **`#5f90c7`** — le bleu |
+| `opacity` | **`0.2`** = `--organe-eteint` | `1` |
+
+⭐ La règle d'Eric était **déjà le comportement du code**, depuis `.gear-porte:disabled,
+.x1-porte:disabled` *(`shell.css:11774`, lot 213, 18/09)*. ⚠️ **Ce qui était faux, c'est un
+COMMENTAIRE** : `shell.css:9223` affirme encore *« les muets (CRAFT, COMPANIONS, réserve) restent
+au gris du défaut »*, et la cascade le dément 2551 lignes plus bas. 🔴 *Le sélecteur fait foi,
+jamais le commentaire qui l'entoure.*
+
+⛔ **LE VÉRITABLE DÉFAUT EST AILLEURS, ET IL EST STRUCTUREL : CETTE LOI A ONZE ÉCRIVAINS.**
+Relevé le 20/09 sur `shell.css` — **aucune règle générale `button:disabled` n'existe au socle**,
+chaque famille réécrit la sienne, avec **six voiles différents** :
+
+| voile | familles |
+|---|---|
+| `.5` | `.sortie-bouton` |
+| `.45` | `.tray-bouton` |
+| `.4` | `.glisse-jeton` · `.gear-bouton` |
+| ✅ `--organe-eteint` *(.20)* | `.gear-monnaie-bouton` · `.gear-porte` · `.x1-porte` · `.sac-poignee` |
+| **aucun voile**, liseré retiré seul | `.parcours-pied button.tdc-porte` · `.ability-entry` |
+| **aucun des deux** *(curseur seul)* | `.interrupteur` · `.magasin-lieu` · `.parcours-pied button` |
+
+🔴 **Une norme se câble en DÉFAUT PARTAGÉ AU SOCLE, jamais famille par famille** — onze
+écrivains, c'est la garantie qu'un douzième écran l'oubliera sans qu'aucun garde ne bronche.
+⚠️ ⛔ **Mais l'unification n'est PAS un `sed`** : `.sortie-bouton` à `.5` et `.glisse-jeton` à `.4`
+ont peut-être été **regardés** et retenus — exactement comme le `.6` du body forging, qui était
+une cote copiée que personne n'avait regardée, remplacée par `.20` le 16/09 devant l'œil d'Eric.
+➡️ Chaque valeur se **regarde sur son écran** avant d'être ramenée au défaut, ou gardée avec son motif.
+
+📌 **ET LE GARDE PEUT ENFIN SE POSER.** Le corpus disait, quelques lignes plus haut : *« il se
+pose le jour où Eric a tranché »*. C'est ce jour. ⛔ Il se fonde sur la **DONNÉE** (`disabled`, la
+teinte calculée), jamais sur la forme d'un sélecteur — et il doit chercher **ce qui MANQUE**
+*(une famille sans voile)*, pas seulement ce qui est écrit en trop.
+
 ### ✅ LE GRIS EST `--text-muted`, ET UN `DONE` INACHEVÉ EST GRIS *(tranché 26/08)*
 📍 `bouton-done-gris-inacheve` · vivante · 26/08 · bornée par `bouton-gris-non-cliquable`
 ⚖️ **Un `Done` sur une étape inachevée est GRIS, jamais bleu, et il passe au vert quand elle est achevée.**
