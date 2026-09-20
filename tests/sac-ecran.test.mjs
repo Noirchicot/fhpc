@@ -1198,9 +1198,22 @@ test("25 — 🔒 VERROUILLÉ : le filigrane est à la place qu'Eric a ratifiée
   assert.equal(D.FOND.rapport, 0.851,
     "🔒 et le rapport est celui du modèle simplifié qu'il a choisi — un autre dessin, un autre garde");
 
-  /* 🔒 LE VOILE AUSSI : trois valeurs regardées avant celle-là (.20, .42, .6, .28). */
+  /* 🔒 LE VOILE AUSSI, ET IL EN FAUT DEUX — quatre valeurs regardées avant celles-là
+     (.20, .42, .6, .28).
+     🔴 UNE SEULE COTE POUR DEUX THÈMES ÉTAIT LA FAUTE, et elle portait sa propre
+     vérification : la feuille disait *« .40 tient les deux bouts — vérifié jour ET
+     nuit »*. Eric, 2026-09-20 : *« le sac sur fond nuit ne ressort pas suffisamment »*.
+     📐 LA CONTRAINTE N'EST PAS SYMÉTRIQUE, et c'est mesurable : le dessin est un APLAT
+     de `--text-soft`, sombre le jour et CLAIR la nuit. Le jour il pose de l'encre sur du
+     crème — contraste franc. La nuit il pose du clair sur du sombre ET il passe sous le
+     voile de la plaque, qui l'atténue une SECONDE fois.
+     ⭐ .40 reste ratifié pour le jour (*« c'est parfait »*) ; la nuit prend .62, regardé
+     contre .40 (fantôme) et .85 (il monte au premier plan). */
   assert.match(jetons, /--filigrane:\s*\.40\s*;/,
-    "🔒 .40 — *« rends-le encore un peu plus discret »* (20/09), puis *« c'est parfait »*");
+    "🔒 .40 le JOUR — *« rends-le encore un peu plus discret »* (20/09), puis *« c'est parfait »*");
+  const nuit = jetons.slice(jetons.indexOf("prefers-color-scheme: dark"));
+  assert.match(nuit, /--filigrane:\s*\.62\s*;/,
+    "🔒 .62 la NUIT — ⛔ et il ne se confond pas avec celui du jour : deux thèmes, deux cotes");
 });
 
 test("26 — 🧊 LES DEUX BOUTS SONT VIDES, et c'est le ruban de DALLES qui le dit", async () => {
