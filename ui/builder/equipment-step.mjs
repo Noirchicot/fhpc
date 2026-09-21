@@ -448,8 +448,105 @@ function indexDesNoms(cherche) {
     pose(clefDeNom(nom), entree);
     const inverse = /^([^,]+),\s*(.+)$/.exec(nom);
     if (inverse) pose(clefDeNom(`${inverse[2]} ${inverse[1]}`), entree);
+    /* ⚖️ LOT 246 — LES AUTRES NOMS QUE LA COUCHE DÉCLARE, lus génériquement.
+       ⭐ Eric, 21/09 : *« flèches = munitions (gratuit) = tu mets la quantité
+       requise »*. La phrase du livre dit « 20 Arrows » ; la couche n'a que
+       « Ammunition ». Le rapprochement se fait donc par une DÉCLARATION —
+       `data[also_named]`, posée par `srfh-mecaniques-en` sur
+       `srd:gear:en:ammunition` — et ⛔ jamais par un `if` sur le mot. C'est
+       nommément ce que le lot 245 avait refusé d'écrire ici : « Arrows →
+       Ammunition » est une règle de jeu, elle appartient à la couche.
+       ⛔ ET CE N'EST PAS UN SYNONYME « INTELLIGENT » : rien n'est deviné, rien
+       n'est approché. Un nom non déclaré refuse, comme avant. La seule chose
+       qui a changé, c'est qu'une couche peut maintenant DIRE qu'un objet porte
+       un second nom dans les phrases de départ.
+       ⚠️ ET LE PIÈGE DU MOT DOUBLE : `srd:weapon-property:en:ammunition` porte
+       le MÊME nom d'affichage que `srd:gear:en:ammunition`. Il n'entre pas
+       dans cet index (📏 `weapon-property` n'est pas un genre du rangement),
+       mais c'est une protection d'AUJOURD'HUI, pas une loi — `tests/
+       equipment-step.test.mjs` tient les deux records par leur id. */
+    const autres = item.view.record && item.view.record.data && item.view.record.data.also_named;
+    if (Array.isArray(autres)) {
+      for (const autre of autres) if (typeof autre === "string") pose(clefDeNom(autre), entree);
+    }
   }
   return parNom;
+}
+
+/** LA FAMILLE D'UN OUTIL — `data.inherits` s'il en a un, sinon son propre id.
+ *  ⭐ UNE RÈGLE, PAS UNE LISTE. `instrument-wind` et `instrument-other`
+ *  héritent de `srd:tool:en:musical-instrument` (la source le déclare depuis le
+ *  09/09 ; le générateur le porte à la couche depuis le lot 246), et
+ *  `instrument-strings` EST ce record, réécrit. La racine est donc la même dans
+ *  les deux piles, et ⛔ aucune énumération des instruments n'existe nulle part :
+ *  une liste par nom serait incomplète au premier instrument ajouté. */
+function familleDeLOutil(vue) {
+  const data = (vue && vue.record && vue.record.data) || {};
+  return typeof data.inherits === "string" ? data.inherits : (vue && vue.id) || null;
+}
+
+/** LES OUTILS QUE LE JOUEUR A CHOISIS DANS SKILLS — `[{ref, nom, famille}]`.
+ *
+ *  ⚖️ ERIC, 21/09 : *« Pour l'outil du barde : tu regardes le choix fait dans
+ *  Skills. S'il en a choisi deux, il aurait deux possibilités ; si un seul, il
+ *  a cet instrument ; si aucun, il n'a rien. »* — puis *« idem barde et monk »*.
+ *
+ *  🔴 ON LIT LE DOCUMENT, JAMAIS L'ÉTAT D'UN AUTRE ÉCRAN. Skills collecte aussi
+ *  ses ajouts dans `ecran.ajoutes.tool`, qui est une variable de module de
+ *  `skills-step.mjs` : elle ne survit pas à un rechargement, elle n'est pas
+ *  dans le personnage, et la lire d'ici ferait de cet écran le second lecteur
+ *  d'un organe qui n'est pas le sien. Les dépenses, elles, sont DANS le
+ *  document (`fh.skills.spend.<slug>`) — c'est le même endroit que
+ *  `skillsCheminsDeReset` interroge pour son `Reset`.
+ *  ⭐ ET ON NE FABRIQUE RIEN : ce lecteur ne pose aucun choix, il relit un choix
+ *  déjà fait ailleurs.
+ *
+ *  ⛔ LE SLUG NE DIT PAS QUE C'EST UN OUTIL. `fh.skills.spend.<slug>` porte les
+ *  compétences ET les outils dans le MÊME espace de noms (`athletics` à côté de
+ *  `calligrapher-s-supplies`). Le tri se fait donc sur le CATALOGUE du genre
+ *  `tool` de la pile montée, ⛔ jamais sur la forme du slug. */
+export function outilsChoisisDansSkills({ query, document: docu, famille } = {}) {
+  const q = typeof query === "function" ? query : () => null;
+  let catalogue = [];
+  try { catalogue = q({ kind: "tool" }) || []; } catch { catalogue = []; }
+  const parSlug = new Map();
+  for (const vue of catalogue) {
+    const slug = vue && vue.record && typeof vue.record.slug === "string" ? vue.record.slug : null;
+    if (slug) parSlug.set(slug, vue);
+  }
+  const choices = docu && docu.build && Array.isArray(docu.build.choices) ? docu.build.choices : [];
+  const vus = new Set();
+  const outils = [];
+  for (const c of choices) {
+    const path = c && typeof c.path === "string" ? c.path : "";
+    if (!path.startsWith(CHEMIN_DEPENSE_SKILLS)) continue;
+    const slug = path.slice(CHEMIN_DEPENSE_SKILLS.length);
+    const vue = parSlug.get(slug);
+    if (!vue || vus.has(slug)) continue;
+    vus.add(slug);
+    outils.push({ ref: { kind: "tool", id: vue.id }, nom: recordLabel(vue), famille: familleDeLOutil(vue) });
+  }
+  /* `famille` vaut `"any"` (le moine : le SRD dit « Artisan's Tools OR Musical
+     Instrument », et ⛔ « Artisan's Tools » n'a AUCUN record à nommer), ou une
+     liste de racines (le barde : l'instrument, et rien d'autre). */
+  if (famille === ANY_FAMILLE || !Array.isArray(famille)) return outils;
+  const racines = new Set(famille);
+  return outils.filter((o) => racines.has(o.famille));
+}
+export const CHEMIN_DEPENSE_SKILLS = "fh.skills.spend.";
+export const ANY_FAMILLE = "any";
+
+/** LE JOUEUR EST-IL PASSÉ PAR SKILLS ? — une dépense, n'importe laquelle.
+ *  ⛔ Ce n'est PAS « a-t-il un outil » : une compétence achetée suffit. C'est le
+ *  seul témoin que le document porte de la visite, et il sert à ne pas dire
+ *  « aucun instrument » à quelqu'un qui n'a pas encore eu l'occasion d'en
+ *  choisir un. ⚠️ Il est imparfait et je le dis : un joueur qui ouvre Skills et
+ *  n'y dépense rien est indiscernable d'un joueur qui n'y est jamais allé. Le
+ *  document ne porte pas la visite, il porte les dépenses — et ⭐ inventer un
+ *  drapeau « vu » serait un second écrivain d'un état qui appartient à Skills. */
+export function aDepenseDansSkills(docu) {
+  const choices = docu && docu.build && Array.isArray(docu.build.choices) ? docu.build.choices : [];
+  return choices.some((c) => c && typeof c.path === "string" && c.path.startsWith(CHEMIN_DEPENSE_SKILLS));
 }
 
 /* Les formes d'un pluriel anglais, ESSAYÉES DANS L'ORDRE et seulement APRÈS
@@ -476,13 +573,44 @@ function recordDuNom(parNom, nom) {
  *  compte devant, « Parchment (10 sheets) » le porte dans sa parenthèse. Les
  *  deux sont ÉCRITS dans la phrase ; ⛔ tout le reste vaut 1, et un morceau
  *  sans compte n'en reçoit pas un d'office. */
-export function decouperOption(texte, parNom) {
+export function decouperOption(texte, parNom, declare) {
   const lignes = [];
   const refus = [];
   const couts = [];
+  const absents = [];
+  const outils = [];
+  const dit = declare || {};
+  const clefsAbsentes = new Set((dit.absents || []).map(clefDeNom));
+  const clefOutil = dit.outil && typeof dit.outil.text === "string" ? clefDeNom(dit.outil.text) : null;
   for (const morceau of morceauxDeLOption(texte)) {
     const argent = parseCout(morceau);
     if (argent) { couts.push(argent); continue; }
+    /* ⚖️ LOT 246 — LES DEUX DÉCLARATIONS SE LISENT SUR LE MORCEAU ENTIER, AVANT
+       de lui retirer son compte et sa parenthèse : elles nomment le texte du
+       LIVRE, mot pour mot, pas une forme intermédiaire que ce code fabrique.
+       ⭐ La comparaison passe par `clefDeNom` — casse, espaces et apostrophes
+       typographiques — parce que la phrase du moine porte « Artisan’s » avec
+       une apostrophe courbe, et qu'une couche retapée à la main ne la porterait
+       peut-être pas. ⛔ RIEN D'AUTRE n'est normalisé : pas de pluriel, pas de
+       synonyme. */
+    if (clefsAbsentes.has(clefDeNom(morceau))) {
+      /* ⭐ UNE ABSENCE VOULUE N'EST PAS UN REFUS, et c'est le mot d'Eric du
+         21/09 : *« Pas d'item spellbook, il sera matérialisé par la section
+         sorts. Rien à ajouter ici. »* ⛔ Ne pas le poser dans Gear, et ⛔ ne pas
+         le nommer au joueur comme un objet manquant — un écran qui s'excuse
+         d'une absence délibérée envoie chercher un objet qui n'existe pas.
+         ⚠️ Il sort des DEUX comptes : ni rapproché, ni refusé. */
+      absents.push(morceau);
+      continue;
+    }
+    if (clefOutil && clefDeNom(morceau) === clefOutil) {
+      /* ⚖️ *« tu regardes le choix fait dans Skills »* — le morceau ne nomme pas
+         un objet, il RENVOIE à une décision prise sur un autre écran. Ce qu'on
+         en fait dépend de ce que le document porte, et `butinDuDepart` en
+         décide : ici on se contente de dire que ce morceau EST la question. */
+      outils.push({ texte: morceau, ...dit.outil });
+      continue;
+    }
     const compte = /^(\d+)\s+(.+)$/.exec(morceau);
     const sansCompte = compte ? compte[2] : morceau;
     const paren = /\s*\(([^)]*)\)\s*$/.exec(sansCompte);
@@ -494,7 +622,23 @@ export function decouperOption(texte, parNom) {
     if (!trouve) { refus.push(morceau); continue; }
     lignes.push({ ref: trouve.ref, quantity, nom: trouve.nom, texte: morceau });
   }
-  return { lignes, refus, cout: couts.length ? additionneCouts(couts) : null };
+  return { lignes, refus, absents, outils, cout: couts.length ? additionneCouts(couts) : null };
+}
+
+/** CE QUE LA SOURCE DÉCLARE SUR SA PROPRE PHRASE — `{absents, outil}`.
+ *  ⭐ Les deux champs sont posés par `srfh-mecaniques-en`, la couche de ce qui
+ *  est AMBIGU (ni le livre, ni Fate's Hand), montée dans LES DEUX piles. Une
+ *  pile qui ne la monterait pas retrouve le comportement d'avant : le morceau
+ *  refuse et se fait nommer. ⛔ Une absence de déclaration n'est jamais lue
+ *  comme une permission. */
+function declarationsDeLaSource(vue) {
+  const data = (vue && vue.record && vue.record.data) || {};
+  const absents = Array.isArray(data.starting_equipment_absent)
+    ? data.starting_equipment_absent.filter((m) => typeof m === "string") : [];
+  const brut = data.starting_equipment_tool;
+  const outil = brut && typeof brut === "object" && typeof brut.text === "string"
+    ? { text: brut.text, from_family: brut.from_family } : null;
+  return { absents, outil };
 }
 
 /** LES DEUX SOURCES DE DÉPART ET LEURS OPTIONS — un seul lecteur, pour
@@ -517,8 +661,25 @@ export function departsDuPersonnage({ query, document: docu } = {}) {
   ];
   return vues.map(({ genre, vue }) => {
     const lu = orDeLaSource(vue, genre);
+    const declare = declarationsDeLaSource(vue);
     const options = optionsDeLaProse(lu.prose)
-      .map((o) => ({ ...o, ...decouperOption(o.texte, parNom) }));
+      .map((o) => ({ ...o, ...decouperOption(o.texte, parNom, declare) }))
+      .map((o) => (o.outils.length ? { ...o, outils: o.outils.map((u) => ({
+        ...u,
+        /* ⭐ LES CANDIDATS SONT LUS ICI, UNE FOIS, et l'écran comme le geste
+           lisent le MÊME résultat — la propriété du lot 182 étendue à ce
+           morceau : ce que le récapitulatif montre EST ce que `Done` posera. */
+        candidats: outilsChoisisDansSkills({ query: q, document: docu, famille: u.from_family }),
+        /* ⚠️ « PAS ENCORE » N'EST PAS « AUCUN », ET C'EST UNE VRAIE DISTINCTION,
+           pas un cas limite. Un joueur qui passe par Équipement AVANT Skills n'a
+           encore rien choisi ; un joueur qui a fini Skills sans acheter d'outil
+           a choisi de ne rien prendre. Les deux rendent zéro candidat, et ⛔ un
+           écran qui dirait la même phrase aux deux mentirait à l'un des deux.
+           📏 Ce qui les sépare se lit dans le DOCUMENT : `fh.skills.spend.*`
+           existe-t-il, pour quoi que ce soit ? Une dépense sur une compétence
+           suffit à prouver que le joueur est passé par Skills. */
+        visiteSkills: aDepenseDansSkills(docu)
+      })) } : o));
     return {
       genre,
       nom: lu.nom,
@@ -546,6 +707,8 @@ export function butinDuDepart({ query, document: docu, reponses } = {}) {
   const rep = reponses && typeof reponses === "object" ? reponses : {};
   const lignes = [];
   const refus = [];
+  const faits = [];
+  const questions = [];
   const couts = [];
   const aEcrire = [];
   let complet = true;
@@ -561,10 +724,33 @@ export function butinDuDepart({ query, document: docu, reponses } = {}) {
     if (!choisie) { complet = false; continue; }
     for (const ligne of choisie.lignes) lignes.push(ligne);
     for (const morceau of choisie.refus) refus.push({ source: source.mot, texte: morceau, raison: null });
+    /* ⚖️ LOT 246 — LE MORCEAU QUI RENVOIE À SKILLS, et ses TROIS sorties, qui
+       sont les trois cas d'Eric au mot près :
+         · UN candidat  → *« il a cet instrument »* : on le pose, sans question ;
+         · DEUX ou plus → *« il aurait deux possibilités »* : une QUESTION de
+           plus, et `Done` attend — ⛔ on ne pose rien d'office, choisir à la
+           place du joueur serait pire que de ne rien poser ;
+         · ZÉRO         → *« il n'a rien »* : un FAIT, ⛔ pas un refus. Rien à
+           prendre dans Wares, rien à réparer.
+       ⛔ ET CE N'EST PAS UN REFUS DANS LE COMPTE : le morceau a été COMPRIS. */
+    for (const outil of (choisie.outils || [])) {
+      const cands = outil.candidats || [];
+      if (cands.length === 1) {
+        lignes.push({ ref: cands[0].ref, quantity: 1, nom: cands[0].nom, texte: outil.texte });
+        continue;
+      }
+      if (cands.length === 0) { faits.push({ source: source.mot, texte: outil.texte, visiteSkills: outil.visiteSkills }); continue; }
+      const clef = cheminDeLOutil(source.genre);
+      const pris = cands.find((c) => c.ref.id === rep[clef]);
+      questions.push({ clef, source: source.mot, texte: outil.texte, candidats: cands, pris: pris ? pris.ref.id : null });
+      if (!pris) { complet = false; continue; }
+      lignes.push({ ref: pris.ref, quantity: 1, nom: pris.nom, texte: outil.texte });
+      aEcrire.push({ genre: clef, valeur: pris.ref.id });
+    }
     if (choisie.cout) couts.push(choisie.cout);
     aEcrire.push({ genre: source.genre, valeur: choisie.lettre || "only" });
   }
-  return { sources, lignes, refus, aEcrire, complet,
+  return { sources, lignes, refus, faits, questions, aEcrire, complet,
     cout: couts.length ? additionneCouts(couts) : null,
     aPoser: posesDuButin(docu, lignes) };
 }
@@ -618,6 +804,73 @@ function posesDuButin(docu, lignes) {
  *  dans Gear. Le bouton promet donc exactement ce que `Done` pose ; ce que le
  *  rapprochement a REFUSÉ se dit à part, sous la section, avec le texte du
  *  livre — visible AVANT de choisir. */
+/** ⚖️ LOT 246 — CE QU'UNE SOURCE DIT AU JOUEUR EN PLUS DE SES OPTIONS, en UN
+ *  SEUL ORGANE : la seconde question (l'outil de Skills), les faits, les refus.
+ *
+ *  🔴 POURQUOI UNE FONCTION ET PAS DEUX BOUCLES EN PLACE. L'affichage des refus
+ *  vivait dans la branche « plusieurs options » ; la branche « une seule
+ *  option » n'en affichait AUCUN et ⛔ personne ne pouvait le voir, parce que la
+ *  seule source à une option de la pile (l'Inheritance, « 50 GP ») ne porte
+ *  aucun morceau. ⭐ Un organe que deux branches fabriquent finit par diverger,
+ *  et celui-ci avait déjà divergé. Les deux branches l'appellent maintenant.
+ *
+ *  L'ORDRE EST CELUI DE LA DÉCISION : ce qui demande une réponse d'abord, ce qui
+ *  la constate ensuite, ce qui manque en dernier.
+ *  ⛔ RIEN N'EST PEINT POUR UNE OPTION NON CHOISIE : `butin.questions` et
+ *  `butin.faits` ne portent que l'option ÉLUE de chaque source. Un joueur qui
+ *  prend la bourse ne se voit pas demander quel instrument il emporte. */
+function ceQueLaSourceDit(source, butin, basculer) {
+  const noeuds = [];
+  for (const q of butin.questions.filter((x) => x.source === source.mot)) {
+    /* ⚖️ ERIC, 21/09 : *« s'il en a choisi deux, il aurait deux possibilités »*
+       — deux possibilités sont un CHOIX, donc une QUESTION de plus, ⛔ pas un
+       objet posé d'office. Choisir à la place du joueur est pire que ne rien
+       poser : il ne saurait jamais qu'on a choisi pour lui. */
+    /* 📏 UNE LIGNE, PAS DEUX — mesuré au navigateur le 21/09 : *« Monk also
+       gives you the tool you picked in Skills — Choose: »* rendait 34 blg (deux
+       lignes) dans une carte qui déborde déjà. ⭐ C'est le geste exact du lot
+       245, qui avait retiré les *« gives you a choice: »* parce que les
+       rangées dessous le montraient déjà. ⛔ Le mot de la source n'est pas
+       recopié ici : il est DANS le titre de la section, trois lignes plus haut,
+       et le redire ne disait rien de neuf. */
+    noeuds.push(el("p", "aiguilleur-soustitre", [text("Tool from Skills — Choose:")]));
+    const liste = el("div", "aiguilleur-options");
+    for (const cand of q.candidats) {
+      const rangee = el("div", "aiguilleur-rangee");
+      rangee.append(el("p", "aiguilleur-option-mot", [text(cand.nom)]));
+      const bo = button("", "aiguilleur-option",
+        () => basculer(q.clef, cand.ref.id), `${cand.nom}, for ${source.mot}`);
+      markPressed(bo, q.pris === cand.ref.id);
+      rangee.append(bo);
+      liste.append(rangee);
+    }
+    noeuds.push(liste);
+  }
+  for (const f of butin.faits.filter((x) => x.source === source.mot)) {
+    /* ⭐ *« si aucun, il n'a rien »* — UN FAIT, ⛔ PAS UN REFUS. Rien à prendre
+       dans Wares, rien à réparer.
+       ⚠️ ET DEUX PHRASES, PAS UNE : *« pas encore »* n'est pas *« aucun »*. Un
+       joueur qui n'a pas encore vu Skills doit lire qu'il y a quelque chose à
+       y faire ; un joueur qui en revient les mains vides doit lire que c'est
+       réglé. Une seule phrase mentirait à l'un des deux. */
+    noeuds.push(el("p", "aiguilleur-texte aiguilleur-fait", [text(f.visiteSkills
+      ? "No tool picked in Skills, so none comes with this kit."
+      : "The tool for this kit is the one you pick in Skills — you have not been there yet.")]));
+  }
+  /* ⭐ LES REFUS SE DISENT AVANT LE CHOIX, PAS APRÈS. Un morceau de la phrase
+     SRD que le rapprochement n'a pas compris ne partira pas dans Gear ; le
+     joueur doit l'apprendre pendant qu'il choisit. ⛔ Un kit posé à moitié sans
+     le dire est pire que pas de kit — et le texte montré est CELUI DU LIVRE,
+     pour qu'il puisse prendre l'objet lui-même dans Wares. */
+  for (const option of source.options) {
+    for (const morceau of option.refus) {
+      noeuds.push(el("p", "aiguilleur-texte aiguilleur-refus", [text(
+        `${option.lettre ? `${option.lettre} · ` : ""}« ${morceau} » has no entry in this stack — not added. Pick it yourself in Wares.`)]));
+    }
+  }
+  return noeuds;
+}
+
 export function motDuLot(option) {
   const morceaux = (option.lignes || []).map((l) => (l.quantity > 1 ? `${l.quantity} × ${l.nom}` : l.nom));
   if (option.cout) morceaux.push(formatCout(option.cout));
@@ -627,7 +880,14 @@ export function motDuLot(option) {
 /* Les deux chemins où la réponse au QCM se range — ⛔ un seul écrivain pour
    leur forme, lu par l'écran (qui se restaure) et par la coquille (qui écrit). */
 export const cheminDuDepart = (genre) => `depart.${genre}`;
-const DEPART_RE = /^depart\.(class|background)$/;
+/** ⚖️ LOT 246 — LA SECONDE QUESTION D'UNE SOURCE porte le nom de la première,
+ *  suffixé. ⭐ Une seule fabrique de chemin (`cheminDuDepart`), donc ⛔ pas de
+ *  second écrivain du préfixe `depart.` : le jour où il change, il change une
+ *  fois. La réponse retenue est l'ID DU RECORD de l'outil, pas son nom — un nom
+ *  d'affichage change avec la pile (« Musical Instrument » en SRD, « Instrument
+ *  (Strings) » en Fate's Hand), un id ne change pas. */
+export const cheminDeLOutil = (genre) => `${genre}-tool`;
+const DEPART_RE = /^depart\.(class|background)(-tool)?$/;
 
 /** LE QCM A-T-IL DÉJÀ RÉPONDU ? — ⭐ ET LE SCALAIRE `depart` DES ANCIENS
  *  PERSONNAGES COMPTE. Du 26/08 au 21/09 la réponse s'écrivait `depart =
@@ -2723,6 +2983,19 @@ export function renderEquipmentStep(ctx, onAction) {
        fermeture — et c'est tout ce dont le récapitulatif a besoin pour se
        recalculer : un clic d'option ne repasse jamais par la coquille. */
   const reponsesDuQcm = {};
+  /** ⭐ LA BASCULE, UNE SEULE FOIS POUR TOUTES LES QUESTIONS DE LA CARTE — la
+   *  question d'option et la question d'outil se répondent du MÊME geste :
+   *  taper pose, retaper efface. ⛔ Deux bascules écrites séparément auraient
+   *  divergé au premier ajout (l'une se serait mise à écrire, l'autre non), et
+   *  c'est le patron de `renderPicker` et de `renderTierButtons` — jamais un
+   *  second geste à apprendre.
+   *  ⛔ ELLE N'ÉCRIT PAS AU DOCUMENT : elle repeint l'étape EN PLACE. `Done`
+   *  reste le SEUL moment d'écriture. */
+  const basculerLaReponse = (clef, valeur) => {
+    if (reponsesDuQcm[clef] === valeur) delete reponsesDuQcm[clef];
+    else reponsesDuQcm[clef] = valeur;
+    peindre();
+  };
   const cherche = fabriquerChercheur(query);
   const lignes = currentGearLines(docu).filter((l) => l.ref);
   for (const l of lignes) {
@@ -2920,6 +3193,15 @@ export function renderEquipmentStep(ctx, onAction) {
              le récapitulatif porterait un or dont la provenance est invisible. */
           const seule = source.options[0];
           titre.append(text(` gives you ${motDuLot(seule)}.`));
+          /* 🔴 LOT 246 — UNE SOURCE À UNE SEULE OPTION AVALAIT SES REFUS, ET
+             PERSONNE NE POUVAIT LE VOIR. Ce `continue` sautait par-dessus
+             l'affichage des refus : un morceau incompris d'une phrase SANS
+             choix disparaissait en silence. 📏 En pile Fate's Hand l'origine
+             porte « 50 GP » — aucun morceau, donc aucun refus, donc aucun
+             symptôme : le trou était réel et muet. ⭐ C'est la leçon de
+             l'organe fabriqué par N écrans, dans sa forme la plus bête — deux
+             branches, et une seule qui parle. */
+          bloc.append(...ceQueLaSourceDit(source, butin, basculerLaReponse));
           carte.append(bloc);
           continue;
         }
@@ -2928,33 +3210,33 @@ export function renderEquipmentStep(ctx, onAction) {
         const liste = el("div", "aiguilleur-options");
         for (const option of source.options) {
           const choisie = reponsesDuQcm[source.genre] === option.lettre;
-          const b = button(`${option.lettre} · ${motDuLot(option)}`, "aiguilleur-option",
-            () => {
-              /* ⭐ UN SECOND TAP SUR L'ÉLUE L'EFFACE — la même bascule que
-                 `renderPicker` et `renderTierButtons`, jamais un second geste
-                 à apprendre. Effacer redésarme `Done` : le QCM redevient
-                 incomplet, et il le montre. */
-              if (reponsesDuQcm[source.genre] === option.lettre) delete reponsesDuQcm[source.genre];
-              else reponsesDuQcm[source.genre] = option.lettre;
-              peindre();
-            },
+          /* ⚖️ LOT 246, ERIC 21/09 : *« Une ligne de texte, bouton à droite =
+             peu d'espace perdu »*, puis *« Deux lignes de texte un bouton à
+             droite alors. Ou trois lignes de texte un bouton à droite. »*
+             ⭐ UNE OPTION N'EST PLUS UN BOUTON À LIBELLÉ : c'est une RANGÉE À
+             DEUX COLONNES — le texte dit, la pastille choisit. Deux organes, et
+             ⛔ le texte n'entre pas dans le bouton : un bouton qui contient un
+             paragraphe impose sa boîte tactile de 44 à CHAQUE ligne du
+             paragraphe, et c'est de là que venait la hauteur.
+             ⛔ LA PASTILLE RESTE À DROITE ET HORS DU TEXTE — elle ne passe pas
+             dessous quand le texte va à trois lignes. Une rangée, deux colonnes.
+             ⭐ ET LA LETTRE A DÉMÉNAGÉ DANS LA PASTILLE : elle était écrite
+             « A · » en tête du libellé. Un seul écrivain de la lettre, et le
+             texte gagne deux caractères sur chaque ligne. */
+          const rangee = el("div", "aiguilleur-rangee");
+          rangee.append(el("p", "aiguilleur-option-mot", [text(motDuLot(option))]));
+          /* ⭐ UN SECOND TAP SUR L'ÉLUE L'EFFACE — et effacer redésarme `Done` :
+             le QCM redevient incomplet, et il le montre. La bascule est celle
+             de toute la carte (`basculerLaReponse`), ⛔ pas une copie locale. */
+          const b = button(option.lettre, "aiguilleur-option",
+            () => basculerLaReponse(source.genre, option.lettre),
             `Option ${option.lettre} of ${source.mot}: ${motDuLot(option)}`);
           markPressed(b, choisie);
-          liste.append(b);
+          rangee.append(b);
+          liste.append(rangee);
         }
         bloc.append(liste);
-        /* ⭐ LES REFUS SE DISENT AVANT LE CHOIX, PAS APRÈS. Un morceau de la
-           phrase SRD que le rapprochement n'a pas compris ne partira pas dans
-           Gear ; le joueur doit l'apprendre pendant qu'il choisit, pas une
-           fois l'option prise. ⛔ Un kit posé à moitié sans le dire est pire
-           que pas de kit — et le texte montré est CELUI DU LIVRE, pour qu'il
-           puisse prendre l'objet lui-même dans Wares. */
-        for (const option of source.options) {
-          for (const morceau of option.refus) {
-            bloc.append(el("p", "aiguilleur-texte aiguilleur-refus", [text(
-              `${option.lettre} · « ${morceau} » has no entry in this stack — not added. Pick it yourself in Wares.`)]));
-          }
-        }
+        bloc.append(...ceQueLaSourceDit(source, butin, basculerLaReponse));
         carte.append(bloc);
       }
 
