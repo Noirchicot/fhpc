@@ -3899,6 +3899,61 @@ il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la l
 
 ---
 
+### 🎞️ LA PLAQUE DE WARES GLISSE À LA SOUS-CATÉGORIE, ⛔ JAMAIS À LA PAGE
+📍 `equipement-wares-la-plaque-glisse-a-la-sous-categorie` · vivante · 21/09
+⚖️ **Changer de sous-catégorie fait SORTIR une plaque et ENTRER l'autre, et on arrive page 1. ⛔ Changer de page ne fait rien glisser : c'est les chevrons, et les jetons se substituent.**
+
+> Eric, 2026-09-21 : **« je veux qu'on ait la sensation de passer d'un catalogue à un autre quand
+> on change de sous-catégorie »** · **« la transition de dalle se fait quand on change de
+> sous-catégorie dans le 2e tambour ; on arrive sur la page 1, et naviguer dans les pages se fait
+> avec les chevrons »** · **« changer de page = chevrons, la plaque ne glisse pas »**.
+
+⭐ **TOUT TIENT DANS LA CLEF D'UNE PLAQUE, ET ELLE NE CONNAÎT PAS LA PAGE** : `catégorie:sous-catégorie`.
+Deux pages d'une même sous-catégorie portent la **même** clef, donc rien ne bouge ; une
+sous-catégorie voisine en porte une autre, donc ça glisse. ⛔ Une seule règle, et pas une
+condition par cas — le jour où la page entrerait dans la clef, chaque coup de chevron ferait
+traverser une plaque.
+
+🔴 **ET LE MÉCANISME DU SAC NE SE COPIE PAS, C'EST MESURÉ.** Le sac pose **toutes** ses plaques
+côte à côte et n'en reconstruit aucune. 📏 Sur la donnée de Wares : **416 objets · 6 catégories ·
+26 sous-catégories · 3 pages au maximum**, soit **47 plaques / 564 jetons** s'il fallait tout
+poser — et le glisser pourrait vagabonder d'une sous-catégorie à l'autre, ce qu'Eric refuse.
+⭐ **D'OÙ LA MÉMOIRE D'UNE SEULE PLAQUE** : l'écran retient celle du rendu précédent ; quand la
+suivante porte une autre clef, un `append` **déplace** l'ancienne dans le nœud neuf, les deux
+voyagent ensemble, et l'ancienne est retirée à l'arrivée. ⛔ Elle DOIT être retirée : laissée là,
+elle reste hors champ mais **tabulable** — douze boutons invisibles que le clavier traverse.
+📌 Et elle ne glisse que si l'écran précédent était **encore monté** : revenir dans Wares n'est pas
+changer de sous-catégorie, et ça ne doit rien faire traverser.
+
+🔴 **LE MOTEUR EST CELUI DU SAC, ET DEUX GARDES ME L'ONT IMPOSÉ.** J'avais commencé par inventer
+une durée *(180 ms)* et par piloter un train avec `style.transform`. La maison a refusé dans la
+même seconde : *« aucun style EN LIGNE dans `ui/` »* et *« seul `socle.mjs` remplace le contenu
+d'un nœud »*. ⭐ **Leur refus m'a rendu le bon mécanisme** : une piste qui **défile**
+(`scroll-behavior: smooth`) n'a besoin d'aucune durée inventée *(le moteur porte la sienne)*,
+d'aucun style en ligne *(`scrollLeft` est une position, pas du décor)*, et elle tient
+`prefers-reduced-motion` **depuis la feuille**. 📌 Sixième fois du chantier que la réponse est
+*« reprendre, ⛔ jamais redessiner »*.
+⛔ **ET LA DISTANCE SE LIT, ELLE NE SE MULTIPLIE PAS** : on défile jusqu'à l'`offsetLeft` de la
+plaque qui arrive. C'est la loi du verrou du sac, et elle compte double ici — le jour vaut
+**38,88** et ne tombe pas rond.
+
+📏 **LE JOUR VIENT DE LA LOI DU 19/09** *(`budget-le-jour-est-a-la-plaque-ce-que-la-gouttiere-est-a-la-tuile`)* :
+`jour / plaque = écart / tuile`, soit `277 × 8 / 57 = 38,88`. ⚠️ **Et je dis ce qui change** : la
+*raison* de cette loi — garder le verrou synchrone — **ne s'applique pas ici**, puisque Wares n'a
+pas de verrou. On en garde la **forme**, pour que les deux écrans restent la même image à deux
+échelles et que le jour ne devienne pas un nombre choisi à la main.
+
+📏 **MESURÉ AU NAVIGATEUR, image par image** : deux plaques dans le train, `scrollWidth` **593**
+*(277 + 38,88 + 277)*, `scrollLeft` de **1 à 316** en ~460 ms, puis une seule plaque et
+`scrollLeft` à **0**.
+⏳ **CE QUI N'EST PAS TRANCHÉ** : *« ou alors on fait un tourné de page, mais faut que ça soit
+simple »* — le tourné de page à la navigation reste **offert, pas fait**.
+⏳ **ET UN POINT OUVERT QUE JE NOMME** : changer de **catégorie** remet la sous-catégorie à la
+première, donc la clef change, donc **ça glisse aussi**. C'est ce que fait le code aujourd'hui,
+et c'est cohérent avec *« passer d'un catalogue à un autre »* — mais Eric ne l'a pas dit.
+
+---
+
 ### 📦 LE COLLECTEUR DE WARES PORTE UNE ÉTAPE DE PLUS, ⛔ PAS CELUI DU SAC
 📍 `equipement-le-collecteur-de-wares-a-une-etape-de-plus` · vivante · 21/09
 ⚖️ **Déposer dans le collecteur de Wares n'envoie rien. `Send` ouvre une fiche X2 qui demande la destination et TRANCHE LE PAIEMENT. ⛔ UNE exception : le Tally, qui ne paie pas — c'est un contenant PROVISOIRE, et le paiement a lieu SUR lui.**
@@ -3923,12 +3978,28 @@ transformerait une hésitation en achat.
 📌 C'est la même famille que *« CART c'est Tally »* (20/09) : le Tally **est** le panier, et un
 panier se paie une fois, au passage en caisse.
 
-⏳ **CE QUI N'EST PAS TRANCHÉ, ET JE NE LE DEVINE PAS** *(posé à Eric le 21/09)* :
-1. les quatre destinations *(Gear · Backpack · Party bag · Craft)* — c'est le menu `Send to` du pied
-   qui les porte, ou la fiche X2 qui les demande ?
-2. *« payer ou gratuit »* — le joueur **choisit** sur la X2, ou le système le **déduit** du contexte
-   *(équipement de départ offert, achat payé)* et la X2 ne fait que l'annoncer ?
-3. le Tally — il **saute** la X2 entièrement, ou la X2 s'ouvre sans la question du paiement ?
+⚖️ **RÉPONDU LE MÊME JOUR, ET GRAVÉ AVEC LA QUESTION** — Eric, 21/09 : **« la fiche X2 s'ouvre sur
+un Send, pas au moment du choix de destination. C'est le réglage du dropdown Send to qui décide de
+X2 ou pas X2. C'est dans la fiche X2 ou dans le Tally qu'il y a résolution du paiement et envoi vers
+la destination. Le Tally saute X2. »**
+
+| la question posée | la réponse |
+|---|---|
+| qui porte les quatre destinations | le **menu `Send to` du pied** — il existe déjà |
+| quand la X2 s'ouvre | **sur `Send`**, ⛔ pas au choix de la destination |
+| qui décide s'il y a une X2 | **le réglage du menu `Send to`** : la destination commande |
+| le Tally | il **saute la X2** |
+| où se résout le paiement | **dans la X2, ou dans le Tally** — et c'est le même endroit qui envoie vers la destination |
+
+⭐ **CE QUE ÇA ÉCLAIRE** : la X2 n'est pas un dialogue de confirmation, c'est **le lieu de la
+résolution**. Paiement et envoi s'y font ensemble, ⛔ pas l'un puis l'autre ailleurs — une somme
+débitée sans que l'objet parte, ou l'inverse, serait un état que rien ne rattrape.
+📌 **Et la destination COMMANDE le chemin** : c'est le menu qui décide s'il y a une X2. Le Tally
+n'en a pas parce qu'il ne conclut rien ; il retient, et c'est lui qui conclura plus tard.
+
+⏳ **CE QUI RESTE OUVERT, UN SEUL POINT** : *« payer ou gratuit »* — le joueur **choisit** sur la
+X2, ou le système le **déduit** du contexte *(équipement de départ offert, achat payé)* et la X2 ne
+fait que l'annoncer ? *« Résolution »* ne dit pas lequel des deux.
 
 ⏳ **ET L'ORDRE DES TRAVAUX EST DICTÉ** *(Eric, 21/09)* : *« on câblera l'aller-retour Send juste
 avant d'attaquer la fiche X2 »*. ⛔ **Donc pas maintenant, et ce n'est pas un oubli.**

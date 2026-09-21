@@ -20,7 +20,7 @@
 import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
-  ORGANES,
+  ORGANES, JOUR,
 } from "./wares-disposition.mjs?v=777";
 import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=777";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
@@ -49,6 +49,20 @@ const px = (n) => `${Math.round(n * 1000) / 1000}px`;
    ⛔ Deux chaînes égales dans deux fichiers sont deux chaînes, et elles divergent. */
 const CRENEAU_COLLECTEUR = "wares:collecteur";
 
+/* ⏱️ LE FILET DE FIN DE GLISSEMENT — ⛔ CE N'EST PAS UNE DURÉE D'ANIMATION.
+   🔴 J'AVAIS COMMENCÉ PAR EN INVENTER UNE (180 ms) et par piloter le train avec un
+   `style.transform`. Deux gardes de la maison m'ont repris dans la même seconde : *« aucun style
+   EN LIGNE dans ui/ »* et *« seul socle.mjs remplace le contenu d'un nœud »*.
+   ⭐ ET LEUR REFUS M'A RENDU LE BON MÉCANISME : le sac ne transforme rien — **il défile**. Une
+   piste qui défile en douceur n'a besoin d'aucune durée inventée *(le moteur porte la sienne)*,
+   d'aucun style en ligne *(`scrollLeft` est une position, pas du décor)*, et elle respecte
+   `prefers-reduced-motion` depuis la FEUILLE. 📌 Sixième fois du chantier que la réponse est
+   *« reprendre, ⛔ jamais redessiner »*.
+   ⛔ CE NOMBRE-CI NE SERT QU'À NETTOYER : combien de temps on attend, au pire, avant de retirer
+   la plaque sortante si `scrollend` n'arrive jamais *(onglet caché, défilement interrompu)*. Il
+   est GÉNÉREUX exprès — nettoyer trop tôt ferait sauter l'image. */
+const FILET_DE_FIN_MS = 900;
+
 /* ⭐ LES ROUES DU DERNIER RENDU, EN ATTENTE DE PLACEMENT. ⛔ Un nœud hors du document n'a pas
    de `scrollLeft` utilisable : placer à la construction réussit et ne fait RIEN, en silence.
    C'est le même piège que `poserLesDalles` pour le sac, et il se règle au même endroit —
@@ -57,14 +71,83 @@ const CRENEAU_COLLECTEUR = "wares:collecteur";
    écran démonté, c'est poser un ruban dans un nœud que personne ne regarde. */
 let rouesEnAttente = [];
 
-/** Pose les deux rubans sur leur cran visé. ⭐ À appeler APRÈS que l'écran est dans le
- *  document — comme `poserLesDalles()` pour le sac, et pour la même raison. */
+/* ══ LA TRANSITION DE PLAQUE ═══════════════════════════════════════════════════
+   ⚖️ ERIC, 2026-09-21 : *« qu'on ait la sensation de passer d'un catalogue à un autre quand on
+   change de sous-catégorie »* · *« la transition de dalle se fait quand on change de
+   sous-catégorie dans le 2e tambour ; on arrive sur la page 1, et naviguer dans les pages se
+   fait avec les chevrons »* · *« changer de page = chevrons, la plaque ne glisse pas »*.
+
+   🔴 CE QUI REND CET ÉCRAN DIFFÉRENT DU SAC, ET C'EST TOUTE LA DIFFICULTÉ. Le sac pose TOUTES ses
+   plaques côte à côte et n'en reconstruit aucune : changer de section, c'est faire glisser un
+   ruban déjà là. ⛔ Wares, lui, est **reconstruit à chaque rendu** par `equipment-step` — et
+   📏 mesuré sur la donnée : 26 sous-catégories × jusqu'à 3 pages = **47 plaques / 564 jetons** si
+   on posait tout. On ne peut donc pas copier le mécanisme ; il faut le même EFFET autrement.
+   ⭐ D'OÙ LA MÉMOIRE D'UNE SEULE PLAQUE : le module retient celle du rendu précédent. Quand la
+   suivante porte une autre clef, on emmène l'ancienne dans le nœud NEUF *(un `append` DÉPLACE)*,
+   les deux voyagent ensemble, et l'ancienne est retirée à l'arrivée.
+   ⛔ ET RIEN N'EST GARDÉ D'UN ÉCRAN DÉMONTÉ : une plaque orpheline serait un nœud que personne ne
+   regarde — la faute exacte que `rouesEnAttente` évite deux lignes plus haut. */
+let plaqueEnPlace = null;      /* { clef, noeud } du rendu précédent, ⛔ jamais une liste */
+let transitionEnAttente = null; /* { piste, sortante, entrante } posé au rendu, joué au montage */
+
+/** ⭐ POUR LES BANCS ET LES GARDES : oublier ce qu'on retient. ⛔ Sans ça, deux bancs qui se
+ *  suivent verraient une transition entre deux écrans qui n'ont rien à voir. */
+export function oublierLaPlaque() { plaqueEnPlace = null; transitionEnAttente = null; }
+
+/** Pose les deux rubans sur leur cran visé, ⭐ ET LANCE LA TRANSITION DE PLAQUE s'il y en a une.
+ *  À appeler APRÈS que l'écran est dans le document — comme `poserLesDalles()` pour le sac, et
+ *  pour la même raison : un ruban posé hors du document réussit et ne fait rien, en silence. */
 export function poserLesRoues() {
   const roues = rouesEnAttente;
   rouesEnAttente = [];
   let posees = 0;
   for (const r of roues) { if (r.poser && r.poser() === true) posees += 1; }
+  jouerLaTransition();
   return posees;
+}
+
+/** Joue le glissement : la plaque sortante s'en va, l'entrante arrive.
+ *  ⛔ IL NE CALCULE AUCUNE DISTANCE : le train est un flex, donc amener la plaque `k` sous la
+ *  fenêtre, c'est traduire de son `offsetLeft` — une LECTURE de la mise en page, jamais une
+ *  multiplication. C'est la leçon du verrou du sac : *« la place d'une plaque se LIT, elle ne se
+ *  multiplie pas »* — un rapport fixe dérive dès que le jour ne tombe pas rond, et 38,88 ne
+ *  tombe pas rond. */
+function jouerLaTransition() {
+  const t = transitionEnAttente;
+  transitionEnAttente = null;
+  if (!t || !t.piste || t.piste.isConnected === false) return false;
+  const { piste, sortante, entrante } = t;
+  /* ⛔ IL NE CALCULE AUCUNE DISTANCE : amener la plaque sous la fenêtre, c'est défiler jusqu'à
+     son `offsetLeft` — une LECTURE de la mise en page, jamais une multiplication. C'est la leçon
+     du verrou du sac : *« la place d'une plaque se LIT, elle ne se multiplie pas »* — un rapport
+     fixe dérive dès que le jour ne tombe pas rond, et 38,88 ne tombe pas rond. */
+  const arrivee = entrante.offsetLeft;
+  let fini = false;
+  const finir = () => {
+    if (fini) return;
+    fini = true;
+    /* ⛔ `remove()`, ET PAS `removeChild()` — et ce n'est pas un contournement du garde du socle.
+       Ce garde interdit de REMPLACER le contenu d'un nœud (`innerHTML`, `replaceChildren`,
+       `removeChild`) parce qu'un remplacement jette la position de défilement. Ici on retire UN
+       nœud de passage d'un train dont on tient soi-même le défilement — ⛔ on ne remplace le
+       contenu de rien. ⭐ Et il FAUT le retirer : laissé là, il reste hors champ mais
+       TABULABLE — douze boutons invisibles que le clavier traverse quand même. */
+    if (sortante && sortante.remove) sortante.remove();
+    /* ⭐ et la piste revient à zéro : une seule plaque, donc un seul point de repos */
+    piste.scrollLeft = 0;
+  };
+  /* ⛔ SANS MISE EN PAGE, PAS DE GLISSEMENT — et on ARRIVE quand même. Hors navigateur (un banc,
+     un garde) `offsetLeft` n'existe pas : défiler vers `undefined` ne ferait rien, en silence, et
+     la plaque sortante resterait dans le train pour toujours. ⭐ Une absence de mesure n'est pas
+     une raison de ne pas finir. */
+  if (!Number.isFinite(arrivee)) { finir(); return true; }
+  piste.scrollLeft = arrivee;
+  /* ⭐ DEUX FILETS POUR UNE SEULE FIN : `scrollend` là où il existe, un délai généreux sinon.
+     ⛔ Un `scrollend` qui ne vient jamais — onglet caché, défilement interrompu — laisserait la
+     plaque sortante dans le train, et l'écran resterait à moitié glissé. */
+  if (piste.addEventListener) piste.addEventListener("scrollend", finir, { once: true });
+  setTimeout(finir, FILET_DE_FIN_MS);
+  return true;
 }
 
 function el(balise, classe, texte) {
@@ -184,7 +267,28 @@ export function feuilleDesCotesWares() {
   r.push(`.wares-fond{grid-column:2;grid-row:1;place-self:center;` +
          `width:${px(FOND.l)};height:${px(FOND.h)};` +
          `mask-image:${url};-webkit-mask-image:${url}}`);
-  r.push(`.wares-cases{grid-column:2;grid-row:1}`);
+  /* ⚖️ LA PISTE EST LA FENÊTRE, LE TRAIN EST CE QUI GLISSE — deux nœuds parce que ce sont deux
+     rôles, exactement comme la roue et son ruban. ⛔ La piste CLIPPE : sans `overflow: hidden`,
+     la plaque sortante se verrait par-dessus les gouttières et le pied.
+     ⭐ ET LA PISTE PREND LA CELLULE DES JETONS — donc le filigrane, qui est dans la même cellule,
+     reste DERRIÈRE et ne bouge pas. C'est voulu : le marchand est le décor de la boutique, pas
+     son contenu. Ce qui voyage est ce qu'on achète. */
+  /* ⭐ ET C'EST LA PISTE QUI DÉFILE, comme dans le sac. `overflow: hidden` clippe SANS donner
+     de barre ni de geste : un élément caché reste défilable **par script**, et c'est exactement
+     ce qu'on veut — la plaque ne se glisse pas au doigt (Eric, 21/09 : *« la dalle de Wares ne
+     sera pas swipable car elle a plusieurs pages »*), elle se déplace quand le tambour le dit. */
+  r.push(`.wares-piste{grid-column:2;grid-row:1;overflow:hidden;scroll-behavior:smooth}`);
+  /* ⛔ ET LE MOUVEMENT SE RETIRE QUAND ON LE DEMANDE — `prefers-reduced-motion` est tenu depuis
+     la FEUILLE, donc sans une ligne de JavaScript. ⭐ Le résultat est le même ; c'est le trajet
+     qui disparaît : la plaque est déjà arrivée. */
+  r.push(`@media (prefers-reduced-motion:reduce){.wares-piste{scroll-behavior:auto}}`);
+  /* ⚖️ LE JOUR VIENT DU PLAN, et le plan le DÉDUIT de la loi du 19/09 — ⛔ il ne se choisit pas.
+     ⭐ Pendant la traversée on voit la dalle passer entre celle qui part et celle qui arrive ;
+     au repos il est hors champ, parce que le train ne porte qu'une plaque. */
+  r.push(`.wares-train{display:flex;gap:${px(JOUR)}}`);
+  /* ⛔ ET LA PLAQUE NE SE LAISSE PAS ÉCRASER : dans un flex, deux plaques de 277 dans une fenêtre
+     de 277 se partageraient la place, et il n'y aurait plus rien à faire glisser. */
+  r.push(`.wares-cases{flex:0 0 auto;inline-size:${px(RENDU_GRILLE.jetons.l)}}`);
 
   /* ── dalle 3 : trois colonnes, trois rangées, les deux côtés qui enjambent ──
      ⭐ ET VOICI TOUT LE CENTRAGE D'ERIC, EN DEUX DÉCLARATIONS : la cellule enjambe les
@@ -515,9 +619,44 @@ export function construireLesWares(o = {}) {
     c.append(jeton(item, o));
     cases.append(c);
   }
+  /* ⚖️ LA CLEF D'UNE PLAQUE EST SA SOUS-CATÉGORIE, ⛔ PAS SA PAGE — Eric, 21/09 : *« changer de
+     page = chevrons, la plaque ne glisse pas »* · *« la transition se fait quand on change de
+     sous-catégorie »*. ⭐ Deux pages d'une même sous-catégorie portent donc la MÊME clef : les
+     jetons se substituent, et rien ne glisse. C'est la clef qui fait toute la règle. */
+  cases.dataset.plaque = `${o.categorie | 0}:${o.sousCategorie | 0}`;
+  const piste = el("div", "wares-piste");
+  const train = el("div", "wares-train");
+  piste.append(train);
+
+  /* ⭐ LE SENS SUIT LE GESTE : une sous-catégorie plus à droite arrive par la droite.
+     ⛔ Et quand c'est la CATÉGORIE qui change, l'indice de sous-catégorie retombe à 0 et ne dit
+     plus rien — on prend alors celui de la catégorie, qui, lui, a bougé. */
+  const ancienne = plaqueEnPlace;
+  const neuve = { clef: cases.dataset.plaque, cat: o.categorie | 0, sous: o.sousCategorie | 0 };
+  /* 🔴 ET L'ANCIENNE DOIT VENIR D'UN ÉCRAN ENCORE MONTÉ. Au moment où on construit, l'écran
+     précédent est toujours dans le document : s'il n'y est plus, c'est qu'on est PARTI de Wares
+     et qu'on y revient. ⭐ Revenir n'est pas changer de sous-catégorie — ça ne doit rien faire
+     glisser. ⛔ Sans ce test, un aller-retour par Gear rejouerait la transition d'une plaque
+     morte, et le geste dirait quelque chose de faux. */
+  const encoreLa = ancienne && ancienne.noeud && ancienne.noeud.isConnected !== false;
+  if (encoreLa && ancienne.clef !== neuve.clef) {
+    const versLaDroite = ancienne.cat === neuve.cat
+      ? neuve.sous > ancienne.sous
+      : neuve.cat > ancienne.cat;
+    /* ⛔ UN `append` DÉPLACE : la plaque sortante quitte l'écran démonté et entre dans le neuf.
+       ⭐ C'est ce qui la fait SURVIVRE au remplacement — sans ça il n'y aurait rien à voir partir. */
+    if (versLaDroite) train.append(ancienne.noeud, cases);
+    else train.append(cases, ancienne.noeud);
+    transitionEnAttente = { piste, sortante: ancienne.noeud, entrante: cases };
+  } else {
+    train.append(cases);
+    transitionEnAttente = null;
+  }
+  plaqueEnPlace = { clef: neuve.clef, cat: neuve.cat, sous: neuve.sous, noeud: cases };
+
   grille.append(
     gouttiere("gauche", String(o.compte ?? objets.length), pages > 1, o.surPage),
-    cases,
+    piste,
     gouttiere("droite", `${(o.page | 0) + 1}/${pages}`, pages > 1, o.surPage),
   );
 

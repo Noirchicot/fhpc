@@ -13,7 +13,7 @@ import { createTestDocument } from "./dom-stub.mjs";
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/wares-disposition.mjs");
-const { construireLesWares, feuilleDesCotesWares } = await import("../ui/builder/wares-ecran.mjs");
+const { construireLesWares, feuilleDesCotesWares, oublierLaPlaque } = await import("../ui/builder/wares-ecran.mjs");
 
 const tous = (n, sel) => [...n.querySelectorAll(sel)];
 
@@ -550,4 +550,76 @@ test("25 · le popup de la bourse est coté sous `.wares`, et il est centré sur
   const serre = Number(pose[1]) === 4 || Number(pose[1]) + 186 === D.DALLE.l - 4;
   assert.ok(serre || Math.abs(cx - (purse.x + purse.l / 2)) < 0.01,
     `⛔ le popup n'est ni centré sur la bourse (${purse.x + purse.l / 2}) ni serré dans la dalle : centre à ${cx}`);
+});
+
+/* ══ 26 · LA TRANSITION DE PLAQUE ══════════════════════════════════════════════
+   ⚖️ ERIC, 2026-09-21, et les trois phrases se tiennent :
+     · *« la transition de dalle se fait quand on change de sous-catégorie dans le 2e tambour »* ;
+     · *« on arrive sur la page 1, et naviguer dans les pages se fait avec les chevrons »* ;
+     · *« changer de page = chevrons, la plaque ne glisse pas »*.
+   ⭐ TOUT TIENT DANS LA **CLEF** de la plaque : deux pages d'une même sous-catégorie portent la
+   même clef, donc rien ne glisse ; une sous-catégorie voisine en porte une autre, donc ça glisse.
+   ⛔ Le garde lit la clef et le TRAIN, ⛔ pas une classe ni un commentaire. */
+test("26 · une page de plus ne fait RIEN glisser ; une sous-catégorie voisine, si", () => {
+  oublierLaPlaque();
+  const train = (n) => tous(n, ".wares-train")[0];
+  const plaques = (n) => tous(n, ".wares-cases").length;
+
+  /* ① premier rendu : une seule plaque, rien à faire partir */
+  const a = monter({ sousCategorie: 0, page: 0, pages: 3 });
+  assert.ok(train(a), "⛔ pas de train : la plaque n'a rien pour glisser");
+  assert.equal(plaques(a), 1, "⛔ un premier rendu ne fait pas entrer une plaque contre une autre");
+
+  /* ② page suivante, MÊME sous-catégorie : la clef ne change pas, donc UNE plaque */
+  const b = monter({ sousCategorie: 0, page: 1, pages: 3 });
+  assert.equal(plaques(b), 1,
+    "⛔ changer de page fait glisser une plaque : Eric a dit « la plaque ne glisse pas »");
+
+  /* ③ sous-catégorie voisine : DEUX plaques dans le train, la sortante et l'entrante */
+  const c = monter({ sousCategorie: 1, page: 0, pages: 3 });
+  assert.equal(plaques(c), 2, "⛔ rien ne part : on ne verrait pas passer d'un catalogue à l'autre");
+  const dans = tous(train(c), ".wares-cases").map((p) => p.dataset.plaque);
+  assert.deepEqual(dans, ["0:0", "0:1"],
+    "⛔ la sortante arrive par la gauche : une sous-catégorie plus à droite entre par la DROITE");
+
+  /* ④ et en revenant en arrière, le sens s'inverse */
+  const d = monter({ sousCategorie: 0, page: 0, pages: 3 });
+  assert.deepEqual(tous(train(d), ".wares-cases").map((p) => p.dataset.plaque), ["0:0", "0:1"],
+    "⛔ le sens ne s'inverse pas : la plaque qui s'en va doit sortir du côté d'où l'on vient");
+});
+
+/* ══ 27 · LA CLEF NE CONNAÎT PAS LA PAGE ═══════════════════════════════════════
+   ⭐ TÉMOIN DIRECT de la règle : si la page entrait dans la clef, chaque coup de chevron
+   ferait glisser une plaque. ⛔ Éprouvé rouge en ajoutant la page à la clef. */
+test("27 · la clef d'une plaque est sa sous-catégorie, ⛔ jamais sa page", () => {
+  oublierLaPlaque();
+  const clef = (n) => tous(n, ".wares-cases")[0].dataset.plaque;
+  const p0 = clef(monter({ categorie: 1, sousCategorie: 2, page: 0, pages: 3 }));
+  oublierLaPlaque();
+  const p2 = clef(monter({ categorie: 1, sousCategorie: 2, page: 2, pages: 3 }));
+  assert.equal(p0, p2, `⛔ la page est entrée dans la clef : « ${p0} » puis « ${p2} »`);
+  oublierLaPlaque();
+  const autre = clef(monter({ categorie: 1, sousCategorie: 3, page: 0, pages: 3 }));
+  assert.notEqual(p0, autre, "⛔ deux sous-catégories partagent une clef : rien ne glissera jamais");
+});
+
+/* ══ 28 · LA FENÊTRE CLIPPE, ET LE JOUR VIENT DU PLAN ══════════════════════════
+   🔴 SANS `overflow: hidden`, la plaque sortante se verrait PAR-DESSUS les gouttières et le pied
+   pendant toute la traversée. ⛔ Et le jour ne se choisit pas : la loi du 19/09 le déduit du
+   rapport de la tuile à sa gouttière. */
+test("28 · la piste clippe, le train porte le jour du plan, et le filigrane ne voyage pas", () => {
+  const f = feuilleDesCotesWares();
+  assert.match(f, /\.wares-piste\{[^}]*overflow:hidden/,
+    "⛔ la fenêtre ne clippe pas : la plaque sortante déborderait sur tout l'écran");
+  const blocTrain = (f.match(/\.wares-train\{([^}]*)\}/) || [])[1] || "";
+  assert.match(blocTrain, new RegExp(`gap:${D.JOUR}px`),
+    `⛔ le jour du train n'est pas celui du plan (${D.JOUR}) — lu : « ${blocTrain} »`);
+  assert.equal(D.JOUR, Math.round(D.RENDU_GRILLE.jetons.l * (D.ECART / D.ROUE.tuile) * 100) / 100,
+    "⚖️ et le plan le DÉDUIT de la loi du 19/09, ⛔ il ne le choisit pas");
+  /* ⭐ le filigrane reste dans la cellule, ⛔ pas dans le train : le décor ne voyage pas */
+  assert.match(f, /\.wares-fond\{[^}]*grid-column:2/,
+    "⛔ le filigrane a quitté la cellule : le marchand suivrait la marchandise");
+  /* ⛔ et une plaque de flex ne se laisse pas écraser par sa voisine */
+  assert.match(f, /\.wares-cases\{[^}]*flex:0 0 auto/,
+    "⛔ sans `flex: 0 0 auto`, deux plaques se partagent la fenêtre et rien ne glisse");
 });
