@@ -1045,10 +1045,21 @@
      habille TOUS les panneaux du builder (les choix, les gros affichages).
      Le descendre à 10 aurait effacé le verre partout pour régler le contraste
      d'une rangée. Un voile de belt est un voile de belt.
-     📏 Mesuré : à 35 contre 50, la dominante ne se détachait pas — c'est ce
-     qu'Eric voyait quand il disait ne pas voir de tuile active. À 10 contre
-     50, le rapport de matière passe de 1,43 à 5. */
-  --belt-voile: 10%;
+
+     🔄 AMENDÉ LE 2026-09-21 — IL MONTE À 20 %, et c'est un ALIGNEMENT, pas un
+     réglage. Eric a demandé de vérifier si le cran posé valait 100 « idem
+     belt » ; 📏 relevé : le belt rend **0,50** au courant et **0,10** au repos,
+     les deux tambours **0,50** et **0,20**. Le posé était donc DÉJÀ identique,
+     et le seul écart vivait au REPOS. Sa conclusion : *« passe les crans au
+     repos à 20 »* — ce qui ne peut viser que le belt, les tambours y étant déjà.
+     ⭐ Les trois rangées de crans du site parlent désormais la même matière :
+     0,20 au repos, 0,50 sous le viseur.
+     🗄️ CE QUE ÇA COÛTE, ET L'ARGUMENT DE 15/09 RESTE VRAI : le rapport de
+     matière entre une tuile et la dominante passe de **5** à **2,5**. Il était
+     de 1,43 quand Eric ne voyait pas la tuile active ; 2,5 en reste loin, et
+     c'est ce qui rend l'alignement tenable. ⛔ Si la dominante cessait de se
+     détacher, c'est ce rapport-là qu'il faudrait relire — pas repartir de zéro. */
+  --belt-voile: 20%;
   --belt-dalle: color-mix(in srgb, var(--surface) var(--belt-voile), transparent);
 
   /* ⚖️ 15/09 — LE HALO DE LA DOMINANTE, FRANC DANS LES DEUX THÈMES.
