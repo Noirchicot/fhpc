@@ -26,13 +26,20 @@ import { readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { homedir } from "node:os";
+
+/* ⚖️ LE MÊME VOISIN QUE `gen-srd-layer`, DONC LA MÊME ENTRÉE DÉCLARÉE. Ce
+   fichier portait sa propre copie de `join(homedir(), "tools", "fh-srd",
+   "exports")` : deux écrivains pour un seul chemin. Les câbler tous les deux
+   sur la déclaration est la condition du lot 241 — une entrée qui n'aurait
+   déplacé qu'un des deux générateurs les aurait fait lire DEUX voisins
+   différents sans le dire. Voir srd-exports-root.mjs. */
+import { SRD_EXPORTS, ouTrouverLeVoisin } from "./srd-exports-root.mjs";
 
 import { GENRES as GENRES_DECLARES } from "../layers/document.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = join(here, "..", "..");
-export const SRFH_ROOT = join(homedir(), "tools", "fh-srd", "exports");
+export const SRFH_ROOT = SRD_EXPORTS;
 export const OUT_DIR = join(REPO_ROOT, "layers");
 
 /** Une seule langue, et c'est la source qui le dit. */
@@ -178,8 +185,7 @@ export function lireInventaire(root = SRFH_ROOT) {
     manifest = JSON.parse(readFileSync(join(root, "MANIFEST.json"), "utf8"));
   } catch (cause) {
     throw new Error(
-      `gen-srfh-layer : MANIFEST.json illisible sous ${root} — fh-srd est une dépendance FERME ` +
-      `de ce générateur, pas un intrant optionnel. (${cause.message})`
+      `gen-srfh-layer : MANIFEST.json illisible. ${ouTrouverLeVoisin(root)} (${cause.message})`
     );
   }
   let disque;
@@ -187,8 +193,7 @@ export function lireInventaire(root = SRFH_ROOT) {
     disque = genresSurDisque(root);
   } catch (cause) {
     throw new Error(
-      `gen-srfh-layer : srfh/${LANG}/ illisible sous ${root} — fh-srd est une dépendance FERME ` +
-      `de ce générateur. (${cause.message})`
+      `gen-srfh-layer : srfh/${LANG}/ illisible. ${ouTrouverLeVoisin(root)} (${cause.message})`
     );
   }
   return { disque, manifest: genresAuManifest(manifest) };

@@ -17,7 +17,13 @@ import { readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { homedir } from "node:os";
+
+/* ⚖️ OÙ VIT `fh-srd` EST UNE ENTRÉE DÉCLARÉE, ET ELLE EST DÉCLARÉE AILLEURS.
+   Ce fichier portait `join(homedir(), "tools", "fh-srd", "exports")` — un
+   chemin deviné sur l'arborescence d'une seule machine, qui rendait ce
+   générateur inexécutable partout ailleurs. Voir srd-exports-root.mjs pour ce
+   que ça a coûté et pourquoi la déclaration ne vit pas ici. */
+import { SRD_EXPORTS, ouTrouverLeVoisin } from "./srd-exports-root.mjs";
 
 /* Les genres que le CONTRAT fh-layer/1 déclare — importés, jamais recopiés :
    une troisième copie de cette liste serait une troisième chance de dériver. */
@@ -25,7 +31,7 @@ import { GENRES as GENRES_DECLARES } from "../layers/document.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = join(here, "..", "..");
-export const SRD_ROOT = join(homedir(), "tools", "fh-srd", "exports");
+export const SRD_ROOT = SRD_EXPORTS;
 export const OUT_DIR = join(REPO_ROOT, "layers");
 
 export const LANGS = ["fr", "en"];
@@ -246,8 +252,7 @@ export function lireInventaire(root = SRD_ROOT) {
     manifest = JSON.parse(readFileSync(join(root, "MANIFEST.json"), "utf8"));
   } catch (cause) {
     throw new Error(
-      `gen-srd-layer : MANIFEST.json illisible sous ${root} — fh-srd est une ` +
-      `dépendance FERME de ce générateur, pas un intrant optionnel. (${cause.message})`
+      `gen-srd-layer : MANIFEST.json illisible. ${ouTrouverLeVoisin(root)} (${cause.message})`
     );
   }
   const inventaire = {};
@@ -256,8 +261,7 @@ export function lireInventaire(root = SRD_ROOT) {
       inventaire[lang] = { disque: genresSurDisque(root, lang), manifest: genresAuManifest(manifest, lang) };
     } catch (cause) {
       throw new Error(
-        `gen-srd-layer : srd/${lang}/ illisible sous ${root} — fh-srd est une ` +
-        `dépendance FERME de ce générateur. (${cause.message})`
+        `gen-srd-layer : srd/${lang}/ illisible. ${ouTrouverLeVoisin(root)} (${cause.message})`
       );
     }
   }
