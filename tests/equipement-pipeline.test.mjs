@@ -21,7 +21,7 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { CURRENCY_KEYS } from "../src/build/index.mjs";
 import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bourseCouvre, enGP,
   currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu,
-  motDeLEncombrement }
+  motDeLEncombrement, UNITE_DU_JEU }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
 import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
@@ -485,25 +485,32 @@ test("🔴 LE FIL DE LA BOURSE DU SAC — on CLIQUE, et le popup doit s'ouvrir",
    ⭐ LA LEÇON : une justification qui s'appuie sur un VOISIN meurt quand le voisin change, et le
    commentaire, lui, continue d'affirmer. Une phrase que personne ne tient dérive en silence. */
 test("l'encombrement dit son unité — et il n'en invente pas une quand elles sont mêlées", () => {
-  /* ① le cas courant : l'unité du livre */
+  /* ① LE CAS DU JEU : la livre — Eric, 21/09 : *« non, en mesures impériales ici »*. */
   assert.equal(motDeLEncombrement({ somme: 46.5, inconnus: 0 }, { unite: "lb", melange: false }),
     "Encumbrance : 46.5 lb");
-  assert.equal(motDeLEncombrement({ somme: 12, inconnus: 0 }, { unite: "kg", melange: false }),
-    "Encumbrance : 12 kg", "⛔ l'unité vient du LIVRE, elle n'est pas anglaise par nature");
+  assert.equal(UNITE_DU_JEU, "lb", "⚖️ et l'unité du jeu est bien la livre");
 
-  /* ② ⛔ LE CAS QUI MENT SI ON NE LE TIENT PAS : des livres ET des kilos dans le même total.
-     ⭐ Un chiffre avec la mauvaise unité est PIRE qu'un chiffre nu — il se recopie. */
+  /* ② ⛔ UN TOTAL QUI N'EST PAS EN LIVRES EST UNE ANOMALIE, ⛔ PAS UN CAS D'AFFICHAGE.
+     ⭐ On ne le réétiquette pas — le chiffre mentirait — et on ne le CONVERTIT pas : la maison
+     l'interdit en toutes lettres *(« la livre et le kilo ne se convertissent JAMAIS l'un dans
+     l'autre ici… convertir inventerait une précision que le livre ne donne pas »)*. On le DIT. */
+  const enKilos = motDeLEncombrement({ somme: 12, inconnus: 0 }, { unite: "kg", melange: false });
+  assert.doesNotMatch(enKilos, /\blb\b/,
+    `⛔ un total en kilos réétiqueté en livres : « ${enKilos} » — le chiffre ment, et il se recopie`);
+  assert.match(enKilos, /hors mesures impériales/, "⭐ et il le DIT, ⛔ il ne se tait pas");
+
+  /* ③ MÊME TRAITEMENT POUR UN MÉLANGE : des livres ET des kilos dans le même total. */
   const mele = motDeLEncombrement({ somme: 30, inconnus: 0 }, { unite: null, melange: true });
   assert.doesNotMatch(mele, /\blb\b|\bkg\b/,
     `⛔ une unité affichée sur un total qui en mêle plusieurs : « ${mele} »`);
-  assert.match(mele, /mêlées/, "⭐ et il le DIT, ⛔ il ne se tait pas");
+  assert.match(mele, /hors mesures impériales/, "⭐ et il le DIT aussi");
 
-  /* ③ l'absence de mesure n'est pas un mélange : là, le repli sur le livre anglais est honnête */
+  /* ④ l'absence de mesure n'est PAS une autre unité : l'unité du jeu s'applique par défaut */
   assert.equal(motDeLEncombrement({ somme: 0, inconnus: 0 }, { unite: null, melange: false }),
     "Encumbrance : 0 lb",
-    "⛔ aucun objet pesé n'est pas « plusieurs unités » : le total garde l'unité du livre");
+    "⛔ aucun objet pesé n'est pas « une autre unité » : c'est l'unité du jeu qui s'applique");
 
-  /* ④ et les objets sans poids connu restent annoncés — une somme qui ne porte pas tout le dit */
+  /* ⑤ et les objets sans poids connu restent annoncés — une somme qui ne porte pas tout le dit */
   assert.match(motDeLEncombrement({ somme: 5, inconnus: 2 }, { unite: "lb", melange: false }),
     /2 sans poids/, "⛔ une somme qui ne pèse pas tout doit le dire");
 });

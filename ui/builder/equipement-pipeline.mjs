@@ -185,20 +185,34 @@ export function additionneCouts(couts) {
  *  prévient : le commentaire continue d'affirmer ce qui n'est plus vrai. C'est pour ça que le
  *  libellé descend ici, avec un garde : une phrase que personne ne tient dérive en silence.
  *
- *  ⛔ ET L'UNITÉ NE S'INVENTE PAS. `unite` est celle du LIVRE (`lb` en anglais, `kg` en
- *  français) ; elle vaut `null` quand les objets en MÊLENT plusieurs, et `melange` le dit.
- *  ⭐ Afficher `lb` sur un total qui additionne des kilos serait un chiffre qui MENT — pire
- *  qu'un chiffre nu. Le repli sur `lb` ne couvre donc que l'ABSENCE de mesure.
+ *  ⚖️ ET L'UNITÉ EST IMPÉRIALE — Eric, 2026-09-21 : *« non, en mesures impériales ici »*. Le
+ *  jeu se pèse en **livres**, et c'est ce que l'écran dit.
+ *
+ *  🔴 CE QUE ÇA NE VEUT PAS DIRE : convertir. La maison a déjà tranché, et c'est écrit vingt
+ *  lignes plus haut — *« la livre et le kilo ne se convertissent JAMAIS l'un dans l'autre ici :
+ *  l'édition FR n'est pas une conversion mais un ARRONDI d'éditeur (« 2 lb. » y vaut « 1 kg »,
+ *  pas 0,907), et convertir inventerait une précision que le livre ne donne pas »*.
+ *  ⭐ DONC UN TOTAL QUI N'EST PAS EN LIVRES EST UNE ANOMALIE, ⛔ pas un cas d'affichage : on ne
+ *  le réétiquette pas en `lb` *(le chiffre mentirait, et un chiffre qui ment se recopie)*, et on
+ *  ne le convertit pas non plus *(la loi l'interdit)*. **On le DIT.**
+ *  ⭐ Même traitement pour un total qui MÊLE plusieurs unités : aucune étiquette, et on le dit.
+ *  📌 Le repli sur la livre couvre l'ABSENCE de mesure — aucun objet pesé n'est pas « une autre
+ *  unité », c'est l'unité du jeu qui s'applique par défaut.
  *
  *  @param {{somme:number, inconnus:number}} e     l'encombrement calculé
  *  @param {{unite:?string, melange:boolean}} poids ce que la pesée a trouvé
  */
+export const UNITE_DU_JEU = "lb";
+
 export function motDeLEncombrement(e, poids) {
   const rond = (n) => Math.round((n || 0) * 10) / 10;
-  const melange = !!(poids && poids.melange);
-  const unite = melange ? "" : ` ${(poids && poids.unite) || "lb"}`;
-  return `Encumbrance : ${rond(e && e.somme)}${unite}`
-    + (melange ? " (unités mêlées)" : "")
+  const trouvee = poids && poids.unite;
+  /* ⛔ UNE SEULE CONDITION, ET ELLE COUVRE LES DEUX ANOMALIES : plusieurs unités mêlées, ou une
+     unité qui n'est pas celle du jeu. Dans les deux cas le total n'est PAS en livres, donc il
+     ne porte aucune étiquette et il l'annonce. */
+  const impérial = !(poids && poids.melange) && (!trouvee || trouvee === UNITE_DU_JEU);
+  return `Encumbrance : ${rond(e && e.somme)}`
+    + (impérial ? ` ${UNITE_DU_JEU}` : " (hors mesures impériales)")
     + (e && e.inconnus ? ` · ${e.inconnus} sans poids` : "");
 }
 
