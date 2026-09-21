@@ -402,119 +402,16 @@ function blocMyGold(bourse, motBourse) {
   return b;
 }
 
-/* ══ B1 — LA FICHE D'UN OBJET (croquis IMG_6107) ════════════════════════════
-   `liste` : les objets de la page de grille d'où on vient — le « 1/x avec
-   flèches » navigue DEDANS sans repasser par R (vault §1). */
-export function renderB1({ liste, index, bourse, motBourse = null, onAction, naviguer, fermer }) {
-  const ecran = elp("section", "pipeline-ecran pipeline-b1");
-  ecran.dataset.ecran = "B1";
-  let i = index;
-  let qte = 1;
-  const item = () => liste[i];
-
-  const entete = elp("header", "pipeline-entete");
-  entete.append(elp("h2", null, "Item description"));
-  const compte = elp("p", "pipeline-compte", `${i + 1}/${liste.length}`);
-  entete.append(compte);
-
-  const corps = elp("div", "pipeline-b1-corps");
-  const nomP = elp("p", "pipeline-b1-nom");
-  const infosP = elp("p", "pipeline-b1-infos");
-  const proseP = elp("p", "pipeline-b1-prose");
-  corps.append(nomP, infosP, proseP);
-
-  /* les flèches du croquis — deux ronds, coins hauts */
-  const gauche = bouton("←", "pipeline-fleche", () => { i = (i - 1 + liste.length) % liste.length; peindre(); }, "Previous item");
-  const droite = bouton("→", "pipeline-fleche", () => { i = (i + 1) % liste.length; peindre(); }, "Next item");
-
-  const or = blocMyGold(bourse, motBourse);
-
-  /* PRICE (type in — rose au croquis : le joueur peut marchander) · QTY ± */
-  const reglages = elp("div", "pipeline-reglages");
-  const prixChamp = elp("input", "pipeline-typein");
-  prixChamp.type = "text";
-  prixChamp.setAttribute("aria-label", "Price");
-  const qteChamp = elp("input", "pipeline-typein pipeline-qte");
-  qteChamp.type = "text"; qteChamp.inputMode = "numeric";
-  qteChamp.setAttribute("aria-label", "Quantity");
-  qteChamp.addEventListener("change", () => {
-    const n = parseInt(qteChamp.value, 10);
-    qte = Number.isInteger(n) && n > 0 ? n : 1;
-    peindre();
-  });
-  const plus = bouton("+", "pipeline-pas pipeline-pas-plus", () => { qte += 1; peindre(); }, "One more");
-  const moins = bouton("−", "pipeline-pas pipeline-pas-moins", () => { qte = Math.max(1, qte - 1); peindre(); }, "One less");
-  reglages.append(elp("span", "pipeline-libelle", "Price"), prixChamp,
-    elp("span", "pipeline-libelle", "Qty"), qteChamp, plus, moins);
-
-  /* SEND TO — les destinations INTERNES au personnage (le mandat exclut
-     groupe, DM, companions ; le croquis les liste pour plus tard).
-     ⭐ RÈGLE D'ERIC (24/08) : *« un item individuel, si pas de choix
-     pertinent, ça peut aller au slot approprié, pockets, backpack »* — le
-     défaut d'UN objet est donc la CASCADE (l'arbitre du pilote la joue :
-     slot libre → poche libre → le sac). */
-  const destRang = elp("div", "pipeline-sendto");
-  destRang.append(elp("span", "pipeline-libelle", "Send to"));
-  const dest = elp("select", "pipeline-dropdown");
-  /* 🔴 `Storage` EST SORTI DE CETTE LISTE LE 18/09, ET CE N'EST PAS UN CAPRICE —
-     c'était devenu un ENVOI VERS L'INVISIBLE. ⛔ Mesuré ce jour-là : la seule porte
-     au monde vers l'écran de la remise (`sb33`) était l'ANCIENNE liste du sac, et
-     celle-ci n'est plus dans le chemin du joueur depuis que `Backpack` ouvre le sac
-     B1. Un objet envoyé là n'aurait plus jamais pu être regardé.
-     ⚖️ ET LA SOURCE DU CHAPITRE NE LE PORTE PAS : son `SEND TO ▾` a huit entrées —
-     *« Backpack · Gear · Party inventory · Companion · Group PC · Merchant/NPC ·
-     Tally · Craft »* — et `Storage` n'en est pas. C'est un reste de la tuyauterie
-     d'avant l'écran R.
-     ⭐ CE QUI RESTE, ET QUI SUFFIT À NE RIEN PERDRE : la ligne `Other` du panneau de
-     poids compte ce qui est déjà rangé là (Eric, 16/09 : *« other storage ne rentre
-     pas dans encumbrance »*), et le code de l'écran `sb33` n'est pas supprimé — il
-     dort. ⏳ Le périmètre d'OTHER est explicitement NON TRANCHÉ dans la source ; le
-     jour où Eric lui donne une porte, la destination revient avec elle. */
-  for (const [v, mot] of [["self", "Slot (auto)"], ["backpack", "Backpack"]]) {
-    const o = elp("option", null, mot); o.value = v; dest.append(o);
-  }
-  destRang.append(dest);
-
-  const coutTotal = () => multiplieCout(parseCout(prixChamp.value) || item().cout, qte);
-  const alerte = elp("p", "pipeline-alerte");
-
-  function envoyer(payer) {
-    const cout = coutTotal();
-    if (payer) {
-      if (!cout) { alerte.textContent = "No known price — use FREE, or type one."; return; }
-      if (!bourseCouvre(bourse, cout)) { alerte.textContent = "Not enough coin in the purse."; return; }
-      onAction({ kind: "payer", cout });
-    }
-    const destination = dest.value || "self";   /* item seul : la cascade */
-    onAction({ kind: "addGearLine", ref: item().ref, quantity: qte,
-      equipped: destination === "self", location: destination });
-    fermer();
-  }
-
-  const pied = elp("div", "pipeline-pied");
-  pied.append(
-    bouton("BACK", "pipeline-bouton", fermer, "Back to catalogue"),
-    bouton("CRAFT", "pipeline-bouton pipeline-inerte", () => {}, "Craft"),
-    bouton("BUY", "pipeline-bouton", () => envoyer(true), "Pay, send, and return"),
-    bouton("FREE", "pipeline-bouton", () => envoyer(false), "Send without paying"),
-  );
-
-  function peindre() {
-    const it = item();
-    compte.textContent = `${i + 1}/${liste.length}`;
-    nomP.textContent = it.nom;
-    infosP.textContent = [it.coutTexte || "no price", it.poidsTexte || ""].filter(Boolean).join(" · ");
-    proseP.textContent = it.prose || "";
-    prixChamp.value = it.coutTexte || "";
-    qteChamp.value = String(qte);
-    alerte.textContent = "";
-  }
-  peindre();
-  if (naviguer) naviguer({ vers: (n) => { i = n; peindre(); } });
-
-  ecran.append(entete, gauche, droite, corps, or, reglages, destRang, alerte, pied);
-  return ecran;
-}
+/* ══ 🔴 LA FICHE D'UN OBJET A QUITTÉ CE FICHIER — LOT 242 ══════════════
+   `renderB1` vivait ici. ⚖️ `NORMES.md` (`equipement-la-fiche-du-catalogue-est-un-x2`)
+   lui rendait déjà son nom de loi : c'est un **X2**, et `b1` désignait *le même mot
+   que le rang B1, qui est le sac* — ⛔ un nom, deux objets.
+   ⭐ IL EST MAINTENANT DANS `x2-ecran.mjs`, À CÔTÉ DE `x1-ecran.mjs`, et pour une
+   raison qui n'est pas de rangement : sa moitié haute est IMPORTÉE de X1, donc elle
+   importe `x1-ecran`, qui importe `gear-ecran`, qui importe CE fichier. La garder
+   ici aurait fermé le cycle.
+   ⛔ Sa logique n'a pas bougé : elle appelle toujours `parseCout`, `multiplieCout` et
+   `bourseCouvre` d'ici. */
 
 /* ══ B2 — LE CART (croquis IMG_6108) · SB3.2 — LA MÊME LISTE, VUE DE B3 ═════
    `mode: "cart"` → BACK vers R, BUY paie ; `mode: "send"` (SB3.2) → BACK vers
@@ -622,7 +519,7 @@ export function renderB2({ mode, lignes, bourse, motBourse = null, onAction, ret
  *  les écrans SB3.1/SB3.3 la paginent, le FLUX du dressing (trois bandes,
  *  26/08) la déroule — une seule écriture du geste d'échange. */
 export function rangeeEchange(l, lieu, onAction) {
-  /* ⛔ `Storage` retiré aussi ici — voir la note de `renderB1` : envoi vers l'invisible. */
+  /* ⛔ `Storage` retiré aussi ici — voir la note de X2 (`x2-ecran.mjs`) : envoi vers l’invisible. */
   const DESTS = [["self", "Worn"], ["backpack", "Backpack"]];
   const rang = elp("div", "pipeline-ligne");
   rang.append(elp("span", "pipeline-ligne-nom", `${l.nomAffiche} ×${l.quantity || 1}`));

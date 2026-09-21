@@ -85,8 +85,16 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=791";
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=791";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=791";
+  renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=790";
+/* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
+   quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
+   *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
+   ⛔ ET L'ORDRE DES IMPORTS N'EST PAS UN DÉTAIL : `x2-ecran` importe `x1-ecran` (la
+   tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
+   BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
+   qui aurait fermé le cycle. */
+import { construireLaFicheX2 } from "./x2-ecran.mjs?v=790";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=790";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
@@ -2203,7 +2211,7 @@ let ficheX1 = null;
 /* ⚖️ D'OÙ LA FICHE A ÉTÉ OUVERTE — Eric, 20/09 : *« je visite un item et je le
    referme, je ne reviens pas au point d'origine, je reviens dans gear »*.
    ⛔ LA FICHE NE DÉCIDE PAS DE SON RETOUR, elle le REÇOIT. C'est exactement ce que
-   `renderB1` fait depuis toujours (`ficheEnCours.retour`) ; X1, plus récent, nommait
+   X2 fait depuis toujours (`ficheEnCours.retour`) ; X1, plus récent, nommait
    `"gear"` en dur — le calcul réemployé sans ce qui l'entoure.
    ⭐ ET C'EST `vueEquipement` LUI-MÊME, pris à l'instant du tap : aucune seconde
    vérité à tenir d'accord, juste la vue courante mise de côté avant qu'on la quitte. */
@@ -2215,17 +2223,18 @@ let nombreX1 = 1;
    `false` — on rouvre un objet pour le VOIR, pas pour retrouver un réglage. */
 let lectureX1 = false;
 /* LOT 212 — le mot que chaque vue écrit dans la 3ᵉ ligne du belt. Les
-   BRANCHES écrivent ; ⛔ une fiche (b1) n'écrit pas — elle garde le mot de la
+   BRANCHES écrivent ; ⛔ une fiche (X1, X2) n'écrit pas — elle garde le mot de la
    branche d'où on l'a ouverte (Eric, 16/09 : « les x ne s'inscrivent pas dans
    le belt »). `recherche` et `b2` sont des vues de Wares. */
 /* ⛔ `sac` Y MANQUAIT, ET LE BELT SE TAISAIT — trouvé à l'audit du lot 214 : la 3ᵉ
    ligne de la ceinture NOMME la fenêtre ouverte, et le sac n'y avait pas de mot.
    L'écran s'ouvrait sans que rien ne dise où l'on était. ⭐ `x1` n'y est pas non
-   plus, mais c'est une LOI (le rang X ne s'inscrit pas dans le belt) ; ici c'était
+   plus, ni `x2`, mais c'est une LOI (le rang X ne s'inscrit pas dans le belt) ; ici
+   c'était
    un oubli. */
 const FENETRE_DE = { gear: "Gear", sac: "Backpack", sb31: "Backpack", sb33: "Backpack", r: "Wares", recherche: "Wares", b2: "Wares", sb32: "Tally" };
 
-/** Un item de grille → la matière de B1/du panier. Le PRIX vient du record
+/** Un item de grille → la matière de X2/du panier. Le PRIX vient du record
  *  (`data.cost`, chaîne SRD), jamais d'un tarif écrit ici. */
 function ficheItem(item) {
   const data = (item.view && item.view.record && item.view.record.data) || {};
@@ -2376,7 +2385,7 @@ export function renderEquipmentStep(ctx, onAction) {
       const liste = [...itemsDeLaPage.values()].map(ficheItem);
       const index = Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id));
       ficheEnCours = { liste, index };
-      montrer("b1");
+      montrer("x2");
     },
     mettreAuPanier(item) {
       /* le panier vit au DOCUMENT : l'acte passe par la coquille, et le
@@ -3195,7 +3204,7 @@ export function renderEquipmentStep(ctx, onAction) {
         const liste = [...itemsDeLaPage.values()].map(ficheItem);
         const index = Math.max(0, liste.findIndex((f) => f.ref.id === ref));
         ficheEnCours = { liste, index, retour: "r" };
-        montrer("b1");
+        montrer("x2");
       },
       surPorte: (id) => {
         if (id === "gear") montrer("gear");
@@ -3231,16 +3240,19 @@ export function renderEquipmentStep(ctx, onAction) {
   function construireVue(vue) {
     if (vue === "r") return construireWares();
     if (vue === "x1" && ficheX1 !== null) return construireX1();
-    if (vue === "b1" && ficheEnCours) {
-      return renderB1({ liste: ficheEnCours.liste, index: ficheEnCours.index,
+    if (vue === "x2" && ficheEnCours) {
+      /* ⛔ LE RETOUR EST REÇU, PAS DÉCIDÉ : la fiche rend Wares avec son rayon, sa
+         sous-catégorie et sa page — 📏 mesuré au navigateur le 20/09, et le lot 242
+         n'y a pas touché. Seul le nom de la vue a changé. */
+      return construireLaFicheX2({ liste: ficheEnCours.liste, index: ficheEnCours.index,
         bourse, motBourse: motDeLaBourse(docu), onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r") });
     }
     if (vue === "recherche") {
       /* le catalogue ENTIER, habillé une fois — et « once found, takes you
-         directly to item menu » : un résultat ouvre B1, qui REVIENT ici. */
+         directly to item menu » : un résultat ouvre X2, qui REVIENT ici. */
       const catalogue = cherche.tous().map(ficheItem);
       return renderRecherche({ catalogue,
-        onOuvrirFiche: (liste, index) => { ficheEnCours = { liste, index, retour: "recherche" }; montrer("b1"); },
+        onOuvrirFiche: (liste, index) => { ficheEnCours = { liste, index, retour: "recherche" }; montrer("x2"); },
         retour: () => montrer("r") });
     }
     if (vue === "b2" || vue === "sb32") {
