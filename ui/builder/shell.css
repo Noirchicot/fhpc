@@ -8492,7 +8492,77 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* ⭐ UNE COLONNE, PAS DEUX : le Fighter a TROIS options et un libellé d'option
    porte une phrase entière. Deux colonnes couperaient les mots. */
 .aiguilleur-options { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
-.aiguilleur-option { min-height: var(--touch); font: inherit; cursor: pointer; text-align: left; padding: var(--sp-8); }
+/* ══ LA RANGÉE D'UNE OPTION — lot 246, Eric 2026-09-21 ═════════════════════
+   ⚖️ *« Une ligne de texte, bouton à droite = peu d'espace perdu »*, puis
+   *« Deux lignes de texte un bouton à droite alors. Ou trois lignes de texte un
+   bouton à droite. »*
+   ⭐ DEUX COLONNES, ET LA SECONDE NE BOUGE PAS. `1fr auto` : le texte prend ce
+   qui reste, la pastille garde sa cote. ⛔ Pas de `flex-wrap` — la pastille ne
+   doit JAMAIS passer sous le texte quand celui-ci va à trois lignes, sinon la
+   rangée gagne une ligne de haut au pire moment.
+   ⭐ `align-items: start` : la pastille se pose au niveau de la PREMIÈRE ligne
+   du texte, pas au milieu d'un pavé de trois. */
+.aiguilleur-rangee {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: start; gap: var(--sp-8);
+}
+.aiguilleur-option-mot { margin: 0; font-size: var(--t3); min-width: 0; }
+/* ══ LE CRAN DU BOUTON DE CHOIX — 30 de corps, 44 de cible ════════════════
+   ⚖️ ERIC, 2026-09-21 : *« Tu peux faire des boutons de 30 diam (tactile 44)
+   pour les choix. »*
+   🔴 C'EST UNE SECONDE TAILLE, BORNÉE À CET USAGE — ⛔ PAS « les boutons
+   rapetissent ». La norme ratifiée du chantier reste **40 / 44** (16-17/09) ;
+   celle-ci ne vaut que pour la PASTILLE DE CHOIX d'un QCM, où le libellé est à
+   côté et non dedans. Un bouton qui porte son mot garde 40.
+   🔴 ET LA CIBLE 44 NE CÈDE JAMAIS — *un contrôle ne se laisse pas dimensionner
+   par son dessin* (loi du chantier). La BOÎTE fait 44, le corps PEINT fait 30.
+   ⚠️ « DIAM » SUGGÈRE UN ROND, ET CE N'EN EST PAS UN : la norme du 16/09 dit
+   rectangle, rayon 6, et l'octogone est mort. La forme est donc celle de la
+   famille ; seule la COTE change.
+
+   🔴 ET ON NE FABRIQUE AUCUN ORGANE POUR ÇA : le patron SAIT DÉJÀ séparer le
+   dessin de la cible. C'est exactement ce que le 16/09 a posé pour le 40 —
+   *« la boîte, le `min-height`, la zone touchable restent à 44 ; seul le CORPS
+   PEINT se retire de `--bouton-retrait-v` »*. La boîte reste donc 44 ; seul le
+   retrait change, et il passe de 2 à 7.
+
+   🔴 ⛔ ET REDÉCLARER `--bouton-hauteur` SEUL NE SUFFIT PAS — 📏 MESURÉ AU
+   NAVIGATEUR, ET C'EST LA MESURE QUI M'A CORRIGÉ. J'avais écrit ici que « le 30
+   s'obtient en changeant UN nombre, le retrait s'en déduit tout seul ». C'EST
+   FAUX, et le relevé le dit : sur la pastille, `--bouton-hauteur` valait bien
+   30px, et `--bouton-retrait-v` rendait `calc((44px - 40px) / 2)` — le 40 y
+   était DÉJÀ SUBSTITUÉ. ⭐ Une propriété personnalisée est résolue dans la
+   portée qui la DÉCLARE (`:root`), pas dans celle qui l'emploie : redéfinir sa
+   dépendance plus bas ne la recalcule jamais. Les deux se redéclarent donc
+   ensemble — et le retrait garde sa FORMULE, ⛔ il n'est pas réécrit en 7 : le
+   jour où 44 bouge, il suit encore.
+
+   ⛔ ET ON NE TOUCHE NI `::before` NI `::after` POUR AUTRE CHOSE QUE L'INSET.
+   📏 Ma première écriture posait sa propre cible dans un `::after` : elle
+   ÉCRASAIT celui du patron — qui est l'ANNEAU DU LISERÉ — et la pastille
+   perdait son fond, sa bordure et son rayon (mesuré : `border-radius: 0px`,
+   `background: transparent`). Un organe qu'on croit libre et qui appartient
+   déjà à un patron : la faute exacte que ce fichier raconte trois fois.
+   📐 ET LA LARGEUR SE RETIRE AUSSI, pour une raison que le patron n'avait pas à
+   connaître : il ne retire que le haut et le bas (`inset: … 0`), parce qu'un
+   bouton à mot est large et que sa largeur vient du mot. Une pastille est
+   CARRÉE — sans retrait horizontal elle rendrait 44 × 30, un rectangle.
+   ⚠️ Ces deux surcharges doivent GAGNER sur la liste du patron, qui est plus
+   bas dans le fichier : d'où le sélecteur en deux classes. */
+.aiguilleur-option {
+  /* ⚖️ la seconde cote d'Eric (21/09), et le seul nombre écrit ici */
+  --bouton-hauteur: 30px;
+  /* ⛔ la MÊME formule que `tokens.css`, pas un 7 en littéral */
+  --bouton-retrait-v: calc((var(--touch) - var(--bouton-hauteur)) / 2);
+  inline-size: var(--touch); block-size: var(--touch);
+  min-height: var(--touch); /* ⛔ la BOÎTE reste la cible — `jeton-sacre` */
+  display: grid; place-items: center;
+  font: inherit; font-size: var(--t3); cursor: pointer; padding: 0;
+}
+.aiguilleur-options .aiguilleur-option::before { inset: var(--bouton-retrait-v); }
+.aiguilleur-options .aiguilleur-option::after {
+  inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge));
+}
 /* l'élue — MÊME signal que les cinq méthodes d'Abilities, qui est déjà
    l'organe « une option parmi N » de ce dépôt. ⛔ Pas une teinte de plus. */
 .aiguilleur-option[data-active="true"] { --bouton-fond: var(--info); font-weight: 600; }
@@ -8501,6 +8571,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-bilan-ligne { margin: 0; }
 .aiguilleur-bilan-or { font-weight: 600; }
 .aiguilleur-refus { color: var(--text-muted); font-size: var(--t2); }
+/* ⭐ UN FAIT N'EST PAS UN REFUS, et il ne porte donc PAS l'encre du refus —
+   ⛔ un écran qui gronde pour une absence voulue envoie chercher un objet qui
+   n'existe pas. Même cran, encre du corps. */
+.aiguilleur-fait { font-size: var(--t2); }
 /* ⛔ UN BOUTON QUI REFUSE LE DIT AUSSI À L'ŒIL — sinon le joueur tape dans le
    vide et croit l'écran cassé. */
 .aiguilleur-bouton[disabled] { cursor: not-allowed; opacity: .45; filter: none; }
