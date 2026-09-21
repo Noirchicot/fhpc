@@ -8372,6 +8372,39 @@ fichier serait vert pour rien)*.
 
 📌 **CE QUI LA TIENT** : `tests/decor-ne-se-laisse-pas-saisir.test.mjs` (neuf cas, chacun vu rouge par mutation) et `tests/de-ne-prend-pas-le-pointeur.test.mjs` (lot 203, intact).
 
+## 7 sexies. ⚖️ UN AIGUILLEUR QUI EXIGE UNE RÉPONSE EST UN **POPUP À QCM**, ET IL PORTE UN `Done` *(lot 245, 2026-09-21)*
+📍 `popup-qui-exige-une-reponse-est-un-qcm` · vivante · 21/09
+⚖️ **§2 dit d'un popup qu'il « parle, on ne l'appuie pas ». C'est vrai du popup qui PRÉVIENT. Celui qui EXIGE une réponse est un autre organe : il pose ses questions en QCM, une section par source, et il se ferme par un `Done` unique.**
+
+🔴 **CETTE QUESTION ÉTAIT OUVERTE DEPUIS LE 26/08, ET ELLE VIVAIT DANS UN COMMENTAIRE** — `equipment-step.mjs` : *« §7 range l'aiguilleur parmi les POPUPS, et §2 dit qu'un popup parle, on ne l'appuie pas. Celui-ci porte DEUX boutons. Un aiguilleur qui exige une réponse n'est donc pas la même forme qu'un aiguilleur qui prévient en passant. **À Eric de dire si ce sont deux organes ou un seul.** »* ⛔ **Une règle écrite dans un commentaire n'existe pas** : personne ne l'a lue en vingt-six jours, et la question serait revenue au prochain popup à boutons.
+
+⚖️ **ERIC TRANCHE, 21/09**, en dictant la maquette : *« Il faut un popup avec un QCM. Propre et bien présenté. 1 — Fighter : your class gives you bla-bla. **Choose** … 2 — Background : your background gives you blabla. **Choose** … Bouton **Done** — l'or et l'équipement vont dans Gear par défaut. »*
+
+| | l'aiguilleur qui **prévient** | le popup qui **exige** |
+|---|---|---|
+| sa voix | *« attention, voilà où tu vas »* | *« réponds, et je pose »* |
+| on peut l'ignorer | oui — c'est un guide | ⛔ non : sans réponse, l'étape n'a pas de point de départ |
+| ses boutons | aucun | les options, **plus un `Done`** |
+| son état | rien | il **ÉCRIT au document**, une seule fois |
+
+⭐ **QUATRE RÈGLES QUE CE POPUP PORTE, ET AUCUNE N'EST COSMÉTIQUE :**
+· **N options, jamais deux.** Le rendu COMPTE les options de la donnée. 📏 Le Fighter en a **trois** (*« Choose A, B, or C »*) ; un rendu câblé sur deux l'ampute en silence.
+· **Une source qui n'offre qu'une option ne pose pas de question.** ⚖️ Eric : *« idem en plus simple pour Fate's Hand »*. En pile FH l'origine porte `"50 GP"`, une chaîne nue : la section devient une **CONSTATATION**. ⛔ Un QCM à une seule réponse ment au joueur. ⚠️ Mais *« plus simple »* n'est pas *« muet »* — le joueur doit savoir d'où vient son or, sinon le récapitulatif porte un montant sans provenance.
+· **Le récapitulatif EST le butin, pas une description du butin.** L'écran et le geste appellent **la même fonction**. C'est la propriété payée par le lot 182 (*« un écran qui annonce un montant et en pose un autre »*), étendue des pièces aux objets.
+· **Rien ne s'écrit avant `Done`.** Les réponses vivent dans la fermeture de l'écran ; un clic d'option repeint, il n'écrit pas. ⛔ Un choix à moitié posé serait un kit à moitié posé, et le popup ne se reposerait jamais.
+
+🔴 **ET LE DÉFAUT QU'IL RÉPARE EST CELUI D'UN ÉCRAN QUI MENTAIT.** Le popup disait *« your class kit is yours, **already listed** »* ; 📏 mesuré dans `shell.mjs` le 21/09, la branche `kit` écrivait `depart: "kit"` **et rien d'autre** — aucune ligne `gear[N]`. ⭐ **Ce n'était pas un popup laid, c'était un popup qui décrivait un monde que le code ne fabriquait pas.** C'est ça, *« pas clair »*.
+
+⚖️ **CHAQUE SOURCE OFFRE SON PAQUET OU SON OR, ET LA QUESTION SE POSE SOURCE PAR SOURCE.** C22 (*« les 50 PO REMPLACENT le kit »*, 08/09) n'est pas défaite, elle est élargie : le geste d'hier était global (`kit` OU `purse`, toutes sources à la fois), la maquette du 21/09 pose une question par source. ⭐ **Le panachage — le paquet de la classe AVEC l'or de l'origine — devient donc une réponse valide**, et c'est un changement de règle assumé par Eric (*« je te demande de l'améliorer »*), pas un effet de bord.
+
+⛔ **LE DÉCOUPAGE DE LA PHRASE SRD EST UN AFFICHAGE, JAMAIS UNE SECONDE ÉCRITURE.** Le choix d'architecte du 13/08 interdisait de structurer la phrase *« parce que ça créerait une DEUXIÈME ÉCRITURE de la même règle »* ; Eric l'a levé **pour l'écran**, pas pour la donnée. ⭐ **Aucun nom d'objet du SRD n'est retapé dans le code** — un garde le tient, et il lit les noms DANS LA COUCHE. Et **ce qui ne se rapproche d'aucun record est NOMMÉ au joueur** avec le texte du livre, jamais deviné ni avalé. 📏 Mesuré sur les seize phrases des couches : **86 morceaux sur 93 rencontrent un record, 7 refusent** — `20 Arrows` (×4, la couche n'a que `Ammunition`), `Spellbook`, `Musical Instrument of your choice`, et le choix imbriqué du Moine. ⛔ Les rapprocher à la main serait exactement le second écrivain : *« Arrows → Ammunition »* est une règle de jeu, elle appartient à la couche.
+
+⚠️ **UN `gear[]` N'ADMET PAS DEUX LIGNES DU MÊME RECORD**, et ce n'est pas une préférence d'écran : `rebuild` JETTE — *« deux entrées portent l'id "dagger" — l'ancre d'override les désigne les deux, et aucune ne gagne par défaut »*. ⭐ Le kit **FUSIONNE** donc avec ce que le joueur possède déjà, et la fusion vit dans le LECTEUR, pas dans le geste : deux arithmétiques de la même quantité divergent.
+
+📏 **CE QUE LA CARTE MESURE** (navigateur, 512 × 764, `prefers-color-scheme: light`) : **549 blg en pile Fate's Hand** (une question, une constatation) contre **681 en pile SRD** (deux questions) — pour la **même classe**. ⭐ C'est le témoin de la lecture de pile : deux rendus identiques voudraient dire que la pile n'est pas lue. ⚠️ **Et 681 est exactement la hauteur disponible** : la carte SRD tient au blg près. Une ligne de plus déborde. C'est pour ça que le titre d'une section porte sa consigne (*« 1 Fighter — Choose: »*) au lieu d'avoir une ligne à lui — ⛔ et pas un défilement interne : la loi est de demander ce que le contenu porte **EN TROP**.
+
+📌 **CE QUI LA TIENT** : `tests/equipment-step.test.mjs` (le découpage qui refuse · les deux piles · aucun nom retapé · `Done` pose vraiment · le panachage · la seconde lecture en sens inverse contre `orDuDepart`) et le garde d'octets sur `shell.mjs`. Six mutations jouées, six rouges.
+
 ---
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·
