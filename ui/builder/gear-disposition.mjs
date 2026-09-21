@@ -45,6 +45,16 @@ export const ORGANES = [
   { nom: "FOOT/LEG 1",       sorte: "jeton",  x:     99, y:    288, l:    87, h:   48 },
   { nom: "FOOT/LEG 2",       sorte: "jeton",  x:    190, y:    288, l:    87, h:   48 },
   { nom: "COMPANIONS",       sorte: "bouton", x:    290, y:    292, l:    77, h:   40, cible: { x: 290, y: 290, l: 77, h: 44 }, mot: "Companions", cran: "T1/600" },
+  /* ⚖️ L'ENCOMBREMENT, DANS L'ENCART ENTRE LES PIEDS ET LE COLLECTEUR — Eric, 2026-09-21 :
+     *« dans Gear l'encombrement peut être mis dans un encart entre foot/leg et collector »*.
+     📏 LA PLACE EXISTAIT DÉJÀ, et je l'ai mesurée avant de la prendre : la rangée `344 → 392`
+     ne porte que `EXTRA STORAGE 1` (x 4→91) et `EXTRA STORAGE 3` (x 284→371). Le milieu est
+     vide sur **193** blg ; avec l'écart de 8 de chaque côté il reste **177**, centrés sur la
+     scène (99 + 177/2 = 187,5 = 375/2). ⛔ Aucun organe n'a été déplacé pour lui.
+     ⭐ ET C'EST LITTÉRALEMENT « ENTRE FOOT/LEG ET COLLECTOR » : les `FOOT/LEG` finissent à
+     y 336, le `SEND COLLECTOR` commence à y 396.
+     ⛔ AUCUNE CIBLE : on le lit, on ne le tape pas. */
+  { nom: "ENCOMBREMENT",     sorte: "voyant", x:     99, y:    344, l:   177, h:   48, mot: "Encumbrance : 0 lb", cran: "T1/600" },
   { nom: "EXTRA STORAGE 1",  sorte: "jeton",  x:      4, y:    344, l:    87, h:   48 },
   { nom: "EXTRA STORAGE 3",  sorte: "jeton",  x:    284, y:    344, l:    87, h:   48 },
   { nom: "EXTRA STORAGE 2",  sorte: "jeton",  x:      4, y:    396, l:    87, h:   48 },
