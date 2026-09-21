@@ -301,7 +301,11 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
      ⭐ Appeler `rendre()` ici rendrait une étape neuve — donc un QCM vierge —
      et le récapitulatif retomberait à l'or de l'origine seule (50). 📏 Mesuré :
      c'est exactement ce que ce test a rendu à sa première écriture. */
-  const optionB = [...node.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent.startsWith("B ·"));
+  /* ⚖️ LOT 246 — LE SÉLECTEUR SUIT L'ORGANE. Une option est devenue une RANGÉE
+     (Eric, 21/09 : *« Deux lignes de texte un bouton à droite »*) : la pastille
+     ne porte plus que la LETTRE, le texte vit à côté. ⛔ Ce que ce garde défend
+     n'a pas bougé. */
+  const optionB = [...node.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "B");
   optionB.click();
   const attendu = orDuDepart({ query, document: doc }).cout;
   assert.equal(attendu.gp, 105, "le personnage d'exemple : Wizard 55 + Inheritance 50, chacun lu dans sa prose");

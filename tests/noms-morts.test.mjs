@@ -81,11 +81,33 @@ const DETTE = [
   { genre: "class", id: "srd:class:en:fighter", chemin: "data.skill_proficiencies", mot: "Perception", pourquoi: "idem" },
   { genre: "class", id: "srd:class:en:ranger", chemin: "data.skill_proficiencies", mot: "Perception", pourquoi: "idem" },
   { genre: "class", id: "srd:class:en:rogue", chemin: "data.skill_proficiencies", mot: "Perception", pourquoi: "idem" },
+  /* 🔴 LOT 246 — CETTE RAISON ÉTAIT PÉRIMÉE, ET ELLE A SURVÉCU UN MOIS. Elle
+     disait *« inerte — l'équipement de départ n'est pas encore un écran »* ; il
+     l'est depuis le lot 245 (le QCM du départ, 21/09). ⭐ Le garde n'a rien vu
+     parce qu'il ne mesure que la PRÉSENCE du mot dans la couche, jamais la
+     véracité du `pourquoi` — un champ libre qu'aucune mesure ne relit vieillit
+     sans bruit. 📏 Mesuré : le mot ne se voit toujours PAS à l'écran, mais pour
+     une autre raison qu'avant — ce morceau ne s'affiche plus tel quel, il est
+     remplacé par le NOM DU RECORD de l'outil choisi dans Skills
+     (« Instrument (Wind) »), ou par une phrase qui ne le cite pas. */
   { genre: "class", id: "srd:class:en:bard", chemin: "data.starting_equipment", mot: "Musical Instrument",
-    pourquoi: "inerte — l'équipement de départ n'est pas encore un écran" },
+    pourquoi: "non affiché — depuis le lot 246 ce morceau est remplacé à l'écran par le nom du record " +
+      "de l'outil choisi dans Skills ; la phrase brute n'atteint plus le joueur" },
+  /* ── DÉLIBÉRÉ — LA DÉCLARATION CITE LE LIVRE POUR LE DÉSIGNER. Même famille
+     que la prose d'Eric sur l'Elfe : le mot est là pour NOMMER un morceau de la
+     phrase SRD, pas pour l'afficher. ⛔ Le remplacer par le nom FH romprait le
+     lien — et le garde de bijection de `equipment-step.test.mjs` relit dans
+     l'autre sens : le texte déclaré doit SE TROUVER dans `starting_equipment`.
+     ⭐ C'est donc un mot mort qui ne peut PAS être corrigé sans casser ce qu'il
+     désigne, et c'est exactement ce que la catégorie « délibéré » porte. */
+  { genre: "class", id: "srd:class:en:bard", chemin: "data.starting_equipment_tool.text", mot: "Musical Instrument",
+    pourquoi: "délibéré — la déclaration cite le morceau de la phrase SRD pour le désigner (lot 246)" },
+  { genre: "class", id: "srd:class:en:monk", chemin: "data.starting_equipment_tool.text", mot: "Musical Instrument",
+    pourquoi: "délibéré — idem barde (lot 246)" },
   { genre: "class", id: "srd:class:en:bard", chemin: "data.tool_proficiencies", mot: "Musical Instruments",
     pourquoi: "inerte ici — c'est LA ligne que le fil FH WEB a trouvée dans le livre" },
-  { genre: "class", id: "srd:class:en:monk", chemin: "data.starting_equipment", mot: "Musical Instrument", pourquoi: "inerte" },
+  { genre: "class", id: "srd:class:en:monk", chemin: "data.starting_equipment", mot: "Musical Instrument",
+    pourquoi: "non affiché — idem barde (lot 246)" },
   { genre: "class", id: "srd:class:en:monk", chemin: "data.tool_proficiencies", mot: "Musical Instrument", pourquoi: "inerte" }
 ];
 

@@ -339,7 +339,10 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
        bougé : dès que la classe est là, l'or de départ est OFFERT et il est LU
        dans la donnée. ⛔ Ce n'est plus un bouton « Take the … » mais l'option
        nue de la phrase du Barbare (« B · 75 GP »), et c'est la même lecture. */
-    const options = [...node2.querySelectorAll(".aiguilleur-option")].map((b) => b.textContent);
+    /* ⚖️ LOT 246 — la lettre est dans la PASTILLE, le montant dans le texte de
+       la rangée. Même lecture, deux organes au lieu d'un. */
+    const options = [...node2.querySelectorAll(".aiguilleur-rangee")]
+      .map((r) => `${r.querySelector(".aiguilleur-option").textContent} · ${r.querySelector(".aiguilleur-option-mot").textContent}`);
     assert.ok(options.some((t) => t === `B · ${or.sources.find((s) => s.genre === "class").cout.gp} GP`),
       `pile ${nom} : …et l'or est offert, au montant LU dans la prose — ${options.join(" | ")}`);
     assert.equal(node2.querySelector(".pipeline-mygold-mot"), null, `pile ${nom} : aucun mot de bourse avec une classe`);
