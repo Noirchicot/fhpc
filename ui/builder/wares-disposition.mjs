@@ -162,7 +162,12 @@ export const ORGANES = [
   { nom: "TUNER SOUS-CAT G",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 4,   y: 62, l: 10, h: 20, cible: { x: 0, y: 46, l: 44, h: 44 } },
   { nom: "TUNER SOUS-CAT D",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 361, y: 62, l: 10, h: 20, cible: { x: 331, y: 46, l: 44, h: 44 } },
 
-  /* dalle 2 — la grille et ses deux gouttières */
+  /* dalle 2 — la grille, sa piste de plaques et ses deux gouttières */
+  /* ⚖️ LA PISTE EST LA FENÊTRE DES PLAQUES — l'organe que le tambour MÈNE (Eric, 19/09 :
+     *« ils sont liés »*). ⭐ Sa boîte est exactement celle des jetons : c'est la place d'UNE
+     plaque, et c'est ce qui fait qu'à l'arrêt on n'en voit qu'une. ⛔ Aucune cible : on ne la
+     touche pas — le geste appartient au tambour, jamais à elle. */
+  { nom: "PISTE",               sorte: "piste",      dalle: "GRILLE",  x: RENDU_GRILLE.gouttiere, y: RENDU_GRILLE.rangees[0], l: RENDU_GRILLE.jetons.l, h: RENDU_GRILLE.jetons.h },
   { nom: "CHEVRON G",           sorte: "chevron",    dalle: "GRILLE",  x: 14,     y: 196, l: 21,  h: 40, cible: { x: 2, y: 194, l: 44, h: 44 }, mot: "page précédente" },
   { nom: "CHEVRON D",           sorte: "chevron",    dalle: "GRILLE",  x: 340,    y: 196, l: 21,  h: 40, cible: { x: 329, y: 194, l: 44, h: 44 }, mot: "page suivante" },
   { nom: "COMPTE OBJETS",       sorte: "voyant",     dalle: "GRILLE",  x: 4,      y: 240, l: 41,  h: 14, mot: "33", cran: "T1/600" },
@@ -248,6 +253,7 @@ export const CLEF_DE = Object.freeze({
   "PARTY TALLY": "party-tally",
   "TALLY": "tally",
   "COLLECTEUR": "collecteur",
+  "PISTE": "piste",
   "PURSE": "purse",
   "MONTANT": "montant",
   "SEND VERS": "send-vers",

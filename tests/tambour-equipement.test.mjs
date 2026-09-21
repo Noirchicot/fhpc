@@ -451,9 +451,19 @@ test("10 — l'écran porte DEUX roues, leurs quatre tuners, les deux gouttière
      l'a appris : la première sous-catégorie de ce montage n'a que TROIS objets, et une page
      courte n'en invente pas. ⭐ Ce que la loi dit est « au plus douze », et le nombre lui-même
      vit au plan : on le LIT, on ne le retape pas. */
-  const cases = rows(node, ".wares-case").length;
-  assert.ok(cases > 0 && cases <= PAR_PAGE,
-    `⛔ ${cases} cases : la page en porte au plus ${PAR_PAGE} (Eric, 20/09 — plus quinze)`);
+  /* 🔄 ET DEPUIS LE VERROU (21/09), L'ÉCRAN PORTE PLUSIEURS PLAQUES À LA FOIS — une par
+     sous-catégorie, *« uniquement la première page de chaque dalle »* (Eric). ⛔ Compter les
+     cases de TOUT l'écran ne mesure donc plus une page : il rendait 39 pour trois plaques.
+     ⭐ Le plafond porte sur UNE plaque, et c'est ce que le garde lit maintenant — chacune
+     séparément, pas seulement la courante : une voisine qui déborderait déborderait aussi
+     une fois sous le viseur. */
+  const plaques = rows(node, ".wares-cases");
+  assert.ok(plaques.length >= 1, "⛔ aucune plaque : la piste n'a rien à faire suivre");
+  for (const plaque of plaques) {
+    const cases = rows(plaque, ".wares-case").length;
+    assert.ok(cases > 0 && cases <= PAR_PAGE,
+      `⛔ la plaque ${plaque.dataset.plaque} porte ${cases} cases : une page en porte au plus ${PAR_PAGE}`);
+  }
   assert.equal(PAR_PAGE, 12, "et le plafond du plan est bien douze");
 });
 

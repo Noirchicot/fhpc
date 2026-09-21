@@ -49,19 +49,6 @@ const px = (n) => `${Math.round(n * 1000) / 1000}px`;
    ⛔ Deux chaînes égales dans deux fichiers sont deux chaînes, et elles divergent. */
 const CRENEAU_COLLECTEUR = "wares:collecteur";
 
-/* ⏱️ LE FILET DE FIN DE GLISSEMENT — ⛔ CE N'EST PAS UNE DURÉE D'ANIMATION.
-   🔴 J'AVAIS COMMENCÉ PAR EN INVENTER UNE (180 ms) et par piloter le train avec un
-   `style.transform`. Deux gardes de la maison m'ont repris dans la même seconde : *« aucun style
-   EN LIGNE dans ui/ »* et *« seul socle.mjs remplace le contenu d'un nœud »*.
-   ⭐ ET LEUR REFUS M'A RENDU LE BON MÉCANISME : le sac ne transforme rien — **il défile**. Une
-   piste qui défile en douceur n'a besoin d'aucune durée inventée *(le moteur porte la sienne)*,
-   d'aucun style en ligne *(`scrollLeft` est une position, pas du décor)*, et elle respecte
-   `prefers-reduced-motion` depuis la FEUILLE. 📌 Sixième fois du chantier que la réponse est
-   *« reprendre, ⛔ jamais redessiner »*.
-   ⛔ CE NOMBRE-CI NE SERT QU'À NETTOYER : combien de temps on attend, au pire, avant de retirer
-   la plaque sortante si `scrollend` n'arrive jamais *(onglet caché, défilement interrompu)*. Il
-   est GÉNÉREUX exprès — nettoyer trop tôt ferait sauter l'image. */
-const FILET_DE_FIN_MS = 900;
 
 /* ⭐ LES ROUES DU DERNIER RENDU, EN ATTENTE DE PLACEMENT. ⛔ Un nœud hors du document n'a pas
    de `scrollLeft` utilisable : placer à la construction réussit et ne fait RIEN, en silence.
@@ -71,83 +58,69 @@ const FILET_DE_FIN_MS = 900;
    écran démonté, c'est poser un ruban dans un nœud que personne ne regarde. */
 let rouesEnAttente = [];
 
-/* ══ LA TRANSITION DE PLAQUE ═══════════════════════════════════════════════════
-   ⚖️ ERIC, 2026-09-21 : *« qu'on ait la sensation de passer d'un catalogue à un autre quand on
-   change de sous-catégorie »* · *« la transition de dalle se fait quand on change de
-   sous-catégorie dans le 2e tambour ; on arrive sur la page 1, et naviguer dans les pages se
-   fait avec les chevrons »* · *« changer de page = chevrons, la plaque ne glisse pas »*.
+/* ══ LE VERROU — LA PLAQUE SUIT LE TAMBOUR, IMAGE PAR IMAGE ════════════════════
+   ⚖️ ERIC, 2026-09-19, et c'est la phrase qui commande tout : *« je fais défiler une tuile à
+   travers le viseur, je fais défiler une dalle en même temps… ILS SONT LIÉS »*.
 
-   🔴 CE QUI REND CET ÉCRAN DIFFÉRENT DU SAC, ET C'EST TOUTE LA DIFFICULTÉ. Le sac pose TOUTES ses
-   plaques côte à côte et n'en reconstruit aucune : changer de section, c'est faire glisser un
-   ruban déjà là. ⛔ Wares, lui, est **reconstruit à chaque rendu** par `equipment-step` — et
-   📏 mesuré sur la donnée : 26 sous-catégories × jusqu'à 3 pages = **47 plaques / 564 jetons** si
-   on posait tout. On ne peut donc pas copier le mécanisme ; il faut le même EFFET autrement.
-   ⭐ D'OÙ LA MÉMOIRE D'UNE SEULE PLAQUE : le module retient celle du rendu précédent. Quand la
-   suivante porte une autre clef, on emmène l'ancienne dans le nœud NEUF *(un `append` DÉPLACE)*,
-   les deux voyagent ensemble, et l'ancienne est retirée à l'arrivée.
-   ⛔ ET RIEN N'EST GARDÉ D'UN ÉCRAN DÉMONTÉ : une plaque orpheline serait un nœud que personne ne
-   regarde — la faute exacte que `rouesEnAttente` évite deux lignes plus haut. */
-let plaqueEnPlace = null;      /* { clef, noeud } du rendu précédent, ⛔ jamais une liste */
-let transitionEnAttente = null; /* { piste, sortante, entrante } posé au rendu, joué au montage */
+   🔴 CE QUE J'AVAIS FAIT À LA PLACE, ET C'ÉTAIT FAUX DE NATURE (v778, retiré le 21/09).
+   J'avais écrit une TRANSITION : on tape, le tambour tourne, il se pose *(~400 ms)*, l'étape
+   repeint, **et alors** un petit film de ~460 ms se joue. Deux mouvements successifs pour un
+   seul geste — et pendant un vrai glissé du tambour, la plaque ne montrait **rien**, puis
+   sautait. 📏 Mesuré sur les deux écrans, même sonde, aimantation coupée :
 
-/** ⭐ POUR LES BANCS ET LES GARDES : oublier ce qu'on retient. ⛔ Sans ça, deux bancs qui se
- *  suivent verraient une transition entre deux écrans qui n'ont rien à voir. */
-export function oublierLaPlaque() { plaqueEnPlace = null; transitionEnAttente = null; }
+       tuiles   0     0,25   0,5    0,75   1      1,5    2
+       SAC      0     106    215    321    427    641    855      ← elle SUIT
+       WARES    0     0      0      0      0      0      0        ← elle ne bouge pas
 
-/** Pose les deux rubans sur leur cran visé, ⭐ ET LANCE LA TRANSITION DE PLAQUE s'il y en a une.
- *  À appeler APRÈS que l'écran est dans le document — comme `poserLesDalles()` pour le sac, et
- *  pour la même raison : un ruban posé hors du document réussit et ne fait rien, en silence. */
+   ⭐ *« On voit une dalle entrer et une dalle sortir »* n'est pas une animation qu'on JOUE —
+   c'est la CONSÉQUENCE du fait que la plaque suit le doigt. ⛔ Une animation jouée après coup
+   raconte le mouvement ; elle ne le fait pas.
+
+   ⚖️ ET LE SENS INVERSE RESTE COUPÉ — Eric, 21/09 : *« la dalle de Wares ne sera pas swipable
+   car elle a plusieurs pages »*. Le sac a DEUX meneurs possibles et un arbitre ; ici le tambour
+   mène, toujours, et la piste ne reçoit aucun geste. ⛔ Un seul écrivain, donc pas d'arbitre à
+   tenir — c'est la moitié du mécanisme du sac qu'on ne reprend PAS, et je le dis pour qu'on ne
+   la cherche pas.
+   ⛔ ET LA PISTE N'AIMANTE PAS : *« le suiveur n'aimante pas — sinon il ne peut pas suivre »*
+   (mesuré dans le sac le 19/09 : 383 au lieu de 563 à mi-chemin). L'aimantation appartient au
+   MENEUR. */
+
+/** ⚖️ OÙ DOIT ÊTRE LA PISTE QUAND LE RUBAN EST À `p` TUILES — la formule du verrou, ⛔ SEULE.
+ *
+ *  ⭐ ELLE N'EST PAS UNE MULTIPLICATION, et c'est la leçon la plus chère du sac : entre deux
+ *  plaques il y a un JOUR, donc `largeur × k` n'est PAS la place de la plaque `k`. On ENCADRE
+ *  entre les deux places LUES dans la mise en page, et on interpole avec la fraction.
+ *  📏 *« Une cote DONNÉE bat une cote DÉDUITE »* : `clientWidth` rend 374 là où le plan dit 375,
+ *  et l'erreur GRANDIT avec le rang.
+ *
+ *  @param {number} p    la position du ruban, en tuiles — ⭐ FRACTIONNAIRE, c'est tout le « en
+ *                       même temps » : à mi-chemin entre deux tuiles, la plaque est à mi-chemin.
+ *  @param {number[]} xs les places des plaques, lues dans la mise en page.
+ */
+export function placeDeLaPiste(p, xs) {
+  const n = xs.length;
+  if (n < 1) return 0;
+  const bas = Math.max(0, Math.min(Math.floor(p), n - 1));
+  const haut = Math.min(bas + 1, n - 1);
+  const f = Math.max(0, Math.min(p - bas, 1));
+  return xs[bas] + (xs[haut] - xs[bas]) * f;
+}
+
+/* ⭐ LA PISTE DU DERNIER RENDU, EN ATTENTE DE PLACEMENT — même piège que les rubans : la placer
+   avant qu'elle soit dans le document RÉUSSIT et ne fait RIEN, en silence. */
+let pisteEnAttente = null;
+
+/** Pose les deux rubans sur leur cran visé, ⭐ ET LA PISTE SOUS SA PLAQUE.
+ *  À appeler APRÈS que l'écran est dans le document — comme `poserLesDalles()` pour le sac. */
 export function poserLesRoues() {
   const roues = rouesEnAttente;
   rouesEnAttente = [];
   let posees = 0;
   for (const r of roues) { if (r.poser && r.poser() === true) posees += 1; }
-  jouerLaTransition();
+  const piste = pisteEnAttente;
+  pisteEnAttente = null;
+  if (piste && piste.poser) piste.poser();
   return posees;
-}
-
-/** Joue le glissement : la plaque sortante s'en va, l'entrante arrive.
- *  ⛔ IL NE CALCULE AUCUNE DISTANCE : le train est un flex, donc amener la plaque `k` sous la
- *  fenêtre, c'est traduire de son `offsetLeft` — une LECTURE de la mise en page, jamais une
- *  multiplication. C'est la leçon du verrou du sac : *« la place d'une plaque se LIT, elle ne se
- *  multiplie pas »* — un rapport fixe dérive dès que le jour ne tombe pas rond, et 38,88 ne
- *  tombe pas rond. */
-function jouerLaTransition() {
-  const t = transitionEnAttente;
-  transitionEnAttente = null;
-  if (!t || !t.piste || t.piste.isConnected === false) return false;
-  const { piste, sortante, entrante } = t;
-  /* ⛔ IL NE CALCULE AUCUNE DISTANCE : amener la plaque sous la fenêtre, c'est défiler jusqu'à
-     son `offsetLeft` — une LECTURE de la mise en page, jamais une multiplication. C'est la leçon
-     du verrou du sac : *« la place d'une plaque se LIT, elle ne se multiplie pas »* — un rapport
-     fixe dérive dès que le jour ne tombe pas rond, et 38,88 ne tombe pas rond. */
-  const arrivee = entrante.offsetLeft;
-  let fini = false;
-  const finir = () => {
-    if (fini) return;
-    fini = true;
-    /* ⛔ `remove()`, ET PAS `removeChild()` — et ce n'est pas un contournement du garde du socle.
-       Ce garde interdit de REMPLACER le contenu d'un nœud (`innerHTML`, `replaceChildren`,
-       `removeChild`) parce qu'un remplacement jette la position de défilement. Ici on retire UN
-       nœud de passage d'un train dont on tient soi-même le défilement — ⛔ on ne remplace le
-       contenu de rien. ⭐ Et il FAUT le retirer : laissé là, il reste hors champ mais
-       TABULABLE — douze boutons invisibles que le clavier traverse quand même. */
-    if (sortante && sortante.remove) sortante.remove();
-    /* ⭐ et la piste revient à zéro : une seule plaque, donc un seul point de repos */
-    piste.scrollLeft = 0;
-  };
-  /* ⛔ SANS MISE EN PAGE, PAS DE GLISSEMENT — et on ARRIVE quand même. Hors navigateur (un banc,
-     un garde) `offsetLeft` n'existe pas : défiler vers `undefined` ne ferait rien, en silence, et
-     la plaque sortante resterait dans le train pour toujours. ⭐ Une absence de mesure n'est pas
-     une raison de ne pas finir. */
-  if (!Number.isFinite(arrivee)) { finir(); return true; }
-  piste.scrollLeft = arrivee;
-  /* ⭐ DEUX FILETS POUR UNE SEULE FIN : `scrollend` là où il existe, un délai généreux sinon.
-     ⛔ Un `scrollend` qui ne vient jamais — onglet caché, défilement interrompu — laisserait la
-     plaque sortante dans le train, et l'écran resterait à moitié glissé. */
-  if (piste.addEventListener) piste.addEventListener("scrollend", finir, { once: true });
-  setTimeout(finir, FILET_DE_FIN_MS);
-  return true;
 }
 
 function el(balise, classe, texte) {
@@ -277,11 +250,23 @@ export function feuilleDesCotesWares() {
      de barre ni de geste : un élément caché reste défilable **par script**, et c'est exactement
      ce qu'on veut — la plaque ne se glisse pas au doigt (Eric, 21/09 : *« la dalle de Wares ne
      sera pas swipable car elle a plusieurs pages »*), elle se déplace quand le tambour le dit. */
-  r.push(`.wares-piste{grid-column:2;grid-row:1;overflow:hidden;scroll-behavior:smooth}`);
-  /* ⛔ ET LE MOUVEMENT SE RETIRE QUAND ON LE DEMANDE — `prefers-reduced-motion` est tenu depuis
-     la FEUILLE, donc sans une ligne de JavaScript. ⭐ Le résultat est le même ; c'est le trajet
-     qui disparaît : la plaque est déjà arrivée. */
-  r.push(`@media (prefers-reduced-motion:reduce){.wares-piste{scroll-behavior:auto}}`);
+  /* ⛔ ⛔ AUCUN `scroll-behavior: smooth` ICI, ET C'EST LA DIFFÉRENCE ENTRE UN VERROU ET UN FILM.
+     Le verrou écrit la position à CHAQUE image : un défilement « en douceur » ajouterait sa
+     propre inertie par-dessus celle du doigt, et la plaque traînerait derrière le tambour —
+     exactement le décalage que le sac a mis une soirée à tuer.
+     ⛔ ET PAS D'AIMANTATION NON PLUS : *« le suiveur n'aimante pas — sinon il ne peut pas
+     suivre »*. 📏 Mesuré dans le sac le 19/09, roue tenue à mi-chemin : les dalles rendaient
+     383 au lieu de 563, parce qu'une aimantation `mandatory` REFUSE toute position intermédiaire.
+     ⭐ L'aimantation appartient au MENEUR, et le meneur est le tambour.
+     📌 `prefers-reduced-motion` n'a rien à retirer ici : il n'y a aucune animation à couper —
+     la plaque est là où le doigt l'a mise, jamais en train d'y aller. */
+  /* 🔴 `position: relative` N'EST PAS DÉCORATIF, ET ÇA M'A COÛTÉ UNE MESURE FAUSSE. Le verrou
+     lit `offsetLeft`, qui se compte depuis le plus proche ancêtre POSITIONNÉ. Sans ce mot, les
+     plaques rendaient **49 · 365 · 681 …** — la gouttière de gauche était dans le compte, et la
+     piste se serait posée 49 blg à côté. ⭐ Le sac a la même ligne, pour la même raison.
+     📏 Mesuré : 49 · 365 · 681 avant, 0 · 316 · 632 après — et 316 = 277 + 38,88, le pas juste. */
+  r.push(`.wares-piste{grid-column:2;grid-row:1;position:relative;overflow:hidden;` +
+         `scroll-snap-type:none;touch-action:none}`);
   /* ⚖️ LE JOUR VIENT DU PLAN, et le plan le DÉDUIT de la loi du 19/09 — ⛔ il ne se choisit pas.
      ⭐ Pendant la traversée on voit la dalle passer entre celle qui part et celle qui arrive ;
      au repos il est hors champ, parce que le train ne porte qu'une plaque. */
@@ -424,7 +409,7 @@ function tuner(clef, sens, roue, nb) {
   return b;
 }
 
-function etage(nom, items, actif, surViser) {
+function etage(nom, items, actif, surViser, suiveur) {
   const roue = el("div", "wares-roue wares-etage");
   roue.dataset.organe = CLEF_DE[nom];
   roue.setAttribute("role", "tablist");
@@ -463,11 +448,22 @@ function etage(nom, items, actif, surViser) {
      événement le réarme ; on ne prévient le pilote qu'une fois le ruban POSÉ. ⛔ Et on marque
      la dominante EN CONTINU, elle, parce que c'est du dessin — aucun rendu ne s'y rejoue. */
   let minuteur = null;
+  let suiviEnAttente = false;
   roue.addEventListener("scroll", () => {
     /* ⛔ NOS PROPRES ÉCRITURES NE SONT PAS UN GESTE — le module les marque. Sans ce test, poser
        le ruban au montage se relirait comme un choix du joueur, et l'écran se repeindrait en
        boucle sur sa propre voix. */
     if (roue.estProgrammatique && roue.estProgrammatique()) return;
+    /* ⭐ LE VERROU PASSE ICI, ET IL EST DU DESSIN — il se joue à CHAQUE image, comme le
+       marquage de la dominante, ⛔ jamais au repos. C'est tout le *« en même temps »* : le
+       suiveur reçoit la position FRACTIONNAIRE du ruban.
+       ⛔ ET IL NE S'EMPILE PAS : une seule image en vol, comme dans le sac — sans ce garde,
+       soixante écritures par seconde se chevauchent et chacune force un recalcul. */
+    if (suiveur && !suiviEnAttente) {
+      suiviEnAttente = true;
+      const frame = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout;
+      frame(() => { suiviEnAttente = false; suiveur(roue.scrollLeft / ROUE.pas); });
+    }
     const k = Math.max(0, Math.min(Math.round(roue.scrollLeft / ROUE.pas), items.length - 1));
     roue.marquer(k);
     if (minuteur) clearTimeout(minuteur);
@@ -574,6 +570,7 @@ export function construireLesWares(o = {}) {
   const noeud = el("div", "wares");
   noeud.dataset.ecran = "wares";
   rouesEnAttente = [];   /* ⛔ un rendu neuf remplace les roues du précédent */
+  pisteEnAttente = null;
   /* ⭐ LES COTES VOYAGENT AVEC L'ÉCRAN, comme celles du sac : une feuille posée dans le nœud,
      écrite depuis le PLAN. ⛔ Elles ne vivent pas dans `shell.css` — un lot qui y toucherait
      les ferait diverger de la table, et c'est la table qui fait foi. La feuille du site, elle,
@@ -585,6 +582,29 @@ export function construireLesWares(o = {}) {
   /* ⛔ AUCUN TITRE. Eric, 20/09 : *« Equipment browser dégage »*. Le cran sous le viseur NOMME
      l'écran (NORMES §1 quinquies, « le tambour désigne »), et la 3ᵉ ligne du belt dit déjà
      `Wares`. Deux noms pour un écran sont un libellé qui ment, en plus discret. */
+
+  /* 🔴 LA PISTE NAÎT AVANT LE TAMBOUR, ET CE N'EST PAS UN DÉTAIL D'ORDRE.
+     Mon premier jet faisait passer le suiveur par une VARIABLE DE MODULE, parce que le tambour
+     se construit avant la dalle 2. 📏 Mesuré, sonde à l'appui : le suiveur était bien appelé
+     (`p = 0,507`) mais sa piste rendait `isConnected: false` — la variable avait déjà été
+     réassignée par le rendu suivant, et le tambour d'un écran écrivait dans la piste d'un autre.
+     ⛔ UNE INDIRECTION PAR L'ÉTAT DU MODULE EST UN TROU PAR CONSTRUCTION : rien ne garantit que
+     les deux bouts appartiennent au même rendu.
+     ⭐ LA PARADE EST STRUCTURELLE : on crée la piste ICI, et le tambour reçoit une fermeture qui
+     la tient directement. Les deux naissent et meurent ensemble — il n'y a plus rien à tenir
+     d'accord. C'est la même leçon que `rouesEnAttente` : *« un rendu neuf remplace ceux du
+     précédent »*, mais obtenue sans mémoire du tout. */
+  const piste = el("div", "wares-piste");
+  piste.dataset.organe = "piste";
+  const train = el("div", "wares-train");
+  piste.append(train);
+  /* ⭐ LE VERROU — il ne lit QUE la position du ruban, et il écrit dans CETTE piste-ci. */
+  const suivre = (p) => {
+    if (piste.isConnected === false) return;
+    const xs = [];
+    for (const n of train.children) xs.push(typeof n.offsetLeft === "number" ? n.offsetLeft : 0);
+    if (xs.length) piste.scrollLeft = placeDeLaPiste(p, xs);
+  };
 
   /* ── DALLE 1 ─────────────────────────────────────────────────────────────── */
   /* 🔴 LE TAMBOUR N'EST PLUS UNE DALLE — Eric, 20/09 : *« il faut aussi dégager le fond
@@ -600,7 +620,11 @@ export function construireLesWares(o = {}) {
   const tambour = el("div", "wares-tambour wares-dalle");
   tambour.append(
     ...etage("ROUE CATEGORIES", o.categories || [], o.categorie | 0, o.surCategorie),
-    ...etage("ROUE SOUS-CATEGORIES", o.sousCategories || [], o.sousCategorie | 0, o.surSousCategorie),
+    /* ⭐ ET C'EST CET ÉTAGE-LÀ QUI MÈNE LA PLAQUE — le 1ᵉʳ ne mène rien : changer de catégorie
+       REFAIT la liste des sous-catégories, donc refait le train. Il n'y a rien à faire suivre
+       entre deux trains qui n'ont pas les mêmes wagons. */
+    ...etage("ROUE SOUS-CATEGORIES", o.sousCategories || [], o.sousCategorie | 0, o.surSousCategorie,
+             suivre),
   );
 
   /* ── DALLE 2 ─────────────────────────────────────────────────────────────── */
@@ -609,53 +633,53 @@ export function construireLesWares(o = {}) {
   fond.setAttribute("aria-hidden", "true");
   grille.append(fond);
 
-  const objets = (o.objets || []).slice(0, PAR_PAGE);
-  const pages = Math.max(1, o.pages | 0 || 1);
-  const cases = el("div", "wares-cases");
-  cases.setAttribute("role", "list");
-  for (const item of objets) {
-    const c = el("div", "wares-case");
-    c.setAttribute("role", "listitem");
-    c.append(jeton(item, o));
-    cases.append(c);
-  }
-  /* ⚖️ LA CLEF D'UNE PLAQUE EST SA SOUS-CATÉGORIE, ⛔ PAS SA PAGE — Eric, 21/09 : *« changer de
-     page = chevrons, la plaque ne glisse pas »* · *« la transition se fait quand on change de
-     sous-catégorie »*. ⭐ Deux pages d'une même sous-catégorie portent donc la MÊME clef : les
-     jetons se substituent, et rien ne glisse. C'est la clef qui fait toute la règle. */
-  cases.dataset.plaque = `${o.categorie | 0}:${o.sousCategorie | 0}`;
-  const piste = el("div", "wares-piste");
-  const train = el("div", "wares-train");
-  piste.append(train);
+  /* ⚖️ UNE PLAQUE PAR SOUS-CATÉGORIE, TOUTES POSÉES — Eric, 21/09 : *« il faut uniquement la
+     première page de chaque dalle »*. ⭐ C'est ce qui rend le verrou possible : une plaque qu'il
+     faudrait construire au moment où le doigt passe dessus ne pourrait jamais suivre.
+     ⛔ Et la COURANTE porte la page où le joueur est ; les voisines n'ont que leur page 1 —
+     exact, puisque *« on arrive sur la page 1 »* dès qu'on change de sous-catégorie.
+     📌 Repli : un appelant qui ne donne pas `plaques` en reçoit une, faite de `objets` — c'est
+     ce que font les bancs, et ⛔ ça ne doit pas les casser. */
+  const plaques = Array.isArray(o.plaques) && o.plaques.length
+    ? o.plaques
+    : [{ nom: "", objets: o.objets || [], compte: o.compte, pages: o.pages }];
+  const courante = Math.max(0, Math.min(o.sousCategorie | 0, plaques.length - 1));
+  const ici = plaques[courante] || { objets: [] };
+  const pages = Math.max(1, ici.pages | 0 || 1);
 
-  /* ⭐ LE SENS SUIT LE GESTE : une sous-catégorie plus à droite arrive par la droite.
-     ⛔ Et quand c'est la CATÉGORIE qui change, l'indice de sous-catégorie retombe à 0 et ne dit
-     plus rien — on prend alors celui de la catégorie, qui, lui, a bougé. */
-  const ancienne = plaqueEnPlace;
-  const neuve = { clef: cases.dataset.plaque, cat: o.categorie | 0, sous: o.sousCategorie | 0 };
-  /* 🔴 ET L'ANCIENNE DOIT VENIR D'UN ÉCRAN ENCORE MONTÉ. Au moment où on construit, l'écran
-     précédent est toujours dans le document : s'il n'y est plus, c'est qu'on est PARTI de Wares
-     et qu'on y revient. ⭐ Revenir n'est pas changer de sous-catégorie — ça ne doit rien faire
-     glisser. ⛔ Sans ce test, un aller-retour par Gear rejouerait la transition d'une plaque
-     morte, et le geste dirait quelque chose de faux. */
-  const encoreLa = ancienne && ancienne.noeud && ancienne.noeud.isConnected !== false;
-  if (encoreLa && ancienne.clef !== neuve.clef) {
-    const versLaDroite = ancienne.cat === neuve.cat
-      ? neuve.sous > ancienne.sous
-      : neuve.cat > ancienne.cat;
-    /* ⛔ UN `append` DÉPLACE : la plaque sortante quitte l'écran démonté et entre dans le neuf.
-       ⭐ C'est ce qui la fait SURVIVRE au remplacement — sans ça il n'y aurait rien à voir partir. */
-    if (versLaDroite) train.append(ancienne.noeud, cases);
-    else train.append(cases, ancienne.noeud);
-    transitionEnAttente = { piste, sortante: ancienne.noeud, entrante: cases };
-  } else {
+  for (let k = 0; k < plaques.length; k += 1) {
+    const cases = el("div", "wares-cases");
+    cases.setAttribute("role", "list");
+    /* ⭐ LA PLAQUE DIT QUELLE SOUS-CATÉGORIE ELLE MONTRE — une LECTURE pour le verrou et pour
+       les gardes, ⛔ jamais un indice deviné par la position dans le DOM. */
+    cases.dataset.plaque = String(k);
+    /* ⛔ ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS : `inert` retire au clavier ce que
+       l'œil ne voit pas. Sans lui, six plaques hors champ mettent 72 boutons invisibles sur le
+       chemin du doigt et de la touche Tab. */
+    if (k !== courante) cases.setAttribute("inert", "");
+    for (const item of (plaques[k].objets || []).slice(0, PAR_PAGE)) {
+      const c = el("div", "wares-case");
+      c.setAttribute("role", "listitem");
+      c.append(jeton(item, o));
+      cases.append(c);
+    }
     train.append(cases);
-    transitionEnAttente = null;
   }
-  plaqueEnPlace = { clef: neuve.clef, cat: neuve.cat, sous: neuve.sous, noeud: cases };
+
+  /* ⭐ LA PISTE SE POSE APRÈS LE MONTAGE, et sa place se LIT — `offsetLeft` de la plaque
+     courante. ⛔ Pas `largeur × k` : entre deux plaques il y a un jour, et l'erreur d'un pas
+     déduit GRANDIT avec le rang. */
+  pisteEnAttente = {
+    poser() {
+      if (piste.isConnected === false) return false;
+      const n = train.children[courante];
+      if (n && typeof n.offsetLeft === "number") piste.scrollLeft = n.offsetLeft;
+      return true;
+    },
+  };
 
   grille.append(
-    gouttiere("gauche", String(o.compte ?? objets.length), pages > 1, o.surPage),
+    gouttiere("gauche", String(ici.compte ?? (ici.objets || []).length), pages > 1, o.surPage),
     piste,
     gouttiere("droite", `${(o.page | 0) + 1}/${pages}`, pages > 1, o.surPage),
   );

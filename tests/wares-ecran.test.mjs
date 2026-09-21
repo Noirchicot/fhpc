@@ -13,7 +13,7 @@ import { createTestDocument } from "./dom-stub.mjs";
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/wares-disposition.mjs");
-const { construireLesWares, feuilleDesCotesWares, oublierLaPlaque } = await import("../ui/builder/wares-ecran.mjs");
+const { construireLesWares, feuilleDesCotesWares, placeDeLaPiste } = await import("../ui/builder/wares-ecran.mjs");
 
 const tous = (n, sel) => [...n.querySelectorAll(sel)];
 
@@ -552,55 +552,59 @@ test("25 · le popup de la bourse est coté sous `.wares`, et il est centré sur
     `⛔ le popup n'est ni centré sur la bourse (${purse.x + purse.l / 2}) ni serré dans la dalle : centre à ${cx}`);
 });
 
-/* ══ 26 · LA TRANSITION DE PLAQUE ══════════════════════════════════════════════
-   ⚖️ ERIC, 2026-09-21, et les trois phrases se tiennent :
-     · *« la transition de dalle se fait quand on change de sous-catégorie dans le 2e tambour »* ;
-     · *« on arrive sur la page 1, et naviguer dans les pages se fait avec les chevrons »* ;
-     · *« changer de page = chevrons, la plaque ne glisse pas »*.
-   ⭐ TOUT TIENT DANS LA **CLEF** de la plaque : deux pages d'une même sous-catégorie portent la
-   même clef, donc rien ne glisse ; une sous-catégorie voisine en porte une autre, donc ça glisse.
-   ⛔ Le garde lit la clef et le TRAIN, ⛔ pas une classe ni un commentaire. */
-test("26 · une page de plus ne fait RIEN glisser ; une sous-catégorie voisine, si", () => {
-  oublierLaPlaque();
-  const train = (n) => tous(n, ".wares-train")[0];
-  const plaques = (n) => tous(n, ".wares-cases").length;
-
-  /* ① premier rendu : une seule plaque, rien à faire partir */
-  const a = monter({ sousCategorie: 0, page: 0, pages: 3 });
-  assert.ok(train(a), "⛔ pas de train : la plaque n'a rien pour glisser");
-  assert.equal(plaques(a), 1, "⛔ un premier rendu ne fait pas entrer une plaque contre une autre");
-
-  /* ② page suivante, MÊME sous-catégorie : la clef ne change pas, donc UNE plaque */
-  const b = monter({ sousCategorie: 0, page: 1, pages: 3 });
-  assert.equal(plaques(b), 1,
-    "⛔ changer de page fait glisser une plaque : Eric a dit « la plaque ne glisse pas »");
-
-  /* ③ sous-catégorie voisine : DEUX plaques dans le train, la sortante et l'entrante */
-  const c = monter({ sousCategorie: 1, page: 0, pages: 3 });
-  assert.equal(plaques(c), 2, "⛔ rien ne part : on ne verrait pas passer d'un catalogue à l'autre");
-  const dans = tous(train(c), ".wares-cases").map((p) => p.dataset.plaque);
-  assert.deepEqual(dans, ["0:0", "0:1"],
-    "⛔ la sortante arrive par la gauche : une sous-catégorie plus à droite entre par la DROITE");
-
-  /* ④ et en revenant en arrière, le sens s'inverse */
-  const d = monter({ sousCategorie: 0, page: 0, pages: 3 });
-  assert.deepEqual(tous(train(d), ".wares-cases").map((p) => p.dataset.plaque), ["0:0", "0:1"],
-    "⛔ le sens ne s'inverse pas : la plaque qui s'en va doit sortir du côté d'où l'on vient");
+/* ══ 26 · LE TRAIN PORTE UNE PLAQUE PAR SOUS-CATÉGORIE, TOUTES POSÉES ══════════
+   ⚖️ ERIC, 2026-09-21 : *« il faut uniquement la première page de chaque dalle »*.
+   🔴 CE QUE CE GARDE REMPLACE, ET POURQUOI. Il vérifiait jusqu'au 21/09 qu'une TRANSITION
+   se jouait — deux plaques le temps d'un petit film. ⛔ C'était faux de nature : le sac ne
+   joue aucun film, sa plaque SUIT le tambour image par image, et *« on voit une dalle entrer
+   et une dalle sortir »* est la CONSÉQUENCE de ce suivi, pas une animation.
+   ⭐ Pour suivre, il faut que les plaques soient DÉJÀ LÀ. Le garde tient donc ça. */
+test("26 · une plaque par sous-catégorie, et seule la courante est atteignable au clavier", () => {
+  const n = monter({
+    sousCategorie: 1,
+    plaques: [
+      { nom: "a", objets: [{ ref: "a1", nom: "A1" }], compte: 1, pages: 1 },
+      { nom: "b", objets: [{ ref: "b1", nom: "B1" }], compte: 30, pages: 3 },
+      { nom: "c", objets: [{ ref: "c1", nom: "C1" }], compte: 5, pages: 1 },
+    ],
+    page: 2,
+  });
+  const plaques = tous(n, ".wares-cases");
+  assert.equal(plaques.length, 3, "⛔ les voisines ne sont pas posées : la plaque ne pourra pas SUIVRE");
+  assert.deepEqual(plaques.map((p) => p.dataset.plaque), ["0", "1", "2"],
+    "⛔ chaque plaque dit quelle sous-catégorie elle montre — ⛔ jamais un indice deviné par sa place");
+  /* ⛔ ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS : sinon six plaques hors champ
+     mettent 72 boutons invisibles sur le chemin de la touche Tab. */
+  assert.deepEqual(plaques.map((p) => p.getAttribute("inert") !== null), [true, false, true],
+    "⛔ seule la plaque courante est atteignable au clavier");
+  /* ⭐ et les gouttières parlent de la COURANTE, pas de la première */
+  assert.ok(n.textContent.includes("30"), "⛔ le compte n'est pas celui de la sous-catégorie visée");
+  assert.ok(n.textContent.includes("3/3"), "⛔ la page affichée n'est pas celle de la courante");
 });
 
-/* ══ 27 · LA CLEF NE CONNAÎT PAS LA PAGE ═══════════════════════════════════════
-   ⭐ TÉMOIN DIRECT de la règle : si la page entrait dans la clef, chaque coup de chevron
-   ferait glisser une plaque. ⛔ Éprouvé rouge en ajoutant la page à la clef. */
-test("27 · la clef d'une plaque est sa sous-catégorie, ⛔ jamais sa page", () => {
-  oublierLaPlaque();
-  const clef = (n) => tous(n, ".wares-cases")[0].dataset.plaque;
-  const p0 = clef(monter({ categorie: 1, sousCategorie: 2, page: 0, pages: 3 }));
-  oublierLaPlaque();
-  const p2 = clef(monter({ categorie: 1, sousCategorie: 2, page: 2, pages: 3 }));
-  assert.equal(p0, p2, `⛔ la page est entrée dans la clef : « ${p0} » puis « ${p2} »`);
-  oublierLaPlaque();
-  const autre = clef(monter({ categorie: 1, sousCategorie: 3, page: 0, pages: 3 }));
-  assert.notEqual(p0, autre, "⛔ deux sous-catégories partagent une clef : rien ne glissera jamais");
+/* ══ 27 · LA FORMULE DU VERROU ═════════════════════════════════════════════════
+   ⚖️ ERIC, 2026-09-19 : *« je fais défiler une tuile à travers le viseur, je fais défiler une
+   dalle en même temps… ILS SONT LIÉS »*. ⭐ Tout le *« en même temps »* tient dans la FRACTION :
+   à mi-chemin entre deux tuiles, la plaque est à mi-chemin entre deux plaques.
+   ⛔ ET CE N'EST PAS UNE MULTIPLICATION : entre deux plaques il y a un JOUR, donc `largeur × k`
+   n'est pas la place de la plaque `k`. On ENCADRE entre deux places LUES, et on interpole.
+   📏 Relevé dans le sac, aimantation coupée : 0 → 106 → 215 → 321 → 427 pour 0 · 0,25 · 0,5 ·
+   0,75 · 1 tuile. C'est cette courbe-là que la formule doit rendre. */
+test("27 · la piste suit la FRACTION du ruban, ⛔ pas son cran", () => {
+  const xs = [0, 316, 632, 948];       /* quatre plaques, jour compris */
+  assert.equal(placeDeLaPiste(0, xs), 0);
+  assert.equal(placeDeLaPiste(0.25, xs), 79, "⛔ un quart de tuile = un quart de plaque");
+  assert.equal(placeDeLaPiste(0.5, xs), 158);
+  assert.equal(placeDeLaPiste(1, xs), 316);
+  assert.equal(placeDeLaPiste(1.5, xs), 474);
+  assert.equal(placeDeLaPiste(3, xs), 948, "⛔ la dernière plaque");
+  /* ⛔ ET ELLE NE SORT PAS DU TRAIN, quelle que soit la position du ruban : un défilement
+     élastique (iOS) rend des positions NÉGATIVES et au-delà du dernier cran. */
+  assert.equal(placeDeLaPiste(-2, xs), 0, "⛔ une position négative sort du train");
+  assert.equal(placeDeLaPiste(99, xs), 948, "⛔ une position au-delà du dernier sort du train");
+  /* ⛔ et un jour IRRÉGULIER ne la prend pas en défaut — c'est tout l'intérêt de l'encadrement */
+  assert.equal(placeDeLaPiste(1.5, [0, 300, 700]), 500,
+    "⛔ elle a multiplié au lieu d'encadrer : avec des places inégales, le résultat diverge");
 });
 
 /* ══ 28 · LA FENÊTRE CLIPPE, ET LE JOUR VIENT DU PLAN ══════════════════════════

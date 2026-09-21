@@ -3114,10 +3114,28 @@ export function renderEquipmentStep(ctx, onAction) {
       sousCategorie: etagereWares,
       /* ⛔ AUCUN PRIX SUR LE JETON — la loi du 20/09. Ce que la tuile reçoit est le nom, et
          rien d'autre ; le prix vit sur la fiche et dans la recherche. */
-      objets: vue.objets.map((item) => ({ ref: item.view.id, nom: recordLabel(item.view) || item.view.id })),
-      compte: tous.length,
+      /* ⚖️ UNE PLAQUE PAR SOUS-CATÉGORIE, ET CHACUNE SUR SA **PREMIÈRE PAGE** — Eric, 21/09 :
+         *« il faut uniquement la première page de chaque dalle »*.
+         ⭐ C'EST CE QUI REND LE VERROU POSSIBLE. Le sac fait suivre sa plaque au tambour
+         **image par image** parce que toutes ses plaques sont DÉJÀ posées ; une plaque qu'il
+         faudrait construire au moment où le doigt passe dessus ne pourrait jamais suivre.
+         📏 ET LE COÛT EST BORNÉ, mesuré sur la donnée : la catégorie la plus fournie porte
+         7 sous-catégories, soit **7 plaques / 84 jetons** — ⛔ pas les 47 plaques / 564 jetons
+         qu'il faudrait pour poser toutes les pages de tout.
+         ⛔ SAUF LA COURANTE, qui porte la page où le joueur EST : les chevrons la feuillettent
+         sur place. Les voisines, elles, n'ont que leur page 1 — et c'est exact, puisque
+         *« on arrive sur la page 1 »* dès qu'on change de sous-catégorie. */
+      plaques: etageres.map((e, k) => {
+        const page = k === etagereWares ? vue : pageDeListe(e.objets, 0, WARES_PAR_PAGE);
+        return {
+          nom: e.label,
+          /* ⛔ AUCUN PRIX SUR LE JETON — la loi du 20/09. */
+          objets: page.objets.map((item) => ({ ref: item.view.id, nom: recordLabel(item.view) || item.view.id })),
+          compte: e.objets.length,
+          pages: page.pages,
+        };
+      }),
       page: pageWares,
-      pages: vue.pages,
       /* 🔴 C'ÉTAIT `motDeLaBourse(docu)`, ET C'EST UNE FAUTE DE CÂBLAGE À MOI — 21/09.
          `motDeLaBourse` ne rend PAS le contenu de la bourse : il rend `null`, ou la phrase
          *« Choose a class … to get your starting gold »*. Wares recevait donc une PHRASE là où

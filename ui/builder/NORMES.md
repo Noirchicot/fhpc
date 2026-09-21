@@ -3899,58 +3899,68 @@ il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la l
 
 ---
 
-### 🎞️ LA PLAQUE DE WARES GLISSE À LA SOUS-CATÉGORIE, ⛔ JAMAIS À LA PAGE
-📍 `equipement-wares-la-plaque-glisse-a-la-sous-categorie` · vivante · 21/09
-⚖️ **Changer de sous-catégorie fait SORTIR une plaque et ENTRER l'autre, et on arrive page 1. ⛔ Changer de page ne fait rien glisser : c'est les chevrons, et les jetons se substituent.**
+### 🔗 LA PLAQUE DE WARES **SUIT** LE TAMBOUR, ⛔ ELLE NE JOUE PAS UN FILM
+📍 `equipement-wares-la-plaque-suit-le-tambour` · vivante · 21/09
+⚖️ **La plaque se déplace À CHAQUE IMAGE du défilement du tambour, en suivant sa position FRACTIONNAIRE. ⛔ Ce n'est pas une animation jouée après coup : c'est un verrou, et c'est la même mécanique que le sac.**
 
-> Eric, 2026-09-21 : **« je veux qu'on ait la sensation de passer d'un catalogue à un autre quand
-> on change de sous-catégorie »** · **« la transition de dalle se fait quand on change de
-> sous-catégorie dans le 2e tambour ; on arrive sur la page 1, et naviguer dans les pages se fait
-> avec les chevrons »** · **« changer de page = chevrons, la plaque ne glisse pas »**.
+> Eric, 2026-09-19 : **« je fais défiler une tuile à travers le viseur, je fais défiler une dalle
+> en même temps… ILS SONT LIÉS »**. Et le 21/09, en me renvoyant au code du sac : **« regarde le
+> code de backpack et regarde ce qui se passe sur une transition de plaque »**.
 
-⭐ **TOUT TIENT DANS LA CLEF D'UNE PLAQUE, ET ELLE NE CONNAÎT PAS LA PAGE** : `catégorie:sous-catégorie`.
-Deux pages d'une même sous-catégorie portent la **même** clef, donc rien ne bouge ; une
-sous-catégorie voisine en porte une autre, donc ça glisse. ⛔ Une seule règle, et pas une
-condition par cas — le jour où la page entrerait dans la clef, chaque coup de chevron ferait
-traverser une plaque.
+🔴 **CE QUE J'AVAIS LIVRÉ EN v778, ET C'ÉTAIT FAUX DE NATURE.** J'avais écrit une TRANSITION : on
+tape, le tambour tourne, il se pose *(~400 ms)*, l'étape repeint, **et alors** un film de ~460 ms se
+joue. Deux mouvements successifs pour un seul geste — et pendant un vrai glissé du tambour, la
+plaque ne montrait **rien**, puis sautait. 📏 Mesuré sur les deux écrans, même sonde, aimantation
+coupée :
 
-🔴 **ET LE MÉCANISME DU SAC NE SE COPIE PAS, C'EST MESURÉ.** Le sac pose **toutes** ses plaques
-côte à côte et n'en reconstruit aucune. 📏 Sur la donnée de Wares : **416 objets · 6 catégories ·
-26 sous-catégories · 3 pages au maximum**, soit **47 plaques / 564 jetons** s'il fallait tout
-poser — et le glisser pourrait vagabonder d'une sous-catégorie à l'autre, ce qu'Eric refuse.
-⭐ **D'OÙ LA MÉMOIRE D'UNE SEULE PLAQUE** : l'écran retient celle du rendu précédent ; quand la
-suivante porte une autre clef, un `append` **déplace** l'ancienne dans le nœud neuf, les deux
-voyagent ensemble, et l'ancienne est retirée à l'arrivée. ⛔ Elle DOIT être retirée : laissée là,
-elle reste hors champ mais **tabulable** — douze boutons invisibles que le clavier traverse.
-📌 Et elle ne glisse que si l'écran précédent était **encore monté** : revenir dans Wares n'est pas
-changer de sous-catégorie, et ça ne doit rien faire traverser.
+| tuiles parcourues | 0 | 0,25 | 0,5 | 0,75 | 1 | 1,5 | 2 |
+|---|---|---|---|---|---|---|---|
+| **sac** | 0 | 106 | 215 | 321 | 427 | 641 | 855 |
+| **Wares — v778** | 0 | **0** | **0** | **0** | **0** | **0** | **0** |
+| **Wares — le verrou** | 0 | **78** | **159** | **237** | **315** | **474** | **632** |
 
-🔴 **LE MOTEUR EST CELUI DU SAC, ET DEUX GARDES ME L'ONT IMPOSÉ.** J'avais commencé par inventer
-une durée *(180 ms)* et par piloter un train avec `style.transform`. La maison a refusé dans la
-même seconde : *« aucun style EN LIGNE dans `ui/` »* et *« seul `socle.mjs` remplace le contenu
-d'un nœud »*. ⭐ **Leur refus m'a rendu le bon mécanisme** : une piste qui **défile**
-(`scroll-behavior: smooth`) n'a besoin d'aucune durée inventée *(le moteur porte la sienne)*,
-d'aucun style en ligne *(`scrollLeft` est une position, pas du décor)*, et elle tient
-`prefers-reduced-motion` **depuis la feuille**. 📌 Sixième fois du chantier que la réponse est
-*« reprendre, ⛔ jamais redessiner »*.
-⛔ **ET LA DISTANCE SE LIT, ELLE NE SE MULTIPLIE PAS** : on défile jusqu'à l'`offsetLeft` de la
-plaque qui arrive. C'est la loi du verrou du sac, et elle compte double ici — le jour vaut
-**38,88** et ne tombe pas rond.
+⭐ **ET C'EST LÀ LA LOI GÉNÉRALE** : *« on voit une dalle entrer et une dalle sortir »* n'est pas
+une animation qu'on **joue** — c'est la **conséquence** du fait que la plaque suit le doigt. Une
+animation jouée après coup **raconte** le mouvement ; elle ne le **fait** pas. ⛔ Et la différence
+se voit : pendant tout le trajet du doigt, la version « film » ne montre rien.
 
-📏 **LE JOUR VIENT DE LA LOI DU 19/09** *(`budget-le-jour-est-a-la-plaque-ce-que-la-gouttiere-est-a-la-tuile`)* :
-`jour / plaque = écart / tuile`, soit `277 × 8 / 57 = 38,88`. ⚠️ **Et je dis ce qui change** : la
-*raison* de cette loi — garder le verrou synchrone — **ne s'applique pas ici**, puisque Wares n'a
-pas de verrou. On en garde la **forme**, pour que les deux écrans restent la même image à deux
-échelles et que le jour ne devienne pas un nombre choisi à la main.
+⚖️ **CE QU'IL FAUT POUR SUIVRE : QUE LES PLAQUES SOIENT DÉJÀ LÀ** — Eric, 21/09 : *« il faut
+uniquement la première page de chaque dalle »*. Une plaque par sous-catégorie, chacune sur sa
+**page 1**, ⛔ sauf la courante qui porte la page où le joueur est. 📏 Coût borné, mesuré : la
+catégorie la plus fournie en porte 7, soit **7 plaques / 84 jetons** — ⛔ pas les 47 plaques /
+564 jetons qu'il faudrait pour poser toutes les pages de tout.
+⛔ **ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS** *(`inert`)* : six plaques hors champ,
+c'est 72 boutons invisibles sur le chemin de la touche Tab.
 
-📏 **MESURÉ AU NAVIGATEUR, image par image** : deux plaques dans le train, `scrollWidth` **593**
-*(277 + 38,88 + 277)*, `scrollLeft` de **1 à 316** en ~460 ms, puis une seule plaque et
-`scrollLeft` à **0**.
-⏳ **CE QUI N'EST PAS TRANCHÉ** : *« ou alors on fait un tourné de page, mais faut que ça soit
-simple »* — le tourné de page à la navigation reste **offert, pas fait**.
-⏳ **ET UN POINT OUVERT QUE JE NOMME** : changer de **catégorie** remet la sous-catégorie à la
-première, donc la clef change, donc **ça glisse aussi**. C'est ce que fait le code aujourd'hui,
-et c'est cohérent avec *« passer d'un catalogue à un autre »* — mais Eric ne l'a pas dit.
+⛔ **LE SENS INVERSE RESTE COUPÉ** — *« la dalle de Wares ne sera pas swipable car elle a plusieurs
+pages »*. Le sac a deux meneurs possibles et un arbitre ; ici le tambour mène **toujours**, la piste
+ne reçoit aucun geste *(`touch-action: none`)*. ⭐ Un seul écrivain, donc **pas d'arbitre à tenir** —
+c'est la moitié du mécanisme du sac qu'on ne reprend PAS, et je le dis pour qu'on ne la cherche pas.
+⛔ **ET LE SUIVEUR N'AIMANTE PAS**, ni ne défile « en douceur » : une aimantation `mandatory` refuse
+toute position intermédiaire *(mesuré dans le sac : 383 au lieu de 563 à mi-chemin)*, et une inertie
+ajoutée ferait traîner la plaque derrière le doigt. **L'aimantation appartient au meneur.**
+
+🔴 **DEUX PIÈGES DE MESURE, ET ILS M'ONT FAIT CONCLURE FAUX TROIS FOIS.**
+1. **`offsetLeft` se compte depuis le plus proche ancêtre POSITIONNÉ.** Sans `position: relative`
+   sur la piste, les plaques rendaient **49 · 365 · 681** — la gouttière était dans le compte, et la
+   piste se serait posée 49 blg à côté. Après : **0 · 316 · 632**.
+2. **Une poignée de nœud PÉRIMÉE rend 0 en silence.** Un repeint remplace les nœuds ; une sonde qui
+   garde sa référence mesure un écran mort et conclut que rien ne bouge. ⭐ Une sonde doit
+   **ré-interroger le document à chaque pas**.
+
+⛔ **ET LE VERROU NE PASSE PAS PAR UNE VARIABLE DE MODULE.** Mon premier jet en utilisait une, parce
+que le tambour se construit avant la dalle 2. 📏 Sonde à l'appui : le suiveur était bien appelé
+*(`p = 0,507`)* mais sa piste rendait **`isConnected: false`** — la variable avait déjà été
+réassignée par le rendu suivant, et le tambour d'un écran écrivait dans la piste d'un autre.
+⭐ **La parade est structurelle** : la piste naît **avant** le tambour, et le tambour reçoit une
+**fermeture** qui la tient. Les deux naissent et meurent ensemble ; il n'y a plus rien à tenir
+d'accord. 📌 *Une indirection par l'état du module est un trou par construction* — rien n'y garantit
+que les deux bouts appartiennent au même rendu.
+
+⭐ **ET LA PLACE D'UNE PLAQUE SE LIT, ⛔ ELLE NE SE MULTIPLIE PAS** : entre deux plaques il y a un
+jour, donc `largeur × k` n'est pas la place de la plaque `k`. On encadre entre deux places lues dans
+la mise en page et on interpole avec la fraction — c'est `placeDeLaPiste(p, xs)`, une fonction pure,
+tenue par son garde.
 
 ---
 
