@@ -223,10 +223,25 @@ test("6 — la feuille construite pose chaque organe, à la cote de la table", (
 });
 
 test("7 — shell.css ne porte AUCUNE position de la fiche : les cotes sont dans la table", () => {
-  const debut = shell.indexOf(".x1 { background:");
-  assert.ok(debut > 0, "le bloc d'habit de la fiche existe");
+  /* 🔴 L'ANCRE A BOUGÉ AU LOT 219, ET LA RÈGLE N'A PAS BOUGÉ D'UN MOT.
+     Elle était `".x1 { background:"` — la ligne qui servait l'image `--x1-parchemin`
+     étirée en `100% 100%`. ⛔ Cette ligne n'existe plus : Eric a demandé le 21/09
+     qu'*« aucune image matricielle de parchemin ne soit nécessaire »*, et la surface
+     est maintenant un SVG calculé (`parchemin.mjs`).
+     ⭐ CE QUE CE GARDE TIENT EST INCHANGÉ — *« shell.css ne porte AUCUNE position de
+     la fiche »* — et il le tient sur PLUS de feuille qu'avant : le bloc du parchemin
+     est écrit AU-DESSUS de l'ancien point d'ancrage, donc `slice` en lit davantage.
+     ⚠️ Un garde dont l'ancre disparaît doit être RE-ANCRÉ, ⛔ jamais supprimé : c'est
+     la première déclaration d'habit de la fiche qui fait l'ancre, quelle qu'elle soit. */
+  const debut = shell.indexOf(".x1 .parchemin {");
+  assert.ok(debut > 0, "le bloc d'habit de la fiche existe (il s'ouvre sur la surface en parchemin)");
   const bloc = shell.slice(debut);
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur serait une cote recopiée");
+  /* ⛔ ET L'IMAGE NE REVIENT PAS PAR LA PETITE PORTE : `--x1-parchemin` n'est plus
+     consommée nulle part. Un `background` qui la reprendrait rétablirait l'étirement
+     que ce lot supprime — et il le ferait en silence, puisque rien d'autre ne regarde. */
+  assert.ok(!/var\(--x1-parchemin\)/.test(shell),
+    "⛔ l'image matricielle du parchemin est de retour dans shell.css — elle s'étire, c'est le défaut du lot 219");
   /* ⭐ LA FICHE PARTAGE LA BOÎTE DE LA DALLE — une seule règle le dit, et elle
      s'allonge quand un écran la rejoint. Le sac y est entré au lot 214 : ⛔ ce que
      ce garde tient n'est pas la LISTE, c'est qu'il n'y ait qu'UN écrivain. */

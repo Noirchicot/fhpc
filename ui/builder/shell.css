@@ -11550,7 +11550,51 @@ button.tuto-point::before {
    ⭐ LA DALLE, ELLE, EST DÉCLARÉE PLUS HAUT AVEC CELLE DE R (`:is(.gear, .x1, .sac)`) :
    les deux écrans du chapitre recouvrent la même surface, et une seule règle le
    dit. */
-.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat; }
+/* ══ 📜 LOT 219 — LA SURFACE DE LA FICHE EST DESSINÉE, PLUS SERVIE EN IMAGE ══
+   Eric, 2026-09-21 : *« aucune image matricielle de parchemin ne doit être
+   nécessaire »*.
+   📏 CE QUI ÉTAIT ÉCRIT ICI, ET POURQUOI C'ÉTAIT LE DÉFAUT :
+   `.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat }` — une
+   image de 806 × 1056 étirée à `100% 100%`. ⛔ `100% 100%` ne préserve AUCUN
+   rapport : la dalle fait 375 de large toujours (règle sacrée du 31/08) mais sa
+   HAUTEUR suit la scène, donc le grain et la déchirure s'allongeaient ou
+   s'écrasaient d'un appareil à l'autre. Un panneau *« entièrement extensible
+   selon son contenu »* ne pouvait qu'aggraver ça.
+   ⭐ LE CONTOUR VIENT MAINTENANT DE `parchemin.mjs`, CALCULÉ À LA COTE RÉELLE en
+   blg : un accroc fait 4 blg que la fiche en fasse 420 ou 640 de haut.
+   ⛔ ET LA FEUILLE NE PORTE AUCUNE COTE POUR AUTANT : `inset: 0`, `100%`, rien
+   en px — le garde 7 de `tests/x1-ecran.test.mjs` continue de le vérifier.
+
+   ⚖️ LE DÉCOR NE SE LAISSE PAS SAISIR : `pointer-events: none`, et le SVG porte
+   `aria-hidden`. Il est le PREMIER enfant, donc peint sous les organes, qui sont
+   tous en `position: absolute` — ⛔ aucun `z-index` n'est nécessaire, et un
+   `z-index` posé ici créerait un contexte d'empilement dont les popups de la
+   fiche auraient à sortir.
+   ⛔ AUCUNE TRANSITION, AUCUNE ANIMATION : la feuille ne bouge pas, elle est
+   redessinée. `prefers-reduced-motion` n'a donc rien à éteindre — et c'est une
+   propriété VÉRIFIÉE (garde 19), pas une intention. */
+.x1 .parchemin {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* ⚖️ L'OMBRE EST PORTÉE PAR LA SILHOUETTE, PAS PAR LA BOÎTE — c'est tout
+     l'intérêt de `drop-shadow` sur un SVG : elle épouse la déchirure. Une
+     `box-shadow` aurait dessiné l'ombre d'un RECTANGLE sous une feuille
+     déchirée, et rien n'aurait plus dit « papier ».
+     ⛔ ET ELLE EST SOMBRE AUX TROIS PALETTES (Eric, 21/09 : *« sans halo
+     blanc »*) : seule sa densité change, par `--x1-ombre`. */
+  filter: drop-shadow(0 1px 1px var(--x1-ombre)) drop-shadow(0 6px 10px var(--x1-ombre));
+}
+/* Les six teintes de la feuille — ⛔ toutes par jeton, aucune écrite ici ni dans
+   le JavaScript : `parchemin.mjs` ne pose que ces classes. */
+.x1 .parchemin-fond { fill: var(--x1-papier); }
+.x1 .parchemin-patine { fill: var(--x1-tranche); }
+.x1 .parchemin-grain { fill: var(--x1-grain); }
+.x1 .parchemin-fibres,
+.x1 .parchemin-pli { fill: none; stroke: var(--x1-tranche); }
+.x1 .parchemin-fil { fill: none; stroke: var(--x1-tranche-douce); }
 /* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
    soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
    ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT
@@ -11585,10 +11629,27 @@ button.tuto-point::before {
    2× plus épaisse, trait rouge »*. ⭐ C'est le MÊME rouge que les mots d'état : sur un
    parchemin plein, l'oxblood passe (Eric, le matin), et la fiche n'a donc qu'un rouge.
    L'épaisseur, elle, vit dans le dessin du jeton — pas ici. */
+/* 🔴 LOT 219 — LES LOSANGES ET LE POINT SONT PARTIS. Eric, 2026-09-21 :
+   *« remplacer les séparateurs ornementaux à losanges et points par de simples
+   filets fins en dégradé »*.
+   ⭐ CE QUE ÇA RÈGLE : l'ornement était un DESSIN posé en masque, donc une forme
+   de 400 × 12 ramenée à `100% auto` — la seule chose de la fiche qui se
+   redimensionnait encore avec sa boîte. Un dégradé n'a pas de dessin à étirer.
+   ⚖️ LE ROUGE RESTE, ET CE N'EST PAS UN OUBLI : Eric nomme l'ORNEMENT (les
+   losanges, le point), jamais la teinte — et `--x1-filet-encre` est ratifié du
+   17/09 au soir (*« le trait revient à la taille d'origine, rouge plus clair »*).
+   ⛔ Changer une couleur qu'on ne m'a pas demandé de changer, en profitant d'un
+   lot qui touche l'organe, est exactement ce que §5 interdit. ⏳ Un mot d'Eric et
+   le filet prend `--x1-tranche` comme dans le prototype.
+   📏 1 BLG DANS UNE BOÎTE DE 8 : la hauteur de la boîte est une cote de la table
+   générée (`FILET HAUT`, h: 8) et ⛔ ne bouge pas ; c'est l'ENCRE qui est fine.
+   Le dégradé s'éteint sur le cinquième extérieur de chaque côté — *« légèrement
+   atténué aux extrémités »*. */
 .x1-filet {
-  background: var(--x1-filet-encre);
-  mask: var(--icone-filet) center / 100% auto no-repeat;
-  -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
+  background:
+    linear-gradient(90deg, transparent, var(--x1-filet-encre) 22%,
+                    var(--x1-filet-encre) 78%, transparent)
+    center / 100% 1px no-repeat;
 }
 /* — CE QUE L'OBJET EST : un mot, pas un menu (Eric, 17/09 au soir). */
 .x1-is-quoi:not([hidden]) {

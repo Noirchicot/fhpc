@@ -32,10 +32,41 @@
     color: var(--text-soft); box-shadow: inset 0 -1px 0 var(--border-strong);
   }
   .banc-scene { flex: 1 1 auto; min-height: 0; position: relative; display: flex; }
+  /* ⛔ LA BARRE DU BANC N'EST PAS DU PRODUIT — lot 219. Elle existe pour qu'on
+     puisse REGARDER les six rendus (jour/nuit × normal/party-tally, à deux
+     hauteurs) sans recompiler ni tripoter le système. Tout ce qu'elle porte est
+     de l'échafaudage, et c'est pour ça qu'il est écrit ici et nulle part ailleurs. */
+  .banc-barre {
+    position: fixed; inset: 0 0 auto; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 6px 8px; background: #000c; font: 600 11px/1 system-ui, sans-serif;
+  }
+  .banc-barre button {
+    border: 1px solid #666; border-radius: 6px; padding: 5px 8px;
+    background: #222; color: #ddd; font: inherit; cursor: pointer;
+  }
+  .banc-barre button[aria-pressed="true"] { background: #e8ddc6; color: #201a12; border-color: #e8ddc6; }
+  .banc { margin-top: 34px; }
+  /* ⭐ LES TROIS HAUTEURS SONT DES CLASSES, ⛔ PAS DES STYLES EN LIGNE : le banc
+     n'est pas soumis au garde 7 (qui ne lit que les `.mjs`), mais un banc qui
+     prend une liberté que le produit n'a pas cesse de prouver quoi que ce soit. */
+  .banc[data-h="courte"] { height: 420px; }
+  .banc[data-h="normale"] { height: 560px; }
+  .banc[data-h="longue"] { height: 760px; }
+  /* ⛔ JOUR / NUIT NE SONT PAS DES BOUTONS ICI, ET C'EST EXPRÈS : `tokens.css`
+     les porte en `@media (prefers-color-scheme: dark)`, donc le seul témoin
+     honnête est la préférence RÉELLE du navigateur. Un attribut de banc
+     court-circuiterait la requête média et prouverait autre chose que le produit. */
 </style>
 </head>
 <body>
-<div class="banc">
+<div class="banc-barre" id="barre">
+  <button type="button" data-geste="palette" aria-pressed="false">❄ Party Tally (bleutée)</button>
+  <button type="button" data-geste="h" data-val="courte" aria-pressed="false">420</button>
+  <button type="button" data-geste="h" data-val="normale" aria-pressed="true">560</button>
+  <button type="button" data-geste="h" data-val="longue" aria-pressed="false">760</button>
+  <button type="button" data-geste="prose" aria-pressed="false">texte court</button>
+</div>
+<div class="banc" id="banc" data-h="normale">
   <div class="banc-belt">belt — X1 ne le recouvre jamais</div>
   <div class="banc-scene" id="scene"></div>
 </div>
@@ -59,7 +90,13 @@ function poser() {
          objet magique lourd en texte pour voir »*. La zone défile, et les chevrons de la
          marge droite doivent s'allumer : c'est ce qu'on vient regarder ici.
          ⛔ Prose écrite pour ce banc, pas recopiée d'un livre : le dépôt est public. */
-      prose: "A winged helmet of hammered bronze, its plumes catching a light that is " +
+      /* ⭐ LOT 219 — ET LE TEXTE COURT EST L'AUTRE MOITIÉ DU BANC : la spec
+         demande *« une hauteur courte et une hauteur longue avec plus de
+         texte »*. Un parchemin qui tient sur un texte long peut très bien
+         s'effondrer sur trois mots — la zone élastique change de hauteur, donc
+         la dalle aussi, donc le contour. */
+      prose: courtTexte ? "A plain bronze cap. Nothing further is recorded." :
+             "A winged helmet of hammered bronze, its plumes catching a light that is " +
              "not in the room.\n" +
              "While wearing it you gain a flying speed of 30 feet, and you can hover. " +
              "If you are not proficient with medium armor, your speed is halved and you " +
@@ -91,11 +128,44 @@ function poser() {
   });
   return noeud;
 }
+/* ══ LOT 219 — LA BARRE DU BANC, ET CE QU'ELLE SERT À VOIR ═══════════════
+   Six rendus : {jour, nuit} × {normal, party-tally}, chacun à trois hauteurs.
+   ⛔ Le jour et la nuit ne sont PAS ici — ils viennent de la préférence du
+   navigateur, parce que c'est comme ça que `tokens.css` les écrit. */
+let party = false;
+let courtTexte = false;
+
 function peindre() {
   const scene = document.getElementById("scene");
   while (scene.firstChild) scene.removeChild(scene.firstChild);
-  scene.append(poser());
+  const noeud = poser();
+  /* ⏳ CE GESTE N'EXISTE QUE SUR LE BANC, et c'est la moitié du sujet : le
+     Party Tally est `inerte` au dépôt (`sac-ecran.mjs`), donc aucune fiche du
+     produit ne peut porter cet attribut aujourd'hui. Le banc le pose à la main
+     pour qu'on puisse REGARDER la palette qu'Eric a validée — ⛔ il ne prétend
+     pas que le chemin existe. */
+  if (party) noeud.dataset.parchemin = "party-tally";
+  scene.append(noeud);
 }
+
+document.getElementById("barre").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.geste === "palette") {
+    party = !party;
+    b.setAttribute("aria-pressed", String(party));
+  } else if (b.dataset.geste === "h") {
+    document.getElementById("banc").dataset.h = b.dataset.val;
+    for (const f of document.querySelectorAll('[data-geste="h"]'))
+      f.setAttribute("aria-pressed", String(f === b));
+    return;   /* ⭐ la hauteur ne repeint PAS : c'est le `ResizeObserver` du
+                 parchemin qu'on vient éprouver — s'il dort, on le verra. */
+  } else if (b.dataset.geste === "prose") {
+    courtTexte = !courtTexte;
+    b.setAttribute("aria-pressed", String(courtTexte));
+  }
+  peindre();
+});
 peindre();
 </script>
 </body>

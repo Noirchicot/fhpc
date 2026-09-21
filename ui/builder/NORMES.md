@@ -3633,6 +3633,61 @@ aurait défait le tiers de ce travail.
 ⭐ **ET LA DÉCHIRURE AMORCÉE SUFFIT À DIRE « PARCHEMIN »** : ce qu'on voit au bord est un bord
 déchiré, pas un bord droit — et c'est tout ce que l'œil avait à comprendre.
 
+🔴 **SA PRÉMISSE EST MORTE LE 21/09, SA DÉCISION TIENT** *(lot 219)*. La règle arbitrait un
+**coût** : montrer la déchirure entière valait 14 de marge sur quatre côtés, *parce que la
+déchirure était une IMAGE dont il fallait dégager les bords*. ⭐ Depuis que le bord est
+**calculé**, sa profondeur est un paramètre : elle se règle à **9,5 blg**, le dégagement du
+premier organe peint, et la déchirure entière se voit **sans rendre un seul blg au texte**.
+⛔ **Ce qui ne change pas, et c'est ce qu'Eric a tranché** : on ne paie pas de marge pour le
+décor. La règle est donc **tenue**, pas levée — par un autre moyen.
+
+---
+
+### 📜 LE PARCHEMIN DE LA FICHE EST DESSINÉ, ⛔ JAMAIS UNE IMAGE
+📍 `cadre-parchemin-calcule-trois-palettes` · vivante · 21/09
+⚖️ **La surface de la fiche X1 est un contour SVG calculé à la cote RÉELLE du panneau — ⛔ aucune image matricielle — et elle porte TROIS palettes : jour, nuit, et la bleutée du Party Tally, qui PRIME sur les deux autres.**
+
+> Eric, 2026-09-21 : **« aucune image matricielle de parchemin ne doit être nécessaire »** ·
+> **« conserver les couleurs jour, nuit et bleutée du prototype »** · **« le bleu est un
+> contexte hors jour nuit, il PRIME »** · **« la palette bleutée doit rester claire et
+> lisible : pas un panneau nocturne simplement recoloré en bleu »** · **« remplacer les
+> séparateurs ornementaux à losanges et points par de simples filets fins en dégradé »**.
+
+📏 **LE DÉFAUT ÉTAIT MESURABLE, ET IL ÉTAIT DANS UNE SEULE DÉCLARATION** :
+`.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat }`. ⛔ `100% 100%` ne
+préserve aucun rapport — la dalle fait **375 de large toujours** mais sa hauteur suit la scène,
+donc le grain et la déchirure s'allongeaient ou s'écrasaient d'un appareil à l'autre. Mesuré le
+21/09 : à 700 de haut, la même image rendait ses accrocs **40 % plus longs** qu'à 500.
+⭐ **CE QUE LE CALCUL APPORTE, ET QU'AUCUN RÉGLAGE D'IMAGE NE POUVAIT DONNER** : un accroc fait
+**4 blg** que la fiche en fasse 420 ou 700 de haut. La matière ne s'étire pas, parce qu'il n'y a
+plus rien à étirer — le bord gagne des points, il ne redistribue pas les siens.
+
+⚖️ **TROIS RENDUS, ⛔ PAS SIX.** Jour et nuit sont l'affaire du **lecteur**
+*(`prefers-color-scheme`, sur `:root`)* ; la bleutée est l'affaire de **l'objet regardé**. Elle ne
+se combine pas avec le thème, elle le **préempte** : une fiche du Party Tally est bleu pâle le
+soir comme le matin.
+🔴 **ET « PRIMER » EST UNE AFFIRMATION SUR QUI GAGNE, DONC ELLE SE MESURE.** 📏 Relevé au
+navigateur le 21/09, `getComputedStyle` sur la fiche en contexte Party Tally, application forcée
+en jour puis en nuit : les **dix** jetons du parchemin rendent la **même** valeur aux deux
+relevés, pendant que le témoin `--text` passe de `#2d2c2a` à `#d8d3c9`. ⭐ Le témoin prouve que
+la sonde **voit** le thème changer — sans lui, l'égalité ne dirait rien.
+⛔ **LA BLEUTÉE DOIT DONC ÊTRE COMPLÈTE, PAS SEULEMENT PRÉSENTE** : elle redéfinit **tout** ce que
+le bloc de nuit touche. Le jour où la nuit gagnerait un jeton que la bleutée oublie, ce jeton-là
+passerait en nuit **sous un papier bleu** — un panneau bleu à l'encre nocturne, exactement ce
+qu'Eric refuse — et **aucun test de couleur ne broncherait**. C'est `tests/parchemin.test.mjs`
+garde 6 qui le tient, et il a été éprouvé ROUGE.
+
+📏 **LA PROFONDEUR DU BORD EST DÉDUITE, ⛔ PAS CHOISIE** : c'est la plus courte distance entre un
+bord de la dalle et la boîte de **dessin** d'un organe — **9,5 blg** *(COPIER à gauche, JAUGE à
+droite ; le haut en offre 20, le bas 36)*. ⚠️ **ET LA BOÎTE DE DESSIN N'EST PAS LA CIBLE** : les
+cibles de 44 descendent jusqu'à **4** du bord, mais elles portent l'écart en **bordure
+transparente** — rien n'y est peint, et le décor ne les rogne pas puisqu'il n'intercepte aucun
+geste. Confondre les deux fait accuser un défaut qui n'existe pas *(fait le 21/09, corrigé en
+mesurant le `padding-box`)*.
+⭐ **UN SEUL BUDGET POUR LES QUATRE CÔTÉS** : le bas en offrirait 36, mais une déchirure quatre
+fois plus profonde en bas qu'aux côtés ne se lit pas comme une feuille. L'asymétrie qu'Eric
+demande vient du **bruit**, ⛔ pas d'un budget par arête.
+
 ---
 
 ### 🔢 DEUX CASES DU MÊME NOM PORTENT LEUR NUMÉRO

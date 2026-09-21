@@ -52,8 +52,36 @@ import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=788";
    chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
    informer le lecteur »* — donc c'est le même organe, pas un second. */
 import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=788";
+/* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
+   sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
+   second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
+import { habilleEnParchemin } from "./parchemin.mjs?v=788";
 
 const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
+
+/** 📏 CE QUE LA DÉCHIRURE A LE DROIT DE MORDRE — ⛔ UNE COTE DÉDUITE, PAS CHOISIE.
+ *  On prend la plus courte distance entre un bord de la dalle et la boîte de
+ *  DESSIN d'un organe : c'est le dessin qui peint, donc c'est lui qui doit rester
+ *  sur le papier.
+ *  📏 Mesuré sur la table du 21/09 : gauche **9,5** (COPIER) · droite **9,5**
+ *  (JAUGE) · haut **20** (QTE) · bas **36** (BACK). Le minimum des quatre est
+ *  donc **9,5**, et c'est lui qui commande.
+ *  ⚖️ UN SEUL BUDGET POUR LES QUATRE CÔTÉS, ET C'EST UN CHOIX ARGUMENTÉ : le bas
+ *  en offrirait 36, mais une déchirure quatre fois plus profonde en bas qu'aux
+ *  côtés ne se lit pas comme une feuille — elle se lit comme une erreur. ⭐ Eric
+ *  demande un fond *« assez uni »* ; l'asymétrie doit venir du BRUIT, pas d'un
+ *  budget différent par arête. ⏳ Si Eric veut mordre plus fort en haut et en
+ *  bas, le nombre est là et il se desserre par côté sans rien casser.
+ *  ⛔ ET IL NE SE RECOPIE PAS : la table bouge, le budget suit. C'est la seule
+ *  raison pour laquelle il est calculé et non écrit. */
+export function budgetDuParchemin() {
+  let budget = Infinity;
+  for (const o of ORGANES) {
+    budget = Math.min(budget, o.x, o.y,
+      D.DALLE.l - (o.x + o.l), D.DALLE.h - (o.y + o.h));
+  }
+  return Math.max(0, budget);
+}
 
 /* ══ DU NOM DU PLAN À LA CLEF DU DÉPÔT ═════════════════════════════════════
    Même dispositif que `CLEF_DE` dans `gear-ecran.mjs` : le plan nomme en
@@ -153,10 +181,16 @@ export function feuilleDesCotesX1() {
      *« l'œil et le copy restent où ils sont »*. ⭐ Ils vivent dans les MARGES, pas dans
      la zone : trois repères fixes, qu'on retrouve au même endroit qu'on lise ou qu'on
      règle. Un organe qui se déplace à chaque mode demande qu'on le cherche. */
-  const deux = 2 * PARCHEMIN_DEBORD;
-  regles.push(deux
-    ? `.x1{background-size:calc(100% + ${px(deux)}) calc(100% + ${px(deux)})}`
-    : ".x1{background-size:100% 100%}");
+  /* 🔴 LOT 219 — LA RÈGLE DE `background-size` EST PARTIE AVEC L'IMAGE.
+     Elle écrivait `.x1{background-size:100% 100%}` (ou `100% + 2×débord`) pour
+     étirer `--x1-parchemin` aux cotes de la dalle. ⛔ Il n'y a plus d'image à
+     étirer : le contour est un SVG calculé à la cote réelle par `parchemin.mjs`.
+     Laisser la règle aurait été un écrivain qui commande un organe mort.
+     ⭐ `PARCHEMIN_DEBORD` RESTE DANS LA TABLE, ET ON N'Y TOUCHE PAS : c'est une
+     cote GÉNÉRÉE (`X1_gen.py`), et `tests/x1-ecran.test.mjs` garde 1 vérifie
+     qu'elle est égale à celle du plan. ⛔ Une valeur générée ne se retire pas
+     depuis le dépôt — elle se retire en amont, si Eric le décide. Elle vaut 0
+     aujourd'hui, donc elle ne commande rien. */
   return regles.join("\n");
 }
 
@@ -349,6 +383,19 @@ export function construireLaFicheX1(options = {}) {
   feuille.setAttribute("data-fhpc", "x1");
   feuille.textContent = feuilleDesCotesX1();
   noeud.append(feuille);
+
+  /* ⚖️ LE PARCHEMIN EST POSÉ ICI, ET EN PREMIER — lot 219.
+     ⭐ L'ORDRE EST LE DESSIN : tous les organes sont en `position: absolute` et
+     sans `z-index`, donc ils peignent dans l'ordre du DOM. Le décor entre avant
+     eux, il passe dessous, et ⛔ personne n'a besoin d'un `z-index` — celui qu'on
+     aurait posé ici aurait créé un contexte d'empilement à franchir.
+     ⛔ ET IL N'INTERCEPTE RIEN : `aria-hidden` et `pointer-events: none` (la
+     feuille). Le contenu reste au-dessus, tapable et lisible par un lecteur
+     d'écran — la fiche ne gagne pas un nœud de plus à annoncer.
+     ⚠️ IL EST MONTÉ AVANT D'ÊTRE AU DOCUMENT, et c'est voulu : `habilleEnParchemin`
+     ne mesure rien tout de suite (`clientWidth` vaudrait 0), il attend la première
+     mise en page puis suit la cote avec un `ResizeObserver`. */
+  noeud.append(habilleEnParchemin(noeud, budgetDuParchemin));
 
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];

@@ -1144,18 +1144,47 @@
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
      d'un parchemin · derrière, le background ; la dalle sous-jacente n'est pas
-     visible, juste le belt au-dessus »*. L'image porte SES bords déchirés ; la
+     visible, juste le belt au-dessus »*. La feuille porte SES bords déchirés ; la
      fiche n'a donc pas d'arête droite, et ce qu'on voit à travers les déchirures
-     est le décor du site. 📏 Servie en 806 × 1056 (deux fois la cote), 57 Ko
-     contre 1,18 Mo : détourée par remplissage depuis les bords, ⛔ jamais par un
-     seuil global — le parchemin est clair, un seuil l'aurait troué partout. */
-  --x1-parchemin: url("./assets/parchemin-x1.webp?v=788");
-  /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE. Le parchemin est
-     OPAQUE et CLAIR sur les deux fonds : l'encre du site (`--text`, qui bascule
-     avec le thème) y devient illisible la nuit — mesuré au banc le 17/09, premier
-     rendu, le nom se lisait à peine. ⭐ Même raison que `--bouton-encre` : *« ce
-     jeton bascule ; la face du bouton, elle, est la même sur les deux fonds »*.
-     Un organe qui apporte son propre fond apporte son propre contraste. */
+     est le décor du site.
+
+     🔴 LOT 219 — L'IMAGE EST PARTIE, LE PARCHEMIN SE DESSINE. Eric, 2026-09-21 :
+     *« aucune image matricielle de parchemin ne doit être nécessaire »*, *« le
+     panneau doit rester entièrement extensible selon son contenu »*.
+     📏 LE DÉFAUT ÉTAIT MESURABLE DANS LA FEUILLE : `--x1-parchemin` était servie
+     par `background: … center / 100% 100%` — une image de 806 × 1056 ÉTIRÉE aux
+     cotes de la dalle. ⛔ Un grain étiré n'a pas la même épaisseur selon le
+     format : la même déchirure rendait large sur un panneau court et fine sur un
+     panneau long. ⭐ `parchemin.mjs` calcule le contour À LA COTE RÉELLE, donc un
+     accroc fait 4 blg à toute hauteur — c'est la raison d'être du lot.
+     📌 L'IMAGE `assets/parchemin-x1.webp` N'EST PLUS RÉFÉRENCÉE NULLE PART. ⛔ Elle
+     n'est PAS supprimée : c'est un dépôt d'Eric, et c'est lui qui tranche.
+
+     ⚖️ ET LA FICHE A MAINTENANT TROIS PALETTES, PAS DEUX — Eric, 21/09 :
+     *« conserver les couleurs jour, nuit et bleutée du prototype »*. Les valeurs
+     viennent du modèle B de `Gpt in FH/Parchemin-CSS/parchment-css-demo.html`,
+     qu'Eric a regardé et validé. ⛔ Aucune n'est réinventée ici, et ⛔ aucune n'est
+     recopiée dans le JavaScript : `parchemin.mjs` ne pose que des CLASSES. */
+  --x1-papier: #ded2b8;
+  --x1-tranche: #887251;
+  --x1-tranche-douce: rgba(91, 69, 40, .33);
+  --x1-grain: rgba(77, 53, 27, .055);
+  /* ⚖️ L'OMBRE PORTE LE THÈME — Eric, 21/09 : *« légère en jour, plus profonde en
+     nuit, froide en bleutée »*, et ⛔ *« sans halo blanc »*. C'est donc une ombre
+     SOMBRE aux trois palettes : ce qui change est sa densité, jamais son signe.
+     ⛔ Un halo clair sous une feuille claire ferait flotter la fiche au lieu de la
+     poser — la faute que `--spy-halo` évite déjà ailleurs, en sens inverse. */
+  --x1-ombre: rgba(45, 31, 18, .30);
+  /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE.
+     🔴 MAIS ELLE BASCULE DÉSORMAIS, ET C'EST UN RENVERSEMENT ASSUMÉ. Le 17/09 ces
+     trois jetons étaient FIXES, et l'argument était juste : *« le parchemin est
+     opaque et CLAIR sur les deux fonds »*, donc une encre qui bascule y serait
+     illisible la nuit. ⭐ CE QUI A CHANGÉ N'EST PAS L'ARGUMENT, C'EST SA PRÉMISSE :
+     depuis le 21/09 le parchemin n'est plus clair la nuit — il a sa palette de
+     nuit. Une encre fixe sur un papier qui bascule serait exactement la faute que
+     la règle de 17/09 empêchait, à l'envers.
+     ⛔ LA LOI, ELLE, NE BOUGE PAS : un organe qui apporte son propre fond apporte
+     son propre contraste. C'est la PAIRE papier + encre qui bascule, ensemble. */
   --x1-encre: #2a1c10;
   --x1-encre-douce: #6d573e;
   --x1-trait: #8d7352;
@@ -1193,6 +1222,14 @@
   /* ⚖️ LE FILET QUI DÉLIMITE LE TEXTE — Eric, 17/09 au soir, en donnant l'image : un
      trait qui s'affine aux deux bouts, et au milieu losange · point · losange. ⛔ Il
      est posé en MASQUE : sa teinte est celle de la fiche, pas une encre écrite ici. */
+  /* ⏳ LOT 219 — PLUS CONSOMMÉ, ET GARDÉ EXPRÈS. Eric a demandé le 21/09 de
+     *« remplacer les séparateurs ornementaux à losanges et points par de simples
+     filets fins en dégradé »* : `.x1-filet` porte maintenant un dégradé, et ce
+     dessin n'a plus d'emploi (mesuré : 0 `var(--icone-filet)` dans les cinq
+     feuilles). ⛔ IL NE PART PAS POUR AUTANT — c'est un dessin qu'Eric a DONNÉ, et
+     le lot lui rend une question ouverte : il nomme l'ornement, jamais la teinte.
+     Un mot de lui et le filet reprend ce masque. ⭐ Le dépôt supprime ses jetons
+     morts ; un dessin reçu n'est pas un jeton mort, c'est une pièce en attente. */
   --icone-filet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' fill='%23000'%3E%3Cpath d='M0 6.3 L164 4.5 L164 7.5 Z'/%3E%3Cpath d='M400 6.3 L236 4.5 L236 7.5 Z'/%3E%3Cpath d='M168 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3Ccircle cx='200' cy='6' r='3.6'/%3E%3Cpath d='M214 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3C/svg%3E");
   /* ⚖️ LA COPIE — Eric, 17/09 au soir, d'abord *« deux pages superposées, très simple
      et petit, juste des traits »*, puis en donnant l'image : un PRESSE-PAPIERS — la
@@ -1595,12 +1632,90 @@
        compenser, la marge n'existe pas. */
     --bouton-ombre: drop-shadow(0 0 3px rgba(255,255,255,.16)) drop-shadow(0 2px 4px rgba(0,0,0,.55));
 
+    /* ══ 📜 LOT 219 — LE PARCHEMIN DE NUIT (X1) ════════════════════════════
+       Les valeurs du modèle B nocturne, reprises du prototype validé par Eric
+       le 21/09. ⛔ La fiche cesse ici d'être « claire sur les deux fonds » : le
+       renversement est argumenté au jeton de jour, vingt lignes plus haut.
+       📏 ET LE PAPIER RESTE PLUS CLAIR QUE LE FOND, mesuré : `--bg` de nuit
+       vaut #14120e (luminance 18), le papier #252522 (37). ⭐ C'est ce qui
+       autorise une ombre SOMBRE ici, là où `--bouton-ombre` a dû devenir une
+       lueur : un bouton de nuit est sombre SUR sombre et n'a aucune marge ;
+       cette feuille-ci est la partie claire de l'image, et elle en a.
+       ⛔ Donc pas de halo blanc — Eric, 21/09, explicitement. */
+    --x1-papier: #252522;
+    --x1-tranche: #80776a;
+    --x1-tranche-douce: rgba(204, 190, 169, .21);
+    --x1-grain: rgba(222, 210, 189, .035);
+    --x1-ombre: rgba(0, 0, 0, .56);
+    /* L'encre bascule AVEC son papier — la paire, jamais l'un sans l'autre. */
+    --x1-encre: #e6dfd2;
+    --x1-encre-douce: #aaa397;
+    --x1-trait: #6f6759;
+    /* 🩸 L'OXBLOOD S'ÉCLAIRCIT, ET C'EST LA MÊME LOI QU'AU JOUR : *« une teinte
+       ne se juge jamais seule, elle se juge sur son fond »*. #4a0e13 sur le
+       papier de nuit #252522 rend 1,3:1 — il disparaît. Le rouge de nuit du
+       prototype (#a15a54) y rend 4,6:1, donc le mot d'état se lit encore comme
+       un mot d'état, et le filet reste une ponctuation d'un cran plus douce. */
+    --x1-etat-encre: #a15a54;
+    --x1-filet-encre: #8f5450;
+
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
        ci-dessus lit déjà l'accent DE NUIT ici. Mesuré : le texte sur le
        lavis tient 11,14:1 la nuit (11,06:1 le jour), très au-dessus de la
        cible 4,5:1 — voir l'inventaire. */
   }
+}
+
+/* ══ 📜 LOT 219 — LA TROISIÈME PALETTE : LE PARCHEMIN DU PARTY TALLY ════════
+   Eric, 2026-09-21 : *« la palette bleutée s'inspire d'un parchemin glacé :
+   centre bleu très pâle, bord bleu gris plus dense, texte bleu ardoise »*, et
+   ⛔ *« la bleutée doit rester claire et lisible : pas un panneau nocturne
+   recoloré en bleu »*.
+
+   ⚖️ CE N'EST PAS UN THÈME, C'EST UN CONTEXTE, et les deux ne se posent pas au
+   même endroit. Jour et nuit sont l'affaire du LECTEUR (`prefers-color-scheme`,
+   sur `:root`) ; la bleutée est l'affaire de l'OBJET REGARDÉ — elle dit *« cette
+   fiche relève du Party Tally »*. ⭐ Elle vit donc sur la fiche, en attribut, et
+   elle vaut SOUS LES DEUX THÈMES : c'est pour ça qu'elle est déclarée APRÈS le
+   bloc de nuit et hors de lui. Une fiche du Party Tally est bleue pâle le soir
+   comme le matin, parce que ce qu'elle dit ne dépend pas de l'heure.
+   📏 ET « CLAIRE » EST UNE MESURE, PAS UN MOT : papier #d5e1e9 (luminance 224),
+   encre #243746 (luminance 55) — 9,6:1. La palette de NUIT, elle, rend un papier
+   à 37. ⛔ Personne ne peut confondre les deux, et c'est exactement la confusion
+   qu'Eric nomme.
+
+   🔴 ⛔ ET L'ATTRIBUT N'EST BRANCHÉ SUR RIEN — C'EST DÉLIBÉRÉ, ET ÇA SE DIT.
+   📏 Mesuré le 21/09 sur cette branche : `sac-ecran.mjs` déclare le Party Tally
+   `{ id: "party-tally", … inerte: true }` et le commente *« le Group Tally
+   n'existe qu'EN JEU, la donnée ne le porte pas à la création »* ;
+   `equipment-step.mjs` ne lui donne aucun destinataire (*« il se montre inerte
+   (disabled), il ne fait pas semblant d'écouter »*) ; et X1 ne s'ouvre que depuis
+   `surJeton` d'un écran d'équipement, qui écrit `origineX1 = vueEquipement` —
+   jamais « party-tally ».
+   ⭐ AUCUNE FICHE NE PEUT DONC RELEVER DU PARTY TALLY AUJOURD'HUI. Inventer la
+   provenance aurait été écrire la donnée que le sac dit ne pas exister. L'HABIT
+   est prêt et se regarde au banc ; ⏳ le DÉCLENCHEUR attend que le Party Tally
+   soit réel, et c'est une décision d'Eric, pas de ce lot.
+   📌 LE JOUR OÙ IL LE SERA, UN SEUL GESTE SUFFIT : poser
+   `data-parchemin="party-tally"` sur la section `.x1` dans
+   `construireLaFicheX1`. Rien d'autre à câbler.
+   ⚠️ TROIS NOMS, UN SEUL ORGANE : Eric dit « Party Tally », d'anciens
+   commentaires du dépôt disent « Group Tally », et le code écrit `party-tally`.
+   ⛔ Ce n'est pas un second organe — le nom qui fait foi est celui du code, et
+   c'est celui qu'Eric a tranché le 21/09. */
+.x1[data-parchemin="party-tally"] {
+  --x1-papier: #d5e1e9;
+  --x1-tranche: #6686a3;
+  --x1-tranche-douce: rgba(51, 80, 105, .31);
+  --x1-grain: rgba(54, 84, 112, .052);
+  /* froide, et toujours sombre — ⛔ jamais un halo */
+  --x1-ombre: rgba(24, 43, 59, .34);
+  --x1-encre: #243746;
+  --x1-encre-douce: #4f6576;
+  --x1-trait: #7c96ab;
+  --x1-etat-encre: #985e61;
+  --x1-filet-encre: #8a6469;
 }
 
 /* ══ LA GRANDEUR — ⚠️ CE N'EST PLUS UN `@media`, ET C'EST MESURÉ ═════════
