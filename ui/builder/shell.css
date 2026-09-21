@@ -11609,11 +11609,21 @@ button.tuto-point::before {
    que le MODE, jamais la place */
 .x1 [data-organe] { position: absolute; box-sizing: border-box; }
 
-/* — LE NOM, entre ses deux flèches. T4, l'écriture d'un titre d'objet : c'est
-   le seul mot de l'écran qui nomme la CHOSE, tout le reste la décrit. */
+/* — LE NOM. T4, l'écriture d'un titre d'objet : c'est le seul mot de l'écran qui
+   nomme la CHOSE, tout le reste la décrit.
+   🩸 LOT 240 — EN GRAS ET EN OXBLOOD. Eric, 2026-09-21 : *« le titre en gras et
+   Oxblood »*, puis, à la question de la portée : *« pour les fiches »*.
+   ⭐ ET C'EST LA MÊME DÉCLARATION QUE LES DEUX FILETS, ⛔ PAS UNE SECONDE : ce que
+   la demande change est le STATUT de l'oxblood — il cesse d'être la teinte d'un
+   ornement pour devenir une ENCRE DE LA FICHE. Deux jetons de même valeur auraient
+   divergé au premier réglage. ⛔ Et aucun littéral : `--x1-oxblood` existe et il
+   est décliné aux trois palettes.
+   📏 700 ET NON 800 : `--x1-oxblood` est un rouge moyen, et à T4 sur le parchemin
+   le 800 empâte les contre-formes. 700 est le cran « gras » de la famille du
+   dépôt — c'est un titre, pas une alarme. */
 .x1-nom:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
-  font-size: var(--t4); font-weight: 600; color: var(--x1-encre);
+  font-size: var(--t4); font-weight: 700; color: var(--x1-oxblood);
   text-align: center; line-height: 1.1; overflow-wrap: break-word;
 }
 /* — LA QUANTITÉ, à gauche du titre et cadrée à gauche (Eric, 17/09 au soir). Elle ne
@@ -11629,27 +11639,33 @@ button.tuto-point::before {
    2× plus épaisse, trait rouge »*. ⭐ C'est le MÊME rouge que les mots d'état : sur un
    parchemin plein, l'oxblood passe (Eric, le matin), et la fiche n'a donc qu'un rouge.
    L'épaisseur, elle, vit dans le dessin du jeton — pas ici. */
-/* 🔴 LOT 219 — LES LOSANGES ET LE POINT SONT PARTIS. Eric, 2026-09-21 :
+/* ✅ LOT 240 — LES LOSANGES ET LE POINT REVIENNENT, ET C'EST ERIC QUI LES RAPPELLE.
+   Le 219 les avait remplacés par un dégradé, sur SA spécification écrite du 21/09 :
    *« remplacer les séparateurs ornementaux à losanges et points par de simples
-   filets fins en dégradé »*.
-   ⭐ CE QUE ÇA RÈGLE : l'ornement était un DESSIN posé en masque, donc une forme
-   de 400 × 12 ramenée à `100% auto` — la seule chose de la fiche qui se
-   redimensionnait encore avec sa boîte. Un dégradé n'a pas de dessin à étirer.
-   ⚖️ LE ROUGE RESTE, ET CE N'EST PAS UN OUBLI : Eric nomme l'ORNEMENT (les
-   losanges, le point), jamais la teinte — et `--x1-filet-encre` est ratifié du
-   17/09 au soir (*« le trait revient à la taille d'origine, rouge plus clair »*).
-   ⛔ Changer une couleur qu'on ne m'a pas demandé de changer, en profitant d'un
-   lot qui touche l'organe, est exactement ce que §5 interdit. ⏳ Un mot d'Eric et
-   le filet prend `--x1-tranche` comme dans le prototype.
-   📏 1 BLG DANS UNE BOÎTE DE 8 : la hauteur de la boîte est une cote de la table
-   générée (`FILET HAUT`, h: 8) et ⛔ ne bouge pas ; c'est l'ENCRE qui est fine.
-   Le dégradé s'éteint sur le cinquième extérieur de chaque côté — *« légèrement
-   atténué aux extrémités »*. */
+   filets fins en dégradé »*. Il a regardé le rendu, et le même jour : *« l'ornement
+   de l'ancienne fiche X1 me plaît plus, je veux bien qu'on le garde »* · *« celui de
+   l'ancienne fiche X1 »* · *« il est oxblood »*.
+   ⭐ LE CROQUIS ET L'ŒIL PRIMENT SUR LA PROSE, Y COMPRIS LA SIENNE. Une spécification
+   décrit ce qu'on croit vouloir ; un rendu montre ce qu'on veut. ⛔ Un lot qui a
+   appliqué une phrase n'a pas fini tant qu'Eric n'a pas vu ce qu'elle rend.
+   ⚖️ CE QUI EST RENDU EST EXACTEMENT CE QUI AVAIT ÉTÉ RETIRÉ — `--icone-filet`
+   n'avait pas été supprimé (le 219 l'a gardé en écrivant que c'était un dessin
+   d'Eric, pas un jeton mort), donc le retour ne réinvente rien.
+   ⭐ ET CE QUE LE DÉTOUR A GAGNÉ RESTE : l'encre est déclinée aux TROIS palettes
+   depuis le 219 — jour, nuit, bleutée. Le dégradé part, la déclinaison demeure.
+   ⛔ LE MASQUE, ⛔ PAS UN `background-image` : un masque est un CANAL ALPHA — la
+   teinte vient de la fiche (`--x1-oxblood`) et suit la palette, alors que le dessin
+   embarque un `fill='%23000'` qui, servi comme image, peindrait du noir aux trois
+   palettes. C'est la raison pour laquelle il était en masque en 17/09, et elle n'a
+   pas bougé.
+   📏 `100% auto` ET NON `100% 1px` : le dessin est une forme de 400 × 12 dont les
+   losanges ont une HAUTEUR ; l'écraser à 1 blg les aplatirait en traits. La boîte
+   de 8 blg vient de la table générée (`FILET HAUT`, h: 8) et ⛔ ne bouge pas —
+   229 de large pour 12 de dessin rend 6,87 blg de haut, qui tient dans les 8. */
 .x1-filet {
-  background:
-    linear-gradient(90deg, transparent, var(--x1-filet-encre) 22%,
-                    var(--x1-filet-encre) 78%, transparent)
-    center / 100% 1px no-repeat;
+  background: var(--x1-oxblood);
+  mask: var(--icone-filet) center / 100% auto no-repeat;
+  -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
 }
 /* — CE QUE L'OBJET EST : un mot, pas un menu (Eric, 17/09 au soir). */
 .x1-is-quoi:not([hidden]) {

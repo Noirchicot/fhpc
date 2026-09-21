@@ -1200,8 +1200,20 @@
      trait de séparation revient à la taille d'origine, rouge plus clair »*.
      ⭐ CE QUE ÇA RANGE : les mots d'état sont une INFORMATION, le filet est une
      PONCTUATION. Le même rouge aux deux aurait mis la ponctuation au niveau du propos ;
-     un cran plus clair la remet à sa place, sans la faire disparaître. */
-  --x1-filet-encre: #8c3b40;
+     un cran plus clair la remet à sa place, sans la faire disparaître.
+     🩸 LOT 240 — IL CHANGE DE STATUT, ⛔ PAS DE VALEUR, ET IL CHANGE DONC DE NOM.
+     Eric, 2026-09-21, de l'ornement qu'il fait revenir : *« il est oxblood »*, puis
+     *« le titre en gras et Oxblood »*, puis *« pour les fiches »*.
+     ⭐ CE QUE ÇA RANGE : #8c3b40 n'est plus « la teinte d'un ornement », c'est UNE
+     ENCRE DE LA FICHE — le titre la porte, les deux filets la portent, et c'est la
+     MÊME déclaration qui les sert. ⛔ Un second jeton pour le titre serait deux
+     écrivains pour une teinte, et le jour où Eric la bouge il faudrait le savoir.
+     ⛔ ET LE NOM SUIT L'EMPLOI : `--x1-filet-encre` posé sur un titre serait un nom
+     qui ment, et ce dépôt lit les noms. Il s'appelle donc `--x1-oxblood`.
+     ⚠️ IL NE SE CONFOND PAS AVEC `--x1-etat-encre` (#4a0e13), l'AUTRE rouge de la
+     fiche : celui-là est la voix des MOTS D'ÉTAT, plus sombre d'un cran, et il ne
+     bouge pas. Deux rouges, deux emplois, deux jetons — et aucun littéral. */
+  --x1-oxblood: #8c3b40;
   /* ⚖️ LES DEUX INTERRUPTEURS NOIRS — Eric, 17/09 : *« locked est un bouton noir,
      soit vide à gauche, ou avec un cadenas blanc quand à droite »*, *« attuned
      idem, avec un cœur »*. ⛔ Le corps NE BASCULE PAS avec le thème : c'est un
@@ -1222,14 +1234,18 @@
   /* ⚖️ LE FILET QUI DÉLIMITE LE TEXTE — Eric, 17/09 au soir, en donnant l'image : un
      trait qui s'affine aux deux bouts, et au milieu losange · point · losange. ⛔ Il
      est posé en MASQUE : sa teinte est celle de la fiche, pas une encre écrite ici. */
-  /* ⏳ LOT 219 — PLUS CONSOMMÉ, ET GARDÉ EXPRÈS. Eric a demandé le 21/09 de
-     *« remplacer les séparateurs ornementaux à losanges et points par de simples
-     filets fins en dégradé »* : `.x1-filet` porte maintenant un dégradé, et ce
-     dessin n'a plus d'emploi (mesuré : 0 `var(--icone-filet)` dans les cinq
-     feuilles). ⛔ IL NE PART PAS POUR AUTANT — c'est un dessin qu'Eric a DONNÉ, et
-     le lot lui rend une question ouverte : il nomme l'ornement, jamais la teinte.
-     Un mot de lui et le filet reprend ce masque. ⭐ Le dépôt supprime ses jetons
-     morts ; un dessin reçu n'est pas un jeton mort, c'est une pièce en attente. */
+  /* ✅ LOT 240 — LA QUESTION OUVERTE EST CLOSE, ET LE DESSIN REPREND SON EMPLOI.
+     Le lot 219 avait retiré ce masque au profit d'un dégradé, sur la spécification
+     écrite d'Eric du 21/09 au matin. Il a REGARDÉ le rendu le même jour et il est
+     revenu dessus : *« l'ornement de l'ancienne fiche X1 me plaît plus, je veux
+     bien qu'on le garde »*, *« celui de l'ancienne fiche X1 »*.
+     ⭐ LE CROQUIS ET L'ŒIL PRIMENT SUR LA PROSE, Y COMPRIS LA SIENNE — c'est la
+     loi du dépôt, et c'est elle qui joue ici : un lot qui applique une phrase
+     n'a pas fini tant qu'Eric n'a pas vu ce qu'elle rend.
+     ⭐ ET CE QUI A SURVÉCU AU DÉTOUR EST UN PROGRÈS QU'ON GARDE : `--x1-oxblood`
+     est décliné aux TROIS palettes depuis le 219 — le dégradé part, la déclinaison
+     reste. ⛔ Ce jeton n'est donc plus « une pièce en attente » : il est consommé
+     par `.x1-filet`, et le retirer casserait les deux séparateurs de la fiche. */
   --icone-filet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' fill='%23000'%3E%3Cpath d='M0 6.3 L164 4.5 L164 7.5 Z'/%3E%3Cpath d='M400 6.3 L236 4.5 L236 7.5 Z'/%3E%3Cpath d='M168 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3Ccircle cx='200' cy='6' r='3.6'/%3E%3Cpath d='M214 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3C/svg%3E");
   /* ⚖️ LA COPIE — Eric, 17/09 au soir, d'abord *« deux pages superposées, très simple
      et petit, juste des traits »*, puis en donnant l'image : un PRESSE-PAPIERS — la
@@ -1655,9 +1671,11 @@
        ne se juge jamais seule, elle se juge sur son fond »*. #4a0e13 sur le
        papier de nuit #252522 rend 1,3:1 — il disparaît. Le rouge de nuit du
        prototype (#a15a54) y rend 4,6:1, donc le mot d'état se lit encore comme
-       un mot d'état, et le filet reste une ponctuation d'un cran plus douce. */
+       un mot d'état, et le filet reste une ponctuation d'un cran plus douce.
+       🩸 LOT 240 — ET LE SECOND SERT AUSSI LE TITRE (Eric, 21/09) : c'est la même
+       encre de fiche, déclarée une fois, lue par le titre et par les deux filets. */
     --x1-etat-encre: #a15a54;
-    --x1-filet-encre: #8f5450;
+    --x1-oxblood: #8f5450;
 
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
@@ -1715,7 +1733,7 @@
   --x1-encre-douce: #4f6576;
   --x1-trait: #7c96ab;
   --x1-etat-encre: #985e61;
-  --x1-filet-encre: #8a6469;
+  --x1-oxblood: #8a6469;
 }
 
 /* ══ LA GRANDEUR — ⚠️ CE N'EST PLUS UN `@media`, ET C'EST MESURÉ ═════════
