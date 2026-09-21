@@ -3216,7 +3216,7 @@ porte.
      cartes réunissent les trois.
 
 ### ⚖️ L'EXCEPTION AU NON-DÉFILEMENT — la seule, et elle est bornée
-📍 `liste-exception-au-non-defilement` · vivante · 03/09
+📍 `liste-exception-au-non-defilement` · vivante · 03/09 · bornée par `liste-une-fiche-defile-elle-ne-pagine-pas`
 ⚖️ **L'unique exception au non-défilement est bornée aux deux fenêtres de prose de l'arcane, à quatre lignes exactement — parce que ce qui débordait était une règle du jeu, et rien n'est en trop dans une règle du jeu.**
 
 > Eric, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »* · *« si
@@ -3249,6 +3249,43 @@ présents ni absents — et les lignes ne se recomposent pas d'une carte à l'au
 et la fenêtre est plafonnée. Un texte deux fois plus long n'en change pas la taille d'un blg :
 le contenu déborde et **aucun événement ne le dit**. Il faut DEUX lectures — une programmée pour la
 première mise en page, l'observateur pour ce qui bouge après.
+
+### ⚖️ LA BORNE D'ERIC — le critère est la PAGINATION, pas l'identité de la fenêtre
+📍 `liste-une-fiche-defile-elle-ne-pagine-pas` · vivante · 21/09 · borne `liste-exception-au-non-defilement`
+⚖️ **La loi du non-défilement vise les écrans PAGINÉS : une fiche n'a pas de pages, elle peut donc défiler à l'intérieur.**
+
+> Eric, 2026-09-21 : *« il peut y avoir du défilement interne dans une fiche X1, **il n'y a pas
+> plusieurs pages** »*.
+
+🔴 **CE QUE ÇA RÈGLE, ET C'ÉTAIT UNE VRAIE IMPASSE.** La loi du 03/09 bornait l'exception *« à ces
+deux fenêtres »* — les deux fenêtres de prose de l'arcane, nommées une par une. ⛔ **Une liste
+d'exceptions PAR NOM ne dit jamais qu'elle est incomplète** : la description de X1 défilait, elle
+était hors liste, et rien ne pouvait dire si c'était une dette ou un cas légitime.
+
+⭐ **LE CRITÈRE D'ERIC N'EST PAS UNE TROISIÈME EXCEPTION, C'EST UNE LIGNE DE PARTAGE** — et elle
+s'énonce sans nommer un seul écran :
+
+| l'écran | ce qu'il fait du trop-plein | et pourquoi |
+|---|---|---|
+| **paginé** — une liste de jetons | il **pagine**, ⛔ il ne défile jamais | un jeton hors écran est **introuvable**, et le joueur ne sait plus combien il en reste |
+| **une fiche** — un objet, une carte | elle **défile**, ⛔ elle ne pagine pas | *« il n'y a pas plusieurs pages »* : une fiche est UN objet, la couper en deux inventerait un second écran |
+
+⛔ **ET LA LOI GÉNÉRALE NE BOUGE TOUJOURS PAS** : *« un contenu qui ne tient pas : demander ce
+qu'il porte EN TROP, jamais un défilement interne »* *(§1 quater)*. Ce qu'Eric borne est sa
+**PORTÉE** — elle vise ce qui **pagine**. Sur un écran paginé, le trop-plein a un ailleurs où
+aller ; sur une fiche, il n'en a pas, et la question *« qu'est-ce qui est EN TROP ? »* n'a pas de
+réponse honnête.
+
+📏 **LE FAIT QUI ATTENDAIT CETTE BORNE, mesuré par le lot 219** : `.x1-description` porte **180 blg
+de boîte pour 400 de contenu**, soit **220 de débordement** ; `scrollTop` atteint 220 et le chevron
+bas s'allume. ✅ **Ce n'est donc plus une dette, c'est conforme** — et le mode lecture de la fiche
+*(l'œil, qui retire les trois rangées d'options pour rendre leur place au texte)* reste la réponse
+« qu'est-ce qu'on porte EN TROP » **appliquée à l'intérieur de la fiche**, pas son contournement.
+
+⛔ **LES DEUX GARDE-FOUS DU 03/09 RESTENT, ET ILS NE SE NÉGOCIENT PAS** : le geste ne fuit pas
+*(`overscroll-behavior: contain`)*, et **ça se VOIT** *(deux chevrons dans la marge, allumés au
+seul débordement — le haut compte autant que le bas)*. Une fiche qui défile sans le dire laisse
+croire au joueur qu'il a tout lu.
 
 ---
 
