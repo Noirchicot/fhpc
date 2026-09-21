@@ -8471,6 +8471,41 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
 .aiguilleur-texte { margin: 0; font-size: var(--t3); }
 .aiguilleur-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+
+/* ══ LE QCM DU DÉPART — lot 245, 2026-09-21 ════════════════════════════════
+   ⚖️ Eric : *« un popup avec un QCM. Propre et bien présenté »*.
+   ⛔ MÊME FAMILLE `.aiguilleur-*`, pas une seconde : c'est le MÊME organe,
+   seulement refait. Une seconde famille pour un même objet est la faute que
+   ce dépôt repaie tous les quinze jours.
+   ⛔ ET AUCUN `color` N'EST DÉCLARÉ ICI POUR `.aiguilleur-option` : elle entre
+   dans le patron du bouton par la LISTE, plus haut, et l'encre du patron n'a
+   qu'un écrivain (lot 244, garde `tests/encre-du-bouton.test.mjs`). */
+.aiguilleur-section { display: flex; flex-direction: column; gap: var(--sp-4); }
+/* ⭐ LE TITRE D'UNE SECTION PORTE SA CONSIGNE DANS LA MÊME LIGNE — c'est la
+   maquette d'Eric (*« 1 — Fighter : … Choose »*) et c'est ce qui a rendu la
+   carte SRD tenable : ⛔ pas `display: flex`, qui aurait fait du numéro, du nom
+   et de la consigne trois blocs côte à côte sans jamais revenir à la ligne. */
+.aiguilleur-soustitre { margin: 0; font-size: var(--t3); }
+.aiguilleur-soustitre strong { margin-right: .35em; }
+/* le numéro de la maquette (« 1 — Fighter », « 2 — Background ») */
+.aiguilleur-numero { color: var(--text-muted); font-variant-numeric: tabular-nums; margin-right: var(--sp-8); }
+/* ⭐ UNE COLONNE, PAS DEUX : le Fighter a TROIS options et un libellé d'option
+   porte une phrase entière. Deux colonnes couperaient les mots. */
+.aiguilleur-options { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
+.aiguilleur-option { min-height: var(--touch); font: inherit; cursor: pointer; text-align: left; padding: var(--sp-8); }
+/* l'élue — MÊME signal que les cinq méthodes d'Abilities, qui est déjà
+   l'organe « une option parmi N » de ce dépôt. ⛔ Pas une teinte de plus. */
+.aiguilleur-option[data-active="true"] { --bouton-fond: var(--info); font-weight: 600; }
+.aiguilleur-bilan-mot { margin-top: var(--sp-8); color: var(--text-muted); }
+.aiguilleur-bilan { margin: 0; padding-left: var(--sp-16); font-size: var(--t3); }
+.aiguilleur-bilan-ligne { margin: 0; }
+.aiguilleur-bilan-or { font-weight: 600; }
+.aiguilleur-refus { color: var(--text-muted); font-size: var(--t2); }
+/* ⛔ UN BOUTON QUI REFUSE LE DIT AUSSI À L'ŒIL — sinon le joueur tape dans le
+   vide et croit l'écran cassé. */
+.aiguilleur-bouton[disabled] { cursor: not-allowed; opacity: .45; filter: none; }
+/* `Done` est seul sur sa ligne : la maquette n'a plus qu'un bouton. */
+.aiguilleur-pied-seul { grid-template-columns: 1fr; }
 .aiguilleur-bouton {
   min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
@@ -8628,6 +8663,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi,
 .pipeline-pas,
 .aiguilleur-bouton,
+/* LOT 245 — les options du QCM du départ : elles portent un LIBELLÉ, donc le
+   gabarit à mot. ⭐ Elles entrent par la LISTE, jamais par une copie de ses
+   déclarations — le garde `bouton-inventaire` exige que les trois listes
+   (patron, `::before`, `::after`) soient identiques membre pour membre. */
+.aiguilleur-option,
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
    loi »*.
@@ -8728,6 +8768,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi::before,
 .pipeline-pas::before,
 .aiguilleur-bouton::before,
+.aiguilleur-option::before,
 .gear-porte::before,
 .wares-porte::before,
 .x1-porte::before {
@@ -8807,6 +8848,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi::after,
 .pipeline-pas::after,
 .aiguilleur-bouton::after,
+.aiguilleur-option::after,
 .gear-porte::after,
 .wares-porte::after,
 .x1-porte::after {
