@@ -37,6 +37,7 @@ const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui
 const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
+  optionsDeLaProse, departsDuPersonnage, butinDuDepart, departRepondu, cheminDuDepart,
   lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection,
   sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans,
   rangsDesSections, cheminDuRang, CHEMIN_RANG_PARTY
@@ -77,6 +78,35 @@ function withoutCurrency(document) {
   let doc = document;
   for (const key of CURRENCY_KEYS) {
     doc = build.verbs.clear({ document: doc, path: `currency.${key}`, kind: "choice" }).document;
+  }
+  return doc;
+}
+
+/** ⭐ LOT 245 — `poserLeDepart` DE `shell.mjs`, REJOUÉ À LA MAIN. Même limite
+ *  et même réponse que les trois gestes du lot 49 (voir l'en-tête) : ce harnais
+ *  prouve le RÉSULTAT, le garde d'octets prouve le CÂBLAGE.
+ *  ⛔ IL NE RECALCULE RIEN : il appelle `butinDuDepart`, comme la coquille. Un
+ *  harnais qui composerait son propre butin resterait vert le jour où le
+ *  lecteur se tromperait — c'est le témoin qui ne peut jamais accuser. */
+function applyPoserLeDepart(document, reponses) {
+  if (departRepondu(document)) return document;
+  const butin = butinDuDepart({ query, document, reponses });
+  if (!butin.complet) return document;
+  let doc = document;
+  for (const { genre, valeur } of butin.aEcrire) {
+    doc = build.verbs.set({ document: doc, path: cheminDuDepart(genre), value: valeur }).document;
+  }
+  for (const pose of butin.aPoser) {
+    if (pose.neuve) doc = build.verbs.choose({ document: doc, path: `gear[${pose.index}]`, ref: pose.ref }).document;
+    doc = build.verbs.set({ document: doc, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
+    if (pose.neuve) doc = build.verbs.set({ document: doc, path: `gear[${pose.index}].equipped`, value: false }).document;
+  }
+  if (butin.cout) {
+    const bourse = currentCurrency(doc);
+    for (const key of CURRENCY_KEYS) {
+      const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
+      doc = build.verbs.set({ document: doc, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
+    }
   }
   return doc;
 }
@@ -280,7 +310,11 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
   for (const needle of [
     'action.kind === "addGearLine"',
     'action.kind === "removeGearLine"',
-    'action.kind === "addStartingPurse"',
+    /* ⭐ LOT 245 — `addStartingPurse` A CÉDÉ SA PLACE À `poserLeDepart`, et ce
+       garde suit le geste, pas son ancien nom. Ce qu'il exige n'a pas changé :
+       la coquille POSE vraiment le départ. Ce qui a changé, c'est qu'elle pose
+       maintenant les OBJETS en plus de l'or — voir le garde suivant. */
+    'action.kind === "poserLeDepart"',
     "renderEquipmentStep("
   ]) {
     assert.ok(shellText.includes(needle), `shell.mjs devrait contenir « ${needle} » — sans quoi le lot 49 n'est pas branché`);
@@ -309,10 +343,27 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
    un nombre écrit à la main passerait la première moitié et échouerait ici. */
 test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réécrit pas à la main", () => {
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /base\s*\+\s*\(or\.cout\[key\]\s*\|\|\s*0\)/,
-    "sans cette ligne, addStartingPurse pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
-  assert.match(shellText, /orDuDepart\(\{\s*query:[^}]*document:\s*state\.document\s*\}\)/,
-    "le montant doit être LU par `orDuDepart` sur le document courant, jamais écrit dans la coquille");
+  assert.match(shellText, /base\s*\+\s*\(butin\.cout\[key\]\s*\|\|\s*0\)/,
+    "sans cette ligne, `poserLeDepart` pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
+  /* ⭐ LOT 245 — LE MONTANT VIENT MAINTENANT DE `butinDuDepart`, la MÊME
+     fonction dont le QCM peint son récapitulatif. La loi du lot 182 est
+     inchangée (le montant se LIT sur le document courant, il ne s'écrit pas
+     dans la coquille) ; seul le lecteur a changé, parce que l'or dépend
+     désormais des options CHOISIES et non plus de la dernière de chaque
+     phrase. */
+  assert.match(shellText, /butinDuDepart\(\{\s*query:[^}]*document:\s*state\.document/,
+    "le montant doit être LU par `butinDuDepart` sur le document courant, jamais écrit dans la coquille");
+  /* 🔴 ET LES OBJETS AUSSI — c'est le défaut de six semaines que le lot 245
+     répare. La branche `kit` d'hier écrivait `depart: "kit"` et RIEN d'autre :
+     aucun `gear[N]` n'était posé, pendant que le popup annonçait *« already
+     listed »*. ⛔ Sans cette ligne, le QCM redeviendrait un popup qui ment. */
+  assert.match(shellText, /for \(const pose of butin\.aPoser\)[\s\S]{0,400}?path: `gear\[\$\{pose\.index\}\]`, ref: pose\.ref/,
+    "⛔ `poserLeDepart` ne pose plus les OBJETS du kit : le popup annoncerait un équipement qui n'arrive jamais dans Gear");
+  /* ⛔ ET IL NE LE POSE QU'UNE FOIS : rouvrir la question sur un personnage qui
+     a déjà répondu lui empilerait un second kit. Même prudence que le lot 182
+     sur la bourse (« un clic, pas un effet de rendu »). */
+  assert.match(shellText, /if \(departRepondu\(state\.document\)\)/,
+    "⛔ sans ce refus, un second `Done` poserait un second kit par-dessus le premier");
   assert.equal(/\bINHERITED_PURSE_GP\b/.test(shellText), false,
     "la constante du lot 49 est morte : un écran ne porte pas une valeur de règle");
 });
@@ -611,52 +662,262 @@ function queryAvecOrigine(id, equipment) {
   };
 }
 
-test("182 — 🔴 L'ÉCRAN COMPOSE SON MONTANT : un Fighter lit 155, un Wizard 55, et l'origine n'est plus un 50 en dur", () => {
+/* ⭐ LOT 245 — LES DEUX GARDES DU LOT 182, PORTÉS AU QCM. Ce qu'ils défendent
+   n'a pas bougé d'un centime : le montant de chaque source est LU dans sa
+   prose (un Fighter 155, un Wizard 55, une origine truquée 7), et une source
+   illisible n'offre RIEN et se fait nommer. Seul l'organe a changé — le choix
+   global à deux boutons est devenu un QCM par source. ⛔ Si un troisième nom
+   arrive, c'est le sélecteur qu'on change, jamais l'assertion. */
+test("182/245 — 🔴 LE QCM COMPOSE SON MONTANT : un Fighter lit 155, un Wizard 55, et l'origine n'est plus un 50 en dur", () => {
   const docFighter = build.verbs.choose({
     document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:fighter" }
   }).document;
 
   const node = renderEquipmentStep(ctxFrom(docFighter, null), () => {});
-  const texte = [...node.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
-  assert.match(texte, /Fighter 155 GP/, "le montant de la classe est LU — hier tout le monde lisait 50");
-  assert.match(texte, /Inheritance 50 GP/);
-  assert.match(texte, /205 GP in all/, "155 + 50 : chaque source offre SON or, et le total est composé");
+  const options = [...node.querySelectorAll(".aiguilleur-option")].map((b) => b.textContent);
+  /* ⭐ TROIS OPTIONS, PAS DEUX — le Fighter est la seule classe à en porter
+     trois, et c'est le témoin qu'un rendu câblé sur deux ne peut pas passer. */
+  assert.equal(options.length, 3, "« Choose A, B, or C » — le rendu compte les options, il ne les suppose pas");
+  assert.match(options[2], /^C · 155 GP$/, "le montant de la classe est LU — hier tout le monde lisait 50");
 
-  /* ⭐ LE BOUTON ET SON NOM ACCESSIBLE PORTENT LE MÊME NOMBRE — c'est la faute
-     réparée la veille (`e01ff19`) : le nom disait l'inverse du texte visible,
-     et l'œil ne pouvait pas le voir. */
-  const boutons = [...node.querySelectorAll(".aiguilleur-bouton")];
-  const bourse = boutons.find((b) => /^Take the/.test(b.textContent));
-  assert.equal(bourse.textContent, "Take the 205 GP");
-  assert.equal(bourse.getAttribute("aria-label"), "Set the class kit aside and take 205 GP instead");
+  /* ⭐ LE MOT DE LA SOURCE VIT DANS SON TITRE depuis que la carte a dû tenir en
+     764 : *« 2 Inheritance gives you 50 GP. »*, une ligne au lieu de deux. */
+  const titres = [...node.querySelectorAll(".aiguilleur-soustitre")].map((p) => p.textContent).join(" ");
+  assert.match(titres, /gives you 50 GP\./, "l'origine de Fate's Hand NOMME son or : une constatation, pas une question");
+
+  /* ⭐ LE RÉCAPITULATIF COMPOSE LES DEUX SOURCES — et il ne peut pas mentir :
+     il est peint depuis `butinDuDepart`, la fonction que `Done` exécute. */
+  /* ⛔ AUCUN RE-RENDU APRÈS LE CLIC : un choix du QCM n'écrit rien au document,
+     il repeint l'étape EN PLACE. Le nœud qu'on tient est déjà à jour. */
+  [...node.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent.startsWith("C ·")).click();
+  const or = [...node.querySelectorAll(".aiguilleur-bilan-or")].map((l) => l.textContent);
+  assert.deepEqual(or, ["205 GP"], "155 + 50 : chaque source offre SON or, et le total est composé");
 
   /* Le Wizard de l'exemple : 55 + 50. Deux classes, deux phrases. */
   const wizard = renderEquipmentStep(ctxFrom(fixture.document, null), () => {});
-  const texteW = [...wizard.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
-  assert.match(texteW, /Wizard 55 GP/);
-  assert.match(texteW, /105 GP in all/);
+  const optsW = [...wizard.querySelectorAll(".aiguilleur-option")].map((b) => b.textContent);
+  assert.equal(optsW.length, 2, "« Choose A or B » — deux options pour le Wizard");
+  assert.match(optsW[1], /^B · 55 GP$/);
 
   /* ⚔️ L'ATTAQUE QUI ACCUSE : une origine qui porte 7 GP. Un `50` resté en dur
      rendrait ici 205 au lieu de 162, et AUCUN autre relevé ne le verrait. */
   const truque = ctxFrom(docFighter, null);
   truque.query = queryAvecOrigine("fh:background:en:inheritance", "7 GP");
   const truqueNode = renderEquipmentStep(truque, () => {});
-  const texteT = [...truqueNode.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
-  assert.match(texteT, /Inheritance 7 GP/, "l'origine est LUE : son montant vient de son record");
-  assert.match(texteT, /162 GP in all/);
-  assert.equal(/50 GP/.test(texteT), false, "plus aucun 50 n'apparaît quand la donnée n'en porte pas");
+  const texteT = [...truqueNode.querySelectorAll(".aiguilleur-soustitre")].map((p) => p.textContent).join(" ");
+  assert.match(texteT, /gives you 7 GP\./, "l'origine est LUE : son montant vient de son record");
+  [...truqueNode.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent.startsWith("C ·")).click();
+  assert.deepEqual([...truqueNode.querySelectorAll(".aiguilleur-bilan-or")].map((l) => l.textContent), ["162 GP"]);
+  const toutT = [...truqueNode.querySelectorAll(".aiguilleur-soustitre, .aiguilleur-texte, .aiguilleur-option, .aiguilleur-bilan-ligne")]
+    .map((n) => n.textContent).join(" ");
+  assert.equal(/\b50 GP\b/.test(toutT), false, "plus aucun 50 n'apparaît quand la donnée n'en porte pas");
 });
 
-test("182 — ⚔️ UN MONTANT ILLISIBLE N'OFFRE RIEN : pas de bouton, pas de bourse, pas de secours", () => {
+test("182/245 — ⚔️ UN MONTANT ILLISIBLE N'OFFRE RIEN : pas d'option, pas de bourse, pas de secours", () => {
   const muet = ctxFrom(fixture.document, null);
   /* Une pile sans aucune source lisible : ni classe, ni origine. */
   muet.query = (arg) => (arg && arg.kind === "background" ? (arg.id ? null : []) : (arg && arg.kind === "class" && arg.id ? null : query(arg)));
   const node = renderEquipmentStep(muet, () => {});
-  const boutons = [...node.querySelectorAll(".aiguilleur-bouton")].map((b) => b.textContent);
-  assert.deepEqual(boutons, ["I keep my kit"], "aucun bouton de bourse : promettre un or qu'on ne sait pas chiffrer est un mensonge");
-  const texte = [...node.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
+  assert.equal(node.querySelectorAll(".aiguilleur-option").length, 0,
+    "aucune option : promettre un or qu'on ne sait pas chiffrer est un mensonge");
+  const texte = [...node.querySelectorAll(".aiguilleur-soustitre, .aiguilleur-texte")].map((p) => p.textContent).join(" ");
   assert.equal(/\d+ GP/.test(texte), false, "et aucun montant n'est inventé — ni 0, ni 50");
   assert.match(texte, /could not be read|is not named in the data/, "le manque est NOMMÉ au joueur, pas comblé");
+  /* ⛔ ET `Done` NE PEUT RIEN POSER — mais il n'est pas mort pour autant :
+     les deux sources sont illisibles, donc aucune question n'attend, donc il
+     s'active et écrit leur refus. Un popup qu'on ne peut jamais fermer serait
+     pire que le défaut qu'il remplace. */
+  const done = node.querySelector(".aiguilleur-bouton");
+  assert.equal(done.textContent, "Done");
+  assert.equal(done.disabled, false, "aucune question n'attend : `Done` ne doit pas emprisonner le joueur");
+});
+
+/* ══ LOT 245 — LE QCM DU DÉPART ════════════════════════════════════════════
+   ⭐ CE QUE CE BLOC PROUVE, ET IL FAUT LES TROIS : que la PHRASE se découpe
+   (et REFUSE ce qu'elle ne comprend pas), que les DEUX PILES rendent deux
+   écrans différents, et que `Done` pose VRAIMENT les objets. */
+
+test("245 — ⛔ AUCUNE LISTE D'OBJETS N'EST RETAPÉE : le kit se DÉRIVE de la phrase SRD", () => {
+  /* 🔴 LE GARDE QUI FERME LA PORTE DU SECOND ÉCRIVAIN. Le choix d'architecte
+     du 13/08 interdisait de structurer la phrase parce que ça créerait *« une
+     DEUXIÈME ÉCRITURE de la même règle »*. Eric l'a levé pour l'écran, ⛔ pas
+     pour la donnée : si un nom d'objet du SRD apparaît en littéral dans le
+     code de l'écran, le second écrivain est né et il divergera au premier
+     errata. ⭐ Les noms testés sont pris DANS LA COUCHE, pas écrits ici. */
+  const source = fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8");
+  const code = stripComments(source);
+  const phrase = query({ kind: "class", id: "srd:class:en:rogue" }).record.data.starting_equipment;
+  const noms = phrase.split(/;\s*or\s+/i)[0].replace(/^\s*\(A\)\s*/, "").split(/,\s*|\s+and\s+/)
+    .map((s) => s.replace(/^\d+\s+/, "").replace(/\s*\([^)]*\)\s*$/, "").trim())
+    .filter((s) => s && !/^\d+\s*GP$/i.test(s));
+  assert.ok(noms.length >= 6, `extraction suspecte : ${noms.length} noms`);
+  /* ⛔ SANS CASSE, ET C'EST UNE MESURE : ⚔️ le mutant qui rapprochait
+     « Arrows » à la main l'a écrit `/^arrows?$/i` — en minuscules, dans une
+     expression — et il passait sous un garde sensible à la casse. Il a été
+     attrapé par le garde COMPORTEMENTAL, pas par celui-ci ; les deux existent
+     pour ça, mais un garde qui rate le cas qu'il vise est un garde à réparer. */
+  const codeBas = code.toLowerCase();
+  for (const nom of noms) {
+    const singulier = nom.replace(/s$/, "");
+    for (const forme of [nom, singulier]) {
+      assert.equal(codeBas.includes(forme.toLowerCase()), false,
+        `⛔ « ${forme} » est écrit en littéral dans equipment-step.mjs : c'est le SECOND ÉCRIVAIN que le 13/08 interdisait`);
+    }
+  }
+});
+
+test("245 — ⛔ UN DÉCOUPAGE QUI NE COMPREND PAS REFUSE, IL NE DEVINE PAS", () => {
+  /* ① l'en-tête promet trois options, la phrase n'en porte que deux */
+  assert.deepEqual(optionsDeLaProse("Choose A, B, or C: (A) a Club; or (B) 5 GP"), [],
+    "⛔ une phrase qui promet trois options et n'en rend que deux est une phrase qu'on n'a pas comprise");
+  /* ② les lettres ne sont pas celles qu'on a trouvées */
+  assert.deepEqual(optionsDeLaProse("Choose A or B: (A) a Club; or (C) 5 GP"), []);
+  /* ✅ ET LE TÉMOIN CONTRAIRE — sans lui, ce garde passerait vert sur un
+     découpeur qui refuse TOUT. Le Fighter est la seule classe à trois options. */
+  const fighter = query({ kind: "class", id: "srd:class:en:fighter" }).record.data.starting_equipment;
+  assert.deepEqual(optionsDeLaProse(fighter).map((o) => o.lettre), ["A", "B", "C"]);
+  /* ③ une phrase nue est sa propre option unique — c'est l'origine de FH */
+  assert.deepEqual(optionsDeLaProse("50 GP").map((o) => o.texte), ["50 GP"]);
+  /* ⛔ mais une phrase nue qui se découpe en plusieurs morceaux annonce un
+     choix sans le nommer : on refuse au lieu de deviner lequel. */
+  assert.deepEqual(optionsDeLaProse("a Club; or 5 GP"), []);
+});
+
+test("245 — 📏 LES DEUX PILES, ET C'EST LE TÉMOIN DU LOT : un vrai choix en SRD, une CONSTATATION en Fate's Hand", async () => {
+  /* ⭐ NOMMÉ AVANT D'ÊTRE MESURÉ : le même personnage, la même classe, rendu
+     dans les deux piles, doit produire DEUX sections 2 de nature différente.
+     ⛔ Si les deux rendus sont identiques, c'est que la pile n'est pas lue —
+     et ce garde est le seul qui puisse le dire, parce qu'il est le seul à
+     monter les deux. */
+  const { makeHarness, PILE_SRD } = await import("./build-harness.mjs");
+  const srd = makeHarness({ layers: PILE_SRD });
+  const doc = (b) => ({ build: { choices: [
+    { path: "class", ref: { kind: "class", id: "srd:class:en:wizard" } },
+    { path: "background", ref: { kind: "background", id: b } }
+  ] } });
+
+  const enSrd = departsDuPersonnage({ query: srd.layers.verbs.query, document: doc("srd:background:en:criminal") })[1];
+  assert.equal(enSrd.unique, false, "en SRD l'origine porte « Choose A or B » : c'est un VRAI choix");
+  assert.equal(enSrd.options.length, 2);
+
+  const enFh = departsDuPersonnage({ query, document: doc("fh:background:en:inheritance") })[1];
+  assert.equal(enFh.unique, true, "en Fate's Hand l'origine porte « 50 GP », une chaîne nue : rien à choisir");
+  assert.equal(enFh.options.length, 1);
+  assert.equal(enFh.options[0].lettre, null, "pas de lettre : il n'y a pas d'option en face");
+
+  /* ⭐ ET ÇA SE VOIT À L'ÉCRAN, pas seulement dans le lecteur : la pile SRD
+     rend DEUX rangées d'options, la pile FH une seule. ⛔ Un rendu qui
+     fabriquerait un QCM à une réponse rendrait quatre boutons des deux côtés. */
+  const noeudFh = renderEquipmentStep(ctxFrom(fixture.document, null), () => {});
+  assert.equal(noeudFh.querySelectorAll(".aiguilleur-options").length, 1,
+    "en Fate's Hand, une seule section pose une question — celle de la classe");
+});
+
+test("245 — 🔴 CE QUE LE RAPPROCHEMENT REFUSE EST NOMMÉ AU JOUEUR, jamais avalé", () => {
+  /* 📏 MESURÉ le 21/09 sur les seize phrases des couches : 86 morceaux sur 93
+     rencontrent un record ; 7 refusent. ⛔ Les rapprocher à la main serait le
+     second écrivain — « Arrows → Ammunition » est une règle de jeu, elle
+     appartient à la couche. ⭐ Ici on prouve que le refus SE VOIT. */
+  const docWizard = fixture.document; // le Wizard : « Spellbook » n'a aucun record
+  const node = renderEquipmentStep(ctxFrom(docWizard, null), () => {});
+  const refus = [...node.querySelectorAll(".aiguilleur-refus")].map((p) => p.textContent);
+  assert.equal(refus.length, 1, "un refus, et un seul : le Spellbook du Wizard");
+  assert.match(refus[0], /Spellbook/, "le texte du LIVRE est montré, pour que le joueur le prenne lui-même");
+  assert.match(refus[0], /not added/);
+  /* ⛔ ET IL EST VISIBLE AVANT LE CHOIX, pas après : un joueur qui a déjà
+     cliqué n'a plus de décision à prendre. */
+  assert.equal(node.querySelectorAll(".aiguilleur-option[data-active='true']").length, 0,
+    "aucune option n'est choisie, et le refus est déjà à l'écran");
+});
+
+test("245 — ⭐ LA SECONDE LECTURE, EN SENS INVERSE : la bourse du QCM « tout à la dernière lettre » vaut celle de l'ANCIEN lecteur", () => {
+  /* 🔴 UNE BIJECTION FAUSSE EST COHÉRENTE. `butinDuDepart` et `orDuDepart`
+     lisent la même donnée par deux chemins différents : le premier découpe en
+     options puis prend celle qu'on lui nomme, le second va droit à la
+     dernière. Quand on répond « la dernière lettre » partout — c'est-à-dire
+     l'ancien geste global « je prends la bourse » — les deux DOIVENT tomber
+     sur le même nombre. ⛔ C'est le seul garde qui puisse accuser une erreur
+     de découpage silencieuse. */
+  for (const id of query({ kind: "class" }).map((v) => v.id)) {
+    const doc = build.verbs.choose({ document: fixture.document, path: "class", ref: { kind: "class", id } }).document;
+    const sources = departsDuPersonnage({ query, document: doc });
+    const reponses = {};
+    for (const s of sources) if (s.options.length) reponses[s.genre] = s.options[s.options.length - 1].lettre;
+    const parLeQcm = butinDuDepart({ query, document: doc, reponses });
+    const parLAncien = orDuDepart({ query, document: doc });
+    assert.deepEqual(parLeQcm.cout, parLAncien.cout, `⛔ les deux lectures divergent sur ${id}`);
+    assert.equal(parLeQcm.lignes.length, 0, "la dernière option de chaque phrase est une bourse nue : aucun objet");
+  }
+});
+
+test("245 — 🔴 `Done` POSE VRAIMENT LES OBJETS DANS GEAR — c'est le défaut de six semaines", () => {
+  /* ⚖️ Eric : *« que l'équipement donné par la classe se mette POUR DE VRAI
+     dans Gear »*. La branche `kit` d'hier écrivait `depart: "kit"` et RIEN
+     d'autre. ⭐ Ce test rejoue `poserLeDepart` de `shell.mjs` (même limite,
+     même réponse que les trois gestes du lot 49 : le garde d'octets, plus
+     haut, couvre le câblage). */
+  const docRogue = withoutCurrency(build.verbs.choose({
+    document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  }).document);
+  const avant = currentGearLines(docRogue).length;
+  const apres = applyPoserLeDepart(docRogue, { class: "A" });
+
+  /* 🔴 SEPT OBJETS RAPPROCHÉS, MAIS PAS SEPT LIGNES NEUVES — et cette
+     différence EST le second enseignement du lot. Ilyra porte déjà une dague ;
+     le kit du Rogue en apporte deux. ⛔ `rebuild` JETTE sur deux lignes du même
+     record (*« deux entrées portent l'id "dagger" »*), donc le kit FUSIONNE.
+     ⭐ Le compte qui fait foi est celui des poses, pas celui des lignes. */
+  const butin = butinDuDepart({ query, document: docRogue, reponses: { class: "A" } });
+  assert.equal(butin.lignes.length, 7, "les sept objets de l'option A du Rogue — « 20 Arrows » refuse, et il le dit");
+  assert.equal(butin.aPoser.filter((p) => !p.neuve).length, 1, "la dague déjà possédée : une fusion, pas une seconde ligne");
+
+  const posees = currentGearLines(apres).slice(avant);
+  assert.equal(posees.length, 6, "six lignes NEUVES : la septième s'est fondue dans la dague d'Ilyra");
+  for (const l of posees) {
+    assert.ok(l.ref && typeof l.ref.id === "string", "une VRAIE référence, jamais une chaîne");
+    assert.ok(Number.isInteger(l.quantity) && l.quantity >= 1);
+    assert.equal(l.equipped, false, "rien n'est porté sans un geste : le kit arrive dans le sac");
+  }
+  /* ⭐ ET LE MOTEUR LES VOIT — c'est la seule preuve qui compte : une ligne
+     que `derive.mjs` ne reprend pas n'est pas dans Gear, elle est dans le
+     document. */
+  const rapport = rebuild(apres);
+  const dagues = rapport.resolved.gear.filter((g) => /dagger/i.test(g.name || ""));
+  assert.equal(dagues.length, 1, "⛔ une seule entrée par record : c'est l'invariant que `rebuild` défend");
+  const avantDague = currentGearLines(docRogue).find((l) => l.ref && /dagger/.test(l.ref.id));
+  assert.equal(dagues[0].quantity, (avantDague.quantity || 0) + 2,
+    "« 2 Daggers » — la quantité se LIT dans la phrase, et elle S'AJOUTE à ce qui est déjà là");
+
+  /* l'or de l'option A (8 GP), posé dans le même geste */
+  /* ⭐ 8 + 50, ET LES DEUX SOURCES SONT LÀ : 8 PO est l'or que le PAQUET du
+     Rogue contient (⛔ pas les 100 de son option B), 50 celui de l'origine, qui
+     n'a pas de choix à offrir en pile Fate's Hand. C'est le panachage en
+     action — le paquet d'un côté, la bourse de l'autre. */
+  assert.equal(currentCurrency(apres).gp, 58, "8 (l'or du paquet du Rogue) + 50 (l'origine) — ⛔ jamais les 100 de l'option B");
+
+  /* ⛔ ET PAS DEUX FOIS : rouvrir la question empilerait un second kit. */
+  assert.equal(departRepondu(apres), true, "le document a répondu");
+  const encore = applyPoserLeDepart(apres, { class: "A" });
+  assert.equal(currentGearLines(encore).length, currentGearLines(apres).length,
+    "⛔ un second `Done` a posé un second kit : la prudence du lot 182 n'est pas tenue");
+});
+
+test("245 — ⚖️ LE PANACHAGE EST POSSIBLE, ET C'EST LE CHANGEMENT DE RÈGLE ASSUMÉ", () => {
+  /* ⚖️ Le geste d'hier était GLOBAL (`valeur: "kit" | "purse"`). La maquette
+     d'Eric pose une question PAR SOURCE : le paquet de la classe AVEC l'or de
+     l'origine devient une réponse valide. C22 (*« les 50 PO REMPLACENT le
+     kit »*) est élargie à chaque source prise séparément.
+     ⭐ Ce test EXISTE pour que ce changement ne puisse pas être défait sans
+     qu'on le voie — une règle de jeu qui se perd est une règle orale. */
+  const srdDoc = { build: { choices: [
+    { path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } },
+    { path: "background", ref: { kind: "background", id: "fh:background:en:inheritance" } }
+  ] } };
+  /* le paquet de la classe (A) + l'or de l'origine (son option unique) */
+  const butin = butinDuDepart({ query, document: srdDoc, reponses: { class: "A" } });
+  assert.ok(butin.lignes.length > 0, "les objets du kit de classe");
+  assert.equal(butin.cout.gp, 58, "8 (l'or du paquet du Rogue) + 50 (l'or de l'origine) : deux sources, deux réponses");
+  assert.equal(butin.complet, true);
 });
 
 test("182 — la bourse POSÉE est celle qui a été ANNONCÉE (le même lecteur des deux côtés)", () => {
