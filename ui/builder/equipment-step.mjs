@@ -84,7 +84,7 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=781";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
-  enGP, lignesParLieu, poidsParLieu,
+  enGP, lignesParLieu, poidsParLieu, motDeLEncombrement,
   renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=781";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=781";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
@@ -2714,10 +2714,22 @@ export function renderEquipmentStep(ctx, onAction) {
        la parenthèse disait ce que la LIGNE DU DESSOUS montre déjà, en toutes lettres
        et avec les chiffres. Une ligne qui explique la suivante se lit deux fois pour
        rien.
-       ⛔ SANS L'UNITÉ NON PLUS : elle est dite trois fois juste dessous. */
-    const motTotal = (e) =>
-      `Encumbrance : ${rond(e.somme)}`
-      + (e.inconnus ? ` · ${e.inconnus} sans poids` : "");
+       🔄 AMENDÉ LE 21/09 — L'UNITÉ REVIENT, ET L'ARGUMENT QUI L'AVAIT RETIRÉE EST MORT.
+       Il disait : *« sans l'unité non plus : elle est dite trois fois juste dessous »*. 📏 Relevé
+       sur le site déployé : les trois lignes du dessous rendent `Gear 0`, `Backpack 0`,
+       `Other 0` — **aucune ne porte d'unité**. Le nombre d'encombrement était donc seul au monde,
+       et Eric l'a demandé : *« rajoute l'unité d'encombrement »*.
+       ⭐ UNE JUSTIFICATION QUI S'APPUIE SUR UN VOISIN MEURT QUAND LE VOISIN CHANGE, et rien ne
+       prévient : le commentaire continue d'affirmer ce qui n'est plus vrai.
+       ⛔ ET ELLE NE S'INVENTE PAS : `p.unite` est celle du LIVRE (`lb` en anglais, `kg` en
+       français) ; elle vaut `null` quand les objets en MÉLANGENT plusieurs, et `p.melange` le
+       dit. Afficher `lb` sur un total qui additionne des kilos serait un chiffre qui ment.
+       ⭐ Le repli sur `lb` ne vaut donc que pour l'absence de mesure (aucun objet pesé), pas
+       pour le mélange — c'est l'idiome déjà employé par `equipement-pipeline.mjs` et
+       `b3-scene.mjs`, ⛔ pas une règle neuve. */
+    /* ⭐ LE LIBELLÉ EST DESCENDU DANS `equipement-pipeline.mjs` — un seul écrivain pour « comment
+       un encombrement se dit », et un garde qui le tient. ⛔ Le refaire ici en ferait un second. */
+    const motTotal = (e) => motDeLEncombrement(e, p);
     const { noeud } = construireLeSac({
       /* ⚖️ LA LISTE DES CHAMPS VIENT DE L'ÉCRAN, ⛔ ELLE NE SE RETAPE PAS ICI — Eric,
          20/09 : *« absolument rien de bleu »*. Cette ligne gardait `nom` et `fige` et

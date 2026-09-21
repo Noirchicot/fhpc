@@ -175,6 +175,33 @@ export function additionneCouts(couts) {
   return r;
 }
 
+/** ⚖️ COMMENT UN ENCOMBREMENT SE DIT — ⛔ UN SEUL ÉCRIVAIN, et il est ici.
+ *
+ *  🔴 CE QUI L'A FAIT NAÎTRE — Eric, 2026-09-21 : *« rajoute l'unité d'encombrement »*. Le
+ *  libellé vivait dans `equipment-step.mjs`, SANS unité, et son commentaire justifiait ce
+ *  manque par *« elle est dite trois fois juste dessous »*. 📏 Relevé sur le site déployé : les
+ *  trois lignes du dessous rendent `Gear 0`, `Backpack 0`, `Other 0` — **aucune ne la dit**.
+ *  ⭐ UNE JUSTIFICATION QUI S'APPUIE SUR UN VOISIN MEURT QUAND LE VOISIN CHANGE, et rien ne
+ *  prévient : le commentaire continue d'affirmer ce qui n'est plus vrai. C'est pour ça que le
+ *  libellé descend ici, avec un garde : une phrase que personne ne tient dérive en silence.
+ *
+ *  ⛔ ET L'UNITÉ NE S'INVENTE PAS. `unite` est celle du LIVRE (`lb` en anglais, `kg` en
+ *  français) ; elle vaut `null` quand les objets en MÊLENT plusieurs, et `melange` le dit.
+ *  ⭐ Afficher `lb` sur un total qui additionne des kilos serait un chiffre qui MENT — pire
+ *  qu'un chiffre nu. Le repli sur `lb` ne couvre donc que l'ABSENCE de mesure.
+ *
+ *  @param {{somme:number, inconnus:number}} e     l'encombrement calculé
+ *  @param {{unite:?string, melange:boolean}} poids ce que la pesée a trouvé
+ */
+export function motDeLEncombrement(e, poids) {
+  const rond = (n) => Math.round((n || 0) * 10) / 10;
+  const melange = !!(poids && poids.melange);
+  const unite = melange ? "" : ` ${(poids && poids.unite) || "lb"}`;
+  return `Encumbrance : ${rond(e && e.somme)}${unite}`
+    + (melange ? " (unités mêlées)" : "")
+    + (e && e.inconnus ? ` · ${e.inconnus} sans poids` : "");
+}
+
 export function enGP(cout) {
   if (!cout) return 0;
   return CURRENCY_KEYS.reduce((s, k) => s + (cout[k] || 0) * TAUX_EN_GP[k], 0);

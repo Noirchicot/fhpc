@@ -20,7 +20,8 @@ globalThis.document = createTestDocument();
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { CURRENCY_KEYS } from "../src/build/index.mjs";
 import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bourseCouvre, enGP,
-  currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu }
+  currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu,
+  motDeLEncombrement }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
 import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
@@ -472,4 +473,37 @@ test("🔴 LE FIL DE LA BOURSE DU SAC — on CLIQUE, et le popup doit s'ouvrir",
   node = rendre();
   assert.equal(node.querySelector('[data-organe="bourse-voile"]'), null,
     "⚖️ *« retaper la bourse la referme »* — et l'état est celui de R, pas un second");
+});
+
+/* ══ L'ENCOMBREMENT DIT SON UNITÉ, ⛔ ET IL N'EN INVENTE PAS ═══════════════════
+   ⚖️ ERIC, 2026-09-21 : *« rajoute l'unité d'encombrement »*.
+   🔴 CE QUE CE GARDE REMPLACE : rien. Le libellé vivait dans `equipment-step.mjs`, sans unité,
+   et son commentaire justifiait ce manque par *« elle est dite trois fois juste dessous »*.
+   📏 Relevé sur le site déployé le 21/09 : les trois lignes du dessous rendent `Gear 0`,
+   `Backpack 0`, `Other 0` — **aucune ne la dit**. La justification était morte et personne ne
+   l'avait vu, parce qu'aucun garde ne lisait cette phrase.
+   ⭐ LA LEÇON : une justification qui s'appuie sur un VOISIN meurt quand le voisin change, et le
+   commentaire, lui, continue d'affirmer. Une phrase que personne ne tient dérive en silence. */
+test("l'encombrement dit son unité — et il n'en invente pas une quand elles sont mêlées", () => {
+  /* ① le cas courant : l'unité du livre */
+  assert.equal(motDeLEncombrement({ somme: 46.5, inconnus: 0 }, { unite: "lb", melange: false }),
+    "Encumbrance : 46.5 lb");
+  assert.equal(motDeLEncombrement({ somme: 12, inconnus: 0 }, { unite: "kg", melange: false }),
+    "Encumbrance : 12 kg", "⛔ l'unité vient du LIVRE, elle n'est pas anglaise par nature");
+
+  /* ② ⛔ LE CAS QUI MENT SI ON NE LE TIENT PAS : des livres ET des kilos dans le même total.
+     ⭐ Un chiffre avec la mauvaise unité est PIRE qu'un chiffre nu — il se recopie. */
+  const mele = motDeLEncombrement({ somme: 30, inconnus: 0 }, { unite: null, melange: true });
+  assert.doesNotMatch(mele, /\blb\b|\bkg\b/,
+    `⛔ une unité affichée sur un total qui en mêle plusieurs : « ${mele} »`);
+  assert.match(mele, /mêlées/, "⭐ et il le DIT, ⛔ il ne se tait pas");
+
+  /* ③ l'absence de mesure n'est pas un mélange : là, le repli sur le livre anglais est honnête */
+  assert.equal(motDeLEncombrement({ somme: 0, inconnus: 0 }, { unite: null, melange: false }),
+    "Encumbrance : 0 lb",
+    "⛔ aucun objet pesé n'est pas « plusieurs unités » : le total garde l'unité du livre");
+
+  /* ④ et les objets sans poids connu restent annoncés — une somme qui ne porte pas tout le dit */
+  assert.match(motDeLEncombrement({ somme: 5, inconnus: 2 }, { unite: "lb", melange: false }),
+    /2 sans poids/, "⛔ une somme qui ne pèse pas tout doit le dire");
 });
