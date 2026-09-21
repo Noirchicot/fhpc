@@ -38,7 +38,7 @@ const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
   optionsDeLaProse, morceauxDeLOption, departsDuPersonnage, butinDuDepart, departRepondu, cheminDuDepart,
-  cheminDeLOutil, outilsChoisisDansSkills,
+  cheminDeLOutil, outilsChoisisDansSkills, nomCourtDOutil,
   lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection,
   sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans,
   rangsDesSections, cheminDuRang, CHEMIN_RANG_PARTY
@@ -1459,18 +1459,34 @@ test("246 — 🔴 LA FAMILLE EST UNE RÈGLE, PAS UNE LISTE — et le barde ne r
   /* ⭐ « IDEM » PORTE SUR LE GESTE (lire Skills), ⛔ PAS SUR L'ENSEMBLE. Le
      barde ne regarde qu'UNE famille, le moine en regarde deux — et le SRD le
      dit lui-même dans les deux phrases. */
-  const outilNonInstrument = ["thieves-tools"];
+  /* ⚖️ LOT 247 — CE TÉMOIN PORTAIT `thieves-tools`, ET IL EST DEVENU FAUX LE
+     LENDEMAIN. Tant que le moine déclarait `"any"`, il ramassait n'importe
+     quel outil, outils de voleur compris ; Eric a nommé les dix-sept outils
+     d'artisan le 21/09 et fermé le reste — *« les autres c'est other tools »*.
+     Les outils de voleur en sont, donc ⛔ le moine ne les voit PLUS. Le témoin
+     prend un vrai outil d'artisan, et garde `thieves-tools` pour prouver la
+     borne neuve. */
+  const outilDArtisan = ["smith-s-tools"];
 
   /* le barde, avec un outil qui n'est pas un instrument : aucun candidat. */
-  const barde = butinDuDepart({ query, document: docAvecSkills(BARDE, outilNonInstrument), reponses: { class: "A" } });
+  const barde = butinDuDepart({ query, document: docAvecSkills(BARDE, outilDArtisan), reponses: { class: "A" } });
   assert.deepEqual(barde.questions, [], "⛔ des outils d'artisan ne sont pas des instruments");
   assert.equal(barde.faits.length, 1, "…et il n'a rien, dit comme un fait");
 
   /* le moine, le MÊME outil : il l'a. C'est la seule différence entre eux, et
      elle est DÉCLARÉE (`from_family`), ⛔ pas déduite du nom de la classe. */
-  const moine = butinDuDepart({ query, document: docAvecSkills(MOINE, outilNonInstrument), reponses: { class: "A" } });
+  const moine = butinDuDepart({ query, document: docAvecSkills(MOINE, outilDArtisan), reponses: { class: "A" } });
   assert.deepEqual(moine.faits, [], "le moine, lui, l'a");
-  assert.deepEqual(moine.lignes.find((l) => /thieves/i.test(l.nom)).ref, { kind: "tool", id: "srd:tool:en:thieves-tools" });
+  assert.deepEqual(moine.lignes.find((l) => /smith/i.test(l.nom)).ref, { kind: "tool", id: "srd:tool:en:smith-s-tools" });
+
+  /* 🔴 ET LA BORNE DU LOT 247, DU CÔTÉ QUI ACCUSE : les outils de voleur ne
+     sont PAS des outils d'artisan, donc le moine n'en voit aucun — ⚔️ c'est
+     exactement ce que `"any"` laissait passer, et ce test rougit si `"any"`
+     revient. */
+  const voleur = butinDuDepart({ query, document: docAvecSkills(MOINE, ["thieves-tools"]), reponses: { class: "A" } });
+  assert.equal(voleur.lignes.some((l) => /thieves/i.test(l.nom)), false,
+    "⛔ « les autres c'est other tools » — le moine ne ramasse plus n'importe quel outil");
+  assert.equal(voleur.faits.length, 1, "…et il n'a rien, dit comme un fait");
 
   /* ⭐ LA FAMILLE SE LIT DANS LA DONNÉE : les trois instruments de Fate's Hand
      pointent vers la MÊME racine, et ⛔ aucun ne l'apprend d'une liste écrite
@@ -1491,10 +1507,154 @@ test("246 — 🔴 LA FAMILLE EST UNE RÈGLE, PAS UNE LISTE — et le barde ne r
   /* ⚔️ L'ATTAQUE QUI ACCUSE : un barde qui a acheté un instrument ET un outil
      d'artisan ne doit voir QU'UN candidat — sinon le filtre ne filtre rien et
      tous les tests ci-dessus passeraient quand même. */
-  const melange = butinDuDepart({ query, document: docAvecSkills(BARDE, ["thieves-tools", "instrument-wind"]), reponses: { class: "A" } });
+  const melange = butinDuDepart({ query, document: docAvecSkills(BARDE, ["smith-s-tools", "instrument-wind"]), reponses: { class: "A" } });
   assert.deepEqual(melange.questions, [], "un seul candidat après filtrage : pas de question");
   assert.deepEqual(melange.lignes.find((l) => /instrument/i.test(l.nom)).ref, { kind: "tool", id: "fh:tool:en:instrument-wind" });
-  assert.equal(melange.lignes.some((l) => /thieves/i.test(l.nom)), false, "⛔ l'outil d'artisan n'entre pas dans le kit du barde");
+  assert.equal(melange.lignes.some((l) => /smith/i.test(l.nom)), false, "⛔ l'outil d'artisan n'entre pas dans le kit du barde");
+});
+
+/* ══ LOT 247 — LA FAMILLE « ARTISAN'S TOOLS », ET LE NOM QUI SE DÉRIVE COURT ══ */
+
+/** ⚖️ LES DIX-SEPT, ÉCRITS PAR ERIC LE 21/09, dans son ordre, avec le mot
+ *  court qu'ils doivent rendre. ⭐ C'est la SEULE liste écrite ici, et elle est
+ *  dans le bon sens : ce qui est DEDANS. ⛔ Aucune énumération des « autres » —
+ *  le garde les obtient en RETIRANT les dix-sept du catalogue réel. */
+const ARTISAN = Object.freeze([
+  ["Alchemist’s Supplies", "alchemist"], ["Brewer’s Supplies", "brewer"],
+  ["Calligrapher’s Supplies", "calligrapher"], ["Carpenter’s Tools", "carpenter"],
+  ["Cartographer’s Tools", "cartographer"], ["Cobbler’s Tools", "cobbler"],
+  ["Cook’s Utensils", "cook"], ["Glassblower’s Tools", "glassblower"],
+  ["Jeweler’s Tools", "jeweler"], ["Leatherworker’s Tools", "leatherworker"],
+  ["Mason’s Tools", "mason"], ["Painter’s Supplies", "painter"],
+  ["Potter’s Tools", "potter"], ["Smith’s Tools", "smith"],
+  ["Tinker’s Tools", "tinker"], ["Weaver’s Tools", "weaver"],
+  ["Woodcarver’s Tools", "woodcarver"]
+]);
+const RACINE_ARTISAN = "srfh:tool:en:artisan-s-tools";
+const LAYERS_DIR = path.join(UI_DIR, "..", "..", "layers");
+
+test("247 — 🔴 LA FAMILLE D'ARTISANAT EST EXACTEMENT LES DIX-SEPT D'ERIC — énumérés sur le catalogue RÉEL", () => {
+  /* ⭐ LE GARDE ÉNUMÈRE LES CLEFS RÉELLES, il ne relit pas une liste. C'est la
+     loi de la liste qui s'inverse : ce qui porte la racine est LU dans la pile
+     montée, puis confronté aux dix-sept noms d'Eric. Un dix-huitième outil qui
+     prendrait la racine par erreur accuse ; un des dix-sept qui la perdrait
+     accuse aussi. ⛔ Et rien n'énumère les « autres » : ils se déduisent. */
+  const catalogue = query({ kind: "tool" }) || [];
+  const famille = (v) => (v.record.data && typeof v.record.data.inherits === "string" ? v.record.data.inherits : v.id);
+  const artisans = catalogue.filter((v) => famille(v) === RACINE_ARTISAN).map((v) => v.record.name).sort();
+  assert.deepEqual(artisans, ARTISAN.map(([nom]) => nom).sort(),
+    "⛔ la famille d'artisanat n'est plus exactement les dix-sept qu'Eric a nommés");
+
+  /* 🔴 ET LA RACINE N'EST PAS UN RECORD, C'EST UNE CLEF. « Artisan's Tools »
+     n'existe nulle part dans le SRD comme objet ; en fabriquer un aurait posé
+     un 26ᵉ outil dans Skills et dans Wares. ⛔ Personne ne doit RÉSOUDRE cette
+     chaîne — on la compare. */
+  assert.equal(catalogue.some((v) => v.id === RACINE_ARTISAN), false,
+    "⛔ la racine d'artisanat ne doit être le nom d'AUCUN record");
+
+  /* ⭐ ET LA PARTITION EST COMPLÈTE DANS L'AUTRE SENS : tout outil qui n'est
+     pas l'un des dix-sept est sa PROPRE famille ou celle d'un ensemble déclaré
+     (le jeu, l'instrument) — ⛔ jamais celle de l'artisanat, et jamais
+     `"any"`. */
+  const autres = catalogue.filter((v) => famille(v) !== RACINE_ARTISAN);
+  assert.ok(autres.length > 0, "le témoin serait vide si tout le catalogue était artisan");
+  for (const v of autres) {
+    assert.notEqual(famille(v), RACINE_ARTISAN);
+    assert.notEqual(famille(v), "any", "⛔ `any` est mort avec le lot 247");
+  }
+});
+
+test("247 — ⭐ LE MOT COURT SE DÉRIVE DU POSSESSIF, ET LES TROIS SUFFIXES TOMBENT", () => {
+  /* ⚠️ LES DIX-SEPT PORTENT TROIS SUFFIXES — `Tools`, `Supplies` (Alchemist,
+     Brewer, Calligrapher, Painter) et `Utensils` (Cook). ⛔ Un découpage qui
+     ne chercherait que « Tools » laisserait « Alchemist's Supplies » intact et
+     PERSONNE ne le verrait : le mot resterait juste un peu long. Les dix-sept
+     sorties sont donc écrites une par une — c'est le seul témoin qui puisse
+     accuser ce mutant-là. */
+  for (const [nom, court] of ARTISAN) {
+    assert.equal(nomCourtDOutil(nom), court, `⛔ « ${nom} » doit se dire « ${court} »`);
+    /* ⭐ ET AUCUNE DES DIX-SEPT N'EST SON PROPRE MOT COURT : un témoin bâti
+       sur un nom déjà court ne prouverait rien — le mutant « je ne dérive
+       rien » y coïnciderait avec la vraie valeur. */
+    assert.notEqual(court, nom);
+  }
+
+  /* 🔴 ET LA RÈGLE REFUSE PROPREMENT. Un nom sans possessif ressort ENTIER —
+     c'est ce qui rend la dérivation sûre pour le barde, dont aucun candidat
+     n'est un outil d'artisan. ⛔ Elle ne tronque jamais au premier mot. */
+  for (const entier of ["Instrument (Strings)", "Instrument (Wind)", "Musical Instrument",
+    "Dice Set", "Card Set", "Mount (Air)", "Vehicles (Land)", "Disguise Kit", "Herbalism Kit"]) {
+    assert.equal(nomCourtDOutil(entier), entier, `⛔ « ${entier} » n'a pas de possessif : il ne se dérive pas`);
+  }
+
+  /* ⭐ ET LE MOT COURT EST TOUJOURS UN MORCEAU DU NOM ENTIER — c'est ce qui
+     garde honnête le nom accessible du bouton, qui porte le nom entier
+     pendant que l'œil lit le mot court. */
+  for (const [nom, court] of ARTISAN) assert.ok(nom.toLowerCase().startsWith(court));
+});
+
+test("247 — 🔴 C'EST UNE DÉRIVATION D'AFFICHAGE : AUCUN `name` DE RECORD N'A BOUGÉ", () => {
+  /* 🔴 LA SECONDE LECTURE, EN SENS INVERSE. Le mot court ne doit exister QUE
+     dans le libellé de la question. ⛔ Renommer `Smith's Tools` en `smith`
+     dans la donnée serait réécrire du SRD à la main (loi §L) — la faute que le
+     lot 246 a refusée pour « Arrows → Ammunition ».
+     ⭐ LE TÉMOIN LIT LE FICHIER DE COUCHE SRD SUR LE DISQUE et le confronte à
+     la pile MONTÉE : il accuse donc un renommage posé par N'IMPORTE QUELLE
+     couche du dessus, pas seulement par la mienne. */
+  const srd = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, "srd-5.2.1-en.layer.json"), "utf8"));
+  const catalogue = query({ kind: "tool" }) || [];
+  let vus = 0;
+  for (const [nom] of ARTISAN) {
+    const surLeDisque = Object.entries(srd.records.tool).find(([, r]) => r.name === nom);
+    assert.ok(surLeDisque, `⛔ « ${nom} » n'est plus un record du SRD`);
+    const monte = catalogue.find((v) => v.id === surLeDisque[0]);
+    assert.ok(monte, `⛔ « ${nom} » n'est plus monté dans la pile`);
+    assert.equal(monte.record.name, nom, `⛔ le nom de « ${nom} » a bougé dans la pile`);
+    vus += 1;
+  }
+  assert.equal(vus, 17);
+
+  /* ⛔ ET LA COUCHE QUI POSE LA FAMILLE NE TOUCHE QUE `data.inherits` : ni
+     `name`, ni `slug`, ni aucun retrait. Un garde de SOURCE, parce qu'un garde
+     de comportement seul ne verrait pas un renommage qui se compense. */
+  const couche = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, "srfh-mecaniques-en.layer.json"), "utf8"));
+  const patchs = Object.entries(couche.records.tool || {});
+  assert.equal(patchs.length, 17, "dix-sept outils patchés, pas un de plus");
+  for (const [id, patch] of patchs) {
+    assert.deepEqual(Object.keys(patch.changes), ["data.inherits"], `⛔ ${id} : la couche ne pose QUE la famille`);
+    assert.equal(patch.changes["data.inherits"], RACINE_ARTISAN);
+    assert.equal(patch.remove, undefined, `⛔ ${id} : cette couche ne retire rien`);
+  }
+});
+
+test("247 — ⭐ LE MOT COURT EST À L'ÉCRAN, LE NOM ENTIER PARTOUT AILLEURS", () => {
+  /* ⭐ UN SEUL LIBELLÉ EST DÉRIVÉ, et le reste doit prouver qu'il ne l'est
+     pas : le nom accessible du bouton et la ligne posée dans Gear portent le
+     nom ENTIER. ⛔ Sinon « smith » finirait dans le document, et c'est un
+     renommage déguisé. */
+  const doc = docAvecSkills(MOINE, ["smith-s-tools", "glassblower-s-tools"]);
+  const n = renderEquipmentStep(ctxFrom(doc, null), () => {});
+  [...n.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "A").click();
+
+  const enLigne = [...n.querySelectorAll(".aiguilleur-options")].find((d) => d.dataset.enLigne === "true");
+  assert.ok(enLigne, "⛔ la question d'outil se lit en ligne (lot 247)");
+  const mots = [...enLigne.querySelectorAll(".aiguilleur-option-mot")].map((p) => p.textContent).sort();
+  assert.deepEqual(mots, ["glassblower", "smith"], "l'œil lit les métiers nus");
+  assert.equal(enLigne.querySelector(".aiguilleur-soustitre").textContent, "Tool:",
+    "⭐ le mot de famille est porté UNE fois, par le libellé — c'est ce qui paie les rangées");
+
+  /* ⛔ LE NOM ACCESSIBLE, LUI, EST ENTIER — le mot court en est un morceau,
+     donc le bouton dit toujours ce qu'on lit, et un lecteur d'écran nomme
+     l'objet réel. */
+  const labels = [...enLigne.querySelectorAll(".aiguilleur-option")].map((b) => b.getAttribute("aria-label"));
+  assert.ok(labels.some((l) => l.startsWith("Smith’s Tools,")), `⛔ nom accessible tronqué : ${labels.join(" | ")}`);
+  assert.ok(labels.some((l) => l.startsWith("Glassblower’s Tools,")));
+
+  /* ⛔ ET CE QUE `Done` POSE PORTE LE NOM ENTIER ET L'ID DU RECORD. */
+  const butin = butinDuDepart({ query, document: doc,
+    reponses: { class: "A", [cheminDeLOutil("class")]: "srd:tool:en:smith-s-tools" } });
+  const pose = butin.lignes.find((l) => l.ref.id === "srd:tool:en:smith-s-tools");
+  assert.equal(pose.nom, "Smith’s Tools", "⛔ le document ne connaît que le nom du record");
 });
 
 test("246 — ⭐ LA SECONDE LECTURE, EN SENS INVERSE : le texte déclaré SE TROUVE dans la phrase du livre", () => {
