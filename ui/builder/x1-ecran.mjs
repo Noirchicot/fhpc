@@ -139,6 +139,32 @@ const px = (v) => `${Math.round(v * 100) / 100}px`;
  *    l'écart cible − dessin (« dessin et cible sont DEUX cotes », NORMES §0). */
 export function feuilleDesCotesX1() {
   const regles = [];
+  /* ══ 📜 LOT 240 — LA FEUILLE TIENT LA COTE DE LA DALLE : 500, ET PAS LA SCÈNE ══
+     Eric, 2026-09-21 : *« le parcho doit faire 500 »*.
+     📏 CE QUI ÉTAIT MESURÉ, ET C'EST LUI QUI L'A VU : `.x1` partage la boîte des
+     écrans d'équipement (`.gear, .x1, .sac, .wares`), qui est en `flex: 1 1 auto`
+     — donc sa hauteur SUIVAIT la scène. Au banc 760 (scène 700), la fiche rendait
+     **700**, le bas des portes tombait à **466**, et il restait **234 blg** de
+     parchemin vide sous les boutons. ⛔ Ce n'était pas un défaut de dessin : la
+     feuille était juste, c'est la BOÎTE qui mentait.
+     ⭐ LA FICHE EST UN PLAN FIXE, ET C'EST TOUTE LA DIFFÉRENCE AVEC R : l'écran R
+     remplit sa dalle, X1 est une TABLE GÉNÉRÉE de 375 × 500 dont chaque organe est
+     posé en absolu. Une boîte élastique sous un plan fixe ne peut qu'ajouter du
+     vide — elle n'a rien à donner à personne, puisque rien ne s'étire.
+     ⛔ LA COTE NE SE RETAPE PAS — elle a déjà trois écrivains au dépôt (`sac-`,
+     `wares-`, la table). Elle se LIT ici, `D.DALLE.h`, et le jour où le plan
+     change la boîte suit sans qu'on rouvre ce fichier.
+     ⭐ ET C'EST CETTE FEUILLE QUI LA PORTE, ⛔ PAS `shell.css` : la cote vient de
+     la donnée, donc elle ne se recopie pas dans une feuille d'auteur (garde 7).
+     ⚠️ LE SÉLECTEUR EST QUALIFIÉ (`[data-objet="x1"]`) POUR UNE RAISON MESURABLE :
+     `.x1` seul a la même spécificité que la liste partagée de `shell.css`, et ne
+     l'emporterait que par l'ORDRE — un ordre qui dépend de l'endroit où cette
+     feuille est montée. Un blg de plus de spécificité ne dépend de rien.
+     ⛔ ET `ResizeObserver` RESTE, il n'est pas remplacé par ce nombre : la cote
+     donne le GABARIT en blg, le zoom change la taille RENDUE (loi
+     `panneau-texte-fixe`, 20/09). Le parchemin observe le réel — ⛔ il ne suppose
+     jamais 375 × 500 en dur. */
+  regles.push(`.x1[data-objet="x1"]{flex:0 0 auto;height:${px(D.DALLE.h)}}`);
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
     if (!id) continue;
