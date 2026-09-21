@@ -154,14 +154,6 @@
    "sorte": "jeton"
   },
   {
-   "nom": "ENCOMBREMENT",
-   "x": 99,
-   "y": 344,
-   "l": 177,
-   "h": 48,
-   "sorte": "voyant"
-  },
-  {
    "nom": "EXTRA STORAGE 1",
    "x": 4,
    "y": 344,

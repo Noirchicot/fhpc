@@ -93,8 +93,7 @@ export const CLEF_DE = Object.freeze({
   "GROUND 1": "sol1",        "GROUND 2": "sol2",
   "SEND COLLECTOR": "collecteur",
   "SEND TO": "send-to",
-  "PURSE": "purse", "MONTANT": "montant", "ENCOMBREMENT": "encombrement",
-  "TALLY": "tally", "PARTY TALLY": "party-tally",
+  "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "PARTY TALLY": "party-tally",
   "COMPANIONS": "companions",
   "BACKPACK": "backpack", "SEND": "send", "WARES": "wares",
   "livre": "livre", "?": "guide"
@@ -818,17 +817,6 @@ export function construireLEcranGear(options = {}) {
       noeud.append(emplacement(o, id, pose && estCollecte(pose) ? null : pose, options));
     } else if (o.sorte === "voyant") {
       if (id === "montant") noeud.append(montantDeLaBourse(options));
-      /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-21 : *« place-le aussi dans Gear, là où je te l'ai
-         demandé »*, c'est-à-dire *« dans un encart entre foot/leg et collector »*.
-         ⭐ LE MOT VIENT DU PILOTE, qui l'a fait dire par `motDeLEncombrement` : l'écran ne pèse
-         rien et ne connaît aucune unité. ⛔ Et il se pose TOUJOURS, même sans mot — un organe
-         qui n'existerait qu'avec sa donnée ferait dépendre la FORME de l'écran de son contenu,
-         et la bijection plan ↔ DOM le dirait. */
-      else if (id === "encombrement") {
-        const v = eld("div", "gear-encombrement", options.encombrement || "");
-        v.dataset.organe = id;
-        noeud.append(v);
-      }
     } else if (o.sorte === "bouton") {
       if (id === "send-to") noeud.append(dropdown(id, options));
       else if (id === "purse") noeud.append(boutonPurse(id, options));

@@ -2423,16 +2423,6 @@ export function renderEquipmentStep(ctx, onAction) {
   function construireGear() {
     const { noeud } = construireLEcranGear({
       boites: attribuerBoites(surR(), cherche),
-      /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-21 : *« place-le aussi dans Gear »*.
-         ⭐ LA PESÉE EST CELLE DU SAC ET DE WARES, au mot près : mêmes `lignes`, même
-         `poidsParLieu`, même `motDeLEncombrement`. ⛔ Trois pesées pour un même personnage
-         divergeraient au premier objet sans poids connu, et les trois écrans afficheraient
-         trois totaux — celui qu'on regarde aurait toujours l'air juste. */
-      encombrement: (() => {
-        const pesee = poidsParLieu(lignes.filter((l) => l.ref),
-          (ref) => ({ data: cherche.record(ref)?.data }));
-        return motDeLEncombrement(pesee.encombrement, pesee);
-      })(),
       bourse,
       compteTally: cartCompte(docu),
       collecte: collecteEnvoi,
