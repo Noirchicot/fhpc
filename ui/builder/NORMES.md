@@ -8397,13 +8397,85 @@ fichier serait vert pour rien)*.
 
 ⚖️ **CHAQUE SOURCE OFFRE SON PAQUET OU SON OR, ET LA QUESTION SE POSE SOURCE PAR SOURCE.** C22 (*« les 50 PO REMPLACENT le kit »*, 08/09) n'est pas défaite, elle est élargie : le geste d'hier était global (`kit` OU `purse`, toutes sources à la fois), la maquette du 21/09 pose une question par source. ⭐ **Le panachage — le paquet de la classe AVEC l'or de l'origine — devient donc une réponse valide**, et c'est un changement de règle assumé par Eric (*« je te demande de l'améliorer »*), pas un effet de bord.
 
-⛔ **LE DÉCOUPAGE DE LA PHRASE SRD EST UN AFFICHAGE, JAMAIS UNE SECONDE ÉCRITURE.** Le choix d'architecte du 13/08 interdisait de structurer la phrase *« parce que ça créerait une DEUXIÈME ÉCRITURE de la même règle »* ; Eric l'a levé **pour l'écran**, pas pour la donnée. ⭐ **Aucun nom d'objet du SRD n'est retapé dans le code** — un garde le tient, et il lit les noms DANS LA COUCHE. Et **ce qui ne se rapproche d'aucun record est NOMMÉ au joueur** avec le texte du livre, jamais deviné ni avalé. 📏 Mesuré sur les seize phrases des couches : **86 morceaux sur 93 rencontrent un record, 7 refusent** — `20 Arrows` (×4, la couche n'a que `Ammunition`), `Spellbook`, `Musical Instrument of your choice`, et le choix imbriqué du Moine. ⛔ Les rapprocher à la main serait exactement le second écrivain : *« Arrows → Ammunition »* est une règle de jeu, elle appartient à la couche.
+⛔ **LE DÉCOUPAGE DE LA PHRASE SRD EST UN AFFICHAGE, JAMAIS UNE SECONDE ÉCRITURE.** Le choix d'architecte du 13/08 interdisait de structurer la phrase *« parce que ça créerait une DEUXIÈME ÉCRITURE de la même règle »* ; Eric l'a levé **pour l'écran**, pas pour la donnée. ⭐ **Aucun nom d'objet du SRD n'est retapé dans le code** — un garde le tient, et il lit les noms DANS LA COUCHE. Et **ce qui ne se rapproche d'aucun record est NOMMÉ au joueur** avec le texte du livre, jamais deviné ni avalé. 📏 Mesuré sur les seize phrases des couches, **avant et après les trois décisions d'Eric du 21/09** — le total ne bouge pas (93 morceaux), leur sort si :
+
+| | rapprochés | refusés | absence voulue | renvoi à Skills |
+|---|---|---|---|---|
+| lot 245 (21/09, matin) | 86 | **7** | — | — |
+| lot 246 (21/09, soir) | **90** | **0** | 1 | 2 |
+
+⛔ Les rapprocher **à la main** resterait le second écrivain : *« Arrows → Ammunition »* est une règle de jeu, elle appartient à **la couche** (`srfh-mecaniques-en`), et l'écran ne fait que lire un champ déclaré. Voir la section suivante.
 
 ⚠️ **UN `gear[]` N'ADMET PAS DEUX LIGNES DU MÊME RECORD**, et ce n'est pas une préférence d'écran : `rebuild` JETTE — *« deux entrées portent l'id "dagger" — l'ancre d'override les désigne les deux, et aucune ne gagne par défaut »*. ⭐ Le kit **FUSIONNE** donc avec ce que le joueur possède déjà, et la fusion vit dans le LECTEUR, pas dans le geste : deux arithmétiques de la même quantité divergent.
 
 📏 **CE QUE LA CARTE MESURE** (navigateur, 512 × 764, `prefers-color-scheme: light`) : **549 blg en pile Fate's Hand** (une question, une constatation) contre **681 en pile SRD** (deux questions) — pour la **même classe**. ⭐ C'est le témoin de la lecture de pile : deux rendus identiques voudraient dire que la pile n'est pas lue. ⚠️ **Et 681 est exactement la hauteur disponible** : la carte SRD tient au blg près. Une ligne de plus déborde. C'est pour ça que le titre d'une section porte sa consigne (*« 1 Fighter — Choose: »*) au lieu d'avoir une ligne à lui — ⛔ et pas un défilement interne : la loi est de demander ce que le contenu porte **EN TROP**.
 
 📌 **CE QUI LA TIENT** : `tests/equipment-step.test.mjs` (le découpage qui refuse · les deux piles · aucun nom retapé · `Done` pose vraiment · le panachage · la seconde lecture en sens inverse contre `orDuDepart`) et le garde d'octets sur `shell.mjs`. Six mutations jouées, six rouges.
+
+
+---
+
+## 6 nonies. ⚖️ **LE DÉPART, SES TROIS SORTS, ET LA COTE DU BOUTON DE CHOIX** *(Eric, 2026-09-21 — lot 246)*
+📍 `equipement-morceau-de-phrase-a-trois-sorts` · vivante · 21/09
+
+🔴 **UN MORCEAU DE PHRASE A TROIS SORTS, PAS DEUX**, et les confondre est la faute que ce lot répare. Un morceau qui ne rencontre aucun record peut être :
+
+| sort | ce que l'écran fait | ce que le joueur lit |
+|---|---|---|
+| **rapproché** | une ligne dans `gear[]` | l'objet, dans le récapitulatif |
+| **refusé** | rien | *« … has no entry in this stack — not added. Pick it yourself in Wares. »* |
+| **absence voulue** | rien | **rien** — ⛔ et c'est le point |
+| **renvoi à un autre écran** | dépend de ce qui y a été choisi | un objet, une question, ou un fait |
+
+⭐ **UNE ABSENCE VOULUE N'EST PAS UN REFUS.** ⚖️ Eric : *« Pas d'item spellbook, il sera matérialisé par la **section sorts**. Rien à ajouter ici. »* Un refus **envoie le joueur chercher l'objet dans Wares** ; une absence délibérée n'a rien à aller chercher. ⛔ Un écran qui s'excuse d'une absence voulue inquiète pour rien et fait perdre du temps. 📌 **Le livre de sorts est matérialisé par LES SORTS, pas par l'équipement** — la règle vit dans la couche (`data[starting_equipment_absent]`), sans quoi un lot la « réparera » dans six semaines.
+
+⚖️ **LES MUNITIONS SONT GRATUITES, À LA QUANTITÉ DE LA PHRASE.** Eric, citant la règle `Ammunition` du SRD : *« Donc flèches = munitions **(gratuit)** = tu mets la quantité requise »*. ⭐ *« Gratuit »* a un sens précis, et c'est une **absence de geste** : la munition entre dans Gear **sans rien retrancher de la bourse** — le kit est donné, il ne s'achète pas. ⛔ Le coût `Varies` du record ne doit jamais être soustrait de l'or de départ. ⭐ Et **la quantité vient de la PHRASE** (« 20 Arrows » → 20) : le jour où le SRD écrit 30, le code suit sans qu'on le retouche.
+
+🔴 **LE PIÈGE DU MOT DOUBLE, ET IL EST DANS CE DÉPÔT.** Deux records portent le nom d'affichage **« Ammunition »** : `srd:gear:en:ammunition` (**l'objet**) et `srd:weapon-property:en:ammunition` (**la propriété d'arme**). ⛔ Un commentaire ne tient pas cette distinction — **un garde la tient, par les deux ids**.
+
+⚖️ **UN MORCEAU PEUT RENVOYER À UN AUTRE ÉCRAN, ET ON LE LIT DANS LE DOCUMENT.** Eric : *« Pour l'outil du barde : tu regardes le choix fait dans **Skills**. S'il en a choisi **deux**, il aurait deux possibilités ; si **un seul**, il a cet instrument ; si **aucun**, il n'a rien. »* — puis *« **idem barde et monk** »*. Trois sorties, et ce sont les siennes :
+
+· **un candidat** → on le pose, ⛔ sans question ;
+· **deux ou plus** → une **question de plus**, et `Done` attend — ⛔ choisir à la place du joueur est pire que ne rien poser ;
+· **aucun** → **un FAIT**, ⛔ pas un refus.
+
+🔴 **ON LIT LE DOCUMENT (`fh.skills.spend.<slug>`), JAMAIS L'ÉTAT D'UN AUTRE ÉCRAN.** Skills collecte aussi ses ajouts dans une variable de module (`ecran.ajoutes.tool`) qui ne survit pas à un rechargement et n'est pas dans le personnage. ⭐ On ne **fabrique** rien ici : on **relit** un choix déjà fait ailleurs.
+
+⚠️ **« PAS ENCORE » N'EST PAS « AUCUN »**, et les deux se disent avec des mots différents. Un joueur qui passe par Équipement **avant** Skills n'a encore rien choisi ; un joueur qui en revient les mains vides a choisi de ne rien prendre. 📏 Ce qui les sépare se lit dans le document : une dépense, n'importe laquelle, prouve la visite.
+
+⭐ **« IDEM » PORTE SUR LE GESTE, PAS SUR L'ENSEMBLE.** Le barde ne regarde qu'**une** famille (Musical Instrument) ; le moine en regarde **deux** (Artisan's Tools **et** Musical Instrument). La famille est donc **déclarée par classe**, ⛔ jamais déduite du nom de la classe.
+📏 **ET CE QUE LA DONNÉE PORTE A ÉTÉ MESURÉ** (21/09, 25 outils SRD + 16 FH) : **aucun record d'outil ne porte de champ de famille** (`category`, `family`, `group` : absents partout) ; `craft` **ne discrimine pas** (`thieves-tools` porte « None » comme `musical-instrument`) ; `variants` est du texte libre. ⭐ Le seul lien de famille réel est `inherits`, qui existait **à la source** depuis le 09/09 et que le générateur **perdait** : il est maintenant porté à la couche. **La famille d'un outil est `data.inherits` s'il en a un, sinon son propre id** — une règle, ⛔ pas une liste.
+⏳ **ET « ARTISAN'S TOOLS » N'A AUCUN RECORD** — le mot n'existe dans tout le SRD que dans la phrase du Monk et dans le sort `Fabricate`. Le moine déclare donc `"any"`, et c'est une **sur-inclusion assumée et mesurée** : un moine qui aurait acheté un jeu, un véhicule ou une monture les verrait proposés. La borner demande une racine « Artisan's Tools » **dans la donnée** — ⚖️ **arbitrage d'Eric**, ⛔ pas une invention d'écran.
+
+### 📏 LE CRAN DU BOUTON DE CHOIX — **30 de corps, 44 de cible**
+📍 `bouton-de-choix-trente-de-corps-quarante-quatre-de-cible` · vivante · 21/09
+
+⚖️ Eric, 21/09 : *« Tu peux faire des boutons de **30 diam (tactile 44)** pour les choix. »* et *« Une ligne de texte, **bouton à droite** = peu d'espace perdu »*, puis *« **Deux lignes** de texte un bouton à droite alors. Ou **trois lignes** de texte un bouton à droite. »*
+
+🔴 **C'EST UNE SECONDE TAILLE, BORNÉE À UN USAGE** — ⛔ **PAS « les boutons rapetissent »**. La norme ratifiée du chantier reste **40 / 44** (16-17/09). Le **30 / 44** ne vaut que pour **la pastille de choix d'un QCM**, où le libellé est **à côté** et non dedans. Un bouton qui porte son mot garde 40.
+
+🔴 **LA CIBLE 44 NE CÈDE JAMAIS** — *un contrôle ne se laisse pas dimensionner par son dessin*. La **boîte** fait 44, le **corps peint** fait 30. 📏 Mesuré par `elementFromPoint` sur le builder servi : boîte 44 × 44 déclarés (60,02 rendus, comme **tous** les boutons du chantier), corps peint 30 × 30, anneau du liseré intact, rayon 6.
+
+⭐ **UNE OPTION N'EST PLUS UN BOUTON À LIBELLÉ : c'est une RANGÉE À DEUX COLONNES** — le texte **dit**, la pastille **choisit**. ⛔ Le texte n'entre pas dans le bouton (un bouton qui contient un paragraphe impose sa boîte tactile à chaque ligne), et ⛔ **la pastille reste à droite et hors du texte** : elle ne passe pas dessous quand le texte va à trois lignes.
+
+⚠️ **« DIAM » NE VEUT PAS DIRE ROND** : la norme du 16/09 dit **rectangle, rayon 6**, et l'octogone est mort. Seule la **cote** change.
+
+🔴 **ET ON NE FABRIQUE AUCUN ORGANE POUR ÇA** : le patron du bouton sait déjà séparer le dessin de la cible. ⛔ **Ne pas poser sa propre cible dans un `::after`** — c'est l'**anneau du liseré**, et l'écraser fait perdre au bouton son fond, sa bordure et son rayon (mesuré : `border-radius: 0px`).
+⛔ **ET REDÉCLARER `--bouton-hauteur` SEUL NE SUFFIT PAS.** 📏 Mesuré : sur la pastille, `--bouton-hauteur` valait bien `30px` et `--bouton-retrait-v` rendait `calc((44px - 40px) / 2)` — **le 40 y était déjà substitué**. ⭐ **Une propriété personnalisée est résolue dans la portée qui la DÉCLARE, pas dans celle qui l'emploie** : redéfinir sa dépendance plus bas ne la recalcule jamais. Les deux se redéclarent **ensemble**, et le retrait garde sa **formule**.
+
+### ⚠️ CE QUI RESTE OUVERT — **la carte déborde, et le chiffre est mesuré**
+📍 `equipement-carte-du-depart-deborde-avec-la-question-d-outil` · à trancher · 21/09
+
+📏 Relevé du 21/09 au soir, builder servi, 512 × 764, voile de **681 blg** :
+
+| cas | hauteur | verdict |
+|---|---|---|
+| pire des 48 combinaisons classe × arrière-plan, pile SRD *(Fighter, 3 options)* | **620** | ✅ marge 61 |
+| Barde, question d'instrument comprise | ≤ 620 | ✅ *(3 records d'instrument au maximum)* |
+| **Moine, 2 outils dans Skills** | **759** | ⛔ **+78** |
+| **Moine, 3 outils** | **825** | ⛔ **+144** |
+
+⭐ **Les trois leviers d'Eric ont été appliqués** — raccourcir le texte *(le sous-titre de la question d'outil est passé de deux lignes à une : −17)*, la pastille 30/44, et la rangée à deux colonnes *(qui a fait tout le reste)*. **Ils ne suffisent pas.** ⛔ Ni troncature, ni défilement interne. ⚖️ **Ce qui reste est un arbitrage d'Eric**, et la mesure dit où il porte : le récapitulatif du bas (**68 blg**) **répète mot pour mot** la liste de l'option choisie, déjà lue 300 blg plus haut, et sa phrase d'accompagnement en coûte **51** de plus. 📌 **119 blg de redite mesurée** — mais ce sont **les mots d'Eric et sa maquette**, ⛔ pas à couper sans lui.
 
 ---
 
