@@ -77,9 +77,9 @@
    qui reste non couvert est le rideau le plus fin possible (`solDuDossier`,
    `baseIndexedDb`, `choisirUnDossier`). */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=779";
-import { compositionFh } from "./layers-ecran.mjs?v=779";
-import { MAITRE } from "./interrupteurs.mjs?v=779";
+import { lireLeFichier } from "./ouvrir.mjs?v=780";
+import { compositionFh } from "./layers-ecran.mjs?v=780";
+import { MAITRE } from "./interrupteurs.mjs?v=780";
 
 /** Le mot du tiroir — celui que `Save location` affiche quand il n'y a pas de
  *  destination à choisir. ⚖️ Le mot d'Eric, 10/09, mot pour mot. */
