@@ -3654,9 +3654,10 @@ en retard. Elle dit maintenant que ce geste appartient au jeu, pas à la créati
 
 ---
 
-### 📜 LA DÉCHIRURE DU PARCHEMIN TOMBE HORS DE LA DALLE, ET C'EST ACCEPTÉ
-📍 `cadre-dechirure-du-parchemin-hors-dalle` · vivante · 18/09
-⚖️ **On ne voit que le DÉBUT de la déchirure au bord de la fiche X1 : la montrer entière coûterait 14 de marge sur les quatre côtés, donc 28 de large au texte — et le texte les vaut.**
+### 📜 LA DÉCHIRURE DU PARCHEMIN NE SE PAIE PAS EN MARGE
+📍 `cadre-dechirure-du-parchemin-hors-dalle` · vivante · 18/09 · **amendée le 21/09**
+⚖️ **La déchirure de la fiche X1 ne coûte pas un blg au texte — et depuis le 21/09 elle se voit ENTIÈRE : la silhouette tient DANS la dalle, et ses creux laissent voir le fond de l'application.**
+⛔ **Ce que la règle interdit n'a pas bougé d'un mot : payer de la marge pour du décor.** Ce qui a changé, c'est le moyen — le bord n'est plus une image dont il faudrait dégager les arêtes, c'est un contour calculé dont la profondeur est un paramètre.
 
 > Eric, 2026-09-18 : **« les 28 de large en moins, c'est ok. On laisse le parchemin comme ça. »**
 
@@ -3677,6 +3678,29 @@ déchirure était une IMAGE dont il fallait dégager les bords*. ⭐ Depuis que 
 premier organe peint, et la déchirure entière se voit **sans rendre un seul blg au texte**.
 ⛔ **Ce qui ne change pas, et c'est ce qu'Eric a tranché** : on ne paie pas de marge pour le
 décor. La règle est donc **tenue**, pas levée — par un autre moyen.
+
+🔴 **ET LE 21/09 LA PHRASE D'EN-TÊTE TOMBE, PAR LA VOIX D'ERIC** *(lot 243)*. Elle disait *« on ne
+voit que le DÉBUT de la déchirure »* — une description de l'ANCIENNE image, restée en place après
+que le lot 219 eut rendu la déchirure entière gratuite.
+
+> Eric, 2026-09-21, devant la fiche servie : **« efface la plaque en dessous et n'agrandis pas
+> X »** · **« on verra le contour »** · **« juste X et le fond derrière »**
+
+⚠️ **CE QUI L'AVAIT CONTREDITE EN SILENCE, ET C'EST LA MÊME FAUTE DANS L'AUTRE SENS** : le lot 240
+avait lu *« on ne voit que le début »* comme un ordre de pousser le papier HORS de la dalle, ligne
+moyenne à `−k·haut`, quatre arêtes coupées à plat par l'`overflow`. ⛔ Il l'a écrit lui-même en
+dernière ligne de son message — *« la fiche se lit comme un rectangle »* — et il l'a poussé quand
+même, parce que la loi de ce fichier semblait le couvrir. ⭐ **Une loi qui décrit un rendu mort
+arme celui qui la lit au pied de la lettre.** C'est pour ça qu'elle est amendée ici et pas
+seulement dans le code.
+
+📏 **LA PILE EST À DEUX COUCHES, ET IL N'Y A RIEN ENTRE — MESURÉ, ⛔ PAS SUPPOSÉ** (Chromium, 21/09,
+`ui/builder/index.html`, chaîne matérialisée puis lue au `getComputedStyle`) : `.x1`,
+`.equipment-step`, `.decision-card`, `.stage`, `.stage-area`, `.panneau-contenu`, `.panneau`,
+`.panneaux`, `.app` et `html` rendent **tous** `rgba(0, 0, 0, 0)` / `background-image: none`. Le
+seul organe qui peint sous la fiche est `body` — `rgb(20, 18, 14)` + `bg-ruins-night`.
+⭐ **Il n'y a donc AUCUNE plaque au dépôt** : celle qu'Eric a vue était le parchemin agrandi
+lui-même. *« Efface la plaque »* et *« n'agrandis pas X »* sont **un seul geste**.
 
 ---
 
