@@ -8445,7 +8445,13 @@ fichier serait vert pour rien)*.
 
 ⭐ **« IDEM » PORTE SUR LE GESTE, PAS SUR L'ENSEMBLE.** Le barde ne regarde qu'**une** famille (Musical Instrument) ; le moine en regarde **deux** (Artisan's Tools **et** Musical Instrument). La famille est donc **déclarée par classe**, ⛔ jamais déduite du nom de la classe.
 📏 **ET CE QUE LA DONNÉE PORTE A ÉTÉ MESURÉ** (21/09, 25 outils SRD + 16 FH) : **aucun record d'outil ne porte de champ de famille** (`category`, `family`, `group` : absents partout) ; `craft` **ne discrimine pas** (`thieves-tools` porte « None » comme `musical-instrument`) ; `variants` est du texte libre. ⭐ Le seul lien de famille réel est `inherits`, qui existait **à la source** depuis le 09/09 et que le générateur **perdait** : il est maintenant porté à la couche. **La famille d'un outil est `data.inherits` s'il en a un, sinon son propre id** — une règle, ⛔ pas une liste.
-⏳ **ET « ARTISAN'S TOOLS » N'A AUCUN RECORD** — le mot n'existe dans tout le SRD que dans la phrase du Monk et dans le sort `Fabricate`. Le moine déclare donc `"any"`, et c'est une **sur-inclusion assumée et mesurée** : un moine qui aurait acheté un jeu, un véhicule ou une monture les verrait proposés. La borner demande une racine « Artisan's Tools » **dans la donnée** — ⚖️ **arbitrage d'Eric**, ⛔ pas une invention d'écran.
+⚖️ **ET LA FAMILLE « ARTISAN'S TOOLS » EST CETTE LISTE, ET RIEN D'AUTRE** *(Eric, 21/09 — tranché)*. Le lot 246 avait dû déclarer `"any"` sur le moine, **sur-inclusion assumée et mesurée** : un moine qui avait acheté un jeu, un véhicule ou une monture les voyait proposés. Eric a nommé les **dix-sept** outils d'artisan un par un, puis fermé le reste d'un mot : *« les autres c'est **other tools** (cf D&D Beyond) »*.
+
+**Alchemist's Supplies · Brewer's Supplies · Calligrapher's Supplies · Carpenter's Tools · Cartographer's Tools · Cobbler's Tools · Cook's Utensils · Glassblower's Tools · Jeweler's Tools · Leatherworker's Tools · Mason's Tools · Painter's Supplies · Potter's Tools · Smith's Tools · Tinker's Tools · Weaver's Tools · Woodcarver's Tools**
+
+⭐ **ET C'EST LA NOTION DE FAMILLE DÉJÀ POSÉE, PAS UNE SECONDE** : les dix-sept prennent `data.inherits`, comme les instruments de Fate's Hand — la famille est donc portée par l'OUTIL, jamais énumérée dans la déclaration d'une classe. ⛔ Une liste de dix-sept ids écrite sur le moine aurait fait de la classe le second écrivain de la famille, et la prochaine classe qui en a besoin l'aurait recopiée.
+🔴 **LA RACINE `srfh:tool:en:artisan-s-tools` N'EST PAS UN RECORD, C'EST UNE CLEF.** « Artisan's Tools » n'existe dans tout le SRD que dans la phrase du Monk et dans `Fabricate` : il n'y a rien à pointer, et ⛔ en **fabriquer** un poserait un 26ᵉ outil dans Skills et dans Wares, là où Eric n'a demandé aucun objet neuf. Personne ne **résout** cette chaîne — on la **compare** ; un garde exige qu'aucun record ne la porte.
+⭐ **ET LA LISTE EST DANS LE BON SENS** : ce qui est **dedans**. ⛔ Les « autres » ne sont énumérés nulle part — une liste de ce qu'on **exclut** se périme au premier outil ajouté et personne ne le voit ; une liste de ce qu'on **inclut** laisse le nouvel outil dehors, ce qui est le défaut sûr. 📏 Mesuré : les 25 outils du SRD **moins** ces dix-sept font exactement les huit « other tools » *(Disguise Kit, Forgery Kit, Gaming Set, Herbalism Kit, Musical Instrument, Navigator's Tools, Poisoner's Kit, Thieves' Tools)*.
 
 ### 📏 LE CRAN DU BOUTON DE CHOIX — **30 de corps, 44 de cible**
 📍 `bouton-de-choix-trente-de-corps-quarante-quatre-de-cible` · vivante · 21/09
@@ -8463,19 +8469,51 @@ fichier serait vert pour rien)*.
 🔴 **ET ON NE FABRIQUE AUCUN ORGANE POUR ÇA** : le patron du bouton sait déjà séparer le dessin de la cible. ⛔ **Ne pas poser sa propre cible dans un `::after`** — c'est l'**anneau du liseré**, et l'écraser fait perdre au bouton son fond, sa bordure et son rayon (mesuré : `border-radius: 0px`).
 ⛔ **ET REDÉCLARER `--bouton-hauteur` SEUL NE SUFFIT PAS.** 📏 Mesuré : sur la pastille, `--bouton-hauteur` valait bien `30px` et `--bouton-retrait-v` rendait `calc((44px - 40px) / 2)` — **le 40 y était déjà substitué**. ⭐ **Une propriété personnalisée est résolue dans la portée qui la DÉCLARE, pas dans celle qui l'emploie** : redéfinir sa dépendance plus bas ne la recalcule jamais. Les deux se redéclarent **ensemble**, et le retrait garde sa **formule**.
 
-### ⚠️ CE QUI RESTE OUVERT — **la carte déborde, et le chiffre est mesuré**
+### 📏 LE NOM COURT D'UN OUTIL — **une dérivation d'affichage, jamais un renommage**
+📍 `equipement-outil-nom-court-derive-du-possessif` · vivante · 21/09
+
+⚖️ Eric, 21/09 : *« Tu retires le mot tool sur chaque item. Tu fais **Tool : smith, glassblower etc.** — tu gagnes de l'espace. »*
+
+🔴 **C'EST UNE DÉRIVATION D'AFFICHAGE, ET C'EST LA BORNE.** ⛔ **Aucun `name` de record ne bouge** : le nom entier reste dans le nom accessible du bouton, dans la ligne posée dans Gear et dans le récapitulatif. Renommer `Smith's Tools` en `smith` **dans la donnée** serait réécrire du SRD à la main *(loi §L)* — ce que le lot 246 a refusé de faire pour « Arrows → Ammunition », et pour la même raison.
+
+⚠️ **LE SUFFIXE N'EST PAS TOUJOURS « Tools »** — les dix-sept en portent **trois** : `Tools`, **`Supplies`** *(Alchemist, Brewer, Calligrapher, Painter)* et **`Utensils`** *(Cook)*. ⛔ Un découpage qui aurait cherché « Tools » aurait laissé *« Alchemist's Supplies »* intact et **personne ne l'aurait vu** : le mot serait juste resté un peu long. ⭐ **La règle ne regarde donc pas la FIN du nom, elle regarde le POSSESSIF** — un seul mot, suivi de `'s` ou `s'`, suivi d'autre chose — et elle **ne nomme aucun suffixe**.
+
+⭐ **ET ELLE REFUSE PROPREMENT, elle ne force jamais** : un nom sans possessif *(« Instrument (Wind) », « Musical Instrument », « Dice Set », « Mount (Air) »)* ressort **entier**. C'est ce qui la rend sûre pour le barde, dont aucun candidat n'est un outil d'artisan ; un métier en deux mots ressortirait entier lui aussi, plutôt que tronqué à son premier mot.
+
+📏 **LES DIX-SEPT SORTIES, MESURÉES UNE PAR UNE** : alchemist · brewer · calligrapher · carpenter · cartographer · cobbler · cook · glassblower · jeweler · leatherworker · mason · painter · potter · smith · tinker · weaver · woodcarver.
+
+---
+
+### 📐 LA QUESTION D'OUTIL SE LIT **EN LIGNE** — le libellé de famille dans le flux
+📍 `equipement-question-d-outil-en-ligne` · vivante · 21/09
+
+🔴 **ET LE MOT COURT SEUL NE GAGNAIT RIEN — MESURÉ AVANT DE CHOISIR.** Raccourcir « Smith's Tools » en « smith » dans une rangée qui reste **en colonne** rend la **même carte, 759 et 825, au pixel près** : la hauteur d'une rangée est celle de sa **pastille** *(44 déclarés, 60,02 rendus)*, jamais celle de son mot, et un libellé de deux lignes tient déjà sous 44. ⭐ **Une lecture qui gagne zéro ne peut pas être celle d'une phrase qui dit « tu gagnes de l'espace ».** Le libellé de famille entre donc **dans** le flux au lieu de le surplomber, et les paires mot + pastille s'y rangent à la suite — `Tool: ○ smith ○ glassblower`.
+
+⛔ **ET C'EST BORNÉ À CETTE QUESTION-LÀ.** Les options A/B/C gardent leur colonne : un libellé d'option est une **phrase entière**, et deux colonnes y couperaient les mots *(§ de la rangée à deux colonnes, lot 246)*. ⭐ Même famille `.aiguilleur-*`, mêmes pièces — seul le **conteneur** change.
+
+🔴 **LA PASTILLE PASSE DEVANT SON MOT, ET C'EST UNE CORRECTION D'IMAGE.** Regardé en capture avant de livrer : en ligne, « smith [pastille] glassblower [pastille] » se lit *« smith · [pastille] glassblower »* — la pastille colle au mot **suivant**, et le joueur choisit l'outil d'à côté. 📏 **Et l'écarter ne répare pas** : passer l'écart entre paires de 8 à 16 a fait passer la question à **trois** lignes et rendu les 88 tout juste gagnés *(671 → 759)*. ⭐ En tête, la pastille est un bouton radio et son mot le suit.
+
+---
+
+### ⚠️ CE QUI RESTE OUVERT — **la carte déborde encore à trois outils**
 📍 `equipement-carte-du-depart-deborde-avec-la-question-d-outil` · à trancher · 21/09
 
-📏 Relevé du 21/09 au soir, builder servi, 512 × 764, voile de **681 blg** :
+🔴 **ET D'ABORD, LE RELEVÉ DU LOT 246 PORTAIT LA MAUVAISE UNITÉ.** Il disait *« voile de 681 **blg** »* : c'est **681 pixels**, soit **499 blg** — 📏 mesuré des deux côtés sur le builder servi *(le voile rend 499 une fois divisé par `--echelle`, 1,3643 à 512 de large)*. ⭐ Les chiffres du tableau, eux, étaient justes : ils étaient **tous** en pixels, donc comparables entre eux. Le mot était faux, pas la mesure — mais un chiffre qui voyage avec la mauvaise unité finira par être divisé une fois de trop. **Toute cette section est en pixels.**
+⚠️ **ET « LE PIRE DES 48 » EN MANQUAIT UN** : le relevé donnait 620 *(Fighter)*. 📏 Rejoué sur les 48 combinaisons, le pire est **Fighter × Soldier à 656** — l'arrière-plan Soldier porte un refus de plus *(« Gaming Set (same as above) »)*, qui coûte 36. La marge n'était pas 61, **elle était 25**.
 
-| cas | hauteur | verdict |
-|---|---|---|
-| pire des 48 combinaisons classe × arrière-plan, pile SRD *(Fighter, 3 options)* | **620** | ✅ marge 61 |
-| Barde, question d'instrument comprise | ≤ 620 | ✅ *(3 records d'instrument au maximum)* |
-| **Moine, 2 outils dans Skills** | **759** | ⛔ **+78** |
-| **Moine, 3 outils** | **825** | ⛔ **+144** |
+📏 **RELEVÉ DU 21/09, builder servi, 512 × 764, voile de 681 px** *(pile SRD + l'interrupteur `Skills & tools`, Moine × Acolyte, option A choisie)* :
 
-⭐ **Les trois leviers d'Eric ont été appliqués** — raccourcir le texte *(le sous-titre de la question d'outil est passé de deux lignes à une : −17)*, la pastille 30/44, et la rangée à deux colonnes *(qui a fait tout le reste)*. **Ils ne suffisent pas.** ⛔ Ni troncature, ni défilement interne. ⚖️ **Ce qui reste est un arbitrage d'Eric**, et la mesure dit où il porte : le récapitulatif du bas (**68 blg**) **répète mot pour mot** la liste de l'option choisie, déjà lue 300 blg plus haut, et sa phrase d'accompagnement en coûte **51** de plus. 📌 **119 blg de redite mesurée** — mais ce sont **les mots d'Eric et sa maquette**, ⛔ pas à couper sans lui.
+| cas | avant (lot 246) | après (lot 247) | verdict |
+|---|---|---|---|
+| pire des 48 classe × arrière-plan *(Fighter × Soldier)* | **656** | 656 | ✅ marge 25 |
+| **Moine, 2 outils dans Skills** | **759** | **671** | ✅ **marge 10** |
+| **Moine, 3 outils** | **825** | **737** | ⛔ **+56** *(était +144)* |
+| Barde, 3 instruments *(pile Fate's Hand)* | 694 | **671** | ✅ |
+| Moine, 2 / 3 outils *(pile Fate's Hand)* | 628 / 694 | **541 / 606** | ✅ |
+
+🔴 **ET CE N'EST PLUS LA QUESTION D'OUTIL QUI DÉBORDE — MESURÉ.** Le même moine **sans aucune question** rend **623** ; avec un *fait* à la place de la question, **641**. La question ne peut donc coûter que **58** avant de sortir du voile ; elle en coûte **114** à trois candidats, parce que **trois métiers ne tiennent pas sur une ligne de 285 blg**. ⛔ Aucune disposition de la seule question d'outil ne peut refermer les 56 qui restent.
+
+⚖️ **CE QUI RESTE EST DONC L'ARBITRAGE D'ERIC, ET LA MESURE DIT OÙ IL PORTE** : le récapitulatif du bas coûte **68**, et sa phrase d'accompagnement **51** de plus — **119 px** qui **répètent mot pour mot** la liste de l'option choisie, déjà lue 300 px plus haut. 📌 Le retirer rendrait **618** à trois outils. ⛔ Mais ce sont **les mots d'Eric et sa maquette** : ni troncature, ni défilement interne, ni coupe sans lui.
 
 ---
 
