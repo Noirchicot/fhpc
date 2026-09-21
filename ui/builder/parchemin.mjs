@@ -101,40 +101,48 @@ function ecart(t, longueur, arete, v) {
  *  On balaie les quatre arêtes, on relève l'écart le plus rentrant et le plus
  *  sortant, et on résout l'échelle `k` et la ligne moyenne `m`.
  *
- *  🔴 LOT 240 — LA SECONDE CONTRAINTE EST INVERSÉE, ET C'EST ERIC QUI TRANCHE.
- *  Elle disait : `m + k·min ≥ 0` — *« aucun bord rogné à plat par l'`overflow`
- *  de la dalle »*. ⛔ C'ÉTAIT UNE EXIGENCE DE QUALITÉ QUE JE M'ÉTAIS DONNÉE, et
- *  elle annulait en silence une LOI RATIFIÉE du 18/09,
- *  `cadre-dechirure-du-parchemin-hors-dalle` : *« On ne voit que le DÉBUT de la
- *  déchirure au bord de la fiche X1 »* — Eric : *« les 28 de large en moins,
- *  c'est ok. On laisse le parchemin comme ça. »*
- *  ⭐ Une contrainte formulée comme un goût ne se lit pas comme un changement de
- *  loi, et c'est pour ça que personne ne l'a vue passer.
+ *  🔴 LOT 243 — LA LIGNE MOYENNE REVIENT DEDANS, ET C'EST ERIC QUI DÉFAIT 240.
+ *  ⚖️ Eric, 2026-09-21, devant la fiche servie : *« efface la plaque en dessous
+ *  et n'agrandis pas X »*, *« on verra le contour »*, *« juste X et le fond
+ *  derrière »*.
  *
- *  ⚖️ ET LE 21/09 IL LE DIT EN REGARDANT LE RENDU EN LIGNE : *« fais dépasser le
- *  parchemin qu'on ne voie pas la fiche sous-jacente »*. ➡️ Un bord coupé net
- *  vaut mieux qu'un fond qui transparaît.
- *  📏 CE QUI A ÉTÉ MESURÉ AVANT DE CHOISIR (banc, fond magenta, 21/09) : ce
- *  n'était pas *« quelques creux de 2 blg »* — c'est TOUT le pourtour qui
- *  laissait passer le fond, une bande irrégulière sur les quatre côtés. La
- *  silhouette tenait ENTIÈREMENT à l'intérieur du rectangle, donc tout ce qui
- *  n'était pas elle était transparent.
- *  ⚠️ ET CE QU'ON VOYAIT AU TRAVERS N'ÉTAIT PAS UN AUTRE ÉCRAN : `montrer()`
- *  pose la vue par `swapContent` → `replaceChildren`, donc X1 REMPLACE Gear ou
- *  le sac, il ne se pose pas dessus. Ce qui transparaissait est le fond de
- *  l'application. ⛔ Il n'y avait donc rien à « cacher dessous » — la seule voie
- *  qui répond est celle-ci.
+ *  ⭐ CE QU'IL DEMANDE EST UNE PILE À DEUX COUCHES, ET RIEN ENTRE : le fond de
+ *  l'application, puis le parchemin à sa silhouette RÉELLE. ⛔ Aucune plaque,
+ *  aucun remplissage jusqu'aux bords de la dalle. Les creux du pourtour ne sont
+ *  pas un défaut à boucher — ils sont le SUJET : c'est par eux qu'on voit que
+ *  la feuille est déchirée.
  *
- *  LES DEUX CONTRAINTES, À CETTE VÉRITÉ :
- *    · `m + k·max ≤ budget` — ⛔ aucune encre hors du papier. INCHANGÉE : c'est
- *      elle qui protège la copie, l'œil et les quatre portes.
- *    · `m + k·max = 0`      — ⭐ le point le plus RENTRANT affleure la bordure,
- *      et tout le reste du bord est DEHORS. Le rectangle visible est donc plein
- *      d'un bord à l'autre, et la déchirure ne se lit que par son DÉBUT : le
- *      fil, la patine et les fibres qui viennent mourir contre l'arête.
+ *  🔴 CE QUE LE LOT 240 AVAIT FAIT, ET POURQUOI ÇA TOMBE. Il posait la ligne
+ *  moyenne à `−k·haut` : le point le plus RENTRANT affleurait la bordure, tout
+ *  le reste du bord passait DEHORS, et `overflow: hidden` le coupait à plat aux
+ *  quatre côtés. ⛔ Plus aucun creux ne laissait voir le fond — et plus aucune
+ *  déchirure non plus. 240 l'avait écrit lui-même en dernière ligne de son
+ *  message : *« au budget de 9,5 la déchirure n'est plus lisible comme une
+ *  silhouette — la fiche se lit comme un rectangle »*. C'est ce rectangle
+ *  qu'Eric a regardé, et il tranche l'inverse.
+ *
+ *  📏 ET LA « PLAQUE » D'ERIC N'EXISTE PAS AU DÉPÔT — MESURÉ, PAS SUPPOSÉ
+ *  (Chromium, 21/09, `ui/builder/index.html`, chaîne matérialisée puis lue au
+ *  `getComputedStyle`) : `.x1`, `.equipment-step`, `.decision-card`, `.stage`,
+ *  `.stage-area`, `.panneau-contenu`, `.panneau`, `.panneaux`, `.app` et `html`
+ *  rendent TOUS `rgba(0, 0, 0, 0)` et `background-image: none`. Le seul organe
+ *  qui peint sous la fiche est `body` — `rgb(20, 18, 14)` + `bg-ruins-night` —,
+ *  et c'est très exactement *« le fond derrière »* qu'Eric veut voir.
+ *  ⭐ LA PLAQUE QU'IL A VUE ÉTAIT DONC LE PARCHEMIN LUI-MÊME, poussé jusqu'aux
+ *  bords. *« Efface la plaque »* et *« n'agrandis pas X »* ne sont pas deux
+ *  gestes : c'est deux fois le même, et il tient dans le signe ci-dessous.
+ *
+ *  LES DEUX CONTRAINTES, RENDUES À LEUR SENS DU LOT 219 :
+ *    · `m + k·max ≤ budget` — ⛔ aucune encre hors du papier. Elle n'a jamais
+ *      bougé : c'est elle qui protège la copie, l'œil et les quatre portes.
+ *    · `m + k·min = 0`      — ⭐ le point le plus SORTANT affleure la bordure,
+ *      et tout le reste du bord est DEDANS. Le pourtour laisse donc voir le
+ *      fond de l'application, la déchirure se lit comme une silhouette, et
+ *      l'ombre portée (`drop-shadow` sur le SVG) épouse enfin le bord au lieu
+ *      de tomber hors de la dalle.
  *  ⛔ `k` NE CHANGE PAS : l'amplitude crête à crête reste bornée par le budget,
- *  donc le papier ne déborde jamais de plus que ce que la dalle peut rogner, et
- *  la silhouette reste DÉTERMINISTE (même graine, même bord).
+ *  la silhouette reste DÉTERMINISTE (graine 43), et l'accroc reste plus large
+ *  que la fibre.
  *  @returns {{k: number, m: number}} l'échelle et la ligne moyenne, en blg */
 export function bornerLEchelle(l, h, budget, v = MODELE_B) {
   let bas = 0, haut = 0;
@@ -149,15 +157,18 @@ export function bornerLEchelle(l, h, budget, v = MODELE_B) {
   }
   /* `haut − bas` est l'amplitude crête à crête du bord brut. Le budget la
      contient tout entière : k = budget / (haut − bas).
-     🔴 LOT 240 — LA LIGNE MOYENNE SE POSE À `−k·haut`, ⛔ PLUS À `−k·bas`.
-     ⭐ C'est UN signe, et c'est toute la demande d'Eric : à `−k·bas` le point le
-     plus SORTANT touchait 0 et la silhouette tenait entière DANS le rectangle,
-     donc tout le pourtour laissait passer le fond. À `−k·haut`, c'est le point
-     le plus RENTRANT qui touche 0 : le reste du bord passe DEHORS, la dalle le
-     rogne, et le rectangle visible est plein. */
+     🔴 LOT 243 — LA LIGNE MOYENNE REVIENT À `−k·bas`, ⛔ PLUS À `−k·haut`.
+     ⭐ C'est UN signe, et c'est toute la demande d'Eric du 21/09 : à `−k·haut`
+     le point le plus RENTRANT touchait 0, le reste du bord sortait, la dalle le
+     coupait à plat, et la fiche se lisait comme un rectangle. À `−k·bas`, c'est
+     le point le plus SORTANT qui touche 0 : toute la silhouette rentre, et le
+     pourtour laisse voir le fond de l'application — *« juste X et le fond
+     derrière »*.
+     📏 MESURÉ à 375 × 500, budget 9,5 : k = 0,560 · m = 3,82 · le point le plus
+     rentrant rentre de 9,04 blg · le plus sortant affleure à 0,04 blg près. */
   const amplitude = haut - bas;
   const k = amplitude > 0 ? Math.min(1, budget / amplitude) : 1;
-  return { k: Math.max(ECHELLE_MIN, k), m: -k * haut };
+  return { k: Math.max(ECHELLE_MIN, k), m: -k * bas };
 }
 
 /** Les points du bord, dans l'ordre du tracé. Chaque point porte sa normale
@@ -185,20 +196,20 @@ function bord(l, h, budget, v) {
      première chose qui dit « feuille » plutôt que « rectangle aux angles
      arrondis ». Les deux points posés à la main entre deux arêtes coupent le
      coin en biais — ⛔ un arrondi régulier y remettrait la symétrie qu'on retire.
-     🔴 LOT 240 — ET LE BISEAU SUIT LA LIGNE MOYENNE, comme les arêtes.
-     ⛔ IL NE LA SUIVAIT PAS, et c'est un garde qui l'a vu, pas l'œil : les douze
-     points de coin étaient posés en coordonnées ABSOLUES depuis l'angle du
-     rectangle, donc ils restaient DEDANS quoi que fasse `m`. Les quatre arêtes
-     sont sorties de la dalle, les quatre coins sont restés à l'intérieur, et il
-     restait quatre encoches transparentes.
-     📏 Mesurée à 360 de haut : l'encoche du coin haut-gauche rentrait de **1,82
-     blg**, au point (1,86 · 1,82). ⛔ Sur une capture, 1,8 blg ne se voit pas ;
-     dans un balayage, il se mesure. C'est exactement la raison d'être du garde 4.
+     ⭐ ET LE BISEAU SUIT LA LIGNE MOYENNE, comme les arêtes — acquis du lot 240,
+     ⛔ GARDÉ PAR LE LOT 243 alors que le reste de 240 est défait, parce qu'il est
+     juste DANS LES DEUX SENS. Les douze points de coin étaient posés en
+     coordonnées ABSOLUES depuis l'angle du rectangle, donc ils ne bougeaient pas
+     d'un blg quoi que fasse `m` : quand 240 a envoyé les quatre arêtes dehors,
+     les coins sont restés dedans et il restait quatre encoches transparentes
+     (📏 1,82 blg au point (1,86 · 1,82), à 360 de haut — invisible sur une
+     capture, mesurable dans un balayage). ⭐ La faute était la même à l'endroit :
+     maintenant que `m` est POSITIF et que les arêtes rentrent, un coin laissé en
+     absolu ferait au contraire quatre BOSSES de 3,82 blg par-dessus la ligne
+     moyenne, et la feuille aurait des oreilles.
      ⭐ CHAQUE POINT DE COIN EST DONC DÉCALÉ DE `m` LE LONG DE SA PROPRE NORMALE
-     — la même translation que l'arête qu'il prolonge, et rien de plus. La normale
-     est RENTRANTE et `m` est négatif : le biseau sort, et il sort exactement
-     autant que les arêtes qu'il raccorde. Un coin qui sortirait d'une autre
-     quantité ferait une marche à la jonction. */
+     — la même translation que l'arête qu'il prolonge, et rien de plus. Un coin
+     qui se décalerait d'une autre quantité ferait une marche à la jonction. */
   const coin = (x, y, nx, ny) => pose(x + nx * m, y + ny * m, nx, ny, -1);
   arete(hg, 0, l - hd, 0, 0, 1, 0);
   coin(l - hd * .40, hd * .15, -.6, .8);

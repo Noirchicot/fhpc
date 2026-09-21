@@ -119,80 +119,191 @@ test("3 bis — ⛔ aucune cote de la dalle n'est écrite dans le module : il ME
     "⛔ `getBoundingClientRect` est zoomé : sous `zoom` il rend le pixel PEINT, pas le blg (TRAPS, lot 121)");
 });
 
-/* ══ 4 — ⛔ AUCUNE ENCRE HORS DU PAPIER ══════════════════════════════════ */
+/* ══ 4 — ⛔ LA SILHOUETTE RENTRE, ET LA DÉCHIRURE SE VOIT ════════════════ */
 
-test("4 — 🔴 LE RECTANGLE VISIBLE EST PLEIN : aucun creux ne laisse voir ce qu'il y a dessous", () => {
-  /* ⚖️ Eric, 2026-09-21, en regardant le rendu EN LIGNE : *« fais dépasser le
-     parchemin qu'on ne voie pas la fiche sous-jacente »*.
-     ✅ ET UNE LOI RATIFIÉE LE COUVRAIT DÉJÀ — `cadre-dechirure-du-parchemin-hors-dalle`,
-     vivante depuis le 18/09 : *« On ne voit que le DÉBUT de la déchirure au bord de la
-     fiche X1 »*, Eric : *« les 28 de large en moins, c'est ok. On laisse le parchemin
-     comme ça. »*
+/** Les ANCRES du chemin, ⛔ pas ses points de contrôle : `M x y`, puis la
+ *  troisième paire de chaque `C`. `pointsDu` rend TOUS les nombres appariés —
+ *  utile pour borner, ⛔ faux pour un polygone, parce qu'un point de contrôle
+ *  n'est pas sur la courbe. Le témoin des zones tactiles a besoin du vrai
+ *  contour, donc il a besoin de celui-ci. */
+function ancresDu(d) {
+  const n = d.match(/-?\d+\.?\d*/g).map(Number);
+  const pts = [{ x: n[0], y: n[1] }];
+  for (let i = 2; i + 5 < n.length; i += 6) pts.push({ x: n[i + 4], y: n[i + 5] });
+  return pts;
+}
+/** Le point est-il DANS le polygone ? (lancer de rayon, impair = dedans) */
+function dansLePolygone(P, x, y) {
+  let dedans = false;
+  for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
+    const xi = P[i].x, yi = P[i].y, xj = P[j].x, yj = P[j].y;
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) dedans = !dedans;
+  }
+  return dedans;
+}
 
-     🔴 CE QUE CE GARDE REMPLACE, ET POURQUOI IL FALLAIT L'INVERSER. Il tenait
-     l'inverse : *« la morsure du bord ne dépasse jamais le dégagement du premier
-     organe »*, adossé à une contrainte que le lot 219 s'était donnée
-     (`m + k·min ≥ 0`, *« aucun bord rogné à plat »*). ⛔ Cette contrainte était un
-     GOÛT formulé comme une exigence de qualité, et elle annulait en silence la loi
-     du 18/09 — personne ne pouvait le voir, parce qu'elle ne se présentait pas
-     comme un changement de loi.
+test("4 — 📜 LA SILHOUETTE RENTRE DANS LA DALLE, ET ELLE MORD ASSEZ POUR QU'ON LA VOIE", () => {
+  /* ⚖️ Eric, 2026-09-21, devant la fiche servie : *« efface la plaque en dessous et
+     n'agrandis pas X »*, *« on verra le contour »*, *« juste X et le fond derrière »*.
 
-     📏 CE QUI A ÉTÉ MESURÉ AVANT DE LA RETOURNER (banc, fond magenta, 21/09) : ce
-     n'était pas *« quelques creux de 2 blg »*. La silhouette tenait ENTIÈREMENT
-     dans le rectangle, donc TOUT le pourtour — une bande irrégulière sur les quatre
-     côtés — laissait passer ce qu'il y avait derrière.
-     ⚠️ ET CE N'ÉTAIT PAS UN AUTRE ÉCRAN : `montrer()` pose la vue par `swapContent`
-     → `replaceChildren`, donc X1 REMPLACE Gear ou le sac. Ce qui transparaissait est
-     le fond de l'application. Il n'y avait rien à « cacher dessous ».
+     🔴 CE QUE CE GARDE DÉFAIT, ET C'EST LE LOT 240. Pendant une nuit il a tenu
+     l'inverse : *« LE RECTANGLE VISIBLE EST PLEIN »*, ligne moyenne à `−k·haut`, le
+     papier poussé DEHORS et coupé à plat par `overflow: hidden` aux quatre côtés.
+     ⛔ Il n'était pas faux — il répondait à une autre phrase d'Eric (*« fais dépasser
+     le parchemin »*) et à une lecture de la loi du 18/09. Mais son propre message le
+     disait en dernière ligne : *« au budget de 9,5 la déchirure n'est plus lisible
+     comme une silhouette — la fiche se lit comme un rectangle »*. Eric a regardé ce
+     rectangle, et il tranche l'inverse.
+
+     📏 ET LA « PLAQUE » D'ERIC N'EXISTE PAS — MESURÉ, ⛔ PAS SUPPOSÉ (Chromium,
+     21/09, `ui/builder/index.html`, chaîne matérialisée et lue au `getComputedStyle`) :
+     `.x1`, `.equipment-step`, `.decision-card`, `.stage`, `.stage-area`,
+     `.panneau-contenu`, `.panneau`, `.panneaux`, `.app` et `html` rendent tous
+     `rgba(0, 0, 0, 0)` / `background-image: none`. Le seul organe qui peint sous la
+     fiche est `body` (`rgb(20, 18, 14)` + `bg-ruins-night`) — *« le fond derrière »*.
+     ⭐ La plaque qu'il a vue ÉTAIT le parchemin agrandi. Les deux consignes sont donc
+     un seul geste, et c'est le signe de la ligne moyenne.
 
      ⭐ LE GARDE EST À DEUX CÔTÉS, et c'est ce qui l'empêche d'être tautologique :
-       ① aucun point du bord n'est DANS le rectangle → rien ne transparaît ;
-       ② un point au moins l'AFFLEURE → le papier n'est pas devenu un rectangle
-          géant dont la déchirure serait hors de portée. Sans ②, une implémentation
-          qui dessinerait le bord à 100 blg dehors passerait ① les doigts dans le nez,
-          et le *« début de la déchirure »* du 18/09 ne se verrait plus jamais. */
+       ① aucun point du bord ne SORT du rectangle — sinon `overflow: hidden` le coupe
+          à plat et le rectangle du lot 240 revient ;
+       ② le point le plus rentrant mord au moins la MOITIÉ du budget — sinon une
+          silhouette rentrée d'un dixième de blg passerait ① les doigts dans le nez,
+          et il n'y aurait plus rien à voir. C'est le creux qui EST la déchirure. */
   const budget = budgetDuParchemin();
   assert.equal(budget, 9.5, "le dégagement déduit de la table — s'il bouge, c'est que la table a bougé");
 
   for (const h of [360, 420, 500, 640, 700, 900]) {
-    let plusDedans = -Infinity, ou = null;
+    let plusDedans = -Infinity, plusDehors = -Infinity, ou = null;
     for (const p of pointsDu(geometrieDuParchemin(375, h, budget).d)) {
       /* ⭐ POSITIF = DANS le rectangle. Un point dehors a au moins une des quatre
          distances négative, donc son minimum l'est. */
       const dedans = Math.min(p.x, 375 - p.x, p.y, h - p.y);
       if (dedans > plusDedans) { plusDedans = dedans; ou = p; }
+      if (-dedans > plusDehors) plusDehors = -dedans;
     }
-    assert.ok(plusDedans <= .5,
-      `⛔ à ${h} de haut, le bord rentre de ${plusDedans.toFixed(2)} blg dans le rectangle : ` +
-      `ce creux laisse voir le fond de l'application (${JSON.stringify(ou)})`);
-    assert.ok(plusDedans >= -1.5,
-      `⛔ à ${h} de haut, le bord le plus rentrant reste à ${(-plusDedans).toFixed(2)} blg DEHORS : ` +
-      "le papier ne touche plus son arête, et le « début de la déchirure » du 18/09 ne se voit plus");
+    assert.ok(plusDehors <= .5,
+      `⛔ à ${h} de haut, le bord sort de ${plusDehors.toFixed(2)} blg : la dalle le coupe à plat ` +
+      "et la fiche redevient le rectangle du lot 240");
+    assert.ok(plusDedans >= budget / 2,
+      `⛔ à ${h} de haut, le bord ne rentre que de ${plusDedans.toFixed(2)} blg sur un budget de ` +
+      `${budget} : le creux ne se voit pas, donc la déchirure non plus (${JSON.stringify(ou)})`);
   }
 });
 
-test("4 bis — ⭐ LE PAPIER DÉBORDE, ET D'AU PLUS LE BUDGET : la dalle le rogne, elle ne le dévore pas", () => {
-  /* ⛔ L'AUTRE MOITIÉ, ET ELLE COMPTE AUTANT — elle a seulement changé de sens.
-     Elle disait *« le bord ne sort jamais de la dalle »* ; elle dit maintenant qu'il
-     en sort BORNÉ. ⭐ La contrainte `m + k·max ≤ budget` n'a pas bougé d'un signe :
-     c'est elle qui tient l'amplitude, donc le papier ne peut pas s'échapper.
-     ⚠️ CE QU'UN DÉBORD NON BORNÉ COÛTERAIT : la silhouette est aussi la COUPE
-     (`clipPath`) du grain, des fibres et de la patine. Un bord parti à 200 blg
-     dehors étirerait la patine hors de toute arête, et le papier perdrait sa
-     tranche — on aurait un aplat, pas une feuille. */
+test("4 bis — ⭐ LE BORD MORD, ET D'AU PLUS LE BUDGET : l'encre reste sur le papier", () => {
+  /* ⛔ L'AUTRE MOITIÉ, ET ELLE COMPTE AUTANT : la morsure ne dépasse JAMAIS le
+     dégagement du premier organe peint. Sans elle, la déchirure mange la copie et
+     l'œil — et cette contrainte-là n'a jamais changé de signe, ni au lot 219, ni au
+     240, ni ici. C'est `m + k·max ≤ budget`.
+     ⚠️ ET LA LIGNE MOYENNE EST POSITIVE : c'est ce qui dit que le papier est DEDANS.
+     Un `m` négatif est exactement l'état du lot 240. */
   const budget = budgetDuParchemin();
   for (const h of [360, 420, 500, 640, 700, 900]) {
     const { m } = bornerLEchelle(375, h, budget);
-    assert.ok(m <= 0,
-      `à ${h} de haut, la ligne moyenne vaut ${m.toFixed(2)} : le papier est rentré dans la dalle, ` +
-      "et le pourtour redevient transparent");
-    assert.ok(m >= -budget - .5,
-      `à ${h} de haut, la ligne moyenne vaut ${m.toFixed(2)} : le débord dépasse le budget de ${budget}`);
+    assert.ok(m >= 0,
+      `à ${h} de haut, la ligne moyenne vaut ${m.toFixed(2)} : le papier est sorti de la dalle, ` +
+      "et l'`overflow` va le couper à plat");
+    let pire = 0, ou = null;
     for (const p of pointsDu(geometrieDuParchemin(375, h, budget).d)) {
-      assert.ok(p.x >= -budget - .5 && p.x <= 375 + budget + .5 &&
-                p.y >= -budget - .5 && p.y <= h + budget + .5,
-        `⛔ un point du bord s'échappe de plus que le budget à ${h} de haut : ${JSON.stringify(p)}`);
+      const morsure = Math.min(p.x, 375 - p.x, p.y, h - p.y);
+      if (morsure > pire) { pire = morsure; ou = p; }
     }
+    assert.ok(pire <= budget + .5,
+      `⛔ à ${h} de haut, le bord mord ${pire.toFixed(2)} blg alors que l'organe le plus au bord ` +
+      `n'en dégage que ${budget} — de l'encre tombe hors du papier (${JSON.stringify(ou)})`);
+  }
+  /* ⚔️ ET LE GARDE PEUT ACCUSER : à budget desserré, la morsure dépasse. Un garde
+     qui ne rougit jamais ne protège rien. */
+  let pireLarge = 0;
+  for (const p of pointsDu(geometrieDuParchemin(375, 500, 40).d))
+    pireLarge = Math.max(pireLarge, Math.min(p.x, 375 - p.x, p.y, 500 - p.y));
+  assert.ok(pireLarge > budget,
+    "⚔️ à budget desserré la morsure DOIT dépasser le dégagement — sinon ce garde est aveugle");
+});
+
+test("4 ter — 🔴 AUCUNE ZONE TACTILE SUR LE VIDE : les quatre coins de chaque CIBLE sont sur le papier", () => {
+  /* 🔴 LE TÉMOIN QUE LE LOT 243 DEVAIT À ERIC, et il est NOMMÉ AVANT D'ÊTRE MESURÉ.
+     Rendre la silhouette à l'intérieur veut dire que le bord RENTRE — jusqu'à 9,04
+     blg au plus creux. ⛔ Un bouton dont la boîte tapable déborderait dans ce creux
+     serait posé sur le vide, et ce serait pire que le rectangle qu'on répare.
+
+     ⭐ CE QU'IL LIT, ET C'EST LA CIBLE, ⛔ PAS LE DESSIN. Le dessin est protégé par
+     construction : le budget EST la plus courte distance du bord d'un organe peint à
+     l'arête (garde 4 bis). La CIBLE, elle, descend plus bas que le dessin — `--touch`
+     à 44 ne cède jamais (NORMES §0 : *« dessin et cible sont DEUX cotes »*) — et rien
+     jusqu'ici ne la confrontait au contour.
+
+     📏 CE QUE ÇA DONNE, À LA COTE QUE LA TABLE IMPOSE (375 × 500) — marge du coin le
+     plus exposé de chaque cible au bord du papier :
+       · les QUATRE PORTES DU PIED, celles qu'Eric craignait : BACK **23,57** ·
+         TRASH **24,32** · SEND ! **28,11** · USE **32,25**. ⭐ Elles ne sont pas
+         près du bord : le pied a sa marge propre de 34 depuis le 17/09.
+       · les deux organes RÉELLEMENT serrés sont les glyphes de marge, et ce sont eux
+         que ce garde surveille : COPIER **0,26** (cible à x = 4) et OEIL **0,97**
+         (cible jusqu'à x = 371). ⚠️ Ils tiennent, mais à moins d'un blg — ⛔ et ce
+         n'est pas une marge de confort, c'est une marge qu'il faut GARDER.
+
+     ⚠️ LA COTE EST CELLE DE LA TABLE, ET C'EST UNE MESURE, PAS UNE COMMODITÉ : depuis
+     le lot 240 la feuille pose `height: D.DALLE.h` sur `.x1`, donc la fiche rend 500
+     et rien d'autre. Balayer des hauteurs que le produit ne peut pas rendre ferait
+     rougir ce garde sur une géométrie qui n'existe pas (📏 relevé : à 360, 700 et 900
+     le coin (4 · 222) de COPIER sort — trois hauteurs mortes depuis le 240). */
+  const budget = budgetDuParchemin();
+  const contour = ancresDu(geometrieDuParchemin(D.DALLE.l, D.DALLE.h, budget).d);
+  const coinsDe = (c) => [[c.x, c.y], [c.x + c.l, c.y], [c.x, c.y + c.h], [c.x + c.l, c.y + c.h]];
+
+  const dehors = [];
+  for (const o of D.ORGANES) {
+    if (!o.cible) continue;
+    for (const [x, y] of coinsDe(o.cible))
+      if (!dansLePolygone(contour, x, y)) dehors.push(`${o.nom} (${x} · ${y})`);
+  }
+  assert.deepEqual(dehors, [],
+    "⛔ une zone tactile déborde le papier — le doigt tomberait sur le fond de l'application");
+
+  /* ⚔️ ÉPROUVÉ ROUGE, ⛔ pas supposé : à budget desserré à 20 la déchirure mord plus
+     creux, et QUATRE coins sortent — les deux de COPIER et les deux de l'OEIL.
+     Un témoin qui ne peut jamais accuser protège sa propre docilité. */
+  const large = ancresDu(geometrieDuParchemin(D.DALLE.l, D.DALLE.h, 20).d);
+  let sortis = 0;
+  for (const o of D.ORGANES) {
+    if (!o.cible) continue;
+    for (const [x, y] of coinsDe(o.cible)) if (!dansLePolygone(large, x, y)) sortis++;
+  }
+  assert.ok(sortis > 0,
+    "⚔️ à budget desserré des cibles DOIVENT sortir du papier — sinon ce garde est aveugle");
+});
+
+test("4 quater — ⛔ LE BISEAU DE COIN NE FAIT PAS DE MARCHE : il suit la ligne moyenne", () => {
+  /* 🔴 LE TROU QUE CE GARDE BOUCHE, ET IL A ÉTÉ TROUVÉ EN ÉPROUVANT LES AUTRES.
+     Le lot 240 avait corrigé les douze points de biseau — posés en coordonnées
+     ABSOLUES depuis l'angle, ils ne suivaient pas `m`. ⭐ La correction est juste
+     dans les deux sens et le lot 243 la GARDE, mais le garde qui l'attrapait ne
+     marche plus : il lisait *« aucun point DANS le rectangle »*, et un coin resté
+     en absolu est désormais dedans comme tout le reste. ⚔️ Mutant passé au vert le
+     21/09 — c'est ce vert-là qui a demandé ce test.
+
+     ⭐ CE QU'IL MESURE EST UNE PROPRIÉTÉ, ⛔ PAS UNE RECOPIE DU CODE : la
+     CONTINUITÉ du tracé. Les arêtes posent une ancre tous les 1,35 blg, et `ecart`
+     s'éteint à leurs deux bouts (`fondu`), donc une arête arrive au coin très
+     exactement sur la ligne moyenne. Si le biseau la suit, la jonction est un pas
+     ordinaire ; s'il reste en absolu, elle saute de `m`.
+     📏 MESURÉ aux six hauteurs : écart maximal entre deux ancres **2,35** blg quand
+     le biseau suit, **5,20** quand il ne suit pas. Le seuil est posé entre les deux
+     et il ne touche ni l'un ni l'autre. */
+  const budget = budgetDuParchemin();
+  for (const h of [360, 420, 500, 640, 700, 900]) {
+    const P = ancresDu(geometrieDuParchemin(375, h, budget).d);
+    let pire = 0, ou = null;
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length];
+      const saut = Math.hypot(b.x - a.x, b.y - a.y);
+      if (saut > pire) { pire = saut; ou = [a, b]; }
+    }
+    assert.ok(pire <= 3.5,
+      `⛔ à ${h} de haut, le tracé saute de ${pire.toFixed(2)} blg entre deux ancres : ` +
+      `le biseau de coin ne suit plus la ligne moyenne (${JSON.stringify(ou)})`);
   }
 });
 
