@@ -71,14 +71,23 @@ test("1 · trois dalles, dans l'ordre : le tambour, la grille, le pied", () => {
      tambours »*. ⭐ Les trois bandes redeviennent trois DALLES : même voile à 35 %, même liseré.
      ⛔ Et la raison invoquée en 222 n'est pas oubliée — si le viseur se noie, ça se REGARDE en
      image, ça ne se déduit pas d'une classe. */
+  /* 🔄 LA DEUXIÈME BANDE EST DEVENUE UNE **FENÊTRE** (21/09) — Eric : *« je veux que toute la
+     dalle se déplace… et que la dalle suivante apparaisse dans l'écran »*. ⭐ La bande du milieu
+     n'est plus une dalle : c'est la piste, et ce sont les DALLES qui la traversent. ⛔ Elle ne
+     porte donc ni voile ni liseré — un seul voile par bande, sinon 35 % sur 35 %. */
   const bandes = [...n.children].filter((e) => e.tagName !== "STYLE");
   assert.equal(bandes.length, 3, "⛔ l'écran n'a pas exactement trois bandes");
   assert.ok(bandes[0].className.includes("wares-tambour"), "la première est le tambour");
-  assert.ok(bandes[1].className.includes("wares-grille"), "la deuxième est la grille");
+  assert.ok(bandes[1].className.includes("wares-piste"), "la deuxième est la FENÊTRE des dalles");
   assert.ok(bandes[2].className.includes("wares-pied"), "la troisième est le pied");
+  assert.ok(!bandes[1].className.includes("wares-dalle"),
+    "⛔ la fenêtre porte un voile : elle en superposerait un second à celui des dalles qui passent");
   assert.ok(bandes[0].className.includes("wares-dalle"),
     "⛔ le tambour n'a pas sa dalle (Eric, 21/09 : « il doit y avoir une dalle sous les 2 tambours »)");
-  assert.equal(tous(n, ".wares-dalle").length, 3, "⛔ les trois bandes sont des dalles");
+  assert.ok(bandes[2].className.includes("wares-dalle"), "⛔ le pied non plus");
+  /* ⭐ et les dalles qui traversent en sont, elles : au moins une, la courante */
+  assert.ok(tous(bandes[1], ".wares-grille.wares-dalle").length >= 1,
+    "⛔ aucune dalle dans la fenêtre : il n'y a rien à faire traverser");
 });
 
 /* ⭐ TÉMOIN : ⛔ AUCUN TITRE. Eric, 20/09 : *« Equipment browser dégage »*.
@@ -569,10 +578,19 @@ test("26 · une plaque par sous-catégorie, et seule la courante est atteignable
     ],
     page: 2,
   });
-  const plaques = tous(n, ".wares-cases");
-  assert.equal(plaques.length, 3, "⛔ les voisines ne sont pas posées : la plaque ne pourra pas SUIVRE");
+  /* 🔴 UNE PLAQUE EST UNE **DALLE ENTIÈRE**, ⛔ pas son bloc de jetons — Eric, 21/09. Le garde
+     compte donc des `.wares-grille`, et il vérifie que chacune porte SA matière : c'est elle qui
+     voyage, avec son voile, son liseré et son filigrane. */
+  const plaques = tous(n, ".wares-grille");
+  assert.equal(plaques.length, 3, "⛔ les voisines ne sont pas posées : la dalle ne pourra pas SUIVRE");
   assert.deepEqual(plaques.map((p) => p.dataset.plaque), ["0", "1", "2"],
-    "⛔ chaque plaque dit quelle sous-catégorie elle montre — ⛔ jamais un indice deviné par sa place");
+    "⛔ chaque dalle dit quelle sous-catégorie elle montre — ⛔ jamais un indice deviné par sa place");
+  for (const p of plaques) {
+    assert.ok(p.className.includes("wares-dalle"),
+      "⛔ une plaque sans matière : rien ne « part » et rien n'« arrive », on voit des jetons se substituer");
+    assert.ok(tous(p, ".wares-fond").length === 1, "⛔ le filigrane voyage avec sa dalle");
+    assert.ok(tous(p, ".wares-gouttiere").length === 2, "⛔ les deux gouttières voyagent avec leur dalle");
+  }
   /* ⛔ ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS : sinon six plaques hors champ
      mettent 72 boutons invisibles sur le chemin de la touche Tab. */
   assert.deepEqual(plaques.map((p) => p.getAttribute("inert") !== null), [true, false, true],
@@ -611,19 +629,27 @@ test("27 · la piste suit la FRACTION du ruban, ⛔ pas son cran", () => {
    🔴 SANS `overflow: hidden`, la plaque sortante se verrait PAR-DESSUS les gouttières et le pied
    pendant toute la traversée. ⛔ Et le jour ne se choisit pas : la loi du 19/09 le déduit du
    rapport de la tuile à sa gouttière. */
-test("28 · la piste clippe, le train porte le jour du plan, et le filigrane ne voyage pas", () => {
+test("28 · la fenêtre clippe, porte le jour de la SCÈNE, et ne mène aucun geste", () => {
   const f = feuilleDesCotesWares();
-  assert.match(f, /\.wares-piste\{[^}]*overflow:hidden/,
-    "⛔ la fenêtre ne clippe pas : la plaque sortante déborderait sur tout l'écran");
-  const blocTrain = (f.match(/\.wares-train\{([^}]*)\}/) || [])[1] || "";
-  assert.match(blocTrain, new RegExp(`gap:${D.JOUR}px`),
-    `⛔ le jour du train n'est pas celui du plan (${D.JOUR}) — lu : « ${blocTrain} »`);
-  assert.equal(D.JOUR, Math.round(D.RENDU_GRILLE.jetons.l * (D.ECART / D.ROUE.tuile) * 100) / 100,
-    "⚖️ et le plan le DÉDUIT de la loi du 19/09, ⛔ il ne le choisit pas");
-  /* ⭐ le filigrane reste dans la cellule, ⛔ pas dans le train : le décor ne voyage pas */
+  const fenetre = (f.match(/\.wares-piste\{([^}]*)\}/) || [])[1] || "";
+  assert.match(fenetre, /overflow-x:hidden/,
+    "⛔ la fenêtre ne clippe pas : la dalle sortante déborderait sur tout l'écran");
+  assert.match(fenetre, new RegExp(`gap:${D.JOUR}px`),
+    `⛔ le jour de la fenêtre n'est pas celui du plan (${D.JOUR}) — lu : « ${fenetre} »`);
+  assert.match(fenetre, /position:relative/,
+    "⛔ sans repère positionné, `offsetLeft` compte depuis un ancêtre plus haut et la piste se pose à côté");
+  assert.match(fenetre, /touch-action:none/,
+    "⛔ la fenêtre prend un geste : le tambour doit mener, toujours");
+  assert.doesNotMatch(fenetre, /scroll-behavior:smooth|scroll-snap-type:x/,
+    "⛔ le suiveur n'aimante pas et n'ajoute pas d'inertie — sinon il traîne derrière le doigt");
+  /* ⚖️ LA PLAQUE EST LA SCÈNE, et le jour s'en déduit : `jour / plaque = écart / tuile`. */
+  assert.equal(D.JOUR, Math.round(D.DALLE.l * (D.ECART / D.ROUE.tuile) * 100) / 100,
+    "⚖️ le plan DÉDUIT le jour de la loi du 19/09, sur une plaque qui vaut la SCÈNE");
+  assert.equal(D.JOUR, 52.63, "⭐ et c'est le jour du sac au centième — c'est le même objet");
+  /* ⭐ le filigrane voyage DANS sa dalle : chaque boutique a son marchand */
   assert.match(f, /\.wares-fond\{[^}]*grid-column:2/,
-    "⛔ le filigrane a quitté la cellule : le marchand suivrait la marchandise");
-  /* ⛔ et une plaque de flex ne se laisse pas écraser par sa voisine */
-  assert.match(f, /\.wares-cases\{[^}]*flex:0 0 auto/,
-    "⛔ sans `flex: 0 0 auto`, deux plaques se partagent la fenêtre et rien ne glisse");
+    "⛔ le filigrane a quitté la cellule des jetons");
+  /* ⛔ et un wagon ne se laisse pas écraser par ses voisins */
+  assert.match(f, /\.wares-grille\{[^}]*flex:0 0 auto[^}]*inline-size:100%/,
+    "⛔ sans `flex: 0 0 auto` + `inline-size: 100%`, six dalles se partagent une fenêtre d'une seule");
 });

@@ -93,7 +93,13 @@ export const RENDU_GRILLE = Object.freeze({
    ⚖️ LA LOI DU 19/09 (`budget-le-jour-est-a-la-plaque-ce-que-la-gouttiere-est-a-la-tuile`) :
    *« le jour se DÉDUIT du rapport de la tuile à sa gouttière, ⛔ il ne se choisit pas »* —
    `jour / plaque = écart / tuile`. Dans le sac : `jour / 375 = 8 / 57 ⇒ 52,63`.
-   📏 ICI LA PLAQUE VAUT 277 *(les jetons seuls, ⛔ pas la dalle)* : `277 × 8 / 57 = 38,88`.
+   🔴 ET LA PLAQUE EST **LA DALLE ENTIÈRE**, ⛔ PAS SES JETONS — Eric, 2026-09-21, après m'avoir
+   montré son croquis deux fois : *« je veux que TOUTE LA DALLE se déplace vers la droite ou la
+   gauche et que la dalle suivante apparaisse dans l'écran ; tout tu me le fais mais À L'INTÉRIEUR
+   d'une dalle »*. J'avais fait glisser les 12 jetons dans la colonne du milieu *(277)* pendant que
+   le cadre restait ; c'est le CADRE qui doit partir, avec sa matière, son liseré, ses gouttières
+   et son filigrane. 📏 La plaque vaut donc **375** — la scène — et le jour `375 × 8 / 57 = 52,63`,
+   ⭐ exactement celui du sac, parce que c'est exactement le même objet.
 
    ⚠️ ET JE DIS CE QUI CHANGE, parce que la RAISON de la loi ne s'applique pas ici. Dans le sac,
    le jour doit tomber juste **parce qu'un verrou lie la plaque au ruban** : un doigt qui parcourt
@@ -101,7 +107,7 @@ export const RENDU_GRILLE = Object.freeze({
    verrou — Eric, 21/09 : *« la dalle de Wares ne sera pas swipable car elle a plusieurs pages »*.
    ⭐ On garde donc la FORME de la loi, pas son obligation : les deux écrans restent la même image
    à deux échelles, et le jour ne devient pas un nombre choisi à la main. */
-export const JOUR = Math.round(RENDU_GRILLE.jetons.l * (ECART / ROUE.tuile) * 100) / 100;
+export const JOUR = Math.round(DALLE.l * (ECART / ROUE.tuile) * 100) / 100;
 
 /* ── DALLE 3 · LE PIED ────────────────────────────────────────────────────────
    ⚖️ LA COLONNE DU MILIEU VAUT 96 PARCE QUE `Send to` EST LE PLUS LARGE (NORMES

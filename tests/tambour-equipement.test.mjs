@@ -446,7 +446,16 @@ test("10 — l'écran porte DEUX roues, leurs quatre tuners, les deux gouttière
   assert.equal(rows(node, '[data-ecran="wares"]').length, 1, "on est bien derrière la porte");
   assert.equal(rows(node, ".wares-roue").length, 2, "DEUX étages — le troisième niveau est une grille");
   assert.equal(rows(node, ".wares-tuner").length, 4, "deux tuners par étage, et il y a deux étages");
-  assert.equal(rows(node, ".wares-gouttiere").length, 2, "le compte d'objets et le compte de pages");
+  /* 🔄 DEPUIS QUE LA DALLE TRAVERSE (21/09), CHAQUE DALLE PORTE SES DEUX GOUTTIÈRES — elles
+     voyagent avec elle, donc l'écran en compte deux PAR dalle posée. ⛔ En compter deux sur tout
+     l'écran mesurait un écran à une seule dalle : il rendait 12 pour six.
+     ⭐ Ce que la loi tient est « deux par dalle », et c'est ce que le garde lit. */
+  const dallesQuiPassent = rows(node, ".wares-grille");
+  assert.ok(dallesQuiPassent.length >= 1, "⛔ aucune dalle dans la fenêtre");
+  for (const d of dallesQuiPassent) {
+    assert.equal(rows(d, ".wares-gouttiere").length, 2,
+      `⛔ la dalle ${d.dataset.plaque} n'a pas ses deux gouttières : le compte d'objets et le compte de pages`);
+  }
   /* ⛔ « DOUZE » EST UN PLAFOND DE PAGE, PAS UN COMPTE DE CASES — et c'est le garde qui me
      l'a appris : la première sous-catégorie de ce montage n'a que TROIS objets, et une page
      courte n'en invente pas. ⭐ Ce que la loi dit est « au plus douze », et le nombre lui-même

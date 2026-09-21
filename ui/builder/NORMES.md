@@ -3924,6 +3924,24 @@ une animation qu'on **joue** — c'est la **conséquence** du fait que la plaque
 animation jouée après coup **raconte** le mouvement ; elle ne le **fait** pas. ⛔ Et la différence
 se voit : pendant tout le trajet du doigt, la version « film » ne montre rien.
 
+🔴 **ET LA PLAQUE EST LA DALLE ENTIÈRE, ⛔ PAS SON BLOC DE JETONS** — Eric, 2026-09-21, après le
+croquis et deux explications : *« je veux que **TOUTE LA DALLE** se déplace vers la droite ou la
+gauche et que la dalle suivante apparaisse dans l'écran ; tout tu me le fais mais **à l'intérieur
+d'une dalle** »*. J'avais fait défiler les 12 jetons dans la colonne du milieu *(277)* en laissant
+le cadre — voile, liseré, gouttières, filigrane — **planté**.
+⭐ **ET LE SAC L'ÉCRIT DÉJÀ, EN TOUTES LETTRES**, sur `.sac-dalles` : *« le trait de coupe vit sur
+CHAQUE DALLE, pas ici : **une fenêtre encadrée montre un trou fixe, une dalle encadrée voyage avec
+le sien** »*. ⛔ J'avais le croquis **et** le code, et j'ai quand même mis trois versions à le lire.
+📏 **LA PLAQUE VAUT DONC LA SCÈNE (375)**, la fenêtre aussi, et le jour `375 × 8 / 57 = 52,63` —
+celui du sac au centième, **parce que c'est le même objet**. Mesuré : six dalles aux places
+`0 · 428 · 855 · 1283 · 1711 · 2138`, soit un pas de **427,63**.
+⛔ **ET LA FENÊTRE NE PORTE NI VOILE NI LISERÉ** : un seul voile par bande, sinon 35 % par-dessus
+35 % — la faute qu'Agent Equipment a livrée et qu'Eric a diagnostiquée avant lui.
+📌 **CE QUI DIVERGE DU SAC, ET JE LE NOMME** : là-bas les gouttières sont sorties dans la bande
+fixe ; ici elles **voyagent avec leur dalle**, parce qu'Eric a dit *« toute la dalle »* et parce que
+chaque plaque annonce alors **son** compte et **sa** page. Une gouttière restée fixe dirait les
+chiffres d'une dalle pendant qu'on en regarde une autre.
+
 ⚖️ **CE QU'IL FAUT POUR SUIVRE : QUE LES PLAQUES SOIENT DÉJÀ LÀ** — Eric, 21/09 : *« il faut
 uniquement la première page de chaque dalle »*. Une plaque par sous-catégorie, chacune sur sa
 **page 1**, ⛔ sauf la courante qui porte la page où le joueur est. 📏 Coût borné, mesuré : la
@@ -3956,6 +3974,14 @@ réassignée par le rendu suivant, et le tambour d'un écran écrivait dans la p
 **fermeture** qui la tient. Les deux naissent et meurent ensemble ; il n'y a plus rien à tenir
 d'accord. 📌 *Une indirection par l'état du module est un trou par construction* — rien n'y garantit
 que les deux bouts appartiennent au même rendu.
+
+🔴 **ET UNE MESURE SUR DES FRACTIONS PROPRES NE PROUVE RIEN** — c'est Agent Equipment qui m'a
+repris : *« tes 78 / 159 / 237 / 315 sont des fractions propres, donc probablement des positions
+que l'aimantation ne corrige pas ; mes trois vérifications vertes tombaient toutes sur des crans
+déjà alignés, et le défaut vivait exactement entre les points que je n'avais jamais mesurés »*.
+⭐ **Le témoin est une position SALE, et une IMAGE.** Mesuré à `0,37` tuile : la piste rend
+**159,30** pour `427,63 × 0,37 = 158,22` attendus — **0,8 blg** d'écart, qui est l'arrondi de mise
+en page *(374 rendu pour 375 au plan)*, ⛔ pas une correction d'aimantation.
 
 ⭐ **ET LA PLACE D'UNE PLAQUE SE LIT, ⛔ ELLE NE SE MULTIPLIE PAS** : entre deux plaques il y a un
 jour, donc `largeur × k` n'est pas la place de la plaque `k`. On encadre entre deux places lues dans

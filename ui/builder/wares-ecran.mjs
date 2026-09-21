@@ -221,11 +221,36 @@ export function feuilleDesCotesWares() {
   r.push(`.wares .roue-cale{flex:0 0 auto;align-self:stretch;` +
          `inline-size:${px(coteDeLaCale(ROUE))}}`);
 
-  /* ── dalle 2 : deux gouttières et la grille, sans écart entre elles ──
-     ⛔ LES GOUTTIÈRES NE PARTICIPENT PAS AU `gap` : si elles le faisaient, la dalle vaudrait
-     2×1fr + 277 + 4×8 = 375 avec un `1fr` de 41, et les colonnes ne tomberaient plus sur
-     49 · 144 · 239. Le `gap` vit dans la SOUS-grille, où il sépare des jetons. */
-  r.push(`.wares-grille{display:grid;grid-template-columns:1fr ${px(RENDU_GRILLE.jetons.l)} 1fr;` +
+  /* ── dalle 2 : LA FENÊTRE, ET DES DALLES ENTIÈRES QUI LA TRAVERSENT ──────────
+     🔴 ERIC, 2026-09-21 : *« je veux que TOUTE LA DALLE se déplace vers la droite ou la gauche
+     et que la dalle suivante apparaisse dans l'écran ; tout tu me le fais mais À L'INTÉRIEUR
+     d'une dalle »*. ⛔ J'avais fait défiler les jetons dans la colonne du milieu (277) en
+     laissant le cadre planté. C'est le CADRE qui part.
+     ⭐ ET LE SAC L'ÉCRIT DÉJÀ, sur `.sac-dalles` : *« le trait de coupe vit sur CHAQUE DALLE,
+     pas ici : une fenêtre encadrée montre un trou fixe, une dalle encadrée voyage avec le
+     sien »*. J'avais le croquis ET le code. */
+  /* ⚖️ LA FENÊTRE FAIT LA SCÈNE — copie de `.sac-dalles`, dont le plan dit `{x: 0, l: 375}`.
+     ⛔ ELLE NE PORTE NI VOILE NI LISERÉ : un seul voile par bande, sinon 35 % sur 35 % — la
+     faute qu'Agent Equipment a livrée et qu'Eric a diagnostiquée avant lui.
+     🔴 `position: relative` N'EST PAS DÉCORATIF : le verrou lit `offsetLeft`, qui se compte
+     depuis le plus proche ancêtre POSITIONNÉ. Sans ce mot, les plaques comptent depuis un
+     ancêtre plus haut et la piste se pose à côté — mesuré le 21/09 : 49 · 365 · 681 au lieu
+     de 0 · 316 · 632.
+     ⛔ AUCUN GESTE NE LUI APPARTIENT (`touch-action: none`) : le tambour mène, toujours.
+     ⛔ NI AIMANTATION NI `scroll-behavior: smooth` : *« le suiveur n'aimante pas — sinon il ne
+     peut pas suivre »*. 📏 Mesuré dans le sac : 383 au lieu de 563 à mi-chemin, parce qu'une
+     aimantation `mandatory` REFUSE toute position intermédiaire. L'aimantation appartient au
+     MENEUR, et une inertie ajoutée ferait traîner la plaque derrière le doigt. */
+  r.push(`.wares-piste{display:flex;gap:${px(JOUR)};position:relative;` +
+         `overflow-x:hidden;overflow-y:hidden;scroll-snap-type:none;touch-action:none}`);
+  /* ⭐ CHAQUE DALLE EST UN WAGON : `flex: 0 0 auto` et la largeur de la FENÊTRE — copie de
+     `.sac-dalle`, qui fait `inline-size: 100%`. ⛔ Sans `0 0 auto`, six dalles dans une fenêtre
+     d'une seule se partagent la place, et il n'y a plus rien à faire traverser.
+     ⛔ LES GOUTTIÈRES NE PARTICIPENT PAS AU `gap` de la dalle : si elles le faisaient, la dalle
+     vaudrait 2×1fr + 277 + 4×8 = 375 avec un `1fr` de 41, et les colonnes ne tomberaient plus
+     sur 49 · 144 · 239. Le `gap` vit dans la SOUS-grille, où il sépare des jetons. */
+  r.push(`.wares-grille{flex:0 0 auto;inline-size:100%;block-size:100%;` +
+         `display:grid;grid-template-columns:1fr ${px(RENDU_GRILLE.jetons.l)} 1fr;` +
          `padding-block:${px(REMBOURRAGE_GRILLE)}}`);
   r.push(`.wares-cases{display:grid;grid-template-columns:repeat(${COLONNES_GRILLE},${px(JETON.l)});` +
          `grid-template-rows:repeat(${RANGEES_GRILLE},${px(JETON.h)});gap:${px(ECART)}}`);
@@ -233,47 +258,13 @@ export function feuilleDesCotesWares() {
      reste lisible le jour comme la nuit. L'image posée telle quelle (elle est NOIRE)
      s'évanouirait sur le fond de nuit.
      🔴 ET IL EST UN ORGANE DE LA GRILLE, ⛔ PLUS UN ABSOLU — mon propre garde 13 m'a repris :
-     je l'avais posé en `left`/`top`, ce que le sacré n° 3 refuse. ⭐ Posé dans LA MÊME cellule
-     que les jetons, il se centre tout seul et déborde de 6 en haut et en bas — exactement le
-     débord que le plan décrit, sans qu'aucun des deux nombres soit écrit. */
+     je l'avais posé en `left`/`top`, ce que le sacré n° 3 refuse.
+     ⭐ ET IL VOYAGE AVEC SA DALLE, puisqu'il est DANS la dalle : chaque boutique a son marchand. */
   const url = `url("./assets/${FOND.image}${versionQuery(import.meta.url)}")`;
   r.push(`.wares-fond{grid-column:2;grid-row:1;place-self:center;` +
          `width:${px(FOND.l)};height:${px(FOND.h)};` +
          `mask-image:${url};-webkit-mask-image:${url}}`);
-  /* ⚖️ LA PISTE EST LA FENÊTRE, LE TRAIN EST CE QUI GLISSE — deux nœuds parce que ce sont deux
-     rôles, exactement comme la roue et son ruban. ⛔ La piste CLIPPE : sans `overflow: hidden`,
-     la plaque sortante se verrait par-dessus les gouttières et le pied.
-     ⭐ ET LA PISTE PREND LA CELLULE DES JETONS — donc le filigrane, qui est dans la même cellule,
-     reste DERRIÈRE et ne bouge pas. C'est voulu : le marchand est le décor de la boutique, pas
-     son contenu. Ce qui voyage est ce qu'on achète. */
-  /* ⭐ ET C'EST LA PISTE QUI DÉFILE, comme dans le sac. `overflow: hidden` clippe SANS donner
-     de barre ni de geste : un élément caché reste défilable **par script**, et c'est exactement
-     ce qu'on veut — la plaque ne se glisse pas au doigt (Eric, 21/09 : *« la dalle de Wares ne
-     sera pas swipable car elle a plusieurs pages »*), elle se déplace quand le tambour le dit. */
-  /* ⛔ ⛔ AUCUN `scroll-behavior: smooth` ICI, ET C'EST LA DIFFÉRENCE ENTRE UN VERROU ET UN FILM.
-     Le verrou écrit la position à CHAQUE image : un défilement « en douceur » ajouterait sa
-     propre inertie par-dessus celle du doigt, et la plaque traînerait derrière le tambour —
-     exactement le décalage que le sac a mis une soirée à tuer.
-     ⛔ ET PAS D'AIMANTATION NON PLUS : *« le suiveur n'aimante pas — sinon il ne peut pas
-     suivre »*. 📏 Mesuré dans le sac le 19/09, roue tenue à mi-chemin : les dalles rendaient
-     383 au lieu de 563, parce qu'une aimantation `mandatory` REFUSE toute position intermédiaire.
-     ⭐ L'aimantation appartient au MENEUR, et le meneur est le tambour.
-     📌 `prefers-reduced-motion` n'a rien à retirer ici : il n'y a aucune animation à couper —
-     la plaque est là où le doigt l'a mise, jamais en train d'y aller. */
-  /* 🔴 `position: relative` N'EST PAS DÉCORATIF, ET ÇA M'A COÛTÉ UNE MESURE FAUSSE. Le verrou
-     lit `offsetLeft`, qui se compte depuis le plus proche ancêtre POSITIONNÉ. Sans ce mot, les
-     plaques rendaient **49 · 365 · 681 …** — la gouttière de gauche était dans le compte, et la
-     piste se serait posée 49 blg à côté. ⭐ Le sac a la même ligne, pour la même raison.
-     📏 Mesuré : 49 · 365 · 681 avant, 0 · 316 · 632 après — et 316 = 277 + 38,88, le pas juste. */
-  r.push(`.wares-piste{grid-column:2;grid-row:1;position:relative;overflow:hidden;` +
-         `scroll-snap-type:none;touch-action:none}`);
-  /* ⚖️ LE JOUR VIENT DU PLAN, et le plan le DÉDUIT de la loi du 19/09 — ⛔ il ne se choisit pas.
-     ⭐ Pendant la traversée on voit la dalle passer entre celle qui part et celle qui arrive ;
-     au repos il est hors champ, parce que le train ne porte qu'une plaque. */
-  r.push(`.wares-train{display:flex;gap:${px(JOUR)}}`);
-  /* ⛔ ET LA PLAQUE NE SE LAISSE PAS ÉCRASER : dans un flex, deux plaques de 277 dans une fenêtre
-     de 277 se partageraient la place, et il n'y aurait plus rien à faire glisser. */
-  r.push(`.wares-cases{flex:0 0 auto;inline-size:${px(RENDU_GRILLE.jetons.l)}}`);
+  r.push(`.wares-cases{grid-column:2;grid-row:1}`);
 
   /* ── dalle 3 : trois colonnes, trois rangées, les deux côtés qui enjambent ──
      ⭐ ET VOICI TOUT LE CENTRAGE D'ERIC, EN DEUX DÉCLARATIONS : la cellule enjambe les
@@ -596,13 +587,12 @@ export function construireLesWares(o = {}) {
      précédent »*, mais obtenue sans mémoire du tout. */
   const piste = el("div", "wares-piste");
   piste.dataset.organe = "piste";
-  const train = el("div", "wares-train");
-  piste.append(train);
-  /* ⭐ LE VERROU — il ne lit QUE la position du ruban, et il écrit dans CETTE piste-ci. */
+  /* ⭐ LE VERROU — il ne lit QUE la position du ruban, et il écrit dans CETTE piste-ci.
+     ⛔ Plus de « train » intermédiaire : la piste EST le flex, comme `.sac-dalles`. */
   const suivre = (p) => {
     if (piste.isConnected === false) return;
     const xs = [];
-    for (const n of train.children) xs.push(typeof n.offsetLeft === "number" ? n.offsetLeft : 0);
+    for (const n of piste.children) xs.push(typeof n.offsetLeft === "number" ? n.offsetLeft : 0);
     if (xs.length) piste.scrollLeft = placeDeLaPiste(p, xs);
   };
 
@@ -627,62 +617,70 @@ export function construireLesWares(o = {}) {
              suivre),
   );
 
-  /* ── DALLE 2 ─────────────────────────────────────────────────────────────── */
-  const grille = el("div", "wares-grille wares-dalle");
-  const fond = el("div", "wares-fond");
-  fond.setAttribute("aria-hidden", "true");
-  grille.append(fond);
-
-  /* ⚖️ UNE PLAQUE PAR SOUS-CATÉGORIE, TOUTES POSÉES — Eric, 21/09 : *« il faut uniquement la
-     première page de chaque dalle »*. ⭐ C'est ce qui rend le verrou possible : une plaque qu'il
-     faudrait construire au moment où le doigt passe dessus ne pourrait jamais suivre.
-     ⛔ Et la COURANTE porte la page où le joueur est ; les voisines n'ont que leur page 1 —
-     exact, puisque *« on arrive sur la page 1 »* dès qu'on change de sous-catégorie.
-     📌 Repli : un appelant qui ne donne pas `plaques` en reçoit une, faite de `objets` — c'est
-     ce que font les bancs, et ⛔ ça ne doit pas les casser. */
+  /* ── DALLE 2 — ⭐ ET C'EST LA DALLE ELLE-MÊME QUI TRAVERSE L'ÉCRAN ────────────
+     🔴 ERIC, 2026-09-21, après le croquis et deux explications : *« je veux que TOUTE LA DALLE
+     se déplace vers la droite ou la gauche et que la dalle suivante apparaisse dans l'écran ;
+     tout tu me le fais mais À L'INTÉRIEUR d'une dalle »*.
+     ⛔ CE QUE J'AVAIS FAIT, ET C'EST LA FAUTE : j'avais fait glisser les 12 jetons dans la
+     colonne du milieu *(277)* pendant que le cadre — voile, liseré, gouttières, filigrane —
+     restait planté. Le cadre ne reste pas : **il part avec sa plaque**.
+     ⭐ ET LE SAC LE DIT EN TOUTES LETTRES dans `shell.css`, sur `.sac-dalles` : *« le trait de
+     coupe vit sur CHAQUE DALLE, pas ici : une fenêtre encadrée montre un trou fixe, une dalle
+     encadrée voyage avec le sien »*. C'est exactement la même phrase, et j'avais le code.
+     📌 LA PLAQUE VAUT DONC LA SCÈNE (375), et le jour `375 × 8 / 57 = 52,63` — celui du sac au
+     centième, parce que c'est le même objet. */
   const plaques = Array.isArray(o.plaques) && o.plaques.length
     ? o.plaques
     : [{ nom: "", objets: o.objets || [], compte: o.compte, pages: o.pages }];
   const courante = Math.max(0, Math.min(o.sousCategorie | 0, plaques.length - 1));
-  const ici = plaques[courante] || { objets: [] };
-  const pages = Math.max(1, ici.pages | 0 || 1);
+  const pages = Math.max(1, (plaques[courante] || {}).pages | 0 || 1);
 
   for (let k = 0; k < plaques.length; k += 1) {
+    const p = plaques[k] || { objets: [] };
+    /* ⭐ UNE DALLE COMPLÈTE : sa matière, son liseré, son filigrane et ses deux gouttières.
+       ⛔ Aucune de ces trois choses ne reste derrière — c'est ça, « toute la dalle ». */
+    const grille = el("div", "wares-grille wares-dalle");
+    grille.dataset.plaque = String(k);
+    /* ⛔ ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS : six dalles hors champ, c'est
+       72 boutons invisibles sur le chemin de la touche Tab. */
+    if (k !== courante) grille.setAttribute("inert", "");
+
+    const fond = el("div", "wares-fond");
+    fond.setAttribute("aria-hidden", "true");
+    grille.append(fond);
+
     const cases = el("div", "wares-cases");
     cases.setAttribute("role", "list");
-    /* ⭐ LA PLAQUE DIT QUELLE SOUS-CATÉGORIE ELLE MONTRE — une LECTURE pour le verrou et pour
-       les gardes, ⛔ jamais un indice deviné par la position dans le DOM. */
-    cases.dataset.plaque = String(k);
-    /* ⛔ ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS : `inert` retire au clavier ce que
-       l'œil ne voit pas. Sans lui, six plaques hors champ mettent 72 boutons invisibles sur le
-       chemin du doigt et de la touche Tab. */
-    if (k !== courante) cases.setAttribute("inert", "");
-    for (const item of (plaques[k].objets || []).slice(0, PAR_PAGE)) {
+    for (const item of (p.objets || []).slice(0, PAR_PAGE)) {
       const c = el("div", "wares-case");
       c.setAttribute("role", "listitem");
       c.append(jeton(item, o));
       cases.append(c);
     }
-    train.append(cases);
+    /* ⭐ LES GOUTTIÈRES VOYAGENT AVEC LEUR DALLE, et c'est ce qui les rend justes : chaque
+       plaque annonce SON compte et SA page. ⛔ Une gouttière restée dans un cadre fixe dirait
+       les chiffres d'une dalle pendant qu'on en regarde une autre. */
+    const pagesDeK = Math.max(1, p.pages | 0 || 1);
+    const pageDeK = k === courante ? (o.page | 0) : 0;
+    grille.append(
+      gouttiere("gauche", String(p.compte ?? (p.objets || []).length), pagesDeK > 1, k === courante ? o.surPage : null),
+      cases,
+      gouttiere("droite", `${pageDeK + 1}/${pagesDeK}`, pagesDeK > 1, k === courante ? o.surPage : null),
+    );
+    piste.append(grille);
   }
 
-  /* ⭐ LA PISTE SE POSE APRÈS LE MONTAGE, et sa place se LIT — `offsetLeft` de la plaque
-     courante. ⛔ Pas `largeur × k` : entre deux plaques il y a un jour, et l'erreur d'un pas
+  /* ⭐ LA PISTE SE POSE APRÈS LE MONTAGE, et sa place se LIT — `offsetLeft` de la dalle
+     courante. ⛔ Pas `largeur × k` : entre deux dalles il y a un jour, et l'erreur d'un pas
      déduit GRANDIT avec le rang. */
   pisteEnAttente = {
     poser() {
       if (piste.isConnected === false) return false;
-      const n = train.children[courante];
+      const n = piste.children[courante];
       if (n && typeof n.offsetLeft === "number") piste.scrollLeft = n.offsetLeft;
       return true;
     },
   };
-
-  grille.append(
-    gouttiere("gauche", String(ici.compte ?? (ici.objets || []).length), pages > 1, o.surPage),
-    piste,
-    gouttiere("droite", `${(o.page | 0) + 1}/${pages}`, pages > 1, o.surPage),
-  );
 
   /* ── DALLE 3 ─────────────────────────────────────────────────────────────── */
   const pied = el("div", "wares-pied wares-dalle");
@@ -769,7 +767,7 @@ export function construireLesWares(o = {}) {
 
   pied.append(rangeeDuPied(o));
 
-  noeud.append(tambour, grille, pied);
+  noeud.append(tambour, piste, pied);
   /* ⚖️ LA BOURSE EST UN POPUP, PAS UNE VUE — Eric, 16/09 : *« ça prend la place que ça doit,
      c'est un popup »*. ⛔ Elle ne passe donc pas par `montrer()` : une vue remplacerait l'écran
      et écrirait la 3ᵉ ligne du belt. Un popup recouvre et n'écrit rien. */
