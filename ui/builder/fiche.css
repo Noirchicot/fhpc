@@ -605,12 +605,28 @@
    le gabarit pièce par pièce. CHOOSE porte un LIBELLÉ : il est de la
    famille octogonale (registre §6), habillé par shell.css comme Done et
    Next. ⚠️ fiche.css charge APRÈS shell.css : tout habit résiduel écrit ici
-   BATTRAIT la famille — ne rien y remettre. */
+   BATTRAIT la famille — ne rien y remettre.
+
+   🔴 ET IL EN RESTAIT UN, SIX LIGNES SOUS CET AVERTISSEMENT — `color:
+   var(--text)`, retiré le 21/09 (lot 244). ⚠️ Une règle écrite dans un
+   commentaire n'existe pas : celle-ci vit désormais dans un garde
+   (`tests/encre-du-bouton.test.mjs`), qui la fait rougir au lieu de la répéter.
+
+   📏 CE QU'ELLE COÛTAIT, MESURÉ AU NAVIGATEUR (21/09, 512 × 764, thème JOUR,
+   le VRAI bouton du popup « SRD or Fate's Hand? ») : `--text` vaut #2d2c2a le
+   jour, la face du bouton vaut #3d3424 et **ne bascule pas** (jeton unique,
+   16/09) — **1,14:1**, le mot ne se lisait plus. De nuit `--text` vaut #d8d3c9
+   et rendait 8,21:1 : le défaut était MUET un thème sur deux.
+   ⭐ ET IL SE CACHAIT AUSSI DERRIÈRE LA SPÉCIFICITÉ : partout où le bouton vit
+   dans `.parcours-pied`, un sélecteur du patron à (0,1,1) bat ce `.fiche-action`
+   à (0,1,0) et l'encre était juste. Seuls les `.fiche-action` ISOLÉS — les neuf
+   popups à actions et les douze `Choose` des fiches — portaient le défaut.
+   ⛔ La réparation est la SUPPRESSION du second écrivain, pas un sélecteur plus
+   spécifique posé sur le popup : celui-là n'aurait réparé qu'un cas. */
 .fiche-action {
   flex: 1 1 0;
   min-height: var(--touch);
   font-size: var(--t3);
-  color: var(--text);
 }
 /* ⏳ ÉTEINTS, ET ILS LE DISENT. Le panneau `lore` plein écran (avec son
    `copier`) est un organe partagé par trois écrans et il a son propre lot ;
