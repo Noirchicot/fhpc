@@ -638,8 +638,20 @@ test("28 · la fenêtre clippe, porte le jour de la SCÈNE, et ne mène aucun ge
     `⛔ le jour de la fenêtre n'est pas celui du plan (${D.JOUR}) — lu : « ${fenetre} »`);
   assert.match(fenetre, /position:relative/,
     "⛔ sans repère positionné, `offsetLeft` compte depuis un ancêtre plus haut et la piste se pose à côté");
-  assert.match(fenetre, /touch-action:none/,
-    "⛔ la fenêtre prend un geste : le tambour doit mener, toujours");
+  /* 🔴 `pan-y`, ⛔ PAS `none` — et ce garde tient les DEUX sens à la fois.
+     `none` ne dit pas *« je ne prends aucun geste »* : il dit **« je les prends tous »**. Sur une
+     fenêtre qui fait la scène entière, ça confisque le défilement VERTICAL de la page — et la
+     page défile vraiment : `echelle.mjs` porte `ECHELLE_PLANCHER = 0.96`, *« sous le plancher
+     l'app DÉBORDE, et la page défile »*. ⭐ `pan-y` rend la verticale et ne prend rien de
+     l'horizontal, ce qu'on veut d'une dalle qui n'est pas glissable au doigt. */
+  assert.match(fenetre, /touch-action:pan-y/,
+    "⛔ la fenêtre doit RENDRE la verticale à la page (`pan-y`) — `none` piège le doigt");
+  assert.doesNotMatch(fenetre, /touch-action:(none|auto|pan-x)\b/,
+    "⛔ `none` prend tout, `auto` et `pan-x` rendent l'horizontal au doigt : la dalle n'est pas glissable");
+  const plancher = fs.readFileSync(path.join(UI, "echelle.mjs"), "utf8");
+  assert.match(plancher, /ECHELLE_PLANCHER\s*=\s*0\.9\d/,
+    "⚖️ et la raison tient tant que l'app DÉBORDE sous un plancher d'échelle : si ce plancher " +
+    "disparaît, la page ne défile plus et ce garde doit être rediscuté, ⛔ pas supprimé en passant");
   assert.doesNotMatch(fenetre, /scroll-behavior:smooth|scroll-snap-type:x/,
     "⛔ le suiveur n'aimante pas et n'ajoute pas d'inertie — sinon il traîne derrière le doigt");
   /* ⚖️ LA PLAQUE EST LA SCÈNE, et le jour s'en déduit : `jour / plaque = écart / tuile`. */

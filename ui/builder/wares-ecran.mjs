@@ -236,13 +236,25 @@ export function feuilleDesCotesWares() {
      depuis le plus proche ancêtre POSITIONNÉ. Sans ce mot, les plaques comptent depuis un
      ancêtre plus haut et la piste se pose à côté — mesuré le 21/09 : 49 · 365 · 681 au lieu
      de 0 · 316 · 632.
-     ⛔ AUCUN GESTE NE LUI APPARTIENT (`touch-action: none`) : le tambour mène, toujours.
+     🔴 `touch-action: pan-y`, ⛔ SURTOUT PAS `none` — et la différence confisque un geste.
+     J'avais écrit `none` en croyant dire *« je ne prends aucun geste »* ; `none` dit l'inverse :
+     **je les prends TOUS et je n'en rends aucun**. Or cette fenêtre fait la scène entière, donc
+     l'essentiel de la surface tactile.
+     📏 ET LA PAGE DÉFILE VRAIMENT SOUS ELLE : `echelle.mjs` porte `ECHELLE_PLANCHER = 0.96`, avec
+     la raison écrite à côté — *« sous le plancher l'app ne rétrécit plus : elle DÉBORDE, et la
+     page défile. C'est le choix d'Eric »*. Sur un petit écran, un doigt posé ici ne pourrait donc
+     plus faire défiler la page : il serait piégé, et ça glisserait partout **sauf** là.
+     ⭐ `pan-y` rend la verticale à la page et ne prend rien de l'horizontal — c'est exactement ce
+     qu'on veut d'une dalle qui n'est pas glissable au doigt. Le sac dit la même chose en miroir
+     sur `.sac-dalles` : `pan-x`, *« le geste vertical reste à la page, l'horizontal est à nous »*.
+     📌 Et `touch-action` s'INTERSECTE avec les ancêtres : un `none` posé haut ne se rattrape pas
+     plus bas. ⭐ Repéré par Agent Equipment, vérifié dans `echelle.mjs` avant d'être corrigé.
      ⛔ NI AIMANTATION NI `scroll-behavior: smooth` : *« le suiveur n'aimante pas — sinon il ne
      peut pas suivre »*. 📏 Mesuré dans le sac : 383 au lieu de 563 à mi-chemin, parce qu'une
      aimantation `mandatory` REFUSE toute position intermédiaire. L'aimantation appartient au
      MENEUR, et une inertie ajoutée ferait traîner la plaque derrière le doigt. */
   r.push(`.wares-piste{display:flex;gap:${px(JOUR)};position:relative;` +
-         `overflow-x:hidden;overflow-y:hidden;scroll-snap-type:none;touch-action:none}`);
+         `overflow-x:hidden;overflow-y:hidden;scroll-snap-type:none;touch-action:pan-y}`);
   /* ⭐ CHAQUE DALLE EST UN WAGON : `flex: 0 0 auto` et la largeur de la FENÊTRE — copie de
      `.sac-dalle`, qui fait `inline-size: 100%`. ⛔ Sans `0 0 auto`, six dalles dans une fenêtre
      d'une seule se partagent la place, et il n'y a plus rien à faire traverser.

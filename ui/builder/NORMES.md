@@ -3935,6 +3935,19 @@ le sien** »*. ⛔ J'avais le croquis **et** le code, et j'ai quand même mis tr
 📏 **LA PLAQUE VAUT DONC LA SCÈNE (375)**, la fenêtre aussi, et le jour `375 × 8 / 57 = 52,63` —
 celui du sac au centième, **parce que c'est le même objet**. Mesuré : six dalles aux places
 `0 · 428 · 855 · 1283 · 1711 · 2138`, soit un pas de **427,63**.
+🔴 **ET LA FENÊTRE REND LA VERTICALE À LA PAGE (`touch-action: pan-y`), ⛔ ELLE NE PREND PAS
+`none`.** J'avais écrit `none` en croyant dire *« je ne prends aucun geste »* ; `none` dit
+l'inverse — **je les prends tous et je n'en rends aucun**. 📏 Or cette fenêtre fait la scène
+entière, et la page défile vraiment sous elle : `echelle.mjs` porte `ECHELLE_PLANCHER = 0.96`,
+*« sous le plancher l'app ne rétrécit plus : elle DÉBORDE, et la page défile. C'est le choix
+d'Eric »*. Un doigt posé là aurait donc été **piégé** : ça glisse partout sauf sur la moitié de
+l'écran. ⭐ `pan-y` rend la verticale et ne prend rien de l'horizontal — exactement ce qu'on veut
+d'une dalle qui n'est pas glissable au doigt ; le sac dit la même chose en miroir (`pan-x`,
+*« le geste vertical reste à la page, l'horizontal est à nous »*).
+📌 **ET `touch-action` S'INTERSECTE AVEC LES ANCÊTRES** : un `none` posé haut ne se rattrape pas
+plus bas. ⭐ Repéré par Agent Equipment, vérifié dans `echelle.mjs` avant d'être corrigé — ⛔ un
+avis de pair se mesure comme un autre.
+
 ⛔ **ET LA FENÊTRE NE PORTE NI VOILE NI LISERÉ** : un seul voile par bande, sinon 35 % par-dessus
 35 % — la faute qu'Agent Equipment a livrée et qu'Eric a diagnostiquée avant lui.
 📌 **CE QUI DIVERGE DU SAC, ET JE LE NOMME** : là-bas les gouttières sont sorties dans la bande
