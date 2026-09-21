@@ -302,6 +302,20 @@ export function feuilleDesCotesWares() {
      exactement ça : *« une grille dit COMBIEN et OÙ ; un repli le découvre à l'exécution »*.
      ⭐ Et je l'avais déjà écrit pour les tuners dix lignes plus haut, sans le faire ici. */
   r.push(`.wares-cote[data-cote="gauche"]{grid-column:1}`);
+  /* ⭐ LES DEUX TALLY GARDENT LEUR RANGÉE, L'ENCOMBREMENT PREND LA SUIVANTE. La cellule reste
+     centrée sur ses deux axes : le plan dit 44 pour les cibles et 14 pour le voyant, et l'écart
+     de 8 les sépare — ⛔ aucune de ces trois cotes n'est retapée, elles viennent du plan. */
+  {
+    const enc = ORGANES.find((x) => x.nom === "ENCOMBREMENT");
+    r.push(`.wares-cote[data-cote="gauche"]{grid-auto-flow:row;gap:${px(ECART)}}`);
+    r.push(`.wares-tallys{display:grid;grid-auto-flow:column;` +
+           `gap:${px(ecartDessins - bords)};place-items:center}`);
+    /* ⛔ ET IL NE DÉBORDE PAS DE SA COLONNE : une ligne qui ne tient pas se VOIT, elle ne se
+       fait pas défiler en douce — la loi d'Eric sur un contenu en trop. */
+    r.push(`.wares [data-organe="encombrement"]{inline-size:${px(enc.l)};block-size:${px(enc.h)};` +
+           `display:grid;place-items:center;white-space:nowrap;` +
+           `font-size:${px(11)};color:var(--text-soft)}`);
+  }
   r.push(`.wares-cote[data-cote="droite"]{grid-column:3}`);
   /* ⚖️ LE VOYANT DU MONTANT SE POSE **SUR** LA BOURSE — même cellule, même boîte, et c'est le
      plan qui les donne (`MONTANT`, `dans: "PURSE"`). ⛔ On ne le tape pas : `pointer-events:none`
@@ -711,6 +725,10 @@ export function construireLesWares(o = {}) {
      traverserait tout seul. ⛔ La recopier ici en ferait une seconde vérité. */
   const gauche = el("div", "wares-cote");
   gauche.dataset.cote = "gauche";
+  /* ⭐ LA CELLULE DE GAUCHE DEVIENT UNE PILE À DEUX RANGS — les deux Tally, puis l'encombrement
+     dessous. ⛔ Sans ce rang déclaré, le `grid-auto-flow: column` de la cellule poserait le
+     voyant À CÔTÉ des Tally : une place découverte à l'exécution, ce que le sacré n° 3 retire. */
+  const tallys = el("div", "wares-tallys");
   const compteurs = { "party-tally": 0, tally: o.compteTally || 0 };
   for (const { id, mot, inerte } of ORGANES_D_ECHANGE) {
     if (id === "purse") continue;                 /* elle vit dans la cellule de DROITE */
@@ -721,8 +739,21 @@ export function construireLesWares(o = {}) {
        une place réservée se montre inerte. Un bouton qui accepte le doigt et ne répond jamais
        apprend à ne plus toucher. */
     if (inerte) b.disabled = true;
-    gauche.append(b);
+    tallys.append(b);
   }
+  gauche.append(tallys);
+  /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-21 : *« rajoute l'unité d'encombrement »*, puis *« dans le
+     pied, entre les Tally et le collecteur »*. ⭐ Le mot vient du pilote, qui l'a fait dire par
+     `motDeLEncombrement` — l'écran ne calcule rien et ne connaît aucune unité.
+     ⛔ ET IL EST DANS LE PIED, pas dans la dalle qui traverse : il décrit le PERSONNAGE, pas la
+     sous-catégorie qu'on regarde. */
+  /* ⛔ IL SE POSE TOUJOURS, MÊME SANS MOT — et c'est mon garde de bijection qui me l'a appris :
+     un organe qui n'apparaît QUE si la donnée arrive n'est pas au plan la moitié du temps, et la
+     FORME de l'écran se met à dépendre de son contenu. ⭐ La place est réservée par le plan ; ce
+     qui vient du pilote est le MOT, pas l'existence. */
+  const poids = el("div", "wares-encombrement", o.encombrement || "");
+  poids.dataset.organe = "encombrement";
+  gauche.append(poids);
   pied.append(gauche);
 
   const collecteur = el("div", "wares-collecteur", "SEND COLLECTOR");

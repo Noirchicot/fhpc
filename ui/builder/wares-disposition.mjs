@@ -180,8 +180,24 @@ export const ORGANES = [
   { nom: "COMPTE PAGES",        sorte: "voyant",     dalle: "GRILLE",  x: 330,    y: 240, l: 41,  h: 14, mot: "1/3", cran: "T1/600" },
 
   /* dalle 3 — le pied */
-  { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 374, l: 40,  h: 40, cible: { x: 25.75, y: 372, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
-  { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 374, l: 40,  h: 40, cible: { x: 73.75, y: 372, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
+  { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 363, l: 40,  h: 40, cible: { x: 25.75, y: 361, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
+  { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 363, l: 40,  h: 40, cible: { x: 73.75, y: 361, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
+  /* ⚖️ L'ENCOMBREMENT, SOUS LES TALLY — Eric, 2026-09-21, en choisissant sa place : *« dans le
+     pied, entre les Tally et le collecteur »*. 📏 Mesuré au navigateur avant de le poser : la
+     cellule de gauche va de y 340+4 à 340+104 et les deux Tally l'occupent de 372 à 416 — il
+     reste donc **28 blg** sous eux, sur les **135,5** de la colonne. La place existe, elle n'a
+     pas été prise à quelqu'un.
+     ⭐ ET IL EST DANS LE PIED, ⛔ PAS DANS LA DALLE QUI TRAVERSE : un encombrement décrit le
+     PERSONNAGE, pas la sous-catégorie qu'on regarde. *Ce qui décrit la plaque voyage avec
+     elle ; ce qui décrit l'écran reste fixe.*
+     ⛔ AUCUNE CIBLE : on le lit, on ne le tape pas.
+     🔴 ET LES DEUX TALLY ONT MONTÉ DE 11 BLG, ce qui est la conséquence et non un accident : la
+     cellule reste centrée sur ses deux axes *(loi du 20/09 : « centrés horizontalement et
+     verticalement dans le rectangle vide »)*, et elle contient désormais TROIS choses au lieu de
+     deux. 📏 Constats remis d'accord avec le rendu : cibles à `y 361` au lieu de `372`.
+     ⛔ Un constat qui a dérivé est un second écrivain qui ment — il se recopie sans qu'on le
+     mesure. */
+  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 4,      y: 413, l: 135.5, h: 14, mot: "Encumbrance : 0 lb", cran: "T1/600" },
   { nom: "COLLECTEUR",          sorte: "collecteur", dalle: "PIED",    x: 144,    y: 344, l: 87,  h: 48, cible: { x: 144, y: 344, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
   { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 369, l: 50,  h: 50, cible: { x: 278.25, y: 369, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
   /* ⚖️ LE MONTANT EST UN VOYANT POSÉ **SUR** LA BOURSE — Eric, 2026-09-21 : *« la bourse
@@ -258,6 +274,7 @@ export const CLEF_DE = Object.freeze({
   "COMPTE PAGES": "compte-pages",
   "PARTY TALLY": "party-tally",
   "TALLY": "tally",
+  "ENCOMBREMENT": "encombrement",
   "COLLECTEUR": "collecteur",
   "PISTE": "piste",
   "PURSE": "purse",

@@ -3157,6 +3157,18 @@ export function renderEquipmentStep(ctx, onAction) {
          en mots » ; il dit en réalité *« ce qu'on annonce à qui n'a pas encore de classe »*.
          ⛔ Un nom qui décrit une FORME (« un mot ») sans dire de quoi il parle se branche tout
          seul au mauvais endroit. Le sac, lui, prend `currentCurrency(docu)` — la donnée. */
+      /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-21 : *« rajoute l'unité d'encombrement »* puis, pour
+         la place, *« dans le pied, entre les Tally et le collecteur »*.
+         ⭐ LE MOT EST DIT PAR LE PIPELINE, ⛔ pas par Wares et pas ici : `motDeLEncombrement` est
+         le seul écrivain de cette phrase, et c'est lui qui sait que l'unité du jeu est la livre.
+         ⭐ ET LA PESÉE EST CELLE DU SAC, au mot près — même `currentGearLines`, même
+         `poidsParLieu`. ⛔ Deux pesées pour un même personnage divergeraient au premier objet
+         sans poids connu, et l'écran d'à côté afficherait un autre total. */
+      encombrement: (() => {
+        const lignesPesees = currentGearLines(docu).filter((l) => l.ref);
+        const pesee = poidsParLieu(lignesPesees, (ref) => ({ data: cherche.record(ref)?.data }));
+        return motDeLEncombrement(pesee.encombrement, pesee);
+      })(),
       bourse: currentCurrency(docu),
       compteTally: cartCompte(docu),
       /* ⭐ LA BOURSE S'OUVRE ICI COMME SUR R ET SUR LE SAC — même état de module, donc une
