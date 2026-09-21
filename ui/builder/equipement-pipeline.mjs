@@ -204,15 +204,34 @@ export function additionneCouts(couts) {
  */
 export const UNITE_DU_JEU = "lb";
 
+/** ⚖️ L'UNITÉ QU'ON A LE DROIT D'AFFICHER — ⛔ UN SEUL JUGE, et toutes les lignes le consultent.
+ *
+ *  ⭐ UNE SEULE CONDITION COUVRE LES DEUX ANOMALIES : plusieurs unités mêlées, ou une unité qui
+ *  n'est pas celle du jeu. Dans les deux cas le chiffre n'est PAS en livres, donc il ne porte
+ *  aucune étiquette — c'est le TOTAL qui le dit, une fois, ⛔ pas chaque ligne qui le répète.
+ *  📌 Rend `null` quand rien ne peut être affiché honnêtement.
+ */
+export function uniteAffichee(poids) {
+  const trouvee = poids && poids.unite;
+  const impérial = !(poids && poids.melange) && (!trouvee || trouvee === UNITE_DU_JEU);
+  return impérial ? UNITE_DU_JEU : null;
+}
+
+/** ⚖️ UNE LIGNE DE POIDS — `Gear 34 lb`. ⛔ Le même juge que le total, sinon deux lignes voisines
+ *  peuvent afficher deux unités différentes pour une même pesée.
+ *  ⭐ Eric, 2026-09-21, en listant ce qu'il veut voir : *« Encumbrance 34 lb · Gear 0 lb ·
+ *  Backpack 34 lb · Other 0 lb »* — l'unité sur CHAQUE composant, pas seulement sur le total. */
+export function motDUnPoids(titre, somme, inconnus, poids) {
+  const rond = (n) => Math.round((n || 0) * 10) / 10;
+  const unite = uniteAffichee(poids);
+  return `${titre} ${rond(somme)}${unite ? ` ${unite}` : ""}${inconnus ? ` +${inconnus}?` : ""}`;
+}
+
 export function motDeLEncombrement(e, poids) {
   const rond = (n) => Math.round((n || 0) * 10) / 10;
-  const trouvee = poids && poids.unite;
-  /* ⛔ UNE SEULE CONDITION, ET ELLE COUVRE LES DEUX ANOMALIES : plusieurs unités mêlées, ou une
-     unité qui n'est pas celle du jeu. Dans les deux cas le total n'est PAS en livres, donc il
-     ne porte aucune étiquette et il l'annonce. */
-  const impérial = !(poids && poids.melange) && (!trouvee || trouvee === UNITE_DU_JEU);
+  const unite = uniteAffichee(poids);
   return `Encumbrance : ${rond(e && e.somme)}`
-    + (impérial ? ` ${UNITE_DU_JEU}` : " (hors mesures impériales)")
+    + (unite ? ` ${unite}` : " (hors mesures impériales)")
     + (e && e.inconnus ? ` · ${e.inconnus} sans poids` : "");
 }
 

@@ -84,7 +84,7 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=784";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
-  enGP, lignesParLieu, poidsParLieu, motDeLEncombrement,
+  enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids,
   renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=784";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=784";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
@@ -2705,8 +2705,11 @@ export function renderEquipmentStep(ctx, onAction) {
        VIDE, et aucun garde ne l'a dit — ils lisent des fichiers, pas un écran branché
        sur un document. C'est Eric qui l'a vue, en ligne, après avoir vidé ses cookies.
        ⭐ La leçon est celle du lot : *un contrat changé d'un côté se change des DEUX*. */
+    /* ⚖️ CHAQUE COMPOSANT DIT SON UNITÉ — Eric, 2026-09-21 : *« Encumbrance 34 lb · Gear 0 lb ·
+       Backpack 34 lb · Other 0 lb »*. ⛔ Et c'est le MÊME juge que le total (`uniteAffichee`),
+       sinon deux lignes voisines pourraient afficher deux unités pour une seule pesée. */
     const mot = (compte, somme, inconnus, titre) => ({
-      poids: `${titre} ${rond(somme)}${inconnus ? ` +${inconnus}?` : ""}`,
+      poids: motDUnPoids(titre, somme, inconnus, p),
       compte: `${compte} item${compte === 1 ? "" : "s"}`
     });
     /* ⚖️ JUSTE `Encumbrance` — Eric, 19/09 : *« Encumbrance (gear + backpack), c'est

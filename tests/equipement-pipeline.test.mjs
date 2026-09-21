@@ -21,7 +21,7 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { CURRENCY_KEYS } from "../src/build/index.mjs";
 import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bourseCouvre, enGP,
   currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu,
-  motDeLEncombrement, UNITE_DU_JEU }
+  motDeLEncombrement, UNITE_DU_JEU, motDUnPoids, uniteAffichee }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
 import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
@@ -513,4 +513,40 @@ test("l'encombrement dit son unité — et il n'en invente pas une quand elles s
   /* ⑤ et les objets sans poids connu restent annoncés — une somme qui ne porte pas tout le dit */
   assert.match(motDeLEncombrement({ somme: 5, inconnus: 2 }, { unite: "lb", melange: false }),
     /2 sans poids/, "⛔ une somme qui ne pèse pas tout doit le dire");
+});
+
+/* ══ CHAQUE COMPOSANT DIT SON UNITÉ, ET C'EST LE MÊME JUGE QUE LE TOTAL ════════
+   ⚖️ ERIC, 2026-09-21, en listant ce qu'il veut voir : *« Encumbrance 34 lb · Gear 0 lb ·
+   Backpack 34 lb · Other 0 lb »*.
+   ⭐ CE QUE CE GARDE TIENT VRAIMENT : ⛔ pas « il y a écrit lb », mais **que les quatre lignes
+   consultent le MÊME juge**. Deux lignes voisines qui afficheraient deux unités pour une seule
+   pesée seraient pires qu'une ligne nue — le lecteur additionnerait. */
+test("chaque ligne de poids dit son unité, et jamais une autre que le total", () => {
+  const pesee = { unite: "lb", melange: false };
+  assert.equal(motDUnPoids("Gear", 0, 0, pesee), "Gear 0 lb");
+  assert.equal(motDUnPoids("Backpack", 34, 0, pesee), "Backpack 34 lb");
+  /* ⭐ et les objets sans poids connu restent annoncés — une part qui ne pèse pas tout le dit */
+  assert.equal(motDUnPoids("Other", 2.5, 3, pesee), "Other 2.5 lb +3?");
+
+  /* ⛔ L'ANOMALIE SE PROPAGE : si le total n'est pas en livres, AUCUNE ligne ne s'étiquette.
+     ⭐ Et c'est le total qui l'explique, UNE fois — ⛔ pas chaque ligne qui répète. */
+  for (const anormal of [{ unite: "kg", melange: false }, { unite: null, melange: true }]) {
+    const ligne = motDUnPoids("Gear", 12, 0, anormal);
+    assert.doesNotMatch(ligne, /\blb\b|\bkg\b/,
+      `⛔ une ligne étiquetée alors que la pesée ne l'est pas : « ${ligne} »`);
+    assert.equal(uniteAffichee(anormal), null, "⛔ le juge doit refuser, pas choisir au hasard");
+  }
+
+  /* 🔴 LE TÉMOIN QUI COMPTE : le total et les lignes ne peuvent PAS diverger, parce qu'ils
+     posent la question au même juge. ⛔ Si un jour l'un d'eux calcule son unité tout seul, ce
+     garde tombe — c'est exactement ce qu'on veut qu'il attrape. */
+  for (const cas of [{ unite: "lb", melange: false }, { unite: "kg", melange: false },
+                     { unite: null, melange: true }, { unite: null, melange: false }]) {
+    const total = motDeLEncombrement({ somme: 34, inconnus: 0 }, cas);
+    const ligne = motDUnPoids("Backpack", 34, 0, cas);
+    const totalEtiquete = /\blb\b/.test(total);
+    const ligneEtiquetee = /\blb\b/.test(ligne);
+    assert.equal(ligneEtiquetee, totalEtiquete,
+      `⛔ divergence : total « ${total} » contre ligne « ${ligne} »`);
+  }
 });
