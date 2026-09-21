@@ -61,6 +61,14 @@ const SOCLE = [
   ".pipeline-ligne-envoi",
   ".pipeline-pas",
   ".aiguilleur-bouton",
+  /* — LOT 245, 21/09 : les options du QCM du départ, dans l'aiguilleur refait.
+     Elles portent un LIBELLÉ (« A · Greataxe, 4 × Handaxe, … »), donc le gabarit
+     à mot, donc le patron. ⭐ Ajout au CORPUS déclaré ici EN LE SACHANT, pas une
+     réparation de garde — et ce garde a rougi DEUX fois sur leur entrée, comme
+     pour `.wares-porte` : l'inventaire a changé de membres, et le défaut
+     `transparent` ne se reconnaissait plus tant que cette liste-ci ne comptait
+     pas le même nombre de branches que la feuille. — */
+  ".aiguilleur-option",
   /* — LOT 212, entré à la fusion du 16/09 : les portes de l'écran R (Gear) —
      Backpack · Send · Wares dans la rangée du pied, et Companions. Un ajout au
      CORPUS, déclaré ici en le sachant, pas une réparation de garde. — */

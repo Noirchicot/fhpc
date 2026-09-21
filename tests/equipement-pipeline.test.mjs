@@ -24,7 +24,8 @@ import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bour
   motDeLEncombrement, UNITE_DU_JEU, motDUnPoids, uniteAffichee }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
-import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
+import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart,
+  butinDuDepart, departRepondu, cheminDuDepart }
   from "../ui/builder/equipment-step.mjs";
 
 const fixture = exempleFhEn();
@@ -58,20 +59,29 @@ function appliquer(doc, a) {
     }
     return d;
   }
-  if (a.kind === "choisirDepart") {
-    let d = verbs.set({ document: doc, path: "depart", value: a.valeur }).document;
-    /* ⭐ LOT 182 — CE HARNAIS PORTAIT UN `+ 50` EN DUR, LUI AUSSI. Il rejoue
-       `shell.mjs` : il lit donc le montant là où la coquille le lit, dans la
-       prose des deux sources de départ. Un harnais qui garde son propre nombre
-       reste vert le jour où la règle change — c'est un témoin qui ne peut
-       jamais accuser. */
-    if (a.valeur === "purse") {
-      const or = orDuDepart({ query, document: d });
-      if (!or.cout) return d;
+  if (a.kind === "poserLeDepart") {
+    /* ⭐ LOT 245 — CE HARNAIS REJOUE `poserLeDepart`, et il ne recalcule RIEN :
+       il écrit ce que `butinDuDepart` lui rend — l'index, la quantité, l'or.
+       ⛔ LOT 182, LA LEÇON QUI TIENT TOUJOURS : ce harnais portait un `+ 50` en
+       dur, et il restait vert le jour où la règle changeait. Un témoin qui
+       garde son propre nombre ne peut jamais accuser. */
+    if (departRepondu(doc)) return doc;
+    const butin = butinDuDepart({ query, document: doc, reponses: a.reponses });
+    if (!butin.complet) return doc;
+    let d = doc;
+    for (const { genre, valeur } of butin.aEcrire) {
+      d = verbs.set({ document: d, path: cheminDuDepart(genre), value: valeur }).document;
+    }
+    for (const pose of butin.aPoser) {
+      if (pose.neuve) d = verbs.choose({ document: d, path: `gear[${pose.index}]`, ref: pose.ref }).document;
+      d = verbs.set({ document: d, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
+      if (pose.neuve) d = verbs.set({ document: d, path: `gear[${pose.index}].equipped`, value: false }).document;
+    }
+    if (butin.cout) {
       const bourse = currentCurrency(d);
       for (const k of CURRENCY_KEYS) {
         const base = Number.isInteger(bourse[k]) ? bourse[k] : 0;
-        d = verbs.set({ document: d, path: `currency.${k}`, value: base + (or.cout[k] || 0) }).document;
+        d = verbs.set({ document: d, path: `currency.${k}`, value: base + (butin.cout[k] || 0) }).document;
       }
     }
     return d;
@@ -271,14 +281,36 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
      Le montant est composé (Wizard 55 + Inheritance 50 = 105) : ce test-là
      n'aurait plus rien trouvé, et il ne l'aurait dit qu'en jetant. Il cherche
      le VERBE et compare au montant LU — le même que celui de l'écran. */
+  /* ⭐ LOT 245 — LE POPUP EST DEVENU UN QCM, et le sélecteur suit l'organe.
+     Ce que ce test défend n'a pas bougé d'une ligne : le montant ANNONCÉ est
+     celui qui TOMBE, et la question ne se repose pas. ⛔ Ce qui a changé, c'est
+     qu'elle se pose désormais PAR SOURCE — l'or dépend donc de l'option prise,
+     et non plus de la dernière de chaque phrase.
+     ⚠️ ET `Done` REFUSE TANT QU'UNE QUESTION ATTEND : sans réponse, il est
+     désarmé — c'est le seul état où ce popup ne peut rien écrire. */
+  const done = [...node.querySelectorAll(".aiguilleur-bouton")].find((b) => b.textContent === "Done");
+  assert.equal(done.disabled, true, "aucune option choisie : `Done` ne peut rien poser");
+
+  /* le Wizard de l'exemple : son option B est une bourse nue (55 PO) ; l'origine
+     de Fate's Hand n'offre pas de choix et ajoute ses 50. 55 + 50 = 105 — le
+     MÊME nombre que l'ancien lecteur global, et c'est voulu : répondre « la
+     dernière lettre » partout EST l'ancien geste. */
+  /* ⛔ ON NE RE-RENDU PAS APRÈS UN CLIC D'OPTION, ET C'EST LE POINT : un choix
+     du QCM n'écrit RIEN au document et ne repasse pas par la coquille. Il
+     repeint l'étape EN PLACE (`peindre()`), dans le nœud qu'on tient déjà.
+     ⭐ Appeler `rendre()` ici rendrait une étape neuve — donc un QCM vierge —
+     et le récapitulatif retomberait à l'or de l'origine seule (50). 📏 Mesuré :
+     c'est exactement ce que ce test a rendu à sa première écriture. */
+  const optionB = [...node.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent.startsWith("B ·"));
+  optionB.click();
   const attendu = orDuDepart({ query, document: doc }).cout;
   assert.equal(attendu.gp, 105, "le personnage d'exemple : Wizard 55 + Inheritance 50, chacun lu dans sa prose");
-  const prendre = [...node.querySelectorAll(".aiguilleur-bouton")]
-    .find((b) => b.textContent.startsWith("Take the"));
-  assert.equal(prendre.textContent, `Take the ${attendu.gp} GP`, "le bouton ANNONCE le montant qu'il pose");
+  const bilan = [...node.querySelectorAll(".aiguilleur-bilan-or")].map((l) => l.textContent);
+  assert.deepEqual(bilan, [`${attendu.gp} GP`], "le récapitulatif ANNONCE le montant que `Done` pose");
+
   const gpAvant = currentCurrency(doc).gp || 0;
-  prendre.click();
-  assert.equal(doc.build.choices.find((c) => c.path === "depart")?.value, "purse", "le choix est ÉCRIT au document");
+  [...node.querySelectorAll(".aiguilleur-bouton")].find((b) => b.textContent === "Done").click();
+  assert.equal(doc.build.choices.find((c) => c.path === "depart.class")?.value, "B", "le choix est ÉCRIT au document");
   assert.equal(currentCurrency(doc).gp, gpAvant + attendu.gp,
     "et l'or annoncé tombe dans la bourse, à la pièce près — le geste ratifié, pas une copie");
 
@@ -286,7 +318,7 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
   assert.equal(node.querySelectorAll(".aiguilleur").length, 0, "la question ne se repose pas : le document a répondu");
 
   const ressuscite = JSON.parse(JSON.stringify(doc));
-  assert.equal(ressuscite.build.choices.find((c) => c.path === "depart")?.value, "purse",
+  assert.equal(ressuscite.build.choices.find((c) => c.path === "depart.class")?.value, "B",
     "et la réponse traverse un rechargement — c'est tout le point du document");
 });
 

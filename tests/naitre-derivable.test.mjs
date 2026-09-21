@@ -335,7 +335,13 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
     const out = H.verbs.rebuild({ document: avecClasse });
     const node2 = renderEquipmentStep({ document: out.document, resolved: out.resolved, query: Q }, () => {});
     assert.ok(node2.querySelector(".aiguilleur"), `pile ${nom} : la question kit/or se pose dès que la classe est là`);
-    assert.ok([...node2.querySelectorAll(".aiguilleur-bouton")].some((b) => /^Take the/.test(b.textContent)), `pile ${nom} : …et l'or est offert`);
+    /* ⭐ LOT 245 — LE POPUP EST DEVENU UN QCM. Ce que ce garde défend n'a pas
+       bougé : dès que la classe est là, l'or de départ est OFFERT et il est LU
+       dans la donnée. ⛔ Ce n'est plus un bouton « Take the … » mais l'option
+       nue de la phrase du Barbare (« B · 75 GP »), et c'est la même lecture. */
+    const options = [...node2.querySelectorAll(".aiguilleur-option")].map((b) => b.textContent);
+    assert.ok(options.some((t) => t === `B · ${or.sources.find((s) => s.genre === "class").cout.gp} GP`),
+      `pile ${nom} : …et l'or est offert, au montant LU dans la prose — ${options.join(" | ")}`);
     assert.equal(node2.querySelector(".pipeline-mygold-mot"), null, `pile ${nom} : aucun mot de bourse avec une classe`);
   }
 });
