@@ -8507,6 +8507,44 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   align-items: start; gap: var(--sp-8);
 }
 .aiguilleur-option-mot { margin: 0; font-size: var(--t3); min-width: 0; }
+/* ══ LA QUESTION D'OUTIL SE LIT EN LIGNE — lot 247, Eric 2026-09-21 ═══════
+   ⚖️ *« Tu retires le mot tool sur chaque item. Tu fais **Tool : smith,
+   glassblower etc.** — tu gagnes de l'espace. »*
+   ⭐ MÊME ORGANE, MÊME FAMILLE, MÊMES PIÈCES : la rangée, le mot et la
+   pastille ne changent pas d'un octet, et le mot court est dérivé par l'écran
+   (⛔ aucun `name` de record ne bouge). Seul le CONTENEUR passe de la colonne
+   au flux, et le libellé de famille y entre au lieu de le surplomber.
+   🔴 ET C'EST BORNÉ À CETTE QUESTION-LÀ. Les options A/B/C gardent leur
+   colonne : un libellé d'option est une PHRASE ENTIÈRE (« Spear, 5 × Dagger,
+   Explorer's Pack, 11 GP »), et la note juste au-dessus dit pourquoi deux
+   colonnes y couperaient les mots. Une question d'outil, elle, ne porte que
+   des métiers d'un mot depuis que le nom se dérive court.
+   📏 CE QUE LA DISPOSITION VAUT, MESURÉ AU BANC SUR LE BUILDER SERVI
+   (512 × 764, voile de 681, Moine × Acolyte, pile SRD + Skills) :
+     · le mot court SEUL, en colonne ........ 759 / 825 — ⛔ ZÉRO gain ;
+     · le mot court EN LIGNE ................ 671 / 737 — −88 dans les deux cas.
+   ⛔ `align-items: center` et non `start` : sur une ligne, la pastille se pose
+   au milieu du mot, pas au-dessus de lui.
+
+   🔴 LA PASTILLE PASSE DEVANT SON MOT, ET C'EST UNE CORRECTION D'IMAGE, pas
+   un goût. Regardé en capture avant de livrer : en ligne, « smith [pastille]
+   glassblower [pastille] » se lit « smith · [pastille] glassblower » — la
+   pastille colle au mot SUIVANT, et le joueur choisit l'outil d'à côté. 📏 Et
+   l'écarter ne répare pas : passer l'écart entre paires de 8 à 16 a fait
+   passer la question à TROIS lignes et rendu les 88 blg que ce lot venait de
+   gagner (mesuré : 671 → 759). ⭐ En tête, la pastille est un bouton radio et
+   son mot le suit — l'ordre que tout le monde lit sans y penser.
+   ⛔ `row-reverse` et non un ordre de balisage inversé : le mot est écrit
+   AVANT la pastille dans le DOM, comme en colonne — un seul balisage pour les
+   deux dispositions, et l'ordre de tabulation ne bouge pas (seule la pastille
+   prend le focus, et elle porte le nom ENTIER du record). */
+.aiguilleur-options[data-en-ligne="true"] {
+  display: flex; flex-wrap: wrap; align-items: center;
+  column-gap: var(--sp-8); row-gap: var(--sp-4);
+}
+.aiguilleur-options[data-en-ligne="true"] .aiguilleur-rangee {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: var(--sp-4);
+}
 /* ══ LE CRAN DU BOUTON DE CHOIX — 30 de corps, 44 de cible ════════════════
    ⚖️ ERIC, 2026-09-21 : *« Tu peux faire des boutons de 30 diam (tactile 44)
    pour les choix. »*

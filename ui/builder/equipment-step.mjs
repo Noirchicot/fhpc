@@ -485,6 +485,48 @@ function familleDeLOutil(vue) {
   return typeof data.inherits === "string" ? data.inherits : (vue && vue.id) || null;
 }
 
+/* Un MÉTIER suivi de son possessif, puis d'autre chose. ⛔ Rien d'autre ne se
+   dérive : pas de pluriel, pas de synonyme, pas de suffixe nommé. */
+const METIER_POSSESSIF = /^(\p{L}[\p{L}-]*)['’]s?\s+\S/u;
+
+/** LE NOM COURT D'UN OUTIL — le métier, nu, minuscule ; ou le nom, entier.
+ *
+ *  ⚖️ ERIC, 2026-09-21 : *« Tu retires le mot tool sur chaque item. Tu fais
+ *  Tool : smith, glassblower etc. — tu gagnes de l'espace. »* Le libellé de
+ *  famille porte le mot une fois, en tête de la question ; les items sont les
+ *  métiers nus.
+ *
+ *  🔴 C'EST UNE DÉRIVATION D'AFFICHAGE, PAS UN RENOMMAGE, et la distinction
+ *  est la loi §L du dépôt : ⛔ aucun `name` de record ne bouge. Renommer
+ *  `Smith's Tools` en `smith` DANS la donnée serait réécrire du SRD à la main
+ *  — ce que le lot 246 a refusé de faire pour « Arrows → Ammunition », et pour
+ *  la même raison. Le record garde son nom ; l'écran en dérive un mot.
+ *
+ *  ⚠️ LE SUFFIXE N'EST PAS TOUJOURS « Tools », ET C'EST POUR ÇA QU'AUCUN N'EST
+ *  NOMMÉ ICI. Les dix-sept outils d'artisan en portent TROIS — `Tools`,
+ *  `Supplies` (Alchemist, Brewer, Calligrapher, Painter) et `Utensils` (Cook).
+ *  ⛔ Un découpage qui chercherait « Tools » laisserait « Alchemist's
+ *  Supplies » intact, et personne ne le verrait : le mot resterait juste un
+ *  peu long. La règle ne regarde donc pas la FIN du nom, elle regarde le
+ *  POSSESSIF — un seul mot, suivi de `'s` ou `s'`, suivi d'autre chose.
+ *
+ *  ⭐ ET ELLE REFUSE PROPREMENT, elle ne force jamais. Un nom sans possessif
+ *  (`Instrument (Wind)`, `Musical Instrument`, `Dice Set`, `Mount (Air)`)
+ *  ressort ENTIER — c'est ce qui rend la règle sûre pour le barde, dont aucun
+ *  candidat n'est un outil d'artisan. Un métier en deux mots ressortirait
+ *  entier lui aussi, plutôt que tronqué à son premier mot.
+ *
+ *  📏 MESURÉ SUR LES 17 : alchemist · brewer · calligrapher · carpenter ·
+ *  cartographer · cobbler · cook · glassblower · jeweler · leatherworker ·
+ *  mason · painter · potter · smith · tinker · weaver · woodcarver. Les trois
+ *  suffixes tombent, les dix-sept se dérivent, et le mot court est toujours un
+ *  MORCEAU du nom entier — ce qui garde le nom accessible du bouton honnête. */
+export function nomCourtDOutil(nom) {
+  if (typeof nom !== "string") return nom;
+  const m = METIER_POSSESSIF.exec(nom);
+  return m ? m[1].toLowerCase() : nom;
+}
+
 /** LES OUTILS QUE LE JOUEUR A CHOISIS DANS SKILLS — `[{ref, nom, famille}]`.
  *
  *  ⚖️ ERIC, 21/09 : *« Pour l'outil du barde : tu regardes le choix fait dans
@@ -526,15 +568,22 @@ export function outilsChoisisDansSkills({ query, document: docu, famille } = {})
     vus.add(slug);
     outils.push({ ref: { kind: "tool", id: vue.id }, nom: recordLabel(vue), famille: familleDeLOutil(vue) });
   }
-  /* `famille` vaut `"any"` (le moine : le SRD dit « Artisan's Tools OR Musical
-     Instrument », et ⛔ « Artisan's Tools » n'a AUCUN record à nommer), ou une
-     liste de racines (le barde : l'instrument, et rien d'autre). */
-  if (famille === ANY_FAMILLE || !Array.isArray(famille)) return outils;
+  /* `famille` est une LISTE DE RACINES — une pour le barde (l'instrument),
+     deux pour le moine (l'artisanat et l'instrument) depuis que le lot 247 a
+     déclaré la famille « Artisan's Tools » sur ses dix-sept outils.
+     🔴 LE `"any"` DU LOT 246 EST MORT, ET AVEC LUI SA SUR-INCLUSION : un moine
+     qui avait acheté un jeu, un véhicule ou une monture les voyait proposés.
+     ⚖️ Eric, 21/09, a fermé le trou en NOMMANT les dix-sept — *« les autres
+     c'est other tools »* — et la borne vit dans la couche, pas ici.
+     ⚠️ UNE DÉCLARATION SANS FAMILLE NE FILTRE RIEN, et ce n'est pas un défaut
+     par distraction : une classe qui déclarerait un outil de départ sans dire
+     de quelle famille doit montrer ce que le joueur a, plutôt que rien. ⛔ Mais
+     aucune classe n'est dans ce cas aujourd'hui, et un garde le tient. */
+  if (!Array.isArray(famille)) return outils;
   const racines = new Set(famille);
   return outils.filter((o) => racines.has(o.famille));
 }
 export const CHEMIN_DEPENSE_SKILLS = "fh.skills.spend.";
-export const ANY_FAMILLE = "any";
 
 /** LE JOUEUR EST-IL PASSÉ PAR SKILLS ? — une dépense, n'importe laquelle.
  *  ⛔ Ce n'est PAS « a-t-il un outil » : une compétence achetée suffit. C'est le
@@ -833,11 +882,30 @@ function ceQueLaSourceDit(source, butin, basculer) {
        rangées dessous le montraient déjà. ⛔ Le mot de la source n'est pas
        recopié ici : il est DANS le titre de la section, trois lignes plus haut,
        et le redire ne disait rien de neuf. */
-    noeuds.push(el("p", "aiguilleur-soustitre", [text("Tool from Skills — Choose:")]));
+    /* ⚖️ LOT 247, ERIC, 21/09 : *« Tu retires le mot tool sur chaque item. Tu
+       fais **Tool : smith, glassblower etc.** — tu gagnes de l'espace. »*
+       ⭐ LE LIBELLÉ DE FAMILLE ENTRE DANS LE FLUX, il ne le surplombe plus :
+       c'est la phrase d'Eric au mot près, et c'est ce qui fait le gain.
+       🔴 ET LE MOT COURT SEUL NE GAGNAIT RIEN — MESURÉ, avant de choisir cette
+       lecture : raccourcir « Smith's Tools » en « smith » dans une rangée en
+       colonne rendait la MÊME carte, **759 et 825 px**, au pixel près. La
+       hauteur d'une rangée est celle de sa PASTILLE (44 déclarés, 60,02
+       rendus), jamais celle de son mot — un libellé de deux lignes tient déjà
+       sous 44. ⛔ Une lecture qui ne gagne rien ne peut pas être celle d'une
+       phrase qui dit « tu gagnes de l'espace ». */
     const liste = el("div", "aiguilleur-options");
+    liste.dataset.enLigne = "true";
+    liste.append(el("p", "aiguilleur-soustitre", [text("Tool:")]));
     for (const cand of q.candidats) {
       const rangee = el("div", "aiguilleur-rangee");
-      rangee.append(el("p", "aiguilleur-option-mot", [text(cand.nom)]));
+      /* ⛔ LE RECORD N'A PAS CHANGÉ DE NOM, et c'est la borne de tout ce lot :
+         `cand.nom` est intact partout ailleurs (le récapitulatif, le nom
+         accessible du bouton, la ligne posée dans Gear) — seul CE libellé-ci
+         est dérivé. Renommer `Smith's Tools` en `smith` DANS la donnée serait
+         réécrire du SRD à la main. ⭐ Et le nom accessible garde le nom
+         entier : le mot court en est un morceau, donc le bouton dit toujours
+         ce qu'on lit. */
+      rangee.append(el("p", "aiguilleur-option-mot", [text(nomCourtDOutil(cand.nom))]));
       const bo = button("", "aiguilleur-option",
         () => basculer(q.clef, cand.ref.id), `${cand.nom}, for ${source.mot}`);
       markPressed(bo, q.pris === cand.ref.id);
