@@ -445,6 +445,24 @@ function buildTools(srd) {
       data.utilize = utilize;
       data.cost = "Varies";
       data.weight = "Varies";
+      /* 🔴 LOT 246 — LE LIEN DE FAMILLE ÉTAIT DANS LA SOURCE ET SE PERDAIT ICI.
+         `TOOLS_ADDED` porte `inherits` depuis le 09/09 ; le générateur s'en
+         servait pour LIRE le `utilize` du parent, puis le jetait. 📏 Mesuré le
+         21/09 sur les 16 outils de la couche : aucun ne portait la moindre
+         trace de sa famille — ni `inherits`, ni `category`, ni `group`. Un lien
+         qui existe à la source et qu'aucun consommateur ne peut lire N'EXISTE
+         PAS : c'est une absence qui ne s'annonce jamais.
+         ⭐ CE QUE ÇA REND POSSIBLE, ET C'EST LE BESOIN QUI L'A FAIT NAÎTRE : la
+         phrase du Barde dit « Musical Instrument of your choice ». Pour savoir
+         si un outil acheté dans Skills EST un instrument, il faut sa famille.
+         La règle est alors une règle, pas une liste : **la famille d'un outil
+         est `data.inherits` s'il en a un, sinon son propre id**. ⛔ Aucune
+         énumération des instruments nulle part — `instrument-strings` EST
+         `srd:tool:en:musical-instrument` (réécrit), `instrument-wind` et
+         `instrument-other` en héritent, et la racine est la même des deux
+         côtés. Une liste par nom serait incomplète par construction au premier
+         instrument ajouté. */
+      data.inherits = entry.inherits;
     }
 
     tool[id] = { name: entry.name, slug: entry.slug, data };

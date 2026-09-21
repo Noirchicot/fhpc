@@ -291,7 +291,8 @@
           "name": "Card Set",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
           "cost": "Varies",
-          "weight": "Varies"
+          "weight": "Varies",
+          "inherits": "srd:tool:en:gaming-set"
         }
       },
       "fh:tool:en:gaming-set-dragonchess": {
@@ -303,7 +304,8 @@
           "name": "Dragonchess Set",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
           "cost": "Varies",
-          "weight": "Varies"
+          "weight": "Varies",
+          "inherits": "srd:tool:en:gaming-set"
         }
       },
       "fh:tool:en:gaming-set-three-dragon": {
@@ -315,7 +317,8 @@
           "name": "Three-Dragon Ante",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
           "cost": "Varies",
-          "weight": "Varies"
+          "weight": "Varies",
+          "inherits": "srd:tool:en:gaming-set"
         }
       },
       "fh:tool:en:instrument-wind": {
@@ -327,7 +330,8 @@
           "name": "Instrument (Wind)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
           "cost": "Varies",
-          "weight": "Varies"
+          "weight": "Varies",
+          "inherits": "srd:tool:en:musical-instrument"
         }
       },
       "fh:tool:en:instrument-other": {
@@ -339,7 +343,8 @@
           "name": "Instrument (Other)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
           "cost": "Varies",
-          "weight": "Varies"
+          "weight": "Varies",
+          "inherits": "srd:tool:en:musical-instrument"
         }
       },
       "fh:tool:en:vehicles-land": {
