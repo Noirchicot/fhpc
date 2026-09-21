@@ -131,7 +131,8 @@ import {
 } from "./destiny-step.mjs?v=793";
 import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=793";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
-         currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors, orDuDepart,
+         currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
+         butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
          boitesDehors } from "./equipment-step.mjs?v=793";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
@@ -2452,13 +2453,66 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* LA DÉCISION DU DÉPART (26/08) — le paquet OU l'or. UNE écriture au
-     document (`depart`, mesurée acceptée) ; « purse » enchaîne le geste déjà
-     ratifié (`addStartingPurse`), jamais une seconde copie. */
-  if (action.kind === "choisirDepart") {
-    if (action.valeur !== "kit" && action.valeur !== "purse") { refresh(); return; }
-    state.document = verbs.set({ document: state.document, path: "depart", value: action.valeur }).document;
-    if (action.valeur === "purse") { applyDecisionAction({ kind: "addStartingPurse" }); return; }
+  /* ══ 🔴 LE DÉPART SE POSE POUR DE VRAI — lot 245, 21/09 ═══════════════════
+     ⚖️ Eric : *« que l'équipement donné par la classe se mette POUR DE VRAI
+     dans Gear »*, *« et après il faut que ce choix soit implémenté, ce qui
+     n'est pas le cas »*.
+
+     🔴 CE QUE `choisirDepart` FAISAIT, ET L'ASYMÉTRIE ÉTAIT TOTALE :
+       · `purse` enchaînait `addStartingPurse` — l'or tombait vraiment ;
+       · `kit`  écrivait `depart: "kit"` **et rien d'autre**. Aucun
+         `addGearLine`. Les objets du kit n'atterrissaient nulle part,
+         pendant que le popup annonçait *« already listed »*.
+     ⭐ `derive.mjs` le disait déjà, en toutes lettres et depuis le 08/09 :
+     *« un ORPHELIN — `depart` (kit ou bourse), un choix qui DEVAIT avoir un
+     effet et n'en avait pas »*. Il en a un ici.
+
+     ⭐ LA COQUILLE NE COMPOSE RIEN : `butinDuDepart` est le MÊME lecteur que
+     celui dont le popup peint son récapitulatif. ⛔ Le montant, les refs et
+     les quantités ne sont pas recalculés ici — c'est la propriété payée par
+     le lot 182 (*« un écran qui annonce un montant et en pose un autre »*),
+     étendue des pièces aux objets.
+
+     ⚠️ ET LA PRUDENCE DU LOT 182 EST TENUE DES DEUX CÔTÉS : *« un clic, pas
+     un effet de rendu, pour ne jamais réécrire une bourse déjà dépensée »*.
+     ⛔ `departRepondu` refuse un SECOND départ — y compris sur un personnage
+     sauvegardé qui porte encore le scalaire `depart` d'avant ce lot. Sans ce
+     garde, rouvrir la question poserait un second kit par-dessus le premier.
+     ⛔ Et l'or s'AJOUTE clef par clef à ce qui est là, jamais par écrasement
+     (le piège de §0.2 : `gp` seul ne produit aucune bourse dérivée). */
+  if (action.kind === "poserLeDepart") {
+    if (departRepondu(state.document)) { refresh(); return; }
+    const q = state.engine && state.engine.layers ? state.engine.layers.verbs.query : null;
+    const butin = q ? butinDuDepart({ query: q, document: state.document, reponses: action.reponses }) : null;
+    /* ⛔ UN QCM INCOMPLET N'ÉCRIT RIEN — pas même la moitié qui est répondue :
+       un document qui porterait `depart.class` sans son kit ne reposerait
+       jamais la question, et le personnage resterait nu pour toujours. */
+    if (!butin || !butin.complet) { refresh(); return; }
+    let document = state.document;
+    for (const { genre, valeur } of butin.aEcrire) {
+      document = verbs.set({ document, path: cheminDuDepart(genre), value: valeur }).document;
+    }
+    /* ⛔ LA COQUILLE N'ARBITRE NI L'INDEX NI LA QUANTITÉ — `posesDuButin` les a
+       déjà tranchés, et c'est ce qui permet au kit de FUSIONNER avec un objet
+       déjà possédé au lieu d'ouvrir une seconde ligne du même record (le moteur
+       jette dessus : *« deux entrées portent l'id "dagger" »*). */
+    for (const pose of butin.aPoser) {
+      if (pose.neuve) document = verbs.choose({ document, path: `gear[${pose.index}]`, ref: pose.ref }).document;
+      document = verbs.set({ document, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
+      /* ⛔ RIEN N'EST PORTÉ SANS UN GESTE — le kit arrive dans le sac, pas sur
+         le corps. C'est la même loi que `location` absente = « backpack ».
+         ⭐ Et seulement sur une ligne NEUVE : un objet déjà rangé ne se fait pas
+         déshabiller parce qu'on en reçoit un second exemplaire. */
+      if (pose.neuve) document = verbs.set({ document, path: `gear[${pose.index}].equipped`, value: false }).document;
+    }
+    if (butin.cout) {
+      const bourse = currentCurrency(document);
+      for (const key of CURRENCY_KEYS) {
+        const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
+        document = verbs.set({ document, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
+      }
+    }
+    state.document = document;
     rebuild();
     refresh();
     return;
@@ -2491,34 +2545,18 @@ function applyDecisionAction(action) {
     refresh();
     return;
   }
-  /* L'OR DE DÉPART (lot 182) — posé par l'écran, jamais par le moteur. POSE
-     LES QUATRE clefs (le piège de §0.2 : `gp` seul ne produit aucune bourse)
-     et n'ÉCRASE JAMAIS ce qui est déjà là : chaque clef manquante part de 0,
-     et le supplément s'ajoute clef par clef (§0.1 — le paquet garde SON propre
-     or, les deux s'additionnent, jamais de collision).
-     ⛔ LE MONTANT NE VIT PAS ICI, ET PLUS NULLE PART DANS UN ÉCRAN :
-     `orDuDepart` le LIT dans la prose de chaque source de départ — c'est la
-     MÊME fonction dont l'aiguilleur compose sa phrase (`equipment-step.mjs`),
-     jamais une seconde copie du nombre. Un écran qui annonce un montant et en
-     pose un autre est le défaut que ce lot vient de retirer.
-     ⚠️ ET UN MONTANT ILLISIBLE NE POSE RIEN : ni bourse vide, ni 50 de secours.
-     L'aiguilleur, lui, n'a même pas offert le bouton. */
-  if (action.kind === "addStartingPurse") {
-    const q = state.engine && state.engine.layers ? state.engine.layers.verbs.query : null;
-    const or = q ? orDuDepart({ query: q, document: state.document }) : { cout: null };
-    if (!or.cout) { refresh(); return; }
-    const current = currentCurrency(state.document);
-    let document = state.document;
-    for (const key of CURRENCY_KEYS) {
-      const base = Number.isInteger(current[key]) ? current[key] : 0;
-      const value = base + (or.cout[key] || 0);
-      document = verbs.set({ document, path: `currency.${key}`, value }).document;
-    }
-    state.document = document;
-    rebuild();
-    refresh();
-    return;
-  }
+  /* ⛔ `addStartingPurse` A ÉTÉ RETIRÉ ICI — lot 245, et c'est la suppression
+     du SECOND ÉCRIVAIN, pas un nettoyage. Il posait l'or de la DERNIÈRE option
+     de chaque source, ce qui n'a de sens que pour le geste GLOBAL d'hier
+     (« je prends la bourse, partout »). Le QCM pose une question par source :
+     l'or est celui des options CHOISIES, et `poserLeDepart` l'écrit dans le
+     même geste que les objets. ⭐ Deux écrivains de la même bourse auraient
+     divergé au premier panachage.
+     📌 `orDuDepart` survit dans `equipment-step.mjs` et n'est plus appelé par
+     aucun écran : il sert de SECONDE LECTURE, en sens inverse, dans les gardes
+     — « la bourse du QCM quand chaque source répond par sa dernière lettre
+     doit valoir, à la pièce près, ce que l'ancien lecteur rendait ». Une
+     bijection fausse est cohérente ; seule la lecture inverse l'attrape. */
   /* 🔁 REMPLACER LE DON EFFACE SES BRANCHES — lot 77. La règle du « retour
      qui efface » (Eric, 2026-08-20 : les choix de l'ancien don n'ont plus
      d'objet dès qu'on repart en choisir un autre), portée au glisser : la
