@@ -99,13 +99,42 @@ function ecart(t, longueur, arete, v) {
 
 /** 📏 CE QUI BORNE L'ÉCHELLE, ET C'EST UNE MESURE, PAS UN GOÛT.
  *  On balaie les quatre arêtes, on relève l'écart le plus rentrant et le plus
- *  sortant, et on résout l'échelle `k` et la ligne moyenne `m` qui font tenir
- *  TOUT le bord dans `[0, budget]` depuis la bordure de la dalle :
- *    · `m + k·max ≤ budget` — ⛔ aucune encre hors du papier ;
- *    · `m + k·min ≥ 0`      — ⛔ aucun bord rogné à plat par l'`overflow` de la dalle.
- *  ⭐ LES DEUX COMPTENT AUTANT. Sans la première, la déchirure mange la copie et
- *  l'œil ; sans la seconde, le papier déborde la dalle, `overflow: hidden` le
- *  coupe AU COUTEAU, et on obtient précisément le bord droit qu'on fuit.
+ *  sortant, et on résout l'échelle `k` et la ligne moyenne `m`.
+ *
+ *  🔴 LOT 240 — LA SECONDE CONTRAINTE EST INVERSÉE, ET C'EST ERIC QUI TRANCHE.
+ *  Elle disait : `m + k·min ≥ 0` — *« aucun bord rogné à plat par l'`overflow`
+ *  de la dalle »*. ⛔ C'ÉTAIT UNE EXIGENCE DE QUALITÉ QUE JE M'ÉTAIS DONNÉE, et
+ *  elle annulait en silence une LOI RATIFIÉE du 18/09,
+ *  `cadre-dechirure-du-parchemin-hors-dalle` : *« On ne voit que le DÉBUT de la
+ *  déchirure au bord de la fiche X1 »* — Eric : *« les 28 de large en moins,
+ *  c'est ok. On laisse le parchemin comme ça. »*
+ *  ⭐ Une contrainte formulée comme un goût ne se lit pas comme un changement de
+ *  loi, et c'est pour ça que personne ne l'a vue passer.
+ *
+ *  ⚖️ ET LE 21/09 IL LE DIT EN REGARDANT LE RENDU EN LIGNE : *« fais dépasser le
+ *  parchemin qu'on ne voie pas la fiche sous-jacente »*. ➡️ Un bord coupé net
+ *  vaut mieux qu'un fond qui transparaît.
+ *  📏 CE QUI A ÉTÉ MESURÉ AVANT DE CHOISIR (banc, fond magenta, 21/09) : ce
+ *  n'était pas *« quelques creux de 2 blg »* — c'est TOUT le pourtour qui
+ *  laissait passer le fond, une bande irrégulière sur les quatre côtés. La
+ *  silhouette tenait ENTIÈREMENT à l'intérieur du rectangle, donc tout ce qui
+ *  n'était pas elle était transparent.
+ *  ⚠️ ET CE QU'ON VOYAIT AU TRAVERS N'ÉTAIT PAS UN AUTRE ÉCRAN : `montrer()`
+ *  pose la vue par `swapContent` → `replaceChildren`, donc X1 REMPLACE Gear ou
+ *  le sac, il ne se pose pas dessus. Ce qui transparaissait est le fond de
+ *  l'application. ⛔ Il n'y avait donc rien à « cacher dessous » — la seule voie
+ *  qui répond est celle-ci.
+ *
+ *  LES DEUX CONTRAINTES, À CETTE VÉRITÉ :
+ *    · `m + k·max ≤ budget` — ⛔ aucune encre hors du papier. INCHANGÉE : c'est
+ *      elle qui protège la copie, l'œil et les quatre portes.
+ *    · `m + k·max = 0`      — ⭐ le point le plus RENTRANT affleure la bordure,
+ *      et tout le reste du bord est DEHORS. Le rectangle visible est donc plein
+ *      d'un bord à l'autre, et la déchirure ne se lit que par son DÉBUT : le
+ *      fil, la patine et les fibres qui viennent mourir contre l'arête.
+ *  ⛔ `k` NE CHANGE PAS : l'amplitude crête à crête reste bornée par le budget,
+ *  donc le papier ne déborde jamais de plus que ce que la dalle peut rogner, et
+ *  la silhouette reste DÉTERMINISTE (même graine, même bord).
  *  @returns {{k: number, m: number}} l'échelle et la ligne moyenne, en blg */
 export function bornerLEchelle(l, h, budget, v = MODELE_B) {
   let bas = 0, haut = 0;
@@ -119,11 +148,16 @@ export function bornerLEchelle(l, h, budget, v = MODELE_B) {
     }
   }
   /* `haut − bas` est l'amplitude crête à crête du bord brut. Le budget la
-     contient tout entière : k = budget / (haut − bas), et la ligne moyenne se
-     pose à `−k·bas` pour que le point le plus SORTANT touche exactement 0. */
+     contient tout entière : k = budget / (haut − bas).
+     🔴 LOT 240 — LA LIGNE MOYENNE SE POSE À `−k·haut`, ⛔ PLUS À `−k·bas`.
+     ⭐ C'est UN signe, et c'est toute la demande d'Eric : à `−k·bas` le point le
+     plus SORTANT touchait 0 et la silhouette tenait entière DANS le rectangle,
+     donc tout le pourtour laissait passer le fond. À `−k·haut`, c'est le point
+     le plus RENTRANT qui touche 0 : le reste du bord passe DEHORS, la dalle le
+     rogne, et le rectangle visible est plein. */
   const amplitude = haut - bas;
   const k = amplitude > 0 ? Math.min(1, budget / amplitude) : 1;
-  return { k: Math.max(ECHELLE_MIN, k), m: -k * bas };
+  return { k: Math.max(ECHELLE_MIN, k), m: -k * haut };
 }
 
 /** Les points du bord, dans l'ordre du tracé. Chaque point porte sa normale
@@ -150,19 +184,34 @@ function bord(l, h, budget, v) {
   /* ⚖️ LES QUATRE COINS SONT INÉGAUX (9 · 5 · 12 · 7 du modèle B) : c'est la
      première chose qui dit « feuille » plutôt que « rectangle aux angles
      arrondis ». Les deux points posés à la main entre deux arêtes coupent le
-     coin en biais — ⛔ un arrondi régulier y remettrait la symétrie qu'on retire. */
+     coin en biais — ⛔ un arrondi régulier y remettrait la symétrie qu'on retire.
+     🔴 LOT 240 — ET LE BISEAU SUIT LA LIGNE MOYENNE, comme les arêtes.
+     ⛔ IL NE LA SUIVAIT PAS, et c'est un garde qui l'a vu, pas l'œil : les douze
+     points de coin étaient posés en coordonnées ABSOLUES depuis l'angle du
+     rectangle, donc ils restaient DEDANS quoi que fasse `m`. Les quatre arêtes
+     sont sorties de la dalle, les quatre coins sont restés à l'intérieur, et il
+     restait quatre encoches transparentes.
+     📏 Mesurée à 360 de haut : l'encoche du coin haut-gauche rentrait de **1,82
+     blg**, au point (1,86 · 1,82). ⛔ Sur une capture, 1,8 blg ne se voit pas ;
+     dans un balayage, il se mesure. C'est exactement la raison d'être du garde 4.
+     ⭐ CHAQUE POINT DE COIN EST DONC DÉCALÉ DE `m` LE LONG DE SA PROPRE NORMALE
+     — la même translation que l'arête qu'il prolonge, et rien de plus. La normale
+     est RENTRANTE et `m` est négatif : le biseau sort, et il sort exactement
+     autant que les arêtes qu'il raccorde. Un coin qui sortirait d'une autre
+     quantité ferait une marche à la jonction. */
+  const coin = (x, y, nx, ny) => pose(x + nx * m, y + ny * m, nx, ny, -1);
   arete(hg, 0, l - hd, 0, 0, 1, 0);
-  pose(l - hd * .40, hd * .15, -.6, .8, -1);
-  pose(l - hd * .12, hd * .57, -.9, .4, -1);
+  coin(l - hd * .40, hd * .15, -.6, .8);
+  coin(l - hd * .12, hd * .57, -.9, .4);
   arete(l, hd, l, h - bd, -1, 0, 1);
-  pose(l - bd * .2, h - bd * .32, -.8, -.6, -1);
-  pose(l - bd * .64, h - bd * .08, -.4, -.9, -1);
+  coin(l - bd * .2, h - bd * .32, -.8, -.6);
+  coin(l - bd * .64, h - bd * .08, -.4, -.9);
   arete(l - bd, h, bg, h, 0, -1, 2);
-  pose(bg * .34, h - bg * .13, .6, -.8, -1);
-  pose(bg * .08, h - bg * .56, .9, -.4, -1);
+  coin(bg * .34, h - bg * .13, .6, -.8);
+  coin(bg * .08, h - bg * .56, .9, -.4);
   arete(0, h - bg, 0, hg, 1, 0, 3);
-  pose(hg * .16, hg * .47, .8, .6, -1);
-  pose(hg * .61, hg * .10, .4, .9, -1);
+  coin(hg * .16, hg * .47, .8, .6);
+  coin(hg * .61, hg * .10, .4, .9);
   return { points, k };
 }
 

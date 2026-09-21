@@ -121,45 +121,77 @@ test("3 bis — ⛔ aucune cote de la dalle n'est écrite dans le module : il ME
 
 /* ══ 4 — ⛔ AUCUNE ENCRE HORS DU PAPIER ══════════════════════════════════ */
 
-test("4 — 📏 la morsure du bord ne dépasse JAMAIS le dégagement du premier organe peint", () => {
-  /* ⭐ LE BUDGET EST DÉDUIT DE LA TABLE, ⛔ PAS CHOISI : c'est la plus courte
-     distance entre un bord de la dalle et la boîte de DESSIN d'un organe.
-     📏 Mesuré sur la table du 21/09 : 9,5 (COPIER à gauche, JAUGE à droite). */
+test("4 — 🔴 LE RECTANGLE VISIBLE EST PLEIN : aucun creux ne laisse voir ce qu'il y a dessous", () => {
+  /* ⚖️ Eric, 2026-09-21, en regardant le rendu EN LIGNE : *« fais dépasser le
+     parchemin qu'on ne voie pas la fiche sous-jacente »*.
+     ✅ ET UNE LOI RATIFIÉE LE COUVRAIT DÉJÀ — `cadre-dechirure-du-parchemin-hors-dalle`,
+     vivante depuis le 18/09 : *« On ne voit que le DÉBUT de la déchirure au bord de la
+     fiche X1 »*, Eric : *« les 28 de large en moins, c'est ok. On laisse le parchemin
+     comme ça. »*
+
+     🔴 CE QUE CE GARDE REMPLACE, ET POURQUOI IL FALLAIT L'INVERSER. Il tenait
+     l'inverse : *« la morsure du bord ne dépasse jamais le dégagement du premier
+     organe »*, adossé à une contrainte que le lot 219 s'était donnée
+     (`m + k·min ≥ 0`, *« aucun bord rogné à plat »*). ⛔ Cette contrainte était un
+     GOÛT formulé comme une exigence de qualité, et elle annulait en silence la loi
+     du 18/09 — personne ne pouvait le voir, parce qu'elle ne se présentait pas
+     comme un changement de loi.
+
+     📏 CE QUI A ÉTÉ MESURÉ AVANT DE LA RETOURNER (banc, fond magenta, 21/09) : ce
+     n'était pas *« quelques creux de 2 blg »*. La silhouette tenait ENTIÈREMENT
+     dans le rectangle, donc TOUT le pourtour — une bande irrégulière sur les quatre
+     côtés — laissait passer ce qu'il y avait derrière.
+     ⚠️ ET CE N'ÉTAIT PAS UN AUTRE ÉCRAN : `montrer()` pose la vue par `swapContent`
+     → `replaceChildren`, donc X1 REMPLACE Gear ou le sac. Ce qui transparaissait est
+     le fond de l'application. Il n'y avait rien à « cacher dessous ».
+
+     ⭐ LE GARDE EST À DEUX CÔTÉS, et c'est ce qui l'empêche d'être tautologique :
+       ① aucun point du bord n'est DANS le rectangle → rien ne transparaît ;
+       ② un point au moins l'AFFLEURE → le papier n'est pas devenu un rectangle
+          géant dont la déchirure serait hors de portée. Sans ②, une implémentation
+          qui dessinerait le bord à 100 blg dehors passerait ① les doigts dans le nez,
+          et le *« début de la déchirure »* du 18/09 ne se verrait plus jamais. */
   const budget = budgetDuParchemin();
   assert.equal(budget, 9.5, "le dégagement déduit de la table — s'il bouge, c'est que la table a bougé");
 
-  let pire = 0, ou = null;
-  /* pas de 3 blg : 234 cotes balayées. ⛔ Le pas de 1 coûtait 5 s à lui seul dans
-     une suite qui en pèse 25 — et un garde lent finit par se faire désactiver. */
-  for (let h = 300; h <= 1000; h += 3) {
-    for (const p of pointsDu(geometrieDuParchemin(375, h, 9).d)) {
-      /* les coins ne comptent pas : aucun organe n'y est peint (la table les laisse nus) */
-      if (p.y < 20 || p.y > h - 20) continue;
-      const morsure = Math.min(p.x, 375 - p.x);
-      if (morsure > pire) { pire = morsure; ou = { h, x: p.x, y: p.y }; }
+  for (const h of [360, 420, 500, 640, 700, 900]) {
+    let plusDedans = -Infinity, ou = null;
+    for (const p of pointsDu(geometrieDuParchemin(375, h, budget).d)) {
+      /* ⭐ POSITIF = DANS le rectangle. Un point dehors a au moins une des quatre
+         distances négative, donc son minimum l'est. */
+      const dedans = Math.min(p.x, 375 - p.x, p.y, h - p.y);
+      if (dedans > plusDedans) { plusDedans = dedans; ou = p; }
     }
+    assert.ok(plusDedans <= .5,
+      `⛔ à ${h} de haut, le bord rentre de ${plusDedans.toFixed(2)} blg dans le rectangle : ` +
+      `ce creux laisse voir le fond de l'application (${JSON.stringify(ou)})`);
+    assert.ok(plusDedans >= -1.5,
+      `⛔ à ${h} de haut, le bord le plus rentrant reste à ${(-plusDedans).toFixed(2)} blg DEHORS : ` +
+      "le papier ne touche plus son arête, et le « début de la déchirure » du 18/09 ne se voit plus");
   }
-  assert.ok(pire <= budget,
-    `⛔ le bord mord ${pire.toFixed(2)} blg alors que l'organe le plus au bord n'en dégage que ${budget} — de l'encre tombe hors du papier (à ${JSON.stringify(ou)})`);
-  /* ⚔️ ET LE GARDE PEUT ACCUSER : avec un budget desserré, la morsure dépasse. Un
-     garde qui ne rougit jamais ne protège rien. */
-  let pireLarge = 0;
-  for (const p of pointsDu(geometrieDuParchemin(375, 500, 40).d))
-    if (p.y > 20 && p.y < 480) pireLarge = Math.max(pireLarge, Math.min(p.x, 375 - p.x));
-  assert.ok(pireLarge > budget,
-    "⚔️ à budget desserré la morsure DOIT dépasser le dégagement — sinon ce garde est aveugle");
 });
 
-test("4 bis — le bord ne sort jamais de la dalle : `overflow: hidden` ne le coupe pas à plat", () => {
-  /* ⛔ L'AUTRE MOITIÉ, ET ELLE COMPTE AUTANT : si le papier débordait la dalle,
-     `overflow: hidden` le trancherait AU COUTEAU — et on obtiendrait le bord
-     DROIT que tout ce lot existe pour supprimer. */
+test("4 bis — ⭐ LE PAPIER DÉBORDE, ET D'AU PLUS LE BUDGET : la dalle le rogne, elle ne le dévore pas", () => {
+  /* ⛔ L'AUTRE MOITIÉ, ET ELLE COMPTE AUTANT — elle a seulement changé de sens.
+     Elle disait *« le bord ne sort jamais de la dalle »* ; elle dit maintenant qu'il
+     en sort BORNÉ. ⭐ La contrainte `m + k·max ≤ budget` n'a pas bougé d'un signe :
+     c'est elle qui tient l'amplitude, donc le papier ne peut pas s'échapper.
+     ⚠️ CE QU'UN DÉBORD NON BORNÉ COÛTERAIT : la silhouette est aussi la COUPE
+     (`clipPath`) du grain, des fibres et de la patine. Un bord parti à 200 blg
+     dehors étirerait la patine hors de toute arête, et le papier perdrait sa
+     tranche — on aurait un aplat, pas une feuille. */
+  const budget = budgetDuParchemin();
   for (const h of [360, 420, 500, 640, 700, 900]) {
-    const { m } = bornerLEchelle(375, h, 9);
-    assert.ok(m >= 0, `à ${h} de haut, la ligne moyenne est négative : le papier sort de la dalle`);
-    for (const p of pointsDu(geometrieDuParchemin(375, h, 9).d)) {
-      assert.ok(p.x >= -.5 && p.x <= 375.5 && p.y >= -.5 && p.y <= h + .5,
-        `⛔ un point du bord sort de la dalle à ${h} de haut : ${JSON.stringify(p)}`);
+    const { m } = bornerLEchelle(375, h, budget);
+    assert.ok(m <= 0,
+      `à ${h} de haut, la ligne moyenne vaut ${m.toFixed(2)} : le papier est rentré dans la dalle, ` +
+      "et le pourtour redevient transparent");
+    assert.ok(m >= -budget - .5,
+      `à ${h} de haut, la ligne moyenne vaut ${m.toFixed(2)} : le débord dépasse le budget de ${budget}`);
+    for (const p of pointsDu(geometrieDuParchemin(375, h, budget).d)) {
+      assert.ok(p.x >= -budget - .5 && p.x <= 375 + budget + .5 &&
+                p.y >= -budget - .5 && p.y <= h + budget + .5,
+        `⛔ un point du bord s'échappe de plus que le budget à ${h} de haut : ${JSON.stringify(p)}`);
     }
   }
 });
