@@ -1722,7 +1722,12 @@
    commentaires du dépôt disent « Group Tally », et le code écrit `party-tally`.
    ⛔ Ce n'est pas un second organe — le nom qui fait foi est celui du code, et
    c'est celui qu'Eric a tranché le 21/09. */
-.x1[data-parchemin="party-tally"] {
+/* ⭐ LOT 242 — `:is(.x1, .x2)`, POUR LA RAISON DU BLOC DU PARCHEMIN DANS
+   `shell.css` : les deux fiches montent le MÊME organe, donc elles portent la
+   même troisième palette. ⛔ Un second bloc pour X2 aurait été deux écrivains
+   pour un jeu de onze teintes — et une palette qui diverge d'une teinte, ça ne
+   se voit pas dans un garde, ça se voit six semaines plus tard à l'œil. */
+:is(.x1, .x2)[data-parchemin="party-tally"] {
   --x1-papier: #d5e1e9;
   --x1-tranche: #6686a3;
   --x1-tranche-douce: rgba(51, 80, 105, .31);

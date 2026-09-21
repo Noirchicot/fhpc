@@ -160,7 +160,7 @@ export const ORGANES_DE_TETE = Object.freeze(
 );
 /* ⛔ L'APPARTENANCE SE DIT PAR NOM, JAMAIS PAR IDENTITÉ D'OBJET — 📏 mesuré au lot
    242, et c'est un piège du dépôt, pas une précaution : `x1-disposition.mjs` et
-   `x1-disposition.mjs?v=790` sont DEUX instances de module. Les mêmes organes y
+   `x1-disposition.mjs?v=791` sont DEUX instances de module. Les mêmes organes y
    portent des références DIFFÉRENTES, donc un `includes(o)` rend `false` dès que
    l'appelant a importé la table sans la version — ce qu'un garde fait naturellement.
    ⭐ Le nom, lui, traverse les deux instances. */

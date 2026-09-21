@@ -237,7 +237,12 @@ test("7 — shell.css ne porte AUCUNE position de la fiche : les cotes sont dans
      est écrit AU-DESSUS de l'ancien point d'ancrage, donc `slice` en lit davantage.
      ⚠️ Un garde dont l'ancre disparaît doit être RE-ANCRÉ, ⛔ jamais supprimé : c'est
      la première déclaration d'habit de la fiche qui fait l'ancre, quelle qu'elle soit. */
-  const debut = shell.indexOf(".x1 .parchemin {");
+  /* ⚠️ L'ANCRE A SUIVI LE SÉLECTEUR AU LOT 242 : la règle est devenue
+     `:is(.x1, .x2) .parchemin` le jour où X2 a monté le MÊME parchemin. ⛔ La
+     réparation n'était PAS d'ajouter un second bloc `.x2 .parchemin` pour que
+     cette ancre retombe sur ses pieds — ça aurait été deux écrivains pour un
+     organe unique, et le garde aurait alors gardé la MOITIÉ de la vérité. */
+  const debut = shell.indexOf(":is(.x1, .x2) .parchemin {");
   assert.ok(debut > 0, "le bloc d'habit de la fiche existe (il s'ouvre sur la surface en parchemin)");
   const bloc = shell.slice(debut);
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur serait une cote recopiée");

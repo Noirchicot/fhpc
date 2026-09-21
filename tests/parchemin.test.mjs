@@ -344,7 +344,13 @@ test("6 — 🔵 la palette Party Tally redéfinit TOUT ce que la nuit touche (s
      ⭐ La bleutée doit donc être COMPLÈTE, pas seulement présente. */
   const bloc = (re) => { const m = re.exec(jetons); return m ? m[1] : null; };
   const nuit = bloc(/@media \(prefers-color-scheme: dark\) \{\s*:root \{([\s\S]*?)\n  \}/);
-  const bleu = bloc(/\.x1\[data-parchemin="party-tally"\] \{([\s\S]*?)\n\}/);
+  /* ⚠️ L'ANCRE A SUIVI LE SÉLECTEUR AU LOT 242 : la bleutée se déclare désormais
+     `:is(.x1, .x2)[data-parchemin=…]`, parce que X2 monte le MÊME parchemin que X1 et
+     doit donc porter la MÊME troisième palette. ⛔ La réparation n'était pas d'ajouter
+     un second bloc pour X2 — onze teintes écrites deux fois, et le garde n'aurait plus
+     vérifié que la moitié d'entre elles. ⭐ CE QUE LE GARDE DIT NE CHANGE PAS : la
+     bleutée doit être COMPLÈTE, sinon la nuit fuit dessous. */
+  const bleu = bloc(/:is\(\.x1, \.x2\)\[data-parchemin="party-tally"\] \{([\s\S]*?)\n\}/);
   assert.ok(nuit, "le bloc de nuit existe");
   assert.ok(bleu, "le bloc Party Tally existe");
   const jetonsDe = (t) => new Set([...t.matchAll(/(--x1-[\w-]+)\s*:/g)].map((m) => m[1]));
@@ -358,8 +364,8 @@ test("6 — 🔵 la palette Party Tally redéfinit TOUT ce que la nuit touche (s
 test("6 bis — ⛔ et elle n'est pas un thème : elle se pose sur la FICHE, pas sur `:root`", () => {
   /* Eric : le bleu est un CONTEXTE (*« la fiche relève du Party Tally »*), pas une
      préférence. Un `:root[data-parchemin]` en ferait un réglage global. */
-  assert.ok(/\.x1\[data-parchemin="party-tally"\]/.test(jetons),
-    "la bleutée se déclare sur la fiche");
+  assert.ok(/:is\(\.x1, \.x2\)\[data-parchemin="party-tally"\]/.test(jetons),
+    "la bleutée se déclare sur les FICHES (X1 et X2), ⛔ jamais sur `:root`");
   assert.ok(!/:root\[data-parchemin/.test(jetons),
     "⛔ la bleutée est posée sur `:root` : elle deviendrait un troisième thème, ce qu'Eric a écarté");
 });
@@ -384,7 +390,12 @@ test("7 bis — ⛔ le parchemin ne bouge pas : `prefers-reduced-motion` n'a rie
      REDESSINÉE, jamais animée. Une transition posée ici s'animerait à chaque
      redimensionnement — et un mouvement qu'aucune règle n'éteint est exactement
      ce que `prefers-reduced-motion` existe pour interdire. */
-  const debut = shell.indexOf(".x1 .parchemin {");
+  /* ⚠️ L'ANCRE A SUIVI LE SÉLECTEUR AU LOT 242 : la règle est devenue
+     `:is(.x1, .x2) .parchemin` le jour où X2 a monté le MÊME parchemin. ⛔ La
+     réparation n'était PAS d'ajouter un second bloc `.x2 .parchemin` pour que
+     cette ancre retombe sur ses pieds — ça aurait été deux écrivains pour un
+     organe unique, et le garde aurait alors gardé la MOITIÉ de la vérité. */
+  const debut = shell.indexOf(":is(.x1, .x2) .parchemin {");
   assert.ok(debut > 0, "le bloc existe");
   const bloc = shell.slice(debut, shell.indexOf("}", shell.indexOf(".parchemin-fil")));
   assert.ok(!/\b(transition|animation)\s*:/.test(bloc),
