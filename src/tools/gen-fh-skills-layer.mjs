@@ -443,7 +443,13 @@ function buildTools(srd) {
           "n'en invente pas : ce serait écrire une règle que le SRD ne donne pas.");
       }
       data.utilize = utilize;
-      data.cost = "Varies";
+      /* ⚖️ « prends le prix SRD s'il existe, prends le prix Pathfinder sinon »
+         (Eric, 23/09). Le premier cran est VIDE ici — les deux parents portent
+         « Varies » — donc le prix qui arrive vient de l'entrée, ou de nulle
+         part. ⛔ Et il n'arrive QUE pour ce qui est un objet : un véhicule et
+         une monture sont des maîtrises, pas des choses qu'on achète. */
+      data.cost = typeof entry.cost === "string" ? entry.cost : "Varies";
+      if (typeof entry.cost_provenance === "string") data.cost_provenance = entry.cost_provenance;
       /* ⭐ LE POIDS PEUT ÊTRE TRANCHÉ À L'ENTRÉE, LE PRIX NON. Un outil hérité
          prend « Varies » par défaut — mais depuis le 23/09 les trois jeux
          portent un poids décidé par Eric, et « Varies » vaut 0 : les laisser

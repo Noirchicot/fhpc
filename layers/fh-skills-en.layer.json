@@ -290,9 +290,10 @@
           "ability_key": "wis",
           "name": "Card Set",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
-          "cost": "Varies",
+          "cost": "1 SP",
+          "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD n'en donne aucun (`gaming-set` = « Varies »). La référence ouverte chiffre une FOURCHETTE (1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau) : le bas de fourchette est le jeu COURANT, et c'est celui que le catalogue vend. ⛔ Nombre posé par Eric, jamais recopié — §0.8 refuse l'OGL comme elle refuse le PHB.",
           "weight": "1 lb.",
-          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. Le prix, lui, reste « Varies »."
+          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes."
         }
       },
       "fh:tool:en:gaming-set-dragonchess": {
@@ -303,9 +304,10 @@
           "ability_key": "wis",
           "name": "Dragonchess Set",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
-          "cost": "Varies",
+          "cost": "1 SP",
+          "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD n'en donne aucun (`gaming-set` = « Varies »). La référence ouverte chiffre une FOURCHETTE (1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau) : le bas de fourchette est le jeu COURANT, et c'est celui que le catalogue vend. ⛔ Nombre posé par Eric, jamais recopié — §0.8 refuse l'OGL comme elle refuse le PHB.",
           "weight": "2 lb.",
-          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. Le prix, lui, reste « Varies ». ⭐ Deux livres et non une : un jeu à PLATEAU et à pièces pèse plus qu'un paquet de cartes."
+          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. ⭐ Deux livres et non une : un jeu à PLATEAU et à pièces pèse plus qu'un paquet de cartes."
         }
       },
       "fh:tool:en:gaming-set-three-dragon": {
@@ -316,9 +318,10 @@
           "ability_key": "wis",
           "name": "Three-Dragon Ante",
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
-          "cost": "Varies",
+          "cost": "1 SP",
+          "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD n'en donne aucun (`gaming-set` = « Varies »). La référence ouverte chiffre une FOURCHETTE (1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau) : le bas de fourchette est le jeu COURANT, et c'est celui que le catalogue vend. ⛔ Nombre posé par Eric, jamais recopié — §0.8 refuse l'OGL comme elle refuse le PHB.",
           "weight": "1 lb.",
-          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. Le prix, lui, reste « Varies ». ⭐ C'est un jeu de CARTES, donc le poids du Card Set — le nom ne dit pas la matière, le jeu si."
+          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. ⭐ C'est un jeu de CARTES, donc le poids du Card Set — le nom ne dit pas la matière, le jeu si."
         }
       },
       "fh:tool:en:instrument-wind": {
@@ -329,7 +332,8 @@
           "ability_key": "cha",
           "name": "Instrument (Wind)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
-          "cost": "Varies",
+          "cost": "5 GP",
+          "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD dit « Varies » ; la référence ouverte chiffre l'instrument COURANT — celui qu'on porte à la main. ⭐ Le prix est pris, le POIDS NON : Eric a dit « tout le reste = varies » pour les poids, et il n'a pas rouvert cette ligne-là.",
           "weight": "Varies"
         }
       },
@@ -341,7 +345,8 @@
           "ability_key": "cha",
           "name": "Instrument (Other)",
           "utilize": "Play a known tune (DC 10), or improvise a song (DC 15)",
-          "cost": "Varies",
+          "cost": "5 GP",
+          "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD dit « Varies » ; la référence ouverte chiffre l'instrument COURANT — celui qu'on porte à la main. ⭐ Le prix est pris, le POIDS NON : Eric a dit « tout le reste = varies » pour les poids, et il n'a pas rouvert cette ligne-là.",
           "weight": "Varies"
         }
       },

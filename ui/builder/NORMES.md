@@ -3564,9 +3564,37 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
-⏳ **ET LE PRIX RESTE `"Varies"` POUR LES TROIS.** Les deux sources donnent une **fourchette**
-*(1 sp–100 gp)*, jamais un prix. ⛔ Une fourchette n'est pas une valeur : il n'y a rien à écrire
-tant qu'Eric ne tranche pas.
+### 💰 LE PRIX SE PREND AU SRD, PUIS À LA RÉFÉRENCE OUVERTE — ET SEULEMENT POUR UN OBJET
+📍 `equipement-prix-srd-puis-reference` · vivante · 23/09
+⚖️ **Le prix d'un outil FH est celui du SRD s'il existe ; sinon celui de la référence ouverte,
+au bas de sa fourchette — et rien du tout pour ce qui n'est pas un objet.**
+
+> Eric, 2026-09-23 : **« prends le prix SRD s'il existe, prends le prix Pathfinder sinon »**.
+
+🔴 **LE PREMIER CRAN EST VIDE POUR LES DOUZE, ET C'EST MESURÉ** : `srd:tool:en:gaming-set` et
+`srd:tool:en:musical-instrument` portent tous deux `"Varies"`, et **le SRD n'a ni véhicule ni
+monture** — aucun record. La règle s'arrête donc au second cran.
+
+| outil | prix | d'où |
+|---|---|---|
+| **Card Set** · **Three-Dragon Ante** · **Dragonchess Set** | `1 SP` | bas de fourchette *(1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau)* |
+| **Instrument (Wind)** · **Instrument (Other)** | `5 GP` | l'instrument **courant**, celui qu'on porte à la main |
+| **Vehicles ×3** · **Mount ×3** | `"Varies"` | ⛔ **ce ne sont pas des objets** — des maîtrises, qu'on n'achète pas |
+| **Soulforging** | `"Varies"` | ⏳ invention Fate's Hand : aucune des deux sources ne le connaît |
+
+⭐ **LE BAS DE FOURCHETTE EST LE JEU COURANT**, et c'est celui que le catalogue vend : le haut
+paie l'ivoire et la dorure, pas la règle du jeu. ⛔ Une fourchette n'est pas une valeur — on en
+prend un bout, en disant lequel et pourquoi.
+
+⛔ **ET LE PRIX EST UN NOMBRE D'ERIC, comme le poids.** §0.8 refuse l'**OGL** exactement comme elle
+refuse le PHB : la référence ouverte a servi à **choisir** le chiffre, jamais à le **fournir**.
+Chaque record porte sa `cost_provenance` qui le dit.
+
+⏳ **CE QUI N'EST PAS TRANCHÉ** : le **poids** des deux instruments reste `"Varies"`, donc **0**.
+Eric a dit *« tout le reste = varies »* pour les poids et n'a pas rouvert cette ligne — ⛔ on ne
+la rouvre pas à sa place, même si la référence donne un nombre. Et le **prix du Soulforging** :
+son POIDS vient de `tinker-s-tools`, qui porte `50 GP` — mais Eric a dit *« idem **poids** »*, et
+étendre au prix serait une décision qu'il n'a pas prise.
 
 ---
 

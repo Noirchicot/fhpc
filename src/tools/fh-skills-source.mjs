@@ -368,24 +368,47 @@ export const TOOLS_REWRITTEN = [
 const POIDS_DES_JEUX = "eric:2026-09-23 — un jeu de table se porte, donc il pèse. " +
   "⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce " +
   "nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision " +
-  "Fate's Hand, du même genre que les poids des 54 gemmes. Le prix, lui, reste « Varies ».";
+  "Fate's Hand, du même genre que les poids des 54 gemmes.";
+
+/* ⚖️ LE PRIX — ERIC, 2026-09-23 : « prends le prix SRD s'il existe, prends le
+   prix Pathfinder sinon ». Appliqué dans cet ordre, il ne donne le SRD à
+   AUCUN de ces outils : `srd:tool:en:gaming-set` et `srd:tool:en:musical-instrument`
+   portent tous deux « Varies », et le SRD n'a ni véhicule ni monture.
+   ⭐ La règle s'arrête donc au second cran pour les cinq outils qui sont des
+   OBJETS, et n'a rien à saisir pour les sept autres.
+   ⛔ ET LE PRIX EST, LUI AUSSI, UN NOMBRE D'ERIC : §0.8 refuse l'OGL comme
+   elle refuse le PHB. La référence a servi à CHOISIR, pas à FOURNIR. */
+const PRIX_DES_JEUX = "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix " +
+  "Pathfinder sinon ». Le SRD n'en donne aucun (`gaming-set` = « Varies »). La référence " +
+  "ouverte chiffre une FOURCHETTE (1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à " +
+  "plateau) : le bas de fourchette est le jeu COURANT, et c'est celui que le catalogue " +
+  "vend. ⛔ Nombre posé par Eric, jamais recopié — §0.8 refuse l'OGL comme elle refuse le PHB.";
+const PRIX_DES_INSTRUMENTS = "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le " +
+  "prix Pathfinder sinon ». Le SRD dit « Varies » ; la référence ouverte chiffre l'instrument " +
+  "COURANT — celui qu'on porte à la main. ⭐ Le prix est pris, le POIDS NON : Eric a dit " +
+  "« tout le reste = varies » pour les poids, et il n'a pas rouvert cette ligne-là.";
 
 export const TOOLS_ADDED = [
   /* ⛔ `gaming-set-dice` MANQUE ICI DÉLIBÉRÉMENT : c'est `srd:tool:en:gaming-set`
      réécrit (`TOOLS_REWRITTEN`). Le rajouter recréerait le doublon. */
   { slug: "gaming-set-cards", name: "Card Set", ability: "wis", inherits: "srd:tool:en:gaming-set",
-    weight: "1 lb.", weight_provenance: POIDS_DES_JEUX },
+    weight: "1 lb.", weight_provenance: POIDS_DES_JEUX,
+    cost: "1 SP", cost_provenance: PRIX_DES_JEUX },
   { slug: "gaming-set-dragonchess", name: "Dragonchess Set", ability: "wis", inherits: "srd:tool:en:gaming-set",
     weight: "2 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ Deux livres et non une : un jeu " +
-      "à PLATEAU et à pièces pèse plus qu'un paquet de cartes." },
+      "à PLATEAU et à pièces pèse plus qu'un paquet de cartes.",
+    cost: "1 SP", cost_provenance: PRIX_DES_JEUX },
   { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante", ability: "wis", inherits: "srd:tool:en:gaming-set",
     weight: "1 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ C'est un jeu de CARTES, donc le " +
-      "poids du Card Set — le nom ne dit pas la matière, le jeu si." },
+      "poids du Card Set — le nom ne dit pas la matière, le jeu si.",
+    cost: "1 SP", cost_provenance: PRIX_DES_JEUX },
 
   /* ⛔ Et `instrument-strings` non plus : c'est `srd:tool:en:musical-instrument`
      réécrit. */
-  { slug: "instrument-wind", name: "Instrument (Wind)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
-  { slug: "instrument-other", name: "Instrument (Other)", ability: "cha", inherits: "srd:tool:en:musical-instrument" },
+  { slug: "instrument-wind", name: "Instrument (Wind)", ability: "cha", inherits: "srd:tool:en:musical-instrument",
+    cost: "5 GP", cost_provenance: PRIX_DES_INSTRUMENTS },
+  { slug: "instrument-other", name: "Instrument (Other)", ability: "cha", inherits: "srd:tool:en:musical-instrument",
+    cost: "5 GP", cost_provenance: PRIX_DES_INSTRUMENTS },
 
   /* 🔴 SOULFORGING N'EST PLUS ICI — lot 179, 2026-09-08. Il a été ajouté le
      2026-08-20 (il manquait depuis toujours : le livre d'Eric le porte dans
