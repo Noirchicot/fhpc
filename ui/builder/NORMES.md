@@ -3564,6 +3564,63 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### 💰 LE PRIX ET LE TEMPS D'UNE RECETTE — UNE DIVISION, ET UNE ÉCHELLE D'ERIC
+📍 `equipement-prix-et-temps-du-craft` · vivante · 23/09
+⚖️ **Le prix de vente est celui du SRD. Le coût de production est sa MOITIÉ. Le temps suit
+l'échelle d'Eric. ⭐ Et un CONSOMMABLE divise les deux par deux.**
+
+> Eric, 2026-09-23 : **« work time on change — common 2 days, uncommon 4 days, rare 10 days, very
+> rare 30 days, legendary 100 days »**, puis **« on divise par deux le temps et le prix de
+> production des consumables. Règles FH »**.
+
+| rareté | vente *(SRD)* | production | temps | ⭐ **consommable** | |
+|---|---|---|---|---|---|
+| **Common** | 100 gp | 50 gp | 2 j | **25 gp** | **1 j** |
+| **Uncommon** | 400 gp | 200 gp | 4 j | **100 gp** | **2 j** |
+| **Rare** | 4 000 gp | 2 000 gp | 10 j | **1 000 gp** | **5 j** |
+| **Very Rare** | 40 000 gp | 20 000 gp | 30 j | **10 000 gp** | **15 j** |
+| **Legendary** | 200 000 gp | 100 000 gp | 100 j | **50 000 gp** | **50 j** |
+
+🔴 **LA VENTE NE S'INVENTE PAS : LE SRD LA PORTE DÉJÀ.** `srd:item-value` — *Magic Item Rarities
+and Values* — donne les cinq valeurs, sous **CC-BY**. Le builder ne l'exploitait pas encore.
+⭐ **Et il porte aussi la règle du coût de base**, mot pour mot : *« If a magic item incorporates an
+item that has a purchase cost, ADD that item's cost. For example, +1 Armor (Plate Armor) has a
+value of 5 500 GP = 4 000 (Rare) + 1 500 (Plate Armor) »*. C'est exactement la première ligne du
+panneau du croquis — **la donnée sait déjà faire ce calcul**.
+
+📏 **POURQUOI LA MOITIÉ, ET PAS UN AUTRE RAPPORT.** Mesuré sur les cinq paliers : la table de craft
+du DMG donne `50 · 200 · 2 000 · 20 000 · 100 000`, soit **exactement la moitié** de la valeur SRD,
+**cinq fois sur cinq, au gp près**. ⭐ **Conséquence, et elle règle la licence** : il n'y a rien à
+importer. Le SRD porte la vente ; la production est une **division** qu'Eric pose. ⛔ La table du
+DMG devient inutile — §0.8 n'a plus rien à refuser.
+
+⛔ **LE TEMPS, LUI, NE SE DÉRIVE DE RIEN, ET C'EST POURQUOI ERIC LE POSE.** Aucun record du SRD ne
+porte de temps de fabrication *(balayé sur les 18 genres : trois occurrences, toutes de la prose de
+sort)*. Et aucune formule ne relie le temps au prix — les prix montent en ×4 puis ×10, le temps en
+×2 · ×2,5 · ×3 · ×3,33. ⭐ **L'échelle `2 · 4 · 10 · 30 · 100` est une décision Fate's Hand**, et
+elle remplace les *workweeks* `1 · 2 · 10 · 25 · 50` du DMG.
+
+📌 **CE QU'EST UN CONSOMMABLE — TROIS FAMILLES, NOMMÉES PAR ERIC** : *« consumables : projectiles
+magiques, potions, parchemins »* (23/09). **27 objets**, et ⛔ **ils ne se lisent pas tous au même
+champ** :
+
+| famille | combien | où ça se lit |
+|---|---|---|
+| **potions** | 24 | `category: "potion"` |
+| **parchemins** | 1 | `category: "scroll"` — *Spell Scroll*, la famille entière dans un jeton |
+| **projectiles magiques** | 2 | ⚠️ `category: "weapon"` — il faut lire le **`subtype`** : `"Any Ammunition"` |
+
+🔴 **ET C'EST LE PIÈGE DE CETTE RÈGLE.** *Ammunition +1/+2/+3* et *Ammunition of Slaying* sont
+rangées parmi les **armes** par leur catégorie ; seul leur `subtype` dit que ce sont des munitions.
+⛔ Un filtre sur `category` seul les manquerait — et il les facturerait **le double** du prix voulu,
+en silence. ⭐ La lecture se fait donc sur **deux champs**, jamais sur un.
+
+⏳ **ET ON NE DEVINE PAS AU-DELÀ** : des objets merveilleux à usage unique existent *(Feather Token,
+Elemental Gem…)*, mais le SRD ne les marque nulle part. Tant qu'Eric ne les nomme pas, ils ne sont
+pas des consommables.
+
+---
+
 ### ⏳ LE CRAFT ORDINAIRE NE DEMANDE AUCUN JET — SEUL LE SOULFORGING EN DEMANDE
 📍 `equipement-craft-sans-jet` · vivante · 23/09
 ⚖️ **Le craft standard coûte du TEMPS et de l'ARGENT, rien d'autre : pas de DC, pas de jet, pas de
