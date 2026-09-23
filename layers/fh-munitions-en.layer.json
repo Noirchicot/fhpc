@@ -146,6 +146,24 @@
         },
         "note": "Fate's Hand — the Arrows follow the other four onto Ranged Weapons"
       }
+    },
+    "item": {
+      "srd:item:en:ammunition-1-2-or-3": {
+        "op": "patch",
+        "changes": {
+          "data.pack": 10,
+          "data[pack_provenance]": "eric:2026-09-23 — « on fait par 10 pour tout ! ». ⭐ LE NOMBRE EST CELUI DU LIVRE pour la munition à bonus : le SRD écrit « typically found or sold in quantities of TEN OR TWENTY pieces », et Eric retient le premier des deux. ⭐ La phrase suivante confirme le prix par un second chemin : « ten pieces are equivalent in value to a potion of the same rarity » — dix flèches +1 valent 400 gp, ce que `srd:item-value` donne déjà pour Uncommon. ⛔ Pour l'Ammunition of Slaying le livre se tait : le dix y est une décision d'Eric, prise pour que la règle n'ait AUCUNE exception."
+        },
+        "note": "Fate's Hand — la munition magique classique se vend par DIX, comme sa base mondaine."
+      },
+      "srd:item:en:ammunition-of-slaying": {
+        "op": "patch",
+        "changes": {
+          "data.pack": 10,
+          "data[pack_provenance]": "eric:2026-09-23 — « on fait par 10 pour tout ! ». ⭐ LE NOMBRE EST CELUI DU LIVRE pour la munition à bonus : le SRD écrit « typically found or sold in quantities of TEN OR TWENTY pieces », et Eric retient le premier des deux. ⭐ La phrase suivante confirme le prix par un second chemin : « ten pieces are equivalent in value to a potion of the same rarity » — dix flèches +1 valent 400 gp, ce que `srd:item-value` donne déjà pour Uncommon. ⛔ Pour l'Ammunition of Slaying le livre se tait : le dix y est une décision d'Eric, prise pour que la règle n'ait AUCUNE exception."
+        },
+        "note": "Fate's Hand — par DIX comme toutes les autres. Un cinq avait été posé le même jour puis retiré : une exception qui ne sert qu'un seul record coûte plus cher à retenir qu'à supprimer."
+      }
     }
   }
 }

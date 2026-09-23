@@ -3564,6 +3564,39 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### 📦 UNE MUNITION SE VEND PAR DIX — SANS EXCEPTION
+📍 `equipement-paquets-de-munitions` · vivante · 23/09
+⚖️ **Toutes les munitions se vendent par DIX : les cinq mondaines, la munition à bonus, celle de
+mise à mort. ⛔ Aucune exception.**
+
+> Eric, 2026-09-23 : **« on statue sur 10 pour les munitions classiques et sur 5 pour les autres,
+> comme arrow of slaying »**, puis, aussitôt : **« attends, on fait par 10 pour tout ! »**.
+
+⭐ **LE DIX N'EST PAS UNE INVENTION, ET LE SRD LE DIT DEUX FOIS.** `Ammunition, +1, +2, or +3`
+porte, mot pour mot : *« This ammunition is typically found or sold in quantities of **ten or
+twenty** pieces »* — Eric retient le premier des deux. Et la phrase suivante **confirme le prix par
+un second chemin** : *« **Ten pieces** of this ammunition are **equivalent in value to a potion of
+the same rarity** »*. Dix flèches +1 valent donc 400 gp — exactement ce que `srd:item-value` donne
+pour Uncommon. ⭐ **Deux raisonnements indépendants, le même nombre.**
+
+⛔ **POUR L'AMMUNITION OF SLAYING, LE LIVRE SE TAIT** — la phrase « ten or twenty » ne vaut que
+pour la munition à bonus. Le dix y est donc une **décision d'Eric**, et elle a été prise *contre*
+un cinq posé quelques minutes plus tôt. ⭐ **Une exception qui ne sert qu'un seul record coûte plus
+cher à retenir qu'à supprimer** : la règle sans exception se tient dans une phrase, celle avec un
+cas particulier demande qu'on se souvienne duquel.
+
+📏 **ET LE LIVRE APPARIE DÉJÀ MUNITION ET POTION** — *« equivalent in value to a potion of the same
+rarity »*. ⭐ La règle du consommable *(prix et temps de production divisés par deux)* les traite
+donc pareil **parce que le SRD les avait appariées le premier**, pas par commodité.
+
+⏳ **CE QUE CE TEXTE ENTROUVRE, ET QUI N'EST PAS TRANCHÉ** : *« Once it hits a target, the
+ammunition is no longer magical »*. Un paquet de dix n'est pas un objet qui s'use — ce sont **dix
+charges à usage unique**. Le jour où le sac devra décompter les flèches restantes, `pack` devra
+devenir une **quantité** et non plus la seule marque `×10` du jeton. ⛔ Eric a dit *« uniquement
+pour acheter »* : donc pas aujourd'hui.
+
+---
+
 ### 💰 LE PRIX ET LE TEMPS D'UNE RECETTE — UNE DIVISION, ET UNE ÉCHELLE D'ERIC
 📍 `equipement-prix-et-temps-du-craft` · vivante · 23/09
 ⚖️ **Le prix de vente est celui du SRD. Le coût de production est sa MOITIÉ. Le temps suit
