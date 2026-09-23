@@ -3564,6 +3564,40 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### 💎 UNE GEMME SOUS 50 PO NE PORTE PAS L'OPTION DE CRAFT
+📍 `equipement-gemme-sous-le-seuil` · vivante · 23/09
+⚖️ **L'option de craft d'une gemme — celle qui en fait un Soulgem — n'apparaît QUE si la gemme
+vaut au moins 50 po. ⛔ Pas une option grisée : pas d'option.**
+
+> Eric, 2026-09-23 : **« les gemmes FH ont une option craft intégrée, après avoir lancé [le sort],
+> préciser rareté (inférieur ou égal à la valeur de la gemme), type de créature = soulgem »**, puis,
+> sur le bord de l'échelle : **« les gemmes de 10 po n'ont pas l'option craft »**.
+
+📏 **CE QUE LA SUPERPOSITION DES DEUX TABLES DONNE** — les 12 paliers de gemme contre l'échelle PP
+du chapitre *(`Soulforge Crafting`, « Min gem »)* : **chaque palier ouvre exactement un cran de
+plus**, terme à terme.
+
+| palier | valeur | PP max |
+|---|---|---|
+| **Common Gems ×5** | **10 po** | ⛔ **aucun** |
+| Ornamental | 50 po | 1 |
+| Fine · Rare · Precious · Superb | 100 → 750 po | 2 · 3 · 4 · 5 |
+| Exceptional · Sublime · Legendary | 1 000 → 5 000 po | 6 · 7 · 8 |
+| Masterwork · Royal · Sovereign | 10 000 → 50 000 po | 9 · 10 · 11 |
+
+⭐ **LE DROPDOWN N'A DONC RIEN À FILTRER** : le palier de la gemme **dit** le maximum. Une liste
+qu'on coupe à l'usage se trompe le jour où l'échelle bouge ; une borne lue sur la pierre, non.
+
+⛔ **ET L'ABSENCE VAUT MIEUX QUE LE GRIS.** Une option grisée promet qu'un jour elle s'ouvrira ;
+une option absente dit que **cette pierre n'est pas de cette famille-là**. *Azurite, Hematite,
+Malachite, Rhodonite, Turquoise* sont des marchandises : elles se vendent, elles ne se forgent pas.
+
+⚠️ **ET LE SORT S'APPELLE `Transfer Essence`** — `fh:spell:en:transfer-essence`, niveau 1, dans
+`fh-soulforging-en`, et le chapitre l'écrit pareil. ⛔ *« Infuse Gem »*, prononcé le 23/09, n'existe
+ni dans la couche ni dans le manuscrit : **à trancher avant que les deux noms circulent**.
+
+---
+
 ### 📦 UNE MUNITION SE VEND PAR DIX — SANS EXCEPTION
 📍 `equipement-paquets-de-munitions` · vivante · 23/09
 ⚖️ **Toutes les munitions se vendent par DIX : les cinq mondaines, la munition à bonus, celle de
