@@ -243,9 +243,16 @@ test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC
       `${id} : la provenance doit citer la décision QUI FAIT LOI (2026-09-23, « sous trade goods
        tu auras gems »), pas seulement celles qu'elle remplace — sinon le garde passe pour la
        mauvaise raison`);
-    assert.match(entree.data.shelf.provenance, /MOT EST CELUI DU LIVRE/,
-      `${id} : et elle doit dire POURQUOI — le SRD porte 23 marchandises typées TG, donc le mot
-       vient du livre et non de l'architecte (loi §0.12)`);
+    /* 🔧 CE GARDE EXIGEAIT « MOT EST CELUI DU LIVRE », ET IL TENAIT UNE FAUSSETÉ.
+       La note disait que le SRD 5.2 portait 23 marchandises typées TG ; ⛔ mesuré sur
+       le PDF épinglé, il n'en porte AUCUNE (Canvas 0, Cinnamon 0, Saffron 0). Un garde
+       qui exige qu'une phrase soit présente ne vérifie pas qu'elle soit VRAIE — c'est
+       la limite de tout garde de texte, et elle mérite d'être écrite ici.
+       ⭐ Il exige désormais la trace de la CORRECTION : tant que le mot y est, la note
+       porte la mesure au lieu de la prémisse fausse. */
+    assert.match(entree.data.shelf.provenance, /MESURÉ SUR LE PDF ÉPINGLÉ/,
+      `${id} : la provenance doit porter la MESURE (aucune table Trade Goods dans 5.2.1),
+       pas l'affirmation de 2026-09-09 qui invoquait §0.12 sur une prémisse fausse`);
   }
   assert.deepEqual([...posees], [`${rayon}:${etagere}`],
     "les 27 gemmes sont sur UNE seule étagère, celle que le générateur déclare");

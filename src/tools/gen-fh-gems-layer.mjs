@@ -98,9 +98,18 @@ export const ETAGERE_DES_GEMMES = "trade-goods:gems";
  *  trouve dans la donnée plutôt que dans un fil de conversation perdu. */
 export const PROVENANCE_ETAGERE =
   "eric:2026-09-09 — « remplace mes valuables par trade goods, même étagère partout ». " +
-  "⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, " +
-  "Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, " +
-  "et la loi §0.12 dit que le mot est celui du SRD. " +
+  "🔧 CORRIGÉ LE 2026-09-23 — CETTE NOTE AFFIRMAIT UNE CHOSE FAUSSE, ET ELLE INVOQUAIT §0.12 " +
+  "DESSUS. Elle disait : « le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, Saffron, " +
+  "Silk…), donc le mot est celui du livre et `valuables` était une invention de l'architecte ». " +
+  "⛔ MESURÉ SUR LE PDF ÉPINGLÉ : aucune table Trade Goods dans 5.2.1. Canvas 0, Cinnamon 0, " +
+  "Saffron 0, Ginger 0, Wheat 0 ; « silk » n'y est qu'en composant de sort et en vêtement noir. " +
+  "Les 23 viennent de la table de 2014, qui vit dans le vault d'Eric — PAS du SRD. " +
+  "⭐ ET LA SEULE PHRASE DU SRD QUI PORTE CES MOTS LES PORTE TOUS LES DEUX : « In contrast, trade " +
+  "goods and valuables—like gems and art objects—retain their full value in the marketplace. » " +
+  "⛔ §0.12 NE TRANCHAIT DONC RIEN : les deux mots sont du livre. ⚠️ Et cette phrase range même " +
+  "les gemmes du côté des VALUABLES, pas des trade goods. Le choix de `trade-goods` reste " +
+  "ENTIEREMENT une décision d'Eric du 09/09, et c'est une raison suffisante — mais c'est la " +
+  "SIENNE, pas une conséquence de la loi. " +
   "✅ ET LES DEUX SE SÉPARENT DEPUIS LE 2026-09-23 — « sous trade goods tu auras gems, et ce sera " +
   "une plus grosse catégorie ». Le rayon `trade-goods` porte désormais DEUX étagères : les pierres " +
   "chez `gems`, les 23 marchandises du livre chez `trade-goods`. ⏳ Le 09/09 disait l'inverse " +
