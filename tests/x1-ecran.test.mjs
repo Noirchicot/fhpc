@@ -19,6 +19,9 @@
    de la description. */
 
 import test from "node:test";
+/* ⭐ LOT 248 — la famille du parchemin se LIT à sa source ; ce garde ne la
+   recopie plus (elle était écrite quatre fois, cf. `parchemin.mjs`). */
+import { SELECTEUR_DU_PARCHEMIN as PARCH } from "../ui/builder/parchemin.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -242,7 +245,7 @@ test("7 — shell.css ne porte AUCUNE position de la fiche : les cotes sont dans
      réparation n'était PAS d'ajouter un second bloc `.x2 .parchemin` pour que
      cette ancre retombe sur ses pieds — ça aurait été deux écrivains pour un
      organe unique, et le garde aurait alors gardé la MOITIÉ de la vérité. */
-  const debut = shell.indexOf(":is(.x1, .x2) .parchemin {");
+  const debut = shell.indexOf(`${PARCH} .parchemin {`);
   assert.ok(debut > 0, "le bloc d'habit de la fiche existe (il s'ouvre sur la surface en parchemin)");
   const bloc = shell.slice(debut);
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur serait une cote recopiée");

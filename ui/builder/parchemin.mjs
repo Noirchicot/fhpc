@@ -36,6 +36,18 @@
    donné deux dessins différents pour un même écran, et c'est exactement la
    famille du piège « `zoom` ne rebase pas `vw` » (TRAPS, lot 121). */
 
+/** ⚖️ QUI PORTE LE PARCHEMIN — LA FAMILLE, NOMMÉE UNE SEULE FOIS.
+ *  🔴 LOT 248 — ELLE ÉTAIT ÉCRITE QUATRE FOIS : sept règles de `shell.css` et
+ *  TROIS gardes qui recopiaient `:is(.x1, .x2)` à la main. ⛔ Ce n'est pas un
+ *  détail de forme : le jour où X2 a rejoint X1 (lot 242), il a fallu retoucher
+ *  chaque ancre, et le commentaire du garde 7 bis raconte lui-même l'opération.
+ *  Le jour où X0 les rejoint, la même corvée recommençait — et un garde qu'on
+ *  répare à la main est un garde qu'on finit par ajuster jusqu'au vert.
+ *  ⭐ Désormais la feuille écrit le sélecteur et les gardes le LISENT ici : le
+ *  prochain porteur s'ajoute à cette ligne, et rien d'autre ne bouge. */
+export const FAMILLE_DU_PARCHEMIN = Object.freeze([".x1", ".x2", ".aiguilleur-carte"]);
+export const SELECTEUR_DU_PARCHEMIN = `:is(${FAMILLE_DU_PARCHEMIN.join(", ")})`;
+
 const SVG = "http://www.w3.org/2000/svg";
 
 /** ⚖️ LE MODÈLE B, « FEUILLET DE GRIMOIRE » — la direction retenue par Eric le

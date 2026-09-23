@@ -21,6 +21,10 @@
    sous chacun, pour qu'on puisse la refaire. */
 
 import test from "node:test";
+/* ⭐ LOT 248 — la famille du parchemin se LIT à sa source ; ce garde ne la
+   recopie plus (elle était écrite quatre fois, cf. `parchemin.mjs`). */
+import { SELECTEUR_DU_PARCHEMIN as PARCH } from "../ui/builder/parchemin.mjs";
+import { SELECTEUR_DES_FICHES as FICHES } from "../ui/builder/x1-ecran.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -141,8 +145,8 @@ test("5 — 👕 l'habit de la tête VOYAGE : ce sont des règles de CLASSE, ⛔
      elles la tête rendrait sans parchemin et SANS POSITION — tous les organes empilés
      en haut à gauche. 📏 C'est le défaut que le garde 4 ne voit pas (le DOM est juste)
      et que seule la page rendue dit. */
-  for (const regle of [":is(.x1, .x2) .parchemin-fond", ":is(.x1, .x2) [data-organe]",
-                       ':is(.x1, .x2) [data-organe="jauge"]']) {
+  for (const regle of [`${PARCH} .parchemin-fond`, `${FICHES} [data-organe]`,
+                       `${FICHES} [data-organe="jauge"]`]) {
     assert.ok(shell.includes(regle), `${regle} — le décor et le mode sont partagés`);
   }
   assert.match(shell, /\.gear, \.x1, \.x2, \.sac, \.wares \{/,

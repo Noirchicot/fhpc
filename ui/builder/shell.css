@@ -3059,7 +3059,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=796") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=797") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3382,7 +3382,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=796") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=797") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5034,7 +5034,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=796") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=797") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8015,7 +8015,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=796");
+  background-image: url("./assets/tarot-dos.jpg?v=797");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8601,13 +8601,24 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-options .aiguilleur-option::after {
   inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge));
 }
-/* l'élue — MÊME signal que les cinq méthodes d'Abilities, qui est déjà
-   l'organe « une option parmi N » de ce dépôt. ⛔ Pas une teinte de plus. */
-.aiguilleur-option[data-active="true"] { --bouton-fond: var(--info); font-weight: 600; }
-.aiguilleur-bilan-mot { margin-top: var(--sp-8); color: var(--text-muted); }
-.aiguilleur-bilan { margin: 0; padding-left: var(--sp-16); font-size: var(--t3); }
-.aiguilleur-bilan-ligne { margin: 0; }
-.aiguilleur-bilan-or { font-weight: 600; }
+/* ⚖️ L'ÉLUE EST VERTE DEPUIS LE LOT 248 — Eric, 23/09 : *« le petit bouton carré
+   devient vert à la validation »*. 🔴 ELLE ÉTAIT BLEUE, ET LE BLEU EST LE MAUVAIS
+   VERBE : naviguer est bleu, VALIDER EST VERT. Une option retenue n'emmène nulle
+   part, elle arrête un choix — et sur cet écran le bleu est déjà pris par la
+   phrase de l'aiguilleur, juste au-dessus.
+   ⚠️ ET ÇA DIVERGE DES CINQ MÉTHODES D'ABILITIES, qui restent bleues : elles
+   portaient le même signal jusqu'ici. ⛔ Je ne les ai PAS suivies d'office — une
+   règle générale se pose au socle et s'annonce, elle ne se propage pas depuis la
+   feuille d'un écran. La question est ouverte et elle est à Eric. */
+.aiguilleur-option[data-active="true"] { --bouton-fond: var(--positive); font-weight: 600; }
+/* ⚖️ *« T1 texte police bleue, c'est l'aiguilleur »* — le bleu est le verbe
+   NAVIGUER, et `--info` est le jeton que porte déjà la bordure de
+   `.popup[data-role="aiguilleur"]`. ⛔ Elle n'est plus `--text-muted` : une
+   phrase qui dit où l'on est n'est pas une note de bas de page. */
+.aiguilleur-bilan-mot {
+  margin: 0 0 var(--sp-8); font-size: var(--t1); color: var(--info);
+}
+.aiguilleur-bilan-or { font-weight: 700; }
 .aiguilleur-refus { color: var(--text-muted); font-size: var(--t2); }
 /* ⭐ UN FAIT N'EST PAS UN REFUS, et il ne porte donc PAS l'encre du refus —
    ⛔ un écran qui gronde pour une absence voulue envoie chercher un objet qui
@@ -11733,7 +11744,7 @@ button.tuto-point::before {
    ⛔ AUCUNE TRANSITION, AUCUNE ANIMATION : la feuille ne bouge pas, elle est
    redessinée. `prefers-reduced-motion` n'a donc rien à éteindre — et c'est une
    propriété VÉRIFIÉE (garde 19), pas une intention. */
-:is(.x1, .x2) .parchemin {
+:is(.x1, .x2, .aiguilleur-carte) .parchemin {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -11753,12 +11764,12 @@ button.tuto-point::before {
    montent le MÊME parchemin, par le même `habilleEnParchemin`. Une seconde
    déclaration aurait été un second écrivain pour un organe unique — et deux feuilles
    qui divergent d'une teinte, personne ne le voit avant qu'Eric le voie. */
-:is(.x1, .x2) .parchemin-fond { fill: var(--x1-papier); }
-:is(.x1, .x2) .parchemin-patine { fill: var(--x1-tranche); }
-:is(.x1, .x2) .parchemin-grain { fill: var(--x1-grain); }
-:is(.x1, .x2) .parchemin-fibres,
-:is(.x1, .x2) .parchemin-pli { fill: none; stroke: var(--x1-tranche); }
-:is(.x1, .x2) .parchemin-fil { fill: none; stroke: var(--x1-tranche-douce); }
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-fond { fill: var(--x1-papier); }
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-patine { fill: var(--x1-tranche); }
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-grain { fill: var(--x1-grain); }
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-fibres,
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-pli { fill: none; stroke: var(--x1-tranche); }
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-fil { fill: none; stroke: var(--x1-tranche-douce); }
 /* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
    soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
    ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT
@@ -13144,3 +13155,102 @@ button.tuto-point::before {
 /* ⭐ `.wares-porte` N'A PAS DE BLOC À ELLE : elle est entrée dans les listes de `.gear-porte`
    ci-dessus. ⛔ Une règle vide posée « pour la forme » serait une règle qui ment sur son
    existence, et le jour où quelqu'un la remplit il aurait DEUX écrivains pour une porte. */
+
+/* ══ X0 — L'ÉCRAN DU DÉPART, lot 248, 2026-09-23 ═══════════════════════════
+   ⚖️ Eric, 23/09 : *« on peut l'appeler X0 à la rigueur »*, après six allers-
+   retours sur un prototype mesuré au banc.
+   ⭐ CE QUI A CHANGÉ N'EST PAS SON HABIT, C'EST SA NATURE : le QCM cesse d'être
+   un carton posé sur un voile (285 px de large, 209 des 375 blg de la dalle) et
+   devient un ÉCRAN DE RANG X — il recouvre la dalle, il porte le parchemin de
+   X1 et X2, et il prend le filet de leurs fiches.
+   ⛔ MÊME FAMILLE `.aiguilleur-*`, TOUJOURS PAS UNE SECONDE : c'est le même
+   organe, et il n'a qu'un consommateur (vérifié : `ceQueLaSourceDit` n'est
+   appelée que par le QCM). Le renommer en `.x0-*` aurait coûté vingt lignes de
+   churn dans trois fichiers pour zéro gain.
+   📏 LES COTES SONT CELLES D'ERIC, EN blg, ⛔ et elles ne sont pas converties :
+   dans cette feuille le blg EST le px — la dalle fait 375, le zoom s'en charge.
+   C'est `--sp-8` qui écrit les 8 blg, pas un nombre. */
+/* ⚖️ *« marge autour de la dalle 8 blg (je veux que ça recouvre totalement la
+   Fiche R Gear) »* — ⭐ ET C'EST LE VOILE QUI LA PORTE, en marge intérieure :
+   la marge est un fait du VOILE (ce qu'il laisse voir de la dalle), ⛔ pas de la
+   feuille. 🔴 Et `align-items: center` empêchait la feuille de s'étirer : elle se
+   contentait de sa hauteur naturelle au lieu de recouvrir la dalle. */
+.aiguilleur { align-items: stretch; padding: var(--x0-marge); }
+.aiguilleur-carte {
+  width: 100%; height: 100%; box-sizing: border-box;
+  /* ⚖️ *« marges sur la dalle de 30 blg à gauche et à droite »* — et les deux
+     marges se comptent depuis LA DALLE. Le retrait interne n'est donc pas 30
+     mais 30 − 8 = 22 : une cote juste, mesurée depuis le mauvais bord, aurait
+     poussé le texte à 38 du bord de la dalle. */
+  padding: var(--x0-marge) var(--x0-retrait);
+  position: relative; background: transparent; border: 0; border-radius: 0;
+  max-width: none;
+  /* l'encre de la feuille, ⛔ pas celle de la coquille : on écrit sur un papier */
+  color: var(--x1-encre);
+  display: flex; flex-direction: column; gap: 0;
+}
+/* ⛔ LE CONTENU PASSE AU-DESSUS SANS UN `z-index` : le parchemin est en absolu,
+   tout le reste est dans le flux. Un `z-index` ici créerait un contexte
+   d'empilement dont les popups de l'écran auraient à sortir. */
+.aiguilleur-carte > :not(.parchemin) { position: relative; }
+
+/* ⚖️ *« Gear (T3 en gras) »*, centré, puis 8 blg — il s'appelait « Your
+   equipment » en capitales espacées : les trois ont changé dans la même phrase. */
+.aiguilleur-titre {
+  margin: 0 0 var(--sp-8); font-size: var(--t3); font-weight: 700;
+  letter-spacing: normal; text-transform: none; text-align: center;
+  color: var(--x1-encre);
+}
+/* la pose du filet de X — ⛔ sa teinte et son dessin restent chez `.x1-filet` */
+.aiguilleur-filet {
+  height: var(--x0-filet-h); width: var(--x0-filet-l); max-width: 100%;
+  align-self: center; flex: 0 0 auto; margin: 0 0 var(--sp-4);
+}
+/* ⚖️ *« Fighter (bold T2) gives you a choice (T1) »*, centré — puis 8 blg. */
+.aiguilleur-soustitre {
+  text-align: center; font-size: var(--t1); margin: 0 0 var(--sp-8);
+}
+.aiguilleur-soustitre strong { font-size: var(--t2); font-weight: 700; margin-right: .35em; }
+
+/* ⚖️ LA PASTILLE PASSE À GAUCHE (Eric, 23/09, sur deux rendus successifs).
+   ⛔ Le lot 246 l'avait mise à droite pour que le texte ne la pousse pas ; la
+   raison tient toujours, et elle est servie ici par `auto 1fr` — la colonne du
+   bouton garde sa cote quoi qu'il arrive, elle a seulement changé de côté.
+   ⭐ `align-items: center` : la lettre se pose au milieu de son texte, parce
+   qu'elle EST le choix, ⛔ pas une puce de liste alignée sur la 1re ligne. */
+.aiguilleur-rangee {
+  /* 🔴 `auto 1fr` NE DÉPLACE RIEN — une colonne dit une LARGEUR, pas un rang.
+     📏 Mesuré au navigateur : colonnes 248 / 75, et la pastille toujours à
+     DROITE, parce que l'ordre est celui du DOM. C'est l'écran qui a changé
+     l'ordre d'ajout ; ici on ne fait que donner sa cote à chaque colonne. */
+  grid-template-columns: auto 1fr; align-items: center;
+  /* ⚖️ *« 30 blg d'espace entre 2 boutons »* → ramené à 16 le 23/09, sur mesure :
+     📏 les 30 coûtaient 205 px des 654, et il n'en restait que 5 sous le plafond. */
+  min-height: var(--x0-bouton); margin: 0 0 var(--x0-ecart);
+}
+.aiguilleur-section .aiguilleur-rangee:last-child { margin-bottom: var(--sp-8); }
+.aiguilleur-option-mot { font-size: var(--t1); }
+/* ⚖️ *« mets toujours la somme en GP à la ligne »* — ⛔ un `<br>` aurait été un
+   saut de ligne DANS une phrase ; ce sont deux blocs, parce que ce sont deux
+   choses : ce qu'on reçoit, et ce avec quoi on achètera le reste. */
+.aiguilleur-option-objets, .aiguilleur-option-somme { display: block; }
+.aiguilleur-option-somme { font-weight: 700; }
+
+/* ⚖️ LE RÉCAPITULATIF EST VERT — *« texte ci dessous en vert car texte de
+   validation »*. Le vert est le deuxième des trois verbes, et il porte le
+   statut à lui seul : ⛔ plus de cartouche, Eric décrit un TEXTE. */
+.aiguilleur-bilan-titre {
+  margin: 0 0 var(--sp-8); font-size: var(--t2); font-weight: 700;
+  text-align: center; color: var(--positive);
+}
+.aiguilleur-bilan {
+  margin: 0; padding: 0; list-style: none; font-size: var(--t1);
+  color: var(--positive);
+}
+.aiguilleur-bilan-ligne { display: inline; }
+.aiguilleur-bilan-ligne + .aiguilleur-bilan-ligne::before { content: " · "; }
+/* ⚖️ LE RESSORT — *« l'excédent d'espace … sera entre le texte vert et done »*.
+   ⛔ Son plancher n'est pas zéro : même à contenu maximal, `Done` ne colle pas
+   au vert. C'est la seule respiration qui ne se négocie pas. */
+.aiguilleur-ressort { flex: 1 1 auto; min-height: var(--sp-8); }
+.aiguilleur-pied-seul { flex: 0 0 auto; margin: 0; }

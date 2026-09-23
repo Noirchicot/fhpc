@@ -34,23 +34,23 @@
    d'exemple porte `species.lineage`, mais AUCUN plan ne l'accompagne — le
    moteur le rend `unconsumed`. Un QCM ici afficherait un choix sans effet. */
 
-import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=796";
-import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=796";
+import { planAt, planSlots, renderPicker, decisionRefusalWord } from "./carnet.mjs?v=797";
+import { renderFicheBody, renderCardRows, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=797";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=796";
-import { renderChoixGlisses } from "./glisser.mjs?v=796";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=797";
+import { renderChoixGlisses } from "./glisser.mjs?v=797";
 /* ⭐ LOT 194 — LE MOT ET LA FENÊTRE D'UNE COMPÉTENCE VIENNENT DE CLASS, comme
    le sélecteur qui les emploie. Species en tenait sa propre copie (par
    `motDuChoix`), qui ne sait pas lire un SLUG : voir la tête de `skillLabel`
    là-bas pour la mesure. */
-import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=796";
+import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-step.mjs?v=797";
 /* Le mot d'un verrou de BUDGET vient de la table des compétences — elle porte
    `skill-budget.*`, que `decisionRefusalWord` (carnet) ne connaît pas : les
    deux tables sont disjointes, ce sont deux domaines et non deux voix. */
-import { motDuVerrou } from "./skills-step.mjs?v=796";
-import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=796";
-import { etapeParId } from "./etapes.mjs?v=796";
-import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=796";
+import { motDuVerrou } from "./skills-step.mjs?v=797";
+import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=797";
+import { etapeParId } from "./etapes.mjs?v=797";
+import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=797";
 /* 📌 LOT 191 / LOT 194 — l'organe du « mot d'un choix » (`mot-du-choix.mjs`)
    n'est plus importé ICI : la seule chose que cet écran nommait était une
    COMPÉTENCE, et une compétence se nomme par SLUG — c'est `skillLabel`

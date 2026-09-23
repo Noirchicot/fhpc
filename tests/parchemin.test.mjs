@@ -22,6 +22,9 @@
    le papier, et le redessin unique du `ResizeObserver`. */
 
 import test from "node:test";
+/* ⭐ LOT 248 — la famille du parchemin se LIT à sa source ; ce garde ne la
+   recopie plus (elle était écrite quatre fois, cf. `parchemin.mjs`). */
+import { SELECTEUR_DU_PARCHEMIN as PARCH } from "../ui/builder/parchemin.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -395,7 +398,7 @@ test("7 bis — ⛔ le parchemin ne bouge pas : `prefers-reduced-motion` n'a rie
      réparation n'était PAS d'ajouter un second bloc `.x2 .parchemin` pour que
      cette ancre retombe sur ses pieds — ça aurait été deux écrivains pour un
      organe unique, et le garde aurait alors gardé la MOITIÉ de la vérité. */
-  const debut = shell.indexOf(":is(.x1, .x2) .parchemin {");
+  const debut = shell.indexOf(`${PARCH} .parchemin {`);
   assert.ok(debut > 0, "le bloc existe");
   const bloc = shell.slice(debut, shell.indexOf("}", shell.indexOf(".parchemin-fil")));
   assert.ok(!/\b(transition|animation)\s*:/.test(bloc),
