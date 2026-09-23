@@ -236,33 +236,26 @@ export function poidsDeJeu(chaine, unite = "lb") {
    Fire` et `Wand of Fear`, qui portent des tables de SORTS, pas de variantes.
    La rareté, elle, ne se trompe pas.
 
-   ⭐ ③ L'ÉTAGÈRE DES KITS — ERIC, 2026-09-23 : *« les kits d'aventuriers sont des
-   blueprints aussi. Activation simple mais activation nécessaire »*. Un kit ne
-   se fabrique pas : il se DÉFAIT. Mais le geste est le même du point de vue du
-   joueur — ce qu'il achète n'est pas ce qu'il obtient, il faut un acte de plus.
-   C'est la définition du blueprint, et c'est pour ça que le jeton porte la même
-   diagonale.
-   🔴 ET LE SIGNAL N'EST PAS DANS LE RECORD — MESURÉ : les sept packs du SRD ne
-   portent QUE `cost` et `weight`. Ni contenu, ni catégorie, ni marqueur. Le seul
-   endroit où « ceci est un kit » existe dans la donnée est l'ÉTAGÈRE où Eric les
-   a rangés le 21/08. ⛔ C'est donc l'étagère qu'on lit, et rien d'autre : un kit
-   ajouté demain y sera rangé et portera sa diagonale sans qu'on touche ce
-   fichier. Une liste des sept noms serait périmée au premier ajout — même leçon
-   qu'`item-value` (lot 93). */
+   ⭐ ③ UN OBJET QUI CONTIENT D'AUTRES OBJETS — ERIC, 2026-09-23 : *« les kits
+   d'aventuriers sont des blueprints aussi. Activation simple mais activation
+   nécessaire »*. Un kit ne se fabrique pas, il se DÉFAIT — mais du point de vue
+   du joueur le geste est le même : ce qu'il achète n'est pas ce qu'il obtient.
 
-/** L'étagère qui DÉCLARE les kits, nommée à sa source plutôt qu'épinglée chez
- *  ses lecteurs. ⛔ L'identité d'une étagère est `aisle:shelf`, jamais son
- *  libellé — loi du tambour (test 3). */
-export const ETAGERE_DES_KITS = "adventuring:packs";
-
-/** @param record le record de l'objet.
- *  @param etagere son `aisle:shelf`, quand l'appelant sait le dire (`cherche.etagere`).
- *     ⚠️ L'omettre n'est pas une faute : les deux premiers signaux vivent dans le
- *     record, et un appelant qui n'a pas le rangement sous la main les lit quand même. */
-export function estRecette(record, etagere) {
+   🔧 ET CE SIGNAL A CHANGÉ DE PLACE LE SOIR MÊME, PARCE QUE LA DONNÉE A CHANGÉ.
+   Au premier jet il lisait l'ÉTAGÈRE (`adventuring:packs`) — non par goût, mais
+   par nécessité mesurée : les sept packs du SRD ne portaient QUE `cost`, `name`
+   et `weight`, et rien dans leur record ne les distinguait d'un sac à dos.
+   ⭐ Puis `contents` est monté en amont (`fh-srd`, les 64 éléments lus dans la
+   prose p.96-99), et le garde qui épinglait « ce record ne porte que trois
+   champs » est tombé — EXACTEMENT LA QUESTION QU'IL ÉTAIT ÉCRIT POUR POSER.
+   ⛔ Lire l'étagère était un DÉTOUR, et un détour qu'on garde après la fin du
+   travaux devient une seconde vérité : un pack redéplacé aurait perdu sa
+   diagonale sans avoir changé de nature. Le signal vit donc où vit la RAISON —
+   *cet objet en contient d'autres, il faut l'ouvrir*. */
+export function estRecette(record) {
   const d = (record && record.data) || {};
   if (d.category === "weapon" || d.category === "armor") return true;
-  if (etagere === ETAGERE_DES_KITS) return true;
+  if (Array.isArray(d.contents) && d.contents.length > 0) return true;
   const rarete = typeof d.rarity === "string" ? d.rarity : "";
   if (/varies/i.test(rarete)) return true;
   /* une énumération de raretés : « Rare (…), Very Rare (…), or Legendary (…) ».
@@ -429,6 +422,19 @@ export function lignesParLieu(lignes, lieu) {
  *  une faute de données et non une somme à arrondir. */
 const LIEUX_PESES = ["self", "backpack", "storage", "ground"];
 
+/* ⚖️ UN BLUEPRINT NE PÈSE RIEN — ERIC, 2026-09-23 : *« une précision : un
+   blueprint n'a pas de poids »*.
+   ⭐ ET C'EST COHÉRENT AVEC CE QU'IL EST : une recette n'est pas l'objet, c'est
+   la PROMESSE de l'objet. Un plan d'épée ne pèse pas ce que pèse l'épée, et un
+   kit d'aventurier ne pèse ses 42 livres qu'UNE FOIS OUVERT — avant, il n'y a
+   rien à porter.
+   ⛔ ZÉRO N'EST PAS « INCONNU », ET LA DIFFÉRENCE EST TOUT : un poids « Varies »
+   vaut 0 *et* reste compté dans `inconnus`, parce qu'il ATTEND une édition. Un
+   blueprint, lui, ne vaut rien et n'attend rien. L'écran ne doit pas dire
+   « plus 3 objets qu'on ne sait pas peser » à propos de trois recettes.
+   ⚠️ Le kit garde son `weight` dans la donnée — 42 lb pour le Burglar's — et
+   c'est voulu : c'est le poids de son CONTENU, celui qui entrera dans le sac à
+   l'ouverture. On ne l'efface pas, on ne le compte pas encore. */
 export function poidsParLieu(lignes, chercheRecord) {
   /* 🔴 LES QUATRE LIEUX SONT DÉCLARÉS, Y COMPRIS LE SOL — et c'est une
      réparation, pas un ajout. Trois seaux étaient déclarés ; une ligne au sol
@@ -450,12 +456,20 @@ export function poidsParLieu(lignes, chercheRecord) {
     const rec = chercheRecord(l.ref);
     return rec && rec.data ? rec.data.weight : undefined;
   });
+  /* ⛔ CALCULÉ AVANT LA PASSE DES UNITÉS, ET CE N'EST PAS INDIFFÉRENT : une pile
+     qui ne contiendrait QUE des recettes ne doit pas déduire son unité de leurs
+     poids, qu'on ne lira jamais. */
+  const recettes = lignes.map((l) => estRecette(chercheRecord(l.ref)));
   for (const w of poids) { const lu = parsePoids(w); if (lu) unites.add(lu.unite); }
   const unitePile = unites.size === 1 ? [...unites][0] : "lb";
   for (const [i, l] of lignes.entries()) {
     const lieu = LIEUX_PESES.includes(l.location) ? l.location : "backpack";
     const n = l.quantity || 1;
     compte[lieu] += n;
+    /* ⭐ LE BLUEPRINT SORT ICI, APRÈS ÊTRE COMPTÉ ET AVANT D'ÊTRE PESÉ : il EST
+       dans le sac (le compte le dit), il n'y pèse rien, et il n'est pas en
+       attente d'une édition. Trois faits, et chacun a sa ligne. */
+    if (recettes[i]) continue;
     const pesee = poidsDeJeu(poids[i], unitePile);
     if (!pesee) { inconnus[lieu] += n; continue; }
     somme[lieu] += pesee.valeur * n;

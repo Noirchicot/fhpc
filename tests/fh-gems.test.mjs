@@ -52,9 +52,15 @@ const RANGEMENTS = COUCHE.records.shelving;
    25 000 · 50 000 gp) qui en portent 3 ». C'est la seule chose de ce fichier
    qui soit recopiée du vault, et c'est délibéré : un test qui déduirait les
    paliers de la couche qu'il vérifie ne vérifierait rien. */
+/* ⚖️ LA COUPE D'ERIC, 2026-09-23 : *« les 54 gemmes tombent à 27 »*, et elle SUIT
+   LA RARETÉ — ⛔ pas une moitié uniforme. Une pierre commune se croise souvent,
+   une pierre souveraine est une pièce unique.
+   ⭐ LES DOUZE PALIERS RESTENT, TOUS : chacun ouvre un cran de PP dans l'échelle
+   du Soulforging. On coupe des NOMS, jamais des paliers — et c'est pour ça que
+   cette table garde ses douze lignes. */
 const PALIERS = {
-  10: 5, 50: 5, 100: 5, 250: 5, 500: 5, 750: 5,
-  1000: 5, 2500: 5, 5000: 5, 10000: 3, 25000: 3, 50000: 3
+  10: 3, 50: 3, 100: 3, 250: 3, 500: 2, 750: 2,
+  1000: 2, 2500: 2, 5000: 2, 10000: 2, 25000: 2, 50000: 1
 };
 
 /* ══ ① LA COUCHE COMMITÉE ════════════════════════════════════════════════ */
@@ -63,14 +69,14 @@ test("témoin — la couche existe, se valide au contrat, et elle est DANS LA PI
   /* ⚔️ SANS CE TÉMOIN, tout ce fichier pourrait être vert sur une couche que
      personne ne monte : 54 records parfaits et invisibles à l'écran. */
   const lu = readLayer(readFileSync(CHEMIN), "fh-gems-en.layer.json");
-  assert.deepEqual(lu.counts, { gem: 54, shelving: 54 });
+  assert.deepEqual(lu.counts, { gem: 27, shelving: 27 });
   assert.equal(COUCHE.schema, LAYER.schema);
   assert.equal(COUCHE.id, LAYER.id);
   assert.equal(COUCHE.lang, "en");
   assert.deepEqual(COUCHE.flags, ["fh.gems"]);
   assert.equal(COUCHE.attribution.license, "all-rights-reserved");
   assert.ok(PILE.includes("layers/fh-gems-en.layer.json"),
-    "la couche n'est pas dans la pile — 54 gemmes que le builder ne monte pas");
+    "la couche n'est pas dans la pile — 27 gemmes que le builder ne monte pas");
 });
 
 test("témoin — `gem` est un GENRE du contrat, et il ne s'est pas ouvert tout seul", () => {
@@ -80,17 +86,19 @@ test("témoin — `gem` est un GENRE du contrat, et il ne s'est pas ouvert tout 
   assert.ok(GENRES.includes("gem"), "`gem` doit être déclaré dans `src/layers/document.mjs`");
 });
 
-test("🔴 LES 54 GEMMES, PALIER PAR PALIER — un total juste ne dirait rien du contenu", () => {
-  /* ⚠️ 54 se lit aussi bien « 12 paliers d'Eric » que « 54 azurites ». Le
-     compte par palier est le seul qui dise quelque chose. */
+test("🔴 LES 27 GEMMES, PALIER PAR PALIER — un total juste ne dirait rien du contenu", () => {
+  /* ⚠️ 27 se lit aussi bien « 12 paliers d'Eric » que « 27 azurites ». Le
+     compte par palier est le seul qui dise quelque chose — et depuis la coupe du
+     23/09 il dit une chose de plus : le GRADIENT. 3 à chaque palier commun, 2 au
+     milieu, 1 au sommet. Un total juste sur un gradient plat serait faux. */
   const parPalier = {};
   for (const entree of Object.values(GEMMES)) {
     parPalier[entree.data.value_gp] = (parPalier[entree.data.value_gp] || 0) + 1;
   }
   assert.deepEqual(parPalier, PALIERS);
-  assert.equal(Object.keys(GEMMES).length, 54);
-  assert.equal(Object.values(PALIERS).reduce((a, b) => a + b, 0), 54,
-    "témoin d'arithmétique : 9 × 5 + 3 × 3 = 54");
+  assert.equal(Object.keys(GEMMES).length, 27);
+  assert.equal(Object.values(PALIERS).reduce((a, b) => a + b, 0), 27,
+    "témoin d'arithmétique : 4 × 3 + 7 × 2 + 1 = 27 — la coupe d'Eric du 23/09");
 });
 
 test("🔴 UN PALIER, UN NOM DE PALIER — et douze noms distincts", () => {
@@ -152,7 +160,7 @@ test("🔴 UNE GEMME, UN RANGEMENT — la bijection lue dans les DEUX sens", () 
      sens : 54 rangements pour 54 gemmes peut vouloir dire « deux rangements
      sur une gemme et zéro sur une autre ». Les deux sens, donc. */
   const visees = Object.values(RANGEMENTS).map((r) => r.data.extends);
-  assert.equal(new Set(visees).size, 54, "aucune gemme n'est rangée deux fois");
+  assert.equal(new Set(visees).size, 27, "aucune gemme n'est rangée deux fois");
   for (const vise of visees) {
     assert.ok(GEMMES[vise], `le rangement vise « ${vise} », qui n'est pas une gemme de cette couche`);
   }
@@ -189,8 +197,17 @@ test("🔴 LE PRÉFIXE D'UN RANGEMENT DIT QUI POSSÈDE LA GEMME — `fh:` l'inve
       `son rangement doit donc commencer par \`${attendu}:\``);
     compte[attendu] += 1;
   }
-  assert.deepEqual(compte, { fh: 31, srfh: 23 },
-    "31 inventions de Fate's Hand, 23 pierres partagées avec le livre");
+  assert.deepEqual(compte, { fh: 18, srfh: 9 },
+    "📏 MESURÉ APRÈS LA COUPE DU 23/09 : 18 inventions de Fate's Hand, 9 pierres partagées avec "
+    + "le livre. ✅ ET LES NEUF SONT DES REPLIS NOMMÉS, PAS DES CHOIX — Eric voulait zéro nom du "
+    + "DMG (*« si ça tombe sur du DMG tu élimines et passes au nom suivant »*), et quatre paliers "
+    + "n'ont pas de quoi remplir autrement : 10 po (1 hors DMG pour 3), 50 po (0 pour 3), 100 po "
+    + "(0 pour 3), 1000 po (1 pour 2). ⛔ La cause n'est pas un oubli d'Eric : à ces paliers les "
+    + "pierres sont des gemmes RÉELLES — Jade, Jet, Onyx, Amber — que le livre liste parce "
+    + "qu'elles existent, pas parce qu'il les a inventées.\n"
+    + "   ⚠️ LE JOUR OÙ CE 9 BAISSE, c'est qu'Eric aura inventé des pierres pour ces quatre "
+    + "paliers ; le jour où il MONTE sans qu'on l'ait décidé, c'est que la préférence pour les "
+    + "inventions a cassé dans le générateur.");
   /* ⚔️ LE TÉMOIN QUI GARDE L'ANCIENNE VÉRITÉ : la couche qui PORTE ces
      rangements est toujours `fh-gems-en`, quel que soit le préfixe de l'id. */
   assert.equal(COUCHE.id, "fh-gems-en",
@@ -208,11 +225,12 @@ test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC
      interdit qu'une seconde écriture apparaisse ailleurs, ce qui rouvrirait le
      défaut `ETAGERE_DE` retiré au lot 95. */
   const [rayon, etagere] = ETAGERE_DES_GEMMES.split(":");
-  assert.equal(ETAGERE_DES_GEMMES, "trade-goods:trade-goods",
-    "⚖️ TRANCHÉ par Eric le 2026-09-09 : « remplace mes valuables par trade goods, même étagère "
-    + "partout ». ⭐ LE MOT EST CELUI DU LIVRE — le SRD 5.2 porte 23 marchandises typées TG — et "
-    + "`valuables` était une invention de l'architecte (loi §0.12 : le mot est celui du SRD). "
-    + "UNE SEULE étagère : les 54 gemmes FH et les 23 marchandises SRD s'y rangent ENSEMBLE");
+  assert.equal(ETAGERE_DES_GEMMES, "trade-goods:gems",
+    "✅ TRANCHÉ par Eric le 2026-09-23 : « sous trade goods tu auras gems, et ce sera une plus "
+    + "grosse catégorie ». ⭐ LE RAYON GARDE LE MOT DU LIVRE (le SRD 5.2 porte 23 marchandises "
+    + "typées TG, et `valuables` était une invention de l'architecte — loi §0.12), mais les "
+    + "pierres prennent leur ÉTAGÈRE à elles. ⏳ Le 09/09 disait l'inverse (« même étagère "
+    + "partout ») : c'est la parole la plus récente qui vaut.");
   const posees = new Set();
   for (const [id, entree] of Object.entries(RANGEMENTS)) {
     assert.equal(entree.data.of_kind, "gem", `${id} : le rangement doit dire le genre qu'il habille`);
@@ -221,15 +239,16 @@ test("🔴 L'ÉTAGÈRE EST UNE SEULE CHAÎNE, ET C'EST L'ARBITRAGE OUVERT D'ERIC
        valuables par trade goods, même étagère partout ». Celle du 08/09 (« valuables »)
        est la décision REMPLACÉE : la citer suffisait hier, elle ferait passer le garde
        pour la mauvaise raison aujourd'hui. */
-    assert.match(entree.data.shelf.provenance, /2026-09-09/,
-      `${id} : la provenance doit citer la décision QUI FAIT LOI (2026-09-09, « trade goods »),
-       pas seulement celle qu'elle remplace — sinon le garde passe pour la mauvaise raison`);
+    assert.match(entree.data.shelf.provenance, /2026-09-23/,
+      `${id} : la provenance doit citer la décision QUI FAIT LOI (2026-09-23, « sous trade goods
+       tu auras gems »), pas seulement celles qu'elle remplace — sinon le garde passe pour la
+       mauvaise raison`);
     assert.match(entree.data.shelf.provenance, /MOT EST CELUI DU LIVRE/,
       `${id} : et elle doit dire POURQUOI — le SRD porte 23 marchandises typées TG, donc le mot
        vient du livre et non de l'architecte (loi §0.12)`);
   }
   assert.deepEqual([...posees], [`${rayon}:${etagere}`],
-    "les 54 gemmes sont sur UNE seule étagère, celle que le générateur déclare");
+    "les 27 gemmes sont sur UNE seule étagère, celle que le générateur déclare");
 });
 
 /* 🏷️ LES DEUX TAGS — Eric, 2026-09-08 : *« tag valuables, tag Soulforging »*.
@@ -260,7 +279,7 @@ test("🏷️ LES 54 GEMMES PORTENT LES DEUX TAGS D'ERIC, avec leur provenance",
        APTITUDE au catalogue, jamais un état`);
     vus.add(t.value.join(","));
   }
-  assert.equal(Object.keys(RANGEMENTS).length, 54, "les 54, aucune oubliée");
+  assert.equal(Object.keys(RANGEMENTS).length, 27, "les 27, aucune oubliée");
   assert.deepEqual([...vus], [attendus.join(",")], "un seul jeu de tags sur les 54 — aucune dérive");
 });
 
@@ -268,6 +287,13 @@ test("🏷️ LES 54 GEMMES PORTENT LES DEUX TAGS D'ERIC, avec leur provenance",
 
 /** Une source minimale et VALIDE — le témoin sans lequel les attaques ne
  *  prouvent rien : un refus qui refuse tout n'est pas un refus. */
+/* ⚖️ LA COUPE D'ERIC (23/09) DÉCRIT SES DOUZE PALIERS, et `construireCouche`
+   REFUSE une source dont le nombre de paliers ne correspond pas — c'est voulu :
+   une coupe qui ne recouvre pas la source laisserait un palier se vider ou se
+   garder en entier sans que personne le décide. ⛔ Les sources FABRIQUÉES de ce
+   fichier portent UN palier, donc elles apportent leur propre coupe. */
+const COUPE_FIXTURE = Object.freeze({ garde: [1] });
+
 function sourceSaine() {
   return {
     _meta: { count: 1, tiers_gp: [10], weightFloor_g: 0.5 },
@@ -284,7 +310,7 @@ function sourceSaine() {
 }
 
 test("témoin — une source saine PASSE, et elle produit les deux records", () => {
-  const { layer, compte, parPalier } = construireCouche(sourceSaine());
+  const { layer, compte, parPalier } = construireCouche(sourceSaine(), COUPE_FIXTURE);
   assert.equal(compte, 1);
   assert.deepEqual(parPalier, { 10: 1 });
   /* ⭐ `azurite` EST l'une des 23 que le DMG porte aussi : son id est donc
@@ -295,14 +321,14 @@ test("témoin — une source saine PASSE, et elle produit les deux records", () 
 });
 
 test("⚔️ ATTAQUE — une source vide est REFUSÉE : un vide n'est pas une réponse", () => {
-  assert.throws(() => construireCouche({ _meta: {}, gems: [] }), GemError);
-  assert.throws(() => construireCouche({ _meta: {} }), /aucune gemme/);
+  assert.throws(() => construireCouche({ _meta: {}, gems: [] }, COUPE_FIXTURE), GemError);
+  assert.throws(() => construireCouche({ _meta: {} }, COUPE_FIXTURE), /aucune gemme/);
 });
 
 test("⚔️ ATTAQUE — un compte DÉCLARÉ qui ment sur le compte MESURÉ est vu", () => {
   const s = sourceSaine();
   s._meta.count = 54;
-  assert.throws(() => construireCouche(s), /54 gemmes, la liste en porte 1/);
+  assert.throws(() => construireCouche(s, COUPE_FIXTURE), /54 gemmes, la liste en porte 1/);
 });
 
 test("⚔️ ATTAQUE — un palier hors de `_meta.tiers_gp`, ET un palier déclaré resté VIDE", () => {
@@ -310,18 +336,18 @@ test("⚔️ ATTAQUE — un palier hors de `_meta.tiers_gp`, ET un palier décla
      attrape un palier qu'on aurait vidé sans s'en apercevoir — et lui seul. */
   const egaree = sourceSaine();
   egaree.gems[0].value_gp = 42;
-  assert.throws(() => construireCouche(egaree), /42 po, qui n'est pas un palier déclaré/);
+  assert.throws(() => construireCouche(egaree, COUPE_FIXTURE), /42 po, qui n'est pas un palier déclaré/);
 
   const vide = sourceSaine();
   vide._meta.tiers_gp = [10, 50];
-  assert.throws(() => construireCouche(vide), /sans aucune gemme — 50 po/);
+  assert.throws(() => construireCouche(vide, COUPE_FIXTURE), /sans aucune gemme — 50 po/);
 });
 
 test("⚔️ ATTAQUE — un champ manquant fait JETER en nommant la gemme ET le champ", () => {
   for (const champ of ["value_gp", "weight_g", "display", "tier_en", "weight_provenance"]) {
     const s = sourceSaine();
     delete s.gems[0][champ];
-    assert.throws(() => construireCouche(s),
+    assert.throws(() => construireCouche(s, COUPE_FIXTURE),
       (e) => e.message.includes(champ) && e.message.includes("azurite"),
       `un « ${champ} » absent doit être nommé, avec sa gemme`);
   }
@@ -330,7 +356,7 @@ test("⚔️ ATTAQUE — un champ manquant fait JETER en nommant la gemme ET le 
 test("⚔️ ATTAQUE — un poids SOUS le plancher de 0,5 g d'Eric est refusé", () => {
   const s = sourceSaine();
   s.gems[0].weight_g = 0.2;
-  assert.throws(() => construireCouche(s), /sous le plancher de 0.5 g/);
+  assert.throws(() => construireCouche(s, COUPE_FIXTURE), /sous le plancher de 0.5 g/);
 });
 
 test("⚔️ ATTAQUE — une gemme ÉCARTÉE qui remonterait dans la liste active est vue", () => {
@@ -338,27 +364,27 @@ test("⚔️ ATTAQUE — une gemme ÉCARTÉE qui remonterait dans la liste activ
      PROUVE au lieu de le promettre — la réserve reste une réserve. */
   const s = sourceSaine();
   s.retired_gems = [{ id: "fh:gem:en:azurite" }];
-  assert.throws(() => construireCouche(s), /ÉCARTÉE.*fh:gem:en:azurite/s);
+  assert.throws(() => construireCouche(s, COUPE_FIXTURE), /ÉCARTÉE.*fh:gem:en:azurite/s);
 });
 
 test("⚔️ ATTAQUE — un id dupliqué, et un id mal formé", () => {
   const double = sourceSaine();
   double._meta.count = 2;
   double.gems.push({ ...double.gems[0] });
-  assert.throws(() => construireCouche(double), /apparaît deux fois/);
+  assert.throws(() => construireCouche(double, COUPE_FIXTURE), /apparaît deux fois/);
 
   const malForme = sourceSaine();
   malForme.gems[0].id = "srd:gear:en:azurite";
-  assert.throws(() => construireCouche(malForme), /mal formé/);
+  assert.throws(() => construireCouche(malForme, COUPE_FIXTURE), /mal formé/);
 });
 
 test("⚔️ ATTAQUE — une étagère qui n'est pas « rayon:étagère » est refusée", () => {
-  assert.throws(() => construireCouche(sourceSaine(), { etagere: "valuables" }), /n'est pas une étagère/);
-  assert.throws(() => construireCouche(sourceSaine(), { etagere: "a:b:c" }), /n'est pas une étagère/);
+  assert.throws(() => construireCouche(sourceSaine(), { ...COUPE_FIXTURE, etagere: "valuables" }), /n'est pas une étagère/);
+  assert.throws(() => construireCouche(sourceSaine(), { ...COUPE_FIXTURE, etagere: "a:b:c" }), /n'est pas une étagère/);
   /* ⭐ ET LE TÉMOIN INVERSE : la chaîne est bien le SEUL levier — une autre
      étagère déplace les 54 gemmes sans toucher à rien d'autre. C'est ce qui
      rend l'arbitrage d'Eric praticable en une ligne. */
-  const { layer } = construireCouche(sourceSaine(), { etagere: "equipment:valuables" });
+  const { layer } = construireCouche(sourceSaine(), { ...COUPE_FIXTURE, etagere: "equipment:valuables" });
   const shelf = layer.records.shelving["srfh:shelving:en:azurite"].data.shelf;
   assert.deepEqual([shelf.aisle, shelf.shelf], ["equipment", "valuables"]);
 });
@@ -399,7 +425,7 @@ test("🔴 AUCUN CHAMP « FORÊT DES DÉMONS » — c'est une propriété d'INST
   }
   assert.deepEqual(fautes, [],
     "la provenance « de la Forêt des Démons » est une propriété de la LIGNE POSSÉDÉE, jamais du catalogue");
-  assert.equal(Object.keys(GEMMES).length, 54, "témoin : le balayage a bien parcouru les 54 records");
+  assert.equal(Object.keys(GEMMES).length, 27, "témoin : le balayage a bien parcouru les 27 records");
 });
 
 test("🔴 AUCUN FRANÇAIS — une couche ne mélange pas les langues, et le refus est JOURNALISÉ", () => {
@@ -408,7 +434,7 @@ test("🔴 AUCUN FRANÇAIS — une couche ne mélange pas les langues, et le ref
      les langues ». Ils restent au vault jusqu'à ce qu'une `fh-gems-fr` existe.
      ⛔ ET LE REFUS SE COMPTE. Un refus qu'aucun appelant ne peut obtenir est un
      refus que personne ne relit — c'est la leçon des écartés du lot 95. */
-  const { refuses } = construireCouche(sourceSaine());
+  const { refuses } = construireCouche(sourceSaine(), COUPE_FIXTURE);
   assert.deepEqual(refuses, CHAMPS_REFUSES_LANGUE);
   assert.deepEqual(refuses.slice().sort(), ["name_fr", "tier_fr"]);
 
@@ -457,18 +483,37 @@ test("🔴 LA COUCHE N'AJOUTE QUE — elle ne patche ni n'éteint aucun record d
    importé, la liste des collisions soit connue et non re-devinée.
    ══════════════════════════════════════════════════════════════════════════ */
 
-test("⚖️ LES 23 GEMMES DU LIVRE EXISTENT VRAIMENT — une table qui nomme des fantômes ne garde rien", () => {
+/* 📏 LES QUATORZE PIERRES DU DMG QUE LA COUPE DU 23/09 ÉCARTE — MESURÉ, PAS CHOISI.
+   ✅ ERIC, 23/09 : *« si ça tombe sur du DMG tu élimines et passes au nom suivant »*.
+   Le générateur préfère donc à chaque palier les inventions de Fate's Hand, et ces
+   quatorze-là cèdent leur place.
+   ⭐ ET C'EST CE QUI DONNE DES DENTS AU GARDE D'EN DESSOUS : un slug mal tapé dans
+   `GEMMES_DU_LIVRE` ne serait NI présent dans la couche NI dans ces quatorze-là.
+   Sans cette liste, le garde dirait « absent, donc écarté » de n'importe quel
+   fantôme. */
+const DU_LIVRE_COUPEES = Object.freeze([
+  "alexandrite", "black-opal", "blue-sapphire", "carnelian", "chalcedony",
+  "chrysoberyl", "coral", "jacinth", "malachite", "pearl", "peridot",
+  "star-ruby", "star-sapphire", "turquoise"
+]);
+
+test("⚖️ LES 23 GEMMES DU LIVRE SONT OU DANS LA COUCHE, OU DANS LA COUPE — jamais nulle part", () => {
   const presents = new Set(Object.keys(COUCHE.records.gem).map((id) => id.split(":").pop()));
-  const fantomes = Object.keys(GEMMES_DU_LIVRE).filter((slug) => !presents.has(slug));
+  const coupees = new Set(DU_LIVRE_COUPEES);
+  const fantomes = Object.keys(GEMMES_DU_LIVRE).filter((slug) => !presents.has(slug) && !coupees.has(slug));
   assert.deepEqual(fantomes, [],
-    "GEMMES_DU_LIVRE nomme des slugs absents de la couche — la frontière a bougé sans que la table suive");
-  /* ⚔️ LE TÉMOIN DANS L'AUTRE SENS : la table doit être un SOUS-ensemble STRICT.
-     Si elle couvrait les 54, elle ne distinguerait plus rien et passerait au vert
-     en ne disant rien. */
-  assert.ok(Object.keys(GEMMES_DU_LIVRE).length < presents.size,
-    "la table couvre TOUTE la couche : elle ne sépare plus le livre de l'invention de FH");
+    "⛔ GEMMES_DU_LIVRE nomme un slug qui n'est ni dans la couche ni dans les neuf coupées — "
+    + "la frontière a bougé sans que la table suive");
+  /* ⚔️ ET LA LISTE DES COUPÉES NE DÉBORDE PAS : une pierre qu'on y laisserait
+     après son retour dans la couche ferait taire le garde sur elle, pour toujours. */
+  const revenues = DU_LIVRE_COUPEES.filter((slug) => presents.has(slug));
+  assert.deepEqual(revenues, [],
+    "⛔ une pierre est à la fois dans la couche et dans la liste des coupées — la mesure a vécu");
   assert.equal(Object.keys(GEMMES_DU_LIVRE).length, 23,
-    "23 gemmes sur 54 portent un nom du DMG 2024 — mesuré ch. 7 § Gemstones");
+    "23 gemmes sur les 54 du canon portent un nom du DMG 2024 — mesuré ch. 7 § Gemstones");
+  assert.equal(23 - DU_LIVRE_COUPEES.length, 9,
+    "📏 NEUF pierres du livre restent, sur 27, et ce sont des REPLIS NOMMÉS — quatre paliers "
+    + "n'ont pas assez d'inventions de FH pour remplir leur quota. Voir le garde des préfixes.");
 });
 
 test("⚖️ UNE GEMME D'UN PALIER PROPRE À FH NE PEUT PAS ÊTRE UNE GEMME DU LIVRE", () => {
@@ -485,11 +530,12 @@ test("⚖️ UNE GEMME D'UN PALIER PROPRE À FH NE PEUT PAS ÊTRE UNE GEMME DU L
     assert.equal(GEMMES_DU_LIVRE[slug], undefined,
       `${id} vaut ${gp} gp — un palier que le DMG ne donne à AUCUNE gemme — et pourtant la table le dit du livre`);
   }
-  assert.equal(horsLivre.length, 24,
-    "24 gemmes vivent sur les 6 paliers propres à FH (250 · 750 · 2 500 · 10 000 · 25 000 · 50 000)");
-  /* ⚔️ Et l'autre moitié : les 30 des paliers du livre, dont 23 collisionnent. */
-  assert.equal(Object.keys(COUCHE.records.gem).length - horsLivre.length, 30,
-    "30 gemmes vivent sur les 6 paliers du livre — 23 y portent son nom, 7 sont des noms de FH");
+  assert.equal(horsLivre.length, 12,
+    "📏 12 gemmes vivent sur les 6 paliers propres à FH (250 · 750 · 2 500 · 10 000 · 25 000 · 50 000) "
+    + "— 3 + 2 + 2 + 2 + 2 + 1, la coupe d'Eric du 23/09");
+  /* ⚔️ Et l'autre part : les 15 des paliers du livre, dont 14 portent son nom. */
+  assert.equal(Object.keys(COUCHE.records.gem).length - horsLivre.length, 15,
+    "15 gemmes vivent sur les 6 paliers du livre — 9 y portent son nom (les replis), 6 sont de FH");
 });
 
 test("⚖️ LE PALIER QUE FH DONNE À UNE GEMME DU LIVRE — deux divergences, et elles sont NOMMÉES", () => {
@@ -501,12 +547,22 @@ test("⚖️ LE PALIER QUE FH DONNE À UNE GEMME DU LIVRE — deux divergences, 
   const divergences = [];
   for (const [slug, palierLivre] of Object.entries(GEMMES_DU_LIVRE)) {
     const entree = COUCHE.records.gem[idCanonique(slug)];
+    /* ⛔ UNE PIERRE COUPÉE N'A PLUS DE PRIX À COMPARER, et la sauter n'est pas
+       l'excuser : la liste `DU_LIVRE_COUPEES` la tient déjà, et le garde d'au-dessus
+       exige qu'elle soit VRAIMENT absente. */
+    if (!entree) continue;
     if (entree.data.value_gp !== palierLivre) {
       divergences.push([slug, entree.data.value_gp, palierLivre]);
     }
   }
-  assert.deepEqual(divergences.sort(), [
-    ["black-opal", 5000, 1000],
-    ["chrysoberyl", 500, 100],
-  ], "les divergences de prix avec le DMG doivent rester ces deux-là, et aucune autre");
+  assert.deepEqual(divergences.sort(), [],
+    "⏳ IL N'EN RESTE AUCUNE, ⛔ ET CE N'EST PAS UNE RÉPARATION. Les deux pierres qui divergeaient "
+    + "du DMG — `black-opal` (5 000 chez FH, 1 000 au livre) et `chrysoberyl` (500 contre 100) — "
+    + "portent toutes deux un NOM DU LIVRE, donc la préférence d'Eric pour les inventions de FH "
+    + "les écarte. La divergence a disparu de l'ÉCRAN, pas du canon : le vault garde ses 54, les "
+    + "deux comprises et à leur prix.\n"
+    + "   ⚔️ ET CE GARDE RESTE ARMÉ POUR ÇA : le jour où l'une revient — parce qu'un palier gagne "
+    + "des inventions et que la préférence rebat les cartes — elle revient AVEC sa divergence, et "
+    + "c'est ici qu'on le verra. Une liste vide n'est pas un garde mort tant que ce qu'elle "
+    + "mesure peut reparaître.");
 });

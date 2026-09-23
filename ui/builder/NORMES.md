@@ -3626,12 +3626,16 @@ plus**, terme à terme.
 qu'on coupe à l'usage se trompe le jour où l'échelle bouge ; une borne lue sur la pierre, non.
 
 ⛔ **ET L'ABSENCE VAUT MIEUX QUE LE GRIS.** Une option grisée promet qu'un jour elle s'ouvrira ;
-une option absente dit que **cette pierre n'est pas de cette famille-là**. *Azurite, Hematite,
-Malachite, Rhodonite, Turquoise* sont des marchandises : elles se vendent, elles ne se forgent pas.
+une option absente dit que **cette pierre n'est pas de cette famille-là**. Les *Common Gems* à 10 po
+sont des marchandises : elles se vendent, elles ne se forgent pas. ⏳ **Elles étaient cinq, elles
+sont trois** depuis la coupe du 23/09 — *Rhodonite, Azurite, Hematite* ; la règle vaut pour le
+palier, pas pour des noms, donc elle ne bouge pas avec eux.
 
-⚠️ **ET LE SORT S'APPELLE `Transfer Essence`** — `fh:spell:en:transfer-essence`, niveau 1, dans
-`fh-soulforging-en`, et le chapitre l'écrit pareil. ⛔ *« Infuse Gem »*, prononcé le 23/09, n'existe
-ni dans la couche ni dans le manuscrit : **à trancher avant que les deux noms circulent**.
+✅ **ET LE SORT S'APPELLE `Transfer Essence` — TRANCHÉ PAR ERIC LE 2026-09-23.** La question était
+ouverte : il avait dit *« infuse gem »* le matin, et ce nom n'existait ni dans la couche
+(`fh:spell:en:transfer-essence`, niveau 1, dans `fh-soulforging-en`) ni dans le manuscrit. Sa
+réponse : **« transfer essence »**. ⛔ *« Infuse Gem »* ne s'écrit nulle part — pas dans un
+écran, pas dans un artefact, pas dans une note. **Un seul nom circule.**
 
 ---
 
@@ -3962,6 +3966,34 @@ Le SRD décrit le contenu de chaque pack en prose (p. 95), mais **l'export `fh-s
 capturé** — vérifié dans `exports/srd/en/gear.json`. La marque est posée, l'écran sait donc
 annoncer « recipe » ; **le geste d'ouverture, lui, attend que le contenu monte en amont**. ⛔ Ce
 n'est pas une option de l'écran : tant que la donnée n'existe pas, aucun écran ne peut l'inventer.
+
+---
+
+### 💎 `trade-goods` SE PARTAGE EN DEUX — `gems` ET `commodities`
+📍 `equipement-trade-goods-deux-etageres` · vivante · 23/09
+
+✅ **Eric, 2026-09-23** : *« sous trade goods tu auras gems, et ce sera une plus grosse
+catégorie »*, puis, pour la seconde : *« une autre sous-catégorie : market goods, ou autre
+chose… »* — et il tranche **`commodities`**.
+
+⚖️ **POURQUOI CE MOT-LÀ ET PAS « market goods »** : les 23 lignes du livre sont des biens qu'on
+échange **au poids** — blé, farine, sel, cuivre, argent, soie, safran. ⛔ Et *« market goods »*
+frôlait **`Wares`**, qui est déjà le nom de la PORTE du catalogue : deux mots voisins pour deux
+organes différents, c'est l'homonymie qui a coûté une journée le 23/08 sur « Clothing ».
+⭐ Et ça défait `trade-goods › trade-goods`, qui bégayait.
+
+🔴 **MAIS `commodities` N'EXISTE PAS ENCORE, ET C'EST UNE MESURE, PAS UN OUBLI.** Les 23
+marchandises du SRD **ne sont dans aucun record du builder** — vérifié le 23/09 : aucun `gear` ne
+porte Canvas, Cinnamon, Saffron, Silk…, et aucun record n'est non rangé. ⛔ **Le rayon
+`trade-goods` n'a donc JAMAIS porté que des gemmes**, contrairement à ce que deux gardes et une
+provenance affirmaient (« 77 quand les 23 l'auront rejointe » — une prévision lue comme une
+mesure).
+
+➡️ **L'ÉTAGÈRE NAÎTRA AVEC SON CONTENU, PAS AVANT.** Déclarer `commodities` à vide aujourd'hui
+serait exactement la promesse qui ment qu'on vient de retirer avec `projectiles`. L'ordre est :
+importer les 23 depuis le SRD en amont (`fh-srd`), les ranger sur `trade-goods › commodities`,
+et l'étagère paraîtra au tambour du même geste — parce que l'export ne porte que les
+combinaisons peuplées.
 
 ---
 

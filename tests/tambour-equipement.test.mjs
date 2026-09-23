@@ -156,7 +156,16 @@ test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () 
    *« le 35 par étagère est une CIBLE DE DÉCOUPE, jamais un plafond de données —
    le homebrew le fera déborder, c'est prévu »*. Le garde reste, parce qu'il
    attrape un débordement NON VOULU ; il nomme celui qui l'est. */
-const DEBORDEMENT_RATIFIE = { id: "trade-goods:trade-goods", n: 54 };
+/* ✅ — ET LA DETTE DES GEMMES EST PAYÉE LE 2026-09-23, PAR LA COUPE D'ERIC.
+   `trade-goods › trade-goods` portait 54 gemmes ; elles sont 27, sur une étagère
+   à elles (*« sous trade goods tu auras gems »*), donc SOUS le seuil. ⛔ Il n'y a
+   plus de débordement ratifié : la constante disparaît au lieu d'être mise à 27,
+   parce qu'une tolérance qui ne tolère plus rien est un garde qui dort.
+   🔴 ET UNE MESURE DU 23/09 CORRIGE CE QUE CE GARDE AFFIRMAIT : il annonçait
+   « 77 quand les 23 marchandises du livre l'auront rejointe ». ⛔ LES 23 N'EXISTENT
+   PAS DANS LE BUILDER — mesuré : aucun record `gear` ne porte Canvas, Cinnamon,
+   Saffron, Silk…, et aucun record n'est non rangé. `trade-goods` n'a donc JAMAIS
+   porté que des gemmes, et le 77 était une prévision, pas une mesure. */
 /* ✅ 2026-09-23 — UN SECOND DÉBORDEMENT, ET ERIC L'A RATIFIÉ : *« pour les gemmes
    on [est] aussi au-dessus des 35 »*. La cible de 35 garde son sens — c'est une
    CIBLE DE DÉCOUPAGE — mais deux étagères l'assument désormais, et pour la même
@@ -176,7 +185,7 @@ const DEBORDEMENT_RATIFIE = { id: "trade-goods:trade-goods", n: 54 };
    attend un mot d'Eric : recouper `crafting`, ou ratifier le débordement. */
 const DEBORDEMENT_NOMME_A_TRANCHER = { id: "tools:tools", n: 37 };
 
-test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la dette NOMMÉE des gemmes", () => {
+test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf celle qu'il a NOMMÉE", () => {
   /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
      toujours d'arriver à MOINS DE 35 ITEMS SUR LA DERNIÈRE CATÉGORIE, c'est
      l'idée ». ⭐ Les rayons ne sont pas une classification pour elle-même : ils
@@ -190,24 +199,28 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
      dette écrite « Crafting › Gems » se serait accrochée à un affichage. */
   const toutes = arbre.flatMap((r) => r.etageres.map((e) => ({ id: e.id, nom: `${r.label} › ${e.label}`, n: e.objets.length })));
   const debordent = toutes.filter((e) => e.n >= 35).map(({ id, n }) => ({ id, n }));
-  assert.deepEqual(debordent, [DEBORDEMENT_NOMME_A_TRANCHER, DEBORDEMENT_RATIFIE],
+  assert.deepEqual(debordent, [DEBORDEMENT_NOMME_A_TRANCHER],
     "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — la seule admise est " +
-    "`trade-goods › trade-goods`, 54 gemmes aujourd'hui et 77 quand les 23 marchandises du livre " +
-    "l'auront rejointe, prévue par NORMES.md:2441 — et `tools › tools` à 37, RATIFIÉE le 23/09 " +
-    "(« pour les gemmes on est aussi au-dessus des 35 »)");
+    "`tools › tools` à 37, RATIFIÉE le 23/09. ✅ ET ELLE EST SEULE DEPUIS CE JOUR-LÀ : " +
+    "`trade-goods` portait 54 gemmes, la coupe d'Eric les ramène à 27 sur leur propre étagère, " +
+    "sous le seuil. Une dette de six semaines soldée par une décision d'auteur, pas par un " +
+    "redécoupage.");
 
-  /* ⚔️ ET LA DETTE SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui déborde
-     doit être EXACTEMENT des gemmes. Sans ce témoin, un objet d'un autre genre
-     rangé là par erreur se cacherait derrière un compte toléré. */
-  const dette = arbre.find((r) => r.id === "trade-goods").etageres.find((e) => e.id === DEBORDEMENT_RATIFIE.id);
-  assert.deepEqual([...new Set(dette.objets.map((o) => o.kind))], ["gem"],
-    "l'étagère tolérée ne porte QUE des gemmes — sinon la tolérance couvrirait autre chose");
+  /* ⚔️ ET CE QUI RESTE TOLÉRÉ SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui
+     déborde doit être EXACTEMENT des outils. Sans ce témoin, un objet d'un autre
+     genre rangé là par erreur se cacherait derrière un compte toléré. */
+  const dette = arbre.find((r) => r.id === "tools").etageres.find((e) => e.id === DEBORDEMENT_NOMME_A_TRANCHER.id);
+  assert.deepEqual([...new Set(dette.objets.map((o) => o.kind))], ["tool"],
+    "l'étagère tolérée ne porte QUE des outils — sinon la tolérance couvrirait autre chose");
+  /* ✅ ET LE TÉMOIN DE LA DETTE SOLDÉE : les gemmes sont bien là, et bien SOUS le seuil. */
+  const gemmes = arbre.find((r) => r.id === "trade-goods").etageres.find((e) => e.id === "trade-goods:gems");
+  assert.equal(gemmes.objets.length, 27, "✅ la coupe d'Eric du 23/09 — 54 → 27, et le seuil est tenu");
 
   /* Le rangement d'Eric HORS des deux débordements n'a pas bougé d'un objet.
      ⏳ `crafting › tools` en sort aussi depuis le 23/09 : il est NOMMÉ plus
      haut, et son compte est vérifié là — le mesurer deux fois ne dirait rien
      de plus, et masquerait un mouvement sur les 24 autres étagères. */
-  const hors = new Set([DEBORDEMENT_RATIFIE.id, DEBORDEMENT_NOMME_A_TRANCHER.id]);
+  const hors = new Set([DEBORDEMENT_NOMME_A_TRANCHER.id]);
   const sansLaDette = toutes.filter((e) => !hors.has(e.id));
   const plusGrosse = sansLaDette.reduce((a, b) => (b.n > a.n ? b : a));
   /* ⭐ 33 → 34 LE 23/09, ET CE N'EST PAS UN AJOUT : la couche générée avait DÉRIVÉ
@@ -262,7 +275,11 @@ test("4 — ⚔️ ATTAQUE : aucun libellé n'est inventé, chacun se retrouve d
    aussi bien « 416 + 54 » que « 470 records de la même couche ». Les deux
    chiffres se vérifient donc l'un après l'autre, par le PRÉFIXE d'id. */
 const RANGEMENTS_SRFH = 416;   // `srfh-shelving-en`, lot 95 — le SRD habillé
-const RANGEMENTS_GEMMES = 54;  // `fh-gems-en`, lot 181 — les gemmes d'Eric
+const RANGEMENTS_GEMMES = 27;  // `fh-gems-en`, lot 181 — les gemmes d'Eric, 54 jusqu'au 23/09
+/* ✅ LA COUPE D'ERIC, 23/09 : *« les 54 gemmes tombent à 27 »*, et elle suit la
+   rareté — 3 noms par palier commun, 2 au milieu, 1 au sommet. ⛔ Le canon du
+   vault garde ses 54 : la coupe est une DÉRIVATION du générateur, pas une
+   amputation de la source, et elle se rejoue par la règle qu'il porte. */
 /** Les 12 rangements d'outils Fate's Hand — 11 dans `fh-skills-en`, 1 dans
  *  `fh-soulforging-en`. ⏳ Ils poussent `crafting › tools` à 37, au-dessus du
  *  critère des 35 : voir `DEBORDEMENT_NOMME_A_TRANCHER`. */
@@ -271,7 +288,7 @@ const RANGEMENTS_OUTILS_FH = 12;
  *  PAS : elles RÉÉCRIVENT `srd:gear:en:ammunition`, déjà rangé par `srfh`. */
 const RANGEMENTS_MUNITIONS = 4;
 
-test("5 — 🔴 LES 486 RANGEMENTS SONT LUS (416 + 54 + 12 + 4), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
+test("5 — 🔴 LES 459 RANGEMENTS SONT LUS (416 + 27 + 12 + 4), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
   /* ⭐ 2026-09-09, LOT 185 — LE TOTAL AFFICHÉ EST REDEVENU LE TOTAL LU, et
      c'est le lot entier qui tient dans cet écart refermé.
 
@@ -298,7 +315,7 @@ test("5 — 🔴 LES 486 RANGEMENTS SONT LUS (416 + 54 + 12 + 4), ET PLUS AUCUN 
      gemmes : une couche Fate's Hand range SES records, parce que `srfh` est
      bâtie sur le SRD seul et ne les a jamais vus. */
   assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
-    "les 486 records de rangement des QUATRE sources sont bien lus");
+    "les 459 records de rangement des QUATRE sources sont bien lus");
   /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
      côté sans que ce test bronche.
      ⚖️ 09/09 — LE PARTAGE DES PRÉFIXES A CHANGÉ, ET C'EST UNE DÉCISION D'ERIC.
@@ -307,7 +324,16 @@ test("5 — 🔴 LES 486 RANGEMENTS SONT LUS (416 + 54 + 12 + 4), ET PLUS AUCUN 
      DMG porte AUSSI y sont passées, pour que les deux couches posent le MÊME
      id et que le moteur n'en garde qu'un record (« on superpose », « pas de
      doublons inutiles »). Restent `fh:` les 31 inventions de Fate's Hand. */
-  const GEMMES_PARTAGEES = 23;
+  /* 📏 23 JUSQU'AU 23/09, 14 DEPUIS — ET LE SENS A CHANGÉ AVEC LE NOMBRE. La
+     coupe d'Eric écarte QUATORZE pierres du DMG. ✅ Sa règle du 23/09 est en deux
+     temps : *« les noms les plus courts, et alphabétiquement plus proches de A »*,
+     puis *« si ça tombe sur du DMG tu élimines et passes au nom suivant »*.
+     ⚠️ ET NEUF RESTENT QUAND MÊME, PARCE QUE QUATRE PALIERS N'ONT PAS LE CHOIX :
+     à 10, 50, 100 et 1000 po, les pierres sont des gemmes RÉELLES — Jade, Jet,
+     Onyx, Amber — et le livre les liste parce qu'elles existent. Le générateur
+     replie alors, et il le DIT (voir sa sortie, et `tests/fh-gems.test.mjs`).
+     ⛔ Un repli tu serait devenu, en six semaines, un choix qu'on croit avoir fait. */
+  const GEMMES_PARTAGEES = 9;
   /* Les 12 rangements d'outils sont TOUS `fh:` — ils pointent vers des records
      qui n'existent pas sur le fil SRD. */
   const parPrefixe = { "srfh:": 0, "fh:": 0 };
@@ -318,7 +344,7 @@ test("5 — 🔴 LES 486 RANGEMENTS SONT LUS (416 + 54 + 12 + 4), ET PLUS AUCUN 
   assert.deepEqual(parPrefixe, {
     "srfh:": RANGEMENTS_SRFH + GEMMES_PARTAGEES,
     "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS
-  }, "416 du livre + 23 gemmes partagées d'un côté, 31 gemmes + 12 outils + 4 munitions de l'autre");
+  }, "416 du livre + 9 gemmes partagées d'un côté, 18 gemmes + 12 outils + 4 munitions de l'autre");
   /* ⚔️ ET LE TOTAL NE BOUGE PAS — c'est ce qui prouve qu'on a DÉPLACÉ des
      rangements entre deux comptes, et non pas ajouté ou perdu des records. */
   assert.equal(parPrefixe["srfh:"] + parPrefixe["fh:"],
@@ -343,7 +369,7 @@ test("5 — 🔴 LES 486 RANGEMENTS SONT LUS (416 + 54 + 12 + 4), ET PLUS AUCUN 
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
   assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
-    "les 486 rangements sont tous à l'étalage — plus aucun n'est écarté");
+    "les 459 rangements sont tous à l'étalage — plus aucun n'est écarté");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
   assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS, "et chaque objet n'est rangé que sur UNE étagère");

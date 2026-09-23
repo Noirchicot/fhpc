@@ -87,8 +87,11 @@ export const EMPREINTE_SOURCE = "e623a20e9029a58f374013ccef9ee8f9d5597765c52bb71
    cette chaîne pour `"equipment:valuables"` et regénérer suffit à déplacer
    les 54 gemmes. ⛔ Ne la recopie nulle part ailleurs — une seconde écriture
    rouvrirait le défaut `ETAGERE_DE` que le lot 95 a retiré. */
-/** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE. */
-export const ETAGERE_DES_GEMMES = "trade-goods:trade-goods";
+/** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE.
+ *  ✅ ERIC, 2026-09-23 : *« sous trade goods tu auras gems, et ce sera une plus
+ *  grosse catégorie »*. Le rayon garde le mot du livre ; les pierres prennent
+ *  leur étagère à elles au lieu de se mêler aux 23 marchandises. */
+export const ETAGERE_DES_GEMMES = "trade-goods:gems";
 
 /** D'où vient ce rangement, écrit dans chaque record : le tambour n'affiche
  *  pas cette phrase, mais un lecteur qui se demande « qui a décidé ça ? » la
@@ -98,8 +101,11 @@ export const PROVENANCE_ETAGERE =
   "⭐ LE MOT EST CELUI DU LIVRE : le SRD 5.2 porte 23 marchandises typées TG (Canvas, Cinnamon, " +
   "Gold, Platinum, Saffron, Silver, Silk…) — `valuables` était une invention de l'architecte, " +
   "et la loi §0.12 dit que le mot est celui du SRD. " +
-  "⛔ UNE SEULE ÉTAGÈRE POUR TOUT : les 54 gemmes de Fate's Hand et les 23 marchandises du livre " +
-  "s'y rangent ENSEMBLE, elles ne se séparent pas. " +
+  "✅ ET LES DEUX SE SÉPARENT DEPUIS LE 2026-09-23 — « sous trade goods tu auras gems, et ce sera " +
+  "une plus grosse catégorie ». Le rayon `trade-goods` porte désormais DEUX étagères : les pierres " +
+  "chez `gems`, les 23 marchandises du livre chez `trade-goods`. ⏳ Le 09/09 disait l'inverse " +
+  "(« même étagère partout ») — c'est la parole la plus récente qui vaut, et elle règle aussi le " +
+  "débord : 77 objets sur une seule étagère devenaient neuf pages d'un écran visé à 35. " +
   "Remplace `crafting › gems` (déclarée à zéro les 21-22/08) et `valuables › gems` (09/09, retirée).";
 
 /* 🔴 LES DEUX TAGS — Eric, 2026-09-08 : *« tag valuables, tag Soulforging »*.
@@ -408,10 +414,118 @@ function verifierSource(doc) {
  * Construit la couche. PURE : elle ne touche ni au disque ni à l'horloge.
  *
  * @param {object} doc  le document `Gems (FH).json`, déjà lu
- * @returns {{layer:object, compte:number, parPalier:object, refuses:string[], ecartees:number}}
+ * @returns {{layer:object, compte:number, parPalier:object, refuses:string[], ecartees:number, repliees:object[]}}
  */
-export function construireCouche(doc, { etagere = ETAGERE_DES_GEMMES } = {}) {
-  const { gemmes, ecartees } = verifierSource(doc);
+/* ══ LA COUPE À 27 — ERIC, 2026-09-23 ════════════════════════════════
+
+   ✅ *« les 54 gemmes tombent à 27 »*, et la coupe SUIT LA RARETÉ — ⛔ pas une
+   moitié uniforme : une pierre commune se croise souvent, une pierre souveraine
+   est une pièce unique, et les deux ne méritent pas le même nombre de noms.
+
+   ⭐ LES DOUZE PALIERS RESTENT, TOUS. On coupe des NOMS, jamais des paliers :
+   chaque palier ouvre un cran de PP dans l'échelle du Soulforging (mesuré le
+   23/09 — les 12 paliers tombent un pour un sur les 11 crans, la seule
+   exception étant les communes à 10 po qui passent SOUS le seuil de PP 1).
+
+   ⭐ ET LE DÉ SUIT LE COMPTE, IL NE SE DÉCLARE PAS À CÔTÉ. Trois noms → d3, deux
+   → d2, un → AUCUN JET. ⛔ C'est la faute que ce fichier évite en le calculant :
+   un `die: "d5"` laissé sur un palier qui n'a plus que deux pierres ferait
+   tirer dans le vide deux fois sur cinq, et rien ne rougirait. */
+export const GARDE_PAR_PALIER = Object.freeze([3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 1]);
+
+/** Le dé d'un palier se DÉDUIT de son compte. `null` = aucun jet : il n'y a
+ *  qu'une pierre, et tirer un d1 serait un geste qui déguise une certitude. */
+export function deDuPalier(compte) { return compte > 1 ? `d${compte}` : null; }
+
+/** ⚖️ LA RÈGLE DE SÉLECTION, ET ELLE EST D'ERIC, PAS DE MOI — 2026-09-23 :
+ *  *« tu choisis les noms les plus courts, et alphabétiquement plus proches de A
+ *  pour faire ta sélection »*.
+ *
+ *  🔴 POURQUOI UNE RÈGLE ET PAS UNE LISTE, alors qu'il s'agit d'un choix
+ *  d'auteur : une liste de 27 noms écrite ici ne dirait jamais POURQUOI ces
+ *  27-là, et personne ne saurait la refaire le jour où le canon bouge. La règle,
+ *  elle, se rejoue — et si Eric ajoute une pierre à un palier, la sélection se
+ *  recalcule sans qu'on retouche ce fichier.
+ *  ⭐ L'ALPHABET N'EST PAS UN ORNEMENT : il TRANCHE LES ÉGALITÉS, et il y en a.
+ *  Au palier Royal, « Flawless Star Ruby » et « Great Blue Diamond » font 18
+ *  signes tous les deux ; sans second critère, la sélection dépendrait de
+ *  l'ordre du fichier source, donc de rien.
+ *
+ *  ✅ ET UN TROISIÈME CRITÈRE, ARRIVÉ LE MÊME JOUR — ERIC : *« si ça tombe sur du
+ *  DMG tu élimines et passes au nom suivant »*. Une pierre dont le nom figure au
+ *  DMG 2024 (`GEMMES_DU_LIVRE`) est SAUTÉE tant qu'il reste une invention de
+ *  Fate's Hand à ce palier.
+ *
+ *  🔴 ET CETTE RÈGLE NE PEUT PAS S'APPLIQUER PARTOUT — MESURÉ LE 23/09, ET LE
+ *  REPLI EST NOMMÉ PLUTÔT QUE SILENCIEUX. Quatre paliers n'ont pas assez de noms
+ *  hors DMG pour remplir leur quota :
+ *      10 gp  (Common)      demande 3, il en existe 1  (Rhodonite)
+ *      50 gp  (Ornamental)  demande 3, il en existe 0
+ *     100 gp  (Fine)        demande 3, il en existe 0
+ *    1000 gp  (Exceptional) demande 2, il en existe 1  (White Opal)
+ *  ⛔ LA CAUSE N'EST PAS UN OUBLI D'ERIC : à ces paliers les pierres sont des
+ *  gemmes RÉELLES — Jade, Jet, Onyx, Amber, Coral, Pearl. Le DMG les liste parce
+ *  qu'elles existent, pas parce qu'il les a inventées, et aucun catalogue de
+ *  gemmes communes ne peut les éviter toutes.
+ *  ➡️ Le générateur COMPLÈTE alors au plus court parmi les noms du livre, et il
+ *  RAPPORTE quels paliers ont dû replier (`repliees`). ⚠️ Un palier qui replie
+ *  n'est pas une erreur à taire : c'est une question ouverte pour Eric, qui peut
+ *  soit accepter ces noms-là, soit inventer des pierres pour ces quatre paliers.
+ *
+ *  ⚠️ LE CANON DU VAULT GARDE SES 54, ET C'EST VOULU. Cette coupe est une
+ *  DÉRIVATION du builder, pas une amputation de la source : `Gems (FH).json`
+ *  reste ce qu'Eric a dicté le 08/09, son empreinte reste valide, et le jour où
+ *  il veut d'autres 27 il change la règle ou retire des pierres lui-même par
+ *  `retired_gems`, qui est le mécanisme de son canon.
+ *
+ *  @param gemmes la liste vérifiée, tous paliers confondus
+ *  @returns la sous-liste retenue, `die`/`roll` RECALCULÉS
+ */
+export function selectionDErik(gemmes, garde = GARDE_PAR_PALIER, repliees = []) {
+  /* les paliers dans l'ordre de la VALEUR, qui est l'ordre de la rareté. */
+  const paliers = [...new Set(gemmes.map((g) => g.value_gp))].sort((a, b) => a - b);
+  if (paliers.length !== garde.length) {
+    fail(`la source porte ${paliers.length} palier(s), la coupe en décrit ${garde.length}. ` +
+      "⛔ Une coupe qui ne recouvre pas la source laisserait un palier se vider ou se garder " +
+      "en entier sans que personne le décide.");
+  }
+  const retenues = [];
+  paliers.forEach((valeur, rang) => {
+    const n = garde[rang];
+    const dansLePalier = gemmes.filter((g) => g.value_gp === valeur);
+    if (dansLePalier.length < n) {
+      fail(`le palier ${valeur} po ne porte que ${dansLePalier.length} gemme(s), la coupe en demande ${n}.`);
+    }
+    /* ⛔ `localeCompare` NON : il dépend de la locale de la machine, et ce
+       générateur doit rendre deux fois la même sortie sur deux machines. */
+    const ordre = [...dansLePalier].sort((a, b) =>
+      a.name_en.length - b.name_en.length || (a.name_en < b.name_en ? -1 : a.name_en > b.name_en ? 1 : 0));
+    /* ✅ LES INVENTIONS DE FATE'S HAND D'ABORD, à l'intérieur du même ordre — et
+       le livre ENSUITE, jamais à la place. ⛔ Ce n'est pas un second tri : les
+       deux parts gardent l'ordre (longueur, alphabet), on ne fait que les
+       concaténer. Un tri à deux clefs aurait dit la même chose moins clairement. */
+    const duLivre = (g) => Object.hasOwn(GEMMES_DU_LIVRE, slugDeLId(g.id));
+    const propres = ordre.filter((g) => !duLivre(g));
+    const empruntes = ordre.filter(duLivre);
+    const choix = [...propres, ...empruntes].slice(0, n);
+    const repli = choix.filter(duLivre).length;
+    if (repli > 0) {
+      repliees.push({ palier: valeur, demande: n, hors_dmg: propres.length, repli,
+        noms: choix.filter(duLivre).map((g) => g.name_en) });
+    }
+    const de = deDuPalier(n);
+    choix.forEach((g, i) => retenues.push({ ...g, die: de, roll: de ? i + 1 : null }));
+  });
+  return retenues;
+}
+
+export function construireCouche(doc, { etagere = ETAGERE_DES_GEMMES, garde = GARDE_PAR_PALIER } = {}) {
+  const { gemmes: toutes, ecartees } = verifierSource(doc);
+  /* ⛔ LA VÉRIFICATION PORTE SUR LES 54, LA COUPE VIENT APRÈS — dans cet ordre.
+     Une pierre coupée qui porterait un poids absent doit quand même faire jeter :
+     elle est dans le canon, et le canon se relit. */
+  const repliees = [];
+  const gemmes = selectionDErik(toutes, garde, repliees);
 
   const [rayon, rayonnage] = String(etagere).split(":");
   if (!rayon || !rayonnage || String(etagere).split(":").length !== 2) {
@@ -506,7 +620,7 @@ export function construireCouche(doc, { etagere = ETAGERE_DES_GEMMES } = {}) {
     records: { gem, shelving }
   };
 
-  return { layer, compte: gemmes.length, parPalier, refuses: [...CHAMPS_REFUSES_LANGUE], ecartees };
+  return { layer, compte: gemmes.length, parPalier, refuses: [...CHAMPS_REFUSES_LANGUE], ecartees, repliees };
 }
 
 export function serialize(layer) {
@@ -527,13 +641,20 @@ export function generate({ outDir = OUT_DIR, sourcePath = SOURCE_PATH, etagere =
 export { GemError };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { outPath, compte, parPalier, ecartees, digest } = generate();
+  const { outPath, compte, parPalier, ecartees, digest, repliees } = generate();
   const paliers = Object.keys(parPalier).map(Number).sort((a, b) => a - b)
     .map((p) => `${p}:${parPalier[p]}`).join(" · ");
   console.log(
     `fh-gems : ${compte} gemmes au genre \`gem\` + ${compte} rangements sur \`${ETAGERE_DES_GEMMES.replace(":", " › ")}\`\n` +
     `          paliers ${paliers}\n` +
     `          ${ecartees} gemmes écartées laissées au vault (réserve, jamais chargée)\n` +
+    /* ⚠️ LE REPLI SE DIT À VOIX HAUTE. Eric a demandé d'éviter les noms du DMG ;
+       quatre paliers n'en ont pas assez d'autres. Un générateur qui replie en
+       silence transforme une question ouverte en fait acquis. */
+    (repliees.length
+      ? repliees.map((r) => `          ⚠️ ${r.palier} po : ${r.demande} demandé(s), ` +
+          `${r.hors_dmg} hors DMG — ${r.repli} repli(s) sur le livre : ${r.noms.join(", ")}\n`).join("")
+      : "") +
     `          source ${digest}\n` +
     `          → ${outPath}`
   );

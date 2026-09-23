@@ -34,7 +34,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
 const TOKENS = fs.readFileSync(path.join(ROOT, "ui", "builder", "tokens.css"), "utf8");
 
-const { estRecette, ETAGERE_DES_KITS } = await import("../ui/builder/equipement-pipeline.mjs");
+const { estRecette, poidsParLieu } = await import("../ui/builder/equipement-pipeline.mjs");
 const { corpsDuJeton, motDuJeton } = await import("../ui/builder/jeton-objet.mjs");
 
 const fixture = exempleFhEn();
@@ -48,8 +48,11 @@ test("1 — les trois signaux d'Eric, chacun ÉPROUVÉ SEUL sur un record qui ne
   assert.equal(estRecette({ data: { category: "weapon" } }), true, "① une arme magique part de sa base mondaine");
   assert.equal(estRecette({ data: { category: "armor" } }), true, "① une armure aussi");
   assert.equal(estRecette({ data: { rarity: "Rarity Varies" } }), true, "② le marqueur de famille du SRD");
-  assert.equal(estRecette({ data: {} }, ETAGERE_DES_KITS), true,
-    "③ ⭐ ET LE KIT NE PORTE RIEN DANS SON RECORD : c'est son étagère, et elle seule, qui le dit");
+  assert.equal(estRecette({ data: { contents: [{ ref: "srd:gear:en:rope" }] } }), true,
+    "③ ⭐ UN OBJET QUI EN CONTIENT D'AUTRES : il faut l'OUVRIR, donc c'est un blueprint");
+  assert.equal(estRecette({ data: { contents: [] } }), false,
+    "⛔ ET UNE LISTE VIDE N'EN EST PAS UN : `contents: []` dit « on a regardé, il n'y a rien », "
+    + "ce qui n'est pas la même chose qu'un paquet. Un objet vide n'a rien à défaire.");
 });
 
 test("2 — ⚔️ ATTAQUE : ce qui N'EST PAS une recette, et ces quatre cas sont réels", () => {
@@ -61,53 +64,61 @@ test("2 — ⚔️ ATTAQUE : ce qui N'EST PAS une recette, et ces quatre cas son
   assert.equal(estRecette({ data: { rarity: "Rare" } }), false, "une rareté simple n'énumère rien");
   assert.equal(estRecette({ data: { cost: "2 GP", weight: "5 lb." } }), false,
     "⛔ un sac à dos ORDINAIRE n'est pas un kit : même genre, même étagère d'allée, autre étagère");
-  assert.equal(estRecette({ data: {} }, "adventuring:camp"), false,
-    "⛔ et une AUTRE étagère du même rayon ne déclenche rien — c'est `packs`, pas `adventuring`");
   /* ⚔️ le garde sait accuser : sans record du tout, il ne jette pas et ne dit pas oui. */
   assert.equal(estRecette(null), false, "un record absent n'est pas une recette (et ne fait pas tomber l'écran)");
-  assert.equal(estRecette(undefined, undefined), false);
+  assert.equal(estRecette(undefined), false);
 });
 
-test("3 — 🔴 L'ÉTAGÈRE EST NOMMÉE À SA SOURCE, et c'est une IDENTITÉ, pas un libellé", () => {
-  /* ⭐ LA LEÇON D'ARCHI 35, 23/09 : une liste écrite deux fois rougit un jour sur
-     un fait parfaitement vrai. `ETAGERE_DES_KITS` est donc exporté et lu ici —
-     ⛔ la chaîne « adventuring:packs » n'est PAS retapée dans ce fichier ailleurs
-     que dans cette assertion-ci, qui est précisément celle qui la définit. */
-  assert.equal(ETAGERE_DES_KITS, "adventuring:packs");
-  assert.match(ETAGERE_DES_KITS, /^[a-z-]+:[a-z-]+$/,
-    "⛔ `aisle:shelf` — l'identité d'une étagère, jamais son libellé (loi du tambour, test 3)");
+test("3 — 🔧 LE SIGNAL A DÉMÉNAGÉ DANS LE RECORD, et le détour par l'étagère a disparu", () => {
+  /* 🔴 À GARDER, PARCE QUE ÇA S'EST JOUÉ EN UNE SOIRÉE. Au premier jet, ce
+     prédicat lisait l'ÉTAGÈRE `adventuring:packs` — non par goût, mais parce que
+     les sept packs du SRD ne portaient QUE `cost`, `name`, `weight`. Rien dans
+     leur record ne les distinguait d'un sac à dos ; l'étagère était le seul
+     endroit où « ceci est un kit » existait dans la donnée.
+     ⭐ Puis `contents` est monté en amont, et le garde 4 — qui épinglait « ce
+     record ne porte que trois champs » — est tombé. Il était écrit pour poser
+     exactement cette question : *le signal doit-il déménager dans le record ?*
+     ⛔ ET LA RÉPONSE ÉTAIT OUI, PARCE QU'UN DÉTOUR QU'ON GARDE DEVIENT UNE SECONDE
+     VÉRITÉ : un pack redéplacé aurait perdu sa diagonale sans changer de nature.
+     Le signal vit désormais où vit la RAISON — *cet objet en contient d'autres*.
+     ⚔️ CE GARDE TIENT LA PORTE FERMÉE : si `chercheEtagere` reparaissait dans la
+     signature, c'est que le détour serait revenu. */
+  assert.equal(estRecette.length, 1,
+    "⛔ `estRecette(record)` — UN SEUL argument. Un second dirait qu'un appelant doit "
+    + "savoir quelque chose que le record ne dit pas.");
+  assert.equal(poidsParLieu.length, 2,
+    "⛔ `poidsParLieu(lignes, chercheRecord)` — et pas de troisième : le poids se lit "
+    + "entièrement dans les records, sans rien demander au rangement.");
 });
 
 /* ══ ② LA DONNÉE RÉELLE — SUR LA PILE MONTÉE, PAS SUR UN RECORD FABRIQUÉ ══ */
 
-test("4 — ⭐ LES KITS D'ERIC SONT EXACTEMENT CEUX DE SON ÉTAGÈRE, comptés sur la pile", () => {
-  /* ⛔ AUCUN NOM DE KIT N'EST ÉCRIT ICI. On BALAIE le rangement et on retient ce
-     que l'étagère déclare — le jour où un huitième kit y entre, ce garde le
-     compte sans qu'on le retouche, et c'est tout l'intérêt de lire une étagère
-     plutôt qu'une liste. */
-  const [rayon, etagere] = ETAGERE_DES_KITS.split(":");
-  const kits = query({ kind: "shelving" }).filter((v) => {
-    const sh = ((v.record && v.record.data) || {}).shelf || {};
-    return sh.aisle === rayon && sh.shelf === etagere;
+test("4 — ⭐ LES SEPT KITS SE DÉCLARENT EUX-MÊMES, et on les compte sur la pile montée", () => {
+  /* ⛔ AUCUN NOM DE KIT N'EST ÉCRIT ICI. On BALAIE le genre `gear` et on retient
+     ce qui porte un contenu — le jour où un huitième paquet entre, ce garde le
+     compte sans qu'on le retouche. C'est tout l'intérêt d'un signal qui vit dans
+     la donnée plutôt que d'une liste de noms. */
+  const kits = query({ kind: "gear" }).filter((v) => {
+    const c = ((v.record && v.record.data) || {}).contents;
+    return Array.isArray(c) && c.length > 0;
   });
   assert.equal(kits.length, 7, "les sept packs du SRD — Burglar, Diplomat, Dungeoneer, Entertainer, Explorer, Priest, Scholar");
+  assert.equal(kits.reduce((n, v) => n + v.record.data.contents.length, 0), 64,
+    "📏 64 éléments — 11 + 11 + 9 + 10 + 8 + 7 + 8, relus à l'œil dans le PDF épinglé (p.96-99) "
+    + "avec `pdftotext -layout`, un extracteur AUTRE que celui du pipeline amont");
 
-  /* 🔴 ET VOICI CE QUI JUSTIFIE TOUT LE DÉTOUR PAR L'ÉTAGÈRE, MESURÉ : pas un
-     seul de ces sept records ne porte quoi que ce soit qui le distingue d'un
-     sac à dos. Ni contenu, ni catégorie, ni marqueur. ⛔ Si ce garde tombe un
-     jour parce qu'un champ est apparu, la question à se poser est « le signal
-     doit-il déménager dans le record ? » — pas « comment le faire taire ? ». */
+  /* 🔧 CE BLOC ÉPINGLAIT « trois champs » ET IL EST TOMBÉ LE 23/09 AU SOIR,
+     quand `contents` est monté. C'est lui qui a fait déménager le signal du
+     blueprint — voir le garde 3. ⭐ Il continue de tenir la FORME du record,
+     parce que c'est elle qui décide où le signal a le droit de vivre. */
   for (const k of kits) {
-    const base = k.record.data.extends;
-    const objet = query({ kind: k.record.data.of_kind, id: base });
-    assert.ok(objet, `le kit ${base} pointe un record réel`);
-    assert.deepEqual(Object.keys(objet.record.data).sort(), ["cost", "name", "weight"],
-      `⛔ ${objet.record.name} ne porte QUE cost/name/weight — rien dans le record ne dit « kit »`);
-    assert.equal(estRecette(objet.record, ETAGERE_DES_KITS), true,
-      `⭐ et il est pourtant une recette : ${objet.record.name}`);
-    assert.equal(estRecette(objet.record), false,
-      "🔴 …ET SEULEMENT PAR SON ÉTAGÈRE — sans elle, le prédicat ne peut rien voir. "
-      + "C'est la mesure qui prouve que le détour n'est pas un ornement.");
+    const objet = k;
+    assert.ok(objet, "le kit pointe un record réel");
+    assert.deepEqual(Object.keys(objet.record.data).sort(), ["contents", "cost", "name", "weight"],
+      `⛔ ${objet.record.name} porte cost/name/weight ET \`contents\` — rien d'autre`);
+    assert.ok(objet.record.data.contents.length > 0, `${objet.record.name} : son contenu n'est pas vide`);
+    assert.equal(estRecette(objet.record), true,
+      `⭐ et il est donc une recette PAR LUI-MÊME : ${objet.record.name}`);
   }
 });
 
@@ -171,4 +182,47 @@ test("8 — 🎨 LA COULEUR EST UN JETON, aux DEUX thèmes — jamais un hex dan
     + "une couleur qui n'a pas été mesurée sur son fond.");
   for (const v of valeurs) assert.match(v, /^#[0-9a-f]{6}$/i, `« ${v} » — une couleur, chez les jetons`);
   assert.notEqual(valeurs[0], valeurs[1], "⚔️ et les deux thèmes ne portent pas la MÊME valeur");
+});
+
+/* ══ ⑤ UN BLUEPRINT NE PÈSE RIEN — ERIC, 2026-09-23 ═══════════════════════ */
+
+test("9 — ⚖️ UN BLUEPRINT NE PÈSE RIEN, et ce zéro n'est PAS un « à éditer »", () => {
+  /* ⚖️ Eric, 23/09 : *« une précision : un blueprint n'a pas de poids »*.
+     ⭐ C'est cohérent avec ce qu'il EST : une recette n'est pas l'objet, c'est la
+     promesse de l'objet. Un plan d'épée ne pèse pas ce que pèse l'épée.
+     🔴 ET LA DISTINCTION QUE CE GARDE TIENT EST LA SEULE QUI COMPTE : « Varies »
+     pèse 0 ET RESTE compté dans `inconnus`, parce qu'il ATTEND une édition ; un
+     blueprint pèse 0 et n'attend rien. ⛔ Si les deux se confondaient, l'écran
+     dirait « plus 3 objets qu'on ne sait pas peser » à propos de trois recettes,
+     et personne n'irait jamais les « réparer » — elles sont déjà justes. */
+  const catalogue = {
+    "x:kit": { data: { weight: "42 lb.", contents: [{ ref: "srd:gear:en:rope" }] } },  // un pack : lourd, et blueprint
+    "x:epee": { data: { weight: "3 lb." } },   // une épée ordinaire
+    "x:varie": { data: { weight: "Varies" } }  // le cas qui, lui, reste inconnu
+  };
+  const rec = (ref) => catalogue[ref.id];
+  const lignes = [
+    { ref: { id: "x:kit" }, location: "backpack", quantity: 2 },
+    { ref: { id: "x:epee" }, location: "backpack", quantity: 1 }
+  ];
+
+  const avec = poidsParLieu(lignes, rec);
+  assert.equal(avec.somme.backpack, 3,
+    "⛔ 3 lb, pas 87 : les deux kits à 42 lb ne pèsent rien tant qu'ils sont des plans");
+  assert.equal(avec.compte.backpack, 3, "⭐ mais ils SONT dans le sac — le compte les voit");
+  assert.equal(avec.inconnus.backpack, 0,
+    "⛔ ET ILS NE SONT PAS « À ÉDITER » : leur poids n'est pas manquant, il est NUL par règle");
+
+  /* ⚔️ LE TÉMOIN QUI PROUVE QUE LE GARDE MESURE QUELQUE CHOSE : le MÊME kit, privé
+     de son `contents`, redevient un objet ordinaire et ses 84 lb reviennent. Sans
+     cette ligne, le test passerait aussi sur un `poidsParLieu` qui aurait perdu
+     les kits en route et ne pèserait plus rien du tout. */
+  const sans = poidsParLieu(lignes, (ref) => (ref.id === "x:kit" ? { data: { weight: "42 lb." } } : catalogue[ref.id]));
+  assert.equal(sans.somme.backpack, 87, "⚔️ 2 × 42 + 3 — le kit pèse dès qu'il cesse d'être un paquet");
+
+  /* ⚔️ ET « VARIES » N'A PAS CHANGÉ DE NATURE AU PASSAGE. */
+  const varie = poidsParLieu([{ ref: { id: "x:varie" }, location: "backpack", quantity: 3 }], rec);
+  assert.equal(varie.somme.backpack, 0);
+  assert.equal(varie.inconnus.backpack, 3,
+    "⭐ lui reste INCONNU — c'est exactement ce qui le sépare d'un blueprint");
 });
