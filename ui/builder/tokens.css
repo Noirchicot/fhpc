@@ -1095,8 +1095,8 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=800");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=800");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=801");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=801");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1132,14 +1132,14 @@
      (*« le voile est un jeton, pas un littéral perdu dans la feuille »*), et c'est LUI
      qui a refusé mon `.6` écrit en clair. Il avait raison. */
   --filigrane: .40;
-  --icone-parchemin: url("./assets/parchemin.webp?v=800");
+  --icone-parchemin: url("./assets/parchemin.webp?v=801");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=800");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=801");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=800");
+  --icone-bourse: url("./assets/bourse.webp?v=801");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
@@ -1342,14 +1342,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=800");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=801");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=800");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=801");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1442,8 +1442,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=800");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=800");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=801");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=801");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
