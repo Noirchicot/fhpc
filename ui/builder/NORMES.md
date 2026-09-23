@@ -3564,6 +3564,34 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### 🏷️ « TABLE ITEMS » — LE MOT DU JOUEUR POUR CE QUI NE VIENT D'AUCUN LIVRE
+📍 `equipement-table-items` · vivante · 23/09
+⚖️ **Ce que le joueur lit s'appelle `Table items`. Le concept s'appelle **catalogue de table**.
+⛔ « Homebrew » ne s'écrit nulle part où un joueur peut le lire.**
+
+> Eric, 2026-09-23 : **« "Table items" probablement mieux oui »** — et, sur le geste qui le crée :
+> **« when such an item is created, if non existent in wares, it goes in a group […] category in
+> wares »**.
+
+🔴 **LA QUESTION ÉTAIT OUVERTE DEPUIS LE 10/09.** Le lexique signé bannit « homebrew » —
+*« fait maison = confusion »* — et pose `catalogue de table` pour le **concept**. Mais il laissait
+une ligne en suspens : *« la place réservée "+ Homebrew content" de l'écran Layers porte le mot
+banni ; "+ Table content" ? À trancher »*. ✅ **Tranché, et ce n'est ni l'un ni l'autre : `Table
+items`.**
+
+| où | ce qui s'écrit |
+|---|---|
+| l'écran `Layers`, place réservée | **`+ Table items`** |
+| la catégorie de Wares où atterrit un objet fabriqué absent du catalogue | **Table items** |
+| le concept, en prose | **catalogue de table** |
+| ⚠️ `dataset.homebrew` dans le code | **inchangé** — clef de construction, pas un mot du joueur |
+
+⭐ **LA DISTINCTION QUI TIENT TOUT** : `homebrew` reste admissible **là où le joueur ne lit pas** —
+un nom de fichier, une clef de `dataset`, un commentaire. Il est banni **partout où un œil de
+joueur passe**. Renommer la clef casserait un garde sans rien changer à l'écran.
+
+---
+
 ### 🏹 LES CINQ MUNITIONS — UN JETON, UN PAQUET DE DIX
 📍 `equipement-munitions-paquet-de-dix` · vivante · 23/09
 ⚖️ **Les cinq munitions typées existent enfin, chacune en paquet de dix, et les flèches

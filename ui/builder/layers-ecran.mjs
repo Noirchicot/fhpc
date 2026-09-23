@@ -2,7 +2,7 @@
    ⚖️ Eric, 09/09, gravé avec sa question : *« Comment s'appelle l'écran des
    six interrupteurs ? »* → **`Layers`** — et non `Rules`, en collision avec
    le nom accessible du bouton livre ; et l'écran ne fait pas que des règles,
-   il porte aussi les livres du joueur et le homebrew.
+   il porte aussi les livres du joueur et le contenu de table.
 
    LE DESSIN EST D'ERIC (artefact « Six interrupteurs, un catalogue », 08/09) :
    *« Un tableau de commande, pas une liste d'options. Le socle, puis les
@@ -14,7 +14,7 @@
        Trainings · Skills & tools · Inheritance · Destiny · World · Soulforging
        (World s'appelait Lore jusqu'au 10/09 — le lexique, lot 192)
        ── catalogue, du contenu, pas des règles ──
-       les livres du joueur · + homebrew
+       les livres du joueur · + Table items
 
    🔴 UN INTERRUPTEUR EST UN ENSEMBLE DE COUCHES, PAS UNE COUCHE — mesuré le
    09/09 sur les drapeaux du dépôt : `Destiny` = `fh-arcana-en` + `fh-feats-en`
@@ -368,9 +368,17 @@ export function renderLayersEcran(ctx, onAction) {
       lignes.append(b);
     }
   }
-  /* LE + HOMEBREW — inerte, un mot. Ce n'est pas câblé : c'est la porte
-     homebrew de SOWLREACH, et c'est un autre lot. Une place réservée se voit. */
-  const plus = ligneReservee("+ Homebrew content");
+  /* LE + TABLE ITEMS — inerte, un mot. Ce n'est pas câblé : c'est la porte du
+     contenu de table, et c'est un autre lot. Une place réservée se voit.
+
+     ⚖️ ERIC, 2026-09-23 : *« "Table items" probablement mieux oui »* — la
+     question posée le 10/09 dans le lexique signé se referme ici. ⛔ « Homebrew »
+     est un MOT BANNI depuis ce lexique : *« fait maison = confusion »*. Le
+     concept s'appelle **catalogue de table** ; ce que le joueur LIT, sur cet
+     écran, s'appelle **Table items**.
+     ⚠️ `dataset` garde `homebrew` : c'est une clef de construction, pas un mot
+     du joueur — la renommer casserait un garde sans rien changer à l'écran. */
+  const plus = ligneReservee("+ Table items");
   plus.dataset.homebrew = "true";
   lignes.append(plus);
   section.append(lignes);
