@@ -3969,6 +3969,34 @@ n'est pas une option de l'écran : tant que la donnée n'existe pas, aucun écra
 
 ---
 
+### ⚖️ DANS LE SRD OU PAS DANS LE SRD — IL N'Y A PAS DE TROISIÈME CAS
+📍 `equipement-si-c-est-dans-le-srd-tu-le-mets` · vivante · 23/09
+
+✅ **ERIC, 2026-09-23, MOT POUR MOT** : *« si c'est dans le SRD tu le mets, si ça n'y est pas tu
+le mets **PAS**. Simple enough. »*
+
+⛔ **CE N'EST PAS UNE DÉCISION SUR 23 MARCHANDISES, C'EST LA RÈGLE DE TOUS LES « EST-CE QUE
+J'AJOUTE X ? » À VENIR.** Elle se pose ici parce qu'une règle orale n'existe pas : elle vivait
+dans une conversation, et la section d'à côté disait le contraire pendant ce temps-là.
+
+🔴 **CE QU'ELLE INTERDIT, ET QUI ÉTAIT SUR LE POINT D'ARRIVER** : importer dans une couche des
+objets qu'on a lus **ailleurs** — une table de 2014, un site, une mémoire de MJ — en les faisant
+passer pour du livre. ⛔ Un record `srd:gear:en:…` embarque l'attribution 5.2.1 : lui donner un
+objet que 5.2.1 ne porte pas, c'est **signer le SRD** sous quelque chose qu'il ne dit pas.
+⚠️ Et l'erreur ne se voit pas : le record est bien formé, le garde est vert, la fiche s'affiche.
+
+⭐ **LE COROLLAIRE, ET IL EST D'ERIC AUSSI** : *« si elle est vide on l'affiche pas, mais elle
+existe »*. **Une catégorie `srfh` peut donc exister VIDE.** Le rangement n'est ni du SRD ni de
+Fate's Hand — c'est ce que le lot 95 appelle *l'ambigu* — et rien n'oblige une étagère à porter
+quelque chose pour avoir le droit d'être nommée. ⛔ **Ce qui est interdit, c'est de la remplir
+avec ce qui n'existe pas dans la source qu'on invoque.**
+
+📏 **LE GESTE, QUAND LA QUESTION SE REPOSE** : ouvrir le PDF épinglé et compter. Pas chercher
+dans l'export (qui ne porte que ce qu'un parseur a déjà vu), pas se souvenir de D&D. `pdftotext`
+sur `fh-srd/sources/pdf/`, et le chiffre tranche.
+
+---
+
 ### 💎 `trade-goods` SE PARTAGE EN DEUX — `gems` ET `commodities`
 📍 `equipement-trade-goods-deux-etageres` · vivante · 23/09
 
@@ -3976,24 +4004,52 @@ n'est pas une option de l'écran : tant que la donnée n'existe pas, aucun écra
 catégorie »*, puis, pour la seconde : *« une autre sous-catégorie : market goods, ou autre
 chose… »* — et il tranche **`commodities`**.
 
-⚖️ **POURQUOI CE MOT-LÀ ET PAS « market goods »** : les 23 lignes du livre sont des biens qu'on
+⚖️ **POURQUOI CE MOT-LÀ ET PAS « market goods »** : ce qu'on rangerait là sont des biens qu'on
 échange **au poids** — blé, farine, sel, cuivre, argent, soie, safran. ⛔ Et *« market goods »*
 frôlait **`Wares`**, qui est déjà le nom de la PORTE du catalogue : deux mots voisins pour deux
 organes différents, c'est l'homonymie qui a coûté une journée le 23/08 sur « Clothing ».
 ⭐ Et ça défait `trade-goods › trade-goods`, qui bégayait.
 
-🔴 **MAIS `commodities` N'EXISTE PAS ENCORE, ET C'EST UNE MESURE, PAS UN OUBLI.** Les 23
-marchandises du SRD **ne sont dans aucun record du builder** — vérifié le 23/09 : aucun `gear` ne
-porte Canvas, Cinnamon, Saffron, Silk…, et aucun record n'est non rangé. ⛔ **Le rayon
-`trade-goods` n'a donc JAMAIS porté que des gemmes**, contrairement à ce que deux gardes et une
-provenance affirmaient (« 77 quand les 23 l'auront rejointe » — une prévision lue comme une
-mesure).
+🔴 **CES 23 MARCHANDISES NE SONT PAS DANS LE SRD, ET CETTE SECTION A AFFIRMÉ LE CONTRAIRE.**
+Mesuré deux fois le 23/09 sur le PDF épinglé : **Canvas 0, Cinnamon 0, Saffron 0, Ginger 0,
+Wheat 0**. « Silk » n'y est qu'en composant de sort et en vêtement noir ; les trois « flour »
+sont des « flourishes ». Et les **82 `gear` du livre sont de l'équipement d'aventure** — pas un
+blé, pas un mouton. ⛔ Elles viennent de la table de 2014, qui vit dans le vault
+(`Fate's Hand/1. Tables/Sources/Treasure & Dm Screen (source)/Trade Goods.md`, 13 lignes de prix,
+23 articles) — **pas du SRD sous CC-BY**.
 
-➡️ **L'ÉTAGÈRE NAÎTRA AVEC SON CONTENU, PAS AVANT.** Déclarer `commodities` à vide aujourd'hui
-serait exactement la promesse qui ment qu'on vient de retirer avec `projectiles`. L'ordre est :
-importer les 23 depuis le SRD en amont (`fh-srd`), les ranger sur `trade-goods › commodities`,
-et l'étagère paraîtra au tambour du même geste — parce que l'export ne porte que les
-combinaisons peuplées.
+🔧 **ET LA LOI QUE CETTE SECTION POSAIT EST RENVERSÉE — ELLE DISAIT :**
+
+> ➡️ *« L'ÉTAGÈRE NAÎTRA AVEC SON CONTENU, PAS AVANT. Déclarer `commodities` à vide aujourd'hui
+> serait exactement la promesse qui ment qu'on vient de retirer avec `projectiles`. »*
+
+✅ **Eric, 2026-09-23, tranche l'inverse** : *« laisse les catégories comme elles sont —
+commodities, si elle est vide on l'affiche pas, mais elle **existe** »*, et *« on utilise trade
+goods comme catégorie SRFH, faut bien créer une catégorie »*.
+
+⛔ **JE GARDE LA PHRASE MORTE PLUTÔT QUE DE L'EFFACER** : un lecteur qui l'a lue doit trouver
+POURQUOI elle est tombée, sinon il la repropose dans six semaines.
+⭐ **ET LE RAPPROCHEMENT AVEC `projectiles` ÉTAIT LE DÉFAUT DU RAISONNEMENT.** Les deux cas se
+ressemblent — une étagère à zéro — et ils sont contraires : `projectiles` était **fusionnée**,
+elle n'attendait plus rien, et une étagère qui n'attend rien ment. `commodities` **attend**,
+comme `companions` et `crafting` attendent depuis août. ⛔ Ce n'est pas le VIDE qui distingue les
+deux, c'est l'ATTENTE — et j'avais lu le vide.
+
+➡️ **CE QUE LA STRUCTURE FAIT AUJOURD'HUI** : `trade-goods`, `commodities` et `gems` sont
+**déclarées en amont** (`fh-srd/src/shelving.py`), donc elles vivent dans `srfh-shelving-en`, qui
+se monte dans les DEUX piles. Les deux étagères sont **ratifiées à zéro**, et zéro est une
+mesure. `gems` reçoit ensuite les 27 pierres par `fh-gems-en` — pile Fate's Hand seule.
+
+| | pile SRD seule | pile Fate's Hand |
+|---|---|---|
+| `trade-goods` | **ne paraît pas** | paraît |
+| ├ `gems` | 0 | **27** |
+| └ `commodities` | 0 | 0 |
+
+⭐ **LA STRUCTURE PUBLIE, L'ÉCRAN MONTRE — ET CE NE SONT PAS LA MÊME QUESTION.** Le tambour ne
+rend que les combinaisons **peuplées**, donc le rayon entier disparaît en pile SRD ; la structure
+déclarée, elle, porte les huit rayons et les 33 étagères, zéros compris. Eric l'avait vu avant
+moi : *« pour SRD la catégorie trade goods disparaît, si je ne m'abuse »*.
 
 ---
 
