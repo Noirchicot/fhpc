@@ -333,8 +333,8 @@ test("5 bis — ⭐ LES OUTILS SONT ENTRÉS, et les 12 outils Fate's Hand sont N
   /* ⛔ ET LES DEUX QUI ONT QUITTÉ LA DETTE SONT RANGÉS POUR DE VRAI, sous leur
      nom d'héritier. Un compte qui baisse ne dit pas lequel des deux — réparé ou
      disparu : ces deux lignes le disent. */
-  for (const [id, nom] of [["srd:tool:en:gaming-set", "Dice Set"],
-    ["srd:tool:en:musical-instrument", "Instrument (Strings)"]]) {
+  for (const [id, nom] of [["srd:tool:en:gaming-set", "Dice Set (regular)"],
+    ["srd:tool:en:musical-instrument", "Instrument (Strings, regular)"]]) {
     assert.ok(ranges.has(id), `« ${id} » doit être rangé`);
     assert.equal(query({ kind: "tool", id }).record.name, nom,
       `…et porter le nom de son héritier : c'est lui que le joueur voit sur l'étagère`);

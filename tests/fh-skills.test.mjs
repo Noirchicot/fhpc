@@ -100,7 +100,7 @@ const LES_8_NEUVES = [
    Ante » perd le « Set » que ses trois voisins gardent, parce que c'est ce que
    le livre écrit, deux fois, dans deux chapitres qui s'accordent.
 
-   ⚖️ ET CINQ NOMS PRENNENT « regular » LE 2026-09-23 — Eric : « Card Set ·
+   ⚖️ ET SEPT NOMS PRENNENT « regular » LE 2026-09-23 — Eric : « Card Set ·
    Three-Dragon Ante · Dragonchess Set (regular) », « instruments regular
    (rajoute ce terme) ». Le mot distingue la version COURANTE, celle que le
    catalogue vend, d'une version de maître qui n'existe pas encore.
@@ -113,11 +113,11 @@ const LES_8_NEUVES = [
 const LES_37_OUTILS = [
   "Alchemist’s Supplies", "Brewer’s Supplies", "Calligrapher’s Supplies", "Card Set (regular)",
   "Carpenter’s Tools", "Cartographer’s Tools", "Cobbler’s Tools", "Cook’s Utensils",
-  "Dice Set", "Disguise Kit", "Dragonchess Set (regular)", "Forgery Kit", "Glassblower’s Tools",
+  "Dice Set (regular)", "Disguise Kit", "Dragonchess Set (regular)", "Forgery Kit", "Glassblower’s Tools",
   "Herbalism Kit", "Jeweler’s Tools", "Leatherworker’s Tools", "Mason’s Tools",
   "Mount (Air)", "Mount (Land)", "Mount (Water)", "Navigator’s Tools", "Instrument (Other, regular)",
   "Painter’s Supplies", "Poisoner’s Kit", "Potter’s Tools", "Smith’s Tools", "Soulforging",
-  "Instrument (Strings)", "Thieves’ Tools", "Three-Dragon Ante (regular)", "Tinker’s Tools",
+  "Instrument (Strings, regular)", "Thieves’ Tools", "Three-Dragon Ante (regular)", "Tinker’s Tools",
   "Vehicles (Air)", "Vehicles (Land)", "Vehicles (Water)", "Weaver’s Tools",
   "Instrument (Wind, regular)", "Woodcarver’s Tools"
 ];
@@ -349,8 +349,8 @@ test("acceptation 1 — les 36 outils de CETTE couche, nommément ; les deux gé
      qui pointent vers ces ids.
      ⭐ Héritiers tranchés par Eric le 2026-09-09 : les DÉS et les CORDES. */
   const attenduReecrit = [
-    ["srd:tool:en:gaming-set", "Dice Set", "gaming-set-dice", "wis"],
-    ["srd:tool:en:musical-instrument", "Instrument (Strings)", "instrument-strings", "cha"]
+    ["srd:tool:en:gaming-set", "Dice Set (regular)", "gaming-set-dice", "wis"],
+    ["srd:tool:en:musical-instrument", "Instrument (Strings, regular)", "instrument-strings", "cha"]
   ];
   for (const [id, nom, slug, ability] of attenduReecrit) {
     const vue = verbs.query({ kind: "tool", id });
@@ -376,7 +376,7 @@ test("acceptation 1 — les 36 outils de CETTE couche, nommément ; les deux gé
     assert.equal(verbs.query({ kind: "tool", id: mort }), null,
       `⛔ « ${mort} » ne doit plus exister : son record est celui du SRD, réécrit`);
   }
-  for (const nom of ["Dice Set", "Instrument (Strings)"]) {
+  for (const nom of ["Dice Set (regular)", "Instrument (Strings, regular)"]) {
     assert.equal(verbs.query({ kind: "tool" }).filter((v) => v.record.name === nom).length, 1,
       `un seul « ${nom} » dans toute la couche`);
   }
@@ -1009,7 +1009,7 @@ test("⚔️ REFUS — le DOUBLON mord aussi sur les outils, et par le NOM autan
   const srd = readSrdLayer(SRD_PATH);
   for (const doublon of [
     { slug: "gaming-set-dice", name: "Autre chose", ability: "wis", inherits: "srd:tool:en:gaming-set" },
-    { slug: "un-autre-slug", name: "Dice Set", ability: "wis", inherits: "srd:tool:en:gaming-set" }
+    { slug: "un-autre-slug", name: "Dice Set (regular)", ability: "wis", inherits: "srd:tool:en:gaming-set" }
   ]) {
     TOOLS_ADDED.push(doublon);
     try {

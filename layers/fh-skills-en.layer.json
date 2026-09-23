@@ -240,11 +240,15 @@
           "data[variants]"
         ],
         "changes": {
-          "name": "Dice Set",
+          "name": "Dice Set (regular)",
           "slug": "gaming-set-dice",
-          "data.name": "Dice Set"
+          "data.name": "Dice Set (regular)",
+          "data.cost": "1 SP",
+          "data.weight": "0.2 lb.",
+          "data[cost_provenance]": "eric:2026-09-23 — « cards 0,2 lb, dice set 0,2 lb ». Aligné sur le Card Set, son voisin de famille. ⛔ La référence ouverte laisse les dés au tiret, sans poids : ce nombre-ci est une décision d'Eric, pas une lecture.",
+          "data[weight_provenance]": "eric:2026-09-23 — « cards 0,2 lb, dice set 0,2 lb ». Aligné sur le Card Set, son voisin de famille. ⛔ La référence ouverte laisse les dés au tiret, sans poids : ce nombre-ci est une décision d'Eric, pas une lecture."
         },
-        "note": "Fate's Hand — Gaming Set rewritten as Dice Set"
+        "note": "Fate's Hand — Gaming Set rewritten as Dice Set (regular)"
       },
       "srd:tool:en:musical-instrument": {
         "op": "patch",
@@ -252,11 +256,15 @@
           "data[variants]"
         ],
         "changes": {
-          "name": "Instrument (Strings)",
+          "name": "Instrument (Strings, regular)",
           "slug": "instrument-strings",
-          "data.name": "Instrument (Strings)"
+          "data.name": "Instrument (Strings, regular)",
+          "data.cost": "5 GP",
+          "data.weight": "5 lb.",
+          "data[cost_provenance]": "eric:2026-09-23 — « instruments regular, 5 gp ok et poids 5 lb ». Les cordes sont un instrument courant comme le vent et les autres : même prix, même poids.",
+          "data[weight_provenance]": "eric:2026-09-23 — « instruments regular, 5 gp ok et poids 5 lb ». Les cordes sont un instrument courant comme le vent et les autres : même prix, même poids."
         },
-        "note": "Fate's Hand — Musical Instrument rewritten as Instrument (Strings)"
+        "note": "Fate's Hand — Musical Instrument rewritten as Instrument (Strings, regular)"
       },
       "srd:tool:en:mason-s-tools": {
         "op": "patch",
@@ -292,8 +300,8 @@
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
           "cost": "1 SP",
           "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD n'en donne aucun (`gaming-set` = « Varies »). La référence ouverte chiffre une FOURCHETTE (1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau) : le bas de fourchette est le jeu COURANT, et c'est celui que le catalogue vend. ⛔ Nombre posé par Eric, jamais recopié — §0.8 refuse l'OGL comme elle refuse le PHB.",
-          "weight": "1 lb.",
-          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes."
+          "weight": "0.2 lb.",
+          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. ⚖️ 0,2 lb — Eric, 23/09, corrigeant le lot : un paquet de cartes ne pèse pas une livre."
         }
       },
       "fh:tool:en:gaming-set-dragonchess": {
@@ -320,8 +328,8 @@
           "utilize": "Discern whether someone is cheating (DC 10), or win the game (DC 20)",
           "cost": "1 SP",
           "cost_provenance": "eric:2026-09-23 — « prends le prix SRD s'il existe, prends le prix Pathfinder sinon ». Le SRD n'en donne aucun (`gaming-set` = « Varies »). La référence ouverte chiffre une FOURCHETTE (1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau) : le bas de fourchette est le jeu COURANT, et c'est celui que le catalogue vend. ⛔ Nombre posé par Eric, jamais recopié — §0.8 refuse l'OGL comme elle refuse le PHB.",
-          "weight": "1 lb.",
-          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. ⭐ C'est un jeu de CARTES, donc le poids du Card Set — le nom ne dit pas la matière, le jeu si."
+          "weight": "0.2 lb.",
+          "weight_provenance": "eric:2026-09-23 — un jeu de table se porte, donc il pèse. ⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision Fate's Hand, du même genre que les poids des 54 gemmes. ⭐ C'est un jeu de CARTES, donc le poids du Card Set — le nom ne dit pas la matière, le jeu si. ⚖️ Il SUIT donc le Card Set à 0,2 lb (Eric, 23/09) : ce poids n'a jamais été lu ailleurs que sur son voisin."
         }
       },
       "fh:tool:en:instrument-wind": {

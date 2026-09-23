@@ -169,8 +169,8 @@ test("la mesure rapporte ce qu'Eric peut vérifier de tête", () => {
   assert.deepEqual(doc.genres.tool.removed, [],
     "ni aucun outil : les deux génériques sont réécrits en leur héritier");
   assert.deepEqual(doc.genres.tool.renamed, [
-    { from: "Gaming Set", to: "Dice Set" },
-    { from: "Musical Instrument", to: "Instrument (Strings)" }
+    { from: "Gaming Set", to: "Dice Set (regular)" },
+    { from: "Musical Instrument", to: "Instrument (Strings, regular)" }
   ]);
   assert.equal(doc.genres.arcana.added.length, 22, "les 22 Arcanes — le genre qui n'a AUCUNE contrepartie SRD");
 });

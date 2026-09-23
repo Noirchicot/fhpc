@@ -3577,22 +3577,35 @@ monture** — aucun record. La règle s'arrête donc au second cran.
 
 | outil | prix | poids | d'où |
 |---|---|---|---|
-| **Card Set (regular)** · **Three-Dragon Ante (regular)** | `1 SP` | `1 lb.` | bas de fourchette — le jeu **courant** |
+| **Card Set (regular)** · **Three-Dragon Ante (regular)** · **Dice Set (regular)** | `1 SP` | `0,2 lb.` | bas de fourchette — le jeu **courant** |
 | **Dragonchess Set (regular)** | `1 SP` | `2 lb.` | idem, mais plateau et pièces |
-| **Instrument (Wind, regular)** · **(Other, regular)** | `5 GP` | `5 lb.` | l'instrument qu'on porte à la main |
+| **Instrument (Wind, regular)** · **(Other, regular)** · **(Strings, regular)** | `5 GP` | `5 lb.` | l'instrument qu'on porte à la main |
 | **Soulforging** | `50 GP` | `10 lb.` | ✅ **le premier cran** : `srd:tool:en:tinker-s-tools`, lu dans le SRD |
 | **Vehicles ×3** · **Mount ×3** | `"Varies"` | `"Varies"` | ⛔ **ce ne sont pas des objets** — des maîtrises, qu'on n'achète pas |
+
+🔴 **DEUX OUTILS ONT FAILLI RESTER EN ARRIÈRE, ET C'EST UNE QUESTION D'ERIC QUI LES A TROUVÉS.**
+`Dice Set` et `Instrument (Strings)` ne sont pas des outils **ajoutés** : ce sont les deux records
+du SRD **réécrits** (`TOOLS_REWRITTEN`). Ils gardent leur id SRD et leurs champs d'origine, donc la
+branche `inherits` — celle qui a chiffré leurs cinq voisins — **ne les croise jamais**. Résultat :
+chaque famille portait un membre à `"Varies"`, les cordes à 0 pendant que le vent pesait 5 lb.
+⭐ Aucun garde ne l'a vu ; Eric a demandé *« instrument chords tu avais quoi ? »*.
+📌 **La signature à retenir** : *deux chemins pour une même famille, et un lot qui n'en emprunte
+qu'un.* Le générateur accepte désormais un prix et un poids sur les **deux** chemins.
+
+⚖️ **0,2 lb POUR LES CARTES ET LES DÉS** — Eric, 23/09, corrigeant le lot : *« cards 0,2 lb, dice
+set 0,2 lb »*. ⭐ Et **Three-Dragon Ante suit**, parce que son poids n'a jamais été lu ailleurs que
+sur celui du Card Set : c'est un jeu de cartes, il pèse ce que pèsent des cartes.
 
 ⭐ **LE SOULFORGING EST LE SEUL À TOUCHER LE PREMIER CRAN.** Eric, 23/09 : *« soulforging tools =
 prix tinker tools »*, après *« idem poids tinkering tools »*. Prix **et** poids viennent donc du
 même record du SRD — `50 GP` · `10 lb.` en anglais, `5 kg` en français, chacun lu dans son édition.
 
-🏷️ **ET CINQ OUTILS PRENNENT LE MOT `regular`** — Eric, 23/09 : *« Card Set · Three-Dragon Ante ·
+🏷️ **ET SEPT OUTILS PRENNENT LE MOT `regular`** — Eric, 23/09 : *« Card Set · Three-Dragon Ante ·
 Dragonchess Set (regular) »*, *« instruments regular (rajoute ce terme) »*. Le mot distingue la
 version **courante**, celle que le catalogue vend, d'une version de maître qui n'existe pas encore.
 ⭐ Les slugs **ne bougent pas** : l'identité est la clef, jamais le libellé.
 🔴 **ET LE MOT N'EST PAS ENCORE DANS LE MANUSCRIT** : `Skills & Tools — Player Guide` (vault) écrit
-toujours *Card Set*, *Dragonchess Set*, *Instrument (Wind)*, *Three-Dragon Ante*. La loi du garde
+toujours *Card Set*, *Dice Set*, *Dragonchess Set*, *Instrument (Wind)*, *Instrument (Strings)*, *Three-Dragon Ante*. La loi du garde
 des 37 outils dit que **le livre est le manuscrit et la couche s'aligne** — ⏳ **le terme doit donc
 descendre dans le livre**, sinon la prochaine comparaison rouvrira l'écart.
 

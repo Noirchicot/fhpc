@@ -357,6 +357,21 @@ function buildTools(srd) {
 
   for (const entry of TOOLS_REWRITTEN) {
     tool[entry.target] = gesteDeReecriture(srd, "tool", entry, {
+      /* ⭐ UN RÉÉCRIT PEUT MAINTENANT PORTER SON PRIX ET SON POIDS. Sans ça,
+         `Dice Set` et `Instrument (Strings)` gardaient les « Varies » du record
+         générique pendant que leurs quatre voisins étaient chiffrés — un membre
+         à 0 dans chaque famille, et rien pour le dire. */
+      changes: {
+        ...(typeof entry.cost === "string" ? { "data.cost": entry.cost } : {}),
+        ...(typeof entry.weight === "string" ? { "data.weight": entry.weight } : {}),
+        /* ⛔ NOTATION CROCHET, ET CE N'EST PAS UN GOÛT : `PATTERNS.changePath`
+           n'admet pas le souligné dans un segment POINTÉ — `data.cost_provenance`
+           est refusé à la lecture de la couche, `data[cost_provenance]` passe.
+           C'est la forme que `remove: ["data[variants]"]` emploie déjà. */
+        ...(typeof entry.provenance === "string"
+          ? { "data[cost_provenance]": entry.provenance, "data[weight_provenance]": entry.provenance }
+          : {})
+      },
       /* ⛔ `variants` PART. C'est la prose du SRD qui énumère les quatre jeux
          (ou les dix instruments) : sur un record qui s'appelle désormais
          « Dice Set », elle affirmerait qu'un jeu de dés se décline en cartes.

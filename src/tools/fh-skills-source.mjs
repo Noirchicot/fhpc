@@ -283,21 +283,49 @@ export const TOOLS_RECHARACTERISED = [
    cartes et en dragonchess. Le retrait vise un chemin qui doit EXISTER — le
    bloc `layers` refuse un retrait dans le vide (§L7.2) —, donc il tient aussi
    lieu de garde sur la forme du record SRD. */
+/* ⚖️ ERIC, 2026-09-23 : « Card Set · Three-Dragon Ante · Dragonchess Set
+   (regular) » et « instruments regular (rajoute ce terme) ». Le mot distingue
+   la version COURANTE de la version de maître, qui n'existe pas encore.
+   ⚠️ LE LIVRE D'ERIC NE LE PORTE PAS ENCORE — `Skills & Tools — Player Guide`
+   écrit « Card Set », « Dragonchess Set », « Instrument (Wind) », « Three-Dragon
+   Ante », sans qualificatif. La loi du garde des 37 outils dit que LE LIVRE EST
+   LE MANUSCRIT et que la couche s'aligne : ce terme doit donc descendre dans le
+   manuscrit, sinon la prochaine comparaison rouvrira l'écart. ⛔ Le mot vient
+   d'Eric, pas d'une régularité de générateur — c'est ce qui le distingue du
+   « Set » de trop de 2026-08-20. */
+const REGULIER = " (regular)";
+
 export const TOOLS_REWRITTEN = [
   {
     target: "srd:tool:en:gaming-set",
-    name: "Dice Set",
+    name: "Dice Set" + REGULIER,
     slug: "gaming-set-dice",
     ability: "wis",
+    /* ⚖️ ERIC, 2026-09-23 : « oui j'applique » — aligner les deux RÉÉCRITS sur
+       leurs voisins ajoutés. ⛔ Ils étaient restés en arrière parce qu'ils ne
+       passent pas par la branche `inherits` : ils gardent leur id SRD et leurs
+       champs d'origine, et le lot qui a chiffré les cinq autres ne les a jamais
+       croisés. Chaque famille avait donc un membre à 0. */
+    cost: "1 SP",
+    weight: "0.2 lb.",
+    provenance: "eric:2026-09-23 — « cards 0,2 lb, dice set 0,2 lb ». Aligné sur le Card Set, " +
+      "son voisin de famille. ⛔ La référence ouverte laisse les dés au tiret, sans poids : ce " +
+      "nombre-ci est une décision d'Eric, pas une lecture.",
     reason: "Fate's Hand splits the generic Gaming Set into its four SRD variants, so that " +
       "proficiency names an actual game rather than a category. The SRD record itself becomes the " +
       "Dice Set; the other three are added alongside it."
   },
   {
     target: "srd:tool:en:musical-instrument",
-    name: "Instrument (Strings)",
+    name: "Instrument (Strings, regular)",
     slug: "instrument-strings",
     ability: "cha",
+    /* ⚖️ Même geste que les dés : les cordes pesaient 0 pendant que le vent
+       pesait 5 lb, alors que c'est le MÊME instrument courant. */
+    cost: "5 GP",
+    weight: "5 lb.",
+    provenance: "eric:2026-09-23 — « instruments regular, 5 gp ok et poids 5 lb ». Les cordes " +
+      "sont un instrument courant comme le vent et les autres : même prix, même poids.",
     reason: "Fate's Hand splits the generic Musical Instrument into three families (wind, strings, " +
       "other), so that proficiency names how the instrument is played. The SRD record itself becomes " +
       "the strings; the other two are added alongside it."
@@ -393,31 +421,22 @@ const POIDS_DES_INSTRUMENTS = "eric:2026-09-23 — « instruments regular, 5 gp 
   "⛔ Ce n'est pas le chiffre de la référence ouverte (3 lb) : c'est une décision d'Eric, et " +
   "elle prime. Comme pour les jeux, la référence a servi à situer l'ordre de grandeur, jamais " +
   "à fournir le nombre — §0.8 refuse l'OGL comme elle refuse le PHB.";
-/* ⚖️ ERIC, 2026-09-23 : « Card Set · Three-Dragon Ante · Dragonchess Set
-   (regular) » et « instruments regular (rajoute ce terme) ». Le mot distingue
-   la version COURANTE de la version de maître, qui n'existe pas encore.
-   ⚠️ LE LIVRE D'ERIC NE LE PORTE PAS ENCORE — `Skills & Tools — Player Guide`
-   écrit « Card Set », « Dragonchess Set », « Instrument (Wind) », « Three-Dragon
-   Ante », sans qualificatif. La loi du garde des 37 outils dit que LE LIVRE EST
-   LE MANUSCRIT et que la couche s'aligne : ce terme doit donc descendre dans le
-   manuscrit, sinon la prochaine comparaison rouvrira l'écart. ⛔ Le mot vient
-   d'Eric, pas d'une régularité de générateur — c'est ce qui le distingue du
-   « Set » de trop de 2026-08-20. */
-const REGULIER = " (regular)";
 
 export const TOOLS_ADDED = [
   /* ⛔ `gaming-set-dice` MANQUE ICI DÉLIBÉRÉMENT : c'est `srd:tool:en:gaming-set`
      réécrit (`TOOLS_REWRITTEN`). Le rajouter recréerait le doublon. */
   { slug: "gaming-set-cards", name: "Card Set" + REGULIER, ability: "wis", inherits: "srd:tool:en:gaming-set",
-    weight: "1 lb.", weight_provenance: POIDS_DES_JEUX,
+    weight: "0.2 lb.", weight_provenance: POIDS_DES_JEUX + " ⚖️ 0,2 lb — Eric, 23/09, corrigeant " +
+      "le lot : un paquet de cartes ne pèse pas une livre.",
     cost: "1 SP", cost_provenance: PRIX_DES_JEUX },
   { slug: "gaming-set-dragonchess", name: "Dragonchess Set" + REGULIER, ability: "wis", inherits: "srd:tool:en:gaming-set",
     weight: "2 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ Deux livres et non une : un jeu " +
       "à PLATEAU et à pièces pèse plus qu'un paquet de cartes.",
     cost: "1 SP", cost_provenance: PRIX_DES_JEUX },
   { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante" + REGULIER, ability: "wis", inherits: "srd:tool:en:gaming-set",
-    weight: "1 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ C'est un jeu de CARTES, donc le " +
-      "poids du Card Set — le nom ne dit pas la matière, le jeu si.",
+    weight: "0.2 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ C'est un jeu de CARTES, donc le " +
+      "poids du Card Set — le nom ne dit pas la matière, le jeu si. ⚖️ Il SUIT donc le Card Set " +
+      "à 0,2 lb (Eric, 23/09) : ce poids n'a jamais été lu ailleurs que sur son voisin.",
     cost: "1 SP", cost_provenance: PRIX_DES_JEUX },
 
   /* ⛔ Et `instrument-strings` non plus : c'est `srd:tool:en:musical-instrument`
