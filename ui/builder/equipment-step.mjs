@@ -81,7 +81,7 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=767";
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu,
-  renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=767";
+  estRecette, renderB1, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=767";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=767";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -2304,7 +2304,12 @@ function attribuerBoites(portees, cherche) {
        X1. ⛔ La dette du 16/09 (*« pas de lecteur tant que X1 n'écrit pas la
        donnée »*) est donc payée ici, pas contournée. */
     attuned: ligne.attuned === true,
-    locked: ligne.locked === true
+    locked: ligne.locked === true,
+    /* ⚖️ LA DIAGONALE DE LA RECETTE — Eric, 2026-09-23. Le drapeau se DÉRIVE du
+       record (`estRecette`, dans le pipeline), il ne se liste pas : une liste
+       de noms serait périmée au premier ajout. ⛔ Et il vit sur la POSE, pas
+       dans l'écran : le sac dessine le même jeton. */
+    recette: estRecette(cherche.record(ligne.ref))
   });
   /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
      déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle

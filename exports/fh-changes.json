@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "57af8e05a60a3d0d1b30b30a93f985b64599d31f06636af5ecfffe4c058c5162",
+  "layer_run": "86b6893bba969e8d9e48affc096bf9fac612fd6720e230624f9f49bf91f64225",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -13,12 +13,12 @@
     {
       "id": "srfh-shelving-en",
       "version": "0.1.0",
-      "hash": "2c4f7d6978ac06d6291837974b3557c6d6cc34e0104061951b055b72726f2949"
+      "hash": "c71bce2248379b4dae36efcd3a400b7a2f0dc9950eb429349fce3fd399a12e80"
     },
     {
       "id": "srfh-mecaniques-en",
       "version": "0.1.0",
-      "hash": "41f30d45890c4021f65037209898f8b39ad6c1595e5ed9049c6dae99481c57f6"
+      "hash": "b246109d7d487b056e182f5a9c8acea1ac8d935fb1485197fd2ef63e517ab759"
     },
     {
       "id": "fh-species-en",
@@ -68,7 +68,7 @@
     {
       "id": "fh-munitions-en",
       "version": "0.1.0",
-      "hash": "e99ee11c04dd18eb9ad2bd66f158915b4f01eb9536008bf9904fad3660e3a27a"
+      "hash": "dfbf21f67e7011c05e9988264b010de8b2ede4e343365f4394eb9955aff9c61c"
     },
     {
       "id": "fh-fiche-en",

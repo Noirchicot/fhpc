@@ -91,8 +91,8 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
-            "shelf": "thrown-weapons"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "shelf": "ranged-weapons"
           }
         }
       },
@@ -105,8 +105,8 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
-            "shelf": "thrown-weapons"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "shelf": "ranged-weapons"
           }
         }
       },
@@ -119,8 +119,8 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
-            "shelf": "thrown-weapons"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "shelf": "ranged-weapons"
           }
         }
       },
@@ -133,16 +133,16 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
-            "shelf": "thrown-weapons"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "shelf": "ranged-weapons"
           }
         }
       },
       "srfh:shelving:en:ammunition": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
-          "data[shelf][provenance]": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé."
+          "data.shelf.shelf": "ranged-weapons",
+          "data[shelf][provenance]": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose."
         },
         "note": "Fate's Hand — the Arrows follow the other four onto Ranged Weapons"
       }

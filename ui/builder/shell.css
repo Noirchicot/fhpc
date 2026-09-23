@@ -9449,6 +9449,25 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    >   nom, où elle mangeait des caractères, pour le centre de la bande.
    📐 LES QUATRE FONT 12 DE HAUT (`--jeton-marque`) et vivent entre 2 et 14 :
    verrou à gauche, quantité au centre, anneau à droite, disque DANS l'anneau. — */
+/* ⚖️ LA DIAGONALE DE LA RECETTE — Eric, 2026-09-23 : *« il faut mettre en
+   évidence les tokens recettes (blueprints) […] une diagonale de bas en haut,
+   moitié inférieure droite bleue »*.
+   📐 L'AXE DU DÉGRADÉ EST PERPENDICULAIRE À LA DIAGONALE VOULUE : pour une
+   coupe qui va du coin bas-gauche au coin haut-droit, le dégradé court vers le
+   bas-droit, et l'arrêt net à 50 % colore la moitié qui va de ce côté.
+   ⛔ `to top right` donnerait l'autre moitié.
+   ⛔ ET CE N'EST PAS UNE CINQUIÈME MARQUE : les quatre vivent dans la bande
+   haute de 12 (`--jeton-marque`), ce fond n'y entre pas — il ne déplace pas le
+   nom et ne prend aucune des quatre places.
+   📏 IL PASSE DERRIÈRE LE NOM, DONC IL A ÉTÉ MESURÉ : `--text` rend 9,59:1 le
+   jour et 8,44:1 la nuit sur `--jeton-recette`, contre 10,36 et 10,11 sur le
+   `--sunken` qu'il remplace. Moins d'un point perdu, très au-dessus du seuil.
+   ⭐ Il est posé AVANT le nom dans le DOM (`jeton-objet.mjs`) : l'ordre suffit,
+   et il évite un `z-index` qu'il aurait fallu accorder avec les marques. */
+.jeton-recette {
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background-image: linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%);
+}
 .jeton-marques { position: absolute; inset: 0; pointer-events: none; }
 .jeton-marque { position: absolute; display: block; opacity: 0; }
 .jeton-marque[data-etat="oui"] { opacity: 1; }

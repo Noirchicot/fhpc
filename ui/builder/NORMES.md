@@ -3710,6 +3710,17 @@ ce fond-ci aussi.
 L'axe du dégradé est **perpendiculaire** à la diagonale voulue, et l'arrêt net à 50 % colore la
 moitié qui va vers le bas-droit. ⛔ `to top right` donnerait l'autre moitié.
 
+✅ **ÉCRIT, ET EN TROIS ENDROITS SEULEMENT** : `estRecette` dans `equipement-pipeline.mjs` *(la
+dérivation)*, `.jeton-recette` dans `jeton-objet.mjs` *(le fond, posé AVANT le nom — l'ordre du DOM
+évite un `z-index` qu'il aurait fallu accorder avec les quatre marques)*, et la règle CSS dans
+`shell.css`. ⭐ **L'écran R et le sac n'ont pas été touchés** : ils portent le même organe de
+jeton, et deux copies divergeraient à la première marque ajoutée.
+⛔ **LE DRAPEAU NE PORTE AUCUNE LISTE DE NOMS** — `estRecette` lit deux signaux de la donnée : la
+`category` *(weapon, armor)* et le **marqueur de famille dans la rareté**. Une liste par nom serait
+périmée au premier ajout.
+♿ **ET LE LECTEUR D'ÉCRAN L'ENTEND** : `motDuJeton` dit *« recipe »* en toutes lettres. Une couleur
+que rien ne prononce est une information réservée aux voyants.
+
 📋 **LES 59 JETONS QUI LA PORTENT.**
 ⚖️ **Une recette est une entrée d'objet magique du catalogue — plus une composition à partir d'une
 base mondaine.** *(Eric, 23/09, renversant le croquis du même jour.)*

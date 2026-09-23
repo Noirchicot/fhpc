@@ -214,6 +214,38 @@ export function poidsDeJeu(chaine, unite = "lb") {
   return null;
 }
 
+/* ══ CE QU'EST UNE RECETTE — ERIC, 2026-09-23 ═════════════════════════════
+   ⚖️ *« on ne va plus partir des items de base, on partira des recettes déjà
+   données dans magic items »* — une recette EST une entrée du catalogue, pas
+   une composition. Et *« il faut mettre en évidence les tokens recettes
+   (blueprints) »* : c'est cette fonction qui décide lesquels.
+
+   ⛔ ELLE NE PORTE AUCUNE LISTE DE NOMS. Une liste par nom est incomplète dès
+   qu'un record entre — c'est la leçon d'`item-value` (lot 93) et du « Set » de
+   trop (20/08). Deux signaux de la DONNÉE, et rien d'autre :
+
+     ① `category` vaut `weapon` ou `armor` → une arme ou une armure magique se
+        fabrique à partir de sa base mondaine. 52 records.
+     ② la RARETÉ porte le marqueur d'une FAMILLE — `Rarity Varies`, ou une
+        énumération du genre « Rare (Silver or Brass), Very Rare (Bronze) ».
+        ⭐ Le SRD écrit cela EXACTEMENT quand une entrée couvre plusieurs objets
+        de raretés différentes : c'est un marqueur de la source, pas une
+        devinette. 7 records de plus.
+
+   ⚠️ ET UN FILTRE SUR LA PROSE NE MARCHE PAS — mesuré : il attrape `Staff of
+   Fire` et `Wand of Fear`, qui portent des tables de SORTS, pas de variantes.
+   La rareté, elle, ne se trompe pas. */
+export function estRecette(record) {
+  const d = (record && record.data) || {};
+  if (d.category === "weapon" || d.category === "armor") return true;
+  const rarete = typeof d.rarity === "string" ? d.rarity : "";
+  if (/varies/i.test(rarete)) return true;
+  /* une énumération de raretés : « Rare (…), Very Rare (…), or Legendary (…) ».
+     ⛔ `(Requires Attunement)` n'en est pas une — il suit UNE rareté. */
+  const parentheses = rarete.split("(").length - 1;
+  return parentheses >= 2 && /\),\s|\)\s+or\s/.test(rarete);
+}
+
 export function formatCout(cout) {
   if (!cout) return "—";
   const morceaux = CURRENCY_KEYS.filter((k) => cout[k]).map((k) => `${cout[k]} ${k.toUpperCase()}`);

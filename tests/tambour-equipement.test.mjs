@@ -205,7 +205,13 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
   const hors = new Set([DEBORDEMENT_RATIFIE.id, DEBORDEMENT_NOMME_A_TRANCHER.id]);
   const sansLaDette = toutes.filter((e) => !hors.has(e.id));
   const plusGrosse = sansLaDette.reduce((a, b) => (b.n > a.n ? b : a));
-  assert.equal(plusGrosse.n, 33, `mesuré le 2026-08-24 : la plus grosse est ${plusGrosse.nom}`);
+  /* ⭐ 33 → 34 LE 23/09, ET CE N'EST PAS UN AJOUT : la couche générée avait DÉRIVÉ
+     de sa source. `Pearl of Power` était passée de `marvels › consumables` à
+     `marvels › foci-and-curios` en amont, et `layers/srfh-shelving-en` portait
+     encore l'ancien rangement. La régénération du 23/09 a refermé l'écart —
+     foci-and-curios 33 → 34, consumables 15 → 14, total inchangé.
+     ⛔ Un généré qu'on ne régénère pas ment d'autant mieux qu'il est vert. */
+  assert.equal(plusGrosse.n, 34, `mesuré le 2026-09-23 : la plus grosse est ${plusGrosse.nom}`);
 });
 
 test("3 — 🔴 UNE ÉTAGÈRE S'IDENTIFIE PAR `aisle:shelf`, JAMAIS PAR SON LIBELLÉ", () => {
@@ -455,7 +461,7 @@ test("7 — ⭐ RANGED WEAPONS EST ENFIN CE QUE SON NOM DIT : 21 objets, et `pro
   const armory = arbre.find((r) => r.id === "battlefield");
   assert.equal(armory.etageres.find((e) => e.id === "battlefield:projectiles"), undefined,
     "⛔ `projectiles` est VIDE, donc absente du tambour — la fusion d'Eric, appliquée");
-  const ranged = armory.etageres.find((e) => e.id === "battlefield:thrown-weapons");
+  const ranged = armory.etageres.find((e) => e.id === "battlefield:ranged-weapons");
   assert.equal(ranged.objets.length, 21,
     "⭐ 10 armes à distance + 6 armes de JET + 5 munitions — Eric, 23/09 : « toutes les armes de " +
     "jet, les munitions vont dans cette catégorie ».\n" +
@@ -465,9 +471,10 @@ test("7 — ⭐ RANGED WEAPONS EST ENFIN CE QUE SON NOM DIT : 21 objets, et `pro
     "Hammer, Spear, Trident) dormaient chez les mêlées, parce qu'elles frappent aussi de près.");
   const melee = armory.etageres.find((e) => e.id === "battlefield:melee-weapons");
   assert.equal(melee.objets.length, 22, "28 − les 6 armes de jet qui ont déménagé");
-  assert.equal(ranged.label, "Thrown Weapons",
-    "⏳ le LIBELLÉ affiché reste celui du slug tant que la migration n'a pas eu lieu en amont : " +
-    "« Ranged Weapons » est tranché, il n'est pas encore dans la donnée");
+  assert.equal(ranged.label, "Ranged Weapons",
+    "⭐ LE LIBELLÉ ET LA CLEF DISENT ENFIN LA MÊME CHOSE. Le libellé est tranché depuis le 20/09 ; " +
+    "le slug a migré le 23/09 dans `fh-srd/src/shelving.py`, et la couche générée l'a suivi. " +
+    "⛔ Le tambour n'affiche plus « Thrown Weapons » sur une étagère qui n'en contenait aucune.");
 
   /* ⚔️ ET LE CAS D'UN SEUL OBJET RESTE ÉPROUVÉ, sur un inventaire fabriqué —
      plus aucune étagère du catalogue ne le porte, mais un homebrew le recrée. */

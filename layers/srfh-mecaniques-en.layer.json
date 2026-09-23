@@ -88,7 +88,7 @@
       "srfh:shelving:en:dagger": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
+          "data.shelf.shelf": "ranged-weapons",
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ ERIC, 2026-09-23 : *« toutes les armes de jet, les munitions vont dans cette catégorie »*, puis *« idem pour FH et SRD »*.\n\n🔴 CE QUE ÇA RÉPARE, ET C'ÉTAIT MESURABLE DEPUIS LE DÉBUT : l'étagère `thrown-weapons` ne contenait AUCUNE arme de jet. Ses dix records viennent de `derived:weapon.weapon_range` — arbalètes, arcs, fronde, sarbacane, mousquet, pistolet : des armes À DISTANCE, pas des armes qu'on lance. Les six vraies armes `Thrown` du SRD étaient sur `melee-weapons`, parce qu'elles frappent aussi au corps à corps. Le slug mentait sur son contenu.\n\n⭐ LE LIBELLÉ « Ranged Weapons », tranché le 20/09, couvre enfin les deux familles : ce qu'on tire et ce qu'on lance, plus les cinq munitions qui les alimentent. ⛔ La clef reste `thrown-weapons` — l'identité est la clef, jamais le libellé ; le slug se migre en amont.\n\n⚠️ ET CE PATCH MONTE DANS LES DEUX PILES, sur le mot d'Eric : un rangement est SA classification, pas une règle Fate's Hand. Le joueur en SRD pur voit la même étagère.\n\n📏 `melee-weapons` 28 → 22 · `thrown-weapons` 10 → 16 en SRD seul, 21 avec les munitions."
@@ -128,7 +128,7 @@
       "srfh:shelving:en:handaxe": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
+          "data.shelf.shelf": "ranged-weapons",
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
@@ -144,7 +144,7 @@
       "srfh:shelving:en:javelin": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
+          "data.shelf.shelf": "ranged-weapons",
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
@@ -168,7 +168,7 @@
       "srfh:shelving:en:light-hammer": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
+          "data.shelf.shelf": "ranged-weapons",
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
@@ -232,7 +232,7 @@
       "srfh:shelving:en:spear": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
+          "data.shelf.shelf": "ranged-weapons",
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
@@ -256,7 +256,7 @@
       "srfh:shelving:en:trident": {
         "op": "patch",
         "changes": {
-          "data.shelf.shelf": "thrown-weapons",
+          "data.shelf.shelf": "ranged-weapons",
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."

@@ -44,6 +44,25 @@ function el(balise, classe, texte) {
  *  case la dit déjà, une fois et en toutes lettres (`motDuJeton`). */
 export function corpsDuJeton(pose) {
   const noeuds = [el("span", "jeton-nom", pose.nom)];
+  /* ⚖️ LA DIAGONALE DE LA RECETTE — Eric, 2026-09-23 : *« une diagonale de bas
+     en haut, moitié inférieure droite bleue »*.
+     ⛔ CE N'EST PAS UNE CINQUIÈME MARQUE : les quatre marques vivent dans la
+     bande haute de 12 (`jeton-quatre-marques-de-la-bande`), et ce fond n'y
+     entre pas. Il ne déplace pas le nom et ne prend aucune des quatre places.
+     ⭐ ET IL EST DESSINÉ ICI, dans l'organe, pas dans les deux écrans qui
+     l'appellent : R et le sac portent le MÊME jeton, et deux copies
+     divergeraient à la première marque ajoutée (doctrine du lot 214).
+     ⛔ MUET AU LECTEUR D'ÉCRAN : `motDuJeton` dit déjà « recipe » en toutes
+     lettres — une couleur que rien ne prononce est une information réservée
+     aux voyants. */
+  if (pose.recette === true) {
+    const fond = el("span", "jeton-recette");
+    fond.setAttribute("aria-hidden", "true");
+    /* ⛔ AVANT LE NOM, PAS APRÈS : un fond posé ensuite le recouvrirait. L'ordre
+       du DOM suffit, et il évite un `z-index` — qui aurait fallu accorder avec
+       ceux des quatre marques. */
+    noeuds.unshift(fond);
+  }
   const marques = el("span", "jeton-marques");
   if (pose.qte > 1) {
     const q = el("span", "jeton-qte", `×${pose.qte}`);
@@ -66,6 +85,7 @@ export function corpsDuJeton(pose) {
  *  ne prononce est une information réservée aux voyants. */
 export function motDuJeton(pose) {
   return `${pose.nom}${pose.qte > 1 ? ` ×${pose.qte}` : ""}`
+    + `${pose.recette ? ", recipe" : ""}`
     + `${pose.equipped ? ", equipped" : ""}`
     + `${pose.attuned ? ", attuned" : ""}`
     + `${pose.locked ? ", locked" : ""}`;
