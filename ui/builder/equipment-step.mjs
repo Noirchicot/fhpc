@@ -1614,6 +1614,36 @@ const GENRE_RANGEMENT = "shelving";
  * @param {Function} query `layers.verbs.query`
  * @returns {Array<{id:string,label:string,etageres:Array<{id:string,label:string,objets:Array}>}>}
  */
+/** ⭐ LA POSE D'UN JETON DU CATALOGUE — ce que Wares donne à `corpsDuJeton`.
+ *
+ *  🔴 POURQUOI C'EST UNE FONCTION, ET C'EST LA RÉPARATION DU LOT 256, PAS SON ORNEMENT.
+ *  Le 23/09, la diagonale du blueprint ne s'est jamais peinte sur le catalogue. Le
+ *  prédicat était juste, le nœud était juste, la feuille était juste — ⛔ seule cette
+ *  pose ne portait pas `recette`. Elle était une expression ANONYME au fond d'une
+ *  closure de rendu, et c'est ce qui l'a rendue intouchable : **rien ne pouvait
+ *  l'appeler**, donc rien ne pouvait l'éprouver. Le garde qu'on lui a opposé en
+ *  urgence lisait sa SOURCE à la regex, et il le disait lui-même : faible.
+ *  ⭐ Sortie ici, elle devient un organe comme un autre — l'écran l'appelle, le garde
+ *  l'appelle, et le garde éprouve alors CE QUE L'ÉCRAN FABRIQUE, pas une copie de son
+ *  texte. ⛔ C'est la doctrine du lot 214 appliquée à une pose au lieu d'un dessin :
+ *  ce que deux lecteurs doivent voir pareil ne s'écrit qu'une fois.
+ *
+ *  ⚠️ `item.view` EST UNE VUE, PAS UN RECORD — mesuré : `recordLabel` lit
+ *  `view.record.name`. Passer `item.view` à `estRecette` rendrait `{}`, et le prédicat
+ *  ne verrait ni `category`, ni `rarity`, ni `contents`. C'est le défaut exact qui a
+ *  coûté la diagonale, et il vit maintenant à UN seul endroit.
+ *  ⛔ AUCUN PRIX ICI — la loi du 20/09 : le prix vit sur la fiche et dans la recherche.
+ *
+ *  @param {{view: {id: string, record: object}}} item une entrée de la pile rangée.
+ *  @returns {{ref: string, nom: string, recette: boolean}} la pose, telle quelle. */
+export function poseDeWares(item) {
+  return {
+    ref: item.view.id,
+    nom: recordLabel(item.view) || item.view.id,
+    recette: estRecette(item.view.record),
+  };
+}
+
 export function rayonsEtEtageres(query) {
   const { rayons } = lireRangement(query);
   return rayons;
@@ -3834,11 +3864,7 @@ export function renderEquipmentStep(ctx, onAction) {
              ⛔ CE QUE LE COMMENTAIRE D'AU-DESSUS DIT RESTE VRAI ET RESTE L'ESSENTIEL :
              `item.view` est une VUE, pas un record. C'est ça, le défaut qui a coûté une
              diagonale invisible sur trois écrans, pas le choix du second argument. */
-          objets: page.objets.map((item) => ({
-            ref: item.view.id,
-            nom: recordLabel(item.view) || item.view.id,
-            recette: estRecette(item.view.record),
-          })),
+          objets: page.objets.map(poseDeWares),
           compte: e.objets.length,
           pages: page.pages,
         };
