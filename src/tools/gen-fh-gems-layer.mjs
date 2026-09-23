@@ -2,13 +2,17 @@
    Lot 181-gemmes-au-catalogue.
 
    Il prend le canon d'Eric — `Gems (FH).json`, dans le vault — et il rend
-   `layers/fh-gems-en.layer.json` : 54 gemmes au genre `gem`, plus leurs 54
+   `layers/fh-gems-en.layer.json` : 27 gemmes au genre `gem`, plus leurs 27
    records de rangement, pour qu'elles apparaissent au catalogue Équipement.
+   ⏳ 54 JUSQU'AU 2026-09-23 : le canon du vault en garde 54, la coupe d'Eric
+   n'en retient que 27 — une DÉRIVATION d'ici, pas une amputation de la source.
 
    ⛔ LA COUCHE NE S'ÉCRIT JAMAIS À LA MAIN. C'est la discipline de
    `gen-fh-species-layer.mjs` et de `gen-fh-skills-layer.mjs`, et elle vaut ici
    pour une raison de plus : 54 gemmes × 12 champs recopiés à la main, c'est
-   648 occasions de se tromper d'un chiffre sans que personne le voie.
+   648 occasions de se tromper d'un chiffre sans que personne le voie. ⭐ Et la
+   coupe à 27 en ajoute une treizième raison : une sélection écrite à la main ne
+   dirait jamais POURQUOI ces 27-là. La règle, elle, se rejoue.
 
    ── LES TROIS DISCIPLINES DU LOT 15, REPRISES ─────────────────────────
    1. LA DESTINATION EST UN ARGUMENT. Une suite qui veut observer la
@@ -85,7 +89,7 @@ export const EMPREINTE_SOURCE = "e623a20e9029a58f374013ccef9ee8f9d5597765c52bb71
    précise, et la seule qui existe dans la donnée. Mais il l'écrit ICI, en UN
    SEUL ENDROIT, pour que l'arbitrage d'Eric tienne dans une ligne : changer
    cette chaîne pour `"equipment:valuables"` et regénérer suffit à déplacer
-   les 54 gemmes. ⛔ Ne la recopie nulle part ailleurs — une seconde écriture
+   les gemmes. ⛔ Ne la recopie nulle part ailleurs — une seconde écriture
    rouvrirait le défaut `ETAGERE_DE` que le lot 95 a retiré. */
 /** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE.
  *  ✅ ERIC, 2026-09-23 : *« sous trade goods tu auras gems, et ce sera une plus
