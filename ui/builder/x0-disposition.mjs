@@ -13,7 +13,7 @@
    ⛔ ET CETTE TABLE N'EST PAS GÉNÉRÉE — ⭐ le test du dépôt est le NUMÉRO :
    `x1-disposition.mjs` sort de `X1_cotes.json` par `X1_gen.py` et ne se touche
    pas à la main ; celle-ci est écrite, comme `b3-disposition.mjs`. */
-import * as X1 from "./x1-disposition.mjs?v=798";
+import * as X1 from "./x1-disposition.mjs?v=799";
 
 /** ⚖️ *« marge autour de la dalle 8 blg (je veux que ça recouvre totalement la
  *  Fiche R Gear) »* — la feuille est posée à 8 blg du bord de la dalle. */
@@ -27,15 +27,24 @@ export const MARGE_DALLE = 8;
 export const MARGE_TEXTE = 30;
 export const RETRAIT = MARGE_TEXTE - MARGE_DALLE;
 
-/** 📏 L'ÉCART ENTRE DEUX OPTIONS — Eric l'avait posé à 30, ramené à 16 le 23/09
- *  sur MESURE : à 30, les cinq rangées du pire cas (Fighter × Soldier) coûtaient
- *  **205 px** des 654 rendus, et il ne restait que **5 px** sous le plafond. */
-export const ECART_OPTIONS = 16;
-
 /** ⚖️ Le corps du bouton de choix — la seconde cote ratifiée le 21/09.
  *  ⛔ SA CIBLE, ELLE, RESTE `--touch` ET NE SE CONVERTIT PAS : 44 est une cote
  *  DONNÉE, elle ne se déduit pas d'un dessin et elle ne cède jamais. */
 export const BOUTON = 30;
+export const CIBLE = 44;
+
+/** 🔴 L'ÉCART QU'ERIC VOIT N'EST PAS L'ÉCART QUE LE CSS DÉCLARE — et c'est la
+ *  faute que ce lot répare. Eric, 23/09 : *« je veux 15 entre les boutons, t'as
+ *  mis 30 »*, puis *« voire plus que 30 »*. Le CSS déclarait **16**. Les deux
+ *  ont raison : entre deux CARRÉS visibles il y a la demi-cible morte du bas
+ *  (7), l'écart déclaré (16), puis la demi-cible morte du haut (7) — soit **30**.
+ *  ⛔ Un carré de 30 dans une cible de 44 laisse 14 blg d'air que personne
+ *  n'avait comptés, et aucune règle CSS ne porte ce nombre : il naît de la
+ *  rencontre de deux cotes.
+ *  ⭐ ON DÉCLARE DONC CE QUI SE VOIT, et la marge s'en DÉDUIT. Le jour où le
+ *  corps ou la cible bouge, l'écart vu ne bouge pas — il est la consigne. */
+export const ECART_VU = 15;
+export const ECART_OPTIONS = Math.max(0, ECART_VU - (CIBLE - BOUTON));
 
 /** 📏 LE FILET EST CELUI DES FICHES X, ET SES COTES SE LISENT DANS LEUR TABLE —
  *  ⛔ jamais recopiées : `.x1-filet` est l'organe, `FILET HAUT` en est la cote.

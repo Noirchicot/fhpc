@@ -3059,7 +3059,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=798") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=799") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3382,7 +3382,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=798") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=799") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5034,7 +5034,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=798") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=799") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8015,7 +8015,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=798");
+  background-image: url("./assets/tarot-dos.jpg?v=799");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13226,9 +13226,15 @@ button.tuto-point::before {
   grid-template-columns: auto 1fr; align-items: center;
   /* ⚖️ *« 30 blg d'espace entre 2 boutons »* → ramené à 16 le 23/09, sur mesure :
      📏 les 30 coûtaient 205 px des 654, et il n'en restait que 5 sous le plafond. */
-  min-height: var(--x0-bouton); margin: 0 0 var(--x0-ecart);
+  /* 🔴 UN SEUL ÉCRIVAIN POUR CETTE DISTANCE. Elle en avait DEUX : le `gap` de
+     `.aiguilleur-options` (4) ET la marge de la rangée. 📏 Mesuré : 5 entre les
+     boîtes au lieu de 1, donc 19 entre les carrés au lieu de 15 — et aucune des
+     deux déclarations n'était fausse à elle seule. C'est le `gap` de la liste
+     qui porte l'écart (il ne s'applique pas après la dernière rangée), ⛔ pas
+     une marge que la dernière devrait ensuite reprendre. */
+  min-height: var(--x0-bouton); margin: 0;
 }
-.aiguilleur-section .aiguilleur-rangee:last-child { margin-bottom: var(--sp-8); }
+.aiguilleur-options { gap: var(--x0-ecart); margin-bottom: var(--sp-8); }
 .aiguilleur-option-mot { font-size: var(--t1); }
 /* ⚖️ *« mets toujours la somme en GP à la ligne »* — ⛔ un `<br>` aurait été un
    saut de ligne DANS une phrase ; ce sont deux blocs, parce que ce sont deux
