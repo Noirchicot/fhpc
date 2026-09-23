@@ -84,6 +84,12 @@
         "name": "Fate's Hand — Gems (EN)"
       },
       {
+        "id": "fh-munitions-en",
+        "version": "0.1.0",
+        "hash": "4a75c7c62fef4746928d460a6daba0930a0d72aafefdb210d4f3df5f104ff8c3",
+        "name": "Fate's Hand — Munitions (EN)"
+      },
+      {
         "id": "fh-fiche-en",
         "version": "0.1.0",
         "hash": "384255a02ea4a9dc6de9ec615af55980c9741bbec1ffd1b2240f4e78600ca1f9",
@@ -502,6 +508,12 @@
           "version": "0.1.0",
           "hash": "2e745e99bc6729e36bdc61a6f63daea844297e49dd56661681dbc57fb38199a7",
           "name": "Fate's Hand — Gems (EN)"
+        },
+        {
+          "id": "fh-munitions-en",
+          "version": "0.1.0",
+          "hash": "4a75c7c62fef4746928d460a6daba0930a0d72aafefdb210d4f3df5f104ff8c3",
+          "name": "Fate's Hand — Munitions (EN)"
         },
         {
           "id": "fh-fiche-en",

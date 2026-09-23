@@ -64,6 +64,7 @@ function docAvec({ layers = [], choices = [], naissance = true } = {}) {
 }
 const SIX_SCORES = ABILITY_KEYS.map((clef) => ({ path: `abilities.${clef}`, value: 10 }));
 
+const { CATALOGUE_FH } = await import("../ui/builder/interrupteurs.mjs");
 const PILE_COMPLETE = [SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS];
 const CHOIX_CLASSE = { path: "class", ref: { kind: "class", id: "srd:wizard" }, label: "Class" };
 
@@ -98,7 +99,11 @@ test("🔴 UNE PILE QUI NE CORRESPOND À AUCUN JEU DE RÈGLES EST NOMMÉE — av
     "témoin : Lore = 3 couches, et la pile d'hier en garde UNE — c'est ça, un interrupteur coupé en deux");
   /* ⚖️ LOT 191 — et la pile de v606 (sans Soulforging ni gemmes) est NOMMABLE :
      une pile qu'on accusait pour une raison qui n'existe plus. */
-  const v606 = PILE_COMPLETE.filter((id) => !["fh-soulforging-en", "fh-gems-en"].includes(id));
+  /* ⭐ 23/09 — LE CATALOGUE FAIT DEUX COUCHES (gemmes + munitions), et le
+     témoin doit les retirer TOUTES : un catalogue à moitié éteint serait un
+     interrupteur coupé en deux, donc bien une pile inconnue — le test
+     mesurerait alors le contraire de ce qu'il croit dire. */
+  const v606 = PILE_COMPLETE.filter((id) => !["fh-soulforging-en", ...CATALOGUE_FH].includes(id));
   assert.notEqual(motDeLEcranMort(docAvec({ layers: v606, choices: [CHOIX_CLASSE] })), MOT_PILE_INCONNUE,
     "Soulforging éteint + catalogue absent : deux états légitimes, pas une pile inconnue");
   const mot = motDeLEcranMort(docAvec({ layers: PILE_D_HIER, choices: [CHOIX_CLASSE] }));

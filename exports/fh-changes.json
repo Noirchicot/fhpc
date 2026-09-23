@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "8a6143cc23833649f40a14c3f30c587c70d2f695e28d3b8dbdc8a1ea044762ae",
+  "layer_run": "5e3685fae0b6b7251b975f5ec9388396b129722d758c6b8a6b5db32396510a81",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -64,6 +64,11 @@
       "id": "fh-gems-en",
       "version": "0.1.0",
       "hash": "2e745e99bc6729e36bdc61a6f63daea844297e49dd56661681dbc57fb38199a7"
+    },
+    {
+      "id": "fh-munitions-en",
+      "version": "0.1.0",
+      "hash": "4a75c7c62fef4746928d460a6daba0930a0d72aafefdb210d4f3df5f104ff8c3"
     },
     {
       "id": "fh-fiche-en",
@@ -168,10 +173,22 @@
       "renamed": []
     },
     "gear": {
-      "added": [],
-      "patched": [],
+      "added": [
+        "Blowgun Needles",
+        "Crossbow Bolts",
+        "Firearm Bullets",
+        "Sling Bullets"
+      ],
+      "patched": [
+        "Arrows"
+      ],
       "removed": [],
-      "renamed": []
+      "renamed": [
+        {
+          "from": "Ammunition",
+          "to": "Arrows"
+        }
+      ]
     },
     "gem": {
       "added": [
@@ -304,6 +321,7 @@
         "Blanket",
         "Block and Tackle",
         "Blowgun",
+        "Blowgun Needles",
         "Blue Diamond",
         "Blue Sapphire",
         "Blue Zircon",
@@ -366,6 +384,7 @@
         "Coral",
         "Cornflower Sapphire",
         "Costume",
+        "Crossbow Bolts",
         "Crowbar",
         "Crystal Ball",
         "Crystal Ball of Mind Reading",
@@ -412,6 +431,7 @@
         "Feather Token",
         "Figurine of Wondrous Power",
         "Fire Agate",
+        "Firearm Bullets",
         "Flail",
         "Flame Tongue",
         "Flask",
@@ -654,6 +674,7 @@
         "Sickle",
         "Signal Whistle",
         "Sling",
+        "Sling Bullets",
         "Slippers of Spider Climbing",
         "Smith’s Tools",
         "Soulforging",

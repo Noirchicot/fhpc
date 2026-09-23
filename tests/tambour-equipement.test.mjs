@@ -245,8 +245,11 @@ const RANGEMENTS_GEMMES = 54;  // `fh-gems-en`, lot 181 — les gemmes d'Eric
  *  `fh-soulforging-en`. ⏳ Ils poussent `crafting › tools` à 37, au-dessus du
  *  critère des 35 : voir `DEBORDEMENT_NOMME_A_TRANCHER`. */
 const RANGEMENTS_OUTILS_FH = 12;
+/** Les 4 rangements de munitions — `fh-munitions-en`. ⛔ Les flèches n'en ont
+ *  PAS : elles RÉÉCRIVENT `srd:gear:en:ammunition`, déjà rangé par `srfh`. */
+const RANGEMENTS_MUNITIONS = 4;
 
-test("5 — 🔴 LES 482 RANGEMENTS SONT LUS (416 + 54 + 12), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
+test("5 — 🔴 LES 486 RANGEMENTS SONT LUS (416 + 54 + 12 + 4), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
   /* ⭐ 2026-09-09, LOT 185 — LE TOTAL AFFICHÉ EST REDEVENU LE TOTAL LU, et
      c'est le lot entier qui tient dans cet écart refermé.
 
@@ -272,8 +275,8 @@ test("5 — 🔴 LES 482 RANGEMENTS SONT LUS (416 + 54 + 12), ET PLUS AUCUN NE P
      en porte 11 (ses outils neufs) et `fh-soulforging-en` 1. Même motif que les
      gemmes : une couche Fate's Hand range SES records, parce que `srfh` est
      bâtie sur le SRD seul et ne les a jamais vus. */
-  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH,
-    "les 482 records de rangement des TROIS sources sont bien lus");
+  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
+    "les 486 records de rangement des QUATRE sources sont bien lus");
   /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
      côté sans que ce test bronche.
      ⚖️ 09/09 — LE PARTAGE DES PRÉFIXES A CHANGÉ, ET C'EST UNE DÉCISION D'ERIC.
@@ -292,12 +295,12 @@ test("5 — 🔴 LES 482 RANGEMENTS SONT LUS (416 + 54 + 12), ET PLUS AUCUN NE P
   }
   assert.deepEqual(parPrefixe, {
     "srfh:": RANGEMENTS_SRFH + GEMMES_PARTAGEES,
-    "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES + RANGEMENTS_OUTILS_FH
-  }, "416 du livre + 23 gemmes partagées d'un côté, 31 inventions de FH + 12 outils de l'autre");
+    "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS
+  }, "416 du livre + 23 gemmes partagées d'un côté, 31 gemmes + 12 outils + 4 munitions de l'autre");
   /* ⚔️ ET LE TOTAL NE BOUGE PAS — c'est ce qui prouve qu'on a DÉPLACÉ des
      rangements entre deux comptes, et non pas ajouté ou perdu des records. */
   assert.equal(parPrefixe["srfh:"] + parPrefixe["fh:"],
-    RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH,
+    RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
     "le déplacement de 23 ids ne doit créer ni détruire aucun rangement");
 
   assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
@@ -317,11 +320,11 @@ test("5 — 🔴 LES 482 RANGEMENTS SONT LUS (416 + 54 + 12), ET PLUS AUCUN NE P
 
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH,
-    "les 482 rangements sont tous à l'étalage — plus aucun n'est écarté");
+  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
+    "les 486 rangements sont tous à l'étalage — plus aucun n'est écarté");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH, "et chaque objet n'est rangé que sur UNE étagère");
+  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS, "et chaque objet n'est rangé que sur UNE étagère");
 });
 
 test("5 bis — ⭐ LA DETTE EST PAYÉE : les 12 outils Fate's Hand ONT une étagère", () => {
@@ -421,11 +424,23 @@ test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 33 objets, donc 3 
   assert.equal(derniere.objets.length, 3, "33 − 2 × 15 = 3 — une dernière page PARTIELLE, et c'est le cas normal");
 });
 
-test("7 — 🔴 LE CAS DÉGÉNÉRÉ, ET IL EST RÉEL : `projectiles` ne porte QU'UN objet", () => {
+test("7 — ⭐ LE CAS DÉGÉNÉRÉ A QUITTÉ LA DONNÉE : `projectiles` porte enfin ses CINQ munitions", () => {
+  /* 🔴 CE TEST DISAIT L'INVERSE JUSQU'AU 2026-09-23, et son témoin était réel :
+     `battlefield › projectiles` ne portait QU'UN objet, le `gear:ammunition`
+     générique du SRD. Le vault lui réservait cinq munitions depuis le 21/08
+     (« 5 sortes, zéro record ») ; Eric les a chiffrées ce jour-là, en paquets
+     de dix, et `fh-munitions-en` les écrit.
+     ⭐ CE QUE LE TEST DÉFEND N'A PAS BOUGÉ : une étagère d'UN objet doit rendre
+     UNE page, jamais « 1/0 ». Ce que le test a perdu, c'est son TÉMOIN RÉEL —
+     plus aucune étagère du catalogue ne porte un seul objet. Il l'éprouve donc
+     sur un inventaire fabriqué, et le dit. ⛔ Ne pas le supprimer sous prétexte
+     que le cas n'existe plus dans la donnée : un homebrew le recrée demain. */
   const arbre = rayonsEtEtageres(query);
-  const minuscule = arbre.find((r) => r.id === "battlefield").etageres.find((e) => e.id === "battlefield:projectiles");
-  assert.equal(minuscule.objets.length, 1, "témoin : une étagère à un seul objet existe vraiment dans les données");
-  const vue = pageDeListe(minuscule.objets, 0);
+  const proj = arbre.find((r) => r.id === "battlefield").etageres.find((e) => e.id === "battlefield:projectiles");
+  assert.equal(proj.objets.length, 5, "les cinq munitions typées, chacune un paquet de dix");
+
+  /* ⚔️ ET LE CAS D'UN SEUL OBJET RESTE ÉPROUVÉ, sur un inventaire fabriqué. */
+  const vue = pageDeListe([{ kind: "gear", view: { id: "x" } }], 0);
   assert.equal(vue.pages, 1, "une page, jamais zéro — « 1/0 » serait un compte impossible");
   assert.equal(vue.objets.length, 1);
 });

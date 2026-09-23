@@ -3564,6 +3564,51 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### 🏹 LES CINQ MUNITIONS — UN JETON, UN PAQUET DE DIX
+📍 `equipement-munitions-paquet-de-dix` · vivante · 23/09
+⚖️ **Les cinq munitions typées existent enfin, chacune en paquet de dix, et les flèches
+RÉÉCRIVENT le générique `gear:ammunition` au lieu de s'ajouter à côté.**
+
+> Eric, 2026-09-23 : **« prends la base pathfinder, met en paquet de 10 »**, puis, sur ce que
+> « par 10 » veut dire : **« tu achètes un item avec un ×10 marqué dessus »**.
+
+| munition | armes | prix | poids |
+|---|---|---|---|
+| **Arrows** *(réécrit `ammunition`)* | arc court · arc long | `5 SP` | `1,5 lb.` |
+| **Crossbow Bolts** | les trois arbalètes | `1 GP` | `1 lb.` |
+| **Sling Bullets** | fronde | `1 SP` | `5 lb.` |
+| **Blowgun Needles** | sarbacane | `5 SP` | `0,1 lb.` *(plancher)* |
+| **Firearm Bullets** | mousquet · pistolet | `10 GP` | `0,2 lb.` |
+
+⭐ **UN JETON = UN PAQUET.** `pack: 10` est la **marque** du jeton, pas une quantité possédée :
+le joueur achète un objet qui porte ×10, il ne coche pas dix cases.
+
+🔴 **LES FLÈCHES RÉÉCRIVENT LE GÉNÉRIQUE, ET C'EST LE PATRON DE `TOOLS_REWRITTEN`.** Garder
+`gear:ammunition` à côté de ses cinq héritiers ferait **acheter des munitions deux fois** — la
+faute exacte que le lot 185 a refusée pour le Dice Set. Le générique devient donc les flèches,
+sous son id d'origine, et **garde l'étagère que `srfh` lui donne déjà**. Les quatre autres
+portent leur propre rangement.
+
+⛔ **LES CHIFFRES SONT D'ERIC, PAS UNE TABLE RECOPIÉE.** Le Pathfinder Reference Document est
+publié sous **OGL 1.0a** ; §0.8 refuse *« tiers non-CC »* exactement comme elle refuse le PHB.
+La référence a servi à **choisir**, jamais à **fournir** — chaque record porte sa `cost_provenance`
+et sa `weight_provenance`.
+
+⚠️ **CE QUE ÇA REMPLACE** : la table du vault du 21/08 *(flèches 5 pa · 0,5 lb, billes 2 pc ·
+0,75 lb…)*. Un seul chiffre y survit — le prix des flèches, `5 SP` des deux côtés. Les billes
+passent de **0,75 lb à 5 lb** : c'est un vrai changement de sensation en jeu, voulu.
+
+⏳ **ET LA FUSION DE `projectiles` LES ATTEND.** Eric a tranché le 20/09 la fusion de
+`projectiles` dans `ranged-weapons` ; elle n'est **pas appliquée** (migration de slug en amont
+dans `fh-srd`). Le jour où elle l'est, ces cinq records suivent et **Ranged Weapons passe de 11 à
+15 objets — deux pages à 12 par page**, donc les chevrons reviennent.
+
+📌 **UNE COUCHE NEUVE, `fh-munitions-en`**, et elle est du **catalogue** — comme les gemmes : une
+flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul geste** (`LAYER_FILES`,
+`FH_LAYER_IDS`, `PILE`), leçon du lot 77.
+
+---
+
 ### 🧰 LES OUTILS FATE'S HAND SONT RANGÉS — `crafting › tools`, AVEC CEUX DU SRD
 📍 `equipement-outils-fh-ranges` · vivante · 23/09
 ⚖️ **Les douze outils Fate's Hand rejoignent `crafting › tools`, la même étagère que les 25 du

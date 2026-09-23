@@ -109,7 +109,7 @@ export const SRFH_LAYER_IDS = ["srfh-shelving-en", "srfh-mecaniques-en"];
 export const FH_LAYER_IDS = [
   "fh-species-en", "fh-skills-en", "fh-trainings-en", "fh-inheritance-en",
   "fh-arcana-en", "fh-feats-en", "fh-spells-en",
-  "fh-soulforging-en", "fh-gems-en", "fh-fiche-en", "fh-lore-en"
+  "fh-soulforging-en", "fh-gems-en", "fh-munitions-en", "fh-fiche-en", "fh-lore-en"
 ];
 
 /** 🔴 LES LIVRES DU JOUEUR — UN AXE, PAS UN MEMBRE DE LA PILE NOMMÉE (09/09).

@@ -1,0 +1,143 @@
+{
+  "schema": "fh-layer/1",
+  "id": "fh-munitions-en",
+  "version": "0.1.0",
+  "name": "Fate's Hand — Munitions (EN)",
+  "lang": "en",
+  "flags": [
+    "fh.munitions"
+  ],
+  "attribution": {
+    "license": "all-rights-reserved",
+    "text": "Original Fate's Hand content: all rights reserved. Prices and weights are Eric's decisions, chosen with open references in view but never copied from them (law §0.8: no WotC and no non-CC third-party material outside the SRD). This layer adds four gear records of its own and rewrites ONE SRD record — `srd:gear:en:ammunition`, the generic entry — into the first of its five heirs, exactly as `fh-skills-en` rewrites the generic Gaming Set into the Dice Set."
+  },
+  "description": "Les cinq munitions typées, en PAQUETS DE DIX — Eric, 2026-09-23 : « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». Le vault les réservait depuis le 21/08 (« 5 sortes, zéro record ») : le SRD ne porte qu'un `gear:ammunition` générique, alors que le champ `properties` des armes à distance en nomme cinq. ⭐ LES FLÈCHES RÉÉCRIVENT LE GÉNÉRIQUE au lieu de s'ajouter à côté — c'est le patron de `TOOLS_REWRITTEN` : garder le record générique à côté de ses héritiers ferait acheter des munitions deux fois. Les quatre autres sont des ajouts. ⚠️ `pack: 10` est la MARQUE du jeton, pas une quantité possédée : un jeton = un paquet.",
+  "records": {
+    "gear": {
+      "fh:gear:en:blowgun-needles": {
+        "name": "Blowgun Needles",
+        "slug": "blowgun-needles",
+        "data": {
+          "cost": "5 SP",
+          "name": "Blowgun Needles",
+          "pack": 10,
+          "weight": "0.1 lb.",
+          "cost_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "weight_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "description": "A bundle of ten. For the blowgun."
+        }
+      },
+      "fh:gear:en:crossbow-bolts": {
+        "name": "Crossbow Bolts",
+        "slug": "crossbow-bolts",
+        "data": {
+          "cost": "1 GP",
+          "name": "Crossbow Bolts",
+          "pack": 10,
+          "weight": "1 lb.",
+          "cost_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "weight_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "description": "A bundle of ten. For the three crossbows."
+        }
+      },
+      "fh:gear:en:firearm-bullets": {
+        "name": "Firearm Bullets",
+        "slug": "firearm-bullets",
+        "data": {
+          "cost": "10 GP",
+          "name": "Firearm Bullets",
+          "pack": 10,
+          "weight": "0.2 lb.",
+          "cost_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "weight_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "description": "A bundle of ten. For the musket and the pistol."
+        }
+      },
+      "fh:gear:en:sling-bullets": {
+        "name": "Sling Bullets",
+        "slug": "sling-bullets",
+        "data": {
+          "cost": "1 SP",
+          "name": "Sling Bullets",
+          "pack": 10,
+          "weight": "5 lb.",
+          "cost_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "weight_provenance": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "description": "A bundle of ten. For the sling."
+        }
+      },
+      "srd:gear:en:ammunition": {
+        "op": "patch",
+        "changes": {
+          "name": "Arrows",
+          "slug": "arrows",
+          "data.name": "Arrows",
+          "data.cost": "5 SP",
+          "data.weight": "1.5 lb.",
+          "data[pack]": 10,
+          "data[cost_provenance]": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils.",
+          "data[weight_provenance]": "eric:2026-09-23 — « prends la base pathfinder, met en paquet de 10 », puis « tu achètes un item avec un ×10 marqué dessus ». ⛔ LE NOMBRE EST D'ERIC, PAS UNE TABLE RECOPIÉE : le Pathfinder Reference Document est publié sous OGL 1.0a, et la loi §0.8 refuse « tiers non-CC » exactement comme elle refuse le PHB. La référence a servi à CHOISIR le chiffre, jamais à le FOURNIR — même geste que pour les poids des 54 gemmes et des outils."
+        },
+        "note": "Fate's Hand — the generic Ammunition rewritten as Arrows, a bundle of ten"
+      }
+    },
+    "shelving": {
+      "fh:shelving:en:blowgun-needles": {
+        "name": "Blowgun Needles",
+        "slug": "blowgun-needles",
+        "data": {
+          "extends": "fh:gear:en:blowgun-needles",
+          "name": "Blowgun Needles",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "battlefield",
+            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
+            "shelf": "projectiles"
+          }
+        }
+      },
+      "fh:shelving:en:crossbow-bolts": {
+        "name": "Crossbow Bolts",
+        "slug": "crossbow-bolts",
+        "data": {
+          "extends": "fh:gear:en:crossbow-bolts",
+          "name": "Crossbow Bolts",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "battlefield",
+            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
+            "shelf": "projectiles"
+          }
+        }
+      },
+      "fh:shelving:en:firearm-bullets": {
+        "name": "Firearm Bullets",
+        "slug": "firearm-bullets",
+        "data": {
+          "extends": "fh:gear:en:firearm-bullets",
+          "name": "Firearm Bullets",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "battlefield",
+            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
+            "shelf": "projectiles"
+          }
+        }
+      },
+      "fh:shelving:en:sling-bullets": {
+        "name": "Sling Bullets",
+        "slug": "sling-bullets",
+        "data": {
+          "extends": "fh:gear:en:sling-bullets",
+          "name": "Sling Bullets",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "battlefield",
+            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
+            "shelf": "projectiles"
+          }
+        }
+      }
+    }
+  }
+}

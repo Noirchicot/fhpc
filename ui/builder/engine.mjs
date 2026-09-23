@@ -72,6 +72,14 @@ export const LAYER_FILES = [
      pile. ⚠️ Elle entre ici EN MÊME TEMPS que dans `FH_LAYER_IDS` et dans
      `PILE` : trois listes, un seul geste (leçon du lot 77). */
   "fh-gems-en.layer.json",
+  /* ⭐ LOT — LES CINQ MUNITIONS, en paquets de dix (Eric, 23/09 : « prends la
+     base pathfinder, met en paquet de 10 », « tu achètes un item avec un ×10
+     marqué dessus »). Elle RÉÉCRIT `srd:gear:en:ammunition` en Arrows et ajoute
+     les quatre autres — donc elle se monte APRÈS le SRD, et sa place est celle
+     du contenu maison, avant les deux couches de texte. ⚠️ Elle entre ici EN
+     MÊME TEMPS que dans `FH_LAYER_IDS` et dans `PILE` : trois listes, un seul
+     geste (leçon du lot 77). */
+  "fh-munitions-en.layer.json",
   "fh-fiche-en.layer.json",
   "fh-lore-en.layer.json"
 ];

@@ -63,6 +63,7 @@ export const FH_INHERITANCE_EN = "layers/fh-inheritance-en.layer.json";
 export const FH_SOULFORGING_EN = "layers/fh-soulforging-en.layer.json";
 /* LOT 181 — les 54 gemmes d'Eric, genre `gem`, plus leurs 54 rangements. */
 export const FH_GEMS_EN = "layers/fh-gems-en.layer.json";
+export const FH_MUNITIONS_EN = "layers/fh-munitions-en.layer.json";
 export const FH_LORE_EN = "layers/fh-lore-en.layer.json";
 
 export function fileBytes(rel) {

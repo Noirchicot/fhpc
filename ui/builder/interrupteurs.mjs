@@ -68,7 +68,9 @@ export const INTERRUPTEURS = Object.freeze([
 /** LE CATALOGUE FATE'S HAND — les 54 gemmes. Du contenu, pas une règle : il
  *  n'a pas d'interrupteur, il suit le maître. ⛔ Les espèces n'y sont plus
  *  (09/09) : elles sont du World. */
-export const CATALOGUE_FH = Object.freeze(["fh-gems-en"]);
+/* ⭐ LES MUNITIONS SONT DU CATALOGUE, comme les gemmes : une flèche n'est pas
+   de l'ambiance. Même raison que celle écrite plus haut pour la pierre. */
+export const CATALOGUE_FH = Object.freeze(["fh-gems-en", "fh-munitions-en"]);
 
 /** LE MAÎTRE — l'interrupteur `Fate's Hand` de `Layers` et du Menu, celui
  *  qui allume les six d'un coup. C'est LUI que le mot nomme pour un record
@@ -113,6 +115,7 @@ export function interrupteurDeLaCouche(coucheId) {
        fh-arcana-en       fh:arcana
        fh-feats-en        fh:feat
        fh-gems-en         fh:gem · srfh:gem · (fh:shelving, srfh:shelving)
+       fh-munitions-en    fh:gear · (fh:shelving)
        fh-inheritance-en  fh:background
        fh-skills-en       fh:skill · fh:tool
        fh-soulforging-en  fh:tool (UN : soulforging) · fh:spell (UN : transfer-essence)
@@ -143,6 +146,7 @@ const COUCHE_PAR_PREFIXE = Object.freeze({
   "fh:feat": "fh-feats-en",
   "fh:gem": "fh-gems-en",
   "srfh:gem": "fh-gems-en",
+  "fh:gear": "fh-munitions-en",
   "fh:background": "fh-inheritance-en",
   "fh:skill": "fh-skills-en",
   "fh:tool": "fh-skills-en",

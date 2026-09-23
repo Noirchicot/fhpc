@@ -15,6 +15,7 @@ export const LAYER_FILES = [
   "fh-spells-en.layer.json",
   "fh-soulforging-en.layer.json",
   "fh-gems-en.layer.json",
+  "fh-munitions-en.layer.json",
   "fh-fiche-en.layer.json",
   "fh-lore-en.layer.json"
 ];

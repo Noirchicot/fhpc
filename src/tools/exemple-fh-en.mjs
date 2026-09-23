@@ -98,6 +98,9 @@ export const PILE = [
      de `fiche-360` compare les deux listes, donc une seule des deux ne peut
      pas bouger. */
   "layers/fh-gems-en.layer.json",
+  /* ⭐ LES CINQ MUNITIONS, paquets de dix — même place que dans `LAYER_FILES`
+     et `FH_LAYER_IDS` : trois listes, un seul geste. */
+  "layers/fh-munitions-en.layer.json",
   "layers/fh-fiche-en.layer.json",
   "layers/fh-lore-en.layer.json"
 ];

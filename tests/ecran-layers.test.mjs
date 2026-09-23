@@ -123,7 +123,8 @@ test("A1 — 🔴 l'union des six interrupteurs et du catalogue EST la pile Fate
      species monte d'abord et descend en dernier. Le catalogue n'a plus que les
      gemmes. ⚔️ Remettre `fh-species-en` dans `CATALOGUE_FH` rougit ici. */
   assert.deepEqual(sw("lore").couches, ["fh-species-en", "fh-fiche-en", "fh-lore-en"], "World = les espèces, la fiche, le lore (l'id `lore` est un nom de construction)");
-  assert.deepEqual([...CATALOGUE_FH], ["fh-gems-en"], "le catalogue = les gemmes, et rien d'autre");
+  assert.deepEqual([...CATALOGUE_FH], ["fh-gems-en", "fh-munitions-en"],
+    "⭐ le catalogue = les gemmes ET les munitions : ni l'une ni l'autre n'est de l'ambiance");
   assert.deepEqual(sw("lore").couches, FH_LAYER_IDS.filter((id) => sw("lore").couches.includes(id)),
     "…et l'ordre écrit est celui du manifeste : species AVANT fiche AVANT lore");
 });
@@ -172,8 +173,8 @@ test("B2 — 🔴 un sous-ensemble entier est LÉGITIME ; un interrupteur coupé
     "⛔ Lore coupé en deux reste innommable");
   assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, sw("lore").couches))).legitime, true,
     "…et Lore ENTIER éteint — les espèces comprises — est un choix");
-  assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, ["fh-gems-en"]))).legitime, true,
-    "le catalogue absent est légitime depuis le lot 188 (« entier ou absent ») — inchangé, seulement plus petit");
+  assert.equal(compositionFh(docAvec(sans(PILE_COMPLETE, [...CATALOGUE_FH]))).legitime, true,
+    "le catalogue ENTIER absent est légitime depuis le lot 188 (« entier ou absent ») — et depuis\n     le 23/09 le catalogue fait DEUX couches : la liste se lit, elle ne se recopie pas");
   /* ⚔️ Le socle absent : le SRD seul, sans `srfh` (le cas B2 bis d'universe-step). */
   assert.equal(compositionFh(docAvec([SRD_LAYER_ID])).legitime, false, "sans `srfh`, rien ne se nomme");
   assert.equal(compositionFh(docAvec([SRD_LAYER_ID])).socle, false);
