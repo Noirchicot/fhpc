@@ -11750,13 +11750,19 @@ button.tuto-point::before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  /* ⚖️ L'OMBRE EST PORTÉE PAR LA SILHOUETTE, PAS PAR LA BOÎTE — c'est tout
-     l'intérêt de `drop-shadow` sur un SVG : elle épouse la déchirure. Une
-     `box-shadow` aurait dessiné l'ombre d'un RECTANGLE sous une feuille
-     déchirée, et rien n'aurait plus dit « papier ».
-     ⛔ ET ELLE EST SOMBRE AUX TROIS PALETTES (Eric, 21/09 : *« sans halo
-     blanc »*) : seule sa densité change, par `--x1-ombre`. */
-  filter: drop-shadow(0 1px 1px var(--x1-ombre)) drop-shadow(0 6px 10px var(--x1-ombre));
+  /* ⛔ PLUS D'OMBRE PORTÉE — Eric, 2026-09-23. Elle était le dernier organe du
+     décor : deux `drop-shadow` en `--x1-ombre`, posées sur la silhouette (et
+     non sur la boîte) pour épouser la déchirure.
+     🔴 ET C'EST MOI QUI AURAIS DÛ LA PROPOSER : au lot 252 j'ai écrit noir sur
+     blanc que « c'est l'ombre portée par la silhouette qui donne l'épaisseur,
+     pas la patine » — et je l'ai laissée en place en présentant le parchemin
+     comme « nu ». ⭐ Nommer l'organe qui porte un effet et ne pas le proposer
+     au moment où l'effet est justement ce qu'on retire, c'est un rapport qui
+     décrit mieux la chose qu'il ne la livre.
+     ⚠️ `--x1-ombre` n'a donc plus aucun lecteur. Il reste déclaré aux trois
+     palettes : c'est un jeton de la famille du parchemin, ⛔ pas du code mort
+     d'une architecture morte — et Eric a déjà tranché une fois (21/09) qu'il
+     est sombre aux trois, « sans halo blanc ». Le retirer est sa décision. */
 }
 /* Les six teintes de la feuille — ⛔ toutes par jeton, aucune écrite ici ni dans
    le JavaScript : `parchemin.mjs` ne pose que ces classes. */
