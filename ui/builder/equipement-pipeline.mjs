@@ -234,10 +234,35 @@ export function poidsDeJeu(chaine, unite = "lb") {
 
    ⚠️ ET UN FILTRE SUR LA PROSE NE MARCHE PAS — mesuré : il attrape `Staff of
    Fire` et `Wand of Fear`, qui portent des tables de SORTS, pas de variantes.
-   La rareté, elle, ne se trompe pas. */
-export function estRecette(record) {
+   La rareté, elle, ne se trompe pas.
+
+   ⭐ ③ L'ÉTAGÈRE DES KITS — ERIC, 2026-09-23 : *« les kits d'aventuriers sont des
+   blueprints aussi. Activation simple mais activation nécessaire »*. Un kit ne
+   se fabrique pas : il se DÉFAIT. Mais le geste est le même du point de vue du
+   joueur — ce qu'il achète n'est pas ce qu'il obtient, il faut un acte de plus.
+   C'est la définition du blueprint, et c'est pour ça que le jeton porte la même
+   diagonale.
+   🔴 ET LE SIGNAL N'EST PAS DANS LE RECORD — MESURÉ : les sept packs du SRD ne
+   portent QUE `cost` et `weight`. Ni contenu, ni catégorie, ni marqueur. Le seul
+   endroit où « ceci est un kit » existe dans la donnée est l'ÉTAGÈRE où Eric les
+   a rangés le 21/08. ⛔ C'est donc l'étagère qu'on lit, et rien d'autre : un kit
+   ajouté demain y sera rangé et portera sa diagonale sans qu'on touche ce
+   fichier. Une liste des sept noms serait périmée au premier ajout — même leçon
+   qu'`item-value` (lot 93). */
+
+/** L'étagère qui DÉCLARE les kits, nommée à sa source plutôt qu'épinglée chez
+ *  ses lecteurs. ⛔ L'identité d'une étagère est `aisle:shelf`, jamais son
+ *  libellé — loi du tambour (test 3). */
+export const ETAGERE_DES_KITS = "adventuring:packs";
+
+/** @param record le record de l'objet.
+ *  @param etagere son `aisle:shelf`, quand l'appelant sait le dire (`cherche.etagere`).
+ *     ⚠️ L'omettre n'est pas une faute : les deux premiers signaux vivent dans le
+ *     record, et un appelant qui n'a pas le rangement sous la main les lit quand même. */
+export function estRecette(record, etagere) {
   const d = (record && record.data) || {};
   if (d.category === "weapon" || d.category === "armor") return true;
+  if (etagere === ETAGERE_DES_KITS) return true;
   const rarete = typeof d.rarity === "string" ? d.rarity : "";
   if (/varies/i.test(rarete)) return true;
   /* une énumération de raretés : « Rare (…), Very Rare (…), or Legendary (…) ».

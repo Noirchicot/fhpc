@@ -3933,6 +3933,38 @@ flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul ge
 
 ---
 
+### 🧳 LES KITS D'AVENTURIER SONT DES BLUEPRINTS — ET C'EST L'ÉTAGÈRE QUI LE DIT
+📍 `equipement-kits-sont-des-blueprints` · vivante · 23/09
+
+✅ **Eric, 2026-09-23** : *« les kits d'aventuriers sont des blueprints aussi. **Activation simple
+mais activation nécessaire** »*.
+
+⭐ **UN KIT NE SE FABRIQUE PAS : IL SE DÉFAIT.** Et c'est pourtant le même jeton, la même
+diagonale bleue, parce que du point de vue du joueur le geste est identique — **ce qu'il achète
+n'est pas ce qu'il obtient**. Il faut un acte de plus. C'est ça, un blueprint ; la direction du
+geste (composer ou décomposer) ne change rien à la marque.
+
+🔴 **ET LE SIGNAL N'EST PAS DANS LE RECORD — MESURÉ LE 23/09.** Les sept packs du SRD ne portent
+que `cost`, `name`, `weight`. **Ni contenu, ni catégorie, ni marqueur.** Rien ne distingue un
+*Explorer's Pack* d'un *Backpack* dans la donnée du record.
+
+➡️ **LE SEUL ENDROIT OÙ « CECI EST UN KIT » EXISTE EST L'ÉTAGÈRE** où Eric les a rangés le
+21/08 : `adventuring › packs`. C'est donc elle qu'on lit. ⛔ **Pas une liste des sept noms** —
+elle serait périmée au premier ajout (leçon d'`item-value`, lot 93). Un huitième kit rangé là
+portera sa diagonale sans qu'on touche une ligne de code.
+
+📌 `ETAGERE_DES_KITS` est **exporté par `equipement-pipeline.mjs`** et lu par son garde : la
+chaîne n'est écrite qu'à **un seul endroit**. C'est la parade d'ARCHI 35 contre *la liste écrite
+deux fois*, qui rougit un jour sur un fait parfaitement vrai.
+
+⚠️ **CE QUI MANQUE ENCORE, ET IL FAUT LE DIRE NET : L'ACTIVATION N'A PAS DE CONTENU À VERSER.**
+Le SRD décrit le contenu de chaque pack en prose (p. 95), mais **l'export `fh-srd` ne l'a jamais
+capturé** — vérifié dans `exports/srd/en/gear.json`. La marque est posée, l'écran sait donc
+annoncer « recipe » ; **le geste d'ouverture, lui, attend que le contenu monte en amont**. ⛔ Ce
+n'est pas une option de l'écran : tant que la donnée n'existe pas, aucun écran ne peut l'inventer.
+
+---
+
 ### ⚔️ LE RAYON S'APPELLE `armory` — IL N'Y A AUCUNE TABLE DE LIBELLÉS
 📍 `equipement-rayon-armory-la-clef-est-le-libelle` · vivante · 23/09
 

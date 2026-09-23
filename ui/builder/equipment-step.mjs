@@ -2999,6 +2999,12 @@ export function genresDuRangement(rangements) {
 function fabriquerChercheur(query) {
   const parId = new Map();
   const slotParBase = new Map();
+  /* ⭐ LOT DE L'ÉQUIPEMENT, 23/09 — LA MÊME PASSE REND UN SECOND SERVICE. Le
+     rangement porte déjà le slot d'une base ; il porte aussi son étagère, et
+     c'est le seul endroit de la donnée où « ceci est un kit d'aventurier »
+     existe (les sept packs du SRD ne portent que `cost` et `weight`).
+     ⛔ Pas une seconde boucle : la lecture est la même, on retenait la moitié. */
+  const etagereParBase = new Map();
   const tous = [];
   let rangements = [];
   try { rangements = query({ kind: GENRE_RANGEMENT }) || []; }
@@ -3015,10 +3021,16 @@ function fabriquerChercheur(query) {
     const d = (v.record && v.record.data) || {};
     const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
     if (d.extends && slot) slotParBase.set(d.extends, slot);
+    /* ⛔ `aisle:shelf`, l'identité — jamais le libellé (loi du tambour, test 3). */
+    const sh = d.shelf || {};
+    if (d.extends && typeof sh.aisle === "string" && typeof sh.shelf === "string") {
+      etagereParBase.set(d.extends, `${sh.aisle}:${sh.shelf}`);
+    }
   }
   return {
     record: (ref) => parId.get(ref && ref.id) || null,
     slot: (ref) => slotParBase.get(ref && ref.id) || null,
+    etagere: (ref) => etagereParBase.get(ref && ref.id) || null,
     tous: () => tous,
   };
 }
@@ -3046,8 +3058,11 @@ function attribuerBoites(portees, cherche) {
     /* ⚖️ LA DIAGONALE DE LA RECETTE — Eric, 2026-09-23. Le drapeau se DÉRIVE du
        record (`estRecette`, dans le pipeline), il ne se liste pas : une liste
        de noms serait périmée au premier ajout. ⛔ Et il vit sur la POSE, pas
-       dans l'écran : le sac dessine le même jeton. */
-    recette: estRecette(cherche.record(ligne.ref))
+       dans l'écran : le sac dessine le même jeton.
+       ⭐ ET L'ÉTAGÈRE EST LE TROISIÈME SIGNAL, depuis *« les kits d'aventuriers
+       sont des blueprints aussi »* : les sept packs ne portent RIEN dans leur
+       record qui les distingue, seule leur étagère le dit. */
+    recette: estRecette(cherche.record(ligne.ref), cherche.etagere(ligne.ref))
   });
   /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
      déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle
