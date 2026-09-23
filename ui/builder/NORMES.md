@@ -3605,16 +3605,35 @@ ne paraît pas. ⭐ **On n'a rien retiré d'une structure — on a cessé de la 
 
 | Armory | avant | après |
 |---|---|---|
-| `thrown-weapons` *(« Ranged Weapons »)* | 10 | **15** |
+| `thrown-weapons` *(« Ranged Weapons »)* | 10 | **21** |
+| `melee-weapons` | 28 | **22** |
 | `projectiles` | 1 | **disparue** |
 | sous-catégories | 6 | **5** |
+
+🔴 **ET C'EST LA RÉPARATION D'UN NOM QUI MENTAIT.** Eric, 23/09 : *« toutes les armes de jet, les
+munitions vont dans cette catégorie »*, puis *« idem pour FH et SRD »*. ⛔ **`thrown-weapons` ne
+contenait AUCUNE arme de jet** : ses dix records viennent de `derived:weapon.weapon_range` — arcs,
+arbalètes, fronde, sarbacane, mousquet, pistolet. Les six vraies `Thrown` du SRD — **Dagger,
+Handaxe, Javelin, Light Hammer, Spear, Trident** — dormaient chez les **mêlées**, parce qu'elles
+frappent aussi de près. Le slug mentait sur son contenu depuis le lot 90.
+
+⭐ **Le libellé « Ranged Weapons » couvre enfin les trois familles** : ce qu'on tire, ce qu'on
+lance, et les munitions qui les alimentent.
+
+⚠️ **CE PATCH MONTE DANS LES DEUX PILES**, sur le mot d'Eric — un rangement est SA classification,
+pas une règle Fate's Hand : le joueur en SRD pur voit la même étagère. Il vit donc dans
+`srfh-mecaniques-en`, *« ce qui est ambigu, ni le livre ni Fate's Hand »*.
+📌 **Conséquence de montage à connaître** : `srfh-mecaniques-en` **dépend désormais de
+`srfh-shelving-en`** — un patch dont la cible n'est pas sous lui est un échec bruyant (§L7.2).
+Une seule pile du dépôt montait l'une sans l'autre ; elle décrivait une pile qui ne peut plus
+exister.
 
 ⚠️ **LA CLEF RESTE `thrown-weapons`**, donc le tambour affiche encore *« Thrown Weapons »* :
 « Ranged Weapons » est le **libellé** tranché le 20/09, et le **slug** se migre en amont dans
 `fh-srd`. ⛔ L'identité est la clef, jamais le libellé — et un garde tient ce décalage pour qu'il
 ne se perde pas.
 
-📏 **15 objets = 2 pages**, à 12 comme à 15 par page : les chevrons reviennent sur cette étagère.
+📏 **21 objets = 2 pages**, à 12 comme à 15 par page : les chevrons reviennent sur cette étagère.
 
 📌 **UNE COUCHE NEUVE, `fh-munitions-en`**, et elle est du **catalogue** — comme les gemmes : une
 flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul geste** (`LAYER_FILES`,

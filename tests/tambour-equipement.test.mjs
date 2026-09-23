@@ -424,7 +424,7 @@ test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 33 objets, donc 3 
   assert.equal(derniere.objets.length, 3, "33 − 2 × 15 = 3 — une dernière page PARTIELLE, et c'est le cas normal");
 });
 
-test("7 — ⭐ LA FUSION EST APPLIQUÉE : `projectiles` a DISPARU, Ranged Weapons porte ses 15", () => {
+test("7 — ⭐ RANGED WEAPONS EST ENFIN CE QUE SON NOM DIT : 21 objets, et `projectiles` a disparu", () => {
   /* 🔴 CE TEST A CHANGÉ DEUX FOIS EN UN JOUR, ET CHAQUE FOIS SUR UN MOT D'ERIC.
      Il disait d'abord « `projectiles` ne porte QU'UN objet » — un témoin réel du
      cas dégénéré. Puis les cinq munitions l'ont peuplée. Puis Eric, le 23/09 :
@@ -443,7 +443,15 @@ test("7 — ⭐ LA FUSION EST APPLIQUÉE : `projectiles` a DISPARU, Ranged Weapo
   assert.equal(armory.etageres.find((e) => e.id === "battlefield:projectiles"), undefined,
     "⛔ `projectiles` est VIDE, donc absente du tambour — la fusion d'Eric, appliquée");
   const ranged = armory.etageres.find((e) => e.id === "battlefield:thrown-weapons");
-  assert.equal(ranged.objets.length, 15, "10 armes à distance + les 5 munitions");
+  assert.equal(ranged.objets.length, 21,
+    "⭐ 10 armes à distance + 6 armes de JET + 5 munitions — Eric, 23/09 : « toutes les armes de " +
+    "jet, les munitions vont dans cette catégorie ».\n" +
+    "   🔴 ET C'EST LA RÉPARATION D'UN NOM QUI MENTAIT : `thrown-weapons` ne contenait AUCUNE arme " +
+    "de jet. Ses dix records venaient de `derived:weapon.weapon_range` — arcs, arbalètes, fronde, " +
+    "sarbacane, mousquet, pistolet. Les six vraies `Thrown` (Dagger, Handaxe, Javelin, Light " +
+    "Hammer, Spear, Trident) dormaient chez les mêlées, parce qu'elles frappent aussi de près.");
+  const melee = armory.etageres.find((e) => e.id === "battlefield:melee-weapons");
+  assert.equal(melee.objets.length, 22, "28 − les 6 armes de jet qui ont déménagé");
   assert.equal(ranged.label, "Thrown Weapons",
     "⏳ le LIBELLÉ affiché reste celui du slug tant que la migration n'a pas eu lieu en amont : " +
     "« Ranged Weapons » est tranché, il n'est pas encore dans la donnée");
