@@ -152,15 +152,32 @@ test("7 — ⚔️ LA DIAGONALE EXISTE DANS LA FEUILLE, et elle va bien en BAS �
      grille du tambour a payé le 23/08 (« quinze cases VIDES »). */
   const regle = /\.jeton-recette\s*\{([^}]*)\}/.exec(CSS);
   assert.ok(regle, "`.jeton-recette` porte une règle");
-  const corps = regle[1];
+  /* 🔴 LES COMMENTAIRES SORTENT AVANT TOUTE ASSERTION, ET C'EST UNE FAUTE PAYÉE
+     DANS CE TEST MÊME. Le `doesNotMatch(/border-radius: inherit/)` d'en dessous a
+     rougi sur la PHRASE DU COMMENTAIRE qui explique pourquoi on ne l'écrit plus —
+     la règle était juste, le garde accusait la prose qui la défend.
+     ⭐ C'est la leçon du dépôt, reprise ici : compter un mot compte aussi la phrase
+     qui le nie. Un garde de feuille mesure des DÉCLARATIONS, ⛔ jamais du texte. */
+  const corps = regle[1].replace(/\/\*[\s\S]*?\*\//g, " ");
   assert.match(corps, /linear-gradient\(\s*to bottom right\s*,\s*transparent 50%\s*,\s*var\(--jeton-recette\) 50%\s*\)/,
     "⭐ MOITIÉ INFÉRIEURE DROITE, de bas en haut — le croquis d'Eric, et la coupure est NETTE (50 % / 50 %)");
   assert.match(corps, /position:\s*absolute/);
-  assert.match(corps, /inset:\s*0/, "il couvre la tuile entière, c'est le dégradé qui découpe");
+  /* ⚖️ AMENDÉ LE 23/09 AU SOIR, DEVANT LE RENDU — Eric : *« la diagonale s'arrête
+     sous la bande supérieure pour la laisser vide »*. L'assertion d'avant disait
+     `inset: 0` (« il couvre la tuile entière ») : elle était juste jusqu'à cette
+     phrase, et c'est elle qui a rougi au changement. ⭐ Elle n'est pas SUPPRIMÉE,
+     elle est REMPLACÉE par la cote qui la contredit — un garde retiré aurait
+     laissé la géométrie sans témoin. */
+  assert.match(corps, /inset:\s*var\(--jeton-bande\) 0 0 0/,
+    "⭐ ELLE S'ARRÊTE SOUS LA BANDE, et par le jeton qui NOMME la bande — ⛔ jamais un 14 nu");
   assert.match(corps, /pointer-events:\s*none/,
     "⛔ un fond ne prend pas le clic : la tuile dessous reste le bouton");
-  assert.match(corps, /border-radius:\s*inherit/,
-    "⛔ sinon la diagonale déborde des coins arrondis de la tuile");
+  assert.match(corps, /border-end-start-radius:\s*inherit/);
+  assert.match(corps, /border-end-end-radius:\s*inherit/,
+    "⛔ les deux coins DU BAS suivent la tuile, sinon la diagonale déborde de l'arrondi");
+  assert.doesNotMatch(corps, /border-radius:\s*inherit/,
+    "🔴 ET SURTOUT PAS LES QUATRE : descendue sous la bande, ses coins hauts tombent au MILIEU "
+    + "du jeton — un rayon là creuse une encoche dans le bleu, contre le bord droit, où elle se voit.");
 });
 
 test("8 — 🎨 LA COULEUR EST UN JETON, aux DEUX thèmes — jamais un hex dans la feuille", () => {
@@ -171,4 +188,62 @@ test("8 — 🎨 LA COULEUR EST UN JETON, aux DEUX thèmes — jamais un hex dan
     + "une couleur qui n'a pas été mesurée sur son fond.");
   for (const v of valeurs) assert.match(v, /^#[0-9a-f]{6}$/i, `« ${v} » — une couleur, chez les jetons`);
   assert.notEqual(valeurs[0], valeurs[1], "⚔️ et les deux thèmes ne portent pas la MÊME valeur");
+});
+
+/* ══ ⑤ LES TROIS POSES — LE TROU QUE CE FICHIER N'AVAIT PAS VU ════════════════
+   🔴 CE QUI S'EST PASSÉ, ET POURQUOI LES HUIT GARDES D'AU-DESSUS ÉTAIENT VERTS.
+   Le 23/09, la diagonale a été posée avec un commentaire qui disait, dans
+   l'organe : *« R et le sac portent le MÊME jeton »*. ⛔ Ils sont TROIS. `grep -l
+   corpsDuJeton ui/builder/*.mjs` rend `gear-ecran`, `sac-ecran` ET `wares-ecran`,
+   et c'est le troisième — le CATALOGUE, le seul écran où Eric a demandé la
+   diagonale en premier — qui ne recevait pas le drapeau. Sa pose portait `ref` et
+   `nom`, rien d'autre. Résultat mesuré en ligne : `.jeton-recette` = **0** sur sept
+   packs affichés, pendant que le prédicat, le nœud et la feuille étaient justes.
+   ⭐ AUCUN DES HUIT NE POUVAIT LE DIRE : ils éprouvent le prédicat, l'organe et la
+   feuille — ⛔ jamais l'APPELANT. Un organe correct qu'on n'appelle pas correctement
+   ne laisse aucune trace. C'est la forme de panne que ce dépôt appelle « une
+   écriture qui échoue en silence ».
+
+   ⚠️ ET CE GARDE-CI EST FAIBLE, JE L'ÉCRIS PLUTÔT QUE DE LE LAISSER CROIRE FORT.
+   Il lit une SOURCE, pas un rendu. La pose de Wares se fabrique au milieu d'une
+   closure de rendu que rien n'exporte, donc je ne peux pas l'appeler pour de vrai
+   sans monter tout l'écran. ⛔ Un garde de forme ne prouve pas que la diagonale se
+   peint ; il prouve seulement que l'appelant a le geste. ⭐ Il aurait rougi
+   aujourd'hui, et c'est la seule raison de l'écrire. Le jour où la fabrique des
+   plaques devient importable, il se remplace par une pose lue pour de bon. */
+test("9 — ⚔️ LA POSE DU CATALOGUE PORTE LE DRAPEAU (garde de source, faible et déclaré tel)", () => {
+  const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8");
+  /* Les plaques de Wares : l'objet posé par `objets:` dans `plaques.map`. */
+  const pose = /objets:\s*page\.objets\.map\(\(item\)\s*=>\s*\(\{([\s\S]{0,400}?)\}\)\)/.exec(src);
+  assert.ok(pose, "⛔ la fabrique des plaques de Wares a changé de forme — relire, ne pas assouplir");
+  assert.match(pose[1], /recette:\s*estRecette\(/,
+    "🔴 la pose du CATALOGUE dérive `recette` — sans ça, sept kits sans diagonale et zéro rouge");
+  assert.match(pose[1], /estRecette\(item\.view\.record\s*,/,
+    "⚠️ AVEC LE RECORD, PAS LA VUE — `item.view` n'a pas de `.data` (mesuré : `recordLabel` lit "
+    + "`view.record.name`). Passer la vue rendrait `{}` : les kits passeraient par leur étagère, "
+    + "⛔ les armes et armures NON, et rien ne le dirait.");
+});
+
+/* ══ ⑥ LE CHEMIN DE L'ÉTAGÈRE, SUR LA VRAIE PILE ══════════════════════════════
+   ⭐ CELUI-CI EST PAR LA DONNÉE, et il tient l'argument exact que la pose du
+   catalogue passe à `estRecette` : `e.id`, tel que `lireRangement` le fabrique.
+   ⛔ Le test ② d'au-dessus monte la pile pour compter les kits, mais il interroge
+   `ETAGERE_DES_KITS` en tant que CONSTANTE — il resterait vert si `lireRangement`
+   changeait le format de ses identifiants, et la diagonale du catalogue tomberait
+   sans un mot. Ici c'est l'inverse qui est éprouvé : la clef que l'ÉCRAN a sous la
+   main ouvre-t-elle vraiment la porte du prédicat ? */
+test("10 — ⚔️ `e.id` de `lireRangement` EST la clef qu'attend le prédicat", async () => {
+  const { lireRangement } = await import("../ui/builder/equipment-step.mjs");
+  const { rayons } = lireRangement(query);
+  const etageres = rayons.flatMap((r) => r.etageres);
+  const kits = etageres.find((e) => e.id === ETAGERE_DES_KITS);
+  assert.ok(kits,
+    `⛔ aucune étagère n'a l'id « ${ETAGERE_DES_KITS} » — soit le rangement a bougé, soit le format `
+    + `de \`e.id\` a changé. Dans les deux cas la diagonale du catalogue est morte. Ids vus : `
+    + etageres.map((e) => e.id).join(", "));
+  assert.ok(kits.objets.length > 0, "l'étagère des kits n'est pas vide");
+  for (const o of kits.objets) {
+    assert.equal(estRecette(o.view.record, kits.id), true,
+      `⛔ « ${o.view.id} » est rangé chez les kits et le prédicat ne le voit pas`);
+  }
 });

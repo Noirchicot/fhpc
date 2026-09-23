@@ -3823,7 +3823,28 @@ export function renderEquipmentStep(ctx, onAction) {
         return {
           nom: e.label,
           /* ⛔ AUCUN PRIX SUR LE JETON — la loi du 20/09. */
-          objets: page.objets.map((item) => ({ ref: item.view.id, nom: recordLabel(item.view) || item.view.id })),
+          /* ⚖️ LA DIAGONALE DE LA RECETTE, SUR LE CATALOGUE AUSSI — et c'est une faute
+             réparée, pas une fonction neuve. Le lot qui l'a posée a écrit, dans l'organe
+             lui-même : *« R et le sac portent le MÊME jeton »*. ⛔ Ils sont TROIS —
+             `gear-ecran`, `sac-ecran` et `wares-ecran` appellent tous `corpsDuJeton` — et
+             seul le troisième ne recevait pas le drapeau. Le jeton savait le dessiner, sa
+             règle CSS existait, `estRecette` était juste : la diagonale ne manquait QUE
+             dans la pose, et aucun garde ne pouvait le dire.
+             🔴 C'est la leçon du dépôt prise en flagrant délit : une liste PAR NOM est
+             incomplète par construction, et celle-ci était écrite dans le commentaire qui
+             justifiait de ne pas se répéter.
+             ⚠️ `item.view` EST UNE VUE, PAS UN RECORD — mesuré : `recordLabel` lit
+             `view.record.name`. Passer `item.view` rendrait `{}` à `estRecette`, qui ne
+             verrait plus ni `category` ni `rarity` : les kits marcheraient par leur
+             étagère, les armes et armures ⛔ PAS, et rien ne l'aurait signalé.
+             ⭐ ET L'ÉTAGÈRE EST DÉJÀ SOUS LA MAIN : `e.id` vaut `aisle:shelf` depuis
+             `lireRangement` — le format exact qu'attend `ETAGERE_DES_KITS`. ⛔ Pas de
+             détour par `cherche.etagere`, qui redemanderait ce que la plaque sait. */
+          objets: page.objets.map((item) => ({
+            ref: item.view.id,
+            nom: recordLabel(item.view) || item.view.id,
+            recette: estRecette(item.view.record, e.id),
+          })),
           compte: e.objets.length,
           pages: page.pages,
         };

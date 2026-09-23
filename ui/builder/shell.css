@@ -9666,7 +9666,21 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    ⭐ Il est posé AVANT le nom dans le DOM (`jeton-objet.mjs`) : l'ordre suffit,
    et il évite un `z-index` qu'il aurait fallu accorder avec les marques. */
 .jeton-recette {
-  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  /* ⚖️ ELLE S'ARRÊTE SOUS LA BANDE — Eric, 2026-09-23, devant le rendu : *« la
+     diagonale s'arrête sous la bande supérieure pour la laisser vide »*, et
+     *« l'autre moitié c'est la couleur habituelle du jeton »*.
+     ⭐ LA COTE N'EST PAS NEUVE : `--jeton-bande` est déjà la ligne où le nom
+     commence, et deux des trois hôtes la posent DÉJÀ en `padding-top`. La
+     diagonale se cale donc sur la bande existante — ⛔ aucun nombre inventé.
+     🔴 ET LES DEUX COINS DU HAUT PERDENT LEUR RAYON, ce qui n'est pas un détail :
+     `border-radius: inherit` arrondissait les quatre coins de la boîte. Déplacée
+     sous la bande, ses coins hauts tombent au MILIEU du jeton — un rayon là
+     creuserait une encoche dans le bleu, au bord droit, où il se voit. Seuls les
+     deux coins du bas héritent, et ils héritent VRAIMENT : `--organe-rayon` (16)
+     chez Wares et le sac, `--radius-sm` (4) sur l'écran R. ⛔ Une valeur en dur
+     aurait été fausse pour l'un des trois. */
+  position: absolute; inset: var(--jeton-bande) 0 0 0; pointer-events: none;
+  border-end-start-radius: inherit; border-end-end-radius: inherit;
   background-image: linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%);
 }
 .jeton-marques { position: absolute; inset: 0; pointer-events: none; }

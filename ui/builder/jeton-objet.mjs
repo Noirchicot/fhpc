@@ -49,9 +49,17 @@ export function corpsDuJeton(pose) {
      ⛔ CE N'EST PAS UNE CINQUIÈME MARQUE : les quatre marques vivent dans la
      bande haute de 12 (`jeton-quatre-marques-de-la-bande`), et ce fond n'y
      entre pas. Il ne déplace pas le nom et ne prend aucune des quatre places.
-     ⭐ ET IL EST DESSINÉ ICI, dans l'organe, pas dans les deux écrans qui
-     l'appellent : R et le sac portent le MÊME jeton, et deux copies
-     divergeraient à la première marque ajoutée (doctrine du lot 214).
+     ⭐ ET IL EST DESSINÉ ICI, dans l'organe, pas dans les écrans qui l'appellent :
+     ils portent le MÊME jeton, et deux copies divergeraient à la première marque
+     ajoutée (doctrine du lot 214).
+     🔴 ILS SONT TROIS, ET CE COMMENTAIRE EN DISAIT DEUX — « R et le sac ». Wares
+     appelle `corpsDuJeton` comme eux (`wares-ecran.mjs`), et c'est justement lui
+     qui ne posait pas `recette` : les kits du catalogue n'ont porté aucune
+     diagonale entre le lot qui l'a créée et le lot 256, sans qu'aucun garde
+     rougisse. ⛔ UNE LISTE PAR NOM EST INCOMPLÈTE PAR CONSTRUCTION — et celle-ci
+     vivait dans la phrase qui expliquait de ne pas se répéter. La liste qui fait
+     foi est `grep -l corpsDuJeton ui/builder/*.mjs`, pas celle-ci ; si tu ajoutes
+     un quatrième écran, c'est LUI qui doit apprendre la pose.
      ⛔ MUET AU LECTEUR D'ÉCRAN : `motDuJeton` dit déjà « recipe » en toutes
      lettres — une couleur que rien ne prononce est une information réservée
      aux voyants. */
