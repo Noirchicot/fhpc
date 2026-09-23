@@ -3544,13 +3544,29 @@ l'autre — même loi que le plancher, un cran plus haut. Le prix n'a pas été 
 portent pas de `shelf` et n'apparaissent donc sur aucune étagère de l'écran d'équipement. C'est un
 trou séparé, et il n'est pas tranché.
 
-🔴 **LES TROIS JEUX NE SONT PAS « VARIES », ET LEUR VRAIE VALEUR NE PEUT PAS ENTRER ICI.**
-`gen-fh-skills-layer.mjs` écrit `cost = "Varies"` et `weight = "Varies"` sur tout outil qui `inherits`
-— or les livres chiffrent **chaque jeu séparément**, prix et poids compris. ⛔ **Ces valeurs sont du
-contenu WotC hors SRD** : la loi §0.8 leur interdit le dépôt public. Elles doivent passer par le
-chemin déjà prévu pour les livres du joueur — générateur versionné, données sur le disque, ignorées
-par git (`gen-livre-layer.mjs`, *« aucune ligne du livre ne traverse un commit »*). ⛔ Ne pas les
-écrire dans `fh-skills-source.mjs`.
+🔴 **LES TROIS JEUX PÈSENT, ET LEUR POIDS EST UNE DÉCISION D'ERIC — PAS UNE TABLE RECOPIÉE.**
+`gen-fh-skills-layer.mjs` posait `cost` et `weight` = `"Varies"` sur tout outil qui `inherits`. Or
+`"Varies"` vaut désormais **0** : trois jeux à 0 dans un sac, c'est un sac qui ment.
+
+| jeu | poids | pourquoi ce nombre |
+|---|---|---|
+| **Card Set** | `1 lb.` | un paquet de cartes |
+| **Three-Dragon Ante** | `1 lb.` | ⭐ **jeu de CARTES** — le nom ne dit pas la matière, le jeu si |
+| **Dragonchess Set** | `2 lb.` | ⭐ **plateau et pièces** : ça pèse plus qu'un paquet |
+
+⛔ **DEUX SOURCES ONT ÉTÉ MESURÉES, ET LA LOI §0.8 LES REFUSE TOUTES DEUX.** Les livres du joueur
+chiffrent chaque jeu *(contenu WotC hors SRD)* ; le **Pathfinder Reference Document** aussi
+*(`Cards 1 lb.` · `Board game 2 lbs.`)* — mais il est publié sous **OGL 1.0a**, et §0.8 dit *« ni
+tiers **non-CC** »*. ⭐ **La seconde source n'était pas plus admissible que la première : elle
+changeait seulement le nom de la licence qui la refuse.**
+
+✅ **CE QUI EST ÉCRIT DANS LA COUCHE EST DONC UN NOMBRE D'ERIC**, porté par sa `weight_provenance`,
+exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
+servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
+
+⏳ **ET LE PRIX RESTE `"Varies"` POUR LES TROIS.** Les deux sources donnent une **fourchette**
+*(1 sp–100 gp)*, jamais un prix. ⛔ Une fourchette n'est pas une valeur : il n'y a rien à écrire
+tant qu'Eric ne tranche pas.
 
 ---
 

@@ -346,12 +346,41 @@ export const TOOLS_REWRITTEN = [
    là où ses trois voisins le gardent. Ce « Set » de trop venait d'ici : le
    générateur l'avait ajouté aux quatre par régularité, et la régularité n'est
    pas une source. */
+/* ⚖️ LE POIDS DES TROIS JEUX — ERIC, 2026-09-23, ET IL A FALLU DEUX DÉTOURS.
+   Un outil qui `inherits` reçoit `cost` et `weight` = « Varies » (plus bas dans
+   le générateur). Or « Varies » vaut désormais 0 (`equipement-poids-plancher-et-zero`),
+   et trois jeux qui pèsent 0 dans un sac, c'est un sac qui ment.
+
+   ⛔ DEUX SOURCES ONT ÉTÉ MESURÉES ET TOUTES DEUX REFUSÉES PAR LA LOI §0.8 :
+   les livres du joueur chiffrent chaque jeu (contenu WotC hors SRD), et le
+   Pathfinder Reference Document aussi (`Cards 1 lb.` · `Board game 2 lbs.`) —
+   mais il est publié sous **OGL 1.0a**, et §0.8 dit « ni tiers NON-CC ». La
+   seconde source n'était pas plus admissible que la première : elle changeait
+   seulement le nom de la licence qui la refuse.
+
+   ⭐ CE QUI EST ÉCRIT ICI EST DONC UNE DÉCISION D'ERIC, exactement comme les
+   poids des 54 gemmes (`weight_provenance: "Eric, 2026-09-08"`) : un nombre
+   qu'il pose, porté par sa provenance, et qui ne recopie aucune table. Les
+   références ouvertes ont servi à CHOISIR le nombre, pas à le fournir.
+   📌 Et le PRIX reste « Varies » : les deux sources donnent une FOURCHETTE
+   (1 sp–100 gp), jamais un prix — il n'y a rien à trancher tant qu'Eric ne le
+   tranche pas, et une fourchette n'est pas une valeur. */
+const POIDS_DES_JEUX = "eric:2026-09-23 — un jeu de table se porte, donc il pèse. " +
+  "⛔ Ni le livre du joueur ni le Pathfinder Reference Document ne peuvent fournir ce " +
+  "nombre (loi §0.8 : aucun contenu WotC ni tiers non-CC hors SRD) : c'est une décision " +
+  "Fate's Hand, du même genre que les poids des 54 gemmes. Le prix, lui, reste « Varies ».";
+
 export const TOOLS_ADDED = [
   /* ⛔ `gaming-set-dice` MANQUE ICI DÉLIBÉRÉMENT : c'est `srd:tool:en:gaming-set`
      réécrit (`TOOLS_REWRITTEN`). Le rajouter recréerait le doublon. */
-  { slug: "gaming-set-cards", name: "Card Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
-  { slug: "gaming-set-dragonchess", name: "Dragonchess Set", ability: "wis", inherits: "srd:tool:en:gaming-set" },
-  { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante", ability: "wis", inherits: "srd:tool:en:gaming-set" },
+  { slug: "gaming-set-cards", name: "Card Set", ability: "wis", inherits: "srd:tool:en:gaming-set",
+    weight: "1 lb.", weight_provenance: POIDS_DES_JEUX },
+  { slug: "gaming-set-dragonchess", name: "Dragonchess Set", ability: "wis", inherits: "srd:tool:en:gaming-set",
+    weight: "2 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ Deux livres et non une : un jeu " +
+      "à PLATEAU et à pièces pèse plus qu'un paquet de cartes." },
+  { slug: "gaming-set-three-dragon", name: "Three-Dragon Ante", ability: "wis", inherits: "srd:tool:en:gaming-set",
+    weight: "1 lb.", weight_provenance: POIDS_DES_JEUX + " ⭐ C'est un jeu de CARTES, donc le " +
+      "poids du Card Set — le nom ne dit pas la matière, le jeu si." },
 
   /* ⛔ Et `instrument-strings` non plus : c'est `srd:tool:en:musical-instrument`
      réécrit. */

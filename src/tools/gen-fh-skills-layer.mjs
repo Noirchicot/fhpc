@@ -444,7 +444,14 @@ function buildTools(srd) {
       }
       data.utilize = utilize;
       data.cost = "Varies";
-      data.weight = "Varies";
+      /* ⭐ LE POIDS PEUT ÊTRE TRANCHÉ À L'ENTRÉE, LE PRIX NON. Un outil hérité
+         prend « Varies » par défaut — mais depuis le 23/09 les trois jeux
+         portent un poids décidé par Eric, et « Varies » vaut 0 : les laisser
+         là ferait peser un sac de jeux exactement rien. ⛔ Le prix reste
+         « Varies » pour tous : les sources ouvertes donnent une fourchette,
+         et une fourchette n'est pas une valeur. */
+      data.weight = typeof entry.weight === "string" ? entry.weight : "Varies";
+      if (typeof entry.weight_provenance === "string") data.weight_provenance = entry.weight_provenance;
     }
 
     tool[id] = { name: entry.name, slug: entry.slug, data };
