@@ -11765,11 +11765,6 @@ button.tuto-point::before {
    déclaration aurait été un second écrivain pour un organe unique — et deux feuilles
    qui divergent d'une teinte, personne ne le voit avant qu'Eric le voie. */
 :is(.x1, .x2, .aiguilleur-carte) .parchemin-fond { fill: var(--x1-papier); }
-:is(.x1, .x2, .aiguilleur-carte) .parchemin-patine { fill: var(--x1-tranche); }
-:is(.x1, .x2, .aiguilleur-carte) .parchemin-grain { fill: var(--x1-grain); }
-:is(.x1, .x2, .aiguilleur-carte) .parchemin-fibres,
-:is(.x1, .x2, .aiguilleur-carte) .parchemin-pli { fill: none; stroke: var(--x1-tranche); }
-:is(.x1, .x2, .aiguilleur-carte) .parchemin-fil { fill: none; stroke: var(--x1-tranche-douce); }
 /* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
    soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
    ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT

@@ -1,6 +1,8 @@
 /* ══ LE PARCHEMIN — LA SILHOUETTE D'UNE FEUILLE, DESSINÉE À SA COTE ═══════════
-   Lot 219. L'organe qui donne à une surface un bord de parchemin : un contour
-   irrégulier, une patine sur la tranche, quelques fibres, et rien d'autre.
+   Lot 219, mis à nu au lot 252. L'organe qui donne à une surface un bord de
+   parchemin : ⭐ un contour irrégulier, et STRICTEMENT rien d'autre.
+   ⚖️ Eric, 2026-09-23 : *« je peux juste avoir le fond et c'est tout ? »* — la
+   patine, le grain, les fibres, les plis et le fil du bord sont partis.
 
    ⚖️ CE QU'IL REMPLACE, ET POURQUOI — Eric, 2026-09-21 : *« aucune image
    matricielle de parchemin ne doit être nécessaire »*, *« le panneau doit
@@ -60,6 +62,13 @@ const SVG = "http://www.w3.org/2000/svg";
  *  large. C'est ce rapport qui évite la dent de scie — ⛔ pas un réglage de
  *  goût, la raison même pour laquelle les deux termes existent séparément. */
 export const MODELE_B = Object.freeze({
+  /* ⚠️ `fibre`, `accroc` et `patine` NE PILOTENT PLUS RIEN depuis le lot 252 :
+     les couches qu'elles réglaient ont été retirées. ⛔ Elles restent quand même,
+     et ce n'est pas de la négligence — le MODÈLE B est un artefact RATIFIÉ
+     (« Feuillet de grimoire, aux nombres du prototype »), gardé nombre par
+     nombre, avec une invariante entre `accroc` et `fibre`. Effacer les chiffres
+     d'une spec pour faire propre n'est pas une simplification, c'est une perte.
+     ⏳ Les retirer est une question qui appartient à Eric, pas au ménage. */
   graine: 43, houle: 2.5, fibre: .9, accroc: 1.1, patine: 1, coins: [9, 5, 12, 7]
 });
 
@@ -184,8 +193,10 @@ export function bornerLEchelle(l, h, budget, v = MODELE_B) {
 }
 
 /** Les points du bord, dans l'ordre du tracé. Chaque point porte sa normale
- *  rentrante (`nx`, `ny`), dont la patine et les fibres se servent pour creuser
- *  vers l'intérieur sans avoir à redécouvrir de quel côté elles sont. */
+ *  rentrante (`nx`, `ny`). ⚠️ ELLE N'A PLUS DE LECTEUR depuis le lot 252 — la
+ *  patine et les fibres s'en servaient pour creuser vers l'intérieur. Elle reste
+ *  parce que `bord` la calcule en même temps que le point, pour rien ; ⛔ la
+ *  retirer toucherait à la génération du contour, qui, elle, est juste. */
 function bord(l, h, budget, v) {
   const { k, m } = bornerLEchelle(l, h, budget, v);
   const [hg, hd, bd, bg] = v.coins.map((c) => c * k);
@@ -257,48 +268,16 @@ function trace(points) {
 /** LA GÉOMÉTRIE COMPLÈTE d'une feuille de `l` × `h` blg.
  *  @param {number} l largeur en blg · @param {number} h hauteur en blg
  *  @param {number} budget la profondeur MAXIMALE que le bord a le droit de mordre
- *  @returns {{d: string, tranche: string, lisiere: string, fibres: string, plis: string}}
+ *  @returns {{d: string}} le contour, ⛔ plus rien d'autre depuis le 23/09
  */
 export function geometrieDuParchemin(l, h, budget, v = MODELE_B) {
-  const { points, k } = bord(l, h, budget, v);
-  /* La patine se creuse en décalant chaque point le long de sa normale, d'une
-     profondeur qui ONDULE. ⛔ Une profondeur constante ferait une seconde
-     bordure nette — exactement ce que la spec refuse. C'est l'ondulation qui la
-     rend « douce et discontinue ». */
-  const creuse = (profondeur) => trace(points.map((p, i) => {
-    const w = profondeur * (.85 + bruit(i / 27, v.graine + 13) * .55 + bruit(i / 7, v.graine + 12) * .22);
-    return { x: p.x + p.nx * w, y: p.y + p.ny * w };
-  }));
-  let fibres = "", plis = "";
-  /* ⭐ UNE FIBRE SUR SEPT POINTS, ET SEULEMENT SUR LES ARÊTES : les points des
-     coins (`arete < 0`) n'en portent pas — une barbe sur un coin coupé en biais
-     se lit comme un défaut de tracé, pas comme du papier. */
-  for (let i = 3; i < points.length; i += 7) {
-    const p = points[i], r = hache(i, v.graine + 8);
-    if (p.arete < 0 || r < .3) continue;
-    const portee = (.5 + r * 2.8 * v.fibre) * k;
-    const tang = (hache(i, v.graine + 81) - .5) * 2.4 * k;
-    fibres += `M${n2(p.x + p.nx * .2)} ${n2(p.y + p.ny * .2)}`
-            + `q${n2(p.nx * portee * .6 + p.ny * tang)} ${n2(p.ny * portee * .6 - p.nx * tang)}`
-            + ` ${n2(p.nx * portee + p.ny * tang * .5)} ${n2(p.ny * portee - p.nx * tang * .5)}`;
-  }
-  /* Deux plis, sur les deux arêtes verticales — le modèle B en porte, le modèle A
-     non. Ils partent du bord vers l'intérieur : c'est la marque d'une feuille
-     qu'on a pliée, pas d'un bord qui s'effiloche. */
-  for (const [index, j] of [[1, 0], [3, 1]]) {
-    const surLArete = points.filter((p) => p.arete === index);
-    if (!surLArete.length) continue;
-    const p = surLArete[Math.round((.18 + hache(index, v.graine) * .14) * (surLArete.length - 1))];
-    const portee = 4.2 * v.accroc * k;
-    plis += `M${n2(p.x)} ${n2(p.y)}q${n2(p.nx * portee * .8)} ${n2((1.1 + j) * k)}`
-          + ` ${n2(p.nx * portee)} ${n2((3 + j * 2) * k)}`;
-  }
-  return {
-    d: trace(points),
-    tranche: creuse(6.5 * v.patine * k),   /* la nappe large et floue */
-    lisiere: creuse(2.5 * v.patine * k),   /* le liseré serré, presque effacé */
-    fibres, plis
-  };
+  const { points } = bord(l, h, budget, v);
+  /* ⛔ IL N'Y A PLUS QU'UNE CHOSE À RENDRE. `creuse`, les fibres et les deux plis
+     sont partis avec les couches qu'ils nourrissaient : les garder aurait laissé
+     trois générateurs dont personne ne lit le résultat — et un orphelin qui
+     survit à l'architecture qui le justifiait finit par être recopié par
+     quelqu'un qui le croit vivant. */
+  return { d: trace(points) };
 }
 
 /* ══ LE DESSIN ════════════════════════════════════════════════════════════ */
@@ -312,32 +291,6 @@ function forme(nom, classe, attrs) {
   return n;
 }
 
-/** Le grain : 90 taches minuscules dans une tuile de 128 blg, répétée en
- *  `userSpaceOnUse`. ⭐ C'EST LA TUILE QUI GARANTIT LE « FOND ASSEZ UNI »
- *  qu'Eric demande : elle ne s'étire jamais, donc le grain a la même finesse sur
- *  un panneau court et sur un panneau long. */
-function tuileDeGrain(id) {
-  const p = forme("pattern", null, { id, width: 128, height: 128, patternUnits: "userSpaceOnUse" });
-  const g = forme("g", "parchemin-grain");
-  for (let i = 0; i < 90; i++) {
-    g.append(forme("ellipse", null, {
-      cx: n2(hache(i, 11) * 128), cy: n2(hache(i, 18) * 128),
-      rx: n2(.2 + hache(i, 72) * .3), ry: .22
-    }));
-  }
-  p.append(g);
-  return p;
-}
-
-function flou(id, ecartType) {
-  /* ⚠️ LA RÉGION DU FILTRE EST DÉCLARÉE, ET C'EST POUR SAFARI : sans `x/y/width/
-     height`, WebKit rogne le flou à la boîte de l'objet et la patine s'arrête net
-     sur une ligne droite — l'inverse exact de ce qu'on lui demande. */
-  const f = forme("filter", null, { id, x: "-12%", y: "-12%", width: "124%", height: "124%" });
-  f.append(forme("feGaussianBlur", null, { stdDeviation: ecartType }));
-  return f;
-}
-
 /** PEINT LA FEUILLE dans un `<svg>` déjà posé.
  *  ⛔ Ce SVG est DÉCORATIF : `aria-hidden`, et il n'intercepte aucun événement
  *  (`pointer-events: none`, dans la feuille). Le contenu reste au-dessus et
@@ -348,39 +301,18 @@ export function peindreLeParchemin(svg, l, h, budget) {
   const g = geometrieDuParchemin(l, h, budget);
   const racine = forme("g", "parchemin-dessin");
 
-  const defs = forme("defs");
-  const coupe = forme("clipPath", null, { id: `${id}-coupe` });
-  /* ⛔ LE CHEMIN EST RECOPIÉ, ⛔ PAS RÉFÉRENCÉ PAR `<use href>` : le prototype
-     partage une `<path id>` entre le fond, la coupe et le fil. Safari a une
-     histoire longue avec `use` dans un `clipPath`, et le coût d'une chaîne
-     répétée trois fois est nul devant celui d'un moteur qui rend une page vide. */
-  coupe.append(forme("path", null, { d: g.d }));
-  defs.append(coupe, flou(`${id}-flou`, 3.8), flou(`${id}-flou-fin`, 1.3), tuileDeGrain(`${id}-grain`));
-  racine.append(defs);
-
+  /* ⚖️ LE PARCHEMIN EST NU — Eric, 2026-09-23 : *« je peux juste avoir le fond
+     et c'est tout ? »*, puis, entre les trois degrés proposés, **« 2 »** : le
+     fond et sa déchirure, ⛔ rien d'autre.
+     🔴 CE QUI A DISPARU N'ÉTAIT PAS DU DÉCOR GRATUIT : deux nappes de patine
+     (l'anneau large à .20, le liseré serré à .07), la tuile de grain, les
+     fibres, les deux plis et le fil du bord. Elles donnaient au bord son
+     ÉPAISSEUR — sans elles, la déchirure devient une arête nette entre le
+     papier et le décor. C'était la réserve posée avant qu'Eric tranche.
+     ⭐ ET UN SEUL ORGANE CHANGE POUR TROIS ÉCRANS : X0, X1 et X2 montent le même
+     parchemin, par le même `habilleEnParchemin`. ⛔ C'est pour ça qu'on n'en
+     avait pas fait deux. */
   racine.append(forme("path", "parchemin-fond", { d: g.d }));
-
-  const dedans = forme("g", null, { "clip-path": `url(#${id}-coupe)` });
-  /* ⚖️ LA PATINE EST UN ANNEAU, PAS UNE BORDURE : `evenodd` entre le bord et sa
-     copie creusée ne peint QUE la tranche. Floutée, elle s'éteint vers le centre
-     — ⛔ une bordure, elle, aurait deux arêtes nettes. */
-  dedans.append(forme("path", "parchemin-patine", {
-    d: g.d + g.tranche, "fill-rule": "evenodd", opacity: ".20", filter: `url(#${id}-flou)`
-  }));
-  dedans.append(forme("path", "parchemin-patine", {
-    d: g.d + g.lisiere, "fill-rule": "evenodd", opacity: ".07", filter: `url(#${id}-flou-fin)`
-  }));
-  dedans.append(forme("rect", null, { width: l, height: h, fill: `url(#${id}-grain)`, opacity: ".6" }));
-  dedans.append(forme("path", "parchemin-fibres", {
-    d: g.fibres, "stroke-width": ".42", "stroke-linecap": "round", opacity: ".32"
-  }));
-  dedans.append(forme("path", "parchemin-pli", {
-    d: g.plis, "stroke-width": ".5", "stroke-linecap": "round", opacity: ".24"
-  }));
-  dedans.append(forme("path", "parchemin-fil", {
-    d: g.d, "stroke-width": ".58", opacity: ".55"
-  }));
-  racine.append(dedans);
 
   /* ⛔ ON RETIRE APRÈS AVOIR BÂTI, jamais avant : si `geometrieDuParchemin` jetait,
      la feuille resterait celle d'avant plutôt que de disparaître. Et ⛔ ni

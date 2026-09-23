@@ -319,18 +319,26 @@ test("5 — ⛔ aucune teinte n'est écrite dans `parchemin.mjs` : il ne pose qu
   const teintes = [...source.matchAll(/#[0-9a-fA-F]{3,8}\b|\brgba?\s*\(|\bhsla?\s*\(/g)].map((m) => m[0]);
   assert.deepEqual(teintes, [],
     `⛔ des teintes vivent dans le module : ${teintes.join(", ")} — elles doivent être des jetons de tokens.css`);
-  /* ⚔️ le témoin : le module pose bien des classes, sinon il n'y aurait rien à peindre */
-  assert.ok(/parchemin-fond/.test(source) && /parchemin-patine/.test(source),
-    "⚔️ le module nomme bien ses classes — sinon la clause ci-dessus protège un fichier vide");
+  /* ⚔️ le témoin : le module pose bien SA classe, sinon il n'y aurait rien à peindre */
+  assert.ok(/parchemin-fond/.test(source),
+    "⚔️ le module nomme bien sa classe — sinon la clause ci-dessus protège un fichier vide");
 });
 
-test("5 bis — les six classes du dessin ont toutes leur teinte dans shell.css", () => {
+test("5 bis — la SEULE classe du dessin a sa teinte, et les cinq retirées ne traînent nulle part", () => {
   /* ⛔ UNE CLASSE POSÉE SANS RÈGLE EST INVISIBLE, ET RIEN NE LE DIT — la famille
-     exacte du jeton CSS inventé (`--info`, 253 emplois muets). */
-  for (const classe of ["parchemin-fond", "parchemin-patine", "parchemin-grain",
-                        "parchemin-fibres", "parchemin-pli", "parchemin-fil"]) {
-    assert.ok(source.includes(classe), `⚔️ ${classe} est bien posée par le module`);
-    assert.ok(new RegExp(`\\.${classe}\\b`).test(shell), `⛔ .${classe} n'a AUCUNE règle dans shell.css : elle ne peindra rien`);
+     exacte du jeton CSS inventé (`--info`, 253 emplois muets).
+     ⚖️ ELLES ÉTAIENT SIX JUSQU'AU LOT 252. Eric, 23/09 : *« je peux juste avoir
+     le fond et c'est tout ? »*, degré 2. */
+  assert.ok(source.includes("parchemin-fond"), "⚔️ parchemin-fond est bien posée par le module");
+  assert.ok(/\.parchemin-fond\b/.test(shell), "⛔ .parchemin-fond n'a AUCUNE règle dans shell.css : elle ne peindra rien");
+  /* 🔴 ET L'INVERSE, QUI EST LE VRAI GARDE : une suppression à moitié faite laisse
+     soit une classe posée que plus rien n'habille, soit une règle qui habille une
+     classe que plus personne ne pose. Les deux sont muettes, et les deux
+     survivent des mois. ⛔ On les cherche donc DANS LES DEUX FICHIERS. */
+  for (const morte of ["parchemin-patine", "parchemin-grain", "parchemin-fibres",
+                       "parchemin-pli", "parchemin-fil"]) {
+    assert.ok(!source.includes(`"${morte}`), `⛔ ${morte} est encore POSÉE par le module alors que sa règle est partie`);
+    assert.ok(!new RegExp(`\\.${morte}\\b`).test(shell), `⛔ .${morte} a encore une règle dans shell.css alors que personne ne la pose`);
   }
 });
 
