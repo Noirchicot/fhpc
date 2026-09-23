@@ -3761,8 +3761,8 @@ base mondaine.** *(Eric, 23/09, renversant le croquis du même jour.)*
 
 | type de craft | jetons | où |
 |---|---|---|
-| **Craft Weapon** | **33** | `battlefield › magic-weapons`, en entier |
-| **Craft Armor** | **19** | `battlefield › magic-armor`, en entier |
+| **Craft Weapon** | **33** | `armory › magic-weapons`, en entier |
+| **Craft Armor** | **19** | `armory › magic-armor`, en entier |
 | **Craft Wondrous** | **6** | ⛔ **les recettes seulement** — Belt of Giant Strength · Feather Token · Figurine of Wondrous Power · Horn of Valhalla · Ioun Stone · Wand of the War Mage |
 | **Scribe Scroll** | **1** | Spell Scroll |
 | | **59** | **aucun doublon** |
@@ -3840,17 +3840,30 @@ et sa `weight_provenance`.
 0,75 lb…)*. Un seul chiffre y survit — le prix des flèches, `5 SP` des deux côtés. Les billes
 passent de **0,75 lb à 5 lb** : c'est un vrai changement de sensation en jeu, voulu.
 
-✅ **ET LA FUSION DU 20/09 EST APPLIQUÉE — PAR LA DONNÉE, PAS PAR UN SLUG.** Eric, 23/09 :
-*« les munitions vont dans Armory / Ranged Weapons »*. Les cinq y sont, et `projectiles` **se vide
-et disparaît du tambour** : l'export ne porte que les combinaisons peuplées, donc une étagère vide
-ne paraît pas. ⭐ **On n'a rien retiré d'une structure — on a cessé de la peupler.**
+✅ **ET LA FUSION DU 20/09 EST APPLIQUÉE EN AMONT — DANS LA BASE, PAS DANS UNE COUCHE.** Eric,
+23/09 : *« les munitions vont dans Armory / Ranged Weapons »*, puis, en lisant le rapport de
+construction, *« donc ammo et les autres projectiles, à mettre dans ranged weapons »*.
+
+⛔ **LA PREMIÈRE VERSION NE SERVAIT QU'UNE PILE, ET C'ÉTAIT LE DÉFAUT.** Les cinq munitions de
+Fate's Hand quittaient `projectiles` par `fh-munitions-en` — une couche **FH seulement**. La ligne
+`Ammunition` du SRD, elle, y restait : la pile SRD seule gardait une étagère à un objet. Or Eric
+avait tranché *« idem pour FH et SRD »* dès le 20/09. La fusion appartient donc à
+`fh-srd/src/shelving.py`, que **les deux piles** lisent.
+
+⭐ **ET L'ÉTAGÈRE EST RETIRÉE DE LA STRUCTURE, PAS LAISSÉE À ZÉRO.** `companions` et `crafting`
+gardent des étagères vides parce qu'elles **seront** remplies ; `projectiles` ne le sera jamais.
+⛔ **Une étagère déclarée qui n'attend rien est une promesse qui ment.**
 
 | Armory | avant | après |
 |---|---|---|
-| `thrown-weapons` *(« Ranged Weapons »)* | 10 | **21** |
+| `thrown-weapons` *(« Ranged Weapons »)* | 10 | **21** *(17 en pile SRD seule)* |
 | `melee-weapons` | 28 | **22** |
-| `projectiles` | 1 | **disparue** |
+| `projectiles` | 1 | **retirée de la déclaration** |
 | sous-catégories | 6 | **5** |
+
+⭐ **LE TOTAL N'A PAS BOUGÉ — 21 AVANT, 21 APRÈS — ET C'EST LA PREUVE.** Le déménagement a
+seulement changé de main : ce que la couche FH faisait, la base le fait. Ce qui y gagne, c'est la
+pile SRD seule, et elle ne se voit pas dans ce compte-là.
 
 🔴 **ET C'EST LA RÉPARATION D'UN NOM QUI MENTAIT.** Eric, 23/09 : *« toutes les armes de jet, les
 munitions vont dans cette catégorie »*, puis *« idem pour FH et SRD »*. ⛔ **`thrown-weapons` ne
@@ -3880,6 +3893,37 @@ ne se perde pas.
 📌 **UNE COUCHE NEUVE, `fh-munitions-en`**, et elle est du **catalogue** — comme les gemmes : une
 flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul geste** (`LAYER_FILES`,
 `FH_LAYER_IDS`, `PILE`), leçon du lot 77.
+
+---
+
+### ⚔️ LE RAYON S'APPELLE `armory` — IL N'Y A AUCUNE TABLE DE LIBELLÉS
+📍 `equipement-rayon-armory-la-clef-est-le-libelle` · vivante · 23/09
+
+✅ **Eric, brief d'ouverture du 20/09** : *« le rayon `battlefield` s'appelle Armory »*. Le
+renommage est resté trois jours en liste d'attente sous « si Eric veut que la clef rejoigne
+l'étiquette » — **c'était une instruction, pas une option**, et il l'a vu à l'écran : *« je vois
+toujours battlefield et pas armory dans wares, normal ? »*
+
+🔴 **NON, ET LA RAISON TIENT EN UNE LIGNE DE CODE.** `lireRangement` fait
+`label: titreDeValeur(rayon)` — [equipment-step.mjs](equipment-step.mjs). ⛔ **Il n'existe nulle
+part de table qui traduirait une clef en mot d'écran.** Le libellé est FABRIQUÉ à partir de la
+clef, donc tant que la clef dit `battlefield`, l'écran dit « Battlefield », quoi qu'on écrive
+ailleurs — dans une couche, dans une note, dans un artefact.
+
+⭐ **CE N'EST PAS UNE FAIBLESSE DU TAMBOUR, C'EST SA LOI.** L'identité d'une étagère est
+`aisle:shelf`, **jamais le libellé** (deux rayons portent une étagère « Clothing » ; les confondre
+a coûté une journée le 23/08). Un seul écrivain pour le mot affiché, et c'est la clef.
+➡️ **Conséquence pratique : renommer une catégorie à l'écran = renommer le slug en amont dans
+`fh-srd/src/shelving.py`, puis régénérer.** Il n'y a pas de raccourci par la couche.
+
+📏 **LA PLACE NE BOUGE PAS, ET ÇA S'EST VÉRIFIÉ AVANT LE GESTE** : le tambour trie par
+libellé, et « Arcana » < « Armory » comme « Arcana » < « Battlefield ». Le rayon reste au
+troisième cran de la roue — **aucune réordonnance à suivre nulle part**.
+
+⚠️ **LE SECOND RENOMMAGE DU MÊME BRIEF ÉTAIT PARTI SEUL** (`thrown-weapons` → `ranged-weapons`,
+le 23/09). Deux renommages demandés ensemble, un seul appliqué : c'est la forme de défaut que le
+mot « si Eric veut » fabrique. ⛔ **Une demande du brief ne devient pas une option parce qu'on l'a
+mise en liste d'attente.**
 
 ---
 

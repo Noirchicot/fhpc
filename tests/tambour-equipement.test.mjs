@@ -112,7 +112,7 @@ const RANGEMENT = lireRangement(query);
 test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
   assert.deepEqual(arbre.map((r) => r.id),
-    ["adventuring", "arcana", "battlefield", "marvels", "mundane", "tools", "trade-goods"],
+    ["adventuring", "arcana", "armory", "marvels", "mundane", "tools", "trade-goods"],
     "⚖️ ERIC, 2026-09-23 : « ne mets pas crafting tools, mets tools » — le rayon dit ce que l\u2019objet EST,\n"
     + "   pas ce qu\u2019on en FAIT. ⭐ `crafting` n\u2019en sort pas renommé : il se VIDE, et une combinaison\n"
     + "   non peuplée n\u2019est pas dans l\u2019export (test 5 ter). Il revient le jour où les 210 ingrédients\n"
@@ -443,25 +443,31 @@ test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 33 objets, donc 3 
   assert.equal(derniere.objets.length, 3, "33 − 2 × 15 = 3 — une dernière page PARTIELLE, et c'est le cas normal");
 });
 
-test("7 — ⭐ RANGED WEAPONS EST ENFIN CE QUE SON NOM DIT : 21 objets, et `projectiles` a disparu", () => {
-  /* 🔴 CE TEST A CHANGÉ DEUX FOIS EN UN JOUR, ET CHAQUE FOIS SUR UN MOT D'ERIC.
+test("7 — ⭐ RANGED WEAPONS EST ENFIN CE QUE SON NOM DIT : 21 objets, et `projectiles` n'existe plus", () => {
+  /* 🔴 CE TEST A CHANGÉ TROIS FOIS, ET CHAQUE FOIS SUR UN MOT D'ERIC.
      Il disait d'abord « `projectiles` ne porte QU'UN objet » — un témoin réel du
      cas dégénéré. Puis les cinq munitions l'ont peuplée. Puis Eric, le 23/09 :
-     *« les munitions vont dans Armory / Ranged Weapons »* — et l'étagère se vide
-     pour de bon.
+     *« les munitions vont dans Armory / Ranged Weapons »* — et elle s'est vidée.
 
-     ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une
-     migration de slug : `projectiles` n'est pas retirée d'une structure, elle
-     n'est plus PEUPLÉE — et l'export ne porte que les combinaisons peuplées
-     (règle du test 5 ter). Une étagère vide ne paraît pas au tambour.
-     ⚠️ LA CLEF RESTE `thrown-weapons` : « Ranged Weapons » est le LIBELLÉ tranché
-     le 20/09, et le slug se migre en amont dans `fh-srd`. L'identité est la
-     clef, jamais le libellé — loi du test 3. */
+     ⭐ ET LE 23/09 AU SOIR ELLE A ÉTÉ RETIRÉE DE LA STRUCTURE, PAS SEULEMENT VIDÉE,
+     parce qu'Eric a lu le rapport de construction et vu la ligne qui restait :
+     *« donc ammo et les autres projectiles, à mettre dans ranged weapons »*. La
+     ligne `Ammunition` du SRD dormait seule sur une étagère que les cinq
+     munitions de Fate's Hand avaient quittée — et c'était la couche FH qui la
+     déménageait, donc la pile SRD seule la laissait derrière. ⚠️ OR ERIC AVAIT
+     DÉJÀ TRANCHÉ *« idem pour FH et SRD »* le 20/09 : la fusion appartient donc à
+     `fh-srd/src/shelving.py`, en amont, où les DEUX piles la lisent.
+     ⛔ ET L'ÉTAGERE NE SURVIT PAS À ZÉRO, contrairement à `companions` et
+     `crafting` : celles-là sont déclarées vides parce qu'elles seront remplies ;
+     celle-ci ne le sera jamais. Une étagère déclarée qui n'attend rien ment.
+     ⭐ LE TOTAL N'A PAS BOUGÉ — 21 avant, 21 après — ET C'EST LA PREUVE que le
+     déménagement a seulement CHANGÉ DE MAIN : ce que la couche FH faisait, la
+     base le fait. C'est la pile SRD seule qui y gagne, et elle n'est pas ici. */
   const arbre = rayonsEtEtageres(query);
-  const armory = arbre.find((r) => r.id === "battlefield");
-  assert.equal(armory.etageres.find((e) => e.id === "battlefield:projectiles"), undefined,
+  const armory = arbre.find((r) => r.id === "armory");
+  assert.equal(armory.etageres.find((e) => e.id === "armory:projectiles"), undefined,
     "⛔ `projectiles` est VIDE, donc absente du tambour — la fusion d'Eric, appliquée");
-  const ranged = armory.etageres.find((e) => e.id === "battlefield:ranged-weapons");
+  const ranged = armory.etageres.find((e) => e.id === "armory:ranged-weapons");
   assert.equal(ranged.objets.length, 21,
     "⭐ 10 armes à distance + 6 armes de JET + 5 munitions — Eric, 23/09 : « toutes les armes de " +
     "jet, les munitions vont dans cette catégorie ».\n" +
@@ -469,7 +475,7 @@ test("7 — ⭐ RANGED WEAPONS EST ENFIN CE QUE SON NOM DIT : 21 objets, et `pro
     "de jet. Ses dix records venaient de `derived:weapon.weapon_range` — arcs, arbalètes, fronde, " +
     "sarbacane, mousquet, pistolet. Les six vraies `Thrown` (Dagger, Handaxe, Javelin, Light " +
     "Hammer, Spear, Trident) dormaient chez les mêlées, parce qu'elles frappent aussi de près.");
-  const melee = armory.etageres.find((e) => e.id === "battlefield:melee-weapons");
+  const melee = armory.etageres.find((e) => e.id === "armory:melee-weapons");
   assert.equal(melee.objets.length, 22, "28 − les 6 armes de jet qui ont déménagé");
   assert.equal(ranged.label, "Ranged Weapons",
     "⭐ LE LIBELLÉ ET LA CLEF DISENT ENFIN LA MÊME CHOSE. Le libellé est tranché depuis le 20/09 ; " +
@@ -649,8 +655,14 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 7 rayons deviennen
      premiers libellés, en dessous, qui dit quels rayons on regarde. */
   assert.equal(crans.length, 42, "3 tours × ceil(12 / 7) × 7 rayons = 42 crans");
   assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent),
-    ["Adventuring", "Arcana", "Battlefield", "Marvels"],
-    "⭐ les rayons d'Eric, pas les genres de records — et « Crafting » a quitté la quatrième "
+    ["Adventuring", "Arcana", "Armory", "Marvels"],
+    "⭐ les rayons d'Eric, pas les genres de records — et DEUX D'ENTRE EUX ONT CHANGÉ DE NOM LE 23/09. "
+    + "« Battlefield » est devenu « Armory » : c'était le premier des deux renommages du brief "
+    + "d'ouverture, et il était resté en rade pendant que l'autre partait. ⛔ IL N'Y A AUCUNE TABLE "
+    + "DE LIBELLÉS — `lireRangement` fait `titreDeValeur(rayon)`, donc l'écran dit la CLEF, et "
+    + "renommer le libellé sans renommer la clef ne fait rien du tout. La place ne bouge pas : "
+    + "« Arcana » < « Armory » comme « Arcana » < « Battlefield ».\n"
+    + "   — et « Crafting » a quitté la quatrième "
     + "place le 23/09 : le rayon des outils s'appelle désormais `tools`, et `crafting` s'est "
     + "VIDÉ. Il reparaîtra à sa place alphabétique le jour où les ingrédients du Soulforging "
     + "y entrent — Essence · Structure · Catalyst.");

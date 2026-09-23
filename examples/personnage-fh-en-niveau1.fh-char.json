@@ -20,7 +20,7 @@
       {
         "id": "srfh-shelving-en",
         "version": "0.1.0",
-        "hash": "c71bce2248379b4dae36efcd3a400b7a2f0dc9950eb429349fce3fd399a12e80",
+        "hash": "e70733e4c1fe7e8eb03d4a584a51c8a47a73d02896151bf3b8efbd4c7fffbe98",
         "name": "SRFH — Shelving (EN)"
       },
       {
@@ -86,7 +86,7 @@
       {
         "id": "fh-munitions-en",
         "version": "0.1.0",
-        "hash": "dfbf21f67e7011c05e9988264b010de8b2ede4e343365f4394eb9955aff9c61c",
+        "hash": "93e2cfbb89ae07d43dae1ab331e8493fba691cf33dbc8b37ee2942531f5bd12c",
         "name": "Fate's Hand — Munitions (EN)"
       },
       {
@@ -446,7 +446,7 @@
         {
           "id": "srfh-shelving-en",
           "version": "0.1.0",
-          "hash": "c71bce2248379b4dae36efcd3a400b7a2f0dc9950eb429349fce3fd399a12e80",
+          "hash": "e70733e4c1fe7e8eb03d4a584a51c8a47a73d02896151bf3b8efbd4c7fffbe98",
           "name": "SRFH — Shelving (EN)"
         },
         {
@@ -512,7 +512,7 @@
         {
           "id": "fh-munitions-en",
           "version": "0.1.0",
-          "hash": "dfbf21f67e7011c05e9988264b010de8b2ede4e343365f4394eb9955aff9c61c",
+          "hash": "93e2cfbb89ae07d43dae1ab331e8493fba691cf33dbc8b37ee2942531f5bd12c",
           "name": "Fate's Hand — Munitions (EN)"
         },
         {

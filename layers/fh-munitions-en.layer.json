@@ -90,8 +90,8 @@
           "name": "Blowgun Needles",
           "of_kind": "gear",
           "shelf": {
-            "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "aisle": "armory",
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons », puis « idem pour FH et SRD ». ⭐ LA FUSION EST EN AMONT, PAS ICI : `fh-srd/src/shelving.py` a retiré l'étagère `projectiles` et envoyé sa seule ligne — `Ammunition` — chez `ranged-weapons`, où les cinq munitions de Fate's Hand la rejoignent. ⛔ CETTE COUCHE NE DÉMÉNAGE PLUS RIEN : elle ne fait qu'AJOUTER quatre munitions déjà rangées au bon endroit. Le déménagement par la couche marchait, mais il ne servait QUE la pile Fate's Hand — or Eric avait tranché les deux piles. ⭐ ET LE SLUG A MIGRÉ DEUX FOIS LE 23/09 : `thrown-weapons` → `ranged-weapons`, et le rayon `battlefield` → `armory`. Le tambour n'a aucune table de libellés — il affiche la clef — donc le libellé tranché le 20/09 et la clef disent enfin la même chose.",
             "shelf": "ranged-weapons"
           }
         }
@@ -104,8 +104,8 @@
           "name": "Crossbow Bolts",
           "of_kind": "gear",
           "shelf": {
-            "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "aisle": "armory",
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons », puis « idem pour FH et SRD ». ⭐ LA FUSION EST EN AMONT, PAS ICI : `fh-srd/src/shelving.py` a retiré l'étagère `projectiles` et envoyé sa seule ligne — `Ammunition` — chez `ranged-weapons`, où les cinq munitions de Fate's Hand la rejoignent. ⛔ CETTE COUCHE NE DÉMÉNAGE PLUS RIEN : elle ne fait qu'AJOUTER quatre munitions déjà rangées au bon endroit. Le déménagement par la couche marchait, mais il ne servait QUE la pile Fate's Hand — or Eric avait tranché les deux piles. ⭐ ET LE SLUG A MIGRÉ DEUX FOIS LE 23/09 : `thrown-weapons` → `ranged-weapons`, et le rayon `battlefield` → `armory`. Le tambour n'a aucune table de libellés — il affiche la clef — donc le libellé tranché le 20/09 et la clef disent enfin la même chose.",
             "shelf": "ranged-weapons"
           }
         }
@@ -118,8 +118,8 @@
           "name": "Firearm Bullets",
           "of_kind": "gear",
           "shelf": {
-            "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "aisle": "armory",
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons », puis « idem pour FH et SRD ». ⭐ LA FUSION EST EN AMONT, PAS ICI : `fh-srd/src/shelving.py` a retiré l'étagère `projectiles` et envoyé sa seule ligne — `Ammunition` — chez `ranged-weapons`, où les cinq munitions de Fate's Hand la rejoignent. ⛔ CETTE COUCHE NE DÉMÉNAGE PLUS RIEN : elle ne fait qu'AJOUTER quatre munitions déjà rangées au bon endroit. Le déménagement par la couche marchait, mais il ne servait QUE la pile Fate's Hand — or Eric avait tranché les deux piles. ⭐ ET LE SLUG A MIGRÉ DEUX FOIS LE 23/09 : `thrown-weapons` → `ranged-weapons`, et le rayon `battlefield` → `armory`. Le tambour n'a aucune table de libellés — il affiche la clef — donc le libellé tranché le 20/09 et la clef disent enfin la même chose.",
             "shelf": "ranged-weapons"
           }
         }
@@ -132,19 +132,11 @@
           "name": "Sling Bullets",
           "of_kind": "gear",
           "shelf": {
-            "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose.",
+            "aisle": "armory",
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons », puis « idem pour FH et SRD ». ⭐ LA FUSION EST EN AMONT, PAS ICI : `fh-srd/src/shelving.py` a retiré l'étagère `projectiles` et envoyé sa seule ligne — `Ammunition` — chez `ranged-weapons`, où les cinq munitions de Fate's Hand la rejoignent. ⛔ CETTE COUCHE NE DÉMÉNAGE PLUS RIEN : elle ne fait qu'AJOUTER quatre munitions déjà rangées au bon endroit. Le déménagement par la couche marchait, mais il ne servait QUE la pile Fate's Hand — or Eric avait tranché les deux piles. ⭐ ET LE SLUG A MIGRÉ DEUX FOIS LE 23/09 : `thrown-weapons` → `ranged-weapons`, et le rayon `battlefield` → `armory`. Le tambour n'a aucune table de libellés — il affiche la clef — donc le libellé tranché le 20/09 et la clef disent enfin la même chose.",
             "shelf": "ranged-weapons"
           }
         }
-      },
-      "srfh:shelving:en:ammunition": {
-        "op": "patch",
-        "changes": {
-          "data.shelf.shelf": "ranged-weapons",
-          "data[shelf][provenance]": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). ⭐ ET LE SLUG A MIGRÉ EN AMONT LE 23/09 : `thrown-weapons` est devenu `ranged-weapons` dans `fh-srd/src/shelving.py`, donc le tambour affiche enfin « Ranged Weapons ». Le libellé, tranché le 20/09, et la clef disent maintenant la même chose."
-        },
-        "note": "Fate's Hand — the Arrows follow the other four onto Ranged Weapons"
       }
     },
     "item": {
