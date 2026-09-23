@@ -8552,11 +8552,32 @@ Les organes recouverts gardent leur BOÎTE, donc leur place. Ils reviennent
 exactement où ils étaient quand le popup se ferme, sans que rien ne soit
 remesuré — c'est la même loi que le mode lecture de X1.
 
-### ⏳ CE QUI RESTE À TRANCHER
-📍 `popup-majeur-quels-autres-le-sont` · à trancher · 23/09
+### ⚖️ QUI EST MAJEUR — **X0, X1, X2** *(Eric, 23/09 : « X1 et X2 »)*
+📍 `popup-majeur-x0-x1-x2` · vivante · 23/09
 
-**Quels autres popups sont majeurs ?** X0 est le seul déclaré à ce jour. Le
-choix de pile (*SRD ou Fate's Hand*), la confirmation de fin d'étape et les
-guides ne le sont pas tant qu'Eric ne l'a pas dit — ⛔ et un popup qui prendrait
-cet attribut sans son mot éteindrait un écran que le joueur doit peut-être
-continuer de voir.
+⭐ **ET LES TROIS N'HONORENT PAS LA RÈGLE DE LA MÊME FAÇON** — c'est le fond de
+la chose, et ça n'avait jamais été écrit :
+
+| organe | comment il honore |
+|---|---|
+| **X0** | il **RECOUVRE** l'écran Gear, dont le nœud reste au document → il faut l'éteindre. C'est le cas où la règle TRAVAILLE. |
+| **X1**, **X2** | elles **REMPLACENT** la vue : `rendu()` retourne LEUR nœud, celui du sac n'est jamais construit. |
+
+📏 **Mesuré au navigateur le 23/09** : la fiche X1 ouverte n'a **aucun frère**
+dans `.equipment-step`. Il n'y a rien à voiler — ⭐ et c'est la forme la plus
+forte de la règle, pas une dispense.
+
+🔴 **CE QUI EST GARDÉ, ET CE N'EST PAS THÉORIQUE** *(`tests/popup-majeur.test.mjs`)* :
+le jour où X1 ou X2 deviendrait un **calque** posé par-dessus le sac — pour
+garder un défilement, pour animer une ouverture — elle recouvrirait **sans
+éteindre**, et le sac transparaîtrait sous le parchemin. ⛔ Le symptôme serait
+visuel, tardif, et personne ne penserait à cette règle en le voyant. Les six
+attaques du garde ont été éprouvées ROUGE.
+
+### ⏳ CE QUI RESTE À TRANCHER
+📍 `popup-majeur-le-reste-des-popups` · à trancher · 23/09
+
+Le choix de pile (*SRD ou Fate's Hand*), la confirmation de fin d'étape et les
+guides ne sont pas majeurs tant qu'Eric ne l'a pas dit — ⛔ un popup qui
+prendrait cet attribut sans son mot éteindrait un écran que le joueur doit
+peut-être continuer de voir.
