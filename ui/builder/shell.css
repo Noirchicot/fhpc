@@ -8460,8 +8460,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    ⛔ Et le fond de voile part avec : `--voile-ecran` teintait ce qu'il y avait
    dessous, et il n'y a plus rien dessous. Une teinte qui ne voile rien est un
    filtre posé sur son propre contenu. */
+/* ⛔ AUCUNE BOÎTE ICI : elle vient de la liste partagée (`.gear, .x0, …`) et sa
+   HAUTEUR de la feuille construite de X0. Cette règle ne dit que la mise en page
+   interne — ce qui reste quand la boîte appartient à quelqu'un d'autre. */
 .aiguilleur {
-  position: relative; height: 100%;
   display: flex; align-items: stretch; justify-content: center;
 }
 .aiguilleur-carte {
@@ -9482,11 +9484,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    au-delà de `.stage`, quand `.sac` rend 375 **à fleur** de `.stage`.
    ⭐ C'est la QUATRIÈME fois du lot que la réponse est *« reprendre, ⛔ jamais redessiner »* —
    après `.wares-porte`, les organes d'échange et la tuile. */
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .x2, .sac, .wares)) {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .sac, .wares)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .x2, .sac, .wares)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .sac, .wares)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
 /* 🔴 ET `.x2` Y ENTRE AU LOT 242, POUR LA RAISON EXACTE DE `.wares` AU LOT 231 :
@@ -9495,7 +9497,13 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    l'`:is` n'en fait qu'un. Hors de cette liste, elle resterait collée à gauche et
    déborder ait de 8 blg à droite, où `.stage` la couperait — c'est l'incident du bord
    droit sans lisere, mesuré le 20/09. */
-.gear, .x1, .x2, .sac, .wares {
+/* 🔴 ET `.x0` Y ENTRE AU LOT 254, POUR LA RAISON EXACTE DE `.wares` AU 231 ET DE
+   `.x2` AU 242 : l'écran du départ recouvre la MÊME dalle que R, donc il a la
+   MÊME boîte. ⛔ J'avais commencé par lui écrire sa propre règle — un garde a
+   mordu (« deux règles portent la boîte de la dalle : deux écrivains pour une
+   loi »), et il avait raison. C'est la CINQUIÈME fois de ce chantier que la
+   réponse est « entrer dans la liste », ⛔ jamais « ajouter un bloc ». */
+.gear, .x0, .x1, .x2, .sac, .wares {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));

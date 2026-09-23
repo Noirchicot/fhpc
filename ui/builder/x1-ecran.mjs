@@ -274,6 +274,16 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
  *  ⭐ Le garde 5 de `x2-ecran.test.mjs` a attrapé exactement ça, et il ne l'a pu
  *  que parce qu'il nommait la règle qu'il cherchait. Deux faits, deux noms. */
 export const FAMILLE_DES_FICHES = Object.freeze([".x1", ".x2"]);
+
+/** ⚖️ QUI PARTAGE LA BOÎTE DE LA DALLE — la TROISIÈME famille de ce chantier, et
+ *  elle se nomme pour la même raison que les deux autres : elle était écrite dans
+ *  `shell.css` ET épinglée mot pour mot dans un garde. 🔴 Ajouter `.x0` au lot 254
+ *  a fait rougir ce garde — non parce que le fait était faux, mais parce que
+ *  DEUX ENDROITS le portaient. C'est la troisième fois en une nuit.
+ *  ⭐ La feuille écrit la liste, le garde la LIT ici. Le prochain écran s'ajoute
+ *  à cette ligne, et rien d'autre ne bouge. */
+export const FAMILLE_DE_LA_DALLE = Object.freeze([".gear", ".x0", ".x1", ".x2", ".sac", ".wares"]);
+export const SELECTEUR_DE_LA_DALLE = FAMILLE_DE_LA_DALLE.join(", ");
 export const SELECTEUR_DES_FICHES = `:is(${FAMILLE_DES_FICHES.join(", ")})`;
 
 export function feuilleDesCotesX1() {

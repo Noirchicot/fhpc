@@ -68,3 +68,39 @@ test("LES TROIS ÉCRANS DE RANG X REMPLACENT leur vue — ⛔ aucun ne se pose P
   assert.ok(!/\.append\(\s*construireLaFicheX[12]\b/.test(etape),
     "⛔ une fiche X est ajoutée à un nœud existant : elle devient un calque, et la règle des popups majeurs cesse d'être honorée par construction");
 });
+
+/* ══ LA BOÎTE DE X0 — lot 254 ════════════════════════════════════════════════
+   🔴 CE GARDE NAÎT D'UN DÉFAUT MESURÉ, ⛔ pas d'une précaution : au navigateur
+   (headless, qui rend vraiment), X0 devenue une vue sortait à **359 × 394** au
+   lieu de sa cote. Sa boîte était `flex: 1 1 auto` et sa hauteur SUIVAIT la
+   scène. C'est mot pour mot le défaut que le lot 240 a réparé pour X1 —
+   *« la feuille était juste, c'est la BOÎTE qui mentait »*.
+   ⭐ ET LA RÉPARATION EST UNE COTE DONNÉE, PAS UN RÉGLAGE : X0 est un plan fixe.
+   Sa hauteur se LIT dans la table de X1, qui la tient déjà pour son rang. */
+test("④ X0 est un PLAN FIXE : sa hauteur vient de la table, ⛔ pas de la scène", async () => {
+  const D = await import("../ui/builder/x0-disposition.mjs");
+  const X1 = await import("../ui/builder/x1-disposition.mjs");
+  const feuille = D.feuilleDesCotesX0();
+  /* ⛔ LE SÉLECTEUR EST QUALIFIÉ, et c'est mesuré au lot 240 : `.x0` seul a la
+     même spécificité que la liste partagée et ne l'emporterait que par l'ORDRE
+     de montage — un ordre qui dépend d'où la feuille est posée. */
+  assert.match(feuille, /\.x0\[data-objet="x0"\]\{[^}]*flex:0 0 auto/,
+    "⛔ X0 est redevenue élastique : sa hauteur suit la scène au lieu de sa table");
+  assert.ok(feuille.includes(`height:${X1.DALLE.h}px`),
+    `⛔ la hauteur de X0 n'est plus celle du plan (${X1.DALLE.h}) : une cote retapée diverge le jour où le plan bouge`);
+  /* ⚔️ ET LE TÉMOIN QUI EMPÊCHE CE GARDE D'ÊTRE TAUTOLOGIQUE : le nombre doit
+     venir de la TABLE, pas d'un littéral qui lui ressemble aujourd'hui. */
+  assert.ok(!/height:500px/.test(D.feuilleDesCotesX0.toString()),
+    "⛔ la cote est écrite en dur dans la fabrique : elle ne suivra pas la table");
+});
+
+test("⑤ X0 entre dans la BOÎTE PARTAGÉE, ⛔ elle ne s'en écrit pas une seconde", async () => {
+  const { FAMILLE_DE_LA_DALLE } = await import("../ui/builder/x1-ecran.mjs");
+  assert.ok(FAMILLE_DE_LA_DALLE.includes(".x0"),
+    "⛔ X0 est sortie de la famille : sans la boîte partagée elle reste collée à gauche et déborde (le défaut de `.wares`, lot 231)");
+  /* 🔴 ET UNE SEULE RÈGLE LA PORTE — c'est le garde qui m'a mordu quand j'avais
+     écrit à X0 son propre bloc : « deux écrivains pour une loi ». */
+  const shell = lire("shell.css");
+  assert.equal(shell.split(`${FAMILLE_DE_LA_DALLE.join(", ")} {`).length - 1, 1,
+    "⛔ la boîte de la dalle est déclarée plus d'une fois");
+});

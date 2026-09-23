@@ -102,7 +102,18 @@ export function feuilleDesCotesX0() {
      des mêmes jetons par la cascade. Les poser sur la carte laissait le voile sans
      marge — 📏 mesuré au navigateur : la carte rendait 375 × 496, soit la dalle
      ENTIÈRE, bord à bord, au lieu de 359 × 484. */
-  return ".aiguilleur{"
+  /* ⭐ LA HAUTEUR DE X0 EST DONNÉE, ⛔ PAS DÉDUITE — c'est un PLAN FIXE, comme X1.
+     🔴 Sans cette ligne, sa boîte est `flex: 1 1 auto` et sa hauteur SUIT la scène :
+     📏 mesuré au navigateur (headless, qui rend vraiment), la carte sortait à
+     359 × 394 au lieu de sa cote. C'est mot pour mot ce que le lot 240 a réparé
+     pour X1 — *« la feuille était juste, c'est la BOÎTE qui mentait »*.
+     ⛔ ET LA COTE NE SE RETAPE PAS : elle se LIT dans la table de X1, qui la tient
+     déjà pour les fiches du même rang. Le jour où le plan change, X0 suit.
+     ⚠️ LE SÉLECTEUR EST QUALIFIÉ (`[data-objet="x0"]`) pour la raison mesurée au
+     lot 240 : `.x0` seul a la même spécificité que la liste partagée et ne
+     l'emporterait que par l'ORDRE de montage. Un blg de plus ne dépend de rien. */
+  return `.x0[data-objet="x0"]{flex:0 0 auto;height:${X1.DALLE.h}px}`
+    + ".aiguilleur{"
     + `--x0-marge:${MARGE_DALLE}px;`
     + `--x0-retrait:${RETRAIT}px;`
     + `--x0-ecart:${ECART_OPTIONS}px;`

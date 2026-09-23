@@ -3941,7 +3941,11 @@ export function renderEquipmentStep(ctx, onAction) {
        d'être le SEUL moment d'écriture. */
     const butin = butinDuDepart({ query, document: docu, reponses: reponsesDuQcm });
 
-    const voile = el("div", "aiguilleur");
+    /* ⚖️ X0 PORTE SON NOM DE RANG — `x0`, à côté de `.x1` et `.x2`. C'est par
+       cette classe qu'elle entre dans la boîte partagée des écrans d'équipement,
+       et par `data-objet` que sa feuille lui donne sa hauteur. */
+    const voile = el("div", "aiguilleur x0");
+    voile.dataset.objet = "x0";
     const carte = el("div", "aiguilleur-carte");
     /* 📏 LE BUDGET DE LA DÉCHIRURE EST DÉDUIT D'UNE COTE, ⛔ PAS CHOISI : c'est
        la plus petite distance entre le contenu et le bord de la feuille — 8 blg

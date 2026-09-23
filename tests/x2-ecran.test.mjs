@@ -24,7 +24,7 @@ import test from "node:test";
 /* ⭐ LOT 248 — la famille du parchemin se LIT à sa source ; ce garde ne la
    recopie plus (elle était écrite quatre fois, cf. `parchemin.mjs`). */
 import { SELECTEUR_DU_PARCHEMIN as PARCH } from "../ui/builder/parchemin.mjs";
-import { SELECTEUR_DES_FICHES as FICHES } from "../ui/builder/x1-ecran.mjs";
+import { SELECTEUR_DES_FICHES as FICHES, SELECTEUR_DE_LA_DALLE as DALLE } from "../ui/builder/x1-ecran.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -149,10 +149,17 @@ test("5 — 👕 l'habit de la tête VOYAGE : ce sont des règles de CLASSE, ⛔
                        `${FICHES} [data-organe="jauge"]`]) {
     assert.ok(shell.includes(regle), `${regle} — le décor et le mode sont partagés`);
   }
-  assert.match(shell, /\.gear, \.x1, \.x2, \.sac, \.wares \{/,
-    "⭐ X2 entre dans la boîte partagée, pour la raison exacte de `.wares` au lot 231");
-  assert.equal((shell.match(/:is\(\.gear, \.x1, \.x2, \.sac, \.wares\)/g) || []).length, 2,
-    "les deux `:has()` de la carte la prennent aussi");
+  /* ⭐ LA LISTE SE LIT À SA SOURCE (lot 254) : elle était écrite ici ET dans la
+     feuille, et ajouter `.x0` a fait rougir ce garde sur un fait parfaitement
+     vrai. Un garde qui épingle une liste devient un second écrivain de cette
+     liste — et c'est lui qu'on finit par « corriger » à chaque ajout. */
+  assert.ok(shell.includes(`${DALLE} {`),
+    `⭐ les écrans qui recouvrent la dalle partagent UNE boîte : ${DALLE}`);
+  /* ⭐ ET LES DEUX `:has()` DE LA CARTE LISENT LA MÊME LISTE — comptés, pas
+     décrits : deux occurrences exactement, sinon une des deux a divergé. */
+  const isDalle = `:is(${DALLE})`;
+  assert.equal(shell.split(isDalle).length - 1, 2,
+    `les deux \`:has()\` de la carte prennent la même famille : ${isDalle}`);
   /* 🔴 ÉPROUVÉ ROUGE en remettant `.x1 [data-organe]` : garde 5 rouge sur la règle
      partagée. Et au navigateur, la fiche rendait bien tous ses organes — empilés. */
 });
