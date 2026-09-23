@@ -1057,10 +1057,21 @@
      habille TOUS les panneaux du builder (les choix, les gros affichages).
      Le descendre à 10 aurait effacé le verre partout pour régler le contraste
      d'une rangée. Un voile de belt est un voile de belt.
-     📏 Mesuré : à 35 contre 50, la dominante ne se détachait pas — c'est ce
-     qu'Eric voyait quand il disait ne pas voir de tuile active. À 10 contre
-     50, le rapport de matière passe de 1,43 à 5. */
-  --belt-voile: 10%;
+
+     🔄 AMENDÉ LE 2026-09-21 — IL MONTE À 20 %, et c'est un ALIGNEMENT, pas un
+     réglage. Eric a demandé de vérifier si le cran posé valait 100 « idem
+     belt » ; 📏 relevé : le belt rend **0,50** au courant et **0,10** au repos,
+     les deux tambours **0,50** et **0,20**. Le posé était donc DÉJÀ identique,
+     et le seul écart vivait au REPOS. Sa conclusion : *« passe les crans au
+     repos à 20 »* — ce qui ne peut viser que le belt, les tambours y étant déjà.
+     ⭐ Les trois rangées de crans du site parlent désormais la même matière :
+     0,20 au repos, 0,50 sous le viseur.
+     🗄️ CE QUE ÇA COÛTE, ET L'ARGUMENT DE 15/09 RESTE VRAI : le rapport de
+     matière entre une tuile et la dominante passe de **5** à **2,5**. Il était
+     de 1,43 quand Eric ne voyait pas la tuile active ; 2,5 en reste loin, et
+     c'est ce qui rend l'alignement tenable. ⛔ Si la dominante cessait de se
+     détacher, c'est ce rapport-là qu'il faudrait relire — pas repartir de zéro. */
+  --belt-voile: 20%;
   --belt-dalle: color-mix(in srgb, var(--surface) var(--belt-voile), transparent);
 
   /* ⚖️ 15/09 — LE HALO DE LA DOMINANTE, FRANC DANS LES DEUX THÈMES.
@@ -1096,8 +1107,8 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=767");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=767");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=803");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=803");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1133,30 +1144,59 @@
      (*« le voile est un jeton, pas un littéral perdu dans la feuille »*), et c'est LUI
      qui a refusé mon `.6` écrit en clair. Il avait raison. */
   --filigrane: .40;
-  --icone-parchemin: url("./assets/parchemin.webp?v=767");
+  --icone-parchemin: url("./assets/parchemin.webp?v=803");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=767");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=803");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=767");
+  --icone-bourse: url("./assets/bourse.webp?v=803");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
      d'un parchemin · derrière, le background ; la dalle sous-jacente n'est pas
-     visible, juste le belt au-dessus »*. L'image porte SES bords déchirés ; la
+     visible, juste le belt au-dessus »*. La feuille porte SES bords déchirés ; la
      fiche n'a donc pas d'arête droite, et ce qu'on voit à travers les déchirures
-     est le décor du site. 📏 Servie en 806 × 1056 (deux fois la cote), 57 Ko
-     contre 1,18 Mo : détourée par remplissage depuis les bords, ⛔ jamais par un
-     seuil global — le parchemin est clair, un seuil l'aurait troué partout. */
-  --x1-parchemin: url("./assets/parchemin-x1.webp?v=767");
-  /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE. Le parchemin est
-     OPAQUE et CLAIR sur les deux fonds : l'encre du site (`--text`, qui bascule
-     avec le thème) y devient illisible la nuit — mesuré au banc le 17/09, premier
-     rendu, le nom se lisait à peine. ⭐ Même raison que `--bouton-encre` : *« ce
-     jeton bascule ; la face du bouton, elle, est la même sur les deux fonds »*.
-     Un organe qui apporte son propre fond apporte son propre contraste. */
+     est le décor du site.
+
+     🔴 LOT 219 — L'IMAGE EST PARTIE, LE PARCHEMIN SE DESSINE. Eric, 2026-09-21 :
+     *« aucune image matricielle de parchemin ne doit être nécessaire »*, *« le
+     panneau doit rester entièrement extensible selon son contenu »*.
+     📏 LE DÉFAUT ÉTAIT MESURABLE DANS LA FEUILLE : `--x1-parchemin` était servie
+     par `background: … center / 100% 100%` — une image de 806 × 1056 ÉTIRÉE aux
+     cotes de la dalle. ⛔ Un grain étiré n'a pas la même épaisseur selon le
+     format : la même déchirure rendait large sur un panneau court et fine sur un
+     panneau long. ⭐ `parchemin.mjs` calcule le contour À LA COTE RÉELLE, donc un
+     accroc fait 4 blg à toute hauteur — c'est la raison d'être du lot.
+     📌 L'IMAGE `assets/parchemin-x1.webp` N'EST PLUS RÉFÉRENCÉE NULLE PART. ⛔ Elle
+     n'est PAS supprimée : c'est un dépôt d'Eric, et c'est lui qui tranche.
+
+     ⚖️ ET LA FICHE A MAINTENANT TROIS PALETTES, PAS DEUX — Eric, 21/09 :
+     *« conserver les couleurs jour, nuit et bleutée du prototype »*. Les valeurs
+     viennent du modèle B de `Gpt in FH/Parchemin-CSS/parchment-css-demo.html`,
+     qu'Eric a regardé et validé. ⛔ Aucune n'est réinventée ici, et ⛔ aucune n'est
+     recopiée dans le JavaScript : `parchemin.mjs` ne pose que des CLASSES. */
+  --x1-papier: #ded2b8;
+  --x1-tranche: #887251;
+  --x1-tranche-douce: rgba(91, 69, 40, .33);
+  --x1-grain: rgba(77, 53, 27, .055);
+  /* ⚖️ L'OMBRE PORTE LE THÈME — Eric, 21/09 : *« légère en jour, plus profonde en
+     nuit, froide en bleutée »*, et ⛔ *« sans halo blanc »*. C'est donc une ombre
+     SOMBRE aux trois palettes : ce qui change est sa densité, jamais son signe.
+     ⛔ Un halo clair sous une feuille claire ferait flotter la fiche au lieu de la
+     poser — la faute que `--spy-halo` évite déjà ailleurs, en sens inverse. */
+  --x1-ombre: rgba(45, 31, 18, .30);
+  /* ⚖️ LA FICHE PORTE SON ENCRE, COMME LE BOUTON PORTE LA SIENNE.
+     🔴 MAIS ELLE BASCULE DÉSORMAIS, ET C'EST UN RENVERSEMENT ASSUMÉ. Le 17/09 ces
+     trois jetons étaient FIXES, et l'argument était juste : *« le parchemin est
+     opaque et CLAIR sur les deux fonds »*, donc une encre qui bascule y serait
+     illisible la nuit. ⭐ CE QUI A CHANGÉ N'EST PAS L'ARGUMENT, C'EST SA PRÉMISSE :
+     depuis le 21/09 le parchemin n'est plus clair la nuit — il a sa palette de
+     nuit. Une encre fixe sur un papier qui bascule serait exactement la faute que
+     la règle de 17/09 empêchait, à l'envers.
+     ⛔ LA LOI, ELLE, NE BOUGE PAS : un organe qui apporte son propre fond apporte
+     son propre contraste. C'est la PAIRE papier + encre qui bascule, ensemble. */
   --x1-encre: #2a1c10;
   --x1-encre-douce: #6d573e;
   --x1-trait: #8d7352;
@@ -1172,8 +1212,20 @@
      trait de séparation revient à la taille d'origine, rouge plus clair »*.
      ⭐ CE QUE ÇA RANGE : les mots d'état sont une INFORMATION, le filet est une
      PONCTUATION. Le même rouge aux deux aurait mis la ponctuation au niveau du propos ;
-     un cran plus clair la remet à sa place, sans la faire disparaître. */
-  --x1-filet-encre: #8c3b40;
+     un cran plus clair la remet à sa place, sans la faire disparaître.
+     🩸 LOT 240 — IL CHANGE DE STATUT, ⛔ PAS DE VALEUR, ET IL CHANGE DONC DE NOM.
+     Eric, 2026-09-21, de l'ornement qu'il fait revenir : *« il est oxblood »*, puis
+     *« le titre en gras et Oxblood »*, puis *« pour les fiches »*.
+     ⭐ CE QUE ÇA RANGE : #8c3b40 n'est plus « la teinte d'un ornement », c'est UNE
+     ENCRE DE LA FICHE — le titre la porte, les deux filets la portent, et c'est la
+     MÊME déclaration qui les sert. ⛔ Un second jeton pour le titre serait deux
+     écrivains pour une teinte, et le jour où Eric la bouge il faudrait le savoir.
+     ⛔ ET LE NOM SUIT L'EMPLOI : `--x1-filet-encre` posé sur un titre serait un nom
+     qui ment, et ce dépôt lit les noms. Il s'appelle donc `--x1-oxblood`.
+     ⚠️ IL NE SE CONFOND PAS AVEC `--x1-etat-encre` (#4a0e13), l'AUTRE rouge de la
+     fiche : celui-là est la voix des MOTS D'ÉTAT, plus sombre d'un cran, et il ne
+     bouge pas. Deux rouges, deux emplois, deux jetons — et aucun littéral. */
+  --x1-oxblood: #8c3b40;
   /* ⚖️ LES DEUX INTERRUPTEURS NOIRS — Eric, 17/09 : *« locked est un bouton noir,
      soit vide à gauche, ou avec un cadenas blanc quand à droite »*, *« attuned
      idem, avec un cœur »*. ⛔ Le corps NE BASCULE PAS avec le thème : c'est un
@@ -1194,6 +1246,18 @@
   /* ⚖️ LE FILET QUI DÉLIMITE LE TEXTE — Eric, 17/09 au soir, en donnant l'image : un
      trait qui s'affine aux deux bouts, et au milieu losange · point · losange. ⛔ Il
      est posé en MASQUE : sa teinte est celle de la fiche, pas une encre écrite ici. */
+  /* ✅ LOT 240 — LA QUESTION OUVERTE EST CLOSE, ET LE DESSIN REPREND SON EMPLOI.
+     Le lot 219 avait retiré ce masque au profit d'un dégradé, sur la spécification
+     écrite d'Eric du 21/09 au matin. Il a REGARDÉ le rendu le même jour et il est
+     revenu dessus : *« l'ornement de l'ancienne fiche X1 me plaît plus, je veux
+     bien qu'on le garde »*, *« celui de l'ancienne fiche X1 »*.
+     ⭐ LE CROQUIS ET L'ŒIL PRIMENT SUR LA PROSE, Y COMPRIS LA SIENNE — c'est la
+     loi du dépôt, et c'est elle qui joue ici : un lot qui applique une phrase
+     n'a pas fini tant qu'Eric n'a pas vu ce qu'elle rend.
+     ⭐ ET CE QUI A SURVÉCU AU DÉTOUR EST UN PROGRÈS QU'ON GARDE : `--x1-oxblood`
+     est décliné aux TROIS palettes depuis le 219 — le dégradé part, la déclinaison
+     reste. ⛔ Ce jeton n'est donc plus « une pièce en attente » : il est consommé
+     par `.x1-filet`, et le retirer casserait les deux séparateurs de la fiche. */
   --icone-filet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' fill='%23000'%3E%3Cpath d='M0 6.3 L164 4.5 L164 7.5 Z'/%3E%3Cpath d='M400 6.3 L236 4.5 L236 7.5 Z'/%3E%3Cpath d='M168 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3Ccircle cx='200' cy='6' r='3.6'/%3E%3Cpath d='M214 6 l9 -4.2 l9 4.2 l-9 4.2 z'/%3E%3C/svg%3E");
   /* ⚖️ LA COPIE — Eric, 17/09 au soir, d'abord *« deux pages superposées, très simple
      et petit, juste des traits »*, puis en donnant l'image : un PRESSE-PAPIERS — la
@@ -1290,14 +1354,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=767");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=803");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=767");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=803");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1390,8 +1454,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=767");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=767");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=803");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=803");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
@@ -1399,6 +1463,7 @@
      ⚠️ Le verre léger valait 20 % jusqu'au 2026-08-14 ; Eric l'a porté à
      35 % parce qu'à 20 % une dalle claire posée sur un fond contrastant ne
      lisait plus comme du parchemin — elle lisait comme le fond. */
+  --voile-cran: 20%;      /* verre à peine — une tuile de tambour AU REPOS (Eric, 21/09) */
   --voile-simple: 35%;    /* verre léger  — les choix, les gros affichages */
   --voile-inter: 50%;     /* verre moyen  — un peu de texte, pas de couleur */
   --voile-majeure: 100%;  /* opaque       — beaucoup de contenu, ou des images */
@@ -1407,6 +1472,14 @@
      source pour la surface, le voile la module. */
   --dalle-simple: color-mix(in srgb, var(--surface) var(--voile-simple), transparent);
   --dalle-inter: color-mix(in srgb, var(--surface) var(--voile-inter), transparent);
+  /* ⚖️ LA TUILE AU REPOS — Eric, 2026-09-21 : *« pour les tuiles non sélectionnées rajouter du
+     voile sur le fond à 20 ou 35 % serait plus joli »*, puis *« voile des tuiles à 20% »*.
+     ⭐ ET C'EST LE MÊME PATRON QUE LES DEUX AU-DESSUS : une surface, un voile qui la module.
+     ⛔ Pas une couleur neuve — le jour où `--surface` change, les trois suivent ensemble.
+     🗄️ CE QUE ÇA AMENDE : *« de transparent à plein »* (Eric, 19/09, sur le belt). Le repos
+     n'est plus transparent, il est à peine voilé — le contraste avec la posée
+     (`--dalle-inter`, 50 %) reste ce qui DÉSIGNE, il est seulement moins brutal. */
+  --dalle-cran: color-mix(in srgb, var(--surface) var(--voile-cran), transparent);
 
   /* ── LE FOND D'UN DROPDOWN (§8, ratifié le 2026-08-26) ─────────────────
      🔴 *« Il reste rectangulaire, très large, peu haut, transparence 20 %,
@@ -1589,12 +1662,97 @@
        compenser, la marge n'existe pas. */
     --bouton-ombre: drop-shadow(0 0 3px rgba(255,255,255,.16)) drop-shadow(0 2px 4px rgba(0,0,0,.55));
 
+    /* ══ 📜 LOT 219 — LE PARCHEMIN DE NUIT (X1) ════════════════════════════
+       Les valeurs du modèle B nocturne, reprises du prototype validé par Eric
+       le 21/09. ⛔ La fiche cesse ici d'être « claire sur les deux fonds » : le
+       renversement est argumenté au jeton de jour, vingt lignes plus haut.
+       📏 ET LE PAPIER RESTE PLUS CLAIR QUE LE FOND, mesuré : `--bg` de nuit
+       vaut #14120e (luminance 18), le papier #252522 (37). ⭐ C'est ce qui
+       autorise une ombre SOMBRE ici, là où `--bouton-ombre` a dû devenir une
+       lueur : un bouton de nuit est sombre SUR sombre et n'a aucune marge ;
+       cette feuille-ci est la partie claire de l'image, et elle en a.
+       ⛔ Donc pas de halo blanc — Eric, 21/09, explicitement. */
+    --x1-papier: #252522;
+    --x1-tranche: #80776a;
+    --x1-tranche-douce: rgba(204, 190, 169, .21);
+    --x1-grain: rgba(222, 210, 189, .035);
+    --x1-ombre: rgba(0, 0, 0, .56);
+    /* L'encre bascule AVEC son papier — la paire, jamais l'un sans l'autre. */
+    --x1-encre: #e6dfd2;
+    --x1-encre-douce: #aaa397;
+    --x1-trait: #6f6759;
+    /* 🩸 L'OXBLOOD S'ÉCLAIRCIT, ET C'EST LA MÊME LOI QU'AU JOUR : *« une teinte
+       ne se juge jamais seule, elle se juge sur son fond »*. #4a0e13 sur le
+       papier de nuit #252522 rend 1,3:1 — il disparaît. Le rouge de nuit du
+       prototype (#a15a54) y rend 4,6:1, donc le mot d'état se lit encore comme
+       un mot d'état, et le filet reste une ponctuation d'un cran plus douce.
+       🩸 LOT 240 — ET LE SECOND SERT AUSSI LE TITRE (Eric, 21/09) : c'est la même
+       encre de fiche, déclarée une fois, lue par le titre et par les deux filets. */
+    --x1-etat-encre: #a15a54;
+    --x1-oxblood: #8f5450;
+
     /* --accent-wash N'EST PAS REDÉCLARÉ : une custom property se résout à
        l'usage, pas à la déclaration — `var(--accent)` dans le calcul
        ci-dessus lit déjà l'accent DE NUIT ici. Mesuré : le texte sur le
        lavis tient 11,14:1 la nuit (11,06:1 le jour), très au-dessus de la
        cible 4,5:1 — voir l'inventaire. */
   }
+}
+
+/* ══ 📜 LOT 219 — LA TROISIÈME PALETTE : LE PARCHEMIN DU PARTY TALLY ════════
+   Eric, 2026-09-21 : *« la palette bleutée s'inspire d'un parchemin glacé :
+   centre bleu très pâle, bord bleu gris plus dense, texte bleu ardoise »*, et
+   ⛔ *« la bleutée doit rester claire et lisible : pas un panneau nocturne
+   recoloré en bleu »*.
+
+   ⚖️ CE N'EST PAS UN THÈME, C'EST UN CONTEXTE, et les deux ne se posent pas au
+   même endroit. Jour et nuit sont l'affaire du LECTEUR (`prefers-color-scheme`,
+   sur `:root`) ; la bleutée est l'affaire de l'OBJET REGARDÉ — elle dit *« cette
+   fiche relève du Party Tally »*. ⭐ Elle vit donc sur la fiche, en attribut, et
+   elle vaut SOUS LES DEUX THÈMES : c'est pour ça qu'elle est déclarée APRÈS le
+   bloc de nuit et hors de lui. Une fiche du Party Tally est bleue pâle le soir
+   comme le matin, parce que ce qu'elle dit ne dépend pas de l'heure.
+   📏 ET « CLAIRE » EST UNE MESURE, PAS UN MOT : papier #d5e1e9 (luminance 224),
+   encre #243746 (luminance 55) — 9,6:1. La palette de NUIT, elle, rend un papier
+   à 37. ⛔ Personne ne peut confondre les deux, et c'est exactement la confusion
+   qu'Eric nomme.
+
+   🔴 ⛔ ET L'ATTRIBUT N'EST BRANCHÉ SUR RIEN — C'EST DÉLIBÉRÉ, ET ÇA SE DIT.
+   📏 Mesuré le 21/09 sur cette branche : `sac-ecran.mjs` déclare le Party Tally
+   `{ id: "party-tally", … inerte: true }` et le commente *« le Group Tally
+   n'existe qu'EN JEU, la donnée ne le porte pas à la création »* ;
+   `equipment-step.mjs` ne lui donne aucun destinataire (*« il se montre inerte
+   (disabled), il ne fait pas semblant d'écouter »*) ; et X1 ne s'ouvre que depuis
+   `surJeton` d'un écran d'équipement, qui écrit `origineX1 = vueEquipement` —
+   jamais « party-tally ».
+   ⭐ AUCUNE FICHE NE PEUT DONC RELEVER DU PARTY TALLY AUJOURD'HUI. Inventer la
+   provenance aurait été écrire la donnée que le sac dit ne pas exister. L'HABIT
+   est prêt et se regarde au banc ; ⏳ le DÉCLENCHEUR attend que le Party Tally
+   soit réel, et c'est une décision d'Eric, pas de ce lot.
+   📌 LE JOUR OÙ IL LE SERA, UN SEUL GESTE SUFFIT : poser
+   `data-parchemin="party-tally"` sur la section `.x1` dans
+   `construireLaFicheX1`. Rien d'autre à câbler.
+   ⚠️ TROIS NOMS, UN SEUL ORGANE : Eric dit « Party Tally », d'anciens
+   commentaires du dépôt disent « Group Tally », et le code écrit `party-tally`.
+   ⛔ Ce n'est pas un second organe — le nom qui fait foi est celui du code, et
+   c'est celui qu'Eric a tranché le 21/09. */
+/* ⭐ LOT 242 — `:is(.x1, .x2)`, POUR LA RAISON DU BLOC DU PARCHEMIN DANS
+   `shell.css` : les deux fiches montent le MÊME organe, donc elles portent la
+   même troisième palette. ⛔ Un second bloc pour X2 aurait été deux écrivains
+   pour un jeu de onze teintes — et une palette qui diverge d'une teinte, ça ne
+   se voit pas dans un garde, ça se voit six semaines plus tard à l'œil. */
+:is(.x1, .x2)[data-parchemin="party-tally"] {
+  --x1-papier: #d5e1e9;
+  --x1-tranche: #6686a3;
+  --x1-tranche-douce: rgba(51, 80, 105, .31);
+  --x1-grain: rgba(54, 84, 112, .052);
+  /* froide, et toujours sombre — ⛔ jamais un halo */
+  --x1-ombre: rgba(24, 43, 59, .34);
+  --x1-encre: #243746;
+  --x1-encre-douce: #4f6576;
+  --x1-trait: #7c96ab;
+  --x1-etat-encre: #985e61;
+  --x1-oxblood: #8a6469;
 }
 
 /* ══ LA GRANDEUR — ⚠️ CE N'EST PLUS UN `@media`, ET C'EST MESURÉ ═════════

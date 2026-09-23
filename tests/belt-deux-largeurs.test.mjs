@@ -277,8 +277,26 @@ test("🔴 LE VOILE DU BELT EST À LUI — le socle n'a pas bougé pour une rang
      ⭐ Un voile de belt est un voile de belt. Le garde tient les deux bouts :
      le jeton local existe, et le jeton du socle n'a pas bougé.
      📏 Le rapport de matière entre une tuile et la dominante passe de 1,43
-     (35/50) à 5 (10/50) — c'est cet écart-là qui manquait, pas des pixels. */
-  assert.match(tokensCss, /--belt-voile:\s*10%/, "le belt a SON voile, à 10 %");
+     (35/50) à 5 (10/50) — c'est cet écart-là qui manquait, pas des pixels.
+
+     🔄 AMENDÉ LE 2026-09-21 — LE VOILE MONTE À 20 %, et ce garde cesse d'épeler
+     une VALEUR pour tenir ce qu'elle protège. Eric a fait vérifier le belt contre
+     les tambours ; 📏 relevé : belt 0,10 au repos et 0,50 au courant, tambours
+     0,20 et 0,50. Le courant était déjà identique, l'écart vivait au repos — et
+     il a tranché : *« passe les crans au repos à 20 »* · *« oui idem pour le
+     belt »*. Les trois rangées de crans parlent maintenant la même matière.
+     ⛔ ET CE QUI COMPTE N'EST PAS LE NOMBRE, C'EST LE RAPPORT : il passe de 5 à
+     **2,5**, et il valait **1,43** le jour où Eric ne voyait plus la tuile active.
+     ⭐ Le garde tient donc un PLANCHER de rapport — sous 2, on retombe dans ce
+     qui avait échoué. Un garde qui épelle « 10 % » accuse l'alignement ; un garde
+     qui tient le rapport accuse l'aplatissement. */
+  const pct = (nom) => Number((tokensCss.match(new RegExp("--" + nom + ":\\s*(\\d+)%")) || [])[1]);
+  const repos = pct("belt-voile"), pleine = pct("voile-inter");
+  assert.ok(repos > 0 && pleine > 0, "⛔ les deux voiles doivent exister et être chiffrés");
+  assert.ok(pleine / repos >= 2,
+    `⛔ le rapport de matière tombe à ${(pleine / repos).toFixed(2)} : sous 2, la dominante ` +
+    `cesse de se détacher — c'est ce qu'Eric voyait à 1,43`);
+  assert.equal(repos, 20, "⭐ et il vaut 20 %, aligné sur les tambours (Eric, 21/09)");
   assert.match(tokensCss, /--belt-dalle:\s*color-mix\(in srgb, var\(--surface\) var\(--belt-voile\), transparent\)/,
     "et sa dalle s'en déduit, sur la surface du thème");
   assert.match(tokensCss, /--voile-simple:\s*35%/,

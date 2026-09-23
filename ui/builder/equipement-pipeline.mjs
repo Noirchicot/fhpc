@@ -28,8 +28,8 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=767";
-import { pageDeListe } from "./normes.mjs?v=767";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=803";
+import { pageDeListe } from "./normes.mjs?v=803";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
@@ -265,6 +265,66 @@ export function additionneCouts(couts) {
   return r;
 }
 
+/** ⚖️ COMMENT UN ENCOMBREMENT SE DIT — ⛔ UN SEUL ÉCRIVAIN, et il est ici.
+ *
+ *  🔴 CE QUI L'A FAIT NAÎTRE — Eric, 2026-09-21 : *« rajoute l'unité d'encombrement »*. Le
+ *  libellé vivait dans `equipment-step.mjs`, SANS unité, et son commentaire justifiait ce
+ *  manque par *« elle est dite trois fois juste dessous »*. 📏 Relevé sur le site déployé : les
+ *  trois lignes du dessous rendent `Gear 0`, `Backpack 0`, `Other 0` — **aucune ne la dit**.
+ *  ⭐ UNE JUSTIFICATION QUI S'APPUIE SUR UN VOISIN MEURT QUAND LE VOISIN CHANGE, et rien ne
+ *  prévient : le commentaire continue d'affirmer ce qui n'est plus vrai. C'est pour ça que le
+ *  libellé descend ici, avec un garde : une phrase que personne ne tient dérive en silence.
+ *
+ *  ⚖️ ET L'UNITÉ EST IMPÉRIALE — Eric, 2026-09-21 : *« non, en mesures impériales ici »*. Le
+ *  jeu se pèse en **livres**, et c'est ce que l'écran dit.
+ *
+ *  🔴 CE QUE ÇA NE VEUT PAS DIRE : convertir. La maison a déjà tranché, et c'est écrit vingt
+ *  lignes plus haut — *« la livre et le kilo ne se convertissent JAMAIS l'un dans l'autre ici :
+ *  l'édition FR n'est pas une conversion mais un ARRONDI d'éditeur (« 2 lb. » y vaut « 1 kg »,
+ *  pas 0,907), et convertir inventerait une précision que le livre ne donne pas »*.
+ *  ⭐ DONC UN TOTAL QUI N'EST PAS EN LIVRES EST UNE ANOMALIE, ⛔ pas un cas d'affichage : on ne
+ *  le réétiquette pas en `lb` *(le chiffre mentirait, et un chiffre qui ment se recopie)*, et on
+ *  ne le convertit pas non plus *(la loi l'interdit)*. **On le DIT.**
+ *  ⭐ Même traitement pour un total qui MÊLE plusieurs unités : aucune étiquette, et on le dit.
+ *  📌 Le repli sur la livre couvre l'ABSENCE de mesure — aucun objet pesé n'est pas « une autre
+ *  unité », c'est l'unité du jeu qui s'applique par défaut.
+ *
+ *  @param {{somme:number, inconnus:number}} e     l'encombrement calculé
+ *  @param {{unite:?string, melange:boolean}} poids ce que la pesée a trouvé
+ */
+export const UNITE_DU_JEU = "lb";
+
+/** ⚖️ L'UNITÉ QU'ON A LE DROIT D'AFFICHER — ⛔ UN SEUL JUGE, et toutes les lignes le consultent.
+ *
+ *  ⭐ UNE SEULE CONDITION COUVRE LES DEUX ANOMALIES : plusieurs unités mêlées, ou une unité qui
+ *  n'est pas celle du jeu. Dans les deux cas le chiffre n'est PAS en livres, donc il ne porte
+ *  aucune étiquette — c'est le TOTAL qui le dit, une fois, ⛔ pas chaque ligne qui le répète.
+ *  📌 Rend `null` quand rien ne peut être affiché honnêtement.
+ */
+export function uniteAffichee(poids) {
+  const trouvee = poids && poids.unite;
+  const impérial = !(poids && poids.melange) && (!trouvee || trouvee === UNITE_DU_JEU);
+  return impérial ? UNITE_DU_JEU : null;
+}
+
+/** ⚖️ UNE LIGNE DE POIDS — `Gear 34 lb`. ⛔ Le même juge que le total, sinon deux lignes voisines
+ *  peuvent afficher deux unités différentes pour une même pesée.
+ *  ⭐ Eric, 2026-09-21, en listant ce qu'il veut voir : *« Encumbrance 34 lb · Gear 0 lb ·
+ *  Backpack 34 lb · Other 0 lb »* — l'unité sur CHAQUE composant, pas seulement sur le total. */
+export function motDUnPoids(titre, somme, inconnus, poids) {
+  const rond = (n) => Math.round((n || 0) * 10) / 10;
+  const unite = uniteAffichee(poids);
+  return `${titre} ${rond(somme)}${unite ? ` ${unite}` : ""}${inconnus ? ` +${inconnus}?` : ""}`;
+}
+
+export function motDeLEncombrement(e, poids) {
+  const rond = (n) => Math.round((n || 0) * 10) / 10;
+  const unite = uniteAffichee(poids);
+  return `Encumbrance : ${rond(e && e.somme)}`
+    + (unite ? ` ${unite}` : " (hors mesures impériales)")
+    + (e && e.inconnus ? ` · ${e.inconnus} sans poids` : "");
+}
+
 export function enGP(cout) {
   if (!cout) return 0;
   return CURRENCY_KEYS.reduce((s, k) => s + (cout[k] || 0) * TAUX_EN_GP[k], 0);
@@ -445,119 +505,16 @@ function blocMyGold(bourse, motBourse) {
   return b;
 }
 
-/* ══ B1 — LA FICHE D'UN OBJET (croquis IMG_6107) ════════════════════════════
-   `liste` : les objets de la page de grille d'où on vient — le « 1/x avec
-   flèches » navigue DEDANS sans repasser par R (vault §1). */
-export function renderB1({ liste, index, bourse, motBourse = null, onAction, naviguer, fermer }) {
-  const ecran = elp("section", "pipeline-ecran pipeline-b1");
-  ecran.dataset.ecran = "B1";
-  let i = index;
-  let qte = 1;
-  const item = () => liste[i];
-
-  const entete = elp("header", "pipeline-entete");
-  entete.append(elp("h2", null, "Item description"));
-  const compte = elp("p", "pipeline-compte", `${i + 1}/${liste.length}`);
-  entete.append(compte);
-
-  const corps = elp("div", "pipeline-b1-corps");
-  const nomP = elp("p", "pipeline-b1-nom");
-  const infosP = elp("p", "pipeline-b1-infos");
-  const proseP = elp("p", "pipeline-b1-prose");
-  corps.append(nomP, infosP, proseP);
-
-  /* les flèches du croquis — deux ronds, coins hauts */
-  const gauche = bouton("←", "pipeline-fleche", () => { i = (i - 1 + liste.length) % liste.length; peindre(); }, "Previous item");
-  const droite = bouton("→", "pipeline-fleche", () => { i = (i + 1) % liste.length; peindre(); }, "Next item");
-
-  const or = blocMyGold(bourse, motBourse);
-
-  /* PRICE (type in — rose au croquis : le joueur peut marchander) · QTY ± */
-  const reglages = elp("div", "pipeline-reglages");
-  const prixChamp = elp("input", "pipeline-typein");
-  prixChamp.type = "text";
-  prixChamp.setAttribute("aria-label", "Price");
-  const qteChamp = elp("input", "pipeline-typein pipeline-qte");
-  qteChamp.type = "text"; qteChamp.inputMode = "numeric";
-  qteChamp.setAttribute("aria-label", "Quantity");
-  qteChamp.addEventListener("change", () => {
-    const n = parseInt(qteChamp.value, 10);
-    qte = Number.isInteger(n) && n > 0 ? n : 1;
-    peindre();
-  });
-  const plus = bouton("+", "pipeline-pas pipeline-pas-plus", () => { qte += 1; peindre(); }, "One more");
-  const moins = bouton("−", "pipeline-pas pipeline-pas-moins", () => { qte = Math.max(1, qte - 1); peindre(); }, "One less");
-  reglages.append(elp("span", "pipeline-libelle", "Price"), prixChamp,
-    elp("span", "pipeline-libelle", "Qty"), qteChamp, plus, moins);
-
-  /* SEND TO — les destinations INTERNES au personnage (le mandat exclut
-     groupe, DM, companions ; le croquis les liste pour plus tard).
-     ⭐ RÈGLE D'ERIC (24/08) : *« un item individuel, si pas de choix
-     pertinent, ça peut aller au slot approprié, pockets, backpack »* — le
-     défaut d'UN objet est donc la CASCADE (l'arbitre du pilote la joue :
-     slot libre → poche libre → le sac). */
-  const destRang = elp("div", "pipeline-sendto");
-  destRang.append(elp("span", "pipeline-libelle", "Send to"));
-  const dest = elp("select", "pipeline-dropdown");
-  /* 🔴 `Storage` EST SORTI DE CETTE LISTE LE 18/09, ET CE N'EST PAS UN CAPRICE —
-     c'était devenu un ENVOI VERS L'INVISIBLE. ⛔ Mesuré ce jour-là : la seule porte
-     au monde vers l'écran de la remise (`sb33`) était l'ANCIENNE liste du sac, et
-     celle-ci n'est plus dans le chemin du joueur depuis que `Backpack` ouvre le sac
-     B1. Un objet envoyé là n'aurait plus jamais pu être regardé.
-     ⚖️ ET LA SOURCE DU CHAPITRE NE LE PORTE PAS : son `SEND TO ▾` a huit entrées —
-     *« Backpack · Gear · Party inventory · Companion · Group PC · Merchant/NPC ·
-     Tally · Craft »* — et `Storage` n'en est pas. C'est un reste de la tuyauterie
-     d'avant l'écran R.
-     ⭐ CE QUI RESTE, ET QUI SUFFIT À NE RIEN PERDRE : la ligne `Other` du panneau de
-     poids compte ce qui est déjà rangé là (Eric, 16/09 : *« other storage ne rentre
-     pas dans encumbrance »*), et le code de l'écran `sb33` n'est pas supprimé — il
-     dort. ⏳ Le périmètre d'OTHER est explicitement NON TRANCHÉ dans la source ; le
-     jour où Eric lui donne une porte, la destination revient avec elle. */
-  for (const [v, mot] of [["self", "Slot (auto)"], ["backpack", "Backpack"]]) {
-    const o = elp("option", null, mot); o.value = v; dest.append(o);
-  }
-  destRang.append(dest);
-
-  const coutTotal = () => multiplieCout(parseCout(prixChamp.value) || item().cout, qte);
-  const alerte = elp("p", "pipeline-alerte");
-
-  function envoyer(payer) {
-    const cout = coutTotal();
-    if (payer) {
-      if (!cout) { alerte.textContent = "No known price — use FREE, or type one."; return; }
-      if (!bourseCouvre(bourse, cout)) { alerte.textContent = "Not enough coin in the purse."; return; }
-      onAction({ kind: "payer", cout });
-    }
-    const destination = dest.value || "self";   /* item seul : la cascade */
-    onAction({ kind: "addGearLine", ref: item().ref, quantity: qte,
-      equipped: destination === "self", location: destination });
-    fermer();
-  }
-
-  const pied = elp("div", "pipeline-pied");
-  pied.append(
-    bouton("BACK", "pipeline-bouton", fermer, "Back to catalogue"),
-    bouton("CRAFT", "pipeline-bouton pipeline-inerte", () => {}, "Craft"),
-    bouton("BUY", "pipeline-bouton", () => envoyer(true), "Pay, send, and return"),
-    bouton("FREE", "pipeline-bouton", () => envoyer(false), "Send without paying"),
-  );
-
-  function peindre() {
-    const it = item();
-    compte.textContent = `${i + 1}/${liste.length}`;
-    nomP.textContent = it.nom;
-    infosP.textContent = [it.coutTexte || "no price", it.poidsTexte || ""].filter(Boolean).join(" · ");
-    proseP.textContent = it.prose || "";
-    prixChamp.value = it.coutTexte || "";
-    qteChamp.value = String(qte);
-    alerte.textContent = "";
-  }
-  peindre();
-  if (naviguer) naviguer({ vers: (n) => { i = n; peindre(); } });
-
-  ecran.append(entete, gauche, droite, corps, or, reglages, destRang, alerte, pied);
-  return ecran;
-}
+/* ══ 🔴 LA FICHE D'UN OBJET A QUITTÉ CE FICHIER — LOT 242 ══════════════
+   `renderB1` vivait ici. ⚖️ `NORMES.md` (`equipement-la-fiche-du-catalogue-est-un-x2`)
+   lui rendait déjà son nom de loi : c'est un **X2**, et `b1` désignait *le même mot
+   que le rang B1, qui est le sac* — ⛔ un nom, deux objets.
+   ⭐ IL EST MAINTENANT DANS `x2-ecran.mjs`, À CÔTÉ DE `x1-ecran.mjs`, et pour une
+   raison qui n'est pas de rangement : sa moitié haute est IMPORTÉE de X1, donc elle
+   importe `x1-ecran`, qui importe `gear-ecran`, qui importe CE fichier. La garder
+   ici aurait fermé le cycle.
+   ⛔ Sa logique n'a pas bougé : elle appelle toujours `parseCout`, `multiplieCout` et
+   `bourseCouvre` d'ici. */
 
 /* ══ B2 — LE CART (croquis IMG_6108) · SB3.2 — LA MÊME LISTE, VUE DE B3 ═════
    `mode: "cart"` → BACK vers R, BUY paie ; `mode: "send"` (SB3.2) → BACK vers
@@ -665,7 +622,7 @@ export function renderB2({ mode, lignes, bourse, motBourse = null, onAction, ret
  *  les écrans SB3.1/SB3.3 la paginent, le FLUX du dressing (trois bandes,
  *  26/08) la déroule — une seule écriture du geste d'échange. */
 export function rangeeEchange(l, lieu, onAction) {
-  /* ⛔ `Storage` retiré aussi ici — voir la note de `renderB1` : envoi vers l'invisible. */
+  /* ⛔ `Storage` retiré aussi ici — voir la note de X2 (`x2-ecran.mjs`) : envoi vers l’invisible. */
   const DESTS = [["self", "Worn"], ["backpack", "Backpack"]];
   const rang = elp("div", "pipeline-ligne");
   rang.append(elp("span", "pipeline-ligne-nom", `${l.nomAffiche} ×${l.quantity || 1}`));

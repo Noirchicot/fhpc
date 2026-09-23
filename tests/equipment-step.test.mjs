@@ -37,6 +37,8 @@ const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui
 const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
+  optionsDeLaProse, morceauxDeLOption, departsDuPersonnage, butinDuDepart, departRepondu, cheminDuDepart,
+  cheminDeLOutil, outilsChoisisDansSkills, nomCourtDOutil,
   lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection,
   sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans,
   rangsDesSections, cheminDuRang, CHEMIN_RANG_PARTY
@@ -77,6 +79,35 @@ function withoutCurrency(document) {
   let doc = document;
   for (const key of CURRENCY_KEYS) {
     doc = build.verbs.clear({ document: doc, path: `currency.${key}`, kind: "choice" }).document;
+  }
+  return doc;
+}
+
+/** ⭐ LOT 245 — `poserLeDepart` DE `shell.mjs`, REJOUÉ À LA MAIN. Même limite
+ *  et même réponse que les trois gestes du lot 49 (voir l'en-tête) : ce harnais
+ *  prouve le RÉSULTAT, le garde d'octets prouve le CÂBLAGE.
+ *  ⛔ IL NE RECALCULE RIEN : il appelle `butinDuDepart`, comme la coquille. Un
+ *  harnais qui composerait son propre butin resterait vert le jour où le
+ *  lecteur se tromperait — c'est le témoin qui ne peut jamais accuser. */
+function applyPoserLeDepart(document, reponses) {
+  if (departRepondu(document)) return document;
+  const butin = butinDuDepart({ query, document, reponses });
+  if (!butin.complet) return document;
+  let doc = document;
+  for (const { genre, valeur } of butin.aEcrire) {
+    doc = build.verbs.set({ document: doc, path: cheminDuDepart(genre), value: valeur }).document;
+  }
+  for (const pose of butin.aPoser) {
+    if (pose.neuve) doc = build.verbs.choose({ document: doc, path: `gear[${pose.index}]`, ref: pose.ref }).document;
+    doc = build.verbs.set({ document: doc, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
+    if (pose.neuve) doc = build.verbs.set({ document: doc, path: `gear[${pose.index}].equipped`, value: false }).document;
+  }
+  if (butin.cout) {
+    const bourse = currentCurrency(doc);
+    for (const key of CURRENCY_KEYS) {
+      const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
+      doc = build.verbs.set({ document: doc, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
+    }
   }
   return doc;
 }
@@ -249,15 +280,19 @@ test("⛔ l'étape Équipement OUVRE SUR R (Gear), et une seule vue vit à la fo
   }, () => {});
 
   assert.equal(rows(node, ".gear").length, 1, "le personnage équipé (R) est l'écran d'entrée");
-  assert.equal(rows(node, ".carte-r").length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219) : le catalogue est `[data-ecran="wares"]`. La loi ne bouge
+     pas d'un mot — UNE vue à la fois, c'est l'inversion du 24/08. */
+  assert.equal(rows(node, '[data-ecran="wares"]').length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
 
   const porte = node.querySelector('.gear-porte[data-porte="wares"]');
   assert.ok(porte, "la rangée du pied de R porte la porte Wares vers le catalogue");
   porte.click();
-  assert.equal(rows(node, ".carte-r").length, 1, "Wares ouvre le catalogue…");
+  assert.equal(rows(node, '[data-ecran="wares"]').length, 1, "Wares ouvre le catalogue…");
   assert.equal(rows(node, ".gear").length, 0, "…et R s'efface — jamais deux vues empilées");
 
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
+  /* ⭐ ET LE RETOUR SE FAIT PAR LA PORTE DU PIED, plus par un bouton du catalogue : le pied de
+     Wares dit `Gear · Send · Backpack` (Eric, 20/09 — le triangle se referme). */
+  const gear = node.querySelector('[data-porte="gear"]');
   assert.ok(gear, "la carte du catalogue porte GEAR");
   gear.click();
   assert.equal(rows(node, ".gear").length, 1, "GEAR ramène à R — l'aller-retour est complet");
@@ -276,7 +311,11 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
   for (const needle of [
     'action.kind === "addGearLine"',
     'action.kind === "removeGearLine"',
-    'action.kind === "addStartingPurse"',
+    /* ⭐ LOT 245 — `addStartingPurse` A CÉDÉ SA PLACE À `poserLeDepart`, et ce
+       garde suit le geste, pas son ancien nom. Ce qu'il exige n'a pas changé :
+       la coquille POSE vraiment le départ. Ce qui a changé, c'est qu'elle pose
+       maintenant les OBJETS en plus de l'or — voir le garde suivant. */
+    'action.kind === "poserLeDepart"',
     "renderEquipmentStep("
   ]) {
     assert.ok(shellText.includes(needle), `shell.mjs devrait contenir « ${needle} » — sans quoi le lot 49 n'est pas branché`);
@@ -305,10 +344,27 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
    un nombre écrit à la main passerait la première moitié et échouerait ici. */
 test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réécrit pas à la main", () => {
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /base\s*\+\s*\(or\.cout\[key\]\s*\|\|\s*0\)/,
-    "sans cette ligne, addStartingPurse pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
-  assert.match(shellText, /orDuDepart\(\{\s*query:[^}]*document:\s*state\.document\s*\}\)/,
-    "le montant doit être LU par `orDuDepart` sur le document courant, jamais écrit dans la coquille");
+  assert.match(shellText, /base\s*\+\s*\(butin\.cout\[key\]\s*\|\|\s*0\)/,
+    "sans cette ligne, `poserLeDepart` pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
+  /* ⭐ LOT 245 — LE MONTANT VIENT MAINTENANT DE `butinDuDepart`, la MÊME
+     fonction dont le QCM peint son récapitulatif. La loi du lot 182 est
+     inchangée (le montant se LIT sur le document courant, il ne s'écrit pas
+     dans la coquille) ; seul le lecteur a changé, parce que l'or dépend
+     désormais des options CHOISIES et non plus de la dernière de chaque
+     phrase. */
+  assert.match(shellText, /butinDuDepart\(\{\s*query:[^}]*document:\s*state\.document/,
+    "le montant doit être LU par `butinDuDepart` sur le document courant, jamais écrit dans la coquille");
+  /* 🔴 ET LES OBJETS AUSSI — c'est le défaut de six semaines que le lot 245
+     répare. La branche `kit` d'hier écrivait `depart: "kit"` et RIEN d'autre :
+     aucun `gear[N]` n'était posé, pendant que le popup annonçait *« already
+     listed »*. ⛔ Sans cette ligne, le QCM redeviendrait un popup qui ment. */
+  assert.match(shellText, /for \(const pose of butin\.aPoser\)[\s\S]{0,400}?path: `gear\[\$\{pose\.index\}\]`, ref: pose\.ref/,
+    "⛔ `poserLeDepart` ne pose plus les OBJETS du kit : le popup annoncerait un équipement qui n'arrive jamais dans Gear");
+  /* ⛔ ET IL NE LE POSE QU'UNE FOIS : rouvrir la question sur un personnage qui
+     a déjà répondu lui empilerait un second kit. Même prudence que le lot 182
+     sur la bourse (« un clic, pas un effet de rendu »). */
+  assert.match(shellText, /if \(departRepondu\(state\.document\)\)/,
+    "⛔ sans ce refus, un second `Done` poserait un second kit par-dessus le premier");
   assert.equal(/\bINHERITED_PURSE_GP\b/.test(shellText), false,
     "la constante du lot 49 est morte : un écran ne porte pas une valeur de règle");
 });
@@ -607,52 +663,440 @@ function queryAvecOrigine(id, equipment) {
   };
 }
 
-test("182 — 🔴 L'ÉCRAN COMPOSE SON MONTANT : un Fighter lit 155, un Wizard 55, et l'origine n'est plus un 50 en dur", () => {
+/* ⭐ LOT 245 — LES DEUX GARDES DU LOT 182, PORTÉS AU QCM. Ce qu'ils défendent
+   n'a pas bougé d'un centime : le montant de chaque source est LU dans sa
+   prose (un Fighter 155, un Wizard 55, une origine truquée 7), et une source
+   illisible n'offre RIEN et se fait nommer. Seul l'organe a changé — le choix
+   global à deux boutons est devenu un QCM par source. ⛔ Si un troisième nom
+   arrive, c'est le sélecteur qu'on change, jamais l'assertion. */
+test("182/245 — 🔴 LE QCM COMPOSE SON MONTANT : un Fighter lit 155, un Wizard 55, et l'origine n'est plus un 50 en dur", () => {
   const docFighter = build.verbs.choose({
     document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:fighter" }
   }).document;
 
   const node = renderEquipmentStep(ctxFrom(docFighter, null), () => {});
-  const texte = [...node.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
-  assert.match(texte, /Fighter 155 GP/, "le montant de la classe est LU — hier tout le monde lisait 50");
-  assert.match(texte, /Inheritance 50 GP/);
-  assert.match(texte, /205 GP in all/, "155 + 50 : chaque source offre SON or, et le total est composé");
+  /* ⚖️ LOT 246 — LE SÉLECTEUR SUIT L'ORGANE, ET C'EST TOUT CE QUI CHANGE ICI.
+     Eric, 21/09 : *« Deux lignes de texte un bouton à droite »*. Une option
+     n'est plus un bouton à libellé : c'est une RANGÉE (`.aiguilleur-rangee`)
+     dont le texte vit dans `.aiguilleur-option-mot` et dont la pastille
+     (`.aiguilleur-option`) ne porte plus que la LETTRE. ⛔ Ce que ce garde
+     défend n'a pas bougé d'un centime — le montant est toujours LU. */
+  const rangees = [...node.querySelectorAll(".aiguilleur-rangee")];
+  const options = rangees.map((r) => `${r.querySelector(".aiguilleur-option").textContent} · ${r.querySelector(".aiguilleur-option-mot").textContent}`);
+  /* ⭐ TROIS OPTIONS, PAS DEUX — le Fighter est la seule classe à en porter
+     trois, et c'est le témoin qu'un rendu câblé sur deux ne peut pas passer. */
+  assert.equal(options.length, 3, "« Choose A, B, or C » — le rendu compte les options, il ne les suppose pas");
+  assert.match(options[2], /^C · 155 GP$/, "le montant de la classe est LU — hier tout le monde lisait 50");
+  /* ⛔ ET LA LETTRE N'A QU'UN ÉCRIVAIN : elle est DANS la pastille, jamais
+     recopiée en tête du texte. Un « A · » resté dans le libellé ferait deux
+     lettres à l'écran, et personne ne s'en plaindrait. */
+  assert.deepEqual(rangees.map((r) => r.querySelector(".aiguilleur-option").textContent), ["A", "B", "C"],
+    "la pastille porte la lettre, et elle seule");
+  assert.equal(rangees.some((r) => /^[A-C]\s*·/.test(r.querySelector(".aiguilleur-option-mot").textContent)), false,
+    "⛔ le texte de l'option ne recopie pas la lettre de la pastille");
 
-  /* ⭐ LE BOUTON ET SON NOM ACCESSIBLE PORTENT LE MÊME NOMBRE — c'est la faute
-     réparée la veille (`e01ff19`) : le nom disait l'inverse du texte visible,
-     et l'œil ne pouvait pas le voir. */
-  const boutons = [...node.querySelectorAll(".aiguilleur-bouton")];
-  const bourse = boutons.find((b) => /^Take the/.test(b.textContent));
-  assert.equal(bourse.textContent, "Take the 205 GP");
-  assert.equal(bourse.getAttribute("aria-label"), "Set the class kit aside and take 205 GP instead");
+  /* ⭐ LE MOT DE LA SOURCE VIT DANS SON TITRE depuis que la carte a dû tenir en
+     764 : *« 2 Inheritance gives you 50 GP. »*, une ligne au lieu de deux. */
+  const titres = [...node.querySelectorAll(".aiguilleur-soustitre")].map((p) => p.textContent).join(" ");
+  assert.match(titres, /gives you 50 GP\./, "l'origine de Fate's Hand NOMME son or : une constatation, pas une question");
+
+  /* ⭐ LE RÉCAPITULATIF COMPOSE LES DEUX SOURCES — et il ne peut pas mentir :
+     il est peint depuis `butinDuDepart`, la fonction que `Done` exécute. */
+  /* ⛔ AUCUN RE-RENDU APRÈS LE CLIC : un choix du QCM n'écrit rien au document,
+     il repeint l'étape EN PLACE. Le nœud qu'on tient est déjà à jour. */
+  [...node.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "C").click();
+  const or = [...node.querySelectorAll(".aiguilleur-bilan-or")].map((l) => l.textContent);
+  assert.deepEqual(or, ["205 GP"], "155 + 50 : chaque source offre SON or, et le total est composé");
 
   /* Le Wizard de l'exemple : 55 + 50. Deux classes, deux phrases. */
   const wizard = renderEquipmentStep(ctxFrom(fixture.document, null), () => {});
-  const texteW = [...wizard.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
-  assert.match(texteW, /Wizard 55 GP/);
-  assert.match(texteW, /105 GP in all/);
+  const optsW = [...wizard.querySelectorAll(".aiguilleur-rangee")]
+    .map((r) => `${r.querySelector(".aiguilleur-option").textContent} · ${r.querySelector(".aiguilleur-option-mot").textContent}`);
+  assert.equal(optsW.length, 2, "« Choose A or B » — deux options pour le Wizard");
+  assert.match(optsW[1], /^B · 55 GP$/);
 
   /* ⚔️ L'ATTAQUE QUI ACCUSE : une origine qui porte 7 GP. Un `50` resté en dur
      rendrait ici 205 au lieu de 162, et AUCUN autre relevé ne le verrait. */
   const truque = ctxFrom(docFighter, null);
   truque.query = queryAvecOrigine("fh:background:en:inheritance", "7 GP");
   const truqueNode = renderEquipmentStep(truque, () => {});
-  const texteT = [...truqueNode.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
-  assert.match(texteT, /Inheritance 7 GP/, "l'origine est LUE : son montant vient de son record");
-  assert.match(texteT, /162 GP in all/);
-  assert.equal(/50 GP/.test(texteT), false, "plus aucun 50 n'apparaît quand la donnée n'en porte pas");
+  const texteT = [...truqueNode.querySelectorAll(".aiguilleur-soustitre")].map((p) => p.textContent).join(" ");
+  assert.match(texteT, /gives you 7 GP\./, "l'origine est LUE : son montant vient de son record");
+  [...truqueNode.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "C").click();
+  assert.deepEqual([...truqueNode.querySelectorAll(".aiguilleur-bilan-or")].map((l) => l.textContent), ["162 GP"]);
+  const toutT = [...truqueNode.querySelectorAll(".aiguilleur-soustitre, .aiguilleur-texte, .aiguilleur-option-mot, .aiguilleur-bilan-ligne")]
+    .map((n) => n.textContent).join(" ");
+  assert.equal(/\b50 GP\b/.test(toutT), false, "plus aucun 50 n'apparaît quand la donnée n'en porte pas");
 });
 
-test("182 — ⚔️ UN MONTANT ILLISIBLE N'OFFRE RIEN : pas de bouton, pas de bourse, pas de secours", () => {
+test("182/245 — ⚔️ UN MONTANT ILLISIBLE N'OFFRE RIEN : pas d'option, pas de bourse, pas de secours", () => {
   const muet = ctxFrom(fixture.document, null);
   /* Une pile sans aucune source lisible : ni classe, ni origine. */
   muet.query = (arg) => (arg && arg.kind === "background" ? (arg.id ? null : []) : (arg && arg.kind === "class" && arg.id ? null : query(arg)));
   const node = renderEquipmentStep(muet, () => {});
-  const boutons = [...node.querySelectorAll(".aiguilleur-bouton")].map((b) => b.textContent);
-  assert.deepEqual(boutons, ["I keep my kit"], "aucun bouton de bourse : promettre un or qu'on ne sait pas chiffrer est un mensonge");
-  const texte = [...node.querySelectorAll(".aiguilleur-texte")].map((p) => p.textContent).join(" ");
+  assert.equal(node.querySelectorAll(".aiguilleur-option").length, 0,
+    "aucune option : promettre un or qu'on ne sait pas chiffrer est un mensonge");
+  const texte = [...node.querySelectorAll(".aiguilleur-soustitre, .aiguilleur-texte")].map((p) => p.textContent).join(" ");
   assert.equal(/\d+ GP/.test(texte), false, "et aucun montant n'est inventé — ni 0, ni 50");
   assert.match(texte, /could not be read|is not named in the data/, "le manque est NOMMÉ au joueur, pas comblé");
+  /* ⛔ ET `Done` NE PEUT RIEN POSER — mais il n'est pas mort pour autant :
+     les deux sources sont illisibles, donc aucune question n'attend, donc il
+     s'active et écrit leur refus. Un popup qu'on ne peut jamais fermer serait
+     pire que le défaut qu'il remplace. */
+  const done = node.querySelector(".aiguilleur-bouton");
+  assert.equal(done.textContent, "Done");
+  assert.equal(done.disabled, false, "aucune question n'attend : `Done` ne doit pas emprisonner le joueur");
+});
+
+/* ══ LOT 245 — LE QCM DU DÉPART ════════════════════════════════════════════
+   ⭐ CE QUE CE BLOC PROUVE, ET IL FAUT LES TROIS : que la PHRASE se découpe
+   (et REFUSE ce qu'elle ne comprend pas), que les DEUX PILES rendent deux
+   écrans différents, et que `Done` pose VRAIMENT les objets. */
+
+test("245 — ⛔ AUCUNE LISTE D'OBJETS N'EST RETAPÉE : le kit se DÉRIVE de la phrase SRD", () => {
+  /* 🔴 LE GARDE QUI FERME LA PORTE DU SECOND ÉCRIVAIN. Le choix d'architecte
+     du 13/08 interdisait de structurer la phrase parce que ça créerait *« une
+     DEUXIÈME ÉCRITURE de la même règle »*. Eric l'a levé pour l'écran, ⛔ pas
+     pour la donnée : si un nom d'objet du SRD apparaît en littéral dans le
+     code de l'écran, le second écrivain est né et il divergera au premier
+     errata. ⭐ Les noms testés sont pris DANS LA COUCHE, pas écrits ici. */
+  const source = fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8");
+  const code = stripComments(source);
+  const phrase = query({ kind: "class", id: "srd:class:en:rogue" }).record.data.starting_equipment;
+  const noms = phrase.split(/;\s*or\s+/i)[0].replace(/^\s*\(A\)\s*/, "").split(/,\s*|\s+and\s+/)
+    .map((s) => s.replace(/^\d+\s+/, "").replace(/\s*\([^)]*\)\s*$/, "").trim())
+    .filter((s) => s && !/^\d+\s*GP$/i.test(s));
+  assert.ok(noms.length >= 6, `extraction suspecte : ${noms.length} noms`);
+  /* ⛔ SANS CASSE, ET C'EST UNE MESURE : ⚔️ le mutant qui rapprochait
+     « Arrows » à la main l'a écrit `/^arrows?$/i` — en minuscules, dans une
+     expression — et il passait sous un garde sensible à la casse. Il a été
+     attrapé par le garde COMPORTEMENTAL, pas par celui-ci ; les deux existent
+     pour ça, mais un garde qui rate le cas qu'il vise est un garde à réparer. */
+  const codeBas = code.toLowerCase();
+  for (const nom of noms) {
+    const singulier = nom.replace(/s$/, "");
+    for (const forme of [nom, singulier]) {
+      assert.equal(codeBas.includes(forme.toLowerCase()), false,
+        `⛔ « ${forme} » est écrit en littéral dans equipment-step.mjs : c'est le SECOND ÉCRIVAIN que le 13/08 interdisait`);
+    }
+  }
+});
+
+test("245 — ⛔ UN DÉCOUPAGE QUI NE COMPREND PAS REFUSE, IL NE DEVINE PAS", () => {
+  /* ① l'en-tête promet trois options, la phrase n'en porte que deux */
+  assert.deepEqual(optionsDeLaProse("Choose A, B, or C: (A) a Club; or (B) 5 GP"), [],
+    "⛔ une phrase qui promet trois options et n'en rend que deux est une phrase qu'on n'a pas comprise");
+  /* ② les lettres ne sont pas celles qu'on a trouvées */
+  assert.deepEqual(optionsDeLaProse("Choose A or B: (A) a Club; or (C) 5 GP"), []);
+  /* ✅ ET LE TÉMOIN CONTRAIRE — sans lui, ce garde passerait vert sur un
+     découpeur qui refuse TOUT. Le Fighter est la seule classe à trois options. */
+  const fighter = query({ kind: "class", id: "srd:class:en:fighter" }).record.data.starting_equipment;
+  assert.deepEqual(optionsDeLaProse(fighter).map((o) => o.lettre), ["A", "B", "C"]);
+  /* ③ une phrase nue est sa propre option unique — c'est l'origine de FH */
+  assert.deepEqual(optionsDeLaProse("50 GP").map((o) => o.texte), ["50 GP"]);
+  /* ⛔ mais une phrase nue qui se découpe en plusieurs morceaux annonce un
+     choix sans le nommer : on refuse au lieu de deviner lequel. */
+  assert.deepEqual(optionsDeLaProse("a Club; or 5 GP"), []);
+});
+
+test("245 — 📏 LES DEUX PILES, ET C'EST LE TÉMOIN DU LOT : un vrai choix en SRD, une CONSTATATION en Fate's Hand", async () => {
+  /* ⭐ NOMMÉ AVANT D'ÊTRE MESURÉ : le même personnage, la même classe, rendu
+     dans les deux piles, doit produire DEUX sections 2 de nature différente.
+     ⛔ Si les deux rendus sont identiques, c'est que la pile n'est pas lue —
+     et ce garde est le seul qui puisse le dire, parce qu'il est le seul à
+     monter les deux. */
+  const { makeHarness, PILE_SRD } = await import("./build-harness.mjs");
+  const srd = makeHarness({ layers: PILE_SRD });
+  const doc = (b) => ({ build: { choices: [
+    { path: "class", ref: { kind: "class", id: "srd:class:en:wizard" } },
+    { path: "background", ref: { kind: "background", id: b } }
+  ] } });
+
+  const enSrd = departsDuPersonnage({ query: srd.layers.verbs.query, document: doc("srd:background:en:criminal") })[1];
+  assert.equal(enSrd.unique, false, "en SRD l'origine porte « Choose A or B » : c'est un VRAI choix");
+  assert.equal(enSrd.options.length, 2);
+
+  const enFh = departsDuPersonnage({ query, document: doc("fh:background:en:inheritance") })[1];
+  assert.equal(enFh.unique, true, "en Fate's Hand l'origine porte « 50 GP », une chaîne nue : rien à choisir");
+  assert.equal(enFh.options.length, 1);
+  assert.equal(enFh.options[0].lettre, null, "pas de lettre : il n'y a pas d'option en face");
+
+  /* ⭐ ET ÇA SE VOIT À L'ÉCRAN, pas seulement dans le lecteur : la pile SRD
+     rend DEUX rangées d'options, la pile FH une seule. ⛔ Un rendu qui
+     fabriquerait un QCM à une réponse rendrait quatre boutons des deux côtés. */
+  const noeudFh = renderEquipmentStep(ctxFrom(fixture.document, null), () => {});
+  assert.equal(noeudFh.querySelectorAll(".aiguilleur-options").length, 1,
+    "en Fate's Hand, une seule section pose une question — celle de la classe");
+});
+
+test("245/246 — 🔴 CE QUE LE RAPPROCHEMENT REFUSE EST NOMMÉ AU JOUEUR, jamais avalé — ET UNE ABSENCE VOULUE NE SE NOMME PAS", () => {
+  /* 📏 MESURÉ LE 21/09, PUIS REMESURÉ APRÈS LES DÉCISIONS D'ERIC. Sur les seize
+     phrases des couches, le total ne bouge pas (93 morceaux) ; leur SORT, si :
+       · avant (lot 245) : 86 rapprochés · 7 refusés
+       · après (lot 246) : 90 rapprochés · 0 refusé · 1 absence voulue
+                           · 2 renvois à Skills
+     ⭐ ET LES TROIS SORTS SONT TENUS SÉPARÉMENT ICI. Sans ça, « absent » et
+     « refusé » deviendraient synonymes le jour où l'un des deux se tait, et
+     personne ne le verrait — un total juste ne dit rien du contenu. */
+  const docWizard = fixture.document; // le Wizard, et son Spellbook
+  const node = renderEquipmentStep(ctxFrom(docWizard, null), () => {});
+
+  /* ⚖️ ERIC, 21/09 : *« Pas d'item spellbook, il sera matérialisé par la section
+     sorts. Rien à ajouter ici. »* ⭐ Ce n'est donc plus un refus : c'est une
+     absence VOULUE, et un écran qui s'excuse d'une absence délibérée envoie le
+     joueur chercher dans Wares un objet qui n'existe pas. */
+  assert.deepEqual([...node.querySelectorAll(".aiguilleur-refus")].map((p) => p.textContent), [],
+    "le Spellbook ne se nomme plus : Wizard A ne porte plus aucun refus");
+  const tout = node.textContent;
+  assert.equal(/Spellbook/i.test(tout), false, "⛔ et le mot n'apparaît NULLE PART sur la carte");
+  /* ⛔ ET IL N'EST PAS POSÉ NON PLUS — l'absence est des deux côtés. Un morceau
+     « absent » qui se mettrait quand même dans Gear serait le pire des deux
+     mondes : muet ET présent. */
+  const butinW = butinDuDepart({ query, document: docWizard, reponses: { class: "A" } });
+  assert.equal(butinW.lignes.some((l) => /spellbook/i.test(l.nom || "") || /spellbook/i.test(l.texte || "")), false,
+    "rien à ajouter ici — le livre de sorts est matérialisé par la section sorts");
+  assert.deepEqual(butinW.refus, [], "ni refus…");
+  assert.deepEqual(butinW.faits, [], "…ni fait : le morceau sort des trois comptes");
+
+  /* ⭐ LE TÉMOIN CONTRAIRE, ET IL EST INDISPENSABLE. Un écran qui aurait cessé
+     d'afficher TOUS les refus passerait le test ci-dessus sans broncher. Il
+     faut donc un refus VIVANT : une phrase dont un morceau ne rencontre aucun
+     record et qui n'est déclaré ni absent ni outil. */
+  const inconnu = ctxFrom(docWizard, null);
+  inconnu.query = queryAvecOrigine("fh:background:en:inheritance", "a Flumph Whistle, and 3 GP");
+  const noeudInconnu = renderEquipmentStep(inconnu, () => {});
+  const refusVivant = [...noeudInconnu.querySelectorAll(".aiguilleur-refus")].map((p) => p.textContent);
+  assert.equal(refusVivant.length, 1, "⛔ un morceau que RIEN ne déclare refuse toujours, et il se voit");
+  assert.match(refusVivant[0], /Flumph Whistle/, "le texte du LIVRE est montré, pour que le joueur le prenne lui-même");
+  assert.match(refusVivant[0], /not added/);
+
+  /* ⛔ ET LE REFUS EST VISIBLE AVANT LE CHOIX, pas après : un joueur qui a déjà
+     cliqué n'a plus de décision à prendre. */
+  assert.equal(noeudInconnu.querySelectorAll(".aiguilleur-option[data-active='true']").length, 0,
+    "aucune option n'est choisie, et le refus est déjà à l'écran");
+});
+
+test("246 — ⚖️ LES FLÈCHES SONT DES MUNITIONS, ET LA RÈGLE VIT DANS LA COUCHE", () => {
+  /* ⚖️ ERIC, 21/09 : *« Donc flèches = munitions (gratuit) = tu mets la quantité
+     requise »*. ⛔ Le rapprochement ne se fait PAS dans cet écran : la couche
+     `srfh-mecaniques-en` déclare `data[also_named]` sur `srd:gear:en:ammunition`,
+     et l'index des noms le lit génériquement. */
+  const cherche = (id) => query({ kind: "gear", id });
+
+  /* 🔴 LE PIÈGE DE NOMMAGE, TENU PAR SES DEUX IDS. Deux records portent le mot
+     « Ammunition » : l'OBJET (`gear`) et la PROPRIÉTÉ D'ARME
+     (`weapon-property`). ⭐ C'est exactement la faute que ce dépôt repaie, et
+     un commentaire ne la tient pas — ce garde nomme les deux et exige que ce
+     soit l'objet qui gagne. */
+  const objet = cherche("srd:gear:en:ammunition");
+  assert.ok(objet, "l'OBJET existe : c'est lui que la munition doit désigner");
+  /* 🔴 LE NOM AFFICHÉ DÉPEND DE LA PILE, ET CE GARDE A FAILLI L'ÉPINGLER.
+     Écrit le 21/09, il exigeait `name === "Ammunition"`. Le 23/09 la couche
+     `fh-munitions-en` a RÉÉCRIT ce record en « Arrows » (5 SP, 1,5 lb, paquet de
+     dix) — Eric remplace la ligne vide `Varies/Varies` du SRD par une vraie
+     flèche. Le garde rougissait sur un fait PARFAITEMENT VRAI.
+     ⭐ CE QU'IL DOIT TENIR, C'EST L'IDENTITÉ, ET ELLE EST DANS LA CLEF : les deux
+     piles pointent le même `srd:gear:en:ammunition`, et c'est ça qui empêche la
+     confusion avec `srd:weapon-property:en:ammunition`. Le LIBELLÉ, lui, est
+     « Ammunition » en pile SRD seule et « Arrows » sous Fate's Hand — loi du
+     tambour, test 3 : *l'identité est la clef, jamais le libellé*. */
+  assert.ok(["Ammunition", "Arrows"].includes(objet.record.name),
+    `⛔ « ${objet.record.name} » : la pile SRD dit « Ammunition », Fate's Hand dit « Arrows », `
+    + "et rien d'autre n'est une réécriture voulue de ce record");
+  assert.deepEqual(objet.record.data.also_named, ["Arrows"],
+    "⛔ la déclaration vit dans la COUCHE, pas dans l'écran : aucun `if` sur le mot « Arrows » ici.\n"
+    + "   ⭐ ET ELLE RESTE UTILE APRÈS LE RENOMMAGE DE FATE'S HAND : c'est la pile SRD SEULE qu'elle "
+    + "sert, où le record s'appelle encore « Ammunition » et où la phrase du Fighter dit « 20 Arrows ».");
+
+  /* les quatre phrases d'Eric — ⛔ la liste des classes n'est pas retapée : on
+     BALAIE les phrases et on retient celles qui portent des flèches. */
+  const avecFleches = [];
+  for (const v of query({ kind: "class" })) {
+    const doc = build.verbs.choose({ document: fixture.document, path: "class", ref: { kind: "class", id: v.id } }).document;
+    for (const s of departsDuPersonnage({ query, document: doc })) {
+      if (s.genre !== "class") continue;
+      for (const o of s.options) {
+        for (const l of o.lignes) {
+          if (!/arrow/i.test(l.texte)) continue;
+          avecFleches.push({ classe: v.record.name, lettre: o.lettre, ligne: l, option: o });
+        }
+      }
+    }
+  }
+  assert.equal(avecFleches.length, 3, "trois classes portent « 20 Arrows » : Fighter B, Ranger A, Rogue A");
+  for (const { classe, ligne } of avecFleches) {
+    assert.deepEqual(ligne.ref, { kind: "gear", id: "srd:gear:en:ammunition" },
+      `⛔ ${classe} : c'est l'OBJET, jamais \`srd:weapon-property:en:ammunition\` qui porte le même nom`);
+    /* ⭐ LA QUANTITÉ VIENT DE LA PHRASE, PAS D'UN LITTÉRAL — le jour où le SRD
+       écrit « 30 Arrows », le code suit sans qu'on le retouche. */
+    const compte = Number(/^(\d+)\s/.exec(ligne.texte)[1]);
+    assert.equal(ligne.quantity, compte, `${classe} : la quantité se LIT dans « ${ligne.texte} »`);
+    assert.equal(ligne.quantity, 20, "…et aujourd'hui la phrase dit 20");
+  }
+
+  /* ⚔️ 🔴 ET VOICI LE TÉMOIN QUI ACCUSE VRAIMENT, parce que le précédent ne le
+     pouvait PAS — mesuré en le mutant : un écran qui écrirait `quantity = 20`
+     EN DUR passe toutes les assertions ci-dessus, puisque les quatre phrases
+     du livre disent justement 20. ⭐ Un garde qui ne peut accuser que si la
+     donnée change est un garde mort. On fait donc dire AUTRE CHOSE à la
+     phrase : le jour où le SRD écrit 30, le code doit suivre sans retouche. */
+  const trente = ctxFrom(fixture.document, null);
+  trente.query = queryAvecOrigine("fh:background:en:inheritance", "30 Arrows, and 3 GP");
+  const butinTrente = butinDuDepart({ query: trente.query, document: fixture.document, reponses: { class: "A" } });
+  const ligneTrente = butinTrente.lignes.find((l) => /arrow/i.test(l.texte));
+  assert.ok(ligneTrente, "la phrase truquée porte bien des flèches");
+  assert.equal(ligneTrente.quantity, 30,
+    "⛔ 30, pas 20 : la quantité vient de la PHRASE, jamais d'un littéral de l'écran");
+
+  /* ⚠️ « GRATUIT » A UN SENS PRÉCIS : la munition entre dans Gear sans rien
+     retrancher de la bourse. ⛔ Le coût du record ne doit JAMAIS être soustrait
+     — le kit est donné, il ne s'achète pas.
+     🔴 ET CE GARDE ÉPINGLAIT « Varies », CE QUI LE RENDAIT PLUS FAIBLE QU'IL NE
+     CROYAIT. Écrit le 21/09, il s'appuyait sur l'illisibilité du coût : un
+     montant qu'on ne sait pas lire ne peut pas être soustrait par accident, donc
+     la règle ne coûtait rien à tenir. Depuis le 23/09 la couche
+     `fh-munitions-en` donne à ce record un prix PARFAITEMENT LISIBLE — 5 SP le
+     paquet de dix.
+     ⭐ LE GARDE Y GAGNE. Ce qui suit mesure désormais quelque chose de réel : si
+     un chemin soustrayait le coût des munitions, « 5 SP » partirait de la
+     bourse, là où « Varies » ne partait de nulle part. ⛔ On n'épingle donc
+     plus le montant — il dépend de la pile — mais on exige qu'il en existe un,
+     sans quoi le témoin différentiel d'en dessous mesurerait le vide. */
+  assert.equal(typeof objet.record.data.cost, "string");
+  assert.ok(objet.record.data.cost.length > 0,
+    `le record porte un coût — « ${objet.record.data.cost} » ici, « Varies » en pile SRD seule`);
+  const rogue = build.verbs.choose({
+    document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  }).document;
+  /* ⭐ LE TÉMOIN EST DIFFÉRENTIEL, ET C'EST LE SEUL QUI PUISSE ACCUSER : la
+     MÊME option, lue avec et SANS la déclaration. Une assertion sur « 58 GP »
+     serait un nombre retapé, verte le jour où le coût « Varies » se mettrait à
+     entrer dans la bourse par un autre chemin. Ici, la seule chose qui change
+     entre les deux lectures est le rapprochement des flèches. */
+  const sansDeclaration = (arg) => {
+    const rendu = query(arg);
+    /* 🔴 LE TÉMOIN DOIT RETIRER LES DEUX CHEMINS, PAS UN SEUL — sinon il ne
+       mesure plus rien depuis le 23/09. Il n'ôtait que `also_named`, ce qui
+       suffisait tant que le record s'appelait « Ammunition ». Fate's Hand l'a
+       renommé « Arrows » (couche `fh-munitions-en`) : la phrase « 20 Arrows »
+       retombait alors sur le NOM, la ligne ne disparaissait plus, et le témoin
+       différentiel accusait dans le vide en restant vert.
+       ⭐ On remet donc le nom du SRD EN MÊME TEMPS qu'on retire la déclaration :
+       ce qu'on éprouve, c'est « plus aucun chemin ne mène de "Arrows" à ce
+       record », pas « un chemin particulier a sauté ». */
+    const nettoie = (v) => (v && v.id === "srd:gear:en:ammunition"
+      ? { ...v, record: { ...v.record, name: "Ammunition",
+          data: { ...v.record.data, name: "Ammunition", also_named: undefined } } } : v);
+    return Array.isArray(rendu) ? rendu.map(nettoie) : nettoie(rendu);
+  };
+  const avec = butinDuDepart({ query, document: rogue, reponses: { class: "A" } });
+  const sans = butinDuDepart({ query: sansDeclaration, document: rogue, reponses: { class: "A" } });
+  assert.deepEqual(avec.cout, sans.cout,
+    "⛔ les munitions n'ont rien retranché ni rien ajouté à la bourse — « gratuit » est une ABSENCE de geste");
+  /* ⚔️ ET LE TÉMOIN PROUVE QU'IL MESURE BIEN QUELQUE CHOSE : sans la
+     déclaration, la ligne disparaît et le morceau refuse. Un témoin qui ne
+     peut jamais accuser est le pire de tous. */
+  assert.equal(avec.lignes.length, sans.lignes.length + 1, "avec la déclaration, une ligne de plus");
+  assert.deepEqual(sans.refus.map((r) => r.texte), ["20 Arrows"],
+    "sans elle, « 20 Arrows » retombe dans les refus — c'est l'état du lot 245");
+});
+
+test("245 — ⭐ LA SECONDE LECTURE, EN SENS INVERSE : la bourse du QCM « tout à la dernière lettre » vaut celle de l'ANCIEN lecteur", () => {
+  /* 🔴 UNE BIJECTION FAUSSE EST COHÉRENTE. `butinDuDepart` et `orDuDepart`
+     lisent la même donnée par deux chemins différents : le premier découpe en
+     options puis prend celle qu'on lui nomme, le second va droit à la
+     dernière. Quand on répond « la dernière lettre » partout — c'est-à-dire
+     l'ancien geste global « je prends la bourse » — les deux DOIVENT tomber
+     sur le même nombre. ⛔ C'est le seul garde qui puisse accuser une erreur
+     de découpage silencieuse. */
+  for (const id of query({ kind: "class" }).map((v) => v.id)) {
+    const doc = build.verbs.choose({ document: fixture.document, path: "class", ref: { kind: "class", id } }).document;
+    const sources = departsDuPersonnage({ query, document: doc });
+    const reponses = {};
+    for (const s of sources) if (s.options.length) reponses[s.genre] = s.options[s.options.length - 1].lettre;
+    const parLeQcm = butinDuDepart({ query, document: doc, reponses });
+    const parLAncien = orDuDepart({ query, document: doc });
+    assert.deepEqual(parLeQcm.cout, parLAncien.cout, `⛔ les deux lectures divergent sur ${id}`);
+    assert.equal(parLeQcm.lignes.length, 0, "la dernière option de chaque phrase est une bourse nue : aucun objet");
+  }
+});
+
+test("245 — 🔴 `Done` POSE VRAIMENT LES OBJETS DANS GEAR — c'est le défaut de six semaines", () => {
+  /* ⚖️ Eric : *« que l'équipement donné par la classe se mette POUR DE VRAI
+     dans Gear »*. La branche `kit` d'hier écrivait `depart: "kit"` et RIEN
+     d'autre. ⭐ Ce test rejoue `poserLeDepart` de `shell.mjs` (même limite,
+     même réponse que les trois gestes du lot 49 : le garde d'octets, plus
+     haut, couvre le câblage). */
+  const docRogue = withoutCurrency(build.verbs.choose({
+    document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" }
+  }).document);
+  const avant = currentGearLines(docRogue).length;
+  const apres = applyPoserLeDepart(docRogue, { class: "A" });
+
+  /* 🔴 SEPT OBJETS RAPPROCHÉS, MAIS PAS SEPT LIGNES NEUVES — et cette
+     différence EST le second enseignement du lot. Ilyra porte déjà une dague ;
+     le kit du Rogue en apporte deux. ⛔ `rebuild` JETTE sur deux lignes du même
+     record (*« deux entrées portent l'id "dagger" »*), donc le kit FUSIONNE.
+     ⭐ Le compte qui fait foi est celui des poses, pas celui des lignes. */
+  const butin = butinDuDepart({ query, document: docRogue, reponses: { class: "A" } });
+  /* ⚖️ LOT 246 — HUIT, PAS SEPT, ET LE HUITIÈME EST LA MUNITION. Ce garde
+     lisait *« les sept objets de l'option A du Rogue — « 20 Arrows » refuse »*.
+     Eric a tranché le 21/09 : les flèches sont des munitions, gratuites, à la
+     quantité de la phrase. ⛔ Le compte change parce que la RÈGLE a changé,
+     jamais pour faire passer le test. */
+  assert.equal(butin.lignes.length, 8, "les huit objets de l'option A du Rogue, munitions comprises");
+  const munition = butin.lignes.find((l) => /arrow/i.test(l.texte));
+  assert.deepEqual(munition.ref, { kind: "gear", id: "srd:gear:en:ammunition" });
+  assert.equal(munition.quantity, 20, "la quantité vient de « 20 Arrows », pas d'un littéral");
+  assert.equal(butin.aPoser.filter((p) => !p.neuve).length, 1, "la dague déjà possédée : une fusion, pas une seconde ligne");
+
+  const posees = currentGearLines(apres).slice(avant);
+  assert.equal(posees.length, 7, "sept lignes NEUVES : la huitième s'est fondue dans la dague d'Ilyra");
+  for (const l of posees) {
+    assert.ok(l.ref && typeof l.ref.id === "string", "une VRAIE référence, jamais une chaîne");
+    assert.ok(Number.isInteger(l.quantity) && l.quantity >= 1);
+    assert.equal(l.equipped, false, "rien n'est porté sans un geste : le kit arrive dans le sac");
+  }
+  /* ⭐ ET LE MOTEUR LES VOIT — c'est la seule preuve qui compte : une ligne
+     que `derive.mjs` ne reprend pas n'est pas dans Gear, elle est dans le
+     document. */
+  const rapport = rebuild(apres);
+  const dagues = rapport.resolved.gear.filter((g) => /dagger/i.test(g.name || ""));
+  assert.equal(dagues.length, 1, "⛔ une seule entrée par record : c'est l'invariant que `rebuild` défend");
+  const avantDague = currentGearLines(docRogue).find((l) => l.ref && /dagger/.test(l.ref.id));
+  assert.equal(dagues[0].quantity, (avantDague.quantity || 0) + 2,
+    "« 2 Daggers » — la quantité se LIT dans la phrase, et elle S'AJOUTE à ce qui est déjà là");
+
+  /* l'or de l'option A (8 GP), posé dans le même geste */
+  /* ⭐ 8 + 50, ET LES DEUX SOURCES SONT LÀ : 8 PO est l'or que le PAQUET du
+     Rogue contient (⛔ pas les 100 de son option B), 50 celui de l'origine, qui
+     n'a pas de choix à offrir en pile Fate's Hand. C'est le panachage en
+     action — le paquet d'un côté, la bourse de l'autre. */
+  assert.equal(currentCurrency(apres).gp, 58, "8 (l'or du paquet du Rogue) + 50 (l'origine) — ⛔ jamais les 100 de l'option B");
+
+  /* ⛔ ET PAS DEUX FOIS : rouvrir la question empilerait un second kit. */
+  assert.equal(departRepondu(apres), true, "le document a répondu");
+  const encore = applyPoserLeDepart(apres, { class: "A" });
+  assert.equal(currentGearLines(encore).length, currentGearLines(apres).length,
+    "⛔ un second `Done` a posé un second kit : la prudence du lot 182 n'est pas tenue");
+});
+
+test("245 — ⚖️ LE PANACHAGE EST POSSIBLE, ET C'EST LE CHANGEMENT DE RÈGLE ASSUMÉ", () => {
+  /* ⚖️ Le geste d'hier était GLOBAL (`valeur: "kit" | "purse"`). La maquette
+     d'Eric pose une question PAR SOURCE : le paquet de la classe AVEC l'or de
+     l'origine devient une réponse valide. C22 (*« les 50 PO REMPLACENT le
+     kit »*) est élargie à chaque source prise séparément.
+     ⭐ Ce test EXISTE pour que ce changement ne puisse pas être défait sans
+     qu'on le voie — une règle de jeu qui se perd est une règle orale. */
+  const srdDoc = { build: { choices: [
+    { path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } },
+    { path: "background", ref: { kind: "background", id: "fh:background:en:inheritance" } }
+  ] } };
+  /* le paquet de la classe (A) + l'or de l'origine (son option unique) */
+  const butin = butinDuDepart({ query, document: srdDoc, reponses: { class: "A" } });
+  assert.ok(butin.lignes.length > 0, "les objets du kit de classe");
+  assert.equal(butin.cout.gp, 58, "8 (l'or du paquet du Rogue) + 50 (l'or de l'origine) : deux sources, deux réponses");
+  assert.equal(butin.complet, true);
 });
 
 test("182 — la bourse POSÉE est celle qui a été ANNONCÉE (le même lecteur des deux côtés)", () => {
@@ -960,4 +1404,353 @@ test("P11 — ⚖️ L'ORDRE DES SECTIONS SURVIT AU PERSONNAGE, et le party se d
   const b = sectionsDuSac(exaequo).map((x) => x.index);
   assert.deepEqual(a, b, "deux rendus, le même ordre");
   assert.ok(a.indexOf(0) < a.indexOf(2), "⭐ à rang égal, la place naturelle tranche");
+});
+
+/* ══ LOT 246 — L'INSTRUMENT SE LIT DANS SKILLS ════════════════════════════
+   ⚖️ ERIC, 21/09 : *« Pour l'outil du barde : tu regardes le choix fait dans
+   Skills. S'il en a choisi deux, il aurait deux possibilités ; si un seul, il a
+   cet instrument ; si aucun, il n'a rien. »* — puis *« idem barde et monk »*. */
+
+/** Un document : une classe, l'origine de la pile FH, et des dépenses Skills.
+ *  ⛔ Les dépenses sont posées par le VRAI verbe, jamais par un objet bricolé :
+ *  un harnais qui composerait son `build.choices` à la main prouverait sa
+ *  propre forme, pas celle que Skills écrit. */
+function docAvecSkills(classeId, slugs) {
+  let doc = build.verbs.choose({ document: fixture.document, path: "class", ref: { kind: "class", id: classeId } }).document;
+  for (const slug of slugs) {
+    doc = build.verbs.set({ document: doc, path: `fh.skills.spend.${slug}`, value: "novice" }).document;
+  }
+  return doc;
+}
+const BARDE = "srd:class:en:bard";
+const MOINE = "srd:class:en:monk";
+
+test("246 — ⚖️ LES TROIS CAS D'ERIC, LUS DANS LE DOCUMENT — un seul outil, deux, aucun", () => {
+  /* ① UN SEUL → il l'a. ⛔ Pas de question : une question à une réponse est un
+     mensonge, c'est la loi que le lot 245 a posée pour la pile Fate's Hand. */
+  const un = butinDuDepart({ query, document: docAvecSkills(BARDE, ["instrument-wind"]), reponses: { class: "A" } });
+  assert.equal(un.complet, true, "un seul instrument : rien à demander");
+  assert.deepEqual(un.questions, []);
+  const pose = un.lignes.find((l) => /instrument/i.test(l.nom));
+  assert.deepEqual(pose.ref, { kind: "tool", id: "fh:tool:en:instrument-wind" });
+  assert.equal(pose.quantity, 1);
+
+  /* ② DEUX → *« il aurait deux possibilités »*, donc une QUESTION, et `Done`
+     attend. ⛔ On ne pose rien d'office : choisir à la place du joueur est pire
+     que ne rien poser, il ne saurait jamais qu'on a choisi pour lui. */
+  const deux = docAvecSkills(BARDE, ["instrument-wind", "instrument-other"]);
+  const sansReponse = butinDuDepart({ query, document: deux, reponses: { class: "A" } });
+  assert.equal(sansReponse.complet, false, "⛔ `Done` attend : une question est ouverte");
+  assert.equal(sansReponse.questions.length, 1);
+  assert.deepEqual(sansReponse.questions[0].candidats.map((c) => c.ref.id).sort(),
+    ["fh:tool:en:instrument-other", "fh:tool:en:instrument-wind"]);
+  assert.equal(sansReponse.lignes.some((l) => /instrument/i.test(l.nom)), false,
+    "⛔ aucun instrument posé tant que la question est ouverte");
+  /* …et la réponse le referme, sur CELUI qu'on nomme. */
+  const repondu = butinDuDepart({ query, document: deux,
+    reponses: { class: "A", [cheminDeLOutil("class")]: "fh:tool:en:instrument-other" } });
+  assert.equal(repondu.complet, true);
+  assert.equal(repondu.lignes.filter((l) => /instrument/i.test(l.nom)).length, 1, "UN instrument, pas deux");
+  assert.deepEqual(repondu.lignes.find((l) => /instrument/i.test(l.nom)).ref,
+    { kind: "tool", id: "fh:tool:en:instrument-other" });
+  /* ⭐ ET LA RÉPONSE SE RETIENT — sinon un rechargement reposerait la question
+     à quelqu'un qui a déjà répondu, et lui poserait un second instrument. */
+  assert.ok(repondu.aEcrire.some((e) => e.genre === cheminDeLOutil("class") && e.valeur === "fh:tool:en:instrument-other"));
+  assert.ok(departRepondu(build.verbs.set({
+    document: deux, path: cheminDuDepart(cheminDeLOutil("class")), value: "fh:tool:en:instrument-other"
+  }).document), "le chemin de la seconde question compte comme une réponse");
+
+  /* ③ AUCUN → *« il n'a rien »*, et c'est un FAIT, ⛔ pas un refus : rien à
+     prendre dans Wares, rien à réparer. */
+  const aucun = butinDuDepart({ query, document: docAvecSkills(BARDE, ["athletics"]), reponses: { class: "A" } });
+  assert.equal(aucun.complet, true, "⛔ « rien » ne bloque pas `Done`");
+  assert.deepEqual(aucun.refus, [], "ce n'est PAS un refus");
+  assert.equal(aucun.faits.length, 1, "c'est un fait, et il se dit");
+  assert.equal(aucun.lignes.some((l) => /instrument/i.test(l.nom)), false);
+});
+
+test("246 — ⚠️ « PAS ENCORE » N'EST PAS « AUCUN » : l'ordre des étapes change la phrase", () => {
+  /* ⚠️ Un joueur qui passe par Équipement AVANT Skills n'a encore rien choisi.
+     ⛔ Le traiter comme « aucun instrument » lui dirait que c'est réglé alors
+     que la décision l'attend. 📏 Ce qui sépare les deux se lit dans le
+     DOCUMENT : une dépense, n'importe laquelle, prouve la visite. */
+  const jamaisVu = butinDuDepart({ query, document: docAvecSkills(BARDE, []), reponses: { class: "A" } });
+  const revenuVide = butinDuDepart({ query, document: docAvecSkills(BARDE, ["athletics"]), reponses: { class: "A" } });
+  assert.equal(jamaisVu.faits[0].visiteSkills, false);
+  assert.equal(revenuVide.faits[0].visiteSkills, true);
+  /* ⭐ ET LES DEUX PHRASES DIFFÈRENT À L'ÉCRAN — un drapeau que le rendu
+     ignorerait ne servirait à rien. */
+  const motDe = (doc) => {
+    const n = renderEquipmentStep(ctxFrom(doc, null), () => {});
+    [...n.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "A").click();
+    return [...n.querySelectorAll(".aiguilleur-fait")].map((p) => p.textContent).join(" ");
+  };
+  const avant = motDe(docAvecSkills(BARDE, []));
+  const apres = motDe(docAvecSkills(BARDE, ["athletics"]));
+  assert.notEqual(avant, apres, "⛔ deux situations différentes ne se disent pas avec la même phrase");
+  assert.match(avant, /not been there yet/);
+  assert.match(apres, /No tool picked/);
+});
+
+test("246 — 🔴 LA FAMILLE EST UNE RÈGLE, PAS UNE LISTE — et le barde ne regarde pas où le moine regarde", () => {
+  /* ⭐ « IDEM » PORTE SUR LE GESTE (lire Skills), ⛔ PAS SUR L'ENSEMBLE. Le
+     barde ne regarde qu'UNE famille, le moine en regarde deux — et le SRD le
+     dit lui-même dans les deux phrases. */
+  /* ⚖️ LOT 247 — CE TÉMOIN PORTAIT `thieves-tools`, ET IL EST DEVENU FAUX LE
+     LENDEMAIN. Tant que le moine déclarait `"any"`, il ramassait n'importe
+     quel outil, outils de voleur compris ; Eric a nommé les dix-sept outils
+     d'artisan le 21/09 et fermé le reste — *« les autres c'est other tools »*.
+     Les outils de voleur en sont, donc ⛔ le moine ne les voit PLUS. Le témoin
+     prend un vrai outil d'artisan, et garde `thieves-tools` pour prouver la
+     borne neuve. */
+  const outilDArtisan = ["smith-s-tools"];
+
+  /* le barde, avec un outil qui n'est pas un instrument : aucun candidat. */
+  const barde = butinDuDepart({ query, document: docAvecSkills(BARDE, outilDArtisan), reponses: { class: "A" } });
+  assert.deepEqual(barde.questions, [], "⛔ des outils d'artisan ne sont pas des instruments");
+  assert.equal(barde.faits.length, 1, "…et il n'a rien, dit comme un fait");
+
+  /* le moine, le MÊME outil : il l'a. C'est la seule différence entre eux, et
+     elle est DÉCLARÉE (`from_family`), ⛔ pas déduite du nom de la classe. */
+  const moine = butinDuDepart({ query, document: docAvecSkills(MOINE, outilDArtisan), reponses: { class: "A" } });
+  assert.deepEqual(moine.faits, [], "le moine, lui, l'a");
+  assert.deepEqual(moine.lignes.find((l) => /smith/i.test(l.nom)).ref, { kind: "tool", id: "srd:tool:en:smith-s-tools" });
+
+  /* 🔴 ET LA BORNE DU LOT 247, DU CÔTÉ QUI ACCUSE : les outils de voleur ne
+     sont PAS des outils d'artisan, donc le moine n'en voit aucun — ⚔️ c'est
+     exactement ce que `"any"` laissait passer, et ce test rougit si `"any"`
+     revient. */
+  const voleur = butinDuDepart({ query, document: docAvecSkills(MOINE, ["thieves-tools"]), reponses: { class: "A" } });
+  assert.equal(voleur.lignes.some((l) => /thieves/i.test(l.nom)), false,
+    "⛔ « les autres c'est other tools » — le moine ne ramasse plus n'importe quel outil");
+  assert.equal(voleur.faits.length, 1, "…et il n'a rien, dit comme un fait");
+
+  /* ⭐ LA FAMILLE SE LIT DANS LA DONNÉE : les trois instruments de Fate's Hand
+     pointent vers la MÊME racine, et ⛔ aucun ne l'apprend d'une liste écrite
+     ici. `instrument-strings` EST la racine, réécrite ; les deux autres en
+     héritent. 📏 Mesuré : sans `data.inherits`, la couche ne portait AUCUNE
+     trace de famille — ni `category`, ni `group`, et `craft` ne discrimine pas
+     (`thieves-tools` porte « None » comme `musical-instrument`). */
+  const famille = (slug) => {
+    const v = (query({ kind: "tool" }) || []).find((t) => t.record.slug === slug);
+    return (v.record.data && v.record.data.inherits) || v.id;
+  };
+  assert.equal(famille("instrument-wind"), "srd:tool:en:musical-instrument");
+  assert.equal(famille("instrument-other"), "srd:tool:en:musical-instrument");
+  assert.equal(famille("instrument-strings"), "srd:tool:en:musical-instrument",
+    "la racine réécrite est sa propre famille");
+  assert.notEqual(famille("thieves-tools"), "srd:tool:en:musical-instrument");
+
+  /* ⚔️ L'ATTAQUE QUI ACCUSE : un barde qui a acheté un instrument ET un outil
+     d'artisan ne doit voir QU'UN candidat — sinon le filtre ne filtre rien et
+     tous les tests ci-dessus passeraient quand même. */
+  const melange = butinDuDepart({ query, document: docAvecSkills(BARDE, ["smith-s-tools", "instrument-wind"]), reponses: { class: "A" } });
+  assert.deepEqual(melange.questions, [], "un seul candidat après filtrage : pas de question");
+  assert.deepEqual(melange.lignes.find((l) => /instrument/i.test(l.nom)).ref, { kind: "tool", id: "fh:tool:en:instrument-wind" });
+  assert.equal(melange.lignes.some((l) => /smith/i.test(l.nom)), false, "⛔ l'outil d'artisan n'entre pas dans le kit du barde");
+});
+
+/* ══ LOT 247 — LA FAMILLE « ARTISAN'S TOOLS », ET LE NOM QUI SE DÉRIVE COURT ══ */
+
+/** ⚖️ LES DIX-SEPT, ÉCRITS PAR ERIC LE 21/09, dans son ordre, avec le mot
+ *  court qu'ils doivent rendre. ⭐ C'est la SEULE liste écrite ici, et elle est
+ *  dans le bon sens : ce qui est DEDANS. ⛔ Aucune énumération des « autres » —
+ *  le garde les obtient en RETIRANT les dix-sept du catalogue réel. */
+const ARTISAN = Object.freeze([
+  ["Alchemist’s Supplies", "alchemist"], ["Brewer’s Supplies", "brewer"],
+  ["Calligrapher’s Supplies", "calligrapher"], ["Carpenter’s Tools", "carpenter"],
+  ["Cartographer’s Tools", "cartographer"], ["Cobbler’s Tools", "cobbler"],
+  ["Cook’s Utensils", "cook"], ["Glassblower’s Tools", "glassblower"],
+  ["Jeweler’s Tools", "jeweler"], ["Leatherworker’s Tools", "leatherworker"],
+  ["Mason’s Tools", "mason"], ["Painter’s Supplies", "painter"],
+  ["Potter’s Tools", "potter"], ["Smith’s Tools", "smith"],
+  ["Tinker’s Tools", "tinker"], ["Weaver’s Tools", "weaver"],
+  ["Woodcarver’s Tools", "woodcarver"]
+]);
+const RACINE_ARTISAN = "srfh:tool:en:artisan-s-tools";
+const LAYERS_DIR = path.join(UI_DIR, "..", "..", "layers");
+
+test("247 — 🔴 LA FAMILLE D'ARTISANAT EST EXACTEMENT LES DIX-SEPT D'ERIC — énumérés sur le catalogue RÉEL", () => {
+  /* ⭐ LE GARDE ÉNUMÈRE LES CLEFS RÉELLES, il ne relit pas une liste. C'est la
+     loi de la liste qui s'inverse : ce qui porte la racine est LU dans la pile
+     montée, puis confronté aux dix-sept noms d'Eric. Un dix-huitième outil qui
+     prendrait la racine par erreur accuse ; un des dix-sept qui la perdrait
+     accuse aussi. ⛔ Et rien n'énumère les « autres » : ils se déduisent. */
+  const catalogue = query({ kind: "tool" }) || [];
+  const famille = (v) => (v.record.data && typeof v.record.data.inherits === "string" ? v.record.data.inherits : v.id);
+  const artisans = catalogue.filter((v) => famille(v) === RACINE_ARTISAN).map((v) => v.record.name).sort();
+  assert.deepEqual(artisans, ARTISAN.map(([nom]) => nom).sort(),
+    "⛔ la famille d'artisanat n'est plus exactement les dix-sept qu'Eric a nommés");
+
+  /* 🔴 ET LA RACINE N'EST PAS UN RECORD, C'EST UNE CLEF. « Artisan's Tools »
+     n'existe nulle part dans le SRD comme objet ; en fabriquer un aurait posé
+     un 26ᵉ outil dans Skills et dans Wares. ⛔ Personne ne doit RÉSOUDRE cette
+     chaîne — on la compare. */
+  assert.equal(catalogue.some((v) => v.id === RACINE_ARTISAN), false,
+    "⛔ la racine d'artisanat ne doit être le nom d'AUCUN record");
+
+  /* ⭐ ET LA PARTITION EST COMPLÈTE DANS L'AUTRE SENS : tout outil qui n'est
+     pas l'un des dix-sept est sa PROPRE famille ou celle d'un ensemble déclaré
+     (le jeu, l'instrument) — ⛔ jamais celle de l'artisanat, et jamais
+     `"any"`. */
+  const autres = catalogue.filter((v) => famille(v) !== RACINE_ARTISAN);
+  assert.ok(autres.length > 0, "le témoin serait vide si tout le catalogue était artisan");
+  for (const v of autres) {
+    assert.notEqual(famille(v), RACINE_ARTISAN);
+    assert.notEqual(famille(v), "any", "⛔ `any` est mort avec le lot 247");
+  }
+});
+
+test("247 — ⭐ LE MOT COURT SE DÉRIVE DU POSSESSIF, ET LES TROIS SUFFIXES TOMBENT", () => {
+  /* ⚠️ LES DIX-SEPT PORTENT TROIS SUFFIXES — `Tools`, `Supplies` (Alchemist,
+     Brewer, Calligrapher, Painter) et `Utensils` (Cook). ⛔ Un découpage qui
+     ne chercherait que « Tools » laisserait « Alchemist's Supplies » intact et
+     PERSONNE ne le verrait : le mot resterait juste un peu long. Les dix-sept
+     sorties sont donc écrites une par une — c'est le seul témoin qui puisse
+     accuser ce mutant-là. */
+  for (const [nom, court] of ARTISAN) {
+    assert.equal(nomCourtDOutil(nom), court, `⛔ « ${nom} » doit se dire « ${court} »`);
+    /* ⭐ ET AUCUNE DES DIX-SEPT N'EST SON PROPRE MOT COURT : un témoin bâti
+       sur un nom déjà court ne prouverait rien — le mutant « je ne dérive
+       rien » y coïnciderait avec la vraie valeur. */
+    assert.notEqual(court, nom);
+  }
+
+  /* 🔴 ET LA RÈGLE REFUSE PROPREMENT. Un nom sans possessif ressort ENTIER —
+     c'est ce qui rend la dérivation sûre pour le barde, dont aucun candidat
+     n'est un outil d'artisan. ⛔ Elle ne tronque jamais au premier mot. */
+  for (const entier of ["Instrument (Strings)", "Instrument (Wind)", "Musical Instrument",
+    "Dice Set", "Card Set", "Mount (Air)", "Vehicles (Land)", "Disguise Kit", "Herbalism Kit"]) {
+    assert.equal(nomCourtDOutil(entier), entier, `⛔ « ${entier} » n'a pas de possessif : il ne se dérive pas`);
+  }
+
+  /* ⭐ ET LE MOT COURT EST TOUJOURS UN MORCEAU DU NOM ENTIER — c'est ce qui
+     garde honnête le nom accessible du bouton, qui porte le nom entier
+     pendant que l'œil lit le mot court. */
+  for (const [nom, court] of ARTISAN) assert.ok(nom.toLowerCase().startsWith(court));
+});
+
+test("247 — 🔴 C'EST UNE DÉRIVATION D'AFFICHAGE : AUCUN `name` DE RECORD N'A BOUGÉ", () => {
+  /* 🔴 LA SECONDE LECTURE, EN SENS INVERSE. Le mot court ne doit exister QUE
+     dans le libellé de la question. ⛔ Renommer `Smith's Tools` en `smith`
+     dans la donnée serait réécrire du SRD à la main (loi §L) — la faute que le
+     lot 246 a refusée pour « Arrows → Ammunition ».
+     ⭐ LE TÉMOIN LIT LE FICHIER DE COUCHE SRD SUR LE DISQUE et le confronte à
+     la pile MONTÉE : il accuse donc un renommage posé par N'IMPORTE QUELLE
+     couche du dessus, pas seulement par la mienne. */
+  const srd = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, "srd-5.2.1-en.layer.json"), "utf8"));
+  const catalogue = query({ kind: "tool" }) || [];
+  let vus = 0;
+  for (const [nom] of ARTISAN) {
+    const surLeDisque = Object.entries(srd.records.tool).find(([, r]) => r.name === nom);
+    assert.ok(surLeDisque, `⛔ « ${nom} » n'est plus un record du SRD`);
+    const monte = catalogue.find((v) => v.id === surLeDisque[0]);
+    assert.ok(monte, `⛔ « ${nom} » n'est plus monté dans la pile`);
+    assert.equal(monte.record.name, nom, `⛔ le nom de « ${nom} » a bougé dans la pile`);
+    vus += 1;
+  }
+  assert.equal(vus, 17);
+
+  /* ⛔ ET LA COUCHE QUI POSE LA FAMILLE NE TOUCHE QUE `data.inherits` : ni
+     `name`, ni `slug`, ni aucun retrait. Un garde de SOURCE, parce qu'un garde
+     de comportement seul ne verrait pas un renommage qui se compense. */
+  const couche = JSON.parse(fs.readFileSync(path.join(LAYERS_DIR, "srfh-mecaniques-en.layer.json"), "utf8"));
+  const patchs = Object.entries(couche.records.tool || {});
+  assert.equal(patchs.length, 17, "dix-sept outils patchés, pas un de plus");
+  for (const [id, patch] of patchs) {
+    assert.deepEqual(Object.keys(patch.changes), ["data.inherits"], `⛔ ${id} : la couche ne pose QUE la famille`);
+    assert.equal(patch.changes["data.inherits"], RACINE_ARTISAN);
+    assert.equal(patch.remove, undefined, `⛔ ${id} : cette couche ne retire rien`);
+  }
+});
+
+test("247 — ⭐ LE MOT COURT EST À L'ÉCRAN, LE NOM ENTIER PARTOUT AILLEURS", () => {
+  /* ⭐ UN SEUL LIBELLÉ EST DÉRIVÉ, et le reste doit prouver qu'il ne l'est
+     pas : le nom accessible du bouton et la ligne posée dans Gear portent le
+     nom ENTIER. ⛔ Sinon « smith » finirait dans le document, et c'est un
+     renommage déguisé. */
+  const doc = docAvecSkills(MOINE, ["smith-s-tools", "glassblower-s-tools"]);
+  const n = renderEquipmentStep(ctxFrom(doc, null), () => {});
+  [...n.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "A").click();
+
+  const enLigne = [...n.querySelectorAll(".aiguilleur-options")].find((d) => d.dataset.enLigne === "true");
+  assert.ok(enLigne, "⛔ la question d'outil se lit en ligne (lot 247)");
+  const mots = [...enLigne.querySelectorAll(".aiguilleur-option-mot")].map((p) => p.textContent).sort();
+  assert.deepEqual(mots, ["glassblower", "smith"], "l'œil lit les métiers nus");
+  assert.equal(enLigne.querySelector(".aiguilleur-soustitre").textContent, "Tool:",
+    "⭐ le mot de famille est porté UNE fois, par le libellé — c'est ce qui paie les rangées");
+
+  /* ⛔ LE NOM ACCESSIBLE, LUI, EST ENTIER — le mot court en est un morceau,
+     donc le bouton dit toujours ce qu'on lit, et un lecteur d'écran nomme
+     l'objet réel. */
+  const labels = [...enLigne.querySelectorAll(".aiguilleur-option")].map((b) => b.getAttribute("aria-label"));
+  assert.ok(labels.some((l) => l.startsWith("Smith’s Tools,")), `⛔ nom accessible tronqué : ${labels.join(" | ")}`);
+  assert.ok(labels.some((l) => l.startsWith("Glassblower’s Tools,")));
+
+  /* ⛔ ET CE QUE `Done` POSE PORTE LE NOM ENTIER ET L'ID DU RECORD. */
+  const butin = butinDuDepart({ query, document: doc,
+    reponses: { class: "A", [cheminDeLOutil("class")]: "srd:tool:en:smith-s-tools" } });
+  const pose = butin.lignes.find((l) => l.ref.id === "srd:tool:en:smith-s-tools");
+  assert.equal(pose.nom, "Smith’s Tools", "⛔ le document ne connaît que le nom du record");
+});
+
+test("246 — ⭐ LA SECONDE LECTURE, EN SENS INVERSE : le texte déclaré SE TROUVE dans la phrase du livre", () => {
+  /* 🔴 UNE BIJECTION FAUSSE EST COHÉRENTE. La couche déclare un morceau par son
+     TEXTE ; si ce texte ne correspond plus à la phrase (une virgule, une
+     apostrophe droite au lieu d'une courbe, un errata du SRD), la déclaration
+     ne mordrait plus — et RIEN ne le dirait : le morceau retomberait
+     simplement dans les refus, silencieusement, comme au lot 245.
+     ⭐ Seule une relecture en sens inverse l'attrape. */
+  let vues = 0;
+  for (const v of query({ kind: "class" })) {
+    const data = v.record.data || {};
+    const declare = data.starting_equipment_tool;
+    if (!declare) continue;
+    vues += 1;
+    assert.equal(typeof declare.text, "string");
+    assert.ok(String(data.starting_equipment).includes(declare.text),
+      `⛔ « ${declare.text} » ne se trouve plus dans la phrase de ${v.record.name}`);
+    /* ⭐ ET IL EST UN MORCEAU ENTIER, pas un bout de morceau : la déclaration
+       doit tomber sur une frontière du découpeur, sinon elle ne mordra jamais.
+       ⛔ C'est la faute qu'un `includes` seul laisserait passer. */
+    const morceaux = optionsDeLaProse(data.starting_equipment)
+      .flatMap((o) => morceauxDeLOption(o.texte));
+    assert.ok(morceaux.includes(declare.text),
+      `⛔ « ${declare.text} » n'est pas un morceau du découpage de ${v.record.name}`);
+  }
+  assert.equal(vues, 2, "deux classes déclarent un outil de départ : le barde et le moine");
+
+  /* même seconde lecture pour l'absence voulue */
+  let absents = 0;
+  for (const v of query({ kind: "class" })) {
+    const data = v.record.data || {};
+    for (const mot of (data.starting_equipment_absent || [])) {
+      absents += 1;
+      const morceaux = optionsDeLaProse(data.starting_equipment).flatMap((o) => morceauxDeLOption(o.texte));
+      assert.ok(morceaux.includes(mot), `⛔ « ${mot} » n'est pas un morceau de la phrase de ${v.record.name}`);
+    }
+  }
+  assert.equal(absents, 1, "une absence voulue : le Spellbook du Wizard");
+});
+
+test("246 — 🔴 ON LIT LE DOCUMENT, JAMAIS L'ÉTAT D'UN AUTRE ÉCRAN", () => {
+  /* ⛔ `skills-step.mjs` collecte aussi ses ajouts dans `ecran.ajoutes.tool` —
+     une variable de MODULE, qui ne survit pas à un rechargement et qui n'est
+     pas dans le personnage. La lire d'ici ferait de cet écran le second lecteur
+     d'un organe qui n'est pas le sien. ⭐ Le garde le tient par le SOURCE :
+     `equipment-step.mjs` ne doit nommer ni `ajoutes` ni `resolved.tools`. */
+  const source = stripComments(fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8"));
+  assert.equal(/\bajoutes\b/.test(source), false, "⛔ l'état d'écran de Skills n'est pas lu d'ici");
+  assert.match(source, /fh\.skills\.spend\./, "…c'est le chemin du DOCUMENT qui est lu");
+
+  /* ⚔️ ET LE TÉMOIN COMPORTEMENTAL, parce qu'un garde de source seul se
+     contourne : une dépense posée au document DOIT suffire, sans qu'aucun
+     écran Skills n'ait jamais été rendu dans ce test. */
+  const doc = docAvecSkills(BARDE, ["instrument-wind"]);
+  assert.deepEqual(outilsChoisisDansSkills({ query, document: doc, famille: ["srd:tool:en:musical-instrument"] })
+    .map((o) => o.ref.id), ["fh:tool:en:instrument-wind"]);
+  /* ⛔ ET UNE COMPÉTENCE N'EST PAS UN OUTIL, bien qu'elle vive dans le MÊME
+     espace de noms : le tri se fait sur le catalogue du genre `tool`, jamais
+     sur la forme du slug. */
+  assert.deepEqual(outilsChoisisDansSkills({ query, document: docAvecSkills(BARDE, ["athletics", "stealth"]) }), []);
 });

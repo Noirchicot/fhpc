@@ -46,8 +46,33 @@ concurrency:
 jobs:
   tests:
     runs-on: ubuntu-latest
+
+    # ⚖️ OÙ VIT LE VOISIN — DÉCLARÉ ICI, DEVINÉ NULLE PART (lot 241).
+    #    `gen-srd-layer.mjs` résolvait sa source par `homedir()` : il ne pouvait
+    #    donc tourner QUE sur une machine rangée comme celle d'Eric, et cette
+    #    machine-ci était rouge dès son premier tour. Le défaut du code reste le
+    #    chemin d'Eric ; ici, on POSE l'entrée.
+    #    ⚠️ La variable veut le répertoire `exports/`, pas la racine du dépôt.
+    env:
+      FH_SRD_EXPORTS: ${{ github.workspace }}/fh-srd/exports
+
     steps:
       - uses: actions/checkout@v4
+
+      # ⭐ LE VOISIN `fh-srd`, ET IL EST PUBLIC — mesuré : `Noirchicot/fh-srd`,
+      #    5,3 Mo. Le cloner ne coûte rien et ne publie rien qui ne le soit déjà.
+      #    ⛔ C'est la condition qui a fait écarter les autres solutions : si le
+      #    dépôt avait été privé, faire passer du SRD par les journaux d'un
+      #    service public aurait été la faute même que `.gitignore` évite pour
+      #    les livres du joueur.
+      #    📌 `fh-srd/` reste NON SUIVI dans le workspace, et ça ne dérange rien :
+      #    le veilleur d'arbre ne regarde que les fichiers suivis par git plus
+      #    `layers/ examples/ schemas/ contracts/`. Vérifié en rejouant la suite
+      #    entière avec ce clone posé à la racine.
+      - uses: actions/checkout@v4
+        with:
+          repository: Noirchicot/fh-srd
+          path: fh-srd
 
       - uses: actions/setup-node@v4
         with:

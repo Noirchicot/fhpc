@@ -324,7 +324,9 @@ test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occup
     assert.equal(bouton.getAttribute("aria-pressed"), null,
       `${bouton.className} annonce un état que cet écran n'a plus`);
   }
-  assert.ok(node.querySelectorAll(".roue-cran").length > 0,
+  /* 🔄 PORTÉ SUR WARES v2 (lot 219) : le cran s'appelle `.wares-cran`. ⭐ Le témoin anti-vide
+     ne change pas de métier — sans lui, l'assertion du dessus passerait sur un écran mort. */
+  assert.ok(node.querySelectorAll(".wares-cran").length > 0,
     "⚔️ et l'écran n'est pas VIDE : s'il ne rendait plus rien, l'assertion du dessus passerait pour rien");
 });
 

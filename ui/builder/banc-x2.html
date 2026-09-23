@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — banc de X2, la fiche d'un objet du catalogue</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LE BANC DE X2 (lot 242) — la fiche du CATALOGUE seule, sur sa dalle.
+     Il existe pour la raison exacte du banc de X1 : REGARDER le rendu. NORMES §0
+     — *« une norme se vérifie sur la PAGE RENDUE, pas dans la source »* — et les
+     gardes de `tests/x2-ecran.test.mjs` lisent des fichiers : ⛔ ils ne voient
+     ni une largeur, ni une couleur, ni si le texte tient.
+
+     ⭐ ET IL SERT UNE CHOSE QUE LE GARDE NE PEUT PAS DIRE : que la moitié HAUTE
+     de X2 rende exactement comme celle de X1. Le DOM peut être identique et la
+     peinture fausse — il suffit qu'une règle soit rest ée descendante de `.x1`.
+     👉 Ouvrir les DEUX bancs côte à côte : au-dessus du second filet, ⛔ aucun
+     pixel ne doit différer.
+
+     ⛔ IL NE PORTE AUCUNE COTE ET AUCUN HABIT. Tout vient de `tokens.css`,
+     `shell.css` et des deux feuilles construites (celle de la tête, partagée
+     avec X1, et celle de la bande). Si quelque chose est faux ici, c'est faux
+     dans le produit.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=803">
+<link rel="stylesheet" href="./shell.css?v=803">
+<style>
+  /* ⛔ L'ÉCHAFAUDAGE, ET RIEN D'AUTRE — copié du banc de X1 pour que les deux
+     rendus soient comparables au pixel : une dalle de 375 et une scène de
+     560 − 60 de belt. */
+  body { margin: 0; background: var(--bg, #1b1712); display: flex; justify-content: center; }
+  .banc { width: 375px; height: 560px; display: flex; flex-direction: column; margin-top: 34px; }
+  .banc-belt {
+    height: 60px; flex: none; display: flex; align-items: center; justify-content: center;
+    font: 600 12px/1 system-ui, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-soft); box-shadow: inset 0 -1px 0 var(--border-strong);
+  }
+  .banc-scene { flex: 1 1 auto; min-height: 0; position: relative; display: flex; }
+  .banc-barre {
+    position: fixed; inset: 0 0 auto; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 6px 8px; background: #000c; font: 600 11px/1 system-ui, sans-serif;
+  }
+  .banc-barre button {
+    border: 1px solid #666; border-radius: 6px; padding: 5px 8px;
+    background: #222; color: #ddd; font: inherit; cursor: pointer;
+  }
+  .banc-barre button[aria-pressed="true"] { background: #e8ddc6; color: #201a12; border-color: #e8ddc6; }
+  .banc[data-h="courte"] { height: 420px; }
+  .banc[data-h="normale"] { height: 560px; }
+  .banc[data-h="longue"] { height: 760px; }
+  /* ⛔ JOUR / NUIT NE SONT PAS DES BOUTONS ICI, ET C'EST EXPRÈS : `tokens.css`
+     les porte en `@media (prefers-color-scheme: dark)`, donc le seul témoin
+     honnête est la préférence RÉELLE du navigateur. Un attribut de banc
+     court-circuiterait la requête média et prouverait autre chose que le produit.
+     ⚠️ IL FAUT DONC SERVIR CE FICHIER EN HTTP pour l'éprouver aux deux : un
+     document local est rendu en clair quoi qu'on demande. */
+</style>
+</head>
+<body>
+<div class="banc-barre" id="barre">
+  <button type="button" data-geste="palette" aria-pressed="false">❄ Party Tally (bleutée)</button>
+  <button type="button" data-geste="h" data-val="courte" aria-pressed="false">420</button>
+  <button type="button" data-geste="h" data-val="normale" aria-pressed="true">560</button>
+  <button type="button" data-geste="h" data-val="longue" aria-pressed="false">760</button>
+  <button type="button" data-geste="prose" aria-pressed="false">texte court</button>
+  <button type="button" data-geste="bourse" aria-pressed="false">bourse sans classe</button>
+</div>
+<div class="banc" id="banc" data-h="normale">
+  <div class="banc-belt">belt — X2 ne le recouvre jamais</div>
+  <div class="banc-scene" id="scene"></div>
+</div>
+<script type="module">
+import { construireLaFicheX2 } from "./x2-ecran.mjs?v=803";
+
+let party = false;
+let courtTexte = false;
+let sansClasse = false;
+
+/* L'OBJET DE DÉMONSTRATION — le MÊME « Winged Helmet » que le banc de X1, et
+   c'est le point : deux bancs, un objet, et la moitié haute doit rendre à
+   l'identique. ⛔ Aucune de ces valeurs n'est une donnée du produit. */
+const LONG =
+  "A winged helmet of hammered bronze, its plumes catching a light that is " +
+  "not in the room.\n" +
+  "While wearing it you gain a flying speed of 30 feet, and you can hover. " +
+  "If you are not proficient with medium armor, your speed is halved and you " +
+  "have disadvantage on Dexterity saves while aloft.\n" +
+  "The helmet has 3 charges and regains 1d3 expended charges daily at dawn. " +
+  "While wearing it, you can expend 1 charge to cast Feather Fall, or 2 to " +
+  "cast Levitate.\n" +
+  "Curse: while attuned, you cannot bring yourself to descend a staircase " +
+  "that you could instead jump down.\n" +
+  "Properties: light, finesse\nAC: 13 + Dex modifier\n" +
+  "Weight: 3 lb. · Rarity: rare · Attunement: required";
+
+function poser() {
+  const item = {
+    ref: { id: "winged-helmet" }, nom: "Winged Helmet",
+    coutTexte: "15 gp", poidsTexte: "3 lb", cout: { gp: 15 },
+    prose: courtTexte ? "A plain bronze cap. Nothing further is recorded." : LONG
+  };
+  return construireLaFicheX2({
+    liste: [item], index: 0,
+    bourse: { pp: 99, gp: 999, sp: 99, cp: 999 },
+    /* ⭐ L'AUTRE MOITIÉ DU BANC : sans classe, l'or de départ n'existe pas et la
+       bourse se NOMME au lieu de montrer quatre tirets. Les deux rendus se
+       regardent, parce que l'encart ne fait pas la même hauteur. */
+    motBourse: sansClasse ? "Starting gold — pick a class first" : null,
+    onAction: () => {},
+    fermer: () => {}
+  });
+}
+
+function peindre() {
+  const scene = document.getElementById("scene");
+  while (scene.firstChild) scene.removeChild(scene.firstChild);
+  const noeud = poser();
+  /* ⏳ CE GESTE N'EXISTE QUE SUR LE BANC — le Party Tally est `inerte` au dépôt,
+     donc aucune fiche du produit ne peut porter cet attribut aujourd'hui. Le banc
+     le pose à la main pour qu'on REGARDE la troisième palette ; ⛔ il ne prétend
+     pas que le chemin existe. */
+  if (party) noeud.dataset.parchemin = "party-tally";
+  scene.append(noeud);
+}
+
+document.getElementById("barre").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.geste === "palette") {
+    party = !party; b.setAttribute("aria-pressed", String(party));
+  } else if (b.dataset.geste === "h") {
+    document.getElementById("banc").dataset.h = b.dataset.val;
+    for (const f of document.querySelectorAll('[data-geste="h"]'))
+      f.setAttribute("aria-pressed", String(f === b));
+    return;   /* ⭐ la hauteur ne repeint PAS : c'est le `ResizeObserver` du
+                 parchemin qu'on vient éprouver — s'il dort, on le verra. */
+  } else if (b.dataset.geste === "prose") {
+    courtTexte = !courtTexte; b.setAttribute("aria-pressed", String(courtTexte));
+  } else if (b.dataset.geste === "bourse") {
+    sansClasse = !sansClasse; b.setAttribute("aria-pressed", String(sansClasse));
+  }
+  peindre();
+});
+peindre();
+</script>
+</body>
+</html>

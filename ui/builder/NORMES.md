@@ -3216,7 +3216,7 @@ porte.
      cartes réunissent les trois.
 
 ### ⚖️ L'EXCEPTION AU NON-DÉFILEMENT — la seule, et elle est bornée
-📍 `liste-exception-au-non-defilement` · vivante · 03/09
+📍 `liste-exception-au-non-defilement` · vivante · 03/09 · bornée par `liste-une-fiche-defile-elle-ne-pagine-pas`
 ⚖️ **L'unique exception au non-défilement est bornée aux deux fenêtres de prose de l'arcane, à quatre lignes exactement — parce que ce qui débordait était une règle du jeu, et rien n'est en trop dans une règle du jeu.**
 
 > Eric, 2026-09-03 : *« on s'octroie une ligne supplémentaire pour power : donc 4 lignes »* · *« si
@@ -3249,6 +3249,43 @@ présents ni absents — et les lignes ne se recomposent pas d'une carte à l'au
 et la fenêtre est plafonnée. Un texte deux fois plus long n'en change pas la taille d'un blg :
 le contenu déborde et **aucun événement ne le dit**. Il faut DEUX lectures — une programmée pour la
 première mise en page, l'observateur pour ce qui bouge après.
+
+### ⚖️ LA BORNE D'ERIC — le critère est la PAGINATION, pas l'identité de la fenêtre
+📍 `liste-une-fiche-defile-elle-ne-pagine-pas` · vivante · 21/09 · borne `liste-exception-au-non-defilement`
+⚖️ **La loi du non-défilement vise les écrans PAGINÉS : une fiche n'a pas de pages, elle peut donc défiler à l'intérieur.**
+
+> Eric, 2026-09-21 : *« il peut y avoir du défilement interne dans une fiche X1, **il n'y a pas
+> plusieurs pages** »*.
+
+🔴 **CE QUE ÇA RÈGLE, ET C'ÉTAIT UNE VRAIE IMPASSE.** La loi du 03/09 bornait l'exception *« à ces
+deux fenêtres »* — les deux fenêtres de prose de l'arcane, nommées une par une. ⛔ **Une liste
+d'exceptions PAR NOM ne dit jamais qu'elle est incomplète** : la description de X1 défilait, elle
+était hors liste, et rien ne pouvait dire si c'était une dette ou un cas légitime.
+
+⭐ **LE CRITÈRE D'ERIC N'EST PAS UNE TROISIÈME EXCEPTION, C'EST UNE LIGNE DE PARTAGE** — et elle
+s'énonce sans nommer un seul écran :
+
+| l'écran | ce qu'il fait du trop-plein | et pourquoi |
+|---|---|---|
+| **paginé** — une liste de jetons | il **pagine**, ⛔ il ne défile jamais | un jeton hors écran est **introuvable**, et le joueur ne sait plus combien il en reste |
+| **une fiche** — un objet, une carte | elle **défile**, ⛔ elle ne pagine pas | *« il n'y a pas plusieurs pages »* : une fiche est UN objet, la couper en deux inventerait un second écran |
+
+⛔ **ET LA LOI GÉNÉRALE NE BOUGE TOUJOURS PAS** : *« un contenu qui ne tient pas : demander ce
+qu'il porte EN TROP, jamais un défilement interne »* *(§1 quater)*. Ce qu'Eric borne est sa
+**PORTÉE** — elle vise ce qui **pagine**. Sur un écran paginé, le trop-plein a un ailleurs où
+aller ; sur une fiche, il n'en a pas, et la question *« qu'est-ce qui est EN TROP ? »* n'a pas de
+réponse honnête.
+
+📏 **LE FAIT QUI ATTENDAIT CETTE BORNE, mesuré par le lot 219** : `.x1-description` porte **180 blg
+de boîte pour 400 de contenu**, soit **220 de débordement** ; `scrollTop` atteint 220 et le chevron
+bas s'allume. ✅ **Ce n'est donc plus une dette, c'est conforme** — et le mode lecture de la fiche
+*(l'œil, qui retire les trois rangées d'options pour rendre leur place au texte)* reste la réponse
+« qu'est-ce qu'on porte EN TROP » **appliquée à l'intérieur de la fiche**, pas son contournement.
+
+⛔ **LES DEUX GARDE-FOUS DU 03/09 RESTENT, ET ILS NE SE NÉGOCIENT PAS** : le geste ne fuit pas
+*(`overscroll-behavior: contain`)*, et **ça se VOIT** *(deux chevrons dans la marge, allumés au
+seul débordement — le haut compte autant que le bas)*. Une fiche qui défile sans le dire laisse
+croire au joueur qu'il a tout lu.
 
 ---
 
@@ -4192,9 +4229,10 @@ en retard. Elle dit maintenant que ce geste appartient au jeu, pas à la créati
 
 ---
 
-### 📜 LA DÉCHIRURE DU PARCHEMIN TOMBE HORS DE LA DALLE, ET C'EST ACCEPTÉ
-📍 `cadre-dechirure-du-parchemin-hors-dalle` · vivante · 18/09
-⚖️ **On ne voit que le DÉBUT de la déchirure au bord de la fiche X1 : la montrer entière coûterait 14 de marge sur les quatre côtés, donc 28 de large au texte — et le texte les vaut.**
+### 📜 LA DÉCHIRURE DU PARCHEMIN NE SE PAIE PAS EN MARGE
+📍 `cadre-dechirure-du-parchemin-hors-dalle` · vivante · 18/09 · **amendée le 21/09**
+⚖️ **La déchirure de la fiche X1 ne coûte pas un blg au texte — et depuis le 21/09 elle se voit ENTIÈRE : la silhouette tient DANS la dalle, et ses creux laissent voir le fond de l'application.**
+⛔ **Ce que la règle interdit n'a pas bougé d'un mot : payer de la marge pour du décor.** Ce qui a changé, c'est le moyen — le bord n'est plus une image dont il faudrait dégager les arêtes, c'est un contour calculé dont la profondeur est un paramètre.
 
 > Eric, 2026-09-18 : **« les 28 de large en moins, c'est ok. On laisse le parchemin comme ça. »**
 
@@ -4207,6 +4245,84 @@ amincis (32), la bande de rappel (40) : de 116 à 232. ⛔ En reprendre 28 pour 
 aurait défait le tiers de ce travail.
 ⭐ **ET LA DÉCHIRURE AMORCÉE SUFFIT À DIRE « PARCHEMIN »** : ce qu'on voit au bord est un bord
 déchiré, pas un bord droit — et c'est tout ce que l'œil avait à comprendre.
+
+🔴 **SA PRÉMISSE EST MORTE LE 21/09, SA DÉCISION TIENT** *(lot 219)*. La règle arbitrait un
+**coût** : montrer la déchirure entière valait 14 de marge sur quatre côtés, *parce que la
+déchirure était une IMAGE dont il fallait dégager les bords*. ⭐ Depuis que le bord est
+**calculé**, sa profondeur est un paramètre : elle se règle à **9,5 blg**, le dégagement du
+premier organe peint, et la déchirure entière se voit **sans rendre un seul blg au texte**.
+⛔ **Ce qui ne change pas, et c'est ce qu'Eric a tranché** : on ne paie pas de marge pour le
+décor. La règle est donc **tenue**, pas levée — par un autre moyen.
+
+🔴 **ET LE 21/09 LA PHRASE D'EN-TÊTE TOMBE, PAR LA VOIX D'ERIC** *(lot 243)*. Elle disait *« on ne
+voit que le DÉBUT de la déchirure »* — une description de l'ANCIENNE image, restée en place après
+que le lot 219 eut rendu la déchirure entière gratuite.
+
+> Eric, 2026-09-21, devant la fiche servie : **« efface la plaque en dessous et n'agrandis pas
+> X »** · **« on verra le contour »** · **« juste X et le fond derrière »**
+
+⚠️ **CE QUI L'AVAIT CONTREDITE EN SILENCE, ET C'EST LA MÊME FAUTE DANS L'AUTRE SENS** : le lot 240
+avait lu *« on ne voit que le début »* comme un ordre de pousser le papier HORS de la dalle, ligne
+moyenne à `−k·haut`, quatre arêtes coupées à plat par l'`overflow`. ⛔ Il l'a écrit lui-même en
+dernière ligne de son message — *« la fiche se lit comme un rectangle »* — et il l'a poussé quand
+même, parce que la loi de ce fichier semblait le couvrir. ⭐ **Une loi qui décrit un rendu mort
+arme celui qui la lit au pied de la lettre.** C'est pour ça qu'elle est amendée ici et pas
+seulement dans le code.
+
+📏 **LA PILE EST À DEUX COUCHES, ET IL N'Y A RIEN ENTRE — MESURÉ, ⛔ PAS SUPPOSÉ** (Chromium, 21/09,
+`ui/builder/index.html`, chaîne matérialisée puis lue au `getComputedStyle`) : `.x1`,
+`.equipment-step`, `.decision-card`, `.stage`, `.stage-area`, `.panneau-contenu`, `.panneau`,
+`.panneaux`, `.app` et `html` rendent **tous** `rgba(0, 0, 0, 0)` / `background-image: none`. Le
+seul organe qui peint sous la fiche est `body` — `rgb(20, 18, 14)` + `bg-ruins-night`.
+⭐ **Il n'y a donc AUCUNE plaque au dépôt** : celle qu'Eric a vue était le parchemin agrandi
+lui-même. *« Efface la plaque »* et *« n'agrandis pas X »* sont **un seul geste**.
+
+---
+
+### 📜 LE PARCHEMIN DE LA FICHE EST DESSINÉ, ⛔ JAMAIS UNE IMAGE
+📍 `cadre-parchemin-calcule-trois-palettes` · vivante · 21/09
+⚖️ **La surface de la fiche X1 est un contour SVG calculé à la cote RÉELLE du panneau — ⛔ aucune image matricielle — et elle porte TROIS palettes : jour, nuit, et la bleutée du Party Tally, qui PRIME sur les deux autres.**
+
+> Eric, 2026-09-21 : **« aucune image matricielle de parchemin ne doit être nécessaire »** ·
+> **« conserver les couleurs jour, nuit et bleutée du prototype »** · **« le bleu est un
+> contexte hors jour nuit, il PRIME »** · **« la palette bleutée doit rester claire et
+> lisible : pas un panneau nocturne simplement recoloré en bleu »** · **« remplacer les
+> séparateurs ornementaux à losanges et points par de simples filets fins en dégradé »**.
+
+📏 **LE DÉFAUT ÉTAIT MESURABLE, ET IL ÉTAIT DANS UNE SEULE DÉCLARATION** :
+`.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat }`. ⛔ `100% 100%` ne
+préserve aucun rapport — la dalle fait **375 de large toujours** mais sa hauteur suit la scène,
+donc le grain et la déchirure s'allongeaient ou s'écrasaient d'un appareil à l'autre. Mesuré le
+21/09 : à 700 de haut, la même image rendait ses accrocs **40 % plus longs** qu'à 500.
+⭐ **CE QUE LE CALCUL APPORTE, ET QU'AUCUN RÉGLAGE D'IMAGE NE POUVAIT DONNER** : un accroc fait
+**4 blg** que la fiche en fasse 420 ou 700 de haut. La matière ne s'étire pas, parce qu'il n'y a
+plus rien à étirer — le bord gagne des points, il ne redistribue pas les siens.
+
+⚖️ **TROIS RENDUS, ⛔ PAS SIX.** Jour et nuit sont l'affaire du **lecteur**
+*(`prefers-color-scheme`, sur `:root`)* ; la bleutée est l'affaire de **l'objet regardé**. Elle ne
+se combine pas avec le thème, elle le **préempte** : une fiche du Party Tally est bleu pâle le
+soir comme le matin.
+🔴 **ET « PRIMER » EST UNE AFFIRMATION SUR QUI GAGNE, DONC ELLE SE MESURE.** 📏 Relevé au
+navigateur le 21/09, `getComputedStyle` sur la fiche en contexte Party Tally, application forcée
+en jour puis en nuit : les **dix** jetons du parchemin rendent la **même** valeur aux deux
+relevés, pendant que le témoin `--text` passe de `#2d2c2a` à `#d8d3c9`. ⭐ Le témoin prouve que
+la sonde **voit** le thème changer — sans lui, l'égalité ne dirait rien.
+⛔ **LA BLEUTÉE DOIT DONC ÊTRE COMPLÈTE, PAS SEULEMENT PRÉSENTE** : elle redéfinit **tout** ce que
+le bloc de nuit touche. Le jour où la nuit gagnerait un jeton que la bleutée oublie, ce jeton-là
+passerait en nuit **sous un papier bleu** — un panneau bleu à l'encre nocturne, exactement ce
+qu'Eric refuse — et **aucun test de couleur ne broncherait**. C'est `tests/parchemin.test.mjs`
+garde 6 qui le tient, et il a été éprouvé ROUGE.
+
+📏 **LA PROFONDEUR DU BORD EST DÉDUITE, ⛔ PAS CHOISIE** : c'est la plus courte distance entre un
+bord de la dalle et la boîte de **dessin** d'un organe — **9,5 blg** *(COPIER à gauche, JAUGE à
+droite ; le haut en offre 20, le bas 36)*. ⚠️ **ET LA BOÎTE DE DESSIN N'EST PAS LA CIBLE** : les
+cibles de 44 descendent jusqu'à **4** du bord, mais elles portent l'écart en **bordure
+transparente** — rien n'y est peint, et le décor ne les rogne pas puisqu'il n'intercepte aucun
+geste. Confondre les deux fait accuser un défaut qui n'existe pas *(fait le 21/09, corrigé en
+mesurant le `padding-box`)*.
+⭐ **UN SEUL BUDGET POUR LES QUATRE CÔTÉS** : le bas en offrirait 36, mais une déchirure quatre
+fois plus profonde en bas qu'aux côtés ne se lit pas comme une feuille. L'asymétrie qu'Eric
+demande vient du **bruit**, ⛔ pas d'un budget par arête.
 
 ---
 
@@ -4276,6 +4392,557 @@ pour un seul geste.
 ⏳ **NON TRANCHÉ, ET À NE PAS DEVINER** : ce que fait *« tighten up »* dans une grille qui se tasse
 déjà toute seule ; ce qui arrive à une section qui déborde de douze ; et si le rangement local doit
 se graver au document ou rester un coup d'œil.
+
+---
+
+### ✨ UN HALO RECOUVRE LE REBORD, ⛔ IL NE L'ENTOURE PAS
+📍 `cadre-le-halo-recouvre-le-rebord` · vivante · 20/09
+⚖️ **Le halo d'un organe DÉSIGNÉ est entièrement `inset` : il entre par le rebord et diffuse vers l'intérieur. ⛔ Rien ne sort — ⛔ jamais un anneau posé contre le bord.**
+
+> Eric, 2026-09-20, en regardant le tambour de Wares : **« fais en sorte que le halo recouvre
+> plutôt qu'entourer sur le premier pixel du bord, mais aussi en dessous »** — puis, en donnant
+> l'objectif qui tranche : **« objectif qu'on voie la marge autour de la tuile »**.
+
+⭐ **ET C'EST L'OBJECTIF QUI DIT COMBIEN SORT : RIEN.** 📏 Mesuré sur le tambour : la tuile posée
+est agrandie de 1,2456, donc elle déborde de **7 blg** de chaque côté sur un écart qui en vaut 8 —
+il ne reste qu'**UN blg** de marge, et la moindre part extérieure du halo l'avale. Un halo qui sort
+d'un blg ne « déborde » pas un peu : il **supprime** la marge.
+⏳ **ET LE BLG QUI RESTE EST MINCE — c'est une COTE, pas un réglage.** Pour une marge de 8 VISIBLE
+il faudrait un écart de `8 + 7 = 15`, donc un `pas` de 72 au lieu de 65. ⛔ Le pas est ce qui rend
+`scrollLeft = pas × k` exact, sur les DEUX tambours : il ne se change pas en passant.
+
+⭐ **C'EST LA MÊME QUESTION QUE LA LOUPE, POSÉE SUR UN AUTRE ORGANE.** La loi du 19/09
+*(`equipement-loupe-se-superpose-au-rebord`)* dit d'un cadre témoin qu'il *« se pose SUR le rebord
+de la boîte, il ne s'ajoute pas autour »*, et la raison y est écrite : **deux traits qui se touchent
+sans se superposer s'ADDITIONNENT**, et ça fait l'autocollant. Un halo purement extérieur a le même
+défaut — il dessine une **seconde arête** contre la première.
+📌 **CE QUE LA PHRASE D'ERIC DIT EXACTEMENT, MOT PAR MOT** : *« recouvre »* → l'`inset`, qui
+**remplace** le trait au lieu de s'y ajouter ; *« sur le premier pixel du bord »* → il commence à
+l'arête même, pas un blg plus loin ; *« mais aussi en dessous »* → et de là il diffuse vers
+l'**intérieur** de la tuile. ⭐ Les trois morceaux décrivent UNE ombre, pas deux.
+🗄️ **ARCHIVÉ, et l'erreur vaut d'être gardée** : j'ai d'abord lu la phrase comme deux ombres — une
+`inset` plus une extérieure sans étalement, « à cheval sur l'arête ». Elle a vécu une heure, jusqu'à
+l'objectif. ⛔ Une part extérieure, fût-elle d'un blg, mange la seule marge qui reste.
+⭐ **L'ENCRE RESTE CELLE DU BELT** — `--belt-halo`, le jeton qui dit déjà *« c'est ici que ça se
+passe »* sur le cran courant, sur les bascules de X1 et sur l'interrupteur du mode du sac. ⛔ Ce
+n'est pas une lueur neuve : c'est la même, autrement posée.
+📏 **ET ELLE VAUT POUR LES DEUX TAMBOURS** — le sac et Wares partagent la règle. Eric compare les
+deux écrans ; deux tambours qui ne s'allument pas pareil seraient deux tambours.
+
+🔴 **ET J'AI FAILLI ÉCRIRE CETTE LOI SUR UN RENDU FAUX.** En rédigeant le commentaire de `shell.css`
+j'ai fermé le bloc **une seconde fois** : le moteur CSS, tombant sur de la prose, a sauté jusqu'au
+prochain `;` — **celui du `box-shadow`** — et la déclaration a disparu. Le navigateur montrait donc
+le liseré nu, le halo n'a **jamais** été appliqué, et **j'ai accusé le cache**. ⭐ C'est le garde
+`css-syntaxe` *(né du même accident le 15/09)* qui a donné la ligne exacte. 📌 **La leçon se répète
+mot pour mot** : *quand tous les gardes lisent un fichier à travers le même extracteur, aucun ne
+peut accuser l'extracteur* — et un rendu qui manque ne prouve pas que la règle est absente du
+fichier ; il peut prouver que **le fichier est cassé plus haut**.
+
+---
+
+### 🛒 WARES — TROIS DALLES, UN TAMBOUR À DEUX ÉTAGES, UNE GRILLE DE DOUZE
+📍 `equipement-wares-trois-dalles` · vivante · 20/09
+⚖️ **Wares est fait des MÊMES organes que le sac : un tambour *(deux étages au lieu d'un)*, une grille de jetons, un pied. ⛔ Il ne redessine rien — il importe.**
+
+> Eric, 2026-09-20, en dictant l'écran : **« Voile 35 %. Equipment browser dégage. »** · **« pas de
+> menu d'éditions »** · **« première ligne du tambour de Wares, les catégories, fonctionnement
+> exactement celui de backpack. Ça ne tourne plus à l'infini, navigation identique. »** · **« 4
+> blg »** · **« deuxième ligne porte les sous-catégories. Même fonctionnement que backpack, même
+> navigation, on a juste un deuxième étage de navigation. »**
+
+| la dalle | ce qu'elle porte | hauteur |
+|---|---|---|
+| **1** | le tambour, **deux étages** — les catégories, puis les sous-catégories | **92** |
+| **2** | la grille de jetons et ses deux gouttières *(compte d'objets à gauche, compte de pages à droite)* | **232** |
+| **3** | les deux Tally · le collecteur · la bourse · `Send to ▾` · la rangée du pied | **160** |
+
+⭐ **`92 + 8 + 232 + 8 + 160 = 500`, PILE.** Les deux `8` sont les line bleeds (§8 bis).
+⛔ **CE QUE WARES NE PORTE PAS**, et c'est la dictée qui l'enlève : aucun mode édition *(ni `/`, ni
+`×`, ni `+ Storage`, ni `done sections`)*, ni `Sort`, ni `Encumbrance`, ni `sections`. ⭐ **C'est
+exactement ce qui libère les 92 blg pour DEUX étages là où le sac n'en loge qu'un.**
+🔴 **ET LE TITRE `EQUIPMENT BROWSER` DÉGAGE.** L'écran avait deux noms — celui de son titre et celui
+que la 3ᵉ ligne du belt écrit déjà. §6 interdit un libellé qui ment ; deux noms pour un écran sont
+la même faute, en plus discret.
+
+---
+
+### 🥁 LE SWIPE DE WARES PAGINE — ⛔ ET CE N'EST PAS CE QUE FAIT LE SAC
+📍 `equipement-wares-swipe-pagine` · vivante · 20/09
+⚖️ **Le glisser de dalle, dans Wares, déplace dans les PAGES de la sous-catégorie. ⛔ Il ne change jamais de sous-catégorie — c'est le tambour qui en change.**
+
+> Eric, 2026-09-20 : **« le swipe de dalle […] déplace dans les pages de la catégorie, pas d'une
+> sous-catégorie à l'autre (ATTENTION LÀ C'EST DIFFÉRENT DE BACKPACK) »**.
+
+⭐ **ERIC A NOMMÉ LA DIFFÉRENCE LUI-MÊME, EN MAJUSCULES, ET C'EST LA RAISON DE CETTE LIGNE.** Dans le
+sac, une dalle EST une section : glisser change de section. Dans Wares, une sous-catégorie ne tient
+pas sur une dalle — elle en fait plusieurs. Le geste garde donc sa forme et change de sens.
+📌 **Les deux gouttières restent** : une sous-catégorie a plusieurs pages, donc `‹` `›`, le compte
+d'objets et le compte de pages. ⭐ La règle `liste-une-seule-page-pas-de-fleches` s'applique quand
+même : une sous-catégorie de **douze ou moins** n'a pas de chevrons.
+
+---
+
+### 🔢 WARES PAGINE PAR **DOUZE**, ⛔ PAS PAR QUINZE — ET C'EST LA HAUTEUR QUI LE DIT
+📍 `equipement-wares-douze-par-page` · vivante · 20/09
+⚖️ **La grille de Wares fait QUATRE rangées de trois, soit douze jetons par page. ⛔ L'écran passe son nombre à `pageDeListe(objets, page, 12)` ; il ne recopie pas le 15, et il ne le tait pas.**
+
+> Eric, 2026-09-20, en dictant : **« 5 rangées de 3 tokens, si on a la place »** — puis, la mesure
+> faite : **« eh ben 4 rangées alors »**.
+
+📏 **LA MESURE QUI A TRANCHÉ, ET ELLE EST ARITHMÉTIQUE.** À cinq rangées la dalle 2 vaut
+`8 + 5×48 + 4×8 + 8 = 288`, et l'écran demande `92 + 8 + 288 + 8 + 160 = 556` pour une scène qui en
+offre **500** : ⛔ **56 de trop**.
+⛔ **ET AUCUN RACLAGE NE LES RÉCUPÈRE** : écarts de rangée 8 → 4 *(−16)*, les deux line bleeds 8 → 4
+*(−8)*, rembourrages de la dalle 2 *(−8, et ça contredit le croquis du 19/09)*, hauteur du jeton
+48 → 44 *(−20, et 🔒 44 est le plancher)* — **−52 au total, il manque encore 4**, pour un écran
+devenu illisible. La seule autre sortie était de fondre le collecteur et `Send to` sur une rangée,
+c'est-à-dire de décider du produit à la place d'Eric.
+⭐ **`NORMES` PRÉVOYAIT DÉJÀ CE CAS** : *« un écran qui dévie passe SON nombre à `pageDeListe`,
+explicitement, et le garde reste muet. Ce qu'il interdit, c'est de recopier le 15. »*
+
+---
+
+### 📦 LES REMBOURRAGES DE DALLE VALENT 4, LES ÉCARTS ENTRE ORGANES VALENT 8
+📍 `equipement-wares-rembourrage-quatre` · vivante · 20/09
+⚖️ **Dans Wares, le rembourrage d'une dalle vaut `4` ; l'écart entre deux organes garde le `8` du sacré n° 3. ⛔ Une exception, un argument : le budget vertical.**
+
+🔴 **CETTE LIGNE EXISTE PARCE QUE LE SACRÉ N° 3 A CASSÉ MON BUDGET, ET IL AVAIT RAISON.** J'avais coté
+la dalle 3 à **156** en recopiant deux entorses du sac : un écart de `4` avant la rangée du pied, et
+un `Send to` dessiné **40** de haut au lieu de sa BOÎTE de **44** — 🔒 le plancher `--touch`, laissé
+filer. Aux 8 réglementaires la dalle 3 vaut **160**, et la somme passait à 504.
+⭐ **CE SONT LES REMBOURRAGES QUI CÈDENT, JAMAIS LES ÉCARTS.** Un écart porte le rythme entre deux
+organes ; un rembourrage ne sépare rien, il borde. Le précédent est d'Eric lui-même *(06/09 :
+« faut récupérer des blg »)*, et il porte le même argument.
+⛔ **ET LA DALLE 2 GARDE SES 8** : son rembourrage est fixé par le croquis du 19/09 *(« 8 au-dessus
+du premier jeton et 8 sous le dernier »)*. ⭐ Un croquis d'Eric prime sur une généralisation.
+
+---
+
+### 🎫 LE JETON DE WARES EST CELUI DU SAC — ⛔ UNE SEULE DIFFÉRENCE, ET C'EST LE TAP
+📍 `equipement-wares-jeton-et-x2` · vivante · 20/09
+⚖️ **Wares importe `jeton-objet.mjs` sans le toucher : le nom sur trois lignes au plus, la bande des quatre marques. ⛔ Pas de prix sur le jeton. La SEULE différence : un tap ouvre un `X2`, pas un `X1`.**
+
+> Eric, 2026-09-20 : **« les jetons EXACTEMENT la même règle que dans les menus Gear/Backpack.
+> Différence une seule : un tap sur token, mène à un écran X2 pas X1. »**
+
+⭐ **ET ÇA TRANCHE UNE QUESTION QUE J'ALLAIS POSER** : fallait-il poser le prix sous le mot, puisque
+la fiche et la recherche chiffrent ? Non. *« Exactement la même règle »* ferme la porte — le prix
+vit sur la fiche, ⛔ jamais sur le jeton.
+⭐ **`jeton-objet.mjs` EST UN MODULE FEUILLE** — aucun import, aucune cote, aucune couleur — et c'est
+précisément ce qui rend un troisième porteur gratuit. ⛔ Wares ne le redessine pas.
+⏳ **CE QUI N'EST PAS TRANCHÉ, ET QUE JE N'INVENTE PAS** : la bande des quatre marques décrit un
+objet **possédé** *(`locked`, `equipped`, `attuned`, la quantité)*. Sur une étagère de boutique les
+quatre tombent à « non » et la bande rend **14 blg sur 48** qui ne disent rien. On garde la bande
+vide *(le comportement actuel)* ; dire *« ce que tu possèdes déjà »* serait une règle neuve.
+
+---
+
+### 🔴 `b1` DÉSIGNE DEUX OBJETS — LA FICHE DU CATALOGUE S'APPELLE `X2`
+📍 `equipement-la-fiche-du-catalogue-est-un-x2` · vivante · 20/09
+⚖️ **La fiche d'un objet du CATALOGUE est un `X2` ; celle d'un objet POSSÉDÉ est un `X1`. ⛔ Aucune des deux n'écrit dans le belt.**
+
+> Eric, 2026-09-16, déjà dans le code : **« les x ne s'inscrivent pas dans le belt »** —
+> `shell.mjs` le cite et nomme la paire : *« une fiche d'objet (X1, X2) n'écrit jamais »*.
+
+🔴 **LE MOT EXISTAIT DANS LA LOI ET NULLE PART AILLEURS.** Le dépôt ne porte que `x1-ecran.mjs` et
+`x1-disposition.mjs` ; la fiche qui s'ouvre depuis Wares est codée sous le nom de vue **`b1`** — *le
+même mot que le rang B1, qui est le sac*. ⛔ **Un nom, deux objets** : c'est la faute que ce dépôt
+repaie tous les quinze jours, et elle se répare en prenant le nom que la loi donnait déjà.
+📌 **ET CE N'EST PAS UN ÉCRAN NEUF** : il existe, il marche, et son `BACK` rend Wares avec son rayon,
+sa sous-catégorie et sa page — 📏 mesuré au navigateur le 20/09. Seul son nom change.
+
+---
+
+### 🪙 LA BOURSE À DROITE, LES DEUX TALLY À GAUCHE — CENTRÉS PAR LA GRILLE
+📍 `equipement-wares-bourse-et-tally-centres` · vivante · 20/09
+⚖️ **Sur la dalle 3, la bourse occupe la cellule de DROITE et les deux Tally celle de GAUCHE, centrés sur les deux axes. ⛔ Le centre ne s'écrit pas — c'est une cellule `1fr` qui enjambe les rangées et porte `place-self: center`.**
+
+> Eric, 2026-09-20 : **« la bourse peut se trouver à droite, les Tally à gauche, centrés
+> horizontalement et verticalement dans le rectangle vide »** · **« sur la 3e dalle »** · puis, en
+> le voyant venir : **« ils seront effectivement entre 2 lignes »**.
+
+⭐ **LA COLONNE DU MILIEU VAUT 96 PARCE QUE `Send to` EST LE PLUS LARGE**, ⛔ pas 87, la largeur du
+collecteur. C'est le plus large qui pose la piste ; le collecteur se centre dedans.
+🔴 **ET CETTE RÈGLE CORRIGE UNE DÉRIVE QUE LE SAC TRAÎNE.** 📏 Mesuré dans `sac-disposition.mjs` :
+la bourse y est centrée sur une marge de **4** *(x 276)* et les deux Tally sur une marge de **8**
+*(x 32 et 80)* — **deux règles pour une même rangée**, et 2 blg d'écart vertical entre les trois.
+⭐ La phrase d'Eric n'en pose qu'UNE, et les trois organes retombent sur le même axe.
+⛔ **J'AVAIS D'ABORD CENTRÉ SUR LA BANDE DU COLLECTEUR, ET C'ÉTAIT TROP ÉTROIT.** Le rectangle vide
+est ce qui reste de la dalle **entière** une fois retirées la colonne centrale et la rangée du pied
+— il enjambe donc les deux lignes, ce qu'Eric a confirmé avant que je le montre.
+
+---
+
+### 🚪 LE PIED DE WARES DIT `Gear · Send · Backpack` — LE TRIANGLE SE REFERME
+📍 `equipement-wares-pied-triangle` · vivante · 20/09
+⚖️ **Chaque écran d'équipement porte les DEUX portes qu'il n'est pas. ⛔ `Equipment` est le nom de l'ÉTAPE, jamais d'un écran.**
+
+> Eric, 2026-09-20 : **« le 3e bouton c'est backpack »**.
+
+| l'écran | son pied |
+|---|---|
+| **R** *(Gear)* | `Backpack · Send · Wares` |
+| **B1** *(le sac)* | `Gear · Send · Wares` |
+| **Wares** | `Gear · Send · Backpack` |
+
+⭐ **PAS DE TROU, PAS DE PORTE VERS SOI-MÊME**, et le `Send` du milieu fait partout la même chose :
+il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la liste d'envoi.
+
+---
+
+### 🔗 LA PLAQUE DE WARES **SUIT** LE TAMBOUR, ⛔ ELLE NE JOUE PAS UN FILM
+📍 `equipement-wares-la-plaque-suit-le-tambour` · vivante · 21/09
+⚖️ **La plaque se déplace À CHAQUE IMAGE du défilement du tambour, en suivant sa position FRACTIONNAIRE. ⛔ Ce n'est pas une animation jouée après coup : c'est un verrou, et c'est la même mécanique que le sac.**
+
+> Eric, 2026-09-19 : **« je fais défiler une tuile à travers le viseur, je fais défiler une dalle
+> en même temps… ILS SONT LIÉS »**. Et le 21/09, en me renvoyant au code du sac : **« regarde le
+> code de backpack et regarde ce qui se passe sur une transition de plaque »**.
+
+🔴 **CE QUE J'AVAIS LIVRÉ EN v778, ET C'ÉTAIT FAUX DE NATURE.** J'avais écrit une TRANSITION : on
+tape, le tambour tourne, il se pose *(~400 ms)*, l'étape repeint, **et alors** un film de ~460 ms se
+joue. Deux mouvements successifs pour un seul geste — et pendant un vrai glissé du tambour, la
+plaque ne montrait **rien**, puis sautait. 📏 Mesuré sur les deux écrans, même sonde, aimantation
+coupée :
+
+| tuiles parcourues | 0 | 0,25 | 0,5 | 0,75 | 1 | 1,5 | 2 |
+|---|---|---|---|---|---|---|---|
+| **sac** | 0 | 106 | 215 | 321 | 427 | 641 | 855 |
+| **Wares — v778** | 0 | **0** | **0** | **0** | **0** | **0** | **0** |
+| **Wares — le verrou** | 0 | **78** | **159** | **237** | **315** | **474** | **632** |
+
+⭐ **ET C'EST LÀ LA LOI GÉNÉRALE** : *« on voit une dalle entrer et une dalle sortir »* n'est pas
+une animation qu'on **joue** — c'est la **conséquence** du fait que la plaque suit le doigt. Une
+animation jouée après coup **raconte** le mouvement ; elle ne le **fait** pas. ⛔ Et la différence
+se voit : pendant tout le trajet du doigt, la version « film » ne montre rien.
+
+🔴 **ET LA PLAQUE EST LA DALLE ENTIÈRE, ⛔ PAS SON BLOC DE JETONS** — Eric, 2026-09-21, après le
+croquis et deux explications : *« je veux que **TOUTE LA DALLE** se déplace vers la droite ou la
+gauche et que la dalle suivante apparaisse dans l'écran ; tout tu me le fais mais **à l'intérieur
+d'une dalle** »*. J'avais fait défiler les 12 jetons dans la colonne du milieu *(277)* en laissant
+le cadre — voile, liseré, gouttières, filigrane — **planté**.
+⭐ **ET LE SAC L'ÉCRIT DÉJÀ, EN TOUTES LETTRES**, sur `.sac-dalles` : *« le trait de coupe vit sur
+CHAQUE DALLE, pas ici : **une fenêtre encadrée montre un trou fixe, une dalle encadrée voyage avec
+le sien** »*. ⛔ J'avais le croquis **et** le code, et j'ai quand même mis trois versions à le lire.
+📏 **LA PLAQUE VAUT DONC LA SCÈNE (375)**, la fenêtre aussi, et le jour `375 × 8 / 57 = 52,63` —
+celui du sac au centième, **parce que c'est le même objet**. Mesuré : six dalles aux places
+`0 · 428 · 855 · 1283 · 1711 · 2138`, soit un pas de **427,63**.
+🔴 **ET LA FENÊTRE REND LA VERTICALE À LA PAGE (`touch-action: pan-y`), ⛔ ELLE NE PREND PAS
+`none`.** J'avais écrit `none` en croyant dire *« je ne prends aucun geste »* ; `none` dit
+l'inverse — **je les prends tous et je n'en rends aucun**. 📏 Or cette fenêtre fait la scène
+entière, et la page défile vraiment sous elle : `echelle.mjs` porte `ECHELLE_PLANCHER = 0.96`,
+*« sous le plancher l'app ne rétrécit plus : elle DÉBORDE, et la page défile. C'est le choix
+d'Eric »*. Un doigt posé là aurait donc été **piégé** : ça glisse partout sauf sur la moitié de
+l'écran. ⭐ `pan-y` rend la verticale et ne prend rien de l'horizontal — exactement ce qu'on veut
+d'une dalle qui n'est pas glissable au doigt ; le sac dit la même chose en miroir (`pan-x`,
+*« le geste vertical reste à la page, l'horizontal est à nous »*).
+📌 **ET `touch-action` S'INTERSECTE AVEC LES ANCÊTRES** : un `none` posé haut ne se rattrape pas
+plus bas. ⭐ Repéré par Agent Equipment, vérifié dans `echelle.mjs` avant d'être corrigé — ⛔ un
+avis de pair se mesure comme un autre.
+
+⛔ **ET LA FENÊTRE NE PORTE NI VOILE NI LISERÉ** : un seul voile par bande, sinon 35 % par-dessus
+35 % — la faute qu'Agent Equipment a livrée et qu'Eric a diagnostiquée avant lui.
+📌 **CE QUI DIVERGE DU SAC, ET JE LE NOMME** : là-bas les gouttières sont sorties dans la bande
+fixe ; ici elles **voyagent avec leur dalle**, parce qu'Eric a dit *« toute la dalle »* et parce que
+chaque plaque annonce alors **son** compte et **sa** page. Une gouttière restée fixe dirait les
+chiffres d'une dalle pendant qu'on en regarde une autre.
+
+⚖️ **CE QU'IL FAUT POUR SUIVRE : QUE LES PLAQUES SOIENT DÉJÀ LÀ** — Eric, 21/09 : *« il faut
+uniquement la première page de chaque dalle »*. Une plaque par sous-catégorie, chacune sur sa
+**page 1**, ⛔ sauf la courante qui porte la page où le joueur est. 📏 Coût borné, mesuré : la
+catégorie la plus fournie en porte 7, soit **7 plaques / 84 jetons** — ⛔ pas les 47 plaques /
+564 jetons qu'il faudrait pour poser toutes les pages de tout.
+⛔ **ET CE QUI N'EST PAS SOUS LE VISEUR NE SE TABULE PAS** *(`inert`)* : six plaques hors champ,
+c'est 72 boutons invisibles sur le chemin de la touche Tab.
+
+⛔ **LE SENS INVERSE RESTE COUPÉ** — *« la dalle de Wares ne sera pas swipable car elle a plusieurs
+pages »*. Le sac a deux meneurs possibles et un arbitre ; ici le tambour mène **toujours**, la piste
+ne reçoit aucun geste *(`touch-action: none`)*. ⭐ Un seul écrivain, donc **pas d'arbitre à tenir** —
+c'est la moitié du mécanisme du sac qu'on ne reprend PAS, et je le dis pour qu'on ne la cherche pas.
+⛔ **ET LE SUIVEUR N'AIMANTE PAS**, ni ne défile « en douceur » : une aimantation `mandatory` refuse
+toute position intermédiaire *(mesuré dans le sac : 383 au lieu de 563 à mi-chemin)*, et une inertie
+ajoutée ferait traîner la plaque derrière le doigt. **L'aimantation appartient au meneur.**
+
+🔴 **DEUX PIÈGES DE MESURE, ET ILS M'ONT FAIT CONCLURE FAUX TROIS FOIS.**
+1. **`offsetLeft` se compte depuis le plus proche ancêtre POSITIONNÉ.** Sans `position: relative`
+   sur la piste, les plaques rendaient **49 · 365 · 681** — la gouttière était dans le compte, et la
+   piste se serait posée 49 blg à côté. Après : **0 · 316 · 632**.
+2. **Une poignée de nœud PÉRIMÉE rend 0 en silence.** Un repeint remplace les nœuds ; une sonde qui
+   garde sa référence mesure un écran mort et conclut que rien ne bouge. ⭐ Une sonde doit
+   **ré-interroger le document à chaque pas**.
+
+⛔ **ET LE VERROU NE PASSE PAS PAR UNE VARIABLE DE MODULE.** Mon premier jet en utilisait une, parce
+que le tambour se construit avant la dalle 2. 📏 Sonde à l'appui : le suiveur était bien appelé
+*(`p = 0,507`)* mais sa piste rendait **`isConnected: false`** — la variable avait déjà été
+réassignée par le rendu suivant, et le tambour d'un écran écrivait dans la piste d'un autre.
+⭐ **La parade est structurelle** : la piste naît **avant** le tambour, et le tambour reçoit une
+**fermeture** qui la tient. Les deux naissent et meurent ensemble ; il n'y a plus rien à tenir
+d'accord. 📌 *Une indirection par l'état du module est un trou par construction* — rien n'y garantit
+que les deux bouts appartiennent au même rendu.
+
+🔴 **ET UNE MESURE SUR DES FRACTIONS PROPRES NE PROUVE RIEN** — c'est Agent Equipment qui m'a
+repris : *« tes 78 / 159 / 237 / 315 sont des fractions propres, donc probablement des positions
+que l'aimantation ne corrige pas ; mes trois vérifications vertes tombaient toutes sur des crans
+déjà alignés, et le défaut vivait exactement entre les points que je n'avais jamais mesurés »*.
+⭐ **Le témoin est une position SALE, et une IMAGE.** Mesuré à `0,37` tuile : la piste rend
+**159,30** pour `427,63 × 0,37 = 158,22` attendus — **0,8 blg** d'écart, qui est l'arrondi de mise
+en page *(374 rendu pour 375 au plan)*, ⛔ pas une correction d'aimantation.
+
+⭐ **ET LA PLACE D'UNE PLAQUE SE LIT, ⛔ ELLE NE SE MULTIPLIE PAS** : entre deux plaques il y a un
+jour, donc `largeur × k` n'est pas la place de la plaque `k`. On encadre entre deux places lues dans
+la mise en page et on interpole avec la fraction — c'est `placeDeLaPiste(p, xs)`, une fonction pure,
+tenue par son garde.
+
+---
+
+### 📦 LE COLLECTEUR DE WARES PORTE UNE ÉTAPE DE PLUS, ⛔ PAS CELUI DU SAC
+📍 `equipement-le-collecteur-de-wares-a-une-etape-de-plus` · vivante · 21/09
+⚖️ **Déposer dans le collecteur de Wares n'envoie rien. `Send` ouvre une fiche X2 qui demande la destination et TRANCHE LE PAIEMENT. ⛔ UNE exception : le Tally, qui ne paie pas — c'est un contenant PROVISOIRE, et le paiement a lieu SUR lui.**
+
+> Eric, 2026-09-21 : **« le collecteur de Wares fait une étape supplémentaire. Après l'appui sur
+> Send, Gear, Backpack, Party bag, Craft. Il faut décider si on paye ou si c'est gratuit, donc
+> fiche X2. Exception les fiches Tally, car elles sont un container provisoire, et c'est sur le
+> Tally qu'aura lieu le paiement. »**
+
+⭐ **CE QUI DISTINGUE WARES DU SAC, ET C'EST TOUT L'ÉCART.** Dans le sac, le collecteur déplace un
+objet **qu'on possède déjà** d'un contenant à un autre : rien à payer, donc `Send` suffit. Dans
+Wares, le collecteur fait **entrer** un objet du catalogue dans le personnage — et une entrée pose
+une question que le sac n'a jamais à poser : *cet objet, on le paie ou il est offert ?*
+⛔ **CE N'EST DONC PAS LE MÊME ORGANE À UNE ÉTAPE PRÈS** — c'est le même organe avec une DÉCISION
+derrière. Un `Send` de Wares qui se contenterait d'envoyer ferait entrer gratuitement tout ce que le
+joueur touche.
+
+⚖️ **LE TALLY EST L'EXCEPTION, ET SA RAISON EST SA NATURE** : il ne possède pas, il **retient**.
+Y déposer n'est pas acquérir, c'est mettre de côté. ⭐ Le paiement se déplace donc avec l'objet :
+il aura lieu **au Tally**, à la sortie, ⛔ pas à l'entrée. Un contenant provisoire qui ferait payer
+transformerait une hésitation en achat.
+📌 C'est la même famille que *« CART c'est Tally »* (20/09) : le Tally **est** le panier, et un
+panier se paie une fois, au passage en caisse.
+
+⚖️ **RÉPONDU LE MÊME JOUR, ET GRAVÉ AVEC LA QUESTION** — Eric, 21/09 : **« la fiche X2 s'ouvre sur
+un Send, pas au moment du choix de destination. C'est le réglage du dropdown Send to qui décide de
+X2 ou pas X2. C'est dans la fiche X2 ou dans le Tally qu'il y a résolution du paiement et envoi vers
+la destination. Le Tally saute X2. »**
+
+| la question posée | la réponse |
+|---|---|
+| qui porte les quatre destinations | le **menu `Send to` du pied** — il existe déjà |
+| quand la X2 s'ouvre | **sur `Send`**, ⛔ pas au choix de la destination |
+| qui décide s'il y a une X2 | **le réglage du menu `Send to`** : la destination commande |
+| le Tally | il **saute la X2** |
+| où se résout le paiement | **dans la X2, ou dans le Tally** — et c'est le même endroit qui envoie vers la destination |
+
+⭐ **CE QUE ÇA ÉCLAIRE** : la X2 n'est pas un dialogue de confirmation, c'est **le lieu de la
+résolution**. Paiement et envoi s'y font ensemble, ⛔ pas l'un puis l'autre ailleurs — une somme
+débitée sans que l'objet parte, ou l'inverse, serait un état que rien ne rattrape.
+📌 **Et la destination COMMANDE le chemin** : c'est le menu qui décide s'il y a une X2. Le Tally
+n'en a pas parce qu'il ne conclut rien ; il retient, et c'est lui qui conclura plus tard.
+
+⏳ **CE QUI RESTE OUVERT, UN SEUL POINT** : *« payer ou gratuit »* — le joueur **choisit** sur la
+X2, ou le système le **déduit** du contexte *(équipement de départ offert, achat payé)* et la X2 ne
+fait que l'annoncer ? *« Résolution »* ne dit pas lequel des deux.
+
+⏳ **ET L'ORDRE DES TRAVAUX EST DICTÉ** *(Eric, 21/09)* : *« on câblera l'aller-retour Send juste
+avant d'attaquer la fiche X2 »*. ⛔ **Donc pas maintenant, et ce n'est pas un oubli.**
+📏 Ce qui existe aujourd'hui, mesuré : le dépôt sur le collecteur de Wares part **droit au panier**
+(`cartAdd`), et le collecteur est un `<div>` qui porte le mot *« SEND COLLECTOR »* — il reçoit, mais
+il ne **montre** pas ce qu'il tient. ⭐ C'est pour ça que l'aller-**retour** ne marche pas : il n'y a
+rien à reprendre. Le jour venu, on prend l'organe du sac, ⛔ on n'en redessine pas un second.
+
+---
+
+### 🎚️ LA TUILE AU REPOS EST VOILÉE À 20 %, ⛔ PLUS TRANSPARENTE
+📍 `cadre-la-tuile-au-repos-est-voilee` · vivante · 21/09
+⚖️ **Une tuile de tambour au repos porte `--dalle-cran` (20 %). La posée garde `--dalle-inter` (50 %). ⛔ L'écart entre les deux est ce qui DÉSIGNE — il ne se referme pas.**
+
+> Eric, 2026-09-21 : **« pour les tuiles non sélectionnées rajouter du voile sur le fond à 20 ou
+> 35 % serait plus joli je pense »**, puis, tranché : **« voile des tuiles à 20% »**.
+
+🗄️ **CE QU'ELLE REPREND, ET LA RÈGLE D'AVANT N'ÉTAIT NULLE PART ICI.** Eric avait dit le 19/09,
+en regardant le belt : *« de transparent à plein, c'est plus efficace »* — et **le fond est le
+SIGNE** reste vrai. ⛔ Mais cette règle-là ne vivait que dans un commentaire de `shell.css` et dans
+l'assertion d'un garde, **pas dans ce corpus** : il n'y a donc aucune ancre à citer, et c'est
+précisément pour ça que celle-ci s'écrit ici. 📌 *Une règle orale n'existe pas* — et une règle qui
+ne vit que dans le test qui la tient ne peut être ni relue, ni amendée, ni même contredite
+proprement.
+⭐ **CE QUI CHANGE EST L'ÉCHELLE** : elle va désormais **d'à peine à plein** au lieu de **rien à
+plein**. La tuile au repos cesse d'être un trou dans la dalle sans cesser d'être en retrait.
+⭐ **ET C'EST UN JETON, ⛔ PAS UNE COULEUR** : `--voile-cran: 20%` et
+`--dalle-cran: color-mix(in srgb, var(--surface) var(--voile-cran), transparent)` — le même patron
+que `--dalle-simple` et `--dalle-inter`. Le jour où `--surface` change, les trois suivent ensemble.
+📌 **ET LE GARDE NE SE CONTENTE PAS D'ACCEPTER LA NOUVELLE VALEUR** : il vérifie que l'**écart**
+entre le repos et la posée subsiste *(au moins 20 points)*. Un garde qui lâcherait la contrainte
+en même temps que la valeur laisserait disparaître la distinction qu'il est là pour tenir.
+
+---
+
+### 🏷️ UN NOM QUI DIT UNE FORME NE DIT PAS DE QUOI IL PARLE
+📍 `socle-un-nom-qui-dit-une-forme` · vivante · 21/09
+⚖️ **Un identifiant qui nomme la FORME de ce qu'il rend *(« un mot », « une chaîne », « une liste »)* sans dire de QUOI il parle se branche tout seul au mauvais endroit. ⛔ Et la faute ne se voit qu'au rendu.**
+
+🔴 **L'INCIDENT, MESURÉ LE 21/09.** Wares recevait `bourse: motDeLaBourse(docu)`. `motDeLaBourse`
+ne rend **pas** le contenu de la bourse : il rend `null`, ou la phrase *« Choose a class … to get
+your starting gold »*. Wares affichait donc une **phrase** là où R et le sac reçoivent les quatre
+monnaies, et le popup lisait `enGP(<phrase>)` — soit **0**, silencieusement.
+⭐ **LE NOM M'A TROMPÉ** : *« mot de la bourse »* s'entend comme *« la bourse, en mots »* ; il dit
+en réalité *« ce qu'on annonce à qui n'a pas encore de classe »*. Le sac, lui, prend
+`currentCurrency(docu)` — un nom qui dit **la chose**.
+
+⭐ **ET L'AUTRE MOITIÉ DE LA LEÇON EST SUR L'INTERPOLATION.** Le nom accessible se fabriquait par
+`` `Purse — ${o.bourse}` ``. Le jour où la donnée est devenue un objet, le bouton a rendu
+**« Purse — [object Object] »**. 📏 Un gabarit qui interpole une donnée dont on ne connaît pas la
+FORME est une bombe à retardement : il est juste tant que la forme ne change pas, et muet le jour où
+elle change. ⛔ **La réparation n'est pas de reformater le nombre à cet endroit** — c'est de le dire
+**une seule fois**, par l'organe dont c'est le métier *(le voyant du montant)*. Un organe, un
+message ; deux endroits qui annoncent la même somme divergent au premier arrondi.
+
+---
+
+### 🪟 UN ÉCRAN QUI DÉCLARE LA SCÈNE ENTRE DANS LA LISTE DU SOCLE
+📍 `cadre-un-ecran-entre-dans-la-liste-du-socle` · vivante · 21/09
+⚖️ **Un écran qui déclare la largeur de SCÈNE (375) doit être membre de la règle du socle qui ressort de la gouttière de la carte. ⛔ Sinon il est plus large que la boîte qui le tient, et son bord droit est coupé — sans qu'aucune cote ait l'air fausse.**
+
+> Eric, 2026-09-21, en regardant Wares en ligne : **« tu dois aussi constater que le bord droit de
+> la dalle n'a pas de liseré, est-ce à cause d'une superposition ? ou autre chose ? »**
+
+⭐ **AUTRE CHOSE, ET C'EST MESURABLE.** 📏 Relevé au navigateur le 21/09 : `.decision-card` rend
+**367** blg — la scène moins la gouttière de 4 de chaque côté — quand un écran d'équipement déclare
+**375**. `.gear`, `.x1` et `.sac` ressortent de cette gouttière par
+`margin-inline: calc(-1 * var(--stage-gouttiere))` et rendent donc **375 à fleur de `.stage`**.
+`.wares`, absent de la liste, restait **collé à gauche** et débordait de **4 blg à droite au-delà de
+`.stage`**, dont l'`overflow: auto` coupait le dépassement. Le liseré du bord droit tombait
+exactement dans ce qui était coupé.
+
+📌 **POURQUOI SEUL LE BORD DROIT SE VOYAIT** : le débord est d'un SEUL côté. Une boîte trop large
+mais centrée perdrait ses deux bords, et la symétrie ferait croire à un défaut de peinture ; une
+boîte trop large et alignée à gauche n'en perd qu'un, et l'œil lit *« il manque un trait »* au lieu
+de *« la boîte est trop large »*. ⭐ **Le symptôme désigne le bord ; la cause est la LARGEUR.**
+
+⛔ **ET AUCUN GARDE DE FICHIER NE POUVAIT LE DIRE** : la cote 375 est juste, elle vient du plan, elle
+est dans la feuille. Ce qui manquait est une APPARTENANCE — et une appartenance absente ne s'écrit
+nulle part. ⭐ C'est la famille de *« une absence n'est jamais une réponse »* appliquée à une liste :
+un écran qui n'est pas dans la liste n'y est pas écrit en creux, il n'y est pas.
+
+⭐ **ET LA RÉPARATION EST TOUJOURS LA MÊME** : entrer dans la liste, ⛔ jamais recopier son bloc.
+C'était la **quatrième** fois du chantier Wares — après `.wares-porte`, les trois organes d'échange
+et la tuile du tambour. 📌 Le garde qui tient ça vit dans `tests/x1-ecran.test.mjs` §7, et il a
+fallu le **généraliser** : il épelait la liste `.gear, .x1, .sac` et accusait donc l'arrivée d'un
+membre — c'est-à-dire exactement ce que la loi veut. ⛔ **Un garde qui épelle une liste garde la
+liste, pas la règle.**
+
+---
+
+### 🥁 LE TAMBOUR DE WARES EST UNE DALLE, COMME SES DEUX VOISINES
+📍 `equipement-wares-tambour-est-une-dalle` · vivante · 21/09 · remplace la règle orale du lot 222
+⚖️ **Les trois bandes de Wares sont trois DALLES : même voile à 35 %, même liseré. ⛔ Le tambour n'est pas une exception.**
+
+> Eric, 2026-09-21 : **« il doit y avoir une dalle sous les 2 tambours »**.
+
+🗄️ **CE QUI EST ARCHIVÉ, AVEC L'INCIDENT QUI L'A PAYÉ.** Au lot 222 j'avais RETIRÉ cette dalle, et
+le garde de l'écran exigeait le contraire : *« le tambour ne porte plus de voile : le viseur s'y
+noyait, et l'aura avec »*. 🔴 Je l'avais tiré d'un mot d'Eric du 20/09 — *« il faut aussi dégager le
+fond sombre »* — **et ce mot parlait du fond des TOKENS**, dans une phrase qui ne parle que d'eux
+*(« il faut que tu autorises les espaces vides à droite et à gauche des tokens »)*.
+⛔ **J'AI ÉLARGI UNE CONSIGNE D'UN ORGANE À SON CONTENANT.** C'est la faute générale, et elle a un
+nom : une consigne porte sur ce qu'elle NOMME. Le contenant n'est pas « le fond » de ce qu'il
+contient — il est un organe à lui, avec sa propre matière, et il aurait fallu le demander.
+⭐ **ET LA RÈGLE RETIRÉE N'AVAIT JAMAIS ÉTÉ ÉCRITE ICI** : elle vivait dans un commentaire de garde,
+c'est-à-dire nulle part. 📌 *Une règle orale n'existe pas* — et une règle qui ne vit que dans le
+test qui la tient ne peut pas être relue par celui qui la contredit.
+
+---
+
+### 📏 LA CALE D'UN RUBAN : UNE IDENTITÉ, ET UNE HAUTEUR
+📍 `cadre-la-cale-d-un-ruban` · vivante · 21/09
+⚖️ **La cale qui permet au premier et au dernier cran d'atteindre le viseur vaut `piste / 2 − tuile / 2 − écart`. ⛔ Pas la moitié du vide. Et elle porte une DIMENSION TRANSVERSE, sans quoi elle n'existe pas pour le défilement.**
+
+> Eric, 2026-09-21 : **« problème de centrage sur les crans de droite, et ça bloque »**.
+
+⭐ **DEUX FAUTES DANS UN SEUL ORGANE, ET AUCUNE NE SE VOYAIT DANS UN FICHIER.**
+
+**1 · L'IDENTITÉ.** Le ruban est un flex : il pose un écart entre la cale et le premier cran, comme
+entre deux crans. La cale n'est donc pas la moitié du vide — c'est la moitié du vide **moins cet
+écart**. À 137 au lieu de 129, centrer le cran `k` réclamait `écart + pas × k` quand le module écrit
+`pas × k`. 🔴 **ET LE `scroll-snap` RATTRAPAIT LES 8 BLG** : l'organe était faux et rendait juste,
+tant qu'il restait de la course. ⛔ **Un organe qui n'est juste que grâce à un correcteur n'est pas
+juste** — il attend le jour où le correcteur n'a plus de marge, et ce jour-là c'est le dernier cran.
+
+**2 · LA HAUTEUR.** La cale est un élément VIDE dans un ruban en `align-items: center` : sa hauteur
+rendue vaut **0**. 📏 **Une boîte de hauteur nulle ne crée aucun débordement** — `scrollWidth`
+s'arrêtait au dernier CRAN (**527**) au lieu d'inclure la cale de queue (**672**), la course maximale
+tombait à **196** là où le dernier cran en réclame **325**, et les crans de droite ne pouvaient plus
+atteindre le viseur. ⭐ **Témoin direct et reproductible en une ligne** : donner une hauteur à la
+cale — `10px`, ou même un `.` de contenu — fait sauter `scrollWidth` de **527 à 672**.
+
+⛔ **ET C'EST UNE LARGEUR NULLE QUI N'EST PAS UNE ABSENCE, RETOURNÉE** : la cale est déclarée, elle
+est dans le DOM, sa largeur est juste, la bijection plan ↔ DOM est verte. Ce qui manquait est une
+dimension **transverse**, que personne ne regardait. ⭐ Même famille que *« le ruban prend la hauteur
+de sa roue »* : une hauteur **rendue** n'est pas une hauteur **déclarée**.
+
+🔴 **AMENDEMENT DU 21/09 — LA FORMULE VIT DANS LE MODULE QUI POSE LA CALE**, ⛔ plus chez chaque
+écran. 📏 Mesuré sur le sac : depuis le lot 218, `roue-tambour.mjs` POSE deux cales, et la feuille
+du sac ne les dimensionnait pas — elles rendaient **0 × 0**. Son ancien `padding-inline: 137px` était
+toujours là, et **une cale vide reste un élément flex** : elle ajoutait un écart de 8 ENTRE le
+rembourrage et le premier cran. Relevé avant / après : `scrollLeft` de centrage
+**8 · 73 · 138 · 203 · 268** contre un code qui écrit **0 · 65 · 130 · 195 · 260** ; après, les deux
+listes sont **identiques**.
+⛔ **ET C'EST UNE RÉGRESSION QUE J'AI INTRODUITE** en extrayant le module, sur un écran qui marchait
+— cachée trois jours par le `scroll-snap`. ⭐ **La leçon : un organe que le module POSE, c'est le
+module qui dit de quelle taille il est.** Personne d'autre ne sait *pourquoi* il a cette taille-là :
+elle n'est pas décorative, elle est la condition de l'invariant que ce module tient. Laisser cette
+moitié chez l'appelant, c'est la loi `cadre-organe-partage-voyage-avec-ses-cotes` prise à l'envers.
+📌 `coteDeLaCale({piste, tuile, pas})` est une **fonction pure** : le module reste sans chiffre.
+
+📌 **LE GARDE DE L'IDENTITÉ EST ARITHMÉTIQUE** *(`tests/roue-tambour.test.mjs` §10, qui vérifie les
+DEUX tambours sur leurs cotes réelles, et `tests/wares-plan.test.mjs` §13)*, et il a été éprouvé
+rouge avec la formule fautive. ⚠️ **Le garde de la course *(§14)* reste VERT à 137, et je l'écris** : la
+géométrie permettait la course, c'est le rendu qui la refusait. Un témoin qui ne peut pas accuser
+l'incident qui l'a fait naître doit le DIRE, sans quoi son vert se lit comme une innocence.
+
+---
+
+### 👛 UN ORGANE PARTAGÉ VOYAGE AVEC SES COTES
+📍 `cadre-organe-partage-voyage-avec-ses-cotes` · vivante · 21/09
+⚖️ **Importer le DOM d'un organe partagé sans importer ses RÈGLES n'est pas le partager : c'est en refaire un second, en creux. ⛔ Un organe est un DOM *et* ses cotes.**
+
+> Eric, 2026-09-21 : **« je veux le popup de la bourse centré sur celle-ci et que son rendu soit
+> idem à Gear et backpack »**.
+
+🔴 **MESURÉ : Wares importait `popupDeLaBourse` et n'appelait jamais `reglesDeLaBourse`.** Le popup
+sortait donc **sans cotes**, dimensionné par son contenu, posé où le flux voulait. ⭐ C'est **mot
+pour mot** la faute réparée sur le sac la veille, et elle y était déjà écrite : *« un organe partagé
+dont la moitié reste chez son premier hôte n'est pas partagé »*.
+📌 **CE QUI SE DONNE À L'APPEL, ⛔ ET NE SE DEVINE PAS** : la portée *(`.wares`)*, l'ANCRE *(la
+bourse du plan de l'écran)*, la dalle, et le haut de la dalle — R compte sous le belt, les autres non.
+
+⚖️ **ET LE SERRAGE EST LA LOI, PAS UN DÉFAUT** *(Eric, 16/09)* : centré sur une bourse posée près du
+bord, le popup sortirait de l'écran. 📏 Relevé le 21/09 sur Wares : bourse centrée en `x = 303,25`,
+popup de 186 — un centrage exact le poserait de `210` à `396`, soit **21 blg hors d'une dalle de
+375**. Il est donc serré à `x = 185`. ⭐ *« Centré sur celle-ci »* et *« serré dans la dalle »* ne
+se contredisent pas : le serrage est ce qui rend le centrage tenable au bord.
+
+---
+
+---
+
+### ➡️ `NEXT` VIT DANS **R**, ⛔ PAS DANS WARES — ET LE CART EST LE TALLY
+📍 `equipement-next-vit-dans-r` · vivante · 20/09
+⚖️ **Le bouton qui termine l'étape Équipement appartient à `R` (Gear). ⛔ Wares ne le porte pas — et ce qui s'appelait `CART` est le `Tally`, qui existe déjà.**
+
+> Eric, 2026-09-20, en relisant ce qui manquait au nouveau Wares : **« en fait le next devra être
+> dans R »** · **« Cart c'est tally tu l'as déjà fait »** · **« sur ton plan il y a un collecteur,
+> une go to et un send juste en dessous. donc rien à faire de plus »**.
+
+🔴 **ET C'EST MOI QUI AVAIS SURESTIMÉ LE TROU.** J'avais compté CINQ organes perdus en passant de
+l'ancien Wares au neuf — `NEXT`, la loupe, `CART`, `CRAFT`, `TO GEAR DROP`. 📏 Vérifié contre le
+plan, il en restait **deux** : `CART` est le `Tally` *(posé)*, `TO GEAR DROP` est le
+`SEND COLLECTOR` *(posé)*, et `CRAFT` est **mort** — mesuré au navigateur, aucun écouteur.
+⭐ **Un inventaire par NOM d'un écran qu'on remplace compte les libellés, pas les fonctions.** Deux
+mots différents pour le même organe se comptent deux fois, et un organe mort se compte comme vivant.
+⛔ La bonne lecture n'est pas *« quels boutons disparaissent »* mais *« quelle FONCTION n'a plus de
+porte »*.
+⏳ **CE QUI RESTE DÛ, ET LES DEUX SONT DATÉS** : `NEXT` doit naître dans R *(il n'y est pas
+aujourd'hui — mesuré)*, et la **loupe** attend son lot — Eric : *« une chose que nous devons faire
+oui. Pas ce soir. »*
 
 ---
 
@@ -8280,7 +8947,212 @@ fichier serait vert pour rien)*.
 
 📌 **CE QUI LA TIENT** : `tests/decor-ne-se-laisse-pas-saisir.test.mjs` (neuf cas, chacun vu rouge par mutation) et `tests/de-ne-prend-pas-le-pointeur.test.mjs` (lot 203, intact).
 
+## 7 sexies. ⚖️ UN AIGUILLEUR QUI EXIGE UNE RÉPONSE EST UN **POPUP À QCM**, ET IL PORTE UN `Done` *(lot 245, 2026-09-21)*
+📍 `popup-qui-exige-une-reponse-est-un-qcm` · vivante · 21/09
+⚖️ **§2 dit d'un popup qu'il « parle, on ne l'appuie pas ». C'est vrai du popup qui PRÉVIENT. Celui qui EXIGE une réponse est un autre organe : il pose ses questions en QCM, une section par source, et il se ferme par un `Done` unique.**
+
+🔴 **CETTE QUESTION ÉTAIT OUVERTE DEPUIS LE 26/08, ET ELLE VIVAIT DANS UN COMMENTAIRE** — `equipment-step.mjs` : *« §7 range l'aiguilleur parmi les POPUPS, et §2 dit qu'un popup parle, on ne l'appuie pas. Celui-ci porte DEUX boutons. Un aiguilleur qui exige une réponse n'est donc pas la même forme qu'un aiguilleur qui prévient en passant. **À Eric de dire si ce sont deux organes ou un seul.** »* ⛔ **Une règle écrite dans un commentaire n'existe pas** : personne ne l'a lue en vingt-six jours, et la question serait revenue au prochain popup à boutons.
+
+⚖️ **ERIC TRANCHE, 21/09**, en dictant la maquette : *« Il faut un popup avec un QCM. Propre et bien présenté. 1 — Fighter : your class gives you bla-bla. **Choose** … 2 — Background : your background gives you blabla. **Choose** … Bouton **Done** — l'or et l'équipement vont dans Gear par défaut. »*
+
+| | l'aiguilleur qui **prévient** | le popup qui **exige** |
+|---|---|---|
+| sa voix | *« attention, voilà où tu vas »* | *« réponds, et je pose »* |
+| on peut l'ignorer | oui — c'est un guide | ⛔ non : sans réponse, l'étape n'a pas de point de départ |
+| ses boutons | aucun | les options, **plus un `Done`** |
+| son état | rien | il **ÉCRIT au document**, une seule fois |
+
+⭐ **QUATRE RÈGLES QUE CE POPUP PORTE, ET AUCUNE N'EST COSMÉTIQUE :**
+· **N options, jamais deux.** Le rendu COMPTE les options de la donnée. 📏 Le Fighter en a **trois** (*« Choose A, B, or C »*) ; un rendu câblé sur deux l'ampute en silence.
+· **Une source qui n'offre qu'une option ne pose pas de question.** ⚖️ Eric : *« idem en plus simple pour Fate's Hand »*. En pile FH l'origine porte `"50 GP"`, une chaîne nue : la section devient une **CONSTATATION**. ⛔ Un QCM à une seule réponse ment au joueur. ⚠️ Mais *« plus simple »* n'est pas *« muet »* — le joueur doit savoir d'où vient son or, sinon le récapitulatif porte un montant sans provenance.
+· **Le récapitulatif EST le butin, pas une description du butin.** L'écran et le geste appellent **la même fonction**. C'est la propriété payée par le lot 182 (*« un écran qui annonce un montant et en pose un autre »*), étendue des pièces aux objets.
+· **Rien ne s'écrit avant `Done`.** Les réponses vivent dans la fermeture de l'écran ; un clic d'option repeint, il n'écrit pas. ⛔ Un choix à moitié posé serait un kit à moitié posé, et le popup ne se reposerait jamais.
+
+🔴 **ET LE DÉFAUT QU'IL RÉPARE EST CELUI D'UN ÉCRAN QUI MENTAIT.** Le popup disait *« your class kit is yours, **already listed** »* ; 📏 mesuré dans `shell.mjs` le 21/09, la branche `kit` écrivait `depart: "kit"` **et rien d'autre** — aucune ligne `gear[N]`. ⭐ **Ce n'était pas un popup laid, c'était un popup qui décrivait un monde que le code ne fabriquait pas.** C'est ça, *« pas clair »*.
+
+⚖️ **CHAQUE SOURCE OFFRE SON PAQUET OU SON OR, ET LA QUESTION SE POSE SOURCE PAR SOURCE.** C22 (*« les 50 PO REMPLACENT le kit »*, 08/09) n'est pas défaite, elle est élargie : le geste d'hier était global (`kit` OU `purse`, toutes sources à la fois), la maquette du 21/09 pose une question par source. ⭐ **Le panachage — le paquet de la classe AVEC l'or de l'origine — devient donc une réponse valide**, et c'est un changement de règle assumé par Eric (*« je te demande de l'améliorer »*), pas un effet de bord.
+
+⛔ **LE DÉCOUPAGE DE LA PHRASE SRD EST UN AFFICHAGE, JAMAIS UNE SECONDE ÉCRITURE.** Le choix d'architecte du 13/08 interdisait de structurer la phrase *« parce que ça créerait une DEUXIÈME ÉCRITURE de la même règle »* ; Eric l'a levé **pour l'écran**, pas pour la donnée. ⭐ **Aucun nom d'objet du SRD n'est retapé dans le code** — un garde le tient, et il lit les noms DANS LA COUCHE. Et **ce qui ne se rapproche d'aucun record est NOMMÉ au joueur** avec le texte du livre, jamais deviné ni avalé. 📏 Mesuré sur les seize phrases des couches, **avant et après les trois décisions d'Eric du 21/09** — le total ne bouge pas (93 morceaux), leur sort si :
+
+| | rapprochés | refusés | absence voulue | renvoi à Skills |
+|---|---|---|---|---|
+| lot 245 (21/09, matin) | 86 | **7** | — | — |
+| lot 246 (21/09, soir) | **90** | **0** | 1 | 2 |
+
+⛔ Les rapprocher **à la main** resterait le second écrivain : *« Arrows → Ammunition »* est une règle de jeu, elle appartient à **la couche** (`srfh-mecaniques-en`), et l'écran ne fait que lire un champ déclaré. Voir la section suivante.
+
+⚠️ **UN `gear[]` N'ADMET PAS DEUX LIGNES DU MÊME RECORD**, et ce n'est pas une préférence d'écran : `rebuild` JETTE — *« deux entrées portent l'id "dagger" — l'ancre d'override les désigne les deux, et aucune ne gagne par défaut »*. ⭐ Le kit **FUSIONNE** donc avec ce que le joueur possède déjà, et la fusion vit dans le LECTEUR, pas dans le geste : deux arithmétiques de la même quantité divergent.
+
+📏 **CE QUE LA CARTE MESURE** (navigateur, 512 × 764, `prefers-color-scheme: light`) : **549 blg en pile Fate's Hand** (une question, une constatation) contre **681 en pile SRD** (deux questions) — pour la **même classe**. ⭐ C'est le témoin de la lecture de pile : deux rendus identiques voudraient dire que la pile n'est pas lue. ⚠️ **Et 681 est exactement la hauteur disponible** : la carte SRD tient au blg près. Une ligne de plus déborde. C'est pour ça que le titre d'une section porte sa consigne (*« 1 Fighter — Choose: »*) au lieu d'avoir une ligne à lui — ⛔ et pas un défilement interne : la loi est de demander ce que le contenu porte **EN TROP**.
+
+📌 **CE QUI LA TIENT** : `tests/equipment-step.test.mjs` (le découpage qui refuse · les deux piles · aucun nom retapé · `Done` pose vraiment · le panachage · la seconde lecture en sens inverse contre `orDuDepart`) et le garde d'octets sur `shell.mjs`. Six mutations jouées, six rouges.
+
+
+---
+
+## 6 nonies. ⚖️ **LE DÉPART, SES TROIS SORTS, ET LA COTE DU BOUTON DE CHOIX** *(Eric, 2026-09-21 — lot 246)*
+📍 `equipement-morceau-de-phrase-a-trois-sorts` · vivante · 21/09
+
+🔴 **UN MORCEAU DE PHRASE A TROIS SORTS, PAS DEUX**, et les confondre est la faute que ce lot répare. Un morceau qui ne rencontre aucun record peut être :
+
+| sort | ce que l'écran fait | ce que le joueur lit |
+|---|---|---|
+| **rapproché** | une ligne dans `gear[]` | l'objet, dans le récapitulatif |
+| **refusé** | rien | *« … has no entry in this stack — not added. Pick it yourself in Wares. »* |
+| **absence voulue** | rien | **rien** — ⛔ et c'est le point |
+| **renvoi à un autre écran** | dépend de ce qui y a été choisi | un objet, une question, ou un fait |
+
+⭐ **UNE ABSENCE VOULUE N'EST PAS UN REFUS.** ⚖️ Eric : *« Pas d'item spellbook, il sera matérialisé par la **section sorts**. Rien à ajouter ici. »* Un refus **envoie le joueur chercher l'objet dans Wares** ; une absence délibérée n'a rien à aller chercher. ⛔ Un écran qui s'excuse d'une absence voulue inquiète pour rien et fait perdre du temps. 📌 **Le livre de sorts est matérialisé par LES SORTS, pas par l'équipement** — la règle vit dans la couche (`data[starting_equipment_absent]`), sans quoi un lot la « réparera » dans six semaines.
+
+⚖️ **LES MUNITIONS SONT GRATUITES, À LA QUANTITÉ DE LA PHRASE.** Eric, citant la règle `Ammunition` du SRD : *« Donc flèches = munitions **(gratuit)** = tu mets la quantité requise »*. ⭐ *« Gratuit »* a un sens précis, et c'est une **absence de geste** : la munition entre dans Gear **sans rien retrancher de la bourse** — le kit est donné, il ne s'achète pas. ⛔ Le coût `Varies` du record ne doit jamais être soustrait de l'or de départ. ⭐ Et **la quantité vient de la PHRASE** (« 20 Arrows » → 20) : le jour où le SRD écrit 30, le code suit sans qu'on le retouche.
+
+🔴 **LE PIÈGE DU MOT DOUBLE, ET IL EST DANS CE DÉPÔT.** Deux records portent le nom d'affichage **« Ammunition »** : `srd:gear:en:ammunition` (**l'objet**) et `srd:weapon-property:en:ammunition` (**la propriété d'arme**). ⛔ Un commentaire ne tient pas cette distinction — **un garde la tient, par les deux ids**.
+
+⚖️ **UN MORCEAU PEUT RENVOYER À UN AUTRE ÉCRAN, ET ON LE LIT DANS LE DOCUMENT.** Eric : *« Pour l'outil du barde : tu regardes le choix fait dans **Skills**. S'il en a choisi **deux**, il aurait deux possibilités ; si **un seul**, il a cet instrument ; si **aucun**, il n'a rien. »* — puis *« **idem barde et monk** »*. Trois sorties, et ce sont les siennes :
+
+· **un candidat** → on le pose, ⛔ sans question ;
+· **deux ou plus** → une **question de plus**, et `Done` attend — ⛔ choisir à la place du joueur est pire que ne rien poser ;
+· **aucun** → **un FAIT**, ⛔ pas un refus.
+
+🔴 **ON LIT LE DOCUMENT (`fh.skills.spend.<slug>`), JAMAIS L'ÉTAT D'UN AUTRE ÉCRAN.** Skills collecte aussi ses ajouts dans une variable de module (`ecran.ajoutes.tool`) qui ne survit pas à un rechargement et n'est pas dans le personnage. ⭐ On ne **fabrique** rien ici : on **relit** un choix déjà fait ailleurs.
+
+⚠️ **« PAS ENCORE » N'EST PAS « AUCUN »**, et les deux se disent avec des mots différents. Un joueur qui passe par Équipement **avant** Skills n'a encore rien choisi ; un joueur qui en revient les mains vides a choisi de ne rien prendre. 📏 Ce qui les sépare se lit dans le document : une dépense, n'importe laquelle, prouve la visite.
+
+⭐ **« IDEM » PORTE SUR LE GESTE, PAS SUR L'ENSEMBLE.** Le barde ne regarde qu'**une** famille (Musical Instrument) ; le moine en regarde **deux** (Artisan's Tools **et** Musical Instrument). La famille est donc **déclarée par classe**, ⛔ jamais déduite du nom de la classe.
+📏 **ET CE QUE LA DONNÉE PORTE A ÉTÉ MESURÉ** (21/09, 25 outils SRD + 16 FH) : **aucun record d'outil ne porte de champ de famille** (`category`, `family`, `group` : absents partout) ; `craft` **ne discrimine pas** (`thieves-tools` porte « None » comme `musical-instrument`) ; `variants` est du texte libre. ⭐ Le seul lien de famille réel est `inherits`, qui existait **à la source** depuis le 09/09 et que le générateur **perdait** : il est maintenant porté à la couche. **La famille d'un outil est `data.inherits` s'il en a un, sinon son propre id** — une règle, ⛔ pas une liste.
+⚖️ **ET LA FAMILLE « ARTISAN'S TOOLS » EST CETTE LISTE, ET RIEN D'AUTRE** *(Eric, 21/09 — tranché)*. Le lot 246 avait dû déclarer `"any"` sur le moine, **sur-inclusion assumée et mesurée** : un moine qui avait acheté un jeu, un véhicule ou une monture les voyait proposés. Eric a nommé les **dix-sept** outils d'artisan un par un, puis fermé le reste d'un mot : *« les autres c'est **other tools** (cf D&D Beyond) »*.
+
+**Alchemist's Supplies · Brewer's Supplies · Calligrapher's Supplies · Carpenter's Tools · Cartographer's Tools · Cobbler's Tools · Cook's Utensils · Glassblower's Tools · Jeweler's Tools · Leatherworker's Tools · Mason's Tools · Painter's Supplies · Potter's Tools · Smith's Tools · Tinker's Tools · Weaver's Tools · Woodcarver's Tools**
+
+⭐ **ET C'EST LA NOTION DE FAMILLE DÉJÀ POSÉE, PAS UNE SECONDE** : les dix-sept prennent `data.inherits`, comme les instruments de Fate's Hand — la famille est donc portée par l'OUTIL, jamais énumérée dans la déclaration d'une classe. ⛔ Une liste de dix-sept ids écrite sur le moine aurait fait de la classe le second écrivain de la famille, et la prochaine classe qui en a besoin l'aurait recopiée.
+🔴 **LA RACINE `srfh:tool:en:artisan-s-tools` N'EST PAS UN RECORD, C'EST UNE CLEF.** « Artisan's Tools » n'existe dans tout le SRD que dans la phrase du Monk et dans `Fabricate` : il n'y a rien à pointer, et ⛔ en **fabriquer** un poserait un 26ᵉ outil dans Skills et dans Wares, là où Eric n'a demandé aucun objet neuf. Personne ne **résout** cette chaîne — on la **compare** ; un garde exige qu'aucun record ne la porte.
+⭐ **ET LA LISTE EST DANS LE BON SENS** : ce qui est **dedans**. ⛔ Les « autres » ne sont énumérés nulle part — une liste de ce qu'on **exclut** se périme au premier outil ajouté et personne ne le voit ; une liste de ce qu'on **inclut** laisse le nouvel outil dehors, ce qui est le défaut sûr. 📏 Mesuré : les 25 outils du SRD **moins** ces dix-sept font exactement les huit « other tools » *(Disguise Kit, Forgery Kit, Gaming Set, Herbalism Kit, Musical Instrument, Navigator's Tools, Poisoner's Kit, Thieves' Tools)*.
+
+### 📏 LE CRAN DU BOUTON DE CHOIX — **30 de corps, 44 de cible**
+📍 `bouton-de-choix-trente-de-corps-quarante-quatre-de-cible` · vivante · 21/09
+
+⚖️ Eric, 21/09 : *« Tu peux faire des boutons de **30 diam (tactile 44)** pour les choix. »* et *« Une ligne de texte, **bouton à droite** = peu d'espace perdu »*, puis *« **Deux lignes** de texte un bouton à droite alors. Ou **trois lignes** de texte un bouton à droite. »*
+
+🔴 **C'EST UNE SECONDE TAILLE, BORNÉE À UN USAGE** — ⛔ **PAS « les boutons rapetissent »**. La norme ratifiée du chantier reste **40 / 44** (16-17/09). Le **30 / 44** ne vaut que pour **la pastille de choix d'un QCM**, où le libellé est **à côté** et non dedans. Un bouton qui porte son mot garde 40.
+
+🔴 **LA CIBLE 44 NE CÈDE JAMAIS** — *un contrôle ne se laisse pas dimensionner par son dessin*. La **boîte** fait 44, le **corps peint** fait 30. 📏 Mesuré par `elementFromPoint` sur le builder servi : boîte 44 × 44 déclarés (60,02 rendus, comme **tous** les boutons du chantier), corps peint 30 × 30, anneau du liseré intact, rayon 6.
+
+⭐ **UNE OPTION N'EST PLUS UN BOUTON À LIBELLÉ : c'est une RANGÉE À DEUX COLONNES** — le texte **dit**, la pastille **choisit**. ⛔ Le texte n'entre pas dans le bouton (un bouton qui contient un paragraphe impose sa boîte tactile à chaque ligne), et ⛔ **la pastille reste à droite et hors du texte** : elle ne passe pas dessous quand le texte va à trois lignes.
+
+⚠️ **« DIAM » NE VEUT PAS DIRE ROND** : la norme du 16/09 dit **rectangle, rayon 6**, et l'octogone est mort. Seule la **cote** change.
+
+🔴 **ET ON NE FABRIQUE AUCUN ORGANE POUR ÇA** : le patron du bouton sait déjà séparer le dessin de la cible. ⛔ **Ne pas poser sa propre cible dans un `::after`** — c'est l'**anneau du liseré**, et l'écraser fait perdre au bouton son fond, sa bordure et son rayon (mesuré : `border-radius: 0px`).
+⛔ **ET REDÉCLARER `--bouton-hauteur` SEUL NE SUFFIT PAS.** 📏 Mesuré : sur la pastille, `--bouton-hauteur` valait bien `30px` et `--bouton-retrait-v` rendait `calc((44px - 40px) / 2)` — **le 40 y était déjà substitué**. ⭐ **Une propriété personnalisée est résolue dans la portée qui la DÉCLARE, pas dans celle qui l'emploie** : redéfinir sa dépendance plus bas ne la recalcule jamais. Les deux se redéclarent **ensemble**, et le retrait garde sa **formule**.
+
+### 📏 LE NOM COURT D'UN OUTIL — **une dérivation d'affichage, jamais un renommage**
+📍 `equipement-outil-nom-court-derive-du-possessif` · vivante · 21/09
+
+⚖️ Eric, 21/09 : *« Tu retires le mot tool sur chaque item. Tu fais **Tool : smith, glassblower etc.** — tu gagnes de l'espace. »*
+
+🔴 **C'EST UNE DÉRIVATION D'AFFICHAGE, ET C'EST LA BORNE.** ⛔ **Aucun `name` de record ne bouge** : le nom entier reste dans le nom accessible du bouton, dans la ligne posée dans Gear et dans le récapitulatif. Renommer `Smith's Tools` en `smith` **dans la donnée** serait réécrire du SRD à la main *(loi §L)* — ce que le lot 246 a refusé de faire pour « Arrows → Ammunition », et pour la même raison.
+
+⚠️ **LE SUFFIXE N'EST PAS TOUJOURS « Tools »** — les dix-sept en portent **trois** : `Tools`, **`Supplies`** *(Alchemist, Brewer, Calligrapher, Painter)* et **`Utensils`** *(Cook)*. ⛔ Un découpage qui aurait cherché « Tools » aurait laissé *« Alchemist's Supplies »* intact et **personne ne l'aurait vu** : le mot serait juste resté un peu long. ⭐ **La règle ne regarde donc pas la FIN du nom, elle regarde le POSSESSIF** — un seul mot, suivi de `'s` ou `s'`, suivi d'autre chose — et elle **ne nomme aucun suffixe**.
+
+⭐ **ET ELLE REFUSE PROPREMENT, elle ne force jamais** : un nom sans possessif *(« Instrument (Wind) », « Musical Instrument », « Dice Set », « Mount (Air) »)* ressort **entier**. C'est ce qui la rend sûre pour le barde, dont aucun candidat n'est un outil d'artisan ; un métier en deux mots ressortirait entier lui aussi, plutôt que tronqué à son premier mot.
+
+📏 **LES DIX-SEPT SORTIES, MESURÉES UNE PAR UNE** : alchemist · brewer · calligrapher · carpenter · cartographer · cobbler · cook · glassblower · jeweler · leatherworker · mason · painter · potter · smith · tinker · weaver · woodcarver.
+
+---
+
+### 📐 LA QUESTION D'OUTIL SE LIT **EN LIGNE** — le libellé de famille dans le flux
+📍 `equipement-question-d-outil-en-ligne` · vivante · 21/09
+
+🔴 **ET LE MOT COURT SEUL NE GAGNAIT RIEN — MESURÉ AVANT DE CHOISIR.** Raccourcir « Smith's Tools » en « smith » dans une rangée qui reste **en colonne** rend la **même carte, 759 et 825, au pixel près** : la hauteur d'une rangée est celle de sa **pastille** *(44 déclarés, 60,02 rendus)*, jamais celle de son mot, et un libellé de deux lignes tient déjà sous 44. ⭐ **Une lecture qui gagne zéro ne peut pas être celle d'une phrase qui dit « tu gagnes de l'espace ».** Le libellé de famille entre donc **dans** le flux au lieu de le surplomber, et les paires mot + pastille s'y rangent à la suite — `Tool: ○ smith ○ glassblower`.
+
+⛔ **ET C'EST BORNÉ À CETTE QUESTION-LÀ.** Les options A/B/C gardent leur colonne : un libellé d'option est une **phrase entière**, et deux colonnes y couperaient les mots *(§ de la rangée à deux colonnes, lot 246)*. ⭐ Même famille `.aiguilleur-*`, mêmes pièces — seul le **conteneur** change.
+
+🔴 **LA PASTILLE PASSE DEVANT SON MOT, ET C'EST UNE CORRECTION D'IMAGE.** Regardé en capture avant de livrer : en ligne, « smith [pastille] glassblower [pastille] » se lit *« smith · [pastille] glassblower »* — la pastille colle au mot **suivant**, et le joueur choisit l'outil d'à côté. 📏 **Et l'écarter ne répare pas** : passer l'écart entre paires de 8 à 16 a fait passer la question à **trois** lignes et rendu les 88 tout juste gagnés *(671 → 759)*. ⭐ En tête, la pastille est un bouton radio et son mot le suit.
+
+---
+
+### ⚠️ CE QUI RESTE OUVERT — **la carte déborde encore à trois outils**
+📍 `equipement-carte-du-depart-deborde-avec-la-question-d-outil` · à trancher · 21/09
+
+🔴 **ET D'ABORD, LE RELEVÉ DU LOT 246 PORTAIT LA MAUVAISE UNITÉ.** Il disait *« voile de 681 **blg** »* : c'est **681 pixels**, soit **499 blg** — 📏 mesuré des deux côtés sur le builder servi *(le voile rend 499 une fois divisé par `--echelle`, 1,3643 à 512 de large)*. ⭐ Les chiffres du tableau, eux, étaient justes : ils étaient **tous** en pixels, donc comparables entre eux. Le mot était faux, pas la mesure — mais un chiffre qui voyage avec la mauvaise unité finira par être divisé une fois de trop. **Toute cette section est en pixels.**
+⚠️ **ET « LE PIRE DES 48 » EN MANQUAIT UN** : le relevé donnait 620 *(Fighter)*. 📏 Rejoué sur les 48 combinaisons, le pire est **Fighter × Soldier à 656** — l'arrière-plan Soldier porte un refus de plus *(« Gaming Set (same as above) »)*, qui coûte 36. La marge n'était pas 61, **elle était 25**.
+
+📏 **RELEVÉ DU 21/09, builder servi, 512 × 764, voile de 681 px** *(pile SRD + l'interrupteur `Skills & tools`, Moine × Acolyte, option A choisie)* :
+
+| cas | avant (lot 246) | après (lot 247) | verdict |
+|---|---|---|---|
+| pire des 48 classe × arrière-plan *(Fighter × Soldier)* | **656** | 656 | ✅ marge 25 |
+| **Moine, 2 outils dans Skills** | **759** | **671** | ✅ **marge 10** |
+| **Moine, 3 outils** | **825** | **737** | ⛔ **+56** *(était +144)* |
+| Barde, 3 instruments *(pile Fate's Hand)* | 694 | **671** | ✅ |
+| Moine, 2 / 3 outils *(pile Fate's Hand)* | 628 / 694 | **541 / 606** | ✅ |
+
+🔴 **ET CE N'EST PLUS LA QUESTION D'OUTIL QUI DÉBORDE — MESURÉ.** Le même moine **sans aucune question** rend **623** ; avec un *fait* à la place de la question, **641**. La question ne peut donc coûter que **58** avant de sortir du voile ; elle en coûte **114** à trois candidats, parce que **trois métiers ne tiennent pas sur une ligne de 285 blg**. ⛔ Aucune disposition de la seule question d'outil ne peut refermer les 56 qui restent.
+
+⚖️ **CE QUI RESTE EST DONC L'ARBITRAGE D'ERIC, ET LA MESURE DIT OÙ IL PORTE** : le récapitulatif du bas coûte **68**, et sa phrase d'accompagnement **51** de plus — **119 px** qui **répètent mot pour mot** la liste de l'option choisie, déjà lue 300 px plus haut. 📌 Le retirer rendrait **618** à trois outils. ⛔ Mais ce sont **les mots d'Eric et sa maquette** : ni troncature, ni défilement interne, ni coupe sans lui.
+
 ---
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·
 `FHPCv2 entree R cahier charges` · `FHPCv2 hebergement donnees` · `FHPC norme des organes`.
+
+## 7 septies. ⚖️ UN **POPUP MAJEUR** REMPLACE SON ÉCRAN — ce qu'il recouvre passe au voile 0 *(Eric, 2026-09-23 — lot 250)*
+📍 `popup-majeur-remplace-son-ecran` · vivante · 23/09
+
+Eric, 23/09 : *« règles pour les popups majeurs : ce qu'ils recouvrent passe au
+voile 0 tant qu'ils sont ouverts »*, puis *« X0 est un popup majeur »*.
+
+**Un popup majeur ne se pose pas DEVANT un écran, il le REMPLACE.** Il prend la
+dalle entière, il porte le parchemin des fiches X, et ce qu'il recouvre ne doit
+rien laisser transparaître — ni une forme sous le papier, ni une cible qu'un
+doigt pourrait atteindre à travers.
+
+### 📌 LE PORTEUR EST L'ÉCRAN, ⛔ PAS LE POPUP
+📍 `popup-majeur-porteur-est-l-ecran` · vivante · 23/09
+
+L'écran recouvert pose `data-popup-majeur="oui"` sur son propre nœud ; la feuille
+éteint tout ce qui n'est pas le popup :
+
+```css
+[data-popup-majeur="oui"] > :not(.aiguilleur) { opacity: 0; pointer-events: none; }
+```
+
+⭐ **Un popup ne sait pas ce qu'il cache ; un écran sait qu'il est caché.** Le
+jour où un second popup majeur existe, son écran pose le même attribut et hérite
+de la règle sans une ligne de plus.
+
+### ⛔ CE N'EST PAS `display: none`
+📍 `popup-majeur-n-est-pas-display-none` · vivante · 23/09
+
+Les organes recouverts gardent leur BOÎTE, donc leur place. Ils reviennent
+exactement où ils étaient quand le popup se ferme, sans que rien ne soit
+remesuré — c'est la même loi que le mode lecture de X1.
+
+### ⚖️ QUI EST MAJEUR — **X0, X1, X2** *(Eric, 23/09 : « X1 et X2 »)*
+📍 `popup-majeur-x0-x1-x2` · vivante · 23/09
+
+⭐ **ET LES TROIS N'HONORENT PAS LA RÈGLE DE LA MÊME FAÇON** — c'est le fond de
+la chose, et ça n'avait jamais été écrit :
+
+| organe | comment il honore |
+|---|---|
+| **X0** | il **RECOUVRE** l'écran Gear, dont le nœud reste au document → il faut l'éteindre. C'est le cas où la règle TRAVAILLE. |
+| **X1**, **X2** | elles **REMPLACENT** la vue : `rendu()` retourne LEUR nœud, celui du sac n'est jamais construit. |
+
+📏 **Mesuré au navigateur le 23/09** : la fiche X1 ouverte n'a **aucun frère**
+dans `.equipment-step`. Il n'y a rien à voiler — ⭐ et c'est la forme la plus
+forte de la règle, pas une dispense.
+
+🔴 **CE QUI EST GARDÉ, ET CE N'EST PAS THÉORIQUE** *(`tests/popup-majeur.test.mjs`)* :
+le jour où X1 ou X2 deviendrait un **calque** posé par-dessus le sac — pour
+garder un défilement, pour animer une ouverture — elle recouvrirait **sans
+éteindre**, et le sac transparaîtrait sous le parchemin. ⛔ Le symptôme serait
+visuel, tardif, et personne ne penserait à cette règle en le voyant. Les six
+attaques du garde ont été éprouvées ROUGE.
+
+### ⏳ CE QUI RESTE À TRANCHER
+📍 `popup-majeur-le-reste-des-popups` · à trancher · 23/09
+
+Le choix de pile (*SRD ou Fate's Hand*), la confirmation de fin d'étape et les
+guides ne sont pas majeurs tant qu'Eric ne l'a pas dit — ⛔ un popup qui
+prendrait cet attribut sans son mot éteindrait un écran que le joueur doit
+peut-être continuer de voir.

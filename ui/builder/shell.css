@@ -3059,7 +3059,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=767") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=803") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3382,7 +3382,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=767") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=803") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5034,7 +5034,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=767") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=803") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8015,7 +8015,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=767");
+  background-image: url("./assets/tarot-dos.jpg?v=803");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8471,6 +8471,164 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-titre { margin: 0; font-size: var(--t4); letter-spacing: .08em; text-transform: uppercase; text-align: center; }
 .aiguilleur-texte { margin: 0; font-size: var(--t3); }
 .aiguilleur-pied { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+
+/* ══ LE QCM DU DÉPART — lot 245, 2026-09-21 ════════════════════════════════
+   ⚖️ Eric : *« un popup avec un QCM. Propre et bien présenté »*.
+   ⛔ MÊME FAMILLE `.aiguilleur-*`, pas une seconde : c'est le MÊME organe,
+   seulement refait. Une seconde famille pour un même objet est la faute que
+   ce dépôt repaie tous les quinze jours.
+   ⛔ ET AUCUN `color` N'EST DÉCLARÉ ICI POUR `.aiguilleur-option` : elle entre
+   dans le patron du bouton par la LISTE, plus haut, et l'encre du patron n'a
+   qu'un écrivain (lot 244, garde `tests/encre-du-bouton.test.mjs`). */
+.aiguilleur-section { display: flex; flex-direction: column; gap: var(--sp-4); }
+/* ⭐ LE TITRE D'UNE SECTION PORTE SA CONSIGNE DANS LA MÊME LIGNE — c'est la
+   maquette d'Eric (*« 1 — Fighter : … Choose »*) et c'est ce qui a rendu la
+   carte SRD tenable : ⛔ pas `display: flex`, qui aurait fait du numéro, du nom
+   et de la consigne trois blocs côte à côte sans jamais revenir à la ligne. */
+.aiguilleur-soustitre { margin: 0; font-size: var(--t3); }
+.aiguilleur-soustitre strong { margin-right: .35em; }
+/* le numéro de la maquette (« 1 — Fighter », « 2 — Background ») */
+.aiguilleur-numero { color: var(--text-muted); font-variant-numeric: tabular-nums; margin-right: var(--sp-8); }
+/* ⭐ UNE COLONNE, PAS DEUX : le Fighter a TROIS options et un libellé d'option
+   porte une phrase entière. Deux colonnes couperaient les mots. */
+.aiguilleur-options { display: grid; grid-template-columns: 1fr; gap: var(--sp-4); }
+/* ══ LA RANGÉE D'UNE OPTION — lot 246, Eric 2026-09-21 ═════════════════════
+   ⚖️ *« Une ligne de texte, bouton à droite = peu d'espace perdu »*, puis
+   *« Deux lignes de texte un bouton à droite alors. Ou trois lignes de texte un
+   bouton à droite. »*
+   ⭐ DEUX COLONNES, ET LA SECONDE NE BOUGE PAS. `1fr auto` : le texte prend ce
+   qui reste, la pastille garde sa cote. ⛔ Pas de `flex-wrap` — la pastille ne
+   doit JAMAIS passer sous le texte quand celui-ci va à trois lignes, sinon la
+   rangée gagne une ligne de haut au pire moment.
+   ⭐ `align-items: start` : la pastille se pose au niveau de la PREMIÈRE ligne
+   du texte, pas au milieu d'un pavé de trois. */
+.aiguilleur-rangee {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: start; gap: var(--sp-8);
+}
+.aiguilleur-option-mot { margin: 0; font-size: var(--t3); min-width: 0; }
+/* ══ LA QUESTION D'OUTIL SE LIT EN LIGNE — lot 247, Eric 2026-09-21 ═══════
+   ⚖️ *« Tu retires le mot tool sur chaque item. Tu fais **Tool : smith,
+   glassblower etc.** — tu gagnes de l'espace. »*
+   ⭐ MÊME ORGANE, MÊME FAMILLE, MÊMES PIÈCES : la rangée, le mot et la
+   pastille ne changent pas d'un octet, et le mot court est dérivé par l'écran
+   (⛔ aucun `name` de record ne bouge). Seul le CONTENEUR passe de la colonne
+   au flux, et le libellé de famille y entre au lieu de le surplomber.
+   🔴 ET C'EST BORNÉ À CETTE QUESTION-LÀ. Les options A/B/C gardent leur
+   colonne : un libellé d'option est une PHRASE ENTIÈRE (« Spear, 5 × Dagger,
+   Explorer's Pack, 11 GP »), et la note juste au-dessus dit pourquoi deux
+   colonnes y couperaient les mots. Une question d'outil, elle, ne porte que
+   des métiers d'un mot depuis que le nom se dérive court.
+   📏 CE QUE LA DISPOSITION VAUT, MESURÉ AU BANC SUR LE BUILDER SERVI
+   (512 × 764, voile de 681, Moine × Acolyte, pile SRD + Skills) :
+     · le mot court SEUL, en colonne ........ 759 / 825 — ⛔ ZÉRO gain ;
+     · le mot court EN LIGNE ................ 671 / 737 — −88 dans les deux cas.
+   ⛔ `align-items: center` et non `start` : sur une ligne, la pastille se pose
+   au milieu du mot, pas au-dessus de lui.
+
+   🔴 LA PASTILLE PASSE DEVANT SON MOT, ET C'EST UNE CORRECTION D'IMAGE, pas
+   un goût. Regardé en capture avant de livrer : en ligne, « smith [pastille]
+   glassblower [pastille] » se lit « smith · [pastille] glassblower » — la
+   pastille colle au mot SUIVANT, et le joueur choisit l'outil d'à côté. 📏 Et
+   l'écarter ne répare pas : passer l'écart entre paires de 8 à 16 a fait
+   passer la question à TROIS lignes et rendu les 88 blg que ce lot venait de
+   gagner (mesuré : 671 → 759). ⭐ En tête, la pastille est un bouton radio et
+   son mot le suit — l'ordre que tout le monde lit sans y penser.
+   ⛔ `row-reverse` et non un ordre de balisage inversé : le mot est écrit
+   AVANT la pastille dans le DOM, comme en colonne — un seul balisage pour les
+   deux dispositions, et l'ordre de tabulation ne bouge pas (seule la pastille
+   prend le focus, et elle porte le nom ENTIER du record). */
+.aiguilleur-options[data-en-ligne="true"] {
+  display: flex; flex-wrap: wrap; align-items: center;
+  column-gap: var(--sp-8); row-gap: var(--sp-4);
+}
+.aiguilleur-options[data-en-ligne="true"] .aiguilleur-rangee {
+  display: flex; flex-direction: row-reverse; align-items: center; gap: var(--sp-4);
+}
+/* ══ LE CRAN DU BOUTON DE CHOIX — 30 de corps, 44 de cible ════════════════
+   ⚖️ ERIC, 2026-09-21 : *« Tu peux faire des boutons de 30 diam (tactile 44)
+   pour les choix. »*
+   🔴 C'EST UNE SECONDE TAILLE, BORNÉE À CET USAGE — ⛔ PAS « les boutons
+   rapetissent ». La norme ratifiée du chantier reste **40 / 44** (16-17/09) ;
+   celle-ci ne vaut que pour la PASTILLE DE CHOIX d'un QCM, où le libellé est à
+   côté et non dedans. Un bouton qui porte son mot garde 40.
+   🔴 ET LA CIBLE 44 NE CÈDE JAMAIS — *un contrôle ne se laisse pas dimensionner
+   par son dessin* (loi du chantier). La BOÎTE fait 44, le corps PEINT fait 30.
+   ⚠️ « DIAM » SUGGÈRE UN ROND, ET CE N'EN EST PAS UN : la norme du 16/09 dit
+   rectangle, rayon 6, et l'octogone est mort. La forme est donc celle de la
+   famille ; seule la COTE change.
+
+   🔴 ET ON NE FABRIQUE AUCUN ORGANE POUR ÇA : le patron SAIT DÉJÀ séparer le
+   dessin de la cible. C'est exactement ce que le 16/09 a posé pour le 40 —
+   *« la boîte, le `min-height`, la zone touchable restent à 44 ; seul le CORPS
+   PEINT se retire de `--bouton-retrait-v` »*. La boîte reste donc 44 ; seul le
+   retrait change, et il passe de 2 à 7.
+
+   🔴 ⛔ ET REDÉCLARER `--bouton-hauteur` SEUL NE SUFFIT PAS — 📏 MESURÉ AU
+   NAVIGATEUR, ET C'EST LA MESURE QUI M'A CORRIGÉ. J'avais écrit ici que « le 30
+   s'obtient en changeant UN nombre, le retrait s'en déduit tout seul ». C'EST
+   FAUX, et le relevé le dit : sur la pastille, `--bouton-hauteur` valait bien
+   30px, et `--bouton-retrait-v` rendait `calc((44px - 40px) / 2)` — le 40 y
+   était DÉJÀ SUBSTITUÉ. ⭐ Une propriété personnalisée est résolue dans la
+   portée qui la DÉCLARE (`:root`), pas dans celle qui l'emploie : redéfinir sa
+   dépendance plus bas ne la recalcule jamais. Les deux se redéclarent donc
+   ensemble — et le retrait garde sa FORMULE, ⛔ il n'est pas réécrit en 7 : le
+   jour où 44 bouge, il suit encore.
+
+   ⛔ ET ON NE TOUCHE NI `::before` NI `::after` POUR AUTRE CHOSE QUE L'INSET.
+   📏 Ma première écriture posait sa propre cible dans un `::after` : elle
+   ÉCRASAIT celui du patron — qui est l'ANNEAU DU LISERÉ — et la pastille
+   perdait son fond, sa bordure et son rayon (mesuré : `border-radius: 0px`,
+   `background: transparent`). Un organe qu'on croit libre et qui appartient
+   déjà à un patron : la faute exacte que ce fichier raconte trois fois.
+   📐 ET LA LARGEUR SE RETIRE AUSSI, pour une raison que le patron n'avait pas à
+   connaître : il ne retire que le haut et le bas (`inset: … 0`), parce qu'un
+   bouton à mot est large et que sa largeur vient du mot. Une pastille est
+   CARRÉE — sans retrait horizontal elle rendrait 44 × 30, un rectangle.
+   ⚠️ Ces deux surcharges doivent GAGNER sur la liste du patron, qui est plus
+   bas dans le fichier : d'où le sélecteur en deux classes. */
+.aiguilleur-option {
+  /* ⚖️ la seconde cote d'Eric (21/09), et le seul nombre écrit ici */
+  --bouton-hauteur: 30px;
+  /* ⛔ la MÊME formule que `tokens.css`, pas un 7 en littéral */
+  --bouton-retrait-v: calc((var(--touch) - var(--bouton-hauteur)) / 2);
+  inline-size: var(--touch); block-size: var(--touch);
+  min-height: var(--touch); /* ⛔ la BOÎTE reste la cible — `jeton-sacre` */
+  display: grid; place-items: center;
+  font: inherit; font-size: var(--t3); cursor: pointer; padding: 0;
+}
+.aiguilleur-options .aiguilleur-option::before { inset: var(--bouton-retrait-v); }
+.aiguilleur-options .aiguilleur-option::after {
+  inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge));
+}
+/* ⚖️ L'ÉLUE EST VERTE DEPUIS LE LOT 248 — Eric, 23/09 : *« le petit bouton carré
+   devient vert à la validation »*. 🔴 ELLE ÉTAIT BLEUE, ET LE BLEU EST LE MAUVAIS
+   VERBE : naviguer est bleu, VALIDER EST VERT. Une option retenue n'emmène nulle
+   part, elle arrête un choix — et sur cet écran le bleu est déjà pris par la
+   phrase de l'aiguilleur, juste au-dessus.
+   ⚠️ ET ÇA DIVERGE DES CINQ MÉTHODES D'ABILITIES, qui restent bleues : elles
+   portaient le même signal jusqu'ici. ⛔ Je ne les ai PAS suivies d'office — une
+   règle générale se pose au socle et s'annonce, elle ne se propage pas depuis la
+   feuille d'un écran. La question est ouverte et elle est à Eric. */
+.aiguilleur-option[data-active="true"] { --bouton-fond: var(--positive); font-weight: 600; }
+/* ⚖️ *« T1 texte police bleue, c'est l'aiguilleur »* — le bleu est le verbe
+   NAVIGUER, et `--info` est le jeton que porte déjà la bordure de
+   `.popup[data-role="aiguilleur"]`. ⛔ Elle n'est plus `--text-muted` : une
+   phrase qui dit où l'on est n'est pas une note de bas de page. */
+.aiguilleur-bilan-mot {
+  margin: 0 0 var(--sp-8); font-size: var(--t1); color: var(--info);
+}
+.aiguilleur-bilan-or { font-weight: 700; }
+.aiguilleur-refus { color: var(--text-muted); font-size: var(--t2); }
+/* ⭐ UN FAIT N'EST PAS UN REFUS, et il ne porte donc PAS l'encre du refus —
+   ⛔ un écran qui gronde pour une absence voulue envoie chercher un objet qui
+   n'existe pas. Même cran, encre du corps. */
+.aiguilleur-fait { font-size: var(--t2); }
+/* ⛔ UN BOUTON QUI REFUSE LE DIT AUSSI À L'ŒIL — sinon le joueur tape dans le
+   vide et croit l'écran cassé. */
+.aiguilleur-bouton[disabled] { cursor: not-allowed; opacity: .45; filter: none; }
+/* `Done` est seul sur sa ligne : la maquette n'a plus qu'un bouton. */
+.aiguilleur-pied-seul { grid-template-columns: 1fr; }
 .aiguilleur-bouton {
   min-height: var(--touch); font: inherit; cursor: pointer;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
@@ -8628,6 +8786,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi,
 .pipeline-pas,
 .aiguilleur-bouton,
+/* LOT 245 — les options du QCM du départ : elles portent un LIBELLÉ, donc le
+   gabarit à mot. ⭐ Elles entrent par la LISTE, jamais par une copie de ses
+   déclarations — le garde `bouton-inventaire` exige que les trois listes
+   (patron, `::before`, `::after`) soient identiques membre pour membre. */
+.aiguilleur-option,
 /* 🔴 LES CINQ MÉTHODES D'ABILITIES ENTRENT DANS LA FAMILLE — Eric, 2026-08-26,
    en montrant l'écran : *« ce sont des petits boutons, ils doivent obéir à la
    loi »*.
@@ -8640,6 +8803,10 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    bouton à glyphe (`+`, `?`) n'en porte pas ; ceux-ci, si. */
 .ability-entry,
 .gear-porte, /* LOT 212 — les trois portes du pied de R : Backpack · Send · Wares */
+/* LOT 218 — les trois portes du pied de Wares : Gear · Send · Backpack. ⭐ Elles entrent
+   par la LISTE, pas par une copie : le relief d'un bouton a un seul écrivain, et le garde
+   `bouton-inventaire` rougit si une famille n'entre que dans deux listes sur trois. */
+.wares-porte,
 /* LOT 213 — les quatre portes du pied de X1 : Close · Use · Send · Trash. ⭐ Elles
    entrent par la liste, pas par une copie : le garde `bouton-inventaire` exige que
    les deux listes (`::before`, `::after`) soient identiques membre pour membre, et
@@ -8724,7 +8891,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi::before,
 .pipeline-pas::before,
 .aiguilleur-bouton::before,
+.aiguilleur-option::before,
 .gear-porte::before,
+.wares-porte::before,
 .x1-porte::before {
   content: "";
   position: absolute;
@@ -8802,7 +8971,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-ligne-envoi::after,
 .pipeline-pas::after,
 .aiguilleur-bouton::after,
+.aiguilleur-option::after,
 .gear-porte::after,
+.wares-porte::after,
 .x1-porte::after {
   content: "";
   position: absolute;
@@ -9071,6 +9242,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
     .fiche-action,
     .parcours-pied button,
     .gear-porte,
+    .wares-porte,
     .x1-porte):not(.fiche-livre):not(.tuto-point) {
   min-width: var(--bouton-petit);
   padding-inline: var(--sp-8);
@@ -9295,14 +9467,33 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    rendait ses huit jetons et ses trois lignes de poids, mais la carte ne lui
    donnait pas la dalle, donc l'écran était VIDE à l'œil. ⛔ Le DOM disait que tout
    allait bien. C'est la page rendue qui l'a dit, pas un garde. */
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac)) {
+/* 🔴 ET `.wares` ENTRE DANS CES TROIS LISTES — Eric, 2026-09-20 : *« le bord droit de la dalle
+   n'a pas de liseré, est-ce à cause d'une superposition ? ou autre chose ? »*. ⭐ Autre chose,
+   et c'est mesurable : `.decision-card` rend **367** blg — la scène moins la gouttière de 4 de
+   chaque côté — tandis qu'un écran d'équipement déclare **375**. `.gear`, `.x1` et `.sac`
+   ressortent de la gouttière par `margin-inline: calc(-1 * var(--stage-gouttiere))` ; `.wares`,
+   absent de la liste, restait **collé à gauche** et débordait de 8 blg à droite, où `.stage`
+   (`overflow: auto`) le coupait. Le liseré du bord droit tombait dans les 8 blg coupés.
+   📌 CE N'ÉTAIT DONC NI UNE SUPERPOSITION NI UN DÉFAUT DE PEINTURE : la dalle était **plus
+   large que la boîte qui la tient**, et c'est le seul bord où ça se voit, parce que le débord
+   est d'un seul côté. 📏 Mesuré : `.wares` 375 · `.decision-card` 367 · débord à droite 4 blg
+   au-delà de `.stage`, quand `.sac` rend 375 **à fleur** de `.stage`.
+   ⭐ C'est la QUATRIÈME fois du lot que la réponse est *« reprendre, ⛔ jamais redessiner »* —
+   après `.wares-porte`, les organes d'échange et la tuile. */
+.decision-card:has(> .equipment-step > :is(.gear, .x1, .x2, .sac, .wares)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .sac)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x1, .x2, .sac, .wares)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
-.gear, .x1, .sac {
+/* 🔴 ET `.x2` Y ENTRE AU LOT 242, POUR LA RAISON EXACTE DE `.wares` AU LOT 231 :
+   la fiche du catalogue recouvre la MÊME dalle que X1, donc elle a la même boîte.
+   ⛔ Un second bloc identique serait deux écrivains pour une seule loi ; l'ajouter à
+   l'`:is` n'en fait qu'un. Hors de cette liste, elle resterait collée à gauche et
+   déborder ait de 8 blg à droite, où `.stage` la couperait — c'est l'incident du bord
+   droit sans lisere, mesuré le 20/09. */
+.gear, .x1, .x2, .sac, .wares {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));
@@ -9761,8 +9952,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    impossible. À T2/600 il rend 56,95 → il tient, 4,05 de reste. ⛔ Le mot n'est
    pas réduit, la largeur ne bouge pas : c'est le CRAN qui est l'exception, et
    il ne vaut que dans cette rangée. — */
-.gear { --bouton-cran-serre: var(--t2); }
-.gear-porte {
+.gear, .wares { --bouton-cran-serre: var(--t2); }
+.gear-porte, .wares-porte {
   /* le plancher du pouce : la famille ne le pose pas pour tous, chaque organe
      le dit (mesuré : 16,64 de haut sans lui) */
   min-height: var(--touch);
@@ -9774,7 +9965,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* Eric, 16/09 : « Send a un liseré vert (ça a une action avec conséquence), les
    autres sont juste de la navigation donc liseré bleu ». Companions compris, bien
    que `disabled` : Eric l'a nommé dans les bleus. */
-.gear-porte[data-porte="send"] { --bouton-fond: var(--positive); }
+.gear-porte[data-porte="send"],
+.wares-porte[data-porte="send"] { --bouton-fond: var(--positive); }
 /* ⚖️ COMPANIONS — le sur-mesure du plan : T1/600, rembourrage --sp-4 (« Companions »
    demande 60,97 dans 69 ; à T2 il fait 73,17 dans 61 et sort — Eric, 16/09 :
    « companions centré ! »). ⚠️ (0,3,1), à égalité avec le plancher des gabarits
@@ -11548,7 +11740,56 @@ button.tuto-point::before {
    ⭐ LA DALLE, ELLE, EST DÉCLARÉE PLUS HAUT AVEC CELLE DE R (`:is(.gear, .x1, .sac)`) :
    les deux écrans du chapitre recouvrent la même surface, et une seule règle le
    dit. */
-.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat; }
+/* ══ 📜 LOT 219 — LA SURFACE DE LA FICHE EST DESSINÉE, PLUS SERVIE EN IMAGE ══
+   Eric, 2026-09-21 : *« aucune image matricielle de parchemin ne doit être
+   nécessaire »*.
+   📏 CE QUI ÉTAIT ÉCRIT ICI, ET POURQUOI C'ÉTAIT LE DÉFAUT :
+   `.x1 { background: var(--x1-parchemin) center / 100% 100% no-repeat }` — une
+   image de 806 × 1056 étirée à `100% 100%`. ⛔ `100% 100%` ne préserve AUCUN
+   rapport : la dalle fait 375 de large toujours (règle sacrée du 31/08) mais sa
+   HAUTEUR suit la scène, donc le grain et la déchirure s'allongeaient ou
+   s'écrasaient d'un appareil à l'autre. Un panneau *« entièrement extensible
+   selon son contenu »* ne pouvait qu'aggraver ça.
+   ⭐ LE CONTOUR VIENT MAINTENANT DE `parchemin.mjs`, CALCULÉ À LA COTE RÉELLE en
+   blg : un accroc fait 4 blg que la fiche en fasse 420 ou 640 de haut.
+   ⛔ ET LA FEUILLE NE PORTE AUCUNE COTE POUR AUTANT : `inset: 0`, `100%`, rien
+   en px — le garde 7 de `tests/x1-ecran.test.mjs` continue de le vérifier.
+
+   ⚖️ LE DÉCOR NE SE LAISSE PAS SAISIR : `pointer-events: none`, et le SVG porte
+   `aria-hidden`. Il est le PREMIER enfant, donc peint sous les organes, qui sont
+   tous en `position: absolute` — ⛔ aucun `z-index` n'est nécessaire, et un
+   `z-index` posé ici créerait un contexte d'empilement dont les popups de la
+   fiche auraient à sortir.
+   ⛔ AUCUNE TRANSITION, AUCUNE ANIMATION : la feuille ne bouge pas, elle est
+   redessinée. `prefers-reduced-motion` n'a donc rien à éteindre — et c'est une
+   propriété VÉRIFIÉE (garde 19), pas une intention. */
+:is(.x1, .x2, .aiguilleur-carte) .parchemin {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* ⛔ PLUS D'OMBRE PORTÉE — Eric, 2026-09-23. Elle était le dernier organe du
+     décor : deux `drop-shadow` en `--x1-ombre`, posées sur la silhouette (et
+     non sur la boîte) pour épouser la déchirure.
+     🔴 ET C'EST MOI QUI AURAIS DÛ LA PROPOSER : au lot 252 j'ai écrit noir sur
+     blanc que « c'est l'ombre portée par la silhouette qui donne l'épaisseur,
+     pas la patine » — et je l'ai laissée en place en présentant le parchemin
+     comme « nu ». ⭐ Nommer l'organe qui porte un effet et ne pas le proposer
+     au moment où l'effet est justement ce qu'on retire, c'est un rapport qui
+     décrit mieux la chose qu'il ne la livre.
+     ⚠️ `--x1-ombre` n'a donc plus aucun lecteur. Il reste déclaré aux trois
+     palettes : c'est un jeton de la famille du parchemin, ⛔ pas du code mort
+     d'une architecture morte — et Eric a déjà tranché une fois (21/09) qu'il
+     est sombre aux trois, « sans halo blanc ». Le retirer est sa décision. */
+}
+/* Les six teintes de la feuille — ⛔ toutes par jeton, aucune écrite ici ni dans
+   le JavaScript : `parchemin.mjs` ne pose que ces classes. */
+/* ⭐ LOT 242 — `:is(.x1, .x2)` ET PAS UN SECOND JEU DE RÈGLES : les deux fiches
+   montent le MÊME parchemin, par le même `habilleEnParchemin`. Une seconde
+   déclaration aurait été un second écrivain pour un organe unique — et deux feuilles
+   qui divergent d'une teinte, personne ne le voit avant qu'Eric le voie. */
+:is(.x1, .x2, .aiguilleur-carte) .parchemin-fond { fill: var(--x1-papier); }
 /* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
    soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
    ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT
@@ -11561,13 +11802,23 @@ button.tuto-point::before {
    display — le jour où l'œil se rallume, rien n'a bougé. */
 /* chaque organe est posé en absolu par la feuille construite ; ici on ne dit
    que le MODE, jamais la place */
-.x1 [data-organe] { position: absolute; box-sizing: border-box; }
+:is(.x1, .x2) [data-organe] { position: absolute; box-sizing: border-box; }
 
-/* — LE NOM, entre ses deux flèches. T4, l'écriture d'un titre d'objet : c'est
-   le seul mot de l'écran qui nomme la CHOSE, tout le reste la décrit. */
+/* — LE NOM. T4, l'écriture d'un titre d'objet : c'est le seul mot de l'écran qui
+   nomme la CHOSE, tout le reste la décrit.
+   🩸 LOT 240 — EN GRAS ET EN OXBLOOD. Eric, 2026-09-21 : *« le titre en gras et
+   Oxblood »*, puis, à la question de la portée : *« pour les fiches »*.
+   ⭐ ET C'EST LA MÊME DÉCLARATION QUE LES DEUX FILETS, ⛔ PAS UNE SECONDE : ce que
+   la demande change est le STATUT de l'oxblood — il cesse d'être la teinte d'un
+   ornement pour devenir une ENCRE DE LA FICHE. Deux jetons de même valeur auraient
+   divergé au premier réglage. ⛔ Et aucun littéral : `--x1-oxblood` existe et il
+   est décliné aux trois palettes.
+   📏 700 ET NON 800 : `--x1-oxblood` est un rouge moyen, et à T4 sur le parchemin
+   le 800 empâte les contre-formes. 700 est le cran « gras » de la famille du
+   dépôt — c'est un titre, pas une alarme. */
 .x1-nom:not([hidden]) {
   display: flex; align-items: center; justify-content: center;
-  font-size: var(--t4); font-weight: 600; color: var(--x1-encre);
+  font-size: var(--t4); font-weight: 700; color: var(--x1-oxblood);
   text-align: center; line-height: 1.1; overflow-wrap: break-word;
 }
 /* — LA QUANTITÉ, à gauche du titre et cadrée à gauche (Eric, 17/09 au soir). Elle ne
@@ -11583,8 +11834,31 @@ button.tuto-point::before {
    2× plus épaisse, trait rouge »*. ⭐ C'est le MÊME rouge que les mots d'état : sur un
    parchemin plein, l'oxblood passe (Eric, le matin), et la fiche n'a donc qu'un rouge.
    L'épaisseur, elle, vit dans le dessin du jeton — pas ici. */
+/* ✅ LOT 240 — LES LOSANGES ET LE POINT REVIENNENT, ET C'EST ERIC QUI LES RAPPELLE.
+   Le 219 les avait remplacés par un dégradé, sur SA spécification écrite du 21/09 :
+   *« remplacer les séparateurs ornementaux à losanges et points par de simples
+   filets fins en dégradé »*. Il a regardé le rendu, et le même jour : *« l'ornement
+   de l'ancienne fiche X1 me plaît plus, je veux bien qu'on le garde »* · *« celui de
+   l'ancienne fiche X1 »* · *« il est oxblood »*.
+   ⭐ LE CROQUIS ET L'ŒIL PRIMENT SUR LA PROSE, Y COMPRIS LA SIENNE. Une spécification
+   décrit ce qu'on croit vouloir ; un rendu montre ce qu'on veut. ⛔ Un lot qui a
+   appliqué une phrase n'a pas fini tant qu'Eric n'a pas vu ce qu'elle rend.
+   ⚖️ CE QUI EST RENDU EST EXACTEMENT CE QUI AVAIT ÉTÉ RETIRÉ — `--icone-filet`
+   n'avait pas été supprimé (le 219 l'a gardé en écrivant que c'était un dessin
+   d'Eric, pas un jeton mort), donc le retour ne réinvente rien.
+   ⭐ ET CE QUE LE DÉTOUR A GAGNÉ RESTE : l'encre est déclinée aux TROIS palettes
+   depuis le 219 — jour, nuit, bleutée. Le dégradé part, la déclinaison demeure.
+   ⛔ LE MASQUE, ⛔ PAS UN `background-image` : un masque est un CANAL ALPHA — la
+   teinte vient de la fiche (`--x1-oxblood`) et suit la palette, alors que le dessin
+   embarque un `fill='%23000'` qui, servi comme image, peindrait du noir aux trois
+   palettes. C'est la raison pour laquelle il était en masque en 17/09, et elle n'a
+   pas bougé.
+   📏 `100% auto` ET NON `100% 1px` : le dessin est une forme de 400 × 12 dont les
+   losanges ont une HAUTEUR ; l'écraser à 1 blg les aplatirait en traits. La boîte
+   de 8 blg vient de la table générée (`FILET HAUT`, h: 8) et ⛔ ne bouge pas —
+   229 de large pour 12 de dessin rend 6,87 blg de haut, qui tient dans les 8. */
 .x1-filet {
-  background: var(--x1-filet-encre);
+  background: var(--x1-oxblood);
   mask: var(--icone-filet) center / 100% auto no-repeat;
   -webkit-mask: var(--icone-filet) center / 100% auto no-repeat;
 }
@@ -11695,7 +11969,7 @@ button.tuto-point::before {
    la jauge, l'autre au pied, et l'œil au milieu — la jauge le CONTIENT (elle déborde de
    16 de chaque côté de sa cible) et ne prend pas le pointeur, donc c'est lui qui le
    reçoit. Trois signes, une colonne, un seul sujet : le texte. */
-.x1 [data-organe="jauge"]:not([hidden]) {
+:is(.x1, .x2) [data-organe="jauge"]:not([hidden]) {
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
   pointer-events: none;
 }
@@ -11792,6 +12066,116 @@ button.tuto-point::before {
    existant ne change. */
 .gear-porte:disabled,
 .x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
+
+/* ══ X2 — CE QUI VIT SOUS LA COUTURE (lot 242) ═════════════════════
+   ⛔ AUCUNE COTE ICI, ET PAS MÊME CELLE DE LA BANDE : sa boîte sort de la feuille que
+   `x2-ecran.mjs` construit, où ses quatre nombres sont LUS dans la table de X1 (la
+   couture, la dalle, les deux marges). Ce bloc ne porte que le MODE et l'habit.
+   ⭐ ET LA TÊTE N'A RIEN À HABILLER ICI : `.x1-nom`, `.x1-filet`, `.x1-chiffres`,
+   `.x1-description`, `.x1-copier`, `.x1-oeil` sont des règles de CLASSE, pas de
+   descendance — elles voyagent avec les organes importés, sans une ligne de plus.
+   📏 VÉRIFIÉ, pas supposé : garde 4 de `x2-ecran.test.mjs`. */
+/* ⚖️ LE GRAND VIDE DU CROQUIS EST RENDU PAR CONSTRUCTION — le contenu se range vers
+   le BAS de la bande, et ce qui reste au-dessus EST le vide qu'Eric a dessiné.
+   ⛔ Il ne s'écrit donc nulle part : personne n'a de hauteur de vide à tenir à jour. */
+/* 🔴 LE BUDGET DE LA BANDE EST FERMÉ, ET IL EST SERRÉ — 📏 mesuré au banc le
+   21/09, à l'échelle 1 : la bande fait **192** blg (500 − 34 de marge de pied − 274
+   de couture) et le croquis y range **216**. ⛔ À `--sp-8`, le contenu débordait de
+   **24 blg AU-DESSUS de la couture**, et peignait par-dessus la fin du texte et le
+   second filet — ⚠️ un débord `flex-end` ne se voit PAS dans `scrollHeight`, qui
+   rendait 192 : il a fallu comparer le haut du premier enfant à celui de la bande.
+   ⭐ CE QUI COÛTE, POSTE PAR POSTE : le `±` empilé **90** · `SEND TO` **44** · les
+   trois boutons **44** · la ligne d'alerte **14** · les trois écarts **24**.
+   ⛔ LE `±` NE PEUT PAS MAIGRIR : ce sont deux cibles de `--touch`, et 44 ne cède
+   jamais. Les deux seuls postes qui pouvaient rendre de la place sont donc les
+   ÉCARTS et la ligne d'alerte VIDE — c'est ce qui est fait ici, et ça tient à 190.
+   ⏳ ET LE COMPTE RESTE OUVERT : quand l'alerte PARLE (« Not enough coin »), elle
+   reprend ses 14 et le total repasse à 204. ⛔ Je n'ai pas tranché ça tout seul —
+   c'est la question *« qu'est-ce que ça porte EN TROP ? »*, et elle est à Eric.
+   ⛔ UN DÉFILEMENT INTERNE N'EST PAS LA RÉPONSE : un contenu qui ne tient pas se
+   déleste, il ne se fait pas dérouler. */
+.x2-pied {
+  display: flex; flex-direction: column; justify-content: flex-end; gap: var(--sp-4);
+}
+/* ⛔ VIDE, L'ALERTE NE RÉSERVE RIEN ICI — ailleurs (B2, les sacs) elle garde sa ligne,
+   parce que ces écrans ont la place et qu'un texte qui apparaît sans pousser se lit
+   mieux. Dans une bande fermée au blg près, 14 blg réservés en permanence sont 14
+   blg pris à un organe du dessin. ⭐ La règle est donc PORTÉE PAR X2, ⛔ pas retirée
+   à `.pipeline-alerte`, qui sert trois autres écrans. */
+.x2-pied .pipeline-alerte { min-height: 0; }
+
+/* ══ 🔴 SUR UNE FEUILLE, L'ENCRE EST CELLE DE LA FEUILLE ════════════════
+   📏 MESURÉ AUX TROIS PALETTES LE 21/09, ⛔ pas supposé — contraste de l'encre sur
+   le papier du parchemin (`--x1-papier`), sur la palette bleutée :
+
+     l'organe                       | avant | après
+     -------------------------------+-------+------
+     champ QTY · champ PRICE        |  1,1  |  9,2
+     menu SEND TO                   |  1,1  |  9,2
+     les libellés                    |  2,5  |  4,6
+
+   ⛔ 1,1:1 N'EST PAS « PEU LISIBLE », C'EST INVISIBLE. Les organes repris de la X2
+   portent les jetons du SITE (`--text`, `--surface`), et le site est sombre quand le
+   parchemin bleuté est clair : l'encre disparaissait dans le papier.
+   ⭐ C'EST LE DÉFAUT EXACT QUE X1 A PAYÉ AU LOT 213, et l'en-tête de son banc le
+   raconte : *« l'encre du site illisible sur le parchemin »*. ⛔ Aucun garde ne
+   pouvait le voir — le DOM était juste, les classes étaient justes, la feuille était
+   juste. Il a fallu REGARDER, puis mesurer.
+   ⭐ ET C'EST SCOPÉ À `.x2-pied`, ⛔ pas corrigé sur `.pipeline-*` : ces classes
+   servent aussi B2, SB3.1 et la recherche, qui sont sur le fond du SITE et où l'encre
+   du site est la bonne. Un même organe, deux fonds, et c'est le FOND qui décide.
+
+   🔴 ET LE PÉRIMÈTRE A ÉTÉ FAUX À MON PREMIER JET — ça se dit, parce que la faute est
+   instructive : j'avais mis les BOUTONS dans la règle. Ils sont passés de 1,1 à 9,2
+   « sur le papier » — et ils sont devenus ILLISIBLES à l'œil, parce qu'un bouton n'est
+   PAS sur le papier : le patron de la famille lui peint son propre fond sombre. ⛔ Je
+   mesurais une encre contre un fond qui n'était pas le sien, et le chiffre était juste
+   sur le mauvais organe. ⭐ TROIS LECTURES, PAS DEUX : l'encre, le fond, ET DE QUELLE
+   FAMILLE est l'organe. Ce qui prend l'encre du parchemin, c'est ce qui est POSÉ SUR
+   LE PARCHEMIN — les champs, le menu, les libellés. Les boutons gardent leur habit. */
+.x2-pied :is(.pipeline-typein, .pipeline-dropdown) {
+  color: var(--x1-encre); border-color: var(--x1-trait);
+}
+.x2-pied .pipeline-libelle { color: var(--x1-encre-douce); }
+/* le menu garde un fond à lui, pris à la tranche de la feuille : il se distingue du
+   papier sans lui emprunter l'encre du site. */
+.x2-pied .pipeline-dropdown { background-color: var(--x1-tranche-douce); }
+/* — PURSE à gauche, QTY ± PRICE à droite (croquis) */
+.x2-marche { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
+.x2-bourse {
+  flex: 0 1 auto; padding: var(--sp-4) var(--sp-8);
+  background: var(--x1-tranche-douce); border-radius: var(--radius-sm);
+}
+.x2-bourse-titre {
+  margin: 0; text-align: center; font-size: var(--t2); font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--x1-encre);
+}
+.x2-bourse-mot { margin: 0; font-size: var(--t1); color: var(--x1-encre-douce); }
+/* les quatre clefs en COLONNES, le montant sous son unité — c'est le dessin. */
+.x2-bourse-grille { display: flex; gap: var(--sp-8); }
+.x2-bourse-clef { display: flex; flex-direction: column; align-items: center; }
+.x2-bourse-unite { font-size: var(--t1); font-weight: 600; color: var(--x1-encre); }
+.x2-bourse-somme { font-size: var(--t1); font-variant-numeric: tabular-nums; color: var(--x1-encre-douce); }
+
+.x2-reglages { display: flex; align-items: center; gap: var(--sp-4); }
+.x2-champ { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
+/* ⚖️ LE `+` ET LE `−` SONT EMPILÉS — le croquis les dessine l'un SUR l'autre, ⛔ pas
+   côte à côte. ⭐ Et ils gardent leurs deux liserés (vert / rouge) : c'est l'organe
+   existant de la X2, repris tel quel. */
+.x2-pas { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.x2-sendto { display: flex; align-items: center; gap: var(--sp-8); }
+/* le grand bouton-menu du croquis : il prend toute la place qui reste. */
+.x2-dropdown { flex: 1 1 auto; min-height: var(--touch); }
+
+/* — LES TROIS BOUTONS DU PIED : CANCEL · BUY · FREE (le dessin d'Eric). */
+.x2-portes { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+/* ⚖️ UN BOUTON À DEUX ÉTAGES — le verbe en gros, et dessous, en petit, ce que le
+   geste ENCHAÎNE. ⛔ Le sous-titre ne se lit pas deux fois : il est `aria-hidden`,
+   et la phrase entière passe par l'étiquette du bouton. */
+.x2-bouton-double { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; }
+.x2-bouton-mot { font-weight: 600; }
+.x2-bouton-sous { font-size: var(--t0); opacity: .75; letter-spacing: .04em; }
 
 /* ══ L'ÉCRAN SB3.1 — LE SAC (lot 214) ═══════════════════════════════════════
    ⛔ AUCUNE COTE ICI : les positions sortent de la table, dans la feuille que
@@ -12082,7 +12466,8 @@ button.tuto-point::before {
   box-shadow: inset 0 0 0 1px var(--accent),
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
-.sac-cran {
+.sac-cran,
+.wares-cran {
   /* 🔴 PLUS `absolute` — la tuile vit maintenant DANS LE FLUX du ruban, parce que c'est
      le ruban qui défile. Une tuile posée à un `x` ne peut pas glisser : c'était toute
      la raison pour laquelle l'ancienne roue sautait. */
@@ -12095,7 +12480,13 @@ button.tuto-point::before {
      posée ne se distinguait que par sa taille. ⭐ Le fond devient le SIGNE : ce qui est plein
      est ce qui est choisi, et le reste attend. C'est la loi du belt, où le cran courant
      *« ne s'épaissit pas, il se RALLUME »*. */
-  border: 0; background-color: transparent; color: var(--text-soft);
+  /* 🔄 AMENDÉ LE 2026-09-21 — Eric : *« pour les tuiles non sélectionnées rajouter du voile sur
+     le fond à 20 ou 35 % serait plus joli »*, puis *« voile des tuiles à 20% »*.
+     🗄️ Le repos n'est plus TRANSPARENT, il est à peine voilé (`--dalle-cran`, 20 %). Ce que la
+     règle du 19/09 dit reste vrai — le fond est le SIGNE — mais l'échelle va désormais de
+     *à peine* à *plein* (50 %) au lieu de *rien* à *plein* : le contraste qui désigne est
+     conservé, la tuile au repos cesse d'être un trou. */
+  border: 0; background-color: var(--dalle-cran); color: var(--text-soft);
   /* ⚖️ PLUS RECTANGULAIRES — Eric, 2026-09-19 : *« fais-moi des tuiles plus rectangulaires
      que ça »*. ⛔ Elles portaient `--organe-rayon` (16), le rayon de la FAMILLE DU JETON :
      sur une tuile de 57 × 40 il arrondissait presque toute la hauteur, et la rangée
@@ -12127,7 +12518,8 @@ button.tuto-point::before {
 /* 🟡 ET L'OR PORTE SON HABIT LUI AUSSI — Eric, 2026-09-19 : *« la couleur dorée pour other
    aussi »*. ⭐ Sa phrase du matin le demandait déjà : *« outside your gear (horse, chest,
    house), COULEUR DE FOND dorée »* — l'or attendait son fond, il n'avait qu'un trait. */
-.sac-cran[data-lieu="dehors"] {
+.sac-cran[data-lieu="dehors"],
+.wares-cran[data-lieu="dehors"] {
   background-color: var(--dehors-fond); color: var(--dehors-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--dehors);
 }
@@ -12148,7 +12540,8 @@ button.tuto-point::before {
    d'abord un LIEU — et un lieu ne cesse pas d'exister quand on regarde ailleurs.
    📏 Les deux teintes sont mesurées sur `parchemin-party.webp` et dérivées de `--info` :
    voir leurs jetons dans `tokens.css`. */
-.sac-cran[data-lieu="party"] {
+.sac-cran[data-lieu="party"],
+.wares-cran[data-lieu="party"] {
   background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info);
 }
@@ -12166,8 +12559,47 @@ button.tuto-point::before {
    l'épaissit pas, il le RALLUME »* — et l'AGRANDISSEMENT, qui vient du plan
    (`scale`, feuille construite). ⛔ Plus de `font-size` ici : le `scale` grossit le
    texte avec la boîte, et deux écrivains pour un même grandissement divergeraient. */
-.sac-cran[data-dominant="oui"] {
+.sac-cran[data-dominant="oui"],
+.wares-cran[data-dominant="oui"] {
   background-color: var(--dalle-inter); color: var(--text); cursor: default;
+  /* ⚖️ L'ESTHÉTIQUE DU BELT SUR LE CRAN POSÉ — Eric, 2026-09-20 : *« donne au token dominant
+     l'esthétique du belt »* · *« je ne vois pas l'aura qu'il y a dans le backpack »*.
+     ⭐ C'EST LE HALO DE LA MAISON, celui qui dit déjà « c'est ici que ça se passe » sur le cran
+     courant du belt, sur les bascules de X1 et sur l'interrupteur du mode du sac. ⛔ Pas une
+     lueur neuve : le même jeton, `--belt-halo`, aux mêmes cotes.
+     📌 ET IL ENTRE SUR LES DEUX ÉCRANS À LA FOIS, parce que la règle est partagée. C'est voulu :
+     Eric compare Wares au sac, et deux tambours qui ne s'allument pas pareil seraient deux
+     tambours. Le sac gagne l'aura qu'il n'avait pas non plus.
+
+     🔴 ET IL RECOUVRE LE REBORD, ⛔ IL NE L'ENTOURE PLUS — Eric, 2026-09-20 : *« fais en sorte
+     que le halo recouvre plutôt qu'entourer sur le premier pixel du bord, mais aussi en
+     dessous »*.
+     ⭐ C'EST LA MÊME QUESTION QUE LA LOUPE, POSÉE SUR UN AUTRE ORGANE. La loi du 19/09
+     (`equipement-loupe-se-superpose-au-rebord`) dit d'un cadre témoin qu'il *« se pose SUR le
+     rebord de la boîte, il ne s'ajoute pas autour »*, et la raison y est écrite : deux traits
+     qui se touchent sans se superposer s'ADDITIONNENT, et ça fait l'autocollant. Un halo
+     purement extérieur a le même défaut — il dessine une seconde arête contre la première.
+     ⭐ D'OÙ DEUX OMBRES, ET C'EST LE SENS EXACT DE LA PHRASE : l'`inset` entre par le bord et
+     diffuse EN DESSOUS, dans la tuile ; l'extérieure, sans étalement, ne fait que mordre le
+     premier pixel. Le halo est donc à cheval sur l'arête au lieu d'être posé contre elle.
+     ⛔ ET SON ÉTALEMENT NE SORT PAS : `--halo-fin` ne vaut que pour la part qui recouvre.
+
+     🗄️ CE QUI PRÉCÈDE EST ARCHIVÉ — les deux ombres ont vécu une heure. Le paragraphe reste,
+     avec l'incident qui l'a payé : en le refermant, j'ai fermé le commentaire UNE SECONDE FOIS,
+     et le moteur CSS a mangé la déclaration `box-shadow` qui suit. ⭐ Le garde de `css-syntaxe`,
+     né du même accident le 15/09, l'a dit à la ligne près ; le navigateur, lui, montrait
+     seulement un liseré, et j'ai d'abord accusé le cache.
+     🔴 ET IL NE SORT PLUS DU TOUT — Eric, 20/09, en donnant l'objectif : *« objectif qu'on
+     voie la marge autour de la tuile »*. 📏 Mesuré : la tuile posée est agrandie de 1,2456,
+     donc elle déborde de (71 − 57) / 2 = **7 blg** de chaque côté, sur un écart qui en vaut 8.
+     Il ne reste qu'**UN blg** de marge visible — et la part extérieure du halo, même sans
+     étalement, l'avalait entièrement. ⭐ Entièrement `inset`, le halo ne mange plus rien : la
+     marge redevient du fond, et c'est ELLE qui détache la tuile de ses voisines.
+     ⏳ LE BLG QUI RESTE EST MINCE, ET C'EST UNE COTE, PAS UN RÉGLAGE : pour une marge de 8
+     VISIBLE il faudrait un écart de 8 + 7 = 15, donc un `pas` de 72 au lieu de 65 — et le pas
+     est ce qui rend `scrollLeft = pas × k` exact, sur les DEUX tambours. ⛔ Je ne le change pas
+     tout seul. */
+  box-shadow: inset 0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
 /* ⏱️ 60 ms, ET LA DURÉE EST D'ERIC — 2026-09-19 : *« tu fais une transition de 60 ms »*.
    🔴 ELLE PORTE LE ZOOM ET LE REMPLISSAGE ENSEMBLE : c'est UN changement d'état, et deux
@@ -12609,3 +13041,278 @@ button.tuto-point::before {
    rangées de contrôles la range : le livre à gauche, les trois portes au milieu,
    le `?` à droite. ⛔ Aucune cote ici : sa boîte vient de la table. */
 .sac-rangee { align-items: center; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   🛒 WARES — LA PEAU (lot 218, dictée par Eric le 2026-09-20)
+   ⛔ AUCUNE COTE ICI. La géométrie vit dans `wares-disposition.mjs` et arrive par la feuille
+   que `construireLesWares` pose dans son nœud. Ce bloc ne porte que la MATIÈRE : les voiles,
+   les encres, les reliefs, les états. ⭐ Deux écrivains pour une cote, c'est deux cotes.
+   ⚠️ ET LES TOKENS SONT CEUX DE LA MAISON, jamais des littéraux : `--dalle-simple` pour le
+   voile à 35 % qu'Eric a demandé, `--jeton-teinte`, `--organe-rayon`, `--bouton-rayon`,
+   `--verre-lisere`, `--filigrane`, `--text-soft`.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ⚖️ « VOILE 35 % » (Eric, 20/09) — et c'est `--voile-simple`, le verre léger du socle, pas
+   une valeur neuve. ⭐ Le liseré est ce qui rend la séparation VISIBLE : l'écart seul ne
+   suffit pas, deux verres sombres séparés par du fond sombre se lisent comme une seule
+   surface. Il n'entoure pas la dalle, il ATTRAPE LA LUMIÈRE sur son bord.
+   ⛔ En `inset`, jamais en `border` : une bordure déplacerait la géométrie de 2 blg, et ce
+   fichier a passé une journée à traquer ce genre de dérive. */
+.wares-dalle {
+  background: var(--dalle-simple);
+  border-radius: var(--organe-rayon);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+
+/* — LE TAMBOUR : deux étages, même matière, même mécanique que le sac — */
+.wares-roue {
+  display: block;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* ⛔ `touch-action: pan-x` : sans lui un glissé un peu oblique part au défilement VERTICAL
+     de la page, et la roue rate un geste sur deux. */
+  touch-action: pan-x;
+  /* ⛔ et le geste ne déborde pas sur l'écran d'à côté */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+/* ⛔ PAS PAR `display: none` — la maison l'interdit dans cette feuille (défaut n° 3). On la
+   réduit à rien, ce qui la masque sans la retirer du flux. */
+.wares-roue::-webkit-scrollbar { inline-size: 0; block-size: 0; }
+
+/* 🗄️ `.wares-cran` N'A PLUS DE BLOC À LUI — retiré le 2026-09-20. Eric : *« prends l'exemple
+   des tuiles dans backpack, même morphologie, aura idem »*. ⛔ J'avais redessiné la tuile —
+   mon rayon, mon corps, ma transition — alors que `.sac-cran` la porte déjà, avec ses trois
+   liserés de genre et l'aura du belt. ⭐ `.wares-cran` entre donc dans SES listes (plus haut
+   dans cette feuille) : la forme, l'aura et les genres ont UN écrivain, et une tuile qui
+   change change pour les deux écrans.
+   ⭐ Ce qui reste à Wares vit dans la feuille de l'écran, et c'est de la GÉOMÉTRIE, pas de la
+   matière : la largeur d'un cran (secondaire 57, dominant 71) et son échelle de 1,2456.
+   📌 C'est la troisième fois du lot que la réponse est « reprendre, ⛔ jamais redessiner » —
+   après `.wares-porte` et les trois organes d'échange. */
+
+/* — LA GRILLE ET SES DEUX GOUTTIÈRES — */
+.wares-gouttiere {
+  display: grid; place-items: center; align-content: center;
+  gap: var(--sp-4); color: var(--text-soft); font-size: var(--t1);
+  font-variant-numeric: tabular-nums;
+}
+.wares-chevron {
+  border: 0; background: none; color: var(--text-soft);
+  font: inherit; font-size: var(--t4); line-height: 1; cursor: pointer;
+  /* 🔒 le plancher du pouce — il ne cède pas à la taille du dessin */
+  min-inline-size: var(--touch); min-block-size: var(--touch);
+}
+.wares-compte { color: var(--accent); }
+
+/* — LE JETON : celui du sac, à l'identique. ⛔ Wares ne le redessine pas — */
+.wares-case { display: grid; }
+.wares-jeton {
+  /* 🔴 `position: relative` PORTE UNE FAUTE MESURÉE, ⛔ CE N'EST PAS UN RÉFLEXE. `.jeton-marques`
+     — la bande des quatre marques — est posée en ABSOLU par la famille du jeton. Sans hôte
+     positionné ici, elle remonte jusqu'au premier ancêtre qui l'est : 📏 mesuré au banc le 20/09,
+     le `×2` d'un jeton de la dalle 2 se peignait à **y = 2**, en haut de la dalle 1, par-dessus
+     le tambour. ⭐ C'est « un organe niché se pose par rapport à son HÔTE, pas à la dalle » — la
+     même faute que `sac-ecran` raconte au premier rendu de son banc.
+     ⛔ ET AUCUN GARDE DE FICHIER NE POUVAIT LA VOIR : c'est une position RENDUE. Il a fallu
+     regarder l'image. Qui retire cette ligne renvoie les marques en haut de l'écran. */
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  inline-size: 100%; block-size: 100%;
+  padding-inline: var(--sp-4); padding-top: var(--jeton-bande);
+  border: var(--creneau-lisere-rempli) solid var(--border-strong);
+  border-radius: var(--organe-rayon);
+  background: var(--jeton-teinte); box-shadow: var(--relief);
+  color: var(--text); font: inherit; font-size: var(--t1);
+  text-align: center; line-height: 1.1; cursor: pointer;
+}
+/* ⭐ LE FILIGRANE — un masque rempli d'une encre THÉMATIQUE, donc lisible le jour comme la
+   nuit. ⛔ L'image posée telle quelle (elle est NOIRE) s'évanouirait sur le fond de nuit.
+   ⛔ Et le voile est un JETON (`--filigrane`), pas un littéral perdu dans la feuille — un
+   garde de R le refuse, et il a raison. */
+.wares-fond {
+  background: var(--text-soft);
+  opacity: var(--filigrane);
+  pointer-events: none;
+  mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+}
+
+/* — LE PIED : le collecteur, les Tally, la bourse, la destination — */
+/* ⚖️ UN COLLECTEUR EST UN CREUX (NORMES §2 ter) : très arrondi, ⛔ aucun liseré visible — la
+   bordure reste, en transparent, à la cote du liseré rempli, pour que la case ne saute pas au
+   moment où elle se remplit. Le creux dit « pose ici », le relief dit « quelque chose est
+   posé ». */
+.wares-collecteur {
+  display: grid; place-items: center;
+  border: var(--creneau-lisere-rempli) solid transparent;
+  border-radius: var(--organe-rayon);
+  box-shadow: var(--creux);
+  color: var(--text-soft); font-size: var(--t0); letter-spacing: .08em;
+}
+/* 🗄️ `.wares-tally` ET `.wares-purse` ONT ÉTÉ RETIRÉS LE 20/09, ET C'EST UNE FAUTE RÉPARÉE.
+   C'étaient trois rectangles bruns sans image, redessinés alors que R porte DÉJÀ ces organes
+   avec leurs icônes (`--icone-bourse`, `--icone-parchemin`, `--icone-parchemin-party`, déposées
+   par Eric le 16/09). ⛔ `sac-ecran.mjs` raconte exactement cette faute depuis le 19/09 — je
+   l'ai refaite mot pour mot, dans un lot dont le premier commentaire dit qu'il ne redessine
+   rien. Eric l'a vu en ligne : *« tally les images le branchement · la bourse le branchement »*.
+   ⭐ Wares emploie donc `.gear-bouton`, comme le sac. Rien à écrire ici. */
+/* ⭐ LE VISEUR — sa GÉOMÉTRIE se génère avec l'agrandissement (feuille de l'écran), parce que
+   le trait doit se superposer au rebord de la tuile POSÉE, qui est grossie. ⛔ Un rayon écrit
+   ici raterait les coins. Ce qui reste est une FENTE de couleur : un seul écrivain pour la
+   forme, un seul pour la teinte. */
+.wares-loupe {
+  pointer-events: none;
+  --loupe-trait: var(--verre-lisere);
+}
+.wares-send-vers {
+  border: 1px solid var(--border-strong); border-radius: var(--bouton-rayon);
+  background: var(--dalle-inter); color: var(--text);
+  font: inherit; font-size: var(--t1);
+}
+/* ⭐ LA RANGÉE DU PIED est celle de §6 pré — `[data-rangee]` la place, et ⛔ ce bloc n'en
+   redit rien : sa grille `borne | 1fr | borne` a UN écrivain, et ce n'est pas ici. */
+/* ⭐ `.wares-porte` N'A PAS DE BLOC À ELLE : elle est entrée dans les listes de `.gear-porte`
+   ci-dessus. ⛔ Une règle vide posée « pour la forme » serait une règle qui ment sur son
+   existence, et le jour où quelqu'un la remplit il aurait DEUX écrivains pour une porte. */
+
+/* ══ X0 — L'ÉCRAN DU DÉPART, lot 248, 2026-09-23 ═══════════════════════════
+   ⚖️ Eric, 23/09 : *« on peut l'appeler X0 à la rigueur »*, après six allers-
+   retours sur un prototype mesuré au banc.
+   ⭐ CE QUI A CHANGÉ N'EST PAS SON HABIT, C'EST SA NATURE : le QCM cesse d'être
+   un carton posé sur un voile (285 px de large, 209 des 375 blg de la dalle) et
+   devient un ÉCRAN DE RANG X — il recouvre la dalle, il porte le parchemin de
+   X1 et X2, et il prend le filet de leurs fiches.
+   ⛔ MÊME FAMILLE `.aiguilleur-*`, TOUJOURS PAS UNE SECONDE : c'est le même
+   organe, et il n'a qu'un consommateur (vérifié : `ceQueLaSourceDit` n'est
+   appelée que par le QCM). Le renommer en `.x0-*` aurait coûté vingt lignes de
+   churn dans trois fichiers pour zéro gain.
+   📏 LES COTES SONT CELLES D'ERIC, EN blg, ⛔ et elles ne sont pas converties :
+   dans cette feuille le blg EST le px — la dalle fait 375, le zoom s'en charge.
+   C'est `--sp-8` qui écrit les 8 blg, pas un nombre. */
+/* ⚖️ *« marge autour de la dalle 8 blg (je veux que ça recouvre totalement la
+   Fiche R Gear) »* — ⭐ ET C'EST LE VOILE QUI LA PORTE, en marge intérieure :
+   la marge est un fait du VOILE (ce qu'il laisse voir de la dalle), ⛔ pas de la
+   feuille. 🔴 Et `align-items: center` empêchait la feuille de s'étirer : elle se
+   contentait de sa hauteur naturelle au lieu de recouvrir la dalle. */
+.aiguilleur { align-items: stretch; padding: var(--x0-marge); }
+/* ══ RÈGLE DES POPUPS MAJEURS — Eric, 2026-09-23 (NORMES §7 septies) ════════
+   ⚖️ *« ce qu'ils recouvrent passe au voile 0 tant qu'ils sont ouverts »*, et
+   *« X0 est un popup majeur »*.
+   ⭐ UN POPUP MAJEUR NE SE POSE PAS DEVANT UN ÉCRAN : IL LE REMPLACE. Ce qu'il
+   recouvre ne doit rien laisser transparaître — ni une forme sous le parchemin,
+   ni une cible qu'un doigt pourrait atteindre à travers.
+   ⛔ ET CE N'EST PAS `display: none` : les organes gardent leur boîte, donc leur
+   place. Ils reviennent exactement où ils étaient quand le popup se ferme, sans
+   que rien ne soit remesuré. C'est la même loi que le mode lecture de X1.
+   📌 LE PORTEUR EST LE NŒUD DE L'ÉCRAN, ⛔ pas le popup : un popup ne sait pas
+   ce qu'il cache, un écran sait qu'il est caché. Le jour où un second popup
+   majeur existe, son écran pose le même attribut et hérite de cette règle sans
+   une ligne de plus. */
+[data-popup-majeur="oui"] > :not(.aiguilleur) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.aiguilleur-carte {
+  width: 100%; height: 100%; box-sizing: border-box;
+  /* ⚖️ *« marges sur la dalle de 30 blg à gauche et à droite »* — et les deux
+     marges se comptent depuis LA DALLE. Le retrait interne n'est donc pas 30
+     mais 30 − 8 = 22 : une cote juste, mesurée depuis le mauvais bord, aurait
+     poussé le texte à 38 du bord de la dalle. */
+  padding: var(--x0-marge) var(--x0-retrait);
+  position: relative; background: transparent; border: 0; border-radius: 0;
+  max-width: none;
+  /* l'encre de la feuille, ⛔ pas celle de la coquille : on écrit sur un papier */
+  color: var(--x1-encre);
+  display: flex; flex-direction: column; gap: 0;
+}
+/* ⛔ LE CONTENU PASSE AU-DESSUS SANS UN `z-index` : le parchemin est en absolu,
+   tout le reste est dans le flux. Un `z-index` ici créerait un contexte
+   d'empilement dont les popups de l'écran auraient à sortir. */
+.aiguilleur-carte > :not(.parchemin) { position: relative; }
+
+/* ⚖️ *« Gear (T3 en gras) »*, centré, puis 8 blg — il s'appelait « Your
+   equipment » en capitales espacées : les trois ont changé dans la même phrase. */
+.aiguilleur-titre {
+  margin: 0 0 var(--sp-8); font-size: var(--t3); font-weight: 700;
+  letter-spacing: normal; text-transform: none; text-align: center;
+  color: var(--x1-encre);
+}
+/* la pose du filet de X — ⛔ sa teinte et son dessin restent chez `.x1-filet` */
+.aiguilleur-filet {
+  height: var(--x0-filet-h); width: var(--x0-filet-l); max-width: 100%;
+  align-self: center; flex: 0 0 auto; margin: 0 0 var(--sp-4);
+}
+/* ⚖️ *« Fighter (bold T2) gives you a choice (T1) »*, centré — puis 8 blg. */
+/* 🔴 ET LA SECTION AUSSI POSAIT UN `gap` — `.aiguilleur-section` déclare
+   `gap: var(--sp-4)`, qui s'AJOUTE à la marge de la tête : 📏 mesuré 12 sous
+   « Fighter » là où Eric en veut 8. C'est la troisième fois dans ce chantier
+   qu'une distance a deux écrivains, et les trois fois aucune des deux
+   déclarations n'était fausse à elle seule. ⭐ Sur X0, chaque organe porte sa
+   propre marge et le conteneur n'en pose aucune. */
+.aiguilleur-section { gap: 0; }
+.aiguilleur-soustitre {
+  text-align: center; font-size: var(--t1); margin: 0 0 var(--x0-sous-tete);
+}
+.aiguilleur-soustitre strong { font-size: var(--t2); font-weight: 700; margin-right: .35em; }
+
+/* ⚖️ LA PASTILLE PASSE À GAUCHE (Eric, 23/09, sur deux rendus successifs).
+   ⛔ Le lot 246 l'avait mise à droite pour que le texte ne la pousse pas ; la
+   raison tient toujours, et elle est servie ici par `auto 1fr` — la colonne du
+   bouton garde sa cote quoi qu'il arrive, elle a seulement changé de côté.
+   ⭐ `align-items: center` : la lettre se pose au milieu de son texte, parce
+   qu'elle EST le choix, ⛔ pas une puce de liste alignée sur la 1re ligne. */
+.aiguilleur-rangee {
+  /* 🔴 `auto 1fr` NE DÉPLACE RIEN — une colonne dit une LARGEUR, pas un rang.
+     📏 Mesuré au navigateur : colonnes 248 / 75, et la pastille toujours à
+     DROITE, parce que l'ordre est celui du DOM. C'est l'écran qui a changé
+     l'ordre d'ajout ; ici on ne fait que donner sa cote à chaque colonne. */
+  grid-template-columns: auto 1fr; align-items: center;
+  /* ⚖️ *« 30 blg d'espace entre 2 boutons »* → ramené à 16 le 23/09, sur mesure :
+     📏 les 30 coûtaient 205 px des 654, et il n'en restait que 5 sous le plafond. */
+  /* 🔴 UN SEUL ÉCRIVAIN POUR CETTE DISTANCE. Elle en avait DEUX : le `gap` de
+     `.aiguilleur-options` (4) ET la marge de la rangée. 📏 Mesuré : 5 entre les
+     boîtes au lieu de 1, donc 19 entre les carrés au lieu de 15 — et aucune des
+     deux déclarations n'était fausse à elle seule. C'est le `gap` de la liste
+     qui porte l'écart (il ne s'applique pas après la dernière rangée), ⛔ pas
+     une marge que la dernière devrait ensuite reprendre. */
+  min-height: var(--x0-bouton); margin: 0;
+}
+.aiguilleur-options { gap: var(--x0-ecart); margin-bottom: var(--x0-sous-section); }
+
+/* ⚖️ `Done` AU STANDARD DE LA BIBLE — Eric, 23/09 : *« le bouton Done n'est pas
+   au standard de la bible, h 40 »*. 📏 Relu dans `tokens.css` : corps **40**,
+   cible **44**, et DEUX gabarits de largeur seulement — `--bouton-petit` 77
+   jusqu'à 6 caractères, `--bouton-moyen` 105 jusqu'à 11. « Done » en fait 4.
+   🔴 IL RENDAIT **315** DE LARGE : `.aiguilleur-pied-seul` posait
+   `grid-template-columns: 1fr`, et un `1fr` étire son enfant sur toute la
+   carte. La hauteur, elle, était déjà juste (44 de cible, 40 de corps) — ⛔ ce
+   n'est donc pas « le bouton » qui n'était pas au standard, c'est SA COLONNE. */
+.aiguilleur-pied { display: flex; justify-content: center; }
+.aiguilleur-pied-seul > .aiguilleur-bouton { inline-size: var(--bouton-petit); }
+.aiguilleur-option-mot { font-size: var(--t1); }
+/* ⚖️ *« mets toujours la somme en GP à la ligne »* — ⛔ un `<br>` aurait été un
+   saut de ligne DANS une phrase ; ce sont deux blocs, parce que ce sont deux
+   choses : ce qu'on reçoit, et ce avec quoi on achètera le reste. */
+.aiguilleur-option-objets, .aiguilleur-option-somme { display: block; }
+.aiguilleur-option-somme { font-weight: 700; }
+
+/* ⚖️ LE RÉCAPITULATIF EST VERT — *« texte ci dessous en vert car texte de
+   validation »*. Le vert est le deuxième des trois verbes, et il porte le
+   statut à lui seul : ⛔ plus de cartouche, Eric décrit un TEXTE. */
+.aiguilleur-bilan-titre {
+  margin: 0 0 var(--sp-8); font-size: var(--t2); font-weight: 700;
+  text-align: center; color: var(--positive);
+}
+.aiguilleur-bilan {
+  margin: 0; padding: 0; list-style: none; font-size: var(--t1);
+  color: var(--positive);
+}
+.aiguilleur-bilan-ligne { display: inline; }
+.aiguilleur-bilan-ligne + .aiguilleur-bilan-ligne::before { content: " · "; }
+/* ⚖️ LE RESSORT — *« l'excédent d'espace … sera entre le texte vert et done »*.
+   ⛔ Son plancher n'est pas zéro : même à contenu maximal, `Done` ne colle pas
+   au vert. C'est la seule respiration qui ne se négocie pas. */
+.aiguilleur-ressort { flex: 1 1 auto; min-height: var(--sp-8); }
+.aiguilleur-pied-seul { flex: 0 0 auto; margin: 0; }

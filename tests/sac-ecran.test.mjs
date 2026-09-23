@@ -22,6 +22,7 @@ const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
         ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, poserLesDalles,
         CHAMPS_DE_SECTION } = await import("../ui/builder/sac-ecran.mjs");
+const { coteDeLaCale } = await import("../ui/builder/roue-tambour.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const PLAN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "sac-cotes.json"), "utf8"));
 
@@ -126,15 +127,33 @@ test("4 — 🔴 LE RUBAN S'ÉCARTE DE CE QU'IL FAUT POUR QUE LA PREMIÈRE TUILE
   /* 🔴 CE GARDE TENAIT L'INVERSE HIER : les crans étaient NICHÉS dans la roue, et il
      vérifiait qu'ils se posaient par rapport à elle. ⛔ Plus aucun cran n'est posé —
      ils vivent dans le flux d'un ruban qui défile (Eric, 20/09).
-     ⭐ CE QUI LE REMPLACE EST L'ARITHMÉTIQUE DU PAS, et elle est tout aussi exacte :
-     pour que la tuile `k` puisse arriver SOUS LA LOUPE, le ruban doit s'écarter de
-     `(piste − tuile) / 2` de chaque côté. C'est cette marge qui rend
-     `scrollLeft = pas × k` vrai — la formule du belt (`87 × (n − 1)`), même raison.
-     ⛔ Sans elle, la première et la dernière tuile ne pourraient JAMAIS se centrer. */
+     ⭐ CE QUI LE REMPLACE EST L'ARITHMÉTIQUE DU PAS : pour que la tuile `k` arrive SOUS LA
+     LOUPE, il faut un vide aux deux bouts, et c'est lui qui rend `scrollLeft = pas × k` vrai.
+
+     🔴 ET CE GARDE EXIGEAIT LA FORMULE FAUTIVE — il demandait `padding-inline: (piste − tuile)/2`,
+     soit **137**. 📏 Mesuré le 21/09 : depuis le lot 218, le tambour partagé POSE deux cales que
+     la feuille du sac ne dimensionnait pas. Une cale vide reste un élément flex, donc elle
+     ajoutait un `gap` de 8 ENTRE le rembourrage et le premier cran : celui-ci commençait à 145,
+     et centrer le cran `k` réclamait `8 + pas × k`. Le `scroll-snap` rattrapait les 8.
+     ⛔ LE GARDE NE POUVAIT PAS LE VOIR, parce qu'il épelait un MÉCANISME (« un rembourrage de
+     137 ») au lieu de vérifier ce que ce mécanisme doit RENDRE. Il aurait accusé la réparation,
+     et c'est exactement ce qu'il a fait le 21/09.
+     ⭐ IL DEMANDE DONC L'IDENTITÉ, et il la lit là où elle vit — dans le module qui POSE la cale :
+     `cale + écart + tuile/2 = piste/2`. ⛔ Et le rembourrage doit avoir DISPARU : un ruban qui
+     porterait les deux compterait le vide deux fois. */
   const css = feuilleDesCotesSac();
-  const marge = (D.ROUE.piste - D.ROUE.tuile) / 2;
-  assert.ok(css.includes(`.sac .sac-ruban{gap:${D.ROUE.pas - D.ROUE.tuile}px;padding-inline:${marge}px}`),
-    `le ruban devrait s'écarter de ${marge} et espacer de ${D.ROUE.pas - D.ROUE.tuile}`);
+  const ecart = D.ROUE.pas - D.ROUE.tuile;
+  assert.ok(css.includes(`.sac .sac-ruban{gap:${ecart}px}`),
+    `le ruban espace les crans de ${ecart}`);
+  assert.doesNotMatch(css, /\.sac-ruban\{[^}]*padding/,
+    "⛔ le ruban porte ENCORE un rembourrage : avec les cales, le vide serait compté deux fois");
+  const cale = coteDeLaCale(D.ROUE);
+  assert.match(css, new RegExp(`\\.sac \\.roue-cale\\{[^}]*inline-size:${cale}px`),
+    `⛔ la cale du sac ne vaut pas ${cale} : le premier cran ne tombera pas sous la loupe`);
+  assert.match(css, /\.sac \.roue-cale\{[^}]*align-self:stretch/,
+    "⛔ une cale sans hauteur ne compte pas dans le `scrollWidth` : le dernier cran n'arrive jamais");
+  assert.equal(cale + ecart + D.ROUE.tuile / 2, D.ROUE.piste / 2,
+    "⚖️ l'identité : cale + écart + demi-tuile = demi-piste");
   /* ⭐ ET LE PAS EST LA SOMME — ⛔ pas un nombre de plus */
   assert.equal(D.ROUE.pas, D.ROUE.tuile + (D.ROUE.pas - D.ROUE.tuile));
   assert.equal(D.ROUE.loupeX + D.ROUE.dominant / 2, D.DALLE.l / 2,
@@ -917,10 +936,14 @@ test("21 — 📏 LES TROIS ÉTAGES DU `+` TIENNENT DANS LE CRAN, et ça se CALC
     assert.ok(m, `⛔ le jeton --${nom} a disparu : ce garde doit être réécrit, pas supprimé`);
     return parseFloat(m[1]);
   };
+  /* 🔄 DANS LA LISTE, ⛔ PAS UNE ÉGALITÉ — même correction que le second `bloc` de ce fichier
+     (lot 221) : une règle partagée avec `.wares-cran` est la MÊME règle, et exiger que le
+     sélecteur soit seul, c'est épeler une implémentation. On compare des membres DÉCOUPÉS,
+     donc `.sac-cran-champ` ne répond pas pour `.sac-cran`. */
   const bloc = (selecteur) => {
     const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, sel, corps]) => ({ sel: sel.trim(), corps }))
-      .find((x) => x.sel === selecteur);
+      .map(([, sel, corps]) => ({ membres: sel.split(",").map((m) => m.trim()), corps }))
+      .find((x) => x.membres.includes(selecteur));
     assert.ok(b, `⛔ la règle \`${selecteur}\` n'existe plus : ce garde doit être réécrit`);
     return b.corps;
   };
@@ -1518,9 +1541,19 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
      dont il a dit *« ça c'est global à tout le site »*. Une demande qui revient sous une
      autre forme se sert de la règle déjà écrite. */
   const css = stripComments(feuille);
+  /* 🔄 IL CHERCHE LE SÉLECTEUR DANS LA LISTE, ⛔ PLUS UNE ÉGALITÉ EXACTE (lot 221, 20/09).
+     Une règle PARTAGÉE est la même règle : depuis qu'Eric a demandé que la tuile de Wares ait
+     *« la même morphologie, aura idem »* que celle du sac, elle entre dans SES listes plutôt
+     que d'être recopiée — et `.sac-cran, .wares-cran { … }` cessait de répondre à `=== ".sac-cran"`.
+     ⭐ CE N'EST PAS AFFAIBLIR LE GARDE : il tient toujours exactement le même corps de règle,
+     sur exactement le même sélecteur. Il cesse seulement d'exiger que ce sélecteur soit SEUL —
+     ce qui était épeler une implémentation, la faute que ce dépôt repaie tous les quinze jours.
+     ⛔ Et il refuse toujours une fausse correspondance : `.sac-cran-champ` ne contient pas le
+     membre `.sac-cran`, parce qu'on compare des membres DÉCOUPÉS, pas des sous-chaînes. */
   const bloc = (sel) => {
     const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, s2, c]) => ({ sel: s2.trim(), corps: c })).find((x) => x.sel === sel);
+      .map(([, s2, c]) => ({ membres: s2.split(",").map((m) => m.trim()), corps: c }))
+      .find((x) => x.membres.includes(sel));
     assert.ok(b, `⛔ ${sel} n'est plus habillé`);
     return b.corps;
   };
@@ -1625,10 +1658,25 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
      d'il y a deux tuiles. ⛔ Ce n'est pas cher, c'est EN RETARD — ce qui se voit.
      🔴 ET ELLE EST PORTÉE PAR TOUTES LES TUILES, pas par le seul état allumé : sinon le
      DÉ-zoom de celle qui s'en va ne s'anime pas, et Eric a demandé les deux sens. */
-  assert.match(cran, /background-color:\s*transparent/,
-    "⛔ une tuile au repos est transparente : le plein est réservé à la posée");
+  /* 🔄 AMENDÉ LE 2026-09-21 — Eric : *« pour les tuiles non sélectionnées rajouter du voile sur
+     le fond à 20 ou 35 % serait plus joli »*, puis *« voile des tuiles à 20% »*.
+     🗄️ Le repos n'est plus `transparent` : il porte `--dalle-cran` (20 %). ⭐ CE QUE LA LOI DU
+     19/09 DIT RESTE VRAI — le fond est le SIGNE — mais l'échelle va de *à peine* à *plein* au
+     lieu de *rien* à *plein*. ⛔ ET LE GARDE NE SE CONTENTE PAS DE LÂCHER : il vérifie que
+     l'écart SUBSISTE, parce que c'est lui qui désigne. Un garde qui accepterait deux voiles
+     égaux laisserait disparaître la distinction qu'il est là pour tenir. */
+  assert.match(cran, /background-color:\s*var\(--dalle-cran\)/,
+    "⛔ la tuile au repos porte le voile de 20 % (Eric, 21/09)");
   assert.match(bloc('.sac-cran[data-dominant="oui"]'), /background-color:\s*var\(--dalle-inter\)/,
     "⭐ et la posée est pleine");
+  {
+    const jetons = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
+    const pct = (nom) => Number((jetons.match(new RegExp("--" + nom + ":\\s*(\\d+)%")) || [])[1]);
+    const repos = pct("voile-cran"), posee = pct("voile-inter");
+    assert.ok(repos > 0 && posee > 0, "⛔ les deux voiles doivent exister et être chiffrés");
+    assert.ok(posee - repos >= 20,
+      `⛔ le repos (${repos} %) et la posée (${posee} %) se ressemblent trop : le fond ne DÉSIGNE plus`);
+  }
   const transitions = [...css.matchAll(/\.sac-cran\s*\{([^}]*)\}/g)].map((m) => m[1])
     .filter((c) => /transition:/.test(c));
   assert.equal(transitions.length, 1, "une seule règle porte la transition des tuiles");
@@ -1657,9 +1705,19 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
      mêmes pixels, et ce dépôt l'avait déjà payé (grille des sorts, `pan-y` + 350 ms,
      jusqu'au 20/08). Il revient parce que SA CAUSE revient — un ascenseur. */
   const css = stripComments(feuille);
+  /* 🔄 IL CHERCHE LE SÉLECTEUR DANS LA LISTE, ⛔ PLUS UNE ÉGALITÉ EXACTE (lot 221, 20/09).
+     Une règle PARTAGÉE est la même règle : depuis qu'Eric a demandé que la tuile de Wares ait
+     *« la même morphologie, aura idem »* que celle du sac, elle entre dans SES listes plutôt
+     que d'être recopiée — et `.sac-cran, .wares-cran { … }` cessait de répondre à `=== ".sac-cran"`.
+     ⭐ CE N'EST PAS AFFAIBLIR LE GARDE : il tient toujours exactement le même corps de règle,
+     sur exactement le même sélecteur. Il cesse seulement d'exiger que ce sélecteur soit SEUL —
+     ce qui était épeler une implémentation, la faute que ce dépôt repaie tous les quinze jours.
+     ⛔ Et il refuse toujours une fausse correspondance : `.sac-cran-champ` ne contient pas le
+     membre `.sac-cran`, parce qu'on compare des membres DÉCOUPÉS, pas des sous-chaînes. */
   const bloc = (sel) => {
     const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, s2, c]) => ({ sel: s2.trim(), corps: c })).find((x) => x.sel === sel);
+      .map(([, s2, c]) => ({ membres: s2.split(",").map((m) => m.trim()), corps: c }))
+      .find((x) => x.membres.includes(sel));
     assert.ok(b, `⛔ ${sel} n'est plus habillé`);
     return b.corps;
   };

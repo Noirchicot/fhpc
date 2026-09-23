@@ -311,9 +311,11 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
     const versR = node.querySelector('.gear-porte[data-porte="wares"]');
     assert.ok(versR, `pile ${nom} : le personnage équipé porte la porte Wares`);
     versR.dispatchEvent({ type: "click", preventDefault() {} });
-    assert.ok(node.querySelector('.carte-r-bouton[data-mot="CART"]'), `pile ${nom} : la carte R est là`);
+    /* 🔄 PORTÉ (lot 219) : la porte du panier est le `Tally` de Wares — Eric, 20/09 :
+       *« Cart c'est tally tu l'as déjà fait »*. La loi suit la FONCTION, pas le libellé. */
+    assert.ok(node.querySelector('[data-organe="tally"]'), `pile ${nom} : le catalogue est là`);
     /* le panier (B2) porte « My gold » : le mot, pas quatre tirets */
-    node.querySelector('.carte-r-bouton[data-mot="CART"]').dispatchEvent({ type: "click", preventDefault() {} });
+    node.querySelector('[data-organe="tally"]').dispatchEvent({ type: "click", preventDefault() {} });
     const myGold = node.querySelector(".pipeline-mygold");
     assert.ok(myGold, `pile ${nom} : B2 porte My gold`);
     assert.equal(myGold.querySelector(".pipeline-mygold-mot").textContent, mot, `pile ${nom} : My gold porte LE mot`);
@@ -322,7 +324,7 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
        dressing par les boutons — BACK (→ R), GEAR (→ B3) — pour le rendu
        suivant et pour F1 */
     [...node.querySelectorAll("button")].find((b) => b.textContent.trim() === "BACK").dispatchEvent({ type: "click", preventDefault() {} });
-    node.querySelector('.carte-r-bouton[data-mot="GEAR"]').dispatchEvent({ type: "click", preventDefault() {} });
+    node.querySelector('[data-porte="gear"]').dispatchEvent({ type: "click", preventDefault() {} });
     assert.ok(node.querySelector(".gear"), `pile ${nom} : retour au personnage équipé`);
     /* avec classe : l'or de départ vient du record, le mot n'existe plus */
     const avecClasse = avec(doc, [CLASSE, ...SIX]);
@@ -333,7 +335,16 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
     const out = H.verbs.rebuild({ document: avecClasse });
     const node2 = renderEquipmentStep({ document: out.document, resolved: out.resolved, query: Q }, () => {});
     assert.ok(node2.querySelector(".aiguilleur"), `pile ${nom} : la question kit/or se pose dès que la classe est là`);
-    assert.ok([...node2.querySelectorAll(".aiguilleur-bouton")].some((b) => /^Take the/.test(b.textContent)), `pile ${nom} : …et l'or est offert`);
+    /* ⭐ LOT 245 — LE POPUP EST DEVENU UN QCM. Ce que ce garde défend n'a pas
+       bougé : dès que la classe est là, l'or de départ est OFFERT et il est LU
+       dans la donnée. ⛔ Ce n'est plus un bouton « Take the … » mais l'option
+       nue de la phrase du Barbare (« B · 75 GP »), et c'est la même lecture. */
+    /* ⚖️ LOT 246 — la lettre est dans la PASTILLE, le montant dans le texte de
+       la rangée. Même lecture, deux organes au lieu d'un. */
+    const options = [...node2.querySelectorAll(".aiguilleur-rangee")]
+      .map((r) => `${r.querySelector(".aiguilleur-option").textContent} · ${r.querySelector(".aiguilleur-option-mot").textContent}`);
+    assert.ok(options.some((t) => t === `B · ${or.sources.find((s) => s.genre === "class").cout.gp} GP`),
+      `pile ${nom} : …et l'or est offert, au montant LU dans la prose — ${options.join(" | ")}`);
     assert.equal(node2.querySelector(".pipeline-mygold-mot"), null, `pile ${nom} : aucun mot de bourse avec une classe`);
   }
 });
@@ -486,24 +497,49 @@ test("E3 — 🔴 CE QUE LE MOTEUR PEUT DÉCLARER NON DÉRIVÉ, LE SCHÉMA NE L'
    R porte son propre NEXT » — personne ne le câblait ; Eric : *« Il manque
    encore Équipement »*), et le bilan d'Abilities promettait *« Next moves on
    to Skills »* en pile SRD, où `Next` mène à Equipment. */
-test("F1 — 🔴 le `NEXT` de l'écran R d'Equipment DÉCLARE `done` — la coquille avance, l'écran ne saute pas d'étape lui-même", () => {
+test("F1 — ⏳ l'étape Équipement N'A PLUS DE `NEXT`, et le contrat du verbe `done` tient quand même", () => {
+  /* 🔄 RÉÉCRIT LE 20/09 (lot 219), ET L'ABSENCE EST LA MOITIÉ QUI COMPTE.
+
+     ⚖️ CE QUE CE GARDE TENAIT : le `NEXT` du catalogue déclare le verbe `done`, et rien
+     d'autre — la coquille avance, l'écran ne saute pas d'étape lui-même.
+     ⛔ SON SUJET A DISPARU : Wares v2 ne porte pas de `NEXT`. Eric, 20/09 : *« en fait le next
+     devra être dans R »*, puis *« next c'est pour plus tard »* — R (Gear) n'en a pas encore.
+     L'étape traverse donc un intervalle SANS bouton d'avance, et c'est une décision d'Eric.
+
+     📏 ET CE N'EST PAS UNE PANNE, C'EST MESURÉ : `equipmentValidate()` rend `action: null` — le
+     verbe n'écrit RIEN, il dit « prêt, cran suivant ». Taper un cran de la ceinture fait déjà
+     ce voyage. 🔴 J'avais annoncé l'inverse trois fois (« sans NEXT l'étape ne peut plus se
+     terminer ») sans jamais l'avoir lu. Ce commentaire est là pour que personne ne le
+     re-déduise.
+
+     ⭐ POURQUOI CE GARDE RESTE, ET CE QU'IL PEUT ENCORE ACCUSER — un garde qui ne peut jamais
+     accuser est le pire de tous :
+       · il rougit si un `NEXT` reparaît QUELQUE PART sans que le corpus le sache ;
+       · il rougit si le contrat du verbe change sous lui.
+     ⏳ Le jour où `NEXT` entre dans Gear, c'est CE test qu'on réécrit — en le sachant. */
   const H = PILES.SRD;
   const out = H.verbs.rebuild({ document: avec(neuf(H, "f1"), [CLASSE, ...SIX]) });
   const actions = [];
   const node = renderEquipmentStep({ document: out.document, resolved: out.resolved, query: H.layers.verbs.query }, (a) => actions.push(a));
-  /* R (Gear) ouvre l'écran ; sa porte `Wares` mène au catalogue (lot 212) */
   const versR = node.querySelector('.gear-porte[data-porte="wares"]');
   assert.ok(versR, "témoin : le personnage équipé porte la porte Wares (→ le catalogue)");
   versR.dispatchEvent({ type: "click", preventDefault() {} });
-  const next = node.querySelector('.carte-r-bouton[data-mot="NEXT"]');
-  assert.ok(next, "témoin : R porte son NEXT (croquis : GEAR CART CRAFT NEXT)");
-  next.dispatchEvent({ type: "click", preventDefault() {} });
-  /* lot 212 : la porte Wares écrit d'abord son mot au belt (`fenetre`) — la
-     3ᵉ ligne de la tuile dominante — puis NEXT déclare `done`, et rien d'autre */
-  assert.deepEqual(actions, [{ kind: "fenetre", mot: "Wares" }, { kind: "done" }], "⛔ NEXT ne fait rien, ou fait autre chose que le verbe `done` de l'étape");
-  /* et le verbe est celui que toute étape emploie pour avancer, par la
-     coquille : `pressDone` → `equipmentValidate` (toujours prête, `next:
-     "step"`) → `cranVoisin(1)` */
+
+  /* ⛔ AUCUN `NEXT`, NULLE PART — ni ancien libellé, ni nouveau. Si l'un reparaît, il doit
+     passer par une décision, pas par un commit discret. */
+  const next = [...node.querySelectorAll("button")]
+    .filter((b) => (b.textContent || "").trim().toUpperCase() === "NEXT"
+                || (b.dataset && b.dataset.mot === "NEXT"));
+  assert.deepEqual(next.map((b) => b.className), [],
+    "⏳ un `NEXT` est revenu : il doit aller dans Gear (Eric, 20/09), et ce garde doit être réécrit");
+
+  /* ⭐ LA PORTE `Wares` ÉCRIT SON MOT AU BELT, et c'est tout ce que ce geste déclare. */
+  assert.deepEqual(actions, [{ kind: "fenetre", mot: "Wares" }],
+    "⛔ ouvrir le catalogue ne déclare que la fenêtre — aucun verbe d'étape ne part tout seul");
+
+  /* ⭐ ET LE CONTRAT DU VERBE TIENT, LUI, INTACT : `pressDone` → `equipmentValidate`
+     (toujours prête, `action: null`, `next: "step"`) → `cranVoisin(1)`. C'est ce contrat qui
+     rend l'intervalle sans `NEXT` vivable, et c'est pour ça qu'il est gardé ici. */
   assert.deepEqual(equipmentValidate(), { exists: true, ready: true, action: null, next: "step" });
 });
 

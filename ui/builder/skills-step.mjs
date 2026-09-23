@@ -34,13 +34,13 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=767";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=767";
-import { swapContent } from "./socle.mjs?v=767";
-import { renderChoixGlisses } from "./glisser.mjs?v=767";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=803";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=803";
+import { swapContent } from "./socle.mjs?v=803";
+import { renderChoixGlisses } from "./glisser.mjs?v=803";
 /* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
    dont la couche est éteinte (Trainings coupé depuis `Layers`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=767";
+import { motDuChoix } from "./mot-du-choix.mjs?v=803";
 /* 🌱 LOT 198 — SKILLS VIT SANS FICHE, ET IL NOMME. ⚖️ Eric, 10/09 : *« Ce que
    tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi ne pas
    dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -52,7 +52,7 @@ import { motDuChoix } from "./mot-du-choix.mjs?v=767";
    la place dit ce qui manque et où aller, avec LES MOTS DE L'ÉCRAN MORT —
    `motDuManque` en est le seul écrivain, cet écran ne recopie aucune phrase.
    Dès que la fiche existe, le pool s'affiche et le mot disparaît. */
-import { motDuManque, CAUSE_SANS_RAISON } from "./ecran-mort.mjs?v=767";
+import { motDuManque, CAUSE_SANS_RAISON } from "./ecran-mort.mjs?v=803";
 
 /* ── LES PAGES DU TAMBOUR — un rangement, aucun effet de règle ─────────────
    Les quatre catégories de compétences viennent de la COUCHE (`data.category`
@@ -197,9 +197,54 @@ function purchasableTiers(pool) {
   return Object.keys(pool.tier_costs).filter((key) => key !== "imposed").sort((a, b) => pool.tier_costs[a] - pool.tier_costs[b]);
 }
 
+/** ⚖️ LOT 217 — LES ACHATS, NOMMÉS DANS LA LANGUE DE L'ÉCRAN.
+ *
+ *  DEUX VOCABULAIRES, ET ILS NE SE CROISENT PAS TOUT SEULS. La ligne du pool
+ *  nomme sa source par l'**ID DE RECORD** (`srd:tool:en:calligrapher-s-supplies`) :
+ *  c'est le contrat de `source.id`, le même pour `class`, `skill` et `feat`, et
+ *  `classIdFromBreakdown` en dépend — ⛔ ce n'est donc PAS au moteur de changer.
+ *  Tout le reste de cet écran parle **SLUG** : `resolved.tools[].id`, le chemin
+ *  `fh.skills.spend.<slug>`, `ligne.dataset.ligne`. Les TROIS lecteurs de cet
+ *  ensemble (`comptesLies`, `texteDuBound`, `renderLigneTool`) demandent un slug.
+ *  La traduction se fait donc ICI, une fois, et l'ensemble ne porte QUE des slugs
+ *  — son nom le dit, pour que `has(unId)` saute aux yeux le jour où quelqu'un
+ *  l'écrira.
+ *
+ *  📏 MESURÉ LE 2026-09-20, SUR LE BUILDER SERVI. Sans cette traduction,
+ *  `has(slug)` répondait « non » pour TOUT LE MONDE, toujours, sans un mot : un
+ *  outil créé et payé aux points libres se dessinait **lié** — halo violet, ronds
+ *  captifs, aucun `Remove`, et le popup « Bound » qui renvoyait le joueur vers
+ *  *« the step that placed them »*, une étape qui n'existe pas. Ses points
+ *  étaient irrécupérables. ⚠️ Et le compteur descendait quand même (10 → 8) : le
+ *  registre ENREGISTRAIT, sous la mauvaise clef. « Est-ce que le compteur
+ *  baisse ? » l'aurait donc innocenté — une bijection fausse est cohérente, seule
+ *  une seconde lecture en sens inverse l'attrape (`tests/outil-libre-non-lie`).
+ *
+ *  LA TABLE EST TOTALE PAR CONSTRUCTION : le moteur a choisi sa cible dans CE
+ *  catalogue-là. Un id qu'elle ne traduirait pas est reporté tel quel — inerte,
+ *  il ne peut matcher aucun slug — et jamais JETÉ : un achat oublié ici
+ *  redeviendrait « lié », c'est-à-dire exactement le défaut qu'on retire. */
+function achatsParSlug(breakdown, query) {
+  const slugParRecord = new Map();
+  for (const kind of ["tool", "training"]) {
+    for (const vue of (typeof query === "function" ? query({ kind }) : null) || []) {
+      /* Même repli que `trainingsListes` : un genre sans `slug` s'identifie par
+         son id, et la table le renvoie alors sur lui-même. */
+      const slug = (vue.record && vue.record.slug) || vue.id;
+      if (slug) slugParRecord.set(vue.id, slug);
+    }
+  }
+  const achats = new Set();
+  for (const ligne of breakdown) {
+    if (!ligne.source || !["tool", "training"].includes(ligne.source.kind)) continue;
+    achats.add(slugParRecord.get(ligne.source.id) || ligne.source.id);
+  }
+  return achats;
+}
+
 /** Le compte des points libres. `left` est le SEUL nombre lu tel quel — un
  *  total menteur s'affiche menteur (attaque du lot 39, gardée). */
-function compteur(resolved, decisions) {
+function compteur(resolved, decisions, query) {
   const poolStat = findPoolStat(resolved);
   if (!poolStat) return null;
   const breakdown = Array.isArray(poolStat.breakdown) ? poolStat.breakdown : [];
@@ -213,7 +258,7 @@ function compteur(resolved, decisions) {
     classPlan: planAt(decisions, "class.skillBudget"),
     speciesPlan: planAt(decisions, "species.skillBudget"),
     languagesPlan: planAt(decisions, "background.languages"),
-    achetes: new Set(breakdown.filter((l) => l.source && ["tool", "training"].includes(l.source.kind)).map((l) => l.source.id))
+    achetesParSlug: achatsParSlug(breakdown, query)
   };
 }
 
@@ -251,7 +296,7 @@ function contexte(ctx, act) {
   return {
     resolved, decisions, violations: ctx.violations || [], query, pool, classView,
     tiers: purchasableTiers(pool), act, signe: Boolean(ctx.signe),
-    compte: compteur(resolved, decisions), manque
+    compte: compteur(resolved, decisions, query), manque
   };
 }
 
@@ -395,7 +440,7 @@ function comptesLies(c) {
   const skillsPlace = (cp.classPlan ? cp.classPlan.answered : 0) + (cp.speciesPlan ? cp.speciesPlan.answered : 0);
   const skillsTotal = (cp.classPlan ? cp.classPlan.expected : 0) + (cp.speciesPlan ? cp.speciesPlan.expected : 0)
     || (Number.isInteger(pool.bound_skill_points) ? pool.bound_skill_points : 0);
-  const outilsLies = (c.resolved.tools || []).filter((t) => !(cp.achetes && cp.achetes.has(t.id))).length;
+  const outilsLies = (c.resolved.tools || []).filter((t) => !(cp.achetesParSlug && cp.achetesParSlug.has(t.id))).length;
   const toolsTotal = Number.isInteger(pool.bound_tool_points) ? pool.bound_tool_points : 0;
   const langues = cp.languagesPlan;
   return [
@@ -433,7 +478,7 @@ function texteDuBound(c) {
   }
   const outils = c.pool && Number.isInteger(c.pool.bound_tool_points) ? c.pool.bound_tool_points : 0;
   if (outils > 0) {
-    const places = (c.resolved.tools || []).filter((t) => !(c.compte && c.compte.achetes.has(t.id)));
+    const places = (c.resolved.tools || []).filter((t) => !(c.compte && c.compte.achetesParSlug.has(t.id)));
     blocs.push(places.length
       ? `Tools — ${outils} bound point${outils > 1 ? "s" : ""}: ${places.map((t) => t.name).join(" · ")}`
       : `Tools — ${outils} bound point${outils > 1 ? "s" : ""}, not placed yet: no step places them for now.`);
@@ -668,7 +713,12 @@ function outilsListes(c) {
 function renderLigneTool(view, c) {
   const slug = view.record.slug;
   const owned = (c.resolved.tools || []).find((t) => t.id === slug) || null;
-  const lie = owned && c.compte && !c.compte.achetes.has(slug);
+  /* ⚖️ LOT 217 — `bound` N'EST PAS UNE PROPRIÉTÉ DE LA LIGNE, c'est un PLANCHER
+     posé par l'ORIGINE du point (Eric, 20/09). Est lié ce qui est POSSÉDÉ sans
+     avoir été acheté : le point est venu d'ailleurs, il pose son plancher. Un
+     outil payé aux points libres est dans `achetesParSlug` — plancher zéro, il se
+     défait entièrement. ⛔ La question se pose EN SLUG, la langue de cet écran. */
+  const lie = owned && c.compte && !c.compte.achetesParSlug.has(slug);
   const abilityKey = view.record.data && view.record.data.ability_key;
   const ligne = el("div", "skills-ligne");
   ligne.dataset.ligne = slug;

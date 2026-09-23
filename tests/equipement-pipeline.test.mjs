@@ -21,10 +21,12 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { CURRENCY_KEYS } from "../src/build/index.mjs";
 import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bourseCouvre, enGP,
   currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu,
-  poidsDeJeu, arrondiPoids, PLANCHER_POIDS }
+  poidsDeJeu, arrondiPoids, PLANCHER_POIDS,
+  motDeLEncombrement, UNITE_DU_JEU, motDUnPoids, uniteAffichee }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
-import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
+import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart,
+  butinDuDepart, departRepondu, cheminDuDepart }
   from "../ui/builder/equipment-step.mjs";
 
 const fixture = exempleFhEn();
@@ -58,20 +60,29 @@ function appliquer(doc, a) {
     }
     return d;
   }
-  if (a.kind === "choisirDepart") {
-    let d = verbs.set({ document: doc, path: "depart", value: a.valeur }).document;
-    /* ⭐ LOT 182 — CE HARNAIS PORTAIT UN `+ 50` EN DUR, LUI AUSSI. Il rejoue
-       `shell.mjs` : il lit donc le montant là où la coquille le lit, dans la
-       prose des deux sources de départ. Un harnais qui garde son propre nombre
-       reste vert le jour où la règle change — c'est un témoin qui ne peut
-       jamais accuser. */
-    if (a.valeur === "purse") {
-      const or = orDuDepart({ query, document: d });
-      if (!or.cout) return d;
+  if (a.kind === "poserLeDepart") {
+    /* ⭐ LOT 245 — CE HARNAIS REJOUE `poserLeDepart`, et il ne recalcule RIEN :
+       il écrit ce que `butinDuDepart` lui rend — l'index, la quantité, l'or.
+       ⛔ LOT 182, LA LEÇON QUI TIENT TOUJOURS : ce harnais portait un `+ 50` en
+       dur, et il restait vert le jour où la règle changeait. Un témoin qui
+       garde son propre nombre ne peut jamais accuser. */
+    if (departRepondu(doc)) return doc;
+    const butin = butinDuDepart({ query, document: doc, reponses: a.reponses });
+    if (!butin.complet) return doc;
+    let d = doc;
+    for (const { genre, valeur } of butin.aEcrire) {
+      d = verbs.set({ document: d, path: cheminDuDepart(genre), value: valeur }).document;
+    }
+    for (const pose of butin.aPoser) {
+      if (pose.neuve) d = verbs.choose({ document: d, path: `gear[${pose.index}]`, ref: pose.ref }).document;
+      d = verbs.set({ document: d, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
+      if (pose.neuve) d = verbs.set({ document: d, path: `gear[${pose.index}].equipped`, value: false }).document;
+    }
+    if (butin.cout) {
       const bourse = currentCurrency(d);
       for (const k of CURRENCY_KEYS) {
         const base = Number.isInteger(bourse[k]) ? bourse[k] : 0;
-        d = verbs.set({ document: d, path: `currency.${k}`, value: base + (or.cout[k] || 0) }).document;
+        d = verbs.set({ document: d, path: `currency.${k}`, value: base + (butin.cout[k] || 0) }).document;
       }
     }
     return d;
@@ -143,21 +154,44 @@ test("lieux — location absente se lit « backpack », jamais « porté »", ()
   assert.equal(lignesParLieu(lignes, "storage").length, 1);
 });
 
+/* ══ 🔄 PORTÉ SUR WARES v2 — lot 219, 20/09 ════════════════════════════════════
+   ⚖️ LA LOI NE BOUGE PAS, L'ORGANE CHANGE DE NOM. Eric, 20/09 : *« Cart c'est tally tu l'as
+   déjà fait »*. Le bouton `CART` de l'ancien catalogue est le `Tally` de Wares ; ces gardes
+   suivent donc la FONCTION, pas le libellé.
+   🔴 ET C'EST L'UN D'EUX QUI A TROUVÉ UNE FAUTE DE BRANCHEMENT : le Tally de Wares ouvrait la
+   liste d'ENVOI (le geste de R, recopié) au lieu du PANIER. Un organe qui porte le même nom
+   sur deux écrans n'y fait pas forcément la même chose, et rien ne le disait. */
+const versLeCatalogue = (node) => node.querySelector('.gear-porte[data-porte="wares"]');
+/* ⭐ UN SEUL CHEMIN VERS LE CATALOGUE, ET IL PART DE N'IMPORTE OÙ. La vue persiste entre les
+   tests (c'est le produit), donc chaque garde doit pouvoir s'y rendre comme un joueur perdu.
+   ⛔ Ces quatre lignes étaient recopiées dans trois gardes, chacune avec sa propre porte de
+   sortie — trois chemins pour un voyage, et c'est le genre d'écriture qui diverge au premier
+   écran renommé. */
+function allerAuCatalogue(rendre) {
+  let node = rendre();
+  for (let i = 0; i < 5 && !leCatalogue(node); i += 1) {
+    const sortie = versLeCatalogue(node)
+      || node.querySelector('[data-porte="gear"]')
+      || [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK");
+    if (!sortie) break;
+    sortie.click();
+    node = rendre();
+  }
+  return node;
+}
+const leTally = (node) => node.querySelector('[data-organe="tally"]');
+const leCatalogue = (node) => node.querySelector('[data-ecran="wares"]');
+
 test("⭐ LE PARCOURS ENTIER — dépôt au panier (document), CART → B2, BUY paie UNE fois, envoie tout, vide le panier", () => {
   let doc = verbs.set({ document: fixture.document, path: "currency.gp", value: 100 }).document;
   doc = appliquer(doc, { kind: "cartAdd", ref: { kind: "gear", id: "srd:gear:en:crowbar" } });
   const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
     (a) => { doc = appliquer(doc, a); });
 
-  let node = rendre();
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
-  if (gear) gear.click();
-  node = rendre();
-  assert.equal(node.querySelectorAll(".gear").length, 1, "le personnage équipé (R) d'abord — lot 212");
-  node.querySelector('.gear-porte[data-porte="wares"]').click();
-  node = rendre();
-  const cart = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART");
-  assert.equal(cart.dataset.compte, "1", "le compteur du CART lit le document");
+  let node = allerAuCatalogue(rendre);
+  const cart = leTally(node);
+  assert.ok(cart, "⛔ la porte du panier : le `Tally` de Wares (Eric, 20/09 : « Cart c'est tally »)");
+  assert.equal(cart.dataset.compte, "1", "le compteur du panier lit le document");
   cart.click();
   node = rendre();
   const b2 = node.querySelector('[data-ecran="B2"]');
@@ -182,13 +216,8 @@ test("⚔️ ATTAQUE — BUY refuse quand la bourse ne couvre pas, et n'écrit R
   const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
     (a) => { doc = appliquer(doc, a); });
 
-  let node = rendre();
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
-  if (gear) gear.click();
-  node = rendre();
-  node.querySelector('.gear-porte[data-porte="wares"]').click();
-  node = rendre();
-  [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
+  let node = allerAuCatalogue(rendre);
+  leTally(node).click();
   node = rendre();
   [...node.querySelectorAll('[data-ecran="B2"] button')].find((b) => b.textContent === "BUY").click();
 
@@ -204,15 +233,9 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
 
   /* la vue persiste entre les tests (c'est le produit) : on NAVIGUE vers le
      catalogue depuis n'importe où, comme un joueur perdu le ferait. */
-  let node = rendre();
-  for (let i = 0; i < 4 && !node.querySelector(".carte-r"); i++) {
-    const sortie = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
-      || node.querySelector('.gear-porte[data-porte="wares"]');
-    if (sortie) sortie.click();
-    node = rendre();
-  }
-  assert.ok(node.querySelector(".carte-r"), "témoin : on a bien retrouvé le catalogue");
-  [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
+  let node = allerAuCatalogue(rendre);
+  assert.ok(leCatalogue(node), "témoin : on a bien retrouvé le catalogue");
+  leTally(node).click();
   node = rendre();
 
   const b2 = node.querySelector('[data-ecran="B2"]');
@@ -220,7 +243,7 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
   assert.equal(cartCompte(doc), 1, "BACK recule, il n'efface pas");
 
   node = rendre();
-  [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "CART").click();
+  leTally(node).click();
   node = rendre();
   [...node.querySelectorAll('[data-ecran="B2"] button')].find((b) => b.textContent === "CANCEL").click();
   assert.equal(cartCompte(doc), 0, "CANCEL efface — c'est son seul métier");
@@ -235,11 +258,15 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
 
   /* la vue persiste entre les tests : on rejoint le dressing depuis
      n'importe où, par les portes du joueur. */
+  /* 🔄 PORTÉ (lot 219) : l'aiguilleur vit sur **R**, et le chemin du retour a changé de nom.
+     ⛔ L'ancien catalogue offrait un bouton `GEAR` ; le neuf offre la porte `[data-porte="gear"]`
+     de sa rangée du pied. Sans elle, ce garde suivait la porte `Wares` et s'éloignait de R à
+     chaque tour — il cherchait l'aiguilleur en lui tournant le dos. */
   let node = rendre();
   for (let i = 0; i < 5 && !node.querySelector(".aiguilleur"); i++) {
     const porte = [...node.querySelectorAll("button")].find((b) => b.textContent === "BACK")
-      || [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR")
-      || node.querySelector('.gear-porte[data-porte="wares"]');
+      || node.querySelector('[data-porte="gear"]')
+      || versLeCatalogue(node);
     if (porte) porte.click();
     node = rendre();
   }
@@ -255,14 +282,40 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
      Le montant est composé (Wizard 55 + Inheritance 50 = 105) : ce test-là
      n'aurait plus rien trouvé, et il ne l'aurait dit qu'en jetant. Il cherche
      le VERBE et compare au montant LU — le même que celui de l'écran. */
+  /* ⭐ LOT 245 — LE POPUP EST DEVENU UN QCM, et le sélecteur suit l'organe.
+     Ce que ce test défend n'a pas bougé d'une ligne : le montant ANNONCÉ est
+     celui qui TOMBE, et la question ne se repose pas. ⛔ Ce qui a changé, c'est
+     qu'elle se pose désormais PAR SOURCE — l'or dépend donc de l'option prise,
+     et non plus de la dernière de chaque phrase.
+     ⚠️ ET `Done` REFUSE TANT QU'UNE QUESTION ATTEND : sans réponse, il est
+     désarmé — c'est le seul état où ce popup ne peut rien écrire. */
+  const done = [...node.querySelectorAll(".aiguilleur-bouton")].find((b) => b.textContent === "Done");
+  assert.equal(done.disabled, true, "aucune option choisie : `Done` ne peut rien poser");
+
+  /* le Wizard de l'exemple : son option B est une bourse nue (55 PO) ; l'origine
+     de Fate's Hand n'offre pas de choix et ajoute ses 50. 55 + 50 = 105 — le
+     MÊME nombre que l'ancien lecteur global, et c'est voulu : répondre « la
+     dernière lettre » partout EST l'ancien geste. */
+  /* ⛔ ON NE RE-RENDU PAS APRÈS UN CLIC D'OPTION, ET C'EST LE POINT : un choix
+     du QCM n'écrit RIEN au document et ne repasse pas par la coquille. Il
+     repeint l'étape EN PLACE (`peindre()`), dans le nœud qu'on tient déjà.
+     ⭐ Appeler `rendre()` ici rendrait une étape neuve — donc un QCM vierge —
+     et le récapitulatif retomberait à l'or de l'origine seule (50). 📏 Mesuré :
+     c'est exactement ce que ce test a rendu à sa première écriture. */
+  /* ⚖️ LOT 246 — LE SÉLECTEUR SUIT L'ORGANE. Une option est devenue une RANGÉE
+     (Eric, 21/09 : *« Deux lignes de texte un bouton à droite »*) : la pastille
+     ne porte plus que la LETTRE, le texte vit à côté. ⛔ Ce que ce garde défend
+     n'a pas bougé. */
+  const optionB = [...node.querySelectorAll(".aiguilleur-option")].find((b) => b.textContent === "B");
+  optionB.click();
   const attendu = orDuDepart({ query, document: doc }).cout;
   assert.equal(attendu.gp, 105, "le personnage d'exemple : Wizard 55 + Inheritance 50, chacun lu dans sa prose");
-  const prendre = [...node.querySelectorAll(".aiguilleur-bouton")]
-    .find((b) => b.textContent.startsWith("Take the"));
-  assert.equal(prendre.textContent, `Take the ${attendu.gp} GP`, "le bouton ANNONCE le montant qu'il pose");
+  const bilan = [...node.querySelectorAll(".aiguilleur-bilan-or")].map((l) => l.textContent);
+  assert.deepEqual(bilan, [`${attendu.gp} GP`], "le récapitulatif ANNONCE le montant que `Done` pose");
+
   const gpAvant = currentCurrency(doc).gp || 0;
-  prendre.click();
-  assert.equal(doc.build.choices.find((c) => c.path === "depart")?.value, "purse", "le choix est ÉCRIT au document");
+  [...node.querySelectorAll(".aiguilleur-bouton")].find((b) => b.textContent === "Done").click();
+  assert.equal(doc.build.choices.find((c) => c.path === "depart.class")?.value, "B", "le choix est ÉCRIT au document");
   assert.equal(currentCurrency(doc).gp, gpAvant + attendu.gp,
     "et l'or annoncé tombe dans la bourse, à la pièce près — le geste ratifié, pas une copie");
 
@@ -270,7 +323,7 @@ test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (req
   assert.equal(node.querySelectorAll(".aiguilleur").length, 0, "la question ne se repose pas : le document a répondu");
 
   const ressuscite = JSON.parse(JSON.stringify(doc));
-  assert.equal(ressuscite.build.choices.find((c) => c.path === "depart")?.value, "purse",
+  assert.equal(ressuscite.build.choices.find((c) => c.path === "depart.class")?.value, "B",
     "et la réponse traverse un rechargement — c'est tout le point du document");
 });
 
@@ -536,4 +589,80 @@ test("poids — la pile prend son unité de ses objets LISIBLES, puis relève le
   assert.equal(varie.somme.backpack, 0, "« Varies » pèse 0");
   assert.equal(varie.inconnus.backpack, 3,
     "⛔ ET IL RESTE INCONNU : la somme cesse de mentir sans que le compte des « à éditer » disparaisse");
+});
+
+/* ══ L'ENCOMBREMENT DIT SON UNITÉ, ⛔ ET IL N'EN INVENTE PAS ═══════════════════
+   ⚖️ ERIC, 2026-09-21 : *« rajoute l'unité d'encombrement »*.
+   🔴 CE QUE CE GARDE REMPLACE : rien. Le libellé vivait dans `equipment-step.mjs`, sans unité,
+   et son commentaire justifiait ce manque par *« elle est dite trois fois juste dessous »*.
+   📏 Relevé sur le site déployé le 21/09 : les trois lignes du dessous rendent `Gear 0`,
+   `Backpack 0`, `Other 0` — **aucune ne la dit**. La justification était morte et personne ne
+   l'avait vu, parce qu'aucun garde ne lisait cette phrase.
+   ⭐ LA LEÇON : une justification qui s'appuie sur un VOISIN meurt quand le voisin change, et le
+   commentaire, lui, continue d'affirmer. Une phrase que personne ne tient dérive en silence. */
+test("l'encombrement dit son unité — et il n'en invente pas une quand elles sont mêlées", () => {
+  /* ① LE CAS DU JEU : la livre — Eric, 21/09 : *« non, en mesures impériales ici »*. */
+  assert.equal(motDeLEncombrement({ somme: 46.5, inconnus: 0 }, { unite: "lb", melange: false }),
+    "Encumbrance : 46.5 lb");
+  assert.equal(UNITE_DU_JEU, "lb", "⚖️ et l'unité du jeu est bien la livre");
+
+  /* ② ⛔ UN TOTAL QUI N'EST PAS EN LIVRES EST UNE ANOMALIE, ⛔ PAS UN CAS D'AFFICHAGE.
+     ⭐ On ne le réétiquette pas — le chiffre mentirait — et on ne le CONVERTIT pas : la maison
+     l'interdit en toutes lettres *(« la livre et le kilo ne se convertissent JAMAIS l'un dans
+     l'autre ici… convertir inventerait une précision que le livre ne donne pas »)*. On le DIT. */
+  const enKilos = motDeLEncombrement({ somme: 12, inconnus: 0 }, { unite: "kg", melange: false });
+  assert.doesNotMatch(enKilos, /\blb\b/,
+    `⛔ un total en kilos réétiqueté en livres : « ${enKilos} » — le chiffre ment, et il se recopie`);
+  assert.match(enKilos, /hors mesures impériales/, "⭐ et il le DIT, ⛔ il ne se tait pas");
+
+  /* ③ MÊME TRAITEMENT POUR UN MÉLANGE : des livres ET des kilos dans le même total. */
+  const mele = motDeLEncombrement({ somme: 30, inconnus: 0 }, { unite: null, melange: true });
+  assert.doesNotMatch(mele, /\blb\b|\bkg\b/,
+    `⛔ une unité affichée sur un total qui en mêle plusieurs : « ${mele} »`);
+  assert.match(mele, /hors mesures impériales/, "⭐ et il le DIT aussi");
+
+  /* ④ l'absence de mesure n'est PAS une autre unité : l'unité du jeu s'applique par défaut */
+  assert.equal(motDeLEncombrement({ somme: 0, inconnus: 0 }, { unite: null, melange: false }),
+    "Encumbrance : 0 lb",
+    "⛔ aucun objet pesé n'est pas « une autre unité » : c'est l'unité du jeu qui s'applique");
+
+  /* ⑤ et les objets sans poids connu restent annoncés — une somme qui ne porte pas tout le dit */
+  assert.match(motDeLEncombrement({ somme: 5, inconnus: 2 }, { unite: "lb", melange: false }),
+    /2 sans poids/, "⛔ une somme qui ne pèse pas tout doit le dire");
+});
+
+/* ══ CHAQUE COMPOSANT DIT SON UNITÉ, ET C'EST LE MÊME JUGE QUE LE TOTAL ════════
+   ⚖️ ERIC, 2026-09-21, en listant ce qu'il veut voir : *« Encumbrance 34 lb · Gear 0 lb ·
+   Backpack 34 lb · Other 0 lb »*.
+   ⭐ CE QUE CE GARDE TIENT VRAIMENT : ⛔ pas « il y a écrit lb », mais **que les quatre lignes
+   consultent le MÊME juge**. Deux lignes voisines qui afficheraient deux unités pour une seule
+   pesée seraient pires qu'une ligne nue — le lecteur additionnerait. */
+test("chaque ligne de poids dit son unité, et jamais une autre que le total", () => {
+  const pesee = { unite: "lb", melange: false };
+  assert.equal(motDUnPoids("Gear", 0, 0, pesee), "Gear 0 lb");
+  assert.equal(motDUnPoids("Backpack", 34, 0, pesee), "Backpack 34 lb");
+  /* ⭐ et les objets sans poids connu restent annoncés — une part qui ne pèse pas tout le dit */
+  assert.equal(motDUnPoids("Other", 2.5, 3, pesee), "Other 2.5 lb +3?");
+
+  /* ⛔ L'ANOMALIE SE PROPAGE : si le total n'est pas en livres, AUCUNE ligne ne s'étiquette.
+     ⭐ Et c'est le total qui l'explique, UNE fois — ⛔ pas chaque ligne qui répète. */
+  for (const anormal of [{ unite: "kg", melange: false }, { unite: null, melange: true }]) {
+    const ligne = motDUnPoids("Gear", 12, 0, anormal);
+    assert.doesNotMatch(ligne, /\blb\b|\bkg\b/,
+      `⛔ une ligne étiquetée alors que la pesée ne l'est pas : « ${ligne} »`);
+    assert.equal(uniteAffichee(anormal), null, "⛔ le juge doit refuser, pas choisir au hasard");
+  }
+
+  /* 🔴 LE TÉMOIN QUI COMPTE : le total et les lignes ne peuvent PAS diverger, parce qu'ils
+     posent la question au même juge. ⛔ Si un jour l'un d'eux calcule son unité tout seul, ce
+     garde tombe — c'est exactement ce qu'on veut qu'il attrape. */
+  for (const cas of [{ unite: "lb", melange: false }, { unite: "kg", melange: false },
+                     { unite: null, melange: true }, { unite: null, melange: false }]) {
+    const total = motDeLEncombrement({ somme: 34, inconnus: 0 }, cas);
+    const ligne = motDUnPoids("Backpack", 34, 0, cas);
+    const totalEtiquete = /\blb\b/.test(total);
+    const ligneEtiquetee = /\blb\b/.test(ligne);
+    assert.equal(ligneEtiquetee, totalEtiquete,
+      `⛔ divergence : total « ${total} » contre ligne « ${ligne} »`);
+  }
 });

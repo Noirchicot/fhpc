@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "f6560ba98b932d6d5d28c32b23dcdd72d51c5c795f1423cf888623e6ce237337",
+  "layer_run": "ff729a7da204530885eeb92ec8dc76de9e6abe99ba6b0259ae711323a3e37013",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -18,7 +18,7 @@
     {
       "id": "srfh-mecaniques-en",
       "version": "0.1.0",
-      "hash": "b246109d7d487b056e182f5a9c8acea1ac8d935fb1485197fd2ef63e517ab759"
+      "hash": "b282e76c2db2925f37ee20b7d81b40285849418a79efeb215cfaac9ebb3e9598"
     },
     {
       "id": "fh-species-en",
@@ -28,7 +28,7 @@
     {
       "id": "fh-skills-en",
       "version": "0.1.0",
-      "hash": "06da41322f568f1a4d1008adcebecea960235c2cab2bdbb9c74e1162e8930eb8"
+      "hash": "12a685116d1dc6a8270b2af77288c67f98d0ee88308eda6e6eefc3b27f46cb5f"
     },
     {
       "id": "fh-trainings-en",
@@ -867,11 +867,25 @@
         "Vehicles (Water)"
       ],
       "patched": [
+        "Alchemist’s Supplies",
+        "Brewer’s Supplies",
+        "Calligrapher’s Supplies",
+        "Carpenter’s Tools",
+        "Cartographer’s Tools",
+        "Cobbler’s Tools",
+        "Cook’s Utensils",
         "Dice Set (regular)",
+        "Glassblower’s Tools",
         "Instrument (Strings, regular)",
+        "Jeweler’s Tools",
+        "Leatherworker’s Tools",
         "Mason’s Tools",
+        "Painter’s Supplies",
         "Potter’s Tools",
-        "Tinker’s Tools"
+        "Smith’s Tools",
+        "Tinker’s Tools",
+        "Weaver’s Tools",
+        "Woodcarver’s Tools"
       ],
       "removed": [],
       "renamed": [

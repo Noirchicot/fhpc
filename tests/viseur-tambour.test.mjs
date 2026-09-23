@@ -149,72 +149,9 @@ function rangCourant(piste) {
   return -1;
 }
 
-test("A — CLIQUER UN CRAN L'AMÈNE SOUS LE VISEUR, ET LE VISEUR CHANGE LE RAYON", async () => {
-  const node = monterCatalogue();
-  const pistes = node.querySelectorAll(".roue-piste");
-  assert.equal(pistes.length, 2, "le tambour a deux roues");
-  const pisteA = pistes[0];
-  const crans = poserUneRangee(pisteA);
-  assert.ok(crans.length >= 12, "la roue des rayons répète sa liste jusqu'à douze crans");
-
-  /* Le montage pose la roue sur le cran courant — un geste programmatique,
-     donc une image plus tard. */
-  await patienter(80);
-  const depart = rangCourant(pisteA);
-  assert.equal(depart, 0, "« le premier est celui qui s'ouvre » — règle d'Eric au banc");
-  const positionDeDepart = pisteA.scrollLeft;
-  assert.ok(positionDeDepart > 0, "la roue s'est posée sur le tour du milieu, pas à zéro");
-
-  /* ⭐ ON CLIQUE UN CRAN QUI N'EST PAS CELUI DU VISEUR, et on le prend dans le
-     MÊME tour que celui où la roue s'est posée — un clic ne saute pas d'un
-     tour à l'autre, le joueur clique ce qu'il voit. */
-  const vise = [...crans].find((cran, i) => i > depart && Number(cran.dataset.rang) !== depart
-    && Math.abs(i * (CRAN_L + CRAN_ECART) - positionDeDepart) < 3 * (CRAN_L + CRAN_ECART));
-  assert.ok(vise, "il y a un cran voisin à cliquer");
-  const rangVise = Number(vise.dataset.rang);
-
-  vise.click();
-  await patienter(700); // au-delà des 500 ms d'immobilité, l'aval est révélé
-
-  assert.notEqual(pisteA.scrollLeft, positionDeDepart, "le clic a DÉPLACÉ la piste");
-  assert.equal(rangCourant(pisteA), rangVise, "le cran cliqué est devenu le cran courant");
-  assert.equal(pisteB(node).dataset.attente, "non", "l'étage des étagères s'est révélé");
-});
 
 function pisteB(node) { return node.querySelectorAll(".roue-piste")[1]; }
 
-test("A bis — LE CLIC SE POSE AU CENTRE EXACT DU CRAN, PAS À CÔTÉ", async () => {
-  /* ⭐ « Se poser sur un cran EST le choix ». Un clic qui écrirait le rayon
-     sans bouger la roue ferait DEUX chemins pour un seul geste, et la roue
-     resterait sur l'ancien cran pendant que la grille montrerait le nouveau.
-     Le garde : après le clic, la piste vaut EXACTEMENT la position qui met le
-     cran choisi au centre du champ — c'est la faute du 23/08 (« un pas après
-     le bord gauche »), remise sous mesure.
-
-     ⚠️ À UN TOUR PRÈS, ET CE N'EST PAS UNE TOLÉRANCE : la roue est infinie,
-     la COUTURE ramène le défilement dans le tour du milieu dès qu'il en sort
-     — le contenu y est identique au pixel près. Comparer à un tour près est
-     donc la comparaison JUSTE ; comparer au pixel absolu ferait rougir le
-     test sur un bond de recouture qui a parfaitement fonctionné. */
-  const node = monterCatalogue();
-  const pisteA = node.querySelectorAll(".roue-piste")[0];
-  const crans = poserUneRangee(pisteA);
-  await patienter(80);
-
-  const pas = CRAN_L + CRAN_ECART;
-  const tour = (crans.length / 3) * pas;
-  /* On part du cran RÉELLEMENT sous le viseur — pas du premier de la piste :
-     l'état du tambour survit d'un rendu à l'autre (c'est le produit). */
-  const sousLeViseur = Math.round((pisteA.scrollLeft + CHAMP / 2 - pas / 2) / pas);
-  const i = sousLeViseur + 2;
-  crans[i].click();
-  await patienter(80);
-
-  const attendu = i * pas + CRAN_L / 2 - CHAMP / 2;
-  const ecart = (((pisteA.scrollLeft - attendu) % tour) + tour) % tour;
-  assert.equal(ecart, 0,
-    `la piste (${pisteA.scrollLeft}) n'est pas au centre du cran cliqué (${attendu}, à un tour de ${tour} près)`);
-});
 
 /* ══════════════════════════════════════════════════════════════════════════
    §B — AUCUN NOM APPELÉ DANS `ui/` N'EST ORPHELIN
@@ -371,6 +308,33 @@ export function nomsOrphelins(source) {
   return orphelins;
 }
 
+/* ══ 🗄️ ARCHIVÉS LE 20/09 — LEUR ORGANE A DÉMÉNAGÉ, ET LEUR LOI AVEC ═══════════════════
+   Trois gardes vivaient ici, tous sur le VISEUR de l'ancien tambour d'Équipement :
+
+   · « A — CLIQUER UN CRAN L'AMÈNE SOUS LE VISEUR, ET LE VISEUR CHANGE LE RAYON »
+   · « A bis — LE CLIC SE POSE AU CENTRE EXACT DU CRAN, PAS À CÔTÉ »
+   · « C3 — LE GARDE DE COMPORTEMENT VOIT UN CLIC QUI NE FAIT RIEN »
+
+   ⚖️ LA LOI QU'ILS TENAIENT EST VIVANTE, ET ELLE A UN MEILLEUR TOIT. Le mécanisme de la roue
+   est descendu en module feuille le 20/09 (`roue-tambour.mjs`), parce que Wares en monte DEUX
+   de plus. Ses gardes tiennent exactement ce que ces trois-ci tenaient :
+     · n° 5 — « taper un cran aimante la roue sur lui » — ⭐ ET IL EST ÉPROUVÉ ROUGE : retirer
+       l'écouteur du module le fait tomber, et lui seul. C'est très précisément le métier de
+       l'ancien C3, et il le fait sur le mécanisme plutôt que sur un écran.
+     · n° 4 — « placer accepte une position fractionnaire, et arrondit le MARQUAGE seul » —
+       l'arithmétique `pas × rang` que l'ancien A bis mesurait au pixel.
+
+   🔴 ET CE QUI NE SE PORTE PAS EST ABROGÉ, PAS PERDU : ces gardes exigeaient « la roue répète
+   sa liste jusqu'à DOUZE crans », la parade de l'anneau infini. Eric l'a retirée deux fois et
+   explicitement — 19/09 pour le sac, 20/09 pour Wares : *« les tambours ne sont plus à
+   l'infini bien sûr »*. Le garde qui tient la règle neuve est `roue-tambour` n° 1 : « trois
+   crans, trois nœuds ».
+
+   ⚖️ LOI DES DEUX ÂGES : rien ne se supprime. Ce texte garde ce qu'ils avaient coûté — cinq
+   passes pour trouver le bon moment du masquage, et un défaut entendu avant d'être vu
+   (*« la roue A bien fluide, la roue B pas bien, ça clignote »*, à code identique).
+   ⛔ Si un viseur revient un jour dans Wares, c'est ICI qu'on relit avant d'en réécrire un. */
+
 test("B — AUCUN IDENTIFIANT APPELÉ DANS `ui/` N'EST ORPHELIN", () => {
   const modules = walkSources(path.join(ROOT, "ui"));
   assert.ok(modules.length >= 30, `l'arpenteur a trouvé ${modules.length} modules — la portée n'est pas vide`);
@@ -428,34 +392,3 @@ test("C2 — ET IL NE CRIE PAS SUR CE QUI EST JUSTE", () => {
   assert.deepEqual(nomsOrphelins(juste), []);
 });
 
-test("C3 — LE GARDE DE COMPORTEMENT VOIT UN CLIC QUI NE FAIT RIEN", async () => {
-  /* ⛔ ON NE PEUT PAS REMETTRE `glisserVers` DANS LE MODULE POUR L'ATTAQUER.
-     On reproduit donc L'EFFET exact qu'avait le `ReferenceError` : le clic
-     part, et rien ne bouge. Un cran dont l'écouteur est vidé EST ce clic-là.
-
-     ⭐ CE QUE CETTE ATTAQUE ÉTABLIT, ET C'EST TOUT SON OBJET : les deux
-     mesures de §A (« la piste a bougé », « le cran cliqué est devenu le
-     courant ») sont FAUSSES dans cet état. Un test qui resterait vert ici
-     serait vert sur le défaut du 24/08 — c'est ce qu'ont fait les 1366
-     autres pendant deux jours.
-     ⚠️ On atteint l'écouteur par l'intérieur du stub (`_listeners`) : c'est
-     un helper de `tests/`, pas une API de production, et aucune façade
-     publique ne permet de retirer un écouteur dont on n'a pas la référence. */
-  const node = monterCatalogue();
-  const pisteA = node.querySelectorAll(".roue-piste")[0];
-  const crans = poserUneRangee(pisteA);
-  await patienter(80);
-
-  const positionAvant = pisteA.scrollLeft;
-  const rangAvant = rangCourant(pisteA);
-  const pas = CRAN_L + CRAN_ECART;
-  const inerte = crans[Math.round((positionAvant + CHAMP / 2 - pas / 2) / pas) + 2];
-  inerte._listeners.get("click").clear();
-
-  inerte.click();
-  await patienter(700);
-
-  assert.equal(pisteA.scrollLeft, positionAvant, "témoin : un clic mort ne déplace pas la piste");
-  assert.equal(rangCourant(pisteA), rangAvant, "témoin : un clic mort ne change pas le cran courant");
-  assert.notEqual(Number(inerte.dataset.rang), rangAvant, "…et pourtant le cran cliqué n'était pas le courant");
-});

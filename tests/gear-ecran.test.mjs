@@ -209,7 +209,13 @@ test("4 bis — shell.css ne porte AUCUNE position de l'écran : les cotes sont 
   const bloc = shell.slice(debut, shell.indexOf(".gear-porte", debut));
   assert.ok(bloc.length > 100, "et le garde mesure bien le bloc de l'écran, pas trois lignes");
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur dans shell.css serait une cote recopiée");
-  assert.match(shell, /\.gear \{ --bouton-cran-serre: var\(--t2\); \}/, "l'exception du cran est nommée sur l'écran");
+  /* 🔴 CE GARDE ÉPELAIT ENCORE UNE IMPLÉMENTATION, et c'est la faute que son propre
+     commentaire condamne trente lignes plus haut. Il exigeait `.gear {` SEUL ; le lot 218
+     partage la règle avec Wares (`.gear, .wares {`), exactement comme X1 partage le bloc de
+     la dalle. ⭐ Ce qui compte est que `.gear` soit DANS la liste qui pose le cran, pas qu'il
+     y soit seul — la même forme que les deux marques ci-dessus. */
+  assert.match(shell, /\.gear\s*[,{][^{}]*\{ --bouton-cran-serre: var\(--t2\); \}/,
+    "l'exception du cran est nommée sur l'écran, seule ou partagée");
   /* les trois portes sont de la famille : corps, face et plancher les listent —
      ⭐ en tête de liste OU au milieu, ce qui compte est d'y être. */
   for (const marque of [".gear-porte::before", ".gear-porte::after"]) {
@@ -688,7 +694,11 @@ test("5 quinquies — la bourse s'affiche en gp, arrondie à l'inférieur, et vi
   assert.match(shell, /\.gear-montant\s*\{[^}]*font-size:\s*var\(--t1\)[^}]*font-weight:\s*400/,
     "la feuille sert le cran que le plan déclare — T1, maigre");
   assert.match(tokens, /--bourse-encre:\s*#/, "le jeton existe");
-  assert.match(shell, /\.gear-porte\[data-porte="send"\]\s*\{\s*--bouton-fond:\s*var\(--positive\)/, "Send : liseré vert (une conséquence) ; les autres portes restent bleues");
+  /* ⭐ MÊME CORRECTION QUE POUR LE CRAN : on demande que la porte `send` de R soit DANS la
+     liste qui pose le vert, ⛔ pas qu'elle y soit seule. Wares porte le même `Send`, avec la
+     même conséquence, donc la même encre — et une règle partagée a un seul écrivain. */
+  assert.match(shell, /\.gear-porte\[data-porte="send"\]\s*[,{][^{}]*\{\s*--bouton-fond:\s*var\(--positive\)/,
+    "Send : liseré vert (une conséquence) ; les autres portes restent bleues");
   if (montant) assert.ok(feuilleDesCotes().includes(`[data-organe="montant"]{left:${montant.x}px;top:${montant.y - BELT_H}px;width:${montant.l}px;height:${montant.h}px}`), "le montant est posé par la table");
   else assert.ok(feuilleDesCotes().includes(`.gear > .gear-montant{left:${purse.x}px;top:${purse.y + purse.h + MARGE - BELT_H}px;width:${purse.l}px}`));
 });

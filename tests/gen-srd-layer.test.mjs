@@ -28,12 +28,14 @@
 */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { tmpdir, homedir } from "node:os";
+import { join, dirname, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
+
+import { stripComments } from "./source-scan.mjs";
 
 import {
   GENRES,
@@ -48,6 +50,7 @@ import {
   generate
 } from "../src/tools/gen-srd-layer.mjs";
 import { GENRES as GENRES_DECLARES } from "../src/layers/document.mjs";
+import { VARIABLE, DEFAUT, SRD_EXPORTS, ouTrouverLeVoisin } from "../src/tools/srd-exports-root.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const layerSchema = JSON.parse(readFileSync(join(root, "schemas/fh-layer.schema.json"), "utf8"));
@@ -57,9 +60,15 @@ const validateLayer = ajv.compile(layerSchema);
 /* fh-srd est une dépendance ferme de ce lot (kickoff §L4, worktree monté
    APRÈS le merge du lot 6-srd-tables) — pas un intrant optionnel qu'on
    saute en silence si absent. Un dépôt manquant est un échec bruyant, pas un
-   `skip`. */
+   `skip`.
+
+   ⭐ MAIS BRUYANT NE SUFFIT PAS : IL FAUT QU'IL SOIT UTILE. Ce message-ci a
+   été le premier rouge de la machine vierge, et il ne disait que « dépendance
+   ferme » — ni où mettre le dépôt, ni comment l'y pointer, ni qu'il est
+   public. Quelqu'un qui le lisait sur un clone frais n'avait aucun geste à
+   faire. Il nomme maintenant la variable et la commande (lot 241). */
 if (!existsSync(SRD_ROOT)) {
-  throw new Error(`gen-srd-layer.test : fh-srd introuvable à ${SRD_ROOT} — dépendance ferme du lot 4-couche-srd.`);
+  throw new Error(`gen-srd-layer.test : fh-srd introuvable. ${ouTrouverLeVoisin(SRD_ROOT)}`);
 }
 
 /* ══ L'AMONT EST-IL EN PLEIN LOT ? — 2026-08-20 ═════════════════════════════
@@ -614,4 +623,125 @@ test("⚠️ le VIVIER, lui, ne dépend pas du niveau — seul le compte grandit
   assert.equal(Object.keys(layer.records.class["srd:class:en:barbarian"].data)
     .filter((k) => k.startsWith("weapon_mastery_from")).length, 1,
     "un seul vivier, sans déclinaison par niveau");
+});
+
+/* ══ L'ENTRÉE DÉCLARÉE — LOT 241, 2026-09-21 ════════════════════════════════
+
+   🔴 CE QUE CES QUATRE GARDES TIENNENT, ET POURQUOI ILS EXISTENT. La machine
+   vierge était rouge DÈS SON PREMIER TOUR, et le défaut n'était pas dans le
+   test : `gen-srd-layer.mjs` résolvait sa source par `homedir()`, donc il ne
+   pouvait tourner que sur une machine rangée comme celle d'Eric. Chez lui ça
+   marchait ; c'est précisément pour ça que personne ne le savait.
+
+   ⚠️ ET UNE RÈGLE QUI NE VIT QUE DANS UN COMMENTAIRE N'EXISTE PAS. Le
+   commentaire de `srd-exports-root.mjs` dit « le défaut ne bouge pas » et
+   « les deux générateurs lisent la même entrée » : sans ces gardes, la
+   première serait une intention et la seconde une coïncidence.
+
+   ⭐ ET ILS ONT ÉTÉ ÉPROUVÉS ROUGES. Chacun a été vu accuser avant d'être cru
+   vert — le garde ③ en particulier, qui est le seul à pouvoir attraper la
+   récidive : recâbler UN générateur sur l'entrée et oublier l'autre. */
+
+test("241 ① le DÉFAUT ne bouge pas : sans la variable, le chemin est celui d'avant, au caractère près", () => {
+  /* ⛔ LA CONDITION DU LOT, PAS UN SOUHAIT. Ce garde recopie volontairement le
+     chemin littéral au lieu de le recomposer depuis `homedir()` : une
+     assertion qui refabriquerait la valeur avec la même formule que le code
+     serait tautologique et protégerait sa propre faute. */
+  assert.equal(DEFAUT, join(homedir(), "tools", "fh-srd", "exports"));
+  assert.ok(DEFAUT.endsWith(`${sep}tools${sep}fh-srd${sep}exports`),
+    "le défaut désigne le répertoire exports/ du voisin, pas la racine du dépôt");
+});
+
+test("241 ② l'entrée STEERE vraiment — la variable posée, le générateur lit ailleurs", () => {
+  /* L'entrée est lue au CHARGEMENT du module : il faut donc un sous-processus
+     neuf pour l'éprouver. Un test qui se contenterait de relire `SRD_EXPORTS`
+     dans CE processus-ci ne prouverait rien — la valeur y est figée. */
+  const ailleurs = join(tmpdir(), "fhpc-241-voisin-imaginaire", "exports");
+  const lire = (env) => execFileSync(process.execPath, [
+    "-e",
+    'import("./src/tools/srd-exports-root.mjs").then((m) => process.stdout.write(m.SRD_EXPORTS));'
+  ], { cwd: root, encoding: "utf8", env });
+
+  assert.equal(lire({ ...process.env, [VARIABLE]: ailleurs }), ailleurs,
+    "la variable doit décider du chemin");
+
+  const sansRien = { ...process.env };
+  delete sansRien[VARIABLE];
+  assert.equal(lire(sansRien), DEFAUT, "sans la variable, on retombe sur le défaut");
+
+  /* ⚠️ UNE VARIABLE VIDE COMPTE COMME ABSENTE — comportement choisi et donc
+     tenu par un garde, sans quoi il ne serait qu'un paragraphe. */
+  assert.equal(lire({ ...process.env, [VARIABLE]: "   " }), DEFAUT,
+    "une variable vide est une main qui a glissé, pas une intention");
+});
+
+test("241 ③ les DEUX générateurs lisent la MÊME entrée — l'oubli du second est la récidive à attraper", () => {
+  /* 🔴 LE GARDE QUI COMPTE. `gen-srd-layer` et `gen-srfh-layer` portaient la
+     même ligne devinée, chacun de son côté. Câbler l'entrée sur un seul aurait
+     fait lire DEUX voisins différents dès qu'on pointe la variable — sans un
+     mot, puisque chacun aurait eu l'air juste.
+     ⛔ `gen-srd-layer` lit le disque à l'import : on interroge donc
+     `gen-srfh-layer` seul, qui ne le fait pas. */
+  /* ⚠️ ET LA PREMIÈRE VERSION DE CE GARDE ÉTAIT FAUSSE — la mesure m'a corrigé.
+     Je pointais la variable sur un répertoire IMAGINAIRE pour lire `SRFH_ROOT`
+     au passage ; `gen-srfh-layer` lit lui aussi le disque à l'import, donc il
+     jetait avant d'avoir rien rendu, et le garde rougissait pour une raison
+     qui n'était pas la sienne. ➡️ On le pointe donc sur un lien vers les
+     exports RÉELS : le chemin est autre, la source est valide, et le module
+     va jusqu'au bout. Ce garde prouve alors les deux choses d'un coup —
+     `SRFH_ROOT` suit l'entrée, ET le générateur sait vraiment travailler
+     depuis un emplacement déclaré. */
+  const bac = mkdtempSync(join(tmpdir(), "fhpc-241-"));
+  const lien = join(bac, "exports");
+  try {
+    symlinkSync(SRD_ROOT, lien, "dir");
+    const sortie = execFileSync(process.execPath, [
+      "-e",
+      'import("./src/tools/gen-srfh-layer.mjs").then((m) => process.stdout.write(m.SRFH_ROOT));'
+    ], { cwd: root, encoding: "utf8", env: { ...process.env, [VARIABLE]: lien } });
+    assert.equal(sortie, lien,
+      "gen-srfh-layer doit suivre l'entrée déclarée, comme gen-srd-layer — " +
+      "l'oublier ferait lire DEUX voisins différents sans le dire");
+  } finally {
+    /* ⛔ On retire le LIEN, jamais sa cible : `rmSync` ne suit pas un lien
+       symbolique, et `unlinkSync` nommément encore moins. Le dépôt du voisin
+       n'est pas à nous. */
+    rmSync(lien, { force: true });
+    rmSync(bac, { recursive: true, force: true });
+  }
+  assert.equal(SRD_ROOT, SRD_EXPORTS, "gen-srd-layer lit l'entrée déclarée");
+});
+
+test("241 ④ ⛔ plus aucun générateur ne DEVINE son voisin : `homedir()` a quitté le code", () => {
+  /* ⚠️ LE COMMENTAIRE NE COMPTE PAS, ET C'EST TOUT L'ENJEU DE LA MESURE : les
+     deux fichiers PARLENT de `homedir()` pour raconter ce qui a été retiré. Un
+     `grep` les compterait et ce garde serait rouge pour la phrase qui le dit —
+     la faute exacte que le corpus nomme (« compter un mot compte aussi la
+     phrase qui le nie »). On mesure donc le CODE, dépouillé par l'arpenteur
+     partagé du dépôt. */
+  for (const nom of ["gen-srd-layer.mjs", "gen-srfh-layer.mjs"]) {
+    const code = stripComments(readFileSync(join(root, "src/tools", nom), "utf8"));
+    assert.ok(!/\bhomedir\b/.test(code),
+      `${nom} devine encore son voisin par homedir() — l'entrée déclarée vit dans srd-exports-root.mjs`);
+  }
+  /* ET LE TÉMOIN QUI REND CE GARDE CRÉDIBLE : le dépouilleur laisse bien
+     passer un vrai appel. Sans lui, un `stripComments` qui raserait tout
+     rendrait les deux assertions ci-dessus vertes pour rien. */
+  assert.ok(/\bhomedir\b/.test(stripComments('/* pas de homedir ici */\nconst d = homedir();')),
+    "témoin : le dépouilleur voit un appel réel, il n'efface pas tout");
+  assert.ok(!/\bhomedir\b/.test(stripComments("/* homedir */")),
+    "témoin : et il ne voit pas celui du commentaire");
+});
+
+test("241 ⑤ le message d'échec NOMME le geste — variable, commande, et le fait que le dépôt est public", () => {
+  /* ⭐ « UN MESSAGE D'ÉCHEC QUI NOMME LE GESTE CORRECT EST LA MEILLEURE
+     DOCUMENTATION D'UN DÉPÔT, PARCE QU'ELLE EST EXÉCUTÉE. » L'ancien disait
+     seulement « dépendance FERME » : vrai, et sans aucun geste à faire. */
+  const message = ouTrouverLeVoisin("/nulle/part/exports");
+  assert.match(message, /\/nulle\/part\/exports/, "il dit OÙ il a cherché");
+  assert.match(message, new RegExp(VARIABLE), "il nomme la variable à poser");
+  assert.match(message, /git clone/, "il donne la commande");
+  assert.match(message, /github\.com\/Noirchicot\/fh-srd/, "il donne l'adresse");
+  assert.match(message, /PUBLIC/, "il dit que le clonage ne coûte rien");
+  assert.match(message, /exports/, "il dit que la variable veut exports/, pas la racine");
 });

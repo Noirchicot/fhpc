@@ -195,6 +195,22 @@ class FakeElement extends FakeNode {
         const attr = "data-" + String(key).replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
         self._attrs.set(attr, String(value));
         return true;
+      },
+      /* 🔴 `delete` ÉTAIT MUET ICI, ET UN VRAI NAVIGATEUR, LUI, EFFACE — trou trouvé au lot 218.
+         Le halo du tambour rend son genre par `delete loupe.dataset.lieu` quand le cran suivant
+         n'en porte pas ; sans cette trappe le stub gardait un genre PÉRIMÉ et le garde accusait
+         un code juste. ⛔ C'est la faute que ce fichier raconte déjà pour `.style` : *« une
+         limite du stub habillée en principe »*. On corrige le stub, ⛔ jamais le produit.
+         ⭐ ET `has` VA AVEC : sans lui, `"lieu" in dataset` répondait toujours faux, donc un
+         garde écrit dans l'autre sens n'aurait rien vu non plus. */
+      deleteProperty(_target, key) {
+        const attr = "data-" + String(key).replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+        self._attrs.delete(attr);
+        return true;
+      },
+      has(_target, key) {
+        const attr = "data-" + String(key).replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+        return self._attrs.has(attr);
       }
     });
   }

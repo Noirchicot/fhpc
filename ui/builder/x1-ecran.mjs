@@ -36,24 +36,52 @@
      · la corbeille détruit la ligne : ⏳ Eric n'a pas tranché entre détruire et
        poser au sol (les deux emplacements GROUND de l'écran R). Le popup de
        confirmation est là parce que le geste est irréversible. */
-import * as D from "./x1-disposition.mjs?v=767";
+import * as D from "./x1-disposition.mjs?v=803";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE : le
    dropdown de X1 envoie là où le dropdown de R envoie, et le jour où une
    destination s'ouvre (Tally, Craft) les deux écrans l'apprennent ensemble.
    ⛔ `x1-disposition.mjs` porte SA propre liste, du croquis : elle documente le
    plan, elle ne pilote pas l'écran — un besoin satisfait deux fois est une
    occasion de diverger (NORMES §5). */
-import { DESTINATIONS } from "./gear-ecran.mjs?v=767";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=803";
 /* ⭐ L'INTERRUPTEUR DU MENU, PRIS TEL QUEL — il est descendu dans une feuille sans
    import (lot 213) pour que la fiche le prenne sans traîner `Layers` derrière elle. */
-import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=767";
+import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=803";
 /* ⭐ ET LA JAUGE DE DÉFILEMENT, du même tiroir : l'organe des fenêtres de prose de
    Destiny (03/09), descendu dans une feuille sans import. Eric a demandé ici la même
    chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
    informer le lecteur »* — donc c'est le même organe, pas un second. */
-import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=767";
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=803";
+/* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
+   sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
+   second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
+import { habilleEnParchemin } from "./parchemin.mjs?v=803";
 
 const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
+
+/** 📏 CE QUE LA DÉCHIRURE A LE DROIT DE MORDRE — ⛔ UNE COTE DÉDUITE, PAS CHOISIE.
+ *  On prend la plus courte distance entre un bord de la dalle et la boîte de
+ *  DESSIN d'un organe : c'est le dessin qui peint, donc c'est lui qui doit rester
+ *  sur le papier.
+ *  📏 Mesuré sur la table du 21/09 : gauche **9,5** (COPIER) · droite **9,5**
+ *  (JAUGE) · haut **20** (QTE) · bas **36** (BACK). Le minimum des quatre est
+ *  donc **9,5**, et c'est lui qui commande.
+ *  ⚖️ UN SEUL BUDGET POUR LES QUATRE CÔTÉS, ET C'EST UN CHOIX ARGUMENTÉ : le bas
+ *  en offrirait 36, mais une déchirure quatre fois plus profonde en bas qu'aux
+ *  côtés ne se lit pas comme une feuille — elle se lit comme une erreur. ⭐ Eric
+ *  demande un fond *« assez uni »* ; l'asymétrie doit venir du BRUIT, pas d'un
+ *  budget différent par arête. ⏳ Si Eric veut mordre plus fort en haut et en
+ *  bas, le nombre est là et il se desserre par côté sans rien casser.
+ *  ⛔ ET IL NE SE RECOPIE PAS : la table bouge, le budget suit. C'est la seule
+ *  raison pour laquelle il est calculé et non écrit. */
+export function budgetDuParchemin() {
+  let budget = Infinity;
+  for (const o of ORGANES) {
+    budget = Math.min(budget, o.x, o.y,
+      D.DALLE.l - (o.x + o.l), D.DALLE.h - (o.y + o.h));
+  }
+  return Math.max(0, budget);
+}
 
 /* ══ DU NOM DU PLAN À LA CLEF DU DÉPÔT ═════════════════════════════════════
    Même dispositif que `CLEF_DE` dans `gear-ecran.mjs` : le plan nomme en
@@ -109,20 +137,183 @@ const px = (v) => `${Math.round(v * 100) / 100}px`;
  *  · un organe À CIBLE reçoit la boîte de sa CIBLE, et son dessin en creux :
  *    la face se peint dans le `padding-box`, les bords transparents portent
  *    l'écart cible − dessin (« dessin et cible sont DEUX cotes », NORMES §0). */
-export function feuilleDesCotesX1() {
-  const regles = [];
-  for (const o of ORGANES) {
+/* ══ 🪜 LA COUTURE — LE SECOND FILET, ET CE QU'IL SÉPARE ═══════════
+   ⚖️ Eric, 2026-09-21, en décrivant X2 : *« ligne du haut idem X1 · texte idem ·
+   TOUT IDEM JUSQU'AU TRAIT BAS DU TEXTE. En dessous place les éléments comme dans
+   mon croquis. »* ⭐ La couture a donc un NOM et une COTE, et les deux viennent de
+   la table : c'est le pied de `FILET BAS`. ⛔ Elle ne s'écrit pas — le jour où le
+   plan descend le filet, la tête descend avec lui.
+   🔴 ET LE PARTAGE EST GÉOMÉTRIQUE, ⛔ PAS UNE LISTE DE NOMS. Une liste par nom
+   est incomplète par construction : un organe ajouté au plan n'y entrerait jamais,
+   et rien ne le dirait. Un organe est de la TÊTE si sa boîte — sa CIBLE quand il en
+   a une, sinon son dessin — finit au-dessus de la couture. Le plan seul décide. */
+export const BAS_DE_TETE = (() => {
+  const filet = ORGANES.find((o) => o.nom === "FILET BAS");
+  return filet.y + filet.h;
+})();
+
+/** ⭐ LES ORGANES QUE X1 ET X2 PARTAGENT — le titre, la quantité, la ligne du haut
+ *  (prix · poids), les deux filets, le texte, sa jauge et les deux ornements.
+ *  ⛔ Ils ne sont pas énumérés : ils sont DÉDUITS de la couture. */
+export const ORGANES_DE_TETE = Object.freeze(
+  ORGANES.filter((o) => { const b = o.cible || o; return b.y + b.h <= BAS_DE_TETE; })
+);
+/* ⛔ L'APPARTENANCE SE DIT PAR NOM, JAMAIS PAR IDENTITÉ D'OBJET — 📏 mesuré au lot
+   242, et c'est un piège du dépôt, pas une précaution : `x1-disposition.mjs` et
+   `x1-disposition.mjs?v=803` sont DEUX instances de module. Les mêmes organes y
+   portent des références DIFFÉRENTES, donc un `includes(o)` rend `false` dès que
+   l'appelant a importé la table sans la version — ce qu'un garde fait naturellement.
+   ⭐ Le nom, lui, traverse les deux instances. */
+const NOMS_DE_TETE = new Set(ORGANES_DE_TETE.map((o) => o.nom));
+export const estDeLaTete = (o) => NOMS_DE_TETE.has(o.nom);
+
+/** La boîte d'un organe, en CSS.
+ *  ⛔ SÉLECTEUR DESCENDANT, JAMAIS `>` : la leçon de la bourse (16/09) — un enfant
+ *  direct enferme une cote dans une STRUCTURE, et la structure bouge dès qu'un
+ *  organe se loge dans un groupe. */
+function regleDOrgane(nom, o) {
+  const id = CLEF_DE[o.nom];
+  if (!id) return null;
+  const c = o.cible;
+  const corps = c
+    ? `left:${px(c.x)};top:${px(c.y)};width:${px(c.l)};height:${px(c.h)};` +
+      `border-width:${px((c.h - o.h) / 2)} ${px((c.l - o.l) / 2)}`
+    : `left:${px(o.x)};top:${px(o.y)};width:${px(o.l)};height:${px(o.h)}`;
+  return `.${nom} [data-organe="${id}"]{${corps}}`;
+}
+
+/** ⚖️ LA FEUILLE DE LA TÊTE — celle que les DEUX fiches montent, chacune sous SON
+ *  nom. 📌 `basDeLecture` est le haut de la rangée de pied de la fiche appelante :
+ *  X1 tend celui de ses portes, X2 celui de ses trois boutons. ⛔ Aucun nombre neuf
+ *  — le mode lecture se DÉDUIT, chez l'une comme chez l'autre. */
+export function feuilleDesCotesDeTete(nom, basDeLecture) {
+  const regles = [`.${nom}[data-objet="${nom}"]{flex:0 0 auto;height:${px(D.DALLE.h)}}`];
+  for (const o of ORGANES_DE_TETE) {
+    const r = regleDOrgane(nom, o);
+    if (r) regles.push(r);
+  }
+  const filet = ORGANES.find((o) => o.nom === "FILET HAUT");
+  const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
+  const basL = basDeLecture - 8;
+  const lire = (id, corps) => regles.push(`.${nom}[data-lecture="oui"] [data-organe="${id}"]{${corps}}`);
+  lire("description", `height:${px(basL - filet.h - desc.y)}`);
+  lire("filet-bas", `top:${px(basL - filet.h)}`);
+  return regles.join("\n");
+}
+
+/** ⚖️ LA TÊTE, MONTÉE — ⛔ ET C'EST LE SEUL ENDROIT AU DÉPÔT QUI LA FABRIQUE.
+ *  ⭐ `parchemin.mjs` le disait déjà en toutes lettres : *« la fiche ne sait pas
+ *  dessiner une feuille, elle sait qu'elle en porte une. Le jour où un second écran
+ *  en veut une, il l'importe — ⛔ il ne la recopie pas. »* Ce jour est le lot 242,
+ *  et la phrase vaut pour TOUTE la tête, pas seulement pour la feuille : un organe
+ *  que deux écrans fabriquent séparément finit toujours par diverger (NORMES §5, et
+ *  l'incident du patron des boutons du 16/09). */
+export function construireLaTeteDeFiche(noeud, objet, options) {
+  /* ⚠️ LE PARCHEMIN EST MONTÉ AVANT D'ÊTRE AU DOCUMENT, et c'est voulu :
+     `habilleEnParchemin` ne mesure rien tout de suite (`clientWidth` vaudrait 0), il
+     attend la première mise en page puis suit la cote avec un `ResizeObserver`.
+     ⭐ L'ORDRE EST LE DESSIN : tout est en absolu et sans `z-index`, donc le décor
+     entre en PREMIER et passe dessous. */
+  noeud.append(habilleEnParchemin(noeud, budgetDuParchemin));
+  for (const o of ORGANES_DE_TETE) {
     const id = CLEF_DE[o.nom];
     if (!id) continue;
-    const c = o.cible;
-    const corps = c
-      ? `left:${px(c.x)};top:${px(c.y)};width:${px(c.l)};height:${px(c.h)};` +
-        `border-width:${px((c.h - o.h) / 2)} ${px((c.l - o.l) / 2)}`
-      : `left:${px(o.x)};top:${px(o.y)};width:${px(o.l)};height:${px(o.h)}`;
-    /* ⛔ SÉLECTEUR DESCENDANT, JAMAIS `>` : la leçon de la bourse (16/09) — un
-       enfant direct enferme une cote dans une STRUCTURE, et la structure bouge
-       dès qu'un organe se loge dans un groupe. */
-    regles.push(`.x1 [data-organe="${id}"]{${corps}}`);
+    if (id === "nom") {
+      /* ⭐ CENTRÉ SUR LA PAGE, PAS ENTRE SES VOISINS — Eric, 17/09 : *« le titre reste
+         centré par rapport à la page »*. */
+      noeud.append(voyant(id, "x1-nom", objet.nom || o.mot));
+    } else if (id === "qte") {
+      /* ⛔ Elle ne s'écrit que si elle dit quelque chose : « ×1 » est du bruit. */
+      noeud.append(voyant(id, "x1-qte", objet.qte > 1 ? `×${objet.qte}` : "",
+        objet.qte > 1 ? `Quantity ${objet.qte}` : undefined));
+    } else if (id === "filet-haut" || id === "filet-bas") {
+      /* ⚖️ LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — Eric, 17/09 au soir. Ils ne
+         disent rien à un lecteur d'écran : c'est la zone qui porte le sens. */
+      const f = eld("div", "x1-filet");
+      f.dataset.organe = id;
+      f.setAttribute("aria-hidden", "true");
+      noeud.append(f);
+    } else if (id === "prix") {
+      noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
+    } else if (id === "poids") {
+      noeud.append(voyant(id, "x1-chiffres", ligneDePoids(objet.poidsUnite, objet.qte, objet.poidsTotal), "Weight"));
+    } else if (id === "description") {
+      const z = eld("div", "x1-description", objet.prose || "");
+      z.dataset.organe = id;
+      noeud.append(z);
+      /* ⭐ LA JAUGE VEILLE SUR CETTE ZONE, ⛔ posée À CÔTÉ d'elle, jamais dedans — un
+         signe qui défile avec le texte qu'il annonce ne sert à rien. */
+      const j = veilleLeDebordement(z);
+      if (j) { j.dataset.organe = CLEF_DE["JAUGE"]; noeud.append(j); }
+    } else if (id === "jauge") {
+      /* posée par la branche de la description, juste au-dessus — elle a besoin d'elle */
+    } else if (id === "oeil") {
+      /* ⚖️ L'ŒIL EST LE MIROIR DE LA COPIE, et il porte son ÉTAT : allumé, il dit
+         qu'on est en lecture, et c'est lui qui en sort. */
+      const b = bouton("x1-oeil", "", options.lecture ? "Show the whole sheet" : "More room for the text",
+        () => options.surLecture && options.surLecture(!options.lecture));
+      b.dataset.organe = id;
+      b.dataset.on = options.lecture ? "oui" : "non";
+      noeud.append(b);
+    } else if (id === "copier") {
+      /* ⭐ UN BOUTON À GLYPHE, pas à mot : 40 × 40 dans la cible de 44. */
+      const b = bouton("x1-copier", o.mot, "Copy this item", () => options.surCopier && options.surCopier());
+      b.dataset.organe = id;
+      noeud.append(b);
+    }
+  }
+  return noeud;
+}
+
+/** ⚖️ QUI EST POSÉ PAR UNE TABLE D'ORGANES — ⛔ CE N'EST PAS LA FAMILLE DU
+ *  PARCHEMIN, et le lot 248 l'a appris de la pire façon utile : les deux tenaient
+ *  sous LE MÊME sélecteur `:is(.x1, .x2)`, et rien ne disait qu'il portait deux
+ *  faits distincts. X0 a rejoint le parchemin — elle n'a aucun `[data-organe]`,
+ *  parce qu'elle n'est pas posée en absolu mais en flux.
+ *  🔴 Élargir la famille du parchemin avait donc élargi celle-ci PAR RICOCHET.
+ *  ⭐ Le garde 5 de `x2-ecran.test.mjs` a attrapé exactement ça, et il ne l'a pu
+ *  que parce qu'il nommait la règle qu'il cherchait. Deux faits, deux noms. */
+export const FAMILLE_DES_FICHES = Object.freeze([".x1", ".x2"]);
+export const SELECTEUR_DES_FICHES = `:is(${FAMILLE_DES_FICHES.join(", ")})`;
+
+export function feuilleDesCotesX1() {
+  const regles = [];
+  /* ══ 📜 LOT 240 — LA FEUILLE TIENT LA COTE DE LA DALLE : 500, ET PAS LA SCÈNE ══
+     Eric, 2026-09-21 : *« le parcho doit faire 500 »*.
+     📏 CE QUI ÉTAIT MESURÉ, ET C'EST LUI QUI L'A VU : `.x1` partage la boîte des
+     écrans d'équipement (`.gear, .x1, .sac, .wares`), qui est en `flex: 1 1 auto`
+     — donc sa hauteur SUIVAIT la scène. Au banc 760 (scène 700), la fiche rendait
+     **700**, le bas des portes tombait à **466**, et il restait **234 blg** de
+     parchemin vide sous les boutons. ⛔ Ce n'était pas un défaut de dessin : la
+     feuille était juste, c'est la BOÎTE qui mentait.
+     ⭐ LA FICHE EST UN PLAN FIXE, ET C'EST TOUTE LA DIFFÉRENCE AVEC R : l'écran R
+     remplit sa dalle, X1 est une TABLE GÉNÉRÉE de 375 × 500 dont chaque organe est
+     posé en absolu. Une boîte élastique sous un plan fixe ne peut qu'ajouter du
+     vide — elle n'a rien à donner à personne, puisque rien ne s'étire.
+     ⛔ LA COTE NE SE RETAPE PAS — elle a déjà trois écrivains au dépôt (`sac-`,
+     `wares-`, la table). Elle se LIT ici, `D.DALLE.h`, et le jour où le plan
+     change la boîte suit sans qu'on rouvre ce fichier.
+     ⭐ ET C'EST CETTE FEUILLE QUI LA PORTE, ⛔ PAS `shell.css` : la cote vient de
+     la donnée, donc elle ne se recopie pas dans une feuille d'auteur (garde 7).
+     ⚠️ LE SÉLECTEUR EST QUALIFIÉ (`[data-objet="x1"]`) POUR UNE RAISON MESURABLE :
+     `.x1` seul a la même spécificité que la liste partagée de `shell.css`, et ne
+     l'emporterait que par l'ORDRE — un ordre qui dépend de l'endroit où cette
+     feuille est montée. Un blg de plus de spécificité ne dépend de rien.
+     ⛔ ET `ResizeObserver` RESTE, il n'est pas remplacé par ce nombre : la cote
+     donne le GABARIT en blg, le zoom change la taille RENDUE (loi
+     `panneau-texte-fixe`, 20/09). Le parchemin observe le réel — ⛔ il ne suppose
+     jamais 375 × 500 en dur. */
+  /* ⭐ LA TÊTE VIENT DE L'ORGANE PARTAGÉ, ⛔ elle n'est plus écrite ici : X1 et X2
+     montent la MÊME, chacune sous son nom (lot 242). Le bas de lecture de X1, c'est
+     le haut de ses portes — une cote LUE dans la table, jamais retapée. */
+  const porte = ORGANES.find((o) => o.nom === "BACK");
+  regles.push(feuilleDesCotesDeTete("x1", porte.cible ? porte.cible.y : porte.y));
+  /* — et ce qui reste : les trois rangées d'options et les quatre portes, SOUS la
+     couture. ⛔ Elles n'appartiennent qu'à X1. */
+  for (const o of ORGANES) {
+    if (estDeLaTete(o)) continue;
+    const r = regleDOrgane("x1", o);
+    if (r) regles.push(r);
   }
   /* ⚖️ LE PARCHEMIN TIENT DANS LA DALLE — Eric, 17/09 au soir, en regardant le
      rendu : *« redimensionne ton parchemin pour qu'il corresponde à la cote, pas
@@ -141,22 +332,20 @@ export function feuilleDesCotesX1() {
      retirent, et le texte descend prendre leur place.
      ⛔ Pas un second plan : le même, dont on retire des organes. Les cotes de lecture se
      DÉDUISENT de la table (le pied des portes, la hauteur du filet) — aucun nombre neuf. */
-  const porte = ORGANES.find((o) => o.nom === "BACK");
-  const filet = ORGANES.find((o) => o.nom === "FILET HAUT");
-  const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
-  const basL = (porte.cible ? porte.cible.y : porte.y) - 8;
-  const lire = (id, corps) => regles.push(`.x1[data-lecture="oui"] [data-organe="${id}"]{${corps}}`);
-  lire("description", `height:${px(basL - filet.h - desc.y)}`);
-  lire("filet-bas", `top:${px(basL - filet.h)}`);
-
   /* ⛔ LA COPIE, L'ŒIL ET SES DEUX CHEVRONS NE SUIVENT PAS — Eric, 17/09 au soir :
      *« l'œil et le copy restent où ils sont »*. ⭐ Ils vivent dans les MARGES, pas dans
      la zone : trois repères fixes, qu'on retrouve au même endroit qu'on lise ou qu'on
      règle. Un organe qui se déplace à chaque mode demande qu'on le cherche. */
-  const deux = 2 * PARCHEMIN_DEBORD;
-  regles.push(deux
-    ? `.x1{background-size:calc(100% + ${px(deux)}) calc(100% + ${px(deux)})}`
-    : ".x1{background-size:100% 100%}");
+  /* 🔴 LOT 219 — LA RÈGLE DE `background-size` EST PARTIE AVEC L'IMAGE.
+     Elle écrivait `.x1{background-size:100% 100%}` (ou `100% + 2×débord`) pour
+     étirer `--x1-parchemin` aux cotes de la dalle. ⛔ Il n'y a plus d'image à
+     étirer : le contour est un SVG calculé à la cote réelle par `parchemin.mjs`.
+     Laisser la règle aurait été un écrivain qui commande un organe mort.
+     ⭐ `PARCHEMIN_DEBORD` RESTE DANS LA TABLE, ET ON N'Y TOUCHE PAS : c'est une
+     cote GÉNÉRÉE (`X1_gen.py`), et `tests/x1-ecran.test.mjs` garde 1 vérifie
+     qu'elle est égale à celle du plan. ⛔ Une valeur générée ne se retire pas
+     depuis le dépôt — elle se retire en amont, si Eric le décide. Elle vaut 0
+     aujourd'hui, donc elle ne commande rien. */
   return regles.join("\n");
 }
 
@@ -350,48 +539,25 @@ export function construireLaFicheX1(options = {}) {
   feuille.textContent = feuilleDesCotesX1();
   noeud.append(feuille);
 
+  /* ⚖️ LE PARCHEMIN EST POSÉ ICI, ET EN PREMIER — lot 219.
+     ⭐ L'ORDRE EST LE DESSIN : tous les organes sont en `position: absolute` et
+     sans `z-index`, donc ils peignent dans l'ordre du DOM. Le décor entre avant
+     eux, il passe dessous, et ⛔ personne n'a besoin d'un `z-index` — celui qu'on
+     aurait posé ici aurait créé un contexte d'empilement à franchir.
+     ⛔ ET IL N'INTERCEPTE RIEN : `aria-hidden` et `pointer-events: none` (la
+     feuille). Le contenu reste au-dessus, tapable et lisible par un lecteur
+     d'écran — la fiche ne gagne pas un nœud de plus à annoncer.
+     ⚠️ IL EST MONTÉ AVANT D'ÊTRE AU DOCUMENT, et c'est voulu : `habilleEnParchemin`
+     ne mesure rien tout de suite (`clientWidth` vaudrait 0), il attend la première
+     mise en page puis suit la cote avec un `ResizeObserver`. */
+  construireLaTeteDeFiche(noeud, objet, options);
+
+  /* — et SOUS la couture, ce qui n'est qu'à X1. */
   for (const o of ORGANES) {
+    if (estDeLaTete(o)) continue;
     const id = CLEF_DE[o.nom];
     if (!id) continue;
-    /* ⛔ CE QUE LA LECTURE RETIRE : tout sauf le texte, ses deux filets, sa jauge, les
-       deux glyphes de sa marge et les quatre portes. Les organes restent POSÉS — leur
-       place attend leur retour. */
-    if (id === "nom") {
-      /* ⭐ CENTRÉ SUR LA PAGE, PAS ENTRE SES VOISINS — Eric, 17/09 : *« le titre reste
-         centré par rapport à la page »*. Sa boîte est posée par la table, au centre de
-         la dalle : ce qui l'entoure peut grandir, le nom ne bouge pas. */
-      noeud.append(voyant(id, "x1-nom", objet.nom || o.mot));
-    } else if (id === "qte") {
-      /* ⚖️ LA QUANTITÉ À GAUCHE DU TITRE — Eric, 17/09 au soir. ⛔ Et elle ne s'écrit
-         que si elle dit quelque chose : « ×1 » est du bruit, la place reste vide. */
-      noeud.append(voyant(id, "x1-qte", objet.qte > 1 ? `×${objet.qte}` : "",
-        objet.qte > 1 ? `Quantity ${objet.qte}` : undefined));
-    } else if (id === "filet-haut" || id === "filet-bas") {
-      /* ⚖️ LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — Eric, 17/09 au soir : *« délimite
-         la zone descriptive du texte par des traits, comme l'image donnée »*. Ils ne
-         disent rien à un lecteur d'écran : c'est la zone qui porte le sens. */
-      const f = eld("div", "x1-filet");
-      f.dataset.organe = id;
-      f.setAttribute("aria-hidden", "true");
-      noeud.append(f);
-    } else if (id === "prix") {
-      noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
-    } else if (id === "poids") {
-      noeud.append(voyant(id, "x1-chiffres", ligneDePoids(objet.poidsUnite, objet.qte, objet.poidsTotal), "Weight"));
-    } else if (id === "description") {
-      const z = eld("div", "x1-description", objet.prose || "");
-      z.dataset.organe = id;
-      noeud.append(z);
-      /* ⭐ LA JAUGE VEILLE SUR CETTE ZONE : elle lit son débordement et allume ses
-         chevrons. ⛔ Elle est posée À CÔTÉ d'elle, jamais dedans — un signe qui défile
-         avec le texte qu'il annonce ne sert à rien.
-         ⚠️ Et elle est posée ICI, dans la boucle, parce qu'elle a besoin du nœud du
-         texte : la table la déclare (`JAUGE`), l'écran la branche. */
-      const j = veilleLeDebordement(z);
-      if (j) { j.dataset.organe = CLEF_DE["JAUGE"]; noeud.append(j); }
-    } else if (id === "jauge") {
-      /* posée par la branche de la description, juste au-dessus — elle a besoin d'elle */
-    } else if (id === "is") {
+    if (id === "is") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "is-quoi") {
       /* ⚖️ C'EST UN DROPDOWN — Eric, 17/09 au soir, en deux temps : la question (*« pas
@@ -400,24 +566,7 @@ export function construireLaFicheX1(options = {}) {
          disparaissait — et la réparation n'était pas d'en changer l'organe, mais de
          l'ARMER. Un menu qui s'ouvre se voit. */
       noeud.append(menuIs(id, options));
-    } else if (id === "oeil") {
-      /* ⚖️ L'ŒIL EST LE MIROIR DE LA COPIE — même dessin de 20, même cible calée contre
-         le bord, même pied de zone, l'autre marge. ⭐ Et il porte son ÉTAT : allumé, il
-         dit qu'on est en lecture, et c'est lui qui en sort. */
-      const b = bouton("x1-oeil", "", options.lecture ? "Show the whole sheet" : "More room for the text",
-        () => options.surLecture && options.surLecture(!options.lecture));
-      b.dataset.organe = id;
-      b.dataset.on = options.lecture ? "oui" : "non";
-      noeud.append(b);
-    } else if (id === "copier") {
-      /* ⭐ UN BOUTON À GLYPHE, pas à mot : 40 × 40 dans la cible de 44, et il ne
-         porte ni l'habit de la famille ni son liseré de rôle (la loi des `+`/`−`
-         de la bourse). Sa teinte est l'oxblood — Eric, 17/09 : *« on est sur un
-         fond plein, oxblood passe »*. */
-      const b = bouton("x1-copier", o.mot, "Copy this item", () => options.surCopier && options.surCopier());
-      b.dataset.organe = id;
-      noeud.append(b);
-    } else if (id === "equip" || id === "attune" || id === "lock") {
+        } else if (id === "equip" || id === "attune" || id === "lock") {
       const clef = id === "equip" ? "equipped" : id === "attune" ? "attuned" : "locked";
       noeud.append(carreDEtat(id, o, Boolean(objet[clef])));
     } else if (id === "equip-on" || id === "attune-on" || id === "lock-on") {

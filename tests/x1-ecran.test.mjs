@@ -19,6 +19,9 @@
    de la description. */
 
 import test from "node:test";
+/* ⭐ LOT 248 — la famille du parchemin se LIT à sa source ; ce garde ne la
+   recopie plus (elle était écrite quatre fois, cf. `parchemin.mjs`). */
+import { SELECTEUR_DU_PARCHEMIN as PARCH } from "../ui/builder/parchemin.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -38,6 +41,10 @@ const shell = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"))
 const etape = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
 const coquille = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
 const source = stripComments(fs.readFileSync(path.join(UI, "x1-ecran.mjs"), "utf8"));
+/* ⭐ LOT 240 — LES JETONS SONT LUS SANS LEURS COMMENTAIRES, comme la feuille : un
+   garde qui compterait une teinte citée dans une phrase compterait la phrase qui la
+   NIE autant que celle qui la pose. */
+const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 
 const { DALLE, MARGE, TOUCH, ORGANES } = D;
 const rect = (o) => ({ x: o.x, y: o.y, l: o.l, h: o.h });
@@ -223,14 +230,45 @@ test("6 — la feuille construite pose chaque organe, à la cote de la table", (
 });
 
 test("7 — shell.css ne porte AUCUNE position de la fiche : les cotes sont dans la table", () => {
-  const debut = shell.indexOf(".x1 { background:");
-  assert.ok(debut > 0, "le bloc d'habit de la fiche existe");
+  /* 🔴 L'ANCRE A BOUGÉ AU LOT 219, ET LA RÈGLE N'A PAS BOUGÉ D'UN MOT.
+     Elle était `".x1 { background:"` — la ligne qui servait l'image `--x1-parchemin`
+     étirée en `100% 100%`. ⛔ Cette ligne n'existe plus : Eric a demandé le 21/09
+     qu'*« aucune image matricielle de parchemin ne soit nécessaire »*, et la surface
+     est maintenant un SVG calculé (`parchemin.mjs`).
+     ⭐ CE QUE CE GARDE TIENT EST INCHANGÉ — *« shell.css ne porte AUCUNE position de
+     la fiche »* — et il le tient sur PLUS de feuille qu'avant : le bloc du parchemin
+     est écrit AU-DESSUS de l'ancien point d'ancrage, donc `slice` en lit davantage.
+     ⚠️ Un garde dont l'ancre disparaît doit être RE-ANCRÉ, ⛔ jamais supprimé : c'est
+     la première déclaration d'habit de la fiche qui fait l'ancre, quelle qu'elle soit. */
+  /* ⚠️ L'ANCRE A SUIVI LE SÉLECTEUR AU LOT 242 : la règle est devenue
+     `:is(.x1, .x2) .parchemin` le jour où X2 a monté le MÊME parchemin. ⛔ La
+     réparation n'était PAS d'ajouter un second bloc `.x2 .parchemin` pour que
+     cette ancre retombe sur ses pieds — ça aurait été deux écrivains pour un
+     organe unique, et le garde aurait alors gardé la MOITIÉ de la vérité. */
+  const debut = shell.indexOf(`${PARCH} .parchemin {`);
+  assert.ok(debut > 0, "le bloc d'habit de la fiche existe (il s'ouvre sur la surface en parchemin)");
   const bloc = shell.slice(debut);
   assert.ok(!/\b(left|top)\s*:\s*\d*\.?\d+px/.test(bloc), "une position en dur serait une cote recopiée");
+  /* ⛔ ET L'IMAGE NE REVIENT PAS PAR LA PETITE PORTE : `--x1-parchemin` n'est plus
+     consommée nulle part. Un `background` qui la reprendrait rétablirait l'étirement
+     que ce lot supprime — et il le ferait en silence, puisque rien d'autre ne regarde. */
+  assert.ok(!/var\(--x1-parchemin\)/.test(shell),
+    "⛔ l'image matricielle du parchemin est de retour dans shell.css — elle s'étire, c'est le défaut du lot 219");
   /* ⭐ LA FICHE PARTAGE LA BOÎTE DE LA DALLE — une seule règle le dit, et elle
      s'allonge quand un écran la rejoint. Le sac y est entré au lot 214 : ⛔ ce que
      ce garde tient n'est pas la LISTE, c'est qu'il n'y ait qu'UN écrivain. */
-  assert.match(shell, /\.gear,\s*\.x1,\s*\.sac\s*\{/, "la dalle est déclarée UNE fois pour tous ses écrans");
+  /* 🔴 CE GARDE ÉPELAIT LA LISTE — `.gear, .x1, .sac` — alors que la ligne au-dessus dit qu'il
+     tient l'écrivain UNIQUE, pas ses membres. Il a rougi le 21/09 quand `.wares` est entré dans
+     la liste : un écran de plus partageant la même loi, ce qui est exactement ce que la loi
+     VEUT. ⭐ Un garde qui accuse l'arrivée d'un membre garde la liste, pas la règle — et c'est
+     la troisième fois du chantier que cette correction se fait.
+     ⛔ Il demande donc ce qu'il dit : `.x1` est membre d'une liste, cette liste est la SEULE à
+     porter le bloc, et le bloc n'est écrit qu'une fois (l'assertion suivante). */
+  const porteuses = [...shell.matchAll(/^([^{}\n][^{}]*?)\{\s*\n\s*position: relative; flex: 1 1 auto;/gm)]
+    .map((m) => m[1].split(",").map((x) => x.trim()).filter(Boolean));
+  assert.equal(porteuses.length, 1, "⛔ deux règles portent la boîte de la dalle : deux écrivains pour une loi");
+  assert.ok(porteuses[0].includes(".x1"),
+    `⛔ la fiche n'est pas dans la liste qui déclare la dalle — membres trouvés : ${porteuses[0].join(", ")}`);
   assert.equal((shell.match(/position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;/g) || []).length, 1,
     "⛔ et une seule fois : un second bloc identique serait deux écrivains pour une loi");
 });
@@ -569,4 +607,122 @@ test("18 — 🔴 l'écran R lit enfin les deux voyants que X1 écrit (la dette 
   for (const v of tous(noeud.querySelector('[data-organe="tete1"]'), "[data-marque]")) etats[v.dataset.marque] = v.dataset.etat;
   assert.deepEqual(etats, { verrou: "oui", equipe: "oui", harmonise: "oui" },
     "les trois voyants s'allument maintenant — ils attendaient X1, pas un dessin");
+});
+
+/* ══ 19 · 20 · 21 — LOT 240 : CE QU'ERIC A REGARDÉ PUIS REDEMANDÉ ════════════
+   Les trois gardes de ce lot ont un point commun, et il vaut d'être dit : ⛔ AUCUN
+   ne vérifie qu'un COMMENTAIRE raconte la bonne histoire. Le 219 avait écrit, en
+   toutes lettres et de bonne foi, que `--icone-filet` n'avait plus d'emploi ; c'était
+   vrai le matin, faux le soir, et aucun test n'aurait pu le dire. ⭐ Ils lisent donc
+   le SÉLECTEUR et la DONNÉE — ce que la page reçoit. */
+
+test("19 — 🩸 L'ORNEMENT EST REVENU, ET EN MASQUE : ⛔ ni dégradé, ni image", () => {
+  /* ⚖️ Eric, 2026-09-21, APRÈS avoir regardé le rendu du 219 : *« l'ornement de
+     l'ancienne fiche X1 me plaît plus, je veux bien qu'on le garde »* · *« celui de
+     l'ancienne fiche X1 »* · *« il est oxblood »*. ⛔ Ça défait une ligne de SA propre
+     spécification du matin, et c'est légitime : le croquis et l'œil priment sur la
+     prose, y compris la sienne.
+     🔴 CE QUE CE GARDE EXISTE POUR EMPÊCHER : que l'ornement reparte en silence. Il
+     est déjà parti une fois sur une phrase, et rien n'a rougi. */
+  const m = /\.x1-filet\s*\{([^}]*)\}/.exec(shell);
+  assert.ok(m, "⛔ `.x1-filet` n'a plus de règle : les deux séparateurs de la fiche sont nus");
+  const corps = m[1];
+  assert.match(corps, /(^|[^-])mask:\s*var\(--icone-filet\)/,
+    "⛔ l'ornement d'Eric (deux losanges et un point) n'est plus posé en masque");
+  assert.match(corps, /-webkit-mask:\s*var\(--icone-filet\)/,
+    "⛔ sans le préfixe, Safari ne rend AUCUN masque — donc un rectangle plein");
+  /* ⛔ `100% auto`, ⛔ JAMAIS `100% 1px` : le dessin fait 400 × 12 et ses losanges ont une
+     HAUTEUR. Écrasés à 1 blg ils redeviennent le trait qu'Eric vient de refuser. */
+  assert.match(corps, /var\(--icone-filet\)\s+center\s*\/\s*100%\s+auto/,
+    "⛔ le masque doit garder le rapport du dessin : `100% auto`");
+  assert.doesNotMatch(corps, /linear-gradient/,
+    "⛔ le dégradé du lot 219 est de retour — c'est exactement ce qu'Eric a repris");
+  /* ⭐ ET LE DESSIN N'EST PAS UN ORPHELIN : la question ouverte du 219 (*« plus consommé,
+     gardé en attendant le mot d'Eric »*) est close par son mot. ⛔ Le jeton ne se retire
+     donc plus « parce que personne ne le lit » — on VÉRIFIE qu'il est lu. */
+  assert.ok(jetons.includes("--icone-filet:"), "⛔ le dessin donné par Eric a été supprimé");
+  assert.ok(shell.includes("var(--icone-filet)"),
+    "⛔ `--icone-filet` n'est plus consommé : il redeviendrait un jeton mort, et le prochain ménage l'emporterait");
+  /* ⚠️ ET LES DEUX SÉPARATEURS LE PRENNENT, PAS UN SEUL — celui sous l'en-tête et celui
+     au-dessus de la rangée d'interrupteurs. Ils partagent la classe, et c'est ce qui le
+     garantit : un ornement posé par ORGANE serait deux écrivains pour un dessin. */
+  const n = construireLaFicheX1({ objet: { nom: "X", qte: 1 } }).noeud;
+  const filets = [...n.children].filter((e) => e.className === "x1-filet");
+  assert.equal(filets.length, 2, "les DEUX filets de la fiche portent la même classe, donc le même ornement");
+});
+
+test("20 — 🩸 UN SEUL OXBLOOD SERT LE TITRE ET LES FILETS — une déclaration, pas deux", () => {
+  /* ⚖️ Eric, 2026-09-21 : *« le titre en gras et Oxblood »*, puis *« pour les fiches »*.
+     ⭐ CE QUI CHANGE EST LE STATUT DE LA TEINTE, PAS SA VALEUR : #8c3b40 cesse d'être
+     « la couleur d'un ornement » pour devenir une ENCRE DE LA FICHE.
+     🔴 CE QUE CE GARDE EXISTE POUR EMPÊCHER : deux jetons de même valeur. Ils ne se
+     voient pas — la page est identique le premier jour — et ils divergent au premier
+     réglage, le jour où Eric bouge « l'oxblood » et n'en bouge qu'un. */
+  /* ⛔ LE SÉLECTEUR EST ÉCHAPPÉ EN ENTIER, ⛔ pas « le point du début » : `:not([hidden])`
+     porte quatre métacaractères, et une classe de caractères ouverte par erreur ne
+     rougit pas — elle apparie autre chose. (Elle a rougi ici, et c'est tant mieux.) */
+  const echappe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const encreDe = (regle, prop) => {
+    const m = new RegExp(`${echappe(regle)}\\s*\\{([^}]*)\\}`).exec(shell);
+    assert.ok(m, `${regle} n'a plus de règle`);
+    const p = new RegExp(`${prop}:\\s*var\\((--[\\w-]+)\\)`).exec(m[1]);
+    assert.ok(p, `${regle} ne prend pas sa teinte d'un jeton (${prop})`);
+    return p[1];
+  };
+  const duTitre = encreDe(".x1-nom:not([hidden])", "color");
+  const duFilet = encreDe(".x1-filet", "background");
+  assert.equal(duTitre, duFilet,
+    `⛔ deux jetons pour un seul oxblood (titre \`${duTitre}\`, filets \`${duFilet}\`) : ` +
+    "ils divergeront au premier réglage, et personne ne le verra le jour où ça arrive");
+  /* ⭐ ET IL EST DÉCLINÉ AUX TROIS PALETTES — l'acquis du lot 219, qu'on garde. Une encre
+     de fiche qui n'existerait qu'au jour rendrait un titre invisible la nuit. */
+  const decls = [...jetons.matchAll(new RegExp(`${duTitre}:\\s*(#[0-9a-f]{6})`, "g"))].map((x) => x[1]);
+  assert.equal(decls.length, 3,
+    `⛔ \`${duTitre}\` est déclaré ${decls.length} fois — il en faut TROIS : jour, nuit, bleutée`);
+  assert.equal(new Set(decls).size, 3, "⛔ trois déclarations de la même valeur ne font pas trois palettes");
+  /* ⛔ ET AUCUN LITTÉRAL NE REVIENT PAR LA PETITE PORTE : la valeur ne vit que dans
+     `tokens.css`. Un `#8c3b40` écrit dans la feuille d'habit serait la quatrième
+     déclaration, celle que personne ne penserait à changer. */
+  assert.ok(!/#8c3b40/i.test(shell), "⛔ l'oxblood en dur dans `shell.css` : le jeton existe");
+  /* ⚠️ ET IL NE MANGE PAS L'AUTRE ROUGE DE LA FICHE : `--x1-etat-encre` est la voix des
+     MOTS D'ÉTAT, plus sombre d'un cran, et Eric ne l'a pas touchée. Deux rouges, deux
+     emplois — les confondre rendrait la ponctuation aussi forte que le propos. */
+  assert.notEqual(duTitre, "--x1-etat-encre",
+    "⛔ le titre a pris l'encre des mots d'état : ce sont deux rouges, et deux emplois");
+  /* Le gras, et c'est le mot d'Eric — ⛔ pas le 600 d'avant, qui est le cran du corps. */
+  const nom = /\.x1-nom:not\(\[hidden\]\)\s*\{([^}]*)\}/.exec(shell)[1];
+  assert.match(nom, /font-weight:\s*700/, "⛔ *« le titre en gras »* : 700, pas le 600 du corps");
+});
+
+test("21 — 📜 LE PARCHEMIN FAIT 500 : la fiche tient la cote de la TABLE, pas celle de la scène", () => {
+  /* ⚖️ Eric, 2026-09-21 : *« le parcho doit faire 500 »*.
+     📏 CE QU'IL AVAIT VU, remesuré au banc 760 le 21/09 : `.x1` rendait **700** (la
+     scène), le bas des portes tombait à **466**, et il restait **234 blg** de parchemin
+     vide sous les boutons. La feuille était juste ; c'est la BOÎTE qui mentait.
+     🔴 CE QUE CE GARDE EXISTE POUR EMPÊCHER : que la fiche reprenne l'élasticité de la
+     boîte partagée des écrans d'équipement. R remplit sa dalle ; X1 est un PLAN FIXE. */
+  const css = feuilleDesCotesX1();
+  const m = /\.x1\[data-objet="x1"\]\{([^}]*)\}/.exec(css);
+  assert.ok(m, "⛔ la feuille construite ne pose plus la boîte de la fiche : elle suivra la scène");
+  assert.match(m[1], /flex:\s*0 0 auto/,
+    "⛔ sans neutraliser le `flex: 1 1 auto` partagé, la hauteur reste élastique");
+  assert.ok(m[1].includes(`height:${DALLE.h}px`),
+    `⛔ la fiche ne fait pas la hauteur de la table (${DALLE.h})`);
+  /* ⛔ ET LA COTE EST LUE, ⛔ PAS RETAPÉE — elle a déjà trois écrivains au dépôt
+     (`sac-`, `wares-`, la table). Un 500 écrit ici en serait un quatrième, et il
+     survivrait au jour où le plan change. */
+  assert.match(source, /height:\$\{px\(D\.DALLE\.h\)\}/,
+    "⛔ la hauteur est recopiée au lieu d'être lue dans la table");
+  /* ⚠️ LE SÉLECTEUR EST QUALIFIÉ, et ce n'est pas du zèle : `.x1` seul a la MÊME
+     spécificité que la liste partagée de `shell.css`, et ne l'emporterait que par
+     l'ORDRE — un ordre qui dépend de l'endroit où cette feuille est montée. */
+  assert.doesNotMatch(css, /^\.x1\{/m, "⛔ un sélecteur nu ne gagnerait que par l'ordre du document");
+  /* ⛔ ET `ResizeObserver` NE PART PAS AVEC : la cote donne le GABARIT en blg, le zoom
+     change la taille RENDUE (loi `panneau-texte-fixe`, 20/09). Le parchemin observe le
+     réel — un organe qui supposerait 375 × 500 en dur serait faux à tous les crans sauf un. */
+  const parchemin = stripComments(fs.readFileSync(path.join(UI, "parchemin.mjs"), "utf8"));
+  assert.match(parchemin, /new ResizeObserver\(redessiner\)\.observe\(boite\)/,
+    "⛔ le parchemin a cessé d'observer sa boîte : une cote n'est pas une taille rendue");
+  assert.ok(!/\b(375|500)\b/.test(parchemin),
+    "⛔ le parchemin porte une cote en dur : il doit MESURER, jamais supposer");
 });
