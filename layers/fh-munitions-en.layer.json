@@ -91,8 +91,8 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
-            "shelf": "projectiles"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
+            "shelf": "thrown-weapons"
           }
         }
       },
@@ -105,8 +105,8 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
-            "shelf": "projectiles"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
+            "shelf": "thrown-weapons"
           }
         }
       },
@@ -119,8 +119,8 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
-            "shelf": "projectiles"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
+            "shelf": "thrown-weapons"
           }
         }
       },
@@ -133,10 +133,18 @@
           "of_kind": "gear",
           "shelf": {
             "aisle": "battlefield",
-            "provenance": "eric:2026-09-23 — les cinq munitions rejoignent `battlefield › projectiles`, l'étagère que le vault leur réservait depuis le 21/08 (« 5 à écrire »). ⏳ ATTENTION : Eric a tranché le 20/09 la FUSION de `projectiles` dans `ranged-weapons`. Elle n'est pas appliquée (c'est une migration de slug en amont dans `fh-srd`) — le jour où elle l'est, ces cinq records suivent, et Ranged Weapons passe de 11 à 15 objets.",
-            "shelf": "projectiles"
+            "provenance": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé.",
+            "shelf": "thrown-weapons"
           }
         }
+      },
+      "srfh:shelving:en:ammunition": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.shelf": "thrown-weapons",
+          "data[shelf][provenance]": "eric:2026-09-23 — « les munitions vont dans Armory / Ranged Weapons ». ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une migration de slug : les cinq munitions rejoignent l'étagère des armes à distance au lieu de peupler `projectiles`. ⛔ `projectiles` devient VIDE, et une étagère vide ne paraît pas au tambour (l'export ne porte que les combinaisons peuplées). La clef reste `thrown-weapons` : le libellé « Ranged Weapons » est tranché depuis le 20/09, le slug se migre en amont dans `fh-srd` — l'identité est la clef, jamais le libellé."
+        },
+        "note": "Fate's Hand — the Arrows follow the other four onto Ranged Weapons"
       }
     }
   }

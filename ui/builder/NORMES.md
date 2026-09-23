@@ -3598,10 +3598,23 @@ et sa `weight_provenance`.
 0,75 lb…)*. Un seul chiffre y survit — le prix des flèches, `5 SP` des deux côtés. Les billes
 passent de **0,75 lb à 5 lb** : c'est un vrai changement de sensation en jeu, voulu.
 
-⏳ **ET LA FUSION DE `projectiles` LES ATTEND.** Eric a tranché le 20/09 la fusion de
-`projectiles` dans `ranged-weapons` ; elle n'est **pas appliquée** (migration de slug en amont
-dans `fh-srd`). Le jour où elle l'est, ces cinq records suivent et **Ranged Weapons passe de 11 à
-15 objets — deux pages à 12 par page**, donc les chevrons reviennent.
+✅ **ET LA FUSION DU 20/09 EST APPLIQUÉE — PAR LA DONNÉE, PAS PAR UN SLUG.** Eric, 23/09 :
+*« les munitions vont dans Armory / Ranged Weapons »*. Les cinq y sont, et `projectiles` **se vide
+et disparaît du tambour** : l'export ne porte que les combinaisons peuplées, donc une étagère vide
+ne paraît pas. ⭐ **On n'a rien retiré d'une structure — on a cessé de la peupler.**
+
+| Armory | avant | après |
+|---|---|---|
+| `thrown-weapons` *(« Ranged Weapons »)* | 10 | **15** |
+| `projectiles` | 1 | **disparue** |
+| sous-catégories | 6 | **5** |
+
+⚠️ **LA CLEF RESTE `thrown-weapons`**, donc le tambour affiche encore *« Thrown Weapons »* :
+« Ranged Weapons » est le **libellé** tranché le 20/09, et le **slug** se migre en amont dans
+`fh-srd`. ⛔ L'identité est la clef, jamais le libellé — et un garde tient ce décalage pour qu'il
+ne se perde pas.
+
+📏 **15 objets = 2 pages**, à 12 comme à 15 par page : les chevrons reviennent sur cette étagère.
 
 📌 **UNE COUCHE NEUVE, `fh-munitions-en`**, et elle est du **catalogue** — comme les gemmes : une
 flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul geste** (`LAYER_FILES`,

@@ -424,22 +424,32 @@ test("6 — 🔴 LE CAS PLEIN : la plus grosse étagère fait 33 objets, donc 3 
   assert.equal(derniere.objets.length, 3, "33 − 2 × 15 = 3 — une dernière page PARTIELLE, et c'est le cas normal");
 });
 
-test("7 — ⭐ LE CAS DÉGÉNÉRÉ A QUITTÉ LA DONNÉE : `projectiles` porte enfin ses CINQ munitions", () => {
-  /* 🔴 CE TEST DISAIT L'INVERSE JUSQU'AU 2026-09-23, et son témoin était réel :
-     `battlefield › projectiles` ne portait QU'UN objet, le `gear:ammunition`
-     générique du SRD. Le vault lui réservait cinq munitions depuis le 21/08
-     (« 5 sortes, zéro record ») ; Eric les a chiffrées ce jour-là, en paquets
-     de dix, et `fh-munitions-en` les écrit.
-     ⭐ CE QUE LE TEST DÉFEND N'A PAS BOUGÉ : une étagère d'UN objet doit rendre
-     UNE page, jamais « 1/0 ». Ce que le test a perdu, c'est son TÉMOIN RÉEL —
-     plus aucune étagère du catalogue ne porte un seul objet. Il l'éprouve donc
-     sur un inventaire fabriqué, et le dit. ⛔ Ne pas le supprimer sous prétexte
-     que le cas n'existe plus dans la donnée : un homebrew le recrée demain. */
-  const arbre = rayonsEtEtageres(query);
-  const proj = arbre.find((r) => r.id === "battlefield").etageres.find((e) => e.id === "battlefield:projectiles");
-  assert.equal(proj.objets.length, 5, "les cinq munitions typées, chacune un paquet de dix");
+test("7 — ⭐ LA FUSION EST APPLIQUÉE : `projectiles` a DISPARU, Ranged Weapons porte ses 15", () => {
+  /* 🔴 CE TEST A CHANGÉ DEUX FOIS EN UN JOUR, ET CHAQUE FOIS SUR UN MOT D'ERIC.
+     Il disait d'abord « `projectiles` ne porte QU'UN objet » — un témoin réel du
+     cas dégénéré. Puis les cinq munitions l'ont peuplée. Puis Eric, le 23/09 :
+     *« les munitions vont dans Armory / Ranged Weapons »* — et l'étagère se vide
+     pour de bon.
 
-  /* ⚔️ ET LE CAS D'UN SEUL OBJET RESTE ÉPROUVÉ, sur un inventaire fabriqué. */
+     ⭐ C'EST LA FUSION DU 20/09 QUI S'APPLIQUE, par la DONNÉE et non par une
+     migration de slug : `projectiles` n'est pas retirée d'une structure, elle
+     n'est plus PEUPLÉE — et l'export ne porte que les combinaisons peuplées
+     (règle du test 5 ter). Une étagère vide ne paraît pas au tambour.
+     ⚠️ LA CLEF RESTE `thrown-weapons` : « Ranged Weapons » est le LIBELLÉ tranché
+     le 20/09, et le slug se migre en amont dans `fh-srd`. L'identité est la
+     clef, jamais le libellé — loi du test 3. */
+  const arbre = rayonsEtEtageres(query);
+  const armory = arbre.find((r) => r.id === "battlefield");
+  assert.equal(armory.etageres.find((e) => e.id === "battlefield:projectiles"), undefined,
+    "⛔ `projectiles` est VIDE, donc absente du tambour — la fusion d'Eric, appliquée");
+  const ranged = armory.etageres.find((e) => e.id === "battlefield:thrown-weapons");
+  assert.equal(ranged.objets.length, 15, "10 armes à distance + les 5 munitions");
+  assert.equal(ranged.label, "Thrown Weapons",
+    "⏳ le LIBELLÉ affiché reste celui du slug tant que la migration n'a pas eu lieu en amont : " +
+    "« Ranged Weapons » est tranché, il n'est pas encore dans la donnée");
+
+  /* ⚔️ ET LE CAS D'UN SEUL OBJET RESTE ÉPROUVÉ, sur un inventaire fabriqué —
+     plus aucune étagère du catalogue ne le porte, mais un homebrew le recrée. */
   const vue = pageDeListe([{ kind: "gear", view: { id: "x" } }], 0);
   assert.equal(vue.pages, 1, "une page, jamais zéro — « 1/0 » serait un compte impossible");
   assert.equal(vue.objets.length, 1);
