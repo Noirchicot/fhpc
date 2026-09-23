@@ -8519,3 +8519,44 @@ fichier serait vert pour rien)*.
 
 **Sources** : vault `FH-WEB/FHPC/` — `FHPCv2 nomenclature UI` · `FHPCv2 norme des listes` ·
 `FHPCv2 entree R cahier charges` · `FHPCv2 hebergement donnees` · `FHPC norme des organes`.
+
+## 7 septies. ⚖️ UN **POPUP MAJEUR** REMPLACE SON ÉCRAN — ce qu'il recouvre passe au voile 0 *(Eric, 2026-09-23 — lot 250)*
+📍 `popup-majeur-remplace-son-ecran` · vivante · 23/09
+
+Eric, 23/09 : *« règles pour les popups majeurs : ce qu'ils recouvrent passe au
+voile 0 tant qu'ils sont ouverts »*, puis *« X0 est un popup majeur »*.
+
+**Un popup majeur ne se pose pas DEVANT un écran, il le REMPLACE.** Il prend la
+dalle entière, il porte le parchemin des fiches X, et ce qu'il recouvre ne doit
+rien laisser transparaître — ni une forme sous le papier, ni une cible qu'un
+doigt pourrait atteindre à travers.
+
+### 📌 LE PORTEUR EST L'ÉCRAN, ⛔ PAS LE POPUP
+📍 `popup-majeur-porteur-est-l-ecran` · vivante · 23/09
+
+L'écran recouvert pose `data-popup-majeur="oui"` sur son propre nœud ; la feuille
+éteint tout ce qui n'est pas le popup :
+
+```css
+[data-popup-majeur="oui"] > :not(.aiguilleur) { opacity: 0; pointer-events: none; }
+```
+
+⭐ **Un popup ne sait pas ce qu'il cache ; un écran sait qu'il est caché.** Le
+jour où un second popup majeur existe, son écran pose le même attribut et hérite
+de la règle sans une ligne de plus.
+
+### ⛔ CE N'EST PAS `display: none`
+📍 `popup-majeur-n-est-pas-display-none` · vivante · 23/09
+
+Les organes recouverts gardent leur BOÎTE, donc leur place. Ils reviennent
+exactement où ils étaient quand le popup se ferme, sans que rien ne soit
+remesuré — c'est la même loi que le mode lecture de X1.
+
+### ⏳ CE QUI RESTE À TRANCHER
+📍 `popup-majeur-quels-autres-le-sont` · à trancher · 23/09
+
+**Quels autres popups sont majeurs ?** X0 est le seul déclaré à ce jour. Le
+choix de pile (*SRD ou Fate's Hand*), la confirmation de fin d'étape et les
+guides ne le sont pas tant qu'Eric ne l'a pas dit — ⛔ et un popup qui prendrait
+cet attribut sans son mot éteindrait un écran que le joueur doit peut-être
+continuer de voir.

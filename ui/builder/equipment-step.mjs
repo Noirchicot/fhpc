@@ -3408,6 +3408,9 @@ export function renderEquipmentStep(ctx, onAction) {
       pied.append(done);
       carte.append(pied);
       voile.append(carte);
+      /* ⚖️ X0 EST UN POPUP MAJEUR (Eric, 23/09) — l'écran qu'elle recouvre le
+         DÉCLARE, et la feuille éteint tout ce qui n'est pas le popup. */
+      noeud.dataset.popupMajeur = "oui";
       noeud.append(voile);
     }
     return noeud;

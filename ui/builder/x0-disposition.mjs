@@ -14,10 +14,15 @@
    `x1-disposition.mjs` sort de `X1_cotes.json` par `X1_gen.py` et ne se touche
    pas à la main ; celle-ci est écrite, comme `b3-disposition.mjs`. */
 import * as X1 from "./x1-disposition.mjs?v=800";
+import * as R from "./gear-disposition.mjs?v=800";
 
-/** ⚖️ *« marge autour de la dalle 8 blg (je veux que ça recouvre totalement la
- *  Fiche R Gear) »* — la feuille est posée à 8 blg du bord de la dalle. */
-export const MARGE_DALLE = 8;
+/** ⚖️ LA MARGE DE X0 SUR LA DALLE — **4**, et ⛔ ce n'est pas un chiffre choisi :
+ *  📏 c'est `MARGE` de `gear-disposition.mjs`, la table générée de l'écran R, où
+ *  elle porte sa raison en clair — *« rien ne s'approche à moins de 4 d'un
+ *  bord »*. X0 recouvre la dalle R : elle prend la marge de ce qu'elle recouvre.
+ *  ⚖️ Eric, 23/09 : *« tu peux même rajouter 8 blg à la hauteur et à la largeur
+ *  de la fiche X0 »* — 8 par dimension, c'est exactement 2 × (8 − 4). */
+export const MARGE_DALLE = R.MARGE;
 
 /** ⚖️ *« marges sur la dalle de 30 blg à gauche et à droite »*.
  *  🔴 ET LES DEUX MARGES SE COMPTENT DEPUIS LA DALLE, pas l'une depuis l'autre :
@@ -44,7 +49,39 @@ export const CIBLE = 44;
  *  ⭐ ON DÉCLARE DONC CE QUI SE VOIT, et la marge s'en DÉDUIT. Le jour où le
  *  corps ou la cible bouge, l'écart vu ne bouge pas — il est la consigne. */
 export const ECART_VU = 15;
-export const ECART_OPTIONS = Math.max(0, ECART_VU - (CIBLE - BOUTON));
+
+/** 🔴 LA LOI DE CET ÉCRAN, ET ELLE VAUT POUR TOUTES SES COTES — **ERIC MESURE
+ *  ENTRE LES DESSINS**, jamais entre les boîtes tactiles. Une boîte de 44 ne se
+ *  voit pas ; un carré de 30, si. Entre deux dessins il y a donc la demi-cible
+ *  morte du bas, la marge déclarée, puis la demi-cible morte du haut.
+ *  ⛔ 23/09, deux fois dans la même heure : j'ai lu « 15 entre les boutons »
+ *  comme 15 de marge CSS, puis « 8 blg sous Fighter » alors que 8 y étaient
+ *  DÉJÀ — entre les boîtes. Les deux fois, la cote demandée portait sur un
+ *  bord que le code ne nommait nulle part.
+ *  ⭐ Toute cote vue passe donc par ici, et la marge s'en déduit. */
+const MORT = (CIBLE - BOUTON) / 2;              /* 7 — la demi-cible invisible */
+
+/** ⭐ DEUX CONVERSIONS, ET PAS UNE : ce qu'on retranche est le nombre de
+ *  demi-cibles MORTES que la distance traverse. Entre deux BOUTONS il y en a
+ *  deux (le bas de l'un, le haut de l'autre) ; entre un TEXTE et un bouton,
+ *  une seule — un titre n'a pas de cible.
+ *  ⛔ Une seule fonction pour les deux aurait redonné 15 là où Eric veut 8. */
+const entreDeuxBoutons = (vu) => Math.max(0, vu - 2 * MORT);
+const entreTexteEtBouton = (vu) => Math.max(0, vu - MORT);
+
+export const ECART_OPTIONS = entreDeuxBoutons(ECART_VU);
+
+/** ⚖️ *« 8 blg sous Fighter, 8 blg sous Soldier »* — entre le dernier DESSIN de
+ *  la section et le filet qui la ferme. Le filet est un dessin, pas une cible. */
+export const SOUS_SECTION_VU = 8;
+export const SOUS_SECTION = entreTexteEtBouton(SOUS_SECTION_VU);
+
+/** ⚖️ *« on ne fait pas 8+15 entre Fighter et le bouton A, on fait 8 »* (Eric,
+ *  23/09). ⭐ Et sa raison est la bonne : *« rien au-dessus ne rentre en conflit
+ *  avec le bouton A »* — la demi-cible qui coiffe A ne touche aucune autre
+ *  cible, donc elle n'a rien à compenser. Elle se mange. */
+export const SOUS_TETE_VU = 8;
+export const SOUS_TETE = entreTexteEtBouton(SOUS_TETE_VU);
 
 /** 📏 LE FILET EST CELUI DES FICHES X, ET SES COTES SE LISENT DANS LEUR TABLE —
  *  ⛔ jamais recopiées : `.x1-filet` est l'organe, `FILET HAUT` en est la cote.
@@ -69,6 +106,8 @@ export function feuilleDesCotesX0() {
     + `--x0-marge:${MARGE_DALLE}px;`
     + `--x0-retrait:${RETRAIT}px;`
     + `--x0-ecart:${ECART_OPTIONS}px;`
+    + `--x0-sous-section:${SOUS_SECTION}px;`
+    + `--x0-sous-tete:${SOUS_TETE}px;`
     + `--x0-bouton:${BOUTON}px;`
     + `--x0-filet-h:${FILET_H}px;`
     + `--x0-filet-l:${FILET_L}px}`;

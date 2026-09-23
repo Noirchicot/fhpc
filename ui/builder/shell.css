@@ -13176,6 +13176,24 @@ button.tuto-point::before {
    feuille. 🔴 Et `align-items: center` empêchait la feuille de s'étirer : elle se
    contentait de sa hauteur naturelle au lieu de recouvrir la dalle. */
 .aiguilleur { align-items: stretch; padding: var(--x0-marge); }
+/* ══ RÈGLE DES POPUPS MAJEURS — Eric, 2026-09-23 (NORMES §7 septies) ════════
+   ⚖️ *« ce qu'ils recouvrent passe au voile 0 tant qu'ils sont ouverts »*, et
+   *« X0 est un popup majeur »*.
+   ⭐ UN POPUP MAJEUR NE SE POSE PAS DEVANT UN ÉCRAN : IL LE REMPLACE. Ce qu'il
+   recouvre ne doit rien laisser transparaître — ni une forme sous le parchemin,
+   ni une cible qu'un doigt pourrait atteindre à travers.
+   ⛔ ET CE N'EST PAS `display: none` : les organes gardent leur boîte, donc leur
+   place. Ils reviennent exactement où ils étaient quand le popup se ferme, sans
+   que rien ne soit remesuré. C'est la même loi que le mode lecture de X1.
+   📌 LE PORTEUR EST LE NŒUD DE L'ÉCRAN, ⛔ pas le popup : un popup ne sait pas
+   ce qu'il cache, un écran sait qu'il est caché. Le jour où un second popup
+   majeur existe, son écran pose le même attribut et hérite de cette règle sans
+   une ligne de plus. */
+[data-popup-majeur="oui"] > :not(.aiguilleur) {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .aiguilleur-carte {
   width: 100%; height: 100%; box-sizing: border-box;
   /* ⚖️ *« marges sur la dalle de 30 blg à gauche et à droite »* — et les deux
@@ -13207,8 +13225,15 @@ button.tuto-point::before {
   align-self: center; flex: 0 0 auto; margin: 0 0 var(--sp-4);
 }
 /* ⚖️ *« Fighter (bold T2) gives you a choice (T1) »*, centré — puis 8 blg. */
+/* 🔴 ET LA SECTION AUSSI POSAIT UN `gap` — `.aiguilleur-section` déclare
+   `gap: var(--sp-4)`, qui s'AJOUTE à la marge de la tête : 📏 mesuré 12 sous
+   « Fighter » là où Eric en veut 8. C'est la troisième fois dans ce chantier
+   qu'une distance a deux écrivains, et les trois fois aucune des deux
+   déclarations n'était fausse à elle seule. ⭐ Sur X0, chaque organe porte sa
+   propre marge et le conteneur n'en pose aucune. */
+.aiguilleur-section { gap: 0; }
 .aiguilleur-soustitre {
-  text-align: center; font-size: var(--t1); margin: 0 0 var(--sp-8);
+  text-align: center; font-size: var(--t1); margin: 0 0 var(--x0-sous-tete);
 }
 .aiguilleur-soustitre strong { font-size: var(--t2); font-weight: 700; margin-right: .35em; }
 
@@ -13234,7 +13259,18 @@ button.tuto-point::before {
      une marge que la dernière devrait ensuite reprendre. */
   min-height: var(--x0-bouton); margin: 0;
 }
-.aiguilleur-options { gap: var(--x0-ecart); margin-bottom: var(--sp-8); }
+.aiguilleur-options { gap: var(--x0-ecart); margin-bottom: var(--x0-sous-section); }
+
+/* ⚖️ `Done` AU STANDARD DE LA BIBLE — Eric, 23/09 : *« le bouton Done n'est pas
+   au standard de la bible, h 40 »*. 📏 Relu dans `tokens.css` : corps **40**,
+   cible **44**, et DEUX gabarits de largeur seulement — `--bouton-petit` 77
+   jusqu'à 6 caractères, `--bouton-moyen` 105 jusqu'à 11. « Done » en fait 4.
+   🔴 IL RENDAIT **315** DE LARGE : `.aiguilleur-pied-seul` posait
+   `grid-template-columns: 1fr`, et un `1fr` étire son enfant sur toute la
+   carte. La hauteur, elle, était déjà juste (44 de cible, 40 de corps) — ⛔ ce
+   n'est donc pas « le bouton » qui n'était pas au standard, c'est SA COLONNE. */
+.aiguilleur-pied { display: flex; justify-content: center; }
+.aiguilleur-pied-seul > .aiguilleur-bouton { inline-size: var(--bouton-petit); }
 .aiguilleur-option-mot { font-size: var(--t1); }
 /* ⚖️ *« mets toujours la somme en GP à la ligne »* — ⛔ un `<br>` aurait été un
    saut de ligne DANS une phrase ; ce sont deux blocs, parce que ce sont deux
