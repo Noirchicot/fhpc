@@ -148,6 +148,17 @@ test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () 
    le homebrew le fera déborder, c'est prévu »*. Le garde reste, parce qu'il
    attrape un débordement NON VOULU ; il nomme celui qui l'est. */
 const DEBORDEMENT_RATIFIE = { id: "trade-goods:trade-goods", n: 54 };
+/* ⏳ 2026-09-23 — UN SECOND DÉBORDEMENT, ET IL N'EST PAS RATIFIÉ : IL EST NOMMÉ.
+   Eric a demandé que les outils Fate's Hand rejoignent `crafting › tools`
+   (« y'a pas une étagère tools ? dans crafting ? »). Ils y sont, et l'étagère
+   passe de 25 à 37 — AU-DESSUS de son critère des 35.
+   ⛔ Le commentaire du test dit quoi faire, et ce n'est pas tolérer : « si un
+   jour une étagère déborde, c'est le DÉCOUPAGE qu'on refait ». Le découpage de
+   `crafting` est justement la question ouverte depuis le 09/09 — ce rayon n'a
+   qu'une étagère, et `gems`/`ingredients` y sont déclarées à zéro.
+   ➡️ CE GARDE NE DIT PAS QUE 37 EST BIEN. Il dit que 37 est CONNU, et qu'il
+   attend un mot d'Eric : recouper `crafting`, ou ratifier le débordement. */
+const DEBORDEMENT_NOMME_A_TRANCHER = { id: "crafting:tools", n: 37 };
 
 test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la dette NOMMÉE des gemmes", () => {
   /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
@@ -163,10 +174,11 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
      dette écrite « Crafting › Gems » se serait accrochée à un affichage. */
   const toutes = arbre.flatMap((r) => r.etageres.map((e) => ({ id: e.id, nom: `${r.label} › ${e.label}`, n: e.objets.length })));
   const debordent = toutes.filter((e) => e.n >= 35).map(({ id, n }) => ({ id, n }));
-  assert.deepEqual(debordent, [DEBORDEMENT_RATIFIE],
+  assert.deepEqual(debordent, [DEBORDEMENT_NOMME_A_TRANCHER, DEBORDEMENT_RATIFIE],
     "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — la seule admise est " +
     "`trade-goods › trade-goods`, 54 gemmes aujourd'hui et 77 quand les 23 marchandises du livre " +
-    "l'auront rejointe, prévue par NORMES.md:2441");
+    "l'auront rejointe, prévue par NORMES.md:2441 — et `crafting › tools` à 37, NOMMÉE le 23/09 " +
+    "et EN ATTENTE d'un découpage ou d'une ratification");
 
   /* ⚔️ ET LA DETTE SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui déborde
      doit être EXACTEMENT des gemmes. Sans ce témoin, un objet d'un autre genre
@@ -175,8 +187,12 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
   assert.deepEqual([...new Set(dette.objets.map((o) => o.kind))], ["gem"],
     "l'étagère tolérée ne porte QUE des gemmes — sinon la tolérance couvrirait autre chose");
 
-  /* Le rangement d'Eric HORS de la dette n'a pas bougé d'un objet. */
-  const sansLaDette = toutes.filter((e) => e.id !== DEBORDEMENT_RATIFIE.id);
+  /* Le rangement d'Eric HORS des deux débordements n'a pas bougé d'un objet.
+     ⏳ `crafting › tools` en sort aussi depuis le 23/09 : il est NOMMÉ plus
+     haut, et son compte est vérifié là — le mesurer deux fois ne dirait rien
+     de plus, et masquerait un mouvement sur les 24 autres étagères. */
+  const hors = new Set([DEBORDEMENT_RATIFIE.id, DEBORDEMENT_NOMME_A_TRANCHER.id]);
+  const sansLaDette = toutes.filter((e) => !hors.has(e.id));
   const plusGrosse = sansLaDette.reduce((a, b) => (b.n > a.n ? b : a));
   assert.equal(plusGrosse.n, 33, `mesuré le 2026-08-24 : la plus grosse est ${plusGrosse.nom}`);
 });
@@ -225,8 +241,12 @@ test("4 — ⚔️ ATTAQUE : aucun libellé n'est inventé, chacun se retrouve d
    chiffres se vérifient donc l'un après l'autre, par le PRÉFIXE d'id. */
 const RANGEMENTS_SRFH = 416;   // `srfh-shelving-en`, lot 95 — le SRD habillé
 const RANGEMENTS_GEMMES = 54;  // `fh-gems-en`, lot 181 — les gemmes d'Eric
+/** Les 12 rangements d'outils Fate's Hand — 11 dans `fh-skills-en`, 1 dans
+ *  `fh-soulforging-en`. ⏳ Ils poussent `crafting › tools` à 37, au-dessus du
+ *  critère des 35 : voir `DEBORDEMENT_NOMME_A_TRANCHER`. */
+const RANGEMENTS_OUTILS_FH = 12;
 
-test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
+test("5 — 🔴 LES 482 RANGEMENTS SONT LUS (416 + 54 + 12), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
   /* ⭐ 2026-09-09, LOT 185 — LE TOTAL AFFICHÉ EST REDEVENU LE TOTAL LU, et
      c'est le lot entier qui tient dans cet écart refermé.
 
@@ -248,8 +268,12 @@ test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET PLUS AUCUN NE POINTE
      ⚠️ Rappel de ce que ces deux-là étaient : une incohérence de DONNÉE, pas un
      défaut d'affichage. Ils étaient déjà invisibles à l'écran avant comme après
      — ce qui a changé, c'est qu'ils désignent enfin quelque chose. */
-  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
-    "les 470 records de rangement des DEUX couches sont bien lus");
+  /* ⭐ 2026-09-23 — UNE TROISIÈME COUCHE POSE DES RANGEMENTS. `fh-skills-en`
+     en porte 11 (ses outils neufs) et `fh-soulforging-en` 1. Même motif que les
+     gemmes : une couche Fate's Hand range SES records, parce que `srfh` est
+     bâtie sur le SRD seul et ne les a jamais vus. */
+  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH,
+    "les 482 records de rangement des TROIS sources sont bien lus");
   /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
      côté sans que ce test bronche.
      ⚖️ 09/09 — LE PARTAGE DES PRÉFIXES A CHANGÉ, ET C'EST UNE DÉCISION D'ERIC.
@@ -259,6 +283,8 @@ test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET PLUS AUCUN NE POINTE
      id et que le moteur n'en garde qu'un record (« on superpose », « pas de
      doublons inutiles »). Restent `fh:` les 31 inventions de Fate's Hand. */
   const GEMMES_PARTAGEES = 23;
+  /* Les 12 rangements d'outils sont TOUS `fh:` — ils pointent vers des records
+     qui n'existent pas sur le fil SRD. */
   const parPrefixe = { "srfh:": 0, "fh:": 0 };
   for (const vue of query({ kind: "shelving" })) {
     const prefixe = String(vue.id).startsWith("srfh:") ? "srfh:" : "fh:";
@@ -266,11 +292,12 @@ test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET PLUS AUCUN NE POINTE
   }
   assert.deepEqual(parPrefixe, {
     "srfh:": RANGEMENTS_SRFH + GEMMES_PARTAGEES,
-    "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES
-  }, "416 du livre + 23 gemmes partagées d'un côté, 31 inventions de FH de l'autre");
+    "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES + RANGEMENTS_OUTILS_FH
+  }, "416 du livre + 23 gemmes partagées d'un côté, 31 inventions de FH + 12 outils de l'autre");
   /* ⚔️ ET LE TOTAL NE BOUGE PAS — c'est ce qui prouve qu'on a DÉPLACÉ des
      rangements entre deux comptes, et non pas ajouté ou perdu des records. */
-  assert.equal(parPrefixe["srfh:"] + parPrefixe["fh:"], RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
+  assert.equal(parPrefixe["srfh:"] + parPrefixe["fh:"],
+    RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH,
     "le déplacement de 23 ids ne doit créer ni détruire aucun rangement");
 
   assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
@@ -290,54 +317,49 @@ test("5 — 🔴 LES 470 RANGEMENTS SONT LUS (416 + 54), ET PLUS AUCUN NE POINTE
 
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES,
-    "les 470 rangements sont tous à l'étalage — plus aucun n'est écarté");
+  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH,
+    "les 482 rangements sont tous à l'étalage — plus aucun n'est écarté");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES, "et chaque objet n'est rangé que sur UNE étagère");
+  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH, "et chaque objet n'est rangé que sur UNE étagère");
 });
 
-test("5 bis — ⭐ LES OUTILS SONT ENTRÉS, et les 12 outils Fate's Hand sont NOMMÉS comme non rangés", () => {
-  /* AVANT CE LOT, ZÉRO OUTIL ÉTAIT VISIBLE : `EQUIPMENT_RECORD_KINDS` nommait
+test("5 bis — ⭐ LA DETTE EST PAYÉE : les 12 outils Fate's Hand ONT une étagère", () => {
+  /* AVANT LE LOT 95, ZÉRO OUTIL ÉTAIT VISIBLE : `EQUIPMENT_RECORD_KINDS` nommait
      quatre genres et `tool` n'en faisait pas partie. Les 25 outils du SRD
      étaient rangés depuis le lot 90 et invisibles depuis toujours.
-     🔴 ET LE COMPTE RESTANT EST UNE DETTE, PAS UN SUCCÈS : `fh-skills-en`
-     AJOUTE des outils Fate's Hand (jeux, instruments, véhicules, montures,
-     Soulforging) que `srfh` n'a jamais vus — elle est construite sur le SRD
-     seul. Ils n'ont AUCUNE étagère, donc ils n'apparaissent nulle part.
-     ⛔ Ce test les nomme pour qu'un ajout futur casse ici au lieu de
-     disparaître en silence : c'est la faute d'`item-value`, refusée d'avance.
 
-     ⭐ 2026-09-09, LOT 185 — LA DETTE A BAISSÉ DE DEUX, ET C'EST UN EFFET DE
-     BORD DE LA RÉÉCRITURE, PAS UN RANGEMENT NEUF. `fh:tool:en:gaming-set-dice`
-     et `fh:tool:en:instrument-strings` ne sont plus des ajouts : ils SONT
-     `srd:tool:en:gaming-set` et `srd:tool:en:musical-instrument` réécrits, et
-     ces deux-là sont rangés par `srfh` depuis le lot 90. Un héritier qui hérite
-     du record hérite aussi de son étagère — c'est le nom du lot. */
+     🔴 PUIS UNE DETTE EST RESTÉE, NOMMÉE ICI PENDANT DEUX SEMAINES : `fh-skills-en`
+     AJOUTE des outils que `srfh` n'a jamais vus — elle est construite sur le SRD
+     seul. Ils n'avaient AUCUNE étagère, donc ils n'apparaissaient nulle part.
+     Ce test les nommait « pour qu'un ajout futur casse ici au lieu de disparaître
+     en silence ». ⭐ IL A FAIT EXACTEMENT ÇA.
+
+     ⚖️ ERIC, 2026-09-23 : *« y'a pas une étagère tools ? dans crafting ? »* — il
+     y en a une, et les douze l'ont rejointe. Le rangement vit dans LEUR couche,
+     pas dans `srfh` : motif des 54 gemmes, et il s'éteint avec l'interrupteur
+     qui les allume.
+     ⏳ CE QUE ÇA COÛTE, ET CE TEST NE LE CACHE PAS : `crafting › tools` passe de
+     25 à 37, au-dessus du critère des 35 — voir `DEBORDEMENT_NOMME_A_TRANCHER`. */
   const arbre = rayonsEtEtageres(query);
   const outils = arbre.find((r) => r.id === "crafting").etageres.find((e) => e.id === "crafting:tools");
-  assert.equal(outils.objets.length, 25, "les 25 outils SRD, plus aucun écarté");
+  assert.equal(outils.objets.length, 37, "25 du SRD + 11 neufs + le Soulforging");
 
   const ranges = new Set(query({ kind: "shelving" })
     .filter((v) => v.record.data.of_kind === "tool").map((v) => v.record.data.extends));
   const sansEtagere = query({ kind: "tool" }).map((v) => v.id).filter((id) => !ranges.has(id)).sort();
-  assert.deepEqual(sansEtagere, [
-    "fh:tool:en:gaming-set-cards",
-    "fh:tool:en:gaming-set-dragonchess", "fh:tool:en:gaming-set-three-dragon",
-    "fh:tool:en:instrument-other", "fh:tool:en:instrument-wind",
-    "fh:tool:en:mount-air", "fh:tool:en:mount-land", "fh:tool:en:mount-water",
-    "fh:tool:en:soulforging",
-    "fh:tool:en:vehicles-air", "fh:tool:en:vehicles-land", "fh:tool:en:vehicles-water"
-  ], "⏳ DETTE OUVERTE — 12 outils Fate's Hand sans étagère : le rangement d'Eric ne couvre que le SRD");
+  assert.deepEqual(sansEtagere, [],
+    "⛔ PLUS AUCUN outil sans étagère — et si un ajout futur en repose un, c'est ici qu'il casse");
 
-  /* ⛔ ET LES DEUX QUI ONT QUITTÉ LA DETTE SONT RANGÉS POUR DE VRAI, sous leur
-     nom d'héritier. Un compte qui baisse ne dit pas lequel des deux — réparé ou
-     disparu : ces deux lignes le disent. */
+  /* ⛔ ET LES DEUX RÉÉCRITS N'EN ONT QU'UN SEUL. Ils gardent l'id du SRD, donc
+     leur étagère vient de `srfh` ; leur en poser un second depuis `fh-skills-en`
+     afficherait DEUX lignes pour un seul outil. Ce témoin le refuse. */
   for (const [id, nom] of [["srd:tool:en:gaming-set", "Dice Set (regular)"],
     ["srd:tool:en:musical-instrument", "Instrument (Strings, regular)"]]) {
-    assert.ok(ranges.has(id), `« ${id} » doit être rangé`);
+    const poses = query({ kind: "shelving" }).filter((v) => v.record.data.extends === id);
+    assert.equal(poses.length, 1, `« ${id} » doit avoir UN rangement, pas deux`);
     assert.equal(query({ kind: "tool", id }).record.name, nom,
-      `…et porter le nom de son héritier : c'est lui que le joueur voit sur l'étagère`);
+      "…et porter le nom de son héritier : c'est lui que le joueur voit sur l'étagère");
   }
 });
 

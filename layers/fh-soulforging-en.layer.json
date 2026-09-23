@@ -21,10 +21,10 @@
           "ability": "Charisma",
           "ability_key": "cha",
           "cost": "50 GP",
-          "cost_provenance": "eric:2026-09-23 \u2014 \u00ab soulforging tools = prix tinker tools \u00bb. Le prix est celui de `srd:tool:en:tinker-s-tools` (50 GP), LU dans le SRD \u2014 le premier cran de la r\u00e8gle du prix, celui qui existe.",
+          "cost_provenance": "eric:2026-09-23 — « soulforging tools = prix tinker tools ». Le prix est celui de `srd:tool:en:tinker-s-tools` (50 GP), LU dans le SRD — le premier cran de la règle du prix, celui qui existe.",
           "name": "Soulforging",
           "weight": "10 lb.",
-          "weight_provenance": "eric:2026-09-23 \u2014 \u00ab soulforging tools = idem poids tinkering tools \u00bb. Le poids est celui de `srd:tool:en:tinker-s-tools` (10 lb. en anglais, 5 kg en fran\u00e7ais), LU dans le SRD et jamais converti de l'un vers l'autre. Le prix reste \u00ab Varies \u00bb : Eric n'a tranch\u00e9 que le poids."
+          "weight_provenance": "eric:2026-09-23 — « soulforging tools = idem poids tinkering tools ». Le poids est celui de `srd:tool:en:tinker-s-tools` (10 lb. en anglais, 5 kg en français), LU dans le SRD et jamais converti de l'un vers l'autre. Le prix reste « Varies » : Eric n'a tranché que le poids."
         }
       }
     },
@@ -65,6 +65,22 @@
           "data[fh_effect]": "Three uses in Soulforge Crafting, which stay decay in body and soul. Salvage: on a slain creature, grants one extra ingredient-retrieval attempt beyond the 1d4-minute harvest window. Essence storage: extends the window to store an Essence into a gem from 1 hour to 10 hours. Ingredient viability: recast every 10 days, keeps well-harvested Structure and Catalyst parts viable indefinitely, instead of the normal one month."
         },
         "note": "Fate's Hand gives Gentle Repose three roles in Soulforge Crafting. The spell works as printed."
+      }
+    },
+    "shelving": {
+      "fh:shelving:en:soulforging": {
+        "name": "Soulforging",
+        "slug": "soulforging",
+        "data": {
+          "extends": "fh:tool:en:soulforging",
+          "name": "Soulforging",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Le Soulforging rejoint `crafting › tools` avec les 25 du SRD et les onze autres outils Fate's Hand. ⛔ Le rangement vit dans CETTE couche, pas dans `srfh-shelving-en` : elle est bâtie sur le SRD seul et n'a jamais vu ce record. ⭐ Et il s'éteint AVEC le Soulforging — un interrupteur coupé retire l'outil et son étagère du même geste.",
+            "shelf": "tools"
+          }
+        }
       }
     }
   }

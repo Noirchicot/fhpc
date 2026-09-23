@@ -415,6 +415,162 @@
         }
       }
     },
+    "shelving": {
+      "fh:shelving:en:gaming-set-cards": {
+        "name": "Card Set (regular)",
+        "slug": "gaming-set-cards",
+        "data": {
+          "extends": "fh:tool:en:gaming-set-cards",
+          "name": "Card Set (regular)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:gaming-set-dragonchess": {
+        "name": "Dragonchess Set (regular)",
+        "slug": "gaming-set-dragonchess",
+        "data": {
+          "extends": "fh:tool:en:gaming-set-dragonchess",
+          "name": "Dragonchess Set (regular)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:gaming-set-three-dragon": {
+        "name": "Three-Dragon Ante (regular)",
+        "slug": "gaming-set-three-dragon",
+        "data": {
+          "extends": "fh:tool:en:gaming-set-three-dragon",
+          "name": "Three-Dragon Ante (regular)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:instrument-wind": {
+        "name": "Instrument (Wind, regular)",
+        "slug": "instrument-wind",
+        "data": {
+          "extends": "fh:tool:en:instrument-wind",
+          "name": "Instrument (Wind, regular)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:instrument-other": {
+        "name": "Instrument (Other, regular)",
+        "slug": "instrument-other",
+        "data": {
+          "extends": "fh:tool:en:instrument-other",
+          "name": "Instrument (Other, regular)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:vehicles-land": {
+        "name": "Vehicles (Land)",
+        "slug": "vehicles-land",
+        "data": {
+          "extends": "fh:tool:en:vehicles-land",
+          "name": "Vehicles (Land)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:vehicles-water": {
+        "name": "Vehicles (Water)",
+        "slug": "vehicles-water",
+        "data": {
+          "extends": "fh:tool:en:vehicles-water",
+          "name": "Vehicles (Water)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:vehicles-air": {
+        "name": "Vehicles (Air)",
+        "slug": "vehicles-air",
+        "data": {
+          "extends": "fh:tool:en:vehicles-air",
+          "name": "Vehicles (Air)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:mount-land": {
+        "name": "Mount (Land)",
+        "slug": "mount-land",
+        "data": {
+          "extends": "fh:tool:en:mount-land",
+          "name": "Mount (Land)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:mount-water": {
+        "name": "Mount (Water)",
+        "slug": "mount-water",
+        "data": {
+          "extends": "fh:tool:en:mount-water",
+          "name": "Mount (Water)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:mount-air": {
+        "name": "Mount (Air)",
+        "slug": "mount-air",
+        "data": {
+          "extends": "fh:tool:en:mount-air",
+          "name": "Mount (Air)",
+          "of_kind": "tool",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces records — même motif que les 54 gemmes.",
+            "shelf": "tools"
+          }
+        }
+      }
+    },
     "class": {
       "srd:class:en:barbarian": {
         "op": "patch",

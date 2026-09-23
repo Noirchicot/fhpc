@@ -1300,14 +1300,31 @@ test("⚔️ ATTAQUE — un grant accroché à une aptitude que le SRD ne porte 
    l'autre sens, et nomme la couche qui les porte maintenant. C'est la leçon
    du lot 179, appliquée à un déménagement deux fois plus gros. */
 
-test("🔴 LOT 184 — `fh-skills-en` ne porte plus QUE `skill`, `tool` et `class`", () => {
+test("🔴 LOT 184 — `fh-skills-en` porte `skill`, `tool`, `class` et le RANGEMENT de ses outils", () => {
   const couche = JSON.parse(readFileSync(join(ROOT, FH_SKILLS_EN), "utf8"));
   /* ⛔ LES GENRES SE LISENT, ILS NE SE CHERCHENT PAS UN PAR UN : une clef
      `feat` ou `spell` apparue demain serait vue par cette égalité, alors
      qu'une liste de deux `assert.equal(records.training, undefined)` ne
      verrait que ce qu'elle nomme. */
-  assert.deepEqual(Object.keys(couche.records).sort(), ["class", "skill", "tool"],
+  /* ⭐ 2026-09-23 — `shelving` ENTRE, et ce n'est PAS un second interrupteur.
+     Eric : « y'a pas une étagère tools ? dans crafting ? ». Les onze outils
+     neufs n'avaient aucune étagère parce que `srfh-shelving-en` est bâtie sur
+     le SRD seul et ne les a jamais vus. Une couche Fate's Hand porte donc SON
+     rangement — motif des 54 gemmes, qui le font depuis le lot 181.
+     ⛔ La règle que ce garde défend n'a pas bougé : UN interrupteur par couche.
+     `shelving` n'en est pas un — il décrit où vont les records de CETTE couche,
+     et il s'éteint avec eux. */
+  assert.deepEqual(Object.keys(couche.records).sort(), ["class", "shelving", "skill", "tool"],
     "un genre de plus ici, et la couche recommence à porter plus d'un interrupteur");
+  const ranges = Object.values(couche.records.shelving);
+  assert.equal(ranges.length, 11, "les onze outils NEUFS, et eux seuls");
+  for (const r of ranges) {
+    assert.equal(`${r.data.shelf.aisle}:${r.data.shelf.shelf}`, "crafting:tools",
+      "⚖️ la MÊME étagère que les 25 du SRD — le joueur ne cherche pas un outil à deux endroits");
+    assert.ok(r.data.extends.startsWith("fh:tool:en:"),
+      "⛔ jamais un réécrit : il garde son id SRD et son étagère avec, un second rangement " +
+      "afficherait deux lignes pour un seul outil");
+  }
   assert.deepEqual(couche.flags, ["fh.skills"],
     "un seul drapeau : les deux autres sont levés par les deux couches sorties");
 });

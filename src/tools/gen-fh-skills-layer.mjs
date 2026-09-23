@@ -51,7 +51,9 @@ import {
   SKILLS_REWRITTEN,
   TOOLS_ADDED,
   TOOLS_RECHARACTERISED,
-  TOOLS_REWRITTEN
+  TOOLS_REWRITTEN,
+  ETAGERE_DES_OUTILS_FH,
+  PROVENANCE_ETAGERE_OUTILS
 } from "./fh-skills-source.mjs";
 /* ⭐ LA LISTE DES `ref` PRIS PAR LA COUCHE DES ESPÈCES EST LUE LÀ OÙ ELLE VIT,
    jamais recopiée ici. Elle en portait une COPIE de deux ids jusqu'au
@@ -882,6 +884,7 @@ export function buildLayer({ srd }) {
     records: {
       skill: skills.skill,
       tool: tools.tool,
+      shelving: rangementDesOutils(tools.tool),
       class: classes.class
     }
   };
@@ -889,6 +892,31 @@ export function buildLayer({ srd }) {
   assertNoHandWrittenSrdText(layer, srd);
 
   return { layer, skills, tools, classes };
+}
+
+/** Le rangement des outils Fate's Hand — `crafting › tools`, la MÊME étagère
+ *  que les 25 du SRD. ⛔ SEULS LES AJOUTS : un réécrit garde l'id du SRD et son
+ *  étagère avec, donc lui en poser une seconde afficherait deux lignes pour un
+ *  seul outil. Le filtre est sur le PRÉFIXE de l'id, pas sur une liste de noms
+ *  — une liste par nom est incomplète dès qu'on ajoute un outil. */
+function rangementDesOutils(tool) {
+  const [aisle, shelf] = ETAGERE_DES_OUTILS_FH.split(":");
+  const shelving = {};
+  for (const [id, record] of Object.entries(tool)) {
+    if (!id.startsWith("fh:")) continue;
+    const slug = record.slug;
+    shelving[`fh:shelving:${LAYER.lang}:${slug}`] = {
+      name: record.name,
+      slug,
+      data: {
+        extends: id,
+        name: record.name,
+        of_kind: "tool",
+        shelf: { aisle, provenance: PROVENANCE_ETAGERE_OUTILS, shelf }
+      }
+    };
+  }
+  return shelving;
 }
 
 export function serialize(layer) {

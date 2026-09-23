@@ -38,7 +38,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "a169010f9e3677beb3403ac36cffb22be503549e438860fe918bb8a33d83cb6f",
+        "hash": "c07c36a436755816707367da537314fa14f8218b48243cc460057bdf4bc82013",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -74,7 +74,7 @@
       {
         "id": "fh-soulforging-en",
         "version": "0.1.0",
-        "hash": "12a13994ac3d5037e969d58d7bcb8e6347c4748b5fe35bbb216c281a85f8f3cf",
+        "hash": "a1a7b9cc3147d3b569713f657c50e90ccc4afd0d7c71fba7bcf4085d2d378b4c",
         "name": "Fate's Hand — Soulforging (EN)"
       },
       {
@@ -458,7 +458,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "a169010f9e3677beb3403ac36cffb22be503549e438860fe918bb8a33d83cb6f",
+          "hash": "c07c36a436755816707367da537314fa14f8218b48243cc460057bdf4bc82013",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -494,7 +494,7 @@
         {
           "id": "fh-soulforging-en",
           "version": "0.1.0",
-          "hash": "12a13994ac3d5037e969d58d7bcb8e6347c4748b5fe35bbb216c281a85f8f3cf",
+          "hash": "a1a7b9cc3147d3b569713f657c50e90ccc4afd0d7c71fba7bcf4085d2d378b4c",
           "name": "Fate's Hand — Soulforging (EN)"
         },
         {

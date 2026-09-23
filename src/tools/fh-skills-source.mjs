@@ -422,6 +422,32 @@ const POIDS_DES_INSTRUMENTS = "eric:2026-09-23 — « instruments regular, 5 gp 
   "elle prime. Comme pour les jeux, la référence a servi à situer l'ordre de grandeur, jamais " +
   "à fournir le nombre — §0.8 refuse l'OGL comme elle refuse le PHB.";
 
+/* ══ 🔴 LE RANGEMENT DES OUTILS FATE'S HAND — ERIC, 2026-09-23 ════════════
+   *« y'a pas une étagère tools ? dans crafting ? »* — il y en a une, elle porte
+   les 25 outils du SRD depuis le lot 90, et les onze outils neufs n'y étaient
+   pas. ⛔ CE N'ÉTAIT PAS UN CHOIX : `srfh-shelving-en` est construite sur le
+   SRD SEUL, elle n'a jamais vu ces records-là. Le garde « 5 bis » de
+   `tambour-equipement` nommait la dette depuis le lot 95, en disant qu'il
+   casserait le jour où on la paierait. C'est aujourd'hui.
+
+   ⭐ LE MOTIF EST CELUI DES 54 GEMMES : une couche Fate's Hand porte SON PROPRE
+   rangement, au lieu d'attendre qu'une couche SRD le lui donne.
+   ⚠️ PRÉFIXE `fh:`, JAMAIS `srfh:` — même raison que pour les gemmes : ces
+   rangements pointent vers des records qui n'existent PAS sur le fil SRD, et
+   `srfh-shelving-en` monte dans les DEUX piles. Un rangement `srfh:` y ferait
+   pointer, en mode « SRD seul », vers un `extends` introuvable.
+   ⛔ LES DEUX RÉÉCRITS N'EN REÇOIVENT PAS : ils SONT `srd:tool:en:gaming-set`
+   et `srd:tool:en:musical-instrument`, déjà rangés par `srfh`. Leur en poser un
+   second afficherait deux lignes pour un seul outil. */
+/** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE. */
+export const ETAGERE_DES_OUTILS_FH = "crafting:tools";
+export const PROVENANCE_ETAGERE_OUTILS =
+  "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs " +
+  "de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, " +
+  "et le joueur qui cherche un outil ne cherche pas à deux endroits. ⛔ Le rangement vit dans " +
+  "CETTE couche parce que `srfh-shelving-en` est bâtie sur le SRD seul et n'a jamais vu ces " +
+  "records — même motif que les 54 gemmes.";
+
 export const TOOLS_ADDED = [
   /* ⛔ `gaming-set-dice` MANQUE ICI DÉLIBÉRÉMENT : c'est `srd:tool:en:gaming-set`
      réécrit (`TOOLS_REWRITTEN`). Le rajouter recréerait le doublon. */

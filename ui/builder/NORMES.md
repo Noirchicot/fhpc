@@ -3564,6 +3564,38 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### 🧰 LES OUTILS FATE'S HAND SONT RANGÉS — `crafting › tools`, AVEC CEUX DU SRD
+📍 `equipement-outils-fh-ranges` · vivante · 23/09
+⚖️ **Les douze outils Fate's Hand rejoignent `crafting › tools`, la même étagère que les 25 du
+SRD — et leur rangement vit dans LEUR couche, pas dans `srfh-shelving-en`.**
+
+> Eric, 2026-09-23 : **« y'a pas une étagère tools ? dans crafting ? »**
+
+Il y en a une, elle porte les 25 outils du SRD depuis le lot 90, et les onze outils neufs n'y
+étaient pas. ⛔ **Ce n'était pas un choix** : `srfh-shelving-en` est construite sur le **SRD seul**
+et n'a jamais vu ces records. ⭐ **Le motif est celui des 54 gemmes** : une couche Fate's Hand porte
+SON propre rangement — et il s'éteint avec l'interrupteur qui l'allume.
+
+| | |
+|---|---|
+| `fh-skills-en` | **11** rangements, préfixe `fh:` |
+| `fh-soulforging-en` | **1** rangement |
+| ⛔ les deux **réécrits** | **aucun** — ils SONT `srd:tool:en:gaming-set` et `musical-instrument`, déjà rangés ; un second afficherait **deux lignes pour un seul outil** |
+
+⭐ **LE GARDE A FAIT SON TRAVAIL** : `tambour-equipement` « 5 bis » nommait les douze depuis le lot
+95, *« pour qu'un ajout futur casse ici au lieu de disparaître en silence »*. Il a cassé. La dette
+est payée, et le test dit maintenant l'inverse : **plus aucun outil sans étagère**.
+
+🔴 **ET ÇA COÛTE LE CRITÈRE DES 35.** `crafting › tools` passe de **25 à 37**. Eric, 24/08 :
+*« l'organisation de l'équipement permet toujours d'arriver à moins de 35 items sur la dernière
+catégorie »*. ⛔ Le test le dit lui-même : *« si un jour une étagère déborde, c'est le DÉCOUPAGE
+qu'on refait »*. `DEBORDEMENT_NOMME_A_TRANCHER` ne ratifie donc rien — il **nomme** le 37 pour
+qu'il ne passe pas en silence.
+⏳ **DEUX ISSUES, ET ELLES SONT À ERIC** : recouper `crafting` — le rayon n'a qu'une étagère, et
+`gems`/`ingredients` y sont déclarées à zéro depuis le 09/09 — ou ratifier le débordement.
+
+---
+
 ### 💰 LE PRIX SE PREND AU SRD, PUIS À LA RÉFÉRENCE OUVERTE — ET SEULEMENT POUR UN OBJET
 📍 `equipement-prix-srd-puis-reference` · vivante · 23/09
 ⚖️ **Le prix d'un outil FH est celui du SRD s'il existe ; sinon celui de la référence ouverte,
