@@ -11,7 +11,7 @@
    l'URL de CE module : sans elle, un moteur frais pouvait recharger des
    couches de la version d'avant, servies par le cache (max-age=600 PAR
    fichier). Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=803";
+import { versionQuery } from "./version.mjs?v=804";
 
 /* EXPORTÉE pour `tests/ui-jetons.test.mjs` (§4, test 9) : le garde monte la
    MÊME liste, pas une copie qui pourrait diverger — la fidélité de « la
@@ -170,14 +170,14 @@ function makeBus() {
    même pile pour générer l'exemple commité. */
 /** Monte la pile réelle et rend `{ build, layers }` — prêt pour `rebuild`. */
 export async function bootEngine({ root = "../.." } = {}) {
-  const { createLayers } = await import("../../src/layers/index.mjs?v=803");
-  const { createBuild } = await import("../../src/build/index.mjs?v=803");
-  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=803");
-  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=803");
+  const { createLayers } = await import("../../src/layers/index.mjs?v=804");
+  const { createBuild } = await import("../../src/build/index.mjs?v=804");
+  const { createFhDestinyStat } = await import("../../src/modules/fh/destiny-stat.mjs?v=804");
+  const { createFhSkillPoolStat } = await import("../../src/modules/fh/skill-pool.mjs?v=804");
   /* LOT 148 BIS — le module qui fait ARRIVER sur la fiche les traits que la
      couche des espèces AJOUTE (`Splinter of Anon`, `Outlasting`,
      `Twice-Born`). Sans lui, ils s'appliquent sans que le joueur les voie. */
-  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=803");
+  const { createFhSpeciesTraits } = await import("../../src/modules/fh/species-traits.mjs?v=804");
 
   const bus = makeBus();
   const layers = createLayers({ bus });
