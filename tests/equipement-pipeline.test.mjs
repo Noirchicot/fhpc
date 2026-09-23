@@ -20,7 +20,8 @@ globalThis.document = createTestDocument();
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { CURRENCY_KEYS } from "../src/build/index.mjs";
 import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bourseCouvre, enGP,
-  currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu }
+  currentCartLines, nextCartIndex, cartCompte, cartTotal, lignesParLieu, poidsParLieu,
+  poidsDeJeu, arrondiPoids, PLANCHER_POIDS }
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
 import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart }
@@ -385,10 +386,19 @@ test("lecteur — BALAYAGE des couches réelles : rien ne se lit de travers", ()
   assert.equal(parseCout(rec("gear", "spyglass").data.cost).gp, 1000, "la longue-vue coûte 1 000 po");
 });
 
-test("poids — ce qui ne se pèse pas se COMPTE à part, au lieu de peser 0", () => {
+test("poids — le tiret PÈSE désormais, le « Varies » compte à part, et aucun ne pèse rien en silence", () => {
   /* ⛔ L'ancienne version sautait l'objet illisible en silence : il entrait
      dans `compte` et ajoutait 0 à `somme`. Un sac de trois objets dont deux
-     portent « — » s'affichait donc avec un poids d'aplomb. */
+     portent « — » s'affichait donc avec un poids d'aplomb.
+
+     🔴 ET CE TEST A CHANGÉ DE LOI LE 2026-09-23, PAS DE FORCE. Il exigeait que
+     le tiret soit DÉCLARÉ illisible ; Eric a tranché : *« Candle, Ink Pen,
+     Paper, String, Signal Whistle, Vial, Sling, les deux Spell Scrolls,
+     applique le 0,1 lb »*. Le tiret n'est plus une absence, c'est un
+     NÉGLIGEABLE, et un négligeable se pèse au plancher. ⭐ Ce que le test
+     défend n'a pas bougé d'un pouce : **rien ne pèse 0 en silence**. Ce qui a
+     bougé, c'est lequel des deux cas mérite le silence — et c'est « Varies »,
+     seul, qui le garde. */
   const catalogue = {
     "corde": { data: { weight: "5 lb." } },
     "cloche": { data: { weight: "—" } },
@@ -400,11 +410,12 @@ test("poids — ce qui ne se pèse pas se COMPTE à part, au lieu de peser 0", (
     { ref: { id: "focaliseur" }, quantity: 1, location: "self" }
   ];
   const p = poidsParLieu(lignes, (ref) => catalogue[ref.id]);
-  assert.equal(p.somme.backpack, 10, "deux cordes de 5 lb.");
+  assert.equal(p.somme.backpack, 10.1, "deux cordes de 5 lb., PLUS la cloche à son plancher de 0,1");
   assert.equal(p.compte.backpack, 3, "trois objets dans le sac");
-  assert.equal(p.inconnus.backpack, 1, "et la cloche est DÉCLARÉE illisible, pas pesée 0");
-  assert.equal(p.inconnus.self, 1, "le focaliseur aussi");
-  assert.equal(p.somme.self, 0, "on ne lui invente pas un poids");
+  assert.equal(p.inconnus.backpack, 0,
+    "⚖️ la cloche n'est plus « illisible » : le livre la dit négligeable, et négligeable se pèse");
+  assert.equal(p.inconnus.self, 1, "le focaliseur, lui, porte « Varies » — il reste À ÉDITER");
+  assert.equal(p.somme.self, 0, "et il pèse 0 en attendant : *« varies = 0 jusqu\u2019à ce qu\u2019on l\u2019ait édité »*");
   assert.equal(p.unite, "lb", "l'unité est celle du livre");
   assert.equal(p.melange, false);
 
@@ -456,4 +467,73 @@ test("🔴 LE FIL DE LA BOURSE DU SAC — on CLIQUE, et le popup doit s'ouvrir",
   node = rendre();
   assert.equal(node.querySelector('[data-organe="bourse-voile"]'), null,
     "⚖️ *« retaper la bourse la referme »* — et l'état est celui de R, pas un second");
+});
+
+
+/* ══ LE POIDS DE JEU — LES TROIS RÈGLES D'ERIC DU 2026-09-23 ════════════════
+   ⚖️ *« arrondit les poids, le plancher est 0,1 lb »* · *« en français ce sera
+   50 g »* · *« poids varies = 0 jusqu'à ce qu'on l'ait édité »* · du tiret :
+   *« applique le 0,1 lb »*.
+   ⛔ CES TESTS EXISTENT PARCE QUE LA RÈGLE RENVERSE CE QUE LE FICHIER DISAIT :
+   « — » et « Varies » rendaient null, « pas des zéros ». Ils rendent désormais
+   deux choses DIFFÉRENTES, et c'est la différence qu'on garde. */
+
+test("poids — le plancher est NATIF de chaque système, jamais une conversion", () => {
+  assert.deepEqual(PLANCHER_POIDS, { lb: 0.1, kg: 0.05 });
+  /* 🔴 LE GARDE QUI COMPTE : 0,1 lb vaut 45,36 g. Si le plancher métrique
+     valait cela, c'est qu'on aurait converti — ce que `MASSES` interdit. */
+  assert.notEqual(PLANCHER_POIDS.kg, Number((PLANCHER_POIDS.lb * 0.45359237).toFixed(5)),
+    "⛔ 50 g n'est PAS 0,1 lb converti : chaque édition porte le nombre rond de SON unité");
+});
+
+test("poids — l'arrondi au 0,1 en livres, et rien d'imposé au kilo", () => {
+  assert.equal(arrondiPoids(0.25, "lb"), 0.3, "1/4 lb. monte à 0,3 — le seul objet du SRD que la règle déplace");
+  assert.equal(arrondiPoids(0.5, "lb"), 0.5, "1/2 lb. tombe déjà juste");
+  assert.equal(arrondiPoids(58.5, "lb"), 58.5);
+  assert.equal(arrondiPoids(0.001, "lb"), 0.1, "sous le plancher, on remonte AU plancher");
+  /* ⏳ Eric a donné le plancher métrique, jamais un pas. On n'en invente pas :
+     poser 50 g déplacerait `Dart` de 125 à 150 g, une valeur du livre. */
+  assert.equal(arrondiPoids(0.125, "kg"), 0.125, "125 g reste 125 g — aucun pas n'est dicté au métrique");
+  assert.equal(arrondiPoids(0.01, "kg"), 0.05, "mais le plancher métrique, lui, s'applique");
+});
+
+test("poids — trois chaînes, trois ORIGINES, et le zéro n'est pas le plancher", () => {
+  assert.deepEqual(poidsDeJeu("1 lb."), { valeur: 1, unite: "lb", origine: "lu" });
+  assert.deepEqual(poidsDeJeu("—", "lb"), { valeur: 0.1, unite: "lb", origine: "plancher" },
+    "⚖️ le livre ne dit pas « inconnu », il dit « négligeable » — et négligeable n'est pas zéro");
+  assert.deepEqual(poidsDeJeu("—", "kg"), { valeur: 0.05, unite: "kg", origine: "plancher" });
+  assert.deepEqual(poidsDeJeu("Varies", "lb"), { valeur: 0, unite: "lb", origine: "a-editer" },
+    "⚖️ *« poids varies = 0 jusqu'à ce qu'on l'ait édité »*");
+  assert.equal(poidsDeJeu("1 Sorcery Point"), null, "ce qui n'est ni lisible, ni tiret, ni Varies reste REFUSÉ");
+  /* ⭐ LA DISTINCTION, EN UNE LIGNE : un objet pesé ne descend jamais sous le
+     plancher, un objet à éditer ne l'atteint jamais. */
+  assert.ok(poidsDeJeu("Varies").valeur < poidsDeJeu("—").valeur,
+    "⛔ si ces deux-là se confondaient, l'écran ne pourrait plus dire « à faire » de « léger »");
+});
+
+test("poids — `parsePoids` n'a PAS changé de loi : c'est la lecture qui est neuve", () => {
+  assert.equal(parsePoids("—"), null, "le parseur LIT, il ne déduit pas");
+  assert.equal(parsePoids("Varies"), null);
+  assert.deepEqual(parsePoids("1/4 lb."), { valeur: 0.25, unite: "lb" },
+    "⭐ et il rend TOUJOURS 0,25 : l'arrondi vit dans `poidsDeJeu`, pas dans le parseur");
+});
+
+test("poids — la pile prend son unité de ses objets LISIBLES, puis relève les autres", () => {
+  const cat = {
+    "x:lourd": { data: { weight: "2 kg" } },
+    "x:tiret": { data: { weight: "—" } },
+    "x:varie": { data: { weight: "Varies" } }
+  };
+  const cherche = (ref) => cat[ref];
+  const kg = poidsParLieu([
+    { ref: "x:lourd", location: "backpack", quantity: 1 },
+    { ref: "x:tiret", location: "backpack", quantity: 1 }
+  ], cherche);
+  assert.equal(kg.unite, "kg");
+  assert.equal(kg.somme.backpack, 2.05, "🔴 le tiret prend le plancher DE LA PILE — 50 g, pas 0,1 lb");
+
+  const varie = poidsParLieu([{ ref: "x:varie", location: "backpack", quantity: 3 }], cherche);
+  assert.equal(varie.somme.backpack, 0, "« Varies » pèse 0");
+  assert.equal(varie.inconnus.backpack, 3,
+    "⛔ ET IL RESTE INCONNU : la somme cesse de mentir sans que le compte des « à éditer » disparaisse");
 });

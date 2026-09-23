@@ -3458,6 +3458,102 @@ oublié — et ce jour-là un garde la tient. ⛔ Ne pas la redécouvrir, ⛔ ne
 
 ---
 
+### ⚖️ LE POIDS DE JEU — LE PLANCHER, LE ZÉRO, ET CE QU'ILS NE DISENT PAS PAREIL
+📍 `equipement-poids-plancher-et-zero` · vivante · 23/09
+⚖️ **Un poids se lit, puis s'arrondit à `0,1 lb` en anglais et se relève au plancher `0,1 lb` ·
+`50 g`. Un `"—"` prend le plancher. Un `"Varies"` vaut `0`, et ce zéro est la marque de ce qui
+n'a pas encore été édité.**
+
+> Eric, 2026-09-23, en quatre temps : **« arrondit les poids, le plancher est 0,1 lb, tout est
+> arrondi au 0,1 près »** · **« en français ce sera 50 g — notre système métrique permet d'avoir
+> plus de fluidité, on aura des g et des kg »** · **« poids varies = 0 jusqu'à ce qu'on l'ait
+> édité »** · du tiret : **« Candle, Ink Pen, Paper, String, Signal Whistle, Vial, Sling, les deux
+> Spell Scrolls, applique le 0,1 lb »**.
+
+| ce que la source écrit | ce que ça pèse | `origine` |
+|---|---|---|
+| `"1 lb."` · `"250 g"` | la valeur lue, arrondie puis relevée | `lu` |
+| `"—"` *(18 objets)* | **le plancher** — 0,1 lb ou 50 g | `plancher` |
+| `"Varies"` *(5 objets)* | **0**, et l'objet reste compté dans `inconnus` | `a-editer` |
+
+🔴 **LE PLANCHER EST NATIF DE CHAQUE SYSTÈME — CE N'EST PAS UNE CONVERSION.** `0,1 lb` vaut
+**45,36 g**, pas 50. Chaque édition porte le nombre **rond de sa propre unité**, ce qui prolonge
+exactement la loi déjà écrite dans `equipement-pipeline.mjs` : *« la livre et le kilo ne se
+convertissent JAMAIS l'un dans l'autre ici »*. ⛔ Convertir le plancher rouvrirait cette porte-là.
+
+⛔ **ET LE ZÉRO N'EST PAS LE PLANCHER — c'est toute la finesse de la règle.** Un objet **pesé** ne
+descend jamais sous le plancher ; un objet **à éditer** ne l'atteint jamais. `0` veut dire *« à
+faire »*, `0,1 lb` veut dire *« pesé, et léger »*. Le livre ne dit pas « inconnu » quand il écrit
+`—`, il dit **négligeable** — et négligeable n'est pas zéro. Les deux se distinguent à l'œil, sur
+l'écran comme dans le code.
+
+⚠️ **CE QUE CETTE RÈGLE CHANGE DANS LE CODE, ET IL FAUT QUE CE SOIT DIT.** `equipement-pipeline.mjs` portait
+l'inverse, écrit noir sur blanc : *« "—" et "Varies" rendent null — ce sont des faits de la source,
+**pas des zéros** »*, et `poidsParLieu` les jetait tous deux dans `inconnus`. La parole du
+propriétaire est la plus récente et elle gagne. ⭐ **Le parseur, lui, n'a pas changé de loi** :
+`parsePoids` LIT toujours `null` sur ces deux chaînes. C'est la **lecture** qui est neuve, et elle
+vit dans `poidsDeJeu`, à un endroit qu'on peut nommer — pas dans le parseur, qui reste pur.
+
+⏳ **CE QUI N'EST PAS TRANCHÉ ET NE DOIT PAS ÊTRE INVENTÉ : le PAS métrique.** Eric a donné le
+plancher (`50 g`) et les unités (*« des g et des kg »*), **jamais un pas d'arrondi**. `PAS_ARRONDI.kg`
+vaut donc `null` : un kilo lu est gardé tel quel. ⛔ Poser 50 g déplacerait `Dart` de **125 g à
+150 g** — une valeur du livre, changée sans qu'on l'ait demandé.
+
+📏 **CE QUE LA RÈGLE DÉPLACE, MESURÉ** : côté anglais, **une seule valeur du livre bouge** — `Dart`,
+`1/4 lb.` → **0,3 lb**. Côté français, **aucune** : le minimum y est `125 g`, très au-dessus du
+plancher. Sur les 416 objets rangés, les manques de poids tombent de **281 à 213**.
+
+---
+
+### ⚒️ LE POIDS D'UN OBJET MAGIQUE EST CELUI DE SA BASE MONDAINE
+📍 `equipement-poids-herite-de-la-base` · vivante · 20/09
+⚖️ **Un objet magique qui désigne une arme ou une armure non magique pèse le poids de cette base,
+lue dans son champ `subtype`.**
+
+> Eric, 2026-09-20 : **« pour SRD, tous les items qui font référence à un item non magique, arme
+> armure, même poids que l'item non magique. Tu mets le poids »** — adaptation SRFH, sa logique.
+
+Le SRD ne l'écrit pas, mais une *Adamantine Armor* n'est rien d'autre qu'une armure, et une armure
+a un poids. Quand le `subtype` ouvre un **choix** (*« Any Simple or Martial »*, 28 bases ·
+*« Glaive, Greatsword, Longsword… »*), le poids est celui de la base **choisie**, et la fourchette
+est connue : *Defender* pèse de **1 à 18 lb** selon l'arme.
+
+📏 **50 objets sur 52 sont servis** — `magic-armor` passe de 19 manques à **0**, `magic-weapons` de
+33 à **2**. ⚠️ **Les deux qui résistent ne sont pas un échec de la règle** : *Ammunition, +1/+2/+3*
+et *Ammunition of Slaying* héritent bien de `gear:ammunition`, mais **cette base porte elle-même
+`"Varies"`**. Il n'y a rien à hériter tant que les 5 munitions typées ne sont pas écrites en amont
+dans `fh-srd`.
+
+⛔ **CE QUE LA RÈGLE N'ATTEINT PAS, ET C'EST NORMAL** : `marvels` (149 objets) n'a **aucun** objet
+qui désigne une base mondaine — un *Bag of Holding* n'est l'agrandissement de rien.
+
+---
+
+### 🔨 LE SOULFORGING PÈSE CE QUE PÈSE LA TROUSSE DU BRICOLEUR
+📍 `equipement-poids-soulforging-tinker` · vivante · 23/09
+⚖️ **L'outil `fh:tool:en:soulforging` porte le poids de `srd:tool:en:tinker-s-tools` — `10 lb.` en
+anglais, `5 kg` en français. Son prix reste `"Varies"`.**
+
+> Eric, 2026-09-23 : **« soulforging tools = idem poids tinkering tools, tout le reste = varies »**.
+
+Les deux poids sont **lus dans le livre**, chacun dans son édition, ⛔ jamais l'un converti depuis
+l'autre — même loi que le plancher, un cran plus haut. Le prix n'a pas été tranché : il reste
+`"Varies"`, donc **0 jusqu'à édition**, et on ne lui invente pas les 50 GP de la trousse.
+
+⏳ **ET LES ONZE AUTRES OUTILS FH RESTENT `"Varies"`.** ⚠️ Aucun des douze n'est **rangé** : ils ne
+portent pas de `shelf` et n'apparaissent donc sur aucune étagère de l'écran d'équipement. C'est un
+trou séparé, et il n'est pas tranché.
+
+🔴 **LES TROIS JEUX NE SONT PAS « VARIES », ET LEUR VRAIE VALEUR NE PEUT PAS ENTRER ICI.**
+`gen-fh-skills-layer.mjs` écrit `cost = "Varies"` et `weight = "Varies"` sur tout outil qui `inherits`
+— or les livres chiffrent **chaque jeu séparément**, prix et poids compris. ⛔ **Ces valeurs sont du
+contenu WotC hors SRD** : la loi §0.8 leur interdit le dépôt public. Elles doivent passer par le
+chemin déjà prévu pour les livres du joueur — générateur versionné, données sur le disque, ignorées
+par git (`gen-livre-layer.mjs`, *« aucune ligne du livre ne traverse un commit »*). ⛔ Ne pas les
+écrire dans `fh-skills-source.mjs`.
+
+---
+
 ### 🏷️ LES QUATRE MARQUES D'UN JETON, ET LA BANDE QUI LEUR EST RÉSERVÉE
 📍 `jeton-quatre-marques-de-la-bande` · vivante · 17/09
 ⚖️ **Un jeton porte QUATRE marques dans une bande haute de 12 qui lui est réservée — verrou, quantité encadrée, anneau d'encre (porté), disque violet (harmonisé) — et ⛔ le nom ne monte JAMAIS dedans.**

@@ -144,8 +144,9 @@ const MASSES = { lb: ["lb", 1], lbs: ["lb", 1], kg: ["kg", 1], g: ["kg", 0.001] 
 
 /** « 1 lb. » · « 1/2 lb. » · « 58½ lb. » · « 5 lb. (full) » · « 0,5 kg » ·
  *  « 250 g » → { valeur, unite }, l'unité étant celle du LIVRE (`lb` ou `kg`).
- *  « — » et « Varies » rendent null — ce sont des faits de la source, pas des
- *  zéros : 18 objets portent le tiret et 5 portent « Varies ». */
+ *  « — » et « Varies » rendent null : CE PARSEUR NE FAIT QUE LIRE. Ce qu'on en
+ *  déduit est la règle de `poidsDeJeu`, juste en dessous — et les deux ne
+ *  rendent pas la même chose, ce qui est voulu. */
 export function parsePoids(chaine) {
   if (typeof chaine !== "string") return null;
   const m = chaine.trim().match(/^(.+?)\s*(lbs|lb|kg|g)\.?(\s*\([^)]*\))?$/i);
@@ -154,6 +155,63 @@ export function parsePoids(chaine) {
   if (valeur === null) return null;
   const [unite, facteur] = MASSES[m[2].toLowerCase()];
   return { valeur: valeur * facteur, unite };
+}
+
+/* ══ LE POIDS DE JEU — TROIS RÈGLES D'ERIC, 2026-09-23 ════════════════════
+   ⚖️ Eric : *« arrondit les poids, le plancher est 0,1 lb, tout est arrondi au
+   0,1 près »*, puis *« en français ce sera 50 g — notre système métrique permet
+   d'avoir plus de fluidité, on aura des g et des kg »*, puis *« poids varies = 0
+   jusqu'à ce qu'on l'ait édité »*, puis, du tiret : *« applique le 0,1 lb »*.
+
+   🔴 LE PLANCHER EST NATIF DE CHAQUE SYSTÈME, ET CE N'EST PAS UNE CONVERSION.
+   0,1 lb vaut 45,36 g — pas 50. Chaque édition porte le nombre ROND de sa
+   propre unité, exactement comme `MASSES` l'impose déjà plus haut : *« la livre
+   et le kilo ne se convertissent JAMAIS l'un dans l'autre ici »*. Convertir le
+   plancher aurait rouvert la porte que ce commentaire ferme.
+
+   ⛔ ET LE ZÉRO N'EST PAS LE PLANCHER — c'est toute la finesse de la règle.
+     · « Varies » → 0, marque de ce qui N'A PAS ENCORE ÉTÉ ÉDITÉ (5 objets du
+       livre : Ammunition, Arcane Focus, Druidic Focus, Holy Symbol, Musical
+       Instrument). Il reste compté dans `inconnus` : 0 veut dire « à faire ».
+     · « — » → LE PLANCHER (18 objets : Candle, Ink Pen, Paper, String, Signal
+       Whistle, Vial, Sling, les deux Spell Scrolls…). Le livre ne dit pas
+       « inconnu », il dit « négligeable » — et négligeable n'est pas zéro.
+   Un objet pesé ne descend donc jamais sous le plancher, et un objet à éditer
+   ne l'atteint jamais. Les deux se distinguent à l'œil, sur l'écran comme ici.
+
+   ⚠️ CE QUI EST RENVERSÉ : ce fichier disait, jusqu'à aujourd'hui, *« "—" et
+   "Varies" rendent null — ce sont des faits de la source, PAS des zéros »*.
+   La règle d'Eric dit le contraire et c'est le propriétaire qui tranche. Le
+   parseur, lui, n'a pas changé : il LIT toujours null. C'est la LECTURE qui a
+   changé, et elle vit ici, à un endroit qu'on peut nommer.
+
+   ⏳ LE PAS MÉTRIQUE N'EST PAS DICTÉ. Eric a donné le plancher (50 g) et les
+   unités (g et kg, *« plus de fluidité »*), jamais un pas. On n'en invente pas :
+   `PAS_ARRONDI.kg` vaut `null`, donc un kilo lu est gardé tel quel. ⛔ Poser
+   50 g déplacerait `Dart` de 125 à 150 g — une valeur du livre, changée sans
+   qu'on l'ait demandé. */
+export const PLANCHER_POIDS = Object.freeze({ lb: 0.1, kg: 0.05 });
+const PAS_ARRONDI = Object.freeze({ lb: 0.1, kg: null });
+
+/** Arrondit au pas de l'unité, puis relève au plancher. Jamais sous le plancher. */
+export function arrondiPoids(valeur, unite) {
+  const pas = PAS_ARRONDI[unite];
+  const arrondi = pas ? Math.round(valeur / pas) * pas : valeur;
+  /* `toFixed` ferme la dérive binaire : 3 × 0,1 vaut 0,30000000000000004. */
+  return Math.max(PLANCHER_POIDS[unite], Number(arrondi.toFixed(4)));
+}
+
+/** Le poids QU'ON PÈSE, par opposition au poids QU'ON LIT (`parsePoids`).
+ *  `unite` est celle de la pile — le tiret et « Varies » n'en portent pas.
+ *  → `{ valeur, unite, origine }`, `origine` ∈ `lu` · `plancher` · `a-editer`.
+ *  → `null` si la chaîne n'est ni lisible, ni un tiret, ni un « Varies ». */
+export function poidsDeJeu(chaine, unite = "lb") {
+  const lu = parsePoids(chaine);
+  if (lu) return { valeur: arrondiPoids(lu.valeur, lu.unite), unite: lu.unite, origine: "lu" };
+  const brut = typeof chaine === "string" ? chaine.trim() : "";
+  if (/^varies$/i.test(brut)) return { valeur: 0, unite, origine: "a-editer" };
+  if (brut === "—" || brut === "-") return { valeur: PLANCHER_POIDS[unite], unite, origine: "plancher" };
+  return null;
 }
 
 export function formatCout(cout) {
@@ -266,14 +324,27 @@ export function poidsParLieu(lignes, chercheRecord) {
   const vide = () => Object.fromEntries(LIEUX_PESES.map((l) => [l, 0]));
   const somme = vide(), compte = vide(), inconnus = vide();
   const unites = new Set();
-  for (const l of lignes) {
+  /* 🔴 DEUX PASSES, ET LA PREMIÈRE N'EST PAS UN LUXE : le tiret et « Varies »
+     ne portent AUCUNE unité. Leur plancher vaut 0,1 en livres et 0,05 en kilos,
+     donc il faut savoir dans quelle édition on pèse AVANT de les relever. La
+     pile le dit elle-même, par ses objets lisibles ; à défaut, `lb`, l'unité
+     du SRD en anglais, qui est la seule langue où cette couche existe. */
+  const poids = lignes.map((l) => {
+    const rec = chercheRecord(l.ref);
+    return rec && rec.data ? rec.data.weight : undefined;
+  });
+  for (const w of poids) { const lu = parsePoids(w); if (lu) unites.add(lu.unite); }
+  const unitePile = unites.size === 1 ? [...unites][0] : "lb";
+  for (const [i, l] of lignes.entries()) {
     const lieu = LIEUX_PESES.includes(l.location) ? l.location : "backpack";
     const n = l.quantity || 1;
     compte[lieu] += n;
-    const rec = chercheRecord(l.ref);
-    const pesee = parsePoids(rec && rec.data ? rec.data.weight : undefined);
-    if (pesee) { somme[lieu] += pesee.valeur * n; unites.add(pesee.unite); }
-    else inconnus[lieu] += n;
+    const pesee = poidsDeJeu(poids[i], unitePile);
+    if (!pesee) { inconnus[lieu] += n; continue; }
+    somme[lieu] += pesee.valeur * n;
+    /* ⛔ « Varies » PÈSE 0 ET RESTE INCONNU : la somme cesse de mentir, et le
+       compte des « à éditer » ne disparaît pas avec elle. Les deux à la fois. */
+    if (pesee.origine === "a-editer") inconnus[lieu] += n;
   }
   /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-18, en trois lignes : *« Gear : xxxxxx ·
      Backpack : xxxxxx · Encumbrance = (Gear + Backpack) xxxxx »*.
