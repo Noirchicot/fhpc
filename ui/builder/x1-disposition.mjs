@@ -33,10 +33,10 @@ export const ROND = 22;   /* la flèche : le gabarit du livre et du `?` de l'éc
 export const PARCHEMIN_DEBORD = 0;
 
 export const ORGANES = [
-  { nom: "QTE",           sorte: "voyant",        x:     34, y:     20, l:    40, h:   40, mot: "×2", cran: "T1/600" },
-  { nom: "NOM",           sorte: "voyant",        x:     78, y:     20, l:   219, h:   40, mot: "Winged Helmet", cran: "T4/600" },
-  { nom: "PRIX",          sorte: "voyant",        x:     90, y:     62, l:    84, h:    8, mot: "15 gp · ×2 · 30 gp", cran: "T1/600" },
-  { nom: "POIDS",         sorte: "voyant",        x:    241, y:     62, l:    44, h:    8, mot: "3 lb · 6 lb", cran: "T1/600" },
+  { nom: "NOM",           sorte: "voyant",        x:     39, y:     20, l:   297, h:   40, mot: "Winged Helmet", cran: "T4/600" },
+  { nom: "UNITE",         sorte: "voyant",        x:     90, y:     62, l:    65, h:    8, mot: "2 gp · 5 lb", cran: "T1/600" },
+  { nom: "QTE",           sorte: "voyant",        x:    155, y:     62, l:    65, h:    8, mot: "×3", cran: "T1/600" },
+  { nom: "TOTAL",         sorte: "voyant",        x:    220, y:     62, l:    65, h:    8, mot: "6 gp · 15 lb", cran: "T1/600" },
   { nom: "FILET HAUT",    sorte: "zone",          x:     73, y:     78, l:   229, h:    8, mot: "", cran: "T1/600" },
   { nom: "DESCRIPTION",   sorte: "zone",          x:     39, y:     86, l:   297, h:  180, mot: "Description", cran: "T2/400" },
   { nom: "JAUGE",         sorte: "zone",          x:  345.5, y:    218, l:    20, h:   52, mot: "", cran: "T1/600" },

@@ -92,7 +92,7 @@ export function budgetDuParchemin() {
 export const CLEF_DE = Object.freeze({
   "QTE": "qte", "NOM": "nom",
   "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge", "OEIL": "oeil",
-  "PRIX": "prix", "POIDS": "poids", "DESCRIPTION": "description",
+  "UNITE": "unite", "TOTAL": "total", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
   "EQUIP": "equip", "ATTUNE": "attune", "LOCKED": "lock",
   "EQUIP ON": "equip-on", "ATTUNE ON": "attune-on", "LOCKED ON": "lock-on",
@@ -223,8 +223,13 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
          centré par rapport à la page »*. */
       noeud.append(voyant(id, "x1-nom", objet.nom || o.mot));
     } else if (id === "qte") {
-      /* ⛔ Elle ne s'écrit que si elle dit quelque chose : « ×1 » est du bruit. */
-      noeud.append(voyant(id, "x1-qte", objet.qte > 1 ? `×${objet.qte}` : "",
+      /* 🔴 LA QUANTITÉ A QUITTÉ LA TÊTE (lot 255) — Eric, 23/09 : *« on dégage le X2
+         en haut à gauche »*. ⭐ ELLE NE DISPARAÎT PAS, ELLE DESCEND : son croquis de
+         la ligne de coût la met AU CENTRE, entre l'unitaire et le total. Et c'est le
+         DOUBLON qui le justifiait — elle était dite deux fois, ici et dans « 15 gp ·
+         ×2 · 30 gp » juste dessous. Deux écrivains d'un même fait.
+         ⛔ Elle ne s'écrit toujours que si elle dit quelque chose : « ×1 » est du bruit. */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-qte", objet.qte > 1 ? `×${objet.qte}` : "",
         objet.qte > 1 ? `Quantity ${objet.qte}` : undefined));
     } else if (id === "filet-haut" || id === "filet-bas") {
       /* ⚖️ LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — Eric, 17/09 au soir. Ils ne
@@ -233,10 +238,15 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
       f.dataset.organe = id;
       f.setAttribute("aria-hidden", "true");
       noeud.append(f);
-    } else if (id === "prix") {
-      noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
-    } else if (id === "poids") {
-      noeud.append(voyant(id, "x1-chiffres", ligneDePoids(objet.poidsUnite, objet.qte, objet.poidsTotal), "Weight"));
+    } else if (id === "unite") {
+      /* ⚖️ « 2gp / 5lg (cadré gauche) » — le prix ET le poids d'UN exemplaire. */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-unite",
+        cellule(objet.prixUnite, objet.poidsUnite), "Each"));
+    } else if (id === "total") {
+      /* ⚖️ « 6gp / 15lg (cadré droite) » — ⛔ et rien quand il n'y en a qu'un : un
+         total qui répète l'unité ne dit pas un total, il dit deux fois l'unité. */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-total",
+        objet.qte > 1 ? cellule(objet.prixTotal, objet.poidsTotal) : "", "Total"));
     } else if (id === "description") {
       const z = eld("div", "x1-description", objet.prose || "");
       z.dataset.organe = id;
@@ -376,17 +386,18 @@ function bouton(classe, texte, note, surClic) {
 /** Le mot d'une ligne de chiffres : « 15 gp · ×2 · 30 gp ». ⭐ Les points
  *  médians viennent du croquis d'Eric, et la quantité ne s'écrit que si elle
  *  dit quelque chose — « ×1 » est du bruit. */
-function ligneDeChiffres(unite, qte, total) {
-  const bouts = [unite || "—"];
-  if (qte > 1) bouts.push(`×${qte}`, total || "");
-  return bouts.filter(Boolean).join(" · ");
-}
-/** Le POIDS ne répète pas la quantité : « 3 lb · 6 lb » (le croquis d'Eric).
- *  ⭐ Elle est déjà dite une ligne plus haut, et la boîte du plan est taillée sur
- *  ce mot-là — 43,73 à T1/600 dans 44. L'y remettre la fait déborder, mesuré. */
-function ligneDePoids(unite, qte, total) {
-  if (!unite) return "—";
-  return qte > 1 && total ? `${unite} · ${total}` : unite;
+/** ⚖️ UNE CELLULE DE LA LIGNE DE COÛT — lot 255, Eric 23/09 :
+ *     « 2gp / 5lg (cadré gauche) · X3 (centre) · 6gp / 15lg (cadré droite) »
+ *  🔴 ET DEUX FABRIQUES SONT DEVENUES UNE. Avant, `ligneDeChiffres` et
+ *  `ligneDePoids` construisaient chacune une PHRASE de trois moments (unité,
+ *  quantité, total), et elles ne les construisaient pas pareil — le prix
+ *  répétait la quantité, le poids la taisait, avec un commentaire pour
+ *  expliquer l'écart. ⭐ Maintenant chaque COLONNE porte un moment, et le prix
+ *  et le poids voyagent ensemble : ce sont les deux façons de peser une même
+ *  ligne du sac. Il ne reste donc qu'une forme de cellule, et plus d'écart à
+ *  justifier. */
+function cellule(prix, poids) {
+  return [prix, poids].filter(Boolean).join(" · ") || "—";
 }
 
 /* ══ LES ORGANES ══════════════════════════════════════════════════════════ */

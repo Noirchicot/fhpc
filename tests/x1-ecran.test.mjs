@@ -147,7 +147,10 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      ligne du haut de 4 blg »*, *« descends pas le reste »*. Elle mange la gouttière qui
      la séparait des chiffres ; rien d'autre ne bouge, et la somme reste la même. */
   const nom = ORGANES.find((o) => o.nom === "NOM");
-  const chiffres = ORGANES.find((o) => o.nom === "PRIX");
+  /* 🔴 « PRIX » N'EXISTE PLUS (lot 255) : la ligne de coût est faite de trois colonnes
+     — UNITE · QTE · TOTAL — et c'est la première qui en marque le haut. ⛔ Le garde
+     lit donc l'organe qui OUVRE la rangée, pas un nom qui a disparu. */
+  const chiffres = ORGANES.find((o) => o.nom === "UNITE");
   /* 🔴 RÉÉCRIT LE 17/09 AU SOIR, QUAND LES FLÈCHES SONT PARTIES : elles occupaient la
      rangée entière (22 dans une cible de 44) et donnaient donc son sommet. Ce qui reste
      se DESSINE à 40 dans les 44, donc deux plus bas. ⭐ Le garde tient l'invariant, pas
@@ -429,10 +432,20 @@ test("14 — ⛔ NI FLÈCHES NI PAGINATION : la tête ne porte plus que la quant
   }
   assert.ok(!ORGANES.some((o) => ["PAGINATION", "PRECEDENT", "SUIVANT"].includes(o.nom)),
     "et le plan ne les porte plus non plus");
-  const qte = ORGANES.find((o) => o.nom === "QTE");
+  /* 🔴 RÉÉCRIT UNE TROISIÈME FOIS LE 23/09 (lot 255) — Eric : *« on dégage le X2 en
+     haut à gauche de X1 et X2 »*. La tête ne porte plus QUE le nom : la quantité est
+     descendue au CENTRE de la ligne de coût, où son croquis la met.
+     ⭐ ET C'EST LE DOUBLON QUI LE JUSTIFIAIT, pas l'encombrement : le ×2 était dit
+     DEUX fois — en voyant ici, et dans « 15 gp · ×2 · 30 gp » juste dessous. */
+  const surLaTete = ORGANES.filter((o) => o.y === ORGANES.find((x) => x.nom === "NOM").y);
+  assert.deepEqual(surLaTete.map((o) => o.nom), ["NOM"],
+    "⛔ un organe est revenu sur la ligne du titre : elle ne porte plus que lui");
   const nom = ORGANES.find((o) => o.nom === "NOM");
-  assert.equal(qte.x, TABLE.marge_cote + 20, "la quantité rentre de 20 depuis la marge des côtés");
   assert.equal(nom.x, (DALLE.l - nom.l) / 2, "et le nom reste centré sur la page");
+  /* ⭐ ET IL PREND LA BANDE DU TEXTE — la même que la DESCRIPTION qu'il nomme.
+     ⛔ Lue dans la table, pas recopiée. */
+  assert.equal(nom.l, DALLE.l - 2 * TABLE.marge_texte,
+    "le titre prend la colonne du texte, comme la description qu'il nomme");
 });
 
 test("14 bis — la jauge de défilement veille sur le texte, et elle ne se touche pas", () => {
@@ -448,15 +461,23 @@ test("14 bis — la jauge de défilement veille sur le texte, et elle ne se touc
   assert.match(source, /veilleLeDebordement/, "et c'est bien l'organe partagé qui la fabrique");
 });
 
-test("15 — prix et poids : la quantité se dit UNE fois, sur la ligne du prix", () => {
+test("15 — la ligne de coût : trois colonnes, et chacune porte UN moment", () => {
+  /* ⚖️ Eric, 23/09 : *« 2gp / 5lg (cadré gauche) · X3 (centre) · 6gp / 15lg (cadré
+     droite) »*. 🔴 AVANT, CHAQUE BOÎTE PORTAIT TOUT SON SUJET — le prix disait
+     l'unité, la quantité ET le total ; le poids disait l'unité et le total, sans la
+     quantité, avec un commentaire pour justifier l'écart. ⭐ Maintenant chaque
+     COLONNE porte un moment, le prix et le poids voyagent ensemble, et il n'y a plus
+     d'écart à expliquer. */
   const n = rendu();
-  assert.equal(n.querySelector('[data-organe="prix"]').textContent, "15 gp · ×2 · 30 gp");
-  assert.equal(n.querySelector('[data-organe="poids"]').textContent, "3 lb · 6 lb",
-    "⛔ pas de `×2` ici : la boîte du plan est taillée sur ce mot-là (43,73 dans 44)");
-  /* un objet seul ne dit ni quantité ni total — « ×1 » est du bruit */
+  assert.equal(n.querySelector('[data-organe="unite"]').textContent, "15 gp · 3 lb");
+  assert.equal(n.querySelector('[data-organe="qte"]').textContent, "×2");
+  assert.equal(n.querySelector('[data-organe="total"]').textContent, "30 gp · 6 lb");
+  /* ⛔ UN OBJET SEUL NE DIT NI QUANTITÉ NI TOTAL — « ×1 » est du bruit, et un total
+     qui répète l'unité ne dit pas un total : il dit deux fois l'unité. */
   const seul = construireLaFicheX1({ objet: { ...objetTemoin, qte: 1 }, rang: { position: 1, total: 1 } }).noeud;
-  assert.equal(seul.querySelector('[data-organe="prix"]').textContent, "15 gp");
-  assert.equal(seul.querySelector('[data-organe="poids"]').textContent, "3 lb");
+  assert.equal(seul.querySelector('[data-organe="unite"]').textContent, "15 gp · 3 lb");
+  assert.equal(seul.querySelector('[data-organe="qte"]').textContent, "");
+  assert.equal(seul.querySelector('[data-organe="total"]').textContent, "");
 });
 
 /* ══ 16 — LE GESTE QUI L'OUVRE ═══════════════════════════════════════════ */
@@ -475,7 +496,7 @@ test("15 bis — 👁️ LE MODE LECTURE : il retire les OPTIONS, et rien d'autr
     assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, true, `${id} se retire`);
   }
   /* ⛔ ET LA TÊTE RESTE TRANQUILLE — c'est la clause qu'Eric a ajoutée en regardant. */
-  for (const id of ["qte", "nom", "prix", "poids"]) {
+  for (const id of ["qte", "nom", "unite", "total"]) {
     assert.equal(lu.querySelector(`[data-organe="${id}"]`).hidden, false, `${id} reste`);
   }
   for (const id of ["description", "filet-haut", "filet-bas", "jauge", "copier", "oeil",
@@ -725,4 +746,45 @@ test("21 — 📜 LE PARCHEMIN FAIT 500 : la fiche tient la cote de la TABLE, pa
     "⛔ le parchemin a cessé d'observer sa boîte : une cote n'est pas une taille rendue");
   assert.ok(!/\b(375|500)\b/.test(parchemin),
     "⛔ le parchemin porte une cote en dur : il doit MESURER, jamais supposer");
+});
+
+/* ══ 22 — LE CADRAGE DES TROIS COLONNES, lot 255 ═══════════════════════════
+   🔴 CE GARDE NAÎT D'UNE ATTAQUE MUETTE. Les quatre autres affirmations du lot
+   rougissaient ; celle-ci — remplacer `flex-start` par `center` sur la colonne
+   de gauche — ne faisait rien bouger. ⛔ Le CŒUR de la demande d'Eric n'était
+   gardé par rien : *« 2gp / 5lg (cadré gauche) · X3 (centre) · 6gp / 15lg
+   (cadré droite) »*.
+   ⭐ ET LE CADRAGE N'EST PAS DU GOÛT : les deux bords ANCRENT la ligne sur la
+   bande (90 → 285, les ancrages d'Eric du 17/09) et le centre flotte entre eux.
+   Trois cases centrées donneraient trois blocs qui glissent ensemble à chaque
+   changement de chiffre ; là, seuls les chiffres bougent, les bords tiennent. */
+test("22 — les trois colonnes du coût se cadrent : gauche · centre · droite", () => {
+  const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
+  const regle = (sel) => {
+    const i = css.indexOf(sel);
+    return i < 0 ? null : css.slice(i, css.indexOf("}", i));
+  };
+  const unite = regle(".x1-chiffres-unite");
+  const total = regle(".x1-chiffres-total");
+  assert.ok(unite && /justify-content:\s*flex-start/.test(unite),
+    "⛔ la colonne de l'unité n'est plus cadrée à gauche : la ligne perd son ancrage gauche");
+  assert.ok(total && /justify-content:\s*flex-end/.test(total),
+    "⛔ la colonne du total n'est plus cadrée à droite : la ligne perd son ancrage droit");
+  /* ⭐ ET LE CENTRE NE SE DÉCLARE PAS : il hérite du `center` de `.x1-chiffres`.
+     ⛔ Le lui redire serait un second écrivain pour un défaut qui marche. */
+  const qte = regle(".x1-chiffres-qte");
+  assert.ok(!qte || !/justify-content/.test(qte),
+    "⛔ la quantité redéclare son cadrage : elle hérite du centre, elle n'a rien à dire");
+
+  /* 🔴 ET LES TROIS COLONNES SONT ÉGALES DANS LA TABLE, ⛔ pas dans la feuille :
+     une largeur inégale ferait mentir le cadrage — la colonne de droite finirait
+     ailleurs que le bord de la bande. */
+  const [u, q, t] = ["UNITE", "QTE", "TOTAL"].map((n) => ORGANES.find((o) => o.nom === n));
+  assert.equal(u.l, q.l, "l'unité et la quantité ont la même largeur");
+  assert.equal(q.l, t.l, "la quantité et le total ont la même largeur");
+  assert.equal(u.x + u.l, q.x, "elles se touchent : aucun trou entre l'unité et la quantité");
+  assert.equal(q.x + q.l, t.x, "ni entre la quantité et le total");
+  /* ⭐ ET LA BANDE EST CELLE D'ERIC DU 17/09 — 90 d'un bord, 90 de l'autre. */
+  assert.equal(u.x, 90, "la bande ouvre à 90 du bord gauche");
+  assert.equal(t.x + t.l, DALLE.l - 90, "et ferme à 90 du bord droit");
 });

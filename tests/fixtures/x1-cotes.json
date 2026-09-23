@@ -31,42 +31,42 @@
  },
  "boites": [
   {
-   "nom": "QTE",
-   "x": 34,
-   "y": 20.0,
-   "l": 40,
-   "h": 40,
-   "mot": "×2",
-   "cran": "T1/600",
-   "sorte": "voyant"
-  },
-  {
    "nom": "NOM",
-   "x": 78.0,
+   "x": 39.0,
    "y": 20.0,
-   "l": 219,
+   "l": 297,
    "h": 40,
    "mot": "Winged Helmet",
    "cran": "T4/600",
    "sorte": "voyant"
   },
   {
-   "nom": "PRIX",
+   "nom": "UNITE",
    "x": 90,
    "y": 62,
-   "l": 84,
+   "l": 65,
    "h": 8,
-   "mot": "15 gp · ×2 · 30 gp",
+   "mot": "2 gp · 5 lb",
    "cran": "T1/600",
    "sorte": "voyant"
   },
   {
-   "nom": "POIDS",
-   "x": 241,
+   "nom": "QTE",
+   "x": 155,
    "y": 62,
-   "l": 44,
+   "l": 65,
    "h": 8,
-   "mot": "3 lb · 6 lb",
+   "mot": "×3",
+   "cran": "T1/600",
+   "sorte": "voyant"
+  },
+  {
+   "nom": "TOTAL",
+   "x": 220,
+   "y": 62,
+   "l": 65,
+   "h": 8,
+   "mot": "6 gp · 15 lb",
    "cran": "T1/600",
    "sorte": "voyant"
   },

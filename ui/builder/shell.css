@@ -11831,13 +11831,10 @@ button.tuto-point::before {
   font-size: var(--t4); font-weight: 700; color: var(--x1-oxblood);
   text-align: center; line-height: 1.1; overflow-wrap: break-word;
 }
-/* — LA QUANTITÉ, à gauche du titre et cadrée à gauche (Eric, 17/09 au soir). Elle ne
-   nomme pas l'objet, elle le compte : encre sourde, comme la pagination. */
-.x1-qte:not([hidden]) {
-  display: flex; align-items: center; justify-content: flex-start;
-  font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
-  font-variant-numeric: tabular-nums;
-}
+/* 🔴 `.x1-qte` A DISPARU AU LOT 255 — la quantité a quitté la tête pour le CENTRE de
+   la ligne de coût (Eric, 23/09). Elle n'a plus d'habit à elle : elle porte
+   `.x1-chiffres` comme ses deux voisines, parce qu'elle est devenue l'une d'elles.
+   ⛔ Une classe qui n'habille plus personne est muette, et elle survit des mois. */
 /* — LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — l'image d'Eric, posée en masque : la
    teinte vient de la fiche, jamais du dessin. */
 /* ⚖️ ROUGE, ET DEUX FOIS PLUS ÉPAIS — Eric, 17/09 au soir : *« ligne de séparation
@@ -11884,7 +11881,20 @@ button.tuto-point::before {
   display: flex; align-items: center; justify-content: center;
   font-size: var(--t1); font-weight: 600; color: var(--x1-encre);
   white-space: nowrap; line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
+/* ⚖️ TROIS COLONNES, ET CHACUNE SE CADRE SUR CE QU'ELLE DIT — Eric, 23/09 :
+   « 2gp / 5lg (cadré gauche) · X3 (centre) · 6gp / 15lg (cadré droite) ».
+   ⭐ CE N'EST PAS DU GOÛT : les deux bords ANCRENT la ligne sur la bande (90 → 285,
+   les ancrages d'Eric du 17/09), et le centre flotte entre eux. Trois cases centrées
+   auraient donné trois blocs qui bougent ensemble à chaque changement de chiffre —
+   là, seuls les chiffres bougent, les bords tiennent.
+   ⛔ Les cotes, elles, ne sont PAS ici : elles viennent de la table (garde §7). */
+.x1-chiffres-unite:not([hidden]) { justify-content: flex-start; }
+.x1-chiffres-total:not([hidden]) { justify-content: flex-end; }
+/* ⭐ Et la quantité garde l'encre sourde qu'elle avait dans la tête : elle ne nomme
+   pas l'objet et elle ne le chiffre pas non plus — elle le COMPTE. */
+.x1-chiffres-qte:not([hidden]) { color: var(--x1-encre-douce); }
 /* — LA DESCRIPTION : la seule zone élastique, et la seule qui défile. Tout ce
    que les autres rangées rendent lui revient (Eric, 17/09). */
 .x1-description {
