@@ -20,7 +20,8 @@
         "data": {
           "ability": "Charisma",
           "ability_key": "cha",
-          "cost": "Varies",
+          "cost": "50 GP",
+          "cost_provenance": "eric:2026-09-23 \u2014 \u00ab soulforging tools = prix tinker tools \u00bb. Le prix est celui de `srd:tool:en:tinker-s-tools` (50 GP), LU dans le SRD \u2014 le premier cran de la r\u00e8gle du prix, celui qui existe.",
           "name": "Soulforging",
           "weight": "10 lb.",
           "weight_provenance": "eric:2026-09-23 \u2014 \u00ab soulforging tools = idem poids tinkering tools \u00bb. Le poids est celui de `srd:tool:en:tinker-s-tools` (10 lb. en anglais, 5 kg en fran\u00e7ais), LU dans le SRD et jamais converti de l'un vers l'autre. Le prix reste \u00ab Varies \u00bb : Eric n'a tranch\u00e9 que le poids."

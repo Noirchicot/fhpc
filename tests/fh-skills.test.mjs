@@ -98,17 +98,28 @@ const LES_8_NEUVES = [
    « Instrument (Strings) » dans `Skills & Tools`). Le livre est le manuscrit,
    la couche un dérivé — c'est donc la couche qui s'aligne. Et « Three-Dragon
    Ante » perd le « Set » que ses trois voisins gardent, parce que c'est ce que
-   le livre écrit, deux fois, dans deux chapitres qui s'accordent. */
+   le livre écrit, deux fois, dans deux chapitres qui s'accordent.
+
+   ⚖️ ET CINQ NOMS PRENNENT « regular » LE 2026-09-23 — Eric : « Card Set ·
+   Three-Dragon Ante · Dragonchess Set (regular) », « instruments regular
+   (rajoute ce terme) ». Le mot distingue la version COURANTE, celle que le
+   catalogue vend, d'une version de maître qui n'existe pas encore.
+   ⚠️ CE TERME N'EST PAS ENCORE DANS LE MANUSCRIT : `Skills & Tools — Player
+   Guide` écrit toujours « Card Set », « Dragonchess Set », « Instrument (Wind) »,
+   « Three-Dragon Ante ». La loi ci-dessus dit que le livre gagne — donc le mot
+   doit y descendre, sinon la prochaine comparaison rouvrira l'écart. ⛔ Ce
+   n'est PAS le « Set » de trop de 2026-08-20 : celui-là venait d'une régularité
+   de générateur, celui-ci vient d'Eric. */
 const LES_37_OUTILS = [
-  "Alchemist’s Supplies", "Brewer’s Supplies", "Calligrapher’s Supplies", "Card Set",
+  "Alchemist’s Supplies", "Brewer’s Supplies", "Calligrapher’s Supplies", "Card Set (regular)",
   "Carpenter’s Tools", "Cartographer’s Tools", "Cobbler’s Tools", "Cook’s Utensils",
-  "Dice Set", "Disguise Kit", "Dragonchess Set", "Forgery Kit", "Glassblower’s Tools",
+  "Dice Set", "Disguise Kit", "Dragonchess Set (regular)", "Forgery Kit", "Glassblower’s Tools",
   "Herbalism Kit", "Jeweler’s Tools", "Leatherworker’s Tools", "Mason’s Tools",
-  "Mount (Air)", "Mount (Land)", "Mount (Water)", "Navigator’s Tools", "Instrument (Other)",
+  "Mount (Air)", "Mount (Land)", "Mount (Water)", "Navigator’s Tools", "Instrument (Other, regular)",
   "Painter’s Supplies", "Poisoner’s Kit", "Potter’s Tools", "Smith’s Tools", "Soulforging",
-  "Instrument (Strings)", "Thieves’ Tools", "Three-Dragon Ante", "Tinker’s Tools",
+  "Instrument (Strings)", "Thieves’ Tools", "Three-Dragon Ante (regular)", "Tinker’s Tools",
   "Vehicles (Air)", "Vehicles (Land)", "Vehicles (Water)", "Weaver’s Tools",
-  "Instrument (Wind)", "Woodcarver’s Tools"
+  "Instrument (Wind, regular)", "Woodcarver’s Tools"
 ];
 
 /** Les 18 du SRD, Perception comprise — la cible du test 4. */

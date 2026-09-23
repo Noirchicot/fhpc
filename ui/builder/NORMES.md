@@ -3575,12 +3575,30 @@ au bas de sa fourchette — et rien du tout pour ce qui n'est pas un objet.**
 `srd:tool:en:musical-instrument` portent tous deux `"Varies"`, et **le SRD n'a ni véhicule ni
 monture** — aucun record. La règle s'arrête donc au second cran.
 
-| outil | prix | d'où |
-|---|---|---|
-| **Card Set** · **Three-Dragon Ante** · **Dragonchess Set** | `1 SP` | bas de fourchette *(1 sp–100 gp pour les cartes, 1 sp–10 gp pour un jeu à plateau)* |
-| **Instrument (Wind)** · **Instrument (Other)** | `5 GP` | l'instrument **courant**, celui qu'on porte à la main |
-| **Vehicles ×3** · **Mount ×3** | `"Varies"` | ⛔ **ce ne sont pas des objets** — des maîtrises, qu'on n'achète pas |
-| **Soulforging** | `"Varies"` | ⏳ invention Fate's Hand : aucune des deux sources ne le connaît |
+| outil | prix | poids | d'où |
+|---|---|---|---|
+| **Card Set (regular)** · **Three-Dragon Ante (regular)** | `1 SP` | `1 lb.` | bas de fourchette — le jeu **courant** |
+| **Dragonchess Set (regular)** | `1 SP` | `2 lb.` | idem, mais plateau et pièces |
+| **Instrument (Wind, regular)** · **(Other, regular)** | `5 GP` | `5 lb.` | l'instrument qu'on porte à la main |
+| **Soulforging** | `50 GP` | `10 lb.` | ✅ **le premier cran** : `srd:tool:en:tinker-s-tools`, lu dans le SRD |
+| **Vehicles ×3** · **Mount ×3** | `"Varies"` | `"Varies"` | ⛔ **ce ne sont pas des objets** — des maîtrises, qu'on n'achète pas |
+
+⭐ **LE SOULFORGING EST LE SEUL À TOUCHER LE PREMIER CRAN.** Eric, 23/09 : *« soulforging tools =
+prix tinker tools »*, après *« idem poids tinkering tools »*. Prix **et** poids viennent donc du
+même record du SRD — `50 GP` · `10 lb.` en anglais, `5 kg` en français, chacun lu dans son édition.
+
+🏷️ **ET CINQ OUTILS PRENNENT LE MOT `regular`** — Eric, 23/09 : *« Card Set · Three-Dragon Ante ·
+Dragonchess Set (regular) »*, *« instruments regular (rajoute ce terme) »*. Le mot distingue la
+version **courante**, celle que le catalogue vend, d'une version de maître qui n'existe pas encore.
+⭐ Les slugs **ne bougent pas** : l'identité est la clef, jamais le libellé.
+🔴 **ET LE MOT N'EST PAS ENCORE DANS LE MANUSCRIT** : `Skills & Tools — Player Guide` (vault) écrit
+toujours *Card Set*, *Dragonchess Set*, *Instrument (Wind)*, *Three-Dragon Ante*. La loi du garde
+des 37 outils dit que **le livre est le manuscrit et la couche s'aligne** — ⏳ **le terme doit donc
+descendre dans le livre**, sinon la prochaine comparaison rouvrira l'écart.
+
+⚠️ **LE POIDS DES INSTRUMENTS EST 5 lb, ET CE N'EST PAS LE CHIFFRE DE LA RÉFÉRENCE** *(qui dit
+3 lb)*. C'est celui d'Eric, et il prime — la référence a servi à situer l'ordre de grandeur, jamais
+à fournir le nombre.
 
 ⭐ **LE BAS DE FOURCHETTE EST LE JEU COURANT**, et c'est celui que le catalogue vend : le haut
 paie l'ivoire et la dorure, pas la règle du jeu. ⛔ Une fourchette n'est pas une valeur — on en
@@ -3590,11 +3608,9 @@ prend un bout, en disant lequel et pourquoi.
 refuse le PHB : la référence ouverte a servi à **choisir** le chiffre, jamais à le **fournir**.
 Chaque record porte sa `cost_provenance` qui le dit.
 
-⏳ **CE QUI N'EST PAS TRANCHÉ** : le **poids** des deux instruments reste `"Varies"`, donc **0**.
-Eric a dit *« tout le reste = varies »* pour les poids et n'a pas rouvert cette ligne — ⛔ on ne
-la rouvre pas à sa place, même si la référence donne un nombre. Et le **prix du Soulforging** :
-son POIDS vient de `tinker-s-tools`, qui porte `50 GP` — mais Eric a dit *« idem **poids** »*, et
-étendre au prix serait une décision qu'il n'a pas prise.
+⏳ **CE QUI RESTE À `"Varies"`, ET C'EST LA BONNE RÉPONSE** : les six **Vehicles** et **Mount**.
+⛔ Ce ne sont pas des objets — on n'achète pas une maîtrise. Leur zéro n'est pas un trou à combler,
+et le générateur porte la clause qui le dit, pour que personne ne vienne « compléter » ça plus tard.
 
 ---
 
