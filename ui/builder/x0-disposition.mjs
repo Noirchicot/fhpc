@@ -13,7 +13,7 @@
    ⛔ ET CETTE TABLE N'EST PAS GÉNÉRÉE — ⭐ le test du dépôt est le NUMÉRO :
    `x1-disposition.mjs` sort de `X1_cotes.json` par `X1_gen.py` et ne se touche
    pas à la main ; celle-ci est écrite, comme `b3-disposition.mjs`. */
-import * as X1 from "./x1-disposition.mjs?v=799";
+import * as X1 from "./x1-disposition.mjs?v=800";
 
 /** ⚖️ *« marge autour de la dalle 8 blg (je veux que ça recouvre totalement la
  *  Fiche R Gear) »* — la feuille est posée à 8 blg du bord de la dalle. */
