@@ -8455,12 +8455,14 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    jamais dans le flux, rien ne se pousse. Son état vit AU PERSONNAGE
    (`depart`), pas au navigateur. */
 .equipment-dressing, .dressing { position: relative; }
+/* ⚖️ X0 EST UNE VUE, ⛔ PLUS UN CALQUE (lot 254) — elle n'est plus posée en
+   absolu par-dessus Gear : `construireVue` la RETOURNE, comme X1 et X2.
+   ⛔ Et le fond de voile part avec : `--voile-ecran` teintait ce qu'il y avait
+   dessous, et il n'y a plus rien dessous. Une teinte qui ne voile rien est un
+   filtre posé sur son propre contenu. */
 .aiguilleur {
-  position: absolute; inset: 0; z-index: 2;
-  display: flex; align-items: center; justify-content: center;
-  /* LOT 201 — le voile est un jeton (`--voile-ecran`, tokens.css) : le popup
-     qui exige une réponse pose LE MÊME. */
-  background: var(--voile-ecran);
+  position: relative; height: 100%;
+  display: flex; align-items: stretch; justify-content: center;
 }
 .aiguilleur-carte {
   max-width: calc(var(--glisse-case) * 3 + var(--sp-24));
@@ -13196,23 +13198,10 @@ button.tuto-point::before {
    feuille. 🔴 Et `align-items: center` empêchait la feuille de s'étirer : elle se
    contentait de sa hauteur naturelle au lieu de recouvrir la dalle. */
 .aiguilleur { align-items: stretch; padding: var(--x0-marge); }
-/* ══ RÈGLE DES POPUPS MAJEURS — Eric, 2026-09-23 (NORMES §7 septies) ════════
-   ⚖️ *« ce qu'ils recouvrent passe au voile 0 tant qu'ils sont ouverts »*, et
-   *« X0 est un popup majeur »*.
-   ⭐ UN POPUP MAJEUR NE SE POSE PAS DEVANT UN ÉCRAN : IL LE REMPLACE. Ce qu'il
-   recouvre ne doit rien laisser transparaître — ni une forme sous le parchemin,
-   ni une cible qu'un doigt pourrait atteindre à travers.
-   ⛔ ET CE N'EST PAS `display: none` : les organes gardent leur boîte, donc leur
-   place. Ils reviennent exactement où ils étaient quand le popup se ferme, sans
-   que rien ne soit remesuré. C'est la même loi que le mode lecture de X1.
-   📌 LE PORTEUR EST LE NŒUD DE L'ÉCRAN, ⛔ pas le popup : un popup ne sait pas
-   ce qu'il cache, un écran sait qu'il est caché. Le jour où un second popup
-   majeur existe, son écran pose le même attribut et hérite de cette règle sans
-   une ligne de plus. */
-[data-popup-majeur="oui"] > :not(.aiguilleur) {
-  opacity: 0;
-  pointer-events: none;
-}
+/* ⛔ LA RÈGLE DU « VOILE 0 » A DISPARU AVEC LE CALQUE (lot 254). Eric :
+   *« X0 va utiliser le même process que X1 et X2. ou oublie le voile 0 »* —
+   ⭐ et les deux branches disaient la même chose : un écran de rang X REMPLACE,
+   il ne recouvre pas. Ce qui remplace n'a rien à voiler. */
 
 .aiguilleur-carte {
   width: 100%; height: 100%; box-sizing: border-box;

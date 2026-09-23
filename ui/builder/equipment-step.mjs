@@ -3234,205 +3234,6 @@ export function renderEquipmentStep(ctx, onAction) {
       surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
     });
 
-    /* ══ LE QCM DU DÉPART — l'aiguilleur « Your equipment », refait (lot 245)
-       ⚖️ Eric, 21/09 : *« il y a déjà une popup mais elle est moche et pas
-       claire »*, *« je te demande de l'améliorer »*. ⛔ MÊME ORGANE, mêmes
-       classes `.aiguilleur-*` : une seconde famille pour le même objet est la
-       faute que ce dépôt repaie tous les quinze jours.
-
-       🔴 CE QUI LE RENDAIT « PAS CLAIR » N'ÉTAIT PAS SON DESSIN. Il disait
-       *« your class kit is yours, already listed »* et le kit n'arrivait nulle
-       part (`shell.mjs`, branche `kit` : un `set` et rien d'autre). Le popup
-       décrivait un monde que le code ne fabriquait pas. ⭐ Ce qui suit affiche
-       exactement ce que `Done` posera — même fonction, `butinDuDepart`, lue
-       une fois pour l'œil et une fois pour le geste.
-
-       ⭐ ET L'ÉTAT DU QCM NE VA PAS AU DOCUMENT AVANT `Done`. Il vit dans la
-       fermeture de l'étape (`reponsesDuQcm`) et un clic d'option ne fait que
-       `peindre()` — ⛔ pas `act()`, qui repasserait par la coquille et
-       rendrait l'étape à neuf. C'est ce qui permet au récapitulatif de se
-       recalculer à chaque changement sans écrire une ligne, et à `Done`
-       d'être le SEUL moment d'écriture. */
-    if (!departRepondu(docu) && currentClassRef(docu)) {
-      const butin = butinDuDepart({ query, document: docu, reponses: reponsesDuQcm });
-
-      const voile = el("div", "aiguilleur");
-      const carte = el("div", "aiguilleur-carte");
-      /* 📏 LE BUDGET DE LA DÉCHIRURE EST DÉDUIT D'UNE COTE, ⛔ PAS CHOISI : c'est
-         la plus petite distance entre le contenu et le bord de la feuille — 8 blg
-         en haut et en bas (22 sur les côtés, qui sont donc plus larges). Le bord
-         ne peut ainsi jamais mordre une lettre. */
-      const feuilleX0 = el("style");
-      feuilleX0.setAttribute("data-fhpc", "x0");
-      feuilleX0.textContent = feuilleDesCotesX0();
-      carte.append(feuilleX0);
-      carte.append(habilleEnParchemin(carte, () => MARGE_DALLE_X0));
-      carte.append(el("h2", "aiguilleur-titre", [text("Gear")]));
-      /* ⚖️ LA PHRASE DE L'AIGUILLEUR OUVRE L'ÉCRAN, ⛔ elle ne le ferme plus.
-         ⭐ Elle dit OÙ L'ON EST et ce qu'on y fait : ça se lit AVANT d'avoir
-         choisi, pas après. Eric, 23/09 : *« T1 texte police bleue, c'est
-         l'aiguilleur »* — le bleu est le verbe naviguer, et c'est le même
-         `--info` que la bordure de `.popup[data-role="aiguilleur"]`. */
-      carte.append(el("p", "aiguilleur-texte aiguilleur-bilan-mot", [text(
-        "This is what your character starts with. You may purchase additional " +
-        "equipment in Wares, if you can afford it.")]));
-
-      /* ── UNE SECTION PAR SOURCE ──────────────────────────────────────────
-         ⚖️ La maquette d'Eric : *« 1 — Fighter : your class gives you… Choose
-         (A1) … (B1) … ; 2 — Background : your background gives you… »*.
-         ⭐ N OPTIONS, JAMAIS DEUX : la maquette en montre deux, le Fighter en
-         a trois. Le rendu compte les options de la phrase, il ne les suppose
-         pas. */
-      for (const source of butin.sources) {
-        /* 🔴 LE TITRE PORTE LA CONSIGNE, IL N'A PAS DE LIGNE À LUI — 📏 mesuré
-           au navigateur le 21/09, 512 × 764, pile SRD (deux vraies questions) :
-           la carte faisait **726 blg dans un voile de 681**, elle sortait par
-           le haut ET par le bas, et `Done` était coupé en deux.
-           ⛔ ET ON NE MET PAS DE DÉFILEMENT INTERNE : la loi du dépôt est de
-           demander ce que le contenu porte EN TROP. Ce qui était en trop, ce
-           sont les deux lignes « gives you a choice: » — elles ne disaient rien
-           que les boutons juste dessous ne montrent déjà. ⭐ Et c'est la
-           maquette d'Eric au mot près : *« 1 — Fighter : your class gives you
-           bla-bla. Choose »* — UNE ligne, pas deux. */
-        const bloc = el("div", "aiguilleur-section");
-        /* ⚖️ LE SÉPARATEUR EST CELUI DES FICHES X — ⛔ ET CE N'EST PAS UN TRAIT :
-           `.x1-filet` est un ORNEMENT masqué (deux fuseaux, deux losanges, un
-           rond). ⭐ ON REPREND SA CLASSE, PAS SA DÉCLARATION : `.x1-filet` est
-           une règle de CLASSE et non de descendance — elle voyage avec l'organe,
-           exactement comme X2 l'a reprise au lot 242. Seule la POSE est à nous. */
-        bloc.append(el("div", "x1-filet aiguilleur-filet"));
-        /* ⛔ PLUS DE NUMÉRO « 1 · » / « 2 · » — Eric, 23/09 : *« pas de 1 et 2
-           fighter soldier »*. Le nom de la source suffit à la nommer. */
-        const titre = el("p", "aiguilleur-soustitre", [
-          el("strong", null, [text(source.mot)]),
-        ]);
-        bloc.append(titre);
-
-        if (!source.options.length) {
-          /* ⭐ CE QUI NE SE LIT PAS SE DIT — la loi du lot 182, étendue des
-             montants aux objets. Une source illisible est NOMMÉE : elle ne
-             vaut ni zéro ni un kit de secours. */
-          titre.append(text(source.prose
-            ? " — its starting equipment could not be read from its own text, so nothing is offered here."
-            : " — its starting equipment is not named in the data, so nothing is offered here."));
-          carte.append(bloc);
-          continue;
-        }
-
-        if (source.unique) {
-          /* 🔴 UNE SEULE OPTION N'EST PAS UNE QUESTION. ⚖️ Eric, 21/09 :
-             *« idem en plus simple pour Fate's Hand »*. En pile Fate's Hand
-             l'origine porte `"50 GP"`, une chaîne nue, sans « Choose » : la
-             section devient une CONSTATATION. ⛔ Fabriquer un QCM à une seule
-             réponse pour faire symétrique avec le SRD mentirait au joueur.
-             ⚠️ Mais « plus simple » n'est pas « muet » : sans cette phrase,
-             le récapitulatif porterait un or dont la provenance est invisible. */
-          const seule = source.options[0];
-          titre.append(text(` gives you ${motDuLot(seule)}.`));
-          /* 🔴 LOT 246 — UNE SOURCE À UNE SEULE OPTION AVALAIT SES REFUS, ET
-             PERSONNE NE POUVAIT LE VOIR. Ce `continue` sautait par-dessus
-             l'affichage des refus : un morceau incompris d'une phrase SANS
-             choix disparaissait en silence. 📏 En pile Fate's Hand l'origine
-             porte « 50 GP » — aucun morceau, donc aucun refus, donc aucun
-             symptôme : le trou était réel et muet. ⭐ C'est la leçon de
-             l'organe fabriqué par N écrans, dans sa forme la plus bête — deux
-             branches, et une seule qui parle. */
-          bloc.append(...ceQueLaSourceDit(source, butin, basculerLaReponse));
-          carte.append(bloc);
-          continue;
-        }
-
-        /* ⚖️ *« Fighter (bold T2) gives you a choice (T1) »* — Eric, 23/09. Le mot
-           « Choose: » annonçait une liste ; cette phrase-ci dit d'où vient le choix. */
-        titre.append(text(" gives you a choice"));
-        const liste = el("div", "aiguilleur-options");
-        for (const option of source.options) {
-          const choisie = reponsesDuQcm[source.genre] === option.lettre;
-          /* ⚖️ LOT 246, ERIC 21/09 : *« Une ligne de texte, bouton à droite =
-             peu d'espace perdu »*, puis *« Deux lignes de texte un bouton à
-             droite alors. Ou trois lignes de texte un bouton à droite. »*
-             ⭐ UNE OPTION N'EST PLUS UN BOUTON À LIBELLÉ : c'est une RANGÉE À
-             DEUX COLONNES — le texte dit, la pastille choisit. Deux organes, et
-             ⛔ le texte n'entre pas dans le bouton : un bouton qui contient un
-             paragraphe impose sa boîte tactile de 44 à CHAQUE ligne du
-             paragraphe, et c'est de là que venait la hauteur.
-             ⛔ LA PASTILLE RESTE À DROITE ET HORS DU TEXTE — elle ne passe pas
-             dessous quand le texte va à trois lignes. Une rangée, deux colonnes.
-             ⭐ ET LA LETTRE A DÉMÉNAGÉ DANS LA PASTILLE : elle était écrite
-             « A · » en tête du libellé. Un seul écrivain de la lettre, et le
-             texte gagne deux caractères sur chaque ligne. */
-          const rangee = el("div", "aiguilleur-rangee");
-          /* ⭐ DEUX LIGNES QUAND IL Y A UNE SOMME, UNE SEULE SINON — et le cas
-             « (C) 155 GP » n'a QUE la somme : il ne doit pas porter une première
-             ligne vide. Les trois formes sont celles des couches, ⛔ pas trois
-             branches inventées pour faire joli. */
-          const { objets, somme } = piecesDuLot(option);
-          const mot = el("p", "aiguilleur-option-mot");
-          if (objets) mot.append(el("span", "aiguilleur-option-objets", [text(objets)]));
-          if (somme) mot.append(el("span", "aiguilleur-option-somme", [text(somme)]));
-          if (!objets && !somme) mot.append(text("nothing"));
-          /* ⭐ UN SECOND TAP SUR L'ÉLUE L'EFFACE — et effacer redésarme `Done` :
-             le QCM redevient incomplet, et il le montre. La bascule est celle
-             de toute la carte (`basculerLaReponse`), ⛔ pas une copie locale. */
-          const b = button(option.lettre, "aiguilleur-option",
-            () => basculerLaReponse(source.genre, option.lettre),
-            `Option ${option.lettre} of ${source.mot}: ${motDuLot(option)}`);
-          markPressed(b, choisie);
-          /* ⭐ LA PASTILLE EST AJOUTÉE AVANT LE MOT — Eric, 23/09, sur deux rendus.
-             ⛔ Et c'est ICI que ça se joue, pas dans `grid-template-columns` : une
-             colonne dit une largeur, l'ORDRE est celui du DOM. La raison du lot 246
-             (la pastille ne passe jamais sous le texte) tient toujours — elle est
-             servie par `auto 1fr`, qui fige la colonne du bouton quel que soit le
-             côté où elle se trouve. */
-          rangee.append(b, mot);
-          liste.append(rangee);
-        }
-        bloc.append(liste);
-        bloc.append(...ceQueLaSourceDit(source, butin, basculerLaReponse));
-        carte.append(bloc);
-      }
-
-      /* ── LE RÉCAPITULATIF ────────────────────────────────────────────────
-         ⚖️ La maquette : *« This is what your character starts with, you may
-         purchase additional equipment in Wares, if you can afford it »*, puis
-         la liste et l'or. ⭐ Il se recalcule à chaque changement de choix —
-         il est rendu depuis `butin`, qui est relu à chaque `peindre()`. */
-      carte.append(el("div", "x1-filet aiguilleur-filet"));
-      carte.append(el("p", "aiguilleur-bilan-titre", [text("You start with")]));
-      const bilan = el("ul", "aiguilleur-bilan");
-      for (const ligne of butin.lignes) {
-        bilan.append(el("li", "aiguilleur-bilan-ligne", [text(
-          ligne.quantity > 1 ? `${ligne.quantity} × ${ligne.nom}` : ligne.nom)]));
-      }
-      if (butin.cout) bilan.append(el("li", "aiguilleur-bilan-ligne aiguilleur-bilan-or",
-        [text(formatCout(butin.cout))]));
-      if (!butin.lignes.length && !butin.cout) {
-        bilan.append(el("li", "aiguilleur-bilan-ligne", [text("nothing yet — answer above")]));
-      }
-      carte.append(bilan);
-
-      /* ⚖️ LE RESSORT — Eric, 23/09 : *« l'excédent d'espace pour que le gear
-         popup recouvre totalement la dalle gear sera entre le texte vert et
-         done »*. ⭐ C'EST CE QUI FAIT DE X0 UNE DALLE ET PLUS UN CARTON : la
-         feuille prend toute la hauteur utile, et le jeu se range en UN SEUL
-         endroit, NOMMÉ, au lieu de se répartir en silence dans les marges. */
-      carte.append(el("div", "aiguilleur-ressort"));
-      const pied = el("div", "aiguilleur-pied aiguilleur-pied-seul");
-      const done = button("Done", "aiguilleur-bouton",
-        () => { if (butin.complet) act({ kind: "poserLeDepart", reponses: { ...reponsesDuQcm } }); },
-        "Take this equipment and put it in Gear");
-      /* ⛔ UN BOUTON QUI REFUSE TOUJOURS EST UN BOUTON MORT : celui-ci ne
-         refuse que tant qu'une question reste sans réponse, et il le DIT
-         (`disabled` + `aria-disabled`, lus par l'œil et par l'oreille). */
-      if (!butin.complet) { done.disabled = true; done.setAttribute("aria-disabled", "true"); }
-      pied.append(done);
-      carte.append(pied);
-      voile.append(carte);
-      /* ⚖️ X0 EST UN POPUP MAJEUR (Eric, 23/09) — l'écran qu'elle recouvre le
-         DÉCLARE, et la feuille éteint tout ce qui n'est pas le popup. */
-      noeud.dataset.popupMajeur = "oui";
-      noeud.append(voile);
-    }
     return noeud;
   }
 
@@ -4105,6 +3906,216 @@ export function renderEquipmentStep(ctx, onAction) {
     return noeud;
   }
 
+  /* ══ X0 — UNE VUE, ⛔ PLUS UN CALQUE (lot 254, Eric : « X0 va utiliser le même
+     process que X1 et X2. ou oublie le voile 0 ») ══════════════════════════
+     🔴 ET C'EST LA CAUSE DU DÉFAUT, PAS SEULEMENT SON REMÈDE. X0 était AJOUTÉE
+     dans le nœud de Gear ; X1 et X2 sont RETOURNÉES par `construireVue` et
+     montées telles quelles. 📏 Mesuré au navigateur le 23/09, même page, même
+     instant : X1 peignait son parchemin (`viewBox 0 0 375 500`) et X0 restait
+     sur le rectangle de secours (`viewBox: null`) — `habilleEnParchemin` pose
+     son `requestAnimationFrame` et son `ResizeObserver` sur une carte que le
+     montage par ajout ne réveillait jamais.
+     ⭐ En devenant une vue, X0 emprunte le chemin de montage qui marche déjà
+     pour deux écrans. ⛔ On ne répare pas un organe en lui ajoutant une
+     béquille : on lui fait prendre le chemin des autres.
+     ⭐ ET LE VOILE 0 DISPARAÎT AVEC LE CALQUE : il n'y a plus rien dessous. */
+  function construireX0() {
+    /* ══ LE QCM DU DÉPART — l'aiguilleur « Your equipment », refait (lot 245)
+       ⚖️ Eric, 21/09 : *« il y a déjà une popup mais elle est moche et pas
+       claire »*, *« je te demande de l'améliorer »*. ⛔ MÊME ORGANE, mêmes
+       classes `.aiguilleur-*` : une seconde famille pour le même objet est la
+       faute que ce dépôt repaie tous les quinze jours.
+
+       🔴 CE QUI LE RENDAIT « PAS CLAIR » N'ÉTAIT PAS SON DESSIN. Il disait
+       *« your class kit is yours, already listed »* et le kit n'arrivait nulle
+       part (`shell.mjs`, branche `kit` : un `set` et rien d'autre). Le popup
+       décrivait un monde que le code ne fabriquait pas. ⭐ Ce qui suit affiche
+       exactement ce que `Done` posera — même fonction, `butinDuDepart`, lue
+       une fois pour l'œil et une fois pour le geste.
+
+       ⭐ ET L'ÉTAT DU QCM NE VA PAS AU DOCUMENT AVANT `Done`. Il vit dans la
+       fermeture de l'étape (`reponsesDuQcm`) et un clic d'option ne fait que
+       `peindre()` — ⛔ pas `act()`, qui repasserait par la coquille et
+       rendrait l'étape à neuf. C'est ce qui permet au récapitulatif de se
+       recalculer à chaque changement sans écrire une ligne, et à `Done`
+       d'être le SEUL moment d'écriture. */
+    const butin = butinDuDepart({ query, document: docu, reponses: reponsesDuQcm });
+
+    const voile = el("div", "aiguilleur");
+    const carte = el("div", "aiguilleur-carte");
+    /* 📏 LE BUDGET DE LA DÉCHIRURE EST DÉDUIT D'UNE COTE, ⛔ PAS CHOISI : c'est
+       la plus petite distance entre le contenu et le bord de la feuille — 8 blg
+       en haut et en bas (22 sur les côtés, qui sont donc plus larges). Le bord
+       ne peut ainsi jamais mordre une lettre. */
+    const feuilleX0 = el("style");
+    feuilleX0.setAttribute("data-fhpc", "x0");
+    feuilleX0.textContent = feuilleDesCotesX0();
+    carte.append(feuilleX0);
+    carte.append(habilleEnParchemin(carte, () => MARGE_DALLE_X0));
+    carte.append(el("h2", "aiguilleur-titre", [text("Gear")]));
+    /* ⚖️ LA PHRASE DE L'AIGUILLEUR OUVRE L'ÉCRAN, ⛔ elle ne le ferme plus.
+       ⭐ Elle dit OÙ L'ON EST et ce qu'on y fait : ça se lit AVANT d'avoir
+       choisi, pas après. Eric, 23/09 : *« T1 texte police bleue, c'est
+       l'aiguilleur »* — le bleu est le verbe naviguer, et c'est le même
+       `--info` que la bordure de `.popup[data-role="aiguilleur"]`. */
+    carte.append(el("p", "aiguilleur-texte aiguilleur-bilan-mot", [text(
+      "This is what your character starts with. You may purchase additional " +
+      "equipment in Wares, if you can afford it.")]));
+
+    /* ── UNE SECTION PAR SOURCE ──────────────────────────────────────────
+       ⚖️ La maquette d'Eric : *« 1 — Fighter : your class gives you… Choose
+       (A1) … (B1) … ; 2 — Background : your background gives you… »*.
+       ⭐ N OPTIONS, JAMAIS DEUX : la maquette en montre deux, le Fighter en
+       a trois. Le rendu compte les options de la phrase, il ne les suppose
+       pas. */
+    for (const source of butin.sources) {
+      /* 🔴 LE TITRE PORTE LA CONSIGNE, IL N'A PAS DE LIGNE À LUI — 📏 mesuré
+         au navigateur le 21/09, 512 × 764, pile SRD (deux vraies questions) :
+         la carte faisait **726 blg dans un voile de 681**, elle sortait par
+         le haut ET par le bas, et `Done` était coupé en deux.
+         ⛔ ET ON NE MET PAS DE DÉFILEMENT INTERNE : la loi du dépôt est de
+         demander ce que le contenu porte EN TROP. Ce qui était en trop, ce
+         sont les deux lignes « gives you a choice: » — elles ne disaient rien
+         que les boutons juste dessous ne montrent déjà. ⭐ Et c'est la
+         maquette d'Eric au mot près : *« 1 — Fighter : your class gives you
+         bla-bla. Choose »* — UNE ligne, pas deux. */
+      const bloc = el("div", "aiguilleur-section");
+      /* ⚖️ LE SÉPARATEUR EST CELUI DES FICHES X — ⛔ ET CE N'EST PAS UN TRAIT :
+         `.x1-filet` est un ORNEMENT masqué (deux fuseaux, deux losanges, un
+         rond). ⭐ ON REPREND SA CLASSE, PAS SA DÉCLARATION : `.x1-filet` est
+         une règle de CLASSE et non de descendance — elle voyage avec l'organe,
+         exactement comme X2 l'a reprise au lot 242. Seule la POSE est à nous. */
+      bloc.append(el("div", "x1-filet aiguilleur-filet"));
+      /* ⛔ PLUS DE NUMÉRO « 1 · » / « 2 · » — Eric, 23/09 : *« pas de 1 et 2
+         fighter soldier »*. Le nom de la source suffit à la nommer. */
+      const titre = el("p", "aiguilleur-soustitre", [
+        el("strong", null, [text(source.mot)]),
+      ]);
+      bloc.append(titre);
+
+      if (!source.options.length) {
+        /* ⭐ CE QUI NE SE LIT PAS SE DIT — la loi du lot 182, étendue des
+           montants aux objets. Une source illisible est NOMMÉE : elle ne
+           vaut ni zéro ni un kit de secours. */
+        titre.append(text(source.prose
+          ? " — its starting equipment could not be read from its own text, so nothing is offered here."
+          : " — its starting equipment is not named in the data, so nothing is offered here."));
+        carte.append(bloc);
+        continue;
+      }
+
+      if (source.unique) {
+        /* 🔴 UNE SEULE OPTION N'EST PAS UNE QUESTION. ⚖️ Eric, 21/09 :
+           *« idem en plus simple pour Fate's Hand »*. En pile Fate's Hand
+           l'origine porte `"50 GP"`, une chaîne nue, sans « Choose » : la
+           section devient une CONSTATATION. ⛔ Fabriquer un QCM à une seule
+           réponse pour faire symétrique avec le SRD mentirait au joueur.
+           ⚠️ Mais « plus simple » n'est pas « muet » : sans cette phrase,
+           le récapitulatif porterait un or dont la provenance est invisible. */
+        const seule = source.options[0];
+        titre.append(text(` gives you ${motDuLot(seule)}.`));
+        /* 🔴 LOT 246 — UNE SOURCE À UNE SEULE OPTION AVALAIT SES REFUS, ET
+           PERSONNE NE POUVAIT LE VOIR. Ce `continue` sautait par-dessus
+           l'affichage des refus : un morceau incompris d'une phrase SANS
+           choix disparaissait en silence. 📏 En pile Fate's Hand l'origine
+           porte « 50 GP » — aucun morceau, donc aucun refus, donc aucun
+           symptôme : le trou était réel et muet. ⭐ C'est la leçon de
+           l'organe fabriqué par N écrans, dans sa forme la plus bête — deux
+           branches, et une seule qui parle. */
+        bloc.append(...ceQueLaSourceDit(source, butin, basculerLaReponse));
+        carte.append(bloc);
+        continue;
+      }
+
+      /* ⚖️ *« Fighter (bold T2) gives you a choice (T1) »* — Eric, 23/09. Le mot
+         « Choose: » annonçait une liste ; cette phrase-ci dit d'où vient le choix. */
+      titre.append(text(" gives you a choice"));
+      const liste = el("div", "aiguilleur-options");
+      for (const option of source.options) {
+        const choisie = reponsesDuQcm[source.genre] === option.lettre;
+        /* ⚖️ LOT 246, ERIC 21/09 : *« Une ligne de texte, bouton à droite =
+           peu d'espace perdu »*, puis *« Deux lignes de texte un bouton à
+           droite alors. Ou trois lignes de texte un bouton à droite. »*
+           ⭐ UNE OPTION N'EST PLUS UN BOUTON À LIBELLÉ : c'est une RANGÉE À
+           DEUX COLONNES — le texte dit, la pastille choisit. Deux organes, et
+           ⛔ le texte n'entre pas dans le bouton : un bouton qui contient un
+           paragraphe impose sa boîte tactile de 44 à CHAQUE ligne du
+           paragraphe, et c'est de là que venait la hauteur.
+           ⛔ LA PASTILLE RESTE À DROITE ET HORS DU TEXTE — elle ne passe pas
+           dessous quand le texte va à trois lignes. Une rangée, deux colonnes.
+           ⭐ ET LA LETTRE A DÉMÉNAGÉ DANS LA PASTILLE : elle était écrite
+           « A · » en tête du libellé. Un seul écrivain de la lettre, et le
+           texte gagne deux caractères sur chaque ligne. */
+        const rangee = el("div", "aiguilleur-rangee");
+        /* ⭐ DEUX LIGNES QUAND IL Y A UNE SOMME, UNE SEULE SINON — et le cas
+           « (C) 155 GP » n'a QUE la somme : il ne doit pas porter une première
+           ligne vide. Les trois formes sont celles des couches, ⛔ pas trois
+           branches inventées pour faire joli. */
+        const { objets, somme } = piecesDuLot(option);
+        const mot = el("p", "aiguilleur-option-mot");
+        if (objets) mot.append(el("span", "aiguilleur-option-objets", [text(objets)]));
+        if (somme) mot.append(el("span", "aiguilleur-option-somme", [text(somme)]));
+        if (!objets && !somme) mot.append(text("nothing"));
+        /* ⭐ UN SECOND TAP SUR L'ÉLUE L'EFFACE — et effacer redésarme `Done` :
+           le QCM redevient incomplet, et il le montre. La bascule est celle
+           de toute la carte (`basculerLaReponse`), ⛔ pas une copie locale. */
+        const b = button(option.lettre, "aiguilleur-option",
+          () => basculerLaReponse(source.genre, option.lettre),
+          `Option ${option.lettre} of ${source.mot}: ${motDuLot(option)}`);
+        markPressed(b, choisie);
+        /* ⭐ LA PASTILLE EST AJOUTÉE AVANT LE MOT — Eric, 23/09, sur deux rendus.
+           ⛔ Et c'est ICI que ça se joue, pas dans `grid-template-columns` : une
+           colonne dit une largeur, l'ORDRE est celui du DOM. La raison du lot 246
+           (la pastille ne passe jamais sous le texte) tient toujours — elle est
+           servie par `auto 1fr`, qui fige la colonne du bouton quel que soit le
+           côté où elle se trouve. */
+        rangee.append(b, mot);
+        liste.append(rangee);
+      }
+      bloc.append(liste);
+      bloc.append(...ceQueLaSourceDit(source, butin, basculerLaReponse));
+      carte.append(bloc);
+    }
+
+    /* ── LE RÉCAPITULATIF ────────────────────────────────────────────────
+       ⚖️ La maquette : *« This is what your character starts with, you may
+       purchase additional equipment in Wares, if you can afford it »*, puis
+       la liste et l'or. ⭐ Il se recalcule à chaque changement de choix —
+       il est rendu depuis `butin`, qui est relu à chaque `peindre()`. */
+    carte.append(el("div", "x1-filet aiguilleur-filet"));
+    carte.append(el("p", "aiguilleur-bilan-titre", [text("You start with")]));
+    const bilan = el("ul", "aiguilleur-bilan");
+    for (const ligne of butin.lignes) {
+      bilan.append(el("li", "aiguilleur-bilan-ligne", [text(
+        ligne.quantity > 1 ? `${ligne.quantity} × ${ligne.nom}` : ligne.nom)]));
+    }
+    if (butin.cout) bilan.append(el("li", "aiguilleur-bilan-ligne aiguilleur-bilan-or",
+      [text(formatCout(butin.cout))]));
+    if (!butin.lignes.length && !butin.cout) {
+      bilan.append(el("li", "aiguilleur-bilan-ligne", [text("nothing yet — answer above")]));
+    }
+    carte.append(bilan);
+
+    /* ⚖️ LE RESSORT — Eric, 23/09 : *« l'excédent d'espace pour que le gear
+       popup recouvre totalement la dalle gear sera entre le texte vert et
+       done »*. ⭐ C'EST CE QUI FAIT DE X0 UNE DALLE ET PLUS UN CARTON : la
+       feuille prend toute la hauteur utile, et le jeu se range en UN SEUL
+       endroit, NOMMÉ, au lieu de se répartir en silence dans les marges. */
+    carte.append(el("div", "aiguilleur-ressort"));
+    const pied = el("div", "aiguilleur-pied aiguilleur-pied-seul");
+    const done = button("Done", "aiguilleur-bouton",
+      () => { if (butin.complet) act({ kind: "poserLeDepart", reponses: { ...reponsesDuQcm } }); },
+      "Take this equipment and put it in Gear");
+    /* ⛔ UN BOUTON QUI REFUSE TOUJOURS EST UN BOUTON MORT : celui-ci ne
+       refuse que tant qu'une question reste sans réponse, et il le DIT
+       (`disabled` + `aria-disabled`, lus par l'œil et par l'oreille). */
+    if (!butin.complet) { done.disabled = true; done.setAttribute("aria-disabled", "true"); }
+    pied.append(done);
+    carte.append(pied);
+    voile.append(carte);
+    return voile;
+  }
+
   function construireVue(vue) {
     if (vue === "r") return construireWares();
     if (vue === "x1" && ficheX1 !== null) return construireX1();
@@ -4142,6 +4153,11 @@ export function renderEquipmentStep(ctx, onAction) {
         onAction: actArbitre, retour: () => montrer("gear"),
         surLieu: (l) => { if (l === "backpack") montrer("sb31"); else if (l === "storage") montrer("sb33"); else montrer("gear"); } });
     }
+    /* ⚖️ X0 REMPLACE GEAR, ⛔ elle ne se pose plus dessus — et c'est BORNÉ à
+       cette vue-ci : Wares, X1, X2 et la recherche restent atteignables. ⭐ Elle
+       prend la place de `construireGear()` exactement comme X1 prend celle de
+       Wares : une vue, pas un calque. */
+    if (!departRepondu(docu) && currentClassRef(docu)) return construireX0();
     return construireGear();
   }
 

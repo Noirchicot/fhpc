@@ -274,10 +274,33 @@ test("⛔ l'étape Équipement OUVRE SUR R (Gear), et une seule vue vit à la fo
      🔴 RÉÉCRIT UNE SECONDE FOIS LE 2026-09-16 (lot 212) : l'écran d'entrée est
      R (Gear), le pantin coté du 15/09, et sa porte vers le catalogue s'appelle
      `Wares` (croquis d'Eric). Ce que le garde tient n'a pas molli : UNE vue à
-     la fois, et aucun organe mort ne revient. */
+     la fois, et aucun organe mort ne revient.
+     🔴 RÉÉCRIT UNE TROISIÈME FOIS LE 2026-09-23 (lot 254), ET LA LOI SE RENFORCE.
+     Eric : *« X0 va utiliser le même process que X1 et X2 »* — X0 cesse d'être un
+     CALQUE posé sur Gear pour devenir une VUE qui le REMPLACE. L'entrée de
+     l'étape dépend donc du document : X0 tant que le départ n'est pas répondu,
+     R ensuite. ⭐ ET « UNE SEULE VUE À LA FOIS » N'A JAMAIS ÉTÉ AUSSI VRAIE :
+     jusqu'ici X0 et Gear vivaient ENSEMBLE, l'un sous l'autre — c'était la seule
+     exception à la loi, et elle vient de tomber.
+     ⛔ Le décor doit donc répondre au départ pour voir R : sans ça, ce garde
+     mesurerait l'écran d'entrée d'un personnage qui n'y est pas encore. */
+  const repondu = fixture.build.verbs.set({
+    document: fixture.document, path: "depart.class", value: "A"
+  }).document;
   const node = renderEquipmentStep({
+    document: repondu, resolved: fixture.resolved, query
+  }, () => {});
+
+  /* ⚔️ ET LE TÉMOIN EN SENS INVERSE, qui est le vrai apport du lot : SANS la
+     réponse, l'étape n'ouvre PAS sur R — elle ouvre sur X0, et Gear n'est nulle
+     part. Un garde qui n'affirmerait que le cas répondu laisserait X0 se reposer
+     sur Gear sans que personne ne le voie. */
+  const avant = renderEquipmentStep({
     document: fixture.document, resolved: fixture.resolved, query
   }, () => {});
+  assert.equal(rows(avant, ".gear").length, 0,
+    "⛔ Gear est monté SOUS X0 : le calque est revenu, et avec lui l'exception à « une seule vue à la fois »");
+  assert.ok(avant.querySelector(".aiguilleur-carte"), "⚔️ et c'est bien X0 qui occupe l'écran");
 
   assert.equal(rows(node, ".gear").length, 1, "le personnage équipé (R) est l'écran d'entrée");
   /* 🔄 PORTÉ SUR WARES v2 (lot 219) : le catalogue est `[data-ecran="wares"]`. La loi ne bouge
