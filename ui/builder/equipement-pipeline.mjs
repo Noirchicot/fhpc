@@ -256,6 +256,14 @@ export function estRecette(record) {
   const d = (record && record.data) || {};
   if (d.category === "weapon" || d.category === "armor") return true;
   if (Array.isArray(d.contents) && d.contents.length > 0) return true;
+  /* ④ UN RECORD QUI SE DÉCLARE PLAN — les quatre du Soulforging (Eric, 24/09).
+     ⛔ CE N'EST PAS UNE LISTE DE NOMS DÉGUISÉE : ces quatre records n'ont pas
+     d'autre nature que celle-là. Un kit se reconnaît à son contenu et une arme
+     magique à sa catégorie parce qu'ils sont AUSSI autre chose ; un plan n'est
+     que ça, et le seul endroit où ça peut s'écrire est le record lui-même.
+     ⭐ `blueprint.asks` porte ce que le formulaire demande — lu génériquement,
+     ⛔ aucun `if` sur « Soulgem » nulle part. */
+  if (d.blueprint && typeof d.blueprint === "object") return true;
   const rarete = typeof d.rarity === "string" ? d.rarity : "";
   if (/varies/i.test(rarete)) return true;
   /* une énumération de raretés : « Rare (…), Very Rare (…), or Legendary (…) ».

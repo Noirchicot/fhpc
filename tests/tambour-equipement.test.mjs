@@ -117,14 +117,19 @@ const RANGEMENT = lireRangement(query);
 test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
   assert.deepEqual(arbre.map((r) => r.id),
-    ["adventuring", "arcana", "armory", "marvels", "mundane", "tools", "trade-goods"],
+    ["adventuring", "arcana", "armory", "crafting", "marvels", "mundane", "tools", "trade-goods"],
     "⚖️ ERIC, 2026-09-23 : « ne mets pas crafting tools, mets tools » — le rayon dit ce que l\u2019objet EST,\n"
-    + "   pas ce qu\u2019on en FAIT. ⭐ `crafting` n\u2019en sort pas renommé : il se VIDE, et une combinaison\n"
-    + "   non peuplée n\u2019est pas dans l\u2019export (test 5 ter). Il revient le jour où les 210 ingrédients\n"
-    + "   du Soulforging y entrent — Essence · Structure · Catalyst.\n"
-    + "   les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `trade-goods` porte le MOT "
-    + "DU LIVRE (23 marchandises typées TG au SRD 5.2) et non `valuables`, qui était une invention "
-    + "de l'architecte, retirée par Eric le 2026-09-09");
+    + "   pas ce qu\u2019on en FAIT.\n"
+    + "   ✅ ET `crafting` EST REVENU LE 24/09, exactement comme ce garde l'annonçait : il s'était VIDÉ "
+    + "quand les outils sont partis, et une combinaison non peuplée n'est pas dans l'export (test 5 "
+    + "ter). ⛔ MAIS PAS PAR OÙ ON L'ATTENDAIT : ce garde disait « il revient le jour où les 210 "
+    + "ingrédients du Soulforging y entrent ». Les 210 n'y sont PAS ENTRÉS et n'y entreront jamais — "
+    + "Eric a refusé 675 records au catalogue et posé QUATRE PLANS à leur place. Le rayon revient "
+    + "avec `blueprints`, pas avec `ingredients`, qui a été retirée le même jour.\n"
+    + "   🔧 ET LA PHRASE SUR `trade-goods` ÉTAIT FAUSSE : elle disait « le MOT DU LIVRE, 23 "
+    + "marchandises typées TG au SRD 5.2 ». ⛔ Mesuré le 23/09 : le SRD n'en porte AUCUNE. Les deux "
+    + "mots — `trade goods` ET `valuables` — sont dans la même phrase de prose du livre, donc §0.12 "
+    + "ne tranchait rien ; le choix est une décision d'Eric du 09/09, et elle se suffit.");
   /* ⛔ ET AUCUN GENRE N'Y SURVIT : le défaut se reconnaît à ces quatre mots. */
   for (const genre of ["armor", "gear", "item", "weapon"]) {
     assert.equal(arbre.some((r) => r.id === genre), false,
@@ -287,8 +292,14 @@ const RANGEMENTS_OUTILS_FH = 12;
 /** Les 4 rangements de munitions — `fh-munitions-en`. ⛔ Les flèches n'en ont
  *  PAS : elles RÉÉCRIVENT `srd:gear:en:ammunition`, déjà rangé par `srfh`. */
 const RANGEMENTS_MUNITIONS = 4;
+/** ✅ LES 4 PLANS DU SOULFORGING — `fh-soulforging-en`, Eric le 24/09 : « une
+ *  seule étagère blueprints pour les quatre ». ⭐ ET C'EST LE COMPTE QUI DIT LE
+ *  LOT : le chapitre porte 675 fiches (465 catalyseurs, 210 ingrédients). Les
+ *  poser ici ferait plus du double de l'équipement entier ; Eric a mis QUATRE
+ *  plans à leur place, et les 675 restent la donnée que les formulaires lisent. */
+const RANGEMENTS_BLUEPRINTS = 4;
 
-test("5 — 🔴 LES 459 RANGEMENTS SONT LUS (416 + 27 + 12 + 4), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
+test("5 — 🔴 LES 463 RANGEMENTS SONT LUS (416 + 27 + 12 + 4 + 4), ET PLUS AUCUN NE POINTE DANS LE VIDE", () => {
   /* ⭐ 2026-09-09, LOT 185 — LE TOTAL AFFICHÉ EST REDEVENU LE TOTAL LU, et
      c'est le lot entier qui tient dans cet écart refermé.
 
@@ -314,8 +325,8 @@ test("5 — 🔴 LES 459 RANGEMENTS SONT LUS (416 + 27 + 12 + 4), ET PLUS AUCUN 
      en porte 11 (ses outils neufs) et `fh-soulforging-en` 1. Même motif que les
      gemmes : une couche Fate's Hand range SES records, parce que `srfh` est
      bâtie sur le SRD seul et ne les a jamais vus. */
-  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
-    "les 459 records de rangement des QUATRE sources sont bien lus");
+  assert.equal(RANGEMENT.lus, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS + RANGEMENTS_BLUEPRINTS,
+    "les 463 records de rangement des CINQ sources sont bien lus");
   /* ⚔️ ET LA DÉCOMPOSITION, sans quoi 416 pourraient devenir 470 d'un seul
      côté sans que ce test bronche.
      ⚖️ 09/09 — LE PARTAGE DES PRÉFIXES A CHANGÉ, ET C'EST UNE DÉCISION D'ERIC.
@@ -344,11 +355,14 @@ test("5 — 🔴 LES 459 RANGEMENTS SONT LUS (416 + 27 + 12 + 4), ET PLUS AUCUN 
   assert.deepEqual(parPrefixe, {
     "srfh:": RANGEMENTS_SRFH + GEMMES_PARTAGEES,
     "fh:": RANGEMENTS_GEMMES - GEMMES_PARTAGEES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS
-  }, "416 du livre + 9 gemmes partagées d'un côté, 18 gemmes + 12 outils + 4 munitions de l'autre");
+      + RANGEMENTS_BLUEPRINTS
+  }, "416 du livre + 9 gemmes partagées d'un côté, 18 gemmes + 12 outils + 4 munitions + 4 plans "
+    + "de l'autre. ⭐ LES QUATRE PLANS SONT `fh:` SANS DISCUSSION : le Soulforging n'existe dans "
+    + "aucun SRD, donc aucun id n'est partagé avec le livre.");
   /* ⚔️ ET LE TOTAL NE BOUGE PAS — c'est ce qui prouve qu'on a DÉPLACÉ des
      rangements entre deux comptes, et non pas ajouté ou perdu des records. */
   assert.equal(parPrefixe["srfh:"] + parPrefixe["fh:"],
-    RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
+    RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS + RANGEMENTS_BLUEPRINTS,
     "le déplacement de 23 ids ne doit créer ni détruire aucun rangement");
 
   assert.equal(RANGEMENT.orphelins.length, 0, "aucun rangement sans rayon ni étagère");
@@ -368,11 +382,11 @@ test("5 — 🔴 LES 459 RANGEMENTS SONT LUS (416 + 27 + 12 + 4), ET PLUS AUCUN 
 
   const arbre = rayonsEtEtageres(query);
   const total = arbre.reduce((t, r) => t + r.etageres.reduce((s, e) => s + e.objets.length, 0), 0);
-  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS,
-    "les 459 rangements sont tous à l'étalage — plus aucun n'est écarté");
+  assert.equal(total, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS + RANGEMENTS_BLUEPRINTS,
+    "les 463 rangements sont tous à l'étalage — plus aucun n'est écarté");
   const ids = new Set();
   for (const r of arbre) for (const e of r.etageres) for (const o of e.objets) ids.add(o.view.id);
-  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS, "et chaque objet n'est rangé que sur UNE étagère");
+  assert.equal(ids.size, RANGEMENTS_SRFH + RANGEMENTS_GEMMES + RANGEMENTS_OUTILS_FH + RANGEMENTS_MUNITIONS + RANGEMENTS_BLUEPRINTS, "et chaque objet n'est rangé que sur UNE étagère");
 });
 
 test("5 bis — ⭐ LA DETTE EST PAYÉE : les 12 outils Fate's Hand ONT une étagère", () => {
@@ -440,8 +454,11 @@ test("5 ter — ⏳ LES RAYONS VIDES NE SONT PAS DANS L'EXPORT, et ce garde le d
      records eux-mêmes, par le seul chemin que ce dépôt accepte : une couche
      qui pose des rangements, jamais une taxonomie recopiée ici. */
   const arbre = rayonsEtEtageres(query);
-  assert.equal(arbre.length, 7, "sept rayons PEUPLÉS — les six de l'export SRFH, plus `trade-goods` "
-    + "que la couche des gemmes apporte, et que les 23 marchandises du livre rejoindront");
+  assert.equal(arbre.length, 8, "✅ HUIT rayons PEUPLÉS depuis le 24/09 — `crafting` est revenu, et "
+    + "c'est le seul de la liste qui soit parti puis revenu. ⛔ ET PAS PAR OÙ ON L'ATTENDAIT : il "
+    + "devait revenir avec les 210 ingrédients du Soulforging ; il revient avec QUATRE PLANS, parce "
+    + "qu'Eric a refusé 675 records au catalogue. 🔧 `trade-goods`, lui, ne « sera pas rejoint par "
+    + "les 23 marchandises du livre » : elles ne sont pas dans le SRD, mesuré le 23/09.");
   assert.equal(arbre.some((r) => r.id === "companions"), false,
     "⏳ le 7ᵉ rayon d'Eric est vide, donc absent de l'export : il n'apparaîtra qu'une fois la structure publiée");
 

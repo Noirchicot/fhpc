@@ -13,6 +13,72 @@
   },
   "description": "Soulforge Crafting, gathered into ONE layer so that it can be switched off in one gesture. Before lot 179 the chapter was scattered across `fh-skills-en` (the tool) and `fh-spells-en` (Transfer Essence, and the Soulforge roles given to Identify and Gentle Repose): no one could turn Soulforging off without also turning off the twelve species’ skill-point pool, or the five other Fate’s Hand spells. ⚠️ ONE MECHANICAL PIECE COULD NOT FOLLOW: the Araag trait `Soulforged Affinity` stays in `fh-species-en`, because a patch cannot create an element in an array (`src/layers/paths.mjs`, rule 3) — no layer above can put a trait back into a record a lower layer added. Turning this layer off therefore leaves that trait standing, and an Araag would still be told he can Body Forge a Soulgem into his own flesh: the switch is not complete until that is decided. FIVE PROSE MENTIONS stay where they are as well — three in `fh-lore-en` (elf, araag, wizard), one in `fh-fiche-en` (the Araag trait line), one that is only a build note — because a sentence is not cut in two across layers.",
   "records": {
+    "gear": {
+      "fh:gear:en:soulgem": {
+        "name": "Soulgem",
+        "slug": "soulgem",
+        "data": {
+          "blueprint": {
+            "asks": [
+              "gem",
+              "rarity"
+            ],
+            "provenance": "eric:2026-09-24 — « les blueprints n'ont pas de valeur puisqu'aucune existence physique. Par contre les parts et les ingrédients en ont. » ⛔ NI PRIX NI POIDS, ET C'EST LA MÊME RAISON : un plan n'est pas l'objet, c'est la promesse de l'objet. ⭐ Ce qui SORT du formulaire, lui, pèse et vaut — et il entre dans l'équipement du personnage.",
+            "note": "⭐ LE SEUL DES QUATRE QUI CONSOMME UN OBJET DU CATALOGUE. Eric, 24/09 : « les gemmes pourraient être à deux endroits — dans trade goods, mais aussi sous une autre forme : soulgem blueprints ». ⛔ CE N'EST PAS LA MÊME FICHE RANGÉE DEUX FOIS : une loi du tambour interdit qu'un record soit sur deux étagères, et elle n'a pas à être contournée. Les 27 pierres sont des OBJETS (prix, poids, on les achète) ; ceci est UN PLAN (aucun prix, aucun poids, on l'exécute). Le joueur les voit aux deux endroits parce que ce sont deux choses. ⚠️ La rareté est bornée par la valeur de la pierre — Eric, 23/09 — et les gemmes à 10 po n'ouvrent aucun formulaire : elles tombent sous le seuil de PP 1."
+          },
+          "description": "Choose a gem you own and a rarity no greater than the gem's tier, then cast Transfer Essence. The gem becomes a soulgem.",
+          "name": "Soulgem"
+        }
+      },
+      "fh:gear:en:catalyst-part": {
+        "name": "Catalyst Part",
+        "slug": "catalyst-part",
+        "data": {
+          "blueprint": {
+            "asks": [
+              "rarity",
+              "creature_type",
+              "creature_name"
+            ],
+            "provenance": "eric:2026-09-24 — « les blueprints n'ont pas de valeur puisqu'aucune existence physique. Par contre les parts et les ingrédients en ont. » ⛔ NI PRIX NI POIDS, ET C'EST LA MÊME RAISON : un plan n'est pas l'objet, c'est la promesse de l'objet. ⭐ Ce qui SORT du formulaire, lui, pèse et vaut — et il entre dans l'équipement du personnage.",
+            "note": "⚖️ Eric, 23/09 : « catalyst part, sont des blueprints : choisir rareté, type de créature, nom de créature = catalyst ingredient ». 🔴 C'EST CE PLAN QUI REMPLACE 465 RECORDS. Le chapitre porte 465 catalyseurs — 14 types de créature × 5 raretés × les noms — et les poser au catalogue ferait, à lui seul, plus du double de l'équipement entier. ⛔ Eric l'a refusé : « plus simple pour le joueur de prendre le blueprint et de le faire sur mesure ». Les 465 fiches restent la DONNÉE que le formulaire consulte, jamais des objets du catalogue."
+          },
+          "description": "Choose a rarity, a creature type and a creature name. On a successful craft, the blueprint yields a catalyst ingredient.",
+          "name": "Catalyst Part"
+        }
+      },
+      "fh:gear:en:structure-part": {
+        "name": "Structure Part",
+        "slug": "structure-part",
+        "data": {
+          "blueprint": {
+            "asks": [
+              "rarity",
+              "creature_type"
+            ],
+            "provenance": "eric:2026-09-24 — « les blueprints n'ont pas de valeur puisqu'aucune existence physique. Par contre les parts et les ingrédients en ont. » ⛔ NI PRIX NI POIDS, ET C'EST LA MÊME RAISON : un plan n'est pas l'objet, c'est la promesse de l'objet. ⭐ Ce qui SORT du formulaire, lui, pèse et vaut — et il entre dans l'équipement du personnage.",
+            "note": "⚖️ Eric, 23/09 : « structure part (blueprint) → crafting réussi → structure ingredient ». ⭐ LA FLÈCHE DIT TOUT, ET ELLE DIT QUE LES DEUX CÔTÉS NE SONT PAS DE MÊME NATURE : à gauche un plan, qui ne pèse ni ne vaut ; à droite un ingrédient, qui pèse et vaut. Un seul des deux est au catalogue."
+          },
+          "description": "Choose a rarity and a creature type. On a successful craft, the blueprint yields a structure ingredient.",
+          "name": "Structure Part"
+        }
+      },
+      "fh:gear:en:soulforged-item": {
+        "name": "Soulforged Item",
+        "slug": "soulforged-item",
+        "data": {
+          "blueprint": {
+            "asks": [
+              "prerequisites"
+            ],
+            "provenance": "eric:2026-09-24 — « les blueprints n'ont pas de valeur puisqu'aucune existence physique. Par contre les parts et les ingrédients en ont. » ⛔ NI PRIX NI POIDS, ET C'EST LA MÊME RAISON : un plan n'est pas l'objet, c'est la promesse de l'objet. ⭐ Ce qui SORT du formulaire, lui, pèse et vaut — et il entre dans l'équipement du personnage.",
+            "note": "⚖️ Eric, 24/09 : « un 4e blueprint pourrait s'appeler soulforged item, qui ouvrirait un menu contenant des prérequis et de faire le soulforging ». ⭐ C'EST L'ASSEMBLAGE : les trois autres plans fabriquent des pièces, celui-ci les monte. ⏳ LE MENU N'EXISTE PAS ENCORE — le record le nomme, l'écran reste à dessiner, et c'est le terrain de l'architecte. ⛔ Ce record ne PROMET donc rien qu'il puisse tenir seul : il déclare une porte, il ne la peint pas."
+          },
+          "description": "Opens the soulforging menu: the prerequisites are listed, and the forging is performed there.",
+          "name": "Soulforged Item"
+        }
+      }
+    },
     "tool": {
       "fh:tool:en:soulforging": {
         "name": "Soulforging",
@@ -79,6 +145,62 @@
             "aisle": "tools",
             "provenance": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst.",
             "shelf": "tools"
+          }
+        }
+      },
+      "fh:shelving:en:soulgem": {
+        "name": "Soulgem",
+        "slug": "soulgem",
+        "data": {
+          "extends": "fh:gear:en:soulgem",
+          "name": "Soulgem",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-24 — « une seule étagère blueprints pour les quatre. Un plan est un plan, qu'il fabrique une pierre ou un objet. » ⭐ ET LE RAYON `crafting` REPARAÎT PAR EUX : il s'était vidé le 23/09 quand les outils sont partis chez `tools`, et ses deux autres étagères (`gems`, `ingredients`) ont été retirées le 24 — la première était morte (les pierres sont chez `trade-goods`), la seconde ne sera jamais peuplée. ⛔ UN INGRÉDIENT NE SE RANGE PAS AU CATALOGUE : il se fait SUR MESURE, donc il naît dans l'inventaire d'un personnage. Eric : « je ne veux pas créer une catégorie dans laquelle tu as 100 catalystes et structures différents, un pour chaque type et chaque valeur en PP ».",
+            "shelf": "blueprints"
+          }
+        }
+      },
+      "fh:shelving:en:catalyst-part": {
+        "name": "Catalyst Part",
+        "slug": "catalyst-part",
+        "data": {
+          "extends": "fh:gear:en:catalyst-part",
+          "name": "Catalyst Part",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-24 — « une seule étagère blueprints pour les quatre. Un plan est un plan, qu'il fabrique une pierre ou un objet. » ⭐ ET LE RAYON `crafting` REPARAÎT PAR EUX : il s'était vidé le 23/09 quand les outils sont partis chez `tools`, et ses deux autres étagères (`gems`, `ingredients`) ont été retirées le 24 — la première était morte (les pierres sont chez `trade-goods`), la seconde ne sera jamais peuplée. ⛔ UN INGRÉDIENT NE SE RANGE PAS AU CATALOGUE : il se fait SUR MESURE, donc il naît dans l'inventaire d'un personnage. Eric : « je ne veux pas créer une catégorie dans laquelle tu as 100 catalystes et structures différents, un pour chaque type et chaque valeur en PP ».",
+            "shelf": "blueprints"
+          }
+        }
+      },
+      "fh:shelving:en:structure-part": {
+        "name": "Structure Part",
+        "slug": "structure-part",
+        "data": {
+          "extends": "fh:gear:en:structure-part",
+          "name": "Structure Part",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-24 — « une seule étagère blueprints pour les quatre. Un plan est un plan, qu'il fabrique une pierre ou un objet. » ⭐ ET LE RAYON `crafting` REPARAÎT PAR EUX : il s'était vidé le 23/09 quand les outils sont partis chez `tools`, et ses deux autres étagères (`gems`, `ingredients`) ont été retirées le 24 — la première était morte (les pierres sont chez `trade-goods`), la seconde ne sera jamais peuplée. ⛔ UN INGRÉDIENT NE SE RANGE PAS AU CATALOGUE : il se fait SUR MESURE, donc il naît dans l'inventaire d'un personnage. Eric : « je ne veux pas créer une catégorie dans laquelle tu as 100 catalystes et structures différents, un pour chaque type et chaque valeur en PP ».",
+            "shelf": "blueprints"
+          }
+        }
+      },
+      "fh:shelving:en:soulforged-item": {
+        "name": "Soulforged Item",
+        "slug": "soulforged-item",
+        "data": {
+          "extends": "fh:gear:en:soulforged-item",
+          "name": "Soulforged Item",
+          "of_kind": "gear",
+          "shelf": {
+            "aisle": "crafting",
+            "provenance": "eric:2026-09-24 — « une seule étagère blueprints pour les quatre. Un plan est un plan, qu'il fabrique une pierre ou un objet. » ⭐ ET LE RAYON `crafting` REPARAÎT PAR EUX : il s'était vidé le 23/09 quand les outils sont partis chez `tools`, et ses deux autres étagères (`gems`, `ingredients`) ont été retirées le 24 — la première était morte (les pierres sont chez `trade-goods`), la seconde ne sera jamais peuplée. ⛔ UN INGRÉDIENT NE SE RANGE PAS AU CATALOGUE : il se fait SUR MESURE, donc il naît dans l'inventaire d'un personnage. Eric : « je ne veux pas créer une catégorie dans laquelle tu as 100 catalystes et structures différents, un pour chaque type et chaque valeur en PP ».",
+            "shelf": "blueprints"
           }
         }
       }

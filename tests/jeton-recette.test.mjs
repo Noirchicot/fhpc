@@ -319,3 +319,82 @@ test("11 — ⚔️ LA DESCENTE DE `contents` ATTEINT LA PILE QUE L'ÉCRAN MONTE
       `⛔ « ${o.view.id} » porte un contenu et le prédicat ne le voit pas`);
   }
 });
+
+/* ══ ⑦ LES QUATRE PLANS DU SOULFORGING — ERIC, 2026-09-24 ════════════════════
+   ⚖️ *« une seule étagère blueprints pour les quatre. Un plan est un plan, qu'il
+   fabrique une pierre ou un objet. »*
+   🔴 ET CE QU'ILS REMPLACENT EST LE VRAI SUJET : le chapitre porte 675 fiches —
+   465 catalyseurs, 210 ingrédients, 14 types de créature × 5 raretés × 3 rôles.
+   Les poser au catalogue ferait, à elles seules, plus du double de l'équipement
+   entier. ⛔ Eric l'a refusé : *« je ne veux pas créer une catégorie dans laquelle
+   tu as 100 catalystes et structures différents […] plus simple pour le joueur de
+   prendre le blueprint et de le faire sur mesure »*. Quatre plans au lieu de 675
+   objets, et les 675 restent la DONNÉE que les formulaires consultent. */
+
+test("12 — ⭐ QUATRE PLANS, ET AUCUN N'EST UN OBJET : ni prix, ni poids", () => {
+  const plans = query({ kind: "gear" }).filter((v) => (v.record.data || {}).blueprint);
+  assert.equal(plans.length, 4, "Soulgem · Catalyst Part · Structure Part · Soulforged Item");
+
+  for (const p of plans) {
+    const d = p.record.data;
+    /* ⚖️ ERIC, 24/09 : *« les blueprints n'ont pas de valeur puisqu'aucune
+       existence physique. Par contre les parts et les ingrédients en ont. »*
+       ⛔ L'ABSENCE EST LA DÉCLARATION. Écrire `cost: "0 GP"` dirait « ça vaut
+       zéro pièce », ce qui est une valeur ; ne rien écrire dit « ça n'a pas de
+       prix », ce qui est la règle. Les deux se ressemblent et ne disent pas la
+       même chose. */
+    assert.equal(d.cost, undefined, `${p.record.name} ne porte AUCUN prix — un plan n'a pas d'existence physique`);
+    assert.equal(d.weight, undefined, `${p.record.name} ne porte AUCUN poids`);
+    assert.equal(estRecette(p.record), true, `${p.record.name} est une recette`);
+    assert.ok(Array.isArray(d.blueprint.asks) && d.blueprint.asks.length > 0,
+      `${p.record.name} : le formulaire DEMANDE quelque chose — un plan qui ne demande rien n'en est pas un`);
+  }
+
+  /* ⚔️ ET ILS PÈSENT VRAIMENT ZÉRO DANS UN SAC, sans compter comme « à éditer ». */
+  const rec = (ref) => query({ kind: "gear", id: ref.id }).record;
+  const p = poidsParLieu(plans.map((v) => ({ ref: { id: v.id }, location: "backpack", quantity: 1 })), rec);
+  assert.equal(p.somme.backpack, 0);
+  assert.equal(p.compte.backpack, 4, "⭐ ils SONT dans le sac — le compte les voit");
+  assert.equal(p.inconnus.backpack, 0, "⛔ et ils ne sont pas « à éditer » : leur poids est NUL, pas manquant");
+});
+
+test("13 — 🔴 LES 675 FICHES NE SONT PAS DES RECORDS, et ce garde le prouve par le compte", () => {
+  /* ⛔ LE DÉFAUT QU'ON A ÉVITÉ SE MESURE : 465 catalyseurs + 210 ingrédients
+     posés au catalogue, contre 486 rangements pour TOUT l'équipement. Le
+     Soulforging aurait pesé plus que le reste du jeu réuni.
+     ⭐ Ce garde tombe le jour où quelqu'un les importe — et c'est exactement ce
+     qu'on veut qu'il attrape. */
+  const crafting = query({ kind: "shelving" }).filter((v) => {
+    const sh = ((v.record && v.record.data) || {}).shelf || {};
+    return sh.aisle === "crafting";
+  });
+  assert.equal(crafting.length, 4,
+    "⛔ le rayon `crafting` porte QUATRE rangements, et rien d'autre. S'il en porte 469, quelqu'un a "
+    + "posé les catalyseurs au catalogue — relire Eric du 24/09 avant de changer ce nombre.");
+  assert.deepEqual([...new Set(crafting.map((v) => v.record.data.shelf.shelf))], ["blueprints"],
+    "⭐ une seule étagère — `gems` et `ingredients` ont été retirées le 24/09 : la première était "
+    + "morte (les pierres sont chez `trade-goods`), la seconde ne sera JAMAIS peuplée puisqu'un "
+    + "ingrédient se fait sur mesure et naît dans l'inventaire d'un personnage.");
+});
+
+test("14 — ⚔️ LA SOULGEM EST UN PLAN, PAS UNE 28ᵉ PIERRE RANGÉE AILLEURS", () => {
+  /* 🔴 LA LOI DU TAMBOUR INTERDIT QU'UN RECORD SOIT SUR DEUX ÉTAGÈRES, et Eric
+     voulait les gemmes visibles à deux endroits. ⛔ La tentation était de ranger
+     une pierre deux fois ; ⭐ ce sont DEUX CHOSES, et ce garde le tient par leurs
+     natures opposées plutôt que par une promesse. */
+  const soulgem = query({ kind: "gear", id: "fh:gear:en:soulgem" });
+  assert.ok(soulgem, "le plan existe");
+  assert.equal(soulgem.record.data.cost, undefined, "le PLAN n'a pas de prix…");
+
+  const pierres = query({ kind: "gem" });
+  assert.equal(pierres.length, 27, "…et les 27 PIERRES sont ailleurs, au genre `gem`");
+  for (const g of pierres) {
+    assert.ok(g.record.data.cost, `${g.record.name} porte un prix — une pierre est un objet`);
+    assert.equal(estRecette(g.record), false,
+      `⛔ ${g.record.name} n'est PAS une recette : on l'achète et on la revend, on ne l'exécute pas`);
+  }
+
+  /* ⚔️ ET AUCUN RECORD N'EST RANGÉ DEUX FOIS — la loi, mesurée, pas affirmée. */
+  const vises = query({ kind: "shelving" }).map((v) => v.record.data.extends);
+  assert.equal(new Set(vises).size, vises.length, "⛔ un record est rangé sur deux étagères");
+});

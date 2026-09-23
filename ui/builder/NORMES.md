@@ -3969,6 +3969,66 @@ n'est pas une option de l'écran : tant que la donnée n'existe pas, aucun écra
 
 ---
 
+### 🧪 QUATRE PLANS AU LIEU DE 675 OBJETS — `crafting › blueprints`
+📍 `equipement-quatre-blueprints-du-soulforging` · vivante · 24/09
+
+✅ **Eric, 2026-09-24** : *« une seule étagère blueprints pour les quatre. **Un plan est un plan,
+qu'il fabrique une pierre ou un objet.** »*
+
+| plan | ce que le formulaire demande | ce qui en sort |
+|---|---|---|
+| **Soulgem** | une gemme · la rareté (≤ la valeur de la pierre) | une soulgem |
+| **Catalyst Part** | rareté · type de créature · nom | un *catalyst ingredient* |
+| **Structure Part** | rareté · type de créature | un *structure ingredient* |
+| **Soulforged Item** | les prérequis, puis le soulforging | l'objet forgé |
+
+🔴 **CE QU'ILS REMPLACENT EST LE VRAI SUJET.** Le chapitre porte **675 fiches** — 465
+catalyseurs et 210 ingrédients, 14 types de créature × 5 raretés × 3 rôles. Les poser au
+catalogue ferait, à elles seules, **plus du double de l'équipement entier** (486 rangements pour
+tout le reste du jeu). ⛔ Eric l'a refusé : *« je ne veux pas créer une catégorie dans laquelle tu
+as 100 catalystes et structures différents, un pour chaque type et chaque valeur en PP — plus
+simple pour le joueur de prendre le blueprint et de le faire **sur mesure** »*.
+⭐ **Les 675 restent la DONNÉE que les formulaires consultent, jamais des objets du catalogue.**
+
+⚖️ **NI PRIX NI POIDS, ET L'ABSENCE EST LA DÉCLARATION.** Eric : *« les blueprints n'ont pas de
+valeur puisqu'aucune existence physique. Par contre les parts et les ingrédients en ont »*.
+⛔ Écrire `cost: "0 GP"` dirait « ça vaut zéro pièce », ce qui est **une valeur** ; ne rien écrire
+dit « ça n'a pas de prix », ce qui est **la règle**. Les deux se ressemblent et ne disent pas la
+même chose.
+
+⭐ **ET LE PRODUIT, LUI, PÈSE ET VAUT** — il entre dans l'équipement du personnage. C'est la
+flèche de la dictée : *« structure part (blueprint) → crafting réussi → structure ingredient »*.
+⛔ **Un ingrédient ne se range donc JAMAIS au catalogue** : il se fait sur mesure, donc il naît
+dans l'inventaire d'un personnage. C'est pour ça que l'étagère `crafting › ingredients`, déclarée
+depuis le 21/08, a été **retirée** le 24/09 : elle n'attendait pas, elle n'aurait jamais rien reçu.
+
+🔴 **UNE GEMME PARAÎT À DEUX ENDROITS, ET CE SONT DEUX CHOSES.** Eric : *« les gemmes pourraient
+être à deux endroits — dans trade goods, mais aussi sous une autre forme : soulgem blueprints »*.
+⛔ **La loi du tambour interdit qu'un record soit sur deux étagères**, et elle n'a pas à être
+contournée :
+
+| | `trade-goods › gems` | `crafting › blueprints` |
+|---|---|---|
+| quoi | **27 pierres** | **1 plan** |
+| valeur | 50 → 50 000 po | **aucune** |
+| poids | réel | **aucun** |
+| geste | on l'achète, on la revend | on l'**exécute** |
+
+⭐ Le joueur les voit aux deux endroits parce qu'il y a bien deux objets — pas parce qu'on a rangé
+le même deux fois.
+
+📌 **LE SIGNAL VIT DANS LE RECORD** : `data.blueprint`, avec `asks` — ce que le formulaire
+demande — lu génériquement. ⛔ Aucun `if` sur « Soulgem » nulle part. Et ce n'est pas une liste de
+noms déguisée : un kit se reconnaît à son contenu et une arme magique à sa catégorie **parce
+qu'ils sont AUSSI autre chose** ; un plan n'est que ça, et le seul endroit où ça peut s'écrire est
+le record lui-même.
+
+⏳ **ET LE MENU DU QUATRIèME N'EXISTE PAS.** `Soulforged Item` *« ouvrirait un menu contenant des
+prérequis »* — le record le **nomme**, l'écran reste à dessiner. ⛔ Ce record ne promet donc rien
+qu'il puisse tenir seul : il déclare une porte, il ne la peint pas.
+
+---
+
 ### ⚖️ DANS LE SRD OU PAS DANS LE SRD — IL N'Y A PAS DE TROISIÈME CAS
 📍 `equipement-si-c-est-dans-le-srd-tu-le-mets` · vivante · 23/09
 

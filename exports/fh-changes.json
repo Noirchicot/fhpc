@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "413714b8ffb8f4cb8a8681be5ac699558c748d75a741114961d51b8ed87197f6",
+  "layer_run": "78904bcca83d18ca35efbba3b33ad8842d8024cb07b5170ec256a961d9425733",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -58,7 +58,7 @@
     {
       "id": "fh-soulforging-en",
       "version": "0.1.0",
-      "hash": "d13cfce3793cb2572cad80b5131eae396b5966c82cc81c143ce82850b4e0eba0"
+      "hash": "34c7ce5880a26b138a4f1cf67aeba3a6880b31cdd7896eed9986043f2cd82a0f"
     },
     {
       "id": "fh-gems-en",
@@ -175,9 +175,13 @@
     "gear": {
       "added": [
         "Blowgun Needles",
+        "Catalyst Part",
         "Crossbow Bolts",
         "Firearm Bullets",
-        "Sling Bullets"
+        "Sling Bullets",
+        "Soulforged Item",
+        "Soulgem",
+        "Structure Part"
       ],
       "patched": [
         "Arrows"
@@ -327,6 +331,7 @@
         "Cartographer’s Tools",
         "Case, Crossbow Bolt",
         "Case, Map or Scroll",
+        "Catalyst Part",
         "Censer of Controlling Air Elementals",
         "Chain",
         "Chain Mail",
@@ -631,7 +636,9 @@
         "Sling Bullets",
         "Slippers of Spider Climbing",
         "Smith’s Tools",
+        "Soulforged Item",
         "Soulforging",
+        "Soulgem",
         "Sovereign Glue",
         "Spear",
         "Spell Scroll",
@@ -657,6 +664,7 @@
         "Stone of Controlling Earth Elementals",
         "Stone of Good Luck (Luckstone)",
         "String",
+        "Structure Part",
         "Studded Leather Armor",
         "Sun Blade",
         "Sword of Life Stealing",

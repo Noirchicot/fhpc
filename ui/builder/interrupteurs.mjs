@@ -162,7 +162,19 @@ const COUCHE_PAR_PREFIXE = Object.freeze({
  *  gardés contre le disque (voir la tête de section). */
 export const COUCHE_PAR_ID = Object.freeze({
   "fh:tool:en:soulforging": "fh-soulforging-en",
-  "fh:spell:en:transfer-essence": "fh-soulforging-en"
+  "fh:spell:en:transfer-essence": "fh-soulforging-en",
+  /* ⭐ LES QUATRE PLANS DU SOULFORGING (Eric, 24/09) — et ils sont ici pour la
+     même raison que les deux d'au-dessus : `fh:gear` appartient à
+     `fh-munitions-en` par préfixe, et ces quatre-là n'en sont pas.
+     ⛔ LE PRÉFIXE NE PEUT PAS LES DISTINGUER, et ce n'est pas une faiblesse à
+     réparer : `fh:gear:en:…` dit le genre et la langue, jamais la couche. Deux
+     couches Fate's Hand qui ajoutent du `gear` se partagent donc le même
+     préfixe, par construction. ⭐ C'est exactement ce que cette table existe
+     pour dire, et le garde B3 l'a attrapée au premier record. */
+  "fh:gear:en:soulgem": "fh-soulforging-en",
+  "fh:gear:en:catalyst-part": "fh-soulforging-en",
+  "fh:gear:en:structure-part": "fh-soulforging-en",
+  "fh:gear:en:soulforged-item": "fh-soulforging-en"
 });
 
 /** LA COUCHE QUI AJOUTE UN ID — un repli par préfixe (voir ci-dessus), ou
