@@ -711,6 +711,18 @@
      l'interligne du nom passe à 1 pour que les trois lignes d'Eric (16/09)
      tiennent SOUS la bande au lieu de commencer dedans. */
   --jeton-marque: 12px;   /* la hauteur commune aux quatre marques */
+  /* ⚖️ LE BLEU DE LA RECETTE — Eric, 2026-09-23 : *« il faut mettre en évidence
+     les tokens recettes (blueprints) […] une diagonale de bas en haut, moitié
+     inférieure droite bleue »*.
+     ⛔ CE N'EST PAS UNE CINQUIÈME MARQUE : les quatre marques vivent dans la
+     bande haute de 12 (`jeton-quatre-marques-de-la-bande`), et celle-ci n'y
+     entre pas — c'est un FOND, sous le nom. La loi de la bande est intacte.
+     📏 MESURÉ, parce que ce bleu passe DERRIÈRE LE NOM : `--text` sur ce fond
+     rend 9,59:1 le jour et 8,44:1 la nuit, contre 10,36 et 10,11 sur le
+     `--sunken` qu'il remplace. On perd moins d'un point, et on reste très
+     au-dessus du seuil — la règle de la maison est que chaque encre tient son
+     seuil contre le PIRE fond qu'elle rencontre, et ce fond-ci en devient un. */
+  --jeton-recette: #c5d8ee;
   --jeton-bande: 14px;    /* --sp-2 de garde + les 12 : là où le nom commence */
 
   /* ⭐ LES DEUX RELIEFS. Ils ne portent AUCUNE couleur du thème : ce sont des
@@ -1507,6 +1519,8 @@
     --belt-halo: rgba(255, 255, 255, 0.62); /* le halo du belt, à égalité du jour */
     --bg: #14120e;
     --surface: #1f1c16;
+    /* le bleu de la recette, version nuit — 8,44:1 sous `--text` */
+    --jeton-recette: #25344a;
     --sunken: #2a261d;
     --text: #d8d3c9;
     --text-soft: #989286;

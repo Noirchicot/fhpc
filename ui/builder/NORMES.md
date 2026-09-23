@@ -3564,6 +3564,85 @@ changeait seulement le nom de la licence qui la refuse.**
 exactement comme les poids des 54 gemmes *(`"Eric, 2026-09-08"`)*. ⭐ Les références ouvertes ont
 servi à **choisir** le nombre, jamais à le **fournir** — et c'est la différence que §0.8 mesure.
 
+### ⏳ LE CRAFT ORDINAIRE NE DEMANDE AUCUN JET — SEUL LE SOULFORGING EN DEMANDE
+📍 `equipement-craft-sans-jet` · vivante · 23/09
+⚖️ **Le craft standard coûte du TEMPS et de l'ARGENT, rien d'autre : pas de DC, pas de jet, pas de
+bouton `ROLL`. ⛔ Les jets appartiennent au Soulforging, et à lui seul.**
+
+> Eric, 2026-09-23 : **« dans le crafting standard, pas de jets à faire »**.
+
+🔴 **ET LE CROQUIS DU MÊME JOUR DISAIT AUTRE CHOSE.** Le panneau `CRAFTING` y portait
+*« crafting roll DC 16 »* et un bouton `ROLL` à côté du temps de fabrication. ⭐ **Ils sortent** :
+il reste les **prérequis**, le **temps** et les **cinq coûts** *(base item · ingrédients · crafting
+· unit price · qty → total)*.
+
+⭐ **ET C'EST CE QUI SÉPARE LES DEUX CHEMINS**, qui se ressemblaient dangereusement :
+
+| | ce qu'on dépense | ce qu'on risque |
+|---|---|---|
+| **craft ordinaire** | du temps, de l'argent | **rien** — il aboutit |
+| **Soulforging** | du temps, de l'argent, **et du sang** | **trois jets** : Study, Hunting, Soulforging Tools — et *« fail by 5 or more → everything is lost »* |
+
+⛔ **Un bouton `ROLL` sur l'écran de craft ordinaire dirait donc le contraire de la règle** : il
+promettrait un hasard qui n'existe pas, et il effacerait la seule chose qui rend le Soulforging
+cher — le risque.
+
+---
+
+### 📐 LE JETON D'UNE RECETTE PORTE UNE DIAGONALE BLEUE
+📍 `jeton-diagonale-de-la-recette` · vivante · 23/09
+⚖️ **Un jeton de recette (*blueprint*) se reconnaît à une diagonale qui va du coin bas-gauche au
+coin haut-droit : la moitié INFÉRIEURE DROITE est bleue. ⛔ Ce n'est PAS une cinquième marque.**
+
+> Eric, 2026-09-23 : **« il faut mettre en évidence les tokens recettes (blueprints) […] je pense à
+> une diagonale de bas en haut, moitié inférieure droite bleue »**, et, sur ce qu'est une recette :
+> **« on ne va plus partir des items de base, on partira des recettes déjà données dans magic
+> items »**.
+
+🔴 **LA LOI DE LA BANDE N'EST PAS TOUCHÉE, ET C'EST CE QUI REND LA MARQUE POSSIBLE.** Les
+**quatre marques** vivent dans la bande haute de 12 (`jeton-quatre-marques-de-la-bande`) ; la
+diagonale est un **FOND**, sous le nom. Elle n'entre pas dans la bande, ne déplace pas le nom, et
+ne prend aucune des quatre places. ⭐ **C'est une cinquième information sans être une cinquième
+marque** — le seul endroit du jeton qui restait libre.
+
+📏 **ET ELLE PASSE DERRIÈRE LE NOM, DONC ELLE SE MESURE.** Le contraste de `--text` :
+
+| | sur `--sunken` *(le fond qu'elle remplace)* | sur `--jeton-recette` |
+|---|---|---|
+| **jour** `#c5d8ee` | 10,36:1 | **9,59:1** |
+| **nuit** `#25344a` | 10,11:1 | **8,44:1** |
+
+⭐ On perd **moins d'un point** et on reste très au-dessus du seuil. La règle de la maison —
+*« chaque encre tient son seuil contre le PIRE fond qu'elle rencontre »* — vaut désormais contre
+ce fond-ci aussi.
+
+📐 **LE DESSIN, EN UNE LIGNE** : `linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%)`.
+L'axe du dégradé est **perpendiculaire** à la diagonale voulue, et l'arrêt net à 50 % colore la
+moitié qui va vers le bas-droit. ⛔ `to top right` donnerait l'autre moitié.
+
+📋 **LES 59 JETONS QUI LA PORTENT.**
+⚖️ **Une recette est une entrée d'objet magique du catalogue — plus une composition à partir d'une
+base mondaine.** *(Eric, 23/09, renversant le croquis du même jour.)*
+
+| type de craft | jetons | où |
+|---|---|---|
+| **Craft Weapon** | **33** | `battlefield › magic-weapons`, en entier |
+| **Craft Armor** | **19** | `battlefield › magic-armor`, en entier |
+| **Craft Wondrous** | **6** | ⛔ **les recettes seulement** — Belt of Giant Strength · Feather Token · Figurine of Wondrous Power · Horn of Valhalla · Ioun Stone · Wand of the War Mage |
+| **Scribe Scroll** | **1** | Spell Scroll |
+| | **59** | **aucun doublon** |
+
+⛔ **`Brew Potion` est retiré** *(« potions inutile »)* et **le Soulforging passe par une autre
+voie** : il n'entre pas dans cette fiche.
+
+⭐ **POURQUOI SIX WONDROUS ET PAS 181** : Eric — *« uniquement les recettes, items fourre-tout en un
+comme figurine of wondrous power »*. 📏 **Le signal est la RARETÉ, pas la prose** : le SRD écrit
+`Rarity Varies` — ou énumère *« Rare (Silver or Brass), Very Rare (Bronze), Legendary (Iron) »* —
+exactement quand l'entrée est une **famille**. ⚠️ Un filtre sur la prose sur-rapporte : il attrape
+*Staff of Fire* et *Wand of Fear*, qui ont des tables de **sorts**, pas de variantes.
+
+---
+
 ### 🏷️ « TABLE ITEMS » — LE MOT DU JOUEUR POUR CE QUI NE VIENT D'AUCUN LIVRE
 📍 `equipement-table-items` · vivante · 23/09
 ⚖️ **Ce que le joueur lit s'appelle `Table items`. Le concept s'appelle **catalogue de table**.
