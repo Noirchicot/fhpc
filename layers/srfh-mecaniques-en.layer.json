@@ -29,6 +29,62 @@
       }
     },
     "shelving": {
+      "srfh:shelving:en:alchemist-s-supplies": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ ERIC, 2026-09-23 : *« ne mets pas crafting tools, mets tools »*.\n\n🔴 LE RAYON CHANGE DE NOM, PAS DE CONTENU. `crafting` décrivait ce qu'on FAIT avec l'objet ; `tools` décrit ce que l'objet EST. Un joueur qui cherche une trousse de forgeron ne la cherche pas dans un rayon nommé d'après son usage.\n\n⭐ ET ÇA LIBÈRE `crafting`, qui était le rayon le plus pauvre du tambour : UNE seule étagère, avec `gems` et `ingredients` déclarées à zéro depuis le 21/08 — la question « elle disparaît ou elle attend les ingrédients ? » est ouverte depuis le 09/09. Le chapitre Soulforging attend avec 210 ingrédients en TROIS rôles (Essence · Structure · Catalyst, 70 chacun).\n\n⚠️ `tools › tools` répète son nom, comme `trade-goods › trade-goods` : c'est une forme déjà admise dans ce tambour, pas une nouveauté.\n\n📏 Le compte ne bouge pas : 37 objets (25 du SRD + 12 Fate's Hand). ⏳ Il reste au-dessus du critère des 35 — voir `DEBORDEMENT_NOMME_A_TRANCHER`."
+      },
+      "srfh:shelving:en:brewer-s-supplies": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:calligrapher-s-supplies": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:carpenter-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:cartographer-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:cobbler-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:cook-s-utensils": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
       "srfh:shelving:en:dagger": {
         "op": "patch",
         "changes": {
@@ -36,6 +92,38 @@
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ ERIC, 2026-09-23 : *« toutes les armes de jet, les munitions vont dans cette catégorie »*, puis *« idem pour FH et SRD »*.\n\n🔴 CE QUE ÇA RÉPARE, ET C'ÉTAIT MESURABLE DEPUIS LE DÉBUT : l'étagère `thrown-weapons` ne contenait AUCUNE arme de jet. Ses dix records viennent de `derived:weapon.weapon_range` — arbalètes, arcs, fronde, sarbacane, mousquet, pistolet : des armes À DISTANCE, pas des armes qu'on lance. Les six vraies armes `Thrown` du SRD étaient sur `melee-weapons`, parce qu'elles frappent aussi au corps à corps. Le slug mentait sur son contenu.\n\n⭐ LE LIBELLÉ « Ranged Weapons », tranché le 20/09, couvre enfin les deux familles : ce qu'on tire et ce qu'on lance, plus les cinq munitions qui les alimentent. ⛔ La clef reste `thrown-weapons` — l'identité est la clef, jamais le libellé ; le slug se migre en amont.\n\n⚠️ ET CE PATCH MONTE DANS LES DEUX PILES, sur le mot d'Eric : un rangement est SA classification, pas une règle Fate's Hand. Le joueur en SRD pur voit la même étagère.\n\n📏 `melee-weapons` 28 → 22 · `thrown-weapons` 10 → 16 en SRD seul, 21 avec les munitions."
+      },
+      "srfh:shelving:en:disguise-kit": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:forgery-kit": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:gaming-set": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:glassblower-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
       },
       "srfh:shelving:en:handaxe": {
         "op": "patch",
@@ -45,6 +133,14 @@
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
       },
+      "srfh:shelving:en:herbalism-kit": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
       "srfh:shelving:en:javelin": {
         "op": "patch",
         "changes": {
@@ -52,6 +148,22 @@
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
+      },
+      "srfh:shelving:en:jeweler-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:leatherworker-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
       },
       "srfh:shelving:en:light-hammer": {
         "op": "patch",
@@ -61,6 +173,62 @@
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
       },
+      "srfh:shelving:en:mason-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:musical-instrument": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:navigator-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:painter-s-supplies": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:poisoner-s-kit": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:potter-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:smith-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
       "srfh:shelving:en:spear": {
         "op": "patch",
         "changes": {
@@ -69,6 +237,22 @@
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
       },
+      "srfh:shelving:en:thieves-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:tinker-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
       "srfh:shelving:en:trident": {
         "op": "patch",
         "changes": {
@@ -76,6 +260,22 @@
           "data[shelf][provenance]": "eric:2026-09-23 — « toutes les armes de jet, les munitions vont dans cette catégorie », puis « idem pour FH et SRD ». Une arme qui porte la propriété `Thrown` du SRD est une arme de jet : elle rejoint l'étagère des armes à distance, dans les DEUX piles. ⛔ Elle frappe toujours au corps à corps — c'est son RANGEMENT qui change, pas ce qu'elle fait."
         },
         "note": "⚖️ Voir la note de `srfh:shelving:en:dagger` — même geste, même jour, même raison."
+      },
+      "srfh:shelving:en:weaver-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
+      },
+      "srfh:shelving:en:woodcarver-s-tools": {
+        "op": "patch",
+        "changes": {
+          "data.shelf.aisle": "tools",
+          "data[shelf][provenance]": "eric:2026-09-23 — « ne mets pas crafting tools, mets tools ». Le rayon des outils s'appelle TOOLS, pas `crafting` : le joueur qui cherche une trousse de forgeron ne cherche pas dans un rayon nommé d'après ce qu'il en fera. ⭐ ET ÇA LIBÈRE `crafting` — le rayon n'avait qu'une étagère (`gems` et `ingredients` déclarées à zéro depuis le 21/08), et le chapitre Soulforging attend avec ses 210 ingrédients en trois rôles : Essence, Structure, Catalyst."
+        },
+        "note": "⚖️ Voir la note de `srfh:shelving:en:alchemist-s-supplies` — même geste, même jour."
       }
     }
   }

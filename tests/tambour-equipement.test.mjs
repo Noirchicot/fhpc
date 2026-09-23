@@ -112,8 +112,12 @@ const RANGEMENT = lireRangement(query);
 test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () => {
   const arbre = rayonsEtEtageres(query);
   assert.deepEqual(arbre.map((r) => r.id),
-    ["adventuring", "arcana", "battlefield", "crafting", "marvels", "mundane", "trade-goods"],
-    "les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `trade-goods` porte le MOT "
+    ["adventuring", "arcana", "battlefield", "marvels", "mundane", "tools", "trade-goods"],
+    "⚖️ ERIC, 2026-09-23 : « ne mets pas crafting tools, mets tools » — le rayon dit ce que l\u2019objet EST,\n"
+    + "   pas ce qu\u2019on en FAIT. ⭐ `crafting` n\u2019en sort pas renommé : il se VIDE, et une combinaison\n"
+    + "   non peuplée n\u2019est pas dans l\u2019export (test 5 ter). Il revient le jour où les 210 ingrédients\n"
+    + "   du Soulforging y entrent — Essence · Structure · Catalyst.\n"
+    + "   les rayons sont ceux de `shelving.aisle`, en ordre alphabétique — `trade-goods` porte le MOT "
     + "DU LIVRE (23 marchandises typées TG au SRD 5.2) et non `valuables`, qui était une invention "
     + "de l'architecte, retirée par Eric le 2026-09-09");
   /* ⛔ ET AUCUN GENRE N'Y SURVIT : le défaut se reconnaît à ces quatre mots. */
@@ -148,7 +152,14 @@ test("1 — LES RAYONS SONT CEUX D'ERIC, plus jamais les genres de records", () 
    le homebrew le fera déborder, c'est prévu »*. Le garde reste, parce qu'il
    attrape un débordement NON VOULU ; il nomme celui qui l'est. */
 const DEBORDEMENT_RATIFIE = { id: "trade-goods:trade-goods", n: 54 };
-/* ⏳ 2026-09-23 — UN SECOND DÉBORDEMENT, ET IL N'EST PAS RATIFIÉ : IL EST NOMMÉ.
+/* ✅ 2026-09-23 — UN SECOND DÉBORDEMENT, ET ERIC L'A RATIFIÉ : *« pour les gemmes
+   on [est] aussi au-dessus des 35 »*. La cible de 35 garde son sens — c'est une
+   CIBLE DE DÉCOUPAGE — mais deux étagères l'assument désormais, et pour la même
+   raison : ce qu'elles portent ne se découpe pas plus fin sans mentir. Un outil
+   est un outil ; une gemme est une gemme.
+   ⛔ RATIFIÉ NE VEUT PAS DIRE OUBLIÉ : les deux restent NOMMÉES ici, avec leur
+   compte, pour qu'un troisième débordement rougisse au lieu de se glisser.
+   ⭐ CE QUI A CHANGÉ CE JOUR-LÀ : le rayon s'appelle `tools`, plus `crafting`.
    Eric a demandé que les outils Fate's Hand rejoignent `crafting › tools`
    (« y'a pas une étagère tools ? dans crafting ? »). Ils y sont, et l'étagère
    passe de 25 à 37 — AU-DESSUS de son critère des 35.
@@ -158,7 +169,7 @@ const DEBORDEMENT_RATIFIE = { id: "trade-goods:trade-goods", n: 54 };
    qu'une étagère, et `gems`/`ingredients` y sont déclarées à zéro.
    ➡️ CE GARDE NE DIT PAS QUE 37 EST BIEN. Il dit que 37 est CONNU, et qu'il
    attend un mot d'Eric : recouper `crafting`, ou ratifier le débordement. */
-const DEBORDEMENT_NOMME_A_TRANCHER = { id: "crafting:tools", n: 37 };
+const DEBORDEMENT_NOMME_A_TRANCHER = { id: "tools:tools", n: 37 };
 
 test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la dette NOMMÉE des gemmes", () => {
   /* Eric, 2026-08-24, mot pour mot : « l'organisation de l'équipement permet
@@ -177,8 +188,8 @@ test("2 — 🔴 LE CRITÈRE D'ERIC : aucune étagère au-dessus de 35, sauf la 
   assert.deepEqual(debordent, [DEBORDEMENT_NOMME_A_TRANCHER, DEBORDEMENT_RATIFIE],
     "une étagère à 35 ou plus a raté l'unique raison d'être des rayons — la seule admise est " +
     "`trade-goods › trade-goods`, 54 gemmes aujourd'hui et 77 quand les 23 marchandises du livre " +
-    "l'auront rejointe, prévue par NORMES.md:2441 — et `crafting › tools` à 37, NOMMÉE le 23/09 " +
-    "et EN ATTENTE d'un découpage ou d'une ratification");
+    "l'auront rejointe, prévue par NORMES.md:2441 — et `tools › tools` à 37, RATIFIÉE le 23/09 " +
+    "(« pour les gemmes on est aussi au-dessus des 35 »)");
 
   /* ⚔️ ET LA DETTE SE FONDE SUR LA DONNÉE, PAS SUR SON NOM : ce qui déborde
      doit être EXACTEMENT des gemmes. Sans ce témoin, un objet d'un autre genre
@@ -342,10 +353,12 @@ test("5 bis — ⭐ LA DETTE EST PAYÉE : les 12 outils Fate's Hand ONT une éta
      y en a une, et les douze l'ont rejointe. Le rangement vit dans LEUR couche,
      pas dans `srfh` : motif des 54 gemmes, et il s'éteint avec l'interrupteur
      qui les allume.
-     ⏳ CE QUE ÇA COÛTE, ET CE TEST NE LE CACHE PAS : `crafting › tools` passe de
-     25 à 37, au-dessus du critère des 35 — voir `DEBORDEMENT_NOMME_A_TRANCHER`. */
+     ⏳ CE QUE ÇA COÛTE, ET CE TEST NE LE CACHE PAS : l'étagère passe de 25 à 37,
+     au-dessus du critère des 35 — ratifié par Eric le 23/09, voir
+     `DEBORDEMENT_NOMME_A_TRANCHER`. ⭐ Et le rayon s'appelle `tools` depuis ce
+     jour-là : « ne mets pas crafting tools, mets tools ». */
   const arbre = rayonsEtEtageres(query);
-  const outils = arbre.find((r) => r.id === "crafting").etageres.find((e) => e.id === "crafting:tools");
+  const outils = arbre.find((r) => r.id === "tools").etageres.find((e) => e.id === "tools:tools");
   assert.equal(outils.objets.length, 37, "25 du SRD + 11 neufs + le Soulforging");
 
   const ranges = new Set(query({ kind: "shelving" })
@@ -629,8 +642,11 @@ test("12 — la roue du haut RÉPÈTE sa liste dans le bloc : 7 rayons deviennen
      premiers libellés, en dessous, qui dit quels rayons on regarde. */
   assert.equal(crans.length, 42, "3 tours × ceil(12 / 7) × 7 rayons = 42 crans");
   assert.deepEqual(crans.slice(0, 4).map((c) => c.textContent),
-    ["Adventuring", "Arcana", "Battlefield", "Crafting"],
-    "les rayons d'Eric, pas les genres de records");
+    ["Adventuring", "Arcana", "Battlefield", "Marvels"],
+    "⭐ les rayons d'Eric, pas les genres de records — et « Crafting » a quitté la quatrième "
+    + "place le 23/09 : le rayon des outils s'appelle désormais `tools`, et `crafting` s'est "
+    + "VIDÉ. Il reparaîtra à sa place alphabétique le jour où les ingrédients du Soulforging "
+    + "y entrent — Essence · Structure · Catalyst.");
   assert.deepEqual(crans.slice(0, 4).map((c) => c.dataset.rang), ["0", "1", "2", "3"],
     "chaque cran connaît son RANG dans la vraie liste — c'est ce qui rend la répétition invisible");
 });

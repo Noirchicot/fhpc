@@ -1319,7 +1319,7 @@ test("🔴 LOT 184 — `fh-skills-en` porte `skill`, `tool`, `class` et le RANGE
   const ranges = Object.values(couche.records.shelving);
   assert.equal(ranges.length, 11, "les onze outils NEUFS, et eux seuls");
   for (const r of ranges) {
-    assert.equal(`${r.data.shelf.aisle}:${r.data.shelf.shelf}`, "crafting:tools",
+    assert.equal(`${r.data.shelf.aisle}:${r.data.shelf.shelf}`, "tools:tools",
       "⚖️ la MÊME étagère que les 25 du SRD — le joueur ne cherche pas un outil à deux endroits");
     assert.ok(r.data.extends.startsWith("fh:tool:en:"),
       "⛔ jamais un réécrit : il garde son id SRD et son étagère avec, un second rangement " +

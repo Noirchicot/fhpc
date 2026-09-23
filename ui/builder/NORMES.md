@@ -3643,7 +3643,7 @@ flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul ge
 
 ### 🧰 LES OUTILS FATE'S HAND SONT RANGÉS — `crafting › tools`, AVEC CEUX DU SRD
 📍 `equipement-outils-fh-ranges` · vivante · 23/09
-⚖️ **Les douze outils Fate's Hand rejoignent `crafting › tools`, la même étagère que les 25 du
+⚖️ **Les douze outils Fate's Hand rejoignent `tools › tools`, la même étagère que les 25 du
 SRD — et leur rangement vit dans LEUR couche, pas dans `srfh-shelving-en`.**
 
 > Eric, 2026-09-23 : **« y'a pas une étagère tools ? dans crafting ? »**
@@ -3663,13 +3663,24 @@ SON propre rangement — et il s'éteint avec l'interrupteur qui l'allume.
 95, *« pour qu'un ajout futur casse ici au lieu de disparaître en silence »*. Il a cassé. La dette
 est payée, et le test dit maintenant l'inverse : **plus aucun outil sans étagère**.
 
-🔴 **ET ÇA COÛTE LE CRITÈRE DES 35.** `crafting › tools` passe de **25 à 37**. Eric, 24/08 :
-*« l'organisation de l'équipement permet toujours d'arriver à moins de 35 items sur la dernière
-catégorie »*. ⛔ Le test le dit lui-même : *« si un jour une étagère déborde, c'est le DÉCOUPAGE
-qu'on refait »*. `DEBORDEMENT_NOMME_A_TRANCHER` ne ratifie donc rien — il **nomme** le 37 pour
-qu'il ne passe pas en silence.
-⏳ **DEUX ISSUES, ET ELLES SONT À ERIC** : recouper `crafting` — le rayon n'a qu'une étagère, et
-`gems`/`ingredients` y sont déclarées à zéro depuis le 09/09 — ou ratifier le débordement.
+🏷️ **ET LE RAYON S'APPELLE `tools`, PLUS `crafting`** — Eric, 23/09 : *« ne mets pas crafting
+tools, mets tools »*. ⭐ Le rayon dit ce que l'objet **est**, pas ce qu'on en **fait** : on ne
+cherche pas une trousse de forgeron dans un rayon nommé d'après son usage.
+
+⛔ **`crafting` N'EST PAS RENOMMÉ — IL SE VIDE.** Et une combinaison non peuplée n'entre pas dans
+l'export *(test 5 ter)*, donc le rayon **disparaît du tambour**. ⏳ Il reparaîtra le jour où les
+**210 ingrédients du Soulforging** y entrent — `Essence` · `Structure` · `Catalyst`, 70 chacun.
+📌 La question du 09/09 — *« elle disparaît ou elle attend les ingrédients ? »* — trouve donc sa
+réponse : **elle attend, et elle attend ceux-là**.
+
+✅ **LE DÉBORDEMENT DES 37 EST RATIFIÉ** — Eric, 23/09 : *« pour les gemmes on [est] aussi
+au-dessus des 35 »*. La cible de 35 garde son sens *(c'est une **cible de découpage**)*, mais deux
+étagères l'assument, pour la même raison : ce qu'elles portent ne se découpe pas plus fin sans
+mentir. Un outil est un outil ; une gemme est une gemme.
+⛔ **Ratifié ne veut pas dire oublié** : les deux restent **nommées** dans le garde, avec leur
+compte, pour qu'un **troisième** débordement rougisse au lieu de se glisser.
+
+⚠️ `tools › tools` répète son nom, comme `trade-goods › trade-goods` : forme déjà admise.
 
 ---
 

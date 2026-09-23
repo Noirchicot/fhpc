@@ -440,7 +440,7 @@ const POIDS_DES_INSTRUMENTS = "eric:2026-09-23 — « instruments regular, 5 gp 
    et `srd:tool:en:musical-instrument`, déjà rangés par `srfh`. Leur en poser un
    second afficherait deux lignes pour un seul outil. */
 /** `<rayon>:<étagère>` — LA CHAÎNE À CHANGER, ET LA SEULE. */
-export const ETAGERE_DES_OUTILS_FH = "crafting:tools";
+export const ETAGERE_DES_OUTILS_FH = "tools:tools";
 export const PROVENANCE_ETAGERE_OUTILS =
   "eric:2026-09-23 — « y'a pas une étagère tools ? dans crafting ? ». Les onze outils neufs " +
   "de Fate's Hand rejoignent les 25 du SRD sur `crafting › tools` : c'est la même étagère, " +

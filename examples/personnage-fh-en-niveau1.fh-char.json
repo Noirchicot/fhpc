@@ -26,7 +26,7 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "447fa1bcd5b806763cc378cb15392fc9274a122f0db861ab30f89d3655226203",
+        "hash": "41f30d45890c4021f65037209898f8b39ad6c1595e5ed9049c6dae99481c57f6",
         "name": "SRFH — Mechanics (EN)"
       },
       {
@@ -38,7 +38,7 @@
       {
         "id": "fh-skills-en",
         "version": "0.1.0",
-        "hash": "c07c36a436755816707367da537314fa14f8218b48243cc460057bdf4bc82013",
+        "hash": "06da41322f568f1a4d1008adcebecea960235c2cab2bdbb9c74e1162e8930eb8",
         "name": "Fate's Hand — Skills & Tools (EN)"
       },
       {
@@ -74,7 +74,7 @@
       {
         "id": "fh-soulforging-en",
         "version": "0.1.0",
-        "hash": "a1a7b9cc3147d3b569713f657c50e90ccc4afd0d7c71fba7bcf4085d2d378b4c",
+        "hash": "d13cfce3793cb2572cad80b5131eae396b5966c82cc81c143ce82850b4e0eba0",
         "name": "Fate's Hand — Soulforging (EN)"
       },
       {
@@ -452,7 +452,7 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "447fa1bcd5b806763cc378cb15392fc9274a122f0db861ab30f89d3655226203",
+          "hash": "41f30d45890c4021f65037209898f8b39ad6c1595e5ed9049c6dae99481c57f6",
           "name": "SRFH — Mechanics (EN)"
         },
         {
@@ -464,7 +464,7 @@
         {
           "id": "fh-skills-en",
           "version": "0.1.0",
-          "hash": "c07c36a436755816707367da537314fa14f8218b48243cc460057bdf4bc82013",
+          "hash": "06da41322f568f1a4d1008adcebecea960235c2cab2bdbb9c74e1162e8930eb8",
           "name": "Fate's Hand — Skills & Tools (EN)"
         },
         {
@@ -500,7 +500,7 @@
         {
           "id": "fh-soulforging-en",
           "version": "0.1.0",
-          "hash": "a1a7b9cc3147d3b569713f657c50e90ccc4afd0d7c71fba7bcf4085d2d378b4c",
+          "hash": "d13cfce3793cb2572cad80b5131eae396b5966c82cc81c143ce82850b4e0eba0",
           "name": "Fate's Hand — Soulforging (EN)"
         },
         {
