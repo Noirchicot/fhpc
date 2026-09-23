@@ -36,26 +36,26 @@
      · la corbeille détruit la ligne : ⏳ Eric n'a pas tranché entre détruire et
        poser au sol (les deux emplacements GROUND de l'écran R). Le popup de
        confirmation est là parce que le geste est irréversible. */
-import * as D from "./x1-disposition.mjs?v=803";
+import * as D from "./x1-disposition.mjs?v=805";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE : le
    dropdown de X1 envoie là où le dropdown de R envoie, et le jour où une
    destination s'ouvre (Tally, Craft) les deux écrans l'apprennent ensemble.
    ⛔ `x1-disposition.mjs` porte SA propre liste, du croquis : elle documente le
    plan, elle ne pilote pas l'écran — un besoin satisfait deux fois est une
    occasion de diverger (NORMES §5). */
-import { DESTINATIONS } from "./gear-ecran.mjs?v=803";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=805";
 /* ⭐ L'INTERRUPTEUR DU MENU, PRIS TEL QUEL — il est descendu dans une feuille sans
    import (lot 213) pour que la fiche le prenne sans traîner `Layers` derrière elle. */
-import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=803";
+import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=805";
 /* ⭐ ET LA JAUGE DE DÉFILEMENT, du même tiroir : l'organe des fenêtres de prose de
    Destiny (03/09), descendu dans une feuille sans import. Eric a demandé ici la même
    chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
    informer le lecteur »* — donc c'est le même organe, pas un second. */
-import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=803";
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=805";
 /* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
    sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
    second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
-import { habilleEnParchemin } from "./parchemin.mjs?v=803";
+import { habilleEnParchemin } from "./parchemin.mjs?v=805";
 
 const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
 
@@ -92,7 +92,7 @@ export function budgetDuParchemin() {
 export const CLEF_DE = Object.freeze({
   "QTE": "qte", "NOM": "nom",
   "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge", "OEIL": "oeil",
-  "PRIX": "prix", "POIDS": "poids", "DESCRIPTION": "description",
+  "UNITE": "unite", "TOTAL": "total", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
   "EQUIP": "equip", "ATTUNE": "attune", "LOCKED": "lock",
   "EQUIP ON": "equip-on", "ATTUNE ON": "attune-on", "LOCKED ON": "lock-on",
@@ -160,7 +160,7 @@ export const ORGANES_DE_TETE = Object.freeze(
 );
 /* ⛔ L'APPARTENANCE SE DIT PAR NOM, JAMAIS PAR IDENTITÉ D'OBJET — 📏 mesuré au lot
    242, et c'est un piège du dépôt, pas une précaution : `x1-disposition.mjs` et
-   `x1-disposition.mjs?v=803` sont DEUX instances de module. Les mêmes organes y
+   `x1-disposition.mjs?v=805` sont DEUX instances de module. Les mêmes organes y
    portent des références DIFFÉRENTES, donc un `includes(o)` rend `false` dès que
    l'appelant a importé la table sans la version — ce qu'un garde fait naturellement.
    ⭐ Le nom, lui, traverse les deux instances. */
@@ -223,8 +223,13 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
          centré par rapport à la page »*. */
       noeud.append(voyant(id, "x1-nom", objet.nom || o.mot));
     } else if (id === "qte") {
-      /* ⛔ Elle ne s'écrit que si elle dit quelque chose : « ×1 » est du bruit. */
-      noeud.append(voyant(id, "x1-qte", objet.qte > 1 ? `×${objet.qte}` : "",
+      /* 🔴 LA QUANTITÉ A QUITTÉ LA TÊTE (lot 255) — Eric, 23/09 : *« on dégage le X2
+         en haut à gauche »*. ⭐ ELLE NE DISPARAÎT PAS, ELLE DESCEND : son croquis de
+         la ligne de coût la met AU CENTRE, entre l'unitaire et le total. Et c'est le
+         DOUBLON qui le justifiait — elle était dite deux fois, ici et dans « 15 gp ·
+         ×2 · 30 gp » juste dessous. Deux écrivains d'un même fait.
+         ⛔ Elle ne s'écrit toujours que si elle dit quelque chose : « ×1 » est du bruit. */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-qte", objet.qte > 1 ? `×${objet.qte}` : "",
         objet.qte > 1 ? `Quantity ${objet.qte}` : undefined));
     } else if (id === "filet-haut" || id === "filet-bas") {
       /* ⚖️ LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — Eric, 17/09 au soir. Ils ne
@@ -233,10 +238,15 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
       f.dataset.organe = id;
       f.setAttribute("aria-hidden", "true");
       noeud.append(f);
-    } else if (id === "prix") {
-      noeud.append(voyant(id, "x1-chiffres", ligneDeChiffres(objet.prixUnite, objet.qte, objet.prixTotal), "Price"));
-    } else if (id === "poids") {
-      noeud.append(voyant(id, "x1-chiffres", ligneDePoids(objet.poidsUnite, objet.qte, objet.poidsTotal), "Weight"));
+    } else if (id === "unite") {
+      /* ⚖️ « 2gp / 5lg (cadré gauche) » — le prix ET le poids d'UN exemplaire. */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-unite",
+        cellule(objet.prixUnite, objet.poidsUnite), "Each"));
+    } else if (id === "total") {
+      /* ⚖️ « 6gp / 15lg (cadré droite) » — ⛔ et rien quand il n'y en a qu'un : un
+         total qui répète l'unité ne dit pas un total, il dit deux fois l'unité. */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-total",
+        objet.qte > 1 ? cellule(objet.prixTotal, objet.poidsTotal) : "", "Total"));
     } else if (id === "description") {
       const z = eld("div", "x1-description", objet.prose || "");
       z.dataset.organe = id;
@@ -274,6 +284,16 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
  *  ⭐ Le garde 5 de `x2-ecran.test.mjs` a attrapé exactement ça, et il ne l'a pu
  *  que parce qu'il nommait la règle qu'il cherchait. Deux faits, deux noms. */
 export const FAMILLE_DES_FICHES = Object.freeze([".x1", ".x2"]);
+
+/** ⚖️ QUI PARTAGE LA BOÎTE DE LA DALLE — la TROISIÈME famille de ce chantier, et
+ *  elle se nomme pour la même raison que les deux autres : elle était écrite dans
+ *  `shell.css` ET épinglée mot pour mot dans un garde. 🔴 Ajouter `.x0` au lot 254
+ *  a fait rougir ce garde — non parce que le fait était faux, mais parce que
+ *  DEUX ENDROITS le portaient. C'est la troisième fois en une nuit.
+ *  ⭐ La feuille écrit la liste, le garde la LIT ici. Le prochain écran s'ajoute
+ *  à cette ligne, et rien d'autre ne bouge. */
+export const FAMILLE_DE_LA_DALLE = Object.freeze([".gear", ".x0", ".x1", ".x2", ".sac", ".wares"]);
+export const SELECTEUR_DE_LA_DALLE = FAMILLE_DE_LA_DALLE.join(", ");
 export const SELECTEUR_DES_FICHES = `:is(${FAMILLE_DES_FICHES.join(", ")})`;
 
 export function feuilleDesCotesX1() {
@@ -366,17 +386,18 @@ function bouton(classe, texte, note, surClic) {
 /** Le mot d'une ligne de chiffres : « 15 gp · ×2 · 30 gp ». ⭐ Les points
  *  médians viennent du croquis d'Eric, et la quantité ne s'écrit que si elle
  *  dit quelque chose — « ×1 » est du bruit. */
-function ligneDeChiffres(unite, qte, total) {
-  const bouts = [unite || "—"];
-  if (qte > 1) bouts.push(`×${qte}`, total || "");
-  return bouts.filter(Boolean).join(" · ");
-}
-/** Le POIDS ne répète pas la quantité : « 3 lb · 6 lb » (le croquis d'Eric).
- *  ⭐ Elle est déjà dite une ligne plus haut, et la boîte du plan est taillée sur
- *  ce mot-là — 43,73 à T1/600 dans 44. L'y remettre la fait déborder, mesuré. */
-function ligneDePoids(unite, qte, total) {
-  if (!unite) return "—";
-  return qte > 1 && total ? `${unite} · ${total}` : unite;
+/** ⚖️ UNE CELLULE DE LA LIGNE DE COÛT — lot 255, Eric 23/09 :
+ *     « 2gp / 5lg (cadré gauche) · X3 (centre) · 6gp / 15lg (cadré droite) »
+ *  🔴 ET DEUX FABRIQUES SONT DEVENUES UNE. Avant, `ligneDeChiffres` et
+ *  `ligneDePoids` construisaient chacune une PHRASE de trois moments (unité,
+ *  quantité, total), et elles ne les construisaient pas pareil — le prix
+ *  répétait la quantité, le poids la taisait, avec un commentaire pour
+ *  expliquer l'écart. ⭐ Maintenant chaque COLONNE porte un moment, et le prix
+ *  et le poids voyagent ensemble : ce sont les deux façons de peser une même
+ *  ligne du sac. Il ne reste donc qu'une forme de cellule, et plus d'écart à
+ *  justifier. */
+function cellule(prix, poids) {
+  return [prix, poids].filter(Boolean).join(" · ") || "—";
 }
 
 /* ══ LES ORGANES ══════════════════════════════════════════════════════════ */

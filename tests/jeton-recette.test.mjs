@@ -163,15 +163,32 @@ test("7 — ⚔️ LA DIAGONALE EXISTE DANS LA FEUILLE, et elle va bien en BAS �
      grille du tambour a payé le 23/08 (« quinze cases VIDES »). */
   const regle = /\.jeton-recette\s*\{([^}]*)\}/.exec(CSS);
   assert.ok(regle, "`.jeton-recette` porte une règle");
-  const corps = regle[1];
+  /* 🔴 LES COMMENTAIRES SORTENT AVANT TOUTE ASSERTION, ET C'EST UNE FAUTE PAYÉE
+     DANS CE TEST MÊME. Le `doesNotMatch(/border-radius: inherit/)` d'en dessous a
+     rougi sur la PHRASE DU COMMENTAIRE qui explique pourquoi on ne l'écrit plus —
+     la règle était juste, le garde accusait la prose qui la défend.
+     ⭐ C'est la leçon du dépôt, reprise ici : compter un mot compte aussi la phrase
+     qui le nie. Un garde de feuille mesure des DÉCLARATIONS, ⛔ jamais du texte. */
+  const corps = regle[1].replace(/\/\*[\s\S]*?\*\//g, " ");
   assert.match(corps, /linear-gradient\(\s*to bottom right\s*,\s*transparent 50%\s*,\s*var\(--jeton-recette\) 50%\s*\)/,
     "⭐ MOITIÉ INFÉRIEURE DROITE, de bas en haut — le croquis d'Eric, et la coupure est NETTE (50 % / 50 %)");
   assert.match(corps, /position:\s*absolute/);
-  assert.match(corps, /inset:\s*0/, "il couvre la tuile entière, c'est le dégradé qui découpe");
+  /* ⚖️ AMENDÉ LE 23/09 AU SOIR, DEVANT LE RENDU — Eric : *« la diagonale s'arrête
+     sous la bande supérieure pour la laisser vide »*. L'assertion d'avant disait
+     `inset: 0` (« il couvre la tuile entière ») : elle était juste jusqu'à cette
+     phrase, et c'est elle qui a rougi au changement. ⭐ Elle n'est pas SUPPRIMÉE,
+     elle est REMPLACÉE par la cote qui la contredit — un garde retiré aurait
+     laissé la géométrie sans témoin. */
+  assert.match(corps, /inset:\s*var\(--jeton-bande\) 0 0 0/,
+    "⭐ ELLE S'ARRÊTE SOUS LA BANDE, et par le jeton qui NOMME la bande — ⛔ jamais un 14 nu");
   assert.match(corps, /pointer-events:\s*none/,
     "⛔ un fond ne prend pas le clic : la tuile dessous reste le bouton");
-  assert.match(corps, /border-radius:\s*inherit/,
-    "⛔ sinon la diagonale déborde des coins arrondis de la tuile");
+  assert.match(corps, /border-end-start-radius:\s*inherit/);
+  assert.match(corps, /border-end-end-radius:\s*inherit/,
+    "⛔ les deux coins DU BAS suivent la tuile, sinon la diagonale déborde de l'arrondi");
+  assert.doesNotMatch(corps, /border-radius:\s*inherit/,
+    "🔴 ET SURTOUT PAS LES QUATRE : descendue sous la bande, ses coins hauts tombent au MILIEU "
+    + "du jeton — un rayon là creuse une encoche dans le bleu, contre le bord droit, où elle se voit.");
 });
 
 test("8 — 🎨 LA COULEUR EST UN JETON, aux DEUX thèmes — jamais un hex dans la feuille", () => {
@@ -225,4 +242,80 @@ test("9 — ⚖️ UN BLUEPRINT NE PÈSE RIEN, et ce zéro n'est PAS un « à é
   assert.equal(varie.somme.backpack, 0);
   assert.equal(varie.inconnus.backpack, 3,
     "⭐ lui reste INCONNU — c'est exactement ce qui le sépare d'un blueprint");
+});
+
+/* ══ ⑤ LES TROIS POSES — LE TROU QUE CE FICHIER N'AVAIT PAS VU ════════════════
+   🔴 CE QUI S'EST PASSÉ, ET POURQUOI LES HUIT GARDES D'AU-DESSUS ÉTAIENT VERTS.
+   Le 23/09, la diagonale a été posée avec un commentaire qui disait, dans
+   l'organe : *« R et le sac portent le MÊME jeton »*. ⛔ Ils sont TROIS. `grep -l
+   corpsDuJeton ui/builder/*.mjs` rend `gear-ecran`, `sac-ecran` ET `wares-ecran`,
+   et c'est le troisième — le CATALOGUE, le seul écran où Eric a demandé la
+   diagonale en premier — qui ne recevait pas le drapeau. Sa pose portait `ref` et
+   `nom`, rien d'autre. Résultat mesuré en ligne : `.jeton-recette` = **0** sur sept
+   packs affichés, pendant que le prédicat, le nœud et la feuille étaient justes.
+   ⭐ AUCUN DES HUIT NE POUVAIT LE DIRE : ils éprouvent le prédicat, l'organe et la
+   feuille — ⛔ jamais l'APPELANT. Un organe correct qu'on n'appelle pas correctement
+   ne laisse aucune trace. C'est la forme de panne que ce dépôt appelle « une
+   écriture qui échoue en silence ».
+
+   ⚠️ ET CE GARDE-CI EST FAIBLE, JE L'ÉCRIS PLUTÔT QUE DE LE LAISSER CROIRE FORT.
+   Il lit une SOURCE, pas un rendu. La pose de Wares se fabrique au milieu d'une
+   closure de rendu que rien n'exporte, donc je ne peux pas l'appeler pour de vrai
+   sans monter tout l'écran. ⛔ Un garde de forme ne prouve pas que la diagonale se
+   peint ; il prouve seulement que l'appelant a le geste. ⭐ Il aurait rougi
+   aujourd'hui, et c'est la seule raison de l'écrire. Le jour où la fabrique des
+   plaques devient importable, il se remplace par une pose lue pour de bon. */
+test("10 — ⚔️ LA POSE DU CATALOGUE PORTE LE DRAPEAU (garde de source, faible et déclaré tel)", () => {
+  const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8");
+  /* Les plaques de Wares : l'objet posé par `objets:` dans `plaques.map`. */
+  const pose = /objets:\s*page\.objets\.map\(\(item\)\s*=>\s*\(\{([\s\S]{0,400}?)\}\)\)/.exec(src);
+  assert.ok(pose, "⛔ la fabrique des plaques de Wares a changé de forme — relire, ne pas assouplir");
+  assert.match(pose[1], /recette:\s*estRecette\(/,
+    "🔴 la pose du CATALOGUE dérive `recette` — sans ça, sept kits sans diagonale et zéro rouge");
+  assert.match(pose[1], /estRecette\(item\.view\.record\s*\)/,
+    "⚠️ AVEC LE RECORD, PAS LA VUE — `item.view` n'a pas de `.data` (mesuré : `recordLabel` lit "
+    + "`view.record.name`). Passer la vue rendrait `{}`, et le prédicat ne verrait ni `category`, "
+    + "ni `rarity`, ni `contents`.\n"
+    + "   🔧 LA VIRGULE A DISPARU DE CETTE REGEX LE MÊME SOIR : elle épinglait un SECOND "
+    + "argument (`e.id`, l'étagère) qui n'existe plus — le signal du blueprint a déménagé dans "
+    + "le record quand `contents` est monté en amont. ⛔ Ce qui reste épinglé est ce qui compte, "
+    + "et c'est ce qui a vraiment coûté la panne : `.record`, pas la vue.");
+});
+
+/* ══ ⑥ LA DESCENTE, SUR LA VRAIE PILE ══════════════════════════════
+   🔧 CE GARDE A CHANGÉ DE SUJET EN GARDANT SON RÔLE, ET ÇA MÉRITE D'ÊTRE ÉCRIT.
+   Sa première forme (ARCHI 35, lot 256) tenait : *la clef que l'ÉCRAN a sous la
+   main ouvre-t-elle la porte du prédicat ?* — `e.id` de `lireRangement` contre
+   `ETAGERE_DES_KITS`. ⛔ Cette constante n'existe plus : le signal du blueprint a
+   déménagé de l'étagère vers le record le même soir, quand `contents` est monté.
+   ⭐ CE QU'IL PROTÉGEAIT EXISTE TOUJOURS, et c'est même plus intéressant : l'écran
+   n'a plus besoin de clef, le record se suffit — donc ce qui reste à tenir, c'est
+   que la DESCENTE atteigne la pile. Un `contents` présent dans la couche et absent
+   de la pile montée, et sept kits perdent leur diagonale sans un rouge.
+   ⛔ IL N'ÉPINGLE AUCUN NOMBRE, et c'est délibéré : « 7 » deviendrait faux au
+   premier kit que Fate's Hand ajoute, et un garde qu'on assouplit à chaque ajout
+   finit par ne plus rien dire. Il compare deux comptes qui doivent être égaux. */
+test("11 — ⚔️ LA DESCENTE DE `contents` ATTEINT LA PILE QUE L'ÉCRAN MONTE", async () => {
+  const { lireRangement } = await import("../ui/builder/equipment-step.mjs");
+  const couche = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srd-5.2.1-en.layer.json"), "utf8"));
+  const porteUnContenu = (d) => Array.isArray(d && d.contents) && d.contents.length > 0;
+  const dansLaCouche = Object.values(couche.records.gear || {})
+    .filter((r) => porteUnContenu(r.data)).length;
+  assert.ok(dansLaCouche > 0,
+    "⛔ la couche ne porte AUCUN `contents` — la descente depuis `fh-srd` s'est perdue en amont, "
+    + "et tout ce qui suit mesurerait le vide");
+
+  const { rayons } = lireRangement(query);
+  const dansLaPile = rayons.flatMap((r) => r.etageres).flatMap((e) => e.objets)
+    .filter((o) => porteUnContenu(o.view.record && o.view.record.data));
+  assert.equal(dansLaPile.length, dansLaCouche,
+    `⛔ ${dansLaCouche} record(s) à \`contents\` dans la couche, ${dansLaPile.length} dans la pile montée `
+    + "— la descente se perd entre les deux, et personne ne le dirait");
+
+  /* ⚔️ ET LE PRÉDICAT LES VOIT TOUS. C'est le dernier maillon : la donnée peut
+     arriver intacte et le prédicat la manquer quand même. */
+  for (const o of dansLaPile) {
+    assert.equal(estRecette(o.view.record), true,
+      `⛔ « ${o.view.id} » porte un contenu et le prédicat ne le voit pas`);
+  }
 });

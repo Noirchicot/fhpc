@@ -32,6 +32,12 @@ import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, 
 const fixture = exempleFhEn();
 const query = fixture.layers.verbs.query;
 const verbs = fixture.build.verbs;
+/* ⚖️ LOT 254 — LA FIXTURE RÉPOND AU DÉPART, et ce n'est pas un contournement :
+   depuis qu'X0 REMPLACE Gear au lieu de s'y poser, un personnage qui n'a pas
+   répondu au départ ne voit PAS le sac — il voit X0. Un personnage qui achète
+   dans Wares a donc forcément répondu. ⛔ La fixture décrivait une situation
+   qui ne peut plus exister ; la corriger, c'est la rendre vraie, pas la plier. */
+fixture.document = verbs.set({ document: fixture.document, path: "depart.class", value: "A" }).document;
 
 /* ── le harnais : les actions de `shell.mjs`, rejouées à la main ── */
 function appliquer(doc, a) {
@@ -251,8 +257,16 @@ test("CANCEL — il vide le panier, BACK ne le touche pas (la loi des trois mots
 
 test("la DÉCISION DU DÉPART — elle vit au personnage, pas au navigateur (requalifiée 26/08)", () => {
   /* ⛔ Un « guide obligatoire » en clef navigateur ratait le SECOND personnage
-     du même navigateur : la décision est PAR PERSONNAGE, donc au document. */
-  let doc = fixture.document;
+     du même navigateur : la décision est PAR PERSONNAGE, donc au document.
+     ⚖️ LOT 254 — CE TEST-CI VEUT LE DÉPART **NON RÉPONDU** : c'est son sujet.
+     ⛔ Il ne part donc pas de la fixture partagée, qui répond depuis que X0
+     REMPLACE Gear. Un garde qui teste l'absence d'une réponse ne peut pas
+     hériter d'un décor qui la donne.
+     ⭐ ON REPART D'UN PERSONNAGE NEUF, ⛔ on ne DÉFAIT pas la fixture : défaire
+     demanderait de nommer le `kind` de chaque choix, et un garde qui doit
+     connaître la mécanique interne du document pour poser son décor finit par
+     tester cette mécanique au lieu de son sujet. */
+  let doc = exempleFhEn().document;
   const rendre = () => renderEquipmentStep({ document: doc, resolved: fixture.resolved, query },
     (a) => { doc = appliquer(doc, a); });
 

@@ -313,7 +313,16 @@ test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occup
      comme le joueur. Et UNE exception nommée est née avec le pipeline : le
      `FREE` de ligne du panier (B2/SB3.2) est un VRAI interrupteur du croquis
      — lui s'annonce (`aria-pressed`), et il est le SEUL admis. */
-  const node = renderEquipmentStep({ document: report.document, resolved: report.resolved, query }, () => {});
+  /* ⚠️ ÉLARGI UNE SECONDE FOIS LE 2026-09-23 (lot 254), ET TOUJOURS PAS ASSOUPLI :
+     X0 REMPLACE Gear tant que le départ n'est pas répondu, et ses options de QCM
+     portent `data-active` — à juste titre, ce sont de vrais choix parmi N.
+     ⛔ Le décor répond donc au départ, parce que ce garde parle de R et de ses
+     crans, ⛔ pas du QCM. Compter les états de X0 ici, ce serait mesurer un
+     écran en croyant en mesurer un autre. */
+  const repondu = fixture.build.verbs.set({
+    document: report.document, path: "depart.class", value: "A"
+  }).document;
+  const node = renderEquipmentStep({ document: repondu, resolved: report.resolved, query }, () => {});
   /* lot 212 : la porte du catalogue est `Wares`, sur l'écran R */
   const porte = node.querySelector('.gear-porte[data-porte="wares"]');
   if (porte) porte.click();

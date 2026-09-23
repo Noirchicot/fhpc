@@ -3059,7 +3059,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=803") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=805") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3382,7 +3382,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=803") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=805") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5034,7 +5034,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=803") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=805") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8015,7 +8015,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=803");
+  background-image: url("./assets/tarot-dos.jpg?v=805");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -8455,12 +8455,16 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    jamais dans le flux, rien ne se pousse. Son état vit AU PERSONNAGE
    (`depart`), pas au navigateur. */
 .equipment-dressing, .dressing { position: relative; }
+/* ⚖️ X0 EST UNE VUE, ⛔ PLUS UN CALQUE (lot 254) — elle n'est plus posée en
+   absolu par-dessus Gear : `construireVue` la RETOURNE, comme X1 et X2.
+   ⛔ Et le fond de voile part avec : `--voile-ecran` teintait ce qu'il y avait
+   dessous, et il n'y a plus rien dessous. Une teinte qui ne voile rien est un
+   filtre posé sur son propre contenu. */
+/* ⛔ AUCUNE BOÎTE ICI : elle vient de la liste partagée (`.gear, .x0, …`) et sa
+   HAUTEUR de la feuille construite de X0. Cette règle ne dit que la mise en page
+   interne — ce qui reste quand la boîte appartient à quelqu'un d'autre. */
 .aiguilleur {
-  position: absolute; inset: 0; z-index: 2;
-  display: flex; align-items: center; justify-content: center;
-  /* LOT 201 — le voile est un jeton (`--voile-ecran`, tokens.css) : le popup
-     qui exige une réponse pose LE MÊME. */
-  background: var(--voile-ecran);
+  display: flex; align-items: stretch; justify-content: center;
 }
 .aiguilleur-carte {
   max-width: calc(var(--glisse-case) * 3 + var(--sp-24));
@@ -9480,11 +9484,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    au-delà de `.stage`, quand `.sac` rend 375 **à fleur** de `.stage`.
    ⭐ C'est la QUATRIÈME fois du lot que la réponse est *« reprendre, ⛔ jamais redessiner »* —
    après `.wares-porte`, les organes d'échange et la tuile. */
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .x2, .sac, .wares)) {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .sac, .wares)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x1, .x2, .sac, .wares)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .sac, .wares)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
 /* 🔴 ET `.x2` Y ENTRE AU LOT 242, POUR LA RAISON EXACTE DE `.wares` AU LOT 231 :
@@ -9493,7 +9497,13 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    l'`:is` n'en fait qu'un. Hors de cette liste, elle resterait collée à gauche et
    déborder ait de 8 blg à droite, où `.stage` la couperait — c'est l'incident du bord
    droit sans lisere, mesuré le 20/09. */
-.gear, .x1, .x2, .sac, .wares {
+/* 🔴 ET `.x0` Y ENTRE AU LOT 254, POUR LA RAISON EXACTE DE `.wares` AU 231 ET DE
+   `.x2` AU 242 : l'écran du départ recouvre la MÊME dalle que R, donc il a la
+   MÊME boîte. ⛔ J'avais commencé par lui écrire sa propre règle — un garde a
+   mordu (« deux règles portent la boîte de la dalle : deux écrivains pour une
+   loi »), et il avait raison. C'est la CINQUIÈME fois de ce chantier que la
+   réponse est « entrer dans la liste », ⛔ jamais « ajouter un bloc ». */
+.gear, .x0, .x1, .x2, .sac, .wares {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));
@@ -9656,7 +9666,21 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    ⭐ Il est posé AVANT le nom dans le DOM (`jeton-objet.mjs`) : l'ordre suffit,
    et il évite un `z-index` qu'il aurait fallu accorder avec les marques. */
 .jeton-recette {
-  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  /* ⚖️ ELLE S'ARRÊTE SOUS LA BANDE — Eric, 2026-09-23, devant le rendu : *« la
+     diagonale s'arrête sous la bande supérieure pour la laisser vide »*, et
+     *« l'autre moitié c'est la couleur habituelle du jeton »*.
+     ⭐ LA COTE N'EST PAS NEUVE : `--jeton-bande` est déjà la ligne où le nom
+     commence, et deux des trois hôtes la posent DÉJÀ en `padding-top`. La
+     diagonale se cale donc sur la bande existante — ⛔ aucun nombre inventé.
+     🔴 ET LES DEUX COINS DU HAUT PERDENT LEUR RAYON, ce qui n'est pas un détail :
+     `border-radius: inherit` arrondissait les quatre coins de la boîte. Déplacée
+     sous la bande, ses coins hauts tombent au MILIEU du jeton — un rayon là
+     creuserait une encoche dans le bleu, au bord droit, où il se voit. Seuls les
+     deux coins du bas héritent, et ils héritent VRAIMENT : `--organe-rayon` (16)
+     chez Wares et le sac, `--radius-sm` (4) sur l'écran R. ⛔ Une valeur en dur
+     aurait été fausse pour l'un des trois. */
+  position: absolute; inset: var(--jeton-bande) 0 0 0; pointer-events: none;
+  border-end-start-radius: inherit; border-end-end-radius: inherit;
   background-image: linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%);
 }
 .jeton-marques { position: absolute; inset: 0; pointer-events: none; }
@@ -11821,13 +11845,10 @@ button.tuto-point::before {
   font-size: var(--t4); font-weight: 700; color: var(--x1-oxblood);
   text-align: center; line-height: 1.1; overflow-wrap: break-word;
 }
-/* — LA QUANTITÉ, à gauche du titre et cadrée à gauche (Eric, 17/09 au soir). Elle ne
-   nomme pas l'objet, elle le compte : encre sourde, comme la pagination. */
-.x1-qte:not([hidden]) {
-  display: flex; align-items: center; justify-content: flex-start;
-  font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce);
-  font-variant-numeric: tabular-nums;
-}
+/* 🔴 `.x1-qte` A DISPARU AU LOT 255 — la quantité a quitté la tête pour le CENTRE de
+   la ligne de coût (Eric, 23/09). Elle n'a plus d'habit à elle : elle porte
+   `.x1-chiffres` comme ses deux voisines, parce qu'elle est devenue l'une d'elles.
+   ⛔ Une classe qui n'habille plus personne est muette, et elle survit des mois. */
 /* — LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — l'image d'Eric, posée en masque : la
    teinte vient de la fiche, jamais du dessin. */
 /* ⚖️ ROUGE, ET DEUX FOIS PLUS ÉPAIS — Eric, 17/09 au soir : *« ligne de séparation
@@ -11874,7 +11895,20 @@ button.tuto-point::before {
   display: flex; align-items: center; justify-content: center;
   font-size: var(--t1); font-weight: 600; color: var(--x1-encre);
   white-space: nowrap; line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
+/* ⚖️ TROIS COLONNES, ET CHACUNE SE CADRE SUR CE QU'ELLE DIT — Eric, 23/09 :
+   « 2gp / 5lg (cadré gauche) · X3 (centre) · 6gp / 15lg (cadré droite) ».
+   ⭐ CE N'EST PAS DU GOÛT : les deux bords ANCRENT la ligne sur la bande (90 → 285,
+   les ancrages d'Eric du 17/09), et le centre flotte entre eux. Trois cases centrées
+   auraient donné trois blocs qui bougent ensemble à chaque changement de chiffre —
+   là, seuls les chiffres bougent, les bords tiennent.
+   ⛔ Les cotes, elles, ne sont PAS ici : elles viennent de la table (garde §7). */
+.x1-chiffres-unite:not([hidden]) { justify-content: flex-start; }
+.x1-chiffres-total:not([hidden]) { justify-content: flex-end; }
+/* ⭐ Et la quantité garde l'encre sourde qu'elle avait dans la tête : elle ne nomme
+   pas l'objet et elle ne le chiffre pas non plus — elle le COMPTE. */
+.x1-chiffres-qte:not([hidden]) { color: var(--x1-encre-douce); }
 /* — LA DESCRIPTION : la seule zone élastique, et la seule qui défile. Tout ce
    que les autres rangées rendent lui revient (Eric, 17/09). */
 .x1-description {
@@ -13196,23 +13230,10 @@ button.tuto-point::before {
    feuille. 🔴 Et `align-items: center` empêchait la feuille de s'étirer : elle se
    contentait de sa hauteur naturelle au lieu de recouvrir la dalle. */
 .aiguilleur { align-items: stretch; padding: var(--x0-marge); }
-/* ══ RÈGLE DES POPUPS MAJEURS — Eric, 2026-09-23 (NORMES §7 septies) ════════
-   ⚖️ *« ce qu'ils recouvrent passe au voile 0 tant qu'ils sont ouverts »*, et
-   *« X0 est un popup majeur »*.
-   ⭐ UN POPUP MAJEUR NE SE POSE PAS DEVANT UN ÉCRAN : IL LE REMPLACE. Ce qu'il
-   recouvre ne doit rien laisser transparaître — ni une forme sous le parchemin,
-   ni une cible qu'un doigt pourrait atteindre à travers.
-   ⛔ ET CE N'EST PAS `display: none` : les organes gardent leur boîte, donc leur
-   place. Ils reviennent exactement où ils étaient quand le popup se ferme, sans
-   que rien ne soit remesuré. C'est la même loi que le mode lecture de X1.
-   📌 LE PORTEUR EST LE NŒUD DE L'ÉCRAN, ⛔ pas le popup : un popup ne sait pas
-   ce qu'il cache, un écran sait qu'il est caché. Le jour où un second popup
-   majeur existe, son écran pose le même attribut et hérite de cette règle sans
-   une ligne de plus. */
-[data-popup-majeur="oui"] > :not(.aiguilleur) {
-  opacity: 0;
-  pointer-events: none;
-}
+/* ⛔ LA RÈGLE DU « VOILE 0 » A DISPARU AVEC LE CALQUE (lot 254). Eric :
+   *« X0 va utiliser le même process que X1 et X2. ou oublie le voile 0 »* —
+   ⭐ et les deux branches disaient la même chose : un écran de rang X REMPLACE,
+   il ne recouvre pas. Ce qui remplace n'a rien à voiler. */
 
 .aiguilleur-carte {
   width: 100%; height: 100%; box-sizing: border-box;

@@ -518,7 +518,10 @@ test("F1 — ⏳ l'étape Équipement N'A PLUS DE `NEXT`, et le contrat du verbe
        · il rougit si le contrat du verbe change sous lui.
      ⏳ Le jour où `NEXT` entre dans Gear, c'est CE test qu'on réécrit — en le sachant. */
   const H = PILES.SRD;
-  const out = H.verbs.rebuild({ document: avec(neuf(H, "f1"), [CLASSE, ...SIX]) });
+  /* ⚖️ LOT 254 — LE DÉCOR RÉPOND AU DÉPART pour voir R : depuis qu'X0 REMPLACE
+     Gear au lieu de s'y poser, un personnage au départ pendant ne voit pas le
+     sac, il voit X0. ⛔ Ce garde-ci parle du pied de R, pas du départ. */
+  const out = H.verbs.rebuild({ document: avec(neuf(H, "f1"), [CLASSE, ...SIX, { path: "depart.class", value: "A" }]) });
   const actions = [];
   const node = renderEquipmentStep({ document: out.document, resolved: out.resolved, query: H.layers.verbs.query }, (a) => actions.push(a));
   const versR = node.querySelector('.gear-porte[data-porte="wares"]');

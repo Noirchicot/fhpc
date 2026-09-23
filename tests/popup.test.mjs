@@ -250,5 +250,16 @@ test("E quinquies — 🔌 la feuille : le popup-question prend le pointeur et v
     "et `data-actions` vient de la donnée du popup, pas d'une classe devinée");
   const tokens = fs.readFileSync(path.join(UI_DIR, "tokens.css"), "utf8");
   assert.match(tokens, /--voile-ecran:\s*color-mix\(in srgb, var\(--bg\) 72%, transparent\)/, "le jeton existe au socle");
-  assert.match(css, /\.aiguilleur \{[^}]*background:\s*var\(--voile-ecran\)/, "…et l'aiguilleur le lit, il ne garde pas sa copie");
+  /* 🔴 RETOURNÉ LE 2026-09-23 (lot 254) — X0 NE VOILE PLUS RIEN, ELLE REMPLACE.
+     Eric : *« X0 va utiliser le même process que X1 et X2. ou oublie le voile 0 »*.
+     ⭐ Ce que ce garde tient ne s'affaiblit pas, il CHANGE DE SENS : il exigeait
+     que l'aiguilleur LISE le jeton au lieu d'en garder une copie ; il exige
+     maintenant qu'elle n'en pose AUCUN. Une teinte de voile sur un écran qui ne
+     recouvre rien est un filtre posé sur son propre contenu.
+     ⛔ Et le jeton reste gardé juste au-dessus, pour le popup générique — qui,
+     lui, voile toujours. */
+  const aiguilleur = css.match(/\.aiguilleur \{([^}]*)\}/);
+  assert.ok(aiguilleur, "la règle de X0 existe");
+  assert.doesNotMatch(aiguilleur[1], /--voile-ecran/,
+    "⛔ X0 repose un voile : elle est redevenue un calque, et ce qu'elle « voile » est elle-même");
 });

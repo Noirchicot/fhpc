@@ -24,7 +24,7 @@ import test from "node:test";
 /* ⭐ LOT 248 — la famille du parchemin se LIT à sa source ; ce garde ne la
    recopie plus (elle était écrite quatre fois, cf. `parchemin.mjs`). */
 import { SELECTEUR_DU_PARCHEMIN as PARCH } from "../ui/builder/parchemin.mjs";
-import { SELECTEUR_DES_FICHES as FICHES } from "../ui/builder/x1-ecran.mjs";
+import { SELECTEUR_DES_FICHES as FICHES, SELECTEUR_DE_LA_DALLE as DALLE } from "../ui/builder/x1-ecran.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -78,10 +78,15 @@ test("1 — 🪡 la couture est CALCULÉE depuis la table, ⛔ elle n'est écrit
 });
 
 test("2 — 🔴 le partage est GÉOMÉTRIQUE : la tête est déduite du plan, ⛔ pas énumérée", () => {
-  const attendus = ["QTE", "NOM", "PRIX", "POIDS", "FILET HAUT",
+  /* 🔴 LA TÊTE A CHANGÉ AU LOT 255, ET X2 LA SUIT SANS UNE LIGNE — Eric, 23/09 :
+     *« on dégage le X2 en haut à gauche de X1 ET X2 »*. ⭐ Le fait que cette liste
+     soit la SEULE à mettre à jour est la preuve du partage : X2 monte la tête de X1,
+     elle n'en a pas une seconde. La quantité a quitté la ligne du titre pour le
+     CENTRE de la ligne de coût, entre UNITE et TOTAL. */
+  const attendus = ["NOM", "UNITE", "QTE", "TOTAL", "FILET HAUT",
                     "DESCRIPTION", "JAUGE", "COPIER", "OEIL", "FILET BAS"];
   assert.deepEqual(ORGANES_DE_TETE.map((o) => o.nom), attendus,
-    "le titre, la quantité, la ligne du haut, les deux filets, le texte, sa jauge, les deux ornements");
+    "le titre, les trois colonnes du coût, la ligne du haut, les deux filets, le texte, sa jauge, les deux ornements");
   /* ⭐ ET L'INVERSE EST LA VRAIE ASSERTION : aucun organe SOUS la couture n'a pu s'y
      glisser. Une liste par nom ne l'aurait jamais dit. */
   /* ⚠️ PAR NOM, ⛔ PAS PAR IDENTITÉ : `x1-disposition.mjs` et le même fichier avec
@@ -104,7 +109,7 @@ test("3 — ⛔ X2 NE FABRIQUE AUCUN ORGANE DE TÊTE : elle les reçoit", () => 
   /* ⭐ LE GARDE SE FONDE SUR CE QUE LA SOURCE FAIT, ⛔ pas sur ce qu'elle dit : on
      cherche les GESTES de fabrication, pas le mot « importer ». */
   for (const geste of ["habilleEnParchemin(", '"x1-nom"', '"x1-filet"', '"x1-chiffres"',
-                       '"x1-description"', '"x1-copier"', '"x1-oeil"', '"x1-qte"',
+                       '"x1-description"', '"x1-copier"', '"x1-oeil"',
                        "veilleLeDebordement("]) {
     assert.ok(!source.includes(geste),
       `x2-ecran.mjs écrit \`${geste}\` — ⛔ il RECOPIE un organe de tête au lieu de l'importer`);
@@ -136,7 +141,10 @@ test("4 — 📏 les DEUX fiches rendent la MÊME tête — même organes, même
 });
 
 test("5 — 👕 l'habit de la tête VOYAGE : ce sont des règles de CLASSE, ⛔ pas de descendance", () => {
-  for (const c of ["x1-nom", "x1-qte", "x1-filet", "x1-chiffres", "x1-description", "x1-copier", "x1-oeil"]) {
+  /* ⛔ `x1-qte` A DISPARU AU LOT 255 : la quantité porte `x1-chiffres` comme ses deux
+     voisines de la ligne de coût — elle est devenue l'une d'elles. Une classe qui
+     n'habille plus personne serait muette, et elle survivrait des mois. */
+  for (const c of ["x1-nom", "x1-filet", "x1-chiffres", "x1-description", "x1-copier", "x1-oeil"]) {
     assert.ok(shell.includes(`.${c}`), `.${c} est déclaré`);
     assert.ok(!new RegExp(`\\.x1\\s+\\.${c}\\b`).test(shell),
       `⛔ \`.x1 .${c}\` enfermerait l'habit dans X1 — l'organe importé rendrait NU dans X2`);
@@ -149,10 +157,17 @@ test("5 — 👕 l'habit de la tête VOYAGE : ce sont des règles de CLASSE, ⛔
                        `${FICHES} [data-organe="jauge"]`]) {
     assert.ok(shell.includes(regle), `${regle} — le décor et le mode sont partagés`);
   }
-  assert.match(shell, /\.gear, \.x1, \.x2, \.sac, \.wares \{/,
-    "⭐ X2 entre dans la boîte partagée, pour la raison exacte de `.wares` au lot 231");
-  assert.equal((shell.match(/:is\(\.gear, \.x1, \.x2, \.sac, \.wares\)/g) || []).length, 2,
-    "les deux `:has()` de la carte la prennent aussi");
+  /* ⭐ LA LISTE SE LIT À SA SOURCE (lot 254) : elle était écrite ici ET dans la
+     feuille, et ajouter `.x0` a fait rougir ce garde sur un fait parfaitement
+     vrai. Un garde qui épingle une liste devient un second écrivain de cette
+     liste — et c'est lui qu'on finit par « corriger » à chaque ajout. */
+  assert.ok(shell.includes(`${DALLE} {`),
+    `⭐ les écrans qui recouvrent la dalle partagent UNE boîte : ${DALLE}`);
+  /* ⭐ ET LES DEUX `:has()` DE LA CARTE LISENT LA MÊME LISTE — comptés, pas
+     décrits : deux occurrences exactement, sinon une des deux a divergé. */
+  const isDalle = `:is(${DALLE})`;
+  assert.equal(shell.split(isDalle).length - 1, 2,
+    `les deux \`:has()\` de la carte prennent la même famille : ${isDalle}`);
   /* 🔴 ÉPROUVÉ ROUGE en remettant `.x1 [data-organe]` : garde 5 rouge sur la règle
      partagée. Et au navigateur, la fiche rendait bien tous ses organes — empilés. */
 });

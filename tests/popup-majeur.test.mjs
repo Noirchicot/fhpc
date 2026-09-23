@@ -32,39 +32,75 @@ const lire = (f) => fs.readFileSync(path.join(UI, f), "utf8");
    passer un commentaire finit par ne plus rien garder. */
 const sansCommentaires = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-test("① X0 RECOUVRE, donc son écran se DÉCLARE recouvert", () => {
-  const etape = lire("equipment-step.mjs");
-  assert.ok(/noeud\.dataset\.popupMajeur\s*=\s*"oui"/.test(etape),
-    "⛔ l'écran que X0 recouvre ne pose plus `data-popup-majeur` : ce qu'elle cache redeviendrait visible sous le parchemin");
-  /* ⭐ ET L'ATTRIBUT EST POSÉ PAR L'ÉCRAN, JAMAIS PAR LE POPUP — un popup ne
-     sait pas ce qu'il cache, un écran sait qu'il est caché. */
-  const i = etape.indexOf("noeud.dataset.popupMajeur");
-  const j = etape.indexOf("noeud.append(voile)", i);
-  assert.ok(j > i && j - i < 400,
-    "⛔ la déclaration s'est éloignée de la pose du voile : les deux gestes sont le même fait");
-});
+/* 🔴 LES DEUX PREMIERS GARDES ONT ÉTÉ RETIRÉS LE 2026-09-23 (lot 254), ET LEUR
+   LOI AVEC EUX. Eric : *« X0 va utiliser le même process que X1 et X2. ou oublie
+   le voile 0 »*. X0 ne RECOUVRE plus Gear : elle le REMPLACE, comme X1 et X2.
+   ⭐ IL N'Y A DONC PLUS DE « POPUP MAJEUR » DU TOUT — la catégorie était née
+   d'un seul cas, et ce cas vient de rejoindre les autres. Ce qui reste est une
+   loi plus simple, plus forte, et qui n'a plus d'exception à nommer : UN ÉCRAN
+   DE RANG X REMPLACE SA VUE, IL NE SE POSE JAMAIS DESSUS.
+   ⛔ Le garde ③ ci-dessous la tient pour les TROIS, et il n'a pas eu besoin
+   d'être modifié : il demandait déjà que la vue RETOURNE son nœud. C'est le
+   signe qu'il gardait le bon fait — le voile 0 n'était qu'un pansement sur la
+   seule qui ne le faisait pas. */
 
-test("② la feuille ÉTEINT ce qui est recouvert, et ne le retire pas", () => {
-  const css = lire("shell.css");
-  const bloc = css.slice(css.indexOf('[data-popup-majeur="oui"]'));
-  assert.ok(bloc.startsWith('[data-popup-majeur="oui"] > :not(.aiguilleur)'),
-    "⛔ la règle ne vise plus « tout sauf le popup » : elle éteindrait le popup avec le reste");
-  const corps = bloc.slice(0, bloc.indexOf("}"));
-  assert.ok(/opacity:\s*0/.test(corps), "⛔ le voile 0 a disparu");
-  assert.ok(/pointer-events:\s*none/.test(corps),
-    "⛔ sans cela un doigt atteint une cible INVISIBLE à travers le parchemin — le pire des deux mondes");
-  assert.ok(!/display:\s*none/.test(corps),
-    "⛔ `display: none` retire la BOÎTE : au retour, tout est remesuré et rien n'est à sa place");
-});
-
-test("③ X1 et X2 REMPLACENT la vue — ⛔ elles ne se posent jamais PAR-DESSUS", () => {
+test("LES TROIS ÉCRANS DE RANG X REMPLACENT leur vue — ⛔ aucun ne se pose PAR-DESSUS", () => {
   const etape = sansCommentaires(lire("equipment-step.mjs"));
+  /* ⭐ X0 A REJOINT LA LISTE LE 23/09 : elle était le seul calque, et c'est à ça
+     qu'on a vu que son parchemin ne se peignait jamais. */
+  assert.ok(/return construireX0\(\)/.test(etape),
+    "⛔ X0 ne se RETOURNE plus : si elle est ajoutée à un écran, elle le recouvre sans l'éteindre");
+  assert.ok(!/noeud\.append\(voile\)/.test(etape),
+    "⛔ le voile de X0 est de nouveau AJOUTÉ dans un autre écran — le calque est revenu");
+  /* 🔴 RESSERRÉ APRÈS AVOIR ÉTÉ ÉPROUVÉ MUET (23/09). La première écriture
+     acceptait 120 caractères entre le `if` et le `return` — et attrapait le
+     `return` de la branche SUIVANTE. ⚔️ Remplacer `return construireX1()` par
+     un simple appel ne la faisait pas rougir : elle gardait le mot « return »
+     du voisin. ⛔ Un garde trop large ne garde pas moins, il ne garde RIEN.
+     ⭐ Le `return` doit maintenant suivre l'accolade fermante du `if`, sans
+     rien entre les deux — c'est exactement ce que la loi dit. */
   for (const vue of ["x1", "x2"]) {
-    const re = new RegExp(`if \\(vue === "${vue}"[^)]*\\)[\\s\\S]{0,120}?return `);
+    const re = new RegExp(`if \\(vue === "${vue}"[^)]*\\)\\s*(\\{\\s*)?return `);
     assert.ok(re.test(etape),
       `⛔ la vue « ${vue} » ne RETOURNE plus son nœud : si elle est désormais ajoutée à un écran existant, elle le recouvre sans l'éteindre`);
   }
   /* ⚔️ ET LE TÉMOIN EN SENS INVERSE : aucune des deux ne s'ajoute à un nœud. */
   assert.ok(!/\.append\(\s*construireLaFicheX[12]\b/.test(etape),
     "⛔ une fiche X est ajoutée à un nœud existant : elle devient un calque, et la règle des popups majeurs cesse d'être honorée par construction");
+});
+
+/* ══ LA BOÎTE DE X0 — lot 254 ════════════════════════════════════════════════
+   🔴 CE GARDE NAÎT D'UN DÉFAUT MESURÉ, ⛔ pas d'une précaution : au navigateur
+   (headless, qui rend vraiment), X0 devenue une vue sortait à **359 × 394** au
+   lieu de sa cote. Sa boîte était `flex: 1 1 auto` et sa hauteur SUIVAIT la
+   scène. C'est mot pour mot le défaut que le lot 240 a réparé pour X1 —
+   *« la feuille était juste, c'est la BOÎTE qui mentait »*.
+   ⭐ ET LA RÉPARATION EST UNE COTE DONNÉE, PAS UN RÉGLAGE : X0 est un plan fixe.
+   Sa hauteur se LIT dans la table de X1, qui la tient déjà pour son rang. */
+test("④ X0 est un PLAN FIXE : sa hauteur vient de la table, ⛔ pas de la scène", async () => {
+  const D = await import("../ui/builder/x0-disposition.mjs");
+  const X1 = await import("../ui/builder/x1-disposition.mjs");
+  const feuille = D.feuilleDesCotesX0();
+  /* ⛔ LE SÉLECTEUR EST QUALIFIÉ, et c'est mesuré au lot 240 : `.x0` seul a la
+     même spécificité que la liste partagée et ne l'emporterait que par l'ORDRE
+     de montage — un ordre qui dépend d'où la feuille est posée. */
+  assert.match(feuille, /\.x0\[data-objet="x0"\]\{[^}]*flex:0 0 auto/,
+    "⛔ X0 est redevenue élastique : sa hauteur suit la scène au lieu de sa table");
+  assert.ok(feuille.includes(`height:${X1.DALLE.h}px`),
+    `⛔ la hauteur de X0 n'est plus celle du plan (${X1.DALLE.h}) : une cote retapée diverge le jour où le plan bouge`);
+  /* ⚔️ ET LE TÉMOIN QUI EMPÊCHE CE GARDE D'ÊTRE TAUTOLOGIQUE : le nombre doit
+     venir de la TABLE, pas d'un littéral qui lui ressemble aujourd'hui. */
+  assert.ok(!/height:500px/.test(D.feuilleDesCotesX0.toString()),
+    "⛔ la cote est écrite en dur dans la fabrique : elle ne suivra pas la table");
+});
+
+test("⑤ X0 entre dans la BOÎTE PARTAGÉE, ⛔ elle ne s'en écrit pas une seconde", async () => {
+  const { FAMILLE_DE_LA_DALLE } = await import("../ui/builder/x1-ecran.mjs");
+  assert.ok(FAMILLE_DE_LA_DALLE.includes(".x0"),
+    "⛔ X0 est sortie de la famille : sans la boîte partagée elle reste collée à gauche et déborde (le défaut de `.wares`, lot 231)");
+  /* 🔴 ET UNE SEULE RÈGLE LA PORTE — c'est le garde qui m'a mordu quand j'avais
+     écrit à X0 son propre bloc : « deux écrivains pour une loi ». */
+  const shell = lire("shell.css");
+  assert.equal(shell.split(`${FAMILLE_DE_LA_DALLE.join(", ")} {`).length - 1, 1,
+    "⛔ la boîte de la dalle est déclarée plus d'une fois");
 });
