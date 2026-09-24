@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — banc de X5, la fiche Recipe &amp; Craft</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LE BANC DE X5 (lot 259) — la fiche du craft seule, sur sa dalle.
+
+     ⭐ IL EXISTE POUR CE QUE LES GARDES NE PEUVENT PAS DIRE. `tests/x5-ecran.test.mjs`
+     lit des fichiers et monte un DOM de stub : ⛔ il ne voit ni une largeur, ni une
+     couleur, ni si le texte tient. Or ce lot repose sur une mesure prise AU
+     NAVIGATEUR — 153,5 blg utiles pour un nom de pouvoir — et une mesure se
+     re-regarde.
+
+     ⭐ ET IL MONTRE LES TROIS CAS QUI COMPTENT, côte à côte :
+       ① une LONGSWORD — dix pouvoirs, la rangée pleine, un assemblage légal ;
+       ② une ARBALÈTE — aucun pouvoir : la rangée DISPARAÎT et tout remonte de 48 ;
+       ③ un assemblage HORS LIMITE — le panneau dit pourquoi, `Send` est inerte.
+     👉 Sur ② la fiche doit faire 48 blg de MOINS, et le pied ne doit laisser
+     aucun trou là où la rangée était.
+
+     ⛔ IL NE PORTE AUCUNE COTE ET AUCUN HABIT. Tout vient de `tokens.css`, de
+     `shell.css` et de `feuilleDesCotesX5()`. Si quelque chose est faux ici, c'est
+     faux dans le produit.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=807">
+<link rel="stylesheet" href="./shell.css?v=807">
+<style>
+  /* ⛔ L'ÉCHAFAUDAGE, ET RIEN D'AUTRE — aucune de ces règles ne décrit X5. */
+  body { margin: 0; padding: 24px; background: var(--bg); color: var(--text);
+         font-family: var(--font); }
+  h1 { font-size: var(--t3); font-weight: 600; letter-spacing: .14em;
+       text-transform: uppercase; color: var(--muted); margin: 0 0 20px; }
+  .planche { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+  .cas { display: flex; flex-direction: column; gap: 8px; }
+  .cas > figcaption { font-size: var(--t1); color: var(--muted); max-width: 375px; }
+  /* la dalle du rang X : 375 de large, posée comme sous le belt */
+  .dalle { width: 375px; position: relative; }
+  .mesure { font: 11px ui-monospace, monospace; color: var(--muted); }
+</style>
+</head>
+<body>
+<h1>Banc de X5 — Recipe &amp; Craft</h1>
+<div class="planche" id="planche"></div>
+
+<script type="module">
+import { construireX5, feuilleDesCotesX5 } from "./x5-ecran.mjs?v=807";
+import { pouvoirsDe } from "./craft.mjs?v=807";
+
+
+/* ⭐ LA FEUILLE DES COTES EST CELLE DU PRODUIT — ⛔ pas une copie pour le banc. */
+const style = document.createElement("style");
+style.textContent = feuilleDesCotesX5();
+document.head.append(style);
+
+/* ⚠️ LE BANC PORTE SES PROPRES RECORDS, ET IL FAUT DIRE POURQUOI.
+   La pile réelle se monte par `exemple-fh-en.mjs`, qui importe `node:fs` — ⛔ un
+   module NODE, qui ne peut pas vivre dans un navigateur.
+   ⭐ Ce n'est pas une perte : ce banc existe pour REGARDER un rendu, et c'est
+   `tests/x5-ecran.test.mjs` et `tests/craft.test.mjs` qui éprouvent la dérivation
+   sur la pile VRAIE. ⛔ Mais il faut le savoir : ces cinq records sont de
+   l'échafaudage, recopiés du SRD à la main, et une faute de recopie ici ne serait
+   PAS une faute du produit. Les `subtype` et les `rarity` sont ceux du SRD, au
+   caractère près, parce que c'est d'eux que tout se dérive. */
+const armes = new Map([
+  ["Longsword", { data: { name: "Longsword", cost: "15 GP", weapon_range: "melee" } }],
+  ["Light Crossbow", { data: { name: "Light Crossbow", cost: "25 GP", weapon_range: "ranged" } }],
+]);
+const magiques = [
+  { data: { name: "Flame Tongue", subtype: "Any Melee Weapon", rarity: "Rare (Requires Attunement)" } },
+  { data: { name: "Defender", subtype: "Any Melee Weapon", rarity: "Legendary (Requires Attunement)" } },
+  { data: { name: "Vorpal Sword", subtype: "Glaive, Greatsword, Longsword, or Scimitar",
+            rarity: "Legendary (Requires Attunement)" } },
+  { data: { name: "Sword of Wounding", subtype: "Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword",
+            rarity: "Rare (Requires Attunement)" } },
+];
+
+/* ⛔ AUCUN NOM DE POUVOIR ÉCRIT ICI : le banc demande à la donnée, comme l'écran. */
+const dePouvoirs = (nom) => pouvoirsDe(armes.get(nom), magiques);
+const sansPouvoir = [...armes.values()].find((r) => pouvoirsDe(r, magiques).length === 0);
+const longue = dePouvoirs("Longsword");
+const rare = longue.find((r) => /^Rare\b/.test(r.data.rarity || ""));
+const legendaire = longue.find((r) => /^Legendary/.test(r.data.rarity || ""));
+
+const cas = [
+  ["① Longsword — sa rangée de pouvoirs est pleine",
+   { base: armes.get("Longsword"), itemsMagiques: magiques,
+     choix: { bonus: "Uncommon", pouvoirs: [rare], qte: 1 } }],
+  ["② " + (sansPouvoir?.data.name ?? "—") + " — aucun pouvoir : la rangée DISPARAÎT, "
+   + "et tout ce qui suit remonte de 48 blg",
+   { base: sansPouvoir, itemsMagiques: magiques, choix: { bonus: "Rare", qte: 1 } }],
+  ["③ hors limite — Rare × Legendary ÷ 40 = 40 M : le panneau dit pourquoi, "
+   + "et `Send` est inerte",
+   { base: armes.get("Longsword"), itemsMagiques: magiques,
+     choix: { bonus: "Rare", pouvoirs: [legendaire], qte: 1 } }],
+  ["④ pile SRD — la colonne gauche N'EXISTE PAS (pas de crafting time au SRD)",
+   { base: armes.get("Longsword"), itemsMagiques: magiques, fh: false,
+     choix: { bonus: "Rare", pouvoirs: [rare], qte: 1 } }],
+];
+
+const planche = document.getElementById("planche");
+for (const [titre, options] of cas) {
+  const fig = document.createElement("figure");
+  fig.className = "cas"; fig.style.margin = "0";
+  const cap = document.createElement("figcaption");
+  cap.textContent = titre;
+  const dalle = document.createElement("div");
+  dalle.className = "dalle";
+  const { noeud, cote } = construireX5(options);
+  dalle.append(noeud);
+  const m = document.createElement("div");
+  m.className = "mesure";
+  /* 📏 LE BANC MESURE CE QU'IL MONTRE, pour qu'on lise le chiffre à côté du dessin. */
+  requestAnimationFrame(() => {
+    const bas = [...noeud.querySelectorAll("[data-organe]")]
+      .reduce((n, e) => Math.max(n, e.offsetTop + e.offsetHeight), 0);
+    m.textContent = `${bas} blg occupés · ${cote.legal ? cote.categorie : "illégal"}`
+      + (cote.legal ? ` · ${Math.round(cote.craftTotal).toLocaleString("en-US")} GP` : "");
+  });
+  fig.append(cap, dalle, m);
+  planche.append(fig);
+}
+</script>
+</body>
+</html>

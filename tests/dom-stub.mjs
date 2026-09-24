@@ -117,6 +117,34 @@ class FakeTextNode extends FakeNode {
   }
 }
 
+/* 🔴 UN SÉLECTEUR NE SE DÉCOUPE PAS SUR N'IMPORTE QUEL ESPACE — et ce stub le
+   faisait, ce qui en faisait un FAUX TÉMOIN.
+   📏 Mesuré le 2026-09-24 : `[data-organe="POWER 2"]` rendait `null` alors que
+   l'élément ÉTAIT dans l'arbre, parce que `split(/\s+/)` coupait à l'intérieur
+   des guillemets et cherchait un descendant `2"]` d'un `[data-organe="POWER`.
+   ⛔ LE DANGER EXACT : le garde ne plantait pas, il concluait « cet organe
+   n'existe pas » — faux, plausible, et impossible à distinguer d'un vrai défaut.
+   ⚠️ Et le dépôt est PLEIN de valeurs à espace : `SEND VERS`, `IS QUOI`, `EQUIP
+   ON` dans la table de X1, `POWER 1`/`POWER 2` dans celle de X5.
+   ⭐ On ne coupe donc qu'aux espaces de PREMIER NIVEAU — hors crochets et hors
+   guillemets. Même raison pour la virgule d'une liste de sélecteurs. */
+function decoupeAuNiveauZero(texte, separateur) {
+  const morceaux = [];
+  let courant = "", crochets = 0, guillemet = null;
+  for (const c of String(texte)) {
+    if (guillemet) { courant += c; if (c === guillemet) guillemet = null; continue; }
+    if (c === '"' || c === "'") { guillemet = c; courant += c; continue; }
+    if (c === "[") crochets += 1;
+    if (c === "]") crochets = Math.max(0, crochets - 1);
+    if (!crochets && separateur.test(c)) { morceaux.push(courant); courant = ""; continue; }
+    courant += c;
+  }
+  morceaux.push(courant);
+  return morceaux.map((m) => m.trim()).filter(Boolean);
+}
+const decoupeListe = (s) => decoupeAuNiveauZero(s, /,/);
+const decoupeDescendants = (s) => decoupeAuNiveauZero(s, /\s/);
+
 /* Sélecteur minimal : un ENCHAÎNEMENT `tag.class[attr=val]`, combiné par un
    espace (descendant) — assez pour un test, pas un moteur CSS. */
 function matchesSimple(el, simple) {
@@ -388,8 +416,8 @@ class FakeElement extends FakeNode {
       }
       return false;
     };
-    return selector.split(",").map((s) => s.trim()).flatMap((single) => {
-      const parts = single.split(/\s+/).filter(Boolean);
+    return decoupeListe(selector).flatMap((single) => {
+      const parts = decoupeDescendants(single);
       let matched = pool;
       parts.forEach((part, index) => {
         if (index === 0) {
