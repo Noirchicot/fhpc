@@ -67,7 +67,13 @@ document.head.append(style);
    caractère près, parce que c'est d'eux que tout se dérive. */
 const armes = new Map([
   ["Longsword", { data: { name: "Longsword", cost: "15 GP", weapon_range: "melee" } }],
-  ["Light Crossbow", { data: { name: "Light Crossbow", cost: "25 GP", weapon_range: "ranged" } }],
+  /* 🔴 UNE BASE CONSTRUITE, ET ELLE DOIT LE DIRE. Ce cas s'appelait « Light
+     Crossbow — aucun pouvoir » : faux dans le vrai SRD, où `Giant Slayer` et
+     `Vicious Weapon` (`Any Simple or Martial`) se posent sur toutes les armes.
+     Mesuré le 24/09 (lot 261) : AUCUNE des 51 bases n'est sans pouvoir. La règle
+     de la rangée qui disparaît n'a donc que des cas construits — celui-ci en est un. */
+  ["Base de test", { data: { name: "Base de test", cost: "25 GP", weapon_range: "ranged",
+    weapon_category: "exotic" } }],
 ]);
 const magiques = [
   { data: { name: "Flame Tongue", subtype: "Any Melee Weapon", rarity: "Rare (Requires Attunement)" } },
@@ -89,8 +95,8 @@ const cas = [
   ["① Longsword — sa rangée de pouvoirs est pleine",
    { base: armes.get("Longsword"), itemsMagiques: magiques,
      choix: { bonus: "Uncommon", pouvoirs: [rare], qte: 1 } }],
-  ["② " + (sansPouvoir?.data.name ?? "—") + " — aucun pouvoir : la rangée DISPARAÎT, "
-   + "et tout ce qui suit remonte de 48 blg",
+  ["② base CONSTRUITE sans pouvoir — la rangée DISPARAÎT et tout remonte de 48 blg. "
+   + "⚠️ Aucune base du SRD n'est dans ce cas aujourd'hui",
    { base: sansPouvoir, itemsMagiques: magiques, choix: { bonus: "Rare", qte: 1 } }],
   ["③ hors limite — Rare × Legendary ÷ 40 = 40 M : le panneau dit pourquoi, "
    + "et `Send` est inerte",

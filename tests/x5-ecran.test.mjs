@@ -87,8 +87,13 @@ test("3 — 🔴 SANS POUVOIR DISPONIBLE, LA RANGÉE DISPARAÎT — et ne se gri
      ⭐ Une option grisée promet qu'un jour elle s'ouvrira ; une option absente dit
      que cette base n'est pas de cette famille-là. C'est la loi des cinq gemmes à
      10 po, appliquée à une rangée. */
-  const arbalete = [...armes.values()].find((r) => pouvoirsDe(r, magiques).length === 0);
-  assert.ok(arbalete, "la pile porte bien une arme sans aucun pouvoir");
+  /* 🔴 LE CAS EST CONSTRUIT, ET IL DOIT L'ÊTRE : mesuré le 24/09, AUCUNE des 51
+     bases du SRD n'est sans pouvoir (le lot 258 en comptait huit à tort). La règle
+     d'Eric tient sans cas réel — ce garde tient donc le MÉCANISME, sur une base
+     qu'une couche pourrait ajouter demain. */
+  const arbalete = { data: { name: "Test Crossbow", cost: "1 GP", weapon_range: "ranged",
+    weapon_category: "exotic" } };
+  assert.equal(pouvoirsDe(arbalete, magiques).length, 0, "le cas construit est bien vide");
 
   const vide = monte({ base: arbalete, itemsMagiques: magiques });
   assert.equal(vide.noeud.dataset.pouvoirs, "aucun");
@@ -141,12 +146,14 @@ test("6 — ⚔️ LE SECOND POUVOIR NE PROPOSE QUE CE QUI TIENT DANS LA LIMITE"
     choix: { pouvoirs: [legendaire] } });
   const p2 = noeud.querySelector('[data-organe="POWER 2"]');
   assert.ok(p2, "le second dropdown existe");
-  /* ⚔️ Avec un Legendary posé, seuls des Uncommon tiennent encore — et l'épée
-     longue n'en offre aucun. Le contrôle doit donc être INERTE, ⛔ pas ouvert sur
-     un menu vide : c'est le défaut de `data-glissable` qui promettait un geste
-     que personne n'écoutait. */
-  assert.equal(p2.disabled, true,
-    "⛔ après un Legendary, plus rien ne tient — le dropdown ne promet pas un menu vide");
+  /* 🔴 CE GARDE AFFIRMAIT « après un Legendary, plus rien ne tient ». Faux depuis que
+     le moteur lit `Any Simple or Martial` : `Weapon of Warning` (Uncommon) tient
+     encore. ⭐ Et il a révélé un vrai bug d'écran : le dropdown n'était actif qu'au-
+     delà d'UNE option, alors qu'un pouvoir admet toujours « aucun ». Avec un seul
+     pouvoir offert, le joueur ne pouvait pas le prendre. */
+  assert.equal(p2.disabled, false,
+    "⭐ un seul pouvoir sous la limite, et c'est DEUX choix : le prendre ou non");
+
 });
 
 /* ══ ④ LES REFUS ═══════════════════════════════════════════════════════════ */

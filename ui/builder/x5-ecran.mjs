@@ -66,7 +66,7 @@ function hauteurDe(nom) {
 }
 
 /** Un dropdown de la table : sa boîte porte son nom d'organe, son contenu le mot. */
-function dropdown(nom, mot, options, surChoix, { muet = false } = {}) {
+function dropdown(nom, mot, options, surChoix, { muet = false, aucunPermis = false } = {}) {
   const b = elx("button", "x5-drop", "");
   b.type = "button";
   b.dataset.organe = nom;
@@ -76,7 +76,15 @@ function dropdown(nom, mot, options, surChoix, { muet = false } = {}) {
      il reste seul choix possible, il se dit INERTE plutôt que de promettre un
      menu vide. C'est le défaut de `data-glissable` du lot Wares : un attribut qui
      annonçait un geste que personne n'écoutait. */
-  const utile = !muet && options && options.length > 1;
+  /* 🔴 « PLUS D'UNE OPTION » ÉTAIT FAUX POUR UN POUVOIR. Un pouvoir admet toujours
+     « aucun » : avec UN seul pouvoir offert, le joueur a DEUX choix — le prendre ou
+     non. 📏 Le cas est réel : une Longsword qui porte déjà un Legendary n'a plus
+     que `Weapon of Warning` (Uncommon) sous la limite, et l'ancienne règle rendait
+     le dropdown inerte — le joueur ne pouvait pas le prendre.
+     ⭐ Un TYPE ou un STATUS, eux, n'ont pas de « aucun » : il leur faut deux
+     valeurs pour qu'il y ait un choix. */
+  const plancher = aucunPermis ? 1 : 2;
+  const utile = !muet && options && options.length >= plancher;
   b.disabled = !utile;
   if (utile) b.addEventListener("click", () => surChoix && surChoix(b, options));
   return b;
@@ -191,7 +199,7 @@ export function construireX5(o = {}) {
       .map((p) => p && p.data && p.data.rarity)].filter(Boolean);
     const offerts = encorePossibles(autres, dispos);
     const mot = pris[i] ? pris[i].data.name : "—";
-    n.append(dropdown(nom, mot, offerts, surChoix));
+    n.append(dropdown(nom, mot, offerts, surChoix, { aucunPermis: true }));
   }
 
   /* ⛔ AUCUN STYLE EN LIGNE : le filet est un organe comme les autres, et c'est

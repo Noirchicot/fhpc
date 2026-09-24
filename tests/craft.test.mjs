@@ -117,21 +117,73 @@ test("4 — ⭐ LES POUVOIRS SE DÉRIVENT DE `subtype` — une épée et une mas
     + "perdent leur dernière base en silence");
 });
 
-test("5 — 🔴 HUIT ARMES N'OFFRENT AUCUN POUVOIR, et la rangée doit disparaître", () => {
-  /* ⚖️ Eric, à « les faire disparaître, pas les griser ? » : « oui voilà ».
-     ⛔ Le compte n'est pas épinglé à 8 : un pouvoir ajouté demain peut en sauver
-     une, et ce garde ne doit pas rougir pour ça. Ce qu'il tient, c'est qu'il en
-     EXISTE, et que ce sont bien des armes à distance. */
-  const vides = armes.filter((v) => pouvoirsDe(v.record, magiques).length === 0);
-  assert.ok(vides.length > 0,
-    "⛔ si plus aucune arme n'est vide, la règle de la rangée qui disparaît n'a plus de cas — "
-    + "elle devient du code mort qu'un lecteur croira encore vivant");
-  for (const v of vides) {
-    assert.equal(v.record.data.weapon_range, "ranged",
-      `⚠️ ${v.record.data.name} est une arme de MÊLÉE sans pouvoir — or \`Any Melee Weapon\` `
-      + "devrait toutes les couvrir. Si ce garde rougit, c'est le filtre qui a cassé.");
+test("5 — 🔴 AUCUNE BASE DU SRD N'EST SANS POUVOIR — et la règle tient quand même", () => {
+  /* 🔴 CE GARDE AFFIRMAIT « HUIT ARMES N'OFFRENT AUCUN POUVOIR ». C'était faux : la
+     règle du lot 258 ne lisait qu'une forme « Any … » sur cinq. Il avait écrit,
+     d'avance, ce qui arriverait : « si plus aucune arme n'est vide, la règle de la
+     rangée qui disparaît n'a plus de cas — elle devient du code mort qu'un lecteur
+     croira encore vivant ». ⭐ Il a rougi exactement pour ça, le 24/09.
+     ⚖️ LA RÈGLE D'ERIC TIENT (« oui voilà » : la rangée disparaît, elle ne se grise
+     pas) — mais elle n'a AUJOURD'HUI AUCUN CAS dans le SRD. Ce garde ne peut donc
+     plus exiger qu'un cas existe : il le DIT, et le mécanisme est tenu sur un cas
+     construit (garde 3 de `x5-ecran.test.mjs`). */
+  const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" })].map((v) => v.record);
+  const vides = bases.filter((r) => pouvoirsDe(r, magiques).length === 0);
+  assert.deepEqual(vides.map((r) => r.data.name), [],
+    "📏 mesuré le 24/09 : les 51 bases portent toutes au moins un pouvoir. Si ce garde "
+    + "rougit, une base est devenue vide — et la règle de la rangée qui disparaît a "
+    + "retrouvé un cas réel, à REGARDER dans le banc.");
+});
+
+test("5 bis — ⚔️ LES CINQ FORMES « Any … » DU SRD SONT TOUTES LUES", () => {
+  /* ⭐ CELUI-CI AURAIT ATTRAPÉ LE TROU DU LOT 258. Ses gardes interrogeaient des
+     bases (Dagger, Mace, Longsword) — jamais les FORMES d'écriture. Or trois des
+     cinq formes rendaient zéro base, et rien ne rougissait.
+     ⛔ Il ÉNUMÈRE LES SUBTYPES RÉELS de la pile, il ne les liste pas : une forme
+     ajoutée demain sera interrogée sans qu'on touche ce fichier. */
+  const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" })].map((v) => v.record);
+  const formes = [...new Set(magiques.map((r) => r.data.subtype))].filter((st) => /^any\b/i.test(st));
+  assert.ok(formes.length >= 4, `la pile porte bien plusieurs formes « Any … » (${formes.length})`);
+  for (const st of formes) {
+    const n = bases.filter((b) => pouvoirsDe(b, [{ data: { subtype: st, rarity: "Rare" } }]).length).length;
+    if (/ammunition/i.test(st)) {
+      assert.equal(n, 0, "⏳ `Any Ammunition` reste à zéro, DÉCLARÉ — il ira avec le lot des munitions");
+      continue;
+    }
+    assert.ok(n > 0, `🔴 [${st}] ne trouve AUCUNE base — c'est exactement le trou du lot 258`);
   }
 });
+
+test("5 quater — ⚔️ « EXCEPT » RETIRE LA BASE QU'IL NOMME, et seulement elle", () => {
+  /* 🔴 CE GARDE EST NÉ D'UNE ÉPREUVE RESTÉE VERTE : en supprimant l'exclusion, rien
+     n'a rougi. `Adamantine Armor` et `Mithral Armor` sont `[Any Medium or Heavy,
+     Except Hide Armor]` — la seule exclusion du SRD, et aucun garde ne l'interrogeait. */
+  const armures = new Map(query({ kind: "armor" }).map((v) => [v.record.data.name, v.record]));
+  const adamantine = magiques.find((r) => r.data.name === "Adamantine Armor");
+  assert.ok(adamantine, "l'objet est dans la pile");
+  assert.equal(pouvoirsDe(armures.get("Hide Armor"), [adamantine]).length, 0,
+    "⛔ Hide Armor est MOYENNE — elle passerait le filtre de famille, c'est l'exclusion qui la retire");
+  assert.equal(pouvoirsDe(armures.get("Chain Mail"), [adamantine]).length, 1,
+    "⭐ mais une autre armure lourde reste acceptée — l'exclusion ne vide pas la famille");
+  assert.equal(armures.get("Hide Armor").data.armor_category, "medium",
+    "⚠️ si Hide Armor cessait d'être moyenne, ce garde ne prouverait plus l'exclusion");
+});
+
+test("5 ter — ⛔ UN PLAN N'EST JAMAIS UN POUVOIR", () => {
+  /* 🔴 Dès que la règle a su lire `Any Light, Medium, or Heavy`, `Armor, +1, +2, or +3`
+     est arrivé dans les pouvoirs — c'est le rôle de BONUS. Et le filtre que j'avais
+     écrit pour l'empêcher NE FILTRAIT RIEN : `paliterDeRarete` coupait à la première
+     parenthèse et rendait « Uncommon » pour une énumération entière. */
+  assert.equal(paliterDeRarete("Uncommon (+1), Rare (+2), or Very Rare (+3)"), null,
+    "⛔ une énumération n'est pas un palier");
+  assert.equal(paliterDeRarete("Very Rare (Requires Attunement)").nom, "Very Rare",
+    "⚠️ et « Very Rare » n'est pas compté deux fois parce qu'il contient « Rare »");
+  const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" })].map((v) => v.record);
+  const plans = bases.flatMap((b) => pouvoirsDe(b, magiques))
+    .filter((r) => /\+1, \+2, or \+3/.test(r.data.name));
+  assert.deepEqual(plans.map((r) => r.data.name), [], "⛔ aucun plan parmi les pouvoirs");
+});
+
 
 /* ══ ③ LA COTE — LES CONTRÔLES CROISÉS DU SRD ══════════════════════════════ */
 

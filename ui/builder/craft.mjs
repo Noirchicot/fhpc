@@ -55,9 +55,21 @@ const DC = [13, 16, 20, 24, 28, 32];
    ou énumèrent (« Uncommon (+1), Rare (+2)… »). Lire `rarity` sans couper rend une
    chaîne qui ne correspond à aucun palier, et le prix tomberait silencieusement
    à zéro — ⛔ le genre d'absence qui ne lève aucune erreur. */
+/* 🔴 UNE ÉNUMÉRATION N'EST PAS UN PALIER — et cette fonction le laissait croire.
+   Couper à la première parenthèse rend « Uncommon » pour « Uncommon (+1), Rare (+2),
+   or Very Rare (+3) » : le PREMIER palier d'une liste passait pour le palier de
+   l'objet. 📏 Mesuré le 24/09 : les 51 plans `…, +1, +2, or +3` arrivaient ainsi
+   dans les pouvoirs, alors que j'avais écrit juste au-dessus qu'ils en étaient
+   exclus. ⛔ Le commentaire disait vrai, le code disait autre chose.
+   ⭐ On COMPTE donc les paliers nommés. Un seul → c'est lui. Plusieurs → `null`.
+   ⚠️ L'ordre de l'alternance n'est pas un détail : `very rare` AVANT `rare`,
+   `uncommon` AVANT `common` — sinon « Very Rare » compterait deux paliers. */
+const NOMME_UN_PALIER = /very rare|legendary|uncommon|common|rare|epic/gi;
 export function paliterDeRarete(rarete) {
-  const t = String(rarete || "").split("(")[0].trim().toLowerCase();
-  return PALIERS.find((p) => p.nom.toLowerCase() === t) || null;
+  const vus = new Set((String(rarete || "").match(NOMME_UN_PALIER) || []).map((m) => m.toLowerCase()));
+  if (vus.size !== 1) return null;
+  const [seul] = vus;
+  return PALIERS.find((p) => p.nom.toLowerCase() === seul) || null;
 }
 
 /** ⚖️ « tu le classes dans le palier INFÉRIEUR » — Eric, 24/09, corrigeant ma
@@ -86,10 +98,17 @@ export function categorieAffichee(prix) {
    ⛔ Un pouvoir ajouté demain entre tout seul. C'est ce qui manquait aux kits
    d'aventurier et aux 23 marchandises : un signal dans la donnée, pas une liste.
 
-   📏 CE QUE ÇA REND, mesuré sur la pile : Longsword 10 · Mace 5 · Warhammer 4 ·
-   Dagger 3 · dix armes à 2 · et HUIT armes à ZÉRO (Blowgun, Dart, les trois
-   arbalètes, Musket, Pistol, Sling). ⭐ Eric, sur ces huit : « oui voilà » — la
-   rangée des pouvoirs DISPARAÎT, ⛔ elle ne se grise pas. */
+   🔴 CE QUE CET EN-TÊTE AFFIRMAIT ÉTAIT FAUX, et je le laisse lisible barré plutôt
+   que de l'effacer : « Longsword 10 · Mace 5 · Dagger 3 · dix armes à 2 · et HUIT
+   armes à ZÉRO ». La règle ne comprenait alors qu'une forme « Any … » sur cinq
+   (voir ③ bis). 📏 RECOMPTÉ LE 2026-09-24, cinq formes lues : Longsword 17 ·
+   Scimitar 17 · Greatsword 16 · minimum 7 — et ⛔ AUCUNE des 51 bases du SRD
+   n'est sans pouvoir. `Giant Slayer` et `Vicious Weapon` (`Any Simple or
+   Martial`) se posent sur toutes les armes, arbalètes comprises.
+   ⚖️ Eric avait tranché, sur la foi des « huit armes à zéro » : la rangée des
+   pouvoirs DISPARAÎT quand la base n'en offre aucun, ⛔ elle ne se grise pas. La
+   règle reste juste — mais elle n'a AUJOURD'HUI AUCUN CAS dans le SRD. Elle vit
+   pour une base qu'une couche ajouterait demain. */
 /* ⚠️ RECORDS, PAS DES VUES — et je l'ai appris en me trompant ici même, pour la
    troisième fois en deux jours. Une vue est `{ id, record: { data } }` ; un record
    est `{ data }`. Passer des vues fait rendre `undefined` à `it.data`, le filtre
@@ -107,17 +126,75 @@ export function pouvoirsDe(recordBase, itemsMagiques) {
     const d = (it && it.data) || {};
     const st = String(d.subtype || "").trim();
     if (!st) return false;
-    const b = st.toLowerCase();
-    if (b.startsWith("any")) {
-      if (b.includes("ammunition")) return base.category === "ammunition";
-      if (b.includes("melee")) return base.weapon_range === "melee";
-      if (b.includes("ranged")) return base.weapon_range === "ranged";
-      return b.includes("weapon") && Boolean(base.weapon_range);
-    }
+    /* 🔴 UN PLAN N'EST PAS UN POUVOIR — et la règle du lot 258 les rangeait
+       parmi eux dès qu'elle a su lire `Any Light, Medium, or Heavy` : `Armor, +1,
+       +2, or +3` arrivait dans `POWER 1`, alors que c'est exactement le rôle de
+       `BONUS`. ⭐ Le critère est la RARETÉ : un pouvoir a UN palier lisible, donc
+       un prix ; un plan en énumère plusieurs (ou dit « Varies »), et
+       `paliterDeRarete` rend `null`. ⛔ Aucune liste de noms, et aucun import :
+       ce module reste une feuille. */
+    if (!paliterDeRarete(d.rarity)) return false;
+    if (/^any\b/i.test(st)) return accepteUneFamille(st, base);
     /* ⛔ `split` sur la virgule ET sur `or` — le SRD écrit « Glaive, Greatsword,
        Longsword, or Scimitar », avec la virgule d'Oxford ET le `or`. */
     return st.split(/,|\bor\b/).map((x) => x.trim()).filter(Boolean).includes(nom);
   });
+}
+
+/* ══ ③ bis — « ANY … » : LA FAMILLE D'UNE BASE, LUE DANS SES PROPRES CHAMPS ════
+   🔴 LE LOT 258 NE COMPRENAIT QU'UNE FORME SUR CINQ, et je l'ai affirmé juste.
+   Sa règle testait `melee`, `ranged` et `weapon` — or le SRD écrit aussi :
+     `Any Simple or Martial`              → Dragon Slayer, Giant Slayer, Holy Avenger,
+                                            Nine Lives Stealer, Vicious Weapon, Weapon
+                                            of Warning, et le plan `Weapon, +1, +2, or +3`
+     `Any Light, Medium, or Heavy`        → Armor of Resistance, Armor of Vulnerability,
+                                            Demon Armor, et le plan `Armor, +1, +2, or +3`
+     `Any Medium or Heavy, Except Hide Armor` → Adamantine Armor, Mithral Armor
+   📏 Mesuré le 2026-09-24 : ces trois formes trouvaient ZÉRO base. Six pouvoirs
+   n'étaient proposés sur aucune arme, et les chiffres du lot 258 (« Longsword 10,
+   Dagger 3, huit armes à zéro ») étaient FAUX, écrits dans son en-tête, dans le
+   plan au vault et dans le message de commit.
+   ⛔ ET SES GARDES NE POUVAIENT PAS LE VOIR : ils interrogeaient Dagger, Mace,
+   Longsword et le bord « or Scimitar » — jamais une forme « Any … » autre que
+   `Any Melee Weapon`. Un garde qui n'interroge qu'une forme d'écriture tient
+   cette forme-là, et rien d'autre.
+
+   ⭐ LA RÈGLE, MÉCANIQUE : chaque mot du subtype nomme une valeur d'un champ que
+   la BASE porte déjà — ⛔ aucune liste de noms d'armes ou d'armures.
+     simple · martial        → `weapon_category`
+     melee · ranged          → `weapon_range`
+     light · medium · heavy  → `armor_category`   (⛔ `shield` n'y est jamais : un
+                                                    bouclier n'est pas une armure)
+     « Except X »            → X est retiré par son NOM, tel que le SRD l'écrit
+   Les mots d'une même famille s'unissent (`Simple or Martial` = l'une OU l'autre).
+
+   ⏳ `Any Ammunition` RESTE À ZÉRO, ET C'EST DÉCLARÉ. Les munitions de base sont des
+   `gear` sans aucun marqueur ; une arme à distance NOMME la sienne (« Range
+   150/600; Arrow »), mais les reconnaître demande de croiser deux genres, et
+   `Case, Crossbow Bolt` — un ÉTUI — tomberait dans un filtre naïf sur « Bolt ».
+   ⭐ Cette lecture ira avec la règle du lot de dix, dans le lot des munitions. */
+const FAMILLES = [
+  { champ: "weapon_category", mots: ["simple", "martial"] },
+  { champ: "weapon_range", mots: ["melee", "ranged"] },
+  { champ: "armor_category", mots: ["light", "medium", "heavy"] },
+];
+export function accepteUneFamille(subtype, base) {
+  let corps = String(subtype || "").replace(/^any\s+/i, "");
+  const sauf = /,?\s*except\s+(.+)$/i.exec(corps);
+  if (sauf) {
+    const exclus = sauf[1].split(/,|\bor\b|\band\b/).map((x) => x.trim()).filter(Boolean);
+    if (exclus.includes(base.name)) return false;
+    corps = corps.slice(0, sauf.index);
+  }
+  const mots = corps.toLowerCase().split(/[\s,]+|\bor\b/).map((x) => x.trim()).filter(Boolean);
+  if (mots.includes("ammunition")) return false;   /* ⏳ voir l'en-tête */
+  for (const { champ, mots: valeurs } of FAMILLES) {
+    const voulus = mots.filter((m) => valeurs.includes(m));
+    if (voulus.length) return voulus.includes(base[champ]);
+  }
+  /* « Any Weapon » tout court : toute arme — mais jamais une armure. */
+  if (mots.includes("weapon")) return Boolean(base.weapon_range);
+  return false;
 }
 
 /* ══ ④ LA QUANTITÉ — ERIC A TOUT DIT, ET LE SRD LE CONFIRME ═══════════════════
