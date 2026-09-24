@@ -27,9 +27,13 @@
        · C « B + translucide + filet » — B à 75 % (55 % grisait le bleu), et un liseré sur la coupe
          (clair côté teinte, sombre côté bleu) : la coupe devient une arête.
 
+     ⚖️ ERIC A CHOISI B LE 25/09 (« b »). B est devenue le produit
+     (`shell.css`) : le banc ne montre plus que le produit, et les règles des
+     variantes sont retirées — A et C se relisent dans le commit du lot 264.
+
      ⛔ IL NE PORTE AUCUNE COTE : taille des cases `JETON` (wares-disposition),
-     bande `--jeton-bande`, teintes et relief de `tokens.css`. Seules les règles
-     `.v-a / .v-b / .v-c` sont neuves — et ce sont elles qu'on juge.
+     bande `--jeton-bande`, teintes et relief de `tokens.css`. Il ne porte plus
+     aucune règle du jeton.
      ══════════════════════════════════════════════════════════════════════ -->
 
 <link rel="stylesheet" href="./tokens.css?v=812">
@@ -47,38 +51,6 @@
   .rangee { display: flex; gap: 10px; }
   .case { flex: 0 0 auto; }
 
-  /* ── A « translucide » : même enfant, bleu à 55 % ─────────────────────── */
-  .v-a .jeton-recette {
-    background-image: linear-gradient(to bottom right, transparent 50%,
-      color-mix(in srgb, var(--jeton-recette) 55%, transparent) 50%);
-  }
-
-  /* ── B « sous le relief » : la diagonale est une couche de fond de l'hôte ──
-     📐 Même géométrie que l'enfant : elle commence sous la bande (position
-     0 var(--jeton-bande), hauteur 100 % − bande) ; l'arrondi du bas vient du
-     découpage du fond par l'hôte lui-même — aucun rayon à hériter. */
-  .v-b .jeton-recette, .v-c .jeton-recette { display: none; }
-  .v-b .wares-jeton.recette {
-    background-image: linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%);
-    background-position: 0 var(--jeton-bande);
-    background-size: 100% calc(100% - var(--jeton-bande));
-    background-repeat: no-repeat;
-  }
-
-  /* ── C « B + translucide + filet » ──────────────────────────────────────── */
-  .v-c .wares-jeton.recette {
-    background-image:
-      linear-gradient(to bottom right,
-        transparent calc(50% - 1px),
-        rgba(255,255,255,.45) calc(50% - 1px), rgba(255,255,255,.45) 50%,
-        rgba(0,0,0,.16) 50%, rgba(0,0,0,.16) calc(50% + 1px),
-        transparent calc(50% + 1px)),
-      linear-gradient(to bottom right, transparent 50%,
-        color-mix(in srgb, var(--jeton-recette) 75%, transparent) 50%);
-    background-position: 0 var(--jeton-bande);
-    background-size: 100% calc(100% - var(--jeton-bande));
-    background-repeat: no-repeat;
-  }
 </style>
 </head>
 <body>
@@ -90,10 +62,7 @@ import { corpsDuJeton } from "./jeton-objet.mjs?v=812";
 import { JETON } from "./wares-disposition.mjs?v=812";
 
 const variantes = [
-  ["", "Actuel", "le produit v812 : bleu opaque, enfant peint par-dessus le relief"],
-  ["v-a", "A — translucide", "même dessin, bleu à 55 % : la teinte du jeton passe dessous"],
-  ["v-b", "B — sous le relief", "bleu opaque, mais en fond de l'hôte : l'ombre inset repasse par-dessus"],
-  ["v-c", "C — B + translucide + filet", "sous le relief, bleu à 75 %, et une arête sur la coupe"],
+  ["", "Produit — variante B", "choisie par Eric le 25/09 : la diagonale est une couche de fond de l'hôte, sous le relief et sous le nom"],
 ];
 /* ⭐ Deux plans et un objet fini : la diagonale se juge À CÔTÉ d'un jeton nu. */
 const poses = [
@@ -115,7 +84,7 @@ for (const [classe, titre, dit] of variantes) {
     c.style.inlineSize = `${JETON.l}px`; c.style.blockSize = `${JETON.h}px`;
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "wares-jeton" + (pose.recette ? " recette" : "");
+    b.className = "wares-jeton";
     b.append(...corpsDuJeton(pose));
     c.append(b);
     rangee.append(c);

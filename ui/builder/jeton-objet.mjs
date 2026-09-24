@@ -66,9 +66,12 @@ export function corpsDuJeton(pose) {
   if (pose.recette === true) {
     const fond = el("span", "jeton-recette");
     fond.setAttribute("aria-hidden", "true");
-    /* ⛔ AVANT LE NOM, PAS APRÈS : un fond posé ensuite le recouvrirait. L'ordre
-       du DOM suffit, et il évite un `z-index` — qui aurait fallu accorder avec
-       ceux des quatre marques. */
+    /* 🔴 CE NŒUD NE PEINT PLUS RIEN (lot 264) : il est la MARQUE que l'hôte lit
+       par `:has(> .jeton-recette)`, et c'est l'hôte qui peint la diagonale dans
+       son propre fond (`shell.css`). ⛔ L'ancien commentaire disait « l'ordre du
+       DOM suffit » : faux — un enfant positionné se peint devant tout contenu en
+       flux, et le bleu recouvrait la seconde ligne du nom. Il reste en tête par
+       habitude, ⛔ plus par nécessité. */
     noeuds.unshift(fond);
   }
   const marques = el("span", "jeton-marques");

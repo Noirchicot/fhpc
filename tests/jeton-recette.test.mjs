@@ -143,14 +143,17 @@ test("4 — ⭐ LES SEPT KITS SE DÉCLARENT EUX-MÊMES, et on les compte sur la 
 
 /* ══ ③ LE JETON — L'ORDRE DU DOM EST LA LOI, PAS UN `z-index` ═════════════ */
 
-test("5 — 🔴 LE FOND PASSE AVANT LE NOM, et c'est ce qui évite un `z-index` à accorder", () => {
+test("5 — ⭐ LE NŒUD EST LA MARQUE DE LA RECETTE, et lui seul la pose", () => {
   const document = createTestDocument();
   globalThis.document = document;
   try {
     const noeuds = corpsDuJeton({ nom: "Explorer's Pack", qte: 1, recette: true });
-    assert.equal(noeuds[0].className, "jeton-recette",
-      "⛔ PREMIER, toujours : un fond posé après le nom le recouvrirait. L'ordre du DOM suffit, "
-      + "et il n'a pas à s'accorder avec les `z-index` des quatre marques.");
+    /* 🔴 AMENDÉ AU LOT 264 : « l'ordre du DOM suffit » était FAUX — un enfant
+       positionné se peint devant tout contenu en flux, quel que soit son rang.
+       Le nœud ne peint plus rien (garde 7) ; il est la marque que l'hôte lit.
+       Ce garde tient qu'elle est POSÉE, et une seule fois. */
+    assert.equal(noeuds.filter((n) => n.className === "jeton-recette").length, 1,
+      "⭐ UNE marque, posée par l'organe — c'est elle que l'hôte reconnaît par `:has()`");
     assert.equal(noeuds[0].getAttribute("aria-hidden"), "true",
       "⛔ MUET : une couleur que rien ne prononce est une information réservée aux voyants");
 
@@ -175,39 +178,69 @@ test("6 — ⭐ CE QUE LE LECTEUR D'ÉCRAN ENTEND : « recipe », et il l'entend
 
 /* ══ ④ LA FEUILLE — LA DIAGONALE EST VRAIMENT PEINTE ═════════════════════ */
 
-test("7 — ⚔️ LA DIAGONALE EXISTE DANS LA FEUILLE, et elle va bien en BAS À DROITE", () => {
-  /* 🔴 SANS CE GARDE, TOUT CE QUI PRÉCÈDE PASSERAIT SUR UN NŒUD INVISIBLE — un
-     `<span>` sans règle est un nœud parfaitement valide, parfaitement vide, et
-     les six tests d'au-dessus resteraient verts. C'est le défaut exact que la
-     grille du tambour a payé le 23/08 (« quinze cases VIDES »). */
-  const regle = /\.jeton-recette\s*\{([^}]*)\}/.exec(CSS);
-  assert.ok(regle, "`.jeton-recette` porte une règle");
-  /* 🔴 LES COMMENTAIRES SORTENT AVANT TOUTE ASSERTION, ET C'EST UNE FAUTE PAYÉE
-     DANS CE TEST MÊME. Le `doesNotMatch(/border-radius: inherit/)` d'en dessous a
-     rougi sur la PHRASE DU COMMENTAIRE qui explique pourquoi on ne l'écrit plus —
-     la règle était juste, le garde accusait la prose qui la défend.
-     ⭐ C'est la leçon du dépôt, reprise ici : compter un mot compte aussi la phrase
-     qui le nie. Un garde de feuille mesure des DÉCLARATIONS, ⛔ jamais du texte. */
-  const corps = regle[1].replace(/\/\*[\s\S]*?\*\//g, " ");
-  assert.match(corps, /linear-gradient\(\s*to bottom right\s*,\s*transparent 50%\s*,\s*var\(--jeton-recette\) 50%\s*\)/,
-    "⭐ MOITIÉ INFÉRIEURE DROITE, de bas en haut — le croquis d'Eric, et la coupure est NETTE (50 % / 50 %)");
-  assert.match(corps, /position:\s*absolute/);
-  /* ⚖️ AMENDÉ LE 23/09 AU SOIR, DEVANT LE RENDU — Eric : *« la diagonale s'arrête
-     sous la bande supérieure pour la laisser vide »*. L'assertion d'avant disait
-     `inset: 0` (« il couvre la tuile entière ») : elle était juste jusqu'à cette
-     phrase, et c'est elle qui a rougi au changement. ⭐ Elle n'est pas SUPPRIMÉE,
-     elle est REMPLACÉE par la cote qui la contredit — un garde retiré aurait
-     laissé la géométrie sans témoin. */
-  assert.match(corps, /inset:\s*var\(--jeton-bande\) 0 0 0/,
-    "⭐ ELLE S'ARRÊTE SOUS LA BANDE, et par le jeton qui NOMME la bande — ⛔ jamais un 14 nu");
-  assert.match(corps, /pointer-events:\s*none/,
-    "⛔ un fond ne prend pas le clic : la tuile dessous reste le bouton");
-  assert.match(corps, /border-end-start-radius:\s*inherit/);
-  assert.match(corps, /border-end-end-radius:\s*inherit/,
-    "⛔ les deux coins DU BAS suivent la tuile, sinon la diagonale déborde de l'arrondi");
-  assert.doesNotMatch(corps, /border-radius:\s*inherit/,
-    "🔴 ET SURTOUT PAS LES QUATRE : descendue sous la bande, ses coins hauts tombent au MILIEU "
-    + "du jeton — un rayon là creuse une encoche dans le bleu, contre le bord droit, où elle se voit.");
+/* 📐 UNE LECTURE DE FEUILLE SANS COMMENTAIRES — un garde mesure des DÉCLARATIONS,
+   ⛔ jamais la prose qui les explique (faute payée au lot 256 dans ce fichier). */
+const FEUILLE = CSS.replace(/\/\*[\s\S]*?\*\//g, " ");
+const regles = [...FEUILLE.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+  .map((m) => ({ selecteur: m[1].trim(), corps: m[2] }));
+/* Spécificité (a,b,c) d'un sélecteur SIMPLE — celui des hôtes et de la règle.
+   `:has(x)` vaut la spécificité de son argument, comme `:is()`. */
+function specificite(sel) {
+  let a = 0, b = 0, c = 0;
+  const reste = sel.replace(/:(has|is|not)\(([^()]*)\)/g, (_, _f, arg) => {
+    const [x, y, z] = specificite(arg.replace(/^\s*>\s*/, ""));
+    a += x; b += y; c += z; return " ";
+  });
+  a += (reste.match(/#[\w-]+/g) || []).length;
+  b += (reste.match(/\.[\w-]+|\[[^\]]*\]|:(?!:)[\w-]+/g) || []).length;
+  c += (reste.match(/(^|[\s>+~])[a-z][\w-]*/gi) || []).length;
+  return [a, b, c];
+}
+const plusFort = (p, q) => p[0] - q[0] || p[1] - q[1] || p[2] - q[2];
+
+test("7 — 🔴 LE NŒUD NE PEINT RIEN : la diagonale est dans le FOND de l'hôte (lot 264)", () => {
+  /* ⚖️ Eric, 25/09 : « b » — la variante « sous le relief » du banc.
+     🔴 LA PANNE QUE CE GARDE TIENT : un `.jeton-recette` POSITIONNÉ qui peint se
+     dessine devant le nom (statique) et devant l'ombre inset de l'hôte. C'est
+     ce qu'Eric a vu sur l'iPad. Qui lui rend un fond ou une position la refait. */
+  const noeud = regles.filter((r) => r.selecteur === ".jeton-recette");
+  assert.equal(noeud.length, 1, "`.jeton-recette` porte UNE règle");
+  assert.match(noeud[0].corps, /position:\s*absolute/,
+    "⭐ HORS DU FLUX : le nœud vide ne prend pas de place dans la colonne de l'hôte "
+    + "(⛔ pas `display: none` — la feuille n'en porte aucun, garde 4 de `ui-jetons`)");
+  assert.doesNotMatch(noeud[0].corps, /background|inset|block-size|height/,
+    "🔴 un fond sur l'enfant repasse DEVANT le nom et le relief — la panne du 24/09");
+
+  const hote = regles.filter((r) => /:has\(\s*>\s*\.jeton-recette\b/.test(r.selecteur));
+  assert.equal(hote.length, 1, "⭐ UNE règle d'hôte, reconnue par la marque — aucune liste d'écrans");
+  const corps = hote[0].corps;
+  assert.match(corps, /background-image:\s*linear-gradient\(\s*to bottom right\s*,\s*transparent 50%\s*,\s*var\(--jeton-recette\) 50%\s*\)/,
+    "⭐ MOITIÉ INFÉRIEURE DROITE, coupure NETTE — le croquis d'Eric ; ⛔ un longhand, pas le raccourci "
+    + "`background:` qui effacerait la teinte de l'hôte");
+  assert.doesNotMatch(corps, /(^|[;\s])background:/, "⛔ le raccourci effacerait `--jeton-teinte`");
+  assert.match(corps, /background-position:\s*0 var\(--jeton-bande\)/,
+    "⚖️ ELLE S'ARRÊTE SOUS LA BANDE (Eric, 23/09), par le jeton qui la NOMME — ⛔ jamais un 14 nu");
+  assert.match(corps, /background-size:\s*100% calc\(100% - var\(--jeton-bande\)\)/);
+  assert.match(corps, /background-repeat:\s*no-repeat/, "⛔ sinon la coupe se répète dans la bande");
+});
+
+test("7 bis — 📐 LA RÈGLE BAT TOUS LES HÔTES RÉELS, quelle que soit sa place dans la feuille", () => {
+  /* 🔴 UN RACCOURCI `background:` REMET `background-image` À `none`. Chaque hôte
+     pose sa teinte ainsi ; si l'un d'eux est aussi fort que la règle et vient
+     après elle, la diagonale disparaît SANS QU'AUCUN AUTRE GARDE ROUGISSE.
+     ⭐ Les hôtes ne sont pas nommés ici : ce sont TOUTES les règles qui peignent
+     `--jeton-teinte` en raccourci — un quatrième hôte demain est mesuré aussi. */
+  const regle = regles.find((r) => /:has\(\s*>\s*\.jeton-recette\b/.test(r.selecteur));
+  assert.ok(regle, "la règle d'hôte existe");
+  const force = specificite(regle.selecteur);
+  const hotes = regles
+    .filter((r) => /(^|[;\s])background:\s*var\(--jeton-teinte\)/.test(r.corps))
+    .flatMap((r) => r.selecteur.split(",").map((x) => x.trim()));
+  assert.ok(hotes.length >= 3, `les hôtes sont trouvés (${hotes.length}) : ${hotes.join(" · ")}`);
+  for (const h of hotes) {
+    assert.ok(plusFort(force, specificite(h)) > 0,
+      `⛔ « ${h} » (${specificite(h)}) égale ou bat la diagonale (${force}) : son raccourci l'efface`);
+  }
 });
 
 test("8 — 🎨 LA COULEUR EST UN JETON, aux DEUX thèmes — jamais un hex dans la feuille", () => {

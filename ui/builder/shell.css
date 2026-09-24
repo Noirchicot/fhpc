@@ -9663,25 +9663,44 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    📏 IL PASSE DERRIÈRE LE NOM, DONC IL A ÉTÉ MESURÉ : `--text` rend 9,59:1 le
    jour et 8,44:1 la nuit sur `--jeton-recette`, contre 10,36 et 10,11 sur le
    `--sunken` qu'il remplace. Moins d'un point perdu, très au-dessus du seuil.
-   ⭐ Il est posé AVANT le nom dans le DOM (`jeton-objet.mjs`) : l'ordre suffit,
-   et il évite un `z-index` qu'il aurait fallu accorder avec les marques. */
-.jeton-recette {
-  /* ⚖️ ELLE S'ARRÊTE SOUS LA BANDE — Eric, 2026-09-23, devant le rendu : *« la
-     diagonale s'arrête sous la bande supérieure pour la laisser vide »*, et
-     *« l'autre moitié c'est la couleur habituelle du jeton »*.
-     ⭐ LA COTE N'EST PAS NEUVE : `--jeton-bande` est déjà la ligne où le nom
-     commence, et deux des trois hôtes la posent DÉJÀ en `padding-top`. La
-     diagonale se cale donc sur la bande existante — ⛔ aucun nombre inventé.
-     🔴 ET LES DEUX COINS DU HAUT PERDENT LEUR RAYON, ce qui n'est pas un détail :
-     `border-radius: inherit` arrondissait les quatre coins de la boîte. Déplacée
-     sous la bande, ses coins hauts tombent au MILIEU du jeton — un rayon là
-     creuserait une encoche dans le bleu, au bord droit, où il se voit. Seuls les
-     deux coins du bas héritent, et ils héritent VRAIMENT : `--organe-rayon` (16)
-     chez Wares et le sac, `--radius-sm` (4) sur l'écran R. ⛔ Une valeur en dur
-     aurait été fausse pour l'un des trois. */
-  position: absolute; inset: var(--jeton-bande) 0 0 0; pointer-events: none;
-  border-end-start-radius: inherit; border-end-end-radius: inherit;
+   🔴 « IL PASSE DERRIÈRE LE NOM » ÉTAIT FAUX JUSQU'AU LOT 264, qui l'a vu au banc
+   (le contraste, lui, était juste — c'est l'ordre de peinture qui mentait).
+   Le fond était un enfant POSITIONNÉ, le nom un bloc STATIQUE : un positionné
+   se peint au-dessus de tout le contenu en flux, ⛔ quel que soit l'ordre du DOM.
+   Le bleu passait donc DEVANT le nom — « Weapon, +1, +2, or +3 » perdait sa
+   seconde ligne — et devant les bords bas et droit de `--relief`, l'ombre inset
+   de l'hôte. C'étaient les deux plaintes d'Eric devant l'iPad, le 24/09.
+   ⚖️ VARIANTE B, CHOISIE PAR ERIC LE 25/09 (« b », devant `banc-diagonale.html`) :
+   la diagonale devient une COUCHE DE FOND DE L'HÔTE. Un fond se peint sous le
+   contenu et sous l'ombre inset : le nom et le relief repassent dessus d'office,
+   sans `z-index` à accorder.
+   ⭐ LE NŒUD RESTE L'UNIQUE ÉCRIVAIN : `corpsDuJeton` pose toujours
+   `.jeton-recette`, et c'est lui que l'hôte reconnaît par `:has()`. ⛔ Aucun des
+   trois écrans n'apprend la diagonale — la liste par nom des hôtes n'existe pas. */
+/* ⛔ PAS `display: none` : la feuille n'en porte aucun (garde 4 de
+   `ui-jetons`, défaut n°3). Un nœud VIDE posé en absolu sort du flux — il ne
+   prend pas de place de flex dans l'hôte — et, sans fond, ne peint rien. */
+.jeton-recette { position: absolute; }
+/* 📐 LA SPÉCIFICITÉ EST UNE COTE, PAS UN ACCIDENT : (0,4,0). Les hôtes posent
+   leur teinte en raccourci `background:`, qui remet `background-image` à `none`.
+   Les trois qui portent le jeton aujourd'hui vont jusqu'à (0,2,0)
+   (`.gear-emplacement[data-occupe]`, `.sac-case[data-occupe]`) ; mais le garde
+   7 bis mesure TOUT peintre de `--jeton-teinte`, et il a trouvé à (0,3,0)
+   `.choix-glisse .glisse-creneau[data-rempli]`, le créneau d'Abilities — qui ne
+   porte pas le jeton, ⛔ aujourd'hui. `:has()` prend la spécificité de son
+   argument : la classe répétée quatre fois la porte à (0,4,0), au-dessus de
+   tous, et la règle ne dépend plus de sa place dans la feuille. ⛔ Pas de `!important` — la
+   feuille n'en porte aucun. Le garde 7 bis mesure cet écart sur les hôtes réels.
+   ⚖️ ELLE S'ARRÊTE SOUS LA BANDE — Eric, 23/09 : *« la diagonale s'arrête sous
+   la bande supérieure pour la laisser vide »*. La couche commence à
+   `--jeton-bande` (la ligne où le nom commence) et couvre le reste ; l'arrondi
+   du bas est celui de l'hôte, qui découpe son propre fond — ⛔ aucun rayon à
+   hériter, donc aucune encoche possible. */
+:has(> .jeton-recette.jeton-recette.jeton-recette.jeton-recette) {
   background-image: linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%);
+  background-position: 0 var(--jeton-bande);
+  background-size: 100% calc(100% - var(--jeton-bande));
+  background-repeat: no-repeat;
 }
 .jeton-marques { position: absolute; inset: 0; pointer-events: none; }
 .jeton-marque { position: absolute; display: block; opacity: 0; }
