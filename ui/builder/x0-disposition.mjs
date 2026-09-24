@@ -13,8 +13,8 @@
    ⛔ ET CETTE TABLE N'EST PAS GÉNÉRÉE — ⭐ le test du dépôt est le NUMÉRO :
    `x1-disposition.mjs` sort de `X1_cotes.json` par `X1_gen.py` et ne se touche
    pas à la main ; celle-ci est écrite, comme `b3-disposition.mjs`. */
-import * as X1 from "./x1-disposition.mjs?v=807";
-import * as R from "./gear-disposition.mjs?v=807";
+import * as X1 from "./x1-disposition.mjs?v=808";
+import * as R from "./gear-disposition.mjs?v=808";
 
 /** ⚖️ LA MARGE DE X0 SUR LA DALLE — **4**, et ⛔ ce n'est pas un chiffre choisi :
  *  📏 c'est `MARGE` de `gear-disposition.mjs`, la table générée de l'écran R, où
