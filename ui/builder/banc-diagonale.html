@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FHPC — banc de la diagonale</title>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     LE BANC DE LA DIAGONALE (lot 264) — trois variantes contre l'actuelle.
+
+     ⚖️ Eric, 2026-09-24, devant l'iPad : *« la diagonale bleue, pas de
+     transparence, pas de relief, travail à faire sur le design »*, puis
+     *« oui fais ça »* au banc de trois variantes côte à côte.
+
+     📏 LES DEUX PLAINTES SONT MÉCANIQUES, et le banc les montre :
+       ① pas de transparence — la teinte du jeton est un `color-mix(… 20 %,
+         transparent)`, la diagonale un bleu OPAQUE (`--jeton-recette`) ;
+       ② pas de relief — `--relief` est une ombre INSET de l'hôte, peinte avec
+         son fond ; `.jeton-recette` est un enfant positionné, peint AU-DESSUS,
+         et il recouvre les bords bas et droit du relief.
+
+     ⭐ LES VARIANTES :
+       · Actuel — le produit, tel quel ;
+       · A « translucide » — le même enfant, bleu à 55 % : la matière passe ;
+       · B « sous le relief » — plus d'enfant, la diagonale devient une COUCHE
+         DE FOND de l'hôte : l'ombre inset se peint par-dessus, bords compris ;
+       · C « B + translucide + filet » — B à 75 % (55 % grisait le bleu), et un liseré sur la coupe
+         (clair côté teinte, sombre côté bleu) : la coupe devient une arête.
+
+     ⛔ IL NE PORTE AUCUNE COTE : taille des cases `JETON` (wares-disposition),
+     bande `--jeton-bande`, teintes et relief de `tokens.css`. Seules les règles
+     `.v-a / .v-b / .v-c` sont neuves — et ce sont elles qu'on juge.
+     ══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="./tokens.css?v=812">
+<link rel="stylesheet" href="./shell.css?v=812">
+<style>
+  /* ⛔ L'ÉCHAFAUDAGE — aucune de ces règles ne décrit le jeton. */
+  body { display: block; margin: 0; padding: 24px 16px; color: var(--text);
+         font-family: var(--font); }
+  h1 { font-size: var(--t3); font-weight: 600; letter-spacing: .14em;
+       text-transform: uppercase; margin: 0 0 16px; }
+  .planche { display: grid; gap: 14px; max-inline-size: 375px; margin-inline: auto; }
+  .variante { padding: 10px 12px 14px; }
+  .variante h2 { font-size: var(--t1); font-weight: 600; margin: 0 0 2px; }
+  .variante p { font-size: var(--t0); color: var(--text-soft); margin: 0 0 10px; }
+  .rangee { display: flex; gap: 10px; }
+  .case { flex: 0 0 auto; }
+
+  /* ── A « translucide » : même enfant, bleu à 55 % ─────────────────────── */
+  .v-a .jeton-recette {
+    background-image: linear-gradient(to bottom right, transparent 50%,
+      color-mix(in srgb, var(--jeton-recette) 55%, transparent) 50%);
+  }
+
+  /* ── B « sous le relief » : la diagonale est une couche de fond de l'hôte ──
+     📐 Même géométrie que l'enfant : elle commence sous la bande (position
+     0 var(--jeton-bande), hauteur 100 % − bande) ; l'arrondi du bas vient du
+     découpage du fond par l'hôte lui-même — aucun rayon à hériter. */
+  .v-b .jeton-recette, .v-c .jeton-recette { display: none; }
+  .v-b .wares-jeton.recette {
+    background-image: linear-gradient(to bottom right, transparent 50%, var(--jeton-recette) 50%);
+    background-position: 0 var(--jeton-bande);
+    background-size: 100% calc(100% - var(--jeton-bande));
+    background-repeat: no-repeat;
+  }
+
+  /* ── C « B + translucide + filet » ──────────────────────────────────────── */
+  .v-c .wares-jeton.recette {
+    background-image:
+      linear-gradient(to bottom right,
+        transparent calc(50% - 1px),
+        rgba(255,255,255,.45) calc(50% - 1px), rgba(255,255,255,.45) 50%,
+        rgba(0,0,0,.16) 50%, rgba(0,0,0,.16) calc(50% + 1px),
+        transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent 50%,
+        color-mix(in srgb, var(--jeton-recette) 75%, transparent) 50%);
+    background-position: 0 var(--jeton-bande);
+    background-size: 100% calc(100% - var(--jeton-bande));
+    background-repeat: no-repeat;
+  }
+</style>
+</head>
+<body>
+<h1>Banc — la diagonale des plans</h1>
+<div class="planche" id="planche"></div>
+
+<script type="module">
+import { corpsDuJeton } from "./jeton-objet.mjs?v=812";
+import { JETON } from "./wares-disposition.mjs?v=812";
+
+const variantes = [
+  ["", "Actuel", "le produit v812 : bleu opaque, enfant peint par-dessus le relief"],
+  ["v-a", "A — translucide", "même dessin, bleu à 55 % : la teinte du jeton passe dessous"],
+  ["v-b", "B — sous le relief", "bleu opaque, mais en fond de l'hôte : l'ombre inset repasse par-dessus"],
+  ["v-c", "C — B + translucide + filet", "sous le relief, bleu à 75 %, et une arête sur la coupe"],
+];
+/* ⭐ Deux plans et un objet fini : la diagonale se juge À CÔTÉ d'un jeton nu. */
+const poses = [
+  { nom: "Weapon, +1, +2, or +3", recette: true },
+  { nom: "Longsword", recette: false },
+  { nom: "Spell Scroll", recette: true, qte: 3 },
+];
+
+const planche = document.getElementById("planche");
+for (const [classe, titre, dit] of variantes) {
+  const bloc = document.createElement("section");
+  bloc.className = `variante wares-dalle ${classe}`.trim();
+  const h = document.createElement("h2"); h.textContent = titre;
+  const p = document.createElement("p"); p.textContent = dit;
+  const rangee = document.createElement("div"); rangee.className = "rangee";
+  for (const pose of poses) {
+    const c = document.createElement("div");
+    c.className = "case";
+    c.style.inlineSize = `${JETON.l}px`; c.style.blockSize = `${JETON.h}px`;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "wares-jeton" + (pose.recette ? " recette" : "");
+    b.append(...corpsDuJeton(pose));
+    c.append(b);
+    rangee.append(c);
+  }
+  bloc.append(h, p, rangee);
+  planche.append(bloc);
+}
+</script>
+</body>
+</html>
