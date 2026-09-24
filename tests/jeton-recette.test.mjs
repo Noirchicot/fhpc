@@ -265,21 +265,83 @@ test("9 — ⚖️ UN BLUEPRINT NE PÈSE RIEN, et ce zéro n'est PAS un « à é
    peint ; il prouve seulement que l'appelant a le geste. ⭐ Il aurait rougi
    aujourd'hui, et c'est la seule raison de l'écrire. Le jour où la fabrique des
    plaques devient importable, il se remplace par une pose lue pour de bon. */
-test("10 — ⚔️ LA POSE DU CATALOGUE PORTE LE DRAPEAU (garde de source, faible et déclaré tel)", () => {
+test("10 — ⚔️ DE LA COUCHE JUSQU'AU NŒUD, EN UNE SEULE ASSERTION CONTINUE", async () => {
+  /* 🔴 CE GARDE REMPLACE UNE REGEX, ET LA RAISON EST TOUT LE LOT 257.
+     Sa version d'avant lisait la SOURCE de `equipment-step.mjs` et cherchait
+     `recette: estRecette(item.view.record)` dans le texte. Elle se déclarait faible
+     elle-même, et elle avait raison : elle éprouvait une COPIE du texte de l'écran,
+     jamais ce que l'écran FABRIQUE. Elle existait parce que la pose était une
+     expression anonyme au fond d'une closure — ⛔ rien ne pouvait l'appeler.
+     ⭐ `poseDeWares` est sortie en organe exporté. L'écran l'appelle, ce garde
+     l'appelle, et il n'y a plus de copie entre les deux.
+
+     ⚖️ ET C'EST LE TROU QUE LA SOIRÉE DU 23/09 A MONTRÉ, PAS UN ZÈLE. Trois gardes
+     verts tenaient trois maillons — le 11 va de la couche au prédicat, le 5 tient
+     l'ordre du DOM, le 7 tient la feuille — et AUCUN ne les touchait l'un l'autre.
+     La diagonale a pu rester invisible sur sept kits sous une suite entièrement
+     verte. Un maillon non tenu entre deux gardes ne se voit pas : il se déduit,
+     et personne ne le déduit. */
+  const { lireRangement, poseDeWares } = await import("../ui/builder/equipment-step.mjs");
+
+  /* ① la couche — ce que la descente depuis `fh-srd` a écrit */
+  const couche = JSON.parse(fs.readFileSync(path.join(ROOT, "layers", "srd-5.2.1-en.layer.json"), "utf8"));
+  const attendus = Object.values(couche.records.gear || {})
+    .filter((r) => Array.isArray(r.data && r.data.contents) && r.data.contents.length > 0)
+    .map((r) => r.data.name).sort();
+  assert.ok(attendus.length > 0, "⛔ la couche ne porte aucun `contents` — tout ce qui suit mesurerait le vide");
+
+  /* ② la pile que l'écran monte, ③ la pose que l'écran fabrique — son organe, pas une copie */
+  const { rayons } = lireRangement(query);
+  const objets = rayons.flatMap((r) => r.etageres).flatMap((e) => e.objets);
+  const poses = objets.map(poseDeWares);
+  assert.equal(poses.length, objets.length, "une pose par objet rangé, aucune perdue");
+
+  /* ④ le nœud que `corpsDuJeton` produit pour cette pose — le dernier maillon.
+     ⭐ Le DOM du stub, comme les gardes 5 et 6 : `corpsDuJeton` fabrique des nœuds,
+     donc il lui faut un `document`. ⛔ Et il est RENDU après coup, même si une
+     assertion tombe : un global laissé derrière soi contamine les fichiers suivants
+     de la suite, et ce serait un rouge ailleurs qu'ici. */
+  const avant = globalThis.document;
+  globalThis.document = createTestDocument();
+  let dessines;
+  try {
+    dessines = poses
+      .filter((pose) => corpsDuJeton(pose).some((n) => n.className === "jeton-recette"))
+      .map((pose) => pose.nom).sort();
+  } finally {
+    if (avant === undefined) delete globalThis.document; else globalThis.document = avant;
+  }
+
+  /* ⚔️ ET LA COMPARAISON EST UNE INCLUSION, PAS UNE ÉGALITÉ — ⛔ et ce n'est pas un
+     assouplissement. Les kits ne sont pas les seules recettes : une arme et une armure
+     en sont aussi (`category`), et une rareté énumérée aussi. Exiger l'égalité ferait
+     rougir ce garde au premier objet magique rangé, ce qui n'a rien à voir avec ce
+     qu'il surveille. ⭐ Ce qu'il tient : tout ce que la COUCHE déclare avec un contenu
+     ressort DESSINÉ à l'autre bout. */
+  for (const nom of attendus) {
+    assert.ok(dessines.includes(nom),
+      `🔴 « ${nom} » porte un contenu dans la couche et ne reçoit AUCUNE diagonale à l'arrivée.\n`
+      + "   La chaîne est : couche → `lireRangement` → `poseDeWares` → `corpsDuJeton` → le nœud.\n"
+      + `   Dessinés à l'arrivée : ${dessines.join(", ") || "(aucun)"}`);
+  }
+  assert.ok(dessines.length >= attendus.length);
+
+  /* ⚠️ ⑤ ET LE DERNIER MAILLON RESTE UNE LECTURE DE SOURCE — je l'écris plutôt que
+     de laisser croire que tout est tenu par la donnée. Ce qui précède éprouve
+     l'ORGANE de bout en bout ; ⛔ il ne dit pas que l'ÉCRAN l'appelle. Une closure
+     de rendu ne s'interroge pas sans monter tout l'écran, et si quelqu'un remet une
+     pose écrite à la main dans les plaques, les quatre assertions d'au-dessus
+     restent vertes. 🔴 C'est LE MÊME TROU, DÉPLACÉ D'UN CRAN — le nommer est la
+     seule chose honnête à faire, parce que c'est exactement ce qui a coûté la
+     diagonale : un maillon qu'on déduit au lieu de le tenir.
+     ⭐ Mais cette lecture-ci vaut mieux que celle qu'elle remplace : elle épingle
+     UN APPEL, pas une copie de trois champs. Changer les champs de la pose ne la
+     fait plus rougir à tort ; cesser d'appeler l'organe, si. */
   const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8");
-  /* Les plaques de Wares : l'objet posé par `objets:` dans `plaques.map`. */
-  const pose = /objets:\s*page\.objets\.map\(\(item\)\s*=>\s*\(\{([\s\S]{0,400}?)\}\)\)/.exec(src);
-  assert.ok(pose, "⛔ la fabrique des plaques de Wares a changé de forme — relire, ne pas assouplir");
-  assert.match(pose[1], /recette:\s*estRecette\(/,
-    "🔴 la pose du CATALOGUE dérive `recette` — sans ça, sept kits sans diagonale et zéro rouge");
-  assert.match(pose[1], /estRecette\(item\.view\.record\s*\)/,
-    "⚠️ AVEC LE RECORD, PAS LA VUE — `item.view` n'a pas de `.data` (mesuré : `recordLabel` lit "
-    + "`view.record.name`). Passer la vue rendrait `{}`, et le prédicat ne verrait ni `category`, "
-    + "ni `rarity`, ni `contents`.\n"
-    + "   🔧 LA VIRGULE A DISPARU DE CETTE REGEX LE MÊME SOIR : elle épinglait un SECOND "
-    + "argument (`e.id`, l'étagère) qui n'existe plus — le signal du blueprint a déménagé dans "
-    + "le record quand `contents` est monté en amont. ⛔ Ce qui reste épinglé est ce qui compte, "
-    + "et c'est ce qui a vraiment coûté la panne : `.record`, pas la vue.");
+  assert.match(src, /objets:\s*page\.objets\.map\(poseDeWares\)/,
+    "🔴 les plaques de Wares ne passent plus par `poseDeWares`. Si c'est voulu, l'organe doit "
+    + "disparaître avec — ⛔ mais une pose réécrite à la main dans la closure, c'est la panne du "
+    + "23/09 à l'identique : sept kits sans diagonale, et pas un garde pour le dire.");
 });
 
 /* ══ ⑥ LA DESCENTE, SUR LA VRAIE PILE ══════════════════════════════
