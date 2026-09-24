@@ -118,6 +118,17 @@ export function categorieAffichee(prix) {
    ⭐ CE MODULE EST DONC STRICT : il ne déballe rien, il n'accepte que des records,
    et c'est l'appelant qui choisit ce qu'il donne. Un organe qui accepte les deux
    formes accepte aussi la mauvaise. */
+/** ⭐ LA LECTURE DU SUBTYPE, SEULE — partagée par les POUVOIRS d'une base et les
+ *  BASES d'un plan. ⛔ Deux lecteurs du même champ, un seul écrivain de la règle. */
+export function subtypeAccepte(subtype, base) {
+  const st = String(subtype || "").trim();
+  if (!st || !base || !base.name) return false;
+  if (/^any\b/i.test(st)) return accepteUneFamille(st, base);
+  /* ⛔ `split` sur la virgule ET sur `or` — le SRD écrit « Glaive, Greatsword,
+     Longsword, or Scimitar », avec la virgule d'Oxford ET le `or`. */
+  return st.split(/,|\bor\b/).map((x) => x.trim()).filter(Boolean).includes(base.name);
+}
+
 export function pouvoirsDe(recordBase, itemsMagiques) {
   const base = (recordBase && recordBase.data) || {};
   const nom = base.name;
@@ -134,11 +145,46 @@ export function pouvoirsDe(recordBase, itemsMagiques) {
        `paliterDeRarete` rend `null`. ⛔ Aucune liste de noms, et aucun import :
        ce module reste une feuille. */
     if (!paliterDeRarete(d.rarity)) return false;
-    if (/^any\b/i.test(st)) return accepteUneFamille(st, base);
-    /* ⛔ `split` sur la virgule ET sur `or` — le SRD écrit « Glaive, Greatsword,
-       Longsword, or Scimitar », avec la virgule d'Oxford ET le `or`. */
-    return st.split(/,|\bor\b/).map((x) => x.trim()).filter(Boolean).includes(nom);
+    return subtypeAccepte(st, base);
   });
+}
+
+/* ══ ③ ter — CE QU'UN PLAN OFFRE, LU DANS LE PLAN ══════════════════════════════
+   ⚖️ Eric, 2026-09-24 : *« impossible pour moi d'arriver au blueprint, tu vois bien
+   que craft n'est pas sélectionnable »*. Pour ouvrir X5 depuis un plan, il faut
+   savoir ce que ce plan offre — et ⛔ aucune de ces deux listes ne s'écrit à la main.
+
+   ⭐ LES BASES : celles que le `subtype` du plan accepte — la MÊME lecture que les
+   pouvoirs, dans l'autre sens. `Weapon, +1, +2, or +3` est `[Any Simple or
+   Martial]` → les 38 armes. `Shield, +1, +2, or +3` est `[Shield]` → le bouclier.
+
+   🔴 LES BONUS : lus dans la RARETÉ du plan, paire par paire — et c'est ce qui a
+   évité un bug avant qu'il n'atteigne l'écran. X5 portait en dur `Uncommon → +1,
+   Rare → +2, Very Rare → +3`. Or le SRD écrit :
+     `Weapon, +1, +2, or +3` → « Uncommon (+1), Rare (+2), or Very Rare (+3) »
+     `Armor, +1, +2, or +3`  → « Rare (+1), Very Rare (+2), or Legendary (+3) »
+   ⛔ UN +1 D'ARMURE EST RARE. La table en dur l'aurait affiché « +2 » et coté à
+   400 GP au lieu de 4 000. Lire le plan, c'est lire ce que Wizards a écrit. */
+export function basesDe(plan, bases) {
+  const st = plan && plan.data && plan.data.subtype;
+  return (bases || []).filter((b) => subtypeAccepte(st, b && b.data));
+}
+
+const UN_BONUS = /(very rare|legendary|uncommon|common|rare|epic)\s*\((\+\d)\)/gi;
+/** @returns {{ rarete: string, mot: string }[]} — dans l'ordre du SRD. */
+export function bonusDe(plan) {
+  const r = String((plan && plan.data && plan.data.rarity) || "");
+  return [...r.matchAll(UN_BONUS)].map((m) => ({
+    rarete: PALIERS.find((p) => p.nom.toLowerCase() === m[1].toLowerCase()).nom,
+    mot: m[2],
+  }));
+}
+
+/** ⭐ Un plan se crafte dans X5 s'il offre une base ET un bonus. ⛔ Pas de liste :
+ *  `Ammunition, +1…` n'a pas de base lisible aujourd'hui, `Spell Scroll` n'a pas
+ *  de bonus — ni l'un ni l'autre n'ouvre X5, et aucun nom n'a été écrit pour ça. */
+export function seCrafteDansX5(plan, bases) {
+  return basesDe(plan, bases).length > 0 && bonusDe(plan).length > 0;
 }
 
 /* ══ ③ bis — « ANY … » : LA FAMILLE D'UNE BASE, LUE DANS SES PROPRES CHAMPS ════

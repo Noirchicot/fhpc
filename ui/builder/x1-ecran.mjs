@@ -292,7 +292,7 @@ export const FAMILLE_DES_FICHES = Object.freeze([".x1", ".x2"]);
  *  DEUX ENDROITS le portaient. C'est la troisième fois en une nuit.
  *  ⭐ La feuille écrit la liste, le garde la LIT ici. Le prochain écran s'ajoute
  *  à cette ligne, et rien d'autre ne bouge. */
-export const FAMILLE_DE_LA_DALLE = Object.freeze([".gear", ".x0", ".x1", ".x2", ".sac", ".wares"]);
+export const FAMILLE_DE_LA_DALLE = Object.freeze([".gear", ".x0", ".x1", ".x2", ".x5", ".sac", ".wares"]);
 export const SELECTEUR_DE_LA_DALLE = FAMILLE_DE_LA_DALLE.join(", ");
 export const SELECTEUR_DES_FICHES = `:is(${FAMILLE_DES_FICHES.join(", ")})`;
 

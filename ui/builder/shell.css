@@ -9484,11 +9484,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    au-delà de `.stage`, quand `.sac` rend 375 **à fleur** de `.stage`.
    ⭐ C'est la QUATRIÈME fois du lot que la réponse est *« reprendre, ⛔ jamais redessiner »* —
    après `.wares-porte`, les organes d'échange et la tuile. */
-.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .sac, .wares)) {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .x5, .sac, .wares)) {
   height: 100%; box-sizing: border-box; margin-block: 0; padding-top: 0;
   display: flex; flex-direction: column;
 }
-.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .sac, .wares)) > .equipment-step {
+.decision-card:has(> .equipment-step > :is(.gear, .x0, .x1, .x2, .x5, .sac, .wares)) > .equipment-step {
   flex: 1 1 auto; min-height: 0; max-width: none; display: flex; flex-direction: column;
 }
 /* 🔴 ET `.x2` Y ENTRE AU LOT 242, POUR LA RAISON EXACTE DE `.wares` AU LOT 231 :
@@ -9503,7 +9503,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    mordu (« deux règles portent la boîte de la dalle : deux écrivains pour une
    loi »), et il avait raison. C'est la CINQUIÈME fois de ce chantier que la
    réponse est « entrer dans la liste », ⛔ jamais « ajouter un bloc ». */
-.gear, .x0, .x1, .x2, .sac, .wares {
+.gear, .x0, .x1, .x2, .x5, .sac, .wares {
   position: relative; flex: 1 1 auto; min-height: 0; box-sizing: border-box;
   width: calc(var(--panneau-l) * 1px);
   margin-inline: calc(-1 * var(--stage-gouttiere));
@@ -11787,7 +11787,7 @@ button.tuto-point::before {
    ⛔ AUCUNE TRANSITION, AUCUNE ANIMATION : la feuille ne bouge pas, elle est
    redessinée. `prefers-reduced-motion` n'a donc rien à éteindre — et c'est une
    propriété VÉRIFIÉE (garde 19), pas une intention. */
-:is(.x1, .x2, .aiguilleur-carte) .parchemin {
+:is(.x1, .x2, .x5, .aiguilleur-carte) .parchemin {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -11813,7 +11813,7 @@ button.tuto-point::before {
    montent le MÊME parchemin, par le même `habilleEnParchemin`. Une seconde
    déclaration aurait été un second écrivain pour un organe unique — et deux feuilles
    qui divergent d'une teinte, personne ne le voit avant qu'Eric le voie. */
-:is(.x1, .x2, .aiguilleur-carte) .parchemin-fond { fill: var(--x1-papier); }
+:is(.x1, .x2, .x5, .aiguilleur-carte) .parchemin-fond { fill: var(--x1-papier); }
 /* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
    soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
    ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT
@@ -13413,3 +13413,16 @@ button.tuto-point::before {
   border: 1px solid var(--x1-trait); border-radius: var(--radius-sm); cursor: pointer;
 }
 .x5-porte:disabled { cursor: default; opacity: .45; }
+/* ⚖️ FOUND — la phrase du croquis, sans champ. */
+.x5-panneau-libre { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); }
+/* ⭐ LE MENU NATIF PORTE SON PROPRE CHEVRON : `appearance: none` le retire, et on le
+   repeint dans l'encre du parchemin — ⛔ jamais deux chevrons côte à côte. */
+select.x5-drop {
+  appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--x1-encre-douce) 50%),
+                    linear-gradient(135deg, var(--x1-encre-douce) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+  padding-right: 24px;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}

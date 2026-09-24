@@ -117,6 +117,8 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=810";
+import { construireX5 } from "./x5-ecran.mjs?v=810";
+import { seCrafteDansX5 } from "./craft.mjs?v=810";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=810";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -2892,6 +2894,10 @@ export const EQUIPMENT_CATEGORIES = [
    au personnage — rien d'eux n'est une donnée. */
 let vueEquipement = "gear";
 let ficheEnCours = null;
+/* ⭐ LOT 262 — LA FICHE X5 OUVERTE : le plan d'où l'on vient et l'état des choix.
+   ⛔ L'écran ne garde rien, il redessine : c'est ici que vit l'état, comme pour X2.
+   `{ plan: ref, choix: { base, bonus, pouvoirs, qte, status, destination }, retour }` */
+let ficheX5 = null;
 let piloteEquipement = null;
 /* LOT 212 — l'état du collecteur d'envoi : les index `gear[N]` retenus, et la
    destination choisie au dropdown. De l'ÉTAT D'ÉCRAN, comme la vue : il
@@ -3149,6 +3155,17 @@ export function renderEquipmentStep(ctx, onAction) {
     const rec = cherche.record(l.ref);
     l.nomAffiche = (rec && rec.name) || motDUnRecordAbsent(l.ref.id);
   }
+
+  /* ⭐ LES MATIÈRES DE X5, UNE PASSE PAR RENDU — des RECORDS, pas des vues :
+     `craft.mjs` est strict (lot 258), et c'est ce qui a coûté la diagonale au 256. */
+  const lireRecords = (kind) => { try { return (query({ kind }) || []).map((v) => v.record); }
+                                  catch { return []; } };
+  const basesDuCraft = [...lireRecords("weapon"), ...lireRecords("armor")];
+  const magiquesDuCraft = lireRecords("item").filter((r) => String((r && r.data && r.data.subtype) || "").trim());
+  /* ⚖️ LA PILE PORTE-T-ELLE FATE'S HAND ? — elle le dit par ses propres records : une
+     couche FH monte des ids `fh:…`, une pile SRD seule n'en porte aucun. ⛔ Pas un
+     drapeau recopié ici : c'est la donnée qui répond. (`srfh:` n'est pas `fh:`.) */
+  const pileFH = cherche.tous().some((t) => String(t.view && t.view.id).startsWith("fh:"));
 
   const montrer = (vue) => {
     vueEquipement = vue;
@@ -4177,15 +4194,47 @@ export function renderEquipmentStep(ctx, onAction) {
     return voile;
   }
 
+  function construireX5Vue() {
+    const plan = cherche.record(ficheX5.plan);
+    const { noeud } = construireX5({
+      plan, bases: basesDuCraft, itemsMagiques: magiquesDuCraft,
+      choix: ficheX5.choix, fh: pileFH,
+      surChoix: (organe, valeur) => {
+        const c = { ...ficheX5.choix };
+        if (organe === "ITEM") { c.base = valeur; c.pouvoirs = []; }   /* ⛔ une autre base, d'autres pouvoirs */
+        else if (organe === "BONUS") c.bonus = valeur || null;
+        else if (organe === "POWER 1" || organe === "POWER 2") {
+          const p = [...(c.pouvoirs || [])];
+          p[organe === "POWER 1" ? 0 : 1] = valeur || null;
+          c.pouvoirs = p.filter((x, i) => x || i === 0).slice(0, 2);
+        }
+        else if (organe === "STATUS") c.status = valeur;
+        else if (organe === "SEND TO") c.destination = valeur;
+        ficheX5 = { ...ficheX5, choix: c };
+        montrer("x5");
+      },
+      /* ⚖️ `Cancel` rend la fiche d'où l'on vient — ⛔ il ne rend pas Wares directement :
+         le joueur retrouve le plan qu'il regardait. */
+      surAnnuler: () => { const r = ficheX5.retour || "x2"; ficheX5 = null; montrer(r); },
+    });
+    return noeud;
+  }
+
   function construireVue(vue) {
     if (vue === "r") return construireWares();
+    if (vue === "x5" && ficheX5) return construireX5Vue();
     if (vue === "x1" && ficheX1 !== null) return construireX1();
     if (vue === "x2" && ficheEnCours) {
       /* ⛔ LE RETOUR EST REÇU, PAS DÉCIDÉ : la fiche rend Wares avec son rayon, sa
          sous-catégorie et sa page — 📏 mesuré au navigateur le 20/09, et le lot 242
          n'y a pas touché. Seul le nom de la vue a changé. */
       return construireLaFicheX2({ liste: ficheEnCours.liste, index: ficheEnCours.index,
-        bourse, motBourse: motDeLaBourse(docu), onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r") });
+        bourse, motBourse: motDeLaBourse(docu), onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r"),
+        /* ⭐ LA PORTE DU CRAFT — l'étape SAIT ce qui se crafte (par `craft.mjs`), l'écran
+           demande. ⛔ Aucune liste de plans : `Weapon`, `Armor` et `Shield, +1…`
+           s'ouvrent parce qu'ils offrent une base ET un bonus, lus dans leur record. */
+        peutCrafter: (ref) => seCrafteDansX5(cherche.record(ref), basesDuCraft),
+        ouvrirCraft: (ref) => { ficheX5 = { plan: ref, choix: {}, retour: "x2" }; montrer("x5"); } });
     }
     if (vue === "recherche") {
       /* le catalogue ENTIER, habillé une fois — et « once found, takes you

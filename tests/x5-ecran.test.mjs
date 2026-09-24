@@ -24,11 +24,15 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
 const D = await import("../ui/builder/x5-disposition.mjs");
-const { construireX5, feuilleDesCotesX5, BONUS_EN_MOT } = await import("../ui/builder/x5-ecran.mjs");
-const { pouvoirsDe } = await import("../ui/builder/craft.mjs");
+const { construireX5, feuilleDesCotesX5 } = await import("../ui/builder/x5-ecran.mjs");
+const { pouvoirsDe, bonusDe } = await import("../ui/builder/craft.mjs");
 
 const query = exempleFhEn().layers.verbs.query;
 const armes = new Map(query({ kind: "weapon" }).map((v) => [v.record.data.name, v.record]));
+const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" })].map((v) => v.record);
+const plans = new Map(query({ kind: "item" }).map((v) => [v.record.data.name, v.record]));
+const PLAN_ARME = plans.get("Weapon, +1, +2, or +3");
+const PLAN_ARMURE = plans.get("Armor, +1, +2, or +3");
 const magiques = query({ kind: "item" }).map((v) => v.record)
   .filter((r) => String(r?.data?.subtype || "").trim());
 
@@ -61,7 +65,7 @@ test("1 — ⭐ LA FEUILLE LIT LA TABLE, et n'écrit AUCUN nombre à elle", () =
      rougissant : j'avais donné sa largeur à `.x5` sans l'inscrire ici, et il a
      refusé le 375 comme un nombre écrit à la main. C'est exactement son office. */
   connus.add(String(D.DALLE.h));
-  connus.add(String(D.DALLE.l));
+  /* ⭐ Lot 262 : la LARGEUR n'est plus écrite ici — la boîte partagée la porte. */
   for (const m of f.matchAll(/(?:left|top|width|height):(-?[\d.]+)px/g)) {
     assert.ok(connus.has(m[1]),
       `🔴 ${m[1]}px n'est dans la table nulle part — une cote écrite à la main dans la feuille`);
@@ -69,7 +73,7 @@ test("1 — ⭐ LA FEUILLE LIT LA TABLE, et n'écrit AUCUN nombre à elle", () =
 });
 
 test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins", () => {
-  const { noeud } = monte({ base: armes.get("Longsword"), itemsMagiques: magiques });
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
   const attendus = new Set(D.ORGANES.map((o) => o.nom));
   const vus = new Set(organes(noeud));
   for (const nom of attendus) {
@@ -83,26 +87,17 @@ test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins", () 
 /* ══ ② LA RANGÉE QUI DISPARAÎT ═════════════════════════════════════════════ */
 
 test("3 — 🔴 SANS POUVOIR DISPONIBLE, LA RANGÉE DISPARAÎT — et ne se grise pas", () => {
-  /* ⚖️ Eric, 24/09, à « les faire disparaître, pas les griser ? » : « oui voilà ».
-     ⭐ Une option grisée promet qu'un jour elle s'ouvrira ; une option absente dit
-     que cette base n'est pas de cette famille-là. C'est la loi des cinq gemmes à
-     10 po, appliquée à une rangée. */
-  /* 🔴 LE CAS EST CONSTRUIT, ET IL DOIT L'ÊTRE : mesuré le 24/09, AUCUNE des 51
-     bases du SRD n'est sans pouvoir (le lot 258 en comptait huit à tort). La règle
-     d'Eric tient sans cas réel — ce garde tient donc le MÉCANISME, sur une base
-     qu'une couche pourrait ajouter demain. */
-  const arbalete = { data: { name: "Test Crossbow", cost: "1 GP", weapon_range: "ranged",
-    weapon_category: "exotic" } };
-  assert.equal(pouvoirsDe(arbalete, magiques).length, 0, "le cas construit est bien vide");
-
-  const vide = monte({ base: arbalete, itemsMagiques: magiques });
-  assert.equal(vide.noeud.dataset.pouvoirs, "aucun");
-  const pleine = monte({ base: armes.get("Longsword"), itemsMagiques: magiques });
-  assert.equal(pleine.noeud.dataset.pouvoirs, undefined,
-    "⚔️ et une épée longue, elle, garde sa rangée");
-
-  const f = feuilleDesCotesX5();
-  assert.match(f, /\.x5\[data-pouvoirs="aucun"\] \[data-organe\^="POWER"\]\{display:none\}/,
+  /* ⚖️ Eric, 24/09 : « oui voilà ». 🔴 LE CAS EST CONSTRUIT, ET IL DOIT L'ÊTRE : aucune
+     des 51 bases du SRD n'est sans pouvoir (lot 261). Ce garde tient le MÉCANISME. */
+  const vide = { data: { name: "Base de test", cost: "1 GP", weapon_range: "ranged", weapon_category: "exotic" } };
+  assert.equal(pouvoirsDe(vide, magiques).length, 0, "le cas construit est bien vide");
+  const planVide = { data: { name: "Plan de test", subtype: "Base de test",
+    rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } };
+  const creuse = monte({ plan: planVide, bases: [vide], itemsMagiques: magiques });
+  assert.equal(creuse.noeud.dataset.pouvoirs, "aucun");
+  const pleine = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
+  assert.equal(pleine.noeud.dataset.pouvoirs, undefined, "⚔️ une épée longue garde sa rangée");
+  assert.match(feuilleDesCotesX5(), /\.x5\[data-pouvoirs="aucun"\] \[data-organe\^="POWER"\]\{display:none\}/,
     "⛔ la rangée disparaît vraiment — un `opacity` ou un `disabled` ne suffirait pas");
 });
 
@@ -124,36 +119,41 @@ test("4 — ⭐ ET TOUT CE QUI SUIT REMONTE DE LA HAUTEUR RENDUE", () => {
 
 /* ══ ③ LE MOTEUR — L'ÉCRAN MONTRE, IL NE CALCULE PAS ══════════════════════ */
 
-test("5 — ⚖️ LE BONUS S'AFFICHE `+1`, JAMAIS `Uncommon`", () => {
-  /* ⚖️ « en SRD tu ne parleras pas de PP » — et la rareté d'un bonus est la même
-     plomberie : le joueur choisit « +2 », le moteur ne connaît que des paliers. */
-  assert.deepEqual(BONUS_EN_MOT, { Uncommon: "+1", Rare: "+2", "Very Rare": "+3" });
-  const { noeud } = monte({ base: armes.get("Dagger"), itemsMagiques: magiques,
-    choix: { bonus: "Rare" } });
-  const mot = noeud.querySelector('[data-organe="BONUS"] .x5-drop-mot').textContent;
-  assert.equal(mot, "+2", "⛔ l'écran dit +2, pas Rare");
+test("5 — 🔴 LE BONUS SE LIT DANS LE PLAN — un +1 d'armure est RARE", () => {
+  /* 🔴 LE LOT 259 PORTAIT EN DUR `Uncommon → +1, Rare → +2, Very Rare → +3`. Or le SRD
+     écrit « Rare (+1), Very Rare (+2), or Legendary (+3) » pour `Armor, +1, +2, or +3`.
+     La table en dur aurait affiché « +2 » sur un vrai +1 d'armure, et l'aurait coté à
+     400 GP au lieu de 4 000. ⭐ Le bonus est lu, paire par paire, dans le plan. */
+  assert.deepEqual(bonusDe(PLAN_ARMURE).map((b) => `${b.mot}=${b.rarete}`),
+    ["+1=Rare", "+2=Very Rare", "+3=Legendary"]);
+  const { noeud, cote } = monte({ plan: PLAN_ARMURE, bases, itemsMagiques: magiques,
+    choix: { base: "Plate Armor", bonus: "Rare" } });
+  const bonus = noeud.querySelector('[data-organe="BONUS"]');
+  assert.equal(bonus.selectedOptions ? bonus.selectedOptions[0].textContent
+    : [...bonus.children].find((o) => o.selected).textContent, "+1",
+    "⛔ l'écran dit +1 — pas +2, pas Rare");
+  assert.equal(cote.venteUnitaire, 5500,
+    "⭐ et un +1 d'armure de plates vaut 5 500 GP — le nombre que le SRD écrit lui-même");
 });
 
 test("6 — ⚔️ LE SECOND POUVOIR NE PROPOSE QUE CE QUI TIENT DANS LA LIMITE", () => {
-  /* ⛔ CE N'EST PAS UNE RÈGLE ANTI-DOUBLON : c'est la limite de l'échelle, et
-     c'est `craft.mjs` qui la tient. Ce garde vérifie que l'écran la CONSULTE. */
+  /* ⛔ CE N'EST PAS UNE RÈGLE ANTI-DOUBLON : c'est la limite de l'échelle. Avec un
+     Legendary posé, seuls des Uncommon tiennent — et un seul reste sur la Longsword
+     (`Weapon of Warning`). ⭐ Un pouvoir admet « aucun » : un seul offert, c'est DEUX
+     choix, et le menu doit rester ouvert. */
   const longue = armes.get("Longsword");
-  const dispos = pouvoirsDe(longue, magiques);
-  const legendaire = dispos.find((r) => /^Legendary/.test(r.data.rarity || ""));
-  assert.ok(legendaire, "l'épée longue offre bien un pouvoir légendaire");
-
-  const { noeud } = monte({ base: longue, itemsMagiques: magiques,
-    choix: { pouvoirs: [legendaire] } });
+  const leg = pouvoirsDe(longue, magiques).find((r) => /^Legendary/.test(r.data.rarity || ""));
+  assert.ok(leg, "l'épée longue offre bien un pouvoir légendaire");
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques,
+    choix: { base: "Longsword", pouvoirs: [leg.data.name] } });
   const p2 = noeud.querySelector('[data-organe="POWER 2"]');
-  assert.ok(p2, "le second dropdown existe");
-  /* 🔴 CE GARDE AFFIRMAIT « après un Legendary, plus rien ne tient ». Faux depuis que
-     le moteur lit `Any Simple or Martial` : `Weapon of Warning` (Uncommon) tient
-     encore. ⭐ Et il a révélé un vrai bug d'écran : le dropdown n'était actif qu'au-
-     delà d'UNE option, alors qu'un pouvoir admet toujours « aucun ». Avec un seul
-     pouvoir offert, le joueur ne pouvait pas le prendre. */
-  assert.equal(p2.disabled, false,
-    "⭐ un seul pouvoir sous la limite, et c'est DEUX choix : le prendre ou non");
-
+  const offerts = [...p2.children].map((o) => o.value).filter(Boolean);
+  for (const n of offerts) {
+    const r = magiques.find((m) => m.data.name === n);
+    assert.match(r.data.rarity, /^Uncommon/, `⛔ ${n} ne tient pas avec un Legendary`);
+  }
+  assert.ok(!offerts.includes(leg.data.name), "⛔ le pouvoir déjà pris ne se reprend pas");
+  assert.equal(p2.disabled, offerts.length === 0, "⭐ un seul pouvoir offert, et le menu reste ouvert");
 });
 
 /* ══ ④ LES REFUS ═══════════════════════════════════════════════════════════ */
@@ -162,8 +162,8 @@ test("7 — 🔴 UN ASSEMBLAGE HORS LIMITE NE S'ENVOIE PAS, ET IL DIT POURQUOI",
   /* ⚠️ Le croquis d'Eric montre `Dagger + Flame Tongue + Vorpal`. Rare × Legendary
      ÷ 40 = 40 000 000, dix fois la limite. ⛔ La donnée l'interdit, l'écran doit
      le dire — et surtout ne pas afficher un prix plausible. */
-  const { noeud, cote } = monte({ base: armes.get("Dagger"), itemsMagiques: magiques,
-    choix: { bonus: "Rare", pouvoirs: [{ data: { rarity: "Legendary (Requires Attunement)", name: "Defender" } }] } });
+  const { noeud, cote } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques,
+    choix: { base: "Dagger", bonus: "Rare", pouvoirs: ["Defender"] } });
   assert.equal(cote.legal, false);
   const send = noeud.querySelector('[data-organe="SEND"]');
   assert.equal(send.disabled, true, "⛔ on n'envoie pas une tuile qui n'existe pas");
@@ -176,17 +176,13 @@ test("7 — 🔴 UN ASSEMBLAGE HORS LIMITE NE S'ENVOIE PAS, ET IL DIT POURQUOI",
 });
 
 test("8 — ⚖️ EN PILE SRD, LA COLONNE GAUCHE N'EST PAS CONSTRUITE", () => {
-  /* ⚖️ « colonne de gauche inutile en SRD car pas de crafting time ».
-     ⛔ ABSENTE, pas cachée : un organe en `display:none` reste dans le DOM, dans
-     la tabulation et dans le nom accessible. */
-  const choix = { bonus: "Rare" };
-  const fh = monte({ base: armes.get("Dagger"), itemsMagiques: magiques, choix, fh: true });
-  const srd = monte({ base: armes.get("Dagger"), itemsMagiques: magiques, choix, fh: false });
+  /* ⚖️ « colonne de gauche inutile en SRD car pas de crafting time ». ⛔ ABSENTE du DOM. */
+  const choix = { base: "Dagger", bonus: "Rare" };
+  const fh = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix, fh: true });
+  const srd = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix, fh: false });
   assert.ok(fh.noeud.querySelector(".x5-panneau-prereq"), "en Fate's Hand, elle est là");
   assert.equal(srd.noeud.querySelector(".x5-panneau-prereq"), null, "⛔ en SRD, ABSENTE du DOM");
-  assert.equal(srd.noeud.querySelector(".x5-roll"), null, "et son bouton avec elle");
-  assert.equal(srd.cote.craftUnitaire, fh.cote.craftUnitaire,
-    "⭐ mais le PRIX est le même dans les deux piles — seule la règle du temps diffère");
+  assert.equal(srd.cote.craftUnitaire, fh.cote.craftUnitaire, "⭐ le PRIX est le même");
 });
 
 test("9 — ⚔️ LA FEUILLE EXISTE VRAIMENT, et le mot cède avant le chevron", () => {
@@ -198,4 +194,99 @@ test("9 — ⚔️ LA FEUILLE EXISTE VRAIMENT, et le mot cède avant le chevron"
     "⛔ le chevron ne se comprime jamais — il dit qu'il y a un menu");
   assert.match(CSS, /\.x5\s*\{[^}]*--x1-papier/,
     "⭐ X5 emprunte la palette du parchemin, ⛔ elle n'invente pas un jeu de teintes");
+});
+
+/* ══ ⑤ LA PORTE ET L'ENVOI — lot 262 ═══════════════════════════════════════ */
+
+test("10 — ⭐ LES MENUS SONT NATIFS, et ils s'ouvrent vraiment", () => {
+  /* 🔴 LE LOT 259 DESSINAIT DES BOUTONS QUI NE S'OUVRAIENT SUR RIEN. Un `<select>`
+     natif s'ouvre au doigt comme à la souris, et iOS le rend dans son propre menu. */
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
+  for (const nom of ["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS", "SEND TO"]) {
+    const m = noeud.querySelector(`[data-organe="${nom}"]`);
+    assert.equal(m.tagName, "SELECT", `${nom} est un vrai menu`);
+    assert.equal(m.disabled, false, `⛔ ${nom} s'ouvre`);
+  }
+  const item = noeud.querySelector('[data-organe="ITEM"]');
+  assert.equal([...item.children].length, 38, "⭐ les 38 armes — lues dans le `subtype` du plan");
+  const send = [...noeud.querySelector('[data-organe="SEND TO"]').children].map((o) => o.value);
+  assert.ok(!send.includes("craft"), "⛔ on ne se renvoie pas au craft depuis le craft");
+});
+
+test("11 — ⏳ `SEND` ATTEND UNE DÉCISION, ET IL LE DIT", () => {
+  /* ⏳ Un objet composé n'existe comme record NULLE PART : le poser dans la fiche touche
+     le format de sauvegarde, et ce n'est pas un écran qui le décide. ⛔ Un bouton qui
+     ne fait rien en silence est pire qu'un bouton absent — celui-ci dit pourquoi. */
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword", bonus: "Uncommon" } });
+  const send = noeud.querySelector('[data-organe="SEND"]');
+  assert.equal(send.disabled, true);
+  assert.match(send.getAttribute("aria-label") || "", /not available yet/i,
+    "⛔ le lecteur d'écran entend POURQUOI, pas seulement « désactivé »");
+});
+
+test("12 — ⚖️ LES TROIS RÉGIMES DU PANNEAU suivent le STATUS", () => {
+  const choix = { base: "Longsword", bonus: "Uncommon" };
+  const achat = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Buying" } });
+  const trouve = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Found" } });
+  const craft = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix });
+  const cles = (n) => [...n.noeud.querySelectorAll(".x5-ligne-clef")].map((e) => e.textContent);
+  assert.deepEqual(cles(achat), ["Price", "Qty · Total"], "⚖️ Buying : price · qty · total, et rien d'autre");
+  assert.equal(achat.noeud.querySelector(".x5-panneau-prereq"), null, "⛔ on n'achète pas un temps de craft");
+  assert.deepEqual(cles(trouve), [], "⚖️ Found : aucun champ");
+  assert.ok(trouve.noeud.querySelector(".x5-panneau-libre"), "⭐ la phrase du croquis, à la place");
+  assert.ok(cles(craft).includes("Crafting cost"), "Crafting : le coût de fabrication");
+});
+
+test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, et nulle part ailleurs", async () => {
+  /* ⚖️ Eric, 24/09, devant `Weapon, +1, +2, or +3` en ligne : « impossible pour moi
+     d'arriver au blueprint, tu vois bien que craft n'est pas sélectionnable ».
+     ⛔ `Craft` était grisé EN DUR pour tout objet (`actif: false`).
+     ⭐ Ce garde monte la VRAIE fiche X2, avec le vrai prédicat du pilote. */
+  const { construireLaFicheX2 } = await import("../ui/builder/x2-ecran.mjs");
+  const { seCrafteDansX5 } = await import("../ui/builder/craft.mjs");
+  const parRef = new Map([...plans.values()].map((r) => [r.data.name, r]));
+  const fiche = (nom) => ({ ref: { kind: "item", id: nom }, nom, coutTexte: "", cout: null, poidsTexte: "", prose: "" });
+
+  const avant = globalThis.document;
+  globalThis.document = createTestDocument();
+  try {
+    const ouverts = [];
+    const monteX2 = (nom) => construireLaFicheX2({
+      liste: [fiche(nom)], index: 0,
+      peutCrafter: (ref) => seCrafteDansX5(parRef.get(ref.id), bases),
+      ouvrirCraft: (ref) => ouverts.push(ref.id),
+    });
+    const optionCraft = (n) => [...n.querySelectorAll("option")].find((o) => o.value === "craft");
+
+    for (const nom of ["Weapon, +1, +2, or +3", "Armor, +1, +2, or +3", "Shield, +1, +2, or +3"]) {
+      const n = monteX2(nom);
+      assert.equal(optionCraft(n).disabled, false, `⭐ ${nom} : Craft s'ouvre`);
+      const sel = optionCraft(n).parentNode;
+      sel.value = "craft";
+      sel.dispatchEvent(new Event("change"));
+      assert.equal(ouverts.at(-1), nom, `⭐ choisir Craft OUVRE X5 pour ${nom}`);
+    }
+    for (const nom of ["Berserker Axe", "Spell Scroll", "Figurine of Wondrous Power", "Ammunition, +1, +2, or +3"]) {
+      assert.equal(optionCraft(monteX2(nom)).disabled, true,
+        `⛔ ${nom} : Craft reste fermé — un objet fini ne se crafte pas, et une famille sans écran le dit`);
+    }
+  } finally {
+    if (avant === undefined) delete globalThis.document; else globalThis.document = avant;
+  }
+});
+
+test("14 — 🔴 UNE FICHE QUI MONTE LE PARCHEMIN EST DANS SA FAMILLE — sinon il se peint en NOIR", async () => {
+  /* 🔴 VU À L'IMAGE LE 24/09, ET AUCUN GARDE NE L'AVAIT DIT : X5 posait bien son SVG de
+     parchemin, mais `.x5` n'était pas dans `FAMILLE_DU_PARCHEMIN`. La règle qui donne
+     `fill: var(--x1-papier)` ne la visait donc pas, et le chemin prenait le défaut du
+     SVG — le NOIR — par-dessus tout le papier. Les 2525 gardes étaient verts.
+     ⭐ Ce garde lie les deux faits : la fiche porte un `.parchemin`, donc elle est de la
+     famille, donc la feuille la vise. */
+  const { FAMILLE_DU_PARCHEMIN, SELECTEUR_DU_PARCHEMIN } = await import("../ui/builder/parchemin.mjs");
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
+  assert.ok(noeud.querySelector(".parchemin"), "X5 porte bien un parchemin");
+  assert.ok(FAMILLE_DU_PARCHEMIN.includes(".x5"),
+    "⛔ X5 porte un parchemin sans être de sa famille : le SVG se peindra en noir");
+  const regle = new RegExp(`${SELECTEUR_DU_PARCHEMIN.replace(/[.()[\]]/g, "\\$&")} \\.parchemin-fond\\s*\\{[^}]*fill:\\s*var\\(--x1-papier\\)`);
+  assert.match(CSS, regle, "⭐ et la feuille vise EXACTEMENT cette famille — un seul écrivain de la liste");
 });

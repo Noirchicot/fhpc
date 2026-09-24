@@ -48,7 +48,6 @@
 
 <script type="module">
 import { construireX5, feuilleDesCotesX5 } from "./x5-ecran.mjs?v=810";
-import { pouvoirsDe } from "./craft.mjs?v=810";
 
 
 /* ⭐ LA FEUILLE DES COTES EST CELLE DU PRODUIT — ⛔ pas une copie pour le banc. */
@@ -66,45 +65,44 @@ document.head.append(style);
    PAS une faute du produit. Les `subtype` et les `rarity` sont ceux du SRD, au
    caractère près, parce que c'est d'eux que tout se dérive. */
 const armes = new Map([
-  ["Longsword", { data: { name: "Longsword", cost: "15 GP", weapon_range: "melee" } }],
-  /* 🔴 UNE BASE CONSTRUITE, ET ELLE DOIT LE DIRE. Ce cas s'appelait « Light
-     Crossbow — aucun pouvoir » : faux dans le vrai SRD, où `Giant Slayer` et
-     `Vicious Weapon` (`Any Simple or Martial`) se posent sur toutes les armes.
-     Mesuré le 24/09 (lot 261) : AUCUNE des 51 bases n'est sans pouvoir. La règle
-     de la rangée qui disparaît n'a donc que des cas construits — celui-ci en est un. */
+  ["Longsword", { data: { name: "Longsword", cost: "15 GP", weapon_range: "melee", weapon_category: "martial" } }],
+  ["Plate Armor", { data: { name: "Plate Armor", cost: "1,500 GP", armor_category: "heavy" } }],
+  /* 🔴 UNE BASE CONSTRUITE, ET ELLE LE DIT : aucune des 51 bases du SRD n'est sans
+     pouvoir (lot 261). La règle de la rangée qui disparaît n'a que des cas construits. */
   ["Base de test", { data: { name: "Base de test", cost: "25 GP", weapon_range: "ranged",
     weapon_category: "exotic" } }],
 ]);
+const bases = [...armes.values()];
 const magiques = [
   { data: { name: "Flame Tongue", subtype: "Any Melee Weapon", rarity: "Rare (Requires Attunement)" } },
   { data: { name: "Defender", subtype: "Any Melee Weapon", rarity: "Legendary (Requires Attunement)" } },
   { data: { name: "Vorpal Sword", subtype: "Glaive, Greatsword, Longsword, or Scimitar",
             rarity: "Legendary (Requires Attunement)" } },
-  { data: { name: "Sword of Wounding", subtype: "Glaive, Greatsword, Longsword, Rapier, Scimitar, or Shortsword",
-            rarity: "Rare (Requires Attunement)" } },
+  { data: { name: "Weapon of Warning", subtype: "Any Simple or Martial", rarity: "Uncommon (Requires Attunement)" } },
+  { data: { name: "Armor of Resistance", subtype: "Any Light, Medium, or Heavy", rarity: "Rare (Requires Attunement)" } },
 ];
-
-/* ⛔ AUCUN NOM DE POUVOIR ÉCRIT ICI : le banc demande à la donnée, comme l'écran. */
-const dePouvoirs = (nom) => pouvoirsDe(armes.get(nom), magiques);
-const sansPouvoir = [...armes.values()].find((r) => pouvoirsDe(r, magiques).length === 0);
-const longue = dePouvoirs("Longsword");
-const rare = longue.find((r) => /^Rare\b/.test(r.data.rarity || ""));
-const legendaire = longue.find((r) => /^Legendary/.test(r.data.rarity || ""));
+/* ⚠️ LES PLANS SONT RECOPIÉS DU SRD AU CARACTÈRE PRÈS — c'est d'eux que les bases et
+   les bonus se lisent. `Armor` : un +1 y est RARE. */
+const PLAN_ARME = { data: { name: "Weapon, +1, +2, or +3", category: "weapon",
+  subtype: "Any Simple or Martial", rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } };
+const PLAN_ARMURE = { data: { name: "Armor, +1, +2, or +3", category: "armor",
+  subtype: "Any Light, Medium, or Heavy", rarity: "Rare (+1), Very Rare (+2), or Legendary (+3)" } };
+const PLAN_VIDE = { data: { name: "Plan de test", category: "weapon", subtype: "Base de test",
+  rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } };
 
 const cas = [
-  ["① Longsword — sa rangée de pouvoirs est pleine",
-   { base: armes.get("Longsword"), itemsMagiques: magiques,
-     choix: { bonus: "Uncommon", pouvoirs: [rare], qte: 1 } }],
-  ["② base CONSTRUITE sans pouvoir — la rangée DISPARAÎT et tout remonte de 48 blg. "
-   + "⚠️ Aucune base du SRD n'est dans ce cas aujourd'hui",
-   { base: sansPouvoir, itemsMagiques: magiques, choix: { bonus: "Rare", qte: 1 } }],
-  ["③ hors limite — Rare × Legendary ÷ 40 = 40 M : le panneau dit pourquoi, "
-   + "et `Send` est inerte",
-   { base: armes.get("Longsword"), itemsMagiques: magiques,
-     choix: { bonus: "Rare", pouvoirs: [legendaire], qte: 1 } }],
-  ["④ pile SRD — la colonne gauche N'EXISTE PAS (pas de crafting time au SRD)",
-   { base: armes.get("Longsword"), itemsMagiques: magiques, fh: false,
-     choix: { bonus: "Rare", pouvoirs: [rare], qte: 1 } }],
+  ["① Weapon +1 — Longsword + Flame Tongue, en craft",
+   { plan: PLAN_ARME, choix: { base: "Longsword", bonus: "Uncommon", pouvoirs: ["Flame Tongue"] } }],
+  ["② Armor +1 — un +1 d'armure est RARE : 5 500 GP à l'achat, comme le SRD l'écrit",
+   { plan: PLAN_ARMURE, choix: { base: "Plate Armor", bonus: "Rare", status: "Buying" } }],
+  ["③ hors limite — +2 et Defender : le panneau dit pourquoi",
+   { plan: PLAN_ARME, choix: { base: "Longsword", bonus: "Rare", pouvoirs: ["Defender"] } }],
+  ["④ base CONSTRUITE sans pouvoir — la rangée disparaît (aucune base du SRD n'est dans ce cas)",
+   { plan: PLAN_VIDE, choix: { bonus: "Uncommon" } }],
+  ["⑤ pile SRD — pas de colonne gauche",
+   { plan: PLAN_ARME, fh: false, choix: { base: "Longsword", bonus: "Uncommon" } }],
+  ["⑥ Found — la phrase du croquis, aucun champ",
+   { plan: PLAN_ARME, choix: { base: "Longsword", bonus: "Uncommon", status: "Found" } }],
 ];
 
 const planche = document.getElementById("planche");
@@ -115,7 +113,7 @@ for (const [titre, options] of cas) {
   cap.textContent = titre;
   const dalle = document.createElement("div");
   dalle.className = "dalle";
-  const { noeud, cote } = construireX5(options);
+  const { noeud, cote } = construireX5({ bases, itemsMagiques: magiques, ...options });
   dalle.append(noeud);
   const m = document.createElement("div");
   m.className = "mesure";

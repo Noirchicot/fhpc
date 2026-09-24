@@ -136,7 +136,11 @@ function encartBourse(bourse, motBourse) {
  *   · `onAction` : l'arbitre du pilote · `fermer` : le retour, inchangé */
 export function construireLaFicheX2(options = {}) {
   const { liste = [], index = 0, bourse = {}, motBourse = null,
-          onAction = () => {}, naviguer, fermer = () => {} } = options;
+          onAction = () => {}, naviguer, fermer = () => {},
+          /* ⭐ LOT 262 — LA PORTE DU CRAFT. L'écran ne sait pas ce qui se crafte : il
+             DEMANDE (`peutCrafter`) et il PASSE LA MAIN (`ouvrirCraft`). ⛔ Aucune
+             règle de jeu n'entre ici — c'est `craft.mjs` qui sait, par le pilote. */
+          peutCrafter = () => false, ouvrirCraft = null } = options;
   let i = index;
   let qte = 1;
   const item = () => liste[i] || {};
@@ -204,10 +208,23 @@ export function construireLaFicheX2(options = {}) {
   for (const d of DESTINATIONS) {
     const o = elx("option", null, d.mot);
     o.value = d.valeur;
-    if (!d.actif) o.disabled = true;
+    /* 🔴 `Craft` ÉTAIT GRISÉ EN DUR (`actif: false`), POUR TOUT OBJET — Eric, 24/09,
+       devant `Weapon, +1, +2, or +3` en ligne : « impossible pour moi d'arriver au
+       blueprint, tu vois bien que craft n'est pas sélectionnable ». ⭐ Il s'ouvre
+       désormais quand CET objet est un plan que X5 sait composer. ⛔ Il reste grisé
+       pour le reste — un objet fini ne se crafte pas, et un plan dont la famille n'a
+       pas encore d'écran (un parchemin, un wondrous) le dit en restant fermé. */
+    const actif = d.valeur === "craft" ? Boolean(ouvrirCraft) && peutCrafter(item().ref) : d.actif;
+    if (!actif) o.disabled = true;
     dest.append(o);
   }
   destRang.append(dest);
+  /* ⭐ CHOISIR `Craft`, C'EST OUVRIR X5 — le choix EST le geste. ⛔ Ni `BUY` ni `FREE`
+     ne veulent rien dire pour un plan qu'on n'a pas encore composé : les faire passer
+     par eux obligerait le joueur à « acheter » un objet qui n'existe pas. */
+  dest.addEventListener("change", () => {
+    if (dest.value === "craft" && ouvrirCraft) ouvrirCraft(item().ref);
+  });
 
   const alerte = elx("p", "pipeline-alerte");
 

@@ -20,7 +20,9 @@
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=810";
-import { pouvoirsDe, coteDe, encorePossibles, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=810";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=810";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=810";
+import { habilleEnParchemin } from "./parchemin.mjs?v=810";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -35,13 +37,14 @@ function elx(balise, classe, texte) {
  *  au vault puis se recopie. Le jour où le générateur bouge, cette feuille suit
  *  sans qu'on y touche. */
 export function feuilleDesCotesX5() {
-  /* 🔴 LA DALLE PORTE SA LARGEUR, ET JE L'AVAIS OUBLIÉE. Les organes sont posés en
-     ABSOLU : sans `width` sur leur hôte, ils débordent à droite et le panneau se
-     coupe. ⛔ Neuf gardes verts ne l'ont pas vu — ils vérifient les cotes des
-     ORGANES, pas celle de ce qui les contient. Il a fallu regarder l'image.
-     ⭐ Et c'est la cote de la table, pas un 375 écrit à la main. */
-  const regles = [`.x5{position:relative;flex:0 0 auto;`
-    + `width:${px(D.DALLE.l)};height:${px(D.DALLE.h)}}`];
+  /* ⭐ LOT 262 — X5 ENTRE DANS LA BOÎTE PARTAGÉE, et n'écrit plus que ce qui lui est
+     PROPRE. Le lot 259 lui donnait `position` et `width: 375` : la largeur manquait
+     alors, faute de famille. Maintenant que `.x5` est dans `FAMILLE_DE_LA_DALLE`, la
+     boîte de `shell.css` porte `position`, `width` (par `--panneau-l`, 375) et le
+     reste — ⛔ les réécrire ici, ce serait deux écrivains pour une loi, et le garde
+     « la boîte de la dalle est déclarée plus d'une fois » m'a arrêté.
+     ⭐ Reste ce qu'aucune autre fiche ne dit : une hauteur de PLAN FIXE, comme X0. */
+  const regles = [`.x5[data-objet="x5"]{flex:0 0 auto;height:${px(D.DALLE.h)}}`];
   for (const o of D.ORGANES) {
     const b = o.cible || o;
     regles.push(
@@ -65,29 +68,33 @@ function hauteurDe(nom) {
   return o ? (o.cible || o).y : Infinity;
 }
 
-/** Un dropdown de la table : sa boîte porte son nom d'organe, son contenu le mot. */
-function dropdown(nom, mot, options, surChoix, { muet = false, aucunPermis = false } = {}) {
-  const b = elx("button", "x5-drop", "");
-  b.type = "button";
-  b.dataset.organe = nom;
-  b.append(elx("span", "x5-drop-mot", mot || "—"), elx("span", "x5-drop-chevron", "▾"));
-  b.setAttribute("aria-label", `${nom.toLowerCase()} — ${mot || "none"}`);
-  /* ⛔ UN CONTRÔLE QUI N'A RIEN À OFFRIR NE SE TAIT PAS, IL DISPARAÎT — mais quand
-     il reste seul choix possible, il se dit INERTE plutôt que de promettre un
-     menu vide. C'est le défaut de `data-glissable` du lot Wares : un attribut qui
-     annonçait un geste que personne n'écoutait. */
-  /* 🔴 « PLUS D'UNE OPTION » ÉTAIT FAUX POUR UN POUVOIR. Un pouvoir admet toujours
-     « aucun » : avec UN seul pouvoir offert, le joueur a DEUX choix — le prendre ou
-     non. 📏 Le cas est réel : une Longsword qui porte déjà un Legendary n'a plus
-     que `Weapon of Warning` (Uncommon) sous la limite, et l'ancienne règle rendait
-     le dropdown inerte — le joueur ne pouvait pas le prendre.
-     ⭐ Un TYPE ou un STATUS, eux, n'ont pas de « aucun » : il leur faut deux
-     valeurs pour qu'il y ait un choix. */
-  const plancher = aucunPermis ? 1 : 2;
-  const utile = !muet && options && options.length >= plancher;
-  b.disabled = !utile;
-  if (utile) b.addEventListener("click", () => surChoix && surChoix(b, options));
-  return b;
+/** ⭐ UN VRAI MENU, NATIF — le même organe que le `SEND TO` de X2.
+ *  🔴 LE LOT 259 DESSINAIT DES BOUTONS QUI NE S'OUVRAIENT SUR RIEN : `surChoix` était
+ *  appelé, et personne ne répondait. Un contrôle qui promet un menu qu'il n'ouvre pas
+ *  est pire qu'un contrôle absent. ⭐ Un `<select>` natif s'ouvre au doigt comme à la
+ *  souris, et iOS le rend dans son propre menu — la capture d'Eric du 24/09 le montre
+ *  sur le `SEND TO` de X2.
+ *  @param options `{ valeur, mot }[]` · `aucun` : le mot de l'option vide, si elle
+ *  existe (un pouvoir admet toujours « aucun »). */
+function menu(nom, valeur, options, surChoix, { aucun = null } = {}) {
+  const s = elx("select", "x5-drop");
+  s.dataset.organe = nom;
+  s.setAttribute("aria-label", nom.toLowerCase());
+  const toutes = [...(aucun ? [{ valeur: "", mot: aucun }] : []), ...(options || [])];
+  for (const o of toutes) {
+    const opt = elx("option", null, o.mot);
+    opt.value = o.valeur;
+    if (o.inactif) opt.disabled = true;
+    if (o.valeur === (valeur ?? "")) opt.selected = true;
+    s.append(opt);
+  }
+  /* 🔴 « PLUS D'UNE OPTION » ÉTAIT FAUX POUR UN POUVOIR (lot 261) : il admet toujours
+     « aucun », donc un seul pouvoir offert, c'est DEUX choix. Le plancher vient
+     désormais des options RÉELLES, l'option vide comprise. */
+  const choisissables = toutes.filter((o) => !o.inactif);
+  s.disabled = choisissables.length < 2;
+  if (surChoix) s.addEventListener("change", () => surChoix(nom, s.value));
+  return s;
 }
 
 /** ⚖️ LE PANNEAU — et ses DEUX RÉGIMES selon la pile.
@@ -106,10 +113,41 @@ function dropdown(nom, mot, options, surChoix, { muet = false, aucunPermis = fal
  *  n'accuse plus rien.
  *  ⭐ Le `fh` est donc parti d'ici. La règle vit à UN endroit — `craft.mjs` — et
  *  cet écran dessine `cote.temps` quand il existe, sans savoir pourquoi. */
-function panneau(cote) {
+function panneau(cote, status = "Crafting") {
   const p = elx("section", "x5-panneau");
   p.dataset.organe = "PANNEAU";
-  if (cote.legal && cote.temps) {
+  const argent = elx("div", "x5-panneau-argent");
+
+  /* ⚖️ LES TROIS RÉGIMES DU CROQUIS — `STATUS` décide de ce que le panneau montre.
+     C'est l'idée la plus économe du dessin : une seule fiche sert les trois façons
+     d'obtenir un objet. */
+  if (status === "Found") {
+    /* ⚖️ Le croquis, mot pour mot : « you found it, it's a gift or you stole it — it's
+       free ». ⛔ Aucun champ : un « 0 GP » dirait « ça coûte zéro », la phrase dit
+       « la question du prix ne se pose pas ». */
+    argent.append(elx("p", "x5-panneau-libre", "You found it, it's a gift, or you stole it — it's free."));
+    p.append(argent);
+    return p;
+  }
+  if (!cote.legal) {
+    /* ⚖️ « au moins le prix sera juste » — quand il n'y a pas de prix juste à donner,
+       on le DIT, ⛔ on n'affiche pas un zéro plausible. */
+    argent.append(elx("p", "x5-panneau-refus", motDuRefus(cote.raison)));
+    p.append(argent);
+    return p;
+  }
+  if (status === "Buying") {
+    /* ⚖️ Le croquis : « price · qty · total », et rien d'autre. Le prix d'ACHAT est la
+       valeur de vente — ⛔ pas le coût de fabrication, qui en est la moitié. */
+    argent.append(
+      ligne("Price", or(cote.venteUnitaire)),
+      ligne("Qty · Total", `×${cote.qte} · ${or(cote.venteTotale)}`));
+    p.append(argent);
+    return p;
+  }
+  /* Crafting — la colonne gauche n'existe qu'en pile Fate's Hand : `coteDe` rend
+     `temps: null` en SRD, et c'est LUI qui le décide (un seul écrivain, lot 259). */
+  if (cote.temps) {
     const g = elx("div", "x5-panneau-prereq");
     g.append(elx("h4", "x5-panneau-titre", "Prerequisites"));
     g.append(ligne("Crafting time", cote.temps), ligne("Crafting roll", `DC ${cote.dc}`));
@@ -118,21 +156,15 @@ function panneau(cote) {
     g.append(roll);
     p.append(g);
   }
-  const argent = elx("div", "x5-panneau-argent");
-  if (!cote.legal) {
-    /* ⚖️ « au moins le prix sera juste » — quand il n'y a pas de prix juste à
-       donner, on le DIT, ⛔ on n'affiche pas un zéro plausible. */
-    argent.append(elx("p", "x5-panneau-refus", motDuRefus(cote.raison)));
-  } else {
-    argent.append(
-      ligne("Base item cost", or(cote.coutBase)),
-      ligne("Crafting cost", or(cote.craftUnitaire - cote.coutBase / 2)),
-      ligne("Unit price", or(cote.craftUnitaire)),
-      ligne("Qty · Total", `×${cote.qte} · ${or(cote.craftTotal)}`));
-  }
+  argent.append(
+    ligne("Base item cost", or(cote.coutBase)),
+    ligne("Crafting cost", or(cote.craftUnitaire - cote.coutBase / 2)),
+    ligne("Unit price", or(cote.craftUnitaire)),
+    ligne("Qty · Total", `×${cote.qte} · ${or(cote.craftTotal)}`));
   p.append(argent);
   return p;
 }
+
 function ligne(clef, valeur) {
   const l = elx("div", "x5-ligne");
   l.append(elx("span", "x5-ligne-clef", clef), elx("span", "x5-ligne-valeur", valeur));
@@ -155,58 +187,74 @@ function motDuRefus(raison) {
 
 /** ⚖️ LA FICHE X5.
  *  @param {object} o
- *   · `base` — le RECORD de l'objet de base (⛔ pas une vue : `craft.mjs` est
- *     strict, et c'est ce qui a coûté la diagonale du blueprint au lot 256).
- *   · `itemsMagiques` — les records magiques de la pile, d'où les pouvoirs se
- *     dérivent. ⛔ L'écran ne connaît AUCUN nom de pouvoir.
- *   · `choix` — `{ bonus, pouvoirs: [], qte, destination }`, l'état courant.
+ *   · `plan` — le RECORD du plan d'où l'on vient (`Weapon, +1, +2, or +3`…). C'est
+ *     LUI qui dit quelles bases et quels bonus s'offrent — ⛔ rien n'est listé ici.
+ *   · `bases`, `itemsMagiques` — des RECORDS (⛔ pas des vues : `craft.mjs` est strict).
+ *   · `choix` — `{ base, bonus, pouvoirs: [nom], qte, status, destination }`,
+ *     l'état courant, TENU PAR L'APPELANT : cet écran ne garde rien, il redessine.
  *   · `fh` — la pile porte-t-elle Fate's Hand ? décide de la colonne gauche.
- *   · `surChoix(quoi, options)` · `surAnnuler()` · `surEnvoyer(cote)`.
+ *   · `surChoix(organe, valeur)` · `surAnnuler()` · `surEnvoyer(cote)`.
  *  @returns {{ noeud: HTMLElement, cote: object }} */
 export function construireX5(o = {}) {
-  const { base = null, itemsMagiques = [], choix = {}, fh = true,
+  const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null } = o;
 
+  const offertesBases = plan ? basesDe(plan, bases) : bases;
+  const base = offertesBases.find((b) => b.data.name === choix.base) || offertesBases[0] || null;
+  const bonus = plan ? bonusDe(plan) : [];
+  const bonusChoisi = bonus.find((b) => b.rarete === choix.bonus) || null;
   const dispos = base ? pouvoirsDe(base, itemsMagiques) : [];
-  const pris = choix.pouvoirs || [];
+  const parNom = new Map(dispos.map((r) => [r.data.name, r]));
+  const pris = (choix.pouvoirs || []).map((n) => parNom.get(n)).filter(Boolean);
+  const status = choix.status || "Crafting";
+
   const cote = coteDe({
-    base, bonus: choix.bonus, qte: choix.qte,
-    pouvoirs: pris.map((p) => p && p.data && p.data.rarity), fh,
+    base, bonus: bonusChoisi && bonusChoisi.rarete, qte: choix.qte,
+    pouvoirs: pris.map((p) => p.data.rarity), fh,
   });
 
   const n = elx("section", "x5");
   n.dataset.objet = "x5";
-  /* ⭐ L'ATTRIBUT QUI FAIT DISPARAÎTRE LA RANGÉE — un seul écrivain, lu par la
-     feuille. ⛔ Pas un `style.display` posé organe par organe : la feuille tient
-     aussi la remontée de tout ce qui suit. */
+  n.dataset.ecran = "X5";
+  n.setAttribute("role", "group");
+  n.setAttribute("aria-label", "Recipe and craft");
+  n.dataset.status = status.toLowerCase();
+  /* ⭐ LA FICHE PORTE SA FEUILLE, comme X1 et X2 — ⛔ pas une feuille posée par le
+     pilote, qui pourrait survivre à la fiche ou manquer quand elle s'ouvre. */
+  const feuille = elx("style");
+  feuille.setAttribute("data-fhpc", "x5");
+  feuille.textContent = feuilleDesCotesX5();
+  n.append(feuille);
+  /* ⭐ ET LE PARCHEMIN DE LA FAMILLE — le même organe que X0, X1 et X2 : « la fiche ne
+     sait pas dessiner une feuille, elle sait qu'elle en porte une ». */
+  n.append(habilleEnParchemin(n, () => D.MARGE));
   if (!dispos.length) n.dataset.pouvoirs = "aucun";
 
-  const type = base && base.data && base.data.weapon_range ? "Weapon" : "Armor";
+  /* ⚖️ LE TYPE EST CELUI DU PLAN — on vient de `Weapon, +1…` ou d'`Armor, +1…`, et
+     ce choix-là est déjà fait. ⛔ Un menu qui proposerait « Scroll » depuis une arme
+     mentirait sur ce qu'X5 sait faire aujourd'hui. */
+  const type = plan && plan.data && plan.data.category === "armor" ? "Armor" : "Weapon";
   n.append(
-    dropdown("TYPE", type, ["Weapon", "Armor", "Wondrous", "Scroll"], surChoix),
-    dropdown("ITEM", (base && base.data && base.data.name) || "—", null, surChoix),
-    dropdown("BONUS", choix.bonus ? bonusEnMot(choix.bonus) : "—",
-      ["Uncommon", "Rare", "Very Rare"], surChoix));
+    menu("TYPE", type, [{ valeur: type, mot: type }], null),
+    menu("ITEM", base && base.data.name,
+      offertesBases.map((b) => ({ valeur: b.data.name, mot: b.data.name })), surChoix),
+    /* ⭐ Le mot affiché est « +1 », la valeur est la RARETÉ — lue dans le plan. */
+    menu("BONUS", bonusChoisi && bonusChoisi.rarete,
+      bonus.map((b) => ({ valeur: b.rarete, mot: b.mot })), surChoix, { aucun: "—" }));
 
-  /* ⚖️ LES DEUX DROPDOWNS PORTENT CHACUN LA LISTE ENTIÈRE — Eric, 24/09 : « il
-     faudra 2 dropdown à 10 pouvoirs, au cas où tu imaginais 5+5 ». ⛔ Ce n'est
-     pas un partage : deux CHOIX dans un même catalogue.
-     ⭐ Et `encorePossibles` retire ce qui ferait dépasser la limite — ce n'est pas
-     une règle anti-doublon, c'est la limite de l'échelle. Prendre `Defender`
-     (Legendary) ne laisse que les Uncommon pour le second. */
+  /* ⚖️ LES DEUX POUVOIRS PORTENT CHACUN LA LISTE ENTIÈRE — Eric, 24/09 : « 2 dropdown à
+     10 pouvoirs, au cas où tu imaginais 5+5 ». ⭐ `encorePossibles` retire ce qui ferait
+     dépasser la limite, bonus compris — ⛔ ce n'est pas une règle anti-doublon. Le
+     pouvoir déjà pris par l'AUTRE case est retiré, lui, parce qu'un objet ne porte
+     pas deux fois la même propriété. */
   for (const [i, nom] of [[0, "POWER 1"], [1, "POWER 2"]]) {
-    const autres = [choix.bonus, ...pris.filter((_, k) => k !== i)
-      .map((p) => p && p.data && p.data.rarity)].filter(Boolean);
-    const offerts = encorePossibles(autres, dispos);
-    const mot = pris[i] ? pris[i].data.name : "—";
-    n.append(dropdown(nom, mot, offerts, surChoix, { aucunPermis: true }));
+    const autres = pris.filter((_, k) => k !== i);
+    const socle = [bonusChoisi && bonusChoisi.rarete, ...autres.map((p) => p.data.rarity)].filter(Boolean);
+    const offerts = encorePossibles(socle, dispos).filter((r) => !autres.includes(r));
+    n.append(menu(nom, pris[i] ? pris[i].data.name : "",
+      offerts.map((r) => ({ valeur: r.data.name, mot: r.data.name })), surChoix, { aucun: "—" }));
   }
 
-  /* ⛔ AUCUN STYLE EN LIGNE : le filet est un organe comme les autres, et c'est
-     `feuilleDesCotesX5()` qui le pose — elle lit la table, elle. Un `style.top`
-     écrit ici serait une cote de plus, hors du plan, que la régénération ne
-     suivrait pas. 🔴 Le garde « aucun style EN LIGNE dans ui/ » me l'a dit avant
-     que je le voie, et il avait raison. */
   for (const f of D.ORGANES.filter((x) => x.nom.startsWith("FILET"))) {
     const t = elx("div", "x5-filet");
     t.dataset.organe = f.nom;
@@ -214,33 +262,30 @@ export function construireX5(o = {}) {
     n.append(t);
   }
 
-  n.append(dropdown("STATUS", choix.status || "Crafting",
-    ["Crafting", "Buying", "Found"], surChoix));
-  n.append(panneau(cote));
+  n.append(menu("STATUS", status,
+    ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix));
+  n.append(panneau(cote, status));
 
-  const sendTo = dropdown("SEND TO", choix.destination || "Backpack", null, surChoix);
-  n.append(sendTo);
+  n.append(menu("SEND TO", choix.destination || "backpack",
+    DESTINATIONS.filter((d) => d.valeur !== "craft")
+      .map((d) => ({ valeur: d.valeur, mot: d.mot, inactif: !d.actif })), surChoix));
 
   const cancel = elx("button", "x5-porte", "Cancel");
   cancel.type = "button"; cancel.dataset.organe = "CANCEL";
   if (surAnnuler) cancel.addEventListener("click", surAnnuler);
   const send = elx("button", "x5-porte", "Send");
   send.type = "button"; send.dataset.organe = "SEND";
-  /* ⛔ ON N'ENVOIE PAS CE QUI N'EXISTE PAS : un assemblage hors limite n'a pas de
-     prix juste, donc pas de tuile à produire. Le bouton le dit en étant inerte,
-     et le panneau dit POURQUOI juste au-dessus. */
-  send.disabled = !cote.legal;
-  if (surEnvoyer) send.addEventListener("click", () => surEnvoyer(cote));
+  /* ⏳ `SEND` ATTEND UNE DÉCISION, ET IL LE DIT. Un objet composé — `Longsword +1
+     Flame Tongue` — n'existe comme record NULLE PART : le poser dans la fiche touche
+     le format de sauvegarde, et ce n'est pas un écran qui le décide. ⛔ Le bouton est
+     inerte, et son nom accessible dit pourquoi — un bouton qui ne fait rien en
+     silence est pire qu'un bouton absent. */
+  send.disabled = true;
+  send.title = "Crafted items cannot be saved to the sheet yet";
+  send.setAttribute("aria-label", "Send — not available yet: crafted items cannot be saved to the sheet");
   n.append(cancel, send);
 
   return { noeud: n, cote };
 }
-
-/** ⚖️ `+1` / `+2` / `+3` À L'ÉCRAN, jamais la rareté qui les porte.
- *  ⭐ Eric, 24/09 : *« en SRD tu ne parleras pas de PP »* — et la rareté d'un
- *  bonus est le même genre de plomberie : le joueur choisit « +2 », pas « Rare ».
- *  Le moteur, lui, ne connaît que des paliers. */
-export const BONUS_EN_MOT = Object.freeze({ Uncommon: "+1", Rare: "+2", "Very Rare": "+3" });
-function bonusEnMot(rarete) { return BONUS_EN_MOT[rarete] || rarete; }
 
 export { PLAFOND_QTE, PALIERS };

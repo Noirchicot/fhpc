@@ -47,7 +47,7 @@
  *  répare à la main est un garde qu'on finit par ajuster jusqu'au vert.
  *  ⭐ Désormais la feuille écrit le sélecteur et les gardes le LISENT ici : le
  *  prochain porteur s'ajoute à cette ligne, et rien d'autre ne bouge. */
-export const FAMILLE_DU_PARCHEMIN = Object.freeze([".x1", ".x2", ".aiguilleur-carte"]);
+export const FAMILLE_DU_PARCHEMIN = Object.freeze([".x1", ".x2", ".x5", ".aiguilleur-carte"]);
 export const SELECTEUR_DU_PARCHEMIN = `:is(${FAMILLE_DU_PARCHEMIN.join(", ")})`;
 
 const SVG = "http://www.w3.org/2000/svg";
