@@ -25,7 +25,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
 const D = await import("../ui/builder/x5-disposition.mjs");
 const { construireX5, feuilleDesCotesX5 } = await import("../ui/builder/x5-ecran.mjs");
-const { pouvoirsDe, bonusDe } = await import("../ui/builder/craft.mjs");
+const { pouvoirsDe, bonusDe, enPieces } = await import("../ui/builder/craft.mjs");
 
 const query = exempleFhEn().layers.verbs.query;
 const armes = new Map(query({ kind: "weapon" }).map((v) => [v.record.data.name, v.record]));
@@ -213,15 +213,58 @@ test("10 — ⭐ LES MENUS SONT NATIFS, et ils s'ouvrent vraiment", () => {
   assert.ok(!send.includes("craft"), "⛔ on ne se renvoie pas au craft depuis le craft");
 });
 
-test("11 — ⏳ `SEND` ATTEND UNE DÉCISION, ET IL LE DIT", () => {
-  /* ⏳ Un objet composé n'existe comme record NULLE PART : le poser dans la fiche touche
-     le format de sauvegarde, et ce n'est pas un écran qui le décide. ⛔ Un bouton qui
-     ne fait rien en silence est pire qu'un bouton absent — celui-ci dit pourquoi. */
-  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword", bonus: "Uncommon" } });
-  const send = noeud.querySelector('[data-organe="SEND"]');
-  assert.equal(send.disabled, true);
-  assert.match(send.getAttribute("aria-label") || "", /not available yet/i,
-    "⛔ le lecteur d'écran entend POURQUOI, pas seulement « désactivé »");
+test("11 — ⭐ `SEND` REND CE QUI A ÉTÉ COMPOSÉ, ET LE MONTANT DU STATUT (lot 265)", () => {
+  /* ⚖️ Eric, 25/09 : l'objet crafté va dans l'équipement ; le craft SE PAIE (1 a).
+     ⛔ L'écran n'écrit rien : il rend des RECORDS et un montant, l'appelant paie. */
+  const recus = [];
+  const envoie = (choix) => {
+    const { noeud, cote } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix,
+      surEnvoyer: (e) => recus.push(e) });
+    const send = noeud.querySelector('[data-organe="SEND"]');
+    return { send, cote };
+  };
+  const { send, cote } = envoie({ base: "Longsword", bonus: "Uncommon" });
+  assert.equal(send.disabled, false, "⭐ un assemblage légal, avec un bonus : `Send` s'arme");
+  send.dispatchEvent(new Event("click"));
+  assert.equal(recus.length, 1, "un clic, un envoi");
+  const e = recus[0];
+  assert.equal(e.base.data.name, "Longsword", "⭐ la BASE est un record");
+  assert.equal(e.bonus.mot, "+1", "⭐ le bonus porte son mot — c'est lui que la fiche garde");
+  assert.deepEqual(e.pouvoirs, []);
+  assert.deepEqual(e.cout, enPieces(cote.craftTotal), "⚖️ Crafting paie le coût de FABRICATION, arrondi comme l'écran l'affiche");
+  assert.equal(e.destination, "backpack");
+
+  recus.length = 0;
+  envoie({ base: "Longsword", bonus: "Uncommon", status: "Buying" }).send.dispatchEvent(new Event("click"));
+  assert.deepEqual(recus[0].cout, enPieces(cote.venteTotale), "⚖️ Buying paie le prix d'ACHAT");
+  recus.length = 0;
+  envoie({ base: "Longsword", bonus: "Uncommon", status: "Found" }).send.dispatchEvent(new Event("click"));
+  assert.equal(recus[0].cout, null, "⚖️ Found ne paie RIEN — ⛔ pas une bourse de zéros");
+});
+
+test("11 bis — ⛔ `SEND` INERTE DIT POURQUOI : base nue, assemblage illégal, pas d'appelant", () => {
+  const nue = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" },
+    surEnvoyer: () => {} }).noeud.querySelector('[data-organe="SEND"]');
+  assert.equal(nue.disabled, true, "⛔ une base nue n'est pas un craft — c'est un achat, il a sa porte (X2 · BUY)");
+  assert.match(nue.getAttribute("aria-label") || "", /bonus or a power/i, "⛔ le lecteur d'écran entend POURQUOI");
+  const sansAppelant = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques,
+    choix: { base: "Longsword", bonus: "Uncommon" } }).noeud.querySelector('[data-organe="SEND"]');
+  assert.equal(sansAppelant.disabled, true, "⛔ sans appelant, personne n'écrirait — le bouton ne ment pas");
+  /* ⚔️ l'assemblage hors limite : Very Rare + un pouvoir Legendary */
+  const legendaire = magiques.find((r) => /^Legendary/.test(r.data.rarity || "")
+    && pouvoirsDe(bases.find((b) => b.data.name === "Longsword"), magiques).includes(r));
+  const illegal = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, surEnvoyer: () => {},
+    choix: { base: "Longsword", bonus: "Very Rare", pouvoirs: [legendaire.data.name] } });
+  assert.equal(illegal.cote.legal, false, "témoin : l'assemblage est bien hors limite");
+  assert.equal(illegal.noeud.querySelector('[data-organe="SEND"]').disabled, true);
+});
+
+test("11 ter — ⭐ LE REFUS DE L'APPELANT S'AFFICHE DANS LE PANNEAU, pas dans un organe de plus", () => {
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, surEnvoyer: () => {},
+    choix: { base: "Longsword", bonus: "Uncommon" }, alerte: "Not enough coin in the purse." });
+  const a = noeud.querySelector('[data-organe="PANNEAU"] [role="alert"]');
+  assert.ok(a, "l'alerte est DANS le panneau");
+  assert.equal(a.textContent, "Not enough coin in the purse.");
 });
 
 test("12 — ⚖️ LES TROIS RÉGIMES DU PANNEAU suivent le STATUS", () => {

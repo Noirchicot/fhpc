@@ -353,6 +353,22 @@ export function encorePossibles(dejaPris, candidats) {
 /** Un coût du SRD (« 10 GP », « 5 SP », « 2 CP ») en pièces d'or.
  *  ⛔ Une chaîne illisible rend 0, jamais NaN : un prix qui se propage en NaN
  *  empoisonne tout l'affichage en silence. */
+/** ⭐ LOT 265 — CE QUE LA BOURSE PAIE, et c'est EXACTEMENT ce que l'écran affiche.
+ *  ⚖️ Eric, 25/09 : « `Send` retire le prix total de la bourse ». L'écran arrondit
+ *  à la pièce d'or au-dessus de 1 GP (`4,008 GP` pour 4 007,5) : payer 4 007 GP 5 SP
+ *  facturerait un nombre que le joueur n'a pas vu — ⛔ et `bourseCouvre` ne fait
+ *  pas la monnaie, donc une bourse sans pièce d'argent refuserait un prix qu'elle
+ *  couvre à l'œil. Une seule fonction arrondit : `x5-ecran` AFFICHE par elle.
+ *  ⛔ Rien à payer (0, négatif, illisible) rend `null`, pas une bourse de zéros. */
+export function enPieces(po) {
+  if (!Number.isFinite(po) || po <= 0) return null;
+  const c = { pp: 0, gp: 0, sp: 0, cp: 0 };
+  if (po >= 1) c.gp = Math.round(po);
+  else if (po >= 0.1) c.sp = Math.round(po * 10);
+  else c.cp = Math.max(1, Math.round(po * 100));
+  return c;
+}
+
 export function prixEnPO(cout) {
   const m = /^\s*([\d,.]+)\s*(GP|SP|CP)\b/i.exec(String(cout || ""));
   if (!m) return 0;

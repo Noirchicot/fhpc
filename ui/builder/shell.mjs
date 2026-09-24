@@ -2179,6 +2179,25 @@ function applyDecisionAction(action) {
     if (action.location) {
       document = verbs.set({ document, path: `gear[${index}].location`, value: action.location }).document;
     }
+    /* ⭐ LOT 265 — L'OBJET CRAFTÉ ENTRE PAR LA MÊME PORTE QU'UN ACHAT. ⛔ Pas un
+       second verbe « crafter » : une ligne craftée EST une ligne d'équipement (sa
+       base), plus sa recette. Le nom, le prix et le poids ne s'écrivent pas — le
+       moteur les recompose (`src/build/objet-crafte.mjs`). */
+    const recette = action.recette;
+    if (recette) {
+      if (typeof recette.bonus === "string" && recette.bonus) {
+        document = verbs.set({ document, path: `gear[${index}].bonus`, value: recette.bonus }).document;
+      }
+      (recette.pouvoirs || []).forEach((ref, k) => {
+        document = verbs.choose({ document, path: `gear[${index}].powers[${k}]`, ref }).document;
+      });
+      if (recette.plan) {
+        document = verbs.choose({ document, path: `gear[${index}].plan`, ref: recette.plan }).document;
+      }
+      if (typeof recette.note === "string" && recette.note) {
+        document = verbs.set({ document, path: `gear[${index}].note`, value: recette.note }).document;
+      }
+    }
     state.document = document;
     rebuild();
     refresh();

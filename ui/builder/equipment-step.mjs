@@ -108,7 +108,7 @@ import { feuilleDesCotesX0, MARGE_DALLE as MARGE_DALLE_X0 } from "./x0-dispositi
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=813";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre } from "./equipement-pipeline.mjs?v=813";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -119,6 +119,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=813";
 import { construireX5 } from "./x5-ecran.mjs?v=813";
 import { seCrafteDansX5, ouvertureX5 } from "./craft.mjs?v=813";
+import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=813";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=813";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -1087,7 +1088,10 @@ export function currentGearLines(document) {
      ⭐ UNE LIGNE SANS `place` GARDE SON RANG DE DOCUMENT : les personnages déjà
      sauvegardés s'ouvrent sans rien perdre, et la première remise en ordre leur en
      écrit une. Une absence n'est pas une faute, c'est l'état d'avant. */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place))?$/;
+  /* `bonus` · `powers[K]` · `plan` · `note` (LOT 265) : la RECETTE d'un objet crafté
+     (`src/build/objet-crafte.mjs`) — la ligne pointe sur sa base, ces quatre
+     chemins disent ce que le craft y a ajouté. */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place|bonus|plan|note|powers\[(\d+)\]))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -1102,6 +1106,10 @@ export function currentGearLines(document) {
     else if (match[2] === "locked") line.locked = choice.value;
     else if (match[2] === "is") line.is = choice.value;
     else if (match[2] === "place") line.place = choice.value;
+    else if (match[2] === "bonus") line.bonus = choice.value;
+    else if (match[2] === "note") line.note = choice.value;
+    else if (match[2] === "plan") line.plan = choice.ref;
+    else if (match[3] !== undefined) (line.pouvoirs || (line.pouvoirs = []))[Number(match[3])] = choice.ref;
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
@@ -3151,14 +3159,32 @@ export function renderEquipmentStep(ctx, onAction) {
   };
   const cherche = fabriquerChercheur(query);
   const lignes = currentGearLines(docu).filter((l) => l.ref);
-  for (const l of lignes) {
+  /* ⭐ LOT 265 — LE NOM D'UNE LIGNE, UN SEUL ÉCRIVAIN. Un objet crafté se nomme par
+     sa recette, et par la fonction du MOTEUR (`nomCrafte`) : l'écran et
+     `resolved.gear` disent le même nom, par construction.
+     🔴 ILS ÉTAIENT TROIS À NOMMER UNE LIGNE — l'écran R (`nomAffiche`), le sac
+     (`enMots`) et le tri par nom — chacun par `rec.name`. Vu au navigateur : la
+     Breastplate +1 craftée s'affichait « Breastplate » dans le sac. Les trois
+     appellent désormais celle-ci (garde 8 de `objet-crafte.test.mjs`). */
+  const nomDeLaLigne = (l) => {
     const rec = cherche.record(l.ref);
-    l.nomAffiche = (rec && rec.name) || motDUnRecordAbsent(l.ref.id);
-  }
+    const base = (rec && rec.name) || motDUnRecordAbsent(l.ref.id);
+    const pouvoirs = (l.pouvoirs || []).filter(Boolean).map((p) => {
+      const r = cherche.record(p);
+      return (r && r.name) || motDUnRecordAbsent(p.id);
+    });
+    return nomCrafte({ base, bonus: l.bonus, pouvoirs });
+  };
+  for (const l of lignes) l.nomAffiche = nomDeLaLigne(l);
 
   /* ⭐ LES MATIÈRES DE X5, UNE PASSE PAR RENDU — des RECORDS, pas des vues :
      `craft.mjs` est strict (lot 258), et c'est ce qui a coûté la diagonale au 256. */
-  const lireRecords = (kind) => { try { return (query({ kind }) || []).map((v) => v.record); }
+  /* ⭐ LOT 265 — ET LEUR RÉFÉRENCE, relevée DANS LA MÊME PASSE : `Send` pose des
+     `{kind, id}` dans la fiche, et le record seul ne porte pas toujours son id. ⛔ Pas
+     de seconde lecture par nom — deux lectures de la même chose divergent. */
+  const refDuRecord = new Map();
+  const lireRecords = (kind) => { try { return (query({ kind }) || []).map((v) => {
+                                    refDuRecord.set(v.record, { kind, id: v.id }); return v.record; }); }
                                   catch { return []; } };
   const basesDuCraft = [...lireRecords("weapon"), ...lireRecords("armor")];
   const magiquesDuCraft = lireRecords("item").filter((r) => String((r && r.data && r.data.subtype) || "").trim());
@@ -3384,8 +3410,7 @@ export function renderEquipmentStep(ctx, onAction) {
     if (pageSac >= pages) pageSac = pages - 1;
     const enMots = (l) => {
       if (!l) return null;
-      const rec = cherche.record(l.ref);
-      return { index: l.index, nom: (rec && rec.name) || motDUnRecordAbsent(l.ref.id),
+      return { index: l.index, nom: nomDeLaLigne(l),
         qte: l.quantity || 1, equipped: l.equipped === true,
         attuned: l.attuned === true, locked: l.locked === true };
     };
@@ -3616,7 +3641,7 @@ export function renderEquipmentStep(ctx, onAction) {
         actions: RANGEMENTS.map((r) => ({ mot: r.mot, faire: () => act({
           kind: "rangerSection",
           places: rangement(dedans, r.clef, {
-            nom: (l) => { const rec = cherche.record(l.ref); return (rec && rec.name) || motDUnRecordAbsent(l.ref.id); },
+            nom: nomDeLaLigne,
             valeur: (l) => { const rec = cherche.record(l.ref);
               return enGP(parseCout(cherche.valeur(rec).cout)) * (l.quantity || 1); }
           })
@@ -4219,6 +4244,41 @@ export function renderEquipmentStep(ctx, onAction) {
       /* ⚖️ `Cancel` rend la fiche d'où l'on vient — ⛔ il ne rend pas Wares directement :
          le joueur retrouve le plan qu'il regardait. */
       surAnnuler: () => { const r = ficheX5.retour || "x2"; ficheX5 = null; montrer(r); },
+      alerte: ficheX5.alerte || "",
+      /* ⭐ LOT 265 — `SEND` : l'objet entre dans l'équipement du personnage.
+         ⚖️ Eric, 25/09 : le craft SE PAIE (a), l'objet arrive TOUT DE SUITE (a), le
+         site ne stocke rien (a). ⭐ Même chemin qu'un achat en X2 — `payer` puis
+         `addGearLine` — et la ligne porte sa RECETTE (`src/build/objet-crafte.mjs`).
+         ⛔ La bourse est vérifiée AVANT tout geste : rien n'est écrit à moitié. */
+      surEnvoyer: (e) => {
+        const refBase = refDuRecord.get(e.base);
+        const refs = (e.pouvoirs || []).map((r) => refDuRecord.get(r));
+        if (!refBase || refs.some((r) => !r)) {
+          ficheX5 = { ...ficheX5, alerte: "This item cannot be saved: a part of it is missing from the rules." };
+          montrer("x5");
+          return;
+        }
+        if (e.cout && !bourseCouvre(bourse, e.cout)) {
+          ficheX5 = { ...ficheX5, alerte: "Not enough coin in the purse." };
+          montrer("x5");
+          return;
+        }
+        if (e.cout) actArbitre({ kind: "payer", cout: e.cout });
+        const nomDuPerso = docu && typeof docu.name === "string" ? docu.name.trim() : "";
+        actArbitre({ kind: "addGearLine", ref: refBase, quantity: e.cote.qte,
+          equipped: e.destination === "self", location: e.destination,
+          recette: {
+            bonus: e.bonus ? e.bonus.mot : null,
+            pouvoirs: refs,
+            plan: refDuRecord.get(plan) || null,
+            /* ⭐ « forgé par » — une ligne sans effet de jeu, qui suit l'objet quand il
+               change de main. ⛔ Seulement pour un objet FABRIQUÉ : acheté ou trouvé,
+               personne ne l'a forgé ici. */
+            note: e.status === "Crafting" && nomDuPerso ? `Crafted by ${nomDuPerso}` : null,
+          } });
+        ficheX5 = null;
+        montrer("r");
+      },
     });
     return noeud;
   }

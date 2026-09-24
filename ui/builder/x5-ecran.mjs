@@ -20,7 +20,7 @@
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=813";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=813";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=813";
 import { DESTINATIONS } from "./gear-ecran.mjs?v=813";
 import { habilleEnParchemin } from "./parchemin.mjs?v=813";
 
@@ -173,9 +173,20 @@ function ligne(clef, valeur) {
 /** ⛔ Jamais de décimale fantôme : 0,5 GP s'écrit « 5 SP », pas « 0.5 GP ». */
 function or(n) {
   if (!Number.isFinite(n)) return "—";
-  if (n >= 1) return `${Math.round(n).toLocaleString("en-US")} GP`;
-  if (n >= 0.1) return `${Math.round(n * 10)} SP`;
-  return `${Math.round(n * 100)} CP`;
+  /* ⭐ LOT 265 — l'arrondi est celui de `enPieces`, qui dit aussi ce que la bourse
+     PAIE : l'écran ne peut plus afficher un prix et en facturer un autre. */
+  const c = enPieces(n);
+  if (!c) return "0 CP";
+  if (c.gp) return `${c.gp.toLocaleString("en-US")} GP`;
+  if (c.sp) return `${c.sp} SP`;
+  return `${c.cp} CP`;
+}
+
+/** ⚖️ CE QUE `SEND` PAIE, SELON LE STATUT — les trois régimes du croquis :
+ *  `Crafting` paie le coût de fabrication, `Buying` le prix d'achat, `Found` rien. */
+export function montantDuStatut(cote, status = "Crafting") {
+  if (!cote || !cote.legal || status === "Found") return 0;
+  return status === "Buying" ? cote.venteTotale : cote.craftTotal;
 }
 function motDuRefus(raison) {
   return {
@@ -193,11 +204,14 @@ function motDuRefus(raison) {
  *   · `choix` — `{ base, bonus, pouvoirs: [nom], qte, status, destination }`,
  *     l'état courant, TENU PAR L'APPELANT : cet écran ne garde rien, il redessine.
  *   · `fh` — la pile porte-t-elle Fate's Hand ? décide de la colonne gauche.
- *   · `surChoix(organe, valeur)` · `surAnnuler()` · `surEnvoyer(cote)`.
+ *   · `surChoix(organe, valeur)` · `surAnnuler()` · `surEnvoyer(envoi)` — `envoi` =
+ *     `{ base, bonus, pouvoirs, cote, status, destination, cout }`, des RECORDS ;
+ *     l'appelant les change en références et paie. ⛔ Cet écran n'écrit rien.
+ *   · `alerte` — la phrase d'un refus de l'appelant (« Not enough coin… »).
  *  @returns {{ noeud: HTMLElement, cote: object }} */
 export function construireX5(o = {}) {
   const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
-    surChoix = null, surAnnuler = null, surEnvoyer = null } = o;
+    surChoix = null, surAnnuler = null, surEnvoyer = null, alerte = "" } = o;
 
   const offertesBases = plan ? basesDe(plan, bases) : bases;
   const base = offertesBases.find((b) => b.data.name === choix.base) || offertesBases[0] || null;
@@ -264,7 +278,16 @@ export function construireX5(o = {}) {
 
   n.append(menu("STATUS", status,
     ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix));
-  n.append(panneau(cote, status));
+  const pan = panneau(cote, status);
+  /* ⭐ LE REFUS DE L'APPELANT VIT DANS LE PANNEAU — ⛔ pas un organe de plus : la
+     fiche est cotée organe par organe (`x5-disposition`), et le panneau est déjà
+     l'endroit où X5 parle d'argent. */
+  if (alerte) {
+    const a = elx("p", "x5-panneau-refus", alerte);
+    a.setAttribute("role", "alert");
+    pan.append(a);
+  }
+  n.append(pan);
 
   n.append(menu("SEND TO", choix.destination || "backpack",
     DESTINATIONS.filter((d) => d.valeur !== "craft")
@@ -275,14 +298,30 @@ export function construireX5(o = {}) {
   if (surAnnuler) cancel.addEventListener("click", surAnnuler);
   const send = elx("button", "x5-porte", "Send");
   send.type = "button"; send.dataset.organe = "SEND";
-  /* ⏳ `SEND` ATTEND UNE DÉCISION, ET IL LE DIT. Un objet composé — `Longsword +1
-     Flame Tongue` — n'existe comme record NULLE PART : le poser dans la fiche touche
-     le format de sauvegarde, et ce n'est pas un écran qui le décide. ⛔ Le bouton est
-     inerte, et son nom accessible dit pourquoi — un bouton qui ne fait rien en
-     silence est pire qu'un bouton absent. */
-  send.disabled = true;
-  send.title = "Crafted items cannot be saved to the sheet yet";
-  send.setAttribute("aria-label", "Send — not available yet: crafted items cannot be saved to the sheet");
+  /* ⭐ LOT 265 — `SEND` POSE L'OBJET DANS LA FICHE (Eric, 25/09 : « l'objet crafté va
+     dans l'équipement du personnage »). Il s'arme quand l'assemblage est LÉGAL et
+     porte au moins un bonus ou un pouvoir — ⛔ une base nue n'est pas un craft,
+     c'est un achat, et il a sa porte (X2 · BUY).
+     ⛔ Il ne paie ni n'écrit rien lui-même : il rend à l'appelant ce qui a été
+     composé, et le montant du statut (`montantDuStatut`, arrondi par `enPieces`). */
+  const destination = choix.destination || "backpack";
+  const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
+  const compose = Boolean(bonusChoisi) || pris.length > 0;
+  const pret = Boolean(surEnvoyer) && Boolean(base) && cote.legal && compose && destOk;
+  send.disabled = !pret;
+  if (pret) {
+    send.setAttribute("aria-label", "Send — put the crafted item in the character's equipment");
+    send.addEventListener("click", () => surEnvoyer({
+      base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
+      cout: enPieces(montantDuStatut(cote, status)),
+    }));
+  } else {
+    /* ⛔ Un bouton inerte DIT pourquoi — un bouton muet est pire qu'absent. */
+    const pourquoi = !compose ? "choose a bonus or a power first"
+      : !cote.legal ? "this assembly is not craftable" : "not available here";
+    send.title = `Send — ${pourquoi}`;
+    send.setAttribute("aria-label", `Send — not available: ${pourquoi}`);
+  }
   n.append(cancel, send);
 
   return { noeud: n, cote };

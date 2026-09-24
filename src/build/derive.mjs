@@ -48,6 +48,7 @@
    de jeu dans ce répertoire. */
 
 import { BuildError } from "./errors.mjs";
+import { lireLeBonus, nomCrafte } from "./objet-crafte.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
 /* LOT 41 — le mécanisme des mots (lot 27), réemployé pour `underived`. Import
@@ -495,8 +496,26 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       underived.declare(`gear[${view.record.slug || ref.id}]`, "underived.gear-line-incomplete", { missing: missing.join(" et ") });
       continue;
     }
-    gear.push({ id: view.record.slug || ref.id, name: view.record.name, quantity, equipped });
-    if (ref.kind === "armor" && equipped) armorPieces.push(view);
+    /* ⭐ LOT 265 — L'OBJET CRAFTÉ : la ligne porte sa RECETTE (`objet-crafte.mjs`),
+       et le nom se recompose ici, par la même fonction que l'écran. ⛔ Un pouvoir
+       dont la couche est absente garde son id — le personnage s'ouvre quand même. */
+    const bonus = takeValue(`gear[${index}].bonus`);
+    const pouvoirs = [];
+    for (let k = 0; ; k += 1) {
+      const p = takeRef(`gear[${index}].powers[${k}]`);
+      if (p === undefined) break;
+      const pv = p ? reader.maybe(p.kind, p.id) : null;
+      pouvoirs.push(pv ? pv.record.name : (p && p.id) || "");
+    }
+    take(`gear[${index}].plan`);
+    const note = takeValue(`gear[${index}].note`);
+    const ligne = { id: view.record.slug || ref.id,
+      name: nomCrafte({ base: view.record.name, bonus, pouvoirs }), quantity, equipped };
+    if (typeof note === "string" && note.trim()) ligne.note = note.trim().slice(0, 500);
+    gear.push(ligne);
+    /* ⚖️ « You have a bonus to Armor Class while wearing this armor » — le +N d'une
+       armure craftée entre dans la CA. ⛔ Un bonus illisible n'ajoute rien. */
+    if (ref.kind === "armor" && equipped) armorPieces.push({ view, plus: lireLeBonus(bonus) || 0 });
   }
   if (gear.length === 0) {
     underived.declare("gear", "underived.no-gear-choices", {});
@@ -1507,8 +1526,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const acBases = [];
   let acBonus = 0;
   let acRefusedArmorId = null;
-  for (const view of armorPieces) {
+  for (const { view, plus } of armorPieces) {
     const data = view.record.data || {};
+    acBonus += plus;
     const hasBase = Number.isInteger(data.ac_base);
     const hasBonus = Number.isInteger(data.ac_bonus);
     if (!hasBase && !hasBonus) {
