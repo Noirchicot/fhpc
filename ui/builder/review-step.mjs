@@ -47,11 +47,11 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=806";
-import { lignageChoisi } from "./species-step.mjs?v=806";
+import { planAt } from "./carnet.mjs?v=807";
+import { lignageChoisi } from "./species-step.mjs?v=807";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
    jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=806";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=807";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
