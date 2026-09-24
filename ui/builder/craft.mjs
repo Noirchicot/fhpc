@@ -180,6 +180,19 @@ export function bonusDe(plan) {
   }));
 }
 
+/** ⭐ LOT 266 — LA VALEUR D'UN OBJET CRAFTÉ, pour sa fiche : le prix d'achat que X5
+ *  affiche en `Buying` (base + part magique), au format que `parseCout` relit.
+ *  🔴 Eric, 25/09, devant la fiche X1 d'une Breastplate +1 : le texte disait la base.
+ *  Le prix aussi — celui de la Breastplate nue. ⛔ Un bonus dont le plan est absent
+ *  ne se cote pas (le mot « +1 » ne dit pas sa rareté : +1 Armor est Rare, +1 Weapon
+ *  Uncommon) : `null`, jamais un prix plausible. */
+export function valeurDUnObjetCrafte({ base, plan = null, bonus = null, pouvoirs = [] } = {}) {
+  const palier = bonus ? (bonusDe(plan).find((b) => b.mot === bonus) || {}).rarete : null;
+  if (bonus && !palier) return null;
+  const cote = coteDe({ base, bonus: palier, pouvoirs: (pouvoirs || []).map((p) => p && p.data && p.data.rarity), fh: false });
+  return cote.legal ? `${cote.venteUnitaire.toLocaleString("en-US")} GP` : null;
+}
+
 /* ══ ③ quater — PAR OÙ X5 S'OUVRE : UNE SEULE SOURCE ══════════════════════════
    Deux sortes de plans ouvrent X5, et c'est cette fonction qui les distingue :
      · un plan À BONUS (`Weapon, +1, +2, or +3`) — il porte ses bases et ses bonus ;

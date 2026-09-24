@@ -19,7 +19,9 @@ import { createDocWriters } from "../src/doc/index.mjs";
 import { ABILITY_KEYS } from "../src/build/index.mjs";
 import { nomCrafte, lireLeBonus, estCrafte, NOM_MAX } from "../src/build/objet-crafte.mjs";
 import { currentGearLines } from "../ui/builder/equipment-step.mjs";
-import { enPieces } from "../ui/builder/craft.mjs";
+import { enPieces, valeurDUnObjetCrafte } from "../ui/builder/craft.mjs";
+import { recordProse } from "../ui/builder/equipment-step.mjs";
+import { parseCout, enGP } from "../ui/builder/equipement-pipeline.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (f) => fs.readFileSync(path.join(ROOT, f), "utf8")
@@ -142,4 +144,58 @@ test("8 — 🔴 UNE LIGNE D'ÉQUIPEMENT N'A QU'UN ÉCRIVAIN DE NOM — l'écran
   assert.equal(panier, 1, "témoin : le panier (des lignes `cart`, pas `gear`) nomme les siennes");
   assert.equal(fabriques - panier, 1, `⛔ ${fabriques - panier} fabrications du nom d'une ligne gear — une seule doit rester, dans \`nomDeLaLigne\``);
   assert.ok((ecran.match(/nomDeLaLigne\b/g) || []).length >= 4, "⭐ défini une fois, appelé par R, le sac et le tri");
+});
+
+/* ══ LOT 266 — LA FICHE X1 D'UN OBJET CRAFTÉ ══════════════════════════════════
+   🔴 Eric, 25/09 : *« le texte de la breastplate +1 dit AC 14, pas bon ça »*. La
+   fiche recopiait la BASE — son texte, ET son prix. */
+const q = H.layers.verbs.query;
+const rec = (kind, name) => q({ kind }).find((v) => v.record.name === name).record;
+
+test("9 — 🔴 LE TEXTE D'UNE BREASTPLATE +1 DIT AC 15, et celui d'une arme dit son bonus et ses pouvoirs", () => {
+  const plate = { record: rec("armor", "Breastplate") };
+  assert.match(recordProse(plate), /^AC: 14$/m, "témoin : la Breastplate nue dit 14");
+  const plus1 = recordProse(plate, { kind: "armor", bonus: "+1" });
+  assert.match(plus1, /^AC: 15$/m, "⭐ la Breastplate +1 dit 15");
+  assert.match(plus1, /^Bonus: \+1 to AC \(included above\)$/m);
+  assert.doesNotMatch(plus1, /^AC: 14$/m, "⛔ et plus jamais 14");
+  const flamme = rec("item", "Flame Tongue");
+  const epee = recordProse({ record: rec("weapon", "Longsword") },
+    { kind: "weapon", bonus: "+1", pouvoirs: [flamme], note: "Crafted by Nodren" });
+  assert.match(epee, /^Bonus: \+1 to attack and damage rolls$/m);
+  assert.match(epee, /^Flame Tongue\. /m, "⭐ chaque pouvoir apporte son propre texte");
+  assert.match(epee, /^Crafted by Nodren$/m);
+});
+
+test("10 — 💰 LE PRIX D'UN OBJET CRAFTÉ EST SA VALEUR, pas celle de sa base — et `parseCout` le relit", () => {
+  const plate = rec("armor", "Breastplate");
+  const armure = rec("item", "Armor, +1, +2, or +3");
+  const arme = rec("item", "Weapon, +1, +2, or +3");
+  const longue = rec("weapon", "Longsword");
+  const flamme = rec("item", "Flame Tongue");
+  const lu = (x) => enGP(parseCout(x));
+  assert.equal(lu(valeurDUnObjetCrafte({ base: plate, plan: armure, bonus: "+1" })), 4000 + 400,
+    "⚖️ +1 Armor est RARE (4 000) + la Breastplate (400) — le SRD le dit du plan même");
+  assert.equal(lu(valeurDUnObjetCrafte({ base: longue, plan: arme, bonus: "+1" })), 400 + 15, "+1 Weapon est Uncommon");
+  assert.equal(lu(valeurDUnObjetCrafte({ base: longue, plan: arme, bonus: "+1", pouvoirs: [flamme] })), 400 * 4000 / 40 + 15,
+    "⭐ la règle du craft : 400 × 4 000 ÷ 40, plus la base");
+  assert.equal(valeurDUnObjetCrafte({ base: plate, bonus: "+1" }), null,
+    "⛔ sans son plan, « +1 » ne dit pas sa rareté — pas de prix plausible");
+  /* ⚔️ LE CAS QUI MORD : un bonus sans plan À CÔTÉ d'un pouvoir. Sans le refus, le
+     pouvoir seul serait coté et le +1 passerait pour gratuit — un prix plausible et
+     faux. (Sans pouvoir, l'assemblage est déjà illégal : ce témoin-là ne prouvait rien.) */
+  assert.equal(valeurDUnObjetCrafte({ base: longue, bonus: "+1", pouvoirs: [flamme] }), null,
+    "⛔ le +1 sans son plan ne devient pas gratuit à côté d'un pouvoir");
+});
+
+test("11 — 🔴 UNE LIGNE D'ÉQUIPEMENT SE LIT PAR ELLE-MÊME, jamais par sa base", () => {
+  /* ⛔ Compté dans le code sans commentaires : `cherche.valeur(` ne vit plus que dans
+     `valeurDeLaLigne` et dans le panier ; `recordProse(` que dans sa définition, le
+     catalogue (un record, pas une ligne) et `proseDeLaLigne`. Un cinquième lecteur de
+     ligne relirait la base — la panne de la Breastplate +1. */
+  const ecran = lire("ui/builder/equipment-step.mjs");
+  assert.equal((ecran.match(/cherche\.valeur\(/g) || []).length, 2, "valeurDeLaLigne + le panier");
+  assert.equal((ecran.match(/recordProse\(/g) || []).length, 3, "la définition + le catalogue + proseDeLaLigne");
+  assert.match(ecran, /const valeurX1 = valeurDeLaLigne\(ligne\)/);
+  assert.match(ecran, /prose: proseDeLaLigne\(ligne\)/);
 });

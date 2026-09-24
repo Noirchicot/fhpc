@@ -118,8 +118,8 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    qui aurait fermé le cycle. */
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=814";
 import { construireX5 } from "./x5-ecran.mjs?v=814";
-import { seCrafteDansX5, ouvertureX5 } from "./craft.mjs?v=814";
-import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=814";
+import { seCrafteDansX5, ouvertureX5, valeurDUnObjetCrafte } from "./craft.mjs?v=814";
+import { nomCrafte, estCrafte, lireLeBonus } from "../../src/build/objet-crafte.mjs?v=814";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=814";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -2799,20 +2799,38 @@ function renderTambour({ query, onAction }) {
  *  qui connaît déjà le défaut et l'a gravé (garde `POLLUTED_BY_EXTRACTION`,
  *  `src/correspond.py`, et son test d'acceptation). Ce commentaire existe pour
  *  qu'on ne cherche pas le défaut ici. */
-function recordProse(view) {
+export function recordProse(view, recette = null) {
   const data = (view && view.record && view.record.data) || {};
+  /* ⭐ LOT 266 — LA RECETTE D'UN OBJET CRAFTÉ ENTRE DANS SON TEXTE. 🔴 Eric, 25/09 :
+     *« le texte de la breastplate +1 dit AC 14, pas bon ça »* — la fiche recopiait la
+     BASE. Le +N s'ajoute à la CA de base, la ligne `Bonus` dit ce qu'il fait, et
+     chaque pouvoir apporte son propre texte. ⛔ Rien n'est recopié dans la fiche : le
+     texte se recompose, comme le nom. */
+  const plus = recette ? lireLeBonus(recette.bonus) : null;
   const lignes = [];
   if (typeof data.description === "string" && data.description) lignes.push(data.description);
   for (const [label, valeur] of [
     ["Damage", data.damage],
     ["Mastery", data.mastery],
     ["Properties", Array.isArray(data.properties) ? data.properties.join(", ") : data.properties],
-    ["AC", data.ac_base],
+    ["AC", Number.isInteger(data.ac_base) && plus ? data.ac_base + plus : data.ac_base],
     ["Strength", data.strength],
     ["Stealth", data.stealth_disadvantage ? "disadvantage" : null]
   ]) {
     if (valeur !== undefined && valeur !== null && valeur !== "") lignes.push(`${label}: ${valeur}`);
   }
+  if (plus) {
+    /* un bouclier n'a pas de CA de base (`ac_bonus`) : le +N ne s'y voit pas plus haut */
+    const inclus = Number.isInteger(data.ac_base) ? " (included above)" : "";
+    lignes.push(recette.kind === "armor" ? `Bonus: +${plus} to AC${inclus}`
+      : `Bonus: +${plus} to attack and damage rolls`);
+  }
+  for (const p of (recette && recette.pouvoirs) || []) {
+    const d = (p && p.data) || {};
+    const nom = (p && p.name) || d.name;
+    if (nom) lignes.push(typeof d.description === "string" && d.description ? `${nom}. ${d.description}` : nom);
+  }
+  if (recette && typeof recette.note === "string" && recette.note) lignes.push(recette.note);
   return lignes.length > 0 ? lignes.join("\n") : "No further detail on this record.";
 }
 
@@ -3176,6 +3194,23 @@ export function renderEquipmentStep(ctx, onAction) {
     return nomCrafte({ base, bonus: l.bonus, pouvoirs });
   };
   for (const l of lignes) l.nomAffiche = nomDeLaLigne(l);
+  /* ⭐ LOT 266 — LE PRIX, LE POIDS ET LE TEXTE D'UNE LIGNE, par la même porte que son
+     nom. Un objet ordinaire rend ceux de son record ; un objet crafté, ceux de sa
+     RECETTE (`valeurDUnObjetCrafte`, `recordProse(…, recette)`). 🔴 Sans elle, la
+     fiche X1 d'une Breastplate +1 disait « AC: 14 » et le prix de la Breastplate nue. */
+  const recetteDeLaLigne = (l) => estCrafte({ bonus: l.bonus, pouvoirs: (l.pouvoirs || []).filter(Boolean) })
+    ? { kind: l.ref && l.ref.kind, bonus: l.bonus, note: l.note,
+        plan: l.plan ? cherche.record(l.plan) : null,
+        pouvoirs: (l.pouvoirs || []).filter(Boolean).map((p) => cherche.record(p)).filter(Boolean) }
+    : null;
+  const valeurDeLaLigne = (l) => {
+    const rec = cherche.record(l.ref);
+    const v = cherche.valeur(rec);
+    const r = recetteDeLaLigne(l);
+    if (!r) return v;
+    return { cout: valeurDUnObjetCrafte({ base: rec, plan: r.plan, bonus: r.bonus, pouvoirs: r.pouvoirs }), poids: v.poids };
+  };
+  const proseDeLaLigne = (l) => recordProse({ record: cherche.record(l.ref) || null }, recetteDeLaLigne(l));
 
   /* ⭐ LES MATIÈRES DE X5, UNE PASSE PAR RENDU — des RECORDS, pas des vues :
      `craft.mjs` est strict (lot 258), et c'est ce qui a coûté la diagonale au 256. */
@@ -3642,8 +3677,7 @@ export function renderEquipmentStep(ctx, onAction) {
           kind: "rangerSection",
           places: rangement(dedans, r.clef, {
             nom: nomDeLaLigne,
-            valeur: (l) => { const rec = cherche.record(l.ref);
-              return enGP(parseCout(cherche.valeur(rec).cout)) * (l.quantity || 1); }
+            valeur: (l) => enGP(parseCout(valeurDeLaLigne(l).cout)) * (l.quantity || 1)
           })
         }) })) }),
       /* ⚖️ *« le bouton pack devient sections, et la roue passe en mode édition »* —
@@ -3738,7 +3772,7 @@ export function renderEquipmentStep(ctx, onAction) {
     const rec = cherche.record(ligne.ref);
     const data = (rec && rec.data) || {};
     const qte = ligne.quantity || 1;
-    const valeurX1 = cherche.valeur(rec);
+    const valeurX1 = valeurDeLaLigne(ligne);
     const cout = parseCout(valeurX1.cout);
     const poids = parsePoids(valeurX1.poids);
     const { noeud } = construireLaFicheX1({
@@ -3754,7 +3788,7 @@ export function renderEquipmentStep(ctx, onAction) {
         prixTotal: cout ? formatCout(multiplieCout(cout, qte)).toLowerCase() : "",
         poidsUnite: valeurX1.poids || "",
         poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
-        prose: recordProse({ record: rec }),
+        prose: proseDeLaLigne(ligne),
         /* ⚖️ TRANCHÉ LE 18/09 : `is` RANGE l'objet dans la fiche de personnage — *« ça
            permet de mettre l'action de lancer une boule de feu avec un parchemin dans les
            actions / bonus action / réaction. Ou de le mettre dans les sorts. »* ⛔ Le genre
@@ -3837,9 +3871,9 @@ export function renderEquipmentStep(ctx, onAction) {
     const qte = ligne.quantity || 1;
     const texte = [
       qte > 1 ? `${ligne.nomAffiche} ×${qte}` : ligne.nomAffiche,
-      (() => { const c = cherche.valeur(cherche.record(ligne.ref)).cout; return c ? `Cost: ${c}` : ""; })(),
-      (() => { const w = cherche.valeur(cherche.record(ligne.ref)).poids; return w ? `Weight: ${w}` : ""; })(),
-      recordProse({ record: (cherche.record(ligne.ref) || null) })
+      (() => { const c = valeurDeLaLigne(ligne).cout; return c ? `Cost: ${c}` : ""; })(),
+      (() => { const w = valeurDeLaLigne(ligne).poids; return w ? `Weight: ${w}` : ""; })(),
+      proseDeLaLigne(ligne)
     ].filter(Boolean).join("\n");
     const montrerLeTexte = () => act({ kind: "popup", titre: ligne.nomAffiche, texte });
     const presse = typeof navigator !== "undefined" && navigator ? navigator.clipboard : null;
