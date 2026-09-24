@@ -41,16 +41,18 @@ test("1 — ⚔️ LE SRD DONNE LA RÉPONSE : sa propre règle, sur ses propres 
   assert.equal(v.poids, "1 lb.");
 });
 
-test("2 — ⚖️ PLUSIEURS BASES : la valeur seule, et ⛔ AUCUN poids inventé", () => {
-  /* ⚖️ « même si on n'arrive pas toujours à calculer le poids ». `Sword of Life
-     Stealing` se pose sur six épées différentes : on ne sait pas laquelle, donc
-     on n'ajoute AUCUN prix de base et on ne donne AUCUN poids. */
-  const s = valeurDe(parNom.get("Sword of Life Stealing"));
-  assert.equal(s.cout, "4,000 GP", "la rareté seule — la base est inconnue");
-  assert.equal(s.poids, null, "⛔ null, pas 3 lb. deviné sur l'épée la plus probable");
-  const def = valeurDe(parNom.get("Defender"));
-  assert.equal(def.cout, "200,000 GP", "`Any Melee Weapon` : aucune base, la rareté seule");
-  assert.equal(def.poids, null);
+test("2 — ⭐ PLUSIEURS BASES : C'EST UN PLAN, et un plan n'a pas de prix de catalogue", () => {
+  /* ⚖️ LOT 263 — Eric : « les armes magiques / armures classiques […] n'ont pas pour
+     autant un type d'arme ou d'armure associé. Donc ça rentre dans la définition du
+     blueprint ». Ce garde affirmait au lot 260 que `Sword of Life Stealing` valait
+     4 000 GP : ⛔ il faut d'abord choisir l'épée, et le prix en dépend (la base
+     s'ajoute). C'est X5 qui le calcule, une fois la base choisie. */
+  for (const n of ["Sword of Life Stealing", "Defender", "Dwarven Plate"]) {
+    const r = parNom.get(n);
+    assert.equal(estRecette(r), true, `${n} demande un choix de base : c'est un plan`);
+    assert.deepEqual(valeurDe(r), { cout: null, poids: null },
+      `⛔ ${n} n'a ni prix ni poids de catalogue — ni l'un ni l'autre ne s'invente avant la base`);
+  }
 });
 
 test("3 — ⚔️ UNE BASE EN PIÈCES D'ARGENT NE VAUT PAS ZÉRO", () => {
@@ -67,16 +69,19 @@ test("3 — ⚔️ UNE BASE EN PIÈCES D'ARGENT NE VAUT PAS ZÉRO", () => {
     "⚠️ et c'est pour ça qu'on n'écrit pas ce format-là — ce garde rougira le jour où il se relira");
 });
 
-test("4 — 🔴 LES 48 ARMES ET ARMURES MAGIQUES FINIES ONT TOUTES UNE VALEUR", () => {
-  /* ⛔ Le compte n'est pas épinglé à 48 : un objet ajouté demain doit être tenu
-     lui aussi. Ce qui est tenu, c'est que AUCUN ne reste sans prix. */
+test("4 — 🔴 UNE SEULE BASE : OBJET FINI, AVEC SA VALEUR — et la frontière tient sur toute la pile", () => {
+  /* ⭐ LA FRONTIÈRE DU LOT 263 : un `subtype` qui ne nomme QU'UNE base n'a rien à faire
+     choisir. 📏 Mesuré : 20 armes et armures magiques dans ce cas — `Dagger of Venom`,
+     `Sun Blade`, `Dragon Scale Mail`… Le lot 260 en comptait 48 : il y rangeait les 28
+     qui demandent un choix. ⛔ Le compte n'est pas épinglé ; ce qui est tenu, c'est
+     que CHAQUE objet fini a un prix ET une base unique. */
   const finis = items.filter((r) => ["weapon", "armor"].includes(r.data.category) && !estRecette(r));
-  assert.ok(finis.length > 20, `il y en a bien (${finis.length})`);
-  const sansPrix = finis.filter((r) => !valeurDe(r).cout);
-  assert.deepEqual(sansPrix.map((r) => r.data.name), [],
-    "⛔ un objet magique fini sans prix est exactement la panne d'origine");
+  assert.ok(finis.length >= 10, `il y en a bien (${finis.length})`);
   for (const r of finis) {
-    assert.equal(estRecette(r), false, `${r.data.name} ne porte plus la diagonale`);
+    assert.ok(valeurDe(r).cout, `⛔ ${r.data.name} est un objet fini sans prix`);
+    const cites = String(r.data.subtype || "").split(/,|\bor\b/).map((x) => x.trim()).filter(Boolean);
+    assert.equal(cites.length, 1, `⚔️ ${r.data.name} est fini alors qu'il accepte ${cites.length} bases`);
+    assert.ok(!/^any\b/i.test(r.data.subtype), `⚔️ ${r.data.name} : « Any … » est toujours un choix`);
   }
 });
 
@@ -112,4 +117,19 @@ test("7 — 🔴 SEPT LECTEURS, UN ORGANE : plus personne ne lit `data.cost` à 
   assert.deepEqual(lecteurs, [],
     `⛔ ${lecteurs.length} lecture(s) directe(s) de data.cost/data.weight — elles contournent `
     + "`fabriqueDeValeur`, et un objet magique y affichera « — »");
+});
+
+test("8 — 🔴 UN CONSOMMABLE VAUT LA MOITIÉ — la note du SRD, que le lot 260 n'avait pas lue", () => {
+  /* ⭐ `srd:item-value` le dit dans `value_footnote` : « Halve the value for a
+     consumable item other than a Spell Scroll ». 📏 Déployé à tort le 24/09 :
+     `Potion of Flying` à 40 000 GP pour 20 000. ⛔ Un record se lit EN ENTIER — j'avais
+     lu `tiers` et `add_base_cost_rule`, pas la note. */
+  const table = query({ kind: "item-value" })[0].record.data;
+  assert.match(table.value_footnote, /halve the value for a consumable/i,
+    "⚠️ si la note change, cette règle doit être relue — ce garde le dira");
+  const vol = parNom.get("Potion of Flying");
+  assert.equal(vol.data.category, "potion");
+  assert.equal(valeurDe(vol).cout, "20,000 GP", "⛔ Very Rare (40 000) ÷ 2");
+  const bourse = parNom.get("Bag of Holding");
+  assert.equal(valeurDe(bourse).cout, "400 GP", "⚔️ un objet NON consommable garde sa pleine valeur");
 });

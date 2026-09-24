@@ -268,6 +268,21 @@ export function estRecette(record) {
      kits et les quatre plans du Soulforging. Les signaux qui restent disent tous
      la même chose : CE QU'ON ACQUIERT N'EST PAS ENCORE L'OBJET. */
   if (Array.isArray(d.contents) && d.contents.length > 0) return true;
+  /* ⭐ LOT 263 — UNE BASE À CHOISIR FAIT UN PLAN. Eric, 2026-09-24, corrigeant sa
+     propre correction du matin : *« les armes magiques / armures classiques, même si
+     on a déjà le +1 ou le +2 et un pouvoir associé, n'ont pas pour autant un type
+     d'arme ou d'armure associé. Donc ça rentre dans la définition du blueprint. Même
+     si c'est un choix simple, cela nécessite tout de même un choix. »*
+     ⛔ LE SIGNAL N'EST PAS LA CATÉGORIE — celle-là marquait les 48, y compris
+     `Dagger of Venom`, qui n'a qu'une dague possible. C'est le `subtype` : s'il
+     accepte PLUS D'UNE base (« Any … », ou une énumération), il faut choisir.
+     📏 Mesuré : 28 plans (`Flame Tongue [Any Melee Weapon]`, `Dwarven Plate [Half
+     Plate Armor or Plate Armor]`…) et 20 objets finis (`Dagger of Venom [Dagger]`,
+     `Sun Blade [Longsword]`…), qui gardent leur prix et leur poids.
+     ⭐ Lu dans le TEXTE seul : aucune base n'a besoin d'être chargée pour savoir
+     qu'il y a un choix. */
+  const st = typeof d.subtype === "string" ? d.subtype.trim() : "";
+  if (st && (/^any\b/i.test(st) || st.split(/,|\bor\b/).map((x) => x.trim()).filter(Boolean).length > 1)) return true;
   /* ④ UN RECORD QUI SE DÉCLARE PLAN — les quatre du Soulforging (Eric, 24/09).
      ⛔ CE N'EST PAS UNE LISTE DE NOMS DÉGUISÉE : ces quatre records n'ont pas
      d'autre nature que celle-là. Un kit se reconnaît à son contenu et une arme
@@ -345,7 +360,19 @@ export function fabriqueDeValeur(query) {
         /* ⛔ `enGP`, PAS `.gp` : une base à « 1 SP » (Club, Sickle) vaudrait 0 si l'on
            ne lisait que les pièces d'or — et le prix serait faux sans un mot. */
         const plus = base ? enGP(parseCout(base.cost)) || 0 : 0;
-        cout = `${(v + plus).toLocaleString("en-US")} GP`;
+        /* 🔴 LOT 263 — LE CONSOMMABLE VAUT LA MOITIÉ, ET LE LOT 260 L'IGNORAIT. Le même
+           record `srd:item-value` le dit dans sa note : *« Halve the value for a
+           consumable item other than a Spell Scroll »*. 📏 Déployé à tort le 24/09 :
+           `Potion of Flying` affichée 40 000 GP pour 20 000. J'avais lu `tiers` et
+           `add_base_cost_rule`, pas `value_footnote` — ⛔ un record se lit en entier.
+           ⭐ LE MARQUEUR EST LA CATÉGORIE `potion`, le seul net du SRD. La prose ne sert
+           pas (« disappears » attrape `Cloak of Invisibility`, dont c'est la CHARGE qui
+           s'use). ⚠️ Les wondrous consommables (`Dust of Disappearance`, `Elemental
+           Gem`…) ne portent aucun marqueur : ils restent au plein prix, et c'est dit —
+           ⛔ pas deviné par une liste de noms. `Spell Scroll` est exclu par la note
+           elle-même, et c'est un plan. */
+        const consommable = d.category === "potion";
+        cout = `${((consommable ? v / 2 : v) + plus).toLocaleString("en-US")} GP`;
       }
     }
     return { cout, poids };

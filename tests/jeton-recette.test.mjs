@@ -59,6 +59,13 @@ test("1 — les signaux d'Eric, chacun ÉPROUVÉ SEUL sur un record qui ne porte
   assert.equal(estRecette({ data: { category: "armor" } }), false, "⛔ ① une armure non plus");
   assert.equal(estRecette({ data: { category: "weapon", rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } }), true,
     "⭐ mais `Weapon, +1, +2, or +3` reste un plan — par sa RARETÉ, plus par sa catégorie");
+  /* ⭐ LOT 263 — ET UNE BASE À CHOISIR FAIT UN PLAN, lu dans le `subtype` seul. */
+  assert.equal(estRecette({ data: { category: "weapon", subtype: "Any Melee Weapon", rarity: "Rare" } }), true,
+    "⭐ « Any … » : il faut choisir l'arme — c'est un plan");
+  assert.equal(estRecette({ data: { category: "armor", subtype: "Half Plate Armor or Plate Armor", rarity: "Very Rare" } }), true,
+    "⭐ deux bases nommées : un choix, donc un plan");
+  assert.equal(estRecette({ data: { category: "weapon", subtype: "Dagger", rarity: "Rare" } }), false,
+    "⛔ une seule base nommée : rien à choisir, c'est un objet fini");
   assert.equal(estRecette({ data: { rarity: "Rarity Varies" } }), true, "② le marqueur de famille du SRD");
   assert.equal(estRecette({ data: { contents: [{ ref: "srd:gear:en:rope" }] } }), true,
     "③ ⭐ UN OBJET QUI EN CONTIENT D'AUTRES : il faut l'OUVRIR, donc c'est un blueprint");

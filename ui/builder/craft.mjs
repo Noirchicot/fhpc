@@ -180,11 +180,38 @@ export function bonusDe(plan) {
   }));
 }
 
-/** ⭐ Un plan se crafte dans X5 s'il offre une base ET un bonus. ⛔ Pas de liste :
- *  `Ammunition, +1…` n'a pas de base lisible aujourd'hui, `Spell Scroll` n'a pas
- *  de bonus — ni l'un ni l'autre n'ouvre X5, et aucun nom n'a été écrit pour ça. */
-export function seCrafteDansX5(plan, bases) {
-  return basesDe(plan, bases).length > 0 && bonusDe(plan).length > 0;
+/* ══ ③ quater — PAR OÙ X5 S'OUVRE : UNE SEULE SOURCE ══════════════════════════
+   Deux sortes de plans ouvrent X5, et c'est cette fonction qui les distingue :
+     · un plan À BONUS (`Weapon, +1, +2, or +3`) — il porte ses bases et ses bonus ;
+       X5 s'ouvre sur lui, rien de choisi ;
+     · ⭐ un POUVOIR À BASE MULTIPLE (`Flame Tongue [Any Melee Weapon]`, lot 263) —
+       il n'a pas de bonus à lui. X5 s'ouvre sur le plan à bonus de SA famille, avec
+       ce pouvoir déjà posé en `POWER 1` et la première base qu'il accepte.
+       ⛔ Le plan de la famille n'est pas nommé : c'est celui, parmi les plans à
+       bonus de la même catégorie, qui accepte cette base.
+   ⛔ Sans cette seconde porte, les 28 pouvoirs devenus plans au lot 263 auraient
+   porté la diagonale sans pouvoir s'ouvrir — le bug même qu'Eric a montré le 24/09
+   sur `Weapon, +1…` (« impossible pour moi d'arriver au blueprint »).
+   @returns `{ plan, choix }` ou `null` si X5 ne sait pas composer cet objet. */
+export function ouvertureX5(record, items, bases) {
+  if (!record || !record.data) return null;
+  if (basesDe(record, bases).length && bonusDe(record).length) return { plan: record, choix: {} };
+  if (!paliterDeRarete(record.data.rarity)) return null;
+  const siennes = basesDe(record, bases);
+  if (siennes.length < 2) return null;              /* ⛔ une seule base : rien à choisir */
+  const base = siennes[0];
+  const famille = (items || []).find((i) => i && i.data
+    && i.data.category === record.data.category
+    && bonusDe(i).length && subtypeAccepte(i.data.subtype, base.data));
+  if (!famille) return null;
+  return { plan: famille, choix: { base: base.data.name, pouvoirs: [record.data.name] } };
+}
+
+/** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :
+ *  `Ammunition, +1…` n'a pas de base lisible aujourd'hui, `Spell Scroll` ni base ni
+ *  bonus ; ni l'un ni l'autre n'ouvre X5, et aucun nom n'a été écrit pour ça. */
+export function seCrafteDansX5(record, bases, items = []) {
+  return Boolean(ouvertureX5(record, items, bases));
 }
 
 /* ══ ③ bis — « ANY … » : LA FAMILLE D'UNE BASE, LUE DANS SES PROPRES CHAMPS ════

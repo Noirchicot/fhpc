@@ -118,7 +118,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    qui aurait fermé le cycle. */
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=811";
 import { construireX5 } from "./x5-ecran.mjs?v=811";
-import { seCrafteDansX5 } from "./craft.mjs?v=811";
+import { seCrafteDansX5, ouvertureX5 } from "./craft.mjs?v=811";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=811";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -4195,7 +4195,10 @@ export function renderEquipmentStep(ctx, onAction) {
   }
 
   function construireX5Vue() {
-    const plan = cherche.record(ficheX5.plan);
+    /* ⚠️ Le plan de la famille est porté TEL QUEL par `ficheX5` : un record lu dans la
+       pile n'a pas toujours son `id` en `data`, et le recomposer par nom serait une
+       seconde lecture de la même chose. */
+    const plan = ficheX5.planRecord || cherche.record(ficheX5.plan);
     const { noeud } = construireX5({
       plan, bases: basesDuCraft, itemsMagiques: magiquesDuCraft,
       choix: ficheX5.choix, fh: pileFH,
@@ -4233,8 +4236,16 @@ export function renderEquipmentStep(ctx, onAction) {
         /* ⭐ LA PORTE DU CRAFT — l'étape SAIT ce qui se crafte (par `craft.mjs`), l'écran
            demande. ⛔ Aucune liste de plans : `Weapon`, `Armor` et `Shield, +1…`
            s'ouvrent parce qu'ils offrent une base ET un bonus, lus dans leur record. */
-        peutCrafter: (ref) => seCrafteDansX5(cherche.record(ref), basesDuCraft),
-        ouvrirCraft: (ref) => { ficheX5 = { plan: ref, choix: {}, retour: "x2" }; montrer("x5"); } });
+        peutCrafter: (ref) => seCrafteDansX5(cherche.record(ref), basesDuCraft, magiquesDuCraft),
+        /* ⭐ LOT 263 — l'ouverture vient de `ouvertureX5` : un pouvoir à base multiple
+           ouvre le plan de SA famille, pouvoir déjà posé. ⛔ Le pilote ne décide rien. */
+        ouvrirCraft: (ref) => {
+          const o = ouvertureX5(cherche.record(ref), magiquesDuCraft, basesDuCraft);
+          if (!o) return;
+          ficheX5 = { plan: { kind: "item", id: o.plan.id || ref.id }, planRecord: o.plan,
+                      choix: o.choix, retour: "x2" };
+          montrer("x5");
+        } });
     }
     if (vue === "recherche") {
       /* le catalogue ENTIER, habillé une fois — et « once found, takes you

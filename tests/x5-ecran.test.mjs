@@ -253,12 +253,16 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
     const ouverts = [];
     const monteX2 = (nom) => construireLaFicheX2({
       liste: [fiche(nom)], index: 0,
-      peutCrafter: (ref) => seCrafteDansX5(parRef.get(ref.id), bases),
+      /* 🔴 LOT 263 — CE GARDE N'APPELAIT PAS COMME LE PILOTE : il omettait les objets
+         magiques. `Berserker Axe` y restait donc fermé alors qu'il s'ouvre dans le
+         produit — un vert qui ne tenait rien. L'appel est maintenant CELUI du pilote. */
+      peutCrafter: (ref) => seCrafteDansX5(parRef.get(ref.id), bases, magiques),
       ouvrirCraft: (ref) => ouverts.push(ref.id),
     });
     const optionCraft = (n) => [...n.querySelectorAll("option")].find((o) => o.value === "craft");
 
-    for (const nom of ["Weapon, +1, +2, or +3", "Armor, +1, +2, or +3", "Shield, +1, +2, or +3"]) {
+    for (const nom of ["Weapon, +1, +2, or +3", "Armor, +1, +2, or +3", "Shield, +1, +2, or +3",
+                       "Berserker Axe", "Flame Tongue", "Dwarven Plate"]) {
       const n = monteX2(nom);
       assert.equal(optionCraft(n).disabled, false, `⭐ ${nom} : Craft s'ouvre`);
       const sel = optionCraft(n).parentNode;
@@ -266,7 +270,7 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
       sel.dispatchEvent(new Event("change"));
       assert.equal(ouverts.at(-1), nom, `⭐ choisir Craft OUVRE X5 pour ${nom}`);
     }
-    for (const nom of ["Berserker Axe", "Spell Scroll", "Figurine of Wondrous Power", "Ammunition, +1, +2, or +3"]) {
+    for (const nom of ["Dagger of Venom", "Spell Scroll", "Figurine of Wondrous Power", "Ammunition, +1, +2, or +3"]) {
       assert.equal(optionCraft(monteX2(nom)).disabled, true,
         `⛔ ${nom} : Craft reste fermé — un objet fini ne se crafte pas, et une famille sans écran le dit`);
     }
@@ -289,4 +293,22 @@ test("14 — 🔴 UNE FICHE QUI MONTE LE PARCHEMIN EST DANS SA FAMILLE — sinon
     "⛔ X5 porte un parchemin sans être de sa famille : le SVG se peindra en noir");
   const regle = new RegExp(`${SELECTEUR_DU_PARCHEMIN.replace(/[.()[\]]/g, "\\$&")} \\.parchemin-fond\\s*\\{[^}]*fill:\\s*var\\(--x1-papier\\)`);
   assert.match(CSS, regle, "⭐ et la feuille vise EXACTEMENT cette famille — un seul écrivain de la liste");
+});
+
+test("15 — ⭐ UN POUVOIR À BASE MULTIPLE OUVRE LE PLAN DE SA FAMILLE, pouvoir déjà posé", async () => {
+  /* ⚖️ Lot 263 : `Flame Tongue` est devenu un plan (il faut choisir l'arme). Il n'a pas
+     de bonus à lui : X5 s'ouvre sur le plan à bonus de SA famille — trouvé, pas nommé —
+     avec le pouvoir en POWER 1. ⛔ Sans cette porte, 28 plans porteraient la diagonale
+     sans pouvoir s'ouvrir. */
+  const { ouvertureX5 } = await import("../ui/builder/craft.mjs");
+  const items = [...plans.values()];
+  const ft = ouvertureX5(plans.get("Flame Tongue"), items, bases);
+  assert.equal(ft.plan.data.name, "Weapon, +1, +2, or +3", "la famille d'une arme de mêlée");
+  assert.deepEqual(ft.choix.pouvoirs, ["Flame Tongue"], "⭐ le pouvoir est déjà posé");
+  assert.ok(pouvoirsDe(bases.find((b) => b.data.name === ft.choix.base), magiques)
+    .some((r) => r.data.name === "Flame Tongue"), "⛔ et la base proposée l'accepte vraiment");
+  const dp = ouvertureX5(plans.get("Dwarven Plate"), items, bases);
+  assert.equal(dp.plan.data.name, "Armor, +1, +2, or +3", "une armure ouvre la famille des armures");
+  assert.equal(ouvertureX5(plans.get("Dagger of Venom"), items, bases), null,
+    "⛔ une seule base : rien à composer, c'est un objet qu'on achète");
 });
