@@ -42,11 +42,23 @@ const query = fixture.layers.verbs.query;
 
 /* ══ ① LE PRÉDICAT — TROIS SIGNAUX, ET CHACUN DOIT SUFFIRE SEUL ═══════════ */
 
-test("1 — les trois signaux d'Eric, chacun ÉPROUVÉ SEUL sur un record qui ne porte que lui", () => {
+test("1 — les signaux d'Eric, chacun ÉPROUVÉ SEUL sur un record qui ne porte que lui", () => {
   /* ⛔ « Seul » n'est pas une précaution de style : un record de test qui porte
      deux signaux passe même si l'un des deux est mort dans le code. */
-  assert.equal(estRecette({ data: { category: "weapon" } }), true, "① une arme magique part de sa base mondaine");
-  assert.equal(estRecette({ data: { category: "armor" } }), true, "① une armure aussi");
+  /* 🔴 LE SIGNAL ① EST TOMBÉ LE 2026-09-24, ET CE GARDE L'ÉPINGLAIT. Il disait
+     « ① une arme magique part de sa base mondaine » → recette. Eric, devant Wares
+     en ligne : *« les autres objets magiques ne sont pas des blueprints et sont
+     censés avoir une valeur »*. 📏 La ligne marquait 48 objets finis — Defender,
+     Vorpal Sword, Dragon Scale Mail — comme des plans.
+     ⭐ L'assertion n'est pas supprimée, elle est RETOURNÉE : un garde retiré
+     laisserait la ligne revenir sans témoin. La catégorie seule ne fait plus
+     rien ; ce qui fait un plan, c'est une rareté à choisir, un contenu à
+     défaire, ou une déclaration de plan. */
+  assert.equal(estRecette({ data: { category: "weapon" } }), false,
+    "⛔ ① TOMBÉ — une arme magique à rareté simple est un objet fini, pas un plan");
+  assert.equal(estRecette({ data: { category: "armor" } }), false, "⛔ ① une armure non plus");
+  assert.equal(estRecette({ data: { category: "weapon", rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } }), true,
+    "⭐ mais `Weapon, +1, +2, or +3` reste un plan — par sa RARETÉ, plus par sa catégorie");
   assert.equal(estRecette({ data: { rarity: "Rarity Varies" } }), true, "② le marqueur de famille du SRD");
   assert.equal(estRecette({ data: { contents: [{ ref: "srd:gear:en:rope" }] } }), true,
     "③ ⭐ UN OBJET QUI EN CONTIENT D'AUTRES : il faut l'OUVRIR, donc c'est un blueprint");

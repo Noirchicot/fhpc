@@ -254,7 +254,19 @@ export function poidsDeJeu(chaine, unite = "lb") {
    *cet objet en contient d'autres, il faut l'ouvrir*. */
 export function estRecette(record) {
   const d = (record && record.data) || {};
-  if (d.category === "weapon" || d.category === "armor") return true;
+  /* 🔴 LE SIGNAL DE LA CATÉGORIE EST TOMBÉ LE 2026-09-24 — Eric, devant Wares en
+     ligne : *« les autres objets magiques ne sont pas des blueprints et sont
+     censés avoir une valeur · les objets à blueprint sont certains wondrous, les
+     scrolls, certaines armes et armures spécifiques »*.
+     ⛔ LA LIGNE DISAIT `category === "weapon" || "armor"` → recette. Elle marquait
+     donc TOUTE arme et TOUTE armure magique — 📏 48 objets sur 72 blueprints,
+     `Defender`, `Vorpal Sword`, `Dragon Scale Mail`… — qui sont des objets FINIS,
+     avec une valeur, et qu'on achète tels quels.
+     ⭐ ET LA PREUVE QUE C'ÉTAIT CETTE LIGNE ET PAS LE PRINCIPE : sans elle, ce qui
+     reste marqué est MOT POUR MOT la liste d'Eric — les six wondrous fourre-tout,
+     `Spell Scroll`, `Weapon/Ammunition/Armor/Shield, +1, +2, or +3`, les sept
+     kits et les quatre plans du Soulforging. Les signaux qui restent disent tous
+     la même chose : CE QU'ON ACQUIERT N'EST PAS ENCORE L'OBJET. */
   if (Array.isArray(d.contents) && d.contents.length > 0) return true;
   /* ④ UN RECORD QUI SE DÉCLARE PLAN — les quatre du Soulforging (Eric, 24/09).
      ⛔ CE N'EST PAS UNE LISTE DE NOMS DÉGUISÉE : ces quatre records n'ont pas
@@ -270,6 +282,74 @@ export function estRecette(record) {
      ⛔ `(Requires Attunement)` n'en est pas une — il suit UNE rareté. */
   const parentheses = rarete.split("(").length - 1;
   return parentheses >= 2 && /\),\s|\)\s+or\s/.test(rarete);
+}
+
+/* ══ LA VALEUR D'UN OBJET — UN SEUL ORGANE, SEPT LECTEURS ══════════════════════
+   ⚖️ Eric, 2026-09-24 : *« les autres objets magiques […] sont censés avoir une
+   valeur, même si on n'arrive pas toujours à calculer le poids »*.
+   🔴 ET LA PANNE AVAIT LA FORME DE CELLE DE LA DIAGONALE : SEPT lecteurs de
+   `data.cost` dans `equipment-step.mjs`, chacun écrit à la main. Un objet magique
+   du SRD ne porte pas de `cost`, donc les sept affichaient « — ». ⛔ En réparer un
+   seul aurait laissé les six autres muets — le lot 256 a payé exactement ça.
+   ⭐ Ils passent désormais tous par ICI.
+
+   ⭐ LA RÈGLE EST CELLE DU SRD, À LA LETTRE — le record `srd:item-value` :
+     · la valeur d'un objet magique est celle de sa RARETÉ ;
+     · « if a magic item incorporates an item that has a purchase cost, ADD that
+       item's cost » — `+1 Armor (Plate)` = 4 000 + 1 500 = 5 500.
+   📏 MESURÉ SUR LES 48 ARMES ET ARMURES MAGIQUES : 48/48 ont une valeur lisible ;
+   20 ont une base UNIQUE (`Dagger of Venom` → `Dagger`), donc un prix complet ET un
+   poids ; 28 en admettent plusieurs (`Sword of Life Stealing` → six épées), donc
+   la valeur de la rareté seule, et ⛔ AUCUN poids inventé.
+
+   ⛔ ET UN PLAN N'A PAS DE PRIX DE CATALOGUE : c'est X5 qui le calcule, une fois
+   la base et les pouvoirs choisis. Rendre ici la valeur de `Weapon, +1, +2, or +3`
+   serait donner un prix à un objet qui n'existe pas encore.
+
+   ⚠️ CE QUE L'ORGANE RENVOIE : des CHAÎNES au format du SRD (« 4,002 GP »,
+   « 1 lb. »), pas des nombres. C'est délibéré — les sept lecteurs appellent déjà
+   `parseCout` / `parsePoids` sur `data.cost` ; ils n'ont qu'à changer de SOURCE,
+   jamais de format. Un organe qui change la forme en même temps que la source
+   multiplie les endroits où l'on peut se tromper. */
+export function fabriqueDeValeur(query) {
+  const lire = (kind) => { try { return query({ kind }) || []; } catch { return []; } };
+  const table = (lire("item-value")[0] || {}).record;
+  const valeurs = new Map((((table && table.data) || {}).tiers || [])
+    .filter((t) => t.priced && Number.isFinite(t.value_gp))
+    .map((t) => [String(t.rarity_label).toLowerCase(), t.value_gp]));
+  const bases = new Map([...lire("weapon"), ...lire("armor")]
+    .map((v) => [v.record && v.record.data && v.record.data.name, v.record && v.record.data])
+    .filter(([n]) => n));
+
+  /** La base qu'un objet magique incorpore, SI ET SEULEMENT SI elle est unique. */
+  function baseUnique(d) {
+    const st = String(d.subtype || "").trim();
+    if (!st || /^any\b/i.test(st)) return null;
+    const cites = st.split(/,|\bor\b/).map((x) => x.trim()).filter(Boolean);
+    return cites.length === 1 ? bases.get(cites[0]) || null : null;
+  }
+
+  return function valeurDe(record) {
+    const d = (record && record.data) || {};
+    /* ⭐ UN PRIX ÉCRIT GAGNE TOUJOURS : ce que le record porte, on le rend tel quel. */
+    let cout = typeof d.cost === "string" && d.cost.trim() ? d.cost : null;
+    let poids = typeof d.weight === "string" && d.weight.trim() ? d.weight : null;
+    if (cout && poids) return { cout, poids };
+
+    const base = baseUnique(d);
+    if (!poids && base && typeof base.weight === "string") poids = base.weight;
+    if (!cout && !estRecette(record)) {
+      const rarete = String(d.rarity || "").split("(")[0].trim().toLowerCase();
+      const v = valeurs.get(rarete);
+      if (Number.isFinite(v)) {
+        /* ⛔ `enGP`, PAS `.gp` : une base à « 1 SP » (Club, Sickle) vaudrait 0 si l'on
+           ne lisait que les pièces d'or — et le prix serait faux sans un mot. */
+        const plus = base ? enGP(parseCout(base.cost)) || 0 : 0;
+        cout = `${(v + plus).toLocaleString("en-US")} GP`;
+      }
+    }
+    return { cout, poids };
+  };
 }
 
 export function formatCout(cout) {

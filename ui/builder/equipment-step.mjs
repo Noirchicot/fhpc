@@ -107,7 +107,7 @@ import { feuilleDesCotesX0, MARGE_DALLE as MARGE_DALLE_X0 } from "./x0-dispositi
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
-  enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids,
+  enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
   estRecette, renderB2, renderSacs, renderRecherche } from "./equipement-pipeline.mjs?v=808";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
@@ -153,7 +153,15 @@ import { motDuCran } from "./ecran-mort.mjs?v=808";
    `weight`**. Un autre chantier les remplira. Cet écran doit donc afficher
    un objet SANS PRIX ET SANS POIDS sans rien casser et sans inventer de
    valeur : `recordCost`/`recordWeight` rendent `null`, et la ligne de méta
-   affiche « — ». L'absence est MONTRÉE, jamais comblée. */
+   affiche « — ». L'absence est MONTRÉE, jamais comblée.
+   ⭐ LOT 260 (2026-09-24) — L'AUTRE CHANTIER, C'EST CELUI-LÀ. Eric : *« les
+   autres objets magiques […] sont censés avoir une valeur, même si on n'arrive
+   pas toujours à calculer le poids »*. La valeur vient désormais de
+   `fabriqueDeValeur` (pipeline) : la rareté lue dans `srd:item-value`, plus la
+   base quand elle est UNIQUE — la règle du SRD à la lettre. ⛔ Ce n'est donc
+   toujours pas une valeur inventée ; c'est une valeur que le SRD calcule et que
+   personne ne lisait. Le poids, lui, reste absent quand la base est ambiguë.
+   `recordCost`/`recordWeight` sont RETIRÉS : leur seul emploi était cette phrase. */
 /* ⛔ `EQUIPMENT_RECORD_KINDS` A ÉTÉ RETIRÉ ICI (lot 95), et ce n'est pas un
    nettoyage : c'est la liste qui MANQUAIT les 25 outils. Elle nommait quatre
    genres, le rangement d'Eric en range cinq — les outils sont sur
@@ -1513,14 +1521,6 @@ export function currentCurrency(document) {
 
 function recordLabel(view) {
   return view && view.record && typeof view.record.name === "string" ? view.record.name : null;
-}
-function recordCost(view) {
-  const data = view && view.record && view.record.data;
-  return data && typeof data.cost === "string" ? data.cost : null;
-}
-function recordWeight(view) {
-  const data = view && view.record && view.record.data;
-  return data && typeof data.weight === "string" ? data.weight : null;
 }
 
 /* ⛔ `catalogue()` A ÉTÉ RETIRÉ ICI (lot 95). Il pliait `EQUIPMENT_RECORD_KINDS`
@@ -2983,16 +2983,26 @@ let lectureX1 = false;
 const FENETRE_DE = { gear: "Gear", sac: "Backpack", sb31: "Backpack", sb33: "Backpack", r: "Wares", recherche: "Wares", b2: "Wares", sb32: "Tally" };
 
 /** Un item de grille → la matière de X2/du panier. Le PRIX vient du record
- *  (`data.cost`, chaîne SRD), jamais d'un tarif écrit ici. */
-function ficheItem(item) {
-  const data = (item.view && item.view.record && item.view.record.data) || {};
-  return {
-    ref: { kind: item.kind, id: item.view.id },
-    nom: recordLabel(item.view) || item.view.id,
-    coutTexte: typeof data.cost === "string" ? data.cost : "",
-    cout: parseCout(data.cost),
-    poidsTexte: typeof data.weight === "string" ? data.weight : "",
-    prose: recordProse(item.view),
+ *  (`fabriqueDeValeur` : `data.cost` quand il existe, sinon la valeur de la
+ *  rareté selon `srd:item-value`), jamais d'un tarif écrit ici. */
+/* ⚠️ UNE FABRIQUE, PAS UN SECOND ARGUMENT — et c'est un piège évité, pas un style.
+   Les trois appelants écrivent `.map(ficheItem)` : `Array.map` passe `(élément,
+   INDEX, tableau)`. Un `ficheItem(item, valeurDe)` recevrait donc l'index à la
+   place de l'organe, et `valeurDe(record)` planterait sur `3(record)` — ou pire,
+   un jour, ne planterait pas. `ficheItemAvec(valeurDe)` rend la fonction à un
+   seul argument que `.map` attend. */
+function ficheItemAvec(valeurDe) {
+  return function ficheItem(item) {
+    const record = (item.view && item.view.record) || null;
+    const { cout, poids } = valeurDe(record);
+    return {
+      ref: { kind: item.kind, id: item.view.id },
+      nom: recordLabel(item.view) || item.view.id,
+      coutTexte: cout || "",
+      cout: parseCout(cout),
+      poidsTexte: poids || "",
+      prose: recordProse(item.view),
+    };
   };
 }
 
@@ -3046,9 +3056,14 @@ function fabriquerChercheur(query) {
     const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
     if (d.extends && slot) slotParBase.set(d.extends, slot);
   }
+  /* ⭐ LA VALEUR SE FABRIQUE AVEC LE CHERCHEUR, une passe par rendu : la pile peut
+     changer (un World qu'on allume), et une table de valeurs figée au chargement
+     survivrait à la pile qui l'a produite. */
+  const valeurDe = fabriqueDeValeur(query);
   return {
     record: (ref) => parId.get(ref && ref.id) || null,
     slot: (ref) => slotParBase.get(ref && ref.id) || null,
+    valeur: (record) => valeurDe(record),
     tous: () => tous,
   };
 }
@@ -3160,7 +3175,7 @@ export function renderEquipmentStep(ctx, onAction) {
   /* le PILOTE que la carte R appelle (tap, dépôts) — voir `soignerLesCases` */
   piloteEquipement = {
     ouvrirFiche(item) {
-      const liste = [...itemsDeLaPage.values()].map(ficheItem);
+      const liste = [...itemsDeLaPage.values()].map(ficheItemAvec(cherche.valeur));
       const index = Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id));
       ficheEnCours = { liste, index };
       montrer("x2");
@@ -3586,7 +3601,7 @@ export function renderEquipmentStep(ctx, onAction) {
           places: rangement(dedans, r.clef, {
             nom: (l) => { const rec = cherche.record(l.ref); return (rec && rec.name) || motDUnRecordAbsent(l.ref.id); },
             valeur: (l) => { const rec = cherche.record(l.ref);
-              return enGP(parseCout(rec && rec.data ? rec.data.cost : undefined)) * (l.quantity || 1); }
+              return enGP(parseCout(cherche.valeur(rec).cout)) * (l.quantity || 1); }
           })
         }) })) }),
       /* ⚖️ *« le bouton pack devient sections, et la roue passe en mode édition »* —
@@ -3681,12 +3696,13 @@ export function renderEquipmentStep(ctx, onAction) {
     const rec = cherche.record(ligne.ref);
     const data = (rec && rec.data) || {};
     const qte = ligne.quantity || 1;
-    const cout = parseCout(data.cost);
-    const poids = parsePoids(data.weight);
+    const valeurX1 = cherche.valeur(rec);
+    const cout = parseCout(valeurX1.cout);
+    const poids = parsePoids(valeurX1.poids);
     const { noeud } = construireLaFicheX1({
       objet: {
         index: ligne.index, nom: ligne.nomAffiche, qte,
-        prixUnite: typeof data.cost === "string" ? data.cost : "",
+        prixUnite: valeurX1.cout || "",
         /* ⭐ EN MINUSCULES, COMME LE LIVRE L'ÉCRIT : la source dit « 15 gp », et
            `formatCout` rend « 30 GP » (sa casse sert le panier, où le montant est
            un TOTAL qu'on lit seul). Sur la fiche, le prix unitaire et le prix
@@ -3694,7 +3710,7 @@ export function renderEquipmentStep(ctx, onAction) {
            lisent comme deux choses. 📏 Et la boîte du plan est mesurée sur la
            minuscule (82,75 dans 84). */
         prixTotal: cout ? formatCout(multiplieCout(cout, qte)).toLowerCase() : "",
-        poidsUnite: typeof data.weight === "string" ? data.weight : "",
+        poidsUnite: valeurX1.poids || "",
         poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
         prose: recordProse({ record: rec }),
         /* ⚖️ TRANCHÉ LE 18/09 : `is` RANGE l'objet dans la fiche de personnage — *« ça
@@ -3779,8 +3795,8 @@ export function renderEquipmentStep(ctx, onAction) {
     const qte = ligne.quantity || 1;
     const texte = [
       qte > 1 ? `${ligne.nomAffiche} ×${qte}` : ligne.nomAffiche,
-      typeof data.cost === "string" && data.cost ? `Cost: ${data.cost}` : "",
-      typeof data.weight === "string" && data.weight ? `Weight: ${data.weight}` : "",
+      (() => { const c = cherche.valeur(cherche.record(ligne.ref)).cout; return c ? `Cost: ${c}` : ""; })(),
+      (() => { const w = cherche.valeur(cherche.record(ligne.ref)).poids; return w ? `Weight: ${w}` : ""; })(),
       recordProse({ record: (cherche.record(ligne.ref) || null) })
     ].filter(Boolean).join("\n");
     const montrerLeTexte = () => act({ kind: "popup", titre: ligne.nomAffiche, texte });
@@ -3911,7 +3927,7 @@ export function renderEquipmentStep(ctx, onAction) {
       /* ⚖️ UN TAP OUVRE UN X2 — la fiche d'un objet du CATALOGUE (loi du 20/09). ⛔ Pas un X1 :
          celui-là est la fiche d'un objet qu'on POSSÈDE, et on ne possède rien sur une étagère. */
       surJeton: (ref) => {
-        const liste = [...itemsDeLaPage.values()].map(ficheItem);
+        const liste = [...itemsDeLaPage.values()].map(ficheItemAvec(cherche.valeur));
         const index = Math.max(0, liste.findIndex((f) => f.ref.id === ref));
         ficheEnCours = { liste, index, retour: "r" };
         montrer("x2");
@@ -4174,7 +4190,7 @@ export function renderEquipmentStep(ctx, onAction) {
     if (vue === "recherche") {
       /* le catalogue ENTIER, habillé une fois — et « once found, takes you
          directly to item menu » : un résultat ouvre X2, qui REVIENT ici. */
-      const catalogue = cherche.tous().map(ficheItem);
+      const catalogue = cherche.tous().map(ficheItemAvec(cherche.valeur));
       return renderRecherche({ catalogue,
         onOuvrirFiche: (liste, index) => { ficheEnCours = { liste, index, retour: "recherche" }; montrer("x2"); },
         retour: () => montrer("r") });
@@ -4185,7 +4201,7 @@ export function renderEquipmentStep(ctx, onAction) {
       const panier = currentCartLines(docu).map((l) => {
         const rec = cherche.record(l.ref);
         return { ...l, nom: (rec && rec.name) || motDUnRecordAbsent(l.ref.id),
-          cout: parseCout(rec && rec.data ? rec.data.cost : undefined) };
+          cout: parseCout(cherche.valeur(rec).cout) };
       });
       const motBourse = motDeLaBourse(docu);
       if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("r") });
