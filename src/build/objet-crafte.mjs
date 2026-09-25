@@ -50,7 +50,93 @@ export function nomCrafte({ base, bonus = null, pouvoirs = [] } = {}) {
   return nom.length <= NOM_MAX ? nom : `${nom.slice(0, NOM_MAX - 1)}…`;
 }
 
-/** La ligne porte-t-elle une recette ? — un bonus lisible ou au moins un pouvoir. */
-export function estCrafte({ bonus = null, pouvoirs = [] } = {}) {
-  return lireLeBonus(bonus) !== null || (pouvoirs || []).length > 0;
+/** La ligne porte-t-elle une recette ? — un bonus lisible, au moins un pouvoir, ou
+ *  (lot 277) une variante. */
+export function estCrafte({ bonus = null, pouvoirs = [], variante = null } = {}) {
+  return lireLeBonus(bonus) !== null || (pouvoirs || []).length > 0
+    || (typeof variante === "string" && variante.trim() !== "");
+}
+
+/* ══ LOT 277 — LE BLUEPRINT À VARIANTE : UN SEUL CHOIX, LA VARIANTE ══════════════
+   ⚖️ Eric, 2026-09-25 : *« T'as 127 wondrous en blueprint ? Sur lesquels il y a un
+   choix à faire ? »* — non : le SRD en porte CINQ (`Belt of Giant Strength`,
+   `Feather Token`, `Figurine of Wondrous Power`, `Horn of Valhalla`, `Ioun Stone`),
+   plus les deux potions (*« inclue les potions »*) et la baguette (*« et la wand »*).
+   Tous ont la même forme : un objet, une variante à choisir, et c'est la variante
+   qui dit la rareté. Puis *« oui c'est ça »* au schéma : `Ioun Stone ▾` · `Variant ▾`.
+
+   ⭐ LES VARIANTES SE LISENT DANS LE RECORD, jamais dans une liste de noms. Le SRD
+   les écrit sous TROIS formes, et cette fonction les lit toutes :
+     ① dans la RARETÉ, paire par paire — « Rare (Silver or Brass), Very Rare
+       (Bronze), or Legendary (Iron) » · « Uncommon (+1), Rare (+2)… » ;
+     ② en TABLE dans la description — « Belt of Giant Strength (hill) 21 Rare »,
+       « Potion of Healing (greater) 4d4 + 4 Uncommon » : un nom, peut-être une
+       parenthèse, une colonne qui commence par un chiffre, la rareté en fin ;
+     ③ en PARAGRAPHES — « Awareness (Rare). While this dark-blue rhomboid… ».
+   ⛔ Moins de deux variantes lues = aucune : il n'y a pas de choix.
+
+   ⚠️ CE MODULE RESTE UNE FEUILLE : le moteur nomme la ligne par `nomDUneVariante`,
+   l'écran propose `variantesDe` — la même lecture, un seul écrivain. */
+const RARETE = "(Very Rare|Legendary|Uncommon|Common|Rare)";
+const PALIER_DU_MOT = (m) => m.replace(/\b\w/g, (c) => c.toUpperCase()).replace("Very rare", "Very Rare");
+/* « frost or stone » → « Frost or Stone » : ⛔ la conjonction reste en minuscule */
+const majuscules = (s) => String(s).trim()
+  .replace(/(^|[\s(/-])([a-z])/g, (_, a, c) => a + c.toUpperCase()).replace(/\bOr\b/g, "or");
+
+/** @param data `{ name, rarity, description }` — le `data` d'un record d'objet.
+ *  @returns `{ mot, rarete, nom }[]` — `mot` pour le menu, `nom` pour la fiche. */
+export function variantesDe(data) {
+  const d = data || {};
+  const nomPlan = String(d.name || "").trim();
+  if (!nomPlan) return [];
+  /* ⛔ UN PLAN QUI PORTE UNE BASE N'EST PAS UN PLAN À VARIANTE : `Weapon, +1, +2, or +3`
+     (`[Any Simple or Martial]`) se compose base + bonus + pouvoirs, et `Ammunition, +1…`
+     (`[Any Ammunition]`) attend le lot des munitions. Le `subtype` est le signal. */
+  if (typeof d.subtype === "string" && d.subtype.trim()) return [];
+  /* le nom d'un plan à bonus perd son énumération : « Wand of the War Mage, +1, +2, or +3 » */
+  const racine = nomPlan.replace(/,\s*\+1,\s*\+2,?\s*or\s*\+3\s*$/i, "").trim();
+
+  /* ① LA RARETÉ ÉNUMÈRE */
+  const r = String(d.rarity || "");
+  const paires = [...r.matchAll(new RegExp(`${RARETE}\\s*\\(([^)]+)\\)`, "gi"))]
+    .filter((m) => !/requires/i.test(m[2]));
+  if (paires.length >= 2) {
+    const out = [];
+    for (const m of paires) {
+      for (const mot of m[2].split(/\s+or\s+|,\s*/).map((x) => x.trim()).filter(Boolean)) {
+        out.push({ mot, rarete: PALIER_DU_MOT(m[1].toLowerCase()),
+          nom: /^\+\d$/.test(mot) ? `${racine} ${mot}` : `${racine} (${mot})` });
+      }
+    }
+    return out;
+  }
+
+  const paragraphes = String(d.description || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  /* ② LA TABLE — la ligne finit par une rareté, sa 2ᵉ colonne commence par un chiffre */
+  const rangee = new RegExp(`^([^\\d()]+?)\\s*(?:\\(([^)]+)\\))?\\s+\\d.*?\\s${RARETE}$`, "i");
+  const table = paragraphes.map((p) => rangee.exec(p)).filter(Boolean);
+  if (table.length >= 2) {
+    return table.map((m) => {
+      const mot = m[2] ? majuscules(m[2]) : "Standard";
+      return { mot, rarete: PALIER_DU_MOT(m[3].toLowerCase()),
+        nom: m[2] ? `${m[1].trim()} (${mot})` : m[1].trim() };
+    });
+  }
+
+  /* ③ LES PARAGRAPHES « Nom (Rareté). … » */
+  const tete = new RegExp(`^([A-Z][^.()\\n]{0,40}?)\\s*\\(${RARETE}\\)\\.\\s`);
+  const paras = paragraphes.map((p) => tete.exec(p)).filter(Boolean);
+  if (paras.length >= 2) {
+    return paras.map((m) => ({ mot: m[1].trim(), rarete: PALIER_DU_MOT(m[2].toLowerCase()),
+      nom: `${racine} (${m[1].trim()})` }));
+  }
+  return [];
+}
+
+/** Le nom de la ligne posée : celui de la variante lue, sinon `Plan (mot)` — ⛔ un mot
+ *  que le record ne connaît plus garde son texte, il ne disparaît pas. */
+export function nomDUneVariante(data, mot) {
+  const v = variantesDe(data).find((x) => x.mot === mot);
+  const nom = v ? v.nom : `${String((data && data.name) || "").trim()} (${mot})`;
+  return nom.length <= NOM_MAX ? nom : `${nom.slice(0, NOM_MAX - 1)}…`;
 }

@@ -117,8 +117,8 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    qui aurait fermé le cycle. */
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=824";
 import { construireX5 } from "./x5-ecran.mjs?v=824";
-import { seCrafteDansX5, ouvertureX5, valeurDUnObjetCrafte } from "./craft.mjs?v=824";
-import { nomCrafte, estCrafte, lireLeBonus } from "../../src/build/objet-crafte.mjs?v=824";
+import { seCrafteDansX5, ouvertureX5, valeurDUnObjetCrafte, recordDUneVariante } from "./craft.mjs?v=824";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante } from "../../src/build/objet-crafte.mjs?v=824";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=824";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -1090,7 +1090,8 @@ export function currentGearLines(document) {
   /* `bonus` · `powers[K]` · `plan` · `note` (LOT 265) : la RECETTE d'un objet crafté
      (`src/build/objet-crafte.mjs`) — la ligne pointe sur sa base, ces quatre
      chemins disent ce que le craft y a ajouté. */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place|bonus|plan|note|powers\[(\d+)\]))?$/;
+  /* `variant` (LOT 277) : le mot de la variante d'un plan à variante (« Awareness »). */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place|bonus|plan|note|variant|powers\[(\d+)\]))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -1107,6 +1108,7 @@ export function currentGearLines(document) {
     else if (match[2] === "place") line.place = choice.value;
     else if (match[2] === "bonus") line.bonus = choice.value;
     else if (match[2] === "note") line.note = choice.value;
+    else if (match[2] === "variant") line.variante = choice.value;
     else if (match[2] === "plan") line.plan = choice.ref;
     else if (match[3] !== undefined) (line.pouvoirs || (line.pouvoirs = []))[Number(match[3])] = choice.ref;
     else if (choice.ref) line.ref = choice.ref;
@@ -2829,6 +2831,11 @@ export function recordProse(view, recette = null) {
     const nom = (p && p.name) || d.name;
     if (nom) lignes.push(typeof d.description === "string" && d.description ? `${nom}. ${d.description}` : nom);
   }
+  /* ⭐ LOT 277 — la VARIANTE dit laquelle des formes du texte est la sienne, et sa rareté. */
+  if (recette && typeof recette.variante === "string" && recette.variante) {
+    const v = variantesDe(data).find((x) => x.mot === recette.variante);
+    lignes.push(`Variant: ${recette.variante}${v ? ` (${v.rarete})` : ""}`);
+  }
   if (recette && typeof recette.note === "string" && recette.note) lignes.push(recette.note);
   return lignes.length > 0 ? lignes.join("\n") : "No further detail on this record.";
 }
@@ -3187,6 +3194,10 @@ export function renderEquipmentStep(ctx, onAction) {
      appellent désormais celle-ci (garde 8 de `objet-crafte.test.mjs`). */
   const nomDeLaLigne = (l) => {
     const rec = cherche.record(l.ref);
+    /* ⭐ LOT 277 — une variante se nomme par le MOTEUR aussi (`nomDUneVariante`). */
+    if (rec && typeof l.variante === "string" && l.variante) {
+      return nomDUneVariante({ ...(rec.data || {}), name: (rec.data && rec.data.name) || rec.name }, l.variante);
+    }
     const base = (rec && rec.name) || motDUnRecordAbsent(l.ref.id);
     const pouvoirs = (l.pouvoirs || []).filter(Boolean).map((p) => {
       const r = cherche.record(p);
@@ -3199,8 +3210,8 @@ export function renderEquipmentStep(ctx, onAction) {
      nom. Un objet ordinaire rend ceux de son record ; un objet crafté, ceux de sa
      RECETTE (`valeurDUnObjetCrafte`, `recordProse(…, recette)`). 🔴 Sans elle, la
      fiche X1 d'une Breastplate +1 disait « AC: 14 » et le prix de la Breastplate nue. */
-  const recetteDeLaLigne = (l) => estCrafte({ bonus: l.bonus, pouvoirs: (l.pouvoirs || []).filter(Boolean) })
-    ? { kind: l.ref && l.ref.kind, bonus: l.bonus, note: l.note,
+  const recetteDeLaLigne = (l) => estCrafte({ bonus: l.bonus, pouvoirs: (l.pouvoirs || []).filter(Boolean), variante: l.variante })
+    ? { kind: l.ref && l.ref.kind, bonus: l.bonus, note: l.note, variante: l.variante || null,
         plan: l.plan ? cherche.record(l.plan) : null,
         pouvoirs: (l.pouvoirs || []).filter(Boolean).map((p) => cherche.record(p)).filter(Boolean) }
     : null;
@@ -3208,8 +3219,13 @@ export function renderEquipmentStep(ctx, onAction) {
      encore en CRÉATION (l'aperçu du jeton de X5). ⛔ Deux lectures de la même recette
      diraient deux prix. */
   const valeurDUneRecette = (rec, r) => {
-    const v = cherche.valeur(rec);
+    /* ⭐ LOT 277 — une variante vaut ce que vaut l'objet FINI qu'elle désigne, par l'organe
+       de Wares (`fabriqueDeValeur`) : ⛔ le plan, lui, n'a pas de prix de catalogue — et une
+       variante que le record ne connaît plus n'en prend pas un par défaut. */
+    const fini = r && r.variante ? recordDUneVariante(rec, r.variante) : null;
+    const v = cherche.valeur(fini || rec);
     if (!r) return v;
+    if (r.variante) return fini ? v : { cout: null, poids: v.poids };
     return { cout: valeurDUnObjetCrafte({ base: rec, plan: r.plan, bonus: r.bonus, pouvoirs: r.pouvoirs }), poids: v.poids };
   };
   const proseDUneRecette = (rec, r) => recordProse({ record: rec || null }, r);
@@ -3226,7 +3242,11 @@ export function renderEquipmentStep(ctx, onAction) {
                                     refDuRecord.set(v.record, { kind, id: v.id }); return v.record; }); }
                                   catch { return []; } };
   const basesDuCraft = [...lireRecords("weapon"), ...lireRecords("armor")];
-  const magiquesDuCraft = lireRecords("item").filter((r) => String((r && r.data && r.data.subtype) || "").trim());
+  const itemsDuCraft = lireRecords("item");
+  const magiquesDuCraft = itemsDuCraft.filter((r) => String((r && r.data && r.data.subtype) || "").trim());
+  /* ⭐ LOT 277 — les plans à variante, lus dans leurs records (`variantesDe`) : le menu PLAN
+     de X5 y prend les frères de catégorie. ⛔ Aucune liste de noms. */
+  const plansAVariante = itemsDuCraft.filter((r) => variantesDe(r && r.data).length >= 2);
   /* ⚖️ LA PILE PORTE-T-ELLE FATE'S HAND ? — elle le dit par ses propres records : une
      couche FH monte des ids `fh:…`, une pile SRD seule n'en porte aucun. ⛔ Pas un
      drapeau recopié ici : c'est la donnée qui répond. (`srfh:` n'est pas `fh:`.) */
@@ -4284,17 +4304,32 @@ export function renderEquipmentStep(ctx, onAction) {
     const plan = ficheX5.planRecord || cherche.record(ficheX5.plan);
     const { noeud } = construireX5({
       plan, bases: basesDuCraft, itemsMagiques: magiquesDuCraft,
+      /* ⭐ la valeur d'un objet fini passe par LA porte des recettes (garde 11) */
+      plansFreres: plansAVariante, valeurDe: (r) => valeurDUneRecette(r, null),
       choix: ficheX5.choix, fh: pileFH,
       surChoix: (organe, valeur) => {
+        /* ⭐ LOT 277 — un autre PLAN, c'est une autre fiche : sa variante repart de la
+           première, le statut, la quantité et la destination restent. */
+        if (organe === "PLAN") {
+          const autre = plansAVariante.find((r) => r.data.name === valeur);
+          if (autre) {
+            const { status, qte, destination } = ficheX5.choix;
+            ficheX5 = { ...ficheX5, plan: refDuRecord.get(autre) || ficheX5.plan, planRecord: autre,
+                        choix: { status, qte, destination }, alerte: "" };
+            montrer("x5");
+          }
+          return;
+        }
         const c = { ...ficheX5.choix };
         /* ⭐ LOT 269 — un prix tapé vaut pour CET assemblage : changer la base, le bonus, un
            pouvoir ou le statut le rend au prix calculé. ⛔ Sinon un prix tapé pour une dague
            survivrait sur une armure de plate. */
         if (organe === "PRIX") c.prix = String(valeur || "").trim() || null;
-        else if (["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS", "QTY"].includes(organe)) c.prix = null;
+        else if (["ITEM", "BONUS", "POWER 1", "POWER 2", "VARIANT", "STATUS", "QTY"].includes(organe)) c.prix = null;
         if (organe === "QTY") c.qte = Number(valeur) || 1;
         if (organe === "ITEM") { c.base = valeur; c.pouvoirs = []; }   /* ⛔ une autre base, d'autres pouvoirs */
         else if (organe === "BONUS") c.bonus = valeur || null;
+        else if (organe === "VARIANT") c.variante = valeur;
         else if (organe === "POWER 1" || organe === "POWER 2") {
           const p = [...(c.pouvoirs || [])];
           p[organe === "POWER 1" ? 0 : 1] = valeur || null;
@@ -4324,6 +4359,30 @@ export function renderEquipmentStep(ctx, onAction) {
          `addGearLine` — et la ligne porte sa RECETTE (`src/build/objet-crafte.mjs`).
          ⛔ La bourse est vérifiée AVANT tout geste : rien n'est écrit à moitié. */
       surEnvoyer: (e) => {
+        /* ⭐ LOT 277 — UNE VARIANTE : la ligne pointe sur le PLAN, et porte le mot de sa
+           variante. ⛔ Même porte que l'arme : la bourse d'abord, rien écrit à moitié. */
+        if (e.variante) {
+          const refPlan = refDuRecord.get(e.plan);
+          if (!refPlan) {
+            ficheX5 = { ...ficheX5, alerte: "This item cannot be saved: it is missing from the rules." };
+            montrer("x5");
+            return;
+          }
+          if (e.cout && !bourseCouvre(bourse, e.cout)) {
+            ficheX5 = { ...ficheX5, alerte: "Not enough coin in the purse." };
+            montrer("x5");
+            return;
+          }
+          if (e.cout) actArbitre({ kind: "payer", cout: e.cout });
+          const nomDuPerso = docu && typeof docu.name === "string" ? docu.name.trim() : "";
+          actArbitre({ kind: "addGearLine", ref: refPlan, quantity: e.cote.qte,
+            equipped: e.destination === "self", location: e.destination,
+            recette: { variante: e.variante.mot,
+              note: e.status === "Crafting" && nomDuPerso ? `Crafted by ${nomDuPerso}` : null } });
+          ficheX5 = null;
+          montrer("r");
+          return;
+        }
         const refBase = refDuRecord.get(e.base);
         const refs = (e.pouvoirs || []).map((r) => refDuRecord.get(r));
         if (!refBase || refs.some((r) => !r)) {
@@ -4362,6 +4421,26 @@ export function renderEquipmentStep(ctx, onAction) {
   function construireApercuX5() {
     const a = apercuX5;
     const qte = a.cote && a.cote.qte ? a.cote.qte : 1;
+    /* ⭐ LOT 277 — l'aperçu d'une VARIANTE : le plan porte le texte, la variante le nom, le
+       prix et sa ligne — par les MÊMES portes que la ligne posée. */
+    if (a.variante) {
+      const recette = { kind: "item", variante: a.variante.mot };
+      const { cout, poids } = valeurDUneRecette(a.plan, recette);
+      const coutLu = parseCout(cout || "");
+      const { noeud } = construireLaFicheX1({
+        apercu: true,
+        objet: {
+          index: -1, nom: a.nom, qte,
+          prixUnite: cout || "",
+          prixTotal: coutLu ? formatCout(multiplieCout(coutLu, qte)).toLowerCase() : "",
+          poidsUnite: poids || "", poidsTotal: "",
+          prose: proseDUneRecette(a.plan, recette),
+          genre: "item", equipped: false, attuned: false, locked: false,
+        },
+        surPorte: (porte) => { if (porte === "close") { apercuX5 = null; montrer("x5"); } },
+      });
+      return noeud;
+    }
     const bonus = a.bonus ? a.bonus.mot : null;
     const planRec = ficheX5 ? (ficheX5.planRecord || cherche.record(ficheX5.plan)) : null;
     const refBase = refDuRecord.get(a.base);

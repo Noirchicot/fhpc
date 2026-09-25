@@ -2197,6 +2197,11 @@ function applyDecisionAction(action) {
       if (typeof recette.note === "string" && recette.note) {
         document = verbs.set({ document, path: `gear[${index}].note`, value: recette.note }).document;
       }
+      /* ⭐ LOT 277 — la VARIANTE d'un plan à variante (`Ioun Stone` → « Awareness ») : la
+         ligne pointe sur le plan, ce mot dit lequel des objets il est devenu. */
+      if (typeof recette.variante === "string" && recette.variante) {
+        document = verbs.set({ document, path: `gear[${index}].variant`, value: recette.variante }).document;
+      }
     }
     state.document = document;
     rebuild();

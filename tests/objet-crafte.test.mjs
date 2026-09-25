@@ -19,9 +19,9 @@ import { createDocWriters } from "../src/doc/index.mjs";
 import { ABILITY_KEYS } from "../src/build/index.mjs";
 import { nomCrafte, lireLeBonus, estCrafte, NOM_MAX } from "../src/build/objet-crafte.mjs";
 import { currentGearLines } from "../ui/builder/equipment-step.mjs";
-import { enPieces, valeurDUnObjetCrafte } from "../ui/builder/craft.mjs";
+import { enPieces, valeurDUnObjetCrafte, recordDUneVariante } from "../ui/builder/craft.mjs";
 import { recordProse } from "../ui/builder/equipment-step.mjs";
-import { parseCout, enGP } from "../ui/builder/equipement-pipeline.mjs";
+import { parseCout, enGP, fabriqueDeValeur } from "../ui/builder/equipement-pipeline.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (f) => fs.readFileSync(path.join(ROOT, f), "utf8")
@@ -105,7 +105,7 @@ test("5 — 🔴 CE QUE LA COQUILLE ÉCRIT EST CE QUE LE LECTEUR RELIT — la pa
   const shell = lire("ui/builder/shell.mjs");
   const bloc = shell.slice(shell.indexOf('action.kind === "addGearLine"'), shell.indexOf('action.kind === "placerGearLine"'));
   const ecrits = [...bloc.matchAll(/path: `gear\[\$\{index\}\]([^`]*)`/g)].map((m) => m[1]);
-  for (const s of [".bonus", ".powers[${k}]", ".plan", ".note"]) {
+  for (const s of [".bonus", ".powers[${k}]", ".plan", ".note", ".variant"]) {
     assert.ok(ecrits.includes(s), `⛔ addGearLine n'écrit plus « ${s} » — ${ecrits.join(" · ")}`);
   }
   const lignes = currentGearLines({ build: { choices: LONGSWORD_CRAFTEE } });
@@ -120,9 +120,14 @@ test("5 — 🔴 CE QUE LA COQUILLE ÉCRIT EST CE QUE LE LECTEUR RELIT — la pa
 test("6 — ⭐ L'ÉCRAN ET LE MOTEUR NOMMENT LA LIGNE PAR LA MÊME FONCTION", () => {
   const ecran = lire("ui/builder/equipment-step.mjs");
   const moteur = lire("src/build/derive.mjs");
-  assert.match(ecran, /const nomDeLaLigne = \(l\) => \{[\s\S]{0,400}?return nomCrafte\(/,
-    "⛔ l'écran compose le nom d'une ligne par `nomCrafte`, dans `nomDeLaLigne`");
-  assert.match(moteur, /name: nomCrafte\(/, "⛔ le moteur aussi — deux compositions divergeraient au premier pouvoir");
+  /* ⭐ LOT 277 — une ligne à VARIANTE se nomme par `nomDUneVariante`, dans la même fonction :
+     la fenêtre s'élargit de ce bloc, elle ne s'ouvre pas à une autre fonction. */
+  assert.match(ecran, /const nomDeLaLigne = \(l\) => \{[\s\S]{0,400}?return nomDUneVariante\([\s\S]{0,500}?return nomCrafte\(/,
+    "⛔ l'écran compose le nom d'une ligne par `nomDUneVariante` puis `nomCrafte`, dans `nomDeLaLigne`");
+  assert.match(moteur, /nomDUneVariante\(/, "⛔ le moteur nomme une variante par la même fonction");
+  /* ⭐ LOT 277 — le nom passe par une variable (`nom`), variante ou recette : la ligne le prend. */
+  assert.match(moteur, /: nomCrafte\(\{ base: view\.record\.name, bonus, pouvoirs \}\);[\s\S]{0,120}?name: nom,/,
+    "⛔ le moteur aussi — deux compositions divergeraient au premier pouvoir");
 });
 
 test("7 — 💰 CE QUE LA BOURSE PAIE EST CE QUE L'ÉCRAN AFFICHE", () => {
@@ -198,4 +203,65 @@ test("11 — 🔴 UNE LIGNE D'ÉQUIPEMENT SE LIT PAR ELLE-MÊME, jamais par sa b
   assert.equal((ecran.match(/recordProse\(/g) || []).length, 3, "la définition + le catalogue + proseDeLaLigne");
   assert.match(ecran, /const valeurX1 = valeurDeLaLigne\(ligne\)/);
   assert.match(ecran, /prose: proseDeLaLigne\(ligne\)/);
+});
+
+/* ══ LOT 277 — LE PLAN À VARIANTE ═══════════════════════════════════════════════
+   ⚖️ Eric, 25/09 : cinq wondrous, « inclue les potions », « et la wand » — un objet, UNE
+   variante. La ligne pointe sur le PLAN et porte le mot de sa variante. */
+
+const IOUN = [
+  { path: "gear[0]", ref: { kind: "item", id: "srd:item:en:ioun-stone" } },
+  { path: "gear[0].quantity", value: 1 }, { path: "gear[0].equipped", value: false },
+  { path: "gear[0].variant", value: "Awareness" },
+  { path: "gear[0].note", value: "Crafted by Nodren" },
+];
+
+test("12 — ⭐ UNE LIGNE À VARIANTE SE NOMME PAR SA VARIANTE — rien d'orphelin, document valide", () => {
+  const out = rebuild("craft-12", IOUN);
+  const ligne = out.resolved.gear.find((g) => /Ioun/.test(g.name));
+  assert.ok(ligne, "la Ioun Stone est dans `resolved.gear`");
+  assert.equal(ligne.name, "Ioun Stone (Awareness)", "⭐ le nom se recompose depuis le plan et le mot");
+  assert.deepEqual(out.unconsumed.filter((p) => p.startsWith("gear[0]")), [],
+    "⛔ `gear[0].variant` est LU par le moteur — un chemin écrit et jamais relu serait une recette muette");
+  assert.doesNotThrow(() => writers.assertValid(out.document, "craft-12"));
+  /* ⭐ la potion « Standard » garde le nom de l'Adventuring Gear ; la wand prend son +N collé */
+  let n = 0;
+  const nom = (id, mot) => rebuild(`craft-12-${++n}`, [
+    { path: "gear[0]", ref: { kind: "item", id } },
+    { path: "gear[0].quantity", value: 1 }, { path: "gear[0].equipped", value: false },
+    { path: "gear[0].variant", value: mot }]).resolved.gear[0].name;
+  assert.equal(nom("srd:item:en:potions-of-healing", "Standard"), "Potion of Healing");
+  assert.equal(nom("srd:item:en:potions-of-healing", "Greater"), "Potion of Healing (Greater)");
+  assert.equal(nom("srd:item:en:wand-of-the-war-mage-1-2-or-3", "+2"), "Wand of the War Mage +2");
+  /* ⛔ un mot que le record ne connaît plus garde son texte — il ne disparaît pas */
+  assert.equal(nom("srd:item:en:ioun-stone", "Mystery"), "Ioun Stone (Mystery)");
+});
+
+test("13 — 🔴 L'ÉCRAN RELIT LA VARIANTE que la coquille écrit", () => {
+  const lignes = currentGearLines({ build: { choices: IOUN } });
+  assert.equal(lignes.length, 1);
+  assert.equal(lignes[0].variante, "Awareness");
+  assert.equal(lignes[0].ref.id, "srd:item:en:ioun-stone", "⭐ la ligne pointe sur le PLAN");
+  assert.equal(estCrafte({ variante: "Awareness" }), true, "⭐ une variante est une recette");
+  assert.equal(estCrafte({ variante: "  " }), false);
+});
+
+test("14 — 💰 LA LIGNE À VARIANTE VAUT L'OBJET FINI — et son texte dit sa variante", () => {
+  /* ⭐ La chaîne RÉELLE de la porte `valeurDUneRecette` : `recordDUneVariante` puis l'organe
+     de valeur de Wares (`fabriqueDeValeur`, lu par `cherche.valeur`). */
+  const valeurDe = fabriqueDeValeur(q);
+  const ioun = rec("item", "Ioun Stone");
+  const soin = rec("item", "Potions of Healing");
+  assert.equal(valeurDe(recordDUneVariante(ioun, "Awareness")).cout, "4,000 GP", "Rare : 4 000");
+  assert.equal(valeurDe(recordDUneVariante(ioun, "Regeneration")).cout, "200,000 GP", "Legendary : le barème du SRD");
+  assert.equal(valeurDe(recordDUneVariante(soin, "Superior")).cout, "2,000 GP", "⭐ une potion Rare vaut la MOITIÉ");
+  assert.equal(valeurDe(ioun).cout, null, "⛔ témoin : le plan seul n'a pas de prix de catalogue");
+  assert.equal(recordDUneVariante(ioun, "Mystery"), null, "⛔ un mot inconnu ne désigne aucun objet");
+  /* ⚔️ ET LA PORTE LA PREND : dans `valeurDUneRecette`, une variante vaut son objet fini, ou
+     RIEN — ⛔ jamais la cote d'un assemblage vide (le chemin de l'arme, qui rendrait `null`
+     sans le dire, ou un prix plausible demain). */
+  const ecran = lire("ui/builder/equipment-step.mjs");
+  assert.match(ecran, /const valeurDUneRecette = \(rec, r\) => \{\s*const fini = r && r\.variante \? recordDUneVariante\(rec, r\.variante\) : null;\s*const v = cherche\.valeur\(fini \|\| rec\);\s*if \(!r\) return v;\s*if \(r\.variante\) return fini \? v : \{ cout: null, poids: v\.poids \};/);
+  const texte = recordProse({ record: ioun }, { kind: "item", variante: "Awareness" });
+  assert.match(texte, /^Variant: Awareness \(Rare\)$/m);
 });

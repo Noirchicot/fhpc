@@ -1,5 +1,7 @@
 /* ══ LE MOTEUR DU CRAFT — ce qu'un assemblage COÛTE, et ce qu'il a le droit d'être ══
-   ⛔ MODULE FEUILLE : aucun import, aucun DOM, aucune cote. Il ne sait pas sur quel
+   ⛔ MODULE FEUILLE : aucun DOM, aucune cote — et un seul import, une autre feuille :
+   la lecture des variantes du moteur (lot 277), pour que l'écran et `resolved.gear`
+   lisent la même chose. Il ne sait pas sur quel
    écran il est lu, et c'est la condition pour que X5 et la fiche d'un objet posé
    posent la même question au même organe.
 
@@ -29,6 +31,8 @@
    ⚠️ `Common` (40) n'est pas le `Common` du SRD (100) — il est sous son plancher,
    et aucun pouvoir n'y vit (mesuré : les 60 sont sur Uncommon et au-dessus). Il
    n'est là que comme UNITÉ de l'échelle, et c'est lui qui donne le `÷ 40`. */
+import { variantesDe } from "../../src/build/objet-crafte.mjs?v=824";
+
 export const UNITE = 40;
 export const PALIERS = Object.freeze([
   { nom: "Common", valeur: 40, srd: false },
@@ -208,6 +212,9 @@ export function valeurDUnObjetCrafte({ base, plan = null, bonus = null, pouvoirs
    @returns `{ plan, choix }` ou `null` si X5 ne sait pas composer cet objet. */
 export function ouvertureX5(record, items, bases) {
   if (!record || !record.data) return null;
+  /* ⭐ LOT 277 — UN PLAN À VARIANTE (`Ioun Stone`, les potions, la wand) ouvre X5 sur
+     lui-même, rien de choisi : sa variante se lit dans son record (`variantesDe`). */
+  if (estPlanAVariante(record)) return { plan: record, choix: {} };
   if (basesDe(record, bases).length && bonusDe(record).length) return { plan: record, choix: {} };
   if (!paliterDeRarete(record.data.rarity)) return null;
   const siennes = basesDe(record, bases);
@@ -218,6 +225,49 @@ export function ouvertureX5(record, items, bases) {
     && bonusDe(i).length && subtypeAccepte(i.data.subtype, base.data));
   if (!famille) return null;
   return { plan: famille, choix: { base: base.data.name, pouvoirs: [record.data.name] } };
+}
+
+/* ══ ③ quinquies — LE PLAN À VARIANTE (lot 277) ══════════════════════════════════
+   ⚖️ Eric, 25/09 : *« T'as 127 wondrous en blueprint ? Sur lesquels il y a un choix à
+   faire ? »* — cinq, plus les deux potions et la wand. Un objet, UNE variante, et
+   c'est la variante qui dit la rareté.
+   ⭐ LA VALEUR N'EST PAS CELLE DE L'ÉCHELLE DU CRAFT : une variante n'est pas un
+   ASSEMBLAGE, c'est un objet FINI du SRD (`Ioun Stone (Awareness)` est Rare). Elle vaut
+   donc ce que Wares affiche pour un objet fini — `srd:item-value`, la potion à moitié
+   (`fabriqueDeValeur`, le seul écrivain de cette règle) — et la fabriquer coûte la
+   MOITIÉ de sa valeur, comme tout craft ici. ⛔ Cette fonction ne recalcule pas la
+   valeur : l'appelant la lit par `recordDUneVariante`, et la lui donne. */
+export function estPlanAVariante(record) {
+  return variantesDe(record && record.data).length >= 2;
+}
+
+/** L'objet fini d'une variante, en RECORD — ce que `fabriqueDeValeur` sait coter. */
+export function recordDUneVariante(plan, mot) {
+  const d = (plan && plan.data) || {};
+  const v = variantesDe(d).find((x) => x.mot === mot);
+  if (!v) return null;
+  return { name: v.nom, data: { name: v.nom, rarity: v.rarete, category: d.category } };
+}
+
+/** La cote d'une variante — la MÊME forme que `coteDe`, pour que l'encart, `Send` et la
+ *  bourse la lisent sans savoir d'où elle vient. `valeur` : la valeur de l'objet fini, en
+ *  pièces d'or. ⛔ Une valeur illisible n'est pas un zéro : l'objet ne se crafte pas. */
+export function coteDUneVariante({ variante, valeur, qte = 1, fh = true } = {}) {
+  if (!variante || !Number.isFinite(valeur) || valeur <= 0) return { legal: false, raison: "rarete-illisible" };
+  const rang = PALIERS.findIndex((p) => p.nom === variante.rarete);
+  const n = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(qte) || 1));
+  return {
+    legal: true,
+    magie: valeur, coutBase: 0,
+    venteUnitaire: valeur, craftUnitaire: valeur / 2,
+    qte: n, lot: 1, paiements: n,
+    craftTotal: (valeur / 2) * n, venteTotale: valeur * n,
+    /* ⭐ LA RARETÉ EST CELLE DE LA VARIANTE, lue — ⛔ pas déduite du prix : une potion Rare
+       vaut 2 000 et `categorieAffichee` l'aurait dite Uncommon. */
+    categorie: variante.rarete, rarete: variante.rarete,
+    temps: fh && rang >= 0 ? TEMPS[rang] : null,
+    dc: fh && rang >= 0 ? DC[rang] : null,
+  };
 }
 
 /** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :

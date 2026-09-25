@@ -10,7 +10,7 @@
    tête, puis STATUS, le panneau, le jeton, SEND TO et les deux boutons — autour
    d'un CORPS qui change avec le type de craft.
      ① CRAFT WEAPON · CRAFT ARMOR → base + BONUS + POWER 1·2    ✅ ce lot
-     ② CRAFT WONDROUS            → une famille → sa variante     ⏳ pas de croquis
+     ② CRAFT WONDROUS            → une famille → sa variante     ✅ lot 277 (le schéma d'Eric du 25/09)
      ③ SCRIBE SCROLL             → classe, niveau, status        ⏳ pas de croquis
    ⚖️ Eric, 24/09 : *« on fait armes et armures de A à Z déjà »*. ⛔ Les deux
    autres familles ne sont pas ébauchées ici — le plan RÉSERVE leur place et dit
@@ -20,10 +20,11 @@
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=824";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, categorieAffichee, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=824";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, categorieAffichee, PALIERS, PLAFOND_QTE,
+  coteDUneVariante, recordDUneVariante } from "./craft.mjs?v=824";
 import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=824";
 import { corpsDuJeton } from "./jeton-objet.mjs?v=824";
-import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=824";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=824";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -142,8 +143,10 @@ function encart(cote, status, base, prix, surPrix, alerte, type) {
     const c1 = elx("div", "x5-encart-col x5-encart-couts");
     const t = elx("div", "x5-encart-tete");
     t.append(elx("span", null, "Crafting"), elx("span", null, "Cost"));
+    /* ⚖️ LOT 277 — une variante n'a pas de base à fabriquer (Eric : « Enchanting · rareté
+       de la variante · temps · Total ») : ⛔ pas de ligne « Base item » à zéro. */
     c1.append(t,
-      ligne(base ? base.data.name : "Base item", or(partBase)),
+      ...(base ? [ligne(base.data.name, or(partBase))] : []),
       ligne("Enchanting", or(partMagie)),
       ligne("Total", or(unite)));
     const c2 = elx("div", "x5-encart-col x5-encart-droite");
@@ -152,7 +155,9 @@ function encart(cote, status, base, prix, surPrix, alerte, type) {
     /* ⚖️ LA RARETÉ — Eric, 25/09 : « il faut citer la rareté — crafting time 3 days (FH) ·
        rare weapon ». ⭐ La catégorie AFFICHÉE du craft (le palier SRD inférieur, jamais un
        demi-cran — Eric, 24/09), et le type lu dans le plan. */
-    const rarete = categorieAffichee(cote.venteUnitaire);
+    /* ⭐ LOT 277 — une variante porte SA rareté, lue dans le record (`cote.rarete`) :
+       ⛔ la déduire du prix dirait « Uncommon » d'une potion Rare, vendue à moitié. */
+    const rarete = cote.rarete || categorieAffichee(cote.venteUnitaire);
     c2.append(elx("p", "x5-encart-rarete", rarete ? `${rarete} ${type.toLowerCase()}` : ""));
     c2.append(champ(`Qty ${cote.qte} · Total`, prix ?? unite * cote.paiements, prix !== null, surPrix));
     e.append(c1, c2);
@@ -235,6 +240,9 @@ function motDuRefus(raison) {
  *  le vérifie), et la fiche ne porte pas de bouton d'aide.
  *  @returns {{ noeud: HTMLElement, cote: object }} */
 export function construireX5(o = {}) {
+  /* ⭐ LOT 277 — DEUX FAMILLES, UNE COQUILLE. Le plan dit la sienne : s'il porte des
+     variantes (`variantesDe`), c'est la famille à VARIANTE. ⛔ Aucun nom testé. */
+  if (o.plan && variantesDe(o.plan.data).length >= 2) return construireX5Variante(o);
   const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
     bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
@@ -315,12 +323,7 @@ export function construireX5(o = {}) {
      débitée en cliquant sur Send », puis « le texte en bleu explique un peu quand même ».
      ⭐ Le bleu de la maison pour un texte qui guide : `--info` en T1 (« T1 texte police bleue,
      c'est l'aiguilleur »). */
-  const phrase = elx("p", "x5-phrase", {
-    Found: "You found it, it's a gift, or you stole it: it's free. Tap Send to put it in your equipment.",
-    Buying: "Tap Send: the price × the quantity is taken from your purse, and the item goes to your equipment.",
-  }[status] || "Tap Send: the total is taken from your purse, and the crafted item goes to your equipment.");
-  phrase.dataset.organe = "PHRASE";
-  n.append(phrase);
+  n.append(phraseDuStatut(status));
 
   /* ⚖️ LE JETON DE L'OBJET — centré, cliquable : il ouvre une fiche X1 en APERÇU (Eric,
      25/09 : « une fiche X1 avec uniquement un back, options de lock, attune, wear grisées »).
@@ -341,45 +344,163 @@ export function construireX5(o = {}) {
   /* ⚖️ LA BOURSE À DROITE DU JETON — Eric, 25/09 : « on peut mettre l'item bourse à droite du
      token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
      posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
-  const purse = elx("button", "gear-bouton");
-  purse.type = "button";
-  purse.dataset.organe = "purse";
-  purse.setAttribute("aria-label", "Purse");
-  if (surBourse) purse.addEventListener("click", surBourse);
-  n.append(purse, montantDeLaBourse({ bourse }));
-  if (bourseOuverte) n.append(popupDeLaBourse({ bourse, surFermerBourse, surMonnaie }));
+  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
 
-  const cancel = elx("button", "x5-porte", "Cancel");
-  cancel.type = "button"; cancel.dataset.organe = "CANCEL";
-  if (surAnnuler) cancel.addEventListener("click", surAnnuler);
   const destination = choix.destination || "backpack";
-  const send = elx("button", "x5-porte", "Send");
-  send.type = "button"; send.dataset.organe = "SEND";
   /* ⭐ `SEND` POSE L'OBJET DANS LA FICHE (lot 265). Il s'arme quand l'assemblage est LÉGAL
      et porte au moins un bonus ou un pouvoir — ⛔ une base nue n'est pas un craft. Il ne
      paie ni n'écrit rien lui-même : il rend ce qui a été composé, et le montant. */
   const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
   const compose = Boolean(bonusChoisi) || pris.length > 0;
   const pret = Boolean(surEnvoyer) && Boolean(base) && cote.legal && compose && destOk;
+  n.append(...lePied({ destination, surChoix, surAnnuler, pret,
+    pourquoi: !compose ? "choose a bonus or a power first"
+      : !cote.legal ? "this assembly is not craftable" : "not available here",
+    envoyer: () => surEnvoyer({
+      base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
+      cout: enPieces(montantDuStatut(cote, status, prix)),
+    }) }));
+
+  return { noeud: n, cote };
+}
+
+/* ══ LES PIÈCES COMMUNES AUX DEUX FAMILLES (lot 277) — ⛔ un seul écrivain chacune ══ */
+
+/** ⚖️ LA PHRASE SOUS L'ENCART — Eric, 25/09 : « une petite phrase explique que la somme sera
+ *  débitée en cliquant sur Send », puis « le texte en bleu explique un peu quand même ». */
+function phraseDuStatut(status) {
+  const phrase = elx("p", "x5-phrase", {
+    Found: "You found it, it's a gift, or you stole it: it's free. Tap Send to put it in your equipment.",
+    Buying: "Tap Send: the price × the quantity is taken from your purse, and the item goes to your equipment.",
+  }[status] || "Tap Send: the total is taken from your purse, and the crafted item goes to your equipment.");
+  phrase.dataset.organe = "PHRASE";
+  return phrase;
+}
+
+/** ⚖️ LA BOURSE À DROITE DU JETON — l'organe de R, importé (image, montant, popup). */
+function laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }) {
+  const purse = elx("button", "gear-bouton");
+  purse.type = "button";
+  purse.dataset.organe = "purse";
+  purse.setAttribute("aria-label", "Purse");
+  if (surBourse) purse.addEventListener("click", surBourse);
+  const out = [purse, montantDeLaBourse({ bourse })];
+  if (bourseOuverte) out.push(popupDeLaBourse({ bourse, surFermerBourse, surMonnaie }));
+  return out;
+}
+
+/** ⚖️ LE PIED — Cancel (gauche) · Send to (centré) · Send (droite). `pret` arme `Send`,
+ *  `pourquoi` dit pourquoi il ne l'est pas. */
+function lePied({ destination, surChoix, surAnnuler, pret, pourquoi, envoyer }) {
+  const cancel = elx("button", "x5-porte", "Cancel");
+  cancel.type = "button"; cancel.dataset.organe = "CANCEL";
+  if (surAnnuler) cancel.addEventListener("click", surAnnuler);
+  const send = elx("button", "x5-porte", "Send");
+  send.type = "button"; send.dataset.organe = "SEND";
   send.disabled = !pret;
   if (pret) {
     send.setAttribute("aria-label", "Send — put the crafted item in the character's equipment");
-    send.addEventListener("click", () => surEnvoyer({
-      base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
-      cout: enPieces(montantDuStatut(cote, status, prix)),
-    }));
+    send.addEventListener("click", envoyer);
   } else {
-    const pourquoi = !compose ? "choose a bonus or a power first"
-      : !cote.legal ? "this assembly is not craftable" : "not available here";
     send.title = `Send — ${pourquoi}`;
     send.setAttribute("aria-label", `Send — not available: ${pourquoi}`);
   }
-  n.append(cancel,
+  return [cancel,
     menu("SEND TO", destination,
       DESTINATIONS.filter((d) => d.valeur !== "craft")
         .map((d) => ({ valeur: d.valeur, mot: d.mot, inactif: !d.actif })), surChoix),
-    send);
+    send];
+}
 
+/* ══ LOT 277 — LA FAMILLE À VARIANTE ═══════════════════════════════════════════════
+   ⚖️ Eric, 2026-09-25, le schéma puis « oui c'est ça » :
+        Blueprint
+        Ioun Stone ▾
+        Variant ▾  (Awareness · Protection · …)
+        Crafting        Qty
+        ┌ encart : Enchanting · rareté de la variante · temps · Total ┐
+        [ token ]        [ bourse ]
+        Cancel     Send to     Send
+   ⭐ C'EST LA MÊME COQUILLE : les organes communs sont ceux de la famille à base, posés par
+   la même table ; seuls `PLAN` et `VARIANT` changent, sur les rangées TYPE et ITEM · BONUS,
+   et la rangée des pouvoirs disparaît (`data-pouvoirs="aucun"`) — tout remonte.
+   @param o — ceux de `construireX5`, plus :
+     · `plansFreres` — les plans à variante (le menu PLAN ne garde que ceux de la catégorie) ;
+     · `valeurDe(record)` — la valeur d'un objet fini, `{ cout: "4,000 GP" }` : l'organe de
+       Wares (`fabriqueDeValeur`), ⛔ pas une seconde règle de prix ici.
+   `choix.variante` est le MOT de la variante (« Awareness »). */
+const MOT_DE_CATEGORIE = { "wondrous-item": "wondrous item", potion: "potion", wand: "wand",
+  ring: "ring", rod: "rod", staff: "staff", scroll: "scroll" };
+function construireX5Variante(o) {
+  const { plan, plansFreres = [], valeurDe = null, choix = {}, fh = true,
+    surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
+    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
+  const variantes = variantesDe(plan.data);
+  const variante = variantes.find((v) => v.mot === choix.variante) || variantes[0];
+  const status = choix.status || "Crafting";
+  const qte = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(Number(choix.qte)) || 1));
+  const fini = recordDUneVariante(plan, variante.mot);
+  const valeur = valeurDe && fini ? prixEnPO((valeurDe(fini) || {}).cout || "") : NaN;
+  const cote = coteDUneVariante({ variante, valeur, qte, fh });
+
+  const n = elx("section", "x5");
+  n.dataset.objet = "x5";
+  n.dataset.ecran = "X5";
+  n.dataset.famille = "variante";
+  n.setAttribute("role", "group");
+  n.setAttribute("aria-label", "Blueprint");
+  n.dataset.status = status.toLowerCase();
+  const feuille = elx("style");
+  feuille.setAttribute("data-fhpc", "x5");
+  feuille.textContent = feuilleDesCotesX5();
+  n.append(feuille);
+  /* ⭐ la rangée des pouvoirs n'existe pas pour une variante : tout ce qui suit remonte */
+  n.dataset.pouvoirs = "aucun";
+
+  const titre = elx("h2", "x5-titre", "Blueprint");
+  titre.dataset.organe = "TITRE";
+  n.append(titre);
+
+  /* ⚖️ « Ioun Stone ▾ » — le plan, et ses frères de catégorie. ⭐ Le mot est le nom sans
+     l'énumération (« Wand of the War Mage », pas « …, +1, +2, or +3 »). */
+  const motDuPlan = (r) => String(r.data.name).replace(/,\s*\+1,\s*\+2,?\s*or\s*\+3\s*$/i, "");
+  /* ⭐ LES FRÈRES DE CATÉGORIE, triés ici : l'appelant donne tous les plans à variante, la
+     fiche d'une Ioun Stone ne propose que des wondrous. ⛔ Le plan courant y est toujours. */
+  const memes = plansFreres.filter((r) => r && r.data && r.data.category === plan.data.category);
+  const freres = memes.some((r) => r.data.name === plan.data.name) ? memes : [plan, ...memes];
+  n.append(
+    menu("PLAN", plan.data.name, freres.map((r) => ({ valeur: r.data.name, mot: motDuPlan(r) })), surChoix),
+    menu("VARIANT", variante.mot, variantes.map((v) => ({ valeur: v.mot, mot: v.mot })), surChoix));
+
+  n.append(
+    menu("STATUS", status, ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix),
+    menu("QTY", String(qte), Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
+
+  const prix = prixSaisi(choix.prix);
+  const type = MOT_DE_CATEGORIE[plan.data.category] || "item";
+  if (status !== "Found" || alerte) {
+    n.append(encart(cote, status, null, prix, surChoix ? (v) => surChoix("PRIX", v) : null, alerte, type));
+  }
+  n.append(phraseDuStatut(status));
+
+  const jeton = elx("button", "wares-jeton x5-jeton");
+  jeton.type = "button";
+  jeton.dataset.organe = "JETON";
+  jeton.setAttribute("aria-label", `${variante.nom} — preview`);
+  jeton.append(...corpsDuJeton({ nom: variante.nom }));
+  if (surJeton) jeton.addEventListener("click", () => surJeton({ nom: variante.nom, plan, variante, cote, status }));
+  else jeton.disabled = true;
+  n.append(jeton);
+
+  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+
+  const destination = choix.destination || "backpack";
+  const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
+  const pret = Boolean(surEnvoyer) && cote.legal && destOk;
+  n.append(...lePied({ destination, surChoix, surAnnuler, pret,
+    pourquoi: !cote.legal ? "this item has no readable value" : "not available here",
+    envoyer: () => surEnvoyer({ plan, variante, cote, status, destination,
+      cout: enPieces(montantDuStatut(cote, status, prix)) }) }));
   return { noeud: n, cote };
 }
 

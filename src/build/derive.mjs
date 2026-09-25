@@ -48,7 +48,7 @@
    de jeu dans ce répertoire. */
 
 import { BuildError } from "./errors.mjs";
-import { lireLeBonus, nomCrafte } from "./objet-crafte.mjs";
+import { lireLeBonus, nomCrafte, nomDUneVariante } from "./objet-crafte.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
 /* LOT 41 — le mécanisme des mots (lot 27), réemployé pour `underived`. Import
@@ -509,8 +509,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     }
     take(`gear[${index}].plan`);
     const note = takeValue(`gear[${index}].note`);
-    const ligne = { id: view.record.slug || ref.id,
-      name: nomCrafte({ base: view.record.name, bonus, pouvoirs }), quantity, equipped };
+    /* ⭐ LOT 277 — un plan à variante (`Ioun Stone` + « Awareness ») se nomme par sa
+       variante, lue dans le record du plan : « Ioun Stone (Awareness) ». */
+    const variante = takeValue(`gear[${index}].variant`);
+    const nom = typeof variante === "string" && variante.trim()
+      ? nomDUneVariante({ ...(view.record.data || {}), name: (view.record.data && view.record.data.name) || view.record.name }, variante.trim())
+      : nomCrafte({ base: view.record.name, bonus, pouvoirs });
+    const ligne = { id: view.record.slug || ref.id, name: nom, quantity, equipped };
     if (typeof note === "string" && note.trim()) ligne.note = note.trim().slice(0, 500);
     gear.push(ligne);
     /* ⚖️ « You have a bonus to Armor Class while wearing this armor » — le +N d'une

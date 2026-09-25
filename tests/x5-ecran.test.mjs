@@ -36,6 +36,11 @@ const PLAN_ARME = plans.get("Weapon, +1, +2, or +3");
 const PLAN_ARMURE = plans.get("Armor, +1, +2, or +3");
 const magiques = query({ kind: "item" }).map((v) => v.record)
   .filter((r) => String(r?.data?.subtype || "").trim());
+/* ⭐ LOT 277 — les plans à variante et l'organe de valeur de Wares, tels que le pilote les donne */
+const { variantesDe } = await import("../src/build/objet-crafte.mjs");
+const { fabriqueDeValeur } = await import("../ui/builder/equipement-pipeline.mjs");
+const PLANS_A_VARIANTE = query({ kind: "item" }).map((v) => v.record).filter((r) => variantesDe(r.data).length >= 2);
+const valeurDe = fabriqueDeValeur(query);
 
 function monte(o) {
   const avant = globalThis.document;
@@ -80,16 +85,26 @@ test("1 — ⭐ LA FEUILLE LIT LA TABLE, et n'écrit AUCUN nombre à elle", () =
   }
 });
 
-test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins", () => {
-  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
-  const attendus = new Set(D.ORGANES.map((o) => organeDom(o.nom)));
-  const vus = new Set(organes(noeud));
-  for (const nom of attendus) {
-    assert.ok(vus.has(nom), `⛔ ${nom} est au plan et absent de l'écran`);
+test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins — famille par famille (lot 277)", () => {
+  /* ⭐ LOT 277 — la table porte DEUX familles : `base` (arme, armure) et `variante`
+     (wondrous, potions, wand), plus les organes communs. Une fiche pose les siens et
+     les communs, ⛔ jamais ceux de l'autre famille. */
+  const fiches = {
+    base: monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } }).noeud,
+    variante: monte({ plan: plans.get("Ioun Stone"), plansFreres: PLANS_A_VARIANTE, valeurDe }).noeud,
+  };
+  for (const [famille, noeud] of Object.entries(fiches)) {
+    const attendus = new Set(D.ORGANES.filter((o) => !o.famille || o.famille === famille).map((o) => organeDom(o.nom)));
+    const vus = new Set(organes(noeud));
+    for (const nom of attendus) {
+      assert.ok(vus.has(nom), `⛔ ${famille} : ${nom} est au plan et absent de l'écran`);
+    }
+    for (const nom of vus) {
+      assert.ok(attendus.has(nom), `🔴 ${famille} : ${nom} est à l'écran et absent du plan de sa famille`);
+    }
   }
-  for (const nom of vus) {
-    assert.ok(attendus.has(nom), `🔴 ${nom} est à l'écran et absent du plan — un organe hors plan`);
-  }
+  assert.ok(D.ORGANES.some((o) => o.famille === "variante") && D.ORGANES.some((o) => o.famille === "base"),
+    "témoin : la table porte bien les deux familles");
 });
 
 /* ══ ② LA RANGÉE QUI DISPARAÎT ═════════════════════════════════════════════ */
@@ -318,7 +333,10 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
     const optionCraft = (n) => [...n.querySelectorAll("option")].find((o) => o.value === "craft");
 
     for (const nom of ["Weapon, +1, +2, or +3", "Armor, +1, +2, or +3", "Shield, +1, +2, or +3",
-                       "Berserker Axe", "Flame Tongue", "Dwarven Plate"]) {
+                       "Berserker Axe", "Flame Tongue", "Dwarven Plate",
+                       /* ⭐ LOT 277 — les plans à variante s'ouvrent */
+                       "Figurine of Wondrous Power", "Ioun Stone", "Potions of Healing",
+                       "Wand of the War Mage, +1, +2, or +3", "Belt of Giant Strength"]) {
       const n = monteX2(nom);
       assert.equal(optionCraft(n).disabled, false, `⭐ ${nom} : Craft s'ouvre`);
       const sel = optionCraft(n).parentNode;
@@ -326,7 +344,7 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
       sel.dispatchEvent(new Event("change"));
       assert.equal(ouverts.at(-1), nom, `⭐ choisir Craft OUVRE X5 pour ${nom}`);
     }
-    for (const nom of ["Dagger of Venom", "Spell Scroll", "Figurine of Wondrous Power", "Ammunition, +1, +2, or +3"]) {
+    for (const nom of ["Dagger of Venom", "Spell Scroll", "Bag of Holding", "Ammunition, +1, +2, or +3"]) {
       assert.equal(optionCraft(monteX2(nom)).disabled, true,
         `⛔ ${nom} : Craft reste fermé — un objet fini ne se crafte pas, et une famille sans écran le dit`);
     }
@@ -432,7 +450,10 @@ test("19 — ⛔ UN PRIX TAPÉ NE SURVIT PAS À UN AUTRE ASSEMBLAGE", () => {
   const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8")
     .replace(/\/\*[\s\S]*?\*\//g, " ");
   assert.match(src, /if \(organe === "PRIX"\) c\.prix = /);
-  assert.match(src, /\["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS", "QTY"\]\.includes\(organe\)\) c\.prix = null/);
+  /* ⭐ LOT 277 — et la VARIANTE : un prix tapé pour un Horn d'argent ne vaut pas pour un Horn de fer.
+     (Un autre PLAN repart d'un choix neuf, sans prix : il ne passe pas par cette ligne.) */
+  assert.match(src, /\["ITEM", "BONUS", "POWER 1", "POWER 2", "VARIANT", "STATUS", "QTY"\]\.includes\(organe\)\) c\.prix = null/);
+  assert.match(src, /choix: \{ status, qte, destination \}/, "⛔ un autre plan ne garde pas le prix tapé");
 });
 
 /* ══ LOT 270 — LA FICHE BLUEPRINT ═══════════════════════════════════════════════ */
@@ -581,4 +602,91 @@ test("31 — ⚖️ « DÉGAGE LES ASCENSEURS » : une fiche X ne fait pas défi
     "⛔ la scène d'une fiche X ne défile pas");
   const bas = Math.max(...D.ORGANES.map((o) => { const b = o.cible || o; return b.y + b.h; }));
   assert.ok(D.DALLE.h - bas >= 8, `📏 la marge sous le pied (${D.DALLE.h - bas}) couvre l'écart du belt (≤ 5) : rien de lu n'est coupé`);
+});
+
+/* ══ LOT 277 — LE BLUEPRINT À VARIANTE ═══════════════════════════════════════════
+   ⚖️ Eric, 25/09 : « T'as 127 wondrous en blueprint ? Sur lesquels il y a un choix à
+   faire ? » → cinq wondrous, « inclue les potions », « et la wand » ; puis au schéma
+   `Ioun Stone ▾ / Variant ▾ / Crafting · Qty / encart / jeton · bourse / pied` :
+   « oui c'est ça ». */
+
+test("32 — ⚖️ LES HUIT PLANS À VARIANTE, lus dans leurs records — ⛔ aucune liste de noms", () => {
+  assert.deepEqual(PLANS_A_VARIANTE.map((r) => r.data.name).sort(), [
+    "Belt of Giant Strength", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla",
+    "Ioun Stone", "Potion of Giant Strength", "Potions of Healing", "Wand of the War Mage, +1, +2, or +3",
+  ], "⭐ les cinq wondrous d'Eric, les deux potions, la wand — ⛔ aucun plan à base (Weapon, Armor, Ammunition…)");
+  /* ⭐ les trois formes du SRD sont lues : la rareté, la table, les paragraphes */
+  const mots = (n) => variantesDe(plans.get(n).data).map((v) => `${v.mot}:${v.rarete}`);
+  assert.deepEqual(mots("Horn of Valhalla"), ["Silver:Rare", "Brass:Rare", "Bronze:Very Rare", "Iron:Legendary"]);
+  assert.deepEqual(mots("Belt of Giant Strength"),
+    ["Hill:Rare", "Frost or Stone:Very Rare", "Fire:Very Rare", "Cloud:Legendary", "Storm:Legendary"]);
+  assert.equal(mots("Ioun Stone").length, 13);
+  assert.ok(mots("Ioun Stone").includes("Awareness:Rare"));
+  assert.deepEqual(mots("Potions of Healing"), ["Standard:Common", "Greater:Uncommon", "Superior:Rare", "Supreme:Very Rare"]);
+  assert.deepEqual(mots("Wand of the War Mage, +1, +2, or +3"), ["+1:Uncommon", "+2:Rare", "+3:Very Rare"]);
+  /* ⛔ et un objet fini n'a pas de variante */
+  for (const n of ["Bag of Holding", "Dagger of Venom", "Cloak of Protection"]) {
+    if (plans.get(n)) assert.deepEqual(variantesDe(plans.get(n).data), [], `${n} est un objet fini`);
+  }
+});
+
+test("33 — ⚖️ LA FICHE : Blueprint · PLAN · VARIANT · Crafting · Qty — ⛔ ni TYPE, ni ITEM, ni BONUS, ni POWER", () => {
+  const { noeud } = monte({ plan: plans.get("Ioun Stone"), plansFreres: PLANS_A_VARIANTE, valeurDe,
+    choix: { variante: "Awareness" } });
+  assert.equal(noeud.dataset.famille, "variante");
+  assert.equal(noeud.dataset.pouvoirs, "aucun", "⭐ la rangée des pouvoirs n'existe pas : tout remonte");
+  const vus = organes(noeud);
+  for (const absent of ["TYPE", "ITEM", "BONUS", "POWER 1", "POWER 2"]) assert.ok(!vus.includes(absent), `⛔ ${absent}`);
+  const plan = noeud.querySelector('[data-organe="PLAN"]');
+  const choisie = (sel) => [...sel.querySelectorAll("option")].find((o) => o.selected);
+  assert.equal(choisie(plan).value, "Ioun Stone");
+  assert.deepEqual([...plan.querySelectorAll("option")].map((o) => o.textContent),
+    ["Belt of Giant Strength", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla", "Ioun Stone"],
+    "⭐ le menu PLAN porte les frères de CATÉGORIE — les cinq wondrous, ⛔ ni potion ni wand");
+  const variante = noeud.querySelector('[data-organe="VARIANT"]');
+  assert.equal(choisie(variante).value, "Awareness");
+  assert.equal(variante.querySelectorAll("option").length, 13);
+  assert.match(noeud.querySelector('[data-organe="JETON"]').textContent, /Ioun Stone \(Awareness\)/);
+});
+
+test("34 — ⚖️ LE PRIX : la valeur de l'objet FINI (celle de Wares), fabriqué à moitié — et la rareté LUE", () => {
+  /* ⭐ Ioun Stone (Awareness) est Rare : 4 000 GP au barème du SRD, 2 000 à fabriquer. */
+  const { noeud, cote } = monte({ plan: plans.get("Ioun Stone"), plansFreres: PLANS_A_VARIANTE, valeurDe,
+    choix: { variante: "Awareness", qte: 2 }, fh: true });
+  assert.equal(cote.venteUnitaire, 4000);
+  assert.equal(cote.craftTotal, 4000, "2 × 2 000");
+  const texte = noeud.querySelector('[data-organe="ENCART"]').textContent;
+  assert.match(texte, /Enchanting2,000 GP/);
+  assert.doesNotMatch(texte, /Base item/, "⛔ une variante n'a pas de base à fabriquer");
+  assert.match(texte, /Rare wondrous item/);
+  assert.match(texte, /3 days/, "⭐ le temps FH du palier Rare (« crafting time 3 days (FH) rare weapon »)");
+  /* 🔴 LA POTION : Rare, vendue à MOITIÉ (`value_footnote`) — et elle reste « Rare » */
+  const p = monte({ plan: plans.get("Potions of Healing"), plansFreres: PLANS_A_VARIANTE, valeurDe,
+    choix: { variante: "Superior" } });
+  assert.equal(p.cote.venteUnitaire, 2000, "une potion Rare vaut 2 000, pas 4 000");
+  assert.match(p.noeud.querySelector('[data-organe="ENCART"]').textContent, /Rare potion/,
+    "⛔ déduite du prix, la rareté aurait dit « Uncommon »");
+  /* ⭐ Standard : la potion de soin commune, 50 GP — le prix même de l'Adventuring Gear */
+  const s = monte({ plan: plans.get("Potions of Healing"), plansFreres: PLANS_A_VARIANTE, valeurDe,
+    choix: { variante: "Standard" } });
+  assert.equal(s.cote.venteUnitaire, 50);
+});
+
+test("35 — ⭐ `SEND` REND LE PLAN, LA VARIANTE ET LE MONTANT — le jeton rend l'aperçu", () => {
+  let envoi = null, apercu = null;
+  const { noeud } = monte({ plan: plans.get("Horn of Valhalla"), plansFreres: PLANS_A_VARIANTE, valeurDe,
+    choix: { variante: "Bronze", destination: "backpack" },
+    surEnvoyer: (e) => { envoi = e; }, surJeton: (a) => { apercu = a; } });
+  const send = noeud.querySelector('[data-organe="SEND"]');
+  assert.equal(send.disabled, false);
+  send.dispatchEvent(new Event("click"));
+  assert.equal(envoi.plan.data.name, "Horn of Valhalla");
+  assert.equal(envoi.variante.mot, "Bronze");
+  assert.deepEqual(envoi.cout, enPieces(20000), "Very Rare 40 000, fabriqué 20 000");
+  noeud.querySelector('[data-organe="JETON"]').dispatchEvent(new Event("click"));
+  assert.equal(apercu.nom, "Horn of Valhalla (Bronze)");
+  /* ⛔ sans valeur lisible, `Send` ne s'arme pas — et il dit pourquoi */
+  const muet = monte({ plan: plans.get("Horn of Valhalla"), choix: {}, surEnvoyer: () => {} }).noeud;
+  assert.equal(muet.querySelector('[data-organe="SEND"]').disabled, true);
+  assert.match(muet.querySelector('[data-organe="SEND"]').title, /no readable value/);
 });
