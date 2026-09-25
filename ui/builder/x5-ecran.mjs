@@ -118,39 +118,43 @@ function menu(nom, valeur, options, surChoix, { aucun = null } = {}) {
 function encart(cote, status, base, prix, surPrix, alerte, type) {
   const e = elx("section", "x5-encart");
   e.dataset.organe = "ENCART";
-  if (status === "Found") {
-    /* ⚖️ Le croquis : « you found it, it's a gift or you stole it — it's free ». ⛔ Aucun
-       champ : un « 0 GP » dirait « ça coûte zéro », la phrase dit que la question ne se pose pas. */
-    e.dataset.regime = "found";
-    e.append(elx("p", "x5-encart-libre", "You found it, it's a gift, or you stole it — it's free."));
-  } else if (!cote.legal) {
+  if (!cote.legal) {
     /* ⚖️ « au moins le prix sera juste » — quand il n'y a pas de prix juste, on le DIT. */
     e.dataset.regime = "refus";
     e.append(elx("p", "x5-encart-refus", motDuRefus(cote.raison)));
+  } else if (status === "Buying") {
+    /* ⚖️ Eric, 25/09 (retouche) : « pour l'achat tu auras uniquement le prix et la quantité
+       (tous deux modifiables) ». ⭐ Le prix d'ACHAT se tape (l'unitaire) ; la quantité est le
+       menu QTY au-dessus ; le total en découle. ⛔ Ni coût de fabrication, ni temps. */
+    e.dataset.regime = "buying";
+    const unite = prix ?? cote.venteUnitaire;
+    const c1 = elx("div", "x5-encart-col");
+    c1.append(champ("Price", unite, prix !== null, surPrix));
+    const c2 = elx("div", "x5-encart-col x5-encart-droite");
+    c2.append(ligne(`Qty ${cote.qte} · Total`, or(unite * cote.paiements)));
+    e.append(c1, c2);
   } else {
-    e.dataset.regime = status === "Buying" ? "buying" : "crafting";
-    const achat = status === "Buying";
-    /* ⭐ En Buying, la colonne 1 dit ce que l'on PAIE, pas ce que coûte la fabrication :
-       le prix de la base et la part magique entière. */
-    const partBase = achat ? cote.coutBase : cote.coutBase / 2;
-    const partMagie = achat ? cote.magie : cote.magie / 2;
+    e.dataset.regime = "crafting";
+    /* ⭐ La colonne 1 dit ce que COÛTE la fabrication : la moitié de la base, la moitié de la
+       part magique (Eric, 25/09 : « crafting cost of the base item : 200 »). */
+    const partBase = cote.coutBase / 2;
+    const partMagie = cote.magie / 2;
     const unite = partBase + partMagie;
     const c1 = elx("div", "x5-encart-col x5-encart-couts");
     const t = elx("div", "x5-encart-tete");
-    t.append(elx("span", null, achat ? "Buying" : "Crafting"), elx("span", null, "Cost"));
+    t.append(elx("span", null, "Crafting"), elx("span", null, "Cost"));
     c1.append(t,
       ligne(base ? base.data.name : "Base item", or(partBase)),
       ligne("Enchanting", or(partMagie)),
       ligne("Total", or(unite)));
     const c2 = elx("div", "x5-encart-col x5-encart-droite");
     /* ⚖️ « Crafting time (SRD vide / FH rempli) » — ⛔ vide, pas « 0 » ni « — ». */
-    c2.append(ligne("Crafting time", achat ? "" : (cote.temps || "")));
+    c2.append(ligne("Crafting time", cote.temps || ""));
     /* ⚖️ LA RARETÉ — Eric, 25/09 : « il faut citer la rareté — crafting time 3 days (FH) ·
        rare weapon ». ⭐ La catégorie AFFICHÉE du craft (le palier SRD inférieur, jamais un
        demi-cran — Eric, 24/09), et le type lu dans le plan. */
     const rarete = categorieAffichee(cote.venteUnitaire);
-    const r = elx("p", "x5-encart-rarete", rarete ? `${rarete} ${type.toLowerCase()}` : "");
-    c2.append(r);
+    c2.append(elx("p", "x5-encart-rarete", rarete ? `${rarete} ${type.toLowerCase()}` : ""));
     c2.append(champ(`Qty ${cote.qte} · Total`, prix ?? unite * cote.paiements, prix !== null, surPrix));
     e.append(c1, c2);
   }
@@ -202,9 +206,10 @@ function or(n) {
  *  `Crafting` paie le coût de fabrication, `Buying` le prix d'achat, `Found` rien. */
 export function montantDuStatut(cote, status = "Crafting", prix = null) {
   if (!cote || !cote.legal || status === "Found") return 0;
-  /* ⚖️ LOT 270 — « le Total encadré » EST ce qu'on tape (Eric, 25/09 : « oui ») : un prix
-     tapé est le TOTAL, et c'est lui que la bourse paie. */
-  if (prix !== null && prix !== undefined) return prix;
+  /* ⚖️ LOT 270 — en Crafting, « le Total encadré » EST ce qu'on tape (Eric, 25/09 : « oui ») :
+     un prix tapé est le TOTAL. ⚖️ LOT 271 — en Buying, c'est le PRIX qui se tape (« le prix et
+     la quantité, tous deux modifiables ») : le total est prix × paiements. */
+  if (prix !== null && prix !== undefined) return status === "Buying" ? prix * cote.paiements : prix;
   return status === "Buying" ? cote.venteTotale : cote.craftTotal;
 }
 function motDuRefus(raison) {
@@ -300,13 +305,21 @@ export function construireX5(o = {}) {
     menu("QTY", String(qte), Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
 
   const prix = prixSaisi(choix.prix);
-  n.append(encart(cote, status, base, prix, surChoix ? (v) => surChoix("PRIX", v) : null, alerte, type));
+  /* ⚖️ Eric, 25/09 (retouche) : « en free, pas d'encart ». ⭐ La phrase bleue dit le reste, et
+     « la partie inférieure est identique » : les organes sont posés en absolu, rien ne remonte.
+     ⛔ Sauf un refus de l'appelant, qui doit se lire quelque part. */
+  if (status !== "Found" || alerte) {
+    n.append(encart(cote, status, base, prix, surChoix ? (v) => surChoix("PRIX", v) : null, alerte, type));
+  }
 
-  /* ⚖️ LA PHRASE SOUS L'ENCART — Eric, 25/09 : « une petite phrase sous l'encart explique que
-     la somme sera débitée en cliquant sur Send ». */
-  const phrase = elx("p", "x5-phrase",
-    status === "Found" ? "Nothing is taken from your purse: you found it."
-      : "The total is taken from your purse when you tap Send.");
+  /* ⚖️ LA PHRASE SOUS L'ENCART — Eric, 25/09 : « une petite phrase explique que la somme sera
+     débitée en cliquant sur Send », puis « le texte en bleu explique un peu quand même ».
+     ⭐ Le bleu de la maison pour un texte qui guide : `--info` en T1 (« T1 texte police bleue,
+     c'est l'aiguilleur »). */
+  const phrase = elx("p", "x5-phrase", {
+    Found: "You found it, it's a gift, or you stole it: it's free. Tap Send to put it in your equipment.",
+    Buying: "Tap Send: the price × the quantity is taken from your purse, and the item goes to your equipment.",
+  }[status] || "Tap Send: the total is taken from your purse, and the crafted item goes to your equipment.");
   phrase.dataset.organe = "PHRASE";
   n.append(phrase);
 

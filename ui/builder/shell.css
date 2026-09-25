@@ -13404,14 +13404,23 @@ button.tuto-point::before {
 /* ⚖️ L'ENCART — « deux colonnes de taille égale ». ⭐ La grille les fait égales, ⛔ aucune
    largeur écrite. Un fond léger et un trait pointillé : le cadre des calculs de X5. */
 .x5-encart {
-  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-16);
+  /* ⚖️ Eric, 25/09 (retouche) : « marge centrale de l'encart plus large et alignée avec
+     l'interstice vertical des 6 boîtes ». ⭐ L'encart (14 → 361) et l'interstice (183,5 → 191,5)
+     ont le MÊME centre, 187,5 — la marge centrale d'une grille à deux colonnes égales y tombe
+     d'elle-même. Elle passe de 16 à 24, et un filet la trace, pile dans l'axe (garde 30). */
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-24);
   padding: var(--sp-8);
-  background: color-mix(in srgb, var(--x1-encre) 5%, transparent);
+  background:
+    linear-gradient(var(--x1-trait), var(--x1-trait)) center / 1px calc(100% - 2 * var(--sp-8)) no-repeat,
+    color-mix(in srgb, var(--x1-encre) 5%, transparent);
   border: 1px dashed var(--x1-trait); border-radius: var(--radius-sm);
   overflow: hidden;
 }
-/* Found et le refus : une phrase, sur toute la largeur de l'encart. */
-.x5-encart:is([data-regime="found"], [data-regime="refus"]) { grid-template-columns: 1fr; align-content: center; }
+/* Le refus : une phrase, sur toute la largeur de l'encart. (Found n'a plus d'encart — lot 271.) */
+.x5-encart[data-regime="refus"] { grid-template-columns: 1fr; align-content: center;
+  background: color-mix(in srgb, var(--x1-encre) 5%, transparent); }
+/* Buying : le prix et la quantité, au milieu de l'encart. */
+.x5-encart[data-regime="buying"] { align-items: center; }
 .x5-encart-col { min-width: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
 /* ⚖️ « Crafting · Cost / trait rouge » — l'en-tête de la colonne 1 et son trait oxblood. */
 .x5-encart-tete {
@@ -13440,13 +13449,13 @@ button.tuto-point::before {
 .x5-encart-refus { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-etat-encre); }
 /* ⚖️ LA RARETÉ — « rare weapon », sous le temps de craft. */
 .x5-encart-rarete { margin: 0; font-size: var(--t1); font-weight: 600; color: var(--x1-oxblood); }
-/* ⚖️ FOUND — la phrase du croquis, sans champ. */
-.x5-encart-libre { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); }
 
-/* ⚖️ LA PHRASE SOUS L'ENCART — « la somme sera débitée en cliquant sur Send ». */
+/* ⚖️ LA PHRASE SOUS L'ENCART — « la somme sera débitée en cliquant sur Send », et « le texte
+   en BLEU explique un peu quand même » (Eric, 25/09). ⭐ `--info` en T1 : l'encre de l'aiguilleur
+   (« T1 texte police bleue, c'est l'aiguilleur »), ⛔ pas une teinte neuve. */
 .x5-phrase {
-  margin: 0; text-align: center;
-  font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce);
+  margin: 0; display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: var(--t1); color: var(--info);
 }
 
 .x5-porte {

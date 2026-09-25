@@ -277,19 +277,20 @@ test("11 ter — ⭐ LE REFUS DE L'APPELANT S'AFFICHE DANS L'ENCART, pas dans un
   assert.equal(a.textContent, "Not enough coin in the purse.");
 });
 
-test("12 — ⚖️ LES TROIS RÉGIMES DE L'ENCART suivent le STATUS", () => {
+test("12 — ⚖️ LES TROIS RÉGIMES suivent le STATUS : Crafting détaille, Buying prix · quantité, Found sans encart", () => {
   const choix = { base: "Longsword", bonus: "Uncommon" };
-  const achat = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Buying" } });
+  const achat = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Buying" }, surChoix: () => {} });
   const trouve = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Found" } });
   const craft = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix });
   const cles = (n) => [...n.noeud.querySelectorAll(".x5-ligne-clef")].map((e) => e.textContent);
-  const tete = (n) => (n.noeud.querySelector(".x5-encart-tete") || { textContent: "" }).textContent;
   assert.deepEqual(cles(craft), ["Longsword", "Enchanting", "Total", "Crafting time", "Qty 1 · Total"],
     "⚖️ la dictée : la base · Enchanting · Total | Crafting time · Qty · Total");
-  assert.equal(tete(craft), "CraftingCost");
-  assert.equal(tete(achat), "BuyingCost", "⭐ en Buying, la colonne dit ce que l'on PAIE");
-  assert.deepEqual(cles(trouve), [], "⚖️ Found : aucun champ");
-  assert.ok(trouve.noeud.querySelector(".x5-encart-libre"), "⭐ la phrase du croquis, à la place");
+  assert.deepEqual(cles(achat), ["Price", "Qty 1 · Total"],
+    "⚖️ « pour l'achat, uniquement le prix et la quantité (tous deux modifiables) »");
+  assert.ok(achat.noeud.querySelector("input.x5-prix"), "⭐ le prix d'achat se tape");
+  assert.equal(trouve.noeud.querySelector('[data-organe="ENCART"]'), null, "⚖️ « en free, pas d'encart »");
+  assert.match(trouve.noeud.querySelector('[data-organe="PHRASE"]').textContent, /free/i,
+    "⭐ la phrase bleue dit le reste");
 });
 
 test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, et nulle part ailleurs", async () => {
@@ -525,4 +526,47 @@ test("26 — ⚖️ L'APERÇU X1 DU JETON : Close seul, Equip · Attune · Lock 
     const normal = construireLaFicheX1({ objet: { nom: "Breastplate", qte: 1 } }).noeud;
     assert.equal(normal.querySelector('[data-organe="trash"]').hidden, false, "⚔️ témoin : hors aperçu, rien ne se retire");
   } finally { if (avant === undefined) delete globalThis.document; else globalThis.document = avant; }
+});
+
+/* ══ LOT 271 — LES RETOUCHES D'ERIC DU 25/09 ═══════════════════════════════════ */
+
+test("27 — ⚖️ LES TROIS INTERSTICES DES SIX BOÎTES DE CHOIX SONT SUR UNE VERTICALE", () => {
+  /* ⚖️ « essaie d'aligner les 3 interstices verticaux des 6 boîtes de choix ». */
+  const par = (n) => D.ORGANES.find((o) => o.nom === n);
+  const fente = (g, d) => `${par(g).x + par(g).l}→${par(d).x}`;
+  const a = fente("ITEM", "BONUS");
+  assert.equal(fente("POWER 1", "POWER 2"), a);
+  assert.equal(fente("STATUS", "QTY"), a, "⭐ la paire du bas s'aligne sur les colonnes, ⛔ elle ne se centre plus");
+});
+
+test("28 — ⚖️ LA BOURSE EST CENTRÉE ENTRE LE JETON ET LE BORD DROIT · 8 blg sous le jeton et au-dessus de l'encart", () => {
+  const par = (n) => D.ORGANES.find((o) => o.nom === n);
+  const j = par("JETON"), p = par("PURSE");
+  assert.equal(p.x + p.l / 2, (j.x + j.l + D.DALLE.l - D.MARGE_COTE) / 2, "« centrée entre breastplate et le bord droit »");
+  const basJeton = Math.max(j.y + j.h, p.y + p.h);
+  assert.equal(par("CANCEL").cible.y - basJeton, 8, "⚖️ « 8 blg sous le token »");
+  assert.equal(par("ENCART").y - (par("STATUS").cible.y + par("STATUS").cible.h), 8, "⚖️ « 8 blg au-dessus de l'encart »");
+});
+
+test("29 — ⭐ LA PHRASE EST BLEUE (`--info`, l'encre de l'aiguilleur) et la partie inférieure ne bouge pas", () => {
+  assert.match(CSS, /\.x5-phrase\s*\{[^}]*color:\s*var\(--info\)/, "⚖️ « le texte en bleu explique un peu »");
+  /* « partie inférieure identique » : la feuille pose le jeton, la bourse et le pied à la MÊME
+     cote quel que soit le régime — ⛔ aucune règle ne dépend du statut. */
+  assert.doesNotMatch(feuilleDesCotesX5(), /data-status/, "⛔ aucune cote ne suit le statut");
+  const craft = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
+  const trouve = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword", status: "Found" } });
+  const pied = (n) => ["JETON", "purse", "CANCEL", "SEND TO", "SEND"].map((o) => Boolean(n.noeud.querySelector(`[data-organe="${o}"]`)));
+  assert.deepEqual(pied(trouve), pied(craft), "les mêmes organes en bas, dans les deux régimes");
+});
+
+test("30 — ⚖️ LA MARGE CENTRALE DE L'ENCART EST DANS L'AXE DE L'INTERSTICE DES SIX BOÎTES", () => {
+  /* ⚖️ « marge centrale de l'encart plus large et alignée avec l'interstice vertical des 6 boîtes ». */
+  const par = (n) => D.ORGANES.find((o) => o.nom === n);
+  const axe = (par("ITEM").x + par("ITEM").l + par("BONUS").x) / 2;
+  assert.equal(par("ENCART").x + par("ENCART").l / 2, axe,
+    "📏 l'encart et l'interstice ont le même centre — deux colonnes égales y posent leur marge");
+  const regle = /\.x5-encart\s*\{([^}]*)\}/.exec(CSS.replace(/\/\*[\s\S]*?\*\//g, " "))[1];
+  assert.match(regle, /grid-template-columns:\s*1fr 1fr/, "⛔ deux colonnes ÉGALES, sinon la marge quitte l'axe");
+  assert.match(regle, /gap:\s*var\(--sp-24\)/, "⚖️ « plus large » : 24");
+  assert.match(regle, /center\s*\/\s*1px/, "⭐ le filet est tracé au CENTRE");
 });
