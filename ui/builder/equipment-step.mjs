@@ -3251,12 +3251,34 @@ export function renderEquipmentStep(ctx, onAction) {
   }
 
   /* le PILOTE que la carte R appelle (tap, dépôts) — voir `soignerLesCases` */
+  /* ⚖️ LOT 267 — UN PLAN MÈNE DIRECTEMENT À X5 — Eric, 25/09 : *« je réalise que de
+     passer par X2 est inutile. un blueprint doit mener directement à X5 »*.
+     ⭐ UNE SEULE PORTE POUR LES TROIS CHEMINS qui ouvraient X2 depuis le catalogue (le
+     tap sur R, le tap dans Wares, la recherche) : chacun posait son `ficheEnCours` à
+     la main, et une règle ajoutée à l'un aurait manqué aux deux autres.
+     ⛔ Seuls les plans que X5 SAIT composer y vont (`seCrafteDansX5`, la même question
+     que le menu `Craft` de X2) : un pack, un Wondrous à choix, un parchemin gardent X2
+     tant que leur famille n'a pas d'écran. `Cancel` de X5 rend l'écran d'où l'on vient. */
+  function ouvrirLObjet(liste, index, retour) {
+    const f = liste[index];
+    const rec = f && f.ref ? cherche.record(f.ref) : null;
+    if (rec && seCrafteDansX5(rec, basesDuCraft, magiquesDuCraft)) {
+      const o = ouvertureX5(rec, magiquesDuCraft, basesDuCraft);
+      if (o) {
+        ficheX5 = { plan: { kind: "item", id: o.plan.id || f.ref.id }, planRecord: o.plan,
+                    choix: o.choix, retour: retour || "r" };
+        montrer("x5");
+        return;
+      }
+    }
+    ficheEnCours = { liste, index, retour };
+    montrer("x2");
+  }
+
   piloteEquipement = {
     ouvrirFiche(item) {
       const liste = [...itemsDeLaPage.values()].map(ficheItemAvec(cherche.valeur));
-      const index = Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id));
-      ficheEnCours = { liste, index };
-      montrer("x2");
+      ouvrirLObjet(liste, Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id)));
     },
     mettreAuPanier(item) {
       /* le panier vit au DOCUMENT : l'acte passe par la coquille, et le
@@ -4004,9 +4026,7 @@ export function renderEquipmentStep(ctx, onAction) {
          celui-là est la fiche d'un objet qu'on POSSÈDE, et on ne possède rien sur une étagère. */
       surJeton: (ref) => {
         const liste = [...itemsDeLaPage.values()].map(ficheItemAvec(cherche.valeur));
-        const index = Math.max(0, liste.findIndex((f) => f.ref.id === ref));
-        ficheEnCours = { liste, index, retour: "r" };
-        montrer("x2");
+        ouvrirLObjet(liste, Math.max(0, liste.findIndex((f) => f.ref.id === ref)), "r");
       },
       surPorte: (id) => {
         if (id === "gear") montrer("gear");
@@ -4346,7 +4366,7 @@ export function renderEquipmentStep(ctx, onAction) {
          directly to item menu » : un résultat ouvre X2, qui REVIENT ici. */
       const catalogue = cherche.tous().map(ficheItemAvec(cherche.valeur));
       return renderRecherche({ catalogue,
-        onOuvrirFiche: (liste, index) => { ficheEnCours = { liste, index, retour: "recherche" }; montrer("x2"); },
+        onOuvrirFiche: (liste, index) => ouvrirLObjet(liste, index, "recherche"),
         retour: () => montrer("r") });
     }
     if (vue === "b2" || vue === "sb32") {

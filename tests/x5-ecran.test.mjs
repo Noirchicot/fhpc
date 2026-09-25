@@ -355,3 +355,20 @@ test("15 — ⭐ UN POUVOIR À BASE MULTIPLE OUVRE LE PLAN DE SA FAMILLE, pouvoi
   assert.equal(ouvertureX5(plans.get("Dagger of Venom"), items, bases), null,
     "⛔ une seule base : rien à composer, c'est un objet qu'on achète");
 });
+
+test("16 — ⚖️ UN PLAN MÈNE DIRECTEMENT À X5, et les trois chemins du catalogue passent par UNE porte (lot 267)", () => {
+  /* ⚖️ Eric, 25/09 : « un blueprint doit mener directement à X5 ». ⛔ Trois chemins
+     ouvraient X2 depuis le catalogue (le tap sur R, le tap dans Wares, la recherche),
+     chacun avec son `ficheEnCours` écrit à la main : une règle ajoutée à l'un manquait
+     aux deux autres. Ce garde lit le code SANS ses commentaires. */
+  const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  const poses = src.match(/ficheEnCours = \{/g) || [];
+  assert.equal(poses.length, 1, `⛔ ${poses.length} endroits ouvrent X2 à la main — une seule porte, \`ouvrirLObjet\``);
+  const porte = src.slice(src.indexOf("function ouvrirLObjet("), src.indexOf("piloteEquipement = {"));
+  assert.match(porte, /seCrafteDansX5\(rec, basesDuCraft, magiquesDuCraft\)/,
+    "⭐ la porte pose la MÊME question que le menu `Craft` de X2 — un seul critère");
+  assert.ok(porte.indexOf('montrer("x5")') < porte.indexOf('montrer("x2")'),
+    "⭐ un plan craftable va à X5 AVANT tout X2");
+  assert.equal((src.match(/ouvrirLObjet\(/g) || []).length, 4, "la définition + R + Wares + la recherche");
+});

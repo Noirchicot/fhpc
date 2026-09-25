@@ -176,8 +176,12 @@ test("5 — 👕 l'habit de la tête VOYAGE : ce sont des règles de CLASSE, ⛔
 
 test("6 — ⚖️ la vue s'appelle `x2` ; ⛔ `b1` ne nomme plus un écran", () => {
   assert.ok(etape.includes('montrer("x2")'), "le pilote ouvre `x2`");
-  assert.equal((etape.match(/montrer\("x2"\)/g) || []).length, 3,
-    "les TROIS portes d'entrée mesurées : la tuile, le jeton de R, le résultat de recherche");
+  /* ⚖️ LOT 267 — les trois portes d'entrée (la tuile, le jeton de R, le résultat de
+     recherche) passent désormais par UNE seule, `ouvrirLObjet`, qui envoie un plan
+     craftable à X5 et le reste à X2 (Eric, 25/09 : « un blueprint doit mener
+     directement à X5 »). Le compte des trois vit au garde 16 de `x5-ecran`. */
+  assert.equal((etape.match(/montrer\("x2"\)/g) || []).length, 1,
+    "UNE porte d'entrée : `ouvrirLObjet`, que les trois chemins appellent");
   assert.ok(!/["']b1["']/.test(etape), "⛔ plus aucun `b1` dans le pilote");
   assert.ok(!pipeline.includes("renderB1"), "⛔ l'ancien écrivain a quitté le pipeline");
   assert.match(etape, /vue === "x2" && ficheEnCours/, "la vue est branchée sur la fiche en cours");
