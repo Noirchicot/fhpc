@@ -1374,6 +1374,16 @@ body {
      d'état où « la fiche courante » serait indéterminée. */
   scroll-snap-type: y mandatory;
 }
+/* ⚖️ LOT 272 — UNE FICHE DE RANG X NE FAIT PAS DÉFILER LA SCÈNE. Eric, 25/09 : « dégage les
+   ascenseurs » (et, plus tôt, sur X5 : « aucun ascenseur là-dedans »).
+   📏 MESURÉ : les fiches X sont cotées 375 × 500 pour un belt de 60 (60 + 500 = 560, la hauteur
+   de l'app). Le belt RENDU mesure 61 à 65 selon ce qu'il porte (64,8 avec « Equipment / 8 /
+   Wares ») : la scène garde 495 à 499 pour 500, et un ascenseur de 1 à 5 blg apparaît — sur X0,
+   X1, X2 et X5 pareil.
+   ⭐ Ces blg tombent dans le VIDE sous le pied de chaque fiche (X5 occupe 470 / 500, X1 garde
+   34 sous ses portes) : la scène cesse de défiler, rien de lu n'est coupé.
+   ⏳ L'écart lui-même (un belt de 65 là où les fiches en comptent 60) reste à régler à sa source. */
+.stage:has(:is(.x0, .x1, .x2, .x5)[data-objet]) { overflow: hidden; }
 /* LOT 70 — L'AMORCE DE LA FICHE : « il y a une suite ». À la souris, une
    fiche qui remplit tout l'écran ressemble à une page sans suite — c'est ce
    qu'Eric a exprimé par « pas de snap » : le mécanisme marchait, l'affordance

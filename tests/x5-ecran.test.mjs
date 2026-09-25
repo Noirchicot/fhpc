@@ -570,3 +570,13 @@ test("30 — ⚖️ LA MARGE CENTRALE DE L'ENCART EST DANS L'AXE DE L'INTERSTICE
   assert.match(regle, /gap:\s*var\(--sp-24\)/, "⚖️ « plus large » : 24");
   assert.match(regle, /center\s*\/\s*1px/, "⭐ le filet est tracé au CENTRE");
 });
+
+test("31 — ⚖️ « DÉGAGE LES ASCENSEURS » : une fiche X ne fait pas défiler la scène (lot 272)", () => {
+  /* 📏 Le belt rendu mesure 61 à 65, les fiches comptent 60 : la scène gardait 495 à 499 pour
+     500 et défilait. ⭐ Ces blg tombent dans le vide sous le pied (X5 occupe 470 / 500). */
+  const f = CSS.replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(f, /\.stage:has\(:is\(\.x0, \.x1, \.x2, \.x5\)\[data-objet\]\)\s*\{\s*overflow:\s*hidden;?\s*\}/,
+    "⛔ la scène d'une fiche X ne défile pas");
+  const bas = Math.max(...D.ORGANES.map((o) => { const b = o.cible || o; return b.y + b.h; }));
+  assert.ok(D.DALLE.h - bas >= 8, `📏 la marge sous le pied (${D.DALLE.h - bas}) couvre l'écart du belt (≤ 5) : rien de lu n'est coupé`);
+});
