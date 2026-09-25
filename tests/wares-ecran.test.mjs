@@ -665,3 +665,22 @@ test("28 · la fenêtre clippe, porte le jour de la SCÈNE, et ne mène aucun ge
   assert.match(f, /\.wares-grille\{[^}]*flex:0 0 auto[^}]*inline-size:100%/,
     "⛔ sans `flex: 0 0 auto` + `inline-size: 100%`, six dalles se partagent une fenêtre d'une seule");
 });
+
+/* ══ LOT 268 — LE RETOUR DE FICHE NE PERD PAS LE PLACEMENT ═════════════════════
+   ⚖️ Eric, 25/09 : *« le retour de fiche désynchronise les tambours, la tuile dans le zoom
+   n'est plus zoomée mais celle à droite du zoom est zoomée »*.
+   ⭐ LE CHEMIN EXACT, REJOUÉ : l'écran est construit DÉTACHÉ (la coquille reconstruit
+   l'étape avant de l'insérer), l'étape essaie de poser ses roues et échoue — puis l'écran
+   est inséré et la coquille rappelle `poserLesRoues()`. Ce second appel doit placer. */
+test("268 · 🔴 un placement tenté sur un écran DÉTACHÉ reste en attente, et se fait une fois l'écran posé", async () => {
+  const { poserLesRoues } = await import("../ui/builder/wares-ecran.mjs");
+  const hote = document.createElement("div");
+  const n = monter({ categorie: 2, sousCategorie: 1 });
+  hote.append(n);
+  hote._retire = true;                         /* l'étape reconstruite, pas encore insérée */
+  assert.equal(poserLesRoues(), 0, "témoin : sur un écran détaché, rien ne se pose");
+  hote._retire = false;                        /* la coquille insère l'écran… */
+  assert.equal(poserLesRoues(), 2,
+    "⭐ …et son appel pose les DEUX rubans. ⛔ Avant le lot 268 : 0 — la liste avait été vidée par l'essai raté");
+  assert.equal(poserLesRoues(), 0, "⛔ et un placement réussi ne se rejoue pas");
+});

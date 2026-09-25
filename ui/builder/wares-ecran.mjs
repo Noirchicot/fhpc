@@ -113,13 +113,27 @@ let pisteEnAttente = null;
 /** Pose les deux rubans sur leur cran visé, ⭐ ET LA PISTE SOUS SA PLAQUE.
  *  À appeler APRÈS que l'écran est dans le document — comme `poserLesDalles()` pour le sac. */
 export function poserLesRoues() {
-  const roues = rouesEnAttente;
-  rouesEnAttente = [];
+  /* 🔴 LOT 268 — UN PLACEMENT QUI ÉCHOUE RESTE EN ATTENTE. Eric, 25/09 : *« le retour de
+     fiche désynchronise les tambours, la tuile dans le zoom n'est plus zoomée mais celle à
+     droite du zoom est zoomée »*.
+     📏 MESURÉ : au retour d'une fiche (X2 ou X5), les deux rubans rendaient `scrollLeft: 0`
+     et la piste montrait la plaque 0, pendant que le marquage suivait le cran choisi —
+     exactement le symptôme du 20/09, revenu par un autre chemin.
+     ⭐ LA CAUSE : le retour passe par la coquille, qui reconstruit l'étape DÉTACHÉE avant de
+     l'insérer. L'étape appelait `poserLesRoues()` sur ses nœuds détachés — et cette fonction
+     VIDAIT la liste AVANT d'essayer. L'essai échouait, les roues étaient perdues, et l'appel
+     de la coquille, une fois l'écran posé, ne trouvait plus rien à placer.
+     ⭐ Le sac l'écrit depuis le lot 214 et je l'avais recopié dans le commentaire de
+     l'appelant sans le faire ici : *« le placement se relit avant de se consommer »*
+     (`poserLesDalles`). ⛔ Ne retire de l'attente que ce qui a RÉUSSI. */
+  const restent = [];
   let posees = 0;
-  for (const r of roues) { if (r.poser && r.poser() === true) posees += 1; }
-  const piste = pisteEnAttente;
-  pisteEnAttente = null;
-  if (piste && piste.poser) piste.poser();
+  for (const r of rouesEnAttente) {
+    if (r.poser && r.poser() === true) posees += 1;
+    else restent.push(r);
+  }
+  rouesEnAttente = restent;
+  if (pisteEnAttente && pisteEnAttente.poser && pisteEnAttente.poser() === true) pisteEnAttente = null;
   return posees;
 }
 
