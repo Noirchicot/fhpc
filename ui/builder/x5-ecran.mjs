@@ -20,7 +20,7 @@
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=826";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, categorieAffichee, PALIERS, PLAFOND_QTE,
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
   coteDUneVariante, recordDUneVariante } from "./craft.mjs?v=826";
 import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=826";
 import { corpsDuJeton } from "./jeton-objet.mjs?v=826";
@@ -109,11 +109,12 @@ function menu(nom, valeur, options, surChoix, { aucun = null } = {}) {
 
 /** ⚖️ L'ENCART — lot 270, la dictée d'Eric du 25/09, deux colonnes de taille égale :
  *    colonne 1 : `Crafting · Cost` / un trait rouge / la base · Enchanting · Total
- *    colonne 2 : `Crafting time` (SRD vide, FH rempli) / `Qty N · Total` et le total ENCADRÉ
+ *    colonne 2 : `Crafting time` / `Qty N · Total` et le total ENCADRÉ
  *  ⚖️ « pas de jets pour produire les regular magic items (SRD comme FH) » : ⛔ plus de
  *  ROLL, plus de DC. Le temps reste — c'est une durée, pas un jet.
  *  ⚖️ Le total encadré EST le prix qu'on tape (réponse 1 : « oui »).
- *  ⭐ `coteDe` rend `temps: null` en SRD : l'écran dessine ce que le moteur donne, sans
+ *  ⭐ LOT 280 — le temps est donné dans LES DEUX piles (le SRD a sa table, p. 206 ; le
+ *  « SRD vide » du 24/09 reposait sur une erreur) : l'écran dessine ce que le moteur donne, sans
  *  redemander la pile (la faute du lot 259, un second écrivain pour une seule règle). */
 function encart(cote, status, base, prix, surPrix, alerte, type) {
   const e = elx("section", "x5-encart");
@@ -150,14 +151,16 @@ function encart(cote, status, base, prix, surPrix, alerte, type) {
       ligne("Enchanting", or(partMagie)),
       ligne("Total", or(unite)));
     const c2 = elx("div", "x5-encart-col x5-encart-droite");
-    /* ⚖️ « Crafting time (SRD vide / FH rempli) » — ⛔ vide, pas « 0 » ni « — ». */
+    /* ⚖️ LOT 280 — le temps du barème SRFH, dans les deux piles. ⛔ Vide s'il manque. */
     c2.append(ligne("Crafting time", cote.temps || ""));
     /* ⚖️ LA RARETÉ — Eric, 25/09 : « il faut citer la rareté — crafting time 3 days (FH) ·
        rare weapon ». ⭐ La catégorie AFFICHÉE du craft (le palier SRD inférieur, jamais un
        demi-cran — Eric, 24/09), et le type lu dans le plan. */
     /* ⭐ LOT 277 — une variante porte SA rareté, lue dans le record (`cote.rarete`) :
        ⛔ la déduire du prix dirait « Uncommon » d'une potion Rare, vendue à moitié. */
-    const rarete = cote.rarete || categorieAffichee(cote.venteUnitaire);
+    /* ⭐ LOT 280 — un assemblage porte la sienne, rabattue par le moteur au palier SRFH le
+       plus proche (`cote.categorie`) : ⛔ l'écran ne reclasse rien. */
+    const rarete = cote.rarete || cote.categorie;
     c2.append(elx("p", "x5-encart-rarete", rarete ? `${rarete} ${type.toLowerCase()}` : ""));
     c2.append(champ(`Qty ${cote.qte} · Total`, prix ?? unite * cote.paiements, prix !== null, surPrix));
     e.append(c1, c2);
@@ -218,7 +221,7 @@ export function montantDuStatut(cote, status = "Crafting", prix = null) {
 }
 function motDuRefus(raison) {
   return {
-    "au-dela-de-la-limite": "Beyond what can be forged — remove a power.",
+    "au-dela-de-la-limite": "Beyond Legendary+ — no crafter can make this. Remove a power.",
     "rarete-illisible": "This property has no readable rarity.",
     "sans-propriete": "Choose a bonus or a power first.",
   }[raison] || "Not craftable.";
@@ -231,7 +234,7 @@ function motDuRefus(raison) {
  *   · `bases`, `itemsMagiques` — des RECORDS (⛔ pas des vues : `craft.mjs` est strict).
  *   · `choix` — `{ base, bonus, pouvoirs: [nom], qte, status, destination, prix }`,
  *     l'état courant, TENU PAR L'APPELANT : cet écran ne garde rien, il redessine.
- *   · `fh` — la pile porte-t-elle Fate's Hand ? (le temps de craft)
+ *   · `fh` — ⛔ plus lu depuis le lot 280 : prix et temps sont les mêmes dans les deux piles
  *   · `surChoix(organe, valeur)` · `surAnnuler()` · `surEnvoyer(envoi)` · `surJeton(apercu)`
  *     — `envoi` = `{ base, bonus, pouvoirs, cote, status, destination, cout }` ;
  *     `apercu` = `{ nom, base, bonus, pouvoirs, cote, status }`, des RECORDS.
@@ -259,7 +262,7 @@ export function construireX5(o = {}) {
 
   const cote = coteDe({
     base, bonus: bonusChoisi && bonusChoisi.rarete, qte,
-    pouvoirs: pris.map((p) => p.data.rarity), fh,
+    pouvoirs: pris.map((p) => p.data.rarity),
   });
 
   const n = elx("section", "x5");
@@ -441,7 +444,7 @@ function construireX5Variante(o) {
   const qte = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(Number(choix.qte)) || 1));
   const fini = recordDUneVariante(plan, variante.mot);
   const valeur = valeurDe && fini ? prixEnPO((valeurDe(fini) || {}).cout || "") : NaN;
-  const cote = coteDUneVariante({ variante, valeur, qte, fh });
+  const cote = coteDUneVariante({ variante, valeur, qte });
 
   const n = elx("section", "x5");
   n.dataset.objet = "x5";
@@ -504,4 +507,4 @@ function construireX5Variante(o) {
   return { noeud: n, cote };
 }
 
-export { PLAFOND_QTE, PALIERS };
+export { PLAFOND_QTE };

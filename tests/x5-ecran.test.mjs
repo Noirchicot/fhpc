@@ -199,15 +199,18 @@ test("7 — 🔴 UN ASSEMBLAGE HORS LIMITE NE S'ENVOIE PAS, ET IL DIT POURQUOI",
     "⛔ aucune ligne d'argent quand il n'y a pas de prix juste à donner");
 });
 
-test("8 — ⚖️ LE TEMPS DE CRAFT : rempli en FH, VIDE en SRD (lot 270)", () => {
-  /* ⚖️ Eric, 25/09 : « Crafting time (SRD vide / FH rempli) ». ⛔ Vide, pas « 0 » ni « — ». */
+test("8 — ⚖️ LE TEMPS DE CRAFT : le même en pile SRD et en pile FH (lot 280)", () => {
+  /* 🔴 LE LOT 270 LE VOULAIT VIDE EN SRD (Eric, 25/09 : « Crafting time (SRD vide / FH
+     rempli) »), sur une prémisse fausse : le SRD 5.2.1 porte sa table de temps (p. 206,
+     vérifiée dans le PDF). ⚖️ Eric, 26/09 : le barème SRFH est « la référence de FH et SRD »,
+     « prix SRD et FH idem ». ⭐ Temps ET prix, identiques dans les deux piles. */
   const choix = { base: "Dagger", bonus: "Rare" };
   const fh = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix, fh: true });
   const srd = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix, fh: false });
   const temps = (n) => n.noeud.querySelector(".x5-encart-droite .x5-ligne-valeur").textContent;
-  assert.ok(temps(fh).length > 0, `en Fate's Hand, il est rempli (« ${temps(fh)} »)`);
-  assert.equal(temps(srd), "", "⛔ en SRD, VIDE");
-  assert.equal(srd.cote.craftUnitaire, fh.cote.craftUnitaire, "⭐ le PRIX est le même");
+  assert.equal(temps(fh), "50 days", "une Dagger +2 : Rare (4) + 2 GP → Rare, 50 jours");
+  assert.equal(temps(srd), temps(fh), "⭐ le même temps dans les deux piles");
+  assert.equal(srd.cote.craftUnitaire, fh.cote.craftUnitaire, "⭐ et le même prix");
 });
 
 test("9 — ⚔️ LA FEUILLE EXISTE VRAIMENT, et le mot cède avant le chevron", () => {
@@ -659,7 +662,7 @@ test("34 — ⚖️ LE PRIX : la valeur de l'objet FINI (celle de Wares), fabriq
   assert.match(texte, /Enchanting2,000 GP/);
   assert.doesNotMatch(texte, /Base item/, "⛔ une variante n'a pas de base à fabriquer");
   assert.match(texte, /Rare wondrous item/);
-  assert.match(texte, /3 days/, "⭐ le temps FH du palier Rare (« crafting time 3 days (FH) rare weapon »)");
+  assert.match(texte, /50 days/, "⭐ le temps du barème SRFH pour Rare (lot 280 — le 3 days du lot 277 était celui de la forge)");
   /* 🔴 LA POTION : Rare, vendue à MOITIÉ (`value_footnote`) — et elle reste « Rare » */
   const p = monte({ plan: plans.get("Potions of Healing"), plansFreres: PLANS_A_VARIANTE, valeurDe,
     choix: { variante: "Superior" } });
@@ -670,6 +673,10 @@ test("34 — ⚖️ LE PRIX : la valeur de l'objet FINI (celle de Wares), fabriq
   const s = monte({ plan: plans.get("Potions of Healing"), plansFreres: PLANS_A_VARIANTE, valeurDe,
     choix: { variante: "Standard" } });
   assert.equal(s.cote.venteUnitaire, 50);
+  /* ⚖️ LOT 280 — et SON temps est celui du brassage (1 jour), le même que sa note de craft :
+     ⛔ pas les 3 jours d'un Common consommable. Un seul écrivain, `noteDeCraft`. */
+  assert.equal(s.cote.temps, "1 day");
+  assert.equal(p.cote.temps, "25 days", "Superior : Rare consommable, 50 ÷ 2");
 });
 
 test("35 — ⭐ `SEND` REND LE PLAN, LA VARIANTE ET LE MONTANT — le jeton rend l'aperçu", () => {

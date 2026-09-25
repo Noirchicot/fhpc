@@ -21,9 +21,11 @@ import assert from "node:assert/strict";
 
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import {
-  PALIERS, LIMITE, UNITE, PLAFOND_QTE, LOT_MUNITION,
-  paliterDeRarete, categorieAffichee, pouvoirsDe, coteDe, encorePossibles, prixEnPO,
+  RANG_MAX, ECHELLE_SOULFORGING, PLAFOND_QTE, LOT_MUNITION,
+  paliterDeRarete, categorieAffichee, palierLePlusProche, pouvoirsDe, coteDe, encorePossibles, prixEnPO,
 } from "../ui/builder/craft.mjs";
+import { PALIERS_SRFH } from "../ui/builder/bareme-srfh.mjs";
+import fs from "node:fs";
 
 const query = exempleFhEn().layers.verbs.query;
 const armes = query({ kind: "weapon" });
@@ -35,33 +37,34 @@ const magiques = query({ kind: "item" })
 const parNom = new Map(armes.map((v) => [v.record.data.name, v.record]));
 const R = (r) => ({ data: { rarity: r } });
 
-/* ══ ① L'ÉCHELLE ═══════════════════════════════════════════════════════════ */
+/* ══ ① LE BARÈME — SRFH (lot 280) ═════════════════════════════════════════════
+   ⚖️ Eric, 26/09 : « prix SRD et FH idem · mon échelle uniquement pour le soulforging » ;
+   « addition de pp comme dans soulforging, sauf qu'on ne parlera de pp que dans le
+   soulforging » ; « on se rabat sur le prix palier le plus proche ». */
 
-test("1 — ⭐ L'ÉCHELLE RETROUVE LE SRD AU GOLD PRÈS, là où le SRD est régulier", () => {
-  const srd = { Uncommon: 400, Rare: 4000, "Very Rare": 40000 };
-  for (const [nom, valeur] of Object.entries(srd)) {
-    assert.equal(PALIERS.find((p) => p.nom === nom).valeur, valeur,
-      `⛔ ${nom} doit valoir exactement ce que le record \`srd:item-value\` annonce`);
-  }
-  assert.equal(UNITE, PALIERS[0].valeur, "⭐ le `÷ 40` de la règle EST le plus petit échelon");
-  for (let i = 1; i < PALIERS.length; i += 1) {
-    assert.equal(PALIERS[i].valeur, PALIERS[i - 1].valeur * 10,
-      "⚖️ « pas de demi crans et basta » — une décade par palier, sans exception");
-  }
+test("1 — ⭐ UNE RARETÉ SRD SE LIT EN PALIER SRFH, avec son RANG — et l'échelle d'Eric n'est plus lue", () => {
+  assert.deepEqual(["Common", "Uncommon", "Rare", "Very Rare", "Legendary"].map((n) => paliterDeRarete(n).rang),
+    [1, 2, 4, 6, 8], "les rangs des cinq raretés SRD");
+  assert.equal(paliterDeRarete("Rare (Requires Attunement)").valeur, 4000);
+  assert.equal(paliterDeRarete("Legendary").valeur, 200000, "⭐ Legendary vaut 200 000 — le SRD, plus 400 000");
+  assert.equal(RANG_MAX, 9, "Legendary+ est le dernier rang");
+  /* ⛔ L'ÉCHELLE DU SOULFORGING reste écrite (une loi tranchée) mais n'a AUCUN lecteur dans le
+     craft ordinaire : sa seule mention dans le code est sa déclaration. */
+  assert.equal(ECHELLE_SOULFORGING.find((p) => p.nom === "Legendary").valeur, 400000);
+  const src = fs.readFileSync(new URL("../ui/builder/craft.mjs", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.equal((src.match(/ECHELLE_SOULFORGING/g) || []).length, 1, "⛔ déclarée, jamais lue");
 });
 
-test("2 — ⚔️ LE CLASSEMENT DESCEND, il ne s'approche pas", () => {
-  /* 🔴 CE GARDE EXISTE PARCE QUE J'AVAIS ÉCRIT LE CONTRAIRE. J'avais posé « la
-     catégorie la plus proche NUMÉRIQUEMENT » ; Eric a corrigé : « tu le classes
-     dans le palier INFÉRIEUR ». La proximité aurait fait MONTER 130 000 jusqu'à
-     Legendary (200 000, écart 70 000) plutôt que de le laisser à Very Rare. */
-  assert.equal(categorieAffichee(130000), "Very Rare",
-    "⛔ 130 000 reste Very Rare — la proximité l'aurait monté à Legendary");
-  assert.equal(categorieAffichee(4000), "Rare", "un palier exact s'annonce lui-même");
-  assert.equal(categorieAffichee(3999), "Uncommon", "⚔️ un gold de moins, et il descend");
-  assert.equal(categorieAffichee(4000000), "Legendary",
-    "⚠️ l'étiquette SATURE : le SRD n'a pas de palier au-dessus, et le prix reste juste");
-  assert.equal(categorieAffichee(39), null, "⛔ sous le plus bas palier du SRD, aucun mot");
+test("2 — ⚖️ LA RARETÉ AFFICHÉE SE RABAT SUR LE PALIER LE PLUS PROCHE — demi-paliers compris", () => {
+  /* ⚖️ « on se rabat sur le prix palier le plus proche pour déterminer la rareté » (26/09).
+     🔴 La règle du 24/09 disait « le palier INFÉRIEUR » : elle ne garde que l'égalité. */
+  assert.equal(categorieAffichee(1900), "Uncommon+", "Plate + Mithral : 1 900 est plus près de 2 200 que de 400");
+  assert.equal(categorieAffichee(4400), "Rare", "Breastplate +1 : 4 400, près de 4 000");
+  assert.equal(categorieAffichee(130000), "Very Rare+", "130 000 : près de 120 000");
+  assert.equal(categorieAffichee(1300), "Uncommon", "⚖️ à égalité (400 ↔ 2 200), le palier inférieur");
+  assert.equal(categorieAffichee(9e9), "Legendary+", "au-delà, le dernier palier");
+  assert.equal(palierLePlusProche(0), null, "⛔ rien à classer");
 });
 
 test("3 — ⚠️ LA RARETÉ SE COUPE À LA PARENTHÈSE, et c'est vital", () => {
@@ -69,7 +72,7 @@ test("3 — ⚠️ LA RARETÉ SE COUPE À LA PARENTHÈSE, et c'est vital", () =>
      nue — tous s'écrivent « Rare (Requires Attunement) ». Lire `rarity` sans
      couper rendrait `null`, et le prix tomberait à zéro sans lever d'erreur. */
   assert.equal(paliterDeRarete("Rare (Requires Attunement)").valeur, 4000);
-  assert.equal(paliterDeRarete("Legendary (Requires Attunement)").valeur, 400000);
+  assert.equal(paliterDeRarete("Legendary (Requires Attunement)").valeur, 200000, "le SRD (lot 280)");
   assert.equal(paliterDeRarete("Rarity Varies"), null, "⛔ un marqueur de famille n'est pas un palier");
   assert.equal(paliterDeRarete(""), null);
   assert.equal(paliterDeRarete(null), null, "⛔ et l'absence ne fait pas tomber l'écran");
@@ -210,56 +213,48 @@ test("7 — ⚔️ LE SRD DONNE TROIS AUTRES RÉPONSES : les raretés de `Weapon
   }
 });
 
-test("8 — ⭐ LA RÈGLE EST « PRODUIT ÷ 40 », et elle est EXACTE, pas approchée", () => {
-  /* ⚖️ « ok très bien alors pas de demi crans et basta » — c'est cet abandon qui
-     rend la formule exacte partout au lieu de ±8 %. */
+test("8 — ⚖️ LES RANGS S'ADDITIONNENT, et la valeur est celle du palier du total", () => {
+  /* ⚖️ « addition de pp comme dans soulforging » — on ne dit pas PP ici, on dit rang. */
   const nu = { data: { cost: "0 GP" } };
   const cas = [
-    [["Uncommon", "Uncommon"], 4000, "Rare"],
-    [["Uncommon", "Rare"], 40000, "Very Rare"],
-    [["Rare", "Rare"], 400000, "Legendary"],
-    [["Rare", "Very Rare"], 4000000, "Legendary"],
+    [["Common", "Uncommon"], 3, 2200, "Uncommon+"],
+    [["Uncommon", "Uncommon"], 4, 4000, "Rare"],
+    [["Uncommon", "Rare"], 6, 40000, "Very Rare"],
+    [["Rare", "Rare"], 8, 200000, "Legendary"],
+    [["Legendary", "Common"], 9, 280000, "Legendary+"],
   ];
-  for (const [[a, b], attendu, categorie] of cas) {
+  for (const [[a, b], rang, valeur, nom] of cas) {
     const c = coteDe({ base: nu, bonus: a, pouvoirs: [b] });
-    assert.equal(c.magie, attendu, `⛔ ${a} + ${b} = ${a === b ? "" : ""}produit ÷ 40 = ${attendu}`);
-    assert.equal(c.magie, PALIERS.find((p) => p.nom === a).valeur
-      * PALIERS.find((p) => p.nom === b).valeur / UNITE,
-      "⭐ et c'est littéralement le produit des deux prix divisé par l'unité");
-    assert.equal(c.categorie, categorie);
+    assert.equal(c.rang, rang, `${a} + ${b} = rang ${rang}`);
+    assert.equal(c.magie, valeur, `⛔ ${a} + ${b} vaut ${valeur}, la valeur du palier du rang ${rang}`);
+    assert.equal(c.categorie, nom);
+    assert.equal(c.magie, PALIERS_SRFH.find((p) => p.rang === rang).valeur, "⭐ lu dans le barème, pas recalculé");
   }
 });
 
-test("9 — ⚔️ LA LIMITE REFUSE, et elle refuse ce qu'Eric a dessiné", () => {
-  /* ⚠️ Le croquis montre `Dagger + Flame Tongue + Vorpal`. Flame Tongue est Rare,
-     Vorpal Legendary : 4 000 × 400 000 ÷ 40 = 40 000 000, dix fois la limite.
-     ⛔ Le moteur refuse — et c'est la loi d'équilibre, pas un caprice. */
+test("9 — ⚖️ LEGENDARY+ S'ATTEINT, ET RIEN AU-DELÀ", () => {
+  /* ⚖️ « on peut atteindre legendary+ » — rang 9. Au-delà, aucun artisan. */
   const nu = { data: { cost: "0 GP" } };
-  const c = coteDe({ base: nu, bonus: "Rare", pouvoirs: ["Legendary"] });
-  assert.equal(c.legal, false);
+  const c = coteDe({ base: nu, bonus: "Uncommon", pouvoirs: ["Rare", "Rare"] });
+  assert.equal(c.legal, false, "+1 · Flame Tongue · Vicious : 2 + 4 + 4 = 10");
   assert.equal(c.raison, "au-dela-de-la-limite");
-  assert.ok(c.magie > LIMITE, `${c.magie} dépasse bien ${LIMITE}`);
-
-  const passe = coteDe({ base: nu, bonus: "Uncommon", pouvoirs: ["Legendary"] });
-  assert.equal(passe.legal, true, "⭐ mais Uncommon + Legendary tombe PILE sur la limite");
-  assert.equal(passe.magie, LIMITE);
+  assert.equal(c.rang, 10);
+  const pile = coteDe({ base: nu, bonus: "Legendary", pouvoirs: ["Common"] });
+  assert.equal(pile.legal, true, "⭐ 8 + 1 = 9 tombe PILE sur Legendary+");
+  assert.equal(pile.categorie, "Legendary+");
 });
 
-test("10 — ⚖️ LE TEMPS ET LE JET N'EXISTENT PAS EN PILE SRD", () => {
-  /* ⚖️ Eric : « colonne de gauche inutile en SRD car pas de crafting time ».
-     ⛔ ABSENTS, pas à zéro : un `0` se lirait « ça ne prend aucun temps », un
-     `null` se lit « cette pile ne connaît pas cette règle ». C'est la même loi
-     que les cinq gemmes à 10 po — une option absente, jamais grisée. */
-  const nu = { data: { cost: "0 GP" } };
-  const fh = coteDe({ base: nu, bonus: "Rare", pouvoirs: [], fh: true });
-  const srd = coteDe({ base: nu, bonus: "Rare", pouvoirs: [], fh: false });
-  assert.ok(fh.temps && fh.dc, "en Fate's Hand, les deux sont donnés");
-  assert.equal(srd.temps, null, "⛔ en SRD, ABSENT");
-  assert.equal(srd.dc, null);
-  assert.equal(srd.craftUnitaire, fh.craftUnitaire, "⭐ et le PRIX, lui, est le même dans les deux piles");
+test("10 — ⚖️ LA BASE S'AJOUTE, ET LE TEMPS SUIT LA RARETÉ AFFICHÉE — le même dans les deux piles", () => {
+  /* ⚖️ « on rajoute le prix de l'objet original » ; le temps d'Uncommon+ pour une plate,
+     « c'est long de fabriquer une plate ». Et « prix SRD et FH idem » : plus de pile muette. */
+  const plate = { data: { cost: "1,500 GP" } };
+  const c = coteDe({ base: plate, bonus: null, pouvoirs: ["Uncommon"] });
+  assert.equal(c.venteUnitaire, 1900);
+  assert.equal(c.categorie, "Uncommon+", "la base fait monter la rareté affichée");
+  assert.equal(c.temps, "30 days", "⭐ le temps d'Uncommon+, pas celui d'Uncommon (10)");
+  assert.equal(c.craftUnitaire, 950, "la moitié de la valeur, base comprise");
+  assert.equal(c.dc, undefined, "⛔ plus de jet ni de DC");
 });
-
-/* ══ ④ LA QUANTITÉ ═════════════════════════════════════════════════════════ */
 
 test("11 — ⚖️ UNE TUILE NE SORT JAMAIS DU CRAFT AVEC PLUS DE DIX", () => {
   const nu = { data: { cost: "0 GP" } };
@@ -300,16 +295,18 @@ test("13 — ⚔️ UNE RARETÉ ILLISIBLE EST REFUSÉE, elle ne vaut pas zéro",
     "⛔ et un objet sans aucune propriété n'est pas un craft à zéro gold");
 });
 
-test("14 — ⭐ LE SECOND CHOIX NE PROPOSE QUE CE QUI TIENT", () => {
-  /* ⛔ CE N'EST PAS UNE RÈGLE ANTI-DOUBLON, c'est la limite de l'échelle : prendre
-     Legendary en premier ne laisse que les Uncommon pour le second. */
+test("14 — ⭐ LE SECOND CHOIX NE PROPOSE QUE CE QUI TIENT SOUS LEGENDARY+", () => {
+  /* ⛔ CE N'EST PAS UNE RÈGLE ANTI-DOUBLON, c'est la limite du barème : la somme des rangs
+     ne passe pas 9. */
   const inventaire = ["Uncommon", "Rare", "Very Rare", "Legendary"]
     .map((r) => ({ data: { rarity: `${r} (Requires Attunement)` } }));
-  const apresLeg = encorePossibles(["Legendary"], inventaire).map((c) => c.data.rarity);
-  assert.deepEqual(apresLeg, ["Uncommon (Requires Attunement)"],
-    "⛔ après un Legendary, tout sauf Uncommon dépasse la limite");
-  const apresUnc = encorePossibles(["Uncommon"], inventaire);
-  assert.equal(apresUnc.length, 4, "⭐ après un Uncommon, les quatre restent ouverts");
+  const noms = (l) => l.map((c) => c.data.rarity.split(" (")[0]);
+  assert.deepEqual(noms(encorePossibles(["Legendary"], inventaire)), [],
+    "⛔ après un Legendary (8), même un Uncommon (2) passe 9");
+  assert.deepEqual(noms(encorePossibles(["Rare"], inventaire)), ["Uncommon", "Rare"],
+    "après un Rare (4) : Uncommon (6) et Rare (8) tiennent, Very Rare (10) non");
+  assert.deepEqual(noms(encorePossibles(["Uncommon", "Rare"], inventaire)), ["Uncommon"],
+    "+1 et Flame Tongue (6) : il ne reste que 3 — un Uncommon");
   assert.equal(encorePossibles([], inventaire).length, 4, "et sans rien, tout est ouvert");
 });
 

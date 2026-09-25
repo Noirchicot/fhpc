@@ -118,7 +118,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=826";
 import { construireX5 } from "./x5-ecran.mjs?v=826";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=826";
-import { seCrafteDansX5, ouvertureX5, valeurDUnObjetCrafte, recordDUneVariante } from "./craft.mjs?v=826";
+import { seCrafteDansX5, ouvertureX5, coteDUnObjetCrafte, recordDUneVariante } from "./craft.mjs?v=826";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante } from "../../src/build/objet-crafte.mjs?v=826";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=826";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
@@ -3230,7 +3230,12 @@ export function renderEquipmentStep(ctx, onAction) {
     const v = cherche.valeur(fini || rec);
     if (!r) return v;
     if (r.variante) return fini ? v : { cout: null, poids: v.poids };
-    return { cout: valeurDUnObjetCrafte({ base: rec, plan: r.plan, bonus: r.bonus, pouvoirs: r.pouvoirs }), poids: v.poids };
+    /* ⭐ LOT 280 — la cote du barème SRFH donne le prix, la rareté affichée et la note de
+       craft d'un objet crafté posé, comme `fabriqueDeValeur` les donne d'un objet fini. */
+    const cote = coteDUnObjetCrafte({ base: rec, plan: r.plan, bonus: r.bonus, pouvoirs: r.pouvoirs });
+    if (!cote || !cote.legal) return { cout: null, poids: v.poids, rarete: null, craft: null };
+    return { cout: `${cote.venteUnitaire.toLocaleString("en-US")} GP`, poids: v.poids, rarete: cote.categorie,
+      craft: { jours: cote.jours, cout: cote.craftUnitaire, rarete: cote.categorie } };
   };
   const proseDUneRecette = (rec, r) => recordProse({ record: rec || null }, r);
   const valeurDeLaLigne = (l) => valeurDUneRecette(cherche.record(l.ref), recetteDeLaLigne(l));
@@ -4453,7 +4458,7 @@ export function renderEquipmentStep(ctx, onAction) {
     const planRec = ficheX5 ? (ficheX5.planRecord || cherche.record(ficheX5.plan)) : null;
     const refBase = refDuRecord.get(a.base);
     const recette = { kind: refBase ? refBase.kind : "", bonus, pouvoirs: a.pouvoirs, plan: planRec };
-    const { cout, poids } = valeurDUneRecette(a.base, recette);
+    const { cout, poids, rarete, craft } = valeurDUneRecette(a.base, recette);
     const coutLu = parseCout(cout || "");
     const { noeud } = construireLaFicheX1({
       apercu: true,
@@ -4463,6 +4468,8 @@ export function renderEquipmentStep(ctx, onAction) {
         prixTotal: coutLu ? formatCout(multiplieCout(coutLu, qte)).toLowerCase() : "",
         poidsUnite: poids || "", poidsTotal: "",
         prose: proseDUneRecette(a.base, recette),
+        /* ⚖️ LOT 280 — l'objet en création porte sa rareté et sa note, comme celui qu'on pose */
+        rarete: rarete || "", noteCraft: texteDeLaNote(craft),
         genre: refBase ? refBase.kind : "", equipped: false, attuned: false, locked: false,
       },
       surPorte: (porte) => { if (porte === "close") { apercuX5 = null; montrer("x5"); } },

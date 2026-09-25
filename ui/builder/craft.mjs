@@ -14,6 +14,13 @@
        palier INFÉRIEUR »  ·  « au moins le prix sera juste »
      · « en SRD tu ne parleras pas de PP, mais le calcul est le même »
      · « ok très bien alors PAS DE DEMI CRANS et basta »
+   ⚖️ PUIS LE 2026-09-26, qui REMPLACE l'échelle pour le craft ordinaire (lot 280) :
+     · « prix SRD et FH idem · mon échelle uniquement pour le soulforging »
+     · « on va implémenter dans le SRD la règle des demi paliers de FH »
+     · « addition de pp comme dans soulforging, sauf qu'on ne parlera de pp que dans
+       le soulforging » · « on peut atteindre legendary+ »
+     · « on rajoute le prix de l'objet original […] on se rabat sur le prix palier le
+       plus proche pour déterminer la rareté » · le temps suit cette rareté
      · « on peut crafter plusieurs items donc on garde la qté · pour les projectiles
        on a décidé 10 mais on ne paye qu'une fois le montant · je veux pas qu'une
        tuile puisse sortir du craft avec plus de 10 »
@@ -22,70 +29,63 @@
    porte la dérivation complète, les mesures au navigateur et les quatre contrôles
    croisés contre le SRD. ⛔ Ce fichier-ci ne les recopie pas : il les applique. */
 
-/* ══ ① L'ÉCHELLE — CINQ PALIERS, UNE DÉCADE CHACUN ═══════════════════════════
-   🔴 ET C'EST LE SRD EXTRAPOLÉ, PAS UNE INVENTION. Le record `srd:item-value`
-   donne 100 · 400 · 4 000 · 40 000 · 200 000, soit ×4 · ×10 · ×10 · **×5** — une
-   progression régulière SAUF au dernier pas. Eric a régularisé ce ×5 en ×10 et
-   prolongé d'un palier. ⭐ Là où Wizards est régulier, on retombe exactement sur
-   ses nombres : Uncommon 400, Rare 4 000, Very Rare 40 000, au gold près.
-   ⚠️ `Common` (40) n'est pas le `Common` du SRD (100) — il est sous son plancher,
-   et aucun pouvoir n'y vit (mesuré : les 60 sont sur Uncommon et au-dessus). Il
-   n'est là que comme UNITÉ de l'échelle, et c'est lui qui donne le `÷ 40`. */
 import { variantesDe } from "../../src/build/objet-crafte.mjs?v=826";
+import { PALIERS_SRFH, joursArrondis, noteDeCraft } from "./bareme-srfh.mjs?v=826";
 
-export const UNITE = 40;
-export const PALIERS = Object.freeze([
-  { nom: "Common", valeur: 40, srd: false },
-  { nom: "Uncommon", valeur: 400, srd: true },
-  { nom: "Rare", valeur: 4000, srd: true },
-  { nom: "Very Rare", valeur: 40000, srd: true },
-  { nom: "Legendary", valeur: 400000, srd: true },
-  { nom: "Epic", valeur: 4000000, srd: false },
+/* ══ ① LE BARÈME — SRFH, LU DANS `bareme-srfh.mjs` (lot 280) ═══════════════════════
+   ⭐ Le craft d'un objet ordinaire suit la RÉFÉRENCE SRD + FH : les cinq paliers du SRD
+   5.2.1 et les demi-paliers SRFH, chacun avec son RANG (Common 1, Uncommon 2, Uncommon+ 3,
+   Rare 4 … Legendary 8, Legendary+ 9). ⛔ Aucun prix de rareté n'est écrit ici.
+   🔴 CE QUE LES LOTS 258 → 279 FAISAIENT : l'échelle d'Eric (40 · 400 · … · 4 M), un
+   PRODUIT ÷ 40 et une limite à Epic — la règle du SOULFORGING appliquée au craft ordinaire.
+   Legendary y valait 400 000 au lieu de 200 000. */
+export const RANG_MAX = Math.max(...PALIERS_SRFH.map((p) => p.rang || 0));   /* Legendary+ */
+
+/* ⚖️ L'ÉCHELLE D'ERIC — RÉSERVÉE AU SOULFORGING (Eric, 25/09 : « mon échelle uniquement
+   pour le soulforging »). Gardée écrite parce que c'est une loi tranchée (24/09 : « pas de
+   demi crans et basta ») ; ⛔ AUCUN LECTEUR AUJOURD'HUI : le soulforging n'a pas d'écran. */
+export const ECHELLE_SOULFORGING = Object.freeze([
+  { nom: "Common", valeur: 40 }, { nom: "Uncommon", valeur: 400 }, { nom: "Rare", valeur: 4000 },
+  { nom: "Very Rare", valeur: 40000 }, { nom: "Legendary", valeur: 400000 }, { nom: "Epic", valeur: 4000000 },
 ]);
-/** La plus haute valeur qu'un assemblage peut atteindre. Au-delà, il n'existe pas. */
-export const LIMITE = PALIERS[PALIERS.length - 1].valeur;
 
-/* ⚖️ LE TEMPS ET LE JET NE VIVENT QU'EN PILE FATE'S HAND — Eric : « colonne de
-   gauche inutile en SRD car pas de crafting time · pour FH il y a un crafting
-   time ». ⛔ En SRD ces deux colonnes sont ABSENTES, pas grisées ni à zéro.
-   📖 Les valeurs sont celles de `Soulforge Crafting.md`, prises à ses paliers
-   PLEINS — ⛔ ce fichier ne recalcule rien et n'arrondit rien. */
-const TEMPS = ["hours", "1 day", "3 days", "1 week", "1 month", "2 months"];
-const DC = [13, 16, 20, 24, 28, 32];
-
-/* ══ ② LES RARETÉS DU SRD — pour classer, et pour lire un record ══════════════
+/* ══ ② LES RARETÉS DU SRD — pour lire un record ═════════════════════════════════════
    ⚠️ TOUJOURS COUPER À LA PARENTHÈSE : mesuré sur les 60 pouvoirs composables,
    **aucun** ne porte une rareté nue. Tous s'écrivent « Rare (Requires Attunement) »
-   ou énumèrent (« Uncommon (+1), Rare (+2)… »). Lire `rarity` sans couper rend une
-   chaîne qui ne correspond à aucun palier, et le prix tomberait silencieusement
-   à zéro — ⛔ le genre d'absence qui ne lève aucune erreur. */
-/* 🔴 UNE ÉNUMÉRATION N'EST PAS UN PALIER — et cette fonction le laissait croire.
-   Couper à la première parenthèse rend « Uncommon » pour « Uncommon (+1), Rare (+2),
-   or Very Rare (+3) » : le PREMIER palier d'une liste passait pour le palier de
-   l'objet. 📏 Mesuré le 24/09 : les 51 plans `…, +1, +2, or +3` arrivaient ainsi
-   dans les pouvoirs, alors que j'avais écrit juste au-dessus qu'ils en étaient
-   exclus. ⛔ Le commentaire disait vrai, le code disait autre chose.
+   ou énumèrent (« Uncommon (+1), Rare (+2)… »).
+   🔴 UNE ÉNUMÉRATION N'EST PAS UN PALIER : couper à la première parenthèse rendait
+   « Uncommon » pour « Uncommon (+1), Rare (+2), or Very Rare (+3) » (📏 mesuré le 24/09 :
+   les 51 plans `…, +1, +2, or +3` arrivaient ainsi dans les pouvoirs).
    ⭐ On COMPTE donc les paliers nommés. Un seul → c'est lui. Plusieurs → `null`.
-   ⚠️ L'ordre de l'alternance n'est pas un détail : `very rare` AVANT `rare`,
-   `uncommon` AVANT `common` — sinon « Very Rare » compterait deux paliers. */
-const NOMME_UN_PALIER = /very rare|legendary|uncommon|common|rare|epic/gi;
+   ⚠️ `very rare` AVANT `rare`, `uncommon` AVANT `common` — sinon « Very Rare » compterait
+   deux paliers. */
+const NOMME_UN_PALIER = /very rare|legendary|uncommon|common|rare/gi;
+/** @returns le palier SRFH (`{ nom, rang, jours, cout, valeur }`) de l'UNIQUE rareté SRD
+ *  nommée, sinon `null`. */
 export function paliterDeRarete(rarete) {
   const vus = new Set((String(rarete || "").match(NOMME_UN_PALIER) || []).map((m) => m.toLowerCase()));
   if (vus.size !== 1) return null;
   const [seul] = vus;
-  return PALIERS.find((p) => p.nom.toLowerCase() === seul) || null;
+  return PALIERS_SRFH.find((p) => p.srd && p.nom.toLowerCase() === seul) || null;
 }
 
-/** ⚖️ « tu le classes dans le palier INFÉRIEUR » — Eric, 24/09, corrigeant ma
- *  « catégorie la plus proche » : la proximité aurait fait MONTER un résultat
- *  intermédiaire, le palier inférieur le laisse où il est.
- *  ⭐ Et seuls les paliers que le SRD connaît peuvent s'afficher : `Epic` n'a pas
- *  de nom chez Wizards, donc un assemblage à 4 M s'annonce `Legendary`.
- *  ⚠️ L'étiquette SATURE, et c'est assumé — « au moins le prix sera juste ». */
-export function categorieAffichee(prix) {
+/** ⚖️ « on se rabat sur le prix palier le plus proche pour déterminer la rareté » — Eric,
+ *  26/09. ⭐ Tous les paliers SRFH sont candidats, demi-paliers compris (une Plate Armor
+ *  + Mithral, 1 900, tombe sur Uncommon+ à 2 200 plutôt qu'Uncommon à 400).
+ *  ⚠️ À égalité, le palier INFÉRIEUR — la règle du 24/09 (« tu le classes dans le palier
+ *  inférieur ») garde la dernière voix. */
+export function palierLePlusProche(valeur) {
+  if (!Number.isFinite(valeur) || valeur <= 0) return null;
   let vu = null;
-  for (const p of PALIERS) if (p.srd && p.valeur <= prix) vu = p;
-  return vu ? vu.nom : null;
+  for (const p of PALIERS_SRFH) {
+    if (!vu || Math.abs(p.valeur - valeur) < Math.abs(vu.valeur - valeur)) vu = p;
+  }
+  return vu;
+}
+/** Le nom du palier le plus proche d'une valeur — ce que l'encart affiche. */
+export function categorieAffichee(valeur) {
+  const p = palierLePlusProche(valeur);
+  return p ? p.nom : null;
 }
 
 /* ══ ③ LES POUVOIRS D'UNE BASE — ⛔ AUCUNE LISTE ÉCRITE À LA MAIN ═════════════
@@ -174,14 +174,14 @@ export function basesDe(plan, bases) {
   return (bases || []).filter((b) => subtypeAccepte(st, b && b.data));
 }
 
-const UN_BONUS = /(very rare|legendary|uncommon|common|rare|epic)\s*\((\+\d)\)/gi;
+const UN_BONUS = /(very rare|legendary|uncommon|common|rare)\s*\((\+\d)\)/gi;
 /** @returns {{ rarete: string, mot: string }[]} — dans l'ordre du SRD. */
 export function bonusDe(plan) {
   const r = String((plan && plan.data && plan.data.rarity) || "");
   return [...r.matchAll(UN_BONUS)].map((m) => ({
-    rarete: PALIERS.find((p) => p.nom.toLowerCase() === m[1].toLowerCase()).nom,
+    rarete: (PALIERS_SRFH.find((p) => p.srd && p.nom.toLowerCase() === m[1].toLowerCase()) || {}).nom,
     mot: m[2],
-  }));
+  })).filter((b) => b.rarete);
 }
 
 /** ⭐ LOT 266 — LA VALEUR D'UN OBJET CRAFTÉ, pour sa fiche : le prix d'achat que X5
@@ -190,11 +190,17 @@ export function bonusDe(plan) {
  *  Le prix aussi — celui de la Breastplate nue. ⛔ Un bonus dont le plan est absent
  *  ne se cote pas (le mot « +1 » ne dit pas sa rareté : +1 Armor est Rare, +1 Weapon
  *  Uncommon) : `null`, jamais un prix plausible. */
-export function valeurDUnObjetCrafte({ base, plan = null, bonus = null, pouvoirs = [] } = {}) {
+export function valeurDUnObjetCrafte(recette = {}) {
+  const cote = coteDUnObjetCrafte(recette);
+  return cote && cote.legal ? `${cote.venteUnitaire.toLocaleString("en-US")} GP` : null;
+}
+/** ⭐ LOT 280 — la COTE entière d'un objet crafté posé (valeur, rareté affichée, temps) :
+ *  la fiche X1 d'une ligne craftée en tire son prix, sa rareté et sa note de craft.
+ *  ⛔ `null` quand le bonus n'a pas son plan — le mot « +1 » ne dit pas sa rareté. */
+export function coteDUnObjetCrafte({ base, plan = null, bonus = null, pouvoirs = [] } = {}) {
   const palier = bonus ? (bonusDe(plan).find((b) => b.mot === bonus) || {}).rarete : null;
   if (bonus && !palier) return null;
-  const cote = coteDe({ base, bonus: palier, pouvoirs: (pouvoirs || []).map((p) => p && p.data && p.data.rarity), fh: false });
-  return cote.legal ? `${cote.venteUnitaire.toLocaleString("en-US")} GP` : null;
+  return coteDe({ base, bonus: palier, pouvoirs: (pouvoirs || []).map((p) => p && p.data && p.data.rarity) });
 }
 
 /* ══ ③ quater — PAR OÙ X5 S'OUVRE : UNE SEULE SOURCE ══════════════════════════
@@ -252,9 +258,14 @@ export function recordDUneVariante(plan, mot) {
 /** La cote d'une variante — la MÊME forme que `coteDe`, pour que l'encart, `Send` et la
  *  bourse la lisent sans savoir d'où elle vient. `valeur` : la valeur de l'objet fini, en
  *  pièces d'or. ⛔ Une valeur illisible n'est pas un zéro : l'objet ne se crafte pas. */
-export function coteDUneVariante({ variante, valeur, qte = 1, fh = true } = {}) {
+export function coteDUneVariante({ variante, valeur, qte = 1 } = {}) {
   if (!variante || !Number.isFinite(valeur) || valeur <= 0) return { legal: false, raison: "rarete-illisible" };
-  const rang = PALIERS.findIndex((p) => p.nom === variante.rarete);
+  /* ⭐ LOT 280 — le temps est celui de la NOTE DE CRAFT de l'objet fini (`noteDeCraft`, le
+     seul écrivain) : le barème SRFH, ÷ 2 pour un consommable, et le brassage de la potion de
+     soin de base (1 jour). 🔴 Calculé ici à part, il aurait dit 3 jours pour la potion
+     « Standard » pendant que sa fiche en disait 1. */
+  const note = noteDeCraft({ rarete: variante.rarete, consommable: /potion/i.test(String(variante.nom || "")),
+    nom: variante.nom });
   const n = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(qte) || 1));
   return {
     legal: true,
@@ -265,9 +276,13 @@ export function coteDUneVariante({ variante, valeur, qte = 1, fh = true } = {}) 
     /* ⭐ LA RARETÉ EST CELLE DE LA VARIANTE, lue — ⛔ pas déduite du prix : une potion Rare
        vaut 2 000 et `categorieAffichee` l'aurait dite Uncommon. */
     categorie: variante.rarete, rarete: variante.rarete,
-    temps: fh && rang >= 0 ? TEMPS[rang] : null,
-    dc: fh && rang >= 0 ? DC[rang] : null,
+    temps: note ? texteDesJours(note.jours) : null,
   };
+}
+
+/** « 50 days », « 1 day » — la durée telle que l'encart et la note l'écrivent. */
+export function texteDesJours(n) {
+  return Number.isFinite(n) ? `${n} ${n === 1 ? "day" : "days"}` : null;
 }
 
 /** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :
@@ -349,33 +364,36 @@ export function estMunition(recordBase) {
     || String(d.subtype || "").toLowerCase().includes("ammunition");
 }
 
-/* ══ ⑤ LA COTE D'UN ASSEMBLAGE ════════════════════════════════════════════════
-   ⭐ LA RÈGLE, NUMÉRIQUE ET SANS UN MOT DE VOCABULAIRE FATE'S HAND :
-        prix(A + B) = prix(A) × prix(B) ÷ 40
-   où 40 est la valeur du plus petit échelon. ⛔ Elle est EXACTE, pas approchée —
-   c'est l'abandon des demi-crans (Eric, 24/09) qui la rend exacte partout au lieu
-   de ±8 %. Le bonus est un terme comme les autres : `+1` Uncommon, `+2` Rare,
-   `+3` Very Rare.
-   📏 QUATRE CONTRÔLES CROISÉS CONTRE LE SRD, aucun écart : `+1` seul rend 400,
-   `+2` rend 4 000, `+3` rend 40 000 — exactement ce que le SRD annonce pour
-   `Weapon, +1, +2, or +3` — et `+1 Armor (Plate)` rend 5 500, le nombre que le
-   record `srd:item-value` écrit en toutes lettres dans son exemple. */
-export function coteDe({ base, bonus, pouvoirs, qte = 1, fh = true } = {}) {
+/* ══ ⑤ LA COTE D'UN ASSEMBLAGE — LE BARÈME SRFH (lot 280) ════════════════════════
+   ⚖️ Eric, 26/09 :
+     1. les RANGS des propriétés S'ADDITIONNENT (« addition de pp comme dans soulforging »)
+        — un +1 d'arme (Uncommon, 2) et une Flame Tongue (Rare, 4) font 6, Very Rare ;
+     2. la valeur est celle du palier de ce rang ;
+     3. « on rajoute le prix de l'objet original » — la base ;
+     4. « on se rabat sur le prix palier le plus proche pour déterminer la rareté » ;
+     5. le temps est celui de cette rareté (« c'est long de fabriquer une plate ») ;
+     6. « on peut atteindre legendary+ » — rang 9, et RIEN au-delà.
+   ⭐ Le coût de craft reste la moitié de la valeur, base comprise (la base se fabrique
+   pour la moitié de son prix — SRD, « Crafting Nonmagical Items »).
+   ⭐ LE MÊME PRIX ET LE MÊME TEMPS EN PILE SRD ET EN PILE FH (« prix SRD et FH idem » ; le
+   SRD porte lui-même ses temps, p. 206). 🔴 Le 24/09 disait « pas de crafting time en
+   SRD » : c'était faux, le SRD en a un. ⛔ Plus de jet ni de DC (« pas de jets pour
+   produire les regular magic items »). */
+export function coteDe({ base, bonus, pouvoirs, qte = 1 } = {}) {
   const raretes = [bonus, ...(pouvoirs || [])].filter(Boolean);
   const paliers = raretes.map(paliterDeRarete);
   if (paliers.some((p) => !p)) return { legal: false, raison: "rarete-illisible" };
   if (!paliers.length) return { legal: false, raison: "sans-propriete" };
 
-  /* le produit, ramené à l'unité de l'échelle autant de fois qu'il y a de termes */
-  const magie = paliers.reduce((n, p) => n * p.valeur, 1) / UNITE ** (paliers.length - 1);
-  if (magie > LIMITE) return { legal: false, raison: "au-dela-de-la-limite", magie };
-
-  const rang = PALIERS.findIndex((p) => p.valeur === magie);
+  const rang = paliers.reduce((n, p) => n + p.rang, 0);
+  if (rang > RANG_MAX) return { legal: false, raison: "au-dela-de-la-limite", rang };
+  const palier = PALIERS_SRFH.find((p) => p.rang === rang);
+  const magie = palier.valeur;
   const coutBase = prixEnPO((base && base.data && base.data.cost) || "");
-  /* ⚖️ « on ajoute le prix de base de l'arme et son crafting cost (pas
-     d'ingrédients) » — et crafter une base mondaine coûte la moitié de son prix,
-     comme le craft d'un objet magique coûte la moitié de sa valeur. */
-  const craft = magie / 2 + coutBase / 2;
+  const vente = magie + coutBase;
+  /* ⚖️ la rareté affichée — et avec elle le temps — se rabat sur le palier le plus proche */
+  const affiche = palierLePlusProche(vente);
+  const craft = vente / 2;
 
   /* ⚖️ dix flèches valent une pièce — le lot est l'unité, payé une seule fois. */
   const lot = estMunition(base) ? LOT_MUNITION : 1;
@@ -384,32 +402,29 @@ export function coteDe({ base, bonus, pouvoirs, qte = 1, fh = true } = {}) {
 
   return {
     legal: true,
+    rang,
     magie,                                    /* la part magique, sans la base */
     coutBase,
-    venteUnitaire: magie + coutBase,
+    venteUnitaire: vente,
     craftUnitaire: craft,
     qte: n, lot, paiements,
     craftTotal: craft * paiements,
-    venteTotale: (magie + coutBase) * paiements,
-    categorie: categorieAffichee(magie + coutBase),
-    /* ⛔ ABSENTS en pile SRD, pas à zéro : le SRD ne porte aucun temps de craft. */
-    temps: fh && rang >= 0 ? TEMPS[rang] : null,
-    dc: fh && rang >= 0 ? DC[rang] : null,
+    venteTotale: vente * paiements,
+    categorie: affiche.nom,
+    jours: joursArrondis(affiche.jours),
+    temps: texteDesJours(joursArrondis(affiche.jours)),
   };
 }
 
-/** ⚖️ Ce qu'un second choix a encore le droit d'être, la limite étant ce qu'elle est.
- *  ⭐ CE N'EST PAS UNE RÈGLE ANTI-DOUBLON : c'est la limite de l'échelle. Prendre
- *  `Defender` (Legendary) en premier ne laisse que les pouvoirs Uncommon pour le
- *  second — tout le reste dépasse 4 M. Le dropdown n'a rien à expliquer, il montre
- *  ce qui reste. ⛔ Et un choix de BONUS réduit la liste de la même façon. */
+/** ⚖️ Ce qu'un second choix a encore le droit d'être : la somme des rangs ne dépasse pas
+ *  Legendary+ (rang 9). ⭐ CE N'EST PAS UNE RÈGLE ANTI-DOUBLON : prendre un pouvoir Rare
+ *  (4) après un +1 d'arme (2) ne laisse que ce qui tient en 3 — un Uncommon, pas un Rare.
+ *  Le dropdown n'a rien à expliquer, il montre ce qui reste. */
 export function encorePossibles(dejaPris, candidats) {
-  const socle = dejaPris.map(paliterDeRarete).filter(Boolean);
+  const socle = dejaPris.map(paliterDeRarete).filter(Boolean).reduce((n, p) => n + p.rang, 0);
   return (candidats || []).filter((c) => {
     const p = paliterDeRarete(c && c.data && c.data.rarity);
-    if (!p) return false;
-    const tous = [...socle, p];
-    return tous.reduce((n, x) => n * x.valeur, 1) / UNITE ** (tous.length - 1) <= LIMITE;
+    return Boolean(p) && socle + p.rang <= RANG_MAX;
   });
 }
 

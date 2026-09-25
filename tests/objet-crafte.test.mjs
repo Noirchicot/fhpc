@@ -265,3 +265,22 @@ test("14 — 💰 LA LIGNE À VARIANTE VAUT L'OBJET FINI — et son texte dit sa
   const texte = recordProse({ record: ioun }, { kind: "item", variante: "Awareness" });
   assert.match(texte, /^Variant: Awareness \(Rare\)$/m);
 });
+
+test("15 — ⚖️ LOT 280 : UN OBJET CRAFTÉ POSÉ VAUT SA COTE SRFH — prix, rareté affichée, note de craft", () => {
+  /* ⭐ La chaîne de la porte `valeurDUneRecette` pour un objet crafté : `coteDUnObjetCrafte`,
+     la même cote que l'encart de X5. */
+  const longue = rec("weapon", "Longsword");
+  const arme = rec("item", "Weapon, +1, +2, or +3");
+  const flamme = rec("item", "Flame Tongue");
+  const vicieux = rec("item", "Vicious Weapon");
+  const lu = (x) => enGP(parseCout(x));
+  assert.equal(lu(valeurDUnObjetCrafte({ base: longue, plan: arme, bonus: "+1", pouvoirs: [flamme] })), 40015,
+    "2 + 4 = rang 6, Very Rare 40 000, + la Longsword");
+  assert.equal(lu(valeurDUnObjetCrafte({ base: longue, pouvoirs: [flamme, vicieux] })), 200015,
+    "4 + 4 = rang 8, Legendary 200 000");
+  assert.equal(valeurDUnObjetCrafte({ base: longue, plan: arme, bonus: "+1", pouvoirs: [flamme, vicieux] }), null,
+    "⛔ 2 + 4 + 4 = 10 : au-delà de Legendary+, pas de prix");
+  const ecran = lire("ui/builder/equipment-step.mjs");
+  assert.match(ecran, /const cote = coteDUnObjetCrafte\(\{ base: rec, plan: r\.plan, bonus: r\.bonus, pouvoirs: r\.pouvoirs \}\);[\s\S]{0,400}?rarete: cote\.categorie,\s*craft: \{ jours: cote\.jours, cout: cote\.craftUnitaire, rarete: cote\.categorie \}/,
+    "⭐ la ligne craftée prend sa rareté et sa note de la cote");
+});
