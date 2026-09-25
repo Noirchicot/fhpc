@@ -31,7 +31,7 @@
    ⚠️ `Common` (40) n'est pas le `Common` du SRD (100) — il est sous son plancher,
    et aucun pouvoir n'y vit (mesuré : les 60 sont sur Uncommon et au-dessus). Il
    n'est là que comme UNITÉ de l'échelle, et c'est lui qui donne le `÷ 40`. */
-import { variantesDe } from "../../src/build/objet-crafte.mjs?v=825";
+import { variantesDe } from "../../src/build/objet-crafte.mjs?v=826";
 
 export const UNITE = 40;
 export const PALIERS = Object.freeze([
