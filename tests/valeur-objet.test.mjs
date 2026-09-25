@@ -157,14 +157,22 @@ test("8 — ⚖️ LE BARÈME SRFH : le SRD à la lettre, et les demi-paliers à
   }
   assert.deepEqual(PALIERS_SRFH.filter((x) => x.srd).map((p) => p.jours), [5, 10, 50, 125, 250],
     "le temps SRD (« Magic Item Crafting Time and Cost », p. 206)");
-  for (let i = 1; i < PALIERS_SRFH.length - 1; i += 2) {
+  /* les demi-paliers ENCADRÉS : Common+ … Very Rare+ (Legendary+ n'a pas de voisin au-dessus) */
+  for (let i = 1; i < PALIERS_SRFH.length - 2; i += 2) {
     const [a, m, b] = [PALIERS_SRFH[i - 1], PALIERS_SRFH[i], PALIERS_SRFH[i + 1]];
     assert.equal(m.srd, false, `${m.nom} est un demi-palier SRFH`);
     for (const k of ["jours", "cout", "valeur"]) {
       assert.equal(m[k], (a[k] + b[k]) / 2, `${m.nom}.${k} est le milieu exact de ${a.nom} et ${b.nom}`);
     }
   }
-  assert.ok(!PALIERS_SRFH.some((p) => /Legendary\+/.test(p.nom)), "⛔ pas de Legendary+ : rien de chiffré au-dessus");
+  /* ⚖️ Legendary+ (Eric, 26/09 : « oui ») reprend le pas de Very Rare+ à Legendary */
+  const [vrp, leg, legp] = PALIERS_SRFH.slice(-3);
+  for (const k of ["jours", "cout", "valeur"]) {
+    assert.equal(legp[k] - leg[k], leg[k] - vrp[k], `Legendary+.${k} : le pas de Very Rare+ → Legendary, une fois de plus`);
+  }
+  assert.equal(legp.nom, "Legendary+");
+  /* ⭐ les rangs : Common 1, puis un rang par palier à partir d'Uncommon ; Common+ n'en a pas */
+  assert.deepEqual(PALIERS_SRFH.map((p) => p.rang), [1, null, 2, 3, 4, 5, 6, 7, 8, 9]);
 });
 
 test("9 — ⚖️ LA MAQUETTE D'ERIC : Dagger of Venom · 4,002 GP · Rare · Crafting: 50 days · 2,001 GP · Rare", () => {

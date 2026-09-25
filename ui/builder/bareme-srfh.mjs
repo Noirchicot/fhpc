@@ -10,10 +10,13 @@
      · « Magic Item Rarities and Values » : 100 · 400 · 4 000 · 40 000 · 200 000 GP —
        le coût de craft en est toujours exactement la moitié ;
      · « Brewing Potions of Healing » (p. 103) : la potion de base, 1 jour et 25 GP.
-   ⭐ LA SEULE RÈGLE SRFH : quatre DEMI-PALIERS (Common+, Uncommon+, Rare+, Very Rare+),
-   au MILIEU ARITHMÉTIQUE EXACT des deux raretés voisines, pour le temps comme pour le
-   prix. ⛔ Pas de Legendary+ : le SRD n'a aucun palier chiffré au-dessus (Artifact est
-   « Priceless »).
+   ⭐ LA SEULE RÈGLE SRFH : des DEMI-PALIERS. Common+, Uncommon+, Rare+, Very Rare+ au
+   MILIEU ARITHMÉTIQUE EXACT des deux raretés voisines, pour le temps comme pour le prix ;
+   Legendary+, qui n'a pas de voisin au-dessus, reprend le pas de Very Rare+ à Legendary
+   (Eric, 26/09 : « on peut atteindre legendary+ », puis « oui » à 313 j · 140 000 · 280 000).
+   ⭐ LE RANG (lot 279) : les raretés s'ADDITIONNENT pour un objet à plusieurs propriétés
+   (« addition de pp comme dans soulforging, sauf qu'on ne parlera de pp que dans le
+   soulforging ») — Common 1 … Legendary+ 9 ; Common+ n'a pas de rang.
    ⚖️ LES JOURS NON ENTIERS S'ARRONDISSENT VERS LE HAUT — Eric, 26/09 : *« arrondis les
    jours qui ne tombent pas juste »* ; la convention est celle que le SRD applique
    lui-même au craft (*« round a fraction up to a day »*).
@@ -21,15 +24,16 @@
    arrondis à la sortie, pour qu'un consommable divise le temps vrai et non l'arrondi. */
 
 export const PALIERS_SRFH = Object.freeze([
-  { nom: "Common", jours: 5, cout: 50, valeur: 100, srd: true },
-  { nom: "Common+", jours: 7.5, cout: 125, valeur: 250, srd: false },
-  { nom: "Uncommon", jours: 10, cout: 200, valeur: 400, srd: true },
-  { nom: "Uncommon+", jours: 30, cout: 1100, valeur: 2200, srd: false },
-  { nom: "Rare", jours: 50, cout: 2000, valeur: 4000, srd: true },
-  { nom: "Rare+", jours: 87.5, cout: 11000, valeur: 22000, srd: false },
-  { nom: "Very Rare", jours: 125, cout: 20000, valeur: 40000, srd: true },
-  { nom: "Very Rare+", jours: 187.5, cout: 60000, valeur: 120000, srd: false },
-  { nom: "Legendary", jours: 250, cout: 100000, valeur: 200000, srd: true },
+  { nom: "Common", rang: 1, jours: 5, cout: 50, valeur: 100, srd: true },
+  { nom: "Common+", rang: null, jours: 7.5, cout: 125, valeur: 250, srd: false },
+  { nom: "Uncommon", rang: 2, jours: 10, cout: 200, valeur: 400, srd: true },
+  { nom: "Uncommon+", rang: 3, jours: 30, cout: 1100, valeur: 2200, srd: false },
+  { nom: "Rare", rang: 4, jours: 50, cout: 2000, valeur: 4000, srd: true },
+  { nom: "Rare+", rang: 5, jours: 87.5, cout: 11000, valeur: 22000, srd: false },
+  { nom: "Very Rare", rang: 6, jours: 125, cout: 20000, valeur: 40000, srd: true },
+  { nom: "Very Rare+", rang: 7, jours: 187.5, cout: 60000, valeur: 120000, srd: false },
+  { nom: "Legendary", rang: 8, jours: 250, cout: 100000, valeur: 200000, srd: true },
+  { nom: "Legendary+", rang: 9, jours: 312.5, cout: 140000, valeur: 280000, srd: false },
 ]);
 
 /** ⚖️ « Brewing Potions of Healing » — la seule règle de craft du SRD qui nomme UN objet.
