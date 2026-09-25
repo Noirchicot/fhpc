@@ -17,12 +17,22 @@
    organe changera de largeur. */
 
 /* ── LA SCÈNE ─────────────────────────────────────────────────────────────── */
-export const DALLE = { l: 375, h: 500 };
+/* ⚖️ LOT 275 — 495 ET NON PLUS 500. Sur l'étape Équipement, la case « Equipment · 8 · Wares » du
+   belt porte trois lignes et le belt mesure 65 (📏 mesuré, 420 × 860) : la scène n'offre que 495, et
+   Wares, coté 500, se faisait rogner de 4,8 blg en bas (le bord du pied, 0,7 des trois portes).
+   ⚖️ Eric, 2026-09-25 : « tu peux récupérer 4 entre les tambours, et après tu récupères là où ça
+   impacte le moins » — puis « a ». ⭐ 4 blg entre les tambours (8 → 4), 1 blg au rembourrage BAS
+   du pied (4 → 3). Wares tient dans ce que la scène lui donne. */
+export const DALLE = { l: 375, h: 495 };
 
 /* ⚖️ L'EXCEPTION NOMMÉE, ET ELLE EST UNIQUE (NORMES `equipement-wares-rembourrage-quatre`) :
    le rembourrage d'une dalle vaut 4, l'écart entre deux organes garde le 8 du sacré n° 3.
    ⛔ Un écart porte le rythme entre deux organes ; un rembourrage ne sépare rien, il borde. */
 export const REMBOURRAGE = 4;
+/* ⚖️ LOT 275 — L'UNIQUE BLG PRIS AU PIED : son rembourrage BAS vaut 3 (Eric, 25/09 : « là où ça
+   impacte le moins »). ⭐ C'est un bord, sous la rangée des portes — ni un organe, ni un écart
+   entre deux organes, ni une cible ne bouge. */
+export const REMBOURRAGE_PIED_BAS = 3;
 export const ECART = 8;
 export const TOUCH = 44;
 export const JETON = { l: 87, h: 48 };
@@ -32,14 +42,14 @@ export const JETON = { l: 87, h: 48 };
 export const BLEED = 8;
 
 /* ── LES TROIS DALLES ─────────────────────────────────────────────────────────
-   ⭐ 96 + 8 + 228 + 8 + 160 = 500, PILE. Le garde `wares-budget` refait cette somme.
+   ⭐ 92 + 8 + 228 + 8 + 159 = 495, PILE (lot 275). Le garde `wares-budget` refait cette somme.
    ⚖️ LOT 274 — Eric, 2026-09-25 : *« 4-40-8-40-4 »* pour les deux tambours (avant 4-40-4-40-4 = 92),
    puis *« les non zoomées tu fais les calculs pour que ça colle — idem pour les espaces »*. ⭐ Les
    4 blg gagnés par le tambour sont rendus par le rembourrage de la grille (8 → 6, voir plus bas). */
 export const DALLES = Object.freeze([
-  { nom: "TAMBOUR", y: 0,   h: 96,  mot: "les deux étages de la roue" },
-  { nom: "GRILLE",  y: 104, h: 228, mot: "les douze jetons et les deux gouttières" },
-  { nom: "PIED",    y: 340, h: 160, mot: "les Tally, le collecteur, la bourse, Send to, la rangée" },
+  { nom: "TAMBOUR", y: 0,   h: 92,  mot: "les deux étages de la roue" },
+  { nom: "GRILLE",  y: 100, h: 228, mot: "les douze jetons et les deux gouttières" },
+  { nom: "PIED",    y: 336, h: 159, mot: "les Tally, le collecteur, la bourse, Send to, la rangée" },
 ]);
 
 /* ── DALLE 1 · LE TAMBOUR ─────────────────────────────────────────────────────
@@ -67,12 +77,15 @@ export const ROUE = {
   cale: 129,
 };
 
-/* ⚖️ L'ÉCART ENTRE LES DEUX ÉTAGES VAUT 8 — Eric, 2026-09-25 : *« pour garder la cible tactile
+/* ⚖️ LOT 275 — IL REVIENT À 4. Eric, 25/09, devant les 5 blg rognés sous le belt de 65 : « tu peux
+   récupérer 4 entre les tambours » (option a). ⚠️ Les deux cibles de 44 se retouchent (2 → 46,
+   46 → 90) : c'est le prix, et il est choisi. Ce qui suit est l'état du lot 274, gardé pour mémoire.
+   🗄️ L'ÉCART ENTRE LES DEUX ÉTAGES VALAIT 8 — Eric, 2026-09-25 : *« pour garder la cible tactile
    propre, mets 8 blg entre les tambours »*, puis *« 4-40-8-40-4 »*. 🗄️ Il valait 4 depuis le 20/09
    (« 4 blg », une exception au 8 du sacré n° 3) : à 4, les deux cibles de 44 se TOUCHAIENT
    (2 → 46 et 46 → 90). ⭐ À 8, elles gardent 4 blg entre elles (2 → 46, 50 → 94) — et l'écart
    rejoint le 8 de la maison. */
-export const ECART_ETAGES = 8;
+export const ECART_ETAGES = 4;
 
 /* ── DALLE 2 · LA GRILLE ──────────────────────────────────────────────────────
    ⚖️ QUATRE RANGÉES DE TROIS = DOUZE (NORMES `equipement-wares-douze-par-page`). ⛔ Ce n'est
@@ -94,7 +107,7 @@ export const RENDU_GRILLE = Object.freeze({
   jetons: { l: 277, h: 216 },
   gouttiere: 49,
   colonnes: [49, 144, 239],
-  rangees: [110, 166, 222, 278],   /* 104 (la dalle) + 6, puis + 56 */
+  rangees: [106, 162, 218, 274],   /* 100 (la dalle) + 6, puis + 56 */
 });
 
 /* ── LE JOUR ENTRE DEUX PLAQUES ───────────────────────────────────────────────
@@ -131,10 +144,10 @@ export const PIED = {
 /* ce que ces pistes RESTITUENT — ⛔ constats, pour le garde et le banc :
    colonne de côté  (375 − 2 × 4 − 96) / 2 = 135,5     centres 71,75 et 303,25
    cellule de côté  48 + 8 + 44 = 100                   centre 394 (abs)
-   somme verticale  4 + 48 + 8 + 44 + 8 + 44 + 4 = 160 */
+   somme verticale  4 + 48 + 8 + 44 + 8 + 44 + 3 = 159   (lot 275 : le rembourrage BAS vaut 3) */
 export const RENDU_PIED = Object.freeze({
   cote: { l: 135.5, h: 100 },
-  centres: { gauche: 71.75, droite: 303.25, y: 394 },
+  centres: { gauche: 71.75, droite: 303.25, y: 390 },
 });
 
 /* ── LA RANGÉE DU PIED ────────────────────────────────────────────────────────
@@ -152,7 +165,7 @@ export const PORTES = Object.freeze(["gear", "send", "backpack"]);
 export const ORGANES = [
   /* dalle 1 — le tambour */
   { nom: "ROUE CATEGORIES",     sorte: "roue",       dalle: "TAMBOUR", x: 22,     y: 4,   l: 331, h: 40, cible: { x: 22, y: 2, l: 331, h: 44 }, cran: "T1/600" },
-  { nom: "ROUE SOUS-CATEGORIES", sorte: "roue",      dalle: "TAMBOUR", x: 22,     y: 52,  l: 331, h: 40, cible: { x: 22, y: 50, l: 331, h: 44 }, cran: "T1/600" },
+  { nom: "ROUE SOUS-CATEGORIES", sorte: "roue",      dalle: "TAMBOUR", x: 22,     y: 48,  l: 331, h: 40, cible: { x: 22, y: 46, l: 331, h: 44 }, cran: "T1/600" },
   /* ⚖️ UN TUNER VIT *DANS* SA ROUE, et sa cible mord donc la sienne — c'est déjà vrai dans le
      sac (ROUE cible 22→353, TUNER G cible 0→44). ⭐ Ce n'est PAS un recouvrement fautif : le
      tuner est le contrôle de la roue, posé sur son bord. Le plan le DIT (`dans`), et le garde
@@ -170,11 +183,11 @@ export const ORGANES = [
      le cran, c'est un cadre FIXE sur la tuile dominante. Et il garde le GENRE de ce qu'il
      cadre. ⛔ On ne le tape pas : `aria-hidden`, `pointer-events: none`. */
   { nom: "LOUPE CATEGORIES",    sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 152, y: 4,  l: 71, h: 40, cran: "T1/600", dominant: true },
-  { nom: "LOUPE SOUS-CAT",      sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 152, y: 52, l: 71, h: 40, cran: "T1/600", dominant: true },
+  { nom: "LOUPE SOUS-CAT",      sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 152, y: 48, l: 71, h: 40, cran: "T1/600", dominant: true },
   { nom: "TUNER CATEGORIES G",  sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 4,   y: 18, l: 10, h: 20, cible: { x: 0, y: 2, l: 44, h: 44 } },
   { nom: "TUNER CATEGORIES D",  sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 361, y: 18, l: 10, h: 20, cible: { x: 331, y: 2, l: 44, h: 44 } },
-  { nom: "TUNER SOUS-CAT G",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 4,   y: 66, l: 10, h: 20, cible: { x: 0, y: 50, l: 44, h: 44 } },
-  { nom: "TUNER SOUS-CAT D",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 361, y: 66, l: 10, h: 20, cible: { x: 331, y: 50, l: 44, h: 44 } },
+  { nom: "TUNER SOUS-CAT G",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 4,   y: 62, l: 10, h: 20, cible: { x: 0, y: 46, l: 44, h: 44 } },
+  { nom: "TUNER SOUS-CAT D",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 361, y: 62, l: 10, h: 20, cible: { x: 331, y: 46, l: 44, h: 44 } },
 
   /* dalle 2 — la grille, sa piste de plaques et ses deux gouttières */
   /* ⚖️ LA PISTE EST LA FENÊTRE DES PLAQUES — l'organe que le tambour MÈNE (Eric, 19/09 :
@@ -182,14 +195,14 @@ export const ORGANES = [
      plaque, et c'est ce qui fait qu'à l'arrêt on n'en voit qu'une. ⛔ Aucune cible : on ne la
      touche pas — le geste appartient au tambour, jamais à elle. */
   { nom: "PISTE",               sorte: "piste",      dalle: "GRILLE",  x: RENDU_GRILLE.gouttiere, y: RENDU_GRILLE.rangees[0], l: RENDU_GRILLE.jetons.l, h: RENDU_GRILLE.jetons.h },
-  { nom: "CHEVRON G",           sorte: "chevron",    dalle: "GRILLE",  x: 14,     y: 198, l: 21,  h: 40, cible: { x: 2, y: 196, l: 44, h: 44 }, mot: "page précédente" },
-  { nom: "CHEVRON D",           sorte: "chevron",    dalle: "GRILLE",  x: 340,    y: 198, l: 21,  h: 40, cible: { x: 329, y: 196, l: 44, h: 44 }, mot: "page suivante" },
-  { nom: "COMPTE OBJETS",       sorte: "voyant",     dalle: "GRILLE",  x: 4,      y: 242, l: 41,  h: 14, mot: "33", cran: "T1/600" },
-  { nom: "COMPTE PAGES",        sorte: "voyant",     dalle: "GRILLE",  x: 330,    y: 242, l: 41,  h: 14, mot: "1/3", cran: "T1/600" },
+  { nom: "CHEVRON G",           sorte: "chevron",    dalle: "GRILLE",  x: 14,     y: 194, l: 21,  h: 40, cible: { x: 2, y: 192, l: 44, h: 44 }, mot: "page précédente" },
+  { nom: "CHEVRON D",           sorte: "chevron",    dalle: "GRILLE",  x: 340,    y: 194, l: 21,  h: 40, cible: { x: 329, y: 192, l: 44, h: 44 }, mot: "page suivante" },
+  { nom: "COMPTE OBJETS",       sorte: "voyant",     dalle: "GRILLE",  x: 4,      y: 238, l: 41,  h: 14, mot: "33", cran: "T1/600" },
+  { nom: "COMPTE PAGES",        sorte: "voyant",     dalle: "GRILLE",  x: 330,    y: 238, l: 41,  h: 14, mot: "1/3", cran: "T1/600" },
 
   /* dalle 3 — le pied */
-  { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 363, l: 40,  h: 40, cible: { x: 25.75, y: 361, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
-  { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 363, l: 40,  h: 40, cible: { x: 73.75, y: 361, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
+  { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 359, l: 40,  h: 40, cible: { x: 25.75, y: 357, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
+  { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 359, l: 40,  h: 40, cible: { x: 73.75, y: 357, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   /* ⚖️ L'ENCOMBREMENT, SOUS LES TALLY — Eric, 2026-09-21, en choisissant sa place : *« dans le
      pied, entre les Tally et le collecteur »*. 📏 Mesuré au navigateur avant de le poser : la
      cellule de gauche va de y 340+4 à 340+104 et les deux Tally l'occupent de 372 à 416 — il
@@ -205,27 +218,27 @@ export const ORGANES = [
      deux. 📏 Constats remis d'accord avec le rendu : cibles à `y 361` au lieu de `372`.
      ⛔ Un constat qui a dérivé est un second écrivain qui ment — il se recopie sans qu'on le
      mesure. */
-  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 4,      y: 413, l: 135.5, h: 14, mot: "Encumbrance : 0 lb", cran: "T1/600" },
-  { nom: "COLLECTEUR",          sorte: "collecteur", dalle: "PIED",    x: 144,    y: 344, l: 87,  h: 48, cible: { x: 144, y: 344, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
-  { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 369, l: 50,  h: 50, cible: { x: 278.25, y: 369, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
+  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 4,      y: 409, l: 135.5, h: 14, mot: "Encumbrance : 0 lb", cran: "T1/600" },
+  { nom: "COLLECTEUR",          sorte: "collecteur", dalle: "PIED",    x: 144,    y: 340, l: 87,  h: 48, cible: { x: 144, y: 340, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
+  { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 365, l: 50,  h: 50, cible: { x: 278.25, y: 365, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
   /* ⚖️ LE MONTANT EST UN VOYANT POSÉ **SUR** LA BOURSE — Eric, 2026-09-21 : *« la bourse
      toujours pas le montant posé dessus »*. ⭐ Même boîte que la bourse, `dans: "PURSE"` :
      le nombre se lit DANS l'image, comme une pièce dessus. R le porte depuis le 16/09 et le
      sac depuis le 20/09 ; Wares était le seul à ne pas l'avoir, et je l'avais écrit dans le
      fichier — *« l'œil l'aura quand Eric le dira »*. Il l'a dit.
      ⛔ AUCUNE CIBLE : on ne le tape pas, on le lit. C'est la bourse dessous qui reçoit. */
-  { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 369, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
-  { nom: "SEND VERS",           sorte: "dropdown",   dalle: "PIED",    x: 139.5,  y: 402, l: 96,  h: 40, cible: { x: 139.5, y: 400, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
-  { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: 452, l: 367, h: 44, cran: "—" },
-  { nom: "livre",               sorte: "rond",       dalle: "PIED",    x: 15,     y: 463, l: 22,  h: 22, cible: { x: 4, y: 452, l: 44, h: 44 }, mot: "livre" },
-  { nom: "GEAR",                sorte: "porte",      dalle: "PIED",    x: 64,     y: 452, l: 77,  h: 44, cible: { x: 64, y: 452, l: 77, h: 44 }, mot: "Gear", cran: "T2/600" },
-  { nom: "SEND",                sorte: "porte",      dalle: "PIED",    x: 149,    y: 452, l: 77,  h: 44, cible: { x: 149, y: 452, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
-  { nom: "BACKPACK",            sorte: "porte",      dalle: "PIED",    x: 234,    y: 452, l: 77,  h: 44, cible: { x: 234, y: 452, l: 77, h: 44 }, mot: "Backpack", cran: "T2/600" },
+  { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 365, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
+  { nom: "SEND VERS",           sorte: "dropdown",   dalle: "PIED",    x: 139.5,  y: 398, l: 96,  h: 40, cible: { x: 139.5, y: 396, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
+  { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: 448, l: 367, h: 44, cran: "—" },
+  { nom: "livre",               sorte: "rond",       dalle: "PIED",    x: 15,     y: 459, l: 22,  h: 22, cible: { x: 4, y: 448, l: 44, h: 44 }, mot: "livre" },
+  { nom: "GEAR",                sorte: "porte",      dalle: "PIED",    x: 64,     y: 448, l: 77,  h: 44, cible: { x: 64, y: 448, l: 77, h: 44 }, mot: "Gear", cran: "T2/600" },
+  { nom: "SEND",                sorte: "porte",      dalle: "PIED",    x: 149,    y: 448, l: 77,  h: 44, cible: { x: 149, y: 448, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
+  { nom: "BACKPACK",            sorte: "porte",      dalle: "PIED",    x: 234,    y: 448, l: 77,  h: 44, cible: { x: 234, y: 448, l: 77, h: 44 }, mot: "Backpack", cran: "T2/600" },
   /* ⛔ LE `?` EST POSÉ PAR LA COQUILLE, UNE FOIS, SUR TOUTES LES ÉTAPES — jamais par un écran,
      qui pourrait l'oublier (NORMES). Il est AU PLAN parce qu'il occupe une borne de la rangée
      et que sa place compte ; il n'est pas CONSTRUIT ici, et le garde de la bijection doit le
      savoir, sans quoi il accuserait l'écran d'une absence qui est une loi. */
-  { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 338,    y: 463, l: 22,  h: 22, cible: { x: 327, y: 452, l: 44, h: 44 }, mot: "?", coquille: true },
+  { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 338,    y: 459, l: 22,  h: 22, cible: { x: 327, y: 448, l: 44, h: 44 }, mot: "?", coquille: true },
 ];
 
 /* ── LE FILIGRANE DE LA DALLE 2 ───────────────────────────────────────────────

@@ -4632,11 +4632,17 @@ fichier ; il peut prouver que **le fichier est cassé plus haut**.
 
 | la dalle | ce qu'elle porte | hauteur |
 |---|---|---|
-| **1** | le tambour, **deux étages** — les catégories, puis les sous-catégories · **4 · 40 · 8 · 40 · 4** | **96** |
+| **1** | le tambour, **deux étages** — les catégories, puis les sous-catégories · **4 · 40 · 4 · 40 · 4** | **92** |
 | **2** | la grille de jetons et ses deux gouttières *(compte d'objets à gauche, compte de pages à droite)* · rembourrage **6** | **228** |
-| **3** | les deux Tally · le collecteur · la bourse · `Send to ▾` · la rangée du pied | **160** |
+| **3** | les deux Tally · le collecteur · la bourse · `Send to ▾` · la rangée du pied · rembourrage bas **3** | **159** |
 
-⭐ **`96 + 8 + 228 + 8 + 160 = 500`, PILE.** Les deux `8` sont les line bleeds (§8 bis).
+⭐ **`92 + 8 + 228 + 8 + 159 = 495`, PILE** *(lot 275)*. Les deux `8` sont les line bleeds (§8 bis).
+⚖️ **WARES FAIT 495, PAS 500 — 2026-09-25.** Sur l'étape Équipement, la case « Equipment · 8 · Wares »
+du belt porte trois lignes et le belt mesure **65** : Wares, coté 500, se faisait rogner de 4,8 blg en
+bas. Eric : *« tu peux récupérer 4 entre les tambours, et après tu récupères là où ça impacte le
+moins »* — **a** : l'écart entre les étages revient à **4**, le rembourrage BAS du pied passe à **3**.
+⚠️ Les deux cibles des tambours se retouchent (2 → 46, 46 → 90) : c'est le prix, choisi.
+🗄️ Ce qui suit est l'amendement du lot 274, remplacé par celui-ci :
 ⚖️ **AMENDÉ LE 2026-09-25** — Eric : *« pour garder la cible tactile propre, mets 8 blg entre les
 tambours »* · *« bord de la dalle 4 · tambour 1 : 40 · 8 · tambour 2 : 40 · 4 blg »* · *« les non zoomées
 tu fais les calculs pour que ça colle — idem pour les espaces »*. 🗄️ L'écart entre les étages valait
@@ -4645,7 +4651,7 @@ elles. Les 4 blg sont rendus par la grille, dont le rembourrage passe de **8** (
 **6** ; jetons (48) et écarts (8) inchangés. Les cases non zoomées restent **40 ÷ 1,2456 = 32,1**.
 ⛔ **CE QUE WARES NE PORTE PAS**, et c'est la dictée qui l'enlève : aucun mode édition *(ni `/`, ni
 `×`, ni `+ Storage`, ni `done sections`)*, ni `Sort`, ni `Encumbrance`, ni `sections`. ⭐ **C'est
-exactement ce qui libère les 96 blg pour DEUX étages là où le sac n'en loge qu'un.**
+exactement ce qui libère les 92 blg pour DEUX étages là où le sac n'en loge qu'un.**
 🔴 **ET LE TITRE `EQUIPMENT BROWSER` DÉGAGE.** L'écran avait deux noms — celui de son titre et celui
 que la 3ᵉ ligne du belt écrit déjà. §6 interdit un libellé qui ment ; deux noms pour un écran sont
 la même faute, en plus discret.

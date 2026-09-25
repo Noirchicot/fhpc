@@ -18,7 +18,7 @@
    celui-ci, et un quatrième porteur le rendra nécessaire. */
 
 import {
-  DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
+  DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_PIED_BAS, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR,
 } from "./wares-disposition.mjs?v=823";
@@ -298,7 +298,7 @@ export function feuilleDesCotesWares() {
      qui met la bourse et les Tally *« entre 2 lignes »*, comme il l'avait dit avant de le voir. */
   r.push(`.wares-pied{display:grid;grid-template-columns:1fr ${px(PIED.colonnes[1])} 1fr;` +
          `grid-template-rows:${px(48)} ${px(TOUCH)} ${px(TOUCH)};row-gap:${px(ECART)};` +
-         `padding:${px(REMBOURRAGE)} ${px(REMBOURRAGE)}}`);
+         `padding:${px(REMBOURRAGE)} ${px(REMBOURRAGE)} ${px(REMBOURRAGE_PIED_BAS)}}`);
   /* 🔴 L'ÉCART DE 8 SE MESURE ENTRE LES **DESSINS**, ⛔ PAS ENTRE LES CIBLES — mesuré au banc
      sur cache froid : à `gap: 8` les deux Tally rendaient **12** entre leurs dessins, parce que
      le `gap` sépare des BOÎTES et que chaque boîte porte 2 blg de bord transparent.

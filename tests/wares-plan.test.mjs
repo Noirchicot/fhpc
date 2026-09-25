@@ -23,9 +23,11 @@ const NORMES = fs.readFileSync(path.join(UI, "NORMES.md"), "utf8");
 test("1 · les trois dalles et les deux bleeds font exactement la scène", () => {
   assert.equal(D.sommeVerticale(), D.DALLE.h,
     `⛔ le budget ne tombe plus juste : ${D.sommeVerticale()} pour une scène de ${D.DALLE.h}`);
-  assert.equal(D.DALLE.h, 500, "la scène vaut 500 blg (CADRES : 560 dont 500 pour la scène)");
-  assert.deepEqual(D.DALLES.map((d) => d.h), [96, 228, 160],
-    "⛔ les hauteurs dictées : 96 le tambour (4·40·8·40·4, Eric 25/09), 228 la grille, 160 le pied");
+  /* ⚖️ LOT 275 — 495 : sur l'étape Équipement le belt mesure 65 (la case « Equipment · 8 · Wares »
+     porte trois lignes) ; Eric, 25/09, option a : 4 blg rendus entre les tambours, 1 au pied. */
+  assert.equal(D.DALLE.h, 495, "Wares tient dans les 495 que la scène lui donne sous le belt de 65");
+  assert.deepEqual(D.DALLES.map((d) => d.h), [92, 228, 159],
+    "⛔ 92 le tambour (4·40·4·40·4), 228 la grille, 159 le pied (rembourrage bas 3)");
 });
 
 /* ⭐ TÉMOIN : les dalles se touchent par un bleed, sans trou ni recouvrement.
@@ -50,7 +52,7 @@ test("3 · cinq rangées ne tiennent pas, et le garde le prouve en chiffres", ()
   assert.equal(D.hauteurGrille(4), 228, "quatre rangées : 6 + 4×48 + 3×8 + 6 (lot 274)");
   assert.equal(D.hauteurGrille(5), 284, "cinq rangées : 6 + 5×48 + 4×8 + 6");
   const aCinq = D.sommeVerticale() - D.hauteurGrille(4) + D.hauteurGrille(5);
-  assert.equal(aCinq, 556, "à cinq rangées l'écran demande 556 blg");
+  assert.equal(aCinq, 551, "à cinq rangées l'écran demande 551 blg");
   assert.equal(aCinq - D.DALLE.h, 56, "⛔ 56 de trop — c'est ce nombre qui a tranché");
   assert.equal(D.PAR_PAGE, D.COLONNES_GRILLE * D.RANGEES_GRILLE,
     "⛔ le nombre par page est DÉRIVÉ de la grille, jamais écrit à côté d'elle");
@@ -83,9 +85,9 @@ test("4 · ce que la grille RESTITUE se recalcule, il ne se recopie pas", () => 
   assert.equal(r1 + g1 + r3, D.RENDU_PIED.cote.h, "la cellule de côté : 48 + 8 + 44 = 100");
   const pied = D.DALLES.find((d) => d.nom === "PIED");
   assert.equal(pied.y + D.REMBOURRAGE + D.RENDU_PIED.cote.h / 2, D.RENDU_PIED.centres.y,
-    "son centre vertical tombe à 394 — dans l'écart de 8 entre le collecteur et Send to");
-  assert.equal(D.PIED.rangees.reduce((n, v) => n + v, 0) + 2 * D.REMBOURRAGE, pied.h,
-    "⛔ les pistes du pied doivent faire sa hauteur : 4 + 48 + 8 + 44 + 8 + 44 + 4 = 160");
+    "son centre vertical tombe à 390 — dans l'écart de 8 entre le collecteur et Send to");
+  assert.equal(D.PIED.rangees.reduce((n, v) => n + v, 0) + D.REMBOURRAGE + D.REMBOURRAGE_PIED_BAS, pied.h,
+    "⛔ les pistes du pied doivent faire sa hauteur : 4 + 48 + 8 + 44 + 8 + 44 + 3 = 159 (lot 275)");
 });
 
 /* ══ 5 · LE PLANCHER TACTILE ═══════════════════════════════════════════════════
@@ -183,7 +185,7 @@ test("9 · le pied dit Gear · Send · Backpack, et rien d'autre", () => {
    pas — et une règle orale n'existe pas non plus. */
 test("10 · les écarts qui dévient du 8 sont nommés dans NORMES", () => {
   assert.equal(D.ECART, 8, "l'écart par défaut est celui du sacré n° 3");
-  assert.equal(D.ECART_ETAGES, 8, "l'écart entre les deux étages du tambour (Eric, 25/09 : « 8 blg entre les tambours »)");
+  assert.equal(D.ECART_ETAGES, 4, "l'écart entre les deux étages du tambour — revenu à 4 (Eric, 25/09, option a)");
   assert.equal(D.REMBOURRAGE, 4, "le rembourrage d'une dalle de Wares");
   assert.equal(D.REMBOURRAGE_GRILLE, 6, "⛔ sauf la dalle 2 : 6 — le croquis du 19/09 (8), amendé le 25/09 pour rendre les 4 blg du tambour");
   for (const ancre of ["equipement-wares-trois-dalles", "equipement-wares-swipe-pagine",
@@ -270,15 +272,19 @@ test("14 · le dernier cran atteint le viseur, quel que soit le nombre de crans"
   }
 });
 
-test("274 · ⚖️ LES DEUX TAMBOURS : 4 · 40 · 8 · 40 · 4, et les cibles tactiles ne se touchent plus", () => {
-  /* ⚖️ Eric, 25/09 : « bord de la dalle 4 · tambour 1 : 40 · 8 · tambour 2 : 40 · 4 blg » ·
-     « pour garder la cible tactile propre, mets 8 blg entre les tambours ». */
+test("275 · ⚖️ WARES TIENT SOUS LE BELT DE 65 : 4 · 40 · 4 · 40 · 4, et 1 blg pris au bord du pied", () => {
+  /* ⚖️ Eric, 25/09 : « tu peux récupérer 4 entre les tambours, et après tu récupères là où ça
+     impacte le moins » — « a ». 🗄️ Le lot 274 avait posé 4·40·8·40·4 ; ce garde le remplace. */
   const [r1, r2] = D.ORGANES.filter((o) => o.sorte === "roue");
   const tambour = D.DALLES.find((d) => d.nom === "TAMBOUR");
   assert.deepEqual([r1.y - tambour.y, r1.h, r2.y - (r1.y + r1.h), r2.h, tambour.y + tambour.h - (r2.y + r2.h)],
-    [4, 40, 8, 40, 4], "⚖️ la dictée, cote par cote");
+    [4, 40, 4, 40, 4], "⚖️ 4 · 40 · 4 · 40 · 4");
   assert.equal(r2.y - (r1.y + r1.h), D.ECART_ETAGES, "⛔ la table et la feuille disent le même écart");
-  assert.equal(r2.cible.y - (r1.cible.y + r1.cible.h), 4, "⭐ 4 blg entre les deux cibles de 44 — elles se touchaient à 4");
+  const pied = D.DALLES.find((d) => d.nom === "PIED");
+  const rangee = D.ORGANES.find((o) => o.nom === "RANGEE");
+  assert.equal(pied.y + pied.h - (rangee.y + rangee.h), D.REMBOURRAGE_PIED_BAS, "⭐ sous la rangée des portes : 3");
+  assert.equal(D.REMBOURRAGE_PIED_BAS, 3);
+  assert.equal(pied.y + pied.h, D.DALLE.h, "⭐ le bas du pied est le bas de la scène — rien n'est rogné");
   assert.equal(Math.round(D.ROUE.hauteurDominante / D.ROUE.loupe * 100) / 100, D.ROUE.hauteur,
     "⭐ la case non zoomée se déduit de la zoomée par la loupe (40 ÷ 1,2456)");
 });
