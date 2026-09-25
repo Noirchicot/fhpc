@@ -100,7 +100,12 @@ export function feuilleDesCotesX2() {
     /* ⭐ LA TÊTE, SOUS LE NOM DE X2 — la MÊME feuille que X1 monte, ⛔ pas une
        copie : une seule fonction l'écrit, pour les deux fiches. Le bas de lecture
        est la couture elle-même (voir l'en-tête : l'œil n'a rien à retirer ici). */
-    feuilleDesCotesDeTete("x2", BAS_DE_TETE + 8),
+    /* 🔴 LOT 273 — LE BAS DE LECTURE N'EST PLUS LA COUTURE. Eric, 25/09 : « l'œil ne marche
+       pas sur X2 ». Le lot 242 avait écrit que l'œil n'avait « rien à retirer ici » : le bas de
+       lecture était la couture, et le mode lecture ne changeait RIEN. ⭐ Comme sur X1, il
+       descend jusqu'au-dessus des portes — le bas du pied moins une cible (📏 mesuré : les
+       trois boutons commencent à 422 = 466 − 44) ; les réglages s'effacent (la feuille). */
+    feuilleDesCotesDeTete("x2", bas - D.TOUCH),
     `.x2 [data-organe="x2-pied"]{left:${px(D.MARGE_COTE)};top:${px(haut)};`
       + `width:${px(D.DALLE.l - 2 * D.MARGE_COTE)};height:${px(bas - haut)}}`
   ].join("\n");
@@ -159,10 +164,17 @@ export function construireLaFicheX2(options = {}) {
      du haut, les deux filets, le texte, sa jauge et les deux ornements. ⛔ X2 ne
      fabrique aucun de ces organes — elle les reçoit. */
   const it0 = item();
+  /* 🔴 LOT 273 — L'ŒIL DE X2 NE FAISAIT RIEN. Eric, 25/09 : « l'œil ne marche pas sur X2 ».
+     La tête appelle `surLecture(!lecture)` au tap — et X2 ne lui donnait NI l'état NI le geste
+     (X1 les reçoit de son pilote). ⭐ X2 porte donc son mode lecture elle-même : un objet
+     d'options MUTABLE, parce que la tête relit `lecture` au moment du tap. En lecture, comme
+     sur X1, le texte s'allonge jusqu'aux portes (la feuille de tête le sait déjà, par
+     `.x2[data-lecture="oui"]`) et les réglages du pied s'effacent (la feuille). */
+  const tete = { ...options, lecture: false, surLecture: (v) => basculerLecture(v) };
   construireLaTeteDeFiche(noeud, {
     nom: it0.nom, qte: 1, prose: it0.prose,
     prixUnite: it0.coutTexte, poidsUnite: it0.poidsTexte
-  }, options);
+  }, tete);
 
   /* ══ SOUS LA COUTURE — LE CROQUIS DU 21/09 ═══════════════════════════════ */
   const pied = elx("div", "x2-pied");
@@ -259,6 +271,18 @@ export function construireLaFicheX2(options = {}) {
     porteDouble("FREE", "SEND / CLEAR", () => envoyer(false), "Send without paying"));
 
   pied.append(marche, destRang, alerte, portes);
+
+  function basculerLecture(v) {
+    tete.lecture = Boolean(v);
+    if (tete.lecture) noeud.dataset.lecture = "oui"; else delete noeud.dataset.lecture;
+    /* ⛔ PAS `hidden` : `display: flex` de `.x2-marche` l'emporte (mesuré). La feuille les
+       efface par `.x2[data-lecture="oui"]`. */
+    const oeil = noeud.querySelector('[data-organe="oeil"]');
+    if (oeil) {
+      oeil.dataset.on = tete.lecture ? "oui" : "non";
+      oeil.setAttribute("aria-label", tete.lecture ? "Show the whole sheet" : "More room for the text");
+    }
+  }
   noeud.append(pied);
 
   /* ⭐ LA TÊTE EST BÂTIE UNE FOIS, AVEC L'OBJET RÉEL — ⛔ X2 ne la fabrique pas, elle

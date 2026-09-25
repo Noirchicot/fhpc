@@ -11843,6 +11843,25 @@ button.tuto-point::before {
    déclaration aurait été un second écrivain pour un organe unique — et deux feuilles
    qui divergent d'une teinte, personne ne le voit avant qu'Eric le voie. */
 :is(.x1, .x2, .x5, .aiguilleur-carte) .parchemin-fond { fill: var(--x1-papier); }
+
+/* ══ LOT 273 — LES FICHES X SONT DES DALLES ══════════════════════════════════════════
+   ⚖️ Eric, 25/09, après l'essai : *« honnêtement passer tous les X en dalle 50 % est plus
+   joli que le parchemin »* — et avant : *« une dalle classique avec marges »*, *« mets à 50 %
+   le voile »*, *« liseré contour inclus »*.
+   ⭐ UNE RÈGLE POUR LA FAMILLE : X1, X2, X5 et la carte de X0. La dalle est celle de la
+   maison — `--dalle-inter` (le verre moyen, `--voile-inter` 50 %), le liseré `--verre-lisere`,
+   les coins `--organe-rayon` — posée à `--sp-4` des bords de la fiche.
+   ⭐ Un `::before` en absolu, premier dans l'ordre de peinture : tout ce que la fiche porte
+   passe dessus sans un seul `z-index`. ⛔ Le parchemin n'est plus monté (lot 273). */
+:is(.x1, .x2, .x5)[data-objet]::before, .x0 .aiguilleur-carte::before {
+  content: ""; position: absolute; inset: var(--sp-4); pointer-events: none;
+  background: var(--dalle-inter); border-radius: var(--organe-rayon);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+/* ⚖️ ET PAS DE `?` SOUS UNE FICHE — Eric, 25/09 : « pas de ? ». Le point du tutoriel de l'étape
+   se cachait sous le fond opaque des fiches ; la dalle le laisse voir, collé à `Send`.
+   ⭐ `visibility` et pas `display` (défaut n°3 du dépôt) : il quitte la vue et la tabulation. */
+.equipment-step:has(:is(.x1, .x2, .x5)[data-objet], .x0) > .tuto-point { visibility: hidden; }
 /* ⚖️ LE MODE LECTURE RETIRE DES ORGANES, ET C'EST `hidden` QUI LE FAIT — Eric, 17/09 au
    soir : *« ce symbole permet de cacher tout ce qui est au-dessus des boutons »*.
    ⛔ MAIS UNE RÈGLE D'AUTEUR QUI POSE `display` BAT LE `[hidden]` DE L'AGENT
@@ -12205,6 +12224,10 @@ button.tuto-point::before {
 .x2-pied .pipeline-dropdown { background-color: var(--x1-tranche-douce); }
 /* — PURSE à gauche, QTY ± PRICE à droite (croquis) */
 .x2-marche { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
+/* ⚖️ LOT 273 — EN LECTURE, LES RÉGLAGES S'EFFACENT (Eric, 25/09 : « l'œil ne marche pas sur X2 ») :
+   le texte descend sur leur place, jusqu'au-dessus des trois portes. ⭐ `visibility`, ⛔ pas
+   `display: none` (défaut n°3) — ils quittent la vue et la tabulation, les portes restent. */
+.x2[data-lecture="oui"] :is(.x2-marche, .x2-sendto, .x2-pied .pipeline-alerte) { visibility: hidden; }
 .x2-bourse {
   flex: 0 1 auto; padding: var(--sp-4) var(--sp-8);
   background: var(--x1-tranche-douce); border-radius: var(--radius-sm);
@@ -13375,7 +13398,6 @@ button.tuto-point::before {
    ⚖️ Et elle emprunte la palette du parchemin (`--x1-*`), parce que X5 est une
    fiche de la même famille : ⛔ pas un jeu de teintes neuf. */
 .x5 {
-  background: var(--x1-papier) center / 100% 100% no-repeat;
   color: var(--x1-encre);
   border-radius: var(--organe-rayon);
   overflow: hidden;

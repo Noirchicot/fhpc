@@ -55,7 +55,6 @@ import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=821";
 /* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
    sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
    second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
-import { habilleEnParchemin } from "./parchemin.mjs?v=821";
 
 const { ORGANES, MOTS_ETAT, PARCHEMIN_DEBORD } = D;
 
@@ -214,7 +213,9 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
      attend la première mise en page puis suit la cote avec un `ResizeObserver`.
      ⭐ L'ORDRE EST LE DESSIN : tout est en absolu et sans `z-index`, donc le décor
      entre en PREMIER et passe dessous. */
-  noeud.append(habilleEnParchemin(noeud, budgetDuParchemin));
+  /* ⚖️ LOT 273 — PLUS DE PARCHEMIN : Eric, 25/09, *« passer tous les X en dalle 50 % est plus
+     joli que le parchemin »*. La fiche est une DALLE, peinte par la feuille (`shell.css`, la
+     règle de famille des fiches X) — ⛔ plus rien à monter ici. */
   for (const o of ORGANES_DE_TETE) {
     const id = CLEF_DE[o.nom];
     if (!id) continue;

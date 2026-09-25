@@ -22,7 +22,6 @@
 import * as D from "./x5-disposition.mjs?v=821";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, categorieAffichee, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=821";
 import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=821";
-import { habilleEnParchemin } from "./parchemin.mjs?v=821";
 import { corpsDuJeton } from "./jeton-objet.mjs?v=821";
 import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=821";
 
@@ -266,8 +265,8 @@ export function construireX5(o = {}) {
   feuille.setAttribute("data-fhpc", "x5");
   feuille.textContent = feuilleDesCotesX5();
   n.append(feuille);
-  /* ⭐ ET LE PARCHEMIN DE LA FAMILLE — le même organe que X0, X1 et X2. */
-  n.append(habilleEnParchemin(n, () => D.MARGE));
+  /* ⚖️ LOT 273 — la fiche est une DALLE (Eric, 25/09 : « plus joli que le parchemin ») :
+     la feuille la peint, par la règle de famille des fiches X. ⛔ Rien à monter ici. */
   if (!dispos.length) n.dataset.pouvoirs = "aucun";
 
   /* ⚖️ LE TITRE — Eric, 25/09 : « le titre c'est Blueprint ». */

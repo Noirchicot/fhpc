@@ -98,12 +98,11 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=821";
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
    avant qu'Eric le voie. Eric, 23/09 : *« utilise la texture parcheminée de
    la fiche X »*, et *« on peut l'appeler X0 à la rigueur »*. */
-import { habilleEnParchemin } from "./parchemin.mjs?v=821";
 /* ⛔ LES COTES DE X0 NE VIVENT PAS DANS `shell.css` — c'est la loi que le garde
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0, MARGE_DALLE as MARGE_DALLE_X0 } from "./x0-disposition.mjs?v=821";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=821";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
@@ -4113,7 +4112,7 @@ export function renderEquipmentStep(ctx, onAction) {
     feuilleX0.setAttribute("data-fhpc", "x0");
     feuilleX0.textContent = feuilleDesCotesX0();
     carte.append(feuilleX0);
-    carte.append(habilleEnParchemin(carte, () => MARGE_DALLE_X0));
+    /* ⚖️ LOT 273 — la carte de X0 est une DALLE, comme les autres fiches X (Eric, 25/09). */
     carte.append(el("h2", "aiguilleur-titre", [text("Gear")]));
     /* ⚖️ LA PHRASE DE L'AIGUILLEUR OUVRE L'ÉCRAN, ⛔ elle ne le ferme plus.
        ⭐ Elle dit OÙ L'ON EST et ce qu'on y fait : ça se lit AVANT d'avoir

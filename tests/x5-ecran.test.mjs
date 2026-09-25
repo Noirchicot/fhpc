@@ -202,8 +202,8 @@ test("9 — ⚔️ LA FEUILLE EXISTE VRAIMENT, et le mot cède avant le chevron"
     "📏 à 169,5 il reste 153,5 pour le texte : si un nom déborde, c'est le MOT qui cède");
   assert.match(CSS, /\.x5-drop-chevron\s*\{[^}]*flex:\s*0 0 auto/,
     "⛔ le chevron ne se comprime jamais — il dit qu'il y a un menu");
-  assert.match(CSS, /\.x5\s*\{[^}]*--x1-papier/,
-    "⭐ X5 emprunte la palette du parchemin, ⛔ elle n'invente pas un jeu de teintes");
+  assert.match(CSS, /\.x5\s*\{[^}]*--x1-encre/,
+    "⭐ X5 garde l'encre de la famille des fiches, ⛔ elle n'invente pas un jeu de teintes");
 });
 
 /* ══ ⑤ LA PORTE ET L'ENVOI — lot 262 ═══════════════════════════════════════ */
@@ -335,20 +335,22 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
   }
 });
 
-test("14 — 🔴 UNE FICHE QUI MONTE LE PARCHEMIN EST DANS SA FAMILLE — sinon il se peint en NOIR", async () => {
-  /* 🔴 VU À L'IMAGE LE 24/09, ET AUCUN GARDE NE L'AVAIT DIT : X5 posait bien son SVG de
-     parchemin, mais `.x5` n'était pas dans `FAMILLE_DU_PARCHEMIN`. La règle qui donne
-     `fill: var(--x1-papier)` ne la visait donc pas, et le chemin prenait le défaut du
-     SVG — le NOIR — par-dessus tout le papier. Les 2525 gardes étaient verts.
-     ⭐ Ce garde lie les deux faits : la fiche porte un `.parchemin`, donc elle est de la
-     famille, donc la feuille la vise. */
-  const { FAMILLE_DU_PARCHEMIN, SELECTEUR_DU_PARCHEMIN } = await import("../ui/builder/parchemin.mjs");
+test("14 — ⚖️ LES FICHES X SONT DES DALLES À 50 % — ⛔ plus de parchemin (lot 273)", () => {
+  /* ⚖️ Eric, 25/09 : « honnêtement passer tous les X en dalle 50 % est plus joli que le
+     parchemin ». 🗄️ Ce garde disait, jusqu'au lot 272, qu'une fiche qui monte le parchemin
+     doit être de sa famille (sinon le SVG se peignait en noir, vu le 24/09). ⭐ La loi est
+     maintenant plus simple : AUCUNE fiche ne monte le parchemin, et UNE règle peint la dalle. */
   const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
-  assert.ok(noeud.querySelector(".parchemin"), "X5 porte bien un parchemin");
-  assert.ok(FAMILLE_DU_PARCHEMIN.includes(".x5"),
-    "⛔ X5 porte un parchemin sans être de sa famille : le SVG se peindra en noir");
-  const regle = new RegExp(`${SELECTEUR_DU_PARCHEMIN.replace(/[.()[\]]/g, "\\$&")} \\.parchemin-fond\\s*\\{[^}]*fill:\\s*var\\(--x1-papier\\)`);
-  assert.match(CSS, regle, "⭐ et la feuille vise EXACTEMENT cette famille — un seul écrivain de la liste");
+  assert.equal(noeud.querySelector(".parchemin"), null, "⛔ X5 ne porte plus de parchemin");
+  const f = CSS.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const regle = /:is\(\.x1, \.x2, \.x5\)\[data-objet\]::before, \.x0 \.aiguilleur-carte::before\s*\{([^}]*)\}/.exec(f);
+  assert.ok(regle, "⭐ UNE règle de famille pour X0, X1, X2 et X5");
+  assert.match(regle[1], /background:\s*var\(--dalle-inter\)/, "⚖️ le voile de 50 % (`--voile-inter`)");
+  assert.match(regle[1], /box-shadow:\s*inset 0 0 0 1px var\(--verre-lisere\)/, "⚖️ « liseré contour inclus »");
+  assert.match(regle[1], /inset:\s*var\(--sp-4\)/, "⚖️ « une dalle classique avec marges »");
+  assert.doesNotMatch(f.match(/\.x5\s*\{[^}]*\}/)[0], /background/, "⛔ plus de fond opaque sur la boîte de X5");
+  assert.match(f, /\.equipment-step:has\([^)]*\.x5[^)]*\)[^{]*> \.tuto-point\s*\{\s*visibility:\s*hidden/,
+    "⚖️ « pas de ? » : le point du tutoriel ne passe plus à travers la dalle");
 });
 
 test("15 — ⭐ UN POUVOIR À BASE MULTIPLE OUVRE LE PLAN DE SA FAMILLE, pouvoir déjà posé", async () => {

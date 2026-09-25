@@ -131,9 +131,10 @@ test("4 — 📏 les DEUX fiches rendent la MÊME tête — même organes, même
   assert.deepEqual(tete(x2), tete(x1),
     "⛔ un organe de tête qui diffère d'une classe est une divergence qui commence");
   assert.equal(tete(x2).length, ORGANES_DE_TETE.length, "les dix, ni plus ni moins");
-  /* ⭐ ET LE PARCHEMIN EST LÀ, chez les deux : c'est l'organe que le lot devait porter. */
+  /* ⚖️ LOT 273 — ET NI L'UNE NI L'AUTRE NE PORTE PLUS DE PARCHEMIN : les fiches X sont des
+     dalles (Eric, 25/09), peintes par une règle de famille — ⛔ rien à monter. */
   for (const [nom, n] of [["X1", x1], ["X2", x2]]) {
-    assert.ok(n.querySelector(".parchemin"), `${nom} porte sa feuille`);
+    assert.equal(n.querySelector(".parchemin"), null, `${nom} ne monte plus de parchemin`);
   }
   /* 🔴 ÉPROUVÉ ROUGE en donnant au titre de X2 la classe `x2-nom` : garde 4 rouge sur
      le `deepEqual` — ⭐ et c'est bien une SECONDE lecture, en sens inverse, qui
@@ -337,4 +338,25 @@ test("13 — 🖋️ l'encre du parchemin est SCOPÉE à X2 ; ⛔ elle ne fuit p
      mauvais organe ne prouve rien : il faut savoir de quelle FAMILLE est l'organe. */
   assert.ok(!/\.x2-pied[^{]*\.pipeline-bouton[^{]*\{[^}]*--x1-encre/.test(shell),
     "⛔ un bouton ne prend pas l'encre du parchemin : il porte l'habit de sa famille");
+});
+
+test("273 — 🔴 L'ŒIL DE X2 MARCHE : il bascule en lecture, et il en sort", () => {
+  /* ⚖️ Eric, 25/09 : « l'œil ne marche pas sur X2 ». La tête appelait `surLecture`, X2 ne
+     répondait pas. ⭐ Deux taps : un pour entrer, un pour sortir — la tête relit l'état. */
+  const n = rendu();
+  const oeil = n.querySelector('[data-organe="oeil"]');
+  assert.ok(oeil, "X2 porte bien l'œil de la tête");
+  assert.equal(n.dataset.lecture, undefined, "témoin : pas en lecture au départ");
+  oeil.dispatchEvent(new Event("click"));
+  assert.equal(n.dataset.lecture, "oui", "⭐ un tap : la fiche passe en lecture");
+  assert.equal(oeil.dataset.on, "oui");
+  oeil.dispatchEvent(new Event("click"));
+  assert.equal(n.dataset.lecture, undefined, "⭐ un second tap : elle en sort");
+  /* ⭐ ET LA LECTURE CHANGE VRAIMENT QUELQUE CHOSE — le lot 242 avait posé le bas de lecture
+     SUR la couture : le mode existait et ne faisait rien. */
+  const f = feuilleDesCotesX2();
+  const haut = Number(/\.x2\[data-lecture="oui"\] \[data-organe="description"\]\{height:([\d.]+)px/.exec(f)[1]);
+  assert.ok(haut > 180 + 100, `📏 en lecture le texte gagne la place des réglages (${haut} blg)`);
+  assert.match(shell, /\.x2\[data-lecture="oui"\] :is\(\.x2-marche, \.x2-sendto[^)]*\)\s*\{\s*visibility:\s*hidden/,
+    "⭐ les réglages s'effacent — ⛔ par la feuille, `hidden` perdait contre `display: flex`");
 });
