@@ -602,9 +602,13 @@ export function construireLaFicheX1(options = {}) {
          un, et le plafond deviendrait un piège au lieu d'un budget. */
       const plafond = id === "attune-on" && objet.attuned !== true
         && Number(options.harmonises) >= PLAFOND_HARMONISATION;
-      noeud.append(bascule(id, Boolean(objet[ETAT_DE[id]]), options,
-        (id === "equip-on" && objet.locked === true) || plafond,
-        plafond ? `${PLAFOND_HARMONISATION} items are already attuned — the SRD cap` : null));
+      /* ⚖️ LOT 270 — L'APERÇU D'UN OBJET PAS ENCORE CRAFTÉ : Eric, 25/09 : « options de lock,
+         attune, wear grisées ». ⭐ Grisées et parlantes — l'objet n'est pas encore à toi. */
+      noeud.append(options.apercu
+        ? bascule(id, false, options, true, "Not yours yet — send it from the blueprint first")
+        : bascule(id, Boolean(objet[ETAT_DE[id]]), options,
+          (id === "equip-on" && objet.locked === true) || plafond,
+          plafond ? `${PLAFOND_HARMONISATION} items are already attuned — the SRD cap` : null));
     } else if (id === "send" || id === "to") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "send-n") {
@@ -637,6 +641,18 @@ export function construireLaFicheX1(options = {}) {
       noeud.append(objet.locked === true
         ? porte(id, o.mot, "Locked — turn Lock off first", options, true)
         : porte(id, o.mot, "Throw it away", options));
+    }
+  }
+  /* ⚖️ LOT 270 — EN APERÇU, « UNIQUEMENT UN BACK » (Eric, 25/09) : la porte qui ferme reste,
+     les trois états se grisent (plus haut), et tout le reste se RETIRE — ranger, envoyer,
+     utiliser, jeter, copier, lire. ⛔ `hidden`, jamais `display:none` (défaut n°3 du dépôt).
+     ⭐ Le mot reste `Close` : `Back` est EXCLUSIF à la coquille (garde 17 de shell-wiring). */
+  if (options.apercu) {
+    noeud.dataset.apercu = "oui";
+    for (const e of [...noeud.children]) {
+      const id = e.dataset ? e.dataset.organe : null;
+      if (id && ["is", "is-quoi", "send", "send-n", "to", "send-vers", "use", "envoyer", "trash",
+                 "oeil", "copier"].includes(id)) e.hidden = true;
     }
   }
   if (options.lecture) {

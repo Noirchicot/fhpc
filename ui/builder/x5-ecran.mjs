@@ -20,9 +20,11 @@
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=818";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=818";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=818";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, categorieAffichee, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=818";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=818";
 import { habilleEnParchemin } from "./parchemin.mjs?v=818";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=818";
+import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=818";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -48,9 +50,12 @@ export function feuilleDesCotesX5() {
   for (const o of D.ORGANES) {
     const b = o.cible || o;
     regles.push(
-      `.x5 [data-organe="${o.nom}"]{position:absolute;left:${px(b.x)};top:${px(b.y)};`
+      `.x5 [data-organe="${organeDe(o.nom)}"]{position:absolute;left:${px(b.x)};top:${px(b.y)};`
       + `width:${px(b.l)};height:${px(b.h)}}`);
   }
+  /* ⭐ LE POPUP DE LA BOURSE, avec LES RÈGLES DE R — centré sur la bourse, serré dans la
+     dalle. ⛔ Aucune cote écrite ici : `reglesDeLaBourse` est l'unique écrivain. */
+  regles.push(...reglesDeLaBourse(".x5", D.ORGANES.find((x) => x.nom === "PURSE"), D.DALLE, 0));
   /* ⚖️ LA RANGÉE DES POUVOIRS DISPARAÎT quand la base n'en offre aucun — Eric,
      24/09 : « oui voilà ». ⛔ Elle ne se grise pas : une option grisée promet
      qu'un jour elle s'ouvrira, une option absente dit que cette base n'est pas de
@@ -59,10 +64,15 @@ export function feuilleDesCotesX5() {
   regles.push(`.x5[data-pouvoirs="aucun"] [data-organe^="POWER"]{display:none}`);
   for (const o of suivent) {
     const b = o.cible || o;
-    regles.push(`.x5[data-pouvoirs="aucun"] [data-organe="${o.nom}"]{top:${px(b.y - D.H_RANGEE)}}`);
+    regles.push(`.x5[data-pouvoirs="aucun"] [data-organe="${organeDe(o.nom)}"]{top:${px(b.y - D.H_RANGEE)}}`);
   }
   return regles.join("\n");
 }
+/* ⭐ LA BOURSE ET SON MONTANT GARDENT LE NOM D'ORGANE DE R (`purse`, `montant`) : c'est lui
+   qui porte l'image (`.gear-bouton[data-organe="purse"]`) et la peau du voyant. ⛔ Un nom neuf
+   aurait demandé une seconde règle d'image — un second écrivain pour la même bourse. */
+const CLEF_DOM = { PURSE: "purse", MONTANT: "montant" };
+function organeDe(nom) { return CLEF_DOM[nom] || nom; }
 function hauteurDe(nom) {
   const o = D.ORGANES.find((x) => x.nom === nom);
   return o ? (o.cible || o).y : Infinity;
@@ -97,89 +107,66 @@ function menu(nom, valeur, options, surChoix, { aucun = null } = {}) {
   return s;
 }
 
-/** ⚖️ LE PANNEAU — et ses DEUX RÉGIMES selon la pile.
- *  Eric, 24/09 : *« colonne de gauche inutile en SRD car pas de crafting time ·
- *  pour FH il y a un crafting time »*. ⛔ En SRD la colonne gauche n'est pas
- *  grisée ni à zéro : elle N'EXISTE PAS. Un `0` se lirait « ça ne prend aucun
- *  temps » ; son absence dit « cette pile ne connaît pas cette règle ».
- *  ⭐ Et `coteDe` rend déjà `temps` et `dc` à `null` en SRD — l'écran n'a donc
- *  aucune décision à prendre : il dessine ce que le moteur lui donne.
- *
- *  🔴 J'AVAIS ÉCRIT CETTE PHRASE ET FAIT LE CONTRAIRE. Le code testait
- *  `if (fh && cote.legal && cote.temps)` : DEUX écrivains pour une seule règle —
- *  le moteur qui rend `null`, et l'écran qui redemande `fh`. ⛔ Et l'épreuve
- *  rouge l'a montré : en retirant le `fh &&`, le garde est RESTÉ VERT, parce que
- *  l'autre protection tenait encore. Un témoin qui ne coupe qu'un chemin sur deux
- *  n'accuse plus rien.
- *  ⭐ Le `fh` est donc parti d'ici. La règle vit à UN endroit — `craft.mjs` — et
- *  cet écran dessine `cote.temps` quand il existe, sans savoir pourquoi. */
-function panneau(cote, status = "Crafting", prix = null, surPrix = null) {
-  const p = elx("section", "x5-panneau");
-  p.dataset.organe = "PANNEAU";
-  const argent = elx("div", "x5-panneau-argent");
-
-  /* ⚖️ LES TROIS RÉGIMES DU CROQUIS — `STATUS` décide de ce que le panneau montre.
-     C'est l'idée la plus économe du dessin : une seule fiche sert les trois façons
-     d'obtenir un objet. */
+/** ⚖️ L'ENCART — lot 270, la dictée d'Eric du 25/09, deux colonnes de taille égale :
+ *    colonne 1 : `Crafting · Cost` / un trait rouge / la base · Enchanting · Total
+ *    colonne 2 : `Crafting time` (SRD vide, FH rempli) / `Qty N · Total` et le total ENCADRÉ
+ *  ⚖️ « pas de jets pour produire les regular magic items (SRD comme FH) » : ⛔ plus de
+ *  ROLL, plus de DC. Le temps reste — c'est une durée, pas un jet.
+ *  ⚖️ Le total encadré EST le prix qu'on tape (réponse 1 : « oui »).
+ *  ⭐ `coteDe` rend `temps: null` en SRD : l'écran dessine ce que le moteur donne, sans
+ *  redemander la pile (la faute du lot 259, un second écrivain pour une seule règle). */
+function encart(cote, status, base, prix, surPrix, alerte, type) {
+  const e = elx("section", "x5-encart");
+  e.dataset.organe = "ENCART";
   if (status === "Found") {
-    /* ⚖️ Le croquis, mot pour mot : « you found it, it's a gift or you stole it — it's
-       free ». ⛔ Aucun champ : un « 0 GP » dirait « ça coûte zéro », la phrase dit
-       « la question du prix ne se pose pas ». */
-    argent.append(elx("p", "x5-panneau-libre", "You found it, it's a gift, or you stole it — it's free."));
-    p.append(argent);
-    return p;
+    /* ⚖️ Le croquis : « you found it, it's a gift or you stole it — it's free ». ⛔ Aucun
+       champ : un « 0 GP » dirait « ça coûte zéro », la phrase dit que la question ne se pose pas. */
+    e.dataset.regime = "found";
+    e.append(elx("p", "x5-encart-libre", "You found it, it's a gift, or you stole it — it's free."));
+  } else if (!cote.legal) {
+    /* ⚖️ « au moins le prix sera juste » — quand il n'y a pas de prix juste, on le DIT. */
+    e.dataset.regime = "refus";
+    e.append(elx("p", "x5-encart-refus", motDuRefus(cote.raison)));
+  } else {
+    e.dataset.regime = status === "Buying" ? "buying" : "crafting";
+    const achat = status === "Buying";
+    /* ⭐ En Buying, la colonne 1 dit ce que l'on PAIE, pas ce que coûte la fabrication :
+       le prix de la base et la part magique entière. */
+    const partBase = achat ? cote.coutBase : cote.coutBase / 2;
+    const partMagie = achat ? cote.magie : cote.magie / 2;
+    const unite = partBase + partMagie;
+    const c1 = elx("div", "x5-encart-col x5-encart-couts");
+    const t = elx("div", "x5-encart-tete");
+    t.append(elx("span", null, achat ? "Buying" : "Crafting"), elx("span", null, "Cost"));
+    c1.append(t,
+      ligne(base ? base.data.name : "Base item", or(partBase)),
+      ligne("Enchanting", or(partMagie)),
+      ligne("Total", or(unite)));
+    const c2 = elx("div", "x5-encart-col x5-encart-droite");
+    /* ⚖️ « Crafting time (SRD vide / FH rempli) » — ⛔ vide, pas « 0 » ni « — ». */
+    c2.append(ligne("Crafting time", achat ? "" : (cote.temps || "")));
+    /* ⚖️ LA RARETÉ — Eric, 25/09 : « il faut citer la rareté — crafting time 3 days (FH) ·
+       rare weapon ». ⭐ La catégorie AFFICHÉE du craft (le palier SRD inférieur, jamais un
+       demi-cran — Eric, 24/09), et le type lu dans le plan. */
+    const rarete = categorieAffichee(cote.venteUnitaire);
+    const r = elx("p", "x5-encart-rarete", rarete ? `${rarete} ${type.toLowerCase()}` : "");
+    c2.append(r);
+    c2.append(champ(`Qty ${cote.qte} · Total`, prix ?? unite * cote.paiements, prix !== null, surPrix));
+    e.append(c1, c2);
   }
-  if (!cote.legal) {
-    /* ⚖️ « au moins le prix sera juste » — quand il n'y a pas de prix juste à donner,
-       on le DIT, ⛔ on n'affiche pas un zéro plausible. */
-    argent.append(elx("p", "x5-panneau-refus", motDuRefus(cote.raison)));
-    p.append(argent);
-    return p;
+  /* ⭐ LE REFUS DE L'APPELANT VIT DANS L'ENCART — ⛔ pas un organe de plus. */
+  if (alerte) {
+    const a = elx("p", "x5-encart-refus", alerte);
+    a.setAttribute("role", "alert");
+    e.append(a);
   }
-  if (status === "Buying") {
-    /* ⚖️ Le croquis : « price · qty · total », et rien d'autre. Le prix d'ACHAT est la
-       valeur de vente — ⛔ pas le coût de fabrication, qui en est la moitié. */
-    /* ⭐ LOT 269 — le prix d'achat se TAPE : le champ montre le prix calculé et le remplace. */
-    const unite = prix ?? cote.venteUnitaire;
-    argent.append(
-      champ("Price", unite, prix !== null, surPrix),
-      ligne("Qty · Total", `×${cote.qte} · ${or(unite * cote.paiements)}`));
-    p.append(argent);
-    return p;
-  }
-  /* Crafting — la colonne gauche n'existe qu'en pile Fate's Hand : `coteDe` rend
-     `temps: null` en SRD, et c'est LUI qui le décide (un seul écrivain, lot 259). */
-  if (cote.temps) {
-    const g = elx("div", "x5-panneau-prereq");
-    g.append(elx("h4", "x5-panneau-titre", "Prerequisites"));
-    g.append(ligne("Crafting time", cote.temps), ligne("Crafting roll", `DC ${cote.dc}`));
-    const roll = elx("button", "x5-roll", "ROLL");
-    roll.type = "button";
-    g.append(roll);
-    p.append(g);
-  }
-  /* ⚖️ LOT 269 — Eric, 25/09 : *« quand tu fais base item cost, mets de base la moitié du
-     prix de l'armure — crafting cost of the base item : 200 (pour la breastplate) »*.
-     🔴 La ligne montrait le PRIX de la base (400) alors que le craft en compte la MOITIÉ :
-     `400 + 2 000` affichés, `2 200` facturés. ⭐ Les trois lignes s'additionnent désormais.
-     ⭐ Et le prix unitaire se TAPE (Eric : « une case pour modifier le prix manuellement ») :
-     le champ prend la place de la ligne `Unit price`. 📏 Mesuré au navigateur, pile FH (la
-     plus serrée, la colonne des prérequis prend sa part) : 11 + 11 + 44 + 11 = 77 blg dans
-     les 126 de la colonne — ⛔ le champ garde ses 44 (`--touch`). */
-  const unite = prix ?? cote.craftUnitaire;
-  argent.append(
-    ligne("Crafting cost of the base item", or(cote.coutBase / 2)),
-    ligne("Crafting cost", or(cote.craftUnitaire - cote.coutBase / 2)),
-    champ("Unit price", unite, prix !== null, surPrix),
-    ligne("Qty · Total", `×${cote.qte} · ${or(unite * cote.paiements)}`));
-  p.append(argent);
-  return p;
+  return e;
 }
 
-/** ⭐ LOT 269 — LE PRIX QUI SE TAPE. Il porte le prix en vigueur (calculé, ou tapé) ; le
- *  joueur le remplace, et `change` le rend à l'appelant (⛔ pas `input` : un repeint à
- *  chaque frappe volerait le focus). Vide = retour au prix calculé.
- *  ⭐ `data-manuel` dit si le prix est celui du joueur — la feuille le souligne. */
+/** ⭐ LE TOTAL QUI SE TAPE (lots 269 → 270). Il porte le total en vigueur (calculé, ou
+ *  tapé) ; le joueur le remplace, et `change` le rend à l'appelant (⛔ pas `input` : un
+ *  repeint à chaque frappe volerait le focus). Vide = retour au total calculé.
+ *  ⭐ `data-manuel` dit si le total est celui du joueur — la feuille le souligne. */
 function champ(clef, valeur, manuel, surPrix) {
   const l = elx("label", "x5-ligne x5-ligne-champ");
   const c = elx("input", "x5-prix");
@@ -187,7 +174,7 @@ function champ(clef, valeur, manuel, surPrix) {
   c.inputMode = "decimal";
   c.value = or(valeur);
   c.dataset.manuel = manuel ? "oui" : "non";
-  c.setAttribute("aria-label", `${clef} — type a price to change it, empty it to go back`);
+  c.setAttribute("aria-label", `${clef} — type a total to change it, empty it to go back`);
   if (surPrix) c.addEventListener("change", () => surPrix(c.value));
   else c.disabled = true;
   l.append(elx("span", "x5-ligne-clef", clef), c);
@@ -202,7 +189,7 @@ function ligne(clef, valeur) {
 /** ⛔ Jamais de décimale fantôme : 0,5 GP s'écrit « 5 SP », pas « 0.5 GP ». */
 function or(n) {
   if (!Number.isFinite(n)) return "—";
-  /* ⭐ LOT 265 — l'arrondi est celui de `enPieces`, qui dit aussi ce que la bourse
+  /* ⭐ LOT 269 — l'arrondi est celui de `enPieces`, qui dit aussi ce que la bourse
      PAIE : l'écran ne peut plus afficher un prix et en facturer un autre. */
   const c = enPieces(n);
   if (!c) return "0 CP";
@@ -215,9 +202,9 @@ function or(n) {
  *  `Crafting` paie le coût de fabrication, `Buying` le prix d'achat, `Found` rien. */
 export function montantDuStatut(cote, status = "Crafting", prix = null) {
   if (!cote || !cote.legal || status === "Found") return 0;
-  /* ⭐ LOT 269 — un prix tapé remplace le prix UNITAIRE ; le total reste unité × paiements
-     (un lot de dix flèches se paie une fois). */
-  if (prix !== null && prix !== undefined) return prix * cote.paiements;
+  /* ⚖️ LOT 270 — « le Total encadré » EST ce qu'on tape (Eric, 25/09 : « oui ») : un prix
+     tapé est le TOTAL, et c'est lui que la bourse paie. */
+  if (prix !== null && prix !== undefined) return prix;
   return status === "Buying" ? cote.venteTotale : cote.craftTotal;
 }
 function motDuRefus(raison) {
@@ -228,22 +215,25 @@ function motDuRefus(raison) {
   }[raison] || "Not craftable.";
 }
 
-/** ⚖️ LA FICHE X5.
+/** ⚖️ LA FICHE X5 — BLUEPRINT (lot 270, la dictée d'Eric du 25/09).
  *  @param {object} o
- *   · `plan` — le RECORD du plan d'où l'on vient (`Weapon, +1, +2, or +3`…). C'est
- *     LUI qui dit quelles bases et quels bonus s'offrent — ⛔ rien n'est listé ici.
+ *   · `plan` — le RECORD du plan d'où l'on vient. C'est LUI qui dit quelles bases et
+ *     quels bonus s'offrent — ⛔ rien n'est listé ici.
  *   · `bases`, `itemsMagiques` — des RECORDS (⛔ pas des vues : `craft.mjs` est strict).
- *   · `choix` — `{ base, bonus, pouvoirs: [nom], qte, status, destination }`,
+ *   · `choix` — `{ base, bonus, pouvoirs: [nom], qte, status, destination, prix }`,
  *     l'état courant, TENU PAR L'APPELANT : cet écran ne garde rien, il redessine.
- *   · `fh` — la pile porte-t-elle Fate's Hand ? décide de la colonne gauche.
- *   · `surChoix(organe, valeur)` · `surAnnuler()` · `surEnvoyer(envoi)` — `envoi` =
- *     `{ base, bonus, pouvoirs, cote, status, destination, cout }`, des RECORDS ;
- *     l'appelant les change en références et paie. ⛔ Cet écran n'écrit rien.
+ *   · `fh` — la pile porte-t-elle Fate's Hand ? (le temps de craft)
+ *   · `surChoix(organe, valeur)` · `surAnnuler()` · `surEnvoyer(envoi)` · `surJeton(apercu)`
+ *     — `envoi` = `{ base, bonus, pouvoirs, cote, status, destination, cout }` ;
+ *     `apercu` = `{ nom, base, bonus, pouvoirs, cote, status }`, des RECORDS.
  *   · `alerte` — la phrase d'un refus de l'appelant (« Not enough coin… »).
+ *  ⛔ AUCUN ASCENSEUR, AUCUN `?` (Eric, 25/09) : tout tient dans la dalle (le générateur
+ *  le vérifie), et la fiche ne porte pas de bouton d'aide.
  *  @returns {{ noeud: HTMLElement, cote: object }} */
 export function construireX5(o = {}) {
   const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
-    surChoix = null, surAnnuler = null, surEnvoyer = null, alerte = "" } = o;
+    surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
+    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
 
   const offertesBases = plan ? basesDe(plan, bases) : bases;
   const base = offertesBases.find((b) => b.data.name === choix.base) || offertesBases[0] || null;
@@ -253,9 +243,10 @@ export function construireX5(o = {}) {
   const parNom = new Map(dispos.map((r) => [r.data.name, r]));
   const pris = (choix.pouvoirs || []).map((n) => parNom.get(n)).filter(Boolean);
   const status = choix.status || "Crafting";
+  const qte = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(Number(choix.qte)) || 1));
 
   const cote = coteDe({
-    base, bonus: bonusChoisi && bonusChoisi.rarete, qte: choix.qte,
+    base, bonus: bonusChoisi && bonusChoisi.rarete, qte,
     pouvoirs: pris.map((p) => p.data.rarity), fh,
   });
 
@@ -263,21 +254,23 @@ export function construireX5(o = {}) {
   n.dataset.objet = "x5";
   n.dataset.ecran = "X5";
   n.setAttribute("role", "group");
-  n.setAttribute("aria-label", "Recipe and craft");
+  n.setAttribute("aria-label", "Blueprint");
   n.dataset.status = status.toLowerCase();
-  /* ⭐ LA FICHE PORTE SA FEUILLE, comme X1 et X2 — ⛔ pas une feuille posée par le
-     pilote, qui pourrait survivre à la fiche ou manquer quand elle s'ouvre. */
+  /* ⭐ LA FICHE PORTE SA FEUILLE, comme X1 et X2. */
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
   feuille.textContent = feuilleDesCotesX5();
   n.append(feuille);
-  /* ⭐ ET LE PARCHEMIN DE LA FAMILLE — le même organe que X0, X1 et X2 : « la fiche ne
-     sait pas dessiner une feuille, elle sait qu'elle en porte une ». */
+  /* ⭐ ET LE PARCHEMIN DE LA FAMILLE — le même organe que X0, X1 et X2. */
   n.append(habilleEnParchemin(n, () => D.MARGE));
   if (!dispos.length) n.dataset.pouvoirs = "aucun";
 
-  /* ⚖️ LE TYPE EST CELUI DU PLAN — on vient de `Weapon, +1…` ou d'`Armor, +1…`, et
-     ce choix-là est déjà fait. ⛔ Un menu qui proposerait « Scroll » depuis une arme
+  /* ⚖️ LE TITRE — Eric, 25/09 : « le titre c'est Blueprint ». */
+  const titre = elx("h2", "x5-titre", "Blueprint");
+  titre.dataset.organe = "TITRE";
+  n.append(titre);
+
+  /* ⚖️ LE TYPE EST CELUI DU PLAN — ⛔ un menu qui proposerait « Scroll » depuis une arme
      mentirait sur ce qu'X5 sait faire aujourd'hui. */
   const type = plan && plan.data && plan.data.category === "armor" ? "Armor" : "Weapon";
   n.append(
@@ -288,11 +281,9 @@ export function construireX5(o = {}) {
     menu("BONUS", bonusChoisi && bonusChoisi.rarete,
       bonus.map((b) => ({ valeur: b.rarete, mot: b.mot })), surChoix, { aucun: "—" }));
 
-  /* ⚖️ LES DEUX POUVOIRS PORTENT CHACUN LA LISTE ENTIÈRE — Eric, 24/09 : « 2 dropdown à
-     10 pouvoirs, au cas où tu imaginais 5+5 ». ⭐ `encorePossibles` retire ce qui ferait
-     dépasser la limite, bonus compris — ⛔ ce n'est pas une règle anti-doublon. Le
-     pouvoir déjà pris par l'AUTRE case est retiré, lui, parce qu'un objet ne porte
-     pas deux fois la même propriété. */
+  /* ⚖️ LES DEUX POUVOIRS PORTENT CHACUN LA LISTE ENTIÈRE — « 2 dropdown à 10 pouvoirs ».
+     ⭐ `encorePossibles` retire ce qui ferait dépasser la limite ; le pouvoir déjà pris par
+     l'AUTRE case est retiré, un objet ne porte pas deux fois la même propriété. */
   for (const [i, nom] of [[0, "POWER 1"], [1, "POWER 2"]]) {
     const autres = pris.filter((_, k) => k !== i);
     const socle = [bonusChoisi && bonusChoisi.rarete, ...autres.map((p) => p.data.rarity)].filter(Boolean);
@@ -301,43 +292,60 @@ export function construireX5(o = {}) {
       offerts.map((r) => ({ valeur: r.data.name, mot: r.data.name })), surChoix, { aucun: "—" }));
   }
 
-  for (const f of D.ORGANES.filter((x) => x.nom.startsWith("FILET"))) {
-    const t = elx("div", "x5-filet");
-    t.dataset.organe = f.nom;
-    t.setAttribute("aria-hidden", "true");
-    n.append(t);
-  }
+  /* ⚖️ LA 4ᵉ LIGNE — « Crafting / Qty, plus petits, les deux dropdowns centrés ».
+     ⚖️ La quantité s'arrête à 10 : « je ne veux pas qu'une tuile puisse sortir du craft avec
+     plus de 10 » (Eric, 24/09). */
+  n.append(
+    menu("STATUS", status, ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix),
+    menu("QTY", String(qte), Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
 
-  n.append(menu("STATUS", status,
-    ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix));
   const prix = prixSaisi(choix.prix);
-  const pan = panneau(cote, status, prix, surChoix ? (v) => surChoix("PRIX", v) : null);
-  /* ⭐ LE REFUS DE L'APPELANT VIT DANS LE PANNEAU — ⛔ pas un organe de plus : la
-     fiche est cotée organe par organe (`x5-disposition`), et le panneau est déjà
-     l'endroit où X5 parle d'argent. */
-  if (alerte) {
-    const a = elx("p", "x5-panneau-refus", alerte);
-    a.setAttribute("role", "alert");
-    pan.append(a);
-  }
-  n.append(pan);
+  n.append(encart(cote, status, base, prix, surChoix ? (v) => surChoix("PRIX", v) : null, alerte, type));
 
-  n.append(menu("SEND TO", choix.destination || "backpack",
-    DESTINATIONS.filter((d) => d.valeur !== "craft")
-      .map((d) => ({ valeur: d.valeur, mot: d.mot, inactif: !d.actif })), surChoix));
+  /* ⚖️ LA PHRASE SOUS L'ENCART — Eric, 25/09 : « une petite phrase sous l'encart explique que
+     la somme sera débitée en cliquant sur Send ». */
+  const phrase = elx("p", "x5-phrase",
+    status === "Found" ? "Nothing is taken from your purse: you found it."
+      : "The total is taken from your purse when you tap Send.");
+  phrase.dataset.organe = "PHRASE";
+  n.append(phrase);
+
+  /* ⚖️ LE JETON DE L'OBJET — centré, cliquable : il ouvre une fiche X1 en APERÇU (Eric,
+     25/09 : « une fiche X1 avec uniquement un back, options de lock, attune, wear grisées »).
+     ⭐ Son nom vient de `nomCrafte`, la fonction du moteur : le jeton, la fiche et la ligne
+     posée par `Send` disent le MÊME nom. ⭐ Et son corps est celui de tous les jetons. */
+  const nomDuJeton = nomCrafte({ base: base ? base.data.name : "", bonus: bonusChoisi ? bonusChoisi.mot : null,
+    pouvoirs: pris.map((p) => p.data.name) });
+  const jeton = elx("button", "wares-jeton x5-jeton");
+  jeton.type = "button";
+  jeton.dataset.organe = "JETON";
+  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
+  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
+  if (surJeton && base) {
+    jeton.addEventListener("click", () => surJeton({ nom: nomDuJeton, base, bonus: bonusChoisi, pouvoirs: pris, cote, status }));
+  } else jeton.disabled = true;
+  n.append(jeton);
+
+  /* ⚖️ LA BOURSE À DROITE DU JETON — Eric, 25/09 : « on peut mettre l'item bourse à droite du
+     token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
+     posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
+  const purse = elx("button", "gear-bouton");
+  purse.type = "button";
+  purse.dataset.organe = "purse";
+  purse.setAttribute("aria-label", "Purse");
+  if (surBourse) purse.addEventListener("click", surBourse);
+  n.append(purse, montantDeLaBourse({ bourse }));
+  if (bourseOuverte) n.append(popupDeLaBourse({ bourse, surFermerBourse, surMonnaie }));
 
   const cancel = elx("button", "x5-porte", "Cancel");
   cancel.type = "button"; cancel.dataset.organe = "CANCEL";
   if (surAnnuler) cancel.addEventListener("click", surAnnuler);
+  const destination = choix.destination || "backpack";
   const send = elx("button", "x5-porte", "Send");
   send.type = "button"; send.dataset.organe = "SEND";
-  /* ⭐ LOT 265 — `SEND` POSE L'OBJET DANS LA FICHE (Eric, 25/09 : « l'objet crafté va
-     dans l'équipement du personnage »). Il s'arme quand l'assemblage est LÉGAL et
-     porte au moins un bonus ou un pouvoir — ⛔ une base nue n'est pas un craft,
-     c'est un achat, et il a sa porte (X2 · BUY).
-     ⛔ Il ne paie ni n'écrit rien lui-même : il rend à l'appelant ce qui a été
-     composé, et le montant du statut (`montantDuStatut`, arrondi par `enPieces`). */
-  const destination = choix.destination || "backpack";
+  /* ⭐ `SEND` POSE L'OBJET DANS LA FICHE (lot 265). Il s'arme quand l'assemblage est LÉGAL
+     et porte au moins un bonus ou un pouvoir — ⛔ une base nue n'est pas un craft. Il ne
+     paie ni n'écrit rien lui-même : il rend ce qui a été composé, et le montant. */
   const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
   const compose = Boolean(bonusChoisi) || pris.length > 0;
   const pret = Boolean(surEnvoyer) && Boolean(base) && cote.legal && compose && destOk;
@@ -349,13 +357,16 @@ export function construireX5(o = {}) {
       cout: enPieces(montantDuStatut(cote, status, prix)),
     }));
   } else {
-    /* ⛔ Un bouton inerte DIT pourquoi — un bouton muet est pire qu'absent. */
     const pourquoi = !compose ? "choose a bonus or a power first"
       : !cote.legal ? "this assembly is not craftable" : "not available here";
     send.title = `Send — ${pourquoi}`;
     send.setAttribute("aria-label", `Send — not available: ${pourquoi}`);
   }
-  n.append(cancel, send);
+  n.append(cancel,
+    menu("SEND TO", destination,
+      DESTINATIONS.filter((d) => d.valeur !== "craft")
+        .map((d) => ({ valeur: d.valeur, mot: d.mot, inactif: !d.actif })), surChoix),
+    send);
 
   return { noeud: n, cote };
 }

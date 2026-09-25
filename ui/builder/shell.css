@@ -13389,54 +13389,65 @@ button.tuto-point::before {
 .x5-drop:disabled { cursor: default; opacity: .55; }
 .x5-drop:disabled .x5-drop-chevron { visibility: hidden; }
 
-/* ⚖️ LE FILET EST CELUI DE X1 — même largeur, même encre, même lozenge.
-   ⛔ Deux fiches, un seul trait : s'il change, il change pour les deux. */
-/* ⛔ AUCUNE COTE ICI : `left`, `top`, `width` et `height` viennent de la table,
-   par `feuilleDesCotesX5()`. 🔴 J'avais écrit `left: 73px; width: 229px` — un
-   garde du dépôt l'a refusé, et il avait raison : c'est exactement la cote que
-   le plan génère, recopiée à la main à deux endroits. */
-.x5-filet {
-  background: linear-gradient(var(--x1-trait), var(--x1-trait)) center / 100% 1px no-repeat;
+/* ══ X5 — LA FICHE BLUEPRINT (lot 270, la dictée d'Eric du 25/09) ══════════════════
+   ⛔ AUCUNE COTE ICI : `left`, `top`, `width` et `height` viennent de la table, par
+   `feuilleDesCotesX5()`. Cette feuille porte la PEAU — encres, traits, corps.
+   🗄️ Le panneau à deux régimes, les deux filets et le ROLL du lot 259 sont partis : Eric,
+   25/09 — « pas de jets pour produire les regular magic items (SRD comme FH) ». */
+
+/* ⚖️ LE TITRE — « le titre c'est Blueprint ». L'encre du titre de X1 (oxblood). */
+.x5-titre {
+  margin: 0; display: flex; align-items: center; justify-content: center;
+  font-size: var(--t3); font-weight: 600; color: var(--x1-oxblood);
 }
 
-.x5-panneau {
-  display: flex; gap: var(--sp-4);
-  padding: var(--sp-4);
+/* ⚖️ L'ENCART — « deux colonnes de taille égale ». ⭐ La grille les fait égales, ⛔ aucune
+   largeur écrite. Un fond léger et un trait pointillé : le cadre des calculs de X5. */
+.x5-encart {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-16);
+  padding: var(--sp-8);
   background: color-mix(in srgb, var(--x1-encre) 5%, transparent);
   border: 1px dashed var(--x1-trait); border-radius: var(--radius-sm);
   overflow: hidden;
 }
-/* ⚖️ LA COLONNE GAUCHE N'EXISTE QU'EN PILE FATE'S HAND — et son absence n'est pas
-   un `display:none` : l'écran ne la CONSTRUIT pas. ⛔ Un organe caché reste dans
-   le DOM, dans la tabulation et dans le nom accessible ; un organe absent, non. */
-.x5-panneau-prereq { flex: 0 0 auto; display: flex; flex-direction: column; gap: var(--sp-1); }
-.x5-panneau-argent { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-.x5-panneau-titre { margin: 0; font-size: var(--t1); font-weight: 600; color: var(--x1-encre-douce); }
-.x5-roll {
-  align-self: flex-start; margin-top: auto;
-  min-width: var(--bouton-petit, 77px); min-height: var(--touch);
-  font: inherit; font-size: var(--t1); font-weight: 600; letter-spacing: .08em;
-  color: var(--x1-encre); background: transparent;
-  border: 1px solid var(--x1-trait); border-radius: var(--radius-sm); cursor: pointer;
+/* Found et le refus : une phrase, sur toute la largeur de l'encart. */
+.x5-encart:is([data-regime="found"], [data-regime="refus"]) { grid-template-columns: 1fr; align-content: center; }
+.x5-encart-col { min-width: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+/* ⚖️ « Crafting · Cost / trait rouge » — l'en-tête de la colonne 1 et son trait oxblood. */
+.x5-encart-tete {
+  display: flex; justify-content: space-between;
+  font-size: var(--t1); font-weight: 600; color: var(--x1-encre);
+  padding-bottom: var(--sp-2); border-bottom: 1px solid var(--x1-oxblood);
 }
-.x5-ligne { display: flex; justify-content: space-between; gap: var(--sp-2); font-size: var(--t1); }
-.x5-ligne-clef { color: var(--x1-encre-douce); }
+/* la colonne 2 pose le temps en haut et la rangée du total en bas */
+.x5-encart-droite { justify-content: space-between; }
+.x5-ligne { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); font-size: var(--t1); }
+.x5-ligne-clef { color: var(--x1-encre-douce); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .x5-ligne-valeur { font-weight: 600; font-variant-numeric: tabular-nums; }
-/* ⭐ LOT 269 — LE PRIX QUI SE TAPE : la matière du champ de prix de X2 (`.pipeline-typein`),
-   à l'encre du parchemin. La cible tactile reste 44 (`--touch`, ⛔ ne cède jamais).
-   Un prix tapé par le joueur se souligne : il se distingue du prix calculé. */
+/* ⭐ LE TOTAL QUI SE TAPE — la matière du champ de prix de X2, à l'encre du parchemin, « dans
+   un encart ». La cible tactile reste 44 (`--touch`, ⛔ ne cède jamais). Un total tapé par le
+   joueur se souligne : il se distingue du total calculé. */
 .x5-ligne-champ { align-items: center; }
 .x5-prix {
-  min-height: var(--touch); max-width: 12ch; text-align: right; font: inherit;
+  min-height: var(--touch); max-width: 10ch; text-align: right; font: inherit;
   font-weight: 600; font-variant-numeric: tabular-nums;
   background: none; color: var(--x1-encre);
   border: 1px solid var(--x1-trait); border-radius: var(--radius-sm);
   padding-inline: var(--sp-2);
 }
 .x5-prix[data-manuel="oui"] { text-decoration: underline; }
-/* 🔴 LE REFUS SE LIT, il ne se devine pas à un champ vide. Un prix absent qui
-   s'affiche « 0 GP » est plausible, et personne ne le vérifie. */
-.x5-panneau-refus { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-etat-encre); }
+/* 🔴 LE REFUS SE LIT, il ne se devine pas à un champ vide. */
+.x5-encart-refus { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-etat-encre); }
+/* ⚖️ LA RARETÉ — « rare weapon », sous le temps de craft. */
+.x5-encart-rarete { margin: 0; font-size: var(--t1); font-weight: 600; color: var(--x1-oxblood); }
+/* ⚖️ FOUND — la phrase du croquis, sans champ. */
+.x5-encart-libre { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); }
+
+/* ⚖️ LA PHRASE SOUS L'ENCART — « la somme sera débitée en cliquant sur Send ». */
+.x5-phrase {
+  margin: 0; text-align: center;
+  font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce);
+}
 
 .x5-porte {
   font: inherit; font-size: var(--t2); font-weight: 600;
@@ -13444,8 +13455,6 @@ button.tuto-point::before {
   border: 1px solid var(--x1-trait); border-radius: var(--radius-sm); cursor: pointer;
 }
 .x5-porte:disabled { cursor: default; opacity: .45; }
-/* ⚖️ FOUND — la phrase du croquis, sans champ. */
-.x5-panneau-libre { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-encre-douce); }
 /* ⭐ LE MENU NATIF PORTE SON PROPRE CHEVRON : `appearance: none` le retire, et on le
    repeint dans l'encre du parchemin — ⛔ jamais deux chevrons côte à côte. */
 select.x5-drop {

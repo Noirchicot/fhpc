@@ -2924,6 +2924,8 @@ let ficheEnCours = null;
    ⛔ L'écran ne garde rien, il redessine : c'est ici que vit l'état, comme pour X2.
    `{ plan: ref, choix: { base, bonus, pouvoirs, qte, status, destination }, retour }` */
 let ficheX5 = null;
+/* ⭐ LOT 270 — l'aperçu du jeton de X5 : `{ nom, base, bonus, pouvoirs, cote, status }`. */
+let apercuX5 = null;
 let piloteEquipement = null;
 /* LOT 212 — l'état du collecteur d'envoi : les index `gear[N]` retenus, et la
    destination choisie au dropdown. De l'ÉTAT D'ÉCRAN, comme la vue : il
@@ -3203,14 +3205,17 @@ export function renderEquipmentStep(ctx, onAction) {
         plan: l.plan ? cherche.record(l.plan) : null,
         pouvoirs: (l.pouvoirs || []).filter(Boolean).map((p) => cherche.record(p)).filter(Boolean) }
     : null;
-  const valeurDeLaLigne = (l) => {
-    const rec = cherche.record(l.ref);
+  /* ⭐ LOT 270 — UNE RECETTE SE LIT PAR UNE SEULE PORTE, qu'elle soit POSÉE (une ligne) ou
+     encore en CRÉATION (l'aperçu du jeton de X5). ⛔ Deux lectures de la même recette
+     diraient deux prix. */
+  const valeurDUneRecette = (rec, r) => {
     const v = cherche.valeur(rec);
-    const r = recetteDeLaLigne(l);
     if (!r) return v;
     return { cout: valeurDUnObjetCrafte({ base: rec, plan: r.plan, bonus: r.bonus, pouvoirs: r.pouvoirs }), poids: v.poids };
   };
-  const proseDeLaLigne = (l) => recordProse({ record: cherche.record(l.ref) || null }, recetteDeLaLigne(l));
+  const proseDUneRecette = (rec, r) => recordProse({ record: rec || null }, r);
+  const valeurDeLaLigne = (l) => valeurDUneRecette(cherche.record(l.ref), recetteDeLaLigne(l));
+  const proseDeLaLigne = (l) => proseDUneRecette(cherche.record(l.ref), recetteDeLaLigne(l));
 
   /* ⭐ LES MATIÈRES DE X5, UNE PASSE PAR RENDU — des RECORDS, pas des vues :
      `craft.mjs` est strict (lot 258), et c'est ce qui a coûté la diagonale au 256. */
@@ -4287,7 +4292,8 @@ export function renderEquipmentStep(ctx, onAction) {
            pouvoir ou le statut le rend au prix calculé. ⛔ Sinon un prix tapé pour une dague
            survivrait sur une armure de plate. */
         if (organe === "PRIX") c.prix = String(valeur || "").trim() || null;
-        else if (["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS"].includes(organe)) c.prix = null;
+        else if (["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS", "QTY"].includes(organe)) c.prix = null;
+        if (organe === "QTY") c.qte = Number(valeur) || 1;
         if (organe === "ITEM") { c.base = valeur; c.pouvoirs = []; }   /* ⛔ une autre base, d'autres pouvoirs */
         else if (organe === "BONUS") c.bonus = valeur || null;
         else if (organe === "POWER 1" || organe === "POWER 2") {
@@ -4304,6 +4310,15 @@ export function renderEquipmentStep(ctx, onAction) {
          le joueur retrouve le plan qu'il regardait. */
       surAnnuler: () => { const r = ficheX5.retour || "x2"; ficheX5 = null; montrer(r); },
       alerte: ficheX5.alerte || "",
+      /* ⭐ LA BOURSE DE X5 EST CELLE DE R, DU SAC ET DE WARES — même état de module. */
+      bourse, bourseOuverte,
+      surBourse: () => { bourseOuverte = !bourseOuverte; peindre(); },
+      surFermerBourse: () => { bourseOuverte = false; peindre(); },
+      surMonnaie: (key, value) => actArbitre({ kind: "setCurrency", key, value }),
+      /* ⚖️ LE JETON OUVRE UNE FICHE X1 EN APERÇU — Eric, 25/09 : « une fiche X1 avec uniquement
+         un back, options de lock, attune, wear grisées ». ⭐ L'objet n'existe pas encore :
+         la fiche montre ce qu'il SERA (nom, prix, poids, texte) et ne permet rien d'autre. */
+      surJeton: (a) => { apercuX5 = a; montrer("x1-apercu"); },
       /* ⭐ LOT 265 — `SEND` : l'objet entre dans l'équipement du personnage.
          ⚖️ Eric, 25/09 : le craft SE PAIE (a), l'objet arrive TOUT DE SUITE (a), le
          site ne stocke rien (a). ⭐ Même chemin qu'un achat en X2 — `payer` puis
@@ -4342,7 +4357,35 @@ export function renderEquipmentStep(ctx, onAction) {
     return noeud;
   }
 
+  /* ⭐ LA FICHE X1 D'APERÇU — le même organe que X1, en mode `apercu`. Son nom, son prix et
+     son texte viennent des MÊMES fonctions que la ligne que `Send` posera : `nomCrafte`,
+     `valeurDUnObjetCrafte`, `recordProse(…, recette)`. ⛔ Aucune troisième composition. */
+  function construireApercuX5() {
+    const a = apercuX5;
+    const qte = a.cote && a.cote.qte ? a.cote.qte : 1;
+    const bonus = a.bonus ? a.bonus.mot : null;
+    const planRec = ficheX5 ? (ficheX5.planRecord || cherche.record(ficheX5.plan)) : null;
+    const refBase = refDuRecord.get(a.base);
+    const recette = { kind: refBase ? refBase.kind : "", bonus, pouvoirs: a.pouvoirs, plan: planRec };
+    const { cout, poids } = valeurDUneRecette(a.base, recette);
+    const coutLu = parseCout(cout || "");
+    const { noeud } = construireLaFicheX1({
+      apercu: true,
+      objet: {
+        index: -1, nom: a.nom, qte,
+        prixUnite: cout || "",
+        prixTotal: coutLu ? formatCout(multiplieCout(coutLu, qte)).toLowerCase() : "",
+        poidsUnite: poids || "", poidsTotal: "",
+        prose: proseDUneRecette(a.base, recette),
+        genre: refBase ? refBase.kind : "", equipped: false, attuned: false, locked: false,
+      },
+      surPorte: (porte) => { if (porte === "close") { apercuX5 = null; montrer("x5"); } },
+    });
+    return noeud;
+  }
+
   function construireVue(vue) {
+    if (vue === "x1-apercu" && apercuX5 && ficheX5) return construireApercuX5();
     if (vue === "r") return construireWares();
     if (vue === "x5" && ficheX5) return construireX5Vue();
     if (vue === "x1" && ficheX1 !== null) return construireX1();

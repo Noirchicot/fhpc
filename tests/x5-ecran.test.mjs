@@ -25,6 +25,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
 const D = await import("../ui/builder/x5-disposition.mjs");
 const { construireX5, feuilleDesCotesX5 } = await import("../ui/builder/x5-ecran.mjs");
+const { reglesDeLaBourse } = await import("../ui/builder/gear-ecran.mjs");
 const { pouvoirsDe, bonusDe, enPieces, prixSaisi } = await import("../ui/builder/craft.mjs");
 
 const query = exempleFhEn().layers.verbs.query;
@@ -43,6 +44,8 @@ function monte(o) {
   finally { if (avant === undefined) delete globalThis.document; else globalThis.document = avant; }
 }
 const organes = (n) => [...n.querySelectorAll("[data-organe]")].map((e) => e.dataset.organe);
+/* ⭐ La bourse et son montant gardent le nom d'organe de R (`purse`, `montant`). */
+const organeDom = (nom) => ({ PURSE: "purse", MONTANT: "montant" }[nom] || nom);
 
 /* ══ ① LE PLAN ═════════════════════════════════════════════════════════════ */
 
@@ -50,7 +53,7 @@ test("1 — ⭐ LA FEUILLE LIT LA TABLE, et n'écrit AUCUN nombre à elle", () =
   const f = feuilleDesCotesX5();
   for (const o of D.ORGANES) {
     const b = o.cible || o;
-    assert.match(f, new RegExp(`\\[data-organe="${o.nom}"\\]\\{[^}]*left:${b.x}px`),
+    assert.match(f, new RegExp(`\\[data-organe="${organeDom(o.nom)}"\\]\\{[^}]*left:${b.x}px`),
       `⛔ ${o.nom} n'est pas posé à la cote de la table (${b.x})`);
   }
   /* ⚔️ ET LE GARDE SAIT ACCUSER UNE COTE INVENTÉE : tout nombre de la feuille doit
@@ -65,6 +68,11 @@ test("1 — ⭐ LA FEUILLE LIT LA TABLE, et n'écrit AUCUN nombre à elle", () =
      rougissant : j'avais donné sa largeur à `.x5` sans l'inscrire ici, et il a
      refusé le 375 comme un nombre écrit à la main. C'est exactement son office. */
   connus.add(String(D.DALLE.h));
+  /* ⭐ LOT 270 — LE POPUP DE LA BOURSE a ses cotes chez son unique écrivain (`reglesDeLaBourse`,
+     gear-ecran) : elles sont connues parce qu'elles VIENNENT de là, ⛔ pas écrites ici. */
+  for (const r of reglesDeLaBourse(".x5", D.ORGANES.find((o) => o.nom === "PURSE"), D.DALLE, 0)) {
+    for (const m of r.matchAll(/(?:left|top|width|height|padding|border-width):(-?[\d.]+)px/g)) connus.add(m[1]);
+  }
   /* ⭐ Lot 262 : la LARGEUR n'est plus écrite ici — la boîte partagée la porte. */
   for (const m of f.matchAll(/(?:left|top|width|height):(-?[\d.]+)px/g)) {
     assert.ok(connus.has(m[1]),
@@ -74,7 +82,7 @@ test("1 — ⭐ LA FEUILLE LIT LA TABLE, et n'écrit AUCUN nombre à elle", () =
 
 test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins", () => {
   const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } });
-  const attendus = new Set(D.ORGANES.map((o) => o.nom));
+  const attendus = new Set(D.ORGANES.map((o) => organeDom(o.nom)));
   const vus = new Set(organes(noeud));
   for (const nom of attendus) {
     assert.ok(vus.has(nom), `⛔ ${nom} est au plan et absent de l'écran`);
@@ -107,12 +115,13 @@ test("4 — ⭐ ET TOUT CE QUI SUIT REMONTE DE LA HAUTEUR RENDUE", () => {
      rien tout seul. C'est le genre de défaut qu'aucun garde de fichier ne voit —
      il faut regarder l'image, ou l'écrire ici. */
   const f = feuilleDesCotesX5();
-  const apres = D.ORGANES.filter((o) => (o.cible || o).y > 100);
+  const yPouvoirs = D.ORGANES.find((o) => o.nom === "POWER 1").cible.y;
+  const apres = D.ORGANES.filter((o) => (o.cible || o).y > yPouvoirs);
   assert.ok(apres.length >= 5, "il y a bien des organes sous la rangée des pouvoirs");
   for (const o of apres) {
     const b = o.cible || o;
     assert.match(f, new RegExp(
-      `\\[data-pouvoirs="aucun"\\] \\[data-organe="${o.nom}"\\]\\{top:${b.y - D.H_RANGEE}px\\}`),
+      `\\[data-pouvoirs="aucun"\\] \\[data-organe="${organeDom(o.nom)}"\\]\\{top:${b.y - D.H_RANGEE}px\\}`),
       `⛔ ${o.nom} ne remonte pas de ${D.H_RANGEE} quand la rangée s'efface`);
   }
 });
@@ -167,21 +176,22 @@ test("7 — 🔴 UN ASSEMBLAGE HORS LIMITE NE S'ENVOIE PAS, ET IL DIT POURQUOI",
   assert.equal(cote.legal, false);
   const send = noeud.querySelector('[data-organe="SEND"]');
   assert.equal(send.disabled, true, "⛔ on n'envoie pas une tuile qui n'existe pas");
-  const refus = noeud.querySelector(".x5-panneau-refus");
+  const refus = noeud.querySelector(".x5-encart-refus");
   assert.ok(refus && refus.textContent.length > 10,
-    "🔴 et le panneau DIT pourquoi — un champ vide, ou un « 0 GP », serait plausible "
+    "🔴 et l'encart DIT pourquoi — un champ vide, ou un « 0 GP », serait plausible "
     + "et personne ne le vérifierait");
   assert.equal(noeud.querySelector(".x5-ligne-valeur"), null,
     "⛔ aucune ligne d'argent quand il n'y a pas de prix juste à donner");
 });
 
-test("8 — ⚖️ EN PILE SRD, LA COLONNE GAUCHE N'EST PAS CONSTRUITE", () => {
-  /* ⚖️ « colonne de gauche inutile en SRD car pas de crafting time ». ⛔ ABSENTE du DOM. */
+test("8 — ⚖️ LE TEMPS DE CRAFT : rempli en FH, VIDE en SRD (lot 270)", () => {
+  /* ⚖️ Eric, 25/09 : « Crafting time (SRD vide / FH rempli) ». ⛔ Vide, pas « 0 » ni « — ». */
   const choix = { base: "Dagger", bonus: "Rare" };
   const fh = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix, fh: true });
   const srd = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix, fh: false });
-  assert.ok(fh.noeud.querySelector(".x5-panneau-prereq"), "en Fate's Hand, elle est là");
-  assert.equal(srd.noeud.querySelector(".x5-panneau-prereq"), null, "⛔ en SRD, ABSENTE du DOM");
+  const temps = (n) => n.noeud.querySelector(".x5-encart-droite .x5-ligne-valeur").textContent;
+  assert.ok(temps(fh).length > 0, `en Fate's Hand, il est rempli (« ${temps(fh)} »)`);
+  assert.equal(temps(srd), "", "⛔ en SRD, VIDE");
   assert.equal(srd.cote.craftUnitaire, fh.cote.craftUnitaire, "⭐ le PRIX est le même");
 });
 
@@ -259,25 +269,27 @@ test("11 bis — ⛔ `SEND` INERTE DIT POURQUOI : base nue, assemblage illégal,
   assert.equal(illegal.noeud.querySelector('[data-organe="SEND"]').disabled, true);
 });
 
-test("11 ter — ⭐ LE REFUS DE L'APPELANT S'AFFICHE DANS LE PANNEAU, pas dans un organe de plus", () => {
+test("11 ter — ⭐ LE REFUS DE L'APPELANT S'AFFICHE DANS L'ENCART, pas dans un organe de plus", () => {
   const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, surEnvoyer: () => {},
     choix: { base: "Longsword", bonus: "Uncommon" }, alerte: "Not enough coin in the purse." });
-  const a = noeud.querySelector('[data-organe="PANNEAU"] [role="alert"]');
-  assert.ok(a, "l'alerte est DANS le panneau");
+  const a = noeud.querySelector('[data-organe="ENCART"] [role="alert"]');
+  assert.ok(a, "l'alerte est DANS l'encart");
   assert.equal(a.textContent, "Not enough coin in the purse.");
 });
 
-test("12 — ⚖️ LES TROIS RÉGIMES DU PANNEAU suivent le STATUS", () => {
+test("12 — ⚖️ LES TROIS RÉGIMES DE L'ENCART suivent le STATUS", () => {
   const choix = { base: "Longsword", bonus: "Uncommon" };
   const achat = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Buying" } });
   const trouve = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Found" } });
   const craft = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix });
   const cles = (n) => [...n.noeud.querySelectorAll(".x5-ligne-clef")].map((e) => e.textContent);
-  assert.deepEqual(cles(achat), ["Price", "Qty · Total"], "⚖️ Buying : price · qty · total, et rien d'autre (lot 269 : `Price` se tape)");
-  assert.equal(achat.noeud.querySelector(".x5-panneau-prereq"), null, "⛔ on n'achète pas un temps de craft");
+  const tete = (n) => (n.noeud.querySelector(".x5-encart-tete") || { textContent: "" }).textContent;
+  assert.deepEqual(cles(craft), ["Longsword", "Enchanting", "Total", "Crafting time", "Qty 1 · Total"],
+    "⚖️ la dictée : la base · Enchanting · Total | Crafting time · Qty · Total");
+  assert.equal(tete(craft), "CraftingCost");
+  assert.equal(tete(achat), "BuyingCost", "⭐ en Buying, la colonne dit ce que l'on PAIE");
   assert.deepEqual(cles(trouve), [], "⚖️ Found : aucun champ");
-  assert.ok(trouve.noeud.querySelector(".x5-panneau-libre"), "⭐ la phrase du croquis, à la place");
-  assert.ok(cles(craft).includes("Crafting cost"), "Crafting : le coût de fabrication");
+  assert.ok(trouve.noeud.querySelector(".x5-encart-libre"), "⭐ la phrase du croquis, à la place");
 });
 
 test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, et nulle part ailleurs", async () => {
@@ -375,19 +387,19 @@ test("16 — ⚖️ UN PLAN MÈNE DIRECTEMENT À X5, et les trois chemins du cat
 
 /* ══ LOT 269 — LE COÛT DE LA BASE, ET LE PRIX QUI SE TAPE ═══════════════════════ */
 
-test("17 — ⚖️ « CRAFTING COST OF THE BASE ITEM : 200 » pour la Breastplate — et les trois lignes s'additionnent", () => {
-  /* ⚖️ Eric, 25/09 : « mets de base la moitié du prix de l'armure ». 🔴 La ligne montrait le
-     PRIX (400) : 400 + 2 000 affichés, 2 200 facturés. */
-  const { noeud } = monte({ plan: PLAN_ARMURE, bases, itemsMagiques: magiques,
-    choix: { base: "Breastplate", bonus: "Rare" }, surChoix: () => {} });
-  const lignes = Object.fromEntries([...noeud.querySelectorAll(".x5-ligne")]
-    .map((l) => [l.querySelector(".x5-ligne-clef").textContent,
-                 (l.querySelector(".x5-ligne-valeur") || l.querySelector("input")).textContent
-                 || (l.querySelector("input") || {}).value]));
-  assert.equal(lignes["Crafting cost of the base item"], "200 GP", "⭐ la MOITIÉ de 400");
-  assert.equal(lignes["Crafting cost"], "2,000 GP", "la moitié de 4 000 (+1 Armor est Rare)");
-  assert.equal(noeud.querySelector("input.x5-prix").value, "2,200 GP", "⭐ 200 + 2 000 : ce qui est affiché s'additionne");
-  assert.equal(lignes["Base item cost"], undefined, "⛔ l'ancienne ligne (le PRIX de la base) n'existe plus");
+test("17 — ⚖️ L'ENCART DE LA BREASTPLATE +1 : 200 · 2,000 · 2,200 — et ×2, un total de 4,400", () => {
+  /* ⚖️ Eric, 25/09 : « Breastplate 200 · Enchanting 2000 · Total 2200 · Qty 2 Total 4400 ». */
+  const monteQ = (qte) => monte({ plan: PLAN_ARMURE, bases, itemsMagiques: magiques,
+    choix: { base: "Breastplate", bonus: "Rare", qte }, surChoix: () => {} });
+  const lignes = (n) => Object.fromEntries([...n.querySelectorAll(".x5-encart-couts .x5-ligne")]
+    .map((l) => [l.querySelector(".x5-ligne-clef").textContent, l.querySelector(".x5-ligne-valeur").textContent]));
+  const un = monteQ(1).noeud;
+  assert.deepEqual(lignes(un), { Breastplate: "200 GP", Enchanting: "2,000 GP", Total: "2,200 GP" },
+    "⭐ la MOITIÉ de 400, la moitié de 4 000 (+1 Armor est Rare), et ce qui s'additionne");
+  assert.equal(un.querySelector("input.x5-prix").value, "2,200 GP");
+  const deux = monteQ(2).noeud;
+  assert.equal(deux.querySelector("input.x5-prix").value, "4,400 GP", "⭐ Qty 2 · Total 4,400");
+  assert.equal([...deux.querySelector('[data-organe="QTY"]').children].find((o) => o.selected).value, "2");
 });
 
 test("18 — ⭐ LE PRIX SE TAPE : il remplace l'unitaire, le total et ce que `Send` paie — vide, il revient", () => {
@@ -417,5 +429,100 @@ test("19 — ⛔ UN PRIX TAPÉ NE SURVIT PAS À UN AUTRE ASSEMBLAGE", () => {
   const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8")
     .replace(/\/\*[\s\S]*?\*\//g, " ");
   assert.match(src, /if \(organe === "PRIX"\) c\.prix = /);
-  assert.match(src, /\["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS"\]\.includes\(organe\)\) c\.prix = null/);
+  assert.match(src, /\["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS", "QTY"\]\.includes\(organe\)\) c\.prix = null/);
+});
+
+/* ══ LOT 270 — LA FICHE BLUEPRINT ═══════════════════════════════════════════════ */
+
+test("20 — ⚖️ BLUEPRINT : le titre, ⛔ AUCUN JET, ⛔ AUCUN `?`", () => {
+  /* ⚖️ Eric, 25/09 : « le titre c'est Blueprint » · « pas de jets pour produire les regular
+     magic items (SRD comme FH) » · « pas de point d'interrogation ». */
+  for (const fh of [true, false]) {
+    const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, fh,
+      choix: { base: "Longsword", bonus: "Uncommon" } });
+    assert.equal(noeud.querySelector('[data-organe="TITRE"]').textContent, "Blueprint");
+    const textes = [...noeud.querySelectorAll("button, select, p, span, h2")].map((e) => e.textContent.trim());
+    assert.ok(!textes.some((t) => /^roll$/i.test(t)), `⛔ aucun ROLL (${fh ? "FH" : "SRD"})`);
+    assert.ok(!textes.some((t) => /\bDC\b/.test(t)), "⛔ aucun DC");
+    assert.ok(!textes.includes("?"), "⛔ aucun bouton `?`");
+    assert.equal(noeud.querySelector(".x5-roll"), null);
+  }
+});
+
+test("21 — ⚖️ LA QUANTITÉ : un menu de 1 à 10, et elle remet le total tapé à zéro", () => {
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" }, surChoix: () => {} });
+  const q = noeud.querySelector('[data-organe="QTY"]');
+  assert.deepEqual([...q.children].map((o) => o.value), ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+    "⚖️ « je ne veux pas qu'une tuile puisse sortir du craft avec plus de 10 »");
+});
+
+test("22 — ⭐ LE JETON PORTE LE NOM DE L'OBJET, et le tap rend l'aperçu à l'appelant", () => {
+  const recus = [];
+  const flamme = pouvoirsDe(armes.get("Longsword"), magiques).find((r) => r.data.name === "Flame Tongue");
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques,
+    choix: { base: "Longsword", bonus: "Uncommon", pouvoirs: [flamme.data.name] }, surJeton: (a) => recus.push(a) });
+  const jeton = noeud.querySelector('[data-organe="JETON"]');
+  assert.equal(jeton.querySelector(".jeton-nom").textContent, "Longsword +1 (Flame Tongue)",
+    "⭐ le nom du moteur (`nomCrafte`) — celui que `Send` posera");
+  jeton.dispatchEvent(new Event("click"));
+  assert.equal(recus.length, 1);
+  assert.equal(recus[0].nom, "Longsword +1 (Flame Tongue)");
+  assert.equal(recus[0].base.data.name, "Longsword", "⭐ des RECORDS, pour que la fiche se compose");
+});
+
+test("23 — ⚖️ LA BOURSE À DROITE DU JETON, l'organe de R : image, montant dessus, popup", () => {
+  /* ⚖️ Eric, 25/09 : « on peut mettre l'item bourse à droite du token (idem celui de gear) ». */
+  let ouverte = 0;
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" },
+    bourse: { cp: 0, sp: 0, gp: 150, pp: 0 }, surBourse: () => { ouverte += 1; } });
+  const purse = noeud.querySelector('[data-organe="purse"]');
+  assert.ok(purse && purse.className.includes("gear-bouton"), "⭐ le bouton de R — il porte l'image de la bourse");
+  assert.ok(noeud.querySelector('[data-organe="montant"]'), "⭐ le montant posé DESSUS");
+  purse.dispatchEvent(new Event("click"));
+  assert.equal(ouverte, 1, "le tap ouvre la bourse");
+  const j = D.ORGANES.find((o) => o.nom === "JETON"), p = D.ORGANES.find((o) => o.nom === "PURSE");
+  assert.ok(p.x > j.x + j.l, "📏 à DROITE du jeton");
+  const ouvert = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" },
+    bourse: { cp: 0, sp: 0, gp: 150, pp: 0 }, bourseOuverte: true });
+  assert.ok(ouvert.noeud.querySelector(".gear-bourse"), "⭐ le popup de R, ⛔ pas un second");
+});
+
+test("24 — ⚖️ LE PLAN : aucun ascenseur — tout tient dans la dalle", () => {
+  /* ⚖️ Eric, 25/09 : « et aucun ascenseur là-dedans ». Le générateur le vérifie ; ce garde le
+     relit dans la table recopiée, pour qu'une table éditée à la main ne le contredise pas. */
+  const bas = Math.max(...D.ORGANES.map((o) => { const b = o.cible || o; return b.y + b.h; }));
+  assert.ok(bas + D.MARGE <= D.DALLE.h, `📏 ${bas + D.MARGE} ≤ ${D.DALLE.h}`);
+  assert.doesNotMatch(feuilleDesCotesX5(), /overflow[^;]*:\s*(auto|scroll)/, "⛔ aucun défilement dans la feuille de X5");
+});
+
+test("25 — ⚖️ LA RARETÉ EST CITÉE : « Rare armor » pour la Breastplate +1, « Uncommon weapon » pour une épée +1", () => {
+  /* ⚖️ Eric, 25/09 : « il faut citer la rareté — crafting time 3 days (FH) · rare weapon ». */
+  const r = (plan, choix) => monte({ plan, bases, itemsMagiques: magiques, choix })
+    .noeud.querySelector(".x5-encart-rarete").textContent;
+  assert.equal(r(PLAN_ARMURE, { base: "Breastplate", bonus: "Rare" }), "Rare armor", "+1 Armor est Rare");
+  assert.equal(r(PLAN_ARME, { base: "Longsword", bonus: "Uncommon" }), "Uncommon weapon");
+  assert.equal(r(PLAN_ARME, { base: "Longsword", bonus: "Very Rare" }), "Very Rare weapon");
+});
+
+test("26 — ⚖️ L'APERÇU X1 DU JETON : Close seul, Equip · Attune · Lock grisés, le reste retiré", async () => {
+  /* ⚖️ Eric, 25/09 : « une fiche X1 avec uniquement un back, options de lock, attune, wear
+     grisées ». ⭐ `Close` et pas `Back` : `Back` est exclusif à la coquille. */
+  const { construireLaFicheX1 } = await import("../ui/builder/x1-ecran.mjs");
+  const avant = globalThis.document;
+  globalThis.document = createTestDocument();
+  try {
+    const { noeud } = construireLaFicheX1({ apercu: true, objet: { nom: "Breastplate +1", qte: 1, prose: "AC: 15" } });
+    const par = (id) => noeud.querySelector(`[data-organe="${id}"]`);
+    for (const id of ["equip-on", "attune-on", "lock-on"]) {
+      assert.ok(par(id), `${id} est là`);
+      assert.equal(par(id).disabled, true, `⛔ ${id} est GRISÉ, pas retiré`);
+    }
+    assert.ok(par("close") && !par("close").hidden, "⭐ Close reste");
+    for (const id of ["use", "envoyer", "trash", "send-vers", "is-quoi", "copier", "oeil"]) {
+      const e = par(id);
+      assert.ok(!e || e.hidden === true, `⛔ ${id} est retiré de l'aperçu`);
+    }
+    const normal = construireLaFicheX1({ objet: { nom: "Breastplate", qte: 1 } }).noeud;
+    assert.equal(normal.querySelector('[data-organe="trash"]').hidden, false, "⚔️ témoin : hors aperçu, rien ne se retire");
+  } finally { if (avant === undefined) delete globalThis.document; else globalThis.document = avant; }
 });
