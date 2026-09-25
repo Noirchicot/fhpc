@@ -7619,7 +7619,7 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 
 ## 6 ter. 🎗️ LE BELT — DEUX LARGEURS, ET CE QUI CHANGE DANS CHACUNE *(2026-09-02)*
 📍 `cadre-belt-deux-largeurs-et-ce-qui-change-dans-chacune` · vivante · 02/09
-⚖️ **La ceinture est toujours visible et fait 60 blg ; le belt fonctionne sur DEUX largeurs, dont les exceptions se réduisent à un nombre de crans visibles.**
+⚖️ **La ceinture est toujours visible et fait 60 blg — 65 en sous-menu (25/09) ; le belt fonctionne sur DEUX largeurs, dont les exceptions se réduisent à un nombre de crans visibles.**
 
 > Eric, 2026-09-02, croquis `2026-09-02-belt-etroit-tuiles-egales.jpg` :
 > **« TOUTES LES TUILES DU MENU FONT LA MÊME TAILLE »** · *« sur la version courte je rajoute ces
@@ -7628,8 +7628,14 @@ amorce : ⏳ **à revérifier maintenant qu'il devient aussi un contrôle de pag
 > **« désormais le belt fonctionne sur deux largeurs, avec des exceptions dans chaque format ;
 > il doit fonctionner en tactile et en clic souris »**.
 
+⚖️ **AMENDÉ LE 2026-09-25 — EN SOUS-MENU, LA CEINTURE FAIT 65.** Eric : *« on va rester sur la
+barre à 65 quand en mode sous-menu »*. 📏 Mesuré (v822, 420 × 860) : Menu 60 · Identity 60 ·
+Equipment/Gear 65 · Equipment/Wares 65 — la tuile dominante porte alors une 3ᵉ ligne
+(`belt-fenetre` : « Gear », « Wares »…), 48,4 blg au lieu de 44. ⭐ La scène d'un sous-menu vaut
+donc **495** : Wares y est coté (lot 275), les fiches X (500) y perdent 5 blg de vide sous leur
+pied, et la scène ne défile pas (lot 272).
 🔴 **CE QUI NE CHANGE PAS, ET C'EST LA CONSTANTE DE CADRES §0** : la ceinture est **toujours
-visible**, elle fait **60 blg**, et le panneau garde ses **500**. Tout ce qui suit se loge dans ces
+visible**, elle fait **60 blg** *(65 en sous-menu, ci-dessus)*, et le panneau garde ses **500**. Tout ce qui suit se loge dans ces
 60 blg — un belt qui grandit prend sa place à la scène, et le 31/08 a mesuré qu'il n'y a que
 **9 blg** de mou.
 
