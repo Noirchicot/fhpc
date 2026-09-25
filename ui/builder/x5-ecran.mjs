@@ -19,12 +19,12 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=819";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, categorieAffichee, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=819";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=819";
-import { habilleEnParchemin } from "./parchemin.mjs?v=819";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=819";
-import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=819";
+import * as D from "./x5-disposition.mjs?v=820";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, categorieAffichee, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=820";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=820";
+import { habilleEnParchemin } from "./parchemin.mjs?v=820";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=820";
+import { nomCrafte } from "../../src/build/objet-crafte.mjs?v=820";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
