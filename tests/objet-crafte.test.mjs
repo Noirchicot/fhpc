@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { makeHarness, manifestOf, readJson, PILE_SRD } from "./build-harness.mjs";
 import { createDocWriters } from "../src/doc/index.mjs";
 import { ABILITY_KEYS } from "../src/build/index.mjs";
-import { nomCrafte, lireLeBonus, estCrafte, NOM_MAX } from "../src/build/objet-crafte.mjs";
+import { nomCrafte, lireLeBonus, estCrafte, NOM_MAX, texteDUneVariante } from "../src/build/objet-crafte.mjs";
 import { currentGearLines } from "../ui/builder/equipment-step.mjs";
 import { enPieces, valeurDUnObjetCrafte, recordDUneVariante } from "../ui/builder/craft.mjs";
 import { recordProse } from "../ui/builder/equipment-step.mjs";
@@ -283,4 +283,36 @@ test("15 — ⚖️ LOT 280 : UN OBJET CRAFTÉ POSÉ VAUT SA COTE SRFH — prix,
   const ecran = lire("ui/builder/equipment-step.mjs");
   assert.match(ecran, /const cote = coteDUnObjetCrafte\(\{ base: rec, plan: r\.plan, bonus: r\.bonus, pouvoirs: r\.pouvoirs \}\);[\s\S]{0,400}?rarete: cote\.categorie,\s*craft: \{ jours: cote\.jours, cout: cote\.craftUnitaire, rarete: cote\.categorie \}/,
     "⭐ la ligne craftée prend sa rareté et sa note de la cote");
+});
+
+test("16 — 🔴 LOT 281 : UNE VARIANTE NE RÉCITE QUE SA PART — l'introduction, son paragraphe, sa ligne", () => {
+  /* 🔴 Eric, 26/09 : « ioun stone of intellect — tu ne fais pas la sélection de texte ». */
+  const ioun = rec("item", "Ioun Stone");
+  const texte = recordProse({ record: ioun }, { kind: "item", variante: "Intellect" });
+  assert.match(texte, /^Intellect \(Very Rare\)\. Your Intelligence increases by 2/m, "⭐ son paragraphe");
+  assert.match(texte, /The type of stone determines its rarity and effects\./, "⭐ l'introduction reste");
+  for (const autre of ["Agility", "Awareness", "Absorption", "Regeneration"]) {
+    assert.doesNotMatch(texte, new RegExp(`^${autre} \\(`, "m"), `⛔ pas la pierre ${autre}`);
+  }
+  assert.match(texte, /^Variant: Intellect \(Very Rare\)$/m);
+  /* ⭐ un bloc de stats suit SA figurine ; une table garde son en-tête et SA ligne */
+  const fig = texteDUneVariante(rec("item", "Figurine of Wondrous Power").data, "Ebony Fly");
+  assert.match(fig, /^Giant Fly$/m, "le bloc de la Giant Fly appartient à l'Ebony Fly");
+  assert.doesNotMatch(fig, /Bronze Griffon|Golden Lions|Silver Raven/);
+  const cor = texteDUneVariante(rec("item", "Horn of Valhalla").data, "Iron");
+  assert.match(cor, /^1d100 Horn Type Spirits Requirement$/m);
+  assert.match(cor, /^91–00 Iron 5 Proficiency with all Martial weapons$/m);
+  assert.doesNotMatch(cor, /Silver 2|Brass 3|Bronze 4/);
+  /* ⚔️ une table de tirage qui suit la DERNIÈRE variante ne lui appartient pas : l'Anchor
+     garde sa ligne, même si la table vient après le paragraphe du Whip */
+  const plume = texteDUneVariante(rec("item", "Feather Token").data, "Anchor");
+  assert.match(plume, /^01–20 Anchor Uncommon$/m);
+  assert.doesNotMatch(plume, /^Whip \(Rare\)|Bird Rare/m);
+  const ceinture = texteDUneVariante(rec("item", "Belt of Giant Strength").data, "Frost or Stone");
+  assert.match(ceinture, /\(frost or stone\) 23 Very Rare/);
+  assert.doesNotMatch(ceinture, /\((hill|fire|cloud|storm)\)/);
+  /* ⛔ un mot inconnu rend le texte entier : la sélection retire, elle n'invente pas */
+  assert.equal(texteDUneVariante(ioun.data, "Mystery"), ioun.data.description);
+  /* ⛔ et le plan lui-même (sans variante choisie) garde tout son texte */
+  assert.match(recordProse({ record: ioun }), /Agility \(Very Rare\)/);
 });

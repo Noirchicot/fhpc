@@ -119,7 +119,7 @@ import { construireLaFicheX2 } from "./x2-ecran.mjs?v=827";
 import { construireX5 } from "./x5-ecran.mjs?v=827";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=827";
 import { seCrafteDansX5, ouvertureX5, coteDUnObjetCrafte, recordDUneVariante } from "./craft.mjs?v=827";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante } from "../../src/build/objet-crafte.mjs?v=827";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=827";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=827";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
@@ -2810,7 +2810,11 @@ export function recordProse(view, recette = null) {
      texte se recompose, comme le nom. */
   const plus = recette ? lireLeBonus(recette.bonus) : null;
   const lignes = [];
-  if (typeof data.description === "string" && data.description) lignes.push(data.description);
+  /* ⭐ LOT 281 — UNE VARIANTE NE RÉCITE QUE SA PART : l'introduction, son paragraphe, sa ligne
+     de table (Eric, 26/09 : « tu ne fais pas la sélection de texte »). */
+  const description = recette && typeof recette.variante === "string" && recette.variante
+    ? texteDUneVariante(data, recette.variante) : data.description;
+  if (typeof description === "string" && description) lignes.push(description);
   for (const [label, valeur] of [
     ["Damage", data.damage],
     ["Mastery", data.mastery],

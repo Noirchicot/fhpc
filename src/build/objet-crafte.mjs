@@ -140,3 +140,55 @@ export function nomDUneVariante(data, mot) {
   const nom = v ? v.nom : `${String((data && data.name) || "").trim()} (${mot})`;
   return nom.length <= NOM_MAX ? nom : `${nom.slice(0, NOM_MAX - 1)}…`;
 }
+
+/* ══ LOT 281 — LE TEXTE D'UNE VARIANTE : l'introduction, puis SA part, rien d'autre ══
+   🔴 Eric, 26/09 : *« ioun stone of intellect — tu ne fais pas la sélection de texte »* : la
+   fiche d'une Ioun Stone (Intellect) récitait les treize pierres.
+   ⭐ LA SÉLECTION SUIT LES MÊMES TROIS FORMES QUE `variantesDe` :
+     · les PARAGRAPHES « Nom (Rareté). » — on garde celui de la variante ET ce qui le suit
+       jusqu'au prochain (le bloc de stats de la Giant Fly appartient à l'Ebony Fly) ;
+     · les TABLES dont la ligne finit par la rareté — on garde l'en-tête et SA ligne ;
+     · les TABLES DE TIRAGE (« 1d100 … ») — idem : l'en-tête, son titre, SA ligne (le Horn y
+       porte le nombre d'esprits et le prérequis de chaque métal).
+   ⛔ Tout paragraphe qui n'appartient à AUCUNE variante (l'introduction, les règles communes)
+   reste : la sélection retire, elle n'invente rien. Mot inconnu → le texte entier. */
+const EST_UN_TIRAGE = /^\d+d\d+\b/i;                       /* « 1d100 Horn Type Spirits … » */
+const EST_UNE_LIGNE_DE_TIRAGE = /^\d{1,3}\s*[–-]\s*\d{1,3}\s|^\d{1,3}\s/;
+export function texteDUneVariante(data, mot) {
+  const d = data || {};
+  const texte = String(d.description || "");
+  const variantes = variantesDe(d);
+  const choisie = variantes.find((v) => v.mot === mot);
+  if (!choisie) return texte;
+  const autres = variantes.filter((v) => v !== choisie);
+  const paras = texte.split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  const mots = (v) => v.mot.split(/\s+or\s+/i).map((m) => m.toLowerCase());
+  const parle = (p, v) => mots(v).some((m) => new RegExp(`(^|[\\s(])${m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([\\s).,]|$)`, "i").test(p));
+
+  /* ① les paragraphes « Nom (Rareté). » : à qui appartient chaque paragraphe ? */
+  const tete = new RegExp(`^([A-Z][^.()\\n]{0,40}?)\\s*\\((Very Rare|Legendary|Uncommon|Common|Rare)\\)\\.\\s`);
+  const proprietaire = [];
+  let courant = null;
+  paras.forEach((p, i) => {
+    const m = tete.exec(p);
+    const suivant = paras[i + 1] || "";
+    if (m) courant = m[1].trim();
+    /* une table (son titre, son en-tête) referme la section de la variante en cours */
+    else if (EST_UN_TIRAGE.test(p) || EST_UN_TIRAGE.test(suivant)) courant = null;
+    proprietaire.push(courant);
+  });
+
+  /* ② les lignes de table : la ligne d'une AUTRE variante tombe, l'en-tête reste */
+  const rangee = new RegExp(`^([^\\d()]+?)\\s*(?:\\(([^)]+)\\))?\\s+\\d.*?\\s(Very Rare|Legendary|Uncommon|Common|Rare)$`, "i");
+  const dansUnTirage = (i) => { for (let k = i - 1; k >= 0; k -= 1) { if (EST_UN_TIRAGE.test(paras[k])) return true; if (!EST_UNE_LIGNE_DE_TIRAGE.test(paras[k])) return false; } return false; };
+
+  return paras.filter((p, i) => {
+    if (proprietaire[i] && proprietaire[i] !== choisie.mot) return false;
+    if (rangee.test(p) && !EST_UN_TIRAGE.test(p)) {
+      const autre = autres.some((v) => parle(p, v)) && !parle(p, choisie);
+      if (autre) return false;
+    }
+    if (EST_UNE_LIGNE_DE_TIRAGE.test(p) && dansUnTirage(i)) return parle(p, choisie) || !autres.some((v) => parle(p, v));
+    return true;
+  }).join("\n\n");
+}
