@@ -11974,6 +11974,12 @@ button.tuto-point::before {
   line-height: 1.45; text-align: left; white-space: pre-line;
 }
 .x1-description::-webkit-scrollbar { width: 0; height: 0; }
+/* ⚖️ LOT 279 — LA NOTE DE CRAFT, au pied du texte : « une petite note en pied de page en
+   italique » (Eric, 26/09). T1, encre douce : elle renseigne, elle ne décrit pas l'objet. */
+.x1-note-craft {
+  margin: var(--sp-8) 0 0; font-size: var(--t1); font-style: italic;
+  color: var(--x1-encre-douce); white-space: normal;
+}
 /* — LES MOTS DE LIAISON (`is`, `Send`, `to`) : ils ne nomment pas une donnée,
    ils cousent une phrase. Même habit que le nom d'un emplacement en attente
    sur l'écran R — T1, italique, encre douce (Eric, 16/09). */

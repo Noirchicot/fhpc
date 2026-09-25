@@ -29,6 +29,9 @@ const valeurDe = fabriqueDeValeur(query);
 const items = query({ kind: "item" }).map((v) => v.record);
 const parNom = new Map(items.map((r) => [r.data.name, r]));
 const or = (r) => enGP(parseCout(valeurDe(r).cout));
+/* ⭐ LOT 279 — l'organe rend aussi `rarete` et `craft` : ces gardes-ci tiennent le PRIX et le
+   POIDS, ils les comparent seuls (les deux autres ont leurs gardes, 8 à 10). */
+const prixEtPoids = (v) => ({ cout: v.cout, poids: v.poids });
 
 test("1 — ⚔️ LE SRD DONNE LA RÉPONSE : sa propre règle, sur ses propres records", () => {
   /* ⭐ `Dragon Scale Mail` : Very Rare, sur `Scale Mail` (50 GP, 45 lb.). Le SRD
@@ -50,7 +53,7 @@ test("2 — ⭐ PLUSIEURS BASES : C'EST UN PLAN, et un plan n'a pas de prix de c
   for (const n of ["Sword of Life Stealing", "Defender", "Dwarven Plate"]) {
     const r = parNom.get(n);
     assert.equal(estRecette(r), true, `${n} demande un choix de base : c'est un plan`);
-    assert.deepEqual(valeurDe(r), { cout: null, poids: null },
+    assert.deepEqual(prixEtPoids(valeurDe(r)), { cout: null, poids: null },
       `⛔ ${n} n'a ni prix ni poids de catalogue — ni l'un ni l'autre ne s'invente avant la base`);
   }
 });
@@ -100,9 +103,9 @@ test("5 — ⛔ UN PLAN N'A PAS DE PRIX DE CATALOGUE — c'est X5 qui le calcule
 test("6 — ⭐ UN PRIX ÉCRIT GAGNE TOUJOURS", () => {
   /* L'organe ne recalcule pas ce que le record dit déjà : un `cost` du SRD est
      rendu tel quel, même sur un objet qui aurait aussi une rareté. */
-  assert.deepEqual(valeurDe({ data: { cost: "25 GP", weight: "5 lb.", rarity: "Rare" } }),
+  assert.deepEqual(prixEtPoids(valeurDe({ data: { cost: "25 GP", weight: "5 lb.", rarity: "Rare" } })),
     { cout: "25 GP", poids: "5 lb." });
-  assert.deepEqual(valeurDe(null), { cout: null, poids: null }, "⛔ et l'absence ne fait pas tomber l'écran");
+  assert.deepEqual(prixEtPoids(valeurDe(null)), { cout: null, poids: null }, "⛔ et l'absence ne fait pas tomber l'écran");
 });
 
 test("7 — 🔴 SEPT LECTEURS, UN ORGANE : plus personne ne lit `data.cost` à la main", () => {
@@ -132,4 +135,71 @@ test("8 — 🔴 UN CONSOMMABLE VAUT LA MOITIÉ — la note du SRD, que le lot 2
   assert.equal(valeurDe(vol).cout, "20,000 GP", "⛔ Very Rare (40 000) ÷ 2");
   const bourse = parNom.get("Bag of Holding");
   assert.equal(valeurDe(bourse).cout, "400 GP", "⚔️ un objet NON consommable garde sa pleine valeur");
+});
+
+/* ══ LOT 279 — LA RARETÉ ET LA NOTE DE CRAFT ═════════════════════════════════════
+   ⚖️ Eric, 26/09 : « tous les objets magiques, y compris ceux qui ne passent pas par X5,
+   devront avoir une référence au prix du craft (une petite note en pied de page en
+   italique) », la rareté à côté du prix — et sur la maquette « Dagger of Venom · 4,002 GP ·
+   Rare · Crafting: 50 days · 2,001 GP · Rare » : « exact ». */
+const { PALIERS_SRFH, noteDeCraft, texteDeLaNote } = await import("../ui/builder/bareme-srfh.mjs");
+const { variantesDe } = await import("../src/build/objet-crafte.mjs");
+const { recordDUneVariante } = await import("../ui/builder/craft.mjs");
+
+test("8 — ⚖️ LE BARÈME SRFH : le SRD à la lettre, et les demi-paliers à mi-chemin exact", () => {
+  /* ⭐ Les paliers pleins DOIVENT retrouver le record `srd:item-value` — ⛔ un seul écart, et
+     la « référence » dirait autre chose que le SRD qu'elle prétend porter. */
+  const table = query({ kind: "item-value" })[0].record.data.tiers;
+  for (const p of PALIERS_SRFH.filter((x) => x.srd)) {
+    const t = table.find((x) => x.rarity_label === p.nom);
+    assert.equal(p.valeur, t.value_gp, `${p.nom} : la valeur est celle du SRD`);
+    assert.equal(p.cout, p.valeur / 2, `${p.nom} : le coût de craft SRD est la moitié de la valeur`);
+  }
+  assert.deepEqual(PALIERS_SRFH.filter((x) => x.srd).map((p) => p.jours), [5, 10, 50, 125, 250],
+    "le temps SRD (« Magic Item Crafting Time and Cost », p. 206)");
+  for (let i = 1; i < PALIERS_SRFH.length - 1; i += 2) {
+    const [a, m, b] = [PALIERS_SRFH[i - 1], PALIERS_SRFH[i], PALIERS_SRFH[i + 1]];
+    assert.equal(m.srd, false, `${m.nom} est un demi-palier SRFH`);
+    for (const k of ["jours", "cout", "valeur"]) {
+      assert.equal(m[k], (a[k] + b[k]) / 2, `${m.nom}.${k} est le milieu exact de ${a.nom} et ${b.nom}`);
+    }
+  }
+  assert.ok(!PALIERS_SRFH.some((p) => /Legendary\+/.test(p.nom)), "⛔ pas de Legendary+ : rien de chiffré au-dessus");
+});
+
+test("9 — ⚖️ LA MAQUETTE D'ERIC : Dagger of Venom · 4,002 GP · Rare · Crafting: 50 days · 2,001 GP · Rare", () => {
+  const v = valeurDe(parNom.get("Dagger of Venom"));
+  assert.equal(v.rarete, "Rare");
+  assert.equal(texteDeLaNote(v.craft), "Crafting: 50 days · 2,001 GP · Rare",
+    "⭐ 2 000 (Rare) + la moitié de la Dagger (1) — la base se fabrique à moitié prix");
+  /* ⭐ UN CONSOMMABLE : temps et coût divisés par deux, les jours arrondis VERS LE HAUT */
+  const vol = valeurDe(parNom.get("Potion of Flying"));
+  assert.equal(vol.rarete, "Very Rare");
+  assert.equal(texteDeLaNote(vol.craft), "Crafting: 63 days · 10,000 GP · Very Rare", "125 ÷ 2 = 62,5 → 63");
+  /* ⭐ LA SEULE RÈGLE NOMMÉE DU SRD : le brassage de la potion de soin de base */
+  const soin = query({ kind: "gear" }).map((x) => x.record).find((r) => r.data.name === "Potion of Healing");
+  assert.equal(texteDeLaNote(valeurDe(soin).craft), "Crafting: 1 day · 25 GP · Common");
+  /* ⭐ UNE VARIANTE, par son objet fini */
+  const ioun = recordDUneVariante(parNom.get("Ioun Stone"), "Awareness");
+  assert.equal(texteDeLaNote(valeurDe(ioun).craft), "Crafting: 50 days · 2,000 GP · Rare");
+  const greater = recordDUneVariante(parNom.get("Potions of Healing"), "Greater");
+  assert.equal(texteDeLaNote(valeurDe(greater).craft), "Crafting: 5 days · 100 GP · Uncommon");
+});
+
+test("10 — ⛔ LA NOTE SE TAIT QUAND ELLE NE SAIT PAS — un plan, une rareté illisible, un objet mondain", () => {
+  for (const n of ["Sword of Life Stealing", "Ioun Stone", "Spell Scroll", "Weapon, +1, +2, or +3"]) {
+    assert.equal(valeurDe(parNom.get(n)).craft, null, `${n} est un plan : pas encore un objet`);
+  }
+  const corde = query({ kind: "gear" }).map((x) => x.record).find((r) => r.data.name === "Rope");
+  if (corde) assert.equal(valeurDe(corde).rarete, null, "⛔ un objet mondain n'a pas de rareté");
+  assert.equal(noteDeCraft({ rarete: "Artifact" }), null, "⛔ Artifact : « Priceless »");
+  assert.equal(texteDeLaNote(null), "");
+  /* 📏 ET ELLE COUVRE LES OBJETS FINIS DU SRD : chaque objet magique qui n'est pas un plan
+     a sa note — ⛔ un seul muet serait un trou dans la « référence ». */
+  /* 📏 Mesuré : un seul objet fini se tait, `Dragon Orb` — un ARTIFACT, que le SRD dit
+     « Priceless ». ⛔ Le garde ne le nomme pas : il tient que seuls les artefacts se taisent. */
+  const muets = items.filter((r) => !estRecette(r) && !valeurDe(r).craft);
+  const nonArtefacts = muets.filter((r) => !/artifact/i.test(r.data.rarity || "")).map((r) => r.data.name);
+  assert.deepEqual(nonArtefacts, [], `objets finis sans note : ${nonArtefacts.join(", ")}`);
+  assert.ok(muets.length >= 1, "témoin : l'artefact du SRD est bien muet");
 });

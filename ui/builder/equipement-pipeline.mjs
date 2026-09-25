@@ -30,6 +30,7 @@
 
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=825";
 import { pageDeListe } from "./normes.mjs?v=825";
+import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=825";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
@@ -346,10 +347,15 @@ export function fabriqueDeValeur(query) {
 
   return function valeurDe(record) {
     const d = (record && record.data) || {};
+    /* ⭐ LOT 279 — LA RARETÉ ET LA NOTE DE CRAFT, lues ICI avec la valeur, par la même
+       lecture du record : ⛔ un second lecteur de la rareté divergerait au premier objet.
+       Eric, 26/09 : *« tous les objets magiques […] devront avoir une référence au prix du
+       craft »* — la rareté à côté du prix, *« Crafting: 50 days · 2,001 GP · Rare »* en pied. */
+    const extra = rareteEtCraft(record, d);
     /* ⭐ UN PRIX ÉCRIT GAGNE TOUJOURS : ce que le record porte, on le rend tel quel. */
     let cout = typeof d.cost === "string" && d.cost.trim() ? d.cost : null;
     let poids = typeof d.weight === "string" && d.weight.trim() ? d.weight : null;
-    if (cout && poids) return { cout, poids };
+    if (cout && poids) return { cout, poids, ...extra };
 
     const base = baseUnique(d);
     if (!poids && base && typeof base.weight === "string") poids = base.weight;
@@ -375,8 +381,35 @@ export function fabriqueDeValeur(query) {
         cout = `${((consommable ? v / 2 : v) + plus).toLocaleString("en-US")} GP`;
       }
     }
-    return { cout, poids };
+    return { cout, poids, ...extra };
   };
+
+  /** La rareté d'un objet magique FINI (un seul palier lisible) et sa note de craft,
+   *  au barème SRFH (`bareme-srfh.mjs`). ⛔ Un plan (`estRecette`) n'en a pas : il n'est
+   *  pas encore un objet — X5 le chiffrera une fois composé. ⛔ Une rareté illisible
+   *  (« Rarity Varies », « Artifact ») ne rend rien : la note se tait, elle ne devine pas.
+   *  ⭐ La potion de soin de base est une ligne d'`Adventuring Gear` SANS rareté : c'est la
+   *  règle du SRD qui la nomme (« Brewing Potions of Healing »), et `noteDeCraft` la porte. */
+  function rareteEtCraft(record, d) {
+    if (!record || estRecette(record)) return { rarete: null, craft: null };
+    const nom = String(d.name || (record && record.name) || "");
+    const rarete = rareteUnique(d.rarity) || (nom.trim() === BRASSAGE.nom ? BRASSAGE.rarete : null);
+    if (!rarete) return { rarete: null, craft: null };
+    const base = baseUnique(d);
+    const coutBase = base ? enGP(parseCout(base.cost)) || 0 : 0;
+    return { rarete, craft: noteDeCraft({ rarete, consommable: d.category === "potion", coutBase, nom }) };
+  }
+}
+
+/** Le nom SRD de l'UNIQUE rareté qu'une chaîne nomme (« Rare (Requires Attunement) » →
+ *  « Rare ») ; une énumération ou « Varies » → `null`. ⚠️ `very rare` avant `rare`. */
+const NOMME_UNE_RARETE = /very rare|legendary|uncommon|common|rare/gi;
+function rareteUnique(rarity) {
+  const vus = new Set((String(rarity || "").match(NOMME_UNE_RARETE) || []).map((m) => m.toLowerCase()));
+  if (vus.size !== 1) return null;
+  const [seul] = vus;
+  const p = PALIERS_SRFH.find((x) => x.srd && x.nom.toLowerCase() === seul);
+  return p ? p.nom : null;
 }
 
 export function formatCout(cout) {

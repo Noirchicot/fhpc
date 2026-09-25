@@ -117,6 +117,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    qui aurait fermé le cycle. */
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=825";
 import { construireX5 } from "./x5-ecran.mjs?v=825";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=825";
 import { seCrafteDansX5, ouvertureX5, valeurDUnObjetCrafte, recordDUneVariante } from "./craft.mjs?v=825";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante } from "../../src/build/objet-crafte.mjs?v=825";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=825";
@@ -3034,7 +3035,7 @@ const FENETRE_DE = { gear: "Gear", sac: "Backpack", sb31: "Backpack", sb33: "Bac
 function ficheItemAvec(valeurDe) {
   return function ficheItem(item) {
     const record = (item.view && item.view.record) || null;
-    const { cout, poids } = valeurDe(record);
+    const { cout, poids, rarete, craft } = valeurDe(record);
     return {
       ref: { kind: item.kind, id: item.view.id },
       nom: recordLabel(item.view) || item.view.id,
@@ -3042,6 +3043,9 @@ function ficheItemAvec(valeurDe) {
       cout: parseCout(cout),
       poidsTexte: poids || "",
       prose: recordProse(item.view),
+      /* ⚖️ LOT 279 — la rareté à côté du prix, la note de craft en pied (Eric, 26/09) */
+      rarete: rarete || "",
+      noteCraft: texteDeLaNote(craft),
     };
   };
 }
@@ -3835,6 +3839,9 @@ export function renderEquipmentStep(ctx, onAction) {
         poidsUnite: valeurX1.poids || "",
         poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
         prose: proseDeLaLigne(ligne),
+        /* ⚖️ LOT 279 — la rareté à côté du prix, la note de craft en pied (Eric, 26/09) */
+        rarete: valeurX1.rarete || "",
+        noteCraft: texteDeLaNote(valeurX1.craft),
         /* ⚖️ TRANCHÉ LE 18/09 : `is` RANGE l'objet dans la fiche de personnage — *« ça
            permet de mettre l'action de lancer une boule de feu avec un parchemin dans les
            actions / bonus action / réaction. Ou de le mettre dans les sorts. »* ⛔ Le genre
@@ -4425,7 +4432,7 @@ export function renderEquipmentStep(ctx, onAction) {
        prix et sa ligne — par les MÊMES portes que la ligne posée. */
     if (a.variante) {
       const recette = { kind: "item", variante: a.variante.mot };
-      const { cout, poids } = valeurDUneRecette(a.plan, recette);
+      const { cout, poids, rarete, craft } = valeurDUneRecette(a.plan, recette);
       const coutLu = parseCout(cout || "");
       const { noeud } = construireLaFicheX1({
         apercu: true,
@@ -4435,6 +4442,7 @@ export function renderEquipmentStep(ctx, onAction) {
           prixTotal: coutLu ? formatCout(multiplieCout(coutLu, qte)).toLowerCase() : "",
           poidsUnite: poids || "", poidsTotal: "",
           prose: proseDUneRecette(a.plan, recette),
+          rarete: rarete || "", noteCraft: texteDeLaNote(craft),
           genre: "item", equipped: false, attuned: false, locked: false,
         },
         surPorte: (porte) => { if (porte === "close") { apercuX5 = null; montrer("x5"); } },

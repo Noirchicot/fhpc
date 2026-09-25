@@ -240,17 +240,18 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
       f.setAttribute("aria-hidden", "true");
       noeud.append(f);
     } else if (id === "unite") {
-      /* ⚖️ « 2gp / 5lg (cadré gauche) » — le prix ET le poids d'UN exemplaire. */
-      noeud.append(voyant(id, "x1-chiffres x1-chiffres-unite",
-        cellule(objet.prixUnite, objet.poidsUnite), "Each"));
+      /* ⚖️ « 2gp / 5lg (cadré gauche) » — le prix ET le poids d'UN exemplaire.
+         ⚖️ LOT 279 — ET LA RARETÉ À CÔTÉ DU PRIX (Eric, 26/09 : « 4,002 GP · Rare »). */
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-unite", texteDeLUnite(objet), "Each"));
     } else if (id === "total") {
       /* ⚖️ « 6gp / 15lg (cadré droite) » — ⛔ et rien quand il n'y en a qu'un : un
          total qui répète l'unité ne dit pas un total, il dit deux fois l'unité. */
       noeud.append(voyant(id, "x1-chiffres x1-chiffres-total",
         objet.qte > 1 ? cellule(objet.prixTotal, objet.poidsTotal) : "", "Total"));
     } else if (id === "description") {
-      const z = eld("div", "x1-description", objet.prose || "");
+      const z = eld("div", "x1-description");
       z.dataset.organe = id;
+      remplirLaDescription(z, objet);
       noeud.append(z);
       /* ⭐ LA JAUGE VEILLE SUR CETTE ZONE, ⛔ posée À CÔTÉ d'elle, jamais dedans — un
          signe qui défile avec le texte qu'il annonce ne sert à rien. */
@@ -397,8 +398,26 @@ function bouton(classe, texte, note, surClic) {
  *  et le poids voyagent ensemble : ce sont les deux façons de peser une même
  *  ligne du sac. Il ne reste donc qu'une forme de cellule, et plus d'écart à
  *  justifier. */
-function cellule(prix, poids) {
-  return [prix, poids].filter(Boolean).join(" · ") || "—";
+function cellule(...morceaux) {
+  return morceaux.filter(Boolean).join(" · ") || "—";
+}
+
+/* ══ LOT 279 — LES DEUX TEXTES DE LA TÊTE QUE X2 REPEINT AU FEUILLETAGE ═════════
+   ⛔ Un seul écrivain chacun : la tête les pose, X2 les repeint PAR ELLES quand la page
+   change. 🔴 Avant, X2 écrivait `textContent` sur la description — ce qui aurait effacé
+   la note — et sur des organes `prix` et `poids` que la tête ne fabrique pas. */
+/** « 4,002 GP · 1 lb · Rare » — le prix, le poids et (lot 279) la RARETÉ d'un exemplaire.
+ *  ⚖️ Eric, 26/09 : « la rareté à côté du prix ». */
+export function texteDeLUnite(objet) {
+  return cellule(objet && objet.prixUnite, objet && objet.poidsUnite, objet && objet.rarete);
+}
+/** Le texte de l'objet, puis sa NOTE DE CRAFT en pied, en italique — Eric, 26/09 : « tous
+ *  les objets magiques […] devront avoir une référence au prix du craft · une petite note
+ *  en pied de page en italique ». ⭐ Dans la zone qui défile : elle se lit APRÈS la
+ *  description, ⛔ elle ne prend la place d'aucun organe. */
+export function remplirLaDescription(z, objet) {
+  z.textContent = (objet && objet.prose) || "";
+  if (objet && objet.noteCraft) z.append(eld("p", "x1-note-craft", objet.noteCraft));
 }
 
 /* ══ LES ORGANES ══════════════════════════════════════════════════════════ */
@@ -542,7 +561,8 @@ function porte(id, mot, note, options, eteint) {
 
 /** @param {object} options
  *   · `objet` : `{ index, nom, qte, prixUnite, prixTotal, poidsUnite, poidsTotal,
- *     prose, equipped, attuned, locked, harmonisable }`
+ *     prose, equipped, attuned, locked, harmonisable, rarete, noteCraft }` — les deux
+ *     derniers (lot 279) : la rareté à côté du prix, la note de craft en pied du texte.
  *   · `nombre`, `destination` : l'envoi en cours
  *   · rappels : `surEtat` `surNombre` `surEst` `surDestination` `surPorte` `surCopier` */
 export function construireLaFicheX1(options = {}) {

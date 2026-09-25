@@ -59,7 +59,7 @@
    (`equipment-step.mjs`), et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x1-disposition.mjs?v=825";
 /* ⭐ LA TÊTE, ENTIÈRE, PAR UN SEUL APPEL — ⛔ aucun de ces trois n'est réécrit ici. */
-import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE } from "./x1-ecran.mjs?v=825";
+import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, texteDeLUnite, remplirLaDescription } from "./x1-ecran.mjs?v=825";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE — le même
    choix que X1 : le jour où une destination s'ouvre (Tally, Craft), les trois
    écrans l'apprennent ensemble. ⛔ Le croquis en dessine huit ; la liste qui
@@ -173,7 +173,9 @@ export function construireLaFicheX2(options = {}) {
   const tete = { ...options, lecture: false, surLecture: (v) => basculerLecture(v) };
   construireLaTeteDeFiche(noeud, {
     nom: it0.nom, qte: 1, prose: it0.prose,
-    prixUnite: it0.coutTexte, poidsUnite: it0.poidsTexte
+    prixUnite: it0.coutTexte, poidsUnite: it0.poidsTexte,
+    /* ⚖️ LOT 279 — la rareté et la note de craft, portées par la fiche de l'objet */
+    rarete: it0.rarete || "", noteCraft: it0.noteCraft || ""
   }, tete);
 
   /* ══ SOUS LA COUTURE — LE CROQUIS DU 21/09 ═══════════════════════════════ */
@@ -299,9 +301,14 @@ export function construireLaFicheX2(options = {}) {
       if (e) e.textContent = mot;
     };
     ecrire("nom", it.nom || "");
-    ecrire("prix", it.coutTexte || "—");
-    ecrire("poids", it.poidsTexte || "—");
-    ecrire("description", it.prose || "");
+    /* ⭐ LOT 279 — la ligne du prix (rareté comprise) et le texte (note de craft comprise) se
+       repeignent par les écrivains de la tête. 🔴 `prix` et `poids` n'étaient pas des organes
+       de la tête (elle écrit `unite`) : ces deux lignes ne repeignaient rien. */
+    const objet = { prixUnite: it.coutTexte, poidsUnite: it.poidsTexte, rarete: it.rarete || "",
+      prose: it.prose, noteCraft: it.noteCraft || "" };
+    ecrire("unite", texteDeLUnite(objet));
+    const desc = noeud.querySelector('[data-organe="description"]');
+    if (desc) remplirLaDescription(desc, objet);
     noeud.setAttribute("aria-label", it.nom ? `${it.nom} — item sheet` : "Item sheet");
     prixChamp.value = it.coutTexte || "";
     qteChamp.value = String(qte);
