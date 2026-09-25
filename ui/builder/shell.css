@@ -13422,6 +13422,18 @@ button.tuto-point::before {
 .x5-ligne { display: flex; justify-content: space-between; gap: var(--sp-2); font-size: var(--t1); }
 .x5-ligne-clef { color: var(--x1-encre-douce); }
 .x5-ligne-valeur { font-weight: 600; font-variant-numeric: tabular-nums; }
+/* ⭐ LOT 269 — LE PRIX QUI SE TAPE : la matière du champ de prix de X2 (`.pipeline-typein`),
+   à l'encre du parchemin. La cible tactile reste 44 (`--touch`, ⛔ ne cède jamais).
+   Un prix tapé par le joueur se souligne : il se distingue du prix calculé. */
+.x5-ligne-champ { align-items: center; }
+.x5-prix {
+  min-height: var(--touch); max-width: 12ch; text-align: right; font: inherit;
+  font-weight: 600; font-variant-numeric: tabular-nums;
+  background: none; color: var(--x1-encre);
+  border: 1px solid var(--x1-trait); border-radius: var(--radius-sm);
+  padding-inline: var(--sp-2);
+}
+.x5-prix[data-manuel="oui"] { text-decoration: underline; }
 /* 🔴 LE REFUS SE LIT, il ne se devine pas à un champ vide. Un prix absent qui
    s'affiche « 0 GP » est plausible, et personne ne le vérifie. */
 .x5-panneau-refus { margin: 0; font-size: var(--t1); font-style: italic; color: var(--x1-etat-encre); }

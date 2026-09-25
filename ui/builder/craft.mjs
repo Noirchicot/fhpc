@@ -382,6 +382,23 @@ export function enPieces(po) {
   return c;
 }
 
+/** ⭐ LOT 269 — LE PRIX TAPÉ À LA MAIN dans X5 (Eric, 25/09 : *« il faut aussi dans X5
+ *  qu'une case puisse modifier le prix manuellement »*). Un nombre nu est de l'or
+ *  (`1000`, `1,000`, `7.5`) ; `250 GP`, `5 SP` se lisent par `prixEnPO`.
+ *  ⛔ Vide ou illisible rend `null` — le prix calculé reste —, jamais 0 : un zéro
+ *  tapé par erreur ne rend pas un objet gratuit en silence. `0` tapé exprès vaut 0. */
+export function prixSaisi(texte) {
+  const t = String(texte ?? "").trim();
+  if (!t) return null;
+  if (/^\d[\d,]*(\.\d+)?$/.test(t)) {
+    const n = Number(t.replace(/,/g, ""));
+    return Number.isFinite(n) ? n : null;
+  }
+  const v = prixEnPO(t);
+  if (v > 0) return v;
+  return /^0+(\.0+)?\s*(gp|sp|cp)\b/i.test(t) ? 0 : null;
+}
+
 export function prixEnPO(cout) {
   const m = /^\s*([\d,.]+)\s*(GP|SP|CP)\b/i.exec(String(cout || ""));
   if (!m) return 0;

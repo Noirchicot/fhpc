@@ -25,7 +25,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
 const D = await import("../ui/builder/x5-disposition.mjs");
 const { construireX5, feuilleDesCotesX5 } = await import("../ui/builder/x5-ecran.mjs");
-const { pouvoirsDe, bonusDe, enPieces } = await import("../ui/builder/craft.mjs");
+const { pouvoirsDe, bonusDe, enPieces, prixSaisi } = await import("../ui/builder/craft.mjs");
 
 const query = exempleFhEn().layers.verbs.query;
 const armes = new Map(query({ kind: "weapon" }).map((v) => [v.record.data.name, v.record]));
@@ -273,7 +273,7 @@ test("12 — ⚖️ LES TROIS RÉGIMES DU PANNEAU suivent le STATUS", () => {
   const trouve = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { ...choix, status: "Found" } });
   const craft = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix });
   const cles = (n) => [...n.noeud.querySelectorAll(".x5-ligne-clef")].map((e) => e.textContent);
-  assert.deepEqual(cles(achat), ["Price", "Qty · Total"], "⚖️ Buying : price · qty · total, et rien d'autre");
+  assert.deepEqual(cles(achat), ["Price", "Qty · Total"], "⚖️ Buying : price · qty · total, et rien d'autre (lot 269 : `Price` se tape)");
   assert.equal(achat.noeud.querySelector(".x5-panneau-prereq"), null, "⛔ on n'achète pas un temps de craft");
   assert.deepEqual(cles(trouve), [], "⚖️ Found : aucun champ");
   assert.ok(trouve.noeud.querySelector(".x5-panneau-libre"), "⭐ la phrase du croquis, à la place");
@@ -371,4 +371,51 @@ test("16 — ⚖️ UN PLAN MÈNE DIRECTEMENT À X5, et les trois chemins du cat
   assert.ok(porte.indexOf('montrer("x5")') < porte.indexOf('montrer("x2")'),
     "⭐ un plan craftable va à X5 AVANT tout X2");
   assert.equal((src.match(/ouvrirLObjet\(/g) || []).length, 4, "la définition + R + Wares + la recherche");
+});
+
+/* ══ LOT 269 — LE COÛT DE LA BASE, ET LE PRIX QUI SE TAPE ═══════════════════════ */
+
+test("17 — ⚖️ « CRAFTING COST OF THE BASE ITEM : 200 » pour la Breastplate — et les trois lignes s'additionnent", () => {
+  /* ⚖️ Eric, 25/09 : « mets de base la moitié du prix de l'armure ». 🔴 La ligne montrait le
+     PRIX (400) : 400 + 2 000 affichés, 2 200 facturés. */
+  const { noeud } = monte({ plan: PLAN_ARMURE, bases, itemsMagiques: magiques,
+    choix: { base: "Breastplate", bonus: "Rare" }, surChoix: () => {} });
+  const lignes = Object.fromEntries([...noeud.querySelectorAll(".x5-ligne")]
+    .map((l) => [l.querySelector(".x5-ligne-clef").textContent,
+                 (l.querySelector(".x5-ligne-valeur") || l.querySelector("input")).textContent
+                 || (l.querySelector("input") || {}).value]));
+  assert.equal(lignes["Crafting cost of the base item"], "200 GP", "⭐ la MOITIÉ de 400");
+  assert.equal(lignes["Crafting cost"], "2,000 GP", "la moitié de 4 000 (+1 Armor est Rare)");
+  assert.equal(noeud.querySelector("input.x5-prix").value, "2,200 GP", "⭐ 200 + 2 000 : ce qui est affiché s'additionne");
+  assert.equal(lignes["Base item cost"], undefined, "⛔ l'ancienne ligne (le PRIX de la base) n'existe plus");
+});
+
+test("18 — ⭐ LE PRIX SE TAPE : il remplace l'unitaire, le total et ce que `Send` paie — vide, il revient", () => {
+  const recus = [];
+  const monteAvec = (prix, status) => monte({ plan: PLAN_ARMURE, bases, itemsMagiques: magiques,
+    choix: { base: "Breastplate", bonus: "Rare", prix, status }, surChoix: () => {}, surEnvoyer: (e) => recus.push(e) });
+  const manuel = monteAvec("1000");
+  const champ = manuel.noeud.querySelector("input.x5-prix");
+  assert.equal(champ.value, "1,000 GP");
+  assert.equal(champ.dataset.manuel, "oui", "⭐ le prix du joueur se distingue du prix calculé");
+  manuel.noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
+  assert.deepEqual(recus[0].cout, enPieces(1000), "⭐ `Send` paie le prix TAPÉ");
+  const achat = monteAvec("750", "Buying");
+  achat.noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
+  assert.deepEqual(recus[1].cout, enPieces(750), "⭐ et en Buying aussi");
+  const vide = monteAvec("");
+  assert.equal(vide.noeud.querySelector("input.x5-prix").dataset.manuel, "non", "⛔ vide : retour au prix calculé");
+  assert.equal(prixSaisi("1,500"), 1500);
+  assert.equal(prixSaisi("5 SP"), 0.5);
+  assert.equal(prixSaisi("0"), 0, "un zéro tapé EXPRÈS vaut zéro");
+  for (const mou of ["", "  ", "abc", "gp"]) assert.equal(prixSaisi(mou), null, `⛔ « ${mou} » ne remplace rien`);
+});
+
+test("19 — ⛔ UN PRIX TAPÉ NE SURVIT PAS À UN AUTRE ASSEMBLAGE", () => {
+  /* Un prix tapé pour une dague ne doit pas se retrouver sur une armure de plate. Garde de
+     source, sans commentaires : le pilote remet le prix à zéro sur les cinq organes. */
+  const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(src, /if \(organe === "PRIX"\) c\.prix = /);
+  assert.match(src, /\["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS"\]\.includes\(organe\)\) c\.prix = null/);
 });

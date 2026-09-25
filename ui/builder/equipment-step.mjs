@@ -4283,6 +4283,11 @@ export function renderEquipmentStep(ctx, onAction) {
       choix: ficheX5.choix, fh: pileFH,
       surChoix: (organe, valeur) => {
         const c = { ...ficheX5.choix };
+        /* ⭐ LOT 269 — un prix tapé vaut pour CET assemblage : changer la base, le bonus, un
+           pouvoir ou le statut le rend au prix calculé. ⛔ Sinon un prix tapé pour une dague
+           survivrait sur une armure de plate. */
+        if (organe === "PRIX") c.prix = String(valeur || "").trim() || null;
+        else if (["ITEM", "BONUS", "POWER 1", "POWER 2", "STATUS"].includes(organe)) c.prix = null;
         if (organe === "ITEM") { c.base = valeur; c.pouvoirs = []; }   /* ⛔ une autre base, d'autres pouvoirs */
         else if (organe === "BONUS") c.bonus = valeur || null;
         else if (organe === "POWER 1" || organe === "POWER 2") {

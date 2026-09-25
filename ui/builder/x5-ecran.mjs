@@ -20,7 +20,7 @@
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=817";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=817";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=817";
 import { DESTINATIONS } from "./gear-ecran.mjs?v=817";
 import { habilleEnParchemin } from "./parchemin.mjs?v=817";
 
@@ -113,7 +113,7 @@ function menu(nom, valeur, options, surChoix, { aucun = null } = {}) {
  *  n'accuse plus rien.
  *  ⭐ Le `fh` est donc parti d'ici. La règle vit à UN endroit — `craft.mjs` — et
  *  cet écran dessine `cote.temps` quand il existe, sans savoir pourquoi. */
-function panneau(cote, status = "Crafting") {
+function panneau(cote, status = "Crafting", prix = null, surPrix = null) {
   const p = elx("section", "x5-panneau");
   p.dataset.organe = "PANNEAU";
   const argent = elx("div", "x5-panneau-argent");
@@ -139,9 +139,11 @@ function panneau(cote, status = "Crafting") {
   if (status === "Buying") {
     /* ⚖️ Le croquis : « price · qty · total », et rien d'autre. Le prix d'ACHAT est la
        valeur de vente — ⛔ pas le coût de fabrication, qui en est la moitié. */
+    /* ⭐ LOT 269 — le prix d'achat se TAPE : le champ montre le prix calculé et le remplace. */
+    const unite = prix ?? cote.venteUnitaire;
     argent.append(
-      ligne("Price", or(cote.venteUnitaire)),
-      ligne("Qty · Total", `×${cote.qte} · ${or(cote.venteTotale)}`));
+      champ("Price", unite, prix !== null, surPrix),
+      ligne("Qty · Total", `×${cote.qte} · ${or(unite * cote.paiements)}`));
     p.append(argent);
     return p;
   }
@@ -156,13 +158,40 @@ function panneau(cote, status = "Crafting") {
     g.append(roll);
     p.append(g);
   }
+  /* ⚖️ LOT 269 — Eric, 25/09 : *« quand tu fais base item cost, mets de base la moitié du
+     prix de l'armure — crafting cost of the base item : 200 (pour la breastplate) »*.
+     🔴 La ligne montrait le PRIX de la base (400) alors que le craft en compte la MOITIÉ :
+     `400 + 2 000` affichés, `2 200` facturés. ⭐ Les trois lignes s'additionnent désormais.
+     ⭐ Et le prix unitaire se TAPE (Eric : « une case pour modifier le prix manuellement ») :
+     le champ prend la place de la ligne `Unit price`. 📏 Mesuré au navigateur, pile FH (la
+     plus serrée, la colonne des prérequis prend sa part) : 11 + 11 + 44 + 11 = 77 blg dans
+     les 126 de la colonne — ⛔ le champ garde ses 44 (`--touch`). */
+  const unite = prix ?? cote.craftUnitaire;
   argent.append(
-    ligne("Base item cost", or(cote.coutBase)),
+    ligne("Crafting cost of the base item", or(cote.coutBase / 2)),
     ligne("Crafting cost", or(cote.craftUnitaire - cote.coutBase / 2)),
-    ligne("Unit price", or(cote.craftUnitaire)),
-    ligne("Qty · Total", `×${cote.qte} · ${or(cote.craftTotal)}`));
+    champ("Unit price", unite, prix !== null, surPrix),
+    ligne("Qty · Total", `×${cote.qte} · ${or(unite * cote.paiements)}`));
   p.append(argent);
   return p;
+}
+
+/** ⭐ LOT 269 — LE PRIX QUI SE TAPE. Il porte le prix en vigueur (calculé, ou tapé) ; le
+ *  joueur le remplace, et `change` le rend à l'appelant (⛔ pas `input` : un repeint à
+ *  chaque frappe volerait le focus). Vide = retour au prix calculé.
+ *  ⭐ `data-manuel` dit si le prix est celui du joueur — la feuille le souligne. */
+function champ(clef, valeur, manuel, surPrix) {
+  const l = elx("label", "x5-ligne x5-ligne-champ");
+  const c = elx("input", "x5-prix");
+  c.type = "text";
+  c.inputMode = "decimal";
+  c.value = or(valeur);
+  c.dataset.manuel = manuel ? "oui" : "non";
+  c.setAttribute("aria-label", `${clef} — type a price to change it, empty it to go back`);
+  if (surPrix) c.addEventListener("change", () => surPrix(c.value));
+  else c.disabled = true;
+  l.append(elx("span", "x5-ligne-clef", clef), c);
+  return l;
 }
 
 function ligne(clef, valeur) {
@@ -184,8 +213,11 @@ function or(n) {
 
 /** ⚖️ CE QUE `SEND` PAIE, SELON LE STATUT — les trois régimes du croquis :
  *  `Crafting` paie le coût de fabrication, `Buying` le prix d'achat, `Found` rien. */
-export function montantDuStatut(cote, status = "Crafting") {
+export function montantDuStatut(cote, status = "Crafting", prix = null) {
   if (!cote || !cote.legal || status === "Found") return 0;
+  /* ⭐ LOT 269 — un prix tapé remplace le prix UNITAIRE ; le total reste unité × paiements
+     (un lot de dix flèches se paie une fois). */
+  if (prix !== null && prix !== undefined) return prix * cote.paiements;
   return status === "Buying" ? cote.venteTotale : cote.craftTotal;
 }
 function motDuRefus(raison) {
@@ -278,7 +310,8 @@ export function construireX5(o = {}) {
 
   n.append(menu("STATUS", status,
     ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix));
-  const pan = panneau(cote, status);
+  const prix = prixSaisi(choix.prix);
+  const pan = panneau(cote, status, prix, surChoix ? (v) => surChoix("PRIX", v) : null);
   /* ⭐ LE REFUS DE L'APPELANT VIT DANS LE PANNEAU — ⛔ pas un organe de plus : la
      fiche est cotée organe par organe (`x5-disposition`), et le panneau est déjà
      l'endroit où X5 parle d'argent. */
@@ -313,7 +346,7 @@ export function construireX5(o = {}) {
     send.setAttribute("aria-label", "Send — put the crafted item in the character's equipment");
     send.addEventListener("click", () => surEnvoyer({
       base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
-      cout: enPieces(montantDuStatut(cote, status)),
+      cout: enPieces(montantDuStatut(cote, status, prix)),
     }));
   } else {
     /* ⛔ Un bouton inerte DIT pourquoi — un bouton muet est pire qu'absent. */
