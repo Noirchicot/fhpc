@@ -29,8 +29,8 @@
    porte la dérivation complète, les mesures au navigateur et les quatre contrôles
    croisés contre le SRD. ⛔ Ce fichier-ci ne les recopie pas : il les applique. */
 
-import { variantesDe } from "../../src/build/objet-crafte.mjs?v=826";
-import { PALIERS_SRFH, joursArrondis, noteDeCraft } from "./bareme-srfh.mjs?v=826";
+import { variantesDe } from "../../src/build/objet-crafte.mjs?v=827";
+import { PALIERS_SRFH, joursArrondis, noteDeCraft } from "./bareme-srfh.mjs?v=827";
 
 /* ══ ① LE BARÈME — SRFH, LU DANS `bareme-srfh.mjs` (lot 280) ═══════════════════════
    ⭐ Le craft d'un objet ordinaire suit la RÉFÉRENCE SRD + FH : les cinq paliers du SRD
