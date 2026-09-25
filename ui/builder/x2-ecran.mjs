@@ -307,6 +307,7 @@ export function construireLaFicheX2(options = {}) {
     const objet = { prixUnite: it.coutTexte, poidsUnite: it.poidsTexte, rarete: it.rarete || "",
       prose: it.prose, noteCraft: it.noteCraft || "" };
     ecrire("unite", texteDeLUnite(objet));
+    ecrire("rarete", objet.rarete);
     const desc = noeud.querySelector('[data-organe="description"]');
     if (desc) remplirLaDescription(desc, objet);
     noeud.setAttribute("aria-label", it.nom ? `${it.nom} — item sheet` : "Item sheet");

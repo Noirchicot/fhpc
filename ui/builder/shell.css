@@ -11974,6 +11974,13 @@ button.tuto-point::before {
   line-height: 1.45; text-align: left; white-space: pre-line;
 }
 .x1-description::-webkit-scrollbar { width: 0; height: 0; }
+/* ⚖️ LOT 279 — LA RARETÉ, sous le nom, en italique (Eric, 26/09 : « Rare (italique) »).
+   Centrée comme le nom qu'elle qualifie ; T1, encre douce : elle précise, elle ne nomme pas. */
+.x1-rarete:not([hidden]) {
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--t1); font-style: italic; font-weight: 400; line-height: 1;
+  color: var(--x1-encre-douce); white-space: nowrap;
+}
 /* ⚖️ LOT 279 — LA NOTE DE CRAFT, au pied du texte : « une petite note en pied de page en
    italique » (Eric, 26/09). T1, encre douce : elle renseigne, elle ne décrit pas l'objet. */
 .x1-note-craft {

@@ -158,8 +158,13 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      au-dessus d'elle. */
   assert.equal(TABLE.y.nom, TABLE.marge_tete + 4, "la rangée du nom : la marge de tête plus son glissement");
   assert.ok(Math.min(...ORGANES.map((o) => cibleDe(o).y)) >= TABLE.y.nom, "et rien ne monte au-dessus d'elle");
-  assert.equal(chiffres.y, TABLE.marge_tete + TOUCH + 4,
-    "⛔ et la ligne des chiffres, elle, est restée comptée depuis la marge de tête");
+  /* ⚖️ LOT 279 — LA RARETÉ S'INTERCALE, en sous-titre sous le nom (Eric, 26/09) : elle prend
+     la place où commençait la ligne de coût, et celle-ci descend de sa hauteur et d'une
+     gouttière. ⛔ Toujours comptées depuis la marge de tête, jamais depuis le nom. */
+  const rarete = ORGANES.find((o) => o.nom === "RARETE");
+  assert.equal(rarete.y, TABLE.marge_tete + TOUCH + 4, "la rareté, là où la tête finit");
+  assert.equal(chiffres.y, rarete.y + rarete.h + 4,
+    "⛔ et la ligne des chiffres, sous la rareté, à une gouttière");
   assert.ok(nom.y > TABLE.marge_tete, "le nom est bien descendu dans son créneau");
   /* ⭐ LA ZONE DU TEXTE EST UN GROUPE DE TROIS : un filet, la description, un filet
      — Eric, 17/09 au soir. Les filets sont COLLÉS à la description (ils la délimitent,

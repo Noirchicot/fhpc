@@ -21,9 +21,9 @@
  "marge_texte": 39,
  "y": {
   "nom": 18,
-  "chiffres": 62,
-  "desc": 86,
-  "h_desc": 180,
+  "chiffres": 80,
+  "desc": 104,
+  "h_desc": 162,
   "pied1": 274,
   "pied2": 322,
   "pied3": 370,
@@ -41,9 +41,19 @@
    "sorte": "voyant"
   },
   {
+   "nom": "RARETE",
+   "x": 39.0,
+   "y": 62,
+   "l": 297,
+   "h": 14,
+   "mot": "Rare",
+   "cran": "T1/400",
+   "sorte": "voyant"
+  },
+  {
    "nom": "UNITE",
    "x": 90,
-   "y": 62,
+   "y": 80,
    "l": 65,
    "h": 8,
    "mot": "2 gp · 5 lb",
@@ -53,7 +63,7 @@
   {
    "nom": "QTE",
    "x": 155,
-   "y": 62,
+   "y": 80,
    "l": 65,
    "h": 8,
    "mot": "×3",
@@ -63,7 +73,7 @@
   {
    "nom": "TOTAL",
    "x": 220,
-   "y": 62,
+   "y": 80,
    "l": 65,
    "h": 8,
    "mot": "6 gp · 15 lb",
@@ -73,7 +83,7 @@
   {
    "nom": "FILET HAUT",
    "x": 73.0,
-   "y": 78,
+   "y": 96,
    "l": 229,
    "h": 8,
    "mot": "",
@@ -83,9 +93,9 @@
   {
    "nom": "DESCRIPTION",
    "x": 39,
-   "y": 86,
+   "y": 104,
    "l": 297,
-   "h": 180,
+   "h": 162,
    "mot": "Description",
    "cran": "T2/400",
    "sorte": "zone"

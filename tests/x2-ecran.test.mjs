@@ -83,7 +83,8 @@ test("2 — 🔴 le partage est GÉOMÉTRIQUE : la tête est déduite du plan, �
      soit la SEULE à mettre à jour est la preuve du partage : X2 monte la tête de X1,
      elle n'en a pas une seconde. La quantité a quitté la ligne du titre pour le
      CENTRE de la ligne de coût, entre UNITE et TOTAL. */
-  const attendus = ["NOM", "UNITE", "QTE", "TOTAL", "FILET HAUT",
+  /* ⚖️ LOT 279 — et la RARETÉ, en sous-titre sous le nom : X2 la reçoit sans une ligne. */
+  const attendus = ["NOM", "RARETE", "UNITE", "QTE", "TOTAL", "FILET HAUT",
                     "DESCRIPTION", "JAUGE", "COPIER", "OEIL", "FILET BAS"];
   assert.deepEqual(ORGANES_DE_TETE.map((o) => o.nom), attendus,
     "le titre, les trois colonnes du coût, la ligne du haut, les deux filets, le texte, sa jauge, les deux ornements");

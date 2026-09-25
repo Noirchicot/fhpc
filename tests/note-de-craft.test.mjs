@@ -2,9 +2,11 @@
 
    ⚖️ Eric, 2026-09-26 : « tous les objets magiques, y compris ceux qui ne passent pas
    par X5, devront avoir une référence au prix du craft (une petite note en pied de page
-   en italique) » — la rareté à côté du prix. Maquette validée (« exact ») :
+   en italique) ». Puis la rareté passe SOUS LE NOM, parce qu'à côté du prix elle
+   chevauchait le « ×2 » — sa maquette :
         Dagger of Venom
-        4,002 GP · Rare
+                 Rare (italique)
+        4,002 GP · 1 lb.      ×2      8,004 gp · 2 lb
         …texte…
         Crafting: 50 days · 2,001 GP · Rare        (italique, en pied)
 
@@ -29,9 +31,11 @@ const DAGUE = { nom: "Dagger of Venom", prixUnite: "4,002 GP", poidsUnite: "1 lb
   prose: "You can use a Bonus Action to coat the blade in poison.",
   noteCraft: "Crafting: 50 days · 2,001 GP · Rare" };
 
-test("1 — ⚖️ X1 : la rareté À CÔTÉ DU PRIX, la note EN PIED du texte, en italique", () => avecDocument(() => {
-  const { noeud } = construireLaFicheX1({ objet: { index: 0, qte: 1, ...DAGUE } });
-  assert.equal(organe(noeud, "unite").textContent, "4,002 GP · 1 lb. · Rare");
+test("1 — ⚖️ X1 : la rareté SOUS LE NOM, le prix unitaire intact, la note EN PIED du texte", () => avecDocument(() => {
+  const { noeud } = construireLaFicheX1({ objet: { index: 0, qte: 2, ...DAGUE, prixTotal: "8,004 gp", poidsTotal: "2 lb" } });
+  assert.equal(organe(noeud, "rarete").textContent, "Rare");
+  assert.equal(organe(noeud, "unite").textContent, "4,002 GP · 1 lb.", "⚖️ « le prix unitaire reste » — sans la rareté");
+  assert.equal(organe(noeud, "qte").textContent, "×2");
   const desc = organe(noeud, "description");
   const note = desc.querySelector(".x1-note-craft");
   assert.ok(note, "⭐ la note est DANS la zone du texte, au pied");
@@ -41,6 +45,7 @@ test("1 — ⚖️ X1 : la rareté À CÔTÉ DU PRIX, la note EN PIED du texte, 
   const { noeud: corde } = construireLaFicheX1({ objet: { index: 0, qte: 1, nom: "Rope", prixUnite: "1 gp",
     poidsUnite: "5 lb.", prose: "Rope." } });
   assert.equal(organe(corde, "unite").textContent, "1 gp · 5 lb.");
+  assert.equal(organe(corde, "rarete").textContent, "", "⛔ pas de rareté inventée, pas de tiret");
   assert.equal(organe(corde, "description").querySelector(".x1-note-craft"), null);
 }));
 
@@ -54,11 +59,12 @@ test("2 — 🔴 X2 : LE FEUILLETAGE REPEINT LA RARETÉ ET LA NOTE — il ne les
   let tourner = null;
   const noeud = construireLaFicheX2({ liste: [fiche(DAGUE), fiche(FLYING)], index: 0,
     naviguer: ({ vers }) => { tourner = vers; } });
-  assert.equal(organe(noeud, "unite").textContent, "4,002 GP · 1 lb. · Rare");
+  assert.equal(organe(noeud, "rarete").textContent, "Rare");
   assert.equal(organe(noeud, "description").querySelector(".x1-note-craft").textContent,
     "Crafting: 50 days · 2,001 GP · Rare");
   tourner(1);
-  assert.equal(organe(noeud, "unite").textContent, "20,000 GP · Very Rare", "⭐ la page suivante a SA rareté");
+  assert.equal(organe(noeud, "rarete").textContent, "Very Rare", "⭐ la page suivante a SA rareté");
+  assert.equal(organe(noeud, "unite").textContent, "20,000 GP");
   const note = organe(noeud, "description").querySelector(".x1-note-craft");
   assert.ok(note, "⛔ la note survit au repeint");
   assert.equal(note.textContent, "Crafting: 63 days · 10,000 GP · Very Rare");

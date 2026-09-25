@@ -89,7 +89,7 @@ export function budgetDuParchemin() {
    alors que son mot est « Lock » (l'acte) : le plan nomme l'ÉTAT, le bouton
    nomme le GESTE — c'est la distinction qu'Eric a posée le 17/09. */
 export const CLEF_DE = Object.freeze({
-  "QTE": "qte", "NOM": "nom",
+  "QTE": "qte", "NOM": "nom", "RARETE": "rarete",
   "FILET HAUT": "filet-haut", "FILET BAS": "filet-bas", "JAUGE": "jauge", "OEIL": "oeil",
   "UNITE": "unite", "TOTAL": "total", "DESCRIPTION": "description",
   "IS": "is", "IS QUOI": "is-quoi", "COPIER": "copier",
@@ -223,6 +223,11 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
       /* ⭐ CENTRÉ SUR LA PAGE, PAS ENTRE SES VOISINS — Eric, 17/09 : *« le titre reste
          centré par rapport à la page »*. */
       noeud.append(voyant(id, "x1-nom", objet.nom || o.mot));
+    } else if (id === "rarete") {
+      /* ⚖️ LOT 279 — LA RARETÉ, EN SOUS-TITRE, EN ITALIQUE — Eric, 26/09 :
+         « Dagger of Venom / Rare (italique) / 4,002 GP · 1 lb. ×2 8,004 gp · 2 lb ».
+         ⛔ Rien quand l'objet n'en a pas (un objet mondain, un plan) : pas de tiret. */
+      noeud.append(voyant(id, "x1-rarete", objet.rarete || ""));
     } else if (id === "qte") {
       /* 🔴 LA QUANTITÉ A QUITTÉ LA TÊTE (lot 255) — Eric, 23/09 : *« on dégage le X2
          en haut à gauche »*. ⭐ ELLE NE DISPARAÎT PAS, ELLE DESCEND : son croquis de
@@ -406,10 +411,11 @@ function cellule(...morceaux) {
    ⛔ Un seul écrivain chacun : la tête les pose, X2 les repeint PAR ELLES quand la page
    change. 🔴 Avant, X2 écrivait `textContent` sur la description — ce qui aurait effacé
    la note — et sur des organes `prix` et `poids` que la tête ne fabrique pas. */
-/** « 4,002 GP · 1 lb · Rare » — le prix, le poids et (lot 279) la RARETÉ d'un exemplaire.
- *  ⚖️ Eric, 26/09 : « la rareté à côté du prix ». */
+/** « 4,002 GP · 1 lb. » — le prix et le poids d'UN exemplaire.
+ *  ⚖️ LOT 279 — la rareté n'y est PAS : à côté du prix, elle chevauchait le « ×2 » (105 blg
+ *  dans une case de 65) ; Eric l'a mise en sous-titre sous le nom (« le prix unitaire reste »). */
 export function texteDeLUnite(objet) {
-  return cellule(objet && objet.prixUnite, objet && objet.poidsUnite, objet && objet.rarete);
+  return cellule(objet && objet.prixUnite, objet && objet.poidsUnite);
 }
 /** Le texte de l'objet, puis sa NOTE DE CRAFT en pied, en italique — Eric, 26/09 : « tous
  *  les objets magiques […] devront avoir une référence au prix du craft · une petite note

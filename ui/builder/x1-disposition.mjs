@@ -34,11 +34,12 @@ export const PARCHEMIN_DEBORD = 0;
 
 export const ORGANES = [
   { nom: "NOM",           sorte: "voyant",        x:     39, y:     20, l:   297, h:   40, mot: "Winged Helmet", cran: "T4/600" },
-  { nom: "UNITE",         sorte: "voyant",        x:     90, y:     62, l:    65, h:    8, mot: "2 gp · 5 lb", cran: "T1/600" },
-  { nom: "QTE",           sorte: "voyant",        x:    155, y:     62, l:    65, h:    8, mot: "×3", cran: "T1/600" },
-  { nom: "TOTAL",         sorte: "voyant",        x:    220, y:     62, l:    65, h:    8, mot: "6 gp · 15 lb", cran: "T1/600" },
-  { nom: "FILET HAUT",    sorte: "zone",          x:     73, y:     78, l:   229, h:    8, mot: "", cran: "T1/600" },
-  { nom: "DESCRIPTION",   sorte: "zone",          x:     39, y:     86, l:   297, h:  180, mot: "Description", cran: "T2/400" },
+  { nom: "RARETE",        sorte: "voyant",        x:     39, y:     62, l:   297, h:   14, mot: "Rare", cran: "T1/400" },
+  { nom: "UNITE",         sorte: "voyant",        x:     90, y:     80, l:    65, h:    8, mot: "2 gp · 5 lb", cran: "T1/600" },
+  { nom: "QTE",           sorte: "voyant",        x:    155, y:     80, l:    65, h:    8, mot: "×3", cran: "T1/600" },
+  { nom: "TOTAL",         sorte: "voyant",        x:    220, y:     80, l:    65, h:    8, mot: "6 gp · 15 lb", cran: "T1/600" },
+  { nom: "FILET HAUT",    sorte: "zone",          x:     73, y:     96, l:   229, h:    8, mot: "", cran: "T1/600" },
+  { nom: "DESCRIPTION",   sorte: "zone",          x:     39, y:    104, l:   297, h:  162, mot: "Description", cran: "T2/400" },
   { nom: "JAUGE",         sorte: "zone",          x:  345.5, y:    218, l:    20, h:   52, mot: "", cran: "T1/600" },
   { nom: "COPIER",        sorte: "copier",        x:    9.5, y:    234, l:    20, h:   20, cible: { x: 4, y: 222, l: 44, h: 44 }, mot: "", cran: "T1/600" },
   { nom: "OEIL",          sorte: "copier",        x:  345.5, y:    234, l:    20, h:   20, cible: { x: 327, y: 222, l: 44, h: 44 }, mot: "", cran: "T1/600", dans: "JAUGE" },
