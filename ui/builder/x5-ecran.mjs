@@ -19,10 +19,10 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=817";
-import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=817";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=817";
-import { habilleEnParchemin } from "./parchemin.mjs?v=817";
+import * as D from "./x5-disposition.mjs?v=818";
+import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, PALIERS, PLAFOND_QTE } from "./craft.mjs?v=818";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=818";
+import { habilleEnParchemin } from "./parchemin.mjs?v=818";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
