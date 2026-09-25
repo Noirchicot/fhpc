@@ -32,10 +32,13 @@ export const JETON = { l: 87, h: 48 };
 export const BLEED = 8;
 
 /* ── LES TROIS DALLES ─────────────────────────────────────────────────────────
-   ⭐ 92 + 8 + 232 + 8 + 160 = 500, PILE. Le garde `wares-budget` refait cette somme. */
+   ⭐ 96 + 8 + 228 + 8 + 160 = 500, PILE. Le garde `wares-budget` refait cette somme.
+   ⚖️ LOT 274 — Eric, 2026-09-25 : *« 4-40-8-40-4 »* pour les deux tambours (avant 4-40-4-40-4 = 92),
+   puis *« les non zoomées tu fais les calculs pour que ça colle — idem pour les espaces »*. ⭐ Les
+   4 blg gagnés par le tambour sont rendus par le rembourrage de la grille (8 → 6, voir plus bas). */
 export const DALLES = Object.freeze([
-  { nom: "TAMBOUR", y: 0,   h: 92,  mot: "les deux étages de la roue" },
-  { nom: "GRILLE",  y: 100, h: 232, mot: "les douze jetons et les deux gouttières" },
+  { nom: "TAMBOUR", y: 0,   h: 96,  mot: "les deux étages de la roue" },
+  { nom: "GRILLE",  y: 104, h: 228, mot: "les douze jetons et les deux gouttières" },
   { nom: "PIED",    y: 340, h: 160, mot: "les Tally, le collecteur, la bourse, Send to, la rangée" },
 ]);
 
@@ -64,29 +67,34 @@ export const ROUE = {
   cale: 129,
 };
 
-/* ⚖️ L'ÉCART ENTRE LES DEUX ÉTAGES VAUT 4 — dicté par Eric le 20/09 (« 4 blg »). C'est une
-   exception au 8 du sacré n° 3, et elle est nommée ici, à côté de son argument : les deux
-   étages sont UN organe à deux rangs, pas deux organes voisins. */
-export const ECART_ETAGES = 4;
+/* ⚖️ L'ÉCART ENTRE LES DEUX ÉTAGES VAUT 8 — Eric, 2026-09-25 : *« pour garder la cible tactile
+   propre, mets 8 blg entre les tambours »*, puis *« 4-40-8-40-4 »*. 🗄️ Il valait 4 depuis le 20/09
+   (« 4 blg », une exception au 8 du sacré n° 3) : à 4, les deux cibles de 44 se TOUCHAIENT
+   (2 → 46 et 46 → 90). ⭐ À 8, elles gardent 4 blg entre elles (2 → 46, 50 → 94) — et l'écart
+   rejoint le 8 de la maison. */
+export const ECART_ETAGES = 8;
 
 /* ── DALLE 2 · LA GRILLE ──────────────────────────────────────────────────────
    ⚖️ QUATRE RANGÉES DE TROIS = DOUZE (NORMES `equipement-wares-douze-par-page`). ⛔ Ce n'est
    pas un goût : à cinq rangées l'écran demande 556 blg pour une scène qui en offre 500.
-   ⚖️ LE REMBOURRAGE DE CETTE DALLE-CI VAUT 8, pas 4 — croquis d'Eric du 19/09, « 8 au-dessus
-   du premier jeton et 8 sous le dernier ». ⭐ Un croquis d'Eric prime sur une généralisation. */
+   ⚖️ LE REMBOURRAGE DE CETTE DALLE-CI VAUT 6 — AMENDÉ LE 25/09. Le croquis d'Eric du 19/09
+   disait 8 (« 8 au-dessus du premier jeton et 8 sous le dernier ») ; le 25/09, en passant les
+   tambours à 4-40-8-40-4, il a dit *« idem pour les espaces — tu fais les calculs pour que ça
+   colle »*. ⭐ Le tambour prend 4 blg de plus ; la grille les rend ici (2 en haut, 2 en bas) —
+   les jetons (48) et leurs écarts (8) ne bougent pas, et la scène reste à 500. */
 export const PAR_PAGE = 12;
 export const COLONNES_GRILLE = 3;
 export const RANGEES_GRILLE = 4;
-export const REMBOURRAGE_GRILLE = 8;
+export const REMBOURRAGE_GRILLE = 6;
 
 /* les cotes que la grille RESTITUE — ⛔ constats, jamais des valeurs posées :
    largeur des jetons  3 × 87 + 2 × 8 = 277, dans 375 → gouttière (375 − 277) / 2 = 49
-   hauteur des jetons  4 × 48 + 3 × 8 = 216, + 2 × 8 de rembourrage = 232 */
+   hauteur des jetons  4 × 48 + 3 × 8 = 216, + 2 × 6 de rembourrage = 228 */
 export const RENDU_GRILLE = Object.freeze({
   jetons: { l: 277, h: 216 },
   gouttiere: 49,
   colonnes: [49, 144, 239],
-  rangees: [108, 164, 220, 276],
+  rangees: [110, 166, 222, 278],   /* 104 (la dalle) + 6, puis + 56 */
 });
 
 /* ── LE JOUR ENTRE DEUX PLAQUES ───────────────────────────────────────────────
@@ -144,7 +152,7 @@ export const PORTES = Object.freeze(["gear", "send", "backpack"]);
 export const ORGANES = [
   /* dalle 1 — le tambour */
   { nom: "ROUE CATEGORIES",     sorte: "roue",       dalle: "TAMBOUR", x: 22,     y: 4,   l: 331, h: 40, cible: { x: 22, y: 2, l: 331, h: 44 }, cran: "T1/600" },
-  { nom: "ROUE SOUS-CATEGORIES", sorte: "roue",      dalle: "TAMBOUR", x: 22,     y: 48,  l: 331, h: 40, cible: { x: 22, y: 46, l: 331, h: 44 }, cran: "T1/600" },
+  { nom: "ROUE SOUS-CATEGORIES", sorte: "roue",      dalle: "TAMBOUR", x: 22,     y: 52,  l: 331, h: 40, cible: { x: 22, y: 50, l: 331, h: 44 }, cran: "T1/600" },
   /* ⚖️ UN TUNER VIT *DANS* SA ROUE, et sa cible mord donc la sienne — c'est déjà vrai dans le
      sac (ROUE cible 22→353, TUNER G cible 0→44). ⭐ Ce n'est PAS un recouvrement fautif : le
      tuner est le contrôle de la roue, posé sur son bord. Le plan le DIT (`dans`), et le garde
@@ -162,11 +170,11 @@ export const ORGANES = [
      le cran, c'est un cadre FIXE sur la tuile dominante. Et il garde le GENRE de ce qu'il
      cadre. ⛔ On ne le tape pas : `aria-hidden`, `pointer-events: none`. */
   { nom: "LOUPE CATEGORIES",    sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 152, y: 4,  l: 71, h: 40, cran: "T1/600", dominant: true },
-  { nom: "LOUPE SOUS-CAT",      sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 152, y: 48, l: 71, h: 40, cran: "T1/600", dominant: true },
+  { nom: "LOUPE SOUS-CAT",      sorte: "loupe", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 152, y: 52, l: 71, h: 40, cran: "T1/600", dominant: true },
   { nom: "TUNER CATEGORIES G",  sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 4,   y: 18, l: 10, h: 20, cible: { x: 0, y: 2, l: 44, h: 44 } },
   { nom: "TUNER CATEGORIES D",  sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE CATEGORIES",      x: 361, y: 18, l: 10, h: 20, cible: { x: 331, y: 2, l: 44, h: 44 } },
-  { nom: "TUNER SOUS-CAT G",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 4,   y: 62, l: 10, h: 20, cible: { x: 0, y: 46, l: 44, h: 44 } },
-  { nom: "TUNER SOUS-CAT D",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 361, y: 62, l: 10, h: 20, cible: { x: 331, y: 46, l: 44, h: 44 } },
+  { nom: "TUNER SOUS-CAT G",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 4,   y: 66, l: 10, h: 20, cible: { x: 0, y: 50, l: 44, h: 44 } },
+  { nom: "TUNER SOUS-CAT D",    sorte: "tuner", dalle: "TAMBOUR", dans: "ROUE SOUS-CATEGORIES", x: 361, y: 66, l: 10, h: 20, cible: { x: 331, y: 50, l: 44, h: 44 } },
 
   /* dalle 2 — la grille, sa piste de plaques et ses deux gouttières */
   /* ⚖️ LA PISTE EST LA FENÊTRE DES PLAQUES — l'organe que le tambour MÈNE (Eric, 19/09 :
@@ -174,10 +182,10 @@ export const ORGANES = [
      plaque, et c'est ce qui fait qu'à l'arrêt on n'en voit qu'une. ⛔ Aucune cible : on ne la
      touche pas — le geste appartient au tambour, jamais à elle. */
   { nom: "PISTE",               sorte: "piste",      dalle: "GRILLE",  x: RENDU_GRILLE.gouttiere, y: RENDU_GRILLE.rangees[0], l: RENDU_GRILLE.jetons.l, h: RENDU_GRILLE.jetons.h },
-  { nom: "CHEVRON G",           sorte: "chevron",    dalle: "GRILLE",  x: 14,     y: 196, l: 21,  h: 40, cible: { x: 2, y: 194, l: 44, h: 44 }, mot: "page précédente" },
-  { nom: "CHEVRON D",           sorte: "chevron",    dalle: "GRILLE",  x: 340,    y: 196, l: 21,  h: 40, cible: { x: 329, y: 194, l: 44, h: 44 }, mot: "page suivante" },
-  { nom: "COMPTE OBJETS",       sorte: "voyant",     dalle: "GRILLE",  x: 4,      y: 240, l: 41,  h: 14, mot: "33", cran: "T1/600" },
-  { nom: "COMPTE PAGES",        sorte: "voyant",     dalle: "GRILLE",  x: 330,    y: 240, l: 41,  h: 14, mot: "1/3", cran: "T1/600" },
+  { nom: "CHEVRON G",           sorte: "chevron",    dalle: "GRILLE",  x: 14,     y: 198, l: 21,  h: 40, cible: { x: 2, y: 196, l: 44, h: 44 }, mot: "page précédente" },
+  { nom: "CHEVRON D",           sorte: "chevron",    dalle: "GRILLE",  x: 340,    y: 198, l: 21,  h: 40, cible: { x: 329, y: 196, l: 44, h: 44 }, mot: "page suivante" },
+  { nom: "COMPTE OBJETS",       sorte: "voyant",     dalle: "GRILLE",  x: 4,      y: 242, l: 41,  h: 14, mot: "33", cran: "T1/600" },
+  { nom: "COMPTE PAGES",        sorte: "voyant",     dalle: "GRILLE",  x: 330,    y: 242, l: 41,  h: 14, mot: "1/3", cran: "T1/600" },
 
   /* dalle 3 — le pied */
   { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 363, l: 40,  h: 40, cible: { x: 25.75, y: 361, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
@@ -252,7 +260,10 @@ export const FOND = {
   h: FOND_H,
   l: FOND_H * (PX.l / PX.h),
   x: (DALLE.l - FOND_H * (PX.l / PX.h)) / 2,
-  y: 102,
+  /* ⭐ LOT 274 — SE DÉDUIT DE LA GRILLE, ⛔ il était écrit en dur (102) : la grille a bougé de 4
+     (le tambour à 4-40-8-40-4), et un `y` recopié serait resté en arrière. Le fond déborde
+     autant en haut qu'en bas des jetons. */
+  y: DALLES[1].y + REMBOURRAGE_GRILLE - (FOND_H - RENDU_GRILLE.jetons.h) / 2,
 };
 
 /* ── LA CLEF D'UN ORGANE ──────────────────────────────────────────────────────

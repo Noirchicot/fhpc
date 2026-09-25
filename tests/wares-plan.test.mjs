@@ -24,8 +24,8 @@ test("1 · les trois dalles et les deux bleeds font exactement la scène", () =>
   assert.equal(D.sommeVerticale(), D.DALLE.h,
     `⛔ le budget ne tombe plus juste : ${D.sommeVerticale()} pour une scène de ${D.DALLE.h}`);
   assert.equal(D.DALLE.h, 500, "la scène vaut 500 blg (CADRES : 560 dont 500 pour la scène)");
-  assert.deepEqual(D.DALLES.map((d) => d.h), [92, 232, 160],
-    "⛔ les hauteurs dictées : 92 le tambour, 232 la grille, 160 le pied");
+  assert.deepEqual(D.DALLES.map((d) => d.h), [96, 228, 160],
+    "⛔ les hauteurs dictées : 96 le tambour (4·40·8·40·4, Eric 25/09), 228 la grille, 160 le pied");
 });
 
 /* ⭐ TÉMOIN : les dalles se touchent par un bleed, sans trou ni recouvrement.
@@ -47,8 +47,8 @@ test("2 · chaque dalle commence là où la précédente finit, plus un bleed", 
    et cinq met la somme à 556 — 56 de trop. ⛔ Ce garde ne vérifie pas un goût : il
    refait l'arithmétique qui a fermé la question d'Eric (« 5 rangées SI on a la place »). */
 test("3 · cinq rangées ne tiennent pas, et le garde le prouve en chiffres", () => {
-  assert.equal(D.hauteurGrille(4), 232, "quatre rangées : 8 + 4×48 + 3×8 + 8");
-  assert.equal(D.hauteurGrille(5), 288, "cinq rangées : 8 + 5×48 + 4×8 + 8");
+  assert.equal(D.hauteurGrille(4), 228, "quatre rangées : 6 + 4×48 + 3×8 + 6 (lot 274)");
+  assert.equal(D.hauteurGrille(5), 284, "cinq rangées : 6 + 5×48 + 4×8 + 6");
   const aCinq = D.sommeVerticale() - D.hauteurGrille(4) + D.hauteurGrille(5);
   assert.equal(aCinq, 556, "à cinq rangées l'écran demande 556 blg");
   assert.equal(aCinq - D.DALLE.h, 56, "⛔ 56 de trop — c'est ce nombre qui a tranché");
@@ -181,11 +181,11 @@ test("9 · le pied dit Gear · Send · Backpack, et rien d'autre", () => {
    ⭐ TÉMOIN : les deux écarts qui dévient du 8 sacré existent bien dans le plan ET dans
    le corpus. ⛔ Une exception qui ne vit que dans le code est une exception qui n'existe
    pas — et une règle orale n'existe pas non plus. */
-test("10 · les deux écarts qui dévient du 8 sont nommés dans NORMES", () => {
+test("10 · les écarts qui dévient du 8 sont nommés dans NORMES", () => {
   assert.equal(D.ECART, 8, "l'écart par défaut est celui du sacré n° 3");
-  assert.equal(D.ECART_ETAGES, 4, "l'écart entre les deux étages du tambour (Eric, 20/09 : « 4 blg »)");
+  assert.equal(D.ECART_ETAGES, 8, "l'écart entre les deux étages du tambour (Eric, 25/09 : « 8 blg entre les tambours »)");
   assert.equal(D.REMBOURRAGE, 4, "le rembourrage d'une dalle de Wares");
-  assert.equal(D.REMBOURRAGE_GRILLE, 8, "⛔ sauf la dalle 2 : son croquis du 19/09 fixe ses 8");
+  assert.equal(D.REMBOURRAGE_GRILLE, 6, "⛔ sauf la dalle 2 : 6 — le croquis du 19/09 (8), amendé le 25/09 pour rendre les 4 blg du tambour");
   for (const ancre of ["equipement-wares-trois-dalles", "equipement-wares-swipe-pagine",
                        "equipement-wares-douze-par-page", "equipement-wares-rembourrage-quatre",
                        "equipement-wares-jeton-et-x2", "equipement-la-fiche-du-catalogue-est-un-x2",
@@ -268,4 +268,17 @@ test("14 · le dernier cran atteint le viseur, quel que soit le nombre de crans"
     assert.ok(course >= D.ROUE.pas * (n - 1),
       `⛔ à ${n} crans la course manque : ${course} disponible pour ${D.ROUE.pas * (n - 1)} réclamés`);
   }
+});
+
+test("274 · ⚖️ LES DEUX TAMBOURS : 4 · 40 · 8 · 40 · 4, et les cibles tactiles ne se touchent plus", () => {
+  /* ⚖️ Eric, 25/09 : « bord de la dalle 4 · tambour 1 : 40 · 8 · tambour 2 : 40 · 4 blg » ·
+     « pour garder la cible tactile propre, mets 8 blg entre les tambours ». */
+  const [r1, r2] = D.ORGANES.filter((o) => o.sorte === "roue");
+  const tambour = D.DALLES.find((d) => d.nom === "TAMBOUR");
+  assert.deepEqual([r1.y - tambour.y, r1.h, r2.y - (r1.y + r1.h), r2.h, tambour.y + tambour.h - (r2.y + r2.h)],
+    [4, 40, 8, 40, 4], "⚖️ la dictée, cote par cote");
+  assert.equal(r2.y - (r1.y + r1.h), D.ECART_ETAGES, "⛔ la table et la feuille disent le même écart");
+  assert.equal(r2.cible.y - (r1.cible.y + r1.cible.h), 4, "⭐ 4 blg entre les deux cibles de 44 — elles se touchaient à 4");
+  assert.equal(Math.round(D.ROUE.hauteurDominante / D.ROUE.loupe * 100) / 100, D.ROUE.hauteur,
+    "⭐ la case non zoomée se déduit de la zoomée par la loupe (40 ÷ 1,2456)");
 });

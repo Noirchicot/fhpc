@@ -4632,14 +4632,20 @@ fichier ; il peut prouver que **le fichier est cassé plus haut**.
 
 | la dalle | ce qu'elle porte | hauteur |
 |---|---|---|
-| **1** | le tambour, **deux étages** — les catégories, puis les sous-catégories | **92** |
-| **2** | la grille de jetons et ses deux gouttières *(compte d'objets à gauche, compte de pages à droite)* | **232** |
+| **1** | le tambour, **deux étages** — les catégories, puis les sous-catégories · **4 · 40 · 8 · 40 · 4** | **96** |
+| **2** | la grille de jetons et ses deux gouttières *(compte d'objets à gauche, compte de pages à droite)* · rembourrage **6** | **228** |
 | **3** | les deux Tally · le collecteur · la bourse · `Send to ▾` · la rangée du pied | **160** |
 
-⭐ **`92 + 8 + 232 + 8 + 160 = 500`, PILE.** Les deux `8` sont les line bleeds (§8 bis).
+⭐ **`96 + 8 + 228 + 8 + 160 = 500`, PILE.** Les deux `8` sont les line bleeds (§8 bis).
+⚖️ **AMENDÉ LE 2026-09-25** — Eric : *« pour garder la cible tactile propre, mets 8 blg entre les
+tambours »* · *« bord de la dalle 4 · tambour 1 : 40 · 8 · tambour 2 : 40 · 4 blg »* · *« les non zoomées
+tu fais les calculs pour que ça colle — idem pour les espaces »*. 🗄️ L'écart entre les étages valait
+**4** (« 4 blg », 20/09) : les deux cibles de 44 se touchaient. ⭐ À **8**, elles gardent 4 blg entre
+elles. Les 4 blg sont rendus par la grille, dont le rembourrage passe de **8** (croquis du 19/09) à
+**6** ; jetons (48) et écarts (8) inchangés. Les cases non zoomées restent **40 ÷ 1,2456 = 32,1**.
 ⛔ **CE QUE WARES NE PORTE PAS**, et c'est la dictée qui l'enlève : aucun mode édition *(ni `/`, ni
 `×`, ni `+ Storage`, ni `done sections`)*, ni `Sort`, ni `Encumbrance`, ni `sections`. ⭐ **C'est
-exactement ce qui libère les 92 blg pour DEUX étages là où le sac n'en loge qu'un.**
+exactement ce qui libère les 96 blg pour DEUX étages là où le sac n'en loge qu'un.**
 🔴 **ET LE TITRE `EQUIPMENT BROWSER` DÉGAGE.** L'écran avait deux noms — celui de son titre et celui
 que la 3ᵉ ligne du belt écrit déjà. §6 interdit un libellé qui ment ; deux noms pour un écran sont
 la même faute, en plus discret.
