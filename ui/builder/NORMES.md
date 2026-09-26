@@ -4610,6 +4610,50 @@ les projectiles c'est 20 »*, *« le contenant, on laisse voir en jeu »*) sont 
 
 ---
 
+### 🪪 DEUX LIGNES DU MÊME OBJET ONT DEUX ANCRES — et le kit ne fond que le même objet au même endroit
+📍 `equipement-deux-lignes-du-meme-objet` · vivante · 26/09 · borne `popup-qui-exige-une-reponse-est-un-qcm`
+⚖️ **Un `gear[]` ADMET deux lignes du même record. La première (plus petit index `gear[N]`) garde l'id nu (`dagger`) ; chaque autre prend `dagger:gear-N`, N étant SON index. Le kit ne fusionne qu'avec une ligne du même record, sans recette, au sac.**
+
+> Mandat du lot 296 (architecte, 26/09) : *« deux lignes légitimement distinctes existent désormais »* —
+> deux crafts sur une même base, une scission (le lot 288 garde la recette des deux côtés), des achats
+> rangés à deux endroits.
+
+🔴 **CE QUI CHANGE.** La règle d'hier — *« un `gear[]` n'admet pas deux lignes du même record »* — n'était
+pas une loi de jeu, c'était **la conséquence d'une ancre mal taillée** : `resolved.gear[].id` valait le
+slug du record, donc deux dagues portaient le même id et `rebuild` jetait (`src/schemas/invariants.mjs`).
+📏 Mesuré le 26/09 sur `main` (v837) : une dague +1 et une Dagger of Venom, ou 20 flèches scindées en
+10 + 10, faisaient tomber **toute la fiche** (`derivationImpossible`). ⛔ **L'invariant n'est pas
+affaibli** : il refuse toujours deux ids égaux. Ce sont les ids qui ne sont plus égaux.
+
+⭐ **POURQUOI L'INDEX DU DOCUMENT, ET PAS UN RANG (`dagger~2`).** L'index `gear[N]` est une identité
+(`tests/gear-index-identite.test.mjs` : aucun geste ne renumérote, un index libéré n'est jamais repris).
+
+| geste | l'ancre par l'INDEX | un RANG (`~2`, `~3`) |
+|---|---|---|
+| déplacer, ranger, placer | ne bouge pas | ne bouge pas |
+| scinder | la source garde la sienne, la part détachée en prend une neuve | idem |
+| retirer une ligne AVANT | **ne bouge pas** | ⛔ **glisse en silence** : la 3ᵉ devient la 2ᵉ, et l'override de la 2ᵉ mord sur elle |
+| retirer la ligne à l'id nu | ⚠️ la suivante prend `dagger` ; un override sur son `:gear-N` devient orphelin — **et `rebuild` le dit** | idem, en pire |
+
+⭐ Et c'est déjà le nom de ligne des effets d'objets (`effects[].line` = N) : une ligne a UN nom, partout.
+⛔ **`:` et pas `~`** : `$defs/slug` n'admet que `[a-z0-9:_-]`, et un slug de RECORD n'admet jamais `:` —
+`dagger:gear-N` ne peut être le slug d'aucun autre objet.
+
+⚖️ **LA FUSION DU KIT RESTE LA LOI, POUR LE MÊME OBJET AU MÊME ENDROIT.** Deux dagues identiques dans le
+même sac sont une pile, pas deux lignes. ⛔ Mais une dague +1 n'est pas une dague : avant ce lot, le
+kit du Rogue se fondait dans une dague craftée et faisait **trois dagues +1** (mesuré). Désormais :
+même record, **aucune recette** (`bonus`, `plan`, `powers`, `note`, `variant`, `spell`), et **au sac**
+(`location` absente = *backpack*). Sinon, le kit ouvre sa propre ligne.
+⏳ **CE QUI N'EST PAS TRANCHÉ ET NE DOIT PAS ÊTRE INVENTÉ** : rien ne REFUSIONNE deux piles identiques
+que le joueur a séparées (`equipement-scinder-une-pile` le disait déjà) ; et retirer une ligne ne retire
+pas les overrides ancrés sur elle.
+
+📌 **CE QUI LA TIENT** : `src/build/ancre-de-ligne.mjs` (le seul écrivain de l'ancre) et
+`tests/deux-lignes-du-meme-objet.test.mjs` — sept témoins, vus rouges sur le moteur de `main`, et cinq
+mutations jouées, cinq rouges.
+
+---
+
 ### 🎒 LE SAC — CE QU'UN RANG B PORTE, ET D'OÙ ÇA VIENT
 📍 `equipement-le-sac-porte-ce-que-la-source-dit` · vivante · 18/09
 ⚖️ **B1 porte une grille de jetons, le COMPTE à gauche et la PAGE à droite, le parchemin permanent, QUATRE lignes de poids, `DROP` et `SEND TO ▾` — et son pied dit `Gear · Send · Wares`.**
@@ -9208,7 +9252,7 @@ fichier serait vert pour rien)*.
 📌 **CE QUI LA TIENT** : `tests/decor-ne-se-laisse-pas-saisir.test.mjs` (neuf cas, chacun vu rouge par mutation) et `tests/de-ne-prend-pas-le-pointeur.test.mjs` (lot 203, intact).
 
 ## 7 sexies. ⚖️ UN AIGUILLEUR QUI EXIGE UNE RÉPONSE EST UN **POPUP À QCM**, ET IL PORTE UN `Done` *(lot 245, 2026-09-21)*
-📍 `popup-qui-exige-une-reponse-est-un-qcm` · vivante · 21/09
+📍 `popup-qui-exige-une-reponse-est-un-qcm` · vivante · 21/09 · bornée par `equipement-deux-lignes-du-meme-objet`
 ⚖️ **§2 dit d'un popup qu'il « parle, on ne l'appuie pas ». C'est vrai du popup qui PRÉVIENT. Celui qui EXIGE une réponse est un autre organe : il pose ses questions en QCM, une section par source, et il se ferme par un `Done` unique.**
 
 🔴 **CETTE QUESTION ÉTAIT OUVERTE DEPUIS LE 26/08, ET ELLE VIVAIT DANS UN COMMENTAIRE** — `equipment-step.mjs` : *« §7 range l'aiguilleur parmi les POPUPS, et §2 dit qu'un popup parle, on ne l'appuie pas. Celui-ci porte DEUX boutons. Un aiguilleur qui exige une réponse n'est donc pas la même forme qu'un aiguilleur qui prévient en passant. **À Eric de dire si ce sont deux organes ou un seul.** »* ⛔ **Une règle écrite dans un commentaire n'existe pas** : personne ne l'a lue en vingt-six jours, et la question serait revenue au prochain popup à boutons.
@@ -9241,7 +9285,7 @@ fichier serait vert pour rien)*.
 
 ⛔ Les rapprocher **à la main** resterait le second écrivain : *« Arrows → Ammunition »* est une règle de jeu, elle appartient à **la couche** (`srfh-mecaniques-en`), et l'écran ne fait que lire un champ déclaré. Voir la section suivante.
 
-⚠️ **UN `gear[]` N'ADMET PAS DEUX LIGNES DU MÊME RECORD**, et ce n'est pas une préférence d'écran : `rebuild` JETTE — *« deux entrées portent l'id "dagger" — l'ancre d'override les désigne les deux, et aucune ne gagne par défaut »*. ⭐ Le kit **FUSIONNE** donc avec ce que le joueur possède déjà, et la fusion vit dans le LECTEUR, pas dans le geste : deux arithmétiques de la même quantité divergent.
+⚠️ ~~**UN `gear[]` N'ADMET PAS DEUX LIGNES DU MÊME RECORD**, et ce n'est pas une préférence d'écran : `rebuild` JETTE — *« deux entrées portent l'id "dagger" — l'ancre d'override les désigne les deux, et aucune ne gagne par défaut »*.~~ **Amendé le 26/09 (lot 296)** — voir `equipement-deux-lignes-du-meme-objet` : deux lignes du même record ont désormais deux ancres, et `rebuild` ne jette plus. ⭐ Le kit **FUSIONNE** toujours avec ce que le joueur possède déjà, **mais seulement avec le même objet au même endroit** (même record, sans recette, au sac) — et la fusion vit dans le LECTEUR, pas dans le geste : deux arithmétiques de la même quantité divergent.
 
 📏 **CE QUE LA CARTE MESURE** (navigateur, 512 × 764, `prefers-color-scheme: light`) : **549 blg en pile Fate's Hand** (une question, une constatation) contre **681 en pile SRD** (deux questions) — pour la **même classe**. ⭐ C'est le témoin de la lecture de pile : deux rendus identiques voudraient dire que la pile n'est pas lue. ⚠️ **Et 681 est exactement la hauteur disponible** : la carte SRD tient au blg près. Une ligne de plus déborde. C'est pour ça que le titre d'une section porte sa consigne (*« 1 Fighter — Choose: »*) au lieu d'avoir une ligne à lui — ⛔ et pas un défilement interne : la loi est de demander ce que le contenu porte **EN TROP**.
 

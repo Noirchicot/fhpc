@@ -464,9 +464,11 @@ test("lot 288 — ⚖️ UNE LIGNE SCINDÉE GARDE SA RECETTE DES DEUX CÔTÉS, e
       if ((apres.build.choices || []).some((x) => x.path.startsWith(`gear[${neuve}].${c}`))) couverts.add(c);
     }
     /* ⭐ PAR LA DONNÉE : la part détachée, SEULE, le moteur la nomme comme la source et consomme
-       toute sa recette. ⚠️ SEULE, parce que le moteur refuse deux lignes du même record
-       (`resolved.gear` : « deux entrées portent l'id "arrows" ») — un défaut d'avant ce lot,
-       signalé à part : on retire donc la source avant de reconstruire. */
+       toute sa recette. ⚠️ SEULE : jusqu'au lot 296, le moteur refusait deux lignes du même
+       record (`resolved.gear` : « deux entrées portent l'id "arrows" »). ⭐ Lot 296 : les deux
+       côtés ensemble se reconstruisent aussi — chacun sous sa propre ancre. */
+    const ensemble = build.verbs.rebuild({ document: apres }).resolved.gear;
+    assert.equal(new Set(ensemble.map((g) => g.id)).size, ensemble.length, "lot 296 — deux lignes, deux ancres");
     const nomSource = build.verbs.rebuild({ document: doc }).resolved.gear
       .map((g) => g.name)[currentGearLines(doc).findIndex((l) => l.index === source.index)];
     const seule = retirerLaLigne({ document: apres, verbs: build.verbs, index: source.index });
@@ -1147,8 +1149,8 @@ test("245 — 🔴 `Done` POSE VRAIMENT LES OBJETS DANS GEAR — c'est le défau
 
   /* 🔴 SEPT OBJETS RAPPROCHÉS, MAIS PAS SEPT LIGNES NEUVES — et cette
      différence EST le second enseignement du lot. Ilyra porte déjà une dague ;
-     le kit du Rogue en apporte deux. ⛔ `rebuild` JETTE sur deux lignes du même
-     record (*« deux entrées portent l'id "dagger" »*), donc le kit FUSIONNE.
+     le kit du Rogue en apporte deux, et le kit FUSIONNE avec le même objet au
+     même endroit (lot 296 : ce n'est plus l'invariant qui l'y force).
      ⭐ Le compte qui fait foi est celui des poses, pas celui des lignes. */
   const butin = butinDuDepart({ query, document: docRogue, reponses: { class: "A" } });
   /* ⚖️ LOT 246 — HUIT, PAS SEPT, ET LE HUITIÈME EST LA MUNITION. Ce garde
@@ -1174,7 +1176,7 @@ test("245 — 🔴 `Done` POSE VRAIMENT LES OBJETS DANS GEAR — c'est le défau
      document. */
   const rapport = rebuild(apres);
   const dagues = rapport.resolved.gear.filter((g) => /dagger/i.test(g.name || ""));
-  assert.equal(dagues.length, 1, "⛔ une seule entrée par record : c'est l'invariant que `rebuild` défend");
+  assert.equal(dagues.length, 1, "⭐ la dague d'Ilyra est au sac et sans recette : le kit s'y FOND (lot 296, `equipement-deux-lignes-du-meme-objet`)");
   const avantDague = currentGearLines(docRogue).find((l) => l.ref && /dagger/.test(l.ref.id));
   assert.equal(dagues[0].quantity, (avantDague.quantity || 0) + 2,
     "« 2 Daggers » — la quantité se LIT dans la phrase, et elle S'AJOUTE à ce qui est déjà là");
