@@ -1595,9 +1595,11 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     if (bonus !== tools[i].bonus) tools[i] = { ...tools[i], bonus };
   }
 
-  if (resolved.tools.length === 0 && !underived.has("tools")) {
-    underived.declare("tools", "underived.no-tool-granted", {});
-  }
+  /* ⚖️ LOT 298 — AUCUN OUTIL N'EST UNE RÉPONSE, PAS UNE DÉRIVATION MANQUÉE. Eric, 26/09, à la
+     question « un personnage sans outil voit “Tools : not derived yet” — afficher “None” ? » :
+     « oui none ». Les outils ont été dérivés, la liste est vide : ⛔ plus de déclaration
+     `underived.no-tool-granted` (elle faisait dire « pas encore » à une fiche complète). Un
+     `underived` posé plus haut pour une VRAIE raison reste, lui. */
 
   /* La collection est vide et AUCUN module n'a tourné : c'est le cas du
      personnage SRD pur, et la liste vide doit se déclarer comme les autres

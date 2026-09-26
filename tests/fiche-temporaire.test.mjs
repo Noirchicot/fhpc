@@ -266,3 +266,19 @@ test("7 — chaque raison que le moteur ÉMET a ses mots, jamais son identifiant
     assert.notEqual(motDeLaRaison(raison), MOTS_FICHE.sansRaison);
   }
 });
+
+/* ══ 8 — ⚖️ AUCUN OUTIL = « None » — lot 298 ═════════════════════════════════════════════
+   Eric, 26/09, à « un personnage sans outil voit “Tools : not derived yet” — afficher “None” ? » :
+   « oui none ». ⭐ TÉMOIN : un Wizard sans outil — le moteur ne déclare plus d'`underived` sur
+   `tools`, et la fiche dit « None ». ⛔ La question ne portait QUE sur les outils : `craft` garde
+   son « not derived yet » (aucun module d'artisanat au moteur). */
+test("8 — un personnage sans outil lit « None » à Tools, pas « not derived yet »", () => {
+  const p = perso();
+  assert.deepEqual(p.document.resolved.tools, [], "témoin : aucun outil accordé");
+  assert.ok(!p.report.underived.some((u) => u.path === "tools" || /tool/.test(u.key || "")),
+    "⛔ une liste d'outils vide n'est pas une dérivation manquée");
+  const n = fiche(p);
+  assert.match(rubrique(n, "tools").textContent, /None/, "⭐ la fiche dit « None »");
+  assert.doesNotMatch(rubrique(n, "tools").textContent, /not derived yet/);
+  assert.match(rubrique(n, "craft").textContent, /not derived yet/, "⛔ craft n'était pas dans la question");
+});

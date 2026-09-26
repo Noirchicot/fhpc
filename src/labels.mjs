@@ -268,7 +268,6 @@ export const FR_UNDERIVED = {
     "le record d'outil acheté au pool ne porte pas `ability_key` — même trou que l'outil d'arrière-plan " +
     "(question 3 à l'architecte).",
   "underived.proficiency-not-derived-tools": () => "le bonus de maîtrise n'a pas été dérivé.",
-  "underived.no-tool-granted": () => "aucune maîtrise d'outil accordée par les choix.",
   "underived.no-action-genre": () =>
     "aucun genre `action` parmi les 14 ; composer une attaque depuis une arme demande une règle (Finesse, " +
     "Lancer) que le contrat ne porte pas, et `weapon.properties` est une phrase.",
@@ -423,7 +422,6 @@ export const EN_UNDERIVED = {
     "the tool record bought from the pool carries no `ability_key` — same gap as the background's tool " +
     "(question 3 to the architect).",
   "underived.proficiency-not-derived-tools": () => "the proficiency bonus was not derived.",
-  "underived.no-tool-granted": () => "no tool proficiency was granted by the choices.",
   "underived.no-action-genre": () =>
     "no `action` genre among the 14; composing an attack from a weapon needs a rule (Finesse, Thrown) the " +
     "contract does not carry, and `weapon.properties` is a phrase.",

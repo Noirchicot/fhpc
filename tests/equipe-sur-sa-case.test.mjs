@@ -429,3 +429,20 @@ test("9 — ⚖️ Equip ON depuis le sac : une main libre, sinon Pocket/weapon,
   assert.deepEqual(r.actions, [{ kind: "moveGearLine", index: r.index, location: "backpack", equipped: false }], "« sinon backpack » — le mot de l'arbitre");
   assert.equal(r.ligne.equipped, false, "⛔ au sac, pas équipé");
 });
+
+/* ══ 10 — LES MUNITIONS MAGIQUES — lot 298 ═══════════════════════════════════════════════
+   ⚖️ Eric, 2026-09-26, mot pour mot : « Munitions magiques hand weapon pocket extra » — en
+   réponse à : « elles se portent en main (catégorie `weapon` du record) — ça te va ? ».
+   ⭐ Arm/hands 1-2, Pocket/weapon 1-2 (le slot `hands`) et Extra storage 1-4 (polyvalentes) ;
+   ⛔ nulle part ailleurs, et jamais au sol. */
+test("10 — ⚖️ les munitions magiques s'équipent en main, en Pocket/weapon et en Extra storage — nulle part ailleurs", () => {
+  const slotDe = slotsDeLaPile(query);
+  const attendues = ["fourreau1", "fourreau2", "fourreau3", "fourreau4", "poche1", "poche2", "poche3", "poche4"];
+  const toutes = [...BOITES.map((b) => b.clef), "sol1", "sol2", "s0", "party"];
+  for (const id of ["srd:item:en:ammunition-1-2-or-3", "srd:item:en:ammunition-of-slaying"]) {
+    const slot = slotDe({ kind: "item", id });
+    assert.equal(slot, "hands", `${id} : le slot se lit dans la catégorie du record`);
+    assert.deepEqual(toutes.filter((b) => caseValide(b, slot)).sort(), [...attendues].sort(),
+      `${id} : hand · weapon · pocket · extra, et rien d'autre`);
+  }
+});

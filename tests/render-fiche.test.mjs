@@ -229,11 +229,17 @@ test("privé d'une rubrique, l'écran affiche la RAISON du moteur — jamais un 
   assert.ok(sansRapport.includes(echappe(MOTS.videSansRaison)), "et l'écran le DIT au lieu de laisser une case vide");
 });
 
-test("les cinq rubriques vides du personnage FH disent toutes pourquoi", () => {
+test("les rubriques vides du personnage FH disent toutes pourquoi — sauf `tools`, vide et COMPLÈTE (lot 298)", () => {
   const html = render(exemple.document, exemple.report);
+  /* ⚖️ LOT 298 — Eric, 26/09 : « oui none » (aucun outil = une réponse, pas une dérivation
+     manquée). Le moteur ne déclare plus `underived` sur une liste d'outils vide : Expert view
+     la dit « vide, sans raison » — ce qui est exact —, la fiche du joueur dit « None ». */
+  const outils = section(html, "tools");
+  assert.deepEqual(exemple.document.resolved.tools, [], "témoin : Ilyra n'a aucun outil");
+  assert.ok(!outils.includes(echappe(MOTS.nonDerive)), "⛔ plus de « non dérivé » sur des outils absents");
   const vides = RUBRIQUES.filter((cle) => {
     const valeur = exemple.document.resolved[cle];
-    return Array.isArray(valeur) ? valeur.length === 0 : false;
+    return cle !== "tools" && (Array.isArray(valeur) ? valeur.length === 0 : false);
   });
   assert.ok(vides.length > 0, "un niveau 1 en a forcément — sinon ce test ne prouverait rien");
   for (const cle of vides) {

@@ -4394,6 +4394,10 @@ donnée (`kind`, `category`, `armor_category`, `subtype`), ⛔ jamais dans une l
 ce qui donne sa case à une Flame Tongue, une Adamantine Armor ou un Staff of Fire.
 ⭐ **Un objet sans slot** (Luckstone, Scarab, Pearl of Power, Horseshoes…) **s'équipe sur une case
 polyvalente**, et nulle part ailleurs. ⛔ On n'invente pas de correspondance pour ses cases propres.
+⭐ **Les munitions magiques** (`Ammunition, +1, +2, or +3`, `Ammunition of Slaying` — catégorie
+`weapon` du record, donc slot `hands`) : ⚖️ Eric, 26/09 : **« Munitions magiques hand weapon pocket
+extra »** — Arm/hands 1-2, Pocket/weapon 1-2, Extra storage 1-4 ; rien d'autre (garde 10 de
+`tests/equipe-sur-sa-case.test.mjs`).
 ⏳ Les deux **Body forging** attendent Eric.
 
 | qui | ce qu'il fait |
