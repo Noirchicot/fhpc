@@ -13533,6 +13533,15 @@ select.x5-drop {
   border-color: var(--info);
   box-shadow: var(--relief), 0 0 6px 1px var(--spy-halo);
 }
+/* ⚖️ LOT 290 — LE COLLECTEUR DU PARCHEMIN. VIDE, c'est `.gear-collecteur` tel quel (le creux,
+   sa lumière sous le doigt) : ⛔ rien à écrire ici. REMPLI, il porte l'habit du jeton et le
+   liseré bleu du collecteur (NORMES §2 ter, `collecteur-lisere-etats` : « bleu = pose
+   valide ») — l'encre de `.gear-collecteur` qui retient. Visé par un autre sort, il s'allume
+   comme toute cible (`[data-vise]`). */
+.x5-jeton[data-rempli="true"] { border-color: var(--info); }
+.x5-jeton[data-vise="true"] { border-color: var(--accent); }
+/* le jeton qu'on glisse pâlit, comme tout jeton du vivier (`.glisse-jeton[data-glisse]`) */
+.x5-sort[data-glisse="true"] { opacity: .35; cursor: grabbing; }
 .x5-pages { display: flex; align-items: center; justify-content: center; }
 /* ⚖️ LA NOTE — « toujours mettre rareté prix qté » : le scribing et la rareté à l'encre du titre,
    puis la quantité et le total en bleu, l'encre qui guide (celle de la phrase). */

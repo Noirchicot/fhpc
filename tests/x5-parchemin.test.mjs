@@ -163,14 +163,51 @@ test("parchemin 7 — ⚖️ « TOUJOURS METTRE RARETÉ PRIX QTÉ » : la note e
     "⚖️ « pas plus de 10 » (Eric, 24/09)");
 });
 
-test("parchemin 8 — ⭐ UN JETON SE TOUCHE POUR ÊTRE CHOISI — et l'état choisi se voit", () => {
-  const recus = [];
-  const { noeud } = monte({ choix: { classe: "Wizard", niveau: 3, sort: "Fireball" }, surChoix: (o, v) => recus.push([o, v]) });
+/* ⭐ LES GESTES, AU SENS DE `glisser.mjs` — la forme de `wares-ecran.test.mjs` (tests 20) :
+   appui puis relâché sans bouger = un TAP ; appui, 60 px, relâché sur une cible = un GLISSER.
+   ⚠️ Le geste vit sur le `document` au moment de l'appui : il reste posé pendant le geste. */
+function avecDocument(fn) {
+  const avant = globalThis.document;
+  globalThis.document = createTestDocument();
+  try { return fn(); }
+  finally { if (avant === undefined) delete globalThis.document; else globalThis.document = avant; }
+}
+function tap(jeton, pointerType = "touch") {
+  avecDocument(() => {
+    document.elementFromPoint = () => null;
+    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  });
+}
+function glisserVers(jeton, cible) {
+  avecDocument(() => {
+    document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? cible : null) });
+    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+    document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
+    document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });
+  });
+}
+const jetonDe = (n, nom) => [...n.querySelectorAll(".x5-sort")].find((j) => j.dataset.sort === nom);
+
+test("parchemin 8 — ⭐ LE GESTE DU VIVIER : doigt tap = info, souris clic gauche = choisir — et l'état choisi se voit", () => {
+  const recus = [], infos = [];
+  const { noeud } = monte({ choix: { classe: "Wizard", niveau: 3, sort: "Fireball" },
+    surChoix: (o, v) => recus.push([o, v]), surInfo: (s) => infos.push(s.data.name) });
   const choisis = [...noeud.querySelectorAll(".x5-sort")].filter((j) => j.getAttribute("aria-pressed") === "true");
   assert.deepEqual(choisis.map((j) => j.dataset.sort), ["Fireball"], "⭐ un seul jeton choisi, celui du sort");
-  const autre = [...noeud.querySelectorAll(".x5-sort")].find((j) => j.dataset.sort === "Fly");
-  autre.dispatchEvent(new Event("click"));
-  assert.deepEqual(recus.at(-1), ["SORT", "Fly"], "⭐ le tap rend le sort à l'appelant");
+  tap(jetonDe(noeud, "Fly"), "touch");
+  assert.deepEqual(infos, ["Fly"], "⚖️ au doigt, le tap ouvre l'info du sort");
+  assert.deepEqual(recus, [], "⛔ au doigt, un tap ne choisit pas");
+  tap(jetonDe(noeud, "Fly"), "mouse");
+  assert.deepEqual(recus.at(-1), ["SORT", "Fly"], "⚖️ à la souris, le clic gauche choisit");
+  assert.equal(infos.length, 1, "⛔ le clic gauche n'ouvre pas l'info");
+  jetonDe(noeud, "Haste").dispatchEvent({ type: "contextmenu", preventDefault() {} });
+  assert.deepEqual(infos.at(-1), "Haste", "⚖️ le clic droit ouvre l'info");
+  /* ⛔ SANS VUE D'INFO, le tap choisit au doigt aussi (la clause du vivier) */
+  const sans = [];
+  const nu = monte({ choix: { classe: "Wizard", niveau: 3 }, surChoix: (o, v) => sans.push([o, v]) }).noeud;
+  tap(jetonDe(nu, "Fly"), "touch");
+  assert.deepEqual(sans, [["SORT", "Fly"]]);
   const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
   assert.match(css, /\.x5-sort\[aria-pressed="true"\]\s*\{[^}]*box-shadow:[^}]*--spy-halo/, "⭐ le halo dit le choix à l'œil");
 });
@@ -224,8 +261,71 @@ test("parchemin 11 — 💰 `SEND` PAIE LE COÛT DE SCRIBING et rend le sort —
   const vide = monte({ choix: { classe: "Wizard", niveau: 3 }, surEnvoyer: () => {}, surJeton: () => {} }).noeud;
   assert.equal(organe(vide, "SEND").disabled, true);
   assert.match(organe(vide, "SEND").title, /choose a spell first/);
-  assert.equal(organe(vide, "JETON").disabled, true);
-  assert.equal(organe(vide, "JETON").querySelector(".jeton-nom").textContent, "Spell Scroll");
+  assert.equal(organe(vide, "JETON").textContent, "", "⛔ sans sort, le collecteur ne dit rien (lot 290)");
+});
+
+/* ══ LOT 290 — LE COLLECTEUR ══════════════════════════════════════════════════
+   ⚖️ Eric, 26/09 : *« le collecteur doit être vide pour accueillir le sort dans X5 »*. */
+
+test("parchemin 11 bis — ⚖️ SANS SORT, LE COLLECTEUR EST VIDE : le creux de l'Équipement, aucun mot, une cible", () => {
+  const vide = organe(monte({ choix: { classe: "Wizard", niveau: 3 } }).noeud, "JETON");
+  assert.equal(vide.textContent, "", "⛔ un mot dans le collecteur vide");
+  assert.equal(vide.querySelector(".jeton-nom"), null, "⛔ pas de corps de jeton : il n'y a rien de posé");
+  assert.doesNotMatch(vide.getAttribute("aria-label"), /Spell Scroll/, "⛔ « Spell Scroll » avant tout choix");
+  assert.ok(vide.className.split(" ").includes("gear-collecteur"), "⭐ le collecteur de l'Équipement, réutilisé — ⛔ pas un style neuf");
+  assert.equal(vide.dataset.rempli, "false");
+  assert.equal(vide.dataset.creneau, "x5:sort", "⭐ il annonce qu'il accueille un dépôt");
+  /* ⭐ ET LE COLLECTEUR VIDE EXISTE DANS LA FEUILLE : le creux, et la lumière sous le doigt */
+  const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  assert.match(css, /\.gear-emplacement, \.gear-collecteur \{[^}]*box-shadow: var\(--creux\)/, "le creux");
+  assert.match(css, /\.gear-collecteur\[data-vise="true"\]\s*\{/, "la cible s'allume");
+});
+
+test("parchemin 11 ter — ⭐ UN SORT CHOISI SE POSE DANS LE COLLECTEUR : « Spell Scroll (X) », rempli, cible encore", () => {
+  for (const [classe, niveau, sort] of [["Wizard", 3, "Fireball"], ["Cleric", 1, "Bless"]]) {
+    const j = organe(monte({ choix: { classe, niveau, sort } }).noeud, "JETON");
+    assert.equal(j.querySelector(".jeton-nom").textContent, `Spell Scroll (${sort})`);
+    assert.equal(j.dataset.rempli, "true");
+    assert.equal(j.dataset.creneau, "x5:sort", "⭐ un autre sort glissé dessus le remplace");
+    assert.ok(!j.className.split(" ").includes("gear-collecteur"), "⭐ rempli, il prend l'habit du jeton");
+  }
+});
+
+test("parchemin 11 quater — ⚖️ CHANGER DE CLASSE OU DE NIVEAU REVIDE LE COLLECTEUR", () => {
+  /* dans l'écran : le sort d'un autre niveau n'est pas offert → le collecteur est vide */
+  const n = monte({ choix: { classe: "Wizard", niveau: 2, sort: "Fireball" }, surEnvoyer: () => {} }).noeud;
+  assert.equal(organe(n, "JETON").dataset.rempli, "false", "⛔ Fireball n'est pas un sort de niveau 2");
+  assert.equal(organe(n, "SEND").disabled, true, "⛔ et Send reste inactif");
+  const c = monte({ choix: { classe: "Paladin", niveau: 3, sort: "Fireball" } }).noeud;
+  assert.equal(organe(c, "JETON").dataset.rempli, "false", "⛔ Fireball n'est pas un sort de Paladin");
+  /* et dans l'appelant : CLASS et LEVEL remettent le sort à `null` */
+  const ecran = lire("ui/builder/equipment-step.mjs");
+  assert.match(ecran, /if \(organe === "CLASS"\) \{ c\.classe = valeur; c\.sort = null;/, "⛔ CLASS ne revide plus le sort");
+  assert.match(ecran, /else if \(organe === "LEVEL"\) \{ c\.niveau = Number\(valeur\); c\.sort = null;/, "⛔ LEVEL ne revide plus le sort");
+});
+
+test("parchemin 11 quinquies — ⭐ GLISSER UN SORT SUR LE COLLECTEUR LE CHOISIT — ⛔ et ce n'est pas un tap", () => {
+  const recus = [], infos = [];
+  const n = monte({ choix: { classe: "Wizard", niveau: 3 },
+    surChoix: (o, v) => recus.push([o, v]), surInfo: (s) => infos.push(s.data.name) }).noeud;
+  const collecteur = organe(n, "JETON");
+  glisserVers(jetonDe(n, "Fly"), collecteur);
+  assert.deepEqual(recus, [["SORT", "Fly"]], "⛔ le dépôt sur le collecteur n'a rien choisi");
+  assert.deepEqual(infos, [], "⛔ un glisser a aussi ouvert l'info");
+  /* ⛔ lâché ailleurs : rien */
+  glisserVers(jetonDe(n, "Haste"), { dataset: { creneau: "ailleurs" } });
+  assert.equal(recus.length, 1, "⛔ un dépôt hors du collecteur a choisi");
+  /* ⭐ rempli, il accueille encore : un autre sort remplace le premier */
+  const plein = monte({ choix: { classe: "Wizard", niveau: 3, sort: "Fireball" }, surChoix: (o, v) => recus.push([o, v]) }).noeud;
+  glisserVers(jetonDe(plein, "Haste"), organe(plein, "JETON"));
+  assert.deepEqual(recus.at(-1), ["SORT", "Haste"]);
+});
+
+test("parchemin 11 sexies — ⭐ L'INFO DU SORT EST CELLE DE L'ÉTAPE DES SORTS (`spellInfo`), ⛔ pas une vue neuve", () => {
+  const ecran = lire("ui/builder/equipment-step.mjs");
+  assert.match(ecran, /import \{ spellInfo \} from "\.\/class-step\.mjs\?v=\d+";/);
+  assert.match(ecran, /surInfo: \(s\) => \{[^}]*spellInfo\(query, ref\.id\)[^}]*act\(info\)/,
+    "⛔ X5 n'ouvre plus l'info du sort par `spellInfo` et le popup de la coquille");
 });
 
 /* ══ ⑥ LE MOTEUR ET L'ÉCRAN ═══════════════════════════════════════════════════ */
