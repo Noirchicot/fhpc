@@ -68,3 +68,51 @@ export function texteDeLaNote(n) {
   const or = n.cout >= 1 ? `${Math.round(n.cout).toLocaleString("en-US")} GP` : `${Math.round(n.cout * 10)} SP`;
   return `Crafting: ${jours} · ${or} · ${n.rarete}`;
 }
+
+/* ══ LOT 285 — LE SCRIBING DES PARCHEMINS : LA TABLE DU SRD, ET RIEN D'AUTRE ══════════
+   ⚖️ Eric, 2026-09-26 : *« n'extrapole pas le prix du parchemin par rapport à la rareté,
+   garde les prix SRD »*. ⛔ Le parchemin ne passe donc PAS par les paliers ci-dessus : ni
+   `noteDeCraft`, ni palier le plus proche, ni demi-palier. Sa rareté (Common … Legendary)
+   n'est qu'une ÉTIQUETTE, lue dans la table du record `Spell Scroll` — ⛔ pas ici.
+   📏 Un niveau 3 le montre : le SRD dit 5 jours · 150 GP, le palier Uncommon dirait 10 jours
+   · 200 GP. Le garde `parchemin` 2 rougit si l'un devient l'autre.
+   ⭐ LE SOCLE, MOT POUR MOT — SRD 5.2.1, « Scribing Spell Scrolls » (p. 103), vérifié dans le
+   PDF officiel, et recopié par le chapitre Crafting du vault (`0. D&D 5+ Rules/3. Magic &
+   Soulforging/Crafting.md`, « Spell Scrolls ») :
+     niveau   Cantrip  1   2    3    4      5      6       7       8       9
+     temps    1 j      1   3    5    10     25     40      50      60      120
+     coût     15 GP    25  100  150  1,000  1,500  10,000  12,500  15,000  50,000
+   ⭐ Le parchemin est HORS de la règle du consommable (p. 206 : *« halved for a consumable
+   item other than a Spell Scroll »*) : ni ÷ 2 du temps, ni ÷ 2 du coût.
+   ⭐ LA VALEUR EST LE DOUBLE DU COÛT — la règle de tout le craft du SRD (le coût est la moitié
+   de la valeur), que le chapitre Crafting écrit pour le parchemin : *« A scroll is worth twice
+   its scribing cost »*. ⛔ Elle n'est pas écrite dans la table : elle s'en déduit. */
+export const SCRIBING_SRD = Object.freeze([
+  { niveau: 0, jours: 1, cout: 15 },
+  { niveau: 1, jours: 1, cout: 25 },
+  { niveau: 2, jours: 3, cout: 100 },
+  { niveau: 3, jours: 5, cout: 150 },
+  { niveau: 4, jours: 10, cout: 1000 },
+  { niveau: 5, jours: 25, cout: 1500 },
+  { niveau: 6, jours: 40, cout: 10000 },
+  { niveau: 7, jours: 50, cout: 12500 },
+  { niveau: 8, jours: 60, cout: 15000 },
+  { niveau: 9, jours: 120, cout: 50000 },
+].map((l) => Object.freeze(l)));
+
+/** Le scribing d'un niveau de sort : `{ niveau, jours, cout, valeur }`, ou `null`.
+ *  ⭐ `valeur` = 2 × `cout`, calculée ici — un seul écrivain. */
+export function scribingDuNiveau(niveau) {
+  const l = SCRIBING_SRD.find((x) => x.niveau === niveau);
+  return l ? { ...l, valeur: 2 * l.cout } : null;
+}
+
+/** La note de craft d'un parchemin — la MÊME forme que `noteDeCraft`, pour que
+ *  `texteDeLaNote` l'écrive : « Crafting: 5 days · 150 GP · Uncommon ».
+ *  @param rarete l'étiquette LUE dans le record (`raretesDuParchemin`) — ⛔ jamais déduite.
+ *  ⛔ Un niveau hors table, ou une rareté absente, rend `null` : la note se tait. */
+export function noteDeScribing({ niveau, rarete } = {}) {
+  const l = scribingDuNiveau(niveau);
+  if (!l || typeof rarete !== "string" || !rarete) return null;
+  return { jours: l.jours, cout: l.cout, rarete };
+}

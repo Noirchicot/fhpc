@@ -105,6 +105,18 @@ const cas = [
    { plan: PLAN_ARME, choix: { base: "Longsword", bonus: "Uncommon", status: "Found" } }],
 ];
 
+/* ⭐ LOT 285 — LE PARCHEMIN DE SORT, SUR LA PILE VRAIE. La couche SRD est un JSON, pas un module
+   Node : elle se LIT ici telle quelle — le plan `Spell Scroll` (sa table niveau → rareté) et ses
+   339 sorts. ⛔ Aucun record recopié à la main pour ces deux cas. */
+const couche = await (await fetch("../../layers/srd-5.2.1-en.layer.json?v=829")).json();
+const PLAN_PARCHEMIN = couche.records.item["srd:item:en:spell-scroll"];
+const SORTS = Object.values(couche.records.spell);
+cas.push(
+  ["⑦ Spell Scroll — Wizard · Level 3 · Fireball choisi · Qty 2 : 5 days · 150 GP · Uncommon",
+   { plan: PLAN_PARCHEMIN, sorts: SORTS, choix: { classe: "Wizard", niveau: 3, sort: "Fireball", qte: 2 } }],
+  ["⑧ Spell Scroll — Paladin · Level 5 : une seule page, pas de chevron, rien de choisi",
+   { plan: PLAN_PARCHEMIN, sorts: SORTS, choix: { classe: "Paladin", niveau: 5 } }]);
+
 const planche = document.getElementById("planche");
 for (const [titre, options] of cas) {
   const fig = document.createElement("figure");

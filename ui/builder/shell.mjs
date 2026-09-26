@@ -2202,6 +2202,11 @@ function applyDecisionAction(action) {
       if (typeof recette.variante === "string" && recette.variante) {
         document = verbs.set({ document, path: `gear[${index}].variant`, value: recette.variante }).document;
       }
+      /* ⭐ LOT 285 — le SORT d'un parchemin (`Spell Scroll` → Fireball) : une RÉFÉRENCE au record
+         du sort ; le moteur en tire le nom, l'écran le niveau, donc le prix et la rareté. */
+      if (recette.sort) {
+        document = verbs.choose({ document, path: `gear[${index}].spell`, ref: recette.sort }).document;
+      }
     }
     state.document = document;
     rebuild();

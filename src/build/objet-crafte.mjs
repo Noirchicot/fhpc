@@ -51,10 +51,11 @@ export function nomCrafte({ base, bonus = null, pouvoirs = [] } = {}) {
 }
 
 /** La ligne porte-t-elle une recette ? — un bonus lisible, au moins un pouvoir, ou
- *  (lot 277) une variante. */
-export function estCrafte({ bonus = null, pouvoirs = [], variante = null } = {}) {
+ *  (lot 277) une variante, ou (lot 285) le sort d'un parchemin. */
+export function estCrafte({ bonus = null, pouvoirs = [], variante = null, sort = null } = {}) {
   return lireLeBonus(bonus) !== null || (pouvoirs || []).length > 0
-    || (typeof variante === "string" && variante.trim() !== "");
+    || (typeof variante === "string" && variante.trim() !== "")
+    || Boolean(sort && typeof sort === "object" && sort.id);
 }
 
 /* ══ LOT 277 — LE BLUEPRINT À VARIANTE : UN SEUL CHOIX, LA VARIANTE ══════════════
@@ -201,5 +202,69 @@ export function texteDUneVariante(data, mot) {
     }
     if (EST_UNE_LIGNE_DE_TIRAGE.test(p) && dansUnTirage(i)) return parle(p, choisie) || !autres.some((v) => parle(p, v));
     return true;
+  }).join("\n\n");
+}
+
+/* ══ LOT 285 — LE PARCHEMIN DE SORT : UN PLAN, UN SORT ═══════════════════════════
+   ⚖️ Eric, 2026-09-26, la dictée de X5 : *« choisir : classe de sort · choisir lvl ·
+   4 étages de sorts token, un dropdown · send »*. Le `Spell Scroll` du SRD est un plan
+   (`Rarity Varies`) : ce qu'on acquiert n'est pas encore l'objet, il faut choisir le SORT.
+
+   ⭐ LA LIGNE POSÉE pointe sur le PLAN (`gear[N]` = `Spell Scroll`), et porte UN complément :
+     · `gear[N].spell` — une RÉFÉRENCE au record du sort (`srd:spell:en:fireball`).
+   ⛔ Ni niveau, ni rareté, ni prix écrits : le niveau se lit dans le sort, la rareté dans la
+   table du plan, le prix dans le barème (`bareme-srfh.mjs`, « Scribing Spell Scrolls »).
+
+   ⭐ LE PLAN SE RECONNAÎT À SA TABLE, jamais à son nom : sa description porte, niveau par
+   niveau, « Spell Level · Rarity · Save DC · Attack Bonus » (📏 lu dans la couche SRD :
+   « Cantrip Common 13 +5 » … « 9 Legendary 19 +11 », dix lignes, l'en-tête répété au
+   milieu). ⛔ Moins de deux lignes lues = ce n'est pas un parchemin. */
+const LIGNE_DE_PARCHEMIN = /^(Cantrip|\d)\s+(Very Rare|Legendary|Uncommon|Common|Rare)\s+(\d+)\s+\+(\d+)$/i;
+const EN_TETE_DE_PARCHEMIN = /^Spell Level\s+Rarity\s+Save DC\s+Attack Bonus$/i;
+
+/** La table du plan, lue dans sa description.
+ *  @returns `{ niveau, rarete, dc, attaque }[]` — `niveau` 0 pour un cantrip ; vide si le
+ *  record n'en porte pas. ⚖️ La RARETÉ vient d'ici et de nulle part ailleurs (le mandat du
+ *  lot 285 : « la rareté se LIT dans le record »). */
+export function raretesDuParchemin(data) {
+  const vus = new Map();
+  for (const p of paragraphesDe(data && data.description)) {
+    const m = LIGNE_DE_PARCHEMIN.exec(p);
+    if (!m) continue;
+    const niveau = /cantrip/i.test(m[1]) ? 0 : Number(m[1]);
+    if (!vus.has(niveau)) {
+      vus.set(niveau, { niveau, rarete: PALIER_DU_MOT(m[2].toLowerCase()), dc: Number(m[3]), attaque: Number(m[4]) });
+    }
+  }
+  return [...vus.values()].sort((a, b) => a.niveau - b.niveau);
+}
+
+/** Un record est-il un plan de parchemin ? — sa table le dit (⛔ aucun nom testé). */
+export function estPlanParchemin(data) {
+  return raretesDuParchemin(data).length >= 2;
+}
+
+/** Le nom de la ligne posée : « Spell Scroll (Fireball) ». ⛔ Sans sort, le nom du plan. */
+export function nomDUnParchemin(nomPlan, nomSort) {
+  const tete = String(nomPlan || "").trim();
+  const sort = String(nomSort || "").trim();
+  const nom = sort ? `${tete} (${sort})` : tete;
+  return nom.length <= NOM_MAX ? nom : `${nom.slice(0, NOM_MAX - 1)}…`;
+}
+
+/** ⭐ LE TEXTE DU PLAN, POUR UN NIVEAU : l'introduction, l'en-tête de la table et SA ligne —
+ *  la leçon du lot 281 (« tu ne fais pas la sélection de texte ») appliquée d'avance.
+ *  ⛔ L'en-tête répété au milieu de la table (un saut de page du PDF) tombe ; les lignes des
+ *  autres niveaux aussi. Niveau inconnu → le texte entier. */
+export function texteDUnParchemin(data, niveau) {
+  const texte = String((data && data.description) || "");
+  const lignes = raretesDuParchemin(data);
+  if (!lignes.some((l) => l.niveau === niveau)) return texte;
+  let enTeteVu = false;
+  return paragraphesDe(texte).filter((p) => {
+    if (EN_TETE_DE_PARCHEMIN.test(p)) { const garde = !enTeteVu; enTeteVu = true; return garde; }
+    const m = LIGNE_DE_PARCHEMIN.exec(p);
+    if (!m) return true;
+    return (/cantrip/i.test(m[1]) ? 0 : Number(m[1])) === niveau;
   }).join("\n\n");
 }

@@ -24,7 +24,7 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8");
 const D = await import("../ui/builder/x5-disposition.mjs");
-const { construireX5, feuilleDesCotesX5 } = await import("../ui/builder/x5-ecran.mjs");
+const { construireX5, feuilleDesCotesX5, organesDeLaFamille } = await import("../ui/builder/x5-ecran.mjs");
 const { reglesDeLaBourse } = await import("../ui/builder/gear-ecran.mjs");
 const { pouvoirsDe, bonusDe, enPieces, prixSaisi } = await import("../ui/builder/craft.mjs");
 
@@ -40,6 +40,9 @@ const magiques = query({ kind: "item" }).map((v) => v.record)
 const { variantesDe } = await import("../src/build/objet-crafte.mjs");
 const { fabriqueDeValeur } = await import("../ui/builder/equipement-pipeline.mjs");
 const PLANS_A_VARIANTE = query({ kind: "item" }).map((v) => v.record).filter((r) => variantesDe(r.data).length >= 2);
+/* ⭐ LOT 285 — le plan du parchemin et les sorts de la pile, tels que le pilote les donne */
+const PLAN_PARCHEMIN = plans.get("Spell Scroll");
+const SORTS = query({ kind: "spell" }).map((v) => v.record);
 const valeurDe = fabriqueDeValeur(query);
 
 function monte(o) {
@@ -89,12 +92,23 @@ test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins — f
   /* ⭐ LOT 277 — la table porte DEUX familles : `base` (arme, armure) et `variante`
      (wondrous, potions, wand), plus les organes communs. Une fiche pose les siens et
      les communs, ⛔ jamais ceux de l'autre famille. */
+  /* ⭐ LOT 285 — ET UNE TROISIÈME, le `parchemin`, qui REDÉCLARE des communs (QTY, JETON, la
+     bourse, le pied) et ne garde que ceux que la table nomme (`COMMUNS_DE`). Le calcul
+     « ce qu'une fiche pose » est celui de l'écran (`organesDeLaFamille`) — ⛔ plus une
+     seconde écriture ici. Wizard niveau 2 : 37 sorts, donc les deux chevrons. */
   const fiches = {
     base: monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Longsword" } }).noeud,
     variante: monte({ plan: plans.get("Ioun Stone"), plansFreres: PLANS_A_VARIANTE, valeurDe }).noeud,
+    parchemin: monte({ plan: PLAN_PARCHEMIN, sorts: SORTS, choix: { classe: "Wizard", niveau: 2 } }).noeud,
   };
+  /* ⚔️ le calcul de la famille ne se trompe pas en se recopiant : la base et la variante
+     gardent TOUS les communs, le parchemin ne garde que le titre et ses propres organes */
+  assert.deepEqual(organesDeLaFamille("base").map((o) => o.nom).sort(),
+    D.ORGANES.filter((o) => !o.famille || o.famille === "base").map((o) => o.nom).sort());
+  assert.ok(!organesDeLaFamille("parchemin").some((o) => ["STATUS", "ENCART", "PHRASE", "TYPE"].includes(o.nom)),
+    "⛔ ni statut, ni encart, ni phrase dans la fiche du parchemin");
   for (const [famille, noeud] of Object.entries(fiches)) {
-    const attendus = new Set(D.ORGANES.filter((o) => !o.famille || o.famille === famille).map((o) => organeDom(o.nom)));
+    const attendus = new Set(organesDeLaFamille(famille).map((o) => organeDom(o.nom)));
     const vus = new Set(organes(noeud));
     for (const nom of attendus) {
       assert.ok(vus.has(nom), `⛔ ${famille} : ${nom} est au plan et absent de l'écran`);
@@ -131,7 +145,9 @@ test("4 — ⭐ ET TOUT CE QUI SUIT REMONTE DE LA HAUTEUR RENDUE", () => {
      il faut regarder l'image, ou l'écrire ici. */
   const f = feuilleDesCotesX5();
   const yPouvoirs = D.ORGANES.find((o) => o.nom === "POWER 1").cible.y;
-  const apres = D.ORGANES.filter((o) => (o.cible || o).y > yPouvoirs);
+  /* ⭐ LOT 285 — seuls les COMMUNS remontent : le parchemin a ses propres cotes, et pas de
+     rangée des pouvoirs à perdre. */
+  const apres = D.ORGANES.filter((o) => !o.famille && (o.cible || o).y > yPouvoirs);
   assert.ok(apres.length >= 5, "il y a bien des organes sous la rangée des pouvoirs");
   for (const o of apres) {
     const b = o.cible || o;
@@ -339,7 +355,11 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
                        "Berserker Axe", "Flame Tongue", "Dwarven Plate",
                        /* ⭐ LOT 277 — les plans à variante s'ouvrent */
                        "Figurine of Wondrous Power", "Ioun Stone", "Potions of Healing",
-                       "Wand of the War Mage, +1, +2, or +3", "Belt of Giant Strength"]) {
+                       "Wand of the War Mage, +1, +2, or +3", "Belt of Giant Strength",
+                       /* ⭐ LOT 285 — le parchemin de sort s'ouvre : sa famille a son écran (la
+                          dictée d'Eric du 26/09). Il était dans la liste des fermés ci-dessous
+                          jusqu'au lot 284, « une famille sans écran le dit ». */
+                       "Spell Scroll"]) {
       const n = monteX2(nom);
       assert.equal(optionCraft(n).disabled, false, `⭐ ${nom} : Craft s'ouvre`);
       const sel = optionCraft(n).parentNode;
@@ -347,7 +367,7 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
       sel.dispatchEvent(new Event("change"));
       assert.equal(ouverts.at(-1), nom, `⭐ choisir Craft OUVRE X5 pour ${nom}`);
     }
-    for (const nom of ["Dagger of Venom", "Spell Scroll", "Bag of Holding", "Ammunition, +1, +2, or +3"]) {
+    for (const nom of ["Dagger of Venom", "Bag of Holding", "Ammunition, +1, +2, or +3"]) {
       assert.equal(optionCraft(monteX2(nom)).disabled, true,
         `⛔ ${nom} : Craft reste fermé — un objet fini ne se crafte pas, et une famille sans écran le dit`);
     }

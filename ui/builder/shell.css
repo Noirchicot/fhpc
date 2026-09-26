@@ -13520,3 +13520,26 @@ select.x5-drop {
   padding-right: 24px;
   text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
 }
+
+/* ══ X5 — LE PARCHEMIN DE SORT (lot 285, la dictée d'Eric du 26/09) ════════════════════════
+   ⛔ AUCUNE COTE ICI : la boîte de chaque organe vient de la table (`feuilleDesCotesX5`), la
+   grille des sorts aussi (`feuilleDuParchemin`, 3 × 4 jetons de Wares). Cette feuille porte la
+   PEAU. ⭐ Les jetons, les chevrons et le compte sont ceux de Wares (`.wares-jeton`,
+   `.wares-chevron`, `.wares-compte`) — ⛔ rien de redessiné. */
+.x5-sorts { margin: 0; padding: 0; }
+/* ⚖️ « on touche un jeton pour le choisir » — l'ÉTAT CHOISI SE VOIT : le halo du cran courant
+   (`--spy-halo`, celui des onglets de Skills) et un liseré à l'encre de l'aiguilleur. */
+.x5-sort[aria-pressed="true"] {
+  border-color: var(--info);
+  box-shadow: var(--relief), 0 0 6px 1px var(--spy-halo);
+}
+.x5-pages { display: flex; align-items: center; justify-content: center; }
+/* ⚖️ LA NOTE — « toujours mettre rareté prix qté » : le scribing et la rareté à l'encre du titre,
+   puis la quantité et le total en bleu, l'encre qui guide (celle de la phrase). */
+.x5-note {
+  margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; font-size: var(--t1);
+}
+.x5-note-scribing { font-weight: 600; color: var(--x1-oxblood); }
+.x5-note-total { color: var(--info); }
+.x5-note-refus { font-style: italic; color: var(--x1-etat-encre); }

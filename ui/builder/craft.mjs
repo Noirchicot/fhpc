@@ -31,6 +31,8 @@
 
 import { variantesDe } from "../../src/build/objet-crafte.mjs?v=829";
 import { PALIERS_SRFH, joursArrondis, noteDeCraft } from "./bareme-srfh.mjs?v=829";
+/* ⭐ LOT 285 — le plan de parchemin se reconnaît à sa table (`estPlanParchemin`, le moteur). */
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=829";
 
 /* ══ ① LE BARÈME — SRFH, LU DANS `bareme-srfh.mjs` (lot 280) ═══════════════════════
    ⭐ Le craft d'un objet ordinaire suit la RÉFÉRENCE SRD + FH : les cinq paliers du SRD
@@ -221,6 +223,10 @@ export function ouvertureX5(record, items, bases) {
   /* ⭐ LOT 277 — UN PLAN À VARIANTE (`Ioun Stone`, les potions, la wand) ouvre X5 sur
      lui-même, rien de choisi : sa variante se lit dans son record (`variantesDe`). */
   if (estPlanAVariante(record)) return { plan: record, choix: {} };
+  /* ⭐ LOT 285 — LE PARCHEMIN DE SORT (`Spell Scroll`) ouvre X5 sur lui-même, rien de choisi :
+     sa table (niveau → rareté) se lit dans son record. ⚖️ Eric, 26/09 : « choisir : classe de
+     sort · choisir lvl · 4 étages de sorts token, un dropdown · send ». */
+  if (estPlanParchemin(record.data)) return { plan: record, choix: {} };
   if (basesDe(record, bases).length && bonusDe(record).length) return { plan: record, choix: {} };
   if (!paliterDeRarete(record.data.rarity)) return null;
   const siennes = basesDe(record, bases);
@@ -286,8 +292,8 @@ export function texteDesJours(n) {
 }
 
 /** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :
- *  `Ammunition, +1…` n'a pas de base lisible aujourd'hui, `Spell Scroll` ni base ni
- *  bonus ; ni l'un ni l'autre n'ouvre X5, et aucun nom n'a été écrit pour ça. */
+ *  `Ammunition, +1…` n'a pas de base lisible aujourd'hui et n'ouvre pas X5 ; `Spell
+ *  Scroll` l'ouvre depuis le lot 285, par sa table — aucun nom n'a été écrit pour ça. */
 export function seCrafteDansX5(record, bases, items = []) {
   return Boolean(ouvertureX5(record, items, bases));
 }
