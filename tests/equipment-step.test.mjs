@@ -395,14 +395,103 @@ test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réé
 /* Même attaque, sur `removeGearLine` : retirer les deux `.quantity`/
    `.equipped` de la boucle des suffixes laisserait des choix orphelins dans
    `build.choices` — mesuré de la même façon que ci-dessus (aucun garde
-   comportemental ne relit `shell.mjs`). */
-test("garde — shell.mjs retire VRAIMENT les cinq chemins de removeGearLine (pas seulement le ref)", () => {
-  /* LOT 212 : `.location` (pipeline) et `.boite` (l'emplacement choisi sur R)
-     partent avec la ligne — deux orphelines de plus, sinon. Réécrit à la
-     nouvelle vérité, non relâché : les trois d'avant y sont toujours. */
+   comportemental ne relit `shell.mjs`).
+   🔄 LOT 288 — CE GARDE LISAIT UNE LISTE DE CINQ SUFFIXES, et la liste était le DÉFAUT : la
+   recette d'un objet crafté (`bonus`, `powers[K]`, `plan`, `note`, `variant`, `spell`) et les
+   états (`attuned`, `locked`, `is`, `place`) restaient orphelins sous ses yeux. ⭐ Il exige
+   désormais que la coquille passe par les deux organes exportés — et les deux gardes suivants
+   les rejouent sur le VRAI moteur, par la donnée (`unconsumed`), plus par la forme. */
+test("garde — shell.mjs scinde et retire par `scinderLaLigne` / `retirerLaLigne` (lot 288)", () => {
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /\[""\s*,\s*"\.quantity"\s*,\s*"\.equipped"\s*,\s*"\.location"\s*,\s*"\.boite"\]/,
-    "sans les cinq suffixes, un retrait laisserait `gear[N].quantity`/`.equipped`/`.location`/`.boite` orphelins dans build.choices");
+  assert.match(shellText, /action\.kind === "removeGearLine"\)\s*\{\s*const document = retirerLaLigne\(\{ document: state\.document, verbs, index: action\.index \}\)/,
+    "⛔ `removeGearLine` doit effacer par `retirerLaLigne` — une liste de suffixes laisse des orphelins");
+  assert.match(shellText, /action\.kind === "splitGearLine"\)[\s\S]{0,400}?scinderLaLigne\(\{ document: state\.document, verbs, source, part,/,
+    "⛔ `splitGearLine` doit scinder par `scinderLaLigne` — sinon la recette ne suit pas");
+});
+
+/* ══ LOT 288 — LA RECETTE SUIT LA SCISSION, ET LE RETRAIT NE LAISSE AUCUN ORPHELIN ══════════
+   🔴 Le défaut, signalé par le lot 285 : couper en deux un lot de dix « Arrows +1 » rendait
+   trois flèches MONDAINES ; retirer une ligne craftée laissait `gear[N].bonus`,
+   `.powers[k]`, `.plan`, `.note`, `.variant`, `.spell` dans `build.choices`.
+   ⭐ CES GARDES REJOUENT LES VRAIS ORGANES (`scinderLaLigne`, `retirerLaLigne`) sur les VRAIS
+   verbes du moteur, et jugent par la DONNÉE : ce que `resolved.gear` nomme, ce que
+   `unconsumed` rend. ⭐ Et ils couvrent CHAQUE champ de `CHAMPS_DE_RECETTE` — la liste lue,
+   pas recopiée : un champ ajouté demain sans cas ici fait rougir le premier. */
+const { scinderLaLigne, retirerLaLigne, CHAMPS_DE_RECETTE } = await import("../ui/builder/equipment-step.mjs");
+const REF = (kind, id) => ({ kind, id });
+/** Trois lignes craftées qui, ensemble, portent les six champs de recette — et les quatre
+ *  états d'un exemplaire, pour vérifier qu'ils ne suivent PAS. */
+function sacCrafte() {
+  let doc = fixture.document;
+  const poser = (ref, quantity, champs) => {
+    const index = nextGearIndex(doc);
+    doc = build.verbs.choose({ document: doc, path: `gear[${index}]`, ref }).document;
+    doc = build.verbs.set({ document: doc, path: `gear[${index}].quantity`, value: quantity }).document;
+    doc = build.verbs.set({ document: doc, path: `gear[${index}].equipped`, value: false }).document;
+    for (const [suffixe, v] of champs) {
+      doc = v && typeof v === "object"
+        ? build.verbs.choose({ document: doc, path: `gear[${index}]${suffixe}`, ref: v }).document
+        : build.verbs.set({ document: doc, path: `gear[${index}]${suffixe}`, value: v }).document;
+    }
+    return index;
+  };
+  const etats = [[".attuned", true], [".locked", false], [".is", "Weapon"], [".place", 3], [".location", "backpack"]];
+  const fleches = poser(REF("gear", "srd:gear:en:ammunition"), 10, [
+    [".bonus", "+1"], [".plan", REF("item", "srd:item:en:ammunition-1-2-or-3")],
+    [".powers[0]", REF("item", "srd:item:en:ammunition-of-slaying")], [".note", "Crafted by Test"], ...etats]);
+  const pierre = poser(REF("item", "srd:item:en:ioun-stone"), 2, [[".variant", "Awareness"], ...etats]);
+  const parchemin = poser(REF("item", "srd:item:en:spell-scroll"), 2, [[".spell", REF("spell", "srd:spell:en:fireball")], ...etats]);
+  return { doc, lignes: [fleches, pierre, parchemin] };
+}
+const RECETTE_ORPHELINE = new RegExp(`^gear\\[\\d+\\]\\.(${CHAMPS_DE_RECETTE.join("|")})`);
+const recetteDe = (l) => JSON.stringify({ bonus: l.bonus, plan: l.plan, pouvoirs: l.pouvoirs, note: l.note, variante: l.variante, sort: l.sort });
+
+test("lot 288 — ⚖️ UNE LIGNE SCINDÉE GARDE SA RECETTE DES DEUX CÔTÉS, et la part détachée naît nue", () => {
+  const { doc, lignes } = sacCrafte();
+  const couverts = new Set();
+  for (const source of currentGearLines(doc).filter((l) => lignes.includes(l.index))) {
+    const neuve = nextGearIndex(doc);
+    const apres = scinderLaLigne({ document: doc, verbs: build.verbs, source, part: 1, index: neuve, location: "storage" });
+    const [a, b] = [source.index, neuve].map((i) => currentGearLines(apres).find((l) => l.index === i));
+    assert.ok(b, `la part détachée de gear[${a.index}] existe`);
+    assert.equal(a.quantity + b.quantity, source.quantity, "la pile est coupée, pas dupliquée");
+    assert.equal(recetteDe(b), recetteDe(source), `⛔ gear[${source.index}] : la part détachée a PERDU sa recette`);
+    assert.equal(recetteDe(a), recetteDe(source), "et la part gardée la garde");
+    for (const etat of ["attuned", "locked", "is", "place", "boite"]) {
+      assert.equal(b[etat], undefined, `⚖️ « la part détachée perd tous ces » — ${etat} ne suit pas`);
+    }
+    for (const c of CHAMPS_DE_RECETTE) {
+      if ((apres.build.choices || []).some((x) => x.path.startsWith(`gear[${neuve}].${c}`))) couverts.add(c);
+    }
+    /* ⭐ PAR LA DONNÉE : la part détachée, SEULE, le moteur la nomme comme la source et consomme
+       toute sa recette. ⚠️ SEULE, parce que le moteur refuse deux lignes du même record
+       (`resolved.gear` : « deux entrées portent l'id "arrows" ») — un défaut d'avant ce lot,
+       signalé à part : on retire donc la source avant de reconstruire. */
+    const nomSource = build.verbs.rebuild({ document: doc }).resolved.gear
+      .map((g) => g.name)[currentGearLines(doc).findIndex((l) => l.index === source.index)];
+    const seule = retirerLaLigne({ document: apres, verbs: build.verbs, index: source.index });
+    const r = build.verbs.rebuild({ document: seule });
+    const nomNeuve = r.resolved.gear.map((g) => g.name)[currentGearLines(seule).findIndex((l) => l.index === neuve)];
+    assert.match(nomSource, /\+1 \(Ammunition of Slaying\)|\(Awareness\)|\(Fireball\)/, "la source porte bien un nom CRAFTÉ");
+    assert.equal(nomNeuve, nomSource, `⛔ la part détachée s'appelle « ${nomNeuve} », la source « ${nomSource} »`);
+    assert.deepEqual(r.unconsumed.filter((p) => RECETTE_ORPHELINE.test(p)), [], "aucune recette ne ressort `unconsumed`");
+  }
+  assert.deepEqual([...couverts].sort(), [...CHAMPS_DE_RECETTE].sort(),
+    "⭐ chaque champ de `CHAMPS_DE_RECETTE` est éprouvé — un champ neuf sans cas ici rougit");
+});
+
+test("lot 288 — ⚖️ UNE LIGNE RETIRÉE NE LAISSE AUCUN CHEMIN : ni recette, ni état, ni `unconsumed`", () => {
+  const { doc, lignes } = sacCrafte();
+  const avant = build.verbs.rebuild({ document: doc });
+  for (const index of lignes) {
+    const apres = retirerLaLigne({ document: doc, verbs: build.verbs, index });
+    const tete = `gear[${index}]`;
+    const restes = (apres.build.choices || []).map((c) => c.path).filter((p) => p === tete || p.startsWith(`${tete}.`));
+    assert.deepEqual(restes, [], `⛔ ${tete} a laissé des orphelins dans build.choices`);
+    const r = build.verbs.rebuild({ document: apres });
+    assert.deepEqual(r.unconsumed.filter((p) => p.startsWith(`${tete}.`)), [], `⛔ et le moteur n'en rend aucun`);
+    assert.equal(r.resolved.gear.length, avant.resolved.gear.length - 1, "une ligne de moins, rien d'autre");
+  }
 });
 
 /* ══ LOT 181 — LES GEMMES, ET LA LISTE DE GENRES QUI AVAIT SURVÉCU ═══════

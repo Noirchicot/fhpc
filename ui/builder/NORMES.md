@@ -3672,6 +3672,30 @@ pour acheter »* : donc pas aujourd'hui.
 
 ---
 
+### ⚖️ UNE MUNITION PÈSE PAR LOT — ET LA PILE SRD FABRIQUE QUAND MÊME SES MUNITIONS MAGIQUES
+📍 `equipement-munitions-poids-par-lot` · vivante · 26/09
+⚖️ **Le poids et le prix d'une munition au catalogue sont ceux d'un LOT (le paquet, `pack`). Le sac
+compte des lots, pas des pièces. Et en pile SRD seule, `Ammunition, +1…` et `Ammunition of
+Slaying` se fabriquent sur la munition générique.**
+
+> Eric, 2026-09-26, à *« 10 flèches craftées pèsent 15 lb dans le sac […] `pack` est-il une marque
+> ou une quantité ? »* : **« poids par lot »**. Puis : **« pile SRD sans munitions nominatives, mais
+> munitions magiques si »**.
+
+⭐ **UNE LIGNE COMPTE DES PIÈCES, UNE SEULE FONCTION DIT SES LOTS** — `paiementsDe` (`craft.mjs`) :
+une munition fait `⌈pièces ÷ 10⌉` lots, tout le reste se compte à la pièce. L'encombrement
+(`poidsParLieu`), le prix total et le poids total de la fiche X1, la cote de X5 lisent ce même
+nombre. 📏 Dix flèches craftées : **15 lb → 1,5 lb** ; les « 20 Arrows » du départ : **30 lb → 3 lb**.
+⭐ **Wares compte toujours des JETONS** (un jeton = un paquet) : la ligne achetée reçoit `jetons ×
+pack` pièces (`piecesDUnAchat`), sinon trois paquets achetés pèseraient un seul lot.
+
+⭐ **EN PILE SRD SEULE, AUCUNE MUNITION NOMINATIVE N'EST INVENTÉE** : la base est le record
+générique `Ammunition` (le nom même de la famille `Any Ammunition`), son lot vaut **0** (le SRD dit
+« Varies »). La munition magique vaut sa seule colonne consommable : **Ammunition +1 = 200 GP,
+fabriquée 100 GP, Uncommon, 5 jours**, un lot de dix payé une fois, comme en FH.
+
+---
+
 ### 💰 LE PRIX ET LE TEMPS D'UNE RECETTE — UNE DIVISION, ET UNE ÉCHELLE D'ERIC
 📍 `equipement-prix-et-temps-du-craft` · vivante · 23/09
 ⚖️ **Le prix de vente est celui du SRD. Le coût de production est sa MOITIÉ. Le temps suit

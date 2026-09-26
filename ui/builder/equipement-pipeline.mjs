@@ -31,6 +31,8 @@
 import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=833";
 import { pageDeListe } from "./normes.mjs?v=833";
 import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=833";
+/* ⚖️ LOT 288 — « poids par lot » : combien de lots fait une ligne, UN seul écrivain (`craft.mjs`). */
+import { paiementsDe } from "./craft.mjs?v=833";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
@@ -600,14 +602,12 @@ export function poidsParLieu(lignes, chercheRecord) {
      donc il faut savoir dans quelle édition on pèse AVANT de les relever. La
      pile le dit elle-même, par ses objets lisibles ; à défaut, `lb`, l'unité
      du SRD en anglais, qui est la seule langue où cette couche existe. */
-  const poids = lignes.map((l) => {
-    const rec = chercheRecord(l.ref);
-    return rec && rec.data ? rec.data.weight : undefined;
-  });
+  const records = lignes.map((l) => chercheRecord(l.ref));
+  const poids = records.map((rec) => (rec && rec.data ? rec.data.weight : undefined));
   /* ⛔ CALCULÉ AVANT LA PASSE DES UNITÉS, ET CE N'EST PAS INDIFFÉRENT : une pile
      qui ne contiendrait QUE des recettes ne doit pas déduire son unité de leurs
      poids, qu'on ne lira jamais. */
-  const recettes = lignes.map((l) => estRecette(chercheRecord(l.ref)));
+  const recettes = records.map(estRecette);
   for (const w of poids) { const lu = parsePoids(w); if (lu) unites.add(lu.unite); }
   const unitePile = unites.size === 1 ? [...unites][0] : "lb";
   for (const [i, l] of lignes.entries()) {
@@ -620,7 +620,13 @@ export function poidsParLieu(lignes, chercheRecord) {
     if (recettes[i]) continue;
     const pesee = poidsDeJeu(poids[i], unitePile);
     if (!pesee) { inconnus[lieu] += n; continue; }
-    somme[lieu] += pesee.valeur * n;
+    /* ⚖️ LOT 288 — UNE MUNITION PÈSE PAR LOT — Eric, 26/09 : « poids par lot », en réponse à
+       « 10 flèches craftées pèsent 15 lb dans le sac, parce que le poids est multiplié par le
+       nombre de pièces ». ⭐ Le poids du catalogue est celui d'un PAQUET (`pack`) ; la ligne
+       compte des pièces ; `paiementsDe` dit combien de lots elles font — le même écrivain que
+       le prix de X5 et de la fiche X1. 📏 10 Arrows craftées : 15 lb → 1,5 lb ; les « 20 Arrows »
+       du départ : 30 lb → 3 lb. ⛔ Tout le reste pèse à la pièce, comme avant. */
+    somme[lieu] += pesee.valeur * paiementsDe(records[i], n);
     /* ⛔ « Varies » PÈSE 0 ET RESTE INCONNU : la somme cesse de mentir, et le
        compte des « à éditer » ne disparaît pas avec elle. Les deux à la fois. */
     if (pesee.origine === "a-editer") inconnus[lieu] += n;

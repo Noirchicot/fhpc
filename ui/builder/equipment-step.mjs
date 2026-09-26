@@ -118,7 +118,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=833";
 import { construireX5 } from "./x5-ecran.mjs?v=833";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=833";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe } from "./craft.mjs?v=833";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=833";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=833";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=833";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
@@ -1096,7 +1096,9 @@ export function currentGearLines(document) {
      chemins disent ce que le craft y a ajouté. */
   /* `variant` (LOT 277) : le mot de la variante d'un plan à variante (« Awareness »). */
   /* `spell` (LOT 285) : le sort d'un parchemin, une RÉFÉRENCE (`srd:spell:en:fireball`). */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place|bonus|plan|note|variant|spell|powers\[(\d+)\]))?$/;
+  /* ⭐ LOT 288 — LA LISTE DES CHEMINS VIT DANS `CHAMPS_DE_L_EXEMPLAIRE` et `CHAMPS_DE_RECETTE`,
+     juste en dessous : ce lecteur, la scission et le retrait d'une ligne la lisent tous trois. */
+  const pathRe = CHEMIN_D_UNE_LIGNE;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -1120,6 +1122,67 @@ export function currentGearLines(document) {
     else if (choice.ref) line.ref = choice.ref;
   }
   return [...byIndex.values()].sort((a, b) => a.index - b.index);
+}
+
+/* ══ LOT 288 — LES CHAMPS D'UNE LIGNE, ET CE QUE LA SCISSION ET LE RETRAIT EN FONT ══════════
+   🔴 LE DÉFAUT, SIGNALÉ PAR LE LOT 285 : `splitGearLine` (`shell.mjs`) ne recopiait pas la
+   RECETTE d'une ligne craftée — la part détachée d'un lot de dix « Arrows +1 » redevenait trois
+   flèches mondaines —, et `removeGearLine` ne nettoyait que cinq chemins : `bonus`, `powers[K]`,
+   `plan`, `note`, `variant`, `spell` (et `attuned`, `locked`, `is`, `place`) restaient ORPHELINS
+   dans `build.choices`, et le moteur les rendait `unconsumed`.
+   ⭐ LA RÉPARATION : UNE SEULE LISTE, LUE PAR TROIS ORGANES. `currentGearLines` en bâtit son
+   motif ; `scinderLaLigne` recopie les `CHAMPS_DE_RECETTE` ; `retirerLaLigne` n'a besoin
+   d'AUCUNE liste — il efface tout chemin qui commence par `gear[N]`, lu dans le document.
+   ⚖️ LA PART DÉTACHÉE NAÎT NUE DE SES ÉTATS (Eric, 17/09 : « la part détachée perd tous ces :
+   attunned locked equiped ») — mais pas de ce qu'elle EST : dix flèches +1 coupées en deux font
+   deux piles de flèches +1. La recette décrit l'objet, les états décrivent l'exemplaire. */
+/** Les états et le rangement d'un EXEMPLAIRE — ⛔ la scission ne les recopie pas. */
+const CHAMPS_DE_L_EXEMPLAIRE = Object.freeze(["quantity", "equipped", "location", "boite", "attuned", "locked", "is", "place"]);
+/** ⭐ La RECETTE d'un objet crafté (`src/build/objet-crafte.mjs`, lots 265 · 277 · 285) :
+ *  `powers` est indexé (`powers[K]`), les autres sont un seul chemin. */
+export const CHAMPS_DE_RECETTE = Object.freeze(["bonus", "plan", "note", "variant", "spell", "powers"]);
+const motifDuChamp = (c) => (c === "powers" ? "powers\\[(\\d+)\\]" : c);
+const CHEMIN_D_UNE_LIGNE = new RegExp(`^gear\\[(\\d+)\\](?:\\.(${[...CHAMPS_DE_L_EXEMPLAIRE, ...CHAMPS_DE_RECETTE].map(motifDuChamp).join("|")}))?$`);
+const SUFFIXE_DE_RECETTE = new RegExp(`^\\.(?:${CHAMPS_DE_RECETTE.map(motifDuChamp).join("|")})$`);
+
+/** Les choix d'une ligne `gear[N]` — TOUS, lus dans `build.choices`, ⛔ aucune liste. */
+function choixDeLaLigne(document, index) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const tete = `gear[${index}]`;
+  return choices.filter((c) => c && typeof c.path === "string" && (c.path === tete || c.path.startsWith(`${tete}.`)));
+}
+
+/** ⭐ LOT 288 — SCINDER une ligne : `part` pièces partent sur une ligne NEUVE (`index`), à
+ *  `location`. La recette suit ; les états restent (voir l'en-tête). `verbs` : ceux du moteur.
+ *  ⛔ `part` hors de `1 … qte − 1` : le document revient intact — c'est un déplacement. */
+export function scinderLaLigne({ document, verbs, source, part, index, location }) {
+  const total = Number(source && source.quantity) || 1;
+  const n = Math.floor(Number(part));
+  if (!source || !(n >= 1) || n >= total) return document;
+  let doc = document;
+  doc = verbs.set({ document: doc, path: `gear[${source.index}].quantity`, value: total - n }).document;
+  doc = verbs.choose({ document: doc, path: `gear[${index}]`, ref: source.ref }).document;
+  doc = verbs.set({ document: doc, path: `gear[${index}].quantity`, value: n }).document;
+  doc = verbs.set({ document: doc, path: `gear[${index}].equipped`, value: false }).document;
+  doc = verbs.set({ document: doc, path: `gear[${index}].location`, value: location }).document;
+  for (const c of choixDeLaLigne(document, source.index)) {
+    const suffixe = c.path.slice(`gear[${source.index}]`.length);
+    if (!SUFFIXE_DE_RECETTE.test(suffixe)) continue;
+    const path = `gear[${index}]${suffixe}`;
+    doc = c.ref ? verbs.choose({ document: doc, path, ref: c.ref }).document
+      : verbs.set({ document: doc, path, value: c.value }).document;
+  }
+  return doc;
+}
+
+/** ⭐ LOT 288 — RETIRER une ligne : tous ses chemins partent, ⛔ aucun orphelin. La racine en
+ *  DERNIER, pour qu'aucun chemin ne survive un instant à la ligne qui le porte. */
+export function retirerLaLigne({ document, verbs, index }) {
+  const chemins = choixDeLaLigne(document, index).map((c) => c.path)
+    .sort((a, b) => (a === `gear[${index}]`) - (b === `gear[${index}]`));
+  let doc = document;
+  for (const path of chemins) doc = verbs.clear({ document: doc, path, kind: "choice" }).document;
+  return doc;
 }
 
 /* ══ LES SECTIONS DU SAC — lot 214 ═══════════════════════════════════════════
@@ -3323,6 +3386,19 @@ export function renderEquipmentStep(ctx, onAction) {
      libre l'item prend son slot, sinon Pocket, sinon backpack »*. Le tri se
      fait AU MOMENT DU GESTE (un rendu n'écrit rien) : une destination
      « self » sans boîte libre devient « backpack », l'objet va au sac. */
+  /* ⚖️ LOT 288 — UN ACHAT DE WARES POSE DES PIÈCES. « tu achètes un item avec un ×10 marqué
+     dessus » (Eric, 23/09) : X2 et le panier comptent des JETONS, un jeton = un paquet. La ligne
+     posée, elle, compte des pièces — comme la ligne craftée (10) et celle du départ (« 20
+     Arrows ») —, sinon « poids par lot » (Eric, 26/09) lirait trois paquets achetés comme un
+     seul lot. ⭐ La conversion est `piecesDUnAchat` (`craft.mjs`), et elle ne vit qu'ici : les
+     deux écrans de Wares passent par cette porte, la forge et le départ n'y passent pas. */
+  function actAchat(a) {
+    if (a && a.kind === "addGearLine" && !a.recette) {
+      a = { ...a, quantity: piecesDUnAchat(cherche.record(a.ref), a.quantity) };
+    }
+    actArbitre(a);
+  }
+
   function actArbitre(a) {
     if ((a.kind === "addGearLine" || a.kind === "moveGearLine" || a.kind === "splitGearLine") && a.location === "self") {
       const prises = new Set(Object.keys(attribuerBoites(surR(), cherche)));
@@ -3782,7 +3858,8 @@ export function renderEquipmentStep(ctx, onAction) {
           kind: "rangerSection",
           places: rangement(dedans, r.clef, {
             nom: nomDeLaLigne,
-            valeur: (l) => enGP(parseCout(valeurDeLaLigne(l).cout)) * (l.quantity || 1)
+            /* ⚖️ LOT 288 — la valeur d'une ligne se compte par LOT, comme son prix sur X1 */
+            valeur: (l) => enGP(parseCout(valeurDeLaLigne(l).cout)) * paiementsDe(cherche.record(l.ref), l.quantity)
           })
         }) })) }),
       /* ⚖️ *« le bouton pack devient sections, et la roue passe en mode édition »* —
@@ -3882,9 +3959,13 @@ export function renderEquipmentStep(ctx, onAction) {
     const poids = parsePoids(valeurX1.poids);
     /* ⚖️ LOT 283 — UNE MUNITION CRAFTÉE SE COMPTE PAR LOT : son prix est celui de DIX pièces
        (« on ne paye qu'une fois le montant »), et `paiementsDe` dit combien de lots font la
-       ligne. ⛔ Seulement pour une ligne craftée : la quantité d'une munition mondaine
-       (« 20 Arrows » du départ) n'est pas tranchée (NORMES, `pack` reste une marque). */
-    const fois = recetteDeLaLigne(ligne) ? paiementsDe(rec, qte) : qte;
+       ligne.
+       🔄 LOT 288 — ET TOUTE MUNITION, CRAFTÉE OU NON. Le 283 réservait le lot à la ligne craftée
+       (« la quantité d'une munition mondaine n'est pas tranchée »). ⚖️ Eric, 26/09 : « poids
+       par lot » — le prix et le poids du catalogue sont ceux d'un paquet, pour les « 20 Arrows »
+       du départ comme pour les dix flèches craftées. ⭐ Le prix total ET le poids total lisent
+       le même nombre de lots — celui de l'encombrement (`poidsParLieu`). */
+    const fois = paiementsDe(rec, qte);
     const { noeud } = construireLaFicheX1({
       objet: {
         index: ligne.index, nom: ligne.nomAffiche, qte,
@@ -4597,7 +4678,7 @@ export function renderEquipmentStep(ctx, onAction) {
          sous-catégorie et sa page — 📏 mesuré au navigateur le 20/09, et le lot 242
          n'y a pas touché. Seul le nom de la vue a changé. */
       return construireLaFicheX2({ liste: ficheEnCours.liste, index: ficheEnCours.index,
-        bourse, motBourse: motDeLaBourse(docu), onAction: actArbitre, fermer: () => montrer(ficheEnCours.retour || "r"),
+        bourse, motBourse: motDeLaBourse(docu), onAction: actAchat, fermer: () => montrer(ficheEnCours.retour || "r"),
         /* ⭐ LA PORTE DU CRAFT — l'étape SAIT ce qui se crafte (par `craft.mjs`), l'écran
            demande. ⛔ Aucune liste de plans : `Weapon`, `Armor` et `Shield, +1…`
            s'ouvrent parce qu'ils offrent une base ET un bonus, lus dans leur record. */
@@ -4634,8 +4715,8 @@ export function renderEquipmentStep(ctx, onAction) {
           cout: parseCout(cherche.valeur(rec).cout) };
       });
       const motBourse = motDeLaBourse(docu);
-      if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("r") });
-      return renderB2({ mode: "send", lignes: panier, bourse, motBourse, onAction: actArbitre, retour: () => montrer("gear") });
+      if (vue === "b2") return renderB2({ mode: "cart", lignes: panier, bourse, motBourse, onAction: actAchat, retour: () => montrer("r") });
+      return renderB2({ mode: "send", lignes: panier, bourse, motBourse, onAction: actAchat, retour: () => montrer("gear") });
     }
     if (vue === "sac") return construireSac();
     if (vue === "sb31" || vue === "sb33") {

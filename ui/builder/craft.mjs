@@ -230,13 +230,20 @@ export function ouvertureX5(record, items, bases) {
   if (basesDe(record, bases).length && bonusDe(record).length) return { plan: record, choix: {} };
   if (!paliterDeRarete(record.data.rarity)) return null;
   const siennes = basesDe(record, bases);
-  if (siennes.length < 2) return null;              /* ⛔ une seule base : rien à choisir */
+  /* ⛔ une seule base NOMMÉE (`Sun Blade [Longsword]`) : rien à choisir, c'est un objet fini.
+     ⭐ LOT 288 — MAIS UN POUVOIR DE FAMILLE (`Any …`) RESTE UNE COMPOSITION, même quand la
+     pile ne lui offre qu'une base : ⚖️ Eric, 26/09, « pile SRD sans munitions nominatives,
+     mais munitions magiques si » — en pile SRD, `Ammunition of Slaying [Any Ammunition]` n'a
+     que la munition générique, et il s'ouvre quand même. 📏 Mesuré le 26/09 : dans les deux
+     piles, Slaying est le SEUL pouvoir « Any … » à moins de deux bases. */
+  const famille = /^any\b/i.test(String(record.data.subtype || "").trim());
+  if (!siennes.length || (siennes.length < 2 && !famille)) return null;
   const base = siennes[0];
-  const famille = (items || []).find((i) => i && i.data
+  const planDeFamille = (items || []).find((i) => i && i.data
     && i.data.category === record.data.category
     && bonusDe(i).length && subtypeAccepte(i.data.subtype, base.data));
-  if (!famille) return null;
-  return { plan: famille, choix: { base: base.data.name, pouvoirs: [record.data.name] } };
+  if (!planDeFamille) return null;
+  return { plan: planDeFamille, choix: { base: base.data.name, pouvoirs: [record.data.name] } };
 }
 
 /* ══ ③ quinquies — LE PLAN À VARIANTE (lot 277) ══════════════════════════════════
@@ -294,7 +301,9 @@ export function texteDesJours(n) {
 /** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :
  *  `Spell Scroll` l'ouvre depuis le lot 285, par sa table — aucun nom n'a été écrit pour ça.
  *  ⭐ LOT 283 — `Ammunition, +1…` et `Ammunition of Slaying` l'ouvrent dès que la pile porte
- *  des bases de munition (`estBaseDeMunition`) : en pile FH, pas en SRD seule. */
+ *  des bases de munition (`estBaseDeMunition`).
+ *  🔄 LOT 288 — DANS LES DEUX PILES : en SRD seule, la base est la munition GÉNÉRIQUE
+ *  (`estMunitionGenerique`) — ⚖️ Eric, 26/09 : « munitions magiques si ». */
 export function seCrafteDansX5(record, bases, items = []) {
   return Boolean(ouvertureX5(record, items, bases));
 }
@@ -363,9 +372,15 @@ export function ouvertureDepuisX2(record, items, bases, plansAVariante = []) {
    📏 Mesuré le 26/09, pile FH : 5 bases (Arrows · Crossbow Bolts · Firearm Bullets ·
    Sling Bullets · Blowgun Needles) ; le garde croise leurs noms avec les munitions que
    NOMMENT les armes à distance, dans les deux sens.
-   ⛔ EN PILE SRD SEULE, ZÉRO BASE, ET C'EST VOULU : le SRD n'a qu'un `Ammunition` au prix
-   « Varies ». Sans prix pour dix pièces, la cote n'aurait pas de base — ⛔ on n'en invente
-   pas, et `Ammunition, +1…` reste hors de X5 dans cette pile. */
+   🔄 EN PILE SRD SEULE — CE QUE LE LOT 283 FERMAIT, LE LOT 288 L'OUVRE. Le 283 disait :
+   « zéro base, et c'est voulu : `Ammunition, +1…` reste hors de X5 dans cette pile ».
+   ⚖️ Eric, 26/09 : « pile SRD sans munitions nominatives, mais munitions magiques si ».
+   ⭐ LA LECTURE : le SRD n'a qu'UNE munition, la générique — `Ammunition`, au prix
+   « Varies ». Elle ne porte le nom d'aucun projectile (⛔ on n'invente ni flèche ni carreau),
+   elle porte le NOM MÊME DE LA FAMILLE que `Any Ammunition` désigne. C'est elle, la base :
+   `estMunitionGenerique`. Son prix de lot vaut ZÉRO (`prixDUnLot`) — ⛔ pas un prix inventé :
+   le SRD n'en donne pas, et la munition magique vaut alors sa seule colonne consommable.
+   📏 Ammunition +1 en pile SRD : 400 / 2 + 0 = 200 GP · craft 100 GP · Uncommon · 5 jours. */
 const FAMILLES = [
   { champ: "weapon_category", mots: ["simple", "martial"] },
   { champ: "weapon_range", mots: ["melee", "ranged"] },
@@ -380,7 +395,7 @@ export function accepteUneFamille(subtype, base) {
     corps = corps.slice(0, sauf.index);
   }
   const mots = corps.toLowerCase().split(/[\s,]+|\bor\b/).map((x) => x.trim()).filter(Boolean);
-  if (mots.includes("ammunition")) return estDonneeDeMunition(base);   /* ⭐ lot 283, voir l'en-tête */
+  if (mots.includes(MOT_DE_LA_FAMILLE_MUNITION)) return estDonneeDeMunition(base);   /* ⭐ lots 283 · 288, voir l'en-tête */
   for (const { champ, mots: valeurs } of FAMILLES) {
     const voulus = mots.filter((m) => valeurs.includes(m));
     if (voulus.length) return voulus.includes(base[champ]);
@@ -403,9 +418,26 @@ export const LOT_MUNITION = 10;
 
 /** ⭐ LOT 283 — UNE BASE DE MUNITION, LUE DANS SES PROPRES CHAMPS (des `data`) : la marque
  *  de son paquet (`pack`, un entier ≥ 1) ET un prix lisible. ⛔ Un prix « Varies » n'est pas
- *  un zéro : sans lui, dix pièces n'ont pas de prix, et la munition n'est pas une base. */
+ *  un zéro : sans lui, dix pièces n'ont pas de prix, et une munition TYPÉE n'est pas une base.
+ *  ⭐ LOT 288 — OU LA MUNITION GÉNÉRIQUE du SRD (`estMunitionGenerique`), la seule exception,
+ *  et elle est nommée par la donnée : elle ne PRÉTEND pas avoir un prix. */
 export function estDonneeDeMunition(d) {
+  if (estMunitionGenerique(d)) return true;
   return Boolean(d) && Number.isInteger(d.pack) && d.pack >= 1 && prixEnPO(d.cost) > 0;
+}
+/** Le mot de la famille, tel que le SRD l'écrit dans `Any Ammunition`. */
+const MOT_DE_LA_FAMILLE_MUNITION = "ammunition";
+/** ⭐ LOT 288 — LA MUNITION GÉNÉRIQUE : le record qui porte le NOM MÊME de la famille
+ *  (`Ammunition`), sans paquet. ⚖️ Eric, 26/09 : « pile SRD sans munitions nominatives, mais
+ *  munitions magiques si ». ⛔ CE N'EST PAS UNE LISTE DE NOMS : c'est la lecture de
+ *  `subtypeAccepte` (une base se reconnaît à son nom EXACT dans le subtype), appliquée au seul
+ *  mot que `Any Ammunition` porte. En pile FH, `fh-munitions-en` la réécrit en `Arrows` (un
+ *  paquet) : 📏 mesuré le 26/09, AUCUN `gear` nommé `Ammunition` n'y reste — pas de double.
+ *  ⚠️ `srd:weapon-property:en:ammunition` porte le même nom : ce n'est jamais une base (les
+ *  bases sont des `weapon`, `armor` et `gear`). */
+export function estMunitionGenerique(d) {
+  return Boolean(d) && !Number.isInteger(d.pack)
+    && String(d.name || "").trim().toLowerCase() === MOT_DE_LA_FAMILLE_MUNITION;
 }
 /** La même question, posée à un RECORD — ce que l'étape donne à `basesDuCraft`. */
 export function estBaseDeMunition(record) {
@@ -422,17 +454,37 @@ export function estMunition(recordBase) {
  *  coté (`pack`) : `5 SP` le paquet de dix → 5 SP. Sans `pack`, le prix est à la pièce. */
 export function prixDUnLot(recordBase) {
   const d = (recordBase && recordBase.data) || {};
+  /* ⭐ LOT 288 — LA MUNITION GÉNÉRIQUE N'A PAS DE PRIX (« Varies ») : son lot vaut ZÉRO, dit
+     ici en toutes lettres — ⛔ pas par le zéro de repli de `prixEnPO`, qui sert l'illisible. */
+  if (estMunitionGenerique(d)) return 0;
   const paquet = Number.isInteger(d.pack) && d.pack >= 1 ? d.pack : 1;
   return prixEnPO(d.cost || "") * LOT_MUNITION / paquet;
 }
 
-/** ⚖️ COMBIEN DE FOIS ON PAIE `qte` pièces de cette base — « on ne paye qu'une fois le
- *  montant » (Eric, 24/09) : une munition se paie PAR LOT DE DIX, tout le reste à la pièce.
- *  ⭐ Un seul écrivain : la cote de X5 ET la fiche X1 d'une ligne craftée posée le lisent.
+/** ⚖️ COMBIEN DE LOTS FONT `qte` pièces de cette base — « on ne paye qu'une fois le
+ *  montant » (Eric, 24/09) : une munition se compte PAR LOT DE DIX, tout le reste à la pièce.
+ *  ⚖️ LOT 288 — ET LE LOT EST AUSSI CE QU'ON PORTE : « poids par lot » (Eric, 26/09), en réponse
+ *  à « 10 flèches craftées pèsent 15 lb […] `pack` est-il une marque ou une quantité ? ». Le
+ *  poids du catalogue est celui d'un paquet ; le sac pèse des lots, pas des pièces.
+ *  ⭐ UN SEUL ÉCRIVAIN pour les trois lecteurs : la cote de X5, la fiche X1 d'une ligne (prix et
+ *  poids totaux) et l'encombrement (`poidsParLieu`). La quantité d'une ligne compte des PIÈCES
+ *  — craftées (10), de départ (« 20 Arrows »), achetées (`piecesDUnAchat`).
  *  ⛔ Pas de plafond ici : il porte sur ce qui SORT du craft (`coteDe`), pas sur une ligne. */
 export function paiementsDe(recordBase, qte) {
   const n = Math.max(1, Math.floor(qte) || 1);
   return Math.ceil(n / (estMunition(recordBase) ? LOT_MUNITION : 1));
+}
+
+/** ⭐ LOT 288 — CE QU'UN ACHAT POSE, EN PIÈCES. ⚖️ « tu achètes un item avec un ×10 marqué
+ *  dessus » (Eric, 23/09) : UN JETON = UN PAQUET. Wares compte des jetons ; la ligne posée compte
+ *  des pièces, comme la ligne craftée et celle du départ — sinon `paiementsDe` lirait trois
+ *  paquets achetés comme trois flèches, donc UN lot.
+ *  ⛔ Seule une base de munition typée multiplie (`pack` ET un prix) : un plan qui porte `pack`
+ *  (`Ammunition, +1…` en pile FH) reste un plan, la munition générique n'a pas de paquet. */
+export function piecesDUnAchat(record, jetons) {
+  const n = Math.max(1, Math.floor(jetons) || 1);
+  const d = (record && record.data) || {};
+  return estBaseDeMunition(record) && Number.isInteger(d.pack) && d.pack >= 1 ? n * d.pack : n;
 }
 
 /* ══ ⑤ LA COTE D'UN ASSEMBLAGE — LE BARÈME SRFH (lot 280) ════════════════════════

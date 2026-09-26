@@ -134,7 +134,7 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
-         boitesDehors } from "./equipment-step.mjs?v=833";
+         boitesDehors, scinderLaLigne, retirerLaLigne } from "./equipment-step.mjs?v=833";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -2342,19 +2342,17 @@ function applyDecisionAction(action) {
      ne les écrit simplement jamais sur la ligne neuve.
      ⛔ ET IL NE SCINDE PAS CE QU'IL NE PEUT PAS : `n` hors de `1 … qte − 1` n'est
      pas une scission, c'est un déplacement — l'appelant l'envoie alors à
-     `moveGearLine`, et ce verbe refuse plutôt que d'inventer une pile de 0. */
+     `moveGearLine`, et ce verbe refuse plutôt que d'inventer une pile de 0.
+     🔴 LOT 288 — ET LA RECETTE SUIT (défaut signalé par le lot 285) : la séquence vit dans
+     `scinderLaLigne` (`equipment-step.mjs`), qui recopie `CHAMPS_DE_RECETTE` — la liste que
+     `currentGearLines` lit. ⭐ Sortie d'ici, elle a un témoin qui rejoue le vrai moteur. */
   if (action.kind === "splitGearLine") {
     const source = currentGearLines(state.document).find((l) => l.index === action.index);
     const total = Number(source && source.quantity) || 1;
     const part = Math.floor(Number(action.quantity));
     if (!source || !(part >= 1) || part >= total) return;
-    const index = nextGearIndex(state.document);
-    let document = state.document;
-    document = verbs.set({ document, path: `gear[${action.index}].quantity`, value: total - part }).document;
-    document = verbs.choose({ document, path: `gear[${index}]`, ref: source.ref }).document;
-    document = verbs.set({ document, path: `gear[${index}].quantity`, value: part }).document;
-    document = verbs.set({ document, path: `gear[${index}].equipped`, value: false }).document;
-    document = verbs.set({ document, path: `gear[${index}].location`, value: action.location }).document;
+    const document = scinderLaLigne({ document: state.document, verbs, source, part,
+      index: nextGearIndex(state.document), location: action.location });
     state.document = document;
     rebuild();
     refresh();
@@ -2563,12 +2561,14 @@ function applyDecisionAction(action) {
      (le `gear[N].quantity` qui resterait sans son `gear[N]`, mesuré dans
      `tests/build-derive.test.mjs`, « SRD PUR »). */
   if (action.kind === "removeGearLine") {
-    let document = state.document;
     /* LOT 212 : `.location` et `.boite` partent avec la ligne — deux orphelines de
-       plus, sinon (une boîte sans objet, une position sans rien à poser). */
-    for (const suffix of ["", ".quantity", ".equipped", ".location", ".boite"]) {
-      document = verbs.clear({ document, path: `gear[${action.index}]${suffix}`, kind: "choice" }).document;
-    }
+       plus, sinon (une boîte sans objet, une position sans rien à poser).
+       🔴 LOT 288 — LA LISTE DE CINQ SUFFIXES OUBLIAIT TOUT LE RESTE : la recette (`bonus`,
+       `powers[K]`, `plan`, `note`, `variant`, `spell`) et les états (`attuned`, `locked`,
+       `is`, `place`) restaient orphelins. ⭐ Une liste par nom de ce qu'on efface est
+       incomplète par construction : `retirerLaLigne` efface TOUT chemin `gear[N]…` lu dans le
+       document. */
+    const document = retirerLaLigne({ document: state.document, verbs, index: action.index });
     state.document = document;
     rebuild();
     refresh();

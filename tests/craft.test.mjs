@@ -24,7 +24,9 @@ import {
   RANG_MAX, ECHELLE_SOULFORGING, PLAFOND_QTE, LOT_MUNITION,
   paliterDeRarete, categorieAffichee, palierLePlusProche, pouvoirsDe, coteDe, encorePossibles, prixEnPO,
   estBaseDeMunition, prixDUnLot, paiementsDe, basesDe, bonusDe, ouvertureX5, seCrafteDansX5,
+  estMunitionGenerique, piecesDUnAchat, paliterDeRarete as palierDeRarete,
 } from "../ui/builder/craft.mjs";
+import { nomCrafte } from "../src/build/objet-crafte.mjs";
 import { makeHarness, PILE_SRD } from "./build-harness.mjs";
 import { PALIERS_SRFH } from "../ui/builder/bareme-srfh.mjs";
 import fs from "node:fs";
@@ -359,17 +361,19 @@ test("16 — ⭐ LES BASES DE MUNITION SONT LUES DANS LA DONNÉE — et croisée
   for (const etui of gearFH.filter((r) => /case|quiver/i.test(r.data.name))) {
     assert.equal(estBaseDeMunition(etui), false, `⛔ ${etui.data.name} est un ÉTUI, pas une munition`);
   }
-  /* ⛔ EN PILE SRD SEULE : UN SEUL `Ammunition`, AU PRIX « Varies » — donc AUCUNE base, et
-     `Ammunition, +1…` ne s'ouvre pas. On n'invente pas le prix de dix pièces. */
+  /* 🔄 LOT 288 — EN PILE SRD SEULE, LA SEULE BASE EST LA MUNITION GÉNÉRIQUE. Le 283 affirmait
+     ici « AUCUNE base, et `Ammunition, +1…` ne s'ouvre pas ». ⚖️ Eric, 26/09 : « pile SRD sans
+     munitions nominatives, mais munitions magiques si ». ⭐ Toujours aucune munition TYPÉE
+     (aucun prix de flèche inventé) : la base est `Ammunition`, le nom même de la famille, et
+     son lot vaut zéro — le garde 19 tient la cote. En pile FH, la générique n'existe plus. */
+  assert.equal(munitionsFH.some((b) => estMunitionGenerique(b.data)), false,
+    "⛔ en pile FH, la générique est réécrite en Arrows — pas de double");
   const srd = makeHarness({ layers: PILE_SRD }).layers.verbs.query;
   const gearSRD = srd({ kind: "gear" }).map((v) => v.record);
   assert.equal(srd({ kind: "gear", id: "srd:gear:en:ammunition" }).record.data.cost, "Varies");
-  assert.deepEqual(gearSRD.filter(estBaseDeMunition).map((r) => r.data.name), [],
-    "⛔ le SRD n'a aucune munition au prix lisible — zéro base, pas un prix inventé");
-  const basesSRD = [...srd({ kind: "weapon" }), ...srd({ kind: "armor" })].map((v) => v.record)
-    .concat(gearSRD.filter(estBaseDeMunition));
-  const itemsSRD = srd({ kind: "item" }).map((v) => v.record);
-  assert.equal(seCrafteDansX5(itemsSRD.find((r) => r.data.name === "Ammunition, +1, +2, or +3"), basesSRD, itemsSRD), false);
+  assert.deepEqual(gearSRD.filter(estBaseDeMunition).map((r) => r.data.name), ["Ammunition"],
+    "⭐ le SRD n'a qu'une munition — la générique, et elle seule");
+  assert.equal(prixDUnLot(gearSRD.find(estBaseDeMunition)), 0, "⛔ son lot vaut zéro : le SRD ne donne pas de prix, on n'en invente pas");
 });
 
 test("17 — ⭐ `Any Ammunition` ACCEPTE LES MUNITIONS, ET ELLES SEULES — les deux plans ouvrent X5", () => {
@@ -429,4 +433,63 @@ test("18 — ⚖️ UN LOT DE DIX VAUT LA COLONNE CONSOMMABLE + DIX PIÈCES DE B
   assert.equal(paiementsDe(fleches, 10), 1);
   assert.equal(paiementsDe(fleches, 20), 2, "une ligne de vingt flèches craftées, c'est deux lots");
   assert.equal(paiementsDe(parNom.get("Longsword"), 3), 3);
+});
+
+/* ══ ⑦ LOT 288 — LA MUNITION MAGIQUE EN PILE SRD, ET LE LOT QU'ON PORTE ═══════════════════
+   ⚖️ Eric, 26/09 : « pile SRD sans munitions nominatives, mais munitions magiques si » — et
+   « poids par lot ». */
+const srdQ = makeHarness({ layers: PILE_SRD }).layers.verbs.query;
+const itemsSRD = srdQ({ kind: "item" }).map((v) => v.record);
+/* ⭐ les bases telles que le pilote les donne (`basesDuCraft`) */
+const basesSRD = [...srdQ({ kind: "weapon" }), ...srdQ({ kind: "armor" }),
+  ...srdQ({ kind: "gear" }).filter((v) => estBaseDeMunition(v.record))].map((v) => v.record);
+const planSRD = (nom) => itemsSRD.find((r) => r.data.name === nom);
+
+test("19 — ⚖️ EN PILE SRD, LES MUNITIONS MAGIQUES SE FABRIQUENT SUR LA GÉNÉRIQUE : 200 GP, Uncommon, 5 jours", () => {
+  const plus = planSRD("Ammunition, +1, +2, or +3");
+  const tuer = planSRD("Ammunition of Slaying");
+  assert.deepEqual(basesDe(plus, basesSRD).map((b) => b.data.name), ["Ammunition"],
+    "⭐ ITEM = la munition générique, seule — ⛔ ni Arrows ni Bolts inventées");
+  assert.deepEqual(ouvertureX5(plus, itemsSRD, basesSRD), { plan: plus, choix: {} }, "⚖️ « munitions magiques si »");
+  const o = ouvertureX5(tuer, itemsSRD, basesSRD);
+  assert.ok(o, "⚖️ Slaying s'ouvre aussi, bien que la pile ne lui offre qu'une base");
+  assert.deepEqual(o.choix, { base: "Ammunition", pouvoirs: ["Ammunition of Slaying"] });
+  assert.equal(o.plan, plus, "…sur le plan de sa famille");
+  /* ⚔️ MAIS UN POUVOIR À UNE SEULE BASE NOMMÉE RESTE UN OBJET FINI — la famille est la seule
+     exception, et elle se lit dans le subtype (`Any …`). */
+  const unique = itemsSRD.filter((x) => x.data.subtype && !/^any\b/i.test(x.data.subtype)
+    && palierDeRarete(x.data.rarity) && basesDe(x, basesSRD).length === 1);
+  assert.ok(unique.length >= 10, `📏 ${unique.length} pouvoirs à base unique nommée (Sun Blade, Mace of Disruption…)`);
+  for (const r of unique) {
+    assert.equal(ouvertureX5(r, itemsSRD, basesSRD), null, `⛔ ${r.data.name} [${r.data.subtype}] ne s'ouvre pas`);
+  }
+  /* 📏 la cote : la colonne consommable seule — prix de base ZÉRO, ⛔ aucun prix de flèche écrit */
+  const generique = basesDe(plus, basesSRD)[0];
+  const c = coteDe({ base: generique, bonus: "Uncommon", qte: LOT_MUNITION });
+  assert.equal(c.coutBase, 0, "⛔ la base ne coûte rien : le SRD dit « Varies »");
+  assert.equal(c.magie, PALIERS_SRFH.find((p) => p.nom === "Uncommon").valeur / 2, "la moitié du palier, comme une potion");
+  assert.equal(c.venteUnitaire, c.magie);
+  assert.equal(c.craftUnitaire, c.magie / 2);
+  assert.equal(c.categorie, "Uncommon");
+  assert.equal(c.temps, "5 days");
+  assert.equal(c.qte, LOT_MUNITION, "un lot de dix…");
+  assert.equal(c.paiements, 1, "…payé une fois, comme en FH");
+  assert.equal(nomCrafte({ base: generique.name, bonus: "+1" }), "Ammunition +1", "⭐ le nom posé : « Ammunition +1 »");
+  const tout = coteDe({ base: generique, pouvoirs: ["Very Rare"], qte: LOT_MUNITION });
+  assert.equal(tout.venteUnitaire, PALIERS_SRFH.find((p) => p.nom === "Very Rare").valeur / 2, "Slaying : sa colonne consommable, rien d'autre");
+});
+
+test("20 — ⚖️ UNE LIGNE SE COMPTE EN LOTS — craftée, de départ ou achetée : un jeton = un paquet", () => {
+  const fleches = munition("Arrows");
+  assert.equal(paiementsDe(fleches, 10), 1, "dix flèches craftées : un lot");
+  assert.equal(paiementsDe(fleches, 20), 2, "« 20 Arrows » du départ : deux lots");
+  assert.equal(paiementsDe(fleches, 3), 1, "trois flèches : un lot entamé pèse un lot");
+  assert.equal(paiementsDe(parNom.get("Longsword"), 3), 3, "⛔ une épée se compte à la pièce");
+  /* ⭐ Wares compte des JETONS : trois paquets achetés posent trente pièces, donc TROIS lots */
+  assert.equal(piecesDUnAchat(fleches, 3), 30);
+  assert.equal(paiementsDe(fleches, piecesDUnAchat(fleches, 3)), 3, "⚖️ trois paquets pèsent trois lots");
+  assert.equal(piecesDUnAchat(parNom.get("Longsword"), 2), 2, "une épée achetée est une épée");
+  assert.equal(piecesDUnAchat(planFH("Ammunition, +1, +2, or +3"), 1), 1, "⛔ un PLAN qui porte `pack` reste un plan");
+  const generique = basesDe(planSRD("Ammunition, +1, +2, or +3"), basesSRD)[0];
+  assert.equal(piecesDUnAchat(generique, 1), 1, "⛔ la générique n'a pas de paquet : rien à multiplier");
 });

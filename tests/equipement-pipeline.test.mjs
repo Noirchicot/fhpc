@@ -680,3 +680,24 @@ test("chaque ligne de poids dit son unité, et jamais une autre que le total", (
       `⛔ divergence : total « ${total} » contre ligne « ${ligne} »`);
   }
 });
+
+/* ══ LOT 288 — « POIDS PAR LOT » ════════════════════════════════════════════════════════════
+   ⚖️ Eric, 26/09, en réponse à : « 10 flèches craftées pèsent 15 lb dans le sac, parce que le
+   poids est multiplié par le nombre de pièces ; même flou pour les 20 flèches de départ :
+   `pack` est-il une marque ou une quantité ? » → « poids par lot ».
+   ⭐ Sur les VRAIS records de la pile FH : le poids du catalogue est celui d'un paquet, et le sac
+   compte des lots (`paiementsDe`, `craft.mjs`) — ⛔ tout le reste pèse à la pièce. */
+test("lot 288 — ⚖️ UNE MUNITION PÈSE PAR LOT : 10 flèches 1,5 lb (et non 15), « 20 Arrows » 3 lb (et non 30)", () => {
+  const record = (ref) => query({ kind: ref.kind, id: ref.id }).record;
+  const FLECHES = { kind: "gear", id: "srd:gear:en:ammunition" };
+  const CARREAUX = { kind: "gear", id: "fh:gear:en:crossbow-bolts" };
+  const EPEE = { kind: "weapon", id: "srd:weapon:en:longsword" };
+  assert.equal(record(FLECHES).data.weight, "1.5 lb.", "📏 le paquet de dix flèches pèse 1,5 lb (fh-munitions-en)");
+  const pese = (lignes) => poidsParLieu(lignes, record).somme.backpack;
+  assert.equal(pese([{ ref: FLECHES, quantity: 10, location: "backpack" }]), 1.5, "⛔ dix flèches craftées ne pèsent pas 15 lb");
+  assert.equal(pese([{ ref: FLECHES, quantity: 20, location: "backpack" }]), 3, "⛔ les « 20 Arrows » du départ ne pèsent pas 30 lb");
+  assert.equal(pese([{ ref: CARREAUX, quantity: 30, location: "backpack" }]), 3, "trois paquets de carreaux achetés : 3 × 1 lb");
+  assert.equal(pese([{ ref: EPEE, quantity: 2, location: "backpack" }]), 6, "⛔ une épée pèse à la pièce : 2 × 3 lb");
+  const p = poidsParLieu([{ ref: FLECHES, quantity: 20, location: "backpack" }], record);
+  assert.equal(p.compte.backpack, 20, "le COMPTE, lui, reste celui des pièces — seul le poids se lit en lots");
+});

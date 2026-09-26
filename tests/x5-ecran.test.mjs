@@ -27,6 +27,8 @@ const D = await import("../ui/builder/x5-disposition.mjs");
 const { construireX5, feuilleDesCotesX5, organesDeLaFamille } = await import("../ui/builder/x5-ecran.mjs");
 const { reglesDeLaBourse } = await import("../ui/builder/gear-ecran.mjs");
 const { pouvoirsDe, bonusDe, enPieces, prixSaisi, estBaseDeMunition } = await import("../ui/builder/craft.mjs");
+/* ⭐ LOT 288 — la pile SRD seule, pour la munition magique sans base nominative */
+const HARNAIS = await import("./build-harness.mjs");
 
 const query = exempleFhEn().layers.verbs.query;
 const armes = new Map(query({ kind: "weapon" }).map((v) => [v.record.data.name, v.record]));
@@ -780,10 +782,42 @@ test("37 — ⭐ LE PILOTE DONNE LES MUNITIONS À X5, ET LA FICHE X1 D'UNE LIGNE
   assert.match(src, /const basesDuCraft = \[[^\]]*lireRecords\("gear"\)\.filter\(estBaseDeMunition\)\]/,
     "⭐ `basesDuCraft` prend les munitions par la règle du moteur — ⛔ aucune liste de noms");
   const x1 = src.slice(src.indexOf("function construireX1()"), src.indexOf("function construireX1()") + 3000);
-  assert.match(x1, /const fois = recetteDeLaLigne\(ligne\) \? paiementsDe\(rec, qte\) : qte;/,
-    "⚖️ une ligne craftée de dix flèches coûte UN lot — ⛔ pas dix fois le prix du lot");
+  /* 🔄 LOT 288 — LE LOT VAUT POUR TOUTE MUNITION. Ce garde exigeait `recetteDeLaLigne(ligne) ?
+     paiementsDe(rec, qte) : qte` — le lot réservé à la ligne craftée, parce que la quantité d'une
+     munition mondaine « n'était pas tranchée ». ⚖️ Eric, 26/09 : « poids par lot » — les « 20
+     Arrows » du départ aussi. */
+  assert.match(x1, /const fois = paiementsDe\(rec, qte\);/,
+    "⚖️ dix flèches — craftées ou de départ — coûtent et pèsent UN lot, ⛔ pas dix fois le lot");
   assert.match(x1, /multiplieCout\(cout, fois\)/);
+  assert.match(x1, /poidsTotal: poids \? `\$\{Math\.round\(poids\.valeur \* fois \* 100\) \/ 100\}/,
+    "⚖️ le « poids total » de la fiche lit le même nombre de lots que le prix");
+  /* ⭐ LOT 288 — les deux écrans de Wares posent des PIÈCES (un jeton = un paquet) */
+  assert.match(src, /construireLaFicheX2\(\{[^}]*onAction: actAchat,/, "⛔ X2 pose par `actAchat`");
+  assert.equal((src.match(/renderB2\(\{[^}]*onAction: actAchat,/g) || []).length, 2, "⛔ le panier aussi, dans ses deux modes");
+  assert.match(src, /quantity: piecesDUnAchat\(cherche\.record\(a\.ref\), a\.quantity\)/);
   const apercu = src.slice(src.indexOf("function construireApercuX5()"), src.indexOf("function construireVue("));
   assert.match(apercu, /multiplieCout\(coutLu, a\.cote && a\.cote\.paiements \? a\.cote\.paiements : qte\)/,
     "⚖️ l'aperçu du jeton dit le total que `Send` paiera");
+});
+
+test("38 — ⚖️ LOT 288 : EN PILE SRD, `Ammunition, +1…` S'OUVRE SUR LA GÉNÉRIQUE — « Ammunition +1 », 100 GP le lot", () => {
+  /* ⚖️ Eric, 26/09 : « pile SRD sans munitions nominatives, mais munitions magiques si ». */
+  const { makeHarness, PILE_SRD } = HARNAIS;
+  const srd = makeHarness({ layers: PILE_SRD }).layers.verbs.query;
+  const basesSRD = [...srd({ kind: "weapon" }), ...srd({ kind: "armor" }),
+    ...srd({ kind: "gear" }).filter((v) => estBaseDeMunition(v.record))].map((v) => v.record);
+  const itemsSRD = srd({ kind: "item" }).map((v) => v.record);
+  const plan = itemsSRD.find((r) => r.data.name === "Ammunition, +1, +2, or +3");
+  const recus = [];
+  const { noeud, cote } = monte({ plan, bases: basesSRD, itemsMagiques: itemsSRD.filter((r) => String(r.data.subtype || "").trim()),
+    choix: { base: "Ammunition", bonus: "Uncommon" }, surEnvoyer: (e) => recus.push(e), surChoix: () => {} });
+  const options = (organe) => [...noeud.querySelector(`[data-organe="${organe}"]`).querySelectorAll("option")].map((o) => o.textContent);
+  assert.deepEqual(options("ITEM"), ["Ammunition"], "⛔ aucune munition nominative — la générique seule");
+  assert.ok(options("POWER 1").includes("Ammunition of Slaying"));
+  assert.equal(noeud.querySelector('[data-organe="JETON"]').getAttribute("aria-label"), "Ammunition +1 — preview");
+  assert.equal(cote.qte, 10, "un lot de dix…");
+  assert.equal(cote.paiements, 1, "…payé une fois");
+  assert.equal(cote.coutBase, 0, "⛔ base à zéro : aucun prix de flèche écrit");
+  noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
+  assert.deepEqual(recus[0].cout, enPieces(100), "📏 Crafting : 400 ÷ 2 ÷ 2 = 100 GP, une fois");
 });
