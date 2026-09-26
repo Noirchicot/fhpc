@@ -469,6 +469,22 @@ test("20 ter · la feuille de Wares donne au fantôme la cote du jeton du plan",
   assert.match(regle[1], new RegExp(`block-size:${D.JETON.h}px`));
 });
 
+/* ══ 20 quater · 🔴 LE FANTÔME EST `fixed` — lot 295 ════════════════════════════
+   📏 En ligne (v836) : bonne cote, mais posé à y = 1439 dans une fenêtre de 985. `.wares-jeton`
+   déclare `position: relative` APRÈS `.glisse-fantome` (même poids) et gagnait. ⭐ TÉMOIN : toute
+   règle de `shell.css` qui pose `position` sur `.wares-jeton` est suivie d'une règle au poids du
+   jeton qui rend `fixed` au fantôme. ⚠️ Le stub n'a pas de mise en page : la position PEINTE est
+   le relevé daté ci-dessus. */
+test("20 quater · shell.css rend au fantôme de Wares sa position fixe, au poids du jeton", async () => {
+  const fs = await import("node:fs");
+  const css = fs.readFileSync(new URL("../ui/builder/shell.css", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  const jeton = css.search(/(^|\n)\.wares-jeton\s*\{[^}]*position:\s*relative/);
+  const fantome = css.search(/\.wares-jeton\.glisse-fantome\s*\{[^}]*position:\s*fixed/);
+  assert.ok(jeton >= 0, "le jeton ne se positionne plus en relatif : ce garde est à revoir");
+  assert.ok(fantome >= 0, "⛔ aucune règle ne rend `fixed` au fantôme : il tombe dans le flux, hors de l'écran");
+});
+
 /* ⭐ TÉMOIN : le viseur existe, un par étage, et il ne se tape pas.
    🔴 IL MANQUAIT AU PLAN *ET* À L'ÉCRAN — et c'est pour ça que la bijection plan ↔ DOM, mon
    garde 15, ne pouvait rien dire : elle compare deux listes, et l'organe manquait des deux.

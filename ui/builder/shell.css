@@ -13225,6 +13225,16 @@ button.tuto-point::before {
   color: var(--text); font: inherit; font-size: var(--t1);
   text-align: center; line-height: 1.1; cursor: pointer;
 }
+/* 🔴 LOT 295 — LE FANTÔME D'UN JETON DE WARES EST `fixed`, ⛔ PAS `relative`. 📏 Mesuré en ligne à la
+   v836 : fantôme à la bonne cote (153 × 84, lot 293) mais posé à **y = 1439** dans une fenêtre de
+   985 — hors de l'écran, invisible. `position: relative` ci-dessus (0,1,0), déclaré APRÈS
+   `.glisse-fantome` (0,1,0), gagnait : le fantôme tombait dans le flux au pied de `.app`, et son
+   `translate` partait de là. ⭐ La règle du fantôme se redit donc au poids du jeton (0,2,0), pour
+   la position SEULEMENT — la cote reste à la feuille de chaque écran (`wares-ecran.mjs`,
+   `x5-parchemin.mjs` : jetons de sort, mêmes `.wares-jeton`). *« Une déclaration PERDANTE se
+   tait »* — deuxième fois sur ce même organe : la taille au lot 293, la position ici. */
+.wares-jeton.glisse-fantome { position: fixed; left: 0; top: 0; }
+
 /* ⭐ LE FILIGRANE — un masque rempli d'une encre THÉMATIQUE, donc lisible le jour comme la
    nuit. ⛔ L'image posée telle quelle (elle est NOIRE) s'évanouirait sur le fond de nuit.
    ⛔ Et le voile est un JETON (`--filigrane`), pas un littéral perdu dans la feuille — un
