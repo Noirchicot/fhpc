@@ -23,7 +23,9 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import {
   RANG_MAX, ECHELLE_SOULFORGING, PLAFOND_QTE, LOT_MUNITION,
   paliterDeRarete, categorieAffichee, palierLePlusProche, pouvoirsDe, coteDe, encorePossibles, prixEnPO,
+  estBaseDeMunition, prixDUnLot, paiementsDe, basesDe, bonusDe, ouvertureX5, seCrafteDansX5,
 } from "../ui/builder/craft.mjs";
+import { makeHarness, PILE_SRD } from "./build-harness.mjs";
 import { PALIERS_SRFH } from "../ui/builder/bareme-srfh.mjs";
 import fs from "node:fs";
 
@@ -144,15 +146,16 @@ test("5 bis — ⚔️ LES CINQ FORMES « Any … » DU SRD SONT TOUTES LUES", (
      cinq formes rendaient zéro base, et rien ne rougissait.
      ⛔ Il ÉNUMÈRE LES SUBTYPES RÉELS de la pile, il ne les liste pas : une forme
      ajoutée demain sera interrogée sans qu'on touche ce fichier. */
-  const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" })].map((v) => v.record);
+  /* ⭐ LOT 283 — LES BASES SONT CELLES QUE LE PILOTE DONNE, munitions comprises. 🗄️ Ce garde
+     tolérait `Any Ammunition` à zéro (« ⏳ il ira avec le lot des munitions ») : le lot est là,
+     et la tolérance est retirée — ⛔ un zéro accuse désormais, comme pour les quatre autres. */
+  const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" }), ...query({ kind: "gear" })]
+    .map((v) => v.record).filter((r) => r.data.weapon_range || r.data.armor_category || estBaseDeMunition(r));
   const formes = [...new Set(magiques.map((r) => r.data.subtype))].filter((st) => /^any\b/i.test(st));
   assert.ok(formes.length >= 4, `la pile porte bien plusieurs formes « Any … » (${formes.length})`);
+  assert.ok(formes.some((st) => /ammunition/i.test(st)), "la forme `Any Ammunition` est bien interrogée");
   for (const st of formes) {
     const n = bases.filter((b) => pouvoirsDe(b, [{ data: { subtype: st, rarity: "Rare" } }]).length).length;
-    if (/ammunition/i.test(st)) {
-      assert.equal(n, 0, "⏳ `Any Ammunition` reste à zéro, DÉCLARÉ — il ira avec le lot des munitions");
-      continue;
-    }
     assert.ok(n > 0, `🔴 [${st}] ne trouve AUCUNE base — c'est exactement le trou du lot 258`);
   }
 });
@@ -321,4 +324,109 @@ test("15 — ⚠️ UN COÛT ILLISIBLE REND ZÉRO, JAMAIS NaN", () => {
     assert.equal(v, 0, `« ${mauvais} » rend 0`);
     assert.ok(Number.isFinite(v), "⛔ et surtout : un nombre fini");
   }
+});
+
+/* ══ ⑥ LES MUNITIONS — lot 283 ═════════════════════════════════════════════════
+   ⚖️ Eric, 24/09 : « pour les projectiles on a décidé 10 mais on ne paye qu'une fois le
+   montant · je veux pas qu'une tuile puisse sortir du craft avec plus de 10 ».
+   ⭐ Le SRD, sur `Ammunition, +1, +2, or +3` : « Ten pieces of this ammunition are
+   equivalent in value to a potion of the same rarity ». ⚖️ 26/09 : le barème SRFH, les rangs
+   s'additionnent, la base s'ajoute, la rareté et le temps suivent le palier le plus proche. */
+const gearFH = query({ kind: "gear" }).map((v) => v.record);
+const munitionsFH = gearFH.filter(estBaseDeMunition);
+const basesFH = [...armes.map((v) => v.record), ...query({ kind: "armor" }).map((v) => v.record), ...munitionsFH];
+const itemsFH = query({ kind: "item" }).map((v) => v.record);
+const planFH = (nom) => itemsFH.find((r) => r.data.name === nom);
+const munition = (nom) => munitionsFH.find((r) => r.data.name === nom);
+
+test("16 — ⭐ LES BASES DE MUNITION SONT LUES DANS LA DONNÉE — et croisées avec les armes, dans les deux sens", () => {
+  /* ⛔ AUCUNE LISTE DE NOMS DANS LE CODE : `estBaseDeMunition` lit la marque du paquet
+     (`pack`) et un prix. Ce garde, lui, CROISE ce résultat avec l'autre source que la donnée
+     porte — la munition que NOMME chaque arme à distance (« Range 150/600; Arrow ») :
+     ⭐ une bijection fausse est cohérente, seule la lecture en sens inverse l'attrape. */
+  const motsDesArmes = [...new Set(armes.map((v) => /Ammunition \([^;)]*;\s*([^)]+)\)/.exec(String(v.record.data.properties || "")))
+    .filter(Boolean).map((m) => m[1].trim()))];
+  assert.ok(motsDesArmes.length >= 4, `les armes nomment leurs munitions (${motsDesArmes.join(", ")})`);
+  assert.ok(munitionsFH.length >= motsDesArmes.length, `📏 ${munitionsFH.length} bases de munition en pile FH`);
+  for (const mot of motsDesArmes) {
+    assert.ok(munitionsFH.some((b) => b.data.name.includes(mot)), `⛔ « ${mot} » est tiré par une arme et n'a aucune base`);
+  }
+  for (const b of munitionsFH) {
+    assert.ok(motsDesArmes.some((mot) => b.data.name.includes(mot)), `⛔ « ${b.data.name} » n'est la munition d'aucune arme`);
+    assert.ok(prixDUnLot(b) > 0, `${b.data.name} : dix pièces ont un prix`);
+  }
+  /* ⚔️ LE PIÈGE NOMMÉ PAR L'EN-TÊTE : l'étui porte « Bolt » dans son nom. */
+  for (const etui of gearFH.filter((r) => /case|quiver/i.test(r.data.name))) {
+    assert.equal(estBaseDeMunition(etui), false, `⛔ ${etui.data.name} est un ÉTUI, pas une munition`);
+  }
+  /* ⛔ EN PILE SRD SEULE : UN SEUL `Ammunition`, AU PRIX « Varies » — donc AUCUNE base, et
+     `Ammunition, +1…` ne s'ouvre pas. On n'invente pas le prix de dix pièces. */
+  const srd = makeHarness({ layers: PILE_SRD }).layers.verbs.query;
+  const gearSRD = srd({ kind: "gear" }).map((v) => v.record);
+  assert.equal(srd({ kind: "gear", id: "srd:gear:en:ammunition" }).record.data.cost, "Varies");
+  assert.deepEqual(gearSRD.filter(estBaseDeMunition).map((r) => r.data.name), [],
+    "⛔ le SRD n'a aucune munition au prix lisible — zéro base, pas un prix inventé");
+  const basesSRD = [...srd({ kind: "weapon" }), ...srd({ kind: "armor" })].map((v) => v.record)
+    .concat(gearSRD.filter(estBaseDeMunition));
+  const itemsSRD = srd({ kind: "item" }).map((v) => v.record);
+  assert.equal(seCrafteDansX5(itemsSRD.find((r) => r.data.name === "Ammunition, +1, +2, or +3"), basesSRD, itemsSRD), false);
+});
+
+test("17 — ⭐ `Any Ammunition` ACCEPTE LES MUNITIONS, ET ELLES SEULES — les deux plans ouvrent X5", () => {
+  const plus = planFH("Ammunition, +1, +2, or +3");
+  const tuer = planFH("Ammunition of Slaying");
+  assert.deepEqual(basesDe(plus, basesFH).map((b) => b.data.name).sort(), munitionsFH.map((b) => b.data.name).sort(),
+    "⭐ le menu ITEM = les munitions, toutes et rien d'autre");
+  assert.deepEqual(bonusDe(plus).map((b) => `${b.mot}:${b.rarete}`), ["+1:Uncommon", "+2:Rare", "+3:Very Rare"],
+    "les bonus lus dans la rareté du plan");
+  assert.deepEqual(ouvertureX5(plus, magiques, basesFH), { plan: plus, choix: {} });
+  const o = ouvertureX5(tuer, magiques, basesFH);
+  assert.equal(o.plan.data.name, "Ammunition, +1, +2, or +3", "⭐ Slaying ouvre le plan de SA famille");
+  assert.deepEqual(o.choix.pouvoirs, ["Ammunition of Slaying"], "…avec le pouvoir déjà posé en POWER 1");
+  assert.ok(munition(o.choix.base), "…et une munition pour base");
+  assert.deepEqual(pouvoirsDe(munition("Arrows"), magiques).map((r) => r.data.name), ["Ammunition of Slaying"],
+    "⭐ POWER : Slaying est le seul pouvoir d'une flèche");
+  /* ⚔️ ET L'INVERSE : aucun autre plan ne prend une munition, aucune arme ne passe pour une. */
+  for (const r of magiques.filter((x) => !/ammunition/i.test(x.data.subtype))) {
+    for (const b of munitionsFH) assert.equal(pouvoirsDe(b, [r]).length, 0, `⛔ ${r.data.name} ne se pose pas sur ${b.data.name}`);
+  }
+  assert.equal(basesDe(planFH("Weapon, +1, +2, or +3"), basesFH).some(estBaseDeMunition), false,
+    "⛔ une flèche n'est pas une arme `Simple or Martial`");
+  assert.equal(basesDe(plus, basesFH).some((b) => b.data.weapon_range), false, "⛔ et un arc n'est pas une munition");
+});
+
+test("18 — ⚖️ UN LOT DE DIX VAUT LA COLONNE CONSOMMABLE + DIX PIÈCES DE BASE, en temps consommable", () => {
+  /* 📏 Arrows +1 : Uncommon 400 → consommable 200, + 5 SP le paquet de dix = 200,5 GP ;
+     fabriqué pour la moitié (100,25), en 10 / 2 = 5 jours. */
+  const fleches = munition("Arrows");
+  const c = coteDe({ base: fleches, bonus: "Uncommon", qte: LOT_MUNITION });
+  assert.equal(c.magie, 200, "⚖️ « equivalent in value to a potion of the same rarity » — la MOITIÉ du palier");
+  assert.equal(c.coutBase, 0.5, "⚖️ la base : DIX flèches, 5 SP");
+  assert.equal(c.venteUnitaire, 200.5);
+  assert.equal(c.craftUnitaire, 100.25);
+  assert.equal(c.categorie, "Uncommon", "⛔ pas Common+ (250) : un consommable se compare à la colonne consommable");
+  assert.equal(c.temps, "5 days", "⭐ le temps d'un consommable Uncommon (10 ÷ 2)");
+  assert.equal(c.paiements, 1, "⚖️ dix flèches, UN paiement");
+  assert.equal(c.craftTotal, 100.25);
+  /* 📏 Firearm Bullets +3 : Very Rare 40 000 → 20 000, + 10 GP ; 125 / 2 = 62,5 → 63 jours. */
+  const balles = coteDe({ base: munition("Firearm Bullets"), bonus: "Very Rare", qte: 4 });
+  assert.equal(balles.venteUnitaire, 20010);
+  assert.equal(balles.temps, "63 days", "⚖️ « arrondis les jours qui ne tombent pas juste »");
+  assert.equal(balles.qte, 4, "le joueur peut en faire moins de dix…");
+  assert.equal(balles.craftTotal, 10005, "…et paie quand même le lot, une fois");
+  /* ⚖️ les rangs s'additionnent aussi sur une flèche : +1 (2) + Slaying (6) = 8, Legendary */
+  const tout = coteDe({ base: fleches, bonus: "Uncommon", pouvoirs: ["Very Rare"], qte: 10 });
+  assert.equal(tout.categorie, "Legendary");
+  assert.equal(tout.venteUnitaire, 100000.5);
+  assert.equal(tout.temps, "125 days");
+  /* ⚔️ la base est le prix de DIX pièces, lu dans le paquet du record — pas le prix du record nu */
+  assert.equal(prixDUnLot({ data: { cost: "1 GP", pack: 20 } }), 0.5, "un paquet de vingt à 1 GP : dix pièces valent 5 SP");
+  assert.equal(prixDUnLot({ data: { cost: "1 CP", category: "ammunition" } }), 0.1, "sans paquet, le prix est à la pièce");
+  /* ⚔️ et une arme reste un objet durable : la colonne pleine, à la pièce */
+  const epee = coteDe({ base: parNom.get("Longsword"), bonus: "Uncommon", qte: 3 });
+  assert.equal(epee.magie, 400);
+  assert.equal(epee.paiements, 3);
+  assert.equal(paiementsDe(fleches, 10), 1);
+  assert.equal(paiementsDe(fleches, 20), 2, "une ligne de vingt flèches craftées, c'est deux lots");
+  assert.equal(paiementsDe(parNom.get("Longsword"), 3), 3);
 });

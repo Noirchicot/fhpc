@@ -30,7 +30,7 @@
    croisés contre le SRD. ⛔ Ce fichier-ci ne les recopie pas : il les applique. */
 
 import { variantesDe } from "../../src/build/objet-crafte.mjs?v=829";
-import { PALIERS_SRFH, joursArrondis, noteDeCraft } from "./bareme-srfh.mjs?v=829";
+import { PALIERS_SRFH, noteDeCraft } from "./bareme-srfh.mjs?v=829";
 
 /* ══ ① LE BARÈME — SRFH, LU DANS `bareme-srfh.mjs` (lot 280) ═══════════════════════
    ⭐ Le craft d'un objet ordinaire suit la RÉFÉRENCE SRD + FH : les cinq paliers du SRD
@@ -286,8 +286,9 @@ export function texteDesJours(n) {
 }
 
 /** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :
- *  `Ammunition, +1…` n'a pas de base lisible aujourd'hui, `Spell Scroll` ni base ni
- *  bonus ; ni l'un ni l'autre n'ouvre X5, et aucun nom n'a été écrit pour ça. */
+ *  `Spell Scroll` n'a ni base ni bonus, il n'ouvre pas X5, et aucun nom n'a été écrit
+ *  pour ça. ⭐ LOT 283 — `Ammunition, +1…` et `Ammunition of Slaying` l'ouvrent dès que la
+ *  pile porte des bases de munition (`estBaseDeMunition`) : en pile FH, pas en SRD seule. */
 export function seCrafteDansX5(record, bases, items = []) {
   return Boolean(ouvertureX5(record, items, bases));
 }
@@ -319,11 +320,19 @@ export function seCrafteDansX5(record, bases, items = []) {
      « Except X »            → X est retiré par son NOM, tel que le SRD l'écrit
    Les mots d'une même famille s'unissent (`Simple or Martial` = l'une OU l'autre).
 
-   ⏳ `Any Ammunition` RESTE À ZÉRO, ET C'EST DÉCLARÉ. Les munitions de base sont des
-   `gear` sans aucun marqueur ; une arme à distance NOMME la sienne (« Range
-   150/600; Arrow »), mais les reconnaître demande de croiser deux genres, et
-   `Case, Crossbow Bolt` — un ÉTUI — tomberait dans un filtre naïf sur « Bolt ».
-   ⭐ Cette lecture ira avec la règle du lot de dix, dans le lot des munitions. */
+   🗄️ `Any Ammunition` EST RESTÉ À ZÉRO JUSQU'AU LOT 283, et c'était déclaré : les
+   munitions de base étaient des `gear` sans marqueur, et `Case, Crossbow Bolt` — un
+   ÉTUI — tombait dans un filtre naïf sur « Bolt ».
+   ⭐ LOT 283 — LE MARQUEUR EXISTE, ET IL EST DANS LA DONNÉE : `pack`, posé par la couche
+   `fh-munitions-en` sur les cinq munitions typées (Eric, 23/09 : « tu achètes un item avec
+   un ×10 marqué dessus »). `ammunition` → une base qui porte `pack` ET un prix lisible
+   (`estDonneeDeMunition`). ⛔ Aucun nom : l'étui n'a pas de `pack`, le carquois non plus.
+   📏 Mesuré le 26/09, pile FH : 5 bases (Arrows · Crossbow Bolts · Firearm Bullets ·
+   Sling Bullets · Blowgun Needles) ; le garde croise leurs noms avec les munitions que
+   NOMMENT les armes à distance, dans les deux sens.
+   ⛔ EN PILE SRD SEULE, ZÉRO BASE, ET C'EST VOULU : le SRD n'a qu'un `Ammunition` au prix
+   « Varies ». Sans prix pour dix pièces, la cote n'aurait pas de base — ⛔ on n'en invente
+   pas, et `Ammunition, +1…` reste hors de X5 dans cette pile. */
 const FAMILLES = [
   { champ: "weapon_category", mots: ["simple", "martial"] },
   { champ: "weapon_range", mots: ["melee", "ranged"] },
@@ -338,7 +347,7 @@ export function accepteUneFamille(subtype, base) {
     corps = corps.slice(0, sauf.index);
   }
   const mots = corps.toLowerCase().split(/[\s,]+|\bor\b/).map((x) => x.trim()).filter(Boolean);
-  if (mots.includes("ammunition")) return false;   /* ⏳ voir l'en-tête */
+  if (mots.includes("ammunition")) return estDonneeDeMunition(base);   /* ⭐ lot 283, voir l'en-tête */
   for (const { champ, mots: valeurs } of FAMILLES) {
     const voulus = mots.filter((m) => valeurs.includes(m));
     if (voulus.length) return voulus.includes(base[champ]);
@@ -358,10 +367,39 @@ export function accepteUneFamille(subtype, base) {
    potion de même rareté ; la règle d'Eric est la règle de Wizards. */
 export const PLAFOND_QTE = 10;
 export const LOT_MUNITION = 10;
+
+/** ⭐ LOT 283 — UNE BASE DE MUNITION, LUE DANS SES PROPRES CHAMPS (des `data`) : la marque
+ *  de son paquet (`pack`, un entier ≥ 1) ET un prix lisible. ⛔ Un prix « Varies » n'est pas
+ *  un zéro : sans lui, dix pièces n'ont pas de prix, et la munition n'est pas une base. */
+export function estDonneeDeMunition(d) {
+  return Boolean(d) && Number.isInteger(d.pack) && d.pack >= 1 && prixEnPO(d.cost) > 0;
+}
+/** La même question, posée à un RECORD — ce que l'étape donne à `basesDuCraft`. */
+export function estBaseDeMunition(record) {
+  return estDonneeDeMunition(record && record.data);
+}
 export function estMunition(recordBase) {
   const d = (recordBase && recordBase.data) || {};
-  return d.category === "ammunition"
+  return d.category === "ammunition" || estDonneeDeMunition(d)
     || String(d.subtype || "").toLowerCase().includes("ammunition");
+}
+
+/** ⚖️ LE PRIX DE LA BASE D'UN LOT — « on ajoute le prix de la base » (Eric, 26/09), et la
+ *  base d'un lot, ce sont DIX projectiles. ⭐ Le record dit pour combien de pièces il est
+ *  coté (`pack`) : `5 SP` le paquet de dix → 5 SP. Sans `pack`, le prix est à la pièce. */
+export function prixDUnLot(recordBase) {
+  const d = (recordBase && recordBase.data) || {};
+  const paquet = Number.isInteger(d.pack) && d.pack >= 1 ? d.pack : 1;
+  return prixEnPO(d.cost || "") * LOT_MUNITION / paquet;
+}
+
+/** ⚖️ COMBIEN DE FOIS ON PAIE `qte` pièces de cette base — « on ne paye qu'une fois le
+ *  montant » (Eric, 24/09) : une munition se paie PAR LOT DE DIX, tout le reste à la pièce.
+ *  ⭐ Un seul écrivain : la cote de X5 ET la fiche X1 d'une ligne craftée posée le lisent.
+ *  ⛔ Pas de plafond ici : il porte sur ce qui SORT du craft (`coteDe`), pas sur une ligne. */
+export function paiementsDe(recordBase, qte) {
+  const n = Math.max(1, Math.floor(qte) || 1);
+  return Math.ceil(n / (estMunition(recordBase) ? LOT_MUNITION : 1));
 }
 
 /* ══ ⑤ LA COTE D'UN ASSEMBLAGE — LE BARÈME SRFH (lot 280) ════════════════════════
@@ -388,17 +426,27 @@ export function coteDe({ base, bonus, pouvoirs, qte = 1 } = {}) {
   const rang = paliers.reduce((n, p) => n + p.rang, 0);
   if (rang > RANG_MAX) return { legal: false, raison: "au-dela-de-la-limite", rang };
   const palier = PALIERS_SRFH.find((p) => p.rang === rang);
-  const magie = palier.valeur;
-  const coutBase = prixEnPO((base && base.data && base.data.cost) || "");
+  /* ⚖️ LOT 283 — UN LOT DE DIX PROJECTILES EST UN CONSOMMABLE. Le SRD, sur `Ammunition, +1,
+     +2, or +3` : « Ten pieces of this ammunition are equivalent in value to a potion of the
+     same rarity » — et une potion vaut la MOITIÉ de son palier (colonne consommable du
+     barème, la règle de `fabriqueDeValeur`). La base est le prix de DIX pièces
+     (`prixDUnLot`), et le temps est celui d'un consommable (`noteDeCraft`, ÷ 2).
+     📏 Arrows +1 : 400 / 2 + 5 SP = 200,5 GP · craft 100 GP · Uncommon · 5 jours. */
+  const consommable = estMunition(base);
+  const magie = consommable ? palier.valeur / 2 : palier.valeur;
+  const coutBase = consommable ? prixDUnLot(base) : prixEnPO((base && base.data && base.data.cost) || "");
   const vente = magie + coutBase;
-  /* ⚖️ la rareté affichée — et avec elle le temps — se rabat sur le palier le plus proche */
-  const affiche = palierLePlusProche(vente);
+  /* ⚖️ la rareté affichée — et avec elle le temps — se rabat sur le palier le plus proche.
+     ⭐ Un consommable se compare à la colonne consommable (la moitié) : 200,5 est un Uncommon
+     de munition, ⛔ pas un Common+ (250) d'objet durable. */
+  const affiche = palierLePlusProche(consommable ? vente * 2 : vente);
+  const jours = noteDeCraft({ rarete: affiche.nom, consommable }).jours;
   const craft = vente / 2;
 
   /* ⚖️ dix flèches valent une pièce — le lot est l'unité, payé une seule fois. */
-  const lot = estMunition(base) ? LOT_MUNITION : 1;
+  const lot = consommable ? LOT_MUNITION : 1;
   const n = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(qte) || 1));
-  const paiements = Math.ceil(n / lot);
+  const paiements = paiementsDe(base, n);
 
   return {
     legal: true,
@@ -411,8 +459,8 @@ export function coteDe({ base, bonus, pouvoirs, qte = 1 } = {}) {
     craftTotal: craft * paiements,
     venteTotale: vente * paiements,
     categorie: affiche.nom,
-    jours: joursArrondis(affiche.jours),
-    temps: texteDesJours(joursArrondis(affiche.jours)),
+    jours,
+    temps: texteDesJours(jours),
   };
 }
 

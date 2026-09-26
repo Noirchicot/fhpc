@@ -118,7 +118,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=829";
 import { construireX5 } from "./x5-ecran.mjs?v=829";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=829";
-import { seCrafteDansX5, ouvertureX5, coteDUnObjetCrafte, recordDUneVariante } from "./craft.mjs?v=829";
+import { seCrafteDansX5, ouvertureX5, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe } from "./craft.mjs?v=829";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=829";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=829";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
@@ -3254,7 +3254,9 @@ export function renderEquipmentStep(ctx, onAction) {
   const lireRecords = (kind) => { try { return (query({ kind }) || []).map((v) => {
                                     refDuRecord.set(v.record, { kind, id: v.id }); return v.record; }); }
                                   catch { return []; } };
-  const basesDuCraft = [...lireRecords("weapon"), ...lireRecords("armor")];
+  /* ⭐ LOT 283 — ET LES MUNITIONS : les `gear` qui portent la marque de leur paquet et un prix
+     (`estBaseDeMunition`). ⛔ Aucun nom — l'étui à carreaux et le carquois n'en sont pas. */
+  const basesDuCraft = [...lireRecords("weapon"), ...lireRecords("armor"), ...lireRecords("gear").filter(estBaseDeMunition)];
   const itemsDuCraft = lireRecords("item");
   const magiquesDuCraft = itemsDuCraft.filter((r) => String((r && r.data && r.data.subtype) || "").trim());
   /* ⭐ LOT 277 — les plans à variante, lus dans leurs records (`variantesDe`) : le menu PLAN
@@ -3834,6 +3836,11 @@ export function renderEquipmentStep(ctx, onAction) {
     const valeurX1 = valeurDeLaLigne(ligne);
     const cout = parseCout(valeurX1.cout);
     const poids = parsePoids(valeurX1.poids);
+    /* ⚖️ LOT 283 — UNE MUNITION CRAFTÉE SE COMPTE PAR LOT : son prix est celui de DIX pièces
+       (« on ne paye qu'une fois le montant »), et `paiementsDe` dit combien de lots font la
+       ligne. ⛔ Seulement pour une ligne craftée : la quantité d'une munition mondaine
+       (« 20 Arrows » du départ) n'est pas tranchée (NORMES, `pack` reste une marque). */
+    const fois = recetteDeLaLigne(ligne) ? paiementsDe(rec, qte) : qte;
     const { noeud } = construireLaFicheX1({
       objet: {
         index: ligne.index, nom: ligne.nomAffiche, qte,
@@ -3844,9 +3851,9 @@ export function renderEquipmentStep(ctx, onAction) {
            total se lisent côte à côte : deux casses pour deux fois le même mot se
            lisent comme deux choses. 📏 Et la boîte du plan est mesurée sur la
            minuscule (82,75 dans 84). */
-        prixTotal: cout ? formatCout(multiplieCout(cout, qte)).toLowerCase() : "",
+        prixTotal: cout ? formatCout(multiplieCout(cout, fois)).toLowerCase() : "",
         poidsUnite: valeurX1.poids || "",
-        poidsTotal: poids ? `${Math.round(poids.valeur * qte * 100) / 100} ${poids.unite}` : "",
+        poidsTotal: poids ? `${Math.round(poids.valeur * fois * 100) / 100} ${poids.unite}` : "",
         prose: proseDeLaLigne(ligne),
         /* ⚖️ LOT 279 — la rareté à côté du prix, la note de craft en pied (Eric, 26/09) */
         rarete: valeurX1.rarete || "",
@@ -4469,7 +4476,8 @@ export function renderEquipmentStep(ctx, onAction) {
       objet: {
         index: -1, nom: a.nom, qte,
         prixUnite: cout || "",
-        prixTotal: coutLu ? formatCout(multiplieCout(coutLu, qte)).toLowerCase() : "",
+        /* ⚖️ LOT 283 — le total est celui que `Send` paiera : par LOT pour une munition. */
+        prixTotal: coutLu ? formatCout(multiplieCout(coutLu, a.cote && a.cote.paiements ? a.cote.paiements : qte)).toLowerCase() : "",
         poidsUnite: poids || "", poidsTotal: "",
         prose: proseDUneRecette(a.base, recette),
         /* ⚖️ LOT 280 — l'objet en création porte sa rareté et sa note, comme celui qu'on pose */

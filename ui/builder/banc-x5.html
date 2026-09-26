@@ -71,6 +71,9 @@ const armes = new Map([
      pouvoir (lot 261). La règle de la rangée qui disparaît n'a que des cas construits. */
   ["Base de test", { data: { name: "Base de test", cost: "25 GP", weapon_range: "ranged",
     weapon_category: "exotic" } }],
+  /* ⭐ LOT 283 — une munition : la marque du paquet (`pack`) et son prix, ceux de la couche
+     `fh-munitions-en`. */
+  ["Arrows", { data: { name: "Arrows", cost: "5 SP", pack: 10, weight: "1.5 lb." } }],
 ]);
 const bases = [...armes.values()];
 const magiques = [
@@ -80,6 +83,7 @@ const magiques = [
             rarity: "Legendary (Requires Attunement)" } },
   { data: { name: "Weapon of Warning", subtype: "Any Simple or Martial", rarity: "Uncommon (Requires Attunement)" } },
   { data: { name: "Armor of Resistance", subtype: "Any Light, Medium, or Heavy", rarity: "Rare (Requires Attunement)" } },
+  { data: { name: "Ammunition of Slaying", subtype: "Any Ammunition", rarity: "Very Rare" } },
 ];
 /* ⚠️ LES PLANS SONT RECOPIÉS DU SRD AU CARACTÈRE PRÈS — c'est d'eux que les bases et
    les bonus se lisent. `Armor` : un +1 y est RARE. */
@@ -87,6 +91,8 @@ const PLAN_ARME = { data: { name: "Weapon, +1, +2, or +3", category: "weapon",
   subtype: "Any Simple or Martial", rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } };
 const PLAN_ARMURE = { data: { name: "Armor, +1, +2, or +3", category: "armor",
   subtype: "Any Light, Medium, or Heavy", rarity: "Rare (+1), Very Rare (+2), or Legendary (+3)" } };
+const PLAN_MUNITION = { data: { name: "Ammunition, +1, +2, or +3", category: "weapon",
+  subtype: "Any Ammunition", rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } };
 const PLAN_VIDE = { data: { name: "Plan de test", category: "weapon", subtype: "Base de test",
   rarity: "Uncommon (+1), Rare (+2), or Very Rare (+3)" } };
 
@@ -103,6 +109,8 @@ const cas = [
    { plan: PLAN_ARME, fh: false, choix: { base: "Longsword", bonus: "Uncommon" } }],
   ["⑥ Found — la phrase du croquis, aucun champ",
    { plan: PLAN_ARME, choix: { base: "Longsword", bonus: "Uncommon", status: "Found" } }],
+  ["⑦ Ammunition +1 — Arrows : un lot de DIX, payé une fois (lot 283)",
+   { plan: PLAN_MUNITION, choix: { base: "Arrows", bonus: "Uncommon" } }],
 ];
 
 const planche = document.getElementById("planche");

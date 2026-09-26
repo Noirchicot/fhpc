@@ -21,7 +21,7 @@
    et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x5-disposition.mjs?v=829";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante } from "./craft.mjs?v=829";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=829";
 import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=829";
 import { corpsDuJeton } from "./jeton-objet.mjs?v=829";
 import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=829";
@@ -258,7 +258,10 @@ export function construireX5(o = {}) {
   const parNom = new Map(dispos.map((r) => [r.data.name, r]));
   const pris = (choix.pouvoirs || []).map((n) => parNom.get(n)).filter(Boolean);
   const status = choix.status || "Crafting";
-  const qte = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(Number(choix.qte)) || 1));
+  /* ⚖️ LOT 283 — UNE MUNITION S'OUVRE SUR UN LOT DE DIX (Eric, 24/09 : « pour les projectiles
+     on a décidé 10 mais on ne paye qu'une fois le montant ») ; le joueur peut descendre. */
+  const qteParDefaut = estMunition(base) ? LOT_MUNITION : 1;
+  const qte = Math.max(1, Math.min(PLAFOND_QTE, Math.floor(Number(choix.qte)) || qteParDefaut));
 
   const cote = coteDe({
     base, bonus: bonusChoisi && bonusChoisi.rarete, qte,

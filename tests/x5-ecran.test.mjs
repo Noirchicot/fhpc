@@ -26,11 +26,15 @@ const CSS = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8
 const D = await import("../ui/builder/x5-disposition.mjs");
 const { construireX5, feuilleDesCotesX5 } = await import("../ui/builder/x5-ecran.mjs");
 const { reglesDeLaBourse } = await import("../ui/builder/gear-ecran.mjs");
-const { pouvoirsDe, bonusDe, enPieces, prixSaisi } = await import("../ui/builder/craft.mjs");
+const { pouvoirsDe, bonusDe, enPieces, prixSaisi, estBaseDeMunition } = await import("../ui/builder/craft.mjs");
 
 const query = exempleFhEn().layers.verbs.query;
 const armes = new Map(query({ kind: "weapon" }).map((v) => [v.record.data.name, v.record]));
-const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" })].map((v) => v.record);
+/* ⭐ LOT 283 — LES BASES TELLES QUE LE PILOTE LES DONNE (`basesDuCraft`) : armes, armures, et
+   les munitions qui portent leur paquet. ⛔ Sans elles, ces gardes croiraient encore que
+   `Ammunition, +1…` n'a pas de base — ce que le produit ne croit plus. */
+const bases = [...query({ kind: "weapon" }), ...query({ kind: "armor" }),
+  ...query({ kind: "gear" }).filter((v) => estBaseDeMunition(v.record))].map((v) => v.record);
 const plans = new Map(query({ kind: "item" }).map((v) => [v.record.data.name, v.record]));
 const PLAN_ARME = plans.get("Weapon, +1, +2, or +3");
 const PLAN_ARMURE = plans.get("Armor, +1, +2, or +3");
@@ -339,7 +343,10 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
                        "Berserker Axe", "Flame Tongue", "Dwarven Plate",
                        /* ⭐ LOT 277 — les plans à variante s'ouvrent */
                        "Figurine of Wondrous Power", "Ioun Stone", "Potions of Healing",
-                       "Wand of the War Mage, +1, +2, or +3", "Belt of Giant Strength"]) {
+                       "Wand of the War Mage, +1, +2, or +3", "Belt of Giant Strength",
+                       /* ⭐ LOT 283 — les projectiles s'ouvrent : `Any Ammunition` lit enfin ses
+                          bases (les munitions qui portent leur paquet, `estBaseDeMunition`) */
+                       "Ammunition, +1, +2, or +3", "Ammunition of Slaying"]) {
       const n = monteX2(nom);
       assert.equal(optionCraft(n).disabled, false, `⭐ ${nom} : Craft s'ouvre`);
       const sel = optionCraft(n).parentNode;
@@ -347,7 +354,11 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
       sel.dispatchEvent(new Event("change"));
       assert.equal(ouverts.at(-1), nom, `⭐ choisir Craft OUVRE X5 pour ${nom}`);
     }
-    for (const nom of ["Dagger of Venom", "Spell Scroll", "Bag of Holding", "Ammunition, +1, +2, or +3"]) {
+    /* 🗄️ `Ammunition, +1, +2, or +3` était dans cette liste jusqu'au lot 283 : `Any Ammunition`
+       ne trouvait aucune base (la munition mondaine n'avait pas de marqueur). ⭐ Il est passé
+       au-dessus, parmi les plans qui s'ouvrent — ⛔ et la liste des fermés n'en garde pas
+       trace : un plan fermé à tort serait aussi vert qu'un plan fermé à raison. */
+    for (const nom of ["Dagger of Venom", "Spell Scroll", "Bag of Holding"]) {
       assert.equal(optionCraft(monteX2(nom)).disabled, true,
         `⛔ ${nom} : Craft reste fermé — un objet fini ne se crafte pas, et une famille sans écran le dit`);
     }
@@ -700,4 +711,60 @@ test("35 — ⭐ `SEND` REND LE PLAN, LA VARIANTE ET LE MONTANT — le jeton ren
   const muet = monte({ plan: plans.get("Horn of Valhalla"), choix: {}, surEnvoyer: () => {} }).noeud;
   assert.equal(muet.querySelector('[data-organe="SEND"]').disabled, true);
   assert.match(muet.querySelector('[data-organe="SEND"]').title, /no readable value/);
+});
+
+/* ══ LOT 283 — LES PROJECTILES ════════════════════════════════════════════════════
+   ⚖️ Eric, 24/09 : « pour les projectiles on a décidé 10 mais on ne paye qu'une fois le
+   montant · je veux pas qu'une tuile puisse sortir du craft avec plus de 10 ». */
+
+test("36 — ⚖️ LE BLUEPRINT DES FLÈCHES +1 : les munitions en ITEM, un lot de dix, payé une fois", () => {
+  const recus = [];
+  const PLAN_MUN = plans.get("Ammunition, +1, +2, or +3");
+  const ouvre = (choix) => monte({ plan: PLAN_MUN, bases, itemsMagiques: magiques, choix,
+    surEnvoyer: (e) => recus.push(e), surChoix: () => {} });
+  const { noeud, cote } = ouvre({ base: "Arrows", bonus: "Uncommon" });
+  const options = (organe) => [...noeud.querySelector(`[data-organe="${organe}"]`).querySelectorAll("option")]
+    .map((o) => o.textContent);
+  assert.deepEqual(options("ITEM").sort(), bases.filter(estBaseDeMunition).map((b) => b.data.name).sort(),
+    "⭐ le menu ITEM = les munitions de la pile");
+  assert.deepEqual(options("BONUS"), ["—", "+1", "+2", "+3"]);
+  assert.ok(options("POWER 1").includes("Ammunition of Slaying"), "⭐ POWER : Slaying");
+  const qteChoisie = (n) => [...n.querySelector('[data-organe="QTY"]').querySelectorAll("option")].find((o) => o.selected).value;
+  assert.equal(qteChoisie(noeud), "10", "⚖️ le blueprint s'ouvre sur un lot de DIX");
+  assert.equal(noeud.querySelector('[data-organe="JETON"]').getAttribute("aria-label"), "Arrows +1 — preview",
+    "⭐ le nom posé : « Arrows +1 »");
+  assert.match(noeud.querySelector('[data-organe="ENCART"]').textContent, /Qty 10 · Total/);
+  assert.equal(cote.qte, 10);
+  assert.equal(cote.paiements, 1, "⚖️ UN paiement pour dix");
+  noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
+  assert.equal(recus[0].cote.qte, 10, "⭐ `Send` pose une ligne de DIX");
+  assert.deepEqual(recus[0].cout, enPieces(100.25), "📏 Crafting : 200 ÷ 2 + 5 SP ÷ 2 = 100,25 → 100 GP, une fois");
+  /* ⚖️ moins de dix se choisit, et paie le lot — plus de dix ne sort jamais */
+  recus.length = 0;
+  ouvre({ base: "Arrows", bonus: "Uncommon", qte: 3 }).noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
+  assert.equal(recus[0].cote.qte, 3);
+  assert.deepEqual(recus[0].cout, enPieces(100.25), "⭐ trois flèches paient le lot, pas trois fois");
+  assert.equal(ouvre({ base: "Arrows", bonus: "Uncommon", qte: 40 }).cote.qte, 10, "⛔ jamais plus de dix");
+  /* ⚖️ Buying : le prix d'achat, une fois — 200,5 → 201 GP */
+  recus.length = 0;
+  ouvre({ base: "Arrows", bonus: "Uncommon", status: "Buying" }).noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
+  assert.deepEqual(recus[0].cout, enPieces(200.5));
+  /* ⭐ une arme s'ouvre toujours sur UNE pièce */
+  assert.equal(qteChoisie(monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques,
+    choix: { base: "Longsword", bonus: "Uncommon" } }).noeud), "1");
+});
+
+test("37 — ⭐ LE PILOTE DONNE LES MUNITIONS À X5, ET LA FICHE X1 D'UNE LIGNE CRAFTÉE COMPTE PAR LOT", () => {
+  /* ⛔ Ce garde lit le code SANS ses commentaires. */
+  const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  assert.match(src, /const basesDuCraft = \[[^\]]*lireRecords\("gear"\)\.filter\(estBaseDeMunition\)\]/,
+    "⭐ `basesDuCraft` prend les munitions par la règle du moteur — ⛔ aucune liste de noms");
+  const x1 = src.slice(src.indexOf("function construireX1()"), src.indexOf("function construireX1()") + 3000);
+  assert.match(x1, /const fois = recetteDeLaLigne\(ligne\) \? paiementsDe\(rec, qte\) : qte;/,
+    "⚖️ une ligne craftée de dix flèches coûte UN lot — ⛔ pas dix fois le prix du lot");
+  assert.match(x1, /multiplieCout\(cout, fois\)/);
+  const apercu = src.slice(src.indexOf("function construireApercuX5()"), src.indexOf("function construireVue("));
+  assert.match(apercu, /multiplieCout\(coutLu, a\.cote && a\.cote\.paiements \? a\.cote\.paiements : qte\)/,
+    "⚖️ l'aperçu du jeton dit le total que `Send` paiera");
 });
