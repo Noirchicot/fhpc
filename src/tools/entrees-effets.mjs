@@ -34,5 +34,23 @@ export function entreesDesEffets(query) {
     E.push({ source: "arcana", id: v.id, name: d.name, text });
   }
   for (const v of lire("training")) E.push({ source: "training", id: v.id, name: v.record.data.name, text: v.record.data.description });
+  /* ⭐ LOT 287 — les SOUS-CLASSES (une par classe dans le SRD : Berserker, Champion, Evoker…),
+     puis les propriétés et les maîtrises d'arme. 🔴 Je les avais dites absentes de la pile : elles
+     sont dans `class.data.subclass`. Ajoutées EN FIN pour ne pas déplacer l'ordre établi. */
+  for (const v of lire("class")) {
+    const s = (v.record.data || {}).subclass;
+    for (const f of (s && s.features) || []) E.push({ source: "subclass-feature", id: `${v.id}#subclass:${s.name}#feature:${f.name}@${f.level ?? null}`, name: `${v.record.data.name} (${s.name}) — ${f.name}`, text: f.description });
+  }
+  for (const v of lire("weapon-property")) E.push({ source: "weapon-property", id: v.id, name: v.record.data.name, text: v.record.data.description });
+  for (const v of lire("weapon-mastery")) E.push({ source: "weapon-mastery", id: v.id, name: v.record.data.name, text: v.record.data.description });
   return E;
+}
+
+/** ⭐ LOT 287 — les SORTS, dans l'ordre alphabétique : l'inventaire dit lesquels changent la
+ *  fiche de celui qui en profite (`change_la_fiche`). La durée vient du record. */
+export function entreesDesSorts(query) {
+  let vs = []; try { vs = query({ kind: "spell" }) || []; } catch { vs = []; }
+  return vs.map((v) => ({ source: "spell", id: v.id, name: v.record.data.name, niveau: v.record.data.level,
+    duree: v.record.data.duration || null, concentration: v.record.data.concentration === true, text: v.record.data.description }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

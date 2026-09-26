@@ -12417,6 +12417,2779 @@
     }
    ],
    "note": "Training d’arme sans palier ni caractéristique ; le texte ne chiffre pas l’épuisement."
+  },
+  {
+   "id": "srd:class:en:barbarian#subclass:Path of the Berserker#feature:Frenzy@3",
+   "name": "Barbarian (Path of the Berserker) — Frenzy",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "damage.weapon",
+     "mode": "bonus",
+     "valeur": "Nd6 (N = Rage Damage bonus)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "Rage active + Reckless Attack, 1re cible touchée du tour, attaque de Force",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "roll a number of d6s equal to your Rage Damage bonus"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:barbarian#subclass:Path of the Berserker#feature:Mindless Rage@6",
+   "name": "Barbarian (Path of the Berserker) — Mindless Rage",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "immunity.charmed",
+     "mode": "immunite",
+     "valeur": "Charmed",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "Rage active",
+     "niveau": 6,
+     "choix": null,
+     "charges": null,
+     "citation": "You have Immunity to the Charmed and Frightened conditions while your Rage is active."
+    },
+    {
+     "famille": "capacite",
+     "cible": "immunity.frightened",
+     "mode": "immunite",
+     "valeur": "Frightened",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "Rage active",
+     "niveau": 6,
+     "choix": null,
+     "charges": null,
+     "citation": "You have Immunity to the Charmed and Frightened conditions while your Rage is active."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:barbarian#subclass:Path of the Berserker#feature:Retaliation@10",
+   "name": "Barbarian (Path of the Berserker) — Retaliation",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.retaliation",
+     "mode": "octroi",
+     "valeur": "Réaction : une attaque de mêlée",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "dégâts subis d'une créature à 5 ft",
+     "niveau": 10,
+     "choix": null,
+     "charges": null,
+     "citation": "you can take a Reaction to make one melee attack against that creature"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:barbarian#subclass:Path of the Berserker#feature:Intimidating Presence@14",
+   "name": "Barbarian (Path of the Berserker) — Intimidating Presence",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.intimidating-presence",
+     "mode": "octroi",
+     "valeur": "Bonus Action : Frightened 1 min, JS Sag DD 8 + For + PB",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 14,
+     "choix": null,
+     "charges": "1 par Long Rest (ou 1 usage de Rage)",
+     "citation": "As a Bonus Action, you can strike terror into others with your menacing presence and primal power."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:bard#subclass:College of Lore#feature:Bonus Proficiencies@3",
+   "name": "Bard (College of Lore) — Bonus Proficiencies",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "proficiency.skill.choix",
+     "mode": "maitrise",
+     "valeur": 3,
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "3 compétences au choix",
+     "charges": null,
+     "citation": "You gain proficiency with three skills of your choice."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:bard#subclass:College of Lore#feature:Cutting Words@3",
+   "name": "Bard (College of Lore) — Cutting Words",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.cutting-words",
+     "mode": "octroi",
+     "valeur": "Réaction : soustraire le dé d'Inspiration au jet d'une créature à 60 ft",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": "1 usage de Bardic Inspiration",
+     "citation": "you can take a Reaction to expend one use of your Bardic Inspiration"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:bard#subclass:College of Lore#feature:Magical Discoveries@6",
+   "name": "Bard (College of Lore) — Magical Discoveries",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spellcasting",
+     "mode": "sort",
+     "valeur": 2,
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 6,
+     "choix": "2 sorts des listes Cleric, Druid ou Wizard (cantrip ou niveau disponible), toujours préparés",
+     "charges": null,
+     "citation": "You learn two spells of your choice."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:bard#subclass:College of Lore#feature:Peerless Skill@14",
+   "name": "Bard (College of Lore) — Peerless Skill",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.peerless-skill",
+     "mode": "bonus",
+     "valeur": "dé de Bardic Inspiration",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "test de caractéristique ou jet d'attaque raté",
+     "niveau": 14,
+     "choix": null,
+     "charges": "1 usage de Bardic Inspiration (non dépensé si échec)",
+     "citation": "roll the Bardic Inspiration die, and add the number rolled to the d20"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:cleric#subclass:Life Domain#feature:Disciple of Life@3",
+   "name": "Cleric (Life Domain) — Disciple of Life",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.healing",
+     "mode": "bonus",
+     "valeur": "2 + niveau de l'emplacement",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "sort de soin lancé avec un emplacement",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "The additional Hit Points equal 2 plus the spell slot’s level."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:cleric#subclass:Life Domain#feature:Life Domain Spells@3",
+   "name": "Cleric (Life Domain) — Life Domain Spells",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spell.aid",
+     "mode": "sort",
+     "valeur": "Aid",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Aid, Bless, Cure Wounds, Lesser Restoration"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.bless",
+     "mode": "sort",
+     "valeur": "Bless",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Aid, Bless, Cure Wounds, Lesser Restoration"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.cure-wounds",
+     "mode": "sort",
+     "valeur": "Cure Wounds",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Aid, Bless, Cure Wounds, Lesser Restoration"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.lesser-restoration",
+     "mode": "sort",
+     "valeur": "Lesser Restoration",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Aid, Bless, Cure Wounds, Lesser Restoration"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.mass-healing-word",
+     "mode": "sort",
+     "valeur": "Mass Healing Word",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Mass Healing Word, Revivify"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.revivify",
+     "mode": "sort",
+     "valeur": "Revivify",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Mass Healing Word, Revivify"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.aura-of-life",
+     "mode": "sort",
+     "valeur": "Aura of Life",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "7 Aura of Life, Death Ward"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.death-ward",
+     "mode": "sort",
+     "valeur": "Death Ward",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "7 Aura of Life, Death Ward"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.greater-restoration",
+     "mode": "sort",
+     "valeur": "Greater Restoration",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Greater Restoration, Mass Cure Wounds"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.mass-cure-wounds",
+     "mode": "sort",
+     "valeur": "Mass Cure Wounds",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Greater Restoration, Mass Cure Wounds"
+    }
+   ],
+   "note": "Niveau = niveau de Clerc de la table ; sorts toujours préparés."
+  },
+  {
+   "id": "srd:class:en:cleric#subclass:Life Domain#feature:Preserve Life@3",
+   "name": "Cleric (Life Domain) — Preserve Life",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.preserve-life",
+     "mode": "octroi",
+     "valeur": "Magic action : 5 × niveau de Clerc PV répartis (max moitié des PV max)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": "1 usage de Channel Divinity",
+     "citation": "restore a number of Hit Points equal to five times your Cleric level"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:cleric#subclass:Life Domain#feature:Blessed Healer@6",
+   "name": "Cleric (Life Domain) — Blessed Healer",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.healing",
+     "mode": "bonus",
+     "valeur": "2 + niveau de l'emplacement (soi-même)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "sort de soin avec emplacement sur d'autres créatures",
+     "niveau": 6,
+     "choix": null,
+     "charges": null,
+     "citation": "you regain Hit Points equal to 2 plus the spell slot’s level."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:cleric#subclass:Life Domain#feature:Supreme Healing@17",
+   "name": "Cleric (Life Domain) — Supreme Healing",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.healing",
+     "mode": "fixe",
+     "valeur": "maximum de chaque dé de soin",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "soin par sort ou Channel Divinity",
+     "niveau": 17,
+     "choix": null,
+     "charges": null,
+     "citation": "instead use the highest number possible for each die."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:druid#subclass:Circle of the Land#feature:Circle of the Land Spells@3",
+   "name": "Druid (Circle of the Land) — Circle of the Land Spells",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spell.blur",
+     "mode": "sort",
+     "valeur": "Blur",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : arid (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Blur, Burning Hands, Fire Bolt"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.burning-hands",
+     "mode": "sort",
+     "valeur": "Burning Hands",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : arid (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Blur, Burning Hands, Fire Bolt"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fire-bolt",
+     "mode": "sort",
+     "valeur": "Fire Bolt",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : arid (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Blur, Burning Hands, Fire Bolt"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fireball",
+     "mode": "sort",
+     "valeur": "Fireball",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 5,
+     "choix": "terrain : arid (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "5 Fireball"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.blight",
+     "mode": "sort",
+     "valeur": "Blight",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "terrain : arid (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "7 Blight"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.wall-of-stone",
+     "mode": "sort",
+     "valeur": "Wall of Stone",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 9,
+     "choix": "terrain : arid (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "9 Wall of Stone"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fog-cloud",
+     "mode": "sort",
+     "valeur": "Fog Cloud",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : polar (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Fog Cloud, Hold Person, Ray of Frost"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.hold-person",
+     "mode": "sort",
+     "valeur": "Hold Person",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : polar (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Fog Cloud, Hold Person, Ray of Frost"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.ray-of-frost",
+     "mode": "sort",
+     "valeur": "Ray of Frost",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : polar (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Fog Cloud, Hold Person, Ray of Frost"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.sleet-storm",
+     "mode": "sort",
+     "valeur": "Sleet Storm",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 5,
+     "choix": "terrain : polar (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "5 Sleet Storm"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.ice-storm",
+     "mode": "sort",
+     "valeur": "Ice Storm",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "terrain : polar (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "7 Ice Storm"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.cone-of-cold",
+     "mode": "sort",
+     "valeur": "Cone of Cold",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 9,
+     "choix": "terrain : polar (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "9 Cone of Cold"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.misty-step",
+     "mode": "sort",
+     "valeur": "Misty Step",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : temperate (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Misty Step, Shocking Grasp, Sleep"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.shocking-grasp",
+     "mode": "sort",
+     "valeur": "Shocking Grasp",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : temperate (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Misty Step, Shocking Grasp, Sleep"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.sleep",
+     "mode": "sort",
+     "valeur": "Sleep",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : temperate (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Misty Step, Shocking Grasp, Sleep"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.lightning-bolt",
+     "mode": "sort",
+     "valeur": "Lightning Bolt",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 5,
+     "choix": "terrain : temperate (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "5 Lightning Bolt"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.freedom-of-movement",
+     "mode": "sort",
+     "valeur": "Freedom of Movement",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "terrain : temperate (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "7 Freedom of Movement"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.tree-stride",
+     "mode": "sort",
+     "valeur": "Tree Stride",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 9,
+     "choix": "terrain : temperate (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "9 Tree Stride"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.acid-splash",
+     "mode": "sort",
+     "valeur": "Acid Splash",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : tropical (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Acid Splash, Ray of Sickness, Web"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.ray-of-sickness",
+     "mode": "sort",
+     "valeur": "Ray of Sickness",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : tropical (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Acid Splash, Ray of Sickness, Web"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.web",
+     "mode": "sort",
+     "valeur": "Web",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "terrain : tropical (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "3 Acid Splash, Ray of Sickness, Web"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.stinking-cloud",
+     "mode": "sort",
+     "valeur": "Stinking Cloud",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 5,
+     "choix": "terrain : tropical (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "5 Stinking Cloud"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.polymorph",
+     "mode": "sort",
+     "valeur": "Polymorph",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "terrain : tropical (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "7 Polymorph"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.insect-plague",
+     "mode": "sort",
+     "valeur": "Insect Plague",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 9,
+     "choix": "terrain : tropical (choisi à chaque Long Rest)",
+     "charges": null,
+     "citation": "9 Insect Plague"
+    }
+   ],
+   "note": "Niveau = niveau de Druide de la table ; un seul terrain actif à la fois."
+  },
+  {
+   "id": "srd:class:en:druid#subclass:Circle of the Land#feature:Land’s Aid@3",
+   "name": "Druid (Circle of the Land) — Land’s Aid",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.lands-aid",
+     "mode": "octroi",
+     "valeur": "Magic action : 2d6 Necrotic (JS Con DD sort), soin 2d6 ; 3d6 niv 10, 4d6 niv 14",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": "1 usage de Wild Shape",
+     "citation": "taking 2d6 Necrotic damage on a failed save or half as much damage on a successful one"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:druid#subclass:Circle of the Land#feature:Natural Recovery@6",
+   "name": "Druid (Circle of the Land) — Natural Recovery",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.natural-recovery",
+     "mode": "sort",
+     "valeur": "un sort de cercle niveau 1+ sans emplacement",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 6,
+     "choix": null,
+     "charges": "1 par Long Rest",
+     "citation": "without expending a spell slot, and you must finish a Long Rest before you do so again"
+    },
+    {
+     "famille": "action",
+     "cible": "resource.spell-slots",
+     "mode": "octroi",
+     "valeur": "récupère des emplacements (total ≤ moitié du niveau de Druide, arrondi sup., aucun 6+)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "fin de Short Rest",
+     "niveau": 6,
+     "choix": null,
+     "charges": "1 par Long Rest",
+     "citation": "when you finish a Short Rest, you can choose expended spell slots to recover."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:druid#subclass:Circle of the Land#feature:Nature’s Ward@10",
+   "name": "Druid (Circle of the Land) — Nature’s Ward",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "immunity.poisoned",
+     "mode": "immunite",
+     "valeur": "Poisoned",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 10,
+     "choix": null,
+     "charges": null,
+     "citation": "You are immune to the Poisoned condition"
+    },
+    {
+     "famille": "capacite",
+     "cible": "resistance.fire",
+     "mode": "resistance",
+     "valeur": "Fire",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 10,
+     "choix": "terrain : arid",
+     "charges": null,
+     "citation": "Arid Fire"
+    },
+    {
+     "famille": "capacite",
+     "cible": "resistance.lightning",
+     "mode": "resistance",
+     "valeur": "Lightning",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 10,
+     "choix": "terrain : temperate",
+     "charges": null,
+     "citation": "Temperate Lightning"
+    },
+    {
+     "famille": "capacite",
+     "cible": "resistance.cold",
+     "mode": "resistance",
+     "valeur": "Cold",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 10,
+     "choix": "terrain : polar",
+     "charges": null,
+     "citation": "Polar Cold"
+    },
+    {
+     "famille": "capacite",
+     "cible": "resistance.poison",
+     "mode": "resistance",
+     "valeur": "Poison",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 10,
+     "choix": "terrain : tropical",
+     "charges": null,
+     "citation": "Tropical Poison"
+    }
+   ],
+   "note": "Résistance selon le terrain choisi pour Circle of the Land Spells."
+  },
+  {
+   "id": "srd:class:en:druid#subclass:Circle of the Land#feature:Nature’s Sanctuary@14",
+   "name": "Druid (Circle of the Land) — Nature’s Sanctuary",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.natures-sanctuary",
+     "mode": "octroi",
+     "valeur": "Magic action : Cube 15 ft 1 min, Half Cover + résistance de Nature’s Ward aux alliés",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 14,
+     "choix": null,
+     "charges": "1 usage de Wild Shape",
+     "citation": "You and your allies have Half Cover while in that area"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:fighter#subclass:Champion#feature:Improved Critical@3",
+   "name": "Fighter (Champion) — Improved Critical",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "crit.range",
+     "mode": "fixe",
+     "valeur": 19,
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "can score a Critical Hit on a roll of 19 or 20 on the d20."
+    }
+   ],
+   "note": "Critique sur 19–20 (armes et Unarmed Strikes)."
+  },
+  {
+   "id": "srd:class:en:fighter#subclass:Champion#feature:Remarkable Athlete@3",
+   "name": "Fighter (Champion) — Remarkable Athlete",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "advantage.initiative",
+     "mode": "avantage",
+     "valeur": null,
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "you have Advantage on Initiative rolls and Strength (Athletics) checks."
+    },
+    {
+     "famille": "capacite",
+     "cible": "advantage.skill.athletics",
+     "mode": "avantage",
+     "valeur": null,
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "you have Advantage on Initiative rolls and Strength (Athletics) checks."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.movement",
+     "mode": "octroi",
+     "valeur": "moitié de la vitesse sans Opportunity Attacks",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "juste après un coup critique",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "you can move up to half your Speed without provoking Opportunity Attacks."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:fighter#subclass:Champion#feature:Additional Fighting Style@7",
+   "name": "Fighter (Champion) — Additional Fighting Style",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.feat",
+     "mode": "octroi",
+     "valeur": "Fighting Style feat",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "un don Fighting Style",
+     "charges": null,
+     "citation": "You gain another Fighting Style feat of your choice."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:fighter#subclass:Champion#feature:Heroic Warrior@10",
+   "name": "Fighter (Champion) — Heroic Warrior",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.heroic-inspiration",
+     "mode": "octroi",
+     "valeur": "Heroic Inspiration",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "en combat, début de tour sans Heroic Inspiration",
+     "niveau": 10,
+     "choix": null,
+     "charges": null,
+     "citation": "you can give yourself Heroic Inspiration whenever you start your turn without it."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:fighter#subclass:Champion#feature:Superior Critical@15",
+   "name": "Fighter (Champion) — Superior Critical",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "crit.range",
+     "mode": "fixe",
+     "valeur": 18,
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 15,
+     "choix": null,
+     "charges": null,
+     "citation": "can now score a Critical Hit on a roll of 18–20 on the d20."
+    }
+   ],
+   "note": "Remplace Improved Critical : critique sur 18–20."
+  },
+  {
+   "id": "srd:class:en:fighter#subclass:Champion#feature:Survivor@18",
+   "name": "Fighter (Champion) — Survivor",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "advantage.save.death",
+     "mode": "avantage",
+     "valeur": null,
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 18,
+     "choix": null,
+     "charges": null,
+     "citation": "You have Advantage on Death Saving Throws."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.death-save",
+     "mode": "texte",
+     "valeur": "18–20 compte comme un 20",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 18,
+     "choix": null,
+     "charges": null,
+     "citation": "when you roll 18–20 on a Death Saving Throw, you gain the benefit of rolling a 20 on it"
+    },
+    {
+     "famille": "autre",
+     "cible": "other.heroic-rally",
+     "mode": "octroi",
+     "valeur": "5 + mod Con PV au début de chaque tour",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "Bloodied et au moins 1 PV",
+     "niveau": 18,
+     "choix": null,
+     "charges": null,
+     "citation": "you regain Hit Points equal to 5 plus your Constitution modifier"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:monk#subclass:Warrior of the Open Hand#feature:Open Hand Technique@3",
+   "name": "Monk (Warrior of the Open Hand) — Open Hand Technique",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.open-hand-technique",
+     "mode": "octroi",
+     "valeur": "Addle / Push 15 ft / Topple",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "coup d'une attaque de Flurry of Blows",
+     "niveau": 3,
+     "choix": "Addle, Push ou Topple",
+     "charges": null,
+     "citation": "you can impose one of the following effects on that target."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:monk#subclass:Warrior of the Open Hand#feature:Wholeness of Body@6",
+   "name": "Monk (Warrior of the Open Hand) — Wholeness of Body",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.wholeness-of-body",
+     "mode": "octroi",
+     "valeur": "Bonus Action : dé de Martial Arts + mod Sag PV (min 1)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 6,
+     "choix": null,
+     "charges": "mod Sag (min 1) par Long Rest",
+     "citation": "As a Bonus Action, you can roll your Martial Arts die."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:monk#subclass:Warrior of the Open Hand#feature:Fleet Step@11",
+   "name": "Monk (Warrior of the Open Hand) — Fleet Step",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.fleet-step",
+     "mode": "octroi",
+     "valeur": "Step of the Wind gratuit après une autre Bonus Action",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 11,
+     "choix": null,
+     "charges": null,
+     "citation": "you can also use Step of the Wind immediately after that Bonus Action."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:monk#subclass:Warrior of the Open Hand#feature:Quivering Palm@17",
+   "name": "Monk (Warrior of the Open Hand) — Quivering Palm",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.quivering-palm",
+     "mode": "octroi",
+     "valeur": "vibrations : 10d12 Force (JS Con, moitié si réussi)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "coup d'Unarmed Strike",
+     "niveau": 17,
+     "choix": null,
+     "charges": "4 Focus Points",
+     "citation": "you can expend 4 Focus Points to start these imperceptible vibrations"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:paladin#subclass:Oath of Devotion#feature:Oath of Devotion Spells@3",
+   "name": "Paladin (Oath of Devotion) — Oath of Devotion Spells",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spell.protection-from-evil-and-good",
+     "mode": "sort",
+     "valeur": "Protection from Evil and Good",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Protection from Evil and Good, Shield of Faith"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.shield-of-faith",
+     "mode": "sort",
+     "valeur": "Shield of Faith",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Protection from Evil and Good, Shield of Faith"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.aid",
+     "mode": "sort",
+     "valeur": "Aid",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Aid, Zone of Truth"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.zone-of-truth",
+     "mode": "sort",
+     "valeur": "Zone of Truth",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Aid, Zone of Truth"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.beacon-of-hope",
+     "mode": "sort",
+     "valeur": "Beacon of Hope",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Beacon of Hope, Dispel Magic"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.dispel-magic",
+     "mode": "sort",
+     "valeur": "Dispel Magic",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Beacon of Hope, Dispel Magic"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.freedom-of-movement",
+     "mode": "sort",
+     "valeur": "Freedom of Movement",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 13,
+     "choix": null,
+     "charges": null,
+     "citation": "13 Freedom of Movement, Guardian of Faith"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.guardian-of-faith",
+     "mode": "sort",
+     "valeur": "Guardian of Faith",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 13,
+     "choix": null,
+     "charges": null,
+     "citation": "13 Freedom of Movement, Guardian of Faith"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.commune",
+     "mode": "sort",
+     "valeur": "Commune",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 17,
+     "choix": null,
+     "charges": null,
+     "citation": "17 Commune, Flame Strike"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.flame-strike",
+     "mode": "sort",
+     "valeur": "Flame Strike",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 17,
+     "choix": null,
+     "charges": null,
+     "citation": "17 Commune, Flame Strike"
+    }
+   ],
+   "note": "Niveau = niveau de Paladin de la table ; sorts toujours préparés."
+  },
+  {
+   "id": "srd:class:en:paladin#subclass:Oath of Devotion#feature:Sacred Weapon@3",
+   "name": "Paladin (Oath of Devotion) — Sacred Weapon",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "attack.weapon",
+     "mode": "bonus",
+     "valeur": "mod Cha (min +1)",
+     "plafond": null,
+     "condition": "active",
+     "etat": "Sacred Weapon actif (10 min), arme de mêlée imprégnée",
+     "niveau": 3,
+     "choix": null,
+     "charges": "1 usage de Channel Divinity",
+     "citation": "you add your Charisma modifier to attack rolls you make with that weapon (minimum bonus of +1)"
+    },
+    {
+     "famille": "autre",
+     "cible": "other.damage-type",
+     "mode": "texte",
+     "valeur": "Radiant au choix",
+     "plafond": null,
+     "condition": "active",
+     "etat": "Sacred Weapon actif",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "deal its normal damage type or Radiant damage."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.light",
+     "mode": "octroi",
+     "valeur": "Bright Light 20 ft + Dim Light 20 ft",
+     "plafond": null,
+     "condition": "active",
+     "etat": "Sacred Weapon actif",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "The weapon also emits Bright Light in a 20-foot radius"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:paladin#subclass:Oath of Devotion#feature:Aura of Devotion@7",
+   "name": "Paladin (Oath of Devotion) — Aura of Devotion",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "immunity.charmed",
+     "mode": "immunite",
+     "valeur": "Charmed",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "dans l'Aura of Protection",
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "You and your allies have Immunity to the Charmed condition while in your Aura of Protection."
+    }
+   ],
+   "note": "Profite aussi aux alliés dans l'aura."
+  },
+  {
+   "id": "srd:class:en:paladin#subclass:Oath of Devotion#feature:Smite of Protection@15",
+   "name": "Paladin (Oath of Devotion) — Smite of Protection",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.half-cover",
+     "mode": "octroi",
+     "valeur": "Half Cover (soi et alliés)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "après Divine Smite, jusqu'au début du prochain tour",
+     "niveau": 15,
+     "choix": null,
+     "charges": null,
+     "citation": "you and your allies have Half Cover while in your Aura of Protection."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:paladin#subclass:Oath of Devotion#feature:Holy Nimbus@20",
+   "name": "Paladin (Oath of Devotion) — Holy Nimbus",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.holy-nimbus",
+     "mode": "octroi",
+     "valeur": "Bonus Action : aura sacrée 10 min",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 20,
+     "choix": null,
+     "charges": "1 par Long Rest (ou emplacement de niveau 5)",
+     "citation": "As a Bonus Action, you can imbue your Aura of Protection with holy power"
+    },
+    {
+     "famille": "capacite",
+     "cible": "advantage.save.fiend-undead",
+     "mode": "avantage",
+     "valeur": "JS imposés par Fiend ou Undead",
+     "plafond": null,
+     "condition": "active",
+     "etat": "Holy Nimbus actif",
+     "niveau": 20,
+     "choix": null,
+     "charges": null,
+     "citation": "You have Advantage on any saving throw you are forced to make by a Fiend or an Undead."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.aura-damage",
+     "mode": "octroi",
+     "valeur": "Radiant = mod Cha + PB",
+     "plafond": null,
+     "condition": "active",
+     "etat": "Holy Nimbus actif, ennemi commençant son tour dans l'aura",
+     "niveau": 20,
+     "choix": null,
+     "charges": null,
+     "citation": "that creature takes Radiant damage equal to your Charisma modifier plus your Proficiency Bonus"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:ranger#subclass:Hunter#feature:Hunter’s Lore@3",
+   "name": "Ranger (Hunter) — Hunter’s Lore",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.hunters-lore",
+     "mode": "octroi",
+     "valeur": "connaît immunités, résistances, vulnérabilités",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "créature marquée par Hunter’s Mark",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "you know whether that creature has any Immunities, Resistances, or Vulnerabilities"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:ranger#subclass:Hunter#feature:Hunter’s Prey@3",
+   "name": "Ranger (Hunter) — Hunter’s Prey",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "damage.weapon",
+     "mode": "bonus",
+     "valeur": "1d8",
+     "plafond": null,
+     "condition": "choix",
+     "etat": "cible blessée, 1 fois par tour",
+     "niveau": 3,
+     "choix": "Colossus Slayer (ou Horde Breaker)",
+     "charges": null,
+     "citation": "the weapon deals an extra 1d8 damage to the target if it’s missing any of its Hit Points."
+    },
+    {
+     "famille": "action",
+     "cible": "other.horde-breaker",
+     "mode": "octroi",
+     "valeur": "attaque supplémentaire contre une 2e créature à 5 ft",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "Horde Breaker (ou Colossus Slayer)",
+     "charges": null,
+     "citation": "you can make another attack with the same weapon against a different creature"
+    }
+   ],
+   "note": "Option échangeable à chaque Short ou Long Rest."
+  },
+  {
+   "id": "srd:class:en:ranger#subclass:Hunter#feature:Defensive Tactics@7",
+   "name": "Ranger (Hunter) — Defensive Tactics",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "other.opportunity-attacks-against",
+     "mode": "desavantage",
+     "valeur": "Opportunity Attacks contre vous",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "Escape the Horde (ou Multiattack Defense)",
+     "charges": null,
+     "citation": "Opportunity Attacks have Disadvantage against you."
+    },
+    {
+     "famille": "capacite",
+     "cible": "other.multiattack-defense",
+     "mode": "desavantage",
+     "valeur": "autres attaques de l'attaquant ce tour",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 7,
+     "choix": "Multiattack Defense (ou Escape the Horde)",
+     "charges": null,
+     "citation": "that creature has Disadvantage on all other attack rolls against you this turn."
+    }
+   ],
+   "note": "Option échangeable à chaque Short ou Long Rest ; le désavantage frappe l'adversaire."
+  },
+  {
+   "id": "srd:class:en:ranger#subclass:Hunter#feature:Superior Hunter’s Prey@11",
+   "name": "Ranger (Hunter) — Superior Hunter’s Prey",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.superior-hunters-prey",
+     "mode": "octroi",
+     "valeur": "dégâts de Hunter’s Mark sur une 2e créature à 30 ft",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "1 fois par tour, cible marquée",
+     "niveau": 11,
+     "choix": null,
+     "charges": null,
+     "citation": "you can also deal that spell’s extra damage to a different creature that you can see within 30 feet"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:ranger#subclass:Hunter#feature:Superior Hunter’s Defense@15",
+   "name": "Ranger (Hunter) — Superior Hunter’s Defense",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "resistance.choix",
+     "mode": "resistance",
+     "valeur": "type des dégâts subis",
+     "plafond": null,
+     "condition": "active",
+     "etat": "Réaction après des dégâts, jusqu'à la fin du tour",
+     "niveau": 15,
+     "choix": null,
+     "charges": null,
+     "citation": "you can take a Reaction to give yourself Resistance to that damage"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:rogue#subclass:Thief#feature:Fast Hands@3",
+   "name": "Rogue (Thief) — Fast Hands",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.fast-hands",
+     "mode": "octroi",
+     "valeur": "Bonus Action : Sleight of Hand, Utilize ou Magic (objet magique)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": "Sleight of Hand ou Use an Object",
+     "charges": null,
+     "citation": "As a Bonus Action, you can do one of the following."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:rogue#subclass:Thief#feature:Second-Story Work@3",
+   "name": "Rogue (Thief) — Second-Story Work",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "speed.climb",
+     "mode": "fixe",
+     "valeur": "égale à la vitesse",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "You gain a Climb Speed equal to your Speed."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.jump",
+     "mode": "texte",
+     "valeur": "saut calculé sur la Dex",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "You can determine your jump distance using your Dexterity rather than your Strength."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:rogue#subclass:Thief#feature:Supreme Sneak@9",
+   "name": "Rogue (Thief) — Supreme Sneak",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.cunning-strike",
+     "mode": "octroi",
+     "valeur": "Stealth Attack (coût 1d6)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "Stealth Attack (Cost: 1d6)."
+    }
+   ],
+   "note": "Nouvelle option de Cunning Strike."
+  },
+  {
+   "id": "srd:class:en:rogue#subclass:Thief#feature:Use Magic Device@13",
+   "name": "Rogue (Thief) — Use Magic Device",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.attunement",
+     "mode": "fixe",
+     "valeur": 4,
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 13,
+     "choix": null,
+     "charges": null,
+     "citation": "You can attune to up to four magic items at once."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.magic-item-charges",
+     "mode": "texte",
+     "valeur": "1d6 : sur 6, pas de charge dépensée",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 13,
+     "choix": null,
+     "charges": null,
+     "citation": "On a roll of 6, you use the property without expending the charges."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.spell-scroll",
+     "mode": "octroi",
+     "valeur": "tout Spell Scroll, Int comme caractéristique (Arcana DD 10 + niv au-delà du niv 1)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 13,
+     "choix": null,
+     "charges": null,
+     "citation": "You can use any Spell Scroll, using Intelligence as your spellcasting ability for the spell."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:rogue#subclass:Thief#feature:Thief’s Reflexes@17",
+   "name": "Rogue (Thief) — Thief’s Reflexes",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.extra-turn",
+     "mode": "octroi",
+     "valeur": "2 tours au 1er round (2e à Initiative − 10)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "premier round de combat",
+     "niveau": 17,
+     "choix": null,
+     "charges": null,
+     "citation": "You can take two turns during the first round of any combat."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:sorcerer#subclass:Draconic Sorcery#feature:Draconic Resilience@3",
+   "name": "Sorcerer (Draconic Sorcery) — Draconic Resilience",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "hp.max",
+     "mode": "bonus",
+     "valeur": "3 + 1 par niveau de Sorcier après le 3e",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "Your Hit Point maximum increases by 3, and it increases by 1 whenever you gain another Sorcerer level."
+    },
+    {
+     "famille": "chiffre",
+     "cible": "ac",
+     "mode": "fixe",
+     "valeur": "10 + mod Dex + mod Cha",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "sans armure",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "While you aren’t wearing armor, your base Armor Class equals 10 plus your Dexterity and Charisma modifiers."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:sorcerer#subclass:Draconic Sorcery#feature:Draconic Spells@3",
+   "name": "Sorcerer (Draconic Sorcery) — Draconic Spells",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spell.alter-self",
+     "mode": "sort",
+     "valeur": "Alter Self",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Alter Self, Chromatic Orb, Command, Dragon’s Breath"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.chromatic-orb",
+     "mode": "sort",
+     "valeur": "Chromatic Orb",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Alter Self, Chromatic Orb, Command, Dragon’s Breath"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.command",
+     "mode": "sort",
+     "valeur": "Command",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Alter Self, Chromatic Orb, Command, Dragon’s Breath"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.dragons-breath",
+     "mode": "sort",
+     "valeur": "Dragon’s Breath",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Alter Self, Chromatic Orb, Command, Dragon’s Breath"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fear",
+     "mode": "sort",
+     "valeur": "Fear",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Fear, Fly"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fly",
+     "mode": "sort",
+     "valeur": "Fly",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Fear, Fly"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.arcane-eye",
+     "mode": "sort",
+     "valeur": "Arcane Eye",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "7 Arcane Eye, Charm Monster"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.charm-monster",
+     "mode": "sort",
+     "valeur": "Charm Monster",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "7 Arcane Eye, Charm Monster"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.legend-lore",
+     "mode": "sort",
+     "valeur": "Legend Lore",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Legend Lore, Summon Dragon"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.summon-dragon",
+     "mode": "sort",
+     "valeur": "Summon Dragon",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Legend Lore, Summon Dragon"
+    }
+   ],
+   "note": "Niveau = niveau de Sorcier de la table ; sorts toujours préparés."
+  },
+  {
+   "id": "srd:class:en:sorcerer#subclass:Draconic Sorcery#feature:Elemental Affinity@6",
+   "name": "Sorcerer (Draconic Sorcery) — Elemental Affinity",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "resistance.choix",
+     "mode": "resistance",
+     "valeur": "Acid|Cold|Fire|Lightning|Poison",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 6,
+     "choix": "Acid, Cold, Fire, Lightning ou Poison",
+     "charges": null,
+     "citation": "You have Resistance to that damage type"
+    },
+    {
+     "famille": "chiffre",
+     "cible": "other.spell-damage",
+     "mode": "bonus",
+     "valeur": "mod Cha",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "sort infligeant le type choisi, un jet de dégâts",
+     "niveau": 6,
+     "choix": null,
+     "charges": null,
+     "citation": "you can add your Charisma modifier to one damage roll of that spell."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:sorcerer#subclass:Draconic Sorcery#feature:Dragon Wings@14",
+   "name": "Sorcerer (Draconic Sorcery) — Dragon Wings",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.dragon-wings",
+     "mode": "octroi",
+     "valeur": "Bonus Action : ailes 1 h",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 14,
+     "choix": null,
+     "charges": "1 par Long Rest (ou 3 Sorcery Points)",
+     "citation": "As a Bonus Action, you can cause draconic wings to appear on your back."
+    },
+    {
+     "famille": "chiffre",
+     "cible": "speed.fly",
+     "mode": "fixe",
+     "valeur": 60,
+     "plafond": null,
+     "condition": "active",
+     "etat": "ailes déployées",
+     "niveau": 14,
+     "choix": null,
+     "charges": null,
+     "citation": "For the duration, you have a Fly Speed of 60 feet."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:sorcerer#subclass:Draconic Sorcery#feature:Dragon Companion@18",
+   "name": "Sorcerer (Draconic Sorcery) — Dragon Companion",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spell.summon-dragon",
+     "mode": "sort",
+     "valeur": "sans emplacement",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 18,
+     "choix": null,
+     "charges": "1 par Long Rest",
+     "citation": "You can also cast it once without a spell slot"
+    },
+    {
+     "famille": "autre",
+     "cible": "other.summon-dragon",
+     "mode": "texte",
+     "valeur": "sans composante matérielle",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 18,
+     "choix": null,
+     "charges": null,
+     "citation": "You can cast Summon Dragon without a Material component."
+    },
+    {
+     "famille": "autre",
+     "cible": "other.summon-dragon",
+     "mode": "texte",
+     "valeur": "sans Concentration (durée 1 min)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 18,
+     "choix": null,
+     "charges": null,
+     "citation": "you can modify it so that it doesn’t require Concentration."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:warlock#subclass:Fiend Patron#feature:Dark One’s Blessing@3",
+   "name": "Warlock (Fiend Patron) — Dark One’s Blessing",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "hp.temp",
+     "mode": "octroi",
+     "valeur": "mod Cha + niveau de Warlock (min 1)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "un ennemi réduit à 0 PV (par vous ou à 10 ft de vous)",
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "you gain Temporary Hit Points equal to your Charisma modifier plus your Warlock level"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:warlock#subclass:Fiend Patron#feature:Fiend Spells@3",
+   "name": "Warlock (Fiend Patron) — Fiend Spells",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "spell.burning-hands",
+     "mode": "sort",
+     "valeur": "Burning Hands",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Burning Hands, Command, Scorching Ray, Suggestion"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.command",
+     "mode": "sort",
+     "valeur": "Command",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Burning Hands, Command, Scorching Ray, Suggestion"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.scorching-ray",
+     "mode": "sort",
+     "valeur": "Scorching Ray",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Burning Hands, Command, Scorching Ray, Suggestion"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.suggestion",
+     "mode": "sort",
+     "valeur": "Suggestion",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "3 Burning Hands, Command, Scorching Ray, Suggestion"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fireball",
+     "mode": "sort",
+     "valeur": "Fireball",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Fireball, Stinking Cloud"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.stinking-cloud",
+     "mode": "sort",
+     "valeur": "Stinking Cloud",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 5,
+     "choix": null,
+     "charges": null,
+     "citation": "5 Fireball, Stinking Cloud"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.fire-shield",
+     "mode": "sort",
+     "valeur": "Fire Shield",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "7 Fire Shield, Wall of Fire"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.wall-of-fire",
+     "mode": "sort",
+     "valeur": "Wall of Fire",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 7,
+     "choix": null,
+     "charges": null,
+     "citation": "7 Fire Shield, Wall of Fire"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.geas",
+     "mode": "sort",
+     "valeur": "Geas",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Geas, Insect Plague"
+    },
+    {
+     "famille": "action",
+     "cible": "spell.insect-plague",
+     "mode": "sort",
+     "valeur": "Insect Plague",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 9,
+     "choix": null,
+     "charges": null,
+     "citation": "9 Geas, Insect Plague"
+    }
+   ],
+   "note": "Niveau = niveau de Warlock de la table ; sorts toujours préparés."
+  },
+  {
+   "id": "srd:class:en:warlock#subclass:Fiend Patron#feature:Dark One’s Own Luck@6",
+   "name": "Warlock (Fiend Patron) — Dark One’s Own Luck",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "check.all",
+     "mode": "bonus",
+     "valeur": "1d10",
+     "plafond": null,
+     "condition": "active",
+     "etat": null,
+     "niveau": 6,
+     "choix": null,
+     "charges": "mod Cha (min 1) par Long Rest",
+     "citation": "you can use this feature to add 1d10 to your roll."
+    },
+    {
+     "famille": "action",
+     "cible": "save.all",
+     "mode": "bonus",
+     "valeur": "1d10",
+     "plafond": null,
+     "condition": "active",
+     "etat": null,
+     "niveau": 6,
+     "choix": null,
+     "charges": "mod Cha (min 1) par Long Rest",
+     "citation": "you can use this feature to add 1d10 to your roll."
+    }
+   ],
+   "note": "Un seul usage par jet, après avoir vu le dé."
+  },
+  {
+   "id": "srd:class:en:warlock#subclass:Fiend Patron#feature:Fiendish Resilience@10",
+   "name": "Warlock (Fiend Patron) — Fiendish Resilience",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "resistance.choix",
+     "mode": "resistance",
+     "valeur": "un type sauf Force",
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 10,
+     "choix": "un type de dégâts autre que Force, à chaque Short ou Long Rest",
+     "charges": null,
+     "citation": "You have Resistance to that damage type until you choose a different one with this feature."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:warlock#subclass:Fiend Patron#feature:Hurl Through Hell@14",
+   "name": "Warlock (Fiend Patron) — Hurl Through Hell",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.hurl-through-hell",
+     "mode": "octroi",
+     "valeur": "8d10 Psychic + Incapacitated (JS Cha DD sort)",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "coup d'un jet d'attaque, 1 fois par tour",
+     "niveau": 14,
+     "choix": null,
+     "charges": "1 par Long Rest (ou 1 emplacement de Pact Magic)",
+     "citation": "The target takes 8d10 Psychic damage if it isn’t a Fiend"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:wizard#subclass:Evoker#feature:Evocation Savant@3",
+   "name": "Wizard (Evoker) — Evocation Savant",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.spellbook",
+     "mode": "octroi",
+     "valeur": 2,
+     "plafond": null,
+     "condition": "choix",
+     "etat": null,
+     "niveau": 3,
+     "choix": "2 sorts de Wizard d'Évocation de niveau ≤ 2",
+     "charges": null,
+     "citation": "Choose two Wizard spells from the Evocation school, each of which must be no higher than level 2"
+    },
+    {
+     "famille": "autre",
+     "cible": "other.spellbook",
+     "mode": "octroi",
+     "valeur": 1,
+     "plafond": null,
+     "condition": "choix",
+     "etat": "à chaque nouveau niveau d'emplacement",
+     "niveau": 3,
+     "choix": "1 sort de Wizard d'Évocation d'un niveau disponible",
+     "charges": null,
+     "citation": "you can add one Wizard spell from the Evocation school to your spellbook for free."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:wizard#subclass:Evoker#feature:Potent Cantrip@3",
+   "name": "Wizard (Evoker) — Potent Cantrip",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.potent-cantrip",
+     "mode": "texte",
+     "valeur": "moitié des dégâts du cantrip sur un raté ou un JS réussi",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 3,
+     "choix": null,
+     "charges": null,
+     "citation": "the target takes half the cantrip’s damage (if any)"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:wizard#subclass:Evoker#feature:Sculpt Spells@6",
+   "name": "Wizard (Evoker) — Sculpt Spells",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "other.sculpt-spells",
+     "mode": "octroi",
+     "valeur": "1 + niveau du sort créatures protégées",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "sort d'Évocation",
+     "niveau": 6,
+     "choix": null,
+     "charges": null,
+     "citation": "you can choose a number of them equal to 1 plus the spell’s level."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:wizard#subclass:Evoker#feature:Empowered Evocation@10",
+   "name": "Wizard (Evoker) — Empowered Evocation",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "other.spell-damage",
+     "mode": "bonus",
+     "valeur": "mod Int",
+     "plafond": null,
+     "condition": "etat",
+     "etat": "sort de Wizard d'Évocation, un jet de dégâts",
+     "niveau": 10,
+     "choix": null,
+     "charges": null,
+     "citation": "you can add your Intelligence modifier to one damage roll of that spell."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:class:en:wizard#subclass:Evoker#feature:Overchannel@14",
+   "name": "Wizard (Evoker) — Overchannel",
+   "source": "subclass-feature",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "other.overchannel",
+     "mode": "octroi",
+     "valeur": "dégâts maximaux (emplacement 1–5)",
+     "plafond": null,
+     "condition": "toujours",
+     "etat": null,
+     "niveau": 14,
+     "choix": null,
+     "charges": "1 sans contrecoup par Long Rest ; ensuite 2d12 Necrotic par niveau, +1d12 à chaque réemploi",
+     "citation": "you can deal maximum damage with that spell on the turn you cast it."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:ammunition",
+   "name": "Ammunition",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.property.ammunition",
+     "mode": "texte",
+     "valeur": "une munition par attaque",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "Each attack expends one piece of ammunition."
+    },
+    {
+     "famille": "autre",
+     "cible": "weapon.property.ammunition",
+     "mode": "texte",
+     "valeur": "récupère la moitié après le combat",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can spend 1 minute to recover half the ammunition (round down) you used in the fight"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:finesse",
+   "name": "Finesse",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "attack.weapon",
+     "mode": "texte",
+     "valeur": "For ou Dex au choix",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "use your choice of your Strength or Dexterity modifier for the attack and damage rolls."
+    },
+    {
+     "famille": "chiffre",
+     "cible": "damage.weapon",
+     "mode": "texte",
+     "valeur": "For ou Dex au choix (même que l'attaque)",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "use your choice of your Strength or Dexterity modifier for the attack and damage rolls."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:heavy",
+   "name": "Heavy",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "disadvantage.attack.weapon",
+     "mode": "desavantage",
+     "valeur": null,
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "mêlée avec For < 13, ou distance avec Dex < 13",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "You have Disadvantage on attack rolls with a Heavy weapon"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:improvised-weapons",
+   "name": "Improvised Weapons",
+   "source": "weapon-property",
+   "effets": [],
+   "note": "Renvoie seulement à « Improvised Weapons » du Rules Glossary."
+  },
+  {
+   "id": "srd:weapon-property:en:light",
+   "name": "Light",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "weapon.property.light",
+     "mode": "octroi",
+     "valeur": "attaque supplémentaire en Bonus Action (autre arme Light)",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "après l'action Attack avec une arme Light",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can make one extra attack as a Bonus Action later on the same turn."
+    },
+    {
+     "famille": "chiffre",
+     "cible": "damage.weapon",
+     "mode": "texte",
+     "valeur": "sans mod de caractéristique (sauf négatif) sur l'attaque bonus",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you don’t add your ability modifier to the extra attack’s damage unless that modifier is negative."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:loading",
+   "name": "Loading",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.property.loading",
+     "mode": "plafond",
+     "valeur": "1 munition par action, Bonus Action ou Réaction",
+     "plafond": 1,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "You can fire only one piece of ammunition from a Loading weapon"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:range",
+   "name": "Range",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "capacite",
+     "cible": "weapon.property.range",
+     "mode": "desavantage",
+     "valeur": null,
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "au-delà de la portée normale",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "When attacking a target beyond normal range, you have Disadvantage on the attack roll."
+    },
+    {
+     "famille": "autre",
+     "cible": "weapon.property.range",
+     "mode": "plafond",
+     "valeur": "portée longue",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "You can’t attack a target beyond the long range."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:reach",
+   "name": "Reach",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.property.reach",
+     "mode": "bonus",
+     "valeur": 5,
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "A Reach weapon adds 5 feet to your reach when you attack with it"
+    }
+   ],
+   "note": "Allonge +5 ft, y compris pour les Opportunity Attacks."
+  },
+  {
+   "id": "srd:weapon-property:en:thrown",
+   "name": "Thrown",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.property.thrown",
+     "mode": "octroi",
+     "valeur": "attaque à distance en lançant, dégainer inclus",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can throw the weapon to make a ranged attack, and you can draw that weapon"
+    },
+    {
+     "famille": "chiffre",
+     "cible": "attack.weapon",
+     "mode": "texte",
+     "valeur": "même mod que l'attaque de mêlée",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "arme de mêlée lancée",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "use the same ability modifier for the attack and damage rolls that you use for a melee attack"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:two-handed",
+   "name": "Two-Handed",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.property.two-handed",
+     "mode": "texte",
+     "valeur": "deux mains pour attaquer",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "A Two-Handed weapon requires two hands when you attack with it."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-property:en:versatile",
+   "name": "Versatile",
+   "source": "weapon-property",
+   "effets": [
+    {
+     "famille": "chiffre",
+     "cible": "damage.weapon",
+     "mode": "fixe",
+     "valeur": "dé entre parenthèses",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "à deux mains, attaque de mêlée",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "The weapon deals that damage when used with two hands to make a melee attack."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:cleave",
+   "name": "Cleave",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "weapon.mastery.cleave",
+     "mode": "octroi",
+     "valeur": "attaque sur une 2e créature à 5 ft (sans mod aux dégâts sauf négatif)",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "coup en mêlée",
+     "niveau": null,
+     "choix": null,
+     "charges": "1 par tour",
+     "citation": "you can make a melee attack roll with the weapon against a second creature within 5 feet of the first"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:graze",
+   "name": "Graze",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.mastery.graze",
+     "mode": "octroi",
+     "valeur": "dégâts = mod de caractéristique sur un raté",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "attaque ratée",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can deal damage to that creature equal to the ability modifier you used to make the attack roll."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:nick",
+   "name": "Nick",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "action",
+     "cible": "weapon.mastery.nick",
+     "mode": "octroi",
+     "valeur": "attaque de Light dans l'action Attack",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": null,
+     "niveau": null,
+     "choix": null,
+     "charges": "1 par tour",
+     "citation": "you can make it as part of the Attack action instead of as a Bonus Action."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:push",
+   "name": "Push",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.mastery.push",
+     "mode": "octroi",
+     "valeur": "repousse de 10 ft (Large ou moins)",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "coup",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can push the creature up to 10 feet straight away from yourself if it is Large or smaller."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:sap",
+   "name": "Sap",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.mastery.sap",
+     "mode": "octroi",
+     "valeur": "Disadvantage au prochain jet d'attaque de la cible",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "coup",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "that creature has Disadvantage on its next attack roll before the start of your next turn."
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:slow",
+   "name": "Slow",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.mastery.slow",
+     "mode": "octroi",
+     "valeur": 10,
+     "plafond": 10,
+     "condition": "tenu",
+     "etat": "coup avec dégâts",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can reduce its Speed by 10 feet until the start of your next turn."
+    }
+   ],
+   "note": "Réduction de vitesse de la cible (−10 ft, non cumulable)."
+  },
+  {
+   "id": "srd:weapon-mastery:en:topple",
+   "name": "Topple",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.mastery.topple",
+     "mode": "octroi",
+     "valeur": "Prone (JS Con DD 8 + mod + PB)",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "coup",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you can force the creature to make a Constitution saving throw"
+    }
+   ],
+   "note": ""
+  },
+  {
+   "id": "srd:weapon-mastery:en:vex",
+   "name": "Vex",
+   "source": "weapon-mastery",
+   "effets": [
+    {
+     "famille": "autre",
+     "cible": "weapon.mastery.vex",
+     "mode": "avantage",
+     "valeur": "prochaine attaque contre la même cible",
+     "plafond": null,
+     "condition": "tenu",
+     "etat": "coup avec dégâts",
+     "niveau": null,
+     "choix": null,
+     "charges": null,
+     "citation": "you have Advantage on your next attack roll against that creature before the end of your next turn."
+    }
+   ],
+   "note": ""
   }
  ]
 }

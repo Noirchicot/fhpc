@@ -26,7 +26,9 @@ test("1 — ⭐ COMPLET : chaque entrée de la pile y est, une seule fois, dans 
   assert.equal(new Set(ids).size, ids.length, "⛔ aucun doublon (le NIVEAU distingue « Improved Brutal Strike » 13 et 17)");
   assert.deepEqual(ids, ENTREES.map((e) => e.id), "⛔ un record ajouté à la pile doit être inventorié");
   const sources = [...new Set(ENTREES.map((e) => e.source))].sort();
-  assert.deepEqual(sources, ["arcana", "class-feature", "class-option", "feat", "lineage", "species-trait", "training"]);
+  /* ⭐ LOT 287 — et les sous-classes, les propriétés et les maîtrises d'arme */
+  assert.deepEqual(sources, ["arcana", "class-feature", "class-option", "feat", "lineage", "species-trait",
+    "subclass-feature", "training", "weapon-mastery", "weapon-property"]);
 });
 
 test("2 — 🔴 VRAI : chaque effet cite le texte de son entrée, mot pour mot", () => {

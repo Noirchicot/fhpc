@@ -1,0 +1,1372 @@
+{
+ "schema": "fhpc/droits-personnage/1",
+ "date": "2026-09-26",
+ "statut": "inventaire généré depuis la pile — précurseur, non lu par le moteur",
+ "classes": [
+  {
+   "id": "srd:class:en:barbarian",
+   "name": "Barbarian",
+   "hit_die": 12,
+   "saves": [
+    "str",
+    "con"
+   ],
+   "armor": "Light and Medium armor and Shields",
+   "weapons": "Simple and Martial weapons",
+   "weapon_ids": [
+    "srd:weapon:en:battleaxe",
+    "srd:weapon:en:blowgun",
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:flail",
+    "srd:weapon:en:glaive",
+    "srd:weapon:en:greataxe",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:greatsword",
+    "srd:weapon:en:halberd",
+    "srd:weapon:en:hand-crossbow",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:heavy-crossbow",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:lance",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:longbow",
+    "srd:weapon:en:longsword",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:maul",
+    "srd:weapon:en:morningstar",
+    "srd:weapon:en:musket",
+    "srd:weapon:en:pike",
+    "srd:weapon:en:pistol",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:rapier",
+    "srd:weapon:en:scimitar",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:shortsword",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear",
+    "srd:weapon:en:trident",
+    "srd:weapon:en:war-pick",
+    "srd:weapon:en:warhammer",
+    "srd:weapon:en:whip"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:animal-handling",
+     "srd:skill:en:athletics",
+     "srd:skill:en:intimidation",
+     "srd:skill:en:nature",
+     "srd:skill:en:perception",
+     "fh:skill:en:delve",
+     "srd:skill:en:survival"
+    ]
+   },
+   "weapon_mastery_count": 2,
+   "primary": [
+    "str"
+   ],
+   "subclass": "Path of the Berserker"
+  },
+  {
+   "id": "srd:class:en:bard",
+   "name": "Bard",
+   "hit_die": 8,
+   "saves": [
+    "dex",
+    "cha"
+   ],
+   "armor": "Light armor",
+   "weapons": "Simple weapons",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": "Choose 3 Musical Instruments (see “Equipment”)",
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:history",
+     "srd:skill:en:performance",
+     "fh:skill:en:academics",
+     "srd:skill:en:persuasion",
+     "srd:skill:en:deception",
+     "fh:skill:en:streetwise"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "cha"
+   ],
+   "subclass": "College of Lore"
+  },
+  {
+   "id": "srd:class:en:cleric",
+   "name": "Cleric",
+   "hit_die": 8,
+   "saves": [
+    "wis",
+    "cha"
+   ],
+   "armor": "Light and Medium armor and Shields",
+   "weapons": "Simple weapons",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:history",
+     "srd:skill:en:insight",
+     "srd:skill:en:medicine",
+     "srd:skill:en:persuasion",
+     "srd:skill:en:religion"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "wis"
+   ],
+   "subclass": "Life Domain"
+  },
+  {
+   "id": "srd:class:en:druid",
+   "name": "Druid",
+   "hit_die": 8,
+   "saves": [
+    "int",
+    "wis"
+   ],
+   "armor": "Light armor and Shields",
+   "weapons": "Simple weapons",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": "Herbalism Kit",
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:animal-handling",
+     "srd:skill:en:arcana",
+     "srd:skill:en:insight",
+     "srd:skill:en:medicine",
+     "srd:skill:en:nature",
+     "srd:skill:en:perception",
+     "fh:skill:en:delve",
+     "srd:skill:en:religion",
+     "srd:skill:en:survival"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "wis"
+   ],
+   "subclass": "Circle of the Land"
+  },
+  {
+   "id": "srd:class:en:fighter",
+   "name": "Fighter",
+   "hit_die": 10,
+   "saves": [
+    "str",
+    "con"
+   ],
+   "armor": "Light, Medium, and Heavy armor and Shields",
+   "weapons": "Simple and Martial weapons",
+   "weapon_ids": [
+    "srd:weapon:en:battleaxe",
+    "srd:weapon:en:blowgun",
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:flail",
+    "srd:weapon:en:glaive",
+    "srd:weapon:en:greataxe",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:greatsword",
+    "srd:weapon:en:halberd",
+    "srd:weapon:en:hand-crossbow",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:heavy-crossbow",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:lance",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:longbow",
+    "srd:weapon:en:longsword",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:maul",
+    "srd:weapon:en:morningstar",
+    "srd:weapon:en:musket",
+    "srd:weapon:en:pike",
+    "srd:weapon:en:pistol",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:rapier",
+    "srd:weapon:en:scimitar",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:shortsword",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear",
+    "srd:weapon:en:trident",
+    "srd:weapon:en:war-pick",
+    "srd:weapon:en:warhammer",
+    "srd:weapon:en:whip"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:acrobatics",
+     "srd:skill:en:animal-handling",
+     "srd:skill:en:athletics",
+     "srd:skill:en:history",
+     "srd:skill:en:insight",
+     "srd:skill:en:intimidation",
+     "srd:skill:en:persuasion",
+     "srd:skill:en:perception",
+     "fh:skill:en:delve",
+     "srd:skill:en:survival"
+    ]
+   },
+   "weapon_mastery_count": 3,
+   "primary": [
+    "str",
+    "dex"
+   ],
+   "subclass": "Champion"
+  },
+  {
+   "id": "srd:class:en:monk",
+   "name": "Monk",
+   "hit_die": 8,
+   "saves": [
+    "str",
+    "dex"
+   ],
+   "armor": "None",
+   "weapons": "Simple weapons and Martial weapons that have the Light property",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:hand-crossbow",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:scimitar",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:shortsword",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": "Choose one type of Artisan’s Tools or Musical Instrument (see “Equipment”)",
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:acrobatics",
+     "srd:skill:en:athletics",
+     "srd:skill:en:history",
+     "srd:skill:en:insight",
+     "srd:skill:en:religion",
+     "srd:skill:en:stealth"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "dex",
+    "wis"
+   ],
+   "subclass": "Warrior of the Open Hand"
+  },
+  {
+   "id": "srd:class:en:paladin",
+   "name": "Paladin",
+   "hit_die": 10,
+   "saves": [
+    "wis",
+    "cha"
+   ],
+   "armor": "Light, Medium, and Heavy armor and Shields",
+   "weapons": "Simple and Martial weapons",
+   "weapon_ids": [
+    "srd:weapon:en:battleaxe",
+    "srd:weapon:en:blowgun",
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:flail",
+    "srd:weapon:en:glaive",
+    "srd:weapon:en:greataxe",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:greatsword",
+    "srd:weapon:en:halberd",
+    "srd:weapon:en:hand-crossbow",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:heavy-crossbow",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:lance",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:longbow",
+    "srd:weapon:en:longsword",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:maul",
+    "srd:weapon:en:morningstar",
+    "srd:weapon:en:musket",
+    "srd:weapon:en:pike",
+    "srd:weapon:en:pistol",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:rapier",
+    "srd:weapon:en:scimitar",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:shortsword",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear",
+    "srd:weapon:en:trident",
+    "srd:weapon:en:war-pick",
+    "srd:weapon:en:warhammer",
+    "srd:weapon:en:whip"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:athletics",
+     "srd:skill:en:insight",
+     "srd:skill:en:intimidation",
+     "srd:skill:en:medicine",
+     "srd:skill:en:persuasion",
+     "srd:skill:en:religion"
+    ]
+   },
+   "weapon_mastery_count": 2,
+   "primary": [
+    "str",
+    "cha"
+   ],
+   "subclass": "Oath of Devotion"
+  },
+  {
+   "id": "srd:class:en:ranger",
+   "name": "Ranger",
+   "hit_die": 10,
+   "saves": [
+    "str",
+    "dex"
+   ],
+   "armor": "Light and Medium armor and Shields",
+   "weapons": "Simple and Martial weapons",
+   "weapon_ids": [
+    "srd:weapon:en:battleaxe",
+    "srd:weapon:en:blowgun",
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:flail",
+    "srd:weapon:en:glaive",
+    "srd:weapon:en:greataxe",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:greatsword",
+    "srd:weapon:en:halberd",
+    "srd:weapon:en:hand-crossbow",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:heavy-crossbow",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:lance",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:longbow",
+    "srd:weapon:en:longsword",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:maul",
+    "srd:weapon:en:morningstar",
+    "srd:weapon:en:musket",
+    "srd:weapon:en:pike",
+    "srd:weapon:en:pistol",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:rapier",
+    "srd:weapon:en:scimitar",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:shortsword",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear",
+    "srd:weapon:en:trident",
+    "srd:weapon:en:war-pick",
+    "srd:weapon:en:warhammer",
+    "srd:weapon:en:whip"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:animal-handling",
+     "srd:skill:en:athletics",
+     "srd:skill:en:insight",
+     "srd:skill:en:investigation",
+     "srd:skill:en:nature",
+     "srd:skill:en:perception",
+     "fh:skill:en:delve",
+     "srd:skill:en:stealth",
+     "srd:skill:en:survival"
+    ]
+   },
+   "weapon_mastery_count": 2,
+   "primary": [
+    "dex",
+    "wis"
+   ],
+   "subclass": "Hunter"
+  },
+  {
+   "id": "srd:class:en:rogue",
+   "name": "Rogue",
+   "hit_die": 8,
+   "saves": [
+    "dex",
+    "int"
+   ],
+   "armor": "Light armor",
+   "weapons": "Simple weapons and Martial weapons that have the Finesse or Light property",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:hand-crossbow",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:rapier",
+    "srd:weapon:en:scimitar",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:shortsword",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear",
+    "srd:weapon:en:whip"
+   ],
+   "tools": "Thieves’ Tools",
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:acrobatics",
+     "srd:skill:en:athletics",
+     "srd:skill:en:deception",
+     "srd:skill:en:insight",
+     "srd:skill:en:intimidation",
+     "srd:skill:en:investigation",
+     "srd:skill:en:perception",
+     "fh:skill:en:delve",
+     "srd:skill:en:survival",
+     "srd:skill:en:persuasion",
+     "srd:skill:en:sleight-of-hand",
+     "srd:skill:en:stealth"
+    ]
+   },
+   "weapon_mastery_count": 2,
+   "primary": [
+    "dex"
+   ],
+   "subclass": "Thief"
+  },
+  {
+   "id": "srd:class:en:sorcerer",
+   "name": "Sorcerer",
+   "hit_die": 6,
+   "saves": [
+    "con",
+    "cha"
+   ],
+   "armor": "None",
+   "weapons": "Simple weapons",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:arcana",
+     "srd:skill:en:deception",
+     "srd:skill:en:insight",
+     "srd:skill:en:intimidation",
+     "srd:skill:en:persuasion",
+     "srd:skill:en:religion"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "cha"
+   ],
+   "subclass": "Draconic Sorcery"
+  },
+  {
+   "id": "srd:class:en:warlock",
+   "name": "Warlock",
+   "hit_die": 8,
+   "saves": [
+    "wis",
+    "cha"
+   ],
+   "armor": "Light armor",
+   "weapons": "Simple weapons",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:arcana",
+     "srd:skill:en:deception",
+     "srd:skill:en:history",
+     "srd:skill:en:intimidation",
+     "srd:skill:en:investigation",
+     "srd:skill:en:nature",
+     "srd:skill:en:religion"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "cha"
+   ],
+   "subclass": "Fiend Patron"
+  },
+  {
+   "id": "srd:class:en:wizard",
+   "name": "Wizard",
+   "hit_die": 6,
+   "saves": [
+    "int",
+    "wis"
+   ],
+   "armor": "None",
+   "weapons": "Simple weapons",
+   "weapon_ids": [
+    "srd:weapon:en:club",
+    "srd:weapon:en:dagger",
+    "srd:weapon:en:dart",
+    "srd:weapon:en:greatclub",
+    "srd:weapon:en:handaxe",
+    "srd:weapon:en:javelin",
+    "srd:weapon:en:light-crossbow",
+    "srd:weapon:en:light-hammer",
+    "srd:weapon:en:mace",
+    "srd:weapon:en:quarterstaff",
+    "srd:weapon:en:shortbow",
+    "srd:weapon:en:sickle",
+    "srd:weapon:en:sling",
+    "srd:weapon:en:spear"
+   ],
+   "tools": null,
+   "skills": {
+    "count": 0,
+    "from": [
+     "srd:skill:en:arcana",
+     "srd:skill:en:history",
+     "srd:skill:en:insight",
+     "srd:skill:en:investigation",
+     "srd:skill:en:medicine",
+     "srd:skill:en:nature",
+     "srd:skill:en:religion"
+    ]
+   },
+   "weapon_mastery_count": null,
+   "primary": [
+    "int"
+   ],
+   "subclass": "Evoker"
+  }
+ ],
+ "heritages": [
+  {
+   "id": "fh:background:en:inheritance",
+   "name": "Inheritance",
+   "feat_choice": {
+    "from": "origin"
+   },
+   "language_choice": {
+    "from": [
+     "fh:training:en:language-araag",
+     "fh:training:en:language-dragonborn",
+     "fh:training:en:language-dwarf",
+     "fh:training:en:language-elestu",
+     "fh:training:en:language-elf",
+     "fh:training:en:language-goliath",
+     "fh:training:en:language-halfling",
+     "fh:training:en:language-hoddon",
+     "fh:training:en:language-human",
+     "fh:training:en:language-loroka",
+     "fh:training:en:language-orc",
+     "fh:training:en:language-tiefling"
+    ],
+    "count": 2,
+    "cost": 0
+   },
+   "equipment": "50 GP"
+  }
+ ],
+ "armes": [
+  {
+   "id": "srd:weapon:en:battleaxe",
+   "name": "Battleaxe",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Slashing",
+   "properties": [
+    "Versatile (1d10)"
+   ],
+   "mastery": "Topple",
+   "cost": "10 GP",
+   "weight": "4 lb."
+  },
+  {
+   "id": "srd:weapon:en:blowgun",
+   "name": "Blowgun",
+   "category": "martial",
+   "range": "ranged",
+   "damage": "1 Piercing",
+   "properties": [
+    "Ammunition (Range 25/100; Needle)",
+    "Loading"
+   ],
+   "mastery": "Vex",
+   "cost": "10 GP",
+   "weight": "1 lb."
+  },
+  {
+   "id": "srd:weapon:en:club",
+   "name": "Club",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d4 Bludgeoning",
+   "properties": [
+    "Light"
+   ],
+   "mastery": "Slow",
+   "cost": "1 SP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:dagger",
+   "name": "Dagger",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d4 Piercing",
+   "properties": [
+    "Finesse",
+    "Light",
+    "Thrown (Range 20/60)"
+   ],
+   "mastery": "Nick",
+   "cost": "2 GP",
+   "weight": "1 lb."
+  },
+  {
+   "id": "srd:weapon:en:dart",
+   "name": "Dart",
+   "category": "simple",
+   "range": "ranged",
+   "damage": "1d4 Piercing",
+   "properties": [
+    "Finesse",
+    "Thrown (Range 20/60)"
+   ],
+   "mastery": "Vex",
+   "cost": "5 CP",
+   "weight": "1/4 lb."
+  },
+  {
+   "id": "srd:weapon:en:flail",
+   "name": "Flail",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Bludgeoning",
+   "properties": [],
+   "mastery": "Sap",
+   "cost": "10 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:glaive",
+   "name": "Glaive",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d10 Slashing",
+   "properties": [
+    "Heavy",
+    "Reach",
+    "Two-Handed"
+   ],
+   "mastery": "Graze",
+   "cost": "20 GP",
+   "weight": "6 lb."
+  },
+  {
+   "id": "srd:weapon:en:greataxe",
+   "name": "Greataxe",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d12 Slashing",
+   "properties": [
+    "Heavy",
+    "Two-Handed"
+   ],
+   "mastery": "Cleave",
+   "cost": "30 GP",
+   "weight": "7 lb."
+  },
+  {
+   "id": "srd:weapon:en:greatclub",
+   "name": "Greatclub",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d8 Bludgeoning",
+   "properties": [
+    "Two-Handed"
+   ],
+   "mastery": "Push",
+   "cost": "2 SP",
+   "weight": "10 lb."
+  },
+  {
+   "id": "srd:weapon:en:greatsword",
+   "name": "Greatsword",
+   "category": "martial",
+   "range": "melee",
+   "damage": "2d6 Slashing",
+   "properties": [
+    "Heavy",
+    "Two-Handed"
+   ],
+   "mastery": "Graze",
+   "cost": "50 GP",
+   "weight": "6 lb."
+  },
+  {
+   "id": "srd:weapon:en:halberd",
+   "name": "Halberd",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d10 Slashing",
+   "properties": [
+    "Heavy",
+    "Reach",
+    "Two-Handed"
+   ],
+   "mastery": "Cleave",
+   "cost": "20 GP",
+   "weight": "6 lb."
+  },
+  {
+   "id": "srd:weapon:en:hand-crossbow",
+   "name": "Hand Crossbow",
+   "category": "martial",
+   "range": "ranged",
+   "damage": "1d6 Piercing",
+   "properties": [
+    "Ammunition (Range 30/120; Bolt)",
+    "Light",
+    "Loading"
+   ],
+   "mastery": "Vex",
+   "cost": "75 GP",
+   "weight": "3 lb."
+  },
+  {
+   "id": "srd:weapon:en:handaxe",
+   "name": "Handaxe",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d6 Slashing",
+   "properties": [
+    "Light",
+    "Thrown (Range 20/60)"
+   ],
+   "mastery": "Vex",
+   "cost": "5 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:heavy-crossbow",
+   "name": "Heavy Crossbow",
+   "category": "martial",
+   "range": "ranged",
+   "damage": "1d10 Piercing",
+   "properties": [
+    "Ammunition (Range 100/400; Bolt)",
+    "Heavy",
+    "Loading",
+    "Two-Handed"
+   ],
+   "mastery": "Push",
+   "cost": "50 GP",
+   "weight": "18 lb."
+  },
+  {
+   "id": "srd:weapon:en:javelin",
+   "name": "Javelin",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d6 Piercing",
+   "properties": [
+    "Thrown (Range 30/120)"
+   ],
+   "mastery": "Slow",
+   "cost": "5 SP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:lance",
+   "name": "Lance",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d10 Piercing",
+   "properties": [
+    "Heavy",
+    "Reach",
+    "Two-Handed (unless mounted)"
+   ],
+   "mastery": "Topple",
+   "cost": "10 GP",
+   "weight": "6 lb."
+  },
+  {
+   "id": "srd:weapon:en:light-crossbow",
+   "name": "Light Crossbow",
+   "category": "simple",
+   "range": "ranged",
+   "damage": "1d8 Piercing",
+   "properties": [
+    "Ammunition (Range 80/320; Bolt)",
+    "Loading",
+    "Two-Handed"
+   ],
+   "mastery": "Slow",
+   "cost": "25 GP",
+   "weight": "5 lb."
+  },
+  {
+   "id": "srd:weapon:en:light-hammer",
+   "name": "Light Hammer",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d4 Bludgeoning",
+   "properties": [
+    "Light",
+    "Thrown (Range 20/60)"
+   ],
+   "mastery": "Nick",
+   "cost": "2 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:longbow",
+   "name": "Longbow",
+   "category": "martial",
+   "range": "ranged",
+   "damage": "1d8 Piercing",
+   "properties": [
+    "Ammunition (Range 150/600; Arrow)",
+    "Heavy",
+    "Two-Handed"
+   ],
+   "mastery": "Slow",
+   "cost": "50 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:longsword",
+   "name": "Longsword",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Slashing",
+   "properties": [
+    "Versatile (1d10)"
+   ],
+   "mastery": "Sap",
+   "cost": "15 GP",
+   "weight": "3 lb."
+  },
+  {
+   "id": "srd:weapon:en:mace",
+   "name": "Mace",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d6 Bludgeoning",
+   "properties": [],
+   "mastery": "Sap",
+   "cost": "5 GP",
+   "weight": "4 lb."
+  },
+  {
+   "id": "srd:weapon:en:maul",
+   "name": "Maul",
+   "category": "martial",
+   "range": "melee",
+   "damage": "2d6 Bludgeoning",
+   "properties": [
+    "Heavy",
+    "Two-Handed"
+   ],
+   "mastery": "Topple",
+   "cost": "10 GP",
+   "weight": "10 lb."
+  },
+  {
+   "id": "srd:weapon:en:morningstar",
+   "name": "Morningstar",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Piercing",
+   "properties": [],
+   "mastery": "Sap",
+   "cost": "15 GP",
+   "weight": "4 lb."
+  },
+  {
+   "id": "srd:weapon:en:musket",
+   "name": "Musket",
+   "category": "martial",
+   "range": "ranged",
+   "damage": "1d12 Piercing",
+   "properties": [
+    "Ammunition (Range 40/120; Bullet)",
+    "Loading",
+    "Two-Handed"
+   ],
+   "mastery": "Slow",
+   "cost": "500 GP",
+   "weight": "10 lb."
+  },
+  {
+   "id": "srd:weapon:en:pike",
+   "name": "Pike",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d10 Piercing",
+   "properties": [
+    "Heavy",
+    "Reach",
+    "Two-Handed"
+   ],
+   "mastery": "Push",
+   "cost": "5 GP",
+   "weight": "18 lb."
+  },
+  {
+   "id": "srd:weapon:en:pistol",
+   "name": "Pistol",
+   "category": "martial",
+   "range": "ranged",
+   "damage": "1d10 Piercing",
+   "properties": [
+    "Ammunition (Range 30/90; Bullet)",
+    "Loading"
+   ],
+   "mastery": "Vex",
+   "cost": "250 GP",
+   "weight": "3 lb."
+  },
+  {
+   "id": "srd:weapon:en:quarterstaff",
+   "name": "Quarterstaff",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d6 Bludgeoning",
+   "properties": [
+    "Versatile (1d8)"
+   ],
+   "mastery": "Topple",
+   "cost": "2 SP",
+   "weight": "4 lb."
+  },
+  {
+   "id": "srd:weapon:en:rapier",
+   "name": "Rapier",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Piercing",
+   "properties": [
+    "Finesse"
+   ],
+   "mastery": "Vex",
+   "cost": "25 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:scimitar",
+   "name": "Scimitar",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d6 Slashing",
+   "properties": [
+    "Finesse",
+    "Light"
+   ],
+   "mastery": "Nick",
+   "cost": "25 GP",
+   "weight": "3 lb."
+  },
+  {
+   "id": "srd:weapon:en:shortbow",
+   "name": "Shortbow",
+   "category": "simple",
+   "range": "ranged",
+   "damage": "1d6 Piercing",
+   "properties": [
+    "Ammunition (Range 80/320; Arrow)",
+    "Two-Handed"
+   ],
+   "mastery": "Vex",
+   "cost": "25 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:shortsword",
+   "name": "Shortsword",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d6 Piercing",
+   "properties": [
+    "Finesse",
+    "Light"
+   ],
+   "mastery": "Vex",
+   "cost": "10 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:sickle",
+   "name": "Sickle",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d4 Slashing",
+   "properties": [
+    "Light"
+   ],
+   "mastery": "Nick",
+   "cost": "1 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:sling",
+   "name": "Sling",
+   "category": "simple",
+   "range": "ranged",
+   "damage": "1d4 Bludgeoning",
+   "properties": [
+    "Ammunition (Range 30/120; Bullet)"
+   ],
+   "mastery": "Slow",
+   "cost": "1 SP",
+   "weight": "—"
+  },
+  {
+   "id": "srd:weapon:en:spear",
+   "name": "Spear",
+   "category": "simple",
+   "range": "melee",
+   "damage": "1d6 Piercing",
+   "properties": [
+    "Thrown (Range 20/60)",
+    "Versatile (1d8)"
+   ],
+   "mastery": "Sap",
+   "cost": "1 GP",
+   "weight": "3 lb."
+  },
+  {
+   "id": "srd:weapon:en:trident",
+   "name": "Trident",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Piercing",
+   "properties": [
+    "Thrown (Range 20/60)",
+    "Versatile (1d10)"
+   ],
+   "mastery": "Topple",
+   "cost": "5 GP",
+   "weight": "4 lb."
+  },
+  {
+   "id": "srd:weapon:en:war-pick",
+   "name": "War Pick",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Piercing",
+   "properties": [
+    "Versatile (1d10)"
+   ],
+   "mastery": "Sap",
+   "cost": "5 GP",
+   "weight": "2 lb."
+  },
+  {
+   "id": "srd:weapon:en:warhammer",
+   "name": "Warhammer",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d8 Bludgeoning",
+   "properties": [
+    "Versatile (1d10)"
+   ],
+   "mastery": "Push",
+   "cost": "15 GP",
+   "weight": "5 lb."
+  },
+  {
+   "id": "srd:weapon:en:whip",
+   "name": "Whip",
+   "category": "martial",
+   "range": "melee",
+   "damage": "1d4 Slashing",
+   "properties": [
+    "Finesse",
+    "Reach"
+   ],
+   "mastery": "Slow",
+   "cost": "2 GP",
+   "weight": "3 lb."
+  }
+ ],
+ "armures": [
+  {
+   "id": "srd:armor:en:breastplate",
+   "name": "Breastplate",
+   "category": "medium",
+   "ac": "14 + Dex modifier (max 2)",
+   "ac_base": 14,
+   "ac_dex_cap": 2,
+   "strength_min": null,
+   "stealth_disadvantage": false,
+   "cost": "400 GP",
+   "weight": "20 lb."
+  },
+  {
+   "id": "srd:armor:en:chain-mail",
+   "name": "Chain Mail",
+   "category": "heavy",
+   "ac": "16",
+   "ac_base": 16,
+   "ac_dex_cap": 0,
+   "strength_min": 13,
+   "stealth_disadvantage": true,
+   "cost": "75 GP",
+   "weight": "55 lb."
+  },
+  {
+   "id": "srd:armor:en:chain-shirt",
+   "name": "Chain Shirt",
+   "category": "medium",
+   "ac": "13 + Dex modifier (max 2)",
+   "ac_base": 13,
+   "ac_dex_cap": 2,
+   "strength_min": null,
+   "stealth_disadvantage": false,
+   "cost": "50 GP",
+   "weight": "20 lb."
+  },
+  {
+   "id": "srd:armor:en:half-plate-armor",
+   "name": "Half Plate Armor",
+   "category": "medium",
+   "ac": "15 + Dex modifier (max 2)",
+   "ac_base": 15,
+   "ac_dex_cap": 2,
+   "strength_min": null,
+   "stealth_disadvantage": true,
+   "cost": "750 GP",
+   "weight": "40 lb."
+  },
+  {
+   "id": "srd:armor:en:hide-armor",
+   "name": "Hide Armor",
+   "category": "medium",
+   "ac": "12 + Dex modifier (max 2)",
+   "ac_base": 12,
+   "ac_dex_cap": 2,
+   "strength_min": null,
+   "stealth_disadvantage": false,
+   "cost": "10 GP",
+   "weight": "12 lb."
+  },
+  {
+   "id": "srd:armor:en:leather-armor",
+   "name": "Leather Armor",
+   "category": "light",
+   "ac": "11 + Dex modifier",
+   "ac_base": 11,
+   "ac_dex_cap": null,
+   "strength_min": null,
+   "stealth_disadvantage": false,
+   "cost": "10 GP",
+   "weight": "10 lb."
+  },
+  {
+   "id": "srd:armor:en:padded-armor",
+   "name": "Padded Armor",
+   "category": "light",
+   "ac": "11 + Dex modifier",
+   "ac_base": 11,
+   "ac_dex_cap": null,
+   "strength_min": null,
+   "stealth_disadvantage": true,
+   "cost": "5 GP",
+   "weight": "8 lb."
+  },
+  {
+   "id": "srd:armor:en:plate-armor",
+   "name": "Plate Armor",
+   "category": "heavy",
+   "ac": "18",
+   "ac_base": 18,
+   "ac_dex_cap": 0,
+   "strength_min": 15,
+   "stealth_disadvantage": true,
+   "cost": "1,500 GP",
+   "weight": "65 lb."
+  },
+  {
+   "id": "srd:armor:en:ring-mail",
+   "name": "Ring Mail",
+   "category": "heavy",
+   "ac": "14",
+   "ac_base": 14,
+   "ac_dex_cap": 0,
+   "strength_min": null,
+   "stealth_disadvantage": true,
+   "cost": "30 GP",
+   "weight": "40 lb."
+  },
+  {
+   "id": "srd:armor:en:scale-mail",
+   "name": "Scale Mail",
+   "category": "medium",
+   "ac": "14 + Dex modifier (max 2)",
+   "ac_base": 14,
+   "ac_dex_cap": 2,
+   "strength_min": null,
+   "stealth_disadvantage": true,
+   "cost": "50 GP",
+   "weight": "45 lb."
+  },
+  {
+   "id": "srd:armor:en:shield",
+   "name": "Shield",
+   "category": "shield",
+   "ac": "+2",
+   "ac_base": null,
+   "ac_dex_cap": null,
+   "strength_min": null,
+   "stealth_disadvantage": false,
+   "cost": "10 GP",
+   "weight": "6 lb."
+  },
+  {
+   "id": "srd:armor:en:splint-armor",
+   "name": "Splint Armor",
+   "category": "heavy",
+   "ac": "17",
+   "ac_base": 17,
+   "ac_dex_cap": 0,
+   "strength_min": 15,
+   "stealth_disadvantage": true,
+   "cost": "200 GP",
+   "weight": "60 lb."
+  },
+  {
+   "id": "srd:armor:en:studded-leather-armor",
+   "name": "Studded Leather Armor",
+   "category": "light",
+   "ac": "12 + Dex modifier",
+   "ac_base": 12,
+   "ac_dex_cap": null,
+   "strength_min": null,
+   "stealth_disadvantage": false,
+   "cost": "45 GP",
+   "weight": "13 lb."
+  }
+ ]
+}
