@@ -61,7 +61,7 @@ export function feuilleDuParchemin() {
     /* ⭐ LOT 290 — LE FANTÔME D'UN JETON DE SORT a la cote du jeton (« identique à l'objet »).
        ⚠️ Il est monté hors de la grille (`.app`, `glisser.mjs`), où le `100 %` de `.wares-jeton`
        se résoudrait contre la page entière : la cote se redit donc ici, lue dans la table. */
-    + `.x5-sort.glisse-fantome{inline-size:${px(G.l)};block-size:${px(G.h)}}`;
+    + `.x5-sort.glisse-fantome,.x5-jeton.glisse-fantome{inline-size:${px(G.l)};block-size:${px(G.h)}}`;
 }
 
 const borne = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -206,7 +206,7 @@ export function construireX5Parchemin(o, pieces) {
   n.append(menu("QTY", String(qte),
     Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
 
-  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton }));
+  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix }));
 
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
 
@@ -237,7 +237,13 @@ export function construireX5Parchemin(o, pieces) {
  *     (un seul sort par parchemin).
  *  ⭐ La cible est la même dans les deux états (`data-creneau`), et c'est ce qui permet au
  *  doigt de CHANGER de sort sans passer par un geste neuf. */
-function collecteurDuSort({ plan, sort, niveau, cote, surJeton }) {
+/* ⚖️ LOT 300 — L'ALLER-RETOUR. Eric, 26/09, mot pour mot : *« Ce collecteur peut faire un aller
+   retour, mais son contenu n'est pas un item tant qu'on n'a pas fait send »*. ⭐ Le jeton posé
+   se GLISSE hors du collecteur : lâché hors de toute cible, le collecteur se vide
+   (`surChoix("SORT", null)`) — c'est le geste d'annulation d'un récepteur (`onHorsCible`,
+   `glisser.mjs`). Lâché sur le collecteur même, rien ne change. ⭐ « pas un item » : son tap
+   ouvre l'APERÇU (options grisées, *« Not yours yet »*, lot 270), jamais une fiche d'objet. */
+function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null }) {
   if (!sort) {
     const vide = elx("div", "gear-collecteur x5-collecteur");
     vide.dataset.organe = "JETON";
@@ -257,8 +263,16 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton }) {
   jeton.dataset.rempli = "true";
   jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
   jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
-  if (surJeton && cote.legal) {
-    jeton.addEventListener("click", () => surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }));
-  } else jeton.disabled = true;
+  const apercu = () => { if (surJeton && cote.legal) surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }); };
+  armerJeton(jeton, {
+    onLever: (x, y) => fantome.lever(jeton, x, y),
+    onBouger: (x, y) => fantome.suivre(x, y),
+    onPoser: () => fantome.ranger(),
+    onTap: apercu,
+    onDepot: () => {},   // lâché sur un créneau (lui-même) : il reste
+    onHorsCible: () => { if (surChoix) surChoix("SORT", null); },
+  });
+  /* ⌨️ le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`) */
+  jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });
   return jeton;
 }

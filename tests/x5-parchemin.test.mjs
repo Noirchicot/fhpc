@@ -254,7 +254,7 @@ test("parchemin 11 — 💰 `SEND` PAIE LE COÛT DE SCRIBING et rend le sort —
   assert.deepEqual(envoi.cout, enPieces(300), "⭐ 2 × 150 GP — le coût de scribing, ⛔ pas la valeur");
   const jeton = organe(noeud, "JETON");
   assert.equal(jeton.querySelector(".jeton-nom").textContent, "Spell Scroll (Fireball)", "le nom du moteur");
-  jeton.dispatchEvent(new Event("click"));
+  tap(jeton);   // ⚖️ LOT 300 — le jeton du collecteur est armé : un TAP (pointeur) rend l'aperçu
   assert.equal(apercu.nom, "Spell Scroll (Fireball)");
   assert.equal(apercu.sort, sortNomme("Fireball"));
   /* ⛔ sans sort choisi, ni Send ni l'aperçu — et Send dit pourquoi */
@@ -483,4 +483,26 @@ test("parchemin 18 — 📐 LE PLAN DU PARCHEMIN TIENT DANS LA DALLE — cibles,
   const q = par("QTY").cible, j = par("JETON"), p = par("PURSE");
   assert.equal(q.x + q.l / 2, (D.MARGE_COTE + j.x) / 2);
   assert.equal(p.x + p.l / 2, (j.x + j.l + D.DALLE.l - D.MARGE_COTE) / 2);
+});
+
+
+/* ══ LOT 300 — L'ALLER-RETOUR ══════════════════════════════════════════════════
+   ⚖️ Eric, 26/09 : *« Ce collecteur peut faire un aller retour, mais son contenu n'est pas un
+   item tant qu'on n'a pas fait send »*. ⭐ TÉMOIN : glisser le jeton posé HORS de toute cible
+   vide le collecteur ; le lâcher sur lui-même ne change rien ; le tap rend l'APERÇU. */
+test("parchemin 12 — ⚖️ le sort posé se glisse hors du collecteur et le vide — sur lui-même, rien ne change", () => {
+  const recus = [];
+  let apercu = null;
+  const { noeud } = monte({ choix: { classe: "Wizard", niveau: 3, sort: "Fireball" },
+    surChoix: (o, v) => recus.push([o, v]), surJeton: (a) => { apercu = a; } });
+  const jeton = organe(noeud, "JETON");
+  assert.equal(jeton.dataset.rempli, "true", "témoin : le collecteur porte le sort");
+  glisserVers(jeton, null);   // lâché hors de toute cible
+  assert.deepEqual(recus, [["SORT", null]], "⭐ l'aller-retour : le collecteur se vide");
+  recus.length = 0;
+  glisserVers(jeton, jeton);  // lâché sur lui-même
+  assert.deepEqual(recus, [], "⛔ reposé sur le collecteur, le sort reste");
+  tap(jeton);
+  assert.equal(apercu && apercu.status, "Crafting", "⭐ « pas un item tant qu'on n'a pas fait send » : le tap rend l'APERÇU");
+  assert.deepEqual(recus, [], "⛔ un tap ne vide rien");
 });
