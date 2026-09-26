@@ -151,6 +151,13 @@ export const POCHES_DEBORD = ["poche1", "poche2", "poche3", "poche4"];
  *  slot ou non : l'objet y est équipé. ⛔ Le sol (`sol1`, `sol2`) n'en est jamais une. */
 export const CASES_POLYVALENTES = ["fourreau3", "fourreau4", ...POCHES_DEBORD];
 
+/** ⚖️ LOT 305 — LES DEUX CASES DU BODY FORGING. Eric, 2026-09-26 : *« des objets issus du
+ *  Soulforging, spécifique prévus pour le bodyforging, il faut que la gemme soit une “démon
+ *  gem” […] le body forging se décide au début du Soulforging »*. ⛔ Aucun objet ordinaire n'y
+ *  va : tant que X6 (Soulforging) ne fabrique pas de gemme forgée pour le corps, ces deux
+ *  cases ne sont la cible d'AUCUN dépôt. */
+export const CASES_DU_BODY_FORGING = ["forge1", "forge2"];
+
 /** Le collecteur (bleu au croquis) : UN jeton, centré — on y dépose, Send le vide. */
 export const COLLECTEUR = { centre: true, y: 458 };
 

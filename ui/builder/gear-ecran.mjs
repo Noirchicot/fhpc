@@ -59,7 +59,7 @@
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
 import * as D from "./gear-disposition.mjs?v=846";
-import { BOITES } from "./b3-disposition.mjs?v=846";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=846";
 import { armerJeton, fantome } from "./glisser.mjs?v=846";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
@@ -362,8 +362,12 @@ function emplacement(o, id, pose, options) {
     e.setAttribute("aria-label", `${nomDeLaCase} — empty`);
     /* vide, c'est une CIBLE : Eric, 16/09 — « les items peuvent se déplacer dans
        tous les sens ». Occupée, elle n'en est plus une (une case tient une chose). */
-    e.dataset.creneau = id;
-    e.dataset.vise = "false";
+    /* ⛔ LOT 305 — sauf le Body forging : réservé aux gemmes forgées pour le corps (X6, à venir).
+       Pas une cible : un dépôt qu'on refuserait ne se promet pas. */
+    if (!CASES_DU_BODY_FORGING.includes(id)) {
+      e.dataset.creneau = id;
+      e.dataset.vise = "false";
+    }
     return e;
   }
   /* ⚖️ Eric, 16/09 (b) : le nom du slot S'EFFACE quand un objet est posé — comme

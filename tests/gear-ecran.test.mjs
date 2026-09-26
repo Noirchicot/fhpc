@@ -391,8 +391,16 @@ test("5 bis ter — 🔒 VERROUILLÉ : le jeton ne se lève pas, mais il s'ouvre
 test("5 ter — les cibles de dépôt : tout emplacement VIDE et le collecteur VIDE (Eric, 16/09 : « dans tous les sens », « un item, pas 2 »)", () => {
   const vide = rendu({});
   const cibles = tous(vide, "[data-creneau]").map((c) => c.dataset.creneau).sort();
-  const emplacements = jetons.map((j) => CLEF_DE[j.nom]).sort();   // 20 emplacements + le collecteur
-  assert.deepEqual(cibles, emplacements, "vide, chaque emplacement est une cible, le collecteur aussi");
+  /* ⚖️ LOT 305 — SAUF LE BODY FORGING : Eric, 26/09, « des objets issus du Soulforging,
+     spécifique prévus pour le bodyforging » — aucun objet ordinaire n'y va, donc pas une cible
+     tant que X6 ne fabrique pas de gemme forgée pour le corps. */
+  const emplacements = jetons.map((j) => CLEF_DE[j.nom]).filter((c) => !["forge1", "forge2"].includes(c)).sort();
+  assert.deepEqual(cibles, emplacements, "vide, chaque emplacement est une cible, le collecteur aussi — sauf le Body forging");
+  for (const f of ["forge1", "forge2"]) {
+    const b = vide.querySelector(`[data-organe="${f}"]`);
+    if (b) assert.equal(b.dataset.creneau, undefined, `⛔ ${f} (Body forging) n'est la cible d'aucun dépôt`);
+  }
+  assert.ok(vide.querySelector('[data-organe="forge1"]'), "témoin : la case Body forging est dessinée");
   assert.equal(vide.querySelector('[data-organe="collecteur"]').dataset.compte, "0");
   /* occupé, un emplacement n'est plus une cible — une case tient une chose */
   const porte = rendu({ boites: { tete1: { nom: "Helm", qte: 1, index: 3, equipped: true } } });

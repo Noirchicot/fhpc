@@ -4398,7 +4398,16 @@ polyvalente**, et nulle part ailleurs. ⛔ On n'invente pas de correspondance po
 `weapon` du record, donc slot `hands`) : ⚖️ Eric, 26/09 : **« Munitions magiques hand weapon pocket
 extra »** — Arm/hands 1-2, Pocket/weapon 1-2, Extra storage 1-4 ; rien d'autre (garde 10 de
 `tests/equipe-sur-sa-case.test.mjs`).
-⏳ Les deux **Body forging** attendent Eric.
+⭐ **Les deux Body forging** (`forge1`, `forge2`) — ⚖️ Eric, 2026-09-26, mot pour mot : **« des objets
+issus du Soulforging, spécifique prévus pour le bodyforging, il faut que la gemme soit une “démon gem”
+(gemme issue de la demon forest), le body forging se décide au début du Soulforging : voir FH web »**.
+La loi vit déjà dans le manuscrit : `0. D&D 5+ Rules/3. Magic & Soulforging/Soulforge Crafting.md`,
+§ *Body Forging* (gemme d'essence d'une créature de la Demon Forest seulement, pas d'ingrédient
+Structure, une place d'harmonisation — la 4ᵉ avec le don *Body Forge Adept* —, un prix en PV) ; et le
+dessin dans `FH-WEB/FHPC/FHPCv2 rangement equipement.md` (§ Body Forging : la case de droite
+INVISIBLE sans le don). ⛔ Aucun objet du SRD ni d'une boutique n'y va : ce ne sont PAS des cases
+polyvalentes, et `caseValide` ne leur donne aucun slot. ⏳ **Le code arrive avec X6 (Soulforging)**,
+où le choix « pour le body forging » se fait au début du craft.
 
 | qui | ce qu'il fait |
 |---|---|
