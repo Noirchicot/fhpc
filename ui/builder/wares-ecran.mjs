@@ -417,6 +417,17 @@ export function feuilleDesCotesWares() {
      📌 `hautDeLaDalle` vaut 0 : les `y` du plan de Wares comptent déjà SOUS le belt, contrairement
      à ceux de R. Il se donne, ⛔ il ne se devine pas. */
   r.push(...reglesDeLaBourse(".wares", ORGANES.find((o) => CLEF_DE[o.nom] === "purse"), DALLE, 0));
+
+  /* 🔴 LOT 293 — LE FANTÔME A LA COTE DU JETON, ⛔ PAS CELLE DE LA PAGE. 📏 Mesuré en ligne à la
+     v835, première minute du lot 291 : fantôme **744 × 992** peints pour un jeton de 173 × 95 — il
+     couvrait l'écran entier. `.wares-jeton` remplit sa case (`inline-size: 100 %`, shell.css), et
+     le fantôme est monté HORS de la grille (`.app`, `glisser.mjs`) : son 100 % se résolvait contre
+     l'application. ⛔ Et `.glisse-fantome` ne pouvait pas le rattraper : même poids, déclaré plus
+     haut dans la feuille — une déclaration PERDANTE se tait.
+     ⭐ La cote est celle de la grille, lue dans le plan (`JETON`) : le patron du lot 290 pour les
+     jetons de sort (`.x5-sort.glisse-fantome`, `x5-parchemin.mjs`), chaque écran dit la cote de
+     SON fantôme depuis SA table. */
+  r.push(`.wares-jeton.glisse-fantome{inline-size:${px(JETON.l)};block-size:${px(JETON.h)}}`);
   return r.join("\n");
 }
 

@@ -458,6 +458,17 @@ test("20 bis · le glisser lève un fantôme, le relâché le range — ⛔ un t
   n.remove();
 });
 
+/* ══ 20 ter · 🔴 LE FANTÔME A LA COTE DU JETON — lot 293 ════════════════════════
+   📏 En ligne (v835) le fantôme peignait 744 × 992 : monté hors de la grille, le `100 %` de
+   `.wares-jeton` se résolvait contre l'application. ⭐ TÉMOIN : la feuille de Wares déclare la
+   cote du fantôme, et c'est celle du plan (`JETON`), pas un nombre recopié. */
+test("20 ter · la feuille de Wares donne au fantôme la cote du jeton du plan", () => {
+  const regle = feuilleDesCotesWares().match(/\.wares-jeton\.glisse-fantome\{([^}]*)\}/);
+  assert.ok(regle, "⛔ aucune cote pour le fantôme : il hérite du 100 % de la case, contre la page");
+  assert.match(regle[1], new RegExp(`inline-size:${D.JETON.l}px`));
+  assert.match(regle[1], new RegExp(`block-size:${D.JETON.h}px`));
+});
+
 /* ⭐ TÉMOIN : le viseur existe, un par étage, et il ne se tape pas.
    🔴 IL MANQUAIT AU PLAN *ET* À L'ÉCRAN — et c'est pour ça que la bijection plan ↔ DOM, mon
    garde 15, ne pouvait rien dire : elle compare deux listes, et l'organe manquait des deux.
