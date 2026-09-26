@@ -828,7 +828,7 @@ export function butinDuDepart({ query, document: docu, reponses } = {}) {
   }
   return { sources, lignes, refus, faits, questions, aEcrire, complet,
     cout: couts.length ? additionneCouts(couts) : null,
-    aPoser: posesDuButin(docu, lignes) };
+    aPoser: posesDuButin(docu, lignes, (ref) => !!contenuDuKit(query, ref)) };
 }
 
 /** LES ÉCRITURES `gear[N]` QUE LE BUTIN DEMANDE — `{ref, index, quantity, neuve}`.
@@ -853,7 +853,7 @@ export function butinDuDepart({ query, document: docu, reponses } = {}) {
  *  ⛔ `quantity` EST LA VALEUR FINALE À ÉCRIRE, pas un supplément : un champ
  *  dont il faut se rappeler s'il s'ajoute ou s'il remplace est un champ qui
  *  sera lu de travers. */
-function posesDuButin(docu, lignes) {
+function posesDuButin(docu, lignes, estKit = () => false) {
   /* ⚖️ LOT 296 — LE KIT NE FUSIONNE QU'AVEC LE MÊME OBJET, AU MÊME ENDROIT : même record,
      AUCUNE recette, et rangé au sac (là où le kit arrive — `location` absente = « backpack »).
      ⛔ Une dague +1 n'est pas une dague : fondre le kit dedans ferait deux dagues +1 de plus.
@@ -868,7 +868,10 @@ function posesDuButin(docu, lignes) {
   let libre = nextGearIndex(docu);
   const poses = [];
   for (const ligne of lignes) {
-    const deja = existantes.get(ligne.ref.id);
+    /* ⚖️ LOT 301 — UN KIT NE SE FOND JAMAIS : il se VERSE dans sa propre page
+       (`verserLeKit`). Deux kits identiques font deux lignes neuves, donc deux pages. */
+    const kit = estKit(ligne.ref);
+    const deja = kit ? null : existantes.get(ligne.ref.id);
     if (deja) {
       const base = Number.isInteger(deja.quantity) ? deja.quantity : 0;
       deja.quantity = base + ligne.quantity;
@@ -877,7 +880,7 @@ function posesDuButin(docu, lignes) {
     }
     const neuve = { index: libre, quantity: ligne.quantity, ref: ligne.ref };
     libre += 1;
-    existantes.set(ligne.ref.id, neuve);
+    if (!kit) existantes.set(ligne.ref.id, neuve);
     poses.push({ ref: ligne.ref, index: neuve.index, quantity: neuve.quantity, neuve: true });
   }
   return poses;
@@ -3402,17 +3405,17 @@ export function appliquerLeButin({ document, verbs, query, butin }) {
       doc = accorderLEquipe({ document: doc, verbs, query, index: pose.index, voulu: true });
     }
   }
+  /* ⚖️ LOT 301 — UN KIT QUI ARRIVE SE VERSE DANS SA PAGE (`verserLeKit`). ⭐ Après la boucle,
+     jamais pendant : `posesDuButin` a alloué les index de TOUTE la passe, et une page versée
+     entre deux poses prendrait l'index de la pose suivante. Seules les lignes NEUVES : un kit ne
+     se fond jamais (`posesDuButin`), donc chacun est neuf. */
+  for (const pose of butin.aPoser) {
+    if (pose.neuve) doc = verserLeKit({ document: doc, verbs, query, index: pose.index });
+  }
   /* ⚖️ LOT 292 — la même relecture que tout geste : un kit qui fusionne avec une ligne déjà là
      ne doit pas laisser un état que sa case ne permet pas. */
   doc = accorderLEquipe({ document: doc, verbs, query });
-  if (butin.cout) {
-    const bourse = currentCurrency(doc);
-    for (const key of CURRENCY_KEYS) {
-      const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
-      doc = verbs.set({ document: doc, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
-    }
-  }
-  return doc;
+  return ajouterALaBourse({ document: doc, verbs, cout: butin.cout });
 }
 
 function candidatesDuSlot(slot) {
@@ -3462,6 +3465,124 @@ function attribuerBoites(portees, cherche) {
      fiche X1 écrit maintenant. ⭐ LOT 292 — le placement vit dans `boitesDesPortees`. */
   for (const [boite, ligne] of boitesDesPortees(portees, cherche.slot)) pose(ligne, boite);
   return Object.fromEntries(prises);
+}
+
+/** L'or AJOUTÉ clef par clef à la bourse — ⛔ jamais écrasé (le piège de §0.2 : `gp` seul ne
+ *  produit aucune bourse dérivée, donc les quatre clefs s'écrivent). Rien si `cout` est vide. */
+function ajouterALaBourse({ document, verbs, cout }) {
+  if (!cout) return document;
+  let doc = document;
+  const bourse = currentCurrency(doc);
+  for (const key of CURRENCY_KEYS) {
+    const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
+    doc = verbs.set({ document: doc, path: `currency.${key}`, value: base + (cout[key] || 0) }).document;
+  }
+  return doc;
+}
+
+/* ══ LOT 301 — LE KIT SE VERSE DANS UNE PAGE DU SAC NOMMÉE « Kit <nom> » ══════════════════════
+   ⚖️ Eric, 2026-09-26, mot pour mot : *« Je suggère que quand il y a un kit, on crée une page
+   équipement nommée kit et son contenu est mis dedans »* · *« Un b-page backpack pardon »* ·
+   *« Pour tous les kits on verse le contenu dans un storage »* · *« Qu'on nomme kit xxxxx »*.
+   ⭐ AUCUNE STRUCTURE NEUVE DU DOCUMENT : une page du sac EST une section
+   (`backpack.sections[N].name`, lot 214), le `+` en crée déjà à la volée (`nextSectionIndex`), et
+   l'appartenance d'un objet est `gear[N].boite` + `gear[N].place`. Le kit écrit exactement ce que
+   le `+` puis un dépôt ordinaire écriraient. */
+
+/** Le préfixe du nom d'une page de kit — *« Qu'on nomme kit xxxxx »*. Nommé une fois. */
+export const PREFIXE_PAGE_DE_KIT = "Kit";
+
+/** Le CONTENU d'un kit, lu dans son record — `{ nom, elements, refus, cout }`, ou `null` si la
+ *  ref n'est pas un kit. ⭐ Un kit se reconnaît à `data.contents` (le même signal qu'`estRecette`,
+ *  les 64 éléments lus dans la prose du SRD) — ⛔ jamais à une liste de noms.
+ *  · `elements` : `{ ref: {kind, id}, quantity, nom }`, le genre LU dans la pile (le premier genre
+ *    rangé qui connaît l'id) — ⛔ jamais déduit de la forme de l'id ;
+ *  · `cout`     : les pièces que le kit contiendrait (un élément sans ref que `parseCout` lit) ;
+ *  · `refus`    : le texte des éléments que la pile ne connaît pas — ⛔ rien n'est inventé. */
+export function contenuDuKit(query, ref) {
+  if (typeof query !== "function" || !ref || typeof ref.id !== "string") return null;
+  let vue = null;
+  try { vue = query({ kind: ref.kind, id: ref.id }); } catch { vue = null; }
+  const record = vue && (vue.record || vue);
+  const contents = record && record.data && record.data.contents;
+  if (!Array.isArray(contents) || !contents.length) return null;
+  let genres = [];
+  try { genres = genresDuRangement(query({ kind: GENRE_RANGEMENT }) || []); } catch { genres = []; }
+  const genreDe = (id) => {
+    for (const kind of genres) {
+      let v = null;
+      try { v = query({ kind, id }); } catch { v = null; }
+      if (v) return { kind: v.kind || kind, view: v };
+    }
+    return null;
+  };
+  const elements = [];
+  const refus = [];
+  const couts = [];
+  for (const e of contents) {
+    const trouve = e && typeof e.ref === "string" ? genreDe(e.ref) : null;
+    if (trouve) {
+      const quantity = Number.isInteger(e.quantity) && e.quantity >= 1 ? e.quantity : 1;
+      elements.push({ ref: { kind: trouve.kind, id: e.ref }, quantity, nom: recordLabel(trouve.view) || e.name || e.ref });
+      continue;
+    }
+    const argent = e && typeof e.text === "string" ? parseCout(e.text) : null;
+    if (argent) { couts.push(argent); continue; }
+    refus.push(String((e && (e.text || e.name || e.ref)) || ""));
+  }
+  return { nom: recordLabel(vue) || record.name || ref.id, elements, refus,
+    cout: couts.length ? additionneCouts(couts) : null };
+}
+
+/** Le nom de la page d'un kit — `Kit <nom>`, puis `Kit <nom> 2`, `3`… si le sac porte déjà une
+ *  section de ce nom. ⭐ Deux kits identiques donnent deux pages qu'on distingue au premier coup
+ *  d'œil ; ⛔ jamais deux crans du même nom sur la roue. */
+export function nomDeLaPageDuKit(document, nomDuKit) {
+  const pris = new Set(sectionsDuSac(document).map((s) => String(s.nom)));
+  const base = `${PREFIXE_PAGE_DE_KIT} ${nomDuKit}`;
+  if (!pris.has(base)) return base;
+  let n = 2;
+  while (pris.has(`${base} ${n}`)) n += 1;
+  return `${base} ${n}`;
+}
+
+/** ⭐ LOT 301 — LE SEUL ÉCRIVAIN DU VERSEMENT. Si `gear[index]` est un kit : pour CHAQUE
+ *  exemplaire (sa quantité), une page neuve `Kit <nom>` est créée — le même chemin que le `+`
+ *  (`nextSectionIndex`, `backpack.sections[N].name`) — et chaque élément y est posé à sa quantité
+ *  par le même chemin qu'un dépôt ordinaire (`gear[M]`, `.quantity`, `.equipped: false`, `.boite`,
+ *  `.location` par `lieuDeLaBoite`, `.place` par `placeNeuveDans`). Puis la ligne du kit PART
+ *  (`retirerLaLigne`) — *« on verse le contenu »*. Les pièces du kit, s'il en a, vont à la bourse.
+ *  ⛔ Un élément versé n'est PAS équipé, même s'il a sa case : il est versé dans sa page.
+ *  ⛔ Il ne se FOND PAS avec une ligne existante : il va dans SA page.
+ *  Pas un kit (ou ligne absente) → le document revient intact, le MÊME objet. */
+export function verserLeKit({ document, verbs, query, index }) {
+  const ligne = currentGearLines(document).find((l) => l.index === index);
+  const kit = ligne && ligne.ref ? contenuDuKit(query, ligne.ref) : null;
+  if (!kit) return document;
+  let doc = document;
+  const fois = Number.isInteger(ligne.quantity) && ligne.quantity >= 1 ? ligne.quantity : 1;
+  for (let k = 0; k < fois; k += 1) {
+    const section = nextSectionIndex(doc);
+    doc = verbs.set({ document: doc, path: `backpack.sections[${section}].name`,
+      value: nomDeLaPageDuKit(doc, kit.nom) }).document;
+    const boite = boiteDeSection(section);
+    const lieu = lieuDeLaBoite(boite, boitesDehors(doc));
+    for (const e of kit.elements) {
+      const i = nextGearIndex(doc);
+      doc = verbs.choose({ document: doc, path: `gear[${i}]`, ref: e.ref }).document;
+      doc = verbs.set({ document: doc, path: `gear[${i}].quantity`, value: e.quantity }).document;
+      doc = verbs.set({ document: doc, path: `gear[${i}].equipped`, value: false }).document;
+      doc = verbs.set({ document: doc, path: `gear[${i}].boite`, value: boite }).document;
+      doc = verbs.set({ document: doc, path: `gear[${i}].location`, value: lieu }).document;
+      const place = placeNeuveDans(currentGearLines(doc).filter((l) => l.index !== i), boite, CASES_DU_SAC);
+      doc = verbs.set({ document: doc, path: `gear[${i}].place`, value: place }).document;
+    }
+    doc = ajouterALaBourse({ document: doc, verbs, cout: kit.cout });
+  }
+  /* ⭐ LA LIGNE DU KIT PART EN DERNIER : ses éléments ont déjà pris leurs index au-delà du sien,
+     donc son index libéré n'est repris par personne dans ce geste. */
+  doc = retirerLaLigne({ document: doc, verbs, index });
+  return accorderLEquipe({ document: doc, verbs, query });
 }
 
 export function renderEquipmentStep(ctx, onAction) {

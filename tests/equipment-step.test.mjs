@@ -37,7 +37,7 @@ const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui
 const {
   renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
-  optionsDeLaProse, morceauxDeLOption, departsDuPersonnage, butinDuDepart, departRepondu, cheminDuDepart,
+  optionsDeLaProse, morceauxDeLOption, departsDuPersonnage, butinDuDepart, contenuDuKit, departRepondu, cheminDuDepart,
   cheminDeLOutil, outilsChoisisDansSkills, nomCourtDOutil,
   lignesDeSection, grilleDeSection, premierePlaceLibre, rangement, RANGEMENTS, boiteDeSection,
   sectionsDuSac, SECTION_PARTY, SECTION_DEPOT, SECTIONS_DU_SAC, placeNeuveDans,
@@ -360,8 +360,13 @@ test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réé
   const etapeText = stripComments(fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8"));
   assert.match(shellText, /appliquerLeButin\(\{ document: state\.document, verbs, query: q, butin \}\)/,
     "⛔ `poserLeDepart` doit poser le kit par `appliquerLeButin` — un second écrivain divergerait");
-  assert.match(etapeText, /base\s*\+\s*\(butin\.cout\[key\]\s*\|\|\s*0\)/,
+  /* ⚖️ LOT 301 — L'ADDITION A DÉMÉNAGÉ DANS `ajouterALaBourse`, que le départ ET le kit versé
+     (ses pièces, s'il en a) appellent : une seule arithmétique de la bourse. Le garde lit
+     l'expression là où elle vit, et exige que `appliquerLeButin` lui passe `butin.cout`. */
+  assert.match(etapeText, /base\s*\+\s*\(cout\[key\]\s*\|\|\s*0\)/,
     "sans cette ligne, `poserLeDepart` pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
+  assert.match(etapeText, /ajouterALaBourse\(\{ document: doc, verbs, cout: butin\.cout \}\)/,
+    "⛔ `appliquerLeButin` doit ajouter l'or LU du butin par `ajouterALaBourse`");
   /* ⭐ LOT 245 — LE MONTANT VIENT MAINTENANT DE `butinDuDepart`, la MÊME
      fonction dont le QCM peint son récapitulatif. La loi du lot 182 est
      inchangée (le montant se LIT sur le document courant, il ne s'écrit pas
@@ -1158,7 +1163,13 @@ test("245 — 🔴 `Done` POSE VRAIMENT LES OBJETS DANS GEAR — c'est le défau
   assert.equal(butin.aPoser.filter((p) => !p.neuve).length, 1, "la dague déjà possédée : une fusion, pas une seconde ligne");
 
   const posees = currentGearLines(apres).slice(avant);
-  assert.equal(posees.length, 7, "sept lignes NEUVES : la huitième s'est fondue dans la dague d'Ilyra");
+  /* ⚖️ LOT 301 — LE BURGLAR'S PACK SE VERSE DANS SA PAGE (Eric, 26/09 : *« Pour tous les kits on
+     verse le contenu dans un storage »*) : sa ligne part, ses éléments arrivent. ⛔ Le compte
+     change parce que la RÈGLE a changé ; il se LIT dans le record du kit, jamais un littéral. */
+  const kits = butin.lignes.map((l) => contenuDuKit(query, l.ref)).filter(Boolean);
+  assert.equal(kits.length, 1, "témoin : l'option A du Rogue porte un kit (le Burglar's Pack)");
+  assert.equal(posees.length, 7 - kits.length + kits[0].elements.length,
+    "sept lignes NEUVES (la huitième s'est fondue dans la dague d'Ilyra), moins le kit, plus ce qu'il verse");
   for (const l of posees) {
     assert.ok(l.ref && typeof l.ref.id === "string", "une VRAIE référence, jamais une chaîne");
     assert.ok(Number.isInteger(l.quantity) && l.quantity >= 1);
