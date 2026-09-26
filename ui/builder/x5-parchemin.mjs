@@ -21,14 +21,14 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=840";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=840";
+import * as D from "./x5-disposition.mjs?v=841";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=841";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=840";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=840";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=840";
-import { armerJeton, fantome } from "./glisser.mjs?v=840";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=840";
+  from "./craft-parchemin.mjs?v=841";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=841";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=841";
+import { armerJeton, fantome } from "./glisser.mjs?v=841";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=841";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la

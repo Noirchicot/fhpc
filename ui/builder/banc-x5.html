@@ -26,8 +26,8 @@
      faux dans le produit.
      ══════════════════════════════════════════════════════════════════════ -->
 
-<link rel="stylesheet" href="./tokens.css?v=840">
-<link rel="stylesheet" href="./shell.css?v=840">
+<link rel="stylesheet" href="./tokens.css?v=841">
+<link rel="stylesheet" href="./shell.css?v=841">
 <style>
   /* ⛔ L'ÉCHAFAUDAGE, ET RIEN D'AUTRE — aucune de ces règles ne décrit X5. */
   body { margin: 0; padding: 24px; background: var(--bg); color: var(--text);
@@ -47,7 +47,7 @@
 <div class="planche" id="planche"></div>
 
 <script type="module">
-import { construireX5, feuilleDesCotesX5 } from "./x5-ecran.mjs?v=840";
+import { construireX5, feuilleDesCotesX5 } from "./x5-ecran.mjs?v=841";
 
 
 /* ⭐ LA FEUILLE DES COTES EST CELLE DU PRODUIT — ⛔ pas une copie pour le banc. */
@@ -116,7 +116,7 @@ const cas = [
 /* ⭐ LOT 285 — LE PARCHEMIN DE SORT, SUR LA PILE VRAIE. La couche SRD est un JSON, pas un module
    Node : elle se LIT ici telle quelle — le plan `Spell Scroll` (sa table niveau → rareté) et ses
    339 sorts. ⛔ Aucun record recopié à la main pour ces deux cas. */
-const couche = await (await fetch("../../layers/srd-5.2.1-en.layer.json?v=840")).json();
+const couche = await (await fetch("../../layers/srd-5.2.1-en.layer.json?v=841")).json();
 const PLAN_PARCHEMIN = couche.records.item["srd:item:en:spell-scroll"];
 const SORTS = Object.values(couche.records.spell);
 cas.push(
