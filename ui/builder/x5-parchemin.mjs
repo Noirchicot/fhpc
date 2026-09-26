@@ -4,9 +4,12 @@
           4 étages de sorts token, un dropdown
           send »
    puis « toujours mettre rareté prix qté ».
-   ⭐ LUE AINSI : Blueprint / CLASS ▾ · LEVEL ▾ / quatre rangées de JETONS de sorts (on touche
-   un jeton pour le choisir) / les pages / la NOTE (rareté · temps · prix, puis Qty · Total) /
-   QTY · le jeton du parchemin · la bourse / Cancel · SEND TO (« un dropdown ») · Send.
+   ⭐ LUE AINSI : Blueprint / CLASS ▾ · LEVEL ▾ / quatre rangées de JETONS de sorts / les pages /
+   la NOTE (rareté · temps · prix, puis Qty · Total) / QTY · le COLLECTEUR du parchemin · la
+   bourse / Cancel · SEND TO (« un dropdown ») · Send.
+   ⚖️ LOT 290 — Eric, 26/09 : *« le collecteur doit être vide pour accueillir le sort dans X5 »*.
+   Le collecteur est VIDE tant qu'aucun sort n'est choisi ; on y GLISSE un jeton de sort (au
+   doigt, le tap ouvre l'info du sort ; à la souris, le clic gauche choisit).
 
    📐 LE PLAN COTÉ : `FH-WEB/FHPC/Plan-ecran-X5/X5_gen.py`, famille `parchemin` (v4), recopié
    dans `x5-disposition.mjs`. ⛔ Aucune cote ne s'écrit ici : la feuille de X5 pose chaque
@@ -24,7 +27,13 @@ import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParche
   from "./craft-parchemin.mjs?v=834";
 import { DESTINATIONS } from "./gear-ecran.mjs?v=834";
 import { corpsDuJeton } from "./jeton-objet.mjs?v=834";
+import { armerJeton, fantome } from "./glisser.mjs?v=834";
 import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=834";
+
+/* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
+   (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
+   cible, pas son nœud (`glisser.mjs`). */
+export const CRENEAU_SORT = "x5:sort";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -48,7 +57,11 @@ export const PAR_PAGE = G.colonnes * G.rangees;
  *  `SORTS` ; ceci dit comment les jetons s'y rangent. Toutes les valeurs viennent de la table. */
 export function feuilleDuParchemin() {
   return `.x5 [data-organe="SORTS"]{display:grid;grid-template-columns:repeat(${G.colonnes},${px(G.l)});`
-    + `grid-auto-rows:${px(G.h)};gap:${px(G.ecart)};align-content:start}`;
+    + `grid-auto-rows:${px(G.h)};gap:${px(G.ecart)};align-content:start}`
+    /* ⭐ LOT 290 — LE FANTÔME D'UN JETON DE SORT a la cote du jeton (« identique à l'objet »).
+       ⚠️ Il est monté hors de la grille (`.app`, `glisser.mjs`), où le `100 %` de `.wares-jeton`
+       se résoudrait contre la page entière : la cote se redit donc ici, lue dans la table. */
+    + `.x5-sort.glisse-fantome{inline-size:${px(G.l)};block-size:${px(G.h)}}`;
 }
 
 const borne = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -66,7 +79,7 @@ const borne = (n, min, max) => Math.max(min, Math.min(max, n));
 export function construireX5Parchemin(o, pieces) {
   const { menu, laBourse, lePied, or, feuilleDesCotesX5 } = pieces;
   const { plan, sorts = [], choix = {}, surChoix = null, surAnnuler = null, surEnvoyer = null,
-    surJeton = null, alerte = "", bourse = null, bourseOuverte = false, surBourse = null,
+    surJeton = null, surInfo = null, alerte = "", bourse = null, bourseOuverte = false, surBourse = null,
     surFermerBourse = null, surMonnaie = null } = o;
 
   /* ⚖️ « choisir : classe de sort · choisir lvl » — lus dans les sorts, ⛔ jamais écrits.
@@ -107,8 +120,12 @@ export function construireX5Parchemin(o, pieces) {
       niveaux.map((k) => ({ valeur: String(k), mot: motDuNiveau(k) })), surChoix));
 
   /* ⚖️ « 4 étages de sorts token » — un jeton par sort, le corps de tous les jetons
-     (`corpsDuJeton`). ⭐ On touche un jeton pour le CHOISIR : `aria-pressed` le dit à l'œil
-     (le halo, `shell.css`) comme à l'oreille. */
+     (`corpsDuJeton`). `aria-pressed` dit le sort choisi à l'œil (le halo, `shell.css`) comme
+     à l'oreille.
+     ⚖️ LOT 290 — LE GESTE EST CELUI DU VIVIER (`renderChoixGlisses`, loi d'Eric du 16/08) :
+     au doigt, tap = INFO et glisser sur le collecteur = CHOISIR ; à la souris, clic gauche =
+     choisir, clic droit = info. ⛔ Sans `surInfo`, le tap choisit, au doigt comme à la souris
+     (la même clause que le vivier : un écran sans info à donner ne change pas de geste). */
   const grille = elx("div", "x5-sorts");
   grille.dataset.organe = "SORTS";
   grille.setAttribute("role", "list");
@@ -124,7 +141,25 @@ export function construireX5Parchemin(o, pieces) {
     b.setAttribute("aria-pressed", s === sort ? "true" : "false");
     b.setAttribute("aria-label", `${s.data.name}${s === sort ? ", chosen" : ""}`);
     b.append(...corpsDuJeton({ nom: s.data.name }));
-    if (surChoix) b.addEventListener("click", () => surChoix("SORT", s.data.name));
+    const choisir = () => { if (surChoix) surChoix("SORT", s.data.name); };
+    armerJeton(b, {
+      onLever: (x, y) => fantome.lever(b, x, y),
+      onBouger: (x, y) => fantome.suivre(x, y),
+      onPoser: () => fantome.ranger(),
+      onTap: (type) => { if (surInfo && type !== "mouse") surInfo(s); else choisir(); },
+      onDepot: (creneau) => { if (creneau === CRENEAU_SORT) choisir(); },
+    });
+    /* le clic droit — l'autre moitié de la loi ; ⛔ `armerJeton` ne s'arme que sur le bouton 0 */
+    if (surInfo) {
+      b.addEventListener("contextmenu", (ev) => {
+        if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
+        surInfo(s);
+      });
+    }
+    /* ⌨️ LE CLAVIER GARDE SON CHOIX : `Entrée` sur un bouton émet un `click` sans pointeur
+       (`detail === 0`). ⛔ Un clic de souris ou de doigt porte `detail ≥ 1` et passe déjà par
+       `armerJeton` : l'écouter ici choisirait deux fois. */
+    b.addEventListener("click", (ev) => { if (ev && ev.detail === 0) choisir(); });
     c.append(b);
     grille.append(c);
   }
@@ -171,18 +206,7 @@ export function construireX5Parchemin(o, pieces) {
   n.append(menu("QTY", String(qte),
     Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
 
-  /* ⭐ LE JETON DU PARCHEMIN — « Spell Scroll (Fireball) », le nom du MOTEUR (`nomDUnParchemin`) :
-     le jeton, la fiche X1 et la ligne posée par `Send` disent le même. Il ouvre l'aperçu X1. */
-  const nomDuJeton = nomDuParchemin(plan, sort);
-  const jeton = elx("button", "wares-jeton x5-jeton");
-  jeton.type = "button";
-  jeton.dataset.organe = "JETON";
-  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
-  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
-  if (surJeton && sort && cote.legal) {
-    jeton.addEventListener("click", () => surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }));
-  } else jeton.disabled = true;
-  n.append(jeton);
+  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton }));
 
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
 
@@ -197,4 +221,44 @@ export function construireX5Parchemin(o, pieces) {
       cout: enPieces(cote.craftTotal) }) }));
 
   return { noeud: n, cote };
+}
+
+/** ⚖️ LE COLLECTEUR DU PARCHEMIN — l'organe `JETON` du plan (87 × 48, la cote d'un jeton :
+ *  « un collecteur = un jeton en taille », NORMES §1 ter bis ; ⛔ aucune cote ici, la feuille
+ *  de X5 la pose).
+ *  ⚖️ Eric, 26/09 : *« le collecteur doit être vide pour accueillir le sort dans X5 »*.
+ *   · VIDE (aucun sort) : le collecteur de l'Équipement, tel quel — `.gear-collecteur`, le creux
+ *     sans liseré de NORMES §2 ter, qui s'allume sous le doigt (`[data-vise]`). ⛔ Aucun mot :
+ *     ni « Spell Scroll », ni nom. `data-compte="0"` est la donnée de l'organe (il ne retient
+ *     rien), pas un réglage de peinture.
+ *   · REMPLI : il porte le jeton « Spell Scroll (Fireball) » — le nom du MOTEUR
+ *     (`nomDUnParchemin`) : le jeton, la fiche X1 et la ligne posée par `Send` disent le même.
+ *     Il ouvre l'aperçu X1. ⭐ Il reste une CIBLE : glisser un autre sort dessus le remplace
+ *     (un seul sort par parchemin).
+ *  ⭐ La cible est la même dans les deux états (`data-creneau`), et c'est ce qui permet au
+ *  doigt de CHANGER de sort sans passer par un geste neuf. */
+function collecteurDuSort({ plan, sort, niveau, cote, surJeton }) {
+  if (!sort) {
+    const vide = elx("div", "gear-collecteur x5-collecteur");
+    vide.dataset.organe = "JETON";
+    vide.dataset.creneau = CRENEAU_SORT;
+    vide.dataset.vise = "false";
+    vide.dataset.compte = "0";
+    vide.dataset.rempli = "false";
+    vide.setAttribute("aria-label", "Spell collector — empty, drag a spell here");
+    return vide;
+  }
+  const nomDuJeton = nomDuParchemin(plan, sort);
+  const jeton = elx("button", "wares-jeton x5-jeton x5-collecteur");
+  jeton.type = "button";
+  jeton.dataset.organe = "JETON";
+  jeton.dataset.creneau = CRENEAU_SORT;
+  jeton.dataset.vise = "false";
+  jeton.dataset.rempli = "true";
+  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
+  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
+  if (surJeton && cote.legal) {
+    jeton.addEventListener("click", () => surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }));
+  } else jeton.disabled = true;
+  return jeton;
 }

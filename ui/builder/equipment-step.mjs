@@ -128,6 +128,8 @@ import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
 import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=834";
+/* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
+import { spellInfo } from "./class-step.mjs?v=834";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -4509,6 +4511,9 @@ export function renderEquipmentStep(ctx, onAction) {
          un back, options de lock, attune, wear grisées ». ⭐ L'objet n'existe pas encore :
          la fiche montre ce qu'il SERA (nom, prix, poids, texte) et ne permet rien d'autre. */
       surJeton: (a) => { apercuX5 = a; montrer("x1-apercu"); },
+      /* ⚖️ LOT 290 — L'INFO D'UN SORT DE LA GRILLE (tap au doigt, clic droit) : la fenêtre de
+         l'étape des sorts (`spellInfo`, le popup de la coquille), ⛔ pas une vue neuve. */
+      surInfo: (s) => { const ref = refDuSort.get(s); const info = ref ? spellInfo(query, ref.id) : null; if (info) act(info); },
       /* ⭐ LOT 265 — `SEND` : l'objet entre dans l'équipement du personnage.
          ⚖️ Eric, 25/09 : le craft SE PAIE (a), l'objet arrive TOUT DE SUITE (a), le
          site ne stocke rien (a). ⭐ Même chemin qu'un achat en X2 — `payer` puis
