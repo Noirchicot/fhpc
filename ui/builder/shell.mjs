@@ -2520,9 +2520,8 @@ function applyDecisionAction(action) {
       document = verbs.set({ document, path: cheminDuDepart(genre), value: valeur }).document;
     }
     /* ⛔ LA COQUILLE N'ARBITRE NI L'INDEX NI LA QUANTITÉ — `posesDuButin` les a
-       déjà tranchés, et c'est ce qui permet au kit de FUSIONNER avec un objet
-       déjà possédé au lieu d'ouvrir une seconde ligne du même record (le moteur
-       jette dessus : *« deux entrées portent l'id "dagger" »*). */
+       déjà tranchés, et c'est ce qui permet au kit de FUSIONNER avec le même objet
+       déjà rangé au sac (lot 296 : même record, sans recette — sinon une ligne neuve). */
     for (const pose of butin.aPoser) {
       if (pose.neuve) document = verbs.choose({ document, path: `gear[${pose.index}]`, ref: pose.ref }).document;
       document = verbs.set({ document, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;

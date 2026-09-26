@@ -49,6 +49,7 @@
 
 import { BuildError } from "./errors.mjs";
 import { lireLeBonus, nomCrafte, nomDUneVariante, nomDUnParchemin } from "./objet-crafte.mjs";
+import { ancresDesLignes } from "./ancre-de-ligne.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
 /* LOT 289 — les effets des objets magiques : le plan, le registre, et le plafond SRD. */
@@ -441,6 +442,16 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const lignesDesEffets = [];
   const gearChoices = (picked.byRoot.get("gear") || [])
     .filter((entry) => entry.parsed.segments.length === 2 && entry.parsed.segments[1].kind === "index");
+  /* ⭐ LOT 296 — L'ANCRE DE CHAQUE LIGNE, TRANCHÉE AVANT LA BOUCLE ET PAR UNE SEULE FONCTION
+     (`ancre-de-ligne.mjs`) : la première ligne d'un record garde l'id nu (`dagger`), les
+     suivantes prennent `dagger:gear-N`. ⛔ Elle se calcule sur TOUTES les lignes qui nomment
+     un record, complètes ou non : l'identité d'une ligne ne dépend pas de ce qu'elle a déjà
+     reçu sa quantité — sinon une ligne incomplète volerait, puis rendrait, l'id nu. */
+  const ancres = ancresDesLignes(gearChoices.filter((entry) => entry.choice.ref).map((entry) => {
+    const ref = entry.choice.ref;
+    const vue = reader.must(ref.kind, ref.id, `le choix « ${entry.choice.path} »`);
+    return { index: entry.parsed.segments[1].value, base: vue.record.slug || ref.id };
+  }));
   for (const entry of gearChoices) {
     const index = entry.parsed.segments[1].value;
     entry.consumed = true;
@@ -456,7 +467,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     if (!Number.isInteger(quantity)) missing.push(`gear[${index}].quantity`);
     if (typeof equipped !== "boolean") missing.push(`gear[${index}].equipped`);
     if (missing.length > 0) {
-      underived.declare(`gear[${view.record.slug || ref.id}]`, "underived.gear-line-incomplete", { missing: missing.join(" et ") });
+      underived.declare(`gear[${ancres.get(index)}]`, "underived.gear-line-incomplete", { missing: missing.join(" et ") });
       continue;
     }
     /* ⭐ LOT 265 — L'OBJET CRAFTÉ : la ligne porte sa RECETTE (`objet-crafte.mjs`),
@@ -495,7 +506,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       ? nomDUneVariante({ ...(view.record.data || {}), name: (view.record.data && view.record.data.name) || view.record.name }, variante.trim())
       : sort ? nomDUnParchemin(view.record.name, vueDuSort ? vueDuSort.record.name : sort.id)
       : nomCrafte({ base: view.record.name, bonus, pouvoirs });
-    const ligne = { id: view.record.slug || ref.id, name: nom, quantity, equipped };
+    const ligne = { id: ancres.get(index), name: nom, quantity, equipped };
     /* ⛔ posé SEULEMENT quand il est vrai : une fiche sans objet harmonisé reste identique
        à celle d'avant ce lot, octet pour octet */
     if (attuned) ligne.attuned = true;

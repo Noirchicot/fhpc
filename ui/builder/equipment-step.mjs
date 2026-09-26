@@ -837,10 +837,12 @@ export function butinDuDepart({ query, document: docu, reponses } = {}) {
  *  ligne faisait JETER `rebuild` sur le personnage d'exemple :
  *    *« resolved.gear : deux entrées portent l'id "dagger" — l'ancre d'override
  *      "resolved.gear[dagger]" désigne les deux, et aucune ne gagne par défaut »*
- *  Ilyra porte déjà une dague ; le kit du Rogue en apporte deux. ⛔ Un `gear[]`
- *  n'admet pas deux lignes du même record — ce n'est pas une préférence
- *  d'écran, c'est un invariant du document, et il accuse au premier joueur qui
- *  a acheté quelque chose avant de répondre au QCM.
+ *  Ilyra porte déjà une dague ; le kit du Rogue en apporte deux.
+ *  ⚖️ LOT 296 — CE N'EST PLUS L'INVARIANT QUI FORCE LA FUSION : deux lignes du même
+ *  record ont désormais deux ancres (`dagger`, `dagger:gear-N`,
+ *  `src/build/ancre-de-ligne.mjs`). La fusion reste la LOI pour le même objet au
+ *  même endroit — même record, sans recette, au sac (`seFondAvecLeKit`) : deux
+ *  dagues identiques dans le même sac sont une pile, pas deux lignes.
  *  ⭐ LA FUSION VIT DONC DANS LE LECTEUR, PAS DANS LE GESTE : la coquille et le
  *  harnais écrivent ce que cette fonction leur rend, ⛔ ils ne recalculent
  *  aucune quantité. Deux arithmétiques de la même quantité divergent.
@@ -852,9 +854,16 @@ export function butinDuDepart({ query, document: docu, reponses } = {}) {
  *  dont il faut se rappeler s'il s'ajoute ou s'il remplace est un champ qui
  *  sera lu de travers. */
 function posesDuButin(docu, lignes) {
+  /* ⚖️ LOT 296 — LE KIT NE FUSIONNE QU'AVEC LE MÊME OBJET, AU MÊME ENDROIT : même record,
+     AUCUNE recette, et rangé au sac (là où le kit arrive — `location` absente = « backpack »).
+     ⛔ Une dague +1 n'est pas une dague : fondre le kit dedans ferait deux dagues +1 de plus.
+     ⭐ Deux lignes du même record sont désormais légales (`src/build/ancre-de-ligne.mjs`) :
+     ce qui ne se fond pas ouvre sa propre ligne. Et la PREMIÈRE ligne éligible gagne. */
   const existantes = new Map();
   for (const l of currentGearLines(docu)) {
-    if (l.ref && typeof l.ref.id === "string") existantes.set(l.ref.id, l);
+    if (!l.ref || typeof l.ref.id !== "string" || existantes.has(l.ref.id)) continue;
+    if (!seFondAvecLeKit(l)) continue;
+    existantes.set(l.ref.id, l);
   }
   let libre = nextGearIndex(docu);
   const poses = [];
@@ -872,6 +881,13 @@ function posesDuButin(docu, lignes) {
     poses.push({ ref: ligne.ref, index: neuve.index, quantity: neuve.quantity, neuve: true });
   }
   return poses;
+}
+
+/** LOT 296 — une ligne où le kit peut se FONDRE : sans recette, et au sac. */
+function seFondAvecLeKit(l) {
+  const recette = [l.bonus, l.plan, l.note, l.variante, l.sort].some((v) => v !== undefined && v !== null && v !== "")
+    || (Array.isArray(l.pouvoirs) && l.pouvoirs.some(Boolean));
+  return !recette && (l.location || "backpack") === "backpack";
 }
 
 /** LES MOTS D'UNE OPTION — ce qu'elle DONNE, pas ce que la phrase dit.
