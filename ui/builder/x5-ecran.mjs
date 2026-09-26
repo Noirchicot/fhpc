@@ -19,12 +19,12 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=830";
+import * as D from "./x5-disposition.mjs?v=831";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=830";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=830";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=830";
-import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=830";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=831";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=831";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=831";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=831";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
