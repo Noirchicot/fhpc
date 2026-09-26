@@ -3192,7 +3192,7 @@ function fabriquerChercheur(query) {
   const valeurDe = fabriqueDeValeur(query);
   return {
     record: (ref) => parId.get(ref && ref.id) || null,
-    slot: (ref) => slotParBase.get(ref && ref.id) || null,
+    slot: lecteurDeSlot(slotParBase, (ref) => parId.get(ref && ref.id) || null),
     valeur: (record) => valeurDe(record),
     tous: () => tous,
   };
@@ -3218,7 +3218,52 @@ export function slotsDeLaPile(query) {
   try { rangements = (query && query({ kind: GENRE_RANGEMENT })) || []; }
   catch { /* la couche absente : aucun slot, donc aucune case valide — rien ne s'équipe */ }
   const slots = slotsDesRangements(rangements);
-  return (ref) => slots.get(ref && ref.id) || null;
+  /* le record, lu À LA DEMANDE et par genre : seul un objet sans slot écrit le demande */
+  const parGenre = new Map();
+  const recordDe = (ref) => {
+    if (!ref || typeof ref.kind !== "string") return null;
+    if (!parGenre.has(ref.kind)) {
+      let vues = [];
+      try { vues = (query && query({ kind: ref.kind })) || []; } catch { vues = []; }
+      parGenre.set(ref.kind, new Map(vues.map((v) => [v.id, v.record || v])));
+    }
+    return parGenre.get(ref.kind).get(ref.id) || null;
+  };
+  return lecteurDeSlot(slots, recordDe);
+}
+
+/* ══ LOT 292, SECONDE PASSE — CE QUE L'OBJET EST DIT OÙ IL SE PORTE ══════════════════
+   ⚖️ L'architecte, 26/09 : « les armes, armures et boucliers ont une case, même sans slot
+   écrit dans leur record ». 🔴 MESURÉ : 33 armes magiques, 12 armures magiques, 7 boucliers
+   magiques, 12 bâtons, 13 baguettes et 7 sceptres n'avaient AUCUN slot dans les rangements
+   — une Flame Tongue ne pouvait pas s'équiper, la dague dont elle descend si.
+   ⭐ CE N'EST PAS UNE CORRESPONDANCE NEUVE : c'est celle que les rangements appliquent déjà
+   aux objets mondains — `hands` pour les 38 armes et le bouclier, `torso` pour les 12
+   armures. On la lit dans la DONNÉE du record (`kind`, `category`, `armor_category`,
+   `subtype`), ⛔ jamais dans une liste de noms.
+   ⛔ Tout le reste (objets merveilleux sans slot, potions, parchemins, Luckstone…) reste
+   sans case : c'est à Eric de le dire. */
+/** Le slot qu'un record DIT par sa nature, quand les rangements n'en écrivent pas. */
+export function slotParNature(kind, record) {
+  const d = (record && record.data) || {};
+  const bouclier = d.armor_category === "shield" || d.subtype === "Shield";
+  if (kind === "weapon") return "hands";
+  if (kind === "armor") return bouclier ? "hands" : "torso";
+  if (kind !== "item") return null;
+  if (d.category === "weapon") return "hands";
+  if (d.category === "armor") return bouclier ? "hands" : "torso";
+  if (["staff", "wand", "rod"].includes(d.category)) return "hands";
+  return null;
+}
+
+/** ⭐ LE SEUL LECTEUR DE SLOT : celui que les rangements écrivent, sinon celui que le
+ *  record dit par sa nature. L'écran (`fabriquerChercheur`) et la coquille
+ *  (`slotsDeLaPile`) le construisent tous deux ici. */
+function lecteurDeSlot(slots, recordDe) {
+  return (ref) => {
+    if (!ref) return null;
+    return slots.get(ref.id) || slotParNature(ref.kind, recordDe(ref)) || null;
+  };
 }
 
 /* ══ LOT 292 — ÉQUIPÉ SEULEMENT SUR SA CASE ══════════════════════════════════════════
@@ -3233,8 +3278,9 @@ export function slotsDeLaPile(query) {
    ⛔ `POCHES_DEBORD` (les quatre Extra storage) N'EN EST PAS : Eric les a ratifiées comme
    le DÉBORD de tout slot — *« sinon Pocket, sinon backpack »* — un endroit où l'on range ce
    qui n'a pas trouvé sa case, pas une case où on le porte.
-   ⛔ Un objet SANS slot (la couche ne lui en donne pas) n'a aucune case valide : il ne
-   s'équipe pas. On n'invente pas de correspondance — le trou est au rapport du lot. */
+   ⛔ Un objet SANS slot — ni écrit par les rangements, ni dit par sa nature
+   (`slotParNature` : armes, armures, boucliers, bâtons, baguettes, sceptres) — n'a aucune
+   case valide : il ne s'équipe pas. On n'invente pas de correspondance — le trou va à Eric. */
 
 /** ⭐ LA SEULE FONCTION QUI DÉCIDE : la boîte `boite` est-elle une case valide pour un
  *  objet du slot `slot` ? Tout écrivain et tout lecteur de `equipped` passe par elle. */
@@ -4104,10 +4150,10 @@ export function renderEquipmentStep(ctx, onAction) {
       /* ⚖️ LOT 292 — HORS DE SA CASE, `Equip` S'ÉTEINT ET DIT POURQUOI. ⭐ Un objet équipé
          est sur sa case par construction (le lecteur plus haut) : l'interrupteur ne
          s'éteint donc jamais sous un objet qu'on voudrait dévêtir. */
-      horsCase: ligne.equipped === true || surLeurCase.has(ligne.index) ? null
-        : cherche.slot(ligne.ref)
-          ? "Not on a Gear slot that fits it — place it there first"
-          : "No Gear slot fits this item — it cannot be equipped",
+      /* 🔄 SECONDE PASSE (l'architecte, 26/09) : `Equip` ne s'éteint QUE pour un objet qui
+         n'a AUCUNE case possible — hors de sa case, il la lui cherche (plus bas). */
+      horsCase: ligne.equipped === true || cherche.slot(ligne.ref) ? null
+        : "No Gear slot fits this item — it cannot be equipped",
       nombre: nombreX1,
       destination: destinationEnvoi,
       /* ⚖️ LE PLAFOND D'HARMONISATION DU SRD — trois, et Eric l'a rappelé le 18/09 :
@@ -4130,17 +4176,19 @@ export function renderEquipmentStep(ctx, onAction) {
          des choix du personnage que rien ne déduit : ils passent par leur propre
          verbe. ⛔ Écrire `equipped` à la main ferait diverger l'état et le lieu. */
       surEtat: (clef, valeur) => {
-        /* ⚖️ LOT 292 — ÉQUIPER, C'EST REPOSER L'OBJET SUR LA CASE OÙ IL EST DÉJÀ. L'interrupteur
-           ne s'allume que sur une case valide (`horsCase`) : `placerGearLine` y écrit la case
-           telle quelle — ⛔ rien ne bouge — et `accorderLEquipe` pose l'état.
-           🔴 AVANT CE LOT, `Equip` DÉPLAÇAIT : `moveGearLine` vers `self`, qui EFFACE la
-           boîte — un anneau posé à la main sur « Arm/hands 2 » aurait sauté sur la première
-           case libre. ⭐ DÉVÊTIR GARDE LE GESTE D'AVANT : l'objet part au sac (il quitte sa
-           case, donc il n'est plus équipé). */
+        /* ⚖️ LOT 292 — ÉQUIPER, DEUX CAS, ET LA CASE D'ARRIVÉE DÉCIDE (`accorderLEquipe`) :
+           · DÉJÀ SUR SA CASE (une part scindée arrivée là) : `placerGearLine` sur la case où il
+             est — ⛔ rien ne bouge ;
+           · AILLEURS (sac, Extra storage, une case qui ne lui va pas) : le geste d'avant, par
+             l'ARBITRE ratifié d'Eric (24/08) — *« si c'est libre l'item prend son slot, sinon
+             Pocket, sinon backpack »*. Arrivé sur sa case, il est équipé ; en Extra storage ou
+             retombé au sac, il ne l'est pas.
+           ⭐ DÉVÊTIR GARDE LE GESTE D'AVANT : l'objet part au sac. */
         if (clef === "equipped") {
           const boite = caseDeLaLigne.get(ligne.index);
-          if (valeur && boite) act({ kind: "placerGearLine", index: ligne.index, boite });
-          else if (!valeur) actArbitre({ kind: "moveGearLine", index: ligne.index, location: "backpack" });
+          if (!valeur) actArbitre({ kind: "moveGearLine", index: ligne.index, location: "backpack" });
+          else if (boite && surLeurCase.has(ligne.index)) act({ kind: "placerGearLine", index: ligne.index, boite });
+          else actArbitre({ kind: "moveGearLine", index: ligne.index, location: "self" });
         }
         else act({ kind: "setGearChamp", index: ligne.index, champ: clef, value: valeur });
       },

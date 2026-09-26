@@ -37,8 +37,9 @@ globalThis.document = createTestDocument();
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 const {
   renderEquipmentStep, currentGearLines, nextGearIndex, lieuDeLaBoite, boitesDehors,
-  scinderLaLigne, caseValide, accorderLEquipe, slotsDeLaPile, lignesSurLeurCase
+  scinderLaLigne, caseValide, accorderLEquipe, slotsDeLaPile, lignesSurLeurCase, slotParNature
 } = await import("../ui/builder/equipment-step.mjs");
+const { makeHarness, PILE_SRD } = await import("./build-harness.mjs");
 const { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } = await import("../ui/builder/b3-disposition.mjs");
 const { construireLaFicheX1 } = await import("../ui/builder/x1-ecran.mjs");
 
@@ -158,53 +159,93 @@ test("3 — ⛔ une armure posée sur une case qui ne lui convient pas n'est pas
   assert.equal(equipe(doc, index), false, "⛔ délogée en poche, elle n'est plus équipée");
 });
 
-/* ══ 4 — X1 : `Equip` S'ÉTEINT HORS DE LA CASE, ET LE DIT ══════════════════════════════ */
-test("4 — ⚖️ `Equip` est grisé et parlant hors d'une case valide ; sur la case, il repose l'objet LÀ OÙ IL EST", () => {
+/* ══ 4 — X1 : `Equip` S'ÉTEINT SANS CASE POSSIBLE, ET LA CHERCHE SINON ═══════════════════ */
+/** Le pilote : l'étape rendue, ses actions rejouées par les copies de la coquille. */
+function pilote(depart) {
+  const etat = { doc: depart, actions: [] };
+  const appliquer = (a) => {
+    etat.actions.push(a);
+    if (a.kind === "placerGearLine") etat.doc = placer(etat.doc, a.index, a.boite);
+    if (a.kind === "moveGearLine") etat.doc = deplacer(etat.doc, a.index, a.location);
+  };
+  etat.rendre = () => renderEquipmentStep({ document: etat.doc, resolved: null, query }, appliquer);
+  /* ouvre la fiche X1 d'une ligne, depuis Gear (portée) ou depuis le sac */
+  etat.ouvrir = (index) => {
+    let n = etat.rendre();
+    const surR = [...n.querySelectorAll('.gear-emplacement[data-occupe="oui"]')];
+    const ligne = currentGearLines(etat.doc).find((l) => l.index === index);
+    const nom = new RegExp(`${ligne.ref.id.split(":").pop().replace(/-/g, " ").slice(0, 8)}`, "i");
+    let jeton = ["self", "ground"].includes(ligne.location) ? surR.find((e) => nom.test(e.getAttribute("aria-label"))) : null;
+    if (!jeton) {
+      n.querySelector('[data-porte="backpack"]').click();
+      n = etat.rendre();
+      jeton = [...n.querySelectorAll('[data-ecran="SB3.1"] [data-occupe="oui"]')].find((e) => nom.test(e.getAttribute("aria-label")));
+    }
+    assert.ok(jeton, `témoin : le jeton de gear[${index}] est trouvé — ${[...n.querySelectorAll('[data-occupe="oui"]')].map((e) => e.getAttribute("aria-label")).join(" / ")}`);
+    jeton.dispatchEvent({ type: "contextmenu", preventDefault() {} });
+    n = etat.rendre();
+    const bascule = n.querySelector('.x1 [data-organe="equip-on"]');
+    assert.ok(bascule, "la fiche X1 est ouverte");
+    return { n, bascule, fermer: () => {
+      n.querySelector('.x1 [data-organe="close"]').dispatchEvent({ type: "click" });
+      const g = etat.rendre().querySelector('[data-porte="gear"]');
+      if (g) g.click();
+    } };
+  };
+  return etat;
+}
+
+test("4 — ⚖️ `Equip` n'est grisé que SANS case possible ; hors de sa case il la cherche, sur sa case il ne bouge rien", () => {
   /* l'organe, seul */
   const ecrits = [];
-  const { noeud } = construireLaFicheX1({ objet: { index: 1, nom: "Ring", qte: 1, equipped: false },
-    horsCase: "Not on a Gear slot that fits it — place it there first", surEtat: (c, v) => ecrits.push([c, v]) });
+  const { noeud } = construireLaFicheX1({ objet: { index: 1, nom: "Luckstone", qte: 1, equipped: false },
+    horsCase: "No Gear slot fits this item — it cannot be equipped", surEtat: (c, v) => ecrits.push([c, v]) });
   const b = noeud.querySelector('[data-organe="equip-on"]');
-  assert.equal(b.disabled, true, "hors de sa case, l'interrupteur s'éteint");
-  assert.match(b.title, /Gear slot/, "⛔ et il dit pourquoi — un contrôle désarmé sans raison est une panne");
+  assert.equal(b.disabled, true, "sans case possible, l'interrupteur s'éteint");
+  assert.match(b.title, /No Gear slot fits/, "⛔ et il dit pourquoi — un contrôle désarmé sans raison est une panne");
   b.dispatchEvent({ type: "click" });
   assert.deepEqual(ecrits, [], "il n'écrit rien");
 
-  /* l'étape : un anneau en Extra storage, ancien `equipped: true` — ouvert depuis Gear */
-  let { doc, index } = ajouter(BASE, { ref: ANNEAU });
-  doc = placer(doc, index, "poche1");
+  /* l'étape : une Luckstone (aucun slot, ni écrit ni dit par sa nature) — grisée */
+  let { doc, index: pierre } = ajouter(BASE, { ref: { kind: "item", id: "srd:item:en:stone-of-good-luck-luckstone" } });
+  doc = placer(doc, pierre, "poche2");
+  /* un anneau en Extra storage, ancien `equipped: true` */
+  const a = ajouter(doc, { ref: ANNEAU });
+  const index = a.index;
+  doc = placer(a.doc, index, "poche1");
   doc = verbs.set({ document: doc, path: `gear[${index}].equipped`, value: true }).document;   // un document ancien
-  const actions = [];
-  const rendre = () => renderEquipmentStep({ document: doc, resolved: null, query }, (a) => actions.push(a));
-  let n = rendre();
-  const case1 = n.querySelector('.gear-emplacement[data-organe="poche1"]');
+  const p = pilote(doc);
+  const case1 = p.rendre().querySelector('.gear-emplacement[data-organe="poche1"]');
   assert.ok(case1, "témoin : l'anneau est dessiné en Extra storage 1");
   assert.equal(case1.querySelector('[data-marque="equipe"]').dataset.etat, "non",
     "⛔ l'état ancien ne se dessine pas : le lecteur lit la position");
-  case1.dispatchEvent({ type: "contextmenu", preventDefault() {} });
-  n = rendre();
-  const bascule = n.querySelector('.x1 [data-organe="equip-on"]');
-  assert.ok(bascule, "la fiche X1 est ouverte");
-  assert.equal(bascule.dataset.on, "false", "l'interrupteur dit « pas équipé »");
-  assert.equal(bascule.disabled, true, "⛔ et il est éteint");
-  assert.match(bascule.title, /Not on a Gear slot that fits it/);
-  /* on ferme la fiche pour le témoin suivant */
-  n.querySelector('.x1 [data-organe="close"]').dispatchEvent({ type: "click" });
 
-  /* sur sa case, non équipé (une part scindée arrivée là) : l'interrupteur s'allume, et
-     l'allumer REPOSE l'objet sur la case où il est — ⛔ il ne le déplace pas */
-  doc = placer(doc, index, "fourreau3");
-  doc = verbs.set({ document: doc, path: `gear[${index}].equipped`, value: false }).document;
-  n = rendre();
-  n.querySelector('.gear-emplacement[data-organe="fourreau3"]').dispatchEvent({ type: "contextmenu", preventDefault() {} });
-  n = rendre();
-  const allume = n.querySelector('.x1 [data-organe="equip-on"]');
-  assert.notEqual(allume.disabled, true, "sur sa case, on peut l'équiper");
-  actions.length = 0;
-  allume.dispatchEvent({ type: "click" });
-  assert.deepEqual(actions, [{ kind: "placerGearLine", index, boite: "fourreau3" }],
+  let x1 = p.ouvrir(pierre);
+  assert.equal(x1.bascule.disabled, true, "⛔ la Luckstone n'a aucune case : Equip est éteint");
+  assert.match(x1.bascule.title, /No Gear slot fits this item/);
+  x1.fermer();
+
+  /* l'anneau hors de sa case : Equip s'allume et LA LUI CHERCHE, par l'arbitre */
+  x1 = p.ouvrir(index);
+  assert.equal(x1.bascule.dataset.on, "false", "l'interrupteur dit « pas équipé »");
+  assert.notEqual(x1.bascule.disabled, true, "⭐ il a une case possible : l'interrupteur vit");
+  p.actions.length = 0;
+  x1.bascule.dispatchEvent({ type: "click" });
+  assert.deepEqual(p.actions, [{ kind: "moveGearLine", index, location: "self" }], "le geste d'avant, par l'arbitre");
+  assert.equal(equipe(p.doc, index), true, "⭐ arrivé sur une main libre, il est équipé");
+  x1.fermer();
+
+  /* sur sa case, non équipé (une part scindée arrivée là) : l'allumer REPOSE l'objet sur la
+     case où il est — ⛔ il ne le déplace pas */
+  p.doc = placer(p.doc, index, "fourreau3");
+  p.doc = verbs.set({ document: p.doc, path: `gear[${index}].equipped`, value: false }).document;
+  x1 = p.ouvrir(index);
+  p.actions.length = 0;
+  x1.bascule.dispatchEvent({ type: "click" });
+  assert.deepEqual(p.actions, [{ kind: "placerGearLine", index, boite: "fourreau3" }],
     "⭐ Equip = placer sur la case où il est déjà — la case ne change pas");
-  n.querySelector('.x1 [data-organe="close"]').dispatchEvent({ type: "click" });
+  assert.equal(equipe(p.doc, index), true);
+  x1.fermer();
 });
 
 /* ══ 5 — LES DOCUMENTS DÉJÀ SAUVEGARDÉS ═══════════════════════════════════════════════ */
@@ -273,4 +314,103 @@ test("7 — 🔒 TOUS LES ÉCRIVAINS PASSENT PAR `accorderLEquipe` — la coquil
       assert.deepEqual(libres, [], `⛔ ${f} écrit \`equipped\` à ${libres.join(", ")} — seul \`accorderLEquipe\` le peut`);
     }
   }
+});
+
+/* ══ 8 — CE QUE L'OBJET EST DIT OÙ IL SE PORTE (seconde passe, l'architecte 26/09) ═════════ */
+test("8 — ⚖️ armes, armures, boucliers, bâtons, baguettes et sceptres ont une case, LUE DANS LA DONNÉE du record", () => {
+  const slotFH = slotsDeLaPile(query);
+  const srd = makeHarness({ layers: PILE_SRD });
+  const slotSRD = slotsDeLaPile(srd.layers.verbs.query);
+  /* ⭐ LA DAGUE, DANS LES DEUX PILES — la couche `srfh-mecaniques` la PATCHE (son étagère), elle
+     ne lui retire ni sa base ni son slot */
+  assert.equal(slotFH(DAGUE), "hands", "Dagger, pile Fate's Hand");
+  assert.equal(slotSRD(DAGUE), "hands", "Dagger, pile SRD");
+
+  /* ⭐ LA NATURE, MESURÉE SUR TOUTE LA PILE : chaque objet magique de ces catégories a une case */
+  const attendu = { weapon: "hands", staff: "hands", wand: "hands", rod: "hands" };
+  let vus = 0;
+  for (const v of query({ kind: "item" })) {
+    const d = v.record.data || {};
+    const slot = slotFH({ kind: "item", id: v.id });
+    if (d.category in attendu) { assert.equal(slot, attendu[d.category], `${v.id} (${d.category})`); vus += 1; }
+    if (d.category === "armor") { assert.equal(slot, d.subtype === "Shield" ? "hands" : "torso", `${v.id} (armor)`); vus += 1; }
+  }
+  assert.ok(vus >= 80, `témoin : ${vus} objets magiques armés ou armurés lus`);
+  for (const v of query({ kind: "weapon" })) assert.equal(slotFH({ kind: "weapon", id: v.id }), "hands", v.id);
+  for (const v of query({ kind: "armor" })) assert.ok(["hands", "torso"].includes(slotFH({ kind: "armor", id: v.id })), v.id);
+  /* ⛔ ET LE RESTE RESTE SANS CASE — il va à Eric */
+  for (const id of ["stone-of-good-luck-luckstone", "scarab-of-protection", "pearl-of-power", "horseshoes-of-speed", "potions-of-healing"]) {
+    assert.equal(slotFH({ kind: "item", id: `srd:item:en:${id}` }), null, `⛔ ${id} : pas de case inventée`);
+  }
+  assert.equal(slotParNature("gear", { data: { category: "weapon" } }), null, "⛔ un `gear` n'est pas une arme parce qu'un champ le dit");
+
+  /* ⭐ ET À L'USAGE : ils s'équipent sur leur case, pas ailleurs */
+  const sur = (ref, boite, extra = {}) => {
+    let { doc, index } = ajouter(BASE, { ref });
+    for (const [champ, valeur] of Object.entries(extra)) {
+      doc = champ === "plan" ? verbs.choose({ document: doc, path: `gear[${index}].plan`, ref: valeur }).document
+        : verbs.set({ document: doc, path: `gear[${index}].${champ}`, value: valeur }).document;
+    }
+    return equipe(placer(doc, index, boite), index);
+  };
+  assert.equal(sur(DAGUE, "fourreau2"), true, "une Dagger en Arm/hand");
+  assert.equal(sur({ kind: "weapon", id: "srd:weapon:en:longsword" }, "fourreau1",
+    { bonus: "+1", plan: { kind: "item", id: "srd:item:en:weapon-1-2-or-3" } }), true, "un Weapon +1 crafté sur Longsword, en Arm/hand");
+  assert.equal(sur({ kind: "armor", id: "srd:armor:en:plate-armor" }, "torse1", { bonus: "+1" }), true, "une Plate +1 en Torso");
+  assert.equal(sur({ kind: "item", id: "srd:item:en:flame-tongue" }, "fourreau1"), true, "une Flame Tongue en Arm/hand");
+  assert.equal(sur({ kind: "item", id: "srd:item:en:adamantine-armor" }, "torse2"), true, "une Adamantine Armor en Torso");
+  assert.equal(sur({ kind: "item", id: "srd:item:en:adamantine-armor" }, "fourreau1"), false, "⛔ …mais pas en Arm/hand");
+  assert.equal(sur({ kind: "item", id: "srd:item:en:animated-shield" }, "fourreau2"), true, "un Animated Shield en Arm/hand");
+  assert.equal(sur({ kind: "item", id: "srd:item:en:staff-of-fire" }, "fourreau1"), true, "un Staff of Fire en Arm/hand");
+  assert.equal(sur({ kind: "item", id: "srd:item:en:stone-of-good-luck-luckstone" }, "fourreau1"), false, "⛔ une Luckstone nulle part");
+
+  /* ⛔ AUCUNE LISTE DE NOMS dans la fonction qui lit la nature */
+  const src = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
+  const corps = src.slice(src.indexOf("export function slotParNature"), src.indexOf("function lecteurDeSlot"));
+  assert.doesNotMatch(corps, /\.name|Flame|Adamantine|Mithral|Vorpal|srd:/, "⛔ la nature se lit dans les champs, pas dans les noms");
+});
+
+/* ══ 9 — EQUIP DEPUIS LE SAC : L'ARBITRE D'ERIC, PUIS LA CASE D'ARRIVÉE ══════════════════ */
+test("9 — ⚖️ Equip ON depuis le sac : une main libre, sinon Pocket/weapon, sinon Extra storage (non équipé), sinon le sac", () => {
+  const equiperDepuisLeSac = (depart) => {
+    const { doc, index } = ajouter(depart, { ref: ANNEAU });
+    const p = pilote(doc);
+    const x1 = p.ouvrir(index);
+    assert.notEqual(x1.bascule.disabled, true, "⭐ un anneau a des cases : Equip vit, même au sac");
+    p.actions.length = 0;
+    x1.bascule.dispatchEvent({ type: "click" });
+    const actions = p.actions.filter((a) => /GearLine$/.test(a.kind));
+    x1.fermer();
+    const ligne = currentGearLines(p.doc).find((l) => l.index === index);
+    return { actions, index, ligne, sur: lignesSurLeurCase(currentGearLines(p.doc), slotsDeLaPile(query)).has(index) };
+  };
+  const occuper = (doc, ref, boites) => {
+    let d = doc;
+    for (const b of boites) { const a = ajouter(d, { ref }); d = placer(a.doc, a.index, b); }
+    return d;
+  };
+  const PIERRE = { kind: "item", id: "srd:item:en:stone-of-good-luck-luckstone" };
+
+  /* ① les mains libres : il prend sa case, et il est équipé */
+  let r = equiperDepuisLeSac(BASE);
+  assert.deepEqual(r.actions, [{ kind: "moveGearLine", index: r.index, location: "self" }]);
+  assert.equal(r.ligne.location, "self");
+  assert.equal(r.ligne.equipped, true, "⭐ sur une main libre, équipé");
+
+  /* ② les deux mains prises : Pocket/weapon, que la table donne aux doigts — équipé */
+  r = equiperDepuisLeSac(occuper(BASE, DAGUE, ["fourreau1", "fourreau2"]));
+  assert.equal(r.sur, true, "témoin : il est sur une Pocket/weapon");
+  assert.equal(r.ligne.equipped, true, "⭐ Pocket/weapon est valide pour un anneau : équipé");
+
+  /* ③ les quatre prises : l'arbitre le met en Extra storage — porté, ⛔ pas équipé */
+  r = equiperDepuisLeSac(occuper(BASE, DAGUE, ["fourreau1", "fourreau2", "fourreau3", "fourreau4"]));
+  assert.equal(r.ligne.location, "self", "l'arbitre l'a gardé sur le corps, en débord");
+  assert.equal(r.sur, false);
+  assert.equal(r.ligne.equipped, false, "⛔ Extra storage n'est pas une case : pas équipé");
+
+  /* ④ tout est pris : l'arbitre le laisse au sac, non équipé */
+  r = equiperDepuisLeSac(occuper(occuper(BASE, DAGUE, ["fourreau1", "fourreau2", "fourreau3", "fourreau4"]),
+    PIERRE, ["poche1", "poche2", "poche3", "poche4"]));
+  assert.deepEqual(r.actions, [{ kind: "moveGearLine", index: r.index, location: "backpack", equipped: false }], "« sinon backpack » — le mot de l'arbitre");
+  assert.equal(r.ligne.equipped, false, "⛔ au sac, pas équipé");
 });

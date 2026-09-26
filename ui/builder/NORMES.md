@@ -4379,16 +4379,21 @@ pas si la case lui **convient**. C'était une seconde question, sans réponse.
 (`b3-disposition.mjs`). ⛔ Les quatre **Extra storage** (`POCHES_DEBORD`) n'en sont pas : ils sont le
 **débord** de tout slot (*« sinon Pocket, sinon backpack »*), un endroit où l'on range, pas une case
 où l'on porte. Le sol, les sections du sac, le party bag et les places dorées ne le sont jamais.
+⭐ **LE SLOT SE LIT DANS LES RANGEMENTS, SINON DANS LA NATURE DU RECORD** (`slotParNature`) : une
+arme, un bâton, une baguette, un sceptre ou un bouclier se portent comme `hands`, une armure comme
+`torso` — la correspondance que les rangements appliquent déjà aux objets mondains, lue dans la
+donnée (`kind`, `category`, `armor_category`, `subtype`), ⛔ jamais dans une liste de noms. C'est
+ce qui donne sa case à une Flame Tongue, une Adamantine Armor ou un Staff of Fire.
 ⛔ **Un objet sans slot n'a aucune case valide** : il ne s'équipe pas, et ⛔ **on n'invente pas de
-correspondance** — les trous de la table (armes et armures magiques, bâtons, baguettes, les deux
-Body forging) attendent Eric.
+correspondance** — les objets merveilleux sans slot (Luckstone, Scarab, Pearl of Power,
+Horseshoes…) et les deux Body forging attendent Eric.
 
 | qui | ce qu'il fait |
 |---|---|
 | `caseValide(boite, slot)` | ⭐ **la seule fonction qui décide** |
 | `accorderLEquipe` | **le seul écrivain** de `gear[N].equipped` : chaque geste de la coquille (acheter, placer, déplacer, scinder, jeter, le kit) dit ce qu'il **demande** pour sa ligne, puis **toutes** les lignes sont relues — un objet délogé de sa case par un autre la quitte sans qu'on l'ait touché |
 | `renderEquipmentStep` | **le seul lecteur qui corrige** : une ligne ancienne `equipped: true` hors de sa case s'affiche **nue** (jeton de Gear, sac, X1) ; ⛔ un rendu n'écrit pas, le document se remet d'accord au premier geste |
-| la fiche X1 | `Equip` **s'éteint et dit pourquoi** hors de la case ; sur la case, l'allumer **repose l'objet là où il est** (⛔ il ne le déplace plus) ; l'éteindre l'envoie au sac, comme avant |
+| la fiche X1 | `Equip` **s'éteint et dit pourquoi** seulement pour un objet qui n'a **aucune** case ; hors de sa case, l'allumer la lui cherche par l'**arbitre** d'Eric (*« si c'est libre l'item prend son slot, sinon Pocket, sinon backpack »*) et la case d'arrivée décide ; déjà sur sa case, il **repose l'objet là où il est** ; l'éteindre l'envoie au sac, comme avant |
 
 ⭐ **« PEUT PORTER » N'EST PAS « PORTE »** : une case valide **permet** l'état, elle ne l'impose pas.
 La part détachée d'une pile qui arrive sur une case de main **naît nue** (*« la part détachée perd

@@ -569,8 +569,8 @@ function porte(id, mot, note, options, eteint) {
  *   · `objet` : `{ index, nom, qte, prixUnite, prixTotal, poidsUnite, poidsTotal,
  *     prose, equipped, attuned, locked, harmonisable, rarete, noteCraft }` — les deux
  *     derniers (lot 279) : la rareté à côté du prix, la note de craft en pied du texte.
- *   · `horsCase` (lot 292) : la raison pour laquelle `Equip` s'éteint — l'objet n'est pas
- *     sur une case de Gear qui lui convient ; `null` quand il y est
+ *   · `horsCase` (lot 292) : la raison pour laquelle `Equip` s'éteint — aucune case du
+ *     Gear ne convient à l'objet ; `null` quand il en a une
  *   · `nombre`, `destination` : l'envoi en cours
  *   · rappels : `surEtat` `surNombre` `surEst` `surDestination` `surPorte` `surCopier` */
 export function construireLaFicheX1(options = {}) {
@@ -633,10 +633,11 @@ export function construireLaFicheX1(options = {}) {
         && Number(options.harmonises) >= PLAFOND_HARMONISATION;
       /* ⚖️ LOT 270 — L'APERÇU D'UN OBJET PAS ENCORE CRAFTÉ : Eric, 25/09 : « options de lock,
          attune, wear grisées ». ⭐ Grisées et parlantes — l'objet n'est pas encore à toi. */
-      /* ⚖️ LOT 292 — ET HORS DE SA CASE, `equip` S'ÉTEINT AUSSI — Eric, 26/09 : « seul un
-         item sur les cases valide du gear, peuvent porter le symbole équipé ». ⭐ Même
-         modèle que le verrou et le plafond : grisé ET parlant. La raison vient de l'étape
-         (`options.horsCase`), qui seule sait où l'objet est posé et quel slot il a.
+      /* ⚖️ LOT 292 — ET SANS AUCUNE CASE POSSIBLE, `equip` S'ÉTEINT AUSSI — Eric, 26/09 :
+         « seul un item sur les cases valide du gear, peuvent porter le symbole équipé ».
+         ⭐ Même modèle que le verrou et le plafond : grisé ET parlant. La raison vient de
+         l'étape (`options.horsCase`), qui seule connaît le slot de l'objet. Un objet qui A
+         une case mais n'y est pas garde l'interrupteur : l'étape la lui cherche.
          ⛔ Elle passe AVANT le verrou : ôter le verrou ne l'équiperait pas. */
       const horsCase = id === "equip-on" && typeof options.horsCase === "string" && options.horsCase
         ? options.horsCase : null;
