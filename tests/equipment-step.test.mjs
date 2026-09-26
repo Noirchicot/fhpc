@@ -401,7 +401,7 @@ test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réé
    les rejouent sur le VRAI moteur, par la donnée (`unconsumed`), plus par la forme. */
 test("garde — shell.mjs scinde et retire par `scinderLaLigne` / `retirerLaLigne` (lot 288)", () => {
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /action\.kind === "removeGearLine"\)\s*\{\s*const document = retirerLaLigne\(\{ document: state\.document, verbs, index: action\.index \}\)/,
+  assert.match(shellText, /action\.kind === "removeGearLine"\)\s*\{\s*const document = retirerLaLigne\(\{ document: state\.document, verbs, query: state\.engine\.layers\.verbs\.query, index: action\.index \}\)/,
     "⛔ `removeGearLine` doit effacer par `retirerLaLigne` — une liste de suffixes laisse des orphelins");
   assert.match(shellText, /action\.kind === "splitGearLine"\)[\s\S]{0,400}?scinderLaLigne\(\{ document: state\.document, verbs, source, part,/,
     "⛔ `splitGearLine` doit scinder par `scinderLaLigne` — sinon la recette ne suit pas");
@@ -469,7 +469,7 @@ test("lot 288 — ⚖️ UNE LIGNE SCINDÉE GARDE SA RECETTE DES DEUX CÔTÉS, e
     assert.equal(new Set(ensemble.map((g) => g.id)).size, ensemble.length, "lot 296 — deux lignes, deux ancres");
     const nomSource = build.verbs.rebuild({ document: doc }).resolved.gear
       .map((g) => g.name)[currentGearLines(doc).findIndex((l) => l.index === source.index)];
-    const seule = retirerLaLigne({ document: apres, verbs: build.verbs, index: source.index });
+    const seule = retirerLaLigne({ document: apres, verbs: build.verbs, query, index: source.index });
     const r = build.verbs.rebuild({ document: seule });
     const nomNeuve = r.resolved.gear.map((g) => g.name)[currentGearLines(seule).findIndex((l) => l.index === neuve)];
     assert.match(nomSource, /\+1 \(Ammunition of Slaying\)|\(Awareness\)|\(Fireball\)/, "la source porte bien un nom CRAFTÉ");
@@ -484,7 +484,7 @@ test("lot 288 — ⚖️ UNE LIGNE RETIRÉE NE LAISSE AUCUN CHEMIN : ni recette,
   const { doc, lignes } = sacCrafte();
   const avant = build.verbs.rebuild({ document: doc });
   for (const index of lignes) {
-    const apres = retirerLaLigne({ document: doc, verbs: build.verbs, index });
+    const apres = retirerLaLigne({ document: doc, verbs: build.verbs, query, index });
     const tete = `gear[${index}]`;
     const restes = (apres.build.choices || []).map((c) => c.path).filter((p) => p === tete || p.startsWith(`${tete}.`));
     assert.deepEqual(restes, [], `⛔ ${tete} a laissé des orphelins dans build.choices`);

@@ -49,7 +49,7 @@
 
 import { BuildError } from "./errors.mjs";
 import { lireLeBonus, nomCrafte, nomDUneVariante, nomDUnParchemin } from "./objet-crafte.mjs";
-import { ancresDesLignes } from "./ancre-de-ligne.mjs";
+import { ancresDesLignes, lignesDuCarnet } from "./ancre-de-ligne.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
 /* LOT 289 — les effets des objets magiques : le plan, le registre, et le plafond SRD. */
@@ -447,11 +447,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      suivantes prennent `dagger:gear-N`. ⛔ Elle se calcule sur TOUTES les lignes qui nomment
      un record, complètes ou non : l'identité d'une ligne ne dépend pas de ce qu'elle a déjà
      reçu sa quantité — sinon une ligne incomplète volerait, puis rendrait, l'id nu. */
-  const ancres = ancresDesLignes(gearChoices.filter((entry) => entry.choice.ref).map((entry) => {
-    const ref = entry.choice.ref;
-    const vue = reader.must(ref.kind, ref.id, `le choix « ${entry.choice.path} »`);
-    return { index: entry.parsed.segments[1].value, base: vue.record.slug || ref.id };
-  }));
+  /* ⭐ LOT 306 — les lignes sortent de `lignesDuCarnet`, le MÊME lecteur que le retrait d'une
+     ligne (`retirerLaLigne`) : l'ancre que le retrait ré-ancre est celle que la fiche donne. */
+  const ancres = ancresDesLignes(lignesDuCarnet(gearChoices.map((entry) => entry.choice),
+    (ref, path) => reader.must(ref.kind, ref.id, `le choix « ${path} »`).record));
   for (const entry of gearChoices) {
     const index = entry.parsed.segments[1].value;
     entry.consumed = true;

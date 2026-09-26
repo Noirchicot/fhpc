@@ -2572,7 +2572,9 @@ function applyDecisionAction(action) {
        `is`, `place`) restaient orphelins. ⭐ Une liste par nom de ce qu'on efface est
        incomplète par construction : `retirerLaLigne` efface TOUT chemin `gear[N]…` lu dans le
        document. */
-    const document = retirerLaLigne({ document: state.document, verbs, index: action.index });
+    /* ⭐ LOT 306 — `query` : le retrait emporte aussi les overrides de la ligne et ré-ancre ceux
+       d'une ligne promue à l'id nu ; l'ancre se lit dans le record. */
+    const document = retirerLaLigne({ document: state.document, verbs, query: state.engine.layers.verbs.query, index: action.index });
     state.document = accorder(document);
     rebuild();
     refresh();

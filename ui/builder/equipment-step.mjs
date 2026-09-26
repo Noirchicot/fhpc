@@ -120,6 +120,7 @@ import { construireX5 } from "./x5-ecran.mjs?v=847";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=847";
 import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=847";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=847";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=847";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=847";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
 import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=847";
@@ -1198,12 +1199,47 @@ export function scinderLaLigne({ document, verbs, source, part, index, location 
 }
 
 /** ⭐ LOT 288 — RETIRER une ligne : tous ses chemins partent, ⛔ aucun orphelin. La racine en
- *  DERNIER, pour qu'aucun chemin ne survive un instant à la ligne qui le porte. */
-export function retirerLaLigne({ document, verbs, index }) {
+ *  DERNIER, pour qu'aucun chemin ne survive un instant à la ligne qui le porte.
+ *  ⭐ LOT 306 — ET SES OVERRIDES AVEC ELLE : ceux dont l'ancre désigne CETTE ligne partent,
+ *  ceux d'une ligne promue à l'id nu (`dagger:gear-M` → `dagger`) sont ré-ancrés
+ *  (`overridesApresRetrait`, `src/build/ancre-de-ligne.mjs`). ⛔ `query` est EXIGÉ : l'ancre
+ *  d'une ligne est le slug de son RECORD, et le deviner depuis l'id serait une seconde règle. */
+export function retirerLaLigne({ document, verbs, query, index }) {
+  if (typeof query !== "function") {
+    throw new Error("retirerLaLigne : `query` manque — sans les records, l'ancre des lignes (donc leurs overrides) est inconnue.");
+  }
+  const build = (document && document.build) || {};
+  const avant = Array.isArray(build.overrides) ? build.overrides : [];
+  const recordDe = (ref) => {
+    let vue = null;
+    try { vue = query({ kind: ref.kind, id: ref.id }); } catch { vue = null; }
+    return vue && vue.record ? vue.record : null;
+  };
+  const voulus = overridesApresRetrait({ overrides: avant, lignes: lignesDuCarnet(build.choices, recordDe), index });
   const chemins = choixDeLaLigne(document, index).map((c) => c.path)
     .sort((a, b) => (a === `gear[${index}]`) - (b === `gear[${index}]`));
   let doc = document;
   for (const path of chemins) doc = verbs.clear({ document: doc, path, kind: "choice" }).document;
+  return poserLesOverrides({ document: doc, verbs, avant, voulus });
+}
+
+/** LOT 306 — réécrit `build.overrides` de `avant` en `voulus` PAR LES VERBES (`clear`, `override`),
+ *  ⭐ l'ORDRE gardé : l'application est séquentielle (`rebuild`), deux overrides sur la même ligne
+ *  ne commutent pas forcément. Seule la queue à partir du premier écart est reposée ; ce qui
+ *  précède ne bouge pas, et une liste inchangée rend le MÊME document. */
+function poserLesOverrides({ document, verbs, avant, voulus }) {
+  const pareil = (a, b) => a && b && a.path === b.path && a.by === b.by && a.note === b.note
+    && JSON.stringify(a.value) === JSON.stringify(b.value);
+  let k = 0;
+  while (k < avant.length && k < voulus.length && pareil(avant[k], voulus[k])) k += 1;
+  if (k === avant.length && k === voulus.length) return document;
+  let doc = document;
+  for (const o of avant.slice(k)) doc = verbs.clear({ document: doc, path: o.path, kind: "override" }).document;
+  for (const o of voulus.slice(k)) {
+    const entree = { document: doc, path: o.path, value: o.value, by: o.by };
+    if (typeof o.note === "string") entree.note = o.note;
+    doc = verbs.override(entree).document;
+  }
   return doc;
 }
 
@@ -3581,7 +3617,7 @@ export function verserLeKit({ document, verbs, query, index }) {
   }
   /* ⭐ LA LIGNE DU KIT PART EN DERNIER : ses éléments ont déjà pris leurs index au-delà du sien,
      donc son index libéré n'est repris par personne dans ce geste. */
-  doc = retirerLaLigne({ document: doc, verbs, index });
+  doc = retirerLaLigne({ document: doc, verbs, query, index });
   return accorderLEquipe({ document: doc, verbs, query });
 }
 

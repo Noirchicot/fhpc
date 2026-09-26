@@ -127,17 +127,19 @@ test("296 · 5 — ⚔️ RETIRER UNE LIGNE AVANT ne fait pas glisser l'override
   let { doc } = poser(fixture.document, DAGUE, { champs: PLUS_UN });           // gear[8]
   const venin = poser(doc, DAGUE, { champs: VENIN });                              // gear[9]
   doc = build.verbs.override({ document: venin.doc, path: `resolved.gear[dagger:gear-${venin.index}].quantity`, value: 3, by: "gm" }).document;
-  const sans = retirerLaLigne({ document: doc, verbs: build.verbs, index: 8 });
+  const sans = retirerLaLigne({ document: doc, verbs: build.verbs, query, index: 8 });
   const r = rebuild(sans);
   const cible = r.resolved.gear.find((g) => g.id === `dagger:gear-${venin.index}`);
   assert.equal(cible.name, "Dagger (Dagger of Venom)", "l'override vise toujours la dague de venin");
   assert.equal(cible.quantity, 3);
-  /* ⚠️ LE SEUL GLISSEMENT DE LA RÈGLE, ET IL EST BRUYANT : retirer la ligne à l'id nu fait
-     de la suivante la première. Un override sur son ancre `:gear-N` devient orphelin, et
-     `rebuild` le DIT au lieu de le reporter sur une autre ligne. */
-  const sansLaPremiere = retirerLaLigne({ document: doc, verbs: build.verbs, index: 0 });
-  const sansLes2 = retirerLaLigne({ document: sansLaPremiere, verbs: build.verbs, index: 8 });
-  assert.throws(() => rebuild(sansLes2), /que la dérivation n'a pas produit/);
+  /* ⚠️ LE SEUL GLISSEMENT DE LA RÈGLE : retirer la ligne à l'id nu fait de la suivante la
+     première. ~~Un override sur son ancre `:gear-N` devient orphelin, et `rebuild` le dit.~~
+     ⭐ LOT 306 : le retrait RÉ-ANCRE l'override de la ligne promue — la dague de venin, seule
+     dague restante, prend `dagger`, et son override la suit (`overrides-suivent-leur-ligne`). */
+  const sansLaPremiere = retirerLaLigne({ document: doc, verbs: build.verbs, query, index: 0 });
+  const sansLes2 = retirerLaLigne({ document: sansLaPremiere, verbs: build.verbs, query, index: 8 });
+  const promue = rebuild(sansLes2).resolved.gear.find((g) => g.id === "dagger");
+  assert.deepEqual([promue.name, promue.quantity], ["Dagger (Dagger of Venom)", 3]);
 });
 
 test("296 · 6 — ⚖️ LE KIT NE FUSIONNE QU'AVEC LE MÊME OBJET AU MÊME ENDROIT", () => {

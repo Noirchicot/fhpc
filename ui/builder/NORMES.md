@@ -4719,7 +4719,7 @@ les projectiles c'est 20 »*, *« le contenant, on laisse voir en jeu »*) sont 
 
 ### 🪪 DEUX LIGNES DU MÊME OBJET ONT DEUX ANCRES — et le kit ne fond que le même objet au même endroit
 📍 `equipement-deux-lignes-du-meme-objet` · vivante · 26/09 · borne `popup-qui-exige-une-reponse-est-un-qcm` · bornée par `equipement-kit-verse-dans-sa-page`
-⚖️ **Un `gear[]` ADMET deux lignes du même record. La première (plus petit index `gear[N]`) garde l'id nu (`dagger`) ; chaque autre prend `dagger:gear-N`, N étant SON index. Le kit ne fusionne qu'avec une ligne du même record, sans recette, au sac.**
+⚖️ **Un `gear[]` ADMET deux lignes du même record. La première (plus petit index `gear[N]`) garde l'id nu (`dagger`) ; chaque autre prend `dagger:gear-N`, N étant SON index. Le kit ne fusionne qu'avec une ligne du même record, sans recette, au sac. Retirer une ligne emporte ses overrides, et ré-ancre ceux de la ligne promue à l'id nu.**
 
 > Mandat du lot 296 (architecte, 26/09) : *« deux lignes légitimement distinctes existent désormais »* —
 > deux crafts sur une même base, une scission (le lot 288 garde la recette des deux côtés), des achats
@@ -4740,7 +4740,7 @@ affaibli** : il refuse toujours deux ids égaux. Ce sont les ids qui ne sont plu
 | déplacer, ranger, placer | ne bouge pas | ne bouge pas |
 | scinder | la source garde la sienne, la part détachée en prend une neuve | idem |
 | retirer une ligne AVANT | **ne bouge pas** | ⛔ **glisse en silence** : la 3ᵉ devient la 2ᵉ, et l'override de la 2ᵉ mord sur elle |
-| retirer la ligne à l'id nu | ⚠️ la suivante prend `dagger` ; un override sur son `:gear-N` devient orphelin — **et `rebuild` le dit** | idem, en pire |
+| retirer la ligne à l'id nu | ⚠️ la suivante prend `dagger` ; ⭐ **lot 306 : son override est ré-ancré sur `dagger`** (~~devient orphelin, et `rebuild` le dit~~) | idem, en pire |
 
 ⭐ Et c'est déjà le nom de ligne des effets d'objets (`effects[].line` = N) : une ligne a UN nom, partout.
 ⛔ **`:` et pas `~`** : `$defs/slug` n'admet que `[a-z0-9:_-]`, et un slug de RECORD n'admet jamais `:` —
@@ -4752,8 +4752,26 @@ kit du Rogue se fondait dans une dague craftée et faisait **trois dagues +1** (
 même record, **aucune recette** (`bonus`, `plan`, `powers`, `note`, `variant`, `spell`), et **au sac**
 (`location` absente = *backpack*). Sinon, le kit ouvre sa propre ligne.
 ⏳ **CE QUI N'EST PAS TRANCHÉ ET NE DOIT PAS ÊTRE INVENTÉ** : rien ne REFUSIONNE deux piles identiques
-que le joueur a séparées (`equipement-scinder-une-pile` le disait déjà) ; et retirer une ligne ne retire
-pas les overrides ancrés sur elle.
+que le joueur a séparées (`equipement-scinder-une-pile` le disait déjà). ~~Et retirer une ligne ne retire
+pas les overrides ancrés sur elle.~~ **Tranché le 26/09 (lot 306), ci-dessous.**
+
+⚖️ **LES OVERRIDES SUIVENT LEUR LIGNE — amendé le 26/09 (lot 306, architecte : *« c'est de la mécanique,
+pas du produit »*).** Retirer `gear[N]` **efface tout override dont l'ancre désigne CETTE ligne** — son
+ancre est son id **AVANT** le retrait. Et tout override d'une **autre** ligne dont l'id change à cause du
+retrait (la promotion `dagger:gear-M` → `dagger`) est **ré-ancré** sur le nouvel id : il vise toujours la
+même ligne. 🔴 Avant ce lot, retirer la ligne à l'id nu rendait l'override de la suivante **orphelin**
+(`rebuild` JETAIT : plus de fiche), et celui de la ligne retirée, resté sur `dagger`, aurait **mordu en
+silence** sur la ligne promue.
+⭐ **UN SEUL ÉCRIVAIN** : `retirerLaLigne` (`equipment-step.mjs`) → `overridesApresRetrait`
+(`src/build/ancre-de-ligne.mjs`), qui calcule les deux ancres, avant et après, par `ancresDesLignes` — ⛔
+jamais une seconde règle. Les lignes et leur base sortent de `lignesDuCarnet`, **le même lecteur que
+`derive`** : l'ancre que le retrait ré-ancre est celle que la fiche donne. La liste est réécrite par les
+verbes (`clear`, `override`), **dans son ordre** (l'application est séquentielle), et un override d'une
+ligne non concernée ne bouge pas d'un caractère. ⛔ `retirerLaLigne` **exige `query`** : l'ancre est le
+slug du RECORD, la deviner depuis l'id serait une seconde règle.
+⛔ **L'invariant ne change pas** (`src/schemas/invariants.mjs`) : un `rebuild` après retrait ne jette
+jamais, et aucun override n'est orphelin. Gardes : `tests/overrides-suivent-leur-ligne.test.mjs` — quatre
+témoins, vus rouges sur `main` (v847), six mutations jouées, six rouges.
 
 📌 **CE QUI LA TIENT** : `src/build/ancre-de-ligne.mjs` (le seul écrivain de l'ancre) et
 `tests/deux-lignes-du-meme-objet.test.mjs` — sept témoins, vus rouges sur le moteur de `main`, et cinq
