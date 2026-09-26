@@ -612,13 +612,13 @@ test("l'encombrement dit son unité — et il n'en invente pas une quand elles s
   const enKilos = motDeLEncombrement({ somme: 12, inconnus: 0 }, { unite: "kg", melange: false });
   assert.doesNotMatch(enKilos, /\blb\b/,
     `⛔ un total en kilos réétiqueté en livres : « ${enKilos} » — le chiffre ment, et il se recopie`);
-  assert.match(enKilos, /hors mesures impériales/, "⭐ et il le DIT, ⛔ il ne se tait pas");
+  assert.match(enKilos, /non-imperial units/, "⭐ et il le DIT, ⛔ il ne se tait pas");
 
   /* ③ MÊME TRAITEMENT POUR UN MÉLANGE : des livres ET des kilos dans le même total. */
   const mele = motDeLEncombrement({ somme: 30, inconnus: 0 }, { unite: null, melange: true });
   assert.doesNotMatch(mele, /\blb\b|\bkg\b/,
     `⛔ une unité affichée sur un total qui en mêle plusieurs : « ${mele} »`);
-  assert.match(mele, /hors mesures impériales/, "⭐ et il le DIT aussi");
+  assert.match(mele, /non-imperial units/, "⭐ et il le DIT aussi");
 
   /* ④ l'absence de mesure n'est PAS une autre unité : l'unité du jeu s'applique par défaut */
   assert.equal(motDeLEncombrement({ somme: 0, inconnus: 0 }, { unite: null, melange: false }),
@@ -627,7 +627,7 @@ test("l'encombrement dit son unité — et il n'en invente pas une quand elles s
 
   /* ⑤ et les objets sans poids connu restent annoncés — une somme qui ne porte pas tout le dit */
   assert.match(motDeLEncombrement({ somme: 5, inconnus: 2 }, { unite: "lb", melange: false }),
-    /2 sans poids/, "⛔ une somme qui ne pèse pas tout doit le dire");
+    /2 without weight/, "⛔ une somme qui ne pèse pas tout doit le dire");
 });
 
 /* ══ CHAQUE COMPOSANT DIT SON UNITÉ, ET C'EST LE MÊME JUGE QUE LE TOTAL ════════

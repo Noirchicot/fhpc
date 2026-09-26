@@ -489,8 +489,10 @@ export function motDeLEncombrement(e, poids) {
   const rond = (n) => Math.round((n || 0) * 10) / 10;
   const unite = uniteAffichee(poids);
   return `Encumbrance : ${rond(e && e.somme)}`
-    + (unite ? ` ${unite}` : " (hors mesures impériales)")
-    + (e && e.inconnus ? ` · ${e.inconnus} sans poids` : "");
+    /* ⚖️ LOT 304 — l'écran est ANGLAIS : ces deux mentions étaient restées en français
+       (« 1 sans poids » vu sur la page Kit Scholar's Pack, 26/09). */
+    + (unite ? ` ${unite}` : " (non-imperial units)")
+    + (e && e.inconnus ? ` · ${e.inconnus} without weight` : "");
 }
 
 export function enGP(cout) {
@@ -661,8 +663,8 @@ function panneauPoids(poids, surLieu) {
   const p = elp("aside", "pipeline-poids");
   p.append(elp("h3", null, "Gear weight"));
   const mesure = (compte, somme, inconnus) =>
-    `${compte} obj. · ${Math.round(somme * 10) / 10} ${poids.unite || "lb"}`
-    + (inconnus ? ` (+${inconnus} sans poids)` : "");
+    `${compte} items · ${Math.round(somme * 10) / 10} ${poids.unite || "lb"}`
+    + (inconnus ? ` (+${inconnus} without weight)` : "");
   for (const [lieu, mot] of [["self", "Gear"], ["backpack", "Backpack"]]) {
     /* ⚠️ Le nombre d'objets SANS poids connu s'affiche à côté de la somme :
        sans lui, la somme se lit comme si elle portait tout le sac. */

@@ -225,7 +225,7 @@ export function construireLaSceneB3(options = {}) {
           + ` ${contenu.poids.unite || "lb"}${ignores ? ` +${ignores}?` : ""}`
         : ligne;
       const g = forme("g", "b3-barre-bouton", { role: "button", tabindex: 0,
-        "aria-label": ignores ? `Open ${ligne} — ${ignores} sans poids connu` : `Open ${ligne}` });
+        "aria-label": ignores ? `Open ${ligne} — ${ignores} without a known weight` : `Open ${ligne}` });
       g.append(texte("b3-info-texte", POIDS.x + 6, y, mot));
       if (contenu && contenu.surLieu) g.addEventListener("click", () => contenu.surLieu(lieu));
       noeud.append(g);
