@@ -1,0 +1,190 @@
+/* ══ LA FICHE DE PERSONNAGE TEMPORAIRE — lot 294 ═══════════════════════════
+   Le dessin de `fiche-temporaire.mjs`, dans la dalle unique de Sheet
+   (`.review-mask`, B9.3).
+
+   ⛔ UN FICHIER, UN ÉCRIVAIN — la porte de `fiche.css`, `listes.css` et
+   `display.css` : un autre lot écrit `shell.css`. Ses sélecteurs `.perso-*`
+   sont NEUFS ; il ne redéclare aucune règle de `shell.css`, sauf UNE, nommée
+   plus bas (`.perso-tete > .review-name`), et elle gagne par sa spécificité
+   (0,2,0 contre 0,1,0), jamais par l'ordre.
+
+   ⛔ RIEN EN DUR : tailles `--t*`, espaces `--sp-*`, rayons `--radius-*`,
+   encres et liserés de `tokens.css`. Aucune couleur inventée — le thème de
+   nuit vient donc des jetons, sans une ligne ici.
+
+   🎨 L'ENCRE EST `--text`, PARTOUT, ET CE N'EST PAS UN GOÛT : la dalle est de
+   VERRE (`dalle-intermediaire`, voile 50 %), et sous ce voile `--text-soft`
+   et `--text-muted` tombent sous 3:1 (mesuré au lot 77, tête de `fiche.css` ;
+   amendement de l'aiguilleur, NORMES §6 pré bis). La structure se porte donc
+   par la TAILLE, la GRAISSE et les capitales — jamais par une encre douce.
+
+   📏 LA COLONNE : le builder est un panneau de 375 (NORMES §0 bis, « le
+   builder est un partage de l'écran »), gouttière 16 de chaque côté, puis le
+   rembourrage 16 de la dalle : 375 − 32 − 32 = 311 blg utiles. Trois cases
+   par rangée : 3 × 98 + 2 × 8 = 310 ✅. Quatre ne tiennent pas avec un
+   « Armor Class » lisible. C'est donc la LARGEUR qui pose le trois.
+
+   ⚖️ ELLE DÉFILE, ET LA SCÈNE LE DIT : c'est une FICHE (Eric, 21/09,
+   `liste-une-fiche-defile-elle-ne-pagine-pas`). Aucun défilement interne ici :
+   la scène défile (`.stage`, `overscroll-behavior: contain`) et ses chevrons
+   s'allument au débordement (`socle.mjs`). */
+
+/* ── LA TÊTE : le titre dit « temporary », le nom dessous ─────────────── */
+.perso-tete {
+  display: grid;
+  gap: var(--sp-4);
+  margin: 0 0 var(--sp-16);
+}
+.perso-titre {
+  margin: 0;
+  font-size: var(--t3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text);
+}
+/* ⚖️ L'EXCEPTION NOMMÉE : `.review-name` porte `margin: 0 0 16` dans
+   `shell.css` — la grille de la tête est désormais le seul écrivain de
+   l'écart (sacré n° 3 : une marge d'enfant S'AJOUTE au `gap`). */
+.perso-tete > .review-name { margin: 0; }
+.perso-note {
+  margin: 0;
+  font-size: var(--t2);
+  font-style: italic;
+  color: var(--text);
+}
+
+/* ── LA FICHE : une pile de rubriques ─────────────────────────────────── */
+/* ⚖️ 16 ENTRE DEUX RUBRIQUES, ET ÇA SE NOMME : le défaut de la maison est 8
+   (sacré n° 3), mais une rubrique n'est pas un organe — c'est un paragraphe
+   de fiche, et 8 collait le titre d'une rubrique à la dernière ligne de la
+   précédente (regardé au navigateur, 375 de large). À l'intérieur d'une
+   rubrique, les écarts valent 8. */
+.perso-fiche {
+  display: grid;
+  gap: var(--sp-16);
+}
+.perso-bloc {
+  display: grid;
+  gap: var(--sp-8);
+  margin: 0;
+  min-width: 0;
+}
+.perso-bloc-titre {
+  margin: 0;
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t2);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text);
+}
+.perso-sous-bloc { display: grid; gap: var(--sp-4); }
+.perso-sous-titre {
+  margin: 0;
+  font-size: var(--t3);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── LES CASES : caractéristiques, combat, sauvegardes, sorts ─────────── */
+.perso-grille {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-8);
+}
+.perso-cellule {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: var(--sp-2);
+  padding: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  min-width: 0;
+}
+.perso-cellule-etiquette {
+  font-size: var(--t1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text);
+}
+.perso-cellule-valeur {
+  font-size: var(--t5);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+}
+/* Un « not derived yet » dans une case n'est pas un chiffre : il ne prend
+   pas le corps d'un chiffre, il se lit comme une mention. */
+.perso-cellule-valeur[data-absence] {
+  font-size: var(--t2);
+  font-weight: 400;
+  font-style: italic;
+}
+.perso-cellule-note { font-size: var(--t2); color: var(--text); }
+/* Les caractéristiques : le score en grand, le modificateur dessous. */
+[data-rubrique="abilities"] .perso-cellule-valeur { font-size: var(--t6); }
+[data-rubrique="abilities"] .perso-cellule-note { font-size: var(--t4); font-weight: 700; }
+/* Une sauvegarde maîtrisée : son liseré le dit, et son mot le double. */
+.perso-cellule[data-marque="oui"] { border-color: var(--border-strong); }
+
+/* ── LES LISTES : compétences, sens, sorts, équipement… ─────────────── */
+.perso-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.perso-ligne {
+  display: grid;
+  grid-template-columns: minmax(40%, 1fr) auto;
+  column-gap: var(--sp-8);
+  align-items: baseline;
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t3);
+  color: var(--text);
+}
+.perso-ligne:last-child { border-bottom: 0; }
+.perso-ligne-nom { min-width: 0; overflow-wrap: anywhere; }
+/* ⚖️ LE MOT DE DROITE CÈDE LE PREMIER : sans plafond, une raison longue
+   (« a consumable: it acts when used ») écrasait le nom de l'objet sur deux
+   lignes — regardé au navigateur, 375 de large. Le nom garde 40 % de la ligne
+   au moins (`.perso-ligne`), et c'est le mot de droite qui passe à la ligne. */
+.perso-ligne-valeur { text-align: right; }
+/* Une compétence maîtrisée, un objet équipé : le NOM en gras. */
+.perso-ligne[data-marque="oui"] .perso-ligne-nom { font-weight: 700; }
+.perso-ligne[data-absence] .perso-ligne-valeur { font-style: italic; }
+
+/* ── LA PROVENANCE : « 15 +2 Ioun Stone (Intellect) » ───────────────── */
+.perso-provenance {
+  font-size: var(--t2);
+  font-style: italic;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.perso-ligne > .perso-provenance { grid-column: 1 / -1; }
+
+/* ── LES MOTS DE L'ABSENCE, ET LE PIED ───────────────────────────────── */
+.perso-absent,
+.perso-texte {
+  margin: 0;
+  font-size: var(--t3);
+  color: var(--text);
+}
+.perso-absent { font-style: italic; }
+.perso-pied {
+  margin: 0;
+  font-size: var(--t2);
+  font-style: italic;
+  color: var(--text);
+}
+
+/* ── LA REVUE, SOUS LA FICHE ─────────────────────────────────────────── */
+/* Sur le verre, l'encre est `--text` (voir la tête) : le titre de la revue
+   portait `--text-muted` depuis le lot 65, illisible sous le voile. */
+.review-mask > .review-heading-etapes { margin-top: var(--sp-24); color: var(--text); }
