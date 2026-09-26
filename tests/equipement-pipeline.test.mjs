@@ -26,7 +26,7 @@ import { parseCout, parsePoids, formatCout, multiplieCout, additionneCouts, bour
   from "../ui/builder/equipement-pipeline.mjs";
 import { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } from "../ui/builder/b3-disposition.mjs";
 import { renderEquipmentStep, currentGearLines, nextGearIndex, currentCurrency, orDuDepart,
-  butinDuDepart, departRepondu, cheminDuDepart }
+  butinDuDepart, departRepondu, cheminDuDepart, appliquerLeButin }
   from "../ui/builder/equipment-step.mjs";
 
 const fixture = exempleFhEn();
@@ -75,23 +75,8 @@ function appliquer(doc, a) {
     if (departRepondu(doc)) return doc;
     const butin = butinDuDepart({ query, document: doc, reponses: a.reponses });
     if (!butin.complet) return doc;
-    let d = doc;
-    for (const { genre, valeur } of butin.aEcrire) {
-      d = verbs.set({ document: d, path: cheminDuDepart(genre), value: valeur }).document;
-    }
-    for (const pose of butin.aPoser) {
-      if (pose.neuve) d = verbs.choose({ document: d, path: `gear[${pose.index}]`, ref: pose.ref }).document;
-      d = verbs.set({ document: d, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
-      if (pose.neuve) d = verbs.set({ document: d, path: `gear[${pose.index}].equipped`, value: false }).document;
-    }
-    if (butin.cout) {
-      const bourse = currentCurrency(d);
-      for (const k of CURRENCY_KEYS) {
-        const base = Number.isInteger(bourse[k]) ? bourse[k] : 0;
-        d = verbs.set({ document: d, path: `currency.${k}`, value: base + (butin.cout[k] || 0) }).document;
-      }
-    }
-    return d;
+    /* ⭐ LOT 299 — le VRAI écrivain (`appliquerLeButin`), celui de la coquille. */
+    return appliquerLeButin({ document: doc, verbs, query, butin });
   }
   if (a.kind === "addGearLine") {
     const i = nextGearIndex(doc);

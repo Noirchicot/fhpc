@@ -89,27 +89,13 @@ function withoutCurrency(document) {
  *  ⛔ IL NE RECALCULE RIEN : il appelle `butinDuDepart`, comme la coquille. Un
  *  harnais qui composerait son propre butin resterait vert le jour où le
  *  lecteur se tromperait — c'est le témoin qui ne peut jamais accuser. */
+const { appliquerLeButin } = await import("../ui/builder/equipment-step.mjs");
 function applyPoserLeDepart(document, reponses) {
   if (departRepondu(document)) return document;
   const butin = butinDuDepart({ query, document, reponses });
   if (!butin.complet) return document;
-  let doc = document;
-  for (const { genre, valeur } of butin.aEcrire) {
-    doc = build.verbs.set({ document: doc, path: cheminDuDepart(genre), value: valeur }).document;
-  }
-  for (const pose of butin.aPoser) {
-    if (pose.neuve) doc = build.verbs.choose({ document: doc, path: `gear[${pose.index}]`, ref: pose.ref }).document;
-    doc = build.verbs.set({ document: doc, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
-    if (pose.neuve) doc = build.verbs.set({ document: doc, path: `gear[${pose.index}].equipped`, value: false }).document;
-  }
-  if (butin.cout) {
-    const bourse = currentCurrency(doc);
-    for (const key of CURRENCY_KEYS) {
-      const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
-      doc = build.verbs.set({ document: doc, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
-    }
-  }
-  return doc;
+  /* ⭐ LOT 299 — LE VRAI ÉCRIVAIN, plus une copie : `appliquerLeButin`, que la coquille appelle. */
+  return appliquerLeButin({ document, verbs: build.verbs, query, butin });
 }
 
 function applyAddStartingPurse(document) {
@@ -367,7 +353,14 @@ test("garde — shell.mjs pose vraiment les trois gestes du lot 49 et branche l'
    un nombre écrit à la main passerait la première moitié et échouerait ici. */
 test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réécrit pas à la main", () => {
   const shellText = stripComments(fs.readFileSync(path.join(UI_DIR, "shell.mjs"), "utf8"));
-  assert.match(shellText, /base\s*\+\s*\(butin\.cout\[key\]\s*\|\|\s*0\)/,
+  /* ⭐ LOT 299 — L'ARITHMÉTIQUE ET LA POSE ONT DÉMÉNAGÉ dans `appliquerLeButin`
+     (`equipment-step.mjs`), que la coquille appelle et que le harnais de ce fichier
+     appelle AUSSI : le test 3/3b prouve désormais le vrai code. Ce garde lit donc
+     l'expression là où elle vit, et exige que la coquille passe par elle. */
+  const etapeText = stripComments(fs.readFileSync(path.join(UI_DIR, "equipment-step.mjs"), "utf8"));
+  assert.match(shellText, /appliquerLeButin\(\{ document: state\.document, verbs, query: q, butin \}\)/,
+    "⛔ `poserLeDepart` doit poser le kit par `appliquerLeButin` — un second écrivain divergerait");
+  assert.match(etapeText, /base\s*\+\s*\(butin\.cout\[key\]\s*\|\|\s*0\)/,
     "sans cette ligne, `poserLeDepart` pose les quatre clefs mais AJOUTE zéro PO — mesuré au lot 49 : la suite complète reste verte sans elle");
   /* ⭐ LOT 245 — LE MONTANT VIENT MAINTENANT DE `butinDuDepart`, la MÊME
      fonction dont le QCM peint son récapitulatif. La loi du lot 182 est
@@ -381,7 +374,7 @@ test("garde — shell.mjs AJOUTE vraiment l'or LU, clef par clef, et ne le réé
      répare. La branche `kit` d'hier écrivait `depart: "kit"` et RIEN d'autre :
      aucun `gear[N]` n'était posé, pendant que le popup annonçait *« already
      listed »*. ⛔ Sans cette ligne, le QCM redeviendrait un popup qui ment. */
-  assert.match(shellText, /for \(const pose of butin\.aPoser\)[\s\S]{0,400}?path: `gear\[\$\{pose\.index\}\]`, ref: pose\.ref/,
+  assert.match(etapeText, /for \(const pose of butin\.aPoser\)[\s\S]{0,400}?path: `gear\[\$\{pose\.index\}\]`, ref: pose\.ref/,
     "⛔ `poserLeDepart` ne pose plus les OBJETS du kit : le popup annoncerait un équipement qui n'arrive jamais dans Gear");
   /* ⛔ ET IL NE LE POSE QU'UNE FOIS : rouvrir la question sur un personnage qui
      a déjà répondu lui empilerait un second kit. Même prudence que le lot 182
@@ -1169,7 +1162,10 @@ test("245 — 🔴 `Done` POSE VRAIMENT LES OBJETS DANS GEAR — c'est le défau
   for (const l of posees) {
     assert.ok(l.ref && typeof l.ref.id === "string", "une VRAIE référence, jamais une chaîne");
     assert.ok(Number.isInteger(l.quantity) && l.quantity >= 1);
-    assert.equal(l.equipped, false, "rien n'est porté sans un geste : le kit arrive dans le sac");
+    /* ⚖️ LOT 299 — « Le kit de départ met tout dans le backpack. Au joueur de le répartir »,
+       « Sauf ce qui s'équipe » (Eric, 26/09) : équipé ⇔ posé sur le corps (sa case), et
+       le reste au sac. Le détail est au garde 11 de `equipe-sur-sa-case.test.mjs`. */
+    assert.equal(l.equipped, l.location === "self", "équipé si et seulement si le kit l'a posé sur sa case");
   }
   /* ⭐ ET LE MOTEUR LES VOIT — c'est la seule preuve qui compte : une ligne
      que `derive.mjs` ne reprend pas n'est pas dans Gear, elle est dans le

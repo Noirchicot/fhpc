@@ -311,9 +311,15 @@ test("7 — 🔒 TOUS LES ÉCRIVAINS PASSENT PAR `accorderLEquipe` — la coquil
     const j = shell.indexOf("action.kind === ", i + 20);
     return shell.slice(i, j > 0 ? j : undefined);
   };
-  for (const kind of ["addGearLine", "placerGearLine", "moveGearLine", "splitGearLine", "removeGearLine", "poserLeDepart"]) {
+  for (const kind of ["addGearLine", "placerGearLine", "moveGearLine", "splitGearLine", "removeGearLine"]) {
     assert.match(bloc(kind), /accorder\(/, `⛔ ${kind} doit finir par accorder l'état à la case`);
   }
+  /* ⭐ LOT 299 — le départ passe par `appliquerLeButin` (equipment-step), qui accorde LUI-MÊME */
+  assert.match(bloc("poserLeDepart"), /appliquerLeButin\(/, "⛔ poserLeDepart doit passer par appliquerLeButin");
+  const etape = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
+  const corpsDuButin = etape.slice(etape.indexOf("export function appliquerLeButin"), etape.indexOf("function candidatesDuSlot"));
+  assert.match(corpsDuButin, /accorderLEquipe\(\{ document: doc, verbs, query \}\)/,
+    "⛔ appliquerLeButin doit finir par relire l'état équipé de toutes les lignes");
   assert.match(shell, /const accorder = \(document, index, voulu\) => accorderLEquipe\(/, "et `accorder` est `accorderLEquipe`");
   /* ⚔️ AUCUN FICHIER DE L'INTERFACE n'écrit `.equipped` à autre chose que `false`, sauf
      `accorderLEquipe` — qui écrit ce que le geste DEMANDE, puis le défait hors de la case. */
@@ -322,7 +328,9 @@ test("7 — 🔒 TOUS LES ÉCRIVAINS PASSENT PAR `accorderLEquipe` — la coquil
     const ecritures = [...src.matchAll(/path: `gear\[\$\{[^}]+\}\]\.equipped`, value: ([^}]+?) \}/g)].map((m) => m[1].trim());
     const libres = ecritures.filter((v) => v !== "false");
     /* ⚔️ un motif qui ne trouve rien serait vert à jamais : il doit voir les naissances */
-    if (f === "shell.mjs") assert.ok(ecritures.length >= 2, `témoin : le motif voit les écritures de la coquille (${ecritures.length})`);
+    /* ⭐ LOT 299 — la naissance du kit a déménagé dans `appliquerLeButin` (equipment-step) :
+       une écriture de chaque côté, et le motif doit voir les deux */
+    if (f === "shell.mjs" || f === "equipment-step.mjs") assert.ok(ecritures.length >= 1, `témoin : le motif voit les écritures de ${f} (${ecritures.length})`);
     if (f === "equipment-step.mjs") {
       assert.deepEqual(libres, ["voulu"], "⭐ le seul écrivain libre est `accorderLEquipe`, et il écrit la demande du geste");
     } else {
@@ -445,4 +453,41 @@ test("10 — ⚖️ les munitions magiques s'équipent en main, en Pocket/weapon
     assert.deepEqual(toutes.filter((b) => caseValide(b, slot)).sort(), [...attendues].sort(),
       `${id} : hand · weapon · pocket · extra, et rien d'autre`);
   }
+});
+
+
+/* ══ 11 — LE KIT DE DÉPART : TOUT AU SAC, SAUF CE QUI S'ÉQUIPE — lot 299 ══════════════════
+   ⚖️ Eric, 2026-09-26, mot pour mot : « Le kit de départ met tout dans le backpack. Au joueur
+   de le répartir », puis « Sauf ce qui s'équipe ». ⭐ Un objet qui a SA case (slot de
+   `SLOT_VERS_BOITES`) la prend si elle est libre, équipé ; tout le reste arrive au sac,
+   non équipé — ⛔ jamais dans une case polyvalente (c'est au joueur d'y ranger). */
+test("11 — ⚖️ le kit de départ : ce qui a sa case y est posé, équipé ; tout le reste au sac, nu", async () => {
+  const { butinDuDepart, appliquerLeButin } = await import("../ui/builder/equipment-step.mjs");
+  const slotDe = slotsDeLaPile(query);
+  /* le Rogue (option A : armure de cuir, épée courte, arc court…) sur Ilyra, départ pas répondu —
+     ⚠️ le kit du Wizard n'a AUCUN objet à case propre (Robe : pas de slot) : il ne prouverait rien */
+  const depart = verbs.choose({ document: fixture.document, path: "class", ref: { kind: "class", id: "srd:class:en:rogue" } }).document;
+  const butin = butinDuDepart({ query, document: depart, reponses: { class: "A" } });
+  assert.ok(butin.complet, "témoin : l'option A du Wizard se pose sans autre question");
+  const apres = appliquerLeButin({ document: depart, verbs, query, butin });
+  const neuves = new Set(butin.aPoser.filter((p) => p.neuve).map((p) => p.index));
+  const lignes = currentGearLines(apres).filter((l) => neuves.has(l.index));
+  assert.ok(lignes.length >= 3, "témoin : le kit pose des lignes neuves");
+  let surCase = 0, auSac = 0;
+  for (const l of lignes) {
+    const slot = slotDe(l.ref);
+    if (l.location === "self") {
+      surCase += 1;
+      assert.ok(slot && SLOT_VERS_BOITES[slot], `${l.ref.id} : seul ce qui a SA case est posé sur le corps`);
+      assert.ok(SLOT_VERS_BOITES[slot].includes(l.boite), `${l.ref.id} : sur une case de son slot (${l.boite}), ⛔ pas une polyvalente`);
+      assert.equal(l.equipped, true, `${l.ref.id} : posé sur sa case, il est équipé`);
+    } else {
+      auSac += 1;
+      assert.equal(l.location || "backpack", "backpack", `${l.ref.id} : au sac`);
+      assert.equal(l.equipped, false, `${l.ref.id} : au sac, nu`);
+      assert.ok(!CASES_POLYVALENTES.includes(l.boite), `${l.ref.id} : ⛔ le kit ne range pas à la place du joueur`);
+    }
+  }
+  assert.ok(surCase >= 1, "⚔️ témoin : au moins un objet du kit s'équipe (sinon ce garde ne prouve rien)");
+  assert.ok(auSac >= 1, "⚔️ témoin : au moins un objet du kit reste au sac");
 });

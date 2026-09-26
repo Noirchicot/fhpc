@@ -134,7 +134,7 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
-         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe } from "./equipment-step.mjs?v=841";
+         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin } from "./equipment-step.mjs?v=841";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -2531,32 +2531,11 @@ function applyDecisionAction(action) {
        un document qui porterait `depart.class` sans son kit ne reposerait
        jamais la question, et le personnage resterait nu pour toujours. */
     if (!butin || !butin.complet) { refresh(); return; }
-    let document = state.document;
-    for (const { genre, valeur } of butin.aEcrire) {
-      document = verbs.set({ document, path: cheminDuDepart(genre), value: valeur }).document;
-    }
-    /* ⛔ LA COQUILLE N'ARBITRE NI L'INDEX NI LA QUANTITÉ — `posesDuButin` les a
-       déjà tranchés, et c'est ce qui permet au kit de FUSIONNER avec le même objet
-       déjà rangé au sac (lot 296 : même record, sans recette — sinon une ligne neuve). */
-    for (const pose of butin.aPoser) {
-      if (pose.neuve) document = verbs.choose({ document, path: `gear[${pose.index}]`, ref: pose.ref }).document;
-      document = verbs.set({ document, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
-      /* ⛔ RIEN N'EST PORTÉ SANS UN GESTE — le kit arrive dans le sac, pas sur
-         le corps. C'est la même loi que `location` absente = « backpack ».
-         ⭐ Et seulement sur une ligne NEUVE : un objet déjà rangé ne se fait pas
-         déshabiller parce qu'on en reçoit un second exemplaire. */
-      if (pose.neuve) document = verbs.set({ document, path: `gear[${pose.index}].equipped`, value: false }).document;
-    }
-    /* ⚖️ LOT 292 — et la même relecture que tout geste : un kit qui fusionne avec une ligne
-       déjà là ne doit pas laisser un état que sa case ne permet pas. */
-    document = accorder(document);
-    if (butin.cout) {
-      const bourse = currentCurrency(document);
-      for (const key of CURRENCY_KEYS) {
-        const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
-        document = verbs.set({ document, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
-      }
-    }
+    /* ⭐ LOT 299 — UN SEUL ÉCRIVAIN DU KIT : `appliquerLeButin` (`equipment-step.mjs`) écrit
+       les réponses, pose les lignes (au sac, sauf ce qui s'équipe — Eric, 26/09), relit l'état
+       équipé et AJOUTE l'or lu, clef par clef. Les harnais des tests l'appellent aussi : ils
+       prouvent donc le VRAI code, plus une copie. */
+    const document = appliquerLeButin({ document: state.document, verbs, query: q, butin });
     state.document = document;
     rebuild();
     refresh();

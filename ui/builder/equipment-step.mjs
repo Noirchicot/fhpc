@@ -3358,6 +3358,63 @@ export function accorderLEquipe({ document, verbs, query, index, voulu }) {
  *  faire ratifier par Eric). Première boîte libre de la liste du slot ; un
  *  objet sans slot va aux poches ; plus de place = la ligne reste listée par
  *  SB3.x, jamais perdue. */
+/** ⚖️ LOT 299 — LA CASE OÙ LE KIT DE DÉPART POSE UN OBJET QUI S'ÉQUIPE. Eric, 2026-09-26, mot
+ *  pour mot : *« Le kit de départ met tout dans le backpack. Au joueur de le répartir »*, puis
+ *  *« Sauf ce qui s'équipe »*. ⭐ « Ce qui s'équipe » = un objet qui a SA case — un slot de
+ *  `SLOT_VERS_BOITES` (armure, arme, bouclier, vêtement, anneau…) ; ⛔ les cases polyvalentes
+ *  (Pocket/weapon, Extra storage) ne comptent pas ici : c'est au joueur d'y ranger.
+ *  Rend la PREMIÈRE case libre du slot de `ref` sur le corps tel que l'écran le range, ou
+ *  `null` (pas de slot propre, ou toutes prises) — alors l'objet va au sac. */
+export function caseDuKit(document, query, ref) {
+  const slotDe = slotsDeLaPile(query);
+  const slot = slotDe(ref);
+  if (!slot || !Object.hasOwn(SLOT_VERS_BOITES, slot)) return null;
+  const portees = currentGearLines(document).filter((l) => l && l.ref
+    && ["self", "ground"].includes(l.location || "backpack"));
+  const prises = boitesDesPortees(portees, slotDe);
+  return SLOT_VERS_BOITES[slot].find((b) => !prises.has(b)) || null;
+}
+
+/** ⭐ LOT 299 — POSER LE DÉPART, LE SEUL ÉCRIVAIN. Rend le document après :
+ *  ① les réponses du QCM (`aEcrire`) ; ② les lignes du kit (`aPoser` : index et quantité
+ *  tranchés par `posesDuButin`, fusion comprise) — ⛔ rien n'est porté sans un geste, SAUF
+ *  ce qui s'équipe (Eric, 26/09 : *« Le kit de départ met tout dans le backpack. Au joueur de
+ *  le répartir »*, *« Sauf ce qui s'équipe »*) : une ligne NEUVE qui a sa case libre
+ *  (`caseDuKit`) y est posée, équipée ; ③ la relecture de l'état équipé de TOUTES les lignes
+ *  (`accorderLEquipe`) ; ④ l'or LU (`butin.cout`), AJOUTÉ clef par clef — jamais écrasé.
+ *  ⛔ Le refus d'un second départ et d'un QCM incomplet reste à l'appelant. */
+export function appliquerLeButin({ document, verbs, query, butin }) {
+  let doc = document;
+  for (const { genre, valeur } of butin.aEcrire) {
+    doc = verbs.set({ document: doc, path: cheminDuDepart(genre), value: valeur }).document;
+  }
+  for (const pose of butin.aPoser) {
+    if (pose.neuve) doc = verbs.choose({ document: doc, path: `gear[${pose.index}]`, ref: pose.ref }).document;
+    doc = verbs.set({ document: doc, path: `gear[${pose.index}].quantity`, value: pose.quantity }).document;
+    /* ⭐ seulement sur une ligne NEUVE : un objet déjà rangé ne se fait pas déshabiller
+       parce qu'on en reçoit un second exemplaire */
+    if (!pose.neuve) continue;
+    doc = verbs.set({ document: doc, path: `gear[${pose.index}].equipped`, value: false }).document;
+    const caseLibre = caseDuKit(doc, query, pose.ref);
+    if (caseLibre) {
+      doc = verbs.set({ document: doc, path: `gear[${pose.index}].boite`, value: caseLibre }).document;
+      doc = verbs.set({ document: doc, path: `gear[${pose.index}].location`, value: "self" }).document;
+      doc = accorderLEquipe({ document: doc, verbs, query, index: pose.index, voulu: true });
+    }
+  }
+  /* ⚖️ LOT 292 — la même relecture que tout geste : un kit qui fusionne avec une ligne déjà là
+     ne doit pas laisser un état que sa case ne permet pas. */
+  doc = accorderLEquipe({ document: doc, verbs, query });
+  if (butin.cout) {
+    const bourse = currentCurrency(doc);
+    for (const key of CURRENCY_KEYS) {
+      const base = Number.isInteger(bourse[key]) ? bourse[key] : 0;
+      doc = verbs.set({ document: doc, path: `currency.${key}`, value: base + (butin.cout[key] || 0) }).document;
+    }
+  }
+  return doc;
+}
+
 function candidatesDuSlot(slot) {
   /* la règle ratifiée : les boîtes du slot, PUIS les poches — pour tous. */
   return [...((slot && SLOT_VERS_BOITES[slot]) || []), ...POCHES_DEBORD];

@@ -4364,7 +4364,7 @@ un garde-fou en carcan — et cette ligne est là pour l'en empêcher.
 ---
 
 ### 🎯 ÉQUIPÉ SEULEMENT SUR SA CASE — la case du Gear qui convient à l'objet
-📍 `equipement-equipe-seulement-sur-sa-case` · vivante · 26/09 · borne `equipement-trois-etats-d-un-objet`
+📍 `equipement-equipe-seulement-sur-sa-case` · vivante · 26/09 · borne `equipement-trois-etats-d-un-objet` · bornée par `equipement-kit-de-depart-au-sac`
 ⚖️ **Un objet n'est `equipped` que posé sur une case du Gear qui lui convient — une case de la liste de SON slot dans `SLOT_VERS_BOITES`, ou l'une des six cases POLYVALENTES (Pocket/weapon 1-2, Extra storage 1-4 — amendement du 26/09, ci-dessous). Dès qu'il la quitte, il ne l'est plus. Le sol, jamais.**
 
 > Eric, 2026-09-26 : **« seul un item sur les cases valide du gear, peuvent porter le symbole
@@ -4410,6 +4410,25 @@ extra »** — Arm/hands 1-2, Pocket/weapon 1-2, Extra storage 1-4 ; rien d'autr
 ⭐ **« PEUT PORTER » N'EST PAS « PORTE »** : une case valide **permet** l'état, elle ne l'impose pas.
 La part détachée d'une pile qui arrive sur une case de main **naît nue** (*« la part détachée perd
 tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien.
+
+---
+
+### 🎒 LE KIT DE DÉPART ARRIVE AU SAC — sauf ce qui s'équipe
+📍 `equipement-kit-de-depart-au-sac` · vivante · 26/09 · borne `equipement-equipe-seulement-sur-sa-case`
+⚖️ **Le kit de départ pose tout au sac ; le joueur le répartit. Un objet qui a SA case (un slot de `SLOT_VERS_BOITES` : armure, arme, bouclier, vêtement, anneau…) la prend si elle est libre, équipé.**
+
+> Eric, 2026-09-26, mot pour mot : **« Le kit de départ met tout dans le backpack. Au joueur de le
+> répartir »**, puis **« Sauf ce qui s'équipe »**.
+
+⭐ `caseDuKit` choisit la première case libre du slot propre de l'objet ; ⛔ jamais une case
+polyvalente (Pocket/weapon, Extra storage) : y ranger est un geste du joueur, pas du kit. Pas de
+case propre, ou toutes prises → au sac, nu. Seules les lignes NEUVES bougent : un kit qui se fond
+dans une ligne déjà rangée ne la déplace pas.
+⭐ **UN SEUL ÉCRIVAIN** : `appliquerLeButin` (`equipment-step.mjs`) écrit les réponses, pose les
+lignes, relit l'état équipé et ajoute l'or. La coquille l'appelle, les harnais des tests aussi.
+📏 Mesuré : l'option A du Rogue pose armure de cuir et armes sur le corps ; le kit du Wizard n'a
+aucun objet à case propre (la Robe n'a pas de slot) — tout va au sac.
+Garde 11 de `tests/equipe-sur-sa-case.test.mjs`.
 
 ---
 
