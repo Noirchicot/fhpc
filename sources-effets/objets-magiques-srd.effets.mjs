@@ -1,4 +1,11 @@
-{
+/* ══ ⛔ GÉNÉRÉ, NE PAS ÉDITER — la copie ES de `objets-magiques-srd.effets.json` ══════
+   Source : le `.json` voisin, SEULE vérité. Une correction se fait LÀ, puis
+   `node src/tools/gen-effets-objets.mjs`, puis on commite les deux fichiers ensemble.
+   ⭐ Pourquoi une copie : le moteur la lit par `import`, dans la page comme sous Node, sans
+   `fetch` ni disque (voir la tête du générateur). Sans perte : le JSON, tel quel.
+   🔴 Seul lecteur autorisé : `src/build/effets-objets.mjs` (garde 6 de
+   `tests/effets-objets.test.mjs`). */
+export default {
  "schema": "fhpc/effets-objets/1",
  "source": "srd-5.2.1-en",
  "date": "2026-09-26",
@@ -11368,4 +11375,4 @@
    "note": ""
   }
  ]
-}
+};

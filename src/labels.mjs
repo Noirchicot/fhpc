@@ -106,6 +106,10 @@ export const FR_BUILD = {
     `${d.level}, alors qu'il ne s'acquiert qu'à partir du niveau ${d.unlockLevel}.`,
 
   /* ── LOT 37 — LES DEUX GARDES DU POOL ─────────────────────────────── */
+  /* ── LOT 289 — LE PLAFOND D'HARMONISATION DU SRD ───────────────────── */
+  "gear.attunement-over-cap": (d) => `${d.count} objets sont harmonisés, et le plafond est de ${d.max} ` +
+    "(« a creature can be attuned to a maximum of 3 magic items at once »). Aucun effet d'objet harmonisé " +
+    "ne s'applique tant qu'il y en a trop — le moteur ne choisit pas lesquels garder à la place du joueur.",
   "skill-pool.overspent": (d) => `le pool dépense ${d.spent} point(s) pour ${d.available} disponible(s) — ` +
     `${d.over} point(s) de trop. La répartition reste possible, mais la sortie de création exige un total ` +
     "positif ou nul."

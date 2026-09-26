@@ -52,8 +52,8 @@ function section(html, cle) {
 
 /* ══ 1 — LES 21 RUBRIQUES, EN ANGLAIS ══════════════════════════════════ */
 
-test("les 21 rubriques de `resolved` apparaissent en anglais, et la liste vient du schéma", () => {
-  assert.equal(RUBRIQUES.length, 21, "le contrat en déclare 21 — inchangé depuis le lot 25");
+test("les 22 rubriques de `resolved` apparaissent en anglais, et la liste vient du schéma", () => {
+  assert.equal(RUBRIQUES.length, 22, "le contrat en déclare 22 — 21 du lot 25 au lot 289, qui ajoute `effects`");
   const html = render(exemple.document, exemple.report, "en");
   for (const cle of RUBRIQUES) {
     assert.ok(section(html, cle) !== null, `la rubrique « ${cle} » a sa place à l'écran anglais`);

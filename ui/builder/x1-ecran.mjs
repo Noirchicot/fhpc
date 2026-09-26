@@ -108,8 +108,12 @@ export const CLEF_DE = Object.freeze({
  *  autre créature s'harmonise. ⭐ Tout cela se passe EN JEU, pas à la création :
  *  un créateur de personnage ne fait pas passer le temps. Ce qu'il doit tenir,
  *  c'est le BUDGET — on ne sort pas de la création avec quatre objets harmonisés,
- *  comme on n'en sort pas avec sept compétences. */
-export const PLAFOND_HARMONISATION = 3;
+ *  comme on n'en sort pas avec sept compétences.
+ *  ⭐ LOT 289 — LE NOMBRE VIT DANS LE MOTEUR, et l'écran le RELIT : le moteur refuse
+ *  lui aussi la quatrième harmonisation (un document écrit à la main peut la porter),
+ *  et deux « 3 » écrits à deux endroits auraient divergé au premier réglage. */
+import { PLAFOND_HARMONISATION } from "../../src/build/effets-objets.mjs?v=833";
+export { PLAFOND_HARMONISATION };
 
 /* La clef de document que chaque interrupteur écrit. ⭐ Elle voyage avec
    l'organe : personne n'a à se rappeler que `lock-on` écrit `locked`. */

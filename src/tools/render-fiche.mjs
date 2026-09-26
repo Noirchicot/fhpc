@@ -452,7 +452,9 @@ export const LIBELLES = {
   currency: "Bourse",
   craft: "Artisanat",
   stats: "Statistiques dérivées",
-  notes: "Notes"
+  notes: "Notes",
+  /* LOT 289 — la provenance des chiffres que les objets magiques changent. */
+  effects: "Effets des objets"
 };
 
 export const MOTS = {
@@ -514,7 +516,9 @@ export const LIBELLES_EN = {
   currency: "Currency",
   craft: "Craft",
   stats: "Derived stats",
-  notes: "Notes"
+  notes: "Notes",
+  /* LOT 289 — where the numbers magic items change come from. */
+  effects: "Item effects"
 };
 
 export const MOTS_EN = {
