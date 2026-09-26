@@ -4413,6 +4413,27 @@ tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien
 
 ---
 
+### 🪟 DOUBLE ÉCRAN — UN DÉPÔT DANS LE COLLECTEUR VOISIN OUVRE UN POPUP
+📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · ⏳ en attente de l'organe « double écran » (il n'existe pas encore)
+⚖️ **En double écran, déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait.**
+
+> Eric, 2026-09-26, mot pour mot : **« Si on est en double screen le drop du token dans un collecteur
+> de la page voisine. Génère un popup. Varie en fonction — The item is created , do accept to pay
+> for xxxx — Your found item is generated — Your agree to purchase this item for xxxx »**.
+
+| ce qu'on dépose | le popup (proposition d'anglais, ⏳ à ratifier) |
+|---|---|
+| un objet fabriqué (X5, statut *Crafting*) | « The item is created. Do you accept to pay xxxx? » |
+| un objet trouvé (X5, statut *Found*) | « Your found item is generated. » |
+| un achat (Wares) | « You agree to purchase this item for xxxx. » |
+
+⭐ `xxxx` est le montant que le geste débite (le Total de X5, le prix de Wares) — lu, jamais recalculé
+par le popup. ⛔ **Le double écran lui-même n'existe pas** (mesuré le 26/09 : aucune vue ne pose deux
+pages côte à côte) : cette règle attend son organe, et Eric doit dire lesquelles et à partir de
+quelle largeur.
+
+---
+
 ### 🎒 LE KIT DE DÉPART ARRIVE AU SAC — sauf ce qui s'équipe
 📍 `equipement-kit-de-depart-au-sac` · vivante · 26/09 · borne `equipement-equipe-seulement-sur-sa-case`
 ⚖️ **Le kit de départ pose tout au sac ; le joueur le répartit. Un objet qui a SA case (un slot de `SLOT_VERS_BOITES` : armure, arme, bouclier, vêtement, anneau…) la prend si elle est libre, équipé.**
