@@ -111,7 +111,7 @@ export function variantesDe(data) {
     return out;
   }
 
-  const paragraphes = String(d.description || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  const paragraphes = paragraphesDe(d.description);
   /* ② LA TABLE — la ligne finit par une rareté, sa 2ᵉ colonne commence par un chiffre */
   const rangee = new RegExp(`^([^\\d()]+?)\\s*(?:\\(([^)]+)\\))?\\s+\\d.*?\\s${RARETE}$`, "i");
   const table = paragraphes.map((p) => rangee.exec(p)).filter(Boolean);
@@ -131,6 +131,17 @@ export function variantesDe(data) {
       nom: `${racine} (${m[1].trim()})` }));
   }
   return [];
+}
+
+/** Les paragraphes d'une description. ⚠️ LOT 282 — UNE TÊTE « Nom (Rareté). » OUVRE UN
+ *  PARAGRAPHE, MÊME COLLÉE À LA LIGNE PRÉCÉDENTE. 🔴 Mesuré dans la couche SRD : « Mastery
+ *  (Legendary). » est collé au bout du paragraphe de Leadership (un saut de ligne perdu à
+ *  l'extraction) — X5 n'offrait que 13 Ioun Stones sur 14, et la fiche de la Leadership
+ *  récitait la Mastery. ⛔ On ne corrige pas la couche ici (elle vient de `fh-srd`) : on la
+ *  LIT sans se fier à ses sauts de ligne. */
+const TETE_COLLEE = /(?<=[.!?])\s+(?=[A-Z][^.()\n]{0,40}?\s*\((?:Very Rare|Legendary|Uncommon|Common|Rare)\)\.\s)/g;
+function paragraphesDe(texte) {
+  return String(texte || "").split(/\n+/).flatMap((p) => p.split(TETE_COLLEE)).map((x) => x.trim()).filter(Boolean);
 }
 
 /** Le nom de la ligne posée : celui de la variante lue, sinon `Plan (mot)` — ⛔ un mot
@@ -161,7 +172,7 @@ export function texteDUneVariante(data, mot) {
   const choisie = variantes.find((v) => v.mot === mot);
   if (!choisie) return texte;
   const autres = variantes.filter((v) => v !== choisie);
-  const paras = texte.split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  const paras = paragraphesDe(texte);
   const mots = (v) => v.mot.split(/\s+or\s+/i).map((m) => m.toLowerCase());
   const parle = (p, v) => mots(v).some((m) => new RegExp(`(^|[\\s(])${m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([\\s).,]|$)`, "i").test(p));
 

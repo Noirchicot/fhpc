@@ -623,7 +623,11 @@ test("32 — ⚖️ LES HUIT PLANS À VARIANTE, lus dans leurs records — ⛔ a
   assert.deepEqual(mots("Horn of Valhalla"), ["Silver:Rare", "Brass:Rare", "Bronze:Very Rare", "Iron:Legendary"]);
   assert.deepEqual(mots("Belt of Giant Strength"),
     ["Hill:Rare", "Frost or Stone:Very Rare", "Fire:Very Rare", "Cloud:Legendary", "Storm:Legendary"]);
-  assert.equal(mots("Ioun Stone").length, 13);
+  /* 🔴 LOT 282 — 14, pas 13 : « Mastery (Legendary). » est COLLÉ au paragraphe de Leadership
+     dans la couche SRD ; l'inventaire des effets l'a révélé. La lecture ne se fie plus aux sauts
+     de ligne. */
+  assert.equal(mots("Ioun Stone").length, 14);
+  assert.ok(mots("Ioun Stone").includes("Mastery:Legendary"), "⭐ la pierre collée est lue");
   assert.ok(mots("Ioun Stone").includes("Awareness:Rare"));
   assert.deepEqual(mots("Potions of Healing"), ["Standard:Common", "Greater:Uncommon", "Superior:Rare", "Supreme:Very Rare"]);
   assert.deepEqual(mots("Wand of the War Mage, +1, +2, or +3"), ["+1:Uncommon", "+2:Rare", "+3:Very Rare"]);
@@ -648,7 +652,7 @@ test("33 — ⚖️ LA FICHE : Blueprint · PLAN · VARIANT · Crafting · Qty �
     "⭐ le menu PLAN porte les frères de CATÉGORIE — les cinq wondrous, ⛔ ni potion ni wand");
   const variante = noeud.querySelector('[data-organe="VARIANT"]');
   assert.equal(choisie(variante).value, "Awareness");
-  assert.equal(variante.querySelectorAll("option").length, 13);
+  assert.equal(variante.querySelectorAll("option").length, 14, "les 14 pierres, Mastery comprise (lot 282)");
   assert.match(noeud.querySelector('[data-organe="JETON"]').textContent, /Ioun Stone \(Awareness\)/);
 });
 
