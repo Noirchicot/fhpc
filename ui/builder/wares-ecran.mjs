@@ -40,7 +40,7 @@ import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=834";
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
 import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=834";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton } from "./glisser.mjs?v=834";
+import { armerJeton, fantome } from "./glisser.mjs?v=834";
 import { versionQuery } from "./version.mjs?v=834";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
@@ -543,7 +543,17 @@ function jeton(item, o) {
      lui qui porte le fantôme, la capture du doigt et la sortie de secours d'un geste perdu.
      ⚖️ TAP = INFO, GLISSER = CHOISIR (la loi du geste) : le tap ouvre le X2, le dépôt sur le
      collecteur met au panier — et le panier, c'est le Tally (Eric, 20/09). */
+  /* 🔴 LOT 291 — LE JETON NE SUIVAIT PAS LE DOIGT. Eric, 26/09 : *« faut réparer le drag and
+     drop dans Wares »*. 📏 Mesuré en ligne (v833) : le dépôt MARCHAIT — deux glissers, Tally à 2
+     — mais `armerJeton` était armé sans ses trois rappels de fantôme : rien ne quittait la
+     grille, le collecteur s'allumait seul, et un geste qu'on ne voit pas partir est un geste
+     qu'on croit cassé. ⭐ Le fantôme est CELUI DU SAC (`glisserDuSac`), le même organe :
+     `fantome.lever · suivre · ranger` de `glisser.mjs`. ⛔ Pas de péage ici, contrairement au
+     sac : la grille de Wares ne défile pas sous le doigt (la loi du 20/08). */
   armerJeton(b, {
+    onLever: (x, y) => fantome.lever(b, x, y),
+    onBouger: (x, y) => fantome.suivre(x, y),
+    onPoser: () => fantome.ranger(),
     onTap: () => o.surJeton && o.surJeton(item.ref),
     /* ⛔ `onDepot` REÇOIT LE `data-creneau` DE LA CIBLE, ⛔ PAS SON NŒUD — lu dans
        `glisser.mjs` (`onDepot(cible.dataset.creneau)`), pas supposé. Mon premier jet attendait

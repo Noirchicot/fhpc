@@ -436,6 +436,28 @@ test("20 · glisser un jeton sur le collecteur le publie — ⛔ et ce n'est pas
   assert.equal(deposes.length, 1, "⛔ un tap a déposé : il ne choisit pas, il informe");
 });
 
+/* ══ 20 bis · 🔴 LE JETON SUIT LE DOIGT — lot 291 ═══════════════════════════════
+   ⚖️ Eric, 26/09 : *« faut réparer le drag and drop dans Wares »*. Le garde 20 était vert :
+   le dépôt marchait. Ce qui manquait, c'est ce qu'on VOIT — aucun fantôme ne quittait la
+   grille. ⭐ TÉMOIN : un fantôme naît au glisser (au-delà du seuil), et meurt au relâché ;
+   ⛔ un tap n'en fait pas naître. */
+test("20 bis · le glisser lève un fantôme, le relâché le range — ⛔ un tap n'en lève pas", () => {
+  const n = monter({ surDepot: () => {}, surJeton: () => {} });
+  document.body.append(n);
+  const collecteur = tous(n, '[data-organe="collecteur"]')[0];
+  const fantomes = () => document.body.querySelectorAll(".glisse-fantome").length;
+  document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? collecteur : null) });
+  const j = tous(n, ".wares-jeton")[1];
+  j.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
+  assert.equal(fantomes(), 1, "⛔ le jeton glissé ne se voit pas partir : aucun fantôme");
+  document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });
+  assert.equal(fantomes(), 0, "⛔ le fantôme survit au relâché");
+  tap(tous(n, ".wares-jeton")[2]);
+  assert.equal(fantomes(), 0, "⛔ un tap a levé un fantôme");
+  n.remove();
+});
+
 /* ⭐ TÉMOIN : le viseur existe, un par étage, et il ne se tape pas.
    🔴 IL MANQUAIT AU PLAN *ET* À L'ÉCRAN — et c'est pour ça que la bijection plan ↔ DOM, mon
    garde 15, ne pouvait rien dire : elle compare deux listes, et l'organe manquait des deux.
