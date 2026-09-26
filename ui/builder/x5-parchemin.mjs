@@ -18,13 +18,13 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=833";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=833";
+import * as D from "./x5-disposition.mjs?v=834";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=834";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=833";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=833";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=833";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=833";
+  from "./craft-parchemin.mjs?v=834";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=834";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=834";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=834";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
