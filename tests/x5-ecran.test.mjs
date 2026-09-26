@@ -321,7 +321,7 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
      ⛔ `Craft` était grisé EN DUR pour tout objet (`actif: false`).
      ⭐ Ce garde monte la VRAIE fiche X2, avec le vrai prédicat du pilote. */
   const { construireLaFicheX2 } = await import("../ui/builder/x2-ecran.mjs");
-  const { seCrafteDansX5 } = await import("../ui/builder/craft.mjs");
+  const { ouvertureDepuisX2 } = await import("../ui/builder/craft.mjs");
   const parRef = new Map([...plans.values()].map((r) => [r.data.name, r]));
   const fiche = (nom) => ({ ref: { kind: "item", id: nom }, nom, coutTexte: "", cout: null, poidsTexte: "", prose: "" });
 
@@ -334,7 +334,7 @@ test("13 — 🔴 LA PORTE : `Craft` S'OUVRE SUR UN PLAN QUE X5 SAIT COMPOSER, e
       /* 🔴 LOT 263 — CE GARDE N'APPELAIT PAS COMME LE PILOTE : il omettait les objets
          magiques. `Berserker Axe` y restait donc fermé alors qu'il s'ouvre dans le
          produit — un vert qui ne tenait rien. L'appel est maintenant CELUI du pilote. */
-      peutCrafter: (ref) => seCrafteDansX5(parRef.get(ref.id), bases, magiques),
+      peutCrafter: (ref) => Boolean(ouvertureDepuisX2(parRef.get(ref.id), magiques, bases, PLANS_A_VARIANTE)),
       ouvrirCraft: (ref) => ouverts.push(ref.id),
     });
     const optionCraft = (n) => [...n.querySelectorAll("option")].find((o) => o.value === "craft");

@@ -118,7 +118,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
 import { construireLaFicheX2 } from "./x2-ecran.mjs?v=830";
 import { construireX5 } from "./x5-ecran.mjs?v=830";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=830";
-import { seCrafteDansX5, ouvertureX5, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe } from "./craft.mjs?v=830";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe } from "./craft.mjs?v=830";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=830";
 import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=830";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
@@ -4503,13 +4503,18 @@ export function renderEquipmentStep(ctx, onAction) {
         /* ⭐ LA PORTE DU CRAFT — l'étape SAIT ce qui se crafte (par `craft.mjs`), l'écran
            demande. ⛔ Aucune liste de plans : `Weapon`, `Armor` et `Shield, +1…`
            s'ouvrent parce qu'ils offrent une base ET un bonus, lus dans leur record. */
-        peutCrafter: (ref) => seCrafteDansX5(cherche.record(ref), basesDuCraft, magiquesDuCraft),
+        /* ⚖️ LOT 286 — Eric, 26/09 : « les potions de soin ». ⭐ La porte de X2 est
+           `ouvertureDepuisX2` : un plan (`ouvertureX5`), OU l'objet fini d'une variante — la
+           Potion of Healing de Wares ouvre `Potions of Healing`, Standard déjà choisie. */
+        peutCrafter: (ref) => Boolean(ouvertureDepuisX2(cherche.record(ref), magiquesDuCraft, basesDuCraft, plansAVariante)),
         /* ⭐ LOT 263 — l'ouverture vient de `ouvertureX5` : un pouvoir à base multiple
            ouvre le plan de SA famille, pouvoir déjà posé. ⛔ Le pilote ne décide rien. */
         ouvrirCraft: (ref) => {
-          const o = ouvertureX5(cherche.record(ref), magiquesDuCraft, basesDuCraft);
+          const o = ouvertureDepuisX2(cherche.record(ref), magiquesDuCraft, basesDuCraft, plansAVariante);
           if (!o) return;
-          ficheX5 = { plan: { kind: "item", id: o.plan.id || ref.id }, planRecord: o.plan,
+          /* ⛔ LOT 286 — la ref du plan se lit dans la passe (`refDuRecord`) : l'id de repli
+             serait celui du GEAR, posé sous `kind: "item"` — une ref qui ne mène nulle part. */
+          ficheX5 = { plan: refDuRecord.get(o.plan) || { kind: "item", id: o.plan.id || ref.id }, planRecord: o.plan,
                       choix: o.choix, retour: "x2" };
           montrer("x5");
         } });

@@ -293,6 +293,33 @@ export function seCrafteDansX5(record, bases, items = []) {
   return Boolean(ouvertureX5(record, items, bases));
 }
 
+/* ══ ③ sexies — L'OBJET FINI QUI A SON PLAN : LA POTION DE SOIN (lot 286) ═════════════
+   ⚖️ Eric, 26/09 : « les potions de soin » — la Potion of Healing de l'Adventuring Gear
+   (un record `gear`, 50 GP) se fabrique dans X5 comme ses trois grandes sœurs.
+   ⭐ LE LIEN SE LIT DANS LA DONNÉE : l'objet fini est la variante d'un plan dont le NOM
+   (`variantesDe(…).nom`) est exactement le sien — la table du SRD écrit « Potion of
+   Healing 2d4 + 2 Common », et c'est la variante « Standard ». ⛔ Aucun id écrit ici.
+   ⚠️ CE N'EST PAS UNE OUVERTURE DE PLAN (`ouvertureX5`) : un plan mène droit à X5 (lot 267),
+   un objet fini s'ACHÈTE d'abord — sa tuile ouvre X2, qui garde Buy, et c'est `Craft` qui
+   mène à son plan. Mis dans `ouvertureX5`, le tap sur la tuile aurait sauté l'achat.
+   @returns `{ plan, choix: { variante } }` ou `null`. */
+export function planDUnObjetFini(record, plansAVariante = []) {
+  const nom = String((record && record.data && record.data.name) || "").trim();
+  if (!nom || estPlanAVariante(record)) return null;       /* ⛔ un plan n'est pas un objet fini */
+  for (const plan of plansAVariante || []) {
+    const v = variantesDe(plan && plan.data).find((x) => x.nom === nom);
+    if (v) return { plan, choix: { variante: v.mot } };
+  }
+  return null;
+}
+
+/** ⭐ LA PORTE DU MENU `Craft` DE X2 — un plan que X5 sait composer, OU l'objet fini d'une
+ *  variante. ⛔ Un seul écrivain pour les deux gestes de X2 (actif ? ouvrir ?) : sinon
+ *  `Craft` s'allumerait sur une tuile qu'il ne sait pas ouvrir. */
+export function ouvertureDepuisX2(record, items, bases, plansAVariante = []) {
+  return ouvertureX5(record, items, bases) || planDUnObjetFini(record, plansAVariante);
+}
+
 /* ══ ③ bis — « ANY … » : LA FAMILLE D'UNE BASE, LUE DANS SES PROPRES CHAMPS ════
    🔴 LE LOT 258 NE COMPRENAIT QU'UNE FORME SUR CINQ, et je l'ai affirmé juste.
    Sa règle testait `melee`, `ranged` et `weapon` — or le SRD écrit aussi :
