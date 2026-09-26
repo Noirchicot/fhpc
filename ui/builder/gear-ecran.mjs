@@ -58,14 +58,14 @@
    dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
    FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
 
-import * as D from "./gear-disposition.mjs?v=839";
-import { BOITES } from "./b3-disposition.mjs?v=839";
-import { armerJeton, fantome } from "./glisser.mjs?v=839";
+import * as D from "./gear-disposition.mjs?v=840";
+import { BOITES } from "./b3-disposition.mjs?v=840";
+import { armerJeton, fantome } from "./glisser.mjs?v=840";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=839";
-import { versionQuery } from "./version.mjs?v=839";
-import { enGP } from "./equipement-pipeline.mjs?v=839";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=840";
+import { versionQuery } from "./version.mjs?v=840";
+import { enGP } from "./equipement-pipeline.mjs?v=840";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
