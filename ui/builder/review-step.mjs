@@ -52,6 +52,8 @@ import { lignageChoisi } from "./species-step.mjs?v=839";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
    jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
 import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=839";
+/* LOT 294 — la fiche de personnage TEMPORAIRE, au-dessus de la revue. */
+import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=839";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -220,8 +222,30 @@ export function renderReviewStep(ctx, onAction) {
   const lignage = lignageChoisi(ctx);
   const espece = identite.species && lignage ? `${identite.species} (${lignage})` : identite.species;
   const titre = [document && document.name, espece, classe].filter(Boolean).join(" · ");
-  dalle.append(el("h2", "review-name", [text(titre || "Unnamed character")]));
 
+  /* ══ LOT 294 — LA FICHE TEMPORAIRE, EN TÊTE DE LA DALLE ══════════════════
+     ⚖️ Eric, 26/09 : *« une fiche de perso temporaire dans Sheet »*. Elle vient
+     AU-DESSUS de la revue, pas à sa place, et voici pourquoi :
+       · la fiche dit CE QUE LE PERSONNAGE EST — les chiffres de `resolved` ;
+       · la revue dit CE QUI MANQUE ET OÙ ALLER — le carnet, les refus de
+         `validate()`, les choix qu'aucune règle ne lit. Rien de cela n'est
+         dans `resolved`, et une ligne de la revue MÈNE à son étape : la
+         retirer ferait de Sheet un constat sans chemin.
+     ⭐ Le joueur arrive sur Sheet pour voir son personnage : la fiche d'abord,
+     la revue ensuite (« Build steps »), les trois portes en bas — la MÊME
+     dalle (B9.3). Le titre dit « temporary » : ce n'est pas la fiche finale.
+     ⛔ Le nom reste `.review-name` (un garde le lit), il descend d'un rang :
+     le titre de la dalle est désormais celui de la fiche. */
+  const tete = el("header", "perso-tete");
+  tete.append(el("h2", "perso-titre", [text(MOTS_FICHE.titre)]));
+  tete.append(el("p", "review-name", [text(titre || "Unnamed character")]));
+  tete.append(el("p", "perso-note", [text(MOTS_FICHE.note)]));
+  dalle.append(tete);
+  dalle.append(renderFicheTemporaire({
+    resolved, report: ctx.report || null, document, flags: ctx.flags || [], espece: espece || null
+  }));
+
+  dalle.append(el("h3", "review-heading review-heading-etapes", [text("Build steps")]));
   const liste = el("ol", "review-steps");
   for (const groupe of REVIEW_GROUPS) {
     const etats = etatsDuGroupe(groupe, { decisions, document, resolved, violations: ctx.violations });

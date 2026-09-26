@@ -492,3 +492,32 @@ export const EN_UNDERIVED = {
     "the record carries no `ability_key` — a skill's ability is an identifier, never the display word of " +
     "`data.ability` (contract §3, genre `skill`)."
 };
+
+/* ══ LOT 294 — LES RAISONS DES EFFETS D'OBJETS, EN MOTS ════════════════
+   `resolved.effects.apart[].reason` et `.pending[].reason` sont des
+   IDENTIFIANTS (loi §0.13, `src/build/effets-objets.mjs`) : c'est ici qu'ils
+   redeviennent des mots, pour la fiche temporaire du Sheet
+   (`ui/builder/fiche-temporaire.mjs`). Anglais : la langue des écrans du
+   builder (arbitrage d'Eric, 2026-08-10).
+   ⛔ UNE RAISON SANS MOT N'EST PAS UN BLANC : `tests/fiche-temporaire.test.mjs`
+   énumère les raisons que le moteur ÉMET (le classement de tout l'inventaire,
+   plus les raisons que `derive` pose lui-même) et exige un mot pour chacune.
+   Les mots disent au joueur ce qu'il peut faire, pas le mécanisme. */
+export const EN_EFFECT_REASONS = {
+  /* en attente (`pending`) — le joueur peut agir */
+  "attunement": "needs attunement",
+  "attunement-cap": "over the attunement limit",
+  "choice": "needs a choice of variant",
+  /* à part (`apart`) — aucun chiffre ne change */
+  "consumable": "a consumable: it acts when used",
+  "activated": "acts only when activated",
+  "not-a-number": "changes no number on the sheet",
+  "triggered": "applies only in some situations",
+  "needs-other-item": "depends on another item",
+  "no-place": "the sheet has no place for it yet",
+  "mode-unsupported": "not applied by the engine yet",
+  "value-not-numeric": "its value is not a plain number",
+  "target-underived": "the number it changes is not derived yet",
+  "unit-mismatch": "its distance unit is not the sheet's",
+  "state-unmet": "its condition is not met (armor or shield worn)"
+};

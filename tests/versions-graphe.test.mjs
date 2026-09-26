@@ -285,9 +285,15 @@ test("3 — index.html, le décideur : AUCUN chargement ne part sans version", (
          Menu › Display. MÊME PORTE, MÊME RAISON, une troisième fois :
          `shell.css` a un écrivain. ⭐ Elle ne dépend ni de l'ordre ni de la
          spécificité — ses sélecteurs `.display-*` n'existent nulle part
-         ailleurs, elle ne redéclare donc rien. */
-  assert.equal(refs.length, 7,
-    `index.html porte ${refs.length} chargements, 7 attendus — si tu viens d'en ajouter un, ` +
+         ailleurs, elle ne redéclare donc rien.
+       · lot 294 (2026-09-26) : 8 — `fiche-temporaire.css` entre avec la fiche
+         de personnage temporaire du Sheet. MÊME PORTE, MÊME RAISON : un lot
+         parallèle écrit `shell.mjs`, et `shell.css` a un écrivain. Ses
+         sélecteurs `.perso-*` sont neufs ; sa seule reprise
+         (`.perso-tete > .review-name`) gagne par spécificité (0,2,0), pas par
+         l'ordre. */
+  assert.equal(refs.length, 8,
+    `index.html porte ${refs.length} chargements, 8 attendus — si tu viens d'en ajouter un, ` +
     "mets ce compte à jour ET dis pourquoi juste au-dessus ; si tu n'as rien ajouté, cherche qui l'a fait");
 });
 

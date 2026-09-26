@@ -3376,7 +3376,8 @@ function renderStepContent() {
        ⭐ Et la coquille n'a plus AUCUN `innerHTML` : c'était le dernier. */
     card.append(renderReviewStep({
       document: state.document, resolved: state.resolved,
-      decisions: state.decisions, report: state.report, violations: state.violations
+      decisions: state.decisions, report: state.report, violations: state.violations,
+      flags: drapeauxMontes() // LOT 294 — les paliers de la fiche temporaire suivent la pile
     }, applyDecisionAction));
   } else if (step.id === "review" && state.engineError) {
     card.append(el("p", "placeholder", [document.createTextNode(
@@ -4451,8 +4452,8 @@ const GUIDES = {
   review: {
     titre: "Sheet",
     texte:
-      "The sheet gathers everything settled so far, step by step.\n" +
-      "A line that still misses something says so, and leads back to its step.\n" +
+      "A temporary character sheet: every number the engine has derived, and what is not derived yet.\n" +
+      "Below, Build steps: a line that still misses something says so, and leads back to its step.\n" +
       "Expert view opens the full sheet; Export JSON and Export HTML take a copy out of this browser."
   }
 };
