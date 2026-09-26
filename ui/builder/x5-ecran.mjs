@@ -11,7 +11,8 @@
    d'un CORPS qui change avec le type de craft.
      ① CRAFT WEAPON · CRAFT ARMOR → base + BONUS + POWER 1·2    ✅ ce lot
      ② CRAFT WONDROUS            → une famille → sa variante     ✅ lot 277 (le schéma d'Eric du 25/09)
-     ③ SCRIBE SCROLL             → classe, niveau, status        ⏳ pas de croquis
+     ③ SCRIBE SCROLL             → classe, niveau, un sort       ✅ lot 285 (la dictée d'Eric du 26/09,
+                                                                    `x5-parchemin.mjs`)
    ⚖️ Eric, 24/09 : *« on fait armes et armures de A à Z déjà »*. ⛔ Les deux
    autres familles ne sont pas ébauchées ici — le plan RÉSERVE leur place et dit
    ce qu'elle coûte (132 blg), il ne les invente pas.
@@ -19,12 +20,15 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=832";
+import * as D from "./x5-disposition.mjs?v=833";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=832";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=832";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=832";
-import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=832";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=833";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=833";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=833";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=833";
+/* ⭐ LOT 285 — la famille PARCHEMIN vit dans son module ; la coquille lui PRÊTE ses pièces
+   (`construireX5` plus bas) plutôt que de les exporter : ⛔ pas d'import en boucle. */
+import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=833";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -49,8 +53,14 @@ export function feuilleDesCotesX5() {
   const regles = [`.x5[data-objet="x5"]{flex:0 0 auto;height:${px(D.DALLE.h)}}`];
   for (const o of D.ORGANES) {
     const b = o.cible || o;
+    /* ⭐ LOT 285 — UNE REDÉCLARATION SE RANGE SOUS SA FAMILLE. Le parchemin pose QTY, JETON, la
+       bourse et le pied à SES cotes (même nom qu'un commun, `famille: "parchemin"`) : sa règle ne
+       vaut que sous `[data-famille="parchemin"]`. ⛔ Sans cette portée, la dernière écrite
+       gagnerait partout — l'arme prendrait le pied du parchemin. */
+    const portee = o.famille && D.ORGANES.some((x) => x !== o && x.nom === o.nom && !x.famille)
+      ? `[data-famille="${o.famille}"]` : "";
     regles.push(
-      `.x5 [data-organe="${organeDe(o.nom)}"]{position:absolute;left:${px(b.x)};top:${px(b.y)};`
+      `.x5${portee} [data-organe="${organeDe(o.nom)}"]{position:absolute;left:${px(b.x)};top:${px(b.y)};`
       + `width:${px(b.l)};height:${px(b.h)}}`);
   }
   /* ⭐ LE POPUP DE LA BOURSE, avec LES RÈGLES DE R — centré sur la bourse, serré dans la
@@ -60,7 +70,9 @@ export function feuilleDesCotesX5() {
      24/09 : « oui voilà ». ⛔ Elle ne se grise pas : une option grisée promet
      qu'un jour elle s'ouvrira, une option absente dit que cette base n'est pas de
      cette famille-là. Et tout ce qui la suit remonte de sa hauteur. */
-  const suivent = D.ORGANES.filter((o) => (o.cible || o).y > hauteurDe("POWER 1"));
+  /* ⭐ LOT 285 — seuls les COMMUNS remontent : une famille qui a ses propres cotes (le
+     parchemin) n'a pas de rangée des pouvoirs à perdre. */
+  const suivent = D.ORGANES.filter((o) => !o.famille && (o.cible || o).y > hauteurDe("POWER 1"));
   regles.push(`.x5[data-pouvoirs="aucun"] [data-organe^="POWER"]{display:none}`);
   for (const o of suivent) {
     const b = o.cible || o;
@@ -73,6 +85,17 @@ export function feuilleDesCotesX5() {
    aurait demandé une seconde règle d'image — un second écrivain pour la même bourse. */
 const CLEF_DOM = { PURSE: "purse", MONTANT: "montant" };
 function organeDe(nom) { return CLEF_DOM[nom] || nom; }
+
+/** ⭐ LOT 285 — CE QU'UNE FICHE POSE : ses organes, et les communs qu'elle ne redéclare pas —
+ *  parmi ceux qu'elle GARDE (`COMMUNS_DE`), si la table en nomme. ⛔ Le même calcul que
+ *  `organes_de` dans le générateur : la bijection plan ↔ écran (garde 2) passe par lui. */
+export function organesDeLaFamille(famille) {
+  const siens = D.ORGANES.filter((o) => o.famille === famille);
+  const noms = new Set(siens.map((o) => o.nom));
+  const garde = (D.COMMUNS_DE || {})[famille];
+  const communs = D.ORGANES.filter((o) => !o.famille && !noms.has(o.nom) && (!garde || garde.includes(o.nom)));
+  return [...communs, ...siens];
+}
 function hauteurDe(nom) {
   const o = D.ORGANES.find((x) => x.nom === nom);
   return o ? (o.cible || o).y : Infinity;
@@ -246,6 +269,9 @@ export function construireX5(o = {}) {
   /* ⭐ LOT 277 — DEUX FAMILLES, UNE COQUILLE. Le plan dit la sienne : s'il porte des
      variantes (`variantesDe`), c'est la famille à VARIANTE. ⛔ Aucun nom testé. */
   if (o.plan && variantesDe(o.plan.data).length >= 2) return construireX5Variante(o);
+  /* ⭐ LOT 285 — LA TROISIÈME : le PARCHEMIN, reconnu à la table de son plan. La coquille lui
+     prête ses pièces communes — ⛔ elles ne sont écrites qu'ici. */
+  if (estFicheParchemin(o)) return construireX5Parchemin(o, { menu, laBourse, lePied, or, feuilleDesCotesX5 });
   const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
     bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;

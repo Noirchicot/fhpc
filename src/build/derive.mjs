@@ -48,7 +48,7 @@
    de jeu dans ce répertoire. */
 
 import { BuildError } from "./errors.mjs";
-import { lireLeBonus, nomCrafte, nomDUneVariante } from "./objet-crafte.mjs";
+import { lireLeBonus, nomCrafte, nomDUneVariante, nomDUnParchemin } from "./objet-crafte.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
 /* LOT 41 — le mécanisme des mots (lot 27), réemployé pour `underived`. Import
@@ -512,8 +512,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     /* ⭐ LOT 277 — un plan à variante (`Ioun Stone` + « Awareness ») se nomme par sa
        variante, lue dans le record du plan : « Ioun Stone (Awareness) ». */
     const variante = takeValue(`gear[${index}].variant`);
+    /* ⭐ LOT 285 — un parchemin (`Spell Scroll` + le sort) se nomme par son sort : « Spell Scroll
+       (Fireball) ». ⛔ Un sort dont la couche est absente garde son id, comme un pouvoir. */
+    const sort = takeRef(`gear[${index}].spell`);
+    const vueDuSort = sort ? reader.maybe(sort.kind, sort.id) : null;
     const nom = typeof variante === "string" && variante.trim()
       ? nomDUneVariante({ ...(view.record.data || {}), name: (view.record.data && view.record.data.name) || view.record.name }, variante.trim())
+      : sort ? nomDUnParchemin(view.record.name, vueDuSort ? vueDuSort.record.name : sort.id)
       : nomCrafte({ base: view.record.name, bonus, pouvoirs });
     const ligne = { id: view.record.slug || ref.id, name: nom, quantity, equipped };
     if (typeof note === "string" && note.trim()) ligne.note = note.trim().slice(0, 500);
@@ -1007,7 +1012,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      modificateur. Ces deux-là sont des règles du SRD, universelles, et elles
      ne nomment aucune classe : elles ont leur place ici. La CARACTÉRISTIQUE,
      elle, est une donnée de la classe. */
-  const spellRefs = picked.order.filter((entry) => entry.choice.ref && entry.choice.ref.kind === "spell");
+  /* 🔴 LOT 285 — LE SORT D'UN OBJET N'EST PAS UN SORT DU PERSONNAGE. Ce filtre prenait tout
+     `ref {kind: "spell"}` (lot 72 : seuls `class.cantrips[n]` et `class.prepared[n]` en
+     portaient alors). Le parchemin en pose un sous `gear[N].spell` : mesuré, un Wizard y
+     gagnait Fireball dans ses sorts préparés, et un Barbarian une fiche d'incantation « non
+     dérivée ». ⭐ Ce qui vit sous `gear` appartient à l'objet — la ligne l'a déjà lu. */
+  const spellRefs = picked.order.filter((entry) => entry.choice.ref && entry.choice.ref.kind === "spell"
+    && entry.parsed.root !== "gear");
   const castingKey = classData.spellcasting_ability_key;
   const slotRow = levelRow && Array.isArray(levelRow.spell_slots) ? levelRow.spell_slots : null;
   const beforeSlots = (before.spellcasting && before.spellcasting.slots) || {};

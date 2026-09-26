@@ -61,38 +61,38 @@
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { renderPicker, markPressed } from "./carnet.mjs?v=832";
-import { facteurZoomCourant } from "./echelle.mjs?v=832";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=832";
+import { renderPicker, markPressed } from "./carnet.mjs?v=833";
+import { facteurZoomCourant } from "./echelle.mjs?v=833";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=833";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=832";
-import { swapContent } from "./socle.mjs?v=832";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=832";
+import { isGenre } from "../../src/layers/document.mjs?v=833";
+import { swapContent } from "./socle.mjs?v=833";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=833";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=832";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=832";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=833";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=833";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=832";
+import { armerJeton } from "./glisser.mjs?v=833";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=832";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=833";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=832";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=833";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=832";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=833";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -102,12 +102,12 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=832";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=832";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=833";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre } from "./equipement-pipeline.mjs?v=832";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre } from "./equipement-pipeline.mjs?v=833";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -115,16 +115,19 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2 } from "./x2-ecran.mjs?v=832";
-import { construireX5 } from "./x5-ecran.mjs?v=832";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=832";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe } from "./craft.mjs?v=832";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=832";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=832";
+import { construireLaFicheX2 } from "./x2-ecran.mjs?v=833";
+import { construireX5 } from "./x5-ecran.mjs?v=833";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=833";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe } from "./craft.mjs?v=833";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=833";
+import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=833";
+/* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=833";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=833";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=832";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=833";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -136,7 +139,7 @@ import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=832";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=832";
+import { motDuCran } from "./ecran-mort.mjs?v=833";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -1092,7 +1095,8 @@ export function currentGearLines(document) {
      (`src/build/objet-crafte.mjs`) — la ligne pointe sur sa base, ces quatre
      chemins disent ce que le craft y a ajouté. */
   /* `variant` (LOT 277) : le mot de la variante d'un plan à variante (« Awareness »). */
-  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place|bonus|plan|note|variant|powers\[(\d+)\]))?$/;
+  /* `spell` (LOT 285) : le sort d'un parchemin, une RÉFÉRENCE (`srd:spell:en:fireball`). */
+  const pathRe = /^gear\[(\d+)\](?:\.(quantity|equipped|location|boite|attuned|locked|is|place|bonus|plan|note|variant|spell|powers\[(\d+)\]))?$/;
   for (const choice of choices) {
     const match = typeof choice.path === "string" ? pathRe.exec(choice.path) : null;
     if (!match) continue;
@@ -1111,6 +1115,7 @@ export function currentGearLines(document) {
     else if (match[2] === "note") line.note = choice.value;
     else if (match[2] === "variant") line.variante = choice.value;
     else if (match[2] === "plan") line.plan = choice.ref;
+    else if (match[2] === "spell") line.sort = choice.ref;
     else if (match[3] !== undefined) (line.pouvoirs || (line.pouvoirs = []))[Number(match[3])] = choice.ref;
     else if (choice.ref) line.ref = choice.ref;
   }
@@ -2812,8 +2817,12 @@ export function recordProse(view, recette = null) {
   const lignes = [];
   /* ⭐ LOT 281 — UNE VARIANTE NE RÉCITE QUE SA PART : l'introduction, son paragraphe, sa ligne
      de table (Eric, 26/09 : « tu ne fais pas la sélection de texte »). */
+  /* ⭐ LOT 285 — UN PARCHEMIN NE RÉCITE QUE SA LIGNE de la table des niveaux (la leçon du 281,
+     appliquée d'avance) : l'introduction, l'en-tête, « 3 Uncommon 15 +7 », la copie au grimoire. */
+  const niveauDuParchemin = recette && recette.sort ? niveauDuSort(recette.sort) : null;
   const description = recette && typeof recette.variante === "string" && recette.variante
-    ? texteDUneVariante(data, recette.variante) : data.description;
+    ? texteDUneVariante(data, recette.variante)
+    : niveauDuParchemin !== null ? texteDUnParchemin(data, niveauDuParchemin) : data.description;
   if (typeof description === "string" && description) lignes.push(description);
   for (const [label, valeur] of [
     ["Damage", data.damage],
@@ -2840,6 +2849,20 @@ export function recordProse(view, recette = null) {
   if (recette && typeof recette.variante === "string" && recette.variante) {
     const v = variantesDe(data).find((x) => x.mot === recette.variante);
     lignes.push(`Variant: ${recette.variante}${v ? ` (${v.rarete})` : ""}`);
+  }
+  /* ⭐ LOT 285 — LE TEXTE DU SORT, SOUS CELUI DU PARCHEMIN : son niveau et son école, les quatre
+     lignes de lancement du SRD, puis sa description. ⛔ Un sort absent de la pile se nomme par
+     sa référence, et ne récite rien qu'il n'a pas. */
+  if (recette && recette.sortRef) {
+    const d = (recette.sort && recette.sort.data) || {};
+    const nom = (recette.sort && recette.sort.name) || d.name || recette.sortRef.id;
+    const ecole = typeof d.school === "string" && d.school ? ` · ${d.school[0].toUpperCase()}${d.school.slice(1)}` : "";
+    lignes.push(`Spell: ${nom}${niveauDuParchemin !== null ? ` (${motDuNiveau(niveauDuParchemin)}${ecole})` : ""}`);
+    for (const [label, valeur] of [["Casting Time", d.casting_time], ["Range", d.range],
+      ["Components", d.components], ["Duration", d.duration]]) {
+      if (typeof valeur === "string" && valeur) lignes.push(`${label}: ${valeur}`);
+    }
+    if (typeof d.description === "string" && d.description) lignes.push(d.description);
   }
   if (recette && typeof recette.note === "string" && recette.note) lignes.push(recette.note);
   return lignes.length > 0 ? lignes.join("\n") : "No further detail on this record.";
@@ -3192,6 +3215,17 @@ export function renderEquipmentStep(ctx, onAction) {
     peindre();
   };
   const cherche = fabriquerChercheur(query);
+  /* ⭐ LOT 285 — LES SORTS, UNE PASSE PAR RENDU, avec leur référence : le chercheur ne range
+     que ce qui a une étagère, et un sort n'en a pas. ⭐ La même passe nourrit X5 (la grille),
+     le nom d'une ligne « Spell Scroll (Fireball) » et la référence que `Send` pose. */
+  const sortsDuCraft = [];
+  const sortParId = new Map();
+  const refDuSort = new Map();
+  try {
+    for (const v of query({ kind: "spell" }) || []) {
+      sortsDuCraft.push(v.record); sortParId.set(v.id, v.record); refDuSort.set(v.record, { kind: "spell", id: v.id });
+    }
+  } catch { /* une pile sans sorts : X5 le dira (« No spell to scribe here. ») */ }
   const lignes = currentGearLines(docu).filter((l) => l.ref);
   /* ⭐ LOT 265 — LE NOM D'UNE LIGNE, UN SEUL ÉCRIVAIN. Un objet crafté se nomme par
      sa recette, et par la fonction du MOTEUR (`nomCrafte`) : l'écran et
@@ -3206,6 +3240,8 @@ export function renderEquipmentStep(ctx, onAction) {
     if (rec && typeof l.variante === "string" && l.variante) {
       return nomDUneVariante({ ...(rec.data || {}), name: (rec.data && rec.data.name) || rec.name }, l.variante);
     }
+    const sort = l.sort ? sortParId.get(l.sort.id) : null;
+    if (rec && l.sort) return nomDUnParchemin(rec.name, sort ? sort.name : motDUnRecordAbsent(l.sort.id));
     const base = (rec && rec.name) || motDUnRecordAbsent(l.ref.id);
     const pouvoirs = (l.pouvoirs || []).filter(Boolean).map((p) => {
       const r = cherche.record(p);
@@ -3218,8 +3254,10 @@ export function renderEquipmentStep(ctx, onAction) {
      nom. Un objet ordinaire rend ceux de son record ; un objet crafté, ceux de sa
      RECETTE (`valeurDUnObjetCrafte`, `recordProse(…, recette)`). 🔴 Sans elle, la
      fiche X1 d'une Breastplate +1 disait « AC: 14 » et le prix de la Breastplate nue. */
-  const recetteDeLaLigne = (l) => estCrafte({ bonus: l.bonus, pouvoirs: (l.pouvoirs || []).filter(Boolean), variante: l.variante })
+  const recetteDeLaLigne = (l) => estCrafte({ bonus: l.bonus, pouvoirs: (l.pouvoirs || []).filter(Boolean), variante: l.variante, sort: l.sort })
     ? { kind: l.ref && l.ref.kind, bonus: l.bonus, note: l.note, variante: l.variante || null,
+        /* ⭐ LOT 285 — le sort d'un parchemin : sa référence, et son record s'il est dans la pile */
+        sortRef: l.sort || null, sort: l.sort ? sortParId.get(l.sort.id) || null : null,
         plan: l.plan ? cherche.record(l.plan) : null,
         pouvoirs: (l.pouvoirs || []).filter(Boolean).map((p) => cherche.record(p)).filter(Boolean) }
     : null;
@@ -3234,6 +3272,12 @@ export function renderEquipmentStep(ctx, onAction) {
     const v = cherche.valeur(fini || rec);
     if (!r) return v;
     if (r.variante) return fini ? v : { cout: null, poids: v.poids };
+    /* ⭐ LOT 285 — UN PARCHEMIN vaut la table du SRD pour le niveau de SON sort (« Scribing Spell
+       Scrolls ») : ⛔ ni le palier de sa rareté, ni la cote d'un assemblage. Sort illisible → rien. */
+    if (r.sortRef) {
+      const p = r.sort ? valeurDUnParchemin(rec, r.sort) : null;
+      return p ? { ...p, poids: v.poids } : { cout: null, poids: v.poids, rarete: null, craft: null };
+    }
     /* ⭐ LOT 280 — la cote du barème SRFH donne le prix, la rareté affichée et la note de
        craft d'un objet crafté posé, comme `fabriqueDeValeur` les donne d'un objet fini. */
     const cote = coteDUnObjetCrafte({ base: rec, plan: r.plan, bonus: r.bonus, pouvoirs: r.pouvoirs });
@@ -4329,6 +4373,8 @@ export function renderEquipmentStep(ctx, onAction) {
       plan, bases: basesDuCraft, itemsMagiques: magiquesDuCraft,
       /* ⭐ la valeur d'un objet fini passe par LA porte des recettes (garde 11) */
       plansFreres: plansAVariante, valeurDe: (r) => valeurDUneRecette(r, null),
+      /* ⭐ LOT 285 — les sorts de la pile, pour la fiche du parchemin (records, pas des vues) */
+      sorts: sortsDuCraft,
       choix: ficheX5.choix, fh: pileFH,
       surChoix: (organe, valeur) => {
         /* ⭐ LOT 277 — un autre PLAN, c'est une autre fiche : sa variante repart de la
@@ -4360,6 +4406,12 @@ export function renderEquipmentStep(ctx, onAction) {
         }
         else if (organe === "STATUS") c.status = valeur;
         else if (organe === "SEND TO") c.destination = valeur;
+        /* ⭐ LOT 285 — LE PARCHEMIN : une autre classe ou un autre niveau, c'est une autre
+           grille — le sort choisi et la page repartent ; un jeton choisit ; un chevron tourne. */
+        if (organe === "CLASS") { c.classe = valeur; c.sort = null; c.page = null; }
+        else if (organe === "LEVEL") { c.niveau = Number(valeur); c.sort = null; c.page = null; }
+        else if (organe === "SORT") c.sort = valeur;
+        else if (organe === "PAGE") c.page = Number(valeur);
         ficheX5 = { ...ficheX5, choix: c };
         montrer("x5");
       },
@@ -4382,6 +4434,31 @@ export function renderEquipmentStep(ctx, onAction) {
          `addGearLine` — et la ligne porte sa RECETTE (`src/build/objet-crafte.mjs`).
          ⛔ La bourse est vérifiée AVANT tout geste : rien n'est écrit à moitié. */
       surEnvoyer: (e) => {
+        /* ⭐ LOT 285 — UN PARCHEMIN : la ligne pointe sur le PLAN (`Spell Scroll`) et porte la
+           RÉFÉRENCE de son sort (`gear[N].spell`). Le coût de scribing se paie d'abord — ⛔ même
+           porte que l'arme et la variante : la bourse d'abord, rien écrit à moitié. */
+        if (e.sort) {
+          const refPlan = refDuRecord.get(e.plan) || ficheX5.plan;
+          const refSort = refDuSort.get(e.sort);
+          if (!refPlan || !refSort) {
+            ficheX5 = { ...ficheX5, alerte: "This scroll cannot be saved: its spell is missing from the rules." };
+            montrer("x5");
+            return;
+          }
+          if (e.cout && !bourseCouvre(bourse, e.cout)) {
+            ficheX5 = { ...ficheX5, alerte: "Not enough coin in the purse." };
+            montrer("x5");
+            return;
+          }
+          if (e.cout) actArbitre({ kind: "payer", cout: e.cout });
+          const nomDuPerso = docu && typeof docu.name === "string" ? docu.name.trim() : "";
+          actArbitre({ kind: "addGearLine", ref: refPlan, quantity: e.cote.qte,
+            equipped: e.destination === "self", location: e.destination,
+            recette: { sort: refSort, note: nomDuPerso ? `Crafted by ${nomDuPerso}` : null } });
+          ficheX5 = null;
+          montrer("r");
+          return;
+        }
         /* ⭐ LOT 277 — UNE VARIANTE : la ligne pointe sur le PLAN, et porte le mot de sa
            variante. ⛔ Même porte que l'arme : la bourse d'abord, rien écrit à moitié. */
         if (e.variante) {
@@ -4446,6 +4523,27 @@ export function renderEquipmentStep(ctx, onAction) {
     const qte = a.cote && a.cote.qte ? a.cote.qte : 1;
     /* ⭐ LOT 277 — l'aperçu d'une VARIANTE : le plan porte le texte, la variante le nom, le
        prix et sa ligne — par les MÊMES portes que la ligne posée. */
+    /* ⭐ LOT 285 — l'aperçu d'un PARCHEMIN : le plan porte le texte, le sort le nom, le prix, la
+       rareté et la note — par les MÊMES portes que la ligne posée (`valeurDUneRecette`, `recordProse`). */
+    if (a.sort) {
+      const recette = { kind: "item", sortRef: refDuSort.get(a.sort) || { kind: "spell", id: "" }, sort: a.sort };
+      const { cout, poids, rarete, craft } = valeurDUneRecette(a.plan, recette);
+      const coutLu = parseCout(cout || "");
+      const { noeud } = construireLaFicheX1({
+        apercu: true,
+        objet: {
+          index: -1, nom: a.nom, qte,
+          prixUnite: cout || "",
+          prixTotal: coutLu ? formatCout(multiplieCout(coutLu, qte)).toLowerCase() : "",
+          poidsUnite: poids || "", poidsTotal: "",
+          prose: proseDUneRecette(a.plan, recette),
+          rarete: rarete || "", noteCraft: texteDeLaNote(craft),
+          genre: "item", equipped: false, attuned: false, locked: false,
+        },
+        surPorte: (porte) => { if (porte === "close") { apercuX5 = null; montrer("x5"); } },
+      });
+      return noeud;
+    }
     if (a.variante) {
       const recette = { kind: "item", variante: a.variante.mot };
       const { cout, poids, rarete, craft } = valeurDUneRecette(a.plan, recette);

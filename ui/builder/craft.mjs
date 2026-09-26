@@ -29,8 +29,10 @@
    porte la dérivation complète, les mesures au navigateur et les quatre contrôles
    croisés contre le SRD. ⛔ Ce fichier-ci ne les recopie pas : il les applique. */
 
-import { variantesDe } from "../../src/build/objet-crafte.mjs?v=832";
-import { PALIERS_SRFH, noteDeCraft } from "./bareme-srfh.mjs?v=832";
+import { variantesDe } from "../../src/build/objet-crafte.mjs?v=833";
+import { PALIERS_SRFH, joursArrondis, noteDeCraft } from "./bareme-srfh.mjs?v=833";
+/* ⭐ LOT 285 — le plan de parchemin se reconnaît à sa table (`estPlanParchemin`, le moteur). */
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=833";
 
 /* ══ ① LE BARÈME — SRFH, LU DANS `bareme-srfh.mjs` (lot 280) ═══════════════════════
    ⭐ Le craft d'un objet ordinaire suit la RÉFÉRENCE SRD + FH : les cinq paliers du SRD
@@ -221,6 +223,10 @@ export function ouvertureX5(record, items, bases) {
   /* ⭐ LOT 277 — UN PLAN À VARIANTE (`Ioun Stone`, les potions, la wand) ouvre X5 sur
      lui-même, rien de choisi : sa variante se lit dans son record (`variantesDe`). */
   if (estPlanAVariante(record)) return { plan: record, choix: {} };
+  /* ⭐ LOT 285 — LE PARCHEMIN DE SORT (`Spell Scroll`) ouvre X5 sur lui-même, rien de choisi :
+     sa table (niveau → rareté) se lit dans son record. ⚖️ Eric, 26/09 : « choisir : classe de
+     sort · choisir lvl · 4 étages de sorts token, un dropdown · send ». */
+  if (estPlanParchemin(record.data)) return { plan: record, choix: {} };
   if (basesDe(record, bases).length && bonusDe(record).length) return { plan: record, choix: {} };
   if (!paliterDeRarete(record.data.rarity)) return null;
   const siennes = basesDe(record, bases);
@@ -286,9 +292,9 @@ export function texteDesJours(n) {
 }
 
 /** ⭐ Un objet se crafte dans X5 si `ouvertureX5` sait l'ouvrir — ⛔ pas de liste :
- *  `Spell Scroll` n'a ni base ni bonus, il n'ouvre pas X5, et aucun nom n'a été écrit
- *  pour ça. ⭐ LOT 283 — `Ammunition, +1…` et `Ammunition of Slaying` l'ouvrent dès que la
- *  pile porte des bases de munition (`estBaseDeMunition`) : en pile FH, pas en SRD seule. */
+ *  `Spell Scroll` l'ouvre depuis le lot 285, par sa table — aucun nom n'a été écrit pour ça.
+ *  ⭐ LOT 283 — `Ammunition, +1…` et `Ammunition of Slaying` l'ouvrent dès que la pile porte
+ *  des bases de munition (`estBaseDeMunition`) : en pile FH, pas en SRD seule. */
 export function seCrafteDansX5(record, bases, items = []) {
   return Boolean(ouvertureX5(record, items, bases));
 }
