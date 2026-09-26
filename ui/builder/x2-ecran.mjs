@@ -57,19 +57,19 @@
    ⚖️ ET COMME X1, ELLE N'ÉCRIT JAMAIS DANS LE BELT — Eric, 16/09 : *« les x ne
    s'inscrivent pas dans le belt »*. ⛔ `x2` n'entre donc pas dans `FENETRE_DE`
    (`equipment-step.mjs`), et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x1-disposition.mjs?v=837";
+import * as D from "./x1-disposition.mjs?v=838";
 /* ⭐ LA TÊTE, ENTIÈRE, PAR UN SEUL APPEL — ⛔ aucun de ces trois n'est réécrit ici. */
-import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, texteDeLUnite, remplirLaDescription } from "./x1-ecran.mjs?v=837";
+import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, texteDeLUnite, remplirLaDescription } from "./x1-ecran.mjs?v=838";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE — le même
    choix que X1 : le jour où une destination s'ouvre (Tally, Craft), les trois
    écrans l'apprennent ensemble. ⛔ Le croquis en dessine huit ; la liste qui
    PILOTE en porte cinq, et les inactives s'y disent déjà par `actif: false`.
    Compléter la liste depuis un dessin serait une règle de jeu écrite par un
    écran — ⏳ elle appartient à Eric, et le rapport la lui rend. */
-import { DESTINATIONS } from "./gear-ecran.mjs?v=837";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=838";
 /* ⭐ LA MONNAIE VIENT DU PIPELINE, TELLE QUELLE : c'est lui qui parse un coût du
    SRD, le multiplie et dit si la bourse couvre. ⛔ X2 n'a aucun tarif à lui. */
-import { parseCout, multiplieCout, bourseCouvre } from "./equipement-pipeline.mjs?v=837";
+import { parseCout, multiplieCout, bourseCouvre } from "./equipement-pipeline.mjs?v=838";
 
 function elx(balise, classe, texte) {
   const n = document.createElement(balise);
