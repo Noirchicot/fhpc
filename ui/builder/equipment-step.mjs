@@ -1077,8 +1077,9 @@ export function currentGearLines(document) {
   /* `attuned` · `locked` (LOT 213) : les deux états que la fiche X1 écrit —
      l'harmonisation du SRD, et le verrou qui *« empêche un item d'être bougé de
      son emplacement ou vendu »* (Eric, 17/09). 📏 Mesurés contre les verbes avant
-     d'être posés : zéro violation, ils ressortent `unconsumed` — la fiche de
-     personnage ne les lit pas encore, l'écran si. */
+     d'être posés : zéro violation. ⭐ LOT 289 : le moteur LIT désormais `attuned` (l'harmonisation
+     conditionne les effets d'objet, `src/build/effets-objets.mjs`) — il ne ressort plus
+     `unconsumed` ; `locked`, lui, reste une affaire d'écran et y ressort toujours. */
   /* `place` (LOT 214, seconde passe) : la PLACE de la ligne dans sa section — un
      entier, 0 pour la première case. ⚖️ Eric, 2026-09-18 : *« le rangement fait
      partie des caracs du perso ; ça doit survivre à la session au même titre que

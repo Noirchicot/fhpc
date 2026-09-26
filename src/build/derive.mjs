@@ -51,6 +51,9 @@ import { BuildError } from "./errors.mjs";
 import { lireLeBonus, nomCrafte, nomDUneVariante, nomDUnParchemin } from "./objet-crafte.mjs";
 import { parseChoicePath } from "./paths.mjs";
 import { ABILITY_KEYS, allowedSlugs, assertAbilityKey, indexSkills } from "./skills.mjs";
+/* LOT 289 — les effets des objets magiques : le plan, le registre, et le plafond SRD. */
+import { planDesEffets, creerRegistre, PLAFOND_HARMONISATION } from "./effets-objets.mjs";
+import { buildViolation } from "./validate.mjs";
 /* LOT 41 — le mécanisme des mots (lot 27), réemployé pour `underived`. Import
    du RACINE de `src/`, jamais de `src/modules/fh/` : c'est la frontière que
    §0.12 garde sur les octets, commentaires compris. */
@@ -421,6 +424,113 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   if (backgroundView) identity.background = backgroundView.record.name;
   else underived.declare("identity.background", "underived.no-choice", { root: "background" });
 
+  /* ── ÉQUIPEMENT ET BOURSE ──────────────────────────────────────────
+     Décision d'architecte (contrat §6) : l'équipement de départ NE SE DÉRIVE
+     PAS au M2 — la source le donne en phrases (« Choisissez A ou B : … »).
+     `resolved.gear` et `resolved.currency` sont nourris par des choix qui
+     nomment directement des records et des montants. */
+  /* ⚠️ LOT 289 — CE BLOC EST REMONTÉ AVANT LES CARACTÉRISTIQUES, ET C'EST TOUT LE LOT.
+     Un objet magique porté change un SCORE (Ioun Stone : +2 en INT), et
+     `abilities[k].mod` est lu par tout ce qui suit — sauvegardes, compétences, outils,
+     sorts, points de vie, CA. Lu APRÈS, l'équipement aurait laissé ces chiffres faux EN
+     SILENCE (le score juste, la sauvegarde fausse). ⭐ Ce bloc ne lit que les choix et la
+     pile : le remonter ne change rien à ce qu'il produit, et il reste le SEUL lecteur des
+     lignes `gear` — les effets partent de `lignesDesEffets`, jamais d'une seconde lecture. */
+  const gear = [];
+  const armorPieces = [];
+  const lignesDesEffets = [];
+  const gearChoices = (picked.byRoot.get("gear") || [])
+    .filter((entry) => entry.parsed.segments.length === 2 && entry.parsed.segments[1].kind === "index");
+  for (const entry of gearChoices) {
+    const index = entry.parsed.segments[1].value;
+    entry.consumed = true;
+    const ref = entry.choice.ref;
+    if (!ref) {
+      underived.declare(`gear[${index}]`, "underived.choice-not-ref", { path: entry.choice.path });
+      continue;
+    }
+    const view = reader.must(ref.kind, ref.id, `le choix « ${entry.choice.path} »`);
+    const quantity = takeValue(`gear[${index}].quantity`);
+    const equipped = takeValue(`gear[${index}].equipped`);
+    const missing = [];
+    if (!Number.isInteger(quantity)) missing.push(`gear[${index}].quantity`);
+    if (typeof equipped !== "boolean") missing.push(`gear[${index}].equipped`);
+    if (missing.length > 0) {
+      underived.declare(`gear[${view.record.slug || ref.id}]`, "underived.gear-line-incomplete", { missing: missing.join(" et ") });
+      continue;
+    }
+    /* ⭐ LOT 265 — L'OBJET CRAFTÉ : la ligne porte sa RECETTE (`objet-crafte.mjs`),
+       et le nom se recompose ici, par la même fonction que l'écran. ⛔ Un pouvoir
+       dont la couche est absente garde son id — le personnage s'ouvre quand même. */
+    const bonus = takeValue(`gear[${index}].bonus`);
+    const pouvoirs = [];
+    /* LOT 289 — les records qui DÉCRIVENT l'objet : lui-même s'il est un objet magique,
+       son plan, ses pouvoirs. Ce sont eux qui portent des effets. */
+    const objetsDeLaLigne = [];
+    if (ref.kind === "item") objetsDeLaLigne.push({ id: view.id, name: view.record.name, role: "ref" });
+    for (let k = 0; ; k += 1) {
+      const p = takeRef(`gear[${index}].powers[${k}]`);
+      if (p === undefined) break;
+      const pv = p ? reader.maybe(p.kind, p.id) : null;
+      pouvoirs.push(pv ? pv.record.name : (p && p.id) || "");
+      if (pv) objetsDeLaLigne.push({ id: pv.id, name: pv.record.name, role: "power" });
+    }
+    const plan = takeRef(`gear[${index}].plan`);
+    const vueDuPlan = plan ? reader.maybe(plan.kind, plan.id) : null;
+    if (vueDuPlan) objetsDeLaLigne.push({ id: vueDuPlan.id, name: vueDuPlan.record.name, role: "plan" });
+    /* ⭐ LOT 289 — L'HARMONISATION, ÉCRITE PAR LA FICHE X1 depuis le lot 213 (l'interrupteur
+       « Attune »). ⚖️ Eric, 26/09 : *« le joueur le coche dans la fiche X1 »*. Le moteur la
+       LIT enfin : absente, ou autre chose que `true`, veut dire NON harmonisé — ⛔ ce n'est
+       pas une donnée manquante (elle n'entre pas dans `missing`), c'est l'état par défaut. */
+    const attuned = takeValue(`gear[${index}].attuned`) === true;
+    const note = takeValue(`gear[${index}].note`);
+    /* ⭐ LOT 277 — un plan à variante (`Ioun Stone` + « Awareness ») se nomme par sa
+       variante, lue dans le record du plan : « Ioun Stone (Awareness) ». */
+    const variante = takeValue(`gear[${index}].variant`);
+    /* ⭐ LOT 285 — un parchemin (`Spell Scroll` + le sort) se nomme par son sort : « Spell Scroll
+       (Fireball) ». ⛔ Un sort dont la couche est absente garde son id, comme un pouvoir. */
+    const sort = takeRef(`gear[${index}].spell`);
+    const vueDuSort = sort ? reader.maybe(sort.kind, sort.id) : null;
+    const nom = typeof variante === "string" && variante.trim()
+      ? nomDUneVariante({ ...(view.record.data || {}), name: (view.record.data && view.record.data.name) || view.record.name }, variante.trim())
+      : sort ? nomDUnParchemin(view.record.name, vueDuSort ? vueDuSort.record.name : sort.id)
+      : nomCrafte({ base: view.record.name, bonus, pouvoirs });
+    const ligne = { id: view.record.slug || ref.id, name: nom, quantity, equipped };
+    /* ⛔ posé SEULEMENT quand il est vrai : une fiche sans objet harmonisé reste identique
+       à celle d'avant ce lot, octet pour octet */
+    if (attuned) ligne.attuned = true;
+    if (typeof note === "string" && note.trim()) ligne.note = note.trim().slice(0, 500);
+    gear.push(ligne);
+    lignesDesEffets.push({ index, name: nom, equipped, attuned, refKind: ref.kind, variante, bonus,
+      objets: objetsDeLaLigne });
+    /* ⚖️ « You have a bonus to Armor Class while wearing this armor » — le +N d'une
+       armure craftée entre dans la CA. ⛔ Un bonus illisible n'ajoute rien. */
+    if (ref.kind === "armor" && equipped) {
+      armorPieces.push({ view, plus: lireLeBonus(bonus) || 0, index, nom, plan: vueDuPlan ? vueDuPlan.record.name : null });
+    }
+  }
+  if (gear.length === 0) {
+    underived.declare("gear", "underived.no-gear-choices", {});
+  } else {
+    underived.declare("gear[].weight", "underived.weight-is-phrase", {});
+  }
+
+  /* ── LES EFFETS DES OBJETS MAGIQUES — lot 289 ──────────────────────
+     Le plan range chaque effet (appliqué · à part · en attente) ; le REGISTRE note ce
+     qui est appliqué, à chaque endroit où un chiffre naît, plus bas. Voir
+     `effets-objets.mjs` pour les règles d'Eric et l'ordre base → bonus → fixe → plancher. */
+  const planEffets = planDesEffets({ lignes: lignesDesEffets, level });
+  const effets = creerRegistre(planEffets);
+  /* ⚖️ PLUS DE TROIS HARMONISATIONS : l'écran l'empêche (X1), un document écrit à la main
+     peut le porter. ⛔ Le moteur ne CHOISIT PAS lesquelles garder à la place du joueur : il
+     n'en applique AUCUNE (`pending`, raison `attunement-cap`) et le nomme — une violation,
+     le canal des choix illégaux jugés sans jeter (loi §0.5). */
+  const violationsDuPli = [];
+  if (planEffets.depasse) {
+    violationsDuPli.push(buildViolation("gear.attunement-over-cap",
+      { count: planEffets.harmonises, max: PLAFOND_HARMONISATION }, "gear"));
+  }
+
   /* ── CARACTÉRISTIQUES ──────────────────────────────────────────────
      Les scores de base sont des choix ; les augmentations d'arrière-plan sont
      des choix aussi (2024 : c'est le joueur qui répartit +2/+1). La règle qui
@@ -448,6 +558,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     entry.consumed = true;
     scores[key] += entry.choice.value;
   }
+  /* ⭐ LOT 289 — LES EFFETS SUR LES SCORES, AVANT LE PREMIER LECTEUR DE `mod`. */
+  for (const key of ABILITY_KEYS) {
+    scores[key] = effets.appliquer(`ability.${key}`, `resolved.abilities.${key}.score`, scores[key]);
+  }
   const abilities = {};
   for (const key of ABILITY_KEYS) abilities[key] = { score: scores[key], mod: modOf(scores[key]) };
 
@@ -457,7 +571,8 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const resolved = { derivation: { at, stack: structuredClone(stack) }, identity, abilities };
   let proficiency = null;
   if (levelRow && Number.isInteger(levelRow.proficiency_bonus)) {
-    proficiency = levelRow.proficiency_bonus;
+    /* ⭐ LOT 289 — Ioun Stone (Mastery) : la maîtrise se lit partout ensuite, comme `mod`. */
+    proficiency = effets.appliquer("proficiency.bonus", "resolved.proficiency", levelRow.proficiency_bonus);
     resolved.proficiency = proficiency;
   } else {
     underived.declare("proficiency", ...(progression
@@ -469,69 +584,6 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      Calculée APRÈS l'équipement (une armure portée change tout), mais posée
      ici dans l'ordre du schéma. Le calcul est plus bas. */
 
-  /* ── ÉQUIPEMENT ET BOURSE ──────────────────────────────────────────
-     Décision d'architecte (contrat §6) : l'équipement de départ NE SE DÉRIVE
-     PAS au M2 — la source le donne en phrases (« Choisissez A ou B : … »).
-     `resolved.gear` et `resolved.currency` sont nourris par des choix qui
-     nomment directement des records et des montants. */
-  const gear = [];
-  const armorPieces = [];
-  const gearChoices = (picked.byRoot.get("gear") || [])
-    .filter((entry) => entry.parsed.segments.length === 2 && entry.parsed.segments[1].kind === "index");
-  for (const entry of gearChoices) {
-    const index = entry.parsed.segments[1].value;
-    entry.consumed = true;
-    const ref = entry.choice.ref;
-    if (!ref) {
-      underived.declare(`gear[${index}]`, "underived.choice-not-ref", { path: entry.choice.path });
-      continue;
-    }
-    const view = reader.must(ref.kind, ref.id, `le choix « ${entry.choice.path} »`);
-    const quantity = takeValue(`gear[${index}].quantity`);
-    const equipped = takeValue(`gear[${index}].equipped`);
-    const missing = [];
-    if (!Number.isInteger(quantity)) missing.push(`gear[${index}].quantity`);
-    if (typeof equipped !== "boolean") missing.push(`gear[${index}].equipped`);
-    if (missing.length > 0) {
-      underived.declare(`gear[${view.record.slug || ref.id}]`, "underived.gear-line-incomplete", { missing: missing.join(" et ") });
-      continue;
-    }
-    /* ⭐ LOT 265 — L'OBJET CRAFTÉ : la ligne porte sa RECETTE (`objet-crafte.mjs`),
-       et le nom se recompose ici, par la même fonction que l'écran. ⛔ Un pouvoir
-       dont la couche est absente garde son id — le personnage s'ouvre quand même. */
-    const bonus = takeValue(`gear[${index}].bonus`);
-    const pouvoirs = [];
-    for (let k = 0; ; k += 1) {
-      const p = takeRef(`gear[${index}].powers[${k}]`);
-      if (p === undefined) break;
-      const pv = p ? reader.maybe(p.kind, p.id) : null;
-      pouvoirs.push(pv ? pv.record.name : (p && p.id) || "");
-    }
-    take(`gear[${index}].plan`);
-    const note = takeValue(`gear[${index}].note`);
-    /* ⭐ LOT 277 — un plan à variante (`Ioun Stone` + « Awareness ») se nomme par sa
-       variante, lue dans le record du plan : « Ioun Stone (Awareness) ». */
-    const variante = takeValue(`gear[${index}].variant`);
-    /* ⭐ LOT 285 — un parchemin (`Spell Scroll` + le sort) se nomme par son sort : « Spell Scroll
-       (Fireball) ». ⛔ Un sort dont la couche est absente garde son id, comme un pouvoir. */
-    const sort = takeRef(`gear[${index}].spell`);
-    const vueDuSort = sort ? reader.maybe(sort.kind, sort.id) : null;
-    const nom = typeof variante === "string" && variante.trim()
-      ? nomDUneVariante({ ...(view.record.data || {}), name: (view.record.data && view.record.data.name) || view.record.name }, variante.trim())
-      : sort ? nomDUnParchemin(view.record.name, vueDuSort ? vueDuSort.record.name : sort.id)
-      : nomCrafte({ base: view.record.name, bonus, pouvoirs });
-    const ligne = { id: view.record.slug || ref.id, name: nom, quantity, equipped };
-    if (typeof note === "string" && note.trim()) ligne.note = note.trim().slice(0, 500);
-    gear.push(ligne);
-    /* ⚖️ « You have a bonus to Armor Class while wearing this armor » — le +N d'une
-       armure craftée entre dans la CA. ⛔ Un bonus illisible n'ajoute rien. */
-    if (ref.kind === "armor" && equipped) armorPieces.push({ view, plus: lireLeBonus(bonus) || 0 });
-  }
-  if (gear.length === 0) {
-    underived.declare("gear", "underived.no-gear-choices", {});
-  } else {
-    underived.declare("gear[].weight", "underived.weight-is-phrase", {});
-  }
 
   const currency = {};
   const missingCurrency = [];
@@ -556,7 +608,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   } else if (level > 1) {
     underived.declare("vitals.hpMax", "underived.hp-progression-unsupported", { level });
   } else {
-    vitals.hpMax = hitDie + abilities.con.mod;
+    vitals.hpMax = effets.appliquer("hp.max", "resolved.vitals.hpMax", hitDie + abilities.con.mod);
   }
   /* L'ÉTAT DE JEU N'EST PAS RECALCULÉ : une reconstruction ne soigne personne. */
   const beforeVitals = (before.vitals && typeof before.vitals === "object") ? before.vitals : {};
@@ -599,6 +651,13 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     underived.declare("speeds", "underived.species-missing-speed-field", { speedField });
   } else {
     resolved.speeds = { walk: speciesData[speedField] };
+    /* ⭐ LOT 289 — les effets de vitesse sont écrits EN PIEDS (la source est le SRD
+       anglais). ⛔ Dans un document en mètres, on ne convertit pas en devinant : à part. */
+    if (distanceUnit === "ft") {
+      resolved.speeds.walk = effets.appliquer("speed.walk", "resolved.speeds.walk", resolved.speeds.walk);
+    } else {
+      for (const a of effets.effets("speed.walk")) effets.ecarter(a, "unit-mismatch");
+    }
   }
 
   /* ── SENS ──────────────────────────────────────────────────────────
@@ -704,7 +763,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       const proficientSaves = new Set(saveKeys);
       for (const key of ABILITY_KEYS) {
         const isProficient = proficientSaves.has(key);
-        saves[key] = { bonus: abilities[key].mod + (isProficient ? proficiency : 0), proficient: isProficient };
+        const bonus = effets.appliquer("save.all", `resolved.saves.${key}.bonus`,
+          abilities[key].mod + (isProficient ? proficiency : 0));
+        saves[key] = { bonus, proficient: isProficient };
       }
       resolved.saves = saves;
     }
@@ -1106,8 +1167,8 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       id: classView.record.slug || classView.id,
       name: classView.record.name,
       ability: castingKey,
-      dc: 8 + proficiency + mod,
-      attackBonus: proficiency + mod,
+      dc: effets.appliquer("dc.spell", "resolved.spellcasting.dc", 8 + proficiency + mod),
+      attackBonus: effets.appliquer("attack.spell", "resolved.spellcasting.attackBonus", proficiency + mod),
       slots,
       spells
     };
@@ -1506,6 +1567,23 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     }
   }
 
+  /* ── LOT 289 — LES EFFETS SUR LES COMPÉTENCES ET LES OUTILS, APRÈS LES PALIERS ──
+     🔴 PAS PLUS HAUT : la correction des paliers (juste au-dessus) RECALCULE le bonus
+     d'une compétence depuis `mod` + le terme du module — un +5 posé avant aurait été
+     effacé EN SILENCE. `check.all` (« a +1 bonus to ability checks ») touche toutes les
+     compétences et tous les outils : un jet de compétence ou d'outil EST un jet de carac. */
+  if (Array.isArray(resolved.skills)) {
+    resolved.skills = resolved.skills.map((skill) => {
+      const chemin = `resolved.skills[${skill.id}].bonus`;
+      const bonus = effets.appliquer("check.all", chemin, effets.appliquer(`skill.${skill.id}`, chemin, skill.bonus));
+      return bonus === skill.bonus ? skill : { ...skill, bonus };
+    });
+  }
+  for (let i = 0; i < tools.length; i += 1) {
+    const bonus = effets.appliquer("check.all", `resolved.tools[${tools[i].id}].bonus`, tools[i].bonus);
+    if (bonus !== tools[i].bonus) tools[i] = { ...tools[i], bonus };
+  }
+
   if (resolved.tools.length === 0 && !underived.has("tools")) {
     underived.declare("tools", "underived.no-tool-granted", {});
   }
@@ -1540,30 +1618,59 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      plus les `ac_bonus` (le bouclier — arbitrage B4 : « +2 » est un
      modificateur, pas une base). */
   const acBases = [];
-  let acBonus = 0;
+  let acBonus = 0;                 // les boucliers (`ac_bonus`)
+  let bouclier = false;
+  const plusDesLignes = [];        // le +N d'une armure craftée (lot 265)
   let acRefusedArmorId = null;
-  for (const { view, plus } of armorPieces) {
-    const data = view.record.data || {};
-    acBonus += plus;
+  for (const piece of armorPieces) {
+    const data = piece.view.record.data || {};
+    if (piece.plus) plusDesLignes.push(piece);
     const hasBase = Number.isInteger(data.ac_base);
     const hasBonus = Number.isInteger(data.ac_bonus);
     if (!hasBase && !hasBonus) {
-      acRefusedArmorId = view.id;
+      acRefusedArmorId = piece.view.id;
       break;
     }
     if (hasBase) acBases.push({ base: data.ac_base, cap: data.ac_dex_cap });
-    if (hasBonus) acBonus += data.ac_bonus;
+    if (hasBonus) { acBonus += data.ac_bonus; bouclier = true; }
   }
   if (acRefusedArmorId) {
     underived.declare("ac", "underived.armor-missing-ac-fields", { armorId: acRefusedArmorId });
   } else if (acBases.length > 1) {
     underived.declare("ac", "underived.ac-ambiguous-multiple-armor", {});
-  } else if (acBases.length === 1) {
-    const { base, cap } = acBases[0];
-    const dex = cap === null || cap === undefined ? abilities.dex.mod : Math.min(abilities.dex.mod, cap);
-    resolved.ac = base + dex + acBonus;
   } else {
-    resolved.ac = 10 + abilities.dex.mod + acBonus;
+    const sansArmure = acBases.length === 0;
+    let ac;
+    if (sansArmure) ac = 10 + abilities.dex.mod + acBonus;
+    else {
+      const { base, cap } = acBases[0];
+      const dex = cap === null || cap === undefined ? abilities.dex.mod : Math.min(abilities.dex.mod, cap);
+      ac = base + dex + acBonus;
+    }
+    /* ⭐ LOT 289 — ② UN ÉTAT QUE LE MOTEUR VOIT : « If you aren't wearing armor, your base
+       Armor Class is 15 plus your Dexterity modifier » (Robe of the Archmagi). Une BASE, pas
+       un bonus : elle remplace le 10, bouclier compris. Armure portée → à part. */
+    for (const a of effets.effets("ac").filter((x) => x.etat === "no-armor")) {
+      if (!sansArmure) { effets.ecarter(a, "state-unmet"); continue; }
+      const apres = Math.max(ac, a.valeur + (a.plusDex ? abilities.dex.mod : 0) + acBonus);
+      effets.noter(a, "resolved.ac", ac, apres);
+      ac = apres;
+    }
+    /* ⚖️ « You have a bonus to Armor Class while wearing this armor » — le +N d'une armure
+       craftée (lot 265), lu sur la LIGNE. ⭐ Il entre dans `applied` comme tout effet :
+       chaque chiffre de la CA se retrouve depuis la provenance. */
+    for (const piece of plusDesLignes) {
+      const apres = ac + piece.plus;
+      effets.noter({ valeur: piece.plus, public: { line: piece.index, object: piece.nom,
+        item: piece.plan || piece.view.record.name, target: "ac", mode: "bonus", condition: "porte",
+        variant: `+${piece.plus}` } }, "resolved.ac", ac, apres);
+      ac = apres;
+    }
+    /* ② « if you are wearing no armor and using no Shield » (Bracers of Defense). */
+    for (const a of effets.effets("ac").filter((x) => x.etat === "no-armor-no-shield")) {
+      if (!sansArmure || bouclier) effets.ecarter(a, "state-unmet");
+    }
+    resolved.ac = effets.appliquer("ac", "resolved.ac", ac, (a) => a.etat !== "no-armor");
   }
 
   /* Remise dans l'ordre du schéma : un document se relit à l'œil. */
@@ -1573,6 +1680,10 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     "currency", "craft", "stats", "notes"]) {
     if (Object.hasOwn(resolved, key)) ordered[key] = resolved[key];
   }
+  /* ⭐ LOT 289 — LA PROVENANCE DES CHIFFRES, EN DERNIER : elle ne se lit qu'une fois
+     tous les chiffres nés. Toujours présente — trois listes vides pour un personnage
+     sans objet magique, et ce n'est pas un manque (rien n'est à déclarer). */
+  ordered.effects = effets.sortie();
 
   return {
     resolved: ordered,
@@ -1589,8 +1700,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        a besoin pour dire « tu devais en choisir 2, tu en as choisi 1 ». */
     grants: { chosenBy, declarations: Object.fromEntries(GRANT_ROOTS.map((root) => [root, declarations[root].data])) },
     /* LOT 34 — CE QU'UN MODULE A JUGÉ ILLÉGAL, SANS JETER. Recopié tel quel
-       depuis `outcome.violations` (canal générique) ; vide quand aucun module
-       n'en a rendu. */
-    violations: moduleViolations
+       depuis `outcome.violations` (canal générique).
+       ⭐ LOT 289 — et ce que le PLI juge illégal sans jeter : plus de trois objets
+       harmonisés (`gear.attunement-over-cap`). Vide quand personne n'en a rendu. */
+    violations: [...moduleViolations, ...violationsDuPli]
   };
 }

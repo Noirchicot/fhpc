@@ -1073,6 +1073,10 @@
               "equipped": {
                 "type": "boolean"
               },
+              "attuned": {
+                "$comment": "LOT 289 — l'harmonisation, lue sur le choix `gear[N].attuned` que la fiche X1 écrit depuis le lot 213. ⚠️ POSÉE SEULEMENT QUAND ELLE EST VRAIE : une ligne sans harmonisation n'a pas la clef, et une fiche sans objet harmonisé reste identique à celle d'avant ce lot.",
+                "const": true
+              },
               "weight": {
                 "type": "number",
                 "minimum": 0
@@ -1260,6 +1264,255 @@
               "text": {
                 "type": "string",
                 "maxLength": 20000
+              }
+            }
+          }
+        },
+        "effects": {
+          "$comment": "LOT 289 — LA PROVENANCE DES CHIFFRES QUE LES OBJETS MAGIQUES CHANGENT (Eric, 26/09 : une Ioun Stone (Intellect) harmonisée donne vraiment +2 en INT). Trois listes : `applied` (une entrée par CHIFFRE modifié, avec son chemin d'override, l'avant et l'après), `apart` (ce qui ne change aucun chiffre : consommable, à activer, déclenché, sans place dans la fiche…), `pending` (ce qui s'appliquerait avec l'harmonisation ou le choix). ⚠️ FACULTATIVE AU SCHÉMA, ET C'EST VOULU : les documents gardés AVANT ce lot n'en ont pas, et un document refusé ne s'ouvre plus. `derive` la pose TOUJOURS — trois listes vides pour un personnage sans objet magique.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "applied",
+            "apart",
+            "pending"
+          ],
+          "properties": {
+            "applied": {
+              "$comment": "Chaque chiffre modifié, là où il l'a été. Un effet qui touche six sauvegardes y figure six fois.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "line",
+                  "object",
+                  "item",
+                  "target",
+                  "mode",
+                  "value",
+                  "path",
+                  "before",
+                  "after"
+                ],
+                "properties": {
+                  "line": {
+                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet.",
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "object": {
+                    "$comment": "Le nom de la LIGNE, tel que `resolved.gear[].name` le porte (« Ioun Stone (Intellect) »).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "item": {
+                    "$comment": "Le nom du RECORD d'objet magique dont vient l'effet (la ligne elle-même, son plan ou un de ses pouvoirs) — recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "target": {
+                    "$comment": "La cible de l'inventaire (`ability.int`, `ac`, `save.all`…) — `sources-effets/objets-magiques-srd.effets.json`.",
+                    "type": "string",
+                    "pattern": "^[a-z]+(\\.[a-z0-9+-]+)*$",
+                    "maxLength": 80
+                  },
+                  "mode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "value": {
+                    "$comment": "Le nombre APPLIQUÉ (« +1 per level » y devient le niveau, « 15 + Dex » la base 15).",
+                    "type": "integer"
+                  },
+                  "cap": {
+                    "$comment": "Le plafond du bonus (« to a maximum of 20 »).",
+                    "type": "integer"
+                  },
+                  "condition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "variant": {
+                    "$comment": "La variante que l'effet exige (le mot de X5, ou le bonus « +2 »).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "path": {
+                    "$ref": "#/$defs/overridePath"
+                  },
+                  "before": {
+                    "type": "integer"
+                  },
+                  "after": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "apart": {
+              "$comment": "Ce qui ne change aucun chiffre de la fiche, et pourquoi.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "line",
+                  "object",
+                  "item",
+                  "target",
+                  "mode",
+                  "condition",
+                  "reason"
+                ],
+                "properties": {
+                  "line": {
+                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet.",
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "object": {
+                    "$comment": "Le nom de la LIGNE, tel que `resolved.gear[].name` le porte (« Ioun Stone (Intellect) »).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "item": {
+                    "$comment": "Le nom du RECORD d'objet magique dont vient l'effet (la ligne elle-même, son plan ou un de ses pouvoirs) — recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "target": {
+                    "$comment": "La cible de l'inventaire (`ability.int`, `ac`, `save.all`…) — `sources-effets/objets-magiques-srd.effets.json`.",
+                    "type": "string",
+                    "pattern": "^[a-z]+(\\.[a-z0-9+-]+)*$",
+                    "maxLength": 80
+                  },
+                  "mode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "value": {
+                    "$comment": "La valeur telle que l'inventaire l'écrit — un nombre, ou sa phrase (« +1 per level »). Absente hors de la famille « chiffre ».",
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    ]
+                  },
+                  "cap": {
+                    "$comment": "Le plafond du bonus (« to a maximum of 20 »).",
+                    "type": "integer"
+                  },
+                  "condition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "variant": {
+                    "$comment": "La variante que l'effet exige (le mot de X5, ou le bonus « +2 »).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "reason": {
+                    "$comment": "Un IDENTIFIANT (loi §0.13), jamais une phrase : l'écran le dit en mots.",
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,39}$"
+                  }
+                }
+              }
+            },
+            "pending": {
+              "$comment": "Ce qui changerait un chiffre s'il y avait l'harmonisation (`attunement`, `attunement-cap`) ou le choix (`choice`).",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "line",
+                  "object",
+                  "item",
+                  "target",
+                  "mode",
+                  "condition",
+                  "reason"
+                ],
+                "properties": {
+                  "line": {
+                    "$comment": "L'index N de la ligne `gear[N]` qui porte l'objet.",
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "object": {
+                    "$comment": "Le nom de la LIGNE, tel que `resolved.gear[].name` le porte (« Ioun Stone (Intellect) »).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "item": {
+                    "$comment": "Le nom du RECORD d'objet magique dont vient l'effet (la ligne elle-même, son plan ou un de ses pouvoirs) — recopié, jamais fabriqué (§0.13).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "target": {
+                    "$comment": "La cible de l'inventaire (`ability.int`, `ac`, `save.all`…) — `sources-effets/objets-magiques-srd.effets.json`.",
+                    "type": "string",
+                    "pattern": "^[a-z]+(\\.[a-z0-9+-]+)*$",
+                    "maxLength": 80
+                  },
+                  "mode": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "value": {
+                    "$comment": "La valeur telle que l'inventaire l'écrit — un nombre, ou sa phrase (« +1 per level »). Absente hors de la famille « chiffre ».",
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    ]
+                  },
+                  "cap": {
+                    "$comment": "Le plafond du bonus (« to a maximum of 20 »).",
+                    "type": "integer"
+                  },
+                  "condition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "variant": {
+                    "$comment": "La variante que l'effet exige (le mot de X5, ou le bonus « +2 »).",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "reason": {
+                    "$comment": "Un IDENTIFIANT (loi §0.13), jamais une phrase : l'écran le dit en mots.",
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,39}$"
+                  }
+                }
               }
             }
           }

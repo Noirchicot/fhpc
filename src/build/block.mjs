@@ -360,7 +360,10 @@ export function createBuild({ bus, dispatch, now = platformNow, modules = [] } =
         memos: Array.isArray(outcome.memos) ? outcome.memos : [],
         /* LOT 34 — ce qu'un module a jugé illégal SANS jeter (canal générique
            `outcome.violations`, lot 27) : `{key, params, path}`, jamais une
-           phrase. Vide quand aucun module n'en a rendu. */
+           phrase. ⭐ LOT 289 — le pli y ajoute les siens (plus de trois objets
+           harmonisés, `gear.attunement-over-cap`) : le nom est resté, le canal
+           est celui des choix illégaux jugés sans jeter. Vide quand personne
+           n'en a rendu. */
         moduleViolations: Array.isArray(outcome.violations) ? outcome.violations : [],
         overridesApplied: applied,
         shadowed: lastShadowed === null ? [] : lastShadowed.slice(),

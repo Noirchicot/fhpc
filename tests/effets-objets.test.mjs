@@ -4,8 +4,9 @@
    ⭐ `sources-effets/objets-magiques-srd.effets.json` : pour CHAQUE objet magique du SRD
    5.2.1, ses effets (famille, cible, mode, valeur, plafond, condition, variante) et la
    CITATION exacte qui les prouve. Extrait par quatre agents, fusionné et relu par l'archi.
-   ⛔ PRÉCURSEUR : aucun code ne le lit encore. Ces gardes tiennent qu'il DIT VRAI et qu'il
-   est COMPLET — c'est la condition pour que la fiche puisse s'y fier le jour venu. */
+   ⭐ LOT 289 — LA FICHE LE LIT : `src/build/effets-objets.mjs`, par sa copie ES générée.
+   Ces gardes tiennent qu'il DIT VRAI et qu'il est COMPLET — la condition pour que la fiche
+   s'y fie ; `tests/effets-objets-fiche.test.mjs` tient ce que la fiche en FAIT. */
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -78,17 +79,35 @@ test("5 — ⚔️ LES TÉMOINS : les effets qu'on attend, là où on les attend
     "« unless your Speed is higher » : un plancher, pas une valeur fixe");
 });
 
-test("6 — ⛔ PRÉCURSEUR : aucun code ne le lit encore — la fiche décidera", () => {
-  /* ⚖️ « après la fiche décidera de comment les appliquer ». Le jour où un module le lira,
-     ce garde tombera, et c'est voulu : ce sera le lot qui décide. */
+test("6 — ⭐ UN SEUL LECTEUR : le moteur, par sa copie ES — et un seul écrivain de la copie", () => {
+  /* ⚖️ « après la fiche décidera de comment les appliquer ». LOT 289 : la fiche a décidé.
+     🔴 CE GARDE ÉTAIT « aucun lecteur » (lot 282) ; il est tombé exprès, et il est remplacé
+     par celui qui NOMME le lecteur autorisé — un second lecteur (un écran qui relirait
+     l'inventaire pour afficher « +2 ») serait une seconde vérité des effets, et il rougit ici.
+     · à l'exécution, un seul module IMPORTE la copie ES : `src/build/effets-objets.mjs` ;
+     · un seul module lit le `.json` : le générateur de cette copie. */
   const lecteurs = [];
-  for (const dossier of ["src", "ui"]) {
+  const importeurs = [];
+  const retire = (t) => t.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  for (const dossier of ["src", "ui", "bin", "tools"]) {
     const marche = (d) => { for (const f of fs.readdirSync(d, { withFileTypes: true })) {
       const p = path.join(d, f.name);
       if (f.isDirectory()) marche(p);
-      else if (/\.(mjs|js|html)$/.test(f.name) && fs.readFileSync(p, "utf8").includes("sources-effets")) lecteurs.push(path.relative(ROOT, p));
+      else if (/\.(mjs|js|html)$/.test(f.name)) {
+        /* ⚠️ L'IMPORT MAP d'`index.html` ÉPINGLE l'URL versionnée de la copie (le graphe du
+           navigateur, `bin/nouvelle-version.mjs`) : une épingle n'est pas une lecture. Elle
+           est retirée, et elle SEULE — une autre mention dans la page compterait. */
+        const texte = fs.readFileSync(p, "utf8").replace(/<script type="importmap">[\s\S]*?<\/script>/g, " ");
+        if (texte.includes("sources-effets")) lecteurs.push(path.relative(ROOT, p));
+        if (/(from|import\()\s*["'][^"']*sources-effets\/objets-magiques-srd\.effets\.mjs/.test(retire(texte))) {
+          importeurs.push(path.relative(ROOT, p));
+        }
+      }
     } };
-    marche(path.join(ROOT, dossier));
+    if (fs.existsSync(path.join(ROOT, dossier))) marche(path.join(ROOT, dossier));
   }
-  assert.deepEqual(lecteurs, []);
+  assert.deepEqual(importeurs, ["src/build/effets-objets.mjs"],
+    "⛔ la copie ES n'a qu'un lecteur : le moteur des effets");
+  assert.deepEqual(lecteurs.sort(), ["src/build/effets-objets.mjs", "src/tools/gen-effets-objets.mjs"],
+    "⛔ hors du moteur et de son générateur, personne ne nomme l'inventaire");
 });

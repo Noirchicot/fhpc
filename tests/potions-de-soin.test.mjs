@@ -10,7 +10,10 @@
        ouvre toujours X2 (on l'achète d'abord), pas X5 ;
      ③ LES QUATRE PRIX ET TEMPS dans X5 — valeur, coût, temps, rareté ;
      ④ LE PILOTE appelle la même porte pour ses deux gestes (actif ? ouvrir ?).
-   ⛔ AUCUN PRÉREQUIS (Herbalism Kit…) : Eric n'a pas tranché s'il faut l'afficher. */
+   ⚖️ LE PRÉREQUIS EST TRANCHÉ — Eric, 26/09 : *« herbalism ou alchemical kit pour le kit
+   pour produire une potion, non pas de X5 »*. La règle : fabriquer une potion DEMANDE un kit
+   (Herbalism Kit OU Alchemist's Supplies). ⛔ Mais X5 ne l'affiche NI ne le vérifie : c'est
+   voulu, pas un oubli — aucun garde ici ne l'attend donc. */
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";

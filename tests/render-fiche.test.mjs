@@ -115,8 +115,10 @@ test("le nom du personnage s'affiche en titre — et son absence se dit", () => 
     "sans nom, le titre le DIT — et le mot vient du paquet, jamais du code");
 });
 
-test("les 21 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
-  assert.equal(RUBRIQUES.length, 21, "le contrat en déclare 21 — si ce nombre bouge, c'est ici qu'on l'apprend");
+/* ⭐ LOT 289 — 21 → 22 : `effects`, la provenance des chiffres que les objets magiques
+   changent (Eric, 26/09). C'est ICI que le nombre devait bouger, et il a bougé ici. */
+test("les 22 rubriques de `resolved` apparaissent, et la liste vient du schéma", () => {
+  assert.equal(RUBRIQUES.length, 22, "le contrat en déclare 22 (21 jusqu'au lot 289, + `effects`) — si ce nombre bouge, c'est ici qu'on l'apprend");
   const html = render(exemple.document, exemple.report);
   for (const cle of RUBRIQUES) {
     assert.ok(section(html, cle) !== null, `la rubrique « ${cle} » a sa place à l'écran`);
