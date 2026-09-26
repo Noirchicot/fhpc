@@ -134,7 +134,7 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
-         boitesDehors, scinderLaLigne, retirerLaLigne } from "./equipment-step.mjs?v=837";
+         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe } from "./equipment-step.mjs?v=837";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -2166,12 +2166,24 @@ function applyDecisionAction(action) {
       return;
     }
   }
+  /* ⚖️ LOT 292 — `equipped` NE S'ÉCRIT QUE PAR `accorderLEquipe` (`equipment-step.mjs`) :
+     Eric, 26/09 : « seul un item sur les cases valide du gear, peuvent porter le symbole
+     équipé, dès qu'elles le quittent elle ne sont plus équipées ». ⭐ Chaque geste dit ce
+     qu'il DEMANDE pour sa ligne, la fonction tranche selon la case. ⛔ Aucun verbe ci-dessous
+     n'écrit plus `gear[N].equipped` à `true` lui-même : une ligne NEUVE (achat, kit,
+     scission) y écrit le `false` de naissance — le chemin est requis par `derive.mjs` — et
+     `accorder` passe derrière chacun. */
+  const accorder = (document, index, voulu) => accorderLEquipe({ document, verbs,
+    query: state.engine && state.engine.layers ? state.engine.layers.verbs.query : null, index, voulu });
   if (action.kind === "addGearLine") {
     const index = nextGearIndex(state.document);
     let document = state.document;
     document = verbs.choose({ document, path: `gear[${index}]`, ref: action.ref }).document;
     document = verbs.set({ document, path: `gear[${index}].quantity`, value: action.quantity }).document;
-    document = verbs.set({ document, path: `gear[${index}].equipped`, value: action.equipped }).document;
+    /* ⭐ LOT 292 — le chemin existe dès la pose (sinon `derive.mjs` déclare la ligne
+       incomplète), et il naît `false` : c'est `accorder`, plus bas, qui dit si la case
+       permet ce que l'écran demande. */
+    document = verbs.set({ document, path: `gear[${index}].equipped`, value: false }).document;
     /* ⭐ PIPELINE (24/08) — la POSITION d'une ligne : self | backpack | storage.
        Mesurée AVANT d'écrire : les verbes l'acceptent, zéro violation au
        rebuild. Facultative — les lignes d'avant ce champ se lisent
@@ -2208,14 +2220,15 @@ function applyDecisionAction(action) {
         document = verbs.choose({ document, path: `gear[${index}].spell`, ref: recette.sort }).document;
       }
     }
-    state.document = document;
+    state.document = accorder(document, index, action.equipped === true);
     rebuild();
     refresh();
     return;
   }
   /* PIPELINE (24/08) — DÉPLACER une ligne à l'intérieur du personnage :
-     self ↔ backpack ↔ storage. `equipped` SUIT la position (porté = self),
-     jamais l'inverse — une seule écriture de la vérité. */
+     self ↔ backpack ↔ storage. `equipped` SUIT la position (porté = self, ET sur une
+     case qui convient à l'objet — lot 292), jamais l'inverse — une seule écriture de la
+     vérité. */
   /* LOT 212 — PLACER une ligne dans un emplacement de R, au doigt (Eric, 16/09 :
      « les items peuvent se déplacer dans tous les sens »). La boîte est un CHOIX
      du personnage (`gear[N].boite`), comme la position. Le sol (`sol1`, `sol2`)
@@ -2235,7 +2248,6 @@ function applyDecisionAction(action) {
     const range = seRange(action.boite);
     document = verbs.set({ document, path: `gear[${action.index}].boite`, value: action.boite }).document;
     document = verbs.set({ document, path: `gear[${action.index}].location`, value: lieu }).document;
-    document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: lieu === "self" }).document;
     /* ⚖️ ET LA PLACE S'ÉCRIT — Eric, 18/09 : *« le rangement fait partie des caracs
        du perso »*. ⭐ `action.place` quand l'écran DÉSIGNE une case (un dépôt sur un
        creux précis) ; sinon la première libre, *« prochain emplacement dispo »*. */
@@ -2259,7 +2271,8 @@ function applyDecisionAction(action) {
     } else {
       document = verbs.clear({ document, path: `gear[${action.index}].place`, kind: "choice" }).document;
     }
-    state.document = document;
+    /* ⚖️ LOT 292 — poser sur le corps DEMANDE l'équipement ; la case le permet ou non. */
+    state.document = accorder(document, action.index, lieu === "self");
     rebuild();
     refresh();
     return;
@@ -2310,7 +2323,6 @@ function applyDecisionAction(action) {
   if (action.kind === "moveGearLine") {
     let document = state.document;
     document = verbs.set({ document, path: `gear[${action.index}].location`, value: action.location }).document;
-    document = verbs.set({ document, path: `gear[${action.index}].equipped`, value: action.location === "self" }).document;
     /* 🔴 ET LA BOÎTE SE VIDE, parce qu'elle appartient au LIEU qu'on quitte —
        dette révélée en mesurant les chemins des sections (18/09) : `moveGearLine`
        n'y touchait pas, donc un objet parti de `tete1` vers le sac gardait
@@ -2323,7 +2335,9 @@ function applyDecisionAction(action) {
        Un objet qui quitte le sac n'a plus de place, et celui qui y revient en
        recevra une neuve — la première libre. */
     document = verbs.clear({ document, path: `gear[${action.index}].place`, kind: "choice" }).document;
-    state.document = document;
+    /* ⚖️ LOT 292 — porté, il DEMANDE l'équipement, et la case que l'écran lui donnera par
+       son slot le permet ou non ; rangé, il ne l'est plus. */
+    state.document = accorder(document, action.index, action.location === "self");
     rebuild();
     refresh();
     return;
@@ -2353,7 +2367,9 @@ function applyDecisionAction(action) {
     if (!source || !(part >= 1) || part >= total) return;
     const document = scinderLaLigne({ document: state.document, verbs, source, part,
       index: nextGearIndex(state.document), location: action.location });
-    state.document = document;
+    /* ⚖️ LOT 292 — la part qui reste garde son état ; la part détachée naît nue ; et
+       `accorder` relit tout, car la part qui arrive sur le corps peut déplacer une autre. */
+    state.document = accorder(document);
     rebuild();
     refresh();
     return;
@@ -2532,6 +2548,9 @@ function applyDecisionAction(action) {
          déshabiller parce qu'on en reçoit un second exemplaire. */
       if (pose.neuve) document = verbs.set({ document, path: `gear[${pose.index}].equipped`, value: false }).document;
     }
+    /* ⚖️ LOT 292 — et la même relecture que tout geste : un kit qui fusionne avec une ligne
+       déjà là ne doit pas laisser un état que sa case ne permet pas. */
+    document = accorder(document);
     if (butin.cout) {
       const bourse = currentCurrency(document);
       for (const key of CURRENCY_KEYS) {
@@ -2569,7 +2588,7 @@ function applyDecisionAction(action) {
        incomplète par construction : `retirerLaLigne` efface TOUT chemin `gear[N]…` lu dans le
        document. */
     const document = retirerLaLigne({ document: state.document, verbs, index: action.index });
-    state.document = document;
+    state.document = accorder(document);
     rebuild();
     refresh();
     return;

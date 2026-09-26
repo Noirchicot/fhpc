@@ -3188,21 +3188,150 @@ function fabriquerChercheur(query) {
       tous.push({ kind: v.kind || kind, view: v });
     }
   }
-  for (const v of rangements) {
-    const d = (v.record && v.record.data) || {};
-    const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
-    if (d.extends && slot) slotParBase.set(d.extends, slot);
-  }
+  for (const [base, slot] of slotsDesRangements(rangements)) slotParBase.set(base, slot);
   /* ⭐ LA VALEUR SE FABRIQUE AVEC LE CHERCHEUR, une passe par rendu : la pile peut
      changer (un World qu'on allume), et une table de valeurs figée au chargement
      survivrait à la pile qui l'a produite. */
   const valeurDe = fabriqueDeValeur(query);
   return {
     record: (ref) => parId.get(ref && ref.id) || null,
-    slot: (ref) => slotParBase.get(ref && ref.id) || null,
+    slot: lecteurDeSlot(slotParBase, (ref) => parId.get(ref && ref.id) || null),
     valeur: (record) => valeurDe(record),
     tous: () => tous,
   };
+}
+
+/** id de base → slot, LU dans les rangements (`data.slot.slot` + `data.extends`).
+ *  ⭐ UN SEUL LECTEUR, DEUX CLIENTS : le chercheur de l'écran, et la coquille quand elle
+ *  décide si un geste peut laisser un objet équipé (lot 292) — deux lectures du slot
+ *  diraient deux vérités sur la même case. */
+function slotsDesRangements(rangements) {
+  const slots = new Map();
+  for (const v of rangements || []) {
+    const d = (v && v.record && v.record.data) || {};
+    const slot = d.slot && typeof d.slot.slot === "string" ? d.slot.slot : null;
+    if (d.extends && slot) slots.set(d.extends, slot);
+  }
+  return slots;
+}
+
+/** Le slot d'une ref, lu dans la pile — pour qui n'a pas le chercheur de l'écran. */
+export function slotsDeLaPile(query) {
+  let rangements = [];
+  try { rangements = (query && query({ kind: GENRE_RANGEMENT })) || []; }
+  catch { /* la couche absente : aucun slot, donc aucune case valide — rien ne s'équipe */ }
+  const slots = slotsDesRangements(rangements);
+  /* le record, lu À LA DEMANDE et par genre : seul un objet sans slot écrit le demande */
+  const parGenre = new Map();
+  const recordDe = (ref) => {
+    if (!ref || typeof ref.kind !== "string") return null;
+    if (!parGenre.has(ref.kind)) {
+      let vues = [];
+      try { vues = (query && query({ kind: ref.kind })) || []; } catch { vues = []; }
+      parGenre.set(ref.kind, new Map(vues.map((v) => [v.id, v.record || v])));
+    }
+    return parGenre.get(ref.kind).get(ref.id) || null;
+  };
+  return lecteurDeSlot(slots, recordDe);
+}
+
+/* ══ LOT 292, SECONDE PASSE — CE QUE L'OBJET EST DIT OÙ IL SE PORTE ══════════════════
+   ⚖️ L'architecte, 26/09 : « les armes, armures et boucliers ont une case, même sans slot
+   écrit dans leur record ». 🔴 MESURÉ : 33 armes magiques, 12 armures magiques, 7 boucliers
+   magiques, 12 bâtons, 13 baguettes et 7 sceptres n'avaient AUCUN slot dans les rangements
+   — une Flame Tongue ne pouvait pas s'équiper, la dague dont elle descend si.
+   ⭐ CE N'EST PAS UNE CORRESPONDANCE NEUVE : c'est celle que les rangements appliquent déjà
+   aux objets mondains — `hands` pour les 38 armes et le bouclier, `torso` pour les 12
+   armures. On la lit dans la DONNÉE du record (`kind`, `category`, `armor_category`,
+   `subtype`), ⛔ jamais dans une liste de noms.
+   ⛔ Tout le reste (objets merveilleux sans slot, potions, parchemins, Luckstone…) reste
+   sans case : c'est à Eric de le dire. */
+/** Le slot qu'un record DIT par sa nature, quand les rangements n'en écrivent pas. */
+export function slotParNature(kind, record) {
+  const d = (record && record.data) || {};
+  const bouclier = d.armor_category === "shield" || d.subtype === "Shield";
+  if (kind === "weapon") return "hands";
+  if (kind === "armor") return bouclier ? "hands" : "torso";
+  if (kind !== "item") return null;
+  if (d.category === "weapon") return "hands";
+  if (d.category === "armor") return bouclier ? "hands" : "torso";
+  if (["staff", "wand", "rod"].includes(d.category)) return "hands";
+  return null;
+}
+
+/** ⭐ LE SEUL LECTEUR DE SLOT : celui que les rangements écrivent, sinon celui que le
+ *  record dit par sa nature. L'écran (`fabriquerChercheur`) et la coquille
+ *  (`slotsDeLaPile`) le construisent tous deux ici. */
+function lecteurDeSlot(slots, recordDe) {
+  return (ref) => {
+    if (!ref) return null;
+    return slots.get(ref.id) || slotParNature(ref.kind, recordDe(ref)) || null;
+  };
+}
+
+/* ══ LOT 292 — ÉQUIPÉ SEULEMENT SUR SA CASE ══════════════════════════════════════════
+   ⚖️ Eric, 2026-09-26, mot pour mot : « seul un item sur les cases valide du gear, peuvent
+   porter le symbole équipé, dès qu'elles le quittent elle ne sont plus équipées. »
+   🔴 CE QUI ÉTAIT FAUX : `placerGearLine` écrivait `equipped = lieu === "self"`, donc TOUTE
+   boîte du personnage équipait — une armure posée dans « Extra storage 3 », un anneau sur
+   le torse. `lieuDeLaBoite` dit OÙ est l'objet (porté, rangé, au sol) ; il ne dit pas si
+   la case lui CONVIENT. C'est une seconde question, et elle n'avait pas de réponse.
+   ⭐ LA RÉPONSE EST LA TABLE RATIFIÉE LE 24/08, ET RIEN D'AUTRE : `SLOT_VERS_BOITES`. Une
+   case est valide pour un objet si et seulement si elle figure dans la liste de SON slot.
+   ⛔ `POCHES_DEBORD` (les quatre Extra storage) N'EN EST PAS : Eric les a ratifiées comme
+   le DÉBORD de tout slot — *« sinon Pocket, sinon backpack »* — un endroit où l'on range ce
+   qui n'a pas trouvé sa case, pas une case où on le porte.
+   ⛔ Un objet SANS slot — ni écrit par les rangements, ni dit par sa nature
+   (`slotParNature` : armes, armures, boucliers, bâtons, baguettes, sceptres) — n'a aucune
+   case valide : il ne s'équipe pas. On n'invente pas de correspondance — le trou va à Eric. */
+
+/** ⭐ LA SEULE FONCTION QUI DÉCIDE : la boîte `boite` est-elle une case valide pour un
+ *  objet du slot `slot` ? Tout écrivain et tout lecteur de `equipped` passe par elle. */
+export function caseValide(boite, slot) {
+  if (typeof slot !== "string" || !Object.hasOwn(SLOT_VERS_BOITES, slot)) return false;
+  return SLOT_VERS_BOITES[slot].includes(String(boite));
+}
+
+/** LES LIGNES QUI SONT SUR UNE CASE VALIDE — leur index. Une ligne y est si elle est
+ *  PORTÉE (`self` ; ⛔ le sol n'équipe jamais, *« ground : tu portes pas, tu n'équipes
+ *  pas »*) et si la boîte qu'elle occupe VRAIMENT — celle que l'écran R lui donne, par
+ *  `boitesDesPortees` — convient à son slot (`caseValide`).
+ *  ⭐ LA BOÎTE EST CELLE DE L'ÉCRAN, PAS CELLE DU DOCUMENT : une ligne sans `boite` se
+ *  range par son slot au rendu, et une `boite` déjà prise la renvoie ailleurs. Lire
+ *  `gear[N].boite` seul dirait « sur sa case » d'un objet que l'écran montre en poche. */
+export function lignesSurLeurCase(lignes, slotDe) {
+  const portees = (lignes || []).filter((l) => l && l.ref
+    && ["self", "ground"].includes(l.location || "backpack"));
+  const sur = new Set();
+  for (const [boite, ligne] of boitesDesPortees(portees, slotDe)) {
+    if ((ligne.location || "backpack") === "self" && caseValide(boite, slotDe(ligne.ref))) sur.add(ligne.index);
+  }
+  return sur;
+}
+
+/** ⭐ LE SEUL ÉCRIVAIN DE `gear[N].equipped` — la coquille l'appelle à la fin de CHAQUE
+ *  geste qui déplace, ajoute, scinde ou retire une ligne.
+ *  · `index` + `voulu` : ce que le geste DEMANDE pour sa ligne (placer sur le corps : oui ;
+ *    ranger : non ; un achat : ce que dit l'écran) ;
+ *  · puis TOUTES les lignes sont relues : une ligne `equipped: true` qui n'est pas sur
+ *    une case valide est ramenée à `false`. ⛔ Et c'est toutes, pas la seule ligne du
+ *    geste : une boîte explicite prise par un objet peut renvoyer un AUTRE objet (rangé
+ *    par son slot) en poche — il a quitté sa case sans qu'on l'ait touché.
+ *  ⛔ Il n'équipe jamais une ligne que le geste n'a pas demandée : « peut porter » n'est
+ *  pas « porte ». */
+export function accorderLEquipe({ document, verbs, query, index, voulu }) {
+  let doc = document;
+  if (Number.isInteger(index) && typeof voulu === "boolean") {
+    doc = verbs.set({ document: doc, path: `gear[${index}].equipped`, value: voulu }).document;
+  }
+  const lignes = currentGearLines(doc);
+  const sur = lignesSurLeurCase(lignes, slotsDeLaPile(query));
+  for (const l of lignes) {
+    if (l.equipped === true && !sur.has(l.index)) {
+      doc = verbs.set({ document: doc, path: `gear[${l.index}].equipped`, value: false }).document;
+    }
+  }
+  return doc;
 }
 
 /** LES PORTÉS DANS LEURS BOÎTES — slot (donné par la couche) → boîte, via
@@ -3213,6 +3342,24 @@ function fabriquerChercheur(query) {
 function candidatesDuSlot(slot) {
   /* la règle ratifiée : les boîtes du slot, PUIS les poches — pour tous. */
   return [...((slot && SLOT_VERS_BOITES[slot]) || []), ...POCHES_DEBORD];
+}
+/** boîte → ligne, pour les lignes de R — ⭐ LA RÈGLE DE PLACEMENT, UNE FOIS : l'écran en
+ *  peint les jetons (`attribuerBoites`), le lot 292 en lit la case de chaque ligne
+ *  (`lignesSurLeurCase`). ⛔ Deux copies de ce placement diraient deux cases. */
+function boitesDesPortees(portees, slotDe) {
+  const prises = new Map();
+  /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
+     déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle
+     est libre ; la règle du slot ne sert qu'aux autres. */
+  for (const ligne of portees) {
+    if (ligne.boite && !prises.has(ligne.boite)) prises.set(ligne.boite, ligne);
+  }
+  for (const ligne of portees) {
+    if (ligne.boite && prises.get(ligne.boite)?.index === ligne.index) continue;
+    const libre = candidatesDuSlot(slotDe(ligne.ref)).find((b) => !prises.has(b));
+    if (libre) prises.set(libre, ligne);
+  }
+  return prises;
 }
 function attribuerBoites(portees, cherche) {
   const prises = new Map();
@@ -3234,20 +3381,10 @@ function attribuerBoites(portees, cherche) {
        dans la prose du SRD), et c'est ce champ que le prédicat lit. */
     recette: estRecette(cherche.record(ligne.ref))
   });
-  /* ⭐ LOT 212 — D'ABORD LA BOÎTE CHOISIE AU DOIGT (Eric : « les items peuvent se
-     déplacer dans tous les sens ») : une ligne qui porte `boite` y va, si elle
-     est libre ; la règle du slot ne sert qu'aux autres. */
-  for (const ligne of portees) {
-    if (ligne.boite && !prises.has(ligne.boite)) pose(ligne, ligne.boite);
-  }
-  for (const ligne of portees) {
-    if (ligne.boite && prises.get(ligne.boite)?.index === ligne.index) continue;
-    const libre = candidatesDuSlot(cherche.slot(ligne.ref)).find((b) => !prises.has(b));
-    /* LOT 212 — la boîte porte aussi l'INDEX (le collecteur retient des lignes)
-       et l'état ÉQUIPÉ (le voyant ⭕) ; LOT 213 — et les deux autres états, que la
-       fiche X1 écrit maintenant. */
-    if (libre) pose(ligne, libre);
-  }
+  /* LOT 212 — la boîte porte aussi l'INDEX (le collecteur retient des lignes)
+     et l'état ÉQUIPÉ (le voyant ⭕) ; LOT 213 — et les deux autres états, que la
+     fiche X1 écrit maintenant. ⭐ LOT 292 — le placement vit dans `boitesDesPortees`. */
+  for (const [boite, ligne] of boitesDesPortees(portees, cherche.slot)) pose(ligne, boite);
   return Object.fromEntries(prises);
 }
 
@@ -3316,6 +3453,22 @@ export function renderEquipmentStep(ctx, onAction) {
     return nomCrafte({ base, bonus: l.bonus, pouvoirs });
   };
   for (const l of lignes) l.nomAffiche = nomDeLaLigne(l);
+  /* ⚖️ LOT 292 — LE LECTEUR LIT LA VÉRITÉ, ET LA VÉRITÉ EST LA POSITION. Eric, 26/09 :
+     « seul un item sur les cases valide du gear, peuvent porter le symbole équipé ».
+     ⭐ LA CORRECTION DES DOCUMENTS DÉJÀ SAUVEGARDÉS SE FAIT ICI, ET SEULEMENT ICI : c'est
+     la porte par où passent TOUTES les lignes que l'étape montre — les jetons de Gear
+     (`attribuerBoites`), le sac (`enMots`), la fiche X1. Une ligne ancienne
+     `equipped: true` rangée au sac ou en poche s'affiche donc nue, sans que le document
+     soit réécrit par un RENDU (⛔ un rendu n'écrit pas). Le document, lui, se remet
+     d'accord au premier geste : `accorderLEquipe` relit toutes les lignes.
+     ⛔ Pas au chargement : réécrire un document à l'ouverture ferait d'un simple regard
+     une modification du personnage. */
+  const surLeurCase = lignesSurLeurCase(lignes, cherche.slot);
+  for (const l of lignes) l.equipped = l.equipped === true && surLeurCase.has(l.index);
+  /* la case que chaque ligne de R occupe VRAIMENT — X1 y repose l'objet qu'on équipe */
+  const caseDeLaLigne = new Map([...boitesDesPortees(
+    lignes.filter((l) => ["self", "ground"].includes(l.location || "backpack")), cherche.slot)]
+    .map(([boite, l]) => [l.index, boite]));
   /* ⭐ LOT 266 — LE PRIX, LE POIDS ET LE TEXTE D'UNE LIGNE, par la même porte que son
      nom. Un objet ordinaire rend ceux de son record ; un objet crafté, ceux de sa
      RECETTE (`valeurDUnObjetCrafte`, `recordProse(…, recette)`). 🔴 Sans elle, la
@@ -3997,6 +4150,13 @@ export function renderEquipmentStep(ctx, onAction) {
         attuned: ligne.attuned === true,
         locked: ligne.locked === true
       },
+      /* ⚖️ LOT 292 — HORS DE SA CASE, `Equip` S'ÉTEINT ET DIT POURQUOI. ⭐ Un objet équipé
+         est sur sa case par construction (le lecteur plus haut) : l'interrupteur ne
+         s'éteint donc jamais sous un objet qu'on voudrait dévêtir. */
+      /* 🔄 SECONDE PASSE (l'architecte, 26/09) : `Equip` ne s'éteint QUE pour un objet qui
+         n'a AUCUNE case possible — hors de sa case, il la lui cherche (plus bas). */
+      horsCase: ligne.equipped === true || cherche.slot(ligne.ref) ? null
+        : "No Gear slot fits this item — it cannot be equipped",
       nombre: nombreX1,
       destination: destinationEnvoi,
       /* ⚖️ LE PLAFOND D'HARMONISATION DU SRD — trois, et Eric l'a rappelé le 18/09 :
@@ -4013,12 +4173,26 @@ export function renderEquipmentStep(ctx, onAction) {
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ TROIS ÉTATS, DEUX ÉCRITURES DIFFÉRENTES, ET C'EST LE DÉPÔT QUI LE DIT :
          `equipped` n'est pas un drapeau libre — il est le REVERS de la position
-         (*« tu portes pas, tu n'équipes pas »*, Eric 16/09), donc on déplace
-         l'objet et `moveGearLine` pose l'état. `attuned` et `locked`, eux, sont
+         (*« tu portes pas, tu n'équipes pas »*, Eric 16/09), donc un verbe de
+         POSITION porte le geste et `accorderLEquipe` (lot 292) pose l'état selon
+         la case. `attuned` et `locked`, eux, sont
          des choix du personnage que rien ne déduit : ils passent par leur propre
          verbe. ⛔ Écrire `equipped` à la main ferait diverger l'état et le lieu. */
       surEtat: (clef, valeur) => {
-        if (clef === "equipped") actArbitre({ kind: "moveGearLine", index: ligne.index, location: valeur ? "self" : "backpack" });
+        /* ⚖️ LOT 292 — ÉQUIPER, DEUX CAS, ET LA CASE D'ARRIVÉE DÉCIDE (`accorderLEquipe`) :
+           · DÉJÀ SUR SA CASE (une part scindée arrivée là) : `placerGearLine` sur la case où il
+             est — ⛔ rien ne bouge ;
+           · AILLEURS (sac, Extra storage, une case qui ne lui va pas) : le geste d'avant, par
+             l'ARBITRE ratifié d'Eric (24/08) — *« si c'est libre l'item prend son slot, sinon
+             Pocket, sinon backpack »*. Arrivé sur sa case, il est équipé ; en Extra storage ou
+             retombé au sac, il ne l'est pas.
+           ⭐ DÉVÊTIR GARDE LE GESTE D'AVANT : l'objet part au sac. */
+        if (clef === "equipped") {
+          const boite = caseDeLaLigne.get(ligne.index);
+          if (!valeur) actArbitre({ kind: "moveGearLine", index: ligne.index, location: "backpack" });
+          else if (boite && surLeurCase.has(ligne.index)) act({ kind: "placerGearLine", index: ligne.index, boite });
+          else actArbitre({ kind: "moveGearLine", index: ligne.index, location: "self" });
+        }
         else act({ kind: "setGearChamp", index: ligne.index, champ: clef, value: valeur });
       },
       est: ligne.is || "",
