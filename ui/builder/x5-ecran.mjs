@@ -421,21 +421,26 @@ function laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnai
   return out;
 }
 
-/** ⚖️ LE PIED — Cancel (gauche) · Send to (centré) · Send (droite). `pret` arme `Send`,
+const MOT_SEND = D.ORGANES.find((o) => o.nom === "SEND").mot;
+
+/** ⚖️ LE PIED — Cancel (gauche) · Send to (centré) · Craft & Send (droite). `pret` arme `Send`,
  *  `pourquoi` dit pourquoi il ne l'est pas. */
 function lePied({ destination, surChoix, surAnnuler, pret, pourquoi, envoyer }) {
   const cancel = elx("button", "x5-porte", "Cancel");
   cancel.type = "button"; cancel.dataset.organe = "CANCEL";
   if (surAnnuler) cancel.addEventListener("click", surAnnuler);
-  const send = elx("button", "x5-porte", "Send");
+  /* ⚖️ LOT 302 — « Craft & / Send », sur deux lignes (Eric, 26/09) : c'est ce bouton qui CRÉE
+     l'objet — avant lui, le contenu du collecteur n'est pas un item (lot 300). ⭐ Le MOT est
+     celui du plan (`X5_gen.py`), ⛔ pas un littéral ici : un seul écrivain. */
+  const send = elx("button", "x5-porte", MOT_SEND);
   send.type = "button"; send.dataset.organe = "SEND";
   send.disabled = !pret;
   if (pret) {
-    send.setAttribute("aria-label", "Send — put the crafted item in the character's equipment");
+    send.setAttribute("aria-label", "Craft & Send — create the item and put it in the character's equipment");
     send.addEventListener("click", envoyer);
   } else {
-    send.title = `Send — ${pourquoi}`;
-    send.setAttribute("aria-label", `Send — not available: ${pourquoi}`);
+    send.title = `Craft & Send — ${pourquoi}`;
+    send.setAttribute("aria-label", `Craft & Send — not available: ${pourquoi}`);
   }
   return [cancel,
     menu("SEND TO", destination,

@@ -821,3 +821,14 @@ test("38 — ⚖️ LOT 288 : EN PILE SRD, `Ammunition, +1…` S'OUVRE SUR LA G�
   noeud.querySelector('[data-organe="SEND"]').dispatchEvent(new Event("click"));
   assert.deepEqual(recus[0].cout, enPieces(100), "📏 Crafting : 400 ÷ 2 ÷ 2 = 100 GP, une fois");
 });
+
+/* ══ LOT 302 — « CRAFT & / SEND » ═══════════════════════════════════════════════
+   ⚖️ Eric, 26/09 : « Craft & / Send » (deux lignes), à « Craft & Send ne tient pas dans 77 ».
+   ⭐ TÉMOIN : le mot de la porte est celui du PLAN, retour à la ligne compris — dans toutes
+   les familles de X5 (base, variante, parchemin : un seul pied). */
+test("302 — la porte de X5 dit « Craft & / Send », le mot du plan, sur deux lignes", () => {
+  const mots = D.ORGANES.filter((o) => o.nom === "SEND").map((o) => o.mot);
+  assert.ok(mots.length >= 2 && mots.every((m) => m === "Craft &\nSend"), "le plan (X5_gen.py) porte le mot sur deux lignes");
+  const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Dagger", bonus: "Uncommon" } });
+  assert.equal(noeud.querySelector('[data-organe="SEND"]').textContent, "Craft &\nSend", "⭐ la porte lit le mot du plan");
+});

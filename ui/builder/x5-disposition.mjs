@@ -36,7 +36,7 @@ export const ORGANES = [
   { nom: "MONTANT", sorte: "voyant", x: 276, y: 369, l: 40, h: 40, mot: "999 gp", cran: "T1/400", dans: "PURSE" },
   { nom: "CANCEL", sorte: "porte", x: 14, y: 424, l: 77, h: 40, cible: { x: 14, y: 422, l: 77, h: 44 }, mot: "Cancel", cran: "T2/600", role: "retour" },
   { nom: "SEND TO", sorte: "dropdown", x: 112.5, y: 424, l: 150, h: 40, cible: { x: 112.5, y: 422, l: 150, h: 44 }, mot: "Backpack", cran: "T2/600" },
-  { nom: "SEND", sorte: "porte", x: 284, y: 424, l: 77, h: 40, cible: { x: 284, y: 422, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
+  { nom: "SEND", sorte: "porte", x: 284, y: 424, l: 77, h: 40, cible: { x: 284, y: 422, l: 77, h: 44 }, mot: "Craft &\nSend", cran: "T2/600" },
   { nom: "CLASS", sorte: "dropdown", x: 14, y: 34, l: 169.5, h: 40, cible: { x: 14, y: 32, l: 169.5, h: 44 }, mot: "Wizard", cran: "T2/600", famille: "parchemin" },
   { nom: "LEVEL", sorte: "dropdown", x: 191.5, y: 34, l: 169.5, h: 40, cible: { x: 191.5, y: 32, l: 169.5, h: 44 }, mot: "Level 3", cran: "T2/600", famille: "parchemin" },
   { nom: "SORTS", sorte: "grille", x: 49, y: 80, l: 277, h: 216, mot: "Fireball", cran: "T1/600", famille: "parchemin" },
@@ -50,7 +50,7 @@ export const ORGANES = [
   { nom: "MONTANT", sorte: "voyant", x: 276, y: 389, l: 40, h: 40, mot: "999 gp", cran: "T1/400", dans: "PURSE", famille: "parchemin" },
   { nom: "CANCEL", sorte: "porte", x: 14, y: 444, l: 77, h: 40, cible: { x: 14, y: 442, l: 77, h: 44 }, mot: "Cancel", cran: "T2/600", role: "retour", famille: "parchemin" },
   { nom: "SEND TO", sorte: "dropdown", x: 112.5, y: 444, l: 150, h: 40, cible: { x: 112.5, y: 442, l: 150, h: 44 }, mot: "Backpack", cran: "T2/600", famille: "parchemin" },
-  { nom: "SEND", sorte: "porte", x: 284, y: 444, l: 77, h: 40, cible: { x: 284, y: 442, l: 77, h: 44 }, mot: "Send", cran: "T2/600", famille: "parchemin" },
+  { nom: "SEND", sorte: "porte", x: 284, y: 444, l: 77, h: 40, cible: { x: 284, y: 442, l: 77, h: 44 }, mot: "Craft &\nSend", cran: "T2/600", famille: "parchemin" },
 ];
 
 /* ⚖️ L'ENCART : deux colonnes égales, des lignes de 14 blg (T1). */

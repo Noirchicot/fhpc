@@ -13519,6 +13519,10 @@ button.tuto-point::before {
   border: 1px solid var(--x1-trait); border-radius: var(--radius-sm); cursor: pointer;
 }
 .x5-porte:disabled { cursor: default; opacity: .45; }
+/* ⚖️ LOT 302 — « Craft & / Send » sur DEUX lignes (Eric, 26/09) : le mot du plan porte son
+   retour à la ligne (`\n`), la porte le rend. 📏 12 px × 1,15 × 2 lignes = 27,6 < 40 de haut ;
+   « Craft & » ≈ 50 de large < 77. ⛔ Le bouton garde la cote du plan. */
+.x5-porte { white-space: pre-line; line-height: 1.15; }
 /* ⭐ LE MENU NATIF PORTE SON PROPRE CHEVRON : `appearance: none` le retire, et on le
    repeint dans l'encre du parchemin — ⛔ jamais deux chevrons côte à côte. */
 select.x5-drop {
