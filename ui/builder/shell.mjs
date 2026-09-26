@@ -134,7 +134,7 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
-         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin } from "./equipment-step.mjs?v=843";
+         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit } from "./equipment-step.mjs?v=843";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -2220,7 +2220,14 @@ function applyDecisionAction(action) {
         document = verbs.choose({ document, path: `gear[${index}].spell`, ref: recette.sort }).document;
       }
     }
-    state.document = accorder(document, index, action.equipped === true);
+    /* ⚖️ LOT 301 — UN KIT QUI ARRIVE SE VERSE DANS SA PAGE « Kit <nom> » (Eric, 26/09 : *« Pour
+       tous les kits on verse le contenu dans un storage »*). ⭐ Le même écrivain que le départ
+       (`verserLeKit`, `equipment-step.mjs`) ; il retire la ligne du kit et relit l'état équipé
+       lui-même. ⛔ Donc pas d'`accorder` sur `index` derrière lui : il réécrirait un chemin
+       `gear[index].equipped` sur une ligne qui n'existe plus. Pas un kit → le MÊME document. */
+    const verse = verserLeKit({ document, verbs, index,
+      query: state.engine && state.engine.layers ? state.engine.layers.verbs.query : null });
+    state.document = verse !== document ? verse : accorder(document, index, action.equipped === true);
     rebuild();
     refresh();
     return;

@@ -3962,7 +3962,7 @@ flèche n'est pas de l'ambiance. Elle entre dans les **trois listes d'un seul ge
 ---
 
 ### 🧳 LES KITS D'AVENTURIER SONT DES BLUEPRINTS — ET C'EST L'ÉTAGÈRE QUI LE DIT
-📍 `equipement-kits-sont-des-blueprints` · vivante · 23/09
+📍 `equipement-kits-sont-des-blueprints` · vivante · 23/09 · bornée par `equipement-kit-verse-dans-sa-page`
 
 ✅ **Eric, 2026-09-23** : *« les kits d'aventuriers sont des blueprints aussi. **Activation simple
 mais activation nécessaire** »*.
@@ -4414,7 +4414,7 @@ tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien
 ---
 
 ### 🎒 LE KIT DE DÉPART ARRIVE AU SAC — sauf ce qui s'équipe
-📍 `equipement-kit-de-depart-au-sac` · vivante · 26/09 · borne `equipement-equipe-seulement-sur-sa-case`
+📍 `equipement-kit-de-depart-au-sac` · vivante · 26/09 · borne `equipement-equipe-seulement-sur-sa-case` · bornée par `equipement-kit-verse-dans-sa-page`
 ⚖️ **Le kit de départ pose tout au sac ; le joueur le répartit. Un objet qui a SA case (un slot de `SLOT_VERS_BOITES` : armure, arme, bouclier, vêtement, anneau…) la prend si elle est libre, équipé.**
 
 > Eric, 2026-09-26, mot pour mot : **« Le kit de départ met tout dans le backpack. Au joueur de le
@@ -4429,6 +4429,52 @@ lignes, relit l'état équipé et ajoute l'or. La coquille l'appelle, les harnai
 📏 Mesuré : l'option A du Rogue pose armure de cuir et armes sur le corps ; le kit du Wizard n'a
 aucun objet à case propre (la Robe n'a pas de slot) — tout va au sac.
 Garde 11 de `tests/equipe-sur-sa-case.test.mjs`.
+
+---
+
+### 📦 UN KIT SE VERSE DANS UNE PAGE DU SAC NOMMÉE « Kit <nom> »
+📍 `equipement-kit-verse-dans-sa-page` · vivante · 26/09 · borne `equipement-kits-sont-des-blueprints` · borne `equipement-kit-de-depart-au-sac` · borne `equipement-deux-lignes-du-meme-objet`
+⚖️ **Un kit qui arrive dans l'inventaire — au départ ou acheté dans Wares — ne reste pas une ligne : une page neuve du sac, nommée `Kit <nom du kit>`, est créée, et chaque élément de son `contents` y est posé à sa quantité. Deux kits identiques font deux pages (`Kit <nom>`, puis `Kit <nom> 2`).**
+
+> Eric, 2026-09-26, mot pour mot, en quatre messages : **« Je suggère que quand il y a un kit, on
+> crée une page équipement nommée kit et son contenu est mis dedans »** · **« Un b-page backpack
+> pardon »** · **« Pour tous les kits on verse le contenu dans un storage »** · **« Qu'on nomme kit
+> xxxxx »**.
+
+⭐ **AUCUNE STRUCTURE NEUVE DU DOCUMENT.** Une page du sac EST une section : son nom vit sous
+`backpack.sections[N].name` (lot 214), le `+` en crée déjà à la volée (`nextSectionIndex`), et
+l'appartenance d'un objet est `gear[N].boite` + `gear[N].place`. Le kit écrit exactement ce que le
+`+` puis un dépôt ordinaire écriraient — ni plus, ni un chemin de plus (garde 4 : aucune famille
+`unconsumed` que le chemin ordinaire n'écrit pas).
+⭐ **UN SEUL ÉCRIVAIN : `verserLeKit`** (`equipment-step.mjs`). `appliquerLeButin` l'appelle pour
+chaque ligne neuve du départ, la coquille l'appelle après `addGearLine` (Wares, le panier, FREE).
+Un kit se reconnaît à `data.contents` — le signal d'`estRecette` — ⛔ jamais à une liste de noms.
+⛔ **LA LIGNE DU KIT NE RESTE PAS** — *« on verse le contenu »* : elle est retirée
+(`retirerLaLigne`) APRÈS que ses éléments ont pris leurs index, donc aucun index n'est repris.
+
+⚖️ **CE QUE LA RÈGLE BORNE, ET CE QU'ELLE LAISSE VIVANT :**
+- `equipement-kits-sont-des-blueprints` — *« activation simple mais activation nécessaire »* :
+  pour un KIT, l'activation est l'arrivée même (*« pour tous les kits »*). ⛔ La phrase *« l'activation
+  n'a pas de contenu à verser »* est périmée depuis que `contents` est monté (64 éléments) ; la
+  diagonale bleue reste, et les autres blueprints gardent leur activation.
+- `equipement-kit-de-depart-au-sac` — *« sauf ce qui s'équipe »* ne vaut pas pour un élément de kit :
+  **il n'est pas équipé, il est versé dans sa page**. 📏 Mesuré le 26/09 : aucun des 64 éléments
+  n'a de slot aujourd'hui — la borne est donc une loi, pas encore un cas.
+- `equipement-deux-lignes-du-meme-objet` — la fusion du kit (même record, sans recette, au sac) **ne
+  s'applique pas aux éléments versés** : ils vont dans SA page, sur leur ligne. Et **un kit ne se fond
+  jamais** avec une ligne pack déjà là (un personnage sauvegardé avant ce lot) : il ouvre sa ligne,
+  donc sa page ; l'ancienne ligne reste telle quelle — ⛔ ce lot ne réécrit pas le passé.
+
+📌 **LE NOM** : le préfixe `Kit` (`PREFIXE_PAGE_DE_KIT`) + le nom du record **tel quel** —
+`Kit Scholar’s Pack`, apostrophe typographique du SRD comprise. Le suffixe est le premier numéro
+libre à partir de 2 parmi les noms de TOUTES les sections, y compris un nom tapé par le joueur.
+📌 **LES PIÈCES** : un élément sans ref que `parseCout` lit va à la bourse (`ajouterALaBourse`, la
+même addition que l'or du départ). 📏 Aucun des sept kits du SRD n'en porte.
+⏳ **CE QUI N'EST PAS TRANCHÉ** : un élément que la pile ne connaît pas n'est pas posé
+(`contenuDuKit(...).refus`) et **rien ne le dit au joueur** — un seul cas mesuré, pile FR,
+Diplomat's Pack (*« 2 étuis à cartes et à parchemins »*, ref absente) ; et un nom de page au-delà
+de 22 signes (`Kit Entertainer’s Pack 2` en fait 24) dépasse la cote du cran sur deux étages.
+Gardes : `tests/kit-verse-dans-une-page.test.mjs`.
 
 ---
 
@@ -4642,7 +4688,7 @@ les projectiles c'est 20 »*, *« le contenant, on laisse voir en jeu »*) sont 
 ---
 
 ### 🪪 DEUX LIGNES DU MÊME OBJET ONT DEUX ANCRES — et le kit ne fond que le même objet au même endroit
-📍 `equipement-deux-lignes-du-meme-objet` · vivante · 26/09 · borne `popup-qui-exige-une-reponse-est-un-qcm`
+📍 `equipement-deux-lignes-du-meme-objet` · vivante · 26/09 · borne `popup-qui-exige-une-reponse-est-un-qcm` · bornée par `equipement-kit-verse-dans-sa-page`
 ⚖️ **Un `gear[]` ADMET deux lignes du même record. La première (plus petit index `gear[N]`) garde l'id nu (`dagger`) ; chaque autre prend `dagger:gear-N`, N étant SON index. Le kit ne fusionne qu'avec une ligne du même record, sans recette, au sac.**
 
 > Mandat du lot 296 (architecte, 26/09) : *« deux lignes légitimement distinctes existent désormais »* —
