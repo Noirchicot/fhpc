@@ -144,6 +144,13 @@ export const SLOT_VERS_BOITES = {
 /** Le débord ratifié : « sinon Pocket » — pour tous les slots. */
 export const POCHES_DEBORD = ["poche1", "poche2", "poche3", "poche4"];
 
+/** ⚖️ LOT 297 — LES CASES POLYVALENTES. Eric, 2026-09-26, mot pour mot : *« les extra storage
+ *  et pockets sont des slots versatiles. Ground est exclu »* (réponse à : « Scarab et Luckstone
+ *  n'ont aucune case — où se portent-ils ? »). ⭐ Pocket/weapon 1-2 (`fourreau3`, `fourreau4`)
+ *  et Extra storage 1-4 (`POCHES_DEBORD`) sont une case VALIDE pour tout objet, qu'il ait un
+ *  slot ou non : l'objet y est équipé. ⛔ Le sol (`sol1`, `sol2`) n'en est jamais une. */
+export const CASES_POLYVALENTES = ["fourreau3", "fourreau4", ...POCHES_DEBORD];
+
 /** Le collecteur (bleu au croquis) : UN jeton, centré — on y dépose, Send le vide. */
 export const COLLECTEUR = { centre: true, y: 458 };
 

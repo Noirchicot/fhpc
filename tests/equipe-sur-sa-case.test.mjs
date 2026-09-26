@@ -40,7 +40,7 @@ const {
   scinderLaLigne, caseValide, accorderLEquipe, slotsDeLaPile, lignesSurLeurCase, slotParNature
 } = await import("../ui/builder/equipment-step.mjs");
 const { makeHarness, PILE_SRD } = await import("./build-harness.mjs");
-const { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES } = await import("../ui/builder/b3-disposition.mjs");
+const { SLOT_VERS_BOITES, POCHES_DEBORD, BOITES, CASES_POLYVALENTES } = await import("../ui/builder/b3-disposition.mjs");
 const { construireLaFicheX1 } = await import("../ui/builder/x1-ecran.mjs");
 
 const fixture = exempleFhEn();
@@ -83,7 +83,7 @@ function scinder(doc, index, part, location) {
 const equipe = (doc, index) => currentGearLines(doc).find((l) => l.index === index).equipped;
 
 /* ══ 1 — LA TABLE, MESURÉE CONTRE LA PILE ENTIÈRE ═══════════════════════════════════════ */
-test("1 — ⚖️ UNE SEULE FONCTION DÉCIDE, et elle dit exactement `SLOT_VERS_BOITES` — ⛔ ni poche, ni forge, ni sol, ni sac", () => {
+test("1 — ⚖️ UNE SEULE FONCTION DÉCIDE : `SLOT_VERS_BOITES` plus les six cases polyvalentes — ⛔ ni forge, ni sol, ni sac", () => {
   const slotDe = slotsDeLaPile(query);
   const slotsDeLaCouche = new Set(query({ kind: "shelving" })
     .map((v) => v.record && v.record.data && v.record.data.slot && v.record.data.slot.slot).filter(Boolean));
@@ -91,15 +91,23 @@ test("1 — ⚖️ UNE SEULE FONCTION DÉCIDE, et elle dit exactement `SLOT_VERS
   const toutes = [...BOITES.map((b) => b.clef), "sol1", "sol2", "s0", "s3", "party"];
   for (const slot of slotsDeLaCouche) {
     const valides = toutes.filter((b) => caseValide(b, slot));
-    assert.deepEqual(valides, SLOT_VERS_BOITES[slot],
-      `${slot} : ses cases valides sont celles de la table ratifiée, et pas une de plus`);
-    for (const p of POCHES_DEBORD) assert.equal(caseValide(p, slot), false, `⛔ ${p} (Extra storage) est un débord, pas une case`);
+    /* ⚖️ LOT 297 — Eric, 26/09 : « les extra storage et pockets sont des slots versatiles.
+       Ground est exclu ». Les cases d'un slot = la table ratifiée ∪ les six polyvalentes. */
+    const attendues = toutes.filter((b) => SLOT_VERS_BOITES[slot].includes(b) || CASES_POLYVALENTES.includes(b));
+    assert.deepEqual(valides, attendues,
+      `${slot} : ses cases valides sont la table ratifiée plus les polyvalentes, et pas une de plus`);
+    for (const p of POCHES_DEBORD) assert.equal(caseValide(p, slot), true, `⭐ ${p} (Extra storage) est polyvalente`);
+    for (const g of ["sol1", "sol2"]) assert.equal(caseValide(g, slot), false, `⛔ ${g} : « Ground est exclu »`);
   }
   for (const b of ["forge1", "forge2"]) {
     assert.ok(Object.keys(SLOT_VERS_BOITES).every((s) => !caseValide(b, s)),
       `${b} (Body forging) : aucun slot n'y mène — le trou est au rapport, ⛔ pas comblé ici`);
   }
-  assert.equal(caseValide("fourreau1", null), false, "⛔ un objet sans slot n'a aucune case");
+  assert.equal(caseValide("fourreau1", null), false, "⛔ un objet sans slot n'a pas Arm/hands");
+  for (const b of CASES_POLYVALENTES) assert.equal(caseValide(b, null), true, `⭐ ${b} accepte même un objet sans slot`);
+  assert.deepEqual([...CASES_POLYVALENTES].sort(), ["fourreau3", "fourreau4", "poche1", "poche2", "poche3", "poche4"],
+    "⭐ Pocket/weapon 1-2 et Extra storage 1-4, rien d'autre");
+  assert.equal(caseValide("sol1", null), false, "⛔ ni le sol");
   assert.equal(caseValide("fourreau1", "constructor"), false, "⛔ une clef de prototype n'est pas un slot");
   /* ⭐ les trois témoins de ce fichier ont bien le slot qu'on leur prête */
   assert.equal(slotDe(ANNEAU), "fingers");
@@ -108,7 +116,7 @@ test("1 — ⚖️ UNE SEULE FONCTION DÉCIDE, et elle dit exactement `SLOT_VERS
 });
 
 /* ══ 2 — L'ANNEAU : sur la main il l'est, partout ailleurs il ne l'est plus ════════════════ */
-test("2 — 🔴 un anneau sur la main est équipé ; en Extra storage, puis au sac, puis au sol, il ne l'est plus À CHAQUE ÉTAPE", () => {
+test("2 — 🔴 un anneau sur la main est équipé, en Extra storage aussi (polyvalente) ; au sac puis au sol il ne l'est plus", () => {
   let { doc, index } = ajouter(BASE, { ref: ANNEAU, equipped: true });
   assert.equal(equipe(doc, index), false, "⛔ `addGearLine` avec `equipped: true` au sac est ramené à false");
 
@@ -117,7 +125,7 @@ test("2 — 🔴 un anneau sur la main est équipé ; en Extra storage, puis au 
   const surLaMain = doc;
 
   doc = placer(doc, index, "poche1");
-  assert.equal(equipe(doc, index), false, "⛔ Extra storage 1 : il a quitté sa case");
+  assert.equal(equipe(doc, index), true, "⭐ Extra storage 1 : case polyvalente, il reste équipé (lot 297)");
   doc = deplacer(doc, index, "backpack");
   assert.equal(equipe(doc, index), false, "⛔ au sac");
   doc = placer(doc, index, "sol1");
@@ -125,7 +133,7 @@ test("2 — 🔴 un anneau sur la main est équipé ; en Extra storage, puis au 
 
   /* ⚔️ ET CHAQUE ÉTAPE SEULE, depuis la main — sinon les trois dernières ne prouveraient
      que la première. */
-  assert.equal(equipe(placer(surLaMain, index, "poche2"), index), false, "main → Extra storage");
+  assert.equal(equipe(placer(surLaMain, index, "poche2"), index), true, "⭐ main → Extra storage : polyvalente");
   assert.equal(equipe(deplacer(surLaMain, index, "backpack"), index), false, "main → sac");
   assert.equal(equipe(placer(surLaMain, index, "sol2"), index), false, "main → sol");
   assert.equal(equipe(placer(surLaMain, index, "s0"), index), false, "main → une section du sac");
@@ -137,10 +145,11 @@ test("2 — 🔴 un anneau sur la main est équipé ; en Extra storage, puis au 
 /* ══ 3 — L'ARMURE HORS DE SA CASE ══════════════════════════════════════════════════════ */
 test("3 — ⛔ une armure posée sur une case qui ne lui convient pas n'est pas équipée — et une autre qu'on déloge non plus", () => {
   let { doc, index } = ajouter(BASE, { ref: COTTE });
-  for (const boite of ["tete1", "fourreau1", "ceinture", "pied2", "poche3", "forge1"]) {
+  for (const boite of ["tete1", "fourreau1", "ceinture", "pied2", "forge1", "sol1"]) {
     assert.equal(equipe(placer(doc, index, boite), index), false, `⛔ une cotte de mailles sur ${boite}`);
   }
   assert.equal(equipe(placer(doc, index, "torse2"), index), true, "sur Torso/back 2 : sa case");
+  assert.equal(equipe(placer(doc, index, "poche3"), index), true, "⭐ sur Extra storage 2 : polyvalente (lot 297)");
 
   /* ⭐ PORTÉE SANS CASE CHOISIE, elle se range par son slot — et elle est équipée si la
      case est libre. */
@@ -155,8 +164,12 @@ test("3 — ⛔ une armure posée sur une case qui ne lui convient pas n'est pas
     doc = placer(a.doc, a.index, boite);
   }
   const sur = lignesSurLeurCase(currentGearLines(doc), slotsDeLaPile(query));
-  assert.equal(sur.has(index), false, "témoin : la première est bien délogée");
-  assert.equal(equipe(doc, index), false, "⛔ délogée en poche, elle n'est plus équipée");
+  const surLeTorse = currentGearLines(doc).filter((l) => ["torse1", "torse2", "torse3"].includes(l.boite));
+  assert.equal(surLeTorse.some((l) => l.index === index), false, "témoin : le torse est pris par les trois autres");
+  assert.equal(sur.has(index), true, "⭐ l'Extra storage est polyvalente : elle y est sur une case valide");
+  assert.equal(equipe(doc, index), true, "⭐ délogée en Extra storage, elle reste équipée (lot 297)");
+  /* ⛔ mais au sol, jamais */
+  assert.equal(equipe(placer(doc, index, "sol2"), index), false, "⛔ au sol : Ground est exclu");
 });
 
 /* ══ 4 — X1 : `Equip` S'ÉTEINT SANS CASE POSSIBLE, ET LA CHERCHE SINON ═══════════════════ */
@@ -206,23 +219,25 @@ test("4 — ⚖️ `Equip` n'est grisé que SANS case possible ; hors de sa case
   b.dispatchEvent({ type: "click" });
   assert.deepEqual(ecrits, [], "il n'écrit rien");
 
-  /* l'étape : une Luckstone (aucun slot, ni écrit ni dit par sa nature) — grisée */
+  /* l'étape : une Luckstone (aucun slot) — ⚖️ LOT 297 : en Extra storage, polyvalente, elle
+     s'équipe, et Equip vit */
   let { doc, index: pierre } = ajouter(BASE, { ref: { kind: "item", id: "srd:item:en:stone-of-good-luck-luckstone" } });
   doc = placer(doc, pierre, "poche2");
-  /* un anneau en Extra storage, ancien `equipped: true` */
+  assert.equal(equipe(doc, pierre), true, "⭐ la Luckstone en Extra storage est équipée (Eric : « slots versatiles »)");
+  /* un anneau posé sur le TORSE (pas sa case), ancien `equipped: true` */
   const a = ajouter(doc, { ref: ANNEAU });
   const index = a.index;
-  doc = placer(a.doc, index, "poche1");
+  doc = placer(a.doc, index, "torse1");
   doc = verbs.set({ document: doc, path: `gear[${index}].equipped`, value: true }).document;   // un document ancien
   const p = pilote(doc);
-  const case1 = p.rendre().querySelector('.gear-emplacement[data-organe="poche1"]');
-  assert.ok(case1, "témoin : l'anneau est dessiné en Extra storage 1");
+  const case1 = p.rendre().querySelector('.gear-emplacement[data-organe="torse1"]');
+  assert.ok(case1, "témoin : l'anneau est dessiné sur Torso/back 1");
   assert.equal(case1.querySelector('[data-marque="equipe"]').dataset.etat, "non",
     "⛔ l'état ancien ne se dessine pas : le lecteur lit la position");
 
   let x1 = p.ouvrir(pierre);
-  assert.equal(x1.bascule.disabled, true, "⛔ la Luckstone n'a aucune case : Equip est éteint");
-  assert.match(x1.bascule.title, /No Gear slot fits this item/);
+  assert.notEqual(x1.bascule.disabled, true, "⭐ la Luckstone a des cases (polyvalentes) : Equip vit");
+  assert.equal(x1.bascule.dataset.on, "true", "et il dit « équipée »");
   x1.fermer();
 
   /* l'anneau hors de sa case : Equip s'allume et LA LUI CHERCHE, par l'arbitre */
@@ -371,7 +386,7 @@ test("8 — ⚖️ armes, armures, boucliers, bâtons, baguettes et sceptres ont
 });
 
 /* ══ 9 — EQUIP DEPUIS LE SAC : L'ARBITRE D'ERIC, PUIS LA CASE D'ARRIVÉE ══════════════════ */
-test("9 — ⚖️ Equip ON depuis le sac : une main libre, sinon Pocket/weapon, sinon Extra storage (non équipé), sinon le sac", () => {
+test("9 — ⚖️ Equip ON depuis le sac : une main libre, sinon Pocket/weapon, sinon Extra storage (équipé, lot 297), sinon le sac", () => {
   const equiperDepuisLeSac = (depart) => {
     const { doc, index } = ajouter(depart, { ref: ANNEAU });
     const p = pilote(doc);
@@ -402,11 +417,11 @@ test("9 — ⚖️ Equip ON depuis le sac : une main libre, sinon Pocket/weapon,
   assert.equal(r.sur, true, "témoin : il est sur une Pocket/weapon");
   assert.equal(r.ligne.equipped, true, "⭐ Pocket/weapon est valide pour un anneau : équipé");
 
-  /* ③ les quatre prises : l'arbitre le met en Extra storage — porté, ⛔ pas équipé */
+  /* ③ les quatre prises : l'arbitre le met en Extra storage — ⚖️ LOT 297 : polyvalente, équipé */
   r = equiperDepuisLeSac(occuper(BASE, DAGUE, ["fourreau1", "fourreau2", "fourreau3", "fourreau4"]));
   assert.equal(r.ligne.location, "self", "l'arbitre l'a gardé sur le corps, en débord");
-  assert.equal(r.sur, false);
-  assert.equal(r.ligne.equipped, false, "⛔ Extra storage n'est pas une case : pas équipé");
+  assert.equal(r.sur, true);
+  assert.equal(r.ligne.equipped, true, "⭐ Extra storage est polyvalente : équipé");
 
   /* ④ tout est pris : l'arbitre le laisse au sac, non équipé */
   r = equiperDepuisLeSac(occuper(occuper(BASE, DAGUE, ["fourreau1", "fourreau2", "fourreau3", "fourreau4"]),

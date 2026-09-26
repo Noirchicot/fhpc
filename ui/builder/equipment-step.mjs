@@ -120,7 +120,7 @@ import { construireX5 } from "./x5-ecran.mjs?v=840";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=840";
 import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=840";
 import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=840";
-import { SLOT_VERS_BOITES, POCHES_DEBORD } from "./b3-disposition.mjs?v=840";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=840";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
 import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=840";
 import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=840";
@@ -3304,6 +3304,9 @@ function lecteurDeSlot(slots, recordDe) {
 /** ⭐ LA SEULE FONCTION QUI DÉCIDE : la boîte `boite` est-elle une case valide pour un
  *  objet du slot `slot` ? Tout écrivain et tout lecteur de `equipped` passe par elle. */
 export function caseValide(boite, slot) {
+  /* ⚖️ LOT 297 — « les extra storage et pockets sont des slots versatiles. Ground est exclu »
+     (Eric, 26/09) : ces six cases acceptent TOUT objet, avec ou sans slot. */
+  if (CASES_POLYVALENTES.includes(String(boite))) return true;
   if (typeof slot !== "string" || !Object.hasOwn(SLOT_VERS_BOITES, slot)) return false;
   return SLOT_VERS_BOITES[slot].includes(String(boite));
 }
@@ -4171,8 +4174,10 @@ export function renderEquipmentStep(ctx, onAction) {
          s'éteint donc jamais sous un objet qu'on voudrait dévêtir. */
       /* 🔄 SECONDE PASSE (l'architecte, 26/09) : `Equip` ne s'éteint QUE pour un objet qui
          n'a AUCUNE case possible — hors de sa case, il la lui cherche (plus bas). */
-      horsCase: ligne.equipped === true || cherche.slot(ligne.ref) ? null
-        : "No Gear slot fits this item — it cannot be equipped",
+      /* ⚖️ LOT 297 — PLUS D'OBJET SANS CASE : les cases polyvalentes (Pocket/weapon, Extra
+         storage) acceptent tout. `Equip` ne s'éteint donc plus pour ce motif ; l'option
+         `horsCase` de X1 reste, sans écrivain ici. */
+      horsCase: null,
       nombre: nombreX1,
       destination: destinationEnvoi,
       /* ⚖️ LE PLAFOND D'HARMONISATION DU SRD — trois, et Eric l'a rappelé le 18/09 :

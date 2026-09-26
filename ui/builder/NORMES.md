@@ -4365,7 +4365,7 @@ un garde-fou en carcan — et cette ligne est là pour l'en empêcher.
 
 ### 🎯 ÉQUIPÉ SEULEMENT SUR SA CASE — la case du Gear qui convient à l'objet
 📍 `equipement-equipe-seulement-sur-sa-case` · vivante · 26/09 · borne `equipement-trois-etats-d-un-objet`
-⚖️ **Un objet n'est `equipped` que posé sur une case du Gear qui lui convient — une case de la liste de SON slot dans `SLOT_VERS_BOITES`. Dès qu'il la quitte, il ne l'est plus.**
+⚖️ **Un objet n'est `equipped` que posé sur une case du Gear qui lui convient — une case de la liste de SON slot dans `SLOT_VERS_BOITES`, ou l'une des six cases POLYVALENTES (Pocket/weapon 1-2, Extra storage 1-4 — amendement du 26/09, ci-dessous). Dès qu'il la quitte, il ne l'est plus. Le sol, jamais.**
 
 > Eric, 2026-09-26 : **« seul un item sur les cases valide du gear, peuvent porter le symbole
 > équipé, dès qu'elles le quittent elle ne sont plus équipées. »**
@@ -4376,24 +4376,32 @@ storage 3 », un anneau sur le torse : équipés. `lieuDeLaBoite` dit **où** es
 pas si la case lui **convient**. C'était une seconde question, sans réponse.
 
 ⭐ **LA RÉPONSE EST LA TABLE RATIFIÉE LE 24/08, ET RIEN D'AUTRE** — `SLOT_VERS_BOITES`
-(`b3-disposition.mjs`). ⛔ Les quatre **Extra storage** (`POCHES_DEBORD`) n'en sont pas : ils sont le
-**débord** de tout slot (*« sinon Pocket, sinon backpack »*), un endroit où l'on range, pas une case
-où l'on porte. Le sol, les sections du sac, le party bag et les places dorées ne le sont jamais.
+(`b3-disposition.mjs`). ~~⛔ Les quatre **Extra storage** (`POCHES_DEBORD`) n'en sont pas : ils sont le
+**débord** de tout slot, un endroit où l'on range, pas une case où l'on porte.~~ → **amendé le 26/09** :
+
+> ⚖️ Eric, 2026-09-26, mot pour mot, en réponse à *« Scarab et Luckstone n'ont aucune case — où se
+> portent-ils ? »* : **« les extra storage et pockets sont des slots versatiles. Ground est exclu »**.
+
+⭐ **LES CASES POLYVALENTES** — `CASES_POLYVALENTES` (`b3-disposition.mjs`) : **Pocket/weapon 1-2**
+(`fourreau3`, `fourreau4`) et **Extra storage 1-4** (`poche1`…`poche4`). Elles sont une case valide
+pour **tout** objet, avec ou sans slot : l'objet y est équipé. ⛔ **Ground** (`sol1`, `sol2`) n'en est
+jamais une, ni les sections du sac, le party bag et les places dorées. L'arbitre du 24/08 ne change
+pas (*« son slot, sinon Pocket, sinon backpack »*) : c'est la case d'arrivée qui décide.
 ⭐ **LE SLOT SE LIT DANS LES RANGEMENTS, SINON DANS LA NATURE DU RECORD** (`slotParNature`) : une
 arme, un bâton, une baguette, un sceptre ou un bouclier se portent comme `hands`, une armure comme
 `torso` — la correspondance que les rangements appliquent déjà aux objets mondains, lue dans la
 donnée (`kind`, `category`, `armor_category`, `subtype`), ⛔ jamais dans une liste de noms. C'est
 ce qui donne sa case à une Flame Tongue, une Adamantine Armor ou un Staff of Fire.
-⛔ **Un objet sans slot n'a aucune case valide** : il ne s'équipe pas, et ⛔ **on n'invente pas de
-correspondance** — les objets merveilleux sans slot (Luckstone, Scarab, Pearl of Power,
-Horseshoes…) et les deux Body forging attendent Eric.
+⭐ **Un objet sans slot** (Luckstone, Scarab, Pearl of Power, Horseshoes…) **s'équipe sur une case
+polyvalente**, et nulle part ailleurs. ⛔ On n'invente pas de correspondance pour ses cases propres.
+⏳ Les deux **Body forging** attendent Eric.
 
 | qui | ce qu'il fait |
 |---|---|
 | `caseValide(boite, slot)` | ⭐ **la seule fonction qui décide** |
 | `accorderLEquipe` | **le seul écrivain** de `gear[N].equipped` : chaque geste de la coquille (acheter, placer, déplacer, scinder, jeter, le kit) dit ce qu'il **demande** pour sa ligne, puis **toutes** les lignes sont relues — un objet délogé de sa case par un autre la quitte sans qu'on l'ait touché |
 | `renderEquipmentStep` | **le seul lecteur qui corrige** : une ligne ancienne `equipped: true` hors de sa case s'affiche **nue** (jeton de Gear, sac, X1) ; ⛔ un rendu n'écrit pas, le document se remet d'accord au premier geste |
-| la fiche X1 | `Equip` **s'éteint et dit pourquoi** seulement pour un objet qui n'a **aucune** case ; hors de sa case, l'allumer la lui cherche par l'**arbitre** d'Eric (*« si c'est libre l'item prend son slot, sinon Pocket, sinon backpack »*) et la case d'arrivée décide ; déjà sur sa case, il **repose l'objet là où il est** ; l'éteindre l'envoie au sac, comme avant |
+| la fiche X1 | `Equip` ~~s'éteint pour un objet qui n'a aucune case~~ — ⚖️ depuis le 26/09, tout objet en a une (polyvalente), il ne s'éteint plus pour ce motif ; hors de sa case, l'allumer la lui cherche par l'**arbitre** d'Eric (*« si c'est libre l'item prend son slot, sinon Pocket, sinon backpack »*) et la case d'arrivée décide ; déjà sur sa case, il **repose l'objet là où il est** ; l'éteindre l'envoie au sac, comme avant |
 
 ⭐ **« PEUT PORTER » N'EST PAS « PORTE »** : une case valide **permet** l'état, elle ne l'impose pas.
 La part détachée d'une pile qui arrive sur une case de main **naît nue** (*« la part détachée perd
