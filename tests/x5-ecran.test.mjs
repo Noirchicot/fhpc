@@ -440,7 +440,10 @@ test("16 — ⚖️ UN PLAN MÈNE DIRECTEMENT À X5, et les trois chemins du cat
     "⭐ la porte pose la MÊME question que le menu `Craft` de X2 — un seul critère");
   assert.ok(porte.indexOf('montrer("x5")') < porte.indexOf('montrer("x2")'),
     "⭐ un plan craftable va à X5 AVANT tout X2");
-  assert.equal((src.match(/ouvrirLObjet\(/g) || []).length, 4, "la définition + R + Wares + la recherche");
+  /* 🔄 LOT 315 — UN CINQUIÈME APPEL, ET IL PASSE PAR LA MÊME PORTE : l'objet RETENU par le collecteur
+     de Wares ouvre sa fiche au tap (Eric, 27/09 : le collecteur garde l'objet, comme dans Pack). ⭐ Ce
+     que ce garde tient ne bouge pas — une seule porte, et aucun `ficheEnCours` posé à la main. */
+  assert.equal((src.match(/ouvrirLObjet\(/g) || []).length, 5, "la définition + R + Wares + la recherche + le collecteur de Wares");
 });
 
 /* ══ LOT 269 — LE COÛT DE LA BASE, ET LE PRIX QUI SE TAPE ═══════════════════════ */

@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 const RACINE = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const UI = path.join(RACINE, "ui", "builder");
 const D = await import("../ui/builder/wares-disposition.mjs");
+const SAC = await import("../ui/builder/sac-disposition.mjs");
 const NORMES = fs.readFileSync(path.join(UI, "NORMES.md"), "utf8");
 
 /* ══ 1 · LE BUDGET VERTICAL ════════════════════════════════════════════════════
@@ -73,21 +74,9 @@ test("4 · ce que la grille RESTITUE se recalcule, il ne se recopie pas", () => 
   assert.equal(haut, D.RENDU_GRILLE.jetons.h, "4 × 48 + 3 × 8 = 216");
   assert.equal(haut + 2 * D.REMBOURRAGE_GRILLE, D.hauteurGrille(), "la dalle 2 = les jetons + ses deux 8");
 
-  /* la dalle 3 : deux colonnes de côté, ce qui reste une fois la plus large posée au milieu */
-  const centre = D.PIED.colonnes[1];
-  const cote = (D.DALLE.l - 2 * D.REMBOURRAGE - centre) / 2;
-  assert.equal(cote, D.RENDU_PIED.cote.l, "(375 − 2×4 − 96) / 2 = 135,5");
-  assert.equal(D.REMBOURRAGE + cote / 2, D.RENDU_PIED.centres.gauche, "le centre gauche tombe à 71,75");
-  assert.equal(D.DALLE.l - D.REMBOURRAGE - cote / 2, D.RENDU_PIED.centres.droite, "et le droit à 303,25, symétrique");
-
-  /* la cellule de côté enjambe les rangées 1 à 3 — d'où « entre 2 lignes » (Eric, 20/09) */
-  const [r1, g1, r3] = D.PIED.rangees;
-  assert.equal(r1 + g1 + r3, D.RENDU_PIED.cote.h, "la cellule de côté : 48 + 8 + 44 = 100");
-  const pied = D.DALLES.find((d) => d.nom === "PIED");
-  assert.equal(pied.y + D.REMBOURRAGE + D.RENDU_PIED.cote.h / 2, D.RENDU_PIED.centres.y,
-    "son centre vertical tombe à 390 — dans l'écart de 8 entre le collecteur et Send to");
-  assert.equal(D.PIED.rangees.reduce((n, v) => n + v, 0) + D.REMBOURRAGE + D.REMBOURRAGE_PIED_BAS, pied.h,
-    "⛔ les pistes du pied doivent faire sa hauteur : 4 + 48 + 8 + 44 + 8 + 44 + 3 = 159 (lot 275)");
+  /* 🔄 LOT 315 — LA DALLE 3 NE SE LIT PLUS ICI : ses trois colonnes `1fr | 96 | 1fr` et leurs
+     centres (135,5 · 71,75 · 303,25) ont disparu avec la loi du 20/09. Le pied est celui de Pack,
+     et ce qu'il restitue se tient au garde 315, plus bas. */
 });
 
 /* ══ 5 · LE PLANCHER TACTILE ═══════════════════════════════════════════════════
@@ -291,4 +280,34 @@ test("275 · ⚖️ WARES TIENT SOUS LE BELT DE 65 : 4 · 40 · 4 · 40 · 4, et
   assert.equal(pied.y + pied.h, D.DALLE.h, "⭐ le bas du pied est le bas de la scène — rien n'est rogné");
   assert.equal(Math.round(D.ROUE.hauteurDominante / D.ROUE.loupe * 100) / 100, D.ROUE.hauteur,
     "⭐ la case non zoomée se déduit de la zoomée par la loupe (40 ÷ 1,2456)");
+});
+
+/* ══ 315 · LE PIED DE WARES EST CELUI DE PACK ═══════════════════════════════════
+   ⚖️ Eric, 2026-09-27, mot pour mot : *« Harmonise le pied de page pack et wares, prends pack comme
+   modèles, déplace encumbrance sous l'or dans wares »*.
+   ⭐ TÉMOIN NOMMÉ AVANT MESURE : les six organes que les deux pieds partagent ont, dans le plan de
+   Wares, EXACTEMENT les cotes du plan du sac — dessin ET cible. ⛔ Et l'encombrement est SOUS
+   l'or : centré sur l'axe de la bourse, dans la bande libre entre elle et la rangée, sans mordre
+   `Send to` ni la rangée, deux lignes de 14 au plus. */
+test("315 · le pied de Wares a les cotes de Pack, et l'encombrement est sous l'or", () => {
+  const W = Object.fromEntries(D.ORGANES.map((o) => [o.nom, o]));
+  const P = Object.fromEntries(SAC.ORGANES.map((o) => [o.nom, o]));
+  const cotes = (o) => ({ x: o.x, y: o.y, l: o.l, h: o.h, cible: o.cible || null });
+  for (const nom of ["COLLECTEUR", "PURSE", "PARTY TALLY", "TALLY", "SEND VERS", "LUNE", "RANGEE"]) {
+    assert.ok(W[nom], `⛔ ${nom} n'est plus au plan de Wares`);
+    assert.deepEqual(cotes(W[nom]), cotes(P[nom]), `⛔ ${nom} : Wares et Pack ne disent pas la même cote`);
+  }
+  assert.deepEqual([W.MONTANT.x, W.MONTANT.y, W.MONTANT.l, W.MONTANT.h], [P.PURSE.x, P.PURSE.y, P.PURSE.l, P.PURSE.h],
+    "⛔ le montant n'est plus posé SUR la bourse");
+  const { ENCOMBREMENT: E, PURSE: B, "SEND VERS": S, RANGEE: R } = W;
+  assert.equal(E.x + E.l / 2, B.x + B.l / 2, "⛔ l'encombrement n'est pas centré sous la bourse");
+  assert.ok(E.y >= B.y + B.h, "⛔ l'encombrement n'est pas SOUS l'or");
+  assert.ok(E.y + E.h <= R.y, "⛔ l'encombrement mord la rangée du bas");
+  assert.equal((E.y - (B.y + B.h)), (R.y - (E.y + E.h)), "⛔ il n'est pas centré dans la bande libre");
+  assert.ok(E.x >= S.cible.x + S.cible.l, "⛔ l'encombrement passe sous le dropdown `Send to`");
+  assert.ok(E.h <= 28, "deux lignes de 14 au plus");
+  const { colonnes, rangees } = D.pistesDuPied();
+  const pied = D.DALLES.find((d) => d.nom === "PIED");
+  assert.deepEqual([colonnes[0], colonnes.at(-1), rangees[0], rangees.at(-1)], [0, D.DALLE.l, 0, pied.h],
+    "⛔ la grille du pied ne ferme pas sur les bords de sa dalle");
 });

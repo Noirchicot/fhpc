@@ -41,6 +41,9 @@ import { armerJeton, fantome } from "./glisser.mjs?v=855";
 import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=855";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
 import { portesCarrees } from "./porte-carree.mjs?v=855";
+/* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
+   porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=855";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
@@ -995,23 +998,12 @@ function case_(id, objet, options, pisteNoeud) {
  *  l'a porté le premier. Le jour où Wares le prendra — il est au programme — il
  *  descendra dans un organe au nom neutre, comme l'interrupteur et le jeton. */
 function collecteur(options, retenu, pisteNoeud) {
-  const c = el("div", "gear-collecteur");
-  c.dataset.organe = "collecteur";
-  if (!retenu) { c.dataset.creneau = "collecteur"; c.dataset.vise = "false"; }
-  c.dataset.compte = String(retenu ? 1 : 0);
-  if (!retenu) {
-    c.append(el("span", "gear-nom", "Send collector"));
-    c.setAttribute("aria-label", "Send collector — empty");
-    return c;
-  }
-  /* ⚖️ PLEIN, IL PORTE L'OBJET LUI-MÊME — Eric, 16/09 au soir : *« lorsqu'un token va
-     dans le collecteur, il ne doit pas rester à sa place initiale »*. ⛔ MAIS PAS SA
-     BANDE : *« il n'y a pas de token dans le collecteur, juste le nom »*. */
-  c.dataset.occupe = "oui";
-  const objet = el("span", "jeton-nom", retenu.nom);
-  if (retenu.qte > 1) objet.append(" ", el("span", "gear-qte", `×${retenu.qte}`));
-  c.append(objet);
-  c.setAttribute("aria-label", `Send collector — ${retenu.nom}`);
+  /* ⭐ LOT 315 — LE NŒUD VIENT DU MODULE FEUILLE (`collecteur-envoi.mjs`), que Wares porte aussi :
+     vide, le mot « Send collector » ; plein, le NOM de l'objet (Eric, 16/09 au soir : *« il n'y a
+     pas de token dans le collecteur, juste le nom »*). ⛔ Plein, il cesse d'être une cible ici —
+     `resteCible` reste à `false`. Les gestes, eux, sont ceux du sac. */
+  const c = collecteurDEnvoi({ retenu, creneau: "collecteur" });
+  if (!retenu) return c;
   /* ⚖️ ET IL EN RESSORT PAR LE MÊME GESTE QU'IL Y EST ENTRÉ — Eric, 16/09 au soir :
      *« un token dans le collecteur doit pouvoir en ressortir »*. ⛔ Un dépôt sur le
      collecteur lui-même ne fait rien : il est déjà là. */
@@ -1639,20 +1631,9 @@ export function construireLeSac(options = {}) {
      le reste. Un second bouton pour un verbe que le dropdown tient est un bouton de
      trop. ⏳ L'artefact est à mettre à jour. */
 
-  const envoi = el("div", "sac-destination");
-  envoi.dataset.organe = "send-vers";
-  const s = el("select", "pipeline-dropdown");
-  s.setAttribute("aria-label", "Send to");
-  for (const d of options.destinations || []) {
-    const opt = el("option", null, d.mot);
-    opt.value = d.valeur;
-    if (!d.actif) opt.disabled = true;
-    if (d.valeur === options.destination) opt.selected = true;
-    s.append(opt);
-  }
-  s.addEventListener("change", () => options.surDestination && options.surDestination(s.value));
-  envoi.append(s);
-  noeud.append(envoi);
+  /* ⭐ LOT 315 — `Send to` VIENT DU MODULE FEUILLE, le même que celui de Wares. */
+  noeud.append(destinationDEnvoi({ destinations: (options.destinations || []).map((d) => ({ ...d, actif: Boolean(d.actif) })),
+    destination: options.destination, surDestination: options.surDestination }));
   /* 🌕 LOT 307 — LA LUNE, fabriquée par l'étape (`construireLaLune`), posée à sa place du plan.
      ⛔ Sans la place du double écran l'étape n'en donne pas : le sac est celui d'avant. */
   if (options.lune) noeud.append(options.lune);

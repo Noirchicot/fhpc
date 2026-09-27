@@ -5100,7 +5100,7 @@ d'un coup depuis X1 — il faut deux envois. Aucune option « All » n'est inven
 ---
 
 ### 🪙 LA BOURSE À DROITE, LES DEUX TALLY À GAUCHE — CENTRÉS PAR LA GRILLE
-📍 `equipement-wares-bourse-et-tally-centres` · vivante · 20/09
+📍 `equipement-wares-bourse-et-tally-centres` · remplacée · 20/09 · remplacée par `equipement-wares-pied-comme-pack`
 ⚖️ **Sur la dalle 3, la bourse occupe la cellule de DROITE et les deux Tally celle de GAUCHE, centrés sur les deux axes. ⛔ Le centre ne s'écrit pas — c'est une cellule `1fr` qui enjambe les rangées et porte `place-self: center`.**
 
 > Eric, 2026-09-20 : **« la bourse peut se trouver à droite, les Tally à gauche, centrés
@@ -5116,6 +5116,52 @@ la bourse y est centrée sur une marge de **4** *(x 276)* et les deux Tally sur 
 ⛔ **J'AVAIS D'ABORD CENTRÉ SUR LA BANDE DU COLLECTEUR, ET C'ÉTAIT TROP ÉTROIT.** Le rectangle vide
 est ce qui reste de la dalle **entière** une fois retirées la colonne centrale et la rangée du pied
 — il enjambe donc les deux lignes, ce qu'Eric a confirmé avant que je le montre.
+
+🗄️ **REMPLACÉE LE 27/09** par `equipement-wares-pied-comme-pack` (ci-dessous) : Eric a pris le pied de
+Pack pour modèle, et Pack pose ses organes sur ses cotes à lui. ⭐ La « dérive » que cette règle
+reprochait au sac (bourse à 276, Tally à 32 et 80) devient donc la loi des deux écrans.
+
+---
+
+### 🎒 LE PIED DE WARES EST CELUI DE PACK — L'ENCOMBREMENT SOUS L'OR
+📍 `equipement-wares-pied-comme-pack` · vivante · 27/09 · remplace `equipement-wares-bourse-et-tally-centres`
+⚖️ **Le pied de Wares porte les organes du pied de Pack aux cotes de Pack — collecteur, bourse et son montant, les deux Tally, `Send to`, la lune — et les mêmes organes (classes, police) ; l'encombrement se pose SOUS la bourse, centré sur elle, dans la bande libre au-dessus de la rangée, deux lignes au plus. La rangée du bas ne bouge pas.**
+
+> Eric, 2026-09-27, mot pour mot : **« Harmonise le pied de page pack et wares, prends pack comme
+> modèles, déplace encumbrance sous l'or dans wares »**.
+
+⭐ **LES COTES SE LISENT, ELLES NE SE RECOPIENT PAS** : `wares-disposition.mjs` prend ces six organes
+dans `sac-disposition.mjs` (généré par `backpack_gen.py`) — collecteur 144/348 87×48 · bourse
+276/345 50×50 · Tally 32 et 80 / 404 (cibles 30 et 78 / 402) · `Send to` 139,5/404 96×40 (cible
+y 402 h 44) · lune 4/355 Ø30 (cible 0/348, 44). Le jour où Pack bouge, Wares bouge avec lui.
+📐 **L'encombrement se DÉDUIT** : son axe est celui de la bourse (301), sa borne gauche la cible de
+`Send to` plus 4 (239,5), la droite lui est symétrique (362,5) ; il est centré dans la bande entre la
+bourse (395) et la rangée (448) : **y 407,5, 123 × 28**.
+⭐ **UN ORGANE, PAS DEUX** : le collecteur et `Send to` descendent dans un module feuille,
+`collecteur-envoi.mjs`, que le sac et Wares importent (habit `.gear-collecteur`, `.sac-destination`,
+`.pipeline-dropdown`). 🗄️ `.wares-collecteur` et `select.wares-send-vers` sont retirés.
+⛔ **LE SACRÉ N° 3 NE CÈDE PAS** : la feuille de Wares ne pose toujours aucun `left`. Elle trace une
+grille dont les LIGNES sont les bords des boîtes du plan (`pistesDuPied`), et chaque organe s'étend
+d'une ligne à une autre (`grid-area`). **Garde** : `wares-plan` 315, `wares-ecran` 19.
+
+---
+
+### 📥 LE COLLECTEUR DE WARES GARDE L'OBJET — `Send` L'ACHÈTE
+📍 `equipement-wares-collecteur-garde-l-objet` · vivante · 27/09
+⚖️ **Un jeton glissé sur le collecteur de Wares y RESTE : le collecteur affiche son nom (comme celui de Pack), un second dépôt remplace le premier, un tap sur l'objet ouvre son X2. Rien n'est acheté avant `Send` : collecteur plein, `Send` ouvre le popup d'achat (celui du double écran) vers la destination du `Send to` ; `Buy` (ou `Add`, vers un Tally) le vide, `Cancel` non. Collecteur vide, `Send` fait ce qu'il faisait.**
+
+> Eric, 2026-09-27, mot pour mot : **« Le drag and drop de wares ne fonctionne tj pas »**. Et la règle
+> des collecteurs, 26/09 : **« Ce collecteur peut faire un aller retour, mais son contenu n'est pas
+> un item tant qu'on n'a pas fait send »**.
+
+📏 **LA PANNE, MESURÉE À LA v854/v855** : le geste marchait (le fantôme suit le doigt, le collecteur
+s'allume, le dépôt arrive), mais le dépôt faisait `cartAdd` — l'objet partait au Tally **sans rien
+montrer**. Vu du joueur, rien ne se passait.
+⭐ **L'ÉTAT RETENU EST DE L'ÉCRAN** (`retenuWares`, comme `vueEquipement`), ⛔ jamais le document.
+⭐ **AUCUN GESTE NEUF À `Send`** : le popup est `popupDuDepotVoisin` (lot 307), l'achat `acheterUnObjet`
+(le `BUY` de X2) — même prix, même débit, même pose. Objet sans prix → `MOT_SANS_PRIX`. Vers le Party
+bag : achat au sac puis `placerGearLine` dans sa boîte (la loi d'`envoyer`). **Garde** :
+`tests/wares-collecteur.test.mjs`.
 
 ---
 

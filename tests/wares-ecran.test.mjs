@@ -243,14 +243,17 @@ test("11 · les deux Tally à gauche, la bourse à droite, le collecteur au mili
   assert.ok(voyant, "⛔ le voyant du montant manque : la somme ne se lit nulle part");
   assert.match(voyant.textContent.replace(/\s+/g, ""), /155/,
     `⛔ le voyant ne dit pas la somme : « ${voyant.textContent} »`);
-  const cotes = tous(n, ".wares-cote");
-  assert.equal(cotes.length, 2, "⛔ deux cellules de côté");
-  assert.deepEqual(tous(cotes[0], "button").map((b) => b.dataset.organe), ["party-tally", "tally"],
-    "⛔ les deux Tally, à gauche (Eric, 20/09)");
-  assert.deepEqual(tous(cotes[1], "button").map((b) => b.dataset.organe), ["purse"],
-    "⛔ la bourse, à droite");
-  assert.equal(tous(n, '[data-organe="collecteur"]').length, 1, "⛔ le collecteur");
-  assert.equal(tous(n, '[data-organe="send-vers"]').length, 1, "⛔ le Send to");
+  /* 🔄 LOT 315 — PLUS DE CELLULES DE CÔTÉ. Eric, 27/09 : *« prends pack comme modèles »* : le pied
+     de Wares pose ses organes aux cotes de Pack, chacun ENFANT DIRECT du pied, et c'est la grille
+     tracée par le plan qui les place (garde 19). ⭐ Ce qui se vérifie ici : chacun est posé UNE fois,
+     au bon niveau — la gauche et la droite se lisent au plan (`wares-plan`, garde 315). */
+  const pied = tous(n, ".wares-pied")[0];
+  for (const clef of ["party-tally", "tally", "collecteur", "purse", "montant", "encombrement", "send-vers"]) {
+    const vus = tous(n, `[data-organe="${clef}"]`);
+    assert.equal(vus.length, 1, `⛔ ${clef} : posé ${vus.length} fois`);
+    assert.equal(vus[0].parentNode, pied, `⛔ ${clef} n'est pas un enfant direct du pied : la grille ne le place pas`);
+  }
+  assert.equal(tous(n, ".wares-cote").length, 0, "⛔ les cellules de côté du 20/09 sont revenues");
 });
 
 /* ⭐ TÉMOIN : le party Tally se montre INERTE plutôt que de faire semblant d'écouter.
@@ -395,10 +398,19 @@ test("17 · 🔒 la feuille sert la CIBLE, et le dessin vit en creux dedans", ()
    accident, et le sacré n° 3 retire exactement ça : *« une grille dit COMBIEN et OÙ »*. */
 test("18 · aucune place ne se découvre à l'exécution", () => {
   const f = feuilleDesCotesWares();
-  for (const sel of ['.wares-cote[data-cote="gauche"]', '.wares-cote[data-cote="droite"]',
-                     '.wares-tuner[data-organe$="-g"]', '.wares-tuner[data-organe$="-d"]']) {
+  /* 🔄 LOT 315 — les deux cellules de côté ont disparu (le pied de Pack) : chaque organe du pied
+     déclare désormais SON aire, et la liste vient du PLAN (`pistesDuPied`), ⛔ pas d'une liste de noms. */
+  const sels = ['.wares-tuner[data-organe$="-g"]', '.wares-tuner[data-organe$="-d"]'];
+  for (const sel of sels) {
     const re = new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\{[^}]*grid-column:");
     assert.match(f, re, `⛔ ${sel} n'a pas de colonne déclarée : sa place dépend de l'ordre du DOM`);
+  }
+  const { organes } = D.pistesDuPied();
+  assert.ok(organes.length >= 8, "⛔ le pied n'a presque plus d'organes placés : le critère de la rangée a dérivé");
+  for (const o of organes) {
+    const sel = `.wares-pied > [data-organe="${D.CLEF_DE[o.nom]}"]`;
+    const re = new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\{grid-area:");
+    assert.match(f, re, `⛔ ${o.nom} n'a pas d'aire déclarée : sa place dépend de l'ordre du DOM`);
   }
 });
 
@@ -407,13 +419,32 @@ test("18 · aucune place ne se découvre à l'exécution", () => {
    dessins, parce que le `gap` sépare des BOÎTES et que chacune porte 2 blg de bord transparent.
    Le plan dit 8 (27,75 → 67,75 puis 75,75), le sac aussi (32 → 72 puis 80). C'est le rendu qui
    divergeait. ⛔ Et le 4 ne s'écrit pas : il se DÉDUIT, donc il suivra si un creux change. */
-test("19 · l'écart de 8 est celui des DESSINS, et le gap s'en déduit", () => {
+test("19 · l'écart de 8 est celui des DESSINS, et la grille du pied rend CHAQUE boîte du plan", () => {
+  /* 🔄 LOT 315 — le `gap` des cellules de côté a disparu avec elles : le pied de Wares est celui de
+     Pack, tracé sur une grille dont les lignes sont les bords du plan. ⭐ Le témoin devient plus dur :
+     il ne lit plus un nombre de la feuille, il REFAIT la grille — les pistes déclarées, sommées en
+     lignes — et exige que l'aire de chaque organe tombe exactement sur sa boîte (la cible s'il en a
+     une). ⛔ Un organe décalé d'une piste, une piste mal sommée, une aire qui oublie un bord : rouge. */
   const [pt, tl] = ["PARTY TALLY", "TALLY"].map((n) => D.ORGANES.find((o) => o.nom === n));
-  assert.equal(tl.x - (pt.x + pt.l), D.ECART, "⛔ le plan lui-même doit poser 8 entre les dessins");
-  const bords = ((pt.cible.x + pt.cible.l) - (pt.x + pt.l)) + (tl.x - tl.cible.x);
-  const attendu = D.ECART - bords;
-  assert.match(feuilleDesCotesWares(), new RegExp(`\\.wares-cote\\{[^}]*gap:${attendu}px`),
-    `⛔ le gap des cellules de côté doit valoir ${attendu} — 8 moins les deux bords transparents`);
+  assert.equal(tl.x - (pt.x + pt.l), D.ECART, "⛔ le plan lui-même doit poser 8 entre les dessins des Tally");
+  const f = feuilleDesCotesWares();
+  const pied = /\.wares-pied\{display:grid;grid-template-columns:([^;]*);grid-template-rows:([^;]*);/.exec(f);
+  assert.ok(pied, "⛔ la grille du pied n'est pas déclarée");
+  const lignes = (pistes) => pistes.trim().split(/\s+/).map(parseFloat)
+    .reduce((acc, v) => [...acc, Math.round((acc.at(-1) + v) * 1000) / 1000], [0]);
+  const cols = lignes(pied[1]);
+  const rows = lignes(pied[2]);
+  const dalle = D.DALLES.find((d) => d.nom === "PIED");
+  assert.equal(cols.at(-1), D.DALLE.l, "⛔ les colonnes du pied ne font pas la scène");
+  assert.equal(rows.at(-1), dalle.h, "⛔ les rangées du pied ne font pas sa dalle");
+  for (const o of D.pistesDuPied().organes) {
+    const aire = new RegExp(`\\[data-organe="${D.CLEF_DE[o.nom]}"\\]\\{grid-area:(\\d+) / (\\d+) / (\\d+) / (\\d+)\\}`).exec(f);
+    assert.ok(aire, `⛔ ${o.nom} : aucune aire`);
+    const [r1, c1, r2, c2] = aire.slice(1).map(Number);
+    const b = o.cible || o;
+    assert.deepEqual([cols[c1 - 1], rows[r1 - 1] + dalle.y, cols[c2 - 1] - cols[c1 - 1], rows[r2 - 1] - rows[r1 - 1]],
+      [b.x, b.y, b.l, b.h], `⛔ ${o.nom} : la grille ne le pose pas sur sa boîte du plan`);
+  }
 });
 
 /* ══ 20 · 🔴 LE GLISSER ÉTAIT PROMIS ET JAMAIS ARMÉ ════════════════════════════

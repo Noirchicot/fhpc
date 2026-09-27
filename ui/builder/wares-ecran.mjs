@@ -18,9 +18,9 @@
    celui-ci, et un quatrième porteur le rendra nécessaire. */
 
 import {
-  DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_PIED_BAS, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
-  RENDU_GRILLE, PIED, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
-  ORGANES, JOUR,
+  DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
+  RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
+  ORGANES, JOUR, pistesDuPied,
 } from "./wares-disposition.mjs?v=855";
 import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=855";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
@@ -30,6 +30,9 @@ import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=855";
 import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=855";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
 import { portesCarrees } from "./porte-carree.mjs?v=855";
+/* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
+   partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=855";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -294,73 +297,47 @@ export function feuilleDesCotesWares() {
          `mask-image:${url};-webkit-mask-image:${url}}`);
   r.push(`.wares-cases{grid-column:2;grid-row:1}`);
 
-  /* ── dalle 3 : trois colonnes, trois rangées, les deux côtés qui enjambent ──
-     ⭐ ET VOICI TOUT LE CENTRAGE D'ERIC, EN DEUX DÉCLARATIONS : la cellule enjambe les
-     rangées 1 à 2 (`grid-row: 1 / 3`, soit 48 + 8 + 44 = 100) et se centre dedans. C'est ce
-     qui met la bourse et les Tally *« entre 2 lignes »*, comme il l'avait dit avant de le voir. */
-  r.push(`.wares-pied{display:grid;grid-template-columns:1fr ${px(PIED.colonnes[1])} 1fr;` +
-         `grid-template-rows:${px(48)} ${px(TOUCH)} ${px(TOUCH)};row-gap:${px(ECART)};` +
-         `padding:${px(REMBOURRAGE)} ${px(REMBOURRAGE)} ${px(REMBOURRAGE_PIED_BAS)}}`);
-  /* 🔴 L'ÉCART DE 8 SE MESURE ENTRE LES **DESSINS**, ⛔ PAS ENTRE LES CIBLES — mesuré au banc
-     sur cache froid : à `gap: 8` les deux Tally rendaient **12** entre leurs dessins, parce que
-     le `gap` sépare des BOÎTES et que chaque boîte porte 2 blg de bord transparent.
-     ⭐ Et le sac fait bien 8 entre ses dessins (PARTY 32→72, TALLY 80→120) : le plan de Wares
-     aussi (27,75→67,75 puis 75,75). C'est le rendu qui divergeait, pas la cote.
-     ⛔ ET LE 4 NE S'ÉCRIT PAS : il se DÉDUIT du plan — l'écart voulu moins les deux bords que
-     les boîtes ajoutent. Le jour où un dessin change de creux, il suit tout seul. */
-  const [pt, tl] = ["PARTY TALLY", "TALLY"].map((n) => ORGANES.find((o) => o.nom === n));
-  const ecartDessins = tl.x - (pt.x + pt.l);
-  const bords = ((pt.cible.x + pt.cible.l) - (pt.x + pt.l)) + (tl.x - tl.cible.x);
-  r.push(`.wares-cote{grid-row:1 / 3;display:grid;place-self:center;place-items:center;` +
-         `grid-auto-flow:column;gap:${px(ecartDessins - bords)}}`);
-  /* ⛔ ET CHACUNE DÉCLARE SA COLONNE. Elles tombaient juste par l'ORDRE DU DOM — `colauto` au
-     relevé — ce qui marche par accident tant que personne ne réordonne. Le sacré n° 3 retire
-     exactement ça : *« une grille dit COMBIEN et OÙ ; un repli le découvre à l'exécution »*.
-     ⭐ Et je l'avais déjà écrit pour les tuners dix lignes plus haut, sans le faire ici. */
-  r.push(`.wares-cote[data-cote="gauche"]{grid-column:1}`);
-  /* 🔄 LOT 307 (27/09) — LA CELLULE DE GAUCHE : LA LUNE EN HAUT, LES TALLY EN BAS. Eric : *« En
-     bas à gauche dans wares […] déplacer les Tally plus bas, pour faire de la place »*.
-     ⭐ DEUX RANGS DÉCLARÉS, et leurs hauteurs viennent du plan (la cible de la lune, celle des
-     Tally) — ⛔ le rang de la lune existe MÊME SANS ELLE : sur un téléphone il reste vide, et
-     les Tally ne remontent pas. La cellule garde sa largeur de colonne (`justify-self:
-     stretch`) pour que la lune se cale À GAUCHE et les Tally AU MILIEU. */
+  /* ── dalle 3 : LE PIED DE PACK, SUR UNE GRILLE TRACÉE PAR SES PROPRES BORDS (lot 315) ──
+     ⚖️ Eric, 27/09 : *« Harmonise le pied de page pack et wares, prends pack comme modèles,
+     déplace encumbrance sous l'or dans wares »*. Les cotes sont celles du sac (le plan les LIT,
+     `dePack`) ; ce qui reste à la feuille, c'est de les rendre sans un seul `left`.
+     ⭐ LA GRILLE SE DÉDUIT DU PLAN : ses lignes sont les bords des boîtes (`pistesDuPied`), donc
+     chaque organe s'étend d'une ligne à une autre — `grid-area`, et rien d'autre. Le rembourrage
+     de la dalle n'a plus à s'écrire : les bords de la dalle SONT les premières et dernières lignes.
+     🗄️ Ce qu'elle remplace : `1fr | 96 | 1fr`, deux cellules de côté qui centraient les Tally et la
+     bourse (`equipement-wares-bourse-et-tally-centres`, 20/09) — une disposition qui n'était pas
+     celle de Pack, et que la lune (lot 307) avait déjà dû tordre. */
   {
-    const lune = ORGANES.find((x) => x.nom === "LUNE");
-    r.push(`.wares-cote[data-cote="gauche"]{grid-auto-flow:row;justify-self:stretch;` +
-           `grid-template-rows:${px(lune.cible.h)} ${px(tl.cible.h)};gap:${px(ECART)}}`);
-    r.push(`.wares-cote[data-cote="gauche"] > [data-organe="lune"]{grid-row:1;justify-self:start}`);
-    r.push(`.wares-tallys{grid-row:2;display:grid;grid-auto-flow:column;` +
-           `gap:${px(ecartDessins - bords)};place-items:center}`);
+    const { organes, colonnes, rangees } = pistesDuPied();
+    const pistes = (lignes) => lignes.slice(1).map((v, i) => px(v - lignes[i])).join(" ");
+    r.push(`.wares-pied{display:grid;grid-template-columns:${pistes(colonnes)};` +
+           `grid-template-rows:${pistes(rangees)};padding:0}`);
+    const dalle = DALLES.find((d) => d.nom === "PIED");
+    const ligne = (lignes, v) => lignes.indexOf(Math.round(v * 1000) / 1000) + 1;
+    for (const o of organes) {
+      const b = o.cible || o;
+      const aire = `${ligne(rangees, b.y - dalle.y)} / ${ligne(colonnes, b.x)} / ` +
+                   `${ligne(rangees, b.y + b.h - dalle.y)} / ${ligne(colonnes, b.x + b.l)}`;
+      /* ⛔ ENFANT DIRECT : la rangée porte ses propres `data-organe` (les carrés, Send), qui ne
+         sont pas des places de CETTE grille. */
+      r.push(`.wares-pied > [data-organe="${CLEF_DE[o.nom]}"]{grid-area:${aire}}`);
+    }
   }
-  r.push(`.wares-cote[data-cote="droite"]{grid-column:3}`);
-  /* ⚖️ LE VOYANT DU MONTANT SE POSE **SUR** LA BOURSE — même cellule, même boîte, et c'est le
-     plan qui les donne (`MONTANT`, `dans: "PURSE"`). ⛔ On ne le tape pas : `pointer-events:none`
-     laisse le doigt à la bourse dessous. Sans ça le voyant volerait le tap de l'organe qu'il
-     annote, et la bourse ne s'ouvrirait plus.
-     🔄 LOT 307 (27/09) — ET L'ENCOMBREMENT PASSE DESSOUS (Eric : « déplacer encumbrance sous
-     purse ») : la cellule de droite a deux rangs, la bourse et son montant dans le premier,
-     l'encombrement dans le second, 8 plus bas. ⭐ Deux lignes permises — le défaut vu sur
-     `main` était une ligne trop longue pour sa colonne, qui passait sous le dropdown. */
+  /* ⚖️ LE VOYANT DU MONTANT SE POSE **SUR** LA BOURSE — même aire, même boîte (le plan le dit :
+     `MONTANT`, `dans: "PURSE"`). ⛔ On ne le tape pas : `pointer-events:none` laisse le doigt à la
+     bourse dessous, sans quoi le voyant volerait le tap de l'organe qu'il annote. */
   {
     const m = ORGANES.find((o) => o.nom === "MONTANT");
-    const purse = ORGANES.find((o) => o.nom === "PURSE");
     const enc = ORGANES.find((x) => x.nom === "ENCOMBREMENT");
-    r.push(`.wares-cote[data-cote="droite"]{grid-template-rows:${px(purse.cible.h)} ${px(enc.h)};` +
-           `row-gap:${px(ECART)}}`);
-    r.push(`.wares-cote[data-cote="droite"] > [data-organe="purse"],` +
-           `.wares-cote[data-cote="droite"] > [data-organe="montant"]{grid-area:1 / 1}`);
     r.push(`.wares [data-organe="montant"]{inline-size:${px(m.l)};block-size:${px(m.h)};` +
            `place-self:center;pointer-events:none}`);
-    /* ⛔ ET IL NE DÉBORDE PAS DE SA BOÎTE : deux lignes au plus, centrées — une ligne qui ne
-       tient pas se VOIT, elle ne se fait pas défiler en douce. */
-    r.push(`.wares [data-organe="encombrement"]{grid-area:2 / 1;inline-size:${px(enc.l)};` +
+    /* ⚖️ L'ENCOMBREMENT, SOUS L'OR (Eric, 27/09). ⛔ Il ne déborde pas de sa boîte : deux lignes au
+       plus, centrées — une ligne qui ne tient pas se VOIT, elle ne se fait pas défiler en douce. */
+    r.push(`.wares [data-organe="encombrement"]{inline-size:${px(enc.l)};` +
            `block-size:${px(enc.h)};display:grid;place-items:center;text-align:center;` +
            `line-height:${px(enc.h / 2)};overflow:hidden;` +
            `font-size:${px(11)};color:var(--text-soft)}`);
   }
-  r.push(`.wares-pied > [data-organe="collecteur"]{grid-column:2;grid-row:1;justify-self:center}`);
-  r.push(`.wares-pied > [data-organe="send-vers"]{grid-column:2;grid-row:2;align-self:center}`);
-  r.push(`.wares-pied > [data-rangee]{grid-column:1 / -1;grid-row:3}`);
 
   /* ── LES BOÎTES DES ORGANES, DEPUIS LE PLAN ───────────────────────────────────
      🔴 ELLES ÉTAIENT DANS `shell.css`, ET UN GARDE DE R ME L'A REPRIS : *« shell.css ne
@@ -765,108 +742,80 @@ export function construireLesWares(o = {}) {
     },
   };
 
-  /* ── DALLE 3 ─────────────────────────────────────────────────────────────── */
+  /* ── DALLE 3 — LE PIED DE PACK (lot 315) ─────────────────────────────────────
+     ⭐ PLUS DE CELLULES DE CÔTÉ : chaque organe est un enfant DIRECT du pied, et la feuille lui
+     donne son aire sur la grille tracée par le plan (`pistesDuPied`). Les places sont celles de
+     Pack : la lune en haut à gauche, les deux Tally sur la rangée de `Send to`, le collecteur au
+     milieu, la bourse à sa droite, l'encombrement SOUS l'or. */
   const pied = el("div", "wares-pied wares-dalle");
 
-  /* les deux Tally, à gauche — centrés dans la cellule par la grille, ⛔ pas par un calcul */
-  /* 🔴 LES TROIS ORGANES D'ÉCHANGE SONT CEUX DE R, ET LE DÉPÔT ME L'AVAIT ÉCRIT D'AVANCE.
-     `sac-ecran.mjs` porte ce commentaire depuis le 19/09 : *« LES TROIS ORGANES D'ÉCHANGE SONT
-     CEUX DE R (`gear-bouton`), et ils portent DÉJÀ leurs images : `--icone-bourse`,
-     `--icone-parchemin` et `--icone-parchemin-party`, déposées par Eric le 16/09. ⛔ J'en avais
-     fait trois rectangles bruns, sans image »*.
-     ⛔ J'AI REFAIT EXACTEMENT CETTE FAUTE — `.wares-tally` et `.wares-purse`, trois rectangles
-     bruns sans image — dans un lot dont le premier commentaire dit « il ne redessine rien de ce
-     qui existe ». Eric l'a vu en ligne : *« tally les images le branchement · la bourse le
-     branchement »*.
-     ⭐ `ORGANES_D_ECHANGE` est la LISTE, et elle vient du sac : un quatrième organe la
-     traverserait tout seul. ⛔ La recopier ici en ferait une seconde vérité. */
-  const gauche = el("div", "wares-cote");
-  gauche.dataset.cote = "gauche";
-  /* ⭐ LA CELLULE DE GAUCHE DEVIENT UNE PILE À DEUX RANGS — les deux Tally, puis l'encombrement
-     dessous. ⛔ Sans ce rang déclaré, le `grid-auto-flow: column` de la cellule poserait le
-     voyant À CÔTÉ des Tally : une place découverte à l'exécution, ce que le sacré n° 3 retire. */
-  const tallys = el("div", "wares-tallys");
+  /* 🌕 LOT 307 — LA LUNE, fabriquée par l'étape ; ⛔ sans la place du double écran, rien — et son
+     aire reste vide : la forme de l'écran ne dépend pas de ce qu'on y pose. */
+  if (o.lune) pied.append(o.lune);
+
+  /* 🔴 LES TROIS ORGANES D'ÉCHANGE SONT CEUX DE R (`gear-bouton`, leurs images déposées par Eric le
+     16/09) — ⛔ jamais trois rectangles bruns (la faute du 20/09, `sac-ecran.mjs` la raconte).
+     `ORGANES_D_ECHANGE` est la LISTE, et elle vient du sac. */
   const compteurs = { "party-tally": 0, tally: o.compteTally || 0 };
   for (const { id, mot, inerte } of ORGANES_D_ECHANGE) {
-    if (id === "purse") continue;                 /* elle vit dans la cellule de DROITE */
+    if (id === "purse") continue;                 /* la bourse se pose plus bas, avec son voyant */
     const b = bouton("gear-bouton", "", mot, () => o.surBouton && o.surBouton(id));
     b.dataset.organe = id;
     b.dataset.compte = String(compteurs[id] || 0);
-    /* ⚖️ ET LE PARTY TALLY SE MONTRE INERTE, il ne fait pas SEMBLANT — la loi du produit :
-       une place réservée se montre inerte. Un bouton qui accepte le doigt et ne répond jamais
-       apprend à ne plus toucher. */
+    /* ⚖️ LE PARTY TALLY SE MONTRE INERTE, il ne fait pas SEMBLANT : une place réservée se montre
+       inerte. */
     if (inerte) b.disabled = true;
-    tallys.append(b);
+    pied.append(b);
   }
-  gauche.append(tallys);
-  /* ⚖️ L'ENCOMBREMENT — Eric, 2026-09-21 : *« rajoute l'unité d'encombrement »*, puis *« dans le
-     pied, entre les Tally et le collecteur »*. ⭐ Le mot vient du pilote, qui l'a fait dire par
-     `motDeLEncombrement` — l'écran ne calcule rien et ne connaît aucune unité.
-     ⛔ ET IL EST DANS LE PIED, pas dans la dalle qui traverse : il décrit le PERSONNAGE, pas la
-     sous-catégorie qu'on regarde. */
-  /* ⛔ IL SE POSE TOUJOURS, MÊME SANS MOT — et c'est mon garde de bijection qui me l'a appris :
-     un organe qui n'apparaît QUE si la donnée arrive n'est pas au plan la moitié du temps, et la
-     FORME de l'écran se met à dépendre de son contenu. ⭐ La place est réservée par le plan ; ce
-     qui vient du pilote est le MOT, pas l'existence. */
-  const poids = el("div", "wares-encombrement", o.encombrement || "");
-  poids.dataset.organe = "encombrement";
-  /* 🌕 LOT 307 — LA LUNE, en haut de la cellule de gauche, fabriquée par l'étape ; ⛔ sans la
-     place du double écran, rien — et son rang reste vide. L'encombrement, lui, part À DROITE,
-     sous la bourse (plus bas). */
-  if (o.lune) gauche.prepend(o.lune);
-  pied.append(gauche);
 
-  const collecteur = el("div", "wares-collecteur", "SEND COLLECTOR");
-  collecteur.dataset.organe = "collecteur";
-  /* ⭐ IL DIT QU'IL EST UNE CIBLE — `glisser.mjs` lit cet attribut pour savoir où un jeton peut
-     se poser. ⛔ Un creux qui n'annonce pas qu'il accueille est un creux qui refuse en silence. */
-  /* ⭐ IL DIT QU'IL EST UNE CIBLE, et il le dit dans le vocabulaire de `glisser.mjs` :
-     `data-creneau`. ⛔ Un creux qui n'annonce pas qu'il accueille refuse en silence — et
-     `creneauSous` cherche exactement cet attribut, rien d'autre. */
-  collecteur.dataset.creneau = CRENEAU_COLLECTEUR;
+  /* ⚖️ LE COLLECTEUR GARDE L'OBJET QU'ON Y GLISSE — lot 315. Eric, 27/09 : *« Le drag and drop de
+     wares ne fonctionne tj pas »*. 📏 Mesuré à la v854/v855 : le geste marchait, le dépôt arrivait,
+     mais il partait au Tally SANS RIEN MONTRER — le collecteur restait « SEND COLLECTOR ». Vu du
+     joueur, rien ne se passait.
+     ⭐ C'EST CELUI DE PACK (`collecteurDEnvoi`, module feuille) : vide, « Send collector » ; plein,
+     le NOM de l'objet (×qte si > 1). ⚖️ Et son contenu n'est pas un achat : Eric, 26/09 (lot 300),
+     *« son contenu n'est pas un item tant qu'on n'a pas fait send »* — `o.retenu` est de l'ÉTAT
+     D'ÉCRAN, tenu par le pilote ; rien n'est acheté avant `Send`.
+     ⭐ PLEIN, IL RESTE UNE CIBLE (`resteCible`) : un second dépôt REMPLACE le premier — ⛔ pas de
+     geste neuf à apprendre pour changer d'avis. Le nom du créneau reste celui de Wares : en double
+     écran, un jeton du sac voisin ne doit pas s'y poser. */
+  const collecteur = collecteurDEnvoi({ retenu: o.retenu || null, creneau: CRENEAU_COLLECTEUR, resteCible: true });
+  if (o.retenu) {
+    /* ⚖️ TAP = INFO : l'objet retenu ouvre SA fiche du catalogue, un X2 (loi du 20/09), au tap
+       comme au clic droit — *« tap sur un token »* ne dit pas « sur un token dans sa grille ». */
+    const ouvrir = (ev) => {
+      if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
+      if (o.surRetenu) o.surRetenu();
+    };
+    collecteur.addEventListener("click", ouvrir);
+    collecteur.addEventListener("contextmenu", ouvrir);
+  }
   pied.append(collecteur);
 
-  /* la bourse, à droite — symétrique des Tally, et centrée par la même déclaration */
-  const droite = el("div", "wares-cote");
-  droite.dataset.cote = "droite";
-  /* ⚖️ RIEN D'ÉCRIT DANS LE BOUTON — la loi de R, tenue par son garde 5 quinquies :
-     *« le montant est le voyant posé DESSUS »*. ⛔ Le mot va au nom accessible, pas au corps.
-     🔴 ET LE VOYANT EST LÀ DEPUIS LE 21/09 — la dette écrite trois lignes plus bas est payée.
-     Eric : *« la bourse toujours pas le montant posé dessus »*. ⭐ C'est `montantDeLaBourse`,
-     l'organe de R, importé — ⛔ pas un second qui dirait le même nombre. */
-  /* ⭐ ET LA BOURSE EST LE MÊME ORGANE, avec son image (`--icone-bourse`). ⛔ Rien d'écrit
-     dans son corps : le montant va au nom accessible, et le voyant qui le PEINT appartient à R
-     (loi du 16/09 : *« le montant est le voyant posé DESSUS »*). */
-  /* 🔴 LE NOM DE LA BOURSE EST CELUI DE LA LISTE, ⛔ PLUS UNE PHRASE FABRIQUÉE ICI — 21/09.
-     Il disait `Purse — ${o.bourse}`, ce qui a rendu **« Purse — [object Object] »** à la minute
-     où `o.bourse` est devenue la donnée (les quatre monnaies) au lieu d'une chaîne.
-     ⭐ ET LA RÉPARATION N'EST PAS DE REFORMATER LE NOMBRE ICI : le sac dit `Purse` tout court et
-     laisse le VOYANT dire le montant — un organe, un message. Deux endroits qui annoncent la
-     même somme divergeraient au premier arrondi. `ORGANES_D_ECHANGE` porte déjà ce mot. */
+  /* ⚖️ RIEN D'ÉCRIT DANS LA BOURSE — la loi de R : *« le montant est le voyant posé DESSUS »*. Son
+     nom est celui de la liste des organes d'échange ; le voyant (`montantDeLaBourse`, l'organe de
+     R) dit la somme. ⛔ Deux endroits qui annoncent la même somme divergeraient au premier arrondi. */
   const motDeLOrgane = (ORGANES_D_ECHANGE.find((x) => x.id === "purse") || {}).mot || "Purse";
   const purse = bouton("gear-bouton", "", motDeLOrgane,
     () => o.surBouton && o.surBouton("purse"));
   purse.dataset.organe = "purse";
-  /* ⭐ LES DEUX DANS LA MÊME CELLULE — la feuille les y déclare (`grid-area: 1 / 1`), donc le
-     voyant se pose SUR la bourse sans qu'aucun `left` ne soit écrit. ⛔ C'est la réponse du
-     sacré n° 3 à ce que R et le sac font en absolu : la superposition est une GRILLE à une
-     cellule, pas une position. */
   const montant = montantDeLaBourse(o);
   montant.dataset.organe = "montant";
-  droite.append(purse, montant, poids);
-  pied.append(droite);
+  pied.append(purse, montant);
 
-  const envoi = el("select", "wares-send-vers");
-  envoi.dataset.organe = "send-vers";
-  envoi.setAttribute("aria-label", "Send to");
-  for (const s of (o.sections || [])) {
-    const opt = el("option", undefined, s.mot);
-    opt.value = s.valeur;
-    if (s.valeur === o.destination) opt.selected = true;
-    envoi.append(opt);
-  }
-  envoi.addEventListener("change", () => o.surDestination && o.surDestination(envoi.value));
-  pied.append(envoi);
+  /* ⚖️ L'ENCOMBREMENT — Eric, 21/09 : *« rajoute l'unité d'encombrement »* ; 27/09 : *« déplace
+     encumbrance sous l'or dans wares »*. ⭐ Le mot vient du pilote (`motDeLEncombrement`) : l'écran
+     ne calcule rien. ⛔ IL SE POSE TOUJOURS, MÊME SANS MOT : la place est au plan, ce qui vient du
+     pilote est le mot, pas l'existence. */
+  const poids = el("div", "wares-encombrement", o.encombrement || "");
+  poids.dataset.organe = "encombrement";
+  pied.append(poids);
+
+  /* ⭐ `Send to` EST CELUI DE PACK (`destinationDEnvoi`) — même boîte, même `.pipeline-dropdown`,
+     même police. 🗄️ Il remplace `select.wares-send-vers`, plus petit, que Wares fabriquait seul.
+     ⛔ On n'offre que les destinations que le pilote passe (les actives). */
+  pied.append(destinationDEnvoi({ destinations: o.sections || [], destination: o.destination,
+    surDestination: o.surDestination }));
 
   pied.append(rangeeDuPied(o));
 

@@ -13357,17 +13357,9 @@ button.tuto-point::before {
 }
 
 /* — LE PIED : le collecteur, les Tally, la bourse, la destination — */
-/* ⚖️ UN COLLECTEUR EST UN CREUX (NORMES §2 ter) : très arrondi, ⛔ aucun liseré visible — la
-   bordure reste, en transparent, à la cote du liseré rempli, pour que la case ne saute pas au
-   moment où elle se remplit. Le creux dit « pose ici », le relief dit « quelque chose est
-   posé ». */
-.wares-collecteur {
-  display: grid; place-items: center;
-  border: var(--creneau-lisere-rempli) solid transparent;
-  border-radius: var(--organe-rayon);
-  box-shadow: var(--creux);
-  color: var(--text-soft); font-size: var(--t0); letter-spacing: .08em;
-}
+/* 🗄️ `.wares-collecteur` A ÉTÉ RETIRÉ AU LOT 315 (27/09) : Wares porte le collecteur de Pack
+   (`collecteur-envoi.mjs`, habit `.gear-collecteur` plus haut). Eric : *« prends pack comme
+   modèles »*. ⛔ Le sien ne savait que dire « SEND COLLECTOR » — il ne retenait rien. */
 /* 🗄️ `.wares-tally` ET `.wares-purse` ONT ÉTÉ RETIRÉS LE 20/09, ET C'EST UNE FAUTE RÉPARÉE.
    C'étaient trois rectangles bruns sans image, redessinés alors que R porte DÉJÀ ces organes
    avec leurs icônes (`--icone-bourse`, `--icone-parchemin`, `--icone-parchemin-party`, déposées
@@ -13384,11 +13376,8 @@ button.tuto-point::before {
   pointer-events: none;
   --loupe-trait: var(--verre-lisere);
 }
-.wares-send-vers {
-  border: 1px solid var(--border-strong); border-radius: var(--bouton-rayon);
-  background: var(--dalle-inter); color: var(--text);
-  font: inherit; font-size: var(--t1);
-}
+/* 🗄️ `.wares-send-vers` A ÉTÉ RETIRÉ AU LOT 315 : `Send to` est celui de Pack (`.sac-destination`
+   + `.pipeline-dropdown`), même organe, même police. */
 /* ⭐ LA RANGÉE DU PIED est celle de §6 pré — `[data-rangee]` la place, et ⛔ ce bloc n'en
    redit rien : sa grille `borne | 1fr | borne` a UN écrivain, et ce n'est pas ici. */
 /* ⭐ `.wares-porte` N'A PAS DE BLOC À ELLE : elle est entrée dans les listes de `.gear-porte`

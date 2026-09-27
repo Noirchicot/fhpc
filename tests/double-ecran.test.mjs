@@ -274,15 +274,24 @@ test("9 — 🛒 WARES LÂCHÉ SUR GEAR : « Buy this item for … GP? », Buy =
   assert.equal(p.texte, `Buy this item for ${motDuMontant(gestes[0].cout)}?`, "⭐ le montant affiché EST celui débité");
 });
 
-test("10 — 🧺 LA MÊME PAGE GARDE SON GESTE : un jeton de Wares sur le collecteur de Wares va au panier, sans popup", () => {
+/* 🔄 LOT 315 — LA LOI DE LA MÊME PAGE A CHANGÉ, ET CE GARDE LE DIT. Eric, 27/09 : *« Le drag and
+   drop de wares ne fonctionne tj pas »* — le dépôt faisait `cartAdd` et rien ne se voyait. Le
+   collecteur de Wares GARDE désormais l'objet (comme celui de Pack), et c'est `Send` qui l'achète
+   (`tests/wares-collecteur.test.mjs`). ⭐ Ce qui ne bouge pas, et que ce garde tient toujours : un
+   dépôt dans la MÊME page n'ouvre AUCUN popup et n'écrit RIEN au document. */
+test("10 — 🧺 LA MÊME PAGE GARDE SON GESTE : un jeton de Wares sur le collecteur de Wares y reste, sans popup ni écriture", () => {
   const doc = personnage();
   const acts = [];
   const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
   const jeton = gauche.querySelector(".wares-jeton");
-  const chez = gauche.querySelector(".wares-collecteur");
+  const nom = jeton.querySelector(".jeton-nom").textContent;
+  const chez = gauche.querySelector('.wares [data-organe="collecteur"]');
   glisser(jeton, chez);
   assert.equal(popups(acts).length, 0, "⛔ pas de popup dans la même page");
-  assert.deepEqual(acts.map((a) => a.kind), ["cartAdd"]);
+  assert.deepEqual(acts.map((a) => a.kind), [], "⛔ rien n'est écrit : le contenu d'un collecteur n'est pas un item avant Send");
+  const retenu = gauche.querySelector('.wares [data-organe="collecteur"]');
+  assert.equal(retenu.dataset.occupe, "oui", "⛔ le collecteur ne montre pas l'objet déposé");
+  assert.equal(retenu.querySelector(".jeton-nom").textContent, nom);
 });
 
 /* ══ 11 — X5 → GEAR : Crafting, Found — le MÊME Send que le bouton ═════════════════ */

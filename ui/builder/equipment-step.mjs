@@ -3146,6 +3146,12 @@ let sectionSac = null;
 let rayonWares = 0;
 let etagereWares = 0;
 let pageWares = 0;
+/* ⚖️ LOT 315 — CE QUE LE COLLECTEUR DE WARES RETIENT : la fiche du catalogue (`ficheItemAvec`) de
+   l'objet qu'on y a glissé, ou `null`. Eric, 27/09 : *« Le drag and drop de wares ne fonctionne tj
+   pas »* — le dépôt partait au Tally sans rien montrer. ⭐ DE L'ÉTAT D'ÉCRAN, comme `vueEquipement` :
+   ⛔ jamais le document — *« son contenu n'est pas un item tant qu'on n'a pas fait send »* (Eric,
+   26/09). Rien n'est acheté avant `Send` ; `Buy` (ou `Add` vers un Tally) le vide, `Cancel` non. */
+let retenuWares = null;
 /* ⭐ LE MODE ÉDITION DE LA ROUE — Eric, 18/09 : *« le bouton pack devient sections,
    et la roue passe en mode édition »*. ⛔ État d'écran lui aussi : on ne rouvre pas
    le sac en train d'éditer ses sections. */
@@ -4613,6 +4619,39 @@ export function renderEquipmentStep(ctx, onAction) {
     itemsDeLaPage.clear();
     for (const item of vue.objets) itemsDeLaPage.set(item.view.id, item);
 
+    /* ⚖️ LOT 315 — `Send`, COLLECTEUR PLEIN : LE POPUP D'ACHAT DU LOT 307, PUIS L'ACHAT.
+       ⭐ Aucun geste neuf : c'est mot pour mot `surDepotVoisin` (plus bas) — même popup
+       (`popupDuDepotVoisin`), même écrivain de l'achat (`acheterUnObjet`, le `BUY` de X2), même
+       prix (celui que X2 lit). Seule la DESTINATION change : celle du dropdown `Send to` de Wares.
+       · vers un Tally → « Add this item to the Tally… » → `cartAdd` (le paiement est différé) ;
+       · objet sans prix → `MOT_SANS_PRIX`, et le collecteur garde l'objet ;
+       · `Buy` (ou `Add`) VIDE le collecteur ; `Cancel` ne le vide pas.
+       ⚠️ VIDÉ AVANT LE GESTE, comme `envoyer` : chaque acte fait repeindre la coquille, et un
+       collecteur vidé APRÈS aurait été peint plein. Un refus (bourse trop maigre) le rend. */
+    function acheterLeRetenu() {
+      const f = retenuWares;
+      if (!f) return;
+      const genre = destinationEnvoi === "tally" ? "tally" : "corps";
+      if (genre === "corps" && !f.cout) { act({ kind: "popup", role: "gendarme", texte: MOT_SANS_PRIX }); return; }
+      /* ⭐ LE PARTY BAG EST UNE BOÎTE, PAS UN LIEU (la loi d'`envoyer`) : on achète vers le sac,
+         puis la ligne neuve — son index est le prochain libre, lu AVANT l'achat — est posée dans
+         la boîte du party, par le verbe du glisser. */
+      const versParty = destinationEnvoi === SECTION_PARTY.clef;
+      const lieu = versParty ? "backpack" : (destinationEnvoi === "self" ? "self" : "backpack");
+      const popup = popupDuDepotVoisin({ quoi: "achat", cible: genre, montant: f.cout, annuler: fermerLePopup,
+        accepter: genre === "tally"
+          ? () => { retenuWares = null; act({ kind: "cartAdd", ref: f.ref }); }
+          : () => {
+            const index = nextGearIndex(docu);
+            retenuWares = null;
+            const refus = acheterUnObjet({ ref: f.ref, cout: f.cout, qte: 1, destination: lieu,
+              payer: true, bourse, onAction: actAchat });
+            if (refus) { retenuWares = f; act({ kind: "popup", role: "gendarme", texte: refus }); return; }
+            if (versParty) actArbitre({ kind: "placerGearLine", index, boite: boiteDeSection(SECTION_PARTY.clef) });
+          } });
+      if (popup) act(popup);
+    }
+
     const { noeud } = construireLesWares({
       /* 🌕 la lune, en bas à gauche de Wares */
       lune: luneDe("r"),
@@ -4714,8 +4753,10 @@ export function renderEquipmentStep(ctx, onAction) {
       surPorte: (id) => {
         if (id === "gear") montrer("gear");
         if (id === "backpack") montrer("sac");
-        /* ⭐ `Send` FAIT ICI CE QU'IL FAIT PARTOUT, et par le MÊME point. */
-        if (id === "send") envoyer();
+        /* ⭐ `Send` FAIT ICI CE QU'IL FAIT PARTOUT, et par le MÊME point — ⚖️ SAUF QUAND LE
+           COLLECTEUR DE WARES RETIENT UN OBJET (lot 315) : alors `Send` l'ACHÈTE, par le popup
+           d'achat du lot 307. Collecteur vide → le comportement d'avant, inchangé. */
+        if (id === "send") { if (retenuWares) acheterLeRetenu(); else envoyer(); }
       },
       surBouton: (id) => {
         /* 🔴 LE TALLY DE WARES OUVRE LE PANIER, ⛔ PAS LA LISTE D'ENVOI — et c'est un garde du
@@ -4734,10 +4775,21 @@ export function renderEquipmentStep(ctx, onAction) {
          tienne : Wares n'a qu'UN collecteur, et Eric a dit le 20/09 que le panier est le Tally
          — donc déposer, c'est mettre au Tally. ⛔ Et le panier vit au DOCUMENT : l'acte passe
          par la coquille, le compteur se remet à jour au rendu qui suit. */
+      /* 🔄 LOT 315 — ⛔ IL N'Y MET PLUS RIEN AU PANIER : il le RETIENT. Eric, 27/09 : *« Le drag and
+         drop de wares ne fonctionne tj pas »*. 📏 Mesuré à la v854/v855 : le dépôt faisait
+         `cartAdd` — l'objet partait au Tally, et à l'écran rien ne changeait (le collecteur
+         restait « SEND COLLECTOR », le Tally ne peint que son opacité, déjà pleine). ⭐ Le
+         collecteur fait désormais ce que fait celui de Pack : il GARDE l'objet et dit son nom ;
+         `Send` l'achète. Un second dépôt remplace le premier. */
       surDepot: (ref) => {
         const item = itemsDeLaPage.get(ref);
-        if (item) act({ kind: "cartAdd", ref: { kind: item.kind, id: item.view.id } });
+        if (!item) return;
+        retenuWares = ficheItemAvec(cherche.valeur)(item);
+        peindre();
       },
+      retenu: retenuWares ? { nom: retenuWares.nom } : null,
+      /* ⚖️ TAP = INFO : l'objet retenu ouvre SON X2, comme un jeton de la grille. */
+      surRetenu: () => { if (retenuWares) ouvrirLObjet([retenuWares], 0, "r"); },
       /* 🪟 LOT 307 — LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE : le popup d'achat.
          ⚖️ « Buy this item for 15 GP? » [Buy] [Cancel] — Buy est EXACTEMENT le geste de
          `BUY` de X2 (`acheterUnObjet`) : même écrivain, même débit, même pose (le sac, le
