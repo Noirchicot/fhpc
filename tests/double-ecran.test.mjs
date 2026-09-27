@@ -648,12 +648,12 @@ test("22 — ⚖️ LOT 319 : la lune parle ROUGE, dit « Double / Screen », et
   const css = lire("ui/builder/shell.css");
   const tokens = lire("ui/builder/tokens.css");
   assert.match(css, /\.lune-ecrans \{[^}]*color: var\(--astre-encre-pleine-lune\);/, "⛔ l'encre de la lune n'est pas le rouge");
-  assert.match(tokens, /--astre-encre-pleine-lune: #aa3f2f;/);
+  assert.match(tokens, /--astre-encre-pleine-lune: #4a0404;/, "🔄 lot 320 : oxblood");
   const mot = tokens.match(/--lune-mot-double: url\("([^"]+)"\)/);
   assert.ok(mot, "le mot « Double / Screen » est un jeton");
   const svg = decodeURIComponent(mot[1].replace("data:image/svg+xml,", ""));
   assert.ok(svg.includes(">Double<") && svg.includes(">Screen<"), "deux lignes : Double, puis Screen");
-  assert.ok(svg.includes("fill='#aa3f2f'"), "⛔ le mot n'est pas à l'encre de la lune");
+  assert.ok(svg.includes("fill='#4a0404'"), "⛔ le mot n'est pas à l'encre de la lune (oxblood)");
   assert.match(css, /\.lune-ecrans\[data-organe="lune"\] \{[^}]*background-image: var\(--lune-mot-double\), var\(--astre-pleine-lune\);/,
     "le mot se pose SUR l'astre, sur la lune d'une page (celle du rail garde son nom)");
   /* le halo : sur la lune d'une page quand un side screen est ouvert, jamais sur celle du rail */

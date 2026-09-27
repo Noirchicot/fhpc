@@ -9899,8 +9899,8 @@ le voile de Wares (`--filigrane`).
 > aussi position de la lune dans les 3 »** · **« L'arrondi des angles des dalles est plus joli dans wares,
 > harmonise cela aux 2 autres »**.
 
-⭐ **LA LUNE** : l'encre `--astre-encre-pleine-lune` (fixe, le rouge de `--critical` au jour — la pleine
-lune est claire dans les deux thèmes) ; le mot « Double / Screen » est une IMAGE (`--lune-mot-double`),
+⭐ **LA LUNE** : l'encre `--astre-encre-pleine-lune` (fixe — la pleine lune est claire dans les deux
+thèmes ; 🔄 oxblood #4a0404, Eric : « plus sombre en contraste avec la lune ») ; le mot « Double / Screen » est une IMAGE (`--lune-mot-double`),
 parce qu'un `<select>` natif ne rend qu'une ligne et ne porte pas de pseudo-élément — ⛔ le select reste
 natif (le doigt comme la souris). Halo : `data-actif` + `--belt-halo` ×3, la lune d'une page seulement.
 📏 **MESURÉ, les trois écrans** (375 × 812) : collecteur à liseré 2, son mot sur 75 ; `Send` 12 px/600 ;
