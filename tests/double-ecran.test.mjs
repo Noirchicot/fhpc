@@ -662,3 +662,14 @@ test("22 — ⚖️ LOT 319 : la lune parle ROUGE, dit « Double / Screen », et
   assert.equal(construireLaLune({ principale: "gear", satellite: "sac", rail: true }).dataset.actif, undefined);
   assert.match(css, /\.lune-ecrans\[data-actif="true"\] \{\s*filter: drop-shadow\(0 0 var\(--halo-epais\) var\(--belt-halo\)\)/);
 });
+
+test("23 — ⚖️ LOT 324 : en double écran d'Équipement, aucun halo autour du panneau de droite", () => {
+  /* Eric, 27/09, capture iPad entourée : « Est-ce que tu peux enlever ce que je trouve moche » — le
+     liseré sombre du « panneau actif » au bord du panneau de droite. En mode satellite la principale
+     est toujours à droite : le halo ne désigne rien. Le double affichage libre le garde. */
+  const css = lire("ui/builder/shell.css");
+  const regles = [...css.matchAll(/([^{}]*\.panneau\[data-actif="true"\][^{}]*)\{([^}]*)\}/g)]
+    .filter(([, , corps]) => /box-shadow/.test(corps)).map(([, sel]) => sel.trim().split("\n").pop().trim());
+  assert.deepEqual(regles, [':root[data-vue="double"]:not([data-pages="satellite"]) .panneau[data-actif="true"]'],
+    "⛔ le halo du panneau actif se pose encore en mode satellite");
+});

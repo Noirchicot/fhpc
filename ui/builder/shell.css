@@ -261,7 +261,12 @@ body {
    qu'il n'y en a qu'un ne désigne rien : il ajoute du bruit sur les dix
    écrans du builder. ⭐ Il se pose donc sous la même condition que les deux
    épaisseurs du belt — il n'y a d'« actif » que là où il y a un « autre ». */
-:root[data-vue="double"] .panneau[data-actif="true"] {
+/* ⚖️ LOT 324 — ⛔ PAS DE HALO EN DOUBLE ÉCRAN D'ÉQUIPEMENT. Eric, 27/09, sur une capture iPad
+   (thème clair) où il a entouré le trait gris au bord gauche du panneau de droite : *« Est-ce que tu
+   peux enlever ce que je trouve moche »*. ⭐ En mode satellite (règle ④, lot 307) la principale est
+   TOUJOURS à droite et seule elle navigue : le halo qui désigne « le panneau actif » n'y désigne rien,
+   il ne reste qu'un liseré sombre de 3. Le double affichage libre (sans satellite) le garde. */
+:root[data-vue="double"]:not([data-pages="satellite"]) .panneau[data-actif="true"] {
   box-shadow: 0 0 var(--halo-epais) var(--halo-fin) var(--spy-halo);
 }
 
@@ -3069,7 +3074,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=872") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=873") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3392,7 +3397,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=872") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=873") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5044,7 +5049,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=872") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=873") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8025,7 +8030,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=872");
+  background-image: url("./assets/tarot-dos.jpg?v=873");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
