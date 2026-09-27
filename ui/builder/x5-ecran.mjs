@@ -20,15 +20,16 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=854";
+import * as D from "./x5-disposition.mjs?v=855";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=854";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=854";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=854";
-import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=854";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=855";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=855";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=855";
+import { armerJeton, fantome } from "./glisser.mjs?v=855";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=855";
 /* ⭐ LOT 285 — la famille PARCHEMIN vit dans son module ; la coquille lui PRÊTE ses pièces
    (`construireX5` plus bas) plutôt que de les exporter : ⛔ pas d'import en boucle. */
-import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=854";
+import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=855";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -42,7 +43,9 @@ function elx(balise, classe, texte) {
  *  ⛔ Pas un nombre en dur : la table est générée, et une cote qui change change
  *  au vault puis se recopie. Le jour où le générateur bouge, cette feuille suit
  *  sans qu'on y touche. */
-export function feuilleDesCotesX5() {
+/** @param {{ grandEcran?: boolean }} [o] 🌕 LOT 307 — `false` : pas de règle pour la lune (sur un
+ *  téléphone elle n'existe pas, et sa règle non plus). Par défaut la feuille est COMPLÈTE. */
+export function feuilleDesCotesX5({ grandEcran = true } = {}) {
   /* ⭐ LOT 262 — X5 ENTRE DANS LA BOÎTE PARTAGÉE, et n'écrit plus que ce qui lui est
      PROPRE. Le lot 259 lui donnait `position` et `width: 375` : la largeur manquait
      alors, faute de famille. Maintenant que `.x5` est dans `FAMILLE_DE_LA_DALLE`, la
@@ -52,6 +55,7 @@ export function feuilleDesCotesX5() {
      ⭐ Reste ce qu'aucune autre fiche ne dit : une hauteur de PLAN FIXE, comme X0. */
   const regles = [`.x5[data-objet="x5"]{flex:0 0 auto;height:${px(D.DALLE.h)}}`];
   for (const o of D.ORGANES) {
+    if (o.grandEcran === true && !grandEcran) continue;
     const b = o.cible || o;
     /* ⭐ LOT 285 — UNE REDÉCLARATION SE RANGE SOUS SA FAMILLE. Le parchemin pose QTY, JETON, la
        bourse et le pied à SES cotes (même nom qu'un commun, `famille: "parchemin"`) : sa règle ne
@@ -59,9 +63,12 @@ export function feuilleDesCotesX5() {
        gagnerait partout — l'arme prendrait le pied du parchemin. */
     const portee = o.famille && D.ORGANES.some((x) => x !== o && x.nom === o.nom && !x.famille)
       ? `[data-famille="${o.famille}"]` : "";
+    /* 🌕 LOT 307 — la lune : sa boîte est la CIBLE (44), et l'astre se peint au DESSIN du plan
+       (30), centré — ⛔ aucune cote qui ne soit dans la table. */
+    const bords = o.sorte === "lune" ? `;background-size:${px(o.l)} ${px(o.h)}` : "";
     regles.push(
       `.x5${portee} [data-organe="${organeDe(o.nom)}"]{position:absolute;left:${px(b.x)};top:${px(b.y)};`
-      + `width:${px(b.l)};height:${px(b.h)}}`);
+      + `width:${px(b.l)};height:${px(b.h)}${bords}}`);
   }
   /* ⭐ LE POPUP DE LA BOURSE, avec LES RÈGLES DE R — centré sur la bourse, serré dans la
      dalle. ⛔ Aucune cote écrite ici : `reglesDeLaBourse` est l'unique écrivain. */
@@ -72,7 +79,8 @@ export function feuilleDesCotesX5() {
      cette famille-là. Et tout ce qui la suit remonte de sa hauteur. */
   /* ⭐ LOT 285 — seuls les COMMUNS remontent : une famille qui a ses propres cotes (le
      parchemin) n'a pas de rangée des pouvoirs à perdre. */
-  const suivent = D.ORGANES.filter((o) => !o.famille && (o.cible || o).y > hauteurDe("POWER 1"));
+  const suivent = D.ORGANES.filter((o) => !o.famille && (o.cible || o).y > hauteurDe("POWER 1")
+    && (grandEcran || o.grandEcran !== true));
   regles.push(`.x5[data-pouvoirs="aucun"] [data-organe^="POWER"]{display:none}`);
   for (const o of suivent) {
     const b = o.cible || o;
@@ -83,7 +91,7 @@ export function feuilleDesCotesX5() {
 /* ⭐ LA BOURSE ET SON MONTANT GARDENT LE NOM D'ORGANE DE R (`purse`, `montant`) : c'est lui
    qui porte l'image (`.gear-bouton[data-organe="purse"]`) et la peau du voyant. ⛔ Un nom neuf
    aurait demandé une seconde règle d'image — un second écrivain pour la même bourse. */
-const CLEF_DOM = { PURSE: "purse", MONTANT: "montant" };
+const CLEF_DOM = { PURSE: "purse", MONTANT: "montant", LUNE: "lune" };
 function organeDe(nom) { return CLEF_DOM[nom] || nom; }
 
 /** ⭐ LOT 285 — CE QU'UNE FICHE POSE : ses organes, et les communs qu'elle ne redéclare pas —
@@ -274,7 +282,8 @@ export function construireX5(o = {}) {
   if (estFicheParchemin(o)) return construireX5Parchemin(o, { menu, laBourse, lePied, or, feuilleDesCotesX5 });
   const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
-    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
+    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null,
+    surDepotVoisin = null } = o;
 
   const offertesBases = plan ? basesDe(plan, bases) : bases;
   const base = offertesBases.find((b) => b.data.name === choix.base) || offertesBases[0] || null;
@@ -303,7 +312,7 @@ export function construireX5(o = {}) {
   /* ⭐ LA FICHE PORTE SA FEUILLE, comme X1 et X2. */
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
-  feuille.textContent = feuilleDesCotesX5();
+  feuille.textContent = feuilleDesCotesX5({ grandEcran: Boolean(o.lune) });
   n.append(feuille);
   /* ⚖️ LOT 273 — la fiche est une DALLE (Eric, 25/09 : « plus joli que le parchemin ») :
      la feuille la peint, par la règle de famille des fiches X. ⛔ Rien à monter ici. */
@@ -363,20 +372,6 @@ export function construireX5(o = {}) {
      posée par `Send` disent le MÊME nom. ⭐ Et son corps est celui de tous les jetons. */
   const nomDuJeton = nomCrafte({ base: base ? base.data.name : "", bonus: bonusChoisi ? bonusChoisi.mot : null,
     pouvoirs: pris.map((p) => p.data.name) });
-  const jeton = elx("button", "wares-jeton x5-jeton");
-  jeton.type = "button";
-  jeton.dataset.organe = "JETON";
-  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
-  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
-  if (surJeton && base) {
-    jeton.addEventListener("click", () => surJeton({ nom: nomDuJeton, base, bonus: bonusChoisi, pouvoirs: pris, cote, status }));
-  } else jeton.disabled = true;
-  n.append(jeton);
-
-  /* ⚖️ LA BOURSE À DROITE DU JETON — Eric, 25/09 : « on peut mettre l'item bourse à droite du
-     token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
-     posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
-  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
 
   const destination = choix.destination || "backpack";
   /* ⭐ `SEND` POSE L'OBJET DANS LA FICHE (lot 265). Il s'arme quand l'assemblage est LÉGAL
@@ -385,13 +380,36 @@ export function construireX5(o = {}) {
   const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
   const compose = Boolean(bonusChoisi) || pris.length > 0;
   const pret = Boolean(surEnvoyer) && Boolean(base) && cote.legal && compose && destOk;
+  /* 🪟 LOT 307 — L'ENVOI EST UNE FONCTION, et le bouton `Craft & Send` et le dépôt dans la page
+     voisine l'appellent TOUS LES DEUX : un seul écrivain de « ce que Send pose et débite ». */
+  const envoi = () => ({
+    base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
+    cout: enPieces(montantDuStatut(cote, status, prix)),
+  });
+
+  const jeton = elx("button", "wares-jeton x5-jeton");
+  jeton.type = "button";
+  jeton.dataset.organe = "JETON";
+  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
+  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
+  if (surJeton && base) {
+    const apercu = () => surJeton({ nom: nomDuJeton, base, bonus: bonusChoisi, pouvoirs: pris, cote, status });
+    if (surDepotVoisin) jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin });
+    else jeton.addEventListener("click", apercu);
+  } else jeton.disabled = true;
+  n.append(jeton);
+
+  /* ⚖️ LA BOURSE À DROITE DU JETON — Eric, 25/09 : « on peut mettre l'item bourse à droite du
+     token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
+     posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
+  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+  /* 🌕 LOT 307 — la lune, au-dessus de Cancel (fabriquée par l'étape, seulement sur grand écran) */
+  if (o.lune) n.append(o.lune);
+
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !compose ? "choose a bonus or a power first"
       : !cote.legal ? "this assembly is not craftable" : "not available here",
-    envoyer: () => surEnvoyer({
-      base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
-      cout: enPieces(montantDuStatut(cote, status, prix)),
-    }) }));
+    envoyer: () => surEnvoyer(envoi()) }));
 
   return { noeud: n, cote };
 }
@@ -407,6 +425,29 @@ function phraseDuStatut(status) {
   }[status] || "Tap Send: the total is taken from your purse, and the crafted item goes to your equipment.");
   phrase.dataset.organe = "PHRASE";
   return phrase;
+}
+
+/** 🪟 LE JETON DE X5 EN DOUBLE ÉCRAN — lot 307. ⚖️ Eric, 26/09 : *« Si on est en double
+ *  screen le drop du token dans un collecteur de la page voisine. Génère un popup »*.
+ *  ⭐ En vue simple le jeton n'est qu'un bouton d'aperçu, et il le RESTE : cette fonction n'est
+ *  appelée que si l'étape passe `surDepotVoisin` (double écran). Là, il devient glissable —
+ *  le glisser de R (`armerJeton`, son fantôme) — et :
+ *   · le TAP garde l'aperçu X1 (la loi du geste : tap = info) ;
+ *   · le dépôt dans le collecteur VOISIN rend l'envoi à l'étape, qui ouvre le popup ;
+ *   · ⛔ un dépôt dans la même page ne fait rien — X5 n'avait aucun dépôt avant ce lot.
+ *  ⛔ `Send` non armé (`pret` faux) : le voisin n'est pas une cible, le dépôt ne promet rien.
+ *  ⌨️ Le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`). */
+export function jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin }) {
+  armerJeton(jeton, {
+    onLever: (x, y) => fantome.lever(jeton, x, y),
+    onBouger: (x, y) => fantome.suivre(x, y),
+    onPoser: () => fantome.ranger(),
+    onTap: apercu,
+    onDepot: () => {},
+    onDepotVoisin: pret ? (creneau, cible) => surDepotVoisin({ envoi: envoi(), cible }) : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",   /* un craft va au collecteur */
+  });
+  jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });
 }
 
 /** ⚖️ LA BOURSE À DROITE DU JETON — l'organe de R, importé (image, montant, popup). */
@@ -471,7 +512,8 @@ const MOT_DE_CATEGORIE = { "wondrous-item": "wondrous item", potion: "potion", w
 function construireX5Variante(o) {
   const { plan, plansFreres = [], valeurDe = null, choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
-    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
+    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null,
+    surDepotVoisin = null } = o;
   const variantes = variantesDe(plan.data);
   const variante = variantes.find((v) => v.mot === choix.variante) || variantes[0];
   const status = choix.status || "Crafting";
@@ -489,7 +531,7 @@ function construireX5Variante(o) {
   n.dataset.status = status.toLowerCase();
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
-  feuille.textContent = feuilleDesCotesX5();
+  feuille.textContent = feuilleDesCotesX5({ grandEcran: Boolean(o.lune) });
   n.append(feuille);
   /* ⭐ la rangée des pouvoirs n'existe pas pour une variante : tout ce qui suit remonte */
   n.dataset.pouvoirs = "aucun";
@@ -520,24 +562,31 @@ function construireX5Variante(o) {
   }
   n.append(phraseDuStatut(status));
 
+  const destination = choix.destination || "backpack";
+  const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
+  const pret = Boolean(surEnvoyer) && cote.legal && destOk;
+  /* 🪟 LOT 307 — un seul écrivain de l'envoi, pour le bouton et pour le dépôt voisin */
+  const envoi = () => ({ plan, variante, cote, status, destination,
+    cout: enPieces(montantDuStatut(cote, status, prix)) });
+
   const jeton = elx("button", "wares-jeton x5-jeton");
   jeton.type = "button";
   jeton.dataset.organe = "JETON";
   jeton.setAttribute("aria-label", `${variante.nom} — preview`);
   jeton.append(...corpsDuJeton({ nom: variante.nom }));
-  if (surJeton) jeton.addEventListener("click", () => surJeton({ nom: variante.nom, plan, variante, cote, status }));
-  else jeton.disabled = true;
+  if (surJeton) {
+    const apercu = () => surJeton({ nom: variante.nom, plan, variante, cote, status });
+    if (surDepotVoisin) jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin });
+    else jeton.addEventListener("click", apercu);
+  } else jeton.disabled = true;
   n.append(jeton);
 
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+  if (o.lune) n.append(o.lune);   /* 🌕 LOT 307 — la lune, au-dessus de Cancel */
 
-  const destination = choix.destination || "backpack";
-  const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
-  const pret = Boolean(surEnvoyer) && cote.legal && destOk;
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !cote.legal ? "this item has no readable value" : "not available here",
-    envoyer: () => surEnvoyer({ plan, variante, cote, status, destination,
-      cout: enPieces(montantDuStatut(cote, status, prix)) }) }));
+    envoyer: () => surEnvoyer(envoi()) }));
   return { noeud: n, cote };
 }
 

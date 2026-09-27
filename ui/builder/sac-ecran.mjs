@@ -23,31 +23,31 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=854";
-import { versionQuery } from "./version.mjs?v=854";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=854";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=855";
+import { versionQuery } from "./version.mjs?v=855";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=855";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=854";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=855";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=854";
+import { armerJeton, fantome } from "./glisser.mjs?v=855";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=854";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=855";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=854";
+import { portesCarrees } from "./porte-carree.mjs?v=855";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=854";
+import { facteurZoomCourant } from "./echelle.mjs?v=855";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -66,6 +66,8 @@ export const CHAMPS_DE_SECTION = Object.freeze(["nom", "fige", "renommable", "pa
  *  une clef est un contrat entre la table, la feuille et le garde. */
 export const CLEF_DE = Object.freeze({
   "ROUE": "roue", "TUNER G": "tuner-g", "TUNER D": "tuner-d",
+  /* 🌕 LOT 307 — la lune du double écran, en bas à gauche (Eric, 27/09 : « idem dans backpack ») */
+  "LUNE": "lune",
   /* ⭐ UNE LOUPE, PLUS CINQ CRANS — Eric, 20/09 : la roue est devenue un DÉFILEUR, donc
      les crans ne sont plus des places posées ; ils glissent. Ce qui reste au plan est
      le halo fixe sous lequel ils passent. */
@@ -698,7 +700,14 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud) {
     onLever: (x, y) => fantome.lever(noeud, x, y),
     onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, options, pisteNoeud); },
     onPoser: () => { fantome.ranger(); arreteLeDefilement(); },
-    onDepot: (creneau) => { arreteLeDefilement(); surDepot(creneau); }
+    onDepot: (creneau) => { arreteLeDefilement(); surDepot(creneau); },
+    /* 🌕 LOT 307 — EN DOUBLE ÉCRAN, UN OBJET DU SAC SE POSE SUR UNE CASE DE GEAR VOISIN : la figure ⑤
+       du 14/09, *« le drag and drop d'un écran à l'autre en double permet d'échanger des items aussi
+       — c'est une alternative »*. ⭐ Rien n'est acheté ni crafté : pas de popup, le même verbe que le
+       glisser dans Gear. ⛔ Le collecteur voisin n'est pas une case : il ne s'allume pas. */
+    onDepotVoisin: options.surDepotVoisin
+      ? (creneau) => { arreteLeDefilement(); options.surDepotVoisin(index, creneau); } : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau !== "collecteur",
   });
 }
 
@@ -1644,6 +1653,9 @@ export function construireLeSac(options = {}) {
   s.addEventListener("change", () => options.surDestination && options.surDestination(s.value));
   envoi.append(s);
   noeud.append(envoi);
+  /* 🌕 LOT 307 — LA LUNE, fabriquée par l'étape (`construireLaLune`), posée à sa place du plan.
+     ⛔ Sans la place du double écran l'étape n'en donne pas : le sac est celui d'avant. */
+  if (options.lune) noeud.append(options.lune);
 
   /* ⚖️ LA BARRE DU BAS EST CELLE DE R, ORGANE COMPRIS — Eric, 18/09 : *« et ici on
      veut le livre et le ? »*, puis *« ce sont des petits boutons »*.

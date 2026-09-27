@@ -263,18 +263,23 @@ test("8 — la rangée d'échange porte les DEUX Tally, le collecteur et la bour
   assert.equal(D.COLONNES[1] - (tally.x + tally.l), 24, "et le second est à 24 du collecteur");
 });
 
-test("9 — ⛔ les lunes sont cotées et NON POSÉES", () => {
-  /* ⚖️ Eric, 16/09 : *« les lunes sont pour les écrans plus grands »* — même régime
-     que sur R : le plan les dessine, la déclaration dit de ne pas les poser. */
+test("9 — 🌕 UNE lune, en bas à gauche, posée SEULEMENT sur grand écran (lot 307)", () => {
+  /* 🔄 AMENDÉ LE 27/09 — Eric : *« une lune qui propose un dropdown de choix d'écrans, une lune
+     30 diam »* · *« En bas à gauche dans wares […] idem dans backpack »*. Les trois lunes des
+     grands écrans deviennent UNE ; ⭐ l'écran ne la pose que si l'étape la lui donne (la place
+     du double écran existe), ⛔ jamais d'office. */
   const lunes = D.ORGANES.filter((o) => o.sorte === "lune");
-  assert.equal(lunes.length, 3, "Wares · Gear · Craft");
-  assert.ok(lunes.every((l) => l.creation === false));
-  const n = rendu();
-  for (const l of lunes) {
-    assert.equal(n.querySelector(`[data-organe="${(CLEF_DE[l.nom] || l.nom)}"]`), null,
-      `${l.nom} ne se pose pas à la création`);
-  }
-  assert.doesNotMatch(feuilleDesCotesSac(), /lune/, "⛔ et la feuille ne leur fait pas de place");
+  assert.equal(lunes.length, 1, "une seule lune");
+  const [lune] = lunes;
+  assert.equal(lune.grandEcran, true);
+  assert.equal(lune.l, 30, "30 de diamètre");
+  assert.ok(lune.cible.l >= 44 && lune.cible.h >= 44, "sa cible atteint le plancher");
+  const tally = D.ORGANES.find((o) => o.nom === "PARTY TALLY");
+  assert.ok(lune.y + lune.h <= tally.y, "⭐ les Tally sont descendus SOUS la lune");
+  assert.equal(rendu().querySelector('[data-organe="lune"]'), null, "sans la place : pas de lune");
+  const sonde = document.createElement("select"); sonde.dataset.organe = "lune";
+  assert.equal(rendu({ lune: sonde }).querySelector('[data-organe="lune"]'), sonde, "avec : elle est posée");
+  assert.match(feuilleDesCotesSac(), /\[data-organe="lune"\]\{left:0px/, "et la feuille lui donne sa place du plan");
 });
 
 test("10 — 🔴 LE CHEVRON POUSSE LE RUBAN D'UNE TUILE, ⛔ il ne saute plus", () => {
@@ -1449,7 +1454,9 @@ test("27 — ⛔ LE RUBAN NE SE POSE PAS TOUT SEUL : c'est CELUI QUI L'INSÈRE q
      l'application : `sl 0 / visée 9`. ⭐ Et les deux appels ne se marchent pas dessus
      parce que le placement SE RELIT avant de se consommer (③ ci-dessus). */
   const etape = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
-  assert.match(etape, /swapContent\(section, \[construireVue\(vueEquipement\)\]\);\s*poserLesDalles\(\);/,
+  /* 🪟 LOT 307 — la vue rendue est `vueDuRendu()` : la vue courante, ou la page imposée en
+     double écran. ⭐ Ce que ce garde tient ne change pas : le ruban se pose JUSTE APRÈS. */
+  assert.match(etape, /swapContent\(section, \[construireVue\(vueDuRendu\(\)\)\]\);\s*poserLesDalles\(\);/,
     "⛔ l'étape doit poser la roue juste après son propre échange de contenu");
 });
 

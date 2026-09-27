@@ -21,14 +21,14 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=854";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=854";
+import * as D from "./x5-disposition.mjs?v=855";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=855";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=854";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=854";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=854";
-import { armerJeton, fantome } from "./glisser.mjs?v=854";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=854";
+  from "./craft-parchemin.mjs?v=855";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=855";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=855";
+import { armerJeton, fantome } from "./glisser.mjs?v=855";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=855";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
@@ -80,7 +80,7 @@ export function construireX5Parchemin(o, pieces) {
   const { menu, laBourse, lePied, or, feuilleDesCotesX5 } = pieces;
   const { plan, sorts = [], choix = {}, surChoix = null, surAnnuler = null, surEnvoyer = null,
     surJeton = null, surInfo = null, alerte = "", bourse = null, bourseOuverte = false, surBourse = null,
-    surFermerBourse = null, surMonnaie = null } = o;
+    surFermerBourse = null, surMonnaie = null, surDepotVoisin = null } = o;
 
   /* ⚖️ « choisir : classe de sort · choisir lvl » — lus dans les sorts, ⛔ jamais écrits.
      ⭐ Une classe qui n'a pas le niveau choisi retombe sur SON premier niveau. */
@@ -107,7 +107,7 @@ export function construireX5Parchemin(o, pieces) {
   n.dataset.status = "crafting";
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
-  feuille.textContent = `${feuilleDesCotesX5()}\n${feuilleDuParchemin()}`;
+  feuille.textContent = `${feuilleDesCotesX5({ grandEcran: Boolean(o.lune) })}\n${feuilleDuParchemin()}`;
   n.append(feuille);
 
   const titre = elx("h2", "x5-titre", "Blueprint");
@@ -206,19 +206,24 @@ export function construireX5Parchemin(o, pieces) {
   n.append(menu("QTY", String(qte),
     Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
 
-  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix }));
-
-  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
-
   /* ⚖️ « un dropdown · send » — le SEND TO du pied commun, puis Send ; Cancel à gauche.
      ⭐ `Send` paie le coût de scribing (le Total), pose la ligne et rend la main. */
   const destination = choix.destination || "backpack";
   const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
   const pret = Boolean(surEnvoyer) && Boolean(sort) && cote.legal && destOk;
+  /* 🪟 LOT 307 — un seul écrivain de l'envoi : le bouton `Send` et le dépôt dans la page voisine */
+  const envoi = () => ({ plan, sort, niveau, cote, status: "Crafting", destination,
+    cout: enPieces(cote.craftTotal) });
+
+  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix,
+    auVoisin: surDepotVoisin && pret ? (cible) => surDepotVoisin({ envoi: envoi(), cible }) : null }));
+
+  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+  if (o.lune) n.append(o.lune);   /* 🌕 LOT 307 — la lune, au-dessus de Cancel, à gauche de la quantité */
+
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !sort ? "choose a spell first" : !cote.legal ? "this spell has no readable level" : "not available here",
-    envoyer: () => surEnvoyer({ plan, sort, niveau, cote, status: "Crafting", destination,
-      cout: enPieces(cote.craftTotal) }) }));
+    envoyer: () => surEnvoyer(envoi()) }));
 
   return { noeud: n, cote };
 }
@@ -243,7 +248,7 @@ export function construireX5Parchemin(o, pieces) {
    (`surChoix("SORT", null)`) — c'est le geste d'annulation d'un récepteur (`onHorsCible`,
    `glisser.mjs`). Lâché sur le collecteur même, rien ne change. ⭐ « pas un item » : son tap
    ouvre l'APERÇU (options grisées, *« Not yours yet »*, lot 270), jamais une fiche d'objet. */
-function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null }) {
+function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null, auVoisin = null }) {
   if (!sort) {
     const vide = elx("div", "gear-collecteur x5-collecteur");
     vide.dataset.organe = "JETON";
@@ -271,6 +276,10 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null 
     onTap: apercu,
     onDepot: () => {},   // lâché sur un créneau (lui-même) : il reste
     onHorsCible: () => { if (surChoix) surChoix("SORT", null); },
+    /* 🪟 LOT 307 — en double écran, lâché dans le collecteur de la page VOISINE : l'étape ouvre
+       le popup du craft. ⛔ Absent en vue simple, ou tant que `Send` n'est pas armé. */
+    onDepotVoisin: auVoisin ? (creneau, cible) => auVoisin(cible) : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",
   });
   /* ⌨️ le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`) */
   jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });

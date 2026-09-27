@@ -193,6 +193,39 @@ reste que **9 blg** de mou. Une ceinture qui grandit les prend à la scène.
 deux rangs, sa cote déduite, le chevron et son bout de course, les deux bouts
 à 100 %. Il n'est pas recopié ici : deux copies divergent.
 
+### 🪟 LA LARGEUR DU DOUBLE ÉCRAN — deux colonnes de 375, une gouttière de 8
+📍 `cadre-double-ecran-largeur` · vivante · 27/09 · lot 307
+⚖️ **Deux pages côte à côte demandent une fenêtre d'au moins 758 × 560 px — `375 × 2 + 8` de large, 560 de haut, à l'échelle 1. Au-dessous, une seule page, et rien ne change. Au-dessus, elles ne s'ouvrent que sur COMMANDE — la lune de 30 de la fiche principale, qui ouvre un satellite à gauche (`equipement-double-ecran-lune`) et n'existe elle-même qu'au-dessus. Sur la barre du rail : au-dessus du satellite, sa lune Ø 45 (la tuile dominante) ; au milieu de l'app, « Close double screen », un lien de 88 × 44 (335 → 423 sur 758) ; au-dessus de la principale, le belt étroit à la géométrie d'un écran seul (chevron avant à 427).**
+
+⭐ **LA LARGEUR SE DÉDUIT, ELLE NE S'ÉCRIT PAS** : `--panneau-l × 2 + --sp-8` (la gouttière de la
+maison), la formule de `.app` depuis le lot 120. ⛔ **Il n'y a qu'une porte** — `laPlaceDuDouble`
+(`echelle.mjs`) : la vue double du lot 120 et le double écran de l'Équipement (lot 307) la
+partagent, `regimeDeLaVue` (`double-ecran.mjs`) la reçoit et ne la recalcule pas.
+
+📏 **MESURÉ LE 27/09** (Chromium, émulation de viewport, étape Equipment) :
+
+| fenêtre | régime | une page rend |
+|---|---|---|
+| 757 × 900 | simple | 603 *(barreau)* |
+| **758 × 900** | **double** | 375 |
+| **758 × 560** | **double** | 375 |
+| 758 × 559 | simple | 374 |
+| 375 × 812 *(iPhone)* | simple — `.app` identique à `main`, octet pour octet | 375 |
+| 744 × 1133 *(iPad mini debout)* | simple | 744 |
+| 820 × 1180 *(iPad Air debout)* | ⚠️ **double** | 406 |
+| 1024 × 1366 *(iPad Pro 12,9 debout)* | ⚠️ **double** | 507 |
+| 1180 × 820 *(iPad Air couché)* | double | 549 |
+| 1366 × 1024 *(iPad Pro couché)* | double | 676 |
+| 1440 × 900 *(ordinateur)* | double | 603 |
+
+🔄 **AMENDÉ LE 27/09** : la colonne « régime » ci-dessous dit si le double écran PEUT s'ouvrir ; il ne
+s'ouvre plus d'office (Eric : *« Une commande pour ouvrir le double écran »*).
+
+⚠️ **CE QUE LA LARGEUR SEULE NE DIT PAS** : Eric a répondu « iPad en paysage ET ordinateur ». Les
+iPad de 820 à 1024 de large passent aussi la porte **debout** — la règle est une largeur, pas une
+orientation. ⏳ À trancher par Eric s'il veut les exclure (ce serait une seconde condition, dans
+`regimeDeLaVue`, jamais une seconde porte).
+
 ---
 
 ## 1. LES DEUX FAMILLES

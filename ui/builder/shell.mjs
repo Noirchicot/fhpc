@@ -19,33 +19,33 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=854";
-import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=854";
-import { mountPopup } from "./popup.mjs?v=854";
-import { renderLorePanel } from "./lore.mjs?v=854";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=854";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=855";
+import { swapContent, keepInView, watchSnap, mountChevrons } from "./socle.mjs?v=855";
+import { mountPopup } from "./popup.mjs?v=855";
+import { renderLorePanel } from "./lore.mjs?v=855";
+import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=855";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=854";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=854";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, ETAT } from "./parcours.mjs?v=855";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=855";
 /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
    REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
    (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
    Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
    rendus. */
-import { nommerLeVide } from "./ecran-vide.mjs?v=854";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=854";
+import { nommerLeVide } from "./ecran-vide.mjs?v=855";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=855";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=854";
+} from "./tutoriel.mjs?v=855";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=854";
-import { lireLeFichier } from "./ouvrir.mjs?v=854";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=855";
+import { lireLeFichier } from "./ouvrir.mjs?v=855";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -59,14 +59,14 @@ import {
   /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — la sonde se pose ICI, une fois : la
      coquille est l'écrivain du DOM, `echelle.mjs` ne fait que la lire. */
   poserSondeTexte
-} from "./echelle.mjs?v=854";
+} from "./echelle.mjs?v=855";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=854";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=855";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -77,83 +77,87 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=854";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=854";
+} from "./fonds.mjs?v=855";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=854";
-import { renderChoixGlisses } from "./glisser.mjs?v=854";
-import { renderConceptStep } from "./concept-step.mjs?v=854";
+import { planAt, planSlots } from "./carnet.mjs?v=855";
+import { renderChoixGlisses } from "./glisser.mjs?v=855";
+import { renderConceptStep } from "./concept-step.mjs?v=855";
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
-  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=854";
+  creerUnPersonnage, popupDuJeu, NOM_DU_PERSONNAGE_NEUF } from "./universe-step.mjs?v=855";
 /* LOT 188 — le geste PUR d'un interrupteur de couche : quelles couches FH
    rester montées après « éteindre Trainings » ; la coquille ne fait que
    monter ce que la fonction rend. */
-import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=854";
+import { couchesApresLeGeste, gestesDAlignement, manifesteDeLaPile } from "./layers-ecran.mjs?v=855";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=854";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=855";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=854";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=854";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=855";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=855";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=854";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=854";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=854";
+} from "./catalogue.mjs?v=855";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=855";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=855";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=854";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=855";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=854";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=855";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=854";
+  featSousLabel, featInfo } from "./inheritance-step.mjs?v=855";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=854";
+} from "./abilities-step.mjs?v=855";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=854";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=855";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=854";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=854";
+} from "./destiny-step.mjs?v=855";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=855";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
-         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit } from "./equipment-step.mjs?v=854";
+         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
+         pageActiveDeLEquipement, pageVoisineDeLEquipement, choisirLeSatellite } from "./equipment-step.mjs?v=855";
+/* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
+   pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
+import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=855";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
-import { CASES_DU_SAC, poserLesDalles } from "./sac-ecran.mjs?v=854";
+import { CASES_DU_SAC, poserLesDalles } from "./sac-ecran.mjs?v=855";
 /* ⭐ MÊME LOI POUR LES ROUES DE WARES : un ruban posé sur un nœud détaché ne bouge pas. */
-import { poserLesRoues } from "./wares-ecran.mjs?v=854";
+import { poserLesRoues } from "./wares-ecran.mjs?v=855";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
-import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=854";
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=855";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=854";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=854";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=855";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=855";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=854";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=855";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -172,11 +176,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=854";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=854";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=855";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=854";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=855";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -185,8 +189,8 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=854";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=854";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=854";
+import { platformNow } from "../../src/doc/clock.mjs?v=855";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=855";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
    sauvegardes dedans »* · *« une entrée datée à chaque Save »*.
@@ -195,19 +199,19 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=854";
    la version FH du 192, le fichier automatique de `Build a character` du 193)
    y entrent SANS second chemin. */
 import { ouvrirLeMagasin as monterLeMagasin, choisirUnDossier, garderDansLeTiroir,
-  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=854";
-import { popupDeLaDestination } from "./magasin-ecran.mjs?v=854";
+  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=855";
+import { popupDeLaDestination } from "./magasin-ecran.mjs?v=855";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=854";
+import { versionQuery } from "./version.mjs?v=855";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=854";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=855";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -1819,8 +1823,13 @@ function applyDecisionAction(action) {
     /* §7 (26/08) — le RÔLE voyage avec l'état : guide (parchemin, défaut —
        il ne signale rien) · aiguilleur (bleu, il prévient) · gendarme
        (rouge, il dit l'erreur). La teinte vit en CSS, jamais ici. */
+    /* 🪟 LOT 307 — `exigeUneReponse` VOYAGE AVEC LE POPUP : le dépôt voisin pose une question
+       (« Craft this item for … GP? »), et une question ne se referme pas d'un clic à côté
+       (`popup-question-exige-une-reponse`). ⛔ Il était jeté ici — seul `popupDuJeu` le
+       portait, parce qu'il écrivait `state.popup` à la main. */
     state.popup = action.texte
-      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide", actions: action.actions || null }
+      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide", actions: action.actions || null,
+          exigeUneReponse: action.exigeUneReponse === true }
       : null;
     refresh();
     return;
@@ -2038,6 +2047,9 @@ function applyDecisionAction(action) {
   /* Le sélecteur s'OUVRE : l'écran a changé son état, la coquille redessine — le pied
      change de paire, et c'est elle qui la fabrique. Aucune écriture au personnage. */
   if (action.kind === "skillsRedessiner") { refresh(); return; }
+  /* 🪟 LOT 307 — en double écran, une page de l'Équipement qui change de vue sans écrire au
+     belt (une fiche X) doit repeindre les DEUX moitiés : sa voisine et les côtés en dépendent. */
+  if (action.kind === "equipementRedessiner") { refresh(); return; }
   if (action.kind === "resetSkills") {
     /* LOT 39, décision n°2 — *Reset* ne rend que les points DÉPENSÉS : une
        suite de `clear` sur le MÊME document, un seul `rebuild` à la fin.
@@ -2676,9 +2688,15 @@ function skillsCtx() {
 const VERBES_QUI_DEPLACENT = new Set(["moveGearLine", "placerGearLine", "splitGearLine", "removeGearLine"]);
 
 function equipmentCtx() {
-  return {
+  const ctx = {
     document: state.document, resolved: state.resolved, query: state.engine.layers.verbs.query
   };
+  /* 🪟 LOT 307 — la moitié d'écran de CE rendu, en double écran seulement. ⛔ En vue simple
+     la clef n'existe pas : le ctx est celui d'avant, octet pour octet. */
+  if (demiEcranEnCours) ctx.demiEcran = demiEcranEnCours;
+  /* 🌕 la LUNE ne se montre que si la place existe — ⛔ en dessous, la clef n'existe pas */
+  if (laPlaceExiste()) ctx.placeDuDouble = true;
+  return ctx;
 }
 function surCompetences() {
   return Boolean(state.engine) && STEPS[state.step].id === "skills";
@@ -3686,8 +3704,14 @@ function monterBelt() {
      écrit un attribut et s'arrête là. C'est le même contrat que le spy. */
   track.addEventListener("scroll", () => peindreLesChevrons(), { passive: true });
 
+  /* 🌕 LOT 307 — LA BARRE DU RAIL PORTE LE SATELLITE, figure ④ du 14/09 (artefact « Le belt et
+     la double vue ») et croquis du 27/09 : au-dessus du volet gauche, la lune qui NOMME le satellite
+     ouvert (*« La lune du double écran sera de taille dominante »*, 15/09), et
+     « Back to one screen ». ⭐ Deux nœuds posés UNE fois — au PREMIER satellite, pas au montage :
+     un téléphone ne les verra jamais, et sa page reste celle d'avant, octet pour octet — puis
+     cachés hors du double (SOCLE : des attributs sur des nœuds qui ne meurent pas). */
   app.append(belt);
-  return { racine: belt, track, items, avant: chevrons[0], apres: chevrons[1] };
+  return { racine: belt, track, items, avant: chevrons[0], apres: chevrons[1], satellite: null, unEcran: null };
 }
 
 /** Avancer la piste d'UNE tuile — le geste du croquis : la rangée passe de
@@ -5049,7 +5073,8 @@ function paintBelt() {
        serait un signal de plus pour rien. */
     if (!enDouble) delete item.dataset.vueCran;
     else if (index === state.step) item.dataset.vueCran = "actif";
-    else if (index === state.stepSecond) item.dataset.vueCran = "passif";
+    /* 🪟 LOT 307 — en deux pages, le second panneau n'est pas `stepSecond` : aucun cran passif */
+    else if (index === state.stepSecond && !enDeuxPages()) item.dataset.vueCran = "passif";
     else delete item.dataset.vueCran;
     /* ⚖️ LE NOM EST REVENU EN VUE DOUBLE — lot 122, et c'est un renversement
        du lot 120 dont la cause a disparu. Le 120 effaçait le libellé parce
@@ -6104,7 +6129,26 @@ function memoriser() {
 function laPlaceExiste() {
   return laPlaceDuDouble(window.innerWidth, window.innerHeight, document.documentElement);
 }
-function vueDoubleRendue() { return vueDoubleVoulue() && laPlaceExiste(); }
+/* 🪟 LOT 307 — LE RÉGIME EST DEMANDÉ À L'ORGANE UNIQUE (`regimeDeLaVue`, double-ecran.mjs).
+   ⭐ La place (lot 120) et la COMMANDE du joueur restent les deux mêmes questions ; ce qui
+   s'ajoute est l'étape : Equipment s'ouvre en DEUX PAGES quand le double est commandé — par la
+   lune de l'Équipement, ou l'interrupteur `Double view` du Menu (une seule préférence).
+   ⛔ Plus d'ouverture d'office (Eric, 27/09 : « Une commande pour ouvrir le double écran »).
+   ⛔ Sous la place, rien ne change — ni ici, ni ailleurs.
+   ⚠️ `etape` n'est donnée qu'une fois le moteur monté : l'Équipement en charge n'est qu'un
+   « Loading… », et deux « Loading… » côte à côte ne diraient rien. */
+function regimeCourant() {
+  const cran = STEPS[state.step];
+  return regimeDeLaVue({ place: laPlaceExiste(), voulue: vueDoubleVoulue(),
+    satellite: pageVoisineDeLEquipement() !== null,
+    etape: state.engine && cran ? cran.id : null });
+}
+function vueDoubleRendue() { return regimeCourant().double; }
+/** Les deux panneaux sont-ils deux PAGES de l'Équipement (et non deux étapes) ? */
+function enDeuxPages() { return regimeCourant().pages; }
+/** 🪟 La moitié d'écran que le rendu EN COURS occupe — lue par `equipmentCtx`, posée par
+ *  `peindreLaVue` pour la page active, prêtée par `rendreLaPageVoisine` pour l'autre. */
+let demiEcranEnCours = null;
 
 /** Le cran que porte le panneau PASSIF quand on allume la vue double.
  *
@@ -6126,6 +6170,9 @@ function cranSecondParDefaut() {
  *  de nœuds. */
 function activerPanneau(rang) {
   if (!vueDoubleRendue()) return;
+  /* 🪟 LOT 307 — deux pages de l'Équipement sont VIVANTES toutes les deux : il n'y a pas de
+     panneau à réveiller, et échanger les crans enverrait le second vers une autre étape. */
+  if (enDeuxPages()) return;
   if (panneaux[rang] === frame) return;
   const ancien = state.step;
   state.step = state.stepSecond;
@@ -6140,8 +6187,25 @@ function activerPanneau(rang) {
  *  `--colonnes`, que `data-vue` gouverne. Peindre après ferait calculer le
  *  facteur sur la largeur d'avant — le même piège que la grandeur du 30/08. */
 function peindreLaVue() {
-  const double = vueDoubleRendue();
+  const { double, pages } = regimeCourant();
   document.documentElement.dataset.vue = double ? "double" : "simple";
+  /* 🪟 LOT 307 — EN DEUX PAGES, LES CÔTÉS VIENNENT DE L'ORGANE (`pagesDuDoubleEcran`) : la page
+     que la lune a choisie à GAUCHE (la flèche ← du croquis), l'active à droite. ⛔ En vue simple
+     ou en double d'étapes, rien. */
+  const cotes = pages ? pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() }) : null;
+  demiEcranEnCours = cotes ? { cote: cotes.active, page: null } : null;
+  /* 🌕 LE RAIL SEUL, AU-DESSUS DE LA PRINCIPALE (figure ④) : l'attribut dit à la feuille que le belt
+     reprend son format étroit sur le volet droit, et que la barre du volet gauche porte la lune du
+     satellite et « Back to one screen ». ⛔ Hors satellite, il n'existe pas. */
+  if (cotes) document.documentElement.dataset.pages = "satellite";
+  else delete document.documentElement.dataset.pages;
+  if (cotes && !belt.satellite) monterLaBarreDuSatellite();
+  if (belt.satellite) {
+    belt.satellite.hidden = !cotes;
+    belt.unEcran.hidden = !cotes;
+    swapContent(belt.satellite, cotes ? [construireLaLune({ principale: cotes.droite, satellite: cotes.gauche, rail: true,
+      surChoix: (v) => { choisirLeSatellite(v); refresh(); } })] : []);
+  }
   if (!double) {
     /* ⭐ EN VUE SIMPLE, L'ACTIF REDEVIENT LE PANNEAU 0 — sinon un joueur qui
        rétrécit sa fenêtre pendant qu'il travaille dans le panneau de droite
@@ -6155,6 +6219,17 @@ function peindreLaVue() {
   }
   for (const panneau of panneaux) {
     const actif = panneau === frame;
+    if (cotes) {
+      /* 🪟 LOT 307 — DEUX VRAIS ÉCRANS : les deux panneaux sont montrés, aucun n'est inerte
+         (chacun garde ses gestes — Eric : le dépôt se fait de l'un dans l'autre), et le
+         capteur d'éveil se tait. L'actif garde son halo : c'est la page que le belt nomme. */
+      panneau.racine.hidden = false;
+      panneau.racine.dataset.actif = String(actif);
+      panneau.racine.dataset.cote = actif ? cotes.active : (cotes.active === "gauche" ? "droite" : "gauche");
+      panneau.contenu.inert = false;
+      panneau.eveil.hidden = true;
+      continue;
+    }
     /* ⛔ `hidden`, et la feuille ne pose son `display` que sur
        `:not([hidden])` — un `display: none` écrit dans `shell.css` est le
        défaut n°3 (garde 4), et une règle d'auteur inconditionnelle battrait
@@ -6220,6 +6295,33 @@ function rendreLEcranDe(index) {
   }
 }
 
+/** 🌕 LOT 307 — la lune du satellite et « Back to one screen », sur la barre du rail : montés UNE
+ *  fois, au premier satellite (voir `monterBelt`). */
+function monterLaBarreDuSatellite() {
+  const satellite = el("span", "belt-satellite");
+  const unEcran = button(MOT_UN_SEUL_ECRAN, () => { choisirLeSatellite(null); refresh(); });
+  unEcran.className = "belt-un-ecran";
+  belt.racine.append(satellite, unEcran);
+  belt.satellite = satellite;
+  belt.unEcran = unEcran;
+}
+
+/** 🪟 LOT 307 — RENDRE LA PAGE VOISINE DE L'ÉQUIPEMENT. ⭐ Même prêt que `rendreLEcranDe` :
+ *  on ne duplique pas le moteur d'écrans, on lui prête une moitié d'écran le temps d'un rendu
+ *  (`demiEcranEnCours`), et le `finally` la rend — un rendu qui jetterait laisserait sinon la
+ *  page active se croire voisine. */
+function rendreLaPageVoisine() {
+  const cotes = pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() });
+  const voisine = { cote: "gauche", page: cotes.gauche };
+  const avant = demiEcranEnCours;
+  demiEcranEnCours = voisine;
+  try {
+    return poserLaSortie(renderStepContent(), renderSortieEtape());
+  } finally {
+    demiEcranEnCours = avant;
+  }
+}
+
 function refresh() {
   /* ⚠️ AVANT DE PEINDRE, pas après : le Menu affiche `state.memoire`, et
      l'écrire après le rendu montrerait l'état du tour précédent. */
@@ -6272,7 +6374,22 @@ function refresh() {
  *  qu'on ne peut pas cliquer serait promettre un geste qui n'existe pas. */
 function peindreLePassif() {
   const passif = panneaux.find((p) => p !== frame);
-  if (!passif || passif.racine.hidden) return;
+  if (!passif || passif.racine.hidden) {
+    /* 🪟 LOT 307 — « Back to one screen » cache le panneau voisin : on n'y laisse pas une page
+       de l'Équipement qui se croirait encore une moitié d'écran. */
+    if (passif && passif.stage.querySelector("[data-demi-ecran]")) swapContent(passif.stage, []);
+    return;
+  }
+  if (enDeuxPages()) {
+    /* 🪟 LOT 307 — la page VOISINE de l'Équipement, pas le cran du panneau passif */
+    swapContent(passif.stage, rendreLaPageVoisine());
+    cadrerLesRangees(passif.stage);
+    poserLesDalles();
+    poserLesRoues();
+    passif.spy.settle();
+    passif.scroller.settle();
+    return;
+  }
   /* `poserLaSortie` rend une LISTE de nœuds (le contenu, et la rangée de
      sortie quand l'écran ne l'a pas absorbée) — la même que `refresh` passe à
      `swapContent`. ⛔ L'envelopper dans un tableau de plus poserait un

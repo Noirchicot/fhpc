@@ -221,8 +221,16 @@ export const ORGANES = [
   { nom: "COMPTE PAGES",        sorte: "voyant",     dalle: "GRILLE",  x: 330,    y: 238, l: 41,  h: 14, mot: "1/3", cran: "T1/600" },
 
   /* dalle 3 — le pied */
-  { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 359, l: 40,  h: 40, cible: { x: 25.75, y: 357, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
-  { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 359, l: 40,  h: 40, cible: { x: 73.75, y: 357, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
+  /* 🔄 LOT 307 (27/09) — Eric : *« En bas à gauche dans wares, il faut déplacer encumbrance sous
+     purse, et déplacer les Tally plus bas, pour faire de la place »* — la place de la LUNE du
+     double écran. ⭐ La cellule de gauche devient une pile À DEUX RANGS DÉCLARÉS (44 · 8 · 44 =
+     96, centrée dans ses 100) : la lune en haut, calée à gauche ; les Tally en bas, centrés.
+     ⭐ LE RANG DE LA LUNE EST RÉSERVÉ MÊME SANS ELLE — sur un téléphone la lune n'existe pas, et
+     les Tally ne remontent pas : la forme de l'écran ne dépend pas de ce qu'on y pose.
+     📏 Constats : lune (cible) 342 → 386, Tally (cible) 394 → 438. */
+  { nom: "LUNE",                sorte: "lune",       dalle: "PIED",    x: 11,     y: 349, l: 30,  h: 30, cible: { x: 4, y: 342, l: 44, h: 44 }, mot: "Screens", grandEcran: true },
+  { nom: "PARTY TALLY",         sorte: "bouton",     dalle: "PIED",    x: 27.75,  y: 396, l: 40,  h: 40, cible: { x: 25.75, y: 394, l: 44, h: 44 }, mot: "Party Tally", cran: "T1/600" },
+  { nom: "TALLY",               sorte: "bouton",     dalle: "PIED",    x: 75.75,  y: 396, l: 40,  h: 40, cible: { x: 73.75, y: 394, l: 44, h: 44 }, mot: "Tally", cran: "T1/600" },
   /* ⚖️ L'ENCOMBREMENT, SOUS LES TALLY — Eric, 2026-09-21, en choisissant sa place : *« dans le
      pied, entre les Tally et le collecteur »*. 📏 Mesuré au navigateur avant de le poser : la
      cellule de gauche va de y 340+4 à 340+104 et les deux Tally l'occupent de 372 à 416 — il
@@ -238,16 +246,25 @@ export const ORGANES = [
      deux. 📏 Constats remis d'accord avec le rendu : cibles à `y 361` au lieu de `372`.
      ⛔ Un constat qui a dérivé est un second écrivain qui ment — il se recopie sans qu'on le
      mesure. */
-  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 4,      y: 409, l: 135.5, h: 14, mot: "Encumbrance : 0 lb", cran: "T1/600" },
+  /* 🔄 LOT 307 (27/09) — SOUS LA BOURSE (Eric : « déplacer encumbrance sous purse »). ⭐ La
+     cellule de droite est une pile à deux rangs : la bourse (50, son montant posé dessus) puis
+     l'encombrement, 8 plus bas. ⭐ DEUX LIGNES DE 14, et c'est le défaut qu'Eric a vu qui le
+     demande : « Encumbrance : 63.2 lb · 1 without weight » ne tient pas sur 135,5 en une ligne —
+     il passait sous le dropdown « Backpack » (relevé sur `main`, 375 × 812, le 27/09).
+     📏 Constats : 50 + 8 + 28 = 86, centré dans 100 → bourse 347 → 397, encombrement 405 → 433.
+     🔄 LOT 307, 27/09 au soir — ET IL SE RETIRE DE 4 DE CHAQUE CÔTÉ (127,5 au lieu de 135,5) :
+     sur l'iPhone, « Encumbrance : 63.2 lb · 1 » touchait le bord droit du pied (capture du lot).
+     ⭐ Réglé par la COTE, ⛔ pas par un défilement : 4 de marge dans sa colonne, 8 du bord. */
+  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 239.5,  y: 405, l: 127.5, h: 28, mot: "Encumbrance : 0 lb", cran: "T1/600" },
   { nom: "COLLECTEUR",          sorte: "collecteur", dalle: "PIED",    x: 144,    y: 340, l: 87,  h: 48, cible: { x: 144, y: 340, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
-  { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 365, l: 50,  h: 50, cible: { x: 278.25, y: 365, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
+  { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 347, l: 50,  h: 50, cible: { x: 278.25, y: 347, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
   /* ⚖️ LE MONTANT EST UN VOYANT POSÉ **SUR** LA BOURSE — Eric, 2026-09-21 : *« la bourse
      toujours pas le montant posé dessus »*. ⭐ Même boîte que la bourse, `dans: "PURSE"` :
      le nombre se lit DANS l'image, comme une pièce dessus. R le porte depuis le 16/09 et le
      sac depuis le 20/09 ; Wares était le seul à ne pas l'avoir, et je l'avais écrit dans le
      fichier — *« l'œil l'aura quand Eric le dira »*. Il l'a dit.
      ⛔ AUCUNE CIBLE : on ne le tape pas, on le lit. C'est la bourse dessous qui reçoit. */
-  { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 365, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
+  { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 347, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
   { nom: "SEND VERS",           sorte: "dropdown",   dalle: "PIED",    x: 139.5,  y: 398, l: 96,  h: 40, cible: { x: 139.5, y: 396, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
   { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: Y_RANGEE, l: 367, h: 44, cran: "—" },
   carre("GEAR", "Gear", 0),
@@ -316,6 +333,7 @@ export const CLEF_DE = Object.freeze({
   "CHEVRON D": "page-suivante",
   "COMPTE OBJETS": "compte-objets",
   "COMPTE PAGES": "compte-pages",
+  "LUNE": "lune",
   "PARTY TALLY": "party-tally",
   "TALLY": "tally",
   "ENCOMBREMENT": "encombrement",

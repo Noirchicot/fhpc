@@ -34,6 +34,11 @@
    colonne x 0..44 reste VIDE et c'est voulu : elle leur est réservée par
    construction (les rangées L2..L4 commencent à x 49). ⛔ Un lot qui la
    remplirait prendrait la place des lunes.
+   🔄 AMENDÉ AU LOT 307 (27/09) — Eric : *« À l'époque je voulais une lune par option. Là je
+   pense à une lune qui propose un dropdown de choix d'écrans, une lune 30 diam »*, puis
+   *« À gauche dans gear »*. ⭐ Les quatre deviennent UNE (`LUNE`, `grandEcran: true`), à la
+   place de la première ; elle se pose quand la place du double écran existe, et l'étape la
+   fabrique. Le reste de la colonne reste vide.
 
    📌 CRÉATION OU JEU — la liste de ce que ce module reprend de `b3-*` /
    `equipment-step.mjs`, et la réponse (loi d'Eric, 15/09 : « à la création
@@ -60,17 +65,17 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=854";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=854";
-import { armerJeton, fantome } from "./glisser.mjs?v=854";
+import * as D from "./gear-disposition.mjs?v=855";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=855";
+import { armerJeton, fantome } from "./glisser.mjs?v=855";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=854";
-import { versionQuery } from "./version.mjs?v=854";
-import { enGP } from "./equipement-pipeline.mjs?v=854";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=855";
+import { versionQuery } from "./version.mjs?v=855";
+import { enGP } from "./equipement-pipeline.mjs?v=855";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=854";
+import { portesCarrees } from "./porte-carree.mjs?v=855";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -100,8 +105,10 @@ export const CLEF_DE = Object.freeze({
   "SEND TO": "send-to",
   "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "PARTY TALLY": "party-tally",
   "COMPANIONS": "companions",
-  "BACKPACK": "backpack", "WARES": "wares", "GEAR": "gear", "SEND": "send",
-  "?": "guide"
+  "GEAR": "gear", "BACKPACK": "backpack", "WARES": "wares", "SEND": "send",
+  "?": "guide",
+  /* 🌕 LOT 307 — la lune du double écran (une seule, Eric 27/09) */
+  "LUNE": "lune"
 });
 
 /* Le MOT d'un emplacement — l'écriture du croquis (Eric, 15/09) sans son numéro :
@@ -291,16 +298,20 @@ export const BOURSE = Object.freeze({
   seuilK: 10000
 });
 
-export function feuilleDesCotes() {
+/** @param {{ grandEcran?: boolean }} [o] 🌕 LOT 307 — `false` : pas de règle pour la lune
+ *  (`grandEcran` au plan). ⭐ Sur un téléphone la lune n'existe pas, et sa règle non plus : la page
+ *  reste celle d'avant, octet pour octet. Par défaut la feuille est COMPLÈTE (le garde la relit). */
+export function feuilleDesCotes({ grandEcran = true } = {}) {
   const regles = [];
   const regle = (id, corps) => regles.push(`.gear > [data-organe="${id}"]{${corps}}`);
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
+    if (o.grandEcran === true && !grandEcran) continue;
     /* ⭐ LA COTE SE POSE POUR TOUT ORGANE QUI A UNE CLEF, MÊME HORS CRÉATION —
        et c'est voulu : le Group Tally n'apparaît qu'en jeu, mais le jour où il
        apparaît il doit être DÉJÀ à sa place, pas posé par une seconde règle
-       écrite ailleurs. ⛔ Les quatre lunes restent dehors sans condition de
-       `creation` : elles n'ont pas de clef du tout, et c'est `!id` qui les sort. */
+       écrite ailleurs. 🌕 La lune (lot 307) a une clef : sa cible se pose comme celle d'un bouton,
+       et c'est l'étape qui décide si elle existe. */
     if (!id || o.sorte === "porte" || o.sorte === "porte-carree" || o.sorte === "rond") continue;
     if (o.sorte === "jeton") {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))}`);
@@ -373,6 +384,9 @@ function emplacement(o, id, pose, options) {
     if (!CASES_DU_BODY_FORGING.includes(id)) {
       e.dataset.creneau = id;
       e.dataset.vise = "false";
+      /* 🌕 LOT 307 — en double écran, une case vide reçoit aussi un objet du SAC voisin (figure ⑤
+         du 14/09 : « échanger des items — c'est une alternative »). ⛔ En vue simple, rien. */
+      if (options.recoitVoisin === true) e.dataset.recoitVoisin = "true";
     }
     return e;
   }
@@ -437,7 +451,14 @@ function collecteur(id, options, retenu) {
   const c = eld("div", "gear-collecteur");
   c.dataset.organe = id;
   const n = options.collecte ? options.collecte.size : 0;
-  if (n === 0) { c.dataset.creneau = "collecteur"; c.dataset.vise = "false"; }
+  if (n === 0) {
+    c.dataset.creneau = "collecteur"; c.dataset.vise = "false";
+    /* 🪟 LOT 307 — EN DOUBLE ÉCRAN, IL REÇOIT AUSSI LA PAGE VOISINE : un jeton de X5 ou de
+       Wares lâché ici ouvre le popup du dépôt (`double-ecran.mjs`). ⭐ Il se DÉCLARE
+       receveur, par la donnée — `glisser.mjs` ne devine aucun nom de créneau. ⛔ En vue
+       simple l'option n'arrive pas : l'attribut n'existe pas, le DOM est celui d'avant. */
+    if (options.recoitVoisin === true) c.dataset.recoitVoisin = "true";
+  }
   c.dataset.compte = String(n);
   /* ⚖️ PLEIN, LE COLLECTEUR PORTE L'OBJET LUI-MÊME — Eric, 16/09 au soir : *« lorsqu'un
      token va dans le collecteur, il ne doit pas rester à sa place initiale : il doit
@@ -783,7 +804,7 @@ export function construireLEcranGear(options = {}) {
 
   const feuille = eld("style");
   feuille.setAttribute("data-fhpc", "gear");
-  feuille.textContent = feuilleDesCotes();
+  feuille.textContent = feuilleDesCotes({ grandEcran: Boolean(options.lune) });
   noeud.append(feuille);
 
   if (PANTIN) {
@@ -799,9 +820,8 @@ export function construireLEcranGear(options = {}) {
 
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    /* ⭐ UNE SEULE CONDITION, ET C'EST LA CLEF : les quatre lunes n'en ont pas
-       (elles sont d'un autre écran), donc elles sortent ici sans qu'on nomme
-       `creation`. Ce qui est hors création mais DE cet écran — le Group Tally —
+    /* ⭐ UNE SEULE CONDITION, ET C'EST LA CLEF : un organe sans clef n'est pas de cet
+       écran, et il sort ici sans qu'on nomme `creation`. Ce qui est hors création mais DE cet écran — le Group Tally —
        est posé plus bas par sa donnée, et par elle seule. */
     if (!id) continue;
     if (o.sorte === "jeton") {
@@ -813,6 +833,10 @@ export function construireLEcranGear(options = {}) {
       noeud.append(emplacement(o, id, pose && estCollecte(pose) ? null : pose, options));
     } else if (o.sorte === "voyant") {
       if (id === "montant") noeud.append(montantDeLaBourse(options));
+    } else if (o.sorte === "lune") {
+      /* 🌕 LOT 307 — LA LUNE EST FABRIQUÉE PAR L'ÉTAPE (`construireLaLune`), posée ici à sa place
+         du plan. ⛔ Sans la place du double écran l'étape n'en donne pas : rien ne se pose. */
+      if (options.lune) noeud.append(options.lune);
     } else if (o.sorte === "bouton") {
       if (id === "send-to") noeud.append(dropdown(id, options));
       else if (id === "purse") noeud.append(boutonPurse(id, options));

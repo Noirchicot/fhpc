@@ -4423,23 +4423,114 @@ tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien
 ---
 
 ### 🪟 DOUBLE ÉCRAN — UN DÉPÔT DANS LE COLLECTEUR VOISIN OUVRE UN POPUP
-📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · ⏳ en attente de l'organe « double écran » (il n'existe pas encore)
-⚖️ **En double écran, déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait.**
+📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · construite 27/09 (lot 307) · ⏳ Tally et Group Tally : pas de receveur
+⚖️ **En double écran (la principale a ouvert un satellite, voir `equipement-double-ecran-lune`), l'étape Equipment montre DEUX pages côte à côte ; déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait. Accepter = le geste qui existe déjà ; Cancel = rien ne bouge.**
 
 > Eric, 2026-09-26, mot pour mot : **« Si on est en double screen le drop du token dans un collecteur
-> de la page voisine. Génère un popup. Varie en fonction — The item is created , do accept to pay
-> for xxxx — Your found item is generated — Your agree to purchase this item for xxxx »**.
+> de la page voisine. Génère un popup. Varie en fonction »**.
+> « sur quel écran ? » → **« c »** : iPad en paysage ET ordinateur.
+> « quelles pages ? » → **« gear, equipment, x3, x4 »** ; « Equipment, c'est quel écran ? » → **« c »**,
+> toute l'étape (Gear + Backpack + Wares) ; « X4, c'est quoi ? » → **« x4 c'est group tally, liste
+> d'objets achetés par le groupe »**. X3 = le Tally ; X5 (la fiche Blueprint) fait partie de l'étape.
+> L'exception, 2026-09-27 : **« L'exception le Tally, quand l'item est transféré dans un Tally, il est
+> crafté mais le paiement s'il est requis est différé au Tally. Cela doit apparaître dans le popup »**,
+> puis **« Le group et le part tally »**.
 
-| ce qu'on dépose | le popup (proposition d'anglais, ⏳ à ratifier) |
+| ce qu'on dépose | vers Gear | vers un Tally (X3, ou X4 Group/Party Tally) |
+|---|---|---|
+| X5, statut *Crafting* | « Craft this item for 2,001 GP? » [Craft & pay] [Cancel] | « Craft this item? Its 2,001 GP will be paid at the Tally. » [Craft] [Cancel] — ⛔ **désactivé** |
+| X5, statut *Found* | « You found this item. It goes to your backpack. » [OK] *(texte d'Eric)* | « You found this item. It goes to the Tally. » [OK] — ⛔ **désactivé** |
+| un achat (Wares) | « Buy this item for 15 GP? » [Buy] [Cancel] | « Add this item to the Tally for 15 GP? » [Add] [Cancel] |
+
+⭐ **LE MONTANT EST LU**, jamais recalculé par le popup : c'est l'`envoi.cout` que `Craft & Send`
+débite (le Total de X5), ou le prix que X2 lit (`ficheItemAvec`) pour Wares. ⭐ **ACCEPTER EST LE
+GESTE EXISTANT, par la même fonction** : `envoyerDepuisX5` (le bouton `Craft & Send` l'appelle aussi) ;
+`acheterUnObjet` (le `BUY` de X2, sorti de X2 sans changer une action) ; `cartAdd` pour le Tally.
+*Found* va au sac quel que soit le `SEND TO` de la fiche — le texte d'Eric le dit. ⭐ Le popup **exige
+une réponse** (`popup-question-exige-une-reponse`) et c'est un **aiguilleur** (il prévient).
+⛔ **Un dépôt dans la MÊME page garde son geste d'aujourd'hui, sans popup** (Wares → son collecteur =
+le panier).
+
+| qui | ce qu'il décide |
 |---|---|
-| un objet fabriqué (X5, statut *Crafting*) | « The item is created. Do you accept to pay xxxx? » |
-| un objet trouvé (X5, statut *Found*) | « Your found item is generated. » |
-| un achat (Wares) | « You agree to purchase this item for xxxx. » |
+| `regimeDeLaVue` (`double-ecran.mjs`) | ⭐ **QUAND** — la place (la porte du lot 120, `laPlaceDuDouble` : **758 × 560**, voir `CADRES.md`) ET un satellite ouvert par la lune de la principale ; ⛔ sous la place, rien ne change |
+| `pagesDuDoubleEcran` | ⭐ **OÙ** — la page choisie par la lune À GAUCHE (la flèche ← du croquis du 27/09), l'active à droite ; sans choix, la voisine est Gear (le sac quand l'active est Gear) |
+| `popupDuDepotVoisin` + `EN_DEPOT_VOISIN` (`src/labels.mjs`) | ⭐ **QUEL POPUP** — le texte, les boutons, ou `null` quand le cas est désactivé |
+| `glisser.mjs` (`estUnCreneauVoisin`) | ⛔ un créneau de l'autre moitié (`data-demi-ecran`) n'atteint **jamais** `onDepot` ; il n'est une cible que s'il se déclare receveur (`data-recoit-voisin`) et que le jeton porte `onDepotVoisin` |
 
-⭐ `xxxx` est le montant que le geste débite (le Total de X5, le prix de Wares) — lu, jamais recalculé
-par le popup. ⛔ **Le double écran lui-même n'existe pas** (mesuré le 26/09 : aucune vue ne pose deux
-pages côte à côte) : cette règle attend son organe, et Eric doit dire lesquelles et à partir de
-quelle largeur.
+~~⚖️ **AU-DESSUS DE LA PLACE, L'ÉTAPE S'OUVRE EN DEUX PAGES D'OFFICE**~~ — ⛔ **RETIRÉ LE 27/09** : Eric,
+devant les captures, *« Une commande pour ouvrir le double écran »*. Le double écran ne s'ouvre plus
+que sur commande (`equipement-double-ecran-lune`).
+Les deux panneaux sont **deux vrais écrans**, vivants tous les deux (aucun `inert`), un seul belt :
+il nomme la page active (à droite). ⭐ **La page voisine se navigue elle-même** : un geste fait à
+gauche change la gauche.
+
+⛔ **CE QUI N'EXISTE PAS, ET N'EST PAS INVENTÉ** *(mesuré le 27/09)* :
+· **le Tally (X3) n'a aucun collecteur** — c'est une liste de lignes, sans jeton ni `data-creneau` : il
+  ne reçoit pas de dépôt, et il ne s'en fait pas depuis lui ; et la mise en page (Gear toujours à
+  droite) ne le met jamais face à Wares ou X5. Ses popups sont écrits et gardés, sans receveur ;
+· **le Group/Party Tally (X4) n'a pas d'écran** (le bouton `party-tally` de Gear n'ouvre rien) ;
+· **le panier ne porte pas d'objet CRAFTÉ** : une ligne `cart[N]` n'a que `ref`, `quantity`,
+  `gratuit` — ni bonus, ni pouvoirs, ni variante, ni sort, et aucun coût différé. Le craft vers un
+  Tally reste donc **désactivé** (`LE_TALLY_PORTE_UN_OBJET_CRAFTE = false`) ; le garde relit le panier
+  et rougira le jour où il porte une recette ;
+· le statut *Buying* de X5 n'a pas de texte ratifié : il prend celui de l'achat (« Buy this item for
+  … GP? ») — ⏳ à confirmer par Eric.
+
+🛡️ `tests/double-ecran.test.mjs` (21 cas, mutations vues rouges, source restaurée par empreinte).
+
+---
+
+### 🌕 LA LUNE — LA PRINCIPALE OUVRE SON SATELLITE
+📍 `equipement-double-ecran-lune` · vivante · 27/09 · lot 307 · ⏳ liste des écrans et coexistence avec le Menu à ratifier
+⚖️ **Le double écran de l'Équipement n'est pas une double navigation : la fiche PRINCIPALE (à droite, sous le belt) ouvre un SATELLITE (à gauche) par sa lune unique, qui déroule un sélecteur d'écrans. Le belt ne pilote que la principale. Sur la barre du rail : la lune du satellite, à la taille dominante, et « Back to one screen ». Sans la place (758 × 560), rien de tout cela n'existe.**
+
+> ⚖️ **Eric, 14/09** (artefact « Le belt et la double vue », figure ④) : **« Que le double écran ne
+> soit plus une double navigation, mais qu'il soit ouvert par la fiche principale »** — et **« le drag
+> and drop d'un écran à l'autre en double permet d'échanger des items aussi — c'est une
+> alternative »**. **15/09** : **« La lune du double écran sera de taille dominante »** ; la lune *Cart*
+> devient *Tally*.
+> ⚖️ **Eric, 27/09** : **« Une commande pour ouvrir le double écran. À l'époque je voulais une lune par
+> option. Là je pense à une lune qui propose un dropdown de choix d'écrans, une lune 30 diam »** ·
+> **« À gauche dans gear »** · **« En bas à gauche dans wares, il faut déplacer encumbrance sous purse,
+> et déplacer les Tally plus bas, pour faire de la place »** · **« idem dans backpack »** — puis,
+> devant les captures : **« Le concept de la lune unique qui mène sur un sélecteur on garde, le reste
+> va chercher dans les archives ! »**
+> ⚖️ **Eric, 27/09 (4ᵉ passe)** : **« Tally et group tally restent à finir - pour plus tard. La forge
+> on lui donne une lune au dessus du bouton cancel. Quand on la ferme et qu'on revient à wares la
+> sélection d'écran persiste à gauche. Le forge peut ouvrir, mais ne peux pas être ouverte. La lune
+> propose un close dans son dropdown. Il y a une option close double screen en haut et au milieu,
+> mais plus petit plus discret »**.
+> 🖼️ Croquis qui FONT FOI : `IMG_6321` et `IMG_6324` (14/09) et `fh-phb/croquis/2026-09-27-double-screen-option.jpg`
+> — au-dessus du volet gauche le soleil puis la grande lune « Backpack », au-dessus du volet droit
+> le belt étroit, « BACK TO ONE SCREEN » sur la barre.
+
+| | |
+|---|---|
+| **qui ouvre** | la **lune unique** de la principale (`construireLaLune`) : un `<select>` natif habillé en pleine lune, **Ø 30, cible 44**, posé par le plan de chaque écran (`LUNE`, `grandEcran: true`) — Gear : la colonne de gauche ; Wares : en haut de la cellule gauche du pied ; Backpack : en bas à gauche ; **la Forge (X5) : au-dessus de Cancel**, dans ses trois familles. ⛔ **Le satellite n'a pas de lune** : il n'a pas de navigation |
+| **ce qu'elle propose** | ⏳ l'ordre des lunes du 14/09 — **Backpack · Tally · Wares · Gear** (*« Cart »* = Tally, *« Equipment »* = Wares), sauf la principale et le satellite déjà ouvert ; puis **« Close »** en dernier quand un satellite est ouvert. ⛔ **La Forge ne s'y trouve JAMAIS** : *« Le forge peut ouvrir, mais ne peux pas être ouverte »* — un plan tapé dans le satellite ouvre la Forge dans la PRINCIPALE (`PAGES_PRINCIPALES_SEULEMENT`) |
+| **la sélection persiste** | fermer la Forge (Cancel, Craft & Send) rend Wares à la principale : **le satellite choisi reste à gauche** |
+| **où** | le satellite **à gauche** (la flèche ← des lunes), la principale **à droite** (`pagesDuDoubleEcran`) |
+| **une seule navigation** | le **belt pilote la principale** ; sa tuile centrale est la fenêtre de la principale. Avec un satellite ouvert le belt reprend son **format étroit** sur le volet droit (`:not([data-pages])` retire le belt déroulé du lot 120). Le satellite garde ses gestes internes (glisser, pages, sections, ses portes) |
+| **la barre du rail** | au-dessus du volet gauche : le soleil (Menu) et la **lune du satellite, Ø 45** (`--belt-tuile-dom`, la cote de la tuile dominante) qui le **nomme** et permet d'en changer ; **au milieu, « Close double screen »** — le contrôle discret de la maison, le **lien** (`--lien`, T1, sans fond ni liseré, jamais souligné), cible 44 ; au-dessus de la principale, son belt étroit, à la géométrie exacte d'un écran seul. 📏 Sur 758 : soleil 4 → 48 · lune 165 → 210 · « Close double screen » 88 × 44, **335 → 423** (centré) · chevron avant 427 → 459 |
+| **le glisser** | ⭐ l'alternative au `Send to` (figure ⑤) : il aboutit au **même verbe** — `equipement-double-ecran-depot-popup` pour un achat ou un craft ; ⏳ **un objet du SAC lâché sur une CASE de Gear s'y pose** par `placerGearLine` (et son arbitre `accorderLEquipe`), sans popup — rien n'est acheté ni crafté. Un créneau se déclare receveur, et le jeton dit lesquels il sert (`accepteVoisin`) : un achat va au collecteur, un objet du sac à une case |
+| **l'interrupteur `Double view` du Menu** | ⏳ à ratifier — **il RESTE**, pour sa double vue du lot 120 (deux étapes, un panneau passif) ; dans l'Équipement, un satellite ouvert l'emporte sur lui. ⛔ Il n'ouvre pas de satellite |
+| **⏳ à ratifier, gardés par défaut (27/09)** | le satellite **survit** quand on quitte l'étape ; une fiche montrée par le satellite se nomme **« Item »** (sa lune du rail) ; l'**iPad debout** passe la porte (820 et 1024 ≥ 758) ; le satellite **se navigue lui-même** |
+| **pour plus tard** | ⛔ **Tally et Group Tally** — *« restent à finir - pour plus tard »* : l'exception Tally reste désactivée, ses textes écrits |
+
+⚖️ **CE QUE LA FIGURE ④ REMPLACE DANS LA SPEC DU LOT 120** (`FHPCv2 double affichage.md`) : **E1** (le belt
+déroulé sur toute la largeur) et **E8** (un clic sur un panneau l'active) ne valent pas pour le satellite — le
+belt est étroit sur la principale, et les deux volets sont vivants sans qu'on ait à en « activer » un. **E7** (le
+belt commande le panneau actif) tient, lu à la lettre : l'actif est toujours la principale. **E2, E3, E4, E6**
+(fond commun, deux panneaux 375 × 500, gouttière 8, halos sans couleur) tiennent.
+
+⚖️ **LES PIEDS FONT LA PLACE** : Wares — l'encombrement passe SOUS la bourse (127,5 × 28, deux lignes, 4 de
+marge dans sa colonne : il passait sous le dropdown, puis touchait le bord droit sur l'iPhone), les Tally
+descendent sous la lune ; Backpack — les Tally descendent sur la rangée du dropdown, la lune prend leur
+place. ⭐ Le rang de la lune est réservé MÊME SANS ELLE. ⚠️ Le Backpack n'a pas d'encombrement dans son
+pied (il vit en tête) : il ne bouge pas.
+
+🛡️ `tests/double-ecran.test.mjs` 2, 3, 3 bis, 15–18 bis · `gear-ecran.test.mjs` 5 · `sac-ecran.test.mjs` 9 · `belt-deux-largeurs.test.mjs`.
 
 ---
 

@@ -59,7 +59,7 @@ function monte(o) {
 }
 const organes = (n) => [...n.querySelectorAll("[data-organe]")].map((e) => e.dataset.organe);
 /* ⭐ La bourse et son montant gardent le nom d'organe de R (`purse`, `montant`). */
-const organeDom = (nom) => ({ PURSE: "purse", MONTANT: "montant" }[nom] || nom);
+const organeDom = (nom) => ({ PURSE: "purse", MONTANT: "montant", LUNE: "lune" }[nom] || nom);
 
 /* ══ ① LE PLAN ═════════════════════════════════════════════════════════════ */
 
@@ -114,7 +114,9 @@ test("2 — ⛔ LES ORGANES DU DOM SONT CEUX DE LA TABLE, ni plus ni moins — f
   assert.ok(!organesDeLaFamille("parchemin").some((o) => ["STATUS", "ENCART", "PHRASE", "TYPE"].includes(o.nom)),
     "⛔ ni statut, ni encart, ni phrase dans la fiche du parchemin");
   for (const [famille, noeud] of Object.entries(fiches)) {
-    const attendus = new Set(organesDeLaFamille(famille).map((o) => organeDom(o.nom)));
+    /* 🌕 LOT 307 — la lune (`grandEcran`) n'est posée que si l'étape la donne : le cas « avec »
+       est tenu plus bas (garde 30) */
+    const attendus = new Set(organesDeLaFamille(famille).filter((o) => o.grandEcran !== true).map((o) => organeDom(o.nom)));
     const vus = new Set(organes(noeud));
     for (const nom of attendus) {
       assert.ok(vus.has(nom), `⛔ ${famille} : ${nom} est au plan et absent de l'écran`);

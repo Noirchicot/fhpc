@@ -57,26 +57,26 @@
    ⚖️ ET COMME X1, ELLE N'ÉCRIT JAMAIS DANS LE BELT — Eric, 16/09 : *« les x ne
    s'inscrivent pas dans le belt »*. ⛔ `x2` n'entre donc pas dans `FENETRE_DE`
    (`equipment-step.mjs`), et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x1-disposition.mjs?v=854";
+import * as D from "./x1-disposition.mjs?v=855";
 /* ⭐ LA TÊTE, ENTIÈRE, PAR UN SEUL APPEL — ⛔ aucun de ces trois n'est réécrit ici. */
 import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, remplirLaDescription,
-  repeindreLaLigneDeCout } from "./x1-ecran.mjs?v=854";
+  repeindreLaLigneDeCout } from "./x1-ecran.mjs?v=855";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE — le même
    choix que X1 : le jour où une destination s'ouvre (Tally, Craft), les trois
    écrans l'apprennent ensemble. ⛔ Le croquis en dessine huit ; la liste qui
    PILOTE en porte cinq, et les inactives s'y disent déjà par `actif: false`.
    Compléter la liste depuis un dessin serait une règle de jeu écrite par un
    écran — ⏳ elle appartient à Eric, et le rapport la lui rend. */
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=854";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=855";
 /* ⚖️ LOT 309 — la bourse de X2 est l'organe de R : ses cotes (50, le montant 40 dedans) se lisent dans SON plan. */
-import { ORGANES as ORGANES_DE_R } from "./gear-disposition.mjs?v=854";
+import { ORGANES as ORGANES_DE_R } from "./gear-disposition.mjs?v=855";
 /* ⭐ LOT 308 — LA MOLETTE DE QUANTITÉ, celle de X1 (Eric, 27/09 : « La molette tambour ! », « 20 c'est
    bien »). Le champ entre − et + est mort avec elle : « le +/- prend beaucoup de place ». */
-import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=854";
+import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=855";
 /* ⭐ LA MONNAIE VIENT DU PIPELINE, TELLE QUELLE : c'est lui qui parse un coût du
    SRD, le multiplie et dit si la bourse couvre. ⛔ X2 n'a aucun tarif à lui. */
-import { parseCout, parsePoids, multiplieCout, bourseCouvre, totauxDeLaFiche, enGP, formatCout } from "./equipement-pipeline.mjs?v=854";
-import { prixSaisi } from "./craft.mjs?v=854";
+import { parseCout, parsePoids, multiplieCout, bourseCouvre, totauxDeLaFiche, enGP, formatCout } from "./equipement-pipeline.mjs?v=855";
+import { prixSaisi } from "./craft.mjs?v=855";
 
 function elx(balise, classe, texte) {
   const n = document.createElement(balise);
@@ -168,6 +168,22 @@ function laBourseDeX2({ bourse, motBourse, surBourse }) {
  *     toujours « pour la fiche ». `naviguer` reste donc branché.
  *   · `bourse`, `motBourse` : l'or du personnage
  *   · `onAction` : l'arbitre du pilote · `fermer` : le retour, inchangé */
+/** 🪟 L'ACHAT D'UN OBJET DU CATALOGUE — le geste de `BUY` et de `FREE` de X2, et du popup
+ *  « Buy this item for … GP? » du double écran (lot 307). ⭐ UN SEUL ÉCRIVAIN : payer si
+ *  l'on achète, refuser si la bourse ne couvre pas, poser la ligne. Le lot 307 l'a SORTIE de
+ *  X2 sans en changer une action, pour que le dépôt voisin ne soit pas un second acheteur.
+ *  @returns {string|null} le mot du refus, ou `null` quand l'achat est posé. */
+export function acheterUnObjet({ ref, cout, qte = 1, destination = "self", payer = true, bourse, onAction }) {
+  if (payer) {
+    if (!cout) return "No known price — use FREE, or type one.";
+    if (!bourseCouvre(bourse, cout)) return "Not enough coin in the purse.";
+    onAction({ kind: "payer", cout });
+  }
+  onAction({ kind: "addGearLine", ref, quantity: qte,
+    equipped: destination === "self", location: destination });
+  return null;
+}
+
 export function construireLaFicheX2(options = {}) {
   const { liste = [], index = 0, bourse = {}, motBourse = null,
           bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null,
@@ -315,15 +331,11 @@ export function construireLaFicheX2(options = {}) {
   /* ⛔ LA LOGIQUE D'ENVOI EST CELLE DE L'ÉCRAN D'AVANT, MOT POUR MOT : payer si on
      achète, refuser si la bourse ne couvre pas, poser la ligne, fermer. */
   function envoyer(payer) {
-    const cout = coutTotal();
-    if (payer) {
-      if (!cout) { alerte.textContent = "No known price — use FREE, or type one."; return; }
-      if (!bourseCouvre(bourse, cout)) { alerte.textContent = "Not enough coin in the purse."; return; }
-      onAction({ kind: "payer", cout });
-    }
-    const destination = dest.value || "self";   /* item seul : la cascade */
-    onAction({ kind: "addGearLine", ref: item().ref, quantity: qte,
-      equipped: destination === "self", location: destination });
+    /* 🪟 LOT 307 — la séquence est descendue dans `acheterUnObjet` (plus bas) : le popup du
+       double écran l'appelle aussi. ⛔ Rien n'a changé d'un octet dans ce qu'elle émet. */
+    const refus = acheterUnObjet({ ref: item().ref, cout: coutTotal(), qte, payer, bourse, onAction,
+      destination: dest.value || "self" });   /* item seul : la cascade */
+    if (refus) { alerte.textContent = refus; return; }
     fermer();
   }
 

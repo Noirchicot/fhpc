@@ -61,38 +61,38 @@
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { renderPicker, markPressed } from "./carnet.mjs?v=854";
-import { facteurZoomCourant } from "./echelle.mjs?v=854";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=854";
+import { renderPicker, markPressed } from "./carnet.mjs?v=855";
+import { facteurZoomCourant } from "./echelle.mjs?v=855";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=855";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=854";
-import { swapContent } from "./socle.mjs?v=854";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=854";
+import { isGenre } from "../../src/layers/document.mjs?v=855";
+import { swapContent } from "./socle.mjs?v=855";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=855";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=854";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=854";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=855";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=855";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=854";
+import { armerJeton } from "./glisser.mjs?v=855";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=854";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=855";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=854";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=855";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=854";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=855";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -102,14 +102,14 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=854";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=854";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=855";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=854";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=855";
 /* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
-import { borneDeLaMolette } from "./molette-quantite.mjs?v=854";
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=855";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -117,22 +117,25 @@ import { borneDeLaMolette } from "./molette-quantite.mjs?v=854";
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2 } from "./x2-ecran.mjs?v=854";
-import { construireX5 } from "./x5-ecran.mjs?v=854";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=854";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=854";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=854";
-import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=854";
-import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=854";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=855";
+/* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
+import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=855";
+import { construireX5 } from "./x5-ecran.mjs?v=855";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=855";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=855";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=855";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=855";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=855";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
-import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=854";
-import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=854";
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=855";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=855";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=854";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=855";
 /* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
-import { spellInfo } from "./class-step.mjs?v=854";
+import { spellInfo } from "./class-step.mjs?v=855";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -144,7 +147,7 @@ import { spellInfo } from "./class-step.mjs?v=854";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=854";
+import { motDuCran } from "./ecran-mort.mjs?v=855";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -3089,6 +3092,20 @@ export const EQUIPMENT_CATEGORIES = [
    position du tambour) : ils survivent aux re-rendus de la coquille, jamais
    au personnage — rien d'eux n'est une donnée. */
 let vueEquipement = "gear";
+/** 🪟 LOT 307 — LA PAGE ACTIVE, LUE PAR LA COQUILLE : c'est d'elle que `coteDesPages`
+ *  (double-ecran.mjs) déduit la page voisine et les côtés. ⛔ Une lecture, jamais une
+ *  écriture : la vue ne change que par les gestes de l'étape (`montrer`). */
+export function pageActiveDeLEquipement() { return vueEquipement; }
+/** 🌕 LE SATELLITE — la page que la fiche PRINCIPALE a ouverte par sa lune (règle ④ du 14/09 :
+ *  *« que le double écran ne soit plus une double navigation, mais qu'il soit ouvert par la fiche
+ *  principale »*). État d'écran, comme `vueEquipement`. `null` = aucun satellite ouvert.
+ *  ⭐ Le satellite garde ses gestes internes (glisser, pages, sections, ses portes) : un geste
+ *  fait dans le volet gauche change le volet gauche (`montrer`, plus bas). ⛔ Le belt, lui, ne
+ *  le pilote jamais — il pilote la principale. */
+let vueVoisine = null;
+export function pageVoisineDeLEquipement() { return vueVoisine; }
+/** La lune du RAIL (la coquille) change le satellite par ici ; « Back to one screen » le ferme. */
+export function choisirLeSatellite(page) { vueVoisine = typeof page === "string" && page ? page : null; }
 let ficheEnCours = null;
 /* ⭐ LOT 262 — LA FICHE X5 OUVERTE : le plan d'où l'on vient et l'état des choix.
    ⛔ L'écran ne garde rien, il redessine : c'est ici que vit l'état, comme pour X2.
@@ -3644,6 +3661,29 @@ export function renderEquipmentStep(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const docu = ctx.document || null;
   const section = el("section", "equipment-step");
+  /* 🪟 LOT 307 — LA MOITIÉ D'ÉCRAN que ce rendu occupe, en double écran : `{ cote, page }`.
+     `page` IMPOSE la vue (la voisine) ; `null` rend la vue courante (l'active).
+     ⛔ EN VUE SIMPLE `ctx.demiEcran` N'ARRIVE PAS : aucun attribut, aucune option de plus —
+     le DOM est celui d'avant, octet pour octet (garde `double-ecran.test.mjs`). */
+  const demi = ctx.demiEcran && (ctx.demiEcran.cote === "gauche" || ctx.demiEcran.cote === "droite") ? ctx.demiEcran : null;
+  const vueDuRendu = () => (demi && demi.page) || vueEquipement;
+  /* la moitié que CE rendu occupe est-elle la voisine (la page que la lune a posée à gauche) ? */
+  const estVoisine = Boolean(demi && demi.page);
+  /* 🌕 LA LUNE DE CETTE PAGE — seulement si la place du double existe (la coquille le dit par
+     `placeDuDouble`) ; ⛔ sinon rien, et le DOM reste celui d'avant. Choisir un écran le pose
+     dans la moitié gauche et commande le double écran ; « Back to one screen » le referme —
+     par le MÊME verbe que l'interrupteur du Menu (`vueBascule`), une seule préférence. */
+  const luneDe = (page) => {
+    /* ⛔ pas sans la place ; ⛔ pas dans le satellite — il n'a pas de navigation, seule la
+       principale ouvre (règle ④) */
+    if (ctx.placeDuDouble !== true || estVoisine) return null;
+    const satellite = demi ? pagesDuDoubleEcran({ active: vueEquipement, voisine: vueVoisine }).gauche : null;
+    return construireLaLune({ principale: page, satellite,
+      surChoix: (v) => { vueVoisine = v === FERMER ? null : v; act({ kind: "equipementRedessiner" }); } });
+  };
+  if (demi) section.dataset.demiEcran = demi.cote;
+  /* le popup d'un dépôt voisin se ferme sans rien écrire (Cancel) */
+  const fermerLePopup = () => act({ kind: "popup", texte: null });
 
   const bourse = currentCurrency(docu);
   /* ⭐ LES RÉPONSES DU QCM VIVENT ICI, PAS AU MODULE ET PAS AU DOCUMENT.
@@ -3782,10 +3822,23 @@ export function renderEquipmentStep(ctx, onAction) {
   const pileFH = cherche.tous().some((t) => String(t.view && t.view.id).startsWith("fh:"));
 
   const montrer = (vue) => {
+    /* 🌕 LA MOITIÉ VOISINE SE NAVIGUE ELLE-MÊME : un geste fait à gauche change la gauche.
+       La coquille repeint les deux (la page voisine est rendue par prêt, jamais en place). */
+    /* ⛔ LA FORGE NE S'OUVRE JAMAIS DANS LE SATELLITE (Eric, 27/09 : « Le forge peut ouvrir, mais
+       ne peux pas être ouverte ») : un plan tapé à gauche l'ouvre dans la PRINCIPALE, et le
+       satellite reste où il était. */
+    if (estVoisine && PAGES_PRINCIPALES_SEULEMENT.includes(vue)) {
+      vueEquipement = vue; act({ kind: "equipementRedessiner" }); return;
+    }
+    if (estVoisine) { vueVoisine = vue; act({ kind: "equipementRedessiner" }); return; }
     vueEquipement = vue;
     /* la branche écrit son mot au belt ; la coquille repeint (et `peindre` sert
        le cas où personne ne l'écoute — les bancs, les tests) */
     if (FENETRE_DE[vue]) act({ kind: "fenetre", mot: FENETRE_DE[vue] });
+    /* 🪟 LOT 307 — EN DOUBLE ÉCRAN, UNE FICHE X (qui n'écrit pas au belt) CHANGE AUSSI L'AUTRE
+       MOITIÉ : la page voisine et les côtés dépendent de la page active. Le repeint local ne
+       suffit plus — la coquille repeint les deux. ⛔ En vue simple, rien de neuf. */
+    else if (demi) act({ kind: "equipementRedessiner" });
     peindre();
   };
 
@@ -3841,7 +3894,9 @@ export function renderEquipmentStep(ctx, onAction) {
     montrer("x2");
   }
 
-  piloteEquipement = {
+  /* ⛔ LOT 307 — la page VOISINE (vue imposée) ne reprend pas le pilote : c'est la page
+     active qui le tient (le catalogue de R n'est jamais la voisine). */
+  if (!(demi && demi.page)) piloteEquipement = {
     ouvrirFiche(item) {
       const liste = [...itemsDeLaPage.values()].map(ficheItemAvec(cherche.valeur));
       ouvrirLObjet(liste, Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id)));
@@ -3895,6 +3950,10 @@ export function renderEquipmentStep(ctx, onAction) {
       compteTally: cartCompte(docu),
       collecte: collecteEnvoi,
       destination: destinationEnvoi,
+      /* 🪟 LOT 307 — en double écran, le collecteur reçoit aussi la page voisine */
+      recoitVoisin: Boolean(demi),
+      /* 🌕 la lune, à gauche dans Gear (la colonne du croquis) */
+      lune: luneDe("gear"),
       surPorte: (porte) => {
         /* 🔴 LA PORTE REVIENT SUR L'ANCIEN SAC — 18/09. Le nouveau (`sac`) a été
            branché puis DÉPLOYÉ alors qu'il n'était pas fini : dalle sans matière,
@@ -3930,7 +3989,7 @@ export function renderEquipmentStep(ctx, onAction) {
          ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
          l'objet tapé, avec son nombre à envoyer remis à la pile (lot 308 : `null`) : un
          envoi est une intention, elle ne se garde pas d'un objet à l'autre. */
-      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = null; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueDuRendu(); ficheX1 = index; nombreX1 = null; lectureX1 = false; montrer("x1"); },
     });
 
     return noeud;
@@ -4110,6 +4169,12 @@ export function renderEquipmentStep(ctx, onAction) {
        un encombrement se dit », et un garde qui le tient. ⛔ Le refaire ici en ferait un second. */
     const motTotal = (e) => motDeLEncombrement(e, p);
     const { noeud } = construireLeSac({
+      /* 🌕 la lune, en bas à gauche du sac */
+      lune: luneDe("sac"),
+      /* 🌕 LOT 307 — figure ⑤ : un objet du sac lâché sur une case de Gear voisin s'y pose, par le
+         MÊME verbe que le glisser dans Gear (`placerGearLine`, que la coquille fait suivre de
+         `accorderLEquipe`). ⛔ Pas de popup : rien n'est acheté ni crafté. */
+      surDepotVoisin: demi ? (index, boite) => act({ kind: "placerGearLine", index, boite }) : null,
       /* ⚖️ LA LISTE DES CHAMPS VIENT DE L'ÉCRAN, ⛔ ELLE NE SE RETAPE PAS ICI — Eric,
          20/09 : *« absolument rien de bleu »*. Cette ligne gardait `nom` et `fige` et
          jetait `party`, `dehors` et `renommable` : le genre n'arrivait jamais à la tuile.
@@ -4250,7 +4315,7 @@ export function renderEquipmentStep(ctx, onAction) {
           : (sectionSac + sens + n) % n;
         peindre();
       },
-      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = null; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueDuRendu(); ficheX1 = index; nombreX1 = null; lectureX1 = false; montrer("x1"); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ LE RANGEMENT S'ÉCRIT AU DOCUMENT — Eric, 18/09 : *« oui, évidemment, le
          rangement fait partie des caracs du perso ; ça doit survivre à la session au
@@ -4549,6 +4614,8 @@ export function renderEquipmentStep(ctx, onAction) {
     for (const item of vue.objets) itemsDeLaPage.set(item.view.id, item);
 
     const { noeud } = construireLesWares({
+      /* 🌕 la lune, en bas à gauche de Wares */
+      lune: luneDe("r"),
       categories: arbre.map((r) => ({ nom: r.label })),
       categorie: rayonWares,
       sousCategories: etageres.map((e) => ({ nom: e.label })),
@@ -4671,6 +4738,29 @@ export function renderEquipmentStep(ctx, onAction) {
         const item = itemsDeLaPage.get(ref);
         if (item) act({ kind: "cartAdd", ref: { kind: item.kind, id: item.view.id } });
       },
+      /* 🪟 LOT 307 — LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE : le popup d'achat.
+         ⚖️ « Buy this item for 15 GP? » [Buy] [Cancel] — Buy est EXACTEMENT le geste de
+         `BUY` de X2 (`acheterUnObjet`) : même écrivain, même débit, même pose (le sac, le
+         défaut de X2). Le prix est celui que X2 lit (`ficheItemAvec`), ⛔ jamais recalculé.
+         Vers un Tally : « Add this item to the Tally… » [Add] — le geste « mettre au
+         panier », qui se paie au `Buy` du Tally. */
+      surDepotVoisin: demi ? (ref, cible) => {
+        const item = itemsDeLaPage.get(ref);
+        if (!item) return;
+        const f = ficheItemAvec(cherche.valeur)(item);
+        const moitie = cible && typeof cible.closest === "function" ? cible.closest("[data-demi-ecran]") : null;
+        const genre = genreDeLaCible(moitie ? moitie.dataset.vueEquipement : null);
+        if (genre === "corps" && !f.cout) { act({ kind: "popup", role: "gendarme", texte: MOT_SANS_PRIX }); return; }
+        const popup = popupDuDepotVoisin({ quoi: "achat", cible: genre, montant: f.cout, annuler: fermerLePopup,
+          accepter: genre === "tally"
+            ? () => act({ kind: "cartAdd", ref: f.ref })
+            : () => {
+              const refus = acheterUnObjet({ ref: f.ref, cout: f.cout, qte: 1, destination: "backpack",
+                payer: true, bourse, onAction: actAchat });
+              if (refus) act({ kind: "popup", role: "gendarme", texte: refus });
+            } });
+        if (popup) act(popup);
+      } : null,
     });
     return noeud;
   }
@@ -4895,6 +4985,8 @@ export function renderEquipmentStep(ctx, onAction) {
        seconde lecture de la même chose. */
     const plan = ficheX5.planRecord || cherche.record(ficheX5.plan);
     const { noeud } = construireX5({
+      /* 🌕 LOT 307 — la Forge a sa lune, au-dessus de Cancel : elle OUVRE un satellite */
+      lune: luneDe("x5"),
       plan, bases: basesDuCraft, itemsMagiques: magiquesDuCraft,
       /* ⭐ la valeur d'un objet fini passe par LA porte des recettes (garde 11) */
       plansFreres: plansAVariante, valeurDe: (r) => valeurDUneRecette(r, null),
@@ -4961,7 +5053,33 @@ export function renderEquipmentStep(ctx, onAction) {
          site ne stocke rien (a). ⭐ Même chemin qu'un achat en X2 — `payer` puis
          `addGearLine` — et la ligne porte sa RECETTE (`src/build/objet-crafte.mjs`).
          ⛔ La bourse est vérifiée AVANT tout geste : rien n'est écrit à moitié. */
-      surEnvoyer: (e) => {
+      surEnvoyer: envoyerDepuisX5,
+      /* 🪟 LOT 307 — LE JETON LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE (double écran).
+         ⚖️ Crafting : « Craft this item for 2,001 GP? » [Craft & pay] · Found : « You found
+         this item. It goes to your backpack. » [OK] · Buying : l'achat. ⭐ Accepter est
+         EXACTEMENT `Craft & Send` (`envoyerDepuisX5`, la même fonction que le bouton) ; le
+         montant est `envoi.cout`, celui que `Send` débite. Found va au sac (le texte d'Eric le
+         dit) : sa destination est celle-là, ⛔ pas le `SEND TO` de la fiche. */
+      surDepotVoisin: demi ? ({ envoi, cible }) => {
+        const moitie = cible && typeof cible.closest === "function" ? cible.closest("[data-demi-ecran]") : null;
+        const trouve = envoi.status === "Found";
+        const popup = popupDuDepotVoisin({ quoi: "craft", statut: envoi.status,
+          cible: genreDeLaCible(moitie ? moitie.dataset.vueEquipement : null), montant: envoi.cout,
+          annuler: fermerLePopup,
+          accepter: () => envoyerDepuisX5(trouve ? { ...envoi, destination: "backpack" } : envoi) });
+        if (popup) act(popup);
+      } : null,
+    });
+    return noeud;
+  }
+
+  /* ⭐ LOT 265 — `SEND` : l'objet entre dans l'équipement du personnage — voir la note au
+     câblage de `construireX5`. 🪟 LOT 307 : une fonction NOMMÉE, parce que deux gestes la
+     déclenchent (le bouton `Craft & Send`, et le popup du dépôt voisin) — ⛔ jamais deux copies. */
+  function envoyerDepuisX5(e) {
+      if (!ficheX5) return;   /* ⛔ plus de fiche ouverte : il n'y a plus rien à envoyer */
+      /* le plan de la fiche, lu comme `construireX5Vue` le lit */
+      const plan = ficheX5.planRecord || cherche.record(ficheX5.plan);
         /* ⭐ LOT 285 — UN PARCHEMIN : la ligne pointe sur le PLAN (`Spell Scroll`) et porte la
            RÉFÉRENCE de son sort (`gear[N].spell`). Le coût de scribing se paie d'abord — ⛔ même
            porte que l'arme et la variante : la bourse d'abord, rien écrit à moitié. */
@@ -5038,9 +5156,6 @@ export function renderEquipmentStep(ctx, onAction) {
           } });
         ficheX5 = null;
         montrer("r");
-      },
-    });
-    return noeud;
   }
 
   /* ⭐ LA FICHE X1 D'APERÇU — le même organe que X1, en mode `apercu`. Son nom, son prix et
@@ -5186,7 +5301,10 @@ export function renderEquipmentStep(ctx, onAction) {
   }
 
   function peindre() {
-    swapContent(section, [construireVue(vueEquipement)]);
+    /* 🪟 LOT 307 — la moitié d'écran DIT la page qu'elle montre : c'est ce que le dépôt voisin
+       lit pour choisir son popup (Gear, ou un Tally). ⛔ Seulement en double écran. */
+    if (demi) section.dataset.vueEquipement = vueDuRendu();
+    swapContent(section, [construireVue(vueDuRendu())]);
     /* ⭐ ET LE RUBAN DE DALLES SE POSE ICI AUSSI — ⛔ pas « plutôt qu'à la coquille » : EN PLUS.
        Un changement de section repeint par ce chemin-ci, où la section est déjà montée ;
        un changement de vue passe par la coquille, qui reconstruit l'étape DÉTACHÉE avant
@@ -5204,7 +5322,9 @@ export function renderEquipmentStep(ctx, onAction) {
   /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
      deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un
      déplacement peignait dans un nœud détaché. */
-  repeindreLeSac = peindre;
+  /* 🪟 LOT 307 — en double écran, le sac peut être la page VOISINE : c'est alors elle qui
+     tient le repeint, pas la page active rendue avant elle. */
+  if (!(demi && demi.page) || demi.page === "sac") repeindreLeSac = peindre;
   peindre();
   return section;
 }

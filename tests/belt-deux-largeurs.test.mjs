@@ -94,7 +94,9 @@ test("🔴 la largeur d'une tuile se DÉDUIT de la piste, elle ne s'écrit jamai
     "en étroit : la piste moins ses deux gouttières, divisée par les TROIS crans du croquis");
   assert.doesNotMatch(etroit, /flex:[^;]*\d+(\.\d+)?px/,
     "une largeur de tuile ÉCRITE en pixels — elle se déduit de la piste, toujours");
-  const double = regle(shellCss, /^:root\[data-vue="double"\] \.belt-item$/);
+  /* 🌕 LOT 307 — le belt déroulé ne vaut que SANS satellite (`:not([data-pages])`) : avec un
+     satellite ouvert, le rail seul pilote la principale, au format étroit (figure ④ du 14/09). */
+  const double = regle(shellCss, /^:root\[data-vue="double"\]:not\(\[data-pages\]\) \.belt-item$/);
   assert.match(double, /flex:\s*0 0 calc\(\(100% - 7 \* var\(--sp-8\)\) \/ 8\)/,
     "en double : la même formule, avec les HUIT — « une tuile vaut la piste divisée par ce qu'elle montre »");
   /* ⚠️ ON VISE LA LARGEUR, PAS TOUT PIXEL — ce garde a d'abord rougi sur le
@@ -343,7 +345,7 @@ test("🔴 LES DEUX ESPACEURS LISENT LA MÊME PART QUE LES TUILES", () => {
      n'en prévoit que sept, soit 20 de débordement sous `overflow: hidden`.
      ⭐ UNE LARGEUR NULLE N'EST PAS UNE ABSENCE — c'est la leçon, et elle vaut
      pour tout enfant flex qu'on croit avoir retiré en le mettant à zéro. */
-  const absents = regle(shellCss, /^:root\[data-vue="double"\] \.belt-track::before,\s*:root\[data-vue="double"\] \.belt-track::after$/);
+  const absents = regle(shellCss, /^:root\[data-vue="double"\]:not\(\[data-pages\]\) \.belt-track::before,\s*:root\[data-vue="double"\]:not\(\[data-pages\]\) \.belt-track::after$/);
   assert.ok(absents, "en vue double, les deux espaceurs doivent être retirés, pas rétrécis");
   assert.match(absents, /content:\s*none/,
     "⛔ `content: none` — le nœud n'est pas GÉNÉRÉ. Une largeur nulle garderait sa gouttière");

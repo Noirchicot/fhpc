@@ -21,15 +21,15 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_PIED_BAS, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR,
-} from "./wares-disposition.mjs?v=854";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=854";
+} from "./wares-disposition.mjs?v=855";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=855";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=854";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=854";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=854";
+import { REPOS_MS } from "./sac-ecran.mjs?v=855";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=855";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=855";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=854";
+import { portesCarrees } from "./porte-carree.mjs?v=855";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -40,10 +40,10 @@ import { portesCarrees } from "./porte-carree.mjs?v=854";
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=854";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=855";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome } from "./glisser.mjs?v=854";
-import { versionQuery } from "./version.mjs?v=854";
+import { armerJeton, fantome } from "./glisser.mjs?v=855";
+import { versionQuery } from "./version.mjs?v=855";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -318,30 +318,45 @@ export function feuilleDesCotesWares() {
      exactement ça : *« une grille dit COMBIEN et OÙ ; un repli le découvre à l'exécution »*.
      ⭐ Et je l'avais déjà écrit pour les tuners dix lignes plus haut, sans le faire ici. */
   r.push(`.wares-cote[data-cote="gauche"]{grid-column:1}`);
-  /* ⭐ LES DEUX TALLY GARDENT LEUR RANGÉE, L'ENCOMBREMENT PREND LA SUIVANTE. La cellule reste
-     centrée sur ses deux axes : le plan dit 44 pour les cibles et 14 pour le voyant, et l'écart
-     de 8 les sépare — ⛔ aucune de ces trois cotes n'est retapée, elles viennent du plan. */
+  /* 🔄 LOT 307 (27/09) — LA CELLULE DE GAUCHE : LA LUNE EN HAUT, LES TALLY EN BAS. Eric : *« En
+     bas à gauche dans wares […] déplacer les Tally plus bas, pour faire de la place »*.
+     ⭐ DEUX RANGS DÉCLARÉS, et leurs hauteurs viennent du plan (la cible de la lune, celle des
+     Tally) — ⛔ le rang de la lune existe MÊME SANS ELLE : sur un téléphone il reste vide, et
+     les Tally ne remontent pas. La cellule garde sa largeur de colonne (`justify-self:
+     stretch`) pour que la lune se cale À GAUCHE et les Tally AU MILIEU. */
   {
-    const enc = ORGANES.find((x) => x.nom === "ENCOMBREMENT");
-    r.push(`.wares-cote[data-cote="gauche"]{grid-auto-flow:row;gap:${px(ECART)}}`);
-    r.push(`.wares-tallys{display:grid;grid-auto-flow:column;` +
+    const lune = ORGANES.find((x) => x.nom === "LUNE");
+    r.push(`.wares-cote[data-cote="gauche"]{grid-auto-flow:row;justify-self:stretch;` +
+           `grid-template-rows:${px(lune.cible.h)} ${px(tl.cible.h)};gap:${px(ECART)}}`);
+    r.push(`.wares-cote[data-cote="gauche"] > [data-organe="lune"]{grid-row:1;justify-self:start}`);
+    r.push(`.wares-tallys{grid-row:2;display:grid;grid-auto-flow:column;` +
            `gap:${px(ecartDessins - bords)};place-items:center}`);
-    /* ⛔ ET IL NE DÉBORDE PAS DE SA COLONNE : une ligne qui ne tient pas se VOIT, elle ne se
-       fait pas défiler en douce — la loi d'Eric sur un contenu en trop. */
-    r.push(`.wares [data-organe="encombrement"]{inline-size:${px(enc.l)};block-size:${px(enc.h)};` +
-           `display:grid;place-items:center;white-space:nowrap;` +
-           `font-size:${px(11)};color:var(--text-soft)}`);
   }
   r.push(`.wares-cote[data-cote="droite"]{grid-column:3}`);
   /* ⚖️ LE VOYANT DU MONTANT SE POSE **SUR** LA BOURSE — même cellule, même boîte, et c'est le
      plan qui les donne (`MONTANT`, `dans: "PURSE"`). ⛔ On ne le tape pas : `pointer-events:none`
      laisse le doigt à la bourse dessous. Sans ça le voyant volerait le tap de l'organe qu'il
-     annote, et la bourse ne s'ouvrirait plus. */
+     annote, et la bourse ne s'ouvrirait plus.
+     🔄 LOT 307 (27/09) — ET L'ENCOMBREMENT PASSE DESSOUS (Eric : « déplacer encumbrance sous
+     purse ») : la cellule de droite a deux rangs, la bourse et son montant dans le premier,
+     l'encombrement dans le second, 8 plus bas. ⭐ Deux lignes permises — le défaut vu sur
+     `main` était une ligne trop longue pour sa colonne, qui passait sous le dropdown. */
   {
     const m = ORGANES.find((o) => o.nom === "MONTANT");
-    r.push(`.wares-cote[data-cote="droite"] > *{grid-area:1 / 1}`);
+    const purse = ORGANES.find((o) => o.nom === "PURSE");
+    const enc = ORGANES.find((x) => x.nom === "ENCOMBREMENT");
+    r.push(`.wares-cote[data-cote="droite"]{grid-template-rows:${px(purse.cible.h)} ${px(enc.h)};` +
+           `row-gap:${px(ECART)}}`);
+    r.push(`.wares-cote[data-cote="droite"] > [data-organe="purse"],` +
+           `.wares-cote[data-cote="droite"] > [data-organe="montant"]{grid-area:1 / 1}`);
     r.push(`.wares [data-organe="montant"]{inline-size:${px(m.l)};block-size:${px(m.h)};` +
            `place-self:center;pointer-events:none}`);
+    /* ⛔ ET IL NE DÉBORDE PAS DE SA BOÎTE : deux lignes au plus, centrées — une ligne qui ne
+       tient pas se VOIT, elle ne se fait pas défiler en douce. */
+    r.push(`.wares [data-organe="encombrement"]{grid-area:2 / 1;inline-size:${px(enc.l)};` +
+           `block-size:${px(enc.h)};display:grid;place-items:center;text-align:center;` +
+           `line-height:${px(enc.h / 2)};overflow:hidden;` +
+           `font-size:${px(11)};color:var(--text-soft)}`);
   }
   r.push(`.wares-pied > [data-organe="collecteur"]{grid-column:2;grid-row:1;justify-self:center}`);
   r.push(`.wares-pied > [data-organe="send-vers"]{grid-column:2;grid-row:2;align-self:center}`);
@@ -372,7 +387,7 @@ export function feuilleDesCotesWares() {
           `;border-width:${bords.map(px).join(" ")}`
         : "") + `}`);
   };
-  for (const nom of ["COLLECTEUR", "PURSE", "SEND VERS", "PARTY TALLY", "TALLY"]) {
+  for (const nom of ["COLLECTEUR", "PURSE", "SEND VERS", "PARTY TALLY", "TALLY", "LUNE"]) {
     const o = ORGANES.find((x) => x.nom === nom);
     if (o) boite(CLEF_DE[nom], o);
   }
@@ -572,6 +587,11 @@ function jeton(item, o) {
        `glisser.mjs` (`onDepot(cible.dataset.creneau)`), pas supposé. Mon premier jet attendait
        un élément et testait `cible.dataset.organe` : il n'aurait JAMAIS déposé, en silence. */
     onDepot: (creneau) => { if (creneau === CRENEAU_COLLECTEUR && o.surDepot) o.surDepot(item.ref); },
+    /* 🪟 LOT 307 — LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE (double écran) : l'écran ne
+       décide rien, il PUBLIE le geste — le pilote ouvre le popup d'achat. ⛔ Absent en vue
+       simple : `glisser.mjs` n'y voit alors aucune cible voisine. */
+    onDepotVoisin: o.surDepotVoisin ? (creneau, cible) => o.surDepotVoisin(item.ref, cible) : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",   /* un achat va au collecteur */
   });
   return b;
 }
@@ -790,7 +810,10 @@ export function construireLesWares(o = {}) {
      qui vient du pilote est le MOT, pas l'existence. */
   const poids = el("div", "wares-encombrement", o.encombrement || "");
   poids.dataset.organe = "encombrement";
-  gauche.append(poids);
+  /* 🌕 LOT 307 — LA LUNE, en haut de la cellule de gauche, fabriquée par l'étape ; ⛔ sans la
+     place du double écran, rien — et son rang reste vide. L'encombrement, lui, part À DROITE,
+     sous la bourse (plus bas). */
+  if (o.lune) gauche.prepend(o.lune);
   pied.append(gauche);
 
   const collecteur = el("div", "wares-collecteur", "SEND COLLECTOR");
@@ -830,7 +853,7 @@ export function construireLesWares(o = {}) {
      cellule, pas une position. */
   const montant = montantDeLaBourse(o);
   montant.dataset.organe = "montant";
-  droite.append(purse, montant);
+  droite.append(purse, montant, poids);
   pied.append(droite);
 
   const envoi = el("select", "wares-send-vers");

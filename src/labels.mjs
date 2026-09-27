@@ -519,3 +519,54 @@ export const EN_EFFECT_REASONS = {
   "unit-mismatch": "its distance unit is not the sheet's",
   "state-unmet": "its condition is not met (armor or shield worn)"
 };
+
+/* ══ 🪟 LE DÉPÔT DANS LA PAGE VOISINE — lot 307, 2026-09-27 ══════════════
+   Les popups du double écran de l'étape Equipment (`ui/builder/double-ecran.mjs`
+   les choisit, la coquille les peint). Anglais : la langue des écrans du
+   builder. ⭐ Les phrases sont celles qu'Eric a ratifiées, MOT POUR MOT :
+   *« Craft this item for 2,001 GP? »* [Craft & pay] [Cancel] ·
+   *« You found this item. It goes to your backpack. »* [OK] (son texte) ·
+   *« Buy this item for 15 GP? »* [Buy] [Cancel] — et l'exception du Tally
+   (27/09) : *« Craft this item? Its 2,001 GP will be paid at the Tally. »*
+   [Craft] [Cancel] · *« You found this item. It goes to the Tally. »* [OK] ·
+   *« Add this item to the Tally for 15 GP? »* [Add] [Cancel].
+   ⛔ Le montant arrive DÉJÀ ÉCRIT (`montant`) : un libellé ne compte rien. */
+export const EN_DEPOT_VOISIN = {
+  "depot-voisin.craft": (d) => `Craft this item for ${d.montant}?`,
+  "depot-voisin.craft-au-tally": (d) => `Craft this item? Its ${d.montant} will be paid at the Tally.`,
+  "depot-voisin.trouve": "You found this item. It goes to your backpack.",
+  "depot-voisin.trouve-au-tally": "You found this item. It goes to the Tally.",
+  "depot-voisin.achat": (d) => `Buy this item for ${d.montant}?`,
+  "depot-voisin.achat-au-tally": (d) => `Add this item to the Tally for ${d.montant}?`,
+  "depot-voisin.bouton.craft-pay": "Craft & pay",
+  "depot-voisin.bouton.craft": "Craft",
+  "depot-voisin.bouton.buy": "Buy",
+  "depot-voisin.bouton.add": "Add",
+  "depot-voisin.bouton.ok": "OK",
+  "depot-voisin.bouton.cancel": "Cancel",
+  /* ⚠️ Pas ratifié : un objet de Wares SANS prix connu ne peut pas s'acheter par le
+     dépôt (« Buy this item for — ? » mentirait). Proposé au rapport du lot 307. */
+  "depot-voisin.sans-prix": "This item has no known price: tap it to open its sheet."
+};
+
+/* ══ 🌕 LA LUNE DU DOUBLE ÉCRAN — lot 307, 2026-09-27 ════════════════════
+   Eric : *« une lune qui propose un dropdown de choix d'écrans, une lune 30
+   diam »* ; le croquis `2026-09-27-double-screen-option.jpg` écrit
+   « Backpack · Cart · Forge · Equipment » et « BACK TO ONE SCREEN ».
+   ⭐ `Cart` = le Tally (le panier de Wares). ⛔ La Forge (X5) n'est pas offerte :
+   elle ne s'ouvre pas sans un plan. ⏳ La liste est à ratifier par Eric. */
+export const EN_LUNE = {
+  "lune.titre": "Second screen",
+  "lune.gear": "Gear",
+  "lune.sac": "Backpack",
+  "lune.r": "Wares",
+  "lune.b2": "Tally",
+  /* le mot d'une fiche montrée par le satellite (il se navigue lui-même) */
+  "lune.x5": "Forge",
+  "lune.x1": "Item",
+  "lune.autre": "Screen",
+  /* ⚖️ Eric, 27/09 (4ᵉ passe) : « La lune propose un close dans son dropdown » · « une option
+     close double screen en haut et au milieu, mais plus petit plus discret » */
+  "lune.fermer": "Close",
+  "lune.fermer-double": "Close double screen"
+};
