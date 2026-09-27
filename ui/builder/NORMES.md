@@ -9996,6 +9996,9 @@ garde SA navigation (celle de son clic) et son aiguille (angle cumulé, partagé
 
 ⏱️ Une cote, `MAINTIEN_EQUIPEMENT_MS` (`glisser.mjs`), pour Pack, Wares, Gear, X5 et le collecteur de
 Wares ; ⛔ Species, les sorts et B3 n'en prennent pas (loi du 20/08). Elle remplace les 350 ms du sac.
+🔴 **Lot 334 — sauf le vivier des sorts du parchemin (X5)** : Eric, 27/09, **« Le drag and drop pour les
+parchemins ne fonctionne pas »**. Une grille de sorts se glisse tout de suite (loi du 20/08) ; seul le
+jeton du collecteur du parchemin, qui part vers la page voisine, attend les 500 ms.
 🔲 La marge (`margeDuGlisser`, `sac-ecran.mjs`) : x entre le bord de la dalle et `COLONNES[0]`, ou entre la
 fin de la dernière colonne et `DALLE.l` ; y entre `RANGEES[0]` et le bas de la dernière rangée. 🔴 Avant :
 « tout ce qui est à droite de la grille » — en double écran, tout Gear faisait tourner les sections.

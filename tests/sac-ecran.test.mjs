@@ -1783,10 +1783,15 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
      drag doit attendre 500 ms, avant de s'activer »*. */
   assert.equal(PEAGE_JETON_MS, 500, "⏱️ la cote du 27/09");
   assert.equal(PEAGE_JETON_MS, MAINTIEN_EQUIPEMENT_MS, "⛔ le sac a repris une cote à lui : deux attentes, deux gestes");
+  /* 🔴 LOT 334 — SAUF LE VIVIER DES SORTS DU PARCHEMIN (X5) : Eric, 27/09, « Le drag and drop pour
+     les parchemins ne fonctionne pas ». Une grille de sorts garde le glisser immédiat (loi du 20/08) ;
+     le jeton du collecteur du parchemin, qui part vers la page voisine, garde les 500 ms. */
+  const vivierDesSorts = { "x5-parchemin.mjs": 1 };
   for (const f of ["wares-ecran.mjs", "gear-ecran.mjs", "x5-ecran.mjs", "x5-parchemin.mjs"]) {
     const s = stripComments(fs.readFileSync(path.join(UI, f), "utf8"));
-    assert.equal((s.match(/armerJeton\(/g) || []).length, (s.match(/maintien: MAINTIEN_EQUIPEMENT_MS/g) || []).length,
-      `⛔ ${f} arme un glisser qui n'attend pas les 500 ms de l'étape`);
+    assert.equal((s.match(/armerJeton\(/g) || []).length - (vivierDesSorts[f] || 0),
+      (s.match(/maintien: MAINTIEN_EQUIPEMENT_MS/g) || []).length,
+      `⛔ ${f} arme un glisser qui n'attend pas les 500 ms de l'étape (ou le vivier des sorts en a pris)`);
   }
   assert.match(source, /maintien: PEAGE_JETON_MS/, "le sac paie le péage");
   const organe = stripComments(fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8"));

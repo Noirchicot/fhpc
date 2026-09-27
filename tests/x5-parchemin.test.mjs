@@ -518,3 +518,23 @@ test("parchemin 12 — ⚖️ le sort posé se glisse hors du collecteur et le v
   assert.equal(apercu && apercu.status, "Crafting", "⭐ « pas un item tant qu'on n'a pas fait send » : le tap rend l'APERÇU");
   assert.deepEqual(recus, [], "⛔ un tap ne vide rien");
 });
+
+test("parchemin 334 — 🔴 UN SORT SE GLISSE TOUT DE SUITE : le vivier des sorts n'attend pas les 500 ms", () => {
+  /* ⚖️ Eric, 27/09 : « Le drag and drop pour les parchemins ne fonctionne pas ». 📏 Le lot 331 avait
+     mis le péage de 500 ms sur ce vivier : porté tout de suite, le sort ne se posait plus. ⭐ Loi du
+     20/08 : une grille de sorts se glisse sans péage. Le geste est donc porté SANS tenir, sur une
+     horloge simulée qui n'avance pas — si un péage revenait, rien ne serait choisi. */
+  const recus = [];
+  const n = monte({ choix: { classe: "Wizard", niveau: 3 }, surChoix: (o, v) => recus.push([o, v]) }).noeud;
+  const collecteur = organe(n, "JETON");
+  avecDocument(() => {
+    mock.timers.enable({ apis: ["setTimeout"] });
+    try {
+      document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? collecteur : null) });
+      jetonDe(n, "Fly").dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 2, button: 0, pointerType: "mouse" });
+      document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 2 });
+      document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 2 });
+    } finally { mock.timers.reset(); }
+  });
+  assert.deepEqual(recus, [["SORT", "Fly"]], "⛔ porté tout de suite, le sort ne se pose pas : un péage est revenu sur le vivier");
+});

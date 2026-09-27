@@ -21,16 +21,16 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=887";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=887";
+import * as D from "./x5-disposition.mjs?v=888";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=888";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=887";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=887";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=887";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=887";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=887";
+  from "./craft-parchemin.mjs?v=888";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=888";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=888";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=888";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=888";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerAstrolabe } from "./astrolabe.mjs?v=887";
+import { armerAstrolabe } from "./astrolabe.mjs?v=888";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
@@ -144,8 +144,14 @@ export function construireX5Parchemin(o, pieces) {
     b.setAttribute("aria-label", `${s.data.name}${s === sort ? ", chosen" : ""}`);
     b.append(...corpsDuJeton({ nom: s.data.name }));
     const choisir = () => { if (surChoix) surChoix("SORT", s.data.name); };
+    /* 🔴 LOT 334 — PAS DE PÉAGE SUR LE VIVIER DES SORTS. Eric, 27/09 : *« Le drag and drop pour les
+       parchemins ne fonctionne pas »*. 📏 Mesuré au banc : un sort tenu 650 ms se posait ; porté tout
+       de suite, rien — c'est le lot 331 qui lui avait donné les 500 ms, ⛔ de mon propre chef : la
+       consigne visait les objets qu'on échange d'un écran à l'autre. Or cette grille est un VIVIER DE
+       SORTS, et la loi du 20/08 y tient — *« le glisser partout ! »*, sans péage là où rien ne défile
+       (Species, les sorts). ⭐ Le jeton du collecteur, lui, part vers la page voisine : il garde les
+       500 ms (plus bas). */
     armerJeton(b, {
-      maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
       onLever: (x, y) => fantome.lever(b, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),
