@@ -786,10 +786,16 @@ test("37 — ⭐ LE PILOTE DONNE LES MUNITIONS À X5, ET LA FICHE X1 D'UNE LIGNE
      paiementsDe(rec, qte) : qte` — le lot réservé à la ligne craftée, parce que la quantité d'une
      munition mondaine « n'était pas tranchée ». ⚖️ Eric, 26/09 : « poids par lot » — les « 20
      Arrows » du départ aussi. */
-  assert.match(x1, /const fois = paiementsDe\(rec, qte\);/,
+  /* 🔄 LOT 308 — le lot se compte sur le nombre ENVOYÉ (`n`), plus sur la pile : Eric, 27/09, « il
+     faut tj que le montant final soit modifié avec l'augmentation en quantité ». Et les deux totaux
+     ont UNE arithmétique, partagée avec X2 (`totauxDeLaFiche`). */
+  assert.match(x1, /const fois = paiementsDe\(rec, n\);/,
     "⚖️ dix flèches — craftées ou de départ — coûtent et pèsent UN lot, ⛔ pas dix fois le lot");
-  assert.match(x1, /multiplieCout\(cout, fois\)/);
-  assert.match(x1, /poidsTotal: poids \? `\$\{Math\.round\(poids\.valeur \* fois \* 100\) \/ 100\}/,
+  assert.match(x1, /\.\.\.totauxDeLaFiche\(cout, poids, fois\)/);
+  const pipe = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipement-pipeline.mjs"), "utf8");
+  const totaux = pipe.slice(pipe.indexOf("export function totauxDeLaFiche("), pipe.indexOf("export function additionneCouts("));
+  assert.match(totaux, /multiplieCout\(cout, n\)/);
+  assert.match(totaux, /poidsTotal: poids \? `\$\{Math\.round\(poids\.valeur \* n \* 100\) \/ 100\}/,
     "⚖️ le « poids total » de la fiche lit le même nombre de lots que le prix");
   /* ⭐ LOT 288 — les deux écrans de Wares posent des PIÈCES (un jeton = un paquet) */
   assert.match(src, /construireLaFicheX2\(\{[^}]*onAction: actAchat,/, "⛔ X2 pose par `actAchat`");

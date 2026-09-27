@@ -59,7 +59,8 @@
    (`equipment-step.mjs`), et c'est son ABSENCE de cette table qui le garantit. */
 import * as D from "./x1-disposition.mjs?v=848";
 /* ⭐ LA TÊTE, ENTIÈRE, PAR UN SEUL APPEL — ⛔ aucun de ces trois n'est réécrit ici. */
-import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, texteDeLUnite, remplirLaDescription } from "./x1-ecran.mjs?v=848";
+import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, remplirLaDescription,
+  repeindreLaLigneDeCout } from "./x1-ecran.mjs?v=848";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE — le même
    choix que X1 : le jour où une destination s'ouvre (Tally, Craft), les trois
    écrans l'apprennent ensemble. ⛔ Le croquis en dessine huit ; la liste qui
@@ -69,7 +70,7 @@ import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, texteDeLUn
 import { DESTINATIONS } from "./gear-ecran.mjs?v=848";
 /* ⭐ LA MONNAIE VIENT DU PIPELINE, TELLE QUELLE : c'est lui qui parse un coût du
    SRD, le multiplie et dit si la bourse couvre. ⛔ X2 n'a aucun tarif à lui. */
-import { parseCout, multiplieCout, bourseCouvre } from "./equipement-pipeline.mjs?v=848";
+import { parseCout, parsePoids, multiplieCout, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=848";
 
 function elx(balise, classe, texte) {
   const n = document.createElement(balise);
@@ -193,19 +194,21 @@ export function construireLaFicheX2(options = {}) {
   qteChamp.addEventListener("change", () => {
     const n = parseInt(qteChamp.value, 10);
     qte = Number.isInteger(n) && n > 0 ? n : 1;
-    peindre();
+    peindreLaQuantite();
   });
   /* ⚖️ LE `+` ET LE `−` SONT EMPILÉS, à droite du champ — le croquis les dessine
      l'un sur l'autre, ⛔ pas côte à côte. */
   const pas = elx("div", "x2-pas");
   pas.append(
-    boutonX("+", "pipeline-pas pipeline-pas-plus", () => { qte += 1; peindre(); }, "One more"),
-    boutonX("−", "pipeline-pas pipeline-pas-moins", () => { qte = Math.max(1, qte - 1); peindre(); }, "One less"));
+    boutonX("+", "pipeline-pas pipeline-pas-plus", () => { qte += 1; peindreLaQuantite(); }, "One more"),
+    boutonX("−", "pipeline-pas pipeline-pas-moins", () => { qte = Math.max(1, qte - 1); peindreLaQuantite(); }, "One less"));
   /* ⭐ LE PRIX EST UN TYPE IN (rose au croquis d'août, encadré ici) : le joueur
      peut marchander. ⛔ L'écran n'invente aucun tarif — le défaut vient du record. */
   const prixChamp = elx("input", "pipeline-typein");
   prixChamp.type = "text";
   prixChamp.setAttribute("aria-label", "Price");
+  /* ⭐ LOT 308 — un prix marchandé change le total affiché, comme la quantité. */
+  prixChamp.addEventListener("change", () => peindreLaLigneDeCout());
 
   const champQte = elx("label", "x2-champ");
   champQte.append(elx("span", "pipeline-libelle", "Qty"), qteChamp);
@@ -243,6 +246,28 @@ export function construireLaFicheX2(options = {}) {
   const alerte = elx("p", "pipeline-alerte");
 
   const coutTotal = () => multiplieCout(parseCout(prixChamp.value) || item().cout, qte);
+
+  /* ⚖️ LOT 308 — LE TOTAL D'ACHAT SE LIT, ET IL SUIT LA QUANTITÉ. Eric, 27/09 : *« il faut tj que
+     le montant final soit modifié avec l'augmentation en quantité »*. 🔴 X2 le calculait
+     (`coutTotal`, au moment de payer) et ne l'AFFICHAIT jamais : la tête était bâtie avec
+     `qte: 1`, et sa colonne de total restait vide quoi qu'on choisisse.
+     ⭐ La ligne de coût de la tête (unité · ×n · total) se repeint par SES écrivains
+     (`repeindreLaLigneDeCout`), et les deux totaux par l'arithmétique de X1 (`totauxDeLaFiche`).
+     Le prix total est celui que `BUY` paiera : le prix tapé s'il y en a un, sinon celui du record.
+     ⭐ Wares compte des JETONS (un jeton = un paquet, lot 288) : `qte` paquets, donc `qte` lots. */
+  function peindreLaLigneDeCout() {
+    const it = item();
+    const { poidsTotal } = totauxDeLaFiche(null, parsePoids(it.poidsTexte), qte);
+    const { prixTotal } = totauxDeLaFiche(parseCout(prixChamp.value) || it.cout, null, qte);
+    repeindreLaLigneDeCout(noeud, { prixUnite: it.coutTexte, poidsUnite: it.poidsTexte, qte, prixTotal, poidsTotal });
+  }
+  /* ⛔ UN CHANGEMENT DE QUANTITÉ NE REPEINT PAS LA PAGE : `peindre` remet le prix du record dans le
+     champ, et effaçait donc un prix marchandé à chaque `+`. */
+  function peindreLaQuantite() {
+    qteChamp.value = String(qte);
+    alerte.textContent = "";
+    peindreLaLigneDeCout();
+  }
 
   /* ⛔ LA LOGIQUE D'ENVOI EST CELLE DE L'ÉCRAN D'AVANT, MOT POUR MOT : payer si on
      achète, refuser si la bourse ne couvre pas, poser la ligne, fermer. */
@@ -306,14 +331,14 @@ export function construireLaFicheX2(options = {}) {
        de la tête (elle écrit `unite`) : ces deux lignes ne repeignaient rien. */
     const objet = { prixUnite: it.coutTexte, poidsUnite: it.poidsTexte, rarete: it.rarete || "",
       prose: it.prose, noteCraft: it.noteCraft || "" };
-    ecrire("unite", texteDeLUnite(objet));
+    /* ⭐ LOT 308 — la ligne de coût entière (unité · ×n · total) se repeint plus bas, par
+       `peindreLaQuantite` : ⛔ l'unité n'a plus qu'un écrivain ici. */
     ecrire("rarete", objet.rarete);
     const desc = noeud.querySelector('[data-organe="description"]');
     if (desc) remplirLaDescription(desc, objet);
     noeud.setAttribute("aria-label", it.nom ? `${it.nom} — item sheet` : "Item sheet");
     prixChamp.value = it.coutTexte || "";
-    qteChamp.value = String(qte);
-    alerte.textContent = "";
+    peindreLaQuantite();
   }
   peindre();
   if (naviguer) naviguer({ vers: (n) => { i = n; peindre(); } });

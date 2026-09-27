@@ -239,7 +239,7 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
          DOUBLON qui le justifiait — elle était dite deux fois, ici et dans « 15 gp ·
          ×2 · 30 gp » juste dessous. Deux écrivains d'un même fait.
          ⛔ Elle ne s'écrit toujours que si elle dit quelque chose : « ×1 » est du bruit. */
-      noeud.append(voyant(id, "x1-chiffres x1-chiffres-qte", objet.qte > 1 ? `×${objet.qte}` : "",
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-qte", texteDeLaQuantite(objet),
         objet.qte > 1 ? `Quantity ${objet.qte}` : undefined));
     } else if (id === "filet-haut" || id === "filet-bas") {
       /* ⚖️ LES DEUX FILETS QUI DÉLIMITENT LE TEXTE — Eric, 17/09 au soir. Ils ne
@@ -255,8 +255,7 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
     } else if (id === "total") {
       /* ⚖️ « 6gp / 15lg (cadré droite) » — ⛔ et rien quand il n'y en a qu'un : un
          total qui répète l'unité ne dit pas un total, il dit deux fois l'unité. */
-      noeud.append(voyant(id, "x1-chiffres x1-chiffres-total",
-        objet.qte > 1 ? cellule(objet.prixTotal, objet.poidsTotal) : "", "Total"));
+      noeud.append(voyant(id, "x1-chiffres x1-chiffres-total", texteDuTotal(objet), "Total"));
     } else if (id === "description") {
       const z = eld("div", "x1-description");
       z.dataset.organe = id;
@@ -421,6 +420,35 @@ function cellule(...morceaux) {
 export function texteDeLUnite(objet) {
   return cellule(objet && objet.prixUnite, objet && objet.poidsUnite);
 }
+/** « ×2 » — la quantité EN JEU (lot 308) : sur X1 celle qu'on envoie, sur X2 celle qu'on achète.
+ *  ⛔ « ×1 » est du bruit. */
+export function texteDeLaQuantite(objet) {
+  return objet && objet.qte > 1 ? `×${objet.qte}` : "";
+}
+/** « 2 gp · 4 lb » — le prix et le poids de `objet.qte` exemplaires, calculés par l'appelant
+ *  (`totauxDeLaFiche`, `equipement-pipeline.mjs`). ⛔ Rien quand il n'y en a qu'un : un total qui
+ *  répète l'unité ne dit pas un total. */
+export function texteDuTotal(objet) {
+  return objet && objet.qte > 1 ? cellule(objet.prixTotal, objet.poidsTotal) : "";
+}
+/** ⚖️ LOT 308 — LA LIGNE DE COÛT SE REPEINT QUAND LA QUANTITÉ CHANGE, par les écrivains de la tête.
+ *  X2 l'appelle à chaque changement de quantité (Eric, 27/09 : « il faut tj que le montant final
+ *  soit modifié avec l'augmentation en quantité ») ; ⛔ elle n'écrit pas un mot que la tête
+ *  n'écrirait pas. */
+export function repeindreLaLigneDeCout(noeud, objet) {
+  const ecrire = (clef, mot) => {
+    const e = noeud.querySelector(`[data-organe="${clef}"]`);
+    if (e) e.textContent = mot;
+    return e;
+  };
+  ecrire("unite", texteDeLUnite(objet));
+  const q = ecrire("qte", texteDeLaQuantite(objet));
+  if (q) {
+    if (objet && objet.qte > 1) q.setAttribute("aria-label", `Quantity ${objet.qte}`);
+    else q.removeAttribute("aria-label");
+  }
+  ecrire("total", texteDuTotal(objet));
+}
 /** Le texte de l'objet, puis sa NOTE DE CRAFT en pied, en italique — Eric, 26/09 : « tous
  *  les objets magiques […] devront avoir une référence au prix du craft · une petite note
  *  en pied de page en italique ». ⭐ Dans la zone qui défile : elle se lit APRÈS la
@@ -538,14 +566,17 @@ function menuDestination(id, options) {
  *  le reste est un voyant à côté de lui, dans la même boîte. Le lecteur d'écran, lui,
  *  entend la phrase entière par l'étiquette. */
 function champNombre(id, options) {
-  const qte = Math.max(1, (options.objet && options.objet.qte) || 1);
+  /* ⭐ LOT 308 — le dénominateur est la PILE (`objet.pile`), le nombre est la quantité EN JEU
+     (`objet.qte`) : c'est elle que la tête chiffre. ⏳ Le contrôle lui-même attend Eric. */
+  const objet = options.objet || {};
+  const qte = Math.max(1, Number(objet.pile ?? objet.qte) || 1);
   const boite = eld("div", "x1-saisie");
   boite.dataset.organe = id;
   const n = eld("input", "x1-saisie-nombre");
   n.type = "number";
   n.min = "1";
   n.max = String(qte);
-  n.value = String(options.nombre || 1);
+  n.value = String(objet.pile !== undefined ? objet.qte : (options.nombre || 1));
   n.setAttribute("aria-label", `How many to send, out of ${qte}`);
   n.addEventListener("change", () => { if (options.surNombre) options.surNombre(Number(n.value) || 1); });
   const sur = eld("span", "x1-saisie-sur", `/${qte}`);
@@ -575,6 +606,8 @@ function porte(id, mot, note, options, eteint) {
  *     derniers (lot 279) : la rareté à côté du prix, la note de craft en pied du texte.
  *   · `horsCase` (lot 292) : la raison pour laquelle `Equip` s'éteint — aucune case du
  *     Gear ne convient à l'objet ; `null` quand il en a une
+ *   · `objet.qte` : la quantité EN JEU, que la tête chiffre (lot 308) ; `objet.pile` : le stock
+ *     de la ligne (absent = l'appelant d'avant : `qte` est la pile, `nombre` l'envoi)
  *   · `nombre`, `destination` : l'envoi en cours
  *   · rappels : `surEtat` `surNombre` `surEst` `surDestination` `surPorte` `surCopier` */
 export function construireLaFicheX1(options = {}) {

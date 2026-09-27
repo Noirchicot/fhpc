@@ -427,6 +427,22 @@ export function multiplieCout(cout, n) {
   return r;
 }
 
+/** ⚖️ LOT 308 — LES DEUX TOTAUX D'UNE FICHE X, UNE SEULE ARITHMÉTIQUE. Eric, 27/09 : *« il faut tj
+ *  que le montant final soit modifié avec l'augmentation en quantité »*. ⭐ X1 (ce qu'on envoie) et
+ *  X2 (ce qu'on achète) lisent ICI le prix et le poids de `fois` exemplaires — ⛔ deux formules du
+ *  même total divergeraient au premier arrondi.
+ *  · `cout` — un coût parsé (`parseCout`), `poids` — un poids parsé (`parsePoids`), ou `null` ;
+ *  · `fois` — le nombre de LOTS : X1 le tient de `paiementsDe` (une munition se compte par lot,
+ *    lot 288), X2 compte des jetons (un jeton = un paquet) ;
+ *  · le prix s'écrit EN MINUSCULES, comme le livre (« 30 gp ») : c'est la casse de la fiche. */
+export function totauxDeLaFiche(cout, poids, fois) {
+  const n = Math.max(0, Number(fois) || 0);
+  return {
+    prixTotal: cout ? formatCout(multiplieCout(cout, n)).toLowerCase() : "",
+    poidsTotal: poids ? `${Math.round(poids.valeur * n * 100) / 100} ${poids.unite}` : "",
+  };
+}
+
 export function additionneCouts(couts) {
   const r = { pp: 0, gp: 0, sp: 0, cp: 0 };
   for (const c of couts) { if (c) for (const k of CURRENCY_KEYS) r[k] += c[k] || 0; }

@@ -107,7 +107,7 @@ import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=848";
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre } from "./equipement-pipeline.mjs?v=848";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=848";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -3153,7 +3153,15 @@ let ficheX1 = null;
    ⭐ ET C'EST `vueEquipement` LUI-MÊME, pris à l'instant du tap : aucune seconde
    vérité à tenir d'accord, juste la vue courante mise de côté avant qu'on la quitte. */
 let origineX1 = "gear";
-let nombreX1 = 1;
+/* ⚖️ LOT 308 — `null` : la fiche s'ouvre sur la pile ENTIÈRE. Son total
+   dit donc ce que vaut ce qu'on a tapé, et `Send` sans rien toucher envoie l'objet — ce que le
+   joueur voyait faire jusqu'ici (la scission n'avait jamais lieu, voir `surPorte`). */
+let nombreX1 = null;
+/** Le nombre à envoyer, ramené dans `1 … pile`. */
+function borneDeLEnvoi(v, pile) {
+  const n = Math.floor(Number(v));
+  return Math.max(1, Math.min(Math.max(1, Number(pile) || 1), Number.isFinite(n) && n > 0 ? n : 1));
+}
 /* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
    n'est pas le texte et les quatre portes (Eric, 17/09 au soir). ⛔ C'est de l'ÉTAT
    D'ÉCRAN, comme la bourse : il ne se sauvegarde pas, et fermer la fiche le rend à
@@ -3910,9 +3918,9 @@ export function renderEquipmentStep(ctx, onAction) {
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⭐ LOT 213 — LE TAP OUVRE LA FICHE. Eric, 16/09 : *« maintenant, clic droit
          ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
-         l'objet tapé, avec son nombre à envoyer remis à 1 : un envoi est une
-         intention, elle ne se garde pas d'un objet à l'autre. */
-      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+         l'objet tapé, avec son nombre à envoyer remis à la pile (lot 308 : `null`) : un
+         envoi est une intention, elle ne se garde pas d'un objet à l'autre. */
+      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = null; lectureX1 = false; montrer("x1"); },
     });
 
     return noeud;
@@ -4232,7 +4240,7 @@ export function renderEquipmentStep(ctx, onAction) {
           : (sectionSac + sens + n) % n;
         peindre();
       },
-      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = null; lectureX1 = false; montrer("x1"); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ LE RANGEMENT S'ÉCRIT AU DOCUMENT — Eric, 18/09 : *« oui, évidemment, le
          rangement fait partie des caracs du perso ; ça doit survivre à la session au
@@ -4354,10 +4362,16 @@ export function renderEquipmentStep(ctx, onAction) {
        par lot » — le prix et le poids du catalogue sont ceux d'un paquet, pour les « 20 Arrows »
        du départ comme pour les dix flèches craftées. ⭐ Le prix total ET le poids total lisent
        le même nombre de lots — celui de l'encombrement (`poidsParLieu`). */
-    const fois = paiementsDe(rec, qte);
+    /* ⚖️ LOT 308 — LE TOTAL SUIT LE NOMBRE CHOISI, PAS LA PILE. Eric, 27/09 : *« il faut tj que
+       le montant final soit modifié avec l'augmentation en quantité »*. ⭐ `n` est le nombre que
+       la fiche envoie (1 … pile) ; `null` = la fiche s'ouvre sur la pile entière.
+       ⏳ Le CONTRÔLE qui le choisit attend Eric (lot 308 en pause) : cette borne est celle du
+       champ d'aujourd'hui, ⛔ pas encore celle d'un menu. */
+    const n = borneDeLEnvoi(nombreX1 ?? qte, qte);
+    const fois = paiementsDe(rec, n);
     const { noeud } = construireLaFicheX1({
       objet: {
-        index: ligne.index, nom: ligne.nomAffiche, qte,
+        index: ligne.index, nom: ligne.nomAffiche, qte: n, pile: qte,
         prixUnite: valeurX1.cout || "",
         /* ⭐ EN MINUSCULES, COMME LE LIVRE L'ÉCRIT : la source dit « 15 gp », et
            `formatCout` rend « 30 GP » (sa casse sert le panier, où le montant est
@@ -4365,9 +4379,9 @@ export function renderEquipmentStep(ctx, onAction) {
            total se lisent côte à côte : deux casses pour deux fois le même mot se
            lisent comme deux choses. 📏 Et la boîte du plan est mesurée sur la
            minuscule (82,75 dans 84). */
-        prixTotal: cout ? formatCout(multiplieCout(cout, fois)).toLowerCase() : "",
+        /* ⭐ LOT 308 — l'arithmétique des deux totaux est celle de X2 (`totauxDeLaFiche`). */
+        ...totauxDeLaFiche(cout, poids, fois),
         poidsUnite: valeurX1.poids || "",
-        poidsTotal: poids ? `${Math.round(poids.valeur * fois * 100) / 100} ${poids.unite}` : "",
         prose: proseDeLaLigne(ligne),
         /* ⚖️ LOT 279 — la rareté à côté du prix, la note de craft en pied (Eric, 26/09) */
         rarete: valeurX1.rarete || "",
@@ -4392,7 +4406,6 @@ export function renderEquipmentStep(ctx, onAction) {
          storage) acceptent tout. `Equip` ne s'éteint donc plus pour ce motif ; l'option
          `horsCase` de X1 reste, sans écrivain ici. */
       horsCase: null,
-      nombre: nombreX1,
       destination: destinationEnvoi,
       /* ⚖️ LE PLAFOND D'HARMONISATION DU SRD — trois, et Eric l'a rappelé le 18/09 :
          *« a creature can be attuned to a maximum of 3 magic items at once ; attempting
@@ -4404,7 +4417,8 @@ export function renderEquipmentStep(ctx, onAction) {
       harmonises: lignes.filter((l) => l.attuned === true).length,
       lecture: lectureX1,
       surLecture: (v) => { lectureX1 = v; peindre(); },
-      surNombre: (n) => { nombreX1 = Math.max(1, Math.min(n, qte)); },
+      /* ⭐ LOT 308 — le nombre REPEINT : le total de la tête suit le nombre choisi. */
+      surNombre: (v) => { nombreX1 = borneDeLEnvoi(v, qte); peindre(); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ TROIS ÉTATS, DEUX ÉCRITURES DIFFÉRENTES, ET C'EST LE DÉPÔT QUI LE DIT :
          `equipped` n'est pas un drapeau libre — il est le REVERS de la position
@@ -4445,8 +4459,13 @@ export function renderEquipmentStep(ctx, onAction) {
              depuis : `addGearLine` ne fusionne jamais, deux lignes du même record
              existent dans tout document où l'on a acheté deux fois la même chose.
              La forme n'a pas bougé d'un octet. */
-          const total = Math.max(1, Number(ligne.qte) || 1);
-          const part = Math.max(1, Math.min(Number(nombreX1) || 1, total));
+          /* 🔴 LOT 308 — LA SCISSION N'AVAIT JAMAIS LIEU. Ce bloc lisait `ligne.qte`, que le lecteur
+             (`currentGearLines`) n'écrit pas : le total valait toujours 1, donc `part < total` était
+             toujours faux, et `Send` déplaçait TOUTE la pile. 📏 Vu au navigateur le 27/09 : 5
+             caltrops, « 2 » tapé, Send vers Party → les 5 partaient. ⭐ La pile est `quantity`, et
+             la part est le `n` que la fiche montre — le même nombre que son total. */
+          const total = Math.max(1, Number(ligne.quantity) || 1);
+          const part = n;
           actArbitre(part < total
             ? { kind: "splitGearLine", index: ligne.index, quantity: part, location: destinationEnvoi }
             : { kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });
