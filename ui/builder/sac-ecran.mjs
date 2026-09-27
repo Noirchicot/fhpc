@@ -23,34 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=878";
-import { versionQuery } from "./version.mjs?v=878";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=878";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=884";
+import { versionQuery } from "./version.mjs?v=884";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=884";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=878";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=884";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=878";
+import { armerJeton, fantome } from "./glisser.mjs?v=884";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=878";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=884";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=878";
+import { portesCarrees } from "./porte-carree.mjs?v=884";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=878";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=884";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=878";
+import { facteurZoomCourant } from "./echelle.mjs?v=884";
+/* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
+import { armerAstrolabe } from "./astrolabe.mjs?v=884";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -933,13 +935,14 @@ function tuner(sens, options, pisteNoeud) {
   const b = bouton("sac-tuner", "", sens < 0 ? "Previous section" : "Next section", pousse);
   b.dataset.organe = sens < 0 ? "tuner-g" : "tuner-d";
   b.dataset.sens = sens < 0 ? "gauche" : "droite";
-  /* ⛔ `passive: false` — sans lui le navigateur refuse le `preventDefault`, et la
-     page défilerait DERRIÈRE la roue pendant qu'on la tourne. */
-  b.addEventListener("wheel", (ev) => {
-    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-    if (pisteNoeud && typeof pisteNoeud.pousser === "function") pisteNoeud.pousser((ev && ev.deltaY < 0) ? -1 : 1);
-    else if (options.surTourner) options.surTourner((ev && ev.deltaY < 0) ? -1 : 1);
-  }, { passive: false });
+  /* 🧭 LOT 330 — LA MOLETTE PASSE PAR L'ASTROLABE (`astrolabe.mjs`) : même navigation que le clic
+     (`pousser`), mais les petits deltas s'agrègent en crans, l'aiguille tourne, et le zoom n'est pas
+     intercepté. ⛔ L'ancien écouteur (un pas par événement) est retiré : deux écouteurs, deux pas. */
+  armerAstrolabe(b, { groupe: "sac-roue", avancer: (s) => {
+    if (pisteNoeud && typeof pisteNoeud.pousser === "function") pisteNoeud.pousser(s);
+    else if (options.surTourner) options.surTourner(s);
+    return true;
+  } });
   return b;
 }
 

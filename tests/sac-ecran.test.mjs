@@ -312,10 +312,15 @@ test("10 — 🔴 LE CHEVRON POUSSE LE RUBAN D'UNE TUILE, ⛔ il ne saute plus",
   assert.equal(roue.scrollLeft, D.ROUE.pas * 2, "et le gauche recule d'autant");
 
   let empeche = false;
+  /* 🔄 LOT 330 — la molette passe par l'ASTROLABE, qui AGRÈGE (notice d'Eric : « ne pas déclencher un
+     passage par pixel ou par événement ») : un pixel seul ne pousse rien, un cran de molette (100) pousse
+     d'une tuile. */
   g.dispatchEvent({ type: "wheel", deltaY: -1, preventDefault: () => { empeche = true; } });
+  assert.equal(roue.scrollLeft, D.ROUE.pas * 2, "⛔ un pixel de trackpad n'est pas un cran");
+  g.dispatchEvent({ type: "wheel", deltaY: -100, preventDefault: () => { empeche = true; } });
   assert.equal(roue.scrollLeft, D.ROUE.pas, "la molette pousse aussi — elle s'AJOUTE au tap");
   assert.equal(empeche, true, "⛔ sinon la page défilerait DERRIÈRE la roue");
-  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  const source = fs.readFileSync(path.join(UI, "astrolabe.mjs"), "utf8");
   assert.match(source, /passive:\s*false/, "sans lui le navigateur refuse le preventDefault");
 });
 

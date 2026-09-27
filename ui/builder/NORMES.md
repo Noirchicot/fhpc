@@ -9961,3 +9961,26 @@ remplace : les glyphes « ‹ › » de Wares (16 et T4) et la flèche du belt e
 35 % (`--chevron-trait`, 02/09 « petit et discret »). ⛔ La flèche circulaire au survol reste propre à la
 molette. 📏 Mesuré (375 × 812) : Pack, Wares et le belt rendent le même dessin, 10 × 20 à 4 du bord,
 `rgb(152,146,134)`, opacité 1.
+
+---
+
+### 🟦 L'ASTROLABE : LA MOLETTE DE LA SOURIS SUR LES CHEVRONS HORIZONTAUX
+📍 `chevron-astrolabe-molette` · vivante · 27/09
+⚖️ **Au survol souris d'un chevron horizontal, un cadran de 20 blg (astrolabe) se pose exactement sur son dessin ; la molette, captée sur ce chevron seulement, fait avancer la navigation que ce chevron commande déjà — bas = aiguille horaire = tuiles vers la gauche = suivant. Seule l'aiguille tourne ; une borne refuse le pas et l'aiguille avec lui.**
+
+> Eric, 2026-09-27 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` (gabarit `astrolabe-30px.svg`,
+> blueprint), puis : **« À appliquer sur tous les chevrons horizontaux (plutôt 20 blg de diamètre que 30) »**
+> · **« C'est pour les desktop et souris, donc me casse pas les couilles avec la zone tactile »** · **« ça
+> se déclenche sur un hover de souris »** · **« L'astrolabe apparaîtra parfaitement au-dessus des chevrons »**.
+> ⭐ Ces phrases priment sur la notice (qui visait les deux chevrons du belt, en 30 px).
+
+⭐ **UN ORGANE** (`astrolabe.mjs`, module feuille) armé sur six paires : le belt, le tambour de Pack, les
+deux tambours de Wares, les pages de Wares, les pages de X5, la molette de quantité (X1/X2). Chaque paire
+garde SA navigation (celle de son clic) et son aiguille (angle cumulé, partagé par les deux chevrons).
+📐 Molette : un cran = 100 px (Chrome/Safari) ou 3 lignes (Firefox) ; les petits deltas s'agrègent ; Ctrl
++ molette (zoom) n'est jamais intercepté ; l'événement traité ne remonte pas (la molette de quantité
+écoute tout son tambour). Belt et tambours de Wares : un cran attend que le précédent soit arrivé
+(≤ 450 ms) — mesuré : sinon un pas sur deux se perdait et l'aiguille tournait seule.
+🎨 Dessin : le gabarit simplifié pour 20 (couronne, 12 graduations, aiguille, souris + ↕ fixes) ; encres
+`--astrolabe-face/-laiton/-encre`, jour ET nuit ; `@media (hover: hover) and (pointer: fine)` seulement.
+🗄️ Remplace la flèche circulaire du tuner au survol (`--icone-tuner`, lot 214).
