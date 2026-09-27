@@ -117,7 +117,8 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    qui aurait fermé le cycle. */
 import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=848";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
-import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX } from "./double-ecran.mjs?v=848";
+import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune, UN_SEUL_ECRAN,
+  pagesDuDoubleEcran } from "./double-ecran.mjs?v=848";
 import { construireX5 } from "./x5-ecran.mjs?v=848";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=848";
 import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=848";
@@ -3080,6 +3081,12 @@ let vueEquipement = "gear";
  *  (double-ecran.mjs) déduit la page voisine et les côtés. ⛔ Une lecture, jamais une
  *  écriture : la vue ne change que par les gestes de l'étape (`montrer`). */
 export function pageActiveDeLEquipement() { return vueEquipement; }
+/** 🌕 LA PAGE VOISINE, choisie par la LUNE (lot 307, reprise du 27/09) — état d'écran, comme
+ *  `vueEquipement`. `null` = aucune choisie : l'organe prend son défaut (`voisineParDefaut`).
+ *  ⭐ La page voisine se NAVIGUE elle-même : un geste fait dans la moitié gauche change la
+ *  moitié gauche (`montrer`, plus bas), jamais la droite. */
+let vueVoisine = null;
+export function pageVoisineDeLEquipement() { return vueVoisine; }
 let ficheEnCours = null;
 /* ⭐ LOT 262 — LA FICHE X5 OUVERTE : le plan d'où l'on vient et l'état des choix.
    ⛔ L'écran ne garde rien, il redessine : c'est ici que vit l'état, comme pour X2.
@@ -3638,6 +3645,23 @@ export function renderEquipmentStep(ctx, onAction) {
      le DOM est celui d'avant, octet pour octet (garde `double-ecran.test.mjs`). */
   const demi = ctx.demiEcran && (ctx.demiEcran.cote === "gauche" || ctx.demiEcran.cote === "droite") ? ctx.demiEcran : null;
   const vueDuRendu = () => (demi && demi.page) || vueEquipement;
+  /* la moitié que CE rendu occupe est-elle la voisine (la page que la lune a posée à gauche) ? */
+  const estVoisine = Boolean(demi && demi.page);
+  /* 🌕 LA LUNE DE CETTE PAGE — seulement si la place du double existe (la coquille le dit par
+     `placeDuDouble`) ; ⛔ sinon rien, et le DOM reste celui d'avant. Choisir un écran le pose
+     dans la moitié gauche et commande le double écran ; « Back to one screen » le referme —
+     par le MÊME verbe que l'interrupteur du Menu (`vueBascule`), une seule préférence. */
+  const luneDe = (page) => {
+    if (ctx.placeDuDouble !== true) return null;
+    const autre = demi ? (estVoisine ? vueEquipement
+      : pagesDuDoubleEcran({ active: vueEquipement, voisine: vueVoisine }).gauche) : null;
+    return construireLaLune({ page, autre, enDouble: Boolean(demi), estVoisine,
+      surChoix: (v) => {
+        if (v === UN_SEUL_ECRAN) { act({ kind: "vueBascule", value: false }); return; }
+        vueVoisine = v;
+        act({ kind: "vueBascule", value: true });
+      } });
+  };
   if (demi) section.dataset.demiEcran = demi.cote;
   /* le popup d'un dépôt voisin se ferme sans rien écrire (Cancel) */
   const fermerLePopup = () => act({ kind: "popup", texte: null });
@@ -3779,6 +3803,9 @@ export function renderEquipmentStep(ctx, onAction) {
   const pileFH = cherche.tous().some((t) => String(t.view && t.view.id).startsWith("fh:"));
 
   const montrer = (vue) => {
+    /* 🌕 LA MOITIÉ VOISINE SE NAVIGUE ELLE-MÊME : un geste fait à gauche change la gauche.
+       La coquille repeint les deux (la page voisine est rendue par prêt, jamais en place). */
+    if (estVoisine) { vueVoisine = vue; act({ kind: "equipementRedessiner" }); return; }
     vueEquipement = vue;
     /* la branche écrit son mot au belt ; la coquille repeint (et `peindre` sert
        le cas où personne ne l'écoute — les bancs, les tests) */
@@ -3900,6 +3927,8 @@ export function renderEquipmentStep(ctx, onAction) {
       destination: destinationEnvoi,
       /* 🪟 LOT 307 — en double écran, le collecteur reçoit aussi la page voisine */
       recoitVoisin: Boolean(demi),
+      /* 🌕 la lune, à gauche dans Gear (la colonne du croquis) */
+      lune: luneDe("gear"),
       surPorte: (porte) => {
         /* 🔴 LA PORTE REVIENT SUR L'ANCIEN SAC — 18/09. Le nouveau (`sac`) a été
            branché puis DÉPLOYÉ alors qu'il n'était pas fini : dalle sans matière,
@@ -3935,7 +3964,7 @@ export function renderEquipmentStep(ctx, onAction) {
          ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
          l'objet tapé, avec son nombre à envoyer remis à 1 : un envoi est une
          intention, elle ne se garde pas d'un objet à l'autre. */
-      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueDuRendu(); ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
     });
 
     return noeud;
@@ -4115,6 +4144,8 @@ export function renderEquipmentStep(ctx, onAction) {
        un encombrement se dit », et un garde qui le tient. ⛔ Le refaire ici en ferait un second. */
     const motTotal = (e) => motDeLEncombrement(e, p);
     const { noeud } = construireLeSac({
+      /* 🌕 la lune, en bas à gauche du sac */
+      lune: luneDe("sac"),
       /* ⚖️ LA LISTE DES CHAMPS VIENT DE L'ÉCRAN, ⛔ ELLE NE SE RETAPE PAS ICI — Eric,
          20/09 : *« absolument rien de bleu »*. Cette ligne gardait `nom` et `fige` et
          jetait `party`, `dehors` et `renommable` : le genre n'arrivait jamais à la tuile.
@@ -4255,7 +4286,7 @@ export function renderEquipmentStep(ctx, onAction) {
           : (sectionSac + sens + n) % n;
         peindre();
       },
-      surJeton: (index) => { origineX1 = vueEquipement; ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
+      surJeton: (index) => { origineX1 = vueDuRendu(); ficheX1 = index; nombreX1 = 1; lectureX1 = false; montrer("x1"); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ LE RANGEMENT S'ÉCRIT AU DOCUMENT — Eric, 18/09 : *« oui, évidemment, le
          rangement fait partie des caracs du perso ; ça doit survivre à la session au
@@ -4540,6 +4571,8 @@ export function renderEquipmentStep(ctx, onAction) {
     for (const item of vue.objets) itemsDeLaPage.set(item.view.id, item);
 
     const { noeud } = construireLesWares({
+      /* 🌕 la lune, en bas à gauche de Wares */
+      lune: luneDe("r"),
       categories: arbre.map((r) => ({ nom: r.label })),
       categorie: rayonWares,
       sousCategories: etageres.map((e) => ({ nom: e.label })),

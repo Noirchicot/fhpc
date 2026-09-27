@@ -548,3 +548,18 @@ export const EN_DEPOT_VOISIN = {
      dépôt (« Buy this item for — ? » mentirait). Proposé au rapport du lot 307. */
   "depot-voisin.sans-prix": "This item has no known price: tap it to open its sheet."
 };
+
+/* ══ 🌕 LA LUNE DU DOUBLE ÉCRAN — lot 307, 2026-09-27 ════════════════════
+   Eric : *« une lune qui propose un dropdown de choix d'écrans, une lune 30
+   diam »* ; le croquis `2026-09-27-double-screen-option.jpg` écrit
+   « Backpack · Cart · Forge · Equipment » et « BACK TO ONE SCREEN ».
+   ⭐ `Cart` = le Tally (le panier de Wares). ⛔ La Forge (X5) n'est pas offerte :
+   elle ne s'ouvre pas sans un plan. ⏳ La liste est à ratifier par Eric. */
+export const EN_LUNE = {
+  "lune.titre": "Second screen",
+  "lune.gear": "Gear",
+  "lune.sac": "Backpack",
+  "lune.r": "Wares",
+  "lune.b2": "Tally",
+  "lune.un-ecran": "Back to one screen"
+};

@@ -35,10 +35,7 @@
   "rendu_h": 290.0
  },
  "lunes_y": [
-  119,
-  163,
-  207,
-  251
+  119
  ],
  "boites": [
   {
@@ -334,36 +331,9 @@
    "sorte": "rond"
   },
   {
-   "nom": "lune Backpack",
+   "nom": "LUNE",
    "x": 4,
    "y": 119,
-   "l": 30,
-   "h": 30,
-   "cible": 44,
-   "sorte": "lune"
-  },
-  {
-   "nom": "lune Tally",
-   "x": 4,
-   "y": 163,
-   "l": 30,
-   "h": 30,
-   "cible": 44,
-   "sorte": "lune"
-  },
-  {
-   "nom": "lune Craft",
-   "x": 4,
-   "y": 207,
-   "l": 30,
-   "h": 30,
-   "cible": 44,
-   "sorte": "lune"
-  },
-  {
-   "nom": "lune Wares",
-   "x": 4,
-   "y": 251,
    "l": 30,
    "h": 30,
    "cible": 44,

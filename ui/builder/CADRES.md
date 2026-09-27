@@ -195,7 +195,7 @@ deux rangs, sa cote déduite, le chevron et son bout de course, les deux bouts
 
 ### 🪟 LA LARGEUR DU DOUBLE ÉCRAN — deux colonnes de 375, une gouttière de 8
 📍 `cadre-double-ecran-largeur` · vivante · 27/09 · lot 307
-⚖️ **Deux pages côte à côte demandent une fenêtre d'au moins 758 × 560 px — `375 × 2 + 8` de large, 560 de haut, à l'échelle 1. Au-dessous, une seule page, et rien ne change.**
+⚖️ **Deux pages côte à côte demandent une fenêtre d'au moins 758 × 560 px — `375 × 2 + 8` de large, 560 de haut, à l'échelle 1. Au-dessous, une seule page, et rien ne change. Au-dessus, elles ne s'ouvrent que sur COMMANDE — la lune de 30 (`equipement-double-ecran-lune`), qui n'existe elle-même qu'au-dessus.**
 
 ⭐ **LA LARGEUR SE DÉDUIT, ELLE NE S'ÉCRIT PAS** : `--panneau-l × 2 + --sp-8` (la gouttière de la
 maison), la formule de `.app` depuis le lot 120. ⛔ **Il n'y a qu'une porte** — `laPlaceDuDouble`
@@ -217,6 +217,9 @@ partagent, `regimeDeLaVue` (`double-ecran.mjs`) la reçoit et ne la recalcule pa
 | 1180 × 820 *(iPad Air couché)* | double | 549 |
 | 1366 × 1024 *(iPad Pro couché)* | double | 676 |
 | 1440 × 900 *(ordinateur)* | double | 603 |
+
+🔄 **AMENDÉ LE 27/09** : la colonne « régime » ci-dessous dit si le double écran PEUT s'ouvrir ; il ne
+s'ouvre plus d'office (Eric : *« Une commande pour ouvrir le double écran »*).
 
 ⚠️ **CE QUE LA LARGEUR SEULE NE DIT PAS** : Eric a répondu « iPad en paysage ET ordinateur ». Les
 iPad de 820 à 1024 de large passent aussi la porte **debout** — la règle est une largeur, pas une

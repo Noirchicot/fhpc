@@ -135,10 +135,10 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
          boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
-         pageActiveDeLEquipement } from "./equipment-step.mjs?v=848";
+         pageActiveDeLEquipement, pageVoisineDeLEquipement } from "./equipment-step.mjs?v=848";
 /* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
    pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
-import { regimeDeLaVue, coteDesPages } from "./double-ecran.mjs?v=848";
+import { regimeDeLaVue, pagesDuDoubleEcran } from "./double-ecran.mjs?v=848";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -2694,6 +2694,8 @@ function equipmentCtx() {
   /* 🪟 LOT 307 — la moitié d'écran de CE rendu, en double écran seulement. ⛔ En vue simple
      la clef n'existe pas : le ctx est celui d'avant, octet pour octet. */
   if (demiEcranEnCours) ctx.demiEcran = demiEcranEnCours;
+  /* 🌕 la LUNE ne se montre que si la place existe — ⛔ en dessous, la clef n'existe pas */
+  if (laPlaceExiste()) ctx.placeDuDouble = true;
   return ctx;
 }
 function surCompetences() {
@@ -6122,9 +6124,11 @@ function laPlaceExiste() {
   return laPlaceDuDouble(window.innerWidth, window.innerHeight, document.documentElement);
 }
 /* 🪟 LOT 307 — LE RÉGIME EST DEMANDÉ À L'ORGANE UNIQUE (`regimeDeLaVue`, double-ecran.mjs).
-   ⭐ La place (lot 120) et le réglage du joueur restent les deux mêmes questions ; ce qui
-   s'ajoute est l'étape : Equipment s'ouvre en DEUX PAGES dès que la place existe (Eric,
-   « c » : iPad couché ET ordinateur). ⛔ Sous la place, rien ne change — ni ici, ni ailleurs.
+   ⭐ La place (lot 120) et la COMMANDE du joueur restent les deux mêmes questions ; ce qui
+   s'ajoute est l'étape : Equipment s'ouvre en DEUX PAGES quand le double est commandé — par la
+   lune de l'Équipement, ou l'interrupteur `Double view` du Menu (une seule préférence).
+   ⛔ Plus d'ouverture d'office (Eric, 27/09 : « Une commande pour ouvrir le double écran »).
+   ⛔ Sous la place, rien ne change — ni ici, ni ailleurs.
    ⚠️ `etape` n'est donnée qu'une fois le moteur monté : l'Équipement en charge n'est qu'un
    « Loading… », et deux « Loading… » côte à côte ne diraient rien. */
 function regimeCourant() {
@@ -6178,9 +6182,10 @@ function activerPanneau(rang) {
 function peindreLaVue() {
   const { double, pages } = regimeCourant();
   document.documentElement.dataset.vue = double ? "double" : "simple";
-  /* 🪟 LOT 307 — EN DEUX PAGES, LES CÔTÉS VIENNENT DE LA PAGE ACTIVE (`coteDesPages`) : la page
-     d'où l'on prend à gauche, Gear à droite. ⛔ En vue simple ou en double d'étapes, rien. */
-  const cotes = pages ? coteDesPages(pageActiveDeLEquipement()) : null;
+  /* 🪟 LOT 307 — EN DEUX PAGES, LES CÔTÉS VIENNENT DE L'ORGANE (`pagesDuDoubleEcran`) : la page
+     que la lune a choisie à GAUCHE (la flèche ← du croquis), l'active à droite. ⛔ En vue simple
+     ou en double d'étapes, rien. */
+  const cotes = pages ? pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() }) : null;
   demiEcranEnCours = cotes ? { cote: cotes.active, page: null } : null;
   if (!double) {
     /* ⭐ EN VUE SIMPLE, L'ACTIF REDEVIENT LE PANNEAU 0 — sinon un joueur qui
@@ -6276,10 +6281,8 @@ function rendreLEcranDe(index) {
  *  (`demiEcranEnCours`), et le `finally` la rend — un rendu qui jetterait laisserait sinon la
  *  page active se croire voisine. */
 function rendreLaPageVoisine() {
-  const cotes = coteDesPages(pageActiveDeLEquipement());
-  const voisine = cotes.active === "gauche"
-    ? { cote: "droite", page: cotes.droite }
-    : { cote: "gauche", page: cotes.gauche };
+  const cotes = pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() });
+  const voisine = { cote: "gauche", page: cotes.gauche };
   const avant = demiEcranEnCours;
   demiEcranEnCours = voisine;
   try {
@@ -6341,7 +6344,12 @@ function refresh() {
  *  qu'on ne peut pas cliquer serait promettre un geste qui n'existe pas. */
 function peindreLePassif() {
   const passif = panneaux.find((p) => p !== frame);
-  if (!passif || passif.racine.hidden) return;
+  if (!passif || passif.racine.hidden) {
+    /* 🪟 LOT 307 — « Back to one screen » cache le panneau voisin : on n'y laisse pas une page
+       de l'Équipement qui se croirait encore une moitié d'écran. */
+    if (passif && passif.stage.querySelector("[data-demi-ecran]")) swapContent(passif.stage, []);
+    return;
+  }
   if (enDeuxPages()) {
     /* 🪟 LOT 307 — la page VOISINE de l'Équipement, pas le cran du panneau passif */
     swapContent(passif.stage, rendreLaPageVoisine());

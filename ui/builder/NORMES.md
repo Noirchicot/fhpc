@@ -4424,7 +4424,7 @@ tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien
 
 ### 🪟 DOUBLE ÉCRAN — UN DÉPÔT DANS LE COLLECTEUR VOISIN OUVRE UN POPUP
 📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · construite 27/09 (lot 307) · ⏳ Tally et Group Tally : pas de receveur
-⚖️ **En double écran, l'étape Equipment montre DEUX pages côte à côte ; déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait. Accepter = le geste qui existe déjà ; Cancel = rien ne bouge.**
+⚖️ **En double écran (ouvert sur COMMANDE, voir `equipement-double-ecran-lune`), l'étape Equipment montre DEUX pages côte à côte ; déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait. Accepter = le geste qui existe déjà ; Cancel = rien ne bouge.**
 
 > Eric, 2026-09-26, mot pour mot : **« Si on est en double screen le drop du token dans un collecteur
 > de la page voisine. Génère un popup. Varie en fonction »**.
@@ -4453,16 +4453,17 @@ le panier).
 
 | qui | ce qu'il décide |
 |---|---|
-| `regimeDeLaVue` (`double-ecran.mjs`) | ⭐ **QUAND** — la place (la porte du lot 120, `laPlaceDuDouble` : **758 × 560**, voir `CADRES.md`) ET l'étape Equipment ; ⛔ sous la place, rien ne change — mesuré : `.app` identique octet pour octet à `main` à 375 × 812 et 757 × 900 |
-| `coteDesPages` | ⭐ **OÙ** — la page d'où l'on prend à gauche, **Gear à droite** ; quand l'active EST Gear, le sac à gauche (proposition de l'architecte, à montrer à Eric) |
+| `regimeDeLaVue` (`double-ecran.mjs`) | ⭐ **QUAND** — la place (la porte du lot 120, `laPlaceDuDouble` : **758 × 560**, voir `CADRES.md`) ET la COMMANDE (`vueDoubleVoulue` : la lune, ou l'interrupteur du Menu) ; ⛔ sous la place, rien ne change |
+| `pagesDuDoubleEcran` | ⭐ **OÙ** — la page choisie par la lune À GAUCHE (la flèche ← du croquis du 27/09), l'active à droite ; sans choix, la voisine est Gear (le sac quand l'active est Gear) |
 | `popupDuDepotVoisin` + `EN_DEPOT_VOISIN` (`src/labels.mjs`) | ⭐ **QUEL POPUP** — le texte, les boutons, ou `null` quand le cas est désactivé |
 | `glisser.mjs` (`estUnCreneauVoisin`) | ⛔ un créneau de l'autre moitié (`data-demi-ecran`) n'atteint **jamais** `onDepot` ; il n'est une cible que s'il se déclare receveur (`data-recoit-voisin`) et que le jeton porte `onDepotVoisin` |
 
-⚖️ **AU-DESSUS DE LA PLACE, L'ÉTAPE S'OUVRE EN DEUX PAGES D'OFFICE**, sans le réglage `Double view` :
-c'est le « c » d'Eric (iPad couché ET ordinateur) et sa *« proposition de passage en affichage double
-d'office »*. Les autres étapes gardent la loi du lot 120 (deux panneaux si le joueur les demande).
+~~⚖️ **AU-DESSUS DE LA PLACE, L'ÉTAPE S'OUVRE EN DEUX PAGES D'OFFICE**~~ — ⛔ **RETIRÉ LE 27/09** : Eric,
+devant les captures, *« Une commande pour ouvrir le double écran »*. Le double écran ne s'ouvre plus
+que sur commande (`equipement-double-ecran-lune`).
 Les deux panneaux sont **deux vrais écrans**, vivants tous les deux (aucun `inert`), un seul belt :
-il nomme la page active.
+il nomme la page active (à droite). ⭐ **La page voisine se navigue elle-même** : un geste fait à
+gauche change la gauche.
 
 ⛔ **CE QUI N'EXISTE PAS, ET N'EST PAS INVENTÉ** *(mesuré le 27/09)* :
 · **le Tally (X3) n'a aucun collecteur** — c'est une liste de lignes, sans jeton ni `data-creneau` : il
@@ -4476,7 +4477,40 @@ il nomme la page active.
 · le statut *Buying* de X5 n'a pas de texte ratifié : il prend celui de l'achat (« Buy this item for
   … GP? ») — ⏳ à confirmer par Eric.
 
-🛡️ `tests/double-ecran.test.mjs` (14 cas, 13 mutations vues rouges, source restaurée par empreinte).
+🛡️ `tests/double-ecran.test.mjs` (20 cas, 18 mutations vues rouges, source restaurée par empreinte).
+
+---
+
+### 🌕 LA LUNE — LA COMMANDE DU DOUBLE ÉCRAN
+📍 `equipement-double-ecran-lune` · vivante · 27/09 · lot 307 · ⏳ liste des écrans à ratifier
+⚖️ **Le double écran de l'Équipement s'ouvre sur COMMANDE : une lune de 30 de diamètre, qui déroule un menu des écrans. Choisir un écran le pose dans le panneau de GAUCHE ; « Back to one screen » referme. Sans la place du double (758 × 560), la lune n'existe pas.**
+
+> Eric, 2026-09-27, mot pour mot : **« Une commande pour ouvrir le double écran. À l'époque je voulais
+> une lune par option. Là je pense à une lune qui propose un dropdown de choix d'écrans, une lune 30
+> diam. »** — et **« Un travail partiel a déjà été fait »** (la vue double du lot 120).
+> Où : **« À gauche dans gear »** · **« En bas à gauche dans wares, il faut déplacer encumbrance sous
+> purse, et déplacer les Tally plus bas, pour faire de la place »** · **« idem dans backpack »**.
+> 🖼️ Croquis qui FAIT FOI : `fh-phb/croquis/2026-09-27-double-screen-option.jpg` (copie vault
+> `FH-WEB/FHPC/Croquis/`) — une colonne de lunes à gauche de Gear (Backpack · Cart · Forge ·
+> Equipment, chacune avec sa flèche ←), la lune « Backpack » au-dessus du panneau de gauche, un bouton
+> « BACK TO ONE SCREEN » en haut.
+
+| | |
+|---|---|
+| **l'organe** | un `<select>` natif habillé en pleine lune (`--astre-pleine-lune`) : il s'ouvre au doigt comme à la souris, iOS le rend dans son propre menu. **Dessin 30, cible 44**, la boîte vient du plan de chaque écran (`LUNE`, `grandEcran: true`) |
+| **où** | Gear : la colonne de gauche (la place de la première des quatre lunes d'avant) · Wares : en haut de la cellule gauche du pied · Backpack : en bas à gauche, dans l'espace du collecteur |
+| **ce qu'elle propose** | ⏳ Gear · Backpack · Wares · Tally (*« Cart »* = le Tally), **sauf l'écran où l'on est** et, en double, celui d'en face. ⛔ **La Forge (X5) n'est pas offerte** : elle ne s'ouvre pas sans un plan |
+| **la commande** | la MÊME préférence que l'interrupteur `Double view` du Menu (`vueDoubleVoulue`, verbe `vueBascule`) — ⛔ jamais une seconde |
+| **en double** | la lune de la page VOISINE porte le nom de ce qu'elle montre (la lune « Backpack » du croquis) et permet d'en changer ; **« Back to one screen » est le dernier choix du menu** — ⚠️ le croquis le dessine au-dessus du belt, où le belt déroulé du double ne laisse aucune place |
+
+⚖️ **LES PIEDS FONT LA PLACE** : Wares — l'encombrement passe SOUS la bourse (deux lignes de 14 : il
+passait sous le dropdown « Backpack », défaut relevé sur `main`), les Tally descendent sous la lune ;
+Backpack — les Tally descendent sur la rangée du dropdown, la lune prend leur place. ⭐ Le rang de la
+lune est réservé MÊME SANS ELLE : sur un téléphone il reste vide, la forme de l'écran ne dépend pas de
+ce qu'on y pose. ⚠️ Le Backpack n'a pas d'encombrement dans son pied (il vit en tête, avec les quatre
+lignes de poids) : il ne bouge pas.
+
+🛡️ `tests/double-ecran.test.mjs` 2, 3, 3 bis, 15–18 bis · `gear-ecran.test.mjs` 5 · `sac-ecran.test.mjs` 9.
 
 ---
 

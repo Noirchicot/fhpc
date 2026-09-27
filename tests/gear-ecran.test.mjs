@@ -141,9 +141,7 @@ test("3 — chaque organe posé a une clef, chaque clef est unique, et les empla
         clefs.push(CLEF_DE[o.nom]);
         continue;
       }
-      assert.equal(o.sorte, "lune", `${o.nom} : hors création, seules les lunes n'ont pas de clef`);
-      assert.equal(CLEF_DE[o.nom], undefined, `${o.nom} ne doit pas être posée`);
-      continue;
+      assert.fail(`${o.nom} : hors création sans être le Group Tally`);
     }
     assert.ok(CLEF_DE[o.nom], `« ${o.nom} » n'a pas de clef`);
     clefs.push(CLEF_DE[o.nom]);
@@ -239,15 +237,23 @@ function rendu(options) {
 }
 const tous = (n, sel) => [...n.querySelectorAll(sel)];
 
-test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lunes", () => {
+test("5 — l'écran rend chaque organe posé du plan, une fois — et la lune seulement sur grand écran", () => {
   const n = rendu({});
   const ids = tous(n, "[data-organe]").map((e) => e.dataset.organe);
-  const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond").map((o) => CLEF_DE[o.nom]);
+  /* 🌕 LOT 307 — la lune (`grandEcran`) n'est posée que si l'étape la donne */
+  const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond" && o.grandEcran !== true).map((o) => CLEF_DE[o.nom]);
   /* le montant : de la table s'il y est, déduit de PURSE sinon — dans les deux cas rendu une fois */
   if (!ORGANES.some((o) => o.nom === "MONTANT")) attendus.push("montant");
   attendus.push("party-tally");   /* posé bien que `creation: false` : son voile dit qu'il est vide */
   assert.deepEqual(ids.sort(), attendus.sort());
-  assert.equal(ORGANES.filter((o) => o.creation === false).length, 5, "les quatre lunes et le Party Tally sont au plan, hors création");
+  assert.equal(ORGANES.filter((o) => o.creation === false).length, 1, "le Party Tally est au plan, hors création");
+  /* 🌕 LOT 307 — UNE lune (Eric, 27/09 : « une lune qui propose un dropdown »), à gauche */
+  const lunes = ORGANES.filter((o) => o.sorte === "lune");
+  assert.equal(lunes.length, 1);
+  assert.equal(lunes[0].grandEcran, true);
+  assert.equal(n.querySelector('[data-organe="lune"]'), null, "sans la place : pas de lune");
+  const sonde = document.createElement("select"); sonde.dataset.organe = "lune";
+  assert.equal(rendu({ lune: sonde }).querySelector('[data-organe="lune"]'), sonde, "avec : posée");
   /* ⚖️ LE GROUP TALLY EST TOUJOURS POSÉ, ET C'EST LE VOILE QUI DIT SON ÉTAT — Eric,
      16/09 au soir : *« tu l'as pas mis »*. Il avait raison : rien n'alimente encore
      `compteParty`, donc « conditionnel » voulait dire « jamais », et une place

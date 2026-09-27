@@ -64,6 +64,8 @@ export const CHAMPS_DE_SECTION = Object.freeze(["nom", "fige", "renommable", "pa
  *  une clef est un contrat entre la table, la feuille et le garde. */
 export const CLEF_DE = Object.freeze({
   "ROUE": "roue", "TUNER G": "tuner-g", "TUNER D": "tuner-d",
+  /* 🌕 LOT 307 — la lune du double écran, en bas à gauche (Eric, 27/09 : « idem dans backpack ») */
+  "LUNE": "lune",
   /* ⭐ UNE LOUPE, PLUS CINQ CRANS — Eric, 20/09 : la roue est devenue un DÉFILEUR, donc
      les crans ne sont plus des places posées ; ils glissent. Ce qui reste au plan est
      le halo fixe sous lequel ils passent. */
@@ -1642,6 +1644,9 @@ export function construireLeSac(options = {}) {
   s.addEventListener("change", () => options.surDestination && options.surDestination(s.value));
   envoi.append(s);
   noeud.append(envoi);
+  /* 🌕 LOT 307 — LA LUNE, fabriquée par l'étape (`construireLaLune`), posée à sa place du plan.
+     ⛔ Sans la place du double écran l'étape n'en donne pas : le sac est celui d'avant. */
+  if (options.lune) noeud.append(options.lune);
 
   /* ⚖️ LA BARRE DU BAS EST CELLE DE R, ORGANE COMPRIS — Eric, 18/09 : *« et ici on
      veut le livre et le ? »*, puis *« ce sont des petits boutons »*.

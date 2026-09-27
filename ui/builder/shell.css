@@ -13566,3 +13566,30 @@ select.x5-drop {
 .x5-note-scribing { font-weight: 600; color: var(--x1-oxblood); }
 .x5-note-total { color: var(--info); }
 .x5-note-refus { font-style: italic; color: var(--x1-etat-encre); }
+
+/* ══ 🌕 LA LUNE DU DOUBLE ÉCRAN — lot 307, 2026-09-27 ══════════════════════════════
+   Eric : *« une lune qui propose un dropdown de choix d'écrans, une lune 30 diam »* — croquis
+   `2026-09-27-double-screen-option.jpg`. ⭐ C'est un `<select>` natif habillé en astre : sa
+   BOÎTE est la cible (44) que la feuille de chaque écran pose depuis son plan, avec les bords
+   transparents qui creusent le DESSIN (30). ⛔ Aucune cote ici — seulement l'habit.
+   ⭐ Le mot écrit sur l'astre est l'option choisie : vide sur la lune d'un écran seul, le nom de
+   l'écran sur la lune de la page VOISINE (la lune « Backpack » du croquis). L'encre est FIXE,
+   comme celle des astres du belt : une pleine lune est claire de jour comme de nuit. */
+.lune-ecrans {
+  appearance: none; -webkit-appearance: none;
+  margin: 0; padding: 0;
+  border: 0 solid transparent; border-radius: 50%;
+  background: var(--astre-pleine-lune) no-repeat center / contain;
+  background-clip: padding-box; background-origin: padding-box;
+  color: var(--astre-encre-soleil);
+  /* ⚠️ LE MOT LE PLUS LONG (« Backpack ») DOIT TENIR DANS LE DESSIN DE 30 : à `--t0` (8) il en
+     demande 36. Les trois quarts de `--t0` le font tenir — ⏳ lisible au pouce ? à regarder avec
+     Eric sur l'iPad (dit au rapport du lot 307). */
+  font: inherit; font-size: calc(var(--t0) * 0.75); font-weight: 700; line-height: 1;
+  text-align: center; text-align-last: center;
+  cursor: pointer; overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.lune-ecrans:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
+/* la liste que le navigateur déroule : l'encre du système, lisible dans les deux thèmes */
+.lune-ecrans option { color: CanvasText; background: Canvas; font-size: var(--t1); }

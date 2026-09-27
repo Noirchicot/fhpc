@@ -317,7 +317,9 @@ test("15 · 🔴 chaque organe du plan est posé, et chaque organe posé est au 
      le marque `coquille: true`, donc le garde le sait sans qu'on lui écrive un nom en dur.
      ⭐ C'est ce qui distingue une exception NOMMÉE d'une liste d'exceptions par nom : celle-ci
      vit dans la donnée, et elle ne peut pas devenir incomplète en silence. */
-  const dus = D.ORGANES.filter((o) => o.coquille !== true).map((o) => D.CLEF_DE[o.nom]);
+  /* 🌕 LOT 307 — la lune (`grandEcran`) n'est posée que si l'étape la donne : ⛔ pas due ici,
+     et le cas « avec » est tenu par `double-ecran.test.mjs`. */
+  const dus = D.ORGANES.filter((o) => o.coquille !== true && o.grandEcran !== true).map((o) => D.CLEF_DE[o.nom]);
   const manquants = dus.filter((c) => !poses.has(c));
   assert.deepEqual(manquants, [],
     `⛔ le plan les déclare et l'écran ne les pose pas : ${manquants.join(", ")}`);

@@ -36,11 +36,13 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (p) => stripComments(fs.readFileSync(path.join(ROOT, p), "utf8"));
 
 const {
-  regimeDeLaVue, coteDesPages, popupDuDepotVoisin, genreDeLaCible, motDuMontant,
-  LE_TALLY_PORTE_UN_OBJET_CRAFTE, VUES_TALLY, PAGE_DU_CORPS
+  regimeDeLaVue, pagesDuDoubleEcran, choixDeLaLune, popupDuDepotVoisin, genreDeLaCible, motDuMontant,
+  LE_TALLY_PORTE_UN_OBJET_CRAFTE, VUES_TALLY, UN_SEUL_ECRAN
 } = await import("../ui/builder/double-ecran.mjs");
-const { renderEquipmentStep, butinDuDepart, appliquerLeButin, departRepondu } =
-  await import("../ui/builder/equipment-step.mjs");
+const { renderEquipmentStep, butinDuDepart, appliquerLeButin, departRepondu, pageVoisineDeLEquipement,
+  pageActiveDeLEquipement } = await import("../ui/builder/equipment-step.mjs");
+const W = await import("../ui/builder/wares-disposition.mjs");
+const SAC = await import("../ui/builder/sac-disposition.mjs");
 const { currentCartLines } = await import("../ui/builder/equipement-pipeline.mjs");
 const { estUnCreneauVoisin, armerJeton } = await import("../ui/builder/glisser.mjs");
 const { EN_DEPOT_VOISIN } = await import("../src/labels.mjs");
@@ -82,8 +84,8 @@ const cliquer = (n) => n.dispatchEvent({ type: "click", target: n, detail: 1 });
 const choisir = (select, valeur) => { select.value = valeur; select.dispatchEvent({ type: "change", target: select }); };
 const popups = (acts) => acts.filter((a) => a.kind === "popup" && a.texte);
 
-/* ══ 1 — QUAND : sous la place, rien ; au-dessus, l'étape s'ouvre en deux pages ═════ */
-test("1 — 🔴 SOUS LA PLACE, UNE SEULE PAGE — ni le réglage ni l'étape ne rouvrent un second panneau", () => {
+/* ══ 1 — QUAND : sans place, rien ; sans COMMANDE, rien non plus (27/09) ═════════════ */
+test("1 — 🔴 SOUS LA PLACE, UNE SEULE PAGE — ni la commande ni l'étape ne rouvrent un second panneau", () => {
   for (const voulue of [false, true]) {
     for (const etape of ["equipment", "class", null]) {
       assert.deepEqual(regimeDeLaVue({ place: false, voulue, etape }), { double: false, pages: false },
@@ -92,21 +94,38 @@ test("1 — 🔴 SOUS LA PLACE, UNE SEULE PAGE — ni le réglage ni l'étape ne
   }
 });
 
-test("2 — ⭐ AU-DESSUS : Equipment s'ouvre en DEUX PAGES d'office ; les autres étapes gardent la loi du lot 120", () => {
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment" }), { double: true, pages: true },
-    "« c » : iPad couché ET ordinateur — sans attendre le réglage");
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "equipment" }), { double: true, pages: true });
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "class" }), { double: false, pages: false },
-    "⛔ une autre étape ne s'ouvre pas en deux d'office");
+test("2 — ⛔ PAS DE DOUBLE ÉCRAN SANS COMMANDE — Eric, 27/09 : « Une commande pour ouvrir le double écran »", () => {
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment" }), { double: false, pages: false },
+    "⛔ la place seule n'ouvre plus rien");
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "equipment" }), { double: true, pages: true },
+    "commandé (la lune, ou l'interrupteur du Menu) : deux pages");
   assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "class" }), { double: true, pages: false },
     "le double d'étapes du lot 120 est intact");
+  const shell = lire("ui/builder/shell.mjs");
+  assert.match(shell, /regimeDeLaVue\(\{ place: laPlaceExiste\(\), voulue: vueDoubleVoulue\(\),/,
+    "la commande est la préférence unique du lot 120 — la lune et le Menu écrivent la même");
 });
 
-test("3 — 🪟 GEAR À DROITE, la page d'où l'on prend à gauche ; quand l'active EST Gear, le sac à gauche", () => {
-  for (const vue of ["r", "x5", "x1", "x2", "b2", "sb32", "sac", "recherche", "x1-apercu"]) {
-    assert.deepEqual(coteDesPages(vue), { gauche: vue, droite: PAGE_DU_CORPS, active: "gauche" }, vue);
-  }
-  assert.deepEqual(coteDesPages("gear"), { gauche: "sac", droite: "gear", active: "droite" });
+test("3 — 🪟 LA PAGE CHOISIE À GAUCHE (la flèche ← du croquis), l'active à droite ; jamais deux fois la même", () => {
+  assert.deepEqual(pagesDuDoubleEcran({ active: "gear", voisine: "sac" }), { gauche: "sac", droite: "gear", active: "droite" });
+  assert.deepEqual(pagesDuDoubleEcran({ active: "r", voisine: "gear" }), { gauche: "gear", droite: "r", active: "droite" });
+  assert.deepEqual(pagesDuDoubleEcran({ active: "gear", voisine: null }), { gauche: "sac", droite: "gear", active: "droite" },
+    "l'interrupteur du Menu, sans choix : le défaut");
+  assert.deepEqual(pagesDuDoubleEcran({ active: "gear", voisine: "gear" }), { gauche: "sac", droite: "gear", active: "droite" },
+    "⛔ une voisine égale à l'active cède au défaut");
+  assert.deepEqual(pagesDuDoubleEcran({ active: "x5", voisine: null }).gauche, "gear");
+});
+
+test("3 bis — 🌕 CE QUE LA LUNE PROPOSE : Gear · Backpack · Wares · Tally, sauf l'écran où l'on est — et « Back to one screen » en double", () => {
+  const v = (o) => choixDeLaLune(o).map((c) => c.valeur);
+  assert.deepEqual(v({ page: "gear" }), ["sac", "r", "b2"]);
+  assert.deepEqual(v({ page: "r" }), ["gear", "sac", "b2"]);
+  assert.deepEqual(v({ page: "sac" }), ["gear", "r", "b2"]);
+  assert.deepEqual(v({ page: "sac", autre: "gear", enDouble: true }), ["r", "b2", UN_SEUL_ECRAN],
+    "en double : ni soi ni l'écran d'en face, et le retour à un écran en dernier");
+  assert.deepEqual(choixDeLaLune({ page: "gear" }).map((c) => c.mot), ["Backpack", "Wares", "Tally"]);
+  assert.equal(choixDeLaLune({ page: "gear", enDouble: true }).at(-1).mot, "Back to one screen");
+  assert.ok(!v({ page: "gear" }).includes("x5"), "⛔ la Forge ne s'ouvre pas seule : il lui faut un plan");
 });
 
 test("4 — ⚖️ LA COQUILLE DEMANDE À L'ORGANE UNIQUE — la place reste `laPlaceDuDouble`, jamais une seconde porte", () => {
@@ -114,8 +133,9 @@ test("4 — ⚖️ LA COQUILLE DEMANDE À L'ORGANE UNIQUE — la place reste `la
   assert.match(shell, /regimeDeLaVue\(\{ place: laPlaceExiste\(\)/, "la place vient de la porte du lot 120");
   assert.equal((shell.match(/regimeDeLaVue\(/g) || []).length, 1, "⛔ un seul appel : un seul régime");
   assert.ok(!/innerWidth\s*[<>]=?\s*\d/.test(shell), "⛔ aucune largeur écrite en dur dans la coquille");
-  /* le ctx de l'étape ne grandit QUE en double écran */
+  /* le ctx de l'étape ne grandit QUE en double écran, et la lune QUE si la place existe */
   assert.match(shell, /if \(demiEcranEnCours\) ctx\.demiEcran = demiEcranEnCours;/);
+  assert.match(shell, /if \(laPlaceExiste\(\)\) ctx\.placeDuDouble = true;/);
   /* la question du dépôt voyage jusqu'au popup : `exigeUneReponse` n'est plus jeté */
   assert.match(shell, /exigeUneReponse: action\.exigeUneReponse === true/);
 });
@@ -125,9 +145,10 @@ test("5 — 🔴 SANS MOITIÉ D'ÉCRAN, L'ÉTAPE N'ÉCRIT AUCUN ATTRIBUT NEUF et
   const acts = [];
   const doc = personnage();
   const gear = moitie(doc, undefined, acts);
-  const neufs = ["data-demi-ecran", "data-vue-equipement", "data-recoit-voisin"];
+  const neufs = ["data-demi-ecran", "data-vue-equipement", "data-recoit-voisin", "data-voisine"];
   const porteurs = (n) => [n, ...n.querySelectorAll("*")].filter((e) => neufs.some((a) => e.hasAttribute(a)));
   assert.equal(porteurs(gear).length, 0, "Gear en vue simple : aucun attribut du double écran");
+  assert.equal(gear.querySelector('[data-organe="lune"]'), null, "⛔ sans la place : pas de lune");
   /* ⭐ ET LE GESTE : sans moitié, `estUnCreneauVoisin` ne voit jamais de voisin */
   const a = document.createElement("div"); const b = document.createElement("div");
   assert.equal(estUnCreneauVoisin(a, b), false);
@@ -254,17 +275,18 @@ test("10 — 🧺 LA MÊME PAGE GARDE SON GESTE : un jeton de Wares sur le colle
 /* ══ 11 — X5 → GEAR : Crafting, Found — le MÊME Send que le bouton ═════════════════ */
 /** Ouvre X5 sur `Armor, +1…` depuis Wares, bonus +1, au statut voulu. Rend la moitié gauche. */
 function versX5(doc, acts, statut, envoiVers = null) {
-  const g = { cote: "gauche", page: null };
-  /* par la loupe de Wares (la recherche) : le tambour, lui, choisit au REPOS d'un défilement,
-     ce qu'un stub sans mise en page ne sait pas faire */
+  /* ⭐ LA FICHE S'OUVRE DANS LA MOITIÉ OÙ L'ON A TAPÉ : la loupe de Wares est rendue comme page
+     VOISINE (à gauche), le plan y ouvre X5 — la moitié voisine se navigue elle-même.
+     (Par la recherche : le tambour choisit au REPOS d'un défilement, qu'un stub ne sait pas faire.) */
   let gauche = moitie(doc, { cote: "gauche", page: "recherche" }, acts);
   const champ = gauche.querySelector("input");
   champ.value = "Armor, +1"; champ.dispatchEvent({ type: "input", target: champ });
   const plan = gauche.querySelectorAll("button").find((b) => (b.getAttribute("aria-label") || "") === "Open Armor, +1, +2, or +3");
   assert.ok(plan, "la recherche trouve le plan");
   cliquer(plan);
+  assert.equal(pageVoisineDeLEquipement(), "x5", "le plan mène à X5, dans la moitié voisine");
+  const g = { cote: "gauche", page: "x5" };
   gauche = moitie(doc, g, acts);
-  assert.equal(gauche.dataset.vueEquipement, "x5", "le plan mène à X5");
   const bonus = gauche.querySelector('select[data-organe="BONUS"]');
   choisir(bonus, bonus.querySelectorAll("option").map((o) => o.value).find(Boolean));
   if (statut) { gauche = moitie(doc, g, acts); choisir(gauche.querySelector('select[data-organe="STATUS"]'), statut); }
@@ -280,7 +302,7 @@ test("11 — ⚒️ X5 CRAFTING LÂCHÉ SUR GEAR : « Craft this item for … GP
   assert.equal(send.disabled, false, "Send est armé (bonus +1, bourse riche)");
   const n0 = parBouton.length;
   /* le bouton, sur une moitié qui écrit dans `parBouton` */
-  const gBouton = moitie(doc, { cote: "gauche", page: null }, parBouton);
+  const gBouton = moitie(doc, { cote: "gauche", page: "x5" }, parBouton);
   cliquer(gBouton.querySelector('[data-organe="SEND"]'));
   const envoiBouton = parBouton.slice(n0).filter((a) => a.kind !== "fenetre" && a.kind !== "equipementRedessiner");
 
@@ -340,4 +362,110 @@ test("14 — ⛔ LE JETON DE X5 N'EST GLISSABLE QU'EN DOUBLE ÉCRAN — en vue s
   assert.match(etape, /surDepotVoisin: demi \? \(\{ envoi, cible \}\) =>/, "X5 ne reçoit l'option qu'en double écran");
   assert.match(etape, /surDepotVoisin: demi \? \(ref, cible\) =>/, "Wares non plus");
   assert.match(etape, /recoitVoisin: Boolean\(demi\)/, "le collecteur de Gear non plus");
+});
+
+/* ══ 15 — LA LUNE, DANS LES TROIS PAGES ═════════════════════════════════════════════
+   ⚖️ Eric, 27/09 : *« une lune qui propose un dropdown de choix d'écrans, une lune 30 diam »* ·
+   *« À gauche dans gear »* · *« En bas à gauche dans wares »* · *« idem dans backpack »*. */
+const porte = (racine, mot) => racine.querySelectorAll("button").find((b) => b.textContent.trim() === mot);
+/** L'étape en vue simple, sur Gear, avec ou sans la place du double. */
+function seule(doc, acts, place) {
+  const ctx = { document: doc, resolved: null, query, search: true };
+  if (place) ctx.placeDuDouble = true;
+  let n = renderEquipmentStep(ctx, (a) => acts.push(a));
+  /* on se remet sur Gear si un test précédent a laissé une autre vue active */
+  if (pageActiveDeLEquipement() !== "gear") {
+    const g = porte(n, "Gear");
+    if (g) cliquer(g);
+    n = renderEquipmentStep(ctx, (a) => acts.push(a));
+  }
+  return { n, ctx, rendre: () => renderEquipmentStep(ctx, (a) => acts.push(a)) };
+}
+
+test("15 — 🌕 LA LUNE ABSENTE SANS LA PLACE, présente avec — dans Gear, Wares et le Backpack", () => {
+  const doc = personnage();
+  for (const place of [false, true]) {
+    const acts = [];
+    const { n, rendre } = seule(doc, acts, place);
+    assert.equal(pageActiveDeLEquipement(), "gear");
+    const compte = (x) => x.querySelectorAll('[data-organe="lune"]').length;
+    assert.equal(compte(n), place ? 1 : 0, `Gear, place=${place}`);
+    cliquer(porte(n, "Wares"));
+    const wares = rendre();
+    assert.equal(pageActiveDeLEquipement(), "r");
+    assert.equal(compte(wares), place ? 1 : 0, `Wares, place=${place}`);
+    cliquer(porte(wares, "Backpack"));
+    const sac = rendre();
+    assert.equal(pageActiveDeLEquipement(), "sac");
+    assert.equal(compte(sac), place ? 1 : 0, `Backpack, place=${place}`);
+    cliquer(porte(sac, "Gear"));
+  }
+});
+
+test("16 — 🌕 CHOISIR « Backpack » DANS LA LUNE DE GEAR ouvre Backpack | Gear, par la commande du Menu", () => {
+  const doc = personnage();
+  const acts = [];
+  const { n } = seule(doc, acts, true);
+  const lune = n.querySelector('[data-organe="lune"]');
+  assert.equal(lune.tagName, "SELECT", "un menu déroulant natif — le doigt comme la souris");
+  const valeurs = lune.querySelectorAll("option").map((o) => o.value).filter(Boolean);
+  assert.deepEqual(valeurs, ["sac", "r", "b2"], "Gear n'est pas proposé depuis Gear");
+  choisir(lune, "sac");
+  assert.deepEqual(acts.at(-1), { kind: "vueBascule", value: true }, "le MÊME verbe que l'interrupteur du Menu");
+  assert.equal(pageVoisineDeLEquipement(), "sac");
+  assert.deepEqual(pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() }),
+    { gauche: "sac", droite: "gear", active: "droite" }, "Backpack | Gear");
+});
+
+test("17 — 🌕 « BACK TO ONE SCREEN » revient à un seul écran — et la lune voisine porte le nom de sa page", () => {
+  const doc = personnage();
+  const acts = [];
+  const voisine = renderEquipmentStep({ document: doc, resolved: null, query, search: true, placeDuDouble: true,
+    demiEcran: { cote: "gauche", page: "sac" } }, (a) => acts.push(a));
+  const lune = voisine.querySelector('[data-organe="lune"]');
+  const choisie = lune.querySelectorAll("option").find((o) => o.selected);
+  assert.equal(choisie && choisie.value, "sac", "la lune voisine montre « Backpack » — la lune du croquis");
+  assert.equal(choisie.textContent, "Backpack");
+  assert.match(lune.getAttribute("aria-label"), /Backpack$/);
+  const options = lune.querySelectorAll("option");
+  assert.equal(options.at(-1).textContent, "Back to one screen", "le dernier choix du menu");
+  choisir(lune, UN_SEUL_ECRAN);
+  assert.deepEqual(acts.at(-1), { kind: "vueBascule", value: false });
+  /* et la coquille, qui l'exécute, repasse à UN panneau : la commande éteinte, plus de double */
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment" }), { double: false, pages: false });
+});
+
+/* ══ 18 — LES PIEDS DE WARES ET DU SAC FONT LA PLACE À LA LUNE ═══════════════════════ */
+const secants = (a, b) => a.x < b.x + b.l && b.x < a.x + a.l && a.y < b.y + b.h && b.y < a.y + a.h;
+const boite = (o) => o.cible || o;
+
+test("18 — 📐 WARES : Encumbrance SOUS la bourse, les Tally plus bas, la lune en bas à gauche — sans chevauchement", () => {
+  const O = Object.fromEntries(W.ORGANES.map((o) => [o.nom, o]));
+  const { LUNE, PURSE, ENCOMBREMENT: ENC, TALLY, "PARTY TALLY": PARTY, "SEND VERS": ENVOI } = O;
+  assert.ok(ENC.y >= PURSE.y + PURSE.h, "l'encombrement est SOUS la bourse");
+  assert.ok(ENC.x <= PURSE.x && PURSE.x + PURSE.l <= ENC.x + ENC.l, "dans la colonne de la bourse");
+  assert.ok(LUNE.cible.y + LUNE.cible.h <= PARTY.cible.y && LUNE.cible.y + LUNE.cible.h <= TALLY.cible.y,
+    "les Tally sont descendus sous la lune");
+  assert.equal(LUNE.l, 30); assert.ok(LUNE.cible.l >= 44 && LUNE.cible.h >= 44);
+  assert.ok(ENC.x >= ENVOI.x + ENVOI.l, "⛔ l'encombrement ne passe plus sous le dropdown (le défaut vu sur main)");
+  const pied = W.ORGANES.filter((o) => o.dalle === "PIED" && !o.dans && o.nom !== "RANGEE" && o.coquille !== true);
+  for (let i = 0; i < pied.length; i += 1) {
+    for (const b of pied.slice(i + 1)) {
+      assert.ok(!secants(boite(pied[i]), boite(b)), `${pied[i].nom} chevauche ${b.nom}`);
+    }
+  }
+});
+
+test("18 bis — 📐 BACKPACK : la lune en bas à gauche, les Tally descendus — sans chevauchement, cibles ≥ 44", () => {
+  const O = Object.fromEntries(SAC.ORGANES.map((o) => [o.nom, o]));
+  const { LUNE, TALLY, "PARTY TALLY": PARTY, "SEND VERS": ENVOI, COLLECTEUR, PURSE, RANGEE } = O;
+  assert.ok(LUNE.cible.y + LUNE.cible.h <= PARTY.cible.y, "les Tally sont sous la lune");
+  assert.equal(TALLY.y, ENVOI.y, "⭐ ils sont descendus sur la rangée du dropdown, à sa gauche");
+  assert.ok(TALLY.x + TALLY.l < ENVOI.x, "sans le toucher");
+  const poses = [LUNE, TALLY, PARTY, ENVOI, COLLECTEUR, PURSE];
+  for (let i = 0; i < poses.length; i += 1) {
+    for (const b of poses.slice(i + 1)) assert.ok(!secants(boite(poses[i]), boite(b)), `${poses[i].nom} chevauche ${b.nom}`);
+    assert.ok(boite(poses[i]).l >= 44 && boite(poses[i]).h >= 44, `${poses[i].nom} : cible sous 44`);
+    assert.ok(boite(poses[i]).y + boite(poses[i]).h <= RANGEE.y, `${poses[i].nom} mord la rangée du bas`);
+  }
 });

@@ -34,6 +34,11 @@
    colonne x 0..44 reste VIDE et c'est voulu : elle leur est réservée par
    construction (les rangées L2..L4 commencent à x 49). ⛔ Un lot qui la
    remplirait prendrait la place des lunes.
+   🔄 AMENDÉ AU LOT 307 (27/09) — Eric : *« À l'époque je voulais une lune par option. Là je
+   pense à une lune qui propose un dropdown de choix d'écrans, une lune 30 diam »*, puis
+   *« À gauche dans gear »*. ⭐ Les quatre deviennent UNE (`LUNE`, `grandEcran: true`), à la
+   place de la première ; elle se pose quand la place du double écran existe, et l'étape la
+   fabrique. Le reste de la colonne reste vide.
 
    📌 CRÉATION OU JEU — la liste de ce que ce module reprend de `b3-*` /
    `equipment-step.mjs`, et la réponse (loi d'Eric, 15/09 : « à la création
@@ -96,7 +101,9 @@ export const CLEF_DE = Object.freeze({
   "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "PARTY TALLY": "party-tally",
   "COMPANIONS": "companions",
   "BACKPACK": "backpack", "SEND": "send", "WARES": "wares",
-  "livre": "livre", "?": "guide"
+  "livre": "livre", "?": "guide",
+  /* 🌕 LOT 307 — la lune du double écran (une seule, Eric 27/09) */
+  "LUNE": "lune"
 });
 
 /* Le MOT d'un emplacement — l'écriture du croquis (Eric, 15/09) sans son numéro :
@@ -285,16 +292,20 @@ export const BOURSE = Object.freeze({
   seuilK: 10000
 });
 
-export function feuilleDesCotes() {
+/** @param {{ grandEcran?: boolean }} [o] 🌕 LOT 307 — `false` : pas de règle pour la lune
+ *  (`grandEcran` au plan). ⭐ Sur un téléphone la lune n'existe pas, et sa règle non plus : la page
+ *  reste celle d'avant, octet pour octet. Par défaut la feuille est COMPLÈTE (le garde la relit). */
+export function feuilleDesCotes({ grandEcran = true } = {}) {
   const regles = [];
   const regle = (id, corps) => regles.push(`.gear > [data-organe="${id}"]{${corps}}`);
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
+    if (o.grandEcran === true && !grandEcran) continue;
     /* ⭐ LA COTE SE POSE POUR TOUT ORGANE QUI A UNE CLEF, MÊME HORS CRÉATION —
        et c'est voulu : le Group Tally n'apparaît qu'en jeu, mais le jour où il
        apparaît il doit être DÉJÀ à sa place, pas posé par une seconde règle
-       écrite ailleurs. ⛔ Les quatre lunes restent dehors sans condition de
-       `creation` : elles n'ont pas de clef du tout, et c'est `!id` qui les sort. */
+       écrite ailleurs. 🌕 La lune (lot 307) a une clef : sa cible se pose comme celle d'un bouton,
+       et c'est l'étape qui décide si elle existe. */
     if (!id || o.sorte === "porte" || o.sorte === "rond") continue;
     if (o.sorte === "jeton") {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))}`);
@@ -798,7 +809,7 @@ export function construireLEcranGear(options = {}) {
 
   const feuille = eld("style");
   feuille.setAttribute("data-fhpc", "gear");
-  feuille.textContent = feuilleDesCotes();
+  feuille.textContent = feuilleDesCotes({ grandEcran: Boolean(options.lune) });
   noeud.append(feuille);
 
   if (PANTIN) {
@@ -814,9 +825,8 @@ export function construireLEcranGear(options = {}) {
 
   for (const o of ORGANES) {
     const id = CLEF_DE[o.nom];
-    /* ⭐ UNE SEULE CONDITION, ET C'EST LA CLEF : les quatre lunes n'en ont pas
-       (elles sont d'un autre écran), donc elles sortent ici sans qu'on nomme
-       `creation`. Ce qui est hors création mais DE cet écran — le Group Tally —
+    /* ⭐ UNE SEULE CONDITION, ET C'EST LA CLEF : un organe sans clef n'est pas de cet
+       écran, et il sort ici sans qu'on nomme `creation`. Ce qui est hors création mais DE cet écran — le Group Tally —
        est posé plus bas par sa donnée, et par elle seule. */
     if (!id) continue;
     if (o.sorte === "jeton") {
@@ -828,6 +838,10 @@ export function construireLEcranGear(options = {}) {
       noeud.append(emplacement(o, id, pose && estCollecte(pose) ? null : pose, options));
     } else if (o.sorte === "voyant") {
       if (id === "montant") noeud.append(montantDeLaBourse(options));
+    } else if (o.sorte === "lune") {
+      /* 🌕 LOT 307 — LA LUNE EST FABRIQUÉE PAR L'ÉTAPE (`construireLaLune`), posée ici à sa place
+         du plan. ⛔ Sans la place du double écran l'étape n'en donne pas : rien ne se pose. */
+      if (options.lune) noeud.append(options.lune);
     } else if (o.sorte === "bouton") {
       if (id === "send-to") noeud.append(dropdown(id, options));
       else if (id === "purse") noeud.append(boutonPurse(id, options));
