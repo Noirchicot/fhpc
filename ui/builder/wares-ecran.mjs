@@ -570,6 +570,10 @@ function jeton(item, o) {
        `glisser.mjs` (`onDepot(cible.dataset.creneau)`), pas supposé. Mon premier jet attendait
        un élément et testait `cible.dataset.organe` : il n'aurait JAMAIS déposé, en silence. */
     onDepot: (creneau) => { if (creneau === CRENEAU_COLLECTEUR && o.surDepot) o.surDepot(item.ref); },
+    /* 🪟 LOT 307 — LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE (double écran) : l'écran ne
+       décide rien, il PUBLIE le geste — le pilote ouvre le popup d'achat. ⛔ Absent en vue
+       simple : `glisser.mjs` n'y voit alors aucune cible voisine. */
+    onDepotVoisin: o.surDepotVoisin ? (creneau, cible) => o.surDepotVoisin(item.ref, cible) : undefined,
   });
   return b;
 }

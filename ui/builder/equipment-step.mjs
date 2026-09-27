@@ -115,7 +115,9 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2 } from "./x2-ecran.mjs?v=848";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=848";
+/* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
+import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX } from "./double-ecran.mjs?v=848";
 import { construireX5 } from "./x5-ecran.mjs?v=848";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=848";
 import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=848";
@@ -3074,6 +3076,10 @@ export const EQUIPMENT_CATEGORIES = [
    position du tambour) : ils survivent aux re-rendus de la coquille, jamais
    au personnage — rien d'eux n'est une donnée. */
 let vueEquipement = "gear";
+/** 🪟 LOT 307 — LA PAGE ACTIVE, LUE PAR LA COQUILLE : c'est d'elle que `coteDesPages`
+ *  (double-ecran.mjs) déduit la page voisine et les côtés. ⛔ Une lecture, jamais une
+ *  écriture : la vue ne change que par les gestes de l'étape (`montrer`). */
+export function pageActiveDeLEquipement() { return vueEquipement; }
 let ficheEnCours = null;
 /* ⭐ LOT 262 — LA FICHE X5 OUVERTE : le plan d'où l'on vient et l'état des choix.
    ⛔ L'écran ne garde rien, il redessine : c'est ici que vit l'état, comme pour X2.
@@ -3626,6 +3632,15 @@ export function renderEquipmentStep(ctx, onAction) {
   const act = onAction || ctx.onAction || (() => {});
   const docu = ctx.document || null;
   const section = el("section", "equipment-step");
+  /* 🪟 LOT 307 — LA MOITIÉ D'ÉCRAN que ce rendu occupe, en double écran : `{ cote, page }`.
+     `page` IMPOSE la vue (la voisine) ; `null` rend la vue courante (l'active).
+     ⛔ EN VUE SIMPLE `ctx.demiEcran` N'ARRIVE PAS : aucun attribut, aucune option de plus —
+     le DOM est celui d'avant, octet pour octet (garde `double-ecran.test.mjs`). */
+  const demi = ctx.demiEcran && (ctx.demiEcran.cote === "gauche" || ctx.demiEcran.cote === "droite") ? ctx.demiEcran : null;
+  const vueDuRendu = () => (demi && demi.page) || vueEquipement;
+  if (demi) section.dataset.demiEcran = demi.cote;
+  /* le popup d'un dépôt voisin se ferme sans rien écrire (Cancel) */
+  const fermerLePopup = () => act({ kind: "popup", texte: null });
 
   const bourse = currentCurrency(docu);
   /* ⭐ LES RÉPONSES DU QCM VIVENT ICI, PAS AU MODULE ET PAS AU DOCUMENT.
@@ -3768,6 +3783,10 @@ export function renderEquipmentStep(ctx, onAction) {
     /* la branche écrit son mot au belt ; la coquille repeint (et `peindre` sert
        le cas où personne ne l'écoute — les bancs, les tests) */
     if (FENETRE_DE[vue]) act({ kind: "fenetre", mot: FENETRE_DE[vue] });
+    /* 🪟 LOT 307 — EN DOUBLE ÉCRAN, UNE FICHE X (qui n'écrit pas au belt) CHANGE AUSSI L'AUTRE
+       MOITIÉ : la page voisine et les côtés dépendent de la page active. Le repeint local ne
+       suffit plus — la coquille repeint les deux. ⛔ En vue simple, rien de neuf. */
+    else if (demi) act({ kind: "equipementRedessiner" });
     peindre();
   };
 
@@ -3823,7 +3842,9 @@ export function renderEquipmentStep(ctx, onAction) {
     montrer("x2");
   }
 
-  piloteEquipement = {
+  /* ⛔ LOT 307 — la page VOISINE (vue imposée) ne reprend pas le pilote : c'est la page
+     active qui le tient (le catalogue de R n'est jamais la voisine). */
+  if (!(demi && demi.page)) piloteEquipement = {
     ouvrirFiche(item) {
       const liste = [...itemsDeLaPage.values()].map(ficheItemAvec(cherche.valeur));
       ouvrirLObjet(liste, Math.max(0, liste.findIndex((f) => f.ref.id === item.view.id)));
@@ -3877,6 +3898,8 @@ export function renderEquipmentStep(ctx, onAction) {
       compteTally: cartCompte(docu),
       collecte: collecteEnvoi,
       destination: destinationEnvoi,
+      /* 🪟 LOT 307 — en double écran, le collecteur reçoit aussi la page voisine */
+      recoitVoisin: Boolean(demi),
       surPorte: (porte) => {
         /* 🔴 LA PORTE REVIENT SUR L'ANCIEN SAC — 18/09. Le nouveau (`sac`) a été
            branché puis DÉPLOYÉ alors qu'il n'était pas fini : dalle sans matière,
@@ -4639,6 +4662,29 @@ export function renderEquipmentStep(ctx, onAction) {
         const item = itemsDeLaPage.get(ref);
         if (item) act({ kind: "cartAdd", ref: { kind: item.kind, id: item.view.id } });
       },
+      /* 🪟 LOT 307 — LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE : le popup d'achat.
+         ⚖️ « Buy this item for 15 GP? » [Buy] [Cancel] — Buy est EXACTEMENT le geste de
+         `BUY` de X2 (`acheterUnObjet`) : même écrivain, même débit, même pose (le sac, le
+         défaut de X2). Le prix est celui que X2 lit (`ficheItemAvec`), ⛔ jamais recalculé.
+         Vers un Tally : « Add this item to the Tally… » [Add] — le geste « mettre au
+         panier », qui se paie au `Buy` du Tally. */
+      surDepotVoisin: demi ? (ref, cible) => {
+        const item = itemsDeLaPage.get(ref);
+        if (!item) return;
+        const f = ficheItemAvec(cherche.valeur)(item);
+        const moitie = cible && typeof cible.closest === "function" ? cible.closest("[data-demi-ecran]") : null;
+        const genre = genreDeLaCible(moitie ? moitie.dataset.vueEquipement : null);
+        if (genre === "corps" && !f.cout) { act({ kind: "popup", role: "gendarme", texte: MOT_SANS_PRIX }); return; }
+        const popup = popupDuDepotVoisin({ quoi: "achat", cible: genre, montant: f.cout, annuler: fermerLePopup,
+          accepter: genre === "tally"
+            ? () => act({ kind: "cartAdd", ref: f.ref })
+            : () => {
+              const refus = acheterUnObjet({ ref: f.ref, cout: f.cout, qte: 1, destination: "backpack",
+                payer: true, bourse, onAction: actAchat });
+              if (refus) act({ kind: "popup", role: "gendarme", texte: refus });
+            } });
+        if (popup) act(popup);
+      } : null,
     });
     return noeud;
   }
@@ -4929,7 +4975,33 @@ export function renderEquipmentStep(ctx, onAction) {
          site ne stocke rien (a). ⭐ Même chemin qu'un achat en X2 — `payer` puis
          `addGearLine` — et la ligne porte sa RECETTE (`src/build/objet-crafte.mjs`).
          ⛔ La bourse est vérifiée AVANT tout geste : rien n'est écrit à moitié. */
-      surEnvoyer: (e) => {
+      surEnvoyer: envoyerDepuisX5,
+      /* 🪟 LOT 307 — LE JETON LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE (double écran).
+         ⚖️ Crafting : « Craft this item for 2,001 GP? » [Craft & pay] · Found : « You found
+         this item. It goes to your backpack. » [OK] · Buying : l'achat. ⭐ Accepter est
+         EXACTEMENT `Craft & Send` (`envoyerDepuisX5`, la même fonction que le bouton) ; le
+         montant est `envoi.cout`, celui que `Send` débite. Found va au sac (le texte d'Eric le
+         dit) : sa destination est celle-là, ⛔ pas le `SEND TO` de la fiche. */
+      surDepotVoisin: demi ? ({ envoi, cible }) => {
+        const moitie = cible && typeof cible.closest === "function" ? cible.closest("[data-demi-ecran]") : null;
+        const trouve = envoi.status === "Found";
+        const popup = popupDuDepotVoisin({ quoi: "craft", statut: envoi.status,
+          cible: genreDeLaCible(moitie ? moitie.dataset.vueEquipement : null), montant: envoi.cout,
+          annuler: fermerLePopup,
+          accepter: () => envoyerDepuisX5(trouve ? { ...envoi, destination: "backpack" } : envoi) });
+        if (popup) act(popup);
+      } : null,
+    });
+    return noeud;
+  }
+
+  /* ⭐ LOT 265 — `SEND` : l'objet entre dans l'équipement du personnage — voir la note au
+     câblage de `construireX5`. 🪟 LOT 307 : une fonction NOMMÉE, parce que deux gestes la
+     déclenchent (le bouton `Craft & Send`, et le popup du dépôt voisin) — ⛔ jamais deux copies. */
+  function envoyerDepuisX5(e) {
+      if (!ficheX5) return;   /* ⛔ plus de fiche ouverte : il n'y a plus rien à envoyer */
+      /* le plan de la fiche, lu comme `construireX5Vue` le lit */
+      const plan = ficheX5.planRecord || cherche.record(ficheX5.plan);
         /* ⭐ LOT 285 — UN PARCHEMIN : la ligne pointe sur le PLAN (`Spell Scroll`) et porte la
            RÉFÉRENCE de son sort (`gear[N].spell`). Le coût de scribing se paie d'abord — ⛔ même
            porte que l'arme et la variante : la bourse d'abord, rien écrit à moitié. */
@@ -5006,9 +5078,6 @@ export function renderEquipmentStep(ctx, onAction) {
           } });
         ficheX5 = null;
         montrer("r");
-      },
-    });
-    return noeud;
   }
 
   /* ⭐ LA FICHE X1 D'APERÇU — le même organe que X1, en mode `apercu`. Son nom, son prix et
@@ -5149,7 +5218,10 @@ export function renderEquipmentStep(ctx, onAction) {
   }
 
   function peindre() {
-    swapContent(section, [construireVue(vueEquipement)]);
+    /* 🪟 LOT 307 — la moitié d'écran DIT la page qu'elle montre : c'est ce que le dépôt voisin
+       lit pour choisir son popup (Gear, ou un Tally). ⛔ Seulement en double écran. */
+    if (demi) section.dataset.vueEquipement = vueDuRendu();
+    swapContent(section, [construireVue(vueDuRendu())]);
     /* ⭐ ET LE RUBAN DE DALLES SE POSE ICI AUSSI — ⛔ pas « plutôt qu'à la coquille » : EN PLUS.
        Un changement de section repeint par ce chemin-ci, où la section est déjà montée ;
        un changement de vue passe par la coquille, qui reconstruit l'étape DÉTACHÉE avant
@@ -5167,7 +5239,9 @@ export function renderEquipmentStep(ctx, onAction) {
   /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
      deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un
      déplacement peignait dans un nœud détaché. */
-  repeindreLeSac = peindre;
+  /* 🪟 LOT 307 — en double écran, le sac peut être la page VOISINE : c'est alors elle qui
+     tient le repeint, pas la page active rendue avant elle. */
+  if (!(demi && demi.page) || demi.page === "sac") repeindreLeSac = peindre;
   peindre();
   return section;
 }

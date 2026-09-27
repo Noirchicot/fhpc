@@ -229,6 +229,29 @@ function creneauSous(x, y) {
   return cible && typeof cible.closest === "function" ? cible.closest("[data-creneau]") : null;
 }
 
+/* ══ 🪟 LA PAGE VOISINE — lot 307, 2026-09-27 ═════════════════════════════════
+   ⚖️ Eric, 26/09 : *« Si on est en double screen le drop du token dans un collecteur de la
+   page voisine. Génère un popup. Varie en fonction »*.
+   ⭐ `creneauSous` cherche DÉJÀ sur tout le document : entre deux pages montées côte à côte,
+   un jeton de gauche vise donc sans rien de neuf un créneau de droite. 🔴 CE QUI MANQUAIT
+   EST L'INVERSE — le lui INTERDIRE par défaut. Un `onDepot` reçoit le NOM d'un créneau, et
+   deux pages ont des noms communs (`collecteur` vit à Gear, au sac, à X5) : sans cette porte,
+   un jeton de Wares lâché sur le collecteur de Gear aurait déposé comme sur le SIEN.
+   ⭐ LA LOI, EN UNE PHRASE : un créneau d'une AUTRE moitié d'écran (`data-demi-ecran`)
+   n'atteint jamais `onDepot`. Il n'est une cible que s'il se DÉCLARE receveur
+   (`data-recoit-voisin`) ET que le jeton sait quoi en faire (`onDepotVoisin`) — sinon il
+   n'existe pas pour ce geste : il ne s'allume pas, et le lâcher y vaut un lâcher dans le vide.
+   ⛔ EN VUE SIMPLE AUCUN NŒUD NE PORTE `data-demi-ecran` : la fonction rend `false` et le
+   geste est, octet pour octet, celui d'avant. */
+function moitieDe(n) {
+  return n && typeof n.closest === "function" ? n.closest("[data-demi-ecran]") : null;
+}
+export function estUnCreneauVoisin(jeton, creneau) {
+  const a = moitieDe(jeton);
+  const b = moitieDe(creneau);
+  return Boolean(a && b && a !== b);
+}
+
 /** ARME UN JETON pour les deux gestes.
  *  `onTap()` — relâché sans avoir bougé ; `onDepot(cheminDuCreneau)` — relâché
  *  sur un créneau. Un glisser relâché dans le vide ne fait RIEN, et c'est
@@ -413,7 +436,7 @@ const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
    BOUGE part au défilement natif bien avant 350 ms ; un doigt qui RESTE n'a rien
    déclenché quand le minuteur tombe. C'est exactement le springboard d'iOS — on tient une
    app avant de pouvoir la porter. */
-export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien }) {
+export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin }) {
   /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
      seule ligne de ce fichier qui parle à la feuille de style, et elle ne lui
      dit pas comment peindre : elle lui dit ce que cet organe EST. */
@@ -507,6 +530,14 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     /* Le point que ce geste DÉSIGNE — le doigt, sauf si l'écran a déporté ce
        qu'il fait suivre au doigt (voir `viseur` en tête de fonction). */
     const ouVise = (e) => (viseur ? viseur(e.clientX, e.clientY) : [e.clientX, e.clientY]);
+    /* 🪟 LOT 307 — la cible que CE geste reconnaît : le créneau sous le point, sauf un
+       créneau de la page voisine qui ne se déclare pas receveur, ou que ce jeton ne sait
+       pas servir (voir `estUnCreneauVoisin`). */
+    const cibleSous = (e) => {
+      const c = creneauSous(...ouVise(e));
+      if (!c || !estUnCreneauVoisin(jeton, c)) return c;
+      return onDepotVoisin && c.dataset && c.dataset.recoitVoisin === "true" ? c : null;
+    };
 
     const viser = (creneau) => {
       if (vise === creneau) return;
@@ -547,7 +578,7 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
         if (onLever) onLever(e.clientX, e.clientY);
       }
       if (onBouger) onBouger(e.clientX, e.clientY);
-      viser(creneauSous(...ouVise(e)));
+      viser(cibleSous(e));
     };
 
     /* ⭐ CLORE — LE SEUL ENDROIT QUI DÉMONTE LE GESTE, et il ne décide de rien.
@@ -658,7 +689,7 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
          ⚠️ APRÈS `clore()`, donc après le rangement du fantôme : l'ordre est
          celui d'avant ce lot, et il compte — on interroge le point sans que le
          décor du geste soit encore sur le chemin. */
-      const cible = etaitGlisse ? creneauSous(...ouVise(e)) : null;
+      const cible = etaitGlisse ? cibleSous(e) : null;
       viser(null);
       /* ⭐ LE TAP PORTE SON OUTIL. Eric, 2026-08-16 : *« tap pour info, drag
          and drop to select ; sur desktop clic droit info, gauche select »* —
@@ -667,6 +698,7 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
          peut trancher que s'il sait avec quoi on a touché. */
       if (!etaitGlisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
       if (e.type === "pointercancel") return;
+      if (cible && estUnCreneauVoisin(jeton, cible)) { onDepotVoisin(cible.dataset.creneau, cible); return; }
       if (cible) { onDepot(cible.dataset.creneau); return; }
       /* ⭐ LÂCHÉ HORS DE TOUTE CIBLE. Pour un jeton du vivier, c'est un
          non-geste : il retourne d'où il vient, et rien ne bouge (c'est le

@@ -4423,23 +4423,60 @@ tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien
 ---
 
 ### 🪟 DOUBLE ÉCRAN — UN DÉPÔT DANS LE COLLECTEUR VOISIN OUVRE UN POPUP
-📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · ⏳ en attente de l'organe « double écran » (il n'existe pas encore)
-⚖️ **En double écran, déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait.**
+📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · construite 27/09 (lot 307) · ⏳ Tally et Group Tally : pas de receveur
+⚖️ **En double écran, l'étape Equipment montre DEUX pages côte à côte ; déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait. Accepter = le geste qui existe déjà ; Cancel = rien ne bouge.**
 
 > Eric, 2026-09-26, mot pour mot : **« Si on est en double screen le drop du token dans un collecteur
-> de la page voisine. Génère un popup. Varie en fonction — The item is created , do accept to pay
-> for xxxx — Your found item is generated — Your agree to purchase this item for xxxx »**.
+> de la page voisine. Génère un popup. Varie en fonction »**.
+> « sur quel écran ? » → **« c »** : iPad en paysage ET ordinateur.
+> « quelles pages ? » → **« gear, equipment, x3, x4 »** ; « Equipment, c'est quel écran ? » → **« c »**,
+> toute l'étape (Gear + Backpack + Wares) ; « X4, c'est quoi ? » → **« x4 c'est group tally, liste
+> d'objets achetés par le groupe »**. X3 = le Tally ; X5 (la fiche Blueprint) fait partie de l'étape.
+> L'exception, 2026-09-27 : **« L'exception le Tally, quand l'item est transféré dans un Tally, il est
+> crafté mais le paiement s'il est requis est différé au Tally. Cela doit apparaître dans le popup »**,
+> puis **« Le group et le part tally »**.
 
-| ce qu'on dépose | le popup (proposition d'anglais, ⏳ à ratifier) |
+| ce qu'on dépose | vers Gear | vers un Tally (X3, ou X4 Group/Party Tally) |
+|---|---|---|
+| X5, statut *Crafting* | « Craft this item for 2,001 GP? » [Craft & pay] [Cancel] | « Craft this item? Its 2,001 GP will be paid at the Tally. » [Craft] [Cancel] — ⛔ **désactivé** |
+| X5, statut *Found* | « You found this item. It goes to your backpack. » [OK] *(texte d'Eric)* | « You found this item. It goes to the Tally. » [OK] — ⛔ **désactivé** |
+| un achat (Wares) | « Buy this item for 15 GP? » [Buy] [Cancel] | « Add this item to the Tally for 15 GP? » [Add] [Cancel] |
+
+⭐ **LE MONTANT EST LU**, jamais recalculé par le popup : c'est l'`envoi.cout` que `Craft & Send`
+débite (le Total de X5), ou le prix que X2 lit (`ficheItemAvec`) pour Wares. ⭐ **ACCEPTER EST LE
+GESTE EXISTANT, par la même fonction** : `envoyerDepuisX5` (le bouton `Craft & Send` l'appelle aussi) ;
+`acheterUnObjet` (le `BUY` de X2, sorti de X2 sans changer une action) ; `cartAdd` pour le Tally.
+*Found* va au sac quel que soit le `SEND TO` de la fiche — le texte d'Eric le dit. ⭐ Le popup **exige
+une réponse** (`popup-question-exige-une-reponse`) et c'est un **aiguilleur** (il prévient).
+⛔ **Un dépôt dans la MÊME page garde son geste d'aujourd'hui, sans popup** (Wares → son collecteur =
+le panier).
+
+| qui | ce qu'il décide |
 |---|---|
-| un objet fabriqué (X5, statut *Crafting*) | « The item is created. Do you accept to pay xxxx? » |
-| un objet trouvé (X5, statut *Found*) | « Your found item is generated. » |
-| un achat (Wares) | « You agree to purchase this item for xxxx. » |
+| `regimeDeLaVue` (`double-ecran.mjs`) | ⭐ **QUAND** — la place (la porte du lot 120, `laPlaceDuDouble` : **758 × 560**, voir `CADRES.md`) ET l'étape Equipment ; ⛔ sous la place, rien ne change — mesuré : `.app` identique octet pour octet à `main` à 375 × 812 et 757 × 900 |
+| `coteDesPages` | ⭐ **OÙ** — la page d'où l'on prend à gauche, **Gear à droite** ; quand l'active EST Gear, le sac à gauche (proposition de l'architecte, à montrer à Eric) |
+| `popupDuDepotVoisin` + `EN_DEPOT_VOISIN` (`src/labels.mjs`) | ⭐ **QUEL POPUP** — le texte, les boutons, ou `null` quand le cas est désactivé |
+| `glisser.mjs` (`estUnCreneauVoisin`) | ⛔ un créneau de l'autre moitié (`data-demi-ecran`) n'atteint **jamais** `onDepot` ; il n'est une cible que s'il se déclare receveur (`data-recoit-voisin`) et que le jeton porte `onDepotVoisin` |
 
-⭐ `xxxx` est le montant que le geste débite (le Total de X5, le prix de Wares) — lu, jamais recalculé
-par le popup. ⛔ **Le double écran lui-même n'existe pas** (mesuré le 26/09 : aucune vue ne pose deux
-pages côte à côte) : cette règle attend son organe, et Eric doit dire lesquelles et à partir de
-quelle largeur.
+⚖️ **AU-DESSUS DE LA PLACE, L'ÉTAPE S'OUVRE EN DEUX PAGES D'OFFICE**, sans le réglage `Double view` :
+c'est le « c » d'Eric (iPad couché ET ordinateur) et sa *« proposition de passage en affichage double
+d'office »*. Les autres étapes gardent la loi du lot 120 (deux panneaux si le joueur les demande).
+Les deux panneaux sont **deux vrais écrans**, vivants tous les deux (aucun `inert`), un seul belt :
+il nomme la page active.
+
+⛔ **CE QUI N'EXISTE PAS, ET N'EST PAS INVENTÉ** *(mesuré le 27/09)* :
+· **le Tally (X3) n'a aucun collecteur** — c'est une liste de lignes, sans jeton ni `data-creneau` : il
+  ne reçoit pas de dépôt, et il ne s'en fait pas depuis lui ; et la mise en page (Gear toujours à
+  droite) ne le met jamais face à Wares ou X5. Ses popups sont écrits et gardés, sans receveur ;
+· **le Group/Party Tally (X4) n'a pas d'écran** (le bouton `party-tally` de Gear n'ouvre rien) ;
+· **le panier ne porte pas d'objet CRAFTÉ** : une ligne `cart[N]` n'a que `ref`, `quantity`,
+  `gratuit` — ni bonus, ni pouvoirs, ni variante, ni sort, et aucun coût différé. Le craft vers un
+  Tally reste donc **désactivé** (`LE_TALLY_PORTE_UN_OBJET_CRAFTE = false`) ; le garde relit le panier
+  et rougira le jour où il porte une recette ;
+· le statut *Buying* de X5 n'a pas de texte ratifié : il prend celui de l'achat (« Buy this item for
+  … GP? ») — ⏳ à confirmer par Eric.
+
+🛡️ `tests/double-ecran.test.mjs` (14 cas, 13 mutations vues rouges, source restaurée par empreinte).
 
 ---
 

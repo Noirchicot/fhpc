@@ -25,6 +25,7 @@ import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSa
   coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=848";
 import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=848";
 import { corpsDuJeton } from "./jeton-objet.mjs?v=848";
+import { armerJeton, fantome } from "./glisser.mjs?v=848";
 import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=848";
 /* ⭐ LOT 285 — la famille PARCHEMIN vit dans son module ; la coquille lui PRÊTE ses pièces
    (`construireX5` plus bas) plutôt que de les exporter : ⛔ pas d'import en boucle. */
@@ -274,7 +275,8 @@ export function construireX5(o = {}) {
   if (estFicheParchemin(o)) return construireX5Parchemin(o, { menu, laBourse, lePied, or, feuilleDesCotesX5 });
   const { plan = null, bases = [], itemsMagiques = [], choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
-    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
+    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null,
+    surDepotVoisin = null } = o;
 
   const offertesBases = plan ? basesDe(plan, bases) : bases;
   const base = offertesBases.find((b) => b.data.name === choix.base) || offertesBases[0] || null;
@@ -363,20 +365,6 @@ export function construireX5(o = {}) {
      posée par `Send` disent le MÊME nom. ⭐ Et son corps est celui de tous les jetons. */
   const nomDuJeton = nomCrafte({ base: base ? base.data.name : "", bonus: bonusChoisi ? bonusChoisi.mot : null,
     pouvoirs: pris.map((p) => p.data.name) });
-  const jeton = elx("button", "wares-jeton x5-jeton");
-  jeton.type = "button";
-  jeton.dataset.organe = "JETON";
-  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
-  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
-  if (surJeton && base) {
-    jeton.addEventListener("click", () => surJeton({ nom: nomDuJeton, base, bonus: bonusChoisi, pouvoirs: pris, cote, status }));
-  } else jeton.disabled = true;
-  n.append(jeton);
-
-  /* ⚖️ LA BOURSE À DROITE DU JETON — Eric, 25/09 : « on peut mettre l'item bourse à droite du
-     token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
-     posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
-  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
 
   const destination = choix.destination || "backpack";
   /* ⭐ `SEND` POSE L'OBJET DANS LA FICHE (lot 265). Il s'arme quand l'assemblage est LÉGAL
@@ -385,13 +373,34 @@ export function construireX5(o = {}) {
   const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
   const compose = Boolean(bonusChoisi) || pris.length > 0;
   const pret = Boolean(surEnvoyer) && Boolean(base) && cote.legal && compose && destOk;
+  /* 🪟 LOT 307 — L'ENVOI EST UNE FONCTION, et le bouton `Craft & Send` et le dépôt dans la page
+     voisine l'appellent TOUS LES DEUX : un seul écrivain de « ce que Send pose et débite ». */
+  const envoi = () => ({
+    base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
+    cout: enPieces(montantDuStatut(cote, status, prix)),
+  });
+
+  const jeton = elx("button", "wares-jeton x5-jeton");
+  jeton.type = "button";
+  jeton.dataset.organe = "JETON";
+  jeton.setAttribute("aria-label", `${nomDuJeton} — preview`);
+  jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
+  if (surJeton && base) {
+    const apercu = () => surJeton({ nom: nomDuJeton, base, bonus: bonusChoisi, pouvoirs: pris, cote, status });
+    if (surDepotVoisin) jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin });
+    else jeton.addEventListener("click", apercu);
+  } else jeton.disabled = true;
+  n.append(jeton);
+
+  /* ⚖️ LA BOURSE À DROITE DU JETON — Eric, 25/09 : « on peut mettre l'item bourse à droite du
+     token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
+     posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
+  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !compose ? "choose a bonus or a power first"
       : !cote.legal ? "this assembly is not craftable" : "not available here",
-    envoyer: () => surEnvoyer({
-      base, bonus: bonusChoisi, pouvoirs: pris, cote, status, destination,
-      cout: enPieces(montantDuStatut(cote, status, prix)),
-    }) }));
+    envoyer: () => surEnvoyer(envoi()) }));
 
   return { noeud: n, cote };
 }
@@ -407,6 +416,28 @@ function phraseDuStatut(status) {
   }[status] || "Tap Send: the total is taken from your purse, and the crafted item goes to your equipment.");
   phrase.dataset.organe = "PHRASE";
   return phrase;
+}
+
+/** 🪟 LE JETON DE X5 EN DOUBLE ÉCRAN — lot 307. ⚖️ Eric, 26/09 : *« Si on est en double
+ *  screen le drop du token dans un collecteur de la page voisine. Génère un popup »*.
+ *  ⭐ En vue simple le jeton n'est qu'un bouton d'aperçu, et il le RESTE : cette fonction n'est
+ *  appelée que si l'étape passe `surDepotVoisin` (double écran). Là, il devient glissable —
+ *  le glisser de R (`armerJeton`, son fantôme) — et :
+ *   · le TAP garde l'aperçu X1 (la loi du geste : tap = info) ;
+ *   · le dépôt dans le collecteur VOISIN rend l'envoi à l'étape, qui ouvre le popup ;
+ *   · ⛔ un dépôt dans la même page ne fait rien — X5 n'avait aucun dépôt avant ce lot.
+ *  ⛔ `Send` non armé (`pret` faux) : le voisin n'est pas une cible, le dépôt ne promet rien.
+ *  ⌨️ Le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`). */
+export function jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin }) {
+  armerJeton(jeton, {
+    onLever: (x, y) => fantome.lever(jeton, x, y),
+    onBouger: (x, y) => fantome.suivre(x, y),
+    onPoser: () => fantome.ranger(),
+    onTap: apercu,
+    onDepot: () => {},
+    onDepotVoisin: pret ? (creneau, cible) => surDepotVoisin({ envoi: envoi(), cible }) : undefined,
+  });
+  jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });
 }
 
 /** ⚖️ LA BOURSE À DROITE DU JETON — l'organe de R, importé (image, montant, popup). */
@@ -471,7 +502,8 @@ const MOT_DE_CATEGORIE = { "wondrous-item": "wondrous item", potion: "potion", w
 function construireX5Variante(o) {
   const { plan, plansFreres = [], valeurDe = null, choix = {}, fh = true,
     surChoix = null, surAnnuler = null, surEnvoyer = null, surJeton = null, alerte = "",
-    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null } = o;
+    bourse = null, bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null,
+    surDepotVoisin = null } = o;
   const variantes = variantesDe(plan.data);
   const variante = variantes.find((v) => v.mot === choix.variante) || variantes[0];
   const status = choix.status || "Crafting";
@@ -520,24 +552,30 @@ function construireX5Variante(o) {
   }
   n.append(phraseDuStatut(status));
 
+  const destination = choix.destination || "backpack";
+  const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
+  const pret = Boolean(surEnvoyer) && cote.legal && destOk;
+  /* 🪟 LOT 307 — un seul écrivain de l'envoi, pour le bouton et pour le dépôt voisin */
+  const envoi = () => ({ plan, variante, cote, status, destination,
+    cout: enPieces(montantDuStatut(cote, status, prix)) });
+
   const jeton = elx("button", "wares-jeton x5-jeton");
   jeton.type = "button";
   jeton.dataset.organe = "JETON";
   jeton.setAttribute("aria-label", `${variante.nom} — preview`);
   jeton.append(...corpsDuJeton({ nom: variante.nom }));
-  if (surJeton) jeton.addEventListener("click", () => surJeton({ nom: variante.nom, plan, variante, cote, status }));
-  else jeton.disabled = true;
+  if (surJeton) {
+    const apercu = () => surJeton({ nom: variante.nom, plan, variante, cote, status });
+    if (surDepotVoisin) jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin });
+    else jeton.addEventListener("click", apercu);
+  } else jeton.disabled = true;
   n.append(jeton);
 
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
 
-  const destination = choix.destination || "backpack";
-  const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
-  const pret = Boolean(surEnvoyer) && cote.legal && destOk;
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !cote.legal ? "this item has no readable value" : "not available here",
-    envoyer: () => surEnvoyer({ plan, variante, cote, status, destination,
-      cout: enPieces(montantDuStatut(cote, status, prix)) }) }));
+    envoyer: () => surEnvoyer(envoi()) }));
   return { noeud: n, cote };
 }
 

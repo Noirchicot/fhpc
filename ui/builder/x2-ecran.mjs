@@ -139,6 +139,22 @@ function encartBourse(bourse, motBourse) {
  *     toujours « pour la fiche ». `naviguer` reste donc branché.
  *   · `bourse`, `motBourse` : l'or du personnage
  *   · `onAction` : l'arbitre du pilote · `fermer` : le retour, inchangé */
+/** 🪟 L'ACHAT D'UN OBJET DU CATALOGUE — le geste de `BUY` et de `FREE` de X2, et du popup
+ *  « Buy this item for … GP? » du double écran (lot 307). ⭐ UN SEUL ÉCRIVAIN : payer si
+ *  l'on achète, refuser si la bourse ne couvre pas, poser la ligne. Le lot 307 l'a SORTIE de
+ *  X2 sans en changer une action, pour que le dépôt voisin ne soit pas un second acheteur.
+ *  @returns {string|null} le mot du refus, ou `null` quand l'achat est posé. */
+export function acheterUnObjet({ ref, cout, qte = 1, destination = "self", payer = true, bourse, onAction }) {
+  if (payer) {
+    if (!cout) return "No known price — use FREE, or type one.";
+    if (!bourseCouvre(bourse, cout)) return "Not enough coin in the purse.";
+    onAction({ kind: "payer", cout });
+  }
+  onAction({ kind: "addGearLine", ref, quantity: qte,
+    equipped: destination === "self", location: destination });
+  return null;
+}
+
 export function construireLaFicheX2(options = {}) {
   const { liste = [], index = 0, bourse = {}, motBourse = null,
           onAction = () => {}, naviguer, fermer = () => {},
@@ -247,15 +263,11 @@ export function construireLaFicheX2(options = {}) {
   /* ⛔ LA LOGIQUE D'ENVOI EST CELLE DE L'ÉCRAN D'AVANT, MOT POUR MOT : payer si on
      achète, refuser si la bourse ne couvre pas, poser la ligne, fermer. */
   function envoyer(payer) {
-    const cout = coutTotal();
-    if (payer) {
-      if (!cout) { alerte.textContent = "No known price — use FREE, or type one."; return; }
-      if (!bourseCouvre(bourse, cout)) { alerte.textContent = "Not enough coin in the purse."; return; }
-      onAction({ kind: "payer", cout });
-    }
-    const destination = dest.value || "self";   /* item seul : la cascade */
-    onAction({ kind: "addGearLine", ref: item().ref, quantity: qte,
-      equipped: destination === "self", location: destination });
+    /* 🪟 LOT 307 — la séquence est descendue dans `acheterUnObjet` (plus bas) : le popup du
+       double écran l'appelle aussi. ⛔ Rien n'a changé d'un octet dans ce qu'elle émet. */
+    const refus = acheterUnObjet({ ref: item().ref, cout: coutTotal(), qte, payer, bourse, onAction,
+      destination: dest.value || "self" });   /* item seul : la cascade */
+    if (refus) { alerte.textContent = refus; return; }
     fermer();
   }
 

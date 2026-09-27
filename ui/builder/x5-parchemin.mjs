@@ -80,7 +80,7 @@ export function construireX5Parchemin(o, pieces) {
   const { menu, laBourse, lePied, or, feuilleDesCotesX5 } = pieces;
   const { plan, sorts = [], choix = {}, surChoix = null, surAnnuler = null, surEnvoyer = null,
     surJeton = null, surInfo = null, alerte = "", bourse = null, bourseOuverte = false, surBourse = null,
-    surFermerBourse = null, surMonnaie = null } = o;
+    surFermerBourse = null, surMonnaie = null, surDepotVoisin = null } = o;
 
   /* ⚖️ « choisir : classe de sort · choisir lvl » — lus dans les sorts, ⛔ jamais écrits.
      ⭐ Une classe qui n'a pas le niveau choisi retombe sur SON premier niveau. */
@@ -206,19 +206,23 @@ export function construireX5Parchemin(o, pieces) {
   n.append(menu("QTY", String(qte),
     Array.from({ length: PLAFOND_QTE }, (_, k) => ({ valeur: String(k + 1), mot: String(k + 1) })), surChoix));
 
-  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix }));
-
-  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
-
   /* ⚖️ « un dropdown · send » — le SEND TO du pied commun, puis Send ; Cancel à gauche.
      ⭐ `Send` paie le coût de scribing (le Total), pose la ligne et rend la main. */
   const destination = choix.destination || "backpack";
   const destOk = DESTINATIONS.some((d) => d.valeur === destination && d.actif && d.valeur !== "craft");
   const pret = Boolean(surEnvoyer) && Boolean(sort) && cote.legal && destOk;
+  /* 🪟 LOT 307 — un seul écrivain de l'envoi : le bouton `Send` et le dépôt dans la page voisine */
+  const envoi = () => ({ plan, sort, niveau, cote, status: "Crafting", destination,
+    cout: enPieces(cote.craftTotal) });
+
+  n.append(collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix,
+    auVoisin: surDepotVoisin && pret ? (cible) => surDepotVoisin({ envoi: envoi(), cible }) : null }));
+
+  n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !sort ? "choose a spell first" : !cote.legal ? "this spell has no readable level" : "not available here",
-    envoyer: () => surEnvoyer({ plan, sort, niveau, cote, status: "Crafting", destination,
-      cout: enPieces(cote.craftTotal) }) }));
+    envoyer: () => surEnvoyer(envoi()) }));
 
   return { noeud: n, cote };
 }
@@ -243,7 +247,7 @@ export function construireX5Parchemin(o, pieces) {
    (`surChoix("SORT", null)`) — c'est le geste d'annulation d'un récepteur (`onHorsCible`,
    `glisser.mjs`). Lâché sur le collecteur même, rien ne change. ⭐ « pas un item » : son tap
    ouvre l'APERÇU (options grisées, *« Not yours yet »*, lot 270), jamais une fiche d'objet. */
-function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null }) {
+function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null, auVoisin = null }) {
   if (!sort) {
     const vide = elx("div", "gear-collecteur x5-collecteur");
     vide.dataset.organe = "JETON";
@@ -271,6 +275,9 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null 
     onTap: apercu,
     onDepot: () => {},   // lâché sur un créneau (lui-même) : il reste
     onHorsCible: () => { if (surChoix) surChoix("SORT", null); },
+    /* 🪟 LOT 307 — en double écran, lâché dans le collecteur de la page VOISINE : l'étape ouvre
+       le popup du craft. ⛔ Absent en vue simple, ou tant que `Send` n'est pas armé. */
+    onDepotVoisin: auVoisin ? (creneau, cible) => auVoisin(cible) : undefined,
   });
   /* ⌨️ le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`) */
   jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });

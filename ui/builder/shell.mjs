@@ -134,7 +134,11 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
-         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit } from "./equipment-step.mjs?v=848";
+         boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
+         pageActiveDeLEquipement } from "./equipment-step.mjs?v=848";
+/* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
+   pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
+import { regimeDeLaVue, coteDesPages } from "./double-ecran.mjs?v=848";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -1819,8 +1823,13 @@ function applyDecisionAction(action) {
     /* §7 (26/08) — le RÔLE voyage avec l'état : guide (parchemin, défaut —
        il ne signale rien) · aiguilleur (bleu, il prévient) · gendarme
        (rouge, il dit l'erreur). La teinte vit en CSS, jamais ici. */
+    /* 🪟 LOT 307 — `exigeUneReponse` VOYAGE AVEC LE POPUP : le dépôt voisin pose une question
+       (« Craft this item for … GP? »), et une question ne se referme pas d'un clic à côté
+       (`popup-question-exige-une-reponse`). ⛔ Il était jeté ici — seul `popupDuJeu` le
+       portait, parce qu'il écrivait `state.popup` à la main. */
     state.popup = action.texte
-      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide", actions: action.actions || null }
+      ? { texte: action.texte, titre: action.titre || null, role: action.role || "guide", actions: action.actions || null,
+          exigeUneReponse: action.exigeUneReponse === true }
       : null;
     refresh();
     return;
@@ -2038,6 +2047,9 @@ function applyDecisionAction(action) {
   /* Le sélecteur s'OUVRE : l'écran a changé son état, la coquille redessine — le pied
      change de paire, et c'est elle qui la fabrique. Aucune écriture au personnage. */
   if (action.kind === "skillsRedessiner") { refresh(); return; }
+  /* 🪟 LOT 307 — en double écran, une page de l'Équipement qui change de vue sans écrire au
+     belt (une fiche X) doit repeindre les DEUX moitiés : sa voisine et les côtés en dépendent. */
+  if (action.kind === "equipementRedessiner") { refresh(); return; }
   if (action.kind === "resetSkills") {
     /* LOT 39, décision n°2 — *Reset* ne rend que les points DÉPENSÉS : une
        suite de `clear` sur le MÊME document, un seul `rebuild` à la fin.
@@ -2676,9 +2688,13 @@ function skillsCtx() {
 const VERBES_QUI_DEPLACENT = new Set(["moveGearLine", "placerGearLine", "splitGearLine", "removeGearLine"]);
 
 function equipmentCtx() {
-  return {
+  const ctx = {
     document: state.document, resolved: state.resolved, query: state.engine.layers.verbs.query
   };
+  /* 🪟 LOT 307 — la moitié d'écran de CE rendu, en double écran seulement. ⛔ En vue simple
+     la clef n'existe pas : le ctx est celui d'avant, octet pour octet. */
+  if (demiEcranEnCours) ctx.demiEcran = demiEcranEnCours;
+  return ctx;
 }
 function surCompetences() {
   return Boolean(state.engine) && STEPS[state.step].id === "skills";
@@ -5049,7 +5065,8 @@ function paintBelt() {
        serait un signal de plus pour rien. */
     if (!enDouble) delete item.dataset.vueCran;
     else if (index === state.step) item.dataset.vueCran = "actif";
-    else if (index === state.stepSecond) item.dataset.vueCran = "passif";
+    /* 🪟 LOT 307 — en deux pages, le second panneau n'est pas `stepSecond` : aucun cran passif */
+    else if (index === state.stepSecond && !enDeuxPages()) item.dataset.vueCran = "passif";
     else delete item.dataset.vueCran;
     /* ⚖️ LE NOM EST REVENU EN VUE DOUBLE — lot 122, et c'est un renversement
        du lot 120 dont la cause a disparu. Le 120 effaçait le libellé parce
@@ -6104,7 +6121,23 @@ function memoriser() {
 function laPlaceExiste() {
   return laPlaceDuDouble(window.innerWidth, window.innerHeight, document.documentElement);
 }
-function vueDoubleRendue() { return vueDoubleVoulue() && laPlaceExiste(); }
+/* 🪟 LOT 307 — LE RÉGIME EST DEMANDÉ À L'ORGANE UNIQUE (`regimeDeLaVue`, double-ecran.mjs).
+   ⭐ La place (lot 120) et le réglage du joueur restent les deux mêmes questions ; ce qui
+   s'ajoute est l'étape : Equipment s'ouvre en DEUX PAGES dès que la place existe (Eric,
+   « c » : iPad couché ET ordinateur). ⛔ Sous la place, rien ne change — ni ici, ni ailleurs.
+   ⚠️ `etape` n'est donnée qu'une fois le moteur monté : l'Équipement en charge n'est qu'un
+   « Loading… », et deux « Loading… » côte à côte ne diraient rien. */
+function regimeCourant() {
+  const cran = STEPS[state.step];
+  return regimeDeLaVue({ place: laPlaceExiste(), voulue: vueDoubleVoulue(),
+    etape: state.engine && cran ? cran.id : null });
+}
+function vueDoubleRendue() { return regimeCourant().double; }
+/** Les deux panneaux sont-ils deux PAGES de l'Équipement (et non deux étapes) ? */
+function enDeuxPages() { return regimeCourant().pages; }
+/** 🪟 La moitié d'écran que le rendu EN COURS occupe — lue par `equipmentCtx`, posée par
+ *  `peindreLaVue` pour la page active, prêtée par `rendreLaPageVoisine` pour l'autre. */
+let demiEcranEnCours = null;
 
 /** Le cran que porte le panneau PASSIF quand on allume la vue double.
  *
@@ -6126,6 +6159,9 @@ function cranSecondParDefaut() {
  *  de nœuds. */
 function activerPanneau(rang) {
   if (!vueDoubleRendue()) return;
+  /* 🪟 LOT 307 — deux pages de l'Équipement sont VIVANTES toutes les deux : il n'y a pas de
+     panneau à réveiller, et échanger les crans enverrait le second vers une autre étape. */
+  if (enDeuxPages()) return;
   if (panneaux[rang] === frame) return;
   const ancien = state.step;
   state.step = state.stepSecond;
@@ -6140,8 +6176,12 @@ function activerPanneau(rang) {
  *  `--colonnes`, que `data-vue` gouverne. Peindre après ferait calculer le
  *  facteur sur la largeur d'avant — le même piège que la grandeur du 30/08. */
 function peindreLaVue() {
-  const double = vueDoubleRendue();
+  const { double, pages } = regimeCourant();
   document.documentElement.dataset.vue = double ? "double" : "simple";
+  /* 🪟 LOT 307 — EN DEUX PAGES, LES CÔTÉS VIENNENT DE LA PAGE ACTIVE (`coteDesPages`) : la page
+     d'où l'on prend à gauche, Gear à droite. ⛔ En vue simple ou en double d'étapes, rien. */
+  const cotes = pages ? coteDesPages(pageActiveDeLEquipement()) : null;
+  demiEcranEnCours = cotes ? { cote: cotes.active, page: null } : null;
   if (!double) {
     /* ⭐ EN VUE SIMPLE, L'ACTIF REDEVIENT LE PANNEAU 0 — sinon un joueur qui
        rétrécit sa fenêtre pendant qu'il travaille dans le panneau de droite
@@ -6155,6 +6195,17 @@ function peindreLaVue() {
   }
   for (const panneau of panneaux) {
     const actif = panneau === frame;
+    if (cotes) {
+      /* 🪟 LOT 307 — DEUX VRAIS ÉCRANS : les deux panneaux sont montrés, aucun n'est inerte
+         (chacun garde ses gestes — Eric : le dépôt se fait de l'un dans l'autre), et le
+         capteur d'éveil se tait. L'actif garde son halo : c'est la page que le belt nomme. */
+      panneau.racine.hidden = false;
+      panneau.racine.dataset.actif = String(actif);
+      panneau.racine.dataset.cote = actif ? cotes.active : (cotes.active === "gauche" ? "droite" : "gauche");
+      panneau.contenu.inert = false;
+      panneau.eveil.hidden = true;
+      continue;
+    }
     /* ⛔ `hidden`, et la feuille ne pose son `display` que sur
        `:not([hidden])` — un `display: none` écrit dans `shell.css` est le
        défaut n°3 (garde 4), et une règle d'auteur inconditionnelle battrait
@@ -6220,6 +6271,24 @@ function rendreLEcranDe(index) {
   }
 }
 
+/** 🪟 LOT 307 — RENDRE LA PAGE VOISINE DE L'ÉQUIPEMENT. ⭐ Même prêt que `rendreLEcranDe` :
+ *  on ne duplique pas le moteur d'écrans, on lui prête une moitié d'écran le temps d'un rendu
+ *  (`demiEcranEnCours`), et le `finally` la rend — un rendu qui jetterait laisserait sinon la
+ *  page active se croire voisine. */
+function rendreLaPageVoisine() {
+  const cotes = coteDesPages(pageActiveDeLEquipement());
+  const voisine = cotes.active === "gauche"
+    ? { cote: "droite", page: cotes.droite }
+    : { cote: "gauche", page: cotes.gauche };
+  const avant = demiEcranEnCours;
+  demiEcranEnCours = voisine;
+  try {
+    return poserLaSortie(renderStepContent(), renderSortieEtape());
+  } finally {
+    demiEcranEnCours = avant;
+  }
+}
+
 function refresh() {
   /* ⚠️ AVANT DE PEINDRE, pas après : le Menu affiche `state.memoire`, et
      l'écrire après le rendu montrerait l'état du tour précédent. */
@@ -6273,6 +6342,16 @@ function refresh() {
 function peindreLePassif() {
   const passif = panneaux.find((p) => p !== frame);
   if (!passif || passif.racine.hidden) return;
+  if (enDeuxPages()) {
+    /* 🪟 LOT 307 — la page VOISINE de l'Équipement, pas le cran du panneau passif */
+    swapContent(passif.stage, rendreLaPageVoisine());
+    cadrerLesRangees(passif.stage);
+    poserLesDalles();
+    poserLesRoues();
+    passif.spy.settle();
+    passif.scroller.settle();
+    return;
+  }
   /* `poserLaSortie` rend une LISTE de nœuds (le contenu, et la rangée de
      sortie quand l'écran ne l'a pas absorbée) — la même que `refresh` passe à
      `swapContent`. ⛔ L'envelopper dans un tableau de plus poserait un

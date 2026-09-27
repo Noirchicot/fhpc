@@ -431,7 +431,14 @@ function collecteur(id, options, retenu) {
   const c = eld("div", "gear-collecteur");
   c.dataset.organe = id;
   const n = options.collecte ? options.collecte.size : 0;
-  if (n === 0) { c.dataset.creneau = "collecteur"; c.dataset.vise = "false"; }
+  if (n === 0) {
+    c.dataset.creneau = "collecteur"; c.dataset.vise = "false";
+    /* 🪟 LOT 307 — EN DOUBLE ÉCRAN, IL REÇOIT AUSSI LA PAGE VOISINE : un jeton de X5 ou de
+       Wares lâché ici ouvre le popup du dépôt (`double-ecran.mjs`). ⭐ Il se DÉCLARE
+       receveur, par la donnée — `glisser.mjs` ne devine aucun nom de créneau. ⛔ En vue
+       simple l'option n'arrive pas : l'attribut n'existe pas, le DOM est celui d'avant. */
+    if (options.recoitVoisin === true) c.dataset.recoitVoisin = "true";
+  }
   c.dataset.compte = String(n);
   /* ⚖️ PLEIN, LE COLLECTEUR PORTE L'OBJET LUI-MÊME — Eric, 16/09 au soir : *« lorsqu'un
      token va dans le collecteur, il ne doit pas rester à sa place initiale : il doit

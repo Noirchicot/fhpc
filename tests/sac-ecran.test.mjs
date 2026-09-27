@@ -1450,7 +1450,9 @@ test("27 — ⛔ LE RUBAN NE SE POSE PAS TOUT SEUL : c'est CELUI QUI L'INSÈRE q
      l'application : `sl 0 / visée 9`. ⭐ Et les deux appels ne se marchent pas dessus
      parce que le placement SE RELIT avant de se consommer (③ ci-dessus). */
   const etape = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
-  assert.match(etape, /swapContent\(section, \[construireVue\(vueEquipement\)\]\);\s*poserLesDalles\(\);/,
+  /* 🪟 LOT 307 — la vue rendue est `vueDuRendu()` : la vue courante, ou la page imposée en
+     double écran. ⭐ Ce que ce garde tient ne change pas : le ruban se pose JUSTE APRÈS. */
+  assert.match(etape, /swapContent\(section, \[construireVue\(vueDuRendu\(\)\)\]\);\s*poserLesDalles\(\);/,
     "⛔ l'étape doit poser la roue juste après son propre échange de contenu");
 });
 
