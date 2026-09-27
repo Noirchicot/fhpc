@@ -1,0 +1,80 @@
+<!doctype html><meta charset="utf-8">
+<title>FHPC — prototype : les portes à image (Backpack · Wares · Gear)</title>
+<!-- ══ PROTOTYPE — lot 310, 2026-09-27 ══════════════════════════════════════
+     ⚖️ Eric, 27/09, mot pour mot : « Backpack, wares, gear. Fait des boutons format classique
+     relief carré avec, les images de fond dessus, wares en petit (t0 t1 en italique) dessus.
+     Fait un prototype déjà ».
+     ⭐ CE BANC NE CHANGE RIEN AU BUILDER : il lit les VRAIES feuilles (`tokens.css`, `shell.css`)
+     et les VRAIES images de fond des écrans (`sac-fond.webp`, `wares-fond.webp`, `pantin-x.png`),
+     et pose, sur le vrai fond, trois tailles de porte carrée à comparer. Le relief est celui des
+     portes du pied de R (`.gear-porte` : sa tuile `::before`, son liseré `::after`, bleu de
+     navigation) — seul le FORMAT change (carré), et une image se pose dessus.
+     ⛔ Les trois tailles (44 · 56 · 64) sont des PROPOSITIONS de banc, pas des cotes : la cote
+     retenue ira dans le plan de chaque écran. -->
+<link rel="stylesheet" href="./tokens.css?v=850">
+<link rel="stylesheet" href="./shell.css?v=850">
+<style>
+  body { margin: 0; min-height: 100vh; background: var(--bg-image) center / cover, var(--bg); color: var(--text);
+         font-family: var(--font, system-ui); }
+  .banc { max-width: 375px; margin: 0 auto; padding: 16px 12px 40px; display: grid; gap: 22px; }
+  .banc h2 { margin: 0 0 6px; font-size: var(--t2); font-weight: 600; }
+  .banc p { margin: 0 0 8px; font-size: var(--t1); color: var(--text-soft, var(--text)); }
+  .rangee { display: flex; justify-content: center; align-items: center; gap: var(--sp-8); padding: 8px 0;
+            background: var(--glass, transparent); border-radius: 12px; }
+  /* ── LA PORTE À IMAGE : le relief de `.gear-porte`, au format CARRÉ ── */
+  /* le gabarit des portes impose `min-width` 77 (0,3,1) : le carré le lève à la même hauteur de sélecteur */
+  .gear button.gear-porte.porte-imagee[data-porte] { position: relative; inline-size: var(--cote); min-inline-size: var(--cote);
+    max-inline-size: var(--cote); block-size: var(--cote); min-height: 0; padding: 0;
+    display: grid; align-content: start; justify-items: center; }
+  /* ⭐ L'IMAGE EST UN FILIGRANE, PEINT COMME SUR SON ÉCRAN : un aplat `--text-soft` découpé par
+     l'image (masque) — l'image posée telle quelle est sombre et disparaît la nuit (`.sac-fond`). */
+  .gear .porte-imagee .porte-image { position: absolute; inset: 18% 12% 6%; background: var(--text-soft);
+    -webkit-mask: var(--img) center / contain no-repeat; mask: var(--img) center / contain no-repeat;
+    pointer-events: none; }
+  .gear .porte-imagee .porte-mot { position: relative; margin-top: 3px; font-style: italic; font-weight: 600;
+    font-size: var(--mot); line-height: 1; letter-spacing: .02em; }
+  .img-backpack { --img: url("./assets/sac-fond.webp"); }
+  .img-wares { --img: url("./assets/wares-fond.webp"); }
+  .img-gear { --img: url("./assets/pantin-x.png"); }
+</style>
+<body>
+<div class="banc gear">
+  <section>
+    <h2>Aujourd'hui</h2>
+    <div class="rangee">
+      <button class="gear-porte" data-porte="backpack" type="button">Backpack</button>
+      <button class="gear-porte" data-porte="send" type="button">Send</button>
+      <button class="gear-porte" data-porte="wares" type="button">Wares</button>
+    </div>
+  </section>
+  <section id="variantes"></section>
+</div>
+<script type="module">
+  const portes = [["backpack", "Backpack"], ["wares", "Wares"], ["gear", "Gear"]];
+  const variantes = [
+    { cote: 44, mot: "var(--t0)", dit: "44 — une cible tactile, mot en T0 italique" },
+    { cote: 56, mot: "var(--t0)", dit: "56 — mot en T0 italique" },
+    { cote: 56, mot: "var(--t1)", dit: "56 — mot en T1 italique" },
+    { cote: 64, mot: "var(--t1)", dit: "64 — mot en T1 italique" },
+  ];
+  const hote = document.getElementById("variantes");
+  for (const v of variantes) {
+    const s = document.createElement("section");
+    s.innerHTML = `<h2>Carré ${v.dit}</h2>`;
+    const r = document.createElement("div");
+    r.className = "rangee";
+    const send = document.createElement("button");
+    send.className = "gear-porte"; send.dataset.porte = "send"; send.type = "button"; send.textContent = "Send";
+    for (const [id, mot] of portes) {
+      const b = document.createElement("button");
+      b.className = "gear-porte porte-imagee"; b.dataset.porte = id; b.type = "button";
+      b.style.setProperty("--cote", `${v.cote}px`); b.style.setProperty("--mot", v.mot);
+      b.innerHTML = `<span class="porte-image img-${id}"></span><span class="porte-mot">${mot}</span>`;
+      r.append(b);
+      if (id === "backpack") r.append(send);
+    }
+    s.append(r);
+    hote.append(s);
+  }
+</script>
+</body>
