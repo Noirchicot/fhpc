@@ -10002,6 +10002,9 @@ jeton du collecteur du parchemin, qui part vers la page voisine, attend les 500 
 🔲 La marge (`margeDuGlisser`, `sac-ecran.mjs`) : x entre le bord de la dalle et `COLONNES[0]`, ou entre la
 fin de la dernière colonne et `DALLE.l` ; y entre `RANGEES[0]` et le bas de la dernière rangée. 🔴 Avant :
 « tout ce qui est à droite de la grille » — en double écran, tout Gear faisait tourner les sections.
+🔄 **Lot 336 — un jeton de la GRILLE de Wares se pose aussi sur une case vide du Backpack voisin** (Eric,
+28/09 : **« drag and drop de wares directement vers backpack ne marche pas »**) : même achat, même pose
+(`acheterSurLeVoisin`, un seul écrivain pour la grille et le collecteur). ⛔ Pas sur une case de Gear.
 🛒 Collecteur de Wares → case de Gear : achat (popup du lot 307), puis `placerGearLine` sur la case ;
 → case vide de Pack (receveuse en double écran seulement) : achat, puis la section regardée, à la place
 de la case ; → collecteur de Gear : achat, au sac ; → Tally : au panier. Son tap passe par `armerJeton`.

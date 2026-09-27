@@ -755,13 +755,30 @@ test("25 — 🎒 LE COLLECTEUR DE WARES LÂCHÉ SUR UNE CASE DE PACK : l'objet 
   assert.equal(seul.querySelectorAll('[data-recoit-voisin="true"]').length, 0);
 });
 
-test("26 — 🎒 UN JETON DU SAC NE SE POSE PAS SUR UNE CASE DE PACK VOISIN PAR LE CHEMIN VOISIN — seul Wares y achète", () => {
+test("26 — 🔄 LOT 336 : UN JETON DE LA GRILLE DE WARES SE POSE SUR UNE CASE DU BACKPACK VOISIN (achat) — ⛔ pas sur une case de Gear", () => {
+  /* ⚖️ Eric, 28/09 : « drag and drop de wares directement vers backpack ne marche pas ». La loi du lot
+     307 (« un achat va au collecteur ») est levée pour le Backpack SEUL. */
   const doc = personnage();
   const acts = [];
   const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
   const droite = moitie(doc, { cote: "droite", page: "sac" }, []);
-  const jeton = gauche.querySelector(".wares-jeton");
-  const cible = droite.querySelectorAll('.sac-case[data-recoit-voisin="true"]')[0];
-  glisser(jeton, cible);
-  assert.equal(popups(acts).length, 0, "⛔ un jeton de la GRILLE de Wares va au collecteur, pas sur une case (loi du lot 307)");
+  const cases = droite.querySelectorAll('.sac-case[data-recoit-voisin="true"]');
+  const cible = cases[cases.length - 1];
+  const m = /^case-(\d+)-(\d+)$/.exec(cible.dataset.creneau);
+  glisser(gauche.querySelector(".wares-jeton"), cible);
+  const [p] = popups(acts);
+  assert.ok(p, "⛔ un jeton de la grille lâché sur le Backpack n'ouvre aucun popup");
+  assert.match(p.texte, /^Buy this item for [\d,]+ (GP|SP|CP)\?$/);
+  const apres = acts.length;
+  p.actions[0].faire();
+  const gestes = acts.slice(apres);
+  assert.deepEqual(gestes.map((a) => a.kind), ["payer", "addGearLine", "placerGearLine"]);
+  assert.equal(gestes[2].place, (Number(m[1]) - 1) * 3 + (Number(m[2]) - 1), "⭐ à la place de la case");
+  /* ⛔ une case de Gear n'accepte toujours que le collecteur de Wares */
+  const acts2 = [];
+  const g2 = moitie(doc, { cote: "gauche", page: "r" }, acts2);
+  const gear = moitie(doc, { cote: "droite", page: "gear" }, []);
+  const caseGear = gear.querySelectorAll('[data-recoit-voisin="true"]').find((c) => c.dataset.creneau !== "collecteur");
+  glisser(g2.querySelector(".wares-jeton"), caseGear);
+  assert.equal(popups(acts2).length, 0, "⛔ un jeton de la grille s'est posé sur une case de Gear");
 });
