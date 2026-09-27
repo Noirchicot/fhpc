@@ -196,25 +196,25 @@ test("4 · `Send`, collecteur vide : le comportement d'avant — aucun popup", (
   assert.equal(pageActiveDeLEquipement(), "sb32", "⛔ Send à vide n'ouvre plus la liste d'envoi");
 });
 
-test("5 · ⏱️ LOT 331 : le glisser attend 500 ms — porté plus tôt, le geste n'est NI un glisser NI un tap", () => {
-  /* ⚖️ Eric, 27/09 : « Le drag doit attendre 500 ms, avant de s'activer ». 📏 Vu au banc : un
-     glisser porté trop tôt finissait en TAP et ouvrait la fiche. */
-  const vus = [];
-  const n = monter({ surJeton: () => vus.push("x2"), surDepot: () => vus.push("depot") });
-  const jeton = n.querySelector(".wares-jeton");
-  const cible = n.querySelector('[data-organe="collecteur"]');
-  document.elementFromPoint = () => cible;
-  mock.timers.enable({ apis: ["setTimeout"] });
-  try {
-    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 4, button: 0, pointerType: "mouse" });
-    mock.timers.tick(MAINTIEN_EQUIPEMENT_MS - 1);
-    document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 4 });
-    mock.timers.tick(10);
-    document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 80, pointerId: 4 });
-    document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 80, pointerId: 4 });
-  } finally { mock.timers.reset(); document.elementFromPoint = () => null; }
-  assert.deepEqual(vus, [], "⛔ porté avant 500 ms : ni dépôt, ni fiche ouverte");
-  /* ⭐ et tenu 500 ms, le même geste dépose */
-  glisser(n.querySelector(".wares-jeton"), n.querySelector('[data-organe="collecteur"]'));
-  assert.deepEqual(vus, ["depot"]);
+test("5 · ⏱️ LOT 331 · 339 : au DOIGT le glisser attend 500 ms (porté plus tôt : ni glisser ni tap) ; à la SOURIS il part tout de suite", () => {
+  /* ⚖️ Eric, 27/09 : « Le drag doit attendre 500 ms, avant de s'activer » ; puis 28/09 : « oui fait la
+     distinction, souris doigt » — l'appui long est un geste du doigt. */
+  const porter = (pointerType, avantArmement) => {
+    const vus = [];
+    const n = monter({ surJeton: () => vus.push("x2"), surDepot: () => vus.push("depot") });
+    const cible = n.querySelector('[data-organe="collecteur"]');
+    document.elementFromPoint = () => cible;
+    mock.timers.enable({ apis: ["setTimeout"] });
+    try {
+      n.querySelector(".wares-jeton").dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 4, button: 0, pointerType });
+      mock.timers.tick(avantArmement);
+      document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 4 });
+      document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 80, pointerId: 4 });
+      document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 80, pointerId: 4 });
+    } finally { mock.timers.reset(); document.elementFromPoint = () => null; }
+    return vus;
+  };
+  assert.deepEqual(porter("touch", MAINTIEN_EQUIPEMENT_MS - 1), [], "⛔ au doigt, porté avant 500 ms : ni dépôt, ni fiche ouverte");
+  assert.deepEqual(porter("touch", MAINTIEN_EQUIPEMENT_MS), ["depot"], "⭐ au doigt, tenu 500 ms : le dépôt");
+  assert.deepEqual(porter("mouse", 0), ["depot"], "⛔ à la souris, le glisser attend encore : il doit partir tout de suite");
 });

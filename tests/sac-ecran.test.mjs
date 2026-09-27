@@ -1795,8 +1795,9 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
   }
   assert.match(source, /maintien: PEAGE_JETON_MS/, "le sac paie le péage");
   const organe = stripComments(fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8"));
-  assert.match(organe, /const peage = Number\.isFinite\(maintien\) && maintien > 0;/,
-    "⭐ et l'organe ne le prend que si on le lui donne — sans option, pas de péage");
+  /* 🔄 LOT 339 — et seulement au DOIGT (ou au stylet) : Eric, 28/09, « oui fait la distinction, souris doigt » */
+  assert.match(organe, /const peage = Number\.isFinite\(maintien\) && maintien > 0 && ev\.pointerType !== "mouse";/,
+    "⭐ et l'organe ne le prend que si on le lui donne, et jamais à la souris");
   const autres = ["skills-step.mjs", "species-step.mjs", "b3-dressing.mjs"]
     .filter((f) => fs.existsSync(path.join(UI, f)))
     .filter((f) => /maintien:/.test(stripComments(fs.readFileSync(path.join(UI, f), "utf8"))));

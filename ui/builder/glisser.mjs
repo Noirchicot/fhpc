@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=892";
+import { pageDeListe } from "./normes.mjs?v=893";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=892";
-import { swapContent } from "./socle.mjs?v=892";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=893";
+import { swapContent } from "./socle.mjs?v=893";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=892";
+import { facteurZoomCourant } from "./echelle.mjs?v=893";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -443,7 +443,7 @@ const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
  *  geste seraient deux gestes. ⛔ Species, les sorts, B3 n'en prennent pas (loi du 20/08 : pas
  *  d'ascenseur, pas de péage) — le garde 31 de `sac-ecran.test.mjs` le tient.
  *  📌 Elle remplace les 350 ms du 19/09, qui ne valaient que pour le sac. */
-export const MAINTIEN_EQUIPEMENT_MS = 500;
+export const MAINTIEN_EQUIPEMENT_MS = 500;   /* ⚖️ lot 339 : au doigt et au stylet — la souris glisse tout de suite */
 
 export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin, accepteVoisin }) {
   /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
@@ -485,7 +485,13 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     const pointeur = ev.pointerId;
     const x0 = ev.clientX, y0 = ev.clientY;
     /* ⏱️ LE PÉAGE : tant qu'il n'est pas payé, ce geste n'est pas un glisser. */
-    const peage = Number.isFinite(maintien) && maintien > 0;
+    /* ⚖️ LOT 339 — LE PÉAGE EST UN GESTE DU DOIGT, ⛔ PAS DE LA SOURIS. Eric, 28/09 : *« oui fait la
+       distinction, souris doigt »*. ⭐ L'appui long (≈ 500 ms, celui d'iOS et d'Android) départage
+       « défiler » et « prendre » là où le MÊME doigt fait les deux ; la souris ne fait pas défiler une
+       dalle en glissant, elle n'a rien à départager — elle glisse dès le seuil de 6 px, comme partout.
+       📏 C'était la cause de deux faux « ça ne marche pas » (le parchemin, puis Wares) : à la souris,
+       on porte tout de suite. Le stylet reste avec le doigt (il défile comme lui). */
+    const peage = Number.isFinite(maintien) && maintien > 0 && ev.pointerType !== "mouse";
     let arme = !peage;
     let minuteurDuPeage = peage
       ? setTimeout(() => { arme = true; if (jeton.dataset) jeton.dataset.porte = "true"; }, maintien)
