@@ -59,9 +59,16 @@ export function collecteurDEnvoi({ retenu = null, creneau = "collecteur", resteC
  *   · `destinations` — `[{ valeur, mot, actif? }]` ; ⛔ `actif: false` se montre et ne se choisit pas ;
  *   · `destination`  — la valeur choisie ;
  *   · `surDestination(valeur)` — le geste. */
-export function destinationDEnvoi({ destinations = [], destination = null, surDestination = null } = {}) {
+export function destinationDEnvoi({ destinations = [], destination = null, surDestination = null, organe = "send-vers" } = {}) {
   const boite = el("div", "sac-destination");
-  boite.dataset.organe = "send-vers";
+  boite.dataset.organe = organe;
+  /* ⚖️ LOT 318 — L'ÉTIQUETTE « destination », SUR LES TROIS ÉCRANS. Eric, 27/09 : « Oui harmonise les
+     étiquettes de destination · Pour les 3 · Même typo même taille couleur etc ». ⭐ C'est celle que
+     Gear portait seul depuis le 16/09 (« collé au haut, en T1, en italique, couleur un peu moins
+     blanc flashy ») ; elle vit maintenant ICI, dans l'organe que Gear, Pack et Wares importent —
+     une seule fabrique, donc une seule typo. ⛔ Elle ne se lit pas : le select porte le nom. */
+  const mot = el("span", "destination-mot", "destination");
+  mot.setAttribute("aria-hidden", "true");
   const s = el("select", "pipeline-dropdown");
   s.setAttribute("aria-label", "Send to");
   for (const d of destinations) {
@@ -72,6 +79,6 @@ export function destinationDEnvoi({ destinations = [], destination = null, surDe
     s.append(opt);
   }
   s.addEventListener("change", () => surDestination && surDestination(s.value));
-  boite.append(s);
+  boite.append(mot, s);
   return boite;
 }

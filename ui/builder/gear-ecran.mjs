@@ -65,20 +65,23 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=859";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=859";
-import { armerJeton, fantome } from "./glisser.mjs?v=859";
+import * as D from "./gear-disposition.mjs?v=863";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=863";
+import { armerJeton, fantome } from "./glisser.mjs?v=863";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=859";
-import { versionQuery } from "./version.mjs?v=859";
-import { enGP } from "./equipement-pipeline.mjs?v=859";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=863";
+import { versionQuery } from "./version.mjs?v=863";
+import { enGP } from "./equipement-pipeline.mjs?v=863";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=859";
-import { noeudDAnnonce } from "./monnaie.mjs?v=859";
+import { portesCarrees } from "./porte-carree.mjs?v=863";
+import { noeudDAnnonce } from "./monnaie.mjs?v=863";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=863";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
+/* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */
+const DALLES = Array.isArray(D.DALLES) ? D.DALLES : [];
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
    porte). Tant qu'il manque, le pantin n'est pas dessiné — ⛔ on ne le retape
    pas depuis la table JSON, on attend la régénération (Archi 34). */
@@ -342,6 +345,12 @@ export function feuilleDesCotes({ grandEcran = true } = {}) {
   const ancreDeLaBourse = ORGANES.find((o) => CLEF_DE[o.nom] === "purse");
   regles.push(...reglesDeLaBourse(".gear",
     ancreDeLaBourse && { ...ancreDeLaBourse, y: haut(ancreDeLaBourse.y) }, DALLE, BELT_H));
+  /* ⚖️ LOT 318 — LA CÉSURE : chaque dalle du plan se peint à sa cote ; l'écran, lui, ne peint
+     plus de fond (`.gear[data-cesure]`, shell.css) — sinon les 8 de la césure seraient pleins. */
+  for (const d of DALLES) {
+    regles.push(`.gear > .gear-dalle[data-dalle="${d.nom.toLowerCase()}"]{left:0;top:${px(haut(d.y))};` +
+      `width:${px(DALLE.l)};height:${px(d.h)}}`);
+  }
   regles.push(`.gear > .gear-rangee{left:${px(MARGE)};top:${px(haut(BARRE.y))};` +
     `width:${px(DALLE.l - 2 * MARGE)};height:${px(BARRE.h)}}`);
   if (PANTIN) {
@@ -520,30 +529,12 @@ function collecteur(id, options, retenu) {
 /** Le dropdown `Send to` — l'organe du §8 (`.pipeline-dropdown`) : très large,
  *  peu haut, aucun liseré. Les quatre destinations de la création. */
 function dropdown(id, options) {
-  /* ⚖️ UNE BOÎTE AUTOUR DU SELECT, ET C'EST LE `<select>` NATIF QUI L'IMPOSE —
-     Eric, 16/09 au soir : *« dans le dropdown rajoute collé au haut, en T1, en
-     italique, couleur un peu moins blanc flashy : destination »*. ⛔ On ne peut
-     rien écrire DANS un `<select>` : il ne rend que ses `<option>`, et ses
-     pseudo-éléments ne sont pas fiables d'un moteur à l'autre. La boîte porte donc
-     le mot et l'organe ; le select, lui, ne perd ni son rôle ni son clavier.
-     ⭐ C'EST LA BOÎTE QUI PORTE `data-organe` : elle EST l'organe du plan, celui
-     dont la cote est posée. Le select la remplit. */
-  const boite = eld("div", "gear-destination");
-  boite.dataset.organe = id;
-  const mot = eld("span", "gear-destination-mot", "destination");
-  mot.setAttribute("aria-hidden", "true");   /* le select dit déjà « Send to » */
-  const s = eld("select", "pipeline-dropdown gear-send-to");
-  s.setAttribute("aria-label", "Send to");
-  for (const d of DESTINATIONS) {
-    const opt = eld("option", null, d.mot);
-    opt.value = d.valeur;
-    if (!d.actif) opt.disabled = true;
-    if (d.valeur === options.destination) opt.selected = true;
-    s.append(opt);
-  }
-  s.addEventListener("change", () => { if (options.surDestination) options.surDestination(s.value); });
-  boite.append(mot, s);
-  return boite;
+  /* ⚖️ LOT 318 — LE DROPDOWN DE GEAR EST CELUI DE PACK ET WARES (`destinationDEnvoi`,
+     `collecteur-envoi.mjs`), étiquette comprise. Eric, 27/09 : « harmonise les étiquettes de
+     destination · Pour les 3 · Même typo même taille couleur etc ». ⭐ La boîte garde la clef de Gear
+     (`send-to`) : c'est elle qui reçoit la cote du plan. */
+  return destinationDEnvoi({ destinations: DESTINATIONS, destination: options.destination,
+    surDestination: options.surDestination, organe: id });
 }
 
 /* Les trois boutons libres du corps de l'écran (gabarit « libre », Eric 16/09 :
@@ -811,6 +802,18 @@ export function construireLEcranGear(options = {}) {
   feuille.setAttribute("data-fhpc", "gear");
   feuille.textContent = feuilleDesCotes({ grandEcran: Boolean(options.lune) });
   noeud.append(feuille);
+
+  /* ⚖️ LOT 318 — « On fait une césure entre dalle 1 et 2 comme dans wares et pack » (Eric, 27/09) :
+     deux fonds, posés AVANT tout le reste (donc dessous), qui ne captent aucun doigt. */
+  if (DALLES.length) {
+    noeud.dataset.cesure = "true";
+    for (const d of DALLES) {
+      const fond = eld("div", "gear-dalle");
+      fond.dataset.dalle = d.nom.toLowerCase();
+      fond.setAttribute("aria-hidden", "true");
+      noeud.append(fond);
+    }
+  }
 
   if (PANTIN) {
     const p = eld("div", "gear-pantin");

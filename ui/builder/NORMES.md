@@ -9855,3 +9855,34 @@ en est l'enfant. Repli sans bourse à l'écran : en haut au centre (`data-place=
 ⭐ **UN SEUL POINT D'ÉCOUTE** : `applyDecisionAction` lit la bourse avant et après toute décision —
 achat, craft, vente, remboursement, et ce qui viendra. ⛔ Sauf `setCurrency` : le `+`/`−` de la
 bourse est un réglage, pas une transaction. ⛔ Une décision imbriquée ne s'annonce pas deux fois.
+
+---
+
+### 🟦 GEAR : SIX RANGÉES, LA CÉSURE, ET LE PIED DE PACK
+📍 `equipement-gear-cesure-et-pied` · vivante · 27/09
+⚖️ **L'écran Gear porte deux dalles, comme Wares et Pack : le CORPS (six rangées de jetons) et le PIED (collecteur, bourse, lune, Tally, `Send to`, la rangée), séparés par une césure de 8.**
+
+> Eric, 2026-09-27, mot pour mot : **« Mettre les 2 ground sous les foot/leg · Les colonnes les extra
+> storage montent d'un cran vers le haut · Body forging 2 va se mettre à la place des Tally · Les Tally,
+> la lune, la bourse vont se placer comme dans wares et pack · Companions va à droite de send · On fait
+> une césure entre dalle 1 et 2 comme dans wares et pack »**, puis **« Le ? va dégager »**, repris :
+> **« Dans le doute on peut mettre ? à droite de companions »** ; plan validé : **« C'est ça parfait
+> tu peux coder ! »**.
+
+📐 **LE PLAN** (`R_gen.py`, vault `Plan-ecran-R`) : rangées 64 · 120 · 176 · 232 · 284 · 336 — les deux
+dernières gouttières valent 4 pour que le pied de Pack (159) tienne dans 560 ; corps 60..388, césure
+8, pied 396..555 ; collecteur +12, bourse +9, Tally et `Send to` +68, lune +19, rangée +112 (les
+écarts du pied de Wares/Pack à son haut). Rangée du bas : les trois carrés, Send (centré), Companions
+centré entre les DESSINS de Send et du `?`, le `?` au bord droit. Les deux dalles sont peintes par
+`.gear-dalle` (DALLES, exportées par le générateur) ; l'écran ne peint plus de fond d'un tenant.
+
+⚖️ **LE DROPDOWN DES TROIS ÉCRANS** — Eric : **« Oui harmonise les étiquettes de destination · Pour
+les 3 · Même typo même taille couleur etc »**, puis **« Le mieux c'est celui de gear, à l'exception
+de destination qui [est] un peu trop collé »**. Un seul organe (`destinationDEnvoi`,
+`collecteur-envoi.mjs`) pour Gear, Pack et Wares : l'étiquette « destination » (T1, italique,
+`--text-soft`), 4 d'air, puis le select à l'habit de Gear (T2, centré, 8 de chaque côté). Mesuré : les
+trois rendent la même boîte, l'étiquette à la même hauteur, le select 28 de haut.
+
+⚖️ **LE PANTIN** — **« Retravaille le contour du bonhomme similairement à celui de wares »** :
+`pantin-h-contour.png`, intérieur α 103 et trait α 180 (la facture mesurée de `wares-fond.webp`), sous
+le voile de Wares (`--filigrane`).

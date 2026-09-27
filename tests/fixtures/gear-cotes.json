@@ -17,15 +17,13 @@
   120,
   176,
   232,
-  288,
-  344,
-  396,
-  448
+  284,
+  336
  ],
- "y_barre": 504,
+ "y_barre": 508,
  "h_barre": 44,
  "pantin": {
-  "image": "pantin-h.png",
+  "image": "pantin-h-contour.png",
   "source": "b3-ancrages.mjs:31",
   "l": 441,
   "h": 1400,
@@ -35,7 +33,7 @@
   "rendu_h": 290.0
  },
  "lunes_y": [
-  119
+  415
  ],
  "boites": [
   {
@@ -57,6 +55,14 @@
   {
    "nom": "HEAD/NECK 2",
    "x": 190,
+   "y": 64,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "BODY FORGING opt",
+   "x": 284,
    "y": 64,
    "l": 87,
    "h": 48,
@@ -127,9 +133,9 @@
    "sorte": "jeton"
   },
   {
-   "nom": "BODY FORGING opt",
+   "nom": "EXTRA STORAGE 1",
    "x": 4,
-   "y": 288,
+   "y": 284,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
@@ -137,7 +143,7 @@
   {
    "nom": "FOOT/LEG 1",
    "x": 99,
-   "y": 288,
+   "y": 284,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
@@ -145,15 +151,7 @@
   {
    "nom": "FOOT/LEG 2",
    "x": 190,
-   "y": 288,
-   "l": 87,
-   "h": 48,
-   "sorte": "jeton"
-  },
-  {
-   "nom": "EXTRA STORAGE 1",
-   "x": 4,
-   "y": 344,
+   "y": 284,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
@@ -161,7 +159,7 @@
   {
    "nom": "EXTRA STORAGE 3",
    "x": 284,
-   "y": 344,
+   "y": 284,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
@@ -169,15 +167,23 @@
   {
    "nom": "EXTRA STORAGE 2",
    "x": 4,
-   "y": 396,
+   "y": 336,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
   },
   {
-   "nom": "SEND COLLECTOR",
-   "x": 144,
-   "y": 396,
+   "nom": "GROUND 1",
+   "x": 99,
+   "y": 336,
+   "l": 87,
+   "h": 48,
+   "sorte": "jeton"
+  },
+  {
+   "nom": "GROUND 2",
+   "x": 190,
+   "y": 336,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
@@ -185,53 +191,34 @@
   {
    "nom": "EXTRA STORAGE 4",
    "x": 284,
-   "y": 396,
+   "y": 336,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
   },
   {
-   "nom": "GROUND 1",
-   "x": 4,
-   "y": 448,
-   "l": 87,
-   "h": 48,
-   "sorte": "jeton"
-  },
-  {
-   "nom": "GROUND 2",
-   "x": 284,
-   "y": 448,
+   "nom": "SEND COLLECTOR",
+   "x": 144,
+   "y": 408,
    "l": 87,
    "h": 48,
    "sorte": "jeton"
   },
   {
    "nom": "SEND TO",
-   "x": 137.5,
-   "y": 450,
-   "l": 100,
-   "h": 44,
-   "cible": 44,
-   "mot": "Send to",
-   "cran": "T2/600",
-   "sorte": "bouton"
-  },
-  {
-   "nom": "COMPANIONS",
-   "x": 290,
-   "y": 292,
-   "l": 77,
+   "x": 139.5,
+   "y": 464,
+   "l": 96,
    "h": 40,
    "cible": 44,
-   "mot": "Companions",
+   "mot": "Send to",
    "cran": "T1/600",
    "sorte": "bouton"
   },
   {
    "nom": "PURSE",
-   "x": 317.5,
-   "y": 231.0,
+   "x": 276,
+   "y": 405,
    "l": 50,
    "h": 50,
    "cible": 44,
@@ -241,8 +228,8 @@
   },
   {
    "nom": "MONTANT",
-   "x": 322.5,
-   "y": 236.0,
+   "x": 281.0,
+   "y": 410.0,
    "l": 40,
    "h": 40,
    "mot": "999 gp",
@@ -253,8 +240,8 @@
   },
   {
    "nom": "PARTY TALLY",
-   "x": 285,
-   "y": 68.0,
+   "x": 32,
+   "y": 464,
    "l": 40,
    "h": 40,
    "cible": 44,
@@ -266,8 +253,8 @@
   },
   {
    "nom": "TALLY",
-   "x": 329,
-   "y": 68.0,
+   "x": 80,
+   "y": 464,
    "l": 40,
    "h": 40,
    "cible": 44,
@@ -278,7 +265,7 @@
   {
    "nom": "GEAR",
    "x": 10.25,
-   "y": 506.0,
+   "y": 510.0,
    "l": 40,
    "h": 40,
    "cible": 44,
@@ -289,7 +276,7 @@
   {
    "nom": "BACKPACK",
    "x": 56.5,
-   "y": 506.0,
+   "y": 510.0,
    "l": 40,
    "h": 40,
    "cible": 44,
@@ -300,7 +287,7 @@
   {
    "nom": "WARES",
    "x": 102.75,
-   "y": 506.0,
+   "y": 510.0,
    "l": 40,
    "h": 40,
    "cible": 44,
@@ -311,7 +298,7 @@
   {
    "nom": "SEND",
    "x": 149.0,
-   "y": 504,
+   "y": 508,
    "l": 77,
    "h": 44,
    "cible": 44,
@@ -320,20 +307,31 @@
    "sorte": "porte"
   },
   {
+   "nom": "COMPANIONS",
+   "x": 243.5,
+   "y": 510,
+   "l": 77,
+   "h": 40,
+   "cible": 44,
+   "mot": "Companions",
+   "cran": "T1/600",
+   "sorte": "bouton"
+  },
+  {
    "nom": "?",
    "x": 338.0,
-   "y": 515.0,
+   "y": 519.0,
    "l": 22,
    "h": 22,
    "cible": 44,
    "cible_x": 327,
-   "cible_y": 504,
+   "cible_y": 508,
    "sorte": "rond"
   },
   {
    "nom": "LUNE",
    "x": 4,
-   "y": 119,
+   "y": 415,
    "l": 30,
    "h": 30,
    "cible": 44,

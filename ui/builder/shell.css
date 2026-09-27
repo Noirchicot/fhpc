@@ -3069,7 +3069,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=859") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=863") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3392,7 +3392,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=859") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=863") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5044,7 +5044,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=859") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=863") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8025,7 +8025,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=859");
+  background-image: url("./assets/tarot-dos.jpg?v=863");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -9532,8 +9532,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 
 /* le pantin — un repère en filigrane, second plan (même encre que `.b3-scene-corps`) */
+/* ⚖️ LOT 318 — « Retravaille le contour du bonhomme similairement à celui de wares » (Eric, 27/09) :
+   l'image porte désormais son contour (`pantin-h-contour.png`), et le voile est celui de Wares —
+   le jeton `--filigrane` (.40 le jour, .62 la nuit) au lieu d'un .18 écrit ici. */
 .gear-pantin {
-  background: var(--text-soft); opacity: .18; pointer-events: none;
+  background: var(--text-soft); opacity: var(--filigrane); pointer-events: none;
   mask-size: 100% 100%; -webkit-mask-size: 100% 100%;
   mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
 }
@@ -9981,27 +9984,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .gear-monnaie-bouton:disabled { opacity: var(--organe-eteint); cursor: default; }
 
-/* — LE DROPDOWN `Send to` : l'organe du §8 (`.pipeline-dropdown`), au cran T2 — */
-.gear-send-to { padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
-/* ⚖️ LA BOÎTE DU DROPDOWN — Eric, 16/09 au soir : le mot « destination » collé au
-   haut, la valeur choisie dessous. ⭐ C'EST LA BOÎTE QUI REÇOIT LA COTE du plan
-   (`[data-organe="send-to"]`, 100 × 44) ; le select prend ce que le mot laisse. */
-.gear-destination { display: flex; flex-direction: column; overflow: hidden; }
-/* ⛔ LE MOT NE SE COMPRIME JAMAIS — Eric : *« italique dropdown, toujours visible,
-   collée en haut »*. `flex: none` le met hors du partage : c'est le select qui cède
-   la place, jamais l'étiquette. Sans ça, un select natif plus haut que sa boîte
-   aurait mangé le mot d'abord, et seulement sur certains moteurs. */
-.gear-destination-mot { flex: none; }
-.gear-destination .gear-send-to { flex: 1 1 auto; min-height: 0; }
-/* 📏 T1, ITALIQUE, ET UNE ENCRE DOUCE — *« couleur un peu moins blanc flashy »* :
-   `--text-soft`, qui bascule avec le thème là où un blanc fixe aurait crié la nuit
-   et disparu le jour. ⛔ Le mot ne se clique pas : c'est une étiquette, le select
-   dessous porte le geste et son nom accessible. */
-.gear-destination-mot {
-  font-size: var(--t1); font-style: italic; font-weight: 400; line-height: 1;
-  color: var(--text-soft); text-align: center; pointer-events: none;
-  padding-top: var(--sp-2);
-}
+/* 🗄️ LOT 318 — `.gear-send-to`, `.gear-destination` et `.gear-destination-mot` sont partis : Gear
+   prend le dropdown de Pack et Wares (`destinationDEnvoi`), et l'étiquette vit sur les trois
+   (`.destination-mot`, plus bas, avec `.sac-destination`). */
 
 /* — LA RANGÉE DU PIED : la cinquième porte de §6 pré (`data-rangee`), deux
    bornes et un groupe ; la grille place le livre, les trois portes et le `?`.
@@ -13241,8 +13226,23 @@ button.tuto-point::before {
 /* ⛔ PAS DE FAMILLE `.sac-porte` : les trois portes du bas SONT celles de R
    (`gear-porte`) — la même classe, donc le même gabarit et les mêmes teintes. Une
    seconde famille aurait recopié un habit, et deux habits divergent. */
-.sac-destination { display: flex; align-items: center; }
-.sac-destination > .pipeline-dropdown { width: 100%; }
+/* ⚖️ LOT 318 — LE DROPDOWN DES TROIS ÉCRANS, ÉTIQUETTE COMPRISE. Eric, 27/09 : « harmonise les
+   étiquettes de destination · Pour les 3 · Même typo même taille couleur etc ». L'étiquette est
+   celle que Gear portait depuis le 16/09 : *« collé au haut, en T1, en italique, couleur un peu
+   moins blanc flashy »*. ⭐ La boîte reçoit la cote du plan ; le mot en haut ne se comprime jamais
+   (`flex: none`), c'est le select qui cède. */
+/* ⚖️ « Le mieux c'est celui de gear, à l'exception de destination qui [est] un peu trop collé »
+   (Eric, 27/09) : le select prend l'habit de Gear (T2, centré, 8 de chaque côté), et 4 d'air
+   séparent désormais l'étiquette du select. */
+.sac-destination { display: flex; flex-direction: column; overflow: hidden; gap: var(--sp-4); }
+.sac-destination > .pipeline-dropdown { width: 100%; flex: 1 1 auto; min-height: 0;
+  padding-inline: var(--sp-8); font-size: var(--t2); text-align: center; }
+.destination-mot {
+  flex: none;
+  font-size: var(--t1); font-style: italic; font-weight: 400; line-height: 1;
+  color: var(--text-soft); text-align: center; pointer-events: none;
+  padding-top: var(--sp-2);
+}
 /* ⭐ LA RANGÉE DU BAS — elle porte `data-rangee`, donc la grille partagée des
    rangées de contrôles la range : le livre à gauche, les trois portes au milieu,
    le `?` à droite. ⛔ Aucune cote ici : sa boîte vient de la table. */
@@ -13779,4 +13779,18 @@ select.x5-drop {
 @media (prefers-reduced-motion: reduce) {
   .bourse-ecart { animation: bourse-ecart-fixe 1000ms linear forwards; }
   @keyframes bourse-ecart-fixe { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+}
+
+/* ══ ⚖️ LOT 318 — LA CÉSURE DE GEAR ═══════════════════════════════════════════════════════════════
+   Eric, 27/09 : « On fait une césure entre dalle 1 et 2 comme dans wares et pack ». Les deux dalles
+   (corps, pied) sont peintes par `.gear-dalle`, à leurs cotes du plan (`gear-disposition.mjs`,
+   DALLES) ; l'écran ne peint plus son fond d'un seul tenant. ⭐ La matière reste celle de Gear
+   (la dalle intermédiaire) : seule la coupe change. */
+.gear.dalle-intermediaire[data-cesure="true"] { background: none; box-shadow: none; }
+.gear > .gear-dalle {
+  position: absolute;
+  pointer-events: none;
+  background: var(--dalle-inter);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }

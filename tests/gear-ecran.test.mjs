@@ -82,16 +82,34 @@ test("2 — rien à moins de 4 d'un bord, et rien hors de la dalle (les dessins)
   }
 });
 
-test("2 bis — les huit rangées ne sont séparées que par 4 ou 8, et le budget vertical est fermé à 560", () => {
+test("2 bis — ⚖️ LOT 318 : six rangées séparées de 4 ou 8, la CÉSURE de 8, et le pied de Pack qui tient dans 560", async () => {
+  /* 🔄 Il tenait « huit rangées, 8 jusqu'à la barre, 12 dessous ». Eric, 27/09 : « On fait une césure
+     entre dalle 1 et 2 comme dans wares et pack », et « Les Tally, la lune, la bourse vont se placer
+     comme dans wares et pack » — la loi devient : la dalle 1 (six rangées), 8 de césure, puis le PIED,
+     aux cotes de celui de Wares (159 de haut, la rangée à 112 de son haut). */
+  const { DALLES } = await import("../ui/builder/gear-disposition.mjs");
+  assert.equal(LIGNES.length, 6, "six rangées dans la dalle 1");
   for (let i = 0; i + 1 < LIGNES.length; i++) {
     const ecart = LIGNES[i + 1] - (LIGNES[i] + JETON.h);
     assert.ok(ecart === 4 || ecart === 8, `rangée ${i + 1} → ${i + 2} : écart ${ecart}`);
   }
   assert.equal(LIGNES[0], BELT_H + MARGE, "la première rangée colle au belt, à la marge près");
-  assert.equal(BARRE.y - (LIGNES[7] + JETON.h), 8, "8 entre la dernière rangée et la barre");
+  const [corps, pied] = DALLES;
+  assert.deepEqual([corps.nom, pied.nom], ["CORPS", "PIED"]);
+  assert.equal(corps.y, BELT_H, "le corps commence sous le belt");
+  assert.equal(corps.y + corps.h, LIGNES[5] + JETON.h + MARGE, "le corps borde sa dernière rangée de 4");
+  assert.equal(pied.y - (corps.y + corps.h), 8, "⚖️ la césure vaut 8, comme dans Wares");
+  assert.equal(pied.h, 159, "le pied de Wares, au blg près");
+  assert.equal(BARRE.y - pied.y, 112, "la rangée du bas à 112 du haut du pied, comme dans Wares");
   assert.equal(BARRE.h, TOUCH, "la barre vaut la cible");
-  /* 12 sous la barre = 8 sous la rangée (§6 pré) + les 4 de marge de la dalle */
-  assert.equal(DALLE.h - (BARRE.y + BARRE.h), 8 + MARGE);
+  assert.ok(pied.y + pied.h <= DALLE.h, "⛔ le pied déborde la dalle");
+  /* ⚖️ et le pied porte les organes de Pack, aux mêmes écarts à son haut */
+  const O = Object.fromEntries(ORGANES.map((o) => [o.nom, o]));
+  assert.equal(O["SEND COLLECTOR"].y - pied.y, 12);
+  assert.equal(O.PURSE.y - pied.y, 9);
+  assert.equal(O.TALLY.y - pied.y, 68);
+  assert.equal(O["SEND TO"].y - pied.y, 68);
+  assert.equal(O.LUNE.y - pied.y, 19);
 });
 
 test("2 ter — aucun dessin n'en chevauche un autre, aucune cible non plus, et toute cible atteint 44 dans les deux sens", () => {
@@ -302,7 +320,8 @@ test("5 — l'écran rend chaque organe posé du plan, une fois — et la lune s
   assert.equal(orphelin.children.length, 2, "à défaut de le nommer, il dit qu'il retient quelque chose");
   assert.equal(orphelin.children[1].textContent, "1 to send");
   /* et le mot du dropdown ne cède jamais sa place au select */
-  assert.match(shell, /\.gear-destination-mot\s*\{\s*flex:\s*none/, "toujours visible, collé au haut");
+  /* 🔄 LOT 318 — le mot est celui de l'organe partagé (`.destination-mot`), sur les trois écrans */
+  assert.match(shell, /\.destination-mot\s*\{\s*flex:\s*none/, "toujours visible, collé au haut");
   assert.match(tokens, /--icone-parchemin-party:\s*url\(/);
   /* 🔴 LES TROIS PORTES SONT DANS LE GROUPE DE LA COLONNE DU MILIEU — et c'est la
      rangée qui le pose, pas la coquille. ⛔ Eric l'a vu sur deux appareils le 16/09 :
@@ -509,17 +528,21 @@ test("5 quater — les portes et les boutons publient leur geste ; Companions es
   assert.deepEqual(options.map((o) => o.disabled === true), DESTINATIONS.map((d) => !d.actif));
   /* ⚖️ LE MOT « destination » EST COLLÉ AU HAUT DE LA BOÎTE, PAS DANS LE SELECT —
      Eric, 16/09 au soir. ⛔ Un `<select>` ne rend que ses `<option>` : le mot vit
-     donc dans la boîte qui porte l'organe, et le select la remplit. */
+     donc dans la boîte qui porte l'organe, et le select la remplit.
+     🔄 LOT 318 — « harmonise les étiquettes de destination · Pour les 3 · Même typo même taille
+     couleur etc » (Eric, 27/09) : la boîte et son mot viennent de l'organe PARTAGÉ avec Pack et
+     Wares (`destinationDEnvoi`) ; les classes sont les siennes. */
   const boite = n.querySelector('[data-organe="send-to"]');
   assert.equal(boite.tagName, "DIV", "l'organe du plan est la BOÎTE — c'est elle qui reçoit la cote");
-  assert.equal(boite.children[0].className, "gear-destination-mot", "le mot vient EN PREMIER : c'est ce qui le colle au haut");
+  assert.equal(boite.className, "sac-destination", "⛔ Gear refabrique son dropdown au lieu de prendre l'organe partagé");
+  assert.equal(boite.children[0].className, "destination-mot", "le mot vient EN PREMIER : c'est ce qui le colle au haut");
   assert.equal(boite.children[0].textContent, "destination");
   assert.equal(boite.children[0].getAttribute("aria-hidden"), "true", "le select porte déjà le nom accessible");
   assert.equal(boite.children[1].tagName, "SELECT", "et le select est dessous, entier");
   assert.equal(boite.querySelector("select").getAttribute("aria-label"), "Send to");
-  assert.match(shell, /\.gear-destination-mot\s*\{[^}]*font-size:\s*var\(--t1\)/, "T1");
-  assert.match(shell, /\.gear-destination-mot\s*\{[^}]*font-style:\s*italic/, "italique");
-  assert.match(shell, /\.gear-destination-mot\s*\{[^}]*color:\s*var\(--text-soft\)/,
+  assert.match(shell, /\.destination-mot\s*\{[^}]*font-size:\s*var\(--t1\)/, "T1");
+  assert.match(shell, /\.destination-mot\s*\{[^}]*font-style:\s*italic/, "italique");
+  assert.match(shell, /\.destination-mot\s*\{[^}]*color:\s*var\(--text-soft\)/,
     "une encre douce qui bascule — « un peu moins blanc flashy », et un blanc fixe aurait crié la nuit");
 });
 

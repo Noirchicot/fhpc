@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=859";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=859";
+} from "./wares-disposition.mjs?v=863";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=863";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=859";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=859";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=859";
+import { REPOS_MS } from "./sac-ecran.mjs?v=863";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=863";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=863";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=859";
+import { portesCarrees } from "./porte-carree.mjs?v=863";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=859";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=863";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,10 +43,10 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=85
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=859";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=863";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome } from "./glisser.mjs?v=859";
-import { versionQuery } from "./version.mjs?v=859";
+import { armerJeton, fantome } from "./glisser.mjs?v=863";
+import { versionQuery } from "./version.mjs?v=863";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -369,7 +369,11 @@ export function feuilleDesCotesWares() {
   };
   for (const nom of ["COLLECTEUR", "PURSE", "SEND VERS", "PARTY TALLY", "TALLY", "LUNE"]) {
     const o = ORGANES.find((x) => x.nom === nom);
-    if (o) boite(CLEF_DE[nom], o);
+    /* ⚖️ LOT 318 — « Même typo même taille couleur etc » (Eric, 27/09) : le dropdown des trois
+       écrans est le même organe, et sa boîte se rend comme sur Gear et Pack — la CIBLE entière,
+       sans bord transparent. 📏 Mesuré : avec les bords, le select de Wares faisait 24 de haut
+       contre 28 sur Gear et Pack. */
+    if (o) boite(CLEF_DE[nom], nom === "SEND VERS" ? { ...o, ...o.cible } : o);
   }
   /* la tuile de la roue : un dominant et quatre secondaires, la règle d'Eric du 18/09 */
   /* 🔴 LA TUILE POSE SES DEUX COTES, ET AUCUNE NE VIENT DE SON CONTENANT. Eric, 20/09 :
