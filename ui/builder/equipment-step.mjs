@@ -2947,6 +2947,19 @@ export function recordProse(view, recette = null) {
     ? texteDUneVariante(data, recette.variante)
     : niveauDuParchemin !== null ? texteDUnParchemin(data, niveauDuParchemin) : data.description;
   if (typeof description === "string" && description) lignes.push(description);
+  /* ⭐ LOT 314 — UN KIT DIT CE QU'IL CONTIENT, ET OÙ IL SE VERSERA. ⚖️ Eric, 27/09 : *« Pour les kits
+     dans wares tu ne mets aucune description. Il faut aussi préciser dans le kit, qu'un container
+     sera créé […] pour poser les éléments »*. 🔴 Le SRD n'écrit AUCUNE `description` pour un kit :
+     son texte EST sa liste (`data.contents`, les 64 éléments lus au lot 301) — la fiche disait
+     « No further detail ». ⭐ La phrase du rangement nomme la page que `verserLeKit` créera
+     (`PREFIXE_PAGE_DE_KIT` + le nom, lot 301) : un seul nom, lu au même endroit. */
+  const contenu = Array.isArray(data.contents)
+    ? data.contents.map((e) => e && (e.text || e.name)).filter((s) => typeof s === "string" && s) : [];
+  if (contenu.length) {
+    lignes.push(`Contents: ${contenu.join(", ")}.`);
+    const nomDuKit = (view && view.record && view.record.name) || data.name || "";
+    lignes.push(`When you get this kit, a storage page named “${PREFIXE_PAGE_DE_KIT} ${nomDuKit}” is created in your Backpack, and its contents are laid out there.`);
+  }
   for (const [label, valeur] of [
     ["Damage", data.damage],
     ["Mastery", data.mastery],
