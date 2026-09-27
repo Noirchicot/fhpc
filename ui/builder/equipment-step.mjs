@@ -5360,10 +5360,6 @@ export function renderEquipmentStep(ctx, onAction) {
        la section après, puis la coquille les replace (`EVENEMENT_RECADRER`, `socle.mjs`). */
     const bornes = [...section.querySelectorAll(".fiche-livre, .tuto-point")];
     swapContent(section, [construireVue(vueDuRendu())]);
-    for (const b of bornes) if (!b.isConnected) section.append(b);
-    if (bornes.length && typeof CustomEvent === "function") {
-      section.dispatchEvent(new CustomEvent(EVENEMENT_RECADRER, { bubbles: true }));
-    }
     /* ⭐ ET LE RUBAN DE DALLES SE POSE ICI AUSSI — ⛔ pas « plutôt qu'à la coquille » : EN PLUS.
        Un changement de section repeint par ce chemin-ci, où la section est déjà montée ;
        un changement de vue passe par la coquille, qui reconstruit l'étape DÉTACHÉE avant
@@ -5371,6 +5367,12 @@ export function renderEquipmentStep(ctx, onAction) {
        le ruban à zéro une fois sur deux. ⭐ Le placement se relit avant de se consommer,
        donc l'appel qui écrit dans le vide ne mange pas celui de l'autre. */
     poserLesDalles();
+    /* (les bornes gardées plus haut reviennent APRÈS le ruban : ⛔ rien ne s'intercale entre
+       l'échange de contenu et `poserLesDalles`, garde 27 de `sac-ecran`) */
+    for (const b of bornes) if (!b.isConnected) section.append(b);
+    if (bornes.length && typeof CustomEvent === "function") {
+      section.dispatchEvent(new CustomEvent(EVENEMENT_RECADRER, { bubbles: true }));
+    }
     /* ⭐ ET LES ROUES DE WARES SE POSENT ICI AUSSI, pour la MÊME raison que les dalles du
        sac : un ruban placé sur un nœud détaché ne bouge pas. ⛔ Les deux chemins de
        repeint existent — celui-ci, section déjà montée, et celui de la coquille, qui
