@@ -49,3 +49,19 @@ test("2 — ⚖️ le pied porte ses organes aux MÊMES cotes sur les trois page
   assert.equal(G.BARRE.y - G.BELT_H, pack("RANGEE").y, "la rangée du bas, Gear = Pack");
   assert.equal(wares("RANGEE").y, pack("RANGEE").y, "la rangée du bas, Wares = Pack");
 });
+
+test("3 — ⚖️ LOT 325 : la LUNE se peint au même point sur les trois pages — dessin compris, pas seulement la cible", async () => {
+  /* Eric, 27/09 : « La position de la lune dans gear doit être harmonisée aux deux autres ». 🔴 Le
+     garde 2 comparait les CIBLES (identiques) ; le DESSIN se creuse dans la cible par des bords, et
+     Gear les écrivait symétriques (7/7) quand Pack et Wares écrivent ceux du plan (4 à gauche, 10 à
+     droite) — l'astre de Gear était 3 plus à droite. ⭐ On compare donc les BORDS que chaque feuille écrit. */
+  const { createTestDocument } = await import("./dom-stub.mjs");
+  globalThis.document = globalThis.document || createTestDocument();
+  const { feuilleDesCotes } = await import("../ui/builder/gear-ecran.mjs");
+  const { feuilleDesCotesSac } = await import("../ui/builder/sac-ecran.mjs");
+  const bords = (css) => (css.match(/\[data-organe="lune"\]\{[^}]*border-width:([^;}]+)/) || [])[1];
+  const g = bords(feuilleDesCotes({ grandEcran: true }));
+  const p = bords(feuilleDesCotesSac());
+  assert.ok(g && p, "les deux feuilles posent la lune");
+  assert.equal(g.trim(), p.trim(), `⛔ la lune de Gear (${g}) n'est pas creusée comme celle de Pack (${p})`);
+});

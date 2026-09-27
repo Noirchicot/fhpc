@@ -65,19 +65,19 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=873";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=873";
-import { armerJeton, fantome } from "./glisser.mjs?v=873";
+import * as D from "./gear-disposition.mjs?v=874";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=874";
+import { armerJeton, fantome } from "./glisser.mjs?v=874";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=873";
-import { versionQuery } from "./version.mjs?v=873";
-import { enGP } from "./equipement-pipeline.mjs?v=873";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=874";
+import { versionQuery } from "./version.mjs?v=874";
+import { enGP } from "./equipement-pipeline.mjs?v=874";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=873";
-import { noeudDAnnonce } from "./monnaie.mjs?v=873";
-import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=873";
+import { portesCarrees } from "./porte-carree.mjs?v=874";
+import { noeudDAnnonce } from "./monnaie.mjs?v=874";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=874";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */
@@ -324,8 +324,14 @@ export function feuilleDesCotes({ grandEcran = true } = {}) {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))};width:${px(o.l)};height:${px(o.h)}`);
     } else if (o.cible) {
       const c = o.cible;
+      /* ⚖️ LOT 325 — « La position de la lune dans gear doit être harmonisée aux deux autres » (Eric,
+         27/09). 🔴 Les bords étaient SYMÉTRIQUES (`(cible − dessin) / 2`) : la lune, dont le dessin est
+         à 4 du bord et la cible au bord (0..44), se peignait à 7 — 3 plus à droite que sur Pack et
+         Wares, qui écrivent les bords RÉELS. ⭐ Même formule qu'eux : les quatre écarts du plan, et
+         pour toute cible centrée ils rendent exactement les mêmes nombres qu'avant. */
+      const bords = [o.y - c.y, (c.x + c.l) - (o.x + o.l), (c.y + c.h) - (o.y + o.h), o.x - c.x];
       regle(id, `left:${px(c.x)};top:${px(haut(c.y))};width:${px(c.l)};height:${px(c.h)};` +
-        `border-width:${px((c.h - o.h) / 2)} ${px((c.l - o.l) / 2)}`);
+        `border-width:${bords.map(px).join(" ")}`);
     } else {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))};width:${px(o.l)};height:${px(o.h)}`);
     }
