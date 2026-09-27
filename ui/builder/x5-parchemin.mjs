@@ -107,7 +107,7 @@ export function construireX5Parchemin(o, pieces) {
   n.dataset.status = "crafting";
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
-  feuille.textContent = `${feuilleDesCotesX5()}\n${feuilleDuParchemin()}`;
+  feuille.textContent = `${feuilleDesCotesX5({ grandEcran: Boolean(o.lune) })}\n${feuilleDuParchemin()}`;
   n.append(feuille);
 
   const titre = elx("h2", "x5-titre", "Blueprint");
@@ -219,6 +219,7 @@ export function construireX5Parchemin(o, pieces) {
     auVoisin: surDepotVoisin && pret ? (cible) => surDepotVoisin({ envoi: envoi(), cible }) : null }));
 
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+  if (o.lune) n.append(o.lune);   /* 🌕 LOT 307 — la lune, au-dessus de Cancel, à gauche de la quantité */
 
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !sort ? "choose a spell first" : !cote.legal ? "this spell has no readable level" : "not available here",
@@ -278,6 +279,7 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null,
     /* 🪟 LOT 307 — en double écran, lâché dans le collecteur de la page VOISINE : l'étape ouvre
        le popup du craft. ⛔ Absent en vue simple, ou tant que `Send` n'est pas armé. */
     onDepotVoisin: auVoisin ? (creneau, cible) => auVoisin(cible) : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",
   });
   /* ⌨️ le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`) */
   jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });

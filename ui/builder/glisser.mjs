@@ -436,7 +436,7 @@ const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
    BOUGE part au défilement natif bien avant 350 ms ; un doigt qui RESTE n'a rien
    déclenché quand le minuteur tombe. C'est exactement le springboard d'iOS — on tient une
    app avant de pouvoir la porter. */
-export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin }) {
+export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin, accepteVoisin }) {
   /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
      seule ligne de ce fichier qui parle à la feuille de style, et elle ne lui
      dit pas comment peindre : elle lui dit ce que cet organe EST. */
@@ -536,7 +536,10 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
     const cibleSous = (e) => {
       const c = creneauSous(...ouVise(e));
       if (!c || !estUnCreneauVoisin(jeton, c)) return c;
-      return onDepotVoisin && c.dataset && c.dataset.recoitVoisin === "true" ? c : null;
+      /* ⭐ et le jeton dit LESQUELS il sait servir (`accepteVoisin`) : un achat va au collecteur,
+         un objet du sac va sur une case — ⛔ un créneau qu'il ne sert pas ne s'allume pas */
+      return onDepotVoisin && c.dataset && c.dataset.recoitVoisin === "true"
+        && (!accepteVoisin || accepteVoisin(c)) ? c : null;
     };
 
     const viser = (creneau) => {

@@ -565,5 +565,8 @@ export const EN_LUNE = {
   "lune.x5": "Forge",
   "lune.x1": "Item",
   "lune.autre": "Screen",
-  "lune.un-ecran": "Back to one screen"
+  /* ⚖️ Eric, 27/09 (4ᵉ passe) : « La lune propose un close dans son dropdown » · « une option
+     close double screen en haut et au milieu, mais plus petit plus discret » */
+  "lune.fermer": "Close",
+  "lune.fermer-double": "Close double screen"
 };

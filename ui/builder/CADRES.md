@@ -195,7 +195,7 @@ deux rangs, sa cote déduite, le chevron et son bout de course, les deux bouts
 
 ### 🪟 LA LARGEUR DU DOUBLE ÉCRAN — deux colonnes de 375, une gouttière de 8
 📍 `cadre-double-ecran-largeur` · vivante · 27/09 · lot 307
-⚖️ **Deux pages côte à côte demandent une fenêtre d'au moins 758 × 560 px — `375 × 2 + 8` de large, 560 de haut, à l'échelle 1. Au-dessous, une seule page, et rien ne change. Au-dessus, elles ne s'ouvrent que sur COMMANDE — la lune de 30 de la fiche principale, qui ouvre un satellite à gauche (`equipement-double-ecran-lune`) et n'existe elle-même qu'au-dessus. Sur la barre du rail, au-dessus du satellite : sa lune Ø 45 (la tuile dominante) et « Back to one screen » 105 × 44 ; le belt, étroit, au-dessus de la principale.**
+⚖️ **Deux pages côte à côte demandent une fenêtre d'au moins 758 × 560 px — `375 × 2 + 8` de large, 560 de haut, à l'échelle 1. Au-dessous, une seule page, et rien ne change. Au-dessus, elles ne s'ouvrent que sur COMMANDE — la lune de 30 de la fiche principale, qui ouvre un satellite à gauche (`equipement-double-ecran-lune`) et n'existe elle-même qu'au-dessus. Sur la barre du rail : au-dessus du satellite, sa lune Ø 45 (la tuile dominante) ; au milieu de l'app, « Close double screen », un lien de 88 × 44 (335 → 423 sur 758) ; au-dessus de la principale, le belt étroit à la géométrie d'un écran seul (chevron avant à 427).**
 
 ⭐ **LA LARGEUR SE DÉDUIT, ELLE NE S'ÉCRIT PAS** : `--panneau-l × 2 + --sp-8` (la gouttière de la
 maison), la formule de `.app` depuis le lot 120. ⛔ **Il n'y a qu'une porte** — `laPlaceDuDouble`

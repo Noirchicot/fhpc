@@ -698,7 +698,14 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud) {
     onLever: (x, y) => fantome.lever(noeud, x, y),
     onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, options, pisteNoeud); },
     onPoser: () => { fantome.ranger(); arreteLeDefilement(); },
-    onDepot: (creneau) => { arreteLeDefilement(); surDepot(creneau); }
+    onDepot: (creneau) => { arreteLeDefilement(); surDepot(creneau); },
+    /* 🌕 LOT 307 — EN DOUBLE ÉCRAN, UN OBJET DU SAC SE POSE SUR UNE CASE DE GEAR VOISIN : la figure ⑤
+       du 14/09, *« le drag and drop d'un écran à l'autre en double permet d'échanger des items aussi
+       — c'est une alternative »*. ⭐ Rien n'est acheté ni crafté : pas de popup, le même verbe que le
+       glisser dans Gear. ⛔ Le collecteur voisin n'est pas une case : il ne s'allume pas. */
+    onDepotVoisin: options.surDepotVoisin
+      ? (creneau) => { arreteLeDefilement(); options.surDepotVoisin(index, creneau); } : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau !== "collecteur",
   });
 }
 

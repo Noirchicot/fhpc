@@ -443,7 +443,7 @@ test("parchemin 17 — 📐 UNE REDÉCLARATION SE RANGE SOUS SA FAMILLE — l'ar
   for (const o of organesDeLaFamille("parchemin")) {
     const b = o.cible || o;
     const redecl = o.famille && D.ORGANES.some((x) => x !== o && x.nom === o.nom && !x.famille);
-    const sel = `${redecl ? '.x5[data-famille="parchemin"]' : ".x5"} [data-organe="${({ PURSE: "purse", MONTANT: "montant" })[o.nom] || o.nom}"]`;
+    const sel = `${redecl ? '.x5[data-famille="parchemin"]' : ".x5"} [data-organe="${({ PURSE: "purse", MONTANT: "montant", LUNE: "lune" })[o.nom] || o.nom}"]`;
     assert.ok(f.includes(`${sel}{position:absolute;left:${b.x}px;top:${b.y}px;`), `⛔ ${o.nom} n'est pas posé à sa cote sous sa famille`);
   }
   /* ⚔️ le pied COMMUN reste où il était : une règle non rangée sous sa famille l'aurait écrasé */
@@ -478,10 +478,13 @@ test("parchemin 18 — 📐 LE PLAN DU PARCHEMIN TIENT DANS LA DALLE — cibles,
       assert.ok(!recouvre, `⛔ ${na} recouvre ${nc}`);
     }
   }
-  /* ⭐ la quantité est le miroir de la bourse autour du jeton */
+  /* 🔄 LOT 307 (27/09) — la quantité n'est plus le miroir de la bourse : la LUNE prend la gauche,
+     au-dessus de Cancel (Eric : « La forge on lui donne une lune au dessus du bouton cancel »), et
+     la quantité se range à sa droite, à 4, sans toucher le jeton. */
   const par = (n) => os.find((o) => o.nom === n);
-  const q = par("QTY").cible, j = par("JETON"), p = par("PURSE");
-  assert.equal(q.x + q.l / 2, (D.MARGE_COTE + j.x) / 2);
+  const q = par("QTY").cible, j = par("JETON"), p = par("PURSE"), l = par("LUNE").cible;
+  assert.equal(q.x, l.x + l.l + 4, "la quantité à 4 de la lune");
+  assert.ok(q.x + q.l < j.x, "sans toucher le jeton");
   assert.equal(p.x + p.l / 2, (j.x + j.l + D.DALLE.l - D.MARGE_COTE) / 2);
 });
 

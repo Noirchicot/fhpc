@@ -90,12 +90,23 @@ export function motDeLaPage(page) {
   return t(`lune.${FAMILLE_DE_PAGE[page] || "autre"}`);
 }
 
+/** Le choix « Close » de la lune — ⚖️ Eric, 27/09 : *« La lune propose un close dans son
+ *  dropdown »*. Il ferme le double écran ; il n'existe que si un satellite est ouvert. */
+export const FERMER = "fermer";
+
 /** Ce que la lune propose : les écrans des archives, sauf la principale et le satellite déjà
- *  ouvert. ⛔ « Back to one screen » n'y est PAS : il vit sur la barre du rail (figure ④). */
+ *  ouvert ; puis « Close » en dernier, si un satellite est ouvert.
+ *  ⛔ LA FORGE (X5) N'Y EST JAMAIS — Eric, 27/09 : *« Le forge peut ouvrir, mais ne peux pas être
+ *  ouverte »* : `ECRANS_DE_LA_LUNE` ne la porte pas, et un garde le vérifie. */
 export function choixDeLaLune({ principale, satellite = null } = {}) {
-  return ECRANS_DE_LA_LUNE.filter((e) => e !== principale && e !== satellite)
+  const ecrans = ECRANS_DE_LA_LUNE.filter((e) => e !== principale && e !== satellite)
     .map((valeur) => ({ valeur, mot: t(`lune.${valeur}`) }));
+  return satellite ? [...ecrans, { valeur: FERMER, mot: t("lune.fermer") }] : ecrans;
 }
+
+/** Les fiches qui ne s'ouvrent JAMAIS dans le satellite : la Forge et son aperçu. ⭐ Si le
+ *  satellite y mène (un plan tapé dans Wares à gauche), elles s'ouvrent dans la PRINCIPALE. */
+export const PAGES_PRINCIPALES_SEULEMENT = Object.freeze(["x5", "x1-apercu"]);
 
 /** 🌕 LA LUNE UNIQUE → LE SÉLECTEUR — Eric, 27/09 : *« une lune qui propose un dropdown de choix
  *  d'écrans, une lune 30 diam »*, gardée le 27/09 au soir (*« Le concept de la lune unique qui
@@ -138,8 +149,10 @@ export function construireLaLune({ principale, satellite = null, rail = false, s
   return s;
 }
 
-/** Le mot du bouton de la barre du rail — ⚖️ « BACK TO ONE SCREEN » (figure ④, croquis du 27/09). */
-export const MOT_UN_SEUL_ECRAN = t("lune.un-ecran");
+/** Le mot du contrôle de la barre du rail — ⚖️ Eric, 27/09 : *« Il y a une option close double
+ *  screen en haut et au milieu, mais plus petit plus discret »* (il remplace « Back to one
+ *  screen » de la figure ④). */
+export const MOT_UN_SEUL_ECRAN = t("lune.fermer-double");
 
 /** Les vues de l'étape qui SONT un Tally — ⚖️ Eric, 27/09 : *« Le group et le part
  *  tally »*. `b2` est le Tally de Wares (le panier), `sb32` celui de Gear (la liste

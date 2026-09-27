@@ -118,7 +118,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
 import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=848";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
 import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
-  pagesDuDoubleEcran } from "./double-ecran.mjs?v=848";
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=848";
 import { construireX5 } from "./x5-ecran.mjs?v=848";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=848";
 import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=848";
@@ -3661,7 +3661,7 @@ export function renderEquipmentStep(ctx, onAction) {
     if (ctx.placeDuDouble !== true || estVoisine) return null;
     const satellite = demi ? pagesDuDoubleEcran({ active: vueEquipement, voisine: vueVoisine }).gauche : null;
     return construireLaLune({ principale: page, satellite,
-      surChoix: (v) => { vueVoisine = v; act({ kind: "equipementRedessiner" }); } });
+      surChoix: (v) => { vueVoisine = v === FERMER ? null : v; act({ kind: "equipementRedessiner" }); } });
   };
   if (demi) section.dataset.demiEcran = demi.cote;
   /* le popup d'un dépôt voisin se ferme sans rien écrire (Cancel) */
@@ -3806,6 +3806,12 @@ export function renderEquipmentStep(ctx, onAction) {
   const montrer = (vue) => {
     /* 🌕 LA MOITIÉ VOISINE SE NAVIGUE ELLE-MÊME : un geste fait à gauche change la gauche.
        La coquille repeint les deux (la page voisine est rendue par prêt, jamais en place). */
+    /* ⛔ LA FORGE NE S'OUVRE JAMAIS DANS LE SATELLITE (Eric, 27/09 : « Le forge peut ouvrir, mais
+       ne peux pas être ouverte ») : un plan tapé à gauche l'ouvre dans la PRINCIPALE, et le
+       satellite reste où il était. */
+    if (estVoisine && PAGES_PRINCIPALES_SEULEMENT.includes(vue)) {
+      vueEquipement = vue; act({ kind: "equipementRedessiner" }); return;
+    }
     if (estVoisine) { vueVoisine = vue; act({ kind: "equipementRedessiner" }); return; }
     vueEquipement = vue;
     /* la branche écrit son mot au belt ; la coquille repeint (et `peindre` sert
@@ -4147,6 +4153,10 @@ export function renderEquipmentStep(ctx, onAction) {
     const { noeud } = construireLeSac({
       /* 🌕 la lune, en bas à gauche du sac */
       lune: luneDe("sac"),
+      /* 🌕 LOT 307 — figure ⑤ : un objet du sac lâché sur une case de Gear voisin s'y pose, par le
+         MÊME verbe que le glisser dans Gear (`placerGearLine`, que la coquille fait suivre de
+         `accorderLEquipe`). ⛔ Pas de popup : rien n'est acheté ni crafté. */
+      surDepotVoisin: demi ? (index, boite) => act({ kind: "placerGearLine", index, boite }) : null,
       /* ⚖️ LA LISTE DES CHAMPS VIENT DE L'ÉCRAN, ⛔ ELLE NE SE RETAPE PAS ICI — Eric,
          20/09 : *« absolument rien de bleu »*. Cette ligne gardait `nom` et `fige` et
          jetait `party`, `dehors` et `renommable` : le genre n'arrivait jamais à la tuile.
@@ -4943,6 +4953,8 @@ export function renderEquipmentStep(ctx, onAction) {
        seconde lecture de la même chose. */
     const plan = ficheX5.planRecord || cherche.record(ficheX5.plan);
     const { noeud } = construireX5({
+      /* 🌕 LOT 307 — la Forge a sa lune, au-dessus de Cancel : elle OUVRE un satellite */
+      lune: luneDe("x5"),
       plan, bases: basesDuCraft, itemsMagiques: magiquesDuCraft,
       /* ⭐ la valeur d'un objet fini passe par LA porte des recettes (garde 11) */
       plansFreres: plansAVariante, valeurDe: (r) => valeurDUneRecette(r, null),

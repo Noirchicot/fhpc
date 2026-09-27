@@ -45,7 +45,8 @@ const W = await import("../ui/builder/wares-disposition.mjs");
 const SAC = await import("../ui/builder/sac-disposition.mjs");
 const { currentCartLines } = await import("../ui/builder/equipement-pipeline.mjs");
 const { estUnCreneauVoisin, armerJeton } = await import("../ui/builder/glisser.mjs");
-const { EN_DEPOT_VOISIN } = await import("../src/labels.mjs");
+const { EN_DEPOT_VOISIN, EN_LUNE } = await import("../src/labels.mjs");
+const X5E = await import("../ui/builder/x5-ecran.mjs");
 
 const fixture = exempleFhEn();
 const { build, layers } = fixture;
@@ -122,11 +123,22 @@ test("3 bis — 🌕 CE QUE LA LUNE PROPOSE : les écrans des archives — Backp
   const v = (o) => choixDeLaLune(o).map((c) => c.valeur);
   assert.deepEqual(v({ principale: "gear" }), ["sac", "b2", "r"], "l'ordre des lunes du croquis du 14/09");
   assert.deepEqual(v({ principale: "r" }), ["sac", "b2", "gear"]);
-  assert.deepEqual(v({ principale: "gear", satellite: "sac" }), ["b2", "r"], "⛔ pas le satellite déjà ouvert");
+  assert.deepEqual(v({ principale: "gear", satellite: "sac" }), ["b2", "r", "fermer"],
+    "⛔ pas le satellite déjà ouvert — et « Close » en dernier (Eric, 27/09 : « La lune propose un close dans son dropdown »)");
+  assert.equal(choixDeLaLune({ principale: "gear", satellite: "sac" }).at(-1).mot, "Close");
+  assert.ok(!v({ principale: "gear" }).includes("fermer"), "sans satellite, rien à fermer");
+  /* ⛔ LA FORGE PEUT OUVRIR, JAMAIS ÊTRE OUVERTE (Eric, 27/09) : depuis X5 la lune propose les
+     quatre écrans ; aucune lune, d'aucune page, ne propose X5 ni son aperçu */
+  assert.deepEqual(v({ principale: "x5" }), ["sac", "b2", "r", "gear"]);
+  for (const p of ["gear", "sac", "r", "b2", "x5"]) {
+    for (const sat of [null, "sac", "gear"]) {
+      assert.ok(!v({ principale: p, satellite: sat }).some((x) => x === "x5" || x === "x1-apercu"), `${p}/${sat}`);
+    }
+  }
   assert.deepEqual(choixDeLaLune({ principale: "gear" }).map((c) => c.mot), ["Backpack", "Tally", "Wares"]);
   assert.ok(!v({ principale: "gear" }).includes("x5"), "⛔ la Forge ne s'ouvre pas seule : il lui faut un plan");
   assert.ok(!choixDeLaLune({ principale: "gear", satellite: "sac" }).some((c) => /one screen/i.test(c.mot)),
-    "⛔ « Back to one screen » n'est plus dans le menu : il est sur la barre du rail");
+    "⛔ « Back to one screen » n'est plus dans le menu : c'est « Close » (et « Close double screen » au rail)");
 });
 
 test("4 — ⚖️ LA COQUILLE DEMANDE À L'ORGANE UNIQUE — la place reste `laPlaceDuDouble`, jamais une seconde porte", () => {
@@ -240,7 +252,7 @@ test("9 — 🛒 WARES LÂCHÉ SUR GEAR : « Buy this item for … GP? », Buy =
   const droite = moitie(doc, { cote: "droite", page: "gear" }, []);
   assert.equal(gauche.dataset.vueEquipement, "r");
   assert.equal(droite.dataset.vueEquipement, "gear");
-  const receveur = droite.querySelector('[data-recoit-voisin="true"]');
+  const receveur = droite.querySelector('[data-creneau="collecteur"][data-recoit-voisin="true"]');
   assert.ok(receveur, "le collecteur de Gear se déclare receveur en double écran");
   const jeton = gauche.querySelector(".wares-jeton");
   const nom = jeton.getAttribute("aria-label") || jeton.textContent;
@@ -276,8 +288,8 @@ test("10 — 🧺 LA MÊME PAGE GARDE SON GESTE : un jeton de Wares sur le colle
 /* ══ 11 — X5 → GEAR : Crafting, Found — le MÊME Send que le bouton ═════════════════ */
 /** Ouvre X5 sur `Armor, +1…` depuis Wares, bonus +1, au statut voulu. Rend la moitié gauche. */
 function versX5(doc, acts, statut, envoiVers = null) {
-  /* ⭐ LA FICHE S'OUVRE DANS LA MOITIÉ OÙ L'ON A TAPÉ : la loupe de Wares est rendue comme page
-     VOISINE (à gauche), le plan y ouvre X5 — la moitié voisine se navigue elle-même.
+  /* ⭐ LE PLAN EST TAPÉ DANS LE SATELLITE (la loupe de Wares, à gauche), ET LA FORGE S'OUVRE DANS LA
+     PRINCIPALE : Eric, 27/09, « Le forge peut ouvrir, mais ne peux pas être ouverte ».
      (Par la recherche : le tambour choisit au REPOS d'un défilement, qu'un stub ne sait pas faire.) */
   let gauche = moitie(doc, { cote: "gauche", page: "recherche" }, acts);
   const champ = gauche.querySelector("input");
@@ -285,13 +297,13 @@ function versX5(doc, acts, statut, envoiVers = null) {
   const plan = gauche.querySelectorAll("button").find((b) => (b.getAttribute("aria-label") || "") === "Open Armor, +1, +2, or +3");
   assert.ok(plan, "la recherche trouve le plan");
   cliquer(plan);
-  assert.equal(pageVoisineDeLEquipement(), "x5", "le plan mène à X5, dans la moitié voisine");
-  const g = { cote: "gauche", page: "x5" };
-  gauche = moitie(doc, g, acts);
-  const bonus = gauche.querySelector('select[data-organe="BONUS"]');
+  assert.equal(pageActiveDeLEquipement(), "x5", "⛔ la Forge s'ouvre dans la PRINCIPALE, jamais dans le satellite");
+  const g = { cote: "gauche", page: null };
+  let fiche = moitie(doc, g, acts);
+  const bonus = fiche.querySelector('select[data-organe="BONUS"]');
   choisir(bonus, bonus.querySelectorAll("option").map((o) => o.value).find(Boolean));
-  if (statut) { gauche = moitie(doc, g, acts); choisir(gauche.querySelector('select[data-organe="STATUS"]'), statut); }
-  if (envoiVers) { gauche = moitie(doc, g, acts); choisir(gauche.querySelector('select[data-organe="SEND TO"]'), envoiVers); }
+  if (statut) { fiche = moitie(doc, g, acts); choisir(fiche.querySelector('select[data-organe="STATUS"]'), statut); }
+  if (envoiVers) { fiche = moitie(doc, g, acts); choisir(fiche.querySelector('select[data-organe="SEND TO"]'), envoiVers); }
   return moitie(doc, g, acts);
 }
 
@@ -303,7 +315,7 @@ test("11 — ⚒️ X5 CRAFTING LÂCHÉ SUR GEAR : « Craft this item for … GP
   assert.equal(send.disabled, false, "Send est armé (bonus +1, bourse riche)");
   const n0 = parBouton.length;
   /* le bouton, sur une moitié qui écrit dans `parBouton` */
-  const gBouton = moitie(doc, { cote: "gauche", page: "x5" }, parBouton);
+  const gBouton = moitie(doc, { cote: "gauche", page: null }, parBouton);
   cliquer(gBouton.querySelector('[data-organe="SEND"]'));
   const envoiBouton = parBouton.slice(n0).filter((a) => a.kind !== "fenetre" && a.kind !== "equipementRedessiner");
 
@@ -312,7 +324,7 @@ test("11 — ⚒️ X5 CRAFTING LÂCHÉ SUR GEAR : « Craft this item for … GP
   const gauche = versX5(doc, acts, null);
   const droite = moitie(doc, { cote: "droite", page: "gear" }, []);
   const avant = acts.length;
-  glisser(gauche.querySelector(".x5-jeton"), droite.querySelector('[data-recoit-voisin="true"]'));
+  glisser(gauche.querySelector(".x5-jeton"), droite.querySelector('[data-creneau="collecteur"][data-recoit-voisin="true"]'));
   const [p] = popups(acts.slice(avant));
   assert.ok(p, "le dépôt ouvre un popup");
   assert.match(p.texte, /^Craft this item for [\d,]+ GP\?$/);
@@ -330,7 +342,7 @@ test("12 — ⚒️ [Cancel] NE CHANGE RIEN AU DOCUMENT — il ferme, et c'est t
   const acts = [];
   const gauche = versX5(doc, acts, null);
   const droite = moitie(doc, { cote: "droite", page: "gear" }, []);
-  glisser(gauche.querySelector(".x5-jeton"), droite.querySelector('[data-recoit-voisin="true"]'));
+  glisser(gauche.querySelector(".x5-jeton"), droite.querySelector('[data-creneau="collecteur"][data-recoit-voisin="true"]'));
   const [p] = popups(acts);
   const m = acts.length;
   p.actions.find((a) => a.mot === "Cancel").faire();
@@ -344,7 +356,7 @@ test("13 — 🎁 X5 FOUND LÂCHÉ SUR GEAR : « You found this item. It goes to
      c'est lui qui gagne pour un objet trouvé */
   const gauche = versX5(doc, acts, "Found", "self");
   const droite = moitie(doc, { cote: "droite", page: "gear" }, []);
-  glisser(gauche.querySelector(".x5-jeton"), droite.querySelector('[data-recoit-voisin="true"]'));
+  glisser(gauche.querySelector(".x5-jeton"), droite.querySelector('[data-creneau="collecteur"][data-recoit-voisin="true"]'));
   const [p] = popups(acts);
   assert.equal(p.texte, "You found this item. It goes to your backpack.");
   assert.deepEqual(p.actions.map((a) => a.mot), ["OK"]);
@@ -374,7 +386,11 @@ function seule(doc, acts, place) {
   const ctx = { document: doc, resolved: null, query, search: true };
   if (place) ctx.placeDuDouble = true;
   let n = renderEquipmentStep(ctx, (a) => acts.push(a));
-  /* on se remet sur Gear si un test précédent a laissé une autre vue active */
+  /* on se remet sur Gear si un test précédent a laissé une autre vue active (une Forge : Cancel) */
+  if (pageActiveDeLEquipement() === "x5") {
+    cliquer(n.querySelector('[data-organe="CANCEL"]'));
+    n = renderEquipmentStep(ctx, (a) => acts.push(a));
+  }
   if (pageActiveDeLEquipement() !== "gear") {
     const g = porte(n, "Gear");
     if (g) cliquer(g);
@@ -498,4 +514,117 @@ test("18 bis — 📐 BACKPACK : la lune en bas à gauche, les Tally descendus �
     assert.ok(boite(poses[i]).l >= 44 && boite(poses[i]).h >= 44, `${poses[i].nom} : cible sous 44`);
     assert.ok(boite(poses[i]).y + boite(poses[i]).h <= RANGEE.y, `${poses[i].nom} mord la rangée du bas`);
   }
+});
+
+
+/* ══ 19 — LA FORGE A SA LUNE, ET ELLE OUVRE SANS ÊTRE OUVERTE (4ᵉ passe, 27/09) ═════════
+   ⚖️ Eric : « La forge on lui donne une lune au dessus du bouton cancel. Quand on la ferme et qu'on
+   revient à wares la sélection d'écran persiste à gauche. Le forge peut ouvrir, mais ne peux pas
+   être ouverte. La lune propose un close dans son dropdown. » */
+const X5P = await import("../ui/builder/x5-disposition.mjs");
+
+test("19 — 🌕 LA LUNE DE LA FORGE EST AU-DESSUS DE CANCEL, dans les trois familles (Ø 30, cible 44, sans chevauchement)", () => {
+  const { organesDeLaFamille } = X5E;
+  for (const fam of ["base", "variante", "parchemin"]) {
+    const os = organesDeLaFamille(fam);
+    const lune = os.find((o) => o.nom === "LUNE");
+    const cancel = os.find((o) => o.nom === "CANCEL");
+    assert.ok(lune, `${fam} : la lune est au plan`);
+    assert.equal(lune.grandEcran, true);
+    assert.deepEqual([lune.l, lune.h, lune.cible.l, lune.cible.h], [30, 30, 44, 44]);
+    assert.equal(lune.cible.x, cancel.cible.x, `${fam} : alignée sur Cancel`);
+    assert.ok(lune.cible.y + lune.cible.h <= cancel.cible.y, `${fam} : AU-DESSUS de Cancel`);
+    for (const o of os.filter((x) => x !== lune && !x.dans)) {
+      assert.ok(!secants(boite(lune), boite(o)), `${fam} : la lune chevauche ${o.nom}`);
+    }
+  }
+});
+
+test("20 — ⭐ LA FORGE OUVRE UN SATELLITE, ET LA SÉLECTION PERSISTE : Backpack ouvert depuis X5 → Cancel → Wares à droite, Backpack à gauche", () => {
+  const doc = personnage();
+  const acts = [];
+  const fiche = versX5(doc, acts, null);
+  assert.equal(pageActiveDeLEquipement(), "x5");
+  const principale = renderEquipmentStep({ document: doc, resolved: null, query, search: true, placeDuDouble: true },
+    (a) => acts.push(a));
+  const lune = principale.querySelector('[data-organe="lune"]');
+  assert.ok(lune, "la Forge a sa lune");
+  assert.deepEqual(lune.querySelectorAll("option").map((o) => o.value).filter(Boolean), ["sac", "b2", "r", "gear"]);
+  choisir(lune, "sac");
+  assert.equal(pageVoisineDeLEquipement(), "sac");
+  cliquer(principale.querySelector('[data-organe="CANCEL"]'));
+  /* la Forge avait été ouverte depuis la loupe de Wares : Cancel y revient */
+  assert.ok(["r", "recherche"].includes(pageActiveDeLEquipement()), "Cancel rend Wares à la principale");
+  assert.equal(pageVoisineDeLEquipement(), "sac", "⭐ le satellite choisi PERSISTE à gauche");
+  assert.deepEqual(pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() }),
+    { gauche: "sac", droite: pageActiveDeLEquipement(), active: "droite" }, "Backpack | Wares");
+  void fiche;
+});
+
+test("21 — ⛔ LA FORGE NE S'OUVRE JAMAIS DANS LE SATELLITE : un plan tapé à gauche l'ouvre à droite, le satellite reste", () => {
+  const doc = personnage();
+  choisirLeSatellite("r");
+  const acts = [];
+  versX5(doc, acts, null);   /* le plan est tapé dans la loupe de Wares, rendue en satellite */
+  assert.equal(pageActiveDeLEquipement(), "x5", "la Forge est la principale");
+  assert.notEqual(pageVoisineDeLEquipement(), "x5", "⛔ jamais le satellite");
+  /* et « Close » de sa lune ferme le double écran */
+  const principale = renderEquipmentStep({ document: doc, resolved: null, query, search: true, placeDuDouble: true,
+    demiEcran: { cote: "droite", page: null } }, (a) => acts.push(a));
+  const lune = principale.querySelector('[data-organe="lune"]');
+  assert.equal(lune.querySelectorAll("option").at(-1).value, "fermer");
+  choisir(lune, "fermer");
+  assert.equal(pageVoisineDeLEquipement(), null, "Close ferme le satellite");
+  cliquer(principale.querySelector('[data-organe="CANCEL"]'));
+});
+
+/** Un glisser qui paie le PÉAGE du sac (on tient le jeton avant de le porter). */
+async function glisserTenu(jeton, cible) {
+  document.elementFromPoint = () => cible;
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" });
+  await new Promise((r) => setTimeout(r, 450));
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 9 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 9 });
+  document.elementFromPoint = () => null;
+}
+
+test("22 — 🎒 FIGURE ⑤ : UN OBJET DU SAC (satellite) LÂCHÉ SUR UNE CASE DE GEAR s'y pose par `placerGearLine`, sans popup", async () => {
+  const doc = personnage();
+  const acts = [];
+  const sac = moitie(doc, { cote: "gauche", page: "sac" }, acts);
+  const gear = moitie(doc, { cote: "droite", page: "gear" }, []);
+  const jeton = sac.querySelectorAll("[data-glissable]").find((j) => j.closest && j.closest(".sac") && j.dataset.organe !== "collecteur");
+  assert.ok(jeton, "un objet du sac");
+  const caseVide = gear.querySelectorAll('[data-recoit-voisin="true"]').find((c) => c.dataset.creneau !== "collecteur");
+  assert.ok(caseVide, "une case vide de Gear se déclare receveuse en double écran");
+  await glisserTenu(jeton, caseVide);
+  assert.equal(popups(acts).length, 0, "⛔ pas de popup : rien n'est acheté ni crafté");
+  const pose = acts.find((a) => a.kind === "placerGearLine");
+  assert.ok(pose, "le MÊME verbe que le glisser dans Gear");
+  assert.equal(pose.boite, caseVide.dataset.creneau, "sur la case visée");
+  /* ⛔ le collecteur de Gear n'est pas une case : un objet du sac n'y va pas */
+  const n = acts.length;
+  await glisserTenu(jeton, gear.querySelector('[data-creneau="collecteur"]'));
+  assert.equal(acts.slice(n).filter((a) => a.kind === "placerGearLine").length, 0);
+});
+
+test("23 — 🤫 « CLOSE DOUBLE SCREEN » EST EN HAUT AU MILIEU, discret : un lien, T1, cible 44, sans chevaucher la lune ni le belt", () => {
+  const css = lire("ui/builder/shell.css");
+  const r = css.match(/\.belt-un-ecran:not\(\[hidden\]\) \{([^}]*)\}/);
+  assert.ok(r, "la règle existe");
+  assert.match(r[1], /left: 50%; transform: translate\(-50%, -50%\)/, "centré sur la largeur de l'app");
+  assert.match(r[1], /height: var\(--touch\)/, "cible de 44");
+  assert.match(r[1], /color: var\(--lien\)/, "le contrôle discret de la maison : le lien");
+  assert.match(r[1], /background: none/); assert.match(r[1], /border: 0/);
+  assert.match(r[1], /font-size: var\(--t1\)/);
+  assert.match(r[1], /width: calc\(2 \* var\(--astre-cible\)\)/);
+  /* 📏 les cotes, en blg : app 758 ; lune Ø 45 centrée sur le satellite ; chevron avant à 383 + 44 */
+  const app = 375 * 2 + 8, astre = 44, lune = 45, l = 2 * astre;
+  const [x0, x1] = [app / 2 - l / 2, app / 2 + l / 2];
+  assert.ok(x0 >= (375 + lune) / 2 + 8, `ne touche pas la lune (${x0})`);
+  assert.ok(x1 <= 375 + 8 + astre, `ne touche pas le chevron du belt (${x1})`);
+  assert.match(css, /:root\[data-pages="satellite"\] \.belt-chevron\[data-sens="avant"\] \{\s*left: calc\(var\(--panneau-l\) \* 1px \+ var\(--sp-8\) \+ var\(--astre-cible\)\);/);
+  const shell = lire("ui/builder/shell.mjs");
+  assert.match(shell, /button\(MOT_UN_SEUL_ECRAN,/);
+  assert.equal(EN_LUNE["lune.fermer-double"], "Close double screen");
 });

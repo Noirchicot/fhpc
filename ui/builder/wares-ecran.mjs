@@ -589,6 +589,7 @@ function jeton(item, o) {
        décide rien, il PUBLIE le geste — le pilote ouvre le popup d'achat. ⛔ Absent en vue
        simple : `glisser.mjs` n'y voit alors aucune cible voisine. */
     onDepotVoisin: o.surDepotVoisin ? (creneau, cible) => o.surDepotVoisin(item.ref, cible) : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",   /* un achat va au collecteur */
   });
   return b;
 }

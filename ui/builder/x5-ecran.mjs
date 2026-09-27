@@ -43,7 +43,9 @@ function elx(balise, classe, texte) {
  *  ⛔ Pas un nombre en dur : la table est générée, et une cote qui change change
  *  au vault puis se recopie. Le jour où le générateur bouge, cette feuille suit
  *  sans qu'on y touche. */
-export function feuilleDesCotesX5() {
+/** @param {{ grandEcran?: boolean }} [o] 🌕 LOT 307 — `false` : pas de règle pour la lune (sur un
+ *  téléphone elle n'existe pas, et sa règle non plus). Par défaut la feuille est COMPLÈTE. */
+export function feuilleDesCotesX5({ grandEcran = true } = {}) {
   /* ⭐ LOT 262 — X5 ENTRE DANS LA BOÎTE PARTAGÉE, et n'écrit plus que ce qui lui est
      PROPRE. Le lot 259 lui donnait `position` et `width: 375` : la largeur manquait
      alors, faute de famille. Maintenant que `.x5` est dans `FAMILLE_DE_LA_DALLE`, la
@@ -53,6 +55,7 @@ export function feuilleDesCotesX5() {
      ⭐ Reste ce qu'aucune autre fiche ne dit : une hauteur de PLAN FIXE, comme X0. */
   const regles = [`.x5[data-objet="x5"]{flex:0 0 auto;height:${px(D.DALLE.h)}}`];
   for (const o of D.ORGANES) {
+    if (o.grandEcran === true && !grandEcran) continue;
     const b = o.cible || o;
     /* ⭐ LOT 285 — UNE REDÉCLARATION SE RANGE SOUS SA FAMILLE. Le parchemin pose QTY, JETON, la
        bourse et le pied à SES cotes (même nom qu'un commun, `famille: "parchemin"`) : sa règle ne
@@ -60,9 +63,12 @@ export function feuilleDesCotesX5() {
        gagnerait partout — l'arme prendrait le pied du parchemin. */
     const portee = o.famille && D.ORGANES.some((x) => x !== o && x.nom === o.nom && !x.famille)
       ? `[data-famille="${o.famille}"]` : "";
+    /* 🌕 LOT 307 — la lune : sa boîte est la CIBLE (44), et l'astre se peint au DESSIN du plan
+       (30), centré — ⛔ aucune cote qui ne soit dans la table. */
+    const bords = o.sorte === "lune" ? `;background-size:${px(o.l)} ${px(o.h)}` : "";
     regles.push(
       `.x5${portee} [data-organe="${organeDe(o.nom)}"]{position:absolute;left:${px(b.x)};top:${px(b.y)};`
-      + `width:${px(b.l)};height:${px(b.h)}}`);
+      + `width:${px(b.l)};height:${px(b.h)}${bords}}`);
   }
   /* ⭐ LE POPUP DE LA BOURSE, avec LES RÈGLES DE R — centré sur la bourse, serré dans la
      dalle. ⛔ Aucune cote écrite ici : `reglesDeLaBourse` est l'unique écrivain. */
@@ -73,7 +79,8 @@ export function feuilleDesCotesX5() {
      cette famille-là. Et tout ce qui la suit remonte de sa hauteur. */
   /* ⭐ LOT 285 — seuls les COMMUNS remontent : une famille qui a ses propres cotes (le
      parchemin) n'a pas de rangée des pouvoirs à perdre. */
-  const suivent = D.ORGANES.filter((o) => !o.famille && (o.cible || o).y > hauteurDe("POWER 1"));
+  const suivent = D.ORGANES.filter((o) => !o.famille && (o.cible || o).y > hauteurDe("POWER 1")
+    && (grandEcran || o.grandEcran !== true));
   regles.push(`.x5[data-pouvoirs="aucun"] [data-organe^="POWER"]{display:none}`);
   for (const o of suivent) {
     const b = o.cible || o;
@@ -84,7 +91,7 @@ export function feuilleDesCotesX5() {
 /* ⭐ LA BOURSE ET SON MONTANT GARDENT LE NOM D'ORGANE DE R (`purse`, `montant`) : c'est lui
    qui porte l'image (`.gear-bouton[data-organe="purse"]`) et la peau du voyant. ⛔ Un nom neuf
    aurait demandé une seconde règle d'image — un second écrivain pour la même bourse. */
-const CLEF_DOM = { PURSE: "purse", MONTANT: "montant" };
+const CLEF_DOM = { PURSE: "purse", MONTANT: "montant", LUNE: "lune" };
 function organeDe(nom) { return CLEF_DOM[nom] || nom; }
 
 /** ⭐ LOT 285 — CE QU'UNE FICHE POSE : ses organes, et les communs qu'elle ne redéclare pas —
@@ -305,7 +312,7 @@ export function construireX5(o = {}) {
   /* ⭐ LA FICHE PORTE SA FEUILLE, comme X1 et X2. */
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
-  feuille.textContent = feuilleDesCotesX5();
+  feuille.textContent = feuilleDesCotesX5({ grandEcran: Boolean(o.lune) });
   n.append(feuille);
   /* ⚖️ LOT 273 — la fiche est une DALLE (Eric, 25/09 : « plus joli que le parchemin ») :
      la feuille la peint, par la règle de famille des fiches X. ⛔ Rien à monter ici. */
@@ -396,6 +403,8 @@ export function construireX5(o = {}) {
      token (idem celui de gear) ». ⭐ L'ORGANE DE R, importé : le bouton à l'image, le montant
      posé dessus (`montantDeLaBourse`), le popup (`popupDeLaBourse`). ⛔ Rien de redessiné. */
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+  /* 🌕 LOT 307 — la lune, au-dessus de Cancel (fabriquée par l'étape, seulement sur grand écran) */
+  if (o.lune) n.append(o.lune);
 
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !compose ? "choose a bonus or a power first"
@@ -436,6 +445,7 @@ export function jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin }) {
     onTap: apercu,
     onDepot: () => {},
     onDepotVoisin: pret ? (creneau, cible) => surDepotVoisin({ envoi: envoi(), cible }) : undefined,
+    accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",   /* un craft va au collecteur */
   });
   jeton.addEventListener("click", (ev) => { if (ev && ev.detail === 0) apercu(); });
 }
@@ -521,7 +531,7 @@ function construireX5Variante(o) {
   n.dataset.status = status.toLowerCase();
   const feuille = elx("style");
   feuille.setAttribute("data-fhpc", "x5");
-  feuille.textContent = feuilleDesCotesX5();
+  feuille.textContent = feuilleDesCotesX5({ grandEcran: Boolean(o.lune) });
   n.append(feuille);
   /* ⭐ la rangée des pouvoirs n'existe pas pour une variante : tout ce qui suit remonte */
   n.dataset.pouvoirs = "aucun";
@@ -572,6 +582,7 @@ function construireX5Variante(o) {
   n.append(jeton);
 
   n.append(...laBourse({ bourse, bourseOuverte, surBourse, surFermerBourse, surMonnaie }));
+  if (o.lune) n.append(o.lune);   /* 🌕 LOT 307 — la lune, au-dessus de Cancel */
 
   n.append(...lePied({ destination, surChoix, surAnnuler, pret,
     pourquoi: !cote.legal ? "this item has no readable value" : "not available here",

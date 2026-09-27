@@ -4496,19 +4496,27 @@ gauche change la gauche.
 > et déplacer les Tally plus bas, pour faire de la place »** · **« idem dans backpack »** — puis,
 > devant les captures : **« Le concept de la lune unique qui mène sur un sélecteur on garde, le reste
 > va chercher dans les archives ! »**
+> ⚖️ **Eric, 27/09 (4ᵉ passe)** : **« Tally et group tally restent à finir - pour plus tard. La forge
+> on lui donne une lune au dessus du bouton cancel. Quand on la ferme et qu'on revient à wares la
+> sélection d'écran persiste à gauche. Le forge peut ouvrir, mais ne peux pas être ouverte. La lune
+> propose un close dans son dropdown. Il y a une option close double screen en haut et au milieu,
+> mais plus petit plus discret »**.
 > 🖼️ Croquis qui FONT FOI : `IMG_6321` et `IMG_6324` (14/09) et `fh-phb/croquis/2026-09-27-double-screen-option.jpg`
 > — au-dessus du volet gauche le soleil puis la grande lune « Backpack », au-dessus du volet droit
 > le belt étroit, « BACK TO ONE SCREEN » sur la barre.
 
 | | |
 |---|---|
-| **qui ouvre** | la **lune unique** de la principale (`construireLaLune`) : un `<select>` natif habillé en pleine lune, **Ø 30, cible 44**, posé par le plan de chaque écran (`LUNE`, `grandEcran: true`) — Gear : la colonne de gauche ; Wares : en haut de la cellule gauche du pied ; Backpack : en bas à gauche. ⛔ **Le satellite n'a pas de lune** : il n'a pas de navigation |
-| **ce qu'elle propose** | ⏳ l'ordre des lunes du 14/09 — **Backpack · Tally · Wares · Gear** (*« Cart »* = Tally, *« Equipment »* = Wares), sauf la principale et le satellite déjà ouvert. ⛔ **La Forge (X5) n'y est pas** : elle ne s'ouvre pas sans un plan |
+| **qui ouvre** | la **lune unique** de la principale (`construireLaLune`) : un `<select>` natif habillé en pleine lune, **Ø 30, cible 44**, posé par le plan de chaque écran (`LUNE`, `grandEcran: true`) — Gear : la colonne de gauche ; Wares : en haut de la cellule gauche du pied ; Backpack : en bas à gauche ; **la Forge (X5) : au-dessus de Cancel**, dans ses trois familles. ⛔ **Le satellite n'a pas de lune** : il n'a pas de navigation |
+| **ce qu'elle propose** | ⏳ l'ordre des lunes du 14/09 — **Backpack · Tally · Wares · Gear** (*« Cart »* = Tally, *« Equipment »* = Wares), sauf la principale et le satellite déjà ouvert ; puis **« Close »** en dernier quand un satellite est ouvert. ⛔ **La Forge ne s'y trouve JAMAIS** : *« Le forge peut ouvrir, mais ne peux pas être ouverte »* — un plan tapé dans le satellite ouvre la Forge dans la PRINCIPALE (`PAGES_PRINCIPALES_SEULEMENT`) |
+| **la sélection persiste** | fermer la Forge (Cancel, Craft & Send) rend Wares à la principale : **le satellite choisi reste à gauche** |
 | **où** | le satellite **à gauche** (la flèche ← des lunes), la principale **à droite** (`pagesDuDoubleEcran`) |
 | **une seule navigation** | le **belt pilote la principale** ; sa tuile centrale est la fenêtre de la principale. Avec un satellite ouvert le belt reprend son **format étroit** sur le volet droit (`:not([data-pages])` retire le belt déroulé du lot 120). Le satellite garde ses gestes internes (glisser, pages, sections, ses portes) |
-| **la barre du rail** | au-dessus du volet gauche : le soleil (Menu), la **lune du satellite, Ø 45** (`--belt-tuile-dom`, la cote de la tuile dominante) qui le **nomme** et permet d'en changer, et **« Back to one screen »** (105 × 44). 📏 Place mesurée : soleil 4 → 48 · lune 165 → 210 · bouton 262 → 367, sur 375 |
-| **le glisser** | ⭐ l'alternative au `Send to` (figure ⑤) : il aboutit au **même verbe** — `equipement-double-ecran-depot-popup` |
-| **l'interrupteur `Double view` du Menu** | ⏳ **il garde sa double vue du lot 120** (deux étapes, un panneau passif) partout, Équipement compris, **tant qu'aucun satellite n'est ouvert** ; ouvrir un satellite l'emporte sur lui. ⛔ Il n'ouvre pas de satellite. Question posée à Eric : faut-il le retirer, ou le borner hors de l'Équipement ? |
+| **la barre du rail** | au-dessus du volet gauche : le soleil (Menu) et la **lune du satellite, Ø 45** (`--belt-tuile-dom`, la cote de la tuile dominante) qui le **nomme** et permet d'en changer ; **au milieu, « Close double screen »** — le contrôle discret de la maison, le **lien** (`--lien`, T1, sans fond ni liseré, jamais souligné), cible 44 ; au-dessus de la principale, son belt étroit, à la géométrie exacte d'un écran seul. 📏 Sur 758 : soleil 4 → 48 · lune 165 → 210 · « Close double screen » 88 × 44, **335 → 423** (centré) · chevron avant 427 → 459 |
+| **le glisser** | ⭐ l'alternative au `Send to` (figure ⑤) : il aboutit au **même verbe** — `equipement-double-ecran-depot-popup` pour un achat ou un craft ; ⏳ **un objet du SAC lâché sur une CASE de Gear s'y pose** par `placerGearLine` (et son arbitre `accorderLEquipe`), sans popup — rien n'est acheté ni crafté. Un créneau se déclare receveur, et le jeton dit lesquels il sert (`accepteVoisin`) : un achat va au collecteur, un objet du sac à une case |
+| **l'interrupteur `Double view` du Menu** | ⏳ à ratifier — **il RESTE**, pour sa double vue du lot 120 (deux étapes, un panneau passif) ; dans l'Équipement, un satellite ouvert l'emporte sur lui. ⛔ Il n'ouvre pas de satellite |
+| **⏳ à ratifier, gardés par défaut (27/09)** | le satellite **survit** quand on quitte l'étape ; une fiche montrée par le satellite se nomme **« Item »** (sa lune du rail) ; l'**iPad debout** passe la porte (820 et 1024 ≥ 758) ; le satellite **se navigue lui-même** |
+| **pour plus tard** | ⛔ **Tally et Group Tally** — *« restent à finir - pour plus tard »* : l'exception Tally reste désactivée, ses textes écrits |
 
 ⚖️ **CE QUE LA FIGURE ④ REMPLACE DANS LA SPEC DU LOT 120** (`FHPCv2 double affichage.md`) : **E1** (le belt
 déroulé sur toute la largeur) et **E8** (un clic sur un panneau l'active) ne valent pas pour le satellite — le

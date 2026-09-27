@@ -378,6 +378,9 @@ function emplacement(o, id, pose, options) {
     if (!CASES_DU_BODY_FORGING.includes(id)) {
       e.dataset.creneau = id;
       e.dataset.vise = "false";
+      /* 🌕 LOT 307 — en double écran, une case vide reçoit aussi un objet du SAC voisin (figure ⑤
+         du 14/09 : « échanger des items — c'est une alternative »). ⛔ En vue simple, rien. */
+      if (options.recoitVoisin === true) e.dataset.recoitVoisin = "true";
     }
     return e;
   }
