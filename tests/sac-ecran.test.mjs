@@ -18,9 +18,10 @@ import { stripComments } from "./source-scan.mjs";
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
 const D = await import("../ui/builder/sac-disposition.mjs");
+const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
 const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
-        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, poserLesDalles,
+        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, margeDuGlisser, poserLesDalles,
         CHAMPS_DE_SECTION } = await import("../ui/builder/sac-ecran.mjs");
 const { coteDeLaCale } = await import("../ui/builder/roue-tambour.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
@@ -1778,7 +1779,15 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
      parade d'alors fut de supprimer l'ascenseur. Species et les sorts n'en ont toujours
      pas : ils gardent leur glisser IMMÉDIAT. ⭐ « Laisse les autres écrans en dehors de
      ça » — Eric, 19/09. */
-  assert.equal(PEAGE_JETON_MS, 350, "⏱️ la cote qu'il a dite, et celle d'avant le 20/08");
+  /* 🔄 LOT 331 — 350 → 500, et la cote est celle de TOUTE l'étape Equipment. Eric, 27/09 : *« Le
+     drag doit attendre 500 ms, avant de s'activer »*. */
+  assert.equal(PEAGE_JETON_MS, 500, "⏱️ la cote du 27/09");
+  assert.equal(PEAGE_JETON_MS, MAINTIEN_EQUIPEMENT_MS, "⛔ le sac a repris une cote à lui : deux attentes, deux gestes");
+  for (const f of ["wares-ecran.mjs", "gear-ecran.mjs", "x5-ecran.mjs", "x5-parchemin.mjs"]) {
+    const s = stripComments(fs.readFileSync(path.join(UI, f), "utf8"));
+    assert.equal((s.match(/armerJeton\(/g) || []).length, (s.match(/maintien: MAINTIEN_EQUIPEMENT_MS/g) || []).length,
+      `⛔ ${f} arme un glisser qui n'attend pas les 500 ms de l'étape`);
+  }
   assert.match(source, /maintien: PEAGE_JETON_MS/, "le sac paie le péage");
   const organe = stripComments(fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8"));
   assert.match(organe, /const peage = Number\.isFinite\(maintien\) && maintien > 0;/,
@@ -2106,4 +2115,33 @@ test("319 bis — ⚖️ les dalles de Gear et de Pack ont l'arrondi de Wares (`
   assert.match(shell, /\.gear > \.gear-dalle \{[^}]*border-radius: var\(--organe-rayon\);/, "⛔ Gear n'a pas l'arrondi de Wares");
   assert.match(shell, /\.sac-bande\.dalle-simple, \.sac-dalle\.dalle-simple \{ border-radius: var\(--organe-rayon\); \}/,
     "⛔ Pack n'a pas l'arrondi de Wares");
+});
+
+test("33 — 🔲 LOT 331 : LA MARGE EST UNE ZONE FERMÉE — hors de la bande, le slide ne compte plus", () => {
+  /* ⚖️ Eric, 27/09 : *« En double écran le drag and drop de pack vers Gear fait défiler les
+     containers, il faut que lorsque la marge est dépassée que ça ne compte plus dans le temps
+     d'activation du slide de dalle »* · *« le slide idem 500 ms dans une zone de marge définie »*.
+     🔴 Avant : « tout ce qui est à droite de la grille » — en double écran, TOUT GEAR. */
+  const { COLONNES, RANGEES, JETON, DALLE } = D;
+  const gauche = 100, haut = 50;
+  const avant = globalThis.document;
+  globalThis.document = { querySelector: (s) => (s === ".sac" ? { getBoundingClientRect: () => ({ left: gauche, top: haut }) } : null) };
+  try {
+    const y = haut + RANGEES[1];
+    assert.equal(margeDuGlisser(gauche + COLONNES[0] / 2, y), -1, "la marge gauche de la grille");
+    const droiteGrille = gauche + COLONNES[COLONNES.length - 1] + JETON.l;
+    assert.equal(margeDuGlisser((droiteGrille + gauche + DALLE.l) / 2, y), 1, "la marge droite de la grille");
+    assert.equal(margeDuGlisser(gauche + COLONNES[1] + 10, y), 0, "sur la grille");
+    assert.equal(margeDuGlisser(gauche + DALLE.l + 60, y), 0, "⛔ au-delà du bord droit (Gear, en double écran) : plus de slide");
+    assert.equal(margeDuGlisser(gauche - 30, y), 0, "⛔ au-delà du bord gauche : plus de slide");
+    assert.equal(margeDuGlisser(gauche + COLONNES[0] / 2, haut + RANGEES[0] - 10), 0, "⛔ au-dessus de la grille (la roue)");
+    assert.equal(margeDuGlisser(gauche + COLONNES[0] / 2, haut + RANGEES[RANGEES.length - 1] + JETON.h + 10), 0,
+      "⛔ sous la grille (le pied)");
+  } finally { globalThis.document = avant; }
+  /* ⭐ ET SORTIR REMET L'ATTENTE À ZÉRO : un sens qui change (±1 → 0) tue le minuteur, et le
+     retour en relance un NEUF, de 500 ms entières. */
+  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  const lanceur = source.slice(source.indexOf("function regardeLaMarge"), source.indexOf("/** Le glisser d'un jeton du sac"));
+  assert.match(lanceur, /arreteLeDefilement\(\);\s*if \(sens === 0\) return;/,
+    "⛔ sortir de la marge ne coupe pas le minuteur : le temps passé dehors compterait");
 });

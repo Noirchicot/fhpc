@@ -17,11 +17,20 @@
         destination du dropdown, et vide le collecteur ;
      4. `Send`, vide → le comportement d'avant (la liste d'envoi), sans popup. */
 
-import test from "node:test";
+import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
+const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
+/* ⏱️ LOT 331 — LE PÉAGE DE L'ÉTAPE : un glisser d'Equipment ne s'active qu'après
+   `MAINTIEN_EQUIPEMENT_MS` d'appui (Eric, 27/09 : « Le drag doit attendre 500 ms »). Le geste
+   simulé TIENT donc le jeton avant de le porter — sur une horloge simulée, pas une vraie attente. */
+function tenirLeJeton(appui) {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try { appui(); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); } finally { mock.timers.reset(); }
+}
+
 
 globalThis.document = createTestDocument();
 
@@ -39,7 +48,7 @@ const popups = (acts) => acts.filter((a) => a.kind === "popup" && a.texte);
 /** Un glisser au DOIGT jusqu'à `cible` — la forme de `glisser.test.mjs` et `double-ecran.test.mjs`. */
 function glisser(jeton, cible) {
   document.elementFromPoint = () => cible;
-  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" });
+  tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" }));
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 9 });
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 40, pointerId: 9 });
   document.elementFromPoint = () => null;
@@ -67,8 +76,14 @@ test("1 · le collecteur de Wares est celui de Pack : vide, « Send collector »
   assert.equal(plein.getAttribute("aria-label"), "Send collector — Rope");
   assert.equal(plein.dataset.creneau, "wares:collecteur",
     "⛔ plein, il a cessé d'être une cible : un second dépôt ne pourrait plus remplacer le premier");
-  cliquer(plein);
+  /* 🔄 LOT 331 — le collecteur plein est ARMÉ (il se glisse vers la page voisine) : son tap est
+     celui de `armerJeton` — un appui relâché sans bouger —, ⛔ plus un `click`, qui ouvrirait la
+     fiche une seconde fois après chaque glisser. */
+  plein.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 3, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 3 });
   assert.deepEqual(vus, ["x2"], "⛔ le tap sur l'objet retenu n'ouvre pas sa fiche");
+  cliquer(plein);
+  assert.deepEqual(vus, ["x2"], "⛔ un `click` ouvre la fiche une seconde fois");
 });
 
 test("1 bis · `Send to` est celui de Pack : `.sac-destination` et `.pipeline-dropdown`, ⛔ plus `select.wares-send-vers`", () => {
@@ -179,4 +194,27 @@ test("4 · `Send`, collecteur vide : le comportement d'avant — aucun popup", (
   cliquer(n.querySelector('.wares [data-porte="send"]'));
   assert.equal(popups(acts).length, 0, "⛔ Send à vide ouvre un popup d'achat");
   assert.equal(pageActiveDeLEquipement(), "sb32", "⛔ Send à vide n'ouvre plus la liste d'envoi");
+});
+
+test("5 · ⏱️ LOT 331 : le glisser attend 500 ms — porté plus tôt, le geste n'est NI un glisser NI un tap", () => {
+  /* ⚖️ Eric, 27/09 : « Le drag doit attendre 500 ms, avant de s'activer ». 📏 Vu au banc : un
+     glisser porté trop tôt finissait en TAP et ouvrait la fiche. */
+  const vus = [];
+  const n = monter({ surJeton: () => vus.push("x2"), surDepot: () => vus.push("depot") });
+  const jeton = n.querySelector(".wares-jeton");
+  const cible = n.querySelector('[data-organe="collecteur"]');
+  document.elementFromPoint = () => cible;
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 4, button: 0, pointerType: "mouse" });
+    mock.timers.tick(MAINTIEN_EQUIPEMENT_MS - 1);
+    document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 4 });
+    mock.timers.tick(10);
+    document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 80, pointerId: 4 });
+    document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 80, pointerId: 4 });
+  } finally { mock.timers.reset(); document.elementFromPoint = () => null; }
+  assert.deepEqual(vus, [], "⛔ porté avant 500 ms : ni dépôt, ni fiche ouverte");
+  /* ⭐ et tenu 500 ms, le même geste dépose */
+  glisser(n.querySelector(".wares-jeton"), n.querySelector('[data-organe="collecteur"]'));
+  assert.deepEqual(vus, ["depot"]);
 });

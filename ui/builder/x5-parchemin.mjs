@@ -21,16 +21,16 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=884";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=884";
+import * as D from "./x5-disposition.mjs?v=885";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=885";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=884";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=884";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=884";
-import { armerJeton, fantome } from "./glisser.mjs?v=884";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=884";
+  from "./craft-parchemin.mjs?v=885";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=885";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=885";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=885";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=885";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerAstrolabe } from "./astrolabe.mjs?v=884";
+import { armerAstrolabe } from "./astrolabe.mjs?v=885";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
@@ -145,6 +145,7 @@ export function construireX5Parchemin(o, pieces) {
     b.append(...corpsDuJeton({ nom: s.data.name }));
     const choisir = () => { if (surChoix) surChoix("SORT", s.data.name); };
     armerJeton(b, {
+      maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
       onLever: (x, y) => fantome.lever(b, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),
@@ -279,6 +280,7 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null,
   jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
   const apercu = () => { if (surJeton && cote.legal) surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }); };
   armerJeton(jeton, {
+    maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
     onLever: (x, y) => fantome.lever(jeton, x, y),
     onBouger: (x, y) => fantome.suivre(x, y),
     onPoser: () => fantome.ranger(),

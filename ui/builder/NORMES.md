@@ -9984,3 +9984,21 @@ garde SA navigation (celle de son clic) et son aiguille (angle cumulé, partagé
 🎨 Dessin : le gabarit simplifié pour 20 (couronne, 12 graduations, aiguille, souris + ↕ fixes) ; encres
 `--astrolabe-face/-laiton/-encre`, jour ET nuit ; `@media (hover: hover) and (pointer: fine)` seulement.
 🗄️ Remplace la flèche circulaire du tuner au survol (`--icone-tuner`, lot 214).
+
+📍 `equipement-glisser-500ms-et-marge-fermee` · vivante · 27/09
+⚖️ **Dans l'étape Equipment, un glisser ne s'active qu'après 500 ms d'appui ; porté plus tôt, le geste n'est ni un glisser ni un tap. Le défilement de dalle de Pack attend 500 ms dans une marge FERMÉE — la bande entre la grille et le bord de la dalle, à hauteur de la grille ; en sortir remet l'attente à zéro. En double écran, le collecteur plein de Wares se glisse sur la page voisine.**
+
+> Eric, 2026-09-27 : **« Le drag and drop en partant du collecteur de wares vers un double écran, notamment
+> Gear ou Pack, ne fonctionne pas »** · **« En double écran le drag and drop de pack vers Gear fait défiler
+> les containers, il faut que lorsque la marge est dépassée que ça ne compte plus dans le temps
+> d'activation du slide de dalle »** · **« Le drag doit attendre 500 ms, avant de s'activer, le slide idem
+> 500 ms dans une zone de marge définie »**.
+
+⏱️ Une cote, `MAINTIEN_EQUIPEMENT_MS` (`glisser.mjs`), pour Pack, Wares, Gear, X5 et le collecteur de
+Wares ; ⛔ Species, les sorts et B3 n'en prennent pas (loi du 20/08). Elle remplace les 350 ms du sac.
+🔲 La marge (`margeDuGlisser`, `sac-ecran.mjs`) : x entre le bord de la dalle et `COLONNES[0]`, ou entre la
+fin de la dernière colonne et `DALLE.l` ; y entre `RANGEES[0]` et le bas de la dernière rangée. 🔴 Avant :
+« tout ce qui est à droite de la grille » — en double écran, tout Gear faisait tourner les sections.
+🛒 Collecteur de Wares → case de Gear : achat (popup du lot 307), puis `placerGearLine` sur la case ;
+→ case vide de Pack (receveuse en double écran seulement) : achat, puis la section regardée, à la place
+de la case ; → collecteur de Gear : achat, au sac ; → Tally : au panier. Son tap passe par `armerJeton`.

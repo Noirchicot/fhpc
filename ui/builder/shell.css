@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=884") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=885") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=884") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=885") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=884") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=885") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=884");
+  background-image: url("./assets/tarot-dos.jpg?v=885");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13727,12 +13727,27 @@ select.x5-drop {
   background-size: contain, contain;
   background-clip: padding-box, padding-box; background-origin: padding-box, padding-box;
 }
-/* ⚖️ « Quand actif halo » : un side screen est ouvert — le halo de l'actif, celui des portes carrées
-   (lot 313) : `--belt-halo` repassé trois fois, en `filter` (il suit le disque, pas la cible). */
-.lune-ecrans[data-actif="true"] {
-  filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
-          drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
-          drop-shadow(0 0 var(--halo-epais) var(--belt-halo));
+/* ⚖️ « Quand actif halo » : un side screen est ouvert.
+   🔄 LOT 331 — Eric, 27/09 : *« Halo de la lune dans gear est de mauvaise qualité »*. 📏 Regardé à
+   ×5 : `--belt-halo` repassé trois fois en `drop-shadow` sur un `<select>` donnait une OMBRE grise
+   et floue, pas un halo — trois flous de 3 px empilés, sans anneau. ⭐ C'est désormais l'anneau des
+   astres du belt (`0 0 --halo-epais --halo-fin`, un bord net puis un fondu), dessiné comme une
+   COUCHE DE FOND sous la lune : centrée sur le DISQUE (`origin: padding-box`), peinte dans les
+   bords transparents de la cible (`clip: border-box`).
+   ⛔ PAS UN `box-shadow` : il suivrait la boîte de 44, pas le disque de 30 — et les bords de Gear
+   sont asymétriques (3,5 à gauche, 9,8 à droite, lot 325). ⛔ Et la portée tient dans le plus petit
+   de ces bords : `--halo-fin` + la moitié de `--halo-epais` = 3,5 — sans quoi le halo serait rogné
+   d'un côté, sur Gear seulement. */
+.lune-ecrans[data-organe="lune"][data-actif="true"] {
+  --lune-halo-portee: calc(var(--halo-fin) + var(--halo-epais) / 2);
+  background-image: var(--lune-mot-double), var(--astre-pleine-lune),
+    radial-gradient(circle closest-side, var(--belt-halo) calc(100% - var(--halo-epais) / 2), transparent 100%);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-position: center, center, center;
+  background-size: contain, contain,
+    calc(100% + 2 * var(--lune-halo-portee)) calc(100% + 2 * var(--lune-halo-portee));
+  background-clip: padding-box, padding-box, border-box;
+  background-origin: padding-box, padding-box, padding-box;
 }
 /* la liste que le navigateur déroule : l'encre du système, lisible dans les deux thèmes */
 .lune-ecrans option { color: CanvasText; background: Canvas; font-size: var(--t1); }

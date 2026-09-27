@@ -61,38 +61,38 @@
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { renderPicker, markPressed } from "./carnet.mjs?v=884";
-import { facteurZoomCourant } from "./echelle.mjs?v=884";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=884";
+import { renderPicker, markPressed } from "./carnet.mjs?v=885";
+import { facteurZoomCourant } from "./echelle.mjs?v=885";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=885";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=884";
-import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=884";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=884";
+import { isGenre } from "../../src/layers/document.mjs?v=885";
+import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=885";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=885";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=884";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=884";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=885";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=885";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=884";
+import { armerJeton } from "./glisser.mjs?v=885";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=884";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=885";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=884";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=885";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=884";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=885";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -102,14 +102,14 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=884";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=884";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=885";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=884";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=885";
 /* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
-import { borneDeLaMolette } from "./molette-quantite.mjs?v=884";
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=885";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -117,25 +117,25 @@ import { borneDeLaMolette } from "./molette-quantite.mjs?v=884";
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=884";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=885";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
 import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
-  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=884";
-import { construireX5 } from "./x5-ecran.mjs?v=884";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=884";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=884";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=884";
-import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=884";
-import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=884";
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=885";
+import { construireX5 } from "./x5-ecran.mjs?v=885";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=885";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=885";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=885";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=885";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=885";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
-import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=884";
-import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=884";
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=885";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=885";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=884";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=885";
 /* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
-import { spellInfo } from "./class-step.mjs?v=884";
+import { spellInfo } from "./class-step.mjs?v=885";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -147,7 +147,7 @@ import { spellInfo } from "./class-step.mjs?v=884";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=884";
+import { motDuCran } from "./ecran-mort.mjs?v=885";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -4181,6 +4181,8 @@ export function renderEquipmentStep(ctx, onAction) {
          MÊME verbe que le glisser dans Gear (`placerGearLine`, que la coquille fait suivre de
          `accorderLEquipe`). ⛔ Pas de popup : rien n'est acheté ni crafté. */
       surDepotVoisin: demi ? (index, boite) => act({ kind: "placerGearLine", index, boite }) : null,
+      /* 🌕 LOT 331 — en double écran, ses cases vides reçoivent le collecteur de Wares voisin */
+      recoitVoisin: Boolean(demi),
       /* ⚖️ LA LISTE DES CHAMPS VIENT DE L'ÉCRAN, ⛔ ELLE NE SE RETAPE PAS ICI — Eric,
          20/09 : *« absolument rien de bleu »*. Cette ligne gardait `nom` et `fige` et
          jetait `party`, `dehors` et `renommable` : le genre n'arrivait jamais à la tuile.
@@ -4262,13 +4264,7 @@ export function renderEquipmentStep(ctx, onAction) {
            `sectionsDuSac` est l'écrivain unique ; la relire ICI (et non à la fermeture)
            reste indispensable, parce que le glisser survit au repeint : on lâche sur
            l'écran d'APRÈS le défilement par la marge, pas sur celui qui a armé. */
-        const vivantes = sectionsDuSac(docu);
-        const vive = boiteDeSection(vivantes[Math.min(sectionSac, vivantes.length - 1)].index);
-        const m = /^case-(\d+)-(\d+)$/.exec(String(creneau || ""));
-        const place = m
-          ? pageSac * CASES_DU_SAC + (Number(m[1]) - 1) * COLS_GRILLE + (Number(m[2]) - 1)
-          : undefined;
-        act({ kind: "placerGearLine", index, boite: vive, place });
+        act({ kind: "placerGearLine", index, ...placeDansLeSac(creneau) });
       },
 
       /* ⚖️ LE PARCHEMIN EST PERMANENT, C'EST SON HALO QUI PARLE — la source du
@@ -4604,6 +4600,20 @@ export function renderEquipmentStep(ctx, onAction) {
      `equipmentValidate()` rend `action: null` — il n'écrit RIEN, il avance d'un cran, et
      taper un cran du belt fait déjà ce voyage. ⛔ J'avais annoncé l'inverse trois fois sans
      l'avoir mesuré. */
+  /** OÙ UNE CASE DE PACK POSE UN OBJET — la section qu'on REGARDE et la place de la case.
+   *  ⭐ Écrit UNE fois (lot 331) : le glisser dans Pack et l'achat lâché depuis Wares voisin posent
+   *  au même endroit, par la même lecture. ⛔ `sectionSac` et `pageSac` se relisent ICI, à l'instant
+   *  du dépôt — jamais au rendu qui a armé le geste (voir `surPlacer`). */
+  function placeDansLeSac(creneau) {
+    const vivantes = sectionsDuSac(docu);
+    const boite = boiteDeSection(vivantes[Math.min(sectionSac, vivantes.length - 1)].index);
+    const m = /^case-(\d+)-(\d+)$/.exec(String(creneau || ""));
+    const place = m
+      ? pageSac * CASES_DU_SAC + (Number(m[1]) - 1) * COLS_GRILLE + (Number(m[2]) - 1)
+      : undefined;
+    return { boite, place };
+  }
+
   function construireWares() {
     const arbre = rayonsEtEtageres(query);
     const rayon = arbre[Math.min(rayonWares, Math.max(0, arbre.length - 1))] || null;
@@ -4788,6 +4798,41 @@ export function renderEquipmentStep(ctx, onAction) {
         peindre();
       },
       retenu: retenuWares ? { nom: retenuWares.nom } : null,
+      /* 🌕 LOT 331 — LE COLLECTEUR PLEIN, LÂCHÉ SUR LA PAGE VOISINE. Eric, 27/09 : *« Le drag and
+         drop en partant du collecteur de wares vers un double écran, notamment Gear ou Pack, ne
+         fonctionne pas »*. ⭐ AUCUN GESTE NEUF : le popup du dépôt voisin (lot 307), l'écrivain de
+         l'achat de X2 (`acheterUnObjet`), puis le verbe du glisser (`placerGearLine`) qui pose
+         l'objet LÀ OÙ on l'a lâché :
+           · une case de Gear → sur cette case (la coquille accorde l'équipé, lot 292) ;
+           · une case de Pack → dans la section regardée, à la place de la case ;
+           · le collecteur de Gear → au sac, comme un jeton de la grille lâché là ;
+           · un Tally → au panier (`cartAdd`), payé au `Buy` du Tally.
+         `Buy` vide le collecteur ; `Cancel` le laisse plein ; un refus (bourse trop maigre) le rend. */
+      surRetenuVoisin: demi ? (cible) => {
+        const f = retenuWares;
+        if (!f) return;
+        const moitie = cible && typeof cible.closest === "function" ? cible.closest("[data-demi-ecran]") : null;
+        const vue = moitie ? moitie.dataset.vueEquipement : null;
+        const genre = genreDeLaCible(vue);
+        if (genre === "corps" && !f.cout) { act({ kind: "popup", role: "gendarme", texte: MOT_SANS_PRIX }); return; }
+        const creneau = cible && cible.dataset ? cible.dataset.creneau : null;
+        const pose = creneau && creneau !== "collecteur"
+          ? (vue === "sac" ? placeDansLeSac(creneau) : { boite: creneau })
+          : null;
+        const popup = popupDuDepotVoisin({ quoi: "achat", cible: genre, montant: f.cout, annuler: fermerLePopup,
+          accepter: genre === "tally"
+            ? () => { retenuWares = null; act({ kind: "cartAdd", ref: f.ref }); }
+            : () => {
+              /* ⭐ l'index de la ligne neuve est le prochain libre, lu AVANT l'achat (la loi d'`envoyer`) */
+              const index = nextGearIndex(docu);
+              retenuWares = null;
+              const refus = acheterUnObjet({ ref: f.ref, cout: f.cout, qte: 1, destination: "backpack",
+                payer: true, bourse, onAction: actAchat });
+              if (refus) { retenuWares = f; act({ kind: "popup", role: "gendarme", texte: refus }); return; }
+              if (pose) actArbitre({ kind: "placerGearLine", index, ...pose });
+            } });
+        if (popup) act(popup);
+      } : null,
       /* ⚖️ TAP = INFO : l'objet retenu ouvre SON X2, comme un jeton de la grille. */
       surRetenu: () => { if (retenuWares) ouvrirLObjet([retenuWares], 0, "r"); },
       /* 🪟 LOT 307 — LÂCHÉ DANS LE COLLECTEUR DE LA PAGE VOISINE : le popup d'achat.

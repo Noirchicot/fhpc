@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=884";
-import { versionQuery } from "./version.mjs?v=884";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=884";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=885";
+import { versionQuery } from "./version.mjs?v=885";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=885";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=884";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=885";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=884";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=885";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=884";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=885";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=884";
+import { portesCarrees } from "./porte-carree.mjs?v=885";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=884";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=885";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=884";
+import { facteurZoomCourant } from "./echelle.mjs?v=885";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerAstrolabe } from "./astrolabe.mjs?v=884";
+import { armerAstrolabe } from "./astrolabe.mjs?v=885";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -580,7 +580,11 @@ export const MAINTIEN_MS = 1500;
  *  ⭐ ET C'EST LE SPRINGBOARD D'iOS, son autre mot du même soir : on tient une app avant
  *  de pouvoir la porter. Le péage n'est pas une rustine, c'est le prix universel de deux
  *  gestes sur les mêmes pixels. */
-export const PEAGE_JETON_MS = 350;
+/*  🔄 LOT 331 — 350 → 500, et la cote vit dans l'organe. Eric, 27/09 : *« Le drag doit attendre
+ *  500 ms, avant de s'activer »*. ⭐ Elle est désormais celle de toute l'étape
+ *  (`MAINTIEN_EQUIPEMENT_MS`, `glisser.mjs`) : Pack, Wares et Gear s'échangent des objets en
+ *  double écran, et une seule attente fait un seul geste. */
+export const PEAGE_JETON_MS = MAINTIEN_EQUIPEMENT_MS;
 
 /** ⭐ LE MÊME MINUTEUR QUE LA MARGE — ⛔ pas un second. Tenir un chevron fait défiler la
  *  roue cran par cran, et relâcher l'arrête. La règle « on ne relance rien tant que le
@@ -645,23 +649,39 @@ let defilementVivant = null;
  *  suivants. Deux nombres pour une question, c'est la divergence garantie. */
 export const MARGE_MS = 500;
 
-/** Le sens du défilement pour une abscisse d'écran : `-1` à gauche de la grille,
- *  `+1` à sa droite, `0` dessus.
- *  ⛔ LA MARGE NE S'INVENTE PAS : c'est tout ce qui est HORS de la largeur de la
- *  grille, et cette largeur vient du plan (`COLONNES`, `JETON`). Un pour-cent écrit
- *  ici serait un nombre de plus à tenir d'accord avec la table. */
-function margeDuGlisser(x) {
+/** Le sens du défilement pour un point d'écran : `-1` dans la marge gauche de la grille,
+ *  `+1` dans sa marge droite, `0` partout ailleurs.
+ *  ⛔ LA MARGE NE S'INVENTE PAS : c'est la bande qui BORDE la grille, et chacun de ses bords
+ *  vient du plan (`COLONNES`, `JETON`, `RANGEES`, `DALLE`). Un pour-cent écrit ici serait un
+ *  nombre de plus à tenir d'accord avec la table.
+ *  🔴 LOT 331 — ELLE ÉTAIT OUVERTE VERS L'EXTÉRIEUR, ET LE DOUBLE ÉCRAN L'A MONTRÉ. Eric, 27/09 :
+ *  *« En double écran le drag and drop de pack vers Gear fait défiler les containers, il faut que
+ *  lorsque la marge est dépassée que ça ne compte plus dans le temps d'activation du slide de
+ *  dalle »* · *« le slide idem 500 ms dans une zone de marge définie »*. L'ancienne règle disait
+ *  « tout ce qui est à droite de la grille » : en vue simple c'était le bord de l'écran, en double
+ *  écran c'est TOUT GEAR — l'objet porté vers Gear faisait tourner les sections de Pack tant qu'il
+ *  y restait. ⭐ La zone est désormais FERMÉE : entre la grille et le bord de la dalle, à hauteur
+ *  de la grille. Sorti de la bande, le sens retombe à 0, le minuteur meurt, et l'attente repart
+ *  de zéro au retour (`regardeLaMarge`). */
+export function margeDuGlisser(x, y) {
   const dalle = document.querySelector(".sac");
   if (!dalle || typeof dalle.getBoundingClientRect !== "function") return 0;
-  /* ⛔ ON NE LIT DU RECTANGLE QUE SON BORD GAUCHE, et c'est volontaire : `x` vient
-     de `clientX`, donc du MÊME repère peint. ⭐ La conversion blg → peint passe par
-     le facteur de la racine d'échelle, jamais par une largeur qu'on diviserait soi-
+  /* ⛔ ON NE LIT DU RECTANGLE QUE SON COIN HAUT-GAUCHE, et c'est volontaire : `x` et `y`
+     viennent de `clientX`/`clientY`, donc du MÊME repère peint. ⭐ La conversion blg → peint
+     passe par le facteur de la racine d'échelle, jamais par une largeur qu'on diviserait soi-
      même — deux lecteurs du zoom finiraient par ne plus dire la même chose. */
-  const gauche = dalle.getBoundingClientRect().left;
+  const r = dalle.getBoundingClientRect();
   const k = facteurZoomCourant(document);
   if (!k) return 0;
-  if (x < gauche + COLONNES[0] * k) return -1;
-  if (x > gauche + (COLONNES[COLONNES.length - 1] + JETON.l) * k) return 1;
+  const haut = r.top + RANGEES[0] * k;
+  const bas = r.top + (RANGEES[RANGEES.length - 1] + JETON.h) * k;
+  if (!(Number.isFinite(y) && y >= haut && y <= bas)) return 0;
+  const bordG = r.left;
+  const grilleG = r.left + COLONNES[0] * k;
+  const grilleD = r.left + (COLONNES[COLONNES.length - 1] + JETON.l) * k;
+  const bordD = r.left + DALLE.l * k;
+  if (x >= bordG && x < grilleG) return -1;
+  if (x > grilleD && x <= bordD) return 1;
   return 0;
 }
 
@@ -674,8 +694,8 @@ export function arreteLeDefilement() {
 
 /** Le pointeur a bougé pendant un glisser : entre-t-il, sort-il, ou reste-t-il dans
  *  la même marge ? ⛔ On ne relance rien tant que le sens ne change pas. */
-function regardeLaMarge(x, options, pisteNoeud) {
-  const sens = margeDuGlisser(x);
+function regardeLaMarge(x, y, options, pisteNoeud) {
+  const sens = margeDuGlisser(x, y);
   if (defilementVivant && defilementVivant.sens === sens) return;
   arreteLeDefilement();
   if (sens === 0) return;
@@ -708,7 +728,7 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud) {
     maintien: PEAGE_JETON_MS,
     onTap: () => options.surJeton && options.surJeton(index),
     onLever: (x, y) => fantome.lever(noeud, x, y),
-    onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, options, pisteNoeud); },
+    onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, y, options, pisteNoeud); },
     onPoser: () => { fantome.ranger(); arreteLeDefilement(); },
     onDepot: (creneau) => { arreteLeDefilement(); surDepot(creneau); },
     /* 🌕 LOT 307 — EN DOUBLE ÉCRAN, UN OBJET DU SAC SE POSE SUR UNE CASE DE GEAR VOISIN : la figure ⑤
@@ -967,6 +987,13 @@ function case_(id, objet, options, pisteNoeud) {
   if (!objet) {
     c.dataset.creneau = id;
     c.dataset.vise = "false";
+    /* 🌕 LOT 331 — EN DOUBLE ÉCRAN, UNE CASE VIDE REÇOIT L'OBJET DU COLLECTEUR DE WARES VOISIN.
+       Eric, 27/09 : *« Le drag and drop en partant du collecteur de wares vers un double écran,
+       notamment Gear ou Pack, ne fonctionne pas »*. 📏 Mesuré : aucune case de Pack ne se
+       déclarait receveuse — Gear le faisait depuis le lot 307, Pack jamais. ⭐ Elle se DÉCLARE,
+       par la donnée (`glisser.mjs` ne devine aucun nom) ; ⛔ en vue simple l'option n'arrive
+       pas, le DOM est celui d'avant. */
+    if (options.recoitVoisin === true) c.dataset.recoitVoisin = "true";
     c.setAttribute("aria-label", "Empty");
     return c;
   }

@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=884";
+import { pageDeListe } from "./normes.mjs?v=885";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=884";
-import { swapContent } from "./socle.mjs?v=884";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=885";
+import { swapContent } from "./socle.mjs?v=885";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=884";
+import { facteurZoomCourant } from "./echelle.mjs?v=885";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -436,6 +436,15 @@ const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
    BOUGE part au défilement natif bien avant 350 ms ; un doigt qui RESTE n'a rien
    déclenché quand le minuteur tombe. C'est exactement le springboard d'iOS — on tient une
    app avant de pouvoir la porter. */
+/** ⏱️ LE PÉAGE DE L'ÉTAPE EQUIPMENT — lot 331. ⚖️ Eric, 27/09 : *« Le drag doit attendre 500 ms,
+ *  avant de s'activer, le slide idem 500 ms dans une zone de marge définie »*.
+ *  ⭐ UNE COTE, TOUS LES GLISSERS DE L'ÉTAPE (Pack, Wares, Gear, X5, le collecteur de Wares) : en
+ *  double écran un objet traverse d'une page à l'autre, et deux attentes différentes pour le même
+ *  geste seraient deux gestes. ⛔ Species, les sorts, B3 n'en prennent pas (loi du 20/08 : pas
+ *  d'ascenseur, pas de péage) — le garde 31 de `sac-ecran.test.mjs` le tient.
+ *  📌 Elle remplace les 350 ms du 19/09, qui ne valaient que pour le sac. */
+export const MAINTIEN_EQUIPEMENT_MS = 500;
+
 export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin, accepteVoisin }) {
   /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
      seule ligne de ce fichier qui parle à la feuille de style, et elle ne lui
@@ -482,6 +491,11 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
       ? setTimeout(() => { arme = true; if (jeton.dataset) jeton.dataset.porte = "true"; }, maintien)
       : null;
     let glisse = false;
+    /* ⛔ LOT 331 — SOUS PÉAGE, BOUGER AVANT L'ARMEMENT ABANDONNE LE GESTE : ni tap, ni glisser.
+       📏 Vu au banc (souris, Wares) : porté avant 500 ms puis relâché, le geste finissait en TAP et
+       ouvrait la fiche — un glisser raté se lisait comme un clic. ⭐ Qui balaie ne maintient pas
+       (la loi de la roue du sac) : le minuteur meurt, et le relâchement ne fait rien. */
+    let abandonne = false;
     let vise = null;
     /* ⭐ UN GESTE FINI EST FINI — et ce drapeau n'est pas une ceinture, c'est
        la règle. Trois événements peuvent conclure le MÊME geste (`pointerup`,
@@ -554,7 +568,14 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
       /* ⛔ SOUS PÉAGE, UN DOIGT QUI BOUGE N'EST PAS UN GLISSER : il appartient à
          l'ascenseur, qui l'a déjà pris. ⭐ On n'a RIEN à annuler — le navigateur a
          tranché avant nous, et c'est ce qui rend l'arbitrage gratuit. */
-      if (peage && !arme) return;
+      if (abandonne) return;
+      if (peage && !arme) {
+        if (Math.hypot(e.clientX - x0, e.clientY - y0) >= SEUIL_GLISSER) {
+          abandonne = true;
+          if (minuteurDuPeage) { clearTimeout(minuteurDuPeage); minuteurDuPeage = null; }
+        }
+        return;
+      }
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
       if (!glisse) {
         glisse = true;
@@ -699,6 +720,7 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
          le même appui court ne veut donc PAS dire la même chose au doigt et
          à la souris. C'est l'appelant qui tranche (voir `onInfo`), et il ne
          peut trancher que s'il sait avec quoi on a touché. */
+      if (abandonne) return;                                 // porté avant le péage : rien
       if (!etaitGlisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
       if (e.type === "pointercancel") return;
       if (cible && estUnCreneauVoisin(jeton, cible)) { onDepotVoisin(cible.dataset.creneau, cible); return; }

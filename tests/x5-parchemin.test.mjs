@@ -13,7 +13,7 @@
      ⑥ LE MOTEUR ET L'ÉCRAN — `gear[N].spell` est écrit, relu, nommé, coté, récité.
    ⛔ PAS DE PRÉREQUIS (sort préparé, maîtrise d'Arcana) : le mandat du lot dit de ne pas les
    vérifier — aucun garde ne les réclame. */
-import test from "node:test";
+import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -24,6 +24,15 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { makeHarness, manifestOf, readJson, PILE_SRD } from "./build-harness.mjs";
 import { createDocWriters } from "../src/doc/index.mjs";
 import { ABILITY_KEYS } from "../src/build/index.mjs";
+const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
+/* ⏱️ LOT 331 — LE PÉAGE DE L'ÉTAPE : un glisser d'Equipment ne s'active qu'après
+   `MAINTIEN_EQUIPEMENT_MS` d'appui (Eric, 27/09 : « Le drag doit attendre 500 ms »). Le geste
+   simulé TIENT donc le jeton avant de le porter — sur une horloge simulée, pas une vraie attente. */
+function tenirLeJeton(appui) {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try { appui(); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); } finally { mock.timers.reset(); }
+}
+
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 /* ⛔ un mot compté compte aussi la phrase qui le nie : les commentaires sortent avant la mesure */
@@ -182,7 +191,7 @@ function tap(jeton, pointerType = "touch") {
 function glisserVers(jeton, cible) {
   avecDocument(() => {
     document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? cible : null) });
-    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+    tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" }));
     document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
     document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });
   });

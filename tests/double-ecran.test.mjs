@@ -20,7 +20,7 @@
    de 375, le halo) — elle a été mesurée au navigateur, au doigt (CDP `touchStart/Move/End`)
    et à la souris ; la coquille ne se monte pas hors navigateur. */
 
-import test from "node:test";
+import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -28,6 +28,15 @@ import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
+const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
+/* ⏱️ LOT 331 — LE PÉAGE DE L'ÉTAPE : un glisser d'Equipment ne s'active qu'après
+   `MAINTIEN_EQUIPEMENT_MS` d'appui (Eric, 27/09 : « Le drag doit attendre 500 ms »). Le geste
+   simulé TIENT donc le jeton avant de le porter — sur une horloge simulée, pas une vraie attente. */
+function tenirLeJeton(appui) {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try { appui(); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); } finally { mock.timers.reset(); }
+}
+
 import { stripComments } from "./source-scan.mjs";
 
 globalThis.document = createTestDocument();
@@ -40,7 +49,7 @@ const {
   LE_TALLY_PORTE_UN_OBJET_CRAFTE, VUES_TALLY
 } = await import("../ui/builder/double-ecran.mjs");
 const { renderEquipmentStep, butinDuDepart, appliquerLeButin, departRepondu, pageVoisineDeLEquipement,
-  pageActiveDeLEquipement, choisirLeSatellite } = await import("../ui/builder/equipment-step.mjs");
+  pageActiveDeLEquipement, choisirLeSatellite, nextGearIndex } = await import("../ui/builder/equipment-step.mjs");
 const W = await import("../ui/builder/wares-disposition.mjs");
 const SAC = await import("../ui/builder/sac-disposition.mjs");
 const { currentCartLines } = await import("../ui/builder/equipement-pipeline.mjs");
@@ -76,7 +85,7 @@ function moitie(doc, demiEcran, acts) {
  *  `elementFromPoint` rend — le navigateur la cherche sur TOUT le document. */
 function glisser(jeton, cible) {
   document.elementFromPoint = () => cible;
-  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" });
+  tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" }));
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 7 });
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 7 });
   document.elementFromPoint = () => null;
@@ -594,8 +603,8 @@ test("21 — ⛔ LA FORGE NE S'OUVRE JAMAIS DANS LE SATELLITE : un plan tapé à
 /** Un glisser qui paie le PÉAGE du sac (on tient le jeton avant de le porter). */
 async function glisserTenu(jeton, cible) {
   document.elementFromPoint = () => cible;
-  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" });
-  await new Promise((r) => setTimeout(r, 450));
+  tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" }));
+  await Promise.resolve();
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 9 });
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 9 });
   document.elementFromPoint = () => null;
@@ -660,7 +669,17 @@ test("22 — ⚖️ LOT 319 : la lune parle ROUGE, dit « Double / Screen », et
   assert.equal(construireLaLune({ principale: "gear", satellite: "sac" }).dataset.actif, "true");
   assert.equal(construireLaLune({ principale: "gear" }).dataset.actif, undefined);
   assert.equal(construireLaLune({ principale: "gear", satellite: "sac", rail: true }).dataset.actif, undefined);
-  assert.match(css, /\.lune-ecrans\[data-actif="true"\] \{\s*filter: drop-shadow\(0 0 var\(--halo-epais\) var\(--belt-halo\)\)/);
+  /* 🔄 LOT 331 — « Halo de la lune dans gear est de mauvaise qualité » (Eric, 27/09) : l'ombre floue
+     (`drop-shadow` × 3) cède la place à l'ANNEAU des astres du belt, une couche de fond centrée sur
+     le DISQUE, dont la portée tient dans le plus petit bord de Gear (3,5). */
+  const regle = css.match(/\.lune-ecrans\[data-organe="lune"\]\[data-actif="true"\] \{([^}]*)\}/);
+  assert.ok(regle, "⛔ la lune active n'a plus de halo");
+  assert.doesNotMatch(regle[1], /drop-shadow/, "⛔ l'ombre floue est revenue");
+  assert.match(regle[1], /--lune-halo-portee: calc\(var\(--halo-fin\) \+ var\(--halo-epais\) \/ 2\)/);
+  assert.match(regle[1], /radial-gradient\(circle closest-side, var\(--belt-halo\)/, "le halo de la maison, en anneau");
+  assert.match(regle[1], /background-origin: padding-box, padding-box, padding-box/, "⭐ centré sur le disque, pas sur la cible");
+  assert.match(regle[1], /background-clip: padding-box, padding-box, border-box/, "⭐ peint dans les bords transparents");
+  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ""), /\.lune-ecrans\[data-actif="true"\] \{[^}]*filter/, "⛔ un second écrivain du halo");
 });
 
 test("23 — ⚖️ LOT 324 : en double écran d'Équipement, aucun halo autour du panneau de droite", () => {
@@ -672,4 +691,77 @@ test("23 — ⚖️ LOT 324 : en double écran d'Équipement, aucun halo autour 
     .filter(([, , corps]) => /box-shadow/.test(corps)).map(([, sel]) => sel.trim().split("\n").pop().trim());
   assert.deepEqual(regles, [':root[data-vue="double"]:not([data-pages="satellite"]) .panneau[data-actif="true"]'],
     "⛔ le halo du panneau actif se pose encore en mode satellite");
+});
+
+/* ══ LOT 331 — LE COLLECTEUR DE WARES SE GLISSE VERS LA PAGE VOISINE ══════════════════
+   ⚖️ Eric, 27/09 : « Le drag and drop en partant du collecteur de wares vers un double écran,
+   notamment Gear ou Pack, ne fonctionne pas ». 📏 Avant ce lot : le collecteur plein n'était pas
+   armé (un `click`, rien d'autre) et aucune case de Pack ne se déclarait receveuse. */
+function remplirLeCollecteurDeWares(gauche) {
+  glisser(gauche.querySelector(".wares-jeton"), gauche.querySelector('.wares [data-organe="collecteur"]'));
+  const plein = gauche.querySelector('.wares [data-organe="collecteur"]');
+  assert.equal(plein.dataset.occupe, "oui", "le collecteur de Wares retient l'objet");
+  assert.equal(plein.dataset.glissable, "true", "⛔ plein, le collecteur de Wares n'est pas armé : rien ne peut en partir");
+  return plein;
+}
+
+test("24 — 🛒 LE COLLECTEUR DE WARES LÂCHÉ SUR UNE CASE DE GEAR : popup d'achat, puis l'objet se pose SUR la case", () => {
+  const doc = personnage();
+  const acts = [];
+  const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
+  const droite = moitie(doc, { cote: "droite", page: "gear" }, []);
+  const plein = remplirLeCollecteurDeWares(gauche);
+  const caseVide = droite.querySelectorAll('[data-recoit-voisin="true"]').find((c) => c.dataset.creneau !== "collecteur");
+  assert.ok(caseVide, "une case vide de Gear se déclare receveuse");
+  glisser(plein, caseVide);
+  const [p] = popups(acts);
+  assert.ok(p, "⛔ le collecteur lâché sur Gear n'ouvre aucun popup");
+  assert.match(p.texte, /^Buy this item for [\d,]+ (GP|SP|CP)\?$/);
+  const avant = acts.length;
+  p.actions[1].faire();
+  assert.deepEqual(acts.slice(avant), [{ kind: "popup", texte: null }], "Cancel ne fait que fermer");
+  const apres = acts.length;
+  p.actions[0].faire();
+  const gestes = acts.slice(apres);
+  assert.deepEqual(gestes.map((a) => a.kind), ["payer", "addGearLine", "placerGearLine"],
+    "Buy = l'achat de X2, puis le verbe du glisser");
+  assert.equal(gestes[2].boite, caseVide.dataset.creneau, "⭐ posé sur la case visée");
+  assert.equal(gestes[2].index, nextGearIndex(doc), "⭐ la ligne neuve, lue avant l'achat");
+});
+
+test("25 — 🎒 LE COLLECTEUR DE WARES LÂCHÉ SUR UNE CASE DE PACK : l'objet va dans la section regardée, à la place de la case", () => {
+  const doc = personnage();
+  const acts = [];
+  const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
+  const droite = moitie(doc, { cote: "droite", page: "sac" }, []);
+  const plein = remplirLeCollecteurDeWares(gauche);
+  const cases = droite.querySelectorAll('.sac-case[data-recoit-voisin="true"]');
+  assert.ok(cases.length > 0, "⛔ aucune case vide de Pack ne se déclare receveuse en double écran");
+  const cible = cases[cases.length - 1];
+  const m = /^case-(\d+)-(\d+)$/.exec(cible.dataset.creneau);
+  assert.ok(m, "une case de la grille");
+  glisser(plein, cible);
+  const [p] = popups(acts);
+  assert.ok(p, "⛔ le collecteur lâché sur Pack n'ouvre aucun popup");
+  const apres = acts.length;
+  p.actions[0].faire();
+  const gestes = acts.slice(apres);
+  assert.deepEqual(gestes.map((a) => a.kind), ["payer", "addGearLine", "placerGearLine"]);
+  assert.equal(gestes[1].location, "backpack");
+  assert.equal(gestes[2].place, (Number(m[1]) - 1) * 3 + (Number(m[2]) - 1), "⭐ à la place de la case (page 1)");
+  assert.ok(gestes[2].boite, "dans une section du sac");
+  /* ⛔ en vue simple, Pack ne déclare aucun receveur */
+  const seul = renderEquipmentStep({ document: doc, resolved: null, query, search: true }, () => {});
+  assert.equal(seul.querySelectorAll('[data-recoit-voisin="true"]').length, 0);
+});
+
+test("26 — 🎒 UN JETON DU SAC NE SE POSE PAS SUR UNE CASE DE PACK VOISIN PAR LE CHEMIN VOISIN — seul Wares y achète", () => {
+  const doc = personnage();
+  const acts = [];
+  const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
+  const droite = moitie(doc, { cote: "droite", page: "sac" }, []);
+  const jeton = gauche.querySelector(".wares-jeton");
+  const cible = droite.querySelectorAll('.sac-case[data-recoit-voisin="true"]')[0];
+  glisser(jeton, cible);
+  assert.equal(popups(acts).length, 0, "⛔ un jeton de la GRILLE de Wares va au collecteur, pas sur une case (loi du lot 307)");
 });

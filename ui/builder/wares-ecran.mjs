@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=884";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=884";
+} from "./wares-disposition.mjs?v=885";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=885";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=884";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=884";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=884";
+import { REPOS_MS } from "./sac-ecran.mjs?v=885";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=885";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=885";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=884";
+import { portesCarrees } from "./porte-carree.mjs?v=885";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=884";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=885";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,12 +43,12 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=88
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=884";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=885";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome } from "./glisser.mjs?v=884";
-import { versionQuery } from "./version.mjs?v=884";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=885";
+import { versionQuery } from "./version.mjs?v=885";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerAstrolabe } from "./astrolabe.mjs?v=884";
+import { armerAstrolabe } from "./astrolabe.mjs?v=885";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -580,6 +580,8 @@ function jeton(item, o) {
      `fantome.lever · suivre · ranger` de `glisser.mjs`. ⛔ Pas de péage ici, contrairement au
      sac : la grille de Wares ne défile pas sous le doigt (la loi du 20/08). */
   armerJeton(b, {
+    /* ⏱️ LOT 331 — 500 ms avant que le glisser ne s'active (Eric, 27/09), la cote de l'étape */
+    maintien: MAINTIEN_EQUIPEMENT_MS,
     onLever: (x, y) => fantome.lever(b, x, y),
     onBouger: (x, y) => fantome.suivre(x, y),
     onPoser: () => fantome.ranger(),
@@ -814,8 +816,24 @@ export function construireLesWares(o = {}) {
       if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
       if (o.surRetenu) o.surRetenu();
     };
-    collecteur.addEventListener("click", ouvrir);
     collecteur.addEventListener("contextmenu", ouvrir);
+    /* 🌕 LOT 331 — PLEIN, LE COLLECTEUR SE GLISSE VERS LA PAGE VOISINE. Eric, 27/09 : *« Le drag
+       and drop en partant du collecteur de wares vers un double écran, notamment Gear ou Pack, ne
+       fonctionne pas »*. 📏 Mesuré : il n'était pas ARMÉ — un `click` et rien d'autre ; aucun
+       geste ne pouvait en partir. ⭐ C'est le glisser de R (`armerJeton`, son fantôme), comme le
+       collecteur plein de Gear : lâché sur une case ou le collecteur de la page voisine, l'étape
+       ouvre le popup d'achat (`surRetenuVoisin`). ⛔ Le tap passe désormais par `onTap` : un
+       `click` en plus ouvrirait la fiche une seconde fois, et APRÈS chaque glisser (le relâchement
+       capturé retombe sur le collecteur). */
+    armerJeton(collecteur, {
+      maintien: MAINTIEN_EQUIPEMENT_MS,
+      onTap: () => ouvrir(),
+      onLever: (x, y) => fantome.lever(collecteur, x, y),
+      onBouger: (x, y) => fantome.suivre(x, y),
+      onPoser: () => fantome.ranger(),
+      onDepot: () => {},   /* lâché sur lui-même : il garde l'objet */
+      onDepotVoisin: o.surRetenuVoisin ? (creneau, cible) => o.surRetenuVoisin(cible) : undefined,
+    });
   }
   pied.append(collecteur);
 
