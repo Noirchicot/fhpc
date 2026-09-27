@@ -38,9 +38,18 @@
     mask: var(--img) center / var(--taille, contain) no-repeat; pointer-events: none; }
   .gear .porte-imagee .porte-mot { position: relative; font-style: italic; font-weight: 600;
     font-size: var(--t0); line-height: 1; text-align: center; text-shadow: 0 0 3px var(--bg); }
-  .img-backpack { --img: url("./assets/sac-fond.webp"); --taille: 85%; }   /* « 15 % plus petit » */
-  .img-wares { --img: url("./assets/wares-fond.webp"); }                   /* « parfait » */
-  .img-gear { --img: url("./assets/pantin-h.png"); }                        /* « le plus trapu », puis « Prends la silhouette de l'homme » : pantin-h (l/h 0,315) */
+  /* ⚖️ 27/09, deuxième passe d'Eric : « Harmoniser les couleurs des 3 images · Wares doit remplir
+     tout le bas du bouton · Backpack, mot trop large, remplacé par pack, réduit encore l'image du sac à
+     dos de 10 % · Gear : pantin 10 % moins haut 10 % plus large ».
+     ⭐ LES COULEURS : les trois filigranes n'avaient pas la même opacité (alpha moyen : pantin 244,
+     sac 135, wares 107 — mesuré) ; peints de la même encre, ils sortaient en trois tons. Trois
+     SILHOUETTES PLEINES en sont tirées (`assets/porte-*.png`, 160 de haut, recadrées au plus près) :
+     même encre, même ton. */
+  .img-backpack { --img: url("./assets/porte-pack.png"); --taille: 76.5%; }  /* 85 % puis −10 % */
+  .img-gear { --img: url("./assets/porte-gear.png"); --taille: 34.4% 90%; }  /* l'homme : 90 % de haut, 110 % de large */
+  /* Wares REMPLIT le bas : toute la largeur DANS le liseré (le retrait de `::after`), posé sur son bord bas */
+  .gear .porte-imagee .porte-image.img-wares { inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge) + 1px); --img: url("./assets/porte-wares.png");
+    -webkit-mask-size: 100% auto; mask-size: 100% auto; -webkit-mask-position: center bottom; mask-position: center bottom; }
 </style>
 <body>
 <div class="banc gear">
@@ -55,7 +64,7 @@
   <section id="variantes"></section>
 </div>
 <script type="module">
-  const portes = [["backpack", "Backpack"], ["wares", "Wares"], ["gear", "Gear"]];
+  const portes = [["backpack", "Pack"], ["wares", "Wares"], ["gear", "Gear"]];
   const hote = document.getElementById("variantes");
   const s = document.createElement("section");
   s.innerHTML = "<h2>Retenu — carré 40 dans 44, mot T0 italique, centré</h2>";
