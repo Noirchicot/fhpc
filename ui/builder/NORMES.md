@@ -10018,3 +10018,17 @@ Après : 375 × 495, titre à 8, portes à 487 ; texte 215 (233 sans rareté).
 📐 Le plan (`X1_gen.py` → `x1-disposition.mjs`) : `TRILOGIE_BAS` 495, `MARGE_TETE` 8, le titre en boîte
 de sa ligne (16, T4), `MARGE_PIED` déduite (11) — X2 la lit pour son pied. La dalle : `inset: 0 0 5px 0`
 posé par la feuille de tête ; ⛔ X5 et X0 gardent la règle de famille (`--sp-4`).
+
+📍 `equipement-blueprint-variante-du-mj` · vivante · 27/09
+⚖️ **Un objet dont le SRD dit que le MJ choisit la taille, le type ou la sorte (« The GM chooses the … or determines it randomly »), avec sa table de tirage, est un blueprint à variante : X5 propose la variante, avec son détail (taille · capacité · vitesse). La variante est la première colonne de la table ; toutes portent la rareté de l'objet.**
+
+> Eric, 2026-09-27 : **« Carpet of flying devrait être un blueprint »**, puis aux deux questions (le Carpet
+> seul ou tous les objets de même forme ? X5 demande-t-il la taille ?) : **« B et a (sa taille, capacité
+> vitesse) »**.
+
+📏 Quatre objets du SRD passent blueprint, et aucun autre ne bouge (mesuré objet par objet) : Carpet of
+Flying (4 tailles), Manual of Golems (4 golems), Potion of Resistance et Ring of Resistance (10 types).
+⛔ Hors de la règle : plusieurs éléments tirés (Necklace of Prayer Beads, Robe of Useful Items), un choix
+sans table (Ring of Elemental Command), un effet choisi à l'usage (Bag of Beans, Candle of Invocation).
+📐 Un seul lecteur, `variantesDe` (4ᵉ forme, `objet-crafte.mjs`) ; `estRecette` en déduit le plan. Une
+table à deux colonnes de tirage se lit en deux ; la fiche d'une variante garde l'en-tête et SA case.

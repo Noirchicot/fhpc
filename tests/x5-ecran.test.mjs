@@ -650,11 +650,15 @@ test("31 — ⚖️ « DÉGAGE LES ASCENSEURS » : une fiche X ne fait pas défi
    `Ioun Stone ▾ / Variant ▾ / Crafting · Qty / encart / jeton · bourse / pied` :
    « oui c'est ça ». */
 
-test("32 — ⚖️ LES HUIT PLANS À VARIANTE, lus dans leurs records — ⛔ aucune liste de noms", () => {
+test("32 — ⚖️ LES DOUZE PLANS À VARIANTE, lus dans leurs records — ⛔ aucune liste de noms", () => {
+  /* 🔄 LOT 333 — 8 → 12 : la quatrième forme (le choix du MJ, une seule rareté) ajoute Carpet of
+     Flying, Manual of Golems, Potion of Resistance et Ring of Resistance. Eric, 27/09 : « Carpet of
+     flying devrait être un blueprint » · « B et a (sa taille, capacité, vitesse) ». */
   assert.deepEqual(PLANS_A_VARIANTE.map((r) => r.data.name).sort(), [
-    "Belt of Giant Strength", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla",
-    "Ioun Stone", "Potion of Giant Strength", "Potions of Healing", "Wand of the War Mage, +1, +2, or +3",
-  ], "⭐ les cinq wondrous d'Eric, les deux potions, la wand — ⛔ aucun plan à base (Weapon, Armor, Ammunition…)");
+    "Belt of Giant Strength", "Carpet of Flying", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla",
+    "Ioun Stone", "Manual of Golems", "Potion of Giant Strength", "Potion of Resistance", "Potions of Healing",
+    "Ring of Resistance", "Wand of the War Mage, +1, +2, or +3",
+  ], "⭐ les cinq wondrous d'Eric, les deux potions, la wand, et les quatre du choix du MJ — ⛔ aucun plan à base (Weapon, Armor, Ammunition…)");
   /* ⭐ les trois formes du SRD sont lues : la rareté, la table, les paragraphes */
   const mots = (n) => variantesDe(plans.get(n).data).map((v) => `${v.mot}:${v.rarete}`);
   assert.deepEqual(mots("Horn of Valhalla"), ["Silver:Rare", "Brass:Rare", "Bronze:Very Rare", "Iron:Legendary"]);
@@ -685,8 +689,9 @@ test("33 — ⚖️ LA FICHE : Blueprint · PLAN · VARIANT · Crafting · Qty �
   const choisie = (sel) => [...sel.querySelectorAll("option")].find((o) => o.selected);
   assert.equal(choisie(plan).value, "Ioun Stone");
   assert.deepEqual([...plan.querySelectorAll("option")].map((o) => o.textContent),
-    ["Belt of Giant Strength", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla", "Ioun Stone"],
-    "⭐ le menu PLAN porte les frères de CATÉGORIE — les cinq wondrous, ⛔ ni potion ni wand");
+    ["Belt of Giant Strength", "Carpet of Flying", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla",
+      "Ioun Stone", "Manual of Golems"],
+    "⭐ le menu PLAN porte les frères de CATÉGORIE — les sept wondrous (lot 333 : + Carpet, + Manual of Golems), ⛔ ni potion, ni ring, ni wand");
   const variante = noeud.querySelector('[data-organe="VARIANT"]');
   assert.equal(choisie(variante).value, "Awareness");
   assert.equal(variante.querySelectorAll("option").length, 14, "les 14 pierres, Mastery comprise (lot 282)");
@@ -842,4 +847,20 @@ test("302 — la porte de X5 dit « Craft & / Send », le mot du plan, sur deux 
   assert.ok(mots.length >= 2 && mots.every((m) => m === "Craft &\nSend"), "le plan (X5_gen.py) porte le mot sur deux lignes");
   const { noeud } = monte({ plan: PLAN_ARME, bases, itemsMagiques: magiques, choix: { base: "Dagger", bonus: "Uncommon" } });
   assert.equal(noeud.querySelector('[data-organe="SEND"]').textContent, "Craft &\nSend", "⭐ la porte lit le mot du plan");
+});
+
+test("333 — ⚖️ X5 SUR LE CARPET : le menu VARIANT dit taille, capacité et vitesse, et sa valeur reste la taille", () => {
+  /* Eric, 27/09 : « Carpet of flying devrait être un blueprint » · « B et a (sa taille, capacité, vitesse) » */
+  const { noeud } = monte({ plan: plans.get("Carpet of Flying"), plansFreres: PLANS_A_VARIANTE, valeurDe,
+    choix: { variante: "4 ft. × 6 ft." } });
+  assert.equal(noeud.dataset.famille, "variante", "⛔ le Carpet n'ouvre pas X5 comme un plan à variante");
+  const variante = noeud.querySelector('[data-organe="VARIANT"]');
+  const options = [...variante.querySelectorAll("option")];
+  assert.deepEqual(options.map((o) => o.textContent), [
+    "3 ft. × 5 ft. · 200 lb. · 80 feet", "4 ft. × 6 ft. · 400 lb. · 60 feet",
+    "5 ft. × 7 ft. · 600 lb. · 40 feet", "6 ft. × 9 ft. · 800 lb. · 30 feet",
+  ], "⛔ le menu ne dit pas taille, capacité et vitesse");
+  assert.deepEqual(options.map((o) => o.value), ["3 ft. × 5 ft.", "4 ft. × 6 ft.", "5 ft. × 7 ft.", "6 ft. × 9 ft."],
+    "⭐ la valeur est le mot court — celui de `gear[N].variant` et de l'inventaire des effets");
+  assert.equal(options.find((o) => o.selected).value, "4 ft. × 6 ft.");
 });

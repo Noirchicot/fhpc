@@ -20,16 +20,16 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=886";
+import * as D from "./x5-disposition.mjs?v=887";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=886";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=886";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=886";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=886";
-import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=886";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=887";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=887";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=887";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=887";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=887";
 /* ⭐ LOT 285 — la famille PARCHEMIN vit dans son module ; la coquille lui PRÊTE ses pièces
    (`construireX5` plus bas) plutôt que de les exporter : ⛔ pas d'import en boucle. */
-import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=886";
+import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=887";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -550,7 +550,10 @@ function construireX5Variante(o) {
   const freres = memes.some((r) => r.data.name === plan.data.name) ? memes : [plan, ...memes];
   n.append(
     menu("PLAN", plan.data.name, freres.map((r) => ({ valeur: r.data.name, mot: motDuPlan(r) })), surChoix),
-    menu("VARIANT", variante.mot, variantes.map((v) => ({ valeur: v.mot, mot: v.mot })), surChoix));
+    /* ⚖️ LOT 333 — « sa taille, capacité, vitesse » (Eric, 27/09) : l'option dit la variante ET son
+       détail (« 3 ft. × 5 ft. · 200 lb. · 80 feet ») ; ⛔ la VALEUR reste le mot court, celui que
+       `gear[N].variant` porte et que l'inventaire des effets lit. */
+    menu("VARIANT", variante.mot, variantes.map((v) => ({ valeur: v.mot, mot: v.detail ? `${v.mot} · ${v.detail}` : v.mot })), surChoix));
 
   n.append(
     menu("STATUS", status, ["Crafting", "Buying", "Found"].map((v) => ({ valeur: v, mot: v })), surChoix),

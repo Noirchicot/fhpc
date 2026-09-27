@@ -131,7 +131,81 @@ export function variantesDe(data) {
     return paras.map((m) => ({ mot: m[1].trim(), rarete: PALIER_DU_MOT(m[2].toLowerCase()),
       nom: `${racine} (${m[1].trim()})` }));
   }
-  return [];
+
+  /* ④ LE CHOIX DU MJ, EN TABLE DE TIRAGE, À UNE SEULE RARETÉ — lot 333 */
+  return variantesDuChoixDuMJ(d, racine, paragraphes);
+}
+
+/* ══ LOT 333 — ④ LA VARIANTE QUE LE MJ CHOISIT ════════════════════════════════════
+   ⚖️ Eric, 2026-09-27 : *« Carpet of flying devrait être un blueprint »*, puis, aux deux
+   questions (le Carpet seul, ou tous les objets de même forme ? X5 demande-t-il la taille ?) :
+   *« B et a (sa taille, capacité, vitesse) »*.
+   🔴 POURQUOI LES TROIS FORMES NE LE VOYAIENT PAS : ses quatre tailles partagent UNE rareté
+   (Very Rare) — la rareté n'énumère rien (①), la table n'a pas de colonne de rareté (②), et il
+   n'y a pas de paragraphes « Nom (Rareté). » (③). Le choix existe pourtant, écrit en toutes
+   lettres : *« The GM chooses the size of a given carpet or determines it randomly by rolling
+   on the following table »*.
+   ⭐ LE SIGNAL EST CETTE PHRASE DU SRD, ⛔ PAS UNE LISTE DE NOMS : le MJ choisit la TAILLE, le
+   TYPE ou la SORTE d'UN objet, ou la tire. 📏 Mesuré dans la couche : Carpet of Flying, Manual
+   of Golems, Potion of Resistance, Ring of Resistance (+ Feather Token et Horn of Valhalla,
+   déjà lus par ① et ②).
+   ⛔ ET CE QU'ELLE LAISSE DEHORS, VOLONTAIREMENT : un objet fait de PLUSIEURS éléments tirés
+   (« the type of EACH bead » — Necklace of Prayer Beads ; « the PATCHES » — Robe of Useful
+   Items) n'est pas UNE variante ; un choix sans table (Ring of Elemental Command, « the linked
+   plane ») n'a rien à proposer ; un effet choisi à l'usage (Bag of Beans, Candle of
+   Invocation) n'est pas l'objet.
+   ⭐ LA VARIANTE EST LA LIGNE DE LA TABLE, SANS SON DÉ — Eric : *« sa taille, capacité,
+   vitesse »* : « 3 ft. × 5 ft. 200 lb. 80 feet ». Toutes ont la rareté de l'objet. Une table
+   à deux colonnes de tirage (« 1d10 Damage Type 1d10 Damage Type » — Potion of Resistance) se
+   lit en deux, et les variantes se rangent dans l'ordre du dé. */
+const CHOIX_DU_MJ = /GM chooses the [^.]*?\b(?:size|type|kind)\b[^.]*?\bdetermines? (?:it|them) randomly|\b(?:size|type|kind), which the GM chooses or determines (?:it )?randomly/i;
+const DE_EN_TETE = /\b\d*d\d+\b/gi;
+const LIGNE_DE_TIRAGE = /^(\d{1,3})(?:\s*[–-]\s*\d{1,3})?\s+(\S.*)$/;
+const COUPE_DE_COLONNE = /\s(?=\d{1,3}(?:\s*[–-]\s*\d{1,3})?\s+[A-Za-z])/;
+function variantesDuChoixDuMJ(d, racine, paragraphes) {
+  const ou = paragraphes.findIndex((p) => CHOIX_DU_MJ.test(p));
+  if (ou < 0) return [];
+  const palier = new RegExp(RARETE, "i").exec(String(d.rarity || ""));
+  if (!palier) return [];
+  const rarete = PALIER_DU_MOT(palier[1].toLowerCase());
+  /* la première table de tirage APRÈS la phrase : son en-tête (s'il y en a un), puis ses lignes */
+  let colonnes = 1;
+  const lignes = [];
+  for (const p of paragraphes.slice(ou + 1)) {
+    if (/^\d*d\d+\b/i.test(p) && !lignes.length) { colonnes = Math.max(1, (p.match(DE_EN_TETE) || []).length); continue; }
+    if (!LIGNE_DE_TIRAGE.test(p)) { if (lignes.length) break; continue; }
+    lignes.push(p);
+  }
+  const cases = lignes.flatMap((l) => (colonnes > 1 ? l.split(COUPE_DE_COLONNE) : [l]))
+    .map((c) => LIGNE_DE_TIRAGE.exec(c.trim())).filter(Boolean)
+    .map((m) => ({ de: Number(m[1]), mot: m[2].trim() }))
+    .sort((a, b) => a.de - b.de);
+  if (cases.length < 2) return [];
+  return cases.map(({ mot: ligne }) => {
+    const { mot, detail } = premiereColonne(ligne);
+    return { mot, rarete, nom: `${racine} (${mot})`, ...(detail ? { detail } : {}) };
+  });
+}
+
+/** LA VARIANTE EST LA PREMIÈRE COLONNE, LE RESTE EST SON DÉTAIL — « 3 ft. × 5 ft. » · « 200 lb. ·
+ *  80 feet ». ⭐ Le mot court est le NOM de la variante (celui de l'inventaire des effets, celui de
+ *  `gear[N].variant`, celui de la ligne posée) ; le détail est ce qu'Eric veut voir en choisissant
+ *  — *« sa taille, capacité, vitesse »*.
+ *  📐 La première colonne : une MESURE (« 3 ft. », jointe par « × » à la suivante) quand la ligne
+ *  commence par un chiffre ; sinon les MOTS jusqu'au premier chiffre (« Clay Golem ») ; sans chiffre,
+ *  le premier mot (« Acid », et « Pearl » est la gemme — Ring of Resistance). ⚠️ Ce dernier cas est
+ *  le seul qu'une ligne de mots ne départage pas : `variante-du-mj.test.mjs` le tient. */
+const MESURE = /^\d[\d,.]*\s*[A-Za-z.]+(?:\s*×\s*\d[\d,.]*\s*[A-Za-z.]+)?/;
+const MORCEAU = /\d[\d,.]*(?:\s*×\s*\d[\d,.]*)?\s*[A-Za-z.]+|[A-Za-z][A-Za-z' -]*[A-Za-z]/g;
+function premiereColonne(ligne) {
+  const s = String(ligne).trim();
+  let mot;
+  if (/^\d/.test(s)) mot = (MESURE.exec(s) || [s])[0];
+  else if (/\d/.test(s)) mot = s.slice(0, s.search(/\d/)).trim();
+  else mot = s.split(/\s+/)[0];
+  const reste = s.slice(mot.length).trim();
+  const detail = (reste.match(MORCEAU) || []).map((x) => x.trim()).join(" · ");
+  return { mot, detail };
 }
 
 /** Les paragraphes d'une description. ⚠️ LOT 282 — UNE TÊTE « Nom (Rareté). » OUVRE UN
@@ -194,6 +268,7 @@ export function texteDUneVariante(data, mot) {
   const rangee = new RegExp(`^([^\\d()]+?)\\s*(?:\\(([^)]+)\\))?\\s+\\d.*?\\s(Very Rare|Legendary|Uncommon|Common|Rare)$`, "i");
   const dansUnTirage = (i) => { for (let k = i - 1; k >= 0; k -= 1) { if (EST_UN_TIRAGE.test(paras[k])) return true; if (!EST_UNE_LIGNE_DE_TIRAGE.test(paras[k])) return false; } return false; };
 
+  let deuxColonnes = false;
   return paras.filter((p, i) => {
     if (proprietaire[i] && proprietaire[i] !== choisie.mot) return false;
     if (rangee.test(p) && !EST_UN_TIRAGE.test(p)) {
@@ -202,6 +277,20 @@ export function texteDUneVariante(data, mot) {
     }
     if (EST_UNE_LIGNE_DE_TIRAGE.test(p) && dansUnTirage(i)) return parle(p, choisie) || !autres.some((v) => parle(p, v));
     return true;
+  }).map((p) => {
+    /* ⭐ LOT 333 — UNE TABLE À DEUX COLONNES DE TIRAGE (« 1d10 Damage Type 1d10 Damage Type »,
+       Potion of Resistance) : l'en-tête se dit une fois, et la ligne ne garde que la CASE de la
+       variante — « 3 Fire », ⛔ pas « 3 Fire 8 Psychic ».
+       ⛔ ET SEULEMENT QUAND L'EN-TÊTE ANNONCE DEUX DÉS : « 76–90 Bronze 4 Proficiency… » (Horn of
+       Valhalla) est UNE case dont une colonne commence par un chiffre — la couper la mutilerait. */
+    if (EST_UN_TIRAGE.test(p)) {
+      const moitie = /^(.+?)\s+\1$/.exec(p);
+      deuxColonnes = Boolean(moitie);
+      return moitie ? moitie[1] : p;
+    }
+    if (!deuxColonnes || !EST_UNE_LIGNE_DE_TIRAGE.test(p)) { if (!EST_UNE_LIGNE_DE_TIRAGE.test(p)) deuxColonnes = false; return p; }
+    const cases = p.split(COUPE_DE_COLONNE);
+    return cases.find((c) => parle(c, choisie)) || p;
   }).join("\n\n");
 }
 

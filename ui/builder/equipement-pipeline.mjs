@@ -28,12 +28,14 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=886";
-import { peutPayer } from "./monnaie.mjs?v=886";
-import { pageDeListe } from "./normes.mjs?v=886";
-import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=886";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=887";
+import { peutPayer } from "./monnaie.mjs?v=887";
+import { pageDeListe } from "./normes.mjs?v=887";
+import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=887";
 /* ⚖️ LOT 288 — « poids par lot » : combien de lots fait une ligne, UN seul écrivain (`craft.mjs`). */
-import { paiementsDe } from "./craft.mjs?v=886";
+import { paiementsDe } from "./craft.mjs?v=887";
+/* ⭐ LOT 333 — le lecteur des variantes, pour dire qu'un objet à variante est un plan */
+import { variantesDe } from "../../src/build/objet-crafte.mjs?v=887";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
@@ -295,6 +297,12 @@ export function estRecette(record) {
      ⭐ `blueprint.asks` porte ce que le formulaire demande — lu génériquement,
      ⛔ aucun `if` sur « Soulgem » nulle part. */
   if (d.blueprint && typeof d.blueprint === "object") return true;
+  /* ⑤ LOT 333 — UNE VARIANTE À CHOISIR FAIT UN PLAN, quelle que soit la forme où le SRD l'écrit.
+     ⚖️ Eric, 27/09 : *« Carpet of flying devrait être un blueprint »* — ses quatre tailles
+     partagent une rareté, donc aucun signal de rareté ne le voyait. ⭐ La lecture des variantes
+     est UNE (`variantesDe`, le lecteur que X5 emploie déjà pour proposer le choix) : le plan et
+     son menu ne peuvent plus diverger — un objet dont X5 sait lister les variantes EST un plan. */
+  if (variantesDe(d).length >= 2) return true;
   const rarete = typeof d.rarity === "string" ? d.rarity : "";
   if (/varies/i.test(rarete)) return true;
   /* une énumération de raretés : « Rare (…), Very Rare (…), or Legendary (…) ».
