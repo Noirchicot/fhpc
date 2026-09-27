@@ -174,7 +174,7 @@ test("4 — la feuille construite pose chaque organe à ses px du plan, sous le 
   const css = feuilleDesCotes();
   for (const o of dessins) {
     const id = CLEF_DE[o.nom];
-    if (o.sorte === "porte" || o.sorte === "rond") {
+    if (o.sorte === "porte" || o.sorte === "porte-carree" || o.sorte === "rond") {
       assert.ok(!css.includes(`[data-organe="${id}"]`), `${o.nom} est placé par la grille de la rangée, pas par la feuille`);
       continue;
     }
@@ -242,7 +242,7 @@ const tous = (n, sel) => [...n.querySelectorAll(sel)];
 test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lunes", () => {
   const n = rendu({});
   const ids = tous(n, "[data-organe]").map((e) => e.dataset.organe);
-  const attendus = dessins.filter((o) => o.sorte !== "porte" && o.sorte !== "rond").map((o) => CLEF_DE[o.nom]);
+  const attendus = dessins.filter((o) => !["porte", "porte-carree", "rond"].includes(o.sorte)).map((o) => CLEF_DE[o.nom]);
   /* le montant : de la table s'il y est, déduit de PURSE sinon — dans les deux cas rendu une fois */
   if (!ORGANES.some((o) => o.nom === "MONTANT")) attendus.push("montant");
   attendus.push("party-tally");   /* posé bien que `creation: false` : son voile dit qu'il est vide */
@@ -309,12 +309,15 @@ test("5 — l'écran rend chaque organe posé du plan, une fois, et pas les lune
      pour son propre sélecteur ne dit rien de l'écran. On lit les enfants. */
   const groupe = [...rang.children].find((e) => e.className === "rangee-majeurs");
   assert.ok(groupe, "la rangée porte son propre groupe, même sans la coquille");
-  assert.deepEqual([...groupe.children].map((e) => e.dataset.porte), ["backpack", "send", "wares"],
-    "les trois portes sont DANS le groupe, dans l'ordre du plan");
-  assert.equal(tous(rang, ".gear-porte").length, 3, "trois portes dans la rangée");
+  /* ⚖️ LOT 311 — le groupe porte les trois carrés (l'organe partagé) PUIS `Send` */
+  assert.deepEqual([...groupe.children].map((e) => e.dataset.porte || e.className), ["portes-carrees", "send"],
+    "les carrés puis Send, DANS le groupe");
+  assert.equal(tous(rang, ".gear-porte").length, 1, "une seule porte à mot dans la rangée : Send");
+  assert.equal(tous(rang, ".porte-carree").length, 3, "trois portes carrées");
   assert.equal(tous(n, ".gear-rangee").length, 1);
   assert.ok(n.querySelector(".gear-rangee").dataset.rangee, "la rangée déclare data-rangee (§6 pré, cinquième porte)");
-  assert.equal(n.querySelector(".gear-rangee").children[0].className, "fiche-livre gear-livre", "le livre est la première borne");
+  assert.equal(n.querySelector(".gear-rangee").dataset.pied, "equipement", "le gabarit du pied d'Équipement (lot 311)");
+  assert.equal(tous(n, ".fiche-livre").length, 0, "⛔ le livre a dégagé d'Équipement (Eric, 27/09)");
   assert.ok(n.querySelector("style"), "la feuille des cotes est dans l'écran");
 });
 
@@ -482,18 +485,18 @@ test("5 ter bis — 🔴 LE LIEU D'UNE BOÎTE EST UNE LOI, ⛔ pas une forme de 
     "⛔ un second écrivain pour le même choix : c'est la faute qu'on vient de retirer");
 });
 
-test("5 quater — les portes et les boutons publient leur geste ; Companions et le livre sans cible sont `disabled`", () => {
+test("5 quater — les portes et les boutons publient leur geste ; Companions est `disabled`", () => {
   const gestes = [];
   const n = rendu({ surPorte: (p) => gestes.push(`porte:${p}`), surBouton: (b) => gestes.push(`bouton:${b}`),
     surDestination: (v) => gestes.push(`dest:${v}`), compteTally: 3 });
-  for (const b of tous(n, ".gear-porte")) b.click();
+  /* ⚖️ lot 311 : le carré `Gear` est celui de l'écran où l'on est — il ne publie rien */
+  for (const b of [...tous(n, ".porte-carree"), ...tous(n, ".gear-porte")]) b.click();
   n.querySelector('[data-organe="purse"]').click();
   n.querySelector('[data-organe="tally"]').click();
-  assert.deepEqual(gestes, ["porte:backpack", "porte:send", "porte:wares", "bouton:purse", "bouton:tally"]);
+  assert.deepEqual(gestes, ["porte:backpack", "porte:wares", "porte:send", "bouton:purse", "bouton:tally"]);
   assert.equal(n.querySelector('[data-organe="tally"]').dataset.compte, "3");
   assert.equal(n.querySelector('[data-organe="companions"]').disabled, true);
   assert.equal(n.querySelector('[data-organe="companions"]').className, "gear-porte", "Companions est un petit de la famille, pas un bouton à image");
-  assert.equal(n.querySelector(".gear-livre").disabled, true);
   /* le dropdown : les quatre destinations de la création, deux encore fermées */
   const options = tous(n, "option");
   assert.deepEqual(options.map((o) => o.textContent), DESTINATIONS.map((d) => d.mot));

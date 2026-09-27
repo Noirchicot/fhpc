@@ -164,19 +164,22 @@ test("8 · chaque organe tient dans la dalle qu'il nomme", () => {
   }
 });
 
-/* ══ 9 · LE PIED DIT LE TRIANGLE ═══════════════════════════════════════════════
-   ⭐ TÉMOIN : les trois portes sont Gear, Send, Backpack — dans cet ordre, et Wares
-   n'ouvre pas une porte vers lui-même. ⛔ `Equipment` est le nom de l'ÉTAPE. */
-test("9 · le pied dit Gear · Send · Backpack, et rien d'autre", () => {
-  const portes = D.ORGANES.filter((o) => o.sorte === "porte");
+/* ══ 9 · LE PIED : TROIS CARRÉS, PUIS SEND ══════════════════════════════════════
+   ⚖️ LOT 311 (NORMES `equipement-portes-carrees`) — il remplace le triangle du 20/09.
+   ⭐ TÉMOIN : Pack · Wares · Gear en carrés de même boîte, puis Send à la cote du plan.
+   ⛔ `Equipment` est le nom de l'ÉTAPE, jamais d'une porte. */
+test("9 · le pied dit Pack · Wares · Gear puis Send, et rien d'autre", () => {
+  const portes = D.ORGANES.filter((o) => o.sorte === "porte" || o.sorte === "porte-carree")
+    .sort((a, b) => a.x - b.x);
   assert.deepEqual(portes.map((o) => D.CLEF_DE[o.nom]), [...D.PORTES],
-    "⛔ le pied de Wares : Gear · Send · Backpack (Eric, 20/09)");
-  assert.deepEqual([...D.PORTES].sort(), ["backpack", "gear", "send"], "aucune porte vers Wares lui-même");
+    "⛔ le pied de Wares : les trois carrés, puis Send (Eric, 27/09)");
+  assert.deepEqual([...D.PORTES], ["backpack", "wares", "gear", "send"]);
   assert.ok(!D.PORTES.includes("equipment"), "⛔ « Equipment » est le nom de l'ÉTAPE, jamais d'un écran");
-  /* les trois portes ont la même boîte : une rangée de contrôles ne fait pas de favori */
-  const largeurs = new Set(portes.map((o) => o.l));
-  assert.equal(largeurs.size, 1, "⛔ les trois portes n'ont pas la même largeur");
-  assert.equal(portes[0].l, D.RANGEE.porte.l, "et c'est celle que le plan déclare");
+  const carres = portes.filter((o) => o.sorte === "porte-carree");
+  assert.equal(new Set(carres.map((o) => `${o.l}×${o.h}`)).size, 1, "⛔ les trois carrés n'ont pas la même boîte");
+  assert.deepEqual([carres[0].l, carres[0].h], [D.RANGEE.carre.l, D.RANGEE.carre.h], "et c'est celle que le plan déclare");
+  const send = portes.find((o) => o.sorte === "porte");
+  assert.equal(send.l, D.RANGEE.porte.l, "Send garde sa cote");
 });
 
 /* ══ 10 · LES EXCEPTIONS SE NOMMENT ════════════════════════════════════════════
@@ -191,7 +194,8 @@ test("10 · les écarts qui dévient du 8 sont nommés dans NORMES", () => {
   for (const ancre of ["equipement-wares-trois-dalles", "equipement-wares-swipe-pagine",
                        "equipement-wares-douze-par-page", "equipement-wares-rembourrage-quatre",
                        "equipement-wares-jeton-et-x2", "equipement-la-fiche-du-catalogue-est-un-x2",
-                       "equipement-wares-bourse-et-tally-centres", "equipement-wares-pied-triangle"]) {
+                       "equipement-wares-bourse-et-tally-centres", "equipement-wares-pied-triangle",
+                       "equipement-portes-carrees"]) {
     assert.ok(NORMES.includes(ancre), `⛔ la loi « ${ancre} » n'est pas dans NORMES.md`);
   }
 });

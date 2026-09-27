@@ -360,7 +360,7 @@ test("11 — 🔴 LA DALLE PORTE LE VOILE DE SON RANG, et la cote se lit sur un 
   }
 });
 
-test("12 — 🔴 LES DEUX BORNES DU PIED GARDENT LEUR ANCRE (le livre et le `?`)", () => {
+test("12 — 🔴 LA BORNE DU PIED GARDE SON ANCRE (le `?` ; le livre a dégagé, lot 311)", () => {
   /* ⚖️ Eric, 18/09 : *« le livre et le ? qui sont mal centrés »*.
      ⛔ LA CAUSE : `.sac [data-organe]` pose `position: absolute`, et la règle qui le
      défaisait dans la rangée (`position: static`) attrapait les deux bornes. Or
@@ -388,10 +388,9 @@ test("12 — 🔴 LES DEUX BORNES DU PIED GARDENT LEUR ANCRE (le livre et le `?`
      fait DOUBLON avec celui que `poserLesBornes` descend dans la dernière rangée. */
   assert.equal(n.querySelector(".tuto-point"), null,
     "⛔ le sac fabrique un `?` : la coquille en pose déjà un, et le sien n'a pas d'état");
-  const livre = n.querySelector(".fiche-livre");
-  assert.ok(livre, "le livre, lui, est posé par l'écran — comme sur R");
-  assert.equal(livre.disabled, true,
-    "⛔ sans cible FH WEB il est GRISÉ, jamais muet : « chaque conversion demande une CIBLE »");
+  /* 🗄️ LOT 311 — LE LIVRE A DÉGAGÉ (Eric, 27/09 : « Tu dégages le livre qui n'a pas d'utilité
+     dans équipement ») : il ne reste qu'une borne, le `?` de la coquille. */
+  assert.equal(n.querySelector(".fiche-livre"), null, "⛔ le livre est revenu dans le sac");
 });
 
 test("13 — 🔴 LES TROIS ORGANES D'ÉCHANGE SONT CEUX DE R, ET ILS PORTENT LEURS IMAGES", () => {

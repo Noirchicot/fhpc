@@ -8820,6 +8820,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    par la LISTE, pas par une copie : le relief d'un bouton a un seul écrivain, et le garde
    `bouton-inventaire` rougit si une famille n'entre que dans deux listes sur trois. */
 .wares-porte,
+/* LOT 311 — les trois portes CARRÉES du pied d'Équipement : Pack · Wares · Gear, sur les trois
+   écrans. ⭐ Elles entrent par la LISTE (patron, `::before`, `::after`), pas par une copie : le
+   relief d'un bouton a un seul écrivain. ⛔ Elles n'entrent PAS dans le plancher du gabarit petit
+   (77) : un carré vaut sa cible, `--touch`. */
+.porte-carree,
 /* LOT 213 — les quatre portes du pied de X1 : Close · Use · Send · Trash. ⭐ Elles
    entrent par la liste, pas par une copie : le garde `bouton-inventaire` exige que
    les deux listes (`::before`, `::after`) soient identiques membre pour membre, et
@@ -8907,6 +8912,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-option::before,
 .gear-porte::before,
 .wares-porte::before,
+.porte-carree::before,
 .x1-porte::before {
   content: "";
   position: absolute;
@@ -8987,6 +8993,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .aiguilleur-option::after,
 .gear-porte::after,
 .wares-porte::after,
+.porte-carree::after,
 .x1-porte::after {
   content: "";
   position: absolute;
@@ -10025,6 +10032,101 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    `:is(…):not():not()` et posé après : il gagne par l'ordre, pas par un artifice. */
 button.gear-porte[data-organe="companions"][data-porte] {
   font-size: var(--t1); padding-inline: var(--sp-4);
+}
+
+/* ══ LOT 311 — LE PIED D'ÉQUIPEMENT : TROIS CARRÉS, SEND CENTRÉ, LE `?` À DROITE ══════════════
+   ⚖️ Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le
+   bouton send toujours centré. Tu dégages le livre qui n'a pas d'utilité dans équipement. Tu
+   places les 3 carrés répartis équitablement à gauche de send »*. NORMES `equipement-portes-carrees`.
+   ⭐ LA RANGÉE GARDE SES TROIS COLONNES (§6 pré), ET C'EST LA COLONNE DU MILIEU QUI CHANGE DE
+   MÉTIER : elle vaut la cote de `Send` (77), donc `Send` est centré sur la dalle PAR
+   CONSTRUCTION ; les deux colonnes de côté sont égales, celle de gauche porte les carrés, celle
+   de droite le `?` (sa règle, `> .tuto-point`, le colle au bord droit comme avant).
+   ⛔ Plus de borne gauche : le livre est parti, et sa place est celle des carrés.
+   📌 UN SEUL ÉCRIVAIN POUR LA COTE DU MILIEU : `--pied-centre`, lu par la rangée ET par son
+   groupe — deux `77` écrits deux fois divergeraient au premier réglage. */
+[data-rangee][data-pied="equipement"] {
+  --pied-centre: var(--bouton-petit);
+  grid-template-columns: minmax(0, 1fr) var(--pied-centre) minmax(0, 1fr);
+}
+/* le groupe des majeurs enjambe la colonne des carrés et celle de `Send`, et il les redécoupe
+   aux mêmes cotes : ses deux pistes TOMBENT sur les deux premières de la rangée */
+[data-rangee][data-pied="equipement"] > .rangee-majeurs {
+  grid-column: 1 / span 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--pied-centre);
+  justify-content: normal;
+  gap: 0;
+}
+/* 📐 « RÉPARTIS ÉQUITABLEMENT » SE MESURE ENTRE LES DESSINS — les cotes d'Eric se prennent entre
+   les dessins, jamais entre les cibles. ⭐ La cible (44) déborde du dessin (40) de
+   `--bouton-retrait-v` de chaque côté : une marge NÉGATIVE de ce retrait rend au flex la boîte du
+   DESSIN, et `space-evenly` pose alors quatre gouttières égales entre la marge, les trois dessins
+   et le bord de `Send` — 6,25 blg, ce que le plan déclare. */
+.portes-carrees {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  min-inline-size: 0;
+}
+.portes-carrees > .porte-carree { margin-inline: calc(-1 * var(--bouton-retrait-v)); }
+
+/* ── LA PORTE CARRÉE — le banc 310 (`banc-portes-imagees.html`), reproduit ──
+   ⚖️ Eric, 27/09 : *« Carré 40 (44) bien. Images : wares parfait, pantin fait le plus trapu,
+   backpack fait le 15 % plus petit. Le texte centré horizontalement et verticalement »*.
+   ⭐ La cible reste 44 (`--touch`) ; le CORPS peint est 40 — le retrait du relief appliqué sur
+   les QUATRE côtés, comme les options carrées de l'aiguilleur. Le relief est celui de la famille,
+   avec son liseré bleu de navigation. ⛔ `button.` en tête : à égalité avec les listes du patron
+   (0,1,1), ces règles doivent gagner par le calcul, pas par la position. */
+button.porte-carree {
+  inline-size: var(--touch);
+  min-inline-size: var(--touch);
+  block-size: var(--touch);
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  --bouton-fond: var(--info);
+}
+button.porte-carree::before { inset: var(--bouton-retrait-v); }
+button.porte-carree::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge)); }
+/* ⭐ L'IMAGE EST UN FILIGRANE, PEINT COMME SUR SON ÉCRAN : un aplat `--text-soft` découpé par
+   l'image (masque) — posée telle quelle, elle est sombre et disparaît la nuit (`.sac-fond`).
+   ⚖️ 27/09, deuxième passe : *« Harmoniser les couleurs des 3 images · Wares doit remplir tout le
+   bas du bouton · Backpack, mot trop large, remplacé par pack, réduit encore l'image du sac à dos
+   de 10 % · Gear : pantin 10 % moins haut 10 % plus large »*. */
+.porte-carree-image {
+  position: absolute;
+  inset: calc(var(--bouton-retrait-v) + 3px);
+  /* 🔴 PAS `--text-soft` : il bascule avec le thème, et le CORPS du bouton, lui, ne bascule pas
+     (graphite dans les deux). En clair, `--text-soft` devenait sombre sur sombre et les silhouettes
+     disparaissaient (vu sur la capture claire du lot 311). ⭐ L'encre est celle du BOUTON, fixe :
+     l'ivoire du mot, mêlé au corps — le ton que le thème sombre montrait, dans les deux thèmes. */
+  background: color-mix(in srgb, var(--bouton-encre) 62%, var(--bouton-face));
+  -webkit-mask: var(--porte-image) center / var(--porte-image-taille, contain) no-repeat;
+  mask: var(--porte-image) center / var(--porte-image-taille, contain) no-repeat;
+  pointer-events: none;
+}
+/* ⚖️ « Redonne du relief au sac à dos, mais sa taille et sa couleur sont bien » ; « Réduit ensuite
+   pack, le dessin de 10 % » — 85 % puis −10 %, puis −10 % : 68,9 %, contenu, centré. */
+.porte-carree[data-porte="backpack"] { --porte-image: var(--porte-image-pack); --porte-image-taille: 68.9%; }
+/* ⚖️ « Pantin réduit largeur de 5 % » — l'homme : 90 % de haut, 110 % puis −5 % de large. */
+.porte-carree[data-porte="gear"] { --porte-image: var(--porte-image-gear); --porte-image-taille: 32.7% 90%; }
+/* ⚖️ « Réduit wares de 10 %, centre-le dans le bouton, il ne touche plus le bas » — 90 % de la
+   largeur, DANS le liseré, centré dans les deux sens. */
+.porte-carree[data-porte="wares"] { --porte-image: var(--porte-image-wares); --porte-image-taille: 90% auto; }
+.porte-carree[data-porte="wares"] > .porte-carree-image {
+  inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge) + 1px);
+}
+/* le mot : T0, italique, 600, centré dans les deux sens, détaché de l'image par un halo du fond */
+.porte-carree-mot {
+  position: relative;
+  font-style: italic;
+  font-weight: 600;
+  font-size: var(--t0);
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 3px var(--bouton-face);   /* le halo du CORPS, pas du fond de page (clair en thème clair) */
 }
 
 
@@ -12142,6 +12244,10 @@ button.tuto-point::before {
    sans mentir. 📏 Aucune porte de R n'est désarmée aujourd'hui, donc aucun rendu
    existant ne change. */
 .gear-porte:disabled,
+/* ⚖️ LOT 311 — LE CARRÉ DE L'ÉCRAN OÙ L'ON EST — Eric, 27/09 : *« Quand on est sur l'écran en
+   question le bouton est grisé »*. ⭐ Il entre dans CETTE règle, celle des portes désarmées, et
+   n'en écrit pas une seconde : liseré retiré, voile `--organe-eteint`, curseur refusé. */
+.porte-carree:disabled,
 .x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
 
 /* ══ X2 — CE QUI VIT SOUS LA COUTURE (lot 242) ═════════════════════

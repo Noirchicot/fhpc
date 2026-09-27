@@ -152,7 +152,7 @@ test("lieux — location absente se lit « backpack », jamais « porté »", ()
    🔴 ET C'EST L'UN D'EUX QUI A TROUVÉ UNE FAUTE DE BRANCHEMENT : le Tally de Wares ouvrait la
    liste d'ENVOI (le geste de R, recopié) au lieu du PANIER. Un organe qui porte le même nom
    sur deux écrans n'y fait pas forcément la même chose, et rien ne le disait. */
-const versLeCatalogue = (node) => node.querySelector('.gear-porte[data-porte="wares"]');
+const versLeCatalogue = (node) => node.querySelector('.porte-carree[data-porte="wares"]');
 /* ⭐ UN SEUL CHEMIN VERS LE CATALOGUE, ET IL PART DE N'IMPORTE OÙ. La vue persiste entre les
    tests (c'est le produit), donc chaque garde doit pouvoir s'y rendre comme un joueur perdu.
    ⛔ Ces quatre lignes étaient recopiées dans trois gardes, chacune avec sa propre porte de
@@ -497,7 +497,7 @@ test("🔴 LE FIL DE LA BOURSE DU SAC — on CLIQUE, et le popup doit s'ouvrir",
   if (gear) gear.click();
   node = rendre();
   /* la porte `Backpack` de R ouvre le sac B1 */
-  const porte = node.querySelector('.gear-porte[data-porte="backpack"]');
+  const porte = node.querySelector('.porte-carree[data-porte="backpack"]');
   assert.ok(porte, "⛔ la porte du sac a disparu de R : ce garde doit être réécrit");
   porte.click();
   node = rendre();

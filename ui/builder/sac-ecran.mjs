@@ -39,6 +39,8 @@ import { armerJeton, fantome } from "./glisser.mjs?v=851";
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
 import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=851";
+/* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
+import { portesCarrees } from "./porte-carree.mjs?v=851";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
@@ -87,8 +89,8 @@ export const CLEF_DE = Object.freeze({
      pas, il prend sa place d'édition. Une seule identité, une place par mode. */
   "DONE": "done",
   "COLLECTEUR": "collecteur", "TALLY": "tally", "PARTY TALLY": "party-tally", "PURSE": "purse",
-  "SEND VERS": "send-vers", "GEAR": "gear", "SEND": "send", "WARES": "wares",
-  "RANGEE": "rangee", "livre": "livre", "?": "guide"
+  "SEND VERS": "send-vers", "BACKPACK": "backpack", "WARES": "wares", "GEAR": "gear", "SEND": "send",
+  "RANGEE": "rangee", "?": "guide"
 });
 /* les douze cases prennent leur clef de leur nom : CASE 2.3 → case-2-3 */
 const clefDeCase = (nom) => nom.toLowerCase().replace(/\s/g, "-").replace(".", "-");
@@ -175,7 +177,7 @@ export function feuilleDesCotesSac() {
     /* ⛔ LES ENFANTS DE LA RANGÉE NE SE POSENT PAS : c'est la grille partagée des
        rangées de contrôles qui les range (cinq listes de `shell.css` la disent
        ensemble). Leur `x` au plan dit où ils TOMBENT, il ne les y met pas. */
-    if (o.sorte === "porte" || o.sorte === "rond") continue;
+    if (o.sorte === "porte" || o.sorte === "porte-carree" || o.sorte === "rond") continue;
     /* ⚖️ `DONE` N'EST PAS UN SEPTIÈME ORGANE, C'EST LA PLACE D'ÉDITION DU TROISIème —
        Eric, 2026-09-20 : *« à droite du bouton jaune done sections ! »*. ⭐ L'interrupteur
        du mode garde son identité (`data-organe="sections"`) et change de place AVEC le
@@ -1688,30 +1690,22 @@ export function construireLeSac(options = {}) {
   const rangee = el("div", "sac-rangee");
   rangee.dataset.organe = "rangee";
   rangee.dataset.rangee = "sac";
+  /* ⚖️ LOT 311 — LE PIED D'ÉQUIPEMENT (NORMES `equipement-portes-carrees`) : les trois portes
+     carrées à gauche, `Send` centré sur la dalle, le `?` à droite. 🗄️ Le livre est parti
+     (Eric, 27/09 : *« Tu dégages le livre qui n'a pas d'utilité dans équipement »*) : il vivait
+     ici, à la borne gauche, grisé faute de cible FH WEB. */
+  rangee.dataset.pied = "equipement";
   noeud.append(rangee);
-  /* le livre — la classe de R, et sa cible FH WEB est une décision d'Eric : sans
-     `livreDe`, il est GRISÉ, jamais muet (NORMES, « chaque conversion demande une
-     CIBLE »). C'est exactement ce que fait `gear-ecran.mjs`. */
-  const livre = bouton("fiche-livre", undefined, "Rules");
-  if (options.livreDe && options.livreDe.href) {
-    livre.addEventListener("click", () => { window.open(options.livreDe.href, "_blank", "noopener"); });
-  } else {
-    livre.disabled = true;
-  }
-  rangee.append(livre);
-  /* 🔴 LES TROIS PORTES VIVENT DANS UN GROUPE, ET CE N'EST PAS UN ENVELOPPEUR DE
-     CONFORT — la faute est déjà écrite dans R : la grille du pied a TROIS colonnes
-     (borne | 1fr | borne), et c'est `.rangee-majeurs` qui occupe celle du milieu.
-     ⛔ Sans lui, la première porte prend tout le `1fr` et les suivantes passent à
-     la ligne : Eric l'avait vu sur deux appareils le 16/09. Je l'ai refait ici. */
+  /* 🔴 LE GROUPE N'EST PAS UN ENVELOPPEUR DE CONFORT — la faute est déjà écrite dans R : sans
+     lui, la coquille range les enfants un par un. ⭐ Il porte les trois carrés (l'organe
+     partagé ; celui du sac, `Pack`, est grisé : on y est) puis `Send`. */
   const majeurs = el("div", "rangee-majeurs");
   rangee.append(majeurs);
-  for (const [id, mot] of [["gear", "Gear"], ["send", "Send"], ["wares", "Wares"]]) {
-    const note = id === "send" ? "Send — clears the collector and sends" : mot;
-    const b = bouton("bouton gear-porte", mot, note, () => options.surPorte && options.surPorte(id));
-    b.dataset.porte = id;
-    majeurs.append(b);
-  }
+  majeurs.append(portesCarrees({ courant: "backpack", surPorte: options.surPorte }));
+  const send = bouton("bouton gear-porte", "Send", "Send — clears the collector and sends",
+    () => options.surPorte && options.surPorte("send"));
+  send.dataset.porte = "send";
+  majeurs.append(send);
   /* ⛔ LE `?` NE S'ÉCRIT PAS ICI, ET C'EST L'ARTEFACT DU CHAPITRE QUI LE DIT :
      *« `.tuto-point`, posé par la coquille, pas par l'écran — rien à écrire ici »*.
      ⭐ La coquille en pose UN par étape (`GUIDES.equipment` existe), le place dans

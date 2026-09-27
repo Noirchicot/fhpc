@@ -324,7 +324,7 @@ test("Equipment — l'étape n'a PLUS AUCUN bouton à état depuis que R l'occup
   }).document;
   const node = renderEquipmentStep({ document: repondu, resolved: report.resolved, query }, () => {});
   /* lot 212 : la porte du catalogue est `Wares`, sur l'écran R */
-  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
+  const porte = node.querySelector('.porte-carree[data-porte="wares"]');
   if (porte) porte.click();
   assert.deepEqual(elementsActifs(node), [],
     "ni cran ni jeton n'est un interrupteur : aucun n'a d'état à annoncer");
