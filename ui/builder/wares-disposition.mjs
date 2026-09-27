@@ -157,7 +157,7 @@ export const RENDU_PIED = Object.freeze({
    3 carrés répartis équitablement à gauche de send »*, puis *« Quand on est sur l'écran en
    question le bouton est grisé »*.
    🗄️ Ce qu'elle remplace : `Gear · Send · Backpack` (le triangle du 20/09) et le livre à gauche.
-   ⭐ `Send` garde sa cote (77) et reste CENTRÉ sur la dalle ; les trois carrés — Pack · Wares ·
+   ⭐ `Send` garde sa cote (77) et reste CENTRÉ sur la dalle ; les trois carrés — Gear · Pack ·
    Gear, le même ordre sur les trois écrans — se répartissent à sa gauche, le `?` reste à droite.
    Le carré de Wares est au plan comme les deux autres : c'est l'ÉTAT qui le grise.
    📐 « RÉPARTIS ÉQUITABLEMENT » SE MESURE ENTRE LES DESSINS : de la marge (4) au bord de Send,
@@ -167,7 +167,7 @@ export const RENDU_PIED = Object.freeze({
    qui range la rangée. Ces cotes disent ce qu'elle doit RENDRE — un garde les relit. */
 export const RANGEE = { l: 367, h: TOUCH, borne: TOUCH, porte: { l: 77, h: TOUCH }, carre: { l: 40, h: 40 }, rond: 22 };
 /* les portes du pied, dans l'ordre de lecture : les trois carrés, puis Send */
-export const PORTES = Object.freeze(["backpack", "wares", "gear", "send"]);
+export const PORTES = Object.freeze(["gear", "backpack", "wares", "send"]);
 const Y_RANGEE = 448;
 const X_SEND = (DALLE.l - RANGEE.porte.l) / 2;
 const G_CARRES = (X_SEND - REMBOURRAGE - 3 * RANGEE.carre.l) / 4;
@@ -250,9 +250,9 @@ export const ORGANES = [
   { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 365, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
   { nom: "SEND VERS",           sorte: "dropdown",   dalle: "PIED",    x: 139.5,  y: 398, l: 96,  h: 40, cible: { x: 139.5, y: 396, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
   { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: Y_RANGEE, l: 367, h: 44, cran: "—" },
-  carre("BACKPACK", "Pack", 0),
-  carre("WARES", "Wares", 1),
-  carre("GEAR", "Gear", 2),
+  carre("GEAR", "Gear", 0),
+  carre("BACKPACK", "Pack", 1),
+  carre("WARES", "Wares", 2),
   { nom: "SEND",                sorte: "porte",      dalle: "PIED",    x: X_SEND, y: Y_RANGEE, l: 77,  h: 44, cible: { x: X_SEND, y: Y_RANGEE, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
   /* ⛔ LE `?` EST POSÉ PAR LA COQUILLE, UNE FOIS, SUR TOUTES LES ÉTAPES — jamais par un écran,
      qui pourrait l'oublier (NORMES). Il est AU PLAN parce qu'il occupe une borne de la rangée

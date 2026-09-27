@@ -564,7 +564,7 @@
    "cran": "—"
   },
   {
-   "nom": "BACKPACK",
+   "nom": "GEAR",
    "sorte": "porte-carree",
    "x": 10.25,
    "y": 450.0,
@@ -576,11 +576,11 @@
     "l": 44,
     "h": 44
    },
-   "mot": "Pack",
+   "mot": "Gear",
    "cran": "T0/600"
   },
   {
-   "nom": "WARES",
+   "nom": "BACKPACK",
    "sorte": "porte-carree",
    "x": 56.5,
    "y": 450.0,
@@ -592,11 +592,11 @@
     "l": 44,
     "h": 44
    },
-   "mot": "Wares",
+   "mot": "Pack",
    "cran": "T0/600"
   },
   {
-   "nom": "GEAR",
+   "nom": "WARES",
    "sorte": "porte-carree",
    "x": 102.75,
    "y": 450.0,
@@ -608,7 +608,7 @@
     "l": 44,
     "h": 44
    },
-   "mot": "Gear",
+   "mot": "Wares",
    "cran": "T0/600"
   },
   {

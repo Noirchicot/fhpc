@@ -856,7 +856,7 @@ export function construireLesWares(o = {}) {
 }
 
 /** La rangée du pied — le gabarit d'Équipement depuis le lot 311 (NORMES
- *  `equipement-portes-carrees`) : les trois portes carrées Pack · Wares · Gear à gauche (celle
+ *  `equipement-portes-carrees`) : les trois portes carrées Gear · Pack · Wares à gauche (celle
  *  de Wares GRISÉE : on y est), `Send` centré sur la dalle, le `?` à droite (la coquille).
  *  🗄️ Ce qu'elle remplace : `Gear · Send · Backpack` (le triangle du 20/09) et le livre à la
  *  borne gauche — Eric, 27/09 : *« Tu dégages le livre qui n'a pas d'utilité dans équipement »*.

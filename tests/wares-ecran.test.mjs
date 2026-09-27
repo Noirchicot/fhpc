@@ -197,21 +197,21 @@ test("9 · un chevron publie un sens, ⛔ pas une page", () => {
 /* ══ 10 · LE PIED ══════════════════════════════════════════════════════════════
    ⚖️ LOT 311 — Eric, 27/09 : *« Tu places les 3 carrés répartis équitablement à gauche de send »*
    et *« Quand on est sur l'écran en question le bouton est grisé »*.
-   ⭐ TÉMOIN : les trois carrés dans l'ordre Pack · Wares · Gear, puis Send ; celui de Wares est
-   grisé et ne publie rien. 🗄️ Il remplace le triangle du 20/09 (`Gear · Send · Backpack`). */
-test("10 · le pied dit Pack · Wares · Gear puis Send, et le carré de Wares ne mène nulle part", () => {
+   ⭐ TÉMOIN : les trois carrés dans l'ordre Gear · Pack · Wares, puis Send ; celui de Wares est
+   désigné (halo, `aria-current`) et ne publie rien. 🗄️ Il remplace le triangle du 20/09 (`Gear · Send · Backpack`). */
+test("10 · le pied dit Gear · Pack · Wares puis Send, et le carré de Wares ne mène nulle part", () => {
   const vus = [];
   const n = monter({ surPorte: (id) => vus.push(id) });
   const carres = tous(n, ".porte-carree");
-  assert.deepEqual(carres.map((b) => b.dataset.porte), ["backpack", "wares", "gear"],
+  assert.deepEqual(carres.map((b) => b.dataset.porte), ["gear", "backpack", "wares"],
     "⛔ l'ordre des carrés (le même sur les trois écrans)");
-  assert.deepEqual(carres.map((b) => b.querySelector(".porte-carree-mot").textContent), ["Pack", "Wares", "Gear"], "et leurs mots");
+  assert.deepEqual(carres.map((b) => b.querySelector(".porte-carree-mot").textContent), ["Gear", "Pack", "Wares"], "et leurs mots");
   const send = tous(n, ".wares-porte");
   assert.deepEqual(send.map((b) => b.dataset.porte), ["send"], "⛔ une seule porte à mot : Send");
   for (const b of [...carres, ...send]) b.dispatchEvent(new (globalThis.Event || Object)("click"));
-  assert.deepEqual(vus, ["backpack", "gear", "send"], "⛔ une porte muette — ou le carré courant qui publie");
-  assert.equal(carres[1].disabled, true, "⛔ le carré de Wares, sur Wares, est grisé");
-  assert.equal(carres[1].getAttribute("aria-current"), "page");
+  assert.deepEqual(vus, ["gear", "backpack", "send"], "⛔ une porte muette — ou le carré courant qui publie");
+  assert.equal(carres[2].disabled, false, "⚖️ « plutôt que de griser on essaye le halo » : plus de gris");
+  assert.equal(carres[2].getAttribute("aria-current"), "page", "⛔ le carré de Wares, sur Wares, est désigné");
   assert.equal(tous(n, ".fiche-livre").length, 0, "⛔ le livre a dégagé d'Équipement");
   assert.equal(tous(n, ".rangee-majeurs").length, 1,
     "⛔ le groupe des majeurs manque : sans lui les portes passent à la ligne (mesuré sur R, 16/09)");

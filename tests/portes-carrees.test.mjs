@@ -2,15 +2,16 @@
    ⚖️ Eric, 27/09, mot pour mot : « Parfait je valide les 3. Dans les 3 écrans. Tu gardes le bouton
    send toujours centré. Tu dégages le livre qui n'a pas d'utilité dans équipement. Tu places les 3
    carrés répartis équitablement à gauche de send », puis « Quand on est sur l'écran en question le
-   bouton est grisé ». NORMES `equipement-portes-carrees`.
+   bouton est grisé » — amendé le soir : « Plutôt que de griser on essaye le halo autour de la fenêtre
+   active » et « Modifie l'ordre de gauche à droite Gear/pack/ wares ». NORMES `equipement-portes-carrees`.
 
    🔴 CE QU'IL DÉFEND, SUR LES TROIS ÉCRANS À LA FOIS — et c'est pour ça qu'il est un fichier à part :
    une loi qui vaut pour trois écrans ne se garde pas dans le test d'un seul.
-     1. LE PLAN : trois carrés Pack · Wares · Gear, dans cet ordre, à gauche de Send ; Send centré
+     1. LE PLAN : trois carrés Gear · Pack · Wares, dans cet ordre, à gauche de Send ; Send centré
         sur la dalle ; quatre gouttières ÉGALES entre les DESSINS ; plus de livre ; cibles ≥ 44,
         dans la dalle, sans chevauchement.
      2. LE DOM : l'organe partagé posé dans le groupe, AVANT Send ; le carré de l'écran où l'on est
-        grisé (`disabled` + `aria-current="page"`) et muet ; les deux autres armés et qui publient
+        désigné par `aria-current="page"` (⛔ pas `disabled`), cerné du halo, et muet ; les deux autres armés et qui publient
         la même porte que l'ancien bouton à mot ; plus de livre.
      3. LA MATIÈRE : les images, leurs tailles, le mot et son cran sont ceux du banc 310.
    ⛔ SA LIMITE : il lit des plans, un DOM de stub et des feuilles. Le rendu (centre de Send, pas des
@@ -45,18 +46,18 @@ const PLANS = [
   { ecran: "sac", courant: "backpack", ORGANES: S.ORGANES, dalle: S.DALLE, marge: S.MARGE, clef: CLEF_S },
   { ecran: "Wares", courant: "wares", ORGANES: W.ORGANES, dalle: W.DALLE, marge: W.REMBOURRAGE, clef: W.CLEF_DE },
 ];
-const ORDRE = ["backpack", "wares", "gear"];
+const ORDRE = ["gear", "backpack", "wares"];
 
 /* ══ 1 · LE PLAN ═══════════════════════════════════════════════════════════════════════════════ */
 
-test("1 · les trois plans : Pack · Wares · Gear à gauche de Send, Send centré, gouttières égales entre les dessins", () => {
-  assert.deepEqual(PORTES_CARREES.map((p) => p.id), ORDRE, "⛔ l'ordre de l'organe : Pack, Wares, Gear");
-  assert.deepEqual(PORTES_CARREES.map((p) => p.mot), ["Pack", "Wares", "Gear"], "⛔ les mots du banc");
+test("1 · les trois plans : Gear · Pack · Wares à gauche de Send, Send centré, gouttières égales entre les dessins", () => {
+  assert.deepEqual(PORTES_CARREES.map((p) => p.id), ORDRE, "⛔ l'ordre de l'organe : Gear, Pack, Wares");
+  assert.deepEqual(PORTES_CARREES.map((p) => p.mot), ["Gear", "Pack", "Wares"], "⛔ les mots du banc");
   for (const P of PLANS) {
     const carres = P.ORGANES.filter((o) => o.sorte === "porte-carree").sort((a, b) => a.x - b.x);
     const send = P.ORGANES.find((o) => P.clef[o.nom] === "send");
     assert.ok(send, `${P.ecran} : Send manque au plan`);
-    assert.deepEqual(carres.map((o) => P.clef[o.nom]), ORDRE, `${P.ecran} : trois carrés, dans l'ordre Pack · Wares · Gear`);
+    assert.deepEqual(carres.map((o) => P.clef[o.nom]), ORDRE, `${P.ecran} : trois carrés, dans l'ordre Gear · Pack · Wares`);
     assert.deepEqual(carres.map((o) => o.mot), PORTES_CARREES.map((p) => p.mot), `${P.ecran} : les mots du plan sont ceux de l'organe`);
     assert.ok(carres.every((o) => o.cran === "T0/600"), `${P.ecran} : le mot des carrés est en T0/600`);
     /* Send centré sur la dalle, à sa cote de toujours */
@@ -122,25 +123,24 @@ test("3 · les trois écrans posent l'organe partagé, AVANT Send, dans le group
     assert.equal(enfants[0].className, "portes-carrees", `${E.ecran} : les carrés d'abord`);
     assert.equal(enfants[1].dataset.porte, "send", `${E.ecran} : Send ensuite`);
     const carres = [...enfants[0].children];
-    assert.deepEqual(carres.map((b) => b.dataset.porte), ORDRE, `${E.ecran} : Pack · Wares · Gear`);
+    assert.deepEqual(carres.map((b) => b.dataset.porte), ORDRE, `${E.ecran} : Gear · Pack · Wares`);
     assert.ok(carres.every((b) => b.className === "porte-carree"), `${E.ecran} : la classe de l'organe, et elle seule`);
     assert.equal(n.querySelectorAll(".fiche-livre").length, 0, `${E.ecran} : ⛔ le livre est revenu`);
   }
 });
 
-test("4 · ⚖️ le carré de l'écran où l'on est est GRISÉ et muet ; les deux autres sont armés et publient leur porte", () => {
+test("4 · ⚖️ le carré de l'écran où l'on est est DÉSIGNÉ (aria-current, pas disabled) et muet ; les deux autres publient leur porte", () => {
   for (const E of ECRANS) {
     const vus = [];
     const n = E.monter((id) => vus.push(id));
     const carres = n.querySelectorAll(".porte-carree");
     for (const b of carres) {
       const courant = b.dataset.porte === E.courant;
-      assert.equal(b.disabled, courant, `${E.ecran} : ${b.dataset.porte} ${courant ? "doit être grisé" : "doit être armé"}`);
+      /* ⚖️ « Plutôt que de griser on essaye le halo » : plus AUCUN carré n'est `disabled` */
+      assert.equal(b.disabled, false, `${E.ecran} : ${b.dataset.porte} ⛔ n'est plus grisé — le halo le désigne`);
       assert.equal(b.getAttribute("aria-current"), courant ? "page" : null,
         `${E.ecran} : ${b.dataset.porte} — aria-current="page" sur le courant, et sur lui seul`);
-      /* ⛔ `dispatchEvent` et non `click()` : le stub, comme le navigateur, refuse le clic d'un
-         bouton `disabled` — ce garde doit prouver qu'il n'y a AUCUN écouteur, pas que le clic
-         a été refusé en amont. */
+      /* ⛔ `dispatchEvent` et non `click()` : ce garde doit prouver qu'il n'y a AUCUN écouteur. */
       b.dispatchEvent({ type: "click", target: b, preventDefault() {} });
     }
     assert.deepEqual(vus, ORDRE.filter((id) => id !== E.courant),
@@ -156,9 +156,10 @@ test("5 · l'organe partagé seul fabrique la porte carrée — aucun écran ne 
     assert.ok(!/(?:\b(?:el|eld|bouton)\(\s*(?:"button"\s*,\s*)?|className\s*=\s*|classList\.add\()["'`][^"'`]*\bporte-carree\b/.test(src),
       `${f} fabrique une porte carrée à la main : l'organe vit dans porte-carree.mjs`);
   }
-  /* et l'organe, seul, rend bien le carré courant désarmé sans écouteur */
+  /* et l'organe, seul, désigne le carré courant — sans le griser */
   const g = portesCarrees({ courant: "wares" });
-  assert.deepEqual([...g.children].map((b) => b.disabled), [false, true, false]);
+  assert.deepEqual([...g.children].map((b) => b.getAttribute("aria-current")), [null, null, "page"]);
+  assert.deepEqual([...g.children].map((b) => b.disabled), [false, false, false]);
 });
 
 /* ══ 3 · LA MATIÈRE ════════════════════════════════════════════════════════════════════════════ */
@@ -201,15 +202,19 @@ test("6 · les images, leurs tailles et le mot sont ceux du banc 310", () => {
   assert.match(SHELL, /button\.porte-carree\s*\{[^}]*--bouton-fond:\s*var\(--info\)/, "liseré bleu : on navigue");
 });
 
-test("7 · ⚖️ le carré grisé prend l'état désarmé des portes du socle — ⛔ pas un second gris", () => {
-  const regle = /([^{}]+)\{\s*--bouton-fond:\s*transparent;\s*opacity:\s*var\(--organe-eteint\);\s*cursor:\s*not-allowed;\s*\}/g;
-  const listes = [...SHELL.matchAll(regle)].map((m) => m[1].split(",").map((s) => s.trim()));
-  const la = listes.find((l) => l.includes(".gear-porte:disabled"));
-  assert.ok(la, "la règle des portes désarmées existe");
-  assert.ok(la.includes(".porte-carree:disabled"), "⛔ le carré grisé n'est pas dans la règle des portes désarmées");
-  /* et nulle part ailleurs : un second écrivain du gris divergerait */
-  const ailleurs = [...SHELL.matchAll(/([^{}]*\.porte-carree[^{}]*:disabled[^{}]*)\{/g)].map((m) => m[1]);
-  assert.equal(ailleurs.length, 1, `le gris du carré a ${ailleurs.length} écrivains`);
+test("7 · ⚖️ le carré de l'écran courant porte le HALO de l'actif — ⛔ plus de gris, ⛔ pas de box-shadow", () => {
+  /* ⚖️ Eric, 27/09 au soir : « Plutôt que de griser on essaye le halo autour de la fenêtre active ». */
+  const m = SHELL.match(/button\.porte-carree\[aria-current="page"\]::before\s*\{([^}]*)\}/);
+  assert.ok(m, "⛔ le carré courant n'a pas de halo");
+  /* ⭐ le halo de la maison : `--belt-halo` (la tuile dominante), l'épais repassé TROIS fois —
+     regardé le 27/09 : `--spy-halo` se perdait en thème clair */
+  const passes = [...m[1].matchAll(/drop-shadow\(0 0 var\(--halo-epais\) var\(--belt-halo\)\)/g)].length;
+  assert.equal(passes, 3, `le halo repasse ${passes} fois, pas 3`);
+  assert.match(m[1], /^\s*filter:/);
+  /* 🔴 un `box-shadow` écraserait les arêtes du relief (`--bouton-aretes`, sur le même pseudo) */
+  assert.ok(!/box-shadow/.test(m[1]), "⛔ halo en box-shadow : il effacerait le relief");
+  /* ⛔ et plus aucun gris : ni `:disabled` du carré, ni voile éteint */
+  assert.ok(!/\.porte-carree[^{}]*:disabled/.test(SHELL), "⛔ le gris du carré est revenu");
 });
 
 test("8 · 📐 la grille du pied : Send au centre par construction, les carrés répartis sur leur DESSIN", () => {

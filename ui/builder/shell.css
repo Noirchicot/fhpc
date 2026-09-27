@@ -8820,7 +8820,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    par la LISTE, pas par une copie : le relief d'un bouton a un seul écrivain, et le garde
    `bouton-inventaire` rougit si une famille n'entre que dans deux listes sur trois. */
 .wares-porte,
-/* LOT 311 — les trois portes CARRÉES du pied d'Équipement : Pack · Wares · Gear, sur les trois
+/* LOT 311 — les trois portes CARRÉES du pied d'Équipement : Gear · Pack · Wares, sur les trois
    écrans. ⭐ Elles entrent par la LISTE (patron, `::before`, `::after`), pas par une copie : le
    relief d'un bouton a un seul écrivain. ⛔ Elles n'entrent PAS dans le plancher du gabarit petit
    (77) : un carré vaut sa cible, `--touch`. */
@@ -10117,6 +10117,21 @@ button.porte-carree::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-
 .porte-carree[data-porte="wares"] { --porte-image: var(--porte-image-wares); --porte-image-taille: 90% auto; }
 .porte-carree[data-porte="wares"] > .porte-carree-image {
   inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge) + 1px);
+}
+/* ⚖️ LE CARRÉ DE L'ÉCRAN OÙ L'ON EST PORTE LE HALO DE L'ACTIF — Eric, 27/09 : *« Plutôt que de
+   griser on essaye le halo autour de la fenêtre active »* (🗄️ lot 311 : il était grisé, `disabled`).
+   ⭐ LE HALO DE LA MAISON, PAS UN NOUVEAU : `--belt-halo` (encre le jour, lueur la nuit), celui de
+   la tuile dominante du belt. 📏 REGARDÉ LE 27/09, deux thèmes : `--spy-halo` (0,45 le jour), repassé
+   deux fois comme le cran actif, se perdait en clair — une encre sombre autour d'un bouton sombre se
+   lit comme l'ombre de tous les autres. `--belt-halo` (0,62) repassé TROIS fois se lit dans les deux.
+   🔴 EN `filter`, SUR LA TUILE : le relief de `::before` EST un `box-shadow` (`--bouton-aretes`) ;
+   un halo en `box-shadow` l'écraserait. Le filtre s'AJOUTE, et il suit le dessin (40), pas la cible (44).
+   ⛔ Le carré n'est pas `disabled` : c'est `aria-current`, seul, qui le désigne — il reste plein. */
+button.porte-carree[aria-current="page"] { cursor: default; }
+button.porte-carree[aria-current="page"]::before {
+  filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
+          drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
+          drop-shadow(0 0 var(--halo-epais) var(--belt-halo));
 }
 /* le mot : T0, italique, 600, centré dans les deux sens, détaché de l'image par un halo du fond */
 .porte-carree-mot {
@@ -12244,10 +12259,6 @@ button.tuto-point::before {
    sans mentir. 📏 Aucune porte de R n'est désarmée aujourd'hui, donc aucun rendu
    existant ne change. */
 .gear-porte:disabled,
-/* ⚖️ LOT 311 — LE CARRÉ DE L'ÉCRAN OÙ L'ON EST — Eric, 27/09 : *« Quand on est sur l'écran en
-   question le bouton est grisé »*. ⭐ Il entre dans CETTE règle, celle des portes désarmées, et
-   n'en écrit pas une seconde : liseré retiré, voile `--organe-eteint`, curseur refusé. */
-.porte-carree:disabled,
 .x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
 
 /* ══ X2 — CE QUI VIT SOUS LA COUTURE (lot 242) ═════════════════════

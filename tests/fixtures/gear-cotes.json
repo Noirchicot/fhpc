@@ -279,8 +279,19 @@
    "sorte": "bouton"
   },
   {
-   "nom": "BACKPACK",
+   "nom": "GEAR",
    "x": 10.25,
+   "y": 506.0,
+   "l": 40,
+   "h": 40,
+   "cible": 44,
+   "mot": "Gear",
+   "cran": "T0/600",
+   "sorte": "porte-carree"
+  },
+  {
+   "nom": "BACKPACK",
+   "x": 56.5,
    "y": 506.0,
    "l": 40,
    "h": 40,
@@ -291,23 +302,12 @@
   },
   {
    "nom": "WARES",
-   "x": 56.5,
-   "y": 506.0,
-   "l": 40,
-   "h": 40,
-   "cible": 44,
-   "mot": "Wares",
-   "cran": "T0/600",
-   "sorte": "porte-carree"
-  },
-  {
-   "nom": "GEAR",
    "x": 102.75,
    "y": 506.0,
    "l": 40,
    "h": 40,
    "cible": 44,
-   "mot": "Gear",
+   "mot": "Wares",
    "cran": "T0/600",
    "sorte": "porte-carree"
   },

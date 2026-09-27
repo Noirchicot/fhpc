@@ -5044,19 +5044,21 @@ est ce qui reste de la dalle **entière** une fois retirées la colonne centrale
 il vide le collecteur vers la destination choisie, ou, s'il est vide, ouvre la liste d'envoi.
 
 🗄️ **REMPLACÉE LE 27/09** par `equipement-portes-carrees` (ci-dessous) : les trois écrans portent
-désormais les TROIS portes, en carrés, et celle de l'écran où l'on est est grisée. ⭐ Ce qui
+désormais les TROIS portes, en carrés, et celle de l'écran où l'on est porte le halo de l'actif. ⭐ Ce qui
 survit de celle-ci : `Equipment` n'est le nom d'aucun écran, et `Send` fait partout la même chose.
 
 ---
 
 ### 🟦 LE PIED D'ÉQUIPEMENT : TROIS CARRÉS À GAUCHE, `SEND` CENTRÉ, PLUS DE LIVRE
 📍 `equipement-portes-carrees` · vivante · 27/09 · remplace `equipement-wares-pied-triangle`
-⚖️ **Dans les trois écrans d'Équipement (Gear, le sac, Wares), le pied porte trois portes CARRÉES à image — Pack · Wares · Gear, dans cet ordre — réparties également à gauche de `Send`, qui reste centré sur la dalle à sa cote (77) ; le `?` reste à droite ; ⛔ le livre dégage ; le carré de l'écran où l'on est est GRISÉ.**
+⚖️ **Dans les trois écrans d'Équipement (Gear, le sac, Wares), le pied porte trois portes CARRÉES à image — Gear · Pack · Wares, dans cet ordre — réparties également à gauche de `Send`, qui reste centré sur la dalle à sa cote (77) ; le `?` reste à droite ; ⛔ le livre dégage ; le carré de l'écran où l'on est porte le HALO de l'actif.**
 
 > Eric, 2026-09-27, mot pour mot, en validant le banc 310 : **« Parfait je valide les 3. Dans les
 > 3 écrans. Tu gardes le bouton send toujours centré. Tu dégages le livre qui n'a pas d'utilité
 > dans équipement. Tu places les 3 carrés répartis équitablement à gauche de send »** — puis :
-> **« Quand on est sur l'écran en question le bouton est grisé »**.
+> **« Quand on est sur l'écran en question le bouton est grisé »** — amendé le soir même :
+> **« Plutôt que de griser on essaye le halo autour de la fenêtre active »** et **« Modifie l'ordre
+> de gauche à droite Gear/pack/ wares »**.
 
 📐 **LE MODÈLE EST LE BANC** (`banc-portes-imagees.html`, lot 310), et chaque cote y a été fixée par
 une phrase d'Eric, le 27/09 :
@@ -5065,13 +5067,13 @@ une phrase d'Eric, le 27/09 :
 |---|---|
 | **« Backpack, wares, gear. Fait des boutons format classique relief carré avec, les images de fond dessus, wares en petit (t0 t1 en italique) dessus. Fait un prototype déjà »** | le relief de la famille (`.gear-porte` : tuile `::before`, liseré `::after`, bleu de navigation), au format CARRÉ ; une image dessous, le mot dessus |
 | **« Carré 40 (44) bien. Images : wares parfait, pantin fait le plus trapu, backpack fait le 15 % plus petit. Le texte centré horizontalement et verticalement »**, puis **« Prends la silhouette de l'homme »** | cible **44** (`--touch`), corps peint **40** — le retrait du relief sur les QUATRE côtés, comme les options carrées de l'aiguilleur ; le mot centré dans les deux sens |
-| **« Harmoniser les couleurs des 3 images · Wares doit remplir tout le bas du bouton · Backpack, mot trop large, remplacé par pack, réduit encore l'image du sac à dos de 10 % · Gear : pantin 10 % moins haut 10 % plus large »** | trois SILHOUETTES PLEINES (`assets/porte-*.png`) peintes en MASQUE sur un aplat `--text-soft` : même encre, même ton ; le mot **`Pack`** |
+| **« Harmoniser les couleurs des 3 images · Wares doit remplir tout le bas du bouton · Backpack, mot trop large, remplacé par pack, réduit encore l'image du sac à dos de 10 % · Gear : pantin 10 % moins haut 10 % plus large »** | trois SILHOUETTES PLEINES (`assets/porte-*.png`) peintes en MASQUE sur l'encre FIXE du bouton (`color-mix(--bouton-encre 62 %, --bouton-face)` — `--text-soft` basculait avec le thème et disparaissait en clair) : même encre, même ton ; le mot **`Pack`** |
 | **« Réduit wares de 10 %, centre-le dans le bouton, il ne touche plus le bas · Redonne du relief au sac à dos mais sa taille et sa couleur sont bien »** | Wares : **90 %** de la largeur, DANS le liseré, centré ; le sac garde ses variations |
 | **« Pack je ne vois pas de relief · Pantin réduit largeur de 5 % »** | Gear : **32,7 % × 90 %** |
 | **« Réduit ensuite pack, le dessin de 10 % »** | Pack : **68,9 %**, contenu, centré |
 
 ➡️ **Le mot** : `Pack` · `Wares` · `Gear`, en **T0, italique, 600**, centré dans les deux sens, détaché
-de l'image par `text-shadow: 0 0 3px var(--bg)`.
+de l'image par `text-shadow: 0 0 3px var(--bouton-face)` (le corps, pas le fond de page).
 
 📐 **« RÉPARTIS ÉQUITABLEMENT » SE MESURE ENTRE LES DESSINS**, jamais entre les cibles : de la marge
 (4) au bord de `Send` (149), trois dessins de 40 et **quatre gouttières égales de 6,25**. Les cotes
@@ -5081,12 +5083,17 @@ grille : la rangée garde ses trois colonnes, mais celle du milieu vaut la cote 
 (`--pied-centre`), donc `Send` est centré **par construction** ; les carrés se répartissent en
 `space-evenly` sur leur DESSIN (la cible déborde par une marge négative de `--bouton-retrait-v`).
 
-⚖️ **LE CARRÉ DE L'ÉCRAN OÙ L'ON EST** *(Gear sur Gear, Pack sur le sac, Wares sur Wares)* : il est
-**grisé** — `disabled`, donc la règle des portes désarmées du socle (`.gear-porte:disabled`,
-`.porte-carree:disabled`, `.x1-porte:disabled` : liseré retiré, voile `--organe-eteint`, curseur
-refusé) — et il porte **`aria-current="page"`**. ⛔ Il ne reçoit AUCUN écouteur : un clic sur l'écran
-où l'on est serait un clic qui ment. ⛔ Et il n'est pas retiré : Eric veut les trois, partout, au même
-endroit — un joueur qui passe d'un écran à l'autre voit la même rangée sous son doigt.
+⚖️ **LE CARRÉ DE L'ÉCRAN OÙ L'ON EST** *(Gear sur Gear, Pack sur le sac, Wares sur Wares)* : il porte
+**`aria-current="page"`** et le socle l'entoure du **halo de l'actif** — `--belt-halo` (celui de la
+tuile dominante du belt : encre le jour, lueur la nuit), l'épais repassé **trois fois**, en `filter:
+drop-shadow` sur la tuile `::before`. 🔴 Pas en `box-shadow` : le relief de ce pseudo EST un
+`box-shadow` (`--bouton-aretes`), il serait effacé. 📏 Regardé le 27/09 dans les deux thèmes :
+`--spy-halo` (0,45 le jour) repassé deux fois se perdait en clair — encre sombre autour d'un bouton
+sombre. 🗄️ Il était **grisé** (`disabled`, règle des portes désarmées) du matin au soir du 27/09 :
+⛔ il n'est plus `disabled`, c'est `aria-current` seul qui le désigne. ⛔ Il ne reçoit AUCUN écouteur :
+un clic sur l'écran où l'on est serait un clic qui ment. ⛔ Et il n'est pas retiré : Eric veut les
+trois, partout, au même endroit — un joueur qui passe d'un écran à l'autre voit la même rangée sous
+son doigt.
 
 ⭐ **UN SEUL ORGANE** : `porte-carree.mjs` (module feuille, sans import) construit les trois carrés
 pour les trois écrans ; leur habit vit une fois au socle (`.porte-carree`, `shell.css`), leurs images

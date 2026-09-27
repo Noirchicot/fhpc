@@ -166,14 +166,14 @@ test("8 · chaque organe tient dans la dalle qu'il nomme", () => {
 
 /* ══ 9 · LE PIED : TROIS CARRÉS, PUIS SEND ══════════════════════════════════════
    ⚖️ LOT 311 (NORMES `equipement-portes-carrees`) — il remplace le triangle du 20/09.
-   ⭐ TÉMOIN : Pack · Wares · Gear en carrés de même boîte, puis Send à la cote du plan.
+   ⭐ TÉMOIN : Gear · Pack · Wares en carrés de même boîte, puis Send à la cote du plan.
    ⛔ `Equipment` est le nom de l'ÉTAPE, jamais d'une porte. */
-test("9 · le pied dit Pack · Wares · Gear puis Send, et rien d'autre", () => {
+test("9 · le pied dit Gear · Pack · Wares puis Send, et rien d'autre", () => {
   const portes = D.ORGANES.filter((o) => o.sorte === "porte" || o.sorte === "porte-carree")
     .sort((a, b) => a.x - b.x);
   assert.deepEqual(portes.map((o) => D.CLEF_DE[o.nom]), [...D.PORTES],
     "⛔ le pied de Wares : les trois carrés, puis Send (Eric, 27/09)");
-  assert.deepEqual([...D.PORTES], ["backpack", "wares", "gear", "send"]);
+  assert.deepEqual([...D.PORTES], ["gear", "backpack", "wares", "send"]);
   assert.ok(!D.PORTES.includes("equipment"), "⛔ « Equipment » est le nom de l'ÉTAPE, jamais d'un écran");
   const carres = portes.filter((o) => o.sorte === "porte-carree");
   assert.equal(new Set(carres.map((o) => `${o.l}×${o.h}`)).size, 1, "⛔ les trois carrés n'ont pas la même boîte");

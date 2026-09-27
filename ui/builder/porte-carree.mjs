@@ -2,7 +2,8 @@
    ⚖️ Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le
    bouton send toujours centré. Tu dégages le livre qui n'a pas d'utilité dans équipement. Tu
    places les 3 carrés répartis équitablement à gauche de send »*, puis *« Quand on est sur
-   l'écran en question le bouton est grisé »*. NORMES `equipement-portes-carrees`.
+   l'écran en question le bouton est grisé »*, amendé le soir : *« Plutôt que de griser on essaye le
+   halo autour de la fenêtre active »*. NORMES `equipement-portes-carrees`.
 
    ⛔ MODULE FEUILLE : aucun import, aucune cote, aucune couleur. Il ne sait pas sur quel écran
    il est posé, et c'est la condition pour que les trois écrans d'Équipement (Gear, le sac,
@@ -13,20 +14,23 @@
    plusieurs écrans portent descend dans un module feuille, sous un nom neutre.
 
    ⚖️ LE CARRÉ DE L'ÉCRAN COURANT (Gear sur Gear, Pack sur le sac, Wares sur Wares) ne mène nulle
-   part : il est GRISÉ — `disabled`, donc l'état désarmé des portes du socle (`:disabled` :
-   liseré retiré, voile `--organe-eteint`) — et il porte `aria-current="page"`. ⛔ Il ne reçoit
-   AUCUN écouteur : un clic sur l'écran où l'on est serait un clic qui ment. ⛔ Et il n'est pas
-   retiré : Eric veut les trois, partout, au même endroit. */
+   part : il porte `aria-current="page"`, et le socle l'entoure du HALO de l'actif (`shell.css`,
+   `.porte-carree[aria-current="page"]`). Eric, 27/09 : *« Plutôt que de griser on essaye le halo
+   autour de la fenêtre active »* — 🗄️ il était grisé (`disabled`) depuis le matin même.
+   ⛔ Il n'est donc PAS `disabled` : c'est l'attribut `aria-current`, et lui seul, qui le désigne.
+   ⛔ Il ne reçoit AUCUN écouteur : un clic sur l'écran où l'on est serait un clic qui ment.
+   ⛔ Et il n'est pas retiré : Eric veut les trois, partout, au même endroit. */
 
 /** Les trois carrés, DANS L'ORDRE DU PIED — le même sur les trois écrans.
+ *  ⚖️ Eric, 27/09 au soir : *« Modifie l'ordre de gauche à droite Gear/pack/ wares »*.
  *  · `id` : la porte (`data-porte`), celle que l'écran publie par `surPorte` — la même clef
  *    que l'ancien bouton à mot, donc le même geste ;
  *  · `mot` : ce qui est écrit sur l'image (Eric, 27/09 : `Backpack`, trop large, devient `Pack`) ;
  *  · `nom` : le nom accessible — l'écran où la porte mène. */
 export const PORTES_CARREES = Object.freeze([
+  Object.freeze({ id: "gear", mot: "Gear", nom: "Gear" }),
   Object.freeze({ id: "backpack", mot: "Pack", nom: "Backpack" }),
   Object.freeze({ id: "wares", mot: "Wares", nom: "Wares" }),
-  Object.freeze({ id: "gear", mot: "Gear", nom: "Gear" }),
 ]);
 
 function el(balise, classe, texte) {
@@ -50,7 +54,6 @@ export function porteCarree(porte, options = {}) {
   image.setAttribute("aria-hidden", "true");
   b.append(image, el("span", "porte-carree-mot", porte.mot));
   if (porte.id === options.courant) {
-    b.disabled = true;
     b.setAttribute("aria-current", "page");
   } else {
     b.addEventListener("click", () => options.surPorte && options.surPorte(porte.id));
