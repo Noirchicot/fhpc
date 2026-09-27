@@ -25,11 +25,11 @@
    ⛔ AUCUNE RÈGLE DE JEU ICI, comme partout : ce fichier lit `decisions[]`
    par chemin et rend ce qu'il trouve. */
 
-import { planAt } from "./carnet.mjs?v=849";
-import { versionQuery } from "./version.mjs?v=849";
+import { planAt } from "./carnet.mjs?v=850";
+import { versionQuery } from "./version.mjs?v=850";
 /* LOT 191 — le mot d'un choix, un seul organe : le nom du record, sinon le
    slug humanisé et le refus nommé. `recordName` vivait ici et rendait l'id nu. */
-import { motDuChoix } from "./mot-du-choix.mjs?v=849";
+import { motDuChoix } from "./mot-du-choix.mjs?v=850";
 
 /* ══ L'IMAGE D'UNE FICHE — hissée ici le 2026-08-16, quand les espèces sont
    arrivées ═══════════════════════════════════════════════════════════════
