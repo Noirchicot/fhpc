@@ -26,7 +26,7 @@
    ICI : `facteurZoom` appartient à l'échelle, qui la possède (lot 85). Le socle
    la CONSOMME pour ramener un écart peint en unités de mise en page — voir sa
    raison dans `keepInView`. */
-import { facteurZoom } from "./echelle.mjs?v=855";
+import { facteurZoom } from "./echelle.mjs?v=856";
 
 /* ── 1. LE REMPLAÇANT DE CONTENU ───────────────────────────────────────
    La seule fonction du dépôt qui vide et regarnit un nœud.
@@ -232,6 +232,16 @@ export function watchSnap(scroller, onSettle) {
    geste de défilement n'a pas à s'attarder. Elle dit « il y a une suite »,
    puis elle sort du chemin. */
 export const CHEVRON_REST_MS = 600;
+
+/* ⭐ LOT 315 — « RECADRE-MOI » : le nom de l'événement qu'une étape émet après un repeint LOCAL.
+   🔴 Le `?` (et le livre) sont des BORNES posées par la coquille dans la dernière rangée, au
+   rendu (`cadrerLesRangees`). Un repeint local (`swapContent` d'une étape) jetait la rangée, et
+   la borne avec : sur Wares, chaque dépôt au collecteur faisait disparaître le `?` (relevé par
+   l'agent du lot 315, déjà vrai sur `main` au changement de destination). ⭐ L'étape GARDE ses
+   bornes et DEMANDE le recadrage ; ⛔ elle ne les replace pas elle-même — la règle de placement
+   n'a qu'un écrivain, la coquille. Le nom vit ici parce que la coquille importe l'étape : l'étape
+   ne peut pas importer la coquille. */
+export const EVENEMENT_RECADRER = "fhpc:recadrer";
 
 export function mountChevrons(host, scroller) {
   let timer = null;
