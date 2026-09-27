@@ -36,25 +36,25 @@
      · la corbeille détruit la ligne : ⏳ Eric n'a pas tranché entre détruire et
        poser au sol (les deux emplacements GROUND de l'écran R). Le popup de
        confirmation est là parce que le geste est irréversible. */
-import * as D from "./x1-disposition.mjs?v=885";
+import * as D from "./x1-disposition.mjs?v=886";
 /* ⭐ LES DESTINATIONS SONT CELLES DE L'ÉCRAN R, PAS UNE SECONDE LISTE : le
    dropdown de X1 envoie là où le dropdown de R envoie, et le jour où une
    destination s'ouvre (Tally, Craft) les deux écrans l'apprennent ensemble.
    ⛔ `x1-disposition.mjs` porte SA propre liste, du croquis : elle documente le
    plan, elle ne pilote pas l'écran — un besoin satisfait deux fois est une
    occasion de diverger (NORMES §5). */
-import { DESTINATIONS } from "./gear-ecran.mjs?v=885";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=886";
 /* ⭐ L'INTERRUPTEUR DU MENU, PRIS TEL QUEL — il est descendu dans une feuille sans
    import (lot 213) pour que la fiche le prenne sans traîner `Layers` derrière elle. */
-import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=885";
+import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=886";
 /* ⭐ ET LA JAUGE DE DÉFILEMENT, du même tiroir : l'organe des fenêtres de prose de
    Destiny (03/09), descendu dans une feuille sans import. Eric a demandé ici la même
    chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
    informer le lecteur »* — donc c'est le même organe, pas un second. */
-import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=885";
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=886";
 /* ⭐ LOT 308 — LA MOLETTE DE QUANTITÉ, l'organe de X1 et X2 (Eric, 27/09 : « La molette tambour ! »).
    Le champ « 1/5 » de cette fiche est mort avec elle. */
-import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=885";
+import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=886";
 /* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
    sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
    second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
@@ -115,7 +115,7 @@ export const CLEF_DE = Object.freeze({
  *  ⭐ LOT 289 — LE NOMBRE VIT DANS LE MOTEUR, et l'écran le RELIT : le moteur refuse
  *  lui aussi la quatrième harmonisation (un document écrit à la main peut la porter),
  *  et deux « 3 » écrits à deux endroits auraient divergé au premier réglage. */
-import { PLAFOND_HARMONISATION } from "../../src/build/effets-objets.mjs?v=885";
+import { PLAFOND_HARMONISATION } from "../../src/build/effets-objets.mjs?v=886";
 export { PLAFOND_HARMONISATION };
 
 /* La clef de document que chaque interrupteur écrit. ⭐ Elle voyage avec
@@ -166,7 +166,7 @@ export const ORGANES_DE_TETE = Object.freeze(
 );
 /* ⛔ L'APPARTENANCE SE DIT PAR NOM, JAMAIS PAR IDENTITÉ D'OBJET — 📏 mesuré au lot
    242, et c'est un piège du dépôt, pas une précaution : `x1-disposition.mjs` et
-   `x1-disposition.mjs?v=885` sont DEUX instances de module. Les mêmes organes y
+   `x1-disposition.mjs?v=886` sont DEUX instances de module. Les mêmes organes y
    portent des références DIFFÉRENTES, donc un `includes(o)` rend `false` dès que
    l'appelant a importé la table sans la version — ce qu'un garde fait naturellement.
    ⭐ Le nom, lui, traverse les deux instances. */
@@ -204,6 +204,28 @@ export function feuilleDesCotesDeTete(nom, basDeLecture) {
   const lire = (id, corps) => regles.push(`.${nom}[data-lecture="oui"] [data-organe="${id}"]{${corps}}`);
   lire("description", `height:${px(basL - filet.h - desc.y)}`);
   lire("filet-bas", `top:${px(basL - filet.h)}`);
+  /* ⚖️ LOT 332 — LA DALLE PREND LE CADRE DE LA TRILOGIE. Eric, 27/09 : *« La dalle dans sa
+     globalité peut grandir de 4 blg (à l'œil c'est ce qui lui manque pour être de même dimension
+     que la trilogie) »* · *« Fais idem pour x2 »*. 📏 Mesuré : 367 × 492 (la règle de famille la
+     pose à `--sp-4` des bords) contre 375 × 495 pour Gear, Pack et Wares. ⭐ Pleine largeur, du
+     haut de la fiche au bas de la trilogie (`TRILOGIE_BAS`, le plan). ⛔ X5 et X0 gardent la règle
+     de famille : Eric a nommé X1 et X2. Cette feuille est posée DANS la fiche, après `shell.css` :
+     à spécificité égale, elle gagne. */
+  regles.push(`.${nom}[data-objet="${nom}"]::before{inset:0 0 ${px(D.DALLE.h - D.TRILOGIE_BAS)} 0}`);
+  /* ⚖️ LOT 332 — SANS RARETÉ, LES VALEURS REMONTENT À SA PLACE. Eric : *« 8 blg entre titre et
+     valeurs quantité rareté »*. ⭐ Un objet mondain n'a pas de rareté, et sa rangée vide aurait
+     laissé 26 sous le titre au lieu de 8. Les valeurs, le filet haut et le haut du texte montent
+     donc de l'écart rareté → valeurs, et le TEXTE garde ce qu'il gagne. ⛔ Aucun nombre neuf :
+     l'écart se LIT dans la table. */
+  const rarete = ORGANES.find((o) => o.nom === "RARETE");
+  const unite = ORGANES.find((o) => o.nom === "UNITE");
+  const monte = unite.y - rarete.y;
+  const sans = (id, corps) => regles.push(`.${nom}[data-sans-rarete="oui"] [data-organe="${id}"]{${corps}}`);
+  for (const id of ["unite", "qte", "total"]) sans(id, `top:${px(unite.y - monte)}`);
+  sans("filet-haut", `top:${px(filet.y - monte)}`);
+  sans("description", `top:${px(desc.y - monte)};height:${px(desc.h + monte)}`);
+  regles.push(`.${nom}[data-sans-rarete="oui"][data-lecture="oui"] [data-organe="description"]`
+    + `{height:${px(basL - filet.h - desc.y + monte)}}`);
   return regles.join("\n");
 }
 
@@ -235,6 +257,8 @@ export function construireLaTeteDeFiche(noeud, objet, options) {
          « Dagger of Venom / Rare (italique) / 4,002 GP · 1 lb. ×2 8,004 gp · 2 lb ».
          ⛔ Rien quand l'objet n'en a pas (un objet mondain, un plan) : pas de tiret. */
       noeud.append(voyant(id, "x1-rarete", objet.rarete || ""));
+      /* ⚖️ LOT 332 — la fiche dit qu'elle n'a pas de rareté : sa feuille remonte les valeurs */
+      if (!objet.rarete) noeud.dataset.sansRarete = "oui";
     } else if (id === "qte") {
       /* 🔴 LA QUANTITÉ A QUITTÉ LA TÊTE (lot 255) — Eric, 23/09 : *« on dégage le X2
          en haut à gauche »*. ⭐ ELLE NE DISPARAÎT PAS, ELLE DESCEND : son croquis de

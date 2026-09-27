@@ -174,7 +174,9 @@ test("4 — 📜 LA SILHOUETTE RENTRE DANS LA DALLE, ET ELLE MORD ASSEZ POUR QU'
           silhouette rentrée d'un dixième de blg passerait ① les doigts dans le nez,
           et il n'y aurait plus rien à voir. C'est le creux qui EST la déchirure. */
   const budget = budgetDuParchemin();
-  assert.equal(budget, 9.5, "le dégagement déduit de la table — s'il bouge, c'est que la table a bougé");
+  /* 🔄 LOT 332 — 9,5 → 8 : le titre monte à 8 du haut de la dalle (Eric, 27/09). ⭐ Le garde a
+     fait son travail — la table a bougé, il l'a dit ; le parchemin, lui, est mort au lot 273. */
+  assert.equal(budget, 8, "le dégagement déduit de la table — s'il bouge, c'est que la table a bougé");
 
   for (const h of [360, 420, 500, 640, 700, 900]) {
     let plusDedans = -Infinity, plusDehors = -Infinity, ou = null;

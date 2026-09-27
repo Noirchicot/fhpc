@@ -133,7 +133,14 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      du parchemin mordait dans la rangée des portes. 🔴 RÉÉCRIT À CETTE VÉRITÉ : la
      version d'avant attendait la marge de PAGE, et c'est justement ce qui a changé.
      ⛔ Et le garde lit la valeur dans la TABLE, il ne la recopie pas. */
-  assert.equal(TABLE.marge_pied, MARGE + 30, "le pied s'écarte du bas de 30 de plus que la page");
+  /* 🔄 LOT 332 — Eric, 27/09 : *« Les boutons du bas et tout jusqu'au trait au pied du texte
+     descriptif, celui-ci inclus, peuvent descendre jusqu'à 8 blg du bas de la dalle »*. ⭐ La
+     dalle est celle de la trilogie (bas à `TRILOGIE_BAS`, 495) : le DESSIN des portes y finit à 8,
+     et la marge de pied se déduit (11). ⛔ Les 30 de la déchirure sont morts avec le parchemin. */
+  assert.equal(D.TRILOGIE_BAS, 495, "le bas des dalles de Gear, Pack et Wares");
+  const portes = ORGANES.filter((o) => o.sorte === "porte");
+  assert.ok(portes.length === 4 && portes.every((o) => o.y + o.h === D.TRILOGIE_BAS - 8),
+    "⛔ le dessin des portes ne finit pas à 8 du bas de la dalle");
   assert.equal(D.MARGE_PIED, TABLE.marge_pied, "la déclaration porte la même marge que la table");
   assert.equal(Math.max(...pied.map((b) => b.y + b.h)), DALLE.h - TABLE.marge_pied,
     "la dernière rangée finit à 24 du bas, pile");
@@ -141,7 +148,8 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      qui est au-dessus du trait supérieur de 10 blg »*. La déchirure du parchemin mord
      en haut comme en bas. 🔴 Réécrit à cette vérité : la version d'avant attendait la
      marge de page. */
-  assert.equal(TABLE.marge_tete, MARGE + 10, "la tête descend de 10 de plus que la page");
+  /* 🔄 LOT 332 — *« le titre et tout ce qui est en dessous peut remonter jusqu'à 8 blg du haut »* */
+  assert.equal(TABLE.marge_tete, 8, "le titre à 8 du haut de la dalle");
   assert.equal(D.MARGE_TETE, TABLE.marge_tete, "la déclaration porte la même marge que la table");
   /* ⭐ ET LA LIGNE DU NOM GLISSE DE 4 DANS SON CRÉNEAU — Eric : *« descend juste la
      ligne du haut de 4 blg »*, *« descends pas le reste »*. Elle mange la gouttière qui
@@ -156,16 +164,18 @@ test("5 — le budget vertical est fermé : la description prend ce qui reste, e
      se DESSINE à 40 dans les 44, donc deux plus bas. ⭐ Le garde tient l'invariant, pas
      le nombre : la rangée du nom est posée là où la table la met, et rien ne monte
      au-dessus d'elle. */
-  assert.equal(TABLE.y.nom, TABLE.marge_tete + 4, "la rangée du nom : la marge de tête plus son glissement");
+  assert.equal(TABLE.y.nom, TABLE.marge_tete, "⭐ la boîte du titre EST sa ligne : le mot est à 8 du haut");
+  assert.equal(nom.h, 16, "une ligne de T4");
   assert.ok(Math.min(...ORGANES.map((o) => cibleDe(o).y)) >= TABLE.y.nom, "et rien ne monte au-dessus d'elle");
   /* ⚖️ LOT 279 — LA RARETÉ S'INTERCALE, en sous-titre sous le nom (Eric, 26/09) : elle prend
      la place où commençait la ligne de coût, et celle-ci descend de sa hauteur et d'une
      gouttière. ⛔ Toujours comptées depuis la marge de tête, jamais depuis le nom. */
   const rarete = ORGANES.find((o) => o.nom === "RARETE");
-  assert.equal(rarete.y, TABLE.marge_tete + TOUCH + 4, "la rareté, là où la tête finit");
+  assert.equal(rarete.y, nom.y + nom.h + 8, "⚖️ 332 : 8 entre le titre et les valeurs (rareté, quantité)");
   assert.equal(chiffres.y, rarete.y + rarete.h + 4,
     "⛔ et la ligne des chiffres, sous la rareté, à une gouttière");
-  assert.ok(nom.y > TABLE.marge_tete, "le nom est bien descendu dans son créneau");
+  assert.equal(ORGANES.find((o) => o.nom === "FILET HAUT").y, chiffres.y + chiffres.h + 8,
+    "⚖️ 332 : 8 entre les valeurs et le trait");
   /* ⭐ LA ZONE DU TEXTE EST UN GROUPE DE TROIS : un filet, la description, un filet
      — Eric, 17/09 au soir. Les filets sont COLLÉS à la description (ils la délimitent,
      ils ne la voisinent pas) ; la gouttière de 8 est au-dessus et au-dessous du GROUPE.
@@ -792,4 +802,30 @@ test("22 — les trois colonnes du coût se cadrent : gauche · centre · droite
   /* ⭐ ET LA BANDE EST CELLE D'ERIC DU 17/09 — 90 d'un bord, 90 de l'autre. */
   assert.equal(u.x, 90, "la bande ouvre à 90 du bord gauche");
   assert.equal(t.x + t.l, DALLE.l - 90, "et ferme à 90 du bord droit");
+});
+
+test("332 — 📐 X1 ET X2 PRENNENT LE CADRE DE LA TRILOGIE, et sans rareté les valeurs remontent à 8 du titre", async () => {
+  /* ⚖️ Eric, 27/09 : « La dalle dans sa globalité peut grandir de 4 blg (à l'œil c'est ce qui lui
+     manque pour être de même dimension que la trilogie) » · « Fais idem pour x2 » · « 8 blg entre
+     titre et valeurs quantité rareté ». */
+  const SAC = await import("../ui/builder/sac-disposition.mjs");
+  assert.equal(D.TRILOGIE_BAS, SAC.DALLE.h, "⛔ le bas de la trilogie dans X1 n'est plus celui de Pack");
+  const { feuilleDesCotesX2 } = await import("../ui/builder/x2-ecran.mjs");
+  for (const [nom, feuille] of [["x1", feuilleDesCotesX1()], ["x2", feuilleDesCotesX2()]]) {
+    assert.ok(feuille.includes(`.${nom}[data-objet="${nom}"]::before{inset:0 0 ${D.DALLE.h - D.TRILOGIE_BAS}px 0}`),
+      `⛔ la dalle de ${nom} n'est pas celle de la trilogie (pleine largeur, du haut à ${D.TRILOGIE_BAS})`);
+  }
+  const f = feuilleDesCotesX1();
+  const nomO = ORGANES.find((o) => o.nom === "NOM");
+  const desc = ORGANES.find((o) => o.nom === "DESCRIPTION");
+  const monte = ORGANES.find((o) => o.nom === "UNITE").y - ORGANES.find((o) => o.nom === "RARETE").y;
+  assert.ok(f.includes(`.x1[data-sans-rarete="oui"] [data-organe="unite"]{top:${nomO.y + nomO.h + 8}px}`),
+    "⛔ sans rareté, les valeurs ne remontent pas à 8 sous le titre");
+  assert.ok(f.includes(`.x1[data-sans-rarete="oui"] [data-organe="description"]{top:${desc.y - monte}px;height:${desc.h + monte}px}`),
+    "⛔ sans rareté, le texte ne reprend pas la place");
+  /* ⭐ et la fiche le DIT : sans rareté l'attribut est posé, avec rareté il ne l'est pas */
+  const sans = construireLaFicheX1({ objet: { ...objetTemoin, rarete: "" }, rang: { position: 1, total: 1 } }).noeud;
+  const avec = construireLaFicheX1({ objet: { ...objetTemoin, rarete: "Rare" }, rang: { position: 1, total: 1 } }).noeud;
+  assert.equal(sans.dataset.sansRarete, "oui");
+  assert.equal(avec.dataset.sansRarete, undefined);
 });

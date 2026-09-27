@@ -10002,3 +10002,19 @@ fin de la dernière colonne et `DALLE.l` ; y entre `RANGEES[0]` et le bas de la 
 🛒 Collecteur de Wares → case de Gear : achat (popup du lot 307), puis `placerGearLine` sur la case ;
 → case vide de Pack (receveuse en double écran seulement) : achat, puis la section regardée, à la place
 de la case ; → collecteur de Gear : achat, au sac ; → Tally : au panier. Son tap passe par `armerJeton`.
+
+📍 `x-fiche-cadre-de-la-trilogie` · vivante · 27/09
+⚖️ **X1 et X2 prennent le cadre des dalles de Gear, Pack et Wares (375 × 495, du haut de la boîte) ; le titre est à 8 du haut, 8 le sépare des valeurs (rareté, prix, quantité), 8 sépare les valeurs du trait ; le dessin des portes finit à 8 du bas, et tout le pied — trait bas du texte compris — le suit. Le texte descriptif prend ce qui reste. Sans rareté, les valeurs remontent à sa place.**
+
+> Eric, 2026-09-27 : **« Dans la fiche x1, le titre et tout ce qui est en dessous peut remonter jusqu'à 8
+> blg du haut. 8 blg entre titre et valeurs quantité rareté. 8 blg entre celles-ci et le trait. Les boutons
+> du bas et tout jusqu'au trait au pied du texte descriptif, celui-ci inclus, peuvent descendre jusqu'à 8
+> blg du bas de la dalle. La dalle dans sa globalité peut grandir de 4 blg (à l'œil c'est ce qui lui manque
+> pour être de même dimension que la trilogie) »** · **« Donne ces 4 au texte descriptif »** · **« Fais idem
+> pour x2 »**.
+
+📏 Mesuré avant : dalle 367 × 492 (rentrée de `--sp-4`), titre à 32, portes finissant à 464 ; texte 162.
+Après : 375 × 495, titre à 8, portes à 487 ; texte 215 (233 sans rareté).
+📐 Le plan (`X1_gen.py` → `x1-disposition.mjs`) : `TRILOGIE_BAS` 495, `MARGE_TETE` 8, le titre en boîte
+de sa ligne (16, T4), `MARGE_PIED` déduite (11) — X2 la lit pour son pied. La dalle : `inset: 0 0 5px 0`
+posé par la feuille de tête ; ⛔ X5 et X0 gardent la règle de famille (`--sp-4`).

@@ -28,12 +28,12 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=885";
-import { peutPayer } from "./monnaie.mjs?v=885";
-import { pageDeListe } from "./normes.mjs?v=885";
-import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=885";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=886";
+import { peutPayer } from "./monnaie.mjs?v=886";
+import { pageDeListe } from "./normes.mjs?v=886";
+import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=886";
 /* ⚖️ LOT 288 — « poids par lot » : combien de lots fait une ligne, UN seul écrivain (`craft.mjs`). */
-import { paiementsDe } from "./craft.mjs?v=885";
+import { paiementsDe } from "./craft.mjs?v=886";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
