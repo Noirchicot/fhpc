@@ -270,10 +270,11 @@ test("9 — 🛒 WARES LÂCHÉ SUR GEAR : « Buy this item for … GP? », Buy =
   const [p] = popups(acts);
   assert.ok(p, `le dépôt de « ${nom} » ouvre un popup`);
   assert.match(p.texte, /^Buy this item for [\d,]+ (GP|SP|CP)\?$/);
-  assert.deepEqual(p.actions.map((a) => a.mot), ["Buy", "Cancel"]);
+  /* 🔄 LOT 337 — « buy, free [found], craft, cancel » (Eric, 28/09) : les gestes de X2 */
+  assert.deepEqual(p.actions.map((a) => a.mot), ["Buy", "Found", "Craft", "Cancel"]);
   /* Cancel : une seule action, fermer — rien n'est écrit */
   const avant = acts.length;
-  p.actions[1].faire();
+  p.actions[3].faire();
   assert.deepEqual(acts.slice(avant), [{ kind: "popup", texte: null }], "Cancel ne fait que fermer");
   /* Buy : payer, puis poser — le geste de X2, au sac */
   const apres = acts.length;
@@ -718,7 +719,7 @@ test("24 — 🛒 LE COLLECTEUR DE WARES LÂCHÉ SUR UNE CASE DE GEAR : popup d'
   assert.ok(p, "⛔ le collecteur lâché sur Gear n'ouvre aucun popup");
   assert.match(p.texte, /^Buy this item for [\d,]+ (GP|SP|CP)\?$/);
   const avant = acts.length;
-  p.actions[1].faire();
+  p.actions[3].faire();
   assert.deepEqual(acts.slice(avant), [{ kind: "popup", texte: null }], "Cancel ne fait que fermer");
   const apres = acts.length;
   p.actions[0].faire();
@@ -755,30 +756,47 @@ test("25 — 🎒 LE COLLECTEUR DE WARES LÂCHÉ SUR UNE CASE DE PACK : l'objet 
   assert.equal(seul.querySelectorAll('[data-recoit-voisin="true"]').length, 0);
 });
 
-test("26 — 🔄 LOT 336 : UN JETON DE LA GRILLE DE WARES SE POSE SUR UNE CASE DU BACKPACK VOISIN (achat) — ⛔ pas sur une case de Gear", () => {
-  /* ⚖️ Eric, 28/09 : « drag and drop de wares directement vers backpack ne marche pas ». La loi du lot
-     307 (« un achat va au collecteur ») est levée pour le Backpack SEUL. */
+test("26 — 🔄 LOT 336-337 : UN JETON DE LA GRILLE DE WARES SE POSE SUR UNE CASE DU BACKPACK OU DE GEAR VOISIN — Buy · Found · Craft · Cancel", () => {
+  /* ⚖️ Eric, 28/09 : « drag and drop de wares directement vers backpack ne marche pas » (336), puis, pour
+     Gear : « oui tant que le prompt, buy, free, craft, cancel est présent » et « found plutôt que free » (337). */
   const doc = personnage();
-  const acts = [];
-  const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
-  const droite = moitie(doc, { cote: "droite", page: "sac" }, []);
-  const cases = droite.querySelectorAll('.sac-case[data-recoit-voisin="true"]');
-  const cible = cases[cases.length - 1];
-  const m = /^case-(\d+)-(\d+)$/.exec(cible.dataset.creneau);
-  glisser(gauche.querySelector(".wares-jeton"), cible);
-  const [p] = popups(acts);
-  assert.ok(p, "⛔ un jeton de la grille lâché sur le Backpack n'ouvre aucun popup");
-  assert.match(p.texte, /^Buy this item for [\d,]+ (GP|SP|CP)\?$/);
-  const apres = acts.length;
-  p.actions[0].faire();
-  const gestes = acts.slice(apres);
-  assert.deepEqual(gestes.map((a) => a.kind), ["payer", "addGearLine", "placerGearLine"]);
-  assert.equal(gestes[2].place, (Number(m[1]) - 1) * 3 + (Number(m[2]) - 1), "⭐ à la place de la case");
-  /* ⛔ une case de Gear n'accepte toujours que le collecteur de Wares */
-  const acts2 = [];
-  const g2 = moitie(doc, { cote: "gauche", page: "r" }, acts2);
-  const gear = moitie(doc, { cote: "droite", page: "gear" }, []);
-  const caseGear = gear.querySelectorAll('[data-recoit-voisin="true"]').find((c) => c.dataset.creneau !== "collecteur");
-  glisser(g2.querySelector(".wares-jeton"), caseGear);
-  assert.equal(popups(acts2).length, 0, "⛔ un jeton de la grille s'est posé sur une case de Gear");
+  for (const page of ["sac", "gear"]) {
+    const acts = [];
+    const gauche = moitie(doc, { cote: "gauche", page: "r" }, acts);
+    const droite = moitie(doc, { cote: "droite", page }, []);
+    const cible = droite.querySelectorAll('[data-recoit-voisin="true"]').filter((c) => c.dataset.creneau !== "collecteur").at(-1);
+    glisser(gauche.querySelector(".wares-jeton"), cible);
+    const [p] = popups(acts);
+    assert.ok(p, `⛔ ${page} : un jeton de la grille lâché sur une case n'ouvre aucun popup`);
+    assert.deepEqual(p.actions.map((a) => a.mot), ["Buy", "Found", "Craft", "Cancel"], `${page} : les gestes de X2`);
+    /* Buy : payer, poser, placer sur la case */
+    let n = acts.length;
+    p.actions[0].faire();
+    assert.deepEqual(acts.slice(n).map((a) => a.kind), ["payer", "addGearLine", "placerGearLine"], `${page} : Buy`);
+    if (page === "sac") {
+      const m = /^case-(\d+)-(\d+)$/.exec(cible.dataset.creneau);
+      assert.equal(acts.at(-1).place, (Number(m[1]) - 1) * 3 + (Number(m[2]) - 1), "⭐ à la place de la case");
+    } else {
+      assert.equal(acts.at(-1).boite, cible.dataset.creneau, "⭐ sur la case de Gear visée");
+    }
+    /* Found : poser SANS payer (le FREE de X2) */
+    n = acts.length;
+    p.actions[1].faire();
+    assert.deepEqual(acts.slice(n).map((a) => a.kind), ["addGearLine", "placerGearLine"], `⛔ ${page} : Found a payé`);
+    /* Craft : inerte pour un objet mondain qui ne se crafte pas (comme sur X2) */
+    assert.equal(p.actions[2].inerte, true, "⛔ Craft est armé pour un objet qui ne se crafte pas");
+  }
+});
+
+test("337 — le popup du dépôt voisin : Craft s'arme quand l'objet se crafte ; ⛔ un Tally garde Add · Cancel", () => {
+  const crafte = [];
+  const p = popupDuDepotVoisin({ quoi: "achat", cible: "corps", montant: { gp: 50 }, accepter: () => {}, annuler: () => {},
+    gratuit: () => {}, crafter: () => crafte.push(1) });
+  assert.deepEqual(p.actions.map((a) => a.mot), ["Buy", "Found", "Craft", "Cancel"]);
+  assert.notEqual(p.actions[2].inerte, true, "⛔ Craft est inerte alors que l'objet se crafte");
+  p.actions[2].faire();
+  assert.deepEqual(crafte, [1], "⛔ Craft n'ouvre pas la forge");
+  const tally = popupDuDepotVoisin({ quoi: "achat", cible: "tally", montant: { gp: 50 }, accepter: () => {}, annuler: () => {},
+    gratuit: () => {}, crafter: () => {} });
+  assert.deepEqual(tally.actions.map((a) => a.mot), ["Add", "Cancel"], "⛔ vers un Tally, le paiement est différé : rien d'autre");
 });

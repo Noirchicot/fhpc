@@ -22,7 +22,7 @@
    gouttière de la maison (`--sp-8`), soit **758 × 560** à l'échelle 1. Une seconde porte
    pour la même place serait un second écrivain : ce fichier REÇOIT sa réponse (`place`). */
 
-import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=890";
+import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=891";
 
 const t = createLabels(EN_DEPOT_VOISIN, EN_LUNE);
 
@@ -201,7 +201,7 @@ export function motDuMontant(cout) {
  *  ⭐ Le popup EXIGE une réponse (`popup-question-exige-une-reponse`) : un dépôt est une
  *  intention, il ne se referme pas d'un clic à côté. Il est AIGUILLEUR — il prévient de ce
  *  qui va se passer (`popup-trois-roles-trois-couleurs`). */
-export function popupDuDepotVoisin({ quoi, statut, cible, montant, accepter, annuler } = {}) {
+export function popupDuDepotVoisin({ quoi, statut, cible, montant, accepter, annuler, gratuit, crafter } = {}) {
   const m = motDuMontant(montant);
   const bouton = (id, faire) => ({ mot: t(`depot-voisin.bouton.${id}`), faire });
   const annulerB = bouton("cancel", annuler);
@@ -224,6 +224,16 @@ export function popupDuDepotVoisin({ quoi, statut, cible, montant, accepter, ann
   } else if (quoi === "achat") {
     texte = t(cible === "tally" ? "depot-voisin.achat-au-tally" : "depot-voisin.achat", { montant: m });
     actions = [bouton(cible === "tally" ? "add" : "buy", accepter), annulerB];
+    /* ⚖️ LOT 337 — LES GESTES DE X2, DANS LE POPUP. Eric, 28/09 : *« oui tant que le prompt, buy, free,
+       craft, cancel est présent »*, puis *« found plutôt que free »*. ⭐ Vers un corps (Gear, Backpack) :
+       Buy · Found · Craft · Cancel —
+       les boutons de la fiche X2, dans le même ordre. Craft est INERTE (montré, voilé) quand l'objet ne
+       se crafte pas, comme sur X2. ⛔ Vers un Tally, rien ne change : le paiement y est différé. */
+    if (cible !== "tally" && typeof gratuit === "function") {
+      const craft = { mot: t("depot-voisin.bouton.craft"), faire: typeof crafter === "function" ? crafter : () => {} };
+      if (typeof crafter !== "function") craft.inerte = true;
+      actions = [bouton("buy", accepter), bouton("found", gratuit), craft, annulerB];
+    }
   } else {
     return null;
   }

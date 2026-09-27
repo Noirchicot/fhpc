@@ -541,6 +541,9 @@ export const EN_DEPOT_VOISIN = {
   "depot-voisin.bouton.craft-pay": "Craft & pay",
   "depot-voisin.bouton.craft": "Craft",
   "depot-voisin.bouton.buy": "Buy",
+  /* ⚖️ LOT 337 — Eric, 28/09 : « tant que le prompt, buy, free, craft, cancel est présent », puis
+     « found plutôt que free » : le geste est le FREE de X2 (posé sans payer), le mot est « Found ». */
+  "depot-voisin.bouton.found": "Found",
   "depot-voisin.bouton.add": "Add",
   "depot-voisin.bouton.ok": "OK",
   "depot-voisin.bouton.cancel": "Cancel",

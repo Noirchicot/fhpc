@@ -126,10 +126,15 @@ test("4 — ⭐ LE PILOTE : les deux gestes de X2 passent par `ouvertureDepuisX2
   /* ⛔ Ce garde lit le code SANS ses commentaires (comme le garde 16 de X5). */
   const src = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8")
     .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
-  assert.match(src, /peutCrafter: \(ref\) => Boolean\(ouvertureDepuisX2\(cherche\.record\(ref\), magiquesDuCraft, basesDuCraft, plansAVariante\)\)/,
+  /* 🔄 LOT 337 — la porte est descendue dans deux fonctions du pilote, que X2 ET le popup du dépôt
+     voisin appellent (« buy, free, craft, cancel », Eric 28/09). Le garde tient la même loi : s'allumer
+     et ouvrir passent par la MÊME porte, `ouvertureDepuisX2`. */
+  assert.match(src, /function peutCrafterLObjet\(ref\) \{\s*return Boolean\(ouvertureDepuisX2\(cherche\.record\(ref\), magiquesDuCraft, basesDuCraft, plansAVariante\)\);/,
     "⭐ `Craft` s'allume par la porte de X2");
-  assert.match(src, /ouvrirCraft: \(ref\) => \{\s*const o = ouvertureDepuisX2\(cherche\.record\(ref\), magiquesDuCraft, basesDuCraft, plansAVariante\);/,
+  assert.match(src, /function ouvrirLeCraftDe\(ref, retour\) \{\s*const o = ouvertureDepuisX2\(cherche\.record\(ref\), magiquesDuCraft, basesDuCraft, plansAVariante\);/,
     "⭐ et il ouvre par la MÊME porte — ⛔ sinon Craft s'allumerait sans rien ouvrir");
+  assert.match(src, /peutCrafter: \(ref\) => peutCrafterLObjet\(ref\)/, "X2 s'allume par elle");
+  assert.match(src, /ouvrirCraft: \(ref\) => ouvrirLeCraftDe\(ref, "x2"\)/, "X2 ouvre par elle");
   const porte = src.slice(src.indexOf("function ouvrirLObjet("), src.indexOf("piloteEquipement = {"));
   assert.doesNotMatch(porte, /ouvertureDepuisX2/, "⛔ la tuile d'un objet fini ouvre X2 : on l'achète d'abord");
 });

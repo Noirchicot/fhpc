@@ -10005,6 +10005,11 @@ fin de la dernière colonne et `DALLE.l` ; y entre `RANGEES[0]` et le bas de la 
 🔄 **Lot 336 — un jeton de la GRILLE de Wares se pose aussi sur une case vide du Backpack voisin** (Eric,
 28/09 : **« drag and drop de wares directement vers backpack ne marche pas »**) : même achat, même pose
 (`acheterSurLeVoisin`, un seul écrivain pour la grille et le collecteur). ⛔ Pas sur une case de Gear.
+🔄 **Lot 337 — et sur une case de Gear aussi, avec les gestes de X2 dans le popup** (Eric, 28/09 : **« oui
+tant que le prompt, buy, free, craft, cancel est présent »** · **« found plutôt que free »**) : vers un
+corps, le popup propose **Buy · Found · Craft · Cancel** — Found pose sans payer (le FREE de X2), Craft
+ouvre la forge de X2 et reste INERTE (montré, voilé) quand l'objet ne se crafte pas ; vers un Tally,
+Add · Cancel. Un jeton de la grille accepte tout receveur déclaré de la page voisine.
 🛒 Collecteur de Wares → case de Gear : achat (popup du lot 307), puis `placerGearLine` sur la case ;
 → case vide de Pack (receveuse en double écran seulement) : achat, puis la section regardée, à la place
 de la case ; → collecteur de Gear : achat, au sac ; → Tally : au panier. Son tap passe par `armerJeton`.
