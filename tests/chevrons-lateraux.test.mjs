@@ -13,11 +13,12 @@ const css = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
 const tokens = fs.readFileSync(path.join(UI, "tokens.css"), "utf8");
 
 test("1 — ⚖️ le bord : 8 du bord extérieur, pour le jeton comme pour le plan de Pack", async () => {
-  assert.match(tokens, /--chevron-lateral-bord: var\(--sp-8\);/, "⛔ le jeton du bord n'est pas 8");
+  assert.match(tokens, /--chevron-lateral-bord: calc\(var\(--sp-8\) \+ var\(--sp-4\)\);/, "⛔ le jeton du bord n'est pas 12 (lot 329)");
+  assert.match(tokens, /--chevron-belt-bord: calc\(2 \* var\(--sp-8\)\);/, "⛔ le belt n'est pas à 16 (lot 329)");
   const P = await import("../ui/builder/sac-disposition.mjs");
   const g = P.ORGANES.find((o) => o.nom === "TUNER G"), d = P.ORGANES.find((o) => o.nom === "TUNER D");
-  assert.equal(g.x - g.cible.x, 8, "⛔ le chevron gauche de Pack n'est pas à 8 du bord");
-  assert.equal((d.cible.x + d.cible.l) - (d.x + d.l), 8, "⛔ le chevron droit de Pack n'est pas à 8 du bord");
+  assert.equal(g.x - g.cible.x, 12, "⛔ le chevron gauche de Pack n'est pas à 12 du bord");
+  assert.equal((d.cible.x + d.cible.l) - (d.x + d.l), 12, "⛔ le chevron droit de Pack n'est pas à 12 du bord");
 });
 
 test("2 — ⚖️ le voile : 50 % sur TOUS les chevrons, par un seul jeton", () => {

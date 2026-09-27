@@ -380,8 +380,8 @@ test("🔴 LA FLÈCHE EST L'ORGANE — pas de tuile sous elle ; 🔄 LOT 326 : e
   assert.match(shellCss, /\.belt-chevron-fleche \{[^}]*mask-image: var\(--icone-chevron\)/, "⛔ ce n'est pas l'icône de Pack");
   assert.match(shellCss, /\.belt-chevron-fleche \{[^}]*background-color: var\(--text-soft\)/, "⛔ ce n'est pas l'encre de Pack");
   assert.ok(!/\.belt-chevron-fleche::before\s*\{/.test(shellCss), "🗄️ le trait en bordure tournée est parti");
-  assert.match(shellCss, /\.belt-chevron\[data-sens="avant"\] \.belt-chevron-fleche \{ justify-self: start; margin-inline-start: var\(--chevron-lateral-bord\); \}/,
-    "à 4 du bord extérieur de sa cible, comme sur Pack");
+  assert.match(shellCss, /\.belt-chevron\[data-sens="avant"\] \.belt-chevron-fleche \{ justify-self: start; margin-inline-start: var\(--chevron-belt-bord\); \}/,
+    "à 16 du bord extérieur de sa cible (lot 329 : 8 de plus que les autres, médialement)");
 });
 
 test("🔴 en bout de course le chevron disparaît — et sa PLACE reste", () => {

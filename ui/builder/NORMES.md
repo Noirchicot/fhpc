@@ -9943,6 +9943,7 @@ de Wares, lot 275) — la rangée ne bouge pas. 📏 **MESURÉ APRÈS** : les tr
 📍 `chevron-lateral-de-pack` · vivante · 27/09
 ⚖️ **Tout chevron latéral du builder — tambour et pages de Pack et de Wares, pages de X5, le belt — est celui de Pack : l'icône `--icone-chevron` en masque, à l'encre `--text-soft`, un dessin de 10 × 20 creusé dans une cible de 44, à 8 du bord extérieur, et le miroir à droite. TOUS les chevrons (latéraux, barrettes ∧ ∨, jauge de défilement allumée) portent un voile de 50 % (`--chevron-voile`).**
 
+> 🔄 **Amendé le 27/09 (lot 329)** — Eric : **« Pour le belt déplace les chevrons encore de 8 blg médialement · Pour les autres 4 blg médialement »** : 12 du bord pour tous (`--chevron-lateral-bord`, `BORD_CHEVRON` de Pack), 16 pour le belt (`--chevron-belt-bord`).
 > 🔄 **Amendé le 27/09 (lot 327)** — Eric : **« Éloigne tous les chevrons de 8 blg des bords, repasse
 > globalement à un voile de 50 % sur tous les chevrons »**. Le bord passe de 4 à 8 (`--chevron-lateral-bord`,
 > et `BORD_CHEVRON` dans le plan de Pack — la piste ne bouge pas, il reste 4 entre le chevron et elle) ;
