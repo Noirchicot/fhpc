@@ -151,13 +151,33 @@ export const RENDU_PIED = Object.freeze({
 });
 
 /* ── LA RANGÉE DU PIED ────────────────────────────────────────────────────────
-   ⚖️ LE TRIANGLE SE REFERME : chaque écran porte les DEUX portes qu'il n'est pas (NORMES
-   `equipement-wares-pied-triangle`). ⛔ `Equipment` est le nom de l'ÉTAPE, jamais d'un écran.
-   ⛔ CES TROIS-LÀ NE SE POSENT PAS ICI : c'est la grille partagée des rangées de contrôles
-   qui les range — `borne | 1fr | borne`, la même que R et le sac. Leur cote dit ce qu'ils
-   MESURENT, pas où on les met. */
-export const RANGEE = { l: 367, h: TOUCH, borne: TOUCH, porte: { l: 77, h: TOUCH }, rond: 22 };
-export const PORTES = Object.freeze(["gear", "send", "backpack"]);
+   ⚖️ LOT 311 — LES TROIS CARRÉS, DANS LES TROIS ÉCRANS (NORMES `equipement-portes-carrees`).
+   Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le bouton
+   send toujours centré. Tu dégages le livre qui n'a pas d'utilité dans équipement. Tu places les
+   3 carrés répartis équitablement à gauche de send »*, puis *« Quand on est sur l'écran en
+   question le bouton est grisé »*.
+   🗄️ Ce qu'elle remplace : `Gear · Send · Backpack` (le triangle du 20/09) et le livre à gauche.
+   ⭐ `Send` garde sa cote (77) et reste CENTRÉ sur la dalle ; les trois carrés — Pack · Wares ·
+   Gear, le même ordre sur les trois écrans — se répartissent à sa gauche, le `?` reste à droite.
+   Le carré de Wares est au plan comme les deux autres : c'est l'ÉTAT qui le grise.
+   📐 « RÉPARTIS ÉQUITABLEMENT » SE MESURE ENTRE LES DESSINS : de la marge (4) au bord de Send,
+   trois dessins de 40 et QUATRE gouttières égales — la formule de `R_gen.py` et de
+   `backpack_gen.py`, recopiée ici parce que ce plan est tenu à la main, ⛔ jamais ses résultats.
+   ⛔ CE PLAN NE POSE RIEN : c'est la grille du pied (`shell.css`, `[data-pied="equipement"]`)
+   qui range la rangée. Ces cotes disent ce qu'elle doit RENDRE — un garde les relit. */
+export const RANGEE = { l: 367, h: TOUCH, borne: TOUCH, porte: { l: 77, h: TOUCH }, carre: { l: 40, h: 40 }, rond: 22 };
+/* les portes du pied, dans l'ordre de lecture : les trois carrés, puis Send */
+export const PORTES = Object.freeze(["backpack", "wares", "gear", "send"]);
+const Y_RANGEE = 448;
+const X_SEND = (DALLE.l - RANGEE.porte.l) / 2;
+const G_CARRES = (X_SEND - REMBOURRAGE - 3 * RANGEE.carre.l) / 4;
+/** un carré du pied : son dessin (40) et sa cible (44), déduits de son rang */
+function carre(nom, mot, rang) {
+  const x = REMBOURRAGE + G_CARRES + rang * (RANGEE.carre.l + G_CARRES);
+  const y = Y_RANGEE + (TOUCH - RANGEE.carre.h) / 2;
+  return { nom, sorte: "porte-carree", dalle: "PIED", x, y, l: RANGEE.carre.l, h: RANGEE.carre.h,
+           cible: { x: x - (TOUCH - RANGEE.carre.l) / 2, y: Y_RANGEE, l: TOUCH, h: TOUCH }, mot, cran: "T0/600" };
+}
 
 /* ── LES ORGANES ──────────────────────────────────────────────────────────────
    Le plan coté, dalle par dalle. `y` est ABSOLU dans la scène — c'est ce qu'un garde relit
@@ -229,11 +249,11 @@ export const ORGANES = [
      ⛔ AUCUNE CIBLE : on ne le tape pas, on le lit. C'est la bourse dessous qui reçoit. */
   { nom: "MONTANT",             sorte: "voyant",     dalle: "PIED",    dans: "PURSE", x: 278.25, y: 365, l: 50,  h: 50, mot: "0 gp", cran: "T1/600" },
   { nom: "SEND VERS",           sorte: "dropdown",   dalle: "PIED",    x: 139.5,  y: 398, l: 96,  h: 40, cible: { x: 139.5, y: 396, l: 96, h: 44 }, mot: "Send to — Backpack", cran: "T1/600" },
-  { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: 448, l: 367, h: 44, cran: "—" },
-  { nom: "livre",               sorte: "rond",       dalle: "PIED",    x: 15,     y: 459, l: 22,  h: 22, cible: { x: 4, y: 448, l: 44, h: 44 }, mot: "livre" },
-  { nom: "GEAR",                sorte: "porte",      dalle: "PIED",    x: 64,     y: 448, l: 77,  h: 44, cible: { x: 64, y: 448, l: 77, h: 44 }, mot: "Gear", cran: "T2/600" },
-  { nom: "SEND",                sorte: "porte",      dalle: "PIED",    x: 149,    y: 448, l: 77,  h: 44, cible: { x: 149, y: 448, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
-  { nom: "BACKPACK",            sorte: "porte",      dalle: "PIED",    x: 234,    y: 448, l: 77,  h: 44, cible: { x: 234, y: 448, l: 77, h: 44 }, mot: "Backpack", cran: "T2/600" },
+  { nom: "RANGEE",              sorte: "rangee",     dalle: "PIED",    x: 4,      y: Y_RANGEE, l: 367, h: 44, cran: "—" },
+  carre("BACKPACK", "Pack", 0),
+  carre("WARES", "Wares", 1),
+  carre("GEAR", "Gear", 2),
+  { nom: "SEND",                sorte: "porte",      dalle: "PIED",    x: X_SEND, y: Y_RANGEE, l: 77,  h: 44, cible: { x: X_SEND, y: Y_RANGEE, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },
   /* ⛔ LE `?` EST POSÉ PAR LA COQUILLE, UNE FOIS, SUR TOUTES LES ÉTAPES — jamais par un écran,
      qui pourrait l'oublier (NORMES). Il est AU PLAN parce qu'il occupe une borne de la rangée
      et que sa place compte ; il n'est pas CONSTRUIT ici, et le garde de la bijection doit le
@@ -305,10 +325,10 @@ export const CLEF_DE = Object.freeze({
   "MONTANT": "montant",
   "SEND VERS": "send-vers",
   "RANGEE": "rangee",
-  "livre": "livre",
+  "BACKPACK": "backpack",
+  "WARES": "wares",
   "GEAR": "gear",
   "SEND": "send",
-  "BACKPACK": "backpack",
   "?": "aide",
 });
 

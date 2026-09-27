@@ -19,7 +19,7 @@
 
 import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_PIED_BAS, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
-  RENDU_GRILLE, PIED, RANGEE, PORTES, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
+  RENDU_GRILLE, PIED, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR,
 } from "./wares-disposition.mjs?v=850";
 import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=850";
@@ -28,6 +28,8 @@ import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=850";
 import { REPOS_MS } from "./sac-ecran.mjs?v=850";
 import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=850";
 import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=850";
+/* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
+import { portesCarrees } from "./porte-carree.mjs?v=850";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -853,36 +855,31 @@ export function construireLesWares(o = {}) {
   return { noeud };
 }
 
-/** La rangée du pied — `Gear · Send · Backpack`, le triangle qui se referme.
- *  ⚖️ NORMES `equipement-wares-pied-triangle` : chaque écran porte les DEUX portes qu'il n'est
- *  pas. ⛔ `Equipment` est le nom de l'ÉTAPE, jamais d'un écran.
+/** La rangée du pied — le gabarit d'Équipement depuis le lot 311 (NORMES
+ *  `equipement-portes-carrees`) : les trois portes carrées Pack · Wares · Gear à gauche (celle
+ *  de Wares GRISÉE : on y est), `Send` centré sur la dalle, le `?` à droite (la coquille).
+ *  🗄️ Ce qu'elle remplace : `Gear · Send · Backpack` (le triangle du 20/09) et le livre à la
+ *  borne gauche — Eric, 27/09 : *« Tu dégages le livre qui n'a pas d'utilité dans équipement »*.
  *  ⭐ LE GROUPE `rangee-majeurs` N'EST PAS DÉCORATIF, et R l'a payé sur deux appareils : sans
- *  lui les trois portes se placent une par une, la première prend tout le `1fr` et les
- *  suivantes passent à la ligne. */
+ *  lui la coquille range les enfants un par un. */
 function rangeeDuPied(o) {
   const r = el("div", "wares-rangee");
   r.dataset.rangee = "wares";
   r.dataset.organe = "rangee";
-  const livre = bouton("fiche-livre wares-livre", undefined, "Rules");
-  livre.dataset.organe = "livre";
-  if (o.livreDe && o.livreDe.href) {
-    livre.addEventListener("click", () => { window.open(o.livreDe.href, "_blank", "noopener"); });
-  } else {
-    livre.disabled = true;
-  }
-  r.append(livre);
+  r.dataset.pied = "equipement";
   const majeurs = el("div", "rangee-majeurs");
-  for (const id of PORTES) {
-    const mot = id === "gear" ? "Gear" : id === "send" ? "Send" : "Backpack";
-    const note = id === "send" ? "Send — clears the collector and sends" : mot;
-    const b = bouton("wares-porte", mot, note, () => o.surPorte && o.surPorte(id));
-    b.dataset.porte = id;
-    /* ⭐ ET IL PORTE AUSSI SA CLEF DU PLAN. ⛔ `data-porte` dit son RÔLE dans la rangée ;
-       `data-organe` dit QUI il est au plan. Sans le second, la bijection plan ↔ DOM ne peut
-       pas le trouver, et une absence se lirait comme un choix. */
-    b.dataset.organe = id;
-    majeurs.append(b);
-  }
+  const carres = portesCarrees({ courant: "wares", surPorte: o.surPorte });
+  /* ⭐ CHAQUE CARRÉ PORTE AUSSI SA CLEF DU PLAN. ⛔ `data-porte` dit son RÔLE dans la rangée ;
+     `data-organe` dit QUI il est au plan. Sans le second, la bijection plan ↔ DOM ne peut pas
+     le trouver, et une absence se lirait comme un choix. */
+  for (const b of carres.children) b.dataset.organe = b.dataset.porte;
+  majeurs.append(carres);
+  /* `Send` : le mot est celui du plan, le geste celui de toujours */
+  const plan = ORGANES.find((x) => CLEF_DE[x.nom] === "send");
+  const send = bouton("wares-porte", plan.mot, "Send — clears the collector and sends", () => o.surPorte && o.surPorte("send"));
+  send.dataset.porte = "send";
+  send.dataset.organe = "send";
+  majeurs.append(send);
   r.append(majeurs);
   return r;
 }

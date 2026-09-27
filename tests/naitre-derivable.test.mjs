@@ -308,7 +308,7 @@ test("B7 — 🔴 EQUIPMENT SANS CLASSE VIT ET SA BOURSE NOMME : la boutique pr�
     const node = renderEquipmentStep({ document: doc, resolved: null, query: Q }, () => {});
     assert.equal(node.querySelector(".aiguilleur"), null, `pile ${nom} : sans classe, la question kit/or n'a pas d'objet — aucun aiguilleur, aucun « Take the »`);
     /* la boutique : R (Gear) → Wares → le catalogue, ses rayons et ses boutons (lot 212) */
-    const versR = node.querySelector('.gear-porte[data-porte="wares"]');
+    const versR = node.querySelector('.porte-carree[data-porte="wares"]');
     assert.ok(versR, `pile ${nom} : le personnage équipé porte la porte Wares`);
     versR.dispatchEvent({ type: "click", preventDefault() {} });
     /* 🔄 PORTÉ (lot 219) : la porte du panier est le `Tally` de Wares — Eric, 20/09 :
@@ -524,7 +524,7 @@ test("F1 — ⏳ l'étape Équipement N'A PLUS DE `NEXT`, et le contrat du verbe
   const out = H.verbs.rebuild({ document: avec(neuf(H, "f1"), [CLASSE, ...SIX, { path: "depart.class", value: "A" }]) });
   const actions = [];
   const node = renderEquipmentStep({ document: out.document, resolved: out.resolved, query: H.layers.verbs.query }, (a) => actions.push(a));
-  const versR = node.querySelector('.gear-porte[data-porte="wares"]');
+  const versR = node.querySelector('.porte-carree[data-porte="wares"]');
   assert.ok(versR, "témoin : le personnage équipé porte la porte Wares (→ le catalogue)");
   versR.dispatchEvent({ type: "click", preventDefault() {} });
 

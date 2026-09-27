@@ -133,7 +133,7 @@ function ctx() { return { document: { build: { choices: [] } }, resolved: null, 
  *  lot 212) et le catalogue est derrière sa porte `Wares`. */
 function monterCatalogue() {
   const node = renderEquipmentStep(ctx(), () => {});
-  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
+  const porte = node.querySelector('.porte-carree[data-porte="wares"]');
   if (porte) porte.click();
   return node;
 }

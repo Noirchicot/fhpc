@@ -80,6 +80,10 @@ const SOCLE = [
      reconnaît ce défaut à ce que TOUTE la famille le porte, donc il ne le trouvait plus
      tant que cette liste-ci n'était pas à jour. Un seul ajout, deux gardes satisfaits. — */
   ".wares-porte",
+  /* — LOT 311, 27/09 : les trois portes CARRÉES du pied d'Équipement — Pack · Wares · Gear, sur
+     Gear, le sac et Wares. Un ajout au CORPUS, déclaré ici EN LE SACHANT. ⛔ Elles n'entrent PAS
+     dans le PLANCHER plus bas : un carré vaut sa cible (44), pas le gabarit petit (77). — */
+  ".porte-carree",
   /* — LOT 213, 17/09 : les quatre portes du pied de la fiche X1 — Close · Use ·
      Send · Trash. ⭐ CE GARDE A ROUGI SUR SON ENTRÉE, ET C'EST SON TRAVAIL : une
      famille n'entre pas dans l'habit sans qu'on le sache, et la mise à jour de

@@ -1152,6 +1152,14 @@
   --icone-parchemin-party: url("./assets/parchemin-party.webp?v=850");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
   --icone-bourse: url("./assets/bourse.webp?v=850");
+  /* ⚖️ LOT 311 — LES TROIS IMAGES DES PORTES CARRÉES du pied d'Équipement (banc 310, validé par
+     Eric le 27/09 : *« Parfait je valide les 3 »*). ⭐ TROIS SILHOUETTES PLEINES, de la même
+     encre : peintes en MASQUE sur un aplat `--text-soft` (`.porte-carree-image`, shell.css), elles
+     sortent du même ton — les filigranes d'origine n'avaient pas la même opacité (alpha moyen
+     mesuré au banc : pantin 244, sac 135, wares 107). */
+  --porte-image-pack: url("./assets/porte-pack.png?v=850");
+  --porte-image-wares: url("./assets/porte-wares.png?v=850");
+  --porte-image-gear: url("./assets/porte-gear.png?v=850");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords

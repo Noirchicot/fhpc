@@ -195,20 +195,26 @@ test("9 · un chevron publie un sens, ⛔ pas une page", () => {
 });
 
 /* ══ 10 · LE PIED ══════════════════════════════════════════════════════════════
-   ⭐ TÉMOIN : les trois portes, dans l'ordre, et le triangle qui se referme.
-   ⛔ Wares n'ouvre pas une porte vers lui-même, et `Equipment` n'est le nom d'aucun écran. */
-test("10 · le pied dit Gear · Send · Backpack, et publie son geste", () => {
+   ⚖️ LOT 311 — Eric, 27/09 : *« Tu places les 3 carrés répartis équitablement à gauche de send »*
+   et *« Quand on est sur l'écran en question le bouton est grisé »*.
+   ⭐ TÉMOIN : les trois carrés dans l'ordre Pack · Wares · Gear, puis Send ; celui de Wares est
+   grisé et ne publie rien. 🗄️ Il remplace le triangle du 20/09 (`Gear · Send · Backpack`). */
+test("10 · le pied dit Pack · Wares · Gear puis Send, et le carré de Wares ne mène nulle part", () => {
   const vus = [];
   const n = monter({ surPorte: (id) => vus.push(id) });
-  const portes = tous(n, ".wares-porte");
-  assert.deepEqual(portes.map((b) => b.dataset.porte), ["gear", "send", "backpack"],
-    "⛔ l'ordre du pied (Eric, 20/09 : « le 3e bouton c'est backpack »)");
-  assert.deepEqual(portes.map((b) => b.textContent), ["Gear", "Send", "Backpack"], "et leurs mots");
-  assert.ok(!n.textContent.includes("Wares"), "⛔ une porte vers soi-même");
-  for (const b of portes) b.dispatchEvent(new (globalThis.Event || Object)("click"));
-  assert.deepEqual(vus, ["gear", "send", "backpack"], "⛔ une porte muette");
+  const carres = tous(n, ".porte-carree");
+  assert.deepEqual(carres.map((b) => b.dataset.porte), ["backpack", "wares", "gear"],
+    "⛔ l'ordre des carrés (le même sur les trois écrans)");
+  assert.deepEqual(carres.map((b) => b.querySelector(".porte-carree-mot").textContent), ["Pack", "Wares", "Gear"], "et leurs mots");
+  const send = tous(n, ".wares-porte");
+  assert.deepEqual(send.map((b) => b.dataset.porte), ["send"], "⛔ une seule porte à mot : Send");
+  for (const b of [...carres, ...send]) b.dispatchEvent(new (globalThis.Event || Object)("click"));
+  assert.deepEqual(vus, ["backpack", "gear", "send"], "⛔ une porte muette — ou le carré courant qui publie");
+  assert.equal(carres[1].disabled, true, "⛔ le carré de Wares, sur Wares, est grisé");
+  assert.equal(carres[1].getAttribute("aria-current"), "page");
+  assert.equal(tous(n, ".fiche-livre").length, 0, "⛔ le livre a dégagé d'Équipement");
   assert.equal(tous(n, ".rangee-majeurs").length, 1,
-    "⛔ le groupe des majeurs manque : sans lui les trois portes passent à la ligne (mesuré sur R, 16/09)");
+    "⛔ le groupe des majeurs manque : sans lui les portes passent à la ligne (mesuré sur R, 16/09)");
 });
 
 /* ⭐ TÉMOIN : les deux Tally à gauche, la bourse à droite, chacun dans SA cellule.

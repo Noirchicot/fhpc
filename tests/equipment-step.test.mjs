@@ -293,7 +293,7 @@ test("⛔ l'étape Équipement OUVRE SUR R (Gear), et une seule vue vit à la fo
      pas d'un mot — UNE vue à la fois, c'est l'inversion du 24/08. */
   assert.equal(rows(node, '[data-ecran="wares"]').length, 0, "et le catalogue n'est PAS monté en même temps — une vue à la fois");
 
-  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
+  const porte = node.querySelector('.porte-carree[data-porte="wares"]');
   assert.ok(porte, "la rangée du pied de R porte la porte Wares vers le catalogue");
   porte.click();
   assert.equal(rows(node, '[data-ecran="wares"]').length, 1, "Wares ouvre le catalogue…");
@@ -543,7 +543,7 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
   };
   const node = renderEquipmentStep({ document: doc, resolved: null, query, search: true }, () => {});
   /* lot 212 : la ligne vit dans le sac, derrière la porte Backpack de R */
-  node.querySelector('.gear-porte[data-porte="backpack"]').click();
+  node.querySelector('.porte-carree[data-porte="backpack"]').click();
   const texte = node.textContent || "";
   assert.match(texte, /Azurite/, "le nom du record doit arriver jusqu'à la ligne");
   /* ⛔ LE PIÈGE, ET IL EST EXACTEMENT CELUI DE `TRAPS.md` — « un identifiant qui
@@ -563,7 +563,7 @@ test("lot 181 — 🔴 une gemme ACHETÉE porte SON NOM sur la ligne, jamais son
      depuis toujours que le mot `Back` n'appartient qu'à la coquille.
      ⛔ La vue est un état de MODULE : sans ce retour, les trois gardes suivants
      rendraient le sac au lieu de R — c'est exactement ce qui vient d'arriver. */
-  node.querySelector('.gear-porte[data-porte="gear"]').click();
+  node.querySelector('.porte-carree[data-porte="gear"]').click();
 });
 
 /* ══ LOT 215 — UNE FICHE REVIENT D'OÙ ELLE A ÉTÉ OUVERTE ══════════════════
@@ -619,7 +619,7 @@ test("lot 215 — 🔴 la fiche d'un objet revient D'OÙ ELLE VIENT, ⛔ pas tou
     "une fiche ouverte depuis GEAR rend GEAR — ⛔ le correctif ne doit pas l'échanger contre le sac");
 
   /* ② DEPUIS LE SAC — le chemin d'Eric, et celui qui était rouge. */
-  node.querySelector('.gear-porte[data-porte="backpack"]').click();
+  node.querySelector('.porte-carree[data-porte="backpack"]').click();
   assert.ok(dansLeSac(), "témoin de départ : la porte Backpack ouvre bien le sac");
   const close = ouvrirUneFiche();
   assert.equal(dansLeSac(), false, "la fiche a bien remplacé le sac à l'écran");
@@ -631,7 +631,7 @@ test("lot 215 — 🔴 la fiche d'un objet revient D'OÙ ELLE VIENT, ⛔ pas tou
      recevraient le sac au lieu de Gear. Avant le correctif le test finissait sur
      Gear PAR LA FAUTE elle-même — c'est exactement le genre de propreté que la
      réparation retire, et qu'il faut donc rendre explicite. */
-  node.querySelector('.gear-porte[data-porte="gear"]').click();
+  node.querySelector('.porte-carree[data-porte="gear"]').click();
   assert.equal(dansLeSac(), false, "la suite hérite de Gear, comme elle l'attend");
 });
 

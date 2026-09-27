@@ -53,10 +53,10 @@ export const ORGANES = [
   { nom: "GROUND 1",         sorte: "jeton",  x:      4, y:    448, l:    87, h:   48 },
   { nom: "GROUND 2",         sorte: "jeton",  x:    284, y:    448, l:    87, h:   48 },
   { nom: "SEND TO",          sorte: "bouton", x:  137.5, y:    450, l:   100, h:   44, mot: "Send to", cran: "T2/600" },
-  { nom: "BACKPACK",         sorte: "porte",  x:     64, y:    504, l:    77, h:   44, mot: "Backpack", cran: "T2/600" },
   { nom: "SEND",             sorte: "porte",  x:    149, y:    504, l:    77, h:   44, mot: "Send", cran: "T2/600" },
-  { nom: "WARES",            sorte: "porte",  x:    234, y:    504, l:    77, h:   44, mot: "Wares", cran: "T2/600" },
-  { nom: "livre",            sorte: "rond",   x:     15, y:    515, l:    22, h:   22, cible: { x: 4, y: 504, l: 44, h: 44 } },
+  { nom: "BACKPACK",         sorte: "porte-carree", x:  10.25, y:    506, l:    40, h:   40, cible: { x: 8.25, y: 504, l: 44, h: 44 }, mot: "Pack", cran: "T0/600" },
+  { nom: "WARES",            sorte: "porte-carree", x:   56.5, y:    506, l:    40, h:   40, cible: { x: 54.5, y: 504, l: 44, h: 44 }, mot: "Wares", cran: "T0/600" },
+  { nom: "GEAR",             sorte: "porte-carree", x: 102.75, y:    506, l:    40, h:   40, cible: { x: 100.75, y: 504, l: 44, h: 44 }, mot: "Gear", cran: "T0/600" },
   { nom: "?",                sorte: "rond",   x:    338, y:    515, l:    22, h:   22, cible: { x: 327, y: 504, l: 44, h: 44 } },
 ];
 
@@ -64,7 +64,8 @@ export const ORGANES = [
    nom d'un slot sur un jeton ......... --t1 10px / 400   (.b3-nom)
    nom de l'objet posé ................ --t2 12px / 600   (.b3-objet)
    quantité sur un jeton .............. --t1 10px / 400   (.b3-qte-texte)
-   les trois portes du bas ............ --t2 12px / 600   (voir la note ci-dessous)
+   Send, la porte du bas .............. --t2 12px / 600   (voir la note ci-dessous)
+   Pack · Wares · Gear, les carrés ..... --t0  8px / 600, italique (lot 311, banc 310)
    Purse · Tally · Companions ......... --t1 10px / 600   (le sur-mesure d'Eric)
    ⚖️ Le gabarit du dépôt rend **16 px / 600** — tranché par Eric le 15/09
       (« garde 16 et corrige la règle » : la loi disait 14, le code rendait 16).

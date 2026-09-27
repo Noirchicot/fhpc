@@ -280,14 +280,36 @@
   },
   {
    "nom": "BACKPACK",
-   "x": 64.0,
-   "y": 504,
-   "l": 77,
-   "h": 44,
+   "x": 10.25,
+   "y": 506.0,
+   "l": 40,
+   "h": 40,
    "cible": 44,
-   "mot": "Backpack",
-   "cran": "T2/600",
-   "sorte": "porte"
+   "mot": "Pack",
+   "cran": "T0/600",
+   "sorte": "porte-carree"
+  },
+  {
+   "nom": "WARES",
+   "x": 56.5,
+   "y": 506.0,
+   "l": 40,
+   "h": 40,
+   "cible": 44,
+   "mot": "Wares",
+   "cran": "T0/600",
+   "sorte": "porte-carree"
+  },
+  {
+   "nom": "GEAR",
+   "x": 102.75,
+   "y": 506.0,
+   "l": 40,
+   "h": 40,
+   "cible": 44,
+   "mot": "Gear",
+   "cran": "T0/600",
+   "sorte": "porte-carree"
   },
   {
    "nom": "SEND",
@@ -299,28 +321,6 @@
    "mot": "Send",
    "cran": "T2/600",
    "sorte": "porte"
-  },
-  {
-   "nom": "WARES",
-   "x": 234.0,
-   "y": 504,
-   "l": 77,
-   "h": 44,
-   "cible": 44,
-   "mot": "Wares",
-   "cran": "T2/600",
-   "sorte": "porte"
-  },
-  {
-   "nom": "livre",
-   "x": 15.0,
-   "y": 515.0,
-   "l": 22,
-   "h": 22,
-   "cible": 44,
-   "cible_x": 4,
-   "cible_y": 504,
-   "sorte": "rond"
   },
   {
    "nom": "?",

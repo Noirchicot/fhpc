@@ -55,8 +55,10 @@
 
    ⏳ CE QUE CE LOT NE CÂBLE PAS, ET LE DIT : le tap sur un jeton porté (la fiche
    X1, un lot à part) · Companions (B4) · les destinations Tally et Craft du
-   dropdown (X3 et B3 — options présentes, désactivées) · le livre (sa cible
-   FH WEB est une décision d'Eric : `disabled` tant qu'elle manque). */
+   dropdown (X3 et B3 — options présentes, désactivées).
+   🗄️ LOT 311 — LE LIVRE EST PARTI (Eric, 27/09 : *« Tu dégages le livre qui n'a pas d'utilité
+   dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
+   `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
 import * as D from "./gear-disposition.mjs?v=850";
 import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=850";
@@ -66,6 +68,9 @@ import { armerJeton, fantome } from "./glisser.mjs?v=850";
 import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=850";
 import { versionQuery } from "./version.mjs?v=850";
 import { enGP } from "./equipement-pipeline.mjs?v=850";
+/* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
+   même module, et le socle les habille une fois. */
+import { portesCarrees } from "./porte-carree.mjs?v=850";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -95,8 +100,8 @@ export const CLEF_DE = Object.freeze({
   "SEND TO": "send-to",
   "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "PARTY TALLY": "party-tally",
   "COMPANIONS": "companions",
-  "BACKPACK": "backpack", "SEND": "send", "WARES": "wares",
-  "livre": "livre", "?": "guide"
+  "BACKPACK": "backpack", "WARES": "wares", "GEAR": "gear", "SEND": "send",
+  "?": "guide"
 });
 
 /* Le MOT d'un emplacement — l'écriture du croquis (Eric, 15/09) sans son numéro :
@@ -181,8 +186,9 @@ const haut = (y) => y - BELT_H;
  *  · un BOUTON à cible reçoit la boîte de sa CIBLE, et son dessin en creux :
  *    la face se peint dans le `padding-box`, les bords transparents portent
  *    l'écart cible − dessin (« dessin et cible sont DEUX cotes ») ;
- *  · les PORTES et les RONDS ne sont pas posés un par un : ils vivent dans la
- *    rangée, et c'est la grille de `[data-rangee]` (§6 pré) qui les place.
+ *  · les PORTES, les PORTES CARRÉES et les RONDS ne sont pas posés un par un : ils
+ *    vivent dans la rangée, et c'est la grille du pied (`[data-rangee]`, §6 pré,
+ *    `[data-pied="equipement"]` depuis le lot 311) qui les place.
  *    La rangée, elle, est posée à `BARRE`. */
 /* ══ LA BOURSE — le popup qu'ouvre le bouton Purse ═════════════════════════
    ⚖️ COTES ARRÊTÉES PAR ERIC LE 16/09, et pas une n'est devinée : *« la bourse
@@ -295,7 +301,7 @@ export function feuilleDesCotes() {
        apparaît il doit être DÉJÀ à sa place, pas posé par une seconde règle
        écrite ailleurs. ⛔ Les quatre lunes restent dehors sans condition de
        `creation` : elles n'ont pas de clef du tout, et c'est `!id` qui les sort. */
-    if (!id || o.sorte === "porte" || o.sorte === "rond") continue;
+    if (!id || o.sorte === "porte" || o.sorte === "porte-carree" || o.sorte === "rond") continue;
     if (o.sorte === "jeton") {
       regle(id, `left:${px(o.x)};top:${px(haut(o.y))}`);
     } else if (o.sorte === "voyant") {
@@ -724,38 +730,25 @@ function cranDeMonnaie(glyphe, m, actuel, pas, options, eteint) {
   return b;
 }
 
-/** La rangée du pied — la cinquième porte de §6 pré : `data-rangee`, deux
- *  bornes et un groupe. Le livre est posé ICI (par l'écran), le `?` y descend
- *  par la coquille (`poserLesBornes`). Les trois portes tiennent la MÊME
- *  largeur 77 (Eric : « Backpack bouton même taille que Send ! ») — au cran
- *  serré de `--bouton-cran-serre` (voir shell.css). */
+/** La rangée du pied — la cinquième porte de §6 pré (`data-rangee`), au gabarit
+ *  d'Équipement depuis le lot 311 (`data-pied="equipement"`) : les trois portes carrées à
+ *  gauche, `Send` CENTRÉ sur la dalle, le `?` à droite — il y descend par la coquille
+ *  (`poserLesBornes`). ⚖️ NORMES `equipement-portes-carrees`.
+ *  ⛔ PLUS DE LIVRE (Eric, 27/09) — et la place qu'il laisse est celle des carrés. */
 function rangee(options) {
   const r = eld("div", "gear-rangee");
   r.dataset.rangee = "gear";
-  const livre = bouton("fiche-livre gear-livre", undefined, "Rules");
-  if (options.livreDe && options.livreDe.href) {
-    livre.addEventListener("click", () => { window.open(options.livreDe.href, "_blank", "noopener"); });
-  } else {
-    /* ⛔ `disabled`, pas un bouton muet : sa cible FH WEB est une décision
-       d'Eric (NORMES : « chaque conversion demande une CIBLE »). */
-    livre.disabled = true;
-  }
-  r.append(livre);
+  r.dataset.pied = "equipement";
   /* 🔴 LA RANGÉE PORTE SON PROPRE GROUPE, ET ELLE NE L'EMPRUNTE À PERSONNE.
      ⛔ CE QUE ÇA RÉPARE, ET ERIC L'A VU SUR DEUX APPAREILS (iPad et Mac, 16/09 au
-     soir) : les trois portes rendaient ~274 blg au lieu de 77 et débordaient sur
-     deux lignes. La grille du pied a trois colonnes — borne | 1fr | borne — et
-     c'est `.rangee-majeurs` qui occupe celle du milieu. Sans lui, les portes se
-     placent une par une : la première prend tout le `1fr`, les suivantes passent
-     à la ligne.
-     ⚠️ ET POURQUOI JE NE LE VOYAIS PAS : `poserLesBornes` (la coquille) crée ce
-     groupe au montage de l'écran. Un repeint qui ne repasse pas par elle — et
-     tout geste interne à Gear en est un — reconstruit la rangée SANS groupe. Le
-     défaut n'apparaît donc qu'APRÈS le premier geste, jamais à l'ouverture.
-     ⭐ `poserLesBornes` REPREND un groupe déjà là (`dejaLa`, shell.mjs) au lieu
-     d'en créer un second : le poser ici ne double rien, et rend l'écran juste
-     qu'elle passe ou non. */
+     soir) : sans groupe, `cadrerUneRangee` (la coquille) range les enfants un par un,
+     et un repeint interne à Gear — qui ne repasse pas par elle — reconstruisait la
+     rangée sans lui. ⭐ `poserLesBornes` REPREND un groupe déjà là (`dejaLa`,
+     shell.mjs) au lieu d'en créer un second : le poser ici ne double rien.
+     ⭐ Et depuis le lot 311 il porte DEUX choses : le groupe des carrés (organe partagé,
+     `porte-carree.mjs`) et `Send`, lu au plan. */
   const majeurs = eld("div", "rangee-majeurs");
+  majeurs.append(portesCarrees({ courant: "gear", surPorte: options.surPorte }));
   for (const o of ORGANES) {
     if (o.sorte !== "porte") continue;
     const id = CLEF_DE[o.nom];
@@ -781,7 +774,6 @@ function rangee(options) {
  * @param {(index:number)=>void} [options.surCollecte]
  * @param {(index:number, boite:string)=>void} [options.surPlacer]   un jeton posé sur un emplacement vide
  * @param {(valeur:string)=>void} [options.surDestination]
- * @param {{href?:string}} [options.livreDe]
  * @returns {{ noeud: HTMLElement }}
  */
 export function construireLEcranGear(options = {}) {

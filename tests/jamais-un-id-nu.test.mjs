@@ -333,7 +333,7 @@ test("D2 — ÉQUIPEMENT : une ligne dont le record manque porte le mot de l'org
   ] } };
   const node = renderEquipmentStep({ document: doc, resolved: null, query: SRD.layers.verbs.query, search: true }, () => {});
   /* lot 212 : le sac ne se lit plus sur l'écran d'entrée — derrière sa porte */
-  node.querySelector('.gear-porte[data-porte="backpack"]').click();
+  node.querySelector('.porte-carree[data-porte="backpack"]').click();
   const texte = node.textContent || "";
   aucunIdNu(texte, "fh:gem:en:nulle-part");
   /* Une gemme est du catalogue : pas d'enfant, c'est le maître qu'on nomme. */
@@ -342,7 +342,7 @@ test("D2 — ÉQUIPEMENT : une ligne dont le record manque porte le mot de l'org
      d'ouvrir l'ancienne liste. ⭐ Le garde n'a rien perdu : ses deux assertions sont
      passées sur le NOUVEAU sac. C'est l'ancien écran qui portait un `BACK` ; le pied
      du sac porte `Gear · Send · Wares`, et §6 réserve le mot `Back` à la coquille. */
-  node.querySelector('.gear-porte[data-porte="gear"]').click();
+  node.querySelector('.porte-carree[data-porte="gear"]').click();
 });
 
 /* ══ E — LA COQUILLE, SUR SES OCTETS (elle n'a pas de harnais de rendu) ═══ */

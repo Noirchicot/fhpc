@@ -87,7 +87,7 @@ const { pageDeListe, LISTE_PAR_PAGE } = await import("../ui/builder/normes.mjs")
    le clic reste conditionnel. */
 function monterR(ctx, onAction) {
   const node = renderEquipmentStep(ctx, onAction || (() => {}));
-  const porte = node.querySelector('.gear-porte[data-porte="wares"]');
+  const porte = node.querySelector('.porte-carree[data-porte="wares"]');
   if (porte) porte.click();
   return node;
 }
