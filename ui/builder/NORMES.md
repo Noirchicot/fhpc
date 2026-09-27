@@ -9947,7 +9947,7 @@ de Wares, lot 275) — la rangée ne bouge pas. 📏 **MESURÉ APRÈS** : les tr
 > globalement à un voile de 50 % sur tous les chevrons »**. Le bord passe de 4 à 8 (`--chevron-lateral-bord`,
 > et `BORD_CHEVRON` dans le plan de Pack — la piste ne bouge pas, il reste 4 entre le chevron et elle) ;
 > l'opacité pleine du lot 326 devient 0,5. L'état éteint de la jauge (.18) et la couleur atténuée des
-> barrettes désactivées restent. Garde : `tests/chevrons.test.mjs`.
+> barrettes désactivées restent. Garde : `tests/chevrons-lateraux.test.mjs`.
 
 > Eric, 2026-09-27, mot pour mot : **« Les chevrons latéraux de backpack sont mes préférés. Note le niveau
 > de transparence, la taille, la couleur, la distance du bord. Applique cela partout aux autres écrans.
