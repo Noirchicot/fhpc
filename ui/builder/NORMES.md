@@ -9825,7 +9825,7 @@ peut-être continuer de voir.
 ---
 
 ### 🟦 LA BOURSE REND LA MONNAIE, ET CHAQUE TRANSACTION S'ANNONCE UNE SECONDE
-📍 `bourse-monnaie-et-annonce` · vivante · 27/09
+📍 `equipement-bourse-monnaie-et-annonce` · vivante · 27/09
 ⚖️ **Une bourse paie tout prix que son TOTAL couvre, en cassant la pièce qu'il faut ; chaque transaction montre son écart net une seconde — vert s'il entre, rouge s'il sort — et l'annonce traverse les changements d'écran.**
 
 > Eric, 2026-09-27, mot pour mot : **« La bourse doit rendre la monnaie. Lorsqu'il y a une transaction.
