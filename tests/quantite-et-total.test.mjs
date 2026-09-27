@@ -149,15 +149,21 @@ test("3 — ⚖️ X2 : 3 achetés → la tête dit ×3 et le total de TROIS, et
   cran(3).dispatchEvent({ type: "click" });
   assert.equal(organe("qte"), "×3");
   assert.equal(organe("total"), "3 gp · 6 lb", "⚖️ le montant final suit la quantité");
-  /* ⭐ un prix marchandé change le total, et ⛔ un `+` ne l'efface plus */
-  const prix = [...n.querySelectorAll(".pipeline-typein")].find((e) => e.getAttribute("aria-label") === "Price");
-  prix.value = "2 GP";
+  /* ⚖️ LOT 312 — le champ « Negotiated price » montre le TOTAL de la quantité ; ce qu'on y tape est
+     le total négocié. ⚖️ Eric, 27/09 : « Non changer la quantité reset le prix au standard ». */
+  const prix = [...n.querySelectorAll(".pipeline-typein")].find((e) => e.getAttribute("aria-label") === "Negotiated price");
+  assert.ok(prix, "le champ s'appelle « Negotiated price »");
+  assert.equal(prix.value, "3 GP", "à trois, le champ dit le total standard : 3 × 1 GP");
+  prix.value = "5 GP";                      // négocié pour trois
   prix.dispatchEvent({ type: "change" });
-  assert.equal(organe("total"), "6 gp · 6 lb");
+  assert.equal(organe("total"), "5 gp · 6 lb", "le total négocié est celui de la tête");
   cran(2).dispatchEvent({ type: "click" });
-  assert.equal(prix.value, "2 GP", "⛔ changer la quantité ne remet pas le prix du record");
-  assert.equal(organe("total"), "4 gp · 4 lb");
+  assert.equal(prix.value, "2 GP", "⚖️ changer la quantité remet le prix STANDARD (2 × 1 GP)");
+  assert.equal(organe("total"), "2 gp · 4 lb");
   cran(3).dispatchEvent({ type: "click" });
+  assert.equal(prix.value, "3 GP");
+  prix.value = "6 GP";                      // on renégocie pour trois, puis on achète
+  prix.dispatchEvent({ type: "change" });
   /* BUY */
   [...n.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === "Pay, send, and return").click();
   assert.deepEqual(actions.find((a) => a.kind === "payer").cout, { pp: 0, gp: 6, sp: 0, cp: 0 },

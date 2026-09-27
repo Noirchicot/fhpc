@@ -75,7 +75,8 @@ import { ORGANES as ORGANES_DE_R } from "./gear-disposition.mjs?v=850";
 import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=850";
 /* ⭐ LA MONNAIE VIENT DU PIPELINE, TELLE QUELLE : c'est lui qui parse un coût du
    SRD, le multiplie et dit si la bourse couvre. ⛔ X2 n'a aucun tarif à lui. */
-import { parseCout, parsePoids, multiplieCout, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=850";
+import { parseCout, parsePoids, multiplieCout, bourseCouvre, totauxDeLaFiche, enGP, formatCout } from "./equipement-pipeline.mjs?v=850";
+import { prixSaisi } from "./craft.mjs?v=850";
 
 function elx(balise, classe, texte) {
   const n = document.createElement(balise);
@@ -141,6 +142,12 @@ export function feuilleDesCotesX2() {
  *  de la bourse pas un encart »*. ⭐ L'organe de R, importé : le bouton à l'image, le montant posé
  *  dessus (`montantDeLaBourse`), et son popup (`popupDeLaBourse`, dans `construireLaFicheX2`).
  *  ⛔ Rien de redessiné. Sans classe, le mot de la coquille (`motBourse`) passe dans le nom du bouton. */
+/** ⭐ LOT 312 — des cuivres en pièces, SANS arrondi : 1 234 cp → 12 gp 3 sp 4 cp. */
+function enPiecesDeCuivre(cp) {
+  const n = Math.max(0, Math.round(cp));
+  return { pp: 0, gp: Math.floor(n / 100), sp: Math.floor((n % 100) / 10), cp: n % 10 };
+}
+
 function laBourseDeX2({ bourse, motBourse, surBourse }) {
   const boite = elx("div", "x2-bourse-organe");
   const purse = elx("button", "gear-bouton");
@@ -213,23 +220,35 @@ export function construireLaFicheX2(options = {}) {
      le `±` empilé (90 de haut) sont partis : Eric, 27/09, « le +/- pour les quantités prend
      beaucoup de place ». La molette tient sur une cible (44). */
   const molette = construireLaMolette({ M: D.MOLETTE, valeur: qte, note: "Quantity",
-    surChoix: (n) => { qte = n; peindreLaQuantite(); } });
+    surChoix: (n) => { qte = n; totalNegocieCp = null; peindreLaQuantite(); } });   /* « changer la quantité reset le prix au standard » */
   const boiteMolette = elx("div", "x2-molette");
   boiteMolette.append(molette);
   /* ⭐ LE PRIX EST UN TYPE IN (rose au croquis d'août, encadré ici) : le joueur
      peut marchander. ⛔ L'écran n'invente aucun tarif — le défaut vient du record. */
   const prixChamp = elx("input", "pipeline-typein");
   prixChamp.type = "text";
-  prixChamp.setAttribute("aria-label", "Price");
-  /* ⭐ LOT 308 — un prix marchandé change le total affiché, comme la quantité. */
-  prixChamp.addEventListener("change", () => peindreLaLigneDeCout());
+  prixChamp.setAttribute("aria-label", "Negotiated price");
+  /* ⚖️ LOT 312 — LE PRIX NÉGOCIÉ. Eric, 27/09, mot pour mot : « L'encart price, dans x2 doit
+     permettre au joueur de changer manuellement le prix, il doit aussi se mettre à jour à chaque
+     changement de quantité. Donne-lui un peu plus de largeur. Et le titre au-dessus negotiated
+     price ». ⭐ Le champ montre le TOTAL de la quantité choisie (prix du record × quantité). Le
+     joueur le tape à la main : c'est le TOTAL négocié, que `BUY` paie. ⚖️ Puis, à « la quantité
+     change le total par le prix négocié ? » : « Non changer la quantité reset le prix au
+     standard » — la négociation vaut pour la quantité en cours ; changer la quantité, ou tourner
+     la page, remet le prix standard. */
+  prixChamp.addEventListener("change", () => {
+    const po = prixSaisi(prixChamp.value);
+    if (po !== null) totalNegocieCp = Math.round(po * 100);
+    ecrireLePrix();
+    peindreLaLigneDeCout();
+  });
 
   /* ⛔ PAS UN `<label>` : il n'enveloppe qu'un contrôle de formulaire, et la molette est un curseur
      ARIA — son nom lui vient de son `aria-label`. */
   const champQte = elx("div", "x2-champ");
   champQte.append(elx("span", "pipeline-libelle", "Qty"), boiteMolette);
   const champPrix = elx("label", "x2-champ");
-  champPrix.append(elx("span", "pipeline-libelle", "Price"), prixChamp);
+  champPrix.append(elx("span", "pipeline-libelle", "Negotiated price"), prixChamp);
   /* ⚖️ LOT 309 — « centre la quantité, et le prix à droite » (Eric, 27/09) : trois cellules, la
      bourse à gauche, la quantité au centre, le prix à droite (la feuille). */
   marche.append(or, champQte, champPrix);
@@ -262,7 +281,12 @@ export function construireLaFicheX2(options = {}) {
 
   const alerte = elx("p", "pipeline-alerte");
 
-  const coutTotal = () => multiplieCout(parseCout(prixChamp.value) || item().cout, qte);
+  /* ⭐ LOT 312 — LE TOTAL, EN CUIVRE : celui qu'on a négocié pour CETTE quantité, sinon le standard
+     (prix du record × quantité). */
+  let totalNegocieCp = null;
+  const standardCp = () => (item().cout ? Math.round(enGP(item().cout) * 100) * qte : null);
+  const coutTotal = () => { const t = totalNegocieCp ?? standardCp(); return t === null ? null : enPiecesDeCuivre(t); };
+  function ecrireLePrix() { const t = coutTotal(); prixChamp.value = t ? formatCout(t) : ""; }
 
   /* ⚖️ LOT 308 — LE TOTAL D'ACHAT SE LIT, ET IL SUIT LA QUANTITÉ. Eric, 27/09 : *« il faut tj que
      le montant final soit modifié avec l'augmentation en quantité »*. 🔴 X2 le calculait
@@ -275,13 +299,16 @@ export function construireLaFicheX2(options = {}) {
   function peindreLaLigneDeCout() {
     const it = item();
     const { poidsTotal } = totauxDeLaFiche(null, parsePoids(it.poidsTexte), qte);
-    const { prixTotal } = totauxDeLaFiche(parseCout(prixChamp.value) || it.cout, null, qte);
+    /* le total de la tête est celui que `BUY` paiera : négocié, ou standard */
+    const t = coutTotal();
+    const { prixTotal } = totauxDeLaFiche(t, null, 1);
     repeindreLaLigneDeCout(noeud, { prixUnite: it.coutTexte, poidsUnite: it.poidsTexte, qte, prixTotal, poidsTotal });
   }
   /* ⛔ UN CHANGEMENT DE QUANTITÉ NE REPEINT PAS LA PAGE : `peindre` remet le prix du record dans le
      champ, et effaçait donc un prix marchandé à chaque `+`. */
   function peindreLaQuantite() {
     alerte.textContent = "";
+    ecrireLePrix();
     peindreLaLigneDeCout();
   }
 
@@ -354,7 +381,7 @@ export function construireLaFicheX2(options = {}) {
     const desc = noeud.querySelector('[data-organe="description"]');
     if (desc) remplirLaDescription(desc, objet);
     noeud.setAttribute("aria-label", it.nom ? `${it.nom} — item sheet` : "Item sheet");
-    prixChamp.value = it.coutTexte || "";
+    totalNegocieCp = null;   /* une page tournée reprend le prix du record */
     peindreLaQuantite();
   }
   peindre();

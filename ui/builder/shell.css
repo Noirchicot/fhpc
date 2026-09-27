@@ -12228,7 +12228,9 @@ button.tuto-point::before {
 .x2-marche > .x2-champ:last-child { justify-self: end; }
 .x2-bourse-organe > [data-organe="montant"] { position: absolute; }
 /* le prix : un cran plus petit (T1), pour ne plus déborder de sa case */
-.x2-marche .pipeline-typein { font-size: var(--t1); }
+/* ⚖️ LOT 312 — « donne-lui un peu plus de largeur » (Eric, 27/09) : 8ch → 11ch, le total de la
+   quantité choisie (« 12 GP 3 SP ») y tient */
+.x2-marche .pipeline-typein { font-size: var(--t1); max-width: 11ch; inline-size: 11ch; }
 /* ⚖️ LOT 273 — EN LECTURE, LES RÉGLAGES S'EFFACENT (Eric, 25/09 : « l'œil ne marche pas sur X2 ») :
    le texte descend sur leur place, jusqu'au-dessus des trois portes. ⭐ `visibility`, ⛔ pas
    `display: none` (défaut n°3) — ils quittent la vue et la tabulation, les portes restent. */
