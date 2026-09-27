@@ -1796,8 +1796,9 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
   assert.match(source, /maintien: PEAGE_JETON_MS/, "le sac paie le péage");
   const organe = stripComments(fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8"));
   /* 🔄 LOT 339 — et seulement au DOIGT (ou au stylet) : Eric, 28/09, « oui fait la distinction, souris doigt » */
-  assert.match(organe, /const peage = Number\.isFinite\(maintien\) && maintien > 0 && ev\.pointerType !== "mouse";/,
-    "⭐ et l'organe ne le prend que si on le lui donne, et jamais à la souris");
+  /* 🔄 LOT 340 — la grammaire « armer puis poser » donne l'appui long par défaut au doigt (« b oui partout ») */
+  assert.match(organe, /const duree = Number\.isFinite\(maintien\) \? maintien : \(avecGrammaire \? MAINTIEN_EQUIPEMENT_MS : 0\);\s*const peage = duree > 0 && ev\.pointerType !== "mouse";/,
+    "⭐ et l'organe ne le prend que si on le lui donne (ou sous la grammaire), et jamais à la souris");
   const autres = ["skills-step.mjs", "species-step.mjs", "b3-dressing.mjs"]
     .filter((f) => fs.existsSync(path.join(UI, f)))
     .filter((f) => /maintien:/.test(stripComments(fs.readFileSync(path.join(UI, f), "utf8"))));

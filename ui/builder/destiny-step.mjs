@@ -25,15 +25,15 @@
    ⚠️ LE MODE N'EST PAS UN CHOIX DU DOCUMENT non plus : `draw` ou `choice` vit
    en mémoire d'écran, comme la méthode d'Abilities. */
 
-import { drawArcana } from "./dice.mjs?v=893";
-import { renderCardRows } from "./catalogue.mjs?v=893";
+import { drawArcana } from "./dice.mjs?v=895";
+import { renderCardRows } from "./catalogue.mjs?v=895";
 /* Lot 75 — les images d'arcanes sont des chargements d'EXÉCUTION : leurs
    `src` portent la version du graphe, lue dans l'URL de CE module, sinon le
    cache peut servir une image d'avant avec un écran neuf (`version.mjs`). */
-import { versionQuery } from "./version.mjs?v=893";
+import { versionQuery } from "./version.mjs?v=895";
 /* ⭐ LOT 213 — la jauge de défilement est descendue dans une feuille sans import, pour
    que la fiche X1 la prenne sans traîner Destiny derrière elle. Même dessin, nom neutre. */
-import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=893";
+import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=895";
 
 export { drawArcana };
 

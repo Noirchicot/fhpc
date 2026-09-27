@@ -403,13 +403,18 @@ test("Tools ne liste que l'acquis ; Add ouvre les 37 outils ; l'outil choisi arr
   document.dispatchEvent({ type: "pointerup", target: jLibre, clientX: 10, clientY: 10, button: 0, pointerType: "touch" });
   assert.deepEqual(actions.splice(0)[0].actions.map((a) => a.mot), ["Close"], "plein : Close seul");
   skillsEcran().collecteurs.tool.fill(null);
-  /* 🖱️ MÉTHODE 2 AU CLIC GAUCHE : la souris POSE sans lire (le socle), et sur un jeton
-     pris elle le rend. */
+  /* 🔄 LOT 340 — AU CLIC GAUCHE, LA SOURIS ARME (NORMES `geste-armer-puis-poser`, Eric 28/09) : les
+     collecteurs libres s'allument, et un clic sur l'un d'eux y pose. ⛔ « Le clic gauche pose » est mort. */
   const nodeSouris = renderSkillsStep(ctxFrom(fixture.report, (a) => actions.push(a)));
   const j2 = nodeSouris.querySelectorAll(".glisse-jeton")[1];
   j2.dispatchEvent({ type: "pointerdown", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
   document.dispatchEvent({ type: "pointerup", target: j2, clientX: 10, clientY: 10, button: 0, pointerType: "mouse" });
-  assert.equal(skillsEcran().collecteurs.tool[0], j2.getAttribute("data-valeur"), "clic gauche : posé, sans popup");
+  assert.equal(skillsEcran().collecteurs.tool[0], null, "⛔ clic gauche : posé sans avoir visé");
+  const allume = nodeSouris.querySelectorAll('[data-destination="oui"]')[0];
+  assert.ok(allume, "⛔ armé, le jeton n'allume aucun collecteur");
+  document.dispatchEvent({ type: "pointerdown", target: allume, clientX: 10, clientY: 10, pointerId: 9, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointerup", clientX: 10, clientY: 10, pointerId: 9 });
+  assert.equal(skillsEcran().collecteurs.tool[0], j2.getAttribute("data-valeur"), "armé puis posé sur le collecteur visé, sans popup");
   assert.deepEqual(actions.splice(0), [{ kind: "skillsRedessiner" }]);
   skillsEcran().collecteurs.tool[0] = null;
   /* ⭐ ET « ADD TOOL » IMPORTE : le collecteur pris devient une ligne de la page. */

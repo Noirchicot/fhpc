@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=893") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=895") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=893") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=895") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=893") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=895") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=893");
+  background-image: url("./assets/tarot-dos.jpg?v=895");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13913,3 +13913,25 @@ select.x5-drop {
   .belt-chevron[data-astrolabe]:hover > .belt-chevron-fleche { visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) { .astrolabe { transition: none; } }
+
+/* ══ 🖐️ ARMER PUIS POSER — lot 340, Eric 28/09 (NORMES `geste-armer-puis-poser`) ══════════════════════
+   ⚖️ *« clic gauche = illumine liseré bleu le token ciblé et toutes les destinations possibles »* ·
+   *« appui long… petit halo fait un flash »* · réponses 4a (le bleu = `--lien`, l'encre qui guide) et 6b
+   (un objet qui ne bouge pas fait un bref refus).
+   ⭐ `outline` et pas `box-shadow` : le liseré se pose PAR-DESSUS l'habit (le relief d'un jeton est une
+   ombre), sans l'effacer, et il suit l'arrondi. ⭐ Le flash et le refus passent par `filter`, qui ne
+   touche à aucune autre déclaration. */
+[data-deplacement="arme"], [data-destination="oui"] { outline: 2px solid var(--lien); outline-offset: 2px; }
+@keyframes geste-flash {
+  0%, 100% { filter: none; }
+  40% { filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo)) drop-shadow(0 0 var(--halo-fin) var(--belt-halo)); }
+}
+@keyframes geste-refus {
+  0%, 100% { filter: none; }
+  40% { filter: drop-shadow(0 0 var(--halo-epais) var(--critical)) drop-shadow(0 0 var(--halo-fin) var(--critical)); }
+}
+[data-flash="halo"] { animation: geste-flash .4s ease-out; }
+[data-flash="refus"] { animation: geste-refus .4s ease-out; }
+@media (prefers-reduced-motion: reduce) { [data-flash] { animation: none; } }
+/* ⛔ l'appui long d'iOS ouvre la bulle du système (copier, partager) : sur un objet glissable, c'est l'armement */
+[data-glissable="true"] { -webkit-touch-callout: none; }

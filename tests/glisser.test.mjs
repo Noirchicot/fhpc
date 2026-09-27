@@ -30,7 +30,7 @@ import { fileURLToPath } from "node:url";
 import { createTestDocument } from "./dom-stub.mjs";
 globalThis.document = createTestDocument();
 
-const { renderChoixGlisses, armerJeton } = await import("../ui/builder/glisser.mjs");
+const { renderChoixGlisses, armerJeton, eteindreLeDeplacement, objetArme } = await import("../ui/builder/glisser.mjs");
 
 /* Deux créneaux, trois options — la forme exacte de `class.skills` d'un
    Fighter, en plus petit. `selected` est un TABLEAU, comme `decisions[]` le
@@ -42,6 +42,7 @@ const slotsDe = (s0 = [], s1 = []) => ([
 ]);
 
 function ecran(slots, actions, plan = planDe()) {
+  eteindreLeDeplacement();
   return renderChoixGlisses({
     plan, slots, titre: "Class skills", mot: "Choice",
     labelOf: (id) => id.toUpperCase(), onAction: (a) => actions.push(a)
@@ -53,7 +54,9 @@ const creneaux = (n) => n.querySelectorAll(".glisse-creneau");
 /** Un geste complet : appui, déplacement (facultatif), relâchement. La cible
  *  du dépôt est injectée par `document.elementFromPoint`, comme le navigateur
  *  la donnerait. */
-function geste(jeton, { dx = 0, dy = 0, cible = null, maintenir = false } = {}) {
+/* 🖐️ LOT 340 — AU DOIGT, UN GLISSER SUIT L'APPUI LONG (Eric, 28/09 : « b oui partout ») : un geste qui
+   bouge tient d'abord ses 500 ms, sur l'horloge du banc. */
+function geste(jeton, { dx = 0, dy = 0, cible = null, maintenir = Boolean(dx || dy) } = {}) {
   document.elementFromPoint = () => cible;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
   if (maintenir) horloge.ecouler();     // le doigt a attendu : le jeton se soulève
@@ -69,6 +72,20 @@ function geste(jeton, { dx = 0, dy = 0, cible = null, maintenir = false } = {}) 
    test FOURNIT, pour pouvoir dire « le doigt a attendu » à la milliseconde.
    ⛔ Elle ne remplace pas le vrai délai : `MAINTIEN_MS` reste dans l'organe,
    et c'est l'appareil d'Eric qui juge s'il est bien réglé. */
+
+/* ══ 🖐️ LOT 340 — ARMER PUIS POSER (NORMES `geste-armer-puis-poser`) ═══════════════════════
+   Le stub est PLAT (pas de remontée) : l'appui qui POSE est livré au document, avec sa cible — c'est là
+   que l'organe l'écoute, en capture, comme le navigateur le lui livrerait. */
+function cliquer(el, pointerType = "mouse", pointerId = 7) {
+  el.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId, button: 0, pointerType });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId });
+}
+function poserSur(dest, pointerId = 8) {
+  document.dispatchEvent({ type: "pointerdown", target: dest, clientX: 0, clientY: 0, pointerId, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId });
+}
+const allumes = (n) => creneaux(n).filter((c) => c.dataset.destination === "oui");
+
 const horloge = (() => {
   const attendus = new Map();
   let suivant = 0;
@@ -110,19 +127,29 @@ test("1 bis — une option DÉJÀ POSÉE est désactivée, pas « enfoncée »",
 
 /* ══ 2 — LES DEUX GESTES ════════════════════════════════════════════════ */
 
-test("2 — le TAP tombe dans le premier créneau LIBRE", () => {
+test("2 — 🖐️ LOT 340 : le CLIC GAUCHE arme — les créneaux LIBRES s'allument — et un clic sur l'un d'eux y pose", () => {
+  /* ⚖️ Eric, 28/09 : « clic gauche = illumine liseré bleu le token ciblé et toutes les destinations
+     possibles, clic gauche tap sur destination, le token se déplace » · réponse 1a : un clic ARME, il ne
+     pose plus au premier créneau libre. */
   const actions = [];
   const n = ecran(slotsDe(), actions);
-  geste(jetons(n)[1]);                                   // « history », sans bouger
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "history" }]);
+  cliquer(jetons(n)[1]);                                  // « history »
+  assert.deepEqual(actions, [], "⛔ le clic a posé : il ne fait qu'armer");
+  assert.equal(jetons(n)[1].dataset.deplacement, "arme", "⛔ l'objet armé n'a pas son liseré");
+  assert.equal(allumes(n).length, 2, "⛔ les deux créneaux libres ne s'allument pas");
+  poserSur(creneaux(n)[1]);
+  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[1]", value: "history" }], "posé LÀ où l'on a cliqué");
+  assert.equal(objetArme(), null, "⭐ posé, plus rien n'est armé");
+  assert.equal(allumes(n).length, 0);
 });
 
-test("2 bis — le TAP saute les créneaux déjà remplis", () => {
+test("2 bis — 🖐️ LOT 340 : un créneau déjà rempli ne s'allume pas (réponse 5b)", () => {
   const actions = [];
   const n = ecran(slotsDe(["athletics"]), actions);
-  geste(jetons(n)[1]);
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[1]", value: "history" }],
-    "le premier créneau est pris : le tap va au suivant, il n'écrase rien");
+  cliquer(jetons(n)[1]);
+  assert.deepEqual(allumes(n).map((c) => c.dataset.creneau), ["class.skills[1]"], "⛔ un créneau rempli s'allume");
+  poserSur(creneaux(n)[1]);
+  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[1]", value: "history" }]);
 });
 
 test("2 ter — tous les créneaux pleins : le tap ne fait RIEN", () => {
@@ -141,12 +168,18 @@ test("3 — le GLISSER tombe dans le créneau VISÉ, pas dans le premier", () =>
     "c'est TOUTE la différence entre les deux gestes : le glisser désigne sa case");
 });
 
-test("3 bis — sous le seuil, un glisser tremblé reste un TAP", () => {
+test("3 bis — sous le seuil, un glisser tremblé reste un geste COURT : au doigt il voit, à la souris il arme", () => {
   const actions = [];
   const n = ecran(slotsDe(), actions);
-  geste(jetons(n)[0], { dx: 3, dy: 2, cible: creneaux(n)[1] });   // 3,6 px : sous les 6
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "athletics" }],
-    "⭐ un doigt n'est jamais immobile — le seuil est ce qui rend le tap fiable");
+  geste(jetons(n)[0], { dx: 3, dy: 2, cible: creneaux(n)[1], maintenir: false });   // 3,6 px, avant l'appui long
+  assert.deepEqual(actions, [], "⛔ un tap tremblé a posé : au doigt, le tap VOIT (ici, pas d'info : rien)");
+  const n2 = ecran(slotsDe(), actions);
+  document.elementFromPoint = () => creneaux(n2)[1];
+  jetons(n2)[0].dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 3, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointermove", clientX: 3, clientY: 2, pointerId: 3 });
+  document.dispatchEvent({ type: "pointerup", clientX: 3, clientY: 2, pointerId: 3 });
+  assert.deepEqual(actions, [], "⛔ un clic tremblé a posé");
+  assert.equal(jetons(n2)[0].dataset.deplacement, "arme", "⭐ à la souris, il arme");
 });
 
 test("3 ter — relâché DANS LE VIDE, le glisser ne fait rien", () => {
@@ -190,23 +223,23 @@ test("7 — le geste est le MÊME sur tous les viviers : un doigt qui bouge POSE
     "plus de maintien à payer : le jeton se lève dès le premier pixel");
 });
 
-test("7 bis — le TAP pose toujours dans le premier créneau libre", () => {
-  /* Le chemin court n'a jamais dépendu du maintien : il ne change pas. */
+test("7 bis — 🖐️ LOT 340 : au doigt, le TAP VOIT — ⛔ il ne pose plus", () => {
   const actions = [];
   const n = ecran(slotsDe(), actions);
   geste(jetons(n)[0]);
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "athletics" }]);
+  assert.deepEqual(actions, [], "⛔ le tap a posé (loi du 16/08, morte le 28/09)");
+  assert.equal(objetArme(), null, "⛔ un tap court a armé : au doigt, armer demande l'appui long");
 });
 
-test("7 ter — AUCUNE horloge n'est armée par un geste (le maintien est bien parti)", () => {
-  /* ⚔️ LE GARDE QUI EMPÊCHE LE PÉAGE DE REVENIR SANS QU'ON LE VOIE. Un
-     `setTimeout` réapparu dans l'organe rendrait le glisser conditionnel à une
-     durée — le défaut même qu'Eric a signalé. L'horloge du banc compte : si
-     quelque chose s'y met en attente, c'est qu'un délai est revenu. */
+test("7 ter — 🔄 LOT 340 : l'appui long est le SEUL minuteur du geste, et il meurt avec un tap", () => {
+  /* ⚖️ Eric, 28/09 : « b oui partout » — l'appui long de 500 ms revient au doigt sur les viviers (la loi du
+     20/08, « sans péage », cède). ⭐ Ce qui reste vrai : un geste FINI ne laisse aucun minuteur derrière lui —
+     un péage qui survit armerait un doigt déjà parti. */
   const actions = [];
   const n = ecran(slotsDe(), actions);
-  geste(jetons(n)[0], { dx: 0, dy: 40, cible: creneaux(n)[1] });
-  assert.equal(horloge.enAttente(), 0, "aucun minuteur : le geste est immédiat");
+  horloge.ecouler();                                     // les flashs des tests d'avant, éteints
+  geste(jetons(n)[0]);                                   // un tap : relâché avant l'appui long
+  assert.equal(horloge.enAttente(), 0, "⛔ le péage survit au tap");
 });
 
 test("8 — AUCUN vivier ne défile pour son compte, et aucun ne porte de classe à part", () => {
@@ -361,15 +394,19 @@ test("10 — AU DOIGT, le tap donne l'info et ne pose RIEN", () => {
   assert.deepEqual(actions, [], "⛔ et il ne choisit pas en même temps — un geste, un effet");
 });
 
-test("10 bis — À LA SOURIS, le clic gauche POSE (le pointeur est précis, rien à lever)", () => {
+test("10 bis — 🖐️ LOT 340 : À LA SOURIS, le clic gauche ARME et le clic DROIT voit", () => {
   const actions = []; const vus = [];
+  eteindreLeDeplacement();
   const n = renderChoixGlisses({
     plan: planDe(), slots: slotsDe(), titre: "Cantrips", mot: "Cantrip", grille: true,
     labelOf: (id) => id, onAction: (a) => actions.push(a), onInfo: (id) => vus.push(id)
   });
   tap(jetons(n)[0], "mouse");
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "athletics" }]);
+  assert.deepEqual(actions, [], "⛔ le clic gauche a posé : il arme");
   assert.deepEqual(vus, [], "l'info, à la souris, est sur le clic DROIT");
+  assert.equal(jetons(n)[0].dataset.deplacement, "arme");
+  jetons(n)[0].dispatchEvent({ type: "contextmenu", pointerType: "mouse", preventDefault() {} });
+  assert.deepEqual(vus, ["athletics"], "⛔ le clic droit ne VOIT pas");
 });
 
 test("10 ter — le clic DROIT donne l'info, et mange le menu du navigateur", () => {
@@ -384,15 +421,11 @@ test("10 ter — le clic DROIT donne l'info, et mange le menu du navigateur", ()
     "un menu contextuel par-dessus la fiche n'est pas une réponse à « qu'est-ce que ce sort ? »");
 });
 
-test("10 quater — SANS `onInfo`, rien ne bouge : l'écran des compétences garde son tap", () => {
-  /* 🔴 LA DIVERGENCE EST VOULUE, ET ELLE EST BORNÉE. Le mandat l'annonçait
-     (§6.5) : le tap prend l'INFO sur les grilles de sorts et garde la
-     SÉLECTION sur les compétences. Ce garde est ce qui empêche la décision
-     du soir de déborder sur l'écran livré à l'étape 2. */
+test("10 quater — 🖐️ LOT 340 : SANS `onInfo`, le tap au doigt ne fait rien — ⛔ il ne pose plus", () => {
   const actions = [];
   const n = ecran(slotsDe(), actions);
   tap(jetons(n)[0], "touch");
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "athletics" }]);
+  assert.deepEqual(actions, [], "⛔ le tap a posé");
   assert.equal(n.querySelectorAll(".glisse-grille").length, 0, "et ce n'est pas une grille");
 });
 
@@ -407,7 +440,9 @@ test("4 — avec `refKind`, le geste pose un `choose` de record, comme le QCM", 
     plan: planDe(), slots: slotsDe(), titre: "Cantrips", mot: "Cantrip",
     refKind: "spell", labelOf: (id) => id, onAction: (a) => actions.push(a)
   });
-  geste(jetons(n)[0]);
+  /* 🖐️ LOT 340 — armer puis poser (le tap ne pose plus) */
+  cliquer(jetons(n)[0]);
+  poserSur(creneaux(n)[0]);
   assert.deepEqual(actions, [{
     kind: "choose", path: "class.skills[0]", ref: { kind: "spell", id: "athletics" }
   }]);
@@ -578,15 +613,14 @@ test("13 septies — ⏳ À UNE SEULE PAGE, PAS DE CHEVRONS — choix SOBRE, non
   assert.equal(ecran(slotsLongs(16, "cas.seize"), []).querySelectorAll(".grille-rang").length, 1);
 });
 
-test("13 octies — un jeton de page 2 est ARMÉ comme les autres : le tap pose toujours", () => {
-  /* ⛔ Une page tournée dont les jetons ne répondent plus au doigt serait pire
-     qu'une liste sans fin — c'est la raison d'être de `faireJeton`. */
+test("13 octies — un jeton de page 2 s'arme comme les autres, et se pose où l'on clique", () => {
   const actions = [];
   const n = ecran(slotsLongs(31, "cas.arme"), actions);
   chevrons(n)[1].click();
-  geste(jetons(n)[0], { cible: null });
+  cliquer(jetons(n)[0]);
+  poserSur(allumes(n)[0]);
   assert.deepEqual(actions, [{ kind: "set", path: "cas.arme[0]", value: "sort-15" }],
-    "le jeton de la deuxième page pose dans le premier créneau libre, comme celui de la première");
+    "le jeton de la deuxième page s'arme et se pose, comme celui de la première");
 });
 
 /* ══ 9 — LA COTE DE HAUTEUR, DANS LA FEUILLE ════════════════════════════
@@ -725,6 +759,7 @@ test("11 sexies — 🔴 LOT 203 — LE FANTÔME NE PORTE PAS L'ATTRIBUT DU GEST
   const jeton = jetons(n)[0];
   document.elementFromPoint = () => null;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
+  horloge.ecouler();                                     // 🖐️ lot 340 : l'appui long, avant de porter
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 1 });
 
   const enVol = [...n.querySelectorAll('[data-glisse="true"]'),

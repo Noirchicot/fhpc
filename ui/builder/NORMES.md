@@ -10065,3 +10065,26 @@ est porté aux trois collecteurs, par `onHorsCible` d'`armerJeton` et le rappel 
 📏 La cause : `.lune-ecrans:focus-visible { outline: 2px … --spy-halo }` — un `<select>` garde le focus après
 un choix, et Chrome l'affiche même au doigt. ⚠️ Le clavier perd son repère sur la lune : un `<select>`
 ne distingue pas le focus au doigt du focus au clavier, et Eric a tranché pour l'œil.
+
+📍 `geste-armer-puis-poser` · vivante · 28/09
+⚖️ **Sur tout le site, un objet déplaçable se VOIT, s'ARME et se POSE, à la souris comme au doigt. Voir = clic droit (souris) · tap (doigt) → popup ou fiche selon l'objet. Armer = clic gauche (souris) · appui long 500 ms (doigt, avec un FLASH de halo) → l'objet prend un liseré bleu et TOUTES ses destinations possibles s'allument en bleu. Poser = clic ou tap sur une destination allumée, ou glisser (souris : dès 6 px ; doigt : après l'appui long).**
+
+> Eric, 2026-09-28 : **« à la souris, comme au doigt. clic gauche = illumine liseré bleu le token ciblé et
+> toutes les destinations possibles, clic gauche tap sur destination, le token se déplace. appui long,
+> quand le token est déplaçable, petit halo fait un flash. destinations possibles deviennent bleues, drag
+> ou tap sur destination, le token se déplace. tap ou clic droit souris sur token popup ou fiche
+> dépendamment du token. »** · et, pour l'appui long : **« b oui partout »**.
+
+⚖️ Les sept réponses d'Eric (28/09), chacune avec sa question :
+  1. Le clic simple qui « pose au premier créneau libre » disparaît ? → **a — oui, partout** : un clic arme.
+  2. Désarmer ? → **a — re-clic / re-tap sur l'objet, clic dans le vide, ou Échap.**
+  3. Armer un autre objet pendant qu'un objet est armé ? → **a — le nouveau remplace l'ancien.**
+  4. Le bleu ? → **a — l'encre qui guide, `--lien`** (jour `#1f3250`, nuit `#c2d0e5`).
+  5. Une case déjà occupée comme destination ? → **b — seules les cases LIBRES s'allument.**
+  6. Un objet qui ne se déplace pas (verrouillé, aucune destination) ? → **b — un bref refus visuel** (halo `--critical`).
+  7. Le périmètre ? → **partout** : Species, Inheritance, Class (sorts), Skills, les dés d'Abilities, Equipment (Gear, Pack, Wares, X5).
+🔄 **Remplace** la loi du 16/08 (« doigt tap = info / glisser = choisir ; souris gauche = choisir / droit = info ») :
+le tap et le clic droit gardent « voir » ; le clic gauche ne choisit plus, il ARME. Et la loi du 20/08 (« le
+glisser partout », sans péage) cède au doigt : l'appui long de 500 ms vaut partout (lot 339 : jamais à la souris).
+📐 L'organe est UN (`glisser.mjs`) ; chaque écran ne déclare que ses destinations. Mise en place par lots :
+l'organe et les viviers d'abord (Species, les listes de sorts et de compétences), puis écran par écran.

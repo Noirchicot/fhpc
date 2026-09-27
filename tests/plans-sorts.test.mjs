@@ -396,9 +396,14 @@ test("le 2ᵉ palier d'un Wizard porte TROIS blocs — compétences, mineurs, pr
      ⚠️ À LA SOURIS : depuis la décision d'Eric du 16/08 au soir, le tap d'un
      DOIGT ouvre l'info sur ces grilles. Le contrat d'action, lui, est le même
      quel que soit l'outil — c'est ce qu'on vérifie ici. */
+  /* 🔄 LOT 340 — armer puis poser (NORMES `geste-armer-puis-poser`) : le clic gauche arme, le premier
+     créneau libre s'allume, un clic sur lui y pose. */
   document.elementFromPoint = () => null;
   rayOfFrost.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
   document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+  const allume = mineurs.querySelectorAll('[data-destination="oui"]')[0];
+  document.dispatchEvent({ type: "pointerdown", target: allume, clientX: 0, clientY: 0, pointerId: 2, button: 0, pointerType: "mouse" });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 2 });
   assert.deepEqual(calls, [{
     kind: "choose", path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:ray-of-frost" }
   }]);

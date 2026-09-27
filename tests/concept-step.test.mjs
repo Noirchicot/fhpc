@@ -133,16 +133,20 @@ test("2bis — changer genre/alignement dispatche {kind:\"describe\", field, val
   const actions = [];
   const node = renderConceptStep({ document: draftDocument(), fieldErrors: {} }, (action) => actions.push(action));
   const [genre, alignement] = blocs(node);
-  /* Le tap à la souris POSE (le doigt, lui, ouvre l'info) — geste d'Eric. */
-  /* ⚠️ `button: 0` EST REQUIS — l'organe filtre les boutons secondaires, et
-     sans lui la séquence n'est même pas ouverte. Même forme que
-     `tests/glisser.test.mjs`, qui est la référence de ce geste. */
-  const taper = (jeton) => {
+  /* 🖐️ LOT 340 — ARMER PUIS POSER (Eric, 28/09, NORMES `geste-armer-puis-poser`) : le clic gauche ARME,
+     le créneau libre s'allume, un clic sur lui y pose. ⛔ « Le tap à la souris POSE » est mort.
+     ⚠️ `button: 0` EST REQUIS — l'organe filtre les boutons secondaires. Le stub est plat : l'appui qui
+     pose est livré au document, avec sa cible. */
+  const armerPuisPoser = (bloc, jeton) => {
     jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "mouse" });
     document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
+    const dest = bloc.querySelectorAll('[data-destination="oui"]')[0];
+    assert.ok(dest, "⛔ armé, le jeton n'allume aucun créneau");
+    document.dispatchEvent({ type: "pointerdown", target: dest, clientX: 0, clientY: 0, pointerId: 2, button: 0, pointerType: "mouse" });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 2 });
   };
-  taper(jetonDe(genre, "Woman"));
-  taper(jetonDe(alignement, "Chaotic Good"));
+  armerPuisPoser(genre, jetonDe(genre, "Woman"));
+  armerPuisPoser(alignement, jetonDe(alignement, "Chaotic Good"));
   assert.deepEqual(actions, [
     { kind: "describe", field: "gender", value: "Woman" },
     { kind: "describe", field: "alignment", value: "Chaotic Good" }

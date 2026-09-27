@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=893";
+import { pageDeListe } from "./normes.mjs?v=895";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=893";
-import { swapContent } from "./socle.mjs?v=893";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=895";
+import { swapContent } from "./socle.mjs?v=895";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=893";
+import { facteurZoomCourant } from "./echelle.mjs?v=895";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -365,6 +365,108 @@ function ancreDuGeste() { return document; }
    haut : ce qui est partagé se tient au module, pas dans une fermeture. */
 let gesteVivant = null;
 
+/* ══ 🖐️ ARMER PUIS POSER — la grammaire du geste, lot 340 (Eric, 28/09) ═══════════════════
+   ⚖️ NORMES `geste-armer-puis-poser` : *« à la souris, comme au doigt. clic gauche = illumine liseré
+   bleu le token ciblé et toutes les destinations possibles, clic gauche tap sur destination, le token se
+   déplace. appui long, quand le token est déplaçable, petit halo fait un flash. destinations possibles
+   deviennent bleues, drag ou tap sur destination, le token se déplace. tap ou clic droit souris sur token
+   popup ou fiche dépendamment du token. »* — et ses sept réponses (1a 2a 3a 4a 5b 6b 7 partout).
+   ⭐ UN SEUL OBJET ARMÉ À LA FOIS (3a), tenu AU MODULE comme `gesteVivant` : ce qui est partagé se tient
+   au module. Ses destinations sont celles que le GLISSER du même jeton accepterait — ⛔ jamais une liste
+   à part : le clic et le glisser posent au même endroit, par le même `onDepot`/`onDepotVoisin`.
+   ⛔ Les attributs ne réutilisent pas `data-arme` (le Cancel rouge, `shell.mjs`) : `data-deplacement` sur
+   l'objet, `data-destination` sur ses cibles, `data-flash` pour le halo et le refus. */
+let deplacementArme = null;
+const DUREE_DU_FLASH_MS = 400;
+
+/** Les destinations possibles d'un jeton : ses créneaux LIBRES (5b) dans sa portée, et les receveurs de la
+ *  page voisine qu'il sait servir. `portee` : l'élément où vivent ses créneaux (le bloc d'un vivier) ; par
+ *  défaut la moitié d'écran, sinon l'application. */
+export function destinationsDe(jeton, { portee, accepte, onDepotVoisin, accepteVoisin } = {}) {
+  const doc = (jeton && jeton.ownerDocument) || document;
+  const racine = portee
+    || (typeof jeton.closest === "function" && (jeton.closest("[data-demi-ecran]") || jeton.closest(".app")))
+    || doc;
+  const libre = (c) => c && c !== jeton && c.dataset
+    && !(typeof jeton.contains === "function" && jeton.contains(c))
+    && c.dataset.rempli !== "true" && c.dataset.occupe !== "oui";
+  const siens = [...racine.querySelectorAll("[data-creneau]")].filter((c) => libre(c) && (!accepte || accepte(c)));
+  const voisins = onDepotVoisin
+    ? [...doc.querySelectorAll('[data-recoit-voisin="true"]')]
+      .filter((c) => libre(c) && estUnCreneauVoisin(jeton, c) && (!accepteVoisin || accepteVoisin(c)))
+    : [];
+  return [...new Set([...siens, ...voisins])];
+}
+
+function flasher(el, sorte) {
+  if (!el || !el.dataset) return;
+  el.dataset.flash = sorte;
+  setTimeout(() => { if (el.dataset && el.dataset.flash === sorte) delete el.dataset.flash; }, DUREE_DU_FLASH_MS);
+}
+
+/** Éteint l'objet armé et ses destinations (2a : re-clic, clic dans le vide, Échap — ou la pose). */
+export function eteindreLeDeplacement() {
+  const d = deplacementArme;
+  if (!d) return;
+  deplacementArme = null;
+  if (d.jeton && d.jeton.dataset) delete d.jeton.dataset.deplacement;
+  for (const x of d.destinations) if (x && x.dataset) delete x.dataset.destination;
+  d.doc.removeEventListener("pointerdown", d.surAppui, true);
+  d.doc.removeEventListener("keydown", d.surTouche, true);
+}
+
+/** L'objet armé, s'il y en a un (le témoin des bancs). */
+export function objetArme() { return deplacementArme ? deplacementArme.jeton : null; }
+
+/** ARMER : le liseré sur l'objet, le bleu sur ses destinations, et l'écoute du prochain appui.
+ *  · `basculer` — un re-clic sur l'objet armé le désarme (2a) ; l'appui long ne bascule pas ;
+ *  · `refus` — sans destination, un bref halo rouge (6b) ; pendant un glisser, rien.
+ *  @returns {boolean} armé ou non. */
+function allumer(jeton, o, poser, { basculer = true, refus = true } = {}) {
+  const deja = deplacementArme && deplacementArme.jeton === jeton;
+  if (deja && !basculer) return true;
+  eteindreLeDeplacement();
+  if (deja) return false;
+  const destinations = destinationsDe(jeton, o);
+  if (!destinations.length) { if (refus) flasher(jeton, "refus"); return false; }
+  const doc = jeton.ownerDocument || document;
+  jeton.dataset.deplacement = "arme";
+  for (const d of destinations) d.dataset.destination = "oui";
+  const etat = { jeton, destinations, doc };
+  /* ⭐ LE PROCHAIN APPUI DÉCIDE — en CAPTURE, avant les écouteurs des éléments :
+     · sur une destination : c'est une pose (au relâchement, si le pointeur n'a pas glissé) — et l'appui
+       ne descend pas jusqu'à elle (un collecteur plein est aussi un objet glissable) ;
+     · sur un objet glissable (celui-ci ou un autre) : son propre geste décide — re-clic = désarmer,
+       autre objet = il remplace (3a), glisser = il porte ;
+     · ailleurs : le vide, on désarme (2a) — et l'appui fait ce qu'il faisait (un bouton reste un bouton). */
+  etat.surAppui = (e) => {
+    const t = e && e.target;
+    if (!jeton.isConnected) { eteindreLeDeplacement(); return; }
+    const dest = t && typeof t.closest === "function" ? destinations.find((d) => d === t || (typeof d.contains === "function" && d.contains(t))) : null;
+    if (dest) {
+      if (typeof e.stopPropagation === "function") e.stopPropagation();
+      if (e.cancelable && typeof e.preventDefault === "function") e.preventDefault();
+      const x0 = e.clientX, y0 = e.clientY, id = e.pointerId;
+      const fin = (u) => {
+        if (u && u.pointerId !== undefined && id !== undefined && u.pointerId !== id) return;
+        doc.removeEventListener("pointerup", fin, true);
+        if (Math.hypot((u.clientX || 0) - (x0 || 0), (u.clientY || 0) - (y0 || 0)) >= SEUIL_GLISSER) return;
+        eteindreLeDeplacement();
+        poser(dest);
+      };
+      doc.addEventListener("pointerup", fin, true);
+      return;
+    }
+    if (t && typeof t.closest === "function" && t.closest('[data-glissable="true"]')) return;
+    eteindreLeDeplacement();
+  };
+  etat.surTouche = (e) => { if (e && e.key === "Escape") eteindreLeDeplacement(); };
+  doc.addEventListener("pointerdown", etat.surAppui, true);
+  doc.addEventListener("keydown", etat.surTouche, true);
+  deplacementArme = etat;
+  return true;
+}
+
 /* ══ ⭐ LA MARQUE DE L'ARMEMENT — lot 205, 2026-09-13 ═════════════════════
 
    🔴 CE QU'ELLE REMPLACE, ET POURQUOI CE N'ÉTAIT PAS TENABLE. La surface d'un
@@ -445,7 +547,28 @@ const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
  *  📌 Elle remplace les 350 ms du 19/09, qui ne valaient que pour le sac. */
 export const MAINTIEN_EQUIPEMENT_MS = 500;   /* ⚖️ lot 339 : au doigt et au stylet — la souris glisse tout de suite */
 
-export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin, accepteVoisin }) {
+export function armerJeton(jeton, options) {
+  const { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin, accepteVoisin,
+    /* 🖐️ LOT 340 — la grammaire « armer puis poser » (NORMES `geste-armer-puis-poser`) : `grammaire`
+       l'active ; `onVoir` est le geste VOIR (tap au doigt, clic droit à la souris) ; `portee` et
+       `accepte` disent où sont ses destinations. ⛔ Sans `grammaire`, le geste d'avant, inchangé. */
+    grammaire = false, onVoir, portee, accepte } = options;
+  /* le geste POSER, commun au clic et au glisser : une destination voisine, ou une des siennes */
+  const poserSur = (cible) => {
+    if (estUnCreneauVoisin(jeton, cible)) { if (onDepotVoisin) onDepotVoisin(cible.dataset.creneau, cible); return; }
+    onDepot(cible.dataset.creneau);
+  };
+  const avecGrammaire = grammaire === true;
+  let dernierType = null;
+  if (avecGrammaire) {
+    /* VOIR À LA SOURIS = clic droit. ⛔ Un appui long au doigt déclenche `contextmenu` sur Android : ce
+       n'est pas un « voir », c'est l'armement — on le refuse au menu du navigateur et on ne fait rien. */
+    jeton.addEventListener("contextmenu", (e) => {
+      if (e && typeof e.preventDefault === "function") e.preventDefault();
+      if ((e && e.pointerType && e.pointerType !== "mouse") || dernierType === "touch" || dernierType === "pen") return;
+      if (onVoir) onVoir();
+    });
+  }
   /* ⭐ LA SURFACE DIT QU'ELLE EST ARMÉE — voir la note ci-dessus. C'est la
      seule ligne de ce fichier qui parle à la feuille de style, et elle ne lui
      dit pas comment peindre : elle lui dit ce que cet organe EST. */
@@ -491,10 +614,22 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
        dalle en glissant, elle n'a rien à départager — elle glisse dès le seuil de 6 px, comme partout.
        📏 C'était la cause de deux faux « ça ne marche pas » (le parchemin, puis Wares) : à la souris,
        on porte tout de suite. Le stylet reste avec le doigt (il défile comme lui). */
-    const peage = Number.isFinite(maintien) && maintien > 0 && ev.pointerType !== "mouse";
+    dernierType = ev.pointerType || null;
+    /* 🖐️ LOT 340 — sous la grammaire, l'appui long vaut PARTOUT au doigt (Eric : « b oui partout ») */
+    const duree = Number.isFinite(maintien) ? maintien : (avecGrammaire ? MAINTIEN_EQUIPEMENT_MS : 0);
+    const peage = duree > 0 && ev.pointerType !== "mouse";
     let arme = !peage;
+    /* l'appui long de la grammaire : il a armé l'objet (flash, destinations) — le relâcher ne le « voit » pas */
+    let armeParMaintien = false;
     let minuteurDuPeage = peage
-      ? setTimeout(() => { arme = true; if (jeton.dataset) jeton.dataset.porte = "true"; }, maintien)
+      ? setTimeout(() => {
+        arme = true;
+        if (jeton.dataset) jeton.dataset.porte = "true";
+        if (avecGrammaire) {
+          flasher(jeton, "halo");
+          armeParMaintien = allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false });
+        }
+      }, duree)
       : null;
     let glisse = false;
     /* ⛔ LOT 331 — SOUS PÉAGE, BOUGER AVANT L'ARMEMENT ABANDONNE LE GESTE : ni tap, ni glisser.
@@ -606,6 +741,8 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
         }
         jeton.dataset.glisse = "true";
         if (onLever) onLever(e.clientX, e.clientY);
+        /* 🖐️ LOT 340 — porté, l'objet montre aussi ses destinations (sans refus : on porte, on n'arme pas) */
+        if (avecGrammaire) allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false, refus: false });
       }
       if (onBouger) onBouger(e.clientX, e.clientY);
       viser(cibleSous(e));
@@ -649,6 +786,8 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
       if (gesteVivant === billet) gesteVivant = null;
       delete jeton.dataset.glisse;
       if (glisse && onPoser) onPoser();
+      /* 🖐️ LOT 340 — un glisser fini (posé ou non) éteint les destinations qu'il avait allumées */
+      if (glisse && avecGrammaire) eteindreLeDeplacement();
       return true;
     };
 
@@ -727,10 +866,18 @@ export function armerJeton(jeton, { onTap, onDepot, onLever, onBouger, onPoser, 
          à la souris. C'est l'appelant qui tranche (voir `onInfo`), et il ne
          peut trancher que s'il sait avec quoi on a touché. */
       if (abandonne) return;                                 // porté avant le péage : rien
+      /* 🖐️ LOT 340 — sous la grammaire, le geste court ARME à la souris (clic gauche) et VOIT au doigt
+         (tap) ; l'appui long a déjà armé : le relâcher laisse l'objet armé, en attente de sa destination. */
+      if (!etaitGlisse && avecGrammaire) {
+        if (e.type === "pointercancel") return;
+        if (ev.pointerType === "mouse") { allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur); return; }
+        if (armeParMaintien || arme && peage) return;
+        if (onVoir) onVoir();
+        return;
+      }
       if (!etaitGlisse) { onTap(ev.pointerType); return; }   // sous le seuil : un tap
       if (e.type === "pointercancel") return;
-      if (cible && estUnCreneauVoisin(jeton, cible)) { onDepotVoisin(cible.dataset.creneau, cible); return; }
-      if (cible) { onDepot(cible.dataset.creneau); return; }
+      if (cible) { poserSur(cible); return; }
       /* ⭐ LÂCHÉ HORS DE TOUTE CIBLE. Pour un jeton du vivier, c'est un
          non-geste : il retourne d'où il vient, et rien ne bouge (c'est le
          comportement d'origine, et il est juste). Pour le contenu d'un
@@ -1064,42 +1211,25 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
        valeur après un usage bloquait l'écran, et c'est ce qui est arrivé. Le
        vivier dit donc lui-même s'il se consomme. */
     jeton.disabled = reutilisable ? false : posees.has(id);
+    /* 🖐️ LOT 340 — LA GRAMMAIRE « ARMER PUIS POSER » (Eric, 28/09, NORMES `geste-armer-puis-poser`) :
+       VOIR = tap / clic droit (l'info, s'il y en a une) ; ARMER = clic gauche / appui long, et les créneaux
+       LIBRES s'allument ; POSER = clic ou tap sur un créneau allumé, ou glisser.
+       🧊 L'ANCIENNE LOI DU 16/08 EST MORTE ICI : « à la souris le clic gauche POSE au premier créneau
+       libre » n'existe plus (réponse 1a : « un clic arme, il ne pose plus »). */
     armerJeton(jeton, {
+      grammaire: true,
+      portee: bloc,
+      onVoir: onInfo ? () => onInfo(id) : undefined,
       onLever: (x, y) => fantomeLever(jeton, x, y),
       onBouger: (x, y) => fantomeSuivre(x, y),
       onPoser: () => fantomeRanger(),
-      /* ══ LE TAP, ET IL DIT DEUX CHOSES DIFFÉRENTES ═══════════════════════
-         Décision d'Eric, 2026-08-16 (le soir) : *« j'avais prévu tap pour
-         info, drag and drop to select ; sur desktop clic droit info, gauche
-         select »*. Elle referme la question laissée ouverte au §7.3 du
-         mandat, et elle est cohérente avec chaque appareil :
-         · AU DOIGT, l'appui court est le geste d'inspection (le croquis
-           l'écrit sous la grille : « Tap on cantrip for info »), et poser
-           demande le glisser ;
-         · À LA SOURIS, le clic gauche POSE (il n'y a pas d'ambiguïté à lever,
-           le pointeur est précis) et le clic droit inspecte.
-         ⛔ ET CE N'EST QUE POUR LES ÉCRANS QUI ONT UNE INFO À DONNER : sans
-         `onInfo`, le tap pose, au doigt comme à la souris — l'écran des
-         compétences (étape 2) ne change pas d'un geste. */
-      onTap: (type) => {
-        if (onInfo && type !== "mouse") { onInfo(id); return; }
-        /* LE TAP QUI POSE : le premier créneau libre. S'il n'y en a plus, le
-           geste ne fait rien — remplacer un choix au hasard serait pire que
-           ne rien faire, et le joueur a un créneau à vider sous les yeux. */
-        const libre = slots.find((s) => !choisiDe(s));
-        if (libre) poser(id, libre.path);
-      },
+      onTap: () => {},
       onDepot: (chemin) => poser(id, chemin)
     });
     /* LE CLIC DROIT — l'autre moitié de la même décision. `preventDefault`
        parce qu'un menu contextuel de navigateur par-dessus la fiche n'est
        pas une réponse à « qu'est-ce que ce sort ? ». */
-    if (onInfo) {
-      jeton.addEventListener("contextmenu", (ev) => {
-        if (typeof ev.preventDefault === "function") ev.preventDefault();
-        onInfo(id);
-      });
-    }
+    /* 🖐️ LOT 340 — le clic droit (VOIR) est posé par `armerJeton` lui-même (`onVoir`) : ⛔ plus ici, deux écouteurs ouvriraient deux fois. */
     item.append(jeton);
     return item;
   };
@@ -1244,6 +1374,10 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     if (choisi) {
       creneau.setAttribute("aria-label", `${nom} — drag out to clear`);
       armerJeton(creneau, {
+        /* 🖐️ LOT 340 — la même grammaire : armé, il montre les créneaux libres où le déplacer */
+        grammaire: true,
+        portee: bloc,
+        onVoir: onInfo ? () => onInfo(choisi) : undefined,
         onLever: (x, y) => fantomeLever(creneau, x, y),
         onBouger: (x, y) => fantomeSuivre(x, y),
         onPoser: () => fantomeRanger(),

@@ -231,10 +231,13 @@ test("🔴 tap = info : la fenêtre de la compétence, avec Close · Select ; Se
   assert.ok(libre, "témoin : il reste des jetons non posés");
   tap(libre);
   assert.deepEqual(appelsPlein[0].actions.map((x) => x.mot), ["Close"]);
-  /* et à la souris, le clic gauche pose (la loi du 16/08, portée par l'organe) */
+  /* 🔄 LOT 340 — à la souris, le clic gauche ARME (NORMES `geste-armer-puis-poser`, Eric 28/09) : il
+     n'écrit rien, il allume les collecteurs libres ; la loi du 16/08 (« le clic gauche pose ») est morte. */
   const appelsSouris = [];
-  tap(renderClassChoices(ctxDe(report, CLASS_CATALOGUE), (x) => appelsSouris.push(x), "class.skills").querySelector(".glisse-jeton"), "mouse");
-  assert.equal(appelsSouris[0].kind, "set");
+  const jetonSouris = renderClassChoices(ctxDe(report, CLASS_CATALOGUE), (x) => appelsSouris.push(x), "class.skills").querySelector(".glisse-jeton");
+  tap(jetonSouris, "mouse");
+  assert.deepEqual(appelsSouris, [], "⛔ le clic gauche a écrit : il arme");
+  assert.equal(jetonSouris.dataset.deplacement, "arme", "⛔ le clic gauche n'a pas armé");
 });
 
 test("🔴 deux jetons posés → deux maîtrises dans `resolved.skills` ; un troisième est REFUSÉ par le carnet", () => {
