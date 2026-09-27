@@ -4424,7 +4424,7 @@ tous ces : attunned locked equiped »*, 17/09) ; la part qui reste garde le sien
 
 ### 🪟 DOUBLE ÉCRAN — UN DÉPÔT DANS LE COLLECTEUR VOISIN OUVRE UN POPUP
 📍 `equipement-double-ecran-depot-popup` · vivante · 26/09 · construite 27/09 (lot 307) · ⏳ Tally et Group Tally : pas de receveur
-⚖️ **En double écran (ouvert sur COMMANDE, voir `equipement-double-ecran-lune`), l'étape Equipment montre DEUX pages côte à côte ; déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait. Accepter = le geste qui existe déjà ; Cancel = rien ne bouge.**
+⚖️ **En double écran (la principale a ouvert un satellite, voir `equipement-double-ecran-lune`), l'étape Equipment montre DEUX pages côte à côte ; déposer un jeton dans un collecteur de la page VOISINE ouvre un popup, dont le texte dépend de ce qu'on fait. Accepter = le geste qui existe déjà ; Cancel = rien ne bouge.**
 
 > Eric, 2026-09-26, mot pour mot : **« Si on est en double screen le drop du token dans un collecteur
 > de la page voisine. Génère un popup. Varie en fonction »**.
@@ -4453,7 +4453,7 @@ le panier).
 
 | qui | ce qu'il décide |
 |---|---|
-| `regimeDeLaVue` (`double-ecran.mjs`) | ⭐ **QUAND** — la place (la porte du lot 120, `laPlaceDuDouble` : **758 × 560**, voir `CADRES.md`) ET la COMMANDE (`vueDoubleVoulue` : la lune, ou l'interrupteur du Menu) ; ⛔ sous la place, rien ne change |
+| `regimeDeLaVue` (`double-ecran.mjs`) | ⭐ **QUAND** — la place (la porte du lot 120, `laPlaceDuDouble` : **758 × 560**, voir `CADRES.md`) ET un satellite ouvert par la lune de la principale ; ⛔ sous la place, rien ne change |
 | `pagesDuDoubleEcran` | ⭐ **OÙ** — la page choisie par la lune À GAUCHE (la flèche ← du croquis du 27/09), l'active à droite ; sans choix, la voisine est Gear (le sac quand l'active est Gear) |
 | `popupDuDepotVoisin` + `EN_DEPOT_VOISIN` (`src/labels.mjs`) | ⭐ **QUEL POPUP** — le texte, les boutons, ou `null` quand le cas est désactivé |
 | `glisser.mjs` (`estUnCreneauVoisin`) | ⛔ un créneau de l'autre moitié (`data-demi-ecran`) n'atteint **jamais** `onDepot` ; il n'est une cible que s'il se déclare receveur (`data-recoit-voisin`) et que le jeton porte `onDepotVoisin` |
@@ -4477,40 +4477,52 @@ gauche change la gauche.
 · le statut *Buying* de X5 n'a pas de texte ratifié : il prend celui de l'achat (« Buy this item for
   … GP? ») — ⏳ à confirmer par Eric.
 
-🛡️ `tests/double-ecran.test.mjs` (20 cas, 18 mutations vues rouges, source restaurée par empreinte).
+🛡️ `tests/double-ecran.test.mjs` (21 cas, mutations vues rouges, source restaurée par empreinte).
 
 ---
 
-### 🌕 LA LUNE — LA COMMANDE DU DOUBLE ÉCRAN
-📍 `equipement-double-ecran-lune` · vivante · 27/09 · lot 307 · ⏳ liste des écrans à ratifier
-⚖️ **Le double écran de l'Équipement s'ouvre sur COMMANDE : une lune de 30 de diamètre, qui déroule un menu des écrans. Choisir un écran le pose dans le panneau de GAUCHE ; « Back to one screen » referme. Sans la place du double (758 × 560), la lune n'existe pas.**
+### 🌕 LA LUNE — LA PRINCIPALE OUVRE SON SATELLITE
+📍 `equipement-double-ecran-lune` · vivante · 27/09 · lot 307 · ⏳ liste des écrans et coexistence avec le Menu à ratifier
+⚖️ **Le double écran de l'Équipement n'est pas une double navigation : la fiche PRINCIPALE (à droite, sous le belt) ouvre un SATELLITE (à gauche) par sa lune unique, qui déroule un sélecteur d'écrans. Le belt ne pilote que la principale. Sur la barre du rail : la lune du satellite, à la taille dominante, et « Back to one screen ». Sans la place (758 × 560), rien de tout cela n'existe.**
 
-> Eric, 2026-09-27, mot pour mot : **« Une commande pour ouvrir le double écran. À l'époque je voulais
-> une lune par option. Là je pense à une lune qui propose un dropdown de choix d'écrans, une lune 30
-> diam. »** — et **« Un travail partiel a déjà été fait »** (la vue double du lot 120).
-> Où : **« À gauche dans gear »** · **« En bas à gauche dans wares, il faut déplacer encumbrance sous
-> purse, et déplacer les Tally plus bas, pour faire de la place »** · **« idem dans backpack »**.
-> 🖼️ Croquis qui FAIT FOI : `fh-phb/croquis/2026-09-27-double-screen-option.jpg` (copie vault
-> `FH-WEB/FHPC/Croquis/`) — une colonne de lunes à gauche de Gear (Backpack · Cart · Forge ·
-> Equipment, chacune avec sa flèche ←), la lune « Backpack » au-dessus du panneau de gauche, un bouton
-> « BACK TO ONE SCREEN » en haut.
+> ⚖️ **Eric, 14/09** (artefact « Le belt et la double vue », figure ④) : **« Que le double écran ne
+> soit plus une double navigation, mais qu'il soit ouvert par la fiche principale »** — et **« le drag
+> and drop d'un écran à l'autre en double permet d'échanger des items aussi — c'est une
+> alternative »**. **15/09** : **« La lune du double écran sera de taille dominante »** ; la lune *Cart*
+> devient *Tally*.
+> ⚖️ **Eric, 27/09** : **« Une commande pour ouvrir le double écran. À l'époque je voulais une lune par
+> option. Là je pense à une lune qui propose un dropdown de choix d'écrans, une lune 30 diam »** ·
+> **« À gauche dans gear »** · **« En bas à gauche dans wares, il faut déplacer encumbrance sous purse,
+> et déplacer les Tally plus bas, pour faire de la place »** · **« idem dans backpack »** — puis,
+> devant les captures : **« Le concept de la lune unique qui mène sur un sélecteur on garde, le reste
+> va chercher dans les archives ! »**
+> 🖼️ Croquis qui FONT FOI : `IMG_6321` et `IMG_6324` (14/09) et `fh-phb/croquis/2026-09-27-double-screen-option.jpg`
+> — au-dessus du volet gauche le soleil puis la grande lune « Backpack », au-dessus du volet droit
+> le belt étroit, « BACK TO ONE SCREEN » sur la barre.
 
 | | |
 |---|---|
-| **l'organe** | un `<select>` natif habillé en pleine lune (`--astre-pleine-lune`) : il s'ouvre au doigt comme à la souris, iOS le rend dans son propre menu. **Dessin 30, cible 44**, la boîte vient du plan de chaque écran (`LUNE`, `grandEcran: true`) |
-| **où** | Gear : la colonne de gauche (la place de la première des quatre lunes d'avant) · Wares : en haut de la cellule gauche du pied · Backpack : en bas à gauche, dans l'espace du collecteur |
-| **ce qu'elle propose** | ⏳ Gear · Backpack · Wares · Tally (*« Cart »* = le Tally), **sauf l'écran où l'on est** et, en double, celui d'en face. ⛔ **La Forge (X5) n'est pas offerte** : elle ne s'ouvre pas sans un plan |
-| **la commande** | la MÊME préférence que l'interrupteur `Double view` du Menu (`vueDoubleVoulue`, verbe `vueBascule`) — ⛔ jamais une seconde |
-| **en double** | la lune de la page VOISINE porte le nom de ce qu'elle montre (la lune « Backpack » du croquis) et permet d'en changer ; **« Back to one screen » est le dernier choix du menu** — ⚠️ le croquis le dessine au-dessus du belt, où le belt déroulé du double ne laisse aucune place |
+| **qui ouvre** | la **lune unique** de la principale (`construireLaLune`) : un `<select>` natif habillé en pleine lune, **Ø 30, cible 44**, posé par le plan de chaque écran (`LUNE`, `grandEcran: true`) — Gear : la colonne de gauche ; Wares : en haut de la cellule gauche du pied ; Backpack : en bas à gauche. ⛔ **Le satellite n'a pas de lune** : il n'a pas de navigation |
+| **ce qu'elle propose** | ⏳ l'ordre des lunes du 14/09 — **Backpack · Tally · Wares · Gear** (*« Cart »* = Tally, *« Equipment »* = Wares), sauf la principale et le satellite déjà ouvert. ⛔ **La Forge (X5) n'y est pas** : elle ne s'ouvre pas sans un plan |
+| **où** | le satellite **à gauche** (la flèche ← des lunes), la principale **à droite** (`pagesDuDoubleEcran`) |
+| **une seule navigation** | le **belt pilote la principale** ; sa tuile centrale est la fenêtre de la principale. Avec un satellite ouvert le belt reprend son **format étroit** sur le volet droit (`:not([data-pages])` retire le belt déroulé du lot 120). Le satellite garde ses gestes internes (glisser, pages, sections, ses portes) |
+| **la barre du rail** | au-dessus du volet gauche : le soleil (Menu), la **lune du satellite, Ø 45** (`--belt-tuile-dom`, la cote de la tuile dominante) qui le **nomme** et permet d'en changer, et **« Back to one screen »** (105 × 44). 📏 Place mesurée : soleil 4 → 48 · lune 165 → 210 · bouton 262 → 367, sur 375 |
+| **le glisser** | ⭐ l'alternative au `Send to` (figure ⑤) : il aboutit au **même verbe** — `equipement-double-ecran-depot-popup` |
+| **l'interrupteur `Double view` du Menu** | ⏳ **il garde sa double vue du lot 120** (deux étapes, un panneau passif) partout, Équipement compris, **tant qu'aucun satellite n'est ouvert** ; ouvrir un satellite l'emporte sur lui. ⛔ Il n'ouvre pas de satellite. Question posée à Eric : faut-il le retirer, ou le borner hors de l'Équipement ? |
 
-⚖️ **LES PIEDS FONT LA PLACE** : Wares — l'encombrement passe SOUS la bourse (deux lignes de 14 : il
-passait sous le dropdown « Backpack », défaut relevé sur `main`), les Tally descendent sous la lune ;
-Backpack — les Tally descendent sur la rangée du dropdown, la lune prend leur place. ⭐ Le rang de la
-lune est réservé MÊME SANS ELLE : sur un téléphone il reste vide, la forme de l'écran ne dépend pas de
-ce qu'on y pose. ⚠️ Le Backpack n'a pas d'encombrement dans son pied (il vit en tête, avec les quatre
-lignes de poids) : il ne bouge pas.
+⚖️ **CE QUE LA FIGURE ④ REMPLACE DANS LA SPEC DU LOT 120** (`FHPCv2 double affichage.md`) : **E1** (le belt
+déroulé sur toute la largeur) et **E8** (un clic sur un panneau l'active) ne valent pas pour le satellite — le
+belt est étroit sur la principale, et les deux volets sont vivants sans qu'on ait à en « activer » un. **E7** (le
+belt commande le panneau actif) tient, lu à la lettre : l'actif est toujours la principale. **E2, E3, E4, E6**
+(fond commun, deux panneaux 375 × 500, gouttière 8, halos sans couleur) tiennent.
 
-🛡️ `tests/double-ecran.test.mjs` 2, 3, 3 bis, 15–18 bis · `gear-ecran.test.mjs` 5 · `sac-ecran.test.mjs` 9.
+⚖️ **LES PIEDS FONT LA PLACE** : Wares — l'encombrement passe SOUS la bourse (127,5 × 28, deux lignes, 4 de
+marge dans sa colonne : il passait sous le dropdown, puis touchait le bord droit sur l'iPhone), les Tally
+descendent sous la lune ; Backpack — les Tally descendent sur la rangée du dropdown, la lune prend leur
+place. ⭐ Le rang de la lune est réservé MÊME SANS ELLE. ⚠️ Le Backpack n'a pas d'encombrement dans son
+pied (il vit en tête) : il ne bouge pas.
+
+🛡️ `tests/double-ecran.test.mjs` 2, 3, 3 bis, 15–18 bis · `gear-ecran.test.mjs` 5 · `sac-ecran.test.mjs` 9 · `belt-deux-largeurs.test.mjs`.
 
 ---
 

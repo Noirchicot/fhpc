@@ -561,5 +561,9 @@ export const EN_LUNE = {
   "lune.sac": "Backpack",
   "lune.r": "Wares",
   "lune.b2": "Tally",
+  /* le mot d'une fiche montrée par le satellite (il se navigue lui-même) */
+  "lune.x5": "Forge",
+  "lune.x1": "Item",
+  "lune.autre": "Screen",
   "lune.un-ecran": "Back to one screen"
 };

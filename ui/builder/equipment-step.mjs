@@ -117,7 +117,7 @@ import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, curr
    qui aurait fermé le cycle. */
 import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=848";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
-import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune, UN_SEUL_ECRAN,
+import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
   pagesDuDoubleEcran } from "./double-ecran.mjs?v=848";
 import { construireX5 } from "./x5-ecran.mjs?v=848";
 import { texteDeLaNote } from "./bareme-srfh.mjs?v=848";
@@ -3081,12 +3081,16 @@ let vueEquipement = "gear";
  *  (double-ecran.mjs) déduit la page voisine et les côtés. ⛔ Une lecture, jamais une
  *  écriture : la vue ne change que par les gestes de l'étape (`montrer`). */
 export function pageActiveDeLEquipement() { return vueEquipement; }
-/** 🌕 LA PAGE VOISINE, choisie par la LUNE (lot 307, reprise du 27/09) — état d'écran, comme
- *  `vueEquipement`. `null` = aucune choisie : l'organe prend son défaut (`voisineParDefaut`).
- *  ⭐ La page voisine se NAVIGUE elle-même : un geste fait dans la moitié gauche change la
- *  moitié gauche (`montrer`, plus bas), jamais la droite. */
+/** 🌕 LE SATELLITE — la page que la fiche PRINCIPALE a ouverte par sa lune (règle ④ du 14/09 :
+ *  *« que le double écran ne soit plus une double navigation, mais qu'il soit ouvert par la fiche
+ *  principale »*). État d'écran, comme `vueEquipement`. `null` = aucun satellite ouvert.
+ *  ⭐ Le satellite garde ses gestes internes (glisser, pages, sections, ses portes) : un geste
+ *  fait dans le volet gauche change le volet gauche (`montrer`, plus bas). ⛔ Le belt, lui, ne
+ *  le pilote jamais — il pilote la principale. */
 let vueVoisine = null;
 export function pageVoisineDeLEquipement() { return vueVoisine; }
+/** La lune du RAIL (la coquille) change le satellite par ici ; « Back to one screen » le ferme. */
+export function choisirLeSatellite(page) { vueVoisine = typeof page === "string" && page ? page : null; }
 let ficheEnCours = null;
 /* ⭐ LOT 262 — LA FICHE X5 OUVERTE : le plan d'où l'on vient et l'état des choix.
    ⛔ L'écran ne garde rien, il redessine : c'est ici que vit l'état, comme pour X2.
@@ -3652,15 +3656,12 @@ export function renderEquipmentStep(ctx, onAction) {
      dans la moitié gauche et commande le double écran ; « Back to one screen » le referme —
      par le MÊME verbe que l'interrupteur du Menu (`vueBascule`), une seule préférence. */
   const luneDe = (page) => {
-    if (ctx.placeDuDouble !== true) return null;
-    const autre = demi ? (estVoisine ? vueEquipement
-      : pagesDuDoubleEcran({ active: vueEquipement, voisine: vueVoisine }).gauche) : null;
-    return construireLaLune({ page, autre, enDouble: Boolean(demi), estVoisine,
-      surChoix: (v) => {
-        if (v === UN_SEUL_ECRAN) { act({ kind: "vueBascule", value: false }); return; }
-        vueVoisine = v;
-        act({ kind: "vueBascule", value: true });
-      } });
+    /* ⛔ pas sans la place ; ⛔ pas dans le satellite — il n'a pas de navigation, seule la
+       principale ouvre (règle ④) */
+    if (ctx.placeDuDouble !== true || estVoisine) return null;
+    const satellite = demi ? pagesDuDoubleEcran({ active: vueEquipement, voisine: vueVoisine }).gauche : null;
+    return construireLaLune({ principale: page, satellite,
+      surChoix: (v) => { vueVoisine = v; act({ kind: "equipementRedessiner" }); } });
   };
   if (demi) section.dataset.demiEcran = demi.cote;
   /* le popup d'un dépôt voisin se ferme sans rien écrire (Cancel) */

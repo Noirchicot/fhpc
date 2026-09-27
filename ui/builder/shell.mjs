@@ -135,10 +135,10 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          butinDuDepart, departRepondu, cheminDuDepart,
          lignesDeSection, premierePlaceLibre, lieuDeLaBoite, seRange, placeNeuveDans, cheminDuRang,
          boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
-         pageActiveDeLEquipement, pageVoisineDeLEquipement } from "./equipment-step.mjs?v=848";
+         pageActiveDeLEquipement, pageVoisineDeLEquipement, choisirLeSatellite } from "./equipment-step.mjs?v=848";
 /* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
    pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
-import { regimeDeLaVue, pagesDuDoubleEcran } from "./double-ecran.mjs?v=848";
+import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=848";
 /* ⭐ LA TAILLE D'UNE PAGE VIENT DU PLAN, PAS D'ICI : c'est la grille du sac
    (`RANGS_GRILLE × COLS_GRILLE`, comptée dans la table générée). Un 12 écrit là
    serait faux le jour où le plan rend sa cinquième rangée. */
@@ -3704,8 +3704,14 @@ function monterBelt() {
      écrit un attribut et s'arrête là. C'est le même contrat que le spy. */
   track.addEventListener("scroll", () => peindreLesChevrons(), { passive: true });
 
+  /* 🌕 LOT 307 — LA BARRE DU RAIL PORTE LE SATELLITE, figure ④ du 14/09 (artefact « Le belt et
+     la double vue ») et croquis du 27/09 : au-dessus du volet gauche, la lune qui NOMME le satellite
+     ouvert (*« La lune du double écran sera de taille dominante »*, 15/09), et
+     « Back to one screen ». ⭐ Deux nœuds posés UNE fois — au PREMIER satellite, pas au montage :
+     un téléphone ne les verra jamais, et sa page reste celle d'avant, octet pour octet — puis
+     cachés hors du double (SOCLE : des attributs sur des nœuds qui ne meurent pas). */
   app.append(belt);
-  return { racine: belt, track, items, avant: chevrons[0], apres: chevrons[1] };
+  return { racine: belt, track, items, avant: chevrons[0], apres: chevrons[1], satellite: null, unEcran: null };
 }
 
 /** Avancer la piste d'UNE tuile — le geste du croquis : la rangée passe de
@@ -6134,6 +6140,7 @@ function laPlaceExiste() {
 function regimeCourant() {
   const cran = STEPS[state.step];
   return regimeDeLaVue({ place: laPlaceExiste(), voulue: vueDoubleVoulue(),
+    satellite: pageVoisineDeLEquipement() !== null,
     etape: state.engine && cran ? cran.id : null });
 }
 function vueDoubleRendue() { return regimeCourant().double; }
@@ -6187,6 +6194,18 @@ function peindreLaVue() {
      ou en double d'étapes, rien. */
   const cotes = pages ? pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() }) : null;
   demiEcranEnCours = cotes ? { cote: cotes.active, page: null } : null;
+  /* 🌕 LE RAIL SEUL, AU-DESSUS DE LA PRINCIPALE (figure ④) : l'attribut dit à la feuille que le belt
+     reprend son format étroit sur le volet droit, et que la barre du volet gauche porte la lune du
+     satellite et « Back to one screen ». ⛔ Hors satellite, il n'existe pas. */
+  if (cotes) document.documentElement.dataset.pages = "satellite";
+  else delete document.documentElement.dataset.pages;
+  if (cotes && !belt.satellite) monterLaBarreDuSatellite();
+  if (belt.satellite) {
+    belt.satellite.hidden = !cotes;
+    belt.unEcran.hidden = !cotes;
+    swapContent(belt.satellite, cotes ? [construireLaLune({ principale: cotes.droite, satellite: cotes.gauche, rail: true,
+      surChoix: (v) => { choisirLeSatellite(v); refresh(); } })] : []);
+  }
   if (!double) {
     /* ⭐ EN VUE SIMPLE, L'ACTIF REDEVIENT LE PANNEAU 0 — sinon un joueur qui
        rétrécit sa fenêtre pendant qu'il travaille dans le panneau de droite
@@ -6274,6 +6293,17 @@ function rendreLEcranDe(index) {
   } finally {
     Object.assign(state, avant);
   }
+}
+
+/** 🌕 LOT 307 — la lune du satellite et « Back to one screen », sur la barre du rail : montés UNE
+ *  fois, au premier satellite (voir `monterBelt`). */
+function monterLaBarreDuSatellite() {
+  const satellite = el("span", "belt-satellite");
+  const unEcran = button(MOT_UN_SEUL_ECRAN, () => { choisirLeSatellite(null); refresh(); });
+  unEcran.className = "belt-un-ecran";
+  belt.racine.append(satellite, unEcran);
+  belt.satellite = satellite;
+  belt.unEcran = unEcran;
 }
 
 /** 🪟 LOT 307 — RENDRE LA PAGE VOISINE DE L'ÉQUIPEMENT. ⭐ Même prêt que `rendreLEcranDe` :

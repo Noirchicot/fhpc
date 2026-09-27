@@ -463,8 +463,8 @@ body {
    ⭐ `content: none` plutôt qu'un `display: none` (garde 4) : on ne masque pas
    un organe, on ne le fabrique pas. Le belt déroulé n'a aucune course, donc
    aucun centre à atteindre, donc rien à réserver. */
-:root[data-vue="double"] .belt-track::before,
-:root[data-vue="double"] .belt-track::after { content: none; }
+:root[data-vue="double"]:not([data-pages]) .belt-track::before,
+:root[data-vue="double"]:not([data-pages]) .belt-track::after { content: none; }
 /* LOT 69 — LA BARRE DE DÉFILEMENT NATIVE DES MOLETTES S'EFFACE. Les trois
    rangées-molettes (étapes, catégories de Compétences, catégories
    d'Equipment) ont DÉJÀ leurs affordances ratifiées : chevrons ‹ › (B0.2)
@@ -764,7 +764,7 @@ body {
    qui est monté (les tuiles grandissent en pile courte) ou centrer la piste
    (elles gardent leur cote et la ceinture se resserre). La question est posée
    dans `ui/builder/A-TRANCHER.md`. */
-:root[data-vue="double"] .belt-item {
+:root[data-vue="double"]:not([data-pages]) .belt-item {
   flex: 0 0 calc((100% - 7 * var(--sp-8)) / 8);
 }
 
@@ -795,7 +795,7 @@ body {
    ⭐ NORMES §1 quater nommait déjà *« la ceinture réduite aux numéros »* parmi
    les trois économies possibles ; ici elle rend 311 blg de largeur, ce qui la
    rend nécessaire plutôt que souhaitable. */
-:root[data-vue="double"] .belt-track { overflow-x: hidden; }
+:root[data-vue="double"]:not([data-pages]) .belt-track { overflow-x: hidden; }
 /* ⚖️ RENVERSÉ AU LOT 122, ET LE LOT 120 AVAIT RAISON D'ÊTRE PROVISOIRE ICI :
    il rendait le cran en NUMÉRO SEUL parce que les libellés côte à côte
    demandaient 995 blg pour 684. La tuile à deux rangs supprime la cause — à
@@ -13593,3 +13593,40 @@ select.x5-drop {
 .lune-ecrans:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
 /* la liste que le navigateur déroule : l'encre du système, lisible dans les deux thèmes */
 .lune-ecrans option { color: CanvasText; background: Canvas; font-size: var(--t1); }
+
+/* ══ 🌕 LE RAIL SEUL, ET LE SATELLITE SUR SA BARRE — lot 307, 2026-09-27 ════════════════
+   ⚖️ Figure ④ de l'artefact « Le belt et la double vue » (14/09) : *« que le double écran ne soit
+   plus une double navigation, mais qu'il soit ouvert par la fiche principale »* — LE RAIL SEUL
+   pilote la principale (à droite), une seule fenêtre en cours, donc une seule tuile centrale ;
+   « Back to one screen » est sur la barre du rail. Croquis du 27/09 : au-dessus du volet gauche,
+   le soleil, puis la grande lune « Backpack » ; au-dessus du volet droit, le belt ÉTROIT.
+   ⭐ LE BELT REPREND DONC SON FORMAT ÉTROIT (trois crans, deux chevrons) SUR LA MOITIÉ DROITE :
+   les règles du belt déroulé (lot 120) ne valent plus quand un satellite est ouvert
+   (`:not([data-pages])` plus haut), et la piste commence là où commence la principale.
+   📏 LA PLACE, EN BLG, sur la moitié gauche de la barre (375 × 60) : soleil 4 → 48 · lune du
+   satellite Ø 45 centrée, 165 → 210 · « Back to one screen » 105 × 44, 262 → 367. */
+:root[data-pages="satellite"] .belt-track {
+  margin-left: calc(var(--panneau-l) * 1px + var(--sp-8) + var(--sp-8) + var(--belt-chevron-zone));
+}
+:root[data-pages="satellite"] .belt-chevron[data-sens="avant"] {
+  left: calc(var(--panneau-l) * 1px + var(--sp-8));
+}
+/* ⚖️ *« La lune du double écran sera de taille dominante »* (15/09) : la cote de la tuile
+   dominante, `--belt-tuile-dom` (45) — le jeton que tokens.css dit être aussi « la pleine lune ». */
+.belt-satellite:not([hidden]) {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  left: calc((var(--panneau-l) * 1px - var(--belt-tuile-dom)) / 2);
+  width: var(--belt-tuile-dom); height: var(--belt-tuile-dom);
+  display: grid;
+}
+.belt-satellite > .lune-ecrans { width: 100%; height: 100%; font-size: var(--t0); }
+.belt-un-ecran:not([hidden]) {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  right: calc(var(--panneau-l) * 1px + var(--sp-8) + var(--sp-8));
+  width: var(--bouton-moyen); height: var(--touch);
+  padding: 0; margin: 0;
+  border: 1px solid var(--text-soft); border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text); font: inherit; font-size: var(--t1); font-weight: 600; line-height: 1.2;
+  cursor: pointer;
+}

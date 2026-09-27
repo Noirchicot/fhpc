@@ -231,8 +231,11 @@ export const ORGANES = [
      l'encombrement, 8 plus bas. ⭐ DEUX LIGNES DE 14, et c'est le défaut qu'Eric a vu qui le
      demande : « Encumbrance : 63.2 lb · 1 without weight » ne tient pas sur 135,5 en une ligne —
      il passait sous le dropdown « Backpack » (relevé sur `main`, 375 × 812, le 27/09).
-     📏 Constats : 50 + 8 + 28 = 86, centré dans 100 → bourse 347 → 397, encombrement 405 → 433. */
-  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 235.5,  y: 405, l: 135.5, h: 28, mot: "Encumbrance : 0 lb", cran: "T1/600" },
+     📏 Constats : 50 + 8 + 28 = 86, centré dans 100 → bourse 347 → 397, encombrement 405 → 433.
+     🔄 LOT 307, 27/09 au soir — ET IL SE RETIRE DE 4 DE CHAQUE CÔTÉ (127,5 au lieu de 135,5) :
+     sur l'iPhone, « Encumbrance : 63.2 lb · 1 » touchait le bord droit du pied (capture du lot).
+     ⭐ Réglé par la COTE, ⛔ pas par un défilement : 4 de marge dans sa colonne, 8 du bord. */
+  { nom: "ENCOMBREMENT",        sorte: "voyant",     dalle: "PIED",    x: 239.5,  y: 405, l: 127.5, h: 28, mot: "Encumbrance : 0 lb", cran: "T1/600" },
   { nom: "COLLECTEUR",          sorte: "collecteur", dalle: "PIED",    x: 144,    y: 340, l: 87,  h: 48, cible: { x: 144, y: 340, l: 87, h: 48 }, mot: "SEND COLLECTOR", cran: "T1/600" },
   { nom: "PURSE",               sorte: "bouton",     dalle: "PIED",    x: 278.25, y: 347, l: 50,  h: 50, cible: { x: 278.25, y: 347, l: 50, h: 50 }, mot: "Purse", cran: "T1/600" },
   /* ⚖️ LE MONTANT EST UN VOYANT POSÉ **SUR** LA BOURSE — Eric, 2026-09-21 : *« la bourse

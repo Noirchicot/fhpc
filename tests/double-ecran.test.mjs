@@ -36,11 +36,11 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (p) => stripComments(fs.readFileSync(path.join(ROOT, p), "utf8"));
 
 const {
-  regimeDeLaVue, pagesDuDoubleEcran, choixDeLaLune, popupDuDepotVoisin, genreDeLaCible, motDuMontant,
-  LE_TALLY_PORTE_UN_OBJET_CRAFTE, VUES_TALLY, UN_SEUL_ECRAN
+  regimeDeLaVue, pagesDuDoubleEcran, choixDeLaLune, construireLaLune, popupDuDepotVoisin, genreDeLaCible, motDuMontant,
+  LE_TALLY_PORTE_UN_OBJET_CRAFTE, VUES_TALLY
 } = await import("../ui/builder/double-ecran.mjs");
 const { renderEquipmentStep, butinDuDepart, appliquerLeButin, departRepondu, pageVoisineDeLEquipement,
-  pageActiveDeLEquipement } = await import("../ui/builder/equipment-step.mjs");
+  pageActiveDeLEquipement, choisirLeSatellite } = await import("../ui/builder/equipment-step.mjs");
 const W = await import("../ui/builder/wares-disposition.mjs");
 const SAC = await import("../ui/builder/sac-disposition.mjs");
 const { currentCartLines } = await import("../ui/builder/equipement-pipeline.mjs");
@@ -94,16 +94,18 @@ test("1 — 🔴 SOUS LA PLACE, UNE SEULE PAGE — ni la commande ni l'étape ne
   }
 });
 
-test("2 — ⛔ PAS DE DOUBLE ÉCRAN SANS COMMANDE — Eric, 27/09 : « Une commande pour ouvrir le double écran »", () => {
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment" }), { double: false, pages: false },
-    "⛔ la place seule n'ouvre plus rien");
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "equipment" }), { double: true, pages: true },
-    "commandé (la lune, ou l'interrupteur du Menu) : deux pages");
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "class" }), { double: true, pages: false },
-    "le double d'étapes du lot 120 est intact");
+test("2 — ⛔ PAS DE SATELLITE SANS LA LUNE — la règle ④ du 14/09 : le double est ouvert par la fiche principale", () => {
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment", satellite: false }), { double: false, pages: false },
+    "⛔ la place seule n'ouvre rien (Eric, 27/09 : « Une commande pour ouvrir le double écran »)");
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment", satellite: true }), { double: true, pages: true },
+    "la lune de la principale a ouvert un satellite");
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "equipment", satellite: false }), { double: true, pages: false },
+    "⭐ l'interrupteur du Menu garde SA double vue (lot 120) — il n'ouvre pas de satellite");
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: true, etape: "class", satellite: true }), { double: true, pages: false },
+    "hors de l'Équipement, un satellite n'existe pas");
+  assert.deepEqual(regimeDeLaVue({ place: false, voulue: true, etape: "equipment", satellite: true }), { double: false, pages: false });
   const shell = lire("ui/builder/shell.mjs");
-  assert.match(shell, /regimeDeLaVue\(\{ place: laPlaceExiste\(\), voulue: vueDoubleVoulue\(\),/,
-    "la commande est la préférence unique du lot 120 — la lune et le Menu écrivent la même");
+  assert.match(shell, /satellite: pageVoisineDeLEquipement\(\) !== null,/, "la coquille demande le satellite à l'étape");
 });
 
 test("3 — 🪟 LA PAGE CHOISIE À GAUCHE (la flèche ← du croquis), l'active à droite ; jamais deux fois la même", () => {
@@ -116,16 +118,15 @@ test("3 — 🪟 LA PAGE CHOISIE À GAUCHE (la flèche ← du croquis), l'active
   assert.deepEqual(pagesDuDoubleEcran({ active: "x5", voisine: null }).gauche, "gear");
 });
 
-test("3 bis — 🌕 CE QUE LA LUNE PROPOSE : Gear · Backpack · Wares · Tally, sauf l'écran où l'on est — et « Back to one screen » en double", () => {
+test("3 bis — 🌕 CE QUE LA LUNE PROPOSE : les écrans des archives — Backpack · Tally · Wares · Gear — sauf la principale et le satellite", () => {
   const v = (o) => choixDeLaLune(o).map((c) => c.valeur);
-  assert.deepEqual(v({ page: "gear" }), ["sac", "r", "b2"]);
-  assert.deepEqual(v({ page: "r" }), ["gear", "sac", "b2"]);
-  assert.deepEqual(v({ page: "sac" }), ["gear", "r", "b2"]);
-  assert.deepEqual(v({ page: "sac", autre: "gear", enDouble: true }), ["r", "b2", UN_SEUL_ECRAN],
-    "en double : ni soi ni l'écran d'en face, et le retour à un écran en dernier");
-  assert.deepEqual(choixDeLaLune({ page: "gear" }).map((c) => c.mot), ["Backpack", "Wares", "Tally"]);
-  assert.equal(choixDeLaLune({ page: "gear", enDouble: true }).at(-1).mot, "Back to one screen");
-  assert.ok(!v({ page: "gear" }).includes("x5"), "⛔ la Forge ne s'ouvre pas seule : il lui faut un plan");
+  assert.deepEqual(v({ principale: "gear" }), ["sac", "b2", "r"], "l'ordre des lunes du croquis du 14/09");
+  assert.deepEqual(v({ principale: "r" }), ["sac", "b2", "gear"]);
+  assert.deepEqual(v({ principale: "gear", satellite: "sac" }), ["b2", "r"], "⛔ pas le satellite déjà ouvert");
+  assert.deepEqual(choixDeLaLune({ principale: "gear" }).map((c) => c.mot), ["Backpack", "Tally", "Wares"]);
+  assert.ok(!v({ principale: "gear" }).includes("x5"), "⛔ la Forge ne s'ouvre pas seule : il lui faut un plan");
+  assert.ok(!choixDeLaLune({ principale: "gear", satellite: "sac" }).some((c) => /one screen/i.test(c.mot)),
+    "⛔ « Back to one screen » n'est plus dans le menu : il est sur la barre du rail");
 });
 
 test("4 — ⚖️ LA COQUILLE DEMANDE À L'ORGANE UNIQUE — la place reste `laPlaceDuDouble`, jamais une seconde porte", () => {
@@ -402,37 +403,66 @@ test("15 — 🌕 LA LUNE ABSENTE SANS LA PLACE, présente avec — dans Gear, W
   }
 });
 
-test("16 — 🌕 CHOISIR « Backpack » DANS LA LUNE DE GEAR ouvre Backpack | Gear, par la commande du Menu", () => {
+test("16 — 🌕 CHOISIR « Backpack » DANS LA LUNE DE GEAR ouvre le satellite Backpack | Gear", () => {
   const doc = personnage();
   const acts = [];
   const { n } = seule(doc, acts, true);
   const lune = n.querySelector('[data-organe="lune"]');
   assert.equal(lune.tagName, "SELECT", "un menu déroulant natif — le doigt comme la souris");
   const valeurs = lune.querySelectorAll("option").map((o) => o.value).filter(Boolean);
-  assert.deepEqual(valeurs, ["sac", "r", "b2"], "Gear n'est pas proposé depuis Gear");
+  assert.deepEqual(valeurs, ["sac", "b2", "r"], "Gear n'est pas proposé depuis Gear");
   choisir(lune, "sac");
-  assert.deepEqual(acts.at(-1), { kind: "vueBascule", value: true }, "le MÊME verbe que l'interrupteur du Menu");
-  assert.equal(pageVoisineDeLEquipement(), "sac");
+  assert.equal(pageVoisineDeLEquipement(), "sac", "la principale a ouvert son satellite");
+  assert.deepEqual(acts.at(-1), { kind: "equipementRedessiner" }, "⛔ pas `vueBascule` : l'interrupteur du Menu n'est pas touché");
   assert.deepEqual(pagesDuDoubleEcran({ active: pageActiveDeLEquipement(), voisine: pageVoisineDeLEquipement() }),
     { gauche: "sac", droite: "gear", active: "droite" }, "Backpack | Gear");
+  /* ⛔ le satellite n'a pas de lune : il n'a pas de navigation, seule la principale ouvre */
+  const sat = renderEquipmentStep({ document: doc, resolved: null, query, search: true, placeDuDouble: true,
+    demiEcran: { cote: "gauche", page: "sac" } }, () => {});
+  assert.equal(sat.querySelector('[data-organe="lune"]'), null);
 });
 
-test("17 — 🌕 « BACK TO ONE SCREEN » revient à un seul écran — et la lune voisine porte le nom de sa page", () => {
-  const doc = personnage();
-  const acts = [];
-  const voisine = renderEquipmentStep({ document: doc, resolved: null, query, search: true, placeDuDouble: true,
-    demiEcran: { cote: "gauche", page: "sac" } }, (a) => acts.push(a));
-  const lune = voisine.querySelector('[data-organe="lune"]');
-  const choisie = lune.querySelectorAll("option").find((o) => o.selected);
-  assert.equal(choisie && choisie.value, "sac", "la lune voisine montre « Backpack » — la lune du croquis");
-  assert.equal(choisie.textContent, "Backpack");
-  assert.match(lune.getAttribute("aria-label"), /Backpack$/);
-  const options = lune.querySelectorAll("option");
-  assert.equal(options.at(-1).textContent, "Back to one screen", "le dernier choix du menu");
-  choisir(lune, UN_SEUL_ECRAN);
-  assert.deepEqual(acts.at(-1), { kind: "vueBascule", value: false });
-  /* et la coquille, qui l'exécute, repasse à UN panneau : la commande éteinte, plus de double */
-  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment" }), { double: false, pages: false });
+test("17 — 🌕 « BACK TO ONE SCREEN » EST SUR LA BARRE DU RAIL et revient à un écran ; la lune du rail NOMME le satellite", () => {
+  choisirLeSatellite("sac");
+  assert.equal(pageVoisineDeLEquipement(), "sac");
+  choisirLeSatellite(null);
+  assert.equal(pageVoisineDeLEquipement(), null, "« Back to one screen » ferme le satellite");
+  assert.deepEqual(regimeDeLaVue({ place: true, voulue: false, etape: "equipment", satellite: pageVoisineDeLEquipement() !== null }),
+    { double: false, pages: false }, "un seul écran");
+  const shell = lire("ui/builder/shell.mjs");
+  assert.match(shell, /const unEcran = button\(MOT_UN_SEUL_ECRAN, \(\) => \{ choisirLeSatellite\(null\); refresh\(\); \}\);\s*unEcran\.className = "belt-un-ecran";\s*belt\.racine\.append\(satellite, unEcran\);/,
+    "le bouton vit dans le BELT (la barre du rail), posé une fois");
+  assert.match(shell, /apres: chevrons\[1\], satellite: null, unEcran: null \}/,
+    "⛔ et pas au montage : un téléphone ne l'a jamais dans sa page (iPhone inchangé, octet pour octet)");
+  assert.match(shell, /construireLaLune\(\{ principale: cotes\.droite, satellite: cotes\.gauche, rail: true,/,
+    "la lune du rail nomme le satellite, la principale à droite");
+  const rail = construireLaLune({ principale: "gear", satellite: "sac", rail: true });
+  const choisie = rail.querySelectorAll("option").find((o) => o.selected);
+  assert.equal(choisie.textContent, "Backpack", "la lune « Backpack » du croquis");
+  assert.equal(rail.dataset.taille, "dominante", "« La lune du double écran sera de taille dominante » (15/09)");
+  /* le satellite se navigue lui-même : une fiche X s'y nomme par sa famille, jamais par un id */
+  for (const [page, mot] of [["x5", "Forge"], ["x1", "Item"], ["recherche", "Wares"], ["sb32", "Tally"], ["???", "Screen"]]) {
+    const l = construireLaLune({ principale: "gear", satellite: page, rail: true });
+    assert.equal(l.querySelectorAll("option").find((o) => o.selected).textContent, mot, page);
+  }
+  const css = lire("ui/builder/shell.css");
+  assert.match(css, /\.belt-satellite:not\(\[hidden\]\) \{[^}]*width: var\(--belt-tuile-dom\); height: var\(--belt-tuile-dom\);/,
+    "sa cote est celle de la tuile dominante");
+});
+
+test("17 bis — 🎚️ LE RAIL SEUL : avec un satellite, le belt reprend son format ÉTROIT sur la principale (ses jetons = ceux de la vue simple)", () => {
+  const tokens = lire("ui/builder/tokens.css");
+  const decl = (bloc, nom) => (bloc.match(new RegExp(`${nom}:\\s*([^;]+);`)) || [])[1];
+  const racine = tokens.slice(tokens.indexOf(":root {"));
+  const sat = tokens.slice(tokens.indexOf(':root[data-vue="double"][data-pages="satellite"]'));
+  for (const nom of ["--belt-chevron-zone", "--belt-espaceur"]) {
+    assert.ok(decl(sat, nom), `${nom} redéclaré avec un satellite`);
+    assert.equal(decl(sat, nom), decl(racine, nom), `${nom} : la valeur de la vue simple, recopiée à l'identique`);
+  }
+  const css = lire("ui/builder/shell.css");
+  for (const r of [/:root\[data-vue="double"\]:not\(\[data-pages\]\) \.belt-item/, /:root\[data-vue="double"\]:not\(\[data-pages\]\) \.belt-track \{ overflow-x: hidden; \}/]) {
+    assert.match(css, r, "le belt déroulé du lot 120 ne vaut plus quand un satellite est ouvert");
+  }
 });
 
 /* ══ 18 — LES PIEDS DE WARES ET DU SAC FONT LA PLACE À LA LUNE ═══════════════════════ */

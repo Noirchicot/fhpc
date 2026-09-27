@@ -1821,3 +1821,12 @@
    l'échelle. ⛔ Ni `[data-grandeur]` ni `@media` : c'est le MOTEUR, mesuré,
    pas la place. Sans attribut (iPad, ou sauf-conduit baissé) : rien. */
 html[data-texte-suit-zoom="oui"] { --compense-texte: var(--echelle); }
+
+/* 🌕 LOT 307 — AVEC UN SATELLITE OUVERT, LE BELT REPREND SON FORMAT ÉTROIT sur la moitié droite
+   (figure ④ du 14/09 : le rail seul pilote la principale). Ses deux jetons reviennent à leur valeur
+   de la vue simple — ⛔ recopiés de leur déclaration, pas réinventés ; placé APRÈS la vue double,
+   à spécificité plus haute, il la bat sans ordre fragile. */
+:root[data-vue="double"][data-pages="satellite"] {
+  --belt-chevron-zone: calc(var(--belt-chevron) + var(--sp-4));
+  --belt-espaceur: calc((100% - (100% - 2 * var(--sp-8)) / 3 * var(--belt-part-dom)) / 2);
+}

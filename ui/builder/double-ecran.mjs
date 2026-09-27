@@ -38,95 +38,108 @@ export const PAGE_DU_CORPS = "gear";
 export const VOISINE_DU_CORPS = "sac";
 
 /** 🔴 QUAND — la seule réponse de la maison.
- *  @param {{ place: boolean, voulue: boolean, etape: string }} o
- *    · `place`  — la fenêtre porte deux colonnes (`laPlaceDuDouble`) ;
- *    · `voulue` — le joueur l'a COMMANDÉ : la lune, ou l'interrupteur `Double view` du Menu
- *      (une seule préférence, `vueDoubleVoulue`, lot 120) ;
- *    · `etape`  — l'id du cran actif.
+ *  @param {{ place: boolean, voulue: boolean, etape: string, satellite: boolean }} o
+ *    · `place`     — la fenêtre porte deux colonnes (`laPlaceDuDouble`) ;
+ *    · `voulue`    — l'interrupteur `Double view` du Menu (la double vue du lot 120) ;
+ *    · `etape`     — l'id du cran actif ;
+ *    · `satellite` — la fiche principale de l'Équipement a OUVERT un satellite (sa lune).
  *  @returns {{ double: boolean, pages: boolean }}
  *    · `double` — l'app pose deux panneaux ;
- *    · `pages`  — ces deux panneaux sont deux PAGES de l'étape, pas deux étapes.
- *  ⛔ PLUS D'OUVERTURE D'OFFICE — Eric, 27/09, devant les captures : *« Une commande pour ouvrir
- *  le double écran »*. Le lot 307 l'ouvrait dès que la place existait ; c'est retiré. Sans
- *  commande, un écran ; sans la place, un écran quoi qu'on ait commandé. */
-export function regimeDeLaVue({ place, voulue, etape } = {}) {
-  const double = place === true && voulue === true;
-  return { double, pages: double && etape === ETAPE_EN_DEUX_PAGES };
+ *    · `pages`  — le second est le SATELLITE de la fiche principale, pas une seconde étape.
+ *  ⚖️ LA RÈGLE ④ DU 14/09 (artefact « Le belt et la double vue ») : *« Que le double écran ne
+ *  soit plus une double navigation, mais qu'il soit ouvert par la fiche principale »*. Dans
+ *  l'Équipement, c'est donc la LUNE de la principale qui ouvre — ⛔ plus d'ouverture d'office
+ *  (Eric, 27/09 : *« Une commande pour ouvrir le double écran »*), et l'interrupteur du Menu
+ *  n'y ouvre pas de satellite : il garde, partout, sa double vue du lot 120.
+ *  ⛔ Sans la place, rien — ni satellite ni double vue. */
+export function regimeDeLaVue({ place, voulue, etape, satellite } = {}) {
+  if (place !== true) return { double: false, pages: false };
+  const pages = etape === ETAPE_EN_DEUX_PAGES && satellite === true;
+  return { double: pages || voulue === true, pages };
 }
 
-/** Les écrans qu'une lune propose, dans l'ordre du croquis — ⏳ à ratifier par Eric.
- *  ⚖️ *« Cart »* = le Tally (`b2`). ⛔ La Forge (X5) n'y est pas : elle ne s'ouvre pas seule,
- *  il lui faut un plan. */
-export const ECRANS_DE_LA_LUNE = Object.freeze(["gear", "sac", "r", "b2"]);
-/** Le choix qui referme le double écran — ⚖️ le « BACK TO ONE SCREEN » du croquis. */
-export const UN_SEUL_ECRAN = "un-ecran";
+/** Les écrans qu'une lune propose — ⚖️ l'ordre des lunes des archives (croquis du 14/09,
+ *  `IMG_6321`) : Backpack · Cart · Forge · Equipment, *« Cart »* devenu Tally le 15/09,
+ *  *« Equipment »* étant Wares ; plus Gear, que le croquis ne dessine pas parce qu'il était la
+ *  principale — ici toute page de l'étape peut l'être. ⛔ La Forge (X5) n'y est pas : elle ne
+ *  s'ouvre pas sans un plan. ⏳ À ratifier par Eric. */
+export const ECRANS_DE_LA_LUNE = Object.freeze(["sac", "b2", "r", "gear"]);
 
-/** La voisine par défaut, quand la commande n'en a pas choisi (l'interrupteur du Menu) :
- *  Gear, ou le sac quand l'active EST Gear. */
+/** 🔴 OÙ — la principale et son satellite.
+ *  @param {{ active: string, voisine: string|null }} o  `active` : la principale ;
+ *    `voisine` : le satellite qu'elle a ouvert.
+ *  @returns {{ gauche: string, droite: string, active: "droite" }}
+ *  ⚖️ La figure ④ du 14/09 et le croquis du 27/09 : la principale À DROITE, sous le belt ; le
+ *  satellite À GAUCHE (la flèche ← de la lune). ⛔ Un satellite égal à la principale ne peut
+ *  pas être : il cède au défaut (Gear, ou le sac quand la principale EST Gear). */
 export function voisineParDefaut(active) {
   return active === PAGE_DU_CORPS ? VOISINE_DU_CORPS : PAGE_DU_CORPS;
 }
-
-/** 🔴 OÙ — la page active et sa voisine.
- *  @param {{ active: string, voisine: string|null }} o
- *  @returns {{ gauche: string, droite: string, active: "droite" }}
- *  ⚖️ LE CROQUIS DU 27/09 FAIT FOI (`2026-09-27-double-screen-option.jpg`) : la lune porte une
- *  flèche ←, l'écran choisi se pose À GAUCHE ; l'écran d'où l'on a commandé reste à droite.
- *  ⛔ Une voisine égale à l'active ne peut pas être : elle cède au défaut. */
 export function pagesDuDoubleEcran({ active, voisine } = {}) {
   const a = active || PAGE_DU_CORPS;
   const v = voisine && voisine !== a ? voisine : voisineParDefaut(a);
   return { gauche: v, droite: a, active: "droite" };
 }
 
-/** Ce que la lune d'une page propose.
- *  @param {{ page: string, autre: string|null, enDouble: boolean }} o
- *    `page` : l'écran qui porte la lune ; `autre` : l'écran de l'autre moitié, en double.
- *  ⭐ Jamais l'écran où l'on est, jamais celui d'en face ; en double, « Back to one screen »
- *  en DERNIER — le croquis le dessine au-dessus du belt, où le belt déroulé ne laisse rien. */
-export function choixDeLaLune({ page, autre = null, enDouble = false } = {}) {
-  const ecrans = ECRANS_DE_LA_LUNE.filter((e) => e !== page && e !== autre)
-    .map((valeur) => ({ valeur, mot: t(`lune.${valeur}`) }));
-  return enDouble ? [...ecrans, { valeur: UN_SEUL_ECRAN, mot: t("lune.un-ecran") }] : ecrans;
+/** Le mot d'une page sur la lune du rail. ⭐ Le satellite se navigue lui-même : il peut montrer
+ *  une fiche X ou une branche — elle se nomme par la famille d'où elle vient (X5 = la Forge des
+ *  lunes du 14/09 ; X1/X2 = un objet). ⛔ Jamais un id nu : une page inconnue dit « Screen ». */
+const FAMILLE_DE_PAGE = Object.freeze({ gear: "gear", x0: "gear", sac: "sac", sb31: "sac", sb33: "sac",
+  r: "r", recherche: "r", b2: "b2", sb32: "b2", x5: "x5", "x1-apercu": "x5", x1: "x1", x2: "x1" });
+export function motDeLaPage(page) {
+  return t(`lune.${FAMILLE_DE_PAGE[page] || "autre"}`);
 }
 
-/** 🌕 LA LUNE — Eric, 27/09 : *« une lune qui propose un dropdown de choix d'écrans, une lune
- *  30 diam »*. ⭐ C'EST UN `<select>` NATIF habillé en lune : il s'ouvre au doigt comme à la
- *  souris, et iOS le rend dans son propre menu (la même raison que le `SEND TO` de X5).
- *  ⭐ Sa boîte est la CIBLE (44), le dessin (30) se creuse par les bords transparents que la
- *  feuille de chaque écran pose depuis son plan — ⛔ aucune cote ici.
- *  ⭐ En double écran, la lune de la page VOISINE porte le nom de ce qu'elle montre (la lune
- *  « Backpack » du croquis) : c'est l'option choisie, écrite sur l'astre.
- *  @param {{ page, autre, enDouble, estVoisine, surChoix }} o */
-export function construireLaLune({ page, autre = null, enDouble = false, estVoisine = false, surChoix = null } = {}) {
+/** Ce que la lune propose : les écrans des archives, sauf la principale et le satellite déjà
+ *  ouvert. ⛔ « Back to one screen » n'y est PAS : il vit sur la barre du rail (figure ④). */
+export function choixDeLaLune({ principale, satellite = null } = {}) {
+  return ECRANS_DE_LA_LUNE.filter((e) => e !== principale && e !== satellite)
+    .map((valeur) => ({ valeur, mot: t(`lune.${valeur}`) }));
+}
+
+/** 🌕 LA LUNE UNIQUE → LE SÉLECTEUR — Eric, 27/09 : *« une lune qui propose un dropdown de choix
+ *  d'écrans, une lune 30 diam »*, gardée le 27/09 au soir (*« Le concept de la lune unique qui
+ *  mène sur un sélecteur on garde »*). ⭐ Un `<select>` NATIF habillé en lune : il s'ouvre au
+ *  doigt comme à la souris, iOS le rend dans son propre menu.
+ *  · dans la PRINCIPALE (`rail: false`) : Ø 30 dans une cible de 44, posée par le plan de chaque
+ *    écran — elle OUVRE ou change le satellite ;
+ *  · sur la BARRE DU RAIL (`rail: true`), en double seulement : ⚖️ *« La lune du double écran sera
+ *    de taille dominante »* (15/09) — elle NOMME le satellite ouvert (la lune « Backpack » du
+ *    croquis, au-dessus du volet gauche), à la cote de la tuile dominante, et permet d'en changer.
+ *  @param {{ principale: string, satellite: string|null, rail?: boolean, surChoix }} o */
+export function construireLaLune({ principale, satellite = null, rail = false, surChoix = null } = {}) {
   const s = document.createElement("select");
   s.className = "lune-ecrans";
-  s.dataset.organe = "lune";
+  s.dataset.organe = rail ? "lune-rail" : "lune";
   const vide = document.createElement("option");
   vide.value = "";
   vide.textContent = "";
   vide.disabled = true;
   vide.hidden = true;
   const options = [vide];
-  if (estVoisine) {
+  const nomme = rail && satellite;
+  if (nomme) {
     const ici = document.createElement("option");
-    ici.value = page;
-    ici.textContent = t(`lune.${page}`);
+    ici.value = satellite;
+    ici.textContent = motDeLaPage(satellite);
     ici.selected = true;
     options.push(ici);
   } else vide.selected = true;
-  for (const c of choixDeLaLune({ page, autre, enDouble })) {
+  for (const c of choixDeLaLune({ principale, satellite })) {
     const o = document.createElement("option");
     o.value = c.valeur;
     o.textContent = c.mot;
     options.push(o);
   }
   s.append(...options);
-  s.setAttribute("aria-label", estVoisine ? `${t("lune.titre")} — ${t(`lune.${page}`)}` : t("lune.titre"));
-  if (estVoisine) s.dataset.voisine = "oui";
+  s.setAttribute("aria-label", nomme ? `${t("lune.titre")} — ${motDeLaPage(satellite)}` : t("lune.titre"));
+  if (rail) s.dataset.taille = "dominante";
   s.addEventListener("change", () => { if (s.value && surChoix) surChoix(s.value); });
   return s;
 }
+
+/** Le mot du bouton de la barre du rail — ⚖️ « BACK TO ONE SCREEN » (figure ④, croquis du 27/09). */
+export const MOT_UN_SEUL_ECRAN = t("lune.un-ecran");
 
 /** Les vues de l'étape qui SONT un Tally — ⚖️ Eric, 27/09 : *« Le group et le part
  *  tally »*. `b2` est le Tally de Wares (le panier), `sb32` celui de Gear (la liste
