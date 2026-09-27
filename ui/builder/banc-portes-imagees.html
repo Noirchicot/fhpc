@@ -45,11 +45,14 @@
      sac 135, wares 107 — mesuré) ; peints de la même encre, ils sortaient en trois tons. Trois
      SILHOUETTES PLEINES en sont tirées (`assets/porte-*.png`, 160 de haut, recadrées au plus près) :
      même encre, même ton. */
+  /* ⚖️ « Redonne du relief au sac à dos, mais sa taille et sa couleur sont bien » (27/09) : sa silhouette
+     garde les variations de l'original, relevées (courbe t^0,35) pour garder le ton des deux autres */
   .img-backpack { --img: url("./assets/porte-pack.png"); --taille: 76.5%; }  /* 85 % puis −10 % */
   .img-gear { --img: url("./assets/porte-gear.png"); --taille: 34.4% 90%; }  /* l'homme : 90 % de haut, 110 % de large */
-  /* Wares REMPLIT le bas : toute la largeur DANS le liseré (le retrait de `::after`), posé sur son bord bas */
+  /* Wares : ⚖️ « Réduit wares de 10 %, centre-le dans le bouton, il ne touche plus le bas » (27/09) —
+     90 % de la largeur dans le liseré, centré dans les deux sens */
   .gear .porte-imagee .porte-image.img-wares { inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge) + 1px); --img: url("./assets/porte-wares.png");
-    -webkit-mask-size: 100% auto; mask-size: 100% auto; -webkit-mask-position: center bottom; mask-position: center bottom; }
+    -webkit-mask-size: 90% auto; mask-size: 90% auto; -webkit-mask-position: center; mask-position: center; }
 </style>
 <body>
 <div class="banc gear">
