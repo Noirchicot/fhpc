@@ -2067,3 +2067,29 @@ test("37 — \ud83d\udcd0 LE BAS DU BLOC DE POIDS EST \u00c0 8 DE L'AR\u00caTE D
   assert.equal(D.DALLE.h - (org("RANGEE").y + org("RANGEE").h), 8,
     "\u2696\ufe0f la derni\u00e8re rang\u00e9e est \u00e0 8 du bas de la dalle");
 });
+
+/* ══ LOT 319 — LE PIED DE PACK À LA COTE DES DEUX AUTRES ═════════════════════════════════════════
+   ⚖️ Eric, 27/09 : « Dans pack, dimensions du collecteur et du send, quelques différences. Harmonise
+   aux deux autres ». Mesuré avant : le collecteur de Pack perdait son liseré transparent de 2 (son mot
+   s'étalait sur 79, contre 75 sur Gear et Wares) et `Send` s'écrivait en 16 (12 ailleurs). */
+test("319 — ⚖️ le collecteur garde son liseré, et Send prend le cran des deux autres écrans", () => {
+  /* une cible ÉGALE à son dessin n'écrit pas de bord : `border-width: 0` effaçait le liseré */
+  const feuille = feuilleDesCotesSac();
+  const coll = feuille.match(/\[data-organe="collecteur"\]\{([^}]*)\}/);
+  assert.ok(coll, "le collecteur a sa règle");
+  assert.ok(!/border-width/.test(coll[1]), `⛔ le collecteur reçoit un bord qui efface son liseré : ${coll[1]}`);
+  const shell = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
+  assert.match(shell, /\.gear, \.wares, \.sac-rangee \{ --bouton-cran-serre: var\(--t2\); \}/,
+    "⛔ la rangée du sac n'est pas au cran des deux autres");
+  const src = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
+  assert.match(src, /const send = bouton\("gear-porte", "Send"/, "⛔ Send porte encore la classe `bouton` (le cran 16)");
+});
+
+test("319 bis — ⚖️ les dalles de Gear et de Pack ont l'arrondi de Wares (`--organe-rayon`)", () => {
+  /* Eric, 27/09 : « L'arrondi des angles des dalles est plus joli dans wares, harmonise cela aux 2 autres » */
+  const shell = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
+  assert.match(shell, /\.wares-dalle \{[^}]*border-radius: var\(--organe-rayon\)/, "le modèle : Wares");
+  assert.match(shell, /\.gear > \.gear-dalle \{[^}]*border-radius: var\(--organe-rayon\);/, "⛔ Gear n'a pas l'arrondi de Wares");
+  assert.match(shell, /\.sac-bande\.dalle-simple, \.sac-dalle\.dalle-simple \{ border-radius: var\(--organe-rayon\); \}/,
+    "⛔ Pack n'a pas l'arrondi de Wares");
+});

@@ -9886,3 +9886,24 @@ trois rendent la même boîte, l'étiquette à la même hauteur, le select 28 de
 ⚖️ **LE PANTIN** — **« Retravaille le contour du bonhomme similairement à celui de wares »** :
 `pantin-h-contour.png`, intérieur α 103 et trait α 180 (la facture mesurée de `wares-fond.webp`), sous
 le voile de Wares (`--filigrane`).
+
+---
+
+### 🟦 LA LUNE PARLE ROUGE, ET LES TROIS PIEDS D'ÉQUIPEMENT SONT LE MÊME
+📍 `equipement-lune-rouge-et-pieds-harmonises` · vivante · 27/09
+⚖️ **La lune du double écran écrit en rouge (« Double / Screen » sur la lune d'une page, le nom du side screen sur celle du rail), porte le halo quand un side screen est ouvert, et son menu dit « Close side screen ». Gear, Pack et Wares rendent le même collecteur, le même `Send`, la même lune et le même arrondi de dalle.**
+
+> Eric, 2026-09-27, mot pour mot : **« Le texte dans lune doit être en rouge : Double Screen · Quand actif
+> halo · Close Side screen · La lune au dessus du side screen le texte est rouge aussi »** · **« Dans pack,
+> dimensions du collecteur et du send, quelques différences. Harmonise aux deux autres »** · **« Harmonise
+> aussi position de la lune dans les 3 »** · **« L'arrondi des angles des dalles est plus joli dans wares,
+> harmonise cela aux 2 autres »**.
+
+⭐ **LA LUNE** : l'encre `--astre-encre-pleine-lune` (fixe, le rouge de `--critical` au jour — la pleine
+lune est claire dans les deux thèmes) ; le mot « Double / Screen » est une IMAGE (`--lune-mot-double`),
+parce qu'un `<select>` natif ne rend qu'une ligne et ne porte pas de pseudo-élément — ⛔ le select reste
+natif (le doigt comme la souris). Halo : `data-actif` + `--belt-halo` ×3, la lune d'une page seulement.
+📏 **MESURÉ, les trois écrans** (375 × 812) : collecteur à liseré 2, son mot sur 75 ; `Send` 12 px/600 ;
+dropdown identique ; lune au même point (cible 0,348, alignée sur le haut du collecteur) ; dalles au
+rayon 16 (`--organe-rayon`). Ce qui différait sur Pack : `border-width: 0` écrit sur une cible égale à
+son dessin (le liseré effacé) et `Send` hors de la liste du cran serré (16 au lieu de 12).

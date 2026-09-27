@@ -3069,7 +3069,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=863") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=867") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3392,7 +3392,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=863") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=867") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5044,7 +5044,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=863") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=867") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8025,7 +8025,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=863");
+  background-image: url("./assets/tarot-dos.jpg?v=867");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -9996,7 +9996,12 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    impossible. À T2/600 il rend 56,95 → il tient, 4,05 de reste. ⛔ Le mot n'est
    pas réduit, la largeur ne bouge pas : c'est le CRAN qui est l'exception, et
    il ne vaut que dans cette rangée. — */
-.gear, .wares { --bouton-cran-serre: var(--t2); }
+/* ⚖️ LOT 319 — ET LE SAC : « Dans pack, dimensions du collecteur et du send, quelques différences.
+   Harmonise aux deux autres » (Eric, 27/09). Mesuré : `Send` rendait 16 sur Pack, 12 sur Gear et
+   Wares — le sac n'était pas dans cette liste, il prenait le cran par défaut. */
+.gear, .wares, .sac-rangee { --bouton-cran-serre: var(--t2); }
+/* ⛔ la RANGÉE du sac seulement : Sort, sections et les `+` gardent leur cran — ils ne sont pas
+   dans la demande, et le cran serré ne tient pas « sections » dans 44 (voir plus bas) */
 .gear-porte, .wares-porte {
   /* le plancher du pouce : la famille ne le pose pas pour tous, chaque organe
      le dit (mesuré : 16,64 de haut sans lui) */
@@ -13680,7 +13685,9 @@ select.x5-drop {
   border: 0 solid transparent; border-radius: 50%;
   background: var(--astre-pleine-lune) no-repeat center / contain;
   background-clip: padding-box; background-origin: padding-box;
-  color: var(--astre-encre-soleil);
+  /* ⚖️ LOT 319 — le texte de la lune est ROUGE (Eric, 27/09), sur la lune d'une page comme sur
+     celle du rail, au-dessus du side screen */
+  color: var(--astre-encre-pleine-lune);
   /* ⚠️ LE MOT LE PLUS LONG (« Backpack ») DOIT TENIR DANS LE DESSIN DE 30 : à `--t0` (8) il en
      demande 36. Les trois quarts de `--t0` le font tenir — ⏳ lisible au pouce ? à regarder avec
      Eric sur l'iPad (dit au rapport du lot 307). */
@@ -13690,6 +13697,23 @@ select.x5-drop {
   -webkit-tap-highlight-color: transparent;
 }
 .lune-ecrans:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
+/* ⚖️ LOT 319 — « Double / Screen », en rouge, sur la lune d'une page (Eric, 27/09). ⭐ Une image
+   posée sur l'astre (`--lune-mot-double`) : le select ne rend qu'une ligne. La lune du rail garde
+   son mot à elle (le nom du side screen), écrit par le select. */
+.lune-ecrans[data-organe="lune"] {
+  background-image: var(--lune-mot-double), var(--astre-pleine-lune);
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;
+  background-size: contain, contain;
+  background-clip: padding-box, padding-box; background-origin: padding-box, padding-box;
+}
+/* ⚖️ « Quand actif halo » : un side screen est ouvert — le halo de l'actif, celui des portes carrées
+   (lot 313) : `--belt-halo` repassé trois fois, en `filter` (il suit le disque, pas la cible). */
+.lune-ecrans[data-actif="true"] {
+  filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
+          drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
+          drop-shadow(0 0 var(--halo-epais) var(--belt-halo));
+}
 /* la liste que le navigateur déroule : l'encre du système, lisible dans les deux thèmes */
 .lune-ecrans option { color: CanvasText; background: Canvas; font-size: var(--t1); }
 
@@ -13791,6 +13815,14 @@ select.x5-drop {
   position: absolute;
   pointer-events: none;
   background: var(--dalle-inter);
-  border-radius: var(--radius-md);
+  /* ⚖️ LOT 319 — « L'arrondi des angles des dalles est plus joli dans wares, harmonise cela aux 2
+     autres » (Eric, 27/09) : le rayon de Wares, `--organe-rayon` (16), mesuré — pas `--radius-md` (8). */
+  border-radius: var(--organe-rayon);
   box-shadow: inset 0 0 0 1px var(--verre-lisere);
 }
+
+/* ⚖️ LOT 319 — LES DALLES DU SAC PRENNENT L'ARRONDI DE WARES. Eric, 27/09 : « L'arrondi des angles
+   des dalles est plus joli dans wares, harmonise cela aux 2 autres ». Mesuré : Wares 16
+   (`--organe-rayon`), Gear et Pack 8. ⭐ Seules les dalles du sac (les deux bandes, le ruban de
+   plaques) — la classe `dalle-simple` garde son rayon ailleurs. */
+.sac-bande.dalle-simple, .sac-dalle.dalle-simple { border-radius: var(--organe-rayon); }

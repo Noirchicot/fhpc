@@ -22,7 +22,7 @@
    gouttière de la maison (`--sp-8`), soit **758 × 560** à l'échelle 1. Une seconde porte
    pour la même place serait un second écrivain : ce fichier REÇOIT sa réponse (`place`). */
 
-import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=863";
+import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=867";
 
 const t = createLabels(EN_DEPOT_VOISIN, EN_LUNE);
 
@@ -145,6 +145,9 @@ export function construireLaLune({ principale, satellite = null, rail = false, s
   s.append(...options);
   s.setAttribute("aria-label", nomme ? `${t("lune.titre")} — ${motDeLaPage(satellite)}` : t("lune.titre"));
   if (rail) s.dataset.taille = "dominante";
+  /* ⚖️ LOT 319 — « Quand actif halo » (Eric, 27/09) : la lune d'une page porte le halo quand un
+     side screen est ouvert. ⛔ La lune du rail, elle, EST sur le side screen : pas de halo. */
+  if (!rail && satellite) s.dataset.actif = "true";
   s.addEventListener("change", () => { if (s.value && surChoix) surChoix(s.value); });
   return s;
 }

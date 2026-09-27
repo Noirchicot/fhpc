@@ -567,6 +567,6 @@ export const EN_LUNE = {
   "lune.autre": "Screen",
   /* ⚖️ Eric, 27/09 (4ᵉ passe) : « La lune propose un close dans son dropdown » · « une option
      close double screen en haut et au milieu, mais plus petit plus discret » */
-  "lune.fermer": "Close",
+  "lune.fermer": "Close side screen",
   "lune.fermer-double": "Close double screen"
 };

@@ -23,34 +23,34 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=863";
-import { versionQuery } from "./version.mjs?v=863";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=863";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=867";
+import { versionQuery } from "./version.mjs?v=867";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=867";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=863";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=867";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome } from "./glisser.mjs?v=863";
+import { armerJeton, fantome } from "./glisser.mjs?v=867";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=863";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=867";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=863";
+import { portesCarrees } from "./porte-carree.mjs?v=867";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=863";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=867";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=863";
+import { facteurZoomCourant } from "./echelle.mjs?v=867";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -160,10 +160,15 @@ const pose = (o) => {
      la formule symétrique aurait peint leur chevron 13 blg à côté de sa place.
      ⭐ Écrite ainsi, elle rend exactement les mêmes nombres qu'avant pour toute
      cible centrée : c'est une généralisation, pas un changement de loi. */
+  /* ⚖️ LOT 319 — « Dans pack, dimensions du collecteur et du send, quelques différences. Harmonise
+     aux deux autres » (Eric, 27/09). 🔴 Une cible ÉGALE à son dessin (le collecteur : 87 × 48)
+     recevait `border-width: 0` — qui effaçait le liseré transparent de 2 de son habit
+     (`.gear-collecteur`) : mesuré, son mot s'étalait sur 79 au lieu de 75 sur Gear et Wares.
+     ⭐ Comme Wares (`boite`), on n'écrit les bords que s'il y a un écart à porter. */
+  const bords = c ? [o.y - c.y, (c.x + c.l) - (o.x + o.l), (c.y + c.h) - (o.y + o.h), o.x - c.x] : [];
   return c
-    ? `left:${px(c.x - dx)};top:${px(c.y - dy)};width:${px(c.l)};height:${px(c.h)};` +
-      `border-width:${px(o.y - c.y)} ${px((c.x + c.l) - (o.x + o.l))} ` +
-      `${px((c.y + c.h) - (o.y + o.h))} ${px(o.x - c.x)}`
+    ? `left:${px(c.x - dx)};top:${px(c.y - dy)};width:${px(c.l)};height:${px(c.h)}` +
+      (bords.some((b) => b !== 0) ? `;border-width:${bords.map(px).join(" ")}` : "")
     : `left:${px(o.x - dx)};top:${px(o.y - dy)};width:${px(o.l)};height:${px(o.h)}`;
 };
 
@@ -1695,7 +1700,10 @@ export function construireLeSac(options = {}) {
   const majeurs = el("div", "rangee-majeurs");
   rangee.append(majeurs);
   majeurs.append(portesCarrees({ courant: "backpack", surPorte: options.surPorte }));
-  const send = bouton("bouton gear-porte", "Send", "Send — clears the collector and sends",
+  /* ⚖️ LOT 319 — « Harmonise aux deux autres » : `Send` porte l'habit de Gear et de Wares
+     (`gear-porte`, T2) — ⛔ plus la classe `bouton` (le cran 16), qui le faisait écrire en 16 ici
+     et en 12 là-bas (mesuré). */
+  const send = bouton("gear-porte", "Send", "Send — clears the collector and sends",
     () => options.surPorte && options.surPorte("send"));
   send.dataset.porte = "send";
   majeurs.append(send);

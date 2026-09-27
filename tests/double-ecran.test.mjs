@@ -125,7 +125,8 @@ test("3 bis — 🌕 CE QUE LA LUNE PROPOSE : les écrans des archives — Backp
   assert.deepEqual(v({ principale: "r" }), ["sac", "b2", "gear"]);
   assert.deepEqual(v({ principale: "gear", satellite: "sac" }), ["b2", "r", "fermer"],
     "⛔ pas le satellite déjà ouvert — et « Close » en dernier (Eric, 27/09 : « La lune propose un close dans son dropdown »)");
-  assert.equal(choixDeLaLune({ principale: "gear", satellite: "sac" }).at(-1).mot, "Close");
+  /* 🔄 LOT 319 — Eric, 27/09 : « Close / Side screen » — le mot dit CE QU'il ferme */
+  assert.equal(choixDeLaLune({ principale: "gear", satellite: "sac" }).at(-1).mot, "Close side screen");
   assert.ok(!v({ principale: "gear" }).includes("fermer"), "sans satellite, rien à fermer");
   /* ⛔ LA FORGE PEUT OUVRIR, JAMAIS ÊTRE OUVERTE (Eric, 27/09) : depuis X5 la lune propose les
      quatre écrans ; aucune lune, d'aucune page, ne propose X5 ni son aperçu */
@@ -639,4 +640,25 @@ test("23 — 🤫 « CLOSE DOUBLE SCREEN » EST EN HAUT AU MILIEU, discret : un 
   const shell = lire("ui/builder/shell.mjs");
   assert.match(shell, /button\(MOT_UN_SEUL_ECRAN,/);
   assert.equal(EN_LUNE["lune.fermer-double"], "Close double screen");
+});
+
+test("22 — ⚖️ LOT 319 : la lune parle ROUGE, dit « Double / Screen », et porte le halo quand un side screen est ouvert", () => {
+  /* Eric, 27/09 : « Le texte dans lune doit être en rouge : Double Screen · Quand actif halo · Close
+     Side screen · La lune au dessus du side screen le texte est rouge aussi » */
+  const css = lire("ui/builder/shell.css");
+  const tokens = lire("ui/builder/tokens.css");
+  assert.match(css, /\.lune-ecrans \{[^}]*color: var\(--astre-encre-pleine-lune\);/, "⛔ l'encre de la lune n'est pas le rouge");
+  assert.match(tokens, /--astre-encre-pleine-lune: #aa3f2f;/);
+  const mot = tokens.match(/--lune-mot-double: url\("([^"]+)"\)/);
+  assert.ok(mot, "le mot « Double / Screen » est un jeton");
+  const svg = decodeURIComponent(mot[1].replace("data:image/svg+xml,", ""));
+  assert.ok(svg.includes(">Double<") && svg.includes(">Screen<"), "deux lignes : Double, puis Screen");
+  assert.ok(svg.includes("fill='#aa3f2f'"), "⛔ le mot n'est pas à l'encre de la lune");
+  assert.match(css, /\.lune-ecrans\[data-organe="lune"\] \{[^}]*background-image: var\(--lune-mot-double\), var\(--astre-pleine-lune\);/,
+    "le mot se pose SUR l'astre, sur la lune d'une page (celle du rail garde son nom)");
+  /* le halo : sur la lune d'une page quand un side screen est ouvert, jamais sur celle du rail */
+  assert.equal(construireLaLune({ principale: "gear", satellite: "sac" }).dataset.actif, "true");
+  assert.equal(construireLaLune({ principale: "gear" }).dataset.actif, undefined);
+  assert.equal(construireLaLune({ principale: "gear", satellite: "sac", rail: true }).dataset.actif, undefined);
+  assert.match(css, /\.lune-ecrans\[data-actif="true"\] \{\s*filter: drop-shadow\(0 0 var\(--halo-epais\) var\(--belt-halo\)\)/);
 });
