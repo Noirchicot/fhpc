@@ -5002,7 +5002,7 @@ chiffre prix et poids de X1 (par lot pour une munition, `paiementsDe`) et de X2 
 de la tête se repeint par ses écrivains (`repeindreLaLigneDeCout`), sans reconstruire la fiche.
 ⭐ **X1 : ENVOYER n SUR UNE PILE, C'EST SCINDER** — `n < pile` pose `splitGearLine` (la pile garde
 `pile − n`, un jeton de `n` naît à la destination) ; `n = pile` déplace la pile entière. La fiche
-s'ouvre sur la pile entière (bornée à 20).
+s'ouvre sur **1** — ⚖️ Eric, 27/09, à « X1 s'ouvre sur la pile entière ou sur 1 ? » : **« oui 1 max 20 »**.
 ⛔ **CE QUE LE 20 EMPÊCHE, ET C'EST À ERIC** : une pile de plus de 20 (40 flèches) ne s'envoie plus
 d'un coup depuis X1 — il faut deux envois. Aucune option « All » n'est inventée.
 

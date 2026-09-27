@@ -95,7 +95,11 @@ test("1 — ⚖️ X1 : 5 caltrops, 2 choisis → la tête dit ×2 et le total d
   const p = pilote(doc);
   let n = p.ouvrir();
   assert.equal(texte(n, "unite"), "1 GP · 2 lb.", "témoin : l'unité du record");
-  /* ⭐ la fiche s'ouvre sur la pile entière : son total est celui de la pile */
+  /* ⚖️ la fiche s'ouvre sur UN — Eric, 27/09, à « X1 s'ouvre sur la pile entière ou sur 1 ? » :
+     « oui 1 max 20 ». À un seul, ni « ×1 » ni total qui répète l'unité. */
+  assert.equal(texte(n, "qte"), "");
+  assert.equal(texte(n, "total"), "");
+  n = p.choisir(n, 5);
   assert.equal(texte(n, "qte"), "×5");
   assert.equal(texte(n, "total"), "5 gp · 10 lb");
   n = p.choisir(n, 2);
@@ -127,10 +131,11 @@ test("2 — ⚖️ LES CALTROPS D'ERIC : 2 sur 5 → une SCISSION (3 restent, un
   assert.deepEqual(cinq.actions.find((a) => /GearLine$/.test(a.kind)),
     { kind: "moveGearLine", index, location: "party" }, "au total, c'est la pile entière qui part, sans scission");
 
-  /* ⭐ et sans toucher au nombre, la fiche envoie la pile — ce que le joueur voyait jusqu'ici */
+  /* ⚖️ et sans toucher au nombre, la fiche envoie UN (« oui 1 max 20 ») : une scission de 1 */
   const rien = pilote(doc);
   rien.envoyer(rien.ouvrir(), "party");
-  assert.equal(rien.actions.find((a) => /GearLine$/.test(a.kind)).kind, "moveGearLine");
+  assert.deepEqual(rien.actions.find((a) => /GearLine$/.test(a.kind)),
+    { kind: "splitGearLine", index, quantity: 1, location: "party" });
 });
 
 test("3 — ⚖️ X2 : 3 achetés → la tête dit ×3 et le total de TROIS, et BUY paie 3 et pose 3", () => {

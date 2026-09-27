@@ -4361,10 +4361,11 @@ export function renderEquipmentStep(ctx, onAction) {
        le même nombre de lots — celui de l'encombrement (`poidsParLieu`). */
     /* ⚖️ LOT 308 — LE TOTAL SUIT LE NOMBRE CHOISI, PAS LA PILE. Eric, 27/09 : *« il faut tj que
        le montant final soit modifié avec l'augmentation en quantité »*. ⭐ `n` est le cran de la
-       molette (1 … min(pile, 20)) ; `null` = la fiche s'ouvre sur la pile entière, bornée.
+       molette (1 … min(pile, 20)) ; `null` = la fiche s'ouvre sur **1** — ⚖️ Eric, 27/09, à « X1 s'ouvre
+       sur la pile entière ou sur 1 ? » : « oui 1 max 20 ».
        ⭐ `totauxDe` rend à la fiche l'arithmétique de n'importe quel `n` : elle repeint sa ligne
        de coût elle-même quand la molette tourne, ⛔ sans reconstruire l'étape sous le doigt. */
-    const n = borneDeLaMolette(nombreX1 ?? qte, qte);
+    const n = borneDeLaMolette(nombreX1 ?? 1, qte);
     const totauxDe = (k) => totauxDeLaFiche(cout, poids, paiementsDe(rec, k));
     const { noeud } = construireLaFicheX1({
       objet: {
@@ -4464,7 +4465,7 @@ export function renderEquipmentStep(ctx, onAction) {
              caltrops, « 2 » tapé, Send vers Party → les 5 partaient. ⭐ La pile est `quantity`, et
              la part est le cran de la molette — le même nombre que le total de la fiche. */
           const total = Math.max(1, Number(ligne.quantity) || 1);
-          const part = borneDeLaMolette(nombreX1 ?? total, total);
+          const part = borneDeLaMolette(nombreX1 ?? 1, total);
           actArbitre(part < total
             ? { kind: "splitGearLine", index: ligne.index, quantity: part, location: destinationEnvoi }
             : { kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });
