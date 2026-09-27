@@ -67,7 +67,9 @@ import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, remplirLaD
    PILOTE en porte cinq, et les inactives s'y disent déjà par `actif: false`.
    Compléter la liste depuis un dessin serait une règle de jeu écrite par un
    écran — ⏳ elle appartient à Eric, et le rapport la lui rend. */
-import { DESTINATIONS } from "./gear-ecran.mjs?v=849";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=849";
+/* ⚖️ LOT 309 — la bourse de X2 est l'organe de R : ses cotes (50, le montant 40 dedans) se lisent dans SON plan. */
+import { ORGANES as ORGANES_DE_R } from "./gear-disposition.mjs?v=849";
 /* ⭐ LOT 308 — LA MOLETTE DE QUANTITÉ, celle de X1 (Eric, 27/09 : « La molette tambour ! », « 20 c'est
    bien »). Le champ entre − et + est mort avec elle : « le +/- prend beaucoup de place ». */
 import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=849";
@@ -97,6 +99,9 @@ const px = (v) => `${Math.round(v * 100) / 100}px`;
  *    · son haut  = la couture, le pied du second filet
  *    · son bas   = la dalle, moins la marge de pied de X1 (la déchirure mord)
  *    · ses côtés = la marge de côté de X1 */
+const PURSE_R = ORGANES_DE_R.find((o) => o.nom === "PURSE");
+const MONTANT_R = ORGANES_DE_R.find((o) => o.nom === "MONTANT");
+
 export function feuilleDesCotesX2() {
   const haut = BAS_DE_TETE;
   const bas = D.DALLE.h - D.MARGE_PIED;
@@ -113,6 +118,14 @@ export function feuilleDesCotesX2() {
     /* ⭐ LOT 308 — LA MOLETTE : sa géométrie par son module (la même que X1), et sa boîte, lue dans
        la table — la piste et ses deux bords, sur la hauteur d'une cible. ⛔ Aucun nombre neuf. */
     feuilleDeLaMolette(".x2", D.MOLETTE),
+    /* ⚖️ LOT 309 — « dans x2 met l'item classique de la bourse, pas un encart » (Eric, 27/09) :
+       l'organe de R, à SES cotes (le bouton 50, le montant 40 posé dedans), et son popup, centré
+       sur la bourse par l'écrivain de R (`reglesDeLaBourse`). ⛔ Aucun nombre neuf. */
+    `.x2 .x2-bourse-organe{inline-size:${px(PURSE_R.l)};block-size:${px(PURSE_R.h)}}`,
+    `.x2 .x2-bourse-organe [data-organe="purse"]{inline-size:${px(PURSE_R.l)};block-size:${px(PURSE_R.h)}}`,
+    `.x2 .x2-bourse-organe [data-organe="montant"]{left:${px(MONTANT_R.x - PURSE_R.x)};top:${px(MONTANT_R.y - PURSE_R.y)};`
+      + `inline-size:${px(MONTANT_R.l)};block-size:${px(MONTANT_R.h)}}`,
+    ...reglesDeLaBourse(".x2", { x: D.MARGE_COTE, y: BAS_DE_TETE, l: PURSE_R.l, h: PURSE_R.h }, D.DALLE),
     `.x2 .x2-molette{inline-size:${px(D.MOLETTE.piste + 2 * D.MOLETTE.bord)};block-size:${px(D.TOUCH)}}`,
     `.x2 [data-organe="x2-pied"]{left:${px(D.MARGE_COTE)};top:${px(haut)};`
       + `width:${px(D.DALLE.l - 2 * D.MARGE_COTE)};height:${px(bas - haut)}}`
@@ -124,19 +137,20 @@ export function feuilleDesCotesX2() {
  *  ⭐ ET LE MOT DE LA BOURSE PASSE AVANT LES CHIFFRES : sans classe, l'or de départ
  *  n'existe pas, et quatre tirets seraient une bourse tronquée qui se tait. Le
  *  pilote tend `motBourse` (un seul écrivain, `motDeLaBourse`). */
-function encartBourse(bourse, motBourse) {
-  const b = elx("aside", "x2-bourse");
-  b.append(elx("h3", "x2-bourse-titre", "Purse"));
-  if (motBourse) { b.append(elx("p", "x2-bourse-mot", motBourse)); return b; }
-  const grille = elx("div", "x2-bourse-grille");
-  for (const k of ["pp", "gp", "sp", "cp"]) {
-    const col = elx("div", "x2-bourse-clef");
-    col.append(elx("span", "x2-bourse-unite", k.toUpperCase()),
-               elx("span", "x2-bourse-somme", String(bourse[k] ?? "—")));
-    grille.append(col);
-  }
-  b.append(grille);
-  return b;
+/** ⚖️ LOT 309 — LA BOURSE CLASSIQUE, PAS UN ENCART. Eric, 27/09 : *« dans x2 met l'item classique
+ *  de la bourse pas un encart »*. ⭐ L'organe de R, importé : le bouton à l'image, le montant posé
+ *  dessus (`montantDeLaBourse`), et son popup (`popupDeLaBourse`, dans `construireLaFicheX2`).
+ *  ⛔ Rien de redessiné. Sans classe, le mot de la coquille (`motBourse`) passe dans le nom du bouton. */
+function laBourseDeX2({ bourse, motBourse, surBourse }) {
+  const boite = elx("div", "x2-bourse-organe");
+  const purse = elx("button", "gear-bouton");
+  purse.type = "button";
+  purse.dataset.organe = "purse";
+  purse.setAttribute("aria-label", motBourse ? `Purse — ${motBourse}` : "Purse");
+  if (motBourse) purse.title = motBourse;
+  if (surBourse) purse.addEventListener("click", surBourse);
+  boite.append(purse, montantDeLaBourse({ bourse }));
+  return boite;
 }
 
 /** ⚖️ LA FICHE D'UN OBJET DU CATALOGUE.
@@ -149,6 +163,7 @@ function encartBourse(bourse, motBourse) {
  *   · `onAction` : l'arbitre du pilote · `fermer` : le retour, inchangé */
 export function construireLaFicheX2(options = {}) {
   const { liste = [], index = 0, bourse = {}, motBourse = null,
+          bourseOuverte = false, surBourse = null, surFermerBourse = null, surMonnaie = null,
           onAction = () => {}, naviguer, fermer = () => {},
           /* ⭐ LOT 262 — LA PORTE DU CRAFT. L'écran ne sait pas ce qui se crafte : il
              DEMANDE (`peutCrafter`) et il PASSE LA MAIN (`ouvrirCraft`). ⛔ Aucune
@@ -192,9 +207,8 @@ export function construireLaFicheX2(options = {}) {
 
   /* — PURSE · QTY · PRICE, sur une rangée (croquis) */
   const marche = elx("div", "x2-marche");
-  const or = encartBourse(bourse, motBourse);
+  const or = laBourseDeX2({ bourse, motBourse, surBourse });
 
-  const reglages = elx("div", "x2-reglages");
   /* ⚖️ LOT 308 — LA QUANTITÉ SE CHOISIT À LA MOLETTE, de 1 à 20 (`PLAFOND_MOLETTE`). 🗄️ Le champ et
      le `±` empilé (90 de haut) sont partis : Eric, 27/09, « le +/- pour les quantités prend
      beaucoup de place ». La molette tient sur une cible (44). */
@@ -216,8 +230,9 @@ export function construireLaFicheX2(options = {}) {
   champQte.append(elx("span", "pipeline-libelle", "Qty"), boiteMolette);
   const champPrix = elx("label", "x2-champ");
   champPrix.append(elx("span", "pipeline-libelle", "Price"), prixChamp);
-  reglages.append(champQte, champPrix);
-  marche.append(or, reglages);
+  /* ⚖️ LOT 309 — « centre la quantité, et le prix à droite » (Eric, 27/09) : trois cellules, la
+     bourse à gauche, la quantité au centre, le prix à droite (la feuille). */
+  marche.append(or, champQte, champPrix);
 
   /* — SEND TO · le grand bouton-menu du croquis */
   const destRang = elx("div", "x2-sendto");
@@ -299,6 +314,7 @@ export function construireLaFicheX2(options = {}) {
     porteDouble("FREE", "SEND / CLEAR", () => envoyer(false), "Send without paying"));
 
   pied.append(marche, destRang, alerte, portes);
+  if (bourseOuverte) noeud.append(popupDeLaBourse({ bourse, surFermerBourse, surMonnaie }));
 
   function basculerLecture(v) {
     tete.lecture = Boolean(v);

@@ -241,8 +241,14 @@ test("10 — ✏️ le croquis du 21/09 est posé SOUS la couture, dans la bande
   const bande = n.querySelector('[data-organe="x2-pied"]');
   assert.ok(bande, "la bande existe et porte un `data-organe` — donc la feuille la pose");
   /* les organes du dessin, de haut en bas */
-  assert.ok(bande.querySelector(".x2-bourse-titre"), "PURSE");
-  assert.deepEqual(tous(bande, ".x2-bourse-unite").map((e) => e.textContent), ["PP", "GP", "SP", "CP"]);
+  /* 🔄 LOT 309 — la bourse est l'ORGANE DE R, pas un encart (Eric, 27/09 : « dans x2 met l'item
+     classique de la bourse pas un encart ») : le bouton à l'image et son montant. */
+  assert.ok(bande.querySelector('.x2-bourse-organe [data-organe="purse"]'), "PURSE, l'organe de R");
+  assert.ok(bande.querySelector('.x2-bourse-organe [data-organe="montant"]'), "et son montant posé dessus");
+  assert.equal(bande.querySelector(".x2-bourse-titre, .x2-bourse-unite"), null, "⛔ plus d'encart PP GP SP CP");
+  /* ⚖️ la quantité au CENTRE, le prix à DROITE (Eric, 27/09) : l'ordre des trois cellules */
+  assert.deepEqual([...bande.querySelector(".x2-marche").children].map((e) => e.className),
+    ["x2-bourse-organe", "x2-champ", "x2-champ"]);
   /* 🔄 LOT 308 — la quantité se choisit à la MOLETTE (Eric, 27/09 : « La molette tambour ! ») :
      ⛔ plus de case de saisie ni de `±` empilé (« le +/- prend beaucoup de place »). */
   assert.ok(bande.querySelector(".x2-molette .molette"), "QTY, la molette");
@@ -289,7 +295,7 @@ test("11 — 📏 les cotes de la bande sont LUES dans la table de X1, ⛔ aucun
 });
 
 test("12 — 🪙 les destinations sont celles de l'écran R, ⛔ pas une seconde liste", () => {
-  assert.match(source, /import \{ DESTINATIONS \} from "\.\/gear-ecran\.mjs/);
+  assert.match(source, /import \{ DESTINATIONS[ ,][^}]*\} from "\.\/gear-ecran\.mjs/);
   assert.ok(!/Party inventory|Merchant|Companion|Group PC/i.test(source),
     "⛔ le croquis en dessine huit ; compléter la liste depuis un DESSIN serait une "
     + "règle de jeu écrite par un écran — ⏳ elle appartient à Eric");

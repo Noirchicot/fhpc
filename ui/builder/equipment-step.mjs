@@ -5113,6 +5113,11 @@ export function renderEquipmentStep(ctx, onAction) {
          n'y a pas touché. Seul le nom de la vue a changé. */
       return construireLaFicheX2({ liste: ficheEnCours.liste, index: ficheEnCours.index,
         bourse, motBourse: motDeLaBourse(docu), onAction: actAchat, fermer: () => montrer(ficheEnCours.retour || "r"),
+        /* ⚖️ LOT 309 — la bourse classique : même état de module que R, le sac, Wares et X5 */
+        bourseOuverte,
+        surBourse: () => { bourseOuverte = !bourseOuverte; peindre(); },
+        surFermerBourse: () => { bourseOuverte = false; peindre(); },
+        surMonnaie: (key, value) => actArbitre({ kind: "setCurrency", key, value }),
         /* ⭐ LA PORTE DU CRAFT — l'étape SAIT ce qui se crafte (par `craft.mjs`), l'écran
            demande. ⛔ Aucune liste de plans : `Weapon`, `Armor` et `Shield, +1…`
            s'ouvrent parce qu'ils offrent une base ET un bonus, lus dans leur record. */
