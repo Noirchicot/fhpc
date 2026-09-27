@@ -1105,9 +1105,12 @@
      de nuit. 🔄 LOT 320 — « Le rouge du texte oxblood, on verra mieux car plus sombre en contraste
      avec la lune » (Eric, 27/09) : sang-de-bœuf, #4a0404 (au lieu du rouge de `--critical`). */
   --astre-encre-pleine-lune: #4a0404;
+  /* 🔄 LOT 321 — « éclaircis la pleine lune un peu (partout). Ne mets pas en gras » (Eric, 27/09) :
+     l'image `pleine-lune.webp` est relevée de 30 % vers le blanc (luminance moyenne 181 → 203),
+     et le mot n'est plus gras (400). */
   /* ⭐ Le mot « Double / Screen » sur deux lignes : un `<select>` natif ne rend qu'UNE ligne et ne
      porte pas de pseudo-élément — le mot est donc une IMAGE posée sur l'astre, à la même encre. */
-  --lune-mot-double: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30' font-family='Helvetica,Arial,sans-serif' font-weight='700' font-size='7' text-anchor='middle' fill='%234a0404'%3E%3Ctext x='15' y='14'%3EDouble%3C/text%3E%3Ctext x='15' y='21.5'%3EScreen%3C/text%3E%3C/svg%3E");
+  --lune-mot-double: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30' font-family='Helvetica,Arial,sans-serif' font-weight='400' font-size='7' text-anchor='middle' fill='%234a0404'%3E%3Ctext x='15' y='14'%3EDouble%3C/text%3E%3Ctext x='15' y='21.5'%3EScreen%3C/text%3E%3C/svg%3E");
   /* LOT 212 — l'encre du montant sur la bourse (Eric, 16/09 : « jaune très proche
      du blanc ») : fixe elle aussi, l'image ne suit pas le thème.
      🔴 RÉCHAUFFÉE LE SOIR MÊME, sur le rendu — Eric : *« utilise un blanc qui vire
@@ -1116,12 +1119,12 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=868");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=868");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=869");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=869");
   /* 🌕 LOT 307 — la pleine lune de la commande du double écran (Eric, 27/09 : « une lune qui
      propose un dropdown de choix d'écrans, une lune 30 diam »). ⭐ L'actif était déjà livré avec
      les astres du belt ; il n'avait pas de jeton. */
-  --astre-pleine-lune: url("./assets/belt/pleine-lune.webp?v=868");
+  --astre-pleine-lune: url("./assets/belt/pleine-lune.webp?v=869");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1157,22 +1160,22 @@
      (*« le voile est un jeton, pas un littéral perdu dans la feuille »*), et c'est LUI
      qui a refusé mon `.6` écrit en clair. Il avait raison. */
   --filigrane: .40;
-  --icone-parchemin: url("./assets/parchemin.webp?v=868");
+  --icone-parchemin: url("./assets/parchemin.webp?v=869");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=868");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=869");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=868");
+  --icone-bourse: url("./assets/bourse.webp?v=869");
   /* ⚖️ LOT 311 — LES TROIS IMAGES DES PORTES CARRÉES du pied d'Équipement (banc 310, validé par
      Eric le 27/09 : *« Parfait je valide les 3 »*). ⭐ TROIS SILHOUETTES PLEINES, de la même
      encre : peintes en MASQUE sur l’encre fixe du bouton (`.porte-carree-image`, shell.css), elles
      sortent du même ton — les filigranes d'origine n'avaient pas la même opacité (alpha moyen
      mesuré au banc : pantin 244, sac 135, wares 107). */
-  --porte-image-pack: url("./assets/porte-pack.png?v=868");
-  --porte-image-wares: url("./assets/porte-wares.png?v=868");
-  --porte-image-gear: url("./assets/porte-gear.png?v=868");
+  --porte-image-pack: url("./assets/porte-pack.png?v=869");
+  --porte-image-wares: url("./assets/porte-wares.png?v=869");
+  --porte-image-gear: url("./assets/porte-gear.png?v=869");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
@@ -1375,14 +1378,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=868");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=869");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=868");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=869");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1475,8 +1478,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=868");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=868");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=869");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=869");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
