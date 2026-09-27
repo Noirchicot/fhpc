@@ -10052,3 +10052,13 @@ table à deux colonnes de tirage se lit en deux ; la fiche d'une variante garde 
 ⭐ Le geste existait pour le parchemin de X5 (« le sort posé se glisse hors du collecteur et le vide ») : il
 est porté aux trois collecteurs, par `onHorsCible` d'`armerJeton` et le rappel `surVider` du pilote
 (`collecteEnvoi` pour Gear et Pack, `retenuWares` pour Wares).
+
+📍 `x-lune-sans-rond-de-focus` · vivante · 28/09
+⚖️ **La lune du double écran ne dessine aucun rond de focus ; choisie, elle rend le focus. Son seul signe est son halo (un side screen ouvert).**
+
+> Eric, 2026-09-28, capture iPad à l'appui : **« rond moche autour de la lune doit disparaître, apparaît quand
+> je sélectionne la lune »**.
+
+📏 La cause : `.lune-ecrans:focus-visible { outline: 2px … --spy-halo }` — un `<select>` garde le focus après
+un choix, et Chrome l'affiche même au doigt. ⚠️ Le clavier perd son repère sur la lune : un `<select>`
+ne distingue pas le focus au doigt du focus au clavier, et Eric a tranché pour l'œil.

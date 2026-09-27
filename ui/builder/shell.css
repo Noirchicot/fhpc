@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=891") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=892") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=891") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=892") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=891") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=892") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=891");
+  background-image: url("./assets/tarot-dos.jpg?v=892");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13716,7 +13716,13 @@ select.x5-drop {
   cursor: pointer; overflow: hidden;
   -webkit-tap-highlight-color: transparent;
 }
-.lune-ecrans:focus-visible { outline: 2px solid var(--spy-halo); outline-offset: -2px; }
+/* 🔴 LOT 338 — PLUS DE ROND DE FOCUS SUR LA LUNE. Eric, 28/09, capture iPad à l'appui : *« rond moche autour
+   de la lune doit disparaître, apparaît quand je sélectionne la lune »*. 📏 C'était CETTE règle : un
+   `<select>` garde le focus après un choix, et Chrome l'affiche `:focus-visible` même au doigt — l'anneau
+   blanc (`--spy-halo` la nuit) restait autour de la cible de 44. ⭐ La lune dit déjà son état par SON halo
+   (l'anneau des astres, quand un side screen est ouvert) ; elle rend en plus le focus dès qu'on a choisi
+   (`double-ecran.mjs`). */
+.lune-ecrans:focus, .lune-ecrans:focus-visible { outline: none; }
 /* ⚖️ LOT 319 — « Double / Screen », en rouge, sur la lune d'une page (Eric, 27/09). ⭐ Une image
    posée sur l'astre (`--lune-mot-double`) : le select ne rend qu'une ligne. La lune du rail garde
    son mot à elle (le nom du side screen), écrit par le select. */

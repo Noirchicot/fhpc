@@ -800,3 +800,16 @@ test("337 — le popup du dépôt voisin : Craft s'arme quand l'objet se crafte 
     gratuit: () => {}, crafter: () => {} });
   assert.deepEqual(tally.actions.map((a) => a.mot), ["Add", "Cancel"], "⛔ vers un Tally, le paiement est différé : rien d'autre");
 });
+
+test("338 — 🔴 LA LUNE N'A PLUS DE ROND DE FOCUS, et elle rend le focus après un choix", () => {
+  /* ⚖️ Eric, 28/09 : « rond moche autour de la lune doit disparaître, apparaît quand je sélectionne la lune » */
+  const css = lire("ui/builder/shell.css").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(css, /\.lune-ecrans:focus, \.lune-ecrans:focus-visible \{ outline: none; \}/, "⛔ la lune n'éteint pas son focus");
+  assert.doesNotMatch(css, /\.lune-ecrans:focus-visible \{ outline: 2px/, "⛔ le rond de focus est revenu");
+  let rendu = 0;
+  const lune = construireLaLune({ principale: "gear", surChoix: () => {} });
+  lune.blur = () => { rendu += 1; };
+  lune.value = [...lune.querySelectorAll("option")].map((o) => o.value).find(Boolean);
+  lune.dispatchEvent({ type: "change", target: lune });
+  assert.equal(rendu, 1, "⛔ après un choix, la lune garde le focus");
+});

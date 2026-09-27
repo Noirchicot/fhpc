@@ -22,7 +22,7 @@
    gouttière de la maison (`--sp-8`), soit **758 × 560** à l'échelle 1. Une seconde porte
    pour la même place serait un second écrivain : ce fichier REÇOIT sa réponse (`place`). */
 
-import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=891";
+import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=892";
 
 const t = createLabels(EN_DEPOT_VOISIN, EN_LUNE);
 
@@ -148,7 +148,12 @@ export function construireLaLune({ principale, satellite = null, rail = false, s
   /* ⚖️ LOT 319 — « Quand actif halo » (Eric, 27/09) : la lune d'une page porte le halo quand un
      side screen est ouvert. ⛔ La lune du rail, elle, EST sur le side screen : pas de halo. */
   if (!rail && satellite) s.dataset.actif = "true";
-  s.addEventListener("change", () => { if (s.value && surChoix) surChoix(s.value); });
+  /* ⚖️ LOT 338 — le choix fait, la lune rend le focus : rien ne reste allumé autour d'elle (Eric, 28/09 :
+     « rond moche autour de la lune… apparaît quand je sélectionne la lune ») */
+  s.addEventListener("change", () => {
+    if (typeof s.blur === "function") s.blur();
+    if (s.value && surChoix) surChoix(s.value);
+  });
   return s;
 }
 
