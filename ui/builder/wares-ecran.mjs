@@ -21,15 +21,15 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_PIED_BAS, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, PIED, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR,
-} from "./wares-disposition.mjs?v=853";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=853";
+} from "./wares-disposition.mjs?v=854";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=854";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=853";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=853";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=853";
+import { REPOS_MS } from "./sac-ecran.mjs?v=854";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=854";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=854";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=853";
+import { portesCarrees } from "./porte-carree.mjs?v=854";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -40,10 +40,10 @@ import { portesCarrees } from "./porte-carree.mjs?v=853";
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=853";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=854";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome } from "./glisser.mjs?v=853";
-import { versionQuery } from "./version.mjs?v=853";
+import { armerJeton, fantome } from "./glisser.mjs?v=854";
+import { versionQuery } from "./version.mjs?v=854";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 

@@ -60,17 +60,17 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=853";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=853";
-import { armerJeton, fantome } from "./glisser.mjs?v=853";
+import * as D from "./gear-disposition.mjs?v=854";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=854";
+import { armerJeton, fantome } from "./glisser.mjs?v=854";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=853";
-import { versionQuery } from "./version.mjs?v=853";
-import { enGP } from "./equipement-pipeline.mjs?v=853";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=854";
+import { versionQuery } from "./version.mjs?v=854";
+import { enGP } from "./equipement-pipeline.mjs?v=854";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=853";
+import { portesCarrees } from "./porte-carree.mjs?v=854";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
