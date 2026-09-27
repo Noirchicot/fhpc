@@ -3069,7 +3069,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=857") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=859") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3392,7 +3392,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=857") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=859") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5044,7 +5044,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=857") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=859") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8025,7 +8025,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=857");
+  background-image: url("./assets/tarot-dos.jpg?v=859");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13746,11 +13746,15 @@ select.x5-drop {
    ne la jette. Elle naît en haut, au centre, sous le belt, monte un peu et s'éteint
    en 1 s — la durée est `DUREE_ANNONCE_MS`, et l'animation la reprend à la lettre.
    ⭐ Le vert et le rouge sont ceux de la maison : `--positive` approuve, `--critical` refuse. */
+/* 🔄 LOT 317 — SOUS LA BOURSE (Eric, 27/09 : « Fait arriver la notification de transaction sous la
+   bourse ») : l'annonce est l'enfant du MONTANT, posée juste sous lui, centrée. Le repli sans
+   bourse à l'écran garde la place du lot 316 (`data-place="haut"`, sur `body`). */
 .bourse-ecart {
-  position: fixed;
+  position: absolute;
   z-index: 1000;
   left: 50%;
-  top: calc(env(safe-area-inset-top, 0px) + 96px);
+  top: 100%;
+  margin-top: var(--sp-4);
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
@@ -13764,6 +13768,7 @@ select.x5-drop {
 }
 .bourse-ecart[data-sens="gain"] { color: var(--positive); }
 .bourse-ecart[data-sens="perte"] { color: var(--critical); }
+.bourse-ecart[data-place="haut"] { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 96px); margin-top: 0; }
 @keyframes bourse-ecart {
   0%   { opacity: 0; translate: 0 6px; }
   12%  { opacity: 1; translate: 0 0; }

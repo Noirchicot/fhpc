@@ -9844,6 +9844,14 @@ TOTAL. 🔴 C'était pièce par pièce : 114 GP sans argent ne payaient pas 5 SP
 `--positive`, `--critical`. Une seconde (`DUREE_ANNONCE_MS`, et l'animation la reprend). Posée sur
 `body`, HORS de `#app` : aucun repeint d'écran ne la jette. Toujours au même endroit, en haut au
 centre sous le belt — la bourse change de place d'un écran à l'autre.
+🔄 **AMENDÉ LE 27/09 (lot 317)** — Eric : **« Fait arriver la notification de transaction sous la
+bourse »** (et : *« Je risque de déplacer la bourse de gear »*). ⭐ L'annonce est un **ÉTAT**
+(`annonceEnCours`), et c'est le **MONTANT** de la bourse (`montantDeLaBourse`, l'organe partagé de
+Gear, Pack, Wares, X2, X5) qui la peint à sa naissance, **sous lui** (`top: 100%`). Un écran qui se
+reconstruit pendant la seconde la reprend donc sous SA bourse, là où l'animation en était
+(`currentTime`, jamais un style en ligne) ; ⭐ et elle suit la bourse si on la déplace, puisqu'elle
+en est l'enfant. Repli sans bourse à l'écran : en haut au centre (`data-place="haut"`). Mesuré
+(375 × 812) : Gear, Pack, Wares, X2 → Wares ; l'annonce 10 blg sous la bourse, centrée.
 ⭐ **UN SEUL POINT D'ÉCOUTE** : `applyDecisionAction` lit la bourse avant et après toute décision —
 achat, craft, vente, remboursement, et ce qui viendra. ⛔ Sauf `setCurrency` : le `+`/`−` de la
 bourse est un réglage, pas une transaction. ⛔ Une décision imbriquée ne s'annonce pas deux fois.

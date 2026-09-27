@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=857";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=857";
+} from "./wares-disposition.mjs?v=859";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=859";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=857";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=857";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=857";
+import { REPOS_MS } from "./sac-ecran.mjs?v=859";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=859";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=859";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=857";
+import { portesCarrees } from "./porte-carree.mjs?v=859";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=857";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=859";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,10 +43,10 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=85
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=857";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=859";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome } from "./glisser.mjs?v=857";
-import { versionQuery } from "./version.mjs?v=857";
+import { armerJeton, fantome } from "./glisser.mjs?v=859";
+import { versionQuery } from "./version.mjs?v=859";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -329,8 +329,11 @@ export function feuilleDesCotesWares() {
   {
     const m = ORGANES.find((o) => o.nom === "MONTANT");
     const enc = ORGANES.find((x) => x.nom === "ENCOMBREMENT");
+    /* ⭐ LOT 317 — `position: relative` : le montant est le REPÈRE de l'annonce de transaction,
+       posée sous lui (`monnaie.mjs`). Sans ça, elle se calait sur la cellule et partait ailleurs
+       (mesuré : x 164 pour une bourse à 276). */
     r.push(`.wares [data-organe="montant"]{inline-size:${px(m.l)};block-size:${px(m.h)};` +
-           `place-self:center;pointer-events:none}`);
+           `place-self:center;pointer-events:none;position:relative}`);
     /* ⚖️ L'ENCOMBREMENT, SOUS L'OR (Eric, 27/09). ⛔ Il ne déborde pas de sa boîte : deux lignes au
        plus, centrées — une ligne qui ne tient pas se VOIT, elle ne se fait pas défiler en douce. */
     r.push(`.wares [data-organe="encombrement"]{inline-size:${px(enc.l)};` +

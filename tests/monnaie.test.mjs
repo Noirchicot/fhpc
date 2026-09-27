@@ -81,3 +81,44 @@ test("7 — ⭐ la coquille annonce au SEUL point d'entrée des décisions, et p
   const payer = src.slice(src.indexOf('if (action.kind === "payer") {'), src.indexOf('if (action.kind === "cartAdd") {'));
   assert.ok(payer.includes("payerAvecMonnaie("), "⛔ `payer` ne rend pas la monnaie");
 });
+
+/* ══ LOT 317 — SOUS LA BOURSE ══════════════════════════════════════════════════════════════════
+   ⚖️ Eric, 27/09 : « Fait arriver la notification de transaction sous la bourse ». L'annonce est un
+   ÉTAT ; le MONTANT de la bourse (l'organe partagé de Gear, Pack, Wares, X2, X5) la peint quand il
+   naît — c'est ce qui la fait traverser les écrans ET se poser sous la bourse de chacun. */
+import { createTestDocument } from "./dom-stub.mjs";
+const { montantDeLaBourse } = await import("../ui/builder/gear-ecran.mjs");
+/* ⚠️ L'ÉTAT DE L'ANNONCE VIT DANS LE MODULE : il faut la MÊME instance que celle de l'écran, donc la
+   même URL, `?v=` compris (dans le navigateur, tout le graphe porte le même). */
+const V = fs.readFileSync(path.join(UI, "gear-ecran.mjs"), "utf8").match(/monnaie\.mjs(\?v=\d+)/)[1];
+const Mi = await import(`../ui/builder/monnaie.mjs${V}`);
+
+test("8 — ⚖️ un montant qui naît pendant la seconde porte l'annonce ; après, plus rien", () => {
+  const avant = globalThis.document;
+  globalThis.document = createTestDocument();
+  try {
+    const m0 = montantDeLaBourse({ bourse: { gp: 12 } });
+    Mi.annoncerLEcart(-5650, globalThis.document);
+    /* ⭐ l'écran d'APRÈS : un montant construit maintenant, ailleurs, porte l'annonce */
+    const m = montantDeLaBourse({ bourse: { gp: 43, sp: 5 } });
+    const a = m.querySelector(".bourse-ecart");
+    assert.ok(a, "⛔ le montant d'un écran neuf ne montre pas l'annonce en cours");
+    assert.equal(a.textContent, "−56 gp & 5 sp");
+    assert.equal(a.dataset.sens, "perte");
+    assert.equal(m0.querySelector(".bourse-ecart"), null, "un montant né AVANT la transaction n'est pas repeint par magie");
+    assert.equal(Mi.annonceEnCours(Date.now() + DUREE_ANNONCE_MS + 1), null, "⛔ la seconde passée, l'annonce n'existe plus");
+  } finally {
+    if (avant === undefined) delete globalThis.document; else globalThis.document = avant;
+  }
+});
+
+test("9 — 📐 l'annonce se pose SOUS son montant, et le repli sans bourse garde la place du 316", () => {
+  const shell = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
+  const regle = shell.match(/\n\.bourse-ecart\s*\{([^}]*)\}/)[1];
+  assert.match(regle, /position:\s*absolute/);
+  assert.match(regle, /top:\s*100%/, "⛔ sous le montant, pas par-dessus");
+  assert.match(shell, /\.bourse-ecart\[data-place="haut"\]\s*\{\s*position:\s*fixed/);
+  /* ⭐ et le montant de Wares est un REPÈRE — sans ça l'annonce partait à x 164 pour une bourse à 276 */
+  const wares = fs.readFileSync(path.join(UI, "wares-ecran.mjs"), "utf8");
+  assert.match(wares, /\.wares \[data-organe="montant"\]\{[^`]*`\s*\+\s*`[^`]*position:relative\}/);
+});

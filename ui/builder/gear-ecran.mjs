@@ -65,17 +65,18 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=857";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=857";
-import { armerJeton, fantome } from "./glisser.mjs?v=857";
+import * as D from "./gear-disposition.mjs?v=859";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=859";
+import { armerJeton, fantome } from "./glisser.mjs?v=859";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=857";
-import { versionQuery } from "./version.mjs?v=857";
-import { enGP } from "./equipement-pipeline.mjs?v=857";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=859";
+import { versionQuery } from "./version.mjs?v=859";
+import { enGP } from "./equipement-pipeline.mjs?v=859";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=857";
+import { portesCarrees } from "./porte-carree.mjs?v=859";
+import { noeudDAnnonce } from "./monnaie.mjs?v=859";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⏳ Le générateur n'exporte pas encore `PANTIN` (seule `R_cotes.json` le
@@ -602,6 +603,10 @@ export function montantDeLaBourse(options) {
   m.append(eld("span", "gear-montant-nombre", totalCourt(total)), eld("span", "gear-montant-unite", "gp"));
   m.dataset.organe = "montant";
   m.setAttribute("aria-hidden", "true");
+  /* ⚖️ LOT 317 — « Fait arriver la notification de transaction sous la bourse » (Eric, 27/09) :
+     le montant naît avec l'annonce en cours, s'il y en a une (`monnaie.mjs`). */
+  const annonce = noeudDAnnonce();
+  if (annonce) m.append(annonce);
   return m;
 }
 /** Le Group Tally — le parchemin BLEU, à gauche du personnel.

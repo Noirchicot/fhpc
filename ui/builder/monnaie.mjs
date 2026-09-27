@@ -89,24 +89,66 @@ export function motDeLEcart(cuivre) {
 /** La durée de l'annonce — ⚖️ « qui persiste 1 seconde ». */
 export const DUREE_ANNONCE_MS = 1000;
 
-/** ANNONCER UN ÉCART, À L'ÉCRAN, UNE SECONDE.
- *  ⭐ POSÉE SUR `body`, HORS DE L'APPLICATION : ⚖️ « Cette animation doit persister d'un écran à
- *  l'autre ». Les écrans se remplacent dans `#app` ; ce qui vit sur `body` n'est jeté par aucun
- *  repeint. ⭐ ELLE SE POSE TOUJOURS AU MÊME ENDROIT — en haut, au centre, sous le belt : la
- *  bourse change de place d'un écran à l'autre, et une annonce qui doit TRAVERSER le changement
- *  d'écran ne peut pas se caler sur un organe qui va disparaître. ⛔ Et donc ni style en ligne ni
- *  mesure de rectangle (gardes 7 et 5 quater de `ui-jetons`) : sa place vit dans la feuille.
- *  ⛔ Elle ne capte aucun doigt (`pointer-events: none`, `shell.css`) et elle se dit aux lecteurs
- *  d'écran (`role="status"`). */
+/* ⚖️ LOT 317 — SOUS LA BOURSE. Eric, 27/09 : *« Fait arriver la notification de transaction sous
+   la bourse »*. 🔄 Le lot 316 la posait en haut, au centre, sur `body` — pour qu'elle traverse les
+   écrans sans s'ancrer à un organe qui disparaît.
+   ⭐ LA RÉPONSE AUX DEUX DEMANDES À LA FOIS : l'annonce est un ÉTAT (ce qui suit), et c'est le
+   MONTANT de la bourse — l'organe partagé par Gear, Pack, Wares, X2 et X5 (`montantDeLaBourse`)
+   — qui la peint quand il naît. Un écran qui se reconstruit pendant la seconde la reprend donc
+   SOUS SA bourse, là où l'animation en était (`currentTime`, jamais un style en ligne). */
+let annonce = null;   /* { mot, sens, debut } — la dernière transaction, tant qu'elle dure */
+const maintenant = () => Date.now();
+
+/** L'annonce en cours, ou `null` si la seconde est passée. */
+export function annonceEnCours(t = maintenant()) {
+  return annonce && t - annonce.debut < DUREE_ANNONCE_MS ? annonce : null;
+}
+
+/** LE NŒUD DE L'ANNONCE, pour qui le demande — le montant de la bourse, à sa naissance. `null`
+ *  s'il n'y a rien à dire. ⭐ Il reprend l'animation là où elle en est, et se retire seul à la fin
+ *  de la seconde : un écran reconstruit à 600 ms montre les 400 ms qui restent, pas une seconde
+ *  neuve. */
+export function noeudDAnnonce(racine = typeof document !== "undefined" ? document : null) {
+  const a = annonceEnCours();
+  if (!a || !racine || typeof racine.createElement !== "function") return null;
+  const n = racine.createElement("span");
+  n.className = "bourse-ecart";
+  n.dataset.sens = a.sens;
+  n.setAttribute("role", "status");
+  n.textContent = a.mot;
+  const caler = () => {
+    if (typeof n.getAnimations !== "function") return;
+    for (const x of n.getAnimations()) x.currentTime = Math.min(DUREE_ANNONCE_MS, maintenant() - a.debut);
+  };
+  if (typeof requestAnimationFrame === "function") requestAnimationFrame(caler);
+  setTimeout(() => n.remove(), Math.max(0, a.debut + DUREE_ANNONCE_MS - maintenant()));
+  return n;
+}
+
+/** ANNONCER UN ÉCART : il devient l'annonce en cours, et chaque bourse déjà à l'écran la montre
+ *  sous elle. ⛔ Une annonce neuve REMPLACE la précédente (deux achats d'affilée ne s'empilent
+ *  pas). S'il n'y a aucune bourse à l'écran, elle se pose en haut, au centre, sur `body`
+ *  (`data-place="haut"`) — le repli du lot 316. */
 export function annoncerLEcart(cuivre, racine = typeof document !== "undefined" ? document : null) {
   const mot = motDeLEcart(cuivre);
-  if (!mot || !racine || !racine.body) return null;
-  const a = racine.createElement("div");
-  a.className = "bourse-ecart";
-  a.dataset.sens = cuivre > 0 ? "gain" : "perte";
-  a.setAttribute("role", "status");
-  a.textContent = mot;
-  racine.body.append(a);
-  setTimeout(() => a.remove(), DUREE_ANNONCE_MS);
-  return a;
+  if (!mot || !racine) return null;
+  annonce = { mot, sens: cuivre > 0 ? "gain" : "perte", debut: maintenant() };
+  if (typeof racine.querySelectorAll === "function") {
+    for (const vieille of racine.querySelectorAll(".bourse-ecart")) vieille.remove();
+  }
+  const montants = typeof racine.querySelectorAll === "function"
+    ? [...racine.querySelectorAll('[data-organe="montant"]')] : [];
+  let premier = null;
+  for (const m of montants) {
+    const n = noeudDAnnonce(racine);
+    if (!n) break;
+    m.append(n);
+    premier = premier || n;
+  }
+  if (premier) return premier;
+  if (!racine.body) return null;
+  const n = noeudDAnnonce(racine);
+  n.dataset.place = "haut";
+  racine.body.append(n);
+  return n;
 }
