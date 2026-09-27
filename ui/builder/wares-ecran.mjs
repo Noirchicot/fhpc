@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=874";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=874";
+} from "./wares-disposition.mjs?v=875";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=875";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=874";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=874";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=874";
+import { REPOS_MS } from "./sac-ecran.mjs?v=875";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=875";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=875";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=874";
+import { portesCarrees } from "./porte-carree.mjs?v=875";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=874";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=875";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,10 +43,10 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=87
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=874";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=875";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome } from "./glisser.mjs?v=874";
-import { versionQuery } from "./version.mjs?v=874";
+import { armerJeton, fantome } from "./glisser.mjs?v=875";
+import { versionQuery } from "./version.mjs?v=875";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -188,9 +188,9 @@ export function feuilleDesCotesWares() {
      Sans lui, l'auto-placement invente des rangées dès qu'un organe s'ajoute. */
   r.push(`.wares-tambour > [data-etage="1"]{grid-row:1}`);
   r.push(`.wares-tambour > [data-etage="2"]{grid-row:2}`);
+  /* ⚖️ LOT 326 — l'HABIT du tuner (icône, encre, dessin 10 × 20 à 4 du bord) est celui de Pack, au
+     socle (`shell.css`, avec `.sac-tuner`) : ⛔ plus de glyphe « ‹ » en 16, ni d'encre écrite ici. */
   r.push(`.wares-tuner{align-self:center;justify-self:center;` +
-         `border:0;background:none;color:var(--text-soft);font:inherit;` +
-         `font-size:${px(16)};line-height:1;cursor:pointer;` +
          `min-inline-size:${px(TOUCH)};min-block-size:${px(TOUCH)}}`);
   /* ⛔ ET CHACUN SA COLONNE, NOMMÉE : `grid-auto-flow` les rangerait dans l'ordre du DOM, ce qui
      marche par accident tant que l'ordre ne bouge pas. Une place qui se DÉCLARE ne se découvre
@@ -449,6 +449,7 @@ function tuner(clef, sens, roue, nb) {
     () => { const k = Math.round(roue.scrollLeft / ROUE.pas) + sens;
             roue.viser(Math.max(0, Math.min(k, nb - 1))); });
   b.dataset.organe = clef;
+  b.dataset.sens = sens < 0 ? "gauche" : "droite";   /* lot 326 : le miroir du chevron de Pack */
   return b;
 }
 
@@ -593,6 +594,7 @@ function gouttiere(sens, compte, actif, surPage) {
     const b = bouton("wares-chevron", mot, sens === "gauche" ? "Previous page" : "Next page",
       () => surPage && surPage(sens === "gauche" ? -1 : 1));
     b.dataset.organe = sens === "gauche" ? "page-precedente" : "page-suivante";
+    b.dataset.sens = sens;   /* lot 326 : le miroir du chevron de Pack */
     g.append(b);
   }
   const v = el("span", "wares-compte", compte);

@@ -947,9 +947,15 @@ body {
    que la boîte qui centre le trait ; il ne peint rien. */
 .belt-chevron-fleche {
   position: relative;
-  width: var(--belt-chevron);
-  height: var(--touch);
+  /* ⚖️ LOT 326 — le dessin du chevron de Pack : 10 × 20, à 4 du bord extérieur de sa cible
+     (« Même au belt », Eric 27/09). ⛔ Plus de trait en bordure tournée (`::before`), plus de
+     `--chevron-trait` voilé : l'icône, à l'encre de Pack, pleine. */
+  width: var(--chevron-lateral-l);
+  height: var(--chevron-lateral-h);
+  border-width: 0;
 }
+.belt-chevron[data-sens="avant"] .belt-chevron-fleche { justify-self: start; margin-inline-start: var(--chevron-lateral-bord); }
+.belt-chevron[data-sens="apres"] .belt-chevron-fleche { justify-self: end; margin-inline-end: var(--chevron-lateral-bord); }
 /* ⛔ LE TRAIT EST DESSINÉ, JAMAIS UN GLYPHE — la loi du pouce de
    l'interrupteur et du livre (§6, §7 bis) : un caractère change de forme
    selon la police installée et rend une couleur qui n'est pas la nôtre.
@@ -972,18 +978,7 @@ body {
    vide autour d'une flèche qu'Eric a demandé à voir.**
    ⚠️ Il grandit DANS sa boîte : ni la cible, ni l'écart réservé, ni la piste,
    ni les tuiles ne bougent d'un blg. On remplit un vide, on n'en prend pas. */
-.belt-chevron-fleche::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: var(--sp-12);
-  height: var(--sp-12);
-  border-top: var(--sp-2) solid var(--chevron-trait);
-  border-right: var(--sp-2) solid var(--chevron-trait);
-}
-.belt-chevron[data-sens="avant"] .belt-chevron-fleche::before { transform: rotate(-135deg); }
-.belt-chevron[data-sens="apres"] .belt-chevron-fleche::before { transform: rotate(45deg); }
+/* 🗄️ LOT 326 — le trait en bordure tournée (`.belt-chevron-fleche::before`) est retiré : voir `.belt-chevron-fleche`. */
 
 /* ⚖️ LOT 207 — LE SOLEIL ET LA LUNE. Eric, 2026-09-15 : *« que le Menu et le
    Sheet soient le soleil et la lune »*, *« les soleil lune doivent avoir le
@@ -3074,7 +3069,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=874") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=875") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3397,7 +3392,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=874") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=875") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5049,7 +5044,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=874") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=875") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8030,7 +8025,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=874");
+  background-image: url("./assets/tarot-dos.jpg?v=875");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13058,7 +13053,12 @@ button.tuto-point::before {
      n'est pas une détection d'appareil : c'est une question posée au POINTEUR.
      Un téléphone garde son chevron, une souris reçoit la molette. — */
 .sac-tuner,
-.molette-tuner {
+.molette-tuner,
+/* ⚖️ LOT 326 — « Les chevrons latéraux de backpack sont mes préférés […] Applique cela partout aux
+   autres écrans. Même au belt » (Eric, 27/09) : la MÊME peinture pour tous les chevrons latéraux. */
+.wares-tuner,
+.wares-chevron,
+.belt-chevron-fleche {
   /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
      l'agent utilisateur impose du noir (garde 6, défaut n°4). */
   color: var(--text-soft);
@@ -13094,7 +13094,31 @@ button.tuto-point::before {
   transform-box: content-box;
 }
 .sac-tuner[data-sens="droite"],
-.molette-tuner[data-sens="droite"] { transform: scaleX(-1); }
+.molette-tuner[data-sens="droite"],
+.wares-tuner[data-sens="droite"],
+.wares-chevron[data-sens="droite"],
+.belt-chevron[data-sens="apres"] .belt-chevron-fleche { transform: scaleX(-1); }
+/* ⚖️ LOT 326 — LA GÉOMÉTRIE DU CHEVRON DE PACK : un dessin de 10 × 20 creusé dans sa cible de 44, à 4
+   du bord EXTÉRIEUR (le miroir ci-dessus le garde à 4 à droite). ⭐ Le glyphe texte (« ‹ ») est
+   de la même encre que l'aplat : le masque n'en laisse voir que l'icône. Les bords se DÉDUISENT des jetons — aucune cote écrite. */
+.wares-tuner,
+.wares-chevron {
+  box-sizing: border-box;
+  inline-size: var(--touch); block-size: var(--touch);
+  min-inline-size: var(--touch); min-block-size: var(--touch);
+  overflow: hidden;   /* le glyphe « ‹ » reste (nom de secours), le masque ne laisse voir que l'icône */
+  border-width: calc((var(--touch) - var(--chevron-lateral-h)) / 2)
+                calc(var(--touch) - var(--chevron-lateral-l) - var(--chevron-lateral-bord))
+                calc((var(--touch) - var(--chevron-lateral-h)) / 2)
+                var(--chevron-lateral-bord);
+}
+.wares-tuner[data-sens="droite"],
+.wares-chevron[data-sens="droite"] {
+  border-width: calc((var(--touch) - var(--chevron-lateral-h)) / 2)
+                var(--chevron-lateral-bord)
+                calc((var(--touch) - var(--chevron-lateral-h)) / 2)
+                calc(var(--touch) - var(--chevron-lateral-l) - var(--chevron-lateral-bord));
+}
 @media (hover: hover) {
   .sac-tuner:hover,
   .molette-tuner:hover {
@@ -13315,12 +13339,8 @@ button.tuto-point::before {
   gap: var(--sp-4); color: var(--text-soft); font-size: var(--t1);
   font-variant-numeric: tabular-nums;
 }
-.wares-chevron {
-  border: 0; background: none; color: var(--text-soft);
-  font: inherit; font-size: var(--t4); line-height: 1; cursor: pointer;
-  /* 🔒 le plancher du pouce — il ne cède pas à la taille du dessin */
-  min-inline-size: var(--touch); min-block-size: var(--touch);
-}
+/* 🗄️ LOT 326 — l'habit de `.wares-chevron` (glyphe « ‹ » en T4) est parti : il prend celui du chevron
+   de Pack (règle `.sac-tuner, …, .wares-chevron` plus haut), plancher du pouce compris. */
 .wares-compte { color: var(--accent); }
 
 /* — LE JETON : celui du sac, à l'identique. ⛔ Wares ne le redessine pas — */

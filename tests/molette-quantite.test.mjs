@@ -167,6 +167,9 @@ test("7 — ⭐ LA PEAU EST CELLE DU SAC ET DE WARES — la molette entre dans L
     "le cran sous le viseur, et son halo");
   assert.match(css, regle([".wares-roue", ".molette-roue"]), "la roue qui défile (pan-x, aimant)");
   assert.match(css, regle([".wares-loupe", ".molette-loupe"]), "le viseur qui ne reçoit rien");
-  assert.match(css, regle([".sac-tuner", ".molette-tuner"]), "le chevron et sa flèche circulaire");
+  /* 🔄 LOT 326 — la liste s'allonge : « Les chevrons latéraux de backpack sont mes préférés […] Applique
+     cela partout » (Eric, 27/09) — Wares et le belt entrent dans la peau du chevron de Pack. */
+  assert.match(css, regle([".sac-tuner", ".molette-tuner", ".wares-tuner", ".wares-chevron", ".belt-chevron-fleche"]),
+    "le chevron et sa flèche circulaire");
   assert.doesNotMatch(css, /\.x1-saisie|\.x2-pas|\.pipeline-qte/, "🗄️ les peaux des contrôles morts sont parties");
 });

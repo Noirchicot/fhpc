@@ -9936,3 +9936,21 @@ tambour → Encumbrance passe de 8 à 4, le rembourrage de la grille de 8 à 6 (
 Wares, 216 + 6 + 6 = 228), la dalle de 500 à 495 et le rembourrage bas du pied de 8 à 3 (l'exception
 de Wares, lot 275) — la rangée ne bouge pas. 📏 **MESURÉ APRÈS** : les trois pages rendent 193..285 ·
 293..521 · 529..688 (Gear : corps 193..521, pied 529..688).
+
+---
+
+### 🟦 UN SEUL CHEVRON LATÉRAL : CELUI DE PACK
+📍 `chevron-lateral-de-pack` · vivante · 27/09
+⚖️ **Tout chevron latéral du builder — tambour et pages de Wares, pages de X5, le belt — est celui de Pack : l'icône `--icone-chevron` en masque, à l'encre `--text-soft`, opacité pleine, un dessin de 10 × 20 creusé dans une cible de 44, à 4 du bord extérieur, et le miroir à droite.**
+
+> Eric, 2026-09-27, mot pour mot : **« Les chevrons latéraux de backpack sont mes préférés. Note le niveau
+> de transparence, la taille, la couleur, la distance du bord. Applique cela partout aux autres écrans.
+> Même au belt. »**
+
+📏 Relevé sur Pack (`.sac-tuner`, plan `backpack_gen.py` : `CHEVRON_L` 10, `CHEVRON_H` 20, `MARGE` 4) et
+porté en jetons (`--chevron-lateral-l/-h/-bord`, tokens.css) ; la peinture est une seule règle au socle
+(`.sac-tuner, .molette-tuner, .wares-tuner, .wares-chevron, .belt-chevron-fleche`). 🗄️ Ce qu'elle
+remplace : les glyphes « ‹ › » de Wares (16 et T4) et la flèche du belt en bordure tournée, voilée à
+35 % (`--chevron-trait`, 02/09 « petit et discret »). ⛔ La flèche circulaire au survol reste propre à la
+molette. 📏 Mesuré (375 × 812) : Pack, Wares et le belt rendent le même dessin, 10 × 20 à 4 du bord,
+`rgb(152,146,134)`, opacité 1.
