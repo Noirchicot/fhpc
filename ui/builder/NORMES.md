@@ -9907,3 +9907,21 @@ natif (le doigt comme la souris). Halo : `data-actif` + `--belt-halo` ×3, la lu
 dropdown identique ; lune au même point (cible 0,348, alignée sur le haut du collecteur) ; dalles au
 rayon 16 (`--organe-rayon`). Ce qui différait sur Pack : `border-width: 0` écrit sur une cible égale à
 son dessin (le liseré effacé) et `Send` hors de la liste du cran serré (16 au lieu de 12).
+
+---
+
+### 🟦 LES TROIS PAGES D'ÉQUIPEMENT ONT LES MÊMES DALLES
+📍 `equipement-trois-pages-alignees` · vivante · 27/09
+⚖️ **Gear, Pack et Wares posent leurs dalles aux mêmes hauteurs : bande du haut 0..92, grille (ou corps) jusqu'à 328, césure 8, pied 336..495 — et le même pied (collecteur 348, dropdown 402, rangée 448).**
+
+> Eric, 2026-09-27, mot pour mot : **« Dans backpack, réduis la hauteur de la dalle du haut de 4 blg,
+> prends-les dans l'espace entre le tambour et encumbrance »** · **« Tout ce qui est en dessous
+> remonte »** · **« Mon objectif : aligner le design des 3 pages »**.
+
+📏 **MESURÉ AVANT** (v869, px d'écran, 375 × 812) — Gear et Wares : pied 529..688 ; Wares : bande
+193..285, grille 293..521. Pack : bande ..289, grille 297..529, pied 537..693. Les organes du pied
+étaient déjà alignés (541 / 595 / 641). ⭐ **Pack prend donc les dalles de Wares, au blg** : l'écart
+tambour → Encumbrance passe de 8 à 4, le rembourrage de la grille de 8 à 6 (`REMBOURRAGE_GRILLE` de
+Wares, 216 + 6 + 6 = 228), la dalle de 500 à 495 et le rembourrage bas du pied de 8 à 3 (l'exception
+de Wares, lot 275) — la rangée ne bouge pas. 📏 **MESURÉ APRÈS** : les trois pages rendent 193..285 ·
+293..521 · 529..688 (Gear : corps 193..521, pied 529..688).

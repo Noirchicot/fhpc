@@ -1312,10 +1312,15 @@ test("25 — 🔒 VERROUILLÉ : le filigrane est à la place qu'Eric a ratifiée
      est resté vert (la mécanique a tenu), celui-ci a rougi (la place a changé), et la
      décision est repassée par Eric avant que le nombre ne soit regravé. C'est le tour
      complet que ces deux gardes servent à faire. */
+  /* 🔄 ET IL A ROUGI UNE SECONDE FOIS, LE 27/09 — Eric : « Dans backpack, réduis la hauteur de la
+     dalle du haut de 4 blg, prends-les dans l'espace entre le tambour et encumbrance ». La grille
+     remonte, puis « Mon objectif : aligner le design des 3 pages » — la grille de Pack prend celle de
+     Wares (100..328), et le filigrane, qui se déduit d'elle, la suit (106 → 100) : la décision est la
+     sienne, le nombre est regravé. */
   assert.deepEqual(
     [D.FOND.x, D.FOND.y, D.FOND.l, D.FOND.h],
-    [90.48, 106, 194.03, 228],
-    "🔒 la boîte du filigrane, ratifiée le 20/09 et descendue de 8 le 19/09 sur l'ordre d'Eric.\n" +
+    [90.48, 100, 194.03, 228],
+    "🔒 la boîte du filigrane, ratifiée le 20/09, descendue de 8 le 19/09 et remontée de 6 le 27/09 sur l'ordre d'Eric.\n" +
     "   ⛔ Si ce garde rougit, ce n'est pas lui qu'on corrige : c'est la question qu'on pose.");
   assert.equal(D.FOND.rapport, 0.851,
     "🔒 et le rapport est celui du modèle simplifié qu'il a choisi — un autre dessin, un autre garde");
@@ -2064,8 +2069,12 @@ test("37 — \ud83d\udcd0 LE BAS DU BLOC DE POIDS EST \u00c0 8 DE L'AR\u00caTE D
   /* \ud83d\udd12 ET LE BAS DE L'\u00c9CRAN TENAIT D\u00c9J\u00c0 \u2014 NORMES : *\u00ab \u00e0 8 blg du bord bas de la dalle \u00bb*.
      \u26d4 Ce garde le tient aussi, pour qu'on sache lequel des deux a boug\u00e9 le jour o\u00f9 l'un
      des deux cassera. */
-  assert.equal(D.DALLE.h - (org("RANGEE").y + org("RANGEE").h), 8,
-    "\u2696\ufe0f la derni\u00e8re rang\u00e9e est \u00e0 8 du bas de la dalle");
+  /* 🔄 LOT 322 — Eric, 27/09 : « Mon objectif : aligner le design des 3 pages ». La rangée n'a pas
+     bougé (448, mesurée au même point sur Gear, Pack et Wares) ; c'est la DALLE de Pack qui prend celle
+     de Wares (495), et avec elle son rembourrage bas de 3 (lot 275). */
+  assert.equal(D.DALLE.h - (org("RANGEE").y + org("RANGEE").h), 3,
+    "⚖️ la dernière rangée est à 3 du bas de la dalle, comme dans Wares");
+  assert.equal(org("RANGEE").y, 448, "⛔ la rangée ne bouge pas : elle est déjà alignée sur Gear et Wares");
 });
 
 /* ══ LOT 319 — LE PIED DE PACK À LA COTE DES DEUX AUTRES ═════════════════════════════════════════
