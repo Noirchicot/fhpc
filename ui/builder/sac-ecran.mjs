@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=888";
-import { versionQuery } from "./version.mjs?v=888";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=888";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=889";
+import { versionQuery } from "./version.mjs?v=889";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=889";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=888";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=889";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=888";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=889";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=888";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=889";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=888";
+import { portesCarrees } from "./porte-carree.mjs?v=889";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=888";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=889";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=888";
+import { facteurZoomCourant } from "./echelle.mjs?v=889";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerAstrolabe } from "./astrolabe.mjs?v=888";
+import { armerAstrolabe } from "./astrolabe.mjs?v=889";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -721,8 +721,14 @@ function regardeLaMarge(x, y, options, pisteNoeud) {
 /** Le glisser d'un jeton du sac — le même partout : la marge défile, le dépôt pose.
  *  ⭐ Écrit UNE fois et donné aux deux organes qui glissent (une case, le
  *  collecteur) : deux copies divergeraient au premier réglage. */
-function glisserDuSac(noeud, index, options, surDepot, pisteNoeud) {
+function glisserDuSac(noeud, index, options, surDepot, pisteNoeud, horsCible = undefined) {
   armerJeton(noeud, {
+    /* ⚖️ LOT 335 — LÂCHÉ DANS LE VIDE, L'OBJET QUITTE LE COLLECTEUR. Eric, 28/09 : *« je ne peux pas vider
+       le collecteur, mettre [le] token dans le vide, ça marche pas »*. ⭐ C'est le geste du parchemin
+       de X5 (lot 290 : « le sort posé se glisse hors du collecteur et le vide »), porté aux trois
+       collecteurs d'Equipment — un organe, un geste. ⛔ Rien n'est écrit au document : le contenu
+       d'un collecteur n'est pas un item tant qu'on n'a pas fait Send. */
+    onHorsCible: horsCible,
     /* ⏱️ LE PÉAGE, ET IL N'EST PAS GÉNÉRAL : il vit ici parce que le sac a un ascenseur.
        ⛔ Species et les sorts n'en ont pas, donc pas de péage — la loi du 20/08 tient. */
     maintien: PEAGE_JETON_MS,
@@ -1050,7 +1056,7 @@ function collecteur(options, retenu, pisteNoeud) {
   glisserDuSac(c, retenu.index, options, (creneau) => {
     if (creneau === "collecteur") return;       /* il est déjà là */
     if (options.surPlacer) options.surPlacer(retenu.index, creneau);
-  }, pisteNoeud);
+  }, pisteNoeud, () => { if (options.surVider) options.surVider(retenu.index); });
   return c;
 }
 

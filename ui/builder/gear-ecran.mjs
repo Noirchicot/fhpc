@@ -65,19 +65,19 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=888";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=888";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=888";
+import * as D from "./gear-disposition.mjs?v=889";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=889";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=889";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=888";
-import { versionQuery } from "./version.mjs?v=888";
-import { enGP } from "./equipement-pipeline.mjs?v=888";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=889";
+import { versionQuery } from "./version.mjs?v=889";
+import { enGP } from "./equipement-pipeline.mjs?v=889";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=888";
-import { noeudDAnnonce } from "./monnaie.mjs?v=888";
-import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=888";
+import { portesCarrees } from "./porte-carree.mjs?v=889";
+import { noeudDAnnonce } from "./monnaie.mjs?v=889";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=889";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */
@@ -520,7 +520,13 @@ function collecteur(id, options, retenu) {
       onDepot: (creneau) => {
         if (creneau === "collecteur") return;
         if (options.surPlacer) options.surPlacer(retenu.index, creneau);
-      }
+      },
+      /* ⚖️ LOT 335 — LÂCHÉ DANS LE VIDE, L'OBJET QUITTE LE COLLECTEUR. Eric, 28/09 : *« je ne peux pas vider
+       le collecteur, mettre [le] token dans le vide, ça marche pas »*. ⭐ C'est le geste du parchemin
+       de X5 (lot 290 : « le sort posé se glisse hors du collecteur et le vide »), porté aux trois
+       collecteurs d'Equipment — un organe, un geste. ⛔ Rien n'est écrit au document : le contenu
+       d'un collecteur n'est pas un item tant qu'on n'a pas fait Send. */
+      onHorsCible: () => { if (options.surVider) options.surVider(retenu.index); }
     });
     return c;
   }

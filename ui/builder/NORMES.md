@@ -10035,3 +10035,12 @@ Flying (4 tailles), Manual of Golems (4 golems), Potion of Resistance et Ring of
 sans table (Ring of Elemental Command), un effet choisi à l'usage (Bag of Beans, Candle of Invocation).
 📐 Un seul lecteur, `variantesDe` (4ᵉ forme, `objet-crafte.mjs`) ; `estRecette` en déduit le plan. Une
 table à deux colonnes de tirage se lit en deux ; la fiche d'une variante garde l'en-tête et SA case.
+
+📍 `collecteur-vider-dans-le-vide` · vivante · 28/09
+⚖️ **Glissé hors de toute cible, l'objet d'un collecteur d'Equipment (Gear, Pack, Wares) le quitte : le collecteur se vide, rien n'est écrit au document. Lâché sur le collecteur lui-même, il le garde.**
+
+> Eric, 2026-09-28 : **« je ne peux pas vider le collecteur, mettre [le] token dans le vide, ça marche pas »**.
+
+⭐ Le geste existait pour le parchemin de X5 (« le sort posé se glisse hors du collecteur et le vide ») : il
+est porté aux trois collecteurs, par `onHorsCible` d'`armerJeton` et le rappel `surVider` du pilote
+(`collecteEnvoi` pour Gear et Pack, `retenuWares` pour Wares).

@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=888";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=888";
+} from "./wares-disposition.mjs?v=889";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=889";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=888";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=888";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=888";
+import { REPOS_MS } from "./sac-ecran.mjs?v=889";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=889";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=889";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=888";
+import { portesCarrees } from "./porte-carree.mjs?v=889";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=888";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=889";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,12 +43,12 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=88
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=888";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=889";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=888";
-import { versionQuery } from "./version.mjs?v=888";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=889";
+import { versionQuery } from "./version.mjs?v=889";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerAstrolabe } from "./astrolabe.mjs?v=888";
+import { armerAstrolabe } from "./astrolabe.mjs?v=889";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -832,6 +832,12 @@ export function construireLesWares(o = {}) {
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),
       onDepot: () => {},   /* lâché sur lui-même : il garde l'objet */
+      /* ⚖️ LOT 335 — LÂCHÉ DANS LE VIDE, L'OBJET QUITTE LE COLLECTEUR. Eric, 28/09 : *« je ne peux pas vider
+       le collecteur, mettre [le] token dans le vide, ça marche pas »*. ⭐ C'est le geste du parchemin
+       de X5 (lot 290 : « le sort posé se glisse hors du collecteur et le vide »), porté aux trois
+       collecteurs d'Equipment — un organe, un geste. ⛔ Rien n'est écrit au document : le contenu
+       d'un collecteur n'est pas un item tant qu'on n'a pas fait Send. */
+      onHorsCible: () => { if (o.surVider) o.surVider(); },
       onDepotVoisin: o.surRetenuVoisin ? (creneau, cible) => o.surRetenuVoisin(cible) : undefined,
     });
   }
