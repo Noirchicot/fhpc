@@ -182,13 +182,16 @@ test("6 · les images, leurs tailles et le mot sont ceux du banc 310", () => {
     `Gear : ${gear}`);
   assert.match(SHELL, new RegExp(`\\.porte-carree\\[data-porte="wares"\\]\\s*\\{[^}]*--porte-image:\\s*var\\(--porte-image-wares\\);[^}]*--porte-image-taille:\\s*${wares.replace(/[.%]/g, "\\$&")};`),
     `Wares : ${wares}`);
-  /* l'image : un masque sur l'aplat `--text-soft` */
-  assert.match(SHELL, /\.porte-carree-image\s*\{[^}]*background:\s*var\(--text-soft\);[^}]*mask:\s*var\(--porte-image\)/);
+  /* l'image : un masque sur l'encre FIXE du bouton (ivoire mêlé au corps) — 🔴 pas `--text-soft`, qui
+     bascule avec le thème alors que le corps du bouton ne bascule pas (silhouettes perdues en clair) */
+  assert.match(SHELL, /\.porte-carree-image\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--bouton-encre\)[^;]*var\(--bouton-face\)\);[^}]*mask:\s*var\(--porte-image\)/);
+  assert.doesNotMatch(SHELL.slice(SHELL.indexOf(".porte-carree-image {"), SHELL.indexOf(".porte-carree-image {") + 900), /--text-soft\)/,
+    "⛔ l'encre des silhouettes ne suit pas le thème");
   /* le mot : T0, italique, 600, centré, détaché par un halo du fond */
   const mot = /\.porte-carree-mot\s*\{([^}]*)\}/.exec(SHELL);
   assert.ok(mot, "la règle du mot existe");
   for (const d of [/font-style:\s*italic/, /font-weight:\s*600/, /font-size:\s*var\(--t0\)/, /text-align:\s*center/,
-                   /text-shadow:\s*0 0 3px var\(--bg\)/]) {
+                   /text-shadow:\s*0 0 3px var\(--bouton-face\)/]) {
     assert.match(mot[1], d, `le mot : ${d}`);
   }
   /* le carré : 44 de cible, 40 peints — le retrait sur les QUATRE côtés */

@@ -10098,7 +10098,11 @@ button.porte-carree::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-
 .porte-carree-image {
   position: absolute;
   inset: calc(var(--bouton-retrait-v) + 3px);
-  background: var(--text-soft);
+  /* 🔴 PAS `--text-soft` : il bascule avec le thème, et le CORPS du bouton, lui, ne bascule pas
+     (graphite dans les deux). En clair, `--text-soft` devenait sombre sur sombre et les silhouettes
+     disparaissaient (vu sur la capture claire du lot 311). ⭐ L'encre est celle du BOUTON, fixe :
+     l'ivoire du mot, mêlé au corps — le ton que le thème sombre montrait, dans les deux thèmes. */
+  background: color-mix(in srgb, var(--bouton-encre) 62%, var(--bouton-face));
   -webkit-mask: var(--porte-image) center / var(--porte-image-taille, contain) no-repeat;
   mask: var(--porte-image) center / var(--porte-image-taille, contain) no-repeat;
   pointer-events: none;
@@ -10122,7 +10126,7 @@ button.porte-carree::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-
   font-size: var(--t0);
   line-height: 1;
   text-align: center;
-  text-shadow: 0 0 3px var(--bg);
+  text-shadow: 0 0 3px var(--bouton-face);   /* le halo du CORPS, pas du fond de page (clair en thème clair) */
 }
 
 
