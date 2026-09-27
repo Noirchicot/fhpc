@@ -9914,6 +9914,17 @@ son dessin (le liseré effacé) et `Send` hors de la liste du cran serré (16 au
 📍 `equipement-trois-pages-alignees` · vivante · 27/09
 ⚖️ **Gear, Pack et Wares posent leurs dalles aux mêmes hauteurs : bande du haut 0..92, grille (ou corps) jusqu'à 328, césure 8, pied 336..495 — et le même pied (collecteur 348, dropdown 402, rangée 448).**
 
+⭐ **LE PRINCIPE, dit par Eric** (27/09) : **« L'idée c'est que haut et pied de page, césures, marges,
+lorsque c'est possible (gear aura toujours une seule dalle en haut), soient idem sur les 3 »**. ⛔ Donc
+une cote du haut, du pied, d'une césure ou d'une marge ne se règle JAMAIS sur une seule page : elle se
+règle sur les trois, ou elle ne se règle pas. Gear seul garde une dalle unique en haut (le corps), qui
+finit là où finissent les grilles des deux autres.
+🛡️ **LE GARDE** : `tests/trois-pages.test.mjs` compare les TROIS PLANS entre eux (chaque écran était
+vert contre son propre plan pendant que les trois divergeaient). 🔴 Il est né d'une faute du lot 322 :
+l'espace du pied de Pack partait du bas des JETONS — la grille a raccourci, et la bourse et la lune sont
+remontées de 3 sans qu'aucun garde le voie. ⭐ L'espace du pied part désormais du haut de la DALLE du pied
+(lot 323) : bourse 345, lune 348, comme Gear.
+
 > Eric, 2026-09-27, mot pour mot : **« Dans backpack, réduis la hauteur de la dalle du haut de 4 blg,
 > prends-les dans l'espace entre le tambour et encumbrance »** · **« Tout ce qui est en dessous
 > remonte »** · **« Mon objectif : aligner le design des 3 pages »**.
