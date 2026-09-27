@@ -101,8 +101,13 @@ test("monnaie — somme, couverture clef à clef, le taux d'affichage en GP", ()
   const total = additionneCouts([multiplieCout(parseCout("3 GP"), 2), parseCout("5 sp")]);
   assert.deepEqual(total, { pp: 0, gp: 6, sp: 5, cp: 0 });
   assert.equal(bourseCouvre({ gp: 6, sp: 5, cp: 0, pp: 0 }, total), true);
-  assert.equal(bourseCouvre({ gp: 7, sp: 0, cp: 0, pp: 0 }, total), false,
-    "⛔ pas de change automatique : 7 gp ne paient pas 5 sp tout seuls");
+  /* 🔄 LOT 316 — LA LOI S'INVERSE. Eric, 27/09 : « La bourse doit rendre la monnaie ». Ce garde
+     tenait l'inverse (« pas de change automatique ») ; c'est désormais le TOTAL qui compte, et
+     `payer` casse la pièce qu'il faut (`monnaie.mjs`, `tests/monnaie.test.mjs`). */
+  assert.equal(bourseCouvre({ gp: 7, sp: 0, cp: 0, pp: 0 }, total), true,
+    "⭐ la monnaie se rend : 7 gp paient 6 gp 5 sp");
+  assert.equal(bourseCouvre({ gp: 6, sp: 4, cp: 9, pp: 0 }, total), false,
+    "⛔ mais un cuivre de moins ne paie pas");
   assert.equal(enGP({ pp: 1, gp: 2, sp: 3, cp: 4 }), 10 + 2 + 0.3 + 0.04);
 });
 

@@ -28,11 +28,12 @@
    refus d'achat autre que « la bourse n'a pas assez » (une soustraction qui
    refuse de produire un négatif — l'écran le dit, il n'écrit rien). */
 
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=856";
-import { pageDeListe } from "./normes.mjs?v=856";
-import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=856";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=857";
+import { peutPayer } from "./monnaie.mjs?v=857";
+import { pageDeListe } from "./normes.mjs?v=857";
+import { PALIERS_SRFH, BRASSAGE, noteDeCraft } from "./bareme-srfh.mjs?v=857";
 /* ⚖️ LOT 288 — « poids par lot » : combien de lots fait une ligne, UN seul écrivain (`craft.mjs`). */
-import { paiementsDe } from "./craft.mjs?v=856";
+import { paiementsDe } from "./craft.mjs?v=857";
 
 /* ══ LES COMPTES PAR PAGE DE CE CHAPITRE — DÉDUITS, PAS CHOISIS ══════════════
    NORMES §5 : 15 est le DÉFAUT des listes de jetons ; un écran qui dévie
@@ -522,8 +523,10 @@ export function enGP(cout) {
  *  table, pas d'écran) — on compare alors la valeur totale et on laisse le
  *  joueur ajuster sa bourse lui-même. v1 : refus simple si une clef manque. */
 export function bourseCouvre(bourse, cout) {
-  if (!cout) return false;
-  return CURRENCY_KEYS.every((k) => (bourse[k] || 0) >= (cout[k] || 0));
+  /* ⚖️ LOT 316 — « La bourse doit rendre la monnaie » (Eric, 27/09). 🔴 C'était pièce par pièce :
+     114 GP sans argent ne payaient pas 5 SP. ⭐ C'est le TOTAL qui compte (`monnaie.mjs`), et
+     `payer` casse la pièce qu'il faut. */
+  return peutPayer(bourse, cout);
 }
 
 /* ══ LE PANIER — IL VIT AU PERSONNAGE (décision d'Eric, 24/08 : « ok on

@@ -9821,3 +9821,29 @@ Le choix de pile (*SRD ou Fate's Hand*), la confirmation de fin d'étape et les
 guides ne sont pas majeurs tant qu'Eric ne l'a pas dit — ⛔ un popup qui
 prendrait cet attribut sans son mot éteindrait un écran que le joueur doit
 peut-être continuer de voir.
+
+---
+
+### 🟦 LA BOURSE REND LA MONNAIE, ET CHAQUE TRANSACTION S'ANNONCE UNE SECONDE
+📍 `bourse-monnaie-et-annonce` · vivante · 27/09
+⚖️ **Une bourse paie tout prix que son TOTAL couvre, en cassant la pièce qu'il faut ; chaque transaction montre son écart net une seconde — vert s'il entre, rouge s'il sort — et l'annonce traverse les changements d'écran.**
+
+> Eric, 2026-09-27, mot pour mot : **« La bourse doit rendre la monnaie. Lorsqu'il y a une transaction.
+> Qu'une petite animation qui persiste 1 seconde qui montre un +34gp & 2sp en vert, - 56gp & 5 sp en
+> rouge. Cette animation doit persister d'un écran à l'autre. Car souvent quand un transaction est
+> faite il il y a une transition d'écran. »**
+
+⭐ **LE PAIEMENT** (`payerAvecMonnaie`, `monnaie.mjs`) : chaque pièce du prix se paie d'abord dans SA
+pièce (la bourse garde sa composition), puis avec la plus grosse pièce qui ne dépasse pas le reste,
+puis on casse la plus petite pièce qui le couvre, et la monnaie revient dans les pièces plus petites
+(100 gp paient 56 gp 5 sp → 43 gp 5 sp ; 1 pp paie 5 sp → 9 gp 5 sp). `bourseCouvre` compare le
+TOTAL. 🔴 C'était pièce par pièce : 114 GP sans argent ne payaient pas 5 SP.
+
+⭐ **L'ANNONCE** (`annoncerLEcart`, `.bourse-ecart`) : le NET, en gp · sp · cp — « +34 gp & 2 sp »,
+« −56 gp & 5 sp » ; casser une pièce d'or pour payer 5 sp se dit « −5 sp ». Couleurs de la maison :
+`--positive`, `--critical`. Une seconde (`DUREE_ANNONCE_MS`, et l'animation la reprend). Posée sur
+`body`, HORS de `#app` : aucun repeint d'écran ne la jette. Toujours au même endroit, en haut au
+centre sous le belt — la bourse change de place d'un écran à l'autre.
+⭐ **UN SEUL POINT D'ÉCOUTE** : `applyDecisionAction` lit la bourse avant et après toute décision —
+achat, craft, vente, remboursement, et ce qui viendra. ⛔ Sauf `setCurrency` : le `+`/`−` de la
+bourse est un réglage, pas une transaction. ⛔ Une décision imbriquée ne s'annonce pas deux fois.
