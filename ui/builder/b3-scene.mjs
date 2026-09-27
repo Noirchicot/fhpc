@@ -14,8 +14,8 @@
    reçoit `surBouton(mot)` et décide (le builder : « Equipment » → retour R). */
 
 import { SCENE, SCENE_PIECE, JETON, BOITES, COLLECTEUR, ENVOI, BOURSE, POIDS, BARRE, CORPS_EN_SCENE }
-  from "./b3-disposition.mjs?v=848";
-import { CORPS } from "./b3-ancrages.mjs?v=848";
+  from "./b3-disposition.mjs?v=849";
+import { CORPS } from "./b3-ancrages.mjs?v=849";
 
 const SVG = "http://www.w3.org/2000/svg";
 
@@ -77,7 +77,7 @@ export function construireLaSceneB3(options = {}) {
     for (const [clef, c] of Object.entries(CORPS)) {
       const m = forme("mask", null, { id: `b3s-masque-${clef === "monsieur" ? "h" : "f"}`,
         maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1000, height: 1600 });
-      m.append(forme("image", null, { href: `./assets/${c.image}?v=848`,
+      m.append(forme("image", null, { href: `./assets/${c.image}?v=849`,
         x: c.x, y: c.y, width: c.largeur, height: c.hauteur }));
       defs.append(m);
     }
