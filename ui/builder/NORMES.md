@@ -4976,6 +4976,38 @@ sa sous-catégorie et sa page — 📏 mesuré au navigateur le 20/09. Seul son 
 
 ---
 
+### 🎡 LA QUANTITÉ DES FICHES X1 ET X2 SE CHOISIT À LA MOLETTE — DE 1 À 20 ; X5 GARDE SON MENU DE 1 À 10
+📍 `x-quantite-molette` · vivante · 27/09
+⚖️ **Dans les fiches X1 et X2, la quantité se choisit avec UN organe : la molette-tambour de quantité (`molette-quantite.mjs`), de 1 à 20 (`PLAFOND_MOLETTE`, écrit une fois) — bornée par la pile sur X1. Le montant final (prix total, poids total) suit TOUJOURS le nombre choisi. ⛔ X5 n'a pas de molette : il garde son menu Qty ▾ de 1 à 10 (`PLAFOND_QTE`).**
+
+> Eric, 2026-09-27 : **« Dans les fiches x, il faut harmoniser le bouton des quantités, et il faut tj
+> que le montant final soit modifié avec l'augmentation en quantité »** · **« Quand j'ai 5 caltrops et
+> que je veux en envoyer 2 ailleurs et send, mon total passe à 3 et on crée un nouveau token à la
+> destination requise avec qty 2 »** · **« un dropdown à 20 pourrait le faire, existe-t-il un truc plus
+> joli et plus efficace… qui marche aussi bien à la souris qu'à la main ; le +/- pour les quantités
+> prend beaucoup de place »** · puis, entre la pastille qu'on glisse, la grille et la molette :
+> **« La molette tambour ! »** · **« 20 c'est bien »** · **« Partout ailleurs sauf dans x5 »** ·
+> **« Pas de molette tambour juste dropdown à 10 »** · **« Pour x5 uniquement pas de molette tambour »**.
+
+⭐ **CE N'EST PAS UN TROISIÈME TAMBOUR** : la molette monte `roue-tambour.mjs`, le mécanisme du sac et
+de Wares (ruban sous un viseur fixe, deux cales, aimant), et elle porte LEUR peau (`.molette-cran`
+entre dans les listes de `.sac-cran, .wares-cran` ; la roue, le viseur et les chevrons de même).
+**Les gestes** : glisser au doigt (le cran sous le viseur est choisi quand le ruban s'arrête) ·
+molette de la souris (un cran par cran) et trackpad · les deux chevrons · un tap sur un cran · les
+flèches du clavier (curseur `role="slider"`).
+📐 **Les cotes** vivent au plan de X1 (`MOLETTE`, `X1_gen.py`) : trois crans vus de 28, écart 4, piste
+92, chevrons à cheval sur le bord (22 de chaque côté) → **136 × 44**. X2 lit la même table.
+⭐ **LE MONTANT SUIT LE NOMBRE, PAR UNE ARITHMÉTIQUE** : `totauxDeLaFiche` (`equipement-pipeline.mjs`)
+chiffre prix et poids de X1 (par lot pour une munition, `paiementsDe`) et de X2 ; la ligne de coût
+de la tête se repeint par ses écrivains (`repeindreLaLigneDeCout`), sans reconstruire la fiche.
+⭐ **X1 : ENVOYER n SUR UNE PILE, C'EST SCINDER** — `n < pile` pose `splitGearLine` (la pile garde
+`pile − n`, un jeton de `n` naît à la destination) ; `n = pile` déplace la pile entière. La fiche
+s'ouvre sur la pile entière (bornée à 20).
+⛔ **CE QUE LE 20 EMPÊCHE, ET C'EST À ERIC** : une pile de plus de 20 (40 flèches) ne s'envoie plus
+d'un coup depuis X1 — il faut deux envois. Aucune option « All » n'est inventée.
+
+---
+
 ### 🪙 LA BOURSE À DROITE, LES DEUX TALLY À GAUCHE — CENTRÉS PAR LA GRILLE
 📍 `equipement-wares-bourse-et-tally-centres` · vivante · 20/09
 ⚖️ **Sur la dalle 3, la bourse occupe la cellule de DROITE et les deux Tally celle de GAUCHE, centrés sur les deux axes. ⛔ Le centre ne s'écrit pas — c'est une cellule `1fr` qui enjambe les rangées et porte `place-self: center`.**

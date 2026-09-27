@@ -52,6 +52,9 @@ import { pisteDInterrupteur } from "./interrupteur-organe.mjs?v=848";
    chose dans les mêmes mots — *« des chevrons discrets dans la marge droite pour
    informer le lecteur »* — donc c'est le même organe, pas un second. */
 import { veilleLeDebordement } from "./defilement-chevrons.mjs?v=848";
+/* ⭐ LOT 308 — LA MOLETTE DE QUANTITÉ, l'organe de X1 et X2 (Eric, 27/09 : « La molette tambour ! »).
+   Le champ « 1/5 » de cette fiche est mort avec elle. */
+import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=848";
 /* ⭐ LOT 219 — LE PARCHEMIN EST UN ORGANE À PART, ET RÉUTILISABLE : la fiche ne
    sait pas dessiner une feuille, elle sait qu'elle en porte une. Le jour où un
    second écran en veut une, il l'importe — ⛔ il ne la recopie pas. */
@@ -345,6 +348,8 @@ export function feuilleDesCotesX1() {
     const r = regleDOrgane("x1", o);
     if (r) regles.push(r);
   }
+  /* ⭐ LOT 308 — LA GÉOMÉTRIE DE LA MOLETTE, par son module (⛔ X2 monte la même, sous son nom). */
+  regles.push(feuilleDeLaMolette(".x1", D.MOLETTE));
   /* ⚖️ LE PARCHEMIN TIENT DANS LA DALLE — Eric, 17/09 au soir, en regardant le
      rendu : *« redimensionne ton parchemin pour qu'il corresponde à la cote, pas
      qu'il soit coupé en bas »*, *« et donc qu'on voie les déchirures en bas »*.
@@ -557,31 +562,29 @@ function menuDestination(id, options) {
   return boite;
 }
 
-/** Le champ du nombre à envoyer : ⚖️ **« 1/2 », et le 1 est modifiable** — Eric,
- *  17/09 au soir. ⭐ CE QUE LE DÉNOMINATEUR APPORTE : on ne tape pas un nombre dans le
- *  vide, on prélève sur un STOCK qu'on a sous les yeux. Le champ dit à la fois ce
- *  qu'on envoie et ce qu'on a — et il dit donc aussi, sans un mot, pourquoi 3 est
- *  refusé quand on en possède 2.
- *  ⛔ UN `<input type="number">` NE PEUT PAS CONTENIR « /2 » : le nombre est la saisie,
- *  le reste est un voyant à côté de lui, dans la même boîte. Le lecteur d'écran, lui,
- *  entend la phrase entière par l'étiquette. */
-function champNombre(id, options) {
-  /* ⭐ LOT 308 — le dénominateur est la PILE (`objet.pile`), le nombre est la quantité EN JEU
-     (`objet.qte`) : c'est elle que la tête chiffre. ⏳ Le contrôle lui-même attend Eric. */
+/** ⚖️ LE NOMBRE À ENVOYER — LOT 308 : la MOLETTE de quantité, bornée par la pile (1 … min(pile, 20)).
+ *  Eric, 27/09 : *« Dans les fiches x, il faut harmoniser le bouton des quantités »*, puis *« La
+ *  molette tambour ! »*. 🗄️ Le champ « 1/2 » du 17/09 est mort : il disait le stock par son
+ *  dénominateur ; la molette le dit par son DERNIER cran, et l'étiquette en toutes lettres.
+ *  ⭐ LA BOÎTE PORTE L'ORGANE (la cote de la table), la molette la remplit.
+ *  ⚖️ ET LE TOTAL SUIT LE CHOIX SUR LA FICHE MÊME — *« il faut tj que le montant final soit modifié
+ *  avec l'augmentation en quantité »* : la ligne de coût se repeint par ses écrivains
+ *  (`repeindreLaLigneDeCout`), avec les totaux que le pilote sait calculer (`totauxDe(n)` — il
+ *  connaît le record, donc le lot d'une munition). ⛔ La fiche ne se reconstruit pas : la molette
+ *  garderait sinon un ruban reposé à zéro au milieu de son geste. */
+function moletteDEnvoi(id, noeud, options) {
   const objet = options.objet || {};
-  const qte = Math.max(1, Number(objet.pile ?? objet.qte) || 1);
-  const boite = eld("div", "x1-saisie");
+  const pile = Math.max(1, Number(objet.pile ?? objet.qte) || 1);
+  const boite = eld("div", "x1-molette");
   boite.dataset.organe = id;
-  const n = eld("input", "x1-saisie-nombre");
-  n.type = "number";
-  n.min = "1";
-  n.max = String(qte);
-  n.value = String(objet.pile !== undefined ? objet.qte : (options.nombre || 1));
-  n.setAttribute("aria-label", `How many to send, out of ${qte}`);
-  n.addEventListener("change", () => { if (options.surNombre) options.surNombre(Number(n.value) || 1); });
-  const sur = eld("span", "x1-saisie-sur", `/${qte}`);
-  sur.setAttribute("aria-hidden", "true");   /* l'étiquette du champ le dit déjà */
-  boite.append(n, sur);
+  boite.append(construireLaMolette({ M: D.MOLETTE, valeur: objet.qte, stock: pile,
+    note: `How many to send, out of ${pile}`,
+    surChoix: (n) => {
+      if (typeof options.totauxDe === "function") {
+        repeindreLaLigneDeCout(noeud, { ...objet, qte: n, ...options.totauxDe(n) });
+      }
+      if (options.surNombre) options.surNombre(n);
+    } }));
   return boite;
 }
 
@@ -606,10 +609,11 @@ function porte(id, mot, note, options, eteint) {
  *     derniers (lot 279) : la rareté à côté du prix, la note de craft en pied du texte.
  *   · `horsCase` (lot 292) : la raison pour laquelle `Equip` s'éteint — aucune case du
  *     Gear ne convient à l'objet ; `null` quand il en a une
- *   · `objet.qte` : la quantité EN JEU, que la tête chiffre (lot 308) ; `objet.pile` : le stock
- *     de la ligne (absent = l'appelant d'avant : `qte` est la pile, `nombre` l'envoi)
- *   · `nombre`, `destination` : l'envoi en cours
- *   · rappels : `surEtat` `surNombre` `surEst` `surDestination` `surPorte` `surCopier` */
+ *   · `objet.qte` : la quantité EN JEU, que la tête chiffre et que la molette montre (lot 308) ;
+ *     `objet.pile` : le stock de la ligne, qui borne la molette (absent = `qte`)
+ *   · `totauxDe(n)` (lot 308) : `{ prixTotal, poidsTotal }` de `n` exemplaires — le pilote
+ *   · `destination` : l'envoi en cours
+ *   · rappels : `surEtat` `surNombre(n)` `surEst` `surDestination` `surPorte` `surCopier` */
 export function construireLaFicheX1(options = {}) {
   const objet = options.objet || {};
   const noeud = eld("section", "x1");
@@ -686,7 +690,7 @@ export function construireLaFicheX1(options = {}) {
     } else if (id === "send" || id === "to") {
       noeud.append(voyant(id, "x1-mot", o.mot));
     } else if (id === "send-n") {
-      noeud.append(champNombre(id, options));
+      noeud.append(moletteDEnvoi(id, noeud, options));
     } else if (id === "send-vers") {
       noeud.append(menuDestination(id, options));
     } else if (id === "close") {

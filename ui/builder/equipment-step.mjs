@@ -108,6 +108,8 @@ import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=848";
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
   estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=848";
+/* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=848";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -3153,15 +3155,10 @@ let ficheX1 = null;
    ⭐ ET C'EST `vueEquipement` LUI-MÊME, pris à l'instant du tap : aucune seconde
    vérité à tenir d'accord, juste la vue courante mise de côté avant qu'on la quitte. */
 let origineX1 = "gear";
-/* ⚖️ LOT 308 — `null` : la fiche s'ouvre sur la pile ENTIÈRE. Son total
+/* ⚖️ LOT 308 — `null` : la fiche s'ouvre sur la pile ENTIÈRE (bornée à 20 par la molette). Son total
    dit donc ce que vaut ce qu'on a tapé, et `Send` sans rien toucher envoie l'objet — ce que le
    joueur voyait faire jusqu'ici (la scission n'avait jamais lieu, voir `surPorte`). */
 let nombreX1 = null;
-/** Le nombre à envoyer, ramené dans `1 … pile`. */
-function borneDeLEnvoi(v, pile) {
-  const n = Math.floor(Number(v));
-  return Math.max(1, Math.min(Math.max(1, Number(pile) || 1), Number.isFinite(n) && n > 0 ? n : 1));
-}
 /* LOT 213 — LE MODE LECTURE de la fiche : l'œil de la marge droite retire tout ce qui
    n'est pas le texte et les quatre portes (Eric, 17/09 au soir). ⛔ C'est de l'ÉTAT
    D'ÉCRAN, comme la bourse : il ne se sauvegarde pas, et fermer la fiche le rend à
@@ -4363,12 +4360,12 @@ export function renderEquipmentStep(ctx, onAction) {
        du départ comme pour les dix flèches craftées. ⭐ Le prix total ET le poids total lisent
        le même nombre de lots — celui de l'encombrement (`poidsParLieu`). */
     /* ⚖️ LOT 308 — LE TOTAL SUIT LE NOMBRE CHOISI, PAS LA PILE. Eric, 27/09 : *« il faut tj que
-       le montant final soit modifié avec l'augmentation en quantité »*. ⭐ `n` est le nombre que
-       la fiche envoie (1 … pile) ; `null` = la fiche s'ouvre sur la pile entière.
-       ⏳ Le CONTRÔLE qui le choisit attend Eric (lot 308 en pause) : cette borne est celle du
-       champ d'aujourd'hui, ⛔ pas encore celle d'un menu. */
-    const n = borneDeLEnvoi(nombreX1 ?? qte, qte);
-    const fois = paiementsDe(rec, n);
+       le montant final soit modifié avec l'augmentation en quantité »*. ⭐ `n` est le cran de la
+       molette (1 … min(pile, 20)) ; `null` = la fiche s'ouvre sur la pile entière, bornée.
+       ⭐ `totauxDe` rend à la fiche l'arithmétique de n'importe quel `n` : elle repeint sa ligne
+       de coût elle-même quand la molette tourne, ⛔ sans reconstruire l'étape sous le doigt. */
+    const n = borneDeLaMolette(nombreX1 ?? qte, qte);
+    const totauxDe = (k) => totauxDeLaFiche(cout, poids, paiementsDe(rec, k));
     const { noeud } = construireLaFicheX1({
       objet: {
         index: ligne.index, nom: ligne.nomAffiche, qte: n, pile: qte,
@@ -4380,7 +4377,7 @@ export function renderEquipmentStep(ctx, onAction) {
            lisent comme deux choses. 📏 Et la boîte du plan est mesurée sur la
            minuscule (82,75 dans 84). */
         /* ⭐ LOT 308 — l'arithmétique des deux totaux est celle de X2 (`totauxDeLaFiche`). */
-        ...totauxDeLaFiche(cout, poids, fois),
+        ...totauxDe(n),
         poidsUnite: valeurX1.poids || "",
         prose: proseDeLaLigne(ligne),
         /* ⚖️ LOT 279 — la rareté à côté du prix, la note de craft en pied (Eric, 26/09) */
@@ -4417,8 +4414,10 @@ export function renderEquipmentStep(ctx, onAction) {
       harmonises: lignes.filter((l) => l.attuned === true).length,
       lecture: lectureX1,
       surLecture: (v) => { lectureX1 = v; peindre(); },
-      /* ⭐ LOT 308 — le nombre REPEINT : le total de la tête suit le nombre choisi. */
-      surNombre: (v) => { nombreX1 = borneDeLEnvoi(v, qte); peindre(); },
+      /* ⭐ LOT 308 — la molette a choisi : la fiche a déjà repeint son total (`totauxDe`), le
+         pilote retient le nombre pour `Send`. ⛔ Pas de `peindre()` : il rebâtirait la molette. */
+      totauxDe,
+      surNombre: (v) => { nombreX1 = borneDeLaMolette(v, qte); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
       /* ⚖️ TROIS ÉTATS, DEUX ÉCRITURES DIFFÉRENTES, ET C'EST LE DÉPÔT QUI LE DIT :
          `equipped` n'est pas un drapeau libre — il est le REVERS de la position
@@ -4463,9 +4462,9 @@ export function renderEquipmentStep(ctx, onAction) {
              (`currentGearLines`) n'écrit pas : le total valait toujours 1, donc `part < total` était
              toujours faux, et `Send` déplaçait TOUTE la pile. 📏 Vu au navigateur le 27/09 : 5
              caltrops, « 2 » tapé, Send vers Party → les 5 partaient. ⭐ La pile est `quantity`, et
-             la part est le `n` que la fiche montre — le même nombre que son total. */
+             la part est le cran de la molette — le même nombre que le total de la fiche. */
           const total = Math.max(1, Number(ligne.quantity) || 1);
-          const part = n;
+          const part = borneDeLaMolette(nombreX1 ?? total, total);
           actArbitre(part < total
             ? { kind: "splitGearLine", index: ligne.index, quantity: part, location: destinationEnvoi }
             : { kind: "moveGearLine", index: ligne.index, location: destinationEnvoi });

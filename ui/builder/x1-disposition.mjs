@@ -24,6 +24,10 @@ export const PETIT = 77, LARGE = 105;             /* --bouton-petit, --bouton-mo
    `--bouton-hauteur`, 22 en est la moitié (la proportion 2:1 d'un interrupteur). */
 export const INTERRUPTEUR = { l: 36, h: 20 };
 export const ROND = 22;   /* la flèche : le gabarit du livre et du `?` de l'écran R */
+/* ⚖️ LOT 308 — LA MOLETTE DE QUANTITÉ des fiches X1 et X2 (Eric, 27/09 : « La molette tambour ! »).
+   Trois crans vus sur la piste ; les deux chevrons posent la moitié de leur cible de 44 hors
+   piste (`bord`). ⭐ `pas` est l'invariant du tambour : `scrollLeft = pas × k`. */
+export const MOLETTE = { tuile: 28, hauteur: 28, ecart: 4, pas: 32, vus: 3, piste: 92, bord: 22, chevron: { l: 10, h: 20 } };
 /* ⚖️ LE DÉBORD DU PARCHEMIN — mesuré sur l'image d'Eric (17/09) : la déchirure
    rentre de 3,4 % à gauche et 2,8 % à droite, soit 12,9 blg au pire, et le 14 tient.
    ⭐ CE QU'IL COMMANDE À L'ÉCRAN : l'image se dessine PLUS GRANDE que la dalle de
@@ -50,12 +54,12 @@ export const ORGANES = [
   { nom: "EQUIP ON",      sorte: "interrupteur",  x:   95.5, y:    286, l:    36, h:   20, cible: { x: 91.5, y: 274, l: 44, h: 44 }, etat: "on" },
   { nom: "ATTUNE ON",     sorte: "interrupteur",  x:  191.5, y:    286, l:    36, h:   20, cible: { x: 187.5, y: 274, l: 44, h: 44 }, etat: "on" },
   { nom: "LOCKED ON",     sorte: "interrupteur",  x:  287.5, y:    286, l:    36, h:   20, cible: { x: 283.5, y: 274, l: 44, h: 44 }, etat: "on" },
-  { nom: "IS",            sorte: "voyant",        x:  146.5, y:    324, l:    16, h:   40, mot: "is", cran: "T1/600" },
-  { nom: "IS QUOI",       sorte: "dropdown",      x:  166.5, y:    324, l:   150, h:   40, cible: { x: 166.5, y: 322, l: 150, h: 44 }, mot: "An attack", cran: "T2/600" },
-  { nom: "SEND",          sorte: "voyant",        x:   58.5, y:    372, l:    36, h:   40, mot: "Send", cran: "T1/600" },
-  { nom: "SEND N",        sorte: "champ",         x:   98.5, y:    372, l:    44, h:   40, cible: { x: 98.5, y: 370, l: 44, h: 44 }, mot: "1", cran: "T2/600" },
-  { nom: "TO",            sorte: "voyant",        x:  146.5, y:    372, l:    16, h:   40, mot: "to", cran: "T1/600" },
-  { nom: "SEND VERS",     sorte: "dropdown",      x:  166.5, y:    372, l:   150, h:   40, cible: { x: 166.5, y: 370, l: 150, h: 44 }, mot: "Merchant / NPC", cran: "T2/600" },
+  { nom: "IS",            sorte: "voyant",        x:  192.5, y:    324, l:    16, h:   40, mot: "is", cran: "T1/600" },
+  { nom: "IS QUOI",       sorte: "dropdown",      x:  212.5, y:    324, l:   150, h:   40, cible: { x: 212.5, y: 322, l: 150, h: 44 }, mot: "An attack", cran: "T2/600" },
+  { nom: "SEND",          sorte: "voyant",        x:   12.5, y:    372, l:    36, h:   40, mot: "Send", cran: "T1/600" },
+  { nom: "SEND N",        sorte: "molette",       x:   52.5, y:    372, l:   136, h:   40, cible: { x: 52.5, y: 370, l: 136, h: 44 }, mot: "20", cran: "T2/600" },
+  { nom: "TO",            sorte: "voyant",        x:  192.5, y:    372, l:    16, h:   40, mot: "to", cran: "T1/600" },
+  { nom: "SEND VERS",     sorte: "dropdown",      x:  212.5, y:    372, l:   150, h:   40, cible: { x: 212.5, y: 370, l: 150, h: 44 }, mot: "Merchant / NPC", cran: "T2/600" },
   { nom: "BACK",          sorte: "porte",         x:   27.5, y:    424, l:    77, h:   40, cible: { x: 27.5, y: 422, l: 77, h: 44 }, role: "retour", cran: "T2/600" },
   { nom: "USE",           sorte: "porte",         x:  108.5, y:    424, l:    77, h:   40, cible: { x: 108.5, y: 422, l: 77, h: 44 }, mot: "Use", cran: "T2/600" },
   { nom: "SEND !",        sorte: "porte",         x:  189.5, y:    424, l:    77, h:   40, cible: { x: 189.5, y: 422, l: 77, h: 44 }, mot: "Send", cran: "T2/600" },

@@ -32,7 +32,7 @@ export const PLAN = [
   ["1-socle",      "Socle",       "le mécanisme",                ["socle", "vocabulaire"]],
   ["2-page",       "Page",        "la surface et ses cadres",    ["panneau", "cadre"]],
   ["3-dimension",  "Dimension",   "ce qui se compte",            ["budget"]],
-  ["4-organes",    "Organes",     "ce qu'on pose dessus",        ["bouton","rangee","jeton","collecteur","popup","aiguilleur","livre","chevron","aide","interrupteur","voyant","dropdown","saisie"]],
+  ["4-organes",    "Organes",     "ce qu'on pose dessus",        ["bouton","rangee","jeton","collecteur","popup","aiguilleur","livre","chevron","aide","interrupteur","voyant","dropdown","saisie","x"]],
   ["5-ecriture",   "Écriture",    "les textes et les gestes",    ["ecriture", "geste"]],
   ["6-listes",     "Listes",      "la pagination",               ["liste"]],
   ["7-etapes",     "Étapes",      "les dix écrans",              ["menu","identity","species","inheritance","destiny","class","abilities","skills","equipement","sheet"]],

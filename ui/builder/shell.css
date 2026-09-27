@@ -8383,7 +8383,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   min-height: var(--touch); max-width: 8ch; text-align: center; font: inherit;
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
-.pipeline-qte { max-width: 5ch; }
 /* 🔴 `+` VERT · `−` ROUGE — NORMES §6, et le code disait ROUGE AUX DEUX.
    Eric l'a renommé le 2026-08-26 : *« + et − sont aussi des boutons, avec leur
    propre forme, l'un rouge l'autre vert »*.
@@ -12118,27 +12117,10 @@ button.tuto-point::before {
   color: var(--x1-encre); background: color-mix(in srgb, var(--x1-encre) 8%, transparent);
   border-color: var(--x1-trait);
 }
-/* — LE CHAMP DE L'ENVOI : « 1/2 », et le 1 se tape (Eric, 17/09 au soir). La BOÎTE
-   porte l'habit, le nombre et le stock la remplissent — on ne peut rien écrire dans un
-   `<input type="number">` à côté de son nombre. */
-.x1-saisie:not([hidden]) {
-  display: flex; align-items: center; justify-content: center;
-  border: var(--creneau-lisere-rempli) solid transparent; border-radius: var(--organe-rayon);
-  background: color-mix(in srgb, var(--x1-encre) 8%, transparent); background-clip: padding-box;
-  box-shadow: inset 0 0 0 1px var(--x1-trait);
-  color: var(--x1-encre); font-size: var(--t2); font-weight: 600;
-}
-/* ⭐ LA SAISIE SE SERRE SUR SES CHIFFRES — `2ch`, une cote tirée du TEXTE et non un
-   nombre de pixels : deux chiffres tiennent, et le stock reste collé au nombre. */
-.x1-saisie-nombre {
-  width: 2ch; min-width: 0; padding: 0; border: 0; background: none;
-  color: inherit; font: inherit; text-align: right;
-  -moz-appearance: textfield; appearance: textfield;
-}
-.x1-saisie-nombre::-webkit-outer-spin-button,
-.x1-saisie-nombre::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-/* le stock : on le LIT, il ne se tape pas — encre douce, comme la pagination. */
-.x1-saisie-sur { color: var(--x1-encre-douce); }
+/* — ⚖️ LOT 308 — LA MOLETTE DE L'ENVOI (et celle de X2) : la boîte porte l'organe, la molette la
+   remplit. 🗄️ Le champ « 1/2 » du 17/09 est mort avec elle (Eric, 27/09 : « La molette tambour ! »).
+   ⛔ Aucune peau ici : la molette porte celle des crans du sac et de Wares (plus bas). */
+:is(.x1-molette, .x2-molette) > .molette { inline-size: 100%; block-size: 100%; }
 /* — LES QUATRE PORTES : l'habit de la famille (déclaré plus haut), et le liseré
    dit le verbe — bleu on navigue, vert on agit, rouge on défait (Eric, 16/09 sur
    la rangée de R : *« Send a un liseré vert, les autres sont juste de la
@@ -12258,10 +12240,6 @@ button.tuto-point::before {
 
 .x2-reglages { display: flex; align-items: center; gap: var(--sp-4); }
 .x2-champ { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
-/* ⚖️ LE `+` ET LE `−` SONT EMPILÉS — le croquis les dessine l'un SUR l'autre, ⛔ pas
-   côte à côte. ⭐ Et ils gardent leurs deux liserés (vert / rouge) : c'est l'organe
-   existant de la X2, repris tel quel. */
-.x2-pas { display: flex; flex-direction: column; gap: var(--sp-2); }
 
 .x2-sendto { display: flex; align-items: center; gap: var(--sp-8); }
 /* le grand bouton-menu du croquis : il prend toute la place qui reste. */
@@ -12566,7 +12544,8 @@ button.tuto-point::before {
               0 0 var(--halo-epais) var(--halo-fin) var(--belt-halo);
 }
 .sac-cran,
-.wares-cran {
+.wares-cran,
+.molette-cran {
   /* 🔴 PLUS `absolute` — la tuile vit maintenant DANS LE FLUX du ruban, parce que c'est
      le ruban qui défile. Une tuile posée à un `x` ne peut pas glisser : c'était toute
      la raison pour laquelle l'ancienne roue sautait. */
@@ -12659,7 +12638,8 @@ button.tuto-point::before {
    (`scale`, feuille construite). ⛔ Plus de `font-size` ici : le `scale` grossit le
    texte avec la boîte, et deux écrivains pour un même grandissement divergeraient. */
 .sac-cran[data-dominant="oui"],
-.wares-cran[data-dominant="oui"] {
+.wares-cran[data-dominant="oui"],
+.molette-cran[data-dominant="oui"] {
   background-color: var(--dalle-inter); color: var(--text); cursor: default;
   /* ⚖️ L'ESTHÉTIQUE DU BELT SUR LE CRAN POSÉ — Eric, 2026-09-20 : *« donne au token dominant
      l'esthétique du belt »* · *« je ne vois pas l'aura qu'il y a dans le backpack »*.
@@ -12709,8 +12689,17 @@ button.tuto-point::before {
    ⭐ Et elle est posée sur TOUTES les tuiles, pas sur la seule posée : le dé-zoom de celle
    qui s'en va doit s'animer aussi — *« il va y avoir un zoom et un dé-zoom de transition au
    passage du halo »*. Une transition portée par le seul état allumé ne joue qu'à l'aller. */
+/* ⭐ LOT 308 — la molette de quantité prend la MÊME transition, dans la même règle (un écrivain). */
+.molette-cran,
 .sac-cran {
   transition: scale 60ms ease-out, background-color 60ms ease-out, color 60ms ease-out;
+}
+/* ⚖️ LOT 308 — LE CRAN D'UN NOMBRE : la peau des crans du sac et de Wares (listes ci-dessus), et
+   seulement ce qu'un nombre demande de plus — le cran T2 d'un chiffre qu'on lit d'un coup d'œil,
+   centré. ⛔ Ni les deux étages ni la marge d'un nom : un nombre tient sur une ligne. */
+.molette-cran {
+  display: grid; place-items: center; padding: 0;
+  font-size: var(--t2); font-variant-numeric: tabular-nums;
 }
 /* ⛔ ET LE DOMINANT GARDE SON LIEU : sans cette ligne, la boîte sous le viseur
    perdait son or en y entrant — c'est-à-dire exactement quand on la regarde. */
@@ -12959,7 +12948,8 @@ button.tuto-point::before {
 /* — LE TUNER : chevron au repos, flèche circulaire au survol. ⭐ `hover: hover`
      n'est pas une détection d'appareil : c'est une question posée au POINTEUR.
      Un téléphone garde son chevron, une souris reçoit la molette. — */
-.sac-tuner {
+.sac-tuner,
+.molette-tuner {
   /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
      l'agent utilisateur impose du noir (garde 6, défaut n°4). */
   color: var(--text-soft);
@@ -12994,9 +12984,11 @@ button.tuto-point::before {
      AUCUNE cote : 26 ne figure nulle part, il se déduit des bords. */
   transform-box: content-box;
 }
-.sac-tuner[data-sens="droite"] { transform: scaleX(-1); }
+.sac-tuner[data-sens="droite"],
+.molette-tuner[data-sens="droite"] { transform: scaleX(-1); }
 @media (hover: hover) {
-  .sac-tuner:hover {
+  .sac-tuner:hover,
+  .molette-tuner:hover {
     background-color: var(--text);
     mask-image: var(--icone-tuner); -webkit-mask-image: var(--icone-tuner);
   }
@@ -13004,7 +12996,8 @@ button.tuto-point::before {
      « simplifié » en un seul `scaleX(-1)` et rendu la flèche à l'envers. ⭐ La flèche
      circulaire ne se miroite PAS : elle porte son propre sens de rotation. On garde une
      matrice — et donc le contexte d'empilement qu'a le repos — et on cesse la charade. */
-  .sac-tuner[data-sens="droite"]:hover { transform: scaleX(1); }
+  .sac-tuner[data-sens="droite"]:hover,
+  .molette-tuner[data-sens="droite"]:hover { transform: scaleX(1); }
 }
 /* ══ LES DEUX OUTILS — Eric, 2026-09-19 ═══════════════════════════════════════
    ⚖️ *« le bouton d'édition est trop grossier ; je préfère un carré vert simple :
@@ -13164,7 +13157,8 @@ button.tuto-point::before {
 }
 
 /* — LE TAMBOUR : deux étages, même matière, même mécanique que le sac — */
-.wares-roue {
+.wares-roue,
+.molette-roue {
   display: block;
   overflow-x: auto; overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -13177,7 +13171,8 @@ button.tuto-point::before {
 }
 /* ⛔ PAS PAR `display: none` — la maison l'interdit dans cette feuille (défaut n° 3). On la
    réduit à rien, ce qui la masque sans la retirer du flux. */
-.wares-roue::-webkit-scrollbar { inline-size: 0; block-size: 0; }
+.wares-roue::-webkit-scrollbar,
+.molette-roue::-webkit-scrollbar { inline-size: 0; block-size: 0; }
 
 /* 🗄️ `.wares-cran` N'A PLUS DE BLOC À LUI — retiré le 2026-09-20. Eric : *« prends l'exemple
    des tuiles dans backpack, même morphologie, aura idem »*. ⛔ J'avais redessiné la tuile —
@@ -13270,7 +13265,8 @@ button.tuto-point::before {
    le trait doit se superposer au rebord de la tuile POSÉE, qui est grossie. ⛔ Un rayon écrit
    ici raterait les coins. Ce qui reste est une FENTE de couleur : un seul écrivain pour la
    forme, un seul pour la teinte. */
-.wares-loupe {
+.wares-loupe,
+.molette-loupe {
   pointer-events: none;
   --loupe-trait: var(--verre-lisere);
 }

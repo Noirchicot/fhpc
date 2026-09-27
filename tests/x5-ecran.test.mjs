@@ -789,9 +789,9 @@ test("37 — ⭐ LE PILOTE DONNE LES MUNITIONS À X5, ET LA FICHE X1 D'UNE LIGNE
   /* 🔄 LOT 308 — le lot se compte sur le nombre ENVOYÉ (`n`), plus sur la pile : Eric, 27/09, « il
      faut tj que le montant final soit modifié avec l'augmentation en quantité ». Et les deux totaux
      ont UNE arithmétique, partagée avec X2 (`totauxDeLaFiche`). */
-  assert.match(x1, /const fois = paiementsDe\(rec, n\);/,
+  assert.match(x1, /const totauxDe = \(k\) => totauxDeLaFiche\(cout, poids, paiementsDe\(rec, k\)\);/,
     "⚖️ dix flèches — craftées ou de départ — coûtent et pèsent UN lot, ⛔ pas dix fois le lot");
-  assert.match(x1, /\.\.\.totauxDeLaFiche\(cout, poids, fois\)/);
+  assert.match(x1, /\.\.\.totauxDe\(n\)/);
   const pipe = fs.readFileSync(path.join(ROOT, "ui", "builder", "equipement-pipeline.mjs"), "utf8");
   const totaux = pipe.slice(pipe.indexOf("export function totauxDeLaFiche("), pipe.indexOf("export function additionneCouts("));
   assert.match(totaux, /multiplieCout\(cout, n\)/);

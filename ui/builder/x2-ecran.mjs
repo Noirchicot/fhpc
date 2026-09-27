@@ -68,6 +68,9 @@ import { construireLaTeteDeFiche, feuilleDesCotesDeTete, BAS_DE_TETE, remplirLaD
    Compléter la liste depuis un dessin serait une règle de jeu écrite par un
    écran — ⏳ elle appartient à Eric, et le rapport la lui rend. */
 import { DESTINATIONS } from "./gear-ecran.mjs?v=848";
+/* ⭐ LOT 308 — LA MOLETTE DE QUANTITÉ, celle de X1 (Eric, 27/09 : « La molette tambour ! », « 20 c'est
+   bien »). Le champ entre − et + est mort avec elle : « le +/- prend beaucoup de place ». */
+import { construireLaMolette, feuilleDeLaMolette } from "./molette-quantite.mjs?v=848";
 /* ⭐ LA MONNAIE VIENT DU PIPELINE, TELLE QUELLE : c'est lui qui parse un coût du
    SRD, le multiplie et dit si la bourse couvre. ⛔ X2 n'a aucun tarif à lui. */
 import { parseCout, parsePoids, multiplieCout, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=848";
@@ -107,6 +110,10 @@ export function feuilleDesCotesX2() {
        descend jusqu'au-dessus des portes — le bas du pied moins une cible (📏 mesuré : les
        trois boutons commencent à 422 = 466 − 44) ; les réglages s'effacent (la feuille). */
     feuilleDesCotesDeTete("x2", bas - D.TOUCH),
+    /* ⭐ LOT 308 — LA MOLETTE : sa géométrie par son module (la même que X1), et sa boîte, lue dans
+       la table — la piste et ses deux bords, sur la hauteur d'une cible. ⛔ Aucun nombre neuf. */
+    feuilleDeLaMolette(".x2", D.MOLETTE),
+    `.x2 .x2-molette{inline-size:${px(D.MOLETTE.piste + 2 * D.MOLETTE.bord)};block-size:${px(D.TOUCH)}}`,
     `.x2 [data-organe="x2-pied"]{left:${px(D.MARGE_COTE)};top:${px(haut)};`
       + `width:${px(D.DALLE.l - 2 * D.MARGE_COTE)};height:${px(bas - haut)}}`
   ].join("\n");
@@ -183,25 +190,18 @@ export function construireLaFicheX2(options = {}) {
   const pied = elx("div", "x2-pied");
   pied.dataset.organe = "x2-pied";
 
-  /* — PURSE · QTY ± · PRICE, sur une rangée (croquis) */
+  /* — PURSE · QTY · PRICE, sur une rangée (croquis) */
   const marche = elx("div", "x2-marche");
   const or = encartBourse(bourse, motBourse);
 
   const reglages = elx("div", "x2-reglages");
-  const qteChamp = elx("input", "pipeline-typein pipeline-qte");
-  qteChamp.type = "text"; qteChamp.inputMode = "numeric";
-  qteChamp.setAttribute("aria-label", "Quantity");
-  qteChamp.addEventListener("change", () => {
-    const n = parseInt(qteChamp.value, 10);
-    qte = Number.isInteger(n) && n > 0 ? n : 1;
-    peindreLaQuantite();
-  });
-  /* ⚖️ LE `+` ET LE `−` SONT EMPILÉS, à droite du champ — le croquis les dessine
-     l'un sur l'autre, ⛔ pas côte à côte. */
-  const pas = elx("div", "x2-pas");
-  pas.append(
-    boutonX("+", "pipeline-pas pipeline-pas-plus", () => { qte += 1; peindreLaQuantite(); }, "One more"),
-    boutonX("−", "pipeline-pas pipeline-pas-moins", () => { qte = Math.max(1, qte - 1); peindreLaQuantite(); }, "One less"));
+  /* ⚖️ LOT 308 — LA QUANTITÉ SE CHOISIT À LA MOLETTE, de 1 à 20 (`PLAFOND_MOLETTE`). 🗄️ Le champ et
+     le `±` empilé (90 de haut) sont partis : Eric, 27/09, « le +/- pour les quantités prend
+     beaucoup de place ». La molette tient sur une cible (44). */
+  const molette = construireLaMolette({ M: D.MOLETTE, valeur: qte, note: "Quantity",
+    surChoix: (n) => { qte = n; peindreLaQuantite(); } });
+  const boiteMolette = elx("div", "x2-molette");
+  boiteMolette.append(molette);
   /* ⭐ LE PRIX EST UN TYPE IN (rose au croquis d'août, encadré ici) : le joueur
      peut marchander. ⛔ L'écran n'invente aucun tarif — le défaut vient du record. */
   const prixChamp = elx("input", "pipeline-typein");
@@ -210,11 +210,13 @@ export function construireLaFicheX2(options = {}) {
   /* ⭐ LOT 308 — un prix marchandé change le total affiché, comme la quantité. */
   prixChamp.addEventListener("change", () => peindreLaLigneDeCout());
 
-  const champQte = elx("label", "x2-champ");
-  champQte.append(elx("span", "pipeline-libelle", "Qty"), qteChamp);
+  /* ⛔ PAS UN `<label>` : il n'enveloppe qu'un contrôle de formulaire, et la molette est un curseur
+     ARIA — son nom lui vient de son `aria-label`. */
+  const champQte = elx("div", "x2-champ");
+  champQte.append(elx("span", "pipeline-libelle", "Qty"), boiteMolette);
   const champPrix = elx("label", "x2-champ");
   champPrix.append(elx("span", "pipeline-libelle", "Price"), prixChamp);
-  reglages.append(champQte, pas, champPrix);
+  reglages.append(champQte, champPrix);
   marche.append(or, reglages);
 
   /* — SEND TO · le grand bouton-menu du croquis */
@@ -264,7 +266,6 @@ export function construireLaFicheX2(options = {}) {
   /* ⛔ UN CHANGEMENT DE QUANTITÉ NE REPEINT PAS LA PAGE : `peindre` remet le prix du record dans le
      champ, et effaçait donc un prix marchandé à chaque `+`. */
   function peindreLaQuantite() {
-    qteChamp.value = String(qte);
     alerte.textContent = "";
     peindreLaLigneDeCout();
   }

@@ -243,9 +243,11 @@ test("10 — ✏️ le croquis du 21/09 est posé SOUS la couture, dans la bande
   /* les organes du dessin, de haut en bas */
   assert.ok(bande.querySelector(".x2-bourse-titre"), "PURSE");
   assert.deepEqual(tous(bande, ".x2-bourse-unite").map((e) => e.textContent), ["PP", "GP", "SP", "CP"]);
-  assert.ok(bande.querySelector(".pipeline-qte"), "QTY, une case de saisie");
-  assert.equal(tous(bande, ".x2-pas .pipeline-pas").length, 2, "⭐ `+` et `−` EMPILÉS, ⛔ pas côte à côte");
-  assert.equal(tous(bande, ".pipeline-typein").length, 2, "QTY et PRICE");
+  /* 🔄 LOT 308 — la quantité se choisit à la MOLETTE (Eric, 27/09 : « La molette tambour ! ») :
+     ⛔ plus de case de saisie ni de `±` empilé (« le +/- prend beaucoup de place »). */
+  assert.ok(bande.querySelector(".x2-molette .molette"), "QTY, la molette");
+  assert.equal(tous(bande, ".pipeline-pas").length, 0, "⛔ plus de `+` ni de `−`");
+  assert.equal(tous(bande, ".pipeline-typein").length, 1, "PRICE, seul type in");
   assert.ok(bande.querySelector(".x2-dropdown"), "SEND TO, le grand bouton-menu");
   const mot = (b) => (b.querySelector(".x2-bouton-mot") || b).textContent;
   assert.deepEqual(tous(bande, ".x2-portes button").map(mot),

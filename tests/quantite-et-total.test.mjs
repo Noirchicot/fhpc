@@ -13,9 +13,9 @@
      repeignait rien d'autre que le champ.
    ⭐ Ce garde passe donc par le PILOTE (l'étape rendue, la fiche ouverte au doigt, le geste rendu),
    et par la fiche X2 entière — pas par une fonction isolée.
-   ⏳ SA LIMITE : le CONTRÔLE qui choisit la quantité n'est pas tranché (Eric, 27/09, le lot en
-   pause). Ce garde nomme le champ d'aujourd'hui ; le jour où il change, seules les deux lignes
-   `choisir(…)` changent — ce qu'elles prouvent (le total, le geste) reste. */
+   ⭐ LE CONTRÔLE EST LA MOLETTE (Eric, 27/09 : « La molette tambour ! ») : le garde la tourne comme
+   le doigt le plus simple le fait — un tap sur un cran. Ses autres gestes ont leur garde
+   (`molette-quantite.test.mjs`). */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -72,11 +72,11 @@ function pilote(doc) {
       assert.ok(n.querySelector(".x1"), "témoin : la fiche X1 est ouverte");
       return n;
     },
-    /** ⏳ le seul endroit qui nomme le CONTRÔLE d'aujourd'hui (le champ « n / pile ») */
+    /** la molette de l'envoi : un tap sur le cran `v` */
     choisir(n, v) {
-      const champ = n.querySelector('.x1 [data-organe="send-n"] input');
-      champ.value = String(v);
-      champ.dispatchEvent({ type: "change" });
+      const cran = n.querySelector(`.x1 [data-organe="send-n"] .molette-cran[data-valeur="${v}"]`);
+      assert.ok(cran, `témoin : la molette offre ${v}`);
+      cran.dispatchEvent({ type: "click" });
       /* ⭐ LE MÊME NŒUD, PAS UN RENDU NEUF : la fiche doit se repeindre D'ELLE-MÊME au choix —
          un garde qui re-rendrait l'étape verrait un total juste que le joueur ne verrait pas. */
       return n;
@@ -140,9 +140,8 @@ test("3 — ⚖️ X2 : 3 achetés → la tête dit ×3 et le total de TROIS, et
   const n = construireLaFicheX2({ liste: [ITEM], index: 0, bourse: { gp: 50 }, onAction: (a) => actions.push(a) });
   const organe = (o) => n.querySelector(`[data-organe="${o}"]`).textContent;
   assert.equal(organe("total"), "", "témoin : à un, pas de total");
-  /* ⏳ le contrôle d'aujourd'hui : le `+` deux fois */
-  const plus = n.querySelector(".pipeline-pas-plus");
-  plus.click(); plus.click();
+  const cran = (v) => n.querySelector(`.x2-molette .molette-cran[data-valeur="${v}"]`);
+  cran(3).dispatchEvent({ type: "click" });
   assert.equal(organe("qte"), "×3");
   assert.equal(organe("total"), "3 gp · 6 lb", "⚖️ le montant final suit la quantité");
   /* ⭐ un prix marchandé change le total, et ⛔ un `+` ne l'efface plus */
@@ -150,10 +149,10 @@ test("3 — ⚖️ X2 : 3 achetés → la tête dit ×3 et le total de TROIS, et
   prix.value = "2 GP";
   prix.dispatchEvent({ type: "change" });
   assert.equal(organe("total"), "6 gp · 6 lb");
-  n.querySelector(".pipeline-pas-moins").click();
+  cran(2).dispatchEvent({ type: "click" });
   assert.equal(prix.value, "2 GP", "⛔ changer la quantité ne remet pas le prix du record");
   assert.equal(organe("total"), "4 gp · 4 lb");
-  n.querySelector(".pipeline-pas-plus").click();
+  cran(3).dispatchEvent({ type: "click" });
   /* BUY */
   [...n.querySelectorAll("button")].find((b) => b.getAttribute("aria-label") === "Pay, send, and return").click();
   assert.deepEqual(actions.find((a) => a.kind === "payer").cout, { pp: 0, gp: 6, sp: 0, cp: 0 },
