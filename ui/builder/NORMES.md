@@ -9941,7 +9941,13 @@ de Wares, lot 275) — la rangée ne bouge pas. 📏 **MESURÉ APRÈS** : les tr
 
 ### 🟦 UN SEUL CHEVRON LATÉRAL : CELUI DE PACK
 📍 `chevron-lateral-de-pack` · vivante · 27/09
-⚖️ **Tout chevron latéral du builder — tambour et pages de Wares, pages de X5, le belt — est celui de Pack : l'icône `--icone-chevron` en masque, à l'encre `--text-soft`, opacité pleine, un dessin de 10 × 20 creusé dans une cible de 44, à 4 du bord extérieur, et le miroir à droite.**
+⚖️ **Tout chevron latéral du builder — tambour et pages de Pack et de Wares, pages de X5, le belt — est celui de Pack : l'icône `--icone-chevron` en masque, à l'encre `--text-soft`, un dessin de 10 × 20 creusé dans une cible de 44, à 8 du bord extérieur, et le miroir à droite. TOUS les chevrons (latéraux, barrettes ∧ ∨, jauge de défilement allumée) portent un voile de 50 % (`--chevron-voile`).**
+
+> 🔄 **Amendé le 27/09 (lot 327)** — Eric : **« Éloigne tous les chevrons de 8 blg des bords, repasse
+> globalement à un voile de 50 % sur tous les chevrons »**. Le bord passe de 4 à 8 (`--chevron-lateral-bord`,
+> et `BORD_CHEVRON` dans le plan de Pack — la piste ne bouge pas, il reste 4 entre le chevron et elle) ;
+> l'opacité pleine du lot 326 devient 0,5. L'état éteint de la jauge (.18) et la couleur atténuée des
+> barrettes désactivées restent. Garde : `tests/chevrons.test.mjs`.
 
 > Eric, 2026-09-27, mot pour mot : **« Les chevrons latéraux de backpack sont mes préférés. Note le niveau
 > de transparence, la taille, la couleur, la distance du bord. Applique cela partout aux autres écrans.

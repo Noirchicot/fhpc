@@ -1565,6 +1565,8 @@ body {
   border-radius: var(--radius-pill);
   background: var(--chevron-fond);
   color: var(--chevron-encre);
+  /* ⚖️ LOT 327 — « un voile de 50 % sur tous les chevrons » (Eric, 27/09) */
+  opacity: var(--chevron-voile);
   font-size: var(--t2);
   line-height: 1;
   cursor: pointer;
@@ -3069,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=875") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=876") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3392,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=875") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=876") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5044,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=875") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=876") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8025,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=875");
+  background-image: url("./assets/tarot-dos.jpg?v=876");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -11429,8 +11431,9 @@ button.tuto-point::before {
    n'a bougé : mêmes opacités, même ordre. */
 .deborde-bas  + .jauge-defile > .chevron-defile,
 .deborde-haut + .jauge-defile > .chevron-defile { opacity: .18; }
-.deborde-bas  + .jauge-defile > .vers-le-bas  { opacity: .85; }
-.deborde-haut + .jauge-defile > .vers-le-haut { opacity: .85; }
+/* ⚖️ LOT 327 — l'état ALLUMÉ prend le voile de tous les chevrons (50 %, Eric 27/09) ; l'éteint garde .18 */
+.deborde-bas  + .jauge-defile > .vers-le-bas  { opacity: var(--chevron-voile); }
+.deborde-haut + .jauge-defile > .vers-le-haut { opacity: var(--chevron-voile); }
 @media (prefers-reduced-motion: reduce) { .chevron-defile { transition: none; } }
 
 
@@ -13062,6 +13065,8 @@ button.tuto-point::before {
   /* ⛔ L'ENCRE SE DÉCLARE : un <button> n'hérite pas de `color`, et sans elle
      l'agent utilisateur impose du noir (garde 6, défaut n°4). */
   color: var(--text-soft);
+  /* ⚖️ LOT 327 — « repasse globalement à un voile de 50 % sur tous les chevrons » (Eric, 27/09) */
+  opacity: var(--chevron-voile);
   border-style: solid; border-color: transparent; padding: 0;
   background: none; cursor: pointer;
   background-color: var(--text-soft);

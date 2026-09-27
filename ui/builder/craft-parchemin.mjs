@@ -15,9 +15,9 @@
    d'Arcana ou des Calligrapher's Supplies. Le mandat du lot 285 dit de ne pas les vérifier
    — le builder ne sait pas encore ce qu'un personnage prépare. */
 
-import { raretesDuParchemin, nomDUnParchemin } from "../../src/build/objet-crafte.mjs?v=875";
-import { scribingDuNiveau, noteDeScribing } from "./bareme-srfh.mjs?v=875";
-import { PLAFOND_QTE, texteDesJours } from "./craft.mjs?v=875";
+import { raretesDuParchemin, nomDUnParchemin } from "../../src/build/objet-crafte.mjs?v=876";
+import { scribingDuNiveau, noteDeScribing } from "./bareme-srfh.mjs?v=876";
+import { PLAFOND_QTE, texteDesJours } from "./craft.mjs?v=876";
 
 /** Le niveau d'un sort : 0 pour un cantrip. ⛔ Illisible → `null`, jamais 0 (un cantrip
  *  coûte 15 GP : un niveau inventé serait un prix inventé). */
