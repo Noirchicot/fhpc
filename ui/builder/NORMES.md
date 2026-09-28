@@ -10099,7 +10099,7 @@ destinations remplies potentiellement remplissables par autre chose, pas de fond
   · 5b précisé : un collecteur REMPLI qui accepte d'être remplacé (il se déclare encore créneau) est une destination.
 
 📍 `chevron-belt-engrenage` · vivante · 28/09
-⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 30 blg (lot 344 : « réduit à 30 » ; 40 au lot 343) à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
+⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 20 blg (lot 345 : « réduit là à 20 blg » ; 30 au lot 344, 40 au lot 343) à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
 
 > Eric, 2026-09-28 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et le prototype validé
 > (`engrenage-40px-source.html`) — **« Cette version remplace l'ancien astrolabe »** · **« remplace l'ancien
@@ -10119,3 +10119,4 @@ déborde de ~2,5 blg sur le soleil et la lune, empilés au-dessus du chevron —
 pivotait autour de (0, 0) — mesuré, un saut de 7,5 px et 13 px à −30°. ⭐ Une seule convention : l'origine reste
 (0, 0) et l'animation se centre comme l'attribut (`translate(20,20) rotate() translate(−20,−20)`) — mesuré image par
 image (0 → 239 ms) : le centre ne bouge pas d'un dixième de pixel.
+🔄 **Lot 345 (28/09)** — Eric : **« réduit là à 20 blg »**. 30 → 20, tout le dessin au même rapport (le prototype × 0,5 : flèches 14, places (8, −4) et (−2, 10)).
