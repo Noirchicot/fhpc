@@ -135,6 +135,11 @@ test("4 — ⭐ LE PILOTE : les deux gestes de X2 passent par `ouvertureDepuisX2
     "⭐ et il ouvre par la MÊME porte — ⛔ sinon Craft s'allumerait sans rien ouvrir");
   assert.match(src, /peutCrafter: \(ref\) => peutCrafterLObjet\(ref\)/, "X2 s'allume par elle");
   assert.match(src, /ouvrirCraft: \(ref\) => ouvrirLeCraftDe\(ref, "x2"\)/, "X2 ouvre par elle");
-  const porte = src.slice(src.indexOf("function ouvrirLObjet("), src.indexOf("piloteEquipement = {"));
+  /* 🔄 LOT 348 — la porte se découpe jusqu'à `envoyer` (`piloteEquipement` est parti avec la carte
+     R). ⛔ Les deux repères se vérifient : sans eux, un −1 laisserait la découpe emporter tout le
+     fichier — et ce `doesNotMatch` rougirait sur du code qui n'est pas la porte, ou se tairait. */
+  const debutPorte = src.indexOf("function ouvrirLObjet("), finPorte = src.indexOf("function envoyer(");
+  assert.ok(debutPorte !== -1 && finPorte > debutPorte, "⛔ un repère de la porte a disparu : la découpe ne mesure plus rien");
+  const porte = src.slice(debutPorte, finPorte);
   assert.doesNotMatch(porte, /ouvertureDepuisX2/, "⛔ la tuile d'un objet fini ouvre X2 : on l'achète d'abord");
 });

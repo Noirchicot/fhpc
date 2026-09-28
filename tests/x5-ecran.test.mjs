@@ -435,7 +435,12 @@ test("16 — ⚖️ UN PLAN MÈNE DIRECTEMENT À X5, et les trois chemins du cat
     .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
   const poses = src.match(/ficheEnCours = \{/g) || [];
   assert.equal(poses.length, 1, `⛔ ${poses.length} endroits ouvrent X2 à la main — une seule porte, \`ouvrirLObjet\``);
-  const porte = src.slice(src.indexOf("function ouvrirLObjet("), src.indexOf("piloteEquipement = {"));
+  /* 🔄 LOT 348 — la porte se découpe jusqu'à `envoyer`, qui la suit désormais : `piloteEquipement`,
+     l'ancien repère de fin, est parti avec la carte R. ⛔ ET LES DEUX REPÈRES SE VÉRIFIENT : un
+     `indexOf` qui ne trouve rien rend −1, et la découpe emporterait tout le fichier sans rougir. */
+  const debutPorte = src.indexOf("function ouvrirLObjet("), finPorte = src.indexOf("function envoyer(");
+  assert.ok(debutPorte !== -1 && finPorte > debutPorte, "⛔ un repère de la porte a disparu : la découpe ne mesure plus rien");
+  const porte = src.slice(debutPorte, finPorte);
   assert.match(porte, /seCrafteDansX5\(rec, basesDuCraft, magiquesDuCraft\)/,
     "⭐ la porte pose la MÊME question que le menu `Craft` de X2 — un seul critère");
   assert.ok(porte.indexOf('montrer("x5")') < porte.indexOf('montrer("x2")'),
@@ -443,7 +448,10 @@ test("16 — ⚖️ UN PLAN MÈNE DIRECTEMENT À X5, et les trois chemins du cat
   /* 🔄 LOT 315 — UN CINQUIÈME APPEL, ET IL PASSE PAR LA MÊME PORTE : l'objet RETENU par le collecteur
      de Wares ouvre sa fiche au tap (Eric, 27/09 : le collecteur garde l'objet, comme dans Pack). ⭐ Ce
      que ce garde tient ne bouge pas — une seule porte, et aucun `ficheEnCours` posé à la main. */
-  assert.equal((src.match(/ouvrirLObjet\(/g) || []).length, 5, "la définition + R + Wares + la recherche + le collecteur de Wares");
+  /* 🔄 LOT 348 — CINQ → QUATRE, et c'est le code mort qui s'en va : l'appel « R » était celui du
+     pilote de la carte R (`piloteEquipement.ouvrirFiche`), que seul `soignerLesCases` lisait —
+     jamais monté depuis Wares v2 (20/09). ⭐ La loi ne bouge pas : une seule porte. */
+  assert.equal((src.match(/ouvrirLObjet\(/g) || []).length, 4, "la définition + Wares + la recherche + le collecteur de Wares");
 });
 
 /* ══ LOT 269 — LE COÛT DE LA BASE, ET LE PRIX QUI SE TAPE ═══════════════════════ */

@@ -24,17 +24,18 @@
      ⛔ CE QUI EST DU BANC ET N'EST PAS DE LA NORME, nommément :
        · `--bouton-fond: var(--critical)` posé en ligne pour l'état verrouillé.
          La Bible interdit la couleur dans le balisage (`#bouton-jamais-de-
-         couleur-dans-le-balisage`) et elle a raison — mais les six chemins qui
+         couleur-dans-le-balisage`) et elle a raison — mais les cinq chemins qui
          mènent au rouge (`.parcours-annuler`, `.sortie-annule`, `.pipeline-
-         danger`, `.popup-action[data-defait]`, `.carte-r-bouton`, `.dressing-
-         bouton`) arrivent tous au MÊME jeton. Un banc de dessin juge la
+         danger`, `.popup-action[data-defait]`, `.dressing-bouton` ;
+         `.carte-r-bouton` est parti avec la carte R, lot 348) arrivent tous au
+         MÊME jeton. Un banc de dessin juge la
          matière, pas le câblage : il pose le point d'arrivée commun.
        · les familles sont posées dans leur parent de production quand elles en
          exigent un (`.parcours-pied`, `.card-pied`, `.parcours-item`).
 
      Usage : `preview_start` puis /ui/builder/banc-boutons.html -->
-<link rel="stylesheet" href="./tokens.css?v=902">
-<link rel="stylesheet" href="./shell.css?v=902">
+<link rel="stylesheet" href="./tokens.css?v=903">
+<link rel="stylesheet" href="./shell.css?v=903">
 <style>
   html, body { margin: 0; background: #14110c; }
   body { font-family: var(--font, system-ui); }
@@ -187,7 +188,8 @@ const FAMILLES = [
   { classe: "fiche-action",        rang: "porte",      plancher: true,  parent: null },
   { classe: "ability-entry",       rang: "porte",      plancher: false, parent: null },
   { classe: "pipeline-bouton",     rang: "equipement", plancher: false, parent: null },
-  { classe: "carte-r-bouton",      rang: "equipement", plancher: false, parent: null },
+  /* ⛔ LOT 348 — `carte-r-bouton` est sorti avec la carte R : sa règle n'existe plus, le
+     spécimen mesurerait un bouton nu. */
   { classe: "dressing-bouton",     rang: "equipement", plancher: false, parent: null },
   { classe: "aiguilleur-bouton",   rang: "equipement", plancher: false, parent: null },
   { classe: "skills-onglet",       rang: "candidat",   plancher: false, parent: null },
@@ -359,7 +361,7 @@ else window.addEventListener("load", releve);
      ⛔ Et PAS `Build a character` : il rend 351 et n'a pas d'octogone, c'est
      un `.tdc-majeur`. Je l'avais pris pour un bouton de la famille. -->
 <script type="module">
-  import { borderImage, LARGEUR_TUILE, SLICE, anneau, svg } from "./bouton-relief.mjs?v=902";
+  import { borderImage, LARGEUR_TUILE, SLICE, anneau, svg } from "./bouton-relief.mjs?v=903";
 
   const ROLES = { bleu: "#6488aa", vert: "#599b77", rouge: "#bb6860" };
 

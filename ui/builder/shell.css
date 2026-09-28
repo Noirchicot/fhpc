@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=902") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=903") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=902") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=903") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -4162,7 +4162,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .equipment-class-phrase { margin: 0; font-size: var(--t4); color: var(--text-soft); white-space: pre-wrap; }
 .equipment-empty-note { margin: 0; font-size: var(--t3); color: var(--text-soft); }
 
-.equipment-gear-block, .equipment-currency-block { margin-bottom: var(--sp-24); }
+.equipment-currency-block { margin-bottom: var(--sp-24); }
 /* ⏳ CE QUE R NE PORTE PAS, EN ATTENDANT B2 ET B3 — l'AC, ce qu'on possède
    déjà, et la recherche. Le croquis les met derrière les boutons `GEAR` et
    `CART` ; ces écrans ne sont pas construits, donc ils vivent SOUS la carte,
@@ -4173,7 +4173,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   margin-top: var(--sp-24); padding-top: var(--sp-16);
   border-top: 1px dashed var(--border);
 }
-.equipment-gear-block h3, .equipment-currency-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
+.equipment-currency-block h3 { margin: 0 0 var(--sp-8); font-size: var(--t3); color: var(--text-muted); }
 .equipment-ac-readout { margin: 0 0 var(--sp-12); font-size: var(--t5); font-weight: 600; }
 
 .equipment-gear-list { display: flex; flex-direction: column; gap: var(--sp-4); margin-bottom: var(--sp-16); }
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=902") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=903") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -7472,427 +7472,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .choix-glisse[data-trop="true"] .glisse-consigne { color: var(--critical); }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   LE TAMBOUR D'EQUIPMENT (lot 84) — DEUX ROUES, PUIS UNE GRILLE PAGINÉE
-   Croquis d'Eric du 2026-08-23. Valeurs ratifiées à la 5e passe du banc
-   (2026-08-22, réglées AU POUCE par Eric sur l'appareil) :
-
-       courbure 3,36 x pas   angle max 61°   fuite 12,9 x pas
-       cran 117 x 60   ecart 4   -> pas 121, R 407 px, un cran 17,1°
-
-   ⭐ TOUT EN RAPPORT AU PAS, JAMAIS EN PIXELS ABSOLUS : un rayon absolu ne
-   survit pas au changement d'écran — sur l'iPad en paysage, la roue calibrée
-   en pixels alignait seize items sur 2000 px et le relevé annonçait lui-même
-   « ça glisse, ça ne tourne pas ».
-   ⭐ ET LE PAS N'EST ÉCRIT QUE LÀ : le JS le LIT dans la mise en page
-   (`monterRoue`/`pas()`), il ne le recopie pas. Un nombre écrit deux fois est
-   un nombre qui finit par se contredire.
-   ══════════════════════════════════════════════════════════════════════════ */
-
-.equipment-drum {
-  /* 🔴 MESURÉ AU NAVIGATEUR LE 2026-08-23, ET ÇA CONTREDIT LA COMMANDE.
-     Les cotes d'Eric (cran 117, écart 4) ont été réglées AU POUCE SUR SON
-     iPAD, le 22/08 — c'est-à-dire AVANT que le croquis du 23/08 n'ajoute une
-     paire de flèches par étage. Sur un écran de 375 px, la carte de l'étape
-     offre 327 px ; trois crans de 117 plus deux flèches de 44 en demandent
-     455. Mesuré : la piste rendait 229 px, soit MOINS DE DEUX crans visibles.
-     ⛔ Or « trois crans visibles exactement » est la règle qu'Eric a redite le
-     23/08, et la plus catégorique des deux (« suis-je clair ou pas ? »).
-     ⭐ ALORS LE PAS SE BORNE AU LIEU DE SE FIXER : il vaut 121 px partout où la
-     place existe — sur l'iPad, donc exactement ce qu'Eric a réglé — et il
-     rétrécit seulement quand elle manque. Trois crans, toujours.
-     ⭐ ET C'EST DÉJÀ LA LOI DU BANC, prise au sérieux jusqu'au bout : « TOUT EN
-     RAPPORT AU PAS, JAMAIS EN PIXELS — un rayon absolu ne survit pas au
-     changement d'écran ». L'écart, la courbure, la fuite et les 51 images de
-     l'animation sont tous des RAPPORTS au pas : ils suivent sans une retouche.
-     ⏳ À TRANCHER PAR ÉRIC, AU DOIGT : un cran de 77 px au lieu de 117 sur un
-     téléphone. S'il préfère deux crans à la bonne taille, c'est cette ligne. */
-  /* 🔴 LA LARGEUR NE SE DEMANDE PLUS AU CONTENEUR — 2026-09-02, lot 121.
-     `100cqw` disait « la largeur de ma boîte », et c'était juste sous
-     Chromium. ⛔ Sous WebKit, `zoom` NE REBASE PAS les unités de conteneur :
-     elles rendent des PIXELS PEINTS là où tout le dépôt compte en blg. Sur
-     l'iPad d'Eric (échelle 1,83) `100cqw` valait 671 au lieu de 367, le pas
-     montait à `min(121 ; (671−96)/3 = 191,67)` = **121**, et trois crans de
-     121 plus deux flèches de 44 demandaient 451 blg dans une colonne de 367.
-     ⭐ CE QUE LA COLONNE DÉDUITE APPORTE : elle est en blg par construction,
-     donc les deux moteurs lisent le même nombre. Le pas garde sa valeur,
-     mesurée le 02/09 aux deux tailles : `(367 − 88 − 8) / 3 = 90,33`, cran
-     rendu **87** — identique au pixel près à ce que `cqw` donnait sous
-     Chromium.
-     📌 `--colonne-dalle` et non `--colonne-ecran` : le tambour ne vit dans
-     aucune dalle qui rétrécit, donc le repli de `.stage` lui rend la colonne
-     de l'écran — 367. Mesuré : `.carte-r-corps` = 367, sans rembourrage.
-     Lire le jeton de la dalle le suivrait le jour où il déménagerait. */
-  --roue-fleche-l: var(--touch);
-  --roue-pas-max: 121px;                /* 117 + 4, les cotes ratifiées du 22/08 */
-  --roue-pas: min(var(--roue-pas-max),
-                  calc((var(--colonne-dalle) - 2 * var(--roue-fleche-l) - 2 * var(--sp-4)) / 3));
-  /* L'écart est un RAPPORT au pas (121 / 4 = 30,25), pas une constante : c'est
-     ce qui garde `d max = ±1,96694 pas` vrai à TOUTES les largeurs, donc les 51
-     images de l'animation justes sans les recalculer. */
-  --roue-ecart: calc(var(--roue-pas) / 30.25);
-  --roue-cran-l: calc(var(--roue-pas) - var(--roue-ecart));
-  /* 🔴 −20 %, ORDRE D'ERIC DU 2026-08-23 : *« réduis la hauteur du tambour de
-     20 % »*. C'EST ICI QUE LA HAUTEUR DU TAMBOUR SE DÉCIDE — le tambour n'a pas
-     de cote à lui : il vaut deux crans, deux écarts et la ligne de profondeur.
-     ⚠️ ET LA COUPE N'EST PAS ÉQUIVALENTE SUR LES DEUX : 60 → 48 retire bien 20 %
-     au CRAN, mais seulement 24 px au TAMBOUR (mesuré : 139,5 → 115,5 à 375 px,
-     soit −17,2 %). La ligne de profondeur ne rétrécit pas avec les crans, et
-     c'est elle qui fait la différence — dite ici plutôt que laissée à croire.
-     ⭐ 48 reste AU-DESSUS du seuil tactile (`--touch`) : un cran se vise encore
-     au pouce. À 44 il le toucherait pile ; en dessous, il serait cassé.
-     📌 L'argument d'origine survit — « on peut superposer Mot 1 & Mot 2 » tient
-     encore à 48, deux lignes de `--t2` en demandant moins. */
-  --roue-cran-h: 48px;
-  --roue-fuite: calc(12.9 * var(--roue-pas));
-  --roue-champ: calc(3 * var(--roue-pas) - var(--roue-ecart));
-  /* 🔧 AMENDÉ LE 2026-08-23, PUIS LE 2026-08-24 — LE FONDU EST UN RAPPORT AU PAS.
-     🔴 Le masque en POURCENTAGE DE LA PISTE a coûté une passe de réglage
-     entière : plus la piste s'élargissait, plus il rongeait de crans, et Eric
-     réglait « 7 » pour en voir 5. ⛔ Et PAS de cran de marge non plus : une
-     marge exprimée en cran fabrique une piste à QUATRE crans, et il le voit
-     tout de suite (« on ne voyait que trois crans par étage, suis-je clair ou
-     pas ? »).
-
-     ⭐ DETTE SOLDÉE (lot 94 → lot 95), ET CE N'EST PAS UN RETOUR EN ARRIÈRE :
-     un pourcentage DE LA PISTE et un rapport AU PAS ne sont pas la même
-     grandeur. La piste s'élargit avec l'écran ; le pas, lui, est BORNÉ
-     (`min(121px, …)`). Depuis que la roue est fluide, `10px` figé rongeait
-     13,5 % d'un cran tombé à 73,8 px, contre 8,3 % à 121 px — le fondu
-     grossissait à mesure que le cran maigrissait, exactement l'inverse de ce
-     qu'on voulait. Le rapport `pas / 12.1` vaut 10 px À L'IDENTIQUE sur l'iPad
-     d'Eric (121 / 12.1 = 10) et suit le cran ailleurs. C'est la même écriture
-     que `--roue-ecart`, pour la même raison. */
-  --roue-fondu: calc(var(--roue-pas) / 12.1);
-  display: flex; flex-direction: column; gap: var(--sp-4);
-  margin-bottom: var(--sp-16);
-}
-
-/* ⛔ `.roue-fleche` A DÉGAGÉ LE 2026-08-24 — Eric : *« enlève les chevrons du
-   haut à côté des tambours, ça fait trop moche »*, deuxième fois après le
-   15/08. Une règle qui ne coiffe plus rien est un mort qui a l'air vivant : on
-   la retire avec son nœud, pas seulement le nœud.
-   📌 ⛔ `--roue-fleche-l` RESTE, et ce n'est pas un oubli : elle réserve la
-   gouttière dans le calcul de `--roue-pas`. Sans elle, la piste s'élargirait,
-   les trois crans passeraient à 121 px et le tambour ne tomberait plus sur les
-   colonnes de la grille. ⏳ Cette place vide attend ce qu'Eric y mettra. */
-
-/* Un étage : sa piste, et rien d'autre. */
-.roue { display: flex; align-items: center; justify-content: center; position: relative; }
-
-/* 🔴 LE CHEVRON EST DANS LE TAMBOUR, SUR LE BORD — idée d'Eric, 2026-08-24,
-   dans la minute où il a fait retirer les boutons : *« tu peux dessiner un
-   chevron subtil à l'intérieur du tambour, vraiment sur le bord, pour inciter
-   au clic, mais un trait très léger »*.
-   ⭐ ET C'EST PLUS JUSTE QU'UN BOUTON, pas seulement plus joli. Un bouton à
-   côté de la roue dit « appuie ICI pour agir sur ça » — deux objets, deux
-   gestes à apprendre. Un trait posé SUR le bord dit « ça continue par là », et
-   ce qu'on clique est le cran lui-même. C'est la langue du reste de l'écran :
-   *« y'a pas besoin d'œil, le jeton EST le contrôle »*.
-   ⛔ `pointer-events: none` EST LA LIGNE QUI REND ÇA VRAI : sans elle, le
-   dessin intercepterait le clic destiné au cran qu'il désigne, et l'invitation
-   deviendrait un obstacle. Il montre, il ne reçoit pas.
-   📌 Il se pose à l'aplomb du bord de la PISTE, pas de l'étage : la piste est
-   centrée et large de `--roue-champ`, d'où la moitié du reste en décalage.
-   ⏳ L'épaisseur et l'encre sont volontairement au plus bas (`--verre-lisere`,
-   le liseré des dalles) : Eric a dit « très léger », c'est un réglage qui se
-   juge à l'œil, pas au chiffre. */
-.roue::before,
-.roue::after {
-  content: ""; position: absolute; top: 50%; z-index: 1;
-  width: var(--sp-8); height: var(--sp-8);
-  border-top: 1px solid var(--verre-lisere);
-  border-right: 1px solid var(--verre-lisere);
-  opacity: .28;
-  pointer-events: none;
-}
-.roue::before {
-  left: calc((100% - var(--roue-champ)) / 2 + var(--sp-4));
-  transform: translateY(-50%) rotate(-135deg);
-}
-.roue::after {
-  right: calc((100% - var(--roue-champ)) / 2 + var(--sp-4));
-  transform: translateY(-50%) rotate(45deg);
-}
-
-.roue-piste {
-  /* 🔴 LA PISTE SE BORNE À TROIS CRANS ET SE CENTRE. Laissée pleine largeur
-     elle alignait SEIZE items sur 2000 px : un picker n'est pas un bandeau qui
-     s'étire, c'est un objet d'une taille donnée, posé au milieu. */
-  flex: 0 0 var(--roue-champ);
-  width: var(--roue-champ);
-  max-width: 100%;
-  margin-inline: auto;
-  display: flex;
-  gap: var(--roue-ecart);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  background: var(--sunken);
-  border-radius: var(--radius-md);
-  /* ⚠️ `mandatory` SEUL : il choisit le cran où la course s'achève, il ne bride
-     pas l'inertie. ⛔ SURTOUT PAS `scroll-snap-stop: always` — c'est LUI qui
-     empêchait la roue de rouler : un geste ample, si lancé soit-il, n'avançait
-     que d'un item et calait. Le doigt lance une roue, la roue refuse de tourner. */
-  scroll-snap-type: x mandatory;
-  /* Le lissage natif porte AUSSI le geste des flèches et du clic sur un cran :
-     un seul chemin d'animation pour les trois entrées. */
-  /* ⛔ PLUS DE `scroll-behavior: smooth` — retiré le 2026-08-24, et c'est la
-     moitié du défaut qu'Eric a signalé cinq fois. Il donnait au NAVIGATEUR une
-     animation d'environ 400 ms, non réglable, sur toute écriture de
-     `scrollLeft` — que la recouture pouvait tuer en vol en passant à `auto`,
-     laissant la piste entre deux crans sans que rien ne la rattrape.
-     ⭐ Le glissement d'un bond appartient maintenant au JS (`glisserVers`,
-     170 ms `easeOutCubic`), qui écrit lui-même chaque image et atterrit sur un
-     point d'aimantation exact. Un moteur, pas deux qui se disputent la piste.
-     📌 Ceci ne change RIEN au geste du doigt : `scroll-behavior` ne concerne que
-     les défilements demandés par script, jamais l'inertie de l'utilisateur. */
-  /* 🔴 LA PERSPECTIVE VIT SUR LA PISTE, C'EST-À-DIRE SUR LE PARENT DIRECT DES
-     CRANS. Une passe de réglage entière a été perdue parce qu'elle était
-     déclarée un niveau trop haut : elle ne descend QU'aux enfants directs, et
-     `getComputedStyle(piste).perspective` rendait `none`. Eric réglait une
-     courbure dont il ne voyait que l'échelle, et son curseur de fuite ne
-     faisait littéralement rien.
-     📌 UNE FUITE AUSSI LOINTAINE APLATIT LA DÉFORMATION, et c'est un choix
-     d'Eric tenu sur les cinq passes : il garde la rotation et jette l'effet
-     d'optique. Un tambour qui tourne, pas un fisheye. */
-  perspective: var(--roue-fuite);
-  perspective-origin: 50% 50%;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--roue-fondu), #000 calc(100% - var(--roue-fondu)), transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0, #000 var(--roue-fondu), #000 calc(100% - var(--roue-fondu)), transparent 100%);
-}
-.roue-piste::-webkit-scrollbar { width: 0; height: 0; }
-
-/* ⛔ LE BOND DE COUTURE : l'aimantation et le lissage lâchent LE TEMPS D'UNE
-   TÂCHE. Restaurer dans la même tâche, c'est n'avoir jamais rien coupé — le
-   navigateur ne voit que l'état final, re-snappe, et l'écran saute. */
-.roue-piste[data-couture="oui"] { scroll-snap-type: none; scroll-behavior: auto; }
-
-/* ⛔ SOUS TROIS CRANS, IL N'Y A PAS DE ROUE — tripler une liste d'un ou deux
-   crans fabrique une roue qui tourne sans avancer, et l'utilisateur voit trois
-   fois la même chose sans comprendre pourquoi. Le cas est RÉEL, pas théorique :
-   « Gear » et « Armor » n'ont chacun qu'UNE étagère, faute de champ dans les
-   records (§4). Une piste droite ne peut pas amener son unique cran au milieu
-   toute seule : cette cale d'un pas de chaque côté le lui permet.
-   📌 C'est la « cale d'un tiers » que le banc gardait pour ce cas ; elle ne
-   part PAS avec la roue de C. */
-.roue-piste[data-court="oui"] { padding-inline: var(--roue-pas); }
-
-/* L'ATTENTE : une bande qui tourne invite à choisir, une bande FIGÉE dit
-   qu'il n'y a rien à choisir. Ni défilement, ni aimantation, ni perspective.
-   ⛔ On ne DÉMONTE pas la piste — `scrollWidth` tomberait à zéro et la roue
-   perdrait sa couture au moment précis où elle en a besoin. */
-.roue-piste[data-attente="oui"] {
-  overflow-x: hidden; scroll-snap-type: none; perspective: none; pointer-events: none;
-}
-
-.roue-cran {
-  flex: 0 0 var(--roue-cran-l);
-  /* ⚠️ `border-box` EXPLICITE : sans lui la hauteur fixe s'ADDITIONNE au
-     rembourrage, la tuile rend 53 px au lieu de 44, et la bande change de
-     hauteur d'un rayon à l'autre — c'est ce qui faisait sauter tout ce qui vit
-     en dessous. */
-  box-sizing: border-box;
-  /* 🔴 LA HAUTEUR EST FIXE. Mesuré : `R.cat` variait de 172 à 182 px SELON LE
-     RAYON — un nom long se repliait sur trois lignes et poussait ses crans.
-     Une roue dont les crans changent de hauteur n'est pas une roue. */
-  height: var(--roue-cran-h);
-  /* 🔴 `min-width: 0`, ET C'EST LUI QUI FAIT « TOUS DE LA MÊME TAILLE » : avec
-     `auto`, un item flex refuse de descendre sous son mot le plus long — 120 px
-     là où ses voisins font 114, à `flex-basis` IDENTIQUE. Le défaut ne frappe
-     que certains libellés, ce qui le rend presque impossible à voir. */
-  min-width: 0;
-  max-width: none;
-  /* Le nom qui ne tient pas est COUPÉ, pas accommodé — règle du rail de Species. */
-  overflow: hidden;
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  padding: var(--sp-2) var(--sp-4);
-  border: 0; border-radius: var(--radius-sm);
-  /* 🔴 LE CRAN EST UNE CASE, ET IL FAUT LA VOIR — Eric, 2026-08-24 : *« c'était
-     plus joli le tambour quand les cases étaient plus dessinées »*. Il portait
-     `border: 0` et un fond si proche de la bande qu'il ne s'en détachait plus :
-     trois mots posés dans le noir, pas trois cases dans une roue.
-     ⭐ EN `inset`, PAS EN `border` — c'est la règle de la maison, écrite dans
-     `tokens.css` : *« un liseré en border déplacerait »*. Ici elle est doublement
-     vraie, la largeur du cran étant calculée au sous-pixel pour tomber sur les
-     colonnes de la grille : une bordure la décalerait, un liseré la peint.
-     ⏳ L'intensité se juge à l'œil, pas au chiffre — c'est le réglage qu'Eric
-     regardera. */
-  box-shadow: inset 0 0 0 1px var(--verre-lisere);
-  background: var(--surface); color: var(--text-soft);
-  font: inherit; font-size: var(--t2); line-height: 1.15;
-  cursor: pointer;
-  scroll-snap-align: center;
-  /* ⭐ LE GARDE-FOU EST GÉOMÉTRIQUE : passé 90° un item présente son dos —
-     il est de l'autre côté du tambour. Cette ligne le retire au lieu de le
-     laisser réapparaître à l'envers. */
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  /* ⛔ PAS DE `will-change: transform`. Il promeut le cran en couche composite :
-     le navigateur le rasterise UNE FOIS, puis le GPU ÉTIRE LA TEXTURE. Nos
-     crans changent d'échelle en permanence — on étirerait une image figée au
-     lieu de redessiner du texte. Posé pour aider la fluidité, il abîmait la
-     netteté sans rien gagner. C'est ce qui « frise » à l'oeil. */
-}
-/* Le cran sous le viseur, et celui qui porte le choix posé. */
-.roue-cran[data-vise="true"] { color: var(--text); }
-/* 🔴 LE VISUEL SE COIFFE SUR `data-courant`, PAS SUR `aria-current` (lot 95).
-   Le cran courant est RÉPÉTÉ dans la piste — 9 copies sur la roue A. Toutes
-   doivent s'allumer (l'œil suit une roue qui tourne), mais UNE SEULE doit
-   s'annoncer : `aria-current` sur les neuf faisait dire « courant » neuf fois
-   à un lecteur d'écran. Deux rôles, deux attributs. */
-.roue-cran[data-courant="true"] { color: var(--text); font-weight: 600; background: var(--accent-wash); }
-
-.roue-marqueur {
-  cursor: default; background: none; color: var(--text-muted); font-size: var(--t5);
-}
-
-/* ══ LA ROTATION VIENT DU COMPOSITEUR, PAS DU JS ═══════════════════════════
-   🔴 LE DÉFILEMENT EST COMPOSITÉ SUR UN THREAD SÉPARÉ. Du JS qui repeint les
-   transformations est structurellement EN RETARD d'une image ou deux — pas
-   trop lent, DÉSYNCHRONISÉ. Mesuré : passer de 0,448 ms à 0,050 ms par image
-   n'a rien changé à l'oeil. Seule une timeline évaluée par le compositeur est
-   en phase avec le doigt.
-
-   ⚠️ ET C'EST SOUS `@supports`, DÉLIBÉRÉMENT. Sans lui, un navigateur qui
-   ignore `animation-timeline` garderait quand même l'animation — sur la
-   timeline du document, en 0s, avec `fill: both` : les crans se figeraient TOUS
-   sur la dernière image, à +33,5°. La dégradation serait pire que l'absence.
-   Ici, un navigateur trop ancien n'a AUCUNE animation : les crans restent
-   plats, ce qui est la dégradation propre annoncée. Chrome 115+, Safari 26+.
-   📌 `equipment-step.mjs` teste EXACTEMENT la même condition et l'écrit à
-   l'écran (« Wheel depth: on / off ») — Eric lit sur son iPad s'il juge la roue
-   ou son ombre, au lieu de le deviner.
-
-   📐 LA GÉOMÉTRIE, ET ELLE EST CALCULÉE, PAS COMPOSÉE À L'OEIL :
-       θ = d / R     x = R·sin θ     z = R·(cos θ − 1)     rotY = −θ
-       correction = x − d   ← la mise en page a DÉJÀ posé l'item à d
-   📌 `correction` parce qu'on ne POSE pas l'item, on le CORRIGE : oublier cette
-   soustraction fait s'additionner le défilement et la roue, et les items se
-   chevauchent aux bords. C'est le piège de cette formule.
-   🔴 CE QUI DISTINGUE UNE ROUE D'UN CARROUSEL : incliner les items sur place
-   les laisse espacés régulièrement — l'oeil lit un ruban qui glisse. Ce qui
-   trahit la rotation, c'est que les écarts se RESSERRENT vers les bords.
-
-   ⭐ 51 IMAGES, TOUS LES 2 % — ET PAS TOUS LES 5 %. Entre deux points
-   l'interpolation est LINÉAIRE là où la courbe est sinusoïdale : à 5 %, la
-   rotation avançait par segments droits, et ça se voyait (le « frisage »).
-   MESURE : pas 121px · champ 359px · d max ±238px = ±1.96694 pas · θ max atteint 33.54° (borne 61° : jamais atteinte)
-   ══════════════════════════════════════════════════════════════════════════ */
-@keyframes fhpc-roue {
-  0% { transform: translateX(calc(-0.11043 * var(--roue-pas))) translateZ(calc(-0.55947 * var(--roue-pas))) rotateY(-33.541deg); }
-  2% { transform: translateX(calc(-0.09784 * var(--roue-pas))) translateZ(calc(-0.51677 * var(--roue-pas))) rotateY(-32.199deg); }
-  4% { transform: translateX(calc(-0.08622 * var(--roue-pas))) translateZ(calc(-0.47563 * var(--roue-pas))) rotateY(-30.858deg); }
-  6% { transform: translateX(calc(-0.07555 * var(--roue-pas))) translateZ(calc(-0.43607 * var(--roue-pas))) rotateY(-29.516deg); }
-  8% { transform: translateX(calc(-0.06579 * var(--roue-pas))) translateZ(calc(-0.39811 * var(--roue-pas))) rotateY(-28.174deg); }
-  10% { transform: translateX(calc(-0.05689 * var(--roue-pas))) translateZ(calc(-0.36178 * var(--roue-pas))) rotateY(-26.833deg); }
-  12% { transform: translateX(calc(-0.04883 * var(--roue-pas))) translateZ(calc(-0.32709 * var(--roue-pas))) rotateY(-25.491deg); }
-  14% { transform: translateX(calc(-0.04156 * var(--roue-pas))) translateZ(calc(-0.29406 * var(--roue-pas))) rotateY(-24.149deg); }
-  16% { transform: translateX(calc(-0.03505 * var(--roue-pas))) translateZ(calc(-0.26272 * var(--roue-pas))) rotateY(-22.808deg); }
-  18% { transform: translateX(calc(-0.02924 * var(--roue-pas))) translateZ(calc(-0.23307 * var(--roue-pas))) rotateY(-21.466deg); }
-  20% { transform: translateX(calc(-0.02412 * var(--roue-pas))) translateZ(calc(-0.20514 * var(--roue-pas))) rotateY(-20.125deg); }
-  22% { transform: translateX(calc(-0.01962 * var(--roue-pas))) translateZ(calc(-0.17894 * var(--roue-pas))) rotateY(-18.783deg); }
-  24% { transform: translateX(calc(-0.01572 * var(--roue-pas))) translateZ(calc(-0.15448 * var(--roue-pas))) rotateY(-17.441deg); }
-  26% { transform: translateX(calc(-0.01238 * var(--roue-pas))) translateZ(calc(-0.13178 * var(--roue-pas))) rotateY(-16.1deg); }
-  28% { transform: translateX(calc(-0.00954 * var(--roue-pas))) translateZ(calc(-0.11085 * var(--roue-pas))) rotateY(-14.758deg); }
-  30% { transform: translateX(calc(-0.00717 * var(--roue-pas))) translateZ(calc(-0.0917 * var(--roue-pas))) rotateY(-13.416deg); }
-  32% { transform: translateX(calc(-0.00523 * var(--roue-pas))) translateZ(calc(-0.07434 * var(--roue-pas))) rotateY(-12.075deg); }
-  34% { transform: translateX(calc(-0.00367 * var(--roue-pas))) translateZ(calc(-0.05878 * var(--roue-pas))) rotateY(-10.733deg); }
-  36% { transform: translateX(calc(-0.00246 * var(--roue-pas))) translateZ(calc(-0.04504 * var(--roue-pas))) rotateY(-9.391deg); }
-  38% { transform: translateX(calc(-0.00155 * var(--roue-pas))) translateZ(calc(-0.03311 * var(--roue-pas))) rotateY(-8.05deg); }
-  40% { transform: translateX(calc(-0.0009 * var(--roue-pas))) translateZ(calc(-0.023 * var(--roue-pas))) rotateY(-6.708deg); }
-  42% { transform: translateX(calc(-0.00046 * var(--roue-pas))) translateZ(calc(-0.01473 * var(--roue-pas))) rotateY(-5.367deg); }
-  44% { transform: translateX(calc(-0.00019 * var(--roue-pas))) translateZ(calc(-0.00829 * var(--roue-pas))) rotateY(-4.025deg); }
-  46% { transform: translateX(calc(-0.00006 * var(--roue-pas))) translateZ(calc(-0.00368 * var(--roue-pas))) rotateY(-2.683deg); }
-  48% { transform: translateX(calc(-0.00001 * var(--roue-pas))) translateZ(calc(-0.00092 * var(--roue-pas))) rotateY(-1.342deg); }
-  50% { transform: translateX(calc(0 * var(--roue-pas))) translateZ(calc(0 * var(--roue-pas))) rotateY(0deg); }
-  52% { transform: translateX(calc(0.00001 * var(--roue-pas))) translateZ(calc(-0.00092 * var(--roue-pas))) rotateY(1.342deg); }
-  54% { transform: translateX(calc(0.00006 * var(--roue-pas))) translateZ(calc(-0.00368 * var(--roue-pas))) rotateY(2.683deg); }
-  56% { transform: translateX(calc(0.00019 * var(--roue-pas))) translateZ(calc(-0.00829 * var(--roue-pas))) rotateY(4.025deg); }
-  58% { transform: translateX(calc(0.00046 * var(--roue-pas))) translateZ(calc(-0.01473 * var(--roue-pas))) rotateY(5.367deg); }
-  60% { transform: translateX(calc(0.0009 * var(--roue-pas))) translateZ(calc(-0.023 * var(--roue-pas))) rotateY(6.708deg); }
-  62% { transform: translateX(calc(0.00155 * var(--roue-pas))) translateZ(calc(-0.03311 * var(--roue-pas))) rotateY(8.05deg); }
-  64% { transform: translateX(calc(0.00246 * var(--roue-pas))) translateZ(calc(-0.04504 * var(--roue-pas))) rotateY(9.391deg); }
-  66% { transform: translateX(calc(0.00367 * var(--roue-pas))) translateZ(calc(-0.05878 * var(--roue-pas))) rotateY(10.733deg); }
-  68% { transform: translateX(calc(0.00523 * var(--roue-pas))) translateZ(calc(-0.07434 * var(--roue-pas))) rotateY(12.075deg); }
-  70% { transform: translateX(calc(0.00717 * var(--roue-pas))) translateZ(calc(-0.0917 * var(--roue-pas))) rotateY(13.416deg); }
-  72% { transform: translateX(calc(0.00954 * var(--roue-pas))) translateZ(calc(-0.11085 * var(--roue-pas))) rotateY(14.758deg); }
-  74% { transform: translateX(calc(0.01238 * var(--roue-pas))) translateZ(calc(-0.13178 * var(--roue-pas))) rotateY(16.1deg); }
-  76% { transform: translateX(calc(0.01572 * var(--roue-pas))) translateZ(calc(-0.15448 * var(--roue-pas))) rotateY(17.441deg); }
-  78% { transform: translateX(calc(0.01962 * var(--roue-pas))) translateZ(calc(-0.17894 * var(--roue-pas))) rotateY(18.783deg); }
-  80% { transform: translateX(calc(0.02412 * var(--roue-pas))) translateZ(calc(-0.20514 * var(--roue-pas))) rotateY(20.125deg); }
-  82% { transform: translateX(calc(0.02924 * var(--roue-pas))) translateZ(calc(-0.23307 * var(--roue-pas))) rotateY(21.466deg); }
-  84% { transform: translateX(calc(0.03505 * var(--roue-pas))) translateZ(calc(-0.26272 * var(--roue-pas))) rotateY(22.808deg); }
-  86% { transform: translateX(calc(0.04156 * var(--roue-pas))) translateZ(calc(-0.29406 * var(--roue-pas))) rotateY(24.149deg); }
-  88% { transform: translateX(calc(0.04883 * var(--roue-pas))) translateZ(calc(-0.32709 * var(--roue-pas))) rotateY(25.491deg); }
-  90% { transform: translateX(calc(0.05689 * var(--roue-pas))) translateZ(calc(-0.36178 * var(--roue-pas))) rotateY(26.833deg); }
-  92% { transform: translateX(calc(0.06579 * var(--roue-pas))) translateZ(calc(-0.39811 * var(--roue-pas))) rotateY(28.174deg); }
-  94% { transform: translateX(calc(0.07555 * var(--roue-pas))) translateZ(calc(-0.43607 * var(--roue-pas))) rotateY(29.516deg); }
-  96% { transform: translateX(calc(0.08622 * var(--roue-pas))) translateZ(calc(-0.47563 * var(--roue-pas))) rotateY(30.858deg); }
-  98% { transform: translateX(calc(0.09784 * var(--roue-pas))) translateZ(calc(-0.51677 * var(--roue-pas))) rotateY(32.199deg); }
-  100% { transform: translateX(calc(0.11043 * var(--roue-pas))) translateZ(calc(-0.55947 * var(--roue-pas))) rotateY(33.541deg); }
-}
-
-@supports (animation-timeline: view()) {
-  .roue-piste:not([data-attente="oui"]) > .roue-cran {
-    animation-name: fhpc-roue;
-    animation-duration: auto;
-    animation-timing-function: linear;
-    animation-fill-mode: both;
-    animation-timeline: view(inline);
-  }
-}
-
-
-/* ══ LA GRILLE — 5 LIGNES x 3 COLONNES, ET ELLE NE TOURNE PAS ═════════════
-   ⛔ Ni perspective, ni aimantation, ni `animation-timeline` : on n'étend pas
-   la mécanique de la roue à un objet qui PAGINE. Deux pièces différentes, deux
-   mécaniques différentes, et c'est voulu.
-   ⛔ ET ELLE N'A PAS DE VISEUR, ce qui est sa raison d'être : la règle d'Eric
-   — « le joueur aurait acheté l'objet devant lequel il s'est arrêté » — doit
-   rester impossible. La grille MONTRE, elle ne désigne pas. */
-.equipment-grille {
-  /* 🔴 UNE CASE D'OBJET FAIT LA COTE D'UN JETON DE SORT — Eric, 2026-08-23 :
-     *« fait pareil que les sorts »*. ⛔ Et elle ne la RECOPIE pas, elle la LIT :
-     `--glisse-case` / `--glisse-h` sont les jetons du vivier des sorts, dans
-     `tokens.css`. Deux nombres égaux écrits à deux endroits divergent au premier
-     réglage — c'est la leçon de `--measure-f`, morte en une heure le 19/08.
-
-     ⚠️ ET CE N'ÉTAIT PAS LE CAS, PAR UNE MAUVAISE LECTURE. Le lot 88 avait posé
-     `--fhpc-case-h: var(--touch)` (44) « comme le standard des sorts ». Il y a
-     DEUX règles `.glisse-jeton` dans cette feuille, et il a lu la mauvaise :
-       · `.glisse-jeton` nue ............... `min-height: var(--touch)` = 44
-         → un jeton ISOLÉ, pas un vivier ;
-       · `.choix-glisse .glisse-jeton` ..... cellule `--glisse-case` **87**
-         × `min-height: --glisse-h` **48**  → ⭐ LE VIVIER DES SORTS, le standard.
-     📏 Mesuré au navigateur à 375 px avant correction : jeton de sort 87 × 48,
-     jeton d'objet 38,2 × 44. Ni la taille, ni la loi.
-
-     ⭐ ET C'EST LA LOI QUI S'ALIGNE, PAS SEULEMENT LE NOMBRE : une cote EXACTE,
-     et ce qui reste se partage aux deux bouts. Un tiers de contenant (`1fr`)
-     redonnerait un jeton d'une largeur différente à chaque écran — c'est
-     exactement ce qui avait fait le 38,2.
-     ⛔ MAIS PAS LA LOI A DES SORTS (« autant que la ligne en porte ») : R est
-     une grille de 15 à position stable, norme des listes du 23/08. Trois
-     colonnes, toujours — un objet ne change pas de place selon l'écran.
-
-     ⏳ Reste ouvert, et ça ne tient plus qu'à ça : « la case porte le NOM ou une
-     IMAGE ». Le jour où Eric tranche, c'est ici et `contenuDeCase()` dans
-     `equipment-step.mjs`. Deux endroits, pas quinze. */
-  --fhpc-case-h: var(--glisse-h);
-  --fhpc-case-w: var(--glisse-case);
-  /* 🔴 `width: 100%` EST INDISPENSABLE, ET SON ABSENCE ÉTAIT UN DÉFAUT MESURÉ.
-     Dans une colonne flex, une marge latérale `auto` ANNULE l'étirement : la
-     grille ne prenait plus la largeur de sa carte, elle prenait celle de son
-     contenu le plus large — la barre de titre. 📏 Relevé le 2026-08-23 sur
-     l'écran R à 375 px : grille **122,6 px** de large dans une carte de 341,
-     donc un jeton de **38,2 px** pendant qu'un collecteur en faisait 111.
-     ⭐ C'EST CE QU'ERIC A VU quand il a dit *« un drop fait la même taille que
-     l'item »* : ils faisaient 1 pour 3. Rendre sa largeur à la grille suffit à
-     les égaliser — sans rien rétrécir, et sans coûter un pixel de hauteur. */
-  width: 100%;
-  max-width: var(--grid-w); margin: 0 auto var(--sp-24);
-}
 /* 🔴 LES FLÈCHES FLANQUENT LES JETONS, ET LA BARRE HORIZONTALE N'EXISTE PLUS —
    Eric, 2026-08-23 : *« les flèches peuvent être à droite et à gauche des
    tokens ; le titre n'a pas lieu d'être, il est porté par le rouleau »*.
@@ -7952,351 +7531,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    vit dans la gouttière qui les tourne, sous la flèche « suivante ». */
 .grille-compte { flex: none; font-size: var(--t1); color: var(--text-muted); font-variant-numeric: tabular-nums; }
 
-.grille-cases {
-  /* Entre les deux gouttières, la grille prend tout ce qui reste — et ce qui
-     dépasse des trois colonnes se partage aux deux bouts (`justify-content`),
-     comme le vivier des sorts le fait déjà. */
-  flex: 1 1 auto; min-width: 0;
-  display: grid;
-  /* ⛔ PLUS DE `1fr` : la colonne fait la cote d'un jeton de sort, pas un tiers
-     de son contenant. Voir `.equipment-grille` juste au-dessus pour la mesure
-     qui l'exige. `minmax(0, …)` reste pour que le NOM cède avant la case. */
-  grid-template-columns: repeat(3, minmax(0, var(--fhpc-case-w)));
-  justify-content: center;
-  /* 🔴 CINQ RANGÉES IMPOSÉES, ET C'EST CE QUI EMPÊCHE LA GRILLE DE SAUTER :
-     une dernière page de deux objets doit occuper la même hauteur qu'une page
-     pleine, sinon tout ce qui vit dessous remonte en tournant la page.
-     ⛔ Et les cases manquantes ne sont PAS rendues : une case vide serait une
-     cible tactile qui ne fait rien. */
-  grid-template-rows: repeat(5, var(--fhpc-case-h));
-  gap: var(--sp-4);
-}
-.grille-case {
-  display: flex; align-items: stretch; gap: var(--sp-2);
-  min-width: 0; box-sizing: border-box;
-}
-/* 🔴 LA CASE DE LA GRILLE **EST** UN JETON — tranché par Eric le 2026-08-26 :
-   *« c'est un jeton — aligne-la sur T1 »*.
-
-   ⛔ ET J'AVAIS SOUTENU L'INVERSE, à tort. J'avais arrêté un lot en écrivant
-   *« un organe qu'on GLISSE et un objet de PAGINATION ne sont pas la même
-   chose »*. La feuille disait déjà le contraire, vingt lignes plus bas :
-       `.carte-r .grille-jeton { touch-action: none; … }`
-       `.carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }`
-   — et son propre commentaire l'écrit : *« `.grille-jeton` n'était pas
-   glissable avant R1 »*. Il l'est depuis. **La case se glisse, donc c'est un
-   jeton**, et son nom ne mentait pas.
-   📌 LA LEÇON : j'ai tiré une distinction d'un RAISONNEMENT sur les gestes au
-   lieu de lire ce que le code fait du geste. Un nom qu'on croit menteur mérite
-   qu'on vérifie l'objet avant de vouloir le renommer.
-
-   ⏳ CE QUI RESTE DIFFÉRENT DU JETON DE GLISSER, mesuré et NON tranché — la
-   case porte encore `--radius-sm` (le jeton a `--organe-rayon`), `--surface`
-   opaque (le jeton a `--jeton-teinte`) et aucun `--relief`. Eric a tranché LE
-   CORPS, pas l'habit complet. ⛔ Ne pas aligner le reste sans lui. */
-.grille-jeton {
-  flex: 1 1 auto; min-width: 0; overflow: hidden;
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  padding: var(--sp-2);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: var(--surface); color: var(--text);
-  font: inherit; font-size: var(--t1); line-height: 1.15; cursor: pointer;
-}
-/* Même famille que `.equipment-item-eye` : la cible fait toute la hauteur de la
-   case, et jamais moins que `--touch` en largeur. */
-.grille-oeil {
-  flex: none; min-width: var(--touch);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
-  background: var(--surface); color: var(--text); font-size: var(--t3);
-  padding: 0; cursor: pointer;
-}
-/* 🔴 UNE CASE EN ATTENTE EST UNE CARTE FACE CACHÉE — Eric, 2026-08-23 :
-   *« mets le dos de carte de tarot à la place des étoiles sur les items »*,
-   *« quart de tour de la carte bien sûr »*.
-   📏 LE QUART DE TOUR N'EST PAS UN GOÛT, C'EST LE RATIO : le dos est un PORTRAIT
-   (816 × 1400, ratio 0,58) et la case est COUCHÉE (87 × 48, ratio 1,81). Tournée,
-   la carte fait 1400 × 816, ratio **1,72** — à 5 % de la case. `cover` ne rogne
-   donc presque rien, et il rogne sur les bords où la mosaïque est la plus calme,
-   jamais sur l'octogone du centre.
-   ⛔ L'IMAGE EST TOURNÉE AU FICHIER, PAS PAR UN `transform` : une rotation CSS
-   laisserait la boîte en portrait et il faudrait la contre-tailler — deux
-   réglages à accorder au lieu d'un. Le pixel arrive déjà dans le bon sens.
-   📏 Et elle est TAILLÉE POUR SA CASE : 261 × 151, soit trois fois la case, pour
-   les écrans denses — 14 ko. ⛔ Pas le master de 816 × 1400 : quinze cases le
-   chargeraient pour l'afficher à un neuvième de sa surface. */
-.grille-marqueur {
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=902");
-  background-size: cover; background-position: center;
-}
-/* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
-   identique sur tous les tokens, toujours centrer les items du bas si la ligne
-   est incomplète »*. Treize objets sur une page de quinze, c'était quatre
-   rangées pleines et un jeton seul, collé à gauche.
-   ⭐ LA GRILLE RESTE UNE GRILLE À TROIS COLONNES, et c'est ce qui compte : on ne
-   passe pas en `flex-wrap`, qui centrerait tout seul mais mettrait QUATRE cases
-   par rangée dès qu'un grand écran le permet — la norme des listes en veut
-   trois, toujours, sinon un objet change de place selon l'écran.
-     · reste 1 — le dernier va dans la colonne du MILIEU. Rien à décaler, la
-       colonne 2 est déjà le centre ;
-     · reste 2 — les deux derniers occupent les colonnes 1 et 2 ; on les pousse
-       d'une DEMI-COLONNE plus la moitié de l'écart, et les voilà centrés.
-       `50%` est relatif à la case elle-même : la cote suit toute seule quand la
-       case rétrécit sur un écran étroit. ⛔ Aucun nombre écrit ici.
-   ⛔ ET LE RANG NE CHANGE PAS : un objet garde sa rangée et son ordre. Seule la
-   ligne sans voisin à droite se recentre — « la grille ne se recompose pas »
-   (norme des listes §5) reste vrai. */
-.grille-cases[data-reste="1"] > .grille-case:last-child { grid-column: 2; }
-.grille-cases[data-reste="2"] > .grille-case:nth-last-child(-n+2) {
-  transform: translateX(calc(50% + var(--sp-4) / 2));
-}
-.grille-cases[data-attente="oui"] { pointer-events: none; }
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   L'ÉCRAN **R** DE L'ÉQUIPEMENT — LA CARTE ET SES QUATRE MORCEAUX.
-   ⭐ ARRIVÉE ICI PAR LA COUTURE DU 2026-08-23, et c'est le geste que le banc
-   annonçait depuis le lot 88 : *« le bloc qu'on construit sera importé dans le
-   builder à un moment »* (Eric). Ce bloc VENAIT de `ecran-r.html` §A ; il n'y
-   est plus, il n'en existe donc qu'une copie — le banc lit celle-ci comme le
-   builder, et les deux ne peuvent plus diverger.
-   ⛔ Ce qui est resté là-bas est l'ÉCHAFAUDAGE (le belt en image, le relevé de
-   hauteur) : il ne sert qu'à REGARDER la carte, et il ne part jamais.
-   ═══════════════════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════════════════
-   § A — LE BLOC R1. ⭐ CE BLOC-CI PARTIRA DANS LE BUILDER, D'UN SEUL GESTE.
-   Il ne connaît ni le belt, ni le relevé de mesure, ni cette page : il ne
-   décrit que les six morceaux et leur budget de hauteur.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* L'ÉCRAN EST UN **FF**, ET IL PORTE UNE **CARTE** — corrigé le 2026-08-23.
-   ⛔ « R1 » N'EST PAS UN NOM DE CADRE, et l'écrire ainsi était l'erreur :
-     · **R** est un nœud de l'ARBORESCENCE de l'Équipement (R · B1 · B2 · B3 ·
-       B4 · SB3.1/2/3) — une position, pas une géométrie ;
-     · **FF** est le cadre : belt, pas de menu latéral, le contenu sur toute la
-       scène (`CADRES.md` §1) ;
-     · ce qui vit dedans est une **carte** — `FF1` dans l'ancien vocabulaire,
-       celui qu'Eric parle encore.
-   ⚠️ La page autonome n'a pas de menu latéral, et c'est NORMAL : elle est un
-   banc. C'est le BLOC qui partira dans le builder, où le menu existe.
-
-   🔴 LA HAUTEUR EST IMPOSÉE, ET CE N'EST PAS « CE QUI RESTE SOUS LE BELT ».
-   Une carte fait `--fiche-h`, ni plus ni moins (Eric, 15/08 : « une fiche fait
-   un écran »). ⛔ La cote ne se recopie pas : elle vit dans `tokens.css`.
-   ⭐ TOUT LE LOT 94 SERT CETTE LIGNE : les sept coupes d'Eric ne « récupèrent
-   pas un peu d'espace », elles font ENTRER le contenu dans cette hauteur. Le
-   relevé du banc dit, en chiffres, si c'est gagné.
-
-   🔴 ET LA LARGEUR SE PLAFONNE À `--measure`. Mesuré le 23/08 : le jeton
-   n'apparaissait NULLE PART dans ce fichier, et aucune classe ne le recevait de
-   `shell.css`. Une carte se plafonne et se centre — c'est la mesure unique de
-   `CADRES.md` §2, la même avec et sans rail. */
-.carte-r {
-  flex: none;
-  /* 🔴 AUCUNE HAUTEUR IMPOSÉE — Eric, 2026-08-23, en deux temps : *« incohérence
-     sur le bas de boutons cachés »*, puis *« n'impose plus une hauteur sur la
-     dalle »*. La carte fait la hauteur de ce qu'elle porte, et rien d'autre.
-     📏 CE QUE LA COTE IMPOSÉE FAISAIT, ET C'EST CE QU'IL A VU : 440 px offerts
-     pour 452 de contenu, donc `overflow: hidden` tranchait **12 px** — la rangée
-     `GEAR CART CRAFT NEXT` coupée en deux, à 375 x 812 comme à 320 x 568.
-     ⛔ ET UN ÉCRAN QUI COUPE SES PROPRES BOUTONS EST PIRE QU'UN ÉCRAN TROP
-     HAUT : le premier ment, le second se voit.
-     ⭐ D'OÙ VENAIT LA FAUSSE COTE, parce qu'elle resservira ailleurs :
-     `--fiche-h` (440) est la cote d'une fiche de CATALOGUE — 242 x 440, ratio
-     0,55, réglée pour Class et Species. Promue sur `:root` le 23/08 pour que
-     l'écran R puisse la lire, elle s'est mise à décrire un FF de 625 px de
-     large, où son ratio devient 1,42. Une cote juste, au mauvais endroit.
-     📏 Et la place ne manquait jamais : sous le belt il y a **735 px** à
-     375 x 812 et **491** à 320 x 568, pour 452 de contenu.
-     ⛔ LE BUDGET N'EST PAS ABANDONNÉ POUR AUTANT — il change de juge. Ce n'est
-     plus « ça rentre dans 440 », c'est « ça tient sous le belt sans défiler ».
-     Le relevé du banc mesure toujours, et la règle d'Eric ne bouge pas : ce qui
-     ne rentre pas ne se cache pas plus bas, on demande ce qui est EN TROP. */
-  width: 100%;
-  max-width: var(--measure);
-  margin-inline: auto;
-  background: var(--surface);
-  position: relative;
-  /* 🔴 NI BORDURE, NI MARGE, NI REMBOURRAGE — Eric, 23/08 : *« dégage le cadre
-     et la marge si ça fait récupérer de l'espace aussi »*. C'était une
-     CONDITION, et elle est vérifiée : mesuré à 375 px, le rembourrage rendait
-     16 px de hauteur utile et la bordure 2 — 18 px qui vont aux six morceaux.
-     La marge, elle, ne rendait rien À LA CARTE (elle vivait dehors) : elle part
-     quand même, parce qu'une carte qui se centre n'a rien à décaler. */
-  /* ⛔ RIEN NE DÉFILE — norme des listes du 2026-08-23, « une page non
-     scrollable ». Ce qui ne tient pas ne se cache pas plus bas : ça dépasse,
-     et le relevé de l'échafaudage le dit en chiffres. Un défilement posé ici
-     mentirait sur le budget, qui est justement ce qu'Eric juge. */
-  overflow: hidden;
-}
-.carte-r-corps { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-
-/* Les deux organes empruntés au produit ne reçoivent AUCUNE cote d'ici.
-   ⛔ IL Y EN AVAIT UNE, ET ELLE ÉTAIT FAUSSE : cette ligne posait
-   `--fhpc-case-h: var(--touch)` (44) au nom de *« même dimension que le
-   standard des sorts »*, en lisant la règle `.glisse-jeton` NUE au lieu de
-   celle du vivier (87 × 48). Eric a tranché le 23/08 au soir — *« fait pareil
-   que les sorts »* — et la cote juste vit maintenant dans `shell.css`, sur
-   l'écran lui-même. Ce banc n'a plus à la corriger : il la reçoit. */
-/* 🔴 8 px ENTRE LES JETONS ET LES COLLECTEURS — Eric, 2026-08-23, en cotant les
-   deux écarts du bas d'un seul coup.
-   ⛔ ET ÇA RENVERSE CE QUI ÉTAIT ÉCRIT ICI IL Y A UNE HEURE. J'avais serré cet
-   écart à 4 px en raisonnant que les collecteurs sont « la rangée suivante de la
-   grille », donc à l'écart des jetons entre eux. Le raisonnement se tenait ; il
-   servait surtout à trouver les 12 px qui manquaient dans une carte de hauteur
-   imposée. La hauteur n'est plus imposée, le prétexte est tombé, et Eric a coté
-   ce qu'il voulait voir. ⭐ Une cote donnée bat une cote déduite. */
-.carte-r .equipment-grille { margin-bottom: var(--sp-8); }
-/* 🔴 4 px ENTRE LE 2e TAMBOUR ET LES JETONS — Eric, 2026-08-23.
-   📏 IL N'Y EN AVAIT AUCUN, mesuré : le bas de la 2e roue, le bas du tambour,
-   le haut de la grille et le haut de la première case étaient TOUS au pixel
-   165. Ce qu'on prenait pour un écart était le rembourrage interne du cran.
-   ⭐ ET 8, COMME TOUT LE RESTE DE LA CARTE — corrigé dans la minute par Eric
-   (*« 8 pixels entre 2e tambour et items stp »*). J'avais posé 4 en
-   raisonnant que le tambour et la grille sont « un seul geste », donc plus
-   proches. ⛔ C'était une cote DÉDUITE, et elle perdait : les quatre rangées
-   de la carte se séparent du même pas, et seules les deux ROUES entre elles
-   gardent leur 4 — parce qu'elles sont un seul organe, pas deux rangées.
-   📏 Il n'y avait AUCUN écart avant : mesuré, le bas de la 2e roue, le bas du
-   tambour, le haut de la grille et le haut de la première case étaient tous au
-   pixel 165. Ce qu'on prenait pour un écart était le rembourrage du cran. */
-.carte-r .equipment-drum { margin-bottom: var(--sp-8); }
-/* ⛔ LA LIGNE « Wheel depth: … » N'EST PAS DANS LA CARTE — et c'est le budget
-   qui tranche, pas le goût. C'est un DIAGNOSTIC (§6 : « ce que le navigateur a
-   vraiment accordé, dit plutôt que deviné »), écrit en anglais de développeur,
-   dans un écran que le joueur regarde. 📏 Elle coûte **15,5 px** : 11,5 de
-   texte plus les 4 du `gap` du tambour qui la sépare des roues.
-   ⭐ ELLE N'EST PAS SUPPRIMÉE, ELLE EST DÉPLACÉE HORS DU CHAMP DE LA CARTE : le
-   produit continue de la produire, et le banc continue de pouvoir la lire. Ce
-   qui disparaît, c'est sa place dans un budget de 440 px.
-   ⏳ Le jour où l'écran R part dans le builder, c'est une question à poser à
-   Eric : ce diagnostic vit-il ailleurs, ou nulle part ? */
-/* 🔴 SANS ÇA LE GLISSER N'EXISTE PAS AU DOIGT (`glisser.mjs`, en tête) : le
-   doigt qui part d'un jeton ferait défiler, et le navigateur annulerait la
-   séquence en cours de route. `.glisse-jeton` le porte depuis toujours ;
-   `.grille-jeton` non — il n'était pas glissable avant R1. */
-/* ⛔ LA QUATRIÈME COPIE EST PARTIE AVEC LES TROIS AUTRES — lot 206 : ce jeton-ci
-   est armé par `armerJeton` (`equipment-step.mjs`), donc il porte la marque et
-   la feuille le couvre sans le nommer. */
-.carte-r .grille-jeton[data-glisse="true"] { opacity: .35; }
-
-/* ⛔ LE COMPTE SUR LE CRAN A DÉGAGÉ — Eric, 2026-08-23 : *« enlève les chiffres
-   tout moches à droite des items dans le tambour »*. La règle qui vivait ici
-   (« une catégorie affiche toujours son compte », 21/08) est renversée ; le
-   pourquoi est écrit dans `equipment-step.mjs`, à l'endroit qui posait
-   l'attribut — une règle morte ne laisse pas un sélecteur derrière elle. */
-
-/* ⛔ 2. LA RECHERCHE A DÉGAGÉ — Eric, 2026-08-23 : *« dégage search »*. Le nœud
-   ET sa feuille de style, pas seulement le nœud : une règle qui ne coiffe plus
-   rien est un mort qui a l'air vivant. 📏 Elle pesait **52 px** (44 de hauteur
-   + 2 × 4 de marge), la plus grosse des sept coupes du lot. */
-
-/* 5. LES COLLECTEURS — les trois cibles de R (vault §2). Ils ne portent qu'un
-   `data-creneau`, et c'est TOUT ce que `glisser.mjs` demande d'une cible.
-
-   🔴 *« UN DROP FAIT LA MÊME TAILLE QUE L'ITEM »* — Eric, 2026-08-23. La règle
-   derrière, et elle vaut au-delà de cet écran : **une cible a la taille de ce
-   qu'on lui donne.** Un collecteur grand comme trois jetons ment sur ce qu'il
-   attend.
-   📏 MESURÉ, ET L'ÉCART ÉTAIT DE 1 À 3 : jeton **38,2 px** de large, collecteur
-   **111**. La cause n'était pas la taille des collecteurs — c'était la grille
-   qui ne prenait pas sa largeur (voir `shell.css`, `.equipment-grille`).
-   ⭐ LES DEUX SE RÈGLENT AU MÊME ENDROIT : la grille rendue à sa largeur, les
-   trois collecteurs alignés sur ses trois colonnes valent exactement un jeton.
-   Le rembourrage ci-dessous est la LARGEUR DES GOUTTIÈRES de la grille — la
-   flèche plus son écart — pour que les colonnes tombent l'une sur l'autre.
-   ⛔ Aucune cote recopiée : `--touch` et `--sp-4` sont les jetons que la grille
-   emploie elle-même. */
-/* 🔴 ET LA CONSIGNE SE TIENT EN SUIVANT LA GRILLE, PAS EN LA DEVINANT. Depuis
-   que la case d'objet fait la cote d'un jeton de sort (87 × 48, décision d'Eric
-   du 23/08 au soir), un collecteur en `1fr` valait 90,3 pour un jeton de 87 :
-   l'écart était revenu, plus petit et plus sournois.
-   ⭐ LES DEUX LISENT LA MÊME DÉCLARATION, `--glisse-case` — et c'est exactement
-   le principe du vivier des sorts, où le jeton et le créneau la lisent ensemble
-   « pour qu'il n'y ait pas deux réglages à accorder ». ⛔ Pas `--fhpc-case-w` :
-   elle est déclarée SUR la grille, et une variable descend, elle ne remonte pas
-   jusqu'à une rangée voisine — le repli aurait silencieusement rendu `1fr`,
-   c'est-à-dire le défaut qu'on vient de corriger, mais invisible.
-   ⚠️ La HAUTEUR, elle, reste `--touch` : un collecteur n'est pas un jeton qu'on
-   glisse, c'est une cible qu'on vise, et son plancher est le pouce. */
-.carte-r-collecteurs {
-  flex: none; display: grid;
-  grid-template-columns: repeat(3, minmax(0, var(--glisse-case)));
-  justify-content: center; gap: var(--sp-4);
-  padding-inline: calc(var(--touch) + var(--sp-4));
-}
-/* 🔴 ÉMETTEUR = RÉCEPTEUR, JUSQU'À LA COTE — Eric, 2026-08-26 : **« size
-   collecteur = size token »**.
-   ⛔ CECI RENVERSE LA NOTE QUI VIVAIT ICI. Elle disait : *« la HAUTEUR reste
-   `--touch` : un collecteur n'est pas un jeton qu'on glisse, c'est une cible
-   qu'on VISE, et son plancher est le pouce »*. Le raisonnement était bon et la
-   conclusion trop timide : **48 est PLUS GRAND que 44**. Prendre la cote du
-   jeton ne coûte rien au pouce — elle la contient.
-   ⭐ Et la LARGEUR lisait déjà `--glisse-case` depuis le 23/08, sur la même
-   phrase d'Eric : *« un drop fait la même taille que l'item »*. Il ne manquait
-   que la hauteur pour que la paire soit entière.
-   📌 La règle se lit maintenant sans exception : **un collecteur a la taille du
-   jeton qu'il attend.** Un récepteur plus petit que ce qu'il reçoit était une
-   promesse fausse. */
-.carte-r-collecteur {
-  min-height: var(--glisse-h);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
-  background: var(--surface); color: var(--text);
-  font-size: var(--t1); line-height: 1.1; text-align: center; padding-inline: var(--sp-2);
-}
-.carte-r-collecteur em { font-style: normal; color: var(--text-muted); }
-.carte-r-collecteur[data-vise="true"] { border-style: solid; border-color: var(--accent); background: var(--accent-wash); }
-.carte-r-collecteur[data-recu="oui"] { border-style: solid; border-color: var(--accent); font-weight: 600; }
-
-/* 6. LES BOUTONS — la barre du bas du croquis.
-   🔴 *« LES CASES GEAR / CART / CRAFT / NEXT DOIVENT SE RÉDUIRE »* — Eric,
-   2026-08-23. Elles se réduisent EN LARGEUR : quatre colonnes étirées donnaient
-   82,3 px pour un mot de quatre lettres. À la taille de leur contenu, centrées,
-   la barre cesse d'être un bandeau.
-   ⛔ ET PAS EN HAUTEUR, PARCE QUE LE PLANCHER EST ATTEINT : elles font déjà
-   `--touch`, le seuil tactile, exactement. Les descendre rendrait 4 px chacune
-   — 8 px pour la barre entière avec les collecteurs — au prix d'un bouton qu'un
-   pouce rate. `--touch` est un plancher, pas une décoration : la coupe est
-   REFUSÉE ici, et le chiffre est donné pour qu'Eric arbitre. */
-/* 🔴 8 px ENTRE LES COLLECTEURS ET LES BOUTONS — Eric, 2026-08-23, dans la même
-   phrase que l'écart du dessus. Les deux valent 8 : ⭐ le bas de la carte est
-   fait de trois rangées séparées du même pas, et cette régularité est ce qui la
-   fait lire comme un bas de page plutôt que comme trois blocs empilés au
-   hasard. ⛔ `gap` reste à 4 — c'est l'écart ENTRE boutons d'une même rangée,
-   pas entre rangées ; les confondre, c'est perdre la distinction que l'œil
-   utilise pour grouper. */
-.carte-r-boutons {
-  flex: none; display: flex; flex-wrap: wrap; justify-content: center;
-  gap: var(--sp-4); margin-top: var(--sp-8);
-}
-.carte-r-bouton {
-  min-height: var(--touch); min-width: var(--touch); padding-inline: var(--sp-8);
-  /* LOT 212 — le liseré `1px solid --border-strong` est parti : le patron
-     octogone (plus bas) pose `border: 0`, il ne rendait plus rien. */
-  border-radius: var(--radius-sm);
-  background: var(--surface); color: var(--text);
-  font: inherit; font-size: var(--t2); letter-spacing: .06em;
-}
-
-/* B1, LA FICHE D'OBJET — elle s'ouvre AU CLIC, l'œil ayant disparu. Elle
-   RECOUVRE le cadre : c'est une autre page, pas un panneau de plus. */
-/* ⛔ PAS DE `display: none` POUR LA CACHER, ET LE GARDE DES JETONS A RAISON
-   (défaut n°3 : effacer un mot). `[hidden]` fait déjà tout le travail — il ne
-   perdait que parce qu'une règle posait `display: flex` par-dessus lui. On ne
-   contre donc pas l'attribut, on ne le contredit plus : la mise en page ne
-   s'applique qu'à la fiche VISIBLE. */
-.carte-r-b1:not([hidden]) {
-  position: absolute; inset: 0; z-index: 2;
-  display: flex; flex-direction: column; gap: var(--sp-8); padding: var(--sp-12);
-  background: var(--surface);
-}
-.carte-r-b1 h2 { margin: 0; font-size: var(--t4); text-align: center; letter-spacing: .08em; }
-.carte-r-b1 .carte-r-b1-compte { margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted); }
-.carte-r-b1 .carte-r-b1-nom { margin: 0; font-size: var(--t5); font-weight: 600; text-align: center; }
-.carte-r-b1 .carte-r-b1-corps { flex: 1 1 auto; min-height: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.carte-r-b1 .carte-r-b1-pied { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); }
-
 /* ══ B3 — LA SCÈNE DU DRESSING (`b3-scene.mjs`) ══════════════════════════════
    ⭐ Rendue à SCENE.l px EXACTEMENT (la loi du jeton 87 × 48, Eric 24/08) :
    1 unité SVG = 1 px CSS partout — les cotes vivent dans `b3-disposition.mjs`,
@@ -8347,10 +7581,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    plancher du doigt. */
 .b3-objet { fill: var(--text); font-size: var(--t2); font-family: inherit; font-weight: 600; }
 .b3-boite-scene[data-occupe] { stroke: var(--accent); }
-.carte-r-bouton[data-compte]:not([data-compte="0"])::after {
-  content: " (" attr(data-compte) ")";
-  color: var(--accent);
-}
 
 .pipeline-ecran {
   position: relative; display: flex; flex-direction: column; gap: var(--sp-8);
@@ -8649,18 +7879,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   background: none; color: var(--text); border: 1px solid var(--accent); border-radius: var(--radius-sm);
 }
 
-/* ══ Le titre de R et sa loupe (24/08) ══════════════════════════════════════ */
-.carte-r { position: relative; }
-.carte-r-titre {
-  margin: 0; text-align: center; font-size: var(--t2); color: var(--text-muted);
-  letter-spacing: .14em; text-transform: uppercase;
-}
-.carte-r-loupe {
-  position: absolute; right: var(--sp-4); bottom: var(--sp-4); z-index: 1;
-  min-width: var(--touch); min-height: var(--touch);
-  font: inherit; cursor: pointer; background: var(--surface);
-  color: var(--text); border: 1px solid var(--border-strong); border-radius: 50%;
-}
+/* ══ La recherche (24/08) — ⛔ plus de loupe ici : celle de la carte R est retirée avec
+   elle (lot 348) ; l'écran reste, sa porte attend son lot (`equipement-next-vit-dans-r`) ═ */
 .pipeline-recherche-champ { max-width: none; width: 100%; text-align: left; }
 .pipeline-resultat { width: 100%; font: inherit; cursor: pointer; background: none; color: var(--text); text-align: left; }
 .pipeline-pied-seul { grid-template-columns: 1fr; }
@@ -8797,7 +8017,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    fusion qui ne regarde que le contenu des blocs manque ce piège-là. */
 .pipeline-bouton,
 .dressing-bouton,
-.carte-r-bouton,
 .pipeline-ligne-envoi,
 .pipeline-pas,
 .aiguilleur-bouton,
@@ -8907,7 +8126,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* le chapitre Équipement — une seule apparence partout (Eric, 16/09) */
 .pipeline-bouton::before,
 .dressing-bouton::before,
-.carte-r-bouton::before,
 .pipeline-ligne-envoi::before,
 .pipeline-pas::before,
 .aiguilleur-bouton::before,
@@ -8988,7 +8206,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* le chapitre Équipement — une seule apparence partout (Eric, 16/09) */
 .pipeline-bouton::after,
 .dressing-bouton::after,
-.carte-r-bouton::after,
 .pipeline-ligne-envoi::after,
 .pipeline-pas::after,
 .aiguilleur-bouton::after,
@@ -9418,9 +8635,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .pipeline-bouton[aria-label^="Back"],
 .dressing-bouton[aria-label="Equipment"],
 .dressing-bouton[aria-label="Send"],
-.carte-r-bouton[data-mot="GEAR"],
-.carte-r-bouton[data-mot="CART"],
-.carte-r-bouton[data-mot="NEXT"],
 .pipeline-fleche { --bouton-fond: var(--info); }
 .pipeline-bouton[aria-label^="Pay"],
 .pipeline-bouton[aria-label^="Send"],
@@ -9433,15 +8647,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* les flèches restent RONDES (une flèche n'est pas un bouton d'échelle mais
    elle navigue : encre bleue, forme conservée) */
 .pipeline-fleche { background: var(--info); color: var(--on-accent); border: 0; filter: var(--bouton-ombre); }
-
-/* — LA ZONE DE DROP (§2) : très arrondie, CREUSE, le liseré porte la couleur
-   du jeton attendu — la cible annonce ce qu'elle accepte avant qu'on lâche.
-   Le jeton d'équipement est teinté `--jeton-teinte` : son liseré aussi. — */
-.carte-r-collecteur {
-  border: 1px dashed var(--accent);
-  border-radius: var(--organe-rayon);
-  background: none;
-}
 
 /* — LE DROPDOWN (§8) : très large, peu haut, AUCUN liseré, voile 20 %, gras — */
 .pipeline-dropdown {
