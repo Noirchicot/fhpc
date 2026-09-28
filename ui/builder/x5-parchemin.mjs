@@ -21,16 +21,16 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=901";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=901";
+import * as D from "./x5-disposition.mjs?v=902";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=902";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=901";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=901";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=901";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=901";
+  from "./craft-parchemin.mjs?v=902";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=902";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=902";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=902";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=902";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=901";
+import { armerEngrenage } from "./engrenage.mjs?v=902";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
@@ -151,6 +151,9 @@ export function construireX5Parchemin(o, pieces) {
        SORTS, et la loi du 20/08 y tient — *« le glisser partout ! »*, sans péage là où rien ne défile
        (Species, les sorts). ⭐ Le jeton du collecteur, lui, part vers la page voisine : il garde les
        500 ms (plus bas). */
+    /* ⏳ LOT 347 — LA GRAMMAIRE N'EST PAS ENCORE ICI, et c'est voulu : elle ajouterait au doigt l'appui long de
+       500 ms à un vivier qui n'en a pas (lot 334), le jour même où Eric dit *« l'attente ses 500 ms, j'ai pas une
+       sensation de fluidité »* (28/09). Elle viendra avec sa réponse sur l'attente (les dés d'Abilities aussi). */
     armerJeton(b, {
       onLever: (x, y) => fantome.lever(b, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
@@ -287,10 +290,14 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null,
   const apercu = () => { if (surJeton && cote.legal) surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }); };
   armerJeton(jeton, {
     maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
+    /* 🖐️ LOT 347 — la grammaire : VOIR = tap / clic droit → l'aperçu ; ARMER = clic gauche / appui long → en
+       double écran, le collecteur voisin s'allume ; en vue simple il n'a nulle part où aller : bref refus (6b) */
+    grammaire: true,
+    onVoir: apercu,
+    onTap: () => {},
     onLever: (x, y) => fantome.lever(jeton, x, y),
     onBouger: (x, y) => fantome.suivre(x, y),
     onPoser: () => fantome.ranger(),
-    onTap: apercu,
     onDepot: () => {},   // lâché sur un créneau (lui-même) : il reste
     onHorsCible: () => { if (surChoix) surChoix("SORT", null); },
     /* 🪟 LOT 307 — en double écran, lâché dans le collecteur de la page VOISINE : l'étape ouvre

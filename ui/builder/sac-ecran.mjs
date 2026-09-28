@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=901";
-import { versionQuery } from "./version.mjs?v=901";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=901";
+import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=902";
+import { versionQuery } from "./version.mjs?v=902";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=902";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=901";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=902";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=902";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=901";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=902";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=901";
+import { portesCarrees } from "./porte-carree.mjs?v=902";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=901";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=902";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=901";
+import { facteurZoomCourant } from "./echelle.mjs?v=902";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=901";
+import { armerEngrenage } from "./engrenage.mjs?v=902";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -735,7 +735,14 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud, horsCible = u
     /* ⏱️ LE PÉAGE, ET IL N'EST PAS GÉNÉRAL : il vit ici parce que le sac a un ascenseur.
        ⛔ Species et les sorts n'en ont pas, donc pas de péage — la loi du 20/08 tient. */
     maintien: PEAGE_JETON_MS,
-    onTap: () => options.surJeton && options.surJeton(index),
+    /* 🖐️ LOT 347 — LA GRAMMAIRE « ARMER PUIS POSER » (NORMES `geste-armer-puis-poser`, réponse 7 : « partout »,
+       Equipment compris). VOIR = tap / clic droit → la fiche X1 ; ARMER = clic gauche / appui long → les cases
+       libres (et, en double écran, celles de Gear) s'allument ; POSER = clic ou tap sur l'une d'elles, ou glisser.
+       ⛔ Le clic gauche n'ouvre plus la fiche : il arme (réponse 1a). Le clic droit, lui, est posé par
+       `armerJeton` (`onVoir`) — ⛔ plus un second écouteur ici, il ouvrirait deux fois. */
+    grammaire: true,
+    onVoir: () => options.surJeton && options.surJeton(index),
+    onTap: () => {},
     onLever: (x, y) => fantome.lever(noeud, x, y),
     onBouger: (x, y) => { fantome.suivre(x, y); regardeLaMarge(x, y, options, pisteNoeud); },
     onPoser: () => { fantome.ranger(); arreteLeDefilement(); },
@@ -1009,21 +1016,16 @@ function case_(id, objet, options, pisteNoeud) {
   c.dataset.occupe = "oui";
   c.append(...corpsDuJeton(objet));
   c.setAttribute("aria-label", motDuJeton(objet));
-  /* ⛔ `armerJeton` NE VOIT PAS LE CLIC DROIT (il ne s'arme que sur le bouton 0) :
-     le `contextmenu` se pose donc à côté, sur le même nœud — comme sur R. */
-  const ouvrirLaFiche = (ev) => {
-    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-    if (options.surJeton) options.surJeton(objet.index);
-  };
-  c.addEventListener("contextmenu", ouvrirLaFiche);
+  /* 🖐️ LOT 347 — VOIR (tap, clic droit) est posé par l'organe : `armerJeton` sous la grammaire, ou
+     `armerImmobile` pour un objet verrouillé. ⛔ Plus de `contextmenu` à côté : il ouvrirait deux fois. */
   /* ⚖️ VERROUILLÉ, IL NE SE LÈVE PAS — Eric, 18/09 : *« l'item reste collé à son
      collecteur, ne bouge pas »*. ⛔ Le glisser n'est pas ARMÉ : pas de fantôme, pas
      de cible qui s'allume, rien qui promette un dépôt qui sera refusé.
      ⭐ MAIS IL S'OUVRE TOUJOURS : c'est dans sa fiche qu'on le déverrouille, sans
-     quoi le verrou serait une impasse. */
+     quoi le verrou serait une impasse. Le clic gauche (armer) répond par le refus (6b). */
   if (objet.locked === true) {
     c.dataset.verrouille = "oui";
-    c.addEventListener("click", ouvrirLaFiche);
+    armerImmobile(c, { onVoir: () => options.surJeton && options.surJeton(objet.index) });
   } else {
     glisserDuSac(c, objet.index, options, (creneau) => {
       if (creneau === "collecteur") { if (options.surCollecte) options.surCollecte(objet.index); }
@@ -1050,12 +1052,9 @@ function collecteur(options, retenu, pisteNoeud) {
   if (!retenu) return c;
   /* ⚖️ ET IL EN RESSORT PAR LE MÊME GESTE QU'IL Y EST ENTRÉ — Eric, 16/09 au soir :
      *« un token dans le collecteur doit pouvoir en ressortir »*. ⛔ Un dépôt sur le
-     collecteur lui-même ne fait rien : il est déjà là. */
-  const ouvrirLaFiche = (ev) => {
-    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-    if (options.surJeton) options.surJeton(retenu.index);
-  };
-  c.addEventListener("contextmenu", ouvrirLaFiche);
+     collecteur lui-même ne fait rien : il est déjà là.
+     🖐️ LOT 347 — voir (tap, clic droit) passe par la grammaire de `glisserDuSac` : ⛔ plus de
+     `contextmenu` ici. */
   glisserDuSac(c, retenu.index, options, (creneau) => {
     if (creneau === "collecteur") return;       /* il est déjà là */
     if (options.surPlacer) options.surPlacer(retenu.index, creneau);

@@ -65,19 +65,19 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=901";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=901";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
+import * as D from "./gear-disposition.mjs?v=902";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=902";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=902";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=901";
-import { versionQuery } from "./version.mjs?v=901";
-import { enGP } from "./equipement-pipeline.mjs?v=901";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=902";
+import { versionQuery } from "./version.mjs?v=902";
+import { enGP } from "./equipement-pipeline.mjs?v=902";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=901";
-import { noeudDAnnonce } from "./monnaie.mjs?v=901";
-import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=901";
+import { portesCarrees } from "./porte-carree.mjs?v=902";
+import { noeudDAnnonce } from "./monnaie.mjs?v=902";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=902";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */
@@ -424,30 +424,32 @@ function emplacement(o, id, pose, options) {
      droit ou tap sur un token doit produire une fiche X1 »*. C'est la doctrine du
      16/08 déjà posée sur le vivier du carnet (`glisser.mjs`) : *« tap pour info,
      drag and drop to select ; sur desktop, clic droit info, gauche select »*.
-     ⛔ ICI LES DEUX GESTES OUVRENT LA MÊME FICHE, sans distinguer le doigt de la
-     souris : un jeton POSÉ n'a rien à « sélectionner » au clic gauche, et lui
-     laisser un clic mort serait pire que la divergence (le patron de
-     `renderTraitTardif`, `abilities-step.mjs`).
-     ⛔ `armerJeton` ne voit pas le clic droit (il ne s'arme que sur le bouton 0) :
-     le `contextmenu` se pose donc à côté, sur le même nœud. */
-  const ouvrirLaFiche = (ev) => {
-    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-    if (options.surJeton) options.surJeton(pose.index);
-  };
-  e.addEventListener("contextmenu", ouvrirLaFiche);
+     🧊 ARCHIVÉ AU LOT 347 (la grammaire du 28/09, ci-dessous) — ce qui suit a fait foi du lot 213 au lot 346 :
+     « ici les deux gestes ouvrent la même fiche, sans distinguer le doigt de la souris : un jeton POSÉ n'a
+     rien à sélectionner au clic gauche » ; et « `armerJeton` ne voit pas le clic droit : le `contextmenu` se
+     pose à côté ». ⭐ Les deux sont morts le 28/09 : le clic gauche ARME (le jeton posé a désormais quelque
+     chose à faire — changer de case), et l'organe pose lui-même le clic droit. */
+  /* 🖐️ LOT 347 — LA GRAMMAIRE « ARMER PUIS POSER » (NORMES `geste-armer-puis-poser`, réponse 7 : « partout »).
+     VOIR = tap / clic droit → la fiche X1 ; ARMER = clic gauche / appui long → les cases libres s'allument (et,
+     en double écran, celles du sac voisin) ; POSER = clic ou tap sur l'une d'elles, ou glisser.
+     🧊 CE QUI MEURT ICI : *« les deux gestes ouvrent la même fiche »* (lot 213) — le clic gauche n'ouvre plus,
+     il arme (réponse 1a). ⛔ Le clic droit est posé par l'organe (`onVoir`) : plus de `contextmenu` à côté. */
+  const voir = () => { if (options.surJeton) options.surJeton(pose.index); };
   /* ⚖️ VERROUILLÉ, IL NE SE LÈVE PAS — Eric, 18/09 : *« l'item reste collé à son
      collecteur, ne bouge pas »*. ⛔ Le glisser n'est donc pas ARMÉ : pas de
      fantôme, pas de cible qui s'allume, rien qui promet un dépôt qui sera refusé.
      ⭐ MAIS IL S'OUVRE TOUJOURS, et c'est la condition pour que le verrou ne soit
-     pas une impasse : c'est dans sa fiche qu'on le déverrouille. Le tap ne passe
-     plus par `armerJeton` (qui arme le geste entier), il se pose seul. */
+     pas une impasse : c'est dans sa fiche qu'on le déverrouille. Le clic gauche (armer) répond par le
+     refus de 6b (`armerImmobile`). */
   if (pose.locked === true) {
     e.dataset.verrouille = "oui";
-    e.addEventListener("click", ouvrirLaFiche);
+    armerImmobile(e, { onVoir: voir });
   } else {
     armerJeton(e, {
       maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
-      onTap: () => ouvrirLaFiche(),
+      grammaire: true,
+      onVoir: voir,
+      onTap: () => {},
       onLever: (x, y) => fantome.lever(e, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),
@@ -506,14 +508,13 @@ function collecteur(id, options, retenu) {
        ⭐ LOT 213 — ET LUI AUSSI OUVRE LA FICHE au tap et au clic droit : *« tap sur
        un token »* (Eric, 16/09) ne dit pas « sur un token DANS SA BOÎTE ». Un objet
        retenu est le même objet ; le regarder ne l'a jamais sorti du panier. */
-    const ouvrirLaFiche = (ev) => {
-      if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-      if (options.surJeton) options.surJeton(retenu.index);
-    };
-    c.addEventListener("contextmenu", ouvrirLaFiche);
+    /* 🖐️ LOT 347 — la grammaire, comme une case : voir au tap et au clic droit (l'organe), armer au clic
+       gauche — ⛔ plus de `contextmenu` à côté. */
     armerJeton(c, {
       maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
-      onTap: () => ouvrirLaFiche(),
+      grammaire: true,
+      onVoir: () => { if (options.surJeton) options.surJeton(retenu.index); },
+      onTap: () => {},
       onLever: (x, y) => fantome.lever(c, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),

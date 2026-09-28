@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=901";
+import { pageDeListe } from "./normes.mjs?v=902";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=901";
-import { swapContent } from "./socle.mjs?v=901";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=902";
+import { swapContent } from "./socle.mjs?v=902";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=901";
+import { facteurZoomCourant } from "./echelle.mjs?v=902";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -920,6 +920,32 @@ export function armerJeton(jeton, options) {
        ce serait ne jamais l'entendre au seul moment où il parle. */
     jeton.addEventListener("lostpointercapture", perdu);
   });
+}
+
+/** 🖐️ LOT 347 — UN OBJET QUI NE SE DÉPLACE PAS garde la grammaire (NORMES `geste-armer-puis-poser`, 6b).
+ *  ⚖️ Eric, 18/09 : *« l'item reste collé à son collecteur, ne bouge pas »* — un objet VERROUILLÉ ne se lève
+ *  pas : ⛔ ni fantôme, ni destination allumée, rien qui promette un dépôt refusé. ⭐ MAIS IL SE VOIT : sa
+ *  fiche est l'endroit où on le déverrouille, sans quoi le verrou serait une impasse.
+ *  · VOIR — tap au doigt, clic droit à la souris, `Entrée` au clavier (un `click` sans pointeur) ;
+ *  · ARMER — le clic gauche : il répond par le bref refus de 6b (halo `--critical`), comme un objet sans
+ *    destination.
+ *  ⭐ Écrit ICI, une fois : Pack et Gear l'emploient, et deux copies divergeraient au premier réglage. */
+export function armerImmobile(jeton, { onVoir } = {}) {
+  if (!jeton) return jeton;
+  let dernierType = null;
+  jeton.addEventListener("pointerdown", (ev) => { dernierType = (ev && ev.pointerType) || null; });
+  jeton.addEventListener("contextmenu", (e) => {
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    /* ⛔ le `contextmenu` d'un appui long au doigt (Android) n'est pas un « voir » */
+    if ((e && e.pointerType && e.pointerType !== "mouse") || dernierType === "touch" || dernierType === "pen") return;
+    if (onVoir) onVoir();
+  });
+  jeton.addEventListener("click", (ev) => {
+    if (ev && ev.detail === 0) { if (onVoir) onVoir(); return; }   // le clavier voit
+    if (dernierType === "mouse") { flasher(jeton, "refus"); return; }
+    if (onVoir) onVoir();
+  });
+  return jeton;
 }
 
 /** L'ÉCRAN DE CHOIX À CRÉNEAUX — même entrée que `renderSlotQcm` (carnet.mjs),

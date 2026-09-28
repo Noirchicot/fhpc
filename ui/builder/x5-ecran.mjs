@@ -20,16 +20,16 @@
    ⚖️ ET COMME X1 ET X2, ELLE RECOUVRE LA DALLE SANS ÉCRIRE DANS LE BELT — la loi
    du rang X : 375 × 500 posée à y = 60. ⛔ `x5` n'entre donc pas dans `FENETRE_DE`,
    et c'est son ABSENCE de cette table qui le garantit. */
-import * as D from "./x5-disposition.mjs?v=901";
+import * as D from "./x5-disposition.mjs?v=902";
 import { pouvoirsDe, coteDe, encorePossibles, basesDe, bonusDe, enPieces, prixSaisi, prixEnPO, PLAFOND_QTE,
-  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=901";
-import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=901";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=901";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
-import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=901";
+  coteDUneVariante, recordDUneVariante, estMunition, LOT_MUNITION } from "./craft.mjs?v=902";
+import { DESTINATIONS, montantDeLaBourse, popupDeLaBourse, reglesDeLaBourse } from "./gear-ecran.mjs?v=902";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=902";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=902";
+import { nomCrafte, variantesDe } from "../../src/build/objet-crafte.mjs?v=902";
 /* ⭐ LOT 285 — la famille PARCHEMIN vit dans son module ; la coquille lui PRÊTE ses pièces
    (`construireX5` plus bas) plutôt que de les exporter : ⛔ pas d'import en boucle. */
-import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=901";
+import { construireX5Parchemin, estFicheParchemin } from "./x5-parchemin.mjs?v=902";
 
 const px = (v) => `${Math.round(v * 100) / 100}px`;
 function elx(balise, classe, texte) {
@@ -440,10 +440,14 @@ function phraseDuStatut(status) {
 export function jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin }) {
   armerJeton(jeton, {
     maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
+    /* 🖐️ LOT 347 — la grammaire : VOIR = tap / clic droit → l'aperçu ; ARMER = clic gauche / appui long → le
+       collecteur voisin s'allume (quand `Send` est armé ; sinon, bref refus — 6b) ; POSER = clic, tap ou glisser */
+    grammaire: true,
+    onVoir: apercu,
+    onTap: () => {},
     onLever: (x, y) => fantome.lever(jeton, x, y),
     onBouger: (x, y) => fantome.suivre(x, y),
     onPoser: () => fantome.ranger(),
-    onTap: apercu,
     onDepot: () => {},
     onDepotVoisin: pret ? (creneau, cible) => surDepotVoisin({ envoi: envoi(), cible }) : undefined,
     accepteVoisin: (cible) => cible.dataset.creneau === "collecteur",   /* un craft va au collecteur */

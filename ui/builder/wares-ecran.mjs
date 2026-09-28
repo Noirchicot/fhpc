@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=901";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=901";
+} from "./wares-disposition.mjs?v=902";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=902";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=901";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=901";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=901";
+import { REPOS_MS } from "./sac-ecran.mjs?v=902";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=902";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=902";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=901";
+import { portesCarrees } from "./porte-carree.mjs?v=902";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=901";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=902";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,12 +43,12 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=90
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=901";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=902";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
-import { versionQuery } from "./version.mjs?v=901";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=902";
+import { versionQuery } from "./version.mjs?v=902";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=901";
+import { armerEngrenage } from "./engrenage.mjs?v=902";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -582,10 +582,16 @@ function jeton(item, o) {
   armerJeton(b, {
     /* ⏱️ LOT 331 — 500 ms avant que le glisser ne s'active (Eric, 27/09), la cote de l'étape */
     maintien: MAINTIEN_EQUIPEMENT_MS,
+    /* 🖐️ LOT 347 — LA GRAMMAIRE « ARMER PUIS POSER » (NORMES `geste-armer-puis-poser`, réponse 7 : « partout »).
+       VOIR = tap / clic droit → le X2 ; ARMER = clic gauche / appui long → le collecteur s'allume (et, en double
+       écran, les cases voisines qu'un achat sert) ; POSER = clic ou tap sur l'une d'elles, ou glisser.
+       🧊 « TAP = INFO, GLISSER = CHOISIR » (ci-dessus, 20/09) tient au doigt ; à la souris, le clic gauche arme. */
+    grammaire: true,
+    onVoir: () => o.surJeton && o.surJeton(item.ref),
+    onTap: () => {},
     onLever: (x, y) => fantome.lever(b, x, y),
     onBouger: (x, y) => fantome.suivre(x, y),
     onPoser: () => fantome.ranger(),
-    onTap: () => o.surJeton && o.surJeton(item.ref),
     /* ⛔ `onDepot` REÇOIT LE `data-creneau` DE LA CIBLE, ⛔ PAS SON NŒUD — lu dans
        `glisser.mjs` (`onDepot(cible.dataset.creneau)`), pas supposé. Mon premier jet attendait
        un élément et testait `cible.dataset.organe` : il n'aurait JAMAIS déposé, en silence. */
@@ -817,7 +823,8 @@ export function construireLesWares(o = {}) {
       if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
       if (o.surRetenu) o.surRetenu();
     };
-    collecteur.addEventListener("contextmenu", ouvrir);
+    /* 🖐️ LOT 347 — voir (tap, clic droit) passe par la grammaire (`onVoir`) : ⛔ plus de `contextmenu` ici,
+       il ouvrirait deux fois. */
     /* 🌕 LOT 331 — PLEIN, LE COLLECTEUR SE GLISSE VERS LA PAGE VOISINE. Eric, 27/09 : *« Le drag
        and drop en partant du collecteur de wares vers un double écran, notamment Gear ou Pack, ne
        fonctionne pas »*. 📏 Mesuré : il n'était pas ARMÉ — un `click` et rien d'autre ; aucun
@@ -828,7 +835,10 @@ export function construireLesWares(o = {}) {
        capturé retombe sur le collecteur). */
     armerJeton(collecteur, {
       maintien: MAINTIEN_EQUIPEMENT_MS,
-      onTap: () => ouvrir(),
+      /* 🖐️ LOT 347 — la grammaire : armé, il montre les cases voisines où il peut aller */
+      grammaire: true,
+      onVoir: () => ouvrir(),
+      onTap: () => {},
       onLever: (x, y) => fantome.lever(collecteur, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),

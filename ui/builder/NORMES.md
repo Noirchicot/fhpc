@@ -10097,6 +10097,20 @@ destinations remplies potentiellement remplissables par autre chose, pas de fond
   · ses destinations prennent un FOND bleu discret (`--destination-fond`, `--info` à 20 % — regardé : 12 % se devinait à peine) — ⛔ jamais leur contour ;
   · le liseré bleu garde sa fonction d'origine : un collecteur rempli ;
   · 5b précisé : un collecteur REMPLI qui accepte d'être remplacé (il se déclare encore créneau) est une destination.
+🔄 **Lot 347 (28/09) — la grammaire arrive sur Equipment** — Eric : *« finis ce qui est en cours »*. Gear, Pack et
+Wares (leurs objets et leurs collecteurs pleins), le jeton de X5 en double écran et celui du parchemin :
+  · le clic gauche ARME — ⛔ il n'ouvre plus la fiche X1/X2 (🧊 la loi du lot 213, *« les deux gestes ouvrent la même
+    fiche »*, est morte) ; le clic droit et le tap VOIENT, posés par l'organe (`onVoir`) — ⛔ plus de `contextmenu`
+    écrit à côté, il ouvrait deux fois ;
+  · un objet VERROUILLÉ se voit (tap, clic droit, `Entrée`) et refuse d'être armé (6b) — `armerImmobile`, écrit une
+    fois dans `glisser.mjs` pour Pack et Gear ;
+  · ⭐ au doigt, Pack → Gear en double écran a désormais un chemin SANS glisser : appui long sur l'objet, puis tap sur
+    la case de Gear allumée ;
+  · ⏳ **les dés d'Abilities et le vivier de sorts du parchemin attendent** : la grammaire leur ajouterait l'appui long
+    de 500 ms au doigt, le jour où Eric dit *« l'attente ses 500 ms, j'ai pas une sensation de fluidité »* (28/09).
+    Ils viendront avec sa réponse sur l'attente ;
+  · ⏳ **X3 (le Tally) et X4 (le Group Tally) attendent** — Eric, 28/09 : *« pas encore indispensables »*.
+🛡️ `tests/geste-equipement.test.mjs` (7 cas, 7 mutations vues rouges, sources restaurées et comparées).
 
 📍 `chevron-belt-engrenage` · remplacée · 28/09 · remplacée par `chevron-engrenage-partout`
 ⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 20 blg (lot 345 : « réduit là à 20 blg » ; 30 au lot 344, 40 au lot 343) à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
