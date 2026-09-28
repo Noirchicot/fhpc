@@ -321,7 +321,7 @@ test("10 — 🔴 LE CHEVRON POUSSE LE RUBAN D'UNE TUILE, ⛔ il ne saute plus",
   g.dispatchEvent({ type: "wheel", deltaY: -100, preventDefault: () => { empeche = true; } });
   assert.equal(roue.scrollLeft, D.ROUE.pas, "la molette pousse aussi — elle s'AJOUTE au tap");
   assert.equal(empeche, true, "⛔ sinon la page défilerait DERRIÈRE la roue");
-  const source = fs.readFileSync(path.join(UI, "astrolabe.mjs"), "utf8");
+  const source = fs.readFileSync(path.join(UI, "engrenage.mjs"), "utf8");   /* 🔄 lot 343 : la molette sans cadran */
   assert.match(source, /passive:\s*false/, "sans lui le navigateur refuse le preventDefault");
 });
 

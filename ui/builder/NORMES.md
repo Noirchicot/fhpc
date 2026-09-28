@@ -9965,7 +9965,7 @@ molette. 📏 Mesuré (375 × 812) : Pack, Wares et le belt rendent le même des
 ---
 
 ### 🟦 L'ASTROLABE : LA MOLETTE DE LA SOURIS SUR LES CHEVRONS HORIZONTAUX
-📍 `chevron-astrolabe-molette` · vivante · 27/09
+📍 `chevron-astrolabe-molette` · remplacée · 27/09
 ⚖️ **Au survol souris d'un chevron horizontal, un cadran de 20 blg (astrolabe) se pose exactement sur son dessin ; la molette, captée sur ce chevron seulement, fait avancer la navigation que ce chevron commande déjà — bas = aiguille horaire = tuiles vers la gauche = suivant. Seule l'aiguille tourne ; une borne refuse le pas et l'aiguille avec lui.**
 
 > Eric, 2026-09-27 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` (gabarit `astrolabe-30px.svg`,
@@ -10097,3 +10097,20 @@ destinations remplies potentiellement remplissables par autre chose, pas de fond
   · ses destinations prennent un FOND bleu discret (`--destination-fond`, `--info` à 20 % — regardé : 12 % se devinait à peine) — ⛔ jamais leur contour ;
   · le liseré bleu garde sa fonction d'origine : un collecteur rempli ;
   · 5b précisé : un collecteur REMPLI qui accepte d'être remplacé (il se déclare encore créneau) est une destination.
+
+📍 `chevron-belt-engrenage` · vivante · 28/09
+⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 40 blg à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
+
+> Eric, 2026-09-28 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et le prototype validé
+> (`engrenage-40px-source.html`) — **« Cette version remplace l'ancien astrolabe »** · **« remplace l'ancien
+> tuner par ceci ; vérifie bien qu'ils sont bien placés, ce n'était pas le cas avant »**.
+
+🔄 Remplace `chevron-astrolabe-molette` (lot 330). ⛔ Périmètre : le belt SEUL (la notice : « les chevrons des
+catégories et des listes d'objets ne sont pas concernés ») ; les autres chevrons gardent leur molette
+(`armerLaMolette`), sans signe au survol.
+📐 `engrenage.mjs` : accumulateur du prototype (28, remis à zéro au changement de sens, après 160 ms et après
+chaque pas — un cran de souris = un pas), lueur 800 ms, 30° par pas en 240 ms, angle cumulé ; la normalisation
+du projet (`deltaEnPixels`). Cotes et encres du prototype en jetons (`--engrenage-*`, jour ET nuit).
+📏 Mesuré au banc (1280 × 800) : le centre de la roue = le centre de la flèche du chevron, au pixel ; 🔴 la roue
+déborde de ~2,5 blg sur le soleil et la lune, empilés au-dessus du chevron — montrée, elle passe devant
+(`z-index: 3` au survol), sans que rien ne bouge.

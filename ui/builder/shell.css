@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=896") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=897") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=896") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=897") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=896") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=897") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=896");
+  background-image: url("./assets/tarot-dos.jpg?v=897");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13124,8 +13124,9 @@ button.tuto-point::before {
                 calc((var(--touch) - var(--chevron-lateral-h)) / 2)
                 calc(var(--touch) - var(--chevron-lateral-l) - var(--chevron-lateral-bord));
 }
-/* 🗄️ LOT 330 — la flèche circulaire du tuner au survol (`--icone-tuner`) est remplacée par l'ASTROLABE
-   (plus bas) : c'est lui qui dit « la molette marche ici », sur tous les chevrons horizontaux. */
+/* 🗄️ LOT 330 — la flèche circulaire du tuner au survol (`--icone-tuner`) avait été remplacée par l'astrolabe ;
+   🔄 LOT 343 — l'astrolabe est retiré à son tour : l'ENGRENAGE ne vit que sur le belt (la notice). Les autres
+   chevrons gardent leur molette (`armerLaMolette`), sans signe au survol. */
 /* ══ LES DEUX OUTILS — Eric, 2026-09-19 ═══════════════════════════════════════
    ⚖️ *« le bouton d'édition est trop grossier ; je préfère un carré vert simple :
    edit / sections. Et un autre bouton classique vert : Sort. »*
@@ -13869,50 +13870,66 @@ select.x5-drop {
    plaques) — la classe `dalle-simple` garde son rayon ailleurs. */
 .sac-bande.dalle-simple, .sac-dalle.dalle-simple { border-radius: var(--organe-rayon); }
 
-/* ══ 🧭 LOT 330 — L'ASTROLABE : AU SURVOL SOURIS D'UN CHEVRON HORIZONTAL ════════════════════════════
-   ⚖️ Eric, 27/09 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et son gabarit, puis *« À
-   appliquer sur tous les chevrons horizontaux (plutôt 20 blg de diamètre que 30) »* · *« C'est pour les
-   desktop et souris »* · *« ça se déclenche sur un hover de souris »* · *« L'astrolabe apparaîtra
-   parfaitement au-dessus des chevrons »*.
-   ⭐ Le cadran (`astrolabe.mjs`) est posé DANS le chevron, en absolu, centré sur la boîte de son DESSIN
-   (le chevron creuse son dessin par ses bords : 50 % de sa boîte de remplissage EST le centre du
-   dessin) — il n'entre dans aucun flux : ⛔ rien ne bouge à l'apparition. Il ne capte aucun doigt :
-   c'est le chevron qui capte, sur toute sa cible. */
-.astrolabe {
+/* ══ ⚙️ LOT 343 — L'ENGRENAGE : AU SURVOL SOURIS D'UN CHEVRON DU BELT ═════════════════════════════════
+   ⚖️ Eric, 28/09 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et le prototype validé
+   (`engrenage-40px-source.html`) — *« remplace l'ancien tuner par ceci ; vérifie bien qu'ils sont bien
+   placés, ce n'était pas le cas avant »*. 🗄️ Remplace l'astrolabe du lot 330, qui vivait sur tous les
+   chevrons horizontaux : la notice borne l'engrenage aux DEUX chevrons du belt.
+   ⭐ LA ROUE (40) SE CENTRE SUR LE DESSIN DU CHEVRON, pas sur sa boîte : la flèche du belt est à
+   `--chevron-belt-bord` du bord extérieur, et fait `--chevron-lateral-l` de large. Les flèches dépassent de
+   la roue (la droite à 16, −8 ; la gauche à −4, 20) : ⛔ rien ne les coupe (`overflow: visible`).
+   ⛔ Rien n'entre dans le flux — l'apparition ne déplace rien ; rien ne capte le pointeur — c'est le
+   chevron qui capte, sur toute sa cible. */
+.engrenage {
   position: absolute;
-  left: 50%; top: 50%;
-  width: var(--astrolabe-d); height: var(--astrolabe-d);
+  top: 50%;
+  width: var(--engrenage-d); height: var(--engrenage-d);
   translate: -50% -50%;
   opacity: 0; visibility: hidden;
   pointer-events: none;
-  transition: opacity .14s ease, visibility .14s;
+  overflow: visible;
+  transition: opacity .13s, visibility .13s;
   z-index: 3;
 }
-.astrolabe > svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.astrolabe-face { fill: var(--astrolabe-face); stroke: var(--astrolabe-laiton); }
-.astrolabe-trait { stroke: var(--astrolabe-laiton); }
-.astrolabe-aiguille { fill: var(--astrolabe-encre); }
-.astrolabe-indice { stroke: var(--astrolabe-encre); }
-.astrolabe-rotor { transform-box: view-box; transform-origin: 15px 15px; }
-/* le belt : sa flèche est à `--chevron-belt-bord` du bord extérieur — le cadran se centre sur ELLE */
-.belt-chevron[data-sens="avant"] > .astrolabe { left: calc(var(--chevron-belt-bord) + var(--chevron-lateral-l) / 2); }
-.belt-chevron[data-sens="apres"] > .astrolabe { left: calc(100% - var(--chevron-belt-bord) - var(--chevron-lateral-l) / 2); }
-/* ⭐ SOURIS SEULEMENT : un pointeur qui SURVOLE et qui est PRÉCIS. Un doigt ne voit jamais le cadran. */
-@media (hover: hover) and (pointer: fine) {
-  [data-astrolabe]:hover > .astrolabe { opacity: 1; visibility: visible; }
-  /* pendant le survol, le chevron se tait : son masque, son aplat, son voile et son miroir — sinon le
-     cadran serait découpé par le masque du chevron, voilé et retourné avec lui */
-  .sac-tuner[data-astrolabe]:hover,
-  .molette-tuner[data-astrolabe]:hover,
-  .wares-tuner[data-astrolabe]:hover,
-  .wares-chevron[data-astrolabe]:hover {
-    mask-image: none; -webkit-mask-image: none;
-    background-color: transparent; color: transparent;
-    opacity: 1; overflow: visible; transform: none;
-  }
-  .belt-chevron[data-astrolabe]:hover > .belt-chevron-fleche { visibility: hidden; }
+.belt-chevron[data-sens="avant"] > .engrenage { left: calc(var(--chevron-belt-bord) + var(--chevron-lateral-l) / 2); }
+.belt-chevron[data-sens="apres"] > .engrenage { left: calc(100% - var(--chevron-belt-bord) - var(--chevron-lateral-l) / 2); }
+.engrenage-roue { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.engrenage-clair { stop-color: var(--engrenage-clair); }
+.engrenage-sombre { stop-color: var(--engrenage-sombre); }
+.engrenage-moyeu { fill: var(--engrenage-moyeu); stroke: var(--engrenage-sombre); stroke-width: .5; }
+.engrenage-fleche {
+  position: absolute;
+  width: var(--engrenage-fleche-d); height: var(--engrenage-fleche-d);
+  overflow: visible;
+  fill: none; stroke: var(--engrenage-fleche); stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 0 .6px var(--engrenage-contour));
+  transition: stroke .12s, filter .12s, opacity .12s;
 }
-@media (prefers-reduced-motion: reduce) { .astrolabe { transition: none; } }
+.engrenage-fleche.droite { left: var(--engrenage-droite-x); top: var(--engrenage-droite-y); }
+.engrenage-fleche.gauche { left: var(--engrenage-gauche-x); top: var(--engrenage-gauche-y); }
+/* LA FLÈCHE DU GESTE s'allume (bleu clair, halo bleu en trois passes) ; l'autre s'atténue à 45 % */
+[data-engrenage][data-direction="droite"] .engrenage-fleche.droite,
+[data-engrenage][data-direction="gauche"] .engrenage-fleche.gauche {
+  stroke: var(--engrenage-fleche-vive);
+  filter: drop-shadow(0 0 1px var(--engrenage-lueur-1)) drop-shadow(0 0 3px var(--engrenage-lueur-2)) drop-shadow(0 0 5px var(--engrenage-lueur-3));
+}
+[data-engrenage][data-direction="droite"] .engrenage-fleche.gauche,
+[data-engrenage][data-direction="gauche"] .engrenage-fleche.droite { opacity: .45; filter: none; }
+/* ⭐ AU SURVOL SOURIS (un pointeur qui survole ET qui est précis), et au clavier (le prototype) : la roue
+   paraît, la flèche du chevron se tait. Un doigt ne la voit jamais. */
+.belt-chevron[data-engrenage]:focus-visible > .engrenage { opacity: 1; visibility: visible; }
+.belt-chevron[data-engrenage]:focus-visible > .belt-chevron-fleche { visibility: hidden; }
+/* 🔴 MESURÉ AU BANC (1280 × 800) : la roue de 40 déborde de ~2,5 blg sur le soleil du Menu (et la lune du
+   Sheet), qui est EMPILÉ AU-DESSUS du chevron (astre 2, chevron 1) — la roue passait DESSOUS, rognée.
+   ⭐ Tant qu'elle se montre, le chevron monte au-dessus des astres : la roue paraît ENTIÈRE, centrée sur sa
+   flèche, par-dessus leur bord. ⛔ Le chevron ne bouge pas d'un pixel : seul son rang d'empilement change. */
+.belt-chevron[data-engrenage]:focus-visible { z-index: 3; }
+@media (hover: hover) and (pointer: fine) {
+  .belt-chevron[data-engrenage]:hover > .engrenage { opacity: 1; visibility: visible; }
+  .belt-chevron[data-engrenage]:hover > .belt-chevron-fleche { visibility: hidden; }
+  .belt-chevron[data-engrenage]:hover { z-index: 3; }
+}
+@media (prefers-reduced-motion: reduce) { .engrenage, .engrenage-fleche { transition: none; } }
 
 /* ══ 🖐️ ARMER PUIS POSER — lot 340, Eric 28/09 (NORMES `geste-armer-puis-poser`) ══════════════════════
    ⚖️ *« clic gauche = illumine liseré bleu le token ciblé et toutes les destinations possibles »* ·

@@ -710,13 +710,26 @@
   --chevron-lateral-bord: calc(var(--sp-8) + var(--sp-4));
   --chevron-belt-bord: calc(2 * var(--sp-8));
   --chevron-voile: .5;
-  /* 🧭 LOT 330 — L'ASTROLABE (notice `Gpt in FH/Astrolabe-30px`, et Eric : « plutôt 20 blg de diamètre
-     que 30 »). Le laiton et l'ivoire du gabarit (`astrolabe-30px.svg`) le jour ; la nuit, le même métal
-     sur un cadran sombre — une paire de jetons, pas un troisième thème. */
-  --astrolabe-d: 20px;
-  --astrolabe-face: #eddfc3;
-  --astrolabe-laiton: #92713b;
-  --astrolabe-encre: #493e2e;
+  /* ⚙️ LOT 343 — L'ENGRENAGE DU BELT (notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md`, 28/09 : il
+     REMPLACE l'astrolabe du lot 330). Les cotes et les encres du prototype validé par Eric
+     (`engrenage-40px-source.html`), mot pour mot : une roue de 40 à douze dents, un moyeu de 8, deux
+     flèches de 28 (trait 2,8 dans une viewBox de 24), la droite à (16, −8), la gauche à (−4, 20). */
+  --engrenage-d: 40px;
+  --engrenage-fleche-d: 28px;
+  /* la place des flèches, relative au coin de la roue (le prototype) : elles DÉPASSENT de la roue */
+  --engrenage-droite-x: 16px;
+  --engrenage-droite-y: -8px;
+  --engrenage-gauche-x: -4px;
+  --engrenage-gauche-y: 20px;
+  --engrenage-clair: #c7c9cb;          /* la roue : dégradé à 140° */
+  --engrenage-sombre: #797d82;
+  --engrenage-moyeu: #dfe1e2;
+  --engrenage-contour: #ebddbe;        /* le liseré de 0,6 px qui détache les flèches de la roue */
+  --engrenage-fleche: #175eac;         /* au repos */
+  --engrenage-fleche-vive: #9ce6ff;    /* la flèche du geste */
+  --engrenage-lueur-1: #12457f;        /* son halo, en trois passes */
+  --engrenage-lueur-2: #168af2;
+  --engrenage-lueur-3: #47b8ff;
   --icone-tuner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M20 12a8 8 0 1 1-2.3-5.6'/%3E%3Cpath d='M18 2.5 L18 7 L13.5 7' stroke-linejoin='round'/%3E%3C/svg%3E");
 
 
@@ -1142,12 +1155,12 @@
      là où #fff8dc s'y confondait. */
   --bourse-encre: #fff5c8;
 
-  --astre-soleil: url("./assets/belt/soleil.webp?v=896");
-  --astre-croissant: url("./assets/belt/croissant.webp?v=896");
+  --astre-soleil: url("./assets/belt/soleil.webp?v=897");
+  --astre-croissant: url("./assets/belt/croissant.webp?v=897");
   /* 🌕 LOT 307 — la pleine lune de la commande du double écran (Eric, 27/09 : « une lune qui
      propose un dropdown de choix d'écrans, une lune 30 diam »). ⭐ L'actif était déjà livré avec
      les astres du belt ; il n'avait pas de jeton. */
-  --astre-pleine-lune: url("./assets/belt/pleine-lune.webp?v=896");
+  --astre-pleine-lune: url("./assets/belt/pleine-lune.webp?v=897");
   /* LOT 212 — le parchemin du Tally (Eric, croquis du 15/09, image déposée le
      15/09) : rangé comme les astres, 160 px pour un dessin de 40 blg. */
   /* ⚖️ LE VOILE DE L'ORGANE ÉTEINT — Eric, 16/09 au soir : *« plutôt que de faire un halo,
@@ -1183,22 +1196,22 @@
      (*« le voile est un jeton, pas un littéral perdu dans la feuille »*), et c'est LUI
      qui a refusé mon `.6` écrit en clair. Il avait raison. */
   --filigrane: .40;
-  --icone-parchemin: url("./assets/parchemin.webp?v=896");
+  --icone-parchemin: url("./assets/parchemin.webp?v=897");
   /* LOT 212 — le SECOND parchemin, bleu (Eric, 16/09 au soir) : le Group Tally, à
      gauche du Tally personnel. ⭐ Même dessin, même cadrage au pixel près (corps
      14/14/7/7 sur 160, mesuré) : posés côte à côte ils s'alignent, et c'est la
      TEINTE seule qui dit lequel est à toi et lequel est au groupe. */
-  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=896");
+  --icone-parchemin-party: url("./assets/parchemin-party.webp?v=897");
   /* et la bourse du Purse (Eric, déposée le 16/09), même cote */
-  --icone-bourse: url("./assets/bourse.webp?v=896");
+  --icone-bourse: url("./assets/bourse.webp?v=897");
   /* ⚖️ LOT 311 — LES TROIS IMAGES DES PORTES CARRÉES du pied d'Équipement (banc 310, validé par
      Eric le 27/09 : *« Parfait je valide les 3 »*). ⭐ TROIS SILHOUETTES PLEINES, de la même
      encre : peintes en MASQUE sur l’encre fixe du bouton (`.porte-carree-image`, shell.css), elles
      sortent du même ton — les filigranes d'origine n'avaient pas la même opacité (alpha moyen
      mesuré au banc : pantin 244, sac 135, wares 107). */
-  --porte-image-pack: url("./assets/porte-pack.png?v=896");
-  --porte-image-wares: url("./assets/porte-wares.png?v=896");
-  --porte-image-gear: url("./assets/porte-gear.png?v=896");
+  --porte-image-pack: url("./assets/porte-pack.png?v=897");
+  --porte-image-wares: url("./assets/porte-wares.png?v=897");
+  --porte-image-gear: url("./assets/porte-gear.png?v=897");
 
   /* ══ LOT 213 — LES JETONS DE X1, LA FICHE D'UN OBJET POSSÉDÉ ═════════════
      ⭐ LE PARCHEMIN DE LA FICHE — Eric, 17/09 : *« les rebords comme les rebords
@@ -1401,14 +1414,14 @@
      alternative, une option de construction »* : on commute ici, jamais dans la
      règle qui la lit. */
   --encre-tapis: #ffffff;
-  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=896");
+  --podium-pastille: url("./assets/abilities/pastille-verte.webp?v=897");
   /* 🟢 LE TAPIS DE SÉLECTION EST VERT — Eric, 05/09 au soir : *« un tapis vert pour
      la sélection sera plus cohérent visuellement »*. Même stade que le bleu livré
      par ChatGPT (702 × 117, filet doré), recoloré pixel à pixel vers les verts du
      tapis de tirage (`#004a3e` → `#0a2b25`, mesurés au centre et au bord). Le bleu
      (`tapis-bleu.webp`) reste une option de construction, comme la pastille
      bleue : on commute ici, jamais dans la règle qui lit le jeton. */
-  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=896");
+  --tapis-selection: url("./assets/abilities/tapis-selection-vert.webp?v=897");
   /* 📏 LES COTES DU TIRAGE — déduites, puis écrites UNE fois (§1 ter).
      · le tapis vert n'a PAS de cote : il remplit sa colonne et sa hauteur suit
        son ratio (1637/522). Une largeur de 276 a vécu une heure ici le 05/09 —
@@ -1501,8 +1514,8 @@
      que voit un navigateur avant que le moindre module ait tourné. Les
      autres collections vivent dans `assets/backgrounds.measured.json` —
      ⛔ en ajouter une ne se paie AUCUNE ligne dans ce fichier. */
-  --bg-jour: url("./assets/bg-ruins-day.jpg?v=896");
-  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=896");
+  --bg-jour: url("./assets/bg-ruins-day.jpg?v=897");
+  --bg-nuit: url("./assets/bg-ruins-night.jpg?v=897");
   --bg-image: var(--bg-jour);
 
   /* ── LES TROIS VOILES (bible §5, « le verre ») ────────────────────────
@@ -1635,10 +1648,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* 🧭 LOT 330 — l'astrolabe la nuit : cadran sombre, laiton clair, encre ivoire */
-    --astrolabe-face: #2b261e;
-    --astrolabe-laiton: #c9a86a;
-    --astrolabe-encre: #eadfc8;
+    /* ⚙️ LOT 343 — l'engrenage la nuit (le prototype : `light-dark(…)`, côté sombre) */
+    --engrenage-clair: #abb0b5;
+    --engrenage-sombre: #62686f;
+    --engrenage-moyeu: #3a3f44;
+    --engrenage-contour: #403829;
+    --engrenage-fleche: #6eb7f5;
+    --engrenage-fleche-vive: #b4eeff;
     --spy-halo: rgba(255, 255, 255, 0.65); /* la lueur — voir le jeton jour */
     --belt-halo: rgba(255, 255, 255, 0.62); /* le halo du belt, à égalité du jour */
     --bg: #14120e;
