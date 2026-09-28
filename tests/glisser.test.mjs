@@ -143,13 +143,14 @@ test("2 — 🖐️ LOT 340 : le CLIC GAUCHE arme — les créneaux LIBRES s'all
   assert.equal(allumes(n).length, 0);
 });
 
-test("2 bis — 🖐️ LOT 340 : un créneau déjà rempli ne s'allume pas (réponse 5b)", () => {
+test("2 bis — 🔄 LOT 342 : un créneau REMPLI mais remplaçable s'allume aussi, et un clic sur lui remplace", () => {
+  /* ⚖️ Eric, 28/09 : « destinations remplies potentiellement remplissables par autre chose » */
   const actions = [];
   const n = ecran(slotsDe(["athletics"]), actions);
   cliquer(jetons(n)[1]);
-  assert.deepEqual(allumes(n).map((c) => c.dataset.creneau), ["class.skills[1]"], "⛔ un créneau rempli s'allume");
-  poserSur(creneaux(n)[1]);
-  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[1]", value: "history" }]);
+  assert.deepEqual(allumes(n).map((c) => c.dataset.creneau), ["class.skills[0]", "class.skills[1]"]);
+  poserSur(creneaux(n)[0]);
+  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "history" }], "⭐ il remplace");
 });
 
 test("2 ter — tous les créneaux pleins : le tap ne fait RIEN", () => {

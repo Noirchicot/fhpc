@@ -40,6 +40,20 @@ test("340 · 1a — le clic gauche ARME : liseré sur l'objet, créneaux libres 
   assert.equal(allumes(e).length, 2);
 });
 
+test("342 — l'habit : un FOND bleu discret sur les destinations, ⛔ plus aucun liseré ajouté (ni outline, ni contour)", async () => {
+  const fs = await import("node:fs");
+  const css = fs.readFileSync(new URL("../ui/builder/shell.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  /* ⚠️ les attributs de la grammaire seulement — `[data-deplacement="oui"]` est le mode édition de Pack */
+  const regles = [...css.matchAll(/([^{}]*\[data-(?:destination="oui"|deplacement="arme")\][^{}]*)\{([^}]*)\}/g)];
+  assert.ok(regles.length > 0);
+  for (const [, sel, corps] of regles) {
+    assert.doesNotMatch(corps, /outline|border(-(color|width|style))?\s*:|box-shadow/, `⛔ ${sel.trim()} dessine un contour`);
+  }
+  assert.match(css, /\[data-destination="oui"\] \{ background-image: linear-gradient\(var\(--destination-fond\), var\(--destination-fond\)\); \}/);
+  const jetons = fs.readFileSync(new URL("../ui/builder/tokens.css", import.meta.url), "utf8");
+  assert.match(jetons, /--destination-fond: color-mix\(in srgb, var\(--info\) 20%, transparent\);/, "le bleu de la maison, mélangé à 20 %");
+});
+
 test("340 · 2a — re-clic sur l'objet, clic dans le vide, ou Échap : désarmé", () => {
   const e = ecran();
   cliquer(e.jetons[0]); cliquer(e.jetons[0]);
@@ -64,16 +78,24 @@ test("340 · 3a — armer un autre objet remplace le premier", () => {
   assert.deepEqual(e.actions, [{ kind: "set", path: "x[0]", value: "b" }], "c'est le NOUVEAU qui se pose");
 });
 
-test("340 · 5b — une case remplie ne s'allume pas, et un clic sur elle ne pose rien", () => {
-  const e = ecran([["a"], []]);
-  cliquer(e.jetons[1]);
-  assert.deepEqual(allumes(e).map((c) => c.dataset.creneau), ["x[1]"]);
+test("340 · 5b · 342 — un créneau rempli REMPLAÇABLE est une destination ; l'objet flashe à l'activation", () => {
+  /* ⚖️ Eric, 28/09 : « destinations remplies potentiellement remplissables par autre chose » · « un flash
+     sur le token pour indiquer l'activation » */
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    const e = ecran([["a"], []]);
+    cliquer(e.jetons[1]);
+    assert.equal(e.jetons[1].dataset.flash, "halo", "⛔ l'activation au clic gauche ne flashe pas");
+    assert.deepEqual(allumes(e).map((c) => c.dataset.creneau), ["x[0]", "x[1]"]);
+  } finally { mock.timers.reset(); }
 });
 
 test("340 · 6b — sans destination, l'objet REFUSE : un bref halo rouge, et il ne s'arme pas", () => {
+  /* une portée sans aucun créneau : rien où le poser */
   mock.timers.enable({ apis: ["setTimeout"] });
   try {
-    const e = ecran([["a"], ["b"]]);
+    const e = ecran([[], []], {});
+    for (const c of e.creneaux) delete c.dataset.creneau;
     cliquer(e.jetons[2]);
     assert.equal(objetArme(), null, "⛔ un objet sans destination s'est armé");
     assert.equal(e.jetons[2].dataset.flash, "refus", "⛔ aucun refus visible");

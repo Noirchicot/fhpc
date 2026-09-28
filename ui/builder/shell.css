@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=895") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=896") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=895") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=896") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=895") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=896") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=895");
+  background-image: url("./assets/tarot-dos.jpg?v=896");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13921,7 +13921,16 @@ select.x5-drop {
    ⭐ `outline` et pas `box-shadow` : le liseré se pose PAR-DESSUS l'habit (le relief d'un jeton est une
    ombre), sans l'effacer, et il suit l'arrondi. ⭐ Le flash et le refus passent par `filter`, qui ne
    touche à aucune autre déclaration. */
-[data-deplacement="arme"], [data-destination="oui"] { outline: 2px solid var(--lien); outline-offset: 2px; }
+/* 🔄 LOT 342 — PLUS DE LISERÉ À MOI. Eric, 28/09 : *« liseré moche, revient aux liseré bleu d'origine et leur
+   fonction initiale. je veux un flash sur le token pour indiquer l'activation du drag, à ce moment les
+   collecteurs de destination, le fond du collecteur pas le contour, vont avoir un fond bleu discret »*.
+   ⭐ Le liseré bleu garde SA fonction (un collecteur rempli) ; l'objet activé FLASHE ; ses destinations
+   prennent un FOND bleu discret — ⛔ jamais leur contour. Le fond se pose en `background-image`, par-dessus
+   la couleur que chaque collecteur porte déjà (vide ou rempli), sans l'effacer. */
+[data-destination="oui"] { background-image: linear-gradient(var(--destination-fond), var(--destination-fond)); }
+/* ⚠️ un collecteur rempli pose son fond par le raccourci `background` (0,3,0), qui remet l'image à `none` :
+   la même spécificité, plus bas dans la feuille, rend l'image à la destination */
+.choix-glisse .glisse-creneau[data-destination="oui"] { background-image: linear-gradient(var(--destination-fond), var(--destination-fond)); }
 @keyframes geste-flash {
   0%, 100% { filter: none; }
   40% { filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo)) drop-shadow(0 0 var(--halo-fin) var(--belt-halo)); }

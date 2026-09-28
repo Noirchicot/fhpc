@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=895";
+import { pageDeListe } from "./normes.mjs?v=896";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=895";
-import { swapContent } from "./socle.mjs?v=895";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=896";
+import { swapContent } from "./socle.mjs?v=896";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=895";
+import { facteurZoomCourant } from "./echelle.mjs?v=896";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -387,9 +387,12 @@ export function destinationsDe(jeton, { portee, accepte, onDepotVoisin, accepteV
   const racine = portee
     || (typeof jeton.closest === "function" && (jeton.closest("[data-demi-ecran]") || jeton.closest(".app")))
     || doc;
+  /* 🔄 LOT 342 — Eric, 28/09 : « le liseré bleu = destinations possibles / destinations remplies
+     potentiellement remplissables par autre chose ». ⭐ Un collecteur REMPLI qui se déclare encore créneau
+     (il accepte qu'on le remplace) est une destination ; ⛔ une case occupée qui ne se déclare plus créneau
+     (Gear, Pack) n'en est pas une — c'est la donnée qui le dit, pas l'état. */
   const libre = (c) => c && c !== jeton && c.dataset
-    && !(typeof jeton.contains === "function" && jeton.contains(c))
-    && c.dataset.rempli !== "true" && c.dataset.occupe !== "oui";
+    && !(typeof jeton.contains === "function" && jeton.contains(c));
   const siens = [...racine.querySelectorAll("[data-creneau]")].filter((c) => libre(c) && (!accepte || accepte(c)));
   const voisins = onDepotVoisin
     ? [...doc.querySelectorAll('[data-recoit-voisin="true"]')]
@@ -431,6 +434,9 @@ function allumer(jeton, o, poser, { basculer = true, refus = true } = {}) {
   if (!destinations.length) { if (refus) flasher(jeton, "refus"); return false; }
   const doc = jeton.ownerDocument || document;
   jeton.dataset.deplacement = "arme";
+  /* ⚖️ LOT 342 — « un flash sur le token pour indiquer l'activation du drag » : à CHAQUE activation — le clic
+     gauche, l'appui long, le glisser qui part */
+  flasher(jeton, "halo");
   for (const d of destinations) d.dataset.destination = "oui";
   const etat = { jeton, destinations, doc };
   /* ⭐ LE PROCHAIN APPUI DÉCIDE — en CAPTURE, avant les écouteurs des éléments :
@@ -626,7 +632,6 @@ export function armerJeton(jeton, options) {
         arme = true;
         if (jeton.dataset) jeton.dataset.porte = "true";
         if (avecGrammaire) {
-          flasher(jeton, "halo");
           armeParMaintien = allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false });
         }
       }, duree)

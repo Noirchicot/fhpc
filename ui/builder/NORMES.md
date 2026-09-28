@@ -10088,3 +10088,12 @@ le tap et le clic droit gardent « voir » ; le clic gauche ne choisit plus, il 
 glisser partout », sans péage) cède au doigt : l'appui long de 500 ms vaut partout (lot 339 : jamais à la souris).
 📐 L'organe est UN (`glisser.mjs`) ; chaque écran ne déclare que ses destinations. Mise en place par lots :
 l'organe et les viviers d'abord (Species, les listes de sorts et de compétences), puis écran par écran.
+🔄 **Lot 342 — ce qui s'allume, précisé par Eric (28/09) :** *« liseré moche, revient aux liseré bleu d'origine
+et leur fonction initiale. je veux un flash sur le token pour indiquer l'activation du drag, à ce moment les
+collecteurs de destination, le fond du collecteur pas le contour, vont avoir un fond bleu discret. alternative tu
+tap pour placer directement. ou du drag and drop »* — et, sur 5b : *« le liseré bleu = destinations possibles /
+destinations remplies potentiellement remplissables par autre chose, pas de fond en plus »*.
+  · l'objet activé FLASHE (clic gauche, appui long, glisser qui part) — ⛔ plus de liseré sur lui (1a retiré) ;
+  · ses destinations prennent un FOND bleu discret (`--destination-fond`, `--info` à 20 % — regardé : 12 % se devinait à peine) — ⛔ jamais leur contour ;
+  · le liseré bleu garde sa fonction d'origine : un collecteur rempli ;
+  · 5b précisé : un collecteur REMPLI qui accepte d'être remplacé (il se déclare encore créneau) est une destination.
