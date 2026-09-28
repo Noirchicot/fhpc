@@ -184,6 +184,43 @@ body {
      dalles, comme partout ailleurs dans le builder. */
 }
 
+/* ══ 👆 UN BOUTON NE ZOOME JAMAIS LA PAGE — lot 348, 2026-09-28 ════════════
+   Constat d'Eric au simulateur (iPad Pro 11, Safari) : six taps rapides sur le
+   chevron droit du belt ont zoomé TOUTE la page — pour Safari, deux taps
+   rapprochés sont un double tap, donc un zoom.
+   ⭐ `manipulation` = `pan-x pan-y pinch-zoom` : le défilement et le PINCEMENT
+   restent, seul le zoom au double tap s'en va. Deux taps sur un bouton sont
+   deux appuis — c'est tout ce que cette ligne dit.
+
+   ⚖️ LES BOUTONS, PAS LA RACINE `.app` — et les deux marchaient, mesuré au
+   banc (taps réels à 150 ms) : parent `manipulation`, sous `zoom: 1.3`, sous
+   un défileur, rien ne zoome. Le critère est donc ce que chacune RETIRE : sur
+   `.app`, le double tap cesserait d'être un zoom sur tout le panneau, texte
+   compris ; ici il ne cesse que là où il n'en a jamais été un. Et le relevé
+   dit que c'est complet : sur les huit étapes et Gear · Pack · Wares · Send,
+   toute cible répétable est un `<button>` — les seules autres sont les jetons
+   glissables, déjà en `none` ou `pan-x`.
+
+   🔴 `:where()`, SPÉCIFICITÉ NULLE, ET C'EST LA MOITIÉ DE LA RÈGLE : un
+   DÉFAUT, jamais un mur (NORMES, `socle-norme-est-un-defaut`). Toute
+   déclaration explicite l'emporte, où qu'elle soit dans la feuille —
+   `[data-glissable="true"]` (`none`) sur les dés et les jetons qui SONT des
+   boutons, `pan-x` des roues, `pan-y` des listes. ⛔ `.app button` (0,1,1)
+   battrait `[data-glissable="true"]` (0,1,0) et rendrait le doigt au
+   défilement en plein glisser.
+   ⭐ Et le moteur n'élargit rien : dans WebKit, un enfant `manipulation`
+   garde la valeur de son parent quand elle est plus étroite — un bouton de
+   la roue de Pack reste `pan-x`.
+
+   📏 Mesuré au simulateur iOS 27 : `main` zoome au 1er double tap, sur le
+   chevron du belt comme sur le tuner de Pack ; avec cette ligne, zéro zoom en
+   double tap comme en rafale de six, et chaque tap avance d'un cran.
+   ⚠️ Des taps envoyés en parallèle arrivent à 0–46 ms et font zoomer même un
+   bouton `manipulation` : ce n'est pas un double tap humain. Un banc de ce
+   geste tape à 100–250 ms, ou il ne prouve rien.
+   🛡️ `tests/geste-bouton-ne-zoome-pas.test.mjs`. */
+:where(.app button) { touch-action: manipulation; }
+
 /* ══ LES DEUX PANNEAUX — lot 120, le double affichage ══════════════════════
    📐 Eric, 2026-09-02, croquis `2026-09-02-double-view-belt-deroule.jpg` :
    deux panneaux côte à côte, UN SEUL belt déroulé au-dessus des deux,
@@ -3071,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=902") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=903") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=902") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=903") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=902") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=903") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8064,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=902");
+  background-image: url("./assets/tarot-dos.jpg?v=903");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
