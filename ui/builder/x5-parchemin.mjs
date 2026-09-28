@@ -21,16 +21,16 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=900";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=900";
+import * as D from "./x5-disposition.mjs?v=901";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=901";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=900";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=900";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=900";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=900";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=900";
+  from "./craft-parchemin.mjs?v=901";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=901";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=901";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=901";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerLaMolette } from "./engrenage.mjs?v=900";
+import { armerEngrenage } from "./engrenage.mjs?v=901";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
@@ -186,7 +186,7 @@ export function construireX5Parchemin(o, pieces) {
       c.setAttribute("aria-label", dit);
       if (surChoix) c.addEventListener("click", () => surChoix("PAGE", String((page + sens + pages) % pages)));
       /* 🧭 LOT 330 — l'astrolabe : la molette tourne les pages (elles tournent en rond, comme au clic) */
-      armerLaMolette(c, { groupe: "x5-pages", avancer: (s) => {
+      armerEngrenage(c, { groupe: "x5-pages", avancer: (s) => {
         if (!surChoix) return false;
         surChoix("PAGE", String((page + s + pages) % pages));
         return true;

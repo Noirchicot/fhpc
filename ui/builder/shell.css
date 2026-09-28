@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=900") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=901") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=900") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=901") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=900") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=901") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=900");
+  background-image: url("./assets/tarot-dos.jpg?v=901");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13125,8 +13125,8 @@ button.tuto-point::before {
                 calc(var(--touch) - var(--chevron-lateral-l) - var(--chevron-lateral-bord));
 }
 /* 🗄️ LOT 330 — la flèche circulaire du tuner au survol (`--icone-tuner`) avait été remplacée par l'astrolabe ;
-   🔄 LOT 343 — l'astrolabe est retiré à son tour : l'ENGRENAGE ne vit que sur le belt (la notice). Les autres
-   chevrons gardent leur molette (`armerLaMolette`), sans signe au survol. */
+   🔄 LOT 343 — l'astrolabe est retiré à son tour, l'ENGRENAGE sur le belt seul ; 🔄 LOT 346 — l'engrenage sur
+   TOUS les chevrons horizontaux (plus bas). */
 /* ══ LES DEUX OUTILS — Eric, 2026-09-19 ═══════════════════════════════════════
    ⚖️ *« le bouton d'édition est trop grossier ; je préfère un carré vert simple :
    edit / sections. Et un autre bouton classique vert : Sort. »*
@@ -13870,19 +13870,22 @@ select.x5-drop {
    plaques) — la classe `dalle-simple` garde son rayon ailleurs. */
 .sac-bande.dalle-simple, .sac-dalle.dalle-simple { border-radius: var(--organe-rayon); }
 
-/* ══ ⚙️ LOT 343 — L'ENGRENAGE : AU SURVOL SOURIS D'UN CHEVRON DU BELT ═════════════════════════════════
+/* ══ ⚙️ LOT 343 · 346 — L'ENGRENAGE : AU SURVOL SOURIS D'UN CHEVRON ══════════════════════════════════
    ⚖️ Eric, 28/09 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et le prototype validé
    (`engrenage-40px-source.html`) — *« remplace l'ancien tuner par ceci ; vérifie bien qu'ils sont bien
-   placés, ce n'était pas le cas avant »*. 🗄️ Remplace l'astrolabe du lot 330, qui vivait sur tous les
-   chevrons horizontaux : la notice borne l'engrenage aux DEUX chevrons du belt.
-   ⭐ LA ROUE (40) SE CENTRE SUR LE DESSIN DU CHEVRON, pas sur sa boîte : la flèche du belt est à
-   `--chevron-belt-bord` du bord extérieur, et fait `--chevron-lateral-l` de large. Les flèches dépassent de
-   la roue (la droite à 16, −8 ; la gauche à −4, 20) : ⛔ rien ne les coupe (`overflow: visible`).
+   placés, ce n'était pas le cas avant »*. 🗄️ Remplace l'astrolabe du lot 330.
+   🔄 LOT 346 — Eric, 28/09 : *« utilise l'astrolabe partout où il y a des chevrons »* : la roue vit sur TOUS
+   les chevrons horizontaux (belt, tambour de Pack, tambours et pages de Wares, pages de X5, molette de
+   quantité) — la notice la bornait au belt, Eric l'étend.
+   ⭐ LA ROUE SE CENTRE SUR LE DESSIN DU CHEVRON, pas sur sa boîte. Un chevron latéral creuse son dessin par
+   ses BORDS (`border-width`, lot 326) : 50 % de sa boîte de remplissage EST le centre du dessin. Le belt,
+   lui, porte une flèche à `--chevron-belt-bord` du bord extérieur, `--chevron-lateral-l` de large. Les
+   flèches dépassent de la roue : ⛔ rien ne les coupe (`overflow: visible`).
    ⛔ Rien n'entre dans le flux — l'apparition ne déplace rien ; rien ne capte le pointeur — c'est le
    chevron qui capte, sur toute sa cible. */
 .engrenage {
   position: absolute;
-  top: 50%;
+  left: 50%; top: 50%;
   width: var(--engrenage-d); height: var(--engrenage-d);
   translate: -50% -50%;
   opacity: 0; visibility: hidden;
@@ -13891,6 +13894,12 @@ select.x5-drop {
   transition: opacity .13s, visibility .13s;
   z-index: 3;
 }
+/* 🔴 L'HÔTE — LOT 346, MESURÉ AU BANC : la roue s'ancre au premier ancêtre POSITIONNÉ. Les chevrons de Pack
+   (`.sac-tuner`) et de X5 (`.x5-page`) sont posés en absolu : elle s'y centre au dixième de pixel. Ceux de
+   Wares et de la molette de quantité étaient STATIQUES — la roue partait au milieu de l'écran (640, 427 pour un
+   dessin à 469, 204). ⭐ Ils deviennent l'hôte ; `relative` sans décalage ne les déplace pas d'un pixel.
+   ⛔ Pas sur `.wares-chevron` seul : les pages de X5 portent la même classe, et elles sont en absolu. */
+.molette-tuner, .wares-tuner, .wares-gouttiere > .wares-chevron { position: relative; }
 .belt-chevron[data-sens="avant"] > .engrenage { left: calc(var(--chevron-belt-bord) + var(--chevron-lateral-l) / 2); }
 .belt-chevron[data-sens="apres"] > .engrenage { left: calc(100% - var(--chevron-belt-bord) - var(--chevron-lateral-l) / 2); }
 .engrenage-roue { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -13924,18 +13933,33 @@ select.x5-drop {
 [data-engrenage][data-direction="droite"] .engrenage-fleche.gauche,
 [data-engrenage][data-direction="gauche"] .engrenage-fleche.droite { opacity: .45; filter: none; }
 /* ⭐ AU SURVOL SOURIS (un pointeur qui survole ET qui est précis), et au clavier (le prototype) : la roue
-   paraît, la flèche du chevron se tait. Un doigt ne la voit jamais. */
-.belt-chevron[data-engrenage]:focus-visible > .engrenage { opacity: 1; visibility: visible; }
+   paraît, le dessin du chevron se tait. Un doigt ne la voit jamais.
+   ⭐ LE CHEVRON LATÉRAL SE TAIT TOUT ENTIER — il se peint par un MASQUE posé sur lui-même, qui découperait la
+   roue ; il porte un voile (50 %) qui la pâlirait, un miroir (`scaleX(-1)`) qui la retournerait avec ses
+   flèches, et un glyphe de secours (« ‹ ») : on retire les quatre (le lot 330 le faisait déjà pour
+   l'astrolabe). ⛔ Le miroir se prend sur le dessin (`transform-box: content-box`), dont le centre est celui
+   de la roue : le retirer ne déplace rien. */
+[data-engrenage]:focus-visible > .engrenage { opacity: 1; visibility: visible; }
 .belt-chevron[data-engrenage]:focus-visible > .belt-chevron-fleche { visibility: hidden; }
-/* 🔴 MESURÉ AU BANC (1280 × 800) : la roue de 40 déborde de ~2,5 blg sur le soleil du Menu (et la lune du
+:is(.sac-tuner, .molette-tuner, .wares-tuner, .wares-chevron)[data-engrenage]:focus-visible {
+  mask-image: none; -webkit-mask-image: none;
+  background-color: transparent; color: transparent;
+  opacity: 1; overflow: visible; transform: none;
+}
+/* 🔴 MESURÉ AU BANC (1280 × 800) : la roue déborde de ~2,5 blg sur le soleil du Menu (et la lune du
    Sheet), qui est EMPILÉ AU-DESSUS du chevron (astre 2, chevron 1) — la roue passait DESSOUS, rognée.
-   ⭐ Tant qu'elle se montre, le chevron monte au-dessus des astres : la roue paraît ENTIÈRE, centrée sur sa
-   flèche, par-dessus leur bord. ⛔ Le chevron ne bouge pas d'un pixel : seul son rang d'empilement change. */
-.belt-chevron[data-engrenage]:focus-visible { z-index: 3; }
+   ⭐ Tant qu'elle se montre, le chevron monte au-dessus de ses voisins : la roue paraît ENTIÈRE, centrée sur
+   son dessin, par-dessus leur bord. ⛔ Le chevron ne bouge pas d'un pixel : seul son rang d'empilement change. */
+[data-engrenage]:focus-visible { z-index: 3; }
 @media (hover: hover) and (pointer: fine) {
-  .belt-chevron[data-engrenage]:hover > .engrenage { opacity: 1; visibility: visible; }
+  [data-engrenage]:hover > .engrenage { opacity: 1; visibility: visible; }
   .belt-chevron[data-engrenage]:hover > .belt-chevron-fleche { visibility: hidden; }
-  .belt-chevron[data-engrenage]:hover { z-index: 3; }
+  :is(.sac-tuner, .molette-tuner, .wares-tuner, .wares-chevron)[data-engrenage]:hover {
+    mask-image: none; -webkit-mask-image: none;
+    background-color: transparent; color: transparent;
+    opacity: 1; overflow: visible; transform: none;
+  }
+  [data-engrenage]:hover { z-index: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .engrenage, .engrenage-fleche { transition: none; } }
 

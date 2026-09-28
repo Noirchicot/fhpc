@@ -1,4 +1,4 @@
-/* ══ ⚙️ L'ENGRENAGE DU BELT — et la molette des autres chevrons — lot 343, 2026-09-28 ════════════════
+/* ══ ⚙️ L'ENGRENAGE DES CHEVRONS — lot 343 (le belt), lot 346 (partout), 2026-09-28 ═══════════════════
    ⚖️ Eric, 28/09 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et son prototype validé
    (`engrenage-40px-source.html`) — *« Cette version remplace l'ancien astrolabe : utilise désormais
    l'engrenage gris métallique de 40 px, avec deux flèches bleues épaisses qui dépassent légèrement.
@@ -15,52 +15,25 @@
    ⭐ « Droite » est le MOUVEMENT VISIBLE du contenu : les tuiles du belt partent vers la droite quand le
      ruban défile vers la gauche (`decalerLeBelt(-1)`, `scrollLeft` qui diminue).
 
-   ⛔ PÉRIMÈTRE : l'engrenage vit sur les DEUX chevrons du belt, et nulle part ailleurs (la notice : *« Les
-   chevrons des catégories et des listes d'objets ne sont pas concernés »*). Les autres chevrons perdent
-   l'astrolabe du lot 330 mais gardent leur molette (`armerLaMolette`, sans cadran).
+   🔄 PÉRIMÈTRE — LOT 346 : Eric, 28/09, *« utilise l'astrolabe partout où il y a des chevrons »* (l'astrolabe,
+   c'est son nom pour cet engrenage, qui l'a remplacé). ⭐ Il revient sur la notice (*« les chevrons des
+   catégories et des listes d'objets ne sont pas concernés »*) : l'engrenage vit sur TOUS les chevrons
+   horizontaux que le lot 330 avait armés — belt, tambour de Pack, tambours et pages de Wares, pages de X5,
+   molette de quantité. ⛔ La molette sans cadran (`armerLaMolette`) est morte : un seul organe.
+   ⭐ CHAQUE PAIRE A SON ÉTAT — son angle et sa lueur (`groupe`) : la roue des pages de Wares ne tourne pas
+   quand le belt défile, et seuls les deux chevrons d'une même paire s'éclairent ensemble.
    ⛔ MODULE FEUILLE : aucun import, aucune cote de mise en page, aucune couleur écrite ici — les encres
    vivent dans les jetons (`--engrenage-*`, tokens.css, jour ET nuit), la place dans `shell.css`. */
 
 /* ── LA NORMALISATION DU PROJET (celle du lot 330) — ⭐ la notice : « Utiliser la normalisation du projet si
-   elle existe déjà, sans inverser une deuxième fois le signe ». */
-/** Un pas de molette des chevrons ordinaires : ~100 par cran dans Chrome et Safari (mesuré au lot 330 :
- *  50 en faisait DEUX). */
-export const SEUIL_PAS = 100;
+   elle existe déjà, sans inverser une deuxième fois le signe ». Un cran de souris vaut ~100 px dans Chrome et
+   Safari (mesuré au lot 330), et trois lignes dans Firefox. */
+const PIXELS_PAR_LIGNE = 100 / 3;
 /** Un `wheel` en pixels, quel que soit son `deltaMode` (0 : pixels · 1 : lignes · 2 : pages). */
 export function deltaEnPixels(ev) {
   const dy = Number(ev && ev.deltaY) || 0;
   const mode = Number(ev && ev.deltaMode) || 0;
-  return mode === 1 ? dy * (SEUIL_PAS / 3) : mode === 2 ? dy * 400 : dy;
-}
-
-/* ══ LA MOLETTE D'UN CHEVRON ORDINAIRE — sans cadran ═══════════════════════════════════════════════
-   Ce que le lot 330 faisait, moins l'astrolabe : la molette, captée sur ce chevron SEULEMENT, fait avancer
-   la navigation qu'il commande déjà. Bas = suivant (contenu vers la gauche), haut = précédent (vers la
-   droite) — le même sens visible que l'engrenage. Ctrl + molette (le zoom) n'est jamais intercepté. */
-const restes = new Map();
-/** Combien de pas cet événement déclenche (±n), en tenant le reste de la paire. */
-export function pasDeLaMolette(groupe, ev) {
-  const total = (restes.get(groupe) || 0) + deltaEnPixels(ev);
-  const pas = Math.trunc(total / SEUIL_PAS);
-  restes.set(groupe, total - pas * SEUIL_PAS);
-  return pas;
-}
-/** @param {{ groupe: string, avancer: (sens: number) => (boolean|void) }} o */
-export function armerLaMolette(chevron, { groupe, avancer } = {}) {
-  if (!chevron || !groupe || typeof avancer !== "function") return chevron;
-  chevron.addEventListener("wheel", (ev) => {
-    if (!ev || ev.ctrlKey) return;
-    if (typeof ev.preventDefault === "function") ev.preventDefault();
-    /* ⭐ un cran traité ici ne l'est pas deux fois (la molette de quantité écoute tout son tambour) */
-    if (typeof ev.stopPropagation === "function") ev.stopPropagation();
-    const pas = pasDeLaMolette(groupe, ev);
-    if (!pas) return;
-    const sens = pas > 0 ? 1 : -1;
-    for (let i = 0; i < Math.abs(pas); i++) {
-      if (avancer(sens) === false) { restes.set(groupe, 0); break; }
-    }
-  }, { passive: false });
-  return chevron;
+  return mode === 1 ? dy * PIXELS_PAR_LIGNE : mode === 2 ? dy * 400 : dy;
 }
 
 /* ══ L'ENGRENAGE ══════════════════════════════════════════════════════════════════════════════════ */
@@ -134,28 +107,34 @@ export function construireLEngrenage(doc = typeof document !== "undefined" ? doc
   return s;
 }
 
-/* L'état de la paire du belt — ⭐ AU MODULE : le belt se repeint, la roue garde son angle */
-let angleDuBelt = 0;
-let lueur = null;
-/** L'angle cumulé de la roue du belt (le témoin des bancs). */
-export function angleDeLEngrenage() { return angleDuBelt; }
+/* L'état de chaque paire — ⭐ AU MODULE : un écran se repeint (une page de Wares, un pas du belt), la roue de
+   sa paire garde son angle. */
+const angles = new Map();
+const lueurs = new Map();
+/** L'angle cumulé de la roue d'une paire (le témoin des bancs). */
+export function angleDeLEngrenage(groupe = "belt") { return angles.get(groupe) || 0; }
 
-function chevronsDuBelt(doc) {
-  return doc && typeof doc.querySelectorAll === "function" ? [...doc.querySelectorAll("[data-engrenage]")] : [];
+function chevronsDuGroupe(doc, groupe) {
+  return doc && typeof doc.querySelectorAll === "function" ? [...doc.querySelectorAll(`[data-engrenage="${groupe}"]`)] : [];
 }
 /** ILLUMINER — dès le premier événement, même en bout de liste : la flèche du geste s'allume, l'autre
- *  s'atténue (la feuille), sur les DEUX chevrons. */
-function illuminer(doc, cote) {
-  const tous = chevronsDuBelt(doc);
-  for (const c of tous) c.dataset.direction = cote;
-  if (lueur) clearTimeout(lueur);
-  lueur = setTimeout(() => { for (const c of chevronsDuBelt(doc)) delete c.dataset.direction; lueur = null; }, LUEUR_ENGRENAGE_MS);
+ *  s'atténue (la feuille), sur les DEUX chevrons de la paire — et sur eux seuls.
+ *  🔴 LOT 346, MESURÉ AU BANC : un tambour de Wares REPEINT ses chevrons à chaque pas — les neufs naissaient
+ *  éteints, et la flèche s'éteignait au premier cran. ⭐ La lueur appartient à la PAIRE : un chevron armé
+ *  pendant qu'elle brille la reprend (`armerEngrenage`). */
+function illuminer(doc, groupe, cote) {
+  for (const c of chevronsDuGroupe(doc, groupe)) c.dataset.direction = cote;
+  if (lueurs.has(groupe)) clearTimeout(lueurs.get(groupe).minuterie);
+  lueurs.set(groupe, { cote, minuterie: setTimeout(() => {
+    for (const c of chevronsDuGroupe(doc, groupe)) delete c.dataset.direction;
+    lueurs.delete(groupe);
+  }, LUEUR_ENGRENAGE_MS) });
 }
-/** Tourner la roue des deux chevrons, de `depuis` à `angle` — par l'ATTRIBUT SVG, animé 240 ms sauf pour qui
- *  a demandé moins de mouvement. */
-function tourner(doc, depuis, angle) {
+/** Tourner la roue des deux chevrons d'une paire, de `depuis` à `angle` — par l'ATTRIBUT SVG, animé 240 ms
+ *  sauf pour qui a demandé moins de mouvement. */
+function tourner(doc, groupe, depuis, angle) {
   const calme = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  for (const c of chevronsDuBelt(doc)) {
+  for (const c of chevronsDuGroupe(doc, groupe)) {
     const rotor = typeof c.querySelector === "function" ? c.querySelector(".engrenage-rotor") : null;
     if (!rotor) continue;
     rotor.setAttribute("transform", `rotate(${angle} 20 20)`);
@@ -168,18 +147,20 @@ function tourner(doc, depuis, angle) {
   }
 }
 
-/** ARMER un chevron du belt. `avancer(sens)` est la navigation qu'il commande déjà : +1 fait défiler le
- *  ruban vers la gauche (tuiles vers la GAUCHE), −1 vers la droite (tuiles vers la DROITE) ; elle rend
- *  `false` quand le pas est refusé (une borne, un pas encore en vol), et la roue ne tourne pas.
+/** ARMER un chevron. `groupe` nomme sa paire (les deux chevrons qui commandent la même navigation) ;
+ *  `avancer(sens)` est la navigation qu'il commande déjà : +1 fait passer le contenu vers la gauche (le
+ *  suivant), −1 vers la droite (le précédent) ; elle rend `false` quand le pas est refusé (une borne, un pas
+ *  encore en vol), et la roue ne tourne pas.
  *  @param {HTMLElement} chevron
- *  @param {{ avancer: (sens: number) => (boolean|void) }} o */
-export function armerEngrenage(chevron, { avancer } = {}) {
-  if (!chevron || typeof avancer !== "function") return chevron;
-  chevron.dataset.engrenage = "oui";
+ *  @param {{ groupe?: string, avancer: (sens: number) => (boolean|void) }} o */
+export function armerEngrenage(chevron, { groupe = "belt", avancer } = {}) {
+  if (!chevron || !groupe || typeof avancer !== "function") return chevron;
+  chevron.dataset.engrenage = groupe;
+  if (lueurs.has(groupe)) chevron.dataset.direction = lueurs.get(groupe).cote;
   const roue = construireLEngrenage(chevron.ownerDocument || undefined);
   if (roue) {
     const rotor = typeof roue.querySelector === "function" ? roue.querySelector(".engrenage-rotor") : null;
-    if (rotor) rotor.setAttribute("transform", `rotate(${angleDuBelt} 20 20)`);
+    if (rotor) rotor.setAttribute("transform", `rotate(${angleDeLEngrenage(groupe)} 20 20)`);
     chevron.append(roue);
   }
   let cumul = 0, dernier = 0;
@@ -191,18 +172,19 @@ export function armerEngrenage(chevron, { avancer } = {}) {
     const delta = deltaEnPixels(ev);
     /* ⭐ haut (deltaY < 0) = DROITE, bas = GAUCHE — la notice, mot pour mot */
     const direction = -Math.sign(delta);
-    illuminer(doc, direction > 0 ? "droite" : "gauche");
+    illuminer(doc, groupe, direction > 0 ? "droite" : "gauche");
     const maintenant = typeof performance !== "undefined" ? performance.now() : Date.now();
     if (maintenant - dernier > PAUSE_ENGRENAGE_MS || Math.sign(delta) !== Math.sign(cumul)) cumul = 0;
     dernier = maintenant;
     cumul += delta;
     if (Math.abs(cumul) < SEUIL_ENGRENAGE) return;
-    const sens = Math.sign(cumul);        // +1 : le ruban vers la gauche (bas) · −1 : vers la droite (haut)
+    const sens = Math.sign(cumul);        // +1 : le contenu vers la gauche (bas) · −1 : vers la droite (haut)
     cumul = 0;
     if (avancer(sens) === false) return;  // une borne, ou le pas d'avant encore en vol : la roue ne tourne pas
-    const depuis = angleDuBelt;
-    angleDuBelt += -sens * DEGRES_PAR_PAS; // haut : +30° (horaire) · bas : −30° (antihoraire)
-    tourner(doc, depuis, angleDuBelt);
+    const depuis = angleDeLEngrenage(groupe);
+    const angle = depuis - sens * DEGRES_PAR_PAS; // haut : +30° (horaire) · bas : −30° (antihoraire)
+    angles.set(groupe, angle);
+    tourner(doc, groupe, depuis, angle);
   }, { passive: false });
   return chevron;
 }

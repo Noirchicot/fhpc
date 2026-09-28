@@ -21,18 +21,18 @@ import {
   DALLE, DALLES, REMBOURRAGE, REMBOURRAGE_GRILLE, ECART, ECART_ETAGES, TOUCH, JETON, ROUE,
   RENDU_GRILLE, RANGEE, PAR_PAGE, COLONNES_GRILLE, RANGEES_GRILLE, FOND, CLEF_DE,
   ORGANES, JOUR, pistesDuPied,
-} from "./wares-disposition.mjs?v=900";
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=900";
+} from "./wares-disposition.mjs?v=901";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=901";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN SECOND : `REPOS_MS` dit au bout de quoi on
    considère que le ruban s'est POSÉ. Deux durées pour un même geste se courraient après. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=900";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=900";
-import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=900";
+import { REPOS_MS } from "./sac-ecran.mjs?v=901";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=901";
+import { ORGANES_D_ECHANGE } from "./sac-ecran.mjs?v=901";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=900";
+import { portesCarrees } from "./porte-carree.mjs?v=901";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET `Send to` SONT CEUX DE PACK, importés du module feuille qu'ils
    partagent désormais. ⛔ Plus de `.wares-collecteur` ni de `select.wares-send-vers` à nous. */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=900";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=901";
 /* ⭐ LE POPUP DE LA BOURSE EST CELUI DE R — un seul écrivain pour la bourse du site, sa
    matière et ses quatre champs. ⛔ En refaire un ici serait une seconde bourse à tenir
    d'accord, et elles divergeraient au premier réglage. */
@@ -43,12 +43,12 @@ import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=90
    ⭐ C'EST MOT POUR MOT LA FAUTE DU SAC, RÉPARÉE LE 20/09 ET COMMISE À NOUVEAU ICI : *« un
    organe partagé dont la moitié reste chez son premier hôte n'est pas partagé »*. Un organe
    est un DOM **et** ses cotes ; en prendre la moitié, c'est en refaire un second en creux. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=900";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=901";
 /* ⭐ LE GLISSER EST CELUI DE R — un seul écrivain pour le geste, son fantôme et sa sortie. */
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=900";
-import { versionQuery } from "./version.mjs?v=900";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=901";
+import { versionQuery } from "./version.mjs?v=901";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerLaMolette } from "./engrenage.mjs?v=900";
+import { armerEngrenage } from "./engrenage.mjs?v=901";
 
 const px = (n) => `${Math.round(n * 1000) / 1000}px`;
 
@@ -455,7 +455,7 @@ function tuner(clef, sens, roue, nb) {
   /* 🧭 LOT 330 — l'astrolabe : la molette vise le cran voisin, comme le clic ; au bout, rien.
      ⭐ Et un cran attend que le précédent soit ARRIVÉ (`viser` défile en lissé) : parti d'une position
      intermédiaire, le suivant viserait le même cran, et l'aiguille tournerait seule (mesuré au belt). */
-  armerLaMolette(b, { groupe: clef.replace(/-[gd]$/, ""), avancer: (s) => {
+  armerEngrenage(b, { groupe: clef.replace(/-[gd]$/, ""), avancer: (s) => {
     const maintenant = typeof performance !== "undefined" ? performance.now() : Date.now();
     if (roue.visee && maintenant - roue.visee.quand < 450
         && Math.abs(roue.scrollLeft - roue.visee.k * ROUE.pas) > 2) return false;
@@ -615,7 +615,7 @@ function gouttiere(sens, compte, actif, surPage) {
     b.dataset.organe = sens === "gauche" ? "page-precedente" : "page-suivante";
     b.dataset.sens = sens;   /* lot 326 : le miroir du chevron de Pack */
     /* 🧭 LOT 330 — l'astrolabe : la molette tourne les pages, comme le clic */
-    armerLaMolette(b, { groupe: "wares-pages", avancer: (s) => { if (surPage) surPage(s); return Boolean(surPage); } });
+    armerEngrenage(b, { groupe: "wares-pages", avancer: (s) => { if (surPage) surPage(s); return Boolean(surPage); } });
     g.append(b);
   }
   const v = el("span", "wares-compte", compte);

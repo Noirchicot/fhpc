@@ -24,11 +24,11 @@
      · au clavier — les flèches (← ↓ un de moins, → ↑ un de plus), Début et Fin.
    ⛔ AUCUNE COTE ICI : elles viennent du plan (`MOLETTE`, `X1_gen.py` → `x1-disposition.mjs`), et
    la feuille qui les pose est construite par `feuilleDeLaMolette` — un seul écrivain pour X1 et X2. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=900";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=901";
 /* ⭐ LE TEMPS D'ARRÊT EST CELUI DU SAC, ⛔ PAS UN TROISIÈME — Wares le prend au même endroit. */
-import { REPOS_MS } from "./sac-ecran.mjs?v=900";
+import { REPOS_MS } from "./sac-ecran.mjs?v=901";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerLaMolette } from "./engrenage.mjs?v=900";
+import { armerEngrenage } from "./engrenage.mjs?v=901";
 
 /** ⚖️ LE PLAFOND DE LA MOLETTE — Eric, 27/09 : *« 20 c'est bien »*, *« Partout ailleurs sauf dans
  *  x5 »*. ⛔ Écrit ICI et nulle part ailleurs (NORMES `x-quantite-molette`). */
@@ -202,7 +202,7 @@ export function construireLaMolette({ M, valeur = 1, stock = PLAFOND_MOLETTE, su
     b.addEventListener("click", () => choisir(courant - 1 + sens));
     /* 🧭 LOT 330 — l'astrolabe : la molette sur le chevron fait un cran, comme le clic ; aux bornes,
        rien ne bouge (ni la quantité, ni l'aiguille) */
-    armerLaMolette(b, { groupe: "molette-qte", avancer: (s) => {
+    armerEngrenage(b, { groupe: "molette-qte", avancer: (s) => {
       const avant = courant;
       choisir(courant - 1 + s);
       return courant !== avant;

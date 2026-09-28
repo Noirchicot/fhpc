@@ -10098,7 +10098,7 @@ destinations remplies potentiellement remplissables par autre chose, pas de fond
   · le liseré bleu garde sa fonction d'origine : un collecteur rempli ;
   · 5b précisé : un collecteur REMPLI qui accepte d'être remplacé (il se déclare encore créneau) est une destination.
 
-📍 `chevron-belt-engrenage` · vivante · 28/09
+📍 `chevron-belt-engrenage` · remplacée · 28/09 · remplacée par `chevron-engrenage-partout`
 ⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 20 blg (lot 345 : « réduit là à 20 blg » ; 30 au lot 344, 40 au lot 343) à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
 
 > Eric, 2026-09-28 : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et le prototype validé
@@ -10120,3 +10120,32 @@ pivotait autour de (0, 0) — mesuré, un saut de 7,5 px et 13 px à −30°. �
 (0, 0) et l'animation se centre comme l'attribut (`translate(20,20) rotate() translate(−20,−20)`) — mesuré image par
 image (0 → 239 ms) : le centre ne bouge pas d'un dixième de pixel.
 🔄 **Lot 345 (28/09)** — Eric : **« réduit là à 20 blg »**. 30 → 20, tout le dessin au même rapport (le prototype × 0,5 : flèches 14, places (8, −4) et (−2, 10)).
+
+---
+
+### 🟦 L'ENGRENAGE SUR TOUS LES CHEVRONS
+📍 `chevron-engrenage-partout` · vivante · 28/09 · remplace `chevron-belt-engrenage`
+⚖️ **Au survol souris (et au focus clavier) de TOUT chevron horizontal — belt, tambour de Pack, tambours et pages de Wares, pages de X5, molette de quantité — l'engrenage gris de 20 blg paraît, centré sur le DESSIN du chevron, et le chevron se tait. Molette vers le HAUT = flèche droite allumée, roue horaire, contenu visiblement vers la DROITE (le précédent) ; vers le BAS = flèche gauche, antihoraire, contenu vers la GAUCHE (le suivant). La flèche du geste s'allume dès le premier événement, même en butée ; la roue ne tourne que si le contenu bouge. Chaque paire de chevrons a son angle et sa lueur.**
+
+> Eric, 2026-09-28 : **« utilise l'astrolabe partout où il y a des chevrons »** — l'astrolabe, c'est son nom
+> pour l'engrenage qui l'a remplacé (lot 343).
+
+🔄 Remplace `chevron-belt-engrenage` (lots 343 → 345), dont il garde tout — le dessin, les cotes (roue 20,
+flèches 14), le sens, l'accumulateur, la rotation centrée — sauf le PÉRIMÈTRE : la notice bornait la roue au
+belt (« les chevrons des catégories et des listes d'objets ne sont pas concernés »), Eric l'étend.
+⛔ La molette sans cadran (`armerLaMolette`) est morte : un seul organe, `armerEngrenage(chevron, { groupe, avancer })`.
+📐 **La paire** (`groupe`) : `belt`, `sac-roue`, `tuner-categories` et `tuner-sous-categories` (Wares),
+`wares-pages`, `x5-pages`, `molette-qte`. ⛔ Une molette sur une paire n'éclaire ni ne tourne l'autre.
+🔴 **Mesuré au banc (1280 × 800), trois fautes que l'œil n'aurait pas vues à temps :**
+  · les chevrons de Wares et de la molette de quantité étaient STATIQUES — la roue s'ancrait à un ancêtre et
+    partait au milieu de l'écran (640, 427 pour un dessin à 469, 204). ⭐ Ils deviennent l'hôte
+    (`position: relative`, sans décalage) ; ceux de Pack et de X5, déjà en absolu, ne changent pas ;
+  · un tambour de Wares REPEINT ses chevrons : les neufs naissaient éteints. ⭐ La lueur appartient à la paire ;
+    un chevron armé pendant qu'elle brille la reprend ;
+  · le tambour de Pack disait toujours « j'ai bougé » : en butée, la roue tournait seule. ⭐ `pousser` rend
+    `false` en butée, et un cran rapide repart du cran VISÉ (un défilement lissé encore en vol visait le même).
+📏 Centre de la roue = centre du dessin, au dixième de pixel, sur les quatorze chevrons des bancs (Pack 2,
+Wares 6, X5 2, molette 2, belt 2) ; aucun ancêtre ne rogne la roue ni ses flèches ; les dessins au repos
+n'ont pas bougé. ⭐ Un chevron latéral creuse son dessin par ses bords : 50 % de sa boîte de remplissage EST
+le centre du dessin — et son miroir (`scaleX(-1)`) tourne autour de ce centre, donc le retirer au survol ne
+déplace rien.

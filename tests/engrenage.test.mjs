@@ -1,4 +1,4 @@
-/* ══ ⚙️ L'ENGRENAGE DU BELT — lot 343, 2026-09-28 (remplace l'astrolabe du lot 330) ════════════════════
+/* ══ ⚙️ L'ENGRENAGE DES CHEVRONS — lot 343 (le belt), lot 346 (partout), 2026-09-28 ══════════════════════
    ⚖️ Eric : la notice `Gpt in FH/Astrolabe-30px/NOTICE-CLAUDE.md` et le prototype validé
    (`engrenage-40px-source.html`) — « ROULER VERS LE HAUT = DROITE : la flèche qui monte puis vire à droite
    s'illumine ; l'engrenage tourne dans le sens horaire ; les tuiles se déplacent visiblement vers la droite.
@@ -21,11 +21,11 @@ const E = await import("../ui/builder/engrenage.mjs");
 const molette = (deltaY, extra = {}) => ({ type: "wheel", deltaY, deltaMode: 0, prevented: false, stopped: false,
   preventDefault() { this.prevented = true; }, stopPropagation() { this.stopped = true; }, ...extra });
 const bouton = () => document.createElement("button");
-/* deux chevrons du belt, dans le document : l'éclairage et la roue se lisent sur la paire */
-function paire(avancer) {
+/* deux chevrons d'une paire, dans le document : l'éclairage et la roue se lisent sur la paire */
+function paire(avancer, groupe = "belt") {
   const g = bouton(), d = bouton();
   document.body.append(g, d);
-  E.armerEngrenage(g, { avancer }); E.armerEngrenage(d, { avancer });
+  E.armerEngrenage(g, { groupe, avancer }); E.armerEngrenage(d, { groupe, avancer });
   return [g, d];
 }
 /* l'horloge de l'accumulateur — `performance.now` piloté, pour dire « 160 ms ont passé » */
@@ -122,33 +122,60 @@ test("6 — 📐 les cotes et les encres du prototype, jour ET nuit ; la roue ce
   assert.match(css, /\.belt-chevron\[data-sens="avant"\] > \.engrenage \{ left: calc\(var\(--chevron-belt-bord\) \+ var\(--chevron-lateral-l\) \/ 2\); \}/,
     "⭐ centrée sur la flèche du belt, pas sur la boîte");
   assert.match(css, /\.engrenage \{[^}]*pointer-events: none;[^}]*overflow: visible;/, "⛔ les flèches ne sont pas coupées");
-  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\) \{\s*\.belt-chevron\[data-engrenage\]:hover > \.engrenage \{ opacity: 1; visibility: visible; \}/,
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\) \{\s*\[data-engrenage\]:hover > \.engrenage \{ opacity: 1; visibility: visible; \}/,
     "au survol souris seulement");
   /* 🔴 mesuré : la roue déborde sur les astres, empilés au-dessus du chevron — montrée, elle passe devant */
-  assert.match(css, /\.belt-chevron\[data-engrenage\]:hover \{ z-index: 3; \}/, "⛔ la roue passe sous le soleil du Menu");
+  assert.match(css, /\[data-engrenage\]:hover \{ z-index: 3; \}/, "⛔ la roue passe sous le soleil du Menu");
 });
 
-test("7 — ⭐ LE PÉRIMÈTRE : l'engrenage sur le belt SEUL ; les autres chevrons gardent leur molette, sans cadran ; l'astrolabe est parti", () => {
+test("7 — ⭐ LE PÉRIMÈTRE (lot 346 : « partout où il y a des chevrons ») : les six paires portent l'engrenage, chacune son groupe ; la molette sans cadran est morte", () => {
   const lire = (f) => fs.readFileSync(path.join(UI, f), "utf8");
   assert.ok(!fs.existsSync(path.join(UI, "astrolabe.mjs")), "⛔ l'astrolabe est encore là");
-  assert.match(lire("shell.mjs"), /armerEngrenage\(bouton, \{ avancer: \(sens\) => decalerLeBelt\(sens, \{ siLibre: true \}\) \}\)/);
-  for (const [f, groupe] of [["sac-ecran.mjs", "sac-roue"], ["wares-ecran.mjs", "wares-pages"], ["x5-parchemin.mjs", "x5-pages"], ["molette-quantite.mjs", "molette-qte"]]) {
-    assert.match(lire(f), new RegExp(`armerLaMolette\\([^)]*groupe: "${groupe}"`), `${f} : ${groupe}`);
-    assert.doesNotMatch(lire(f), /armerEngrenage|armerAstrolabe/, `⛔ ${f} porte un cadran`);
+  assert.match(lire("shell.mjs"), /armerEngrenage\(bouton, \{ groupe: "belt", avancer: \(sens\) => decalerLeBelt\(sens, \{ siLibre: true \}\) \}\)/);
+  for (const [f, groupe] of [["sac-ecran.mjs", '"sac-roue"'], ["wares-ecran.mjs", '"wares-pages"'], ["wares-ecran.mjs", 'clef\\.replace'],
+    ["x5-parchemin.mjs", '"x5-pages"'], ["molette-quantite.mjs", '"molette-qte"']]) {
+    assert.match(lire(f), new RegExp(`armerEngrenage\\([^)]*groupe: ${groupe}`), `⛔ ${f} : la paire ${groupe} n'a pas d'engrenage`);
+  }
+  assert.equal(E.armerLaMolette, undefined, "⛔ la molette sans cadran survit : deux organes pour un geste");
+  for (const f of fs.readdirSync(UI).filter((n) => n.endsWith(".mjs"))) {
+    assert.doesNotMatch(lire(f).replace(/\/\*[\s\S]*?\*\//g, ""), /armerLaMolette\(/, `⛔ ${f} arme encore une molette sans cadran`);
   }
   assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ""), /\.astrolabe|data-astrolabe/, "⛔ une règle de l'astrolabe survit");
 });
 
-test("8 — la molette d'un chevron ordinaire : un cran = un pas, un pixel non ; bas = +1 ; une borne remet le reste à zéro", () => {
-  const vus = [];
-  const b = bouton();
-  E.armerLaMolette(b, { groupe: "t-ord", avancer: (s) => { vus.push(s); } });
-  b.dispatchEvent(molette(1));
-  assert.deepEqual(vus, []);
-  const ev = molette(99);
-  b.dispatchEvent(ev);
-  assert.deepEqual(vus, [1]);
-  assert.equal(ev.stopped, true, "⛔ la molette de quantité compterait deux fois");
-  b.dispatchEvent(molette(-3, { deltaMode: 1 }));
-  assert.deepEqual(vus, [1, -1], "Firefox : trois lignes = un cran");
+test("8 — 🔴 LE CHEVRON LATÉRAL SE TAIT, ET IL EST L'HÔTE (mesuré au banc) : sans masque, voile ni miroir au survol ; Wares et la molette de quantité positionnés", () => {
+  const nu = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const survol = nu.match(/:is\(\.sac-tuner, \.molette-tuner, \.wares-tuner, \.wares-chevron\)\[data-engrenage\]:hover \{([^}]*)\}/);
+  assert.ok(survol, "⛔ le chevron latéral ne se tait pas au survol : son masque découperait la roue");
+  for (const d of [/mask-image: none/, /opacity: 1/, /transform: none/, /overflow: visible/, /color: transparent/]) {
+    assert.match(survol[1], d, `⛔ au survol, le chevron garde ${d}`);
+  }
+  /* 📏 mesuré : les tuners de Wares et de la molette étaient STATIQUES — la roue partait au milieu de l'écran */
+  assert.match(nu, /\.molette-tuner, \.wares-tuner, \.wares-gouttiere > \.wares-chevron \{ position: relative; \}/,
+    "⛔ la roue s'ancre à un ancêtre lointain");
+  assert.match(nu, /\.engrenage \{[^}]*left: 50%; top: 50%;/, "la roue au centre de la boîte de remplissage, qui EST le dessin");
+});
+
+test("9 — ⭐ CHAQUE PAIRE A SON ÉTAT : l'autre paire ne s'éclaire ni ne tourne ; un chevron repeint reprend la lueur de sa paire", () => {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    const [a] = paire(() => {}, "t-a");
+    const [b] = paire(() => {}, "t-b");
+    const angleB = E.angleDeLEngrenage("t-b");
+    maintenant += 1000;
+    a.dispatchEvent(molette(100));
+    assert.equal(a.dataset.direction, "gauche");
+    assert.equal(b.dataset.direction, undefined, "⛔ la molette d'une paire éclaire l'autre");
+    assert.equal(E.angleDeLEngrenage("t-a"), -30);
+    assert.equal(E.angleDeLEngrenage("t-b"), angleB, "⛔ la roue d'une autre paire tourne");
+    assert.equal(b.querySelector(".engrenage-rotor").getAttribute("transform"), `rotate(${angleB} 20 20)`);
+    /* 🔴 mesuré au banc : un tambour de Wares repeint ses chevrons — les neufs naissaient éteints */
+    const neuf = bouton();
+    document.body.append(neuf);
+    E.armerEngrenage(neuf, { groupe: "t-a", avancer: () => {} });
+    assert.equal(neuf.dataset.direction, "gauche", "⛔ un chevron repeint pendant la lueur naît éteint");
+    assert.equal(neuf.querySelector(".engrenage-rotor").getAttribute("transform"), "rotate(-30 20 20)", "⛔ un chevron repeint perd l'angle de sa paire");
+    mock.timers.tick(E.LUEUR_ENGRENAGE_MS);
+    assert.equal(neuf.dataset.direction, undefined, "la lueur s'éteint aussi sur lui");
+  } finally { mock.timers.reset(); document.body.childNodes.splice(0); }
 });

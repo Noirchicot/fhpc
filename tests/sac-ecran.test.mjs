@@ -321,6 +321,16 @@ test("10 — 🔴 LE CHEVRON POUSSE LE RUBAN D'UNE TUILE, ⛔ il ne saute plus",
   g.dispatchEvent({ type: "wheel", deltaY: -100, preventDefault: () => { empeche = true; } });
   assert.equal(roue.scrollLeft, D.ROUE.pas, "la molette pousse aussi — elle s'AJOUTE au tap");
   assert.equal(empeche, true, "⛔ sinon la page défilerait DERRIÈRE la roue");
+  /* ⚙️ LOT 346 — l'engrenage ne tourne que si la roue BOUGE : `pousser` dit `false` en butée, et un cran
+     rapide repart du cran VISÉ (un défilement lissé encore en vol viserait le même cran) */
+  assert.equal(piste.pousser(-1), true, "un pas vers la tuile 0");
+  assert.equal(roue.scrollLeft, 0);
+  assert.equal(piste.pousser(-1), false, "⛔ en butée, `pousser` dit avoir bougé : la roue tournerait seule");
+  assert.equal(roue.scrollLeft, 0);
+  roue.scrollLeft = 0;
+  piste.visee = { k: 2, quand: performance.now() };
+  assert.equal(piste.pousser(1), true);
+  assert.equal(roue.scrollLeft, D.ROUE.pas * 3, "⛔ un cran en vol repart de la position, pas du cran visé");
   const source = fs.readFileSync(path.join(UI, "engrenage.mjs"), "utf8");   /* 🔄 lot 343 : la molette sans cadran */
   assert.match(source, /passive:\s*false/, "sans lui le navigateur refuse le preventDefault");
 });
