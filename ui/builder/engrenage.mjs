@@ -160,7 +160,9 @@ function tourner(doc, depuis, angle) {
     if (!rotor) continue;
     rotor.setAttribute("transform", `rotate(${angle} 20 20)`);
     if (!calme && typeof rotor.animate === "function") {
-      rotor.animate([{ transform: `rotate(${depuis}deg)` }, { transform: `rotate(${angle}deg)` }],
+      /* ⭐ centrée sur la roue, comme l'attribut (`rotate(a 20 20)`) : l'origine reste (0, 0) — voir `shell.css` */
+      const autour = (a) => `translate(20px, 20px) rotate(${a}deg) translate(-20px, -20px)`;
+      rotor.animate([{ transform: autour(depuis) }, { transform: autour(angle) }],
         { duration: DUREE_ROTATION_MS, easing: "cubic-bezier(.2,.65,.25,1)" });
     }
   }

@@ -103,12 +103,17 @@ test("5 — 📐 le dessin : une roue de 40 à douze dents, le moyeu FIXE, deux 
 });
 
 test("6 — 📐 les cotes et les encres du prototype, jour ET nuit ; la roue centrée sur le DESSIN du chevron ; rien ne coupe les flèches", () => {
-  assert.match(tokens, /--engrenage-d: 40px;/);
-  assert.match(tokens, /--engrenage-fleche-d: 28px;/);
+  /* 🔄 LOT 344 — « réduit à 30 » : tout le dessin au même rapport (× 0,75) */
+  assert.match(tokens, /--engrenage-d: 30px;/);
+  assert.match(tokens, /--engrenage-fleche-d: 21px;/);
+  /* 🔴 et la roue tourne sur son CENTRE, pas sur son coin (l'animation CSS d'un élément SVG part de 0, 0) */
+  assert.match(css, /\.engrenage-rotor \{ transform-box: view-box; transform-origin: 0 0; \}/, "⛔ une origine qui recentrerait l'attribut déjà centré");
+  const src = fs.readFileSync(path.join(UI, "engrenage.mjs"), "utf8");
+  assert.match(src, /translate\(20px, 20px\) rotate\(\$\{a\}deg\) translate\(-20px, -20px\)/, "⛔ l'animation pivote autour du coin de la roue");
   for (const j of ["--engrenage-clair", "--engrenage-sombre", "--engrenage-moyeu", "--engrenage-contour", "--engrenage-fleche", "--engrenage-fleche-vive"]) {
     assert.equal((tokens.match(new RegExp(`${j}:`, "g")) || []).length, 2, `${j} : jour ET nuit`);
   }
-  for (const [j, v] of [["--engrenage-droite-x", "16px"], ["--engrenage-droite-y", "-8px"], ["--engrenage-gauche-x", "-4px"], ["--engrenage-gauche-y", "20px"]]) {
+  for (const [j, v] of [["--engrenage-droite-x", "12px"], ["--engrenage-droite-y", "-6px"], ["--engrenage-gauche-x", "-3px"], ["--engrenage-gauche-y", "15px"]]) {
     assert.match(tokens, new RegExp(`${j}: ${v};`), `${j} : la cote du prototype`);
   }
   assert.match(css, /\.engrenage-fleche\.droite \{ left: var\(--engrenage-droite-x\); top: var\(--engrenage-droite-y\); \}/);

@@ -65,19 +65,19 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=897";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=897";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=897";
+import * as D from "./gear-disposition.mjs?v=899";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=899";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=899";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=897";
-import { versionQuery } from "./version.mjs?v=897";
-import { enGP } from "./equipement-pipeline.mjs?v=897";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=899";
+import { versionQuery } from "./version.mjs?v=899";
+import { enGP } from "./equipement-pipeline.mjs?v=899";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=897";
-import { noeudDAnnonce } from "./monnaie.mjs?v=897";
-import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=897";
+import { portesCarrees } from "./porte-carree.mjs?v=899";
+import { noeudDAnnonce } from "./monnaie.mjs?v=899";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=899";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */

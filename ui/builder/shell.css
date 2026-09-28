@@ -3071,7 +3071,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=897") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=899") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3394,7 +3394,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=897") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=899") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5046,7 +5046,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=897") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=899") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -8027,7 +8027,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .grille-marqueur {
   display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: var(--t5);
-  background-image: url("./assets/tarot-dos.jpg?v=897");
+  background-image: url("./assets/tarot-dos.jpg?v=899");
   background-size: cover; background-position: center;
 }
 /* 🔴 LA DERNIÈRE RANGÉE INCOMPLÈTE SE CENTRE — Eric, 2026-08-23 : *« règle
@@ -13894,6 +13894,14 @@ select.x5-drop {
 .belt-chevron[data-sens="avant"] > .engrenage { left: calc(var(--chevron-belt-bord) + var(--chevron-lateral-l) / 2); }
 .belt-chevron[data-sens="apres"] > .engrenage { left: calc(100% - var(--chevron-belt-bord) - var(--chevron-lateral-l) / 2); }
 .engrenage-roue { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+/* 🔴 LOT 344 — « l'engrenage doit être en rotation » (Eric, 28/09). 📏 La roue tourne par l'attribut SVG
+   (`rotate(a 20 20)`, centré par lui-même) ET par une animation CSS de 240 ms (`animate`), qui pivotait autour
+   de (0, 0) : mesuré, la roue tournée de −30° sautait de 7,5 px et 13 px pendant l'animation.
+   ⛔ Et poser `transform-origin: 20px 20px` ne répare pas : l'origine s'applique AUSSI à l'attribut, déjà
+   centré — mesuré, la roue au repos décalée de 28 px. ⭐ UNE SEULE CONVENTION : l'origine reste (0, 0), et
+   l'animation se centre elle-même comme l'attribut (`translate(20,20) rotate() translate(−20,−20)`,
+   `engrenage.mjs`). */
+.engrenage-rotor { transform-box: view-box; transform-origin: 0 0; }
 .engrenage-clair { stop-color: var(--engrenage-clair); }
 .engrenage-sombre { stop-color: var(--engrenage-sombre); }
 .engrenage-moyeu { fill: var(--engrenage-moyeu); stroke: var(--engrenage-sombre); stroke-width: .5; }
