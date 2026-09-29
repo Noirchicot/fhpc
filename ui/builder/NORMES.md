@@ -10087,6 +10087,10 @@ Flying (4 tailles), Manual of Golems (4 golems), Potion of Resistance et Ring of
 sans table (Ring of Elemental Command), un effet choisi à l'usage (Bag of Beans, Candle of Invocation).
 📐 Un seul lecteur, `variantesDe` (4ᵉ forme, `objet-crafte.mjs`) ; `estRecette` en déduit le plan. Une
 table à deux colonnes de tirage se lit en deux ; la fiche d'une variante garde l'en-tête et SA case.
+🔄 **29/09 — le Ring of Elemental Command sort de l'exception** : Eric, à « blueprint aussi ? il a un choix
+(l'élément) mais pas de table » → **« oui blueprint pour le ring »**. Ses variantes sont les quatre éléments
+de son texte (Air, Earth, Fire, Water) ; ⏳ **à construire au lot 354**, après le Menu 350 (même lecteur,
+`variantesDe`, qui apprend une 5ᵉ forme : un choix nommé dans le texte, sans table).
 
 📍 `collecteur-vider-dans-le-vide` · vivante · 28/09
 ⚖️ **Glissé hors de toute cible, l'objet d'un collecteur d'Equipment (Gear, Pack, Wares) le quitte : le collecteur se vide, rien n'est écrit au document. Lâché sur le collecteur lui-même, il le garde.**
