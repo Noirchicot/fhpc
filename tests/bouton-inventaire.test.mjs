@@ -97,7 +97,12 @@ const SOCLE = [
      utilisent les boutons large, voir bible »*. Un ajout au CORPUS, déclaré ici EN LE
      SACHANT. ⛔ Elles n'entrent PAS dans le PLANCHER : leur largeur est POSÉE (105,
      `inline-size`), pas un minimum — c'est ce qui fait passer le mot sur deux étages. — */
-  ".menu-porte"
+  ".menu-porte",
+  /* — LOT 351, 29/09 : la POUBELLE, organe au socle (`poubelle-organe.mjs`) — sur chaque
+     livre de `Layers`, puis sur chaque perso de `My characters` (lot 352). Eric : *« juste
+     une poubelle à côté comme My Characters »*. Déclarée ici EN LE SACHANT. ⛔ Hors du
+     PLANCHER, comme le carré du lot 311 : un carré vaut sa cible (44), pas le gabarit 77. — */
+  ".poubelle"
 ];
 
 /* ⛔ CE QUI RESTE DEHORS, ET NOMMÉMENT : `.pipeline-fleche` porte le filtre du

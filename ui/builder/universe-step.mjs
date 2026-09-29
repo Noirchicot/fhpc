@@ -46,27 +46,27 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=907";
+import { renderConfirmDialog } from "./confirm.mjs?v=908";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=907";
+import { motDeLEchelon } from "./echelle.mjs?v=908";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=907";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=908";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=907";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=908";
 /* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
    rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
    ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
    n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=907";
+import { renderMagasinEcran } from "./magasin-ecran.mjs?v=908";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -476,10 +476,10 @@ export async function nouveauPersonnageSelonLaVoie({ voie, sauvegarder, oublier,
   return true;
 }
 
-/** LA CONFIRMATION DU MAÎTRE — partagée entre R et l'écran `Layers` (lot 188),
- *  parce que `pendingStack` est un état de la coquille et que le joueur doit
- *  voir la question là où il a basculé l'interrupteur. Une seule fonction :
- *  deux rendus de « la même question » divergeraient.
+/** LA CONFIRMATION DU MAÎTRE — une seule fonction : deux rendus de « la même
+ *  question » divergeraient. 🔄 LOT 351 : la coquille la peint EN FENÊTRE
+ *  (`paintPopup`) depuis `pendingStack` — posée dans `Layers`, elle faisait
+ *  défiler la page ; ni R ni `Layers` n'en portent plus de copie en ligne.
  *
  *  ⭐ LOT 192 — TROIS VOIES : `Keep on` (rien ne bouge) · `Save the Fate's
  *  Hand version first` (Save, PUIS l'extinction) · `Switch off` (l'extinction,
@@ -757,7 +757,7 @@ function porte(mot, onClick) {
  *  elle**. ⛔ Pas une seconde forme : un joueur qui a appris ce que veut dire « gris
  *  avec un mot » l'apprend une fois. Le mot est celui des places réservées du dépôt,
  *  « soon », dans SA pastille (`.tdc-bientot`, `ligneReservee`) — la même, pas une copie. */
-function placeReservee(mot) {
+export function placeReservee(mot) {
   const b = document.createElement("button");
   b.type = "button";
   b.className = "menu-porte";
@@ -813,13 +813,10 @@ function codeDeCampagne() {
  * @param {object} ctx.document            le document `fh-char/1` courant
  * @param {Function} ctx.query             `layers.verbs.query`
  * @param {object} [ctx.fieldErrors]       le dernier refus par champ (`{campaign}`)
- * @param {string|null} [ctx.pendingStack] `"srd"` si une confirmation de passage à SRD est en attente, sinon `null`
  * @param {(action: object) => void} onAction
  *   R : `{kind:"ouvrirLaCreation"}` · `{kind:"ouvrirLeMagasin"}` ·
  *   `{kind:"ouvrirNouveauPersonnage"}` · `{kind:"ouvrirLayers"}` · `{kind:"ouvrirDisplay"}` ·
- *   `{kind:"describe", field:"campaign", value}` ; la confirmation du maître (partagée
- *   avec `Layers`) : `{kind:"confirmLayerStack"}` · `{kind:"saveAndConfirmLayerStack"}` ·
- *   `{kind:"cancelLayerStack"}`.
+ *   `{kind:"describe", field:"campaign", value}`.
  */
 export function renderUniverseStep(ctx, onAction) {
   /* 🔴 UN SEUL POINT D'ENTRÉE POUR LES DEUX RANGS, et c'est ce qui garde la
@@ -829,7 +826,6 @@ export function renderUniverseStep(ctx, onAction) {
   if (ctx.ecran === "characters") return renderMagasinEcran(ctx, onAction);
   if (ctx.ecran === "layers") return renderLayersEcran(ctx, onAction);
   const doc = ctx.document;
-  const query = ctx.query;
   const errors = ctx.fieldErrors || {};
   /* `dalle-intermediaire` — le voile à 50 % : ⚖️ Eric, 29/09, *« fond habituel,
      transparence 50 % »* (NORMES §4), pris à la matrice des dalles et jamais
@@ -948,11 +944,8 @@ export function renderUniverseStep(ctx, onAction) {
   ]));
   portes.append(rangee("une", [porte("Display", () => onAction({ kind: "ouvrirDisplay" }))]));
   section.append(portes);
-
-  /* LA CONFIRMATION DU MAÎTRE — partagée avec `Layers` (lot 188). R ne la déclenche
-     plus (l'interrupteur est dans `Layers`), mais `pendingStack` est un état de la
-     coquille : s'il est ouvert quand on revient ici, la question se voit. */
-  if (ctx.pendingStack) section.append(renderConfirmationPile(doc, query, onAction));
+  /* 🗄️ LOT 351 — LA COPIE EN LIGNE DE LA CONFIRMATION DU MAÎTRE EST PARTIE : la coquille
+     la peint en fenêtre (`paintPopup`), par-dessus n'importe quel écran. */
 
   return section;
 }

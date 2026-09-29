@@ -547,7 +547,7 @@ test("G2 — 🔌 LA NAISSANCE DÉRIVE tout de suite, et chaque voie repeint —
     "témoin : la fenêtre se retire de l'état AVANT le geste, pour toutes les voies");
 });
 
-test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le champ nulle part", () => {
+test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le champ qu'à UN endroit : la question de Fate's Hand (lot 351)", () => {
   /* 🗄️ LOT 201 (Eric, 10/09) : *« Un popup doit me dire, avant même d'arriver à
      l'étape 1, tout de suite : tu veux SRD ou FH ? »* — la question exigeait sa
      réponse parce que le réglage ne se faisait QUE sur elle, APRÈS une remise à
@@ -561,6 +561,13 @@ test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le 
      coquille ne fait que le TRANSMETTRE et le LIRE. */
   assert.match(shell, /exigeUneReponse: action\.exigeUneReponse === true/, "témoin : le champ voyage avec le verbe `popup`");
   assert.doesNotMatch(shell, /role: "gendarme"[^}]*exigeUneReponse/, "le gendarme ne retient personne");
-  assert.doesNotMatch(shell, /exigeUneReponse: true/,
-    "la coquille ne fait que LIRE le champ (paintPopup) — elle ne le pose nulle part");
+  /* 🔄 LOT 351 — UN PORTEUR, ET UN SEUL, NOMMÉ : la question de Fate's Hand, peinte en
+     FENÊTRE depuis `pendingStack` — ARCHI 35, 29/09, tranché en architecte : *« même organe
+     renderConfirmationPile, trois voies intactes, réponse exigée »*. Posée dans `Layers`, elle
+     faisait défiler la page. 🗄️ Ce garde disait « elle ne le pose nulle part » : c'était vrai
+     jusqu'à cette décision. ⛔ Il ne se relâche pas : un SECOND site le ferait rougir. */
+  const poses = shell.match(/exigeUneReponse: true/g) || [];
+  assert.equal(poses.length, 1, "la coquille pose le champ à UN endroit, pas deux");
+  assert.match(shell, /renderConfirmationPile\([^)]*\)\], \{ exigeUneReponse: true \}/,
+    "…et cet endroit est la question du maître — ailleurs, la coquille ne fait que LIRE le champ");
 });

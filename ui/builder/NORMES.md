@@ -7338,6 +7338,9 @@ ragées)* ; sans elle, la boîte rend ce qu'elle rendait. L'ordre du DOM est l'o
 *(lot 188 : il DÉGRADE, il n'efface rien, tout revient à l'allumage)* ; le maître **change de jeu**,
 et c'est au changement de jeu que la version mérite sa copie. Étendre la question aux enfants est un
 mot d'Eric, pas un lot.
+🔄 **29/09 (lot 351)** — il n'y a plus d'enfant à couper : Fate's Hand est UN interrupteur, tout ou
+rien (`menu-layers-fate-s-hand-tout-ou-rien`). La question reste celle du maître, ses trois voies
+et leurs mots n'ont pas bougé — elle se pose seulement en FENÊTRE, plus sous l'interrupteur.
 
 ### 🔴 LES TROIS VERBES — chaque famille de boutons en porte UN
 📍 `bouton-done-signe` · vivante · 26/08
@@ -8039,6 +8042,11 @@ l'état**. Le Menu en portait déjà une sur sa ligne d'état *(`[data-garde]`, 
 🔴 **ET LE GARDE DU LOT 188 SURVIT SOUS SA NOUVELLE FORME** — *« le SRD ne s'éteint JAMAIS »* : il ne
 peut plus s'éteindre parce qu'il **n'a plus de position éteinte**, et la clause le vérifie dans les
 deux états du maître.
+🔄 **29/09** — le voyant n'a plus qu'un emploi : R ne le porte plus depuis le lot 350 (sa ligne
+`Books` LIT le SRD, `menu-r-regles-et-livres-se-lisent`). Sur `Layers` (lot 351), il dit ce que la
+dictée lui donne — *« SRD (tj actif) engine/catalog (en italique t0) »* : l'étiquette `base book` (un
+brouillon du plan v10) et ses familles *engine · catalog* en italique T0, à la place de *« the core
+rules »*. Il reste une lampe : `role="status"`, *always on*, ni piste ni pouce.
 
 ### 🔴 LE VOYANT D'AVANCEMENT — c'est le CRAN DE LA CEINTURE *(tranché 26/08)*
 📍 `voyant-anneau-vs-disque` · vivante · 19/08
@@ -10489,6 +10497,144 @@ pas diverger. Le guide du Menu demeure, lu depuis ses rangs B.
 plus un message, c'était un décor ; un refus, lui, en reste un. C'est la voix du gendarme (§ 7), pas
 une ligne d'état qui revient. ✅ Ce mot rouge était une lecture du lot 350 ; Eric l'a gardé.
 🛡️ `universe-step` D1, D2, D3, D5, R1.
+
+### 🎛️ `LAYERS` (B0), DE HAUT EN BAS — ce qui est actif, puis ce qui est installé et éteint
+📍 `menu-layers-la-page-dictee` · vivante · 29/09 · remplace `menu-layers-est-un-rang-b`
+⚖️ **`Layers` — le rang `B0` du Menu, derrière la porte `Layers` de R — porte deux groupes, puis les options : en haut ce qui est ACTIF (le SRD, toujours ; chaque livre du joueur que le perso déclare ; Fate's Hand engagé) ; sous le séparateur « installed, not active », ce qui est installé et éteint — et ce séparateur n'existe que s'il a quelque chose sous lui ; enfin « options » : `Import a book`, place réservée. Chaque ligne dit ce que sa source apporte — ses familles (engine · world · catalog) en italique T0 — et les familles se lisent, elles ne se règlent pas.**
+
+> Eric, 2026-09-29, la partie B0 de la dictée, mot pour mot : **« SRD (tj actif) engine/catalog (en
+> italique t0) · PHB (bouton activé) shared by DM catalog (en italique) · DMG (bouton activé) shared by
+> DM catalog (en italique t0) · FH (bouton activé) engine/world/catalog (en italique t0) · ----------
+> éléments installés mais pas actifs ---------- · Paname (bouton désactivé) engine/world/catalog (en
+> italique) · Faerun (bouton désactivé) catalog (en italique) · Spelljammer (bouton désactivé)
+> world/catalog (en italique) · ------------ Options ------------ · Bouton import a book »**
+> Puis, chaque réponse avec sa question : « shared by DM » sur PHB / DMG ? → **« des exemples »** —
+> *« certains joueurs seront propriétaires des livres et sauront trouver les livres »* : le MJ ne
+> distribue rien · Faerûn, Spelljammer ? → **des exemples — ils ne sont pas livrés dans SOWLREACH** ·
+> Paname ou Panam ? → **« Panam n'existe pas, ne l'intègre pas, uniquement des exemples »** · le SRD
+> dans Books ? → **« Books est un terme générique ; le SRD est le book de base »** (engine + catalog).
+> Et, relayée par ARCHI 35 le même jour : la rangée « installed, not active » quand aucun livre
+> installé n'est éteint ? → **cachée**.
+> Puis, relayées par ARCHI 35 (29/09) : Fate's Hand éteint, où va-t-il ? → **« Descend sous
+> "installed, not active" »** · `+ Table items` ? → **« table items devient -> campaign items (et va
+> dans Dungeon master) »** · et, dans la réponse sur la poubelle : **« Ils apparaissent s'ils sont
+> installés, mais absents du fichier dans le cas contraire. »**
+
+⭐ **CHAQUE LIGNE VA OÙ SON ÉTAT LA MET.** La dictée range PHB et DMG (« bouton activé ») au-dessus du
+séparateur, Paname, Faerûn et Spelljammer (« bouton désactivé ») dessous : c'est l'ÉTAT qui classe,
+pas la nature de la source. Un livre qu'on éteint descend sous le séparateur ; Fate's Hand éteint
+aussi — *« Descend sous "installed, not active" »*. ⛔ Le SRD ne descend jamais : il n'a pas de
+position éteinte (`voyant-srd-toujours-allume-jamais-un-controle`).
+⭐ **SEULS LES LIVRES INSTALLÉS SE MONTRENT** — *« Ils apparaissent s'ils sont installés, mais absents
+du fichier dans le cas contraire »* ; les noms de la dictée sont des exemples. ⚠️ Un cas que ni la
+dictée ni cette réponse ne tranchent : un livre DÉCLARÉ par le perso et absent de l'appareil (un
+perso bâti ailleurs — `A-TRANCHER` §C34) se montre, éteint, avec son mot (« not on this device »),
+pour que le joueur sache ce qui manque. ⏳ C'est une lecture du lot 351, gardée de l'écran du lot 188.
+⭐ **LES FAMILLES VIENNENT DE LA CARTE** — `SOCLE`, `MAITRE`, `LIVRES_DU_JOUEUR` (`interrupteurs.mjs`),
+⛔ jamais écrites dans l'écran. Un livre de règles de base n'apporte que du catalogue (*« CORE RULES
+n'a QUE des catalogues »*, la pile par source du 29/09).
+✍️ **`base book` ET `your copy`** — les étiquettes du plan v10 — sont des brouillons : c'est Eric qui
+arrête les mots, et ils vivent une seule fois (`MOTS_DE_LAYERS`, `layers-ecran.mjs`).
+🗄️ **`+ TABLE ITEMS` A QUITTÉ `LAYERS`** — Eric l'a renommé `Campaign items` et l'envoie dans la page
+Dungeon Master (lot 357). ⚠️ La ligne « l'écran `Layers`, place réservée » du tableau
+d'`equipement-table-items` ne tient donc plus : elle se corrige avec le lot qui pose `Campaign items`.
+🛡️ `tests/ecran-layers.test.mjs` D1 (la page, Fate's Hand allumé, ni `Table items` ni `Campaign
+items`), D3 (éteint, il descend), D5 (les quatre états d'un livre) ; `universe-step` R7.
+
+### 🔘 FATE'S HAND EST UN SEUL INTERRUPTEUR — tout ou rien
+📍 `menu-layers-fate-s-hand-tout-ou-rien` · vivante · 29/09
+⚖️ **`Layers` ne porte plus qu'UN interrupteur pour Fate's Hand : il allume ou éteint tout le bloc — ses moteurs, son monde, son catalogue — et l'éteindre garde la confirmation à trois voies du lot 192. Les sous-unités (Trainings, Skills & tools, Inheritance, Destiny, World, Soulforging) restent la CARTE de qui fait quoi, jamais des lignes de l'écran ; et le mot d'un choix non résolu nomme la ligne qui existe : *« Araag comes with Fate's Hand — switch it on in Layers »*.**
+
+> Eric, 2026-09-29 (carte produit, § 11) : à « Fate's Hand se règle interrupteur par interrupteur ? »
+> → **« Non. Tout ou rien. »** — *« on branche ou on branche pas »*, et au Menu **un seul interrupteur
+> FH** · à « et les sous-moteurs ? » → gardés *« comme CARTE de qui fait quoi — ça a été très utile
+> pour dire qui fait quoi, je ne veux pas que ça tombe dans l'oubli »*.
+
+⭐ **LA CARTE RESTE, L'ÉCRAN NE LA MONTRE PLUS** : `INTERRUPTEURS` (`interrupteurs.mjs`) garde ses six
+sous-unités et leurs couches, et un garde confronte leur union à la pile Fate's Hand (A1) — c'est elle
+que `compositionFh` lit. 🗄️ Partis avec les six lignes : le geste d'un enfant
+(`requestLayerSwitch`, `couchesApresLeGeste`), le mot d'une sous-unité qui dort (`motSiDort`), le
+compte de records par ligne (`recordsDe`), le retrait `data-enfant`.
+⭐ **LE REFUS RESTE ACTIONNABLE** (Eric, 09/09 : le mot nomme l'interrupteur qui porte le record) :
+`interrupteurDeLaCouche` rend le maître pour TOUTE couche Fate's Hand, catalogue compris ; ⛔ nommer
+World, Destiny ou Trainings enverrait le joueur vers une ligne disparue. Des refus d'un même
+interrupteur se groupent en une phrase (*« Auspicious, Language elf and Language human come with
+Fate's Hand — switch them on in Layers »*).
+⚖️ **UN PERSO D'AVANT RESTE LÉGITIME** (`menu-sous-ensemble-legitime`) : un document qui déclare une
+sous-unité coupée au temps des six n'est accusé nulle part — il dérive, et l'interrupteur se montre
+allumé. Il n'est simplement plus PRODUCTIBLE depuis l'écran. ⏳ Pour lui rendre tout Fate's Hand, il
+faut éteindre puis rallumer (la confirmation s'interpose) : c'est une question ouverte, pas une loi.
+⭐ **LA QUESTION SE POSE EN FENÊTRE** — ARCHI 35, 29/09, tranché en architecte : posée sous
+l'interrupteur (le placement du 09/09, pour qu'elle ne tombe pas sous le pli), elle faisait défiler
+`Layers` de 127 px à 1280 × 800 (mesuré au banc). La coquille la peint dans la couche des fenêtres
+(`paintPopup`) depuis `pendingStack` — ⛔ un seul écrivain, la fenêtre en est la vue : même organe
+(`renderConfirmationPile`), trois voies intactes, réponse EXIGÉE (`popup-question-exige-une-reponse`,
+lot 201). Un `Save` refusé dit d'abord son refus, et la question revient quand on le ferme. R perd
+sa copie en ligne.
+🛡️ `tests/ecran-layers.test.mjs` A1, D2, D4, D6 (la fenêtre), E1-E8, F1, G1-G3 ;
+`tests/premier-pas.test.mjs` G3 (la coquille pose `exigeUneReponse` à UN endroit : cette question) ;
+`tests/jamais-un-id-nu.test.mjs` B1-B3, C1-C4, D1 — vus rouges au premier passage du lot, sur le
+mot « World ».
+
+### 🗑️ UNE POUBELLE PAR LIVRE — plus de `Delete a book`
+📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09
+⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete`, un tap dehors vaut `Cancel`). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
+
+> Eric, 2026-09-29, dans ses corrections du jour (arborescence d'entrée, au vault) : un bouton
+> **`Delete a book`** à côté d'`Import a book`, qui **demande aussi une confirmation** · puis, relayée
+> par ARCHI 35, à « "Delete a book" : comment choisit-on le livre à effacer ? » → **« tout simplement,
+> pas de bouton delete a book, juste une poubelle à côté comme My Characters »**.
+> Et, relayée par ARCHI 35 le même jour, à « que peut effacer la poubelle ? » (un livre installé était
+> un fichier servi à la page, qu'une page ne peut pas effacer) :
+> **« Ils apparaissent s'ils sont installés, mais absents du fichier dans le cas contraire. N'est-il pas
+> plus avisé de le stocker en ligne afin qu'il soit accessible au navigateur à tout moment, du moins
+> pour le joueur. La poubelle d'un livre efface son contenu de son lieu de stockage. Ce lieu de
+> stockage est décidé par le bouton vault. »**
+
+⭐ **UN SEUL ORGANE, POSÉ AU SOCLE** : `poubelle({ mot, onClick, eteinte })` (`poubelle-organe.mjs`, une feuille
+sans import) — celle que `My characters` portera au lot 352, ⛔ jamais une seconde. Son relief entre
+dans le patron par la LISTE (les trois listes de `shell.css`, l'inventaire
+`tests/bouton-inventaire.test.mjs`) ; sa géométrie est celle de `button.porte-carree` (la cible 44, le
+dessin retiré sur ses quatre côtés) ; son teint est `--critical` (`bouton-definition-du-bleu` : ça
+efface → rouge avec popup). Elle se nomme (`aria-label` et `title` : « Delete <le livre> ») : un
+dessin sans mot ne dit rien à un lecteur d'écran.
+⭐ **LA QUESTION EST UNE DESCRIPTION** (`popupEffacerUnLivre`), peinte par `paintPopup` — ⛔ aucun
+composant neuf ; `Delete` porte `defait` ; les mots (`MOTS_EFFACER_UN_LIVRE`) sont des brouillons.
+⚖️ **LA LOI, TELLE QU'ERIC L'A DITE** : un livre vit dans le stockage choisi au `Vault` — la copie du
+joueur, chez lui, ⛔ jamais sur un serveur d'Eric (lois 2 et 6 de la carte produit, lues par ARCHI 35)
+— et la poubelle efface de CE stockage.
+⏳ **AUJOURD'HUI, AUCUN LIVRE N'Y VIT** : `Import a book` et les connecteurs du `Vault` sont hors du
+lot 351. La poubelle est donc là, ÉTEINTE (`disabled`, `data-reserve`, « soon » sous elle — la forme
+d'une place réservée, `menu-reglage-impossible-reste-visible`), et son geste reste câblé jusqu'à la
+question : le jour où le stockage porte un livre, elle s'allume et la question l'attend. ⛔ Effacer le
+fichier servi à la page (`layers-livres/`) n'est PAS le geste dicté.
+🛡️ `tests/ecran-layers.test.mjs` D4 (éteinte, elle n'émet rien ; câblée, elle DEMANDE), D5, D8, D9 ;
+`tests/bouton-inventaire.test.mjs`.
+
+### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement
+📍 `menu-layers-habillage` · vivante · 29/09
+⚖️ **`Layers` porte l'habillage de R (`menu-r-habillage`) : la dalle voilée à 50 %, ses places réservées au gabarit LARGE (dessin 105 × 40, cible 105 × 44, T4 16 / 600), et la page entière tient dans sa dalle — sans défilement, à 1280 × 800, à 375 et sur iPad portrait.**
+
+> Eric, 2026-09-29 : **« on respecte les hauteurs de dalle, pas de scroll »** — chaque page du Menu
+> tient dans sa dalle · **« fond habituel, transparence 50 % »** · **« les boutons utilisent les
+> boutons large, voir bible »**.
+
+📏 **CE QUI DÉFILAIT** : l'écran du lot 188 portait onze lignes (le socle, le maître, ses six enfants,
+deux livres, le `+`) et défilait à 1280 × 800 ; il porte désormais quatre lignes au plus (le SRD, deux
+livres, Fate's Hand), le séparateur quand il sert, et la rangée des options. La question de Fate's
+Hand, posée dans la page, la faisait encore déborder de 127 px : elle se pose en fenêtre
+(`menu-layers-fate-s-hand-tout-ou-rien`).
+⛔ Le défilement ne se répare pas en rognant les marges : il se répare par ce que la page porte EN
+TROP (*« un contenu qui ne tient pas : ce qu'il porte en trop, pas un défilement »*).
+🗄️ **LA NOTE DU LOT 188 SOUS LE TITRE EST PARTIE** (*« The base, then the layers stacked on it. A layer
+you switch off degrades the sheet… »*). 📏 Mesuré au banc à 375 × 812, deux livres installés et leur
+« soon » : quatre lignes, 68 px, et la scène débordait de 9 px. Ni la dictée de B0 ni le mandat ne la
+nomment, et ce qu'elle disait (rien n'est effacé, tout revient) est dit là où il sert — dans la
+question de Fate's Hand (*« they stay saved, and resume as soon as you switch it back on »*). Sans elle :
+375 → 429 px sur 500, 1280 × 800 → 401 sur 500, iPad portrait → 436 sur 500.
+🛡️ Vu au navigateur, jour et nuit (le relevé du lot 351) ; `tests/ecran-layers.test.mjs` D1 (aucune
+note). ⚠️ Aucun garde de la suite ne mesure un défilement : le DOM des tests n'a pas de mise en page
+— c'est le banc qui le voit, ou personne.
 
 ---
 

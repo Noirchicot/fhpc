@@ -4,7 +4,8 @@
    `universe-step.mjs`, qui importe la moitié du builder. Or le mot d'un choix
    non résolu (`mot-du-choix.mjs`) doit NOMMER l'interrupteur qui porte le
    record — *« Araag comes with World — switch it on in Layers »* (Eric, 09/09,
-   l'interrupteur renommé le 10/09) — et ce mot est lu par `carnet.mjs`,
+   l'interrupteur renommé le 10/09 ; depuis le lot 351, *« … comes with Fate's
+   Hand »* : un seul interrupteur, tout ou rien) — et ce mot est lu par `carnet.mjs`,
    `catalogue.mjs`, tous les écrans :
    un import de l'écran `Layers` depuis là ferait un cycle. La table descend
    donc ici, feuille sans import, et `layers-ecran.mjs` la réexporte : ses
@@ -31,8 +32,8 @@
    sur le TEXTE RENDU (`tests/ecran-layers.test.mjs`, G1).
    ⚠️ L'ID INTERNE RESTE `lore`, ET IL NE MENT PAS : c'est un nom de
    construction, comme `fh-lore-en` (la couche) et `fh.lore` (le drapeau) — il
-   ne sort qu'en `data-enfant="lore"` sur l'organe et en clef de
-   `compositionFh().enfants`, jamais dans un texte. Le renommer aurait renommé
+   ne sort qu'en clef de `compositionFh().enfants` (le `data-enfant="lore"` de
+   l'organe est parti au lot 351 avec les six lignes), jamais dans un texte. Le renommer aurait renommé
    des ids que des tests et des documents lisent, pour un mot que personne ne
    voit.
 
@@ -44,9 +45,20 @@
    est écrite dans l'ordre du manifeste pour qu'un lecteur le voie ; ce n'est
    pas elle qui ordonne le geste. */
 
-/** LES SIX INTERRUPTEURS — la coupe d'Eric du 08/09, couche par couche.
- *  L'ordre est celui de son dessin. `couches` = ce que l'interrupteur allume
- *  et éteint ; `exige` = un autre interrupteur sans lequel celui-ci dort.
+/** LA CARTE DE FATE'S HAND — qui fait quoi, couche par couche (la coupe d'Eric du
+ *  08/09). `couches` = les sublayers d'une sous-unité ; `exige` = une autre
+ *  sous-unité sans laquelle celle-ci n'a pas de sens (l'Inheritance sans les
+ *  Trainings n'offre plus de langue).
+ *  🔄 LOT 351 — CE NE SONT PLUS DES INTERRUPTEURS. Eric, 29/09, à « Fate's Hand se
+ *  règle interrupteur par interrupteur ? » : *« Non. Tout ou rien »* — *« on branche
+ *  ou on branche pas »*, et au Menu **un seul interrupteur FH** ; à « et les
+ *  sous-moteurs ? » : gardés *« comme CARTE de qui fait quoi — ça a été très utile
+ *  pour dire qui fait quoi, je ne veux pas que ça tombe dans l'oubli »*.
+ *  ⇒ La table reste (c'est la carte), `Layers` ne la montre plus comme six lignes,
+ *  et `compositionFh` la lit encore : un perso bâti avant le lot 351 peut déclarer
+ *  une sous-unité entière coupée — il reste LÉGITIME (rien ne l'accuse), il n'est
+ *  simplement plus PRODUCTIBLE depuis l'écran. 🗄️ `motSiDort` (« off while
+ *  Trainings is off ») est parti avec les six lignes : c'était un mot d'écran.
  *  ⛔ LES IDS SONT ÉCRITS ICI EN TOUTES LETTRES, et un garde les confronte à
  *  `FH_LAYER_IDS` (`tests/ecran-layers.test.mjs`) : l'union des six plus le
  *  catalogue doit être EXACTEMENT la pile Fate's Hand, sans trou ni doublon. */
@@ -54,7 +66,7 @@ export const INTERRUPTEURS = Object.freeze([
   { id: "trainings",   label: "Trainings",      note: "languages, dark rituals",              couches: ["fh-trainings-en"] },
   { id: "skills",      label: "Skills & tools", note: "tiers and the skill pool",             couches: ["fh-skills-en"] },
   { id: "inheritance", label: "Inheritance",    note: "one origin, in place of backgrounds",  couches: ["fh-inheritance-en"],
-    exige: "trainings", motSiDort: "off while Trainings is off" },
+    exige: "trainings" },
   { id: "destiny",     label: "Destiny",        note: "22 Arcana, the die, the Tilt",         couches: ["fh-arcana-en", "fh-feats-en", "fh-spells-en"] },
   /* ⚖️ WORLD = LE MONDE : les trois espèces neuves (Araag, Elestu, Loroka) et
      les textes de fiche — Eric, 09/09 ; nommé `World` le 10/09 (*« Lore
@@ -72,10 +84,17 @@ export const INTERRUPTEURS = Object.freeze([
    de l'ambiance. Même raison que celle écrite plus haut pour la pierre. */
 export const CATALOGUE_FH = Object.freeze(["fh-gems-en", "fh-munitions-en"]);
 
-/** LE MAÎTRE — l'interrupteur `Fate's Hand` de `Layers` et du Menu, celui
- *  qui allume les six d'un coup. C'est LUI que le mot nomme pour un record
- *  du catalogue : une gemme ne vient avec aucun enfant. */
-export const MAITRE = Object.freeze({ id: "maitre", label: "Fate's Hand" });
+/** LE MAÎTRE — l'interrupteur `Fate's Hand` de `Layers`, le SEUL depuis le lot 351
+ *  (tout ou rien). C'est LUI que le mot nomme pour TOUT record Fate's Hand :
+ *  *« Araag comes with Fate's Hand — switch it on in Layers »*.
+ *  `familles` — ce que la source apporte, lu à l'écran *« en italique t0 »* (Eric,
+ *  29/09, la dictée de B0 : « FH … engine/world/catalog »). */
+export const MAITRE = Object.freeze({ id: "maitre", label: "Fate's Hand", familles: Object.freeze(["engine", "world", "catalog"]) });
+
+/** LE SOCLE — le SRD, toujours actif : un voyant, jamais un interrupteur (09/09).
+ *  ⚖️ La dictée du 29/09 : *« SRD (tj actif) engine/catalog (en italique t0) »*, et à
+ *  « le SRD dans Books ? » : *« le SRD est le book de base »* (engine + catalog). */
+export const SOCLE = Object.freeze({ label: "SRD 5.2.1", familles: Object.freeze(["engine", "catalog"]) });
 
 /** LES LIVRES DU JOUEUR, avec le nom que l'écran affiche quand le livre n'est
  *  PAS monté (un livre monté porte son nom dans le manifeste). ⛔ Les noms
@@ -85,15 +104,19 @@ export const MAITRE = Object.freeze({ id: "maitre", label: "Fate's Hand" });
    plan v10 (« SRD · FH · PHB · DMG », Eric, 29/09). ⛔ Ce n'est pas le `sigle` du
    générateur (`XPHB`, le code de la source) : c'est le mot que le joueur lit. */
 export const LIVRES_DU_JOUEUR = Object.freeze([
-  { id: "xphb-en", nom: "Player's Handbook (2024)", court: "PHB" },
-  { id: "xdmg-en", nom: "Dungeon Master's Guide (2024)", court: "DMG" }
+  { id: "xphb-en", nom: "Player's Handbook (2024)", court: "PHB", familles: Object.freeze(["catalog"]) },
+  { id: "xdmg-en", nom: "Dungeon Master's Guide (2024)", court: "DMG", familles: Object.freeze(["catalog"]) }
 ].map(Object.freeze));
+/* ⚖️ LOT 351 — `familles` : un livre de règles de base n'apporte que du CATALOGUE
+   (la carte du 29/09 : « CORE RULES n'a QUE des catalogues »). */
 
 /** L'INTERRUPTEUR QUI PORTE UNE COUCHE — `{id, label}`, ou `null` pour une
- *  couche qu'aucun interrupteur ne pilote (le SRD, `srfh` : le plancher). */
+ *  couche qu'aucun interrupteur ne pilote (le SRD, `srfh` : le plancher).
+ *  🔄 LOT 351 — TOUTE COUCHE FATE'S HAND EST PORTÉE PAR LE MAÎTRE : il n'y a plus
+ *  d'interrupteur « World » ni « Destiny » à pousser, et un mot qui les nommerait
+ *  enverrait le joueur vers une ligne qui n'existe pas. */
 export function interrupteurDeLaCouche(coucheId) {
-  const enfant = INTERRUPTEURS.find((sw) => sw.couches.includes(coucheId));
-  if (enfant) return { id: enfant.id, label: enfant.label };
+  if (INTERRUPTEURS.some((sw) => sw.couches.includes(coucheId))) return MAITRE;
   if (CATALOGUE_FH.includes(coucheId)) return MAITRE;
   const livre = LIVRES_DU_JOUEUR.find((l) => l.id === coucheId);
   if (livre) return { id: livre.id, label: livre.nom };
@@ -129,8 +152,8 @@ export function interrupteurDeLaCouche(coucheId) {
    ⚠️ ET CE N'EST PAS UNE BIJECTION — *« une bijection fausse est cohérente »*
    (mémoire de la maison). `fh:tool` et `fh:spell` sont partagés par DEUX
    couches : Soulforging ajoute un outil et un sort sous les préfixes de
-   Skills et de Spells. Le préfixe seul les aurait rangés sous le mauvais
-   interrupteur, en silence. D'où `COUCHE_PAR_ID` : les deux ids nommés.
+   Skills et de Spells. Le préfixe seul les aurait rangés sous la mauvaise
+   couche (et, jusqu'au lot 351, sous le mauvais interrupteur), en silence. D'où `COUCHE_PAR_ID` : les deux ids nommés.
    ⛔ Une liste d'exceptions par nom ne dit pas qu'elle est incomplète — c'est
    un garde qui le dit : `tests/jamais-un-id-nu.test.mjs` relit CHAQUE id
    ajouté par CHAQUE couche Fate's Hand sur le disque et exige que
@@ -192,7 +215,8 @@ export function coucheDUnId(id) {
 }
 
 /** L'INTERRUPTEUR QUI PORTE UN ID — `{id, label}` ou `null`. C'est ce que le
- *  mot d'un choix non résolu nomme : *« Araag comes with World »*. */
+ *  mot d'un choix non résolu nomme : *« Araag comes with Fate's Hand »* (lot 351 ;
+ *  « World » avant, quand chaque sous-unité avait sa ligne). */
 export function interrupteurDUnId(id) {
   const couche = coucheDUnId(id);
   return couche ? interrupteurDeLaCouche(couche) : null;
