@@ -10163,3 +10163,43 @@ Wares 6, X5 2, molette 2, belt 2) ; aucun ancêtre ne rogne la roue ni ses flèc
 n'ont pas bougé. ⭐ Un chevron latéral creuse son dessin par ses bords : 50 % de sa boîte de remplissage EST
 le centre du dessin — et son miroir (`scaleX(-1)`) tourne autour de ce centre, donc le retirer au survol ne
 déplace rien.
+
+---
+
+### 👆 UN BOUTON NE ZOOME JAMAIS LA PAGE
+📍 `geste-bouton-ne-zoome-pas` · vivante · 28/09
+⚖️ **Deux taps rapides sur un bouton du builder sont deux appuis, jamais un zoom : tout `<button>` sous `.app` vaut `touch-action: manipulation` par DÉFAUT (`:where(.app button)`, spécificité nulle, au socle de `shell.css`). Le pincement reste ; le zoom au double tap ne vit plus que hors des boutons ; toute déclaration explicite d'un organe l'emporte (`none` des glissables, `pan-x` des roues, `pan-y` des listes).**
+
+> Constat d'Eric, 2026-09-28, au simulateur iOS (iPad Pro 11, Safari) : **six taps rapides sur le chevron droit
+> du belt ont fait zoomer TOUTE la page.** La consigne : que deux taps rapides sur un bouton ne zooment plus,
+> **⛔ sans retirer le zoom par pincement.**
+
+⭐ `manipulation` = `pan-x pan-y pinch-zoom` : il garde le défilement et le pincement, il ne retire que le zoom au
+double tap. Pour Safari, deux taps rapprochés sont un double tap ; sur un bouton, ce sont deux appuis.
+
+⚖️ **Le périmètre — les boutons, pas la racine `.app` — est le choix du lot 348, et il est mesuré.** Les deux
+marchent (banc nu, taps réels à ~150 ms, 3 essais par cas) ; le critère est donc ce que chacune RETIRE : sur `.app`,
+le double tap cesserait d'être un zoom sur tout le panneau, texte compris ; sur les boutons, il ne cesse que là
+où il n'en a jamais été un. Et c'est complet : relevé sur les huit étapes et Gear · Pack · Wares · Send, toute
+cible répétable est un `<button>` — les seules autres cibles sont les jetons glissables, déjà en `none`/`pan-x`.
+
+| cas (banc nu, iOS 27) | zoom au double tap |
+|---|---|
+| bouton `auto` — le témoin | ⛔ 3/3 |
+| bouton `manipulation` · son **parent** `manipulation` · parent sous `zoom: 1.3` | ✅ 0/3 · 0/3 · 0/3 |
+| parent `manipulation` › **défileur** › bouton · défileur › bouton `manipulation` | ✅ 0/3 · 0/3 |
+| bouton `:where()` (spécificité nulle) | ✅ 0/3 |
+| un tap sur le bouton, l'autre 10 pt À CÔTÉ (dans les deux ordres) | ✅ 0/2 · 0/2 (témoin ⛔ 2/2) |
+
+📏 **Au builder** (même simulateur) : `main` zoome au premier double tap, sur le chevron du belt comme sur le tuner
+de Pack (sous le défileur `.stage`) ; avec la règle, zéro zoom en double tap comme en rafale de six, et chaque tap
+avance d'un cran.
+🔴 **`:where()` EST LA MOITIÉ DE LA RÈGLE** — un défaut, jamais un mur (`socle-norme-est-un-defaut`). ⛔ `.app button`
+(0,1,1) battrait `[data-glissable="true"]` (0,1,0) sur les dés et les jetons qui SONT des boutons, et le doigt
+partirait au défilement en plein glisser. ⭐ Et le moteur n'élargit rien : un enfant `manipulation` garde la valeur
+plus étroite de son parent — un bouton de la roue de Pack reste `pan-x`.
+⚠️ **Le piège de mesure** : des taps envoyés en parallèle arrivent à 0–46 ms et font zoomer même un bouton
+`manipulation` — ce n'est pas un double tap humain. Un banc de ce geste tape à 100–250 ms, ou il ne prouve rien.
+🛡️ `tests/geste-bouton-ne-zoome-pas.test.mjs` — une cascade (spécificité, ordre, `:where()`) sur toutes les règles
+`touch-action` réelles, plus la feuille que Wares écrit à l'exécution ; 5 cas, et 4 mutations vues rouges (règle
+ôtée, `.app button`, valeur `auto`, périmètre réduit au chevron), feuille restaurée à l'empreinte près.
