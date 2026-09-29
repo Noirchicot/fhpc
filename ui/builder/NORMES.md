@@ -5936,7 +5936,7 @@ molette qui la tournait partent (`equipement-une-section-une-page-de-12`).
 
 ### 🎒 UNE SECTION DE BACKPACK = UNE PAGE DE 12 ; SEND DÉBORDE DANS UN NOUVEAU « BACKPACK DROPDOWN »
 📍 `equipement-une-section-une-page-de-12` · vivante · 29/09 · remplace `equipement-une-place-dans-une-section`
-⚖️ **Une section du sac a UNE page : ses douze cases. On pose un objet À LA MAIN sur une case libre — une section pleine n'en offre aucune, et un dépôt dessus est refusé. Le seul placement automatique est Send : il range dans « Backpack dropdown », et s'il est plein, un deuxième « Backpack dropdown » se crée.**
+⚖️ **Une section du sac a UNE page : ses douze cases. On pose un objet À LA MAIN sur une case libre — une section pleine n'en offre aucune, et un objet lâché sans place revient à son point de départ. Le seul placement automatique est Send : il range dans « Backpack dropdown », et s'il est plein, un deuxième « Backpack dropdown » se crée ; le Party bag fait de même (« Party bag 2 »). Le trop-plein d'un vieux personnage crée ses conteneurs à l'ouverture. Les dropdowns portent l'ambre.**
 
 > Eric, 2026-09-29, chaque réponse avec sa question :
 >
@@ -5946,6 +5946,16 @@ molette qui la tournait partent (`equipement-une-section-une-page-de-12`).
 > | 16 : la grille passe à 16 cases (4 × 4) ? | **« Tu as raison c'est 12 pardon »** |
 > | Une section pleine : que devient le 13ᵉ objet qu'on y envoie ? | **« Le seul moment où on ne place pas un token à la main, c'est par send ; normalement ça va dans backpack dropdown ; s'il est plein un 2e backpack dropdown se crée »** |
 > | *(18/09, remplacée)* | ~~« plus de place, ça va dans la page suivante… voire ça crée une page supplémentaire si besoin »~~ |
+>
+> 🔄 Eric, 2026-09-29, seconde série (par l'architecte), chaque réponse avec sa question :
+>
+> | la question | la réponse |
+> |---|---|
+> | ① Le 2e Backpack dropdown s'appelle ? | **« Backpack dropdown 2 »** |
+> | ② Un vieux personnage a plus de 12 objets dans une section : que fait-on ? | **« l'aspect automatique, c'est avec backpack dropdown, trop plein on crée un nouveau, le reste est géré par l'humain. quand il y a un trop plein, il doit créer des nouveaux "containers". dans un cas extrême où le joueur veut déplacer un objet et qu'il n'y a pas de place ailleurs, quand il lâche l'objet celui-ci revient à son point d'origine. Party bag fait la même chose que backpack dropdown. »** |
+> | ③ Send vers le Party bag, et il est plein : ? | **« tu crées un party bag 2, celui-ci reste bleu, mais son nom est éditable. »** |
+> | ④ Le 2e Backpack dropdown, une fois créé : ? | **« Certains joueurs ne vont jamais rien ranger, ils vont donc avoir des successions de backpack dropdown. je pense qu'il faut donner une couleur propre à ceux-ci, je te laisse faire la suggestion pour la couleur, donc rajouter "+backpack dropdown". la caractéristique du dropdown c'est que tout tombe dedans dans l'ordre et sans distinction si le premier dropdown est plein. »** |
+> | ⑤ À la souris, un clic gauche sur un dé POSÉ (Abilities) : l'arme-t-il ou le rend-il ? | **« Le rend au podium »** — comme le tap au doigt (voir `geste-glisser-versatile-quatre-gestes-jusqu-a-done`) |
 
 ⭐ **LA PLACE RESTE, LA PAGE PART.** `gear[N].place` numérote toujours la case d'un objet dans sa section — le trou,
 `tighten up` et le rangement gardent leur sens (`equipement-une-place-dans-une-section`) ; elles ne sont plus que
@@ -5958,31 +5968,46 @@ qu'on le voit** — ⛔ jamais sous un objet qu'on y montre. Tous pleins, le sui
 document, son nom et son **genre** (`backpack.sections[N].depot`, un scalaire, comme `dehors`). ⛔ Le nom ne dit pas le
 genre : un joueur peut appeler un rangement « Backpack dropdown 2 ». Les dropdowns se remplissent dans l'ordre de leur
 naissance, ⛔ jamais dans celui de la roue (le joueur la réordonne).
-⭐ **UN VIEUX PERSONNAGE S'OUVRE ENTIER, SANS RIEN ÉCRIRE** (`disposerLeSac`) : une ancienne page 2 comble d'abord un
-trou de SA section, puis déborde **comme par Send** — dans Backpack dropdown, puis dans un dropdown **MONTRÉ** au bout de
-la roue (ni renommable, ni effaçable : il n'est pas au document). Il s'écrit au premier objet que le joueur y pose, ou
-que Send y range (`materialiserLesDepots`) — et les dropdowns montrés avant lui avec, dans l'ordre, sinon leurs index
-glisseraient derrière le neuf.
-⛔ **LE PARTY BAG PLEIN REFUSE SEND** — le gendarme le dit (`MOT_SECTION_PLEINE`), rien n'est payé ni écrit, et l'objet
-reste au collecteur. ⛔ Le verser dans les dropdowns du personnage le ferait peser sur lui sans qu'il l'ait voulu. La
-coquille refuse aussi, en dernier rempart, tout `placerGearLine` sans case vers une section pleine.
+⭐ **UN VIEUX PERSONNAGE S'OUVRE ENTIER — ET SON TROP-PLEIN S'ÉCRIT À L'OUVERTURE** (②). `disposerLeSac` le MONTRE :
+une ancienne page 2 comble d'abord un trou de SA section, puis déborde **comme par Send**, dans sa chaîne. Puis
+`normaliserLeSac`, appelé par la coquille aux deux ouvertures (le démarrage et `poserLeDocumentOuvert`, un seul organe :
+`leSacNormalise`), **l'ÉCRIT** : les conteneurs montrés deviennent de vrais conteneurs (nom, genre), et chaque objet qui
+a changé de section ou de case y est écrit, à la case qu'on voyait. ⛔ Plus rien ne saute d'un rendu à l'autre (vu à la
+souris le 29/09 : un objet de l'ancienne page 2 venait combler un trou laissé à côté).
+~~Rien n'est écrit sans le geste du joueur : le débord se montre, et chaque objet s'écrit quand le joueur le déplace~~
+(ma recommandation 2a, remplacée par la réponse ②).
+⛔ **L'OBJET SANS CASE QUI TIENT DANS SA SECTION N'EST PAS ÉCRIT** — il garde son rang de document
+(`equipement-une-place-dans-une-section`) : c'est le personnage d'exemple (huit objets sans case au dépôt), et la coquille
+compare son texte à celui de l'exemple pour dire « pas de perso en cours » (lot 350). `normaliserLeSac` rend donc le MÊME
+document quand rien ne déborde.
+⭐ **LE PARTY BAG A SA CHAÎNE** (③, et « Party bag fait la même chose que backpack dropdown ») : plein, Send crée
+**« Party bag 2 »**, puis 3… — un vrai conteneur, **bleu** (`party`), **au nom éditable**, effaçable vide, qui **ne pèse
+pas** (la ligne `Other`, comme le premier ; `boitesDehors` le compte hors du sac). Son genre s'écrit
+`backpack.sections[N].party`. Le trop-plein d'un Party bag va dans SA chaîne, ⛔ jamais dans les dropdowns du personnage.
+~~Le Party bag plein refuse Send~~ (ma recommandation 3a, remplacée par la réponse ③).
+⭐ **UN OBJET LÂCHÉ SANS PLACE REVIENT À SON POINT DE DÉPART** (②) : une section pleine n'offre aucune case, rien ne s'y
+allume, et le glisser rend l'objet d'où il vient. La coquille garde un dernier rempart (le gendarme,
+`MOT_SECTION_PLEINE`) pour un `placerGearLine` sans case vers un rangement plein — ⛔ aucun écran n'en envoie.
 ⭐ **UNE PAGE DE KIT TIENT SES DOUZE CASES** (`equipement-kit-verse-dans-sa-page`) : onze éléments au plus, mesuré dans
 les deux livres (Burglar's, Diplomat's) ; au-delà, le surplus déborderait comme par Send, ⛔ jamais une page 2.
-⏳ **SIGNALÉ À ERIC LE 29/09 (par l'architecte), chacune avec sa recommandation** :
-  ① « Le 2e Backpack dropdown s'appelle ? » → **« Backpack dropdown 2 »**, puis 3, 4… (le mot est à lui ; il se change
-    en un seul endroit, `NOM_DU_DEPOT` / `nomDuProchainDepot`) ;
-  ② « Un vieux personnage a plus de 12 objets dans une section : que fait-on ? » → **rien n'est écrit sans son geste** :
-    le débord se montre, et chaque objet s'écrit quand le joueur le déplace ;
-  ③ « Send vers le Party bag, et il est plein : ? » → **refus** (popup), l'objet reste au collecteur ;
-  ④ « Le 2e Backpack dropdown, une fois créé : ? » → comme le premier il **ne se renomme pas** ; vide, il **s'efface** par
-    le `−` ; il paraît **au bout de la roue**, comme une section neuve.
-  Et le défaut du mandat : la molette sur la grille **ne fait plus rien** — celle des sections vit sur les chevrons et
-  l'engrenage.
-🛡️ `tests/sac-une-page-de-douze.test.mjs` (1–7, 5 bis) ; `tests/equipment-step.test.mjs` P2 ; `tests/sac-ecran.test.mjs`
-17, 19 ; `tests/kit-verse-dans-une-page.test.mjs` 2. Vus rouges par mutation — la grille qui grandit, le débord jeté,
-Send plein qui ne crée rien, le genre illisible, le genre non écrit, le Party bag plein accepté, le départ qui ne range
-plus, la coquille qui ne range plus / ne refuse plus / ne lit plus le sac vu, la molette qui revient, la page 2 qui ne
-comble plus le trou de sa section —, sources restaurées à l'empreinte.
+⭐ **LES DROPDOWNS PORTENT L'AMBRE** (④) — le fond, le liseré, sous le viseur, la loupe : `--depot` (#c8741f), avec son
+habit à 35 % / 55 % comme l'or et le bleu, et constant jour et nuit (*« ce qui nomme un LIEU ne bascule pas »*).
+⏳ La teinte est MA suggestion, soumise à Eric sur capture le 29/09 : elle se change en un seul jeton. *« Tout tombe
+dedans dans l'ordre et sans distinction »* : c'est la chaîne, remplie par ordre de naissance. Un dropdown ne se renomme
+pas ; vide, il s'efface par le `−` ; il paraît au bout de la roue, comme une section neuve.
+⭐ **« + BACKPACK DROPDOWN »** (④) : le troisième `+` du panneau d'édition, sous « + Backpack Storage », à l'anneau ambre
+(`AJOUT DEPOT` au plan). Il crée un dropdown de la chaîne — le nom que Send lui aurait donné, et son genre.
+① Le nom reste **« Backpack dropdown 2 »**, puis 3… (`NOM_DU_DEPOT`, `nomDuProchain`).
+📌 Défaut du mandat, signalé : la molette sur la grille **ne fait plus rien** — celle des sections vit sur les chevrons
+et l'engrenage.
+🛡️ `tests/sac-une-page-de-douze.test.mjs` (1–10, 5 bis) ; `tests/equipment-step.test.mjs` P2 ; `tests/sac-ecran.test.mjs`
+17, 19 ; `tests/kit-verse-dans-une-page.test.mjs` 2 ; `tests/abilities-step.test.mjs` 🎲 355 · Q1. Vus rouges par
+mutation — la grille qui grandit, le débord jeté, Send plein qui ne crée rien, le genre illisible, le genre non écrit, le
+départ qui ne range plus, la coquille qui ne range plus / ne refuse plus / ne lit plus le sac vu, la molette qui revient,
+la page 2 qui ne comble plus le trou de sa section ; et en seconde passe : l'ouverture qui n'écrit plus le trop-plein, la
+normalisation qui réécrit l'exemple, le Party bag plein qui refuse, le trop-plein du Party bag versé aux dropdowns, la
+chaîne court-circuitée, l'ambre perdu sous le viseur, le `+ Backpack dropdown` absent, le clic gauche qui arme le dé
+posé —, sources restaurées à l'empreinte.
 
 ---
 
@@ -9215,6 +9240,10 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 souris, le clic gauche arme depuis que la grammaire est arrivée sur les dés (`geste-armer-puis-poser`) ; revenir se fait
 en glissant vers le podium. Q2 : le tap d'un dé du podium ou de la palette **arme** le dé (« Il arme le dé ») — il ne
 pose plus au premier libre. Le glisser, lui, ne change pas : ses cinq gestes restent, et il part au mouvement.
+🔄 **Lot 356 (29/09)** — Q5 : « À la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le rend-il ? » → **« Le rend
+au podium »**. ~~À la souris, le clic gauche arme ; revenir se fait en glissant vers le podium~~ (ma lecture de « le reste
+de la grammaire s'applique ») : le 🔒 tient au doigt ET à la souris. Au podium et à la palette, le clic gauche arme
+toujours (Q2). L'organe porte ce choix par `clicGauche` (`glisser.mjs`), symétrique de `tapAuDoigt`.
 
 ### 7.4 Le fantôme
 📍 `geste-fantome` · vivante · 06/09
@@ -10249,6 +10278,8 @@ arme-t-il encore l'objet pour le poser d'un tap ? » : **« Oui, les deux gestes
     **Q1 — « Dé POSÉ, au doigt, le tap ? » → « Revenir au podium ».** Le 🔒 du 06/09
     (`geste-glisser-versatile-quatre-gestes-jusqu-a-done`) tient ; le reste de la grammaire s'applique : l'appui long
     arme, le glisser est immédiat, et à la souris le clic gauche ARME (revenir, c'est glisser vers le podium).
+    🔄 Lot 356, Q5 (29/09) : « à la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le rend-il ? » → **« Le rend
+    au podium »** — ~~le clic gauche ARME~~ : il rend le dé, comme le tap (`clicGauche`).
     **Q2 — « Dé du PODIUM ou de la PALETTE, au doigt, le tap ? » → « Il arme le dé »**, comme le clic gauche à la
     souris : les caractéristiques LIBRES s'allument (et elles seules), un tap pose. ⛔ Le « tap pose au premier libre »
     reste mort (réponse 1a du 28/09). L'organe porte ce choix par `tapAuDoigt` (`glisser.mjs`) ;

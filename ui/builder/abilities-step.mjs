@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=908";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=908";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=908";
-import { armerJeton } from "./glisser.mjs?v=908";
-import { facteurZoomCourant } from "./echelle.mjs?v=908";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=908";
-import { createDieHost, mount } from "./dice3d.mjs?v=908";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=908";
+import { markPressed } from "./carnet.mjs?v=909";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=909";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=909";
+import { armerJeton } from "./glisser.mjs?v=909";
+import { facteurZoomCourant } from "./echelle.mjs?v=909";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=909";
+import { createDieHost, mount } from "./dice3d.mjs?v=909";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=909";
 
 export { rollAbilitySet };
 
@@ -779,7 +779,7 @@ function renderVivier(ctx) {
  *  ⭐ LE MODIFICATEUR QUI COMPTE EST DANS LA CIBLE, et il y était déjà : le
  *  FINAL, boosts compris, lu dans `resolved.abilities` par `renderFinalColumn`
  *  — le seul des deux que le joueur puisse opposer à quoi que ce soit. */
-function renderJetonDe(roll, taille, { chezSoi, tapAuDoigt, onDepot, onHorsCible }) {
+function renderJetonDe(roll, taille, { chezSoi, tapAuDoigt, clicGauche, onDepot, onHorsCible }) {
   /* ⛔ NI `glisse-jeton` : elle habille une PASTILLE (bordure, rembourrage,
      hauteur tactile). Ici l'objet qu'on prend est le DÉ lui-même — `fs-de` ne
      pose que ce qu'il faut pour le prendre (`touch-action`, le curseur, la
@@ -836,11 +836,12 @@ function renderJetonDe(roll, taille, { chezSoi, tapAuDoigt, onDepot, onHorsCible
      lot le glisser part au mouvement, et elle ne coûte plus rien. Eric a tranché le tap le 29/09 :
      · ARMER = clic gauche (souris) · appui long immobile (doigt) · et le TAP au doigt d'un dé du podium ou de la
        palette (« Il arme le dé ») → les caractéristiques LIBRES s'allument ; POSER = clic ou tap sur l'une d'elles ;
-     · le TAP au doigt d'un dé POSÉ le rend au podium (« Revenir au podium ») ;
+     · le TAP au doigt d'un dé POSÉ le rend au podium (« Revenir au podium ») — et, depuis le lot 356, le CLIC GAUCHE
+       à la souris aussi (Eric, 29/09 : « Le rend au podium ») ;
      · ⛔ le « tap pose au premier libre » est mort (réponse 1a) ; un dé n'a pas de fiche : le clic droit ne voit rien ;
      · le GLISSER ne change pas : poser, déplacer, échanger, revenir, ranger (§7.3), et il part au mouvement. */
   armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), {
-    grammaire: true, tapAuDoigt, accepte: caracteristiqueLibre, onTap: () => {}, onDepot, onHorsCible }));
+    grammaire: true, tapAuDoigt, clicGauche, accepte: caracteristiqueLibre, onTap: () => {}, onDepot, onHorsCible }));
   return jeton;
 }
 
@@ -988,6 +989,8 @@ function renderCollecteur(ctx) {
         chezSoi: false,
         /* 🎲 LOT 355 — Eric, 29/09, au « dé POSÉ, au doigt, le tap ? » : « Revenir au podium » (le 🔒 du 06/09 tient) */
         tapAuDoigt: () => ctx.reprendre(key),
+        /* 🎒 LOT 356 — et à la SOURIS, le clic gauche aussi : Eric, 29/09, « Le rend au podium » (plus « il arme ») */
+        clicGauche: () => ctx.reprendre(key),
         onDepot: (ou) => ctx.deplacer(key, pose, ou),
         /* 🗑️ EN FREE SEULEMENT : le vide ÉVACUE la case (Eric, 06/09). Les trois
            autres méthodes ont un podium — leur dé y retourne, et « le vide » n'y

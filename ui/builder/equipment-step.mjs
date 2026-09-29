@@ -61,34 +61,34 @@
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { markPressed } from "./carnet.mjs?v=908";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=908";
+import { markPressed } from "./carnet.mjs?v=909";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=909";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=908";
-import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=908";
-import { pageDeListe } from "./normes.mjs?v=908";
+import { isGenre } from "../../src/layers/document.mjs?v=909";
+import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=909";
+import { pageDeListe } from "./normes.mjs?v=909";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=908";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=908";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=909";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=909";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=908";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=909";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=908";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=909";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=908";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=909";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -98,15 +98,15 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=908";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=908";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=909";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. Les écrans publient les gestes, le pipeline fait les écrans (la carte R
    qui les publiait d'abord est retirée au lot 348). */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=908";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=909";
 /* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
-import { borneDeLaMolette } from "./molette-quantite.mjs?v=908";
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=909";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -114,25 +114,25 @@ import { borneDeLaMolette } from "./molette-quantite.mjs?v=908";
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=908";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=909";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
 import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
-  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=908";
-import { construireX5 } from "./x5-ecran.mjs?v=908";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=908";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=908";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=908";
-import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=908";
-import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=908";
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=909";
+import { construireX5 } from "./x5-ecran.mjs?v=909";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=909";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=909";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=909";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=909";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=909";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
-import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=908";
-import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=908";
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=909";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=909";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=908";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=909";
 /* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
-import { spellInfo } from "./class-step.mjs?v=908";
+import { spellInfo } from "./class-step.mjs?v=909";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -144,7 +144,7 @@ import { spellInfo } from "./class-step.mjs?v=908";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=908";
+import { motDuCran } from "./ecran-mort.mjs?v=909";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -1258,7 +1258,9 @@ export const cheminDuDehors = (clef) => `backpack.sections[${clef}].dehors`;
  *  c'est la conséquence qu'Eric a dictée le 20/09 : *« ne compte pas dans l'équipement,
  *  c'est ailleurs : le cheval, un coffre dans le manoir »*. */
 export function boitesDehors(document) {
-  return new Set([...sectionsDehors(document)].map((i) => boiteDeSection(i)));
+  /* 🎒 LOT 356 — ET LES PARTY BAGS NÉS DU TROP-PLEIN : ils ne pèsent pas plus que le premier (le commun du
+     groupe, la ligne `Other`). ⭐ Même mécanisme que l'or : le lieu se lit au document, par leur genre. */
+  return new Set([...sectionsDehors(document), ...sectionsPartyNees(document)].map((i) => boiteDeSection(i)));
 }
 
 export function sectionsDehors(document) {
@@ -1295,14 +1297,37 @@ export function sectionsDepot(document) {
   return depots;
 }
 
-/** ⏳ LE NOM DES DROPDOWNS — le premier, « Backpack dropdown » (Eric, 19/09) ; les suivants
- *  « Backpack dropdown 2 », 3… : ⏳ le mot est à Eric (question posée le 29/09), et il se change ICI. */
+/** ⚖️ LE NOM DES DROPDOWNS — le premier, « Backpack dropdown » (Eric, 19/09) ; les suivants
+ *  « Backpack dropdown 2 », 3… — Eric, 29/09, à « Le 2e Backpack dropdown s'appelle ? » :
+ *  *« Backpack dropdown 2 »*. Il se change ICI. */
 export const NOM_DU_DEPOT = "Backpack dropdown";
-/** Le premier nom `Backpack dropdown N` (N ≥ 2) qu'aucune section ne porte — ⛔ jamais deux crans du même nom. */
-export function nomDuProchainDepot(nomsPris) {
+/** Le premier nom `<base> N` (N ≥ 2) qu'aucune section ne porte — ⛔ jamais deux crans du même nom. */
+export function nomDuProchain(base, nomsPris) {
   let n = 2;
-  while (nomsPris.has(`${NOM_DU_DEPOT} ${n}`)) n += 1;
-  return `${NOM_DU_DEPOT} ${n}`;
+  while (nomsPris.has(`${base} ${n}`)) n += 1;
+  return `${base} ${n}`;
+}
+export const nomDuProchainDepot = (nomsPris) => nomDuProchain(NOM_DU_DEPOT, nomsPris);
+
+/* ══ 🔵 LOT 356 — LE PARTY BAG A SA CHAÎNE AUSSI ══════════════════════════════════════════════
+   ⚖️ Eric, 2026-09-29, à « Send vers le Party bag, et il est plein : ? » : *« tu crées un party bag 2,
+   celui-ci reste bleu, mais son nom est éditable »* — et, à « un vieux personnage a plus de 12 objets
+   dans une section » : *« Party bag fait la même chose que backpack dropdown »*.
+   ⭐ LE MÊME ORGANE QUE LE DROPDOWN, UN AUTRE GENRE : un scalaire au document
+   (`backpack.sections[N].party`), le bleu du party, la ligne `Other` (il ne pèse pas). ⛔ Il n'hérite
+   pas de l'immunité du premier : son nom s'édite, et vide il s'efface. */
+const PARTY_RE = /^backpack\.sections\[(\d+)\]\.party$/;
+export const cheminDuParty = (index) => `backpack.sections[${index}].party`;
+
+/** Les Party bags nés du trop-plein — leurs index. ⛔ Le premier n'en est pas : sa clef est un MOT. */
+export function sectionsPartyNees(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const nes = new Set();
+  for (const c of choices) {
+    const m = typeof c.path === "string" ? PARTY_RE.exec(c.path) : null;
+    if (m && String(c.value) !== "0" && String(c.value) !== "false") nes.add(Number(m[1]));
+  }
+  return nes;
 }
 /* ⛔ LE PARTY BAG N'A PAS D'INDEX — sa clef est un MOT (§ `SECTION_PARTY`), donc son
    rang ne peut pas vivre sous `backpack.sections[N]`. Il a le SIEN, de même forme :
@@ -1370,6 +1395,15 @@ export function rangsDesSections(document) {
    avait déjà nommé le 19/09 : le party inventory est *« un autre backpack »*.
    ⛔ Et *« dropdown »* était un mot de la SOURCE, jamais un mot du joueur. */
 export const SECTION_PARTY = Object.freeze({ clef: "party", nom: "Party bag" });
+
+/** ⭐ LOT 356 — LES DEUX CHAÎNES, UNE SEULE TABLE : comment s'appelle le conteneur suivant, et quel genre il
+ *  écrit au document. ⛔ Deux copies de cette table diraient deux noms au premier réglage.
+ *  · `depot` — Backpack dropdown, 2, 3… : *« tout tombe dedans dans l'ordre et sans distinction si le premier
+ *    dropdown est plein »* (Eric, 29/09) ; · `party` — Party bag, 2, 3… : *« tu crées un party bag 2 »*. */
+export const CHAINES = Object.freeze({
+  depot: Object.freeze({ base: NOM_DU_DEPOT, chemin: cheminDuDepot }),
+  party: Object.freeze({ base: SECTION_PARTY.nom, chemin: cheminDuParty })
+});
 
 /* ══ LES SIX SECTIONS DU SAC — Eric, 2026-09-19 ════════════════════════════
    ⚖️ *« chaque section fait en 6. Backpack section 1 · Backpack section 2 · etc.
@@ -1440,6 +1474,9 @@ export function sectionsDuSac(document) {
      dropdown que Send a créé. ⏳ Comme le dépôt, un dropdown ne se renomme pas — son nom dit où Send range
      (recommandation 4a, posée à Eric le 29/09). */
   const depots = sectionsDepot(document);
+  /* 🔵 ET LES PARTY BAGS NÉS DU TROP-PLEIN : bleus comme le premier (`party`), ⭐ mais leur nom s'édite —
+     Eric, 29/09 : *« celui-ci reste bleu, mais son nom est éditable »*. */
+  const partyNes = sectionsPartyNees(document);
   const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
     index: i, nom: (parIndex.get(i) || {}).nom ?? nomDeSectionParDefaut(i),
     renommable: i !== SECTION_DEPOT, ...(hors.has(i) ? { dehors: true } : {}),
@@ -1447,7 +1484,8 @@ export function sectionsDuSac(document) {
   }));
   const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC)
     .map((x) => ({ ...x, ...(hors.has(x.index) ? { dehors: true } : {}),
-                   ...(depots.has(x.index) ? { depot: true, renommable: false } : {}) }));
+                   ...(depots.has(x.index) ? { depot: true, renommable: false } : {}),
+                   ...(partyNes.has(x.index) ? { party: true } : {}) }));
   /* ⭐ ET LE PARTY INVENTORY OUVRE LA LISTE — Eric, 19/09 : *« Party inventory
      dropdown · Backpack dropdown · Storage 1 · 2 · 3 »*. ⚠️ C'est l'ORDRE qui fait
      loi ; le cran s'appelle « Party bag » depuis le soir même (§ `SECTION_PARTY`). */
@@ -1639,28 +1677,47 @@ export function premierePlaceLibre(lignes, cases) {
   return libre >= 0 ? libre : null;
 }
 
-/* ══ 🎒 LOT 356 — LE SAC TEL QU'ON LE VOIT, ET SEND QUI LE REMPLIT ═══════════════════════════════
+/* ══ 🎒 LOT 356 — LE SAC TEL QU'ON LE VOIT, SEND QUI LE REMPLIT, ET LE TROP-PLEIN QUI S'ÉCRIT ══════════
    ⚖️ Eric, 2026-09-29 : *« Une section, dans backpack, n'a qu'une seule page »* · *« c'est 12 »* ·
    *« Le seul moment où on ne place pas un token à la main, c'est par send ; normalement ça va dans
-   backpack dropdown ; s'il est plein un 2e backpack dropdown se crée »*.
-   ⭐ DEUX ORGANES, UNE SEULE LECTURE : `disposerLeSac` dit où chaque objet SE VOIT ; `rangerParSend`
-   ÉCRIT où va un objet que personne n'a posé à la main — la première case libre de ce qu'on voit.
+   backpack dropdown ; s'il est plein un 2e backpack dropdown se crée »* — puis, à « Un vieux personnage a
+   plus de 12 objets dans une section : que fait-on ? » : *« l'aspect automatique, c'est avec backpack
+   dropdown, trop plein on crée un nouveau, le reste est géré par l'humain. quand il y a un trop plein, il
+   doit créer des nouveaux "containers". […] Party bag fait la même chose que backpack dropdown »*.
+   ⭐ TROIS ORGANES, UNE SEULE LECTURE : `disposerLeSac` dit où chaque objet SE VOIT ; `rangerParSend` ÉCRIT
+   où va un objet que personne n'a posé à la main ; `normaliserLeSac` ÉCRIT le trop-plein à l'ouverture.
    ⛔ Deux lectures du sac diraient deux cases, et un objet envoyé tomberait sous un autre. */
 
-/** Le sac TEL QU'ON LE VOIT : chaque section, `CASES_DU_SAC` places ; ce qui n'y tient pas DÉBORDE
- *  COMME PAR SEND — dans le premier dropdown qui a une case libre, puis dans un dropdown MONTRÉ
- *  (`virtuelle`) que rien n'a encore écrit. ⛔ RIEN N'EST ÉCRIT : un vieux personnage (ses pages 2+)
- *  s'ouvre ENTIER, et un objet débordé ne s'écrit que le jour où le joueur le déplace (⏳ recommandation
- *  2a, posée à Eric le 29/09 : aucune écriture sans son geste).
- *  Rend `{ sections, grilles, chaine }` : `sections` — la liste de la roue (`sectionsDuSac`, puis les
- *  dropdowns montrés, au bout) ; `grilles` — boîte → ses places ; `chaine` — les dropdowns dans l'ordre
- *  où Send les remplit. */
+/** La chaîne où déborde une section : `party` pour le Party bag et ceux nés de lui, `depot` pour tout le reste
+ *  (*« Party bag fait la même chose que backpack dropdown »*). */
+const chaineDe = (s) => (s && s.party === true ? "party" : "depot");
+
+/** La chaîne d'une BOÎTE, si elle en est un conteneur — `party` (le Party bag et ceux nés de lui), `depot`
+ *  (Backpack dropdown et les siens) —, sinon `null` : un rangement, une place dorée n'en sont pas. */
+export function chaineDeLaBoite(document, boite) {
+  const b = String(boite);
+  if (b === boiteDeSection(SECTION_PARTY.clef)) return "party";
+  const m = /^s(\d+)$/.exec(b);
+  if (!m) return null;
+  const i = Number(m[1]);
+  if (sectionsDepot(document).has(i)) return "depot";
+  if (sectionsPartyNees(document).has(i)) return "party";
+  return null;
+}
+
+/** Le sac TEL QU'ON LE VOIT : chaque section, `CASES_DU_SAC` places ; ce qui n'y tient pas DÉBORDE COMME PAR
+ *  SEND — dans le premier conteneur de SA chaîne qui a une case libre, puis dans un conteneur MONTRÉ
+ *  (`virtuelle`) que rien n'a encore écrit. ⛔ ELLE N'ÉCRIT RIEN : c'est `normaliserLeSac`, à l'ouverture, qui
+ *  écrit ce qu'elle rend dans `aEcrire` — les objets qui ont changé de section ou de case.
+ *  Rend `{ sections, grilles, chaines, aEcrire }` : `sections` — la liste de la roue (`sectionsDuSac`, puis
+ *  les conteneurs montrés, au bout) ; `grilles` — boîte → ses places ; `chaines` — `{ depot, party }`, les
+ *  conteneurs dans l'ordre où Send les remplit ; `aEcrire` — `[{ index, boite, place }]`. */
 export function disposerLeSac(document, lignes = currentGearLines(document)) {
   const sections = sectionsDuSac(document);
   const depot = boiteDeSection(SECTION_DEPOT);
-  /* ⭐ L'ORDRE DE NAISSANCE (l'index ; le party, qui n'en a pas, en dernier), ⛔ JAMAIS CELUI DE LA
-     ROUE : le joueur la réordonne, et déplacer un tiroir ne doit rien faire sauter d'une case. */
-  const naissance = (s) => (typeof s.index === "number" ? s.index : Number.MAX_SAFE_INTEGER);
+  /* ⭐ L'ORDRE DE NAISSANCE (l'index ; le premier Party bag, dont la clef est un mot, devant les siens),
+     ⛔ JAMAIS CELUI DE LA ROUE : le joueur la réordonne, et déplacer un tiroir ne doit rien faire sauter. */
+  const naissance = (s) => (typeof s.index === "number" ? s.index : -1);
   const parNaissance = [...sections].sort((a, b) => naissance(a) - naissance(b));
   const grilles = new Map();
   const vues = new Set();
@@ -1670,39 +1727,60 @@ export function disposerLeSac(document, lignes = currentGearLines(document)) {
     const g = grilleDeSection(lignesDeSection(lignes, boite, depot), CASES_DU_SAC);
     grilles.set(boite, g.places);
     for (const l of g.places) if (l) vues.add(l.index);
-    deborde.push(...g.deborde);
+    for (const l of g.deborde) deborde.push({ l, chaine: chaineDe(s) });
   }
   /* ⛔ AUCUNE PERTE, MÊME HORS DES SECTIONS : une ligne du sac dont la boîte ne nomme plus aucune section
-     (un document édité à la main) déborde comme les autres, au lieu de disparaître de l'écran. */
+     (un document édité à la main) déborde comme les autres — rangée (`storage`) vers les Party bags, portée
+     au sac vers les dropdowns —, au lieu de disparaître de l'écran. */
   for (const l of lignes) {
     const lieu = l.location || "backpack";
     const auSac = lieu === "backpack" || (lieu === "storage" && !!l.boite);
-    if (auSac && !vues.has(l.index) && !deborde.includes(l)) deborde.push(l);
+    if (auSac && !vues.has(l.index) && !deborde.some((x) => x.l === l)) {
+      deborde.push({ l, chaine: lieu === "storage" ? "party" : "depot" });
+    }
   }
-  const chaine = parNaissance.filter((s) => s.depot === true);
+  const chaines = {
+    depot: parNaissance.filter((s) => s.depot === true),
+    party: parNaissance.filter((s) => s.party === true)
+  };
   const virtuelles = [];
   const noms = new Set(sections.map((s) => String(s.nom)));
   let prochain = nextSectionIndex(document);
-  for (const l of deborde) {
-    const libre = chaine.find((s) => grilles.get(boiteDeSection(s.index)).includes(null));
+  for (const { l, chaine } of deborde) {
+    const libre = chaines[chaine].find((s) => grilles.get(boiteDeSection(s.index)).includes(null));
     if (libre) {
       const g = grilles.get(boiteDeSection(libre.index));
       g[g.indexOf(null)] = l;
       continue;
     }
-    const nom = nomDuProchainDepot(noms);
+    const nom = nomDuProchain(CHAINES[chaine].base, noms);
     noms.add(nom);
-    /* ⭐ MONTRÉ, PAS ÉCRIT : il ne se renomme ni ne s'efface (rien à effacer au document) ; il
-       s'écrit au premier objet que le joueur y pose, ou que Send y range (`materialiserLesDepots`). */
-    const v = { index: prochain, nom, depot: true, virtuelle: true, fige: true, renommable: false };
+    /* ⭐ MONTRÉ, PAS ENCORE ÉCRIT : il ne se renomme ni ne s'efface (rien à effacer au document) ; il s'écrit
+       à l'ouverture (`normaliserLeSac`), ou au premier objet qu'on y pose (`materialiserLesDepots`). */
+    const v = { index: prochain, nom, [chaine]: true, virtuelle: true, fige: true, renommable: false };
     prochain += 1;
     const g = Array.from({ length: CASES_DU_SAC }, () => null);
     g[0] = l;
     grilles.set(boiteDeSection(v.index), g);
-    chaine.push(v);
+    chaines[chaine].push(v);
     virtuelles.push(v);
   }
-  return { sections: [...sections, ...virtuelles], grilles, chaine };
+  /* ⭐ CE QUI DOIT S'ÉCRIRE À L'OUVERTURE : l'objet montré dans une AUTRE section que la sienne (le
+     trop-plein), et celui dont la case écrite n'est pas celle qu'on voit (une ancienne page 2, deux objets
+     sur une case). ⛔ PAS l'objet sans case qui tient dans SA section : il garde son rang de document
+     (18/09), et l'écrire ferait d'un personnage d'exemple un autre personnage (lot 350 les compare). */
+  const aEcrire = [];
+  for (const s of [...parNaissance, ...virtuelles]) {
+    const boite = boiteDeSection(s.index);
+    grilles.get(boite).forEach((l, place) => {
+      if (!l) return;
+      const sienne = l.boite || ((l.location || "backpack") === "backpack" ? depot : null);
+      if (sienne !== boite || (Number.isInteger(l.place) && l.place !== place)) {
+        aEcrire.push({ index: l.index, boite, place });
+      }
+    });
+  }
+  return { sections: [...sections, ...virtuelles], grilles, chaines, aEcrire };
 }
 
 /** La première case libre d'une section TELLE QU'ON LA VOIT — débord compris —, ou `null` si elle est
@@ -1715,48 +1793,72 @@ export function placeLibreDans(document, boite, sauf) {
   return i >= 0 ? i : null;
 }
 
-/** Écrit les dropdowns MONTRÉS jusqu'à `index` compris — leur nom et leur genre —, dans l'ordre de la
- *  chaîne. ⛔ Jamais un seul au milieu : leurs index se lisent sur le prochain libre, et un dropdown
- *  écrit devant les autres les ferait glisser derrière lui. Rend le document tel quel sans rien à écrire. */
+/** Écrit les conteneurs MONTRÉS jusqu'à `index` compris — leur nom et leur genre (dropdown ou Party bag) —,
+ *  dans l'ordre de leur index. ⛔ Jamais un seul au milieu : leurs index se lisent sur le prochain libre, et un
+ *  conteneur écrit devant les autres les ferait glisser derrière lui. Rend le document tel quel sans rien à
+ *  écrire. */
 export function materialiserLesDepots({ document, verbs, index }) {
   let doc = document;
-  for (const s of disposerLeSac(document).chaine) {
-    if (s.virtuelle !== true || s.index > index) continue;
+  const montres = disposerLeSac(document).sections.filter((s) => s.virtuelle === true && s.index <= index)
+    .sort((a, b) => a.index - b.index);
+  for (const s of montres) {
     doc = verbs.set({ document: doc, path: `backpack.sections[${s.index}].name`, value: s.nom }).document;
-    doc = verbs.set({ document: doc, path: cheminDuDepot(s.index), value: 1 }).document;
+    doc = verbs.set({ document: doc, path: CHAINES[chaineDe(s)].chemin(s.index), value: 1 }).document;
   }
   return doc;
 }
 
-/** ⭐ RANGER PAR SEND — LE SEUL PLACEMENT AUTOMATIQUE. `gear[index]` prend la première case libre du
- *  premier dropdown qui en a une, dans le sac tel qu'on le voit ; tous pleins, le dropdown suivant SE
- *  CRÉE (son nom, son genre) et l'objet y va. ⭐ Le geste qui appelle est celui du joueur — Send, un
- *  achat, le départ de sa classe, un objet déséquipé qui retombe au sac : c'est lui qui autorise
- *  l'écriture. */
-export function rangerParSend({ document, verbs, index }) {
+/** ⭐ RANGER PAR SEND — LE SEUL PLACEMENT AUTOMATIQUE. `gear[index]` prend la première case libre du premier
+ *  conteneur de la chaîne `vers` (`depot` : Backpack dropdown… ; `party` : Party bag…) qui en a une, dans le
+ *  sac tel qu'on le voit ; tous pleins, le suivant SE CRÉE (son nom, son genre) et l'objet y va — *« tout
+ *  tombe dedans dans l'ordre et sans distinction si le premier dropdown est plein »* (Eric, 29/09).
+ *  ⭐ Le geste qui appelle est celui du joueur — Send, un achat, le départ de sa classe, un objet déséquipé
+ *  qui retombe au sac : c'est lui qui autorise l'écriture. */
+export function rangerParSend({ document, verbs, index, vers = "depot" }) {
   const d = disposerLeSac(document, currentGearLines(document).filter((l) => l.index !== index));
   let cible = null;
-  for (const s of d.chaine) {
+  for (const s of d.chaines[vers]) {
     const place = d.grilles.get(boiteDeSection(s.index)).indexOf(null);
     if (place >= 0) { cible = { index: s.index, place }; break; }
   }
   let doc = document;
   if (cible) {
-    doc = materialiserLesDepots({ document: doc, verbs, index: cible.index });
+    if (typeof cible.index === "number") doc = materialiserLesDepots({ document: doc, verbs, index: cible.index });
   } else {
-    /* ⚖️ TOUS PLEINS : « un 2e backpack dropdown se crée ». Les dropdowns montrés d'abord, puis le neuf. */
-    const dernier = d.chaine[d.chaine.length - 1];
-    doc = materialiserLesDepots({ document: doc, verbs, index: dernier.index });
+    /* ⚖️ TOUS PLEINS : « un 2e backpack dropdown se crée » — « tu crées un party bag 2 ». Les conteneurs montrés
+       d'abord (leurs index restent les leurs), puis le neuf. */
+    const montres = d.sections.filter((s) => s.virtuelle === true).map((s) => s.index);
+    if (montres.length) doc = materialiserLesDepots({ document: doc, verbs, index: Math.max(...montres) });
     const neuf = nextSectionIndex(doc);
     doc = verbs.set({ document: doc, path: `backpack.sections[${neuf}].name`,
-      value: nomDuProchainDepot(new Set(sectionsDuSac(doc).map((s) => String(s.nom)))) }).document;
-    doc = verbs.set({ document: doc, path: cheminDuDepot(neuf), value: 1 }).document;
+      value: nomDuProchain(CHAINES[vers].base, new Set(sectionsDuSac(doc).map((s) => String(s.nom)))) }).document;
+    doc = verbs.set({ document: doc, path: CHAINES[vers].chemin(neuf), value: 1 }).document;
     cible = { index: neuf, place: 0 };
   }
   const boite = boiteDeSection(cible.index);
   doc = verbs.set({ document: doc, path: `gear[${index}].boite`, value: boite }).document;
   doc = verbs.set({ document: doc, path: `gear[${index}].location`, value: lieuDeLaBoite(boite, boitesDehors(doc)) }).document;
   return verbs.set({ document: doc, path: `gear[${index}].place`, value: cible.place }).document;
+}
+
+/** ⭐ LE TROP-PLEIN S'ÉCRIT À L'OUVERTURE — Eric, 29/09 : *« quand il y a un trop plein, il doit créer des
+ *  nouveaux "containers" »*. Les conteneurs montrés deviennent de vrais conteneurs (nom, genre), et chaque objet
+ *  qui a changé de section ou de case y est écrit (`aEcrire`) : ⛔ plus rien ne saute d'un rendu à l'autre.
+ *  ⭐ Rend le MÊME document quand il n'y a rien à écrire — c'est le cas de l'exemple, et de tout personnage
+ *  déjà rangé : la coquille peut l'appeler à chaque ouverture sans rien changer à ceux-là. */
+export function normaliserLeSac({ document, verbs }) {
+  const d = disposerLeSac(document);
+  const montres = d.sections.filter((s) => s.virtuelle === true).map((s) => s.index);
+  if (!d.aEcrire.length && !montres.length) return document;
+  let doc = document;
+  if (montres.length) doc = materialiserLesDepots({ document: doc, verbs, index: Math.max(...montres) });
+  const dehors = boitesDehors(doc);
+  for (const { index, boite, place } of d.aEcrire) {
+    doc = verbs.set({ document: doc, path: `gear[${index}].boite`, value: boite }).document;
+    doc = verbs.set({ document: doc, path: `gear[${index}].location`, value: lieuDeLaBoite(boite, dehors) }).document;
+    doc = verbs.set({ document: doc, path: `gear[${index}].place`, value: place }).document;
+  }
+  return doc;
 }
 
 /** ⚖️ LE REFUS D'UNE SECTION PLEINE (lot 356) — le gendarme le DIT (§0.5 : un refus muet se lit comme une
@@ -2953,14 +3055,9 @@ export function renderEquipmentStep(ctx, onAction) {
      la cote arrive par la table. */
   function envoyer() {
     if (collecteEnvoi.size === 0) { montrer("sb32"); return; }
-    /* 🎒 LOT 356 — LE PARTY BAG PLEIN REFUSE, ET L'OBJET RESTE DANS LE COLLECTEUR (⏳ recommandation 3a, posée à
-       Eric le 29/09). Une section n'a que ses douze cases ; ⛔ le débord « comme par Send » va aux dropdowns
-       DU PERSONNAGE, et y verser le commun du groupe le ferait peser sur lui sans qu'il l'ait voulu. */
-    if (destinationEnvoi === SECTION_PARTY.clef
-        && placeLibreDans(docu, boiteDeSection(SECTION_PARTY.clef), [...collecteEnvoi][0]) === null) {
-      act({ kind: "popup", titre: SECTION_PARTY.nom, role: "gendarme", texte: MOT_SECTION_PLEINE });
-      return;
-    }
+    /* 🗄️ LOT 356 (seconde passe) — LE REFUS DU PARTY BAG PLEIN EST RETIRÉ. Eric, 29/09, à « Send vers le Party bag,
+       et il est plein : ? » : *« tu crées un party bag 2, celui-ci reste bleu, mais son nom est éditable »*. ⭐ La
+       coquille range l'envoi dans la chaîne du Party bag (`placerGearLine` → `rangerParSend`, `vers: "party"`). */
     /* ⚠️ VIDÉ AVANT LE PREMIER GESTE, pas après : chaque geste fait repeindre la
        coquille (`refresh`), et une collecte vidée APRÈS aurait été peinte pleine
        — mesuré au navigateur : « 1 to send » survivait à l'envoi. */
@@ -3360,7 +3457,9 @@ export function renderEquipmentStep(ctx, onAction) {
            qu'on réordonne est une bombe à retardement* : ce qui doit être nommé se
            nomme, ce qui se compte se compte sur LA liste qu'on affiche. */
         sectionSac = sections.length;
-        act({ kind: "ajouterSection", dehors: ou === "dehors" });
+        /* 🎒 LOT 356 — ET LE TROISIÈME `+` : « Backpack dropdown » (Eric, 29/09 : *« donc rajouter "+backpack
+           dropdown" »*). Il crée un conteneur de la chaîne où Send range, à la main. */
+        act({ kind: "ajouterSection", dehors: ou === "dehors", depot: ou === "depot" });
       },
       surRenommer: (i, nom) => {
         renommageSac = false;
@@ -3701,11 +3800,7 @@ export function renderEquipmentStep(ctx, onAction) {
          puis la ligne neuve — son index est le prochain libre, lu AVANT l'achat — est posée dans
          la boîte du party, par le verbe du glisser. */
       const versParty = destinationEnvoi === SECTION_PARTY.clef;
-      /* 🎒 LOT 356 — le Party bag plein refuse AVANT l'achat : rien n'est payé pour un objet qui n'y entrerait pas */
-      if (versParty && placeLibreDans(docu, boiteDeSection(SECTION_PARTY.clef)) === null) {
-        act({ kind: "popup", titre: SECTION_PARTY.nom, role: "gendarme", texte: MOT_SECTION_PLEINE });
-        return;
-      }
+      /* 🗄️ LOT 356 (seconde passe) — plus de refus avant l'achat : un Party bag plein en crée un 2e (Eric, 29/09). */
       const lieu = versParty ? "backpack" : (destinationEnvoi === "self" ? "self" : "backpack");
       const popup = popupDuDepotVoisin({ quoi: "achat", cible: genre, montant: f.cout, annuler: fermerLePopup,
         accepter: genre === "tally"

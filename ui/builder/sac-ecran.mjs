@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=908";
-import { versionQuery } from "./version.mjs?v=908";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=908";
+import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=909";
+import { versionQuery } from "./version.mjs?v=909";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=909";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=908";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=909";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=908";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=909";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=908";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=909";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=908";
+import { portesCarrees } from "./porte-carree.mjs?v=909";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=908";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=909";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=908";
+import { facteurZoomCourant } from "./echelle.mjs?v=909";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=908";
+import { armerEngrenage } from "./engrenage.mjs?v=909";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -65,7 +65,9 @@ import { armerEngrenage } from "./engrenage.mjs?v=908";
  *  ⭐ LA LEÇON EST CELLE DÉJÀ PAYÉE SUR LES POIDS (19/09) : *un contrat changé d'un côté
  *  se change des DEUX*. La parade est de ne plus avoir deux listes : celle-ci est LA
  *  liste, l'étape s'en sert pour filtrer, et un champ de plus la traverse tout seul. */
-export const CHAMPS_DE_SECTION = Object.freeze(["nom", "fige", "renommable", "party", "dehors"]);
+/* 🎒 LOT 356 — ET `depot`, LE GENRE DES BACKPACK DROPDOWNS (leur couleur ambre) : un champ de plus traverse la liste tout
+   seul, ⛔ pas un second filtre. */
+export const CHAMPS_DE_SECTION = Object.freeze(["nom", "fige", "renommable", "party", "dehors", "depot"]);
 
 /** La clef DOM de chaque organe de la table. ⛔ Elle ne se devine pas du nom :
  *  une clef est un contrat entre la table, la feuille et le garde. */
@@ -91,6 +93,8 @@ export const CLEF_DE = Object.freeze({
      (Eric, 20/09). Il porte les six boutons ; le septième, `Done sections`, est
      l'interrupteur du mode et il ne bouge pas de sa place. */
   "NOTICE": "notice", "ENCART": "encart", "AJOUT SAC": "ajout-sac", "AJOUT DEHORS": "ajout-dehors",
+  /* 🎒 LOT 356 — le troisième `+`, « Backpack dropdown » (Eric, 29/09) */
+  "AJOUT DEPOT": "ajout-depot",
   /* ⚖️ LE SEPTIÈME BOUTON — Eric, 20/09 : *« à droite du bouton jaune, done sections ! »*.
      ⭐ C'est le MÊME organe que l'interrupteur de la rangée d'outils : il ne se dédouble
      pas, il prend sa place d'édition. Une seule identité, une place par mode. */
@@ -490,6 +494,10 @@ function roue(options, loupeNoeud, pisteNoeud) {
          maison : il ne se déclare pas. */
       if (s.dehors === true) t.dataset.lieu = "dehors";
       else if (s.party === true) t.dataset.lieu = "party";
+      /* 🎒 LOT 356 — L'AMBRE DES BACKPACK DROPDOWNS — Eric, 29/09 : *« Certains joueurs ne vont jamais rien ranger, ils
+         vont donc avoir des successions de backpack dropdown. je pense qu'il faut donner une couleur propre à
+         ceux-ci »*. ⭐ Le même idiome que le bleu et l'or : le genre est une donnée (`depot`), la feuille peint. */
+      else if (s.depot === true) t.dataset.lieu = "depot";
       if (!edition) { t.setAttribute("role", "tab"); t.setAttribute("aria-selected", String(souslaLoupe)); }
       /* ⚖️ TAPER UN CRAN NE CHOISIT RIEN — la loi du catalogue (II.3) : il AIMANTE, et c'est
          le viseur qui choisit. ⭐ L'écouteur est posé par le TAMBOUR, une fois, pour tous les
@@ -816,18 +824,22 @@ function notice(options, figee) {
      le jeton de l'anneau, comme pour `Sort` et les trois portes du pied.
      📌 LE `+` EST EN T3, plus gros que les deux mots : c'est lui qu'on cherche des yeux,
      les mots ne font que dire OÙ ça atterrit. */
-  for (const [clef, dehors, ou] of [["ajout-sac", false, "Backpack"], ["ajout-dehors", true, "Other"]]) {
-    const b = bouton("bouton gear-porte sac-ajout", "",
-      dehors ? "New section outside the backpack" : "New backpack section",
-      () => options.surAjouter && options.surAjouter(dehors ? "dehors" : "sac"));
+  /* 🎒 LOT 356 — ET LE TROISIÈME, « + Backpack dropdown », sous le premier — Eric, 29/09 : *« donc rajouter
+     "+backpack dropdown" »*. ⭐ Même famille, même habit ; son anneau prend l'ambre des dropdowns (`data-lieu`). */
+  for (const [clef, ou, quoi, genre, aide] of [
+    ["ajout-sac", "Backpack", "Storage", "sac", "New backpack section"],
+    ["ajout-dehors", "Other", "Storage", "dehors", "New section outside the backpack"],
+    ["ajout-depot", "Backpack", "Dropdown", "depot", "New backpack dropdown"]]) {
+    const b = bouton("bouton gear-porte sac-ajout", "", aide,
+      () => options.surAjouter && options.surAjouter(genre));
     b.dataset.organe = clef;
-    if (dehors) b.dataset.lieu = "dehors";
+    if (genre !== "sac") b.dataset.lieu = genre;
     /* ⚖️ *« + en T3, texte en T1 »* — Eric, 20/09. ⭐ Le `+` est ce qu'on cherche des
        yeux ; les deux mots ne font que dire OÙ ça atterrit, donc ils s'effacent d'un cran.
        ⛔ Trois nœuds, pas un texte : un `+` fondu dans la phrase ne pourrait pas grossir. */
     b.append(el("span", "sac-ajout-plus", "+"),
              el("span", "sac-ajout-ou", ou),
-             el("span", "sac-ajout-quoi", "Storage"));
+             el("span", "sac-ajout-quoi", quoi));
     n.append(b);
   }
   /* ⚖️ ET LE SEPTIÈME, à 8 du bord droit — *« à droite du bouton jaune done sections ! »*.
@@ -875,6 +887,11 @@ function encart(options) {
     el("dt", "", "Other + Storage"),
     el("dd", "", "A place away from you \u2014 your horse, a chest in the manor, a room at the inn. "
       + "Its contents never weigh on you and never count in Encumbrance; they are listed apart, under Other."),
+    /* 🎒 LOT 356 — Eric, 29/09 : *« la caractéristique du dropdown c'est que tout tombe dedans dans l'ordre et sans
+       distinction si le premier dropdown est plein »*. */
+    el("dt", "", "Backpack + Dropdown"),
+    el("dd", "", "Where Send drops things, in order and without sorting. When one is full, the next one fills "
+      + "\u2014 and a new one appears when they all are."),
   );
   e.append(deux);
   const sections = options.sections || [];
