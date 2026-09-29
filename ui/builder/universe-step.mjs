@@ -46,27 +46,27 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=907";
+import { renderConfirmDialog } from "./confirm.mjs?v=908";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=907";
+import { motDeLEchelon } from "./echelle.mjs?v=908";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=907";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=908";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=907";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=908";
 /* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
    rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
    ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
    n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=907";
+import { renderMagasinEcran } from "./magasin-ecran.mjs?v=908";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -247,30 +247,10 @@ function el(tag, className, children) {
 }
 function text(value) { return document.createTextNode(String(value)); }
 
-/** Même patron que `textField` (`concept-step.mjs`) : commis sur `change`,
- *  jamais sur chaque frappe (voir sa tête de fichier — `render()` reconstruit
- *  toute la page). Pas de `datalist` ici : `campaign` est un texte libre
- *  SANS suggestion, contrairement à l'alignement de Concept. */
-function textField({ id, label, value, maxLength, error, onCommit, compact = false, placeholder }) {
-  const wrap = el("div", compact ? "doc-field tdc-champ" : "doc-field");
-  const labelNode = el("label", "doc-field-label", [text(label)]);
-  labelNode.setAttribute("for", id);
-  wrap.append(labelNode);
-
-  const input = document.createElement("input");
-  input.type = "text";
-  input.id = id;
-  input.className = "doc-field-input";
-  input.value = typeof value === "string" ? value : "";
-  if (typeof maxLength === "number") input.maxLength = maxLength;
-  if (placeholder) input.placeholder = placeholder;
-  if (error) input.setAttribute("aria-invalid", "true");
-  input.addEventListener("change", () => onCommit(input.value));
-  wrap.append(input);
-
-  if (error) wrap.append(el("p", "doc-field-error", [text(error)]));
-  return wrap;
-}
+/* 🗄️ LOT 357 — `textField` EST PARTI : il ne portait que le champ `Campaign`, et Eric l'a
+   redicté le 29/09 après-midi : *« campaign : c'est le titre de la campagne […] s'il aucun
+   code de campagne n'est entré : il indique none. pas d'écart pour écrire ici »*. La ligne
+   se LIT désormais (`ligneLue`, plus bas) ; le patron du champ vit dans `concept-step.mjs`. */
 
 /* 🗄️ LOT 350 — `bouton()` EST PARTI : il fabriquait les boutons du R d'avant (le
    geste majeur, le trio du fichier, les portes du pied). Les portes du Menu naissent
@@ -362,6 +342,10 @@ export async function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
    (`personnageNeuf`, shell.mjs). Le geste `Forget` devient le `Delete` de cette
    fenêtre ; `Build a character` devient `Create character`, qui ouvre l'étape 1 DU
    PERSO EN COURS et ne crée rien.
+   🔄 LOT 357 — Eric, 29/09 après-midi : *« create Character on garde (nomme le plutôt new
+   character) »*, et à « le grand bouton New character, que fait-il ? » : *« La fenêtre,
+   puis l'étape 1 »*. Le grand bouton s'appelle donc `New character` et ouvre CETTE
+   fenêtre ; la porte du bas du même nom disparaît (un seul organe par geste).
    ⭐ LA RÈGLE DU 192 TIENT, MOT POUR MOT : un `Save` qui a refusé n'efface RIEN. */
 
 /** LE NOM D'UN PERSONNAGE QUI N'EN A PAS ENCORE.
@@ -767,17 +751,19 @@ function placeReservee(mot) {
   return el("div", "tdc-place", [b, el("span", "tdc-bientot", [text("soon")])]);
 }
 
-/** UNE RANGÉE DE PORTES — `trois` (gauche · centre · droite), `deux` (gauche ·
- *  droite), `une` (centre) : les positions dictées, lues par la feuille. */
+/** UNE RANGÉE DE PORTES — `deux` ou `trois`, CENTRÉES (lot 357 — Eric, 29/09 : *« centre
+ *  les 2 par en 2 rangées »*). La feuille lit l'attribut ; l'écart entre deux portes est
+ *  celui du trio, pour que la paire tombe sur ses intervalles.
+ *  🗄️ Lot 350 : `trois` (gauche · centre · droite), `deux` (gauche · droite), `une` (centre). */
 function rangee(disposition, portes) {
   const r = el("div", "tdc-rangee", portes);
   r.dataset.disposition = disposition;
   return r;
 }
 
-/** UNE LIGNE QUI SE LIT — `Rules`, `Books` : un mot, une valeur, ⛔ aucun contrôle.
- *  La ligne se dissout dans la grille de R (`display: contents`) : ses deux moitiés
- *  prennent la colonne des étiquettes et celle des valeurs, comme le champ `Campaign`. */
+/** UNE LIGNE QUI SE LIT — `Campaign` (lot 357), `Rules`, `Books` : un mot, une valeur,
+ *  ⛔ aucun contrôle. La ligne se dissout dans la grille de R (`display: contents`) : ses
+ *  deux moitiés prennent la colonne des étiquettes et celle des valeurs, comme le code. */
 function ligneLue(mot, valeur) {
   const ligne = el("div", "tdc-ligne-lue");
   ligne.dataset.ligne = mot.toLowerCase();
@@ -808,18 +794,57 @@ function codeDeCampagne() {
   return place;
 }
 
+/** CE QUE DIT `Campaign` SANS CODE — ⚖️ Eric, 29/09 après-midi : *« campaign : c'est le
+ *  titre de la campagne, il se créera dans Dungeon Master/ Create campaign. s'il aucun code
+ *  de campagne n'est entré : il indique none. pas d'écart pour écrire ici »*.
+ *  ⏳ Le titre viendra du PC du MJ, par le code — ni `Create campaign` ni le transport de
+ *  table ne sont construits, et le code est une place réservée : aucun code ne peut être
+ *  entré, la ligne dit donc « none ».
+ *  ⛔ `document.campaign` N'EST NI LU NI EFFACÉ ICI : c'était un champ modifiable jusqu'au
+ *  lot 350 ; le document garde ce qu'il porte, R ne l'écrit plus. */
+export const MOT_SANS_CODE_DE_CAMPAGNE = "none";
+
+/* ══ 🎲 LA PAGE DUNGEON MASTER — LOT 357 (le rang B3 du Menu) ═════════════════════════
+   ⚖️ Eric, 29/09 après-midi, mot pour mot : *« table items devient -> campaign items (et va
+   dans Dungeon master). il y au aussi un bouton homebrew à l'intérieur de Dungeon master, là
+   ce seront des créations maison, associées à une campagne ou pas, partagées avec la
+   communauté au pas. garde ce qu'on met dans Dungeon master en mémoire, voire crée les
+   elements dans une page sans nécessairement les cabler. Le bouton connect to VTT sera dedans
+   aussi. »* — et `Campaign` : *« il se créera dans Dungeon Master/ Create campaign »*.
+   · à « le bouton des créations maison : quel mot, puisque le lexique du 10/09 bannit
+     "homebrew" devant le joueur ? » → *« Homebrew »* — une exception NOMMÉE, gravée au corpus
+     (📍 `menu-dm-bouton-homebrew`), ⛔ pas un mot qui se répand.
+   ⭐ QUATRE PLACES RÉSERVÉES, SANS CÂBLAGE : présentes, éteintes, « soon » sous elles — la
+   forme unique du « pas encore » (`placeReservee`, la même que `Vault` sur R). ⛔ Aucune
+   prose inventée : Eric arrête les mots que le joueur lit.
+   ⏳ `Tools` n'y est pas encore : *« on mettra ça chez le DM si on l'utilise (à faire plus
+   tard) »*. Le retour au Menu est celui des autres rangs B (la paire de la coquille). */
+function renderDungeonMasterEcran() {
+  const section = el("section", "universe-step dm-ecran dalle-intermediaire");
+  section.dataset.objet = "dalle";
+  section.dataset.sortieIci = "true";
+  section.dataset.ecran = "dm";
+  section.append(el("h3", "tdc-titre-b", [text("Dungeon Master")]));
+  const portes = el("nav", "tdc-portes");
+  portes.setAttribute("aria-label", "Dungeon Master");
+  portes.append(rangee("deux", [placeReservee("Create campaign"), placeReservee("Campaign items")]));
+  portes.append(rangee("deux", [placeReservee("Homebrew"), placeReservee("Connect to VTT")]));
+  section.append(portes);
+  return section;
+}
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document            le document `fh-char/1` courant
  * @param {Function} ctx.query             `layers.verbs.query`
- * @param {object} [ctx.fieldErrors]       le dernier refus par champ (`{campaign}`)
  * @param {string|null} [ctx.pendingStack] `"srd"` si une confirmation de passage à SRD est en attente, sinon `null`
  * @param {(action: object) => void} onAction
- *   R : `{kind:"ouvrirLaCreation"}` · `{kind:"ouvrirLeMagasin"}` ·
- *   `{kind:"ouvrirNouveauPersonnage"}` · `{kind:"ouvrirLayers"}` · `{kind:"ouvrirDisplay"}` ·
- *   `{kind:"describe", field:"campaign", value}` ; la confirmation du maître (partagée
- *   avec `Layers`) : `{kind:"confirmLayerStack"}` · `{kind:"saveAndConfirmLayerStack"}` ·
- *   `{kind:"cancelLayerStack"}`.
+ *   R : `{kind:"ouvrirNouveauPersonnage"}` · `{kind:"ouvrirLeMagasin"}` ·
+ *   `{kind:"ouvrirDungeonMaster"}` · `{kind:"ouvrirLayers"}` · `{kind:"ouvrirDisplay"}` ;
+ *   la confirmation du maître (partagée avec `Layers`) : `{kind:"confirmLayerStack"}` ·
+ *   `{kind:"saveAndConfirmLayerStack"}` · `{kind:"cancelLayerStack"}`.
+ *   🗄️ Lot 357 : `ouvrirLaCreation` (l'ancien `Create character`) et `describe/campaign`
+ *   (l'ancien champ) ne sont plus émis.
  */
 export function renderUniverseStep(ctx, onAction) {
   /* 🔴 UN SEUL POINT D'ENTRÉE POUR LES DEUX RANGS, et c'est ce qui garde la
@@ -828,9 +853,9 @@ export function renderUniverseStep(ctx, onAction) {
   if (ctx.ecran === "display") return renderDisplayEcran(ctx, onAction);
   if (ctx.ecran === "characters") return renderMagasinEcran(ctx, onAction);
   if (ctx.ecran === "layers") return renderLayersEcran(ctx, onAction);
+  if (ctx.ecran === "dm") return renderDungeonMasterEcran();
   const doc = ctx.document;
   const query = ctx.query;
-  const errors = ctx.fieldErrors || {};
   /* `dalle-intermediaire` — le voile à 50 % : ⚖️ Eric, 29/09, *« fond habituel,
      transparence 50 % »* (NORMES §4), pris à la matrice des dalles et jamais
      réécrit en couleur ici. `tdc-r` porte la GRILLE de R (shell.css). */
@@ -839,7 +864,7 @@ export function renderUniverseStep(ctx, onAction) {
      déclare pas oblige à le déduire, et une déduction se trompe. */
   section.dataset.objet = "dalle";
   /* ⛔ AUCUNE SORTIE DÉCLARÉE À LA RACINE : `R` n'est pas une étape à valider, c'est
-     un tableau de commande — son geste principal est `Create character`, et un
+     un tableau de commande — son geste principal est `New character` (lot 357), et un
      `Done` qui ferait la même chose serait un second organe pour un seul geste. */
 
   /* ══ R — LE MENU, TEL QU'ERIC L'A DICTÉ LE 29/09 ══════════════════════════
@@ -864,7 +889,22 @@ export function renderUniverseStep(ctx, onAction) {
      save character sera dans Sheet »* ; Forget → le `Delete` de la fenêtre) · le
      voyant SRD et l'interrupteur Fate's Hand (ils vivent dans `Layers`, lots 188-189 —
      C33 tranchée : la porte `Layers` est à gauche, rangée 2) · la ligne d'état · le
-     pied (le livre, `Display`/`DM`/`Tools` au format petit, le `?` de la coquille). */
+     pied (le livre, `Display`/`DM`/`Tools` au format petit, le `?` de la coquille).
+
+     🔄 LOT 357 — ERIC A RELU R EN LIGNE (v906) ET L'A REDICTÉ LE MÊME JOUR, mot pour mot :
+     *« Campaign code on garde. create Character on garde (nomme le plutôt new character).
+     campaign : c'est le titre de la campagne, il se créera dans Dungeon Master/ Create
+     campaign. s'il aucun code de campagne n'est entré : il indique none. pas d'écart pour
+     écrire ici. apres tout es bien, jusqu'à new character : celui doit dégager. table items
+     devient -> campaign items (et va dans Dungeon master). […] donc les 4 boutons du bas. My
+     characters, Vault, Layers, display. centre les 2 par en 2 rangées »* ; puis *« 1ere
+     rangée : My characters / Dungeon Master · 2e rangée : Vault / Layers / Display »* ; et à
+     « le grand bouton New character, que fait-il ? » : *« La fenêtre, puis l'étape 1 »*.
+     ⇒ de haut en bas : la tête · le code · `New character` · `Campaign` (lu : « none ») ·
+     `Rules` · `Books` · l'aiguilleur · `My characters` · `Dungeon Master` / `Vault` ·
+     `Layers` · `Display`. 🗄️ Ce qui quitte R : `Create character` (devenu `New
+     character`), la porte `New character` du bas (un seul organe par geste), le champ
+     `Campaign`. */
 
   /* ① LA TÊTE — gardée (Eric, 29/09). ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS : un
      personnage gardé mais illisible, ou un navigateur qui refuse de garder, laissent
@@ -893,28 +933,20 @@ export function renderUniverseStep(ctx, onAction) {
   /* ② LE CODE DE CAMPAGNE — une place réservée (voir `codeDeCampagne`). */
   section.append(codeDeCampagne());
 
-  /* ③ CREATE CHARACTER — le geste majeur, VERT (Eric, 08/09 : *« relief vert »* ; il
-     garde la teinte du geste qu'il remplace). ⚖️ Il mène à l'étape 1 DU PERSO EN
-     COURS : *« Bouton - Create character- (vers Etape 1 du builder) »*. ⛔ Il ne crée
-     rien — c'est `New character` qui fait naître, par sa fenêtre. */
-  const creer = porte("Create character", () => onAction({ kind: "ouvrirLaCreation" }));
-  creer.dataset.majeure = "true";
-  section.append(el("div", "tdc-seul", [creer]));
+  /* ③ NEW CHARACTER — le geste majeur, VERT (Eric, 08/09 : *« relief vert »* ; il garde
+     la teinte du geste qu'il remplace — ⏳ `A-TRANCHER §C29` reste ouverte).
+     ⚖️ LOT 357 : *« create Character on garde (nomme le plutôt new character) »*, et il
+     ouvre *« La fenêtre, puis l'étape 1 »* — la fenêtre `New character` (`Cancel · Delete ·
+     Save`, ou `Cancel · Start`), la naissance, l'étape 1 avec les Layers en place.
+     🗄️ Lot 350 : `Create character` ouvrait l'étape 1 DU PERSO EN COURS, sans rien créer. */
+  const nouveau = porte("New character", () => onAction({ kind: "ouvrirNouveauPersonnage" }));
+  nouveau.dataset.majeure = "true";
+  section.append(el("div", "tdc-seul", [nouveau]));
 
-  /* ④ LES TROIS LIGNES — `Campaign` (modifiable : *« tant que le code de campagne
-     n'est pas câblé »*, Eric 29/09) · `Rules` (Fate's Hand si le maître est engagé,
-     sinon SRD — ⚖️ *« (SRD mais inutile de citer) Fate's hand »*) · `Books`.
-     Même patron que `textField` (`concept-step.mjs`) : commis sur `change`. */
-  section.append(textField({
-    id: "universe-campaign",
-    label: "Campaign",
-    placeholder: "codename, optional",
-    compact: true,
-    value: doc.campaign,
-    maxLength: 80,
-    error: errors.campaign,
-    onCommit: (value) => onAction({ kind: "describe", field: "campaign", value })
-  }));
+  /* ④ LES TROIS LIGNES, LUES — `Campaign` (lot 357 : le titre de la campagne, ou « none »
+     sans code — voir `MOT_SANS_CODE_DE_CAMPAGNE`) · `Rules` (Fate's Hand si le maître est
+     engagé, sinon SRD — ⚖️ *« (SRD mais inutile de citer) Fate's hand »*) · `Books`. */
+  section.append(ligneLue("Campaign", MOT_SANS_CODE_DE_CAMPAGNE));
   /* ⭐ LOT 188 — LA LIGNE LIT LA COMPOSITION, PAS LE NOM DE LA PILE : un joueur qui a
      coupé un seul interrupteur n'est pas « hors des deux jeux de règles ». Le mot
      rouge ne sort que pour une composition qu'aucun interrupteur ne peut produire
@@ -933,20 +965,23 @@ export function renderUniverseStep(ctx, onAction) {
      (📍 `aide-amendement-aiguilleur`, porté par l'organe, pas par cet écran). */
   section.append(el("p", "guide-mot", [text(MOT_DE_L_AIGUILLEUR_DU_MENU)]));
 
-  /* ⑥ LES SIX PORTES, AUX PLACES DICTÉES. ⏳ `Vault` et `Dungeon Master` sont des
-     places réservées : le Vault (B2) attend son lot, le DM (B3) aussi. */
+  /* ⑥ LES CINQ PORTES, EN DEUX RANGÉES CENTRÉES — lot 357 : *« 1ere rangée : My
+     characters / Dungeon Master · 2e rangée : Vault / Layers / Display »*.
+     ⭐ `Dungeon Master` DEVIENT VIVANTE : elle ouvre sa page (le rang B3, `ouvrirDungeonMaster`).
+     ⏳ `Vault` reste une place réservée : son lot (353) la construira.
+     🗄️ Lot 350 : six portes sur trois rangées, dont `New character` au centre (devenu le
+     grand bouton) et `Dungeon Master` réservée. */
   const portes = el("nav", "tdc-portes");
   portes.setAttribute("aria-label", "Menu");
-  portes.append(rangee("trois", [
-    porte("My characters", () => onAction({ kind: "ouvrirLeMagasin" })),
-    porte("New character", () => onAction({ kind: "ouvrirNouveauPersonnage" })),
-    placeReservee("Vault")
-  ]));
   portes.append(rangee("deux", [
-    porte("Layers", () => onAction({ kind: "ouvrirLayers" })),
-    placeReservee("Dungeon Master")
+    porte("My characters", () => onAction({ kind: "ouvrirLeMagasin" })),
+    porte("Dungeon Master", () => onAction({ kind: "ouvrirDungeonMaster" }))
   ]));
-  portes.append(rangee("une", [porte("Display", () => onAction({ kind: "ouvrirDisplay" }))]));
+  portes.append(rangee("trois", [
+    placeReservee("Vault"),
+    porte("Layers", () => onAction({ kind: "ouvrirLayers" })),
+    porte("Display", () => onAction({ kind: "ouvrirDisplay" }))
+  ]));
   section.append(portes);
 
   /* LA CONFIRMATION DU MAÎTRE — partagée avec `Layers` (lot 188). R ne la déclenche

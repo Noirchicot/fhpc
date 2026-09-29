@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=907") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=908") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=907") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=908") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=907") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=908") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6000,7 +6000,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    SRD et l'interrupteur Fate's Hand, partis dans `Layers`) · `.tdc-liste`/
    `.tdc-couches` (My characters et Layers en pleine largeur) · `.tdc-etat` et sa
    pastille `[data-garde]` (la ligne d'état, retirée par Eric) · `.universe-memoire`.
-   ⛔ Aucune de ces classes n'est plus émise. */
+   ⛔ Aucune de ces classes n'est plus émise.
+   🔄 LOT 357 — la redictée du même jour : le grand bouton s'appelle `New character`,
+   `Campaign` se LIT (« none » sans code), cinq portes en deux rangées CENTRÉES, et la
+   page Dungeon Master (`.dm-ecran`) prend les mêmes rangées. 🗄️ `.tdc-champ` (le champ
+   `Campaign`) n'est plus émise. */
 .universe-note { margin: 0 0 var(--sp-4); color: var(--text-muted); font-size: var(--t3); }
 
 .tdc-tete { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); text-align: center; }
@@ -6013,7 +6017,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* ⭐ LA GRILLE DE R — deux colonnes : les ÉTIQUETTES et les VALEURS. La colonne des
    étiquettes est `max-content` : ⛔ sa largeur ne s'écrit pas, elle se DÉDUIT du mot
    le plus long (NORMES §1 ter — `Campaign code`). Tout ce qui n'est pas une ligne (la
-   tête, `Create character`, l'aiguilleur, les portes, un mot rouge) prend les deux
+   tête, `New character`, l'aiguilleur, les portes, un mot rouge) prend les deux
    colonnes ; les lignes se DISSOLVENT (`display: contents`) pour que leurs deux
    moitiés tombent dans les deux colonnes — le code, `Campaign`, `Rules`, `Books`
    s'alignent ainsi d'eux-mêmes, sans une cote de plus. */
@@ -6025,35 +6029,49 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   align-content: start;
 }
 .tdc-r > * { grid-column: 1 / -1; }
-.tdc-r > :is(.tdc-code, .tdc-champ, .tdc-ligne-lue) { display: contents; }
-.tdc-r > :is(.tdc-code, .tdc-champ) > .doc-field-label,
+.tdc-r > :is(.tdc-code, .tdc-ligne-lue) { display: contents; }
+.tdc-r > .tdc-code > .doc-field-label,
 .tdc-ligne-mot {
   grid-column: 1; align-self: center; margin: 0; text-align: left;
   color: var(--text-muted); font-size: var(--t3); font-weight: 400;
 }
-.tdc-r > :is(.tdc-code, .tdc-champ) > .doc-field-input,
+.tdc-r > .tdc-code > .doc-field-input,
 .tdc-ligne-valeur { grid-column: 2; min-width: 0; }
 .tdc-ligne-valeur { font-size: var(--t4); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
-/* un refus d'écriture sous `Campaign` prend toute la largeur, comme partout */
-.tdc-r > .tdc-champ > .doc-field-error { grid-column: 1 / -1; }
 /* LE CODE DE CAMPAGNE — T0 (8 px) : *« campaign code : 123654849 (t0) »* (Eric, 29/09).
    Place réservée : présent, éteint, et son mot (`.tdc-bientot`) SOUS le champ. */
 .tdc-code-champ { font-size: var(--t0); }
 .tdc-r > .tdc-code > .tdc-bientot { grid-column: 2; justify-self: start; }
-/* `Create character` — seul sur sa ligne, au centre (plan v10). */
+/* `New character` — seul sur sa ligne, au centre (plan v10 ; le lot 357 le renomme). */
 .tdc-seul { display: flex; justify-content: center; }
-/* LES SIX PORTES — trois rangées, aux places dictées : `trois` (gauche · centre ·
-   droite), `deux` (gauche · droite), `une` (centre). Une place réservée porte son
-   mot SOUS elle (`.tdc-place`).
-   📏 L'ÉCART ENTRE RANGÉES EST 4, ET IL EST MESURÉ — au banc le 29/09, à 375 × 812 : la
-   scène offre 500, la carte prend 4 + 4 de marge, et R pesait 497 avec un écart de 8 —
-   5 de trop, la scène défilait (*« pas de scroll »*, Eric). À 4, R pèse 489. ⭐ Les
-   rangées 1 et 2 portent déjà le mot « soon » sous leur place réservée : l'air entre
-   deux DESSINS de porte reste ≥ 24. Ce 4 n'est pas une cote d'Eric : c'est le budget. */
+/* LES CINQ PORTES — deux rangées CENTRÉES (lot 357 — Eric, 29/09 : *« centre les 2 par en
+   2 rangées »* ; *« 1ere rangée : My characters / Dungeon Master · 2e rangée : Vault /
+   Layers / Display »*). Une place réservée porte son mot SOUS elle (`.tdc-place`). La page
+   Dungeon Master (deux rangées de deux) prend les mêmes rangées.
+   ⭐ L'ÉCART ENTRE DEUX PORTES SE DÉDUIT DU TRIO, ⛔ il ne s'écrit pas : une GRILLE de trois
+   pistes de porte et de deux intervalles égaux (`1fr`) — le trio remplit la largeur, une
+   porte par piste. Chaque porte de la paire couvre deux pistes et l'intervalle qui les
+   sépare, centrée dedans : elle tombe sur l'intervalle du trio. ⛔ Aucun calcul : un
+   chiffre dans un `gap` rougit le garde des jetons (`ui-jetons` garde 2), et la grille dit
+   la géométrie sans en écrire. `grid-row: 1` garde la paire sur une ligne : ses deux
+   aires partagent la piste du milieu.
+   🗄️ Lot 350 : `trois` (gauche · centre · droite), `deux` (gauche · droite), `une`
+   (centre), en `space-between` — la paire était plaquée aux deux bords.
+   📏 L'ÉCART ENTRE RANGÉES EST 4, ET IL EST MESURÉ (lot 350) — au banc le 29/09, à
+   375 × 812 : la scène offre 500, la carte prend 4 + 4 de marge, et R pesait 497 avec un
+   écart de 8 — 5 de trop, la scène défilait (*« pas de scroll »*, Eric). À 4, R pèse 489.
+   L'air entre deux DESSINS de porte reste ≥ 24 grâce au mot « soon » sous la place
+   réservée. Ce 4 n'est pas une cote d'Eric : c'est le budget. */
 .tdc-portes { display: flex; flex-direction: column; gap: var(--sp-4); }
-.tdc-rangee { display: flex; align-items: flex-start; }
-.tdc-rangee:is([data-disposition="trois"], [data-disposition="deux"]) { justify-content: space-between; }
-.tdc-rangee[data-disposition="une"] { justify-content: center; }
+.tdc-rangee {
+  display: grid; align-items: start; justify-items: center;
+  grid-template-columns: var(--bouton-moyen) 1fr var(--bouton-moyen) 1fr var(--bouton-moyen);
+}
+.tdc-rangee[data-disposition="trois"] > :nth-child(2) { grid-column: 3; }
+.tdc-rangee[data-disposition="trois"] > :nth-child(3) { grid-column: 5; }
+.tdc-rangee[data-disposition="deux"] > * { grid-row: 1; }
+.tdc-rangee[data-disposition="deux"] > :nth-child(1) { grid-column: 1 / 4; }
+.tdc-rangee[data-disposition="deux"] > :nth-child(2) { grid-column: 3 / 6; }
 .tdc-place { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
 
 /* UNE PLACE RÉSERVÉE — présente, éteinte, un mot (Appearance : langue, unités). */

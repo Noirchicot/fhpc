@@ -3875,7 +3875,7 @@ exactement quand l'entrée est une **famille**. ⚠️ Un filtre sur la prose su
 ---
 
 ### 🏷️ « TABLE ITEMS » — LE MOT DU JOUEUR POUR CE QUI NE VIENT D'AUCUN LIVRE
-📍 `equipement-table-items` · vivante · 23/09
+📍 `equipement-table-items` · remplacée · 23/09 · remplacée par `equipement-campaign-items`
 ⚖️ **Ce que le joueur lit s'appelle `Table items`. Le concept s'appelle **catalogue de table**.
 ⛔ « Homebrew » ne s'écrit nulle part où un joueur peut le lire.**
 
@@ -3899,6 +3899,26 @@ items`.**
 ⭐ **LA DISTINCTION QUI TIENT TOUT** : `homebrew` reste admissible **là où le joueur ne lit pas** —
 un nom de fichier, une clef de `dataset`, un commentaire. Il est banni **partout où un œil de
 joueur passe**. Renommer la clef casserait un garde sans rien changer à l'écran.
+
+### 🏷️ « CAMPAIGN ITEMS » — LE MOT DU JOUEUR POUR CE QUI NE VIENT D'AUCUN LIVRE *(lot 357)*
+📍 `equipement-campaign-items` · vivante · 29/09 · remplace `equipement-table-items` · bornée par `menu-dm-bouton-homebrew`
+⚖️ **Ce que le joueur lit s'appelle `Campaign items`. Le concept s'appelle **catalogue de table**. ⛔ « Homebrew » ne s'écrit nulle part où un joueur peut le lire — sauf le bouton de la page Dungeon Master (`menu-dm-bouton-homebrew`).**
+
+> Eric, 2026-09-29, en redictant le Menu : **« table items devient -> campaign items (et va dans
+> Dungeon master) »**.
+
+| où | ce qui s'écrit |
+|---|---|
+| la page Dungeon Master, place réservée | **`Campaign items`** |
+| la catégorie de Wares où atterrit un objet fabriqué absent du catalogue *(pas encore construite)* | **Campaign items** |
+| le concept, en prose | **catalogue de table** *(inchangé)* |
+| ⚠️ `dataset.homebrew` dans le code | **inchangé** — clef de construction, pas un mot du joueur |
+
+🗄️ **LA PLACE QUITTE `LAYERS`** : `+ Table items` y vivait depuis le 23/09 ; le lot 351 la retire de
+son écran, et elle vit désormais dans la page Dungeon Master (`menu-dm-la-page`).
+⭐ **LA DISTINCTION DU 23/09 TIENT MOT POUR MOT** : `homebrew` reste admissible là où le joueur ne lit
+pas ; banni partout où un œil de joueur passe — moins le seul bouton qu'Eric a nommé.
+🛡️ `tests/universe-step.test.mjs` R9, R10.
 
 ---
 
@@ -10305,7 +10325,7 @@ plus étroite de son parent — un bouton de la roue de Pack reste `pan-x`.
 > 🗄️ Les règles `menu-*` d'`ECRANS.md` que cette dictée remplace y restent, au statut « remplacée ».
 
 ### 🧭 LA PAGE R, DE HAUT EN BAS
-📍 `menu-r-la-page-dictee` · vivante · 29/09
+📍 `menu-r-la-page-dictee` · remplacée · 29/09 · remplacée par `menu-r-la-page-redictee`
 ⚖️ **Le Menu R porte, de haut en bas : `SOWLREACH` et son sous-titre · le code de campagne · `Create character` · `Campaign` · `Rules` · `Books` · l'aiguilleur · six portes sur trois rangées — `My characters` (gauche) · `New character` (centre) · `Vault` (droite) ; `Layers` (gauche) · `Dungeon Master` (droite) ; `Display`. Rien d'autre : ni ligne d'état, ni rangée du fichier, ni interrupteur, ni pied — et les repères `R` / `B…` ne s'affichent jamais.**
 
 > Eric, 2026-09-29, la partie R de la dictée, mot pour mot : **« campaign code : 123654849 (t0) ·
@@ -10364,7 +10384,7 @@ n'est pas accusé (`menu-sous-ensemble-legitime`). Le mot court d'un livre vit d
 🛡️ `tests/universe-step.test.mjs` B1, B2, B2 bis, B3, R7.
 
 ### ✍️ `CAMPAIGN` SE MODIFIE À LA MAIN ; LE CODE DE CAMPAGNE EST UNE PLACE RÉSERVÉE
-📍 `menu-r-campagne-et-code` · vivante · 29/09
+📍 `menu-r-campagne-et-code` · remplacée · 29/09 · remplacée par `menu-r-campagne-se-lit`
 ⚖️ **La ligne `Campaign` reste un champ modifiable à la main tant que le code de campagne n'est pas câblé ; le code de campagne est une place réservée — présent, éteint, en T0 (8 px), le mot « soon » sous lui, et aucun écouteur.**
 
 > ARCHI 35, 29/09 : *« La ligne Campaign : a) affiche le nom enregistré, non modifiable · b) reste
@@ -10379,7 +10399,7 @@ faire serait un bouton mort : d'où « éteint ».
 🛡️ B3, R4.
 
 ### 🟢 `CREATE CHARACTER` OUVRE L'ÉTAPE 1 — IL NE CRÉE RIEN
-📍 `menu-r-create-character-ouvre-l-etape-1` · vivante · 29/09
+📍 `menu-r-create-character-ouvre-l-etape-1` · remplacée · 29/09 · remplacée par `menu-r-new-character-grand-bouton`
 ⚖️ **`Create character` est le geste majeur de R : il ouvre l'étape 1 (Identity) DU PERSONNAGE EN COURS, par l'organe de l'atterrissage (`goToStep`, l'étape trouvée par son id) — sans Save, sans remise à zéro, sans document neuf.**
 
 > Eric, 2026-09-29, dans la dictée : **« Bouton - Create character- (vers Etape 1 du builder) »**.
@@ -10449,7 +10469,7 @@ en décide seul ; la coquille ne choisit que l'organe qui MONTRE l'écran mort d
 dalle ; la coquille le pose) — 4 mutations vues rouges ; `premier-pas` E1.
 
 ### 💤 `VAULT` ET `DUNGEON MASTER` SONT RÉSERVÉS ; `TOOLS` QUITTE R
-📍 `menu-r-portes-reservees` · vivante · 29/09
+📍 `menu-r-portes-reservees` · remplacée · 29/09 · remplacée par `menu-r-portes-en-deux-rangees`
 ⚖️ **`Vault` et `Dungeon Master` sont des places réservées : présentes, éteintes, un mot (« soon ») sous elles — la forme de `Double view` quand la fenêtre est trop petite. `Tools` n'est plus sur R.**
 
 > Eric, 2026-09-29, dans la dictée : **« Vault (droite -> B2) »** · **« Bouton -Dungeon Master-
@@ -10489,6 +10509,100 @@ pas diverger. Le guide du Menu demeure, lu depuis ses rangs B.
 plus un message, c'était un décor ; un refus, lui, en reste un. C'est la voix du gendarme (§ 7), pas
 une ligne d'état qui revient. ✅ Ce mot rouge était une lecture du lot 350 ; Eric l'a gardé.
 🛡️ `universe-step` D1, D2, D3, D5, R1.
+
+---
+
+### 🧭 LOT 357 — R REDICTÉ, ET LA PAGE DUNGEON MASTER *(Eric, 2026-09-29, après la v906)*
+📍 `menu-r-la-page-redictee` · vivante · 29/09 · remplace `menu-r-la-page-dictee`
+⚖️ **Le Menu R porte, de haut en bas : `SOWLREACH` et son sous-titre · le code de campagne (réservé) · `New character` (le grand bouton) · `Campaign` (lu) · `Rules` · `Books` · l'aiguilleur · cinq portes en deux rangées centrées — `My characters` · `Dungeon Master` ; `Vault` · `Layers` · `Display`. Rien d'autre ; les repères `R` / `B…` ne s'affichent jamais.**
+
+> Eric, 2026-09-29, après avoir relu le Menu en ligne (v906), mot pour mot : **« je te refais un overview
+> de la page Menu (R). Campaign code on garde. create Character on garde (nomme le plutôt new
+> character). campaign : c'est le titre de la campagne, il se créera dans Dungeon Master/ Create
+> campaign. s'il aucun code de campagne n'est entré : il indique none. pas d'écart pour écrire ici.
+> apres tout es bien, jusqu'à new character : celui doit dégager. table items devient -> campaign
+> items (et va dans Dungeon master). il y au aussi un bouton homebrew à l'intérieur de Dungeon
+> master, là ce seront des créations maison, associées à une campagne ou pas, partagées avec la
+> communauté au pas. garde ce qu'on met dans Dungeon master en mémoire, voire crée les elements
+> dans une page sans nécessairement les cabler. Le bouton connect to VTT sera dedans aussi. donc
+> les 4 boutons du bas. My characters, Vault, Layers, display. centre les 2 par en 2 rangées »**.
+> Puis, à « Et Dungeon Master ? » : **« Exact, j'ai oublié de citer dungeon master en bouton du bas.
+> Et je n'ai pas bien compté. 1ere rangée : My characters / Dungeon Master · 2e rangée : Vault /
+> Layers / Display »**.
+
+🗄️ **CE QUI QUITTE R** : `Create character` (il devient `New character`), la porte `New character` du
+bas (*« celui doit dégager »* — un seul organe par geste), le champ `Campaign` (une ligne lue).
+🛡️ `tests/universe-step.test.mjs` R1, R3 (l'ensemble des verbes), R5 (les deux rangées), R8.
+
+#### 🟢 `NEW CHARACTER` EST LE GRAND BOUTON — la fenêtre, puis l'étape 1
+📍 `menu-r-new-character-grand-bouton` · vivante · 29/09 · remplace `menu-r-create-character-ouvre-l-etape-1`
+⚖️ **Le geste majeur de R s'appelle `New character` : il ouvre la fenêtre `New character` (`menu-r-new-character-fenetre`), puis la naissance ouvre l'étape 1 avec les Layers en place. ⛔ Aucun chemin de R ne mène plus à l'étape 1 sans la fenêtre.**
+
+> Eric, 29/09 : **« create Character on garde (nomme le plutôt new character) »** — et, à « le grand
+> bouton New character, que fait-il ? » : **« La fenêtre, puis l'étape 1 »**.
+
+🗄️ Lot 350 : `Create character` ouvrait l'étape 1 DU PERSO EN COURS, sans rien créer
+(`ouvrirLaCreation`) ; ce verbe n'a plus d'émetteur, et il quitte la coquille. L'étape 1 du perso en
+cours reste au belt (Identity).
+⭐ Il garde le VERT du geste qu'il remplace — ⏳ `A-TRANCHER §C29` reste ouverte, et elle gagne un
+argument : ce geste-ci mène à une naissance.
+🛡️ `universe-step` R2, D4, D6, D7 ; `premier-pas` E6 (un seul atterrissage sur l'étape 1 : la naissance).
+
+#### 📖 `CAMPAIGN` SE LIT — le titre de la campagne, ou « none »
+📍 `menu-r-campagne-se-lit` · vivante · 29/09 · remplace `menu-r-campagne-et-code`
+⚖️ **`Campaign` est une ligne lue : elle dit le titre de la campagne — qui naîtra dans Dungeon Master › `Create campaign`, par le code de campagne — et `none` tant qu'aucun code n'est entré. ⛔ Rien ne s'y écrit ; le document garde la valeur `campaign` qu'il porte, R ne l'écrit plus et ne l'efface pas. Le code de campagne reste une place réservée.**
+
+> Eric, 29/09 : **« Campaign code on garde »** · **« campaign : c'est le titre de la campagne, il se
+> créera dans Dungeon Master/ Create campaign. s'il aucun code de campagne n'est entré : il indique
+> none. pas d'écart pour écrire ici »**.
+
+🗄️ La réponse du matin (*« modifiable à la main tant que le code n'est pas câblé »*) est remplacée : le
+verbe `describe/campaign` ne part plus de R. ⏳ Le titre viendra du PC du MJ, par le code : ni `Create
+campaign` ni le transport de table ne sont construits — la ligne dit donc « none ».
+🛡️ `universe-step` B3, R4.
+
+#### 🚪 CINQ PORTES EN DEUX RANGÉES CENTRÉES — `Dungeon Master` vit, `Vault` attend
+📍 `menu-r-portes-en-deux-rangees` · vivante · 29/09 · remplace `menu-r-portes-reservees`
+⚖️ **Rangée 1 : `My characters` · `Dungeon Master` ; rangée 2 : `Vault` · `Layers` · `Display` — les deux rangées centrées, avec l'écart que le trio laisse entre ses portes quand il remplit la largeur. `Dungeon Master` ouvre sa page ; `Vault` reste une place réservée (son lot : 353) ; `Tools` n'est pas sur R.**
+
+> Eric, 29/09 : **« centre les 2 par en 2 rangées »** · **« 1ere rangée : My characters / Dungeon
+> Master · 2e rangée : Vault / Layers / Display »** ; et `Tools`, plus tôt le même jour : **« on mettra
+> ça chez le DM si on l'utilise (à faire plus tard) »**.
+
+⭐ **L'ÉCART SE DÉDUIT, IL NE S'ÉCRIT PAS** : la rangée est une grille de trois pistes de porte et de
+deux intervalles égaux (`1fr`) — le trio remplit la largeur, une porte par piste ; chaque porte de la
+paire couvre deux pistes et l'intervalle qui les sépare, centrée dedans : elle tombe sur l'intervalle du
+trio. ⛔ Aucun calcul : un chiffre dans un `gap` rougit le garde des jetons (`ui-jetons` garde 2).
+🗄️ Lot 350 : `space-between` — la paire plaquée aux bords — et `Dungeon Master` réservée.
+🛡️ `universe-step` R4, R5, R11 (la feuille : la grille et les aires) ; la géométrie rendue se mesure au
+navigateur (le DOM des tests n'a pas de mise en page).
+
+#### 🎲 LA PAGE DUNGEON MASTER — quatre places réservées, sans câblage
+📍 `menu-dm-la-page` · vivante · 29/09
+⚖️ **`Dungeon Master` ouvre un rang B du Menu : son titre, puis quatre places réservées en deux rangées de deux — `Create campaign` · `Campaign items` ; `Homebrew` · `Connect to VTT` — présentes, éteintes, « soon » sous elles, sans câblage. Le retour au Menu est celui des autres rangs B ; la page ne défile pas.**
+
+> Eric, 29/09 : **« garde ce qu'on met dans Dungeon master en mémoire, voire crée les elements dans une
+> page sans nécessairement les cabler »** — et, dans la même dictée : `Create campaign`, **« table items
+> devient -> campaign items (et va dans Dungeon master) »**, **« un bouton homebrew »**, **« Le bouton
+> connect to VTT sera dedans aussi »**.
+
+⭐ **UNE SEULE FORME DE « PAS ENCORE »** (`menu-reglage-impossible-reste-visible`) : la même place que
+`Vault` sur R. ⛔ Aucune prose inventée sur la page : Eric arrête les mots que le joueur lit.
+⏳ `Tools` y viendra *« si on l'utilise »*.
+⚠️ **Deux rangées de deux est une lecture du lot 357** — la dictée ne dit pas la disposition : ce sont
+les rangées des portes de R, centrées.
+🛡️ `universe-step` R9.
+
+#### 🍺 « HOMEBREW » SUR LE BOUTON DE LA PAGE DUNGEON MASTER — une exception nommée
+📍 `menu-dm-bouton-homebrew` · vivante · 29/09 · borne `equipement-campaign-items`
+⚖️ **Le bouton des créations maison de la page Dungeon Master s'appelle `Homebrew`. C'est le SEUL endroit où le joueur lit ce mot : le ban du lexique tient partout ailleurs.**
+
+> ARCHI 35, 29/09 : *« le bouton des créations maison — le lexique du 10/09 bannit « homebrew » partout
+> où un joueur le lit ; quel mot sur le bouton ? »* → Eric : **« Homebrew »**.
+
+⭐ **UNE BORNE, PAS UNE REMPLAÇANTE** : `equipement-campaign-items` reste vivante sur tous les autres
+écrans — le ban que `equipement-table-items` posait le 23/09 y a été reporté tel quel.
+🛡️ `universe-step` R10 (le mot est sur ce bouton, et sur aucune autre page du Menu).
 
 ---
 

@@ -22,16 +22,25 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
+import { stripComments } from "./source-scan.mjs";
 import { makeHarness, manifestOf, readJson, SRD_EN, PILE_SRD, FH_SPECIES_EN, FH_ARCANA_EN, FH_FEATS_EN, FH_SPELLS_EN, FH_FICHE_EN, FH_LORE_EN }
   from "./build-harness.mjs";
 
 globalThis.document = createTestDocument();
 
 const { renderUniverseStep, currentStack, currentBooks, currentContent, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, RULE_LAYER_IDS,
-  popupNouveauPersonnage, MOT_DE_L_AIGUILLEUR_DU_MENU }
+  popupNouveauPersonnage, MOT_DE_L_AIGUILLEUR_DU_MENU, MOT_SANS_CODE_DE_CAMPAGNE }
   = await import("../ui/builder/universe-step.mjs");
+/* 🔄 LOT 357 — deux gardes lisent la SOURCE de la coquille et de la feuille (le câblage de
+   la page Dungeon Master, le centrage des rangées) : commentaires retirés, comme partout. */
+const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
+const SHELL = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+const CSS = fs.readFileSync(path.join(UI, "shell.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
 
 /** Les organes du Menu. */
 const interrupteurs = (node) => node.querySelectorAll(".interrupteur");
@@ -178,9 +187,7 @@ const docSrd = (extra = {}) => draftDocument({ build: pile([SRD_LAYER_ID, ...SRF
 const docFh = (extra = {}) => draftDocument({ build: pile([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), ...extra });
 const rendre = (doc, onAction = () => {}, ctx = {}) =>
   renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ...ctx }, onAction);
-/* ⚠️ Le champ `Campaign` par son id : depuis le lot 350, le PREMIER champ de R est
-   le code de campagne (réservé, éteint) — une position aurait lu le mauvais. */
-function campaignField(node) { return node.querySelectorAll(".doc-field-input").find((i) => i.id === "universe-campaign"); }
+/* 🗄️ LOT 357 — `campaignField` est parti avec le champ : `Campaign` se LIT (B3). */
 
 test("B1 — 🔴 `Rules` SE LIT : SRD sur la pile SRD, Fate's Hand sur SRD + FH — et R n'a AUCUN interrupteur", () => {
   const nSrd = rendre(docSrd());
@@ -234,22 +241,29 @@ test("B2 bis — ⚔️ UNE PILE HORS DES DEUX JEUX SE DIT TOUJOURS — et elle 
   }
 });
 
-test("B3 — ✍️ `Campaign` SE MODIFIE À LA MAIN tant que le code n'est pas câblé ; `Books` met le SRD EN TÊTE", () => {
-  /* ⚖️ Eric, 29/09 — à « la ligne Campaign, modifiable ? » : oui, tant que le code de
-     campagne n'est pas câblé ; à « le SRD dans Books ? » : *« Books est un terme
-     générique ; le SRD est le book de base »*. Les mots de la ligne sont ceux du
-     plan v10 : « SRD · FH · PHB · DMG ». */
+test("B3 — 📖 `Campaign` SE LIT : « none » sans code — ⛔ plus de champ, rien d'émis ; `Books` met le SRD EN TÊTE", () => {
+  /* 🔄 LOT 357 — B3 tenait le champ `Campaign` modifiable à la main (Eric, 29/09 matin :
+     « tant que le code de campagne n'est pas câblé »). Redicté l'après-midi, mot pour mot :
+     *« campaign : c'est le titre de la campagne, il se créera dans Dungeon Master/ Create
+     campaign. s'il aucun code de campagne n'est entré : il indique none. pas d'écart pour
+     écrire ici »*. ⭐ Le garde ne se relâche pas, il change d'objet : il tenait qu'une frappe
+     émet le bon verbe ; il tient maintenant qu'il n'y a plus rien à frapper, que la ligne dit
+     « none » MÊME quand le document porte une valeur (le titre viendra du code, pas du
+     document), et que toucher la ligne n'émet rien.
+     ⚖️ `Books` : à « le SRD dans Books ? » → *« Books est un terme générique ; le SRD est le
+     book de base »*. Les mots de la ligne sont ceux du plan v10 : « SRD · FH · PHB · DMG ». */
   const gestes = [];
   const complet = draftDocument({ campaign: "Eberron", build: pile([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS, ...LIVRE_LAYER_IDS]) });
   const node = rendre(complet, (a) => gestes.push(a));
-  const champ = campaignField(node);
-  assert.ok(champ, "le champ Campaign existe");
-  assert.equal(champ.disabled, false, "…et il est vivant");
-  assert.equal(champ.value, "Eberron");
-  champ.value = "Khorvaire";
-  champ.dispatchEvent({ type: "change" });
-  assert.deepEqual(gestes, [{ kind: "describe", field: "campaign", value: "Khorvaire" }],
-    "commis sur `change`, par le verbe du bloc `doc` — jamais une écriture directe");
+  assert.equal(node.querySelectorAll("#universe-campaign, .tdc-champ").length, 0, "⛔ plus de champ `Campaign` sur R");
+  assert.equal(MOT_SANS_CODE_DE_CAMPAGNE, "none", "le mot d'Eric");
+  assert.equal(valeur(node, "campaign"), "none", "⛔ sans code, « none » — pas la valeur que le document porte");
+  const l = ligne(node, "campaign");
+  assert.equal(l.querySelectorAll("button, input, [role]").length, 0, "⛔ une ligne lue ne porte aucun contrôle");
+  l.click();
+  for (const morceau of l.querySelectorAll("span")) morceau.click();
+  assert.deepEqual(gestes, [], "la toucher n'émet RIEN — ⛔ surtout pas `describe/campaign`");
+  assert.equal(complet.campaign, "Eberron", "le document garde sa valeur : R ne l'écrit plus, et ne l'efface pas");
   assert.equal(valeur(node, "books"), "SRD · FH · PHB · DMG", "le socle, Fate's Hand, puis les livres du joueur");
   assert.equal(valeur(rendre(docSrd()), "books"), "SRD", "sans Fate's Hand ni livre, le SRD reste — il n'est jamais absent");
 });
@@ -526,18 +540,25 @@ test("R1 — 🧭 R porte le nom du produit en tête, et son sous-titre — ⛔ 
   assert.doesNotMatch(node.textContent, /\b(R|B[0-4])\b/, "aucun repère de rang dans ce que le joueur lit");
 });
 
-test("R2 — 🔴 le geste majeur est `Create character` : il OUVRE l'étape 1, il ne crée rien — et R n'a pas de Done", () => {
-  /* ⚖️ Eric, 29/09 : *« Bouton - Create character- (vers Etape 1 du builder) »*.
-     🗄️ Il remplace `Build a character` (08/09 ; lot 193 : sauver, repartir à zéro,
-     demander le jeu) — ce geste-là appartient désormais à `New character`. */
+test("R2 — 🔴 le geste majeur est `New character` : il OUVRE LA FENÊTRE, puis l'étape 1 — et R n'a pas de Done", () => {
+  /* 🔄 LOT 357 — R2 tenait `Create character` → l'étape 1 DU PERSO EN COURS, sans rien
+     créer (`ouvrirLaCreation`). Eric l'a redicté le 29/09 après-midi : *« create Character
+     on garde (nomme le plutôt new character) »*, et à « le grand bouton New character, que
+     fait-il ? » : *« La fenêtre, puis l'étape 1 »*. Le garde tient toujours UN geste majeur,
+     un seul verbe, et pas de `Done` ; il tient maintenant que ce verbe est la FENÊTRE —
+     jamais une naissance sans avertissement, jamais l'étape 1 sans elle.
+     🗄️ `Build a character` (08/09) → `Create character` (350) → `New character` (357). */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
   const majeurs = node.querySelectorAll(".menu-porte[data-majeure]");
-  assert.deepEqual(majeurs.map((b) => b.textContent), ["Create character"], "UN geste majeur");
+  assert.deepEqual(majeurs.map((b) => b.textContent), ["New character"], "UN geste majeur, sous le mot d'Eric");
   majeurs[0].dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "ouvrirLaCreation" }], "⛔ un verbe de NAVIGATION : ni Save, ni naissance");
+  assert.deepEqual(gestes, [{ kind: "ouvrirNouveauPersonnage" }],
+    "⛔ la fenêtre d'abord — la naissance et l'étape 1 ne viennent qu'après un choix (premier-pas)");
   assert.equal(node.dataset.sortieIci, undefined, "⛔ pas de paire de sortie à la racine : un Done doublerait ce bouton");
   assert.equal(node.querySelectorAll(".tdc-majeur").length, 0, "🗄️ `Build a character` ne revient pas");
+  assert.equal(node.querySelectorAll("button").some((b) => b.textContent === "Create character"), false,
+    "🗄️ `Create character` a pris le nom `New character`");
 });
 
 test("R3 — 🔌 LES VERBES DE R SONT CEUX QU'ERIC A DICTÉS, NI PLUS NI MOINS", () => {
@@ -546,27 +567,34 @@ test("R3 — 🔌 LES VERBES DE R SONT CEUX QU'ERIC A DICTÉS, NI PLUS NI MOINS"
      de R, pressé une fois, émet UN verbe, et l'ensemble est celui de la dictée.
      ⚔️ Un bouton de plus, un verbe de plus, ou une porte réservée qui se réveille
      sans son lot → rouge ici. */
+  /* 🔄 LOT 357 — l'ensemble change avec la redictée : `Create character` devient `New
+     character` (la fenêtre), la porte `New character` du bas disparaît, et `Dungeon Master`
+     se réveille — son lot, c'est celui-ci (sa page, R9). */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
   const vivants = node.querySelectorAll("button").filter((b) => !b.disabled);
   for (const b of vivants) b.dispatchEvent({ type: "click" });
   assert.deepEqual(vivants.map((b) => b.textContent),
-    ["Create character", "My characters", "New character", "Layers", "Display"]);
+    ["New character", "My characters", "Dungeon Master", "Layers", "Display"]);
   assert.deepEqual(gestes.map((g) => g.kind),
-    ["ouvrirLaCreation", "ouvrirLeMagasin", "ouvrirNouveauPersonnage", "ouvrirLayers", "ouvrirDisplay"]);
+    ["ouvrirNouveauPersonnage", "ouvrirLeMagasin", "ouvrirDungeonMaster", "ouvrirLayers", "ouvrirDisplay"]);
 });
 
-test("R4 — 💤 LES PLACES RÉSERVÉES : Campaign code · Vault · Dungeon Master — présentes, éteintes, un mot SOUS elles", () => {
-  /* ⚖️ Eric, 29/09 : *« Vault (droite, réservé) »*, *« Dungeon Master (droite,
-     réservé) »*, et le code de campagne présent, éteint, en T0. ⭐ LA FORME est
-     celle de `Double view` quand la fenêtre est trop petite (📍 `menu-reglage-
-     impossible-reste-visible`) : présente, éteinte, un mot — ⛔ pas une seconde forme.
+test("R4 — 💤 LES PLACES RÉSERVÉES DE R : Campaign code · Vault — présentes, éteintes, un mot SOUS elles ; Dungeon Master vit", () => {
+  /* ⚖️ Eric, 29/09 : *« Vault (droite, réservé) »*, et le code de campagne présent, éteint,
+     en T0 — *« Campaign code on garde »*, redit l'après-midi. ⭐ LA FORME est celle de
+     `Double view` quand la fenêtre est trop petite (📍 `menu-reglage-impossible-reste-
+     visible`) : présente, éteinte, un mot — ⛔ pas une seconde forme.
+     🔄 LOT 357 — `Dungeon Master` QUITTE les places réservées de R : sa porte est vivante et
+     ouvre sa page, dont les QUATRE éléments sont, eux, réservés (R9).
      🗄️ `DM · Tools` (08/09) : `Tools` quitte R (*« on mettra ça chez le DM si on
      l'utilise »*), et `DM` s'écrit en entier. */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
   const reservees = node.querySelectorAll("button[data-reserve]");
-  assert.deepEqual(reservees.map((b) => b.textContent), ["Vault", "Dungeon Master"]);
+  assert.deepEqual(reservees.map((b) => b.textContent), ["Vault"]);
+  const dm = node.querySelectorAll("button").find((b) => b.textContent === "Dungeon Master");
+  assert.ok(dm && dm.disabled !== true && dm.dataset.reserve === undefined, "`Dungeon Master` est une porte VIVANTE");
   for (const b of reservees) {
     assert.equal(b.disabled, true, `${b.textContent} : réservée = éteinte`);
     const place = b.parentNode;
@@ -589,17 +617,23 @@ test("R4 — 💤 LES PLACES RÉSERVÉES : Campaign code · Vault · Dungeon Mas
   assert.equal(node.querySelectorAll("button").some((b) => /^(Tools|DM)$/.test(b.textContent)), false, "🗄️ ni `Tools` ni `DM`");
 });
 
-test("R5 — 🚪 LES SIX PORTES AUX PLACES DICTÉES : trois rangées, gauche · centre · droite — et plus de pied", () => {
-  /* ⚖️ Eric, 29/09 : *« My characters (gauche) · New character (centre) · Vault
-     (droite) · Layers (gauche) · Dungeon Master (droite) · Display »* ; et à « le
-     pied actuel de R (le livre FH Web, le `?`) » : *« pas de livre ni de ? dans
-     l'étape Menu »*. 🗄️ R5 tenait la rangée du bas (le livre, `Display · DM ·
-     Tools` au standard). */
+test("R5 — 🚪 LES CINQ PORTES EN DEUX RANGÉES : My characters · Dungeon Master / Vault · Layers · Display — et plus de pied", () => {
+  /* 🔄 LOT 357 — R5 tenait six portes sur trois rangées (*« My characters (gauche) · New
+     character (centre) · Vault (droite) · Layers (gauche) · Dungeon Master (droite) ·
+     Display »*, 29/09 matin). Redicté l'après-midi : *« jusqu'à new character : celui doit
+     dégager […] donc les 4 boutons du bas. My characters, Vault, Layers, display. centre les
+     2 par en 2 rangées »* ; puis *« 1ere rangée : My characters / Dungeon Master · 2e rangée
+     : Vault / Layers / Display »*. Le centrage se lit dans la feuille (R11).
+     ⚖️ Et à « le pied actuel de R (le livre FH Web, le `?`) » : *« pas de livre ni de ? dans
+     l'étape Menu »*. 🗄️ R5 tenait aussi, avant le 350, la rangée du bas (le livre, `Display
+     · DM · Tools` au standard). */
   const node = racine();
   const rangees = node.querySelectorAll("nav.tdc-portes .tdc-rangee");
-  assert.deepEqual(rangees.map((r) => r.dataset.disposition), ["trois", "deux", "une"]);
+  assert.deepEqual(rangees.map((r) => r.dataset.disposition), ["deux", "trois"]);
   assert.deepEqual(rangees.map((r) => r.querySelectorAll("button").map((b) => b.textContent)),
-    [["My characters", "New character", "Vault"], ["Layers", "Dungeon Master"], ["Display"]]);
+    [["My characters", "Dungeon Master"], ["Vault", "Layers", "Display"]]);
+  assert.equal(node.querySelectorAll("button").filter((b) => b.textContent === "New character").length, 1,
+    "⛔ la porte `New character` du bas est partie : un seul organe par geste (le grand bouton)");
   assert.equal(node.querySelectorAll(".parcours-pied, .fiche-livre, .tdc-porte, .tdc-pied, .tdc-trio").length, 0,
     "⛔ ni pied, ni livre, ni les petites portes d'avant");
   /* ⭐ LE GABARIT LARGE, PAR LA FAMILLE : toutes les portes de R sont `.menu-porte`,
@@ -664,6 +698,96 @@ test("R8 — 🧭 L'AIGUILLEUR DE R : l'organe `.guide-mot`, UNE fois, et il ne 
   }
   assert.ok(ecrit.some((m) => /^campaign code$/i.test(m)) && /campaign code/i.test(MOT_DE_L_AIGUILLEUR_DU_MENU),
     "…et le code de campagne, sous le nom que porte sa place");
+});
+
+/* ══ LOT 357 — LA PAGE DUNGEON MASTER, LE MOT DES CRÉATIONS MAISON, LE CÂBLAGE ═══════
+   ⚖️ Eric, 29/09 après-midi : *« table items devient -> campaign items (et va dans Dungeon
+   master). il y au aussi un bouton homebrew à l'intérieur de Dungeon master […] garde ce
+   qu'on met dans Dungeon master en mémoire, voire crée les elements dans une page sans
+   nécessairement les cabler. Le bouton connect to VTT sera dedans aussi. »* — et `Create
+   campaign` (*« il se créera dans Dungeon Master/ Create campaign »*). */
+const pageDm = (onAction = () => {}) =>
+  renderUniverseStep({ document: draftDocument(), query: () => null, fieldErrors: {}, ecran: "dm" }, onAction);
+
+test("R9 — 🎲 LA PAGE DUNGEON MASTER : quatre places réservées, deux rangées de deux, sans câblage — et le retour des rangs B", () => {
+  const gestes = [];
+  const page = pageDm((a) => gestes.push(a));
+  assert.equal(page.dataset.ecran, "dm", "le rang que la coquille nomme `dm`");
+  assert.equal(page.dataset.sortieIci, "true", "rang B : la coquille pose le retour au Menu, comme pour les autres");
+  assert.ok(page.className.includes("dalle-intermediaire"), "la dalle de R, voile à 50 %");
+  assert.equal(page.querySelectorAll("h3.tdc-titre-b")[0].textContent, "Dungeon Master", "le titre des rangs B");
+  const rangees = page.querySelectorAll("nav.tdc-portes .tdc-rangee");
+  assert.deepEqual(rangees.map((r) => r.querySelectorAll("button").map((b) => b.textContent)),
+    [["Create campaign", "Campaign items"], ["Homebrew", "Connect to VTT"]]);
+  /* ⭐ LA FORME UNIQUE DU « PAS ENCORE » : présente, éteinte, « soon » SOUS elle — la même
+     que `Vault` sur R (📍 `menu-reglage-impossible-reste-visible`). */
+  for (const b of page.querySelectorAll("button")) {
+    assert.equal(b.disabled, true, `${b.textContent} : réservée = éteinte`);
+    assert.equal(b.dataset.reserve, "true", `${b.textContent} : marquée réservée`);
+    assert.equal(b.className, "menu-porte", `${b.textContent} : le gabarit des portes de R`);
+    const place = b.parentNode;
+    const mot = place.querySelectorAll(".tdc-bientot")[0];
+    assert.equal(mot && mot.textContent, "soon", `${b.textContent} : son mot`);
+    assert.ok(place.childNodes.indexOf(mot) > place.childNodes.indexOf(b), `${b.textContent} : le mot SOUS elle`);
+    b.dispatchEvent({ type: "click" });
+  }
+  assert.deepEqual(gestes, [], "⛔ aucun câblage : *« sans nécessairement les cabler »*");
+  /* ⏳ `Tools` : *« on mettra ça chez le DM si on l'utilise (à faire plus tard) »* — pas encore. */
+  assert.equal(page.querySelectorAll("button").some((b) => /^Tools$/.test(b.textContent)), false, "⏳ `Tools` n'y est pas encore");
+});
+
+test("R10 — 🏷️ LES MOTS DU JOUEUR : `Campaign items` (plus `Table items`), et « Homebrew » NULLE PART sauf le bouton de la page Dungeon Master", () => {
+  /* ⚖️ Eric, 29/09 : *« table items devient -> campaign items »*. Et à « le bouton des
+     créations maison : quel mot, puisque le lexique du 10/09 bannit "homebrew" devant le
+     joueur ? » → *« Homebrew »* (relayé par ARCHI 35). ⭐ C'est une EXCEPTION NOMMÉE (📍
+     `menu-dm-bouton-homebrew`) : le ban tient partout ailleurs. Ce garde la tient des deux
+     côtés — le mot EST sur le bouton de la page DM, et il n'est sur AUCUNE autre page du Menu.
+     ⏳ `Layers` porte encore la place `+ Table items` : c'est le lot 351 qui la retire de son
+     écran ; elle rejoint ce garde à sa fusion. */
+  const doc = draftDocument();
+  const pages = {
+    R: racine(),
+    dm: pageDm(),
+    display: renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ecran: "display" }, () => {}),
+    characters: renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true },
+      ecran: "characters", magasin: { etat: "liste", groupes: [], entrees: [] } }, () => {})
+  };
+  for (const [nom, page] of Object.entries(pages)) {
+    assert.doesNotMatch(page.textContent, /table items/i, `⛔ \`Table items\` sur ${nom} : le mot est \`Campaign items\``);
+  }
+  assert.equal(pages.dm.querySelectorAll("button").filter((b) => b.textContent === "Campaign items").length, 1,
+    "`Campaign items` a sa place, sur la page Dungeon Master");
+  const ouHomebrew = Object.entries(pages).flatMap(([nom, page]) =>
+    page.querySelectorAll("*").filter((n) => n.childNodes.every((c) => typeof c.textContent === "string" && !c.tagName) && /homebrew/i.test(n.textContent))
+      .map((n) => `${nom}:${n.tagName}:${n.textContent}`));
+  assert.deepEqual(ouHomebrew, ["dm:BUTTON:Homebrew"], "« Homebrew » : UN endroit, le bouton de la page DM");
+});
+
+test("R11 — 🔌 LA COQUILLE OUVRE LA PAGE DUNGEON MASTER COMME LES AUTRES RANGS B, et la feuille CENTRE les rangées", () => {
+  /* ⭐ AUCUN MÉCANISME NEUF (lot 136) : le même compteur `palier`, la même branche
+     `menuBranche` — donc `pressBack` sait déjà remonter. */
+  assert.match(SHELL, /action\.kind === "ouvrirDungeonMaster"\) \{ state\.palier = 2; state\.menuBranche = "dm"; openSurface\(\); return; \}/,
+    "⛔ la porte `Dungeon Master` doit ouvrir son rang B par l'organe partagé");
+  /* 🗄️ `ouvrirLaCreation` (le `Create character` du lot 350) : plus aucun écran ne l'émet. */
+  assert.doesNotMatch(SHELL, /"ouvrirLaCreation"/, "⛔ un verbe sans émetteur ne reste pas dans la coquille");
+  /* ⭐ LE CENTRAGE : *« centre les 2 par en 2 rangées »*. L'écart entre deux portes se DÉDUIT
+     du trio — ⛔ il ne s'écrit pas : trois pistes de porte, deux intervalles égaux, et chaque
+     porte de la paire centrée sur deux pistes et l'intervalle qui les sépare.
+     ⚠️ Le DOM des tests n'a pas de mise en page : ce garde lit la feuille ; la géométrie
+     rendue (la paire sur les intervalles du trio) se mesure au navigateur. */
+  const regle = (CSS.match(/\.tdc-rangee\s*\{([^}]*)\}/) || [])[1] || "";
+  assert.match(regle, /display:\s*grid/, "⛔ la rangée est une grille");
+  assert.match(regle, /justify-items:\s*center/, "⛔ chaque porte se centre dans son aire");
+  assert.match(regle, /grid-template-columns:\s*var\(--bouton-moyen\) 1fr var\(--bouton-moyen\) 1fr var\(--bouton-moyen\);/,
+    "⛔ trois pistes de porte et deux intervalles ÉGAUX : le trio remplit la largeur");
+  const aire = (dispo, rang) => (CSS.match(new RegExp(String.raw`\.tdc-rangee\[data-disposition="${dispo}"\] > :nth-child\(${rang}\) \{ grid-column: ([^;]+); \}`)) || [])[1];
+  assert.equal(aire("trois", 2), "3", "le trio : la deuxième porte sur la piste du milieu");
+  assert.equal(aire("trois", 3), "5", "…la troisième sur la dernière");
+  assert.equal(aire("deux", 1), "1 / 4", "la paire : la première porte couvre les pistes 1 à 3 — centrée, elle tombe sur le premier intervalle");
+  assert.equal(aire("deux", 2), "3 / 6", "…la seconde les pistes 3 à 5 — sur le second intervalle");
+  assert.match(CSS, /\.tdc-rangee\[data-disposition="deux"\] > \* \{ grid-row: 1; \}/,
+    "⛔ la paire tient sur UNE ligne : ses deux aires partagent la piste du milieu, sans `grid-row` la seconde passerait dessous");
+  assert.doesNotMatch(CSS, /\.tdc-rangee[^{]*\{[^}]*space-between/, "🗄️ plus de `space-between` : la paire tomberait aux bords");
 });
 
 test("S1 — 🔴 L'INTERRUPTEUR : role=switch, aria-checked = data-on, et cliquer INVERSE — éprouvé là où il vit", () => {

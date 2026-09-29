@@ -339,12 +339,16 @@ test("E2 — 🔌 LA NAISSANCE, DANS L'ORDRE : document neuf · écran à zéro 
   assert.doesNotMatch(shell, /"choisirLeJeu"|"construireLePersonnage"/, "⛔ ni la question ni son verbe ne reviennent");
 });
 
-test("E6 — ⚖️ `Create character` OUVRE L'ÉTAPE 1 SANS RIEN CRÉER ; la naissance l'ouvre APRÈS la remise à zéro", () => {
-  /* ⚖️ Eric, 29/09 : *« Bouton - Create character- (vers Etape 1 du builder) »*.
-     ⛔ IL NE CRÉE RIEN : pas de Save, pas de document neuf, pas de remise à zéro.
-     C'est ce qui le distingue de `New character`. */
-  assert.match(shell, /action\.kind === "ouvrirLaCreation"\) \{ goToStep\(CONCEPT_INDEX\); return; \}/,
-    "une ligne : l'organe de l'atterrissage, et rien d'autre");
+test("E6 — ⚖️ `New character` EST LE GRAND BOUTON : la fenêtre, PUIS l'étape 1 — et la naissance l'ouvre APRÈS la remise à zéro", () => {
+  /* 🔄 LOT 357 — E6 tenait `Create character` → l'étape 1 du perso en cours SANS RIEN
+     CRÉER (`ouvrirLaCreation`, *« Bouton - Create character- (vers Etape 1 du builder) »*,
+     29/09 matin). Eric l'a redicté l'après-midi : *« create Character on garde (nomme le
+     plutôt new character) »*, et à « que fait-il ? » : *« La fenêtre, puis l'étape 1 »*.
+     ⭐ Le garde garde ses autres moitiés (l'ordre de la naissance, l'étape trouvée par son
+     id, aucun champ écrit à la main) ; ce qu'il tient de neuf : aucun chemin vers l'étape 1
+     ne contourne plus la fenêtre. */
+  assert.doesNotMatch(shell, /"ouvrirLaCreation"/,
+    "⛔ le verbe qui ouvrait l'étape 1 sans fenêtre ne revient pas");
   /* ⛔ L'ORDRE EST TOUT dans la naissance : la remise à zéro rend le rang R ;
      poser le cran AVANT elle, ce serait l'écrire puis l'effacer. */
   assert.match(naissance(), /remettreLEcranAZero\(\);\s*goToStep\(CONCEPT_INDEX\);/,
@@ -358,11 +362,12 @@ test("E6 — ⚖️ `Create character` OUVRE L'ÉTAPE 1 SANS RIEN CRÉER ; la na
      la même chose aujourd'hui et mentirait le jour où un cran s'insère. */
   assert.match(shell, /const CONCEPT_INDEX = STEPS\.findIndex\(\(step\) => step\.id === "concept"\)/,
     "⛔ jamais un index écrit à la main");
-  /* ⚔️ DEUX APPELANTS, ET CE SONT LES DEUX GESTES DICTÉS. 🔄 Jusqu'au lot 349 il n'y
-     en avait qu'un (`Build a character` faisait les deux) ; Eric les a séparés le
-     29/09. ⛔ Un troisième serait un atterrissage que personne n'a dicté. */
-  assert.equal((shell.match(/goToStep\(CONCEPT_INDEX\)/g) || []).length, 2,
-    "`Create character` et la naissance de `New character` — pas un de plus");
+  /* ⚔️ UN SEUL APPELANT, LE GESTE DICTÉ. 🔄 Jusqu'au lot 349 il n'y en avait qu'un
+     (`Build a character` faisait les deux) ; le 350 en a eu deux (`Create character` et la
+     naissance) ; 🔄 le 357 revient à un : la naissance de `New character`, après sa
+     fenêtre. ⛔ Un second serait un atterrissage que personne n'a dicté. */
+  assert.equal((shell.match(/goToStep\(CONCEPT_INDEX\)/g) || []).length, 1,
+    "la naissance de `New character` — pas un de plus");
   /* ⚔️ ET OUVRIR UN PERSONNAGE RANGÉ revient au Menu (rang R du magasin). */
   const pose = shell.match(/function poserLeDocumentOuvert\(document\) \{([\s\S]*?)\n\}/);
   assert.ok(pose, "l'organe des deux portes existe");

@@ -28,7 +28,8 @@
    ── COMMIT SUR `change`, PAS SUR CHAQUE FRAPPE ──────────────────────────
    Patron venu de `numberField` (`equipment-step.mjs`, retiré au lot 349 :
    sans appelant depuis le 23/08) — ce fichier-ci en est désormais la
-   référence, et `universe-step.mjs` le reprend d'ici : `render()`
+   référence (`universe-step.mjs` l'a repris pour `Campaign` jusqu'au lot 357,
+   qui en a fait une ligne lue) : `render()`
    RECONSTRUIT toute la page (`app.innerHTML = ""`), donc un commit sur
    `input` perdrait le focus et la position du curseur à chaque lettre. Un
    champ libre commet sur `change` (perte de focus = validation), jamais
@@ -44,7 +45,7 @@
    valeur valide au prochain rendu — jamais une valeur à moitié écrite. */
 
 
-import { renderChoixGlisses } from "./glisser.mjs?v=907";
+import { renderChoixGlisses } from "./glisser.mjs?v=908";
 const ALIGNMENTS = [
   "Lawful Good", "Neutral Good", "Chaotic Good",
   "Lawful Neutral", "Neutral", "Chaotic Neutral",

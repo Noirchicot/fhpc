@@ -80,8 +80,9 @@ export function etatNeuf() {
        pas dans le document : c'est un fait d'écran, il meurt au rechargement. */
     ouvertureRefusee: null,
     /* 🧭 La branche de rang B du Menu ouverte : "display" (Appearance),
-       "characters" (le magasin de sauvegardes, lot 195) ou "layers" (le tableau
-       de commande des couches, lot 188). Lue seulement quand `palier >= 2`. */
+       "characters" (le magasin de sauvegardes, lot 195), "layers" (le tableau
+       de commande des couches, lot 188) ou "dm" (la page Dungeon Master, lot 357).
+       Lue seulement quand `palier >= 2`. */
     menuBranche: "display",
     /* ══ 🗄️ LOT 195 — LE MAGASIN, ET CE QU'IL A RÉPONDU ════════════════════
        ⭐ TROIS CHAMPS, PAS UN, ET AUCUN NE SE DÉDUIT DES AUTRES :
