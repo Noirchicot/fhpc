@@ -56,7 +56,7 @@ const { motDuChoix, motDUnRecordAbsent, motHumainDeLId, MOT_HORS_PILE } = await 
 const { coucheDUnId, interrupteurDUnId, COUCHE_PAR_ID } = await import("../ui/builder/interrupteurs.mjs");
 const { FH_LAYER_IDS } = await import("../ui/builder/universe-step.mjs");
 const fsSync = await import("../ui/builder/engine.mjs");
-const { itemsDeLEtape, etapeAchevee, refusDuDone, refsMortsDeLEtape, estConfirme } = await import("../ui/builder/parcours.mjs");
+const { itemsDeLEtape, etapeAchevee, refusDuDone, refsMortsDeLEtape, estConfirme, refusSansFiche } = await import("../ui/builder/parcours.mjs");
 const { renderGuideSpecifique } = await import("../ui/builder/parcours-ecrans.mjs");
 const { motDesChoixNonResolus } = await import("../ui/builder/ecran-mort.mjs");
 const { renderReviewStep, etapeFaite } = await import("../ui/builder/review-step.mjs");
@@ -405,4 +405,128 @@ test("F1 — ⚔️ remettre `ref.id` dans le titre de Species fait rougir `aucu
   assert.match(mute, /settled/i, "sans `manque` et avec `acheve`, la bande redit « settled » — c'est ce que le garde C1 refuse");
   /* la mutation ③ : `etapeAchevee` privé des refus redit « achevée » — C1 le tient en témoin */
   assert.equal(etapeAchevee({ decisions: etat.decisions, document: etat.document, racine: "species" }), true);
+});
+
+/* ══ H — LOT 359 : SANS CLASSE, LE SILENCE N'EST PLUS UNE RÉPONSE ═══════════
+   📏 Relevé au lot 351, reproduit en Node sur `main` : un joueur neuf choisit
+   l'Araag, puis éteint Fate's Hand AVANT d'avoir une classe. `rebuild` JETTE (« une
+   dérivation impossible »), la coquille posait `violations = []`, et ce silence se
+   lisait « réglé » : Species disait « settled », la ceinture signait vert. ⚠️ Le
+   joueur choisit l'espèce AVANT la classe : tout perso neuf traverse cet état.
+   ⭐ `validate()` ne jette pas et nomme ce qui ne lit que les CHOIX ; la coquille
+   n'en écarte que ce qui juge la fiche (le CHEMIN `resolved…`) ou n'a pas de
+   chemin (`refusSansFiche`, parcours.mjs). ⛔ Aucune règle de jeu ne bouge. */
+
+/** Le perso d'Eric AVANT sa classe : ni classe, ni scores (ils viennent après). */
+function sansClasse(h, opts) {
+  const doc = personnage(h, opts);
+  doc.build.choices = doc.build.choices.filter((c) => c.path !== "class" && !c.path.startsWith("abilities."));
+  return doc;
+}
+/** CE QUE LA COQUILLE FAIT QUAND LA DÉRIVATION JETTE (`rebuild()`, shell.mjs) : le
+ *  carnet par `verbs.decisions`, les refus par `refusSansFiche(validate)`. */
+function monterSansClasse(h, doc) {
+  assert.throws(() => h.verbs.rebuild({ document: doc }), (e) => e && e.name === "BuildError",
+    "témoin : sans classe, la dérivation JETTE — la règle de jeu ne bouge pas");
+  return {
+    document: doc,
+    decisions: h.verbs.decisions({ document: doc }).decisions || [],
+    violations: refusSansFiche(h.verbs.validate({ document: doc }).violations),
+    query: h.layers.verbs.query
+  };
+}
+
+test("H1 — ⚖️ `refusSansFiche` TRIE SUR LE CHEMIN, JAMAIS SUR LE CODE : un code inconnu suit la même loi ; `derive.threw` sort parce qu'il n'a PAS de chemin", () => {
+  /* ⚖️ ARCHI 35, 29/09 : « le tri se fonde sur la DONNÉE, c'est-à-dire le chemin du
+     refus (un choix contre resolved…), jamais sur une liste de codes. » */
+  const rapport = [
+    { key: "code.inconnu", path: "resolved.stats[str]" },
+    { key: "code.inconnu", path: "resolved" },
+    { key: "code.inconnu", path: "species" },
+    { key: "choice.ref-missing", path: "background.languages[1]" },
+    { key: "derive.threw" },
+    { key: "code.inconnu", path: "" }
+  ];
+  assert.deepEqual(refusSansFiche(rapport).map((v) => `${v.key} ${v.path}`),
+    ["code.inconnu species", "choice.ref-missing background.languages[1]"],
+    "posé sur un choix : gardé · posé sur la fiche (resolved…) : écarté · sans chemin : écarté");
+  /* ⚔️ C'EST LE CHEMIN QUI DÉCIDE, PAS LE NOM : le même `derive.threw`, posé sur un
+     choix, est GARDÉ ; un code de fiche posé sur un choix aussi. */
+  assert.equal(refusSansFiche([{ key: "derive.threw", path: "species" }]).length, 1);
+  assert.equal(refusSansFiche([{ key: "stat.value-mismatch", path: "species" }]).length, 1);
+  /* un chemin qui commence par le mot sans être la fiche reste un choix */
+  assert.equal(refusSansFiche([{ key: "x", path: "resolvedAt" }]).length, 1);
+  assert.deepEqual(refusSansFiche(undefined), []);
+  /* ⛔ ET LA SOURCE NE LIT AUCUN CODE */
+  const src = stripComments(fs.readFileSync(path.join(UI, "parcours.mjs"), "utf8"));
+  const debut = src.indexOf("export function refusSansFiche");
+  assert.ok(debut > 0, "témoin : l'organe existe");
+  const corps = src.slice(debut, src.indexOf("\n}\n", debut));
+  assert.doesNotMatch(corps, /\.key\b|derive\.threw|choice\.|stat\./, "le tri ne lit pas le code du refus");
+});
+
+test("H2 — 🔴 SANS CLASSE, un Araag en pile SRD se NOMME, Species n'est pas « settled », et la ceinture ne signe pas", () => {
+  const doc = sansClasse(SRD);
+  const etat = monterSansClasse(SRD, doc);
+  /* ⚔️ le témoin qui accuse : le silence d'avant se lisait « réglé » */
+  assert.equal(etapeAchevee({ decisions: etat.decisions, document: doc, racine: "species", violations: [] }), true,
+    "témoin : sans refus, l'Araag signé passe pour réglé — c'était le défaut");
+  assert.ok(estConfirme(doc, "species"), "témoin : l'étape est SIGNÉE — c'est la signature qui allumait la ceinture");
+  const morts = refsMortsDeLEtape({ violations: etat.violations, racine: "species" });
+  assert.deepEqual(morts.map((m) => m.id), [ARAAG], "le choix mort est nommé, sans classe comme avec");
+  const texte = guideDe(SPECIES_CATALOGUE, etat).textContent;
+  aucunIdNu(texte, ARAAG);
+  assert.equal(/settled/i.test(texte), false, "⛔ « settled » ne se dit pas d'un choix non résolu — avec ou sans classe");
+  assert.match(texte, /Araag comes with Fate's Hand — switch it on in Layers/, "le même mot qu'avec une classe");
+  /* LA CEINTURE (`paintBelt`) : un ref mort sous la racine éteint le voyant, signature ou pas */
+  assert.ok(morts.length > 0);
+  assert.equal(etapeAchevee({ decisions: etat.decisions, document: doc, racine: "species", violations: etat.violations }), false);
+});
+
+test("H3 — SANS CLASSE, BACKGROUND (SRD) : le don et les langues Fate's Hand se nomment, l'étape n'est pas réglée", () => {
+  const doc = sansClasse(SRD);
+  const etat = monterSansClasse(SRD, doc);
+  const morts = refsMortsDeLEtape({ violations: etat.violations, racine: "background" });
+  assert.deepEqual(morts.map((m) => m.id).sort(), [AUSPICIOUS, LANGUE_ELF, LANGUE_HUMAN].sort());
+  assert.match(motDesChoixNonResolus(morts), /come with Fate's Hand — switch them on in Layers/);
+  assert.equal(etapeAchevee({ decisions: etat.decisions, document: doc, racine: "background", violations: etat.violations }), false);
+});
+
+test("H4 — ⚔️ TÉMOIN INVERSE : sans classe mais Fate's Hand monté, rien n'est mort — Species est réglée, et rien n'accuse la fiche", () => {
+  const doc = sansClasse(FH);
+  const etat = monterSansClasse(FH, doc);
+  assert.deepEqual(refsMortsDeLEtape({ violations: etat.violations, racine: "species" }), []);
+  assert.equal(etapeAchevee({ decisions: etat.decisions, document: doc, racine: "species", violations: etat.violations }), true,
+    "⛔ le remède ne retient pas un choix qui se résout : l'absence de classe n'est pas une faute de Species");
+  for (const v of etat.violations) assert.ok(typeof v.path === "string" && !v.path.startsWith("resolved"), `${v.key} ${v.path}`);
+});
+
+test("H5 — ⚔️ LA FICHE ABANDONNÉE N'ACCUSE PERSONNE : une tranche d'avant (classe retirée) qui ne somme plus est écartée par son chemin", () => {
+  /* Le vrai chemin : un perso DÉRIVÉ avec sa classe, puis « I changed my mind » sur
+     Class — le document garde la tranche de l'ancienne classe. On la fausse. */
+  const avec = personnage(FH);
+  const derive = FH.verbs.rebuild({ document: avec }).document;
+  const doc = structuredClone(derive);
+  doc.build.choices = doc.build.choices.filter((c) => c.path !== "class");
+  const stat = doc.resolved.stats[0];
+  assert.ok(stat, "témoin : la tranche d'avant porte des stats (les modules Fate's Hand)");
+  stat.value += 7;
+  assert.throws(() => FH.verbs.rebuild({ document: doc }), "témoin : sans classe, la dérivation jette");
+  const brut = FH.verbs.validate({ document: doc }).violations || [];
+  assert.ok(brut.some((v) => typeof v.path === "string" && v.path.startsWith("resolved")),
+    "témoin : validate JUGE la tranche d'avant — c'était la raison du silence");
+  assert.equal(refusSansFiche(brut).some((v) => v.path.startsWith("resolved")), false, "…et le tri l'écarte, par son chemin");
+});
+
+test("H6 — 🔌 la coquille ne se tait plus : sans dérivation, `rebuild()` pose `refusSansFiche(validate)` — plus jamais `[]`", () => {
+  const src = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+  const debut = src.indexOf("function rebuild()");
+  assert.ok(debut > 0, "témoin : la coquille a bien sa reconstruction");
+  const branche = src.slice(debut, src.indexOf("state.derivationImpossible = null;", debut));
+  assert.ok(branche.includes('error.name !== "BuildError"'), "témoin : c'est la branche d'une dérivation qui jette");
+  assert.match(branche, /state\.violations = refusSansFiche\(verbs\.validate\(\{ document: state\.document \}\)\.violations\)/,
+    "les refus qui tiennent sans fiche");
+  assert.doesNotMatch(branche, /state\.violations = \[\]/, "⛔ le silence ne vaut pas « réglé »");
+  /* …et les lecteurs n'ont pas bougé : la ceinture lit les refs morts de CES refus */
+  assert.match(src, /refsMortsDeLEtape\(\{ violations: state\.violations, racine: chapitre\.path \}\)/);
 });
