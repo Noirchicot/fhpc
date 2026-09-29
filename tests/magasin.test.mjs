@@ -49,7 +49,9 @@ const {
 } = await import("../ui/builder/magasin.mjs");
 const { renderMagasinEcran, popupDeLaDestination, motDeLaDate, MOT_AUTORISER }
   = await import("../ui/builder/magasin-ecran.mjs");
-const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, sauvegarderPuisEteindre, creerUnPersonnage }
+/* ⚖️ LOT 350 — `creerUnPersonnage` (193) est parti avec le popup « SRD or Fate's Hand? » : la
+   séquence de la fenêtre `New character` le remplace, avec la même règle du 192. */
+const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, sauvegarderPuisEteindre, nouveauPersonnageSelonLaVoie }
   = await import("../ui/builder/universe-step.mjs");
 const { MAITRE } = await import("../ui/builder/interrupteurs.mjs");
 
@@ -505,13 +507,15 @@ test("F1 — ⚔️ UN SEUL CHEMIN D'ÉCRITURE : `exporterJson` est le SEUL à n
     "…et le seul est DANS l'organe qui range l'entrée");
 });
 
-test("F2 — 🔌 LES DEUX ÉCRIVAINS DU 192 ET DU 193 APPELLENT `exporterJson`, pas un double", () => {
+test("F2 — 🔌 LES DEUX ÉCRIVAINS DU 192 ET DU 350 APPELLENT `exporterJson`, pas un double", () => {
   assert.match(shell, /sauvegarderPuisEteindre\(\{\s*sauvegarder: \(\) => exporterJson\(\{ version: NOM_DE_LA_VERSION_FH \}\)/,
     "la copie de la version FH (192)");
-  assert.match(shell, /sauvegarder: \(\) => exporterJson\(\{ quoi: "Build a character" \}\)/,
-    "le fichier automatique de `Build a character` (193)");
+  /* 🔄 LOT 350 — le fichier automatique de `Build a character` (193) est devenu le `Save` de la
+     fenêtre `New character` (Eric, 29/09) : même organe, et son refus nomme la porte poussée. */
+  assert.match(shell, /sauvegarder: \(\) => exporterJson\(\{ quoi: "New character" \}\)/,
+    "le `Save` de la fenêtre `New character` (350)");
   assert.match(shell, /action\.kind === "exportJson"\) \{ void exporterJson\(\); return; \}/,
-    "et le bouton `Save` lui-même");
+    "et la porte `Save character` de Sheet elle-même");
 });
 
 test("F3 — ⚔️ UN ESPION SUR L'ORGANE : les deux séquences pures rangent DEUX entrées, et un refus n'efface rien", async () => {
@@ -535,13 +539,13 @@ test("F3 — ⚔️ UN ESPION SUR L'ORGANE : les deux séquences pures rangent D
   }), true);
   assert.equal(eteint, true);
 
-  /* 193 — `Build a character` : Save d'abord, reset ensuite. */
+  /* 350 — `New character` › `Save` : Save d'abord, naissance ensuite (193 : `Build a character`). */
   let reset = 0;
-  assert.equal(await creerUnPersonnage({
-    personnage: true,
+  assert.equal(await nouveauPersonnageSelonLaVoie({
+    voie: "save",
     sauvegarder: () => sauvegarder(docDe("Ilyra", PILE_SRD), "2026-09-10T18:05:00Z"),
-    repartirAZero: () => { reset += 1; },
-    demanderLeJeu: () => {}
+    oublier: () => {},
+    naitre: () => { reset += 1; }
   }), true);
   assert.equal(reset, 1);
 
@@ -557,11 +561,11 @@ test("F3 — ⚔️ UN ESPION SUR L'ORGANE : les deux séquences pures rangent D
     ou: { mot: MOT_DU_TIROIR, choisissable: false, choisi: false, demandee: true, possede: false }
   });
   let touche = 0;
-  assert.equal(await creerUnPersonnage({
-    personnage: true,
+  assert.equal(await nouveauPersonnageSelonLaVoie({
+    voie: "save",
     sauvegarder: async () => (await refuse.ecrire(texteDe(docDe("Ilyra", PILE_FH)), "2026-09-10T19:00:00Z")).ok,
-    repartirAZero: () => { touche += 1; },
-    demanderLeJeu: () => { touche += 1; }
+    oublier: () => { touche += 1; },
+    naitre: () => { touche += 1; }
   }), false);
   assert.equal(touche, 0, "⛔ entrée non rangée = pas de reset");
 });

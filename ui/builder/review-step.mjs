@@ -323,12 +323,57 @@ export function nomDeFichier(document, suffixe, version) {
    personnage à peine commencé s'exporte aussi — c'est un brouillon valide
    (schéma dérivé, lot 47), et le cacher jusqu'à « fini » ferait de l'export
    une récompense au lieu d'une sortie. */
+/* ⚖️ LOT 350 — `Export JSON` S'APPELLE `Save character`, ET C'EST LE MÊME GESTE.
+   Eric, 29/09 : *« le save character sera dans Sheet »* — le `Save` du Menu en part
+   (il émettait `exportJson`, le verbe que cette porte émet depuis le lot 67). ⛔ Deux
+   portes pour un seul geste seraient un second organe (la question C37, `Open` et
+   `My characters`) : la porte d'ici prend donc le mot d'Eric, le verbe ne bouge pas,
+   et le fichier non plus (`nomDeFichier`, plus haut). Le mot `Export JSON` (B9.4,
+   14/08) cède au plus récent — ✅ RATIFIÉ par Eric le 29/09, à « `Save character` à la
+   place d'`Export JSON` dans Sheet ? » : *« Oui, Save character »*. */
 function renderPortes(act) {
   const portes = el("div", "review-portes");
   portes.append(bouton("Expert view", "review-porte", () => act({ kind: "expertView" })));
-  portes.append(bouton("Export JSON", "review-porte", () => act({ kind: "exportJson" })));
+  portes.append(porteSaveCharacter(act));
   portes.append(bouton("Export HTML", "review-porte", () => act({ kind: "exportHtml" })));
   return portes;
+}
+
+/** LA PORTE `Save character` — UN SEUL ÉCRIVAIN POUR SES DEUX LIEUX : le pied de la
+ *  fiche (`renderPortes`) et l'écran « perso incomplet » (`renderSheetIncomplet`).
+ *  ⛔ Deux copies de la même porte divergeraient au premier réglage — le mot, la classe
+ *  ou le verbe — et le joueur verrait deux boutons qui se ressemblent sans faire la même
+ *  chose. */
+export function porteSaveCharacter(act) {
+  return bouton("Save character", "review-porte", () => act({ kind: "exportJson" }));
+}
+
+/** ══ ⚖️ LOT 350 — L'ÉCRAN « PERSO INCOMPLET » DE SHEET GARDE `Save character` ══════
+ *  Quand la fiche ne peut pas naître (ni classe ni scores — `manqueDuCran`, etapes.mjs,
+ *  en décide seul), Sheet montrait le mot du manque, et rien d'autre : un perso tout juste
+ *  né par `New character` n'avait alors AUCUNE porte pour se sauver, puisque `Save` a
+ *  quitté le Menu.
+ *  ⚖️ Eric, 29/09, à « un perso inachevé : Sheet affiche l'écran "perso incomplet", où
+ *  `Save character` n'est pas — où sauver ? » : *« Save aussi sur cet écran »*.
+ *  ⭐ LA MÊME DALLE QUE LA FICHE (B9.3 : une dalle, tout dedans), LA MÊME PORTE
+ *  (`porteSaveCharacter`), LE MÊME VERBE (`exportJson`) : le mot du manque, tel que la
+ *  coquille le reçoit d'`ecran-mort.mjs` (⛔ jamais recopié ici), puis la rangée des
+ *  portes réduite à celle qui a un sens sans fiche.
+ *  ⛔ `Expert view` et `Export HTML` n'y sont pas : ils publient la FICHE, qui n'existe pas
+ *  encore — une porte vers une pièce qui n'est pas construite serait un faux magasin (B9.5).
+ *  @param {string} mot le mot de l'écran mort (`motDeLEcranMort`)
+ *  @param {(action: object) => void} onAction */
+export function renderSheetIncomplet(mot, onAction) {
+  const act = onAction || (() => {});
+  const section = el("section", "review-step");
+  section.dataset.incomplet = "true";
+  const dalle = el("section", "review-mask dalle-intermediaire");
+  dalle.append(el("p", "placeholder", [text(mot)]));
+  const portes = el("div", "review-portes");
+  portes.append(porteSaveCharacter(act));
+  dalle.append(portes);
+  section.append(dalle);
+  return section;
 }
 
 function bouton(libelle, className, onClick) {

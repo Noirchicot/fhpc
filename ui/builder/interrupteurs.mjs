@@ -81,9 +81,12 @@ export const MAITRE = Object.freeze({ id: "maitre", label: "Fate's Hand" });
  *  PAS monté (un livre monté porte son nom dans le manifeste). ⛔ Les noms
  *  viennent de `src/tools/gen-livre-layer.mjs` (`LIVRES`), qui ne s'importe pas
  *  dans un navigateur ; un garde tient les deux listes ensemble. */
+/* ⚖️ LOT 350 — `court` : le mot du livre sur la ligne `Books` du Menu R, celui du
+   plan v10 (« SRD · FH · PHB · DMG », Eric, 29/09). ⛔ Ce n'est pas le `sigle` du
+   générateur (`XPHB`, le code de la source) : c'est le mot que le joueur lit. */
 export const LIVRES_DU_JOUEUR = Object.freeze([
-  { id: "xphb-en", nom: "Player's Handbook (2024)" },
-  { id: "xdmg-en", nom: "Dungeon Master's Guide (2024)" }
+  { id: "xphb-en", nom: "Player's Handbook (2024)", court: "PHB" },
+  { id: "xdmg-en", nom: "Dungeon Master's Guide (2024)", court: "DMG" }
 ].map(Object.freeze));
 
 /** L'INTERRUPTEUR QUI PORTE UNE COUCHE — `{id, label}`, ou `null` pour une

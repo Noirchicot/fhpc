@@ -162,6 +162,9 @@ un module pur, et le garde énumère les clefs **réelles** de l'objet — jamai
 qu'un geste prétend rendre quelque chose neuf, il repart de ce qui DÉFINIT le neuf, et nomme ses
 exceptions. ⭐ Le geste qui RECHARGE la page (`Forget`) est le cas trivial de cette règle : il ne
 conserve rien, donc il n'a jamais eu de liste à tenir.
+🔄 **29/09 (lot 350)** : `Forget` est devenu le `Delete` de la fenêtre `New character`
+(`menu-r-new-character-fenetre`). Il ne recharge plus : il oublie la copie du navigateur, puis la
+naissance passe par la même remise à zéro que `Save` et `Start` — cette règle, sans liste.
 
 ## 🏠 Qui possède quoi — côté JOUEUR : le personnage est à lui
 📍 `socle-chacun-est-proprietaire-de-ses-donnees` · vivante · 06/09

@@ -352,7 +352,13 @@ test("Menu — ses organes à état sont des INTERRUPTEURS (role=switch), et ari
     created: "2026-08-13T00:00:00Z", modified: "2026-08-13T00:00:00Z",
     build: { layers: report.document.build.layers, choices: [], budgets: {}, overrides: [] }
   };
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
+  /* 🔄 LOT 350 — LES INTERRUPTEURS DU MENU ONT QUITTÉ R (Eric, 29/09) : Fate's Hand vit dans
+     `Layers`, Tutorials et Double view dans `Display`. ⭐ Le garde les suit là où ils vivent —
+     `Display`, qui en porte deux — et il exige en plus que R n'en porte PLUS AUCUN. */
+  const racine = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
+  assert.equal(racine.querySelectorAll('[role="switch"]').length, 0, "R ne porte plus d'interrupteur : il se lit, il se règle derrière ses portes");
+  assert.equal(racine.querySelectorAll("[data-active]").length, 0, "…ni aucun [data-active]");
+  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ecran: "display", fonds: [], echelle: { auto: {}, crans: [] }, tutoriel: true, vueDouble: false, vueDoublePossible: true }, () => {});
   const switches = node.querySelectorAll('[role="switch"]');
   assert.ok(switches.length >= 1, `Menu : attendu au moins 1 interrupteur, trouvé ${switches.length}`);
   for (const sw of switches) {

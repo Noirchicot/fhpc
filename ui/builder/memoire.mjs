@@ -111,11 +111,12 @@ export function ecrirePersonnage(texte, magasin) {
   }
 }
 
-/** OUBLIER. ⛔ Personne ne l'appelle aujourd'hui — et ce n'est PAS du code mort
- *  (loi §0.6) : c'est la moitié de la clef, sans laquelle `lire`/`écrire` ne
- *  forment pas un magasin. Un test l'exerce, et le jour où un geste « nouveau
- *  personnage » existera (il n'existe pas : le builder n'a aucun personnage
- *  VIERGE, seulement l'exemple commité), il n'aura rien à écrire ici. */
+/** OUBLIER. C'est la moitié de la clef, sans laquelle `lire`/`écrire` ne forment
+ *  pas un magasin (loi §0.6). Cette tête prévoyait qu'un geste « nouveau
+ *  personnage » n'aurait rien à écrire ici le jour où il existerait : ⚖️ il existe
+ *  depuis le lot 350 — le `Delete` de la fenêtre `New character` (Eric, 29/09,
+ *  l'ex-`Forget` du 06/09) l'appelle AVANT de faire naître, et rien n'a été écrit
+ *  ici. */
 export function oublierPersonnage(magasin) {
   const store = leMagasin(magasin);
   if (!store) return { ok: false, raison: "this browser does not allow local storage" };

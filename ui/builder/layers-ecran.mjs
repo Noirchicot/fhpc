@@ -130,12 +130,16 @@ export function ligneReservee(label, mot = "soon") {
    ⛔ pas de `disabled` · ⛔ pas de focus clavier. `role="status"` : une région
    d'état, lue comme du texte, jamais annoncée comme un contrôle.
 
-   ⭐ UN SEUL ORGANE POUR UN SEUL SENS, DEUX ENDROITS : le socle de `Layers` et
-   la ligne des règles du Menu (`universe-step.mjs`). Le SRD y est TOUJOURS
-   allumé — Eric : *« il est toujours actif »* — y compris quand Fate's Hand
-   l'est aussi : le miroir « SRD éteint quand FH est allumé » (08/09) est
+   ⭐ UN SEUL ORGANE POUR UN SEUL SENS : le socle de `Layers`. Le SRD y est
+   TOUJOURS allumé — Eric : *« il est toujours actif »* — y compris quand Fate's
+   Hand l'est aussi : le miroir « SRD éteint quand FH est allumé » (08/09) est
    abandonné par ce mot du 09/09. Le SRD n'est pas l'inverse de Fate's Hand,
-   c'est le plancher sous lui. */
+   c'est le plancher sous lui.
+   🔄 LOT 350 — IL VIVAIT À DEUX ENDROITS, IL N'EN A PLUS QU'UN : la ligne des
+   règles du Menu (`universe-step.mjs`) portait la même lampe à côté de
+   l'interrupteur Fate's Hand. Eric a refait le Menu le 29/09 : `Rules` s'y LIT
+   en texte (« SRD » ou « Fate's Hand »), et la lampe comme l'interrupteur ne
+   vivent plus qu'ici. */
 export function voyant({ label, note, etat = "always on" }) {
   const ligne = el("div", "voyant");
   ligne.setAttribute("role", "status");
@@ -310,13 +314,16 @@ export function renderLayersEcran(ctx, onAction) {
 
   /* LE SOCLE — un VOYANT, pas un interrupteur verrouillé (Eric, 09/09). Il
      n'y a rien en dessous : c'est la promesse du produit, « ce que tu
-     construis reste ouvrable par n'importe qui ». La même lampe qu'au Menu. */
+     construis reste ouvrable par n'importe qui ». La lampe que le Menu portait
+     aussi jusqu'au lot 349 (voir `voyant`). */
   const socle = voyant({ label: "SRD 5.2.1", note: "the core rules" });
   socle.dataset.socle = "true";
   lignes.append(socle);
 
-  /* LE MAÎTRE — le MÊME geste que l'interrupteur de R (`requestLayerStack`) :
-     un seul organe écrit « tout Fate's Hand », et la coquille confirme. */
+  /* LE MAÎTRE — le geste que portait aussi l'interrupteur de R jusqu'au lot 349
+     (`requestLayerStack`) : un seul organe écrit « tout Fate's Hand », et la
+     coquille confirme. 🔄 LOT 350 — R le LIT désormais (`Rules`), il ne le règle
+     plus : `Layers` est le SEUL émetteur de ce geste. */
   const maitre = interrupteur({
     label: "Fate's Hand", note: "all six layers at once", on: composition.maitre,
     onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })

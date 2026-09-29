@@ -43,8 +43,9 @@ globalThis.document = createTestDocument();
    importe l'autre bout du cycle en premier. Les deux ordres doivent charger. */
 const {
   INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, compositionFh, couchesApresLeGeste, gestesDAlignement, renderLayersEcran,
-  interrupteur, voyant
+  interrupteur, voyant, manifesteDeLaPile
 } = await import("../ui/builder/layers-ecran.mjs");
+const { createDocWriters } = await import("../src/doc/writers.mjs");
 const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, currentStack, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH }
   = await import("../ui/builder/universe-step.mjs");
 const { motDUnRecordAbsent } = await import("../ui/builder/mot-du-choix.mjs");
@@ -308,7 +309,8 @@ test("D4 — 🔌 les gestes : le maître demande la PILE (la coquille confirme)
   socle(node).click();
   assert.deepEqual(vus, [], "⛔ le voyant SRD ne demande rien — il n'a AUCUN écouteur, pas un `disabled` qui retient un clic");
   maitre(node).click();
-  assert.deepEqual(vus, [{ kind: "requestLayerStack", value: "srd" }], "le MÊME geste que l'interrupteur de R");
+  assert.deepEqual(vus, [{ kind: "requestLayerStack", value: "srd" }],
+    "le geste que portait aussi l'interrupteur de R jusqu'au lot 349 — `Layers` en est le seul émetteur depuis le 350");
   enfant(node, "trainings").click();
   assert.deepEqual(vus[1], { kind: "requestLayerSwitch", id: "trainings", value: false });
   const off = rendu({ document: docAvec(SOCLE) }, (a) => vus.push(a));
@@ -448,20 +450,25 @@ test("G3 — 🎛️ la confirmation du maître porte TROIS voies, sur Layers co
   assert.equal(NOM_DE_LA_VERSION_FH, "fates-hand");
 });
 
-test("D7 — 🚪 R porte la porte `Layers`, et son interrupteur Fate's Hand lit la COMPOSITION : engagé même avec une couche coupée", () => {
+test("D7 — 🚪 R porte la porte `Layers`, et sa ligne `Rules` lit la COMPOSITION : Fate's Hand même avec une couche coupée", () => {
+  /* 🔄 LOT 350 — RÉÉCRIT À LA NOUVELLE VÉRITÉ, PAS RELÂCHÉ. Eric, 29/09 : l'interrupteur quitte R
+     (il vit ici, dans `Layers`) ; R LIT la pile sur sa ligne `Rules`. ⭐ Ce que le garde tient ne
+     bouge pas d'un mot : un sous-ensemble légitime n'est pas « hors des deux jeux de règles ». */
   const gestes = [];
   const r = renderUniverseStep({ document: docAvec(sans(PILE_COMPLETE, ["fh-trainings-en", "fh-inheritance-en"])), query: () => null, fieldErrors: {}, memoire: { ok: true } }, (a) => gestes.push(a));
-  const porte = r.querySelectorAll(".tdc-couches")[0];
+  const porte = r.querySelectorAll(".menu-porte").find((b) => b.textContent === "Layers");
   assert.ok(porte, "la porte existe");
   assert.equal(porte.textContent, "Layers");
   porte.click();
   assert.deepEqual(gestes, [{ kind: "ouvrirLayers" }]);
-  const fh = r.querySelectorAll(".tdc-regles .interrupteur").find((b) => /Fate/.test(b.textContent));
-  assert.equal(fh.dataset.on, "true", "⛔ avant ce lot, `currentStack` rendait null et le maître se montrait ÉTEINT");
-  assert.equal(r.querySelectorAll(".tdc-regles .doc-field-error").length, 0, "et aucun mot rouge : le sous-ensemble est légitime");
+  const regles = r.querySelectorAll('.tdc-ligne-lue[data-ligne="rules"] .tdc-ligne-valeur')[0];
+  assert.equal(regles.textContent, "Fate's Hand", "⛔ avant le lot 188, `currentStack` rendait null et la pile se lisait SRD");
+  const rouge = (n) => n.querySelectorAll(".doc-field-error").filter((p) => /either ruleset/.test(p.textContent));
+  assert.equal(rouge(r).length, 0, "et aucun mot rouge : le sous-ensemble est légitime");
   /* ⚔️ Et le mot rouge SURVIT pour ce qui le mérite : un ensemble coupé en deux. */
   const coupe = renderUniverseStep({ document: docAvec(sans(PILE_COMPLETE, ["fh-spells-en"])), query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
-  assert.equal(coupe.querySelectorAll(".tdc-regles .doc-field-error").length, 1, "Destiny privé d'une couche : le Menu le DIT toujours");
+  assert.equal(rouge(coupe).length, 1, "Destiny privé d'une couche : le Menu le DIT toujours");
+  assert.match(rouge(coupe)[0].textContent, /open Layers/, "…et il envoie là où l'on répare : l'interrupteur est dans `Layers`");
 });
 
 /* ══ E — ⚔️ SUR LA VRAIE PILE ══════════════════════════════════════════════
@@ -705,6 +712,29 @@ test("E8 — ⚔️ WORLD (ex-Lore) ÉTEINT : plus aucune espèce `fh:` ; l'Araa
   assert.equal(drapeaux.includes("fh.skills") || drapeaux.includes("fh.destiny"), false, "les drapeaux de règle sont bas");
 });
 
+test("E9 — 🔴 LOT 350 : UN PERSO SANS CLASSE, FATE'S HAND COUPÉ, RESTE EN SRD DÉCLARÉ — le piège, puis l'organe", () => {
+  /* 📏 Vu au banc le 29/09 (port 8977) : `New character` → `Layers` → Fate's Hand coupé →
+     retour au Menu, et R accusait EN ROUGE « doesn't match either ruleset » un perso
+     parfaitement en SRD. Ce test rejoue le piège sur la vraie pile — le geste de
+     `monterLesCouches([])` —, puis l'organe qui le répare (`declarerLaPileMontee`). */
+  const h = pileReelle();
+  const writers = createDocWriters({ schema: readJson("schemas/fh-char.schema.json") });
+  const neuf = writers.composer({ name: "Name character", lang: "en", units: { distance: "ft", weight: "lb" },
+    layers: manifestOf(h.layers), id: "e9-sans-classe", at: "2026-09-29T03:21:41Z" });
+  for (const id of [...FH_LAYER_IDS].reverse()) h.layers.verbs.disable({ id });
+  const vide = { ...neuf, build: { ...neuf.build, layers: [] } };
+  assert.throws(() => h.verbs.rebuild({ document: vide }), (e) => e.name === "BuildError",
+    "témoin : sans classe, `derive` refuse — et `rebuild` n'adopte rien quand il jette");
+  assert.equal(compositionFh(vide).legitime, false,
+    "⛔ LE PIÈGE : une pile déclarée vide n'a pas de socle — R accuserait en rouge, et un rechargement remonterait tout");
+  /* ⭐ L'ORGANE : déclarer ce que `rebuild` aurait adopté — la pile MONTÉE. */
+  const declare = { ...vide, build: { ...vide.build, layers: manifesteDeLaPile(h.layers.verbs.stack()) } };
+  const c = compositionFh(declare);
+  assert.equal(c.legitime, true, "le perso en SRD seul est légitime");
+  assert.equal(c.maitre, false, "…et c'est bien du SRD seul : R lira `Rules: SRD`");
+  assert.deepEqual(declare.build.layers.map((l) => l.id), actives(h), "la pile déclarée est la pile montée, dans son ordre");
+});
+
 /* ══ F — LES OCTETS DE LA COQUILLE ═════════════════════════════════════════ */
 
 test("F1 — 🔌 la coquille câble Layers : la porte, les deux gestes, le manifeste passé à l'écran", () => {
@@ -731,4 +761,17 @@ test("F3 — 📚 `engine.mjs` va chercher les livres sous `layers-livres/`, et 
   assert.match(engine, /if \(!reponse \|\| !reponse\.ok\) return null/, "un 404 rend null : zéro livre");
   assert.match(engine, /layers\.verbs\.disable\(\{ id \}\)/, "un livre se monte ÉTEINT — le document décide");
   assert.match(engine, /if \(file === SOUS_LES_LIVRES\) livresRefuses = await monterLesLivres/, "…juste au-dessus de `srfh`");
+});
+
+test("F4 — 🔴 LOT 350 : LES DEUX GESTES DE COUCHES DÉCLARENT LA PILE MONTÉE — après `rebuild`, jamais avant", () => {
+  /* Le chemin du popup (193-201) déclarait ; ceux de `Layers` non (E9). ⚔️ Retirer la
+     déclaration, ou la poser AVANT `rebuild` (elle déclarerait la pile d'avant, et
+     `rebuild` n'adopterait plus rien) → rouge ici. */
+  const shell = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+  for (const nom of ["monterLesCouches", "monterLeLivre"]) {
+    const corps = shell.match(new RegExp(`function ${nom}\\([^)]*\\) \\{([\\s\\S]*?)\\n\\}`));
+    assert.ok(corps, `\`${nom}\` a changé de forme — ce garde lit à côté`);
+    assert.match(corps[1], /layers: \[\] \} \};\s*rebuild\(\);\s*declarerLaPileMontee\(\);\s*$/,
+      `\`${nom}\` : vider, dériver, PUIS déclarer — sans ça, un perso sans classe perd sa pile (E9)`);
+  }
 });

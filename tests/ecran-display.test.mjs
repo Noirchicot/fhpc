@@ -98,11 +98,15 @@ test("🚪 le Menu d'entrée porte une porte Display, et elle ouvre le sous-écr
   /* ⚖️ 08/09 : `Display` s'appelle désormais `Appearance` — Eric : *« tout
      l'aspect apparence de l'UI »* — et prend aussi le tutoriel et la double
      vue. Le verbe de la coquille, lui, n'a pas bougé. */
+  /* 🔄 LOT 350 — LA PORTE A CHANGÉ DE RANGÉE, PAS DE GESTE. Eric, 29/09 : *« Boutons -display-
+     (->B4) »*, seule sur la dernière rangée du Menu, au gabarit LARGE (`.menu-porte`). ⛔ Le
+     compte « une porte vivante, une seule » ne se tient plus — R porte quatre portes vivantes ;
+     ce qui se garde est CELLE-CI : présente, vivante, et le même verbe qu'avant. */
   let vu = null;
   const node = entree({}, (a) => { vu = a; });
-  const portes = node.querySelectorAll(".tdc-porte").filter((b) => !b.disabled);
-  assert.equal(portes.length, 1, "une porte vivante, une seule");
-  assert.match(portes[0].textContent, /^Display/, "le mot d'Eric (02/09) — et il tient dans 77");
+  const portes = node.querySelectorAll(".menu-porte").filter((b) => b.textContent === "Display");
+  assert.equal(portes.length, 1, "une porte Display, une seule");
+  assert.notEqual(portes[0].disabled, true, "…et elle est vivante");
   portes[0].dispatchEvent({ type: "click" });
   assert.deepEqual(vu, { kind: "ouvrirDisplay" });
 });
@@ -115,10 +119,13 @@ test("⛔ le choix de fond a QUITTÉ l'écran d'entrée — il ne reste pas aux 
   /* LOT 189 — la ligne des règles porte UN interrupteur (Fate's Hand) et UN
      voyant (SRD, « toujours actif » — Eric, 09/09) ; le compte ne dit plus
      « deux interrupteurs », il dit chaque organe par sa nature. */
-  assert.equal(node.querySelectorAll(".interrupteur").length, 1,
-    "à l'entrée, un seul interrupteur : Fate's Hand — les fonds sont derrière la porte");
-  assert.equal(node.querySelectorAll(".voyant[data-socle]").length, 1,
-    "…et le voyant SRD à côté de lui");
+  /* 🔄 LOT 350 — ET L'INTERRUPTEUR FATE'S HAND EST PARTI AUSSI : Eric, 29/09, la ligne `Rules`
+     se LIT à l'entrée, elle ne se règle plus — l'interrupteur et le voyant SRD vivent dans
+     `Layers` (lots 188-189). ⛔ Zéro organe à état à l'entrée : tout réglage est derrière une porte. */
+  assert.equal(node.querySelectorAll(".interrupteur").length, 0,
+    "à l'entrée, aucun interrupteur — les fonds sont derrière `Display`, Fate's Hand derrière `Layers`");
+  assert.equal(node.querySelectorAll(".voyant[data-socle]").length, 0,
+    "…et plus de voyant SRD : il est au socle de `Layers`");
 });
 
 /* ══ 2 — LE SOUS-ÉCRAN ═══════════════════════════════════════════════════ */

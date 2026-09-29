@@ -23,10 +23,15 @@
 ## Le menu
 
 ### Le jeu de règles se choisit à l'interrupteur
-📍 `menu-regles-au-selecteur` · déployée, hors corpus · 17/08
+📍 `menu-regles-au-selecteur` · remplacée · 17/08 · remplacée par `menu-r-regles-et-livres-se-lisent`
 ⚖️ **Les deux jeux de règles sont deux sélecteurs exclusifs, l'un au-dessus de l'autre — jamais deux boutons côte à côte — et cliquer la ligne déjà allumée ne fait rien.**
 
 > **Eric** : « SRD et SRD + FH sont des sélecteurs, pas des boutons. Mets-les en texte l'un au-dessus de l'autre avec un bouton on/off ; quand l'un s'allume, l'autre s'éteint »
+
+> 🗄️ **REMPLACÉE LE 29/09 (lot 350)** par `menu-r-regles-et-livres-se-lisent` (NORMES § 10) — le dernier de
+> trois âges : les deux sélecteurs (17/08) sont devenus UN interrupteur `Fate's Hand` et le voyant SRD
+> (08-09/09), qui ont déménagé dans `Layers` (lots 188-189) ; puis Eric a refait le Menu : *« Rules : (SRD
+> mais inutile de citer) Fate's hand »*. Sur R, les règles se LISENT ; on les règle dans `Layers`.
 
 **Les deux jeux de règles sont deux sélecteurs exclusifs, l'un au-dessus de l'autre — jamais deux boutons côte à côte — et cliquer la ligne déjà allumée ne fait rien.**
 
@@ -47,7 +52,7 @@
 **Un réglage que la fenêtre ne peut pas honorer reste PRÉSENT dans le Menu — éteint, grisé, avec la note qui dit pourquoi il dort. Il n'est jamais caché.**
 
 ### Le Menu dit l'état de la sauvegarde, et n'offre pas de « nouveau personnage »
-📍 `menu-dit-la-sauvegarde` · déployée, hors corpus · 20/08
+📍 `menu-dit-la-sauvegarde` · remplacée · 20/08 · remplacée par `menu-r-new-character-fenetre` · remplacée par `menu-r-ligne-d-etat-retiree`
 ⚖️ **Le Menu dit toujours l'état de la sauvegarde, dans les deux sens, et aucune de ses portes ne PROMET un personnage neuf.**
 
 > **Eric** : « Un perso est enregistré dans le navigateur de tout le monde, et disparaît s'il n'est pas enregistré s'il y a un reset. »
@@ -63,6 +68,13 @@
 > rapport *(`socle-une-bible-se-demande-avant-de-rendre`)*. C'est le premier cas mesuré de
 > cette loi, et il tombe le jour de sa naissance.
 > 📌 Relayée par ARCHI 32 depuis `Agent Menu`, qui l'a reconnue de lui-même.
+
+> 🗄️ **REMPLACÉE LE 29/09 (lot 350), PAR DEUX RÈGLES — une par moitié** (NORMES § 10) :
+> · *« le Menu dit toujours l'état de la sauvegarde, dans les deux sens »* → `menu-r-ligne-d-etat-retiree` :
+>   la ligne « in browser : <nom> · saved » est retirée (Eric : **« RETIRÉE »**) ; une PERTE, elle, se dit toujours ;
+> · *« aucune de ses portes ne PROMET un personnage neuf »* → `menu-r-new-character-fenetre` : le lot 193 a donné
+>   au builder un personnage vierge, et Eric a dicté `New character` et sa fenêtre. Le garde `D4` change d'objet
+>   sans se relâcher : il nomme toujours la promesse, et exige qu'UNE porte la porte et mène à la fenêtre.
 
 **Le Menu dit toujours l'état de la sauvegarde, dans les deux sens, et il n'offre aucun bouton « nouveau personnage ».**
 
@@ -88,6 +100,10 @@
 
 > **Eric** : « Comment s'appelle l'écran des six interrupteurs ? » → « Layers » ; et sur le dessin : « Un tableau de commande, pas une liste d'options. Le socle, puis les couches qui s'empilent dessus. »
 
+> 🔄 **29/09 (lot 350) — LA PORTE A CHANGÉ DE PLACE** : R ne porte plus d'interrupteur ; la porte `Layers` est à
+> gauche de la deuxième rangée des six portes (dictée d'Eric — `menu-r-la-page-dictee`), ce qui tranche §C33
+> d'`A-TRANCHER.md`. Le reste de la règle ne bouge pas, et `Layers` est désormais le SEUL endroit où l'on règle la pile.
+
 **`Layers` est une branche du Menu au rang `B` — ouverte par une porte large et bleue sous les deux interrupteurs de `R`. Un enfant se coupe SANS confirmation (une couche éteinte dégrade, elle n'efface rien) ; le maître garde la sienne — à TROIS voies depuis le lot 192 : `Keep on` · `Save the Fate's Hand version first` (le geste `Save`, PUIS l'extinction ; le fichier dit sa version : `<nom>.fates-hand.fh-char.json`) · `Switch off`. Le cinquième enfant s'appelle `World` (Eric, 10/09 : « pas Lore mais World »). Un livre absent du disque est PRÉSENT, éteint, avec son mot (« not on this device »).**
 
 ### Un sous-ensemble de couches est légitime
@@ -112,6 +128,10 @@
 > ⚠️ **CE QUI EST DEVENU FAUX ET A ÉTÉ RÉÉCRIT** : *« This browser keeps one character »*, la phrase du rang B depuis le 26/08. Elle était vraie tant que `memoire.mjs` était le seul rangement ; elle mentait dès la seconde sauvegarde.
 > ⭐ **`Open a file…` N'A PAS DISPARU** : la boîte du système descend d'un rang, DANS la page — un joueur qui reçoit un `.fh-char.json` d'ailleurs doit toujours pouvoir l'ouvrir *(loi du 06/09, `menu-dit-la-sauvegarde` inchangée)*.
 > ⏳ **CE QUI ATTEND ERIC** : `Open` et `My characters` mènent désormais à la MÊME pièce — deux portes, une seule chambre *(A-TRANCHER §C37)*.
+> ✅ **29/09 (lot 350) — §C37 TRANCHÉE PAR LA DICTÉE** : `Open` quitte R, et `My characters` (première rangée, à
+> gauche) est la seule porte de cette pièce (`menu-r-la-page-dictee`). `Save` quitte R aussi : il vit dans Sheet sous
+> le nom `Save character` (`menu-r-save-character-dans-sheet`) et dans la fenêtre `New character` — le MÊME écrivain,
+> qui range toujours une entrée datée.
 
 **`Open` ouvre une page, pas une boîte de fichiers : le rang `B` du Menu porte toutes les sauvegardes, groupées par personnage, la plus récente en tête, chacune disant nom · date · version. Un `Save` y écrit une entrée DATÉE — rien n'est jamais écrasé. Le popup de destination ne se pose que là où un dossier est possible, une seule fois ; ailleurs, le tiroir du navigateur et le mot « in this browser ». Le bouton `Save location` reste présent dans les deux cas.**
 
@@ -1124,6 +1144,11 @@ reste ouvert.**
 ### Les trois portes du bas n'ont aucune condition
 📍 `sheet-trois-portes-sans-condition` · déployée, hors corpus · ?
 ⚖️ **Les trois portes du bas — la vue experte et les deux exports — s'ouvrent toujours, et aucune ne construit un rendu neuf.**
+
+> 🔄 **29/09 (lot 350)** : depuis le lot 198, la fiche peut ne pas exister encore (écran « perso incomplet », ni classe
+> ni scores). Sur cet écran, `Expert view` et `Export HTML` n'ont rien à publier et n'y sont pas ; `Save character`
+> (l'ex-`Export JSON`, nom ratifié par Eric) y EST, sur son mot : *« Save aussi sur cet écran »*
+> (`menu-r-save-character-dans-sheet`, NORMES § 10).
 
 **Les trois portes du bas — la vue experte et les deux exports — s'ouvrent toujours, et aucune ne construit un rendu neuf.**
 

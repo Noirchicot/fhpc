@@ -27,6 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
+import { stripComments } from "./source-scan.mjs";
 
 globalThis.document = createTestDocument();
 
@@ -232,7 +233,9 @@ test("Les trois portes sont là, EN BAS, et dans la MÊME dalle (B9.3)", async (
   const dalles = section.querySelectorAll(".dalle-simple, .dalle-intermediaire, .dalle-majeure");
   assert.equal(dalles.length, 1, "B9.3 — une dalle UNIQUE, pas plusieurs (son voile n'entre pas en compte)");
   const portes = dalles[0].querySelectorAll(".review-porte");
-  assert.deepEqual([...portes].map((p) => p.textContent), ["Expert view", "Export JSON", "Export HTML"]);
+  /* 🔄 LOT 350 — `Export JSON` S'APPELLE `Save character` (Eric, 29/09 : *« le save character
+     sera dans Sheet »*) : même verbe, `exportJson`, même fichier. */
+  assert.deepEqual([...portes].map((p) => p.textContent), ["Expert view", "Save character", "Export HTML"]);
   for (const p of portes) p.dispatchEvent({ type: "click" });
   assert.deepEqual(gestes, ["expertView", "exportJson", "exportHtml"]);
 });
@@ -246,6 +249,41 @@ test("⛔ AUCUN bouton `sheet` — B9.5 le demande, il n'existe pas, un bouton m
      être obligé de le relire. */
   const mots = [...section.querySelectorAll(".review-porte")].map((p) => p.textContent.toLowerCase());
   assert.equal(mots.some((m) => m.includes("sheet")), false);
+});
+
+test("⚖️ LOT 350 — L'ÉCRAN « PERSO INCOMPLET » DE SHEET PORTE `Save character` : la même porte, le même verbe, la même dalle", async () => {
+  /* Eric, 29/09, à « un perso inachevé : Sheet affiche l'écran "perso incomplet", où
+     `Save character` n'est pas — où sauver ? » : *« Save aussi sur cet écran »*.
+     ⚔️ Sans cette porte, un perso né par `New character` n'avait AUCUN moyen de se sauver
+     avant sa classe et ses scores (vu au banc le 29/09) : `Save` a quitté le Menu. */
+  const { renderSheetIncomplet, renderReviewStep } = await import("../ui/builder/review-step.mjs");
+  const gestes = [];
+  const mot = "This screen reads your character sheet, and there is no sheet without a class and its six ability scores.";
+  const ecran = renderSheetIncomplet(mot, (a) => gestes.push(a));
+  const dalles = ecran.querySelectorAll(".dalle-simple, .dalle-intermediaire, .dalle-majeure");
+  assert.equal(dalles.length, 1, "B9.3 — une dalle, tout dedans");
+  assert.equal(dalles[0].querySelectorAll("p.placeholder")[0].textContent, mot, "le mot du manque, tel que la coquille le donne — jamais recopié");
+  const portes = dalles[0].querySelectorAll(".review-portes .review-porte");
+  assert.deepEqual(portes.map((p) => p.textContent), ["Save character"],
+    "la seule porte qui a un sens sans fiche — ⛔ `Expert view` et `Export HTML` publient la fiche");
+  portes[0].dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "exportJson" }], "le MÊME verbe que la porte de la fiche");
+  /* ⭐ LA MÊME PORTE, PAS UN SOSIE : même organe, même mot, que celle du pied de la fiche. */
+  const fiche = renderReviewStep({ document: { name: "Ilyra" }, decisions: [] }, () => {});
+  const sienne = fiche.querySelectorAll(".review-porte").find((p) => p.textContent === "Save character");
+  assert.ok(sienne, "témoin : la fiche porte bien la sienne");
+  assert.equal(portes[0].className, sienne.className, "même classe, donc même habit");
+  assert.equal(portes[0].tagName, sienne.tagName);
+});
+
+test("⚖️ LOT 350 — la coquille pose cet écran pour Sheet, et `manqueDuCran` reste seul juge de qui meurt", () => {
+  const shell = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.mjs"), "utf8"));
+  const branche = shell.match(/if \(state\.document && manqueDuCran\(step, faitsDuPersonnage\(\)\)\) \{([\s\S]*?)\n {2}\}/);
+  assert.ok(branche, "la branche de l'écran mort a changé de forme — ce garde lit à côté");
+  assert.match(branche[1], /const mot = motDeLEcranMort\(state\.document\);/, "le mot vient du module, une fois");
+  assert.match(branche[1], /step\.id === "review"\s*\?\s*renderSheetIncomplet\(mot, applyDecisionAction\)/,
+    "⚖️ Sheet montre son écran mort AVEC `Save character` — par l'organe de review-step, jamais une porte écrite ici");
+  assert.doesNotMatch(branche[1], /Save character|exportJson/, "⛔ la coquille ne fabrique pas la porte : un seul écrivain");
 });
 
 /* ══ LA LUMIÈRE VERTE DU BELT — Eric, 2026-08-19 ══════════════════════════

@@ -25,6 +25,10 @@
    `build.choices`) — ce module (via `shell.mjs`) le manipule directement,
    comme le schéma lui-même le permet (« l'écran ne compose pas la pile, il
    CHOISIT parmi deux »).
+   🔄 LES DEUX BOUTONS SONT PARTIS DE R : un interrupteur le 08/09, puis `Layers`
+   (lots 188-189), et depuis le lot 350 (Eric, 29/09) R ne fait plus que LIRE la
+   pile (`Rules`, `Books`). Le geste à deux temps décrit ici est celui de
+   `monterLesCouches` (shell.mjs), que `Layers` déclenche.
 
    ── CE QUE LE CHANGEMENT DE PILE FAIT À UN PERSONNAGE DÉJÀ CONSTRUIT
    (commande §2b, ⚠️ MESURÉ — voir INVENTAIRE-LOT-54.md pour le détail) ─────
@@ -52,7 +56,12 @@ import { motDeLEchelon } from "./echelle.mjs?v=905";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
-import { interrupteur, voyant, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=905";
+/* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
+   (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=905";
+/* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
+   feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=905";
 /* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
    rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
    ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
@@ -73,9 +82,9 @@ import { renderMagasinEcran } from "./magasin-ecran.mjs?v=905";
  *  listes ensemble (`tests/fiche-360.test.mjs`, garde 3). */
 export const SRD_LAYER_ID = "srd-5.2.1-en";
 
-/** 📖 LE LIVRE DU MENU : FH Web, le livre lui-même — pas un chapitre, puisque
- *  le Menu ne parle d'aucune règle en particulier. Vérifié en 200 le 08/09. */
-export const LIVRE_FH_WEB = "https://noirchicot.github.io/fh-phb/";
+/* 🗄️ LOT 350 — `LIVRE_FH_WEB` EST PARTI AVEC LE LIVRE DU MENU. Eric, 29/09, à la
+   question « le pied actuel de R (le livre FH Web, le `?`) » : *« pas de livre ni de
+   ? dans l'étape Menu »*. L'adresse ne servait qu'à ce bouton. */
 
 /** 🔴 LA TROISIÈME COUCHE, ET ELLE N'EST DANS AUCUN DES DEUX CAMPS (lot 95).
  *  `srfh` porte ce qui est AMBIGU — les ajustements de confort qui font
@@ -263,14 +272,9 @@ function textField({ id, label, value, maxLength, error, onCommit, compact = fal
   return wrap;
 }
 
-function bouton(libelle, className, onClick) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = className;
-  b.append(text(libelle));
-  b.addEventListener("click", onClick);
-  return b;
-}
+/* 🗄️ LOT 350 — `bouton()` EST PARTI : il fabriquait les boutons du R d'avant (le
+   geste majeur, le trio du fichier, les portes du pied). Les portes du Menu naissent
+   désormais par `porte()` et `placeReservee()`, plus bas, au gabarit LARGE. */
 
 /* ⭐ LOT 188 — L'INTERRUPTEUR ET LA PLACE RÉSERVÉE ONT DÉMÉNAGÉ dans
    `layers-ecran.mjs`, l'écran qui en porte le plus (onze lignes). Ils n'ont
@@ -331,130 +335,145 @@ export async function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
   return true;
 }
 
-/* ══ ⚖️ LOT 193 — « BUILD A CHARACTER » CRÉE UN PERSONNAGE ═════════════════
-   ⚖️ Eric, 10/09, gravé dans `ARCHITECTURE.md` (§ « LE PREMIER PAS »), second
-   fil SRD en débutant : *« j'arrive dans le menu, je tape Build a character, je
-   suis débutant. Il me faut un perso SRD mais je n'ai même pas regardé les
-   menus du dessous. **Un popup doit me dire, avant même d'arriver à l'étape 1,
-   tout de suite : tu veux SRD ou FH ? — et faire le réglage pour moi.** Le
-   perso du navigateur est **sauvegardé automatiquement et dégage du
-   navigateur** ; tous les choix des étapes sont **réinitialisés**. »*
+/* ══ ⚖️ LOT 350 — « NEW CHARACTER » OUVRE UNE FENÊTRE, ET LES LAYERS FONT FOI ════
+   ⚖️ Eric, 29/09 — la dictée du Menu (`FH-WEB/FHPC/FHPCv2 arborescence d'entree`,
+   § « DICTÉE DU 2026-09-29 »), mot pour mot : *« tout reste dans le navigateur tant
+   que tu n'as pas fait New character. Un prompt apparaît dans New disant que si tu
+   veux garder l'existant il faut sauvegarder, deux choix : Delete · Save. Puis on
+   arrive directement dans le 1 du processus de création. Les réglages du nouveau
+   perso sont ceux des Layers en place. »* Puis, question par question — chaque
+   réponse avec SA question :
+   · une troisième voie, `Cancel` ? → *« Cancel aussi »* : **`Cancel · Delete · Save`** ;
+   · que dit la fenêtre ? → **trois choses** : régler les Layers avant · choisir son
+     stockage dans Vault · le perso en cours sera effacé ;
+   · où écrit `Save` ? → **dans le stockage choisi, ou dans un fichier** si rien n'est
+     réglé (aujourd'hui : le magasin, `exporterJson` — le MÊME écrivain que Sheet) ;
+   · sans perso en cours ? → **la fenêtre quand même** (ses avertissements Layers et
+     Vault servent au premier perso), avec **`Cancel · Start`** — ratifié ;
+   · des liens vers Layers et Vault dans la fenêtre ? → ⛔ *« non, ça fait trop de liens »*.
 
-   **Deux questions posées, deux réponses, gravées avec elles :**
-   · *que devient le personnage courant ?* → **fichier automatique, puis
-     reset** ; ⛔ **téléchargement bloqué = pas de reset** — la règle du 192 mot
-     pour mot : un Save refusé n'efface rien.
-   · *combien de voies au popup ?* → **deux : SRD · Fate's Hand.** Il règle le
-     maître à la place du joueur. Les livres et les six interrupteurs restent
-     dans `Layers` pour qui veut aller plus loin. ⛔ Pas de troisième voie.
-
-   ⚠️ LE MOT DU BOUTON NE CHANGE PAS, LE GESTE OUI. `Build a character` reste
-   `Build a character` — la dictée du 26/08, rappelée plus bas au tableau de
-   commande. Ce qui change est ce qu'il FAIT : sauvegarder, repartir à zéro,
-   demander le jeu. */
+   🗄️ CE QUI MEURT, ET IL FAUT SAVOIR CE QUE C'ÉTAIT (loi des deux âges : raconté,
+   pas effacé). Lot 193 (Eric, 10/09) : `Build a character` sauvegardait le perso du
+   navigateur, repartait à zéro, puis posait le popup **« SRD or Fate's Hand? »**
+   (`popupDuJeu` — deux voies, `exigeUneReponse`), et c'était la RÉPONSE qui réglait
+   le maître et ouvrait l'étape 1 (`creerUnPersonnage`, `choisirLeJeu`).
+   ⛔ PLUS DE QUESTION : *« les réglages du nouveau perso sont ceux des Layers en
+   place »* — l'état de `Layers` fait foi, et le perso naît avec la pile MONTÉE
+   (`personnageNeuf`, shell.mjs). Le geste `Forget` devient le `Delete` de cette
+   fenêtre ; `Build a character` devient `Create character`, qui ouvre l'étape 1 DU
+   PERSO EN COURS et ne crée rien.
+   ⭐ LA RÈGLE DU 192 TIENT, MOT POUR MOT : un `Save` qui a refusé n'efface RIEN. */
 
 /** LE NOM D'UN PERSONNAGE QUI N'EN A PAS ENCORE.
  *  📏 `fh-char/1` EXIGE UN NOM D'AU MOINS UN CARACTÈRE (`name.minLength: 1`,
  *  schemas/fh-char.schema.json) : un personnage neuf ne peut donc PAS naître
- *  sans nom, et une chaîne vide serait un refus, pas un blanc. Le mot choisi
- *  est celui que le Menu affichait DÉJÀ pour un nom vide (`nomDuPersonnage`,
- *  juste en dessous, qui le lit ici désormais) — une seule absence, un seul
- *  mot ; deux auraient divergé au premier réglage.
- *  ⚖️ ET LE MOT EST DÉSORMAIS CELUI D'ERIC — 2026-09-10, en entier : *« "Name
+ *  sans nom, et une chaîne vide serait un refus, pas un blanc.
+ *  ⚖️ ET LE MOT EST CELUI D'ERIC — 2026-09-10, en entier : *« "Name
  *  character" »*. Il remplace `Unnamed character`, qui n'était qu'un défaut
  *  sobre posé faute de cote. ⭐ Le changement de mot est aussi un changement de
  *  VOIX : `Unnamed character` DÉCRIVAIT un état (« celui-ci n'a pas de nom ») ;
- *  `Name character` DEMANDE un geste. Une cote DONNÉE bat une cote déduite. */
+ *  `Name character` DEMANDE un geste. Une cote DONNÉE bat une cote déduite.
+ *  🗄️ LOT 350 — son second lecteur (la ligne d'état de R, « in browser : <nom> ·
+ *  saved ») est retiré par Eric le 29/09 ; il ne reste que la naissance. */
 export const NOM_DU_PERSONNAGE_NEUF = "Name character";
 
-/** LA SÉQUENCE DU PREMIER PAS, PURE pour qu'un garde la lise sans coquille —
- *  MÊME FORME que `sauvegarderPuisEteindre` (lot 192) et pour la même raison :
- *  l'ordre EST la règle, et un ordre qui ne vit que dans une coquille ne se
- *  mesure pas.
- *
- *  · un personnage est là → il est SAUVEGARDÉ d'abord. S'il n'est pas parti
- *    (`sauvegarder()` rend autre chose que `true`), RIEN ne bouge : ni reset,
- *    ni question — le joueur garde son personnage, et le refus lui a déjà été
- *    dit par la porte (`porteEnPanne`, shell.mjs).
- *  · aucun personnage → `sauvegarder` n'est JAMAIS appelé : écrire un fichier
- *    de rien serait un téléchargement que personne n'a demandé.
- *
- *  Puis, dans cet ordre et jamais l'inverse : repartir à zéro, et SEULEMENT
- *  ensuite demander le jeu — la question porte sur le personnage NEUF, la
- *  poser avant la ferait porter sur celui qu'on range.
- *
- *  ⏳ ELLE ATTEND DEPUIS LE LOT 195, pour la MÊME raison que
- *  `sauvegarderPuisEteindre` juste au-dessus : le magasin répond en différé, et
- *  *« téléchargement bloqué = pas de reset »* n'a de sens que si l'on attend la
- *  réponse. Une absence n'est jamais une réponse — et une promesse non attendue
- *  est une absence.
- *
- *  @param {{personnage: boolean, sauvegarder: () => Promise<boolean>|boolean, repartirAZero: () => void, demanderLeJeu: () => void}} gestes
- *  @returns {Promise<boolean>} `true` si le personnage neuf est né */
-export async function creerUnPersonnage({ personnage, sauvegarder, repartirAZero, demanderLeJeu }) {
-  if (personnage && await sauvegarder() !== true) return false;
-  repartirAZero();
-  demanderLeJeu();
-  return true;
+/** LES MOTS DE LA FENÊTRE — le brouillon du plan v10 (Eric arrête les mots que le
+ *  joueur lit). Un avertissement par ligne : `paintPopup` (shell.mjs) fait un
+ *  paragraphe de chaque ligne. ⛔ Ni « couche » ni « homebrew » (lexique du 10/09).
+ *  ⭐ L'ORDRE EST CELUI D'ERIC : Layers · Vault · le perso effacé. Le troisième ne se
+ *  dit que s'il y a un perso à effacer — *« ses avertissements Layers et Vault servent
+ *  au premier perso »*. */
+export const MOTS_DU_NOUVEAU_PERSONNAGE = Object.freeze({
+  titre: "Before you start a new character",
+  avertissements: Object.freeze([
+    "Set your Layers first: the new character uses them.",
+    "Choose where your characters are stored, in Vault.",
+    "Your current character will be erased from this browser."
+  ])
+});
+
+/** CE QUI FAIT LE PERSONNAGE — le document SANS ce que la dérivation estampille à chaque
+ *  démarrage : `modified` et `resolved` (le résolu se refait depuis `build` et la pile,
+ *  et sa `derivation.at` porte l'heure de ce calcul).
+ *  📏 MESURÉ AU BANC LE 29/09 à 05:18 (port 8977, stockage vidé, puis rechargé) : le
+ *  document gardé ne diffère de l'exemple commité QUE par `modified` et
+ *  `resolved.derivation.at`, tous deux à l'heure du démarrage.
+ *  ⚠️ ET C'EST UNE CORRECTION : ce lot avait d'abord écrit « le `rebuild` du démarrage ne
+ *  change pas une lettre de l'exemple », sans l'avoir mesuré au navigateur — la fenêtre
+ *  prenait alors l'exemple intact pour un perso en cours. ⛔ Rien d'autre n'est retiré :
+ *  `id`, `created`, `name`, `build`… disent tous QUI est le personnage. */
+export function ceQuiFaitLePersonnage(document) {
+  if (!document || typeof document !== "object") return document;
+  const { modified, resolved, ...personnage } = document;
+  return personnage;
 }
 
-/* LES TROIS PHRASES DU POPUP — une par ligne, parce que `paintPopup`
-   (shell.mjs) fait un paragraphe de chaque ligne. La première DIT DE QUOI ON
-   PARLE et où le réglage vit ensuite : un joueur à qui on pose une question
-   sans lui dire ce qu'elle décide répond au hasard. Les deux suivantes donnent
-   UN MOT À CHAQUE VOIE — le bouton porte le nom, la ligne porte ce que le nom
-   veut dire. ⛔ Ni « couche » ni « homebrew » : le lexique du 10/09. */
-const MOT_DU_JEU_ENTREE = "Which rules is this character built on? You can change it later from Layers.";
-const MOT_DU_JEU_SRD = "SRD — the core rules, playable anywhere.";
-const MOT_DU_JEU_FH = "Fate's Hand — the world of Nymedes and its rules.";
+/** Y A-T-IL UN PERSONNAGE EN COURS ? — PUR, pour qu'un garde le lise sans coquille.
+ *  📏 LE NAVIGATEUR N'EST JAMAIS VIDE : le démarrage retombe sur l'exemple commité, et
+ *  `memoriser()` l'écrit dans la mémoire dès le premier rendu. « Rien dans la mémoire »
+ *  ne dit donc rien après le démarrage. Ce qui dit « pas de perso à moi », c'est un
+ *  document qui est ENCORE l'exemple — comparé sur `ceQuiFaitLePersonnage`, jamais sur
+ *  le document entier, dont l'heure change à chaque démarrage.
+ *  ⛔ UN EXEMPLE QU'ON N'A PAS PU CHARGER NE PROMET RIEN : sans texte de référence, le
+ *  perso est tenu pour « en cours » — la fenêtre offre alors `Cancel · Delete · Save`, et rien
+ *  n'est effacé sans que le joueur l'ait choisi.
+ *  @param {string|null} texteDuDocument  `canonicalText(ceQuiFaitLePersonnage(document))`, ou `null`
+ *  @param {string|null} texteDeLExemple  la même chose pour l'exemple commité, ou `null` */
+export function personnageEnCours(texteDuDocument, texteDeLExemple) {
+  if (typeof texteDuDocument !== "string") return false;
+  return typeof texteDeLExemple !== "string" || texteDuDocument !== texteDeLExemple;
+}
 
-/** LE POPUP DU PREMIER PAS — la description d'état que `paintPopup` (shell.mjs)
- *  sait déjà peindre (`{titre, role, texte, actions}`, lot 173) : ⛔ AUCUN
- *  COMPOSANT NEUF, et pas un `confirm()` du navigateur. Ce n'est pas non plus
- *  `confirm.mjs` : sa paire a un bouton ROUGE (`--critical`,
- *  `.confirm-dialog-confirm`) parce qu'elle protège une DESTRUCTION — ici les
- *  deux voies sont PAIRES, aucune ne défait rien, et peindre « Fate's Hand »
- *  en rouge dirait le contraire de ce qu'elle fait. D'où le rôle `guide`, celui
- *  qui « ne signale rien » (§7).
- *
- *  🔴 DEUX VOIES, ET LEUR NOMBRE EST LA DÉCISION D'ERIC — pas une commodité :
- *  *« combien de voies au popup ? → deux : SRD · Fate's Hand »*. Chaque voie
- *  rend un nom de pile du vocabulaire déjà en place (`currentStack` :
- *  `"srd"` / `"srdfh"`), jamais un mot neuf.
- *
- *  ⛔ ELLE NE SAIT PAS CE QUE `choisir` FAIT — même loi que `confirm.mjs` en
- *  tête : le composant ne connaît aucun verbe, l'appelant décide.
- *
- *  🔴 LOT 201 — ET ELLE EXIGE UNE RÉPONSE. ⚖️ Eric, 10/09 : *« Un popup doit
- *  me dire, avant même d'arriver à l'étape 1, tout de suite : tu veux SRD ou
- *  FH ? — et faire le réglage pour moi. »* Un réglage qui ne se fait que sur
- *  la réponse ne peut pas tolérer une question esquivée.
- *  📏 CE QU'ELLE COÛTAIT, MESURÉ AU BANC LE 13/09 (v624, 512 × 764, le chemin
- *  d'Eric du jour — *« next ne m'amène pas sur species ? pourquoi ? »*) :
- *  un clic HORS du popup le fermait sans réponse (III.4), `choisirLeJeu` ne
- *  tournait jamais, et Species listait ZÉRO espèce. ⛔ Et le clic sur SON
- *  PROPRE bouton était un clic dehors : `.popup` est `pointer-events: none`
- *  (le lâcher du glisser, 20/08), `elementFromPoint` au centre de « Fate's
- *  Hand » rendait la rangée `Done` du dessous. Le geste normal d'un joueur
- *  produisait l'écran vide.
- *  ⭐ LE CHAMP EST LA DONNÉE, `mountPopup` (popup.mjs) LA LIT : un popup qui
- *  le porte ne se ferme que par une de ses actions — ni clic à côté, ni
- *  Échap — et voile ce qu'il couvre. ⛔ Pas un `if (titre === …)` dans la
- *  coquille : le prochain popup-question n'aura qu'à le porter aussi.
- *
- *  @param {(pile: "srd" | "srdfh") => void} choisir
- *  @returns {{titre: string, role: string, texte: string, exigeUneReponse: true, actions: {mot: string, faire: () => void}[]}} */
-export function popupDuJeu(choisir) {
+/** LA FENÊTRE « NEW CHARACTER » — la description d'état que `paintPopup` (shell.mjs)
+ *  sait déjà peindre (`{titre, role, texte, actions}`, lot 173) : ⛔ AUCUN COMPOSANT
+ *  NEUF, la même voie que le popup du lot 193 qu'elle remplace.
+ *  · rôle `guide` — elle prévient, elle ne dit pas d'erreur (§7 : le gendarme DIT
+ *    L'ERREUR) ;
+ *  · `Delete` porte `defait` — il efface, donc le rouge de ce qui coûte (§6) ;
+ *  · ⛔ elle n'EXIGE pas de réponse : rien ne bouge avant qu'on choisisse, donc la
+ *    fermer d'un tap dehors vaut `Cancel`. C'est la différence avec le popup du 193,
+ *    qui repartait à zéro AVANT de poser sa question.
+ *  ⛔ ELLE NE SAIT PAS CE QUE `choisir` FAIT — même loi que `confirm.mjs` : le
+ *  composant ne connaît aucun verbe, la coquille décide.
+ *  @param {{enCours: boolean, choisir: (voie: "cancel"|"delete"|"save"|"start") => void}} p */
+export function popupNouveauPersonnage({ enCours, choisir }) {
+  const { titre, avertissements } = MOTS_DU_NOUVEAU_PERSONNAGE;
+  const voies = enCours
+    ? [{ mot: "Cancel", voie: "cancel" }, { mot: "Delete", voie: "delete", defait: true }, { mot: "Save", voie: "save" }]
+    : [{ mot: "Cancel", voie: "cancel" }, { mot: "Start", voie: "start" }];
   return {
-    titre: "SRD or Fate's Hand?",
+    titre,
     role: "guide",
-    exigeUneReponse: true,
-    texte: [MOT_DU_JEU_ENTREE, MOT_DU_JEU_SRD, MOT_DU_JEU_FH].join("\n"),
-    actions: [
-      { mot: "SRD", faire: () => choisir("srd") },
-      { mot: "Fate's Hand", faire: () => choisir("srdfh") }
-    ]
+    texte: (enCours ? avertissements : avertissements.slice(0, 2)).join("\n"),
+    actions: voies.map(({ mot, voie, defait }) => ({ mot, defait: defait === true, faire: () => choisir(voie) }))
   };
+}
+
+/** LA SÉQUENCE DE LA FENÊTRE, PURE pour qu'un garde la lise sans coquille — même
+ *  forme que `sauvegarderPuisEteindre` (lot 192), et pour la même raison : l'ordre
+ *  EST la règle, et un ordre qui ne vit que dans une coquille ne se mesure pas.
+ *  · `cancel` → rien ;
+ *  · `save`   → `sauvegarder()` D'ABORD ; s'il n'a pas rendu `true`, RIEN ne bouge —
+ *               ni oubli, ni naissance (la règle du 192 : un Save refusé n'efface rien,
+ *               et le refus a déjà été dit par `porteEnPanne`) ;
+ *  · `delete` → `oublier()` : la copie du navigateur, le geste de l'ancien `Forget` ;
+ *  · `start`  → rien à ranger ni à oublier : il n'y a pas de perso en cours.
+ *  Puis, pour ces trois-là seulement : `naitre()` — un perso vierge, les Layers en
+ *  place, l'étape 1.
+ *  ⏳ ELLE ATTEND, comme le 192 et le 193 : le magasin répond en différé, et une
+ *  promesse non attendue est une absence traitée comme un accord.
+ *  @param {{voie: string, sauvegarder: () => Promise<boolean>|boolean, oublier: () => void, naitre: () => void}} gestes
+ *  @returns {Promise<boolean>} `true` si le personnage neuf est né */
+export async function nouveauPersonnageSelonLaVoie({ voie, sauvegarder, oublier, naitre }) {
+  if (voie === "save") {
+    if (await sauvegarder() !== true) return false;
+  } else if (voie === "delete") {
+    oublier();
+  } else if (voie !== "start") {
+    return false;
+  }
+  naitre();
+  return true;
 }
 
 /** LA CONFIRMATION DU MAÎTRE — partagée entre R et l'écran `Layers` (lot 188),
@@ -484,15 +503,9 @@ export function renderConfirmationPile(doc, query, onAction) {
   });
 }
 
-function nomDuPersonnage(doc) {
-  const nom = doc && typeof doc.name === "string" ? doc.name.trim() : "";
-  /* ⭐ LOT 193 — LE MOT DE L'ABSENCE EST DÉCLARÉ UNE FOIS
-     (`NOM_DU_PERSONNAGE_NEUF`, plus haut) : c'est le MÊME qu'un personnage
-     neuf porte à sa naissance, et deux écrivains du même mot auraient
-     divergé le jour où Eric donne le sien. */
-  return nom !== "" ? nom : NOM_DU_PERSONNAGE_NEUF;
-}
-
+/* 🗄️ LOT 350 — `nomDuPersonnage` EST PARTI AVEC LA LIGNE D'ÉTAT (« in browser : <nom>
+   · saved »), que Eric a retirée le 29/09 : c'était son seul lecteur. Le mot de
+   l'absence reste déclaré une fois, `NOM_DU_PERSONNAGE_NEUF`, pour la naissance. */
 
 /** ⭐ UN DROPDOWN DE CHOIX — Eric, 2026-09-02 : *« Les backgrounds en drop
  *  down. »* Il remplace la rampe de bascules du lot 134, et c'est un
@@ -700,6 +713,101 @@ function renderDisplayEcran(ctx, onAction) {
   return section;
 }
 
+/* ══ LES ORGANES DE R — LOT 350 ════════════════════════════════════════════ */
+
+/** LE MOT DE L'AIGUILLEUR DE R — ⚖️ Eric, 29/09 : *« Aiguilleur qui explique qu'on
+ *  peut activer un Livre ou un autre dans layers, que le DM peut donner un code de
+ *  campagne. »* Le texte est le BROUILLON du plan v10 : Eric arrête les mots que le
+ *  joueur lit. ⛔ Un aiguilleur POINTE en trois lignes (📍 `aide-aiguilleur-et-
+ *  tutoriel-disent-meme-etape`) : il ne nomme que ce qui est écrit sur un bouton. */
+export const MOT_DE_L_AIGUILLEUR_DU_MENU =
+  "You can switch a book on or off in Layers. Your Dungeon Master can give you a campaign code.";
+
+/** LA LIGNE `Books` — ⚖️ Eric, 29/09, à « le SRD dans Books ? » : *« Books est un terme
+ *  générique ; le SRD est le book de base »* (engine + catalog) — il apparaît donc, et
+ *  en TÊTE. Puis Fate's Hand quand son maître est engagé, puis les livres du joueur
+ *  (`currentBooks`, dans leur ordre stable). Les mots sont ceux du plan v10 :
+ *  « SRD · FH · PHB · DMG ».
+ *  ⛔ LE MOT COURT D'UN LIVRE VIT DANS SA TABLE (`LIVRES_DU_JOUEUR.court`), jamais écrit
+ *  ici : deux écritures du nom d'un livre divergeraient au premier livre ajouté.
+ *  @returns {string[]} */
+export function livresDuMenu(doc) {
+  const livres = currentBooks(doc).map((id) => {
+    const livre = LIVRES_DU_JOUEUR.find((l) => l.id === id);
+    return livre ? (livre.court || livre.nom) : id;
+  });
+  return ["SRD", ...(compositionFh(doc).maitre ? ["FH"] : []), ...livres];
+}
+
+/** UNE PORTE DU MENU — le gabarit LARGE (NORMES §6 : dessin 105 × 40, cible 105 × 44,
+ *  `--bouton-moyen`), texte T4 16 / 600, DEUX ÉTAGES PERMIS (Eric, 29/09 : *« deux
+ *  lignes dans un bouton → oui »*). La famille `.menu-porte` entre dans le patron par
+ *  la LISTE (shell.css), jamais par une copie de ses déclarations. */
+function porte(mot, onClick) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "menu-porte";
+  b.append(text(mot));
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+/** UNE PLACE RÉSERVÉE — ⚖️ la forme de `Double view` quand la fenêtre est trop petite
+ *  (📍 `menu-reglage-impossible-reste-visible`) : **présente, éteinte, un mot sous
+ *  elle**. ⛔ Pas une seconde forme : un joueur qui a appris ce que veut dire « gris
+ *  avec un mot » l'apprend une fois. Le mot est celui des places réservées du dépôt,
+ *  « soon », dans SA pastille (`.tdc-bientot`, `ligneReservee`) — la même, pas une copie. */
+function placeReservee(mot) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "menu-porte";
+  b.disabled = true;
+  b.dataset.reserve = "true";
+  b.append(text(mot));
+  return el("div", "tdc-place", [b, el("span", "tdc-bientot", [text("soon")])]);
+}
+
+/** UNE RANGÉE DE PORTES — `trois` (gauche · centre · droite), `deux` (gauche ·
+ *  droite), `une` (centre) : les positions dictées, lues par la feuille. */
+function rangee(disposition, portes) {
+  const r = el("div", "tdc-rangee", portes);
+  r.dataset.disposition = disposition;
+  return r;
+}
+
+/** UNE LIGNE QUI SE LIT — `Rules`, `Books` : un mot, une valeur, ⛔ aucun contrôle.
+ *  La ligne se dissout dans la grille de R (`display: contents`) : ses deux moitiés
+ *  prennent la colonne des étiquettes et celle des valeurs, comme le champ `Campaign`. */
+function ligneLue(mot, valeur) {
+  const ligne = el("div", "tdc-ligne-lue");
+  ligne.dataset.ligne = mot.toLowerCase();
+  ligne.append(el("span", "tdc-ligne-mot", [text(mot)]));
+  ligne.append(el("span", "tdc-ligne-valeur", [text(valeur)]));
+  return ligne;
+}
+
+/** LE CODE DE CAMPAGNE — une PLACE RÉSERVÉE : présent, éteint, en T0 (8 px), un mot
+ *  sous lui. ⚖️ Eric, 29/09 : *« si je mets un code de campagne tout se remplit »*, et
+ *  à « lu où ? » : *« le DM et le joueur sauront se retrouver si le PC du DM est
+ *  allumé »* — le PC du MJ remplit `Campaign · Rules · Books`.
+ *  ⏳ CE QUI N'EST PAS CONSTRUIT, ET POURQUOI : le transport de table ne l'est pas, et
+ *  le tunnel rapide change d'adresse à chaque lancement (mandat §3). ⛔ Donc aucun
+ *  écouteur : un champ qui accepterait une frappe sans rien en faire serait un bouton
+ *  mort. */
+function codeDeCampagne() {
+  const place = el("div", "tdc-code");
+  place.dataset.reserve = "true";
+  const label = el("label", "doc-field-label", [text("Campaign code")]);
+  label.setAttribute("for", "universe-campaign-code");
+  const champ = document.createElement("input");
+  champ.type = "text";
+  champ.id = "universe-campaign-code";
+  champ.className = "doc-field-input tdc-code-champ";
+  champ.disabled = true;
+  place.append(label, champ, el("span", "tdc-bientot", [text("soon")]));
+  return place;
+}
+
 /**
  * @param {object} ctx
  * @param {object} ctx.document            le document `fh-char/1` courant
@@ -707,10 +815,11 @@ function renderDisplayEcran(ctx, onAction) {
  * @param {object} [ctx.fieldErrors]       le dernier refus par champ (`{campaign}`)
  * @param {string|null} [ctx.pendingStack] `"srd"` si une confirmation de passage à SRD est en attente, sinon `null`
  * @param {(action: object) => void} onAction
- *   `{kind:"requestLayerStack", value}` (clic sur un des deux boutons — `shell.mjs`
- *   décide s'il faut confirmer) · `{kind:"confirmLayerStack"}` ·
- *   `{kind:"saveAndConfirmLayerStack"}` (lot 192 : Save, puis l'extinction) ·
- *   `{kind:"cancelLayerStack"}` · `{kind:"describe", field:"campaign", value}`.
+ *   R : `{kind:"ouvrirLaCreation"}` · `{kind:"ouvrirLeMagasin"}` ·
+ *   `{kind:"ouvrirNouveauPersonnage"}` · `{kind:"ouvrirLayers"}` · `{kind:"ouvrirDisplay"}` ·
+ *   `{kind:"describe", field:"campaign", value}` ; la confirmation du maître (partagée
+ *   avec `Layers`) : `{kind:"confirmLayerStack"}` · `{kind:"saveAndConfirmLayerStack"}` ·
+ *   `{kind:"cancelLayerStack"}`.
  */
 export function renderUniverseStep(ctx, onAction) {
   /* 🔴 UN SEUL POINT D'ENTRÉE POUR LES DEUX RANGS, et c'est ce qui garde la
@@ -722,168 +831,80 @@ export function renderUniverseStep(ctx, onAction) {
   const doc = ctx.document;
   const query = ctx.query;
   const errors = ctx.fieldErrors || {};
-  /* `dalle-intermediaire` — le voile à 50 % qu'Eric a demandé, pris à la
-     matrice des dalles (lot 59) et jamais réécrit en couleur ici. */
-  const section = el("section", "universe-step dalle-intermediaire");
+  /* `dalle-intermediaire` — le voile à 50 % : ⚖️ Eric, 29/09, *« fond habituel,
+     transparence 50 % »* (NORMES §4), pris à la matrice des dalles et jamais
+     réécrit en couleur ici. `tdc-r` porte la GRILLE de R (shell.css). */
+  const section = el("section", "universe-step dalle-intermediaire tdc-r");
   /* Il DIT son format, comme les dalles du parcours : un écran qui ne le
      déclare pas oblige à le déduire, et une déduction se trompe. */
   section.dataset.objet = "dalle";
-  /* ⛔ AUCUNE SORTIE DÉCLARÉE À LA RACINE — voir le commentaire du tableau de
-     commande plus bas : `R` n'a pas de `Done`, son geste est `Build a character`.
-     La coquille ne pose donc pas de paire ici ; le `?` reste en absolu. */
+  /* ⛔ AUCUNE SORTIE DÉCLARÉE À LA RACINE : `R` n'est pas une étape à valider, c'est
+     un tableau de commande — son geste principal est `Create character`, et un
+     `Done` qui ferait la même chose serait un second organe pour un seul geste. */
 
-  /* ══ R — LE TABLEAU DE COMMANDE — Eric, 2026-09-08 ═══════════════════════
-     *« Objectif 1 : le joueur y arrive. »* · *« Le joueur ne veut pas naviguer,
-     il doit trouver l'essentiel en R. »* · *« R doit tenir en une page »* —
-     **500 blg, ceinture exclue**. *« Après, les fonctions joueur avancées, et
-     les trois autres familles, c'est dans B1 à B4. »*
+  /* ══ R — LE MENU, TEL QU'ERIC L'A DICTÉ LE 29/09 ══════════════════════════
+     *« Pour simplifier à la surface : menu R »* — de haut en bas : le code de
+     campagne · `Create character` · `Campaign` · `Rules` · `Books` · l'aiguilleur ·
+     les portes `My characters` (gauche) · `New character` (centre) · `Vault` (droite)
+     · `Layers` (gauche) · `Dungeon Master` (droite) · `Display`.
+     Réponses d'Eric aux questions d'ARCHI 35, le même jour — chacune avec SA question :
+     · le pied (le livre FH Web, le `?`) → *« pas de livre ni de ? dans l'étape Menu »* ;
+     · `Tools` → *« on mettra ça chez le DM si on l'utilise (à faire plus tard) »* : il
+       disparaît de R ;
+     · la ligne `Campaign` → modifiable à la main tant que le code n'est pas câblé ;
+     · le titre `SOWLREACH` + son sous-titre → **gardés**, en tête ;
+     · la ligne « in browser : <nom> · saved » → ⛔ **retirée**.
+     ⭐ Et l'habillage : *« on respecte les hauteurs de dalle, pas de scroll »* ; les
+     repères `R`, `B0…B4` ne s'affichent jamais.
 
-     ⭐ CE MENU AVAIT ÉTÉ DICTÉ LE 26/08 (`FH-WEB/FHPC/FHPCv2 arborescence
-     d'entree`) ET JAMAIS PORTÉ — le Menu d'avant s'était construit *« au fur
-     et à mesure, à chaque besoin »*, cinq réglages d'affichage à la racine et
-     le personnage tout en bas. Celui-ci INVERSE l'ordre : le personnage
-     d'abord, les règles, puis les portes.
+     🗄️ CE QUI QUITTE R (loi des deux âges : les neuf corrections du 08/09 sont
+     racontées ici, pas effacées) : `Build a character` (→ `Create character`, qui ne
+     crée plus rien) · `Open · Save · Forget` (Open → `My characters`, qui était la
+     même pièce depuis le lot 195 — C37 tranchée par la dictée ; Save → Sheet, *« le
+     save character sera dans Sheet »* ; Forget → le `Delete` de la fenêtre) · le
+     voyant SRD et l'interrupteur Fate's Hand (ils vivent dans `Layers`, lots 188-189 —
+     C33 tranchée : la porte `Layers` est à gauche, rangée 2) · la ligne d'état · le
+     pied (le livre, `Display`/`DM`/`Tools` au format petit, le `?` de la coquille). */
 
-     🔴 ET IL RÉSERVE LES PLACES de tout ce qui a été dit — `My characters`,
-     `DM`, `Tools` — visibles, éteintes, avec un mot. *« Pour que les prochaines
-     itérations ne nécessitent pas qu'on détruise pour reconstruire. »* Le code
-     est la mémoire : un siège qui arrive VOIT où va chaque organe.
-
-     ⛔ PAS DE `Done` À LA RACINE, ET C'EST UNE DÉCISION : `R` n'est pas une
-     étape à valider, c'est un tableau de commande. Son geste principal est
-     `Build a character`, qui ouvre les huit étapes — un `Done` qui ferait la
-     même chose serait un second organe pour un seul geste. Le `?` reste, posé
-     par la coquille en absolu (§6 pré, *« sur une dalle sans rangée »*).
-
-     ⚠️ `Build a character`, PAS `New character` — le mot de la dictée, et il
-     ne bouge pas au lot 193. ⭐ CE QUI A CHANGÉ, C'EST SA RAISON, ET ELLE SE
-     LIT : jusqu'au 10/09 le builder n'avait AUCUN personnage vierge (il naît
-     de l'exemple commité), donc « New » aurait promis ce que rien ne savait
-     fabriquer. Depuis, il sait — `composer` (src/doc/writers.mjs) fait naître
-     un document, et ce bouton l'appelle. Le mot reste quand même : c'est
-     CELUI D'ERIC, dicté le 26/08 et redit le 10/09 dans le même souffle que
-     la création (« je tape Build a character »). ⛔ Le garde `D4` ne se
-     desserre pas pour autant — il refuse toujours « New », « Start over »,
-     « Reset » : un second mot pour un seul geste, c'est un second organe. */
-  /* ⚖️ LES NEUF CORRECTIONS D'ERIC SUR R — 08/09, après la première itération :
-     « SOWLREACH (centré) · Agnostic SRD 5.2.1 interface (centré italique) ·
-     Build a Character bouton large, relief vert · standard des boutons, Open et
-     Save en vert (format réglementé, petits, centrés) · un switch pour Fate's
-     Hand, et un switch pour SRD même s'il est inactif, même ligne · My
-     characters bouton large bleu cadré à gauche · in browser : <nom>, voyant
-     vert si saved, rouge sinon · campaign · trois boutons du bas standard,
-     centrés, cellule — manque le livre — à 8 blg du pied de page. »
-     ⚠️ `Forget` n'était PAS dans sa liste : gardé dans la rangée du fichier,
-     parce que c'est la seule sortie quand la fiche ne dérive plus (v592). À lui
-     de dire s'il vit ailleurs. */
-  const memoire = ctx.memoire || { ok: true };
-  const perso = el("div", "universe-memoire tdc-perso");
-  perso.dataset.garde = String(Boolean(memoire.ok));
-
+  /* ① LA TÊTE — gardée (Eric, 29/09). ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS : un
+     personnage gardé mais illisible, ou un navigateur qui refuse de garder, laissent
+     leur mot ICI. ⛔ Ce n'est pas la ligne d'état retirée : celle-ci disait « saved »
+     à chaque visite ; ceux-là ne parlent que d'une perte — la voix du gendarme.
+     ✅ Eric, 29/09, à « le mot rouge en tête de R quand le navigateur ne garde pas le
+     perso — gardé ou retiré ? » : *« Gardé »* (`menu-r-ligne-d-etat-retiree`). */
   const tete = el("header", "tdc-tete");
   tete.append(el("p", "tdc-marque", [text("SOWLREACH")]));
   tete.append(el("p", "tdc-sous-titre", [text("Agnostic SRD 5.2.1 interface")]));
-  /* ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS — un personnage gardé mais
-     illisible, ou un fichier refusé, laissent chacun leur mot ici, en tête. */
   if (ctx.memoireIgnoree) {
     tete.append(el("p", "doc-field-error", [
       text(`A character was saved here but could not be reopened: ${ctx.memoireIgnoree}. This one starts fresh.`)
     ]));
   }
-  /* 🗄️ LOT 195 — LE REFUS D'UN FICHIER A SUIVI SON BOUTON. La boîte de
-     fichiers du système ne s'ouvre plus depuis `R` (`Open` ouvre le magasin) :
-     un mot posé ici parlerait d'un geste que le joueur n'a pas fait sur cet
-     écran. Il se dit là où on l'a fait — la page du magasin. */
-  perso.append(tete);
-
-  /* LE GESTE MAJEUR — large, vert en relief (Eric). ⭐ LOT 193 — IL NE NAVIGUE
-     PLUS, IL CRÉE : sauvegarder le personnage courant, repartir à zéro,
-     demander « SRD ou Fate's Hand ? », et c'est la RÉPONSE qui ouvre l'étape 1
-     (voir la section « LE PREMIER PAS » en tête de fichier). L'écran, lui,
-     émet le même verbe qu'avant — c'est la coquille qui a appris le geste. */
-  perso.append(bouton("Build a character", "tdc-majeur", () => onAction({ kind: "construireLePersonnage" })));
-
-  /* ⚖️ LES TROIS GESTES DU FICHIER, AU FORMAT RÉGLEMENTÉ — une rangée
-     `.parcours-pied` : la coquille lui donne la grille des rangées et le
-     plancher de 77 (📍 `bouton-deux-largeurs`). `Open` et `Save` en vert
-     (Eric) ; `Forget` reste rouge, il DÉFAIT. `Save` est l'export canonique de
-     Sheet — le MÊME écrivain (`exportJson`), pas un second. */
-  /* 🗄️ LOT 195 — `Open` N'OUVRE PLUS LA BOÎTE DE FICHIERS DU SYSTÈME.
-     ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
-     sauvegardes dedans »*. Le MOT ne bouge pas — c'est le sien, et il l'a redit
-     ce jour-là dans la même phrase. Ce qui change est ce qu'il OUVRE : le rang
-     B `characters`, la page du magasin. ⭐ La boîte de fichiers n'a pas disparu
-     pour autant : elle descend d'un rang, sur `Open a file…` DANS cette page —
-     un joueur qui reçoit un `.fh-char.json` d'ailleurs doit toujours pouvoir
-     l'ouvrir (loi du 06/09, elle n'a pas bougé). */
-  const trio = el("div", "parcours-pied tdc-trio");
-  trio.append(bouton("Open", "tdc-vert universe-ouvrir", () => onAction({ kind: "ouvrirLeMagasin" })));
-  trio.append(bouton("Save", "tdc-vert universe-sauver", () => onAction({ kind: "exportJson" })));
-  trio.append(bouton("Forget", "parcours-annuler universe-oubli", () => onAction({ kind: "oublierPersonnage" })));
-  perso.append(trio);
-
-  /* ══ LA LIGNE DES RÈGLES — UN VOYANT ET UN INTERRUPTEUR — Eric, 08 et 09/09 ═
-     08/09 : *« un switch pour Fate's Hand, oui ; un switch pour SRD même s'il
-     est inactif, même ligne, donc off »*. Puis 09/09, devant la v612 :
-     *« Le bouton SRD est un VOYANT, pas un bouton — il est toujours actif. »*
-     ⚖️ Le second mot corrige le premier sur DEUX points, et les deux se lisent :
-     · la FORME — plus d'interrupteur grisé qui a l'air d'un bouton qu'on ne
-       peut pas pousser, une LAMPE (`voyant`, layers-ecran.mjs) ;
-     · le SENS — le SRD n'est plus le miroir inversé de Fate's Hand (« quand
-       l'un s'allume, l'autre s'éteint », 17/08) : il est TOUJOURS allumé,
-       Fate's Hand ou non. C'est le plancher, pas l'autre plateau de la balance.
-     ⛔ Un seul organe écrit la pile : l'interrupteur `Fate's Hand`. Et c'est
-     le MÊME voyant qu'au socle de `Layers` — un organe, deux emplois. */
-  /* ⭐ LOT 188 — LES DEUX INTERRUPTEURS LISENT LA COMPOSITION, PAS LE NOM DE LA
-     PILE. `currentStack` ne connaît que `srd` et `srdfh` ; un joueur qui a
-     coupé une seule couche depuis `Layers` n'est ni l'un ni l'autre, et il
-     n'est pas pour autant « hors des deux jeux de règles ». Le maître dit si
-     Fate's Hand est ENGAGÉ ; le mot rouge ne sort que pour une composition
-     qu'aucun interrupteur ne peut produire (`compositionFh`, layers-ecran). */
-  const composition = compositionFh(doc);
-  const regles = el("div", "tdc-regles");
-  const deux = el("div", "tdc-deux");
-  const socle = voyant({ label: "SRD" });
-  socle.dataset.socle = "true";
-  deux.append(socle);
-  deux.append(interrupteur({
-    label: "Fate's Hand", on: composition.maitre,
-    onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })
-  }));
-  regles.append(deux);
-  if (!composition.legitime) {
-    regles.append(el("p", "doc-field-error", [
-      text("This character's layer stack doesn't match either ruleset — flip Fate's Hand to realign it.")
+  /* 🗄️ LOT 195 — le refus d'un FICHIER s'est dit là où on l'a ouvert (la page du
+     magasin) ; il ne revient pas ici. */
+  const memoire = ctx.memoire || { ok: true };
+  if (memoire.ok === false) {
+    tete.append(el("p", "doc-field-error", [
+      text(`This browser is not keeping your character: ${memoire.raison}. Save it from Sheet.`)
     ]));
   }
-  /* 🎛️ LA PORTE DE `Layers` — le rang B où les six couches se coupent une par
-     une (Eric, 09/09). Large et bleue comme `My characters` : elle NAVIGUE,
-     elle ne règle rien ici. ⏳ Sa place sous les deux interrupteurs est le
-     défaut le plus sobre, pas une cote d'Eric (A-TRANCHER §C33). */
-  regles.append(bouton("Layers", "tdc-couches", () => onAction({ kind: "ouvrirLayers" })));
-  perso.append(regles);
+  section.append(tete);
 
-  /* MY CHARACTERS — large, bleu, cadré à gauche (Eric, 08/09). Il ouvre le
-     rang B1 : le magasin.
-     ⚖️ ET IL OUVRE EXACTEMENT LA MÊME PAGE QUE `Open` DEPUIS LE LOT 195 — deux
-     portes, une seule pièce. ⏳ C'EST UNE QUESTION POUR ERIC, PAS UNE DÉCISION
-     PRISE ICI (A-TRANCHER §C37) : ses deux mots sont vrais, dits à deux jours
-     d'écart, et aucun ne dit lequel des deux boutons reste. On ne retire pas en
-     silence un bouton qu'il a dicté ; on le NOMME. */
-  perso.append(bouton("My characters", "tdc-liste", () => onAction({ kind: "ouvrirLeMagasin" })));
+  /* ② LE CODE DE CAMPAGNE — une place réservée (voir `codeDeCampagne`). */
+  section.append(codeDeCampagne());
 
-  /* LA LIGNE D'ÉTAT — *« in browser : Ilyra Duskleaf · saved, voyant vert si
-     saved, rouge sinon »*. La pastille lit `[data-garde]`, jamais une couleur
-     écrite ici. */
-  const etat = el("p", "tdc-etat");
-  etat.append(el("span", "tdc-etat-mot", [text("in browser: ")]));
-  etat.append(el("span", "tdc-nom", [text(nomDuPersonnage(doc))]));
-  etat.append(el("span", "tdc-garde", [text(memoire.ok ? "saved" : `not saved: ${memoire.raison}`)]));
-  perso.append(etat);
-  section.append(perso);
+  /* ③ CREATE CHARACTER — le geste majeur, VERT (Eric, 08/09 : *« relief vert »* ; il
+     garde la teinte du geste qu'il remplace). ⚖️ Il mène à l'étape 1 DU PERSO EN
+     COURS : *« Bouton - Create character- (vers Etape 1 du builder) »*. ⛔ Il ne crée
+     rien — c'est `New character` qui fait naître, par sa fenêtre. */
+  const creer = porte("Create character", () => onAction({ kind: "ouvrirLaCreation" }));
+  creer.dataset.majeure = "true";
+  section.append(el("div", "tdc-seul", [creer]));
 
-  if (ctx.pendingStack) section.append(renderConfirmationPile(doc, query, onAction));
-
+  /* ④ LES TROIS LIGNES — `Campaign` (modifiable : *« tant que le code de campagne
+     n'est pas câblé »*, Eric 29/09) · `Rules` (Fate's Hand si le maître est engagé,
+     sinon SRD — ⚖️ *« (SRD mais inutile de citer) Fate's hand »*) · `Books`.
+     Même patron que `textField` (`concept-step.mjs`) : commis sur `change`. */
   section.append(textField({
     id: "universe-campaign",
     label: "Campaign",
@@ -894,33 +915,44 @@ export function renderUniverseStep(ctx, onAction) {
     error: errors.campaign,
     onCommit: (value) => onAction({ kind: "describe", field: "campaign", value })
   }));
-
-  /* ══ LA RANGÉE DU BAS : LE LIVRE · LES TROIS PORTES · LE `?` ═══════════════
-     Eric, 08/09 : *« trois boutons du bas, standard, centrés, cellule — manque
-     le livre — à 8 blg du pied de page »*. C'est la trilogie (📍 `rangee-
-     trilogie-due-partout`) : une rangée `.parcours-pied`, le livre à gauche
-     (il ouvre FH Web, le livre lui-même), les trois portes au format réglementé
-     dans la cellule du milieu — 3 × 77 + 2 × 8 = 247, la largeur exacte de la
-     cellule — et le `?` que la coquille pose à droite. `Appearance` est
-     VIVANTE (bleue, elle navigue) ; `DM` et `Tools` sont RÉSERVÉES : grises,
-     éteintes — *non coloré = non cliquable* — et leur mot est dans le titre. */
-  const pied = el("div", "parcours-pied tdc-pied");
-  const livre = el("button", "fiche-livre parcours-livre");
-  livre.type = "button";
-  livre.setAttribute("aria-label", "Rules");
-  livre.addEventListener("click", () => { window.open(LIVRE_FH_WEB, "_blank", "noopener"); });
-  pied.append(livre);
-  /* 📏 « Display », le mot d'Eric du 02/09 — « Appearance » mesurait 110 blg dans
-     une cellule qui en donne 77 à chacun des trois, et rognait le livre. */
-  pied.append(bouton("Display", "tdc-porte", () => onAction({ kind: "ouvrirDisplay" })));
-  for (const mot of ["DM", "Tools"]) {
-    const b = bouton(mot, "tdc-porte", () => {});
-    b.disabled = true;
-    b.dataset.reserve = "true";
-    b.setAttribute("title", `${mot} — soon`);
-    pied.append(b);
+  /* ⭐ LOT 188 — LA LIGNE LIT LA COMPOSITION, PAS LE NOM DE LA PILE : un joueur qui a
+     coupé un seul interrupteur n'est pas « hors des deux jeux de règles ». Le mot
+     rouge ne sort que pour une composition qu'aucun interrupteur ne peut produire
+     (`compositionFh`, layers-ecran) — et il envoie là où l'on répare : `Layers`. */
+  const composition = compositionFh(doc);
+  section.append(ligneLue("Rules", composition.maitre ? "Fate's Hand" : "SRD"));
+  if (!composition.legitime) {
+    section.append(el("p", "doc-field-error", [
+      text("This character's layer stack doesn't match either ruleset — open Layers to realign it.")
+    ]));
   }
-  section.append(pied);
+  section.append(ligneLue("Books", livresDuMenu(doc).join(" · ")));
+
+  /* ⑤ L'AIGUILLEUR — l'organe `.guide-mot` (NORMES §6 pré bis), ⛔ jamais un sosie :
+     bleu, une boîte de TROIS lignes, et sur le verre il écrit en `--text`
+     (📍 `aide-amendement-aiguilleur`, porté par l'organe, pas par cet écran). */
+  section.append(el("p", "guide-mot", [text(MOT_DE_L_AIGUILLEUR_DU_MENU)]));
+
+  /* ⑥ LES SIX PORTES, AUX PLACES DICTÉES. ⏳ `Vault` et `Dungeon Master` sont des
+     places réservées : le Vault (B2) attend son lot, le DM (B3) aussi. */
+  const portes = el("nav", "tdc-portes");
+  portes.setAttribute("aria-label", "Menu");
+  portes.append(rangee("trois", [
+    porte("My characters", () => onAction({ kind: "ouvrirLeMagasin" })),
+    porte("New character", () => onAction({ kind: "ouvrirNouveauPersonnage" })),
+    placeReservee("Vault")
+  ]));
+  portes.append(rangee("deux", [
+    porte("Layers", () => onAction({ kind: "ouvrirLayers" })),
+    placeReservee("Dungeon Master")
+  ]));
+  portes.append(rangee("une", [porte("Display", () => onAction({ kind: "ouvrirDisplay" }))]));
+  section.append(portes);
+
+  /* LA CONFIRMATION DU MAÎTRE — partagée avec `Layers` (lot 188). R ne la déclenche
+     plus (l'interrupteur est dans `Layers`), mais `pendingStack` est un état de la
+     coquille : s'il est ouvert quand on revient ici, la question se voit. */
+  if (ctx.pendingStack) section.append(renderConfirmationPile(doc, query, onAction));
 
   return section;
 }

@@ -240,9 +240,13 @@ export function motSansClasseNiScores() { return TETE + causeSansClasseNiScores(
  *  pose un niveau (c'est un fait du produit, écrit par `composer`), donc la
  *  seule sortie du builder est un personnage neuf. ⚠️ BROUILLON : le mot, et
  *  surtout le geste qu'il propose, attendent Eric — le magasin (lot 195) est
- *  hors de ce lot, et c'est lui qui dira un jour si un tel fichier se répare. */
+ *  hors de ce lot, et c'est lui qui dira un jour si un tel fichier se répare.
+ *  🔄 LOT 350 — LE GESTE A CHANGÉ DE NOM, PAS DE SENS : `Build a character` faisait
+ *  naître ; depuis la dictée du 29/09, c'est `New character` (et `Create character`
+ *  n'ouvre que l'étape 1, il ne pose aucun niveau). Laisser l'ancien nom, c'était
+ *  envoyer le joueur vers un bouton qui n'existe plus. */
 const CAUSE_SANS_NIVEAU = "this character carries no level, and nothing in the builder sets one. "
-  + "Open Menu, the first tab, and start a new character with Build a character: it is born at level 1.";
+  + "Open Menu, the first tab, and press New character: the new one is born at level 1.";
 export const MOT_SANS_NIVEAU = TETE + CAUSE_SANS_NIVEAU;
 
 /** ══ 🌱 LOT 198 — LE MANQUE, NOMMÉ POUR UN CHAPITRE QUI VIT ═════════════════
