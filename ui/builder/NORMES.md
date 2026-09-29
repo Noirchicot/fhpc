@@ -9152,6 +9152,10 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 | **d'un podium à l'autre** (pastille → pastille, ou collecteur → une pastille) | `abilityPodium {rollIndex, slotOf, key}` | **rien** — un rangement |
 
 🔒 Le tap sur un dé posé = revenir. `Done` s'allume quand six poses existent et **ne bloque rien** : on peut continuer à déplacer.
+🔄 **Lot 355 (29/09)** — Q1 : « Dé POSÉ, au doigt, le tap ? » → **« Revenir au podium »** : le 🔒 tient **au doigt**. À la
+souris, le clic gauche arme depuis que la grammaire est arrivée sur les dés (`geste-armer-puis-poser`) ; revenir se fait
+en glissant vers le podium. Q2 : le tap d'un dé du podium ou de la palette **arme** le dé (« Il arme le dé ») — il ne
+pose plus au premier libre. Le glisser, lui, ne change pas : ses cinq gestes restent, et il part au mouvement.
 
 ### 7.4 Le fantôme
 📍 `geste-fantome` · vivante · 06/09
@@ -10171,13 +10175,21 @@ arme-t-il encore l'objet pour le poser d'un tap ? » : **« Oui, les deux gestes
   · ⭐ la grammaire arrive sur le **vivier de sorts du parchemin** (X5) : tap et clic droit voient la fiche du sort, le
     clic gauche arme — le collecteur du parchemin s'allume, et lui seul —, un clic sur lui choisit ; ⛔ sans fiche, le
     tap ne choisit plus ;
-  · ⏳ **les dés d'Abilities** : la grammaire leur arrive au même lot, mais le TAP d'un dé attend un mot d'Eric — un dé
-    n'a pas de fiche à voir, et « 🔒 le tap sur un dé posé = revenir » (`geste-glisser-versatile-quatre-gestes-jusqu-a-done`)
-    est écrit. Question posée à l'architecte le 29/09.
+  · 🎲 **les dés d'Abilities** prennent la grammaire au même lot. Un dé n'a pas de fiche à voir : Eric a tranché son
+    TAP le 29/09, deux questions, deux réponses —
+    **Q1 — « Dé POSÉ, au doigt, le tap ? » → « Revenir au podium ».** Le 🔒 du 06/09
+    (`geste-glisser-versatile-quatre-gestes-jusqu-a-done`) tient ; le reste de la grammaire s'applique : l'appui long
+    arme, le glisser est immédiat, et à la souris le clic gauche ARME (revenir, c'est glisser vers le podium).
+    **Q2 — « Dé du PODIUM ou de la PALETTE, au doigt, le tap ? » → « Il arme le dé »**, comme le clic gauche à la
+    souris : les caractéristiques LIBRES s'allument (et elles seules), un tap pose. ⛔ Le « tap pose au premier libre »
+    reste mort (réponse 1a du 28/09). L'organe porte ce choix par `tapAuDoigt` (`glisser.mjs`) ;
+  · ❓ **« La page 2 d'une section du sac, au doigt ? »** → sans objet (voir `geste-la-dalle-ne-se-balaie-plus`).
 🛡️ `tests/glisser.test.mjs` (7 quater : glisser immédiat au doigt et au stylet · 7 quinquies : l'appui long immobile
 arme, relâché il attend sa destination, et un doigt qui a bougé n'arme pas après coup) ; `tests/x5-parchemin.test.mjs`
-(parchemin 8, la grammaire du vivier) ; `tests/wares-collecteur.test.mjs` (5). Chacun vu rouge par mutation — l'organe
-d'avant le lot, l'appui long qui n'arme plus, le minuteur qui survit —, sources restaurées et comparées.
+(parchemin 8, la grammaire du vivier) ; `tests/wares-collecteur.test.mjs` (5) ; `tests/abilities-step.test.mjs`
+(🎲 355 · Q1, Q2 podium, Q2 palette, et le dé glissé sans tenue). Chacun vu rouge par mutation — l'organe d'avant le lot,
+l'appui long qui n'arme plus, le minuteur qui survit, le tap du dé ôté, les destinations non filtrées, l'organe qui
+ignore `tapAuDoigt` —, sources restaurées et comparées.
 
 📍 `chevron-belt-engrenage` · remplacée · 28/09 · remplacée par `chevron-engrenage-partout`
 ⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 20 blg (lot 345 : « réduit là à 20 blg » ; 30 au lot 344, 40 au lot 343) à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
@@ -10306,7 +10318,7 @@ et tous les bancs qui glissent : ils portent désormais le jeton tout de suite, 
 
 ### 🎒 LA DALLE NE SE BALAIE PLUS — la roue mène, le ruban suit
 📍 `geste-la-dalle-ne-se-balaie-plus` · vivante · 29/09 · remplace `geste-celui-que-le-doigt-touche-mene` · borne `geste-sac-defile-a-l-horizontale`
-⚖️ **Dans Backpack, la dalle — la plaque sous la grille — ne défile plus au doigt et ne se balaie plus. Le ruban des plaques SUIT la roue des sections, toujours, et ne mène jamais ; les tuiles de la roue se swipent ; les sections se tournent par la roue, les chevrons, l'engrenage, et la marge du glisser ; les pages d'une section, par la molette.**
+⚖️ **Dans Backpack, la dalle — la plaque sous la grille — ne défile plus au doigt et ne se balaie plus. Le ruban des plaques SUIT la roue des sections, toujours, et ne mène jamais ; les tuiles de la roue se swipent ; les sections se tournent par la roue, les chevrons, l'engrenage, et la marge du glisser.**
 
 > Eric, 2026-09-29, à « et le balayage de la grille ? » : **« les tuiles peuvent être swipées mais pas la dalle. on
 > peut toujours déplacer une tuile d'une page à une autre en la déplaçant dans la marge »**.
@@ -10321,9 +10333,11 @@ et tous les bancs qui glissent : ils portent désormais le jeton tout de suite, 
     (`suivreLesTuiles`, `arreteLesDalles`, `positionDesDalles`, `sectionDeLaDalle`) et le **balayage de la grille**
     (`balayage`, `SEUIL_BALAYAGE`) ;
   · ✅ restent : la roue et son aimant, le suivi en direct (`suivre`) et la pose exacte au repos (`arrete`), `pousser`
-    (chevrons, tuner, engrenage, marge), la molette sur la grille (`surPage`).
-⏳ **La page 2 d'une section qui déborde de ses douze cases ne se tourne plus au doigt** : chevrons, engrenage et marge
-changent de SECTION, seule la molette (souris) tourne les pages. Question posée à l'architecte le 29/09.
+    (chevrons, tuner, engrenage, marge), la molette sur la grille (`surPage` — sa pagination part au lot 356).
+❓ **« La page 2 d'une section du sac, au doigt ? »** — chevrons, engrenage et marge changent de SECTION, seule la molette
+tournait les pages → **sans objet**. Eric, 29/09 : **« Une section, dans backpack, n'a qu'une seule page »** · **« c'est
+12 »**. ⛔ La navigation de ce lot ne change pas. La suppression des pages et le débordement de Send (*« s'il est plein un
+2e backpack dropdown se crée »*) forment le **lot 356**.
 🛡️ `tests/sac-ecran.test.mjs` : 19 (la grille ne se balaie plus, la molette tourne la page), 31 (une seule surface au
 doigt, le ruban passe par l'entre-deux EN DIRECT, la marque dit `none`, l'objet se glisse sans attendre), 33 (le ruban
 ne mène jamais), 34 (un défilement programmé l'entraîne). Chacun vu rouge par mutation — l'ancien `sac-ecran.mjs`,

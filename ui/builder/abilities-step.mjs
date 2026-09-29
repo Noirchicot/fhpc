@@ -64,14 +64,14 @@
    ⛔ LE PLAFOND N'EST PAS OPPOSÉ ICI : cet écran DÉCLARE l'alerte — une
    phrase, jamais un blocage. Le refus vit au carnet et dans `validate()`. */
 
-import { markPressed } from "./carnet.mjs?v=905";
-import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=905";
-import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=905";
-import { armerJeton } from "./glisser.mjs?v=905";
-import { facteurZoomCourant } from "./echelle.mjs?v=905";
-import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=905";
-import { createDieHost, mount } from "./dice3d.mjs?v=905";
-import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=905";
+import { markPressed } from "./carnet.mjs?v=906";
+import { lienAbilityScoresFhWeb } from "./liens-fh.mjs?v=906";
+import { renderTray, poserUnDe, LIBELLES } from "./abilities-tray.mjs?v=906";
+import { armerJeton } from "./glisser.mjs?v=906";
+import { facteurZoomCourant } from "./echelle.mjs?v=906";
+import { mecaniqueDeJet, rollAbilitySet } from "./dice.mjs?v=906";
+import { createDieHost, mount } from "./dice3d.mjs?v=906";
+import { ABILITY_KEYS, CREATION_SCORES, CREATION_SCORE_MAX } from "../../src/build/index.mjs?v=906";
 
 export { rollAbilitySet };
 
@@ -738,7 +738,8 @@ function renderVivier(ctx) {
     }
     item.append(renderJetonDe(roll, FS.resolution, {
       chezSoi: true,
-      onTap: () => ctx.poserAuPremierLibre(roll),
+      /* 🎲 LOT 355 — Eric, 29/09, au « dé du podium, au doigt, le tap ? » : « Il arme le dé » */
+      tapAuDoigt: (armer) => armer(),
       onDepot: (ou) => {
         if (ou === RETOUR_VIVIER) return;
         if (ou.startsWith(PODIUM)) { ctx.placerAuPodium(roll, ou, null); return; }
@@ -778,7 +779,7 @@ function renderVivier(ctx) {
  *  ⭐ LE MODIFICATEUR QUI COMPTE EST DANS LA CIBLE, et il y était déjà : le
  *  FINAL, boosts compris, lu dans `resolved.abilities` par `renderFinalColumn`
  *  — le seul des deux que le joueur puisse opposer à quoi que ce soit. */
-function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, onHorsCible }) {
+function renderJetonDe(roll, taille, { chezSoi, tapAuDoigt, onDepot, onHorsCible }) {
   /* ⛔ NI `glisse-jeton` : elle habille une PASTILLE (bordure, rembourrage,
      hauteur tactile). Ici l'objet qu'on prend est le DÉ lui-même — `fs-de` ne
      pose que ce qu'il faut pour le prendre (`touch-action`, le curseur, la
@@ -830,8 +831,24 @@ function renderJetonDe(roll, taille, { chezSoi, onTap, onDepot, onHorsCible }) {
      il attendait seulement qu'un appelant le lui dise. ⛔ Rien n'est passé quand
      l'appelant n'en veut pas : un dé du podium lâché dans le vide rentre chez lui,
      et B1 est figé. */
-  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), { onTap, onDepot, onHorsCible }));
+  /* 🎲 LOT 355 — LA GRAMMAIRE « ARMER PUIS POSER » ARRIVE SUR LES DÉS (NORMES `geste-armer-puis-poser`, réponse 7 du
+     28/09 : « partout », les dés compris). Ils l'attendaient : elle leur aurait AJOUTÉ l'attente de 500 ms ; depuis ce
+     lot le glisser part au mouvement, et elle ne coûte plus rien. Eric a tranché le tap le 29/09 :
+     · ARMER = clic gauche (souris) · appui long immobile (doigt) · et le TAP au doigt d'un dé du podium ou de la
+       palette (« Il arme le dé ») → les caractéristiques LIBRES s'allument ; POSER = clic ou tap sur l'une d'elles ;
+     · le TAP au doigt d'un dé POSÉ le rend au podium (« Revenir au podium ») ;
+     · ⛔ le « tap pose au premier libre » est mort (réponse 1a) ; un dé n'a pas de fiche : le clic droit ne voit rien ;
+     · le GLISSER ne change pas : poser, déplacer, échanger, revenir, ranger (§7.3), et il part au mouvement. */
+  armerJeton(jeton, Object.assign(gestesDuFantome(roll.total), {
+    grammaire: true, tapAuDoigt, accepte: caracteristiqueLibre, onTap: () => {}, onDepot, onHorsCible }));
   return jeton;
+}
+
+/** 🎲 LOT 355 — LES DESTINATIONS D'UN DÉ ARMÉ : les caractéristiques LIBRES (Eric, 29/09 : « les caractéristiques
+ *  libres s'allument »). ⭐ Lu sur la donnée que le collecteur porte (`data-creneau`, `data-rempli`) — ⛔ ni les
+ *  pastilles du podium, ni la rangée de retour : elles restent des cibles du GLISSER, pas de l'armement. */
+function caracteristiqueLibre(c) {
+  return ABILITY_KEYS.includes(c.dataset.creneau) && c.dataset.rempli !== "true";
 }
 
 /* ══ LE COLLECTEUR — les six cibles, et le pied du croquis ═══════════════
@@ -969,7 +986,8 @@ function renderCollecteur(ctx) {
          normal quand on réarrange six scores. */
       creneau.append(renderJetonDe(pose, FS.resolution, {
         chezSoi: false,
-        onTap: () => ctx.reprendre(key),
+        /* 🎲 LOT 355 — Eric, 29/09, au « dé POSÉ, au doigt, le tap ? » : « Revenir au podium » (le 🔒 du 06/09 tient) */
+        tapAuDoigt: () => ctx.reprendre(key),
         onDepot: (ou) => ctx.deplacer(key, pose, ou),
         /* 🗑️ EN FREE SEULEMENT : le vide ÉVACUE la case (Eric, 06/09). Les trois
            autres méthodes ont un podium — leur dé y retourne, et « le vide » n'y
@@ -1252,7 +1270,8 @@ function renderPalette(ctx, act) {
     const item = el("li", "fs");
     const jeton = renderJetonDe({ dice: [], total: valeur, index }, FS.resolution, {
       chezSoi: true,
-      onTap: () => ctx.poserAuPremierLibreDepuisPalette(valeur),
+      /* 🎲 LOT 355 — la palette fait comme le podium : « Il arme le dé » (Eric, 29/09) */
+      tapAuDoigt: (armer) => armer(),
       onDepot: (ou) => ctx.poserDepuisPalette(ou, valeur)
     });
     jeton.setAttribute("aria-label", `${valeur} — take it`);
@@ -1565,19 +1584,10 @@ export function renderAbilitiesStep(ctx, onAction) {
       if (!ABILITY_KEYS.includes(ou)) return;
       act({ kind: "abilityFreeDirect", key: ou, value: valeur });
     },
-    /** LE TAP DE LA PALETTE : la première caractéristique encore servie par
-     *  aucun dé de cette session. */
-    poserAuPremierLibreDepuisPalette(valeur) {
-      const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
-      if (libre) act({ kind: "abilityFreeDirect", key: libre, value: valeur });
-    },
-    /** LE TAP : la première caractéristique encore servie par aucun dé. Le
-     *  croquis ne nomme que le glisser ; ce raccourci ne lui retire rien et
-     *  évite six glissers au pouce quand l'ordre est indifférent. */
-    poserAuPremierLibre(roll) {
-      const libre = ABILITY_KEYS.find((key) => assign[key] === undefined || assign[key] === null);
-      if (libre) glisseCtx.poser(libre, roll);
-    },
+    /* 🗄️ LOT 355 — `poserAuPremierLibre` et `poserAuPremierLibreDepuisPalette` SONT RETIRÉS : ils étaient le TAP qui
+       posait un dé sur la première caractéristique libre (*« ce raccourci évite six glissers au pouce »*). La grammaire
+       l'a tué (réponse 1a d'Eric, 28/09 : « un clic arme, il ne pose plus ») ; au doigt, le tap ARME le dé et un
+       second tap le pose (Eric, 29/09 : « Il arme le dé »). */
     /** LE RETOUR — un dé posé REVIENT au podium, par tap ou par glisser.
      *  Eric, 2026-08-16 : *« je veux pouvoir les remettre dans le conteneur
      *  d'origine — que ça marche dans les 2 sens »* ; et le 05/09 au soir, devant

@@ -874,7 +874,8 @@ test("19 — ⚡ LOT 355 : LA DALLE NE SE BALAIE PLUS — aucun geste parti de l
   assert.deepEqual(tours, [],
     "⛔ un balayage de la grille a tourné la page : la dalle ne se balaie plus (Eric, 29/09)");
 
-  /* ⭐ ET LA PAGE SE TOURNE TOUJOURS À LA MOLETTE — le geste de la souris n'est pas un balayage. */
+  /* ⭐ ET LA PAGE SE TOURNE TOUJOURS À LA MOLETTE — le geste de la souris n'est pas un balayage. ⏳ Eric, 29/09 : « Une
+     section, dans backpack, n'a qu'une seule page » · « c'est 12 » — la pagination part au lot 356, et ce témoin avec elle. */
   vide.dispatchEvent({ type: "wheel", deltaY: 100, deltaX: 0, preventDefault() {} });
   assert.deepEqual(tours, [1], "⛔ la molette ne tourne plus la page : la pagination est morte avec le geste");
 });
