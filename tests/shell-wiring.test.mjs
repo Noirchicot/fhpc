@@ -911,17 +911,18 @@ test("22 — 🔴 LE PERSONNAGE SURVIT AU RECHARGEMENT, et la sauvegarde se voit
      Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
      disparaît s'il n'est pas enregistré s'il y a un reset. »* */
 
-  /* ① LE DÉMARRAGE PRÉFÈRE LE PERSONNAGE GARDÉ — l'exemple n'est plus que le
-     repli. ⛔ Le contraire (charger l'exemple et l'écraser ensuite) écrirait
-     l'exemple par-dessus le personnage du joueur au premier repeint. */
-  assert.match(shellText, /const garde = lirePersonnage\(\);[\s\S]{0,400}?state\.document = garde\.etat === "lu" \? garde\.document : exemple;/,
-    "le navigateur rend son personnage ; l'exemple ne sert que s'il n'y en a pas");
+  /* ① LE DÉMARRAGE PRÉFÈRE LE PERSONNAGE GARDÉ — la fiche vierge n'est que le
+     repli (⚖️ lot 366, Eric 30/09 : « Fiche vierge » ; c'était l'exemple). ⛔ Le
+     contraire (faire naître puis écraser ensuite) écrirait une fiche vierge
+     par-dessus le personnage du joueur au premier repeint. */
+  assert.match(shellText, /const garde = lirePersonnage\(\);[\s\S]{0,400}?state\.document = garde\.etat === "lu" \? garde\.document : personnageNeuf\(null\);/,
+    "le navigateur rend son personnage ; la fiche vierge ne sert que s'il n'y en a pas");
 
   /* ② UNE PERTE NE SE TAIT PAS (loi §0.5). Un personnage gardé mais illisible
-     laisse un message, sinon le joueur repart de l'exemple en croyant n'avoir
+     laisse un message, sinon le joueur repart d'une fiche vierge en croyant n'avoir
      jamais rien construit. */
   assert.match(shellText, /if \(garde\.etat === "refus"\) state\.memoireIgnoree = garde\.raison;/,
-    "⛔ jamais un repli silencieux sur l'exemple");
+    "⛔ jamais un repli silencieux sur une fiche vierge");
 
   /* ③ LA SAUVEGARDE VIT DANS `refresh`, ET PAS DANS `rebuild` — et c'est une
      propriété, pas un goût : `rename`, `describe`, `confirm` et `revoke`

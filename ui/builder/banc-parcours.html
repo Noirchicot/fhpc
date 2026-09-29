@@ -54,8 +54,10 @@
      comme le prescrit `shell.mjs` : « la vérification du geste s'est donc faite en
      neutralisant la seule animation, jamais en changeant le code pour plaire au banc ».
 
-     LE STOCKAGE : chaque scénario part de l'exemple commité (Ilyra, Wizard) sur un
-     `localStorage` VIDÉ ; celui de l'origine est RESTAURÉ à la fin. ⛔ Hors de localhost le
+     LE STOCKAGE : chaque scénario part de l'exemple commité (Ilyra, Wizard), POSÉ PAR LE BANC
+     sous `fhpc.personnage` dans un `localStorage` VIDÉ ; celui de l'origine est RESTAURÉ à la fin.
+     ⚖️ Lot 366 — la page ne retombe plus sur l'exemple quand le stockage est vide (Eric, 30/09 :
+     « Fiche vierge ») : un banc qui part de l'exemple le pose lui-même. ⛔ Hors de localhost le
      banc refuse de jouer : il viderait le personnage d'un joueur. L'IndexedDB (les
      sauvegardes datées) n'est pas touchée : le banc n'appuie jamais sur Save. Fermer la page
      en cours de route laisse l'exemple à la place de ce qui était gardé.
@@ -140,8 +142,10 @@ const rendre = (s, p) => { vider(s); for (const [k, v] of Object.entries(p)) s.s
 async function monterApp() {
   vider(localStorage);
   vider(sessionStorage);
+  /* ⚖️ Lot 366 — l'exemple, posé par le banc : le démarrage ouvre une fiche vierge. */
+  localStorage.setItem(CLE, await (await fetch("../../examples/personnage-fh-en-niveau1.fh-char.json?v=917")).text());
   const f = document.createElement("iframe");
-  f.src = "./index.html?v=916";
+  f.src = "./index.html?v=917";
   document.body.prepend(f);
   const d = await attendre(() => {
     const doc = f.contentDocument;

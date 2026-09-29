@@ -22,7 +22,7 @@
         naissance ; un Save refusé n'efface rien ; `Delete` oublie PUIS fait naître ;
         `Start` ne range rien ; `Cancel` ne fait rien. C'est l'ordre qui est la règle.
      B. la FENÊTRE pure (`popupNouveauPersonnage`) — ses voies selon qu'il y a un perso
-        en cours, ses trois avertissements, son rôle ; et `personnageEnCours`.
+        en cours, ses trois avertissements, son rôle ; et `personnageEnCours` (lot 366 : la naissance).
      C. le NOM d'un personnage sans nom — le mot d'Eric, celui de la naissance.
      D. ⚔️ LE MANIFESTE, CONFRONTÉ À CELUI QUE `rebuild` ADOPTE sur la VRAIE
         pile : deux écrivains de la même forme, et c'est ici qu'un troisième
@@ -188,32 +188,31 @@ test("B4 — ⛔ LA FENÊTRE PRÉVIENT, ELLE NE CONDAMNE PAS : rôle `guide`, `D
   assert.equal("exigeUneReponse" in popup, false, "⛔ rien n'est engagé avant la réponse : on peut la fermer");
 });
 
-test("B5 — 🔴 « PAS DE PERSO EN COURS », C'EST L'EXEMPLE COMMITÉ — hors ce que la dérivation estampille", () => {
-  /* 📏 Le navigateur n'est jamais vide : le démarrage retombe sur l'exemple, et
-     `memoriser()` l'écrit dès le premier rendu. La mémoire ne dit donc rien ; le TEXTE
-     de ce qui fait le personnage, si.
-     ⚠️ CE GARDE A D'ABORD DIT LE CONTRAIRE, ET LE BANC L'A CORRIGÉ. Il affirmait que le
-     `rebuild` du démarrage ne change pas une lettre de l'exemple, et il comparait les
-     textes entiers. 📏 Mesuré au navigateur le 29/09 (visiteur neuf, stockage vidé) : la
-     fenêtre offrait `Cancel · Delete · Save`, parce que la dérivation ESTAMPILLE
-     `modified` et `resolved.derivation.at` à l'heure du démarrage — et rien d'autre. Le
-     témoin ci-dessous rejoue exactement cette estampille. */
-  const exemple = JSON.parse(fs.readFileSync(path.join(ROOT, "examples", "personnage-fh-en-niveau1.fh-char.json"), "utf8"));
-  const texte = (doc) => canonicalText(ceQuiFaitLePersonnage(doc));
-  const redemarre = structuredClone(exemple);
-  redemarre.modified = "2026-09-29T03:18:36.003Z";
-  redemarre.resolved.derivation.at = "2026-09-29T03:18:36.003Z";
-  assert.notEqual(canonicalText(redemarre), canonicalText(exemple), "témoin : le document ENTIER a bougé — c'est le piège");
-  assert.equal(personnageEnCours(texte(redemarre), texte(exemple)), false, "l'exemple re-dérivé n'est le perso de personne");
-  assert.equal(personnageEnCours(texte({ ...redemarre, name: "Ilyra" }), texte(exemple)), true, "⚔️ un nom posé, et c'est un perso à soi");
+test("B5 — 🔴 « PAS DE PERSO EN COURS », C'EST UN DOCUMENT QUI N'A RIEN FAIT DEPUIS SA NAISSANCE — hors ce que la dérivation estampille", () => {
+  /* ⚖️ LOT 366 — ce garde disait « c'est l'exemple commité » (lot 350). Eric, 30/09 : « Fiche
+     vierge » ; la page ne charge plus l'exemple, et la référence est la NAISSANCE du document
+     (`composer`, sur ses propres faits de naissance). Le piège mesuré au banc le 29/09 tient
+     toujours : la dérivation ESTAMPILLE `modified` et `resolved.derivation.at`, et un
+     document ainsi re-dérivé n'a rien choisi. Le témoin rejoue cette estampille. */
+  const { composer } = createDocWriters({ schema: readJson("schemas/fh-char.schema.json") });
+  const ne = composer({ name: NOM_DU_PERSONNAGE_NEUF, lang: "en", units: { distance: "ft", weight: "lb" },
+    layers: [{ id: "srd-5.2.1-en", version: "1.0.0", hash: "f".repeat(64) }], id: "b5-vierge", at: "2026-09-30T00:00:00.000Z" });
+  const redemarre = { ...structuredClone(ne), modified: "2026-09-30T03:18:36.003Z",
+    resolved: { derivation: { at: "2026-09-30T03:18:36.003Z" } } };
+  assert.notEqual(canonicalText(redemarre), canonicalText(ne), "témoin : le document ENTIER a bougé — c'est le piège");
+  assert.equal(personnageEnCours(redemarre, composer), false, "une fiche vierge re-dérivée n'est le perso de personne");
+  assert.equal(personnageEnCours({ ...redemarre, name: "Ilyra" }, composer), true, "⚔️ un nom posé, et c'est un perso à soi");
   const choisi = structuredClone(redemarre);
   choisi.build.choices.push({ path: "alignment", value: "Chaotic Good" });
-  assert.equal(personnageEnCours(texte(choisi), texte(exemple)), true, "⚔️ un choix de plus, aussi");
-  assert.deepEqual(Object.keys(ceQuiFaitLePersonnage(exemple)), Object.keys(exemple).filter((k) => k !== "modified" && k !== "resolved"),
+  assert.equal(personnageEnCours(choisi, composer), true, "⚔️ un choix de plus, aussi");
+  assert.deepEqual(Object.keys(ceQuiFaitLePersonnage(ne)), Object.keys(ne).filter((k) => k !== "modified"),
     "⛔ seuls les deux champs que la dérivation estampille sont retirés — `id`, `created`, `build` disent QUI il est");
-  assert.equal(personnageEnCours(null, texte(exemple)), false, "pas de document, rien à effacer");
-  assert.equal(personnageEnCours("{}", null), true,
-    "⛔ un exemple non chargé ne promet rien : le perso est tenu pour « en cours », et rien ne s'efface sans choix");
+  assert.equal(personnageEnCours(null, composer), false, "pas de document, rien à effacer");
+  assert.equal(personnageEnCours({ schema: "fh-char/1" }, composer), true,
+    "⛔ un document que `composer` ne sait pas refaire n'est pas une naissance : « en cours », et rien ne s'efface sans choix");
+  /* L'exemple commité reste au dépôt : c'est UN personnage, comme un autre. */
+  const exemple = JSON.parse(fs.readFileSync(path.join(ROOT, "examples", "personnage-fh-en-niveau1.fh-char.json"), "utf8"));
+  assert.equal(personnageEnCours(exemple, composer), true, "l'exemple a fait ses choix : il n'est plus une référence");
 });
 
 /* ══ C — LE NOM D'UN PERSONNAGE SANS NOM ═══════════════════════════════════ */
@@ -312,11 +311,10 @@ test("E1 — 🔌 `nouveauPersonnage` passe par la SÉQUENCE pure, et `Save` par
   assert.match(naissance(), /^naitre: \(\) => \{\s*state\.document = personnageNeuf\(precedent\);/,
     "« repartir à zéro » est un document NEUF, pas des champs vidés un par un");
   /* La fenêtre est celle de l'écran, pas une boîte écrite dans la coquille — et
-     « perso en cours » se MESURE sur le texte, il ne se devine pas. */
+     « perso en cours » se MESURE sur la donnée du document (lot 366), il ne se devine pas. */
   assert.match(voie("ouvrirNouveauPersonnage"),
-    /state\.popup = popupNouveauPersonnage\(\{\s*enCours: personnageEnCours\(state\.document \? canonicalText\(ceQuiFaitLePersonnage\(state\.document\)\) : null, texteDeLExemple\),/);
-  assert.match(shell, /texteDeLExemple = canonicalText\(ceQuiFaitLePersonnage\(exemple\)\);/,
-    "la référence est l'exemple du démarrage, par le MÊME écrivain de texte ET le même tri (B5)");
+    /state\.popup = popupNouveauPersonnage\(\{\s*enCours: personnageEnCours\(state\.document, state\.docWriters\.composer\),/);
+  assert.doesNotMatch(shell, /texteDeLExemple/, "⛔ lot 366 : plus de référence à l'exemple dans la coquille (B5)");
   /* ⛔ JAMAIS LE `confirm()` DU NAVIGATEUR. ⚠️ Et le garde mesure la FORME
      D'EMPLOI, pas le mot : `state.docWriters.confirm({…})` est le verbe du bloc
      `doc`, il porte le même mot et n'a rien à voir. Le `confirm(` du navigateur
@@ -437,8 +435,12 @@ test("E4 — ⛔ LE MOTEUR PAS CHARGÉ EST UNE PORTE EN PANNE, comme pour `Save`
 
 test("E5 — 🔴 LE DOCUMENT NEUF NAÎT DE L'ÉCRIVAIN DU BLOC `doc`, et il hérite langue et unités", () => {
   assert.match(shell, /state\.docWriters\.composer\(\{/, "⛔ pas un objet littéral écrit dans la coquille");
-  assert.match(shell, /lang: precedent\.lang,\s*units: precedent\.units,/,
+  /* ⚖️ LOT 366 — RÉÉCRIT À LA NOUVELLE VÉRITÉ, PAS RELÂCHÉ : la naissance hérite toujours du
+     personnage qu'on range ; la PREMIÈRE VISITE, qui n'a rien à ranger, prend le réglage DONNÉ
+     (`REGLAGES_DE_LA_PREMIERE_VISITE`), jamais un défaut écrit dans la coquille. */
+  assert.match(shell, /const reglages = precedent \|\| REGLAGES_DE_LA_PREMIERE_VISITE;\s*return state\.docWriters\.composer\(\{\s*name: NOM_DU_PERSONNAGE_NEUF,\s*lang: reglages\.lang,\s*units: \{ \.\.\.reglages\.units \},/,
     "aucun défaut deviné (décision D3) : `en`/pieds posés d'office trahiraient un joueur en `fr`/mètres");
+  assert.doesNotMatch(stripComments(shell), /lang: "(en|fr)"|distance: "(ft|m)"/, "⛔ ni langue ni unité écrite en dur dans la coquille");
   assert.match(shell, /at: platformNow\(\)/, "l'horloge du bloc `doc`, pas une seconde écrite ici");
 });
 
