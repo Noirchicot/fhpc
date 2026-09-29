@@ -196,6 +196,35 @@ export function refsMortsDeLEtape({ violations, racine }) {
     .map((v) => ({ path: v.path, kind: v.params && v.params.kind, id: v.params && v.params.id }));
 }
 
+/** LES REFUS QUI TIENNENT SANS FICHE — lot 359.
+ *
+ *  📏 LE DÉFAUT, RELEVÉ AU LOT 351 ET REPRODUIT EN NODE : un joueur neuf choisit
+ *  l'Araag, puis éteint Fate's Hand AVANT d'avoir une classe. Sans classe,
+ *  `rebuild` JETTE (« dérivation impossible », `derive.mjs`) et la coquille posait
+ *  `violations = []` — ce silence se lisait « rien à redire » : Species disait
+ *  *« This step is settled »* et la ceinture signait vert un choix mort. Or le
+ *  joueur choisit l'espèce AVANT la classe : tout perso neuf traverse cet état.
+ *
+ *  ⭐ `validate()` NE JETTE PAS : il attrape lui-même l'échec (`derive.threw`) et
+ *  nomme quand même ce qui ne dépend que des CHOIX et de la pile — les refs morts
+ *  (`choice.ref-missing`), les verrous du carnet. Ce qu'il ne faut pas lire sans
+ *  dérivation, c'est ce qui juge la FICHE : `document.resolved` est alors la
+ *  tranche d'une classe abandonnée (la raison du silence d'avant).
+ *
+ *  ⚖️ LE TRI SE FONDE SUR LA DONNÉE — LE CHEMIN DU REFUS (ARCHI 35, 29/09) :
+ *  posé sur un choix, il est gardé ; posé sur `resolved…` (la fiche), il est
+ *  écarté ; sans chemin (`derive.threw`, un invariant global), il est écarté parce
+ *  qu'il n'a PAS de chemin — ⛔ jamais parce que son code est nommé ici : aucune
+ *  liste de codes, un refus d'un code inconnu suit la même loi.
+ *  ⛔ AUCUNE RÈGLE DE JEU NE BOUGE : sans classe, la fiche reste une « dérivation
+ *  impossible » ; ce qui change, c'est ce que les étapes DISENT pendant la création.
+ *  @param {Array<{key: string, path?: string}>} violations le rapport de `validate()`
+ *  @returns {Array} les refus posés sur un choix, dans l'ordre reçu */
+export function refusSansFiche(violations) {
+  return (Array.isArray(violations) ? violations : [])
+    .filter((v) => v && typeof v.path === "string" && v.path !== "" && !/^resolved(?:[.[]|$)/.test(v.path));
+}
+
 /** L'ÉTAPE EST-ELLE COMPLÈTE ? Tous ses items signés, et elle est commencée.
  *
  *  🔴 2026-08-19 — CE JUGE NAÎT D'UNE DOUBLE VALIDATION QU'ERIC A VUE :

@@ -8171,6 +8171,47 @@ une fois »*.
 ⏳ **Reste à construire** : le **bleu** et le **rouge**. ⏳ Et à trancher : quel juge prononce
 « erreur » sur une étape ?
 
+### 🔇 UN CHOIX MORT SE NOMME AUSSI SANS CLASSE — le silence d'une dérivation n'est pas « réglé » *(lot 359)*
+📍 `voyant-un-choix-mort-se-nomme-meme-sans-classe` · vivante · 29/09
+⚖️ **Un choix que la pile ne résout plus se nomme et retient son étape, que le perso ait une classe ou non : l'étape dit le même mot (*« Araag comes with Fate's Hand — switch it on in Layers »*), jamais « settled », et le voyant de la ceinture ne s'allume pas. Une dérivation qui jette ne vaut jamais « aucune erreur » : sans fiche, la coquille garde de `validate()` les refus posés sur un CHOIX, et écarte — par leur CHEMIN, jamais par leur code — ceux qui jugent la fiche (`resolved…`) ou n'ont pas de chemin.**
+
+> La règle est celle du lot 191 (`ARCHITECTURE.md`, § « LES ESPÈCES FATE'S HAND SONT DU LORE ») : un
+> personnage déjà Araag voit son choix **non résolu, nommé** — *jamais son id nu, jamais « settled »*. Le
+> lot 359 l'étend au perso qui n'a pas encore de classe — mandat d'ARCHI 35, 29/09 : *« Le silence n'est
+> plus une réponse »*. Et sur le tri, ARCHI 35 le même jour : *« le tri se fonde sur la DONNÉE, c'est-à-dire
+> le chemin du refus (un choix contre resolved…), jamais sur une liste de codes »*.
+
+📏 **CE QUI SE PASSAIT** — relevé au lot 351, reproduit en Node sur `main` et au navigateur : un joueur
+neuf choisit l'Araag, éteint Fate's Hand AVANT d'avoir une classe → Species disait *« This step is
+settled »* et la ceinture signait vert. ⚠️ Pas un cas d'école : le joueur choisit l'espèce AVANT la classe,
+tout perso neuf traverse cet état. La cause, à l'octet : sans classe, `rebuild` JETTE (*« une dérivation
+impossible »*, `derive.mjs`), et la coquille posait `violations = []` — parce que `validate` juge aussi
+`document.resolved`, la tranche d'une classe abandonnée. Ce silence se lisait « rien à redire ».
+⭐ **LE REMÈDE EST À L'ÉCRIVAIN, PAS AUX LECTEURS** : `validate()` ne jette pas — il attrape lui-même
+l'échec (`derive.threw`) et nomme quand même ce qui ne lit que les CHOIX et la pile (`choice.ref-missing`,
+les verrous du carnet). `rebuild()` (shell.mjs) pose désormais `refusSansFiche(validate)`
+(`parcours.mjs`) : posé sur un choix → gardé · posé sur `resolved…` → écarté · sans chemin → écarté.
+`derive.threw` sort parce qu'il n'a PAS de chemin, ⛔ pas parce qu'il est nommé : posé sur un choix, il
+serait gardé, et un code inconnu suit la même loi.
+⛔ **AUCUNE RÈGLE DE JEU NE BOUGE** : sans classe, la fiche reste une « dérivation impossible » (Sheet
+montre l'écran « perso incomplet »). Ce qui change, c'est ce que les étapes DISENT pendant la création.
+
+| le lecteur | sur le silence (avant) | sur les refus sans fiche (après) |
+|---|---|---|
+| la ceinture (`paintBelt`) | un choix signé s'allumait vert, mort ou non | un ref mort sous la racine éteint le voyant |
+| le guide (`renderParcoursGuide`) | *« This step is settled »*, aucun mot du manque | le mot du manque (`motDesChoixNonResolus`), pas de « settled » |
+| le `Done` (`parcoursDone`, `pressDone`) | laissait passer | retient, et nomme |
+| la fiche (`renderReviewStep`) | sans classe, l'écran « perso incomplet » — le seul cran qui lit la fiche (`lit: "fiche"`) ; il ne lit pas les refus | inchangé |
+| Skills (`skillsCtx`) | vit sans fiche (lot 198 : il dit ce qui manque) ; les refus du carnet ne lui arrivaient pas | il lit les mêmes refus du carnet qu'avec une classe |
+
+⭐ **LES ÉTAPES QUE LE JOUEUR RÈGLE AVANT SA CLASSE, dans l'ordre du belt** — Fate's Hand : Identity ·
+Species · Inheritance · Destiny ; SRD : Identity · Species · Background. Identity ne porte aucun ref ;
+Species, Inheritance et Background en portent (l'espèce, le don d'origine, les langues) ; Destiny aussi
+(l'arcane), mais sans Fate's Hand son cran quitte la ceinture. Un seul écrivain les corrige toutes.
+🛡️ `tests/jamais-un-id-nu.test.mjs` H1 (le tri sur le chemin, un code inconnu, `derive.threw`), H2
+(l'Araag sans classe), H3 (Background SRD), H4 (témoin inverse : Fate's Hand monté, Species réglée), H5
+(la fiche abandonnée n'accuse personne), H6 (la coquille ne se tait plus) — 6 mutations vues rouges.
+
 ### 🔴 LES CHEVRONS — un seul objet, deux rôles *(tranché 26/08)*
 📍 `chevron-apparition-et-zone` · vivante · 26/08
 ⚖️ **Le chevron apparaît à l'approche du doigt ou de la souris (500 ms de présence suffisent), s'efface, mais sa zone reste cliquable.**
