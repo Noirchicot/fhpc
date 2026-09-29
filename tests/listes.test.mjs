@@ -126,8 +126,13 @@ test("2 — ⛔ aucun littéral 15 ne sert de taille de page ailleurs dans ui/",
 
 test("2 bis — l'écran Équipement LIT la norme, il ne la porte plus", () => {
   const ecran = stripComments(fs.readFileSync(path.join(UI, "builder", "equipment-step.mjs"), "utf8"));
-  assert.match(ecran, /import \{[^}]*LISTE_PAR_PAGE[^}]*\} from "\.\/normes\.mjs/,
-    "l'écran doit importer la norme du socle");
+  /* 🗄️ LOT 348 — `LISTE_PAR_PAGE` n'y est plus importé : son seul lecteur était le tambour de
+     l'ancien navigateur (`symbolesDAttente(LISTE_PAR_PAGE)`), retiré comme code mort. Le
+     catalogue d'aujourd'hui (Wares) pagine par DOUZE, lu dans son plan et passé EN TOUTES
+     LETTRES au socle — la déviation légale (« le défaut n'est pas un mur »). ⭐ Ce qui se garde
+     donc : l'arithmétique vient du SOCLE, jamais d'une recopie. */
+  assert.match(ecran, /import \{[^}]*pageDeListe[^}]*\} from "\.\/normes\.mjs/,
+    "l'écran doit paginer par le socle (`pageDeListe`), pas par une arithmétique à lui");
   assert.doesNotMatch(ecran, /CASES_PAR_PAGE/,
     "l'ancien nom local ne doit plus exister — deux noms pour un nombre, c'est déjà une recopie");
 });

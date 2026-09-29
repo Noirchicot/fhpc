@@ -57,7 +57,9 @@ const SOCLE = [
   /* — le chapitre Équipement, entré le 16/09 — */
   ".pipeline-bouton",
   ".dressing-bouton",
-  ".carte-r-bouton",
+  /* — ⛔ LOT 348, 28/09 : `.carte-r-bouton` est SORTI, avec la carte R qui seule l'émettait
+     (GEAR · CART · CRAFT · NEXT, jamais montés depuis Wares v2). Retiré des trois listes de la
+     feuille, de ses rôles bleus ET d'ici, en le sachant — pas une réparation de garde. — */
   ".pipeline-ligne-envoi",
   ".pipeline-pas",
   ".aiguilleur-bouton",
@@ -290,7 +292,7 @@ test("🔴 LES TROIS CANDIDATES NE PORTENT TOUJOURS AUCUN HABIT — l'arbitrage 
 });
 
 test("⚔️ AUCUNE FAMILLE `*-bouton` N'EXISTE SANS ÊTRE CLASSÉE — socle, Équipement, candidate ou nommément exclue", () => {
-  /* ⛔ Le balayage ignore les PLURIELS : `.tray-boutons`, `.carte-r-boutons`,
+  /* ⛔ Le balayage ignore les PLURIELS : `.tray-boutons`,
      `.ability-methodes-boutons` sont des CONTENEURS, comme `.fiche-actions`
      et `.popup-actions` (NORMES §6). Un conteneur ne porte pas d'habit. */
   const vues = new Set();

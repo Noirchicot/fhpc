@@ -1797,7 +1797,10 @@ test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maîtr
      les parchemins ne fonctionne pas ». Une grille de sorts garde le glisser immédiat (loi du 20/08) ;
      le jeton du collecteur du parchemin, qui part vers la page voisine, garde les 500 ms. */
   const vivierDesSorts = { "x5-parchemin.mjs": 1 };
-  for (const f of ["wares-ecran.mjs", "gear-ecran.mjs", "x5-ecran.mjs", "x5-parchemin.mjs"]) {
+  /* 🔄 LOT 348 — `equipment-step.mjs` ENTRE DANS LA LISTE : c'est par son absence que la carte R
+     morte armait encore ses jetons sans maintien ni grammaire (`soignerLesCases`). 📏 Éprouvé
+     ROUGE sur `38c0eaf0` (1 `armerJeton`, 0 maintien), vert une fois le chemin mort retiré. */
+  for (const f of ["equipment-step.mjs", "wares-ecran.mjs", "gear-ecran.mjs", "x5-ecran.mjs", "x5-parchemin.mjs"]) {
     const s = stripComments(fs.readFileSync(path.join(UI, f), "utf8"));
     assert.equal((s.match(/armerJeton\(/g) || []).length - (vivierDesSorts[f] || 0),
       (s.match(/maintien: MAINTIEN_EQUIPEMENT_MS/g) || []).length,

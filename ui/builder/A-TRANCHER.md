@@ -39,6 +39,7 @@
 - **NORMES.md § 2 ter, 2026-08-26** : *« le collecteur de l'Équipement (`.carte-r-collecteur`) garde sa hauteur `--touch` **44** et non `--glisse-h` 48 — un collecteur n'est pas un jeton qu'on glisse, c'est une cible qu'on VISE »*.
 - Règles concernées : `collecteur-cote` · `collecteur-equipement-44`
 - ⚠️ La règle du 29/08 est postérieure et se dit universelle ; l'exception du 26/08 n'est marquée ni retirée ni nommée comme exception argumentée.
+- 🗄️ **SANS OBJET DEPUIS LE 28/09 (lot 348)** : `.carte-r-collecteur`, le seul collecteur que l'exception visait, est retiré avec la carte R — code mort depuis Wares v2 (20/09) — et `collecteur-equipement-44` passe `dépréciée`. 📏 Sa feuille portait d'ailleurs déjà 48 (`--glisse-h`). ⛔ **Rien n'est tranché à la place d'Eric** : il ne reste simplement plus d'exception écrite face à `collecteur-cote`, et les collecteurs vivants de l'Équipement la suivent (87 × 48).
 
 ## C4 — On mesure à 360 ou à 375 ? { #c4 }
 
@@ -286,7 +287,7 @@
 **Question : maintenant que « NON COLORÉ = NON CLIQUABLE » (Eric, 06/09), que deviennent les deux familles qui sont grises ET cliquables ?**
 
 - **`shell.css:7630` — `.ability-entry`**, les quatre tuiles de méthode d'Abilities (`FH 3D6` · `4D6` · `ARRAY` · `FREE`). 📏 **Mesurées au banc sur page vierge** par le siège Abilities : elles rendent `#928c7f`, portent `aria-pressed="false"`, et sont **parfaitement cliquables** — c'est même **le seul geste de l'écran**. Seule celle qu'on vient de choisir passe au bleu `#5f90c7`.
-- **`shell.css:7922` — `.pipeline-bouton`, `.dressing-bouton`, `.carte-r-bouton`, `.pipeline-ligne-envoi`, `.pipeline-pas`, `.aiguilleur-bouton`** (chapitre Équipement). Le commentaire juste au-dessus **déclare** le gris comme un état légitime : *« l'ÉTAT par `--bouton-fond` selon les trois verbes ratifiés — naviguer (bleu) · valider (vert) · défaire (rouge) · **MUET (GRIS DÉFAUT)** »*.
+- **`shell.css:7922` — `.pipeline-bouton`, `.dressing-bouton`, ~~`.carte-r-bouton`~~, `.pipeline-ligne-envoi`, `.pipeline-pas`, `.aiguilleur-bouton`** (chapitre Équipement ; `.carte-r-bouton` est parti avec la carte R, lot 348). Le commentaire juste au-dessus **déclare** le gris comme un état légitime : *« l'ÉTAT par `--bouton-fond` selon les trois verbes ratifiés — naviguer (bleu) · valider (vert) · défaire (rouge) · **MUET (GRIS DÉFAUT)** »*.
 - Règles concernées : `bouton-gris-non-cliquable` · `bouton-done-gris-inacheve` · `bouton-trois-verbes`
 - ⚠️ **ET IL Y A UN PIÈGE DE MÉMOIRE, DATÉ** : Eric croyait ces tuiles bleues (*« les 4 boutons du R sont bleus »*). **Elles ne le sont pas.** Sa mémoire disait la loi ; le code disait autre chose. ⭐ C'est exactement *« un fichier ne dit jamais s'il est un défaut ou une décision »* — sauf qu'ici c'est le souvenir qui portait la loi, et le code qui portait l'écart.
 - 🔴 **LES DEUX RÉPONSES POSSIBLES, ET ELLES NE COÛTENT PAS PAREIL** :

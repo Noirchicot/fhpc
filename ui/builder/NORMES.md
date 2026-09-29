@@ -330,7 +330,7 @@ CSSWG a spécifié *ce que WebKit et Blink faisaient déjà* — le repli désig
 | | |
 |---|---|
 | ✅ **ce qui ne bouge pas** | `facteurZoom` — mesuré : `offsetWidth` ignore les transformations, `getBoundingClientRect()` les rend, **le rapport vaut ×2 sous les deux mécanismes** · les divisions `vw`/`vh` par `--echelle` · les deux seuils · les `container-type` · le plancher de 340 blg |
-| ⚠️ **ce qui change** | un `position: fixed` sous `.app` vise **`.app`**, plus la fenêtre · `.app` devient un contexte d'empilement · la netteté passe du raster au compositeur — **à mesurer au cran 3 sur un vrai appareil avant de poser quoi que ce soit** (le dépôt porte déjà ce défaut écrit : `will-change: transform` retiré de `.roue-cran`, *« le GPU ÉTIRE LA TEXTURE… ça frise à l'œil »*) |
+| ⚠️ **ce qui change** | un `position: fixed` sous `.app` vise **`.app`**, plus la fenêtre · `.app` devient un contexte d'empilement · la netteté passe du raster au compositeur — **à mesurer au cran 3 sur un vrai appareil avant de poser quoi que ce soit** (le dépôt porte déjà ce défaut écrit : `will-change: transform` retiré de `.roue-cran`, *« le GPU ÉTIRE LA TEXTURE… ça frise à l'œil »* — 🗄️ la règle et sa note sont parties avec la roue 3D au lot 348, la leçon reste ici) |
 | ⛔ **son seul défaut propre** | il ne réserve **aucune place de mise en page** : un hôte `<div>` à hauteur `auto` recevrait `calc(100%/E)` résolu en `auto`. Borné au mode widget en `<div>`, qui n'existe pas — et où le cran est déjà faux sous `zoom` (`appliquerEchelle` lit `innerWidth`, la fenêtre de l'hôte) |
 
 🔴 **IL N'EST PAS CONSTRUIT, ET IL NE DOIT PAS L'ÊTRE** tant que la mesure n'est
@@ -1601,8 +1601,8 @@ pas dans un écran. Témoins mesurés avant/après : *Gender* (une case, un choi
 ⚖️ **Le REMPLISSAGE dit ce que le collecteur porte, le LISERÉ dit son état.**
 📍 `collecteur-drop-it-here` · vivante · 26/08
 ⚖️ **Un collecteur vide affiche « drop it here » en T1 minuscules, italique, à la couleur du libellé — et le mot s'efface au remplissage.**
-📍 `collecteur-equipement-44` · vivante · 26/08
-⚖️ **Le collecteur de l'Équipement garde une hauteur de 44, pas 48.**
+📍 `collecteur-equipement-44` · dépréciée · 26/08
+⚖️ ~~**Le collecteur de l'Équipement garde une hauteur de 44, pas 48.**~~ **Ce collecteur (`.carte-r-collecteur`) n'existe plus : la règle est sans objet depuis le 28/09 (lot 348).**
 📍 `collecteur-lisere-2px` · vivante · 26/08
 ⚖️ **Le liseré rempli vaut 2 px, et 2 px est un JETON, pas un littéral.**
 📍 `collecteur-lisere-entoure-ne-recouvre-pas` · vivante · 26/08
@@ -1691,6 +1691,15 @@ reçu en même temps.
 sa hauteur `--touch` **44** et non `--glisse-h` 48 — *« un collecteur n'est pas un jeton qu'on
 glisse, c'est une cible qu'on VISE, et son plancher est le pouce »*. ⛔ Le doré du rempli ne change
 pas cette cote.
+
+🗄️ **DÉPRÉCIÉE LE 28/09 (lot 348), PAS REMPLACÉE** — `collecteur-equipement-44` n'a plus d'objet.
+`.carte-r-collecteur` ne vivait que dans la carte R de l'ancien navigateur d'Équipement, et 📏 plus
+rien ne la montait depuis Wares v2 (20/09) : `construireCatalogue`, sa seule porte, n'avait aucun
+appelant. Le lot 348 retire ce code mort avec sa feuille. 📏 **Et la feuille ne tenait déjà plus ce
+44** : la règle portait `min-height: var(--glisse-h)` — 48 — depuis le *« size collecteur = size
+token »* d'Eric (26/08). Les collecteurs vivants de l'Équipement suivent `collecteur-cote`
+*(`gear-disposition.mjs` : « un collecteur = un jeton », 87 × 48)*. ⛔ La question C3 d'`A-TRANCHER`
+n'est pas tranchée par ce lot : elle perd l'exception qu'elle opposait à la règle universelle.
 
 ---
 
@@ -1948,10 +1957,10 @@ la langue par défaut du Seuil.
 | ⛔ **un compte de caractères n'est pas une largeur** | `supplémentaires` fait **15** car. et **80** px — il sort ; `Prestidigitation` en fait **16** et **73** — il tient. **Aucun seuil en caractères ne sépare ces deux-là** ; le repli (`overflow-wrap: break-word`) rattrape le cas, la case garde ses 48 px |
 
 ### ✅ LA CASE DE LA GRILLE **EST** UN JETON — tranché 26/08
-📍 `jeton-case-de-grille-est-un-jeton` · vivante · 26/08
-⚖️ **La case du tambour d'Équipement (`.grille-jeton`) est un jeton, et porte T1.**
-📍 `jeton-case-de-grille-habit-non-tranche` · à trancher · 26/08
-⚖️ **L'habit de la case de grille reste différent de celui du jeton, et ce n'est pas tranché.**
+📍 `jeton-case-de-grille-est-un-jeton` · dépréciée · 26/08
+⚖️ ~~**La case du tambour d'Équipement (`.grille-jeton`) est un jeton, et porte T1.**~~ **La case du tambour d'Équipement n'existe plus : cette règle est sans objet depuis le 28/09 (lot 348).**
+📍 `jeton-case-de-grille-habit-non-tranche` · dépréciée · 26/08
+⚖️ ~~**L'habit de la case de grille reste différent de celui du jeton, et ce n'est pas tranché.**~~ **La case de grille n'existe plus : la question tombe avec elle, sans avoir été tranchée (lot 348).**
 
 > Eric, 2026-08-26 : **« c'est un jeton — aligne-la sur T1 »**.
 
@@ -1969,6 +1978,13 @@ le code FAIT du geste. ⛔ Un nom qu'on croit menteur mérite qu'on vérifie l'o
 ⏳ **CE QUI RESTE DIFFÉRENT, mesuré et NON tranché** : la case porte encore `--radius-sm` *(le jeton
 a `--organe-rayon`)*, `--surface` opaque *(le jeton a `--jeton-teinte`)* et **aucun `--relief`**.
 Eric a tranché **le CORPS**, pas l'habit complet. ⛔ Ne pas aligner le reste sans lui.
+
+🗄️ **DÉPRÉCIÉES LE 28/09 (lot 348), PAS REMPLACÉES.** `.grille-jeton` ne naissait que dans la grille
+du tambour de l'ancien navigateur d'Équipement (`faireCase`, montée par `construireLaCarteR`) —
+📏 plus rien ne l'appelait depuis Wares v2 (20/09), et le lot 348 retire ce code mort avec sa
+feuille. Rien ne leur succède : Wares porte ses propres jetons (`.wares-jeton`). ⛔ La question de
+l'habit n'a donc pas été tranchée — elle n'a plus d'organe. ⭐ **La leçon reste vraie, et elle
+reste ici : un nom qu'on croit menteur mérite qu'on vérifie l'objet d'abord.**
 
 ---
 
@@ -2734,8 +2750,8 @@ listes *(sorts niveau 1 : 4 pages · outils : 2 · dons : 2 · compétences : 2 
 et quatre listes tiennent déjà sur une page)*.
 
 ### ⚠️ LE 15 VIT À DEUX ENDROITS, ET C'EST UNE DETTE MESURÉE
-📍 `liste-quinze-vit-a-deux-endroits` · à trancher · 26/08
-⚖️ **Le 15 vit à deux endroits sans garde qui les tienne d'accord : c'est une dette mesurée.**
+📍 `liste-quinze-vit-a-deux-endroits` · dépréciée · 26/08
+⚖️ ~~**Le 15 vit à deux endroits sans garde qui les tienne d'accord : c'est une dette mesurée.**~~ **La seconde écriture du 15 (la grille CSS du tambour) est retirée : la dette est éteinte depuis le 28/09 (lot 348).**
 
 | où | ce qui est écrit |
 |---|---|
@@ -2744,6 +2760,13 @@ et quatre listes tiennent déjà sur une page)*.
 
 ⛔ **Changer l'un sans l'autre casse la grille en silence** : le JS servirait 12 objets dans une
 grille qui en réserve 15, ou l'inverse. ⏳ Aucun garde ne les tient d'accord.
+
+🗄️ **ÉTEINTE LE 28/09 (lot 348), PAS PAYÉE.** Un garde les avait tenus d'accord entre-temps
+(`tests/grille-quinze.test.mjs` : 3 × 5 = `LISTE_PAR_PAGE`). Mais la grille `repeat(5,
+var(--fhpc-case-h))` ne servait que le tambour de l'ancien navigateur d'Équipement — 📏 plus appelé
+depuis Wares v2 (20/09) —, retiré comme code mort, et le garde part avec son sujet. ⭐ Le 15 ne vit
+plus qu'au socle (`normes.mjs`). ⚠️ Si une grille CSS réécrit un jour ce nombre, la dette renaît :
+relire `git show 38c0eaf0:tests/grille-quinze.test.mjs` avant d'en poser une.
 
 ### ⏳ CE QUI N'EST TOUJOURS PAS TRANCHÉ
 📍 `liste-etagere-trop-grosse` · à trancher · ?
@@ -2759,8 +2782,8 @@ case »* — `ABREGE_MAX = 16` *(§2 bis)* — et les flèches à une seule page
 ---
 
 ### ✅ UNE SEULE PAGE N'A PAS DE FLÈCHES — tranché 26/08
-📍 `liste-exception-etat-d-attente-equipement` · vivante · 26/08
-⚖️ **L'état d'attente d'Équipement garde ses deux gouttières de chevron — exception argumentée.**
+📍 `liste-exception-etat-d-attente-equipement` · dépréciée · 26/08
+⚖️ ~~**L'état d'attente d'Équipement garde ses deux gouttières de chevron — exception argumentée.**~~ **L'état d'attente d'Équipement n'existe plus : l'exception est sans objet depuis le 28/09 (lot 348).**
 📍 `liste-jamais-display-none` · vivante · 26/08
 ⚖️ **Une flèche absente est retirée de la rangée, jamais masquée par `display: none`.**
 📍 `liste-pages-sans-plafond` · vivante · 26/08
@@ -2789,6 +2812,12 @@ problème. **La rangée EST ses trois tokens**, pas une rangée à cinq places d
 aucune étagère chargée)* **garde** ses deux gouttières. Eric a parlé des listes COURTES ; étendre sa
 consigne à un état dont il n'a rien dit serait décider à sa place — et le test 11 nomme cet état
 *« l'état de départ du **croquis** »*. **Un croquis d'Eric prime sur une déduction.**
+
+🗄️ **SANS OBJET DEPUIS LE 28/09 (lot 348).** L'état d'attente *(dos de cartes, ☆ ☉ ☾)* ne vivait
+que dans le tambour de l'ancien navigateur ; Wares v2 s'ouvre sur un choix *(20/09 — archivé côté
+tests ce jour-là)*, et le lot 348 retire le code mort qui le portait encore, sa grille et
+`tarot-dos.jpg` avec lui. ⭐ La règle, elle, reste vivante là où elle a toujours vécu :
+`glisser.mjs` est désormais **le seul** des « deux écrans qui paginent » cités plus haut.
 
 ---
 
@@ -7595,7 +7624,7 @@ siège Abilities le 06/09, **vérifié par l'architecte, deux occurrences et deu
 |---|---|---|
 | `shell.mjs:4064` — le `Done` *(`done.disabled = !gate.ready`)* | *« tu ne peux pas »* | ✅ conforme |
 | `shell.css:7630` — `.ability-entry` *(les quatre méthodes `FH 3D6` `4D6` `ARRAY` `FREE`)* | *« tu peux, je n'ai simplement pas d'état »* — 📏 **mesurées au banc : `#928c7f`, `aria-pressed="false"`, et PARFAITEMENT cliquables** — c'est même le seul geste de l'écran | ⛔ **viole** |
-| `shell.css:7922` — `.pipeline-bouton`, `.dressing-bouton`, `.carte-r-bouton`, `.pipeline-ligne-envoi`, `.pipeline-pas`, `.aiguilleur-bouton` *(Équipement)* | le commentaire au-dessus **déclare** le gris comme un état légitime : *« MUET (GRIS DÉFAUT) »* | ⛔ **viole** |
+| `shell.css:7922` — `.pipeline-bouton`, `.dressing-bouton`, ~~`.carte-r-bouton`~~ *(parti avec la carte R, lot 348)*, `.pipeline-ligne-envoi`, `.pipeline-pas`, `.aiguilleur-bouton` *(Équipement)* | le commentaire au-dessus **déclare** le gris comme un état légitime : *« MUET (GRIS DÉFAUT) »* | ⛔ **viole** |
 
 🔴 **CES DEUX FAMILLES SONT DONC EN INFRACTION CONNUE, ET LEUR SORT N'EST PAS TRANCHÉ** :
 bleues *(elles naviguent, elles agissent)*, ou vraiment **désarmées** là où elles sont grises ?

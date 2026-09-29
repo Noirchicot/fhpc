@@ -24,10 +24,11 @@
      ⛔ CE QUI EST DU BANC ET N'EST PAS DE LA NORME, nommément :
        · `--bouton-fond: var(--critical)` posé en ligne pour l'état verrouillé.
          La Bible interdit la couleur dans le balisage (`#bouton-jamais-de-
-         couleur-dans-le-balisage`) et elle a raison — mais les six chemins qui
+         couleur-dans-le-balisage`) et elle a raison — mais les cinq chemins qui
          mènent au rouge (`.parcours-annuler`, `.sortie-annule`, `.pipeline-
-         danger`, `.popup-action[data-defait]`, `.carte-r-bouton`, `.dressing-
-         bouton`) arrivent tous au MÊME jeton. Un banc de dessin juge la
+         danger`, `.popup-action[data-defait]`, `.dressing-bouton` ;
+         `.carte-r-bouton` est parti avec la carte R, lot 348) arrivent tous au
+         MÊME jeton. Un banc de dessin juge la
          matière, pas le câblage : il pose le point d'arrivée commun.
        · les familles sont posées dans leur parent de production quand elles en
          exigent un (`.parcours-pied`, `.card-pied`, `.parcours-item`).
@@ -187,7 +188,8 @@ const FAMILLES = [
   { classe: "fiche-action",        rang: "porte",      plancher: true,  parent: null },
   { classe: "ability-entry",       rang: "porte",      plancher: false, parent: null },
   { classe: "pipeline-bouton",     rang: "equipement", plancher: false, parent: null },
-  { classe: "carte-r-bouton",      rang: "equipement", plancher: false, parent: null },
+  /* ⛔ LOT 348 — `carte-r-bouton` est sorti avec la carte R : sa règle n'existe plus, le
+     spécimen mesurerait un bouton nu. */
   { classe: "dressing-bouton",     rang: "equipement", plancher: false, parent: null },
   { classe: "aiguilleur-bouton",   rang: "equipement", plancher: false, parent: null },
   { classe: "skills-onglet",       rang: "candidat",   plancher: false, parent: null },

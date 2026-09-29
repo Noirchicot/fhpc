@@ -498,9 +498,9 @@ test("🔴 LE FIL DE LA BOURSE DU SAC — on CLIQUE, et le popup doit s'ouvrir",
     (a) => { doc = appliquer(doc, a); });
 
   let node = rendre();
-  const gear = [...node.querySelectorAll(".carte-r-bouton")].find((b) => b.dataset.mot === "GEAR");
-  if (gear) gear.click();
-  node = rendre();
+  /* 🗄️ LOT 348 — plus de détour par le bouton `GEAR` de la carte R : elle est retirée (jamais
+     montée depuis Wares v2, le sélecteur ne trouvait déjà rien), et la porte `Backpack` vit sur
+     Gear, le sac ET Wares. */
   /* la porte `Backpack` de R ouvre le sac B1 */
   const porte = node.querySelector('.porte-carree[data-porte="backpack"]');
   assert.ok(porte, "⛔ la porte du sac a disparu de R : ce garde doit être réécrit");

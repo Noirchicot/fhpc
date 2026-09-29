@@ -23,6 +23,9 @@
      4. les HUIT PIÈGES DÉJÀ PAYÉS, sur les octets de la feuille de style —
         aucun d'eux ne fait rougir un test de comportement, c'est même leur
         signature commune. Un garde d'octets est ce qu'on peut leur opposer.
+        🗄️ LOT 348 — la roue 3D et la grille du tambour sont retirées avec
+        l'ancien navigateur ; il en reste deux, qui visent du vivant (voir
+        l'archive au-dessus du piège 2).
 
    ⛔ ET CE QUI RESTE À ÉRIC, PARCE QUE RIEN D'AUTRE NE PEUT LE DIRE : la roue
    n'a JAMAIS été vue sur iPad DANS l'écran réel. La moitié des défauts du
@@ -69,7 +72,9 @@ function sansCommentairesCss(texte) {
 const CSS = sansCommentairesCss(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8"));
 const JS = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "equipment-step.mjs"), "utf8"));
 
-const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, profondeurAccordee } =
+/* 🗄️ LOT 348 — `annoncerCourant` et `profondeurAccordee` ne s'importent plus : ils ne
+   servaient que la roue 3D de l'ancien navigateur, retirée avec lui (voir l'archive des pièges). */
+const { renderEquipmentStep, rayonsEtEtageres, lireRangement } =
   await import("../ui/builder/equipment-step.mjs");
 /* ⭐ LA PAGINATION A DÉMÉNAGÉ AU SOCLE (2026-08-26) : le 15 est une norme du
    produit entier (NORMES.md §5), plus une constante de cet écran. Les mêmes
@@ -644,10 +649,12 @@ test("10 ter — 🔴 UNE SEULE PAGE : LA RANGÉE N'EST QUE SES TOKENS — Eric,
   const equipement = JS;
   const glisse = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "glisser.mjs"), "utf8"));
 
-  assert.match(equipement, /swapContent\(\s*rang\s*,\s*vue\.pages > 1\s*\?/,
-    "Équipement recompose sa rangée selon le nombre de pages");
+  /* 🗄️ LOT 348 — LA MOITIÉ « ÉQUIPEMENT » EST PARTIE AVEC SON ÉCRAN. Elle exigeait
+     `swapContent(rang, vue.pages > 1 ? …)` dans `remplirGrille`, la grille du tambour de
+     l'ancien navigateur : plus rien ne l'appelait depuis Wares v2 (20/09), et le lot 348
+     retire ce chemin mort. ⭐ La règle reste tenue là où elle vit encore, `glisser.mjs`. */
   assert.match(glisse, /if \(vue\.pages > 1\)/,
-    "et `glisser.mjs` porte la même condition — une règle, pas deux");
+    "`glisser.mjs` porte la condition : une seule page, pas de gouttières");
 
   /* ⛔ ET AUCUN DES DEUX NE CACHE : le garde 4 tient `shell.css`, mais rien ne
      tenait le JS. Un `style.display` posé à la main y passerait sans bruit. */
@@ -714,43 +721,16 @@ test("13 — un cran annonce son état, ⛔ JAMAIS par `aria-pressed` (ce n'est 
   }
 });
 
-test("13 bis — 🔧 DETTE SOLDÉE : le courant s'ANNONCE une fois, et s'ALLUME sur toutes ses copies", () => {
-  /* ⛔ MESURÉ PAR LE LOT 94 ET LAISSÉ EXPRÈS pour ne pas faire de conflit :
-     `troisTours` répète la liste, et `aria-current="true"` était posé sur
-     CHAQUE copie du cran courant — 9 sur la roue A. Un lecteur d'écran
-     annonçait neuf fois « courant ».
-     ⭐ ET LA CORRECTION NAÏVE AURAIT CASSÉ LE VISUEL : c'est `aria-current` que
-     le CSS coiffait. Les deux rôles sont donc séparés — `data-courant` allume
-     (toutes les copies : l'œil suit une roue qui tourne), `aria-current`
-     annonce (une seule).
-
-     ⚠️ ÉPROUVÉ SUR LA FONCTION, PAS SUR L'ÉCRAN, et ce n'est pas un repli :
-     l'état « courant » ne s'atteint qu'en TOURNANT la roue, et
-     `scroll-snap: mandatory` rend ce geste intestable par script (limite
-     connue, écrite au logbook). Une piste fabriquée éprouve l'invariant
-     lui-même — même patron que `deriveGenres`, éprouvé sur un inventaire
-     fabriqué plutôt que sur le dépôt du voisin. */
-  const piste = document.createElement("div");
-  /* NEUF copies de trois rangs — la vraie forme de la roue A. */
-  for (let tour = 0; tour < 3; tour += 1) {
-    for (const rang of [0, 1, 2]) {
-      const cran = document.createElement("button");
-      cran.dataset.rang = String(rang);
-      cran.dataset.courant = rang === 1 ? "true" : "false";
-      piste.appendChild(cran);
-    }
-  }
-  annoncerCourant(piste);
-
-  const crans = piste.querySelectorAll("button");
-  const allumes = crans.filter((c) => c.dataset.courant === "true");
-  const annonces = crans.filter((c) => c.getAttribute("aria-current") === "true");
-  assert.equal(allumes.length, 3, "témoin : le cran courant est bien répété — c'est la condition du défaut");
-  assert.equal(annonces.length, 1, "UNE SEULE annonce, quel que soit le nombre de copies");
-  assert.equal(annonces[0].dataset.courant, "true", "la copie annoncée est bien une copie allumée");
-  assert.equal(crans.every((c) => c.hasAttribute("aria-current")), true,
-    "les autres portent `false` plutôt que rien : on voit qu'on a répondu, pas qu'on a oublié");
-});
+/* ══ 🗄️ ARCHIVÉ LE 28/09 (LOT 348) — « 13 bis », LE COURANT S'ANNONCE UNE FOIS ═══════════
+   Ce garde éprouvait `annoncerCourant` sur une piste fabriquée : la roue infinie répétait la
+   liste (`troisTours`, neuf copies sur la roue A), `data-courant` allumait TOUTES les copies et
+   `aria-current` n'en annonçait qu'UNE — un lecteur d'écran disait « courant » neuf fois.
+   ⛔ IL TOMBE AVEC SON SUJET : `annoncerCourant` ne servait que la roue de l'ancien navigateur,
+   que plus rien n'appelait depuis Wares v2 (20/09) et que le lot 348 retire. Les roues de
+   Wares et du sac ne se répètent plus (« les tambours ne sont plus à l'infini », 20/09), donc
+   il n'y a plus de copie à ne pas annoncer. ⭐ La moitié qui survit est le n° 13 : ⛔ jamais
+   `aria-pressed`, et un cran qui se TAIT est interdit.
+   📜 Le texte entier : `git show 38c0eaf0:tests/tambour-equipement.test.mjs`. */
 
 /* ══ 🗄️ ARCHIVÉ LE 20/09 — IL TENAIT L'ÉTAT D'ATTENTE, QUI N'EXISTE PLUS ═══════════════
    Ce garde disait : au rendu, aucun cran n'est `aria-current`, parce que le joueur n'a rien
@@ -771,12 +751,15 @@ test("14 — ⛔ LA LIGNE DE PROFONDEUR A QUITTÉ L'ÉCRAN, et elle ne peut pas 
      ⛔ Et ce garde mord dans les deux sens : il tient la ligne hors de l'écran,
      ET il vérifie que la fonction qui la produit est toujours joignable — la
      retirer pour de bon serait perdre le §6, pas le déplacer. */
+  /* 🗄️ LOT 348 — LA SECONDE MORSURE TOMBE AVEC SON SUJET. `profondeurAccordee` disait si le
+     navigateur accordait `animation-timeline` à la roue 3D du tambour ; la roue, son animation
+     `fhpc-roue` et le banc `ecran-r.html` qui lisait la mesure sont retirés avec l'ancien
+     navigateur — 📏 plus AUCUNE feuille du dépôt ne déclare `animation-timeline`. Il n'y a
+     plus de roue dont on jugerait « la roue ou son ombre » : le §6 n'est pas perdu, il n'a plus
+     d'objet. ⭐ La première morsure reste — elle vise l'écran du joueur, qui est vivant. */
   const node = monterR(ctx());
   assert.equal(rows(node, ".drum-profondeur").length, 0,
     "l'écran du joueur ne porte aucune ligne de diagnostic");
-  assert.equal(typeof profondeurAccordee, "function",
-    "témoin : la mesure du §6 reste joignable, c'est le banc qui la lit");
-  assert.equal(typeof profondeurAccordee(), "boolean");
 });
 test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui parlent à la coquille", () => {
   /* ⭐ LE CŒUR DU LOT : `shell.mjs` répond à toute action par un `refresh()`
@@ -819,165 +802,38 @@ test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran
    garde d'octets est ce qu'on peut leur opposer — il ne prouve pas que la roue
    est belle, il prouve qu'on n'a pas re-supprimé la parade. */
 
-/** Le corps d'un bloc CSS, pour ne juger que le sélecteur visé. */
-function bloc(selecteur) {
-  const i = CSS.indexOf(selecteur + " {");
-  assert.notEqual(i, -1, `le sélecteur « ${selecteur} » doit exister dans shell.css`);
-  return CSS.slice(i, CSS.indexOf("\n}", i));
-}
-
-test("piège 1 — la perspective est sur la PISTE, le parent DIRECT des crans", () => {
-  /* Une passe de réglage entière perdue : déclarée un niveau trop haut, elle ne
-     descend pas jusqu'aux crans (`getComputedStyle` rendait `none`), et Eric
-     réglait une courbure dont il ne voyait que l'échelle. */
-  assert.match(bloc(".roue-piste"), /perspective:\s*var\(--roue-fuite\)/);
-  assert.doesNotMatch(bloc(".equipment-drum"), /^\s*perspective:/m,
-    "elle ne doit PAS être posée sur le conteneur : elle n'atteindrait jamais les crans");
-});
+/* ══ 🗄️ ARCHIVÉ LE 28/09 (LOT 348) — LA ROUE 3D ET LA GRILLE DU TAMBOUR SONT RETIRÉES ═════
+   Neuf gardes entiers et une moitié du piège 8 vivaient ici sur les octets de `shell.css`, et
+   tous visaient l'ancien navigateur d'Équipement — la carte R (`construireLaCarteR`), son
+   tambour (`renderTambour` · `monterRoue`) et sa grille. 📏 Plus rien ne l'appelait depuis
+   Wares v2 (20/09) : `construireCatalogue`, seule à le monter, n'avait aucun appelant. Le lot
+   348 retire ce chemin et ses règles de feuille, donc eux :
+     · piège 1 — la perspective sur la PISTE (`.roue-piste`), jamais sur `.equipment-drum` ;
+     · piège 3 — la couture passe par un attribut (`.roue-piste[data-couture="oui"]`) ;
+     · piège 5 — `min-width: 0` et `max-width: none` sur le cran (`.roue-cran`) ;
+     · piège 6 — `box-sizing: border-box` et hauteur FIXE du cran ;
+     · piège 7 — le fondu et l'écart en RAPPORT au pas, trois crans sans marge (`.equipment-drum`) ;
+     · piège 8, sa moitié feuille — aucun `will-change` sur `.roue-cran` ;
+     · piège 9 — l'animation sous `@supports (animation-timeline: view())` ;
+     · garde — les 51 images de `@keyframes fhpc-roue` redonnent la formule du cylindre ;
+     · garde — la grille ne tourne pas (`.grille-cases`) ;
+     · garde — `--fhpc-case-h` déclarée une fois, `contenuDeCase` écrite une fois.
+   ⛔ LEUR ORGANE EST PARTI, PAS LEUR LEÇON. Si une roue 3D revient un jour, c'est ICI qu'on
+   relit avant d'en réécrire une — le texte entier, et les valeurs d'Eric réglées au pouce
+   (courbure 3,36 · angle max 61° · fuite 12,9) : `git show 38c0eaf0:tests/tambour-equipement.test.mjs`
+   et `git show 38c0eaf0:ui/builder/shell.css`.
+   ⭐ CE QUI RESTE ICI VISE DU VIVANT : le piège 2 lit TOUTE la feuille, le piège 8 TOUT le JS
+   de l'étape. */
 
 test("piège 2 — `scroll-snap-stop: always` n'est revenu nulle part", () => {
   assert.doesNotMatch(CSS, /scroll-snap-stop/,
     "c'est LUI qui empêchait la roue de rouler : un geste ample n'avançait que d'un cran et calait");
 });
 
-test("piège 3 — la couture rend la main dans une AUTRE tâche (attribut, pas style en ligne)", () => {
-  assert.match(CSS, /\.roue-piste\[data-couture="oui"\]/,
-    "couper l'aimantation passe par un attribut — le garde 7 interdit `.style` dans ui/");
-  assert.match(bloc('.roue-piste[data-couture="oui"]'), /scroll-snap-type:\s*none/);
-  assert.match(bloc('.roue-piste[data-couture="oui"]'), /scroll-behavior:\s*auto/);
-});
-
-test("piège 5 — `min-width: 0` sur le cran, et `max-width: none`", () => {
-  /* Avec `auto`, un item flex refuse de descendre sous son mot le plus long :
-     120 px là où ses voisins font 114, à `flex-basis` IDENTIQUE. Deux étagères
-     sur trois obéissent — c'est ce qui rend le défaut presque invisible. */
-  assert.match(bloc(".roue-cran"), /min-width:\s*0/);
-  assert.match(bloc(".roue-cran"), /max-width:\s*none/);
-});
-
-test("piège 6 — `box-sizing: border-box` explicite sur le cran, et sa hauteur est FIXE", () => {
-  assert.match(bloc(".roue-cran"), /box-sizing:\s*border-box/);
-  assert.match(bloc(".roue-cran"), /height:\s*var\(--roue-cran-h\)/,
-    "une roue dont les crans changent de hauteur n'est pas une roue — et tout ce qui vit dessous sautait");
-});
-
-test("piège 7 — 🔧 LE FONDU EST UN RAPPORT AU PAS, et la piste fait TROIS crans, sans cran de marge", () => {
-  /* Amendement du 2026-08-23, corrigé le 24. Le masque en POURCENTAGE DE LA
-     PISTE a coûté une passe : plus la piste s'élargissait, plus il rongeait de
-     crans, et Eric réglait « 7 » pour en voir 5. ⛔ Et pas de cran de marge :
-     il en ferait voir QUATRE.
-     ⭐ MAIS `10px` FIGÉ N'ÉTAIT PAS LA RÉPONSE NON PLUS, et c'est la dette que
-     le lot 95 solde : depuis que le pas est borné par `min()`, il tombe à 73,8
-     sur un téléphone — 10 px y rongent 13,5 % du cran contre 8,3 % à 121. Le
-     fondu grossissait à mesure que le cran maigrissait. `pas / 12.1` vaut 10 px
-     À L'IDENTIQUE là où la place existe, et suit le cran ailleurs.
-     🔴 Un pourcentage DE LA PISTE et un rapport AU PAS ne sont pas la même
-     grandeur : le premier suit l'écran, le second suit une valeur BORNÉE. */
-  assert.match(bloc(".equipment-drum"), /--roue-fondu:\s*calc\(var\(--roue-pas\) \/ 12\.1\)/,
-    "le fondu est un rapport au pas, comme --roue-ecart — jamais un pixel figé dans une roue fluide");
-  assert.match(bloc(".equipment-drum"), /--roue-champ:\s*calc\(3 \* var\(--roue-pas\) - var\(--roue-ecart\)\)/,
-    "trois pas moins un écart — trois crans exactement, jamais 4 ni 5");
-  /* 🔴 MESURÉ AU NAVIGATEUR : à 375 px, trois crans de 117 plus deux flèches de
-     44 demandent 455 px là où la carte en offre 327 — la piste rendait 229 px,
-     soit MOINS DE DEUX crans. Le pas se BORNE donc à 121 au lieu de s'y fixer :
-     121 partout où la place existe (l'iPad d'Eric), moins quand elle manque. */
-  assert.match(bloc(".equipment-drum"), /--roue-pas:\s*min\(var\(--roue-pas-max\),/,
-    "le pas est BORNÉ, pas fixé — sinon « trois crans visibles » se perd sur un téléphone");
-  assert.match(bloc(".equipment-drum"), /--roue-pas-max:\s*121px/, "et sa borne est la cote ratifiée du 22/08");
-  assert.match(bloc(".equipment-drum"), /--roue-ecart:\s*calc\(var\(--roue-pas\) \/ 30\.25\)/,
-    "l'écart est un RAPPORT au pas — c'est ce qui garde `d max = ±1,96694 pas` vrai à toutes les largeurs");
-  const masque = bloc(".roue-piste");
-  assert.match(masque, /mask-image:[^;]*#000 var\(--roue-fondu\)/);
-  assert.match(masque, /mask-image:[^;]*#000 calc\(100% - var\(--roue-fondu\)\)/);
-  /* ⚠️ ON VISE L'ARRÊT DE COULEUR, PAS N'IMPORTE QUEL POURCENTAGE : le
-     `calc(100% - …)` légitime en contient un, et un garde qui l'interdirait
-     crierait au loup sur la bonne écriture. Ce qu'on refuse, c'est `#000 22%`. */
-  assert.doesNotMatch(masque, /#000\s+\d+%/,
-    "un fondu en POURCENTAGE ronge d'autant plus de crans que la piste est large");
-});
-
-test("piège 8 — §6 : aucun `will-change` sur les crans, et AUCUNE transformation écrite par image", () => {
-  assert.doesNotMatch(bloc(".roue-cran"), /will-change/,
-    "il fige la rasterisation : un cran qui change d'échelle voit sa TEXTURE étirée au lieu d'être redessinée — c'est ce qui « frise »");
+test("piège 8 — §6 : AUCUNE transformation écrite par image", () => {
+  /* 🗄️ LOT 348 — sa moitié feuille (`.roue-cran` sans `will-change`) est archivée plus haut,
+     avec la roue. Celle-ci tient TOUT le JS de l'étape, qui est vivant. */
   /* Même dépouilleur que le garde 7 lui-même : ce qui est jugé, c'est du code. */
   assert.doesNotMatch(JS, /\.style\s*(\.\w+|\[)/,
     "le défilement est composité sur un thread séparé : du JS qui repeint les transformations est DÉSYNCHRONISÉ, pas lent");
-});
-
-test("piège 9 — 🔴 l'animation est SOUS `@supports`, sinon la dégradation est PIRE que l'absence", () => {
-  /* Sans le `@supports`, un navigateur qui ignore `animation-timeline` garde
-     quand même l'animation — sur la timeline du document, en 0s, avec
-     `fill: both` : tous les crans se figeraient sur la DERNIÈRE image, à
-     +33,5°. Une roue cassée au lieu d'une roue plate. */
-  const i = CSS.indexOf("@supports (animation-timeline: view())");
-  assert.notEqual(i, -1, "les déclarations d'animation doivent être gardées par leur `@supports`");
-  const fin = CSS.indexOf("\n}", CSS.indexOf("\n  }", i));
-  const dedans = CSS.slice(i, fin);
-  assert.match(dedans, /animation-timeline:\s*view\(inline\)/);
-  assert.match(dedans, /animation-name:\s*fhpc-roue/);
-  assert.match(dedans, /animation-duration:\s*auto/,
-    "sans `auto`, la durée retombe à 0s et l'animation se joue d'un coup au lieu de suivre le défilement");
-  /* Le garde doit tenir des DEUX côtés : une seule déclaration de cette
-     animation dans tout le fichier, et elle est dans le `@supports`. */
-  assert.equal((CSS.match(/animation-name:\s*fhpc-roue/g) || []).length, 1,
-    "aucune déclaration de cette animation ne doit vivre HORS du `@supports`");
-});
-
-test("garde — les 51 crans de l'animation REDONNENT la formule du cylindre, au millième", () => {
-  /* ⭐ CE QUE CE GARDE PROTÈGE : les valeurs d'Eric (courbure 3,36 · angle max
-     61° · fuite 12,9), trouvées AU POUCE en cinq passes. Écrites à la main dans
-     51 blocs, elles peuvent dériver d'un chiffre sans que rien ne le voie.
-     ⭐ ET LES 2 % COMPTENT : à 5 %, l'interpolation LINÉAIRE entre deux points
-     coupe la sinusoïde en segments droits, et ça se voit (le « frisage »). */
-  const CRAN = 117, ECART = 4, PAS = CRAN + ECART;
-  const D_MAX = (3 * CRAN + 2 * ECART + CRAN) / 2;   // ±238 px
-  const COURBURE = 3.36;
-  const ANGLE_MAX = 61 * Math.PI / 180;
-
-  const debut = CSS.indexOf("@keyframes fhpc-roue {");
-  assert.notEqual(debut, -1);
-  const corps = CSS.slice(debut, CSS.indexOf("\n}", debut));
-  const crans = [...corps.matchAll(
-    /(\d+)% \{ transform: translateX\(calc\((-?[\d.]+) \* var\(--roue-pas\)\)\) translateZ\(calc\((-?[\d.]+) \* var\(--roue-pas\)\)\) rotateY\((-?[\d.]+)deg\); \}/g
-  )];
-  assert.equal(crans.length, 51, "51 images, une tous les 2 % — pas une de moins");
-
-  let borneMordue = 0;
-  for (const [, pct, correction, z, deg] of crans) {
-    const p = Number(pct) / 100;
-    const d = D_MAX * (1 - 2 * p) / PAS;
-    const brut = d / COURBURE;
-    if (Math.abs(brut) > ANGLE_MAX) borneMordue += 1;
-    const theta = Math.max(-ANGLE_MAX, Math.min(ANGLE_MAX, brut));
-    assert.ok(Math.abs(Number(correction) - (COURBURE * Math.sin(theta) - d)) < 1e-4,
-      `${pct}% : la correction x − d a dérivé`);
-    assert.ok(Math.abs(Number(z) - COURBURE * (Math.cos(theta) - 1)) < 1e-4, `${pct}% : la profondeur a dérivé`);
-    assert.ok(Math.abs(Number(deg) - (-theta * 180 / Math.PI)) < 1e-3, `${pct}% : l'angle a dérivé`);
-  }
-  assert.equal(crans[25][1], "50", "témoin : le point du milieu existe");
-  assert.equal(Number(crans[25][4]), 0, "et le cran sous le viseur n'est ni tourné ni reculé — sinon il ne se lit plus");
-  assert.equal(borneMordue, 0,
-    "MESURE : dans une fenêtre de trois crans, θ ne monte qu'à 33,5° — la borne de 61° n'est JAMAIS atteinte");
-});
-
-test("garde — la grille NE TOURNE PAS : ni perspective, ni aimantation, ni timeline", () => {
-  /* ⛔ On n'étend pas la mécanique de la roue à un objet qui PAGINE. Et surtout :
-     la grille n'a PAS DE VISEUR, ce qui est sa raison d'être — la règle d'Eric
-     « le joueur aurait acheté l'objet devant lequel il s'est arrêté » doit
-     rester impossible. */
-  const g = bloc(".grille-cases");
-  for (const interdit of [/perspective/, /scroll-snap/, /animation-timeline/]) {
-    assert.doesNotMatch(g, interdit, `la grille ne doit porter aucune mécanique de roue — ${interdit}`);
-  }
-  assert.match(g, /grid-template-columns:\s*repeat\(3,/);
-  assert.match(g, /grid-template-rows:\s*repeat\(5, var\(--fhpc-case-h\)\)/,
-    "cinq rangées IMPOSÉES : une dernière page de 7 objets ne doit pas faire remonter tout ce qui vit dessous");
-});
-
-test("garde — la taille d'une case vit à UN seul endroit, et son contenu à un autre", () => {
-  /* ⏳ Eric n'a pas tranché « la case porte le NOM ou une IMAGE », et c'est ce
-     qui décide de la cote. Le jour où il tranche : deux endroits, pas quinze. */
-  assert.equal((CSS.match(/--fhpc-case-h:/g) || []).length, 1,
-    "une seule déclaration de la cote — sinon « on change deux endroits » devient un voeu");
-  assert.equal((JS.match(/function contenuDeCase\(/g) || []).length, 1);
 });
