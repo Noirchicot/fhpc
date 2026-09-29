@@ -71,6 +71,9 @@ const JS = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "equip
 
 const { renderEquipmentStep, rayonsEtEtageres, lireRangement, annoncerCourant, profondeurAccordee } =
   await import("../ui/builder/equipment-step.mjs");
+/* Le temps d'arrêt d'une roue de Wares est celui du sac (`wares-ecran.mjs` l'importe de là) :
+   c'est au bout de ce repos que le viseur choisit — le n° 15 l'attend. */
+const { REPOS_MS } = await import("../ui/builder/sac-ecran.mjs");
 /* ⭐ LA PAGINATION A DÉMÉNAGÉ AU SOCLE (2026-08-26) : le 15 est une norme du
    produit entier (NORMES.md §5), plus une constante de cet écran. Les mêmes
    mesures, sur la fonction partagée. */
@@ -778,19 +781,67 @@ test("14 — ⛔ LA LIGNE DE PROFONDEUR A QUITTÉ L'ÉCRAN, et elle ne peut pas 
     "témoin : la mesure du §6 reste joignable, c'est le banc qui la lit");
   assert.equal(typeof profondeurAccordee(), "boolean");
 });
-test("15 — poser un objet et ouvrir son texte restent les DEUX seuls actes qui parlent à la coquille", () => {
-  /* ⭐ LE CŒUR DU LOT : `shell.mjs` répond à toute action par un `refresh()`
-     qui reconstruit la carte entière. Un cran franchi qui dispatcherait ferait
-     donc DÉMONTER LA ROUE AU MILIEU DU GESTE. Le tambour se met à jour
-     lui-même ; il ne parle à la coquille que pour les gestes du joueur. */
+test("15 — tourner une roue ou une page ne parle JAMAIS à la coquille : le tambour se repeint lui-même", async () => {
+  /* ⭐ LE CŒUR DU LOT 84, ET IL N'A PAS BOUGÉ : `shell.mjs` répond à toute action par un
+     `refresh()` qui reconstruit l'étape entière. Un cran franchi qui dispatcherait ferait donc
+     DÉMONTER LA ROUE AU MILIEU DU GESTE. Le tambour se met à jour lui-même ; il ne parle à la
+     coquille que pour les gestes du joueur.
+     🔄 LOT 349 — CE GARDE NE POUVAIT PLUS ROUGIR, ET SA PREMIÈRE MOITIÉ DÉPENDAIT DE L'ORDRE.
+     · Il cliquait `.roue-fleche` et `.grille-fleche`, les flèches de la carte R. 📏 Derrière la
+       porte `Wares` (lot 219) il n'y en a AUCUNE — mesuré au rendu : 0 et 0, contre quatre
+       `.wares-tuner`. Ses deux boucles ne cliquaient rien : « zéro action » était vrai d'avance.
+     · « Monter le tambour ne dispatche RIEN » comptait le clic de la PORTE, qui parle
+       (`fenetre`, la 3ᵉ ligne du belt) : lancé seul, le test rougissait (`actual: 1`) ; en
+       suite, il passait parce qu'un test d'avant avait laissé la vue sur Wares.
+     ⛔ Son ancien titre promettait aussi que « poser un objet et ouvrir son texte » parlent à
+     la coquille : aucune ligne ne le vérifiait. Le titre dit maintenant ce que le test prouve.
+     ⭐ RÉÉCRIT SUR LES ORGANES VIVANTS : le tuner de l'étage des catégories (défilement → repos
+     → `surCategorie`), puis le chevron de la dalle courante (`surPage`). Chaque geste a son
+     TÉMOIN — l'écran a bien tourné —, sinon « zéro action » redirait le vide ; et un TÉMOIN
+     CONTRAIRE ferme le test : la porte `Gear` du pied parle, par le même collecteur. */
+  monterR(ctx());   /* on passe la porte comme le joueur : ce geste-là a le droit de parler */
   const calls = [];
-  const node = monterR(ctx(), (a) => calls.push(a));
-  assert.equal(calls.length, 0, "monter le tambour ne dispatche RIEN");
+  const node = renderEquipmentStep(ctx(), (a) => calls.push(a));
+  assert.equal(rows(node, '[data-ecran="wares"]').length, 1, "témoin : la vue persiste, on rend bien Wares");
+  assert.equal(calls.length, 0, "le re-rendu de la coquille ne dispatche RIEN — sinon il se rappellerait en boucle");
 
-  for (const fleche of rows(node, ".roue-fleche")) fleche.click();
-  for (const fleche of rows(node, ".grille-fleche")) fleche.click();
-  assert.equal(calls.length, 0,
-    "et tourner une roue ou une page non plus — sinon la coquille démonterait l'écran sous le doigt");
+  const choisi = (etage) => rows(node, ".wares-roue")[etage].querySelector('.wares-cran[aria-selected="true"]').textContent;
+  const dalle = () => rows(node, ".wares-grille").find((g) => !g.hasAttribute("inert"));
+  const pages = () => dalle().querySelector('[data-organe="compte-pages"]').textContent;
+  /* ⚠️ UNE IMAGE AVANT CHAQUE GESTE : le montage pose les roues par une écriture MARQUÉE, dont
+     le drapeau ne retombe qu'après l'image (`roue-tambour.mjs`, `placer`). Un doigt ne tape
+     jamais dans l'image du montage ; un test qui le ferait mesurerait un défilement que la
+     roue ignore — et « zéro action » y serait encore vrai, pour une mauvaise raison. */
+  const uneImage = () => new Promise((r) => setTimeout(r, 20));
+  const auRepos = () => new Promise((r) => setTimeout(r, REPOS_MS + 80));
+
+  await uneImage();
+  const categorie = choisi(0);
+  node.querySelector('.wares-tuner[data-organe="tuner-categories-d"]').click();
+  await auRepos();
+  assert.notEqual(choisi(0), categorie, "témoin : le tuner a TOURNÉ l'étage des catégories");
+  assert.equal(calls.length, 0, "⛔ tourner une roue a parlé à la coquille — elle démonterait l'écran sous le doigt");
+
+  await uneImage();
+  const avant = pages();
+  const suivante = dalle().querySelector('.wares-chevron[data-organe="page-suivante"]');
+  assert.ok(suivante, `témoin : « ${choisi(1)} » porte plusieurs pages (${avant}), donc un chevron`);
+  suivante.click();
+  assert.notEqual(pages(), avant, "témoin : le chevron a TOURNÉ la page");
+  assert.equal(calls.length, 0, "⛔ tourner une page a parlé à la coquille");
+
+  /* on rend l'étage au reste du fichier — changer de catégorie remet la page à zéro */
+  await uneImage();
+  node.querySelector('.wares-tuner[data-organe="tuner-categories-g"]').click();
+  await auRepos();
+  assert.equal(choisi(0), categorie, "témoin : le tuner gauche l'a ramené");
+  assert.equal(calls.length, 0, "⛔ et le retour non plus ne parle pas");
+
+  /* ⚔️ TÉMOIN CONTRAIRE — le même collecteur ENTEND un geste qui doit parler : la porte `Gear`
+     du pied change d'écran, et la coquille en écrit la 3ᵉ ligne du belt. Sans lui, un
+     collecteur débranché rendrait le même zéro qu'un tambour muet. */
+  node.querySelector('.porte-carree[data-porte="gear"]').click();
+  assert.deepEqual(calls.map((a) => a.kind), ["fenetre"], "la porte, elle, parle à la coquille");
 });
 
 test("16 — ⚔️ ATTAQUE : un objet magique n'a NI PRIX NI POIDS, et l'écran n'en invente aucun", () => {

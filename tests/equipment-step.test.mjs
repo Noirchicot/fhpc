@@ -35,7 +35,7 @@ globalThis.document = createTestDocument();
 const UI_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 
 const {
-  renderEquipmentStep, renderEquipmentBar, whatYouHave, currentGearLines, currentCurrency, nextGearIndex,
+  renderEquipmentStep, currentGearLines, currentCurrency, nextGearIndex,
   orDeLaProse, orDeLaSource, origineDuDepart, orDuDepart,
   optionsDeLaProse, morceauxDeLOption, departsDuPersonnage, butinDuDepart, contenuDuKit, departRepondu, cheminDuDepart,
   cheminDeLOutil, outilsChoisisDansSkills, nomCourtDOutil,

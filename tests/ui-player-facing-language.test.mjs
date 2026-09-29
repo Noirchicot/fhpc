@@ -23,7 +23,8 @@
    ⚠️ CE QUI EST DÉLIBÉRÉMENT EXCLU DE LA LISTE : `placeholder`. C'est un mot
    du VOCABULAIRE TECHNIQUE légitime de ce dépôt — une classe CSS
    (`el("p", "placeholder", …)`, `shell.mjs`/`skills-step.mjs`) et un
-   attribut de champ de recherche (`equipment-step.mjs`, `searchField`) —
+   attribut de champ de recherche (`equipement-pipeline.mjs`, `renderRecherche` ;
+   c'était `searchField` d'`equipment-step.mjs` jusqu'au lot 349) —
    AUCUN des deux n'est un aveu de chantier. Le garde de l'architecte le
    cherchait ; mesuré ici (grep sur `ui/builder/*.mjs`, texte brut) : il
    aurait crié au loup des dizaines de fois sur du code sain. Un garde qui

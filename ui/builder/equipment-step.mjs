@@ -54,45 +54,45 @@
    `ctx`) SHADOWS le `document` DOM global à l'intérieur des fonctions qui le
    reçoivent — même geste qu'`abilities-step.mjs`/`inheritance-step.mjs`.
    AUCUNE fonction qui reçoit ce paramètre n'appelle `document.createElement`
-   directement : tout passe par `el`/`text`/`button`/`numberField`/
-   `searchField`, définis en tête de fichier, dont le PROPRE `document`
-   référencé est toujours le DOM global (portée de module, jamais ombragée). */
+   directement : tout passe par `el`/`text`/`button`, définis en tête de
+   fichier, dont le PROPRE `document` référencé est toujours le DOM global
+   (portée de module, jamais ombragée). */
 
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { renderPicker, markPressed } from "./carnet.mjs?v=902";
-import { facteurZoomCourant } from "./echelle.mjs?v=902";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=902";
+import { markPressed } from "./carnet.mjs?v=903";
+import { facteurZoomCourant } from "./echelle.mjs?v=903";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=903";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=902";
-import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=902";
-import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=902";
+import { isGenre } from "../../src/layers/document.mjs?v=903";
+import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=903";
+import { LISTE_PAR_PAGE, pageDeListe } from "./normes.mjs?v=903";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=902";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=902";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=903";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=903";
 /* ⭐ L'ORGANE DE GLISSER DU DÉPÔT, pas une seconde écriture du geste :
    la carte R arme ses jetons avec lui (tap → B1, glisser → la cible). */
-import { armerJeton } from "./glisser.mjs?v=902";
+import { armerJeton } from "./glisser.mjs?v=903";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=902";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=903";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=902";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=903";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=902";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=903";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -102,14 +102,14 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=902";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=902";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=903";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. La carte R publie les gestes, le pipeline fait les écrans. */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
-  enGP, lignesParLieu, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=902";
+  enGP, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=903";
 /* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
-import { borneDeLaMolette } from "./molette-quantite.mjs?v=902";
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=903";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -117,25 +117,25 @@ import { borneDeLaMolette } from "./molette-quantite.mjs?v=902";
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=902";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=903";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
 import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
-  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=902";
-import { construireX5 } from "./x5-ecran.mjs?v=902";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=902";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=902";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=902";
-import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=902";
-import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=902";
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=903";
+import { construireX5 } from "./x5-ecran.mjs?v=903";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=903";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=903";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=903";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=903";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=903";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
-import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=902";
-import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=902";
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=903";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=903";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=902";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=903";
 /* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
-import { spellInfo } from "./class-step.mjs?v=902";
+import { spellInfo } from "./class-step.mjs?v=903";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -147,7 +147,7 @@ import { spellInfo } from "./class-step.mjs?v=902";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=902";
+import { motDuCran } from "./ecran-mort.mjs?v=903";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -300,9 +300,12 @@ export function origineDuDepart(query, document) {
  *  Rend `{sources: [{genre, nom, prose, cout, underived}], cout}` — `cout`
  *  vaut `null` tant qu'aucune source n'a pu être lue (⛔ pas `{gp: 0}` : zéro
  *  pièce et « je ne sais pas » ne se jouent pas pareil).
- *  ⭐ UN SEUL ÉCRIVAIN POUR CE MONTANT : la prose de l'aiguilleur ET le geste
- *  qui pose la bourse (`shell.mjs`) appellent CETTE fonction. Deux calculs du
- *  même nombre divergent au premier jour où l'un des deux est corrigé. */
+ *  📌 PLUS AUCUN ÉCRAN NE L'APPELLE depuis le lot 245 : le montant posé est celui
+ *  de `butinDuDepart`, qui lit les options CHOISIES. Elle reste exportée pour les
+ *  gardes, comme SECONDE LECTURE en sens inverse (`shell.mjs`, note sur
+ *  `addStartingPurse` ; `tests/equipment-step.test.mjs`, « 245 — LA SECONDE
+ *  LECTURE ») — une bijection fausse est cohérente, seule la lecture inverse
+ *  l'attrape. ⚖️ Lot 349 : gardée pour cette raison, pas par oubli. */
 export function orDuDepart({ query, document } = {}) {
   const q = typeof query === "function" ? query : () => null;
   const refClasse = currentClassRef(document);
@@ -1054,27 +1057,6 @@ function button(label, className, onClick, ariaLabel) {
   return b;
 }
 
-function numberField({ value, min, className, ariaLabel, onChange }) {
-  const input = document.createElement("input");
-  input.type = "number";
-  if (min !== undefined) input.min = String(min);
-  if (className) input.className = className;
-  input.value = Number.isInteger(value) ? String(value) : "";
-  if (ariaLabel) input.setAttribute("aria-label", ariaLabel);
-  input.addEventListener("change", () => onChange(input.value));
-  return input;
-}
-
-function searchField({ placeholder, className, ariaLabel, onInput }) {
-  const input = document.createElement("input");
-  input.type = "search";
-  if (className) input.className = className;
-  if (placeholder) input.placeholder = placeholder;
-  if (ariaLabel) input.setAttribute("aria-label", ariaLabel);
-  input.addEventListener("input", () => onInput(input.value));
-  return input;
-}
-
 /* ══ LA LECTURE BRUTE, HORS `decisions[]` (aucun plan pour gear/currency) ══ */
 
 /** Le choix `class` brut, lu dans `document.build.choices` — jamais
@@ -1513,10 +1495,6 @@ export function nextSectionIndex(document) {
  *  ne se stocke pas : deux sources pour une même appartenance divergeraient.
  *  ⭐ Sauf le party inventory, dont la clef est un MOT : voir `SECTION_PARTY`. */
 export const boiteDeSection = (index) => (index === SECTION_PARTY.clef ? index : `s${index}`);
-export const sectionDeBoite = (boite) => {
-  const m = /^s(\d+)$/.exec(String(boite || ""));
-  return m ? Number(m[1]) : null;
-};
 
 /* ══ LES PLACES D'UNE SECTION — lot 214, seconde passe ═══════════════════════
    ⚖️ Eric, 2026-09-18, en tranchant trois questions d'un coup :
@@ -3049,34 +3027,16 @@ function renderGearBlock({ query, onAction }) {
  * @param {(action:{kind:string, [key:string]:*}) => void} onAction  `set`/`clear` ordinaires, plus les trois gestes
  *   composites de `shell.mjs` : `addGearLine` ({ref,quantity,equipped}), `removeGearLine` ({index}), `addStartingPurse` ()
  */
-/* ══ B8.1 — LE BANDEAU DU HAUT, ET IL FLOTTE ════════════════════════════
-   « Le budget en pièces, SANS TROP PRENDRE DE PLACE » · « une molette
-   horizontale qui catégorise les équipements » · « un point d'interrogation
-   à côté du budget » qui rappelle « What you already have ».
-
-   ⏳ LA LOUPE — Eric l'a formulée AU CONDITIONNEL : « SI on a la place pour
-   poser une loupe dans les flottants pour invoquer la barre de recherche, ce
-   serait pas mal ». C'est donc une PRÉFÉRENCE, pas une exigence — et la
-   place existe, mesurée : le bandeau tient sur deux lignes de 44 px comme
-   celui de Compétences. La loupe est là, et elle évite une CINQUIÈME barre
-   fixe (le point que B7.6 signalait). */
-
-export const EQUIPMENT_CATEGORIES = [
-  { id: "all", label: "All" },
-  { id: "weapon", label: "Weapons" },
-  { id: "armor", label: "Armor" },
-  { id: "gear", label: "Gear" }
-];
-
-
+/* 🗑️ LOT 349 — LE BANDEAU B8.1 (sa molette All · Weapons · Armor · Gear, sa loupe) N'EST
+   PLUS ICI : `EQUIPMENT_CATEGORIES`, `ctx.category` et `ctx.search` n'avaient plus de
+   lecteur depuis le 23/08 (`22332950`, l'étape ne portait plus que la carte R). Son texte
+   est dans l'historique : `git show 38c0eaf0:ui/builder/equipment-step.mjs`. */
 
 /**
  * @param {object} ctx
  * @param {object} ctx.document   le document brut
  * @param {object} ctx.resolved   la fiche dérivée — l'AC et la bourse
  * @param {Function} ctx.query    `layers.verbs.query`
- * @param {string} [ctx.category] le filtre courant de la molette
- * @param {boolean} [ctx.search]  la barre de recherche est-elle invoquée
  */
 /* ══ LE PILOTE DE L'ÉTAPE — SEPT ÉCRANS, UNE SEULE VUE À LA FOIS ════════════
    Mandat d'Eric (24/08) : *« enchaîne R/B1/B2/B3/SB3.1/2/3 · INVERSE les
@@ -3159,21 +3119,11 @@ let editionSac = false;
 /* ⭐ LE CHAMP NE S'OUVRE QUE PAR LA POIGNÉE `/` — Eric, 19/09. ⛔ État d'écran : on
    rouvre le sac en le LISANT, pas en train de le modifier. */
 let renommageSac = false;
-/* ⚖️ LA SECTION QU'ON DÉPLACE — croquis d'Eric, 19/09 : *« hold one section for 1,5
-   second and this mode comes on »*. ⭐ `null` = personne ; sinon, la POSITION du cran
-   tenu dans la liste affichée. ⛔ De l'état d'ÉCRAN, pas de document : ce qui s'écrit,
-   c'est l'ORDRE (`backpack…rang`), jamais « qui est en train d'être déplacé ». */
-/* 🔴 LE REPEINT DU SAC, ATTEIGNABLE DEPUIS UN GESTE QUI A COMMENCÉ AVANT LUI.
-   ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU (`swapContent(section, …)`), et la
-   coquille en fabrique un neuf à chaque `act`. Or le déplacement d'une section ÉCRIT à
-   chaque croisement — donc, au moment du lâcher, la fermeture qu'on tient est celle
-   d'AVANT, et elle repeint un nœud détaché : le mode restait allumé à l'écran alors que
-   l'état était déjà retombé. Mesuré dans l'application le 19/09 au soir.
-   ⭐ C'EST LA MÊME LOI QUE `NORMES` ÉNONCE POUR LA MARGE — *« un glisser qui fait
-   défiler l'écran sous lui doit LIRE l'état au moment du DÉPÔT, jamais celui du rendu
-   qui l'a armé »* — et elle vaut aussi pour ÉCRIRE : le repeint se relit, il ne se
-   capture pas. */
-let repeindreLeSac = () => {};
+/* 🗑️ LOT 349 — `repeindreLeSac` N'EST PLUS ICI, ni `deplacementSac` (parti le 20/09).
+   Ils servaient le seul geste qui traversait les rendus : le déplacement d'une section
+   par maintien de 1,5 s. Le croquis « EDIT MODE 1 » l'a retiré le 20/09 (`7618d19a`) ;
+   `repeindreLeSac` est resté écrit à chaque rendu, sans plus aucun lecteur. La loi
+   qu'il portait est au corpus, dépréciée : `cadre-le-repeint-se-relit-il-ne-se-capture-pas`. */
 /* ⭐ LA PAGE QU'ON REGARDE DANS LA SECTION — état d'écran : on rouvre le sac à sa
    première page, jamais là où on l'avait laissé. ⛔ Ce qui SURVIT, c'est la place de
    chaque objet (`gear[N].place`), pas le regard qu'on porte dessus.
@@ -5449,12 +5399,6 @@ export function renderEquipmentStep(ctx, onAction) {
        fois sur deux. C'est mesuré, sur le sac, au lot 214. */
     poserLesRoues();
   }
-  /* ⭐ LE DERNIER REPEINT EST TOUJOURS CELUI-CI — c'est par lui qu'un geste commencé
-     deux rendus plus tôt retrouve l'écran vivant. ⛔ Sans cette ligne, le lâcher d'un
-     déplacement peignait dans un nœud détaché. */
-  /* 🪟 LOT 307 — en double écran, le sac peut être la page VOISINE : c'est alors elle qui
-     tient le repeint, pas la page active rendue avant elle. */
-  if (!(demi && demi.page) || demi.page === "sac") repeindreLeSac = peindre;
   peindre();
   return section;
 }

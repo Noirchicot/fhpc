@@ -5679,9 +5679,21 @@ se range, ça ne se porte pas »*.
 
 ---
 
-### 🖌️ UN GESTE QUI TRAVERSE LES RENDUS NE PEUT PAS CAPTURER SON REPEINT
-📍 `cadre-le-repeint-se-relit-il-ne-se-capture-pas` · vivante · 19/09
-⚖️ **Un rappel de fin de geste doit RELIRE le repeint courant, jamais garder celui du rendu qui l'a armé. ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU : appelé après un `act`, il peint dans un nœud détaché — et l'écran reste figé sur un état qui n'existe plus.**
+### 🖌️ UN GESTE QUI TRAVERSE LES RENDUS NE PEUT PAS CAPTURER SON REPEINT — **sans objet depuis le 20/09**
+📍 `cadre-le-repeint-se-relit-il-ne-se-capture-pas` · dépréciée · 19/09
+⚖️ ~~**Un rappel de fin de geste doit RELIRE le repeint courant, jamais garder celui du rendu qui l'a armé. ⛔ `peindre()` écrit dans LE NŒUD DE SON RENDU : appelé après un `act`, il peint dans un nœud détaché — et l'écran reste figé sur un état qui n'existe plus.**~~ **Le seul geste qui traversait les rendus — le déplacement d'une section par maintien de 1,5 s — n'existe plus depuis le 20/09 : cette règle est sans objet.**
+
+🗑️ **DÉPRÉCIÉE, PAS REMPLACÉE — lot 349, 29/09.** Le croquis « EDIT MODE 1 » d'Eric (19/09 au soir,
+posé le 20/09 par `7618d19a`) a retiré le mode déplacement : *« il n'y a désormais qu'un seul edit
+mode »*. Déplacer une section est devenu une permutation au CLIC (`surDeplacerSection`) — un clic
+sur le DOM courant, dont la fermeture est fraîche par construction (📌 plus bas).
+⛔ **MAIS LE MÉCANISME ÉTAIT RESTÉ** : `repeindreLeSac` était réassigné à chaque rendu, et plus
+personne ne le lisait — le lot 307 lui a même ajouté une condition de double écran le 27/09.
+📏 Lot 349 : zéro lecture sur l'arbre syntaxique d'`equipment-step.mjs` ; retiré, avec le
+commentaire resté orphelin de `deplacementSac`.
+⭐ **RIEN NE LUI SUCCÈDE, ET RIEN N'EST PERDU** : la moitié LECTURE de la loi vit toujours dans
+`equipement-glisser-dans-la-marge-relit-l-ecran`. Si un geste qui dure revient traverser les
+rendus, c'est ce texte qu'on relit avant d'écrire son lâcher.
 
 🔴 **MESURÉ DANS L'APPLICATION LE 19/09 AU SOIR**, en posant le déplacement des sections. Le geste
 ÉCRIT l'ordre à chaque croisement ; chaque écriture fait refabriquer le nœud de l'étape par la
