@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=904") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=905") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=904") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=905") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=904") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=905") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -5986,20 +5986,22 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 /* L'INTERRUPTEUR DU TUTORIEL, dans le Menu (Eric, 2026-08-19) — la seconde
    moitié de « Turn tutorials off » : un endroit NOMMÉ pour rallumer, au lieu
    de chercher le « ? ». */
-/* ══ LE TABLEAU DE COMMANDE — `R` du Menu, Eric, 2026-09-08 ═══════════════
-   *« Le joueur ne veut pas naviguer, il doit trouver l'essentiel en R. R doit
-   tenir en une page »* — 500 blg, ceinture exclue. Puis ses neuf corrections du
-   même jour, ligne par ligne : SOWLREACH centré · sous-titre centré italique ·
-   Build large en relief vert · Open et Save en vert au format réglementé ·
-   deux interrupteurs sur une ligne · My characters large, bleu, cadré à
-   gauche · la ligne d'état avec son voyant · la rangée du bas standard, avec
-   le livre, à 8 blg du pied.
-
-   ⭐ LES RANGÉES DE BOUTONS SONT DES `.parcours-pied` : la coquille leur donne
-   la grille `--touch 1fr --touch`, le plancher de 77 et l'octogone — le
-   standard des petits boutons, pas une seconde forme. */
+/* ══ LE MENU R — tel qu'Eric l'a dicté le 29/09 (lot 350) ═══════════════════
+   *« Pour simplifier à la surface : menu R »* — de haut en bas : la tête (gardée) ·
+   le code de campagne (place réservée, T0) · `Create character` · `Campaign` ·
+   `Rules` · `Books` · l'aiguilleur · six portes sur trois rangées.
+   ⚖️ Et l'habillage, ses mots : *« fond habituel, transparence 50 % »* (la dalle
+   `dalle-intermediaire`) · *« les boutons utilisent les boutons large »* (105 × 40,
+   cible 105 × 44 — `.menu-porte`, plus bas, après le patron) · *« on respecte les
+   hauteurs de dalle, pas de scroll »*.
+   🗄️ CE QUI EST PARTI D'ICI (le tableau de commande du 08/09 — ses neuf corrections
+   sont racontées dans `universe-step.mjs`) : `.tdc-majeur` (Build a character, large
+   et vert) · `.tdc-trio` (Open · Save · Forget) · `.tdc-regles`/`.tdc-deux` (le voyant
+   SRD et l'interrupteur Fate's Hand, partis dans `Layers`) · `.tdc-liste`/
+   `.tdc-couches` (My characters et Layers en pleine largeur) · `.tdc-etat` et sa
+   pastille `[data-garde]` (la ligne d'état, retirée par Eric) · `.universe-memoire`.
+   ⛔ Aucune de ces classes n'est plus émise. */
 .universe-note { margin: 0 0 var(--sp-4); color: var(--text-muted); font-size: var(--t3); }
-.universe-memoire { margin-top: 0; }
 
 .tdc-tete { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); text-align: center; }
 .tdc-marque {
@@ -6008,42 +6010,51 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .tdc-sous-titre { margin: 0; font-size: var(--t3); font-style: italic; color: var(--text-muted); }
 
-/* LE GESTE MAJEUR — large, VERT, EN RELIEF (Eric, 08/09). Le relief : un liseré
-   clair en haut, une ombre pleine en bas — deux teintes dérivées du même jeton,
-   aucune couleur écrite. */
-.tdc-majeur {
-  width: 100%; min-height: var(--touch); margin-top: var(--sp-8);
-  border: 0; border-radius: var(--radius-md);
-  background: var(--positive); color: var(--on-accent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, var(--on-accent) 28%, transparent),
-    0 2px 0 color-mix(in srgb, var(--positive) 55%, var(--border-strong));
-  font: inherit; font-weight: 600; font-size: var(--t4); cursor: pointer;
+/* ⭐ LA GRILLE DE R — deux colonnes : les ÉTIQUETTES et les VALEURS. La colonne des
+   étiquettes est `max-content` : ⛔ sa largeur ne s'écrit pas, elle se DÉDUIT du mot
+   le plus long (NORMES §1 ter — `Campaign code`). Tout ce qui n'est pas une ligne (la
+   tête, `Create character`, l'aiguilleur, les portes, un mot rouge) prend les deux
+   colonnes ; les lignes se DISSOLVENT (`display: contents`) pour que leurs deux
+   moitiés tombent dans les deux colonnes — le code, `Campaign`, `Rules`, `Books`
+   s'alignent ainsi d'eux-mêmes, sans une cote de plus. */
+.tdc-r {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--sp-8);
+  row-gap: var(--sp-4);
+  align-content: start;
 }
-/* LA RANGÉE DU FICHIER — Open et Save en VERT (Eric), Forget rouge (il défait). */
-.tdc-trio { margin-top: var(--sp-8); }
-
-/* LA LIGNE DES RÈGLES — le voyant SRD · l'interrupteur Fate's Hand (Eric, 09/09 :
-   « le bouton SRD est un voyant, pas un bouton »). Les deux se partagent la ligne. */
-.tdc-regles { margin-top: var(--sp-8); }
-.tdc-deux { display: flex; gap: var(--sp-8); }
-.tdc-deux .interrupteur, .tdc-deux .voyant { flex: 1 1 0; min-width: 0; }
-
-/* MY CHARACTERS — large, BLEU, cadré à gauche (Eric). Il navigue.
-   LOT 188 — `Layers` (`.tdc-couches`) prend la MÊME forme : une porte large et
-   bleue vers un rang B du Menu, une seule règle pour les deux. */
-.tdc-liste, .tdc-couches {
-  width: 100%; min-height: var(--touch); margin-top: var(--sp-8); padding: 0 var(--sp-12);
-  border: 0; border-radius: var(--radius-md);
-  background: var(--info); color: var(--on-accent);
-  font: inherit; font-weight: 600; font-size: var(--t4); text-align: left; cursor: pointer;
+.tdc-r > * { grid-column: 1 / -1; }
+.tdc-r > :is(.tdc-code, .tdc-champ, .tdc-ligne-lue) { display: contents; }
+.tdc-r > :is(.tdc-code, .tdc-champ) > .doc-field-label,
+.tdc-ligne-mot {
+  grid-column: 1; align-self: center; margin: 0; text-align: left;
+  color: var(--text-muted); font-size: var(--t3); font-weight: 400;
 }
-/* LA LIGNE D'ÉTAT — « in browser : <nom> · saved », voyant sur `[data-garde]`. */
-.tdc-etat { margin: var(--sp-8) 0 0; display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-8); align-items: baseline; font-size: var(--t3); color: var(--text-muted); }
-.tdc-etat-mot { color: var(--text-muted); }
-.tdc-nom { color: var(--text); font-weight: 600; font-size: var(--t4); }
-[data-garde="true"]  .tdc-garde::before { content: "● "; color: var(--positive); }
-[data-garde="false"] .tdc-garde::before { content: "● "; color: var(--critical); }
+.tdc-r > :is(.tdc-code, .tdc-champ) > .doc-field-input,
+.tdc-ligne-valeur { grid-column: 2; min-width: 0; }
+.tdc-ligne-valeur { font-size: var(--t4); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+/* un refus d'écriture sous `Campaign` prend toute la largeur, comme partout */
+.tdc-r > .tdc-champ > .doc-field-error { grid-column: 1 / -1; }
+/* LE CODE DE CAMPAGNE — T0 (8 px) : *« campaign code : 123654849 (t0) »* (Eric, 29/09).
+   Place réservée : présent, éteint, et son mot (`.tdc-bientot`) SOUS le champ. */
+.tdc-code-champ { font-size: var(--t0); }
+.tdc-r > .tdc-code > .tdc-bientot { grid-column: 2; justify-self: start; }
+/* `Create character` — seul sur sa ligne, au centre (plan v10). */
+.tdc-seul { display: flex; justify-content: center; }
+/* LES SIX PORTES — trois rangées, aux places dictées : `trois` (gauche · centre ·
+   droite), `deux` (gauche · droite), `une` (centre). Une place réservée porte son
+   mot SOUS elle (`.tdc-place`).
+   📏 L'ÉCART ENTRE RANGÉES EST 4, ET IL EST MESURÉ — au banc le 29/09, à 375 × 812 : la
+   scène offre 500, la carte prend 4 + 4 de marge, et R pesait 497 avec un écart de 8 —
+   5 de trop, la scène défilait (*« pas de scroll »*, Eric). À 4, R pèse 489. ⭐ Les
+   rangées 1 et 2 portent déjà le mot « soon » sous leur place réservée : l'air entre
+   deux DESSINS de porte reste ≥ 24. Ce 4 n'est pas une cote d'Eric : c'est le budget. */
+.tdc-portes { display: flex; flex-direction: column; gap: var(--sp-4); }
+.tdc-rangee { display: flex; align-items: flex-start; }
+.tdc-rangee:is([data-disposition="trois"], [data-disposition="deux"]) { justify-content: space-between; }
+.tdc-rangee[data-disposition="une"] { justify-content: center; }
+.tdc-place { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
 
 /* UNE PLACE RÉSERVÉE — présente, éteinte, un mot (Appearance : langue, unités). */
 .tdc-ligne {
@@ -6139,21 +6150,6 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 }
 .voyant-lampe { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--text-muted); }
 .voyant[data-on="true"] .voyant-lampe { background: var(--positive); }
-
-/* LA RANGÉE DU BAS — le livre · Appearance (bleue, elle navigue) · DM · Tools
-   (réservées : grises, éteintes — non coloré = non cliquable) · le `?`.
-   ⏳ « à 8 blg du pied de page » : la cote se règle ici, mesurée au banc. */
-/* 📏 « à 8 blg du pied de page » (Eric) — mesuré 12 au banc : la MARGE de 4 que
-   `.parcours-pied` pose sous ses boutons s'ajoutait aux 8 de la dalle (deux
-   marges légitimes qui s'additionnent — la leçon du 26/08, encore). Ici le
-   pied ne la pose pas : la dalle garde ses 8, et c'est tout. Mesuré après : 8. */
-.tdc-pied { margin-top: var(--sp-8); margin-bottom: 0; }
-
-/* LE CHAMP CAMPAGNE, SUR UNE LIGNE. `.universe-step` devant : `.doc-field` est
-   écrit plus bas et gagnerait à spécificité égale (piège n°2 du canon). */
-.universe-step .tdc-champ { display: flex; flex-direction: row; align-items: center; gap: var(--sp-8); margin: var(--sp-8) 0 0; }
-.universe-step .tdc-champ .doc-field-label { flex: none; margin: 0; text-align: left; }
-.universe-step .tdc-champ .doc-field-input { flex: 1 1 0; min-width: 0; }
 
 /* B1 — le titre d'un rang B du Menu (My characters, Layers). */
 .tdc-titre-b { margin: 0 0 var(--sp-8); font-size: var(--t5); font-weight: 600; text-align: center; }
@@ -8088,7 +8084,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    les deux listes (`::before`, `::after`) soient identiques membre pour membre, et
    c'est son travail de rougir quand une famille entre — on met l'inventaire à jour
    EN LE SACHANT. */
-.x1-porte {
+.x1-porte,
+/* LOT 350 — les portes du Menu R : Create character · My characters · New character ·
+   Vault · Layers · Dungeon Master · Display. ⭐ Elles entrent par la LISTE (patron,
+   `::before`, `::after`) et par l'inventaire, EN LE SACHANT — pas une réparation de garde. */
+.menu-porte {
   /* 🔴 LE DÉFAUT EST `transparent` DEPUIS LE 16/09, ET C'EST TOUT LE
      RECÂBLAGE — Eric : *« la couleur du liseré = la couleur du bouton
      d'origine »*, et *« le bouton gris n'a pas de liseré »*.
@@ -8170,7 +8170,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-porte::before,
 .wares-porte::before,
 .porte-carree::before,
-.x1-porte::before {
+.x1-porte::before,
+.menu-porte::before {
   content: "";
   position: absolute;
   /* 🔴 LE DESSIN FAIT 40, LA CIBLE RESTE 44 — Eric, 2026-09-16 : *« passe tous
@@ -8250,7 +8251,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .gear-porte::after,
 .wares-porte::after,
 .porte-carree::after,
-.x1-porte::after {
+.x1-porte::after,
+.menu-porte::after {
   content: "";
   position: absolute;
   /* la face suit le corps : le retrait vertical du dessin, PLUS son propre
@@ -8335,9 +8337,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    (0,2,1), c'est l'ORDRE qui tranche, et la base est écrite plus bas que le
    bloc du Menu. Mesuré au banc le 08/09 : Open, Save et Display rendaient gris.
    Même place que `.parcours-annuler` juste au-dessus, même raison. */
-.parcours-pied button.tdc-vert { --bouton-fond: var(--positive); }   /* Open · Save — verts (Eric) */
-.parcours-pied button.tdc-porte { --bouton-fond: var(--info); }      /* une porte NAVIGUE : bleue */
-.parcours-pied button.tdc-porte:disabled { --bouton-fond: transparent; } /* réservée : GRISE, donc SANS liseré — Eric, 16/09 : « le bouton gris n'a pas de liseré ». ⛔ Ce n'était pas couvert par le seul changement de défaut : cette ligne posait `--text-muted` EXPLICITEMENT, et un gris explicite peint un anneau gris. Mesuré au navigateur : `DM` et `Tools` rendaient rgb(146,140,127) autour d'eux. */
+.parcours-pied button.tdc-vert { --bouton-fond: var(--positive); }   /* `Open a file…` (page My characters) — vert ; Open · Save du Menu R jusqu'au lot 349 (Eric) */
 
 /* ── LE MOUVEMENT NON IMPACTANT — bleu ───────────────────────────────────
    ⛔ Le test de §6 tient en une question : *après ce clic, le document a-t-il
@@ -11495,6 +11495,39 @@ button.tuto-point::before {
    existant ne change. */
 .gear-porte:disabled,
 .x1-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
+
+/* ══ LES PORTES DU MENU R — lot 350, Eric, 29/09 ═══════════════════════════
+   *« les boutons utilisent les boutons large, voir bible »* : le gabarit LARGE —
+   DESSIN 105 × 40, CIBLE 105 × 44 (NORMES §6 ; le corps se retire de
+   `--bouton-retrait-v` dans le patron, la boîte garde `--touch`). Texte **T4 16 / 600**,
+   comme les autres boutons du site (mesuré en ligne le 29/09). ⭐ DEUX ÉTAGES PERMIS —
+   *« deux lignes dans un bouton → oui »* : `My / characters` · `New / character` ·
+   `Dungeon / Master` · `Create / character` (plus de 11 caractères, le plafond d'un
+   étage au gabarit large). 📏 Deux lignes à 16/600 = 38,82 blg mesurés le 16/09 dans un
+   dessin de 40 : l'interligne 1,2 les tient à 38,4.
+   ⛔ LA LARGEUR EST POSÉE, PAS UN PLANCHER : `inline-size`, pas `min-width` — c'est ce
+   qui fait passer le mot sur deux étages au lieu d'élargir la porte.
+   ⭐ LA FAMILLE ENTRE DANS LE PATRON PAR LA LISTE (les trois listes plus haut, et
+   l'inventaire `tests/bouton-inventaire.test.mjs`) : le relief a un seul écrivain.
+   Ces rôles sont écrits APRÈS le défaut `transparent` du patron — ils le battent par
+   l'ordre, sans spécificité gonflée.
+   · une porte NAVIGUE → bleu (`--info`) ;
+   · `Create character` est le geste majeur → vert (`--positive`, le relief vert qu'Eric
+     avait donné à `Build a character` le 08/09) ;
+   · une place réservée est ÉTEINTE → sans liseré (*« le bouton gris n'a pas de
+     liseré »*, 16/09) et au voile des organes éteints — le même état que les portes
+     désarmées d'Équipement, par le même jeton (`--organe-eteint`). */
+.menu-porte {
+  inline-size: var(--bouton-moyen);
+  min-block-size: var(--touch);
+  padding: 0 var(--sp-4);
+  font: inherit; font-size: var(--t4); font-weight: 600; line-height: 1.2;
+  white-space: normal; text-align: center;
+  cursor: pointer;
+  --bouton-fond: var(--info);
+}
+.menu-porte[data-majeure] { --bouton-fond: var(--positive); }
+.menu-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
 
 /* ══ X2 — CE QUI VIT SOUS LA COUTURE (lot 242) ═════════════════════
    ⛔ AUCUNE COTE ICI, ET PAS MÊME CELLE DE LA BANDE : sa boîte sort de la feuille que

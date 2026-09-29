@@ -17,7 +17,7 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { MOT_DU_TIROIR } from "./magasin.mjs?v=904";
+import { MOT_DU_TIROIR } from "./magasin.mjs?v=905";
 
 /* ── 🔴 LOT 202 — LE DOSSIER À AUTORISER, ET LA SORTIE D'UN CLIC ─────────
    📏 MESURÉ LE 13/09 : au rechargement, Chrome retient le dossier choisi mais
@@ -194,6 +194,8 @@ function renderEntree(entree, onAction) {
  *  `Open` sur `R` est désormais LA PORTE DE CETTE PAGE : y laisser aussi la
  *  boîte de fichiers du système, c'était le geste qu'Eric vient de retirer.
  *  La boîte descend donc d'un rang, là où on cherche une sauvegarde.
+ *  🔄 LOT 350 — `Open` a quitté R (dictée du 29/09) : la porte de cette page est
+ *  `My characters`, qui menait déjà ici (C37 tranchée). La boîte reste ICI.
  *
  *  ⛔ `Save location` NE DISPARAÎT JAMAIS — même quand rien n'est choisissable.
  *  Un réglage que la plateforme ne peut pas honorer reste PRÉSENT, éteint,

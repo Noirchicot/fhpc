@@ -7438,7 +7438,7 @@ tombe **là où la raison qui la fondait a disparu**, et **tient partout ailleur
 pourquoi elle avait été écrite avant de la retirer.
 
 ### 🔴 LA TRILOGIE EST DUE À TOUT ÉCRAN — livre · bouton(s) · `?` *(Eric, 2026-09-06)*
-📍 `rangee-trilogie-due-partout` · vivante · 06/09
+📍 `rangee-trilogie-due-partout` · vivante · 06/09 · bornée par `menu-r-sans-pied`
 ⚖️ **La trilogie livre · bouton(s) majeurs · `?` est DUE à tout écran : un écran sans elle est un défaut, et c'est l'exception qui s'argumente et se date.**
 
 > Eric, 2026-09-06 : *« **ils doivent tous avoir la trilogie.** Mais c'est les autres qu'on passe
@@ -7464,6 +7464,7 @@ sans livre** :
 | `Equipment R` · onglet `Sheet` | **aucune rangée** | ⏳ **à reconstruire** — on n'y touche pas |
 | **`Identity` — le bilan (R2)** | pas de livre | 🔴 **défaut** — l'écran porte sa trilogie en **R1** et la perd en **R2** |
 | **`Equipment` — Gear, le sac, Wares** *(ajouté le 27/09)* | pas de livre | ⚖️ **exception d'Eric** — *« le livre qui n'a pas d'utilité dans équipement »* (`equipement-portes-carrees`) |
+| **`Menu` — R** *(ajouté le 29/09)* | ni livre ni `?` | ⚖️ **exception d'Eric** — *« pas de livre ni de ? dans l'étape Menu »* (`menu-r-sans-pied`) |
 
 ⚠️ **« À reconstruire » N'EST PAS « CONFORME ».** Eric : *« on peut les laisser tranquille pour le
 moment »* — ⛔ c'est un **report**, pas une dispense. Réparer le pied d'un écran qu'on va démonter,
@@ -10248,3 +10249,184 @@ plus étroite de son parent — un bouton de la roue de Pack reste `pan-x`.
 🛡️ `tests/geste-bouton-ne-zoome-pas.test.mjs` — une cascade (spécificité, ordre, `:where()`) sur toutes les règles
 `touch-action` réelles, plus la feuille que Wares écrit à l'exécution ; 5 cas, et 4 mutations vues rouges (règle
 ôtée, `.app button`, valeur `auto`, périmètre réduit au chevron), feuille restaurée à l'empreinte près.
+
+---
+
+## 10. 🧭 LE MENU R — tel qu'Eric l'a dicté *(2026-09-29 — lot 350)*
+
+> Eric, 2026-09-29, en tête de sa dictée : **« Pour simplifier à la surface : menu R »**. La dictée
+> entière, et chaque réponse avec sa question, vivent au vault (`FH-WEB/FHPC/FHPCv2 arborescence
+> d'entree`, § « DICTÉE DU 2026-09-29 » et la suite) ; ce chapitre grave ce que le code porte.
+> ⛔ **Une réponse ne vaut que pour sa question** : chaque règle ci-dessous cite la sienne.
+> 🗄️ Les règles `menu-*` d'`ECRANS.md` que cette dictée remplace y restent, au statut « remplacée ».
+
+### 🧭 LA PAGE R, DE HAUT EN BAS
+📍 `menu-r-la-page-dictee` · vivante · 29/09
+⚖️ **Le Menu R porte, de haut en bas : `SOWLREACH` et son sous-titre · le code de campagne · `Create character` · `Campaign` · `Rules` · `Books` · l'aiguilleur · six portes sur trois rangées — `My characters` (gauche) · `New character` (centre) · `Vault` (droite) ; `Layers` (gauche) · `Dungeon Master` (droite) ; `Display`. Rien d'autre : ni ligne d'état, ni rangée du fichier, ni interrupteur, ni pied — et les repères `R` / `B…` ne s'affichent jamais.**
+
+> Eric, 2026-09-29, la partie R de la dictée, mot pour mot : **« campaign code : 123654849 (t0) ·
+> Bouton - Create character- (vers Etape 1 du builder) · Campaign : les Chevalier Noirs · Rules :
+> (SRD mais inutile de citer) Fate's hand · Books : FH / PHB / DMG · Aiguilleur qui explique qu'on
+> peut activer un Livre ou un autre dans layers, que le DM peut donner un code de campagne. ·
+> Bouton -my characters- (à gauche -> B1) Bouton : -new character-(centre ->R') Vault (droite -> B2)
+> · Bouton -layers- (gauche->B0). Bouton -Dungeon Master- (Droite ->B3) · Boutons -display- (->B4) »**
+> Et le même jour, chaque réponse avec sa question : le titre `SOWLREACH` + `Agnostic SRD 5.2.1
+> interface` (absents de la dictée) — gardés ? → **« GARDÉS, en tête de page »** · les repères `R` /
+> `B…` dans les boutons ? → **« c'est pour que tu connaisses l'arborescence »**.
+
+⭐ **R' EST TOMBÉ LE JOUR MÊME** : la dictée décrivait une page R' (*« reset this page »*) ; la réponse
+sur `New character` (*« puis on arrive directement dans le 1 du processus de création »*) la remplace
+— voir `menu-r-new-character-fenetre`.
+🗄️ **CE QUI QUITTE R** — le tableau de commande du 08/09 : `Build a character` (→ `Create character`)
+· `Open · Save · Forget` (→ `My characters` · Sheet · le `Delete` de la fenêtre) · le voyant SRD et
+l'interrupteur Fate's Hand (→ `Layers`) · la ligne d'état · le pied (le livre, `Display` · `DM` ·
+`Tools` au petit format, le `?`).
+🛡️ `tests/universe-step.test.mjs` R1-R8 — R3 tient l'ENSEMBLE des verbes de R, ni plus ni moins ; R5
+les six portes à leurs places ; R8 un aiguilleur qui ne nomme que ce qui est écrit sur R.
+
+### 🎨 L'HABILLAGE DE R — la dalle à 50 %, le bouton LARGE, aucun défilement
+📍 `menu-r-habillage` · vivante · 29/09
+⚖️ **R est une dalle `dalle-intermediaire` (voile 50 %) sur le fond du builder ; ses portes sont au gabarit LARGE — dessin 105 × 40, cible 105 × 44 (`--bouton-moyen`), texte T4 16 / 600 — et un libellé de plus de 11 caractères passe sur deux étages ; la page tient dans sa dalle, sans défilement.**
+
+> Eric, 2026-09-29 : **« fond habituel, transparence 50 % »** · **« les boutons utilisent les boutons
+> large, voir bible »** · à « deux lignes dans un bouton ? » → **« oui »** · **« on respecte les
+> hauteurs de dalle, pas de scroll »** · à « quelle taille de texte ? » → **« regarde les autres
+> boutons du site »** (📏 mesuré en ligne le 29/09 : T4 = 16 px, gras 600).
+
+⭐ **LA FAMILLE `.menu-porte` ENTRE DANS LE PATRON PAR LA LISTE** — les trois listes de `shell.css` et
+l'inventaire `tests/bouton-inventaire.test.mjs` : le relief a un seul écrivain, ⛔ jamais une copie
+de ses déclarations. Sa largeur est POSÉE (`inline-size`), pas un plancher : c'est ce qui fait passer
+`My / characters`, `New / character`, `Dungeon / Master`, `Create / character` sur deux étages au
+lieu d'élargir la porte.
+⭐ **LES TEINTES SUIVENT LE VERBE** : une porte qui navigue est bleue (`--info`) ; une place réservée
+est éteinte (`--organe-eteint`, sans liseré) ; `Create character` garde le vert de `Build a
+character` — ⏳ §C29 d'`A-TRANCHER.md` reste ouverte.
+
+### 📖 `RULES` ET `BOOKS` SE LISENT — ils ne se règlent pas sur R
+📍 `menu-r-regles-et-livres-se-lisent` · vivante · 29/09 · remplace `menu-regles-au-selecteur`
+⚖️ **Sur R, `Rules` dit `Fate's Hand` quand le maître Fate's Hand est engagé, `SRD` sinon ; `Books` dit le SRD EN TÊTE, puis `FH` s'il est engagé, puis les livres du joueur allumés (`SRD · FH · PHB · DMG`). Ce sont deux LIGNES — ⛔ aucun contrôle : on règle dans `Layers`. Une pile qu'aucun interrupteur ne peut produire se dit en rouge, et le mot envoie à `Layers`.**
+
+> Eric, 2026-09-29, dans la dictée : **« Rules : (SRD mais inutile de citer) Fate's hand »** ·
+> **« Books : FH / PHB / DMG »** · et à « le SRD dans Books ? » → **« Books est un terme générique ;
+> le SRD est le book de base »** (engine + catalog) : il apparaît.
+
+🗄️ **TROIS ÂGES** : deux sélecteurs exclusifs (17/08, `menu-regles-au-selecteur`) → un interrupteur
+`Fate's Hand` et le voyant SRD (08-09/09) → deux lignes lues (29/09). L'interrupteur et le voyant
+vivent dans `Layers` (lots 188-189 — `menu-layers-est-un-rang-b`), qui est désormais le SEUL
+émetteur de `requestLayerStack`.
+⭐ La ligne lit la COMPOSITION (`compositionFh`), pas le nom de la pile : un sous-ensemble légitime
+n'est pas accusé (`menu-sous-ensemble-legitime`). Le mot court d'un livre vit dans sa table
+(`LIVRES_DU_JOUEUR.court`), ⛔ jamais écrit dans l'écran.
+🛡️ `tests/universe-step.test.mjs` B1, B2, B2 bis, B3, R7.
+
+### ✍️ `CAMPAIGN` SE MODIFIE À LA MAIN ; LE CODE DE CAMPAGNE EST UNE PLACE RÉSERVÉE
+📍 `menu-r-campagne-et-code` · vivante · 29/09
+⚖️ **La ligne `Campaign` reste un champ modifiable à la main tant que le code de campagne n'est pas câblé ; le code de campagne est une place réservée — présent, éteint, en T0 (8 px), le mot « soon » sous lui, et aucun écouteur.**
+
+> ARCHI 35, 29/09 : *« La ligne Campaign : a) affiche le nom enregistré, non modifiable · b) reste
+> modifiable à la main »* → Eric : **b** — modifiable à la main **tant que le code de campagne n'est
+> pas câblé**. · Dans la dictée : **« campaign code : 123654849 (t0) »** et **« si je mets un code de
+> campagne tout se remplit »** ; à « lu où ? » → **« le DM et le joueur sauront se retrouver si le PC
+> du DM est allumé »**.
+
+⏳ **CE QUI N'EST PAS CONSTRUIT** : le transport de table — et le tunnel rapide change d'adresse à
+chaque lancement (mandat du fil produit, § 3). ⛔ Un champ qui accepterait une frappe sans rien en
+faire serait un bouton mort : d'où « éteint ».
+🛡️ B3, R4.
+
+### 🟢 `CREATE CHARACTER` OUVRE L'ÉTAPE 1 — IL NE CRÉE RIEN
+📍 `menu-r-create-character-ouvre-l-etape-1` · vivante · 29/09
+⚖️ **`Create character` est le geste majeur de R : il ouvre l'étape 1 (Identity) DU PERSONNAGE EN COURS, par l'organe de l'atterrissage (`goToStep`, l'étape trouvée par son id) — sans Save, sans remise à zéro, sans document neuf.**
+
+> Eric, 2026-09-29, dans la dictée : **« Bouton - Create character- (vers Etape 1 du builder) »**.
+
+🗄️ Il succède à `Build a character` (08/09 ; lot 193 : sauver, repartir à zéro, demander le jeu) —
+ce geste-là appartient désormais à `New character`. Les deux gestes sont les deux seuls appelants de
+l'atterrissage sur l'étape 1.
+🛡️ R2 ; `tests/premier-pas.test.mjs` E6.
+
+### 🆕 `NEW CHARACTER` : UNE FENÊTRE, PUIS L'ÉTAPE 1 AVEC LES LAYERS EN PLACE
+📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde`
+⚖️ **`New character` ouvre une fenêtre qui prévient de trois choses — régler ses Layers avant · choisir son stockage dans Vault · le perso en cours sera effacé — et offre `Cancel · Delete · Save` quand un perso est en cours, `Cancel · Start` sinon (le troisième avertissement se tait alors). `Save` écrit par le MÊME écrivain que Sheet et, s'il est refusé, rien ne bouge ; `Delete` efface la copie du navigateur ; puis un personnage vierge naît avec la pile MONTÉE, et l'étape 1 s'ouvre. ⛔ Plus aucune question « SRD or Fate's Hand? ».**
+
+> Eric, 2026-09-29, mot pour mot : **« tout reste dans le navigateur tant que tu n'as pas fait New
+> character. Un prompt apparaît dans New disant que si tu veux garder l'existant il faut sauvegarder,
+> deux choix : Delete · Save. Puis on arrive directement dans le 1 du processus de création. Les
+> réglages du nouveau perso sont ceux des Layers en place. »**
+> Puis, chaque réponse avec sa question : une troisième voie *Cancel* ? → **« Cancel aussi »** · que
+> dit la fenêtre ? → **trois choses** : *« bien régler les Layers avant la création · bien choisir son
+> lieu de stockage dans le Vault · le perso en cours sera effacé »* · où écrit `Save` ? → **« dans le
+> stockage choisi, ou dans un fichier si rien n'a été réglé »** · des liens Layers / Vault dans la
+> fenêtre ? → **« non, ça fait trop de liens »** · le `Delete` de la fenêtre ? → il efface **« dans le
+> navigateur »** · sans perso en cours, la correction `Cancel · Start` d'ARCHI 35 ? → **« RATIFIÉ »**.
+
+🗄️ **CE QU'ELLE REMPLACE** — `menu-dit-la-sauvegarde` (20/08, resserrée le 06/09) : *« aucune de ses
+portes ne PROMET un personnage neuf »*, parce que le builder n'avait aucun personnage vierge. Le lot
+193 lui en a donné un (`composer`), et Eric a dicté la porte. Le garde `D4`
+(`tests/universe-step.test.mjs`) change d'objet sans se relâcher : il nomme toujours la promesse
+(new · start over · restart · reset · fresh · blank), et il exige qu'UNE seule porte la porte, sous ce
+mot, et qu'elle mène à la fenêtre — jamais à une naissance sans avertissement.
+⭐ **« PAS DE PERSO EN COURS »** = le document est encore l'exemple commité — comparé sur ce qui fait le
+personnage (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`, que la dérivation estampille à
+chaque démarrage). 📏 Mesuré au banc le 29/09 : comparé en entier, l'exemple intact passait pour un perso
+en cours. Le navigateur n'est jamais vide après le démarrage : la mémoire ne dit donc rien.
+⭐ **LA FENÊTRE N'EXIGE PAS DE RÉPONSE** : rien ne bouge avant le choix, un tap dehors vaut `Cancel`.
+Elle est un `guide` (§ 7) ; `Delete` porte le rouge de ce qui défait.
+⭐ **LA RÈGLE DU 192 TIENT, MOT POUR MOT** : un `Save` refusé — ou qui ne rend pas `true` — n'efface
+rien. Et `Delete` oublie PUIS fait naître, jamais l'inverse : l'ordre est la règle, et il vit dans une
+séquence pure (`nouveauPersonnageSelonLaVoie`).
+🛡️ `tests/premier-pas.test.mjs` (28 : A la séquence, B la fenêtre, E le câblage, G la naissance qui
+dérive) ; `universe-step` D4, D6, D7.
+
+### 💾 `SAVE CHARACTER` VIT DANS SHEET
+📍 `menu-r-save-character-dans-sheet` · vivante · 29/09
+⚖️ **Le geste qui sauvegarde le personnage vit dans Sheet sous le nom `Save character` (le verbe `exportJson`, un seul écrivain) ; R n'en porte plus.**
+
+> Eric, 2026-09-29 : **« le save character sera dans Sheet »** — dans la ligne du 08/09 : *« Sheet
+> porte l'export »*.
+
+⏳ **LE NOM DE LA PORTE EST UNE LECTURE DU LOT 350, À CONFIRMER PAR ERIC** : Sheet portait déjà
+`Export JSON`, qui émet le MÊME verbe que le `Save` du Menu. Une seconde porte pour le même geste
+aurait fait deux boutons qui ne diffèrent que par leur nom ; le lot a donc donné à la porte existante
+le nom dicté. Son refus d'écriture nomme désormais `Save character`.
+🛡️ `tests/review-export.test.mjs` ; `premier-pas` E1.
+
+### 💤 `VAULT` ET `DUNGEON MASTER` SONT RÉSERVÉS ; `TOOLS` QUITTE R
+📍 `menu-r-portes-reservees` · vivante · 29/09
+⚖️ **`Vault` et `Dungeon Master` sont des places réservées : présentes, éteintes, un mot (« soon ») sous elles — la forme de `Double view` quand la fenêtre est trop petite. `Tools` n'est plus sur R.**
+
+> Eric, 2026-09-29, dans la dictée : **« Vault (droite -> B2) »** · **« Bouton -Dungeon Master-
+> (Droite ->B3) »** ; à « Vault : B2 ou B3 ? » → **« B2 »** · à « `Tools` (réservé aujourd'hui,
+> absent de la dictée) : disparaît ou reste réservé ? » → **« disparaît de R »** — *« tools, on
+> mettra ça chez le DM si on l'utilise (à faire plus tard) »*.
+
+⭐ **UNE SEULE FORME DE « PAS ENCORE »** : `menu-reglage-impossible-reste-visible`. Un joueur qui a
+appris ce que veut dire « gris avec un mot » l'apprend une fois.
+🛡️ R4.
+
+### 🚫 NI LIVRE NI `?` SUR R
+📍 `menu-r-sans-pied` · vivante · 29/09 · borne `rangee-trilogie-due-partout`
+⚖️ **R n'a pas de pied : ni le livre, ni le `?` que la coquille pose sur les étapes. ⛔ La réponse ne vaut que pour R — les rangs B du Menu (Display, Layers, My characters) gardent leur `?`.**
+
+> ARCHI 35, 29/09 : *« Le pied actuel de R (le livre FH Web à gauche, le « ? » à droite) : a) gardés
+> · b) seulement le « ? » · c) aucun »* → Eric : **c** — **« pas de livre ni de ? dans l'étape
+> Menu »**.
+
+⭐ **UNE EXCEPTION NOMMÉE, PAS UNE RÈGLE QUI TOMBE** : la trilogie reste due à tout écran
+(`rangee-trilogie-due-partout`), R en est exclu par le mot d'Eric — comme Équipement l'est du livre
+depuis le 27/09.
+⭐ Dit au seul lecteur de `GUIDES` (`guideDeLEtape`) : le `?` posé et le `?` qui répond ne peuvent
+pas diverger. Le guide du Menu demeure, lu depuis ses rangs B.
+🛡️ `tests/guide-point.test.mjs` A6 ; `universe-step` R5.
+
+### 🔕 LA LIGNE D'ÉTAT EST RETIRÉE — UNE PERTE SE DIT TOUJOURS
+📍 `menu-r-ligne-d-etat-retiree` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde`
+⚖️ **R ne dit plus « in browser : <nom> · saved ». Il se tait quand tout est gardé, et parle en rouge, dans sa tête, quand le navigateur refuse de garder (sa raison, recopiée, et « Save it from Sheet ») ou qu'un personnage gardé ne se rouvre pas.**
+
+> ARCHI 35, 29/09 : *« La ligne « in browser: <nom> · saved » (absente de la dictée) : gardée ? »* →
+> Eric : **« RETIRÉE »**.
+
+⚖️ **CE QUI NE BOUGE PAS** : *« une perte se dit »* (20/08) — un « saved » à chaque visite n'était
+plus un message, c'était un décor ; un refus, lui, en reste un. C'est la voix du gendarme (§ 7), pas
+une ligne d'état qui revient.
+🛡️ `universe-step` D1, D2, D3, D5, R1.

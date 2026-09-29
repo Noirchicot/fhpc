@@ -154,6 +154,24 @@ test("A5 — ⛔ le `?` ne rallume plus la préférence de tutoriel, et le menu 
     "IRRÉVERSIBLE : plus aucun chemin ne rallume le tutoriel.");
 });
 
+test("A6 — ⚖️ PAS DE `?` SUR R — dit au SEUL lecteur, et la réponse ne vaut que pour R (lot 350)", () => {
+  /* Eric, 29/09, à « le pied actuel de R (le livre FH Web, le `?`) : gardés,
+     seulement le `?`, ou aucun ? » : *« pas de livre ni de ? dans l'étape Menu »*.
+     ⭐ C'est dit dans `guideDeLEtape`, le seul lecteur de `GUIDES` : le `?` que
+     `renderCard` pose et celui que `tutoRouvrir` ouvre ne peuvent pas diverger (A2).
+     ⛔ ET LE PALIER COMPTE : la question portait sur le pied de R. Les rangs B du
+     Menu (Display, Layers, My characters) gardent leur `?` — leurs lots décideront. */
+  const lecteur = shell.match(/function guideDeLEtape\(\) \{([\s\S]*?)\n\}/);
+  assert.ok(lecteur, "le lecteur a changé de forme — ce garde lit à côté");
+  assert.match(lecteur[1], /if \(etape === "universe" && state\.palier < 2\) return null;/,
+    "R (palier < 2) n'a pas de guide, donc pas de `?`");
+  const avant = lecteur[1].indexOf('if (etape === "universe"');
+  assert.ok(avant >= 0 && avant < lecteur[1].indexOf("GUIDES[etape]"),
+    "⛔ l'exception passe AVANT la lecture de la table — sinon le guide du Menu la court-circuite");
+  assert.ok(idsDesGuides().includes("universe"),
+    "…et le guide du Menu EXISTE toujours : les rangs B du Menu le lisent (A1)");
+});
+
 /* ══ B — LES DEUX ASPECTS, EN DÉCOR ═══════════════════════════════════════ */
 
 test("B1 — le `?` a bien DEUX aspects, et le plein est du parchemin", () => {

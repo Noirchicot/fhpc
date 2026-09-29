@@ -276,7 +276,12 @@ test("D2 — ⚔️ AUCUNE LISTE DE CHAMPS NE REVIENT DANS UN CHEMIN DE REMISE �
     ["state.document ="],
     "⛔ il ne pose QUE le document — les deux nulls qu'il écrivait à la main sont dans l'organe");
 
-  const neuf = shell.slice(shell.indexOf("repartirAZero: () => {"), shell.indexOf("demanderLeJeu: () => {"));
+  /* 🔄 LOT 350 — le troisième chemin s'appelle `naitre` (la fenêtre `New character`) : il
+     remplace le `repartirAZero` du 193. ⛔ Le repère de début est VÉRIFIÉ — un `indexOf` à −1
+     ferait découper tout le fichier, et le garde ne mesurerait plus rien. */
+  const debutNeuf = shell.indexOf("naitre: () => {");
+  assert.ok(debutNeuf !== -1, "le chemin de naissance existe");
+  const neuf = shell.slice(debutNeuf, shell.indexOf("}).then(() => refresh(),", debutNeuf));
   assert.ok(neuf.length > 0 && neuf.length < 1200, "garde-fou de portée");
   assert.deepEqual([...neuf.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()),
     ["state.document ="],
@@ -300,16 +305,25 @@ test("D3 — ⭐ ET LA REMISE À ZÉRO PASSE AVANT LE PREMIER RENDU D'UN PERSONN
 
 /* ══ E — `Forget` : L'AUTRE MOITIÉ DE LA PHRASE D'ERIC ═════════════════════ */
 
-test("E1 — ⚖️ « RESET OU BUILD A CHARACTER » : `Forget` RECHARGE, donc il est propre par construction", () => {
+test("E1 — ⚖️ « RESET OU BUILD A CHARACTER » : `Forget` est devenu le `Delete` de la fenêtre — propre par l'ORGANE", () => {
   /* ⭐ Eric a nommé DEUX gestes ; il fallait savoir s'ils se valent. `Forget`
      oublie puis RECHARGE la page : aucun champ de `state` ne lui survit, et
      c'est pour ça qu'il n'a jamais eu besoin d'une liste. ⛔ Il n'a donc rien
      à emprunter à l'organe — mais un jour où quelqu'un retirerait le
      rechargement, ce garde dirait ce qui se perd. */
-  const geste = shell.slice(shell.indexOf('action.kind === "oublierPersonnage"'),
-    shell.indexOf('action.kind === "vueBascule"'));
-  assert.match(geste, /oublierPersonnage\(\);/, "il oublie…");
-  assert.match(geste, /window\.location\.reload\(\);/, "…puis il RECHARGE — c'est la moitié qui rend l'écran vierge");
-  assert.deepEqual([...geste.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), [],
-    "⛔ il ne remet aucun champ à la main, et il n'a pas à le faire : la page redémarre");
+  /* 🔄 LOT 350 — RÉÉCRIT À LA NOUVELLE VÉRITÉ, PAS RELÂCHÉ. Eric, 29/09 : `Forget` devient le
+     `Delete` de la fenêtre `New character`. Il ne RECHARGE plus : il oublie la copie du
+     navigateur, puis fait NAÎTRE un perso vierge — et c'est l'ORGANE du 197
+     (`remettreLEcranAZero`) qui rend l'écran vierge, ce que le rechargement faisait par
+     construction. ⛔ Le verbe `oublierPersonnage` n'a plus d'émetteur, ni de gestionnaire. */
+  assert.equal(shell.includes('action.kind === "oublierPersonnage"'), false,
+    "⛔ le verbe de `Forget` est parti avec son bouton");
+  const debut = shell.indexOf('action.kind === "nouveauPersonnage"');
+  assert.ok(debut !== -1, "le gestionnaire de la fenêtre existe");
+  const geste = shell.slice(debut, shell.indexOf("}).then(() => refresh(),", debut));
+  assert.match(geste, /oublier: \(\) => \{ oublierPersonnage\(\); \}/, "`Delete` oublie la copie du navigateur…");
+  assert.match(geste, /naitre: \(\) => \{[\s\S]*remettreLEcranAZero\(\);/,
+    "…puis la naissance passe par l'ORGANE — c'est lui, désormais, qui rend l'écran vierge");
+  assert.deepEqual([...geste.matchAll(/state\.\w+\s*=[^=]/g)].map((m) => m[0].trim()), ["state.document ="],
+    "⛔ un document neuf, et aucun champ remis à la main");
 });

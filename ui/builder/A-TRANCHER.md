@@ -462,6 +462,7 @@
 
 - 🔴 **⛔ AUCUN LOT NE REPEINT CE VERT EN BLEU AVANT SON MOT.** Si c'est son choix, « réparer » défait une décision ; si ce n'en est pas un, c'est à lui de le dire. ⭐ *Même traitement que les deux familles grises de `§C24`.*
 - 📌 **Et le voisinage mérite d'être mesuré dans le même geste** : `Open` et `Save` portent `.tdc-vert`. `Save` **écrit** *(vert plausible)*, `Open` **lit** — ⏳ non tranché non plus, et il n'a pas été relayé.
+- 🔄 **29/09 (lot 350) — LA QUESTION CHANGE DE BOUTON, PAS DE NATURE.** Eric a refait le Menu : `Build a character` devient `Create character`, qui ouvre l'étape 1 du perso en cours et **ne crée rien** — il NAVIGUE plus encore qu'avant. ⛔ Le lot a **gardé le vert**, faute de mot d'Eric (`menu-r-habillage`). Le voisinage, lui, n'existe plus : `Open · Save · Forget` ont quitté R.
 
 
 ## C30 — La ceinture courte : sept tuiles pour une piste divisée par huit { #c30 }
@@ -495,6 +496,7 @@
 - 📏 **CE QUE LE LOT 188 A POSÉ, par défaut** : une porte **large et bleue** (la forme de `My characters`), **sous les deux interrupteurs** `SRD · Fate's Hand`, dans le bloc des règles. Elle NAVIGUE, elle ne règle rien.
 - ⚠️ **Ce n'est pas une cote d'Eric.** Ses neuf corrections du 08/09 sur `R` n'en parlaient pas — l'écran n'existait pas. La rangée du bas ne pouvait pas la prendre : trois portes de 77 remplissent exactement la cellule de 247.
 - ➡️ Trois lectures : *(a)* elle reste là ; *(b)* elle remplace l'une des deux réservées du bas (`DM`, `Tools`) le jour où l'une d'elles se câble ailleurs ; *(c)* les deux interrupteurs de `R` DEVIENNENT la porte (toucher la ligne ouvre `Layers`) — ⛔ mais alors un tap ferait deux choses.
+- ✅ **TRANCHÉE PAR LA DICTÉE DU 29/09 (lot 350)** — aucune des trois : *« Bouton -layers- (gauche->B0) »*, à gauche de la deuxième rangée des six portes, et les interrupteurs quittent R (`menu-r-la-page-dictee`, `menu-r-regles-et-livres-se-lisent`).
 
 ## C34 — Un livre déclaré par le personnage, absent de cet appareil { #c34 }
 
@@ -520,6 +522,7 @@
 - ⭐ **LE DÉFAUT LE PLUS SOBRE, PAS UNE COTE D'ERIC** : `NOM_DU_PERSONNAGE_NEUF = "Unnamed character"` *(`universe-step.mjs`)* — **exactement** le mot que le Menu affichait déjà pour un nom vide, désormais lu au même endroit par les deux. Deux mots pour la même absence auraient divergé au premier réglage.
 - ⚠️ **CE QUE ÇA COÛTE, MESURÉ AU NAVIGATEUR LE 10/09** : à l'étape 1, le champ de nom arrive **pré-rempli** de `Unnamed character`, et le joueur doit l'effacer avant d'écrire le sien. Tout mot aurait ce défaut ; seul un `placeholder` sur un champ vide y échapperait, et le schéma l'interdit.
 - ➡️ Trois lectures : *(a)* le mot reste ; *(b)* Eric en donne un autre — il se change **ICI seul** ; *(c)* Identity sélectionne le nom à l'arrivée quand il vaut le défaut, pour qu'une frappe le remplace *(⛔ un geste d'écran, à mesurer au doigt avant d'être écrit)*.
+- 🔄 **29/09 (lot 350)** : le « second lecteur » du mot — la ligne d'état du Menu — est retiré par Eric (`menu-r-ligne-d-etat-retiree`) ; il ne reste que la naissance. (Le mot, lui, est `Name character` depuis le 10/09.)
 
 ## C36 — Un navigateur SANS personnage : d'où viennent langue et unités ? { #c36 }
 
@@ -528,6 +531,7 @@
 - 📏 **LE FAIT** : ce cas **n'existe pas aujourd'hui** — le boot retombe sur l'exemple commité, et `Forget` recharge dessus. `personnageNeuf` *(shell.mjs)* hérite donc langue et unités du personnage qu'il vient de ranger, et le bloc `doc` **refuse de les deviner** *(décision D3 : « une langue implicite serait une règle inventée à la place du joueur »)*.
 - ⛔ **LA LOI EST DÉJÀ ÉCRITE ET GARDÉE** — `creerUnPersonnage` n'appelle jamais `Save` sans personnage *(`tests/premier-pas.test.mjs`, A4)*. C'est la **naissance** qui n'aurait alors rien à hériter, pas la sauvegarde.
 - ➡️ Le mot appartient à Eric : *(a)* la langue de l'interface ; *(b)* celle de la couche SRD montée ; *(c)* une question de plus au popup — ⛔ mais il a répondu **deux voies** le 10/09.
+- 🔄 **29/09 (lot 350) — LE CAS N'EXISTE TOUJOURS PAS, PAR UN AUTRE CHEMIN** : `Forget` est devenu le `Delete` de la fenêtre `New character`, qui oublie la copie du navigateur PUIS fait naître sur le document encore en place — le précédent existe donc toujours. La séquence s'appelle `nouveauPersonnageSelonLaVoie` (`Start`, sans perso en cours, ne sauve rien : `tests/premier-pas.test.mjs` A4), et le popup de la lecture *(c)* est parti. ⏳ La question reste ouverte.
 
 ## C37 — Deux portes pour une seule pièce : `Open` et `My characters` { #c37 }
 
@@ -537,6 +541,7 @@
 - ⚖️ **DEUX MOTS D'ERIC, VRAIS TOUS LES DEUX, DITS À DEUX JOURS D'ÉCART** : *« My characters bouton large bleu cadré à gauche »* **(08/09)**, et *« j'appuie sur **Open**, qui est sur R ; dans cette fenêtre, **toutes mes saves** »* **(10/09)**. Le second n'annule pas le premier — il décrit la même pièce par une autre porte.
 - ⛔ **LE LOT N'A PAS TRANCHÉ, ET C'EST VOULU** : on ne retire pas en silence un bouton qu'Eric a dicté, et on n'invente pas non plus une différence entre les deux pour justifier de les garder.
 - ➡️ Trois lectures : *(a)* les deux restent — `Open` est le geste, `My characters` est le lieu ; *(b)* `Open` sort de la rangée du fichier, qui redevient `Save · Forget` ; *(c)* `My characters` sort, et `R` gagne la place d'une porte large *(⚠️ c'est le seul bouton bleu de `R` — le retirer change le dessin qu'Eric a corrigé neuf fois le 08/09)*.
+- ✅ **TRANCHÉE PAR LA DICTÉE DU 29/09 (lot 350)** — plus loin que *(b)* : la rangée du fichier quitte R tout entière. `My characters` reste, seul, à gauche de la première rangée (*« Bouton -my characters- (à gauche -> B1) »*) ; `Save` passe dans Sheet (*« le save character sera dans Sheet »*) ; `Forget` devient le `Delete` de la fenêtre `New character`. Le garde R6 tient désormais qu'une seule porte mène à la pièce.
 
 ## C38 — Les huit `+`/`−` de la bourse B3 sont rouges au repos { #c38 }
 

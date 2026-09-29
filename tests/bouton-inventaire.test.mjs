@@ -91,7 +91,13 @@ const SOCLE = [
      famille n'entre pas dans l'habit sans qu'on le sache, et la mise à jour de
      cette liste EST la façon de le savoir. ⛔ Elle n'est pas une réparation du
      garde : elle est la déclaration du lot. — */
-  ".x1-porte"
+  ".x1-porte",
+  /* — LOT 350, 29/09 : les portes du Menu R — Create character · My characters · New
+     character · Vault · Layers · Dungeon Master · Display. Eric : *« les boutons
+     utilisent les boutons large, voir bible »*. Un ajout au CORPUS, déclaré ici EN LE
+     SACHANT. ⛔ Elles n'entrent PAS dans le PLANCHER : leur largeur est POSÉE (105,
+     `inline-size`), pas un minimum — c'est ce qui fait passer le mot sur deux étages. — */
+  ".menu-porte"
 ];
 
 /* ⛔ CE QUI RESTE DEHORS, ET NOMMÉMENT : `.pipeline-fleche` porte le filtre du

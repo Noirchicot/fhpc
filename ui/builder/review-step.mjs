@@ -47,13 +47,13 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=904";
-import { lignageChoisi } from "./species-step.mjs?v=904";
+import { planAt } from "./carnet.mjs?v=905";
+import { lignageChoisi } from "./species-step.mjs?v=905";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
    jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=904";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=905";
 /* LOT 294 — la fiche de personnage TEMPORAIRE, au-dessus de la revue. */
-import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=904";
+import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=905";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -323,10 +323,17 @@ export function nomDeFichier(document, suffixe, version) {
    personnage à peine commencé s'exporte aussi — c'est un brouillon valide
    (schéma dérivé, lot 47), et le cacher jusqu'à « fini » ferait de l'export
    une récompense au lieu d'une sortie. */
+/* ⚖️ LOT 350 — `Export JSON` S'APPELLE `Save character`, ET C'EST LE MÊME GESTE.
+   Eric, 29/09 : *« le save character sera dans Sheet »* — le `Save` du Menu en part
+   (il émettait `exportJson`, le verbe que cette porte émet depuis le lot 67). ⛔ Deux
+   portes pour un seul geste seraient un second organe (la question C37, `Open` et
+   `My characters`) : la porte d'ici prend donc le mot d'Eric, le verbe ne bouge pas,
+   et le fichier non plus (`nomDeFichier`, plus haut). ⏳ Le mot `Export JSON` (B9.4,
+   14/08) est remplacé par le plus récent — à confirmer par Eric, dit au rapport. */
 function renderPortes(act) {
   const portes = el("div", "review-portes");
   portes.append(bouton("Expert view", "review-porte", () => act({ kind: "expertView" })));
-  portes.append(bouton("Export JSON", "review-porte", () => act({ kind: "exportJson" })));
+  portes.append(bouton("Save character", "review-porte", () => act({ kind: "exportJson" })));
   portes.append(bouton("Export HTML", "review-porte", () => act({ kind: "exportHtml" })));
   return portes;
 }

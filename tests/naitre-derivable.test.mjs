@@ -84,8 +84,8 @@ const FT_LB = { distance: "ft", weight: "lb" };
 const CLASSE = { path: "class", ref: { kind: "class", id: "srd:class:en:barbarian" } };
 const SIX = ABILITY_KEYS.map((clef) => ({ path: `abilities.${clef}`, value: 12 }));
 
-/** Le personnage tel que `Build a character` le fait naître — par l'écrivain
- *  réel, sur la pile réelle. */
+/** Le personnage tel que `New character` le fait naître (lot 350 — `Build a
+ *  character` jusqu'au 349) — par l'écrivain réel, sur la pile réelle. */
 function neuf(H, id) {
   return writers.composer({ name: "Name character", lang: "en", units: FT_LB, layers: manifestOf(H.layers), id, at: "2026-09-10T00:00:00Z" });
 }
@@ -392,7 +392,12 @@ test("C3 — 📂 un fichier d'avant le lot, sans niveau, est NOMMÉ avec sa sor
   const sansNiveau = { ...doc, build: { ...doc.build, choices: doc.build.choices.filter((c) => c.path !== "level") } };
   assert.equal(motDeLEcranMort(sansNiveau), MOT_SANS_NIVEAU);
   assert.match(MOT_SANS_NIVEAU, /no level/, "la cause");
-  assert.match(MOT_SANS_NIVEAU, /Build a character/, "la sortie : le seul geste du builder qui pose un niveau");
+  /* 🔄 LOT 350 — la sortie a changé de NOM (Eric, 29/09) : `Build a character` est
+     devenu `New character`. ⛔ L'ancien nom enverrait le joueur vers un bouton qui
+     n'existe plus — et `Create character`, qui garde un air de famille, n'ouvre que
+     l'étape 1 : il ne pose AUCUN niveau. */
+  assert.match(MOT_SANS_NIVEAU, /New character/, "la sortie : le seul geste du builder qui pose un niveau");
+  assert.doesNotMatch(MOT_SANS_NIVEAU, /Build a character|Create character/, "⛔ ni le bouton parti, ni celui qui ne naît rien");
   assert.match(MOT_SANS_NIVEAU, /Menu/, "…et où il se trouve");
   assert.deepEqual(choixExigesManquants(sansNiveau), { niveau: true, classe: false, scores: [] });
 });

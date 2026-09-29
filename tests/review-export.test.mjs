@@ -232,7 +232,9 @@ test("Les trois portes sont là, EN BAS, et dans la MÊME dalle (B9.3)", async (
   const dalles = section.querySelectorAll(".dalle-simple, .dalle-intermediaire, .dalle-majeure");
   assert.equal(dalles.length, 1, "B9.3 — une dalle UNIQUE, pas plusieurs (son voile n'entre pas en compte)");
   const portes = dalles[0].querySelectorAll(".review-porte");
-  assert.deepEqual([...portes].map((p) => p.textContent), ["Expert view", "Export JSON", "Export HTML"]);
+  /* 🔄 LOT 350 — `Export JSON` S'APPELLE `Save character` (Eric, 29/09 : *« le save character
+     sera dans Sheet »*) : même verbe, `exportJson`, même fichier. */
+  assert.deepEqual([...portes].map((p) => p.textContent), ["Expert view", "Save character", "Export HTML"]);
   for (const p of portes) p.dispatchEvent({ type: "click" });
   assert.deepEqual(gestes, ["expertView", "exportJson", "exportHtml"]);
 });

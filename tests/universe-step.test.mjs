@@ -5,15 +5,20 @@
         toute la connaissance de « quelle pile est active » / « qu'est-ce
         qui pointe vers Fate's Hand ». Testées directement, sans DOM.
      B. `renderUniverseStep` — la fonction de rendu (DOM-stub, comme
-        Compétences/Class/Species) : les deux boutons, le champ campagne, la
-        confirmation conditionnelle, et l'affichage lang/units.
+        Compétences/Class/Species) : les lignes que R lit, le champ campagne,
+        et l'affichage lang/units.
      C. ⚔️ LE TEST QUI MONTRE CE QUE CHANGER DE PILE FAIT VRAIMENT — rejoue
         EXACTEMENT le geste de `shell.mjs` (`applyLayerStack`) sur la VRAIE
         pile et le VRAI bloc `build`, sans DOM : `layers.enable/disable` +
         `document.build.layers = []` + `rebuild`. C'est la mesure que
         `universe-step.mjs` documente en tête de fichier (« NE PERD RIEN
         dans build.choices… ce qui se dégrade, c'est le PERSONNAGE RÉSOLU »)
-        — ce test en est la preuve, pas juste l'affirmation. */
+        — ce test en est la preuve, pas juste l'affirmation.
+
+   🔄 LOT 350 — LE MENU R EST REFAIT, tel qu'Eric l'a dicté le 29/09
+   (`FH-WEB/FHPC/FHPCv2 arborescence d'entree`). Les sections B, D et R sont
+   RÉÉCRITES à la nouvelle vérité, pas relâchées : chaque garde dit ce qu'il
+   tenait avant, et ce qu'il tient maintenant. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -24,14 +29,23 @@ import { makeHarness, manifestOf, readJson, SRD_EN, PILE_SRD, FH_SPECIES_EN, FH_
 
 globalThis.document = createTestDocument();
 
-const { renderUniverseStep, currentStack, currentBooks, currentContent, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, RULE_LAYER_IDS }
+const { renderUniverseStep, currentStack, currentBooks, currentContent, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, RULE_LAYER_IDS,
+  popupNouveauPersonnage, MOT_DE_L_AIGUILLEUR_DU_MENU }
   = await import("../ui/builder/universe-step.mjs");
 
-/** Les organes du tableau de commande. */
+/** Les organes du Menu. */
 const interrupteurs = (node) => node.querySelectorAll(".interrupteur");
-const fateSwitch = (node) => node.querySelectorAll(".tdc-regles .interrupteur").find((b) => /Fate/.test(b.textContent));
-/* LOT 189 — le SRD est un VOYANT (Eric, 09/09), trouvé par sa donnée. */
-const srdVoyant = (node) => node.querySelectorAll(".tdc-regles [data-socle]")[0];
+/* ⚖️ LOT 350 — R LIT les règles et les livres : deux lignes, trouvées par leur
+   donnée (`data-ligne`), jamais par leur position. */
+const ligne = (node, quoi) => node.querySelectorAll(`.tdc-ligne-lue[data-ligne="${quoi}"]`)[0];
+const valeur = (node, quoi) => ligne(node, quoi).querySelectorAll(".tdc-ligne-valeur")[0].textContent;
+/* 🔄 L'interrupteur Fate's Hand et le voyant SRD ont quitté R pour `Layers` (lots
+   188-189, puis la dictée du 29/09) : on les cherche LÀ, par leur donnée — le
+   maître par `data-maitre`, le socle par `data-socle` (lot 189). */
+const layers = (doc, onAction = () => {}) =>
+  renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ecran: "layers" }, onAction);
+const maitre = (node) => node.querySelectorAll(".interrupteur[data-maitre]")[0];
+const socle = (node) => node.querySelectorAll("[data-socle]")[0];
 /* LOT 77 — la pile que le NAVIGATEUR monte, pour la confronter à la pile
    NOMMÉE (test A0). Importée, jamais recopiée : c'est la recopie qui a
    laissé les deux diverger. */
@@ -149,55 +163,95 @@ test("A4 — fhRefChoices retombe sur l'id nu si query ne rend rien (couche déj
 
 /* ══ B — LE RENDU (DOM-stub) ══════════════════════════════════════════ */
 
-/* ⚠️ `.record-option` → `.bascule-ligne` LE 2026-08-17 : Eric a tranché que les
-   deux règles sont des SÉLECTEURS, pas des boutons — deux lignes à interrupteur
-   plutôt que deux pastilles. Le contrat testé ne bouge pas d'un mot (deux
-   entrées, l'active marquée, un `requestLayerStack` au clic) ; seule la forme
-   change, et c'est exactement ce qu'un garde doit survivre. */
-function campaignField(node) { return node.querySelectorAll(".doc-field-input")[0]; }
+/* 🔄 LOT 350 — LE MENU NE RÈGLE PLUS LES RÈGLES, IL LES LIT. Trois âges :
+   · 17/08 — deux SÉLECTEURS exclusifs, SRD et SRD + FH (📍 `menu-regles-au-selecteur`) ;
+   · 08/09 — UN interrupteur « Fate's Hand », et le 09/09 le voyant SRD à côté ;
+   · 29/09 — Eric refait le Menu : *« Rules : (SRD mais inutile de citer) Fate's
+     hand »*. La ligne se LIT ; l'interrupteur et le voyant vivent dans `Layers`
+     (lots 188-189), où `tests/ecran-layers.test.mjs` les garde en entier.
+   ⭐ B1 · B2 · B2 bis sont RÉÉCRITS, pas relâchés : ils tenaient qu'un état se
+   montre juste et qu'un geste émet le bon verbe ; ils tiennent maintenant que la
+   ligne dit juste, qu'elle n'émet RIEN, et qu'une pile hors des jeux se DIT. */
 
-test("B1 — 🔴 UN SEUL INTERRUPTEUR « Fate's Hand » : éteint sur la pile SRD, allumé sur SRD + FH", () => {
-  /* ⚖️ Tranché par Eric le 2026-09-08 — remplace les deux sélecteurs exclusifs
-     du 17/08 (📍 `menu-regles-au-selecteur`). Le SRD est TOUJOURS la base ;
-     Fate's Hand est une couche qu'on allume. Un seul état suffit à le dire. */
-  const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const nSrd = renderUniverseStep({ document: srd, query: () => null, fieldErrors: {} }, () => {});
-  const sw = fateSwitch(nSrd);
-  assert.ok(sw, "l'interrupteur des règles existe");
-  assert.equal(sw.textContent.replace(/\s+/g, " ").trim(), "Fate's Hand");
-  assert.equal(sw.dataset.on, "false", "pile SRD → éteint");
-  assert.equal(sw.getAttribute("aria-checked"), "false");
-  const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const nFh = renderUniverseStep({ document: fh, query: () => null, fieldErrors: {} }, () => {});
-  assert.equal(fateSwitch(nFh).dataset.on, "true", "pile SRD+FH → allumé");
-  assert.equal(nFh.querySelectorAll(".bascule-liste").length, 0, "⛔ les deux anciens sélecteurs n'existent plus");
-  /* LOT 189 — UN interrupteur sur la ligne, et un voyant à sa gauche : le SRD
-     n'est plus un miroir grisé, c'est une lampe (Eric, 09/09). */
-  assert.equal(nFh.querySelectorAll(".tdc-deux .interrupteur").length, 1, "un seul interrupteur sur la ligne : Fate's Hand");
-  assert.equal(nFh.querySelectorAll(".tdc-deux .voyant[data-socle]").length, 1, "…et le voyant SRD à côté, sur la même ligne");
+const pile = (ids) => ({ layers: manifestFor(ids), choices: [], budgets: {}, overrides: [] });
+const docSrd = (extra = {}) => draftDocument({ build: pile([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), ...extra });
+const docFh = (extra = {}) => draftDocument({ build: pile([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), ...extra });
+const rendre = (doc, onAction = () => {}, ctx = {}) =>
+  renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ...ctx }, onAction);
+/* ⚠️ Le champ `Campaign` par son id : depuis le lot 350, le PREMIER champ de R est
+   le code de campagne (réservé, éteint) — une position aurait lu le mauvais. */
+function campaignField(node) { return node.querySelectorAll(".doc-field-input").find((i) => i.id === "universe-campaign"); }
+
+test("B1 — 🔴 `Rules` SE LIT : SRD sur la pile SRD, Fate's Hand sur SRD + FH — et R n'a AUCUN interrupteur", () => {
+  const nSrd = rendre(docSrd());
+  const nFh = rendre(docFh());
+  assert.equal(valeur(nSrd, "rules"), "SRD", "le maître au repos : le socle seul");
+  assert.equal(valeur(nFh, "rules"), "Fate's Hand", "*« (SRD mais inutile de citer) Fate's hand »* — le SRD n'est pas répété");
+  for (const node of [nSrd, nFh]) {
+    assert.equal(interrupteurs(node).length, 0, "⛔ plus aucun interrupteur sur R : ils vivent dans Layers");
+    assert.equal(node.querySelectorAll("[data-socle], .voyant, .bascule-liste, .tdc-regles, .tdc-deux").length, 0,
+      "⛔ ni le voyant SRD, ni les anciens sélecteurs, ni leur ligne");
+  }
+  /* 🔄 TÉMOIN QU'ILS ONT DÉMÉNAGÉ, PAS DISPARU : la même pile, lue par `Layers`. */
+  assert.equal(maitre(layers(docSrd())).dataset.on, "false", "pile SRD → le maître de Layers est éteint");
+  assert.equal(maitre(layers(docFh())).dataset.on, "true", "pile SRD + FH → allumé");
+  assert.ok(socle(layers(docFh())), "et le voyant SRD est là-bas");
 });
 
-test("B2 — l'interrupteur dispatche {kind:\"requestLayerStack\"} vers l'AUTRE pile, jamais un verbe directement", () => {
-  const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const a1 = [];
-  fateSwitch(renderUniverseStep({ document: srd, query: () => null, fieldErrors: {} }, (a) => a1.push(a))).click();
-  assert.deepEqual(a1, [{ kind: "requestLayerStack", value: "srdfh" }], "éteint → on demande SRD + FH");
-  const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const a2 = [];
-  fateSwitch(renderUniverseStep({ document: fh, query: () => null, fieldErrors: {} }, (a) => a2.push(a))).click();
-  assert.deepEqual(a2, [{ kind: "requestLayerStack", value: "srd" }], "allumé → on demande SRD (la coquille confirmera)");
+test("B2 — ⛔ LES LIGNES DE R NE SONT PAS DES CONTRÔLES : les toucher n'émet rien", () => {
+  /* 🗄️ B2 tenait que l'interrupteur de R émettait `requestLayerStack` vers l'AUTRE
+     pile ; ce geste appartient désormais à `Layers` (ecran-layers, D4 — et S1 plus
+     bas l'y éprouve). Ce qui reste à tenir ICI, c'est l'autre moitié : ⛔ une ligne
+     LUE n'a ni bouton, ni rôle de contrôle, ni écouteur — un joueur qui la touche ne
+     change pas de jeu sans le savoir. */
+  const gestes = [];
+  const node = rendre(docFh(), (a) => gestes.push(a));
+  for (const quoi of ["rules", "books"]) {
+    const l = ligne(node, quoi);
+    assert.ok(l, `la ligne \`${quoi}\` existe`);
+    assert.equal(l.querySelectorAll("button, input, [role]").length, 0, `⛔ \`${quoi}\` ne porte aucun contrôle`);
+    l.click();
+    for (const morceau of l.querySelectorAll("span")) morceau.click();
+  }
+  assert.deepEqual(gestes, [], "les toucher n'émet RIEN");
 });
 
-test("B2 bis — ⚔️ DEUX ÉTEINTS EST DEVENU IMPOSSIBLE PAR CONSTRUCTION : un interrupteur n'a que deux positions", () => {
-  /* Le garde du 17/08 empêchait de recliquer la ligne allumée pour ne pas
-     laisser le personnage sans pile. Avec UN interrupteur, l'état « aucune
-     pile » n'existe plus : éteint = SRD, allumé = SRD + FH. Le garde se
-     déplace : une pile HORS des deux noms doit toujours se DIRE. */
-  const bizarre = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID]), choices: [], budgets: {}, overrides: [] } });
-  const node = renderUniverseStep({ document: bizarre, query: () => null, fieldErrors: {} }, () => {});
-  assert.equal(fateSwitch(node).dataset.on, "false", "une pile inconnue se montre éteinte, jamais allumée par défaut");
-  const mots = node.querySelectorAll(".tdc-regles .doc-field-error").map((p) => p.textContent).join(" ");
+test("B2 bis — ⚔️ UNE PILE HORS DES DEUX JEUX SE DIT TOUJOURS — et elle envoie là où l'on répare", () => {
+  /* 🗄️ Le garde du 17/08 empêchait de recliquer la ligne allumée pour ne pas laisser
+     le personnage sans pile ; celui du 08/09 tenait qu'une pile inconnue se montre
+     ÉTEINTE. 🔄 LOT 350 : R n'a plus rien à allumer, mais une pile qu'aucun
+     interrupteur ne peut produire doit toujours se DIRE (📍 `menu-sous-ensemble-
+     legitime`) — et le mot envoie à `Layers`, le seul endroit où l'on règle. */
+  const bizarre = draftDocument({ build: pile([SRD_LAYER_ID]) });
+  const node = rendre(bizarre);
+  assert.equal(valeur(node, "rules"), "SRD", "une pile inconnue ne se montre jamais « Fate's Hand » par défaut");
+  const mots = node.querySelectorAll(".doc-field-error").map((p) => p.textContent).join(" ");
   assert.match(mots, /doesn't match either ruleset/, "et l'écran le DIT");
+  assert.match(mots, /open Layers/, "…en nommant la porte qui répare");
+  for (const legitime of [docSrd(), docFh()]) {
+    assert.equal(rendre(legitime).querySelectorAll(".doc-field-error").length, 0,
+      "⛔ une pile légitime ne fait jamais sortir le mot rouge");
+  }
+});
+
+test("B3 — ✍️ `Campaign` SE MODIFIE À LA MAIN tant que le code n'est pas câblé ; `Books` met le SRD EN TÊTE", () => {
+  /* ⚖️ Eric, 29/09 — à « la ligne Campaign, modifiable ? » : oui, tant que le code de
+     campagne n'est pas câblé ; à « le SRD dans Books ? » : *« Books est un terme
+     générique ; le SRD est le book de base »*. Les mots de la ligne sont ceux du
+     plan v10 : « SRD · FH · PHB · DMG ». */
+  const gestes = [];
+  const complet = draftDocument({ campaign: "Eberron", build: pile([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS, ...LIVRE_LAYER_IDS]) });
+  const node = rendre(complet, (a) => gestes.push(a));
+  const champ = campaignField(node);
+  assert.ok(champ, "le champ Campaign existe");
+  assert.equal(champ.disabled, false, "…et il est vivant");
+  assert.equal(champ.value, "Eberron");
+  champ.value = "Khorvaire";
+  champ.dispatchEvent({ type: "change" });
+  assert.deepEqual(gestes, [{ kind: "describe", field: "campaign", value: "Khorvaire" }],
+    "commis sur `change`, par le verbe du bloc `doc` — jamais une écriture directe");
+  assert.equal(valeur(node, "books"), "SRD · FH · PHB · DMG", "le socle, Fate's Hand, puis les livres du joueur");
+  assert.equal(valeur(rendre(docSrd()), "books"), "SRD", "sans Fate's Hand ni livre, le SRD reste — il n'est jamais absent");
 });
 
 test("B5 — la langue et les unités vivent dans APPEARANCE, en places réservées lisibles (pas les codes bruts)", () => {
@@ -292,117 +346,110 @@ function currentStackViaModule(doc) { return currentStack(doc); }
    Eric : *« Un perso est enregistré dans le navigateur de tout le monde, et
    disparaît s'il n'est pas enregistré s'il y a un reset. »*
 
-   🔴 CE BLOC EXISTE PARCE QUE LA SAUVEGARDE EST INVISIBLE : pas de bouton, pas
+   🔴 CE BLOC EST NÉ PARCE QUE LA SAUVEGARDE EST INVISIBLE : pas de bouton, pas
    de message. Une sauvegarde qu'on ne voit pas est une sauvegarde en laquelle
    on ne peut pas avoir confiance — et le jour où elle échoue, le joueur
-   travaillerait des heures en se croyant gardé. */
+   travaillerait des heures en se croyant gardé.
 
-test("D1 — gardé : la tête de R le DIT (pastille verte), et le geste qui garde un fichier est LÀ", () => {
-  /* ⚖️ RÉÉCRIT LE 08/09 : la phrase « Clearing this browser's site data erases
-     it » a quitté R — *« R doit tenir en une page »*. La limite ne se dit plus
-     en prose : elle se dit par le GESTE juste dessous, `Save`, qui est la seule
-     copie qui survit. Un bouton vaut mieux qu'une mise en garde. */
-  const doc = draftDocument();
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
-  const bloc = node.querySelectorAll(".universe-memoire")[0];
-  assert.ok(bloc, "le bloc existe");
-  assert.equal(bloc.dataset.garde, "true");
-  assert.match(bloc.querySelectorAll(".tdc-etat")[0].textContent, /in browser: .*saved/, "« in browser : <nom> · saved » (Eric)");
-  assert.ok(bloc.querySelectorAll(".universe-sauver")[0], "et `Save` est là, à côté d'`Open`");
+   🔄 LOT 350 — Eric, 29/09 : la ligne « in browser : <nom> · saved » est RETIRÉE,
+   et `Open · Save · Forget` quittent R (`Open` → `My characters`, `Save` → Sheet,
+   `Forget` → le `Delete` de la fenêtre `New character`). ⚖️ CE QUI NE BOUGE PAS :
+   UNE PERTE SE DIT. Le Menu se tait quand tout est gardé, et parle — en rouge,
+   dans sa tête — quand le navigateur refuse de garder ou qu'un personnage gardé
+   ne se rouvre pas. D1-D8 sont réécrits à cette vérité ; D9 n'a pas bougé. */
+
+test("D1 — gardé : R SE TAIT — plus de ligne d'état, et plus aucun geste de fichier sur R", () => {
+  /* 🗄️ 20/08 → 08/09 : la tête de R disait « in browser : <nom> · saved », pastille
+     verte, et `Save` était juste dessous. ⚖️ 29/09 : la ligne est retirée, et *« le
+     save character sera dans Sheet »* (`tests/review-export.test.mjs` l'y tient).
+     ⛔ Un « saved » à chaque visite n'était plus un message : c'était un décor. */
+  const node = rendre(draftDocument(), () => {}, { memoire: { ok: true } });
+  assert.equal(node.querySelectorAll(".universe-memoire, .tdc-etat, [data-garde]").length, 0, "⛔ la ligne d'état ne revient pas");
+  assert.equal(node.querySelectorAll(".tdc-tete .doc-field-error").length, 0, "rien à dire quand tout est gardé");
+  const mots = node.querySelectorAll("button").map((b) => b.textContent.trim());
+  for (const parti of ["Open", "Save", "Forget", "Save character", "Export JSON"]) {
+    assert.equal(mots.includes(parti), false, `⛔ \`${parti}\` a quitté R`);
+  }
 });
 
-test("D2 — 🔴 PAS gardé : la raison du navigateur est RECOPIÉE dans la tête de R", () => {
-  const doc = draftDocument();
-  const node = renderUniverseStep({
-    document: doc, query: () => null, fieldErrors: {},
-    memoire: { ok: false, raison: "QuotaExceededError" }
-  }, () => {});
-  const bloc = node.querySelectorAll(".universe-memoire")[0];
-  assert.equal(bloc.dataset.garde, "false");
-  assert.match(bloc.textContent, /not saved: QuotaExceededError/, "le mot du navigateur, pas une prose inventée");
-  assert.ok(bloc.querySelectorAll(".universe-sauver")[0], "et le geste qui reste possible est là : Save");
+test("D2 — 🔴 PAS gardé : la raison du navigateur est RECOPIÉE dans la tête de R, et elle dit où sauver", () => {
+  const node = rendre(draftDocument(), () => {}, { memoire: { ok: false, raison: "QuotaExceededError" } });
+  const dit = node.querySelectorAll(".tdc-tete .doc-field-error").map((p) => p.textContent).join(" ");
+  assert.match(dit, /QuotaExceededError/, "le mot du navigateur, pas une prose inventée");
+  assert.match(dit, /Save it from Sheet/, "…et le geste qui reste possible, là où il vit désormais");
 });
 
 test("D3 — 🔴 UNE PERTE SE DIT : un personnage illisible laisse un message, même une fois la sauvegarde repartie", () => {
   /* Sans lui, un joueur dont le personnage gardé est corrompu repart de
      l'exemple en croyant n'avoir jamais rien construit. */
-  const doc = draftDocument();
-  const node = renderUniverseStep({
-    document: doc, query: () => null, fieldErrors: {},
-    memoire: { ok: true },
-    memoireIgnoree: "the saved character could not be read"
-  }, () => {});
-  const perdu = node.querySelectorAll(".universe-memoire .doc-field-error")[0];
-  assert.ok(perdu, "le message de perte existe");
+  const node = rendre(draftDocument(), () => {}, { memoire: { ok: true }, memoireIgnoree: "the saved character could not be read" });
+  const perdu = node.querySelectorAll(".tdc-tete .doc-field-error")[0];
+  assert.ok(perdu, "le message de perte existe, dans la tête de R");
   assert.match(perdu.textContent, /A character was saved here but could not be reopened/);
   assert.match(perdu.textContent, /could not be read/, "et il porte la raison");
 });
 
-test("D4 — ⛔ AUCUNE PORTE ICI NE PROMET UN PERSONNAGE NEUF", () => {
-  /* 🔴 CE GARDE A ÉTÉ RÉÉCRIT LE 2026-09-06, ET IL EST PLUS STRICT QU'AVANT,
-     PAS PLUS LÂCHE. Il comptait les boutons (« zéro ») ; il nomme maintenant
-     le DANGER. La décision du 20/08 n'a pas bougé d'un mot : le builder n'a
-     AUCUN personnage vierge — il naît de l'exemple commité — donc « Start
-     over » rendrait un Magicien tout fait, et une porte qui ne mène pas là où
-     elle dit est pire que pas de porte (loi §0.6).
-     ⭐ CE QUI A CHANGÉ, C'EST QU'UN AUTRE GESTE EXISTE : « oublier ce que ce
-     navigateur garde » ne promet aucun personnage neuf. Compter les organes
-     l'interdisait par accident ; nommer la promesse l'autorise sans rien
-     relâcher. ⛔ Un garde qui compte protège la forme du jour où il a été
-     écrit ; un garde qui nomme protège la décision. */
-  const doc = draftDocument();
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
-  const menteurs = node.querySelectorAll(".universe-memoire button")
-    .map((b) => b.textContent.trim())
-    .filter((mot) => /\b(new|start over|restart|reset|fresh|blank)\b/i.test(mot));
-  assert.deepEqual(menteurs, [],
-    "ces libellés promettent un personnage neuf, que le builder ne sait pas fabriquer : " + menteurs.join(", "));
-});
-
-test("D6 — 🔴 LA SORTIE DE SECOURS EXISTE, et elle dit le geste, pas une promesse", () => {
-  /* Eric, 2026-09-06 : *« un bouton reset du perso, dans le menu, qui permet
-     de vider le cache quand ça bloque »*. Mesuré le même jour sur le site
-     déployé : un personnage gardé avant un changement de couche de données
-     rend SIX écrans sur huit muets, et rien dans l'interface n'en sortait. */
-  const doc = draftDocument();
+test("D4 — ⚖️ UNE SEULE PORTE PROMET UN PERSONNAGE NEUF — `New character` — ET ELLE MÈNE À SA FENÊTRE", () => {
+  /* 🗄️ LA LOI D'AVANT (20/08, resserrée le 06/09 — 📍 `menu-dit-la-sauvegarde`) :
+     *« aucune porte ne PROMET un personnage neuf »*, parce que le builder n'avait
+     AUCUN personnage vierge — il naissait de l'exemple commité, et « Start over »
+     aurait rendu un Magicien tout fait. Le garde nommait la PROMESSE (new · start
+     over · restart · reset · fresh · blank) et exigeait qu'AUCUN bouton ne la porte.
+     ⚖️ CE QUI L'A REMPLACÉE : le lot 193 a donné au builder un personnage vierge
+     (`composer`, `personnageNeuf`), et Eric a dicté la porte le 29/09 : *« New
+     character (centre) »*, avec sa fenêtre et ses trois avertissements.
+     ⭐ LE GARDE NE SE RELÂCHE PAS, IL CHANGE D'OBJET : il nomme toujours la
+     promesse, et il exige maintenant qu'UNE seule porte la porte, sous le mot
+     d'Eric, et qu'elle mène à la FENÊTRE — jamais à une naissance sans
+     avertissement. ⚔️ Un second bouton « Start over », ou un `New character` qui
+     ferait naître directement → rouge ici. */
   const gestes = [];
-  const node = renderUniverseStep(
-    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } },
-    (a) => gestes.push(a)
-  );
-  const bouton = node.querySelectorAll(".universe-memoire .universe-oubli")[0];
-  assert.ok(bouton, "le bouton d'oubli vit dans la section « This character »");
-  assert.match(bouton.textContent, /Forget/, "son mot porte le geste");
-  bouton.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "oublierPersonnage" }],
-    "il émet un verbe, il n'efface pas lui-même — l'écran ne touche jamais le magasin");
+  const node = rendre(draftDocument(), (a) => gestes.push(a), { memoire: { ok: true } });
+  const promettent = node.querySelectorAll("button").filter((b) => /\b(new|start over|restart|reset|fresh|blank)\b/i.test(b.textContent));
+  assert.deepEqual(promettent.map((b) => b.textContent.trim()), ["New character"], "une porte, un mot");
+  promettent[0].dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirNouveauPersonnage" }],
+    "⛔ elle ouvre la FENÊTRE — la naissance ne vient qu'après un choix (tests/premier-pas.test.mjs)");
 });
 
-test("D8 — 🗄️ `Open` OUVRE LA PAGE DU MAGASIN, plus la boîte de fichiers du système", () => {
+test("D6 — 🔴 LA SORTIE DE SECOURS DEMEURE : l'ancien `Forget` est le `Delete` de la fenêtre", () => {
+  /* Eric, 2026-09-06 : *« un bouton reset du perso, dans le menu, qui permet de
+     vider le cache quand ça bloque »* — c'était `Forget`. Mesuré le même jour : un
+     personnage gardé avant un changement de couche rendait SIX écrans sur huit
+     muets, et rien dans l'interface n'en sortait. ⚖️ 29/09 : `Forget` devient le
+     `Delete` de `New character`. ⛔ La sortie ne disparaît pas : elle a une porte de
+     plus à passer, et elle efface par le même organe (`oublierPersonnage` —
+     tests/premier-pas.test.mjs, A5 et E1). */
+  const gestes = [];
+  const node = rendre(draftDocument(), (a) => gestes.push(a), { memoire: { ok: true } });
+  assert.equal(node.querySelectorAll(".universe-oubli").length, 0, "⛔ plus de bouton d'oubli sur R");
+  node.querySelectorAll("button").find((b) => b.textContent === "New character").dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirNouveauPersonnage" }]);
+  const efface = popupNouveauPersonnage({ enCours: true, choisir: (v) => gestes.push(v) }).actions.find((a) => a.mot === "Delete");
+  assert.ok(efface, "la fenêtre porte `Delete` quand il y a un perso à effacer");
+  efface.faire();
+  assert.equal(gestes.at(-1), "delete", "et il émet la voie qui oublie PUIS fait naître");
+});
+
+test("D8 — 🗄️ `My characters` OUVRE LA PAGE DU MAGASIN — `Open` est parti, et c'était la même pièce", () => {
   /* ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
-     sauvegardes dedans »*. ⭐ LE GARDE EST RÉÉCRIT À LA NOUVELLE VÉRITÉ, ET IL
-     EST PLUS STRICT : il exigeait un verbe quelconque ; il exige maintenant
-     LEQUEL — `ouvrirLeMagasin`, jamais `ouvrirUnFichier`. ⚔️ Rebrancher `Open`
-     sur la boîte du système → rouge ici.
-     ⚠️ La boîte n'a pas disparu : elle vit dans la page (`Open a file…`), et
-     c'est `tests/magasin.test.mjs` (P4) qui l'y tient — la loi du 06/09
-     (*« je choisis où je range mes persos »*) n'a pas bougé.
-     ⛔ ET IL N'EST PAS ROUGE : `--critical` est la teinte de ce qui DÉFAIT.
-     La donner à un geste qui ouvre la rendrait illisible partout ailleurs. */
-  const doc = draftDocument();
+     sauvegardes dedans »* — et depuis le lot 195, `Open` et `My characters` menaient
+     à la MÊME pièce (A-TRANCHER §C37). 🔄 LOT 350 : la dictée du 29/09 ne garde que
+     `My characters` (gauche, rangée 1) — C37 est tranchée.
+     ⭐ LE GARDE GARDE SA MOITIÉ STRICTE : il exige LEQUEL — `ouvrirLeMagasin`,
+     jamais `ouvrirUnFichier`. ⚔️ Rebrancher la porte sur la boîte du système →
+     rouge ici. ⚠️ La boîte n'a pas disparu : elle vit dans la page (`Open a
+     file…`), et c'est `tests/magasin.test.mjs` (P4) qui l'y tient.
+     ⛔ ET LA PORTE N'EST PAS ROUGE : elle NAVIGUE, elle ne défait rien. */
   const gestes = [];
-  const node = renderUniverseStep(
-    { document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true } },
-    (a) => gestes.push(a)
-  );
-  const bouton = node.querySelectorAll(".universe-memoire .universe-ouvrir")[0];
-  assert.ok(bouton, "le bouton d'ouverture vit dans la section « This character »");
-  assert.match(bouton.textContent, /Open/, "son mot porte le geste");
-  assert.ok(!bouton.className.includes("universe-oubli"),
-    "⛔ il ne porte pas la classe de ce qui efface — la teinte suit le verbe");
-  bouton.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "ouvrirLeMagasin" }],
-    "⛔ il n'ouvre plus la boîte du système : il ouvre le rang B où sont toutes les saves");
+  const node = rendre(draftDocument(), (a) => gestes.push(a), { memoire: { ok: true } });
+  assert.equal(node.querySelectorAll(".universe-ouvrir").length, 0, "⛔ `Open` a quitté R");
+  const b = node.querySelectorAll("button").find((x) => x.textContent === "My characters");
+  assert.ok(b, "la porte existe");
+  assert.equal(b.disabled, false);
+  assert.equal(b.dataset.defait, undefined, "⛔ pas la teinte de ce qui défait");
+  b.dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirLeMagasin" }], "⛔ jamais la boîte du système depuis R");
 });
 
 test("D9 — ⚠️ UNE OUVERTURE REFUSÉE SE DIT, avec le mot de la cause — ET LÀ OÙ LE GESTE A ÉTÉ FAIT", () => {
@@ -436,110 +483,142 @@ test("D9 — ⚠️ UNE OUVERTURE REFUSÉE SE DIT, avec le mot de la cause — E
   assert.match(dit, /roll20\/2/, "et il RECOPIE la cause, il ne la résume pas");
 });
 
-test("D7 — ⛔ ET IL N'EST JAMAIS GRISÉ, même quand la mémoire refuse", () => {
+test("D7 — ⛔ ET LA SORTIE DE SECOURS N'EST JAMAIS GRISÉE, même quand la mémoire refuse", () => {
   /* 🔴 `memoire.ok` dit si la dernière ÉCRITURE a réussi, jamais s'il y a
      quelque chose à jeter. Un magasin qui refuse d'écrire peut très bien
      garder un personnage périmé — c'est le cas exact qu'on répare. Le griser
-     là-dessus retirerait la sortie de secours au moment précis où elle sert. */
-  const doc = draftDocument();
+     là-dessus retirerait la sortie de secours au moment précis où elle sert.
+     🔄 LOT 350 : la sortie passe par `New character` — c'est LUI qui ne se grise
+     jamais. */
   for (const memoire of [{ ok: true }, { ok: false, raison: "QuotaExceededError" }]) {
-    const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire }, () => {});
-    const bouton = node.querySelectorAll(".universe-memoire .universe-oubli")[0];
-    assert.ok(bouton, `le bouton existe aussi quand ok=${memoire.ok}`);
-    assert.notEqual(bouton.disabled, true, `il reste pressable quand ok=${memoire.ok}`);
+    const node = rendre(draftDocument(), () => {}, { memoire });
+    const b = node.querySelectorAll("button").find((x) => x.textContent === "New character");
+    assert.ok(b, `la porte existe aussi quand ok=${memoire.ok}`);
+    assert.notEqual(b.disabled, true, `elle reste pressable quand ok=${memoire.ok}`);
   }
 });
 
 test("D5 — sans `memoire` dans le ctx, l'écran ne ment pas : il se tait sur l'échec", () => {
   /* Repli DÉCLARÉ : un appelant qui n'a pas encore d'état de mémoire (aucun
-     aujourd'hui) ne fait pas clignoter une alerte rouge. */
-  const doc = draftDocument();
-  const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, () => {});
-  assert.equal(node.querySelectorAll(".universe-memoire")[0].dataset.garde, "true");
+     aujourd'hui) ne fait pas clignoter une alerte rouge. 🔄 LOT 350 : la pastille
+     verte est partie avec la ligne d'état ; ce qui se tient, c'est le silence. */
+  assert.equal(rendre(draftDocument()).querySelectorAll(".tdc-tete .doc-field-error").length, 0);
 });
 
-/* ══ R — LE TABLEAU DE COMMANDE — Eric, 2026-09-08 ═══════════════════════ */
+/* ══ R — LE MENU, TEL QU'ERIC L'A DICTÉ LE 29/09 (lot 350) ══════════════════
+   🗄️ LE TABLEAU DE COMMANDE DU 08/09 est remplacé : `Build a character`, le trio
+   `Open · Save · Forget`, les places `DM · Tools`, la rangée du bas (le livre,
+   `Display` au format petit), `My characters` en pleine largeur, le voyant SRD.
+   R1-R7 et S1 sont RÉÉCRITS à la nouvelle vérité ; chacun dit ce qu'il tenait. */
 
 function racine(ctx = {}, onAction = () => {}) {
   return renderUniverseStep({ document: draftDocument(), query: () => null, fieldErrors: {}, memoire: { ok: true }, ...ctx }, onAction);
 }
 
-test("R1 — 🧭 R porte le nom du produit en tête, centré, et son sous-titre", () => {
+test("R1 — 🧭 R porte le nom du produit en tête, et son sous-titre — ⛔ plus de ligne d'état, aucun repère de rang", () => {
+  /* ⚖️ Eric, 29/09 : le titre et son sous-titre sont GARDÉS ; la ligne « in browser :
+     <nom> · saved » est RETIRÉE ; et les repères `R`, `B0…B4` ne s'affichent jamais
+     (🙏 un rang n'est pas le nom d'une page). */
   const node = racine();
   assert.equal(node.querySelectorAll(".tdc-marque")[0].textContent, "SOWLREACH");
   assert.equal(node.querySelectorAll(".tdc-sous-titre")[0].textContent, "Agnostic SRD 5.2.1 interface");
-  assert.match(node.querySelectorAll(".tdc-etat .tdc-nom")[0].textContent, /\S/, "et la ligne d'état porte le nom du personnage");
+  assert.equal(node.querySelectorAll(".tdc-etat, .tdc-nom").length, 0, "⛔ la ligne d'état ne revient pas");
+  assert.doesNotMatch(node.textContent, /\b(R|B[0-4])\b/, "aucun repère de rang dans ce que le joueur lit");
 });
 
-test("R2 — 🔴 le geste principal est `Build a character`, il émet un verbe de NAVIGATION, et R n'a pas de Done", () => {
+test("R2 — 🔴 le geste majeur est `Create character` : il OUVRE l'étape 1, il ne crée rien — et R n'a pas de Done", () => {
+  /* ⚖️ Eric, 29/09 : *« Bouton - Create character- (vers Etape 1 du builder) »*.
+     🗄️ Il remplace `Build a character` (08/09 ; lot 193 : sauver, repartir à zéro,
+     demander le jeu) — ce geste-là appartient désormais à `New character`. */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
-  const b = node.querySelectorAll(".tdc-majeur")[0];
-  assert.equal(b.textContent, "Build a character");
-  b.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "construireLePersonnage" }]);
+  const majeurs = node.querySelectorAll(".menu-porte[data-majeure]");
+  assert.deepEqual(majeurs.map((b) => b.textContent), ["Create character"], "UN geste majeur");
+  majeurs[0].dispatchEvent({ type: "click" });
+  assert.deepEqual(gestes, [{ kind: "ouvrirLaCreation" }], "⛔ un verbe de NAVIGATION : ni Save, ni naissance");
   assert.equal(node.dataset.sortieIci, undefined, "⛔ pas de paire de sortie à la racine : un Done doublerait ce bouton");
+  assert.equal(node.querySelectorAll(".tdc-majeur").length, 0, "🗄️ `Build a character` ne revient pas");
 });
 
-test("R3 — la rangée du fichier est au FORMAT RÉGLEMENTÉ : Open et Save verts, Forget rouge, `Save` = l'export canonique", () => {
+test("R3 — 🔌 LES VERBES DE R SONT CEUX QU'ERIC A DICTÉS, NI PLUS NI MOINS", () => {
+  /* 🗄️ R3 tenait le trio `Open · Save · Forget` au format réglementé ; le trio est
+     parti (D1, D6, D8). Ce garde tient maintenant l'ENSEMBLE : chaque bouton VIVANT
+     de R, pressé une fois, émet UN verbe, et l'ensemble est celui de la dictée.
+     ⚔️ Un bouton de plus, un verbe de plus, ou une porte réservée qui se réveille
+     sans son lot → rouge ici. */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
-  const trio = node.querySelectorAll(".parcours-pied.tdc-trio")[0];
-  assert.ok(trio, "une rangée .parcours-pied : la coquille lui donne la grille et le plancher de 77");
-  const boutons = trio.querySelectorAll("button");
-  assert.deepEqual(boutons.map((b) => b.textContent), ["Open", "Save", "Forget"]);
-  assert.ok(boutons[0].className.includes("tdc-vert") && boutons[1].className.includes("tdc-vert"), "Open et Save en vert (Eric)");
-  assert.ok(boutons[2].className.includes("parcours-annuler"), "Forget rouge : il défait");
-  boutons[1].dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "exportJson" }], "le MÊME écrivain que Sheet, jamais un second");
+  const vivants = node.querySelectorAll("button").filter((b) => !b.disabled);
+  for (const b of vivants) b.dispatchEvent({ type: "click" });
+  assert.deepEqual(vivants.map((b) => b.textContent),
+    ["Create character", "My characters", "New character", "Layers", "Display"]);
+  assert.deepEqual(gestes.map((g) => g.kind),
+    ["ouvrirLaCreation", "ouvrirLeMagasin", "ouvrirNouveauPersonnage", "ouvrirLayers", "ouvrirDisplay"]);
 });
 
-test("R4 — 💤 LES PLACES RÉSERVÉES : DM · Tools — présentes, éteintes, grises, avec leur mot", () => {
-  /* Eric, 08/09 : *« il faut laisser une place à tout ce que j'ai dit »*. Au
-     format réglementé (77), le mot « soon » n'a plus la place à côté du
-     libellé : il vit dans le titre, et c'est le GRIS qui dit « pas encore »
-     (📍 bouton-gris-non-cliquable). */
-  const node = racine();
-  const reservees = node.querySelectorAll("[data-reserve]");
-  assert.deepEqual(reservees.map((b) => b.textContent.trim()), ["DM", "Tools"]);
+test("R4 — 💤 LES PLACES RÉSERVÉES : Campaign code · Vault · Dungeon Master — présentes, éteintes, un mot SOUS elles", () => {
+  /* ⚖️ Eric, 29/09 : *« Vault (droite, réservé) »*, *« Dungeon Master (droite,
+     réservé) »*, et le code de campagne présent, éteint, en T0. ⭐ LA FORME est
+     celle de `Double view` quand la fenêtre est trop petite (📍 `menu-reglage-
+     impossible-reste-visible`) : présente, éteinte, un mot — ⛔ pas une seconde forme.
+     🗄️ `DM · Tools` (08/09) : `Tools` quitte R (*« on mettra ça chez le DM si on
+     l'utilise »*), et `DM` s'écrit en entier. */
+  const gestes = [];
+  const node = racine({}, (a) => gestes.push(a));
+  const reservees = node.querySelectorAll("button[data-reserve]");
+  assert.deepEqual(reservees.map((b) => b.textContent), ["Vault", "Dungeon Master"]);
   for (const b of reservees) {
     assert.equal(b.disabled, true, `${b.textContent} : réservée = éteinte`);
-    assert.match(b.getAttribute("title") || "", /soon/, `${b.textContent} : et elle le DIT`);
+    const place = b.parentNode;
+    assert.ok(place.className.includes("tdc-place"), `${b.textContent} : dans sa place`);
+    const mot = place.querySelectorAll(".tdc-bientot")[0];
+    assert.equal(mot.textContent, "soon", `${b.textContent} : et son mot`);
+    assert.ok(place.childNodes.indexOf(mot) > place.childNodes.indexOf(b), `${b.textContent} : le mot SOUS la porte`);
   }
+  const code = node.querySelectorAll(".tdc-code[data-reserve]")[0];
+  assert.ok(code, "le code de campagne a sa place");
+  const champ = code.querySelectorAll("input")[0];
+  assert.equal(champ.disabled, true, "présent, éteint");
+  assert.ok(champ.className.includes("tdc-code-champ"), "en T0 — la feuille le dit (`.tdc-code-champ`)");
+  assert.equal(code.querySelectorAll(".tdc-bientot")[0].textContent, "soon");
+  /* ⛔ AUCUN ÉCOUTEUR : un champ qui accepterait une frappe sans rien en faire
+     serait un bouton mort (le transport de table n'est pas construit). */
+  champ.dispatchEvent({ type: "change" });
+  champ.dispatchEvent({ type: "input" });
+  assert.deepEqual(gestes, [], "le code n'émet rien tant qu'il n'est pas câblé");
+  assert.equal(node.querySelectorAll("button").some((b) => /^(Tools|DM)$/.test(b.textContent)), false, "🗄️ ni `Tools` ni `DM`");
 });
 
-test("R5 — 🚪 LA RANGÉE DU BAS EST LA TRILOGIE : le livre, les trois portes au standard, Appearance vivante", () => {
-  const gestes = [];
-  const node = racine({}, (a) => gestes.push(a));
-  const pied = node.querySelectorAll(".parcours-pied.tdc-pied")[0];
-  assert.ok(pied, "la rangée du bas est une .parcours-pied : le ? y sera posé par la coquille");
-  assert.ok(pied.querySelectorAll(".fiche-livre")[0], "📖 le livre est là — il manquait (Eric)");
-  const portes = pied.querySelectorAll("button.tdc-porte");
-  assert.deepEqual(portes.map((b) => b.textContent), ["Display", "DM", "Tools"]);
-  const vivantes = portes.filter((b) => !b.disabled);
-  assert.equal(vivantes.length, 1);
-  vivantes[0].dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "ouvrirDisplay" }]);
+test("R5 — 🚪 LES SIX PORTES AUX PLACES DICTÉES : trois rangées, gauche · centre · droite — et plus de pied", () => {
+  /* ⚖️ Eric, 29/09 : *« My characters (gauche) · New character (centre) · Vault
+     (droite) · Layers (gauche) · Dungeon Master (droite) · Display »* ; et à « le
+     pied actuel de R (le livre FH Web, le `?`) » : *« pas de livre ni de ? dans
+     l'étape Menu »*. 🗄️ R5 tenait la rangée du bas (le livre, `Display · DM ·
+     Tools` au standard). */
+  const node = racine();
+  const rangees = node.querySelectorAll("nav.tdc-portes .tdc-rangee");
+  assert.deepEqual(rangees.map((r) => r.dataset.disposition), ["trois", "deux", "une"]);
+  assert.deepEqual(rangees.map((r) => r.querySelectorAll("button").map((b) => b.textContent)),
+    [["My characters", "New character", "Vault"], ["Layers", "Dungeon Master"], ["Display"]]);
+  assert.equal(node.querySelectorAll(".parcours-pied, .fiche-livre, .tdc-porte, .tdc-pied, .tdc-trio").length, 0,
+    "⛔ ni pied, ni livre, ni les petites portes d'avant");
+  /* ⭐ LE GABARIT LARGE, PAR LA FAMILLE : toutes les portes de R sont `.menu-porte`,
+     que la feuille met au patron (105 × 40, cible 44 — `tests/bouton-inventaire`). */
+  assert.ok(node.querySelectorAll("button").every((b) => b.className === "menu-porte"),
+    "une seule famille de boutons sur R");
 });
 
-test("R6 — 🧑 `My characters` est un bouton VIVANT (bleu, cadré à gauche), et il ouvre LA MÊME PIÈCE QUE `Open`", () => {
-  /* ⚖️ DEUX MOTS D'ERIC, VRAIS TOUS LES DEUX, DITS À DEUX JOURS D'ÉCART :
-     *« My characters bouton large bleu cadré à gauche »* (08/09) et *« j'appuie
-     sur Open, qui est sur R ; dans cette fenêtre, toutes mes saves »* (10/09).
-     Depuis le lot 195 c'est le MÊME rang B. ⏳ Lequel des deux boutons reste est
-     une question pour Eric (A-TRANCHER §C37) : ⛔ on ne retire pas en silence un
-     bouton qu'il a dicté. Ce que ce garde tient, c'est qu'ils ne divergent pas —
-     deux portes, une seule pièce, jamais deux pièces qui se ressemblent. */
+test("R6 — 🧑 `My characters` est la SEULE porte vers le magasin — C37 tranchée par la dictée", () => {
+  /* ⚖️ DEUX MOTS D'ERIC, VRAIS TOUS LES DEUX, DITS À DEUX JOURS D'ÉCART : *« My
+     characters bouton large bleu cadré à gauche »* (08/09) et *« j'appuie sur Open,
+     qui est sur R ; dans cette fenêtre, toutes mes saves »* (10/09). Depuis le lot
+     195 c'était le MÊME rang B, et R6 tenait que les deux portes ne divergent pas
+     (A-TRANCHER §C37). 🔄 29/09 : la dictée ne garde que `My characters`, à gauche.
+     ⚔️ Ce garde tient maintenant qu'il n'y a plus DEUX portes. */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
-  const b = node.querySelectorAll(".tdc-liste")[0];
-  assert.equal(b.textContent, "My characters");
-  assert.equal(b.disabled, false);
-  b.dispatchEvent({ type: "click" });
-  const ouvre = node.querySelectorAll(".universe-ouvrir")[0];
-  ouvre.dispatchEvent({ type: "click" });
-  assert.deepEqual(gestes, [{ kind: "ouvrirLeMagasin" }, { kind: "ouvrirLeMagasin" }],
-    "⛔ deux verbes différents feraient deux pièces qui se ressemblent");
+  for (const b of node.querySelectorAll("button").filter((x) => !x.disabled)) b.dispatchEvent({ type: "click" });
+  assert.equal(gestes.filter((g) => g.kind === "ouvrirLeMagasin").length, 1, "⛔ deux portes vers une pièce, c'est C37 rouverte");
   const b1 = renderUniverseStep({
     document: draftDocument({ name: "Ilyra" }), query: () => null, fieldErrors: {}, memoire: { ok: true },
     ecran: "characters", magasin: { etat: "liste", groupes: [], entrees: [] }
@@ -548,65 +627,71 @@ test("R6 — 🧑 `My characters` est un bouton VIVANT (bleu, cadré à gauche),
   assert.equal(b1.dataset.sortieIci, "true", "rang B : la coquille pose Back · Done");
 });
 
-test("R7 — 💡 LE SRD EST UN VOYANT : même ligne, TOUJOURS allumé, et il n'est pas un contrôle", () => {
-  /* ⚖️ RÉÉCRIT LE 09/09 À LA NOUVELLE VÉRITÉ, ET NON RELÂCHÉ. Eric, 08/09 :
-     *« un switch pour SRD même s'il est inactif, même ligne, donc off »* ; puis,
-     devant la v612 : *« Le bouton SRD est un VOYANT, pas un bouton — il est
-     toujours actif. »* Le second mot corrige le premier sur deux points :
-     · la FORME — plus un interrupteur grisé (qui a l'air d'un bouton qu'on ne
-       peut pas pousser), une lampe ;
-     · le SENS — plus un miroir INVERSÉ de Fate's Hand (« quand l'un s'allume,
-       l'autre s'éteint », 17/08) : le SRD est allumé dans les DEUX piles.
-     ⛔ Le garde d'avant exigeait `on` opposé à Fate's Hand ; celui-ci exige
-     `on` dans les deux états — c'est là qu'il diverge, et c'est là qu'on
-     l'éprouve. */
-  const srd = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  const fh = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  for (const [doc, fate] of [[srd, "false"], [fh, "true"]]) {
-    const gestes = [];
-    const node = renderUniverseStep({ document: doc, query: () => null, fieldErrors: {} }, (a) => gestes.push(a));
-    const lampe = srdVoyant(node);
-    assert.ok(lampe, "le voyant SRD existe, sur la ligne des règles");
-    assert.equal(fateSwitch(node).dataset.on, fate, `témoin : Fate's Hand est ${fate === "true" ? "allumé" : "éteint"}`);
-    assert.equal(lampe.dataset.on, "true", `le SRD est allumé quand Fate's Hand est ${fate === "true" ? "allumé" : "éteint"} — « il est toujours actif »`);
-    assert.match(lampe.textContent, /always on/, "…et il le DIT");
-    /* ⛔ PAS UN CONTRÔLE — sur ce que l'arbre d'accessibilité annonce. */
-    assert.notEqual(lampe.tagName, "BUTTON", "un voyant n'est pas un bouton");
-    assert.equal(lampe.getAttribute("role"), "status", "une région d'état, lue comme du texte");
-    assert.notEqual(lampe.getAttribute("role"), "switch");
-    assert.equal(lampe.getAttribute("aria-checked"), null, "aucun aria-checked : il n'a pas deux positions");
-    assert.notEqual(lampe.disabled, true, "et pas `disabled` : il n'y a rien à retenir");
-    lampe.click();
-    assert.deepEqual(gestes, [], "le cliquer n'émet RIEN — il n'a aucun écouteur");
-    /* ⛔ ET AUCUN `role=switch` DU MENU NE S'APPELLE SRD : la moitié qui attrape
-       un interrupteur SRD reposé ailleurs que sur `data-socle`. */
-    const reste = node.querySelectorAll('[role="switch"]').filter((b) => /^SRD/.test(b.textContent.trim()));
-    assert.deepEqual(reste, [], "un interrupteur nommé SRD existe encore au Menu");
+test("R7 — 💡 LE VOYANT SRD A QUITTÉ R ; ce que R en garde, c'est le SRD en tête de `Books`", () => {
+  /* ⚖️ 09/09 : *« Le bouton SRD est un VOYANT, pas un bouton — il est toujours
+     actif. »* R7 tenait le voyant SUR R ; 🔄 29/09, R LIT `Rules` et le voyant vit
+     dans `Layers` (ecran-layers le garde en entier : ni bouton, ni switch, ni
+     aria-checked, aucun écouteur). Ce garde tient les deux moitiés qui touchent R :
+     ⛔ aucun contrôle à deux positions sur R, et le SRD n'y est jamais ÉTEINT — il
+     ouvre `Books` dans les deux jeux, comme la lampe reste allumée là-bas. */
+  for (const doc of [docSrd(), docFh()]) {
+    const node = racine({ document: doc });
+    assert.equal(node.querySelectorAll('[role="switch"]').length, 0, "⛔ aucun contrôle à deux positions sur R");
+    assert.match(valeur(node, "books"), /^SRD\b/, "le SRD est le book de base, en tête, dans les deux jeux");
+    const lampe = socle(layers(doc));
+    assert.equal(lampe.dataset.on, "true", "témoin : là-bas, la lampe est allumée dans les deux jeux");
+    assert.notEqual(lampe.tagName, "BUTTON", "témoin : et c'est toujours une lampe");
   }
 });
 
-test("S1 — 🔴 L'INTERRUPTEUR : role=switch, aria-checked = data-on, et cliquer INVERSE", () => {
+test("R8 — 🧭 L'AIGUILLEUR DE R : l'organe `.guide-mot`, UNE fois, et il ne nomme que ce qui est écrit sur R", () => {
+  /* ⚖️ Eric, 29/09 : *« Aiguilleur qui explique qu'on peut activer un Livre ou un
+     autre dans layers, que le DM peut donner un code de campagne. »* ⏳ Le texte est
+     le BROUILLON du plan v10 — Eric arrête les mots. ⛔ Un aiguilleur POINTE
+     (📍 `aide-aiguilleur-et-tutoriel-disent-meme-etape`) : chaque lieu qu'il nomme
+     doit être écrit sur R. ⚔️ Renommer une porte sans lui → rouge ici. */
+  const node = racine();
+  const aiguilleurs = node.querySelectorAll(".guide-mot");
+  assert.equal(aiguilleurs.length, 1, "un aiguilleur, l'organe partagé — ⛔ jamais un sosie");
+  assert.equal(aiguilleurs[0].textContent, MOT_DE_L_AIGUILLEUR_DU_MENU);
+  const ecrit = [
+    ...node.querySelectorAll("button").map((b) => b.textContent),
+    ...node.querySelectorAll(".doc-field-label, .tdc-ligne-mot").map((l) => l.textContent)
+  ];
+  for (const lieu of ["Layers", "Dungeon Master"]) {
+    assert.ok(MOT_DE_L_AIGUILLEUR_DU_MENU.includes(lieu), `témoin : l'aiguilleur nomme \`${lieu}\``);
+    assert.ok(ecrit.includes(lieu), `\`${lieu}\` est écrit sur R`);
+  }
+  assert.ok(ecrit.some((m) => /^campaign code$/i.test(m)) && /campaign code/i.test(MOT_DE_L_AIGUILLEUR_DU_MENU),
+    "…et le code de campagne, sous le nom que porte sa place");
+});
+
+test("S1 — 🔴 L'INTERRUPTEUR : role=switch, aria-checked = data-on, et cliquer INVERSE — éprouvé là où il vit", () => {
   /* Trois canaux pour un état — la couleur (feuille, sur data-on), la position
      (feuille), et aria-checked. L'écran n'écrit aucune couleur. */
   /* ⚠️ ÉPROUVÉ SUR LES DEUX ÉTATS — vu vert à tort le 08/09 : testé sur la seule
      pile SRD (éteint), un `aria-checked` figé à "false" coïncidait avec `data-on`
      et le garde ne voyait rien. Un garde d'égalité se teste là où les deux
-     valeurs DIVERGENT si l'une est fausse. */
-  const fhDoc = draftDocument({ build: { layers: manifestFor([SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS]), choices: [], budgets: {}, overrides: [] } });
-  for (const node of [racine(), racine({ document: fhDoc })]) {
-    for (const sw of node.querySelectorAll(".interrupteur")) {
+     valeurs DIVERGENT si l'une est fausse.
+     🔄 LOT 350 — R n'a plus d'interrupteur (B1) : le maître Fate's Hand vit dans
+     `Layers`, et c'est LÀ que ce garde l'éprouve, sur les deux états. */
+  for (const node of [layers(docSrd()), layers(docFh())]) {
+    assert.ok(interrupteurs(node).length > 0, "témoin : l'écran porte des interrupteurs");
+    for (const sw of interrupteurs(node)) {
       assert.equal(sw.getAttribute("role"), "switch");
       assert.equal(sw.getAttribute("aria-checked"), sw.dataset.on, "aria-checked porte EXACTEMENT data-on");
       assert.ok(sw.querySelectorAll(".interrupteur-piste .interrupteur-pouce")[0], "une piste, un pouce — dessinés, jamais un glyphe");
     }
   }
-  assert.equal(fateSwitch(racine({ document: fhDoc })).dataset.on, "true", "témoin : le second écran est bien ALLUMÉ");
-  const vus = [];
-  const sw = fateSwitch(racine({}, (a) => vus.push(a)));
-  const avant = sw.dataset.on === "true";
-  sw.click();
-  assert.equal(vus.length, 1);
-  assert.equal(vus[0].value, avant ? "srd" : "srdfh", "le clic demande l'INVERSE de l'état affiché");
+  assert.equal(maitre(layers(docFh())).dataset.on, "true", "témoin : le second écran est bien ALLUMÉ");
+  for (const doc of [docSrd(), docFh()]) {
+    const vus = [];
+    const sw = maitre(layers(doc, (a) => vus.push(a)));
+    const avant = sw.dataset.on === "true";
+    sw.click();
+    assert.equal(vus.length, 1);
+    assert.equal(vus[0].value, avant ? "srd" : "srdfh", "le clic demande l'INVERSE de l'état affiché");
+  }
 });
 
 test("S2 — APPEARANCE : Tutorials et Double view sont des interrupteurs ; Double view grisé quand la fenêtre ne le porte pas", () => {
