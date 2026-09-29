@@ -9796,6 +9796,32 @@ fichier serait vert pour rien)*.
 
 ---
 
+## 6 pré decies. 🧬 LE DON D'ORIGINE A DEUX DÉTENTEURS — Versatile *(lot 364, 2026-09-29)*
+📍 `socle-un-organe-de-don-deux-lieux` · vivante · 29/09
+⚖️ **Un don d'origine a deux détenteurs : l'arrière-plan (`background.originFeat[0]`) et l'espèce qui déclare Versatile (`species.originFeat[0]`). C'est le MÊME plan, le MÊME organe et le MÊME B emboîté (liste, sorts, maîtrises), dont la racine est un paramètre ; une racine de don se reconnaît à la grammaire `<genre>.originFeat[0]`, jamais à une liste de chemins.**
+
+> ARCHI 35, 29/09, mandat du lot 364 : *« La configuration réutilise l'organe de Magic Initiate qui existe déjà : un seul organe pour deux lieux. »* C'est la loi du lot 194 (Eric, 10/09 : *« exactement le même chemin que dans FH, tu as juste à recopier »*), portée à un troisième lieu — sans recopier.
+
+📏 **CE QUI SE PASSAIT** (relevé 360, #6 et #16) : le Human (SRD, FH) et la Loroka (FH) lisaient « You gain an Origin feat of your choice », et rien ne l'offrait ; l'écran Species promettait même « → chosen at step 3, Inheritance », un choix que l'Inheritance ne fait pas — son don est le SIEN. Le personnage sortait avec un don de moins.
+⭐ **CE QUI LE TIENT** : l'espèce déclare `data.feat_choice` (la forme même de l'Inheritance) ; le carnet publie `species.originFeat[0]` ; l'étape Species ouvre la porte avec `renderFeatGlisse` ; la coquille route le B emboîté par `parcoursDuDon(racine)`, une seule fabrique. Skilled SRD y ouvre ses trois choix (compétences ou outils, `data.proficiency_choice`) ; Fate's Hand les met à 0, ses +6 points se dépensent à Skills.
+
+📍 `socle-la-reprise-d-un-don-se-declare` · vivante · 29/09
+⚖️ **Qu'un don se reprenne se LIT dans le texte (le paragraphe « Repeatable. ») et se DÉCLARE (`data.repeatable`, avec son extrait, et `distinct` quand un exemplaire doit différer de l'autre). Un don non reprenable retenu par un détenteur n'est pas offert par l'autre — dans les deux sens, l'ordre des étapes ne décide rien ; le second Magic Initiate n'offre pas la liste du premier.**
+
+📏 **LU DANS LE SRD** : trois dons disent « Repeatable. » — Magic Initiate (*« but you must choose a different spell list each time »*), Skilled, et Ability Score Improvement (un don général, pas offert au niveau 1 : sa déclaration attend le lot Level up, elle est posée parce que la garde lit TOUS les dons). Alert et Savage Attacker ne le disent pas : pris par l'arrière-plan, ils ne sont pas offerts à Versatile.
+
+📍 `species-le-trait-d-un-don-a-sa-porte` · vivante · 29/09
+⚖️ **L'espèce nomme le trait que son don réalise (`feat_choice.trait`), comme `skill_points.trait` et `destiny.base_bonus_trait` : le trait quitte « Granted automatically » pour la porte, par la donnée. Une ligne verte « → chosen at step N » ne vaut que si cette étape FAIT ce choix.**
+
+📍 `sheet-la-fiche-nomme-les-dons-d-origine` · vivante · 29/09
+⚖️ **La fiche nomme chaque don d'origine, celui de l'arrière-plan comme celui de Versatile, par UN compositeur : « <ce qui l'accorde>: <le don> (<sa configuration>) », la source étant le record qui l'accorde — « Origin feat: Magic Initiate (Cleric) » · Acolyte, « Versatile: Magic Initiate (Wizard) » · Human. Les libellés sont une proposition ; Eric les ajuste.**
+
+> ARCHI 35, 29/09, Q3 : *« Le don de l'arrière-plan est nommé aussi, par le MÊME compositeur, sinon la fiche nomme le second don et pas le premier. »* ⛔ Q4 : les maîtrises de Skilled s'écrivent et se montrent ; leur effet attend le lot sur `derive`, avec les capacités du lot 360.
+
+📌 **CE QUI LES TIENT** : `tests/versatile-364.test.mjs` (la porte par la donnée, la reprise lue dans le texte, les deux sens, la liste distincte, Skilled, la fiche, la Sheet, le routage de la coquille), `tests/choix-du-niveau-1.test.mjs` (la dette a perdu #6 et #16), `tests/lot194-don-accorde.test.mjs` (une seule fabrique du cfg du don) — seize mutations vues rouges.
+
+---
+
 ## 7 bis. 👻 LE FANTÔME A LA BOÎTE DE CE QU'IL COPIE — **quoi qu'il copie** *(lot 205, 2026-09-13)*
 📍 `geste-fantome-a-la-boite-de-ce-qu-il-copie` · vivante · 13/09
 ⚖️ **Un fantôme rend la largeur ET la hauteur de la boîte SAISIE, pour tout ce qui peut être saisi — pas pour une classe. Il est `position: fixed`, donc il n'a pas de cellule : aucune déclaration qui suppose une rangée ne s'adresse à lui.**

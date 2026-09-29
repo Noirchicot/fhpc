@@ -327,6 +327,11 @@ function addEntry(srd, entry) {
   data.speed_ft = lifted.speed_ft;
   data.traits = traitsOf(srd, entry);
   if (entry.skillPoints) data.skill_points = structuredClone(entry.skillPoints);
+  /* 🧬 LOT 364 — le don d'origine au choix (Versatile), dans la forme de l'Humain et
+     de l'Inheritance ; et les choix que CE texte fait faire, sous la clef de CETTE
+     couche (un seul écrivain par clef — lot 360). */
+  if (entry.featChoice) data.feat_choice = structuredClone(entry.featChoice);
+  if (entry.choixDuTexte) data[`choix_du_texte:${LAYER.id}`] = structuredClone(entry.choixDuTexte);
   /* ⛔ AUCUNE DES TROIS ESPÈCES AJOUTÉES N'A DE LIGNAGE aujourd'hui, donc ce
      chemin n'en écrit pas. Le jour où l'une en reçoit un, ce cri l'annonce —
      mieux qu'un champ silencieusement perdu dans la couche. */

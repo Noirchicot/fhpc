@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "c5175e38c3b1bdf00c5494a49802f06dd0b9789fcb7e994b29da2bee3a195db5",
+  "layer_run": "a90c804e874c19680adaa3e0b10719109e2986931e5394dc247745a530781904",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -18,12 +18,12 @@
     {
       "id": "srfh-mecaniques-en",
       "version": "0.1.0",
-      "hash": "fede8b3d7ea6d4ab539b0490ad937126aa5e1558c43ed83946179054f4262c58"
+      "hash": "7b0801cc9b35280f3c2bafec90a1221b46f3b9aaa5897615564edb9a8a679173"
     },
     {
       "id": "fh-species-en",
       "version": "0.1.0",
-      "hash": "80f8d9ef4168358fb437fb4b64fb30c10a2aff15f43c54d1b5d8d9412659ebf9"
+      "hash": "64d36a5b3f65066b9ba3aa8705de05235f6090021192a7291717a2db7eea68d6"
     },
     {
       "id": "fh-skills-en",
@@ -48,7 +48,7 @@
     {
       "id": "fh-feats-en",
       "version": "0.1.0",
-      "hash": "35899885d6d7a4cb3a1dcb75b93c514bba14a4d45849bab3be088e3cfb64088f"
+      "hash": "f3d6bd94ee9237af6c1960ae3d91d0d24ab584b1b4366ceaf235d8c86f33af3d"
     },
     {
       "id": "fh-spells-en",
@@ -78,7 +78,7 @@
     {
       "id": "fh-lore-en",
       "version": "0.1.0",
-      "hash": "5778e334f3edc4b29e5fe8255a446c2be3536c36716ebe05609acd7cf96f1324"
+      "hash": "df230d5a836db1ce79065069f10cd6acc10a29ca2cdd514ec39c420a0d66e06e"
     }
   ],
   "genres": {
@@ -166,6 +166,7 @@
         "Auspicious (fh)"
       ],
       "patched": [
+        "Ability Score Improvement",
         "Magic Initiate",
         "Skilled"
       ],

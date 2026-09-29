@@ -47,6 +47,10 @@ export const FR_BUILD = {
      compte ni des compétences ni des sorts : il compte des options. */
   "feature-choice.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} option(s) de capacité et les choix ` +
     `en désignent ${d.actual} (${d.answers}).`,
+  /* LOT 364 — la sixième : les maîtrises qu'un DON fait choisir (Skilled, « three skills or
+     tools of your choice »), compétences et outils mêlés. */
+  "feat-proficiency.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} maîtrise(s) et les choix ` +
+    `en désignent ${d.actual} (${d.answers}).`,
   "background.ability-key-invalid": (d) => `l'arrière-plan « ${d.backgroundId} » porte \`ability_keys\` = ${d.key}, ` +
     `qui n'est pas une clef de caractéristique (${d.abilityKeys}).`,
   "background.boost-disallowed": (d) => `le choix « ${d.path} » augmente une caractéristique que l'arrière-plan ` +

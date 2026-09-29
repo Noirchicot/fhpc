@@ -305,14 +305,26 @@ function backgroundBoostPlan(choices, view) {
      `feat` dont `data.category` vaut la valeur demandée, lus par `query` ;
      `mode: "offered"`, pas `"required"` : le joueur choisit, et un choix hors
      catalogue reste le refus générique `decision.option-unavailable`. */
-function backgroundFeatPlan(query, choices, view) {
+/* ══ LOT 364 — LE MÊME PLAN POUR DEUX DÉTENTEURS ═══════════════════════════
+   Versatile (Human en SRD et en FH, Loroka en FH) donne « an Origin feat of your
+   choice » : c'est MOT POUR MOT la déclaration de l'Inheritance
+   (`feat_choice: {from: "origin"}`), posée cette fois sur l'ESPÈCE. Un second
+   plan écrit à côté serait le second écrivain que ce fichier a déjà payé (tête
+   de `resolvedRef`) : le plan prend donc son DÉTENTEUR en paramètre —
+   `background.originFeat[0]` ou `species.originFeat[0]`, la racine étant le genre
+   du record qui déclare.
+   ⭐ `exclus` — les dons qu'un AUTRE détenteur a déjà retenus et qui ne se
+   reprennent pas (`data.repeatable` absent). Le texte SRD le dit par l'absence du
+   paragraphe « Repeatable. » : Alert pris par l'arrière-plan n'est pas offert à
+   Versatile, et l'inverse. */
+function originFeatPlan(query, choices, view, racine, exclus = new Set()) {
   const data = view.record.data || {};
-  const PATH = "background.originFeat[0]";
+  const PATH = `${racine}.originFeat[0]`;
   const choice = choices.find((entry) => entry && entry.path === PATH);
   const selected = choice && choice.ref && choice.ref.kind === "feat" ? [choice.ref.id] : [];
 
   if (typeof data.feat_id === "string") {
-    const from = recordProvenance("required", "background", view, "feat_id");
+    const from = recordProvenance("required", racine, view, "feat_id");
     return [finish({
       path: PATH, options: [data.feat_id], selected: [data.feat_id], expected: 1, answered: 1, provenance: from
     })];
@@ -322,8 +334,9 @@ function backgroundFeatPlan(query, choices, view) {
   if (!declaration || typeof declaration !== "object" || typeof declaration.from !== "string") return [];
   const options = sorted(viewsOf(query, "feat")
     .filter((featView) => featView.record.data && featView.record.data.category === declaration.from)
-    .map((featView) => featView.id));
-  const from = recordProvenance("offered", "background", view, "feat_choice");
+    .map((featView) => featView.id)
+    .filter((id) => !exclus.has(id)));
+  const from = recordProvenance("offered", racine, view, "feat_choice");
   const lock = selected.length > 0 && !options.includes(selected[0])
     ? buildViolation("decision.option-unavailable", { path: PATH, selected: selected[0], options: options.join(", ") || "none" }, PATH)
     : null;
@@ -369,20 +382,27 @@ const FEAT_SPELL_GROUPS = Object.freeze([
  *   (`feat_option`, « Magic Initiate (Cleric) ») — lot 194. Quand elle existe,
  *   il n'y a rien à demander : le plan sort RÉPONDU et `required`, donc sans
  *   porte, et les deux groupes de sorts savent quand même où puiser. */
-function featSpellListPlan(query, choices, featId, listeImposee) {
+/* @param {string}  racine        le détenteur du don (`background`, `species`) — lot 364.
+ * @param {Set}     listesPrises  les listes qu'un AUTRE exemplaire du même don a déjà
+ *   retenues. ⭐ La règle est dans le texte SRD de Magic Initiate — « Repeatable. You can
+ *   take this feat more than once, but you must choose a different spell list each
+ *   time » — et la couche la DÉCLARE (`data.repeatable.distinct`) : ce fichier ne lit
+ *   que la déclaration. Une liste IMPOSÉE par l'arrière-plan n'est jamais retirée. */
+function featSpellListPlan(query, choices, featId, listeImposee, racine = "background", listesPrises = new Set()) {
   const featView = featId ? query({ kind: "feat", id: featId }) : null;
   const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
   if (!declaration || typeof declaration !== "object" || !Array.isArray(declaration.from)) return [];
 
-  const PATH = "background.originFeat[0].list";
-  const options = sorted(declaration.from.filter((id) => typeof id === "string" && query({ kind: "class", id })));
+  const PATH = `${racine}.originFeat[0].list`;
+  const toutes = sorted(declaration.from.filter((id) => typeof id === "string" && query({ kind: "class", id })));
+  const options = toutes.filter((id) => !listesPrises.has(id));
   /* ⛔ UNE LISTE IMPOSÉE QUE LE DON N'OFFRE PAS N'EST PAS IMPOSÉE : le record
      du don dit ce qui est légal, l'arrière-plan ne peut que choisir DEDANS. Un
      `feat_option` hors catalogue retombe donc sur la question — jamais sur une
      réponse fabriquée ici. */
-  if (typeof listeImposee === "string" && options.includes(listeImposee)) {
+  if (typeof listeImposee === "string" && toutes.includes(listeImposee)) {
     return [finish({
-      path: PATH, options, selected: [listeImposee], expected: 1, answered: 1,
+      path: PATH, options: toutes, selected: [listeImposee], expected: 1, answered: 1,
       provenance: recordProvenance("required", "feat", featView, "spell_list_choice")
     })];
   }
@@ -415,7 +435,7 @@ function featSpellListPlan(query, choices, featId, listeImposee) {
  *   `…​.list` vient de la publier — choisie par le joueur ou imposée par
  *   l'arrière-plan (lot 194). ⛔ Ce fichier ne repose pas la question au
  *   document : deux lecteurs d'une même question divergent (leçon du lot 71). */
-function featSpellPlans(query, choices, featId, listeId) {
+function featSpellPlans(query, choices, featId, listeId, racine = "background") {
   const featView = featId ? query({ kind: "feat", id: featId }) : null;
   const declaration = featView && featView.record.data && featView.record.data.spell_list_choice;
   if (!declaration || typeof declaration !== "object") return [];
@@ -435,7 +455,7 @@ function featSpellPlans(query, choices, featId, listeId) {
   for (const group of FEAT_SPELL_GROUPS) {
     const declared = declaration[group.champ];
     const expected = Number.isInteger(declared) && declared > 0 ? declared : null;
-    const basePath = `background.originFeat[0].${group.segment}`;
+    const basePath = `${racine}.originFeat[0].${group.segment}`;
     const prefix = `${basePath}[`;
     const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
       choice.path.startsWith(prefix));
@@ -448,6 +468,44 @@ function featSpellPlans(query, choices, featId, listeId) {
     entries.push(...refSlotPlans({ basePath, options, expected, candidates, from }));
   }
   return entries;
+}
+
+/* ══ LOT 364 — UN DON SE REPREND-IL ? ═══════════════════════════════════════
+   Le texte SRD le dit dans un paragraphe « Repeatable. » : Magic Initiate (« but
+   you must choose a different spell list each time »), Skilled. Alert et Savage
+   Attacker ne le portent pas. ⭐ La couche le DÉCLARE (`data.repeatable`, avec
+   l'extrait qu'elle cite), et ce fichier ne lit que la déclaration — aucun don
+   n'y est nommé. `distinct` nomme la déclaration qui doit différer d'un
+   exemplaire à l'autre. */
+function repriseDuDon(query, featId) {
+  const view = featId ? query({ kind: "feat", id: featId }) : null;
+  const reprise = view && view.record.data && view.record.data.repeatable;
+  return reprise && typeof reprise === "object" && !Array.isArray(reprise) ? reprise : null;
+}
+
+/* ══ LOT 364 — LES MAÎTRISES QU'UN DON FAIT CHOISIR — `….proficiencies[n]` ══════
+   Skilled : « You gain proficiency in any combination of three skills or tools of
+   your choice ». La couche le déclare (`data.proficiency_choice: {count, from}`,
+   `from` étant des GENRES de record) ; les options sont les records de ces genres,
+   et un créneau accepte l'un ou l'autre (`refSlotPlans` à plusieurs genres).
+   ⛔ Q4 d'ARCHI 35 : le choix s'écrit et se montre ; l'EFFET (les maîtrises) attend
+   le lot sur `derive`, avec les capacités du lot 360. Fate's Hand pose le compte à
+   0 : ses +6 points se dépensent à Skills. */
+function featProficiencyPlans(query, choices, featId, racine) {
+  const featView = featId ? query({ kind: "feat", id: featId }) : null;
+  const declaration = featView && featView.record.data && featView.record.data.proficiency_choice;
+  if (!declaration || typeof declaration !== "object" || !Array.isArray(declaration.from)) return [];
+  const genres = declaration.from.filter((genre) => typeof genre === "string");
+  const expected = Number.isInteger(declaration.count) && declaration.count > 0 ? declaration.count : null;
+  const basePath = `${racine}.originFeat[0].proficiencies`;
+  const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+    choice.path.startsWith(`${basePath}[`));
+  if (expected === null && candidates.length === 0) return [];
+  const options = sorted(genres.flatMap((genre) => viewsOf(query, genre).map((view) => view.id)));
+  return refSlotPlans({
+    basePath, kind: genres, countKey: "feat-proficiency.count-mismatch", options, expected, candidates,
+    from: recordProvenance("offered", "feat", featView, "proficiency_choice")
+  });
 }
 
 /* ══ LES DEUX LANGUES DE L'HÉRITAGE — `background.languages[n]` ════════════
@@ -744,12 +802,14 @@ function refSlotPlans({ basePath, options, expected, candidates, from,
   let planLock = null;
   let next = 0;
   const entries = [];
+  /* LOT 364 — `kind` peut être une LISTE de genres (Skilled : compétences ou outils). */
+  const genres = Array.isArray(kind) ? kind : [kind];
   for (const choice of candidates) {
     const ref = choice.ref;
     let lock = null;
-    if (!ref || ref.kind !== kind) {
+    if (!ref || !genres.includes(ref.kind)) {
       lock = buildViolation("decision.kind-mismatch", {
-        path: choice.path, expectedKind: kind,
+        path: choice.path, expectedKind: genres.join(" | "),
         actualKind: ref && typeof ref.kind === "string" ? ref.kind : "value"
       }, choice.path);
     } else if (!options.includes(ref.id)) {
@@ -1153,10 +1213,49 @@ export function projectDecisions({ query, choices }) {
   const backgroundView = fond.id ? query({ kind: "background", id: fond.id }) : null;
   if (backgroundView) {
     entries.push(...backgroundBoostPlan(list, backgroundView));
-    entries.push(...backgroundFeatPlan(query, list, backgroundView));
     entries.push(...backgroundToolPlan(list, backgroundView));
     entries.push(...backgroundLanguagePlans(list, backgroundView));
   }
+  /* ══ LOT 364 — LES DÉTENTEURS D'UN DON D'ORIGINE ═══════════════════════════
+     L'arrière-plan (lot 43) et l'espèce qui déclare Versatile (`feat_choice` sur
+     le record d'espèce, la forme même de l'Inheritance). ⭐ LE DON QUE CHACUN
+     RETIENT SE LIT D'ABORD — imposé par le record ou posé au document — parce que
+     la reprise se juge ENTRE eux : un don sans `data.repeatable`, retenu d'un côté,
+     n'est pas offert de l'autre. Dans les deux sens : l'ordre des étapes ne décide
+     rien, un Human qui prend Alert à Versatile ne le revoit pas à l'Inheritance. */
+  const detenteurs = [
+    { racine: "background", view: backgroundView },
+    { racine: "species", view: speciesView }
+  ];
+  const donRetenu = ({ racine, view }) => {
+    const data = view ? view.record.data || {} : {};
+    if (typeof data.feat_id === "string") return data.feat_id;
+    const choix = list.find((entry) => entry && entry.path === `${racine}.originFeat[0]` &&
+      entry.ref && entry.ref.kind === "feat");
+    return choix ? choix.ref.id : null;
+  };
+  const retenus = new Map(detenteurs.map((detenteur) => [detenteur.racine, donRetenu(detenteur)]));
+  for (const detenteur of detenteurs) {
+    if (!detenteur.view) continue;
+    const exclus = new Set([...retenus]
+      .filter(([racine, id]) => racine !== detenteur.racine && id && !repriseDuDon(query, id))
+      .map(([, id]) => id));
+    entries.push(...originFeatPlan(query, list, detenteur.view, detenteur.racine, exclus));
+  }
+  /* La liste qu'un détenteur a RETENUE pour son don — imposée par son record
+     (`feat_option`, « Magic Initiate (Cleric) ») ou posée au document. */
+  const listeImposeeDe = (view) => {
+    const option = view && (view.record.data || {}).feat_option;
+    return option && typeof option === "object" && option.kind === "class" && typeof option.id === "string"
+      ? option.id : null;
+  };
+  const listeRetenue = ({ racine, view }) => {
+    const imposee = listeImposeeDe(view);
+    if (imposee) return imposee;
+    const choix = list.find((entry) => entry && entry.path === `${racine}.originFeat[0].list` &&
+      entry.ref && entry.ref.kind === "class");
+    return choix ? choix.ref.id : null;
+  };
   /* ⭐ LE CONTENU DU DON, ET IL VIT HORS DU `if (backgroundView)` — le don
      d'origine est un choix du JOUEUR (`background.originFeat[0]`), pas une
      donnée de l'arrière-plan : le lire sous l'arrière-plan le ferait
@@ -1173,23 +1272,27 @@ export function projectDecisions({ query, choices }) {
      posé — `featId` valait `null`, et un Acolyte n'avait ni liste ni sorts. Le
      don était sur la ligne « gagné d'office » et s'arrêtait là.
 
-     ⭐ ON LIT LE PLAN QU'ON VIENT DE PUBLIER, PAS LE DOCUMENT. `backgroundFeatPlan`
+     ⭐ ON LIT LE PLAN QU'ON VIENT DE PUBLIER, PAS LE DOCUMENT. `originFeatPlan`
      répond déjà à « quel est le don d'origine ? » — pour un don imposé comme
      pour un don choisi, et c'est lui qui porte le repli. Reposer la question au
      document ici serait le SECOND ÉCRIVAIN que ce fichier a déjà payé une fois
      (voir la tête de `resolvedRef`) : les deux réponses divergeraient le jour
      où l'une des deux apprend un cas de plus. */
-  {
-    const planDuDon = entries.find((entry) => entry && entry.path === "background.originFeat[0]");
+  for (const detenteur of detenteurs) {
+    const PATH = `${detenteur.racine}.originFeat[0]`;
+    const planDuDon = entries.find((entry) => entry && entry.path === PATH);
     const featPose = planDuDon && Array.isArray(planDuDon.selected) ? planDuDon.selected[0] || null : null;
     /* ⚠️ ET LE REPLI SUR LE DOCUMENT RESTE, POUR LA RAISON ÉCRITE AU-DESSUS :
        un personnage qui ne porte AUCUN arrière-plan n'a pas de plan de don du
        tout, et son don, lui, est bien là (un `choose` posé). Le plan passe en
        PREMIER parce que c'est lui qui tranche quand les deux existent — un
        arrière-plan qui impose son don écrase un ancien choix, et
-       `backgroundFeatPlan` le dit déjà. */
-    const featChoice = list.find((entry) => entry && entry.path === "background.originFeat[0]" &&
-      entry.ref && entry.ref.kind === "feat");
+       `originFeatPlan` le dit déjà.
+       ⛔ LOT 364 — PAS POUR L'ESPÈCE : un don posé sous une espèce qui ne déclare
+       plus Versatile (l'espèce a changé) est un choix orphelin, pas un don à
+       configurer. */
+    const featChoice = detenteur.racine === "background" ? list.find((entry) => entry && entry.path === PATH &&
+      entry.ref && entry.ref.kind === "feat") : null;
     const featId = featPose || (featChoice ? featChoice.ref.id : null);
     /* ⚠️ ET LA LISTE PEUT ÊTRE IMPOSÉE, ELLE AUSSI. « Magic Initiate (Cleric) »
        n'est pas « Magic Initiate » : l'arrière-plan fixe l'option du don
@@ -1199,16 +1302,22 @@ export function projectDecisions({ query, choices }) {
        donc pas de porte « Spell list » — mais il reste PUBLIÉ, parce que c'est
        lui que les deux groupes de sorts consultent pour savoir dans quel livre
        on prend. ⛔ La donnée est celle du record, jamais une table de dons. */
-    const optionDuDon = backgroundView && (backgroundView.record.data || {}).feat_option;
-    const listeImposee = optionDuDon && typeof optionDuDon === "object" &&
-      optionDuDon.kind === "class" && typeof optionDuDon.id === "string" ? optionDuDon.id : null;
-    const plansDeLaListe = featSpellListPlan(query, list, featId, listeImposee);
+    const listeImposee = listeImposeeDe(detenteur.view);
+    /* ⭐ LOT 364 — UN SECOND EXEMPLAIRE DU MÊME DON n'offre pas la liste du premier,
+       quand la déclaration de reprise le demande (`distinct: "spell_list_choice"`). */
+    const reprise = repriseDuDon(query, featId);
+    const listesPrises = new Set(reprise && reprise.distinct === "spell_list_choice"
+      ? detenteurs.filter((autre) => autre.racine !== detenteur.racine && retenus.get(autre.racine) === featId)
+        .map(listeRetenue).filter(Boolean)
+      : []);
+    const plansDeLaListe = featSpellListPlan(query, list, featId, listeImposee, detenteur.racine, listesPrises);
     entries.push(...plansDeLaListe);
     /* ⭐ ET LES SORTS LISENT LE PLAN DE LA LISTE, pas le document : une seule
        réponse à « dans quel livre prend-on ? » (la leçon du lot 71). */
-    const planDeLaListe = plansDeLaListe.find((entry) => entry && entry.path === "background.originFeat[0].list");
+    const planDeLaListe = plansDeLaListe.find((entry) => entry && entry.path === `${PATH}.list`);
     const listeId = planDeLaListe && Array.isArray(planDeLaListe.selected) ? planDeLaListe.selected[0] || null : null;
-    entries.push(...featSpellPlans(query, list, featId, listeId));
+    entries.push(...featSpellPlans(query, list, featId, listeId, detenteur.racine));
+    entries.push(...featProficiencyPlans(query, list, featId, detenteur.racine));
   }
 
   const unique = new Map();

@@ -742,7 +742,20 @@ export const SPECIES = [
       { lift: { from: "orc", trait: "darkvision" } },
       { lift: { from: "orc", trait: "relentless-endurance" } },
       { lift: { from: "human", trait: "versatile" } }
-    ]
+    ],
+    /* 🧬 LOT 364 — VERSATILE A SA PORTE. Le trait est LEVÉ de l'Humain (texte SRD,
+       mot pour mot) ; sa mécanique ne voyage pas avec lui — elle se déclare ici,
+       dans la forme de l'Humain (`srfh-mecaniques-en`) et de l'Inheritance :
+       un don d'origine au choix, et le trait qu'il réalise. */
+    featChoice: { from: "origin", trait: "versatile" },
+    choixDuTexte: {
+      versatile: {
+        extrait: "You gain an Origin feat of your choice",
+        nature: "creation",
+        etape: "species",
+        chemin: "species.originFeat[0]"
+      }
+    }
   },
 
   {

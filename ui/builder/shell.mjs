@@ -19,35 +19,35 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=915";
-import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=915";
+import { bootEngine, loadExampleDocument, loadDocSchema } from "./engine.mjs?v=916";
+import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=916";
 /* 🪙 LOT 316 — la bourse rend la monnaie, et chaque transaction s'annonce une seconde */
-import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=915";
-import { mountPopup } from "./popup.mjs?v=915";
-import { renderLorePanel } from "./lore.mjs?v=915";
-import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=915";
+import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=916";
+import { mountPopup } from "./popup.mjs?v=916";
+import { renderLorePanel } from "./lore.mjs?v=916";
+import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=916";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT } from "./parcours.mjs?v=915";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=915";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT } from "./parcours.mjs?v=916";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=916";
 /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
    REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
    (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
    Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
    rendus. */
-import { nommerLeVide } from "./ecran-vide.mjs?v=915";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=915";
+import { nommerLeVide } from "./ecran-vide.mjs?v=916";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=916";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=915";
+} from "./tutoriel.mjs?v=916";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=915";
-import { lireLeFichier } from "./ouvrir.mjs?v=915";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage } from "./memoire.mjs?v=916";
+import { lireLeFichier } from "./ouvrir.mjs?v=916";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -61,14 +61,14 @@ import {
   /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — la sonde se pose ICI, une fois : la
      coquille est l'écrivain du DOM, `echelle.mjs` ne fait que la lire. */
   poserSondeTexte
-} from "./echelle.mjs?v=915";
+} from "./echelle.mjs?v=916";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=915";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=916";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -79,64 +79,66 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=915";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=915";
+} from "./fonds.mjs?v=916";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=915";
-import { renderChoixGlisses } from "./glisser.mjs?v=915";
-import { renderConceptStep } from "./concept-step.mjs?v=915";
+import { planAt, planSlots } from "./carnet.mjs?v=916";
+import { renderChoixGlisses } from "./glisser.mjs?v=916";
+import { renderConceptStep } from "./concept-step.mjs?v=916";
 /* ⚖️ LOT 350 — `creerUnPersonnage` et `popupDuJeu` sont partis avec le popup « SRD or
    Fate's Hand? » : la fenêtre `New character` et sa séquence les remplacent. */
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
   popupNouveauPersonnage, nouveauPersonnageSelonLaVoie, personnageEnCours, ceQuiFaitLePersonnage, NOM_DU_PERSONNAGE_NEUF,
   /* LOT 351 — la question du maître, peinte en FENÊTRE par `paintPopup` (voir là-bas). */
-  renderConfirmationPile } from "./universe-step.mjs?v=915";
+  renderConfirmationPile } from "./universe-step.mjs?v=916";
 /* LOT 188 — les gestes PURS de `Layers` : ranger la pile montée sur le document,
    écrire son manifeste ; la coquille ne fait que monter ce que les fonctions rendent.
    🔄 LOT 351 — `couchesApresLeGeste` (le geste d'un enfant) est parti avec les six
    interrupteurs ; entre la question qui précède l'effacement d'un livre. */
-import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=915";
+import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=916";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=915";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=916";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=915";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=915";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=916";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=916";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=915";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=915";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=915";
+} from "./catalogue.mjs?v=916";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=916";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=916";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=915";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=916";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=915";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=916";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
-  featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=915";
+  renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
+  featSousLabel, featInfo,
+  /* 🧬 LOT 364 — le B emboîté du don vaut pour toute racine de don (Versatile) */
+  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=916";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=915";
+} from "./abilities-step.mjs?v=916";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=915";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=916";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=915";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=915";
+} from "./destiny-step.mjs?v=916";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=916";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
@@ -144,29 +146,29 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
          pageActiveDeLEquipement, pageVoisineDeLEquipement, choisirLeSatellite,
          rangerParSend, placeLibreDans, materialiserLesDepots, disposerLeSac, MOT_SECTION_PLEINE,
-         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=915";
+         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=916";
 /* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
    pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
-import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=915";
+import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=916";
 /* 🗄️ LOT 356 — `CASES_DU_SAC` N'EST PLUS IMPORTÉ ICI : il bornait la place neuve d'un objet
    (`placeNeuveDans`), et c'est désormais le sac tel qu'on le voit qui la dit (`placeLibreDans`,
    `rangerParSend`, `equipment-step.mjs`). La taille de la grille vient toujours du plan. */
-import { poserLesDalles } from "./sac-ecran.mjs?v=915";
+import { poserLesDalles } from "./sac-ecran.mjs?v=916";
 /* ⭐ MÊME LOI POUR LES ROUES DE WARES : un ruban posé sur un nœud détaché ne bouge pas. */
-import { poserLesRoues } from "./wares-ecran.mjs?v=915";
+import { poserLesRoues } from "./wares-ecran.mjs?v=916";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
-import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=915";
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=916";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=915";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=915";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=916";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=916";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=915";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=916";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -185,11 +187,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=915";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=915";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=916";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=915";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=916";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -198,8 +200,8 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=915";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=915";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=915";
+import { platformNow } from "../../src/doc/clock.mjs?v=916";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=916";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
    sauvegardes dedans »* · *« une entrée datée à chaque Save »*.
@@ -208,21 +210,21 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=915";
    la version FH du 192, le fichier automatique de `Build a character` du 193)
    y entrent SANS second chemin. */
 import { ouvrirLeMagasin as monterLeMagasin, choisirUnDossier, garderDansLeTiroir,
-  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=915";
-import { popupDeLaDestination } from "./magasin-ecran.mjs?v=915";
+  baseIndexedDb, dossierPossible } from "./magasin.mjs?v=916";
+import { popupDeLaDestination } from "./magasin-ecran.mjs?v=916";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=915";
+import { versionQuery } from "./version.mjs?v=916";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=915";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=916";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=915";
+import { armerEngrenage } from "./engrenage.mjs?v=916";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -2697,14 +2699,15 @@ function appliquerLaDecision(action) {
      liste, les sorts et LEURS SIGNATURES tombent avec l'ancien don. La racine
      survit — le nouveau `ref` la remplit dans la foulée, et `revoke` balaye
      déjà le préfixe entier (même paire d'organes que `parcoursCancel`). */
-  if (action.kind === "choose" && action.path === "background.originFeat[0]"
+  /* 🧬 LOT 364 — sous la racine du don posé, quelle qu'elle soit (Versatile aussi). */
+  if (action.kind === "choose" && estRacineDeDon(action.path)
       && action.ref && state.document) {
-    const courant = choixDeDon();
+    const courant = choixDeDon(action.path);
     if (courant && courant !== action.ref.id) {
       if (state.docWriters) {
-        state.document = state.docWriters.revoke({ document: state.document, path: "background.originFeat[0]" });
+        state.document = state.docWriters.revoke({ document: state.document, path: action.path });
       }
-      const prefixe = "background.originFeat[0].";
+      const prefixe = `${action.path}.`;
       const poses = (state.document.build && state.document.build.choices) || [];
       let document = state.document;
       for (const chemin of poses.map((c) => c && c.path).filter((c) => typeof c === "string" && c.startsWith(prefixe))) {
@@ -2882,9 +2885,9 @@ const CATALOGUES = {
 };
 /** Le don que le joueur a posé, ou `null`. Lu au document — la seule source
  *  d'un choix (le carnet, lui, dit ce qui RESTE à faire). */
-function choixDeDon() {
+function choixDeDon(racine = FEAT_RACINE) {
   const choices = (state.document && state.document.build && state.document.build.choices) || [];
-  const choix = choices.find((c) => c && c.path === "background.originFeat[0]" && c.ref && c.ref.kind === "feat");
+  const choix = choices.find((c) => c && c.path === racine && c.ref && c.ref.kind === "feat");
   return choix ? choix.ref.id : null;
 }
 
@@ -3278,20 +3281,21 @@ function renderStepContent() {
       section.append(renderLorePanel({
         query: ctx.query, kind: state.lore.kind, id: state.lore.id, onAction: applyDecisionAction
       }));
-    } else if (parcours && state.parcoursItem && state.parcoursItem.racine === FEAT_RACINE) {
+    } else if (parcours && state.parcoursItem && estRacineDeDon(state.parcoursItem.racine)) {
       /* 🎩 LOT 194 — LE B EMBOÎTÉ DU DON VAUT AUSSI HORS DE L'INHERITANCE.
          Eric, 2026-09-10, sur l'Acolyte du fil SRD : *« Magic Initiate nécessite
          un bouton, ça doit être configuré — exactement le même chemin que dans
          FH, tu as juste à recopier. »*
-         ⭐ ET C'EST LITTÉRALEMENT LE MÊME `FEAT_PARCOURS` : mêmes chemins,
+         ⭐ ET C'EST LITTÉRALEMENT LE MÊME cfg (`parcoursDuDon`) : mêmes chemins,
          mêmes corps, même moule. La branche de l'Inheritance (plus bas) le
          montait déjà ; elle était la SEULE, donc un arrière-plan SRD dont le
          don porte des branches n'avait aucun écran où les poser. ⛔ Rien n'est
          recopié ici — deux appels au même cfg, pas un second cfg. */
-      section.append(renderParcoursItem(FEAT_PARCOURS, ctx));
-    } else if (parcours && state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
-        && featListPlan(state.decisions)) {
-      section.append(renderParcoursGuide(FEAT_PARCOURS, ctx));
+      /* 🧬 LOT 364 — le même cfg pour chaque racine de don (`parcoursDuDon`). */
+      section.append(renderParcoursItem(parcoursDuDon(state.parcoursItem.racine), ctx));
+    } else if (parcours && state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
+        && donABranches(state.decisions, state.parcoursItem.path)) {
+      section.append(renderParcoursGuide(parcoursDuDon(state.parcoursItem.path), ctx));
     } else if (parcours && state.parcoursItem) {
       section.append(renderParcoursItem(cfg, ctx));
     } else if (parcours === ETAT.guide || parcours === ETAT.bilan) {
@@ -3360,15 +3364,15 @@ function renderStepContent() {
     const ctx = inheritanceCtx();
     const section = el("section", "catalogue-step");
     const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path });
-    if (state.parcoursItem && state.parcoursItem.racine === FEAT_RACINE) {
+    if (state.parcoursItem && estRacineDeDon(state.parcoursItem.racine)) {
       /* SB du don — la liste ou les sorts, par le cfg emboîté */
-      section.append(renderParcoursItem(FEAT_PARCOURS, ctx));
-    } else if (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
-        && featListPlan(state.decisions)) {
+      section.append(renderParcoursItem(parcoursDuDon(state.parcoursItem.racine), ctx));
+    } else if (state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
+        && donABranches(state.decisions, state.parcoursItem.path)) {
       /* 🚪 LE B DU DON (lot 77) — un don à branches posé remplace le glisser
          par son menu : le species complexe d'Eric, rendu par le MÊME moule
          que le guide d'étape. « I changed my mind » y ramène au jeton. */
-      section.append(renderParcoursGuide(FEAT_PARCOURS, ctx));
+      section.append(renderParcoursGuide(parcoursDuDon(state.parcoursItem.path), ctx));
     } else if (state.parcoursItem) {
       section.append(renderParcoursItem(cfg, ctx));
     } else section.append(renderParcoursGuide(cfg, ctx));   /* guide ET bilan : voir plus haut */
@@ -4369,7 +4373,7 @@ const INHERITANCE_PARCOURS = {
    le moteur qui le dit (featSpellPlans : « on ne demande pas de choisir un
    sort avant de savoir dans quel livre le prendre »), et le menu grandit avec
    le carnet, comme partout. */
-const FEAT_RACINE = "background.originFeat[0]";
+const FEAT_RACINE = RACINE_DON_ARRIERE_PLAN;
 
 /** La porte du guide de l'Inheritance : le nom du don posé, ou la question. */
 function featPorteLabel(ctx) {
@@ -4383,35 +4387,49 @@ function featPorteLabel(ctx) {
  *  (blurb du record, via featInfo) — « le livre ouvre le lore de ce que
  *  l'écran montre ». Rien de posé → null, et le livre reste éteint (un organe
  *  muet doit avoir l'air muet). Eric, 2026-08-28 : « Livre pas câblé. » */
-function livreDuDon(ctx) {
-  const plan = (state.decisions || []).find((entry) => entry && entry.path === FEAT_RACINE);
+function livreDuDon(ctx, racine = FEAT_RACINE) {
+  const plan = (state.decisions || []).find((entry) => entry && entry.path === racine);
   const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
   if (!id || !ctx || typeof ctx.query !== "function") return null;
   const info = featInfo(ctx.query, id);
   return info ? { titre: info.titre, texte: info.texte } : null;
 }
 
-const FEAT_PARCOURS = {
-  path: FEAT_RACINE, kind: "feat", label: "Origin feat", parcours: true,
+/* 🧬 LOT 364 — LE B EMBOÎTÉ, FABRIQUÉ PAR RACINE. Le don d'origine a deux détenteurs
+   (l'arrière-plan, et l'espèce qui déclare Versatile) : c'est LE MÊME cfg, dont la
+   racine est un paramètre — un organe, deux lieux (ARCHI 35). Un cfg par racine, créé
+   une fois : le parcours compare les cfg par identité. */
+const PARCOURS_DES_DONS = new Map();
+function parcoursDuDon(racine) {
+  if (!PARCOURS_DES_DONS.has(racine)) PARCOURS_DES_DONS.set(racine, fabriquerLeParcoursDuDon(racine));
+  return PARCOURS_DES_DONS.get(racine);
+}
+const fabriquerLeParcoursDuDon = (racine) => ({
+  path: racine, kind: "feat", label: "Origin feat", parcours: true,
   /* Le don d'origine est un sous-écran d'Inheritance : il prend la pose de son
      étape, sinon la dalle sauterait du haut au milieu en changeant d'écran. */
   poseEnHaut: true,
-  livreDe: (ctx) => livreDuDon(ctx),
+  livreDe: (ctx) => livreDuDon(ctx, racine),
   /* 🔵 L'AIGUILLEUR DIT LE GESTE DE CHAQUE SOUS-ÉCRAN — Eric, 2026-08-28 :
      « Texte aiguilleur plus précis. » Le socle de prévention reste ; la
      première phrase nomme ce qu'on fait ICI. */
-  itemAiguilleur: (chemin) => (chemin === `${FEAT_RACINE}.list`
+  itemAiguilleur: (chemin) => (chemin === `${racine}.list`
     ? "Drop the class whose spell list this feat draws from. Leaving this open marks nothing — only Done records the choice."
-    : chemin === `${FEAT_RACINE}.cantrips`
+    : chemin === `${racine}.cantrips`
       ? "Tap a spell to read it — drag a cantrip into each slot. Leaving this open marks nothing — only Done records the choice."
-    : chemin === `${FEAT_RACINE}.prepared`
+    : chemin === `${racine}.prepared`
       ? "Tap a spell to read it — drag your level 1 spell into the slot. Leaving this open marks nothing — only Done records the choice."
+    /* 🎯 LOT 364 — les maîtrises de Skilled (compétences ou outils) */
+    : chemin === `${racine}.proficiencies`
+      ? "Tap a skill or tool to read it — drag one into each slot. Leaving this open marks nothing — only Done records the choice."
     : null),
-  itemCorps: (item, ctx, act) => (item.path === `${FEAT_RACINE}.list`
-    ? renderFeatListeGlisse(ctx, act)
-    : renderFeatSortsGlisse(ctx, act, item.path)),
+  itemCorps: (item, ctx, act) => (item.path === `${racine}.list`
+    ? renderFeatListeGlisse(ctx, act, item.path)
+    : item.path === `${racine}.proficiencies`
+      ? renderFeatMaitrisesGlisse(ctx, act, item.path)
+      : renderFeatSortsGlisse(ctx, act, item.path)),
   itemLabel: (chemin, ctx) => {
-    if (chemin === `${FEAT_RACINE}.list`) {
+    if (chemin === `${racine}.list`) {
       const plan = (state.decisions || []).find((entry) => entry && entry.path === chemin);
       const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
       const nom = id && ctx && typeof ctx.query === "function" ? motDuChoix(ctx.query, "class", id) : null;
@@ -4419,7 +4437,7 @@ const FEAT_PARCOURS = {
     }
     return featSousLabel(chemin) || chemin;
   }
-};
+});
 
 /** Les deux langues offertes par l'Héritage, au glisser.
  *  ⛔ AUCUN NOM FABRIQUÉ : le libellé d'un jeton est le `name` du record de
@@ -4801,8 +4819,8 @@ function pressDone() {
        `species.skillBudget.survival` — qui ne portent jamais de signature
        propre : le Done refusait pour toujours. Seuls les enfants d'un B
        EMBOÎTÉ se signent un à un, et l'emboîtement est DÉCLARÉ
-       (FEAT_PARCOURS) — le refus ne lit que lui. */
-    const refusItem = ouvert && ouvert.path === FEAT_PARCOURS.path ? refusDuDone({
+       (`parcoursDuDon`, lot 364 : toute racine de don) — le refus ne lit que lui. */
+    const refusItem = ouvert && estRacineDeDon(ouvert.path) ? refusDuDone({
       decisions: state.decisions, document: state.document, racine: ouvert.path, violations: state.violations
     }) : null;
     if (refusItem) { state.parcoursRefus = refusItem.manquants; refresh(); return; }
@@ -5526,8 +5544,8 @@ function renderSortieEtape(hote) {
      `renderGuideSpecifique`, qui pose « I changed my mind · Done/Next » comme
      tout guide. La paire de la coquille en plus serait le doublon du 19/08,
      à dix pixels de la sienne. */
-  if (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
-      && featListPlan(state.decisions) && !state.lore) return null;
+  if (state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
+      && donABranches(state.decisions, state.parcoursItem.path) && !state.lore) return null;
   /* 🔴 UN GUIDE DE PARCOURS PORTE SON PROPRE PIED — et il a fallu qu'Eric
      demande le `Next` pour que le doublon se voie. Mesuré à l'écran : la dalle
      de l'Inheritance affichait « I changed my mind · Next » DANS la dalle, et

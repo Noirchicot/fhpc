@@ -29,12 +29,12 @@
 
 import {
   planAt, planSlots, renderRecordChoice, renderPicker, decisionRefusalWord, markPressed
-} from "./carnet.mjs?v=915";
-import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=915";
-import { renderChoixGlisses } from "./glisser.mjs?v=915";
-import { spellLabel, spellInfo } from "./class-step.mjs?v=915";
+} from "./carnet.mjs?v=916";
+import { renderFinalColumn, currentAbilityValue } from "./abilities-step.mjs?v=916";
+import { renderChoixGlisses } from "./glisser.mjs?v=916";
+import { spellLabel, spellInfo } from "./class-step.mjs?v=916";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=915";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=916";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -46,6 +46,33 @@ function text(value) { return document.createTextNode(String(value)); }
 
 function featLabel(query, id) {
   return motDuChoix(query, "feat", id);
+}
+
+/* ══ 🧬 LOT 364 — UN ORGANE, DEUX LIEUX ════════════════════════════════════
+   Le don d'origine a désormais deux détenteurs : l'arrière-plan
+   (`background.originFeat[0]`, lot 43) et l'espèce qui déclare Versatile
+   (`species.originFeat[0]`). ⭐ CE SONT LES MÊMES FONCTIONS, qui prennent la
+   racine du don en paramètre — celle de l'arrière-plan par défaut, pour que
+   l'Inheritance et le Background SRD ne changent pas d'un octet. ⛔ Aucun second
+   organe : c'est la loi du lot 194 (« exactement le même chemin »), portée à un
+   troisième lieu. La racine se reconnaît à la grammaire que le carnet publie
+   (`<genre>.originFeat[0]`), jamais à une liste de noms. */
+export const RACINE_DON_ARRIERE_PLAN = "background.originFeat[0]";
+const RACINE_DE_DON = /^[a-z]+\.originFeat\[0\]/;
+/** `chemin` est-il la racine d'un don d'origine ? */
+export function estRacineDeDon(chemin) {
+  return typeof chemin === "string" && RACINE_DE_DON.test(chemin) && RACINE_DE_DON.exec(chemin)[0] === chemin;
+}
+/** La racine du don qui contient `chemin` (`species.originFeat[0].list` → `species.originFeat[0]`), ou `null`. */
+export function racineDuDon(chemin) {
+  const m = typeof chemin === "string" ? RACINE_DE_DON.exec(chemin) : null;
+  return m ? m[0] : null;
+}
+/** Le don a-t-il des BRANCHES (une liste, des sorts, des maîtrises) ? — le carnet
+ *  publie leurs plans SOUS la racine ; un don sans branches n'en publie aucun. */
+export function donABranches(decisions, racine) {
+  return (decisions || []).some((plan) => plan && typeof plan.path === "string" &&
+    plan.path.startsWith(`${racine}.`));
 }
 
 /* ══ LE CADRE — le nom du record d'Inheritance, en mention, jamais un
@@ -429,16 +456,16 @@ export function featInfo(query, id) {
   };
 }
 
-export function renderFeatGlisse(ctx, act) {
+export function renderFeatGlisse(ctx, act, racine = RACINE_DON_ARRIERE_PLAN) {
   const decisions = ctx.decisions || [];
-  const plan = planAt(decisions, "background.originFeat[0]");
+  const plan = planAt(decisions, racine);
   if (!plan) return null;
   /* ⚠️ le plan EST le créneau — `backgroundFeatPlan` ne publie aucun groupe
      au-dessus de `originFeat[0]` (decisions.mjs). Même repli que le lignage
      posé sans indice : un créneau fabriqué du plan, index 0. Le jour où le
      moteur publie `originFeat[1]` (Versatile), `planSlots` prendra le relais
      sans que cet écran change. */
-  const creneaux = planSlots(decisions, "background.originFeat");
+  const creneaux = planSlots(decisions, racine.replace(/\[0\]$/, ""));
   const slots = creneaux.length > 0 ? creneaux : [{ ...plan, index: 0 }];
   /* titre: null — la dalle d'item nomme déjà l'écran (§1 quinquies) */
   return renderChoixGlisses({
@@ -458,13 +485,19 @@ export function renderFeatGlisse(ctx, act) {
    voyants, loi de la porte, aiguilleur et pied y viennent du moule, pas d'ici.
    Ce fichier ne fournit que les CORPS des sous-écrans, comme species-step
    fournit ceux d'Elf. */
+/* Les branches d'un don, par leur SEGMENT sous la racine (lot 364 : la racine varie,
+   le segment non). `proficiencies` est la branche de Skilled (compétences ou outils). */
 const FEAT_SPELL_BLOCS = Object.freeze([
-  { basePath: "background.originFeat[0].cantrips", titre: "Cantrips", mot: "Cantrip" },
-  { basePath: "background.originFeat[0].prepared", titre: "Level 1 spell", mot: "Spell" }
+  { segment: "cantrips", titre: "Cantrips", mot: "Cantrip" },
+  { segment: "prepared", titre: "Level 1 spell", mot: "Spell" }
 ]);
+const segmentDe = (chemin) => {
+  const racine = racineDuDon(chemin);
+  return racine && chemin.startsWith(`${racine}.`) ? chemin.slice(racine.length + 1) : null;
+};
 
-export function featListPlan(decisions) {
-  return (decisions || []).find((d) => d && d.path === "background.originFeat[0].list") || null;
+export function featListPlan(decisions, racine = RACINE_DON_ARRIERE_PLAN) {
+  return (decisions || []).find((d) => d && d.path === `${racine}.list`) || null;
 }
 
 /** Le nom d'une liste — le `name` du RECORD de classe, recopié. ⛔ Jamais une
@@ -476,8 +509,8 @@ function listeLabel(query, id) {
 /** SB — la liste de sorts, au jeton elle aussi : trois classes, une case.
  *  ⛔ Pas d'onInfo : une classe n'a pas de fenêtre d'info ici, et le geste
  *  tap-info est borné aux écrans qui en ont une (NORMES). */
-export function renderFeatListeGlisse(ctx, act) {
-  const plan = featListPlan(ctx.decisions || []);
+export function renderFeatListeGlisse(ctx, act, chemin = `${RACINE_DON_ARRIERE_PLAN}.list`) {
+  const plan = featListPlan(ctx.decisions || [], racineDuDon(chemin) || RACINE_DON_ARRIERE_PLAN);
   if (!plan) return null;
   return renderChoixGlisses({
     plan, slots: [{ ...plan, index: 0 }], titre: null, mot: "List",
@@ -489,7 +522,7 @@ export function renderFeatListeGlisse(ctx, act) {
  *  mot pour mot — même organe, même refKind, même fenêtre d'info. */
 export function renderFeatSortsGlisse(ctx, act, basePath) {
   const decisions = ctx.decisions || [];
-  const bloc = FEAT_SPELL_BLOCS.find((b) => b.basePath === basePath);
+  const bloc = FEAT_SPELL_BLOCS.find((b) => b.segment === segmentDe(basePath));
   const plan = planAt(decisions, basePath);
   if (!bloc || !plan) return null;
   return renderChoixGlisses({
@@ -502,12 +535,93 @@ export function renderFeatSortsGlisse(ctx, act, basePath) {
 
 /** Le mot d'écran d'un sous-choix du don — la porte du B et le titre du SB. */
 export function featSousLabel(chemin) {
-  const bloc = FEAT_SPELL_BLOCS.find((b) => b.basePath === chemin);
+  const segment = segmentDe(chemin);
+  const bloc = FEAT_SPELL_BLOCS.find((b) => b.segment === segment);
   if (bloc) return bloc.titre;
-  return chemin === "background.originFeat[0].list" ? "Spell list" : null;
+  return segment === "list" ? "Spell list" : segment === "proficiencies" ? "Skills or tools" : null;
+}
+
+/* ══ 🎯 LOT 364 — LES MAÎTRISES D'UN DON (Skilled : « three skills or tools ») ══
+   Le même glisser que les sorts : un vivier, trois récepteurs, l'info au tap.
+   ⭐ LES OPTIONS SONT DE DEUX GENRES (compétences ET outils) et le jeton pose un
+   `ref` : son genre se lit dans la PILE (quel catalogue porte cet id), jamais
+   dans la forme de l'id. ⛔ Q4 d'ARCHI 35 : le choix s'écrit et se montre ;
+   l'effet (les maîtrises) attend le lot sur `derive`. */
+function genreDansLaPile(query, id) {
+  for (const genre of ["skill", "tool"]) {
+    const vue = typeof query === "function" ? query({ kind: genre, id }) : null;
+    if (vue && vue.record) return genre;
+  }
+  return null;
+}
+function infoDeMaitrise(query, id) {
+  const genre = genreDansLaPile(query, id);
+  const vue = genre ? query({ kind: genre, id }) : null;
+  const data = (vue && vue.record && vue.record.data) || {};
+  const texte = [data.description, data.utilize].find((x) => typeof x === "string" && x.length > 0);
+  return texte ? { kind: "popup", titre: vue.record.name || motDUnRecordAbsent(id), texte } : null;
+}
+export function renderFeatMaitrisesGlisse(ctx, act, basePath) {
+  const decisions = ctx.decisions || [];
+  const plan = planAt(decisions, basePath);
+  if (!plan) return null;
+  const query = ctx.query;
+  return renderChoixGlisses({
+    plan, slots: planSlots(decisions, basePath), titre: null, mot: "Proficiency",
+    /* le genre annoncé est un repli : le geste le RÉÉCRIT d'après la pile, ci-dessous */
+    refKind: "skill",
+    labelOf: (id) => motDuChoix(query, genreDansLaPile(query, id) || "skill", id),
+    onAction: (action) => act(action && action.kind === "choose" && action.ref
+      ? { ...action, ref: { ...action.ref, kind: genreDansLaPile(query, action.ref.id) || action.ref.kind } }
+      : action),
+    onInfo: (id) => { const info = infoDeMaitrise(query, id); if (info) act(info); }
+  });
+}
+
+/* ══ 🧬 LOT 364 — LES DONS D'ORIGINE, NOMMÉS — le compositeur de la fiche ═══════
+   ARCHI 35, Q3 : la fiche nomme le don de Versatile ET celui de l'arrière-plan,
+   par le MÊME compositeur — sinon elle nommerait le second don et pas le premier.
+   La forme est celle des choix de capacité du lot 360 (« Primal Order: Warden »,
+   source « Druid ») : « <ce qui l'accorde>: <le don> (<sa configuration>) », la
+   source étant le record qui l'accorde. « Origin feat: Magic Initiate (Cleric) »
+   · Acolyte ; « Versatile: Magic Initiate (Wizard) » · Human. La configuration
+   est la liste (Magic Initiate) ou les maîtrises (Skilled) ; un don sans branches
+   n'en a pas. ⚠️ Les libellés sont une proposition : Eric les ajustera.
+   ⛔ Le moteur ne compose pas ces lignes (les dons n'ont pas de colonne dans
+   `resolved.traits`) : c'est l'écran qui les nomme, avec les mots de la pile. */
+export function donsDOrigineNommes(ctx, detenteurs) {
+  const decisions = (ctx && ctx.decisions) || [];
+  const query = ctx && ctx.query;
+  if (typeof query !== "function") return [];
+  const lignes = [];
+  for (const { racine, accorde, source } of detenteurs || []) {
+    const plan = planAt(decisions, racine);
+    const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+    if (!id) continue;
+    const liste = featListPlan(decisions, racine);
+    const listeId = liste && Array.isArray(liste.selected) ? liste.selected[0] : null;
+    const maitrises = planAt(decisions, `${racine}.proficiencies`);
+    const poses = maitrises && Array.isArray(maitrises.selected) ? maitrises.selected : [];
+    const config = listeId ? listeLabel(query, listeId)
+      : poses.length > 0 ? poses.map((x) => motDuChoix(query, genreDansLaPile(query, x) || "skill", x)).join(", ")
+      : null;
+    lignes.push({ name: `${accorde}: ${featLabel(query, id)}${config ? ` (${config})` : ""}`, source });
+  }
+  return lignes;
 }
 
 export { listeLabel };
+
+/** 🧬 LOT 364 — LE DÉTENTEUR DU DON DE L'ARRIÈRE-PLAN, pour le compositeur de la
+ *  fiche : sa racine, ce qui l'accorde (« Origin feat », le mot de sa porte) et sa
+ *  source (le nom de l'arrière-plan retenu — Acolyte, Inheritance). `null` sans don. */
+export function detenteurDuDonDArrierePlan(ctx) {
+  const decisions = (ctx && ctx.decisions) || [];
+  if (!planAt(decisions, RACINE_DON_ARRIERE_PLAN) || !ctx || typeof ctx.query !== "function") return null;
+  const fond = planAt(decisions, "background");
+  const id = fond && Array.isArray(fond.selected) ? fond.selected[0] : null;
+  return { racine: RACINE_DON_ARRIERE_PLAN, accorde: "Origin feat", source: id ? motDuChoix(ctx.query, "background", id) : "Background" };
+}
 
 /** LE PALIER — un seul, et il ferme le panneau ouvert (B4.4 étape 2 :
  *  « toutes les fenêtres intermédiaires disparaissent »). Panneaux fermés :
