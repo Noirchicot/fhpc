@@ -1145,6 +1145,11 @@ reste ouvert.**
 📍 `sheet-trois-portes-sans-condition` · déployée, hors corpus · ?
 ⚖️ **Les trois portes du bas — la vue experte et les deux exports — s'ouvrent toujours, et aucune ne construit un rendu neuf.**
 
+> 🔄 **29/09 (lot 350)** : depuis le lot 198, la fiche peut ne pas exister encore (écran « perso incomplet », ni classe
+> ni scores). Sur cet écran, `Expert view` et `Export HTML` n'ont rien à publier et n'y sont pas ; `Save character`
+> (l'ex-`Export JSON`, nom ratifié par Eric) y EST, sur son mot : *« Save aussi sur cet écran »*
+> (`menu-r-save-character-dans-sheet`, NORMES § 10).
+
 **Les trois portes du bas — la vue experte et les deux exports — s'ouvrent toujours, et aucune ne construit un rendu neuf.**
 
 ---

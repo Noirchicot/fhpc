@@ -869,7 +869,9 @@ export function renderUniverseStep(ctx, onAction) {
   /* ① LA TÊTE — gardée (Eric, 29/09). ⚠️ UNE PERTE SE DIT, ELLE NE SE DEVINE PAS : un
      personnage gardé mais illisible, ou un navigateur qui refuse de garder, laissent
      leur mot ICI. ⛔ Ce n'est pas la ligne d'état retirée : celle-ci disait « saved »
-     à chaque visite ; ceux-là ne parlent que d'une perte — la voix du gendarme. */
+     à chaque visite ; ceux-là ne parlent que d'une perte — la voix du gendarme.
+     ✅ Eric, 29/09, à « le mot rouge en tête de R quand le navigateur ne garde pas le
+     perso — gardé ou retiré ? » : *« Gardé »* (`menu-r-ligne-d-etat-retiree`). */
   const tete = el("header", "tdc-tete");
   tete.append(el("p", "tdc-marque", [text("SOWLREACH")]));
   tete.append(el("p", "tdc-sous-titre", [text("Agnostic SRD 5.2.1 interface")]));

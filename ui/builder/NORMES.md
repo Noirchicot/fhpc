@@ -9554,6 +9554,7 @@ moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne
 ⭐ **LES CHIFFRES DÉDUITS MONTRÉS EN CHEMIN SONT UN CONFORT, JAMAIS UNE PORTE** : la colonne finale d'Abilities, le poids portable d'Equipment, le pool de Skills — présents quand la fiche existe, absents sinon (« — », jamais un zéro inventé), et aucun écran ne meurt de leur absence.
 
 ⚠️ **CE QUE ÇA N'AUTORISE PAS** : un second `lit` dans `STEPS` (un chapitre qui meurt de ce qu'il ne déduit pas — c'est le garde B1, vu rouge en remettant `lit` sur Skills) ; un `if (step.id === "abilities")` de plus dans la coquille (la liste par nom, revenue par une autre porte) ; une phrase de manque recopiée dans un écran (deux écrivains, identiques aujourd'hui, divergents demain) ; un total d'or sans la classe (tronqué n'est ni complet ni nommé) ; un défaut deviné pour un choix du joueur (le niveau est le SEUL fait de naissance) ; une réparation silencieuse d'un fichier sans niveau (on nomme, le joueur décide).
+🔄 **29/09 (lot 350) — L'ÉCRAN MORT DE SHEET PORTE `Save character`** (Eric : *« Save aussi sur cet écran »* — `menu-r-save-character-dans-sheet`). ⛔ Ce n'est pas le `if (step.id === …)` interdit ci-dessus : `manqueDuCran` reste seul juge de qui meurt ; la coquille ne choisit que l'organe qui MONTRE l'écran mort de Sheet (`renderSheetIncomplet`, review-step.mjs), et le mot du manque vient toujours d'`ecran-mort.mjs`.
 
 ⏳ **À ERIC** : les mots de C et D sont des brouillons (comme tous ceux d'`ecran-mort.mjs`) — en particulier « …and this screen comes back with them », que Skills affiche tel quel à la place du pool ; Sheet sans fiche rend aujourd'hui un tableau d'avancement honnête (*« Abilities · 0 of 6 scores »*) — le montrer à la place du refus est son mot ; le cadre « Purse » du dressing (B3, croquis) montre « — » sans classe, le mot vit à « My gold » (B1/B2) — l'y porter aussi est son mot ; et un personnage gardé AVANT ce lot n'a pas de niveau : il lit `MOT_SANS_NIVEAU`, et le magasin (hors lot) dira s'il se répare.
 
@@ -10380,16 +10381,29 @@ dérive) ; `universe-step` D4, D6, D7.
 
 ### 💾 `SAVE CHARACTER` VIT DANS SHEET
 📍 `menu-r-save-character-dans-sheet` · vivante · 29/09
-⚖️ **Le geste qui sauvegarde le personnage vit dans Sheet sous le nom `Save character` (le verbe `exportJson`, un seul écrivain) ; R n'en porte plus.**
+⚖️ **Le geste qui sauvegarde le personnage vit dans Sheet sous le nom `Save character` (le verbe `exportJson`, une seule porte, `porteSaveCharacter`) — au pied de la fiche, ET sur l'écran « perso incomplet » quand la fiche ne peut pas encore naître ; R n'en porte plus.**
 
 > Eric, 2026-09-29 : **« le save character sera dans Sheet »** — dans la ligne du 08/09 : *« Sheet
 > porte l'export »*.
+> Puis, les deux réponses du même jour, chacune avec sa question (relayées par ARCHI 35) :
+> · « `Save character` à la place d'`Export JSON` dans Sheet ? » → **« Oui, Save character »** ;
+> · « Un perso inachevé : Sheet affiche l'écran "perso incomplet", où `Save character` n'est pas —
+>   où sauver ? » → **« Save aussi sur cet écran »**.
 
-⏳ **LE NOM DE LA PORTE EST UNE LECTURE DU LOT 350, À CONFIRMER PAR ERIC** : Sheet portait déjà
-`Export JSON`, qui émet le MÊME verbe que le `Save` du Menu. Une seconde porte pour le même geste
-aurait fait deux boutons qui ne diffèrent que par leur nom ; le lot a donc donné à la porte existante
-le nom dicté. Son refus d'écriture nomme désormais `Save character`.
-🛡️ `tests/review-export.test.mjs` ; `premier-pas` E1.
+✅ **LE NOM EST RATIFIÉ.** Sheet portait déjà `Export JSON`, qui émettait le MÊME verbe que le `Save`
+du Menu : une seconde porte pour le même geste aurait fait deux boutons qui ne diffèrent que par leur
+nom. Le lot 350 avait donc donné à la porte existante le nom dicté, en le soumettant à Eric ; il l'a
+confirmé. Son refus d'écriture nomme `Save character`.
+⭐ **L'ÉCRAN « PERSO INCOMPLET » GARDE SA PORTE.** Sans elle, un perso tout juste né par `New
+character` n'avait AUCUN moyen de se sauver avant sa classe et ses scores (vu au banc le 29/09) :
+`Save` a quitté le Menu, et l'écran mort de Sheet ne montrait que le mot du manque.
+`renderSheetIncomplet` (review-step.mjs) pose ce mot dans la dalle de la fiche (B9.3), suivi de la
+MÊME porte — ⛔ un seul écrivain, jamais un sosie. `Expert view` et `Export HTML` n'y sont pas : ils
+publient la fiche, qui n'existe pas encore (B9.5, pas de porte vers une pièce non construite).
+⛔ **CE N'EST PAS UN SECOND JUGE DE QUI MEURT** (`socle-un-seul-chapitre-deduit`) : `manqueDuCran`
+en décide seul ; la coquille ne choisit que l'organe qui MONTRE l'écran mort de Sheet.
+🛡️ `tests/review-export.test.mjs` (les trois portes ; l'écran incomplet : même porte, même verbe, même
+dalle ; la coquille le pose) — 4 mutations vues rouges ; `premier-pas` E1.
 
 ### 💤 `VAULT` ET `DUNGEON MASTER` SONT RÉSERVÉS ; `TOOLS` QUITTE R
 📍 `menu-r-portes-reservees` · vivante · 29/09
@@ -10425,8 +10439,10 @@ pas diverger. Le guide du Menu demeure, lu depuis ses rangs B.
 
 > ARCHI 35, 29/09 : *« La ligne « in browser: <nom> · saved » (absente de la dictée) : gardée ? »* →
 > Eric : **« RETIRÉE »**.
+> Puis, le même jour : *« Le mot rouge en tête de R quand le navigateur ne garde pas le perso — gardé
+> ou retiré ? »* → Eric : **« Gardé »**.
 
 ⚖️ **CE QUI NE BOUGE PAS** : *« une perte se dit »* (20/08) — un « saved » à chaque visite n'était
 plus un message, c'était un décor ; un refus, lui, en reste un. C'est la voix du gendarme (§ 7), pas
-une ligne d'état qui revient.
+une ligne d'état qui revient. ✅ Ce mot rouge était une lecture du lot 350 ; Eric l'a gardé.
 🛡️ `universe-step` D1, D2, D3, D5, R1.

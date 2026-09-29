@@ -25,7 +25,7 @@ import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER }
 import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=905";
 import { mountPopup } from "./popup.mjs?v=905";
 import { renderLorePanel } from "./lore.mjs?v=905";
-import { nomDeFichier, renderReviewStep, reviewValidate } from "./review-step.mjs?v=905";
+import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=905";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
@@ -2985,7 +2985,18 @@ function renderStepContent() {
      disent alors la vérité, et un refus qui accuserait un document absent
      dirait autre chose. */
   if (state.document && manqueDuCran(step, faitsDuPersonnage())) {
-    card.append(el("p", "placeholder", [document.createTextNode(motDeLEcranMort(state.document))]));
+    const mot = motDeLEcranMort(state.document);
+    /* ⚖️ LOT 350 — L'ÉCRAN MORT DE SHEET GARDE `Save character`. Eric, 29/09, à « un perso
+       inachevé : Sheet affiche l'écran "perso incomplet", où `Save character` n'est pas — où
+       sauver ? » : *« Save aussi sur cet écran »*. `renderSheetIncomplet` (review-step.mjs)
+       le pose dans la dalle de la fiche, avec la MÊME porte.
+       ⛔ CE N'EST PAS UN SECOND JUGE DE QUI MEURT (`socle-un-seul-chapitre-deduit` interdit
+       ce `if` là) : `manqueDuCran` en décide seul, juste au-dessus. Le test sur l'id ne
+       choisit que l'ORGANE qui montre l'écran mort de Sheet, comme `renderCard` choisit
+       déjà l'écran de chaque cran — et la réponse d'Eric ne vaut que pour Sheet. */
+    card.append(step.id === "review"
+      ? renderSheetIncomplet(mot, applyDecisionAction)
+      : el("p", "placeholder", [document.createTextNode(mot)]));
     return card;
   }
 
