@@ -6013,7 +6013,8 @@ allume, et le glisser rend l'objet d'où il vient. La coquille garde un dernier 
 les deux livres (Burglar's, Diplomat's) ; au-delà, le surplus déborderait comme par Send, ⛔ jamais une page 2.
 ⭐ **LES DROPDOWNS PORTENT L'AMBRE** (④) — le fond, le liseré, sous le viseur, la loupe : `--depot` (#c8741f), avec son
 habit à 35 % / 55 % comme l'or et le bleu, et constant jour et nuit (*« ce qui nomme un LIEU ne bascule pas »*).
-⏳ La teinte est MA suggestion, soumise à Eric sur capture le 29/09 : elle se change en un seul jeton. *« Tout tombe
+La teinte était la suggestion du lot 356, soumise à Eric sur capture le 29/09 — ✅ **RATIFIÉE le 30/09**, à *« la
+couleur des Backpack dropdown (l'ambre #c8741f de la capture) ? »* → **« Gardée »**. Elle se change en un seul jeton. *« Tout tombe
 dedans dans l'ordre et sans distinction »* : c'est la chaîne, remplie par ordre de naissance. Un dropdown ne se renomme
 pas ; vide, il s'efface par le `−` ; il paraît au bout de la roue, comme une section neuve.
 ⭐ **« + BACKPACK DROPDOWN »** (④) : le troisième `+` du panneau d'édition, sous « + Backpack Storage », à l'anneau ambre
@@ -10589,6 +10590,9 @@ l'atterrissage sur l'étape 1.
 > stockage choisi, ou dans un fichier si rien n'a été réglé »** · des liens Layers / Vault dans la
 > fenêtre ? → **« non, ça fait trop de liens »** · le `Delete` de la fenêtre ? → il efface **« dans le
 > navigateur »** · sans perso en cours, la correction `Cancel · Start` d'ARCHI 35 ? → **« RATIFIÉ »**.
+> Et le 30/09, après le test A→Z (lot 358, constat 3) : *« la fenêtre dit "Choose where your characters are stored,
+> in Vault", alors que la porte Vault est grisée (soon). Cette ligne ? »* → **« Gardée »** — la dictée telle quelle,
+> même Vault grisé.
 
 🗄️ **CE QU'ELLE REMPLACE** — `menu-dit-la-sauvegarde` (20/08, resserrée le 06/09) : *« aucune de ses
 portes ne PROMET un personnage neuf »*, parce que le builder n'avait aucun personnage vierge. Le lot
@@ -10707,7 +10711,9 @@ position éteinte (`voyant-srd-toujours-allume-jamais-un-controle`).
 du fichier dans le cas contraire »* ; les noms de la dictée sont des exemples. ⚠️ Un cas que ni la
 dictée ni cette réponse ne tranchent : un livre DÉCLARÉ par le perso et absent de l'appareil (un
 perso bâti ailleurs — `A-TRANCHER` §C34) se montre, éteint, avec son mot (« not on this device »),
-pour que le joueur sache ce qui manque. ⏳ C'est une lecture du lot 351, gardée de l'écran du lot 188.
+pour que le joueur sache ce qui manque. C'était une lecture du lot 351, gardée de l'écran du lot 188 — ✅ **RATIFIÉE
+par Eric le 30/09**, à *« Layers : un livre que le perso déclare mais qui n'est pas sur l'appareil (un perso bâti
+ailleurs). Que fait la page ? »* → **« Montré éteint »** (la ligne reste, éteinte, avec « not on this device »).
 ⭐ **LES FAMILLES VIENNENT DE LA CARTE** — `SOCLE`, `MAITRE`, `LIVRES_DU_JOUEUR` (`interrupteurs.mjs`),
 ⛔ jamais écrites dans l'écran. Un livre de règles de base n'apporte que du catalogue (*« CORE RULES
 n'a QUE des catalogues »*, la pile par source du 29/09).
