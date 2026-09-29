@@ -9817,6 +9817,9 @@ fichier serait vert pour rien)*.
 ⚖️ **La fiche nomme chaque don d'origine, celui de l'arrière-plan comme celui de Versatile, par UN compositeur : « <ce qui l'accorde>: <le don> (<sa configuration>) », la source étant le record qui l'accorde — « Origin feat: Magic Initiate (Cleric) » · Acolyte, « Versatile: Magic Initiate (Wizard) » · Human. Les libellés sont une proposition ; Eric les ajuste.**
 
 > ARCHI 35, 29/09, Q3 : *« Le don de l'arrière-plan est nommé aussi, par le MÊME compositeur, sinon la fiche nomme le second don et pas le premier. »* ⛔ Q4 : les maîtrises de Skilled s'écrivent et se montrent ; leur effet attend le lot sur `derive`, avec les capacités du lot 360.
+> ✅ Eric, **30/09**, à *« Sur la fiche, le Human porte deux lignes voisines : "Versatile — Human" (le trait d'espèce,
+> tel que le moteur le publie pour chaque trait) et "Versatile: Magic Initiate (Wizard)" (ce qu'il a choisi). a) garder
+> les deux (le trait et le choix) · b) une seule ligne, celle du choix ? »* → **« a »** : le trait ET le choix restent.
 
 📌 **CE QUI LES TIENT** : `tests/versatile-364.test.mjs` (la porte par la donnée, la reprise lue dans le texte, les deux sens, la liste distincte, Skilled, la fiche, la Sheet, le routage de la coquille), `tests/choix-du-niveau-1.test.mjs` (la dette a perdu #6 et #16), `tests/lot194-don-accorde.test.mjs` (une seule fabrique du cfg du don) — seize mutations vues rouges.
 
