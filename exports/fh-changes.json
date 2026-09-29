@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "78904bcca83d18ca35efbba3b33ad8842d8024cb07b5170ec256a961d9425733",
+  "layer_run": "c5175e38c3b1bdf00c5494a49802f06dd0b9789fcb7e994b29da2bee3a195db5",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -18,17 +18,17 @@
     {
       "id": "srfh-mecaniques-en",
       "version": "0.1.0",
-      "hash": "b282e76c2db2925f37ee20b7d81b40285849418a79efeb215cfaac9ebb3e9598"
+      "hash": "fede8b3d7ea6d4ab539b0490ad937126aa5e1558c43ed83946179054f4262c58"
     },
     {
       "id": "fh-species-en",
       "version": "0.1.0",
-      "hash": "0c0bf99db0a87d96f33fa8f41a56fe6ba5ee37f123708c6d80fa83df9fa510d9"
+      "hash": "80f8d9ef4168358fb437fb4b64fb30c10a2aff15f43c54d1b5d8d9412659ebf9"
     },
     {
       "id": "fh-skills-en",
       "version": "0.1.0",
-      "hash": "12a685116d1dc6a8270b2af77288c67f98d0ee88308eda6e6eefc3b27f46cb5f"
+      "hash": "fabe1079921775c3c9ca659f92c9af2950793b65b05f62d356ff1c7b1e5d124e"
     },
     {
       "id": "fh-trainings-en",
@@ -38,7 +38,7 @@
     {
       "id": "fh-inheritance-en",
       "version": "0.1.0",
-      "hash": "fcdab45c479b2b6d6dbdd7b8c7655196abe4f8bf6f43e6f63b73196a4383b6f4"
+      "hash": "22bacd5b087c860140caf2484b25f3092d2b2f1a6be7ad7ecdb6e09420884a9c"
     },
     {
       "id": "fh-arcana-en",
@@ -48,7 +48,7 @@
     {
       "id": "fh-feats-en",
       "version": "0.1.0",
-      "hash": "d6135a5e23806dd80967605270a6639b77d50e227d6671d5c7274ed2f70e9cf8"
+      "hash": "35899885d6d7a4cb3a1dcb75b93c514bba14a4d45849bab3be088e3cfb64088f"
     },
     {
       "id": "fh-spells-en",
@@ -73,12 +73,12 @@
     {
       "id": "fh-fiche-en",
       "version": "0.1.0",
-      "hash": "384255a02ea4a9dc6de9ec615af55980c9741bbec1ffd1b2240f4e78600ca1f9"
+      "hash": "115ac365bfa936538e7d7358ca17c89906a6e39a15bbeb4607a265c7876c7bce"
     },
     {
       "id": "fh-lore-en",
       "version": "0.1.0",
-      "hash": "35cc06758efa6b5d5b38b4babfdd02b380387e696b537ca647b0eae3bc9e5d38"
+      "hash": "5778e334f3edc4b29e5fe8255a446c2be3536c36716ebe05609acd7cf96f1324"
     }
   ],
   "genres": {

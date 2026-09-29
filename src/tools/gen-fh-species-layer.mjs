@@ -463,6 +463,9 @@ function patchEntry(srd, entry) {
   changes["data.destiny"] = destinyOf(entry);
   if (entry.skillPoints) changes["data[skill_points]"] = structuredClone(entry.skillPoints);
   if (entry.fhTraits) changes["data[fh_traits]"] = structuredClone(entry.fhTraits);
+  /* 📋 LOT 360 — les choix que CE texte fait faire, sous la clef de CETTE couche
+     (un seul écrivain par clef ; aucune dépendance à `srfh-mecaniques-en`). */
+  if (entry.choixDuTexte) changes[`data[choix_du_texte:${LAYER.id}]`] = structuredClone(entry.choixDuTexte);
 
   /* Les chemins sont émis TRIÉS, dans l'ordre même où le pli les appliquera
      (`applyPatch` trie les clefs de `changes`). Le fichier se lit alors comme

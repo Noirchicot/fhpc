@@ -641,6 +641,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -724,6 +733,29 @@
               "max": 2
             },
             "expertise_from_level": 2
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose any 3 skills",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 3 points liés à la liste de la classe le remplacent (canon §B.1)."
+            },
+            "outils": {
+              "extrait": "Choose 3 Musical Instruments",
+              "nature": "creation",
+              "etape": "skills",
+              "chemin": "fh.skills.spend",
+              "note": "Fate's Hand : 2 point(s) d'outil lié(s) et le pool — l'outil s'achète à l'étape Skills."
+            },
+            "instrument-du-kit": {
+              "extrait": "Musical Instrument of your choice",
+              "nature": "creation",
+              "etape": "equipment",
+              "chemin": "depart.class-tool",
+              "note": "Eric, 21/09 (lot 246) : l'instrument du kit se lit dans les achats de Skills — un seul, il est posé ; deux ou plus, Equipment pose la question."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 3 skill / 2 tool points already placed, 12 free points to spend"
@@ -770,6 +802,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -827,6 +868,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 1 tool points already placed, 12 free points to spend"
@@ -885,6 +935,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -931,6 +990,29 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            },
+            "outils": {
+              "extrait": "Choose one type of Artisan’s Tools or Musical Instrument",
+              "nature": "creation",
+              "etape": "skills",
+              "chemin": "fh.skills.spend",
+              "note": "Fate's Hand : 0 point(s) d'outil lié(s) et le pool — l'outil s'achète à l'étape Skills."
+            },
+            "instrument-du-kit": {
+              "extrait": "Musical Instrument chosen for the tool proficiency above",
+              "nature": "creation",
+              "etape": "equipment",
+              "chemin": "depart.class-tool",
+              "note": "Eric, 21/09 (lot 246) : l'instrument du kit se lit dans les achats de Skills — un seul, il est posé ; deux ou plus, Equipment pose la question."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -977,6 +1059,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -1051,6 +1142,15 @@
               "max": 2
             },
             "expertise_from_level": 2
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 3",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 3 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 3 skill / 0 tool points already placed, 12 free points to spend"
@@ -1120,6 +1220,15 @@
               "max": 2
             },
             "expertise_from_level": 1
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 4",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 6 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 6 skill / 1 tool points already placed, 14 free points to spend"
@@ -1166,6 +1275,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -1212,6 +1330,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"
@@ -1258,6 +1385,15 @@
               "max": 2
             },
             "expertise_from_level": 4
+          },
+          "data[choix_du_texte:fh-skills-en]": {
+            "competences": {
+              "extrait": "Choose 2",
+              "nature": "creation",
+              "etape": "class",
+              "chemin": "class.skillBudget",
+              "note": "Fate's Hand : le compte SRD tombe à 0 et 2 points liés à la liste de la classe le remplacent (canon §B.1)."
+            }
           }
         },
         "note": "Fate's Hand — canon §B.1: bound 2 skill / 0 tool points already placed, 10 free points to spend"

@@ -675,7 +675,20 @@ export const SPECIES = [
       }
     },
     description: HODDON_DESCRIPTION,
-    traitSubstitutions: { "gnomish-lineage": HODDON_LINEAGE_TRAIT }
+    traitSubstitutions: { "gnomish-lineage": HODDON_LINEAGE_TRAIT },
+    /* 📋 LOT 360 — LE CHOIX QUE CE TEXTE FATE'S HAND FAIT FAIRE, DÉCLARÉ (ARCHI 35,
+       29/09). La voie Rock Folk (`LINEAGES.hoddon`, ci-dessus) dit « one
+       Prestidigitation effect of your choice » : un choix de TABLE, fait quand
+       le Hoddon fabrique son appareil, pas un choix de création. Il se déclare
+       sous la clef de cette couche (`choix_du_texte:fh-species-en`) ; la garde
+       `tests/choix-du-niveau-1.test.mjs` exige que l'extrait retrouve sa phrase. */
+    choixDuTexte: {
+      "appareil-hoddon": {
+        extrait: "one Prestidigitation effect of your choice",
+        nature: "en-jeu",
+        quand: "quand le Hoddon (Rock Folk) fabrique un appareil mécanique"
+      }
+    }
   },
 
   {

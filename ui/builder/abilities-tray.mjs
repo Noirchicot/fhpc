@@ -104,11 +104,14 @@
    se fige en image et LIBÈRE son contexte WebGL. Le navigateur en plafonne
    ~16 ; sans ça, dix jets de trois dés épuisent la réserve et le plateau
    cesse de rendre SANS erreur. Vérifié au banc : après trente dés, zéro
-   contexte vivant. */
+   contexte vivant.
+   🔴 LOT 362 — MAIS CE N'ÉTAIT VRAI QUE DES DÉS QUI TOMBENT : un dé posé SANS
+   animation (le `Flash`, et chaque rendu d'un lot déjà tiré) gardait son contexte
+   pour toujours, et un dé retiré EN PLEIN VOL aussi. Voir `poserLesDes`. */
 
-import { mount, createDieHost, rollDurationMs } from "./dice3d.mjs?v=912";
-import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=912";
-import { swapContent } from "./socle.mjs?v=912";
+import { mount, createDieHost, rollDurationMs, rendreLeContexte } from "./dice3d.mjs?v=916";
+import { mecaniqueDeJet, rollAbilityBatch } from "./dice.mjs?v=916";
+import { swapContent } from "./socle.mjs?v=916";
 
 /* Les réglages d'Eric, mesurés sur son iPhone SE le 2026-08-15.
    ⛔ Pas de valeur en dur ailleurs : c'est ici ou nulle part. */
@@ -166,21 +169,55 @@ function el(tag, className, children) {
 const texte = (s) => document.createTextNode(s);
 
 /** Les trois dés d'un jet, posés dans l'hôte.
- *  `anime: false` → ils prennent la POSE du résultat sans tomber. C'est ce
- *  qui fait qu'un redessin (après une assignation) ne rejoue pas dix
- *  animations : seul un vrai `ROLL` anime. */
+ *  `anime: false` → ils prennent la POSE du résultat sans tomber, par le chemin
+ *  IMAGE (`snapshot`) : aucun contexte WebGL (lot 362). C'est ce qui fait qu'un
+ *  redessin (après une assignation) ne rejoue pas dix animations : seul un vrai
+ *  `ROLL` anime. */
+/* ══ 🔴 LOT 362 — AUCUN CONTEXTE OUVERT SANS ÊTRE RENDU ════════════════════
+   📏 MESURÉ AU BANC (v912, Chromium 1280 × 800, une sonde sur `getContext`) :
+   · un jet ANIMÉ ouvre un contexte par dé et le rend en se figeant — juste ;
+   · un dé posé SANS animation ouvrait un contexte que rien ne rendait : le corps
+     du moteur ne fige que les dés animés. `Flash` en posait DEUX séries (le jet
+     affiché, puis le redessin de la scène 2), chaque assignation une de plus —
+     et en scène 2 l'écran n'AFFICHE même pas ces dés (`abilities-step.mjs` ne
+     pose le tapis qu'en scène 1) ;
+   · un dé animé retiré en plein vol (`Reset`, `Cancel`, une autre étape) gardait
+     le sien : le moteur ne fige que les dés encore dans la page.
+   Un parcours complet en ouvrait 33, en laissait 16 vivants hors de la page, et le
+   navigateur en évinçait 6 — le plus ancien d'abord.
+   ⭐ LA VOIE LA PLUS SIMPLE, ET POURQUOI : (1) la pose sans animation passe par le
+   chemin IMAGE que le moteur porte déjà pour ce cas (« no live context, ever ») —
+   c'est l'image exacte qu'un dé animé devient en se figeant, et l'image est la même
+   au pixel près (0 pixel différent sur quatre matières, mesuré au banc à 56 px) ;
+   (2) le plateau, qui a posé ses dés animés, rend ceux qui ont quitté la page à la
+   fin du jet. ⛔ Pas de contexte unique partagé pour les dés qui roulent : il
+   faudrait réécrire le rendu du moteur, copie verbatim qu'Eric a validée à l'œil.
+   Le seul contexte partagé reste celui qui dessine toutes les images (le
+   générateur du moteur), un pour toute la page. */
 function poserLesDes(hote, des, anime) {
   const taille = tailleDeDe(des.length);
+  const hotes = des.map((valeur, i) => createDieHost(anime
+    ? { sides: 6, result: valeur, sizePx: taille, index: i, animate: true, settleSizePx: taille }
+    : { sides: 6, result: valeur, sizePx: taille, index: i, animate: false, snapshot: true }));
   /* ⛔ PAS DE `replaceChildren` ICI — un garde du socle l'a attrapé, et il a
      raison : `swapContent` est le SEUL endroit du dépôt qui remplace le
      contenu d'un nœud (une brique, un écrivain, un garde). Le plateau n'a
      aucune raison d'être une exception : la brique fait exactement ce qu'il
      faut, et il hérite de son comportement au lieu d'en réinventer un. */
-  swapContent(hote, des.map((valeur, i) => createDieHost({
-    sides: 6, result: valeur, sizePx: taille, index: i,
-    animate: anime, settleSizePx: taille
-  })));
+  swapContent(hote, hotes);
   mount(hote);
+  if (anime) rendreCeuxQuiSontPartis(hotes);
+}
+
+/** LE PLATEAU REPASSE APRÈS LE JET — celui du dernier dé, plus une marge, donc
+ *  après le moment où le moteur fige ceux qui sont restés — et rend le contexte
+ *  de ceux qui ont quitté la page entre-temps. ⛔ Aucun cycle de vie : le socle
+ *  n'en a pas et n'en aura pas ; `isConnected` est la seule question posée. */
+function rendreCeuxQuiSontPartis(hotes) {
+  const fin = rollDurationMs + hotes.length * 42 + 200;
+  setTimeout(() => {
+    for (const h of hotes) if (!h.isConnected) rendreLeContexte(h);
+  }, fin);
 }
 
 /** Une case de résultat, dans la rangée des dix. Elle existe DÈS LE DÉPART,

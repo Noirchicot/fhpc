@@ -6013,7 +6013,8 @@ allume, et le glisser rend l'objet d'où il vient. La coquille garde un dernier 
 les deux livres (Burglar's, Diplomat's) ; au-delà, le surplus déborderait comme par Send, ⛔ jamais une page 2.
 ⭐ **LES DROPDOWNS PORTENT L'AMBRE** (④) — le fond, le liseré, sous le viseur, la loupe : `--depot` (#c8741f), avec son
 habit à 35 % / 55 % comme l'or et le bleu, et constant jour et nuit (*« ce qui nomme un LIEU ne bascule pas »*).
-⏳ La teinte est MA suggestion, soumise à Eric sur capture le 29/09 : elle se change en un seul jeton. *« Tout tombe
+La teinte était la suggestion du lot 356, soumise à Eric sur capture le 29/09 — ✅ **RATIFIÉE le 30/09**, à *« la
+couleur des Backpack dropdown (l'ambre #c8741f de la capture) ? »* → **« Gardée »**. Elle se change en un seul jeton. *« Tout tombe
 dedans dans l'ordre et sans distinction »* : c'est la chaîne, remplie par ordre de naissance. Un dropdown ne se renomme
 pas ; vide, il s'efface par le `−` ; il paraît au bout de la roue, comme une section neuve.
 ⭐ **« + BACKPACK DROPDOWN »** (④) : le troisième `+` du panneau d'édition, sous « + Backpack Storage », à l'anneau ambre
@@ -9759,6 +9760,42 @@ fichier serait vert pour rien)*.
 
 ---
 
+## 6 pré nonies. 📋 UN CHOIX QUE LE TEXTE FAIT FAIRE SE DÉCLARE — et la porte suit la déclaration *(lot 360, 2026-09-29)*
+📍 `socle-une-phrase-de-choix-se-declare` · vivante · 29/09
+⚖️ **Chaque phrase du texte d'un record de niveau 1 qui fait choisir (« choose », « of your choice »…) est couverte par une DÉCLARATION de la couche qui écrit ce texte : `creation` (l'étape et le chemin du document qui posent le choix), `en-jeu` (quand la table le fait), `montee` (le passage de niveau qui le fait faire) ou `hors-choix` (pourquoi le mot ne désigne pas un choix). Une phrase sans déclaration accuse : la forme trouve les phrases, la donnée tranche.**
+
+> ARCHI 35, 29/09, pour la garde du lot 360 : *« Chaque phrase de choix du niveau 1 doit être couverte par une DÉCLARATION : soit un plan de création, soit une déclaration « en jeu » explicite dans la couche (le souffle, l'appareil du Rock Gnome, la Rage…). Une phrase couverte par aucune des deux accuse. La donnée tranche ; la forme ne sert qu'à trouver les phrases. »* Puis, le même jour : « montée » est une 3ᵉ nature (l'inventaire du futur lot Level up), « hors-choix » une 4ᵉ, avec un `pourquoi` obligatoire.
+
+📏 **CE QUI SE PASSAIT** — le test A→Z du lot 358 (constats 4 et 5), puis le relevé du lot 360 : en SRD, le Gnome lisait « Choose one of the following options… » et l'étape disait « settled » ; le Druid rangeait Primal Order dans « Granted automatically ». Cause commune, à l'octet : la couche ne DÉCLARAIT pas le choix (aucun plan), et aucune garde ne pouvait le voir — elle aurait lu les plans, et c'est justement le plan qui manquait.
+
+⭐ **LA GARDE LIT LE TEXTE, PAS LES PLANS** : toute la donnée du record au niveau 1 (espèce, classe, arrière-plan, don d'origine ou offert au niveau 1), textes Fate's Hand compris (fiche, lore, blurb). ⛔ Seule la DONNÉE exclut : un objet qui porte `level` > 1, une clef-palier entière > 1. C'est la liste inversée (ARCHI 35, Q1) : on nomme ce qui sort, jamais les champs qu'on lit — une liste de champs lus serait incomplète par construction.
+⭐ **UNE DÉCLARATION « création » SE VÉRIFIE À L'ÉCRIVAIN** : l'étape est montée dans la pile, et le chemin s'écrit au document — par le plan du carnet et sa porte (Species, Class, Background ; en répondant d'abord à ce qui le précède : en Fate's Hand, les tours de Magic Initiate n'existent qu'une fois la liste choisie), par l'écrivain d'Equipment (`appliquerLeButin`), ou par la famille de chemins de Skills. Une étape que la garde ne sait pas relire accuse.
+⭐ **LA DETTE VIT DANS LE TEST, PAS DANS LA COUCHE** (ARCHI 35, Q2) : chaque ligne renvoie à SA ligne du relevé dans le mandat (« relevé 360 #6 ») et rougit dans les deux sens — un choix non déclaré qui apparaît, une ligne qui ne trouve plus d'occurrence non déclarée. Un lot qui comble un trou ôte sa ligne, et baisse le compte épinglé.
+
+📍 `socle-une-cle-de-declaration-par-couche` · vivante · 29/09
+⚖️ **Chaque couche déclare les choix de SON texte sous SA clef, `data[choix_du_texte:<id de la couche>]`, l'id étant lu dans la couche elle-même : un seul écrivain par clef, aucune couche ne dépend d'une autre. Quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. Une clef qui ressemble au préfixe sans le respecter accuse.**
+
+📏 **POURQUOI PAS UN OBJET PARTAGÉ** — mesuré au lot 360 : vingt fichiers de test montent des couches Fate's Hand SANS `srfh-mecaniques-en` (`[SRD, fh-species, fh-skills]`…). La grammaire des patchs exige qu'un intermédiaire existe : une couche Fate's Hand qui aurait ajouté sa clef dans l'objet de srfh aurait JETÉ au montage, et chacune aurait dépendu de srfh — un contrat de pile neuf. ARCHI 35, 29/09 : *« Une clé par couche (`choix_du_texte:<id de la couche>`), un seul écrivain par clé, aucune couche ne dépend d'une autre. Et la couche du dessus fait foi, comme partout dans la pile. »*
+⭐ **CE QUE FATE'S HAND ASSUME SE DÉCLARE CHEZ LUI** : `srfh-mecaniques-en` déclare le texte SRD ; `fh-skills-en` couvre par-dessus le « Choose N » des compétences (la bourse liée, `class.skillBudget`) et les outils du Barde et du Moine (Skills, et l'instrument du kit à Equipment) ; `fh-species-en` et `fh-inheritance-en` par leurs sources ; `fh-fiche-en`, `fh-lore-en` et `fh-feats-en` à la main — ce ne sont pas des couches générées. ⛔ Jamais la pile générée à la main.
+
+📍 `class-un-choix-de-capacite-a-sa-porte` · vivante · 29/09
+⚖️ **Une capacité de classe qui fait choisir au niveau 1 se DÉCLARE dans la couche (`data[feature_choices]` : id, nom, niveau, compte, et ses options — ou `options_from`, un genre de record) ; le carnet publie `class.<id>`, l'étape Class ouvre la porte avec l'organe du glisser, et la capacité quitte « Granted automatically ». L'écran ne connaît aucune capacité par son nom : une capacité déclarée demain obtient sa porte sans une ligne d'écran. La fiche nomme la réponse (« Primal Order: Warden »).**
+
+> ARCHI 35, 29/09, Q1 → a) : *« Divine Order, Primal Order et Fighting Style s'écrivent et se montrent. Leurs effets (armures, armes, bonus, et le cantrip en plus de Thaumaturge / Magician, qui est lui-même un choix) feront un lot sur `derive`. »* ⛔ Jusque-là, aucune règle ne lit la réponse : la Sheet le dit sous « Recorded, but no rule reads them », et c'est la vérité.
+
+📌 **CE QUI LES TIENT** : `tests/choix-du-niveau-1.test.mjs` (la couverture, la forme, la création relue à l'écrivain, la dette, les clefs, trois témoins) et `tests/portes-360.test.mjs` (les plans, la porte, les acquis, la fiche, le palier 2 et la Sheet) — dix-neuf mutations vues rouges.
+
+📍 `class-la-portee-d-une-porte-se-declare` · vivante · 29/09
+⚖️ **Une porte de capacité de classe DÉCLARE sa portée sur sa déclaration `creation` (`portee`) : `entiere` quand la porte EST la capacité, `partielle` quand elle n'en est qu'une part. Une capacité à porte entière quitte « Granted automatically » ; une capacité à porte partielle y reste. Ni nom, ni égalité de libellés : la portée est une donnée de la couche.**
+
+> Question posée à ARCHI 35, 29/09 : *« Par la donnée, Spellcasting et Pact Magic ont aussi des portes (Cantrips, Prepared spells). Règle stricte, ils quittent aussi « Granted automatically » ; ou seulement la capacité que sa porte représente en entier ? »* → *« **2)**, pour tes raisons. Le doublon refusé est le même objet à deux endroits. Spellcasting porte aussi ce qui ne se choisit pas, et son résumé ne se redit nulle part. »* Puis : *« que la portée soit DÉCLARÉE, pas déduite de l'égalité des libellés. Deux mots pour le même organe, c'est la faute qu'on a déjà payée. »* Et Eric, 26/08 : *« soit la porte, soit le résumé, jamais les deux »*.
+
+📏 **CE QUI SE PASSAIT** — relevé du lot 360 sur v913 : Weapon Mastery (Barbarian, Fighter, Paladin, Ranger, Rogue) et Eldritch Invocations (Warlock) se lisaient à la fois comme porte et dans « Granted automatically ». Le rapprochement lisait le nom des `feature_choices`, et leurs portes n'en sont pas.
+⭐ **LE LIEN EST DANS LA DONNÉE** : la capacité est celle dont le texte porte l'extrait de la déclaration `creation`, et le chemin de la déclaration nomme la porte. Classées le 29/09 dans `srfh-mecaniques-en`, qui monte dans les deux piles : **9 capacités entières** (Weapon Mastery ×5, Eldritch Invocations, Divine Order, Primal Order, Fighting Style — une déclaration chacune) et **8 partielles** (Spellcasting ×7, Pact Magic — 23 déclarations). Aucune couche Fate's Hand ne déclare de capacité de classe.
+🛡️ `tests/porte-entiere-jamais-acquise.test.mjs` : ① la portée exigée, une seule par capacité ; ② l'écran lu — entière absente, partielle présente ; ③ une porte au libellé égal au nom de sa capacité ne peut pas se déclarer partielle.
+
+---
+
 ## 7 bis. 👻 LE FANTÔME A LA BOÎTE DE CE QU'IL COPIE — **quoi qu'il copie** *(lot 205, 2026-09-13)*
 📍 `geste-fantome-a-la-boite-de-ce-qu-il-copie` · vivante · 13/09
 ⚖️ **Un fantôme rend la largeur ET la hauteur de la boîte SAISIE, pour tout ce qui peut être saisi — pas pour une classe. Il est `position: fixed`, donc il n'a pas de cellule : aucune déclaration qui suppose une rangée ne s'adresse à lui.**
@@ -10562,6 +10599,9 @@ l'atterrissage sur l'étape 1.
 > stockage choisi, ou dans un fichier si rien n'a été réglé »** · des liens Layers / Vault dans la
 > fenêtre ? → **« non, ça fait trop de liens »** · le `Delete` de la fenêtre ? → il efface **« dans le
 > navigateur »** · sans perso en cours, la correction `Cancel · Start` d'ARCHI 35 ? → **« RATIFIÉ »**.
+> Et le 30/09, après le test A→Z (lot 358, constat 3) : *« la fenêtre dit "Choose where your characters are stored,
+> in Vault", alors que la porte Vault est grisée (soon). Cette ligne ? »* → **« Gardée »** — la dictée telle quelle,
+> même Vault grisé.
 
 🗄️ **CE QU'ELLE REMPLACE** — `menu-dit-la-sauvegarde` (20/08, resserrée le 06/09) : *« aucune de ses
 portes ne PROMET un personnage neuf »*, parce que le builder n'avait aucun personnage vierge. Le lot
@@ -10680,7 +10720,9 @@ position éteinte (`voyant-srd-toujours-allume-jamais-un-controle`).
 du fichier dans le cas contraire »* ; les noms de la dictée sont des exemples. ⚠️ Un cas que ni la
 dictée ni cette réponse ne tranchent : un livre DÉCLARÉ par le perso et absent de l'appareil (un
 perso bâti ailleurs — `A-TRANCHER` §C34) se montre, éteint, avec son mot (« not on this device »),
-pour que le joueur sache ce qui manque. ⏳ C'est une lecture du lot 351, gardée de l'écran du lot 188.
+pour que le joueur sache ce qui manque. C'était une lecture du lot 351, gardée de l'écran du lot 188 — ✅ **RATIFIÉE
+par Eric le 30/09**, à *« Layers : un livre que le perso déclare mais qui n'est pas sur l'appareil (un perso bâti
+ailleurs). Que fait la page ? »* → **« Montré éteint »** (la ligne reste, éteinte, avec « not on this device »).
 ⭐ **LES FAMILLES VIENNENT DE LA CARTE** — `SOCLE`, `MAITRE`, `LIVRES_DU_JOUEUR` (`interrupteurs.mjs`),
 ⛔ jamais écrites dans l'écran. Un livre de règles de base n'apporte que du catalogue (*« CORE RULES
 n'a QUE des catalogues »*, la pile par source du 29/09).

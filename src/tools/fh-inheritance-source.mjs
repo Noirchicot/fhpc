@@ -21,10 +21,9 @@
    jamais sur une seconde liste écrite ici. */
 
 /* ══ L'ARRIÈRE-PLAN — ÉTEINT EN FATE'S HAND (lot 35) ═══════════════════════
-   Addendums §4, « L'arrière-plan n'existe plus en Fate's Hand » (Eric,
-   2026-08-12). L'étape ne pose plus qu'un don d'origine et des bonus de
-   caractéristiques — elle peut s'appeler Inheritance. Tout le reste du choix
-   d'arrière-plan SRD s'éteint : plus de compétences imposées, plus d'outil
+   Eric, 2026-08-12 : « L'arrière-plan n'existe plus en Fate's Hand ». L'étape
+   ne pose plus qu'un don d'origine et des bonus de caractéristiques — elle
+   peut s'appeler Inheritance. Tout le reste du choix d'arrière-plan SRD s'éteint : plus de compétences imposées, plus d'outil
    imposé. `ability_keys` et `feat_id`/`feat_option` SURVIVENT intacts — c'est
    l'Inheritance, elle ne bouge pas.
 
@@ -51,7 +50,7 @@
    ⭐ RÉVISÉ PAR LE LOT 43 (2026-08-13) — « éteint » n'était encore qu'un
    `patch` qui retirait deux ou trois champs (`skill_ids`, `tool_id` /
    `tool_choice`) : le record SURVIVAIT, choisissable, avec son `ability_keys`
-   et son `feat_id` intacts. Addendums §4 (réécrit le 2026-08-13) : « IL N'Y A
+   et son `feat_id` intacts. Eric, 2026-08-13 : « IL N'Y A
    PLUS DE RECORD D'ARRIÈRE-PLAN DU TOUT ». Les quatre records SRD sont donc
    RETIRÉS de la pile (`op: "disable"`, le patron déjà en place pour Perception
    et le Gaming Set générique, `SKILLS_REMOVED` plus haut) — plus de `patch`
@@ -62,25 +61,25 @@ export const BACKGROUNDS_EXTINGUISHED = [
     target: "srd:background:en:acolyte",
     reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
       "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      "abilities (Eric, 2026-08-13). No background record is chosen anymore."
   },
   {
     target: "srd:background:en:criminal",
     reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
       "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      "abilities (Eric, 2026-08-13). No background record is chosen anymore."
   },
   {
     target: "srd:background:en:sage",
     reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
       "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      "abilities (Eric, 2026-08-13). No background record is chosen anymore."
   },
   {
     target: "srd:background:en:soldier",
     reason: "Fate's Hand replaces Background entirely with a single step, Inheritance " +
       "(`fh:background:en:inheritance`): a free origin feat and 3 ability score points on any " +
-      "abilities, addendums §4 (Eric, 2026-08-13). No background record is chosen anymore."
+      "abilities (Eric, 2026-08-13). No background record is chosen anymore."
   }
 ];
 
@@ -104,7 +103,7 @@ export const BACKGROUND_INHERITANCE = {
   description: "What you carry into adventure: a free origin feat of your choice, 3 ability " +
     "score points to distribute as +2/+1 or +1/+1/+1 on any abilities, and two languages of your " +
     "choice. Fate's Hand replaces the four SRD backgrounds with this single step " +
-    "(addendums §4, Eric 2026-08-13).",
+    "(Eric, 2026-08-13).",
   /* ⭐ LES DEUX LANGUES, DÉCLARÉES — 2026-08-20 ═══════════════════════════
      🔴 ELLES EXISTAIENT DÉJÀ, MAIS EN PROSE SEULEMENT : chaque record de
      langue dit « Two languages are granted by your Inheritance, at creation
@@ -149,7 +148,29 @@ export const BACKGROUND_INHERITANCE = {
      ⚠️ LE 50 N'EST PAS UN CHOIX DE FATE'S HAND, c'est celui du SRD, hérité des
      quatre records éteints. S'il doit devenir autre chose, c'est Eric qui le dit
      — et ce sera ICI, dans la source de la couche, jamais dans un écran. */
-  equipment: "50 GP"
+  equipment: "50 GP",
+  /* 📋 LOT 360 — LES CHOIX QUE SA DESCRIPTION FAIT FAIRE, DÉCLARÉS (ARCHI 35,
+     29/09). « a free origin feat of your choice » et « two languages of your
+     choice » : deux choix de création, et leurs portes existent — le don
+     d'origine (`background.originFeat[0]`) et les deux langues
+     (`background.languages`) de l'étape Inheritance. Sous la clef de cette
+     couche (`choix_du_texte:fh-inheritance-en`) ; la garde
+     `tests/choix-du-niveau-1.test.mjs` relit chaque extrait dans la phrase et
+     chaque chemin au document. */
+  choixDuTexte: {
+    "don-d-origine": {
+      extrait: "a free origin feat of your choice",
+      nature: "creation",
+      etape: "background",
+      chemin: "background.originFeat[0]"
+    },
+    langues: {
+      extrait: "two languages of your choice",
+      nature: "creation",
+      etape: "background",
+      chemin: "background.languages"
+    }
+  }
 };
 
 /* ⛔ LES QUATRE ARRIÈRE-PLANS DU SRD 5.2.1 — mesuré (lot 35). Déclaré ici pour
