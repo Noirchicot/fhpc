@@ -59,9 +59,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=912";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=912";
-import { etapeParId } from "./etapes.mjs?v=912";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=913";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=913";
+import { etapeParId } from "./etapes.mjs?v=913";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -542,7 +542,17 @@ export function renderFicheTemporaire(ctx) {
   fiche.append(blocMaitrises("tools", r, etat("tools"), reg, paliers));
   fiche.append(blocSorts(r, etat("spellcasting"), reg, declarees));
   fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name]));
-  fiche.append(blocNoms("traits", r, etat("traits"), (t) => [t && t.name, t && t.source]));
+  /* ⭐ LOT 360 — LES CHOIX DE CAPACITÉ (Divine Order, Primal Order, Fighting Style) ENTRENT
+     DANS « Traits and features ». Le moteur ne les compose pas — Q1 d'ARCHI 35 : on écrit et
+     on MONTRE, les effets attendent leur lot sur `derive` — donc c'est l'interface qui les
+     nomme (`capacitesChoisies`, class-step), comme le lignage (`lignageChoisi`). Une
+     rubrique vide ou absente qui reçoit un choix se dit PARTIELLE : le reste n'est pas dérivé. */
+  const choix = ctx && Array.isArray(ctx.choix) ? ctx.choix.filter((c) => c && typeof c.name === "string") : [];
+  const etatDesTraits = etat("traits");
+  fiche.append(blocNoms("traits",
+    choix.length > 0 ? { ...r, traits: [...(Array.isArray(r.traits) ? r.traits : []), ...choix] } : r,
+    choix.length > 0 && (etatDesTraits === "absente" || etatDesTraits === "vide") ? "partielle" : etatDesTraits,
+    (t) => [t && t.name, t && t.source]));
   fiche.append(blocNoms("resources", r, etat("resources"), (x) => [x && x.name,
     x ? `${x.current} of ${x.max}${x.recharge ? ` · ${RECHARGES[x.recharge] || x.recharge}` : ""}` : ""]));
   fiche.append(blocStats(r, etat("stats")));

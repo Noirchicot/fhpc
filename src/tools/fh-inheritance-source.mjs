@@ -149,7 +149,29 @@ export const BACKGROUND_INHERITANCE = {
      ⚠️ LE 50 N'EST PAS UN CHOIX DE FATE'S HAND, c'est celui du SRD, hérité des
      quatre records éteints. S'il doit devenir autre chose, c'est Eric qui le dit
      — et ce sera ICI, dans la source de la couche, jamais dans un écran. */
-  equipment: "50 GP"
+  equipment: "50 GP",
+  /* 📋 LOT 360 — LES CHOIX QUE SA DESCRIPTION FAIT FAIRE, DÉCLARÉS (ARCHI 35,
+     29/09). « a free origin feat of your choice » et « two languages of your
+     choice » : deux choix de création, et leurs portes existent — le don
+     d'origine (`background.originFeat[0]`) et les deux langues
+     (`background.languages`) de l'étape Inheritance. Sous la clef de cette
+     couche (`choix_du_texte:fh-inheritance-en`) ; la garde
+     `tests/choix-du-niveau-1.test.mjs` relit chaque extrait dans la phrase et
+     chaque chemin au document. */
+  choixDuTexte: {
+    "don-d-origine": {
+      extrait: "a free origin feat of your choice",
+      nature: "creation",
+      etape: "background",
+      chemin: "background.originFeat[0]"
+    },
+    langues: {
+      extrait: "two languages of your choice",
+      nature: "creation",
+      etape: "background",
+      chemin: "background.languages"
+    }
+  }
 };
 
 /* ⛔ LES QUATRE ARRIÈRE-PLANS DU SRD 5.2.1 — mesuré (lot 35). Déclaré ici pour

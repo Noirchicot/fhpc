@@ -69,6 +69,14 @@
             "draconic-ancestry": "Choose a dragon — it sets your Breath Weapon damage type and your Damage Resistance.",
             "breath-weapon": "Replace an attack with a 15 ft Cone or 30 ft Line — DEX SV, 1d10, half on a save, twice a Long Rest.",
             "draconic-flight": "From level 5, a Bonus Action grows wings for 10 min — Fly Speed equal to yours, once a Long Rest."
+          },
+          "data[choix_du_texte:fh-fiche-en]": {
+            "fiche-ascendance": {
+              "extrait": "Choose a dragon",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -183,6 +191,14 @@
           "data[fiche_trait_text]": {
             "elven-lineage": "Choose a lineage — its level 1 benefit, then a spell at levels 3 and 5 (INT, WIS or CHA).",
             "trance": "You never sleep and magic cannot make you — a Long Rest takes 4 hours of trance."
+          },
+          "data[choix_du_texte:fh-fiche-en]": {
+            "fiche-lignee": {
+              "extrait": "Choose a lineage — its level 1 benefit",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -247,6 +263,14 @@
             "forest-folk": "[[Minor Illusion]] cantrip known.\n[[Speak with Animals]] always prepared — cast it free twice per Long Rest, plus one more use at levels 5, 9, 13 and 17.",
             "rock-folk": "[[Mending]] and [[Prestidigitation]] cantrips known.\nTen minutes of work builds a Tiny clockwork device (AC 5, 1 HP) carrying one [[Prestidigitation]] effect — up to three at a time.",
             "mole-people": "Darkvision 120 ft.\nMeticulous — ADV on Investigation checks.\nNovice in tinker's tools."
+          },
+          "data[choix_du_texte:fh-fiche-en]": {
+            "fiche-lignee": {
+              "extrait": "Choose a lineage — the cantrips and gifts it grants",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -307,6 +331,14 @@
             "giant-ancestry": "Choose one Giant boon — usable twice a Long Rest, more as you level.",
             "large-form": "Bonus Action from level 5 — Large for 10 min, ADV on STR checks, +10 ft Speed, once a Long Rest.",
             "powerful-build": "ADV on checks to end Grappled, and you carry as if one size larger."
+          },
+          "data[choix_du_texte:fh-fiche-en]": {
+            "fiche-ascendance": {
+              "extrait": "Choose one Giant boon",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -493,6 +525,14 @@
           "data[fiche_trait_text]": {
             "fiendish-legacy": "Choose a legacy — its level 1 benefit, then a spell at levels 3 and 5 (INT, WIS or CHA).",
             "otherworldly-presence": "You know [[Thaumaturgy]], cast with your Fiendish Legacy ability."
+          },
+          "data[choix_du_texte:fh-fiche-en]": {
+            "fiche-heritage": {
+              "extrait": "Choose a legacy — its level 1 benefit",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -999,7 +1039,17 @@
               "label": "Hunter",
               "value": "Chosen prey"
             }
-          ]
+          ],
+          "data[choix_du_texte:fh-fiche-en]": {
+            "fiche-sous-classe": {
+              "extrait": "Chosen prey",
+              "nature": "montee",
+              "niveaux": [
+                3
+              ],
+              "quoi": "la sous-classe Hunter et sa Hunter's Prey, que le panneau d'information de la fiche résume en « Chosen prey »"
+            }
+          }
         }
       },
       "srd:class:en:rogue": {

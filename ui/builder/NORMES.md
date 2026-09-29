@@ -9759,6 +9759,33 @@ fichier serait vert pour rien)*.
 
 ---
 
+## 6 pré nonies. 📋 UN CHOIX QUE LE TEXTE FAIT FAIRE SE DÉCLARE — et la porte suit la déclaration *(lot 360, 2026-09-29)*
+📍 `socle-une-phrase-de-choix-se-declare` · vivante · 29/09
+⚖️ **Chaque phrase du texte d'un record de niveau 1 qui fait choisir (« choose », « of your choice »…) est couverte par une DÉCLARATION de la couche qui écrit ce texte : `creation` (l'étape et le chemin du document qui posent le choix), `en-jeu` (quand la table le fait), `montee` (le passage de niveau qui le fait faire) ou `hors-choix` (pourquoi le mot ne désigne pas un choix). Une phrase sans déclaration accuse : la forme trouve les phrases, la donnée tranche.**
+
+> ARCHI 35, 29/09, pour la garde du lot 360 : *« Chaque phrase de choix du niveau 1 doit être couverte par une DÉCLARATION : soit un plan de création, soit une déclaration « en jeu » explicite dans la couche (le souffle, l'appareil du Rock Gnome, la Rage…). Une phrase couverte par aucune des deux accuse. La donnée tranche ; la forme ne sert qu'à trouver les phrases. »* Puis, le même jour : « montée » est une 3ᵉ nature (l'inventaire du futur lot Level up), « hors-choix » une 4ᵉ, avec un `pourquoi` obligatoire.
+
+📏 **CE QUI SE PASSAIT** — le test A→Z du lot 358 (constats 4 et 5), puis le relevé du lot 360 : en SRD, le Gnome lisait « Choose one of the following options… » et l'étape disait « settled » ; le Druid rangeait Primal Order dans « Granted automatically ». Cause commune, à l'octet : la couche ne DÉCLARAIT pas le choix (aucun plan), et aucune garde ne pouvait le voir — elle aurait lu les plans, et c'est justement le plan qui manquait.
+
+⭐ **LA GARDE LIT LE TEXTE, PAS LES PLANS** : toute la donnée du record au niveau 1 (espèce, classe, arrière-plan, don d'origine ou offert au niveau 1), textes Fate's Hand compris (fiche, lore, blurb). ⛔ Seule la DONNÉE exclut : un objet qui porte `level` > 1, une clef-palier entière > 1. C'est la liste inversée (ARCHI 35, Q1) : on nomme ce qui sort, jamais les champs qu'on lit — une liste de champs lus serait incomplète par construction.
+⭐ **UNE DÉCLARATION « création » SE VÉRIFIE À L'ÉCRIVAIN** : l'étape est montée dans la pile, et le chemin s'écrit au document — par le plan du carnet et sa porte (Species, Class, Background ; en répondant d'abord à ce qui le précède : en Fate's Hand, les tours de Magic Initiate n'existent qu'une fois la liste choisie), par l'écrivain d'Equipment (`appliquerLeButin`), ou par la famille de chemins de Skills. Une étape que la garde ne sait pas relire accuse.
+⭐ **LA DETTE VIT DANS LE TEST, PAS DANS LA COUCHE** (ARCHI 35, Q2) : chaque ligne renvoie à SA ligne du relevé dans le mandat (« relevé 360 #6 ») et rougit dans les deux sens — un choix non déclaré qui apparaît, une ligne qui ne trouve plus d'occurrence non déclarée. Un lot qui comble un trou ôte sa ligne, et baisse le compte épinglé.
+
+📍 `socle-une-cle-de-declaration-par-couche` · vivante · 29/09
+⚖️ **Chaque couche déclare les choix de SON texte sous SA clef, `data[choix_du_texte:<id de la couche>]`, l'id étant lu dans la couche elle-même : un seul écrivain par clef, aucune couche ne dépend d'une autre. Quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. Une clef qui ressemble au préfixe sans le respecter accuse.**
+
+📏 **POURQUOI PAS UN OBJET PARTAGÉ** — mesuré au lot 360 : vingt fichiers de test montent des couches Fate's Hand SANS `srfh-mecaniques-en` (`[SRD, fh-species, fh-skills]`…). La grammaire des patchs exige qu'un intermédiaire existe : une couche Fate's Hand qui aurait ajouté sa clef dans l'objet de srfh aurait JETÉ au montage, et chacune aurait dépendu de srfh — un contrat de pile neuf. ARCHI 35, 29/09 : *« Une clé par couche (`choix_du_texte:<id de la couche>`), un seul écrivain par clé, aucune couche ne dépend d'une autre. Et la couche du dessus fait foi, comme partout dans la pile. »*
+⭐ **CE QUE FATE'S HAND ASSUME SE DÉCLARE CHEZ LUI** : `srfh-mecaniques-en` déclare le texte SRD ; `fh-skills-en` couvre par-dessus le « Choose N » des compétences (la bourse liée, `class.skillBudget`) et les outils du Barde et du Moine (Skills, et l'instrument du kit à Equipment) ; `fh-species-en` et `fh-inheritance-en` par leurs sources ; `fh-fiche-en`, `fh-lore-en` et `fh-feats-en` à la main — ce ne sont pas des couches générées. ⛔ Jamais la pile générée à la main.
+
+📍 `class-un-choix-de-capacite-a-sa-porte` · vivante · 29/09
+⚖️ **Une capacité de classe qui fait choisir au niveau 1 se DÉCLARE dans la couche (`data[feature_choices]` : id, nom, niveau, compte, et ses options — ou `options_from`, un genre de record) ; le carnet publie `class.<id>`, l'étape Class ouvre la porte avec l'organe du glisser, et la capacité quitte « Granted automatically ». L'écran ne connaît aucune capacité par son nom : une capacité déclarée demain obtient sa porte sans une ligne d'écran. La fiche nomme la réponse (« Primal Order: Warden »).**
+
+> ARCHI 35, 29/09, Q1 → a) : *« Divine Order, Primal Order et Fighting Style s'écrivent et se montrent. Leurs effets (armures, armes, bonus, et le cantrip en plus de Thaumaturge / Magician, qui est lui-même un choix) feront un lot sur `derive`. »* ⛔ Jusque-là, aucune règle ne lit la réponse : la Sheet le dit sous « Recorded, but no rule reads them », et c'est la vérité.
+
+📌 **CE QUI LES TIENT** : `tests/choix-du-niveau-1.test.mjs` (la couverture, la forme, la création relue à l'écrivain, la dette, les clefs, trois témoins) et `tests/portes-360.test.mjs` (les plans, la porte, les acquis, la fiche, le palier 2 et la Sheet) — dix-neuf mutations vues rouges.
+
+---
+
 ## 7 bis. 👻 LE FANTÔME A LA BOÎTE DE CE QU'IL COPIE — **quoi qu'il copie** *(lot 205, 2026-09-13)*
 📍 `geste-fantome-a-la-boite-de-ce-qu-il-copie` · vivante · 13/09
 ⚖️ **Un fantôme rend la largeur ET la hauteur de la boîte SAISIE, pour tout ce qui peut être saisi — pas pour une classe. Il est `position: fixed`, donc il n'a pas de cellule : aucune déclaration qui suppose une rangée ne s'adresse à lui.**

@@ -868,6 +868,32 @@ export const CLASS_POOLS = [
    Ils vivent dans le record de chaque classe, avec le pool qu'ils dépensent. */
 export const TIER_COSTS = { novice: 1, adept: 2, expert: 4 };
 
+/* ══ LOT 360 — CE QUE LE POOL RÉÉCRIT DANS LE TEXTE DES CLASSES ═════════
+   ARCHI 35, 29/09 : chaque phrase de choix du niveau 1 porte une DÉCLARATION,
+   sous la clef de la couche qui l'assume — `data[choix_du_texte:<id de la
+   couche>]`, un seul écrivain par clef, aucune couche ne dépend d'une autre.
+   Le texte des classes reste celui du SRD, et `srfh-mecaniques-en` le déclare ;
+   ce pool en RÉÉCRIT deux choix, et cette couche le déclare à son tour. Elle est
+   montée PAR-DESSUS : pour la même occurrence, c'est elle qui fait foi.
+   · le « Choose N » des compétences : le compte SRD tombe à 0 (plus haut) et la
+     bourse LIÉE le remplace — la porte `class.skillBudget` de l'étape Class ;
+   · les outils du Barde et du Moine : ils s'achètent au pool, à l'étape Skills
+     (`fh.skills.spend.<slug>`), et l'instrument du KIT se lit dans ces achats
+     (Equipment pose la question s'il y en a deux — Eric, 21/09, lot 246).
+   ⚠️ UNE ANCRE N'EST PAS DU CONTENU : c'est le morceau du texte SRD que la
+   déclaration désigne. Celles des compétences et des outils sont LUES dans la
+   couche SRD par le générateur ; celles du kit sont le `starting_equipment_tool`
+   que srfh-mecaniques déclare depuis le lot 246. La garde
+   `tests/choix-du-niveau-1.test.mjs` les relit dans la pile montée : une ancre
+   qui ne retrouve plus sa phrase rougit. */
+export const CHEMIN_DE_LA_BOURSE_DE_CLASSE = "class.skillBudget";
+export const CHEMIN_DES_ACHATS_SKILLS = "fh.skills.spend";
+export const CHEMIN_DE_L_OUTIL_DU_KIT = "depart.class-tool";
+export const ANCRES_DU_KIT = {
+  "srd:class:en:bard": "Musical Instrument of your choice",
+  "srd:class:en:monk": "Musical Instrument chosen for the tool proficiency above"
+};
+
 /* ══ LES TOTAUX ATTENDUS ═══════════════════════════════════════════════
    Déclarés ici pour que le générateur les CONFRONTE à ce qu'il a réellement
    produit, au lieu de les recompter à partir de ses propres listes — un

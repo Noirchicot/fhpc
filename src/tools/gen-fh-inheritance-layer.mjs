@@ -165,7 +165,10 @@ export function buildBackgrounds(srd, langues) {
       /* L'or de départ de l'origine, MÊME CHAMP que les quatre du SRD — c'est
          ce qui permet à l'écran de n'avoir qu'un lecteur pour les deux piles. */
       equipment: BACKGROUND_INHERITANCE.equipment,
-      description: BACKGROUND_INHERITANCE.description
+      description: BACKGROUND_INHERITANCE.description,
+      /* 📋 LOT 360 — les choix que cette description fait faire, sous la clef de
+         CETTE couche (voir la source). */
+      [`choix_du_texte:${LAYER.id}`]: structuredClone(BACKGROUND_INHERITANCE.choixDuTexte)
     }
   };
 

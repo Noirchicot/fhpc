@@ -195,6 +195,14 @@ test("9 — ⭐ LE PERSONNAGE SANS OBJET MAGIQUE : `resolved` IDENTIQUE À AVANT
   assert.deepEqual(apres.effects, { applied: [], apart: [], pending: [] }, "⭐ effects vide");
   delete apres.effects;
   apres.derivation.at = avant.derivation.at;
+  /* 🔄 LOT 360 — LA PHOTO TÉMOIGNE DU CONTENU, PAS DES EMPREINTES. `srfh-mecaniques-en` a
+     gagné des déclarations (trois lignées SRD, trois choix de classe) : son `hash` change par
+     construction, et aucun chiffre du personnage d'exemple ne bouge — mesuré, c'était le SEUL
+     écart. La pile reste comparée couche par couche (id, version, nom, ORDRE) ; seule
+     l'empreinte, qui change à chaque déclaration ajoutée, sort de la comparaison. */
+  const sansEmpreinte = (pile) => pile.map(({ hash, ...couche }) => couche);
+  apres.derivation.stack = sansEmpreinte(apres.derivation.stack);
+  avant.derivation.stack = sansEmpreinte(avant.derivation.stack);
   assert.deepEqual(apres, avant, "⛔ pas un chiffre, pas une clef, pas un ordre de différence");
   assert.deepEqual(Object.keys(apres), Object.keys(avant), "l'ordre des rubriques aussi");
 });
