@@ -67,13 +67,15 @@ export function estCrafte({ bonus = null, pouvoirs = [], variante = null, sort =
    qui dit la rareté. Puis *« oui c'est ça »* au schéma : `Ioun Stone ▾` · `Variant ▾`.
 
    ⭐ LES VARIANTES SE LISENT DANS LE RECORD, jamais dans une liste de noms. Le SRD
-   les écrit sous TROIS formes, et cette fonction les lit toutes :
+   les écrit sous CINQ formes, et cette fonction les lit toutes :
      ① dans la RARETÉ, paire par paire — « Rare (Silver or Brass), Very Rare
        (Bronze), or Legendary (Iron) » · « Uncommon (+1), Rare (+2)… » ;
      ② en TABLE dans la description — « Belt of Giant Strength (hill) 21 Rare »,
        « Potion of Healing (greater) 4d4 + 4 Uncommon » : un nom, peut-être une
        parenthèse, une colonne qui commence par un chiffre, la rareté en fin ;
-     ③ en PARAGRAPHES — « Awareness (Rare). While this dark-blue rhomboid… ».
+     ③ en PARAGRAPHES — « Awareness (Rare). While this dark-blue rhomboid… » ;
+     ④ le CHOIX DU MJ en table de tirage, à une seule rareté (lot 333, plus bas) ;
+     ⑤ le CHOIX DU MJ NOMMÉ DANS LE TEXTE, en sections, sans table (lot 354, plus bas).
    ⛔ Moins de deux variantes lues = aucune : il n'y a pas de choix.
 
    ⚠️ CE MODULE RESTE UNE FEUILLE : le moteur nomme la ligne par `nomDUneVariante`,
@@ -133,7 +135,11 @@ export function variantesDe(data) {
   }
 
   /* ④ LE CHOIX DU MJ, EN TABLE DE TIRAGE, À UNE SEULE RARETÉ — lot 333 */
-  return variantesDuChoixDuMJ(d, racine, paragraphes);
+  const tirees = variantesDuChoixDuMJ(d, racine, paragraphes);
+  if (tirees.length) return tirees;
+
+  /* ⑤ LE CHOIX DU MJ NOMMÉ DANS LE TEXTE, EN SECTIONS — lot 354 */
+  return variantesNommees(d, racine, paragraphes);
 }
 
 /* ══ LOT 333 — ④ LA VARIANTE QUE LE MJ CHOISIT ════════════════════════════════════
@@ -152,7 +158,8 @@ export function variantesDe(data) {
    ⛔ ET CE QU'ELLE LAISSE DEHORS, VOLONTAIREMENT : un objet fait de PLUSIEURS éléments tirés
    (« the type of EACH bead » — Necklace of Prayer Beads ; « the PATCHES » — Robe of Useful
    Items) n'est pas UNE variante ; un choix sans table (Ring of Elemental Command, « the linked
-   plane ») n'a rien à proposer ; un effet choisi à l'usage (Bag of Beans, Candle of
+   plane ») n'a rien à proposer ICI — 🔄 lot 354 : ses variantes sont nommées dans son texte, et
+   c'est la forme ⑤ qui les lit ; un effet choisi à l'usage (Bag of Beans, Candle of
    Invocation) n'est pas l'objet.
    ⭐ LA VARIANTE EST LA LIGNE DE LA TABLE, SANS SON DÉ — Eric : *« sa taille, capacité,
    vitesse »* : « 3 ft. × 5 ft. 200 lb. 80 feet ». Toutes ont la rareté de l'objet. Une table
@@ -208,6 +215,55 @@ function premiereColonne(ligne) {
   return { mot, detail };
 }
 
+/* ══ LOT 354 — ⑤ LE CHOIX DU MJ NOMMÉ DANS LE TEXTE, EN SECTIONS ══════════════════════
+   ⚖️ Eric, 2026-09-29, à « blueprint aussi ? il a un choix (l'élément) mais pas de table » :
+   *« oui blueprint pour le ring »* (NORMES `equipement-blueprint-variante-du-mj`).
+   🔴 POURQUOI ④ NE LE VOIT PAS : le Ring of Elemental Command n'a PAS de table de tirage —
+   *« The GM chooses or randomly determines the linked plane »* — et ses variantes sont
+   NOMMÉES dans son texte, une section chacune : « Air. … Earth. … Fire. … Water. … ».
+   ⭐ LE SIGNAL EST LA DONNÉE, EN TROIS MORCEAUX, ⛔ JAMAIS UN NOM :
+     · la phrase du choix — le MJ CHOISIT ou TIRE (« GM chooses … randomly determines ») ;
+     · l'exemple que le SRD donne lui-même de la forme du nom — « a Ring of Elemental Command
+       (air) » : le nom du record, puis un mot entre parenthèses ;
+     · un paragraphe fait de SECTIONS titrées d'un mot (« Air. … Earth. … »), dont l'une porte
+       le mot de l'exemple — ce paragraphe, et lui seul, énumère les variantes.
+   ⛔ Sans sections nommées, aucune variante, même avec la phrase et l'exemple : un choix qui ne
+   se nomme nulle part n'a rien à proposer (`variante-du-mj.test.mjs`, vu rouge).
+   📏 Relevé sur les 3 298 records des couches, avant et après : le Ring seul bascule.
+   ⚠️ La couche française ne bascule pas, comme au lot 333 : sa rareté (« légendaire ») et sa
+   phrase (« Le MJ choisit ou laisse le hasard décider ») ne sont pas lues ici. */
+const CHOIX_NOMME = /\bGM chooses\b[^.]*?\b(?:randomly determines?|determines? (?:it |them )?randomly)\b/i;
+const TITRE_DE_SECTION = /^([A-Z][a-z']+)\.\s+\S/;
+const COUPE_DE_SECTION = /(?<=[.!?])\s+(?=[A-Z][a-z']+\.\s)/;
+/** Le paragraphe des sections nommées et ses sections — `null` quand l'un des trois signaux
+ *  manque. Un seul lecteur pour le menu (`variantesDe`) et pour la fiche (`texteDUneVariante`). */
+function sectionsNommees(d, paragraphes) {
+  const nom = String(d.name || "").trim();
+  const texte = String(d.description || "");
+  if (!nom || !CHOIX_NOMME.test(texte)) return null;
+  const exemple = new RegExp(`${nom.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\(([^)]+)\\)`, "i").exec(texte);
+  if (!exemple) return null;
+  const motDeLExemple = exemple[1].trim().toLowerCase();
+  for (let i = 0; i < paragraphes.length; i += 1) {
+    const morceaux = paragraphes[i].split(COUPE_DE_SECTION).map((x) => x.trim()).filter(Boolean);
+    const titres = morceaux.map((m) => TITRE_DE_SECTION.exec(m));
+    /* ⛔ TOUT le paragraphe est fait de sections : une prose qui contient un « Mot. » n'en est pas une */
+    if (morceaux.length < 2 || titres.some((t) => !t)) continue;
+    if (!titres.some((t) => t[1].toLowerCase() === motDeLExemple)) continue;
+    return { index: i, sections: morceaux.map((texteDeSection, k) => ({ mot: titres[k][1], texte: texteDeSection })) };
+  }
+  return null;
+}
+/** ⑤ — les variantes sont les sections ; toutes portent la rareté de l'objet (le Ring : Legendary). */
+function variantesNommees(d, racine, paragraphes) {
+  const nommees = sectionsNommees(d, paragraphes);
+  if (!nommees) return [];
+  const palier = new RegExp(RARETE, "i").exec(String(d.rarity || ""));
+  if (!palier) return [];
+  const rarete = PALIER_DU_MOT(palier[1].toLowerCase());
+  return nommees.sections.map(({ mot }) => ({ mot, rarete, nom: `${racine} (${mot})` }));
+}
+
 /** Les paragraphes d'une description. ⚠️ LOT 282 — UNE TÊTE « Nom (Rareté). » OUVRE UN
  *  PARAGRAPHE, MÊME COLLÉE À LA LIGNE PRÉCÉDENTE. 🔴 Mesuré dans la couche SRD : « Mastery
  *  (Legendary). » est collé au bout du paragraphe de Leadership (un saut de ligne perdu à
@@ -248,6 +304,22 @@ export function texteDUneVariante(data, mot) {
   if (!choisie) return texte;
   const autres = variantes.filter((v) => v !== choisie);
   const paras = paragraphesDe(texte);
+
+  /* ⭐ LOT 354 — ⑤ LES SECTIONS NOMMÉES. L'en-tête et les propriétés communes restent ; le
+     paragraphe des sections ne garde que CELLE de la variante ; et une table qui dit une ligne
+     par variante (les sorts du Ring : « Air Chain Lightning (3 charges), … ») ne garde que SA
+     ligne — la loi du lot 281, *l'en-tête et SA ligne*. ⛔ Seulement quand les variantes SONT
+     ces sections : les formes ①–④ ne passent pas par ici. */
+  const nommees = sectionsNommees(d, paras);
+  if (nommees && nommees.sections.length === variantes.length
+      && nommees.sections.every((s, k) => s.mot === variantes[k].mot)) {
+    const sienne = nommees.sections.find((s) => s.mot === choisie.mot);
+    const motsDesAutres = nommees.sections.filter((s) => s !== sienne).map((s) => s.mot);
+    return paras.map((p, i) => (i === nommees.index ? sienne.texte : p))
+      .filter((p) => !motsDesAutres.some((m) => p.startsWith(`${m} `)))
+      .join("\n\n");
+  }
+
   const mots = (v) => v.mot.split(/\s+or\s+/i).map((m) => m.toLowerCase());
   const parle = (p, v) => mots(v).some((m) => new RegExp(`(^|[\\s(])${m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([\\s).,]|$)`, "i").test(p));
 

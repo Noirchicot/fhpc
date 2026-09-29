@@ -38,8 +38,11 @@ test("333 · 2 — la même forme ailleurs dans le SRD : Manual of Golems, Potio
   for (const n of ["Manual of Golems", "Potion of Resistance", "Ring of Resistance"]) assert.equal(estRecette(record(n)), true, n);
 });
 
-test("333 · 3 — ⛔ ce que la phrase laisse dehors : plusieurs éléments tirés, un choix sans table, un effet à l'usage", () => {
-  for (const n of ["Necklace of Prayer Beads", "Robe of Useful Items", "Ring of Elemental Command", "Bag of Beans", "Candle of Invocation"]) {
+test("333 · 3 — ⛔ ce que la phrase laisse dehors : plusieurs éléments tirés, un effet à l'usage", () => {
+  /* 🔄 LOT 354 — LE RING OF ELEMENTAL COMMAND A QUITTÉ CETTE LISTE. Eric, 29/09 : « oui blueprint
+     pour le ring » — ses variantes sont nommées dans son texte, et la forme ⑤ les lit (354 · 1).
+     Les quatre autres restent dehors, et ce garde les tient toujours. */
+  for (const n of ["Necklace of Prayer Beads", "Robe of Useful Items", "Bag of Beans", "Candle of Invocation"]) {
     assert.deepEqual(variantesDe(record(n).data), [], `${n} n'est pas UNE variante à choisir`);
   }
 });
@@ -52,5 +55,78 @@ test("333 · 4 — la fiche d'une variante récite SA ligne, et une table à deu
   assert.deepEqual(potion.slice(-2), ["1d10 Damage Type", "3 Fire"], "⛔ l'en-tête doublé, ou la case voisine");
   /* ⛔ et une table à UNE colonne de tirage n'est jamais coupée (le Horn : « 4 Training… » est une colonne) */
   assert.match(texteDUneVariante(record("Horn of Valhalla").data, "Bronze"), /76–90 Bronze 4 Training with all Medium armor/);
+});
+
+/* ══ LOT 354 — ⑤ LE CHOIX DU MJ NOMMÉ DANS LE TEXTE, EN SECTIONS ══════════════════════════
+   ⚖️ Eric, 2026-09-29 : « oui blueprint pour le ring » — un choix (l'élément), mais pas de table.
+   ⭐ Trois signaux de la donnée, tous nécessaires : la phrase du choix (« The GM chooses or
+   randomly determines »), l'exemple que le SRD donne du nom (« a Ring of Elemental Command
+   (air) »), et un paragraphe fait de sections titrées d'un mot, dont l'une porte ce mot. */
+const RING = "Ring of Elemental Command";
+const ring = () => record(RING).data;
+
+test("354 · 1 — le Ring of Elemental Command est un blueprint : Air · Earth · Fire · Water, Legendary", () => {
+  assert.equal(estRecette(record(RING)), true, "⛔ le Ring n'est pas un blueprint");
+  assert.deepEqual(mots(RING), ["Air:Legendary", "Earth:Legendary", "Fire:Legendary", "Water:Legendary"],
+    "⭐ les quatre sections de son texte, dans leur ordre, à la rareté de l'objet");
+  assert.equal(nomDUneVariante(ring(), "Air"), "Ring of Elemental Command (Air)",
+    "⭐ le nom posé est la forme que le SRD donne lui-même en exemple");
+  /* ⛔ aucun détail inventé : le menu de X5 dit l'élément, et rien d'autre */
+  assert.deepEqual(variantesDe(ring()).map((v) => v.detail), [undefined, undefined, undefined, undefined]);
+});
+
+test("354 · 2 — la fiche d'une variante : l'en-tête, les propriétés communes, SA section et SA ligne de sorts", () => {
+  const sections = { Air: /^Air\. You know Auran/, Earth: /^Earth\. You know Terran/, Fire: /^Fire\. You know Ignan/, Water: /^Water\. You know Aquan/ };
+  const lignes = { Air: /^Air Chain Lightning/, Earth: /^Earth Earthquake/, Fire: /^Fire Burning Hands/, Water: /^Water Create or Destroy Water/ };
+  for (const mot of Object.keys(sections)) {
+    const paras = texteDUneVariante(ring(), mot).split("\n\n");
+    /* ⭐ ce qui est commun reste */
+    assert.match(paras[0], /The GM chooses or randomly determines the linked plane/, `${mot} : l'en-tête`);
+    assert.ok(paras.some((p) => /^Elemental Bane\..*Elemental Compulsion\./.test(p)), `${mot} : les deux propriétés communes`);
+    assert.ok(paras.some((p) => /^Spellcasting\..*Plane Spells \(Charges\)$/.test(p)), `${mot} : l'en-tête de la table des sorts`);
+    /* ⭐ SA section et SA ligne, une fois chacune ; ⛔ celles des trois autres, jamais */
+    for (const [autre, motif] of Object.entries(sections)) {
+      assert.equal(paras.filter((p) => motif.test(p)).length, autre === mot ? 1 : 0, `${mot} : la section ${autre}`);
+    }
+    for (const [autre, motif] of Object.entries(lignes)) {
+      assert.equal(paras.filter((p) => motif.test(p)).length, autre === mot ? 1 : 0, `${mot} : la ligne de sorts ${autre}`);
+    }
+  }
+});
+
+test("354 · 3 — ⛔ LES TROIS SIGNAUX, UN PAR UN : sans la phrase, sans l'exemple ou sans sections nommées, le Ring ne bascule pas", () => {
+  /* ⭐ PRIVATION DÉLIBÉRÉE (TRAPS : « un test qui montre un refus s'appuie sur une privation
+     délibérée ») — on ampute le vrai record d'UN signal à la fois. Chaque amputation est d'abord
+     prouvée (le texte a bien changé), sinon le refus mesurerait du vide. */
+  const d = ring();
+  assert.equal(variantesDe(d).length, 4, "témoin : intact, il bascule");
+  const ampute = (texte) => ({ ...d, description: texte });
+  const sansPhrase = d.description.replace("The GM chooses or randomly determines the linked plane. ", "");
+  const sansExemple = d.description.replace(/ For example, a Ring of Elemental Command \(air\)[^.]*\./, "");
+  const sansSections = d.description.split("\n\n").filter((p) => !/^Air\. /.test(p)).join("\n\n");
+  for (const [nom, texte] of [["la phrase", sansPhrase], ["l'exemple", sansExemple], ["les sections nommées", sansSections]]) {
+    assert.notEqual(texte, d.description, `témoin : la privation de ${nom} n'a rien retiré`);
+    assert.deepEqual(variantesDe(ampute(texte)), [], `⛔ sans ${nom}, le Ring a basculé`);
+  }
+  /* ⛔ ET SURTOUT PAS SES PROPRIÉTÉS COMMUNES : « Elemental Bane. … Elemental Compulsion. » sont
+     aussi des sections titrées — un lecteur trop large les proposerait comme variantes. */
+  assert.equal(estRecette({ data: ampute(sansSections) }), false, "⛔ sans sections nommées, un plan quand même");
+});
+
+test("354 · 4 — ⛔ AUCUN AUTRE OBJET NE BASCULE : des sections sans choix du MJ ne sont pas des variantes", () => {
+  /* 📏 Relevé du lot 354 sur les 3 298 records des couches : le Ring seul change. Ce garde en
+     tient la moitié qui compte — les objets du SRD qui proposent une variante, NOMMÉS : un de
+     plus ou un de moins, et il rougit. */
+  const aVariantes = Object.values(ITEMS).filter((v) => variantesDe(v.data).length >= 2).map((v) => v.data.name).sort();
+  assert.deepEqual(aVariantes, [
+    "Belt of Giant Strength", "Carpet of Flying", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla",
+    "Ioun Stone", "Manual of Golems", "Potion of Giant Strength", "Potion of Resistance", "Potions of Healing",
+    "Ring of Elemental Command", "Ring of Resistance", "Wand of the War Mage, +1, +2, or +3",
+  ]);
+  /* ⭐ les trois témoins de la donnée : des sections nommées d'un mot, mais pas de choix du MJ — un
+     mode d'usage (Splash · Fountain · Geyser), des propriétés, des cartes */
+  for (const n of ["Decanter of Endless Water", "Belt of Dwarvenkind", "Mysterious Deck"]) {
+    assert.deepEqual(variantesDe(record(n).data), [], `⛔ ${n} a basculé : ses sections ne sont pas des variantes`);
+  }
 });
 

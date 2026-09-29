@@ -658,15 +658,17 @@ test("31 — ⚖️ « DÉGAGE LES ASCENSEURS » : une fiche X ne fait pas défi
    `Ioun Stone ▾ / Variant ▾ / Crafting · Qty / encart / jeton · bourse / pied` :
    « oui c'est ça ». */
 
-test("32 — ⚖️ LES DOUZE PLANS À VARIANTE, lus dans leurs records — ⛔ aucune liste de noms", () => {
+test("32 — ⚖️ LES TREIZE PLANS À VARIANTE, lus dans leurs records — ⛔ aucune liste de noms", () => {
   /* 🔄 LOT 333 — 8 → 12 : la quatrième forme (le choix du MJ, une seule rareté) ajoute Carpet of
      Flying, Manual of Golems, Potion of Resistance et Ring of Resistance. Eric, 27/09 : « Carpet of
-     flying devrait être un blueprint » · « B et a (sa taille, capacité, vitesse) ». */
+     flying devrait être un blueprint » · « B et a (sa taille, capacité, vitesse) ».
+     🔄 LOT 354 — 12 → 13 : la cinquième forme (le choix du MJ nommé dans le texte, en sections)
+     ajoute le Ring of Elemental Command. Eric, 29/09 : « oui blueprint pour le ring ». */
   assert.deepEqual(PLANS_A_VARIANTE.map((r) => r.data.name).sort(), [
     "Belt of Giant Strength", "Carpet of Flying", "Feather Token", "Figurine of Wondrous Power", "Horn of Valhalla",
     "Ioun Stone", "Manual of Golems", "Potion of Giant Strength", "Potion of Resistance", "Potions of Healing",
-    "Ring of Resistance", "Wand of the War Mage, +1, +2, or +3",
-  ], "⭐ les cinq wondrous d'Eric, les deux potions, la wand, et les quatre du choix du MJ — ⛔ aucun plan à base (Weapon, Armor, Ammunition…)");
+    "Ring of Elemental Command", "Ring of Resistance", "Wand of the War Mage, +1, +2, or +3",
+  ], "⭐ les cinq wondrous d'Eric, les deux potions, la wand, les quatre du choix du MJ et le Ring des éléments — ⛔ aucun plan à base (Weapon, Armor, Ammunition…)");
   /* ⭐ les trois formes du SRD sont lues : la rareté, la table, les paragraphes */
   const mots = (n) => variantesDe(plans.get(n).data).map((v) => `${v.mot}:${v.rarete}`);
   assert.deepEqual(mots("Horn of Valhalla"), ["Silver:Rare", "Brass:Rare", "Bronze:Very Rare", "Iron:Legendary"]);

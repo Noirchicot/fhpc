@@ -10081,16 +10081,25 @@ posé par la feuille de tête ; ⛔ X5 et X0 gardent la règle de famille (`--sp
 > seul ou tous les objets de même forme ? X5 demande-t-il la taille ?) : **« B et a (sa taille, capacité
 > vitesse) »**.
 
-📏 Quatre objets du SRD passent blueprint, et aucun autre ne bouge (mesuré objet par objet) : Carpet of
-Flying (4 tailles), Manual of Golems (4 golems), Potion of Resistance et Ring of Resistance (10 types).
-⛔ Hors de la règle : plusieurs éléments tirés (Necklace of Prayer Beads, Robe of Useful Items), un choix
-sans table (Ring of Elemental Command), un effet choisi à l'usage (Bag of Beans, Candle of Invocation).
-📐 Un seul lecteur, `variantesDe` (4ᵉ forme, `objet-crafte.mjs`) ; `estRecette` en déduit le plan. Une
-table à deux colonnes de tirage se lit en deux ; la fiche d'une variante garde l'en-tête et SA case.
+📏 Cinq objets du SRD passent blueprint, et aucun autre ne bouge (mesuré objet par objet) : Carpet of
+Flying (4 tailles), Manual of Golems (4 golems), Potion of Resistance et Ring of Resistance (10 types) ;
+puis, au lot 354, Ring of Elemental Command (4 éléments) — 📏 relevé sur les 3 298 records des couches :
+lui seul change, et les 90 autres fiches de variante restent identiques à l'octet.
+⛔ Hors de la règle : plusieurs éléments tirés (Necklace of Prayer Beads, Robe of Useful Items), un effet
+choisi à l'usage (Bag of Beans, Candle of Invocation).
+📐 Un seul lecteur, `variantesDe` (4ᵉ et 5ᵉ formes, `objet-crafte.mjs`) ; `estRecette` en déduit le plan.
+Une table à deux colonnes de tirage se lit en deux ; la fiche d'une variante garde l'en-tête et SA case.
 🔄 **29/09 — le Ring of Elemental Command sort de l'exception** : Eric, à « blueprint aussi ? il a un choix
 (l'élément) mais pas de table » → **« oui blueprint pour le ring »**. Ses variantes sont les quatre éléments
-de son texte (Air, Earth, Fire, Water) ; ⏳ **à construire au lot 354**, après le Menu 350 (même lecteur,
-`variantesDe`, qui apprend une 5ᵉ forme : un choix nommé dans le texte, sans table).
+de son texte (Air, Earth, Fire, Water) ; ✅ **construit au lot 354** : `variantesDe` apprend une 5ᵉ forme,
+un choix nommé dans le texte, en sections, sans table. Trois signaux de la donnée, tous exigés : la phrase
+du choix (« The GM chooses or randomly determines »), l'exemple que le SRD donne du nom (« a Ring of
+Elemental Command (air) ») et un paragraphe fait de sections titrées d'un mot, dont l'une porte ce mot.
+⛔ Des sections sans choix du MJ ne sont pas des variantes (Decanter of Endless Water, Belt of
+Dwarvenkind, Mysterious Deck). Le nom posé est **« Ring of Elemental Command (Air) »** ; la rareté et
+l'harmonisation sont celles de l'objet. La fiche d'une variante garde l'en-tête, les propriétés
+communes, SA section et SA ligne de la table des sorts. 🛡️ `tests/variante-du-mj.test.mjs` (354 · 1-4,
+sept mutations vues rouges).
 
 📍 `collecteur-vider-dans-le-vide` · vivante · 28/09
 ⚖️ **Glissé hors de toute cible, l'objet d'un collecteur d'Equipment (Gear, Pack, Wares) le quitte : le collecteur se vide, rien n'est écrit au document. Lâché sur le collecteur lui-même, il le garde.**
