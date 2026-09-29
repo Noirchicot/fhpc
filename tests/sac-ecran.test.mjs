@@ -251,8 +251,15 @@ test("8 — la rangée d'échange porte les DEUX Tally, le collecteur et la bour
   }
   const purse = D.ORGANES.find((o) => o.nom === "PURSE");
   assert.equal(purse.l, 50, "la bourse garde la cote de R");
-  assert.equal(purse.x + purse.l, D.COLONNES[2] + D.JETON.l,
-    "⭐ et son bord droit se cale sur la ligne de la 3ᵉ colonne (« tout reste sur une grille »)");
+  /* 🔄 AMENDÉ AU LOT 363 — elle quittait la ligne de la 3ᵉ colonne pour l'AXE de la colonne du pied.
+     Eric, 30/09 : *« bourse done et Companions alignés verticalement, ? à 8 blg du bord droit »*, puis
+     à *« Où poser la colonne ? »* → **« Centrée Send ↔ ? »** : centre entre le DESSIN de `Send` et
+     celui du `?` (cote commune aux trois écrans). Elle ne flotte toujours pas : elle a changé d'ancre. */
+  const send = D.ORGANES.find((o) => o.nom === "SEND");
+  const guide = D.ORGANES.find((o) => o.nom === "?");
+  assert.equal(guide.x + guide.l, D.DALLE.l - 8, "témoin : le `?` a son dessin à 8 du bord droit");
+  assert.equal(purse.x + purse.l / 2, (send.x + send.l + guide.x) / 2,
+    "⭐ la bourse est centrée entre le dessin de Send et celui du `?` (« Centrée Send ↔ ? »)");
   /* ⚖️ ET LA PAIRE EST COTÉE AU BORD, PLUS À LA COLONNE — Eric, 18/09 : *« le
      premier à 24 du bord gauche, 8, le second Tally qui est à 24 du collecteur »*.
      🔴 Ses trois nombres ne fermaient pas : 24 + 40 + 8 + 40 + 24 = 136 quand le

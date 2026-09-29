@@ -61,34 +61,34 @@
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { markPressed } from "./carnet.mjs?v=914";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=914";
+import { markPressed } from "./carnet.mjs?v=915";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=915";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=914";
-import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=914";
-import { pageDeListe } from "./normes.mjs?v=914";
+import { isGenre } from "../../src/layers/document.mjs?v=915";
+import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=915";
+import { pageDeListe } from "./normes.mjs?v=915";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=914";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=914";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=915";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=915";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=914";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=915";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=914";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=915";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=914";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=915";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -98,15 +98,15 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=914";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=914";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=915";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. Les écrans publient les gestes, le pipeline fait les écrans (la carte R
    qui les publiait d'abord est retirée au lot 348). */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=914";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=915";
 /* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
-import { borneDeLaMolette } from "./molette-quantite.mjs?v=914";
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=915";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -114,25 +114,25 @@ import { borneDeLaMolette } from "./molette-quantite.mjs?v=914";
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=914";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=915";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
 import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
-  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=914";
-import { construireX5 } from "./x5-ecran.mjs?v=914";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=914";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=914";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=914";
-import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=914";
-import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=914";
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=915";
+import { construireX5 } from "./x5-ecran.mjs?v=915";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=915";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=915";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=915";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=915";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=915";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
-import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=914";
-import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=914";
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=915";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=915";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=914";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=915";
 /* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
-import { spellInfo } from "./class-step.mjs?v=914";
+import { spellInfo } from "./class-step.mjs?v=915";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -144,7 +144,13 @@ import { spellInfo } from "./class-step.mjs?v=914";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=914";
+import { motDuCran } from "./ecran-mort.mjs?v=915";
+/* ➡️ LOT 363 — LA VALIDATION DE L'ÉTAPE (Eric, 30/09 : *« validation de l'étape dans le belt »*).
+   Le voyant du belt d'Equipment lit la signature `estConfirme(document, "equipment")` (`paintBelt`) ;
+   c'est `parcoursNext` qui la pose, puis passe au cran SUIVANT du belt — Sheet aujourd'hui, en SRD
+   comme en FH. ⛔ Aucun nom d'étape n'est écrit ici : le cran se lit sur la ceinture. */
+import { estConfirme } from "./parcours.mjs?v=915";
+export const RACINE_EQUIPEMENT = "equipment";
 
 
 /* §0.3 de la commande, mesuré : 82 `gear` + 38 `weapon` + 13 `armor` = 133
@@ -2267,6 +2273,8 @@ const collecteEnvoi = new Set();
    pas, il ne se partage pas, et rouvrir le chapitre le referme. Même espèce que
    `vueEquipement` — une question d'affichage, jamais une décision du personnage. */
 let bourseOuverte = false;
+/* ➡️ LOT 363 — le récap de l'étape : un popup, donc un état d'ÉCRAN (même espèce que la bourse) */
+let recapOuvert = false;
 let destinationEnvoi = "backpack";
 /* LOT 213 — l'objet dont la fiche X1 est ouverte : son INDEX `gear[N]`, jamais
    une copie de la ligne. ⭐ Un index survit à un rebuild du document, une copie
@@ -3128,6 +3136,16 @@ export function renderEquipmentStep(ctx, onAction) {
       /* posé sur un emplacement : la boîte devient un choix du personnage */
       surPlacer: (index, boite) => { collecteEnvoi.delete(index); act({ kind: "placerGearLine", index, boite }); },
       surDestination: (valeur) => { destinationEnvoi = valeur; },
+      /* ➡️ LOT 363 — `Done` ouvre le récap, `Cancel` le referme sans rien écrire, `Next` valide
+         l'étape (la signature que le belt allume) et passe au cran suivant — `parcoursNext`, le
+         geste de toutes les étapes. Une fois signée, la sortie de Gear dit `Next` et fait de même. */
+      etapeSignee: estConfirme(docu, RACINE_EQUIPEMENT),
+      recapOuvert,
+      recapSac: lignes.filter((l) => (l.location || "backpack") === "backpack")
+        .map((l) => ({ objet: l.nomAffiche, qte: l.quantity || 1 })),
+      surDone: () => { recapOuvert = true; bourseOuverte = false; peindre(); },
+      surAnnulerRecap: () => { recapOuvert = false; peindre(); },
+      surSuivant: () => { recapOuvert = false; act({ kind: "parcoursNext", racine: RACINE_EQUIPEMENT }); },
       /* ⭐ LOT 213 — LE TAP OUVRE LA FICHE. Eric, 16/09 : *« maintenant, clic droit
          ou tap sur un token doit produire une fiche X1 »*. La fiche s'ouvre sur
          l'objet tapé, avec son nombre à envoyer remis à la pile (lot 308 : `null`) : un
