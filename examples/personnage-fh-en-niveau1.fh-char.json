@@ -26,7 +26,7 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "414f9b7e9dbede119b42da5697f108f8a1f08f268b7a01bd278643b30e9edcea",
+        "hash": "fede8b3d7ea6d4ab539b0490ad937126aa5e1558c43ed83946179054f4262c58",
         "name": "SRFH — Mechanics (EN)"
       },
       {
@@ -50,7 +50,7 @@
       {
         "id": "fh-inheritance-en",
         "version": "0.1.0",
-        "hash": "5b763e6c12224e74449752fbd9285fba2f49e87909c19f643a91b3062f46322f",
+        "hash": "22bacd5b087c860140caf2484b25f3092d2b2f1a6be7ad7ecdb6e09420884a9c",
         "name": "Fate's Hand — Inheritance (EN)"
       },
       {
@@ -452,7 +452,7 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "414f9b7e9dbede119b42da5697f108f8a1f08f268b7a01bd278643b30e9edcea",
+          "hash": "fede8b3d7ea6d4ab539b0490ad937126aa5e1558c43ed83946179054f4262c58",
           "name": "SRFH — Mechanics (EN)"
         },
         {
@@ -476,7 +476,7 @@
         {
           "id": "fh-inheritance-en",
           "version": "0.1.0",
-          "hash": "5b763e6c12224e74449752fbd9285fba2f49e87909c19f643a91b3062f46322f",
+          "hash": "22bacd5b087c860140caf2484b25f3092d2b2f1a6be7ad7ecdb6e09420884a9c",
           "name": "Fate's Hand — Inheritance (EN)"
         },
         {

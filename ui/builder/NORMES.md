@@ -9784,6 +9784,15 @@ fichier serait vert pour rien)*.
 
 📌 **CE QUI LES TIENT** : `tests/choix-du-niveau-1.test.mjs` (la couverture, la forme, la création relue à l'écrivain, la dette, les clefs, trois témoins) et `tests/portes-360.test.mjs` (les plans, la porte, les acquis, la fiche, le palier 2 et la Sheet) — dix-neuf mutations vues rouges.
 
+📍 `class-la-portee-d-une-porte-se-declare` · vivante · 29/09
+⚖️ **Une porte de capacité de classe DÉCLARE sa portée sur sa déclaration `creation` (`portee`) : `entiere` quand la porte EST la capacité, `partielle` quand elle n'en est qu'une part. Une capacité à porte entière quitte « Granted automatically » ; une capacité à porte partielle y reste. Ni nom, ni égalité de libellés : la portée est une donnée de la couche.**
+
+> Question posée à ARCHI 35, 29/09 : *« Par la donnée, Spellcasting et Pact Magic ont aussi des portes (Cantrips, Prepared spells). Règle stricte, ils quittent aussi « Granted automatically » ; ou seulement la capacité que sa porte représente en entier ? »* → *« **2)**, pour tes raisons. Le doublon refusé est le même objet à deux endroits. Spellcasting porte aussi ce qui ne se choisit pas, et son résumé ne se redit nulle part. »* Puis : *« que la portée soit DÉCLARÉE, pas déduite de l'égalité des libellés. Deux mots pour le même organe, c'est la faute qu'on a déjà payée. »* Et Eric, 26/08 : *« soit la porte, soit le résumé, jamais les deux »*.
+
+📏 **CE QUI SE PASSAIT** — relevé du lot 360 sur v913 : Weapon Mastery (Barbarian, Fighter, Paladin, Ranger, Rogue) et Eldritch Invocations (Warlock) se lisaient à la fois comme porte et dans « Granted automatically ». Le rapprochement lisait le nom des `feature_choices`, et leurs portes n'en sont pas.
+⭐ **LE LIEN EST DANS LA DONNÉE** : la capacité est celle dont le texte porte l'extrait de la déclaration `creation`, et le chemin de la déclaration nomme la porte. Classées le 29/09 dans `srfh-mecaniques-en`, qui monte dans les deux piles : **9 capacités entières** (Weapon Mastery ×5, Eldritch Invocations, Divine Order, Primal Order, Fighting Style — une déclaration chacune) et **8 partielles** (Spellcasting ×7, Pact Magic — 23 déclarations). Aucune couche Fate's Hand ne déclare de capacité de classe.
+🛡️ `tests/porte-entiere-jamais-acquise.test.mjs` : ① la portée exigée, une seule par capacité ; ② l'écran lu — entière absente, partielle présente ; ③ une porte au libellé égal au nom de sa capacité ne peut pas se déclarer partielle.
+
 ---
 
 ## 7 bis. 👻 LE FANTÔME A LA BOÎTE DE CE QU'IL COPIE — **quoi qu'il copie** *(lot 205, 2026-09-13)*
