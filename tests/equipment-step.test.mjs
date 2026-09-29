@@ -1272,30 +1272,41 @@ test("P1 — 📏 `gear[N].place` EST MESURÉ CONTRE LE MOTEUR, et la mesure res
     "⛔ `clear` doit ne rien laisser derrière — sinon une place fantôme survit à son objet");
 });
 
-test("P2 — ⚖️ LE DÉBORD : la première place libre, et une page de plus s'il le faut", () => {
-  const PAR_PAGE = 12;
+test("P2 — ⚖️ LE DÉBORD : la première place libre ; 🔄 lot 356 : une section pleine n'ouvre plus de page 2, elle DIT ce qui déborde", () => {
+  /* 🔄 LOT 356 — CE GARDE A TENU *« voire ça crée une page supplémentaire si besoin »* (18/09). ⚖️ Eric, 29/09, à
+     « Sans balayage de la dalle, comment atteindre la page 2 d'une section ? » : *« Une section, dans backpack, n'a
+     qu'une seule page »* — et à « 16 : la grille passe à 16 cases ? » : *« c'est 12 »*. ⭐ RÉÉCRIT, jamais désarmé :
+     le trou d'abord (inchangé), puis une section pleine REFUSE (`null`), et la grille garde ses douze cases en
+     rendant le surplus à part — c'est le sac qui le fait déborder comme par Send (`disposerLeSac`). */
   const ligne = (index, place) => ({ index, location: "backpack", boite: "s0",
     ...(place === null ? {} : { place }) });
   /* une section pleine, sauf un trou en 4 */
-  const pleine = [...Array(PAR_PAGE).keys()].filter((i) => i !== 4).map((i) => ligne(i, i));
-  assert.equal(premierePlaceLibre(pleine, PAR_PAGE), 4,
+  const pleine = [...Array(CASES_DU_SAC).keys()].filter((i) => i !== 4).map((i) => ligne(i, i));
+  assert.equal(premierePlaceLibre(pleine, CASES_DU_SAC), 4,
     "⚖️ *« prochain emplacement dispo »* — le trou d'abord, pas la fin");
 
-  /* vraiment pleine : la place suivante ouvre une SECONDE PAGE */
-  const bourree = [...Array(PAR_PAGE).keys()].map((i) => ligne(i, i));
-  assert.equal(premierePlaceLibre(bourree, PAR_PAGE), PAR_PAGE,
-    "⚖️ *« voire ça crée une page supplémentaire si besoin »*");
-  const grille = grilleDeSection(bourree.concat(ligne(99, PAR_PAGE)), PAR_PAGE);
-  assert.equal(grille.length, PAR_PAGE * 2, "la grille fait deux pages pleines, pas 13 cases");
-  assert.equal(grille[PAR_PAGE].index, 99, "et le treizième objet est la 1ʳᵉ case de la page 2");
+  /* vraiment pleine : ⛔ plus de page 2 — la section n'a plus de place à offrir */
+  const bourree = [...Array(CASES_DU_SAC).keys()].map((i) => ligne(i, i));
+  assert.equal(premierePlaceLibre(bourree, CASES_DU_SAC), null,
+    "⛔ une section pleine a ouvert une page 2 : elle n'en a qu'une (29/09)");
+  const { places, deborde } = grilleDeSection(bourree.concat(ligne(99, CASES_DU_SAC)), CASES_DU_SAC);
+  assert.equal(places.length, CASES_DU_SAC, "⛔ la grille a grandi : elle fait douze cases, jamais 24");
+  assert.deepEqual(deborde.map((l) => l.index), [99], "et le treizième objet est RENDU à part, ⛔ jamais perdu");
 
-  /* ⭐ UNE LIGNE SANS PLACE NE SE PERD PAS : les personnages sauvegardés avant ce
-     lot n'en ont aucune, et ils doivent s'ouvrir entiers. */
+  /* ⭐ UNE LIGNE SANS PLACE NE SE PERD PAS : les personnages sauvegardés avant le lot 214
+     n'en ont aucune, et ils doivent s'ouvrir entiers. */
   const ancienne = [ligne(0, null), ligne(1, null), ligne(2, 5)];
-  const g = grilleDeSection(ancienne, PAR_PAGE);
+  const g = grilleDeSection(ancienne, CASES_DU_SAC).places;
   assert.equal(g[5].index, 2, "celle qui a une place la garde");
   assert.deepEqual([g[0].index, g[1].index], [0, 1], "les autres prennent les premières libres");
   assert.equal(g.filter(Boolean).length, 3, "⛔ et aucune ne disparaît");
+
+  /* 🔄 LOT 356 — UNE ANCIENNE PAGE 2 COMBLE D'ABORD UN TROU DE SA SECTION : l'objet posé en 17 (page 2, case 6)
+     reste dans sa section tant qu'elle a de la place, ⛔ il ne part pas au dropdown pour rien. */
+  const pageDeux = [...Array(CASES_DU_SAC).keys()].filter((i) => i !== 7).map((i) => ligne(i, i)).concat(ligne(50, 17));
+  const g2 = grilleDeSection(pageDeux, CASES_DU_SAC);
+  assert.equal(g2.places[7].index, 50, "l'objet de la page 2 prend le trou de sa section");
+  assert.deepEqual(g2.deborde, [], "et rien ne déborde");
 });
 
 test("P3 — ⚖️ `TIGHTEN UP` FERME LES TROUS SANS RIEN RÉORDONNER, les trois autres rangent", () => {

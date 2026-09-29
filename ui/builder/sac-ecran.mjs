@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=907";
-import { versionQuery } from "./version.mjs?v=907";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=907";
+import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=908";
+import { versionQuery } from "./version.mjs?v=908";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=908";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=907";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=908";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=907";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=908";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=907";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=908";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=907";
+import { portesCarrees } from "./porte-carree.mjs?v=908";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=907";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=908";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=907";
+import { facteurZoomCourant } from "./echelle.mjs?v=908";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=907";
+import { armerEngrenage } from "./engrenage.mjs?v=908";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -107,10 +107,12 @@ const clefDeCase = (nom) => nom.toLowerCase().replace(/\s/g, "-").replace(".", "
    du lot qui a le droit de n'en porter aucun. Le jour où le plan rend sa cinquième
    rangée — elle a été retirée pour le collecteur, elle peut revenir — la boucle
    aurait menti sans que rien ne rougisse.
-   ⭐ ET LA GRILLE EST AUSSI LA TAILLE D'UNE PAGE : *« ça va dans la page suivante…
-   voire ça crée une page supplémentaire si besoin »* (Eric, 18/09). Le document
-   compte des PLACES ; c'est cette cote qui les découpe en pages. `equipment-step`
-   l'importe plutôt que d'en tenir une seconde copie. */
+   ⭐ ET LA GRILLE EST TOUTE LA SECTION : le document compte des PLACES, et cette cote dit
+   combien une section en a. `equipment-step` l'importe plutôt que d'en tenir une seconde
+   copie. 🔄 LOT 356 — elle découpait les places en PAGES (*« ça va dans la page suivante…
+   voire ça crée une page supplémentaire »*, Eric 18/09) ; ⚖️ le 29/09 : *« Une section,
+   dans backpack, n'a qu'une seule page »*, *« c'est 12 »* — ce qui n'y tient pas déborde
+   comme par Send, dans un dropdown. */
 const CASE_RE = /^CASE (\d+)\.(\d+)$/;
 const cases = ORGANES.map((o) => CASE_RE.exec(o.nom)).filter(Boolean);
 export const RANGS_GRILLE = cases.reduce((m, c) => Math.max(m, Number(c[1])), 0);
@@ -943,20 +945,12 @@ function tuner(sens, options, pisteNoeud) {
 function case_(id, objet, options, pisteNoeud) {
   const c = el("div", "sac-case");
   c.dataset.organe = id;
-  /* ⚖️ LA MOLETTE SUR LA GRILLE TOURNE LA PAGE — Eric, 18/09 : *« plus de place, ça
-     va dans la page suivante… voire ça crée une page supplémentaire si besoin »*,
-     donc une section a des pages et il faut pouvoir les atteindre.
-     ⭐ C'EST L'IDIOME DU TUNER, celui qu'Eric a demandé pour la roue : *« utiliser le
-     scroll de la souris peut aider le défilement »*. La roue tourne les SECTIONS, la
-     grille tourne les PAGES — deux surfaces, deux sujets, le même geste.
-     🗄️ Le geste tactile a été le balayage de la grille (18/09 → 29/09) ; ⚡ il est retiré au lot 355
-     (*« les tuiles peuvent être swipées mais pas la dalle »*) : au doigt, un objet change de page en
-     étant porté dans la marge. */
-  c.addEventListener("wheel", (ev) => {
-    if (!options.pages || options.pages < 2) return;
-    if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-    if (options.surPage) options.surPage((ev && ev.deltaY < 0) ? -1 : 1);
-  }, { passive: false });
+  /* 🗄️ LOT 356 — LA MOLETTE SUR LA GRILLE NE TOURNE PLUS RIEN. Elle tournait les PAGES d'une section
+     (Eric, 18/09 : *« plus de place, ça va dans la page suivante… voire ça crée une page
+     supplémentaire »* — l'idiome du tuner : la roue tournait les sections, la grille les pages). Une
+     section n'a plus qu'une page (Eric, 29/09 : *« Une section, dans backpack, n'a qu'une seule
+     page »*) : ⛔ plus rien à tourner, donc plus d'écouteur — la molette des SECTIONS vit sur les
+     chevrons et l'engrenage (`armerEngrenage`, plus haut). ⏳ Défaut du mandat, signalé à Eric. */
   if (!objet) {
     c.dataset.creneau = id;
     c.dataset.vise = "false";
@@ -1047,10 +1041,10 @@ export const ORGANES_D_ECHANGE = Object.freeze([
  *   · `objets`   : les douze places, `null` pour une case vide ;
  *   · `poids`    : `{ gear, backpack, encombrement }`, déjà mis en mots ;
  *   · `compteurs`: `{ tally, "party-tally" }` — ce que chaque parchemin porte ;
- *   · `page` / `pages` : la fraction déjà en mots, et le NOMBRE de pages — la
- *     molette ne tourne que s'il y en a plus d'une (le balayage est retiré, lot 355) ;
+ *   · `dalles`   : UNE plaque par section, `{ section, objets }` (🗄️ lot 356 : plus de `page` /
+ *     `pages` / `surPage` — une section n'a qu'une page, et la molette de la grille ne tourne rien) ;
  *   · les gestes : `surTourner`, `surSection`, `surJeton`, `surTrier`,
- *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surEditer`, `surPage`,
+ *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surEditer`,
  *     `surCollecte`, `surPlacer`, `surDrop`, `surDestination`, `surPorte`.
  *  @returns {{noeud: HTMLElement}} */
 export function construireLeSac(options = {}) {
@@ -1120,7 +1114,9 @@ export function construireLeSac(options = {}) {
      une tuile d'une page à une autre en la déplaçant dans la marge »*. ⭐ La dalle ne se balaie
      plus, DU TOUT : les pages se tournent par les chevrons, l'engrenage et la molette, et un objet
      change de page en étant porté dans la marge (`regardeLaMarge`). ⛔ Celui de la roue était déjà
-     mort le 20/09 (*« aussi fluide que dans le belt »*) : son défilement est natif. */
+     mort le 20/09 (*« aussi fluide que dans le belt »*) : son défilement est natif.
+     🔄 LOT 356 — la « page » d'Eric est la SECTION : une section n'a plus qu'une page (29/09). Les
+     chevrons, l'engrenage et la marge changent de section ; la molette de la grille ne tourne plus rien. */
 
   /* ⛔ LES TUNERS SONT POSÉS SUR LA DALLE, pas dans la roue : la table les
      déclare `dans: "ROUE"` pour dire qu'ils LUI APPARTIENNENT — un voyant dans
@@ -1270,7 +1266,9 @@ export function construireLeSac(options = {}) {
      au premier réglage. Ce que la source du chapitre demandait (*« le compte total à
      gauche »*) est donc tenu, et mieux — trois comptes au lieu d'un.
      ⭐ ET LES PAGES EXISTENT TOUJOURS : la grille déborde, la molette la tourne. C'est le
-     COMPTEUR qui s'en va, pas la pagination. */
+     COMPTEUR qui s'en va, pas la pagination.
+     🗄️ LOT 356 — ET LA PAGINATION S'EN VA AUSSI : *« Une section, dans backpack, n'a qu'une seule
+     page »* (Eric, 29/09). Ni fraction, ni compteur, ni molette qui tourne. */
 
   /* ⭐ UN OBJET RETENU A QUITTÉ SA CASE, et on le retire ICI plutôt que de demander
      à la case de se taire — Eric, 16/09 : *« il doit quitter l'emplacement et rester
@@ -1284,7 +1282,10 @@ export function construireLeSac(options = {}) {
      changer de section ne reconstruit plus rien, ça glisse.
      ⛔ ET LE COMPTE DES DALLES N'EST PAS CELUI DES SECTIONS : une section qui déborde de
      douze en reçoit une seconde. C'est pour ça que le lien roue ↔ dalles ne peut pas être
-     une simple multiplication (voir `surDalle`). */
+     une simple multiplication (voir `surDalle`).
+     🔄 LOT 356 — UNE DALLE PAR SECTION, désormais : ce qui déborde de douze va dans un dropdown
+     (Eric, 29/09), jamais sur une seconde plaque. ⭐ Le lien reste une LECTURE (`section` de chaque
+     dalle) : il ne coûte rien de le garder, et il tiendrait si une section reprenait deux plaques. */
   const dalles = options.dalles || [{ objets: options.objets || [] }];
   for (let d = 0; d < dalles.length; d += 1) {
     /* ⚖️ UNE PLAQUE, ⛔ PAS UN ESPACE VIDE — Eric, 2026-09-19, schéma à l'appui : sa
@@ -1324,7 +1325,8 @@ export function construireLeSac(options = {}) {
      qui COMMANDE. ⛔ C'est la seconde qui décide de l'architecture.
      ⛔ ET CE N'EST PAS UNE MULTIPLICATION : une section peut valoir deux dalles (sa page
      2), donc on cherche la PREMIÈRE dalle de chaque section et on interpole entre les
-     deux voisines. Un rapport fixe dériverait dès la première section qui déborde. */
+     deux voisines. Un rapport fixe dériverait dès la première section qui déborde.
+     🔄 LOT 356 — une section n'a plus qu'une dalle (Eric, 29/09) ; la lecture reste, elle est juste. */
   /* 🔴 LA LARGEUR SE LIT UNE FOIS, ⛔ PAS À CHAQUE IMAGE — et ce n'est pas de l'avarice.
      `clientWidth` est une LECTURE DE MISE EN PAGE : tant que rien n'écrit dans la même
      image, elle est gratuite ; le jour où un voisin écrit, elle force un recalcul

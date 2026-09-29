@@ -763,27 +763,30 @@ test("16 — 🔴 LA GRILLE SE COMPTE DANS LA TABLE, ⛔ elle ne s'écrit pas da
      la norme du produit (15), pour la cause qu'on voit à l'écran : le collecteur. */
 });
 
-test("17 — 🔴 LA MOLETTE SUR LA GRILLE TOURNE LA PAGE, et se tait quand il n'y en a qu'une", () => {
-  /* ⚖️ Eric, 18/09 : *« plus de place, ça va dans la page suivante ou celle d'après…
-     voire ça crée une page supplémentaire si besoin »* — donc une section a des
-     pages, et il faut pouvoir les atteindre. ⭐ C'est l'idiome du tuner, celui qu'il
-     a demandé pour la roue. */
+test("17 — 🗄️ LOT 356 : LA MOLETTE SUR LA GRILLE NE TOURNE PLUS RIEN — une section n'a qu'une page", () => {
+  /* ⚖️ Eric, 2026-09-29, à « Sans balayage de la dalle, comment atteindre la page 2 d'une section ? » :
+     *« Une section, dans backpack, n'a qu'une seule page »*, puis *« c'est 12 »*.
+     🗄️ CE GARDE A TENU LA LOI INVERSE du 18/09 au 29/09 — *« plus de place, ça va dans la page suivante…
+     voire ça crée une page supplémentaire »* : la molette de la grille tournait les pages. ⭐ Il est RÉÉCRIT à
+     la nouvelle vérité, jamais désarmé : même avec une page 2 annoncée par un vieux pilote, la molette ne
+     rappelle plus rien, et ne prend pas la molette au navigateur (un écran qui refuse un geste sans rien
+     faire apprend à ne plus le faire). La molette des SECTIONS vit sur les chevrons et l'engrenage. */
   const tours = [];
-  const deux = rendu({ pages: 2, surPage: (s) => tours.push(s) });
-  const c = deux.querySelector('[data-organe="case-1-1"]');
+  const n = rendu({ pages: 2, surPage: (s) => tours.push(s) });
+  assert.equal(tous(n, ".sac-case").length, CASES_DU_SAC, "témoin : la grille de la section est là, entière");
   let empeche = false;
-  c.dispatchEvent({ type: "wheel", deltaY: 1, preventDefault: () => { empeche = true; } });
-  c.dispatchEvent({ type: "wheel", deltaY: -1, preventDefault: () => {} });
-  assert.deepEqual(tours, [1, -1], "un cran par coup de molette, dans les deux sens");
-  assert.equal(empeche, true, "⛔ sinon la page du navigateur défilerait DERRIÈRE la grille");
-
-  /* ⛔ UNE SEULE PAGE, AUCUN GESTE : un écran qui réagit à un geste sans rien changer
-     apprend à ne plus faire le geste. */
-  const muets = [];
-  const une = rendu({ pages: 1, surPage: (s) => muets.push(s) });
-  une.querySelector('[data-organe="case-1-1"]')
-    .dispatchEvent({ type: "wheel", deltaY: 1, preventDefault: () => { muets.push("empeche"); } });
-  assert.deepEqual(muets, [], "⛔ et il ne prend même pas la molette au navigateur");
+  for (const c of tous(n, ".sac-case")) {
+    c.dispatchEvent({ type: "wheel", deltaY: 1, preventDefault: () => { empeche = true; } });
+    c.dispatchEvent({ type: "wheel", deltaY: -1, preventDefault: () => { empeche = true; } });
+  }
+  assert.deepEqual(tours, [], "⛔ la molette de la grille a tourné une page : une section n'en a qu'une (29/09)");
+  assert.equal(empeche, false, "⛔ et elle ne confisque plus la molette au navigateur");
+  /* ⚔️ ET LA SOURCE NE L'ÉCOUTE PLUS : une case ne porte plus d'écouteur `wheel`, et l'écran ne connaît plus `surPage` */
+  const src = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
+  const laCase = src.slice(src.indexOf("function case_("), src.indexOf("function collecteur("));
+  assert.ok(laCase.length > 200, "témoin : le corps de `case_` est bien découpé");
+  assert.doesNotMatch(laCase, /addEventListener\("wheel"/, "⛔ une case écoute encore la molette");
+  assert.doesNotMatch(src, /surPage/, "⛔ l'écran du sac parle encore de pages");
 });
 
 test("18 — 🔴 LE DÉFILEMENT PAR LA MARGE : un seul minuteur, au MODULE, et il s'arrête", () => {
@@ -852,7 +855,7 @@ test("18 — 🔴 LE DÉFILEMENT PAR LA MARGE : un seul minuteur, au MODULE, et 
     "⭐ tout passe par le minuteur, donc tout attend — le premier saut comme les suivants");
 });
 
-test("19 — ⚡ LOT 355 : LA DALLE NE SE BALAIE PLUS — aucun geste parti de la grille ne tourne la page ; la molette, si", () => {
+test("19 — ⚡ LOT 355 : LA DALLE NE SE BALAIE PLUS — aucun geste parti de la grille ne tourne la page ; 🗄️ lot 356 : la molette non plus", () => {
   /* ⚖️ Eric, 29/09, à « et le balayage de la grille ? » : *« les tuiles peuvent être swipées mais pas la
      dalle. on peut toujours déplacer une tuile d'une page à une autre en la déplaçant dans la marge »*.
      🗄️ CE GARDE A TENU LA LOI INVERSE du 18/09 au 29/09 — *« reste le balayage, qui est accessible »* :
@@ -874,10 +877,14 @@ test("19 — ⚡ LOT 355 : LA DALLE NE SE BALAIE PLUS — aucun geste parti de l
   assert.deepEqual(tours, [],
     "⛔ un balayage de la grille a tourné la page : la dalle ne se balaie plus (Eric, 29/09)");
 
-  /* ⭐ ET LA PAGE SE TOURNE TOUJOURS À LA MOLETTE — le geste de la souris n'est pas un balayage. ⏳ Eric, 29/09 : « Une
-     section, dans backpack, n'a qu'une seule page » · « c'est 12 » — la pagination part au lot 356, et ce témoin avec elle. */
+  /* 🗄️ LOT 356 — CE TÉMOIN DISAIT « ET LA PAGE SE TOURNE TOUJOURS À LA MOLETTE » (lot 355 : la pagination vivait
+     encore). ⚖️ Eric, 29/09 : « Une section, dans backpack, n'a qu'une seule page » · « c'est 12 » — la pagination est
+     partie au lot 356, et le témoin se retourne avec elle : la molette ne tourne plus rien non plus (garde 17). */
   vide.dispatchEvent({ type: "wheel", deltaY: 100, deltaX: 0, preventDefault() {} });
-  assert.deepEqual(tours, [1], "⛔ la molette ne tourne plus la page : la pagination est morte avec le geste");
+  assert.deepEqual(tours, [], "⛔ la molette a tourné une page : une section n'en a plus qu'une (lot 356)");
+  /* ⚔️ ET LE BALAYAGE, LUI, EST BIEN ARRIVÉ SUR LA GRILLE : sans ce témoin, un `balaye` qui ne toucherait rien
+     serait vert pour rien */
+  assert.ok(vide && vide.dataset.creneau, "témoin : le balayage part d'une case vide de la grille");
 });
 test("20 — 🪞 UN DESSIN DÉCENTRÉ NE SE MIROITE PAS AUTOUR DE SA CIBLE", () => {
   /* 🔴 LA FAUTE DU 19/09, mesurée dans l'application : le chevron droit se peignait

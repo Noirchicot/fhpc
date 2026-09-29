@@ -4581,6 +4581,9 @@ lignes, relit l'état équipé et ajoute l'or. La coquille l'appelle, les harnai
 📏 Mesuré : l'option A du Rogue pose armure de cuir et armes sur le corps ; le kit du Wizard n'a
 aucun objet à case propre (la Robe n'a pas de slot) — tout va au sac.
 Garde 11 de `tests/equipe-sur-sa-case.test.mjs`.
+🔄 **Lot 356 (29/09)** : ce qui tombe au sac y est **rangé par Send** — la première case libre de Backpack dropdown, puis
+d'un 2e qui se crée s'il est plein (`equipement-une-section-une-page-de-12`). ⛔ Plus de ligne neuve sans case : le jour
+où le dépôt est plein, elle ne serait écrite nulle part.
 
 ---
 
@@ -5896,7 +5899,7 @@ conteneur ou un companion »*). Le jour où Eric lui donne une porte, la destina
 ---
 
 ### 📦 CHAQUE OBJET DU SAC OCCUPE UNE PLACE, ET ELLE EST AU DOCUMENT
-📍 `equipement-une-place-dans-une-section` · vivante · 18/09
+📍 `equipement-une-place-dans-une-section` · remplacée · 18/09 · remplacée par `equipement-une-section-une-page-de-12`
 ⚖️ **`gear[N].place` numérote la case d'un objet DANS sa section. La page n'est pas un organe : c'est une division de la suite des places — page = place ÷ la grille.**
 
 > Eric, 2026-09-18, trois réponses d'un coup : **« tighten up ok »** · **« plus de place, ça
@@ -5925,6 +5928,61 @@ le sac n'a plus de place ; celui qui y revient en reçoit une neuve, la premièr
 ⏳ **CE QUI N'EST PAS TRANCHÉ** : le geste TACTILE qui tourne la page. À la souris, la molette sur la
 grille la tourne — l'idiome du tuner, qu'Eric a demandé pour la roue. Au doigt, il manque un
 balayage, et ⛔ il ne s'invente pas.
+🗄️ **Remplacée le 29/09 (lot 356)** — Eric : *« Une section, dans backpack, n'a qu'une seule page »* · *« c'est 12 »*.
+La place reste, et le trou, `tighten up` et le rangement avec elle ; ⛔ la page suivante, la page supplémentaire et la
+molette qui la tournait partent (`equipement-une-section-une-page-de-12`).
+
+---
+
+### 🎒 UNE SECTION DE BACKPACK = UNE PAGE DE 12 ; SEND DÉBORDE DANS UN NOUVEAU « BACKPACK DROPDOWN »
+📍 `equipement-une-section-une-page-de-12` · vivante · 29/09 · remplace `equipement-une-place-dans-une-section`
+⚖️ **Une section du sac a UNE page : ses douze cases. On pose un objet À LA MAIN sur une case libre — une section pleine n'en offre aucune, et un dépôt dessus est refusé. Le seul placement automatique est Send : il range dans « Backpack dropdown », et s'il est plein, un deuxième « Backpack dropdown » se crée.**
+
+> Eric, 2026-09-29, chaque réponse avec sa question :
+>
+> | la question | la réponse |
+> |---|---|
+> | Sans balayage de la dalle, comment atteindre la page 2 d'une section (plus de 12 objets) ? | **« Une section, dans backpack, n'a qu'une seule page. 16 max »** |
+> | 16 : la grille passe à 16 cases (4 × 4) ? | **« Tu as raison c'est 12 pardon »** |
+> | Une section pleine : que devient le 13ᵉ objet qu'on y envoie ? | **« Le seul moment où on ne place pas un token à la main, c'est par send ; normalement ça va dans backpack dropdown ; s'il est plein un 2e backpack dropdown se crée »** |
+> | *(18/09, remplacée)* | ~~« plus de place, ça va dans la page suivante… voire ça crée une page supplémentaire si besoin »~~ |
+
+⭐ **LA PLACE RESTE, LA PAGE PART.** `gear[N].place` numérote toujours la case d'un objet dans sa section — le trou,
+`tighten up` et le rangement gardent leur sens (`equipement-une-place-dans-une-section`) ; elles ne sont plus que
+douze. ⛔ La page 2, la fraction `x/x` et la molette de la grille qui la tournait sont retirées (`grilleDeSection` rend
+ses douze cases ET ce qui n'y tient pas, à part).
+⭐ **SEND EST LE SEUL PLACEMENT AUTOMATIQUE** (`rangerParSend`, `equipment-step.mjs`) — le Send du collecteur, l'achat
+« Send to Backpack » (Wares, X2), le départ de classe (*« Le kit de départ met tout dans le backpack »*), un objet
+déséquipé qui retombe au sac : il prend la première case libre du premier dropdown qui en a une, **lue dans le sac tel
+qu'on le voit** — ⛔ jamais sous un objet qu'on y montre. Tous pleins, le suivant **SE CRÉE** : une section écrite au
+document, son nom et son **genre** (`backpack.sections[N].depot`, un scalaire, comme `dehors`). ⛔ Le nom ne dit pas le
+genre : un joueur peut appeler un rangement « Backpack dropdown 2 ». Les dropdowns se remplissent dans l'ordre de leur
+naissance, ⛔ jamais dans celui de la roue (le joueur la réordonne).
+⭐ **UN VIEUX PERSONNAGE S'OUVRE ENTIER, SANS RIEN ÉCRIRE** (`disposerLeSac`) : une ancienne page 2 comble d'abord un
+trou de SA section, puis déborde **comme par Send** — dans Backpack dropdown, puis dans un dropdown **MONTRÉ** au bout de
+la roue (ni renommable, ni effaçable : il n'est pas au document). Il s'écrit au premier objet que le joueur y pose, ou
+que Send y range (`materialiserLesDepots`) — et les dropdowns montrés avant lui avec, dans l'ordre, sinon leurs index
+glisseraient derrière le neuf.
+⛔ **LE PARTY BAG PLEIN REFUSE SEND** — le gendarme le dit (`MOT_SECTION_PLEINE`), rien n'est payé ni écrit, et l'objet
+reste au collecteur. ⛔ Le verser dans les dropdowns du personnage le ferait peser sur lui sans qu'il l'ait voulu. La
+coquille refuse aussi, en dernier rempart, tout `placerGearLine` sans case vers une section pleine.
+⭐ **UNE PAGE DE KIT TIENT SES DOUZE CASES** (`equipement-kit-verse-dans-sa-page`) : onze éléments au plus, mesuré dans
+les deux livres (Burglar's, Diplomat's) ; au-delà, le surplus déborderait comme par Send, ⛔ jamais une page 2.
+⏳ **SIGNALÉ À ERIC LE 29/09 (par l'architecte), chacune avec sa recommandation** :
+  ① « Le 2e Backpack dropdown s'appelle ? » → **« Backpack dropdown 2 »**, puis 3, 4… (le mot est à lui ; il se change
+    en un seul endroit, `NOM_DU_DEPOT` / `nomDuProchainDepot`) ;
+  ② « Un vieux personnage a plus de 12 objets dans une section : que fait-on ? » → **rien n'est écrit sans son geste** :
+    le débord se montre, et chaque objet s'écrit quand le joueur le déplace ;
+  ③ « Send vers le Party bag, et il est plein : ? » → **refus** (popup), l'objet reste au collecteur ;
+  ④ « Le 2e Backpack dropdown, une fois créé : ? » → comme le premier il **ne se renomme pas** ; vide, il **s'efface** par
+    le `−` ; il paraît **au bout de la roue**, comme une section neuve.
+  Et le défaut du mandat : la molette sur la grille **ne fait plus rien** — celle des sections vit sur les chevrons et
+  l'engrenage.
+🛡️ `tests/sac-une-page-de-douze.test.mjs` (1–7, 5 bis) ; `tests/equipment-step.test.mjs` P2 ; `tests/sac-ecran.test.mjs`
+17, 19 ; `tests/kit-verse-dans-une-page.test.mjs` 2. Vus rouges par mutation — la grille qui grandit, le débord jeté,
+Send plein qui ne crée rien, le genre illisible, le genre non écrit, le Party bag plein accepté, le départ qui ne range
+plus, la coquille qui ne range plus / ne refuse plus / ne lit plus le sac vu, la molette qui revient, la page 2 qui ne
+comble plus le trou de sa section —, sources restaurées à l'empreinte.
 
 ---
 
@@ -10545,6 +10603,8 @@ et tous les bancs qui glissent : ils portent désormais le jeton tout de suite, 
 tournait les pages → **sans objet**. Eric, 29/09 : **« Une section, dans backpack, n'a qu'une seule page »** · **« c'est
 12 »**. ⛔ La navigation de ce lot ne change pas. La suppression des pages et le débordement de Send (*« s'il est plein un
 2e backpack dropdown se crée »*) forment le **lot 356**.
+🔄 **Lot 356 (29/09) — fait** : une section n'a plus qu'une plaque, et ⛔ la molette sur la grille ne tourne plus rien
+(`surPage` retiré) ; ce qui tenait sur une page 2 déborde comme par Send (`equipement-une-section-une-page-de-12`).
 🛡️ `tests/sac-ecran.test.mjs` : 19 (la grille ne se balaie plus, la molette tourne la page), 31 (une seule surface au
 doigt, le ruban passe par l'entre-deux EN DIRECT, la marque dit `none`, l'objet se glisse sans attendre), 33 (le ruban
 ne mène jamais), 34 (un défilement programmé l'entraîne). Chacun vu rouge par mutation — l'ancien `sac-ecran.mjs`,
