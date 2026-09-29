@@ -201,6 +201,12 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=917";
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
 import { platformNow } from "../../src/doc/clock.mjs?v=917";
+/* 🎲 LOT 367 — l'identifiant d'un personnage neuf, tiré de `getRandomValues` (voir `personnageNeuf`). */
+import { uuidDuNavigateur } from "./identifiant.mjs?v=917";
+/* ⚖️ LOT 367 — le recalage : un perso sauvé avant une mise à jour des règles s'ouvre sur les
+   couches d'aujourd'hui, sauvé aussitôt, et le Menu le dit (voir `recalerSurLaPileMontee`). */
+import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=917";
+import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=917";
 import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=917";
 /* ══ 🗄️ LOT 195 — LE MAGASIN DE SAUVEGARDES ═══════════════════════════════
    ⚖️ Eric, 10/09 : *« quand j'appuie sur Open, j'ai une page avec toutes mes
@@ -669,13 +675,18 @@ function personnageNeuf(precedent) {
     lang: reglages.lang,
     units: { ...reglages.units },
     layers: manifesteDeLaPileMontee(),
-    /* L'IDENTIFIANT. `doc.create` le tire de `node:crypto` ; le navigateur a le
-       MÊME verbe sur `crypto` global (Web Crypto), et le motif de `id`
-       (`^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$`) accepte un UUID v4. ⛔ Aucun
-       repli inventé : un navigateur sans `randomUUID` fait refuser `composer`
-       (id absent), et le refus est DIT — un id fabriqué à la main serait un
-       identifiant qu'on ne sait pas garantir unique. */
-    id: globalThis.crypto ? globalThis.crypto.randomUUID() : undefined,
+    /* L'IDENTIFIANT. `doc.create` le tire de `node:crypto` ; le motif de `id`
+       (`^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$`) accepte un UUID v4.
+       🗄️ PREMIER ÂGE : le navigateur appelait `crypto.randomUUID`, et « aucun repli
+       inventé » — un navigateur sans lui faisait refuser `composer`, refus DIT.
+       ⚖️ SECOND ÂGE, LOT 367 (décision d'ARCHI 35, 30/09) : `randomUUID` n'existe qu'en
+       contexte sécurisé, et une page servie en `http://` par l'IP du Mac (un iPad sur
+       le réseau local) échouait à la première visite. L'UUID v4 est tiré de
+       `crypto.getRandomValues`, présent partout (`uuidDuNavigateur`, identifiant.mjs).
+       ⭐ Ce n'est PAS le repli que le premier âge refusait : c'est LE MÊME hasard
+       cryptographique, mis en forme v4. ⛔ Sans générateur du tout, le refus reste
+       nommé — jamais `Math.random`, jamais un id fabriqué à la main. */
+    id: uuidDuNavigateur(),
     at: platformNow()
   });
 }
@@ -749,6 +760,34 @@ function leSacNormalise(document) {
   const verbs = state.engine && state.engine.build ? state.engine.build.verbs : null;
   return verbs && document ? normaliserLeSac({ document, verbs }) : document;
 }
+/** ⚖️ LOT 367 — LE RECALAGE, À L'OUVERTURE. Eric, 30/09, à « comment le perso s'ouvre-t-il ? »
+ *  → **« Tout seul, et sauvé aussitôt »**. Un document dont une empreinte de couche ne
+ *  correspond plus à la pile montée (un lot a édité la couche depuis la sauvegarde) adopte la
+ *  pile d'aujourd'hui AVANT de dériver : `rebuild` jetait sur l'écart, et l'écran mort se
+ *  taisait (le mot muet du premier âge, `ecran-mort.mjs`). ⭐ Les choix restent tels quels ; ce qui ne se
+ *  résout plus se nomme sur son étape (lots 191, 359). La copie du navigateur est réécrite au
+ *  rendu qui suit (`memoriser`), et c'est voulu : c'est la réponse d'Eric.
+ *  ⚠️ APRÈS `alignerLaPileSurLeDocument` (le document choisit d'abord ses livres allumés) et
+ *  AVANT `rebuild`. Rend le recalage (`recalageDeLaPile`), ou `null` si rien n'a bougé. */
+function recalerSurLaPileMontee() {
+  const recalage = recalageDeLaPile(state.document.build.layers, manifesteDeLaPileMontee());
+  if (recalage) state.document = { ...state.document, build: { ...state.document.build, layers: recalage.layers } };
+  return recalage;
+}
+
+/** ⚖️ LOT 367 — LA MARQUE, APRÈS LA DÉRIVATION : posée par un recalage (et gardée sous sa clef),
+ *  ou reprise de la mémoire tant que le joueur n'a fait aucun geste depuis ; sinon oubliée.
+ *  Le Menu la lit (`MOT_DES_REGLES_MISES_A_JOUR`) ; `memoriser` la fait tomber au premier geste. */
+function poserLaMarque(recalage, marqueGardee) {
+  if (recalage) {
+    state.recalage = marqueDuRecalage({ couches: recalage.changees, at: platformNow(), document: state.document });
+    ecrireRecalage(state.recalage);
+    return;
+  }
+  state.recalage = marqueVivante(marqueGardee, state.document) ? marqueGardee : null;
+  if (marqueGardee && !state.recalage) oublierRecalage();
+}
+
 function poserLeDocumentOuvert(document) {
   state.document = leSacNormalise(document);
   /* 🌱 LOT 197 — AVANT LE PREMIER RENDU, ET C'EST UN CHANGEMENT D'ORDRE.
@@ -769,7 +808,9 @@ function poserLeDocumentOuvert(document) {
   /* ⛔ PLUS DE SECONDE REMISE À ZÉRO ICI : elle a eu lieu avant le rendu
      ci-dessus, une fois, pour les DEUX branches. */
   alignerLaPileSurLeDocument();                 // LOT 188 — même loi qu'au boot
+  const recalage = recalerSurLaPileMontee();    // LOT 367 — même loi qu'au boot
   rebuild();
+  poserLaMarque(recalage, null);
   refresh();
 }
 
@@ -3091,7 +3132,7 @@ function renderStepContent() {
      disent alors la vérité, et un refus qui accuserait un document absent
      dirait autre chose. */
   if (state.document && manqueDuCran(step, faitsDuPersonnage())) {
-    const mot = motDeLEcranMort(state.document);
+    const mot = motDeLEcranMort(state.document, state.violations);
     /* ⚖️ LOT 350 — L'ÉCRAN MORT DE SHEET GARDE `Save character`. Eric, 29/09, à « un perso
        inachevé : Sheet affiche l'écran "perso incomplet", où `Save character` n'est pas — où
        sauver ? » : *« Save aussi sur cet écran »*. `renderSheetIncomplet` (review-step.mjs)
@@ -3222,6 +3263,8 @@ function renderStepContent() {
          lui-même deviendrait impossible à tester. */
       memoire: state.memoire,
       memoireIgnoree: state.memoireIgnoree,
+      /* ⚖️ LOT 367 — la ligne des règles mises à jour, tant que la marque vit. */
+      reglesMisesAJour: Boolean(state.recalage),
       ouvertureRefusee: state.ouvertureRefusee,
       /* 🗄️ LOT 195 — CE QUE `lister()` A RENDU, ET LA LIGNE DISCRÈTE. Même loi
          que partout ailleurs : l'écran REÇOIT des faits, il ne va pas les
@@ -6299,6 +6342,13 @@ function memoriser() {
   dernierTexteGarde = texte;
   const issue = ecrirePersonnage(texte);
   state.memoire = issue.ok ? { ok: true } : { ok: false, raison: issue.raison };
+  /* ⚖️ LOT 367 — LA MARQUE DU RECALAGE TOMBE AU PREMIER GESTE : le personnage a divergé de son
+     repère (`marqueVivante`). Un rechargement ne la fait pas tomber — il ne change que ce que
+     la dérivation estampille. */
+  if (state.recalage && !marqueVivante(state.recalage, state.document)) {
+    state.recalage = null;
+    oublierRecalage();
+  }
 }
 
 /* ══ LA VUE DOUBLE — lot 120 ═══════════════════════════════════════════════
@@ -6703,7 +6753,11 @@ refresh();
        un personnage gardé avec une couche de moins ne tombe plus sur l'écran
        mort au rechargement (voir `alignerLaPileSurLeDocument`). */
     alignerLaPileSurLeDocument();
+    /* ⚖️ LOT 367 — un perso sauvé avant une mise à jour des règles se recale sur la pile
+       montée AVANT de dériver, et la marque se pose (ou se reprend) après. */
+    const recalage = recalerSurLaPileMontee();
     rebuild();
+    poserLaMarque(recalage, lireRecalage());
   } catch (error) {
     state.engineError = error.message;
   }

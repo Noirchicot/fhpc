@@ -128,6 +128,51 @@ export function oublierPersonnage(magasin) {
   }
 }
 
+/* ══ ⚖️ LOT 367 — LA MARQUE DU RECALAGE, SOUS SA PROPRE CLEF ═════════════════════
+   Eric, 30/09 : un perso sauvé avant une mise à jour des règles s'ouvre sur les règles
+   d'aujourd'hui **« tout seul, et sauvé aussitôt »**, et le Menu le dit par **une ligne**
+   jusqu'au premier geste du joueur. Comme la copie est réécrite aussitôt, la ligne ne peut
+   pas se lire dans le personnage : elle se lit dans cette MARQUE, posée par le recalage —
+   ce qui a changé (`couches`), quand (`at`), et le personnage tel qu'il était alors
+   (`repere`, ce qui fait le personnage) : le premier geste le fait diverger, et la marque
+   s'efface. ⭐ Une seconde clef, PAS un champ du personnage : `fh-char/1` ne connaît pas
+   cet état d'écran, et l'export ne doit pas l'emporter.
+   ⛔ Une marque illisible n'est pas une panne à dire : c'est une ligne qu'on ne montre pas. */
+export const CLEF_RECALAGE = "fhpc.recalage";
+
+/** @returns {{couches:string[], at:string, repere:string}|null} */
+export function lireRecalage(magasin) {
+  const store = leMagasin(magasin);
+  if (!store) return null;
+  try {
+    const marque = JSON.parse(store.getItem(CLEF_RECALAGE) || "null");
+    return marque && Array.isArray(marque.couches) && typeof marque.repere === "string" ? marque : null;
+  } catch (_) { return null; }
+}
+
+/** @returns {{ok:true}|{ok:false,raison:string}} */
+export function ecrireRecalage(marque, magasin) {
+  const store = leMagasin(magasin);
+  if (!store) return { ok: false, raison: "this browser does not allow local storage" };
+  try {
+    store.setItem(CLEF_RECALAGE, JSON.stringify(marque));
+    return { ok: true };
+  } catch (erreur) {
+    return { ok: false, raison: raisonDe(erreur) };
+  }
+}
+
+export function oublierRecalage(magasin) {
+  const store = leMagasin(magasin);
+  if (!store) return { ok: false, raison: "this browser does not allow local storage" };
+  try {
+    store.removeItem(CLEF_RECALAGE);
+    return { ok: true };
+  } catch (erreur) {
+    return { ok: false, raison: raisonDe(erreur) };
+  }
+}
+
 /** Le mot d'un refus, tel que le navigateur l'a dit.
  *  ⚠️ ON NE TRADUIT PAS `QuotaExceededError` EN PROSE : un message inventé
  *  vieillirait mal et mentirait sur un cas qu'on n'a pas prévu. On rend ce que

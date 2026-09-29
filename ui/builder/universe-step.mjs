@@ -751,6 +751,14 @@ function renderDisplayEcran(ctx, onAction) {
 export const MOT_DE_L_AIGUILLEUR_DU_MENU =
   "You can switch a book on or off in Layers. Your Dungeon Master can give you a campaign code.";
 
+/** ⚖️ LOT 367 — LA LIGNE DES RÈGLES MISES À JOUR. Eric, 30/09, à « prévenir le joueur que
+ *  les règles ont changé depuis la sauvegarde ? » → **une ligne au Menu**, le brouillon
+ *  proposé (Eric arrête la lettre). Elle vit tant que la MARQUE du recalage vit
+ *  (`marqueVivante`, recalage.mjs) : jusqu'au premier geste du joueur.
+ *  ⛔ Aucun nom de sous-couche : le joueur ne connaît que ses livres (`Books`, juste au-dessus). */
+export const MOT_DES_REGLES_MISES_A_JOUR =
+  "The rules were updated since this character was saved. Your choices are kept; anything that no longer exists is named on its step.";
+
 /** LA LIGNE `Books` — ⚖️ Eric, 29/09, à « le SRD dans Books ? » : *« Books est un terme
  *  générique ; le SRD est le book de base »* (engine + catalog) — il apparaît donc, et
  *  en TÊTE. Puis Fate's Hand quand son maître est engagé, puis les livres du joueur
@@ -1000,6 +1008,12 @@ export function renderUniverseStep(ctx, onAction) {
     ]));
   }
   section.append(ligneLue("Books", livresDuMenu(doc).join(" · ")));
+  /* ⚖️ LOT 367 — les règles ont bougé sous ce personnage, et il a été recalé (voir le mot). */
+  if (ctx.reglesMisesAJour) {
+    const ligne = el("p", "universe-note", [text(MOT_DES_REGLES_MISES_A_JOUR)]);
+    ligne.dataset.recalage = "true";
+    section.append(ligne);
+  }
 
   /* ⑤ L'AIGUILLEUR — l'organe `.guide-mot` (NORMES §6 pré bis), ⛔ jamais un sosie :
      bleu, une boîte de TROIS lignes, et sur le verre il écrit en `--text`

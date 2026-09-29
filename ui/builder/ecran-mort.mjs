@@ -51,6 +51,8 @@ import { interrupteurDUnId } from "./interrupteurs.mjs?v=917";
    ceinture, jamais écrit en dur (la loi d'`etapeParId`). */
 import { ABILITY_KEYS } from "../../src/build/index.mjs?v=917";
 import { etapeParId } from "./etapes.mjs?v=917";
+/* ⚖️ LOT 367 — les refs morts, lus par l'organe du lot 359 (`parcours.mjs` n'importe rien). */
+import { refsMortsDeLEtape } from "./parcours.mjs?v=917";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -281,17 +283,44 @@ export function motDuManque(doc) {
   return null;
 }
 
-/** ⛔ LE MOT MUET, GARDÉ TEL QUEL ET NOMMÉ COMME MUET.
- *  Depuis le lot 198, il ne couvre plus ni le niveau, ni la classe, ni les
- *  scores — chacun a son mot. Il reste pour les causes qu'aucun geste du
- *  builder ne produit et qu'aucune lecture du document ne sait nommer : un
- *  choix qui pointe un record que la pile ne porte plus, un refus d'invariant
- *  du moteur. Leur phrase de joueur n'est pas inventée ici — c'est à Eric de
- *  la dire, ou à un lot qui l'aura mesurée.
- *  ⚠️ Cette constante existe pour être TROUVABLE : tant qu'elle est atteinte,
- *  il reste un joueur qui lit une impasse sans sortie. */
-export const CAUSE_SANS_RAISON = "it cannot be derived yet.";
-export const MOT_SANS_RAISON = TETE + CAUSE_SANS_RAISON;
+/** 🗄️ PREMIER ÂGE — LE MOT MUET, « it cannot be derived yet. » (`CAUSE_SANS_RAISON`). Depuis le
+ *  lot 198, il ne couvrait plus ni le niveau, ni la classe, ni les scores ; il restait pour ce
+ *  qu'aucune lecture du document ne savait nommer, en attendant qu'Eric dise la phrase.
+ *  📏 LOT 367 : il était atteint par TROIS chemins, relevés au banc — une couche éditée sous un
+ *  personnage sauvé (le recalage le ferme, `recalage.mjs`), une classe que la pile ne porte
+ *  plus, et un refus d'invariant du moteur.
+ *
+ *  ⚖️ SECOND ÂGE, LOT 367 — Eric, 30/09, à « leurs mots ? » → **les deux brouillons proposés**.
+ *  · LA CLASSE DISPARUE : la tête, puis le mot déjà ratifié du lot 191 (`motDesChoixNonResolus`),
+ *    et `Cancel` sur Class comme sortie (`causeDeLaClasseDisparue`) — ⚠️ le brouillon disait
+ *    `I changed my mind`, libellé MORT depuis le 05/09 (NORMES « DEUX MOTS, PAS TROIS » :
+ *    *« remplace par cancel partout »*) ; correction d'ARCHI 35, 30/09 ;
+ *  · CE QUI NE SUIT PAS LES RÈGLES (un fichier abîmé, un refus du moteur) : ce mot-ci, avec les
+ *    deux portes qui existent — `Save character` (Sheet) et `New character` (Menu).
+ *  ⛔ Plus aucun chemin sans cause ni sortie. */
+export const CAUSE_HORS_DES_REGLES =
+  "something in this character does not follow the rules the builder knows. Save character keeps it safe; New character starts over.";
+export const MOT_HORS_DES_REGLES = TETE + CAUSE_HORS_DES_REGLES;
+
+/** ⚖️ LOT 367 — LA CLASSE QUE LA PILE NE PORTE PLUS. `derive` la lit par `must` et JETTE (une
+ *  classe est structurelle) ; `validate` la nomme quand même (`choice.ref-missing` sur `class`,
+ *  lot 359). ⭐ Le mot du lot 191, tel quel, puis la sortie de Class : `Cancel` (la famille
+ *  DÉFAIRE, `sortie-annule` — il efface le choix de classe).
+ *  @returns {string|null} */
+export function causeDeLaClasseDisparue(violations) {
+  const mot = motDesChoixNonResolus(refsMortsDeLEtape({ violations, racine: "class" }));
+  return mot === null ? null : `${mot} On Class, Cancel lets you pick another class.`;
+}
+
+/** ⚖️ LOT 367 — POURQUOI LA FICHE N'EXISTE PAS : UN SEUL ÉCRIVAIN, POUR L'ÉCRAN MORT ET POUR
+ *  LE CHAPITRE QUI VIT SANS FICHE (Skills). Dans l'ordre : ce que le document ne porte pas
+ *  (`motDuManque`, lot 198), puis ce que la pile ne porte plus (la classe), puis le mot de ce
+ *  qui ne suit pas les règles. ⛔ Jamais `null` : chaque chemin a sa cause et sa sortie.
+ *  @param {object} doc          le document vivant
+ *  @param {Array}  [violations] `state.violations` (les refus qui tiennent sans fiche, lot 359) */
+export function causeDeLaFicheAbsente(doc, violations) {
+  return motDuManque(doc) ?? causeDeLaClasseDisparue(violations) ?? CAUSE_HORS_DES_REGLES;
+}
 
 /** LA PHRASE DE L'ÉCRAN MORT, pour un document donné.
  *
@@ -321,7 +350,7 @@ export const MOT_SANS_RAISON = TETE + CAUSE_SANS_RAISON;
  *  @param {object} doc le document `fh-char/1` vivant
  *  @returns {string} la phrase à poser dans l'écran
  */
-export function motDeLEcranMort(doc) {
+export function motDeLEcranMort(doc, violations) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
   /* ⭐ LOT 188 — `currentStack` accuse tout ce qui n'est pas l'une des deux
      piles entières ; `compositionFh` ne retient l'accusation que si aucun
@@ -331,6 +360,5 @@ export function motDeLEcranMort(doc) {
   if (layers.length > 0 && currentStack(doc) === null && !compositionFh(doc).legitime) return MOT_PILE_INCONNUE;
   /* 🌱 LOT 198 — la tête, puis LE MÊME manque que celui qu'un chapitre vivant
      nomme (`motDuManque`) : un seul écrivain de la cause et de la sortie. */
-  const manque = motDuManque(doc);
-  return manque === null ? MOT_SANS_RAISON : TETE + manque;
+  return TETE + causeDeLaFicheAbsente(doc, violations);
 }

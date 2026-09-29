@@ -9725,6 +9725,57 @@ moteur**. La coquille l'exécute par `applyDecisionAction` — donc un écran ne
 
 📌 **CE QUI LA TIENT** : `tests/naitre-derivable.test.mjs` — A (le composeur fait naître, l'exemple passe par lui, le témoin sans niveau refuse comme v621), B1 (un seul déclarant, sur la donnée `STEPS.filter(lit)`), B5 (le garde central : sur un personnage neuf sans classe ni scores, aucun cran de la ceinture n'est mort dans les deux piles, sauf Sheet qui nomme), B6 (Skills sans fiche nomme avec le mot importé ; avec fiche, le pool), B7 (Equipment sans classe vit, My gold nomme, aucun « Take the » ; avec classe, l'or), C (jamais la phrase muette quand un choix exigé manque, sur les 128 sous-ensembles), E2 (complète ou nommée), D1 (la coquille sans liste par nom, un seul fait — garde sur la forme, et il le dit). Chacun vu ROUGE sous sa mutation le 10/09.
 
+🔄 **30/09 (lot 367) — `MOT_SANS_RAISON` A REÇU SON MOT, ET IL N'EST PLUS MUET** (loi des deux âges : la
+phrase de C ci-dessus est l'âge d'avant). Un seul écrivain de la cause, `causeDeLaFicheAbsente`
+(ecran-mort.mjs), pour l'écran mort ET pour Skills : ce que le document ne porte pas (`motDuManque`),
+puis la classe que la pile ne porte plus, puis ce qui ne suit pas les règles — voir
+`socle-perso-sauve-s-ouvre-toujours`.
+
+---
+
+### 🔓 UN PERSO SAUVÉ S'OUVRE TOUJOURS, MÊME APRÈS UNE MISE À JOUR DES RÈGLES *(Eric, 2026-09-30)*
+📍 `socle-perso-sauve-s-ouvre-toujours` · vivante · 30/09
+⚖️ **Un document dont une empreinte de couche ne correspond plus à la pile montée s'ouvre TOUT SEUL sur les couches d'aujourd'hui, et la copie du navigateur est réécrite aussitôt. Ses choix restent tels quels ; ce qui ne se résout plus se nomme sur son étape (`voyant-un-choix-mort-se-nomme-meme-sans-classe`). Le recalage se fait à l'ouverture — démarrage, fichier ouvert —, APRÈS l'alignement des livres et AVANT la dérivation. ⛔ Un livre du joueur absent de cet appareil ne se recale pas (`A-TRANCHER §C34`). ⛔ Aucun chemin ne mène plus à un écran mort sans cause ni sortie.**
+
+> Eric, 2026-09-30, trois réponses relayées par ARCHI 35, chacune avec sa question :
+> · « Comment le perso s'ouvre-t-il ? (a) tout seul, en mémoire, la copie ne change qu'au premier geste
+>   · (b) un écran qui nomme la cause, avec un bouton · (c) tout seul, et écrit tout de suite » →
+>   **« Tout seul, et sauvé aussitôt »** (c).
+> · « Prévenir le joueur ? » → **une ligne au Menu** (`menu-r-ligne-des-regles-mises-a-jour`).
+> · « Deux chemins mènent encore au mot muet : une classe disparue, un refus d'invariant — leurs mots ? »
+>   → **les deux brouillons proposés**. ⚠️ Le premier disait `I changed my mind` sur Class : libellé MORT
+>   depuis le 05/09 (« DEUX MOTS, PAS TROIS » — *« remplace par cancel partout »*). ARCHI 35 l'a relevé
+>   le même jour : la sortie est **`Cancel`**, et c'est sa correction, pas une décision d'Eric.
+> ⚖️ La réponse (c) écarte, pour l'ouverture, la clause du mandat « rien ne s'écrit au document sans un
+> geste du joueur » : la décision est d'Eric (ARCHI 35 : *« grave-le dans NORMES comme décision d'Eric »*).
+
+📏 **LA CHAÎNE, MESURÉE** (l'Ilyra commitée à v914, ouverte à v917) : chaque couche déclarée porte
+l'empreinte de ses octets (`$defs/layerRef`). Cinq couches avaient changé d'octets — la version, elle,
+restait `0.1.0`, seul le hash le disait. `rebuild` refusait (« la pile montée ne correspond pas à
+`build.layers` » : contracts/build.md, invariant 4 — le moteur a raison, c'est à l'appelant de décider).
+La coquille rangeait le refus dans `derivationImpossible`, et l'écran demandait la cause à `motDuManque`,
+qui ne lit que le document : niveau, classe et scores posés, il ne trouvait rien — d'où le mot muet,
+*« it cannot be derived yet »*. Recalés, huit états de l'exemple, de v916 aux plus anciens, dérivent
+tous ; un ref disparu sort en `choice.ref-missing`, déjà nommé par les lots 191 et 359.
+⭐ **LES TROIS ORGANES** (`recalage.mjs`, PURS) : `recalageDeLaPile` (la pile à adopter et les ids qui ont
+changé, ou `null`), `marqueDuRecalage`, `marqueVivante`. La coquille les câble (`recalerSurLaPileMontee`,
+`poserLaMarque`) ; `memoriser` écrit le document recalé au rendu qui suit, et fait tomber la marque au
+premier geste.
+⭐ **LES DEUX MOTS QUI ÉTAIENT MUETS** (`causeDeLaFicheAbsente`, un seul écrivain pour l'écran mort et
+Skills) :
+· la classe que la pile ne porte plus : la tête, puis le mot du lot 191 (`motDesChoixNonResolus` — « Wizard
+  is not in this ruleset — … »), puis *« On Class, Cancel lets you pick another class. »* ;
+· ce qui ne suit pas les règles (un fichier abîmé, un refus d'invariant) : *« …something in this character
+  does not follow the rules the builder knows. Save character keeps it safe; New character starts
+  over. »* — les deux portes qui existent.
+⏳ Ces mots sont des brouillons, comme tous ceux d'`ecran-mort.mjs` : Eric arrête la lettre.
+⭐ **ET DANS LE MÊME GESTE D'OUVRIR, L'IDENTIFIANT** (décision d'ARCHI 35, 30/09) : un personnage neuf tire
+son UUID v4 de `crypto.getRandomValues` (`uuidDuNavigateur`, identifiant.mjs), présent partout —
+`crypto.randomUUID` n'existe qu'en contexte sécurisé, et une page en `http://` sur l'IP du Mac échouait à
+la première visite. Même hasard cryptographique ; sans générateur, le refus reste nommé.
+🛡️ `tests/perso-s-ouvre-367.test.mjs` (R1–R6, M1, U1–U3), 15 mutations vues rouges ;
+`tests/ecran-mort-qui-nomme.test.mjs`, `tests/naitre-derivable.test.mjs` suivent la nouvelle vérité.
+
 ---
 
 ### 7.14 🆓 `FREE` EST 100 % LIBRE — aucune condition sur le choix des caracs *(Eric, 2026-09-06)*
@@ -10904,7 +10955,7 @@ note). ⚠️ Aucun garde de la suite ne mesure un défilement : le DOM des test
 ---
 
 ### 🧭 LOT 357 — R REDICTÉ, ET LA PAGE DUNGEON MASTER *(Eric, 2026-09-29, après la v906)*
-📍 `menu-r-la-page-redictee` · vivante · 29/09 · remplace `menu-r-la-page-dictee`
+📍 `menu-r-la-page-redictee` · vivante · 29/09 · remplace `menu-r-la-page-dictee` · bornée par `menu-r-ligne-des-regles-mises-a-jour`
 ⚖️ **Le Menu R porte, de haut en bas : `SOWLREACH` et son sous-titre · le code de campagne (réservé) · `New character` (le grand bouton) · `Campaign` (lu) · `Rules` · `Books` · l'aiguilleur · cinq portes en deux rangées centrées — `My characters` · `Dungeon Master` ; `Vault` · `Layers` · `Display`. Rien d'autre ; les repères `R` / `B…` ne s'affichent jamais.**
 
 > Eric, 2026-09-29, après avoir relu le Menu en ligne (v906), mot pour mot : **« je te refais un overview
@@ -10924,6 +10975,26 @@ note). ⚠️ Aucun garde de la suite ne mesure un défilement : le DOM des test
 🗄️ **CE QUI QUITTE R** : `Create character` (il devient `New character`), la porte `New character` du
 bas (*« celui doit dégager »* — un seul organe par geste), le champ `Campaign` (une ligne lue).
 🛡️ `tests/universe-step.test.mjs` R1, R3 (l'ensemble des verbes), R5 (les deux rangées), R8.
+
+#### 🔔 SOUS `Books`, UNE LIGNE QUAND LES RÈGLES ONT BOUGÉ SOUS LE PERSONNAGE
+📍 `menu-r-ligne-des-regles-mises-a-jour` · vivante · 30/09 · borne `menu-r-la-page-redictee`
+⚖️ **Quand un personnage vient d'être recalé sur les règles d'aujourd'hui (`socle-perso-sauve-s-ouvre-toujours`), R porte, sous `Books`, une ligne de note — « The rules were updated since this character was saved. Your choices are kept; anything that no longer exists is named on its step. » — jusqu'au premier geste du joueur. Elle se lit dans une MARQUE posée par le recalage (ce qui a changé, et quand), jamais dans le personnage. ⛔ Aucun nom de sous-couche ; ⛔ pas un second aiguilleur.**
+
+> Eric, 2026-09-30, relayé par ARCHI 35, à « Prévenir le joueur ? (a) une ligne au Menu, sous Rules/Books,
+> jusqu'au premier geste · (b) un popup à l'ouverture · (c) rien » : **(a)**, le brouillon proposé.
+> ARCHI 35, même jour : la copie étant réécrite aussitôt, la ligne ne peut plus se fonder sur « la copie
+> déclare les anciennes règles » — *« Fonde-la sur une marque posée par le recalage (ce qui a changé, et
+> quand), et fais-la vivre jusqu'au premier geste du joueur »*.
+
+⭐ **C'EST L'EXCEPTION NOMMÉE AU « RIEN D'AUTRE » DE R** : la page redictée reste la liste de R ; cette
+ligne n'y paraît que sous sa condition. Elle est une note (`universe-note`), pas l'aiguilleur — un écran
+n'en a qu'un (`aiguilleur-un-seul-par-ecran-le-premier-s-eteint`) — et pas le rouge de la tête, qui dit
+une panne de mémoire (`menu-r-ligne-d-etat-retiree`) : rien ici n'est en panne.
+⭐ **LA MARQUE** (`fhpc.recalage`, `memoire.mjs`) garde les couches changées, l'heure, et le REPÈRE —
+ce qui fait le personnage à ce moment. Recharger la page ne change que ce que la dérivation estampille :
+la ligne reste. Un geste (un choix, un nom, un livre allumé…) fait diverger le personnage de son repère :
+la marque tombe, et la ligne avec elle. ⛔ Pas une liste des gestes qui comptent.
+🛡️ `tests/perso-s-ouvre-367.test.mjs` R4, R5, R6.
 
 #### 🟢 `NEW CHARACTER` EST LE GRAND BOUTON — la fenêtre, puis l'étape 1
 📍 `menu-r-new-character-grand-bouton` · vivante · 29/09 · remplace `menu-r-create-character-ouvre-l-etape-1`

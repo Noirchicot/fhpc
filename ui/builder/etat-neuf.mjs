@@ -79,6 +79,11 @@ export function etatNeuf() {
     /* 📂 Le mot du dernier fichier REFUSÉ à l'ouverture, ou null. ⛔ Il ne vit
        pas dans le document : c'est un fait d'écran, il meurt au rechargement. */
     ouvertureRefusee: null,
+    /* ⚖️ LOT 367 — la MARQUE du recalage (`marqueDuRecalage`, recalage.mjs), ou null : les
+       règles ont bougé sous ce personnage, il a été recalé et sauvé aussitôt, et le Menu le
+       dit par une ligne jusqu'au premier geste du joueur. `memoire.mjs` la garde sous sa
+       clef ; un personnage neuf ou un autre fichier la fait tomber. */
+    recalage: null,
     /* 🧭 La branche de rang B du Menu ouverte : "display" (Appearance),
        "characters" (le magasin de sauvegardes, lot 195), "layers" (le tableau
        de commande des couches, lot 188) ou "dm" (la page Dungeon Master, lot 357).

@@ -504,6 +504,7 @@
 
 - 📏 **LE FAIT** : `layers-livres/` n'est jamais commité ; un personnage gardé avec le DMG allumé, ouvert sur un autre appareil, déclare une couche que le moteur ne peut pas monter. `rebuild` refuse (*« la pile montée ne correspond pas »*), et l'écran mort rend sa phrase **muette** (`MOT_SANS_RAISON`, lot 183 — « ce qui reste muet est nommé comme muet »).
 - ➡️ Le mot appartient à Eric : *« this character uses a book that is not on this device — import it, or switch it off in Layers »* est un brouillon, pas une décision. L'écran `Layers` le montre déjà « not on this device » ; c'est la phrase des six autres écrans qui manque.
+- 🔄 **30/09 (lot 367)** — la phrase muette est partie (`socle-perso-sauve-s-ouvre-toujours`) : ce personnage lit désormais le mot de ce qui ne suit pas les règles (*« …Save character keeps it safe; New character starts over. »*), qui n'est PAS la réponse à cette question. ⛔ Le recalage l'EXCLUT exprès : recaler effacerait la déclaration du livre de la copie du navigateur, aussitôt réécrite. La question reste ouverte.
 
 ## C32 — L'étape `background` en pile SRD n'a pas d'écran { #c32 }
 
