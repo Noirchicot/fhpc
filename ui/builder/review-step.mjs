@@ -48,7 +48,9 @@
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
 import { planAt } from "./carnet.mjs?v=916";
-import { lignageChoisi } from "./species-step.mjs?v=916";
+import { lignageChoisi, detenteurDuDonDEspece } from "./species-step.mjs?v=916";
+/* 🧬 LOT 364 — les dons d'origine, nommés par UN compositeur (celui de l'organe du don). */
+import { donsDOrigineNommes, detenteurDuDonDArrierePlan } from "./inheritance-step.mjs?v=916";
 /* LOT 360 — les choix de capacité, en mots : un seul écrivain, celui de l'étape Class. */
 import { capacitesChoisies } from "./class-step.mjs?v=916";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
@@ -78,7 +80,10 @@ export const REVIEW_GROUPS = [
      serait vue : cinq espèces sur douze portent un lignage, et sans ce chemin
      un Dragonborn sans ancêtre choisi comptait pour FINI — au récapitulatif
      comme dans la lumière du belt, qui lit la même table. */
-  { step: "species", label: "Species", paths: ["species", "species.lineage", "species.skills", "species.skillBudget"] },
+  /* 🧬 LOT 364 — ET LE DON DE VERSATILE (`species.originFeat[0]`) : sans lui, un Human
+     sans son don d'origine comptait pour FINI, comme le Dragonborn sans ancêtre le 19/08. */
+  { step: "species", label: "Species", paths: ["species", "species.lineage", "species.skills", "species.skillBudget",
+    "species.originFeat[0]"] },
   { step: "destiny", label: "Destiny", paths: [] },
   { step: "background", label: "Inheritance", paths: ["background", "background.boost", "background.originFeat[0]"] },
   /* LOT 72 — les sorts entrent au carnet (`class.cantrips`/`class.prepared`,
@@ -264,7 +269,12 @@ export function renderReviewStep(ctx, onAction) {
   dalle.append(renderFicheTemporaire({
     resolved, report: ctx.report || null, document, flags: ctx.flags || [], espece: espece || null,
     /* LOT 360 — les choix de capacité, composés par l'interface comme le lignage */
-    choix: capacitesChoisies(ctx)
+    choix: [
+      /* 🧬 LOT 364 — les dons d'origine d'abord (ARCHI 35, Q3 : celui de l'arrière-plan ET
+         celui de Versatile, par le MÊME compositeur), puis les choix de capacité. */
+      ...donsDOrigineNommes(ctx, [detenteurDuDonDArrierePlan(ctx), detenteurDuDonDEspece(ctx)].filter(Boolean)),
+      ...capacitesChoisies(ctx)
+    ]
   }));
 
   dalle.append(el("h3", "review-heading review-heading-etapes", [text("Build steps")]));

@@ -50,6 +50,9 @@ import { spellInfo, skillInfo, skillLabel as motDeLaCompetence } from "./class-s
 import { motDuVerrou } from "./skills-step.mjs?v=916";
 import { lienSkillFhWeb, sortEstModifieFh, lienSortFhWeb } from "./liens-fh.mjs?v=916";
 import { etapeParId } from "./etapes.mjs?v=916";
+/* 🧬 LOT 364 — le don d'origine de l'espèce (Versatile) : l'organe de l'Inheritance, un organe pour deux lieux. */
+import { renderFeatGlisse, featInfo, featListPlan, listeLabel } from "./inheritance-step.mjs?v=916";
+import { motDuChoix } from "./mot-du-choix.mjs?v=916";
 import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=916";
 /* 📌 LOT 191 / LOT 194 — l'organe du « mot d'un choix » (`mot-du-choix.mjs`)
    n'est plus importé ICI : la seule chose que cet écran nommait était une
@@ -116,6 +119,8 @@ function corpsDeLItem(item, ctx, act) {
   if (!record || !item) return null;
   /* SB1 — le lignage, et RIEN d'autre. */
   if (item.path === "species.lineage") return renderLineageBlock(ctx, record, act);
+  /* 🧬 LOT 364 — Versatile : le jeton du don, l'organe de l'Inheritance sous la racine de l'espèce. */
+  if (item.path === CHEMIN_DON_D_ESPECE) return renderFeatGlisse(ctx, act, CHEMIN_DON_D_ESPECE);
   /* ══ SB2 — LA BOURSE, EN GLISSER-DÉPOSER (Eric, 2026-08-19) ═════════════
      *« skill budget est un drag and drop : des tokens +1 et +2 au-dessus avec
      un compteur de budget qui est de 2, en dessous 3 récepteurs. »*
@@ -274,6 +279,25 @@ const TRAITS_COUVERTS = {
   "species.skills": ["keen-senses"]
 };
 
+/* ══ 🧬 LOT 364 — LE DON D'ORIGINE DE L'ESPÈCE (Versatile) ═══════════════════
+   L'espèce qui déclare `data.feat_choice` (Human en SRD et en FH, Loroka en FH)
+   fait choisir un don d'origine : le carnet publie `species.originFeat[0]`, et la
+   porte est CELLE de l'Inheritance (`renderFeatGlisse`, inheritance-step) — un
+   organe, deux lieux (ARCHI 35, lot 364).
+   ⭐ LA DÉCLARATION NOMME LE TRAIT QU'ELLE RÉALISE (`feat_choice.trait`), comme
+   `skill_points.trait` et `destiny.base_bonus_trait` (voir `PORTAGES`) : le trait
+   quitte « Granted automatically » pour la porte par la DONNÉE — ⛔ pas par une
+   ligne de `TRAITS_COUVERTS`, qui ne saurait pas qu'une espèce de demain appelle le
+   sien autrement.
+   🔴 ET AVEC LUI PART LA LIGNE VERTE « → chosen at step 3, Inheritance ». Elle
+   promettait un choix que l'Inheritance ne faisait pas : son don est le SIEN, pas
+   celui de Versatile — l'Humain sortait avec un don de moins (relevé 360 #6). */
+export const CHEMIN_DON_D_ESPECE = "species.originFeat[0]";
+function traitDuDon(record) {
+  const declaration = record && record.data && record.data.feat_choice;
+  return declaration && typeof declaration.trait === "string" ? declaration.trait : null;
+}
+
 /* ══ 🔴 LES TRAITS QUE LA LIGNÉE PORTE — Eric, 2026-09-02 ══════════════════
    *« Un trait dont le CONTENU dépend du choix de lignée appartient à la
    lignée, pas au bloc "Granted automatically". »*
@@ -339,7 +363,7 @@ function motPropre(valeur) {
  *
  *  Même règle pour tous : le lignage aussi porte le sien en tête. */
 function traitQuiAccorde(record, chemin) {
-  const ids = TRAITS_COUVERTS[chemin] || [];
+  const ids = chemin === CHEMIN_DON_D_ESPECE ? [traitDuDon(record)].filter(Boolean) : (TRAITS_COUVERTS[chemin] || []);
   return traitsDe(record).find((trait) => ids.includes(trait.id)) || null;
 }
 
@@ -452,6 +476,8 @@ function resumeDeLItem(item, ctx, act) {
     for (const [chemin, ids] of Object.entries(TRAITS_COUVERTS)) {
       if (planAt(decisions, chemin)) for (const id of ids) couverts.add(id);
     }
+    /* 🧬 LOT 364 — et le trait que la déclaration du don nomme (Versatile). */
+    if (planAt(decisions, CHEMIN_DON_D_ESPECE) && traitDuDon(record)) couverts.add(traitDuDon(record));
     /* ⭐ ET CEUX QUE LA LIGNÉE PORTE (voir `TRAITS_DE_LIGNEE`) : ils partent
        dès que l'espèce OUVRE un choix de lignée, signé ou non — c'est
        justement avant la signature que leur place ici mentirait le plus. */
@@ -553,6 +579,29 @@ function resumeDeLItem(item, ctx, act) {
      comme la bourse : celle-ci est une mécanique Fate's Hand et ses
      compétences y ont une page ; une compétence SRD n'en a pas, et un lien
      mort est pire qu'un mot. La fenêtre du tap dit ce que le record dit. */
+  /* ── 🧬 LOT 364 — LE DON DE VERSATILE : son nom (tap = sa fenêtre), et sa
+     configuration — la liste de Magic Initiate, ou les maîtrises de Skilled. */
+  if (item.path === CHEMIN_DON_D_ESPECE) {
+    const plan = planAt(decisions, CHEMIN_DON_D_ESPECE);
+    const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+    if (!id) return null;
+    const trait = traitQuiAccorde(record, CHEMIN_DON_D_ESPECE);
+    const ligne = el("p", "bilan-ligne");
+    ligne.append(el("strong", null, [text(`${(trait && trait.name) || "Origin feat"} : `)]));
+    const info = featInfo(ctx.query, id);
+    const nom = motDuChoix(ctx.query, "feat", id);
+    if (info) {
+      const bouton = el("button", "bilan-nom", [text(nom)]);
+      bouton.type = "button";
+      bouton.setAttribute("aria-label", `${nom} — details`);
+      bouton.addEventListener("click", () => (act || (() => {}))(info));
+      ligne.append(bouton);
+    } else ligne.append(text(nom));
+    const liste = featListPlan(decisions, CHEMIN_DON_D_ESPECE);
+    const listeId = liste && Array.isArray(liste.selected) ? liste.selected[0] : null;
+    if (listeId) ligne.append(text(` (${listeLabel(ctx.query, listeId)})`));
+    return ligne;
+  }
   if (item.path === "species.skills") {
     const plan = planAt(decisions, "species.skills");
     const choisies = (plan && Array.isArray(plan.selected) ? plan.selected : []).filter(Boolean);
@@ -581,6 +630,23 @@ function nomQuiOuvreLaCompetence(query, slug, act) {
   bouton.setAttribute("aria-label", `${nom} — details`);
   bouton.addEventListener("click", () => act(info));
   return bouton;
+}
+
+/** 🧬 LOT 364 — le nom du don posé à Versatile, ou `null`. */
+function donDEspecePose(ctx) {
+  const plan = planAt((ctx && ctx.decisions) || [], CHEMIN_DON_D_ESPECE);
+  const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  return id && ctx && typeof ctx.query === "function" ? motDuChoix(ctx.query, "feat", id) : null;
+}
+
+/** 🧬 LOT 364 — LE DÉTENTEUR DU DON D'ESPÈCE, pour le compositeur de la fiche
+ *  (`donsDOrigineNommes`, inheritance-step) : sa racine, ce qui l'accorde (le NOM
+ *  du trait que la déclaration désigne) et sa source (l'espèce). `null` sans don. */
+export function detenteurDuDonDEspece(ctx) {
+  const record = ctx ? especeRetenue(ctx) : null;
+  if (!record || !planAt(ctx.decisions || [], CHEMIN_DON_D_ESPECE)) return null;
+  const trait = traitQuiAccorde(record, CHEMIN_DON_D_ESPECE);
+  return { racine: CHEMIN_DON_D_ESPECE, accorde: (trait && trait.name) || "Origin feat", source: record.name };
 }
 
 export const LIGNE_ACQUIS = {
@@ -680,6 +746,10 @@ export const SPECIES_CATALOGUE = {
     if (chemin === "species.skills") {
       return `Tap a skill to read what it covers — drag it into the slot to choose. ${prevention}`;
     }
+    /* 🧬 LOT 364 — la phrase de la porte du don d'origine, la même qu'à l'Inheritance. */
+    if (chemin === CHEMIN_DON_D_ESPECE) {
+      return `Tap a feat to read what it grants — drag it into the slot to choose. ${prevention}`;
+    }
     if (chemin !== "species.lineage") return null;
     if (LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx))) {
       return `Ten lineages, one element each — tap to read, drag one into the slot to choose. ${prevention}`;
@@ -754,6 +824,16 @@ export const SPECIES_CATALOGUE = {
     return null;
   },
   itemLabel: (chemin, ctx) => {
+    /* 🧬 LOT 364 — la loi de la porte, comme le lignage : la QUESTION tant que rien
+       n'est posé (le nom du trait, « Versatile »), la RÉPONSE ensuite (« Magic
+       Initiate »), la question en sous-titre. */
+    if (chemin === CHEMIN_DON_D_ESPECE) {
+      const record = especeRetenue(ctx);
+      const trait = record ? traitQuiAccorde(record, chemin) : null;
+      const question = (trait && trait.name) || "Origin feat";
+      const nom = donDEspecePose(ctx);
+      return nom ? { mot: nom, sous: question.toLowerCase() } : question;
+    }
     if (chemin === "species.lineage") {
       const nom = lignageChoisi(ctx);
       return nom ? { mot: nom, sous: "lineage" } : "Lineage";

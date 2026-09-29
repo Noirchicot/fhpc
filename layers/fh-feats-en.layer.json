@@ -40,9 +40,16 @@
               "chemin": "fh.skills.spend",
               "note": "Fate's Hand : Skilled donne 6 points de compétence, « at exact parity with its SRD text of three skills or tools of the player's choice » (la note de ce patch) — ils se dépensent à l'étape Skills."
             }
+          },
+          "data[proficiency_choice]": {
+            "count": 0,
+            "from": [
+              "skill",
+              "tool"
+            ]
           }
         },
-        "note": "Fate's Hand — Skilled grants 6 skill points (3 proficiencies × tier_costs.proficient of 2), at exact parity with its SRD text of three skills or tools of the player's choice. It imposes nothing: the points are the player's to spend."
+        "note": "Fate's Hand — Skilled grants 6 skill points (3 proficiencies × tier_costs.proficient of 2), at exact parity with its SRD text of three skills or tools of the player's choice. It imposes nothing: the points are the player's to spend. 🎯 Lot 364 — and it opens none of the SRD's three proficiency choices: `data[proficiency_choice]` is set WHOLE to a count of 0 (never patched inside, so this layer never depends on srfh-mecaniques-en), because the six points ARE those choices, spent at Skills."
       },
       "srd:feat:en:magic-initiate": {
         "op": "patch",

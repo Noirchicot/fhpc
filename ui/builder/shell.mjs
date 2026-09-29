@@ -120,8 +120,10 @@ import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
 import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=916";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
-  featListPlan, renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
-  featSousLabel, featInfo } from "./inheritance-step.mjs?v=916";
+  renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
+  featSousLabel, featInfo,
+  /* 🧬 LOT 364 — le B emboîté du don vaut pour toute racine de don (Versatile) */
+  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=916";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
@@ -2698,14 +2700,15 @@ function appliquerLaDecision(action) {
      liste, les sorts et LEURS SIGNATURES tombent avec l'ancien don. La racine
      survit — le nouveau `ref` la remplit dans la foulée, et `revoke` balaye
      déjà le préfixe entier (même paire d'organes que `parcoursCancel`). */
-  if (action.kind === "choose" && action.path === "background.originFeat[0]"
+  /* 🧬 LOT 364 — sous la racine du don posé, quelle qu'elle soit (Versatile aussi). */
+  if (action.kind === "choose" && estRacineDeDon(action.path)
       && action.ref && state.document) {
-    const courant = choixDeDon();
+    const courant = choixDeDon(action.path);
     if (courant && courant !== action.ref.id) {
       if (state.docWriters) {
-        state.document = state.docWriters.revoke({ document: state.document, path: "background.originFeat[0]" });
+        state.document = state.docWriters.revoke({ document: state.document, path: action.path });
       }
-      const prefixe = "background.originFeat[0].";
+      const prefixe = `${action.path}.`;
       const poses = (state.document.build && state.document.build.choices) || [];
       let document = state.document;
       for (const chemin of poses.map((c) => c && c.path).filter((c) => typeof c === "string" && c.startsWith(prefixe))) {
@@ -2883,9 +2886,9 @@ const CATALOGUES = {
 };
 /** Le don que le joueur a posé, ou `null`. Lu au document — la seule source
  *  d'un choix (le carnet, lui, dit ce qui RESTE à faire). */
-function choixDeDon() {
+function choixDeDon(racine = FEAT_RACINE) {
   const choices = (state.document && state.document.build && state.document.build.choices) || [];
-  const choix = choices.find((c) => c && c.path === "background.originFeat[0]" && c.ref && c.ref.kind === "feat");
+  const choix = choices.find((c) => c && c.path === racine && c.ref && c.ref.kind === "feat");
   return choix ? choix.ref.id : null;
 }
 
@@ -3279,20 +3282,21 @@ function renderStepContent() {
       section.append(renderLorePanel({
         query: ctx.query, kind: state.lore.kind, id: state.lore.id, onAction: applyDecisionAction
       }));
-    } else if (parcours && state.parcoursItem && state.parcoursItem.racine === FEAT_RACINE) {
+    } else if (parcours && state.parcoursItem && estRacineDeDon(state.parcoursItem.racine)) {
       /* 🎩 LOT 194 — LE B EMBOÎTÉ DU DON VAUT AUSSI HORS DE L'INHERITANCE.
          Eric, 2026-09-10, sur l'Acolyte du fil SRD : *« Magic Initiate nécessite
          un bouton, ça doit être configuré — exactement le même chemin que dans
          FH, tu as juste à recopier. »*
-         ⭐ ET C'EST LITTÉRALEMENT LE MÊME `FEAT_PARCOURS` : mêmes chemins,
+         ⭐ ET C'EST LITTÉRALEMENT LE MÊME cfg (`parcoursDuDon`) : mêmes chemins,
          mêmes corps, même moule. La branche de l'Inheritance (plus bas) le
          montait déjà ; elle était la SEULE, donc un arrière-plan SRD dont le
          don porte des branches n'avait aucun écran où les poser. ⛔ Rien n'est
          recopié ici — deux appels au même cfg, pas un second cfg. */
-      section.append(renderParcoursItem(FEAT_PARCOURS, ctx));
-    } else if (parcours && state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
-        && featListPlan(state.decisions)) {
-      section.append(renderParcoursGuide(FEAT_PARCOURS, ctx));
+      /* 🧬 LOT 364 — le même cfg pour chaque racine de don (`parcoursDuDon`). */
+      section.append(renderParcoursItem(parcoursDuDon(state.parcoursItem.racine), ctx));
+    } else if (parcours && state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
+        && donABranches(state.decisions, state.parcoursItem.path)) {
+      section.append(renderParcoursGuide(parcoursDuDon(state.parcoursItem.path), ctx));
     } else if (parcours && state.parcoursItem) {
       section.append(renderParcoursItem(cfg, ctx));
     } else if (parcours === ETAT.guide || parcours === ETAT.bilan) {
@@ -3361,15 +3365,15 @@ function renderStepContent() {
     const ctx = inheritanceCtx();
     const section = el("section", "catalogue-step");
     const ou = etatDeLEtape({ decisions: state.decisions, document: state.document, racine: cfg.path });
-    if (state.parcoursItem && state.parcoursItem.racine === FEAT_RACINE) {
+    if (state.parcoursItem && estRacineDeDon(state.parcoursItem.racine)) {
       /* SB du don — la liste ou les sorts, par le cfg emboîté */
-      section.append(renderParcoursItem(FEAT_PARCOURS, ctx));
-    } else if (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
-        && featListPlan(state.decisions)) {
+      section.append(renderParcoursItem(parcoursDuDon(state.parcoursItem.racine), ctx));
+    } else if (state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
+        && donABranches(state.decisions, state.parcoursItem.path)) {
       /* 🚪 LE B DU DON (lot 77) — un don à branches posé remplace le glisser
          par son menu : le species complexe d'Eric, rendu par le MÊME moule
          que le guide d'étape. « I changed my mind » y ramène au jeton. */
-      section.append(renderParcoursGuide(FEAT_PARCOURS, ctx));
+      section.append(renderParcoursGuide(parcoursDuDon(state.parcoursItem.path), ctx));
     } else if (state.parcoursItem) {
       section.append(renderParcoursItem(cfg, ctx));
     } else section.append(renderParcoursGuide(cfg, ctx));   /* guide ET bilan : voir plus haut */
@@ -4370,7 +4374,7 @@ const INHERITANCE_PARCOURS = {
    le moteur qui le dit (featSpellPlans : « on ne demande pas de choisir un
    sort avant de savoir dans quel livre le prendre »), et le menu grandit avec
    le carnet, comme partout. */
-const FEAT_RACINE = "background.originFeat[0]";
+const FEAT_RACINE = RACINE_DON_ARRIERE_PLAN;
 
 /** La porte du guide de l'Inheritance : le nom du don posé, ou la question. */
 function featPorteLabel(ctx) {
@@ -4384,35 +4388,49 @@ function featPorteLabel(ctx) {
  *  (blurb du record, via featInfo) — « le livre ouvre le lore de ce que
  *  l'écran montre ». Rien de posé → null, et le livre reste éteint (un organe
  *  muet doit avoir l'air muet). Eric, 2026-08-28 : « Livre pas câblé. » */
-function livreDuDon(ctx) {
-  const plan = (state.decisions || []).find((entry) => entry && entry.path === FEAT_RACINE);
+function livreDuDon(ctx, racine = FEAT_RACINE) {
+  const plan = (state.decisions || []).find((entry) => entry && entry.path === racine);
   const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
   if (!id || !ctx || typeof ctx.query !== "function") return null;
   const info = featInfo(ctx.query, id);
   return info ? { titre: info.titre, texte: info.texte } : null;
 }
 
-const FEAT_PARCOURS = {
-  path: FEAT_RACINE, kind: "feat", label: "Origin feat", parcours: true,
+/* 🧬 LOT 364 — LE B EMBOÎTÉ, FABRIQUÉ PAR RACINE. Le don d'origine a deux détenteurs
+   (l'arrière-plan, et l'espèce qui déclare Versatile) : c'est LE MÊME cfg, dont la
+   racine est un paramètre — un organe, deux lieux (ARCHI 35). Un cfg par racine, créé
+   une fois : le parcours compare les cfg par identité. */
+const PARCOURS_DES_DONS = new Map();
+function parcoursDuDon(racine) {
+  if (!PARCOURS_DES_DONS.has(racine)) PARCOURS_DES_DONS.set(racine, fabriquerLeParcoursDuDon(racine));
+  return PARCOURS_DES_DONS.get(racine);
+}
+const fabriquerLeParcoursDuDon = (racine) => ({
+  path: racine, kind: "feat", label: "Origin feat", parcours: true,
   /* Le don d'origine est un sous-écran d'Inheritance : il prend la pose de son
      étape, sinon la dalle sauterait du haut au milieu en changeant d'écran. */
   poseEnHaut: true,
-  livreDe: (ctx) => livreDuDon(ctx),
+  livreDe: (ctx) => livreDuDon(ctx, racine),
   /* 🔵 L'AIGUILLEUR DIT LE GESTE DE CHAQUE SOUS-ÉCRAN — Eric, 2026-08-28 :
      « Texte aiguilleur plus précis. » Le socle de prévention reste ; la
      première phrase nomme ce qu'on fait ICI. */
-  itemAiguilleur: (chemin) => (chemin === `${FEAT_RACINE}.list`
+  itemAiguilleur: (chemin) => (chemin === `${racine}.list`
     ? "Drop the class whose spell list this feat draws from. Leaving this open marks nothing — only Done records the choice."
-    : chemin === `${FEAT_RACINE}.cantrips`
+    : chemin === `${racine}.cantrips`
       ? "Tap a spell to read it — drag a cantrip into each slot. Leaving this open marks nothing — only Done records the choice."
-    : chemin === `${FEAT_RACINE}.prepared`
+    : chemin === `${racine}.prepared`
       ? "Tap a spell to read it — drag your level 1 spell into the slot. Leaving this open marks nothing — only Done records the choice."
+    /* 🎯 LOT 364 — les maîtrises de Skilled (compétences ou outils) */
+    : chemin === `${racine}.proficiencies`
+      ? "Tap a skill or tool to read it — drag one into each slot. Leaving this open marks nothing — only Done records the choice."
     : null),
-  itemCorps: (item, ctx, act) => (item.path === `${FEAT_RACINE}.list`
-    ? renderFeatListeGlisse(ctx, act)
-    : renderFeatSortsGlisse(ctx, act, item.path)),
+  itemCorps: (item, ctx, act) => (item.path === `${racine}.list`
+    ? renderFeatListeGlisse(ctx, act, item.path)
+    : item.path === `${racine}.proficiencies`
+      ? renderFeatMaitrisesGlisse(ctx, act, item.path)
+      : renderFeatSortsGlisse(ctx, act, item.path)),
   itemLabel: (chemin, ctx) => {
-    if (chemin === `${FEAT_RACINE}.list`) {
+    if (chemin === `${racine}.list`) {
       const plan = (state.decisions || []).find((entry) => entry && entry.path === chemin);
       const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
       const nom = id && ctx && typeof ctx.query === "function" ? motDuChoix(ctx.query, "class", id) : null;
@@ -4420,7 +4438,7 @@ const FEAT_PARCOURS = {
     }
     return featSousLabel(chemin) || chemin;
   }
-};
+});
 
 /** Les deux langues offertes par l'Héritage, au glisser.
  *  ⛔ AUCUN NOM FABRIQUÉ : le libellé d'un jeton est le `name` du record de
@@ -4802,8 +4820,8 @@ function pressDone() {
        `species.skillBudget.survival` — qui ne portent jamais de signature
        propre : le Done refusait pour toujours. Seuls les enfants d'un B
        EMBOÎTÉ se signent un à un, et l'emboîtement est DÉCLARÉ
-       (FEAT_PARCOURS) — le refus ne lit que lui. */
-    const refusItem = ouvert && ouvert.path === FEAT_PARCOURS.path ? refusDuDone({
+       (`parcoursDuDon`, lot 364 : toute racine de don) — le refus ne lit que lui. */
+    const refusItem = ouvert && estRacineDeDon(ouvert.path) ? refusDuDone({
       decisions: state.decisions, document: state.document, racine: ouvert.path, violations: state.violations
     }) : null;
     if (refusItem) { state.parcoursRefus = refusItem.manquants; refresh(); return; }
@@ -5527,8 +5545,8 @@ function renderSortieEtape(hote) {
      `renderGuideSpecifique`, qui pose « I changed my mind · Done/Next » comme
      tout guide. La paire de la coquille en plus serait le doublon du 19/08,
      à dix pixels de la sienne. */
-  if (state.parcoursItem && state.parcoursItem.path === FEAT_RACINE
-      && featListPlan(state.decisions) && !state.lore) return null;
+  if (state.parcoursItem && estRacineDeDon(state.parcoursItem.path)
+      && donABranches(state.decisions, state.parcoursItem.path) && !state.lore) return null;
   /* 🔴 UN GUIDE DE PARCOURS PORTE SON PROPRE PIED — et il a fallu qu'Eric
      demande le `Next` pour que le doublon se voie. Mesuré à l'écran : la dalle
      de l'Inheritance affichait « I changed my mind · Next » DANS la dalle, et
