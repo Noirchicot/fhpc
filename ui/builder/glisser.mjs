@@ -25,14 +25,14 @@
    déjà calculés par le carnet et rend des actions. Il ne sait pas ce qu'est
    une compétence. */
 
-import { pageDeListe } from "./normes.mjs?v=908";
+import { pageDeListe } from "./normes.mjs?v=911";
 /* Le mot d'un refus vient de LA table, jamais d'une reformulation locale. */
-import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=908";
-import { swapContent } from "./socle.mjs?v=908";
+import { motDuVerrou as refusalWord } from "./skills-step.mjs?v=911";
+import { swapContent } from "./socle.mjs?v=911";
 /* Le facteur du zoom, mesuré sur `.app` — le fantôme y est monté, donc son
    `translate` est peint à l'échelle et les coordonnées du doigt ne le sont
    pas. Voir `fantomeSuivre`. */
-import { facteurZoomCourant } from "./echelle.mjs?v=908";
+import { facteurZoomCourant } from "./echelle.mjs?v=911";
 
 /* ══ OÙ EN EST CHAQUE VIVIER — la mémoire de page ════════════════════════
    🔴 ELLE EST AU MODULE, ET C'EST OBLIGÉ. `shell.mjs` répond à toute action
@@ -560,7 +560,12 @@ export function armerJeton(jeton, options) {
        reçoit `armer` (le geste du clic gauche). ⭐ Eric, 29/09, pour les dés d'Abilities : le dé du podium ou de la
        palette → « Il arme le dé » ; le dé POSÉ → « Revenir au podium ». Sans cette option, le tap VOIT (`onVoir`).
        ⛔ Elle ne touche ni la souris (le clic gauche arme, le clic droit voit) ni l'appui long (il arme). */
-    tapAuDoigt } = options;
+    tapAuDoigt,
+    /* 🎒 LOT 356 — `clicGauche(armer)` : ce que fait le CLIC GAUCHE À LA SOURIS, quand ce n'est pas armer. ⭐ Eric,
+       29/09, à « à la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le rend-il ? » : *« Le rend au
+       podium »* — comme le tap au doigt. Sans cette option, le clic gauche arme (la grammaire). ⛔ Elle ne touche ni
+       le doigt ni le clic droit (il voit). */
+    clicGauche } = options;
   /* le geste POSER, commun au clic et au glisser : une destination voisine, ou une des siennes */
   const poserSur = (cible) => {
     if (estUnCreneauVoisin(jeton, cible)) { if (onDepotVoisin) onDepotVoisin(cible.dataset.creneau, cible); return; }
@@ -862,7 +867,7 @@ export function armerJeton(jeton, options) {
       if (!etaitGlisse && avecGrammaire) {
         if (e.type === "pointercancel") return;
         const armer = () => allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur);
-        if (ev.pointerType === "mouse") { armer(); return; }
+        if (ev.pointerType === "mouse") { if (clicGauche) clicGauche(armer); else armer(); return; }
         if (appuiLongTire) return;
         if (tapAuDoigt) { tapAuDoigt(armer); return; }   // 🎲 lot 355 — un objet sans fiche décide de son tap
         if (onVoir) onVoir();

@@ -67,8 +67,17 @@ export function pisteDInterrupteur() {
    ⭐ LOT 188 — IL A DÉMÉNAGÉ ICI depuis `universe-step.mjs`, sans changer de
    forme, et il gagne une NOTE facultative : la ligne sous le mot, celle du
    dessin d'Eric (*« langues, rituels sombres »*). Un interrupteur sans note
-   (Tutorials, Double view) rend exactement ce qu'il rendait. */
-export function interrupteur({ label, note, on, disabled, onChange }) {
+   (Tutorials, Double view) rend exactement ce qu'il rendait.
+
+   ⭐ LOT 351 — DEUX PIÈCES FACULTATIVES DE PLUS, pour l'écran `Layers` dicté le 29/09 :
+     · `etiquette` — une pastille à côté du mot (« your copy », brouillon du plan v10 :
+       Eric arrête les mots) ;
+     · `familles` — les familles de la source, *« en italique t0 »* (Eric, 29/09 :
+       « engine · world · catalog »). ⛔ Ce n'est pas une `note` : une note DÉCRIT, les
+       familles CLASSENT — deux sens, deux organes (§7 quinquies : deux sens pour un
+       attribut est une dette), et la feuille les habille séparément.
+   Un interrupteur sans elles rend, encore, exactement ce qu'il rendait. */
+export function interrupteur({ label, note, etiquette, familles, on, disabled, onChange }) {
   const btn = document.createElement("button");
   btn.type = "button";
   btn.className = "interrupteur";
@@ -76,8 +85,14 @@ export function interrupteur({ label, note, on, disabled, onChange }) {
   btn.setAttribute("aria-checked", String(Boolean(on)));
   btn.dataset.on = String(Boolean(on));
   if (disabled) btn.disabled = true;
-  const mot = el("span", "interrupteur-mot", [text(label)]);
+  /* L'étiquette partage la LIGNE du nom (`ligne-tete`) : le mot empile ses pièces en
+     colonne, et une pastille posée seule tomberait sous le nom. Sans étiquette, la
+     structure est celle d'avant, au nœud près. */
+  const mot = el("span", "interrupteur-mot", etiquette
+    ? [el("span", "ligne-tete", [text(label), el("span", "ligne-etiquette", [text(etiquette)])])]
+    : [text(label)]);
   if (note) mot.append(el("span", "interrupteur-note", [text(note)]));
+  if (familles) mot.append(el("span", "ligne-familles", [text(familles)]));
   btn.append(mot);
   btn.append(el("span", "interrupteur-piste", [el("span", "interrupteur-pouce")]));
   btn.addEventListener("click", () => onChange(!on));

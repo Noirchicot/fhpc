@@ -6,20 +6,27 @@
    enfants qui se coupent un par un, la dépendance Inheritance → Trainings, et
    le catalogue (les livres du joueur, le `+` homebrew inerte).
 
+   🔄 LOT 351 — ERIC A REFAIT L'ÉCRAN LE 29/09 (la dictée de B0) : Fate's Hand en UN
+   interrupteur, tout ou rien ; les six sous-unités gardées comme CARTE de qui fait
+   quoi ; les éléments actifs en haut, « installed, not active » dessous (caché s'il
+   est vide) ; une poubelle par livre ; `Import a book` en place réservée. Les gardes
+   sont RÉÉCRITS à cette vérité, pas relâchés : chacun dit ce qu'il tenait.
+   🗄️ C1-C4 sont partis avec `couchesApresLeGeste` (le geste d'un enfant) : ils ne
+   visaient qu'elle.
+
    🔴 CE QUE CE FICHIER GARDE, ET SUR QUOI :
-     A. les LISTES — l'union des six plus le catalogue EST la pile Fate's Hand ;
-        les livres portent le même nom partout (écran, moteur, générateur) ;
-     B. la COMPOSITION, lue sur le document — un sous-ensemble est légitime,
-        un ensemble coupé en deux ne l'est pas, et une pile nommée l'est toujours ;
-     C. le GESTE pur — ce qui reste monté après « éteindre Trainings » ;
-     D. le RENDU (dom-stub) dans les trois états d'Eric : le maître allumé,
-        Trainings éteint, le maître éteint — et le SRD qui ne se clique jamais ;
-     E. ⚔️ LA VRAIE PILE (harnais du lot 7) : les drapeaux qui tombent, l'ordre
-        du manifeste au rallumage, le piège `fh-species-en` réglé, le
-        personnage d'hier qui ne tombe plus sur l'écran mort au rechargement,
-        le livre absent (404) qui ne casse rien, le livre présent qui se monte ;
-     F. les OCTETS de la coquille — elle câble ce que ce lot lui demande, et
-        elle aligne la pile AVANT de dériver.
+     A. les LISTES — l'union des six sous-unités plus le catalogue EST la pile
+        Fate's Hand ; les livres portent le même nom partout ;
+     B. la COMPOSITION, lue sur le document — un sous-ensemble entier (un perso
+        d'avant le lot 351) reste légitime, un ensemble coupé en deux ne l'est pas ;
+     D. le RENDU (dom-stub) — la page dictée, ses deux groupes, la poubelle, la
+        question avant d'effacer, et le SRD qui ne se clique jamais ;
+     E. ⚔️ LA VRAIE PILE (harnais du lot 7) : ce que le moteur fait d'un perso
+        d'avant (une sous-unité coupée), l'ordre du manifeste au rallumage, le perso
+        d'hier sauvé au rechargement, le livre absent (404) qui ne casse rien, le
+        livre présent qui se monte ;
+     F. les OCTETS de la coquille — elle câble ce que ce lot lui demande, et elle
+        aligne la pile AVANT de dériver.
 
    ⚠️ ON TESTE LA FONCTION, PAS LA PAGE (`tests/dom-stub.mjs`). La géométrie se
    regarde au navigateur ; ce fichier garde le RAISONNEMENT et le CÂBLAGE. */
@@ -42,12 +49,14 @@ globalThis.document = createTestDocument();
 /* ⚠️ `layers-ecran.mjs` D'ABORD, et c'est voulu : `universe-step.test.mjs`
    importe l'autre bout du cycle en premier. Les deux ordres doivent charger. */
 const {
-  INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, compositionFh, couchesApresLeGeste, gestesDAlignement, renderLayersEcran,
-  interrupteur, voyant, manifesteDeLaPile
+  INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, compositionFh, gestesDAlignement, renderLayersEcran,
+  interrupteur, voyant, manifesteDeLaPile, MOTS_DE_LAYERS, popupEffacerUnLivre, MOTS_EFFACER_UN_LIVRE
 } = await import("../ui/builder/layers-ecran.mjs");
+const layersEcran = await import("../ui/builder/layers-ecran.mjs");
+const { poubelle, TRAIT_DE_LA_POUBELLE } = await import("../ui/builder/poubelle-organe.mjs");
 const { createDocWriters } = await import("../src/doc/writers.mjs");
-const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, currentStack, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH }
-  = await import("../ui/builder/universe-step.mjs");
+const { renderUniverseStep, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, currentStack, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
+  renderConfirmationPile } = await import("../ui/builder/universe-step.mjs");
 const { motDUnRecordAbsent } = await import("../ui/builder/mot-du-choix.mjs");
 const { LAYER_FILES, LIVRE_FILES } = await import("../ui/builder/engine.mjs");
 const { motDeLEcranMort, MOT_PILE_INCONNUE } = await import("../ui/builder/ecran-mort.mjs");
@@ -78,13 +87,34 @@ const sw = (id) => INTERRUPTEURS.find((s) => s.id === id);
 const sans = (ids, retirees) => ids.filter((id) => !retirees.includes(id));
 
 /* Les organes de l'écran, par leur DONNÉE, jamais par leur position. */
-const enfant = (node, id) => node.querySelectorAll(`.interrupteur[data-enfant="${id}"]`)[0];
 const maitre = (node) => node.querySelectorAll(".interrupteur[data-maitre]")[0];
 /* 🔴 LOT 189 — LE SOCLE EST UN VOYANT, PLUS UN INTERRUPTEUR (Eric, 09/09 :
    *« Le bouton SRD est un voyant, pas un bouton — il est toujours actif »*).
    On le trouve par sa DONNÉE (`data-socle`), pas par sa classe : c'est ce qui
    permet à `srdEstUnVoyantF` de juger un socle redevenu interrupteur. */
 const socle = (node) => node.querySelectorAll("[data-socle]")[0];
+/* ⭐ LOT 351 — la ligne d'un livre monté (son interrupteur + sa poubelle), le
+   séparateur « installed, not active », et l'ORDRE des lignes : ce qui est au-dessus
+   du séparateur est actif, ce qui est dessous est éteint. */
+const ligneLivre = (node, id) => node.querySelectorAll(`.layers-livre[data-ligne-livre="${id}"]`)[0];
+const lignesDeLaListe = (node) => node.querySelectorAll(".tdc-lignes")[0].childNodes.filter((n) => n.nodeType === 1);
+const separateurDesEteints = (node) => node.querySelectorAll(".tdc-regle").find((p) => p.textContent === MOTS_DE_LAYERS.eteints);
+/** Le groupe d'une ligne : « actif » au-dessus du séparateur, « eteint » dessous. */
+function groupeDe(node, ligne) {
+  const lignes = lignesDeLaListe(node);
+  const i = lignes.indexOf(ligne);
+  assert.ok(i >= 0, "la ligne est dans la liste");
+  const s = lignes.indexOf(separateurDesEteints(node));
+  return s >= 0 && i > s ? "eteint" : "actif";
+}
+/** La ligne qui PORTE un organe dans la liste (l'organe lui-même, ou la ligne de livre) —
+ *  en remontant les parents jusqu'à un enfant direct de la liste. */
+function porteuse(node, organe) {
+  const liste = node.querySelectorAll(".tdc-lignes")[0];
+  let n = organe;
+  while (n && n.parentNode !== liste) n = n.parentNode;
+  return n;
+}
 
 /** LA CLAUSE GARDÉE — le SRD est une LAMPE, pas un contrôle. Rend les fautes,
  *  fondées sur ce que l'arbre d'accessibilité annonce, jamais sur une classe. */
@@ -103,14 +133,16 @@ function srdEstUnVoyantF(node) {
 }
 const rendu = (ctx = {}, onAction = () => {}) =>
   renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, ecran: "layers", ...ctx }, onAction);
+/* Un livre MONTÉ dans le manifeste de la pile (la forme de `layers.verbs.stack()`). */
+const livreMonte = (id, nom) => ({ id, version: "1.0.0", hash: "l".repeat(64), name: nom, enabled: false, records: 256 });
 
 /* ══ A — LES LISTES ════════════════════════════════════════════════════════ */
 
 test("A1 — 🔴 l'union des six interrupteurs et du catalogue EST la pile Fate's Hand, sans trou ni doublon", () => {
   const couvertes = [...INTERRUPTEURS.flatMap((s) => s.couches), ...CATALOGUE_FH];
-  assert.equal(new Set(couvertes).size, couvertes.length, "une couche ne peut appartenir qu'à UN interrupteur");
+  assert.equal(new Set(couvertes).size, couvertes.length, "une couche ne peut appartenir qu'à UNE sous-unité de la carte");
   assert.deepEqual([...couvertes].sort(), [...FH_LAYER_IDS].sort(),
-    "⛔ une couche montée par `engine.mjs` sans interrupteur ne pourrait ni s'éteindre ni se rallumer seule");
+    "⛔ une couche montée par `engine.mjs` hors de la carte ne dirait pas qui fait quoi, et `compositionFh` ne saurait pas la juger");
   assert.deepEqual(INTERRUPTEURS.map((s) => s.label),
     ["Trainings", "Skills & tools", "Inheritance", "Destiny", "World", "Soulforging"],
     "l'ordre est celui du dessin d'Eric — et le cinquième s'appelle World depuis le lexique du 10/09 (lot 192)");
@@ -181,96 +213,91 @@ test("B2 — 🔴 un sous-ensemble entier est LÉGITIME ; un interrupteur coupé
   assert.equal(compositionFh(docAvec([SRD_LAYER_ID])).socle, false);
 });
 
-/* ══ C — LE GESTE PUR ══════════════════════════════════════════════════════ */
+/* ══ C — 🗄️ LE GESTE PUR D'UN ENFANT — parti au lot 351 ══════════════════════
+   C1-C4 gardaient `couchesApresLeGeste` (éteindre Trainings retire aussi Inheritance ;
+   allumer Inheritance allume Trainings ; allumer un enfant engage le maître ; le maître,
+   tout ou rien). Les enfants ne sont plus des gestes (Eric, 29/09 : *« Tout ou rien »*) :
+   la fonction n'avait plus d'appelant et elle est partie, ses gardes avec elle. Le
+   « tout ou rien » du maître est tenu par F1 (la forme d'`applyLayerStack`) et par E3
+   (la vraie pile). */
 
-test("C1 — éteindre Trainings retire SES couches ET celles d'Inheritance ; les 9 autres restent, dans l'ordre du manifeste", () => {
-  const apres = couchesApresLeGeste(docAvec(PILE_COMPLETE), { id: "trainings", on: false });
-  assert.deepEqual(apres, sans(FH_LAYER_IDS, ["fh-trainings-en", "fh-inheritance-en"]));
-  assert.equal(apres.length, FH_LAYER_IDS.length - 2);
-});
+/* ══ D — LE RENDU : LA PAGE DICTÉE LE 29/09 (lot 351) ═════════════════════════ */
 
-test("C2 — allumer Inheritance allume Trainings avec elle (la dépendance tient sans l'organe)", () => {
-  const depart = docAvec(sans(PILE_COMPLETE, ["fh-trainings-en", "fh-inheritance-en"]));
-  const apres = couchesApresLeGeste(depart, { id: "inheritance", on: true });
-  assert.deepEqual(apres, FH_LAYER_IDS);
-});
-
-test("C3 — allumer UN enfant depuis SRD engage le maître : le catalogue vient avec", () => {
-  const apres = couchesApresLeGeste(docAvec(SOCLE), { id: "destiny", on: true });
-  assert.deepEqual(apres, FH_LAYER_IDS.filter((id) => CATALOGUE_FH.includes(id) || sw("destiny").couches.includes(id)));
-  const composition = compositionFh(docAvec([...SOCLE, ...apres]));
-  assert.deepEqual([composition.legitime, composition.maitre, composition.enfants.destiny], [true, true, true]);
-});
-
-test("C4 — le maître : tout ou rien, et l'ordre est celui de `FH_LAYER_IDS`", () => {
-  assert.deepEqual(couchesApresLeGeste(docAvec(SOCLE), { id: "maitre", on: true }), FH_LAYER_IDS);
-  assert.deepEqual(couchesApresLeGeste(docAvec(PILE_COMPLETE), { id: "maitre", on: false }), []);
-  assert.throws(() => couchesApresLeGeste(docAvec(SOCLE), { id: "chaos", on: true }), /aucun interrupteur/,
-    "un interrupteur inconnu est un refus bruyant, jamais un ensemble vide");
-});
-
-/* ══ D — LE RENDU, DANS LES TROIS ÉTATS D'ERIC ═════════════════════════════ */
-
-test("D1 — 🎛️ LE MAÎTRE ALLUMÉ : le socle est un VOYANT allumé, le maître, six enfants allumés, le catalogue, la sortie déclarée", () => {
+test("D1 — 🎛️ LA PAGE DICTÉE, FATE'S HAND ALLUMÉ : le SRD est une lampe, Fate's Hand UN interrupteur, pas de séparateur des éteints, les options réservées", () => {
+  /* ⚖️ Eric, 29/09 (la dictée de B0) : *« SRD (tj actif) engine/catalog (en italique t0) ·
+     … FH (bouton activé) engine/world/catalog · ---- éléments installés mais pas actifs ----
+     · … ---- Options ---- · Bouton import a book »*. 🗄️ Ce garde tenait « six enfants
+     allumés, le catalogue, deux livres réservés » : les six ne sont plus des lignes, et un
+     livre absent ne se montre plus (il n'y a rien à régler ni à effacer). */
   const node = rendu();
   assert.equal(node.dataset.ecran, "layers");
   assert.equal(node.dataset.sortieIci, "true", "⛔ l'écran ne pose pas son Back : la coquille le fait (garde 17)");
   assert.equal(node.querySelectorAll(".tdc-titre-b")[0].textContent, "Layers", "le nom d'Eric, 09/09");
+  /* 🗄️ LOT 351 — plus de note sous le titre : ni la dictée ni le mandat ne la nomment, et à
+     375 × 812 ses quatre lignes faisaient déborder la scène de 9 px (mesuré au banc). */
+  assert.equal(node.querySelectorAll(".universe-note").length, 0, "⛔ la page ne porte que ce qu'Eric a dicté");
 
   /* 🔴 LOT 189 — le SRD est une LAMPE : allumée, et rien à pousser. */
   assert.deepEqual(srdEstUnVoyantF(node), [], "Eric, 09/09 : « un voyant, pas un bouton »");
   assert.equal(socle(node).querySelectorAll(".interrupteur-piste").length, 0, "aucune piste, aucun pouce : ce n'est pas un interrupteur grisé");
   assert.ok(socle(node).querySelectorAll(".voyant-lampe")[0], "…mais une lampe dessinée, que la feuille peint sur data-on");
+  assert.equal(socle(node).querySelectorAll(".ligne-familles")[0].textContent, "engine · catalog", "le SRD est le book de base : engine et catalog");
+  assert.equal(socle(node).querySelectorAll(".ligne-etiquette")[0].textContent, MOTS_DE_LAYERS.etiquetteSocle);
+  assert.doesNotMatch(node.textContent, /core rules/, "⛔ le SRD n'est pas « the core rules » : ce sont les livres WotC (lexique du 29/09)");
+
+  /* ⭐ FATE'S HAND : UN interrupteur, tout ou rien, ses familles lues. */
   assert.equal(maitre(node).dataset.on, "true");
-  for (const inter of INTERRUPTEURS) {
-    const e = enfant(node, inter.id);
-    assert.ok(e, `l'enfant « ${inter.id} » existe`);
-    assert.equal(e.dataset.on, "true", `${inter.id} est allumé`);
-    assert.equal(e.disabled, false, `${inter.id} se coupe seul`);
-    assert.equal(e.dataset.couches, inter.couches.join(" "), "il DIT ses couches");
-    assert.equal(e.getAttribute("role"), "switch");
+  assert.equal(maitre(node).querySelectorAll(".ligne-familles")[0].textContent, "engine · world · catalog");
+  assert.equal(node.querySelectorAll("[data-enfant]").length, 0, "⛔ plus aucune ligne d'enfant : « Tout ou rien »");
+  assert.equal(node.querySelectorAll('[role="switch"]').length, 1, "sans livre installé, un seul interrupteur sur la page : Fate's Hand");
+
+  /* ⭐ RIEN D'ÉTEINT, DONC PAS DE SÉPARATEUR (Eric, 29/09 : la rangée vide est cachée). */
+  assert.equal(separateurDesEteints(node), undefined, "« installed, not active » est caché quand rien n'est éteint");
+  /* ⛔ un livre ni installé ni déclaré ne se montre pas */
+  assert.equal(node.querySelectorAll("[data-livre], [data-ligne-livre]").length, 0, "aucun livre sur cet appareil, aucun livre à l'écran");
+
+  /* ⭐ LES OPTIONS : `Import a book`, place réservée au gabarit LARGE, et ⛔ plus de
+     `Delete a book` (chaque livre porte sa poubelle). */
+  const options = node.querySelectorAll(".layers-options")[0];
+  assert.ok(options, "la rangée des options existe");
+  const reservees = options.querySelectorAll("button.menu-porte[data-reserve]");
+  assert.deepEqual(reservees.map((b) => b.textContent), [MOTS_DE_LAYERS.importer], "la dictée : « Bouton import a book », et lui seul");
+  for (const b of reservees) {
+    assert.equal(b.disabled, true, `${b.textContent} : présente, éteinte`);
+    assert.equal(b.parentNode.querySelectorAll(".tdc-bientot")[0].textContent, "soon", `${b.textContent} : un mot sous elle`);
   }
-  /* Le catalogue : sans pile fournie, aucun livre n'est monté — deux places
-     réservées avec leur mot, et le `+` inerte. */
-  const livres = node.querySelectorAll(".tdc-ligne[data-livre]");
-  assert.equal(livres.length, LIVRES_DU_JOUEUR.length);
-  for (const l of livres) {
-    assert.equal(l.disabled, true, "un livre absent est PRÉSENT, éteint");
-    assert.match(l.textContent, /not on this device/, "…avec son mot — pas une promesse");
-  }
-  const plus = node.querySelectorAll(".tdc-ligne[data-homebrew]")[0];
-  assert.ok(plus, "la porte homebrew est LÀ");
-  assert.equal(plus.disabled, true, "…inerte : elle n'ouvre rien tant qu'un lot ne l'a pas câblée");
-  assert.match(plus.textContent, /soon/);
+  assert.ok(node.querySelectorAll("[data-importer]")[0], "sa clef de construction");
+  /* 🗄️ `+ TABLE ITEMS` A QUITTÉ LAYERS — Eric, 29/09 : *« table items devient -> campaign items
+     (et va dans Dungeon master) »*. La page Dungeon Master le pose (lot 357). ⚔️ Vu rouge : le
+     lot 351 portait encore sa place réservée à côté d'`Import a book`. */
+  assert.equal(node.querySelectorAll("[data-homebrew]").length, 0, "⛔ plus aucune place de contenu de table sur Layers");
+  assert.doesNotMatch(node.textContent, /Table items|Campaign items/i, "⛔ ni l'ancien mot, ni le nouveau : il vit dans Dungeon Master");
+  assert.equal("tableItems" in MOTS_DE_LAYERS, false, "le mot est parti de la table des mots de Layers");
+  assert.equal(node.querySelectorAll("button").some((b) => /Delete a book/i.test(b.textContent)), false, "⛔ plus de bouton « Delete a book »");
 });
 
-test("D2 — 🎛️ TRAININGS ÉTEINT : lui seul est éteint, Inheritance DORT avec son mot, les quatre autres vivent", () => {
+test("D2 — 🎛️ UN PERSO D'AVANT (Trainings coupé au temps des six) : Fate's Hand se montre allumé, aucune ligne d'enfant, aucun mot rouge", () => {
+  /* 🗄️ D2 tenait « Trainings éteint, Inheritance dort avec son mot » — l'écran des six. 🔄 Un
+     tel perso existe encore (sauvé avant le lot 351) : il est LÉGITIME (B2), Fate's Hand est
+     engagé, et l'écran le dit sans l'accuser. L'éteindre puis le rallumer le remet en
+     tout-ou-rien. */
   const node = rendu({ document: docAvec(sans(PILE_COMPLETE, ["fh-trainings-en", "fh-inheritance-en"])) });
   assert.equal(maitre(node).dataset.on, "true", "Fate's Hand reste engagé");
-  assert.equal(enfant(node, "trainings").dataset.on, "false");
-  assert.equal(enfant(node, "trainings").disabled, false, "…et il se rallume d'un clic");
-  const inh = enfant(node, "inheritance");
-  assert.equal(inh.disabled, true, "Inheritance dort tant que Trainings dort");
-  assert.equal(inh.dataset.on, "false");
-  assert.match(inh.querySelectorAll(".interrupteur-note")[0].textContent, /Trainings is off/, "…et il DIT pourquoi");
-  for (const id of ["skills", "destiny", "lore", "soulforging"]) {
-    assert.equal(enfant(node, id).dataset.on, "true", `${id} n'a pas bougé`);
-    assert.equal(enfant(node, id).disabled, false);
-  }
+  assert.equal(groupeDe(node, maitre(node)), "actif");
+  assert.equal(node.querySelectorAll("[data-enfant]").length, 0, "⛔ aucune ligne d'enfant ne revient pour ce cas");
   assert.equal(node.querySelectorAll(".doc-field-error").length, 0, "⛔ aucun mot rouge : ce sous-ensemble est légitime");
 });
 
-test("D3 — 🎛️ LE MAÎTRE ÉTEINT : six enfants éteints, Inheritance dort, le socle reste un voyant ALLUMÉ", () => {
+test("D3 — 🎛️ FATE'S HAND ÉTEINT : il descend sous « installed, not active », et le SRD reste une lampe ALLUMÉE", () => {
+  /* ⭐ CHAQUE LIGNE VA OÙ SON ÉTAT LA MET (le plan v10 : actifs en haut, installés éteints
+     dessous). 🔴 LE GARDE DU LOT 188 SOUS SA NOUVELLE FORME : « le SRD ne s'éteint JAMAIS ». */
   const node = rendu({ document: docAvec(SOCLE) });
   assert.equal(maitre(node).dataset.on, "false");
-  /* 🔴 LE GARDE DU LOT 188 SOUS SA NOUVELLE FORME : « le SRD ne s'éteint
-     JAMAIS » — il ne peut plus s'éteindre parce qu'il n'a plus de position
-     éteinte, et la clause le vérifie dans les DEUX états du maître. */
+  assert.ok(separateurDesEteints(node), "quelque chose est éteint : le séparateur se montre");
+  assert.equal(groupeDe(node, maitre(node)), "eteint", "Fate's Hand éteint est sous le séparateur");
   assert.equal(socle(node).dataset.on, "true", "le SRD ne s'éteint JAMAIS");
+  assert.equal(groupeDe(node, socle(node)), "actif", "…et il reste en tête");
   assert.deepEqual(srdEstUnVoyantF(node), [], "…et il reste une lampe quand Fate's Hand dort");
-  for (const inter of INTERRUPTEURS) assert.equal(enfant(node, inter.id).dataset.on, "false", `${inter.id} éteint`);
-  assert.equal(enfant(node, "inheritance").disabled, true, "Trainings est éteint, donc Inheritance dort");
-  assert.equal(enfant(node, "destiny").disabled, false, "un enfant sans dépendance se rallume seul depuis SRD");
 });
 
 test("D0 — ⚔️ ATTAQUE (lot 189) — remettre l'interrupteur verrouillé au socle fait ROUGIR la clause", () => {
@@ -280,7 +307,7 @@ test("D0 — ⚔️ ATTAQUE (lot 189) — remettre l'interrupteur verrouillé au
      l'arbre d'accessibilité annonce. Un garde qui ne peut jamais accuser est
      le pire de tous. */
   const mutant = document.createElement("section");
-  const ancien = interrupteur({ label: "SRD 5.2.1", note: "the core rules — always on", on: true, disabled: true, onChange: () => {} });
+  const ancien = interrupteur({ label: "SRD 5.2.1", note: "always on", on: true, disabled: true, onChange: () => {} });
   ancien.dataset.socle = "true";
   mutant.append(ancien);
   const fautes = srdEstUnVoyantF(mutant);
@@ -291,7 +318,7 @@ test("D0 — ⚔️ ATTAQUE (lot 189) — remettre l'interrupteur verrouillé au
   /* ⭐ ET LE TÉMOIN INVERSE : le voyant nu, sans écran autour, passe la clause —
      c'est bien l'ORGANE qui est jugé, pas la page. */
   const temoin = document.createElement("section");
-  const lampe = voyant({ label: "SRD 5.2.1", note: "the core rules" });
+  const lampe = voyant({ label: "SRD 5.2.1", familles: "engine · catalog" });
   lampe.dataset.socle = "true";
   temoin.append(lampe);
   assert.deepEqual(srdEstUnVoyantF(temoin), []);
@@ -303,50 +330,156 @@ test("D0 — ⚔️ ATTAQUE (lot 189) — remettre l'interrupteur verrouillé au
   assert.deepEqual(switches, [], "un interrupteur nommé SRD existe encore dans Layers");
 });
 
-test("D4 — 🔌 les gestes : le maître demande la PILE (la coquille confirme), un enfant demande SON interrupteur, le socle n'émet rien", () => {
+test("D4 — 🔌 les gestes : Fate's Hand demande la PILE, un livre demande SON interrupteur, sa poubelle DEMANDE, le socle n'émet rien — et plus aucun enfant", () => {
+  /* 🗄️ D4 tenait aussi « un enfant demande SON interrupteur » (`requestLayerSwitch`) : il
+     n'y a plus d'enfant. ⚔️ Le garde gagne l'ensemble : chaque contrôle vivant de la page,
+     pressé une fois, émet un verbe connu — `requestLayerSwitch` n'en fait plus partie. */
   const vus = [];
-  const node = rendu({}, (a) => vus.push(a));
+  const pile = [...manifestFor(PILE_COMPLETE), livreMonte("xdmg-en", "Dungeon Master's Guide (2024)")];
+  const node = rendu({ pile, document: docAvec([...SOCLE, "xdmg-en", ...FH_LAYER_IDS]) }, (a) => vus.push(a));
   socle(node).click();
   assert.deepEqual(vus, [], "⛔ le voyant SRD ne demande rien — il n'a AUCUN écouteur, pas un `disabled` qui retient un clic");
   maitre(node).click();
-  assert.deepEqual(vus, [{ kind: "requestLayerStack", value: "srd" }],
-    "le geste que portait aussi l'interrupteur de R jusqu'au lot 349 — `Layers` en est le seul émetteur depuis le 350");
-  enfant(node, "trainings").click();
-  assert.deepEqual(vus[1], { kind: "requestLayerSwitch", id: "trainings", value: false });
+  assert.deepEqual(vus, [{ kind: "requestLayerStack", value: "srd" }], "Fate's Hand demande la pile : la coquille confirme avant d'éteindre");
+  ligneLivre(node, "xdmg-en").querySelectorAll(".interrupteur")[0].click();
+  assert.deepEqual(vus[1], { kind: "requestBookSwitch", id: "xdmg-en", value: false });
+  /* ⏳ LA POUBELLE EST ÉTEINTE — Eric, 29/09 : « La poubelle d'un livre efface son contenu de son lieu de stockage. Ce lieu de stockage est
+     décidé par le bouton vault. » Aucun livre ne vit encore dans ce
+     stockage : elle se montre et ne se tape pas. */
+  const trash = ligneLivre(node, "xdmg-en").querySelectorAll(".poubelle")[0];
+  assert.equal(trash.disabled, true, "éteinte : présente, jamais tapée");
+  trash.click();
+  assert.equal(vus.length, 2, "⛔ une poubelle éteinte ne demande rien");
+  /* …mais son geste reste CÂBLÉ : le jour où elle s'allume, la question l'attend. */
+  trash.disabled = false;
+  trash.click();
+  assert.deepEqual(vus[2], { kind: "demanderEffacerUnLivre", id: "xdmg-en" }, "⛔ la poubelle n'efface rien : elle DEMANDE");
   const off = rendu({ document: docAvec(SOCLE) }, (a) => vus.push(a));
   maitre(off).click();
-  assert.deepEqual(vus[2], { kind: "requestLayerStack", value: "srdfh" });
-  enfant(off, "destiny").click();
-  assert.deepEqual(vus[3], { kind: "requestLayerSwitch", id: "destiny", value: true });
+  assert.deepEqual(vus[3], { kind: "requestLayerStack", value: "srdfh" });
+  /* ⚔️ L'ENSEMBLE DES VERBES QU'UN DOIGT PEUT ÉMETTRE, NI PLUS NI MOINS */
+  const tous = [];
+  const page = rendu({ pile, document: docAvec([...SOCLE, "xdmg-en", ...FH_LAYER_IDS]) }, (a) => tous.push(a.kind));
+  for (const b of page.querySelectorAll("button").filter((x) => !x.disabled)) b.click();
+  assert.deepEqual([...new Set(tous)].sort(), ["requestBookSwitch", "requestLayerStack"],
+    "⛔ aucun `requestLayerSwitch` : Fate's Hand est tout ou rien ; et la poubelle éteinte n'émet rien");
 });
 
-test("D5 — 📚 un livre MONTÉ est un interrupteur de catalogue, allumé si le document le déclare ; un livre REFUSÉ dit sa raison", () => {
-  const pile = [...manifestFor(PILE_COMPLETE), { id: "xdmg-en", name: "Dungeon Master's Guide (2024)", enabled: false, records: 256 }];
+test("D5 — 📚 un livre : MONTÉ → son interrupteur, ses familles, « your copy », sa poubelle ; DÉCLARÉ mais absent → son mot ; ni l'un ni l'autre → rien ; illisible → sa raison", () => {
+  /* ⚖️ Eric, 29/09 : *« juste une poubelle à côté comme My Characters »* ; et PHB, DMG sont
+     des EXEMPLES — seuls les livres installés se montrent. */
+  const pile = [...manifestFor(PILE_COMPLETE), livreMonte("xdmg-en", "Dungeon Master's Guide (2024)")];
   const eteint = rendu({ pile });
-  const dmg = eteint.querySelectorAll(".interrupteur[data-livre]")[0];
-  assert.ok(dmg, "le DMG monté est un interrupteur");
+  const ligne = ligneLivre(eteint, "xdmg-en");
+  assert.ok(ligne, "le DMG monté a sa ligne");
+  const dmg = ligne.querySelectorAll(".interrupteur[data-livre]")[0];
   assert.equal(dmg.dataset.livre, "xdmg-en");
   assert.equal(dmg.dataset.on, "false", "le document ne le déclare pas : éteint");
-  assert.match(dmg.textContent, /256 records/, "il dit ce qu'il apporte");
-  assert.equal(eteint.querySelectorAll(".tdc-ligne[data-livre]").length, 1, "le PHB, lui, reste une place réservée");
+  assert.equal(groupeDe(eteint, ligne), "eteint", "…donc sous « installed, not active »");
+  assert.equal(dmg.querySelectorAll(".ligne-familles")[0].textContent, "catalog", "un livre de règles de base n'apporte que du catalogue");
+  assert.equal(dmg.querySelectorAll(".ligne-etiquette")[0].textContent, MOTS_DE_LAYERS.etiquetteLivre);
+  const trash = ligne.querySelectorAll(".poubelle");
+  assert.equal(trash.length, 1, "une poubelle, sur SA ligne");
+  assert.equal(trash[0].getAttribute("aria-label"), "Delete Dungeon Master's Guide (2024)", "elle porte le nom du livre");
+  const place = ligne.childNodes.at(-1);
+  assert.equal(place.querySelectorAll(".poubelle")[0], trash[0], "…tout à droite de la ligne");
+  /* ⏳ éteinte, « soon » sous elle : la forme d'une place réservée (Eric, 29/09 — le stockage
+     du Vault ne porte encore aucun livre) */
+  assert.equal(trash[0].disabled, true);
+  assert.equal(trash[0].dataset.reserve, "true");
+  assert.equal(place.querySelectorAll(".tdc-bientot")[0].textContent, "soon", "un mot sous elle, celui de toute place réservée");
+  assert.equal(eteint.querySelectorAll("[data-livre]").filter((n) => n.dataset.livre === "xphb-en").length, 0,
+    "⛔ le PHB n'est ni installé ni déclaré : il ne se montre pas");
+
   const vus = [];
-  eteint.querySelectorAll(".interrupteur[data-livre]")[0].click();
-  assert.deepEqual(vus, [], "témoin : rien sans onAction");
   const allume = rendu({ pile, document: docAvec([...SOCLE, "xdmg-en", ...FH_LAYER_IDS]) }, (a) => vus.push(a));
-  assert.equal(allume.querySelectorAll(".interrupteur[data-livre]")[0].dataset.on, "true");
-  allume.querySelectorAll(".interrupteur[data-livre]")[0].click();
-  assert.deepEqual(vus, [{ kind: "requestBookSwitch", id: "xdmg-en", value: false }]);
+  assert.equal(ligneLivre(allume, "xdmg-en").querySelectorAll(".interrupteur")[0].dataset.on, "true");
+  assert.equal(groupeDe(allume, ligneLivre(allume, "xdmg-en")), "actif", "déclaré : en haut, avec le SRD et Fate's Hand");
+  assert.equal(separateurDesEteints(allume), undefined, "rien d'éteint : pas de séparateur");
+
+  /* DÉCLARÉ MAIS ABSENT (le perso ouvert sur un autre appareil — A-TRANCHER §C34) : il se
+     montre avec son mot, en haut, et ⛔ sans poubelle (rien à effacer ici). */
+  const absent = rendu({ document: docAvec([...SOCLE, "xphb-en", ...FH_LAYER_IDS]) });
+  const phb = absent.querySelectorAll(".tdc-ligne[data-livre]").find((l) => l.dataset.livre === "xphb-en");
+  assert.ok(phb, "le PHB déclaré se montre");
+  assert.match(phb.textContent, new RegExp(MOTS_DE_LAYERS.absent));
+  assert.equal(groupeDe(absent, phb), "actif");
+  assert.equal(absent.querySelectorAll(".poubelle").length, 0, "⛔ pas de poubelle pour un livre qui n'est pas sur l'appareil");
 
   const refuse = rendu({ pile: manifestFor(PILE_COMPLETE), livresRefuses: [{ id: "xphb-en", raison: "schema vaut « fhpc.layer/1 »" }] });
-  const phb = refuse.querySelectorAll(".tdc-ligne[data-livre]").find((l) => l.dataset.livre === "xphb-en");
-  assert.match(phb.textContent, /unreadable: schema/, "un fichier présent mais illisible ne se tait pas");
+  const illisible = refuse.querySelectorAll(".tdc-ligne[data-livre]").find((l) => l.dataset.livre === "xphb-en");
+  assert.match(illisible.textContent, /unreadable: schema/, "un fichier présent mais illisible ne se tait pas");
 });
 
-test("D6 — la confirmation du maître se pose sur CET écran quand elle est en attente", () => {
-  const node = rendu({ pendingStack: "srd" });
-  assert.equal(node.querySelectorAll(".confirm-dialog").length, 1,
-    "le joueur qui a basculé le maître depuis Layers doit voir la question ici, pas sur R");
-  assert.equal(rendu().querySelectorAll(".confirm-dialog").length, 0, "témoin : sans attente, pas de question");
+test("D6 — ⭐ LA QUESTION DU MAÎTRE SE POSE EN FENÊTRE : ni Layers ni R n'en portent de copie ; la coquille la peint depuis `pendingStack`, réponse exigée", () => {
+  /* ⚖️ ARCHI 35, 29/09, tranché en architecte : posée sous l'interrupteur (le placement du
+     09/09), la question faisait DÉFILER Layers de 127 px à 1280 × 800 (mesuré au banc) — et
+     Eric : *« on respecte les hauteurs de dalle, pas de scroll »*. 🗄️ D6 tenait « la question
+     se pose sur CET écran, juste sous Fate's Hand ». */
+  assert.equal(rendu({ pendingStack: "srd" }).querySelectorAll(".confirm-dialog").length, 0, "Layers n'en porte plus de copie, même en attente");
+  const r = renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, memoire: { ok: true }, pendingStack: "srd" }, () => {});
+  assert.equal(r.querySelectorAll(".confirm-dialog").length, 0, "R non plus (ARCHI 35 : « R perd sa copie en ligne »)");
+  /* LA COQUILLE : la fenêtre est la VUE de `pendingStack` — un seul écrivain. */
+  const shell = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
+  const debut = shell.indexOf("function paintPopup()");
+  assert.ok(debut > 0, "témoin : la coquille peint ses fenêtres");
+  const peindre = shell.slice(debut, shell.indexOf("\n}\n", debut));
+  assert.match(peindre, /if \(!state\.popup && state\.pendingStack/, "la question se peint quand elle attend — et un refus (`state.popup`) passe d'abord");
+  assert.ok(peindre.indexOf("state.pendingStack") < peindre.indexOf("popupLayer.hide()"),
+    "⛔ l'attente se lit AVANT le « rien à montrer », sinon la question ne s'afficherait jamais");
+  assert.match(peindre, /renderConfirmationPile\(state\.document/, "même organe : trois voies intactes");
+  assert.match(peindre, /exigeUneReponse: true/, "réponse exigée (lot 201) : ni clic dehors ni Échap");
+  assert.doesNotMatch(shell, /pendingStack: state\.pendingStack/, "⛔ aucun écran ne reçoit plus l'attente : la fenêtre en est le seul lecteur");
+});
+
+test("D8 — 🗑️ LA POUBELLE, ORGANE AU SOCLE : un bouton carré, DESSINÉ, nommé, qui émet et n'efface pas — jamais sur le SRD ni sur Fate's Hand", () => {
+  /* ⚖️ Eric, 29/09 : la poubelle de `Layers` est celle de `My characters` (lot 352) — ⭐ un
+     seul organe, une feuille sans import (`poubelle-organe.mjs`). */
+  const vus = [];
+  const b = poubelle({ mot: "Delete X", onClick: () => vus.push("clic") });
+  assert.equal(b.tagName, "BUTTON");
+  assert.equal(b.type, "button");
+  assert.equal(b.className, "poubelle");
+  assert.equal(b.getAttribute("aria-label"), "Delete X", "un bouton sans nom serait muet pour un lecteur d'écran");
+  const dessin = b.querySelectorAll("svg")[0];
+  assert.ok(dessin, "✏️ DESSINÉE, jamais un glyphe");
+  assert.equal(dessin.getAttribute("aria-hidden"), "true", "le dessin se tait : le bouton porte le nom");
+  assert.equal(dessin.querySelectorAll("path")[0].getAttribute("d"), TRAIT_DE_LA_POUBELLE, "le trait du plan v10");
+  assert.doesNotMatch(b.textContent, /🗑|trash/i, "⛔ ni emoji ni mot à la place du dessin");
+  b.click();
+  assert.deepEqual(vus, ["clic"]);
+  /* ⏳ ÉTEINTE : présente, `disabled`, `data-reserve` — et le clic n'arrive pas. */
+  const eteinte = poubelle({ mot: "Delete Y", eteinte: true, onClick: () => vus.push("éteinte") });
+  assert.equal(eteinte.disabled, true);
+  assert.equal(eteinte.dataset.reserve, "true");
+  eteinte.click();
+  assert.deepEqual(vus, ["clic"], "une poubelle éteinte ne répond pas");
+  assert.equal(b.disabled, false, "témoin : sans `eteinte`, elle s'allume — celle de My characters (lot 352)");
+  /* ⛔ jamais sur le SRD ni sur Fate's Hand */
+  const pile = [...manifestFor(PILE_COMPLETE), livreMonte("xdmg-en", "Dungeon Master's Guide (2024)")];
+  const node = rendu({ pile });
+  assert.equal(socle(node).querySelectorAll(".poubelle").length, 0);
+  assert.equal(porteuse(node, maitre(node)).querySelectorAll(".poubelle").length, 0, "Fate's Hand vient avec le builder : il ne s'efface pas");
+  assert.equal(node.querySelectorAll(".poubelle").length, 1, "une poubelle par livre installé, et c'est tout");
+  /* ⭐ UN SEUL ORGANE : `Layers` le prend, il ne le refait pas */
+  const source = stripComments(fs.readFileSync(path.join(UI, "layers-ecran.mjs"), "utf8"));
+  assert.match(source, /import \{ poubelle \} from "\.\/poubelle-organe\.mjs/, "l'écran importe l'organe");
+  assert.doesNotMatch(source, /createElementNS|M4 7h16/, "⛔ l'écran ne redessine pas la poubelle");
+});
+
+test("D9 — ❓ « DELETE THIS BOOK? » : la question vient avant l'effacement, `Delete` porte le rouge, `Cancel` ne fait rien, et un tap dehors vaut `Cancel`", () => {
+  /* ⚖️ Eric, 29/09 : Delete a book *« demande aussi une confirmation »*. */
+  const voies = [];
+  const popup = popupEffacerUnLivre({ nom: "Dungeon Master's Guide (2024)", choisir: (v) => voies.push(v) });
+  assert.equal(popup.titre, MOTS_EFFACER_UN_LIVRE.titre);
+  assert.equal(popup.titre, "Delete this book?");
+  assert.equal(popup.role, "guide", "§7 : elle prévient ; le gendarme dit une ERREUR, et rien n'est une erreur ici");
+  assert.match(popup.texte, /Dungeon Master's Guide \(2024\)/, "elle nomme le livre");
+  assert.deepEqual(popup.actions.map((a) => a.mot), ["Cancel", "Delete"]);
+  assert.deepEqual(popup.actions.map((a) => a.defait), [false, true], "`Delete` seul porte le rouge de ce qui coûte");
+  for (const a of popup.actions) a.faire();
+  assert.deepEqual(voies, ["cancel", "delete"], "chaque voie émet son nom — la fenêtre ne sait pas ce qu'elle fait");
+  assert.equal("exigeUneReponse" in popup, false, "⛔ rien n'est engagé avant la réponse : on peut la fermer");
 });
 
 /* ══ G — LOT 192 : WORLD, ET LA SAUVEGARDE AVANT L'EXTINCTION ═════════════
@@ -371,25 +504,32 @@ function textesRendus(node) {
 }
 const unTexteRenduPorteLore = (node) => textesRendus(node).filter(porteLeMotLore);
 
-test("G1 — 🔴 « Lore » n'est plus un mot du joueur : ni sur Layers, ni sur R, ni dans la confirmation, ni dans le mot d'un choix non résolu — c'est World", () => {
-  const layers = rendu({ pendingStack: "srd" });
-  assert.ok(textesRendus(layers).length > 20, "témoin : le balayage lit bien les textes de l'écran");
-  assert.deepEqual(unTexteRenduPorteLore(layers), [], "Layers (confirmation comprise) porte encore « Lore »");
-  assert.equal(enfant(layers, "lore").querySelectorAll(".interrupteur-mot")[0].childNodes[0].textContent, "World", "la cinquième ligne dit World");
-  assert.match(enfant(layers, "lore").querySelectorAll(".interrupteur-note")[0].textContent, /the world without its rules/,
-    "sa note : « Lore rajoute le monde FH sans les règles » (Eric, 09/09), en un mot de joueur");
-  const r = renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, memoire: { ok: true }, pendingStack: "srd" }, () => {});
-  assert.deepEqual(unTexteRenduPorteLore(r), [], "R (confirmation comprise) ne dit pas « Lore »");
+test("G1 — 🔴 « Lore » n'est plus un mot du joueur : ni sur Layers, ni sur R, ni dans la confirmation, ni dans le mot d'un choix non résolu", () => {
+  const layers = rendu();
+  assert.ok(textesRendus(layers).length > 8, "témoin : le balayage lit bien les textes de l'écran");
+  assert.deepEqual(unTexteRenduPorteLore(layers), [], "Layers porte encore « Lore »");
+  /* 🔄 LOT 351 — World n'est plus une LIGNE à pousser : c'est une FAMILLE de Fate's Hand, lue
+     (« engine · world · catalog », la dictée du 29/09). 🗄️ Ce garde tenait « la cinquième
+     ligne dit World, sa note dit the world without its rules » : il n'y a plus de cinquième ligne. */
+  assert.match(maitre(layers).querySelectorAll(".ligne-familles")[0].textContent, /\bworld\b/, "world se lit, dans les familles de Fate's Hand");
+  const r = renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, memoire: { ok: true } }, () => {});
+  assert.deepEqual(unTexteRenduPorteLore(r), [], "R ne dit pas « Lore »");
+  /* 🔄 LOT 351 — la confirmation vit en FENÊTRE (D6) : on la lit à son organe, celui que la
+     fenêtre peint, sous ses deux titres. */
+  const question = renderConfirmationPile(docAvec(PILE_COMPLETE), () => null, () => {});
+  assert.ok(question.querySelectorAll(".confirm-dialog-title")[0], "témoin : c'est bien la question");
+  assert.deepEqual(unTexteRenduPorteLore(question), [], "la confirmation ne dit pas « Lore »");
   /* ⚠️ la confirmation a DEUX titres (avec / sans choix Fate's Hand en jeu) :
      un Araag choisi et une pile qui le nomme rendent l'autre — mesuré au lot
      192, une mutation du premier titre restait verte sans ce rendu. */
   const avecAraag = docAvec(PILE_COMPLETE, { build: { layers: manifestFor(PILE_COMPLETE), choices: [{ ref: { kind: "species", id: "fh:species:en:araag" }, label: "Species" }], budgets: {}, overrides: [] } });
   const nomme = () => ({ record: { name: "Araag" } });
-  const layersAvec = rendu({ document: avecAraag, query: nomme, pendingStack: "srd" });
-  assert.equal(layersAvec.querySelectorAll(".confirm-dialog-items li").length, 1, "témoin : l'autre titre, avec sa liste");
-  assert.deepEqual(unTexteRenduPorteLore(layersAvec), [], "la confirmation avec ses choix nommés ne dit pas « Lore »");
-  /* le mot d'un choix non résolu suit le LABEL : un seul écrivain */
-  assert.equal(motDUnRecordAbsent("fh:species:en:araag"), "Araag comes with World — switch it on in Layers");
+  const questionAvec = renderConfirmationPile(avecAraag, nomme, () => {});
+  assert.equal(questionAvec.querySelectorAll(".confirm-dialog-items li").length, 1, "témoin : l'autre titre, avec sa liste");
+  assert.deepEqual(unTexteRenduPorteLore(questionAvec), [], "la confirmation avec ses choix nommés ne dit pas « Lore »");
+  /* le mot d'un choix non résolu nomme L'INTERRUPTEUR QUI EXISTE — 🔄 LOT 351 : Fate's Hand,
+     tout ou rien ; « comes with World » enverrait le joueur vers une ligne disparue. */
+  assert.equal(motDUnRecordAbsent("fh:species:en:araag"), "Araag comes with Fate's Hand — switch it on in Layers");
   /* l'écran mort, pile inconnue : pas de « Lore » non plus */
   assert.equal(porteLeMotLore(String(motDeLEcranMort(docAvec([SRD_LAYER_ID, ...SRFH_LAYER_IDS, "fh-lore-en"])) || "")), false, "l'écran mort ne dit pas « Lore »");
   /* ⚔️ le témoin du garde : un texte qui porterait le mot ferait rougir — et un id ne le fait pas */
@@ -430,9 +570,10 @@ test("G2 — 💾 la séquence pure : Save D'ABORD, l'extinction ENSUITE ; un Sa
   assert.deepEqual(tenu, ["save", "off"]);
 });
 
-test("G3 — 🎛️ la confirmation du maître porte TROIS voies, sur Layers comme sur R : Keep on n'émet rien qui éteigne, Save… émet la voie qui sauvegarde puis éteint, Switch off éteint sans sauvegarder", () => {
-  for (const [nom, ecran] of [["Layers", (act) => rendu({ pendingStack: "srd" }, act)],
-    ["R", (act) => renderUniverseStep({ document: docAvec(PILE_COMPLETE), query: () => null, fieldErrors: {}, memoire: { ok: true }, pendingStack: "srd" }, act)]]) {
+test("G3 — 🎛️ la confirmation du maître (la fenêtre) porte TROIS voies : Keep on n'émet rien qui éteigne, Save… émet la voie qui sauvegarde puis éteint, Switch off éteint sans sauvegarder", () => {
+  /* 🔄 LOT 351 — elle ne vit plus sur Layers ni sur R : la coquille la peint en FENÊTRE (D6).
+     Le garde lit donc l'organe que la fenêtre peint — les trois voies n'ont pas bougé. */
+  for (const [nom, ecran] of [["la fenêtre", (act) => renderConfirmationPile(docAvec(PILE_COMPLETE), () => null, act)]]) {
     const gestes = [];
     const node = ecran((a) => gestes.push(a));
     const boutons = node.querySelectorAll(".confirm-dialog-actions button");
@@ -493,13 +634,17 @@ function exempleSur(h) {
 }
 const actives = (h) => h.layers.verbs.stack().filter((c) => c.enabled).map((c) => c.id);
 
-test("E1 — ⚔️ éteindre Trainings seul : 2 couches sortent, 9 FH restent, `fh.trainings` et `fh.inheritance` tombent, Inheritance dort à l'écran", () => {
+test("E1 — ⚔️ UN PERSO D'AVANT, TRAININGS COUPÉ : 2 couches sortent, 9 FH restent, `fh.trainings` et `fh.inheritance` tombent — et l'écran montre Fate's Hand allumé", () => {
+  /* 🔄 LOT 351 — ce sous-ensemble ne se PRODUIT plus depuis l'écran (tout ou rien), mais un perso
+     sauvé avant le déclare encore, et l'alignement du boot le monte tel quel : c'est ce que le
+     moteur en fait que ce garde tient. Le sous-ensemble s'écrit EN CLAIR (la carte), ⛔ plus
+     par `couchesApresLeGeste`, partie avec les six interrupteurs. */
   const h = pileReelle();
   let doc = exempleSur(h);
   const avant = h.layers.verbs.flags();
   assert.ok(avant.includes("fh.trainings") && avant.includes("fh.inheritance"), "témoin : les deux drapeaux sont levés au départ");
 
-  doc = monter(h, doc, couchesApresLeGeste(doc, { id: "trainings", on: false }));
+  doc = monter(h, doc, sans(FH_LAYER_IDS, [...sw("trainings").couches, ...sw("inheritance").couches]));
   const restantes = actives(h).filter((id) => FH_LAYER_IDS.includes(id));
   assert.equal(restantes.length, FH_LAYER_IDS.length - 2, "9 couches Fate's Hand restent");
   assert.deepEqual(restantes, sans(FH_LAYER_IDS, ["fh-trainings-en", "fh-inheritance-en"]));
@@ -509,24 +654,23 @@ test("E1 — ⚔️ éteindre Trainings seul : 2 couches sortent, 9 FH restent, 
   assert.ok(apres.includes("fh.destiny") && apres.includes("fh.skills"), "les autres règles tournent toujours");
   /* La ceinture (lot 186) redonne au cran 3 son nom SRD — sans une branche de plus. */
   assert.equal(cransAlignes(apres)[3].mot, "Background");
-  /* Et l'écran, sur le document que `rebuild` vient d'adopter : */
+  /* Et l'écran, sur le document que `rebuild` vient d'adopter : Fate's Hand engagé, sans enfant. */
   const node = renderLayersEcran({ document: doc, pile: h.layers.verbs.stack() }, () => {});
-  assert.equal(enfant(node, "inheritance").disabled, true);
-  assert.equal(enfant(node, "trainings").dataset.on, "false");
-  assert.match(enfant(node, "destiny").querySelectorAll(".interrupteur-note")[0].textContent, /\d+ records/, "le compte vient du manifeste");
+  assert.equal(maitre(node).dataset.on, "true", "le perso d'avant garde Fate's Hand allumé");
+  assert.equal(node.querySelectorAll("[data-enfant]").length, 0, "⛔ aucune ligne d'enfant ne revient");
 });
 
-test("E2 — ⚔️ LE PIÈGE `fh-species-en` : éteindre Destiny baisse `fh.destiny`, et la ceinture PERD son cran", () => {
+test("E2 — ⚔️ LE PIÈGE `fh-species-en` : Destiny coupé (un perso d'avant) baisse `fh.destiny`, et la ceinture PERD son cran", () => {
   const h = pileReelle();
   let doc = exempleSur(h);
   assert.ok(h.layers.verbs.flags().includes("fh.destiny"), "témoin : levé au départ");
   const iDestiny = STEPS.findIndex((s) => s.id === "destiny");
   assert.ok(cransAlignes(h.layers.verbs.flags())[iDestiny], "témoin : le cran Destiny est sur la ceinture");
 
-  doc = monter(h, doc, couchesApresLeGeste(doc, { id: "destiny", on: false }));
-  assert.ok(actives(h).includes("fh-species-en"), "témoin : les espèces (Lore, allumé) sont TOUJOURS montées");
+  doc = monter(h, doc, sans(FH_LAYER_IDS, sw("destiny").couches));
+  assert.ok(actives(h).includes("fh-species-en"), "témoin : les espèces (World, allumé) sont TOUJOURS montées");
   assert.equal(h.layers.verbs.flags().includes("fh.destiny"), false,
-    "⛔ AVANT CE LOT : `fh-species-en` levait `fh.destiny`, et le cran restait sur la ceinture, Destiny éteint");
+    "⛔ AVANT LE LOT 191 : `fh-species-en` levait `fh.destiny`, et le cran restait sur la ceinture, Destiny éteint");
   assert.equal(cransAlignes(h.layers.verbs.flags())[iDestiny], null, "la ceinture n'a plus de cran Destiny");
   assert.equal(compositionFh(doc).legitime, true, "et le personnage n'est pas « hors des deux jeux »");
   assert.notEqual(motDeLEcranMort(doc), MOT_PILE_INCONNUE, "⛔ ni sur l'écran mort");
@@ -535,24 +679,27 @@ test("E2 — ⚔️ LE PIÈGE `fh-species-en` : éteindre Destiny baisse `fh.des
     "sans Destiny, aucun Score de Destinée — la Base d'espèce est un terme, pas la règle");
 });
 
-test("E3 — ⚔️ le maître : éteint, tout FH sort ; rallumé, tout FH revient DANS L'ORDRE DU MANIFESTE", () => {
+test("E3 — ⚔️ Fate's Hand (`applyLayerStack`) : éteint, tout FH sort ; rallumé, tout FH revient DANS L'ORDRE DU MANIFESTE", () => {
+  /* ⭐ C'est le seul geste qui reste sur Fate's Hand : `monterLesCouches(FH_LAYER_IDS)` ou `[]`
+     (F1 tient cette forme dans la coquille). */
   const h = pileReelle();
   let doc = exempleSur(h);
   const ordreDuManifeste = LAYER_FILES.map((f) => f.replace(/\.layer\.json$/, ""));
-  doc = monter(h, doc, couchesApresLeGeste(doc, { id: "maitre", on: false }));
+  doc = monter(h, doc, []);
   assert.deepEqual(actives(h), SOCLE, "il ne reste que le plancher");
   assert.equal(currentStack(doc), "srd");
-  doc = monter(h, doc, couchesApresLeGeste(doc, { id: "maitre", on: true }));
+  doc = monter(h, doc, [...FH_LAYER_IDS]);
   assert.deepEqual(actives(h), ordreDuManifeste, "rallumé dans l'ordre où `engine.mjs` monte");
   assert.deepEqual(doc.build.layers.map((l) => l.id), ordreDuManifeste, "…et le document l'a adopté tel quel");
   assert.equal(currentStack(doc), "srdfh");
 });
 
-test("E4 — ⚔️ un document « SRD + une couche FH » N'AFFICHE PAS l'écran mort, et il DÉRIVE", () => {
+test("E4 — ⚔️ un document « SRD + une sous-unité FH » (un perso d'avant) N'AFFICHE PAS l'écran mort, et il DÉRIVE", () => {
   const h = pileReelle();
   let doc = exempleSur(h);
-  doc = monter(h, doc, couchesApresLeGeste({ ...doc, build: { ...doc.build, layers: manifestFor(SOCLE) } }, { id: "soulforging", on: true }));
-  /* Soulforging seul + le catalogue : c'est ce que « allumer un enfant depuis SRD » produit. */
+  /* Soulforging seul + le catalogue : ce que l'écran des six produisait en allumant un enfant
+     depuis SRD. Il ne se produit plus ; un perso sauvé ainsi reste LÉGITIME. */
+  doc = monter(h, doc, FH_LAYER_IDS.filter((id) => CATALOGUE_FH.includes(id) || sw("soulforging").couches.includes(id)));
   assert.equal(currentStack(doc), null, "témoin : `currentStack` ne sait pas le nommer");
   assert.notEqual(motDeLEcranMort(doc), MOT_PILE_INCONNUE, "⛔ un sous-ensemble est légitime, pas inconnu");
   assert.ok(doc.resolved, "et la dérivation a réussi : le moteur dégrade, il n'échoue pas");
@@ -586,16 +733,17 @@ test("E5 — 🔴 LE PERSONNAGE D'HIER : gardé en SRD seul et rechargé, il tom
 
 test("E6 — ⚔️ un livre ABSENT (404) : zéro livre, rien d'autre ne casse ; un livre PRÉSENT se monte par le VRAI bloc, éteint, puis s'allume", () => {
   /* Absent : la pile réelle n'a aucun livre, et tout ce qui précède a tourné
-     dessus — c'est le témoin. L'écran le dit sans un mot d'erreur. */
+     dessus — c'est le témoin. 🔄 LOT 351 : l'écran ne montre plus un livre absent (ni
+     installé ni déclaré : rien à régler, rien à effacer), et il ne dit aucun mot d'erreur. */
   const h = pileReelle();
   const doc = exempleSur(h);
   assert.equal(h.layers.verbs.stack().some((c) => LIVRE_LAYER_IDS.includes(c.id)), false, "témoin : aucun livre monté");
   const sansLivre = renderLayersEcran({ document: doc, pile: h.layers.verbs.stack() }, () => {});
-  assert.equal(sansLivre.querySelectorAll(".tdc-ligne[data-livre]").length, 2);
+  assert.equal(sansLivre.querySelectorAll("[data-livre], [data-ligne-livre]").length, 0, "aucun livre sur l'appareil, aucun livre à l'écran");
   assert.equal(sansLivre.querySelectorAll(".doc-field-error").length, 0);
 
-  /* Présent : la couche du générateur — corrigée par ce lot — se monte par
-     `register`, à sa place (au-dessus de `srfh`, sous FH), ÉTEINTE. */
+  /* Présent : la couche du générateur se monte par `register`, à sa place (au-dessus de
+     `srfh`, sous FH), ÉTEINTE. */
   const { layer } = construireCouche({ gemstones: { "10": ["Azurite (mottled deep blue)", "Obsidian (black)"] } });
   const h2 = makeHarness({ layers: LAYER_FILES.slice(0, SOCLE.length).map((f) => `layers/${f}`), modules: MODULES_DE_LA_PAGE() });
   h2.layers.verbs.register({ bytes: bytesOf(layer), origin: "xdmg-en.layer.json" });
@@ -608,6 +756,8 @@ test("E6 — ⚔️ un livre ABSENT (404) : zéro livre, rien d'autre ne casse ;
   const ecran = renderLayersEcran({ document: doc2, pile: h2.layers.verbs.stack() }, () => {});
   const dmg = ecran.querySelectorAll(".interrupteur[data-livre]")[0];
   assert.ok(dmg && dmg.dataset.on === "false", "monté et éteint : un interrupteur de catalogue, position OFF");
+  assert.equal(groupeDe(ecran, ligneLivre(ecran, "xdmg-en")), "eteint", "…sous « installed, not active »");
+  assert.equal(ligneLivre(ecran, "xdmg-en").querySelectorAll(".poubelle").length, 1, "…avec sa poubelle");
   /* `monterLeLivre(id, true)` : */
   h2.layers.verbs.enable({ id: "xdmg-en" });
   doc2 = h2.verbs.rebuild({ document: { ...doc2, build: { ...doc2.build, layers: [] } } }).document;
@@ -621,7 +771,7 @@ test("E6 — ⚔️ un livre ABSENT (404) : zéro livre, rien d'autre ne casse ;
     "la pierre que FH n'a pas est là, au livre");
 });
 
-test("E7 — ⚔️ UNE LANGUE CHOISIE, PUIS TRAININGS COUPÉ : la dérivation DÉGRADE et `validate` NOMME — elle ne jette plus", () => {
+test("E7 — ⚔️ UNE LANGUE CHOISIE, PUIS TRAININGS COUPÉ (un perso d'avant) : la dérivation DÉGRADE et `validate` NOMME — elle ne jette plus", () => {
   /* 📏 MESURÉ AU NAVIGATEUR LE 09/09, APRÈS UNE SUITE VERTE : Ilyra (l'exemple)
      a choisi deux langues (`background.languages[0..1]` → des trainings).
      Trainings coupé, `derive` tendait ces refs aux modules par `must`, jetait
@@ -632,21 +782,21 @@ test("E7 — ⚔️ UNE LANGUE CHOISIE, PUIS TRAININGS COUPÉ : la dérivation D
   let doc = exempleSur(h);
   assert.ok(doc.build.choices.some((c) => c.path === "background.languages[0]" && c.ref && c.ref.kind === "training"),
     "témoin : l'exemple a bien choisi une langue, qui est un training");
-  assert.doesNotThrow(() => { doc = monter(h, doc, couchesApresLeGeste(doc, { id: "trainings", on: false })); },
-    "⛔ la dérivation ne doit pas JETER sur un ref d'une couche que le joueur a éteinte");
+  assert.doesNotThrow(() => { doc = monter(h, doc, sans(FH_LAYER_IDS, [...sw("trainings").couches, ...sw("inheritance").couches])); },
+    "⛔ la dérivation ne doit pas JETER sur un ref d'une couche éteinte");
   assert.ok(doc.resolved, "le personnage dérive, dégradé");
   assert.deepEqual(doc.resolved.languages, [], "…sans langue : le manque est porté par la fiche");
   const refus = h.verbs.validate({ document: doc }).violations.filter((v) => v.key === "choice.ref-missing").map((v) => v.path);
   assert.ok(refus.includes("background.languages[0]"), `et NOMMÉ par validate — vu : ${refus.join(", ")}`);
-  /* ⚔️ Le symétrique : le maître RALLUMÉ, tout revient et plus aucun refus. */
-  doc = monter(h, doc, couchesApresLeGeste(doc, { id: "maitre", on: true }));
+  /* ⚔️ Le symétrique : Fate's Hand RALLUMÉ (tout ou rien), tout revient et plus aucun refus. */
+  doc = monter(h, doc, [...FH_LAYER_IDS]);
   assert.deepEqual(h.verbs.validate({ document: doc }).violations, [], "rallumé : le personnage est de nouveau entier");
 });
 
 /* ══ E8 — ⚔️ LOT 191 : LORE PORTE LES ESPÈCES, SUR LA VRAIE PILE ══════════
    ⚖️ Eric, 09/09 : *« Il n'y a pas d'Araag dans SRD si le bouton Lore n'est
    pas poussé. »* puis *« Lore rajoute le monde FH sans les règles. »* */
-test("E8 — ⚔️ WORLD (ex-Lore) ÉTEINT : plus aucune espèce `fh:` ; l'Araag déjà choisi est NOMMÉ par validate ; WORLD RALLUMÉ : il revient, ses traits se lisent, inertes sans leur règle", () => {
+test("E8 — ⚔️ WORLD (ex-Lore) COUPÉ (un perso d'avant) : plus aucune espèce `fh:` ; l'Araag déjà choisi est NOMMÉ par validate ; FATE'S HAND RALLUMÉ : il revient, ses traits se lisent", () => {
   const h = pileReelle();
   const ARAAG = "fh:species:en:araag";
   const kessa = {
@@ -669,41 +819,38 @@ test("E8 — ⚔️ WORLD (ex-Lore) ÉTEINT : plus aucune espèce `fh:` ; l'Araa
   const especesFh = () => h.layers.verbs.query({ kind: "species" }).filter((v) => v.id.startsWith("fh:")).map((v) => v.id);
   assert.equal(especesFh().length, 3, "témoin : Araag, Elestu, Loroka sont montées");
 
-  /* LORE ÉTEINT — les trois couches sortent par le haut (lore, fiche, puis
-     species : la fiche patche ce que species ajoute, l'ordre inverse jetterait). */
-  assert.doesNotThrow(() => { doc = monter(h, doc, couchesApresLeGeste(doc, { id: "lore", on: false })); },
-    "⛔ éteindre Lore ne doit pas jeter — l'ordre de démontage est celui du manifeste à l'envers");
-  assert.deepEqual(actives(h).filter((id) => sw("lore").couches.includes(id)), [], "les trois couches de Lore sont éteintes");
+  /* WORLD COUPÉ — les trois couches sortent par le haut (lore, fiche, puis species : la fiche
+     patche ce que species ajoute, l'ordre inverse jetterait). */
+  assert.doesNotThrow(() => { doc = monter(h, doc, sans(FH_LAYER_IDS, sw("lore").couches)); },
+    "⛔ couper World ne doit pas jeter — l'ordre de démontage est celui du manifeste à l'envers");
+  assert.deepEqual(actives(h).filter((id) => sw("lore").couches.includes(id)), [], "les trois couches de World sont éteintes");
   assert.deepEqual(especesFh(), [], "⛔ « Il n'y a pas d'Araag dans SRD si le bouton Lore n'est pas poussé »");
   assert.equal(h.layers.verbs.query({ kind: "species" }).length, 9, "…et les neuf du SRD restent");
   assert.ok(doc.resolved, "le personnage dérive, dégradé (derive.mjs lit l'espèce par `maybe`)");
   assert.equal(doc.resolved.identity.species, undefined, "…sans espèce");
   const morts = h.verbs.validate({ document: doc }).violations.filter((v) => v.key === "choice.ref-missing");
   assert.deepEqual(morts.map((v) => [v.path, v.params.id]), [["species", ARAAG]], "et `validate` NOMME le choix non résolu");
-  /* L'écran : Lore éteint, ses trois couches dites, le maître toujours engagé. */
+  /* L'écran : Fate's Hand engagé (World est une sous-unité, pas le catalogue), sans ligne d'enfant. */
   const node = renderLayersEcran({ document: doc, pile: h.layers.verbs.stack() }, () => {});
-  assert.equal(enfant(node, "lore").dataset.on, "false");
-  assert.equal(enfant(node, "lore").dataset.couches, "fh-species-en fh-fiche-en fh-lore-en");
-  assert.equal(maitre(node).dataset.on, "true", "Fate's Hand reste engagé : Lore est un enfant, pas le catalogue");
+  assert.equal(maitre(node).dataset.on, "true", "Fate's Hand reste engagé");
+  assert.equal(node.querySelectorAll("[data-enfant]").length, 0);
 
-  /* LORE RALLUMÉ — species d'abord, puis fiche et lore qui la patchent. */
-  assert.doesNotThrow(() => { doc = monter(h, doc, couchesApresLeGeste(doc, { id: "lore", on: true })); });
+  /* FATE'S HAND RALLUMÉ (tout ou rien) — species d'abord, puis fiche et lore qui la patchent. */
+  assert.doesNotThrow(() => { doc = monter(h, doc, [...FH_LAYER_IDS]); });
   assert.equal(doc.resolved.identity.species, "Araag", "l'Araag revient — rien n'avait été effacé");
   assert.deepEqual(h.verbs.validate({ document: doc }).violations.filter((v) => v.key === "choice.ref-missing"), []);
-  /* 📏 LE COMPTE SOUS LORE, MESURÉ AU MANIFESTE : 12 (species) + 24 (fiche) + 24 (lore). */
+  /* 📏 LE COMPTE SOUS WORLD, MESURÉ AU MANIFESTE : 12 (species) + 24 (fiche) + 24 (lore). 🗄️ L'écran
+     l'affichait en note sous la ligne World ; la carte le garde, la page ne le montre plus. */
   const pile = h.layers.verbs.stack();
   const compte = sw("lore").couches.reduce((n, id) => n + pile.find((c) => c.id === id).records, 0);
-  assert.equal(compte, 60, "le compte de records sous Lore — il était 48 quand Lore n'avait que deux couches");
-  const rallume = renderLayersEcran({ document: doc, pile }, () => {});
-  assert.match(enfant(rallume, "lore").querySelectorAll(".interrupteur-note")[0].textContent, /60 records/, "l'écran l'affiche");
+  assert.equal(compte, 60, "le compte de records sous World — il était 48 quand il n'avait que deux couches");
 
-  /* ⚖️ « LORE RAJOUTE LE MONDE FH SANS LES RÈGLES » — Lore seul, tout le
-     reste éteint : l'Araag existe, ses traits se LISENT, et aucune règle FH ne
-     tourne (aucune stat `fh:` publiée, aucun drapeau de règle levé). */
+  /* ⚖️ « LORE RAJOUTE LE MONDE FH SANS LES RÈGLES » — World seul, tout le reste éteint (un perso
+     d'avant, là encore) : l'Araag existe, ses traits se LISENT, et aucune règle FH ne tourne. */
   const loreSeul = FH_LAYER_IDS.filter((id) => sw("lore").couches.includes(id));
   doc = monter(h, doc, loreSeul);
-  assert.deepEqual(actives(h).filter((id) => FH_LAYER_IDS.includes(id)), loreSeul, "témoin : Lore seul");
-  assert.equal(doc.resolved.identity.species, "Araag", "l'Araag existe avec Lore seul");
+  assert.deepEqual(actives(h).filter((id) => FH_LAYER_IDS.includes(id)), loreSeul, "témoin : World seul");
+  assert.equal(doc.resolved.identity.species, "Araag", "l'Araag existe avec World seul");
   const traits = (doc.resolved.traits || []).map((t) => t.name);
   assert.ok(traits.some((n) => /Fast Learner/i.test(n)), `le monde se lit : ses traits nommés sont sur la fiche — ${traits.join(", ")}`);
   assert.deepEqual((doc.resolved.stats || []).filter((s) => String(s.id).startsWith("fh:")).map((s) => s.id), [],
@@ -737,15 +884,21 @@ test("E9 — 🔴 LOT 350 : UN PERSO SANS CLASSE, FATE'S HAND COUPÉ, RESTE EN S
 
 /* ══ F — LES OCTETS DE LA COQUILLE ═════════════════════════════════════════ */
 
-test("F1 — 🔌 la coquille câble Layers : la porte, les deux gestes, le manifeste passé à l'écran", () => {
+test("F1 — 🔌 la coquille câble Layers : la porte, les gestes (Fate's Hand, un livre, sa poubelle), le manifeste passé à l'écran — et plus aucun geste d'enfant", () => {
   const shell = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
   assert.match(shell, /action\.kind === "ouvrirLayers"[\s\S]{0,120}state\.menuBranche = "layers"/, "la porte ouvre la branche `layers` au rang B");
-  assert.match(shell, /action\.kind === "requestLayerSwitch"[\s\S]{0,200}monterLesCouches\(couchesApresLeGeste\(state\.document/,
-    "un enfant passe par le geste PUR, jamais par une liste écrite dans la coquille");
+  /* 🔄 LOT 351 — tout ou rien : ni le geste d'un enfant, ni la fonction qui le calculait. */
+  assert.doesNotMatch(shell, /requestLayerSwitch|couchesApresLeGeste/, "⛔ Fate's Hand est tout ou rien (Eric, 29/09)");
+  assert.equal(layersEcran.couchesApresLeGeste, undefined, "…et l'écran ne l'exporte plus");
   assert.match(shell, /action\.kind === "requestBookSwitch"[\s\S]{0,120}monterLeLivre\(action\.id/);
   assert.match(shell, /pile: state\.engine\.layers\.verbs\.stack\(\)/, "l'écran reçoit le manifeste, il ne monte rien");
   assert.match(shell, /function applyLayerStack\(value\) \{\s*monterLesCouches\(value === "srdfh" \? FH_LAYER_IDS : \[\]\);/,
-    "le geste « tout FH » est un cas du geste général, pas une seconde boucle");
+    "le geste « tout FH » est le seul geste sur Fate's Hand");
+  /* ⭐ LA POUBELLE : la coquille pose la question de l'écran — elle ne fabrique pas la sienne. */
+  assert.match(shell, /action\.kind === "demanderEffacerUnLivre"[\s\S]{0,500}state\.popup = popupEffacerUnLivre\(\{/,
+    "la question est celle de `layers-ecran.mjs`");
+  assert.match(shell, /choisir: \(voie\) => applyDecisionAction\(\{ kind: "effacerUnLivre", id: livre\.id, voie \}\)/,
+    "la voie choisie revient à la coquille, qui seule efface");
 });
 
 test("F2 — 🔴 la coquille ALIGNE la pile sur le document AVANT de dériver, au boot comme à l'ouverture d'un fichier", () => {

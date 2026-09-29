@@ -16,6 +16,28 @@
        ── catalogue, du contenu, pas des règles ──
        les livres du joueur · + Table items
 
+   🔄 LOT 351 — ERIC A REDESSINÉ L'ÉCRAN LE 29/09 (la dictée de B0, le plan v10) :
+
+       SRD 5.2.1   [base book]  engine · catalog          — le VOYANT, toujours actif
+       PHB         [your copy]  catalog         ◉  🗑      — un livre installé et déclaré
+       Fate's Hand              engine · world · catalog  ◉ — UN interrupteur, tout ou rien
+       ── installed, not active ──  (caché s'il est vide)
+       DMG         [your copy]  catalog         ○  🗑      — installé, pas déclaré
+       ── options ──
+       Import a book                                      — place réservée
+
+   🗑 = la poubelle, ÉTEINTE avec « soon » tant que le stockage du Vault ne porte aucun
+   livre (Eric, 29/09 : « La poubelle d'un livre efface son contenu de son lieu de stockage. Ce lieu de stockage est
+   décidé par le bouton vault. »).
+   🗄️ `+ Table items` a quitté l'écran — Eric, 29/09 : *« table items devient -> campaign
+   items (et va dans Dungeon master) »* ; la page Dungeon Master le pose (lot 357).
+   ⭐ La confirmation de Fate's Hand se pose en FENÊTRE, plus dans la page (ARCHI 35, 29/09).
+
+   ⛔ Les six enfants ne sont plus des lignes (*« Tout ou rien »*) : ils restent la
+   CARTE de qui fait quoi (`interrupteurs.mjs`). ⛔ Plus de `Delete a book` : chaque
+   livre porte sa poubelle (`poubelle-organe.mjs`, partagée avec `My characters`).
+   Ce qui suit raconte l'écran du lot 188 ; la loi du jour est dans `renderLayersEcran`.
+
    🔴 UN INTERRUPTEUR EST UN ENSEMBLE DE COUCHES, PAS UNE COUCHE — mesuré le
    09/09 sur les drapeaux du dépôt : `Destiny` = `fh-arcana-en` + `fh-feats-en`
    + `fh-spells-en` ; `World` = `fh-species-en` + `fh-fiche-en` + `fh-lore-en` ;
@@ -36,7 +58,7 @@
    geste qui met tout Fate's Hand en pause d'un coup — et depuis le lot 192
    elle a TROIS voies : garder, sauvegarder la version FH puis couper, couper
    (`renderConfirmationPile`, universe-step.mjs, et sa tête dit pourquoi la
-   question ne se pose qu'au maître).
+   question ne se pose qu'au maître) — depuis le lot 351, en fenêtre (`paintPopup`).
 
    ⚖️ ET UN INTERRUPTEUR PEUT EN EXIGER UN AUTRE — Eric, 08/09 : *l'Inheritance
    dépend des Trainings*. Éteindre Trainings éteint Inheritance ; tant que
@@ -58,11 +80,13 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, renderConfirmationPile } from "./universe-step.mjs?v=908";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee } from "./universe-step.mjs?v=911";
 /* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
    se réexporte d'ici pour l'écran, la coquille et les gardes. */
-import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=908";
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=911";
 export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
+/* ⭐ LOT 351 — la poubelle, organe au socle (feuille sans import), partagée avec `My characters`. */
+import { poubelle } from "./poubelle-organe.mjs?v=911";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -75,7 +99,7 @@ function text(value) { return document.createTextNode(String(value)); }
 /* ⭐ LOT 213 — L'ORGANE A DÉMÉNAGÉ DANS UNE FEUILLE SANS IMPORT, pour que la
    fiche X1 le prenne sans traîner `Layers` derrière elle. ⛔ Rien d'autre n'a
    bougé : la fabrique est la même, ses appelants ne changent pas d'adresse. */
-import { interrupteur } from "./interrupteur-organe.mjs?v=908";
+import { interrupteur } from "./interrupteur-organe.mjs?v=911";
 export { interrupteur };
 
 /* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════
@@ -139,13 +163,19 @@ export function ligneReservee(label, mot = "soon") {
    règles du Menu (`universe-step.mjs`) portait la même lampe à côté de
    l'interrupteur Fate's Hand. Eric a refait le Menu le 29/09 : `Rules` s'y LIT
    en texte (« SRD » ou « Fate's Hand »), et la lampe comme l'interrupteur ne
-   vivent plus qu'ici. */
-export function voyant({ label, note, etat = "always on" }) {
+   vivent plus qu'ici.
+   ⭐ LOT 351 — `etiquette` et `familles`, facultatives, les mêmes pièces que
+   l'interrupteur (voir `interrupteur-organe.mjs`) et les mêmes classes : une seule
+   feuille les habille, sur la lampe comme sur la ligne qui se règle. */
+export function voyant({ label, note, etiquette, familles, etat = "always on" }) {
   const ligne = el("div", "voyant");
   ligne.setAttribute("role", "status");
   ligne.dataset.on = "true";
-  const mot = el("span", "voyant-mot", [text(label)]);
+  const mot = el("span", "voyant-mot", etiquette
+    ? [el("span", "ligne-tete", [text(label), el("span", "ligne-etiquette", [text(etiquette)])])]
+    : [text(label)]);
   if (note) mot.append(el("span", "voyant-note", [text(note)]));
+  if (familles) mot.append(el("span", "ligne-familles", [text(familles)]));
   ligne.append(mot);
   /* La lampe est DESSINÉE par la feuille sur `data-on` (un point, `--positive`),
      jamais un glyphe — la même loi qu'au pouce de l'interrupteur. */
@@ -153,16 +183,19 @@ export function voyant({ label, note, etat = "always on" }) {
   return ligne;
 }
 
-/* ══ LES SIX INTERRUPTEURS, LE CATALOGUE, LES LIVRES ══════════════════════
+/* ══ LA CARTE DE FATE'S HAND, LE CATALOGUE, LES LIVRES ═════════════════════
    ⭐ LOT 191 — la table a DÉMÉNAGÉ dans `interrupteurs.mjs` (feuille sans
-   import) et se réexporte en tête de ce fichier. `couches` = ce que
-   l'interrupteur allume et éteint (le montage/démontage, lui, suit TOUJOURS
-   `FH_LAYER_IDS` — voir `monterLesCouches`, shell.mjs). `exige` = un autre
-   interrupteur sans lequel celui-ci dort.
+   import) et se réexporte en tête de ce fichier. `couches` = les sublayers d'une
+   sous-unité (le montage/démontage, lui, suit TOUJOURS `FH_LAYER_IDS` — voir
+   `monterLesCouches`, shell.mjs).
+   🔄 LOT 351 — DES SIX INTERRUPTEURS, IL EN RESTE UN. Eric, 29/09 : *« Tout ou
+   rien »* pour Fate's Hand, et les sous-unités gardées *« comme CARTE de qui
+   fait quoi »*. La table n'est plus rendue en lignes ; `compositionFh` la lit
+   encore pour juger un perso bâti avant (voir sa tête).
    ⛔ LES IDS Y SONT ÉCRITS EN TOUTES LETTRES, et un garde les confronte à
    `FH_LAYER_IDS` (`tests/ecran-layers.test.mjs`) : l'union des six plus le
    catalogue doit être EXACTEMENT la pile Fate's Hand, sans trou ni doublon.
-   Une couche qui entrerait dans `engine.mjs` sans interrupteur rougirait là. */
+   Une couche qui entrerait dans `engine.mjs` hors de la carte rougirait là. */
 
 function idsDuDocument(doc) {
   const layers = (doc && doc.build && Array.isArray(doc.build.layers)) ? doc.build.layers : [];
@@ -187,6 +220,12 @@ function idsDuDocument(doc) {
  *                  une règle qui MANQUE au milieu d'un ensemble, jamais un
  *                  ensemble entier qu'on a choisi d'éteindre.
  *
+ *  🔄 LOT 351 — UN SOUS-ENSEMBLE ENTIER RESTE LÉGITIME, IL N'EST PLUS PRODUCTIBLE.
+ *  L'écran ne coupe plus Fate's Hand que tout ou rien (Eric, 29/09) ; un perso bâti
+ *  avant, qui déclare Destiny coupé par exemple, n'est pas accusé pour autant : il
+ *  dérive, `Rules` dit « Fate's Hand » (`maitre`), et le maître de `Layers` le montre
+ *  allumé. L'éteindre puis le rallumer le remet en tout-ou-rien — rien n'est effacé.
+ *
  *  @param {object} doc le document `fh-char/1`
  */
 export function compositionFh(doc) {
@@ -207,43 +246,12 @@ export function compositionFh(doc) {
   return { socle, enfants, catalogue, maitre, tous, legitime };
 }
 
-/** LES COUCHES FATE'S HAND VOULUES APRÈS UN GESTE — une fonction PURE, pour
- *  qu'un test la lise sans coquille.
- *
- *  `geste` = `{ id: "maitre", on }` ou `{ id: <interrupteur>, on }`.
- *  Rend les ids à laisser MONTÉS, dans l'ordre de `FH_LAYER_IDS` : c'est
- *  `monterLesCouches` (shell.mjs) qui en déduit quoi éteindre et quoi allumer.
- *
- *  🔴 LA DÉPENDANCE S'APPLIQUE DANS LES DEUX SENS : éteindre un interrupteur
- *  éteint ceux qui l'exigent ; allumer un interrupteur allume celui qu'il
- *  exige (l'organe est `disabled` tant que l'exigé dort, mais la fonction ne
- *  compte pas sur l'organe pour tenir la règle).
- *
- *  ⭐ ALLUMER UN ENFANT ENGAGE LE MAÎTRE : le catalogue vient avec (les
- *  espèces et les gemmes « restent allumées avec le maître »). Éteindre le
- *  dernier enfant laisse le catalogue — c'est le maître qui coupe tout. */
-export function couchesApresLeGeste(doc, geste) {
-  if (geste.id === "maitre") return geste.on ? [...FH_LAYER_IDS] : [];
-  const composition = compositionFh(doc);
-  const voulues = new Set();
-  if (composition.catalogue) for (const id of CATALOGUE_FH) voulues.add(id);
-  for (const sw of INTERRUPTEURS) if (composition.enfants[sw.id]) for (const id of sw.couches) voulues.add(id);
-
-  const cible = INTERRUPTEURS.find((sw) => sw.id === geste.id);
-  if (!cible) throw new Error(`layers-ecran : aucun interrupteur « ${geste.id} »`);
-  if (geste.on) {
-    for (const id of CATALOGUE_FH) voulues.add(id);
-    for (const id of cible.couches) voulues.add(id);
-    const exige = cible.exige && INTERRUPTEURS.find((sw) => sw.id === cible.exige);
-    if (exige) for (const id of exige.couches) voulues.add(id);
-  } else {
-    for (const id of cible.couches) voulues.delete(id);
-    for (const sw of INTERRUPTEURS) {
-      if (sw.exige === cible.id) for (const id of sw.couches) voulues.delete(id);
-    }
-  }
-  return FH_LAYER_IDS.filter((id) => voulues.has(id));
-}
+/* 🗄️ LOT 351 — `couchesApresLeGeste` EST PARTI AVEC LES SIX INTERRUPTEURS. Il rendait
+   les couches à laisser montées après le geste d'UN enfant (la dépendance Inheritance →
+   Trainings comprise) ou du maître. Les enfants ne sont plus des gestes (Eric, 29/09 :
+   *« Tout ou rien »*), et le maître passe par `applyLayerStack` (shell.mjs), qui monte
+   `FH_LAYER_IDS` ou rien — la fonction n'avait plus d'appelant (loi §0.6, pas de code
+   mort). Ses gardes (`tests/ecran-layers.test.mjs`, C1-C4) sont partis avec elle. */
 
 /** LES GESTES QUI RANGENT LA PILE MONTÉE SUR LE DOCUMENT — pure, pour que le
  *  garde la lise sur la vraie pile sans coquille (`alignerLaPileSurLeDocument`,
@@ -268,34 +276,107 @@ export function gestesDAlignement(pile, declares) {
   };
 }
 
-/** Le compte de records d'un ensemble de couches, lu dans le manifeste de la
- *  pile montée (`layers.verbs.stack()`), ou `null` si la pile n'est pas là. */
-function recordsDe(pile, couches) {
-  if (!Array.isArray(pile)) return null;
-  let total = 0;
-  for (const id of couches) {
-    const couche = pile.find((c) => c && c.id === id);
-    if (!couche || typeof couche.records !== "number") return null;
-    total += couche.records;
-  }
-  return total;
+/* 🗄️ LOT 351 — `recordsDe` EST PARTI AUSSI : il comptait les records d'un interrupteur
+   enfant pour sa note (« 13 records »). Plus d'enfant, plus de note, plus d'appelant. */
+
+/** LES MOTS DE `Layers` — les brouillons du plan v10 (`base book`, `your copy`,
+ *  `installed, not active`, `options`) et de la dictée du 29/09. ⚖️ C'est Eric qui
+ *  arrête les mots que le joueur lit : ils vivent ICI, une fois, et se corrigent ici. */
+export const MOTS_DE_LAYERS = Object.freeze({
+  titre: "Layers",
+  etiquetteSocle: "base book",
+  etiquetteLivre: "your copy",
+  eteints: "installed, not active",
+  options: "options",
+  importer: "Import a book",
+  absent: "not on this device",
+  /* le mot de TOUTE place réservée (`placeReservee`, `ligneReservee`) : le même, jamais un autre */
+  bientot: "soon"
+});
+/* 🗄️ `tableItems` (« + Table items ») EST PARTI — Eric, 29/09 : *« table items devient ->
+   campaign items (et va dans Dungeon master) »*. La place vit désormais dans la page
+   Dungeon Master (lot 357), sous le nom « Campaign items ». */
+
+/** Les mots de la question — brouillons (le plan v10 : « le livre devra être
+ *  réimporté ») ; Eric arrête les mots. */
+export const MOTS_EFFACER_UN_LIVRE = Object.freeze({
+  titre: "Delete this book?",
+  texte: "It leaves this device. To use it again, you will have to import it again."
+});
+
+/** LA QUESTION AVANT D'EFFACER UN LIVRE — ⚖️ Eric, 29/09 : Delete a book *« demande
+ *  aussi une confirmation »*, et la poubelle remplace le bouton (*« juste une poubelle à
+ *  côté comme My Characters »*). La description d'état que `paintPopup` sait peindre
+ *  (`{titre, role, texte, actions}`) — ⛔ aucun composant neuf, et ⛔ elle ne sait pas
+ *  ce que `choisir` fait : la coquille décide.
+ *  · rôle `guide` — elle prévient ; `Delete` porte `defait`, le rouge de ce qui coûte ;
+ *  · elle n'EXIGE pas de réponse : rien n'est effacé avant le choix, un tap dehors
+ *    vaut `Cancel`.
+ *  @param {{nom: string, choisir: (voie: "cancel"|"delete") => void}} p */
+export function popupEffacerUnLivre({ nom, choisir }) {
+  return {
+    titre: MOTS_EFFACER_UN_LIVRE.titre,
+    role: "guide",
+    texte: `${nom}\n${MOTS_EFFACER_UN_LIVRE.texte}`,
+    actions: [
+      { mot: "Cancel", defait: false, faire: () => choisir("cancel") },
+      { mot: "Delete", defait: true, faire: () => choisir("delete") }
+    ]
+  };
 }
 
-/** 🎛️ L'ÉCRAN `Layers` — le rang B du Menu qui porte le tableau de commande.
+const lesFamilles = (familles) => familles.join(" · ");
+
+/** UNE LIGNE DE LIVRE MONTÉ — son interrupteur (allumé si le document le déclare), ses
+ *  familles, l'étiquette « your copy », et la POUBELLE tout à droite. ⛔ La poubelle
+ *  n'efface rien : elle DEMANDE (`demanderEffacerUnLivre`), et la question vient avant.
+ *  ⏳ ET ELLE EST ÉTEINTE, « soon » sous elle — Eric, 29/09 : « La poubelle d'un livre efface son contenu de son lieu de stockage. Ce lieu de stockage est
+ *  décidé par le bouton vault. »
+ *  Aucun livre ne vit encore dans ce stockage (`Import a book` et les connecteurs du Vault
+ *  sont hors du lot 351) : effacer le fichier servi à la page n'est pas le geste dicté. */
+function ligneDeLivre(livre, monte, declare, onAction) {
+  const nom = monte.name || livre.nom;
+  const sw = interrupteur({
+    label: nom, etiquette: MOTS_DE_LAYERS.etiquetteLivre, familles: lesFamilles(livre.familles), on: declare,
+    onChange: (on) => onAction({ kind: "requestBookSwitch", id: livre.id, value: on })
+  });
+  sw.dataset.livre = livre.id;
+  const trash = poubelle({ mot: `Delete ${nom}`, eteinte: true, onClick: () => onAction({ kind: "demanderEffacerUnLivre", id: livre.id }) });
+  const place = el("div", "tdc-place", [trash, el("span", "tdc-bientot", [text(MOTS_DE_LAYERS.bientot)])]);
+  const ligne = el("div", "layers-livre", [sw, place]);
+  ligne.dataset.ligneLivre = livre.id;
+  return ligne;
+}
+
+/** 🎛️ L'ÉCRAN `Layers` — le rang B du Menu, tel qu'Eric l'a dicté le 29/09 (lot 351).
  *
- *  ⛔ IL NE PORTE PAS SA PROPRE SORTIE : `data-sortie-ici` la déclare, et
- *  c'est la coquille qui produit la paire — la même loi que Display.
+ *  ⚖️ La dictée, mot pour mot : *« B0 — other page - Layers · SRD (tj actif) engine/catalog
+ *  (en italique t0) · PHB (bouton activé) … catalog · DMG (bouton activé) … catalog · FH
+ *  (bouton activé) engine/world/catalog · ---- éléments installés mais pas actifs ---- ·
+ *  Paname (bouton désactivé) … · ---- Options ---- · Bouton import a book »*.
+ *  Puis, chaque réponse avec sa question : Fate's Hand interrupteur par interrupteur ? →
+ *  *« Non. Tout ou rien »* ; « Delete a book » : comment choisit-on le livre ? → *« pas de
+ *  bouton delete a book, juste une poubelle à côté comme My Characters »* ; la rangée
+ *  « installed, not active » quand rien n'est éteint ? → **cachée** ; PHB, DMG, Faerûn,
+ *  Spelljammer ? → **des exemples** (Panam n'existe pas) : seuls les livres INSTALLÉS se
+ *  montent, et ce sont les seuls qu'on montre. Fate's Hand éteint ? → *« Descend sous
+ *  "installed, not active" »*. `+ Table items` ? → *« table items devient -> campaign items
+ *  (et va dans Dungeon master) »*.
+ *
+ *  ⭐ DEUX GROUPES, ET CHAQUE LIGNE VA OÙ SON ÉTAT LA MET : en haut ce qui est actif (le
+ *  SRD, toujours ; un livre que le perso déclare ; Fate's Hand engagé), sous le séparateur
+ *  ce qui est installé mais éteint. Puis les options.
+ *  ⛔ IL NE PORTE PAS SA PROPRE SORTIE : `data-sortie-ici` la déclare, et c'est la coquille
+ *  qui produit la paire — la même loi que Display.
  *
  *  @param {object} ctx
  *  @param {object} ctx.document       le document `fh-char/1`
- *  @param {Function} [ctx.query]      `layers.verbs.query` (pour la confirmation)
  *  @param {Array} [ctx.pile]          le manifeste de la pile montée (`layers.verbs.stack()`)
  *  @param {Array} [ctx.livresRefuses] `[{id, raison}]` — un livre présent mais illisible
- *  @param {string|null} [ctx.pendingStack]
  *  @param {(action: object) => void} onAction
- *    `{kind:"requestLayerStack", value}` (le maître — la coquille confirme) ·
- *    `{kind:"requestLayerSwitch", id, value}` (un enfant) ·
- *    `{kind:"requestBookSwitch", id, value}` (un livre monté).
+ *    `{kind:"requestLayerStack", value}` (Fate's Hand — la coquille confirme) ·
+ *    `{kind:"requestBookSwitch", id, value}` (un livre monté) ·
+ *    `{kind:"demanderEffacerUnLivre", id}` (sa poubelle).
  */
 export function renderLayersEcran(ctx, onAction) {
   const doc = ctx.document;
@@ -305,89 +386,78 @@ export function renderLayersEcran(ctx, onAction) {
   section.dataset.objet = "dalle";
   section.dataset.sortieIci = "true";
   section.dataset.ecran = "layers";
-  section.append(el("h3", "tdc-titre-b", [text("Layers")]));
-  section.append(el("p", "universe-note", [
-    text("The base, then the layers stacked on it. A layer you switch off degrades the sheet — nothing you chose is erased, and it all comes back when you switch it on.")
-  ]));
+  section.append(el("h3", "tdc-titre-b", [text(MOTS_DE_LAYERS.titre)]));
+  /* 🗄️ LOT 351 — LA NOTE DU LOT 188 EST PARTIE (« The base, then the layers stacked on it. A
+     layer you switch off degrades the sheet… »). 📏 Mesuré au banc à 375 × 812, deux livres
+     installés : quatre lignes, 68 px, et la scène débordait de 9 px — Eric : *« on respecte
+     les hauteurs de dalle, pas de scroll »*. C'est ce que la page portait EN TROP : ni la
+     dictée de B0 ni le mandat ne la nomment, et ce qu'elle disait (rien n'est effacé, tout
+     revient) est dit là où il sert — dans la question de Fate's Hand (*« they stay saved,
+     and resume as soon as you switch it back on »*). */
 
-  const lignes = el("div", "tdc-lignes");
+  const actifs = [];
+  const eteints = [];
 
-  /* LE SOCLE — un VOYANT, pas un interrupteur verrouillé (Eric, 09/09). Il
-     n'y a rien en dessous : c'est la promesse du produit, « ce que tu
-     construis reste ouvrable par n'importe qui ». La lampe que le Menu portait
-     aussi jusqu'au lot 349 (voir `voyant`). */
-  const socle = voyant({ label: "SRD 5.2.1", note: "the core rules" });
+  /* ① LE SOCLE — un VOYANT, pas un interrupteur verrouillé (Eric, 09/09) : le SRD est
+     toujours actif, c'est le plancher et la promesse du produit (« ce que tu construis
+     reste ouvrable par n'importe qui »). */
+  const socle = voyant({ label: SOCLE.label, etiquette: MOTS_DE_LAYERS.etiquetteSocle, familles: lesFamilles(SOCLE.familles) });
   socle.dataset.socle = "true";
-  lignes.append(socle);
+  actifs.push(socle);
 
-  /* LE MAÎTRE — le geste que portait aussi l'interrupteur de R jusqu'au lot 349
-     (`requestLayerStack`) : un seul organe écrit « tout Fate's Hand », et la
-     coquille confirme. 🔄 LOT 350 — R le LIT désormais (`Rules`), il ne le règle
-     plus : `Layers` est le SEUL émetteur de ce geste. */
-  const maitre = interrupteur({
-    label: "Fate's Hand", note: "all six layers at once", on: composition.maitre,
-    onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })
-  });
-  maitre.dataset.maitre = "true";
-  lignes.append(maitre);
-  /* ⚠️ LA CONFIRMATION DU MAÎTRE SE POSE SOUS LE MAÎTRE, PAS EN PIED — regardé
-     au navigateur le 09/09 : posée en fin de section, elle tombait SOUS LE PLI
-     (onze lignes, la dalle défile), et le joueur qui venait de basculer le
-     maître ne voyait aucune question. `pendingStack` est un état de la
-     coquille ; la question se montre là où le geste a été fait. */
-  if (ctx.pendingStack) lignes.append(renderConfirmationPile(doc, ctx.query, onAction));
-
-  lignes.append(el("p", "tdc-regle", [text("its six layers — each one switches off alone")]));
-  for (const sw of INTERRUPTEURS) {
-    const dort = Boolean(sw.exige) && !composition.enfants[sw.exige];
-    const compte = recordsDe(pile, sw.couches);
-    const note = dort ? sw.motSiDort : (compte === null ? sw.note : `${sw.note} · ${compte} records`);
-    const enfant = interrupteur({
-      label: sw.label, note, on: composition.enfants[sw.id] && !dort, disabled: dort,
-      onChange: (on) => onAction({ kind: "requestLayerSwitch", id: sw.id, value: on })
-    });
-    enfant.dataset.enfant = sw.id;
-    enfant.dataset.couches = sw.couches.join(" ");
-    lignes.append(enfant);
-  }
-
-  /* ══ LE CATALOGUE — du contenu, pas des règles ═══════════════════════════
-     Les livres du joueur : un livre MONTÉ est un interrupteur de catalogue ;
-     un livre ABSENT du disque est une place réservée avec son mot — présente,
-     éteinte, jamais cachée. ⛔ Un 404 n'est pas une erreur, c'est zéro livre
-     (`engine.mjs`) ; un livre présent mais illisible, lui, dit sa raison. */
-  lignes.append(el("p", "tdc-regle", [text("catalogue — content, not rules")]));
+  /* ② LES LIVRES DU JOUEUR — sa copie, fabriquée sur son appareil (`layers-livres/`).
+     ⭐ Seuls les livres INSTALLÉS se montrent : un livre absent n'a rien à régler ni à
+     effacer. ⚠️ Sauf s'il est DÉCLARÉ par le perso (ouvert sur un autre appareil —
+     A-TRANCHER §C34) : alors il se montre, éteint, avec son mot, pour que le joueur sache
+     ce qui manque. Un livre présent mais illisible dit sa raison. */
   const ids = idsDuDocument(doc);
   const refuses = Array.isArray(ctx.livresRefuses) ? ctx.livresRefuses : [];
   for (const livre of LIVRES_DU_JOUEUR) {
     const monte = pile ? pile.find((c) => c && c.id === livre.id) : null;
     const refus = refuses.find((r) => r && r.id === livre.id);
+    const declare = ids.has(livre.id);
     if (monte) {
-      const b = interrupteur({
-        label: monte.name || livre.nom, note: `${monte.records} records, on this device`, on: ids.has(livre.id),
-        onChange: (on) => onAction({ kind: "requestBookSwitch", id: livre.id, value: on })
-      });
+      (declare ? actifs : eteints).push(ligneDeLivre(livre, monte, declare, onAction));
+    } else if (declare || refus) {
+      const b = ligneReservee(livre.nom, refus ? `unreadable: ${refus.raison}` : MOTS_DE_LAYERS.absent);
       b.dataset.livre = livre.id;
-      lignes.append(b);
-    } else {
-      const b = ligneReservee(livre.nom, refus ? `unreadable: ${refus.raison}` : "not on this device");
-      b.dataset.livre = livre.id;
-      lignes.append(b);
+      (declare ? actifs : eteints).push(b);
     }
   }
-  /* LE + TABLE ITEMS — inerte, un mot. Ce n'est pas câblé : c'est la porte du
-     contenu de table, et c'est un autre lot. Une place réservée se voit.
 
-     ⚖️ ERIC, 2026-09-23 : *« "Table items" probablement mieux oui »* — la
-     question posée le 10/09 dans le lexique signé se referme ici. ⛔ « Homebrew »
-     est un MOT BANNI depuis ce lexique : *« fait maison = confusion »*. Le
-     concept s'appelle **catalogue de table** ; ce que le joueur LIT, sur cet
-     écran, s'appelle **Table items**.
-     ⚠️ `dataset` garde `homebrew` : c'est une clef de construction, pas un mot
-     du joueur — la renommer casserait un garde sans rien changer à l'écran. */
-  const plus = ligneReservee("+ Table items");
-  plus.dataset.homebrew = "true";
-  lignes.append(plus);
+  /* ③ FATE'S HAND — UN SEUL INTERRUPTEUR, tout ou rien (Eric, 29/09). Le geste est celui
+     du maître depuis le lot 188 (`requestLayerStack`) : la coquille confirme avant
+     d'éteindre, à trois voies (lot 192). ⛔ Ni poubelle ni étiquette : Fate's Hand vient
+     avec le builder, il ne s'efface pas. Éteint, il *« Descend sous "installed, not
+     active" »* (Eric, 29/09).
+     ⭐ LA CONFIRMATION N'EST PLUS DANS LA PAGE — ARCHI 35, 29/09, tranché en architecte :
+     posée sous lui (le placement du 09/09, pour qu'elle ne tombe pas sous le pli), elle
+     faisait DÉFILER Layers de 127 px à 1280 × 800 (mesuré au banc). La coquille la peint
+     en FENÊTRE depuis `pendingStack` (`paintPopup`), réponse exigée : là où le geste
+     a été fait, par-dessus la page, sans rien pousser. */
+  const maitre = interrupteur({
+    label: MAITRE.label, familles: lesFamilles(MAITRE.familles), on: composition.maitre,
+    onChange: (on) => onAction({ kind: "requestLayerStack", value: on ? "srdfh" : "srd" })
+  });
+  maitre.dataset.maitre = "true";
+  (composition.maitre ? actifs : eteints).push(maitre);
+
+  const lignes = el("div", "tdc-lignes");
+  lignes.append(...actifs);
+  /* ④ « INSTALLED, NOT ACTIVE » — le séparateur et sa liste, SEULEMENT S'IL Y EN A
+     (Eric, 29/09 : la rangée vide est cachée). */
+  if (eteints.length > 0) {
+    lignes.append(el("p", "tdc-regle", [text(MOTS_DE_LAYERS.eteints)]));
+    lignes.append(...eteints);
+  }
+  /* ⑤ LES OPTIONS — `Import a book`, place réservée : présente, éteinte, un mot sous elle
+     (le pipeline ne tourne que sur le Mac, hors de ce lot). ⛔ Plus de `Delete a book` :
+     chaque livre porte sa poubelle. 🗄️ `+ Table items` est parti dans Dungeon Master
+     (Eric, 29/09 : *« table items devient -> campaign items »*, lot 357). */
+  lignes.append(el("p", "tdc-regle", [text(MOTS_DE_LAYERS.options)]));
+  const importer = placeReservee(MOTS_DE_LAYERS.importer);
+  importer.dataset.importer = "true";
+  lignes.append(el("div", "layers-options", [importer]));
   section.append(lignes);
 
   return section;

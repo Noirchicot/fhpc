@@ -183,6 +183,25 @@
    "lieu": "dehors"
   },
   {
+   "nom": "AJOUT DEPOT",
+   "sorte": "bouton",
+   "x": 74.5,
+   "y": 46,
+   "l": 71,
+   "h": 40,
+   "cible": {
+    "x": 74.5,
+    "y": 44.0,
+    "l": 71,
+    "h": 44
+   },
+   "mot": "+ Dropdown",
+   "cran": "T0/600",
+   "edition": true,
+   "dans": "NOTICE",
+   "lieu": "depot"
+  },
+  {
    "nom": "ENCART",
    "sorte": "bande",
    "x": 4,

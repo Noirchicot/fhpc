@@ -3891,7 +3891,7 @@ items`.**
 
 | où | ce qui s'écrit |
 |---|---|
-| l'écran `Layers`, place réservée | **`+ Table items`** |
+| l'écran `Layers`, place réservée *(🗄️ retirée au lot 351 — `Campaign items` vit dans la page Dungeon Master : `equipement-campaign-items`)* | **`+ Table items`** |
 | la catégorie de Wares où atterrit un objet fabriqué absent du catalogue | **Table items** |
 | le concept, en prose | **catalogue de table** |
 | ⚠️ `dataset.homebrew` dans le code | **inchangé** — clef de construction, pas un mot du joueur |
@@ -3914,11 +3914,12 @@ joueur passe**. Renommer la clef casserait un garde sans rien changer à l'écra
 | le concept, en prose | **catalogue de table** *(inchangé)* |
 | ⚠️ `dataset.homebrew` dans le code | **inchangé** — clef de construction, pas un mot du joueur |
 
-🗄️ **LA PLACE QUITTE `LAYERS`** : `+ Table items` y vivait depuis le 23/09 ; le lot 351 la retire de
-son écran, et elle vit désormais dans la page Dungeon Master (`menu-dm-la-page`).
+🗄️ **LA PLACE A QUITTÉ `LAYERS`** : `+ Table items` y vivait depuis le 23/09 ; le lot 351 l'a retirée
+de son écran (v908), et elle vit désormais dans la page Dungeon Master (`menu-dm-la-page`).
 ⭐ **LA DISTINCTION DU 23/09 TIENT MOT POUR MOT** : `homebrew` reste admissible là où le joueur ne lit
 pas ; banni partout où un œil de joueur passe — moins le seul bouton qu'Eric a nommé.
-🛡️ `tests/universe-step.test.mjs` R9, R10.
+🛡️ `tests/universe-step.test.mjs` R9, R10 (R, Dungeon Master, `Layers` allumé et éteint, Display,
+My characters) ; `tests/ecran-layers.test.mjs` D1.
 
 ---
 
@@ -4601,6 +4602,9 @@ lignes, relit l'état équipé et ajoute l'or. La coquille l'appelle, les harnai
 📏 Mesuré : l'option A du Rogue pose armure de cuir et armes sur le corps ; le kit du Wizard n'a
 aucun objet à case propre (la Robe n'a pas de slot) — tout va au sac.
 Garde 11 de `tests/equipe-sur-sa-case.test.mjs`.
+🔄 **Lot 356 (29/09)** : ce qui tombe au sac y est **rangé par Send** — la première case libre de Backpack dropdown, puis
+d'un 2e qui se crée s'il est plein (`equipement-une-section-une-page-de-12`). ⛔ Plus de ligne neuve sans case : le jour
+où le dépôt est plein, elle ne serait écrite nulle part.
 
 ---
 
@@ -5916,7 +5920,7 @@ conteneur ou un companion »*). Le jour où Eric lui donne une porte, la destina
 ---
 
 ### 📦 CHAQUE OBJET DU SAC OCCUPE UNE PLACE, ET ELLE EST AU DOCUMENT
-📍 `equipement-une-place-dans-une-section` · vivante · 18/09
+📍 `equipement-une-place-dans-une-section` · remplacée · 18/09 · remplacée par `equipement-une-section-une-page-de-12`
 ⚖️ **`gear[N].place` numérote la case d'un objet DANS sa section. La page n'est pas un organe : c'est une division de la suite des places — page = place ÷ la grille.**
 
 > Eric, 2026-09-18, trois réponses d'un coup : **« tighten up ok »** · **« plus de place, ça
@@ -5945,6 +5949,86 @@ le sac n'a plus de place ; celui qui y revient en reçoit une neuve, la premièr
 ⏳ **CE QUI N'EST PAS TRANCHÉ** : le geste TACTILE qui tourne la page. À la souris, la molette sur la
 grille la tourne — l'idiome du tuner, qu'Eric a demandé pour la roue. Au doigt, il manque un
 balayage, et ⛔ il ne s'invente pas.
+🗄️ **Remplacée le 29/09 (lot 356)** — Eric : *« Une section, dans backpack, n'a qu'une seule page »* · *« c'est 12 »*.
+La place reste, et le trou, `tighten up` et le rangement avec elle ; ⛔ la page suivante, la page supplémentaire et la
+molette qui la tournait partent (`equipement-une-section-une-page-de-12`).
+
+---
+
+### 🎒 UNE SECTION DE BACKPACK = UNE PAGE DE 12 ; SEND DÉBORDE DANS UN NOUVEAU « BACKPACK DROPDOWN »
+📍 `equipement-une-section-une-page-de-12` · vivante · 29/09 · remplace `equipement-une-place-dans-une-section`
+⚖️ **Une section du sac a UNE page : ses douze cases. On pose un objet À LA MAIN sur une case libre — une section pleine n'en offre aucune, et un objet lâché sans place revient à son point de départ. Le seul placement automatique est Send : il range dans « Backpack dropdown », et s'il est plein, un deuxième « Backpack dropdown » se crée ; le Party bag fait de même (« Party bag 2 »). Le trop-plein d'un vieux personnage crée ses conteneurs à l'ouverture. Les dropdowns portent l'ambre.**
+
+> Eric, 2026-09-29, chaque réponse avec sa question :
+>
+> | la question | la réponse |
+> |---|---|
+> | Sans balayage de la dalle, comment atteindre la page 2 d'une section (plus de 12 objets) ? | **« Une section, dans backpack, n'a qu'une seule page. 16 max »** |
+> | 16 : la grille passe à 16 cases (4 × 4) ? | **« Tu as raison c'est 12 pardon »** |
+> | Une section pleine : que devient le 13ᵉ objet qu'on y envoie ? | **« Le seul moment où on ne place pas un token à la main, c'est par send ; normalement ça va dans backpack dropdown ; s'il est plein un 2e backpack dropdown se crée »** |
+> | *(18/09, remplacée)* | ~~« plus de place, ça va dans la page suivante… voire ça crée une page supplémentaire si besoin »~~ |
+>
+> 🔄 Eric, 2026-09-29, seconde série (par l'architecte), chaque réponse avec sa question :
+>
+> | la question | la réponse |
+> |---|---|
+> | ① Le 2e Backpack dropdown s'appelle ? | **« Backpack dropdown 2 »** |
+> | ② Un vieux personnage a plus de 12 objets dans une section : que fait-on ? | **« l'aspect automatique, c'est avec backpack dropdown, trop plein on crée un nouveau, le reste est géré par l'humain. quand il y a un trop plein, il doit créer des nouveaux "containers". dans un cas extrême où le joueur veut déplacer un objet et qu'il n'y a pas de place ailleurs, quand il lâche l'objet celui-ci revient à son point d'origine. Party bag fait la même chose que backpack dropdown. »** |
+> | ③ Send vers le Party bag, et il est plein : ? | **« tu crées un party bag 2, celui-ci reste bleu, mais son nom est éditable. »** |
+> | ④ Le 2e Backpack dropdown, une fois créé : ? | **« Certains joueurs ne vont jamais rien ranger, ils vont donc avoir des successions de backpack dropdown. je pense qu'il faut donner une couleur propre à ceux-ci, je te laisse faire la suggestion pour la couleur, donc rajouter "+backpack dropdown". la caractéristique du dropdown c'est que tout tombe dedans dans l'ordre et sans distinction si le premier dropdown est plein. »** |
+> | ⑤ À la souris, un clic gauche sur un dé POSÉ (Abilities) : l'arme-t-il ou le rend-il ? | **« Le rend au podium »** — comme le tap au doigt (voir `geste-glisser-versatile-quatre-gestes-jusqu-a-done`) |
+
+⭐ **LA PLACE RESTE, LA PAGE PART.** `gear[N].place` numérote toujours la case d'un objet dans sa section — le trou,
+`tighten up` et le rangement gardent leur sens (`equipement-une-place-dans-une-section`) ; elles ne sont plus que
+douze. ⛔ La page 2, la fraction `x/x` et la molette de la grille qui la tournait sont retirées (`grilleDeSection` rend
+ses douze cases ET ce qui n'y tient pas, à part).
+⭐ **SEND EST LE SEUL PLACEMENT AUTOMATIQUE** (`rangerParSend`, `equipment-step.mjs`) — le Send du collecteur, l'achat
+« Send to Backpack » (Wares, X2), le départ de classe (*« Le kit de départ met tout dans le backpack »*), un objet
+déséquipé qui retombe au sac : il prend la première case libre du premier dropdown qui en a une, **lue dans le sac tel
+qu'on le voit** — ⛔ jamais sous un objet qu'on y montre. Tous pleins, le suivant **SE CRÉE** : une section écrite au
+document, son nom et son **genre** (`backpack.sections[N].depot`, un scalaire, comme `dehors`). ⛔ Le nom ne dit pas le
+genre : un joueur peut appeler un rangement « Backpack dropdown 2 ». Les dropdowns se remplissent dans l'ordre de leur
+naissance, ⛔ jamais dans celui de la roue (le joueur la réordonne).
+⭐ **UN VIEUX PERSONNAGE S'OUVRE ENTIER — ET SON TROP-PLEIN S'ÉCRIT À L'OUVERTURE** (②). `disposerLeSac` le MONTRE :
+une ancienne page 2 comble d'abord un trou de SA section, puis déborde **comme par Send**, dans sa chaîne. Puis
+`normaliserLeSac`, appelé par la coquille aux deux ouvertures (le démarrage et `poserLeDocumentOuvert`, un seul organe :
+`leSacNormalise`), **l'ÉCRIT** : les conteneurs montrés deviennent de vrais conteneurs (nom, genre), et chaque objet qui
+a changé de section ou de case y est écrit, à la case qu'on voyait. ⛔ Plus rien ne saute d'un rendu à l'autre (vu à la
+souris le 29/09 : un objet de l'ancienne page 2 venait combler un trou laissé à côté).
+~~Rien n'est écrit sans le geste du joueur : le débord se montre, et chaque objet s'écrit quand le joueur le déplace~~
+(ma recommandation 2a, remplacée par la réponse ②).
+⛔ **L'OBJET SANS CASE QUI TIENT DANS SA SECTION N'EST PAS ÉCRIT** — il garde son rang de document
+(`equipement-une-place-dans-une-section`) : c'est le personnage d'exemple (huit objets sans case au dépôt), et la coquille
+compare son texte à celui de l'exemple pour dire « pas de perso en cours » (lot 350). `normaliserLeSac` rend donc le MÊME
+document quand rien ne déborde.
+⭐ **LE PARTY BAG A SA CHAÎNE** (③, et « Party bag fait la même chose que backpack dropdown ») : plein, Send crée
+**« Party bag 2 »**, puis 3… — un vrai conteneur, **bleu** (`party`), **au nom éditable**, effaçable vide, qui **ne pèse
+pas** (la ligne `Other`, comme le premier ; `boitesDehors` le compte hors du sac). Son genre s'écrit
+`backpack.sections[N].party`. Le trop-plein d'un Party bag va dans SA chaîne, ⛔ jamais dans les dropdowns du personnage.
+~~Le Party bag plein refuse Send~~ (ma recommandation 3a, remplacée par la réponse ③).
+⭐ **UN OBJET LÂCHÉ SANS PLACE REVIENT À SON POINT DE DÉPART** (②) : une section pleine n'offre aucune case, rien ne s'y
+allume, et le glisser rend l'objet d'où il vient. La coquille garde un dernier rempart (le gendarme,
+`MOT_SECTION_PLEINE`) pour un `placerGearLine` sans case vers un rangement plein — ⛔ aucun écran n'en envoie.
+⭐ **UNE PAGE DE KIT TIENT SES DOUZE CASES** (`equipement-kit-verse-dans-sa-page`) : onze éléments au plus, mesuré dans
+les deux livres (Burglar's, Diplomat's) ; au-delà, le surplus déborderait comme par Send, ⛔ jamais une page 2.
+⭐ **LES DROPDOWNS PORTENT L'AMBRE** (④) — le fond, le liseré, sous le viseur, la loupe : `--depot` (#c8741f), avec son
+habit à 35 % / 55 % comme l'or et le bleu, et constant jour et nuit (*« ce qui nomme un LIEU ne bascule pas »*).
+⏳ La teinte est MA suggestion, soumise à Eric sur capture le 29/09 : elle se change en un seul jeton. *« Tout tombe
+dedans dans l'ordre et sans distinction »* : c'est la chaîne, remplie par ordre de naissance. Un dropdown ne se renomme
+pas ; vide, il s'efface par le `−` ; il paraît au bout de la roue, comme une section neuve.
+⭐ **« + BACKPACK DROPDOWN »** (④) : le troisième `+` du panneau d'édition, sous « + Backpack Storage », à l'anneau ambre
+(`AJOUT DEPOT` au plan). Il crée un dropdown de la chaîne — le nom que Send lui aurait donné, et son genre.
+① Le nom reste **« Backpack dropdown 2 »**, puis 3… (`NOM_DU_DEPOT`, `nomDuProchain`).
+📌 Défaut du mandat, signalé : la molette sur la grille **ne fait plus rien** — celle des sections vit sur les chevrons
+et l'engrenage.
+🛡️ `tests/sac-une-page-de-douze.test.mjs` (1–10, 5 bis) ; `tests/equipment-step.test.mjs` P2 ; `tests/sac-ecran.test.mjs`
+17, 19 ; `tests/kit-verse-dans-une-page.test.mjs` 2 ; `tests/abilities-step.test.mjs` 🎲 355 · Q1. Vus rouges par
+mutation — la grille qui grandit, le débord jeté, Send plein qui ne crée rien, le genre illisible, le genre non écrit, le
+départ qui ne range plus, la coquille qui ne range plus / ne refuse plus / ne lit plus le sac vu, la molette qui revient,
+la page 2 qui ne comble plus le trou de sa section ; et en seconde passe : l'ouverture qui n'écrit plus le trop-plein, la
+normalisation qui réécrit l'exemple, le Party bag plein qui refuse, le trop-plein du Party bag versé aux dropdowns, la
+chaîne court-circuitée, l'ambre perdu sous le viseur, le `+ Backpack dropdown` absent, le clic gauche qui arme le dé
+posé —, sources restaurées à l'empreinte.
 
 ---
 
@@ -7358,6 +7442,9 @@ ragées)* ; sans elle, la boîte rend ce qu'elle rendait. L'ordre du DOM est l'o
 *(lot 188 : il DÉGRADE, il n'efface rien, tout revient à l'allumage)* ; le maître **change de jeu**,
 et c'est au changement de jeu que la version mérite sa copie. Étendre la question aux enfants est un
 mot d'Eric, pas un lot.
+🔄 **29/09 (lot 351)** — il n'y a plus d'enfant à couper : Fate's Hand est UN interrupteur, tout ou
+rien (`menu-layers-fate-s-hand-tout-ou-rien`). La question reste celle du maître, ses trois voies
+et leurs mots n'ont pas bougé — elle se pose seulement en FENÊTRE, plus sous l'interrupteur.
 
 ### 🔴 LES TROIS VERBES — chaque famille de boutons en porte UN
 📍 `bouton-done-signe` · vivante · 26/08
@@ -8059,6 +8146,11 @@ l'état**. Le Menu en portait déjà une sur sa ligne d'état *(`[data-garde]`, 
 🔴 **ET LE GARDE DU LOT 188 SURVIT SOUS SA NOUVELLE FORME** — *« le SRD ne s'éteint JAMAIS »* : il ne
 peut plus s'éteindre parce qu'il **n'a plus de position éteinte**, et la clause le vérifie dans les
 deux états du maître.
+🔄 **29/09** — le voyant n'a plus qu'un emploi : R ne le porte plus depuis le lot 350 (sa ligne
+`Books` LIT le SRD, `menu-r-regles-et-livres-se-lisent`). Sur `Layers` (lot 351), il dit ce que la
+dictée lui donne — *« SRD (tj actif) engine/catalog (en italique t0) »* : l'étiquette `base book` (un
+brouillon du plan v10) et ses familles *engine · catalog* en italique T0, à la place de *« the core
+rules »*. Il reste une lampe : `role="status"`, *always on*, ni piste ni pouce.
 
 ### 🔴 LE VOYANT D'AVANCEMENT — c'est le CRAN DE LA CEINTURE *(tranché 26/08)*
 📍 `voyant-anneau-vs-disque` · vivante · 19/08
@@ -9177,6 +9269,10 @@ métrique du bonus. Mesuré à 375 : nom, cellule, colonne, dalle identiques ava
 souris, le clic gauche arme depuis que la grammaire est arrivée sur les dés (`geste-armer-puis-poser`) ; revenir se fait
 en glissant vers le podium. Q2 : le tap d'un dé du podium ou de la palette **arme** le dé (« Il arme le dé ») — il ne
 pose plus au premier libre. Le glisser, lui, ne change pas : ses cinq gestes restent, et il part au mouvement.
+🔄 **Lot 356 (29/09)** — Q5 : « À la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le rend-il ? » → **« Le rend
+au podium »**. ~~À la souris, le clic gauche arme ; revenir se fait en glissant vers le podium~~ (ma lecture de « le reste
+de la grammaire s'applique ») : le 🔒 tient au doigt ET à la souris. Au podium et à la palette, le clic gauche arme
+toujours (Q2). L'organe porte ce choix par `clicGauche` (`glisser.mjs`), symétrique de `tapAuDoigt`.
 
 ### 7.4 Le fantôme
 📍 `geste-fantome` · vivante · 06/09
@@ -10211,6 +10307,8 @@ arme-t-il encore l'objet pour le poser d'un tap ? » : **« Oui, les deux gestes
     **Q1 — « Dé POSÉ, au doigt, le tap ? » → « Revenir au podium ».** Le 🔒 du 06/09
     (`geste-glisser-versatile-quatre-gestes-jusqu-a-done`) tient ; le reste de la grammaire s'applique : l'appui long
     arme, le glisser est immédiat, et à la souris le clic gauche ARME (revenir, c'est glisser vers le podium).
+    🔄 Lot 356, Q5 (29/09) : « à la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le rend-il ? » → **« Le rend
+    au podium »** — ~~le clic gauche ARME~~ : il rend le dé, comme le tap (`clicGauche`).
     **Q2 — « Dé du PODIUM ou de la PALETTE, au doigt, le tap ? » → « Il arme le dé »**, comme le clic gauche à la
     souris : les caractéristiques LIBRES s'allument (et elles seules), un tap pose. ⛔ Le « tap pose au premier libre »
     reste mort (réponse 1a du 28/09). L'organe porte ce choix par `tapAuDoigt` (`glisser.mjs`) ;
@@ -10510,6 +10608,145 @@ plus un message, c'était un décor ; un refus, lui, en reste un. C'est la voix 
 une ligne d'état qui revient. ✅ Ce mot rouge était une lecture du lot 350 ; Eric l'a gardé.
 🛡️ `universe-step` D1, D2, D3, D5, R1.
 
+### 🎛️ `LAYERS` (B0), DE HAUT EN BAS — ce qui est actif, puis ce qui est installé et éteint
+📍 `menu-layers-la-page-dictee` · vivante · 29/09 · remplace `menu-layers-est-un-rang-b`
+⚖️ **`Layers` — le rang `B0` du Menu, derrière la porte `Layers` de R — porte deux groupes, puis les options : en haut ce qui est ACTIF (le SRD, toujours ; chaque livre du joueur que le perso déclare ; Fate's Hand engagé) ; sous le séparateur « installed, not active », ce qui est installé et éteint — et ce séparateur n'existe que s'il a quelque chose sous lui ; enfin « options » : `Import a book`, place réservée. Chaque ligne dit ce que sa source apporte — ses familles (engine · world · catalog) en italique T0 — et les familles se lisent, elles ne se règlent pas.**
+
+> Eric, 2026-09-29, la partie B0 de la dictée, mot pour mot : **« SRD (tj actif) engine/catalog (en
+> italique t0) · PHB (bouton activé) shared by DM catalog (en italique) · DMG (bouton activé) shared by
+> DM catalog (en italique t0) · FH (bouton activé) engine/world/catalog (en italique t0) · ----------
+> éléments installés mais pas actifs ---------- · Paname (bouton désactivé) engine/world/catalog (en
+> italique) · Faerun (bouton désactivé) catalog (en italique) · Spelljammer (bouton désactivé)
+> world/catalog (en italique) · ------------ Options ------------ · Bouton import a book »**
+> Puis, chaque réponse avec sa question : « shared by DM » sur PHB / DMG ? → **« des exemples »** —
+> *« certains joueurs seront propriétaires des livres et sauront trouver les livres »* : le MJ ne
+> distribue rien · Faerûn, Spelljammer ? → **des exemples — ils ne sont pas livrés dans SOWLREACH** ·
+> Paname ou Panam ? → **« Panam n'existe pas, ne l'intègre pas, uniquement des exemples »** · le SRD
+> dans Books ? → **« Books est un terme générique ; le SRD est le book de base »** (engine + catalog).
+> Et, relayée par ARCHI 35 le même jour : la rangée « installed, not active » quand aucun livre
+> installé n'est éteint ? → **cachée**.
+> Puis, relayées par ARCHI 35 (29/09) : Fate's Hand éteint, où va-t-il ? → **« Descend sous
+> "installed, not active" »** · `+ Table items` ? → **« table items devient -> campaign items (et va
+> dans Dungeon master) »** · et, dans la réponse sur la poubelle : **« Ils apparaissent s'ils sont
+> installés, mais absents du fichier dans le cas contraire. »**
+
+⭐ **CHAQUE LIGNE VA OÙ SON ÉTAT LA MET.** La dictée range PHB et DMG (« bouton activé ») au-dessus du
+séparateur, Paname, Faerûn et Spelljammer (« bouton désactivé ») dessous : c'est l'ÉTAT qui classe,
+pas la nature de la source. Un livre qu'on éteint descend sous le séparateur ; Fate's Hand éteint
+aussi — *« Descend sous "installed, not active" »*. ⛔ Le SRD ne descend jamais : il n'a pas de
+position éteinte (`voyant-srd-toujours-allume-jamais-un-controle`).
+⭐ **SEULS LES LIVRES INSTALLÉS SE MONTRENT** — *« Ils apparaissent s'ils sont installés, mais absents
+du fichier dans le cas contraire »* ; les noms de la dictée sont des exemples. ⚠️ Un cas que ni la
+dictée ni cette réponse ne tranchent : un livre DÉCLARÉ par le perso et absent de l'appareil (un
+perso bâti ailleurs — `A-TRANCHER` §C34) se montre, éteint, avec son mot (« not on this device »),
+pour que le joueur sache ce qui manque. ⏳ C'est une lecture du lot 351, gardée de l'écran du lot 188.
+⭐ **LES FAMILLES VIENNENT DE LA CARTE** — `SOCLE`, `MAITRE`, `LIVRES_DU_JOUEUR` (`interrupteurs.mjs`),
+⛔ jamais écrites dans l'écran. Un livre de règles de base n'apporte que du catalogue (*« CORE RULES
+n'a QUE des catalogues »*, la pile par source du 29/09).
+✍️ **`base book` ET `your copy`** — les étiquettes du plan v10 — sont des brouillons : c'est Eric qui
+arrête les mots, et ils vivent une seule fois (`MOTS_DE_LAYERS`, `layers-ecran.mjs`).
+🗄️ **`+ TABLE ITEMS` A QUITTÉ `LAYERS`** — Eric l'a renommé `Campaign items` et l'envoie dans la page
+Dungeon Master (lot 357). ✅ La ligne « l'écran `Layers`, place réservée » du tableau
+d'`equipement-table-items` ne tenait donc plus : le lot 357 l'a annotée, et `equipement-campaign-items`
+(qui remplace la règle) pose `Campaign items` sur la page Dungeon Master.
+🛡️ `tests/ecran-layers.test.mjs` D1 (la page, Fate's Hand allumé, ni `Table items` ni `Campaign
+items`), D3 (éteint, il descend), D5 (les quatre états d'un livre) ; `universe-step` R7.
+
+### 🔘 FATE'S HAND EST UN SEUL INTERRUPTEUR — tout ou rien
+📍 `menu-layers-fate-s-hand-tout-ou-rien` · vivante · 29/09
+⚖️ **`Layers` ne porte plus qu'UN interrupteur pour Fate's Hand : il allume ou éteint tout le bloc — ses moteurs, son monde, son catalogue — et l'éteindre garde la confirmation à trois voies du lot 192. Les sous-unités (Trainings, Skills & tools, Inheritance, Destiny, World, Soulforging) restent la CARTE de qui fait quoi, jamais des lignes de l'écran ; et le mot d'un choix non résolu nomme la ligne qui existe : *« Araag comes with Fate's Hand — switch it on in Layers »*.**
+
+> Eric, 2026-09-29 (carte produit, § 11) : à « Fate's Hand se règle interrupteur par interrupteur ? »
+> → **« Non. Tout ou rien. »** — *« on branche ou on branche pas »*, et au Menu **un seul interrupteur
+> FH** · à « et les sous-moteurs ? » → gardés *« comme CARTE de qui fait quoi — ça a été très utile
+> pour dire qui fait quoi, je ne veux pas que ça tombe dans l'oubli »*.
+
+⭐ **LA CARTE RESTE, L'ÉCRAN NE LA MONTRE PLUS** : `INTERRUPTEURS` (`interrupteurs.mjs`) garde ses six
+sous-unités et leurs couches, et un garde confronte leur union à la pile Fate's Hand (A1) — c'est elle
+que `compositionFh` lit. 🗄️ Partis avec les six lignes : le geste d'un enfant
+(`requestLayerSwitch`, `couchesApresLeGeste`), le mot d'une sous-unité qui dort (`motSiDort`), le
+compte de records par ligne (`recordsDe`), le retrait `data-enfant`.
+⭐ **LE REFUS RESTE ACTIONNABLE** (Eric, 09/09 : le mot nomme l'interrupteur qui porte le record) :
+`interrupteurDeLaCouche` rend le maître pour TOUTE couche Fate's Hand, catalogue compris ; ⛔ nommer
+World, Destiny ou Trainings enverrait le joueur vers une ligne disparue. Des refus d'un même
+interrupteur se groupent en une phrase (*« Auspicious, Language elf and Language human come with
+Fate's Hand — switch them on in Layers »*).
+⚖️ **UN PERSO D'AVANT RESTE LÉGITIME** (`menu-sous-ensemble-legitime`) : un document qui déclare une
+sous-unité coupée au temps des six n'est accusé nulle part — il dérive, et l'interrupteur se montre
+allumé. Il n'est simplement plus PRODUCTIBLE depuis l'écran. ⏳ Pour lui rendre tout Fate's Hand, il
+faut éteindre puis rallumer (la confirmation s'interpose) : c'est une question ouverte, pas une loi.
+⭐ **LA QUESTION SE POSE EN FENÊTRE** — ARCHI 35, 29/09, tranché en architecte : posée sous
+l'interrupteur (le placement du 09/09, pour qu'elle ne tombe pas sous le pli), elle faisait défiler
+`Layers` de 127 px à 1280 × 800 (mesuré au banc). La coquille la peint dans la couche des fenêtres
+(`paintPopup`) depuis `pendingStack` — ⛔ un seul écrivain, la fenêtre en est la vue : même organe
+(`renderConfirmationPile`), trois voies intactes, réponse EXIGÉE (`popup-question-exige-une-reponse`,
+lot 201). Un `Save` refusé dit d'abord son refus, et la question revient quand on le ferme. R perd
+sa copie en ligne.
+🛡️ `tests/ecran-layers.test.mjs` A1, D2, D4, D6 (la fenêtre), E1-E8, F1, G1-G3 ;
+`tests/premier-pas.test.mjs` G3 (la coquille pose `exigeUneReponse` à UN endroit : cette question) ;
+`tests/jamais-un-id-nu.test.mjs` B1-B3, C1-C4, D1 — vus rouges au premier passage du lot, sur le
+mot « World ».
+
+### 🗑️ UNE POUBELLE PAR LIVRE — plus de `Delete a book`
+📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09
+⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete`, un tap dehors vaut `Cancel`). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
+
+> Eric, 2026-09-29, dans ses corrections du jour (arborescence d'entrée, au vault) : un bouton
+> **`Delete a book`** à côté d'`Import a book`, qui **demande aussi une confirmation** · puis, relayée
+> par ARCHI 35, à « "Delete a book" : comment choisit-on le livre à effacer ? » → **« tout simplement,
+> pas de bouton delete a book, juste une poubelle à côté comme My Characters »**.
+> Et, relayée par ARCHI 35 le même jour, à « que peut effacer la poubelle ? » (un livre installé était
+> un fichier servi à la page, qu'une page ne peut pas effacer) :
+> **« Ils apparaissent s'ils sont installés, mais absents du fichier dans le cas contraire. N'est-il pas
+> plus avisé de le stocker en ligne afin qu'il soit accessible au navigateur à tout moment, du moins
+> pour le joueur. La poubelle d'un livre efface son contenu de son lieu de stockage. Ce lieu de
+> stockage est décidé par le bouton vault. »**
+
+⭐ **UN SEUL ORGANE, POSÉ AU SOCLE** : `poubelle({ mot, onClick, eteinte })` (`poubelle-organe.mjs`, une feuille
+sans import) — celle que `My characters` portera au lot 352, ⛔ jamais une seconde. Son relief entre
+dans le patron par la LISTE (les trois listes de `shell.css`, l'inventaire
+`tests/bouton-inventaire.test.mjs`) ; sa géométrie est celle de `button.porte-carree` (la cible 44, le
+dessin retiré sur ses quatre côtés) ; son teint est `--critical` (`bouton-definition-du-bleu` : ça
+efface → rouge avec popup). Elle se nomme (`aria-label` et `title` : « Delete <le livre> ») : un
+dessin sans mot ne dit rien à un lecteur d'écran.
+⭐ **LA QUESTION EST UNE DESCRIPTION** (`popupEffacerUnLivre`), peinte par `paintPopup` — ⛔ aucun
+composant neuf ; `Delete` porte `defait` ; les mots (`MOTS_EFFACER_UN_LIVRE`) sont des brouillons.
+⚖️ **LA LOI, TELLE QU'ERIC L'A DITE** : un livre vit dans le stockage choisi au `Vault` — la copie du
+joueur, chez lui, ⛔ jamais sur un serveur d'Eric (lois 2 et 6 de la carte produit, lues par ARCHI 35)
+— et la poubelle efface de CE stockage.
+⏳ **AUJOURD'HUI, AUCUN LIVRE N'Y VIT** : `Import a book` et les connecteurs du `Vault` sont hors du
+lot 351. La poubelle est donc là, ÉTEINTE (`disabled`, `data-reserve`, « soon » sous elle — la forme
+d'une place réservée, `menu-reglage-impossible-reste-visible`), et son geste reste câblé jusqu'à la
+question : le jour où le stockage porte un livre, elle s'allume et la question l'attend. ⛔ Effacer le
+fichier servi à la page (`layers-livres/`) n'est PAS le geste dicté.
+🛡️ `tests/ecran-layers.test.mjs` D4 (éteinte, elle n'émet rien ; câblée, elle DEMANDE), D5, D8, D9 ;
+`tests/bouton-inventaire.test.mjs`.
+
+### 🎨 L'HABILLAGE DE `LAYERS` — celui de R, et aucun défilement
+📍 `menu-layers-habillage` · vivante · 29/09
+⚖️ **`Layers` porte l'habillage de R (`menu-r-habillage`) : la dalle voilée à 50 %, ses places réservées au gabarit LARGE (dessin 105 × 40, cible 105 × 44, T4 16 / 600), et la page entière tient dans sa dalle — sans défilement, à 1280 × 800, à 375 et sur iPad portrait.**
+
+> Eric, 2026-09-29 : **« on respecte les hauteurs de dalle, pas de scroll »** — chaque page du Menu
+> tient dans sa dalle · **« fond habituel, transparence 50 % »** · **« les boutons utilisent les
+> boutons large, voir bible »**.
+
+📏 **CE QUI DÉFILAIT** : l'écran du lot 188 portait onze lignes (le socle, le maître, ses six enfants,
+deux livres, le `+`) et défilait à 1280 × 800 ; il porte désormais quatre lignes au plus (le SRD, deux
+livres, Fate's Hand), le séparateur quand il sert, et la rangée des options. La question de Fate's
+Hand, posée dans la page, la faisait encore déborder de 127 px : elle se pose en fenêtre
+(`menu-layers-fate-s-hand-tout-ou-rien`).
+⛔ Le défilement ne se répare pas en rognant les marges : il se répare par ce que la page porte EN
+TROP (*« un contenu qui ne tient pas : ce qu'il porte en trop, pas un défilement »*).
+🗄️ **LA NOTE DU LOT 188 SOUS LE TITRE EST PARTIE** (*« The base, then the layers stacked on it. A layer
+you switch off degrades the sheet… »*). 📏 Mesuré au banc à 375 × 812, deux livres installés et leur
+« soon » : quatre lignes, 68 px, et la scène débordait de 9 px. Ni la dictée de B0 ni le mandat ne la
+nomment, et ce qu'elle disait (rien n'est effacé, tout revient) est dit là où il sert — dans la
+question de Fate's Hand (*« they stay saved, and resume as soon as you switch it back on »*). Sans elle :
+375 → 429 px sur 500, 1280 × 800 → 401 sur 500, iPad portrait → 436 sur 500.
+🛡️ Vu au navigateur, jour et nuit (le relevé du lot 351) ; `tests/ecran-layers.test.mjs` D1 (aucune
+note). ⚠️ Aucun garde de la suite ne mesure un défilement : le DOM des tests n'a pas de mise en page
+— c'est le banc qui le voit, ou personne.
+
 ---
 
 ### 🧭 LOT 357 — R REDICTÉ, ET LA PAGE DUNGEON MASTER *(Eric, 2026-09-29, après la v906)*
@@ -10659,6 +10896,8 @@ et tous les bancs qui glissent : ils portent désormais le jeton tout de suite, 
 tournait les pages → **sans objet**. Eric, 29/09 : **« Une section, dans backpack, n'a qu'une seule page »** · **« c'est
 12 »**. ⛔ La navigation de ce lot ne change pas. La suppression des pages et le débordement de Send (*« s'il est plein un
 2e backpack dropdown se crée »*) forment le **lot 356**.
+🔄 **Lot 356 (29/09) — fait** : une section n'a plus qu'une plaque, et ⛔ la molette sur la grille ne tourne plus rien
+(`surPage` retiré) ; ce qui tenait sur une page 2 déborde comme par Send (`equipement-une-section-une-page-de-12`).
 🛡️ `tests/sac-ecran.test.mjs` : 19 (la grille ne se balaie plus, la molette tourne la page), 31 (une seule surface au
 doigt, le ruban passe par l'entre-deux EN DIRECT, la marque dit `none`, l'objet se glisse sans attendre), 33 (le ruban
 ne mène jamais), 34 (un défilement programmé l'entraîne). Chacun vu rouge par mutation — l'ancien `sac-ecran.mjs`,

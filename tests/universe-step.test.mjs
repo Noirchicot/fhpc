@@ -742,12 +742,14 @@ test("R10 — 🏷️ LES MOTS DU JOUEUR : `Campaign items` (plus `Table items`)
      joueur ? » → *« Homebrew »* (relayé par ARCHI 35). ⭐ C'est une EXCEPTION NOMMÉE (📍
      `menu-dm-bouton-homebrew`) : le ban tient partout ailleurs. Ce garde la tient des deux
      côtés — le mot EST sur le bouton de la page DM, et il n'est sur AUCUNE autre page du Menu.
-     ⏳ `Layers` porte encore la place `+ Table items` : c'est le lot 351 qui la retire de son
-     écran ; elle rejoint ce garde à sa fusion. */
+     ✅ Le lot 351 a retiré `+ Table items` de `Layers` (fusionné, v908) : la page rejoint ce
+     garde, Fate's Hand allumé ET éteint — éteint, ses livres descendent dans la liste du bas. */
   const doc = draftDocument();
   const pages = {
     R: racine(),
     dm: pageDm(),
+    layersFh: layers(docFh()),
+    layersSrd: layers(docSrd()),
     display: renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, ecran: "display" }, () => {}),
     characters: renderUniverseStep({ document: doc, query: () => null, fieldErrors: {}, memoire: { ok: true },
       ecran: "characters", magasin: { etat: "liste", groupes: [], entrees: [] } }, () => {})

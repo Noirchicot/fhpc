@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=908") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=911") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=908") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=911") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=908") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=911") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6099,15 +6099,36 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    piste, qui reste `flex: none`. */
 .interrupteur-mot { display: flex; flex-direction: column; min-width: 0; }
 .interrupteur-note { font-size: var(--t1); font-weight: 400; color: var(--text-muted); }
-/* LA BANDE DE SECTION du tableau de commande — « ses six couches », « catalogue » :
+/* ⭐ LOT 351 — LES PIÈCES D'UNE LIGNE DE SOURCE (`Layers`, dicté le 29/09), les mêmes sur
+   le voyant et sur l'interrupteur :
+   · `ligne-tete` — le nom et son étiquette sur UNE ligne (le mot empile en colonne) ;
+   · `ligne-etiquette` — la pastille « base book » / « your copy » (brouillons du plan v10) ;
+   · `ligne-familles` — *« engine · world · catalog (en italique t0) »* : ce que la source
+     apporte, lu, jamais réglé. */
+.ligne-tete { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-4); }
+.ligne-etiquette {
+  font-size: var(--t0); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-wash);
+  border-radius: var(--radius-pill); padding: var(--sp-2) var(--sp-4);
+}
+.ligne-familles { font-size: var(--t0); font-weight: 400; font-style: italic; color: var(--text-muted); }
+/* LA LIGNE D'UN LIVRE : son interrupteur prend la place, sa poubelle se tient tout à
+   droite (*« la poubelle tout à droite »*, Eric, 29/09). */
+/* `flex-start` : l'interrupteur et la poubelle (44 tous deux) s'alignent en tête, et le mot
+   « soon » de la poubelle éteinte pend SOUS elle sans décentrer la ligne (lot 351). */
+.layers-livre { display: flex; align-items: flex-start; gap: var(--sp-4); }
+.layers-livre > .interrupteur { flex: 1 1 auto; min-width: 0; }
+/* LES OPTIONS — `Import a book` et `Table items`, deux places réservées au gabarit LARGE,
+   côte à côte : une rangée, pas deux. */
+.layers-options { display: flex; justify-content: center; align-items: flex-start; gap: var(--sp-16); }
+/* LA BANDE DE SECTION du tableau de commande — « installed, not active », « options » :
    un mot sourd en capitales, jamais un titre. */
 .tdc-regle {
   margin: var(--sp-8) 0 var(--sp-2); padding: 0 var(--sp-8);
   font-size: var(--t1); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted);
 }
-/* LES ENFANTS DU MAÎTRE sont en retrait d'un cran : la hiérarchie se lit à
-   l'œil, avant de lire un mot. */
-.interrupteur[data-enfant] { padding-left: var(--sp-20); }
+/* 🗄️ LOT 351 — `.interrupteur[data-enfant]` (le retrait des six enfants du maître) EST
+   PARTI avec eux : Fate's Hand est tout ou rien (Eric, 29/09), l'écran n'en émet plus. */
 .interrupteur {
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8);
   width: 100%; min-height: var(--touch); padding: 0 var(--sp-4) 0 var(--sp-8);
@@ -8104,9 +8125,13 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
    EN LE SACHANT. */
 .x1-porte,
 /* LOT 350 — les portes du Menu R : Create character · My characters · New character ·
-   Vault · Layers · Dungeon Master · Display. ⭐ Elles entrent par la LISTE (patron,
+   Vault · Layers · Dungeon Master · Display. 🔄 Lot 357 : `New character` est le grand
+   bouton (la porte du bas est partie), et la page Dungeon Master en porte quatre, réservées. ⭐ Elles entrent par la LISTE (patron,
    `::before`, `::after`) et par l'inventaire, EN LE SACHANT — pas une réparation de garde. */
-.menu-porte {
+.menu-porte,
+/* LOT 351 — la poubelle, organe au socle (`poubelle-organe.mjs`) : Layers la pose sur chaque
+   livre du joueur, My characters sur chaque perso (lot 352). Même entrée PAR LA LISTE. */
+.poubelle {
   /* 🔴 LE DÉFAUT EST `transparent` DEPUIS LE 16/09, ET C'EST TOUT LE
      RECÂBLAGE — Eric : *« la couleur du liseré = la couleur du bouton
      d'origine »*, et *« le bouton gris n'a pas de liseré »*.
@@ -8189,7 +8214,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .wares-porte::before,
 .porte-carree::before,
 .x1-porte::before,
-.menu-porte::before {
+.menu-porte::before,
+.poubelle::before {
   content: "";
   position: absolute;
   /* 🔴 LE DESSIN FAIT 40, LA CIBLE RESTE 44 — Eric, 2026-09-16 : *« passe tous
@@ -8270,7 +8296,8 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .wares-porte::after,
 .porte-carree::after,
 .x1-porte::after,
-.menu-porte::after {
+.menu-porte::after,
+.poubelle::after {
   content: "";
   position: absolute;
   /* la face suit le corps : le retrait vertical du dessin, PLUS son propre
@@ -11520,8 +11547,9 @@ button.tuto-point::before {
    `--bouton-retrait-v` dans le patron, la boîte garde `--touch`). Texte **T4 16 / 600**,
    comme les autres boutons du site (mesuré en ligne le 29/09). ⭐ DEUX ÉTAGES PERMIS —
    *« deux lignes dans un bouton → oui »* : `My / characters` · `New / character` ·
-   `Dungeon / Master` · `Create / character` (plus de 11 caractères, le plafond d'un
-   étage au gabarit large). 📏 Deux lignes à 16/600 = 38,82 blg mesurés le 16/09 dans un
+   `Dungeon / Master` — et, sur la page Dungeon Master (lot 357), `Create campaign` ·
+   `Campaign items` · `Connect to VTT` (plus de 11 caractères, le plafond d'un étage au
+   gabarit large). 📏 Deux lignes à 16/600 = 38,82 blg mesurés le 16/09 dans un
    dessin de 40 : l'interligne 1,2 les tient à 38,4.
    ⛔ LA LARGEUR EST POSÉE, PAS UN PLANCHER : `inline-size`, pas `min-width` — c'est ce
    qui fait passer le mot sur deux étages au lieu d'élargir la porte.
@@ -11530,8 +11558,8 @@ button.tuto-point::before {
    Ces rôles sont écrits APRÈS le défaut `transparent` du patron — ils le battent par
    l'ordre, sans spécificité gonflée.
    · une porte NAVIGUE → bleu (`--info`) ;
-   · `Create character` est le geste majeur → vert (`--positive`, le relief vert qu'Eric
-     avait donné à `Build a character` le 08/09) ;
+   · `New character` est le geste majeur → vert (`--positive`, le relief vert qu'Eric
+     avait donné à `Build a character` le 08/09 ; `Create character` au lot 350) ;
    · une place réservée est ÉTEINTE → sans liseré (*« le bouton gris n'a pas de
      liseré »*, 16/09) et au voile des organes éteints — le même état que les portes
      désarmées d'Équipement, par le même jeton (`--organe-eteint`). */
@@ -11546,6 +11574,40 @@ button.tuto-point::before {
 }
 .menu-porte[data-majeure] { --bouton-fond: var(--positive); }
 .menu-porte:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
+
+/* ══ LOT 351 — LA POUBELLE : le carré 40 (44) du relief, liseré ROUGE ══════════════════════════
+   ⚖️ Eric, 29/09 : *« pas de bouton delete a book, juste une poubelle à côté comme My Characters »*,
+   et pour My characters *« la poubelle tout à droite »*, **40 × 40**. ⭐ La géométrie est celle de
+   `button.porte-carree` (lot 311) : cible 44 (`--touch` ne cède jamais), corps peint 40 — le
+   retrait du relief sur les QUATRE côtés. 🔴 Rouge : elle DÉFAIT (§6, comme la `Trash` de X1).
+   ⛔ `button.` en tête : à égalité avec les listes du patron (0,1,1), la géométrie gagne par le
+   calcul, pas par la position. */
+button.poubelle {
+  flex: none;
+  inline-size: var(--touch);
+  min-inline-size: var(--touch);
+  block-size: var(--touch);
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  --bouton-fond: var(--critical);
+}
+button.poubelle::before { inset: var(--bouton-retrait-v); }
+button.poubelle::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-lisere-marge)); }
+/* ⏳ ÉTEINTE (lot 351 : aucun livre ne vit encore dans le stockage du Vault) — la place
+   réservée des portes, mot pour mot : sans liseré, voilée, et le curseur le dit. */
+button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-eteint); cursor: not-allowed; }
+/* LA QUESTION DU MAÎTRE, EN FENÊTRE (lot 351) — la fenêtre porte déjà le cadre : la boîte
+   de `confirm.mjs` y perd le sien, sinon une boîte dans une boîte. */
+.popup > .confirm-dialog { margin-top: 0; padding: 0; border: 0; background: none; }
+/* LE DESSIN — au trait, dans l'encre du bouton (`currentColor`) : dessiné, jamais un glyphe. */
+.poubelle-dessin {
+  inline-size: 18px; block-size: 18px;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  pointer-events: none;
+}
 
 /* ══ X2 — CE QUI VIT SOUS LA COUTURE (lot 242) ═════════════════════
    ⛔ AUCUNE COTE ICI, ET PAS MÊME CELLE DE LA BANDE : sa boîte sort de la feuille que
@@ -11920,6 +11982,8 @@ button.tuto-point::before {
    dirait jamais quand ça compte. */
 .sac-loupe[data-lieu="dehors"] { --loupe-trait: var(--dehors); }
 .sac-loupe[data-lieu="party"] { --loupe-trait: var(--info); }
+/* 🎒 LOT 356 — et l'ambre des Backpack dropdowns (Eric, 29/09 : « une couleur propre à ceux-ci ») */
+.sac-loupe[data-lieu="depot"] { --loupe-trait: var(--depot); }
 /* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
    ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
    disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
@@ -12023,6 +12087,15 @@ button.tuto-point::before {
   background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info);
 }
+/* 🎒 LOT 356 — ET L'AMBRE DES BACKPACK DROPDOWNS PORTE SON HABIT, AU MÊME CRAN — Eric, 2026-09-29 : *« Certains joueurs ne
+   vont jamais rien ranger, ils vont donc avoir des successions de backpack dropdown. je pense qu'il faut donner une
+   couleur propre à ceux-ci »*. ⭐ La règle de l'or et du bleu : un lieu porte un fond, le trait dit où il s'arrête.
+   ⏳ La teinte (`--depot`) est une suggestion que la capture soumet à Eric. */
+.sac-cran[data-lieu="depot"],
+.wares-cran[data-lieu="depot"] {
+  background-color: var(--depot-fond); color: var(--depot-encre);
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--depot);
+}
 /* ⭐ ET LE `+` DU BOUT DROIT PORTE L'OR DE L'AILLEURS : les deux boutons sont
    identiques, seule leur destination change — et elle se voit. */
 .sac-cran[data-role="ajouter"][data-lieu="dehors"] { color: var(--dehors); }
@@ -12123,6 +12196,12 @@ button.tuto-point::before {
      on le regarde. ⛔ Ce piège a déjà été payé une fois ici, sur le liseré. */
   background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info),
+              inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
+}
+/* 🎒 LOT 356 — ⛔ ET LE DROPDOWN GARDE SON AMBRE SOUS LE VISEUR, pour la même raison, déjà payée deux fois ici. */
+.sac-cran[data-dominant="oui"][data-lieu="depot"] {
+  background-color: var(--depot-fond); color: var(--depot-encre);
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--depot),
               inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
 }
 /* ══ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 ═══════════════════
@@ -12286,6 +12365,8 @@ button.tuto-point::before {
 }
 /* ⚖️ LE DORÉ DIT UN AILLEURS — le même jeton que le genre des sections hors du sac. */
 .sac-ajout[data-lieu="dehors"] { --bouton-fond: var(--dehors); }
+/* 🎒 LOT 356 — et l'ambre pour « + Backpack dropdown » : le bouton dit le genre qu'il crée */
+.sac-ajout[data-lieu="depot"] { --bouton-fond: var(--depot); }
 /* ⚖️ *« + en T3, texte en T1 »* — le `+` enjambe les deux lignes à gauche des mots. */
 .sac-ajout-plus { grid-row: 1 / 3; align-self: center; font-size: var(--t3); font-weight: 700; }
 .sac-ajout-ou { font-size: var(--t1); font-weight: 700; }

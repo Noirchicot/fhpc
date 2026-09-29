@@ -95,7 +95,7 @@
 **`Display` est une branche du Menu au rang `B` — ⛔ `S` n'est un rang dans aucune nomenclature — elle prend des listes déroulantes, et ce qui y descend est ce qu'on règle une fois et qu'on ne relit pas.**
 
 ### Layers est un rang B du Menu
-📍 `menu-layers-est-un-rang-b` · déployée, hors corpus · 09/09
+📍 `menu-layers-est-un-rang-b` · remplacée · 09/09 · remplacée par `menu-layers-la-page-dictee`
 ⚖️ **`Layers` est une branche du Menu au rang `B` : le socle SRD verrouillé, le maître Fate's Hand, ses six enfants qui se coupent un par un — Inheritance dort tant que Trainings est éteint — et le catalogue (les livres du joueur, le `+` homebrew inerte).**
 
 > **Eric** : « Comment s'appelle l'écran des six interrupteurs ? » → « Layers » ; et sur le dessin : « Un tableau de commande, pas une liste d'options. Le socle, puis les couches qui s'empilent dessus. »
@@ -104,6 +104,14 @@
 > gauche de la deuxième rangée des six portes (dictée d'Eric — `menu-r-la-page-dictee`), ce qui tranche §C33
 > d'`A-TRANCHER.md`. Le reste de la règle ne bouge pas, et `Layers` est désormais le SEUL endroit où l'on règle la pile.
 
+> 🗄️ **REMPLACÉE LE 29/09 (lot 351)** par `menu-layers-la-page-dictee` (NORMES § 10), avec
+> `menu-layers-fate-s-hand-tout-ou-rien` et `menu-layers-une-poubelle-par-livre`. Eric a redessiné la page
+> (la dictée de B0) et répondu *« Non. Tout ou rien »* à « Fate's Hand se règle interrupteur par interrupteur ? » :
+> les six enfants ne sont plus des lignes (ils restent la carte de qui fait quoi), Inheritance n'a plus à dormir,
+> et le `+` inerte (devenu `+ Table items` le 23/09) a quitté `Layers` : *« table items devient -> campaign items (et
+> va dans Dungeon master) »* (lot 357). Ce qui passe tel quel dans la neuve : le rang `B`, la confirmation à TROIS
+> voies du maître (posée désormais en fenêtre), et le livre déclaré mais absent, présent avec son mot.
+
 **`Layers` est une branche du Menu au rang `B` — ouverte par une porte large et bleue sous les deux interrupteurs de `R`. Un enfant se coupe SANS confirmation (une couche éteinte dégrade, elle n'efface rien) ; le maître garde la sienne — à TROIS voies depuis le lot 192 : `Keep on` · `Save the Fate's Hand version first` (le geste `Save`, PUIS l'extinction ; le fichier dit sa version : `<nom>.fates-hand.fh-char.json`) · `Switch off`. Le cinquième enfant s'appelle `World` (Eric, 10/09 : « pas Lore mais World »). Un livre absent du disque est PRÉSENT, éteint, avec son mot (« not on this device »).**
 
 ### Un sous-ensemble de couches est légitime
@@ -111,6 +119,11 @@
 ⚖️ **Un personnage qui a coupé un interrupteur entier n'est PAS « hors des deux jeux de règles » : le Menu et l'écran mort n'accusent que ce qu'aucun interrupteur ne peut produire — un ensemble coupé en deux, le catalogue à moitié, le socle absent.**
 
 > **Eric** : « si j'allume Destiny dans les couches, il réapparaît ? » → oui — la même question, lue depuis le document.
+
+> 🔄 **29/09 (lot 351) — ELLE TIENT POUR LES PERSOS D'AVANT** : `Layers` n'a plus qu'un interrupteur Fate's Hand
+> (`menu-layers-fate-s-hand-tout-ou-rien`), donc aucun sous-ensemble ne se PRODUIT plus depuis l'écran. Un document
+> bâti au temps des six, qui déclare une sous-unité coupée, reste légitime : ni le Menu ni l'écran mort ne l'accusent,
+> il dérive, et l'interrupteur se montre allumé.
 
 **Un personnage qui a coupé un interrupteur entier n'est PAS « hors des deux jeux de règles » ; et au rechargement, la pile montée se range sur ce que son document déclare, au lieu de le laisser mourir sur l'écran mort.**
 

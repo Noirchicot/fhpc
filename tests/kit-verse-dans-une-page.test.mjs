@@ -132,8 +132,13 @@ test("2 — ⚖️ acheter un Explorer's Pack dans Wares le verse dans « Kit Ex
   const i = shell.indexOf('action.kind === "addGearLine"');
   const bloc = shell.slice(i, shell.indexOf("action.kind === ", i + 20));
   assert.match(bloc, /verserLeKit\(\{ document, verbs, index,/, "⛔ `addGearLine` doit verser le kit");
-  assert.match(bloc, /state\.document = verse !== document \? verse : accorder\(document, index,/,
+  /* 🔄 LOT 356 — la ligne NON versée est rangée par Send avant d'être accordée (Eric, 29/09 : « normalement ça va
+     dans backpack dropdown ») : le câblage est relu sous sa nouvelle forme, ⛔ la loi « pas d'accord sur une
+     ligne versée » reste la même. */
+  assert.match(bloc, /if \(verse !== document\) state\.document = verse;\s*else \{[\s\S]*?state\.document = accorder\(range, index,/,
     "⛔ et n'accorder la ligne que si elle n'a pas été versée");
+  assert.match(bloc, /rangerParSend\(\{ document, verbs, index \}\)/,
+    "⛔ et la ligne qui arrive au sac y est rangée par Send (lot 356)");
   /* 🔒 le départ aussi — `appliquerLeButin` verse chaque ligne neuve */
   const etape = stripComments(fs.readFileSync(path.join(UI, "equipment-step.mjs"), "utf8"));
   const corps = etape.slice(etape.indexOf("export function appliquerLeButin"), etape.indexOf("function candidatesDuSlot"));

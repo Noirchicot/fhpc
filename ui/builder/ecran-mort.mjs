@@ -33,7 +33,7 @@
    `build.layers` d'un personnage que personne n'a touché, c'est écrire dans
    SON document sans qu'il le demande. Décision d'Eric, pas d'un lot. */
 
-import { currentStack } from "./universe-step.mjs?v=908";
+import { currentStack } from "./universe-step.mjs?v=911";
 /* ⭐ LOT 188 — UN SOUS-ENSEMBLE DE COUCHES EST LÉGITIME, PAS INCONNU. Depuis
    l'écran `Layers`, un joueur coupe Trainings, ou Destiny, une par une ;
    `currentStack` ne sait nommer que les deux piles entières et rend `null` sur
@@ -41,16 +41,16 @@ import { currentStack } from "./universe-step.mjs?v=908";
    Fate's Hand pour défaire ce qu'il vient de choisir. `compositionFh` lit le
    document interrupteur par interrupteur : seule une composition qu'AUCUN
    interrupteur ne peut produire reste innommable. */
-import { compositionFh } from "./layers-ecran.mjs?v=908";
+import { compositionFh } from "./layers-ecran.mjs?v=911";
 /* LOT 191 — le nom d'un record absent : l'id humanisé, jamais l'id ; et
    l'interrupteur qui le porte, pour que la phrase nomme la bonne ligne. */
-import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=908";
-import { interrupteurDUnId } from "./interrupteurs.mjs?v=908";
+import { motHumainDeLId, MOT_HORS_PILE } from "./mot-du-choix.mjs?v=911";
+import { interrupteurDUnId } from "./interrupteurs.mjs?v=911";
 /* 🌱 LOT 198 — les six clefs se LISENT au moteur (la même liste que `derive`
    exige), jamais recopiées ici ; et le numéro du cran où aller se lit sur la
    ceinture, jamais écrit en dur (la loi d'`etapeParId`). */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=908";
-import { etapeParId } from "./etapes.mjs?v=908";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=911";
+import { etapeParId } from "./etapes.mjs?v=911";
 
 /** LA TÊTE COMMUNE — les trois phrases partent du même mot, parce qu'elles
  *  décrivent le même écran dans le même état. */
@@ -108,12 +108,13 @@ export const MOT_CRAN_NON_MONTE =
  *  mind »*, comme le pied du guide).
  *
  *  ⚖️ ET ELLE NOMME L'INTERRUPTEUR QUI PORTE CHAQUE RECORD — Eric, 09/09 :
- *  *« Araag comes with World — switch it on in Layers »* (World, ex-Lore :
- *  le lexique du 10/09 ; le mot lit le label de la table). Un Araag, un don et
- *  deux langues n'appartiennent pas au même interrupteur : les noms se
- *  groupent PAR interrupteur (*« Auspicious comes with Destiny, and Language
- *  elf and Language human come with Trainings »*), jamais « Fate's Hand » en
- *  général quand une ligne précise de `Layers` suffit.
+ *  *« Araag comes with World — switch it on in Layers »* (le mot lit le label
+ *  de la table). Les noms se groupent PAR interrupteur, dans l'ordre des refs.
+ *  🔄 LOT 351 — Eric, 29/09 : *« Tout ou rien »*. Un seul interrupteur porte
+ *  tout Fate's Hand, donc un Araag, un don et deux langues forment UN groupe :
+ *  *« Auspicious, Language elf and Language human come with Fate's Hand —
+ *  switch them on in Layers »*. Le groupement reste : un livre du joueur a son
+ *  propre interrupteur, et ses records se nomment avec lui.
  *
  *  ⛔ ON NE RÉPARE RIEN ET ON N'EFFACE RIEN : rallumer la couche est le geste
  *  du joueur, et son choix l'attend (Eric, 09/09 : *« que le personnage ne se
