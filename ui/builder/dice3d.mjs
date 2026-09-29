@@ -800,8 +800,11 @@ export function decorInerte(noeud) {
    écrivent la même structure divergent au premier changement. **Le module
    qui lit ces noms est celui qui doit les écrire.**
 
-   ⛔ C'est le SEUL ajout de ce fichier au-delà de la copie. Il ne touche pas
-   au rendu : il pose la structure que le corps ci-dessus attend déjà. */
+   ⛔ C'était le SEUL ajout de ce fichier au-delà de la copie. Il ne touche pas
+   au rendu : il pose la structure que le corps ci-dessus attend déjà.
+   📌 Le ruban en porte deux autres depuis, aucun ne retouche le corps :
+   `decorInerte` (lot 205) et `rendreLeContexte` (lot 362) — tous deux ⏳ à
+   reporter en amont, puis à recopier. */
 
 const CLASSE_HOTE = "fh-cd-static-die";
 
@@ -892,6 +895,35 @@ export function createDieHost({ sides, result, sizePx = 52, material = "ivory", 
 
   host.append(canvas, chiffre, repli);
   return host;
+}
+
+/* ══ ⛔ UN DÉ QUI QUITTE LA PAGE REND SON CONTEXTE — lot 362, 2026-09-29 ══════
+   📏 MESURÉ AU BANC (v912, Chromium 1280 × 800, une sonde sur `getContext`) : un
+   parcours Abilities — deux jets 4D6, `Flash`, `Cancel`, un jet quitté en plein vol,
+   puis FH 3D6, un jet, `Flash`, une assignation — ouvrait **33** contextes, en
+   laissait **16** vivants hors de la page, et le navigateur en ÉVINÇAIT **6** (« Too
+   many active WebGL contexts. Oldest context will be lost », six fois en console).
+   Le corps ne rend le contexte d'un dé qu'en le FIGEANT (`settleToSnapshot`), et
+   seulement si le dé est encore dans la page à la fin du jet : un dé retiré en plein
+   vol garde le sien jusqu'au ramasse-miettes.
+   ⭐ LE PROPRIÉTAIRE REND CE QU'IL A OUVERT : l'appelant qui a posé des dés animés
+   (le plateau d'Abilities) rend ceux qui ont quitté la page. La fonction ne touche
+   qu'un hôte qui en PORTE un — rendu vivant (`is-webgl`), ni image (`snapshot`) ni
+   déjà figé (`snapped`) — parce que demander un contexte à un canvas qui n'en a pas
+   en OUVRIRAIT un (la raison même du commentaire de `mountSnapshot`).
+   ⛔ CE N'EST PAS UNE RETOUCHE DU CORPS : le geste de rendre, `loseCanvasContext`, est
+   celui du corps, appelé tel quel ; ceci n'en est que la porte, comme `createDieHost`
+   pose la structure que le corps attend.
+   📌 ⏳ LA VRAIE PLACE DE CE GESTE EST EN AMONT, comme pour `decorInerte` : dans
+   `mount` de `docs/javascripts/fh-static-dice.js`, un dé animé qui n'est plus dans la
+   page à la fin de son jet devrait rendre son contexte au lieu de le garder. Dit ici
+   pour qu'il ne se perde pas. */
+export function rendreLeContexte(hote) {
+  if (!hote || !hote.classList || !hote.classList.contains("is-webgl")) return false;
+  if (hote.dataset.snapshot === "1" || hote.dataset.snapped === "1") return false;
+  let rendu = false;
+  hote.querySelectorAll("canvas").forEach((canvas) => { if (loseCanvasContext(canvas)) rendu = true; });
+  return rendu;
 }
 
 /* ══ LES EXPORTS — ce que l'amont posait sur `window.FHStaticDice` ══════ */

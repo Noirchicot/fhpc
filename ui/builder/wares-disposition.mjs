@@ -17,7 +17,7 @@
    organe changera de largeur. */
 
 /* ⭐ LOT 315 — LE PIED DE WARES EST CELUI DE PACK : ses cotes se LISENT dans le plan du sac. */
-import { ORGANES as ORGANES_DU_SAC } from "./sac-disposition.mjs?v=912";
+import { ORGANES as ORGANES_DU_SAC } from "./sac-disposition.mjs?v=913";
 
 /* ── LA SCÈNE ─────────────────────────────────────────────────────────────── */
 /* ⚖️ LOT 275 — 495 ET NON PLUS 500. Sur l'étape Équipement, la case « Equipment · 8 · Wares » du
