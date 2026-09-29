@@ -24,14 +24,8 @@ import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
 import { makeHarness, manifestOf, readJson, PILE_SRD } from "./build-harness.mjs";
 import { createDocWriters } from "../src/doc/index.mjs";
 import { ABILITY_KEYS } from "../src/build/index.mjs";
-const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
-/* ⏱️ LOT 331 — LE PÉAGE DE L'ÉTAPE : un glisser d'Equipment ne s'active qu'après
-   `MAINTIEN_EQUIPEMENT_MS` d'appui (Eric, 27/09 : « Le drag doit attendre 500 ms »). Le geste
-   simulé TIENT donc le jeton avant de le porter — sur une horloge simulée, pas une vraie attente. */
-function tenirLeJeton(appui) {
-  mock.timers.enable({ apis: ["setTimeout"] });
-  try { appui(); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); } finally { mock.timers.reset(); }
-}
+/* 🗄️ LOT 355 — `tenirLeJeton` est retiré : il tenait le jeton `MAINTIEN_EQUIPEMENT_MS` avant de le porter, le
+   péage du lot 331 (« Le drag doit attendre 500 ms »). Le glisser part au mouvement : voir `glisserVers`. */
 
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -188,35 +182,60 @@ function tap(jeton, pointerType = "touch") {
     document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
   });
 }
+/* ⚡ LOT 355 — LE GLISSER PART AU MOUVEMENT : le banc ne TIENT plus le jeton avant de le porter (il le tenait
+   500 ms depuis le lot 331). Porté tout de suite, sur une horloge qui n'avance pas — si un péage revenait,
+   aucun garde qui glisse ne passerait plus. */
 function glisserVers(jeton, cible) {
   avecDocument(() => {
     document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? cible : null) });
-    tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" }));
+    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
     document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
     document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });
   });
 }
 const jetonDe = (n, nom) => [...n.querySelectorAll(".x5-sort")].find((j) => j.dataset.sort === nom);
 
-test("parchemin 8 — ⭐ LE GESTE DU VIVIER : doigt tap = info, souris clic gauche = choisir — et l'état choisi se voit", () => {
+test("parchemin 8 — ⚡ LOT 355 : LE GESTE DU VIVIER EST LA GRAMMAIRE — tap = fiche, clic gauche = armer, clic sur le collecteur = choisir", () => {
+  /* ⚖️ NORMES `geste-armer-puis-poser` (Eric, 28/09) : VOIR = tap / clic droit ; ARMER = clic gauche / appui long
+     → les destinations s'allument ; POSER = clic ou tap sur l'une d'elles, ou glisser. Elle attendait ce lot (347 :
+     elle aurait ajouté l'attente de 500 ms au vivier).
+     🗄️ CE GARDE TENAIT LA LOI DU 16/08 (lot 290) : à la souris le clic gauche CHOISISSAIT d'un coup, et sans fiche
+     le tap choisissait au doigt. Les deux meurent ici (réponse 1a : « un clic arme, il ne pose plus »). */
   const recus = [], infos = [];
   const { noeud } = monte({ choix: { classe: "Wizard", niveau: 3, sort: "Fireball" },
     surChoix: (o, v) => recus.push([o, v]), surInfo: (s) => infos.push(s.data.name) });
   const choisis = [...noeud.querySelectorAll(".x5-sort")].filter((j) => j.getAttribute("aria-pressed") === "true");
   assert.deepEqual(choisis.map((j) => j.dataset.sort), ["Fireball"], "⭐ un seul jeton choisi, celui du sort");
   tap(jetonDe(noeud, "Fly"), "touch");
-  assert.deepEqual(infos, ["Fly"], "⚖️ au doigt, le tap ouvre l'info du sort");
+  assert.deepEqual(infos, ["Fly"], "⚖️ au doigt, le tap ouvre la fiche du sort");
   assert.deepEqual(recus, [], "⛔ au doigt, un tap ne choisit pas");
-  tap(jetonDe(noeud, "Fly"), "mouse");
-  assert.deepEqual(recus.at(-1), ["SORT", "Fly"], "⚖️ à la souris, le clic gauche choisit");
-  assert.equal(infos.length, 1, "⛔ le clic gauche n'ouvre pas l'info");
+
+  /* ⭐ À LA SOURIS, LE CLIC GAUCHE ARME : le collecteur du parchemin s'allume, et un clic sur lui choisit */
+  avecDocument(() => {
+    document.body.append(noeud);      // les destinations se cherchent dans la page
+    const fly = jetonDe(noeud, "Fly");
+    const collecteur = organe(noeud, "JETON");
+    fly.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 2, button: 0, pointerType: "mouse" });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 2 });
+    assert.deepEqual(recus, [], "⛔ le clic gauche a choisi d'un coup : il ne fait qu'armer (réponse 1a)");
+    assert.equal(fly.dataset.deplacement, "arme", "⛔ le clic gauche n'arme pas le sort");
+    assert.equal(collecteur.dataset.destination, "oui", "⛔ le collecteur du parchemin ne s'allume pas");
+    const autres = [...noeud.querySelectorAll('[data-destination="oui"]')].filter((x) => x !== collecteur);
+    assert.deepEqual(autres, [], "⛔ un sort ne va QUE dans le collecteur du parchemin");
+    document.dispatchEvent({ type: "pointerdown", target: collecteur, clientX: 0, clientY: 0, pointerId: 3, button: 0, pointerType: "mouse" });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 3 });
+    assert.deepEqual(recus, [["SORT", "Fly"]], "⛔ le clic sur le collecteur allumé n'a pas choisi le sort");
+  });
+  assert.equal(infos.length, 1, "⛔ le clic gauche a ouvert la fiche");
   jetonDe(noeud, "Haste").dispatchEvent({ type: "contextmenu", preventDefault() {} });
-  assert.deepEqual(infos.at(-1), "Haste", "⚖️ le clic droit ouvre l'info");
-  /* ⛔ SANS VUE D'INFO, le tap choisit au doigt aussi (la clause du vivier) */
+  assert.deepEqual(infos.at(-1), "Haste", "⚖️ le clic droit ouvre la fiche");
+  assert.equal(infos.length, 2, "⛔ le clic droit a ouvert la fiche deux fois (un second écouteur est revenu)");
+
+  /* 🧊 SANS FICHE, LE TAP NE CHOISIT PLUS — il ne voit rien (la « clause du vivier » du 16/08 est morte) */
   const sans = [];
   const nu = monte({ choix: { classe: "Wizard", niveau: 3 }, surChoix: (o, v) => sans.push([o, v]) }).noeud;
   tap(jetonDe(nu, "Fly"), "touch");
-  assert.deepEqual(sans, [["SORT", "Fly"]]);
+  assert.deepEqual(sans, [], "⛔ sans fiche, le tap a choisi : un tap ne pose plus (réponse 1a)");
   const css = fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
   assert.match(css, /\.x5-sort\[aria-pressed="true"\]\s*\{[^}]*box-shadow:[^}]*--spy-halo/, "⭐ le halo dit le choix à l'œil");
 });

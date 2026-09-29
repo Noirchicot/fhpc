@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=904") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=905") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=904") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=905") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=904") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=905") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -11639,10 +11639,10 @@ button.tuto-point::before {
    ⭐ DES TROIS DALLES, UNE SEULE BOUGE, et c'est celle des douze jetons. Sa boîte vient
    du plan (`DALLES`), bornée par son croquis : 8 blg au-dessus du premier jeton, 8 sous
    le dernier. ⛔ Aucune cote ici.
-   🔴 ET C'EST ELLE QUI PORTE LE GESTE, pas la roue — *« le glisser sur la grille change
-   de section »* (19/09). La roue devient un affichage que ce défileur commande : deux
-   surfaces de geste pour un seul mouvement se battraient, et c'est l'inertie du système
-   qu'on perdrait. */
+   🗄️ LE 19/09 AU MATIN, C'ÉTAIT ELLE QUI PORTAIT LE GESTE — *« le glisser sur la grille
+   change de section »* ; le soir même la roue a pris la main (*« le swipe fait bouger les
+   tuiles, LES DALLES SUIVENT »*). ⚡ Et depuis le lot 355 (29/09) le ruban ne porte plus aucun
+   geste du doigt : il SUIT la roue, toujours (voir `.sac-dalles` plus bas). */
 /* ⛔ ET IL N'Y A PAS DE SWIPE DE DALLE — Eric l'a demandé, puis retiré le 19/09 quand la
    mesure est tombée : *« donc pas de swipe de dalle »*.
    🔴 LE CONFLIT, NOMMÉ : porter un jeton d'une dalle à l'autre est un geste HORIZONTAL.
@@ -11655,25 +11655,29 @@ button.tuto-point::before {
    📌 La sortie qu'on n'a pas prise, pour mémoire : un balayage écrit à la main sur les
    dalles, qui aurait cédé au maintien du jeton. Elle marchait, mais elle ajoutait un
    second régime de mouvement sur une surface qui en avait déjà un. */
-/* ⏱️ ET LE JETON DU SAC LAISSE PASSER LE DÉFILEMENT TANT QU'IL N'EST PAS PORTÉ — Eric,
-   2026-09-19 : *« si on n'est pas en mode drag le swipe fonctionne »*.
-   🔴 `[data-glissable="true"]` pose `touch-action: none` sur toute surface armée, et
-   c'est juste partout ailleurs : rien ne dispute le geste à un glisser. ⛔ Ici si : les
-   dalles défilent. Le jeton rend donc l'axe horizontal au navigateur, et ne prend la main
-   qu'après le péage de 350 ms — exactement ce que faisait la grille des sorts en `pan-y`
-   jusqu'au 20/08, l'axe tourné.
-   ⚠️ ET `touch-action` S'INTERSECTE AVEC LES ANCÊTRES (mesuré au lot 206, sur iPad) : c'est
-   pour ça que la bande ne dit rien — une valeur posée plus haut écraserait celle-ci. */
-.sac-case[data-glissable="true"] { touch-action: pan-x; }
+/* 🗄️ LOT 355 — `.sac-case[data-glissable="true"] { touch-action: pan-x; }` EST RETIRÉ. Posé le
+   19/09 (*« si on n'est pas en mode drag le swipe fonctionne »*), il rendait l'axe horizontal au
+   navigateur pour que les dalles défilent sous un jeton pas encore porté, et le péage départageait
+   les deux gestes. Les dalles ne défilent plus au doigt : le jeton du sac reprend le `none` de la
+   marque, comme partout, et il se glisse dès le premier mouvement. */
 
-/* 🔄 ET ELLES REDEVIENNENT UNE SURFACE DE GESTE — Eric, 2026-09-19 : *« si on n'est pas en
-   mode drag le swipe fonctionne »*. Elles avaient été mises en `hidden` quelques heures
-   plus tôt, sur ma réponse trop absolue (« les deux ne peuvent pas coexister ») ; le
-   springboard d'iOS prouve le contraire, et le péage de 350 ms est ce qui l'achète.
-   ⛔ DEUX DÉFILEURS QUI SE COMMANDENT L'UN L'AUTRE FONT UNE BOUCLE — chacun corrige
-   l'autre à l'image suivante, et le geste part en oscillation. ⭐ La parade n'est pas
-   dans la feuille : c'est un ARBITRE au module (`sac-ecran.mjs`), qui note lequel des
-   deux le doigt a touché et n'écrit QUE dans l'autre. Un maître par geste. */
+/* 🗄️ L'HISTOIRE DU RUBAN AU DOIGT, pour mémoire — il a été une surface de geste deux fois :
+   🔄 le 19/09 au soir, Eric : *« si on n'est pas en mode drag le swipe fonctionne »* — les dalles
+   étaient redevenues défilables (le springboard d'iOS : on tient une app avant de la porter), le
+   péage de 350 ms départageait, et un ARBITRE au module (`sac-ecran.mjs`) désignait celui des deux
+   défileurs que le doigt avait touché (`geste-celui-que-le-doigt-touche-mene`).
+   ⚡ LOT 355 — ET ELLES NE LE SONT PLUS, Eric, 2026-09-29 : *« désactive le swipe des dalles backpack
+   et réinstaure le drag and drop rapidement actif. partout »* · *« les tuiles peuvent être swipées
+   mais pas la dalle. on peut toujours déplacer une tuile d'une page à une autre en la déplaçant dans
+   la marge »*. ⭐ Le ruban est désormais PILOTÉ, jamais poussé : la roue des sections le mène (son
+   glisser, les chevrons, l'engrenage, la marge du glisser), et c'est tout. C'est la piste de Wares,
+   au même mot près (`.wares-piste`, `wares-ecran.mjs`).
+   · `overflow: hidden` — ni le doigt ni le pavé ne le font défiler ; `scrollLeft` et `scrollTo`,
+     eux, le déplacent toujours : un défileur caché reste un défileur ;
+   · `scroll-snap-type: none` — le SUIVEUR n'aimante pas (`geste-le-suiveur-n-aimante-pas`), et le
+     ruban est suiveur pour de bon : plus d'arbitre, plus de `[data-mene]` ;
+   · `touch-action: pan-y` — la verticale reste à la page (sous le plancher d'échelle elle défile),
+     ⛔ jamais `none` : il confisquerait le défilement d'un doigt posé à côté d'un jeton. */
 .sac-dalles {
   display: flex;
   /* 🔴 LE TRAIT DE COUPE — Eric, 2026-09-19, devant l'écran : *« où est le line bleed ? la
@@ -11699,14 +11703,10 @@ button.tuto-point::before {
      existent pour ça : `--border-strong`, l'encre d'un bord de CONTRÔLE (3:1 garanti sur
      le fond, §3b), à l'épaisseur du liseré témoin — celle dont Eric a dit *« trop fin pas
      assez visible »* puis *« c'est global à tout le site »*. */
-  overflow-x: auto; overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  /* ⛔ `pan-x` : le geste vertical reste à la page, l'horizontal est à nous. */
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
+  overflow: hidden;
+  scroll-snap-type: none;
+  touch-action: pan-y;
 }
-.sac-dalles::-webkit-scrollbar { inline-size: 0; block-size: 0; }
 
 /* 🔴 LE SUIVEUR N'AIMANTE PAS, ET C'EST MESURÉ — 19/09, roue immobilisée à mi-chemin
    (97 = 65 × 1,5) : les dalles rendaient 383 au lieu de 563. Une aimantation `mandatory`
@@ -11716,9 +11716,9 @@ button.tuto-point::before {
    ⛔ ET AUCUN DE MES RELEVÉS NE POUVAIT L'ATTRAPER : ils tombaient tous sur des positions
    déjà alignées, où l'aimantation ne corrige rien. Une mesure qui ne visite que les crans
    ne dit rien de l'entre-deux.
-   ⭐ L'aimantation appartient au MENEUR — celui que le doigt a touché — et se coupe chez
-   l'autre. C'est l'idiome du belt (`data-couture`), à un mot près. */
-.sac-roue[data-mene="non"], .sac-dalles[data-mene="non"] { scroll-snap-type: none; }
+   🗄️ LOT 355 — `.sac-roue[data-mene="non"], .sac-dalles[data-mene="non"] { scroll-snap-type: none }`
+   EST RETIRÉ avec l'arbitre : la roue mène TOUJOURS (elle garde son aimant), le ruban suit
+   TOUJOURS (il n'en a plus, voir `.sac-dalles`). Un meneur qui ne change plus n'a pas à se dire. */
 /* ⭐ UNE DALLE FAIT UNE LARGEUR D'ÉCRAN, et c'est ce qui rend le rapport exact : une
    tuile avance de 65 pendant qu'une dalle avance de 375. ⛔ `relative`, parce que les
    douze cases se posent DEDANS — le plan les déclare hôtées par la bande. */

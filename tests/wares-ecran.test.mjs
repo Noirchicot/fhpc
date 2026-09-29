@@ -3,7 +3,7 @@
    contre une ancre `equipement-wares-*` ou contre une phrase d'Eric datée du 20/09.
    ⛔ AUCUN NE LIT UN COMMENTAIRE : le sélecteur et la donnée font foi. */
 
-import test, { mock } from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -28,18 +28,13 @@ function tap(jeton, pointerType = "touch") {
   document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 1 });
 }
 
-const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
-/* ⏱️ LOT 331 — un glisser d'Equipment ne s'active qu'après `MAINTIEN_EQUIPEMENT_MS` (Eric, 27/09 :
-   « Le drag doit attendre 500 ms ») : le geste simulé TIENT le jeton, sur une horloge simulée. */
-function tenirLeJeton(appui) {
-  mock.timers.enable({ apis: ["setTimeout"] });
-  try { appui(); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); } finally { mock.timers.reset(); }
-}
+/* 🗄️ LOT 355 — `tenirLeJeton` est retiré : il tenait le jeton `MAINTIEN_EQUIPEMENT_MS` avant de le porter
+   (le péage du lot 331). Le glisser part au mouvement : les gestes de ce fichier portent tout de suite. */
 
 /** ⭐ UN GLISSER JUSQU'À UN CRÉNEAU — le geste qui CHOISIT (tap = info, glisser = choisir). */
 function glisserVers(jeton, creneau) {
   document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? creneau : null) });
-  tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" }));
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
   document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
   document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });
 }
@@ -495,7 +490,7 @@ test("20 bis · le glisser lève un fantôme, le relâché le range — ⛔ un t
   const fantomes = () => document.body.querySelectorAll(".glisse-fantome").length;
   document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? collecteur : null) });
   const j = tous(n, ".wares-jeton")[1];
-  tenirLeJeton(() => j.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" }));
+  j.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
   document.dispatchEvent({ type: "pointermove", clientX: 60, clientY: 60, pointerId: 1 });
   assert.equal(fantomes(), 1, "⛔ le jeton glissé ne se voit pas partir : aucun fantôme");
   document.dispatchEvent({ type: "pointerup", clientX: 60, clientY: 60, pointerId: 1 });

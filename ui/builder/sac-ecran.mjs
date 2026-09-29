@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, TOUCH, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=904";
-import { versionQuery } from "./version.mjs?v=904";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=904";
+import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=905";
+import { versionQuery } from "./version.mjs?v=905";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=905";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=904";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=905";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=904";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=905";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=904";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=905";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=904";
+import { portesCarrees } from "./porte-carree.mjs?v=905";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=904";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=905";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=904";
+import { facteurZoomCourant } from "./echelle.mjs?v=905";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=904";
+import { armerEngrenage } from "./engrenage.mjs?v=905";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -575,19 +575,13 @@ export function poserLesDalles() {
    mode déplacement est mort avec lui le 19/09. */
 export const MAINTIEN_MS = 1500;
 
-/** ⏱️ LE PÉAGE DU JETON — Eric, 2026-09-19 : *« 350 ms sur jeton, swipe désactivé, fait
- *  tout passer en mode drag'n'drop… si on n'est pas en mode drag le swipe fonctionne »*.
- *  🧊 ET CE N'EST PAS UNE COTE NEUVE : c'est celle que le jeton portait jusqu'au 20/08,
- *  quand la grille des sorts avait encore un ascenseur. Eric l'avait fait retirer avec sa
- *  cause ; le sac fait revenir la cause, la cote revient avec.
- *  ⭐ ET C'EST LE SPRINGBOARD D'iOS, son autre mot du même soir : on tient une app avant
- *  de pouvoir la porter. Le péage n'est pas une rustine, c'est le prix universel de deux
- *  gestes sur les mêmes pixels. */
-/*  🔄 LOT 331 — 350 → 500, et la cote vit dans l'organe. Eric, 27/09 : *« Le drag doit attendre
- *  500 ms, avant de s'activer »*. ⭐ Elle est désormais celle de toute l'étape
- *  (`MAINTIEN_EQUIPEMENT_MS`, `glisser.mjs`) : Pack, Wares et Gear s'échangent des objets en
- *  double écran, et une seule attente fait un seul geste. */
-export const PEAGE_JETON_MS = MAINTIEN_EQUIPEMENT_MS;
+/* 🗄️ LE PÉAGE DU JETON — `PEAGE_JETON_MS` — EST RETIRÉ AU LOT 355. Eric, 19/09 : *« 350 ms sur jeton,
+   swipe désactivé, fait tout passer en mode drag'n'drop… si on n'est pas en mode drag le swipe
+   fonctionne »* ; porté à 500 ms au lot 331 (*« Le drag doit attendre 500 ms, avant de s'activer »*,
+   27/09). Il n'existait que pour départager « défiler les dalles » et « prendre l'objet » sous le
+   même doigt — c'était le springboard d'iOS. ⚡ Eric, 29/09 : *« désactive le swipe des dalles
+   backpack et réinstaure le drag and drop rapidement actif »* — les dalles ne défilent plus au doigt,
+   le péage n'a plus rien à départager : l'objet du sac se glisse dès qu'il bouge. */
 
 /** ⭐ LE MÊME MINUTEUR QUE LA MARGE — ⛔ pas un second. Tenir un chevron fait défiler la
  *  roue cran par cran, et relâcher l'arrête. La règle « on ne relance rien tant que le
@@ -732,9 +726,9 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud, horsCible = u
        collecteurs d'Equipment — un organe, un geste. ⛔ Rien n'est écrit au document : le contenu
        d'un collecteur n'est pas un item tant qu'on n'a pas fait Send. */
     onHorsCible: horsCible,
-    /* ⏱️ LE PÉAGE, ET IL N'EST PAS GÉNÉRAL : il vit ici parce que le sac a un ascenseur.
-       ⛔ Species et les sorts n'en ont pas, donc pas de péage — la loi du 20/08 tient. */
-    maintien: PEAGE_JETON_MS,
+    /* ⚡ LOT 355 — ⛔ PLUS DE PÉAGE : l'objet se glisse dès qu'il bouge. `maintien` n'est plus que
+       la durée de l'appui long qui ARME (la grammaire, plus bas), la même cote que Gear, Wares et X5. */
+    maintien: MAINTIEN_EQUIPEMENT_MS,
     /* 🖐️ LOT 347 — LA GRAMMAIRE « ARMER PUIS POSER » (NORMES `geste-armer-puis-poser`, réponse 7 : « partout »,
        Equipment compris). VOIR = tap / clic droit → la fiche X1 ; ARMER = clic gauche / appui long → les cases
        libres (et, en double écran, celles de Gear) s'allument ; POSER = clic ou tap sur l'une d'elles, ou glisser.
@@ -757,49 +751,11 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud, horsCible = u
   });
 }
 
-/* ══ LE BALAYAGE DE LA GRILLE — Eric, 18/09 au soir ════════════════════════
-   ⚖️ *« reste le balayage, qui est accessible »* — dit APRÈS avoir tranché que les
-   tuners sont une affaire de souris. ⭐ La molette tourne la page à la souris ; le
-   balayage la tourne au doigt, et c'est LUI le geste que tout le monde peut faire.
-   ⛔ UN GESTE QUI PART D'UN JETON EST UN GLISSER, PAS UN BALAYAGE — c'est la seule
-   règle qui les sépare, et elle se lit sur le nœud (`data-glissable`, la marque que
-   `armerJeton` pose). Sans elle, prendre un objet pour le déplacer tournerait la
-   page sous lui. ⭐ Et c'est la convention du téléphone : on glisse une icône, on
-   balaie la page. */
-
-/** ⛔ LE SEUIL NE S'INVENTE PAS : un mouvement plus court qu'une CIBLE TACTILE n'est
- *  pas un balayage, c'est un tap qui a tremblé. `TOUCH` est déjà ce plancher-là. */
-const SEUIL_BALAYAGE = TOUCH;
-
-/** ⭐ DEUX SURFACES, DEUX SUJETS, LE MÊME GESTE. Sur la GRILLE il tourne la PAGE ; sur
- *  la ROUE il tourne la SECTION — Eric, 19/09 : *« les sections de sacs, le swipe doit
- *  fonctionner »*. ⛔ Écrit UNE fois : deux copies divergeraient au premier réglage. */
-function balayage(noeud, { surface, actif, agit }) {
-  let depart = null;
-  const oublie = () => { depart = null; };
-  noeud.addEventListener("pointerdown", (ev) => {
-    oublie();
-    if (!actif()) return;
-    const cible = ev && ev.target;
-    if (!cible || typeof cible.closest !== "function") return;
-    if (cible.closest('[data-glissable="true"]')) return;   /* c'est un glisser */
-    if (!cible.closest(surface)) return;
-    depart = { x: ev.clientX, y: ev.clientY };
-  });
-  noeud.addEventListener("pointercancel", oublie);
-  noeud.addEventListener("pointerup", (ev) => {
-    if (!depart) return;
-    const dx = ev.clientX - depart.x;
-    const dy = ev.clientY - depart.y;
-    oublie();
-    /* ⛔ ET IL DOIT ÊTRE FRANCHEMENT HORIZONTAL : sur un écran qui défile, un geste
-       ambigu appartient au défilement, jamais à nous. */
-    if (Math.abs(dx) < SEUIL_BALAYAGE || Math.abs(dx) <= Math.abs(dy)) return;
-    /* ⭐ vers la GAUCHE = la SUITE, la convention du téléphone : on pousse ce qu'on
-       regarde hors de l'écran pour faire venir la suite. */
-    agit(dx < 0 ? 1 : -1);
-  });
-}
+/* 🗄️ LE BALAYAGE DE LA GRILLE — Eric, 18/09 au soir : *« reste le balayage, qui est accessible »*.
+   Il tournait la page au doigt quand un geste horizontal partait d'une case vide (un geste parti
+   d'un jeton était un glisser, lu sur `data-glissable`). ⚡ RETIRÉ AU LOT 355 avec sa fonction
+   (`balayage`) et son seuil (`SEUIL_BALAYAGE`) : *« les tuiles peuvent être swipées mais pas la
+   dalle »* (Eric, 29/09). Voir `construireLeSac`. */
 
 /** \ud83d\udccb LA NOTICE DU MODE EDIT \u2014 Eric, 2026-09-20 : *\u00ab la notice de l'edit mode
  *  appara\u00eet au-dessus de la dalle 2 \u00bb*, puis, quand je lui demandais qui payait sa
@@ -993,8 +949,9 @@ function case_(id, objet, options, pisteNoeud) {
      ⭐ C'EST L'IDIOME DU TUNER, celui qu'Eric a demandé pour la roue : *« utiliser le
      scroll de la souris peut aider le défilement »*. La roue tourne les SECTIONS, la
      grille tourne les PAGES — deux surfaces, deux sujets, le même geste.
-     ⏳ ET LE GESTE TACTILE N'EST PAS TRANCHÉ : à la souris on y est, au doigt il
-     manque un balayage. ⛔ Je ne l'invente pas — question posée à Eric. */
+     🗄️ Le geste tactile a été le balayage de la grille (18/09 → 29/09) ; ⚡ il est retiré au lot 355
+     (*« les tuiles peuvent être swipées mais pas la dalle »*) : au doigt, un objet change de page en
+     étant porté dans la marge. */
   c.addEventListener("wheel", (ev) => {
     if (!options.pages || options.pages < 2) return;
     if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
@@ -1091,7 +1048,7 @@ export const ORGANES_D_ECHANGE = Object.freeze([
  *   · `poids`    : `{ gear, backpack, encombrement }`, déjà mis en mots ;
  *   · `compteurs`: `{ tally, "party-tally" }` — ce que chaque parchemin porte ;
  *   · `page` / `pages` : la fraction déjà en mots, et le NOMBRE de pages — la
- *     molette ET le balayage ne tournent que s'il y en a plus d'une ;
+ *     molette ne tourne que s'il y en a plus d'une (le balayage est retiré, lot 355) ;
  *   · les gestes : `surTourner`, `surSection`, `surJeton`, `surTrier`,
  *     `surSections`, `surAjouter`, `surRenommer`, `surSupprimer`, `surEditer`, `surPage`,
  *     `surCollecte`, `surPlacer`, `surDrop`, `surDestination`, `surPorte`.
@@ -1158,16 +1115,12 @@ export function construireLeSac(options = {}) {
     noeud.append(f);
   }
 
-  /* ⭐ LES DEUX BALAYAGES ÉCOUTENT SUR LA DALLE, PAS SUR CHAQUE ORGANE : douze
-     écouteurs pour un seul geste, c'est douze occasions d'en oublier un. La
-     délégation lit la cible, et c'est ELLE qui dit de quel sujet il s'agit. */
-  balayage(noeud, { surface: ".sac-case",
-    actif: () => options.pages > 1,
-    agit: (sens) => options.surPage && options.surPage(sens) });
-  /* ⛔ PLUS DE BALAYAGE MAISON SUR LA ROUE — Eric, 20/09 : *« aussi fluide que dans le
-     belt »*. Le défilement est NATIF maintenant ; un balayage écrit à la main par-dessus
-     se battrait avec lui, et c'est l'inertie du système qu'on perdrait — exactement ce
-     qu'on cherchait à gagner. ⭐ Celui de la GRILLE reste : elle, ne défile pas. */
+  /* 🗄️ LOT 355 — LE BALAYAGE DE LA GRILLE EST RETIRÉ. Eric, 29/09, à « et le balayage de la
+     grille ? » : *« les tuiles peuvent être swipées mais pas la dalle. on peut toujours déplacer
+     une tuile d'une page à une autre en la déplaçant dans la marge »*. ⭐ La dalle ne se balaie
+     plus, DU TOUT : les pages se tournent par les chevrons, l'engrenage et la molette, et un objet
+     change de page en étant porté dans la marge (`regardeLaMarge`). ⛔ Celui de la roue était déjà
+     mort le 20/09 (*« aussi fluide que dans le belt »*) : son défilement est natif. */
 
   /* ⛔ LES TUNERS SONT POSÉS SUR LA DALLE, pas dans la roue : la table les
      déclare `dans: "ROUE"` pour dire qu'ils LUI APPARTIENNENT — un voyant dans
@@ -1309,15 +1262,15 @@ export function construireLeSac(options = {}) {
      pages et le nombre d'items au même niveau que la deuxième ligne de
      l'encumbrance »*. ⭐ Trois mesures du même sac, sur une seule ligne, lues d'un
      regard — au lieu d'une rangée de plus sous la grille. ⛔ Deux voyants, pas deux
-     contrôles : on ne tourne pas la page en tapant la fraction (le balayage et la
-     molette le font). */
+     contrôles : on ne tourne pas la page en tapant la fraction (la molette le fait ; le
+     balayage, qui le faisait au doigt, est retiré au lot 355). */
   /* ⛔ NI COMPTE GLOBAL NI COMPTEUR DE PAGES — Eric, 19/09 : *« j'ai mis le nombre
      d'items sous les Gear, Back, Other »* · *« inutile de compter les pages »*.
      ⭐ Le compte du sac EST « Backpack 22 items » : un chiffre écrit deux fois diverge
      au premier réglage. Ce que la source du chapitre demandait (*« le compte total à
      gauche »*) est donc tenu, et mieux — trois comptes au lieu d'un.
-     ⭐ ET LES PAGES EXISTENT TOUJOURS : la grille déborde, le balayage et la molette la
-     tournent. C'est le COMPTEUR qui s'en va, pas la pagination. */
+     ⭐ ET LES PAGES EXISTENT TOUJOURS : la grille déborde, la molette la tourne. C'est le
+     COMPTEUR qui s'en va, pas la pagination. */
 
   /* ⭐ UN OBJET RETENU A QUITTÉ SA CASE, et on le retire ICI plutôt que de demander
      à la case de se taire — Eric, 16/09 : *« il doit quitter l'emplacement et rester
@@ -1406,74 +1359,30 @@ export function construireLeSac(options = {}) {
     return k < 0 ? 0 : k;
   };
   const dalleDuCran = (cran) => premiereDalleDe(Math.max(0, r.section(cran)));
-  /* ⭐ ET SA RÉCIPROQUE : de quelle section parle la dalle `k` ? ⛔ Une LECTURE — c'est la
-     dalle elle-même qui le dit, parce qu'une section peut en valoir deux. */
-  const sectionDeLaDalle = (k) => {
-    const d = dalles[Math.max(0, Math.min(dalles.length - 1, k))];
-    return d ? (d.section | 0) : 0;
-  };
-
-  /* 🔴 ET SON INVERSE SE LIT AUSSI — ⛔ IL NE SE DIVISE PAS PAR LA LARGEUR.
-     ⚠️ LA FAUTE QUE ÇA RÉPARE, et c'est celle qu'Eric a photographiée le 19/09 à 22:52 :
-     le chemin inverse faisait `piste.scrollLeft / largeurDalle()`. Une LARGEUR n'est pas
-     un PAS — entre deux plaques il y a un JOUR de 52,63. Le pas vaut 374 + 52,63 = 426,63,
-     et diviser par 374 rend **1,14** là où la plaque 1 est pleine cadre.
-     📐 Donc la roue se posait 14 % après son cran — une tuile à cheval sur sa voisine,
-     exactement l'image `Storage 1` chevauchant `Storage 2`. ⛔ ET L'ERREUR GRANDIT AVEC LE
-     RANG : 14 % à la deuxième plaque, 28 % à la troisième, 42 % à la quatrième — au
-     huitième cran elle désignerait la plaque d'à côté.
-     🔴 ET ELLE EST NÉE AVEC LE JOUR : tant que le jour valait 0, largeur ET pas valaient
-     374 et la faute dormait. Elle s'est réveillée à 8, a doublé à 24, triplé à 52,63 —
-     et le sens roue→plaques, lui, n'a jamais souffert : il LIT `offsetLeft`.
-     ⭐ La parade est celle de `xDeLaDalle` à l'endroit : on ENCADRE la position entre deux
-     plaques lues dans la mise en page, et on interpole entre elles. Aucun pas déduit. */
-  const positionDesDalles = (x) => {
-    const n = piste.children.length;
-    if (n < 1) return 0;
-    let k = 0;
-    while (k + 1 < n && xDeLaDalle(k + 1) <= x) k += 1;
-    const a = xDeLaDalle(k);
-    const b = k + 1 < n ? xDeLaDalle(k + 1) : a + (a - xDeLaDalle(Math.max(0, k - 1)));
-    return b > a ? k + (x - a) / (b - a) : k;
-  };
+  /* 🗄️ LOT 355 — LE CHEMIN INVERSE (plaques → roue) EST RETIRÉ, et avec lui `sectionDeLaDalle` et
+     `positionDesDalles`, qui n'existaient que pour lui. Il servait quand le DOIGT poussait les plaques
+     et que la roue devait les suivre (19/09) ; le doigt ne pousse plus les plaques. Sa loi reste écrite
+     (`geste-le-pas-d-une-plaque-se-lit` : ⛔ une largeur n'est pas un pas) et vaut pour le sens qui
+     demeure — `xDeLaDalle` LIT `offsetLeft`, il ne multiplie pas. */
 
   let enAttente = false;
-  let enAttenteDalles = false;
   let repos = null;
   let derniereDalle = options.dalle | 0;
 
-  /* ══ 🎚️ L'ARBITRE — un maître par geste, ⛔ jamais deux ═══════════════════════
-     ⚖️ Eric, 2026-09-19 : *« si on n'est pas en mode drag le swipe fonctionne »* — donc
-     les DEUX surfaces défilent au doigt, la roue et les dalles.
-     🔴 ET DEUX DÉFILEURS VERROUILLÉS L'UN À L'AUTRE OSCILLENT : chacun lit l'autre et le
-     corrige à l'image suivante, indéfiniment. ⛔ Ce n'est pas une question de réglage,
-     c'est une boucle.
-     ⭐ LA PARADE TIENT EN UN MOT : celui que le doigt a TOUCHÉ mène, et il n'écrit que
-     dans l'autre. Le `pointerdown` le désigne, et rien d'autre ne le change — donc il n'y
-     a jamais deux écrivains en même temps, par construction et pas par réglage. */
-  /* 🔴 ET LE SUIVEUR N'AIMANTE PAS — sinon il ne peut pas suivre, et c'est MESURÉ.
-     📏 Relevé à l'écran le 19/09, roue immobilisée à mi-chemin (97 = 65 × 1,5) : les dalles
-     rendaient **383** au lieu de 563. Une aimantation `mandatory` REFUSE toute position
-     intermédiaire — le navigateur la corrige à l'image suivante. Le suiveur sautait donc
-     de cran en cran pendant que le meneur, lui, glissait.
-     ⛔ ET MON BANC NE POUVAIT PAS LE VOIR : tous mes relevés tombaient sur des positions
-     DÉJÀ alignées (65 × 3, 375 × 3), où l'aimantation ne corrige rien. Une mesure qui ne
-     visite que les crans ne dit rien de l'entre-deux — c'est Eric qui l'a vu, à l'œil.
-     ⭐ L'aimantation appartient donc au MENEUR, et elle se coupe chez l'autre. C'est
-     l'idiome du belt (`data-couture`), à un mot près. */
-  let maitre = "roue";
-  const mener = (qui) => {
-    maitre = qui;
-    r.dataset.mene = qui === "roue" ? "oui" : "non";
-    piste.dataset.mene = qui === "dalles" ? "oui" : "non";
-  };
-  mener("roue");
-  r.addEventListener("pointerdown", () => mener("roue"), { passive: true });
-  piste.addEventListener("pointerdown", () => mener("dalles"), { passive: true });
+  /* ══ ⚡ UN SEUL MAÎTRE, ET IL NE CHANGE PLUS — lot 355, Eric, 29/09 ═══════════════════
+     ⚖️ *« désactive le swipe des dalles backpack »* · *« les tuiles peuvent être swipées mais pas
+     la dalle »*. La roue des sections MÈNE, toujours ; le ruban de plaques SUIT, toujours.
+     🗄️ CE QUI MEURT : l'ARBITRE du 19/09 (`geste-celui-que-le-doigt-touche-mene`) — deux défileurs
+     verrouillés l'un à l'autre oscillaient, et un `pointerdown` désignait celui que le doigt avait
+     touché, qui n'écrivait que dans l'autre. ⭐ Il n'y a plus qu'un défileur au doigt : la boucle ne
+     peut plus naître, et l'arbitre n'a plus rien à trancher. ⛔ Le garder aurait laissé un doigt posé
+     sur un jeton désigner les plaques comme maîtres — et la roue, lancée, aurait cessé de les mener.
+     🔴 ET LE SUIVEUR N'AIMANTE PAS — sinon il ne peut pas suivre, et c'est MESURÉ (19/09, roue
+     immobilisée à mi-chemin, 97 = 65 × 1,5 : les dalles rendaient **383** au lieu de 563). ⭐ Le ruban
+     n'a donc pas d'aimant du tout (`.sac-dalles`, `scroll-snap-type: none`) ; la roue garde le sien. */
 
   const suivre = () => {
     enAttente = false;
-    if (maitre !== "roue") return;
     const l = largeurDalle();
     if (!(l > 0)) return;
     const p = r.scrollLeft / ROUE.pas;          /* la position du ruban, en tuiles */
@@ -1490,12 +1399,7 @@ export function construireLeSac(options = {}) {
 
   const arrete = () => {
     repos = null;
-    /* 🔴 ET IL NE PARLE QUE S'IL MÈNE — sans ce mot, la roue écrit DANS LE DOIGT.
-       ⚠️ LA CHAÎNE, ET ELLE EST LA TÊTE DE SÉRIE DU 19/09 : les plaques mènent → le
-       suivi écrit `r.scrollLeft` → ça émet un `scroll` SUR LA ROUE → et l'écouteur de
-       la roue réarme le repos AVEC `arrete`. Le décideur avait donc changé en cours de
-       geste, à l'insu de tout le monde. ⛔ `arreteLesDalles` ne tournait même pas. */
-    if (maitre !== "roue") return;
+    /* 🗄️ LOT 355 — « IL NE PARLE QUE S'IL MÈNE » est parti avec l'arbitre : la roue mène toujours. */
     /* 👻 ⛔ UNE ROUE QUI N'EST PLUS À L'ÉCRAN NE PARLE PAS. Un défileur détaché voit son
        `scrollLeft` retomber à zéro, cette retombée émet un `scroll`, et un minuteur
        survivant commettrait la première section — relevé le 19/09, deux fois. */
@@ -1518,96 +1422,33 @@ export function construireLeSac(options = {}) {
     if (options.surDalle) options.surDalle(k);
   };
 
-  /* ⭐ UN SEUL MINUTEUR DE REPOS POUR LES DEUX SURFACES, ET IL CHOISIT À L'ARRIVÉE.
-     ⚠️ LA FAUTE QU'IL REMPLACE, et c'est celle qui a fait la capture d'Eric à 22:52 : le
-     minuteur choisissait son exécutant AU MOMENT DE L'ARMER. Or entre l'armement et le
-     tir, le suivi écrit dans l'autre surface, cette écriture émet un `scroll`, et
-     l'écouteur d'en face réarme le repos avec SON handler. Le geste était mené par les
-     plaques et terminé par la roue.
-     🔴 LA LEÇON, plus large que ce bogue : *un arbitre ne se lit pas au départ.* Toute
-     décision gélée à l'armement d'un minuteur est une décision prise avant les faits. */
-  const repose = () => {
-    repos = null;
-    if (maitre === "dalles") arreteLesDalles();
-    else arrete();
-  };
-
+  /* ⭐ LE MINUTEUR DE REPOS N'A PLUS QU'UN EXÉCUTANT — la fin de geste de la roue.
+     🗄️ Il en a eu deux (19/09), et c'est là qu'est née `socle-un-arbitre-se-lit-a-l-arrivee` : le
+     minuteur choisissait son exécutant AU MOMENT DE L'ARMER, et le suivi, en écrivant dans l'autre
+     surface, faisait réarmer le repos par l'écouteur d'en face — le geste mené par les plaques se
+     terminait par la roue. ⚡ Lot 355 : une seule surface au doigt, donc une seule fin de geste — la
+     question ne se pose plus, et la loi reste vraie partout où elle se posera. */
   r.addEventListener("scroll", () => {
     if (!enAttente) {
       enAttente = true;
       (typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout)(suivre);
     }
     if (repos) clearTimeout(repos);
-    repos = setTimeout(repose, REPOS_MS);
+    repos = setTimeout(arrete, REPOS_MS);
   }, { passive: true });
 
-  /* ⭐ ET LE CHEMIN INVERSE : quand c'est la DALLE qu'on pousse, c'est la roue qui suit.
-     ⛔ Le même calcul lu à l'envers — on cherche la tuile de la dalle courante, et on
-     interpole entre elle et sa voisine. Une seconde formule dériverait de la première. */
-  const suivreLesTuiles = () => {
-    enAttenteDalles = false;
-    if (maitre !== "dalles") return;
-    const l = largeurDalle();
-    if (!(l > 0) || typeof r.placer !== "function") return;
-    const p = positionDesDalles(piste.scrollLeft);
-    const bas = Math.floor(p);
-    const f = p - bas;
-    const a = r.rang(sectionDeLaDalle(bas));
-    const b = r.rang(sectionDeLaDalle(bas + 1));
-    r.scrollLeft = ROUE.pas * (a + (b - a) * f);
-    r.marquer(Math.round(a + (b - a) * f));
-  };
-
-  const arreteLesDalles = () => {
-    repos = null;
-    if (piste.isConnected === false || maitre !== "dalles") return;
-    const k = Math.round(positionDesDalles(piste.scrollLeft));
-    /* ⭐ ET LA ROUE SE POSE EXACTEMENT ICI — LA SYMÉTRIE DE `arrete()`, et elle manquait.
-       ⚠️ LA FAUTE : quand les plaques mènent, la roue est le SUIVEUR, donc son aimantation
-       est coupée (`[data-mene="non"]`). Rien ne la ramène sur son cran — elle reste où
-       l'interpolation l'a laissée. C'est la moitié du décalage qu'Eric a vu.
-       🔴 LA LEÇON, plus large que ce bogue : j'ai écrit le verrou dans un sens, puis je l'ai
-       *retourné* dans l'autre — et j'ai retourné le calcul sans retourner les deux
-       corrections qui l'accompagnaient (le pas lu, la pose exacte). Un chemin inverse
-       n'hérite de rien : il se relit ligne à ligne contre celui qu'il reflète. */
-    const cran = r.rang(sectionDeLaDalle(k));
-    const x = ROUE.pas * cran;
-    if (Math.round(r.scrollLeft) !== Math.round(x)) {
-      r.scrollLeft = x;
-      r.marquer(cran);
-    }
-    if (k === derniereDalle || !dalles[k]) return;
-    derniereDalle = k;
-    if (options.surDalle) options.surDalle(k);
-  };
-
-  piste.addEventListener("scroll", () => {
-    if (!enAttenteDalles) {
-      enAttenteDalles = true;
-      (typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout)(suivreLesTuiles);
-    }
-    if (repos) clearTimeout(repos);
-    repos = setTimeout(repose, REPOS_MS);
-  }, { passive: true });
+  /* 🗄️ LOT 355 — `suivreLesTuiles`, `arreteLesDalles` et l'écouteur `scroll` du ruban sont RETIRÉS :
+     c'était le sens plaques → roue, quand le doigt poussait les plaques (19/09). Le ruban ne défile
+     plus que par programme (`suivre`, `arrete`, `placementEnAttente`), et ses `scroll` ne décident de
+     rien. Leur leçon est écrite (`socle-un-retournement-n-herite-pas-de-son-entourage`). */
 
   /* ⭐ ET LES CHEVRONS POUSSENT LA ROUE D'UNE TUILE — du MÊME mouvement aimanté que le
-     doigt. ⛔ Pas un saut : deux régimes sur une seule surface la rendent illisible. */
+     doigt. ⛔ Pas un saut : deux régimes sur une seule surface la rendent illisible.
+     ⭐ Chevrons, tuner, engrenage, marge du glisser : tous passent par ICI, et la roue est leur seul
+     écrivain — les plaques suivent par `suivre`. 🗄️ Le « `mener("roue")` » qui ouvrait cette fonction
+     (19/09 : *« mettre le token dans la marge fait défiler les tuiles mais pas les dalles »*) est parti
+     avec l'arbitre : il n'y a plus de maître à rappeler. */
   piste.pousser = (sens) => {
-    /* 🔴 ET UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT — il rend donc la main à la roue.
-       ⚠️ LA FAUTE QUE ÇA RÉPARE, Eric le 19/09 : *« mettre le token dans la marge fait
-       défiler les tuiles mais pas les dalles »*. Un `pointerdown` sur un jeton BULLE
-       jusqu'à la piste — et il le doit, puisqu'avant le péage ce même doigt peut encore
-       balayer les plaques. Mais une fois qu'il PORTE un objet, plus personne ne fait
-       glisser de plaque : la marge pousse la ROUE, et le verrou refusait de la suivre
-       parce que l'arbitre désignait encore les plaques.
-       ⭐ LA LOI EST LÀ : *l'arbitre nomme la surface que le DOIGT fait glisser.* Chevrons,
-       tuner, marge, placement d'ouverture — aucun n'est un doigt sur une surface, donc
-       chacun repasse la main à celui qu'il écrit. ⛔ Sans ce mot, tout défilement
-       programmé n'entraîne que la moitié de l'écran.
-       ⛔ ET C'EST MA FAUTE DU TOUR D'AVANT : en donnant un maître à chaque geste, j'ai
-       fait dépendre de lui des défilements qui n'ont pas de doigt du tout. Un arbitre qui
-       tranche entre deux doigts ne dit RIEN d'un mouvement qui n'en a pas. */
-    mener("roue");
     /* ⚙️ LOT 346 — l'engrenage tourne quand la roue BOUGE, et pas autrement : `pousser` le dit (`false` en
        butée). ⭐ Et deux crans rapides font deux tuiles : parti d'un défilement lissé encore en vol, le
        suivant repart du cran VISÉ, pas de la position intermédiaire (qui viserait le même cran). */
@@ -1629,8 +1470,6 @@ export function construireLeSac(options = {}) {
      s'il se relit. ⭐ Poser la ROUE suffit : les dalles suivent par le même chemin que
      sous le doigt, donc il n'y a qu'un seul placement à écrire. */
   placementEnAttente = () => {
-    /* ⭐ MÊME LOI : le placement d'ouverture n'est pas un doigt. */
-    mener("roue");
     const x = ROUE.pas * r.vise;
     if (typeof r.scrollTo === "function") r.scrollTo({ left: x, behavior: "auto" });
     else r.scrollLeft = x;

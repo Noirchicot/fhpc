@@ -1232,7 +1232,7 @@ au milieu · contrôles collés en bas. ➡️ **Un écran qui défile a trois b
 deux du dehors ne bougent jamais.
 
 ### ✅ LE SAC défile aussi — et il est le premier à le faire **à l'horizontale** *(Eric, 19/09)*
-📍 `geste-sac-defile-a-l-horizontale` · vivante · 19/09
+📍 `geste-sac-defile-a-l-horizontale` · vivante · 19/09 · bornée par `geste-la-dalle-ne-se-balaie-plus`
 ⚖️ **Le sac (`Équipement › B1`) est le troisième écran à défiler, et le premier dont le flux va de côté.**
 
 Eric, 2026-09-19, croquis à l'appui : *« dalle fixe »* en haut · *« dalle qui défile »* au milieu ·
@@ -1364,7 +1364,7 @@ gouttière de la grille : se ressembler ne les rend pas identiques, l'une dimens
 l'autre sépare des *jetons*.
 
 ### ✅ CELUI QUE LE DOIGT TOUCHE MÈNE *(Eric, 19/09)*
-📍 `geste-celui-que-le-doigt-touche-mene` · vivante · 19/09
+📍 `geste-celui-que-le-doigt-touche-mene` · remplacée · 19/09 · remplacée par `geste-la-dalle-ne-se-balaie-plus`
 ⚖️ **Quand deux surfaces défilent ensemble, celle que le doigt a TOUCHÉE mène et n'écrit que dans l'autre ; le `pointerdown` la désigne, et rien d'autre ne la change.**
 
 Eric, 2026-09-19 : *« si on n'est pas en mode drag **le swipe fonctionne** »* — donc les **deux**
@@ -1376,6 +1376,8 @@ l'image suivante, indéfiniment. ⛔ Ce n'est pas une question de réglage, **c'
 ⭐ **La parade ne se règle pas, elle se construit** : il n'y a jamais deux écrivains en même temps
 **par construction**. ⛔ Et ce n'est pas un meneur *permanent* : une pente supposerait un ruban mené
 par l'autre, ce qu'Eric a précisément refusé.
+🗄️ **Remplacée le 29/09 (lot 355)** — Eric : *« désactive le swipe des dalles backpack »*. Une seule surface défile
+au doigt, la roue, et elle mène toujours : il n'y a plus deux doigts à départager (`geste-la-dalle-ne-se-balaie-plus`).
 
 ### ✅ LE SUIVEUR N'AIMANTE PAS *(mesuré le 19/09)*
 📍 `geste-le-suiveur-n-aimante-pas` · vivante · 19/09
@@ -10026,7 +10028,7 @@ garde SA navigation (celle de son clic) et son aiguille (angle cumulé, partagé
 `--astrolabe-face/-laiton/-encre`, jour ET nuit ; `@media (hover: hover) and (pointer: fine)` seulement.
 🗄️ Remplace la flèche circulaire du tuner au survol (`--icone-tuner`, lot 214).
 
-📍 `equipement-glisser-500ms-et-marge-fermee` · vivante · 27/09
+📍 `equipement-glisser-500ms-et-marge-fermee` · remplacée · 27/09 · remplacée par `geste-le-glisser-part-au-mouvement`
 ⚖️ **Dans l'étape Equipment, un glisser ne s'active qu'après 500 ms d'appui ; porté plus tôt, le geste n'est ni un glisser ni un tap. Le défilement de dalle de Pack attend 500 ms dans une marge FERMÉE — la bande entre la grille et le bord de la dalle, à hauteur de la grille ; en sortir remet l'attente à zéro. En double écran, le collecteur plein de Wares se glisse sur la page voisine.**
 
 > Eric, 2026-09-27 : **« Le drag and drop en partant du collecteur de wares vers un double écran, notamment
@@ -10057,6 +10059,9 @@ Add · Cancel. Un jeton de la grille accepte tout receveur déclaré de la page 
 🛒 Collecteur de Wares → case de Gear : achat (popup du lot 307), puis `placerGearLine` sur la case ;
 → case vide de Pack (receveuse en double écran seulement) : achat, puis la section regardée, à la place
 de la case ; → collecteur de Gear : achat, au sac ; → Tally : au panier. Son tap passe par `armerJeton`.
+🗄️ **Remplacée le 29/09 (lot 355)** pour son attente : plus aucun glisser n'attend 500 ms (`geste-le-glisser-part-au-mouvement`).
+⭐ **La marge fermée, elle, survit telle quelle** — sa zone et ses 500 ms avant de changer de dalle, pendant le glisser.
+
 
 📍 `x-fiche-cadre-de-la-trilogie` · vivante · 27/09
 ⚖️ **X1 et X2 prennent le cadre des dalles de Gear, Pack et Wares (375 × 495, du haut de la boîte) ; le titre est à 8 du haut, 8 le sépare des valeurs (rareté, prix, quantité), 8 sépare les valeurs du trait ; le dessin des portes finit à 8 du bas, et tout le pied — trait bas du texte compris — le suit. Le texte descriptif prend ce qui reste. Sans rareté, les valeurs remontent à sa place.**
@@ -10112,7 +10117,7 @@ un choix, et Chrome l'affiche même au doigt. ⚠️ Le clavier perd son repère
 ne distingue pas le focus au doigt du focus au clavier, et Eric a tranché pour l'œil.
 
 📍 `geste-armer-puis-poser` · vivante · 28/09
-⚖️ **Sur tout le site, un objet déplaçable se VOIT, s'ARME et se POSE, à la souris comme au doigt. Voir = clic droit (souris) · tap (doigt) → popup ou fiche selon l'objet. Armer = clic gauche (souris) · appui long 500 ms (doigt, avec un FLASH de halo) → l'objet prend un liseré bleu et TOUTES ses destinations possibles s'allument en bleu. Poser = clic ou tap sur une destination allumée, ou glisser (souris : dès 6 px ; doigt : après l'appui long).**
+⚖️ **Sur tout le site, un objet déplaçable se VOIT, s'ARME et se POSE, à la souris comme au doigt. Voir = clic droit (souris) · tap (doigt) → popup ou fiche selon l'objet. Armer = clic gauche (souris) · appui long 500 ms (doigt, avec un FLASH de halo) → l'objet prend un liseré bleu et TOUTES ses destinations possibles s'allument en bleu. Poser = clic ou tap sur une destination allumée, ou glisser ~~(souris : dès 6 px ; doigt : après l'appui long)~~ (dès 6 px, au doigt comme à la souris : le glisser part au MOUVEMENT, et l'appui long immobile arme encore — lot 355, 29/09).**
 
 > Eric, 2026-09-28 : **« à la souris, comme au doigt. clic gauche = illumine liseré bleu le token ciblé et
 > toutes les destinations possibles, clic gauche tap sur destination, le token se déplace. appui long,
@@ -10156,6 +10161,23 @@ Wares (leurs objets et leurs collecteurs pleins), le jeton de X5 en double écra
     Ils viendront avec sa réponse sur l'attente ;
   · ⏳ **X3 (le Tally) et X4 (le Group Tally) attendent** — Eric, 28/09 : *« pas encore indispensables »*.
 🛡️ `tests/geste-equipement.test.mjs` (7 cas, 7 mutations vues rouges, sources restaurées et comparées).
+🔄 **Lot 355 (29/09) — le glisser redevient rapide, partout** — Eric : *« désactive le swipe des dalles backpack et
+réinstaure le drag and drop rapidement actif. partout. si c'était pas clair »*, et, à « l'appui long, doigt immobile,
+arme-t-il encore l'objet pour le poser d'un tap ? » : **« Oui, les deux gestes »**.
+  · au doigt et au stylet, un doigt qui BOUGE glisse tout de suite — ⛔ il n'attend plus 500 ms, et un geste porté
+    avant n'est plus abandonné (voir `geste-le-glisser-part-au-mouvement`) ;
+  · un doigt qui RESTE arme l'objet au bout de 500 ms (flash, destinations), puis un tap pose : c'est le mouvement qui
+    départage les deux gestes, plus l'horloge ;
+  · ⭐ la grammaire arrive sur le **vivier de sorts du parchemin** (X5) : tap et clic droit voient la fiche du sort, le
+    clic gauche arme — le collecteur du parchemin s'allume, et lui seul —, un clic sur lui choisit ; ⛔ sans fiche, le
+    tap ne choisit plus ;
+  · ⏳ **les dés d'Abilities** : la grammaire leur arrive au même lot, mais le TAP d'un dé attend un mot d'Eric — un dé
+    n'a pas de fiche à voir, et « 🔒 le tap sur un dé posé = revenir » (`geste-glisser-versatile-quatre-gestes-jusqu-a-done`)
+    est écrit. Question posée à l'architecte le 29/09.
+🛡️ `tests/glisser.test.mjs` (7 quater : glisser immédiat au doigt et au stylet · 7 quinquies : l'appui long immobile
+arme, relâché il attend sa destination, et un doigt qui a bougé n'arme pas après coup) ; `tests/x5-parchemin.test.mjs`
+(parchemin 8, la grammaire du vivier) ; `tests/wares-collecteur.test.mjs` (5). Chacun vu rouge par mutation — l'organe
+d'avant le lot, l'appui long qui n'arme plus, le minuteur qui survit —, sources restaurées et comparées.
 
 📍 `chevron-belt-engrenage` · remplacée · 28/09 · remplacée par `chevron-engrenage-partout`
 ⚖️ **Au survol souris (et au focus clavier) d'un des DEUX chevrons du belt, un engrenage gris de 20 blg (lot 345 : « réduit là à 20 blg » ; 30 au lot 344, 40 au lot 343) à douze dents paraît, centré sur le dessin du chevron, par-dessus ses voisins ; deux flèches bleues fixes le débordent. Molette vers le HAUT = flèche droite allumée, roue horaire, tuiles visiblement vers la DROITE ; vers le BAS = flèche gauche, antihoraire, tuiles vers la GAUCHE. La flèche du geste s'allume dès le premier événement, même en butée ; l'autre s'atténue ; seule la roue tourne.**
@@ -10248,3 +10270,61 @@ plus étroite de son parent — un bouton de la roue de Pack reste `pan-x`.
 🛡️ `tests/geste-bouton-ne-zoome-pas.test.mjs` — une cascade (spécificité, ordre, `:where()`) sur toutes les règles
 `touch-action` réelles, plus la feuille que Wares écrit à l'exécution ; 5 cas, et 4 mutations vues rouges (règle
 ôtée, `.app button`, valeur `auto`, périmètre réduit au chevron), feuille restaurée à l'empreinte près.
+
+---
+
+### ⚡ LE GLISSER PART AU MOUVEMENT — et l'appui long immobile arme
+📍 `geste-le-glisser-part-au-mouvement` · vivante · 29/09 · remplace `equipement-glisser-500ms-et-marge-fermee`
+⚖️ **Partout, un objet se glisse dès que le pointeur bouge de 6 px — au doigt, au stylet comme à la souris : aucun écran n'attend avant de glisser. L'appui long IMMOBILE (500 ms, doigt et stylet, sous la grammaire « armer puis poser ») ARME l'objet sans le porter, puis un tap pose. La marge fermée du sac garde sa zone et ses 500 ms avant de changer de dalle, pendant le glisser.**
+
+> Eric, 2026-09-29 : **« désactive le swipe des dalles backpack et réinstaure le drag and drop rapidement actif.
+> partout. si c'était pas clair »** · et, à « l'appui long, doigt immobile, arme-t-il encore l'objet pour le poser
+> d'un tap ? » : **« Oui, les deux gestes »**.
+
+🗄️ **Ce qui meurt : le PÉAGE.** Revenu le 19/09 avec les dalles du sac (*« 350 ms sur jeton, swipe désactivé »*), porté
+à 500 ms sur toute l'étape Equipment (lot 331), étendu aux viviers par la grammaire (lot 340) : un doigt qui bougeait
+avant 500 ms ABANDONNAIT le geste — ni glisser, ni tap. Sa seule cause était de départager « défiler les dalles » et
+« prendre l'objet » sous le même doigt ; les dalles ne défilent plus au doigt (`geste-la-dalle-ne-se-balaie-plus`), la
+cause part, le péage avec. ⭐ C'est la loi du 20/08 qui revient : *« le glisser partout ! »*.
+⭐ **Deux gestes sur le même doigt, départagés par le MOUVEMENT, plus par l'horloge** : un doigt qui bouge glisse tout
+de suite (le minuteur de l'appui long meurt au premier mouvement) ; un doigt qui reste arme au bout de 500 ms.
+
+📏 **Le relevé des attentes au doigt, et ce que chacune devient** (point 4 du mandat du lot) :
+
+| l'attente | où | elle devient |
+|---|---|---|
+| `PEAGE_JETON_MS` (500) | le sac | 🗄️ **retirée** |
+| `maintien: MAINTIEN_EQUIPEMENT_MS` (500) | Gear ×2, Wares ×2, X5, le jeton du parchemin, le sac | ⭐ la durée de l'appui long qui **arme** ; ⛔ plus une attente avant le glisser |
+| la grammaire par défaut (500) | les viviers (`renderChoixGlisses`), le vivier du parchemin | idem : l'appui long qui arme |
+| `MARGE_MS` (500) | la marge du sac, **pendant** un glisser | ✅ **reste** — ce n'est pas une attente avant de glisser (Eric, 19/09 : *« une latence de 500 ms avant de sauter d'une dalle à l'autre »*) |
+| `MAINTIEN_MS` (1500) | exporté par le sac | ⏳ n'arme plus rien depuis le 19/09 (le mode déplacement est mort) ; relevé, pas retiré — hors du lot |
+| `REPOS_MS` (140) · `VOL_MS` (450) | la roue du sac | ✅ restent — la fin d'un défilement et le pas en vol, pas des attentes au doigt |
+
+🛡️ `tests/glisser.test.mjs` (7 quater, 7 quinquies), `tests/sac-ecran.test.mjs` (31 ④), `tests/wares-collecteur.test.mjs` (5),
+et tous les bancs qui glissent : ils portent désormais le jeton tout de suite, sans le tenir (`double-ecran`,
+`collecteur-vide`, `wares-ecran`, `x5-parchemin`) — un péage qui reviendrait les ferait rougir ensemble.
+
+### 🎒 LA DALLE NE SE BALAIE PLUS — la roue mène, le ruban suit
+📍 `geste-la-dalle-ne-se-balaie-plus` · vivante · 29/09 · remplace `geste-celui-que-le-doigt-touche-mene` · borne `geste-sac-defile-a-l-horizontale`
+⚖️ **Dans Backpack, la dalle — la plaque sous la grille — ne défile plus au doigt et ne se balaie plus. Le ruban des plaques SUIT la roue des sections, toujours, et ne mène jamais ; les tuiles de la roue se swipent ; les sections se tournent par la roue, les chevrons, l'engrenage, et la marge du glisser ; les pages d'une section, par la molette.**
+
+> Eric, 2026-09-29, à « et le balayage de la grille ? » : **« les tuiles peuvent être swipées mais pas la dalle. on
+> peut toujours déplacer une tuile d'une page à une autre en la déplaçant dans la marge »**.
+> 📖 *Lexique : **tuile** = un cran de la roue des sections ; **dalle** = la plaque sous la grille.*
+
+📐 **Ce qui change, et ce qui reste** :
+  · `.sac-dalles` : `overflow: hidden`, `scroll-snap-type: none`, `touch-action: pan-y` — la piste de Wares, au même mot
+    près. ⛔ Ni le doigt ni le pavé ne le font défiler ; `scrollLeft` et `scrollTo` le déplacent toujours ;
+  · le jeton du sac reprend le `none` de la marque (`.sac-case[data-glissable] { pan-x }` retiré) : il se prend au
+    premier mouvement ;
+  · 🗄️ retirés avec le swipe : l'**arbitre** (`mener`, `data-mene`), le **chemin inverse** plaques → roue
+    (`suivreLesTuiles`, `arreteLesDalles`, `positionDesDalles`, `sectionDeLaDalle`) et le **balayage de la grille**
+    (`balayage`, `SEUIL_BALAYAGE`) ;
+  · ✅ restent : la roue et son aimant, le suivi en direct (`suivre`) et la pose exacte au repos (`arrete`), `pousser`
+    (chevrons, tuner, engrenage, marge), la molette sur la grille (`surPage`).
+⏳ **La page 2 d'une section qui déborde de ses douze cases ne se tourne plus au doigt** : chevrons, engrenage et marge
+changent de SECTION, seule la molette (souris) tourne les pages. Question posée à l'architecte le 29/09.
+🛡️ `tests/sac-ecran.test.mjs` : 19 (la grille ne se balaie plus, la molette tourne la page), 31 (une seule surface au
+doigt, le ruban passe par l'entre-deux EN DIRECT, la marque dit `none`, l'objet se glisse sans attendre), 33 (le ruban
+ne mène jamais), 34 (un défilement programmé l'entraîne). Chacun vu rouge par mutation — l'ancien `sac-ecran.mjs`,
+l'ancienne feuille, un suivi muet, un suivi et une pose muets —, sources restaurées et comparées.
