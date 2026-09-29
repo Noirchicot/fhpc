@@ -21,16 +21,16 @@
    la feuille des cotes arrivent en argument depuis `construireX5` (`x5-ecran.mjs`). ⛔ Ce
    module ne les importe pas : `x5-ecran` l'importe, un import en retour ferait une boucle ;
    ⛔ et il ne les recopie pas : deux pieds divergeraient au premier réglage. */
-import * as D from "./x5-disposition.mjs?v=903";
-import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=903";
+import * as D from "./x5-disposition.mjs?v=904";
+import { enPieces, PLAFOND_QTE } from "./craft.mjs?v=904";
 import { classesDesSorts, niveauxDeLaClasse, sortsDe, motDuNiveau, coteDUnParchemin, nomDuParchemin }
-  from "./craft-parchemin.mjs?v=903";
-import { DESTINATIONS } from "./gear-ecran.mjs?v=903";
-import { corpsDuJeton } from "./jeton-objet.mjs?v=903";
-import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=903";
-import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=903";
+  from "./craft-parchemin.mjs?v=904";
+import { DESTINATIONS } from "./gear-ecran.mjs?v=904";
+import { corpsDuJeton } from "./jeton-objet.mjs?v=904";
+import { armerJeton, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=904";
+import { estPlanParchemin } from "../../src/build/objet-crafte.mjs?v=904";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=903";
+import { armerEngrenage } from "./engrenage.mjs?v=904";
 
 /* ⭐ LOT 290 — LE NOM DU CRÉNEAU DU COLLECTEUR, écrit UNE fois, lu par la cible et par le dépôt
    (le patron de Wares, `CRENEAU_COLLECTEUR`). ⛔ `onDepot` reçoit le `data-creneau` de la
