@@ -34,13 +34,13 @@
    n'est posé. Le jour où un point l'est, le document le porte
    (`fh.skills.spend.<slug>`), et l'écran n'a plus rien à retenir. */
 
-import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=917";
-import { lienSkillFhWeb } from "./liens-fh.mjs?v=917";
-import { swapContent } from "./socle.mjs?v=917";
-import { renderChoixGlisses } from "./glisser.mjs?v=917";
+import { planAt, violationAt, markPressed, decisionRefusalWord } from "./carnet.mjs?v=918";
+import { lienSkillFhWeb } from "./liens-fh.mjs?v=918";
+import { swapContent } from "./socle.mjs?v=918";
+import { renderChoixGlisses } from "./glisser.mjs?v=918";
 /* LOT 191 — le mot d'un choix, un seul organe : jamais l'id nu d'une langue
    dont la couche est éteinte (Trainings coupé depuis `Layers`). */
-import { motDuChoix } from "./mot-du-choix.mjs?v=917";
+import { motDuChoix } from "./mot-du-choix.mjs?v=918";
 /* 🌱 LOT 198 — SKILLS VIT SANS FICHE, ET IL NOMME. ⚖️ Eric, 10/09 : *« Ce que
    tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi ne pas
    dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres

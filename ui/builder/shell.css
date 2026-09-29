@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=917") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=918") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=917") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=918") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=917") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=918") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -9312,6 +9312,48 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 button.gear-porte[data-organe="companions"][data-porte] {
   font-size: var(--t1); padding-inline: var(--sp-4);
 }
+
+/* ══ LOT 363 — LE `?` DU PIED À 8 DU BORD, ET LE RÉCAP DE L'ÉTAPE ════════════════════════════════
+   ⚖️ Eric, 30/09 : *« pousse le ? à droite »*, puis *« ? à 8 blg du bord droit »*. ⭐ LES TROIS PIEDS
+   D'ÉQUIPEMENT à la fois (`equipement-trois-pages-alignees` : une cote du pied se règle sur les trois
+   écrans ou pas du tout) — Gear, Pack et Wares le déclarent au plan : dessin 345..367, cible 331..375.
+   📐 LA CIBLE COLLE AU BORD (comme la lune à gauche) : elle sort de la marge de la rangée (4) ; le
+   DESSIN, lui, est à 8 — il n'est donc plus centré dans sa cible, il s'y décale de
+   (44 − 22) / 2 − 8 = 3. Les trois couches du `?` (le cercle, le glyphe, le disque « jamais vu »)
+   se décalent ensemble, du MÊME jeton. */
+[data-rangee][data-pied="equipement"] > .tuto-point {
+  --q-decalage: calc((var(--touch) - 22px) / 2 - var(--sp-8));
+  margin-inline-end: calc(-1 * var(--sp-4));
+  padding-inline-start: calc(2 * var(--q-decalage));
+}
+[data-rangee][data-pied="equipement"] > .tuto-point::before { translate: var(--q-decalage) 0; }
+[data-rangee][data-pied="equipement"] > .tuto-point[data-vu="non"] {
+  background: radial-gradient(circle 11px at calc(50% + var(--q-decalage)) 50%, var(--surface) 96%, transparent 100%);
+}
+/* ⚖️ LE RÉCAP — *« un texte de recap. probablement un recap sur un popup car peu de place pour le faire
+   sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre »* (Eric, 30/09). La famille
+   de la bourse : la surface et son liseré de verre, sur le voile transparent qui ferme au clic à côté.
+   ⭐ Posé dans l'écran, à 8 des bords : il porte trois listes, pas un bouton. */
+.gear-recap {
+  position: absolute; inset-inline: var(--sp-8); top: var(--sp-8);
+  display: flex; flex-direction: column; gap: var(--sp-8);
+  padding: var(--sp-8);
+  border-radius: var(--organe-rayon);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--verre-lisere);
+}
+.gear-recap-bloc { display: flex; flex-direction: column; gap: var(--sp-4); }
+.gear-recap-tete {
+  margin: 0; font-size: var(--t1); font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-soft);
+}
+.gear-recap-liste { margin: 0; font-size: var(--t2); color: var(--text); }
+.gear-recap-liste[data-vide] { font-style: italic; color: var(--text-soft); }
+.gear-recap-pied { display: flex; justify-content: center; gap: var(--sp-8); }
+.gear-recap-pied > .gear-porte { inline-size: var(--bouton-petit); }
+/* 🔴 `Cancel` PORTE LE ROUGE DE CE QUI ABANDONNE — Eric, 03/09 : *« cancel annule donc rouge »*. Ici il
+   n'efface rien (il referme pour « tweaker ») ; il garde la couleur de son MOT, comme partout. */
+.gear-porte[data-porte="annuler"] { --bouton-fond: var(--critical); }
 
 /* ══ LOT 311 — LE PIED D'ÉQUIPEMENT : TROIS CARRÉS, SEND CENTRÉ, LE `?` À DROITE ══════════════
    ⚖️ Eric, 27/09, mot pour mot : *« Parfait je valide les 3. Dans les 3 écrans. Tu gardes le

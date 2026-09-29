@@ -65,19 +65,19 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=917";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=917";
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=917";
+import * as D from "./gear-disposition.mjs?v=918";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=918";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=918";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=917";
-import { versionQuery } from "./version.mjs?v=917";
-import { enGP } from "./equipement-pipeline.mjs?v=917";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=918";
+import { versionQuery } from "./version.mjs?v=918";
+import { enGP } from "./equipement-pipeline.mjs?v=918";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=917";
-import { noeudDAnnonce } from "./monnaie.mjs?v=917";
-import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=917";
+import { portesCarrees } from "./porte-carree.mjs?v=918";
+import { noeudDAnnonce } from "./monnaie.mjs?v=918";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=918";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */
@@ -109,6 +109,9 @@ export const CLEF_DE = Object.freeze({
   "SEND TO": "send-to",
   "PURSE": "purse", "MONTANT": "montant", "TALLY": "tally", "PARTY TALLY": "party-tally",
   "COMPANIONS": "companions",
+  /* ➡️ LOT 363 — la sortie de l'étape, sous la bourse (Eric, 30/09 : « A — sous la bourse ») :
+     `Done` tant que l'étape n'est pas validée, `Next` ensuite */
+  "DONE": "done",
   "GEAR": "gear", "BACKPACK": "backpack", "WARES": "wares", "SEND": "send",
   "?": "guide",
   /* 🌕 LOT 307 — la lune du double écran (une seule, Eric 27/09) */
@@ -656,6 +659,85 @@ function boutonCompanions(id) {
   return b;
 }
 
+/** ➡️ LOT 363 — LA SORTIE DE L'ÉTAPE ÉQUIPEMENT, sous la bourse. NORMES `equipement-next-vit-dans-r`.
+ *  ⚖️ Eric, 20/09 : *« en fait le next devra être dans R »* ; 30/09 : *« A — sous la bourse »*, puis
+ *  *« Comme dans les étapes précédentes on avait l'habitude de valider l'étape par un done. un texte
+ *  de recap […] en bas de ce recap cancel pour tweaker et next pour poursuivre. et validation de
+ *  l'étape dans le belt »* — et, à la question du mot : **« Done, puis Next »**.
+ *  ⭐ DEUX MOTS, UN SEUL ORGANE, ET JAMAIS ENSEMBLE (la table des verbes du 26/08) : `Done` tant que
+ *  l'étape n'est pas validée — il ouvre le récap ; `Next` une fois validée — il repart, sans récap.
+ *  C'est l'ÉTAPE qui dit laquelle (`etapeSignee`) : l'écran ne lit pas le document.
+ *  ⭐ BLEU DANS LES DEUX CAS (la famille `gear-porte`) : `Done` n'écrit rien, il ouvre ; `Next` signe
+ *  l'étape comme partout (`parcoursNext`), et il est bleu partout.
+ *  ⛔ IL NE SAIT PAS OÙ IL MÈNE : `surSuivant` est celui de l'étape, qui passe au cran suivant du
+ *  belt — un écran qui écrirait « Sheet » mentirait le jour où le belt change (lot 198). */
+function boutonSortie(id, options) {
+  const signee = options.etapeSignee === true;
+  const b = bouton("gear-porte", signee ? "Next" : "Done", undefined, () => {
+    if (signee) { if (options.surSuivant) options.surSuivant(); } else if (options.surDone) options.surDone();
+  });
+  b.dataset.organe = id;
+  b.dataset.porte = signee ? "next" : "done";
+  return b;
+}
+
+/** ➡️ LOT 363 — LE RÉCAP DE L'ÉTAPE, un popup (Eric, 30/09 : *« probablement un recap sur un popup car
+ *  peu de place pour le faire sur gear »*). Trois blocs, dictés à la question *« Que montre le récap ? »*
+ *  → **« Gear, Pack, bourse »** : ce que le perso porte (emplacement → objet), ce qu'il y a dans le sac,
+ *  et l'or. En bas, `Cancel` (*« pour tweaker »*) et `Next` (*« pour poursuivre »*).
+ *  ⭐ UN SEUL ÉCRIVAIN PAR CHIFFRE : ce que Gear connaît déjà, il le relit — les boîtes portées
+ *  (`lignesPortees`) et la bourse, écrite par `totalCourt` comme le montant posé dessus (*« deux façons
+ *  d'écrire un nombre dans le même écran, c'est deux façons de le lire »*). L'étape ne lui tend que le
+ *  SAC (`recapSac`, `[{ objet, qte }]`), que Gear ne voit pas.
+ *  ⭐ MÊME FAMILLE QUE LA BOURSE : un voile transparent qui ne peint rien et ferme au clic tombé À CÔTÉ
+ *  (`e.target === v`), une surface au liseré de verre. ⛔ `Cancel` n'écrit rien : il referme. */
+export function popupDuRecap(options) {
+  const v = eld("div", "gear-voile");
+  v.dataset.organe = "recap-voile";
+  if (options.surAnnulerRecap) {
+    v.addEventListener("click", (e) => { if (!e || e.target === v) options.surAnnulerRecap(); });
+  }
+  const p = eld("div", "gear-recap");
+  p.setAttribute("role", "dialog");
+  p.setAttribute("aria-label", "Equipment");
+  p.append(eld("h3", "gear-bourse-titre", "Equipment"));
+  const bloc = (titre, lignes, vide) => {
+    const sec = eld("section", "gear-recap-bloc");
+    sec.append(eld("h4", "gear-recap-tete", titre));
+    const liste = eld("p", "gear-recap-liste");
+    if (!lignes.length) { liste.textContent = vide; liste.dataset.vide = "true"; }
+    lignes.forEach((l, i) => { if (i) liste.append(" · "); liste.append(eld("span", "gear-recap-ligne", l)); });
+    sec.append(liste);
+    return sec;
+  };
+  p.append(bloc("Gear", lignesPortees(options.boites).map((l) => `${l.emplacement} — ${l.objet}`), "Nothing worn."));
+  p.append(bloc("Pack", (options.recapSac || []).map((l) => (l.qte > 1 ? `${l.qte} × ${l.objet}` : l.objet)), "Empty."));
+  p.append(bloc("Purse", [`${totalCourt(options.bourse ? Math.floor(enGP(options.bourse)) : 0)} gp`], ""));
+  const pied = eld("div", "gear-recap-pied");
+  const annuler = bouton("gear-porte", "Cancel", undefined, () => options.surAnnulerRecap && options.surAnnulerRecap());
+  annuler.dataset.porte = "annuler";
+  const suivant = bouton("gear-porte", "Next", undefined, () => options.surSuivant && options.surSuivant());
+  suivant.dataset.porte = "suivant";
+  pied.append(annuler, suivant);
+  p.append(pied);
+  v.append(p);
+  return v;
+}
+
+/** ➡️ LOT 363 — LES LIGNES « PORTÉES » DU RÉCAP, dans l'ordre du plan : l'emplacement tel que l'écran
+ *  l'écrit (`HEAD/NECK 1`), l'objet tel que la boîte le nomme. ⭐ L'inverse de `CLEF_DE`, lu, pas tapé. */
+export function lignesPortees(boites) {
+  const lignes = [];
+  for (const o of ORGANES) {
+    const clef = CLEF_DE[o.nom];
+    if (o.sorte !== "jeton" || !clef || !boites || !boites[clef]) continue;
+    const numero = numeroDe(o.nom);
+    const qte = boites[clef].qte > 1 ? `${boites[clef].qte} × ` : "";
+    lignes.push({ emplacement: libelleDe(o.nom) + (numero ? ` ${numero}` : ""), objet: qte + boites[clef].nom });
+  }
+  return lignes;
+}
+
 /** La bourse — le popup des quatre monnaies. Eric, 16/09 : *« la bourse il faut
  *  la faire »*, *« ça prend la place que ça doit, c'est un popup »*.
  *  ⭐ UN POPUP, DONC IL SE FERME — et par le VOILE, pas par un bouton : la
@@ -806,6 +888,12 @@ function rangee(options) {
  * @param {(index:number)=>void} [options.surCollecte]
  * @param {(index:number, boite:string)=>void} [options.surPlacer]   un jeton posé sur un emplacement vide
  * @param {(valeur:string)=>void} [options.surDestination]
+ * @param {boolean} [options.etapeSignee]           ➡️ LOT 363 — l'étape est validée : la sortie dit `Next`
+ * @param {()=>void} [options.surDone]              ➡️ `Done` — ouvrir le récap
+ * @param {()=>void} [options.surSuivant]           ➡️ `Next` — valider l'étape et repartir
+ * @param {boolean} [options.recapOuvert]           ➡️ le récap est ouvert
+ * @param {Array<{objet:string, qte:number}>} [options.recapSac]  ➡️ le sac, en mots (le reste, Gear le relit)
+ * @param {()=>void} [options.surAnnulerRecap]      ➡️ `Cancel` — refermer sans rien écrire
  * @returns {{ noeud: HTMLElement }}
  */
 export function construireLEcranGear(options = {}) {
@@ -866,6 +954,7 @@ export function construireLEcranGear(options = {}) {
       else if (id === "tally") noeud.append(boutonTally(id, options));
       else if (id === "party-tally") noeud.append(boutonPartyTally(id, options));
       else if (id === "companions") noeud.append(boutonCompanions(id));
+      else if (id === "done") noeud.append(boutonSortie(id, options));
     }
     /* portes et ronds : dans la rangée, ci-dessous */
   }
@@ -875,5 +964,7 @@ export function construireLEcranGear(options = {}) {
   /* ⭐ EN DERNIER, DONC AU-DESSUS : un popup recouvre ce qu'il interrompt, et
      l'ordre du DOM suffit à le dire — aucun `z-index` à accorder avec personne. */
   if (options.bourseOuverte) noeud.append(popupDeLaBourse(options));
+  /* ➡️ LOT 363 — le récap de l'étape, par-dessus tout, comme la bourse */
+  if (options.recapOuvert) noeud.append(popupDuRecap(options));
   return { noeud };
 }
