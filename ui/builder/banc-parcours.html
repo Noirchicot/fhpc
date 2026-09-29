@@ -1,181 +1,488 @@
 <!doctype html><meta charset="utf-8">
-<!-- ══ LE BANC DE PARCOURS — il joue le pipeline ENTIER dans un vrai Chrome ══
-     Usage :  node bin/… (générer les graines, voir ci-dessous), puis
-       chrome --headless=new --screenshot=…  "http://localhost:PORT/ui/builder/banc-parcours.html#SCENARIO"
-     Scénarios : b3 · b3equipe · b1 · b2 · sb31 · sb32.
-     Graines (non commitées, à générer depuis la racine du dépôt) :
-       node -e "const{exempleFhEn}=await import('./src/tools/exemple-fh-en.mjs');
-         (await import('node:fs')).writeFileSync('fixture-banc.json',
-         JSON.stringify(exempleFhEn().document));" --input-type=module
-     ⭐ C'est CE banc qui a attrapé le clic mort des crans (Event ≠ nœud) le
-     24/08 — un parcours joué vaut mieux qu'un rendu regardé. -->
-<style>html,body{margin:0;height:100%}iframe{border:0;width:100vw;height:100vh}</style>
+<title>EN COURS — banc de parcours</title>
+<!-- ══ LE BANC DE PARCOURS — il joue les PORTES d'Equipment au doigt, dans le vrai builder ══
+     Refait au lot 350 (29/09) sur le pipeline d'aujourd'hui : Gear · Wares · sac · Tally · Send.
+
+     CE QU'IL JUGE : chaque porte EXISTE, se TOUCHE (le doigt tombe bien sur elle) et MÈNE à
+     son écran. C'est la règle du 20/09 (NORMES `equipement-next-vit-dans-r`) rendue
+     automatique : « quelle FONCTION n'a plus de porte ». ⛔ Il ne juge aucune cote : les
+     mesures d'un écran vivent dans son banc (banc-sac, banc-wares, banc-x2…).
+
+     Usage, depuis la racine du dépôt :
+       python3 -m http.server 8920
+       perl -e 'alarm 60; exec @ARGV' "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+         --headless=new --user-data-dir=/tmp/banc-parcours-chrome --window-size=1366,1024 \
+         --virtual-time-budget=90000 --dump-dom \
+         "http://localhost:8920/ui/builder/banc-parcours.html" | grep -o '<title>[^<]*</title>'
+     Sans hash = #tout : le titre sort vers 7 s, la commande rend la main à 60 s (l'alarme,
+     ci-dessous). Un scénario seul : #gear · #wares · #sac · #tally · #send ·
+     #recherche. Le verdict sort dans <title> ET dans #rapport (une ligne par porte) — le
+     --dump-dom porte les deux. ⚠️ `perl … alarm` n'est pas décoratif : Chrome 153 écrit le
+     DOM puis ne rend jamais la main (mesuré le 29/09, même sur une page vide — son module de
+     mise à jour tourne) ; l'alarme le coupe, le verdict est déjà sorti. Le profil jetable
+     (`--user-data-dir`) garde ton Chrome hors du banc. Ou : ouvrir la page dans un onglet
+     affiché et lire son titre.
+
+     LES CINQ TÉMOINS, dans l'ordre où ils peuvent accuser :
+     ⓪ LA PAGE PEINT — des images (`requestAnimationFrame`) comptées 300 ms au départ.
+        Chrome headless en temps virtuel n'en donne pas, un onglet caché pas toujours, et le
+        tambour de Wares ne baisse qu'à l'image suivante son marqueur « écriture à moi » : sans images,
+        il ignore le toucher (« Arcana » touché, rien choisi — mesuré le 29/09). Et sans
+        images, l'événement `scroll` ne part pas non plus. Le banc fournit alors les deux :
+        les images par un minuteur de 16 ms, et l'événement `scroll` après chaque défilement
+        que l'app demande (`scrollTo`/`scrollBy`) ; le rapport comme le titre le disent
+        (« images par minuteur »).
+     ① L'APP A DÉMARRÉ — le personnage est écrit ET le belt porte Equipment. Sinon le titre
+        dit « APP NON DÉMARRÉE ». Mesuré le 29/09 : 2 chargements sur 29 n'ont jamais démarré
+        (`net::ERR_CONNECTION_RESET` du serveur Python, une douzaine de modules jamais
+        demandés), et l'ancien banc les lisait comme une porte absente. Un délai fixe ne
+        suffit pas non plus : le personnage arrive ~1,7 s après le belt, qui naît d'abord
+        dans sa forme SRD (6 étapes) puis passe à 8.
+     ② LE DOIGT — avant chaque toucher, `elementFromPoint` au centre de la porte : si c'est
+        autre chose qui reçoit, la porte est « couverte » et rien n'est touché (`e.click()`
+        traverse `pointer-events`, un doigt non). Puis pointerdown · pointerup · click, au
+        point, sur ce qui reçoit. Une porte hors de l'écran y est d'abord amenée par
+        défilement, comme le ferait un glissé du doigt, et la ligne le dit (« défilé ») :
+        depuis le Menu, Equipment est hors de l'écran du belt même à 1366.
+     ③ L'ÉCRAN D'ARRIVÉE — `data-ecran` visible, la porte carrée courante
+        (`aria-current="page"`), l'onglet choisi (`aria-selected`).
+     ④ LA FENÊTRE — 1366 × 1024, l'iPad Pro 12,9 couché d'Eric (NORMES, tableau des crans),
+        posée par le banc lui-même : le verdict ne dépend pas de la fenêtre qui l'ouvre.
+
+     CE QU'IL NE PROUVE PAS : un doigt réel (des événements de script, jamais l'iPad) ; les
+     animations — le défilement lissé est neutralisé dans l'app (`scroll-behavior: auto`),
+     comme le prescrit `shell.mjs` : « la vérification du geste s'est donc faite en
+     neutralisant la seule animation, jamais en changeant le code pour plaire au banc ».
+
+     LE STOCKAGE : chaque scénario part de l'exemple commité (Ilyra, Wizard) sur un
+     `localStorage` VIDÉ ; celui de l'origine est RESTAURÉ à la fin. ⛔ Hors de localhost le
+     banc refuse de jouer : il viderait le personnage d'un joueur. L'IndexedDB (les
+     sauvegardes datées) n'est pas touchée : le banc n'appuie jamais sur Save. Fermer la page
+     en cours de route laisse l'exemple à la place de ce qui était gardé.
+
+     #recherche est ROUGE ATTENDU : la vue « recherche » n'a plus de porte depuis la carte R
+     (la loupe attend son lot). Il cherche par le NOM (search, find, loupe…) : une porte
+     nommée autrement lui échapperait — le lot de la loupe met ce scénario à jour.
+
+     🧊 L'ANCIEN BANC (24/08 → lot 349), ARCHIVÉ AU LOT 350. Mesuré le 29/09 sur main v902 et
+     sur la branche 348 v903, résultats identiques : aucun des 11 scénarios ne mesurait plus
+     le produit. Scénario · ce qu'il cherchait · titre lu · devenu :
+       b3 · b3equipe  .dressing-flux (dressing B3)     PAS DE FLUX                → #gear
+       magie          .b3-attune sur .dressing          ERREUR getComputedStyle    → aucun (B3 mort)
+       sb31           Open Backpack (bande de B3)       titre vide, porte : 0      → #sac
+       mesureSB       la même, puis SB3.1               ERREUR querySelector       → #sac
+       sb32           Send (scène de B3)                titre vide, porte : 0      → #send
+       b2             .carte-r-bouton CART              titre vide, porte : 0      → #tally
+       mesureB2       la même, puis B2                  ERREUR querySelector       → #tally
+       recherche      .carte-r-loupe                    ERREUR querySelector       → #recherche
+       b1             .roue[data-niveau] .roue-cran     B= jeton=false b1=false    → #wares
+       dressing       ecran-b3.html (labo)              scroll=300 … deborde=true  → aucun (B3 mort)
+     Et sa porte « catalogue » ne ratait pas : elle touchait un HOMONYME, le bouton Equipment
+     du belt. Ses graines (fixture-*.json) n'étaient plus sur le disque. Son code vit dans
+     l'historique : `git show 8bc9940a:ui/builder/banc-parcours.html`. Ce qu'il avait
+     attrapé reste vrai — le clic mort des crans (Event ≠ nœud), 24/08 : un parcours joué
+     vaut mieux qu'un rendu regardé. -->
+<style>
+html,body{margin:0;background:#1d1d1f}
+iframe{border:0;width:1366px;height:1024px;display:block}
+#rapport{position:fixed;inset:auto 0 0 0;max-height:45vh;overflow:auto;margin:0;padding:6px 10px;
+  font:12px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;background:#fff;color:#000;z-index:9}
+</style>
+<pre id="rapport">…</pre>
 <script type="module">
-const scenario = location.hash.slice(1) || "b3";
-/* #dressing : PAS l'app — le banc ecran-b3.html, qui monte les trois bandes.
-   La mesure (GOOGLE HEADLESS) : le flux défile, le titre et la barre ne
-   bougent pas d'un pixel. */
-if (scenario === "dressing") {
-  const f2 = document.createElement("iframe");
-  f2.src = "./ecran-b3.html?v=904";
-  f2.addEventListener("load", async () => {
-    const d = f2.contentDocument;
-    await new Promise((r) => setTimeout(r, 700));
-    const flux = d.querySelector(".dressing-flux");
-    const titre = d.querySelector(".dressing-titre").getBoundingClientRect();
-    const barre = d.querySelector(".dressing-barre").getBoundingClientRect();
-    flux.scrollTop = 300;
-    await new Promise((r) => setTimeout(r, 200));
-    const titre2 = d.querySelector(".dressing-titre").getBoundingClientRect();
-    const barre2 = d.querySelector(".dressing-barre").getBoundingClientRect();
-    document.title =
-      "scroll=" + Math.round(flux.scrollTop) +
-      " titreBouge=" + Math.abs(titre2.top - titre.top).toFixed(1) +
-      " barreBouge=" + Math.abs(barre2.top - barre.top).toFixed(1) +
-      " deborde=" + (flux.scrollHeight > flux.clientHeight);
-  });
-  document.body.append(f2);
-  throw new Error("scenario dressing: fin"); // court-circuite le reste du module
-}
-const graine = scenario === "b3equipe" ? "/fixture-equipe.json"
-  : (scenario === "b2" || scenario === "mesureB2") ? "/fixture-panier.json"
-  : "/fixture-banc.json";
-localStorage.setItem("fhpc.personnage", await (await fetch(graine)).text());
-const f = document.createElement("iframe");
-f.src = "./index.html?v=904";
+const demande = location.hash.slice(1) || "tout";
+const CLE = "fhpc.personnage";
+const LOCAL = ["localhost", "127.0.0.1", "[::1]", "::1"];
+const MS_DEMARRAGE = 20000;
+const MS_PORTE = 5000;
+
+const lignes = [];
+const rapport = document.getElementById("rapport");
+const note = (m) => { lignes.push(m); rapport.textContent = lignes.join("\n"); };
+const titre = (t) => { document.title = t; };
 const dors = (ms) => new Promise((r) => setTimeout(r, ms));
-const tape = (n) => { // le tap d'armerJeton : pointerdown puis pointerup, sans mouvement
-  for (const type of ["pointerdown", "pointerup"]) {
-    n.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 1, isPrimary: true,
-      clientX: 10, clientY: 10 }));
+const attendre = async (condition, ms) => {
+  const fin = performance.now() + ms;
+  while (performance.now() < fin) {
+    try { const v = condition(); if (v) return v; } catch (_) { /* l'écran se monte encore */ }
+    await dors(50);
+  }
+  return null;
+};
+
+/** Une porte qui manque à sa promesse : le message dit laquelle, et pourquoi. */
+class Echec extends Error {}
+
+/* ⓪ LA PAGE PEINT-ELLE ? Une soixantaine d'images par seconde quand elle est affichée ; une ou
+   deux en 300 ms dans Chrome headless en temps virtuel, et pas toujours dans un onglet caché
+   (mesuré le 29/09 : 1, puis 20, puis 0 dans le même volet). */
+const IMAGES = await new Promise((fin) => {
+  let n = 0;
+  const t0 = performance.now();
+  const compter = () => { n += 1; if (performance.now() - t0 < 300) requestAnimationFrame(compter); };
+  requestAnimationFrame(compter);
+  setTimeout(() => fin(n), 400);
+});
+const PEINT = IMAGES >= 5;
+
+/* Les noms d'hier renvoient à leur successeur au lieu de jouer en silence. */
+const RETIRES = {
+  b3: "gear", b3equipe: "gear", b1: "wares", sb31: "sac", mesureSB: "sac",
+  b2: "tally", mesureB2: "tally", sb32: "send", magie: "", dressing: ""
+};
+
+/* ── LE STOCKAGE : vidé pour chaque scénario, rendu à la fin ─────────────── */
+const photo = (s) => Object.fromEntries(Object.keys(s).map((k) => [k, s.getItem(k)]));
+const vider = (s) => { for (const k of Object.keys(s)) s.removeItem(k); };
+const rendre = (s, p) => { vider(s); for (const [k, v] of Object.entries(p)) s.setItem(k, v); };
+
+/* ── L'APP, montée à la taille de l'iPad d'Eric ───────────────────────────── */
+async function monterApp() {
+  vider(localStorage);
+  vider(sessionStorage);
+  const f = document.createElement("iframe");
+  f.src = "./index.html?v=904";
+  document.body.prepend(f);
+  const d = await attendre(() => {
+    const doc = f.contentDocument;
+    return localStorage.getItem(CLE) && doc && doc.querySelector('.belt-item[aria-label="Equipment"]')
+      ? doc : null;
+  }, MS_DEMARRAGE);
+  if (!d) {
+    const doc = f.contentDocument;
+    const belt = !!(doc && doc.querySelector(".belt-item"));
+    f.remove();
+    throw new Echec(`APP NON DÉMARRÉE en ${MS_DEMARRAGE / 1000} s (personnage écrit : ` +
+      `${localStorage.getItem(CLE) ? "oui" : "non"} · belt : ${belt ? "oui" : "non"})`);
+  }
+  /* La seule animation neutralisée — le défilement LISSÉ : celui de la feuille
+     (`scroll-behavior`) ET celui qu'un module demande en JS (`roue.scrollTo({ behavior:
+     "smooth" })`, le tap d'un cran de tambour). Il n'avance qu'avec les images, que le banc
+     n'a pas toujours (⓪) ; instantané, il pose le ruban au même endroit, sans le trajet. */
+  const style = d.createElement("style");
+  style.textContent = "*,*::before,*::after{scroll-behavior:auto!important}";
+  d.head.append(style);
+  const W = f.contentWindow;
+  /* ⓪ Une page qui ne peint pas ne donne pas d'IMAGES, et le tambour de Wares ne baisse son
+     marqueur « écriture à moi » qu'à la suivante (`roue.placer`) : sans elles il prend le
+     toucher pour sa propre voix et l'ignore. Mesuré le 29/09 (volet caché, headless en temps
+     virtuel) : « Arcana » touché, rien choisi. Le banc les fournit alors par minuteur. */
+  if (!PEINT) {
+    W.requestAnimationFrame = (rappel) => W.setTimeout(() => rappel(W.performance.now()), 16);
+    W.cancelAnimationFrame = (id) => W.clearTimeout(id);
+  }
+  const net = (o) => (o && typeof o === "object" && o.behavior === "smooth" ? { ...o, behavior: "instant" } : o);
+  for (const [hote, noms] of [[W.Element.prototype, ["scrollTo", "scrollBy", "scroll", "scrollIntoView"]],
+    [W, ["scrollTo", "scrollBy", "scroll"]]]) {
+    for (const m of noms) {
+      const vrai = hote[m];
+      hote[m] = function (...a) {
+        const rendu = vrai.apply(hote === W ? W : this, a.length === 1 ? [net(a[0])] : a);
+        /* Sans images, le navigateur ne livre pas non plus l'événement `scroll` (il part avec
+           l'image) : le banc le livre, sur l'élément qui a défilé. */
+        if (!PEINT && hote !== W && m !== "scrollIntoView") {
+          const el = this;
+          W.setTimeout(() => el.dispatchEvent(new W.Event("scroll")), 16);
+        }
+        return rendu;
+      };
+    }
+  }
+  return { f, d, w: W, etapes: [] };
+}
+
+/* ── LES TÉMOINS ─────────────────────────────────────────────────────────── */
+const visible = (n) => !!n && n.getClientRects().length > 0 &&
+  getComputedStyle(n).visibility !== "hidden";
+const ecran = (app, nom) => visible(app.d.querySelector(`[data-ecran="${nom}"]`));
+const courante = (app) =>
+  app.d.querySelector('.porte-carree[aria-current="page"]')?.getAttribute("aria-label") || "";
+/** Le contrôle qui porte ce NOM (celui que le joueur entend) — le visible d'abord. */
+const bouton = (app, nom) => {
+  const tous = [...app.d.querySelectorAll("button,[role=button],[role=tab]")]
+    .filter((b) => (nom instanceof RegExp ? nom.test(b.getAttribute("aria-label") || "")
+      : b.getAttribute("aria-label") === nom));
+  return tous.find(visible) || tous[0] || null;
+};
+const onglet = (app, liste, nom) =>
+  app.d.querySelector(`[role=tablist][aria-label="${liste}"] [role=tab][aria-label="${nom}"]`);
+const choisi = (app, liste) => app.d
+  .querySelector(`[role=tablist][aria-label="${liste}"] [role=tab][aria-selected="true"]`)
+  ?.getAttribute("aria-label") || "";
+const decrire = (n) => !n ? "rien" : n.tagName.toLowerCase() +
+  (n.classList.length ? "." + n.classList[0] : "") +
+  (n.getAttribute("aria-label") ? `[${n.getAttribute("aria-label").slice(0, 30)}]` : "");
+
+/** Ce que reçoit le doigt posé au centre de la porte, et si c'est bien elle (`ok`). */
+function recoit(app, porte) {
+  const r = porte.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  const n = app.d.elementFromPoint(x, y);
+  return { x, y, n, ok: !!n && (n === porte || porte.contains(n)) };
+}
+
+/** LE TOUCHER : jamais `porte.click()` — le doigt tombe où il tombe. */
+async function toucher(app, porte, nom) {
+  if (!porte) throw new Echec(`${nom} : absente`);
+  if (porte.disabled || porte.getAttribute("aria-disabled") === "true") {
+    throw new Echec(`${nom} : désactivée`);
+  }
+  if (!visible(porte)) throw new Echec(`${nom} : présente mais invisible`);
+  let cible = recoit(app, porte);
+  let defile = false;
+  if (!cible.ok) {
+    porte.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
+    await dors(50);
+    cible = recoit(app, porte);
+    defile = true;
+    if (!cible.ok) throw new Echec(`${nom} : couverte par ${decrire(cible.n)}`);
+  }
+  const W = app.w;
+  const base = { bubbles: true, cancelable: true, composed: true, view: W, button: 0,
+    clientX: cible.x, clientY: cible.y };
+  const doigt = { ...base, pointerId: 7, isPrimary: true, pointerType: "touch" };
+  cible.n.dispatchEvent(new W.PointerEvent("pointerdown", { ...doigt, buttons: 1 }));
+  await dors(50);
+  cible.n.dispatchEvent(new W.PointerEvent("pointerup", { ...doigt, buttons: 0 }));
+  cible.n.dispatchEvent(new W.MouseEvent("click", { ...base, detail: 1 }));
+  return defile;
+}
+
+/** Une porte jouée : la toucher, puis attendre l'écran qu'elle promet. */
+async function porte(app, nom, { trouver, arrivee, quoi }) {
+  const n = trouver ? trouver() : bouton(app, nom);
+  const court = typeof nom === "string" ? nom.split(" — ")[0] : String(nom);
+  const defile = await toucher(app, n, court);
+  if (!(await attendre(arrivee, MS_PORTE))) {
+    throw new Echec(`${court} : touchée, mais ${quoi} ne s'ouvre pas`);
+  }
+  app.etapes.push(defile ? `${court} (défilé)` : court);
+}
+
+/* ── LE TRONC COMMUN : belt → Equipment → A → Done ─────────────────────────── */
+async function versGear(app) {
+  await porte(app, "Equipment", {
+    trouver: () => app.d.querySelector('.belt-item[aria-label="Equipment"]'),
+    arrivee: () => app.d.querySelector('.belt-item[aria-label="Equipment"][aria-current="step"]') &&
+      visible(bouton(app, /^Option A\b/)),
+    quoi: "l'étape Equipment (le choix A/B de Gear)"
+  });
+  await porte(app, "A", {
+    trouver: () => bouton(app, /^Option A\b/),
+    arrivee: () => bouton(app, /^Option A\b/)?.dataset.active === "true",
+    quoi: "l'option A"
+  });
+  /* ⛔ « Gear posé » ne s'éprouve pas par une porte qu'on jugera ensuite : le 29/09, attendre ici
+     la porte Wares faisait accuser Done quand c'était Wares qui manquait. */
+  await porte(app, "Done", {
+    trouver: () => bouton(app, "Take this equipment and put it in Gear"),
+    arrivee: () => courante(app) === "Gear" && !visible(bouton(app, /^Option A\b/)),
+    quoi: "Gear posé (le choix A/B refermé, la porte Gear courante)"
+  });
+}
+const SEND = "Send — clears the collector and sends";
+const RETOUR_LISTE = "Back — the cart stays";
+
+/* ── LES SCÉNARIOS ───────────────────────────────────────────────────────── */
+const SCENARIOS = {
+  /* Gear posé : ses portes, présentes et sous le doigt ; et elles ne défilent pas avec la liste. */
+  async gear(app, r) {
+    await versGear(app);
+    const doitVivre = [["Gear", "Gear"], ["Backpack", "Backpack"], ["Wares", "Wares"],
+      ["Tally", "Tally"], ["Send", SEND]];
+    const aRelever = [["Party tally", "Party tally"], ["Purse", /^Purse\b/], ["Companions", "Companions"]];
+    const etat = (cle) => {
+      const b = bouton(app, cle);
+      if (!b) return "absente";
+      if (b.disabled || b.getAttribute("aria-disabled") === "true") return "désactivée";
+      if (!visible(b)) return "invisible";
+      const c = recoit(app, b);
+      return c.ok ? "ok" : c.n ? `couverte par ${decrire(c.n)}` : "hors de l'écran";
+    };
+    const fautes = [];
+    for (const [court, cle] of doitVivre) {
+      const e = etat(cle);
+      r.lignes.push(`    ${e === "ok" ? "✓" : "✗"} porte ${court} — ${e}`);
+      if (e !== "ok" && e !== "hors de l'écran") fautes.push(`${court} ${e}`);
+    }
+    for (const [court, cle] of aRelever) r.lignes.push(`    · porte ${court} — ${etat(cle)}`);
+    /* L'héritier de #b3 : la liste défile, les portes carrées restent sous le doigt. */
+    const ff = [...app.d.querySelectorAll('[data-ecran="FF"]')].find(visible);
+    const defileur = ff && [ff, ...ff.querySelectorAll("*")].find((n) =>
+      n.scrollHeight > n.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(n).overflowY));
+    if (!defileur) {
+      r.lignes.push("    · défilement — rien à faire défiler à 1366 × 1024");
+    } else {
+      const repere = bouton(app, "Gear");
+      const avant = repere.getBoundingClientRect().top;
+      const s0 = defileur.scrollTop;
+      defileur.scrollTop = s0 + 250;
+      await dors(100);
+      const parcouru = defileur.scrollTop - s0;
+      const bouge = Math.abs(repere.getBoundingClientRect().top - avant);
+      defileur.scrollTop = s0;
+      r.lignes.push(`    ${bouge < 0.5 ? "✓" : "✗"} défilement — la liste descend de ` +
+        `${Math.round(parcouru)} px, les portes carrées de ${bouge.toFixed(1)} px`);
+      if (bouge >= 0.5) fautes.push(`les portes carrées défilent avec la liste (${bouge.toFixed(1)} px)`);
+    }
+    if (fautes.length) throw new Echec(`Gear posé, mais ${fautes.join(" · ")}`);
+  },
+
+  /* Wares : un rayon, une étagère, un jeton touché → sa fiche X2, et le retour. */
+  async wares(app) {
+    await versGear(app);
+    await porte(app, "Wares", {
+      arrivee: () => ecran(app, "wares") && courante(app) === "Wares", quoi: "Wares"
+    });
+    await porte(app, "Arcana", {
+      trouver: () => onglet(app, "Categories", "Arcana"),
+      arrivee: () => choisi(app, "Categories") === "Arcana" &&
+        onglet(app, "Sub-categories", "Scrolls Foci Components"),
+      quoi: "le rayon Arcana et ses étagères"
+    });
+    await porte(app, "Scrolls Foci Components", {
+      trouver: () => onglet(app, "Sub-categories", "Scrolls Foci Components"),
+      arrivee: () => choisi(app, "Sub-categories") === "Scrolls Foci Components",
+      quoi: "l'étagère"
+    });
+    /* Le premier jeton que le doigt peut toucher, sur la dalle visible. */
+    const jeton = await attendre(() => [...app.d.querySelectorAll('[data-ecran="wares"] .wares-jeton[data-ref-id]')]
+      .find((j) => visible(j) && recoit(app, j).ok), MS_PORTE);
+    const nomJeton = `jeton ${jeton ? jeton.getAttribute("aria-label") || jeton.dataset.refId : "?"}`;
+    await porte(app, nomJeton, {
+      trouver: () => jeton, arrivee: () => ecran(app, "X2"), quoi: "sa fiche (X2)"
+    });
+    await porte(app, "Back to the catalogue", {
+      arrivee: () => !ecran(app, "X2") && ecran(app, "wares"), quoi: "le retour à Wares"
+    });
+  },
+
+  /* Le sac : Backpack → SB3.1, et le retour à Gear. */
+  async sac(app) {
+    await versGear(app);
+    await porte(app, "Backpack", {
+      arrivee: () => ecran(app, "SB3.1") && courante(app) === "Backpack", quoi: "le sac (SB3.1)"
+    });
+    await porte(app, "Gear", {
+      arrivee: () => !ecran(app, "SB3.1") && courante(app) === "Gear", quoi: "le retour à Gear"
+    });
+  },
+
+  /* Tally (l'ancien CART) → la liste d'envoi SB3.2, et BACK. */
+  async tally(app) {
+    await versGear(app);
+    await porte(app, "Tally", { arrivee: () => ecran(app, "SB3.2"), quoi: "la liste d'envoi (SB3.2)" });
+    await porte(app, RETOUR_LISTE, {
+      arrivee: () => !ecran(app, "SB3.2") && courante(app) === "Gear", quoi: "le retour à Gear"
+    });
+  },
+
+  /* Send, depuis Gear → la liste d'envoi SB3.2, et BACK. */
+  async send(app) {
+    await versGear(app);
+    await porte(app, SEND, { arrivee: () => ecran(app, "SB3.2"), quoi: "la liste d'envoi (SB3.2)" });
+    await porte(app, RETOUR_LISTE, {
+      arrivee: () => !ecran(app, "SB3.2") && courante(app) === "Gear", quoi: "le retour à Gear"
+    });
+  },
+
+  /* ROUGE ATTENDU : aucune porte ne mène à la recherche — la loupe attend son lot. */
+  async recherche(app, r) {
+    await versGear(app);
+    /* Les noms d'hier : la loupe de la carte R s'appelait « Find equipment » (🔍), le champ de la
+       vue « Search the catalogue ». ⛔ Les OBJETS du catalogue ne sont pas des portes : le
+       29/09, « Magnifying Glass » (un article de Wares) s'est fait passer pour une loupe. */
+    const MOTS = /(\b(search|find|loupe|recherche)\b|🔍)/i;
+    const trouvees = [];
+    const relever = (vue) => {
+      for (const b of app.d.querySelectorAll("button,[role=button],[role=tab],input")) {
+        if (b.matches("[data-ref-id], .wares-jeton") || b.closest("[data-ref-id], [data-plaque]")) continue;
+        const mot = `${b.getAttribute("aria-label") || ""} ${b.getAttribute("placeholder") || ""} ${b.textContent || ""}`;
+        if (visible(b) && MOTS.test(mot)) trouvees.push(`«${mot.trim().slice(0, 40)}» sur ${vue}`);
+      }
+      if (ecran(app, "Recherche")) trouvees.push(`l'écran Recherche, visible sur ${vue}`);
+    };
+    relever("Gear");
+    await porte(app, "Wares", { arrivee: () => ecran(app, "wares"), quoi: "Wares" });
+    relever("Wares");
+    await porte(app, "Backpack", { arrivee: () => ecran(app, "SB3.1"), quoi: "le sac (SB3.1)" });
+    relever("le sac");
+    if (trouvees.length) {
+      r.trouvee = true;
+      throw new Echec(`une porte existe (${trouvees.join(" · ")}) — mettre ce scénario à jour`);
+    }
+    r.attendu = true;
+    r.lignes.push("    · aucune porte vers la recherche sur Gear, Wares ni le sac (la loupe attend son lot)");
   }
 };
-f.addEventListener("load", async () => {
+
+/* ── JOUER ───────────────────────────────────────────────────────────────── */
+async function jouer(nom) {
+  const r = { nom, ok: false, lignes: [] };
+  let app = null;
   try {
-  const d = f.contentDocument;
-  const q = (s) => d.querySelector(s);
-  const tous = (s) => [...d.querySelectorAll(s)];
-  await dors(800);
-  tous("button").find((b) => b.textContent.includes("Equipment"))?.click();
-  await dors(500);
-  if (scenario === "b3" || scenario === "b3equipe") {
-    /* les trois bandes AU PRODUIT : le flux défile, les bandes non. */
-    const flux = d.querySelector(".dressing-flux");
-    if (flux) {
-      const t1 = d.querySelector(".dressing-titre").getBoundingClientRect().top;
-      const b1 = d.querySelector(".dressing-barre").getBoundingClientRect().top;
-      flux.scrollTop = 250;
-      await dors(200);
-      document.title = "produit scroll=" + Math.round(flux.scrollTop) +
-        " titreBouge=" + Math.abs(d.querySelector(".dressing-titre").getBoundingClientRect().top - t1).toFixed(1) +
-        " barreBouge=" + Math.abs(d.querySelector(".dressing-barre").getBoundingClientRect().top - b1).toFixed(1);
-    } else document.title = "PAS DE FLUX";
-    return;
+    app = await monterApp();
+    await SCENARIOS[nom](app, r);
+    r.ok = true;
+  } catch (e) {
+    r.echec = e instanceof Echec ? e.message : `ERREUR DU BANC : ${e.message}`;
+  } finally {
+    if (app) app.f.remove();
   }
-  if (scenario === "mesureSB") {
-    tous('.b3-scene [aria-label="Open Backpack"]').at(0)
-      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    await dors(400);
-    const ecran = d.querySelector('[data-ecran="SB3.1"]');
-    const liste = ecran.querySelector(".pipeline-lignes");
-    const rang = ecran.querySelector(".pipeline-ligne");
-    const lr = liste.getBoundingClientRect();
-    const er = ecran.getBoundingClientRect();
-    let bas = 0, apres = false;
-    for (const c of ecran.children) {
-      if (c === liste) { apres = true; continue; }
-      if (apres) bas += c.getBoundingClientRect().height;
+  r.chemin = app ? app.etapes.join(" · ") : "";
+  return r;
+}
+const marque = (r) => r.nom === "recherche"
+  ? (r.attendu ? "⛔ attendu" : r.trouvee ? "⚠️" : "⛔")
+  : r.ok ? "✅" : "⛔";
+
+if (!LOCAL.includes(location.hostname)) {
+  titre("REFUSÉ — ce banc vide le stockage de l'origine : il ne joue qu'en local (localhost)");
+  note(document.title);
+} else if (demande in RETIRES) {
+  const suite = RETIRES[demande];
+  titre(`RETIRÉ LE 29/09 — #${demande} → ${suite ? `#${suite}` : "aucun : le dressing B3 n'existe plus"} (voir l'en-tête)`);
+  note(document.title);
+} else if (demande !== "tout" && !(demande in SCENARIOS)) {
+  titre(`SCÉNARIO INCONNU — #${demande} ; connus : tout · ${Object.keys(SCENARIOS).join(" · ")}`);
+  note(document.title);
+} else {
+  const gardeLocal = photo(localStorage);
+  const gardeSession = photo(sessionStorage);
+  const resultats = [];
+  if (!PEINT) {
+    note(`⚠️ la page ne peint pas (${IMAGES} image(s) en 300 ms : onglet caché, ou headless en ` +
+      "temps virtuel) — l'app reçoit ses images d'un minuteur de 16 ms");
+  }
+  try {
+    for (const nom of demande === "tout" ? Object.keys(SCENARIOS) : [demande]) {
+      note(`#${nom} …`);
+      const r = await jouer(nom);
+      resultats.push(r);
+      lignes.pop();
+      note(`${marque(r)} #${nom} — ${r.chemin || "(aucune porte franchie)"}` +
+        (r.echec ? `\n    ✗ ${r.echec}` : ""));
+      for (const l of r.lignes) note(l);
     }
-    document.title = "rang=" + rang.getBoundingClientRect().height.toFixed(1) +
-      " listeTop=" + (lr.top - er.top).toFixed(0) + " basStack=" + bas.toFixed(0);
-    return;
+  } finally {
+    rendre(localStorage, gardeLocal);
+    rendre(sessionStorage, gardeSession);
   }
-  if (scenario === "magie") {
-    /* §0 GOOGLE HEADLESS : la couleur CALCULÉE de la pastille, pas son nom. */
-    const pastille = d.querySelector(".b3-attune");
-    const encre = pastille ? getComputedStyle(pastille).stroke : "absente";
-    const surface = getComputedStyle(d.querySelector(".dressing")).backgroundColor;
-    const lum = (c) => { const m = c.match(/\d+/g).map(Number);
-      const [r, g, b] = m.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
-      return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
-    const [h, l] = [lum(encre), lum(surface)].sort((a, b) => b - a);
-    document.title = "encre=" + encre + " contraste=" + ((h + 0.05) / (l + 0.05)).toFixed(2);
-    return;
+  const vrais = resultats.filter((r) => r.nom !== "recherche");
+  const tombes = vrais.filter((r) => !r.ok);
+  const recherche = resultats.find((r) => r.nom === "recherche");
+  if (demande === "tout") {
+    const tete = tombes.length ? "⛔" : recherche && recherche.trouvee ? "⚠️" : "✅";
+    titre(`${tete} tout ${vrais.length - tombes.length}/${vrais.length} — ` +
+      resultats.map((r) => `${r.nom} ${marque(r)}`).join(" · ") +
+      (tombes.length ? ` — ${tombes[0].nom} : ${tombes[0].echec}` : ""));
+  } else {
+    const r = resultats[0];
+    titre(`${marque(r)} #${r.nom} — ${r.echec ? `${r.echec}${r.chemin ? ` (après ${r.chemin})` : ""}` : r.chemin}`);
   }
-  if (scenario === "sb31") { // Gear weight › Backpack
-    tous('.b3-scene [aria-label="Open Backpack"]').at(0)
-      ?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    return;
-  }
-  if (scenario === "sb32") {
-    q('.b3-scene [aria-label="Send"]')?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    return;
-  }
-  // tout le reste passe par le catalogue
-  tous('[aria-label="Equipment"]').at(0)?.click();   /* la porte vit dans la BANDE BASSE depuis le lot 5 */
-  await dors(600);
-  if (scenario === "recherche") {
-    tous(".carte-r-loupe").at(0)?.click();
-    await dors(300);
-    const champ = q(".pipeline-recherche-champ");
-    if (champ) { champ.value = "sword"; champ.dispatchEvent(new Event("input", { bubbles: true })); }
-    await dors(300);
-    const ecran = d.querySelector('[data-ecran="Recherche"]');
-    const liste = ecran.querySelector(".pipeline-lignes");
-    const rang = ecran.querySelector(".pipeline-resultat");
-    let bas = 0, apres = false;
-    for (const c of ecran.children) {
-      if (c === liste) { apres = true; continue; }
-      if (apres) bas += c.getBoundingClientRect().height;
-    }
-    document.title = "resultats=" + tous(".pipeline-resultat").length +
-      " rang=" + (rang ? rang.getBoundingClientRect().height.toFixed(1) : "?") +
-      " listeTop=" + (liste.getBoundingClientRect().top - ecran.getBoundingClientRect().top).toFixed(0) +
-      " basStack=" + bas.toFixed(0);
-    return;
-  }
-  if (scenario === "mesureB2" || scenario === "b2") {
-    /* le panier vit AU DOCUMENT depuis le 24/08 : la graine `#panier` le
-       porte déjà — plus aucune injection de module (l'API d'hier a coûté une
-       mesure muette le 26/08). */
-    tous(".carte-r-bouton").find((b) => b.dataset.mot === "CART")?.click();
-    await dors(400);
-    if (scenario === "b2") return;
-    const ecran = d.querySelector('[data-ecran="B2"]');
-    const liste = ecran.querySelector(".pipeline-lignes");
-    const rang = ecran.querySelector(".pipeline-ligne");
-    const rr = rang.getBoundingClientRect();
-    const er = ecran.getBoundingClientRect();
-    const lr = liste.getBoundingClientRect();
-    let bas = 0, apres = false;
-    for (const c of ecran.children) {
-      if (c === liste) { apres = true; continue; }
-      if (apres) bas += c.getBoundingClientRect().height;
-    }
-    const gap = parseFloat(getComputedStyle(liste).rowGap) || 0;
-    document.title = "rang=" + rr.height.toFixed(1) + " gap=" + gap +
-      " listeTop=" + (lr.top - er.top).toFixed(0) + " basStack=" + bas.toFixed(0) +
-      " ecranH=" + er.height.toFixed(0) + " fenetre=" + f.contentWindow.innerHeight;
-    return;
-  }
-  if (scenario === "b1") {
-    const note = (m) => { document.title = m; };
-    const cranA = tous('.roue[data-niveau="rayons"] .roue-cran').find((c) => c.textContent.trim() === "Arcana");
-    note("cranA=" + Boolean(cranA));
-    cranA?.click();
-    await dors(1500);
-    const cransB = tous('.roue[data-niveau="etageres"] .roue-cran').map((c) => c.textContent.trim());
-    note("B=" + [...new Set(cransB)].join("|"));
-    const cranB = tous('.roue[data-niveau="etageres"] .roue-cran').find((c) => /[A-Za-z]/.test(c.textContent));
-    cranB?.click();
-    await dors(1500);
-    const jeton = q(".grille-jeton[data-ref-id]");
-    note((document.title) + " jeton=" + Boolean(jeton));
-    if (jeton) tape(jeton);
-    await dors(400);
-    note(document.title + " b1=" + Boolean(q('[data-ecran=\"B1\"]')));
-  }
-  } catch (e) { document.title = "ERREUR: " + e.message; }
-});
-document.body.append(f);
+  if (!PEINT) titre(`${document.title} · (images par minuteur)`);
+  window.__banc = resultats;
+  note(`— stockage de l'origine rendu (${Object.keys(gardeLocal).length} clé(s))`);
+}
 </script>
