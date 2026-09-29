@@ -18,8 +18,9 @@
           PAS PAR SCRIPT », parce que `dom-stub.mjs` refuse de fabriquer une
           mise en page. La conséquence n'avait pas été tirée : le CLIC, lui,
           n'a besoin que d'une RANGÉE — trois cotes et un `scrollLeft` qui
-          prévient. Elle est posée ici, dans ce fichier, et nulle part
-          ailleurs (voir §A.0 pour ce qu'elle ne prouve pas).
+          prévient. 🗄️ Archivé le 20/09 : ses gardes vivent dans
+          `roue-tambour.test.mjs` (n° 4 et 5), et la rangée qui les servait
+          est partie au lot 349 (voir §A plus bas).
 
      §B — LA SOURCE, ET C'EST LE VRAI GARDE. Aucun identifiant appelé dans
           `ui/` ne doit être ni introuvable ni orphelin. `glisserVers` n'était
@@ -39,118 +40,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createTestDocument } from "./dom-stub.mjs";
 import { stripComments, walkSources } from "./source-scan.mjs";
-import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
-
-globalThis.document = createTestDocument();
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const { renderEquipmentStep } = await import("../ui/builder/equipment-step.mjs");
-
-/* ══════════════════════════════════════════════════════════════════════════
-   §A — CLIQUER UN CRAN CHANGE LE RAYON
-   ══════════════════════════════════════════════════════════════════════════
-
-   §A.0 CE QUE CETTE RANGÉE PROUVE ET CE QU'ELLE NE PROUVE PAS — dit en
-   premier, parce que c'est ce qui décide de sa forme.
-
-   ✅ Elle prouve LA CHAÎNE : un clic sur un cran appelle `viser`, `viser`
-      déplace la piste, le déplacement émet un `scroll`, le `scroll` fait
-      juger le viseur, et le verdict change le rayon. C'est cette chaîne
-      qu'un `ReferenceError` coupe au premier maillon — quelle que soit la
-      mise en page.
-   ⛔ Elle NE prouve RIEN du décor : ni `scroll-snap`, ni la perspective, ni
-      la rotation, ni l'aimantation. Un vrai navigateur reste seul juge de
-      ceux-là (`NORMES.md` §0, « GOOGLE HEADLESS »), et la mesure de ce lot a
-      été refaite à la main dans Chrome 151.
-   ⚠️ Elle N'EST PAS dans `dom-stub.mjs`, et c'est délibéré : ce stub refuse
-      de fabriquer une mise en page pour que personne ne mesure du vide par
-      inadvertance. Une rangée DÉCLARÉE dans le test qui en a besoin, avec ses
-      trois cotes écrites en clair, ne peut tromper que son propre auteur —
-      c'est la même loi que `poserUneColonne`, et le même prix.
-
-   📐 LES TROIS COTES, ET ELLES SONT COHÉRENTES ENTRE ELLES : la largeur d'un
-   cran vaut le jeton (87), l'écart vaut la gouttière (8), et le champ vaut
-   trois crans plus deux gouttières (277) — la rangée utile à la largeur
-   cible de 360. ⛔ Aucune n'est lue dans la feuille : ce test ne juge pas le
-   décor, il a seulement besoin d'une géométrie qui ne se contredise pas. */
-const CRAN_L = 87;
-const CRAN_ECART = 8;
-const CHAMP = 3 * CRAN_L + 2 * CRAN_ECART;
-
-/** Pose une RANGÉE sur une piste : des enfants de largeur égale, séparés d'un
- *  écart constant, dans un champ qui défile horizontalement.
- *
- *      enfant[i].offsetLeft = i × (largeur + écart)
- *
- *  ⭐ ET `scrollLeft` PRÉVIENT, comme le fait `scrollTop` dans le stub depuis
- *  le lot 68 : sans ça, la roue écrirait sa position sans que son propre
- *  écouteur `scroll` ne soit jamais appelé — le test « passerait » en ne
- *  mesurant que l'écriture, jamais la cascade qu'elle déclenche. C'est très
- *  exactement le trou qui a laissé le spy sans test.
- *  ⚠️ Le vrai navigateur émet ce `scroll` à l'étape de rendu, PAS dans la
- *  tâche qui écrit. Ici il est synchrone — c'est la seule divergence connue,
- *  et elle joue CONTRE le test (la fenêtre `programmatique` est encore
- *  ouverte, donc le chemin le plus silencieux est celui qui est éprouvé). */
-function poserUneRangee(piste, { largeur = CRAN_L, ecart = CRAN_ECART, champ = CHAMP } = {}) {
-  const pas = largeur + ecart;
-  piste.children.forEach((cran, i) => {
-    Object.defineProperty(cran, "offsetLeft", { value: i * pas, configurable: true });
-    Object.defineProperty(cran, "offsetWidth", { value: largeur, configurable: true });
-  });
-  Object.defineProperty(piste, "clientWidth", { value: champ, configurable: true });
-  piste.getBoundingClientRect = () => ({ top: 0, left: 0, right: champ, bottom: 0, width: champ, height: 0 });
-  let x = 0;
-  Object.defineProperty(piste, "scrollLeft", {
-    configurable: true,
-    get: () => x,
-    set(valeur) {
-      const avant = x;
-      x = valeur;
-      if (valeur !== avant) piste.dispatchEvent({ type: "scroll", target: piste });
-    }
-  });
-  return piste.children;
-}
-
-/** `centreDe` lit la largeur du cran et la gouttière DANS LA MISE EN PAGE
- *  (`getComputedStyle`), jamais dans une constante JS — la cote vit dans
- *  `shell.css`. Hors navigateur il faut donc la lui rendre, et elle doit
- *  s'accorder à la rangée ci-dessus : sinon la roue viserait une position que
- *  sa propre géométrie contredit. */
-globalThis.getComputedStyle = (noeud) => ({
-  width: noeud && noeud.className === "roue-piste" ? `${CHAMP}px` : `${CRAN_L}px`,
-  columnGap: `${CRAN_ECART}px`
-});
-
-const fixture = exempleFhEn();
-const query = fixture.layers.verbs.query;
-function ctx() { return { document: { build: { choices: [] } }, resolved: null, query, search: true }; }
-
-/** On entre comme le joueur : l'étape ouvre sur le personnage équipé (R, le
- *  lot 212) et le catalogue est derrière sa porte `Wares`. */
-function monterCatalogue() {
-  const node = renderEquipmentStep(ctx(), () => {});
-  const porte = node.querySelector('.porte-carree[data-porte="wares"]');
-  if (porte) porte.click();
-  return node;
-}
-
-const patienter = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/** Le rang que la roue tient pour COURANT, lu sur les crans eux-mêmes —
- *  jamais sur un compteur interne que le test ne pourrait pas voir mentir. */
-function rangCourant(piste) {
-  for (const cran of piste.children) {
-    if (cran.dataset.courant === "true") return Number(cran.dataset.rang);
-  }
-  return -1;
-}
-
-
-function pisteB(node) { return node.querySelectorAll(".roue-piste")[1]; }
+/* ══ 🗄️ §A — L'OUTILLAGE DE LA RANGÉE, PARTI AU LOT 349 ═════════════════════════════════
+   La rangée DÉCLARÉE (`poserUneRangee` : trois cotes — cran 87, écart 8, champ 277 — et un
+   `scrollLeft` qui prévient), sa surcharge de `getComputedStyle`, et le montage du catalogue
+   (`monterCatalogue`, `rangCourant`, `pisteB`, `patienter`, avec le document de test et
+   l'import de l'étape) ne servaient QUE les trois gardes archivés le 20/09 (voir plus bas).
+   Plus rien ne les appelait — ⛔ et le lot 311 a encore remis à jour le sélecteur de porte
+   de `monterCatalogue` le 27/09 : un outil mort coûte quand même son entretien.
+   ⭐ CE QU'ILS SAVAIENT FAIRE N'EST PAS PERDU : le mécanisme de la roue est gardé dans
+   `roue-tambour.test.mjs` (n° 4 et 5), et la leçon de §A.0 tient toujours — une géométrie
+   DÉCLARÉE dans le test qui en a besoin ne peut tromper que son auteur ; le stub, lui,
+   refuse d'en fabriquer une. Leur corps est dans l'historique :
+   `git show 38c0eaf0:tests/viseur-tambour.test.mjs`. */
 
 
 /* ══════════════════════════════════════════════════════════════════════════
