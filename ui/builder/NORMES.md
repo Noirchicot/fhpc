@@ -6000,7 +6000,8 @@ souris le 29/09 : un objet de l'ancienne page 2 venait combler un trou laissé �
 ⛔ **L'OBJET SANS CASE QUI TIENT DANS SA SECTION N'EST PAS ÉCRIT** — il garde son rang de document
 (`equipement-une-place-dans-une-section`) : c'est le personnage d'exemple (huit objets sans case au dépôt), et la coquille
 compare son texte à celui de l'exemple pour dire « pas de perso en cours » (lot 350). `normaliserLeSac` rend donc le MÊME
-document quand rien ne déborde.
+document quand rien ne déborde. 🔄 Lot 366 : cette comparaison n'existe plus (`menu-r-premiere-visite-fiche-vierge`) ;
+l'invariant, lui, reste.
 ⭐ **LE PARTY BAG A SA CHAÎNE** (③, et « Party bag fait la même chose que backpack dropdown ») : plein, Send crée
 **« Party bag 2 »**, puis 3… — un vrai conteneur, **bleu** (`party`), **au nom éditable**, effaçable vide, qui **ne pèse
 pas** (la ligne `Other`, comme le premier ; `boitesDehors` le compte hors du sac). Son genre s'écrit
@@ -10612,7 +10613,7 @@ l'atterrissage sur l'étape 1.
 🛡️ R2 ; `tests/premier-pas.test.mjs` E6.
 
 ### 🆕 `NEW CHARACTER` : UNE FENÊTRE, PUIS L'ÉTAPE 1 AVEC LES LAYERS EN PLACE
-📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde`
+📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde` · bornée par `menu-r-premiere-visite-fiche-vierge`
 ⚖️ **`New character` ouvre une fenêtre qui prévient de trois choses — régler ses Layers avant · choisir son stockage dans Vault · le perso en cours sera effacé — et offre `Cancel · Delete · Save` quand un perso est en cours, `Cancel · Start` sinon (le troisième avertissement se tait alors). `Save` écrit par le MÊME écrivain que Sheet et, s'il est refusé, rien ne bouge ; `Delete` efface la copie du navigateur ; puis un personnage vierge naît avec la pile MONTÉE, et l'étape 1 s'ouvre. ⛔ Plus aucune question « SRD or Fate's Hand? ».**
 
 > Eric, 2026-09-29, mot pour mot : **« tout reste dans le navigateur tant que tu n'as pas fait New
@@ -10635,10 +10636,13 @@ portes ne PROMET un personnage neuf »*, parce que le builder n'avait aucun pers
 (`tests/universe-step.test.mjs`) change d'objet sans se relâcher : il nomme toujours la promesse
 (new · start over · restart · reset · fresh · blank), et il exige qu'UNE seule porte la porte, sous ce
 mot, et qu'elle mène à la fenêtre — jamais à une naissance sans avertissement.
-⭐ **« PAS DE PERSO EN COURS »** = le document est encore l'exemple commité — comparé sur ce qui fait le
+~~⭐ **« PAS DE PERSO EN COURS »** = le document est encore l'exemple commité — comparé sur ce qui fait le
 personnage (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`, que la dérivation estampille à
 chaque démarrage). 📏 Mesuré au banc le 29/09 : comparé en entier, l'exemple intact passait pour un perso
-en cours. Le navigateur n'est jamais vide après le démarrage : la mémoire ne dit donc rien.
+en cours. Le navigateur n'est jamais vide après le démarrage : la mémoire ne dit donc rien.~~
+🔄 **REMPLACÉE LE 30/09** (lot 366) — la page ne charge plus l'exemple : « pas de perso en cours » se lit
+dans la donnée du document, voir `menu-r-premiere-visite-fiche-vierge` juste dessous. Le piège mesuré le
+29/09 (la dérivation estampille `modified` et `resolved`) tient toujours, et la comparaison l'écarte encore.
 ⭐ **LA FENÊTRE N'EXIGE PAS DE RÉPONSE** : rien ne bouge avant le choix, un tap dehors vaut `Cancel`.
 Elle est un `guide` (§ 7) ; `Delete` porte le rouge de ce qui défait.
 ⭐ **LA RÈGLE DU 192 TIENT, MOT POUR MOT** : un `Save` refusé — ou qui ne rend pas `true` — n'efface
@@ -10646,6 +10650,44 @@ rien. Et `Delete` oublie PUIS fait naître, jamais l'inverse : l'ordre est la r�
 séquence pure (`nouveauPersonnageSelonLaVoie`).
 🛡️ `tests/premier-pas.test.mjs` (28 : A la séquence, B la fenêtre, E le câblage, G la naissance qui
 dérive) ; `universe-step` D4, D6, D7.
+
+### 🌱 LA PREMIÈRE VISITE OUVRE UNE FICHE VIERGE — PLUS D'ILYRA POUR UN JOUEUR
+📍 `menu-r-premiere-visite-fiche-vierge` · vivante · 30/09 · borne `menu-r-new-character-fenetre`
+⚖️ **Un navigateur sans personnage (stockage vide, ou illisible) ouvre une fiche VIERGE — celle que `New character` fait naître (`personnageNeuf`, pile MONTÉE), en anglais, pieds et livres — jamais l'exemple commité, que la page ne charge plus. « Pas de perso en cours » se lit dans la DONNÉE du document : aucun choix fait, c'est-à-dire un document qui n'a rien de plus que sa naissance. Seul un stockage VIDE change de sens : un personnage gardé est repris tel quel.**
+
+> Eric, 2026-09-28, dans son message sur le parcours : *« un sauvegarde à la fin du process de création.
+> puis le cache est totalement vidé, plus de Ilyra Duskleaf »*.
+> Puis, chaque réponse avec sa question (relayées par ARCHI 35) :
+> · 30/09 : « Première visite du builder : aujourd'hui, l'exemple Ilyra est chargé en silence et traité
+>   comme ton perso (« Your current character will be erased », la question de Layers). Que doit voir un
+>   joueur neuf ? » → **« Fiche vierge »** — *« Plus d'Ilyra nulle part : New character → Cancel · Start,
+>   rien à effacer. »* ;
+> · 30/09 : « Dans quelle langue et quelles unités naît la fiche vierge d'une première visite ? » →
+>   **« Anglais + pieds/livres »**.
+> ⛔ La réponse ne vaut que pour SA question, la première visite : vider le cache après le `Save` de fin de
+> création est un autre geste, qui attend son propre arbitrage.
+
+⭐ **LA RÉFÉRENCE EST LA NAISSANCE DU DOCUMENT, PAS UN AUTRE DOCUMENT** (`personnageEnCours`,
+universe-step.mjs) : `composer` refait ce que ses propres faits de naissance auraient donné — même `id`,
+même `created`, même langue, mêmes unités, même manifeste, le nom d'avant le premier geste (`Name
+character`). Ce qui diffère est un geste du joueur : un choix au-delà du niveau de naissance, un nom, une
+description… ⛔ Pas une liste par nom de ce qui compte : le champ ajouté demain compte tout seul, et dans le
+sens qui n'efface rien. Comparé sans `modified` ni `resolved` (la dérivation les estampille), et sans l'ordre
+des clefs. Un document que `composer` ne sait pas refaire est tenu pour « en cours ».
+📏 **CE QUE CHAQUE LECTEUR DE L'ANCIENNE DÉFINITION DEVIENT** :
+· le démarrage (`shell.mjs`) retombait sur l'exemple → une fiche vierge, par `personnageNeuf(null)` ;
+· la fenêtre `New character` comparait au texte de l'exemple → elle lit la donnée : `Cancel · Start` sur une
+  fiche vierge, sans le troisième avertissement ;
+· la question de Fate's Hand dans Layers se lisait déjà dans la donnée (un choix `fh:`) : elle ne se posait à
+  la première visite que parce qu'Ilyra en porte ; une fiche vierge n'en porte aucun, elle ne demande rien ;
+· le stockage (`fhpc.personnage`) recevait Ilyra au premier rendu → il reçoit la fiche vierge (même `id` à
+  chaque rechargement) ;
+· `loadExampleDocument` (engine.mjs) est retiré. L'exemple reste au dépôt pour les bancs, les tests et les
+  captures : un banc qui part de l'exemple le POSE lui-même (`banc-parcours`, `banc-listes`).
+⛔ **UN NAVIGATEUR QUI PORTE ENCORE L'EXEMPLE INTACT** (d'avant ce lot) est un personnage comme un autre :
+rien ne s'y écrit sans le geste du joueur, et `New character` lui offre `Cancel · Delete · Save`.
+🛡️ `tests/premiere-visite-366.test.mjs` (6 gardes, 10 mutations vues rouges) ; `tests/premier-pas.test.mjs`
+B5, E1, E5.
 
 ### 💾 `SAVE CHARACTER` VIT DANS SHEET
 📍 `menu-r-save-character-dans-sheet` · vivante · 29/09

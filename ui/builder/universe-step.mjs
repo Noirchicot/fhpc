@@ -46,27 +46,27 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=916";
+import { renderConfirmDialog } from "./confirm.mjs?v=917";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=916";
+import { motDeLEchelon } from "./echelle.mjs?v=917";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=916";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=917";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=916";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=917";
 /* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
    rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
    ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
    n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=916";
+import { renderMagasinEcran } from "./magasin-ecran.mjs?v=917";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -361,6 +361,21 @@ export async function sauvegarderPuisEteindre({ sauvegarder, eteindre }) {
  *  saved ») est retiré par Eric le 29/09 ; il ne reste que la naissance. */
 export const NOM_DU_PERSONNAGE_NEUF = "Name character";
 
+/** ⚖️ LOT 366 — LA LANGUE ET LES UNITÉS D'UNE PREMIÈRE VISITE. La fiche vierge n'a aucun
+ *  personnage d'avant dont hériter (`personnageNeuf`, shell.mjs), et `composer` refuse d'en
+ *  inventer (décision D3) : c'est donc un réglage DONNÉ, écrit ici une fois.
+ *  · `en` — toute la pile montée est anglaise (chaque couche déclare `lang: "en"`) ;
+ *  · pieds et livres — la règle du schéma (`units`, schemas/fh-char.schema.json) : *« le SRD
+ *    en impérial »*.
+ *  C'est ce que tout joueur voyait déjà avant ce lot, par l'exemple : l'écran ne change pas.
+ *  ⚖️ LE MOT EST REÇU — Eric, 30/09, par ARCHI 35, à *« dans quelle langue et quelles unités naît
+ *  la fiche vierge d'une première visite ? »* → **« Anglais + pieds/livres »**.
+ *  Un joueur ne les choisit encore nulle part (Display les montre). */
+export const REGLAGES_DE_LA_PREMIERE_VISITE = Object.freeze({
+  lang: "en",
+  units: Object.freeze({ distance: "ft", weight: "lb" })
+});
+
 /** LES MOTS DE LA FENÊTRE — le brouillon du plan v10 (Eric arrête les mots que le
  *  joueur lit). Un avertissement par ligne : `paintPopup` (shell.mjs) fait un
  *  paragraphe de chaque ligne. ⛔ Ni « couche » ni « homebrew » (lexique du 10/09).
@@ -393,19 +408,48 @@ export function ceQuiFaitLePersonnage(document) {
 }
 
 /** Y A-T-IL UN PERSONNAGE EN COURS ? — PUR, pour qu'un garde le lise sans coquille.
- *  📏 LE NAVIGATEUR N'EST JAMAIS VIDE : le démarrage retombe sur l'exemple commité, et
- *  `memoriser()` l'écrit dans la mémoire dès le premier rendu. « Rien dans la mémoire »
- *  ne dit donc rien après le démarrage. Ce qui dit « pas de perso à moi », c'est un
- *  document qui est ENCORE l'exemple — comparé sur `ceQuiFaitLePersonnage`, jamais sur
- *  le document entier, dont l'heure change à chaque démarrage.
- *  ⛔ UN EXEMPLE QU'ON N'A PAS PU CHARGER NE PROMET RIEN : sans texte de référence, le
- *  perso est tenu pour « en cours » — la fenêtre offre alors `Cancel · Delete · Save`, et rien
- *  n'est effacé sans que le joueur l'ait choisi.
- *  @param {string|null} texteDuDocument  `canonicalText(ceQuiFaitLePersonnage(document))`, ou `null`
- *  @param {string|null} texteDeLExemple  la même chose pour l'exemple commité, ou `null` */
-export function personnageEnCours(texteDuDocument, texteDeLExemple) {
-  if (typeof texteDuDocument !== "string") return false;
-  return typeof texteDeLExemple !== "string" || texteDuDocument !== texteDeLExemple;
+ *  ⚖️ LOT 366 — « PAS DE PERSO EN COURS » SE LIT DANS LA DONNÉE DU DOCUMENT : AUCUN CHOIX FAIT.
+ *  Eric, 30/09, à *« Première visite du builder : aujourd'hui, l'exemple Ilyra est chargé en
+ *  silence et traité comme ton perso. Que doit voir un joueur neuf ? »* → **« Fiche vierge »**.
+ *  🗄️ CE QU'ELLE REMPLACE (lot 350) : « le document est encore l'exemple commité », comparé au
+ *  texte de l'exemple que la coquille chargeait au démarrage — pour un joueur, donc.
+ *  ⭐ LA RÉFÉRENCE N'EST PLUS UN AUTRE DOCUMENT, C'EST LA NAISSANCE DE CELUI-CI : `composer`
+ *  (le seul écrivain d'un document neuf) refait le document que ses propres faits de naissance
+ *  auraient donné — même `id`, même `created`, même langue, mêmes unités, même manifeste de
+ *  couches, le nom d'avant le premier geste (`NOM_DU_PERSONNAGE_NEUF`). Ce qui diffère est un
+ *  geste du joueur : un choix au-delà du niveau de naissance, un nom, une description, une
+ *  signature… ⛔ PAS UNE LISTE PAR NOM de ce qui compte : le champ qu'on ajoutera demain compte
+ *  tout seul, et dans le sens qui n'efface rien.
+ *  ⚠️ Comparé sur `ceQuiFaitLePersonnage` (la dérivation estampille `modified` et `resolved`), et
+ *  SANS l'ordre des clefs : `canonicalText` ne trie pas, et un écran qui réécrit `build` peut
+ *  ranger ses clefs autrement sans rien choisir.
+ *  ⛔ UN DOCUMENT QUE `composer` NE SAIT PAS REFAIRE N'EST PAS UNE NAISSANCE : il est tenu pour
+ *  « en cours » — la fenêtre offre alors `Cancel · Delete · Save`, et rien n'est effacé sans que
+ *  le joueur l'ait choisi.
+ *  @param {object|null} document  le document de la page, ou `null`
+ *  @param {Function} composer     `createDocWriters({ schema }).composer` */
+export function personnageEnCours(document, composer) {
+  if (!document || typeof document !== "object") return false;
+  let naissance;
+  try {
+    naissance = composer({
+      name: NOM_DU_PERSONNAGE_NEUF, lang: document.lang, units: document.units,
+      layers: document.build && document.build.layers, id: document.id, at: document.created
+    });
+  } catch (_) {
+    return true;
+  }
+  return !memeDonnee(ceQuiFaitLePersonnage(document), ceQuiFaitLePersonnage(naissance));
+}
+
+/** Deux valeurs JSON portent-elles la même donnée, l'ordre des clefs mis à part ? */
+function memeDonnee(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const clefsA = Object.keys(a).filter((k) => a[k] !== undefined);
+  const clefsB = Object.keys(b).filter((k) => b[k] !== undefined);
+  return clefsA.length === clefsB.length && clefsA.every((k) => memeDonnee(a[k], b[k]));
 }
 
 /** LA FENÊTRE « NEW CHARACTER » — la description d'état que `paintPopup` (shell.mjs)
