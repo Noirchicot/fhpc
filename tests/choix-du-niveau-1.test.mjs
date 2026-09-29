@@ -191,7 +191,8 @@ for (const [nom, couches] of Object.entries(PILES)) {
    Les lignes OUVERTES du relevé, telles que le mandat les tient : une ligne de
    dette qui citerait un autre numéro rougit — un choix neuf se relève AVANT de
    se mettre en dette. */
-const RELEVE_OUVERT = ["#4", "#5", "#6", "#10", "#11", "#12", "#13", "#15", "#16"];
+/* 🧬 LOT 364 — #6 (Versatile) et #16 (Skilled) sont COMBLÉS : ils sortent d'ici. */
+const RELEVE_OUVERT = ["#4", "#5", "#10", "#11", "#12", "#13", "#15"];
 const LES_DEUX = ["SRD", "FH"];
 const DETTE = [
   /* #4 — la caractéristique d'incantation (« une valeur parmi N », lot suivant) */
@@ -204,9 +205,6 @@ const DETTE = [
   /* #5 — la taille Small / Medium (« une valeur parmi N », lot suivant) */
   { releve: "#5", piles: LES_DEUX, id: "srd:species:en:human", extrait: "chosen when you select this species" },
   { releve: "#5", piles: LES_DEUX, id: "srd:species:en:tiefling", extrait: "chosen when you select this species" },
-  /* #6 — Versatile, un 2ᵉ don d'origine (lot suivant) */
-  { releve: "#6", piles: LES_DEUX, id: "srd:species:en:human", extrait: "an Origin feat of your choice" },
-  { releve: "#6", piles: ["FH"], id: "fh:species:en:loroka", extrait: "an Origin feat of your choice" },
   /* #10 — l'Expertise du Roublard au niveau 1 (SRD : lot suivant ; FH : question à Eric) */
   { releve: "#10", piles: LES_DEUX, id: "srd:class:en:rogue", extrait: "You gain Expertise in two of your skill proficiencies of your choice" },
   /* #11 — Thieves' Cant, une langue de plus (avec les langues SRD, lot suivant) */
@@ -219,13 +217,11 @@ const DETTE = [
   { releve: "#13", piles: ["SRD"], id: "srd:class:en:monk", extrait: "Musical Instrument chosen for the tool proficiency above" },
   /* #15 — la caractéristique d'incantation de Magic Initiate */
   { releve: "#15", piles: LES_DEUX, id: "srd:feat:en:magic-initiate", extrait: "(choose when you select this feat)" },
-  { releve: "#15", piles: ["FH"], id: "srd:feat:en:magic-initiate", extrait: "you choose which one now" },
-  /* #16 — Skilled en SRD (en FH, `choix_du_texte:fh-feats-en` : 6 points dépensés à Skills) */
-  { releve: "#16", piles: ["SRD"], id: "srd:feat:en:skilled", extrait: "any combination of three skills or tools of your choice" }
+  { releve: "#15", piles: ["FH"], id: "srd:feat:en:magic-initiate", extrait: "you choose which one now" }
 ];
 /* ⛔ LE COMPTE EST ÉPINGLÉ : un lot qui comble un trou ôte sa ligne ET baisse ce nombre ;
    le monter demande une ligne du relevé dans le mandat, jamais l'inverse. */
-const DETTE_LIGNES = 19;
+const DETTE_LIGNES = 16;   // lot 364 : 19 − #6 ×2 − #16
 
 function detteDe(nomPile, id) {
   return DETTE.filter((l) => l.id === id && l.piles.includes(nomPile));

@@ -224,19 +224,24 @@ test("🔴 les sorts du don accordé passent par L'ORGANE D'INHERITANCE (`render
     "chaque jeton vient du plan — aucune liste de sorts écrite dans un écran");
 });
 
-test("🔴 la coquille route le B du don par LE MÊME `FEAT_PARCOURS`, dans les deux branches — pas un second cfg", () => {
+test("🔴 la coquille route le B du don par LE MÊME cfg, dans les deux branches — pas un second cfg", () => {
   /* ⛔ Source, et le fichier le dit : ce routage lit l'état de module de la
      coquille et n'est pas exportable. Ce qui se garde est qu'il n'existe qu'UN
-     cfg pour le don — un second serait deux écrans à tenir d'accord. */
-  const occurrences = shellText.match(/renderParcoursItem\(FEAT_PARCOURS, ctx\)/g) || [];
-  assert.equal(occurrences.length, 2, "la branche des catalogues (SRD) et celle de l'Inheritance, le MÊME cfg");
-  assert.equal((shellText.match(/renderParcoursGuide\(FEAT_PARCOURS, ctx\)/g) || []).length, 2);
-  assert.equal((shellText.match(/const FEAT_PARCOURS = \{/g) || []).length, 1,
-    "⛔ un seul FEAT_PARCOURS dans toute la coquille");
-  /* ⚔️ ATTAQUE — retirer la branche SRD laisse l'Acolyte sans écran */
-  const mutee = shellText.replace("      section.append(renderParcoursItem(FEAT_PARCOURS, ctx));\n", "");
+     cfg pour le don — un second serait deux écrans à tenir d'accord.
+     🧬 LOT 364 — le don a deux détenteurs (l'arrière-plan, et Versatile à
+     l'étape Species) : le cfg est FABRIQUÉ par racine (`parcoursDuDon`), une
+     seule fabrique, et les deux branches l'appellent. */
+  const occurrences = shellText.match(/renderParcoursItem\(parcoursDuDon\(state\.parcoursItem\.racine\), ctx\)/g) || [];
+  assert.equal(occurrences.length, 2, "la branche des catalogues (SRD, Species) et celle de l'Inheritance, le MÊME cfg");
+  assert.equal((shellText.match(/renderParcoursGuide\(parcoursDuDon\(state\.parcoursItem\.path\), ctx\)/g) || []).length, 2);
+  assert.equal((shellText.match(/const fabriquerLeParcoursDuDon = /g) || []).length, 1,
+    "⛔ une seule fabrique du cfg du don dans toute la coquille");
+  assert.equal((shellText.match(/kind: "feat", label: "Origin feat", parcours: true/g) || []).length, 1,
+    "⛔ et aucun second cfg de don écrit à la main");
+  /* ⚔️ ATTAQUE — retirer la branche des catalogues laisse l'Acolyte (et Versatile) sans écran */
+  const mutee = shellText.replace("      section.append(renderParcoursItem(parcoursDuDon(state.parcoursItem.racine), ctx));\n", "");
   assert.notEqual(mutee, shellText, "témoin : la mutation a mordu");
-  assert.equal((mutee.match(/renderParcoursItem\(FEAT_PARCOURS, ctx\)/g) || []).length, 1,
+  assert.equal((mutee.match(/renderParcoursItem\(parcoursDuDon\(state\.parcoursItem\.racine\), ctx\)/g) || []).length, 1,
     "sans elle, seule l'Inheritance sait ouvrir les sorts d'un don");
 });
 

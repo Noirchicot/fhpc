@@ -424,6 +424,18 @@
               "text": "You gain an Origin feat of your choice (see “Feats”). Skilled is recommended."
             }
           ],
+          "feat_choice": {
+            "from": "origin",
+            "trait": "versatile"
+          },
+          "choix_du_texte:fh-species-en": {
+            "versatile": {
+              "extrait": "You gain an Origin feat of your choice",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.originFeat[0]"
+            }
+          },
           "destiny": {
             "base": 2
           }

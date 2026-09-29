@@ -311,6 +311,12 @@
               "extrait": "(human chosen)",
               "nature": "hors-choix",
               "pourquoi": "fh-species-source.mjs, « LES TROIS POUVOIRS DE DESTINÉE » : « chosen » est un terme GÉNÉRIQUE du chapitre (« ces peuples ont un pouvoir supplémentaire sur la Destinée »), pas un trait mécanique — les trois noms (Splinter of Anon, Twice-Born, Outlasting) RATIFIÉS PAR ERIC le 2026-08-08. Le titre dit un peuple élu, il ne fait rien choisir."
+            },
+            "lore-versatile": {
+              "extrait": "you gain an Origin feat of your choice",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.originFeat[0]"
             }
           }
         }
@@ -431,6 +437,14 @@
                 "text": "**Creature type** Humanoid · **Size** Medium · **Speed** 30 feet\n\n- **Darkvision** *(FH)* — 120 feet.\n\n- **Relentless Endurance** — when you drop to 0 hit points and don't die outright, you can drop to 1 instead. Once per Long Rest.\n\n- **Versatile** *(FH)* — you gain an Origin feat of your choice.\n\n- **Destiny** *(FH)* — Base 2."
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-versatile": {
+              "extrait": "you gain an Origin feat of your choice",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.originFeat[0]"
+            }
           }
         }
       }

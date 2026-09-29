@@ -82,6 +82,14 @@ function decisionsDe(query, id) {
       options: data.lineages.map((o) => o.id), selected: []
     });
   }
+  /* 🧬 LOT 364 — le carnet publie le don de Versatile là où la couche le DÉCLARE
+     (`data.feat_choice`) : ce carnet fabriqué le suit, sinon il resterait vert sur
+     une ligne que l'écran réel ne montre plus. */
+  if (data.feat_choice && typeof data.feat_choice === "object") {
+    dec.push({
+      path: "species.originFeat[0]", status: "pending", answered: 0, expected: 1, options: [], selected: []
+    });
+  }
   if (traitsDuRecord(recordDe(query, id)).some((trait) => trait.id === "keen-senses")) {
     dec.push({
       path: "species.skillBudget", status: "pending", answered: 0, expected: 2,
@@ -137,18 +145,18 @@ test("témoin — les douze espèces sont là, et l'Elfe est la SEULE à porter 
 
 /* ══ 1. 🟢 LE TEXTE VERT DE PORTAGE ═════════════════════════════════════ */
 
-/** LES SIX COUPLES, MESURÉS LE 02/09 ET ÉCRITS. Le numéro d'étape est celui
+/** LES COUPLES, MESURÉS LE 02/09 ET ÉCRITS — six ce jour-là, quatre depuis le lot 364
+ *  (les deux Versatile ont quitté la ligne verte pour leur porte). Le numéro d'étape est celui
  *  que la ceinture peint (`etapes.mjs`) — un contrôle plus bas le vérifie
  *  contre la liste elle-même, pour qu'un réordonnancement fasse rougir ici
  *  plutôt que de mentir à l'écran. */
 const PORTAGES_ATTENDUS = {
   "fh:species:en:araag": [["Fast Learner", "→ chosen at step 7, Skills"]],
   "fh:species:en:elestu": [["Fast Learner", "→ chosen at step 7, Skills"]],
-  "fh:species:en:loroka": [["Versatile", "→ chosen at step 3, Inheritance"]],
-  "srd:species:en:human": [
-    ["Skillful", "→ chosen at step 7, Skills"],
-    ["Versatile", "→ chosen at step 3, Inheritance"]
-  ],
+  /* 🧬 LOT 364 — « Versatile → chosen at step 3, Inheritance » est PARTI (Human, Loroka) :
+     la ligne promettait un choix que l'Inheritance ne faisait pas — son don est le SIEN.
+     Versatile a sa porte à l'étape Species, et le trait y a déménagé. */
+  "srd:species:en:human": [["Skillful", "→ chosen at step 7, Skills"]],
   "srd:species:en:elf": [["Splinter of Anon", "→ chosen at step 4, Destiny"]]
 };
 
@@ -159,7 +167,7 @@ test("🔴 un effet qui se règle ailleurs NOMME son étape — et lui seul", ()
     if (portages.length > 0) mesure[id] = portages;
   }
   assert.deepEqual(mesure, PORTAGES_ATTENDUS,
-    "⛔ un septième portage qui apparaît, ou un des six qui disparaît, se DIT ici");
+    "⛔ un portage qui apparaît, ou un des quatre qui disparaît, se DIT ici");
 });
 
 test("🔴 …et un choix EN JEU n'en est pas un — `breath-weapon` reste muet", () => {
@@ -310,9 +318,9 @@ test("⚔️ …et RENOMMER le trait ne l'éteint pas — c'est l'effet qui déc
     return { ...vue, record: { ...vue.record, data } };
   };
   const dit = portagesDe(rebaptise, id);
+  /* 🧬 LOT 364 — Versatile n'a plus de ligne verte : il a sa porte à l'étape Species. */
   assert.deepEqual(dit, [
-    ["Gifted", "→ chosen at step 7, Skills"],
-    ["Versatile", "→ chosen at step 3, Inheritance"]
+    ["Gifted", "→ chosen at step 7, Skills"]
   ], "⚔️ le trait renommé garde sa ligne verte, sous son nouveau nom");
 });
 
