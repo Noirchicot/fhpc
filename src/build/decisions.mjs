@@ -112,7 +112,8 @@ function skillOptions(declaration, skills) {
   return allowed === null ? null : sorted([...allowed]);
 }
 
-function multiPlan({ choices, root, basePath, options, expected, provenance: from, cost }) {
+function multiPlan({ choices, root, basePath, options, expected, provenance: from, cost,
+  countKey = "skill-grant.count-mismatch" }) {
   const prefix = `${basePath}[`;
   const candidates = choices.filter((choice) => choice && choice.path !== root &&
     (choice.path.startsWith(`${root}.`) || choice.path.startsWith(`${root}[`)) &&
@@ -122,8 +123,11 @@ function multiPlan({ choices, root, basePath, options, expected, provenance: fro
   let lock = invalid ? buildViolation("decision.option-unavailable", {
     path: invalid.path, selected: String(invalid.value), options: options.join(", ") || "none"
   }, invalid.path) : null;
+  /* LOT 360 — la clef du sur-compte se PASSE (`countKey`) : un choix de capacité ne compte
+     pas des compétences. Le défaut est celui d'avant, mot pour mot — rien ne change pour
+     les compétences et les lignées. */
   if (!lock && selected.length > expected) {
-    lock = buildViolation("skill-grant.count-mismatch", {
+    lock = buildViolation(countKey, {
       root, declared: expected, actual: selected.length, answers: selected.map((choice) => choice.value).join(", ") || "none"
     }, root);
   }
@@ -845,6 +849,65 @@ function classWeaponMasteryPlans(query, choices, classView) {
   });
 }
 
+/* ══ LOT 360 — LES CHOIX DE CAPACITÉ DÉCLARÉS — `class.<id>[n]` ══════════════
+   🔴 CE QUE ÇA COMBLE : le test A→Z du lot 358 (constat 5) — le Druid SRD rangeait
+   Primal Order dans ce qui est acquis, sans porte. Le relevé du lot 360 en a trouvé
+   trois au niveau 1 : Divine Order (Cleric), Primal Order (Druid), Fighting Style
+   (Fighter). La cause était la même pour les trois : aucune couche ne DÉCLARAIT le
+   choix, donc ce carnet ne publiait rien.
+
+   ⭐ LA DÉCLARATION VIT DANS LA COUCHE (`data[feature_choices]`, srfh-mecaniques-en),
+   et ce plan la LIT, sans un nom de capacité ici. Deux formes d'options :
+     · `options: [{id, name, text}]` — des VALEURS, tirées mot pour mot du texte SRD
+       (Protector / Thaumaturge) : le patron du lignage, `multiPlan` ;
+     · `options_from: {kind, category}` — des RECORDS que le texte désigne (« a
+       Fighting Style feat of your choice ») : le patron des maîtrises et des
+       invocations, `refSlotPlans`, et `validate` nommera le ref mort.
+   Le chemin est `class.<id>` : l'id de la déclaration, jamais un nom écrit ici.
+
+   ⚠️ UNE CAPACITÉ D'UN NIVEAU PLUS HAUT NE SE CHOISIT PAS ENCORE : la déclaration porte
+   son `level`, et seul un personnage qui l'a atteint voit le plan. ⛔ Des réponses qui
+   TRAÎNENT (une classe changée) publient quand même le plan qui les juge — même règle
+   que les maîtrises. */
+function classFeatureChoicePlans(query, choices, classView) {
+  const data = (classView && classView.record && classView.record.data) || {};
+  const declarees = Array.isArray(data.feature_choices) ? data.feature_choices : [];
+  const niveauChoisi = choices.find((choice) => choice && choice.path === "level");
+  const niveau = niveauChoisi && Number.isInteger(niveauChoisi.value) ? niveauChoisi.value : 1;
+  const entries = [];
+  for (const declaration of declarees) {
+    if (!declaration || typeof declaration.id !== "string" || !/^[a-z][a-z0-9-]*$/.test(declaration.id)) continue;
+    const basePath = `class.${declaration.id}`;
+    const candidates = choices.filter((choice) => choice && typeof choice.path === "string" &&
+      (choice.path === basePath || choice.path.startsWith(`${basePath}[`)));
+    const atteint = Number.isInteger(declaration.level) ? declaration.level <= niveau : true;
+    if (!atteint && candidates.length === 0) continue;
+    const compte = Number.isInteger(declaration.count) && declaration.count > 0 ? declaration.count : 1;
+    const from = recordProvenance("offered", "class", classView, `feature_choices.${declaration.id}`);
+    const source = declaration.options_from;
+    if (source && typeof source === "object" && typeof source.kind === "string") {
+      const options = sorted(viewsOf(query, source.kind)
+        .filter((view) => view && view.record && (!source.category ||
+          (view.record.data && view.record.data.category) === source.category))
+        .map((view) => view.id));
+      entries.push(...refSlotPlans({
+        basePath, kind: source.kind, countKey: "feature-choice.count-mismatch",
+        options, expected: compte, candidates, from
+      }));
+    } else if (Array.isArray(declaration.options)) {
+      const options = declaration.options.map((option) => option && option.id).filter((id) => typeof id === "string");
+      /* ⛔ SES CHOIX SEULS (`candidates`) : `multiPlan` compte aussi, sous la racine, tout
+         choix dont la VALEUR est une de ses options — deux déclarations d'une même classe
+         qui partageraient un id d'option se compteraient l'une l'autre. */
+      entries.push(...multiPlan({
+        choices: candidates, root: "class", basePath, options, expected: compte, provenance: from,
+        countKey: "feature-choice.count-mismatch"
+      }));
+    }
+  }
+  return entries;
+}
+
 /* ══ LES INVOCATIONS OCCULTES — `class.invocations[n]` ══════════════════════
    🔴 CE QUE ÇA COMBLE : Eric, 2026-08-29 — *« choix des eldritch invocations
    sous forme de token pas fait »*. Le sorcier-pacte lisait *« You gain one
@@ -1023,6 +1086,9 @@ export function projectDecisions({ query, choices }) {
     entries.push(...classWeaponMasteryPlans(query, list, classView));
     /* Les invocations aussi — même `classView`, même raison. */
     entries.push(...classInvocationPlans(query, list, classView));
+    /* LOT 360 — et les choix de CAPACITÉ que la couche déclare (Divine Order, Primal
+       Order, Fighting Style) : même `classView`, même raison. */
+    entries.push(...classFeatureChoicePlans(query, list, classView));
   }
 
   const speciesChoice = list.find((choice) => choice && choice.path === "species" && choice.ref && choice.ref.kind === "species");

@@ -47,13 +47,15 @@
    deux accès sur cet écran, en B9.4 et B9.5. Les portes sont en bas, dans la
    MÊME dalle (B9.3 : « une dalle majeure UNIQUE, pas plusieurs »). */
 
-import { planAt } from "./carnet.mjs?v=913";
-import { lignageChoisi } from "./species-step.mjs?v=913";
+import { planAt } from "./carnet.mjs?v=914";
+import { lignageChoisi } from "./species-step.mjs?v=914";
+/* LOT 360 — les choix de capacité, en mots : un seul écrivain, celui de l'étape Class. */
+import { capacitesChoisies } from "./class-step.mjs?v=914";
 /* LOT 191 — le mot d'un record absent : l'id humanisé et le refus nommé,
    jamais l'id. Le Sheet le lit dans `validate()` (`choice.ref-missing`). */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=913";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=914";
 /* LOT 294 — la fiche de personnage TEMPORAIRE, au-dessus de la revue. */
-import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=913";
+import { renderFicheTemporaire, MOTS_FICHE } from "./fiche-temporaire.mjs?v=914";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -94,7 +96,12 @@ export const REVIEW_GROUPS = [
      ligne au-dessus : sans lui, un Warlock sans invocation choisie comptait
      pour FINI — au récapitulatif comme dans la lumière du belt. */
     paths: ["class", "class.skillBudget", "class.weaponMastery", "class.invocations",
-            "class.cantrips", "class.prepared"] },
+            "class.cantrips", "class.prepared"],
+  /* ⭐ LOT 360 — ET LES CHOIX DE CAPACITÉ DÉCLARÉS (Divine Order, Primal Order,
+     Fighting Style…), trouvés par leur PROVENANCE (`feature_choices.<id>`), jamais
+     par une liste de chemins ici : une capacité déclarée demain compte sans une ligne
+     de plus, et un Clerc sans ordre ne compte pas pour FINI. */
+    familles: ["feature_choices."] },
   { step: "skills", label: "Skills", paths: [] },
   { step: "equipment", label: "Equipment", paths: [] }
 ];
@@ -176,9 +183,15 @@ export function etapeFaite({ decisions, document, resolved, violations }, stepId
  *  que la pile ne résout pas. Une seule liste pour la ligne du Sheet et pour
  *  `etapeFaite` : deux listes finiraient par se contredire. */
 function etatsDuGroupe(groupe, { decisions, document, resolved, violations }) {
+  const familles = Array.isArray(groupe.familles) ? groupe.familles : [];
+  const parFamille = familles.length === 0 ? [] : (decisions || []).filter((plan) => plan &&
+    typeof plan.path === "string" && !/\[[0-9]+\]$/.test(plan.path) && !groupe.paths.includes(plan.path) &&
+    plan.provenance && typeof plan.provenance.field === "string" &&
+    familles.some((famille) => plan.provenance.field.startsWith(famille)));
   return groupe.paths
     .map((path) => planAt(decisions || [], path))
     .filter(Boolean)
+    .concat(parFamille)
     .map(etatDuPlan)
     .concat(presences(groupe.step, document || null, resolved || null))
     .concat(nonResolusDuGroupe(groupe, violations));
@@ -242,7 +255,9 @@ export function renderReviewStep(ctx, onAction) {
   tete.append(el("p", "perso-note", [text(MOTS_FICHE.note)]));
   dalle.append(tete);
   dalle.append(renderFicheTemporaire({
-    resolved, report: ctx.report || null, document, flags: ctx.flags || [], espece: espece || null
+    resolved, report: ctx.report || null, document, flags: ctx.flags || [], espece: espece || null,
+    /* LOT 360 — les choix de capacité, composés par l'interface comme le lignage */
+    choix: capacitesChoisies(ctx)
   }));
 
   dalle.append(el("h3", "review-heading review-heading-etapes", [text("Build steps")]));

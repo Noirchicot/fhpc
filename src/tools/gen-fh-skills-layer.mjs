@@ -53,7 +53,11 @@ import {
   TOOLS_RECHARACTERISED,
   TOOLS_REWRITTEN,
   ETAGERE_DES_OUTILS_FH,
-  PROVENANCE_ETAGERE_OUTILS
+  PROVENANCE_ETAGERE_OUTILS,
+  CHEMIN_DE_LA_BOURSE_DE_CLASSE,
+  CHEMIN_DES_ACHATS_SKILLS,
+  CHEMIN_DE_L_OUTIL_DU_KIT,
+  ANCRES_DU_KIT
 } from "./fh-skills-source.mjs";
 /* ⭐ LA LISTE DES `ref` PRIS PAR LA COUCHE DES ESPÈCES EST LUE LÀ OÙ ELLE VIT,
    jamais recopiée ici. Elle en portait une COPIE de deux ids jusqu'au
@@ -813,7 +817,11 @@ function buildClasses(srd, skillIdsDeLaPile) {
              Bard 2, Ranger 2. Les neuf autres reçoivent
              `DEFAULT_EXPERTISE_FROM_LEVEL` (4) par le `.map` de la source. */
           expertise_from_level: entry.expertiseFromLevel
-        }
+        },
+        /* ⭐ LOT 360 — CE QUE CE POOL RÉÉCRIT DANS LE TEXTE, DÉCLARÉ sous la clef
+           de CETTE couche (voir la source) : la garde des choix du niveau 1 lit
+           cette déclaration par-dessus celle de `srfh-mecaniques-en`. */
+        [`data[choix_du_texte:${LAYER.id}]`]: choixReecrits(entry, recordDeClasse)
       },
       note: "Fate's Hand — canon §B.1: bound " + entry.boundSkill + " skill / " + entry.boundTool +
         " tool points already placed, " + entry.free + " free points to spend"
@@ -827,6 +835,47 @@ function buildClasses(srd, skillIdsDeLaPile) {
   }
 
   return { class: klass, total: servis.size };
+}
+
+/* ── LOT 360 — LES CHOIX DU TEXTE QUE CE POOL RÉÉCRIT ─────────────────
+   L'ANCRE est LUE dans la couche SRD, jamais saisie : la phrase de
+   `skill_proficiencies` (ou `tool_proficiencies`) jusqu'aux deux-points ou à la
+   parenthèse — « Choose 2 », « Choose any 3 skills », « Choose 3 Musical
+   Instruments ». Les nombres des notes sont LUS dans `CLASS_POOLS`. */
+function ancreDeChoix(texte, ou) {
+  const ancre = typeof texte === "string" ? texte.split(/[:(]/)[0].trim() : "";
+  if (!ancre) fail(`${ou} : aucune phrase à désigner — la couche SRD ne porte plus ce texte.`);
+  return ancre;
+}
+function choixReecrits(entry, recordDeClasse) {
+  const data = recordDeClasse.data || {};
+  const choix = {
+    competences: {
+      extrait: ancreDeChoix(data.skill_proficiencies, `« ${entry.target} », skill_proficiencies`),
+      nature: "creation",
+      etape: "class",
+      chemin: CHEMIN_DE_LA_BOURSE_DE_CLASSE,
+      note: `Fate's Hand : le compte SRD tombe à 0 et ${entry.boundSkill} points liés à la liste de la classe le remplacent (canon §B.1).`
+    }
+  };
+  const kit = ANCRES_DU_KIT[entry.target];
+  if (kit) {
+    choix.outils = {
+      extrait: ancreDeChoix(data.tool_proficiencies, `« ${entry.target} », tool_proficiencies`),
+      nature: "creation",
+      etape: "skills",
+      chemin: CHEMIN_DES_ACHATS_SKILLS,
+      note: `Fate's Hand : ${entry.boundTool} point(s) d'outil lié(s) et le pool — l'outil s'achète à l'étape Skills.`
+    };
+    choix["instrument-du-kit"] = {
+      extrait: kit,
+      nature: "creation",
+      etape: "equipment",
+      chemin: CHEMIN_DE_L_OUTIL_DU_KIT,
+      note: "Eric, 21/09 (lot 246) : l'instrument du kit se lit dans les achats de Skills — un seul, il est posé ; deux ou plus, Equipment pose la question."
+    };
+  }
+  return choix;
 }
 
 /* ── LE GARDE ANTI-RECOPIE ─────────────────────────────────────────────

@@ -31,6 +31,15 @@
         "changes": {
           "data[skill_points]": {
             "bonus": 6
+          },
+          "data[choix_du_texte:fh-feats-en]": {
+            "competences-ou-outils": {
+              "extrait": "any combination of three skills or tools of your choice",
+              "nature": "creation",
+              "etape": "skills",
+              "chemin": "fh.skills.spend",
+              "note": "Fate's Hand : Skilled donne 6 points de compétence, « at exact parity with its SRD text of three skills or tools of the player's choice » (la note de ce patch) — ils se dépensent à l'étape Skills."
+            }
           }
         },
         "note": "Fate's Hand — Skilled grants 6 skill points (3 proficiencies × tier_costs.proficient of 2), at exact parity with its SRD text of three skills or tools of the player's choice. It imposes nothing: the points are the player's to spend."

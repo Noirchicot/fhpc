@@ -20,19 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=913";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=913";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=914";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=914";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=913";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=914";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=913";
-import { renderConfirmDialog } from "./confirm.mjs?v=913";
-import { renderChoixGlisses } from "./glisser.mjs?v=913";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=913";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=914";
+import { renderConfirmDialog } from "./confirm.mjs?v=914";
+import { renderChoixGlisses } from "./glisser.mjs?v=914";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=914";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
    du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=913";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=914";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -275,6 +275,62 @@ function classeRetenue(ctx) {
   return view && view.record ? view.record : null;
 }
 
+/* ══ LOT 360 — LES CHOIX DE CAPACITÉ QUE LA COUCHE DÉCLARE ═════════════════
+   Le test A→Z du lot 358 (constat 5) : le Druid SRD rangeait Primal Order dans ce qui
+   est acquis, sans porte. La couche déclare désormais ces choix
+   (`data[feature_choices]`, srfh-mecaniques-en) et le carnet publie leur plan
+   (`class.<id>`, `classFeatureChoicePlans`). ⭐ CET ÉCRAN NE CONNAÎT AUCUNE
+   CAPACITÉ PAR SON NOM : il lit la déclaration de la classe retenue — le nom, les
+   options, leur texte ou le genre de record qu'elles désignent. Une capacité déclarée
+   demain obtient sa porte sans une ligne ici. */
+function choixDeCapacite(ctx) {
+  const record = ctx ? classeRetenue(ctx) : null;
+  const liste = record && record.data && Array.isArray(record.data.feature_choices) ? record.data.feature_choices : [];
+  return liste.filter((declaration) => declaration && typeof declaration.id === "string");
+}
+const cheminDeCapacite = (declaration) => `class.${declaration.id}`;
+function capaciteDuChemin(ctx, chemin) {
+  return choixDeCapacite(ctx).find((declaration) => cheminDeCapacite(declaration) === chemin) || null;
+}
+/** Le nom d'une option : le record qu'elle désigne (un don de style), ou l'option
+ *  déclarée elle-même (Protector) — jamais l'id nu (`motDuChoix`, lot 191). */
+function nomDOptionDeCapacite(query, declaration, id) {
+  const source = declaration.options_from;
+  if (source && typeof source.kind === "string") return motDuChoix(query, source.kind, id);
+  const option = (declaration.options || []).find((o) => o && o.id === id);
+  return option && typeof option.name === "string" ? option.name : motDUnRecordAbsent(id);
+}
+/** L'info au tap d'un jeton — le contrat du popup (`titre`/`texte`, voir
+ *  `invocationInfo`) : le texte du record, ou celui de l'option déclarée. */
+function infoDOptionDeCapacite(query, declaration, id) {
+  const source = declaration.options_from;
+  if (source && typeof source.kind === "string") {
+    const view = typeof query === "function" ? query({ kind: source.kind, id }) : null;
+    const data = (view && view.record && view.record.data) || {};
+    const texte = typeof data.blurb === "string" && data.blurb.length > 0 ? data.blurb : data.description;
+    return typeof texte === "string"
+      ? { kind: "popup", titre: (view && view.record && view.record.name) || motDUnRecordAbsent(id), texte }
+      : null;
+  }
+  const option = (declaration.options || []).find((o) => o && o.id === id);
+  return option && typeof option.text === "string" ? { kind: "popup", titre: option.name || id, texte: option.text } : null;
+}
+
+/** LES CHOIX DE CAPACITÉ POSÉS, EN MOTS — pour la fiche (review-step), comme
+ *  `lignageChoisi` l'est pour le lignage : ⭐ un seul écrivain du nom d'une option,
+ *  ici. `[{name: "Primal Order: Warden", source: "Druid"}]` — la forme d'un trait de
+ *  la rubrique « Traits and features ». */
+export function capacitesChoisies(ctx) {
+  const record = ctx ? classeRetenue(ctx) : null;
+  if (!record) return [];
+  const decisions = ctx.decisions || [];
+  return choixDeCapacite(ctx).flatMap((declaration) => {
+    const plan = planAt(decisions, cheminDeCapacite(declaration));
+    return (plan && Array.isArray(plan.selected) ? plan.selected : [])
+      .map((id) => ({ name: `${declaration.name}: ${nomDOptionDeCapacite(ctx.query, declaration, id)}`, source: record.name }));
+  });
+}
+
 /* ══ CE QUE LA CLASSE DONNE SANS QU'ON CHOISISSE — 2026-08-20 ══════════════
    Eric : *« il devrait y avoir une phase bilan dans les classes aussi »*.
 
@@ -457,8 +513,13 @@ function resumeDeLItem(item, ctx, act) {
        bleus vers feat, skills, features, traits, spells »*. Une feature est un
        nom dans de la prose (jamais un jeton posé) : habit de prose, bleu
        souligné, et l'ancre `l1-<nom>` que le livre fabrique pour nous. */
+    /* ⛔ LOT 360 — UNE CAPACITÉ QUI A SA PORTE N'EST PLUS « ACQUISE » : la même loi que
+       les traits d'espèce couverts par une porte (`TRAITS_COUVERTS`, 19/08 — jamais deux
+       lieux pour une même chose). Le rapprochement se fait par la DÉCLARATION, dont le
+       nom est celui de la capacité, jamais par une liste écrite ici. */
+    const couvertes = new Set(choixDeCapacite(ctx).map((declaration) => declaration.name));
     const level1 = (Array.isArray(data.features) ? data.features : [])
-      .filter((f) => f && f.level === 1 && typeof f.name === "string")
+      .filter((f) => f && f.level === 1 && typeof f.name === "string" && !couvertes.has(f.name))
       .map((f) => [f.name, phraseDeFeature(f, ctx.query, act),
         { href: lienFeatureFhWeb(record.name, 1, f.name) }]);
     /* 🔴 LE MÊME FORMAT QUE SPECIES — la dictée d'Eric du 27/08 (« le tableau
@@ -534,6 +595,16 @@ function resumeDeLItem(item, ctx, act) {
     return ligneDeBilan(null, prises);
   }
 
+  /* ── LOT 360 — UN CHOIX DE CAPACITÉ : l'option posée, et son info au tap. */
+  const capacite = capaciteDuChemin(ctx, item.path);
+  if (capacite) {
+    const plan = planAt(decisions, item.path);
+    const prises = (plan && Array.isArray(plan.selected) ? plan.selected : [])
+      .map((id) => ({ nom: nomDOptionDeCapacite(ctx.query, capacite, id),
+        onInfo: () => { const info = infoDOptionDeCapacite(ctx.query, capacite, id); if (info && act) act(info); } }));
+    return ligneDeBilan(null, prises);
+  }
+
   /* ── LES SORTS : leur nom, et l'école que le record déclare. ⛔ Une école
      absente laisse la ligne debout avec un tiret plutôt que de la faire
      disparaître : le sort EST choisi, c'est le fait qui compte. */
@@ -584,7 +655,7 @@ export const CLASS_CATALOGUE = {
   /* 🔵 chaque SB nomme SON geste (Eric, 2026-08-28 : « texte aiguilleur plus
      précis ») — le socle de prévention reste, la première phrase dit quoi
      faire ICI. Les mots des consignes dégagées vivent désormais là. */
-  itemAiguilleur: (chemin) => (chemin === "class.cantrips"
+  itemAiguilleur: (chemin, ctx) => (chemin === "class.cantrips"
     ? "Tap a spell to read it — drag a cantrip into each slot. Leaving this open marks nothing — only Done records the choice."
     : chemin === "class.prepared"
       ? "Tap a spell to read it — drag a spell into each slot. Leaving this open marks nothing — only Done records the choice."
@@ -594,6 +665,8 @@ export const CLASS_CATALOGUE = {
       ? "Drag a price onto a skill to spend your points. Leaving this open marks nothing — only Done records the choice."
     : chemin === "class.skills"
       ? "Tap a skill to read it — drag it into a slot to choose, or press Select. Leaving this open marks nothing — only Done records the choice."
+    : capaciteDuChemin(ctx, chemin)
+      ? "Tap an option to read it — drag one into the slot to choose. Leaving this open marks nothing — only Done records the choice."
     : null),
   /* ⭐ LE CORPS D'UN ITEM NE REND QUE SON BLOC — même contrat que Species
      (`itemCorps`), et c'est ce qui rend les deux chapitres identiques à
@@ -606,13 +679,14 @@ export const CLASS_CATALOGUE = {
      du parcours était là, son contenu manquait. */
   resumeItem: resumeDeLItem,
   lignesEnPlus: [LIGNE_ACQUIS_CLASSE],
-  itemLabel: (chemin) => (chemin === "class.skillBudget" ? "Skill points"
+  itemLabel: (chemin, ctx) => (chemin === "class.skillBudget" ? "Skill points"
     : chemin === "class.skills" ? "Class skills"
     : chemin === "class.cantrips" ? "Cantrips"
     : chemin === "class.prepared" ? "Prepared spells"
     : chemin === "class.weaponMastery" ? "Weapon mastery"
     : chemin === "class.invocations" ? "Eldritch invocations"
-    : chemin === LIGNE_ACQUIS_CLASSE.path ? LIGNE_ACQUIS_CLASSE.label : chemin)
+    : chemin === LIGNE_ACQUIS_CLASSE.path ? LIGNE_ACQUIS_CLASSE.label
+    : ((capaciteDuChemin(ctx, chemin) || {}).name || chemin))
 };
 
 /** LE CORPS D'UNE FICHE DE CLASSE — lot 77, la fiche à 360.
@@ -926,6 +1000,29 @@ export function renderClassChoices(ctx, onAction, seulement) {
   }) : null;
   if (blocInvocations && retenu("class.invocations")) menu.append(blocInvocations);
 
+  /* ══ LOT 360 — LES CHOIX DE CAPACITÉ, AU GLISSER ═════════════════════════
+     🔴 CE QUE ÇA COMBLE : Divine Order, Primal Order et Fighting Style se lisaient
+     dans le bilan et ne se choisissaient nulle part (le relevé du lot 360).
+     ⭐ LE MÊME ORGANE, POUR LA CINQUIÈME FOIS : jetons, récepteur, info au tap.
+     Une option-RECORD (un don de style) se pose par `choose` avec son genre — le
+     ref que `validate` nomme s'il meurt ; une option-VALEUR (Protector) par `set`,
+     comme un lignage. ⛔ Et il ne rend rien sans plan. */
+  for (const declaration of choixDeCapacite(ctx)) {
+    const chemin = cheminDeCapacite(declaration);
+    const plan = planAt(decisions, chemin);
+    if (!plan || !retenu(chemin)) continue;
+    const source = declaration.options_from;
+    const bloc = renderChoixGlisses({
+      plan, slots: planSlots(decisions, chemin),
+      titre: typeof declaration.name === "string" ? declaration.name : null,
+      mot: typeof declaration.name === "string" ? declaration.name : "Choice",
+      refKind: source && typeof source.kind === "string" ? source.kind : null,
+      labelOf: (id) => nomDOptionDeCapacite(query, declaration, id), onAction: act,
+      onInfo: (id) => { const info = infoDOptionDeCapacite(query, declaration, id); if (info) act(info); }
+    });
+    if (bloc) menu.append(bloc);
+  }
+
   /* ══ LOT 46 — LA CONFIRMATION, INCHANGÉE ═══════════════════════════════
      Les anciens `class.skills[n]` que le `choose` ne nettoie pas
      (verrouillés) DOIVENT s'effacer — après confirmation, en NOMMANT ce qui
@@ -995,10 +1092,17 @@ export function classPalier2(decisions) {
      plan absent (un Magicien) ne compte pas. */
   /* ⚠️ ET LES INVOCATIONS AUSSI (2026-08-29) : un Warlock à 2/2 cantrips mais
      0/1 invocation n'est pas prêt — même règle, même raison. */
+  /* ⚠️ LOT 360 — ET LES CHOIX DE CAPACITÉ DÉCLARÉS : un Clerc à 2/2 cantrips mais sans
+     Divine Order n'est pas prêt. Ils se trouvent par leur PROVENANCE
+     (`feature_choices.<id>`, posée par le carnet), jamais par une liste de noms ici. */
+  const capacites = (Array.isArray(decisions) ? decisions : []).filter((plan) => plan && typeof plan.path === "string" &&
+    !/\[[0-9]+\]$/.test(plan.path) && plan.provenance && typeof plan.provenance.field === "string" &&
+    plan.provenance.field.startsWith("feature_choices."));
   const plans = ["class.skillBudget", "class.weaponMastery", "class.invocations",
                  ...SPELL_QCMS.map((groupe) => groupe.basePath)]
     .map((path) => planAt(decisions, path))
-    .filter(Boolean);
+    .filter(Boolean)
+    .concat(capacites);
   if (plans.length === 0) return null;
   return { ready: plans.every((plan) => plan.answered >= plan.expected) };
 }

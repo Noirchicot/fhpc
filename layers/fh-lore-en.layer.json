@@ -76,6 +76,14 @@
                 }
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-ascendance": {
+              "extrait": "Choose the kind of dragon from the Draconic Ancestors table; your choice sets your",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -139,6 +147,19 @@
                 }
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-lignee": {
+              "extrait": "choose a lineage from the Elven Lineages table",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            },
+            "lore-destinee": {
+              "extrait": "(elf chosen)",
+              "nature": "hors-choix",
+              "pourquoi": "fh-species-source.mjs, « LES TROIS POUVOIRS DE DESTINÉE » : « chosen » est un terme GÉNÉRIQUE du chapitre (« ces peuples ont un pouvoir supplémentaire sur la Destinée »), pas un trait mécanique — les trois noms (Splinter of Anon, Twice-Born, Outlasting) RATIFIÉS PAR ERIC le 2026-08-08. Le titre dit un peuple élu, il ne fait rien choisir."
+            }
           }
         }
       },
@@ -178,6 +199,14 @@
                 }
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-lignee": {
+              "extrait": "choose one from the table below",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -229,6 +258,14 @@
                 }
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-ascendance": {
+              "extrait": "choose one boon from the table below",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },
@@ -245,6 +282,13 @@
                 "text": "**Creature type** Humanoid · **Size** Small (about 2–3 feet tall) · **Speed** 30 feet\n\n- **Brave** — Advantage on saving throws you make to avoid or end the Frightened condition.\n\n- **Halfling Nimbleness** — you can move through the space of any creature larger than you.\n\n- **Luck** — when you roll a 1 on the d20 of a D20 Test, you can reroll it, and you must use the new roll.\n\n- **Naturally Stealthy** — you can take the Hide action while obscured only by a creature at least one size larger than you.\n\n- **Destiny** *(FH)* — Base 2. **Outlasting** *(halfling chosen)*: Advantage on Chaos rolls."
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-destinee": {
+              "extrait": "(halfling chosen)",
+              "nature": "hors-choix",
+              "pourquoi": "fh-species-source.mjs, « LES TROIS POUVOIRS DE DESTINÉE » : « chosen » est un terme GÉNÉRIQUE du chapitre (« ces peuples ont un pouvoir supplémentaire sur la Destinée »), pas un trait mécanique — les trois noms (Splinter of Anon, Twice-Born, Outlasting) RATIFIÉS PAR ERIC le 2026-08-08. Le titre dit un peuple élu, il ne fait rien choisir."
+            }
           }
         }
       },
@@ -261,6 +305,13 @@
                 "text": "**Creature type** Humanoid · **Size** Medium (about 4–7 feet tall) or Small (about 2–4 feet tall), chosen when you select this species · **Speed** 30 feet\n\n- **Skillful** *(FH)* — +2 skill points at level 1, and that is all. *(The base game grants one skill proficiency; Fate's Hand converts every level-1 grant into pool points.)*\n\n- **Versatile** — you gain an Origin feat of your choice.\n\n- **Destiny** *(FH)* — Base 2. **Twice-Born** *(human chosen)*: recover 2 Destiny Points per Long Rest instead of one."
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-destinee": {
+              "extrait": "(human chosen)",
+              "nature": "hors-choix",
+              "pourquoi": "fh-species-source.mjs, « LES TROIS POUVOIRS DE DESTINÉE » : « chosen » est un terme GÉNÉRIQUE du chapitre (« ces peuples ont un pouvoir supplémentaire sur la Destinée »), pas un trait mécanique — les trois noms (Splinter of Anon, Twice-Born, Outlasting) RATIFIÉS PAR ERIC le 2026-08-08. Le titre dit un peuple élu, il ne fait rien choisir."
+            }
           }
         }
       },
@@ -324,6 +375,14 @@
                 }
               }
             ]
+          },
+          "data[choix_du_texte:fh-lore-en]": {
+            "lore-heritage": {
+              "extrait": "choose a legacy from the table below",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage"
+            }
           }
         }
       },

@@ -42,6 +42,11 @@ export const FR_BUILD = {
      les langues de l'Héritage. Chacune compte SON objet. */
   "language-grant.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} langue(s) et les choix ` +
     `en désignent ${d.actual} (${d.answers}).`,
+  /* LOT 360 — la CINQUIÈME sœur : un choix de CAPACITÉ de classe (Divine Order,
+     Primal Order, Fighting Style), déclaré par `data[feature_choices]`. Il ne
+     compte ni des compétences ni des sorts : il compte des options. */
+  "feature-choice.count-mismatch": (d) => `« ${d.root} » fait choisir ${d.declared} option(s) de capacité et les choix ` +
+    `en désignent ${d.actual} (${d.answers}).`,
   "background.ability-key-invalid": (d) => `l'arrière-plan « ${d.backgroundId} » porte \`ability_keys\` = ${d.key}, ` +
     `qui n'est pas une clef de caractéristique (${d.abilityKeys}).`,
   "background.boost-disallowed": (d) => `le choix « ${d.path} » augmente une caractéristique que l'arrière-plan ` +

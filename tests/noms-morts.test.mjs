@@ -134,7 +134,15 @@ function occurrences() {
     }
     if (Array.isArray(valeur)) { valeur.forEach((v, i) => fouille(v, `${chemin}[${i}]`, ctx)); return; }
     if (valeur && typeof valeur === "object") {
-      for (const [k, v] of Object.entries(valeur)) fouille(v, chemin ? `${chemin}.${k}` : k, ctx);
+      for (const [k, v] of Object.entries(valeur)) {
+        /* 📋 LOT 360 — LES DÉCLARATIONS DU TEXTE NE SONT PAS DU TEXTE. `data[choix_du_texte:<couche>]`
+           désigne une phrase de choix par un EXTRAIT, copie de la phrase même : un nom mort qu'il
+           porte est déjà mesuré ici, là où la phrase vit (le Barde, « Musical Instrument »…). Même
+           famille que `starting_equipment_tool.text` (lot 246, « délibéré » plus bas), mais pour
+           toutes les déclarations d'un coup, par leur clef — et aucun joueur ne les lit. */
+        if (chemin === "data" && k.startsWith("choix_du_texte:")) continue;
+        fouille(v, chemin ? `${chemin}.${k}` : k, ctx);
+      }
     }
   };
   for (const genre of PORTEE) {
