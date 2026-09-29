@@ -443,6 +443,7 @@ export function jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin }) {
     /* 🖐️ LOT 347 — la grammaire : VOIR = tap / clic droit → l'aperçu ; ARMER = clic gauche / appui long → le
        collecteur voisin s'allume (quand `Send` est armé ; sinon, bref refus — 6b) ; POSER = clic, tap ou glisser */
     grammaire: true,
+    cle: "x5:voisin",   // 🖐️ LOT 361 — LE jeton de l'écran en double écran : ce qui survit à un repeint
     onVoir: apercu,
     onTap: () => {},
     onLever: (x, y) => fantome.lever(jeton, x, y),

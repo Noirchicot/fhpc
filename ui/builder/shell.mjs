@@ -86,6 +86,7 @@ import {
    `itemCorps` y est déjà. */
 import { planAt, planSlots } from "./carnet.mjs?v=912";
 import { renderChoixGlisses } from "./glisser.mjs?v=912";
+import { avantLeRepeint } from "./repeint.mjs?v=912";
 import { renderConceptStep } from "./concept-step.mjs?v=912";
 /* ⚖️ LOT 350 — `creerUnPersonnage` et `popupDuJeu` sont partis avec le popup « SRD or
    Fate's Hand? » : la fenêtre `New character` et sa séquence les remplacent. */
@@ -6491,6 +6492,11 @@ function refresh() {
   /* ⚠️ AVANT DE PEINDRE, pas après : le Menu affiche `state.memoire`, et
      l'écrire après le rendu montrerait l'état du tour précédent. */
   memoriser();
+  /* 🖐️ LOT 361 — un repeint ne casse ni le clic en cours (il attend sa fin), ni le texte tapé (il s'enregistre
+     d'abord, ou il revient) : `repeint.mjs`. ⭐ Après `memoriser()` : l'état se garde tout de suite, seul le
+     repeint attend. */
+  const apres = avantLeRepeint(refresh);
+  if (!apres) return;
   reglerLaVue();
   paintBelt();
   paintAside();
@@ -6529,6 +6535,7 @@ function refresh() {
      surface neuve. */
   frame.scroller.settle();
   peindreLePassif();
+  apres();   // 🖐️ LOT 361 — le texte qu'un champ n'avait nulle part où écrire revient dans son champ repeint
 }
 
 /** Le second panneau — rendu APRÈS l'actif, et seulement s'il est à l'écran.

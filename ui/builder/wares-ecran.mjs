@@ -587,6 +587,7 @@ function jeton(item, o) {
        écran, les cases voisines qu'un achat sert) ; POSER = clic ou tap sur l'une d'elles, ou glisser.
        🧊 « TAP = INFO, GLISSER = CHOISIR » (ci-dessus, 20/09) tient au doigt ; à la souris, le clic gauche arme. */
     grammaire: true,
+    cle: `wares:${item.ref}`,   // 🖐️ LOT 361 — l'objet du catalogue : ce qui survit à un repeint (voir `glisser.mjs`)
     onVoir: () => o.surJeton && o.surJeton(item.ref),
     onTap: () => {},
     onLever: (x, y) => fantome.lever(b, x, y),
@@ -837,6 +838,8 @@ export function construireLesWares(o = {}) {
       maintien: MAINTIEN_EQUIPEMENT_MS,
       /* 🖐️ LOT 347 — la grammaire : armé, il montre les cases voisines où il peut aller */
       grammaire: true,
+      /* 🖐️ LOT 361 — LE collecteur de l'écran : ⛔ pas la référence qu'il retient, que la grille montre aussi */
+      cle: "wares:collecteur",
       onVoir: () => ouvrir(),
       onTap: () => {},
       onLever: (x, y) => fantome.lever(collecteur, x, y),

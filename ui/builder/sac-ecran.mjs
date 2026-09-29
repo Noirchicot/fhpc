@@ -736,6 +736,9 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud, horsCible = u
        collecteurs d'Equipment — un organe, un geste. ⛔ Rien n'est écrit au document : le contenu
        d'un collecteur n'est pas un item tant qu'on n'a pas fait Send. */
     onHorsCible: horsCible,
+    /* 🖐️ LOT 361 — la ligne du sac : ce qui survit au repeint du nom d'une section (ou de Party bag 2). ⭐ Une
+       case et le collecteur ne portent jamais la même ligne — un objet n'est pas à deux endroits. */
+    cle: `sac:${index}`,
     /* ⚡ LOT 355 — ⛔ PLUS DE PÉAGE : l'objet se glisse dès qu'il bouge. `maintien` n'est plus que
        la durée de l'appui long qui ARME (la grammaire, plus bas), la même cote que Gear, Wares et X5. */
     maintien: MAINTIEN_EQUIPEMENT_MS,

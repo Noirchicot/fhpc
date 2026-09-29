@@ -10943,3 +10943,58 @@ tournait les pages → **sans objet**. Eric, 29/09 : **« Une section, dans back
 doigt, le ruban passe par l'entre-deux EN DIRECT, la marque dit `none`, l'objet se glisse sans attendre), 33 (le ruban
 ne mène jamais), 34 (un défilement programmé l'entraîne). Chacun vu rouge par mutation — l'ancien `sac-ecran.mjs`,
 l'ancienne feuille, un suivi muet, un suivi et une pose muets —, sources restaurées et comparées.
+
+### 🖐️ UN REPEINT NE CASSE RIEN — ni le geste en cours, ni le texte tapé, ni l'objet armé
+📍 `geste-un-repeint-ne-casse-rien` · vivante · 29/09
+⚖️ **Un repeint (`refresh()`) ne détruit jamais ce que le joueur tient. Demandé pendant un appui, il attend la fin de son clic : l'état s'écrit tout de suite, seul l'échange des nœuds attend. Il fait d'abord enregistrer le champ de texte actif par son propre chemin (on lui retire le focus), et un champ qui n'écrit nulle part retrouve son texte, repeint. Et l'objet armé suit son OBJET, pas son nœud : chaque organe armé déclare ce qu'est l'objet (`cle`), et quand un repeint remplace le nœud, son jumeau reprend l'armement.**
+
+> ARCHI 35, 2026-09-29, mandat du lot 361 : **« le premier armer tient, quel que soit l'élément qui avait le focus »** ·
+> puis, sur le texte perdu au glisser : **« un repeint (refresh) ne détruit JAMAIS un texte pas encore enregistré, quel
+> que soit le champ. Il enregistre la valeur du champ actif avant de repeindre, ou il le garde »**.
+
+🔴 **La cause, mesurée (v912, sonde d'événements, souris et iPad).** `refresh()` repeint en REMPLAÇANT les nœuds, et un
+champ de texte s'enregistre en perdant le focus (`change`, `blur`) — c'est-à-dire sous l'appui qui le lui prend.
+  · **souris, jeton** : `pointerdown` sur Woman → le focus quitte Name → `change` → `rename` → repeint (−22 +23 nœuds) →
+    `pointerup` arme l'ANCIEN Woman, détaché → le clic sur Gender désarme. Le premier « armer puis poser » est avalé ;
+  · **souris et doigt, bouton** : Name actif, clic sur Done → `mousedown` → `change` → repeint → `mouseup` sur le NOUVEAU
+    Done → aucun `click`, Done ne fait rien ; au doigt, l'onglet Species pareil, par le `mousedown` qu'iOS synthétise ;
+  · **doigt, appui long** : Woman s'arme ; 1,2 s après le relâché, iOS synthétise le `mousedown` du tap → `change` →
+    repeint → le jeton armé est remplacé → le tap sur Gender désarme ;
+  · **doigt, glisser** : aucun focus ne se perd → la pose repeint → Name, encore actif, est remplacé sans `change` : le
+    texte tapé est perdu (« Glisse » tapé, Woman posé, le champ revient à l'ancien nom).
+⭐ La grammaire (`geste-armer-puis-poser`) était juste ; c'est son exécution qui trébuchait. ⛔ Elle ne change pas.
+
+📐 **Trois organes, un par moitié de la loi** :
+  · `repeint.mjs` — `avantLeRepeint(refresh)` en tête de `refresh()` (juste après `memoriser()`) : pendant un appui
+    (`pointerdown`/`mousedown` → relâché), le repeint est RETENU puis rejoué après la tâche du relâché (`mouseup` et
+    `click` y sont livrés ensemble) ; hors appui, le champ actif perd le focus et s'enregistre — son enregistrement
+    repeint lui-même, avec le texte ; `apres()`, en fin de `refresh()`, rend son texte au champ qui n'écrit nulle part.
+    ⛔ Rien n'y est un délai : la fin d'un clic est un événement. ⛔ Un champ se retrouve par son `id` ou son nom
+    (`aria-label`), jamais par sa place ; deux homonymes, et on ne rend rien. ⛔ Un appui sur un sélecteur ne retient
+    rien (sa liste s'ouvre hors de la page) ; un pointeur qui bouge sans bouton met fin à un appui dont le relâché
+    s'est perdu ;
+  · `glisser.mjs` — `armerJeton({ cle })` : l'organe retient ce qu'est l'objet ; armé, il guette le repeint
+    (`MutationObserver`) et son JUMEAU — le seul nœud vivant armé sous la même clé — reprend le liseré et les
+    destinations, ⛔ sans flash (le joueur n'a rien fait) ; l'appui suivant fait la même reprise, et un clic dont le nœud
+    pressé a été remplacé arme le jumeau. ⛔ Deux jumeaux, ou aucun : on désarme. ⛔ Sans `cle`, rien ne change ;
+  · les clés : la valeur et son vivier (`renderChoixGlisses`), le créneau rempli, la ligne du sac, de Gear (case et
+    collecteur), l'objet de Wares et son collecteur, le sort et le parchemin de X5, le jeton de X5 en double écran.
+    ⛔ Exception nommée : le dé d'Abilities (fichier du lot 362 ; aucun champ de texte sur sa page).
+
+🔎 **Les champs de texte du builder, relevés** (question du mandat : lesquels avaient le même effet). ⚠️ La dernière
+colonne dit COMMENT je le sais : « mesuré » = vu au navigateur par la sonde d'événements ; « lu » = lu au code, pas vu.
+
+| le champ | il s'enregistre | exposé avant ce lot | comment je le sais |
+|---|---|---|---|
+| Name (Identity) | `change` → `rename` → `refresh()` | ✅ jeton, bouton, texte au glisser — réparé | mesuré (souris, iPad) |
+| nom d'une section du sac, dont Party bag 2 | `blur` ou `Entrée` → `renommerSection` → `refresh()` | ✅ en mode édition, ses voisins sont des BOUTONS (`/`, `×`, flèches, done) — réparé | lu |
+| la recherche du catalogue | à chaque frappe, dans son écran, rebâti à chaque repeint | ✅ son texte mourait au repeint — il revient, et l'écran le relit | lu |
+| la monnaie à ajouter (Gear) | nulle part : lue au clic de `+` / `−` | ✅ son texte mourait au repeint — il revient | lu |
+| le prix tapé de X5 | `change` → `surChoix("PRIX")` → `montrer` → le repeint LOCAL de l'étape Equipment | ⚠️ ses jetons armés, oui — réparés (l'organe suit sa clé) ; ⏳ un BOUTON cliqué juste après la frappe peut encore être avalé : le repeint local de l'Équipement (`peindre`) ne passe pas par `refresh()`, et ce lot ne le retient pas | lu |
+| le prix négocié de X2 | `change` → il réécrit son champ et sa ligne de coût, rien d'autre | ⛔ non : aucun voisin n'est remplacé | lu |
+| la bourse de B3 | `change` → la valeur | ⛔ non : la scène B3 n'est plus montée (aucun module vivant ne l'importe) | lu |
+| Campaign code | — | ⛔ non : place réservée, désactivée (`soon`) | lu |
+
+🛡️ `tests/repeint-ne-casse-rien.test.mjs` (11 gardes : les quatre chaînes rejouées dans l'ordre du navigateur, les
+jumeaux, le câblage). Vues rouges par mutation, 18 mutations, sources restaurées à l'empreinte ; et sur le code v912
+(l'organe de `main`, sans retenue), les gardes 1 (le mandat), 2 (l'appui long) et 3 (le bouton) rougissent.

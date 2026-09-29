@@ -162,6 +162,7 @@ export function construireX5Parchemin(o, pieces) {
        (réponse 1a d'Eric, 28/09), et ⛔ « sans fiche, le tap choisit » non plus — sans fiche, le tap ne voit rien. */
     armerJeton(b, {
       grammaire: true,
+      cle: `x5:sort:${s.data.name}`,   // 🖐️ LOT 361 — le sort : ce qui survit au repeint du prix tapé (voir `glisser.mjs`)
       onVoir: surInfo ? () => surInfo(s) : undefined,
       /* ⭐ SA SEULE DESTINATION est le collecteur du parchemin : en double écran, d'autres créneaux vivent dans
          l'application (le collecteur de Wares, les cases du sac) — ⛔ un sort n'y va pas */
@@ -297,6 +298,7 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null,
     /* 🖐️ LOT 347 — la grammaire : VOIR = tap / clic droit → l'aperçu ; ARMER = clic gauche / appui long → en
        double écran, le collecteur voisin s'allume ; en vue simple il n'a nulle part où aller : bref refus (6b) */
     grammaire: true,
+    cle: "x5:parchemin",   // 🖐️ LOT 361 — LE parchemin de l'écran : ce qui survit à un repeint
     onVoir: apercu,
     onTap: () => {},
     onLever: (x, y) => fantome.lever(jeton, x, y),

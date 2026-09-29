@@ -448,6 +448,7 @@ function emplacement(o, id, pose, options) {
     armerJeton(e, {
       maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ l'appui long qui ARME (lot 355 : ⛔ plus une attente avant le glisser) */
       grammaire: true,
+      cle: `gear:${pose.index}`,   // 🖐️ LOT 361 — la ligne : ce qui survit à un repeint (voir `glisser.mjs`)
       onVoir: voir,
       onTap: () => {},
       onLever: (x, y) => fantome.lever(e, x, y),
@@ -513,6 +514,7 @@ function collecteur(id, options, retenu) {
     armerJeton(c, {
       maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ l'appui long qui ARME (lot 355 : ⛔ plus une attente avant le glisser) */
       grammaire: true,
+      cle: `gear:${retenu.index}`,   // 🖐️ LOT 361 — la ligne retenue (un objet n'est pas à deux endroits)
       onVoir: () => { if (options.surJeton) options.surJeton(retenu.index); },
       onTap: () => {},
       onLever: (x, y) => fantome.lever(c, x, y),

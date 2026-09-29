@@ -416,16 +416,62 @@ export function eteindreLeDeplacement() {
   for (const x of d.destinations) if (x && x.dataset) delete x.dataset.destination;
   d.doc.removeEventListener("pointerdown", d.surAppui, true);
   d.doc.removeEventListener("keydown", d.surTouche, true);
+  if (d.veille) d.veille.disconnect();
 }
 
 /** L'objet armé, s'il y en a un (le témoin des bancs). */
 export function objetArme() { return deplacementArme ? deplacementArme.jeton : null; }
 
+/* ══ 🖐️ L'OBJET ARMÉ EST UN OBJET, PAS UN NŒUD — lot 361 (ARCHI 35, 29/09) ════════════════════════════
+   🔴 LA PANNE, MESURÉE (v912). À Identity, Name encore actif, le premier « armer puis poser » était avalé :
+   · À LA SOURIS (Chromium) : `pointerdown` sur « Woman » → le focus quitte Name → `change` → `rename` →
+     `refresh()` repeint l'étape (−22 +23 nœuds) → `pointerup` armait l'ANCIEN « Woman », détaché ;
+   · AU DOIGT (iPad, Safari) : l'appui long arme le vrai « Woman » ; 1,2 s après le relâché, iOS synthétise le
+     `mousedown` du tap → le focus quitte Name → `change` → repeint → le jeton armé est remplacé.
+   Dans les deux cas, l'appui suivant trouvait l'objet armé hors du document et désarmait : la pose était
+   perdue. ⭐ La grammaire était juste ; c'est l'ARMEMENT qui tenait un nœud, dans un builder qui repeint en
+   remplaçant les nœuds. (Le repeint en plein clic, lui, est réparé à sa source : `repeint.mjs`.)
+   ⭐ LA LOI : l'armement suit son OBJET. L'appelant DÉCLARE ce qu'est l'objet (`cle`, unique à l'écran : la même
+   valeur au même vivier, la même ligne au même organe) ; quand un repeint remplace le nœud, son JUMEAU — le seul
+   nœud vivant armé sous la même clé — reprend l'armement.
+   ⛔ Jamais par position (« le jeton sous le doigt ») : un nom refusé fait paraître une erreur, tout descend d'une
+   ligne, et le doigt désigne un autre objet. ⛔ Deux jumeaux, ou aucun : on ne choisit pas, on désarme.
+   ⛔ Sans `cle`, rien ne change : l'objet remplacé se désarme, comme avant ce lot. */
+const armeurs = new WeakMap();   // nœud armable → { cle, armer }
+
+/** Le jumeau d'un nœud remplacé : le SEUL nœud vivant armé par l'organe sous la même clé, sinon `null`. */
+function jumeauDe(jeton) {
+  const lui = armeurs.get(jeton);
+  if (!lui || typeof lui.cle !== "string" || lui.cle === "") return null;
+  const doc = jeton.ownerDocument || document;
+  /* ⛔ un jumeau éteint (`disabled`) n'hérite de rien : son objet est déjà posé ailleurs */
+  const vivants = [...doc.querySelectorAll(`[data-${MARQUE_ARME}="true"]`)]
+    .filter((n) => n !== jeton && n.isConnected && !n.disabled && armeurs.has(n) && armeurs.get(n).cle === lui.cle);
+  return vivants.length === 1 ? vivants[0] : null;
+}
+
+/** ARMER L'OBJET que ce nœud montrait : lui s'il est encore là, sinon son jumeau — sinon rien. */
+function armerLObjet(jeton, reglages) {
+  const vivant = jeton.isConnected ? jeton : jumeauDe(jeton);
+  return vivant && armeurs.has(vivant) ? armeurs.get(vivant).armer(reglages) : false;
+}
+
+/** Un repeint a-t-il remplacé l'objet armé ? Son jumeau reprend le liseré et les destinations — ⛔ sans flash ni
+ *  refus : le joueur n'a rien fait. Sans jumeau, on désarme. */
+export function suivreLObjetArme() {
+  const d = deplacementArme;
+  if (!d || d.jeton.isConnected) return;
+  const jumeau = jumeauDe(d.jeton);
+  eteindreLeDeplacement();
+  if (jumeau) armeurs.get(jumeau).armer({ basculer: false, refus: false, flash: false });
+}
+
 /** ARMER : le liseré sur l'objet, le bleu sur ses destinations, et l'écoute du prochain appui.
  *  · `basculer` — un re-clic sur l'objet armé le désarme (2a) ; l'appui long ne bascule pas ;
- *  · `refus` — sans destination, un bref halo rouge (6b) ; pendant un glisser, rien.
+ *  · `refus` — sans destination, un bref halo rouge (6b) ; pendant un glisser, rien ;
+ *  · `flash` — le halo de l'activation (lot 342) ; ⛔ pas quand l'armement ne fait que suivre son objet (lot 361).
  *  @returns {boolean} armé ou non. */
-function allumer(jeton, o, poser, { basculer = true, refus = true } = {}) {
+function allumer(jeton, o, poser, { basculer = true, refus = true, flash = true } = {}) {
   const deja = deplacementArme && deplacementArme.jeton === jeton;
   if (deja && !basculer) return true;
   eteindreLeDeplacement();
@@ -436,7 +482,7 @@ function allumer(jeton, o, poser, { basculer = true, refus = true } = {}) {
   jeton.dataset.deplacement = "arme";
   /* ⚖️ LOT 342 — « un flash sur le token pour indiquer l'activation du drag » : à CHAQUE activation — le clic
      gauche, l'appui long, le glisser qui part */
-  flasher(jeton, "halo");
+  if (flash) flasher(jeton, "halo");
   for (const d of destinations) d.dataset.destination = "oui";
   const etat = { jeton, destinations, doc };
   /* ⭐ LE PROCHAIN APPUI DÉCIDE — en CAPTURE, avant les écouteurs des éléments :
@@ -447,7 +493,13 @@ function allumer(jeton, o, poser, { basculer = true, refus = true } = {}) {
      · ailleurs : le vide, on désarme (2a) — et l'appui fait ce qu'il faisait (un bouton reste un bouton). */
   etat.surAppui = (e) => {
     const t = e && e.target;
-    if (!jeton.isConnected) { eteindreLeDeplacement(); return; }
+    /* 🖐️ LOT 361 — un repeint a remplacé l'objet armé : son jumeau reprend, et c'est LUI qui lit cet appui.
+       ⛔ Sans jumeau, on désarme, comme avant. */
+    if (!jeton.isConnected) {
+      suivreLObjetArme();
+      if (deplacementArme && deplacementArme !== etat) deplacementArme.surAppui(e);
+      return;
+    }
     const dest = t && typeof t.closest === "function" ? destinations.find((d) => d === t || (typeof d.contains === "function" && d.contains(t))) : null;
     if (dest) {
       if (typeof e.stopPropagation === "function") e.stopPropagation();
@@ -469,6 +521,13 @@ function allumer(jeton, o, poser, { basculer = true, refus = true } = {}) {
   etat.surTouche = (e) => { if (e && e.key === "Escape") eteindreLeDeplacement(); };
   doc.addEventListener("pointerdown", etat.surAppui, true);
   doc.addEventListener("keydown", etat.surTouche, true);
+  /* 🖐️ LOT 361 — ARMÉ, L'OBJET GUETTE LE REPEINT qui remplacerait son nœud : le navigateur le dit
+     (`MutationObserver`), et le jumeau reprend avant l'image suivante — le liseré ne s'éteint pas sous l'œil.
+     ⛔ Hors navigateur (le stub des tests n'en a pas), l'appui suivant fait la même reprise (`surAppui`). */
+  if (typeof MutationObserver === "function") {
+    etat.veille = new MutationObserver(() => { if (deplacementArme === etat && !jeton.isConnected) suivreLObjetArme(); });
+    etat.veille.observe(doc, { childList: true, subtree: true });
+  }
   deplacementArme = etat;
   return true;
 }
@@ -565,12 +624,18 @@ export function armerJeton(jeton, options) {
        29/09, à « à la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le rend-il ? » : *« Le rend au
        podium »* — comme le tap au doigt. Sans cette option, le clic gauche arme (la grammaire). ⛔ Elle ne touche ni
        le doigt ni le clic droit (il voit). */
-    clicGauche } = options;
+    clicGauche,
+    /* 🖐️ LOT 361 — `cle` : ce qu'EST l'objet, unique à l'écran (la valeur et son vivier, la ligne et son organe).
+       ⭐ C'est ce qui survit à un repeint : l'armement suit la clé, pas le nœud (voir « L'OBJET ARMÉ EST UN
+       OBJET » plus haut). ⛔ Sans elle, un objet remplacé se désarme, comme avant. */
+    cle } = options;
   /* le geste POSER, commun au clic et au glisser : une destination voisine, ou une des siennes */
   const poserSur = (cible) => {
     if (estUnCreneauVoisin(jeton, cible)) { if (onDepotVoisin) onDepotVoisin(cible.dataset.creneau, cible); return; }
     onDepot(cible.dataset.creneau);
   };
+  /* 🖐️ LOT 361 — l'organe retient ce qu'est l'objet et comment l'armer : c'est ce qu'un repeint ne remplace pas */
+  armeurs.set(jeton, { cle, armer: (reglages) => allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, reglages) });
   const avecGrammaire = grammaire === true;
   let dernierType = null;
   if (avecGrammaire) {
@@ -634,7 +699,7 @@ export function armerJeton(jeton, options) {
       ? setTimeout(() => {
         minuteurDeLAppuiLong = null;
         appuiLongTire = true;
-        allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false });
+        armerLObjet(jeton, { basculer: false });
       }, duree)
       : null;
     const arreterLAppuiLong = () => {
@@ -740,7 +805,7 @@ export function armerJeton(jeton, options) {
         jeton.dataset.glisse = "true";
         if (onLever) onLever(e.clientX, e.clientY);
         /* 🖐️ LOT 340 — porté, l'objet montre aussi ses destinations (sans refus : on porte, on n'arme pas) */
-        if (avecGrammaire) allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false, refus: false });
+        if (avecGrammaire) armerLObjet(jeton, { basculer: false, refus: false });
       }
       if (onBouger) onBouger(e.clientX, e.clientY);
       viser(cibleSous(e));
@@ -866,7 +931,8 @@ export function armerJeton(jeton, options) {
          (tap) ; l'appui long a déjà armé : le relâcher laisse l'objet armé, en attente de sa destination. */
       if (!etaitGlisse && avecGrammaire) {
         if (e.type === "pointercancel") return;
-        const armer = () => allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur);
+        /* 🖐️ LOT 361 — l'objet, pas le nœud : un repeint pendant l'appui a pu remplacer celui qu'on pressait */
+        const armer = () => armerLObjet(jeton);
         if (ev.pointerType === "mouse") { if (clicGauche) clicGauche(armer); else armer(); return; }
         if (appuiLongTire) return;
         if (tapAuDoigt) { tapAuDoigt(armer); return; }   // 🎲 lot 355 — un objet sans fiche décide de son tap
@@ -1243,6 +1309,8 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
     armerJeton(jeton, {
       grammaire: true,
       portee: bloc,
+      /* 🖐️ LOT 361 — la valeur et son vivier : ce qui survit au repeint du `rename` d'Identity */
+      cle: `choix:${clefDePage}:${id}`,
       onVoir: onInfo ? () => onInfo(id) : undefined,
       onLever: (x, y) => fantomeLever(jeton, x, y),
       onBouger: (x, y) => fantomeSuivre(x, y),
@@ -1401,6 +1469,7 @@ export function renderChoixGlisses({ plan, slots, titre, mot, labelOf, refKind, 
         /* 🖐️ LOT 340 — la même grammaire : armé, il montre les créneaux libres où le déplacer */
         grammaire: true,
         portee: bloc,
+        cle: `creneau:${slot.path}`,   // 🖐️ LOT 361 — le créneau rempli est l'objet qu'on déplace
         onVoir: onInfo ? () => onInfo(choisi) : undefined,
         onLever: (x, y) => fantomeLever(creneau, x, y),
         onBouger: (x, y) => fantomeSuivre(x, y),
