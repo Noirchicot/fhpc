@@ -17,7 +17,7 @@
    organe changera de largeur. */
 
 /* ⭐ LOT 315 — LE PIED DE WARES EST CELUI DE PACK : ses cotes se LISENT dans le plan du sac. */
-import { ORGANES as ORGANES_DU_SAC } from "./sac-disposition.mjs?v=917";
+import { ORGANES as ORGANES_DU_SAC } from "./sac-disposition.mjs?v=918";
 
 /* ── LA SCÈNE ─────────────────────────────────────────────────────────────── */
 /* ⚖️ LOT 275 — 495 ET NON PLUS 500. Sur l'étape Équipement, la case « Equipment · 8 · Wares » du
@@ -266,7 +266,7 @@ export const ORGANES = [
      qui pourrait l'oublier (NORMES). Il est AU PLAN parce qu'il occupe une borne de la rangée
      et que sa place compte ; il n'est pas CONSTRUIT ici, et le garde de la bijection doit le
      savoir, sans quoi il accuserait l'écran d'une absence qui est une loi. */
-  { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 338,    y: 459, l: 22,  h: 22, cible: { x: 327, y: 448, l: 44, h: 44 }, mot: "?", coquille: true },
+  { nom: "?",                   sorte: "rond",       dalle: "PIED",    x: 345,    y: 459, l: 22,  h: 22, cible: { x: 331, y: 448, l: 44, h: 44 }, mot: "?", coquille: true },  /* ⚖️ LOT 363 — à 8 du bord droit */
 ];
 
 /* ── LE FILIGRANE DE LA DALLE 2 ───────────────────────────────────────────────

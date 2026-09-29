@@ -59,9 +59,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=917";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=917";
-import { etapeParId } from "./etapes.mjs?v=917";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=918";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=918";
+import { etapeParId } from "./etapes.mjs?v=918";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);

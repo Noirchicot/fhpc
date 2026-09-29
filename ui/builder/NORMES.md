@@ -5653,9 +5653,43 @@ plan, il en restait **deux** : `CART` est le `Tally` *(posé)*, `TO GEAR DROP` e
 mots différents pour le même organe se comptent deux fois, et un organe mort se compte comme vivant.
 ⛔ La bonne lecture n'est pas *« quels boutons disparaissent »* mais *« quelle FONCTION n'a plus de
 porte »*.
-⏳ **CE QUI RESTE DÛ, ET LES DEUX SONT DATÉS** : `NEXT` doit naître dans R *(il n'y est pas
-aujourd'hui — mesuré)*, et la **loupe** attend son lot — Eric : *« une chose que nous devons faire
+⏳ **CE QUI RESTE DÛ** : la **loupe** attend son lot — Eric : *« une chose que nous devons faire
 oui. Pas ce soir. »*
+✅ **LA SORTIE DE L'ÉTAPE EST CONSTRUITE AU LOT 363 — `Done`, un récap, puis `Next`.**
+La question posée à Eric le 29/09, avec deux placements dessinés dans le vrai Gear : *« Où naît `Next`
+dans Gear ? A — sous la bourse, à droite de "destination" · B — en carré au bout de la rangée du bas »*
+→ **« A — sous la bourse »** (30/09). Puis, en regardant le banc, Eric a dicté la suite :
+
+> Eric, 2026-09-30, mot pour mot : **« pousse le ? à droite, aligne companions et next verticalment
+> (dimension identique pour les 2) tout en les centrant. Comme dans les étapes precedentes on avait
+> l'habitude de valider l'étape par un done. un texte de recap. probablement un recap sur un popup car
+> peu de place pour le faire sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre.
+> et validation de l'étape dans le belt »** · puis **« bourse done et Companions alignés veritacalement,
+> ? à 8 blg du bord droit »**.
+
+Et ses quatre réponses, chacune à SA question :
+· *« Le bouton de Gear : quel mot, avant et après validation ? »* → **« Done, puis Next »** — `Done`
+  ouvre le récap ; une fois l'étape validée, le même organe dit `Next` et repart sans récap (la table
+  des verbes du 26/08 : `Done` et `Next` ne coexistent jamais) ;
+· *« Que montre le récap ? »* → **« Gear, Pack, bourse »** — ce que le perso porte (emplacement →
+  objet, dans l'ordre du plan), ce qu'il y a dans le sac, et l'or ;
+· *« Après validation, s'il modifie son équipement, le voyant du belt… ? »* → **« Reste allumé »** —
+  la validation est la parole du joueur, elle tient jusqu'à ce qu'il la défasse ;
+· *« Pour que la colonne tienne avec le ? à 8 du bord, elle glisse à gauche, la bourse avec elle sur
+  les 3 écrans. Où la poser ? »* → **« Centrée Send ↔ ? »**.
+📐 **LES COTES, AU PLAN** (`R_gen.py` pour Gear, `backpack_gen.py` pour Pack, Wares lit Pack) : la
+colonne bourse · `Done` · Companions sur UN axe, **285,5**, centré entre le dessin de `Send` (226) et
+celui du `?` (345) — 21 de chaque côté ; la bourse passe de 276 à **260,5** sur les TROIS écrans
+(`equipement-trois-pages-alignees`) ; `Done` et Companions : même boîte, 77 × 40 (cible 44), `Done` sur
+la rangée des Tally au cran de `Send` (« Done » 30,41 dans 61) ; le `?` a son dessin à **8 du bord**
+(345..367) et sa cible collée au bord (331..375), comme la lune à gauche — sur les trois pieds.
+⭐ **LE RÉCAP EST UN POPUP DE LA FAMILLE DE LA BOURSE** : le voile transparent qui ferme au clic tombé
+à côté, la surface au liseré de verre ; `Cancel` (rouge, *« cancel annule donc rouge »*) referme sans
+rien écrire ; `Next` (bleu) valide.
+⭐ **LA VALIDATION EST CELLE DE TOUTES LES ÉTAPES** : `Next` passe par `parcoursNext` sur la racine
+`equipment` — il pose la signature que le voyant du belt lit (`estConfirme`), puis va au cran SUIVANT du
+belt (Sheet aujourd'hui, en SRD comme en FH). ⛔ Aucun nom d'étape n'est écrit dans l'écran : le jour où
+un cran s'intercale, le garde `tests/gear-next-vit-dans-r.test.mjs` rougit au lieu de laisser mentir.
 
 ---
 
@@ -10146,7 +10180,8 @@ bourse est un réglage, pas une transaction. ⛔ Une décision imbriquée ne s'a
 dernières gouttières valent 4 pour que le pied de Pack (159) tienne dans 560 ; corps 60..388, césure
 8, pied 396..555 ; collecteur +12, bourse +9, Tally et `Send to` +68, lune +19, rangée +112 (les
 écarts du pied de Wares/Pack à son haut). Rangée du bas : les trois carrés, Send (centré), Companions
-centré entre les DESSINS de Send et du `?`, le `?` au bord droit. Les deux dalles sont peintes par
+centré entre les DESSINS de Send et du `?`, le `?` au bord droit *(🔄 lot 363, 30/09 : Companions
+passe dans l'axe de la colonne bourse · `Done`, le `?` à 8 du bord — voir `equipement-next-vit-dans-r`)*. Les deux dalles sont peintes par
 `.gear-dalle` (DALLES, exportées par le générateur) ; l'écran ne peint plus de fond d'un tenant.
 
 ⚖️ **LE DROPDOWN DES TROIS ÉCRANS** — Eric : **« Oui harmonise les étiquettes de destination · Pour
