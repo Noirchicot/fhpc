@@ -20,19 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=914";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=914";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=915";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=915";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=914";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=915";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=914";
-import { renderConfirmDialog } from "./confirm.mjs?v=914";
-import { renderChoixGlisses } from "./glisser.mjs?v=914";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=914";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=915";
+import { renderConfirmDialog } from "./confirm.mjs?v=915";
+import { renderChoixGlisses } from "./glisser.mjs?v=915";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=915";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
    du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=914";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=915";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -289,6 +289,34 @@ function choixDeCapacite(ctx) {
   return liste.filter((declaration) => declaration && typeof declaration.id === "string");
 }
 const cheminDeCapacite = (declaration) => `class.${declaration.id}`;
+
+/* ══ LOT 365 — UNE PORTE ENTIÈRE SORT SA CAPACITÉ DE « GRANTED AUTOMATICALLY » ═══
+   Le relevé du lot 360 : Weapon Mastery s'affichait à la fois comme porte et dans
+   « Granted automatically » (les cinq classes à maîtrise), Eldritch Invocations aussi.
+   Eric, 26/08 : *« soit la porte, soit le résumé, jamais les deux »*.
+   ⭐ LA PORTÉE SE DÉCLARE, ELLE NE SE DÉDUIT PAS (ARCHI 35, 29/09) : chaque déclaration
+   `creation` d'une capacité de classe (`data[choix_du_texte:<couche>]`) porte
+   `portee: "entiere"` — la porte EST la capacité (Weapon Mastery, Eldritch Invocations,
+   les ordres, Fighting Style) — ou `"partielle"` — la porte n'en est qu'une part
+   (Spellcasting, Pact Magic : les emplacements, la caractéristique et le focaliseur ne
+   se choisissent pas, et leur résumé ne se redit nulle part).
+   ⛔ Ni liste de noms ni égalité de libellés : la capacité est celle dont le texte porte
+   l'extrait de la déclaration, et deux mots pour une même porte ne la font pas passer. */
+function capacitesAPorteEntiere(record) {
+  const data = (record && record.data) || {};
+  const niveau1 = (Array.isArray(data.features) ? data.features : [])
+    .filter((f) => f && f.level === 1 && typeof f.name === "string" && typeof f.description === "string");
+  const noms = new Set();
+  for (const [cle, declarations] of Object.entries(data)) {
+    if (!cle.startsWith("choix_du_texte:") || !declarations || typeof declarations !== "object") continue;
+    for (const d of Object.values(declarations)) {
+      if (!d || d.nature !== "creation" || d.portee !== "entiere" || typeof d.extrait !== "string") continue;
+      if (typeof d.chemin !== "string" || !d.chemin.startsWith("class.")) continue;
+      for (const f of niveau1) if (f.description.includes(d.extrait)) noms.add(f.name);
+    }
+  }
+  return noms;
+}
 function capaciteDuChemin(ctx, chemin) {
   return choixDeCapacite(ctx).find((declaration) => cheminDeCapacite(declaration) === chemin) || null;
 }
@@ -515,9 +543,11 @@ function resumeDeLItem(item, ctx, act) {
        souligné, et l'ancre `l1-<nom>` que le livre fabrique pour nous. */
     /* ⛔ LOT 360 — UNE CAPACITÉ QUI A SA PORTE N'EST PLUS « ACQUISE » : la même loi que
        les traits d'espèce couverts par une porte (`TRAITS_COUVERTS`, 19/08 — jamais deux
-       lieux pour une même chose). Le rapprochement se fait par la DÉCLARATION, dont le
-       nom est celui de la capacité, jamais par une liste écrite ici. */
-    const couvertes = new Set(choixDeCapacite(ctx).map((declaration) => declaration.name));
+       lieux pour une même chose).
+       🔄 LOT 365 — le rapprochement lit la PORTÉE DÉCLARÉE (`capacitesAPorteEntiere`),
+       plus le nom des `feature_choices` : Weapon Mastery et Eldritch Invocations, dont les
+       portes ne sont pas des `feature_choices`, passaient au travers. */
+    const couvertes = capacitesAPorteEntiere(record);
     const level1 = (Array.isArray(data.features) ? data.features : [])
       .filter((f) => f && f.level === 1 && typeof f.name === "string" && !couvertes.has(f.name))
       .map((f) => [f.name, phraseDeFeature(f, ctx.query, act),

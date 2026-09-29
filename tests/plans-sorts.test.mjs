@@ -538,8 +538,13 @@ test("Review route les deux chemins de sorts vers l'étape Class, et les montre 
      invocations sous forme de token pas fait »*. Troisième fois que cette
      liste s'allonge pour la même raison, et c'est le signe que le garde sert :
      un chemin non recensé fait compter FINI une étape inachevée. */
+  /* 🔄 LOT 365 — `class.skills` REVIENT, À CÔTÉ de `class.skillBudget` : le « remplace »
+     du 20/08 ne valait que pour Fate's Hand. La pile SRD publie toujours `class.skills`
+     (« Choose 2 »), et sans lui un Druid SRD sans compétence comptait pour FINI — seul
+     « The engine refuses » le disait (relevé du lot 360). La liste inversée qui empêche le
+     prochain oubli vit dans `sheet-compte-les-plans-de-class.test.mjs`. */
   assert.deepEqual(groupe.paths,
-    ["class", "class.skillBudget", "class.weaponMastery", "class.invocations",
+    ["class", "class.skillBudget", "class.skills", "class.weaponMastery", "class.invocations",
      "class.cantrips", "class.prepared"]);
 
   /* Sur le personnage d'exemple : la ligne Class est FAITE, quatre états

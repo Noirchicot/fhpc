@@ -80,6 +80,11 @@ const NATURES = {
   "hors-choix": ["pourquoi"]
 };
 const NIVEAUX_NOMMES = ["chaque", "table", "multiclasse"];
+/* 🔄 LOT 365 — UNE PORTE DE CAPACITÉ DE CLASSE DIT SA PORTÉE (ARCHI 35, 29/09) : `entiere`
+   (la porte EST la capacité) ou `partielle` (elle n'en est qu'une part). Le champ est
+   facultatif dans cette grammaire — `porte-entiere-jamais-acquise.test.mjs` l'EXIGE sur
+   toute capacité de classe à porte — mais sa valeur et sa place se vérifient ici. */
+const PORTEES = ["entiere", "partielle"];
 
 /* ══ LES DEUX PILES RÉELLES ══════════════════════════════════════════════════ */
 const PILES = { SRD: PILE_SRD, FH: PILE };
@@ -344,8 +349,12 @@ function forme(d) {
   if (!Object.hasOwn(NATURES, d.nature)) return [`nature inconnue « ${d.nature} »`];
   if (typeof d.extrait !== "string" || !new RegExp(CHOIX.source, "i").test(d.extrait)) fautes.push("l'extrait ne contient aucun mot de choix");
   for (const champ of NATURES[d.nature]) if (d[champ] === undefined || d[champ] === "") fautes.push(`\`${champ}\` manque`);
-  const permis = new Set(["extrait", "nature", "note", ...NATURES[d.nature]]);
+  const permis = new Set(["extrait", "nature", "note", ...NATURES[d.nature], ...(d.nature === "creation" ? ["portee"] : [])]);
   for (const champ of Object.keys(d)) if (!permis.has(champ)) fautes.push(`champ inconnu \`${champ}\``);
+  if (d.portee !== undefined) {
+    if (d.etape !== "class") fautes.push(`\`portee\` n'a de sens que sur une porte de l'étape Class (étape « ${d.etape} »)`);
+    else if (!PORTEES.includes(d.portee)) fautes.push(`portee « ${d.portee} » : ${PORTEES.join(" ou ")}`);
+  }
   if (d.nature === "montee") {
     const n = d.niveaux;
     const juste = NIVEAUX_NOMMES.includes(n) || (Array.isArray(n) && n.length > 0 && n.every((x) => Number.isInteger(x) && x >= 2));

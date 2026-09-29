@@ -328,7 +328,8 @@
               "extrait": "You know three Wizard cantrips of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.cantrips"
+              "chemin": "class.cantrips",
+              "portee": "partielle"
             },
             "cantrips-repos": {
               "extrait": "Whenever you finish a Long Rest, you can replace one of your cantrips from this feature with another Wizard cantrip of your choice",
@@ -349,7 +350,8 @@
               "nature": "creation",
               "etape": "class",
               "chemin": "class.prepared",
-              "note": "Relevé 360 #14 : Eric, 21/09 — le grimoire est « matérialisé par la section sorts » ; il ne revient pas comme une question (décision d'ARCHI 35, 29/09)."
+              "note": "Relevé 360 #14 : Eric, 21/09 — le grimoire est « matérialisé par la section sorts » ; il ne revient pas comme une question (décision d'ARCHI 35, 29/09).",
+              "portee": "partielle"
             },
             "grimoire-plus": {
               "extrait": "add two Wizard spells of your choice to your spellbook",
@@ -361,13 +363,15 @@
               "extrait": "To do so, choose four spells from your spellbook",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-niveau": {
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional Wizard spells",
@@ -424,7 +428,8 @@
               "extrait": "You know two cantrips of your choice from the Bard spell list",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.cantrips"
+              "chemin": "class.cantrips",
+              "portee": "partielle"
             },
             "cantrips-remplacer": {
               "extrait": "you can replace one of your cantrips with another cantrip of your choice",
@@ -445,7 +450,8 @@
               "extrait": "To start, choose four level 1 spells from the Bard spell list",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional spells from the Bard spell list",
@@ -457,7 +463,8 @@
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "competences": {
               "extrait": "Choose any 3 skills",
@@ -530,7 +537,8 @@
               "extrait": "You know three cantrips of your choice from the Cleric spell list",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.cantrips"
+              "chemin": "class.cantrips",
+              "portee": "partielle"
             },
             "cantrips-remplacer": {
               "extrait": "you can replace one of your cantrips with another cantrip of your choice",
@@ -551,7 +559,8 @@
               "extrait": "To start, choose four level 1 spells from the Cleric spell list",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional spells from the Cleric spell list",
@@ -563,13 +572,15 @@
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "ordre-divin": {
               "extrait": "You have dedicated yourself to one of the following sacred roles of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.divine-order"
+              "chemin": "class.divine-order",
+              "portee": "entiere"
             },
             "sous-classe": {
               "extrait": "a Cleric of almost any religious tradition might choose it",
@@ -623,7 +634,8 @@
               "extrait": "You know two cantrips of your choice from the Druid spell list",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.cantrips"
+              "chemin": "class.cantrips",
+              "portee": "partielle"
             },
             "cantrips-remplacer": {
               "extrait": "you can replace one of your cantrips with another cantrip of your choice",
@@ -644,7 +656,8 @@
               "extrait": "To start, choose four level 1 spells from the Druid spell list",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional spells from the Druid spell list",
@@ -656,13 +669,15 @@
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "ordre-primal": {
               "extrait": "You have dedicated yourself to one of the following sacred roles of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.primal-order"
+              "chemin": "class.primal-order",
+              "portee": "entiere"
             },
             "competences": {
               "extrait": "Choose 2:",
@@ -700,13 +715,15 @@
               "extrait": "gain a Fighting Style feat of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.fighting-style"
+              "chemin": "class.fighting-style",
+              "portee": "entiere"
             },
             "maitrise-armes": {
               "extrait": "three kinds of Simple or Martial weapons of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.weaponMastery"
+              "chemin": "class.weaponMastery",
+              "portee": "entiere"
             },
             "competences": {
               "extrait": "Choose 2:",
@@ -737,7 +754,8 @@
               "extrait": "Simple or Martial Melee weapons of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.weaponMastery"
+              "chemin": "class.weaponMastery",
+              "portee": "entiere"
             },
             "competences": {
               "extrait": "Choose 2:",
@@ -763,7 +781,8 @@
               "extrait": "To start, choose two level 1 Paladin spells",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional Paladin spells",
@@ -775,13 +794,15 @@
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "maitrise-armes": {
               "extrait": "two kinds of weapons of your choice with which you have proficiency",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.weaponMastery"
+              "chemin": "class.weaponMastery",
+              "portee": "entiere"
             },
             "competences": {
               "extrait": "Choose 2:",
@@ -813,7 +834,8 @@
               "extrait": "To start, choose two level 1 Ranger spells",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional Ranger spells",
@@ -825,13 +847,15 @@
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "maitrise-armes": {
               "extrait": "two kinds of weapons of your choice with which you have proficiency",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.weaponMastery"
+              "chemin": "class.weaponMastery",
+              "portee": "entiere"
             },
             "competences": {
               "extrait": "Choose 3:",
@@ -871,7 +895,8 @@
               "extrait": "two kinds of weapons of your choice with which you have proficiency",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.weaponMastery"
+              "chemin": "class.weaponMastery",
+              "portee": "entiere"
             },
             "competences": {
               "extrait": "Choose 4:",
@@ -897,7 +922,8 @@
               "extrait": "You know four Sorcerer cantrips of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.cantrips"
+              "chemin": "class.cantrips",
+              "portee": "partielle"
             },
             "cantrips-remplacer": {
               "extrait": "with another Sorcerer cantrip of your choice",
@@ -918,7 +944,8 @@
               "extrait": "To start, choose two level 1 Sorcerer spells",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional Sorcerer spells",
@@ -930,7 +957,8 @@
               "extrait": "The chosen spells must be of a level for which you have spell slots",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "competences": {
               "extrait": "Choose 2:",
@@ -956,7 +984,8 @@
               "extrait": "You gain one invocation of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.invocations"
+              "chemin": "class.invocations",
+              "portee": "entiere"
             },
             "invocations-plus": {
               "extrait": "you gain more invocations of your choice",
@@ -968,7 +997,8 @@
               "extrait": "You know two Warlock cantrips of your choice",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.cantrips"
+              "chemin": "class.cantrips",
+              "portee": "partielle"
             },
             "cantrips-remplacer": {
               "extrait": "with another Warlock cantrip of your choice",
@@ -989,7 +1019,8 @@
               "extrait": "To start, choose two level 1 Warlock spells",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "sorts-plus": {
               "extrait": "choose additional Warlock spells",
@@ -1001,7 +1032,8 @@
               "extrait": "The chosen spells must be of a level no higher than",
               "nature": "creation",
               "etape": "class",
-              "chemin": "class.prepared"
+              "chemin": "class.prepared",
+              "portee": "partielle"
             },
             "competences": {
               "extrait": "Choose 2:",
