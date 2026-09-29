@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=908") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=910") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=908") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=910") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=908") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=910") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -11962,6 +11962,8 @@ button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-ete
    dirait jamais quand ça compte. */
 .sac-loupe[data-lieu="dehors"] { --loupe-trait: var(--dehors); }
 .sac-loupe[data-lieu="party"] { --loupe-trait: var(--info); }
+/* 🎒 LOT 356 — et l'ambre des Backpack dropdowns (Eric, 29/09 : « une couleur propre à ceux-ci ») */
+.sac-loupe[data-lieu="depot"] { --loupe-trait: var(--depot); }
 /* ══ LE MODE DÉPLACEMENT — croquis d'Eric, 19/09 ═══════════════════════════════
    ⚖️ *« hold one section for 1,5 second and this mode comes on »* · *« le x, +, /
    disparaissent pour voir l'ordre des sections »*, et le croquis montre **toute la roue
@@ -12065,6 +12067,15 @@ button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-ete
   background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info);
 }
+/* 🎒 LOT 356 — ET L'AMBRE DES BACKPACK DROPDOWNS PORTE SON HABIT, AU MÊME CRAN — Eric, 2026-09-29 : *« Certains joueurs ne
+   vont jamais rien ranger, ils vont donc avoir des successions de backpack dropdown. je pense qu'il faut donner une
+   couleur propre à ceux-ci »*. ⭐ La règle de l'or et du bleu : un lieu porte un fond, le trait dit où il s'arrête.
+   ⏳ La teinte (`--depot`) est une suggestion que la capture soumet à Eric. */
+.sac-cran[data-lieu="depot"],
+.wares-cran[data-lieu="depot"] {
+  background-color: var(--depot-fond); color: var(--depot-encre);
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--depot);
+}
 /* ⭐ ET LE `+` DU BOUT DROIT PORTE L'OR DE L'AILLEURS : les deux boutons sont
    identiques, seule leur destination change — et elle se voit. */
 .sac-cran[data-role="ajouter"][data-lieu="dehors"] { color: var(--dehors); }
@@ -12165,6 +12176,12 @@ button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-ete
      on le regarde. ⛔ Ce piège a déjà été payé une fois ici, sur le liseré. */
   background-color: var(--party-fond); color: var(--party-encre);
   box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--info),
+              inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
+}
+/* 🎒 LOT 356 — ⛔ ET LE DROPDOWN GARDE SON AMBRE SOUS LE VISEUR, pour la même raison, déjà payée deux fois ici. */
+.sac-cran[data-dominant="oui"][data-lieu="depot"] {
+  background-color: var(--depot-fond); color: var(--depot-encre);
+  box-shadow: inset 0 0 0 var(--creneau-lisere-rempli) var(--depot),
               inset 0 0 0 var(--creneau-lisere-rempli) var(--accent-wash);
 }
 /* ══ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 ═══════════════════
@@ -12328,6 +12345,8 @@ button.poubelle:disabled { --bouton-fond: transparent; opacity: var(--organe-ete
 }
 /* ⚖️ LE DORÉ DIT UN AILLEURS — le même jeton que le genre des sections hors du sac. */
 .sac-ajout[data-lieu="dehors"] { --bouton-fond: var(--dehors); }
+/* 🎒 LOT 356 — et l'ambre pour « + Backpack dropdown » : le bouton dit le genre qu'il crée */
+.sac-ajout[data-lieu="depot"] { --bouton-fond: var(--depot); }
 /* ⚖️ *« + en T3, texte en T1 »* — le `+` enjambe les deux lignes à gauche des mots. */
 .sac-ajout-plus { grid-row: 1 / 3; align-self: center; font-size: var(--t3); font-weight: 700; }
 .sac-ajout-ou { font-size: var(--t1); font-weight: 700; }

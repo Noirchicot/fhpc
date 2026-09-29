@@ -1276,7 +1276,10 @@ function demonte(node) {
   if (i >= 0) document.body.childNodes.splice(i, 1);
 }
 
-test("🎲 355 · Q1 — dé POSÉ, au doigt : le tap le rend au podium (« Revenir au podium ») ; à la souris le clic ARME", () => {
+test("🎲 355 · Q1 — dé POSÉ : au doigt le tap, 🔄 et à la souris le clic gauche (lot 356), le rendent au podium", () => {
+  /* 🔄 LOT 356 — CE GARDE TENAIT « à la souris, le clic gauche d'un dé posé l'ARME » (ma lecture de « le reste de la
+     grammaire s'applique »). ⚖️ Eric, 29/09, à « à la souris, un clic gauche sur un dé POSÉ : l'arme-t-il ou le
+     rend-il ? » : « Le rend au podium ». ⭐ RÉÉCRIT, jamais désarmé : les deux gestes courts rendent le dé. */
   const tableau = standardArrayBatch();
   tableau.assign = { ...emptyAbilityAssign(), dex: 1 };
   const calls = [];
@@ -1286,14 +1289,21 @@ test("🎲 355 · Q1 — dé POSÉ, au doigt : le tap le rend au podium (« Reve
     assert.deepEqual(calls, [{ kind: "unassignAbilityRoll", key: "dex" }],
       "⛔ au doigt, le tap d'un dé posé ne le rend plus au podium — Q1 : « Revenir au podium »");
     calls.length = 0;
-    /* ⭐ À LA SOURIS, LE RESTE DE LA GRAMMAIRE : le clic gauche arme, il ne rend rien */
+    /* ⭐ À LA SOURIS, LE CLIC GAUCHE AUSSI — Q5 (29/09) : « Le rend au podium » */
     const de = deDeLaCible(node, "dex");
     de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 23, button: 0, pointerType: "mouse" });
     document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 23 });
-    assert.deepEqual(calls, [], "⛔ à la souris, le clic d'un dé posé l'a rendu : le clic gauche ARME (réponse 1a)");
-    assert.equal(de.dataset.deplacement, "arme", "⛔ à la souris, le clic d'un dé posé ne l'arme pas");
-    assert.deepEqual(allumees(node), ABILITY_KEYS.filter((k) => k !== "dex").sort(),
-      "⛔ armé, un dé posé doit allumer les caractéristiques LIBRES, et elles seules");
+    assert.deepEqual(calls, [{ kind: "unassignAbilityRoll", key: "dex" }],
+      "⛔ à la souris, le clic gauche d'un dé posé ne le rend pas au podium — Eric, 29/09 : « Le rend au podium »");
+    assert.notEqual(de.dataset.deplacement, "arme", "⛔ et il ne l'arme plus");
+    /* ⚔️ TÉMOIN : au PODIUM, le clic gauche arme toujours (Q2, « comme le clic gauche à la souris ») */
+    const libre = node.querySelectorAll(".ability-des-gardes[data-podium] .fs .fs-de")[0];
+    assert.ok(libre, "témoin : un dé est au podium");
+    calls.length = 0;
+    libre.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 26, button: 0, pointerType: "mouse" });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 26 });
+    assert.deepEqual(calls, [], "⛔ le clic gauche d'un dé du podium a fait autre chose qu'armer");
+    assert.equal(libre.dataset.deplacement, "arme", "⛔ au podium, le clic gauche n'arme plus");
   } finally { demonte(node); }
 });
 
