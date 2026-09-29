@@ -580,7 +580,7 @@ function jeton(item, o) {
      `fantome.lever · suivre · ranger` de `glisser.mjs`. ⛔ Pas de péage ici, contrairement au
      sac : la grille de Wares ne défile pas sous le doigt (la loi du 20/08). */
   armerJeton(b, {
-    /* ⏱️ LOT 331 — 500 ms avant que le glisser ne s'active (Eric, 27/09), la cote de l'étape */
+    /* ⏱️ L'APPUI LONG QUI ARME, la cote de l'étape — ⚡ lot 355 : ⛔ plus une attente avant que le glisser ne s'active */
     maintien: MAINTIEN_EQUIPEMENT_MS,
     /* 🖐️ LOT 347 — LA GRAMMAIRE « ARMER PUIS POSER » (NORMES `geste-armer-puis-poser`, réponse 7 : « partout »).
        VOIR = tap / clic droit → le X2 ; ARMER = clic gauche / appui long → le collecteur s'allume (et, en double

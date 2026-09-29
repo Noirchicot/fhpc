@@ -54,9 +54,10 @@ const creneaux = (n) => n.querySelectorAll(".glisse-creneau");
 /** Un geste complet : appui, déplacement (facultatif), relâchement. La cible
  *  du dépôt est injectée par `document.elementFromPoint`, comme le navigateur
  *  la donnerait. */
-/* 🖐️ LOT 340 — AU DOIGT, UN GLISSER SUIT L'APPUI LONG (Eric, 28/09 : « b oui partout ») : un geste qui
-   bouge tient d'abord ses 500 ms, sur l'horloge du banc. */
-function geste(jeton, { dx = 0, dy = 0, cible = null, maintenir = Boolean(dx || dy) } = {}) {
+/* ⚡ LOT 355 — LE GLISSER PART AU MOUVEMENT (Eric, 29/09 : « réinstaure le drag and drop rapidement actif.
+   partout ») : le geste du banc ne TIENT plus le jeton avant de bouger (il le tenait 500 ms depuis le lot 340).
+   `maintenir: true` reste pour éprouver l'appui long qui ARME. */
+function geste(jeton, { dx = 0, dy = 0, cible = null, maintenir = false } = {}) {
   document.elementFromPoint = () => cible;
   jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 1, button: 0, pointerType: "touch" });
   if (maintenir) horloge.ecouler();     // le doigt a attendu : le jeton se soulève
@@ -241,6 +242,64 @@ test("7 ter — 🔄 LOT 340 : l'appui long est le SEUL minuteur du geste, et il
   horloge.ecouler();                                     // les flashs des tests d'avant, éteints
   geste(jetons(n)[0]);                                   // un tap : relâché avant l'appui long
   assert.equal(horloge.enAttente(), 0, "⛔ le péage survit au tap");
+});
+
+test("7 quater — ⚡ LOT 355 : au doigt, le glisser part au MOUVEMENT — l'horloge n'avance pas d'une milliseconde", () => {
+  /* ⚖️ Eric, 29/09 : *« réinstaure le drag and drop rapidement actif. partout. si c'était pas clair »*.
+     🗄️ Sous le péage (lots 331 → 340), un doigt qui bougeait avant 500 ms ABANDONNAIT le geste : ni glisser,
+     ni tap. 📏 Ce garde est ROUGE sur l'organe d'avant ce lot (vu par mutation). */
+  const actions = [];
+  const n = ecran(slotsDe(), actions);
+  horloge.ecouler();                                     // les flashs des tests d'avant, éteints
+  const second = creneaux(n)[1];
+  document.elementFromPoint = () => second;
+  jetons(n)[0].dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 41, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 30, clientY: 0, pointerId: 41 });
+  const souleve = jetons(n)[0].dataset.glisse;
+  /* ⭐ le doigt se relève AVANT toute accusation : un garde qui échoue en plein geste laisserait un pointeur ouvert,
+     et tous les gardes suivants liraient ses restes */
+  document.dispatchEvent({ type: "pointerup", clientX: 30, clientY: 0, pointerId: 41 });
+  assert.equal(souleve, "true", "⛔ au doigt, le jeton ne se soulève pas au premier mouvement : il attend");
+  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[1]", value: "athletics" }],
+    "⛔ porté tout de suite au doigt, le jeton ne s'est pas posé — un péage est revenu");
+  /* ⭐ ET LE STYLET FAIT COMME LE DOIGT */
+  const n2 = ecran(slotsDe(), actions);
+  document.elementFromPoint = () => creneaux(n2)[0];
+  jetons(n2)[2].dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 42, button: 0, pointerType: "pen" });
+  document.dispatchEvent({ type: "pointermove", clientX: 0, clientY: 30, pointerId: 42 });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 30, pointerId: 42 });
+  assert.deepEqual(actions.at(-1), { kind: "set", path: "class.skills[0]", value: "insight" }, "⛔ au stylet, le glisser attend encore");
+});
+
+test("7 quinquies — ⚡ LOT 355 : « Oui, les deux gestes » — l'appui long IMMOBILE arme encore, et un tap sur une destination pose", () => {
+  /* ⚖️ Eric, 29/09, à « l'appui long, doigt immobile, arme-t-il encore l'objet pour le poser d'un tap ? » :
+     *« Oui, les deux gestes »*. Deux gestes sur le même doigt, et c'est le MOUVEMENT qui les départage. */
+  const actions = [];
+  const n = ecran(slotsDe(), actions);
+  horloge.ecouler();
+  jetons(n)[1].dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 43, button: 0, pointerType: "touch" });
+  horloge.ecouler();                                     // le doigt reste : l'appui long tombe
+  const armeAuMaintien = jetons(n)[1].dataset.deplacement, allumesAuMaintien = allumes(n).length;
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 43 });   // relevé avant d'accuser
+  assert.equal(armeAuMaintien, "arme", "⛔ l'appui long immobile n'arme plus");
+  assert.equal(allumesAuMaintien, 2, "⛔ armé, ses créneaux libres ne s'allument pas");
+  assert.equal(objetArme(), jetons(n)[1], "⛔ relâché après l'appui long, l'objet a été désarmé : il doit attendre sa destination");
+  assert.deepEqual(actions, [], "⛔ relâché après l'appui long, l'objet s'est posé tout seul");
+  poserSur(creneaux(n)[0]);
+  assert.deepEqual(actions, [{ kind: "set", path: "class.skills[0]", value: "history" }], "⛔ le tap sur la destination allumée n'a pas posé");
+  /* ⛔ ET UN DOIGT QUI A BOUGÉ AVANT L'APPUI LONG NE L'ARME PAS EN PLUS : le minuteur meurt au premier mouvement */
+  const n2 = ecran(slotsDe(), actions);
+  document.elementFromPoint = () => null;
+  jetons(n2)[0].dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 44, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 44 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 44 });   // lâché dans le vide
+  horloge.ecouler();                                     // si l'appui long avait survécu, il tomberait ici
+  const arme = objetArme();
+  eteindreLeDeplacement();
+  /* ⚖️ DEUX ORGANES TUENT CE MINUTEUR — le premier mouvement (`bouge`) et la fin du geste (`clore`) —, et CHACUN
+     SUFFIT : mesuré par mutation, ce garde ne rougit que si les DEUX manquent. Je le dis plutôt que de laisser
+     croire qu'il attraperait l'oubli d'un seul (c'est le précédent du garde 13 ter). */
+  assert.equal(arme, null, "⛔ un minuteur d'appui long a survécu au glisser et a armé l'objet après coup");
 });
 
 test("8 — AUCUN vivier ne défile pour son compte, et aucun ne porte de classe à part", () => {

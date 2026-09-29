@@ -439,7 +439,7 @@ function phraseDuStatut(status) {
  *  ⌨️ Le clavier garde l'aperçu : `Entrée` émet un `click` sans pointeur (`detail === 0`). */
 export function jetonAuVoisin(jeton, { apercu, pret, envoi, surDepotVoisin }) {
   armerJeton(jeton, {
-    maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
+    maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ l'appui long qui ARME (lot 355 : ⛔ plus une attente avant le glisser) */
     /* 🖐️ LOT 347 — la grammaire : VOIR = tap / clic droit → l'aperçu ; ARMER = clic gauche / appui long → le
        collecteur voisin s'allume (quand `Send` est armé ; sinon, bref refus — 6b) ; POSER = clic, tap ou glisser */
     grammaire: true,

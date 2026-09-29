@@ -20,7 +20,7 @@
    de 375, le halo) — elle a été mesurée au navigateur, au doigt (CDP `touchStart/Move/End`)
    et à la souris ; la coquille ne se monte pas hors navigateur. */
 
-import test, { mock } from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -28,14 +28,8 @@ import { fileURLToPath } from "node:url";
 
 import { createTestDocument } from "./dom-stub.mjs";
 import { exempleFhEn } from "../src/tools/exemple-fh-en.mjs";
-const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
-/* ⏱️ LOT 331 — LE PÉAGE DE L'ÉTAPE : un glisser d'Equipment ne s'active qu'après
-   `MAINTIEN_EQUIPEMENT_MS` d'appui (Eric, 27/09 : « Le drag doit attendre 500 ms »). Le geste
-   simulé TIENT donc le jeton avant de le porter — sur une horloge simulée, pas une vraie attente. */
-function tenirLeJeton(appui) {
-  mock.timers.enable({ apis: ["setTimeout"] });
-  try { appui(); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); } finally { mock.timers.reset(); }
-}
+/* 🗄️ LOT 355 — `tenirLeJeton` est retiré : il tenait le jeton `MAINTIEN_EQUIPEMENT_MS` avant de le porter
+   (le péage du lot 331). Le glisser part au mouvement : les gestes de ce fichier portent tout de suite. */
 
 import { stripComments } from "./source-scan.mjs";
 
@@ -85,7 +79,7 @@ function moitie(doc, demiEcran, acts) {
  *  `elementFromPoint` rend — le navigateur la cherche sur TOUT le document. */
 function glisser(jeton, cible) {
   document.elementFromPoint = () => cible;
-  tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" }));
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 7, button: 0, pointerType: "touch" });
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 7 });
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 7 });
   document.elementFromPoint = () => null;
@@ -601,10 +595,10 @@ test("21 — ⛔ LA FORGE NE S'OUVRE JAMAIS DANS LE SATELLITE : un plan tapé à
   cliquer(principale.querySelector('[data-organe="CANCEL"]'));
 });
 
-/** Un glisser qui paie le PÉAGE du sac (on tient le jeton avant de le porter). */
+/** Un glisser au doigt jusqu'à `cible` — ⚡ lot 355 : porté tout de suite (il payait le péage du sac). */
 async function glisserTenu(jeton, cible) {
   document.elementFromPoint = () => cible;
-  tenirLeJeton(() => jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" }));
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 9, button: 0, pointerType: "touch" });
   await Promise.resolve();
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 9 });
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 9 });

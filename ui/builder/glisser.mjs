@@ -530,35 +530,37 @@ const MARQUE_ARME = "glissable";
    au premier attribut ajouté — et c'est le fantôme qui mentirait. */
 const ATTRIBUTS_DU_GESTE = ["data-glisse", `data-${MARQUE_ARME}`];
 
-/* ══ 🔄 LE MAINTIEN REVIENT — EN OPTION, ET SEULEMENT LÀ OÙ SA CAUSE EST REVENUE ══
-   ⚖️ Eric, 2026-09-19 : *« 350 ms sur jeton, swipe désactivé, fait tout passer en mode
-   drag'n'drop… si on n'est pas en mode drag le swipe fonctionne »*.
-   🧊 IL AVAIT ÉTÉ RETIRÉ LE 20/08, PAR LUI, ET POUR UNE RAISON QUI TENAIT : *« il ne faut
-   plus d'ascenseurs couplés avec des actions drag and drop »*. En supprimant l'ascenseur
-   de la grille des sorts, on supprimait la CAUSE du péage.
-   ⭐ LE SAC FAIT REVENIR LA CAUSE : ses dalles défilent. Le péage revient donc AVEC elle,
-   et nulle part ailleurs — ⛔ Species et les sorts n'ont pas d'ascenseur, donc pas de
-   péage. C'est pour ça que c'est une OPTION et pas un retour global : la loi du 20/08
-   reste entière partout où elle s'applique.
-   📐 ET LA SÉQUENCE SE DÉPARTAGE TOUTE SEULE, sans rien arbitrer à la main : un doigt qui
-   BOUGE part au défilement natif bien avant 350 ms ; un doigt qui RESTE n'a rien
-   déclenché quand le minuteur tombe. C'est exactement le springboard d'iOS — on tient une
-   app avant de pouvoir la porter. */
-/** ⏱️ LE PÉAGE DE L'ÉTAPE EQUIPMENT — lot 331. ⚖️ Eric, 27/09 : *« Le drag doit attendre 500 ms,
- *  avant de s'activer, le slide idem 500 ms dans une zone de marge définie »*.
- *  ⭐ UNE COTE, TOUS LES GLISSERS DE L'ÉTAPE (Pack, Wares, Gear, X5, le collecteur de Wares) : en
- *  double écran un objet traverse d'une page à l'autre, et deux attentes différentes pour le même
- *  geste seraient deux gestes. ⛔ Species, les sorts, B3 n'en prennent pas (loi du 20/08 : pas
- *  d'ascenseur, pas de péage) — le garde 31 de `sac-ecran.test.mjs` le tient.
- *  📌 Elle remplace les 350 ms du 19/09, qui ne valaient que pour le sac. */
-export const MAINTIEN_EQUIPEMENT_MS = 500;   /* ⚖️ lot 339 : au doigt et au stylet — la souris glisse tout de suite */
+/* ══ ⚡ LE GLISSER PART AU MOUVEMENT, PARTOUT — lot 355, Eric, 2026-09-29 ══════════
+   ⚖️ *« désactive le swipe des dalles backpack et réinstaure le drag and drop rapidement actif.
+   partout. si c'était pas clair »* · et, à « l'appui long, doigt immobile, arme-t-il encore
+   l'objet pour le poser d'un tap ? » : *« Oui, les deux gestes »*.
+   🗄️ CE QUI MEURT : le PÉAGE. Revenu le 19/09 avec les dalles du sac (*« 350 ms sur jeton,
+   swipe désactivé »*), porté à 500 ms sur toute l'étape Equipment au lot 331, étendu à tous
+   les viviers par la grammaire du lot 340 — un doigt qui bougeait avant 500 ms ABANDONNAIT le
+   geste. Il n'avait qu'une cause : départager « défiler les dalles » et « prendre l'objet »
+   sous le même doigt. Les dalles ne défilent plus au doigt (`sac-ecran.mjs`) : la cause partie,
+   le péage part avec — c'est la loi du 20/08 qui revient, *« le glisser partout ! »*.
+   ⭐ CE QUI RESTE, ET CE N'EST PLUS UNE ATTENTE : l'APPUI LONG IMMOBILE, sous la grammaire, au
+   doigt et au stylet — il ARME (flash, destinations en bleu) sans rien porter, puis un tap pose.
+   Deux gestes sur le même doigt, et c'est le mouvement qui les départage, pas l'horloge :
+   un doigt qui bouge glisse tout de suite ; un doigt qui reste arme au bout de 500 ms. */
+/** ⏱️ LA DURÉE DE L'APPUI LONG QUI ARME — sous la grammaire, au doigt et au stylet (la souris
+ *  arme d'un clic). ⛔ Ce n'est plus un péage : aucun écran n'attend avant de glisser (lot 355).
+ *  📌 Le nom est resté celui du lot 331, qui l'avait posé sur Equipment ; la grammaire (lot 340)
+ *  en a fait la durée de l'appui long partout, et c'est tout ce qu'elle mesure aujourd'hui. */
+export const MAINTIEN_EQUIPEMENT_MS = 500;
 
 export function armerJeton(jeton, options) {
   const { onTap, onDepot, onLever, onBouger, onPoser, viseur, onHorsCible, maintien, onDepotVoisin, accepteVoisin,
     /* 🖐️ LOT 340 — la grammaire « armer puis poser » (NORMES `geste-armer-puis-poser`) : `grammaire`
        l'active ; `onVoir` est le geste VOIR (tap au doigt, clic droit à la souris) ; `portee` et
        `accepte` disent où sont ses destinations. ⛔ Sans `grammaire`, le geste d'avant, inchangé. */
-    grammaire = false, onVoir, portee, accepte } = options;
+    grammaire = false, onVoir, portee, accepte,
+    /* 🎲 LOT 355 — `tapAuDoigt(armer)` : ce que fait le TAP AU DOIGT d'un objet qui n'a pas de fiche à voir. Il
+       reçoit `armer` (le geste du clic gauche). ⭐ Eric, 29/09, pour les dés d'Abilities : le dé du podium ou de la
+       palette → « Il arme le dé » ; le dé POSÉ → « Revenir au podium ». Sans cette option, le tap VOIT (`onVoir`).
+       ⛔ Elle ne touche ni la souris (le clic gauche arme, le clic droit voit) ni l'appui long (il arme). */
+    tapAuDoigt } = options;
   /* le geste POSER, commun au clic et au glisser : une destination voisine, ou une des siennes */
   const poserSur = (cible) => {
     if (estUnCreneauVoisin(jeton, cible)) { if (onDepotVoisin) onDepotVoisin(cible.dataset.creneau, cible); return; }
@@ -613,35 +615,27 @@ export function armerJeton(jeton, options) {
     const ancre = ancreDuGeste();
     const pointeur = ev.pointerId;
     const x0 = ev.clientX, y0 = ev.clientY;
-    /* ⏱️ LE PÉAGE : tant qu'il n'est pas payé, ce geste n'est pas un glisser. */
-    /* ⚖️ LOT 339 — LE PÉAGE EST UN GESTE DU DOIGT, ⛔ PAS DE LA SOURIS. Eric, 28/09 : *« oui fait la
-       distinction, souris doigt »*. ⭐ L'appui long (≈ 500 ms, celui d'iOS et d'Android) départage
-       « défiler » et « prendre » là où le MÊME doigt fait les deux ; la souris ne fait pas défiler une
-       dalle en glissant, elle n'a rien à départager — elle glisse dès le seuil de 6 px, comme partout.
-       📏 C'était la cause de deux faux « ça ne marche pas » (le parchemin, puis Wares) : à la souris,
-       on porte tout de suite. Le stylet reste avec le doigt (il défile comme lui). */
     dernierType = ev.pointerType || null;
-    /* 🖐️ LOT 340 — sous la grammaire, l'appui long vaut PARTOUT au doigt (Eric : « b oui partout ») */
-    const duree = Number.isFinite(maintien) ? maintien : (avecGrammaire ? MAINTIEN_EQUIPEMENT_MS : 0);
-    const peage = duree > 0 && ev.pointerType !== "mouse";
-    let arme = !peage;
-    /* l'appui long de la grammaire : il a armé l'objet (flash, destinations) — le relâcher ne le « voit » pas */
-    let armeParMaintien = false;
-    let minuteurDuPeage = peage
+    /* ⏱️ L'APPUI LONG QUI ARME — sous la grammaire, au doigt et au stylet (la souris arme d'un clic,
+       lot 339 : *« oui fait la distinction, souris doigt »*). ⚡ LOT 355 : ⛔ ce n'est plus un péage —
+       il ne retarde AUCUN glisser. Un doigt qui bouge avant qu'il tombe glisse tout de suite, et
+       `bouge` tue le minuteur ; un doigt qui reste arme l'objet au bout de `maintien` (500 ms). */
+    const duree = avecGrammaire && ev.pointerType !== "mouse"
+      ? (Number.isFinite(maintien) ? maintien : MAINTIEN_EQUIPEMENT_MS) : 0;
+    /* l'appui long a tiré : il a armé l'objet (flash, destinations) ou l'a refusé (6b) — le relâcher ne le
+       « voit » donc pas */
+    let appuiLongTire = false;
+    let minuteurDeLAppuiLong = duree > 0
       ? setTimeout(() => {
-        arme = true;
-        if (jeton.dataset) jeton.dataset.porte = "true";
-        if (avecGrammaire) {
-          armeParMaintien = allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false });
-        }
+        minuteurDeLAppuiLong = null;
+        appuiLongTire = true;
+        allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur, { basculer: false });
       }, duree)
       : null;
+    const arreterLAppuiLong = () => {
+      if (minuteurDeLAppuiLong) { clearTimeout(minuteurDeLAppuiLong); minuteurDeLAppuiLong = null; }
+    };
     let glisse = false;
-    /* ⛔ LOT 331 — SOUS PÉAGE, BOUGER AVANT L'ARMEMENT ABANDONNE LE GESTE : ni tap, ni glisser.
-       📏 Vu au banc (souris, Wares) : porté avant 500 ms puis relâché, le geste finissait en TAP et
-       ouvrait la fiche — un glisser raté se lisait comme un clic. ⭐ Qui balaie ne maintient pas
-       (la loi de la roue du sac) : le minuteur meurt, et le relâchement ne fait rien. */
-    let abandonne = false;
     let vise = null;
     /* ⭐ UN GESTE FINI EST FINI — et ce drapeau n'est pas une ceinture, c'est
        la règle. Trois événements peuvent conclure le MÊME geste (`pointerup`,
@@ -711,20 +705,14 @@ export function armerJeton(jeton, options) {
 
     const bouge = (e) => {
       if (clos || dUnAutre(e)) return;
-      /* ⛔ SOUS PÉAGE, UN DOIGT QUI BOUGE N'EST PAS UN GLISSER : il appartient à
-         l'ascenseur, qui l'a déjà pris. ⭐ On n'a RIEN à annuler — le navigateur a
-         tranché avant nous, et c'est ce qui rend l'arbitrage gratuit. */
-      if (abandonne) return;
-      if (peage && !arme) {
-        if (Math.hypot(e.clientX - x0, e.clientY - y0) >= SEUIL_GLISSER) {
-          abandonne = true;
-          if (minuteurDuPeage) { clearTimeout(minuteurDuPeage); minuteurDuPeage = null; }
-        }
-        return;
-      }
       if (!glisse && Math.hypot(e.clientX - x0, e.clientY - y0) < SEUIL_GLISSER) return;
       if (!glisse) {
         glisse = true;
+        /* ⚡ LOT 355 — LE DOIGT A BOUGÉ : C'EST UN GLISSER, TOUT DE SUITE. ⛔ Plus d'abandon avant
+           500 ms (lot 331, « porté avant le péage : rien ») : le péage n'arbitrait qu'entre les dalles
+           du sac et l'objet, et les dalles ne défilent plus au doigt. ⭐ L'appui long qui n'a pas encore
+           tiré meurt ICI — un doigt qui porte n'arme pas en plus. */
+        arreterLAppuiLong();
         /* ⭐ LA CAPTURE SE PREND ICI, ET NULLE PART AVANT. Elle garde les
            événements sur CE jeton même si le doigt sort de sa boîte — sans
            elle, `pointerup` se perdrait au premier pixel hors cadre. Mais elle
@@ -778,11 +766,10 @@ export function armerJeton(jeton, options) {
     const clore = () => {
       if (clos) return false;
       clos = true;
-      /* ⛔ ET LE PÉAGE MEURT AVEC SON GESTE : un minuteur qui survit arme un glisser sur
-         un doigt déjà parti — c'est la faute que ce dépôt a payée trois fois ce mois-ci
-         (le repos de la roue, le défilement de la marge, la roue jetée). */
-      if (minuteurDuPeage) { clearTimeout(minuteurDuPeage); minuteurDuPeage = null; }
-      if (peage && jeton.dataset) delete jeton.dataset.porte;
+      /* ⛔ ET L'APPUI LONG MEURT AVEC SON GESTE : un minuteur qui survit armerait un objet sous
+         un doigt déjà parti — c'est la faute que ce dépôt a payée trois fois en septembre (le
+         repos de la roue, le défilement de la marge, la roue jetée). */
+      arreterLAppuiLong();
       ancre.removeEventListener("pointermove", bouge);
       ancre.removeEventListener("pointerup", fini);
       ancre.removeEventListener("pointercancel", fini);
@@ -870,13 +857,14 @@ export function armerJeton(jeton, options) {
          le même appui court ne veut donc PAS dire la même chose au doigt et
          à la souris. C'est l'appelant qui tranche (voir `onInfo`), et il ne
          peut trancher que s'il sait avec quoi on a touché. */
-      if (abandonne) return;                                 // porté avant le péage : rien
       /* 🖐️ LOT 340 — sous la grammaire, le geste court ARME à la souris (clic gauche) et VOIT au doigt
          (tap) ; l'appui long a déjà armé : le relâcher laisse l'objet armé, en attente de sa destination. */
       if (!etaitGlisse && avecGrammaire) {
         if (e.type === "pointercancel") return;
-        if (ev.pointerType === "mouse") { allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur); return; }
-        if (armeParMaintien || arme && peage) return;
+        const armer = () => allumer(jeton, { portee, accepte, onDepotVoisin, accepteVoisin }, poserSur);
+        if (ev.pointerType === "mouse") { armer(); return; }
+        if (appuiLongTire) return;
+        if (tapAuDoigt) { tapAuDoigt(armer); return; }   // 🎲 lot 355 — un objet sans fiche décide de son tap
         if (onVoir) onVoir();
         return;
       }

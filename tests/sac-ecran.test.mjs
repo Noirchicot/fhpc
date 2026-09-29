@@ -13,7 +13,7 @@ import { createTestDocument } from "./dom-stub.mjs";
    en lisant de la prose pour de la règle (18/09). Toute lecture de feuille
    passe par là. */
 import { cranTypo } from "./source-scan.mjs";
-import { stripComments } from "./source-scan.mjs";
+import { stripComments, reglesDeLaFeuille } from "./source-scan.mjs";
 
 const UI = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "ui", "builder");
 globalThis.document = createTestDocument();
@@ -21,7 +21,7 @@ const D = await import("../ui/builder/sac-disposition.mjs");
 const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
 const jetons = stripComments(fs.readFileSync(path.join(UI, "tokens.css"), "utf8"));
 const { construireLeSac, feuilleDesCotesSac, CLEF_DE, RANGS_GRILLE, COLS_GRILLE, CASES_DU_SAC,
-        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, PEAGE_JETON_MS, margeDuGlisser, poserLesDalles,
+        ORGANES_D_ECHANGE, MAINTIEN_MS, REPOS_MS, MARGE_MS, margeDuGlisser, poserLesDalles,
         CHAMPS_DE_SECTION } = await import("../ui/builder/sac-ecran.mjs");
 const { coteDeLaCale } = await import("../ui/builder/roue-tambour.mjs");
 const feuille = fs.readFileSync(path.join(UI, "shell.css"), "utf8");
@@ -852,50 +852,32 @@ test("18 — 🔴 LE DÉFILEMENT PAR LA MARGE : un seul minuteur, au MODULE, et 
     "⭐ tout passe par le minuteur, donc tout attend — le premier saut comme les suivants");
 });
 
-test("19 — ⚖️ LE BALAYAGE TOURNE LA PAGE, et il sait ne PAS être un glisser", () => {
-  /* ⚖️ Eric, 18/09 au soir, après avoir tranché que les tuners sont une affaire de
-     souris : *« reste le balayage, qui est accessible »*. ⭐ La molette tourne la page
-     à la souris, le balayage la tourne au doigt — et c'est LUI le geste que tout le
-     monde peut faire.
-     📏 MESURÉ AU NAVIGATEUR, les cinq cas : gauche → 2/2 · droite → 1/2 · vertical →
-     rien · trop court → rien · depuis un jeton → rien. */
+test("19 — ⚡ LOT 355 : LA DALLE NE SE BALAIE PLUS — aucun geste parti de la grille ne tourne la page ; la molette, si", () => {
+  /* ⚖️ Eric, 29/09, à « et le balayage de la grille ? » : *« les tuiles peuvent être swipées mais pas la
+     dalle. on peut toujours déplacer une tuile d'une page à une autre en la déplaçant dans la marge »*.
+     🗄️ CE GARDE A TENU LA LOI INVERSE du 18/09 au 29/09 — *« reste le balayage, qui est accessible »* :
+     un balayage horizontal parti d'une case vide tournait la page (gauche → la suivante), et un geste parti
+     d'un jeton restait un glisser. ⭐ Il est RÉÉCRIT à la nouvelle vérité, jamais désarmé : il vérifie
+     maintenant que les deux balayages qui tournaient la page ne tournent plus rien — et que la page reste
+     atteignable à la molette, sinon on aurait retiré la pagination avec le geste. */
   const tours = [];
   const n = rendu({ pages: 2, surPage: (s) => tours.push(s),
     objets: [{ index: 1, nom: "Dagger", qte: 1 }] });
   const vide = tous(n, ".sac-case").find((c) => c.dataset.occupe === undefined);
-  const jeton = n.querySelector('[data-organe="case-1-1"]');
   const balaye = (cible, dx, dy) => {
-    n.dispatchEvent({ type: "pointerdown", target: cible, clientX: 200, clientY: 100 });
-    n.dispatchEvent({ type: "pointerup", target: cible, clientX: 200 + dx, clientY: 100 + dy });
+    n.dispatchEvent({ type: "pointerdown", target: cible, clientX: 200, clientY: 100, pointerId: 4, pointerType: "touch" });
+    n.dispatchEvent({ type: "pointerup", target: cible, clientX: 200 + dx, clientY: 100 + dy, pointerId: 4 });
   };
-
   balaye(vide, -90, 0);
-  assert.deepEqual(tours, [1], "⭐ vers la GAUCHE = la page SUIVANTE, la convention du téléphone");
   balaye(vide, 90, 0);
-  assert.deepEqual(tours, [1, -1], "et vers la droite, la précédente");
+  balaye(vide, -200, 5);
+  assert.deepEqual(tours, [],
+    "⛔ un balayage de la grille a tourné la page : la dalle ne se balaie plus (Eric, 29/09)");
 
-  /* ⛔ LES TROIS REFUS, et chacun a sa raison. */
-  balaye(vide, -10, 90);
-  balaye(vide, -20, 0);
-  balaye(jeton, -90, 0);
-  assert.deepEqual(tours, [1, -1],
-    "⛔ un geste vertical appartient au défilement · un geste plus court qu'une CIBLE (44) " +
-    "est un tap qui a tremblé · et un geste parti d'un JETON est un GLISSER, pas un balayage — " +
-    "sans cette dernière règle, prendre un objet pour le déplacer tournerait la page sous lui.");
-
-  /* ⛔ ET UNE SEULE PAGE NE SE BALAIE PAS : un écran qui réagit à un geste sans rien
-     changer apprend à ne plus faire le geste. */
-  const muets = [];
-  const une = rendu({ pages: 1, surPage: (s) => muets.push(s) });
-  const seule = tous(une, ".sac-case")[0];
-  une.dispatchEvent({ type: "pointerdown", target: seule, clientX: 200, clientY: 100 });
-  une.dispatchEvent({ type: "pointerup", target: seule, clientX: 110, clientY: 100 });
-  assert.deepEqual(muets, []);
-
-  /* ⭐ ET LE SEUIL NE S'INVENTE PAS : c'est le plancher tactile, pas un nombre choisi. */
-  const source = fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8");
-  assert.match(source, /const SEUIL_BALAYAGE = TOUCH;/,
-    "⛔ un seuil écrit en clair serait un nombre de plus à tenir d'accord avec le plan");
+  /* ⭐ ET LA PAGE SE TOURNE TOUJOURS À LA MOLETTE — le geste de la souris n'est pas un balayage. ⏳ Eric, 29/09 : « Une
+     section, dans backpack, n'a qu'une seule page » · « c'est 12 » — la pagination part au lot 356, et ce témoin avec elle. */
+  vide.dispatchEvent({ type: "wheel", deltaY: 100, deltaX: 0, preventDefault() {} });
+  assert.deepEqual(tours, [1], "⛔ la molette ne tourne plus la page : la pagination est morte avec le geste");
 });
 test("20 — 🪞 UN DESSIN DÉCENTRÉ NE SE MIROITE PAS AUTOUR DE SA CIBLE", () => {
   /* 🔴 LA FAUTE DU 19/09, mesurée dans l'application : le chevron droit se peignait
@@ -1720,109 +1702,80 @@ test("30 — ⚖️ UN CADRE DE ZOOM BIEN MARQUÉ, ET LES DEUX GENRES QUI SE VOI
     "⛔ une tuile porte de nouveau le halo : il est à la LOUPE, qui ne bouge pas");
 });
 
-test("31 — 🎚️ LES DEUX SURFACES DÉFILENT, ⛔ mais il n'y a qu'UN maître par geste", () => {
-  /* ⚖️ Eric, 2026-09-19, en trois temps : *« les deux si ça ne crée pas de conflits »* ·
-     puis, sur ma réponse trop absolue, *« donc pas de swipe de dalle »* · puis, le
-     springboard d'iOS à l'appui : *« 350 ms sur jeton, swipe désactivé, fait tout passer
-     en mode drag'n'drop… si on n'est pas en mode drag le swipe fonctionne »*.
-     🔴 CE GARDE A TENU LA DÉCISION INVERSE PENDANT UNE HEURE, et c'est ma faute : j'avais
-     répondu que le swipe et le glisser ne pouvaient PAS coexister. iOS le fait. Ce qui
-     l'achète est un PÉAGE — on tient une app avant de pouvoir la porter.
-     ⭐ ET LE PÉAGE N'EST PAS UNE RUSTINE : c'est le prix universel de deux gestes sur les
-     mêmes pixels, et ce dépôt l'avait déjà payé (grille des sorts, `pan-y` + 350 ms,
-     jusqu'au 20/08). Il revient parce que SA CAUSE revient — un ascenseur. */
-  const css = stripComments(feuille);
-  /* 🔄 IL CHERCHE LE SÉLECTEUR DANS LA LISTE, ⛔ PLUS UNE ÉGALITÉ EXACTE (lot 221, 20/09).
-     Une règle PARTAGÉE est la même règle : depuis qu'Eric a demandé que la tuile de Wares ait
-     *« la même morphologie, aura idem »* que celle du sac, elle entre dans SES listes plutôt
-     que d'être recopiée — et `.sac-cran, .wares-cran { … }` cessait de répondre à `=== ".sac-cran"`.
-     ⭐ CE N'EST PAS AFFAIBLIR LE GARDE : il tient toujours exactement le même corps de règle,
-     sur exactement le même sélecteur. Il cesse seulement d'exiger que ce sélecteur soit SEUL —
-     ce qui était épeler une implémentation, la faute que ce dépôt repaie tous les quinze jours.
-     ⛔ Et il refuse toujours une fausse correspondance : `.sac-cran-champ` ne contient pas le
-     membre `.sac-cran`, parce qu'on compare des membres DÉCOUPÉS, pas des sous-chaînes. */
-  const bloc = (sel) => {
-    const b = [...css.matchAll(/([^{}]*)\{([^{}]*)\}/g)]
-      .map(([, s2, c]) => ({ membres: s2.split(",").map((m) => m.trim()), corps: c }))
-      .find((x) => x.membres.includes(sel));
-    assert.ok(b, `⛔ ${sel} n'est plus habillé`);
-    return b.corps;
+test("31 — ⚡ LOT 355 : UNE SEULE SURFACE DÉFILE AU DOIGT — la roue mène, le ruban suit, et l'objet se glisse sans attendre", async () => {
+  /* ⚖️ Eric, 2026-09-29 : *« désactive le swipe des dalles backpack et réinstaure le drag and drop rapidement
+     actif. partout. si c'était pas clair »* · *« les tuiles peuvent être swipées mais pas la dalle »*.
+     🗄️ CE GARDE A TENU LE RÉGIME INVERSE du 19/09 au 29/09 — *« si on n'est pas en mode drag le swipe
+     fonctionne »* : les DEUX surfaces défilaient au doigt, un arbitre désignait celle que le doigt touchait,
+     et un PÉAGE (350 puis 500 ms) départageait « défiler les dalles » et « prendre l'objet ». ⭐ Il est
+     RÉÉCRIT à la nouvelle vérité, jamais désarmé ; chaque morceau de l'ancien régime y a son témoin inverse. */
+  const css = stripComments(feuille) + "\n" + feuilleDesCotesSac();
+  const regles = reglesDeLaFeuille(css).filter((r) => !r.sous);
+  /* la valeur d'une propriété pour les règles dont un membre VISE `sel` (le sujet du sélecteur), dans l'ordre */
+  const valeurs = (sel, prop) => regles
+    .filter((r) => r.parts.some((p) => p.split(/\s+/).pop() === sel))
+    .flatMap((r) => [...r.corps.matchAll(new RegExp(`(?:^|;)\\s*${prop}\\s*:\\s*([^;]+)`, "g"))].map((m) => m[1].trim()));
+  const debordeX = (sel) => {
+    const x = valeurs(sel, "overflow-x"), tout = valeurs(sel, "overflow").map((v) => v.split(/\s+/).at(-1));
+    return [...tout, ...x];
   };
 
-  /* ① LES DEUX DÉFILENT — l'une comme l'autre */
-  assert.match(bloc(".sac-roue"), /overflow-x:\s*auto/, "la roue défile");
-  assert.match(bloc(".sac-dalles"), /overflow-x:\s*auto/, "et les dalles aussi");
+  /* ① LA ROUE DÉFILE AU DOIGT, ⛔ LE RUBAN NON — il ne se déplace plus que par programme */
+  assert.ok(debordeX(".sac-roue").some((v) => /^(auto|scroll)$/.test(v)), "⛔ la roue ne défile plus : les tuiles se swipent (Eric, 29/09)");
+  assert.ok(valeurs(".sac-roue", "touch-action").some((v) => /pan-x/.test(v)), "⛔ la roue ne rend plus l'horizontal au doigt");
+  const ruban = debordeX(".sac-dalles");
+  assert.ok(ruban.length > 0, "témoin — le ruban déclare son débordement");
+  assert.ok(ruban.every((v) => !/^(auto|scroll)$/.test(v)),
+    `⛔ le ruban de dalles défile de nouveau au doigt (${ruban.join(", ")}) — « désactive le swipe des dalles backpack »`);
+  assert.ok(valeurs(".sac-dalles", "touch-action").every((v) => !/\b(pan-x|auto|manipulation)\b/.test(v)),
+    "⛔ le ruban rend l'horizontal au navigateur : un doigt posé sur la dalle la ferait glisser");
+  assert.ok(valeurs(".sac-dalles", "scroll-snap-type").every((v) => v === "none"),
+    "⛔ le ruban aimante : un SUIVEUR qui aimante saute de cran en cran (`geste-le-suiveur-n-aimante-pas`)");
 
-  /* ② 🔴 ET C'EST EXACTEMENT POURQUOI IL FAUT UN ARBITRE : deux défileurs verrouillés
-     l'un à l'autre OSCILLENT — chacun lit l'autre et le corrige à l'image suivante. ⛔ Ce
-     n'est pas une question de réglage, c'est une boucle. ⭐ Celui que le doigt a touché
-     mène, et il n'écrit que dans l'autre. */
-  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
-  assert.match(source, /r\.addEventListener\("pointerdown", \(\) => mener\("roue"\)/,
-    "⛔ toucher la roue doit la désigner maître");
-  assert.match(source, /piste\.addEventListener\("pointerdown", \(\) => mener\("dalles"\)/,
-    "⛔ toucher les dalles doit les désigner maîtres");
+  /* ② ⛔ PLUS D'ARBITRE : un doigt posé sur le ruban ne le désigne plus maître — la roue le mène TOUJOURS.
+     📏 Sous l'ancien régime ce témoin est ROUGE : le `pointerdown` du ruban faisait taire `suivre`. */
+  const noeud = rendu({ dalles: [0, 1, 2].map((i) => ({ section: i, objets: [] })) });
+  const piste = noeud.querySelector('[data-organe="dalles"]');
+  const roue = noeud.querySelector(".sac-roue");
+  poserLesDalles();
+  const pas = D.DALLE.l + D.DALLES.jour;
+  [...piste.children].forEach((n, k) => { n.offsetLeft = pas * k; });
+  /* ⭐ ON REGARDE L'ENTRE-DEUX, PAS L'ARRIVÉE — Eric, 19/09 : *« je fais défiler une tuile, je fais défiler une
+     dalle en même temps… ils sont liés »*. La pose au repos (`arrete`) remet le ruban sur une plaque ENTIÈRE
+     quoi qu'il arrive : un garde qui ne lirait que l'arrivée resterait vert sur un suivi muet (📏 vu par
+     mutation). La roue s'arrête donc à 1,5 tuile, et le ruban doit être PASSÉ par la demi-plaque — ce que seul
+     le suivi en direct écrit. ⛔ Et la condition est monotone : les positions vues ne font que s'ajouter. */
+  const vues = [];
+  piste.addEventListener("scroll", () => vues.push(piste.scrollLeft));
+  piste.dispatchEvent({ type: "pointerdown", target: piste });
+  roue.scrollLeft = D.ROUE.pas * 1.5;
+  roue.dispatchEvent({ type: "scroll" });
+  const entreDeux = (v) => v > pas + 1 && v < 2 * pas - 1;
+  await jusqua(() => vues.some(entreDeux));
+  assert.ok(vues.some(entreDeux),
+    `⛔ la roue est à mi-chemin et le ruban n'y est jamais passé (${vues.map(Math.round).join(", ") || "rien"}) : ` +
+    "il ne suit plus EN DIRECT — un doigt sur la dalle l'a-t-il fait taire ?");
 
-  /* ② bis 🔴 ET LE SUIVEUR N'AIMANTE PAS — sinon il ne peut pas suivre, et c'est MESURÉ.
-     📏 19/09, roue immobilisée à mi-chemin (97 = 65 × 1,5) : les dalles rendaient **383**
-     au lieu de 563. Une aimantation `mandatory` REFUSE une position intermédiaire ; le
-     navigateur la corrige à l'image suivante. Le suiveur sautait de cran en cran pendant
-     que le meneur glissait.
-     ⛔ ET AUCUN DE MES RELEVÉS NE POUVAIT L'ATTRAPER : ils tombaient tous sur des
-     positions DÉJÀ alignées (65 × 3, 375 × 3), où l'aimantation ne corrige rien. ⭐ Une
-     mesure qui ne visite que les crans ne dit RIEN de l'entre-deux — c'est Eric qui l'a vu
-     à l'œil, après trois de mes relevés « verts ». */
-  assert.match(source, /r\.dataset\.mene = qui === "roue" \? "oui" : "non";/,
-    "⛔ la roue doit dire si elle mène");
-  assert.match(source, /piste\.dataset\.mene = qui === "dalles" \? "oui" : "non";/,
-    "⛔ et les dalles aussi");
-  assert.match(css, /\.sac-roue\[data-mene="non"\], \.sac-dalles\[data-mene="non"\] \{[^}]*scroll-snap-type:\s*none/,
-    "⛔ le suiveur garde son aimantation : il ne peut alors se poser que sur des crans, " +
-    "et il saute au lieu de suivre");
-  assert.match(source, /const suivre = \(\) => \{\s*enAttente = false;\s*if \(maitre !== "roue"\) return;/,
-    "⛔ la roue n'écrit dans les dalles que si c'est ELLE qu'on pousse");
-  assert.match(source, /if \(maitre !== "dalles"\) return;/,
-    "⛔ et réciproquement — sinon les deux s'écrivent dessus et le geste oscille");
-
-  /* ③ ⏱️ LE PÉAGE, ET IL EST UNE OPTION — ⛔ pas un retour global. Eric, 20/08 :
-     *« il ne faut plus d'ascenseurs couplés avec des actions drag and drop »*, et la
-     parade d'alors fut de supprimer l'ascenseur. Species et les sorts n'en ont toujours
-     pas : ils gardent leur glisser IMMÉDIAT. ⭐ « Laisse les autres écrans en dehors de
-     ça » — Eric, 19/09. */
-  /* 🔄 LOT 331 — 350 → 500, et la cote est celle de TOUTE l'étape Equipment. Eric, 27/09 : *« Le
-     drag doit attendre 500 ms, avant de s'activer »*. */
-  assert.equal(PEAGE_JETON_MS, 500, "⏱️ la cote du 27/09");
-  assert.equal(PEAGE_JETON_MS, MAINTIEN_EQUIPEMENT_MS, "⛔ le sac a repris une cote à lui : deux attentes, deux gestes");
-  /* 🔴 LOT 334 — SAUF LE VIVIER DES SORTS DU PARCHEMIN (X5) : Eric, 27/09, « Le drag and drop pour
-     les parchemins ne fonctionne pas ». Une grille de sorts garde le glisser immédiat (loi du 20/08) ;
-     le jeton du collecteur du parchemin, qui part vers la page voisine, garde les 500 ms. */
-  const vivierDesSorts = { "x5-parchemin.mjs": 1 };
-  /* 🔄 LOT 348 — `equipment-step.mjs` ENTRE DANS LA LISTE : c'est par son absence que la carte R
-     morte armait encore ses jetons sans maintien ni grammaire (`soignerLesCases`). 📏 Éprouvé
-     ROUGE sur `38c0eaf0` (1 `armerJeton`, 0 maintien), vert une fois le chemin mort retiré. */
-  for (const f of ["equipment-step.mjs", "wares-ecran.mjs", "gear-ecran.mjs", "x5-ecran.mjs", "x5-parchemin.mjs"]) {
-    const s = stripComments(fs.readFileSync(path.join(UI, f), "utf8"));
-    assert.equal((s.match(/armerJeton\(/g) || []).length - (vivierDesSorts[f] || 0),
-      (s.match(/maintien: MAINTIEN_EQUIPEMENT_MS/g) || []).length,
-      `⛔ ${f} arme un glisser qui n'attend pas les 500 ms de l'étape (ou le vivier des sorts en a pris)`);
+  /* ③ LE JETON DU SAC NE REND AUCUN AXE : toute règle qui vise la marque des glissables dit `none` */
+  const marque = regles.filter((r) => r.parts.some((p) => /\[data-glissable/.test(p)) && /touch-action\s*:/.test(r.corps));
+  assert.ok(marque.length >= 1, "témoin — la règle de la marque est lue");
+  for (const r of marque) {
+    assert.match(r.corps, /touch-action\s*:\s*none/,
+      `⛔ « ${r.sel} » rend un axe au navigateur : l'objet ne se prendrait plus au premier mouvement`);
   }
-  assert.match(source, /maintien: PEAGE_JETON_MS/, "le sac paie le péage");
-  const organe = stripComments(fs.readFileSync(path.join(UI, "glisser.mjs"), "utf8"));
-  /* 🔄 LOT 339 — et seulement au DOIGT (ou au stylet) : Eric, 28/09, « oui fait la distinction, souris doigt » */
-  /* 🔄 LOT 340 — la grammaire « armer puis poser » donne l'appui long par défaut au doigt (« b oui partout ») */
-  assert.match(organe, /const duree = Number\.isFinite\(maintien\) \? maintien : \(avecGrammaire \? MAINTIEN_EQUIPEMENT_MS : 0\);\s*const peage = duree > 0 && ev\.pointerType !== "mouse";/,
-    "⭐ et l'organe ne le prend que si on le lui donne (ou sous la grammaire), et jamais à la souris");
-  const autres = ["skills-step.mjs", "species-step.mjs", "b3-dressing.mjs"]
-    .filter((f) => fs.existsSync(path.join(UI, f)))
-    .filter((f) => /maintien:/.test(stripComments(fs.readFileSync(path.join(UI, f), "utf8"))));
-  assert.deepEqual(autres, [],
-    "⛔ un autre écran vient de prendre le péage : il n'a pas d'ascenseur, donc pas de cause");
 
-  /* ④ ET LE JETON REND L'AXE AU NAVIGATEUR TANT QU'IL N'EST PAS PORTÉ. ⛔ Sans ça
-     `[data-glissable]` lui donne `touch-action: none` et AUCUN swipe ne peut naître sur
-     un jeton — or la grille est faite de jetons. */
-  assert.match(bloc('.sac-case[data-glissable="true"]'), /touch-action:\s*pan-x/,
-    "⛔ le jeton du sac doit laisser passer le défilement horizontal jusqu'au péage");
+  /* ④ ⭐ ET L'OBJET SE GLISSE AU DOIGT SANS ATTENDRE — l'horloge n'avance pas d'une milliseconde.
+     📏 Sous l'ancien régime ce témoin est ROUGE : porté avant 500 ms, le geste était abandonné. */
+  const places = [];
+  const sac = rendu({ objets: [{ index: 4, nom: "Rope", qte: 1 }], surPlacer: (i, c) => places.push([i, c]) });
+  const jeton = tous(sac, ".sac-case").find((c) => c.dataset.occupe === "oui");
+  const libre = tous(sac, ".sac-case").find((c) => c.dataset.creneau && c !== jeton);
+  document.elementFromPoint = () => libre;
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 31, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 31 });
+  document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 31 });
+  assert.deepEqual(places, [[4, libre.dataset.creneau]],
+    "⛔ porté tout de suite au doigt, l'objet du sac ne s'est pas posé : un péage est revenu (Eric, 29/09 : « rapidement actif »)");
 });
 
 test("32 — 📐 LE JOUR EST À LA PLAQUE CE QUE LA GOUTTIÈRE EST À LA TUILE", () => {
@@ -1856,90 +1809,47 @@ test("32 — 📐 LE JOUR EST À LA PLAQUE CE QUE LA GOUTTIÈRE EST À LA TUILE"
     "le ruban de plaques doit espacer du jour du plan");
 });
 
-test("33 — \u2194\ufe0f LE CHEMIN INVERSE N'H\u00c9RITE DE RIEN : il lit le PAS, et il POSE la roue", async () => {
-  /* \ud83d\udcf8 LE REL\u00c9V\u00c9 QUI L'A OUVERT \u2014 capture d'Eric sur son iPad, 19/09 \u00e0 22:52, l\u00e9gend\u00e9e
-     *\u00ab r\u00e9sultat du premier d\u00e9calage suite \u00e0 un swipe sur dalle \u00bb* : la plaque \u00e9tait juste
-     (grille de `Storage 1`, vide), et la ROUE \u00e9tait fausse \u2014 `Storage 1` dessin\u00e9e \u00e0 cheval
-     sur `Storage 2`. Une tuile arr\u00eat\u00e9e ENTRE deux crans.
-     \ud83d\udd34 TROIS FAUTES, ET ELLES SONT TOUTES LA M\u00caME : j'ai \u00e9crit le verrou dans le sens
-     roue \u2192 plaques, puis je l'ai *retourn\u00e9*, et un retournement h\u00e9rite du calcul sans
-     h\u00e9riter de ce qui l'entoure.
-       \u2460 le pas \u2014 le sens direct LIT `offsetLeft` ; l'inverse divisait par la LARGEUR, or
-         entre deux plaques il y a un JOUR (52,63). 374 au lieu de 426,63 : 14 % de d\u00e9rive
-         \u00e0 la deuxi\u00e8me plaque, 28 % \u00e0 la troisi\u00e8me, 42 % \u00e0 la quatri\u00e8me.
-       \u2461 la pose \u2014 le sens direct pose le suiveur exactement \u00e0 l'arr\u00eat ; l'inverse ne
-         posait rien, et l'aimantation du suiveur est COUP\u00c9E par construction. Rien ne
-         ramenait la roue sur son cran.
-       \u2462 l'arbitre \u2014 et celle-ci mangeait les deux autres : le minuteur de repos
-         choisissait son ex\u00e9cutant \u00c0 L'ARMEMENT. Le suivi \u00e9crit `r.scrollLeft`, \u00e7a \u00e9met un
-         `scroll` sur la roue, et l'\u00e9couteur de la roue r\u00e9armait le repos avec `arrete`.
-         \u26d4 `arreteLesDalles` ne tournait jamais. */
+test("33 — ⚡ LOT 355 : LE RUBAN NE MÈNE PLUS — un doigt sur la grille puis un défilement du ruban ne bougent ni la roue ni la section", async () => {
+  /* ⚖️ Eric, 29/09 : *« désactive le swipe des dalles backpack »* · *« les tuiles peuvent être swipées mais pas
+     la dalle »*.
+     🗄️ CE GARDE TENAIT LE CHEMIN INVERSE (19/09 → 29/09) — capture d'Eric du 19/09 à 22:52, *« résultat du
+     premier décalage suite à un swipe sur dalle »* : quand le DOIGT poussait les plaques, la roue les suivait,
+     et trois fautes nées du retournement (le pas divisé par une largeur, la pose oubliée, l'arbitre gelé à
+     l'armement) avaient été fermées ici. ⭐ Le chemin inverse est RETIRÉ avec le swipe des dalles ; sa leçon
+     reste écrite (`socle-un-retournement-n-herite-pas-de-son-entourage`). Ce garde tient désormais l'inverse
+     de son ancienne loi : le ruban ne mène JAMAIS.
+     📏 ROUGE sous l'ancien régime : le `pointerdown` du ruban le faisait maître, et la roue suivait. */
   const vues = [];
-  /* ⛔ ET LE RUBAN SE PEUPLE POUR DE VRAI : sans `dalles`, l'écran n'en pose qu'UNE,
-     et un ruban d'une seule plaque ne peut rien décaler — le témoin serait resté vert
-     sur la faute qu'il défend. */
   const noeud = rendu({ surDalle: (k) => vues.push(k),
     dalles: [0, 1, 2].map((i) => ({ section: i, objets: [] })) });
   const piste = noeud.querySelector('[data-organe="dalles"]');
   const roue = noeud.querySelector(".sac-roue");
   poserLesDalles();
-
-  /* \u2192 ON DONNE AUX PLAQUES LA MISE EN PAGE QU'ELLES ONT DANS LE NAVIGATEUR \u2014 une
-     largeur, PLUS un jour. \u26d4 Sans \u00e7a le banc ne peut RIEN accuser : hors navigateur
-     `offsetLeft` n'existe pas, le repli multiplie par la largeur, largeur et pas se
-     confondent et la faute \u2460 dort. C'est exactement pourquoi 2340 gardes verts n'ont
-     pas vu ce qu'Eric a vu du premier coup d'\u0153il. */
   const pas = D.DALLE.l + D.DALLES.jour;
   [...piste.children].forEach((n, k) => { n.offsetLeft = pas * k; });
-
-  /* \u2192 et c'est LA PLAQUE qu'on pousse \u2014 le doigt s'y pose, elle m\u00e8ne */
+  const avant = roue.scrollLeft;
   piste.dispatchEvent({ type: "pointerdown", target: piste });
-  /* ⛔ ET LE DOIGT LÂCHE ENTRE DEUX PLAQUES, — pas pile sur un cran. C'est le cas RÉEL,
-     et c'est le seul qui puisse accuser la pose : le repos tire à 140 ms, bien avant que
-     l'aimantation du MAÎTRE ait fini de ranger sa plaque. Pendant ce temps le suiveur,
-     lui, a son aimantation COUPÉE par construction — donc si personne ne le pose, il
-     reste où l'interpolation l'a laissé.
-     🔴 MA PREMIÈRE ÉCRITURE DE CE TÉMOIN POSAIT LA PLAQUE PILE SUR SON CRAN, et elle
-     restait VERTE en retirant la pose : à une position entière, le suivi tombe juste tout
-     seul. Un témoin qui ne peut jamais accuser est le pire de tous. */
   piste.scrollLeft = pas + 40;
-  /* 🏁 même conversion : `vues` est monotone, donc on peut la guetter sans risque de
-     l'attraper dans un état transitoire. Le repos qui suit ne court contre rien. */
-  await jusqua(() => vues.length > 0);
-  await new Promise((r) => setTimeout(r, REPOS_MS));
+  piste.dispatchEvent({ type: "scroll" });
+  /* ⛔ ON ATTEND UNE ABSENCE : une durée fixe, et c'est la doctrine de ce fichier (on ne guette pas ce qui ne
+     doit pas arriver) — le repos a eu le temps de tirer deux fois. */
+  await new Promise((r) => setTimeout(r, REPOS_MS * 2 + 60));
+  assert.equal(roue.scrollLeft, avant, "⛔ la roue a suivi le ruban : le ruban MÈNE de nouveau — la dalle se swipe");
+  assert.deepEqual(vues, [], "⛔ un défilement du ruban a commis une section : il décide encore de quelque chose");
 
-  assert.equal(Math.round(roue.scrollLeft), D.ROUE.pas,
-    `\u26d4 la roue s'est arr\u00eat\u00e9e \u00e0 ${roue.scrollLeft} au lieu de ${D.ROUE.pas} : ` +
-    "une tuile \u00e0 cheval sur sa voisine, exactement la capture du 19/09");
-  assert.deepEqual(vues, [1], "\u26d4 et la section doit \u00eatre commise une fois, \u00e0 l'arr\u00eat");
-
-  /* \u2192 ET LA SYM\u00c9TRIE SE TIENT DANS LA SOURCE, parce qu'elle ne se voit pas \u00e0 l'\u0153il :
-     \u26d4 aucune position de plaque ne se d\u00e9duit d'une largeur. */
+  /* ⭐ ET LA LEÇON DU PAS VAUT POUR LE SENS QUI RESTE : aucune position de plaque ne se déduit d'une largeur. */
   const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
   assert.doesNotMatch(source, /piste\.scrollLeft\s*\/\s*l\b|piste\.scrollLeft\s*\/\s*largeurDalle\(\)/,
-    "\u26d4 une LARGEUR n'est pas un PAS : entre deux plaques il y a un jour");
-  assert.match(source, /const positionDesDalles = \(x\) => \{/,
-    "\u2b50 l'inverse de `xDeLaDalle` se LIT dans la mise en page, comme lui");
-  assert.match(source, /const repose = \(\) => \{\s*repos = null;\s*if \(maitre === "dalles"\)/,
-    "\u26d4 le repos doit choisir son ex\u00e9cutant \u00c0 L'ARRIV\u00c9E : entre l'armement et le tir, " +
-    "le suivi fait parler l'autre surface");
-  assert.equal((source.match(/setTimeout\(repose, REPOS_MS\)/g) || []).length, 2,
-    "\u26d4 les deux \u00e9couteurs arment LE M\u00caME repos");
+    "⛔ une LARGEUR n'est pas un PAS : entre deux plaques il y a un jour");
 });
 
-test("34 — 👆 UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT : il rend la main à la roue", async () => {
-  /* ⚖️ Eric, 2026-09-19, juste après la réparation du chemin inverse : *« le drag and drop
-     maintenant il ne fonctionne plus, mettre le token dans la marge fait défiler les tuiles
-     mais pas les dalles »*.
-     🔴 LA CHAÎNE : un `pointerdown` sur un jeton BULLE jusqu'à la piste — et il le doit,
-     puisqu'avant le péage de 350 ms ce même doigt peut encore balayer les plaques. Mais une
-     fois l'objet PORTÉ, plus personne ne fait glisser de plaque : la marge pousse la ROUE,
-     et le verrou refusait de la suivre parce que l'arbitre désignait encore les plaques.
-     ⭐ LA LOI : *l'arbitre nomme la surface que le DOIGT fait glisser.* Chevrons, tuner,
-     marge, placement d'ouverture — aucun n'est un doigt, donc chacun rend la main.
-     ⛔ ET C'EST MA FAUTE DU TOUR D'AVANT : en donnant un maître à chaque geste, j'ai fait
-     dépendre de lui des défilements qui n'ont pas de doigt du tout. Un arbitre qui tranche
-     entre deux doigts ne dit RIEN d'un mouvement qui n'en a pas. */
+test("34 — 👆 UN DÉFILEMENT PROGRAMMÉ ENTRAÎNE LE RUBAN — même quand un doigt vient de toucher la grille", async () => {
+  /* ⚖️ Eric, 2026-09-19 : *« mettre le token dans la marge fait défiler les tuiles mais pas les dalles »* — la
+     faute était l'ARBITRE : un doigt sur un jeton désignait les plaques, et le verrou refusait de suivre la roue
+     que la marge poussait. 🗄️ L'arbitre est retiré au lot 355 ; la dent de ce garde reste la même, et c'est
+     celle qu'Eric a payée : chevrons, tuner, engrenage et MARGE passent par `pousser`, et le ruban SUIT.
+     ⭐ Au lot 355 c'est aussi le seul chemin qui reste pour porter un objet d'une section à l'autre au doigt
+     (*« on peut toujours déplacer une tuile d'une page à une autre en la déplaçant dans la marge »*). */
   const noeud = rendu({ dalles: [0, 1, 2].map((i) => ({ section: i, objets: [] })) });
   const piste = noeud.querySelector('[data-organe="dalles"]');
   const roue = noeud.querySelector(".sac-roue");
@@ -1947,38 +1857,18 @@ test("34 — 👆 UN DÉFILEMENT PROGRAMMÉ N'EST PAS UN DOIGT : il rend la main
   const pas = D.DALLE.l + D.DALLES.jour;
   [...piste.children].forEach((n, k) => { n.offsetLeft = pas * k; });
 
-  /* → LE DOIGT SE POSE SUR UN JETON, donc sur la piste : l'arbitre désigne les plaques */
+  /* → LE DOIGT SE POSE SUR UN JETON, donc sur la piste — ⛔ il ne désigne plus rien */
   piste.dispatchEvent({ type: "pointerdown", target: piste });
-  assert.equal(piste.dataset.mene, "oui", "le doigt a bien désigné les plaques");
-
-  /* → et c'est la MARGE qui pousse, pas le doigt — le même chemin que les chevrons, le
-     tuner et le défilement du glisser (`agir = () => pisteNoeud.pousser(sens)`) */
-  piste.pousser(1);
-  /* ⛔ CELUI-CI NE SE CONVERTIT PAS, et c'est délibéré. La grandeur sous test est
-     RÉVERSIBLE : le rouge documenté ci-dessous est « la roue avance à 65, puis
-     l'arbitre la repose à 0 ». Guetter `roue.scrollLeft === pas` attraperait le
-     TRANSITOIRE et rendrait ce garde vert sur du code cassé — on échangerait une
-     sensibilité à la charge contre une dent en moins, ce qui est pire.
-     ⏳ Il reste donc une course, avec 160 ms de marge. Assumé et nommé. */
+  /* → et c'est la MARGE qui pousse (`agir = () => pisteNoeud.pousser(sens)`) */
+  assert.equal(piste.pousser(1), true, "la roue a de la place pour avancer d'une tuile");
+  /* ⛔ CELUI-CI NE SE CONVERTIT PAS : la grandeur sous test est RÉVERSIBLE (le rouge du 19/09 était « la roue
+     avance à 65, puis la fin de geste des plaques la repose à 0 »). Guetter le transitoire rendrait ce garde
+     vert sur du code cassé. ⏳ Une course assumée, 160 ms de marge. */
   await new Promise((r) => setTimeout(r, REPOS_MS + 160));
-
-  /* 📏 ROUGE MESURÉ en retirant le mot : la roue ne rend pas 65 mais **0**. Elle avance
-     bien d'une tuile, puis la fin de geste des PLAQUES — qui mènent toujours, aux yeux de
-     l'arbitre — la repose sur la plaque courante et la ramène au départ. ⭐ La pose exacte
-     du garde 33 est juste ; c'est l'arbitre qui la fait tirer du mauvais côté. */
   assert.equal(Math.round(roue.scrollLeft), D.ROUE.pas, "la roue a bien avancé d'une tuile");
   assert.equal(Math.round(piste.scrollLeft), Math.round(pas),
-    `⛔ les plaques sont restées à ${piste.scrollLeft} : la marge fait défiler les tuiles ` +
-    "et pas les dalles — exactement ce qu'Eric a vu le 19/09");
-
-  /* → ET LE MÊME MOT SUR LES DEUX CHEMINS PROGRAMMÉS, parce qu'il ne se voit pas à l'œil */
-  const source = stripComments(fs.readFileSync(path.join(UI, "sac-ecran.mjs"), "utf8"));
-  const pousse = source.slice(source.indexOf("piste.pousser = (sens)"));
-  assert.match(pousse.slice(0, 200), /mener\("roue"\)/,
-    "⛔ chevrons, tuner et marge passent tous par `pousser` : il doit rendre la main");
-  const ouverture = source.slice(source.indexOf("placementEnAttente = () =>"));
-  assert.match(ouverture.slice(0, 200), /mener\("roue"\)/,
-    "⛔ le placement d'ouverture non plus n'est pas un doigt");
+    `⛔ les plaques sont restées à ${piste.scrollLeft} : la marge fait défiler les tuiles et pas les dalles — ` +
+    "exactement ce qu'Eric a vu le 19/09");
 });
 
 test("35 — \ud83c\udfa8 LE GENRE D'UNE SECTION PERSISTE, et l'or ne p\u00e8se pas", async () => {

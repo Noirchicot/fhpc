@@ -196,10 +196,13 @@ test("4 · `Send`, collecteur vide : le comportement d'avant — aucun popup", (
   assert.equal(pageActiveDeLEquipement(), "sb32", "⛔ Send à vide n'ouvre plus la liste d'envoi");
 });
 
-test("5 · ⏱️ LOT 331 · 339 : au DOIGT le glisser attend 500 ms (porté plus tôt : ni glisser ni tap) ; à la SOURIS il part tout de suite", () => {
-  /* ⚖️ Eric, 27/09 : « Le drag doit attendre 500 ms, avant de s'activer » ; puis 28/09 : « oui fait la
-     distinction, souris doigt » — l'appui long est un geste du doigt. */
-  const porter = (pointerType, avantArmement) => {
+test("5 · ⚡ LOT 355 : le glisser part au MOUVEMENT, au doigt comme à la souris — et l'appui long immobile arme sans rien poser", () => {
+  /* ⚖️ Eric, 29/09 : *« réinstaure le drag and drop rapidement actif. partout »* · et, à « l'appui long, doigt
+     immobile, arme-t-il encore l'objet pour le poser d'un tap ? » : *« Oui, les deux gestes »*.
+     🗄️ CE GARDE TENAIT L'INVERSE (lots 331 · 339, 27–28/09) : *« Le drag doit attendre 500 ms, avant de
+     s'activer »* — au doigt, porté avant 500 ms, le geste n'était ni un glisser ni un tap. Réécrit à la
+     nouvelle vérité : le moment où le doigt bouge ne change plus rien au dépôt. */
+  const porter = (pointerType, avantDeBouger) => {
     const vus = [];
     const n = monter({ surJeton: () => vus.push("x2"), surDepot: () => vus.push("depot") });
     const cible = n.querySelector('[data-organe="collecteur"]');
@@ -207,14 +210,33 @@ test("5 · ⏱️ LOT 331 · 339 : au DOIGT le glisser attend 500 ms (porté plu
     mock.timers.enable({ apis: ["setTimeout"] });
     try {
       n.querySelector(".wares-jeton").dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 4, button: 0, pointerType });
-      mock.timers.tick(avantArmement);
+      mock.timers.tick(avantDeBouger);
       document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 4 });
       document.dispatchEvent({ type: "pointermove", clientX: 80, clientY: 80, pointerId: 4 });
       document.dispatchEvent({ type: "pointerup", clientX: 80, clientY: 80, pointerId: 4 });
     } finally { mock.timers.reset(); document.elementFromPoint = () => null; }
     return vus;
   };
-  assert.deepEqual(porter("touch", MAINTIEN_EQUIPEMENT_MS - 1), [], "⛔ au doigt, porté avant 500 ms : ni dépôt, ni fiche ouverte");
-  assert.deepEqual(porter("touch", MAINTIEN_EQUIPEMENT_MS), ["depot"], "⭐ au doigt, tenu 500 ms : le dépôt");
-  assert.deepEqual(porter("mouse", 0), ["depot"], "⛔ à la souris, le glisser attend encore : il doit partir tout de suite");
+  assert.deepEqual(porter("touch", 0), ["depot"], "⛔ au doigt, porté TOUT DE SUITE : pas de dépôt — un péage est revenu");
+  assert.deepEqual(porter("touch", MAINTIEN_EQUIPEMENT_MS - 1), ["depot"], "⛔ au doigt, porté à 499 ms : pas de dépôt");
+  assert.deepEqual(porter("touch", MAINTIEN_EQUIPEMENT_MS), ["depot"], "⭐ au doigt, tenu puis porté : le dépôt aussi");
+  assert.deepEqual(porter("mouse", 0), ["depot"], "⛔ à la souris, le glisser ne part pas tout de suite");
+
+  /* ⭐ L'APPUI LONG IMMOBILE ARME ENCORE — et le relâcher ne pose rien, n'ouvre rien : l'objet attend sa destination */
+  const vus = [];
+  const n = monter({ surJeton: () => vus.push("x2"), surDepot: () => vus.push("depot") });
+  /* ⭐ posé AU DOCUMENT : ses destinations se cherchent dans la page — détaché, il n'en aurait aucune, et
+     l'appui long répondrait par le refus de 6b (juste, mais ce n'est pas ce qu'on éprouve ici) */
+  document.body.append(n);
+  const jeton = n.querySelector(".wares-jeton");
+  mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 5, button: 0, pointerType: "touch" });
+    mock.timers.tick(MAINTIEN_EQUIPEMENT_MS);
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 5 });
+  } finally { mock.timers.reset(); }
+  assert.equal(jeton.dataset.deplacement, "arme", "⛔ l'appui long immobile n'arme plus l'objet (« Oui, les deux gestes »)");
+  assert.deepEqual(vus, [], "⛔ relâché après l'appui long, l'objet a posé ou ouvert sa fiche");
+  document.dispatchEvent({ type: "keydown", key: "Escape" });
+  document.body.childNodes.splice(document.body.childNodes.indexOf(n), 1);
 });

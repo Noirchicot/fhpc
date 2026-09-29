@@ -446,7 +446,7 @@ function emplacement(o, id, pose, options) {
     armerImmobile(e, { onVoir: voir });
   } else {
     armerJeton(e, {
-      maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
+      maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ l'appui long qui ARME (lot 355 : ⛔ plus une attente avant le glisser) */
       grammaire: true,
       onVoir: voir,
       onTap: () => {},
@@ -511,7 +511,7 @@ function collecteur(id, options, retenu) {
     /* 🖐️ LOT 347 — la grammaire, comme une case : voir au tap et au clic droit (l'organe), armer au clic
        gauche — ⛔ plus de `contextmenu` à côté. */
     armerJeton(c, {
-      maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
+      maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ l'appui long qui ARME (lot 355 : ⛔ plus une attente avant le glisser) */
       grammaire: true,
       onVoir: () => { if (options.surJeton) options.surJeton(retenu.index); },
       onTap: () => {},

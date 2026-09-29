@@ -124,10 +124,9 @@ export function construireX5Parchemin(o, pieces) {
   /* ⚖️ « 4 étages de sorts token » — un jeton par sort, le corps de tous les jetons
      (`corpsDuJeton`). `aria-pressed` dit le sort choisi à l'œil (le halo, `shell.css`) comme
      à l'oreille.
-     ⚖️ LOT 290 — LE GESTE EST CELUI DU VIVIER (`renderChoixGlisses`, loi d'Eric du 16/08) :
-     au doigt, tap = INFO et glisser sur le collecteur = CHOISIR ; à la souris, clic gauche =
-     choisir, clic droit = info. ⛔ Sans `surInfo`, le tap choisit, au doigt comme à la souris
-     (la même clause que le vivier : un écran sans info à donner ne change pas de geste). */
+     ⚖️ LOT 290 — LE GESTE EST CELUI DU VIVIER (`renderChoixGlisses`) : c'était la loi du 16/08
+     (au doigt tap = info, à la souris clic gauche = choisir) ; ⚡ depuis le lot 355 c'est la
+     grammaire « armer puis poser » des viviers (lot 340) — voir `armerJeton` plus bas. */
   const grille = elx("div", "x5-sorts");
   grille.dataset.organe = "SORTS";
   grille.setAttribute("role", "list");
@@ -149,25 +148,30 @@ export function construireX5Parchemin(o, pieces) {
        de suite, rien — c'est le lot 331 qui lui avait donné les 500 ms, ⛔ de mon propre chef : la
        consigne visait les objets qu'on échange d'un écran à l'autre. Or cette grille est un VIVIER DE
        SORTS, et la loi du 20/08 y tient — *« le glisser partout ! »*, sans péage là où rien ne défile
-       (Species, les sorts). ⭐ Le jeton du collecteur, lui, part vers la page voisine : il garde les
-       500 ms (plus bas). */
-    /* ⏳ LOT 347 — LA GRAMMAIRE N'EST PAS ENCORE ICI, et c'est voulu : elle ajouterait au doigt l'appui long de
-       500 ms à un vivier qui n'en a pas (lot 334), le jour même où Eric dit *« l'attente ses 500 ms, j'ai pas une
-       sensation de fluidité »* (28/09). Elle viendra avec sa réponse sur l'attente (les dés d'Abilities aussi). */
+       (Species, les sorts). 🗄️ Le jeton du collecteur, lui, gardait les 500 ms (il part vers la page
+       voisine) — ⚡ jusqu'au lot 355, où plus aucun glisser n'attend. */
+    /* ⚡ LOT 355 — LA GRAMMAIRE « ARMER PUIS POSER » ARRIVE ICI (NORMES `geste-armer-puis-poser`) : elle attendait
+       ce lot (347 : elle aurait AJOUTÉ l'attente de 500 ms à un vivier qui n'en avait pas, le jour même où Eric
+       disait *« l'attente ses 500 ms, j'ai pas une sensation de fluidité »*). Le glisser part maintenant au
+       mouvement, partout : elle ne coûte plus rien.
+       · VOIR = tap (doigt) · clic droit (souris) → la fiche du sort — posé par `armerJeton` (`onVoir`), ⛔ plus
+         un `contextmenu` écrit à côté (il ouvrirait deux fois) ;
+       · ARMER = clic gauche (souris) · appui long immobile (doigt) → le collecteur du parchemin s'allume ;
+       · POSER = clic ou tap sur lui, ou glisser.
+       🧊 L'ancien geste est mort, comme dans les viviers du lot 340 : le clic gauche ne choisit plus d'un coup
+       (réponse 1a d'Eric, 28/09), et ⛔ « sans fiche, le tap choisit » non plus — sans fiche, le tap ne voit rien. */
     armerJeton(b, {
+      grammaire: true,
+      onVoir: surInfo ? () => surInfo(s) : undefined,
+      /* ⭐ SA SEULE DESTINATION est le collecteur du parchemin : en double écran, d'autres créneaux vivent dans
+         l'application (le collecteur de Wares, les cases du sac) — ⛔ un sort n'y va pas */
+      accepte: (c) => c.dataset.creneau === CRENEAU_SORT,
       onLever: (x, y) => fantome.lever(b, x, y),
       onBouger: (x, y) => fantome.suivre(x, y),
       onPoser: () => fantome.ranger(),
-      onTap: (type) => { if (surInfo && type !== "mouse") surInfo(s); else choisir(); },
+      onTap: () => {},
       onDepot: (creneau) => { if (creneau === CRENEAU_SORT) choisir(); },
     });
-    /* le clic droit — l'autre moitié de la loi ; ⛔ `armerJeton` ne s'arme que sur le bouton 0 */
-    if (surInfo) {
-      b.addEventListener("contextmenu", (ev) => {
-        if (ev && typeof ev.preventDefault === "function") ev.preventDefault();
-        surInfo(s);
-      });
-    }
     /* ⌨️ LE CLAVIER GARDE SON CHOIX : `Entrée` sur un bouton émet un `click` sans pointeur
        (`detail === 0`). ⛔ Un clic de souris ou de doigt porte `detail ≥ 1` et passe déjà par
        `armerJeton` : l'écouter ici choisirait deux fois. */
@@ -289,7 +293,7 @@ function collecteurDuSort({ plan, sort, niveau, cote, surJeton, surChoix = null,
   jeton.append(...corpsDuJeton({ nom: nomDuJeton }));
   const apercu = () => { if (surJeton && cote.legal) surJeton({ nom: nomDuJeton, plan, sort, niveau, cote, status: "Crafting" }); };
   armerJeton(jeton, {
-    maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ lot 331 — 500 ms avant le glisser (Eric, 27/09) */
+    maintien: MAINTIEN_EQUIPEMENT_MS,   /* ⏱️ l'appui long qui ARME (lot 355 : ⛔ plus une attente avant le glisser) */
     /* 🖐️ LOT 347 — la grammaire : VOIR = tap / clic droit → l'aperçu ; ARMER = clic gauche / appui long → en
        double écran, le collecteur voisin s'allume ; en vue simple il n'a nulle part où aller : bref refus (6b) */
     grammaire: true,

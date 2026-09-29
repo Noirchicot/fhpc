@@ -1231,7 +1231,13 @@ test("⭐ LE RETOUR — ramener un dé sur le vivier le REPREND, dans toutes les
   lot.assign = Object.fromEntries(ABILITY_KEYS.map((k, i) => [k, i]));
   const calls = [];
   const node = renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: lot }), (a) => calls.push(a));
-  await glisser(deDeLaCible(node, "str"), node.querySelectorAll(".fs-rangee")[1]);
+  /* 🔴 LOT 355 — CE GESTE-CI MESURAIT UN CLIC, PAS UN RETOUR. `.fs-rangee[1]` n'existe pas en FREE : sans cible, `glisser`
+     n'envoie aucun `pointermove`, et `armerJeton` lisait un TAP — qui rendait le dé lui aussi, donc le garde passait
+     (le piège que `glisserDansLeVide`, plus haut, décrit mot pour mot). Sous la grammaire le clic de souris ARME : le
+     faux témoin est tombé. ⭐ Il vise maintenant la palette, qui existe — et il le vérifie avant de glisser. */
+  const palette = node.querySelector(".ability-palette");
+  assert.ok(palette, "témoin — la palette de FREE est là, le glisser a une cible");
+  await glisser(deDeLaCible(node, "str"), palette);
   assert.deepEqual(calls, [{ kind: "unassignAbilityRoll", key: "str" }],
     "FREE : ramener un dé posé le reprend — la clef quitte la carte, rien d'autre");
 
@@ -1244,6 +1250,105 @@ test("⭐ LE RETOUR — ramener un dé sur le vivier le REPREND, dans toutes les
     "ARRAY : lâcher sur le podium reprend le dé — même verbe, aucune valeur dedans");
   assert.ok(!calls2.some((c) => c.kind === "assignAbilityRoll"),
     "⛔ et surtout pas un `set` déguisé : le document n'apprend rien d'un retour");
+});
+
+/* ══ 🎲 LOT 355 — LA GRAMMAIRE « ARMER PUIS POSER » SUR LES DÉS, et le TAP tranché par Eric (29/09) ═══════════════
+   ⚖️ Q1 — « Dé POSÉ, au doigt, le tap ? » → « Revenir au podium » (le 🔒 du 06/09 tient ; le reste de la grammaire
+   s'applique : l'appui long arme, le glisser est immédiat).
+   ⚖️ Q2 — « Dé du PODIUM ou de la PALETTE, au doigt, le tap ? » → « Il arme le dé », comme le clic gauche à la souris :
+   les caractéristiques libres s'allument, un tap pose. ⛔ Le « tap pose au premier libre » reste mort. */
+function tapDoigt(el, pointerId = 21) {
+  globalThis.document.elementFromPoint = () => null;
+  el.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId, button: 0, pointerType: "touch" });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId });
+}
+/** l'appui qui POSE : livré au document, avec sa cible — l'organe l'écoute là, en capture */
+function tapSur(cible, pointerType = "touch", pointerId = 22) {
+  document.dispatchEvent({ type: "pointerdown", target: cible, clientX: 0, clientY: 0, pointerId, button: 0, pointerType });
+  document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId });
+}
+const allumees = (node) => [...node.querySelectorAll('[data-destination="oui"]')].map((c) => c.dataset.creneau).sort();
+/** un écran posé AU DOCUMENT (ses destinations se cherchent dans la page), puis retiré et désarmé */
+function monte(node) { document.body.append(node); return node; }
+function demonte(node) {
+  document.dispatchEvent({ type: "keydown", key: "Escape" });
+  const i = document.body.childNodes.indexOf(node);
+  if (i >= 0) document.body.childNodes.splice(i, 1);
+}
+
+test("🎲 355 · Q1 — dé POSÉ, au doigt : le tap le rend au podium (« Revenir au podium ») ; à la souris le clic ARME", () => {
+  const tableau = standardArrayBatch();
+  tableau.assign = { ...emptyAbilityAssign(), dex: 1 };
+  const calls = [];
+  const node = monte(renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: tableau }), (a) => calls.push(a)));
+  try {
+    tapDoigt(deDeLaCible(node, "dex"));
+    assert.deepEqual(calls, [{ kind: "unassignAbilityRoll", key: "dex" }],
+      "⛔ au doigt, le tap d'un dé posé ne le rend plus au podium — Q1 : « Revenir au podium »");
+    calls.length = 0;
+    /* ⭐ À LA SOURIS, LE RESTE DE LA GRAMMAIRE : le clic gauche arme, il ne rend rien */
+    const de = deDeLaCible(node, "dex");
+    de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 23, button: 0, pointerType: "mouse" });
+    document.dispatchEvent({ type: "pointerup", clientX: 0, clientY: 0, pointerId: 23 });
+    assert.deepEqual(calls, [], "⛔ à la souris, le clic d'un dé posé l'a rendu : le clic gauche ARME (réponse 1a)");
+    assert.equal(de.dataset.deplacement, "arme", "⛔ à la souris, le clic d'un dé posé ne l'arme pas");
+    assert.deepEqual(allumees(node), ABILITY_KEYS.filter((k) => k !== "dex").sort(),
+      "⛔ armé, un dé posé doit allumer les caractéristiques LIBRES, et elles seules");
+  } finally { demonte(node); }
+});
+
+test("🎲 355 · Q2 — dé du PODIUM, au doigt : le tap l'ARME (les caractéristiques libres s'allument), un tap pose ; ⛔ jamais au premier libre", () => {
+  const tableau = standardArrayBatch();
+  tableau.assign = { ...emptyAbilityAssign(), dex: 1 };
+  const calls = [];
+  const node = monte(renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: tableau }), (a) => calls.push(a)));
+  try {
+    const pastilles = node.querySelectorAll(".ability-des-gardes[data-podium] .fs");
+    const de = pastilles[0].querySelector(".fs-de");
+    assert.ok(de, "témoin — le premier jet est encore au podium");
+    tapDoigt(de);
+    assert.deepEqual(calls, [], "⛔ le tap a posé le dé tout seul : « le tap pose au premier libre » est mort (1a)");
+    assert.equal(de.dataset.deplacement, "arme", "⛔ au doigt, le tap d'un dé du podium ne l'arme pas — Q2 : « Il arme le dé »");
+    assert.deepEqual(allumees(node), ABILITY_KEYS.filter((k) => k !== "dex").sort(),
+      "⛔ armé, le dé doit allumer les caractéristiques LIBRES et elles seules — ni `dex` (pleine), ni les pastilles, ni la rangée");
+    tapSur(creneauPour(node, "wis"));
+    assert.deepEqual(calls.map((c) => [c.kind, c.key]), [["assignAbilityRoll", "wis"]],
+      "⛔ le tap sur la caractéristique allumée n'y a pas posé le dé");
+  } finally { demonte(node); }
+});
+
+test("🎲 355 · Q2 — la PALETTE (FREE) fait comme le podium : le tap arme, un tap pose", () => {
+  const calls = [];
+  const node = monte(renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "free", rollBatch: freeBatch() }), (a) => calls.push(a)));
+  try {
+    const de = node.querySelector(".ability-palette .fs-de");
+    assert.ok(de, "témoin — la palette porte ses dés");
+    tapDoigt(de);
+    assert.deepEqual(calls, [], "⛔ le tap de la palette a posé au premier libre (1a)");
+    assert.equal(de.dataset.deplacement, "arme", "⛔ au doigt, le tap d'un dé de la palette ne l'arme pas");
+    const libres = allumees(node);
+    assert.ok(libres.length >= 1 && libres.every((k) => ABILITY_KEYS.includes(k)),
+      `⛔ armé, un dé de la palette doit allumer des caractéristiques, et rien d'autre (${libres.join(", ")})`);
+    tapSur(creneauPour(node, libres[0]));
+    assert.deepEqual(calls.map((c) => [c.kind, c.key]), [["abilityFreeDirect", libres[0]]],
+      "⛔ le tap sur la caractéristique allumée n'y a pas posé la valeur de la palette");
+  } finally { demonte(node); }
+});
+
+test("🎲 355 — au doigt, un dé se GLISSE tout de suite : porté sans tenue, il se pose", () => {
+  const tableau = standardArrayBatch();
+  tableau.assign = emptyAbilityAssign();
+  const calls = [];
+  const node = monte(renderAbilitiesStep(ctxFrom(fixture.document, fixture.report, { method: "standard", rollBatch: tableau }), (a) => calls.push(a)));
+  try {
+    const de = node.querySelectorAll(".ability-des-gardes[data-podium] .fs")[2].querySelector(".fs-de");
+    globalThis.document.elementFromPoint = () => creneauPour(node, "con");
+    de.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 24, button: 0, pointerType: "touch" });
+    document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 0, pointerId: 24 });
+    document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 0, pointerId: 24 });
+    assert.deepEqual(calls.map((c) => [c.kind, c.key]), [["assignAbilityRoll", "con"]],
+      "⛔ porté tout de suite au doigt, le dé ne s'est pas posé — une attente est revenue sur les dés");
+  } finally { globalThis.document.elementFromPoint = () => null; demonte(node); }
 });
 
 test("🔁 D'UN PODIUM À L'AUTRE — lâcher un dé sur une pastille échange les places, depuis le podium comme depuis un collecteur", async () => {

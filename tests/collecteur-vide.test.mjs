@@ -2,24 +2,20 @@
    ⚖️ Eric, 2026-09-28 : « je ne peux pas vider le collecteur, mettre [le] token dans le vide, ça
    marche pas ». ⭐ Le geste du parchemin de X5, porté aux trois collecteurs d'Equipment (Gear,
    Pack, Wares) : glissé hors de toute cible, l'objet quitte le collecteur. */
-import test, { mock } from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import { createTestDocument } from "./dom-stub.mjs";
 
 globalThis.document = createTestDocument();
-const { MAINTIEN_EQUIPEMENT_MS } = await import("../ui/builder/glisser.mjs");
 const { construireLEcranGear } = await import("../ui/builder/gear-ecran.mjs");
 const { construireLeSac } = await import("../ui/builder/sac-ecran.mjs");
 const { construireLesWares } = await import("../ui/builder/wares-ecran.mjs");
 
-/** Tenu 500 ms (le péage de l'étape), porté loin, lâché sur RIEN (`elementFromPoint` rend null). */
+/** Porté loin — ⚡ lot 355 : tout de suite (il était tenu 500 ms, le péage de l'étape) —, lâché sur RIEN
+ *  (`elementFromPoint` rend null). */
 function lacherDansLeVide(jeton) {
   document.elementFromPoint = () => null;
-  mock.timers.enable({ apis: ["setTimeout"] });
-  try {
-    jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 5, button: 0, pointerType: "mouse" });
-    mock.timers.tick(MAINTIEN_EQUIPEMENT_MS);
-  } finally { mock.timers.reset(); }
+  jeton.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 5, button: 0, pointerType: "mouse" });
   document.dispatchEvent({ type: "pointermove", clientX: 90, clientY: 90, pointerId: 5 });
   document.dispatchEvent({ type: "pointerup", clientX: 90, clientY: 90, pointerId: 5 });
 }
@@ -54,9 +50,7 @@ test("335 · Wares — le collecteur plein, lâché dans le vide, se vide ; ⛔ 
   const n = monter();
   const c = collecteurDe(n);
   document.elementFromPoint = () => ({ closest: (sel) => (sel === "[data-creneau]" ? c : null) });
-  mock.timers.enable({ apis: ["setTimeout"] });
-  try { c.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 6, button: 0, pointerType: "mouse" }); mock.timers.tick(MAINTIEN_EQUIPEMENT_MS); }
-  finally { mock.timers.reset(); }
+  c.dispatchEvent({ type: "pointerdown", clientX: 0, clientY: 0, pointerId: 6, button: 0, pointerType: "mouse" });
   document.dispatchEvent({ type: "pointermove", clientX: 40, clientY: 40, pointerId: 6 });
   document.dispatchEvent({ type: "pointerup", clientX: 40, clientY: 40, pointerId: 6 });
   document.elementFromPoint = () => null;
