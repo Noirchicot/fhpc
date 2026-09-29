@@ -308,7 +308,7 @@ test("5 — un champ qui n'écrit NULLE PART (la monnaie qu'on ajoute, la recher
     "⛔ deux champs du même nom : on ne devine pas lequel était le sien");
 });
 
-test("6 — ⚔️ un relâché MANQUÉ ne gèle pas l'écran ; ⛔ un sélecteur n'arme pas la retenue", () => {
+test("6 — ⚔️ un relâché MANQUÉ ne gèle pas l'écran ; ⛔ ni un sélecteur ni le clic droit n'arment la retenue", () => {
   aucalme();
   let repeints = 0;
   function refresh() { const apres = avantLeRepeint(refresh); if (!apres) return; repeints += 1; apres(); }
@@ -325,6 +325,9 @@ test("6 — ⚔️ un relâché MANQUÉ ne gèle pas l'écran ; ⛔ un sélecteu
   document.dispatchEvent(evenement("pointerdown", option, "mouse"));
   refresh();
   assert.equal(repeints, 2, "⛔ un sélecteur ouvre sa liste hors de la page : son appui ne retient rien");
+  document.dispatchEvent({ ...evenement("pointerdown", document.body, "mouse"), button: 2 });
+  refresh();
+  assert.equal(repeints, 3, "⛔ le clic droit VOIT, et sur Mac sa fiche s'ouvre à l'appui : il ne retient rien");
   aucalme();
 });
 

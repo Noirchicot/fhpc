@@ -52,6 +52,9 @@ function ecouter(doc) {
     /* ⛔ un sélecteur ouvre sa liste hors de la page, qui n'en reçoit pas toujours le relâché */
     const t = e && e.target;
     if (t && typeof t.closest === "function" && t.closest("select")) return;
+    /* ⛔ ni le clic droit : il VOIT (NORMES `geste-armer-puis-poser`), et sur Mac sa fiche s'ouvre à l'appui, pas au
+       relâché — la retenir changerait le geste VOIR. Sa fiche vient du `contextmenu`, qui vise le nœud vivant. */
+    if (e && typeof e.button === "number" && e.button > 0) return;
     pression = true;
   };
   const fin = () => {

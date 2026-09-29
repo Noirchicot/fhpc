@@ -11039,7 +11039,7 @@ champ de texte s'enregistre en perdant le focus (`change`, `blur`) — c'est-à-
     repeint lui-même, avec le texte ; `apres()`, en fin de `refresh()`, rend son texte au champ qui n'écrit nulle part.
     ⛔ Rien n'y est un délai : la fin d'un clic est un événement. ⛔ Un champ se retrouve par son `id` ou son nom
     (`aria-label`), jamais par sa place ; deux homonymes, et on ne rend rien. ⛔ Un appui sur un sélecteur ne retient
-    rien (sa liste s'ouvre hors de la page) ; un pointeur qui bouge sans bouton met fin à un appui dont le relâché
+    rien (sa liste s'ouvre hors de la page), ni le clic droit (il VOIT, et sur Mac sa fiche s'ouvre à l'appui) ; un pointeur qui bouge sans bouton met fin à un appui dont le relâché
     s'est perdu ;
   · `glisser.mjs` — `armerJeton({ cle })` : l'organe retient ce qu'est l'objet ; armé, il guette le repeint
     (`MutationObserver`) et son JUMEAU — le seul nœud vivant armé sous la même clé — reprend le liseré et les
@@ -11064,5 +11064,5 @@ colonne dit COMMENT je le sais : « mesuré » = vu au navigateur par la sonde d
 | Campaign code | — | ⛔ non : place réservée, désactivée (`soon`) | lu |
 
 🛡️ `tests/repeint-ne-casse-rien.test.mjs` (11 gardes : les quatre chaînes rejouées dans l'ordre du navigateur, les
-jumeaux, le câblage). Vues rouges par mutation, 18 mutations, sources restaurées à l'empreinte ; et sur le code v912
+jumeaux, le câblage). Vues rouges par mutation, 19 mutations, sources restaurées à l'empreinte ; et sur le code v912
 (l'organe de `main`, sans retenue), les gardes 1 (le mandat), 2 (l'appui long) et 3 (le bouton) rougissent.
