@@ -49,7 +49,11 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=924";
+import { lireLeFichier } from "./ouvrir.mjs?v=925";
+/* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
+   dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=925";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=925";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
@@ -228,6 +232,12 @@ export function adaptateurAppareil(base) {
       let ecrite = null;
       await base.echanger(RAYON_PERSONNAGES, id, (actuelle) => {
         const tenue = actuelle && typeof actuelle.revision === "string" ? actuelle.revision : null;
+        /* ⚖️ AUCUNE RÉVISION NE NAÎT QUAND SEULE UNE ESTAMPILLE CHANGE (ARCHI 35, 30/09) : la dérivation
+           réécrit `modified` et `resolved.derivation.at` à chaque ouverture ; comparée sur le texte entier,
+           chaque ouverture ferait naître une révision fantôme. On compare CE QUI FAIT LE PERSONNAGE —
+           identique, rien n'est réécrit et la révision tenue est rendue (ni conflit, ni écriture). C'est
+           la règle qu'il faudra aussi pour Dropbox. */
+        if (actuelle && typeof actuelle.texte === "string" && memePersonnage(actuelle.texte, document)) { ecrite = tenue; return undefined; }
         /* ⚖️ § 10 — VÉRIFIER AVANT D'ÉCRIRE : la révision annoncée doit être celle que l'appareil
            tient. ⛔ Sinon RIEN n'est écrit, et on rend celle qu'il tient. (Le § 10 vise le stockage
            choisi, entre deux appareils ; l'appareil la tient AUSSI, entre deux onglets.) */
@@ -286,6 +296,14 @@ export function clefDeLEntree(document, quand, dejaLa) {
 
 function slug(mot) {
   return String(mot).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+/** Deux textes portent-ils le MÊME personnage, estampilles de la dérivation mises à part ?
+ *  ⛔ Un texte illisible n'est le même que rien : on écrit. */
+function memePersonnage(texteTenu, document) {
+  let tenu;
+  try { tenu = JSON.parse(texteTenu); } catch (_) { return false; }
+  try { return canonicalText(ceQuiFaitLePersonnage(tenu)) === canonicalText(ceQuiFaitLePersonnage(document)); } catch (_) { return false; }
 }
 
 /** `null` → `r1`, `r7` → `r8`. ⛔ Une révision illisible ne se « répare » pas en `r1` : elle

@@ -19,35 +19,35 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadDocSchema } from "./engine.mjs?v=924";
-import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=924";
+import { bootEngine, loadDocSchema } from "./engine.mjs?v=925";
+import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=925";
 /* 🪙 LOT 316 — la bourse rend la monnaie, et chaque transaction s'annonce une seconde */
-import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=924";
-import { mountPopup } from "./popup.mjs?v=924";
-import { renderLorePanel } from "./lore.mjs?v=924";
-import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=924";
+import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=925";
+import { mountPopup } from "./popup.mjs?v=925";
+import { renderLorePanel } from "./lore.mjs?v=925";
+import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=925";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT, itemRepondu } from "./parcours.mjs?v=924";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=924";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT, itemRepondu } from "./parcours.mjs?v=925";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=925";
 /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
    REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
    (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
    Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
    rendus. */
-import { nommerLeVide } from "./ecran-vide.mjs?v=924";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=924";
+import { nommerLeVide } from "./ecran-vide.mjs?v=925";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=925";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=924";
+} from "./tutoriel.mjs?v=925";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage, lireBase, ecrireBase, oublierBase } from "./memoire.mjs?v=924";
-import { lireLeFichier } from "./ouvrir.mjs?v=924";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage, lireBase, ecrireBase, oublierBase } from "./memoire.mjs?v=925";
+import { lireLeFichier } from "./ouvrir.mjs?v=925";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -61,14 +61,14 @@ import {
   /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — la sonde se pose ICI, une fois : la
      coquille est l'écrivain du DOM, `echelle.mjs` ne fait que la lire. */
   poserSondeTexte
-} from "./echelle.mjs?v=924";
+} from "./echelle.mjs?v=925";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=924";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=925";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -79,66 +79,66 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=924";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=924";
+} from "./fonds.mjs?v=925";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=924";
-import { renderChoixGlisses } from "./glisser.mjs?v=924";
-import { renderConceptStep } from "./concept-step.mjs?v=924";
+import { planAt, planSlots } from "./carnet.mjs?v=925";
+import { renderChoixGlisses } from "./glisser.mjs?v=925";
+import { renderConceptStep } from "./concept-step.mjs?v=925";
 /* ⚖️ LOT 350 — `creerUnPersonnage` et `popupDuJeu` sont partis avec le popup « SRD or
    Fate's Hand? » : la fenêtre `New character` et sa séquence les remplacent. */
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
-  popupNouveauPersonnage, nouveauPersonnageSelonLaVoie, personnageEnCours, REGLAGES_DE_LA_PREMIERE_VISITE, NOM_DU_PERSONNAGE_NEUF,
+  popupNouveauPersonnage, nouveauPersonnageSelonLaVoie, personnageEnCours, ceQuiFaitLePersonnage, REGLAGES_DE_LA_PREMIERE_VISITE, NOM_DU_PERSONNAGE_NEUF,
   /* LOT 351 — la question du maître, peinte en FENÊTRE par `paintPopup` (voir là-bas). */
-  renderConfirmationPile } from "./universe-step.mjs?v=924";
+  renderConfirmationPile } from "./universe-step.mjs?v=925";
 /* LOT 188 — les gestes PURS de `Layers` : ranger la pile montée sur le document,
    écrire son manifeste ; la coquille ne fait que monter ce que les fonctions rendent.
    🔄 LOT 351 — `couchesApresLeGeste` (le geste d'un enfant) est parti avec les six
    interrupteurs ; entre la question qui précède l'effacement d'un livre. */
-import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=924";
+import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=925";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=924";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=925";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent, motHumainDeLId } from "./mot-du-choix.mjs?v=924";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=924";
+import { motDuChoix, motDUnRecordAbsent, motHumainDeLId } from "./mot-du-choix.mjs?v=925";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=925";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=924";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=924";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=924";
+} from "./catalogue.mjs?v=925";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=925";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=925";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=924";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=925";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=924";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=925";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
   featSousLabel, featInfo,
   /* 🧬 LOT 364 — le B emboîté du don vaut pour toute racine de don (Versatile) */
-  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=924";
+  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=925";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=924";
+} from "./abilities-step.mjs?v=925";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=924";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=925";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=924";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=924";
+} from "./destiny-step.mjs?v=925";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=925";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
@@ -146,29 +146,29 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
          pageActiveDeLEquipement, pageVoisineDeLEquipement, choisirLeSatellite,
          rangerParSend, placeLibreDans, materialiserLesDepots, disposerLeSac, MOT_SECTION_PLEINE,
-         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=924";
+         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=925";
 /* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
    pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
-import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=924";
+import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=925";
 /* 🗄️ LOT 356 — `CASES_DU_SAC` N'EST PLUS IMPORTÉ ICI : il bornait la place neuve d'un objet
    (`placeNeuveDans`), et c'est désormais le sac tel qu'on le voit qui la dit (`placeLibreDans`,
    `rangerParSend`, `equipment-step.mjs`). La taille de la grille vient toujours du plan. */
-import { poserLesDalles } from "./sac-ecran.mjs?v=924";
+import { poserLesDalles } from "./sac-ecran.mjs?v=925";
 /* ⭐ MÊME LOI POUR LES ROUES DE WARES : un ruban posé sur un nœud détaché ne bouge pas. */
-import { poserLesRoues } from "./wares-ecran.mjs?v=924";
+import { poserLesRoues } from "./wares-ecran.mjs?v=925";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
-import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=924";
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=925";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=924";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=924";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=925";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=925";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=924";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=925";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -187,11 +187,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=924";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=924";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=925";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=924";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=925";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -200,14 +200,14 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=924";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=924";
+import { platformNow } from "../../src/doc/clock.mjs?v=925";
 /* 🎲 LOT 367 — l'identifiant d'un personnage neuf, tiré de `getRandomValues` (voir `personnageNeuf`). */
-import { uuidDuNavigateur } from "./identifiant.mjs?v=924";
+import { uuidDuNavigateur } from "./identifiant.mjs?v=925";
 /* ⚖️ LOT 367 — le recalage : un perso sauvé avant une mise à jour des règles s'ouvre sur les
    couches d'aujourd'hui, sauvé aussitôt, et le Menu le dit (voir `recalerSurLaPileMontee`). */
-import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=924";
-import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=924";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=924";
+import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=925";
+import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=925";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=925";
 /* ══ 🗄️ LOT 374 — L'ORGANE DU STOCKAGE (refait sur le magasin du lot 195) ═══════════════
    ⚖️ Eric, 28/09 : *« une gestion à l'intérieur […] un sauvegarde à la fin du process de
    création. puis le cache est totalement vidé »* ; § 10 : la sauvegarde automatique, et l'app
@@ -216,21 +216,21 @@ import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=924";
    UN seul écrivain de la copie de l'app : `envoyerALApp`. Aucun écran ne touche l'organe. */
 import { creerStockage, adaptateurAppareil, adaptateurFichier, adaptateurDossier, baseIndexedDb,
   reprendreLesAnciennesSauvegardes, aLaReouverture, sauverDansLesDeux, effacerSelonLeStockage,
-  dossierPossible, dossierRetenu, choisirUnDossier } from "./magasin.mjs?v=924";
-import { popupEffacerUnPersonnage, popupDeLaReouverture } from "./mes-personnages.mjs?v=924";
+  dossierPossible, dossierRetenu, choisirUnDossier } from "./magasin.mjs?v=925";
+import { popupEffacerUnPersonnage, popupDeLaReouverture } from "./mes-personnages.mjs?v=925";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=924";
+import { versionQuery } from "./version.mjs?v=925";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=924";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=925";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=924";
+import { armerEngrenage } from "./engrenage.mjs?v=925";
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -896,9 +896,13 @@ async function lieuChoisi(base) {
    moteur pose. Elle attend donc les deux. ⛔ Pas un minuteur : une promesse que le moteur tient. */
 let signalerMoteurPret = () => {};
 const moteurPret = new Promise((resoudre) => { signalerMoteurPret = resoudre; });
-/* Le texte de la copie de travail TEL QU'IL ÉTAIT GARDÉ, lu au démarrage AVANT que le recalage (367)
-   ou le sac (356) ne le retouchent : c'est lui qui dit si un envoi avait raté. */
+/* Le REPÈRE de la copie de travail TEL QU'ELLE ÉTAIT GARDÉE, lu au démarrage AVANT que le recalage (367)
+   ou le sac (356) ne la retouchent : c'est lui qui dit si un envoi avait raté. */
 let travailAuDemarrage = null;
+/** ⚖️ LE REPÈRE D'UN PERSONNAGE — ce qui le fait (`ceQuiFaitLePersonnage`, lot 350 : sans `modified` ni
+ *  `resolved`), aux octets du moteur. ⛔ Comparer le texte entier ferait de chaque ouverture un « envoi
+ *  raté » : la dérivation estampille l'heure de son calcul (ARCHI 35, 30/09). */
+function repereDuPersonnage(document) { return canonicalText(ceQuiFaitLePersonnage(document)); }
 
 /** MONTER — au démarrage. ⚠️ UNE PANNE DU STOCKAGE NE TUE PAS LE BUILDER : elle se dit dans My
  *  characters (`personnagesListe`) et, pour la copie du perso courant, au Menu (`envoi`). */
@@ -934,7 +938,7 @@ async function reouvrirLaCopieDeTravail() {
   const id = state.document.id;
   const lu = await state.stockage.appareil.lire(id);
   if (lu.etat === "refus") { state.envoi = { etat: "refus", raison: lu.raison }; refresh(); return; }
-  const app = lu.etat === "lu" ? { texte: canonicalText(lu.document), revision: lu.revision } : null;
+  const app = lu.etat === "lu" ? { texte: repereDuPersonnage(lu.document), revision: lu.revision } : null;
   const base = lireBase();
   const decision = aLaReouverture({ travail: travailAuDemarrage === null ? null : { id, texte: travailAuDemarrage }, base, app });
   if (decision.geste === "rien" && app === null) return;               // pas de copie de travail gardée
@@ -954,7 +958,7 @@ async function reouvrirLaCopieDeTravail() {
      raté. Sans base (la reprise des sauvegardes datées, au premier démarrage du lot 374), ou pour un
      simple écart dû au recalage ou au sac (le démarrage a retouché le document, et c'est voulu :
      « sauvé aussitôt », 367), l'envoi part en silence — ce n'était pas un envoi raté. */
-  const aEnvoyer = canonicalText(state.document) !== (app ? app.texte : null);
+  const aEnvoyer = repereDuPersonnage(state.document) !== (app ? app.texte : null);
   if (aEnvoyer) {
     const issue = await envoyerALApp();
     const unEnvoiAvaitRate = decision.geste === "renvoyer" && base !== null && base.id === id;
@@ -6981,7 +6985,7 @@ refresh();
     if (garde.etat === "refus") state.memoireIgnoree = garde.raison;
     /* ⚖️ LOT 374 — le texte GARDÉ, avant que le démarrage ne le retouche : la réouverture le
        compare à la copie de l'app (`reouvrirLaCopieDeTravail`). */
-    if (garde.etat === "lu") travailAuDemarrage = canonicalText(garde.document);
+    if (garde.etat === "lu") travailAuDemarrage = repereDuPersonnage(garde.document);
     state.document = garde.etat === "lu" ? garde.document : personnageNeuf(null);
     /* 🎒 LOT 356 — SAUF LE TROP-PLEIN DU SAC, QUI S'ÉCRIT (`leSacNormalise`) : Eric, 29/09, *« quand il y a un trop
        plein, il doit créer des nouveaux "containers" »*. ⭐ Rien ne change pour un document qui ne déborde pas —

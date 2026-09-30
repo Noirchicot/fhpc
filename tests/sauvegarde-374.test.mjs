@@ -200,14 +200,15 @@ test("S1 — 💾 SAUVER : la copie de l'app d'abord, le lieu choisi ensuite —
   assert.deepEqual(ok, { ok: true, revision: "r1" });
   assert.equal(partis.length, 1, "le fichier est parti");
   assert.equal((await app.lire(doc.id)).revision, "r1", "et le perso est ENTRÉ dans My characters");
-  /* ⚔️ l'app refuse (un autre onglet a écrit) → aucun fichier ne part */
-  const refus = await sauverDansLesDeux({ appareil: app, choisi, texte: texte(doc), revisionApp: null });
+  /* ⚔️ l'app refuse (un autre onglet a écrit) → aucun fichier ne part. (Un perso qui a CHANGÉ : le même,
+     à l'estampille près, n'est pas un conflit — E1.) */
+  const refus = await sauverDansLesDeux({ appareil: app, choisi, texte: texte({ ...doc, name: "Kara changée" }), revisionApp: null });
   assert.deepEqual(refus, { ok: false, ou: "app", conflit: true, revision: "r1", raison: undefined });
   assert.equal(partis.length, 1, "⛔ un fichier d'un côté et une liste qui ne le connaît pas de l'autre");
   /* le lieu choisi refuse → l'app EST rangée, et sa révision revient */
   const loinRefuse = creerStockage({ capacites: { liste: false, ecrase: false, efface: false, sansGeste: false, possede: true, lieu: "y" },
     ecrire: async () => { throw new Error("download blocked"); } });
-  const moitie = await sauverDansLesDeux({ appareil: app, choisi: loinRefuse, texte: texte(doc), revisionApp: "r1" });
+  const moitie = await sauverDansLesDeux({ appareil: app, choisi: loinRefuse, texte: texte({ ...doc, name: "Kara changée" }), revisionApp: "r1" });
   assert.deepEqual(moitie, { ok: false, ou: "choisi", revision: "r2", raison: "download blocked" });
 });
 
@@ -251,7 +252,7 @@ test("S3 — ⚔️ LES DEUX SÉQUENCES D'AVANT (192, 350) RANGENT PAR L'ORGANE,
   assert.equal(await sauvegarderPuisEteindre({ sauvegarder: () => sauvegarder(perso()), eteindre: () => { eteint = true; } }), true);
   assert.equal(eteint, true);
   let nes = 0;
-  assert.equal(await nouveauPersonnageSelonLaVoie({ voie: "save", sauvegarder: () => sauvegarder(perso({ name: "Kara" })),
+  assert.equal(await nouveauPersonnageSelonLaVoie({ voie: "save", sauvegarder: () => sauvegarder(perso({ nom: "Kara, plus loin" })),
     oublier: () => {}, naitre: () => { nes += 1; } }), true);
   assert.equal(nes, 1);
   assert.equal(partis.length, 2, "deux gestes, deux fichiers");
@@ -259,7 +260,7 @@ test("S3 — ⚔️ LES DEUX SÉQUENCES D'AVANT (192, 350) RANGENT PAR L'ORGANE,
   /* ⚔️ un refus de l'app : ni oubli, ni naissance (la règle du 192) */
   let touche = 0;
   assert.equal(await nouveauPersonnageSelonLaVoie({ voie: "save",
-    sauvegarder: async () => (await sauverDansLesDeux({ appareil: app, choisi, texte: texte(perso()), revisionApp: "r1" })).ok,
+    sauvegarder: async () => (await sauverDansLesDeux({ appareil: app, choisi, texte: texte(perso({ nom: "Kara d'un autre onglet" })), revisionApp: "r1" })).ok,
     oublier: () => { touche += 1; }, naitre: () => { touche += 1; } }), false);
   assert.equal(touche, 0);
 });
@@ -701,4 +702,36 @@ test("D5 — 🔌 LA COQUILLE : le lieu choisi est le dossier RETENU, sinon le f
   const geste = shell.slice(shell.indexOf('action.kind === "choisirLeLieu"'), shell.indexOf('action.kind === "trancherLaReouverture"'));
   assert.match(geste, /if \(issue\.etat === "choisi"\) state\.stockage\.choisi = await lieuChoisi\(state\.stockage\.base\);/,
     "⛔ remonté par l'organe, jamais rapiécé");
+});
+
+/* ══ E — AUCUNE RÉVISION NE NAÎT D'UNE ESTAMPILLE (ARCHI 35, 30/09 — sinon chaque ouverture ferait
+   une version fantôme) ══════════════════════════════════════════════════════════════════════ */
+
+test("E1 — ⚖️ L'APPAREIL COMPARE CE QUI FAIT LE PERSONNAGE : une estampille seule ne fait naître AUCUNE révision", async () => {
+  const base = baseDeFixture();
+  const ad = adaptateurAppareil(base);
+  const s = creerStockage(ad);
+  const doc = { ...perso({ id: "k" }), resolved: { derivation: { at: "2026-09-30T05:00:00.000Z" } } };
+  assert.equal((await s.ecrire(texte(doc), { revision: null })).revision, "r1");
+  /* la réouverture : la dérivation a réestampillé `modified` et `resolved.derivation.at` — rien d'autre */
+  const reestampille = { ...doc, modified: "2026-09-30T08:00:00Z", resolved: { derivation: { at: "2026-09-30T08:00:00.000Z" } } };
+  assert.deepEqual(await s.ecrire(texte(reestampille), { revision: "r1" }), { ok: true, revision: "r1" }, "⛔ pas de r2 fantôme");
+  assert.equal(base.rayons.get("personnages").get("k").texte, texte(doc), "et rien n'est réécrit");
+  /* ⭐ même sur une révision PÉRIMÉE : le même personnage n'est pas un conflit */
+  assert.deepEqual(await s.ecrire(texte(reestampille), { revision: null }), { ok: true, revision: "r1" });
+  /* un vrai changement, lui, fait naître sa révision */
+  assert.equal((await s.ecrire(texte({ ...reestampille, name: "Kara II" }), { revision: "r1" })).revision, "r2");
+  /* ⚖️ et un Save EXPLICITE garde sa version datée même sans changement (10/09 : « à chaque Save ») */
+  await s.ecrire(texte({ ...reestampille, name: "Kara II" }), { revision: "r2", garder: "2026-09-30T09:00:00Z" });
+  assert.equal((await s.lire("k")).revision, "r2");
+  assert.deepEqual((await ad.versions("k")).map((v) => v.date), ["2026-09-30T09:00:00Z"]);
+});
+
+test("E2 — 🔌 LA COQUILLE COMPARE SUR LE MÊME REPÈRE à la réouverture — sinon chaque ouverture serait un « envoi raté » dit à tort", () => {
+  assert.match(shell, /function repereDuPersonnage\(document\) \{ return canonicalText\(ceQuiFaitLePersonnage\(document\)\); \}/);
+  assert.match(shell, /if \(garde\.etat === "lu"\) travailAuDemarrage = repereDuPersonnage\(garde\.document\);/);
+  const reouvrir = shell.match(/async function reouvrirLaCopieDeTravail\(\) \{[\s\S]*?\n\}/)[0];
+  assert.match(reouvrir, /texte: repereDuPersonnage\(lu\.document\)/);
+  assert.match(reouvrir, /const aEnvoyer = repereDuPersonnage\(state\.document\) !== \(app \? app\.texte : null\);/);
+  assert.equal(/canonicalText\(lu\.document\)|canonicalText\(state\.document\) !==/.test(reouvrir), false, "⛔ plus aucune comparaison du texte entier");
 });

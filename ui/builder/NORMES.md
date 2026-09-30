@@ -10956,7 +10956,7 @@ this character for good? »*.
 
 ### 🗄️ LE STOCKAGE — UN ORGANE, DES LIEUX (lot 374)
 📍 `socle-le-stockage-un-organe-des-lieux` · vivante · 30/09
-⚖️ **Un seul organe du stockage parle quatre verbes — lister · lire · écrire · effacer —, et l'écriture EXIGE la révision qu'elle croit remplacer. Chaque lieu est un adaptateur qui dit ce qu'il sait faire par ses CAPACITÉS (lister, remplacer, effacer, écrire sans un geste, donner la propriété), jamais par son nom ; un lieu qui remplace refuse une révision périmée, et rien n'est écrasé. Ce qui s'écrit est le document `fh-char/1` lui-même, aux octets du moteur.**
+⚖️ **Un seul organe du stockage parle quatre verbes — lister · lire · écrire · effacer —, et l'écriture EXIGE la révision qu'elle croit remplacer. Chaque lieu est un adaptateur qui dit ce qu'il sait faire par ses CAPACITÉS (lister, remplacer, effacer, écrire sans un geste, donner la propriété), jamais par son nom ; un lieu qui remplace refuse une révision périmée, et rien n'est écrasé. Une révision ne naît que si ce qui fait le personnage change (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`) — jamais d'une estampille. Ce qui s'écrit est le document `fh-char/1` lui-même, aux octets du moteur.**
 
 > Eric, 30/09 : **« la sauvegarde c'est la suite »**, **« il faut que tout puisse être lisible par la nouvelle
 > fiche »**, et, à *« Dropbox exige d'enregistrer l'application : quand ? »* → **« Plus tard »**. La carte
@@ -10973,10 +10973,16 @@ par une séquence pure (`sauverDansLesDeux`) : la copie de l'app d'abord, le lie
 refus de l'app n'envoie aucun fichier. `memoire.mjs` reste la COPIE DE TRAVAIL
 (`socle-chacun-est-proprietaire-de-ses-donnees` : le navigateur est un cache de reprise, le fichier
 appartient au joueur).
+⚖️ **AUCUNE RÉVISION NE NAÎT D'UNE ESTAMPILLE** (ARCHI 35, 30/09) : la dérivation réécrit `modified` et
+`resolved.derivation.at` à chaque ouverture ; comparée sur le texte entier, chaque ouverture ajoutait une
+révision fantôme (📏 mesuré au banc : Ilyra montait d'un cran à chaque rechargement). L'appareil compare
+donc ce qui fait le personnage — l'organe du lot 350 — et la réouverture compare le même repère. Un même
+personnage n'est pas un conflit. ⭐ Un Save explicite garde tout de même sa version datée (10/09 : *« à
+chaque Save »*). C'est la règle qu'il faudra pour Dropbox.
 📏 **L'ALLER-RETOUR EST GARDÉ SUR UN VRAI PERSONNAGE** (l'Ilyra de v914, recalée et dérivée) : écrit dans
 les deux lieux, relu, octets identiques, validé par le schéma, redérivé par le moteur sans perte — la
 seule différence admise est nommée : l'heure du calcul (`resolved.derivation.at`).
-🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, A1, C1).
+🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, E1, E2, A1, C1).
 
 ### 🔁 LA SAUVEGARDE AUTOMATIQUE ET LA RÉOUVERTURE (lot 374)
 📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09
