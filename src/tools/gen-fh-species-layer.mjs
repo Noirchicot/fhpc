@@ -471,6 +471,30 @@ function patchEntry(srd, entry) {
     }
   }
 
+  /* 🧮 LOT 385 — LES USAGES QUE CE TEXTE COMPTE (ARCHI 35) : ils REMPLACENT ceux du dessous
+     (`srfh-mecaniques-en`), comme `lineage_effects`. Chaque extrait — le compte, l'action, l'attente
+     de Q3, et la phrase du compte d'une réserve de lignée (`count_extrait`) — est relu ICI dans le
+     texte FH que cette couche produit : une phrase absente fait JETER, en nommant le trait. */
+  const texteFH = (traitId) => (typeof changes[`data.traits[${traitId}].text`] === "string"
+    ? changes[`data.traits[${traitId}].text`] : liftTrait(srd, targetSlug(entry), traitId).text);
+  const relire = (traitId, extrait, quoi) => {
+    if (typeof extrait === "string" && !texteFH(traitId).includes(extrait)) {
+      fail(`« ${entry.fhName} » : ${quoi} de « ${traitId} » cite « ${extrait} », que le texte FH de ce trait ne porte pas.`);
+    }
+  };
+  if (entry.traitUses) {
+    for (const u of entry.traitUses) {
+      assertTargetTrait(srd, entry.target, u.trait, `usages de « ${entry.fhName} »`);
+      relire(u.trait, u.extrait, "le compte");
+      relire(u.trait, u.action && u.action.extrait, "l'action");
+      relire(u.trait, u.awaits && u.awaits.extrait, "l'attente");
+    }
+    changes["data[trait_uses]"] = structuredClone(entry.traitUses);
+  }
+  for (const effets of Object.values(changes["data[lineage_effects]"] || {})) {
+    if (effets.uses && effets.uses.count_trait) relire(effets.uses.count_trait, effets.uses.count_extrait, "la réserve");
+  }
+
   changes["data.destiny"] = destinyOf(entry);
   if (entry.skillPoints) changes["data[skill_points]"] = structuredClone(entry.skillPoints);
   if (entry.fhTraits) changes["data[fh_traits]"] = structuredClone(entry.fhTraits);

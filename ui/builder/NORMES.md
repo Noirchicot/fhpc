@@ -10026,6 +10026,21 @@ fichier serait vert pour rien)*.
 ⭐ **ET UN CRÉNEAU EST UN ENFANT DIRECT** (`planSlots`, carnet.mjs) : `base[n]`, rien dessous. Mesuré au banc : Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait les plans publiés SOUS la réponse. Le don d'origine portait le même défaut depuis ses branches.
 📏 **CE QUE ÇA CHANGE AILLEURS** : le don d'origine (Skilled, Magic Initiate, Auspicious…) sortait `unconsumed` en SRD ; il est désormais un trait. Les maîtrises que Skilled fait choisir sont appliquées (la compétence maîtrisée, l'outil possédé). La raison `no-trait-field-for-class-feat-background` est resserrée : les aptitudes de CLASSE en général restent non dérivées.
 
+📍 `species-un-trait-attend-son-niveau` · vivante · 30/09
+⚖️ **Un trait d'espèce donné à un niveau de personnage supérieur n'est pas encore acquis : la pile DÉCLARE son niveau (`trait_levels` : le trait, le niveau, l'extrait), et avant ce niveau le trait ne pose rien — ni ligne de trait sur la fiche, ni usage. ⛔ Jamais lu dans le nom du trait, jamais dans sa prose.**
+
+> ARCHI 35, 30/09 (lot 385, point 7 du 384) : *« un trait d'espèce ne s'affiche pas avant son niveau (le Draconic Flight), par la
+> donnée »* · *« Cherche ses voisins de même forme dans toutes les espèces. »*
+
+📏 **MESURÉ** : la fiche d'un Paladin Dragonborn de niveau 1 listait Draconic Flight (*« When you reach character level 5 »*).
+📏 **LES VOISINS, CHERCHÉS DANS TOUTES LES COUCHES** (« Starting at / When you reach / Once you reach character level N ») :
+Large Form du Goliath (*« Starting at character level 5 »*). Les autres occurrences ne DATENT pas un trait : un dégât qui monte
+(Breath Weapon), un palier de lignée (Elven Lineage, Fiendish Legacy — le bénéfice de niveau 1 est donné au niveau 1), une
+échelle écrite de FH. ⏳ L'étape Species montre encore les traits de l'espèce entière, niveau 5 compris : c'est la carte de
+l'espèce, pas la fiche du personnage — non tranché, porté au rapport du lot 385.
+📌 **CE QUI LA TIENT** : `tests/actions-385.test.mjs` (4 : absent aux niveaux 1 et 4, présent au 5, dans les deux piles ; 6 :
+une couche de scénario qui date le trait au niveau 1, ou ne le date pas, le rend au niveau 1).
+
 📍 `species-une-lignee-a-ses-effets` · vivante · 30/09
 ⚖️ **Une lignée applique ses effets par la DONNÉE de sa déclaration, jamais par un nom : `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin de patch par le mot), ce que son texte de niveau 1 donne — `cantrips`, `spells`, `darkvision`, `speed`, `granted_skill_budget`, chacun avec son extrait exact —, `lineage_trait` nomme le trait que la lignée réalise, `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme, `species_cantrips` le sort qu'un trait de l'espèce lance avec la même caractéristique ; `derive` les applique. Le trait de lignée devient SPÉCIFIQUE (« Elven Lineage: Drow », le bénéfice de niveau 1 pour texte) ; un effet sans chiffre — une résistance, un souffle, le don d'un Goliath — se lit dans ce trait.**
 
@@ -10194,8 +10209,8 @@ ne lisait pas.
 ⭐ **UNE COLONNE N'EST PAS UN COMPTEUR PAR ELLE-MÊME** : `cantrips`, `rage_damage`, `martial_arts` (« 1d6 ») sont des colonnes
 aussi. C'est la déclaration qui dit laquelle compte des usages, et comment elle revient.
 
-📍 `sheet-un-usage-se-lit-dans-sa-declaration` · vivante · 30/09 · prolonge `sheet-un-compteur-se-lit-dans-sa-colonne-declaree`
-⚖️ **Un usage écrit en prose au SRD se calcule depuis UNE forme de déclaration, lue là où vit son texte — la progression (`resource_uses`), l'espèce (`trait_uses`, par id de trait), l'option de lignée (`lineage_effects[<id>].uses`), le don (`sheet_uses`, `spell_uses`) : le compte (une colonne, ou une formule `fixed` · `proficiency` · `ability` + `minimum` · `per_class_level`), la recharge, le dé (`die_column`), l'action à économie standard qu'il nourrit, chacun avec son extrait. Un trait que la pile a retiré ne pose rien. Ce qui se joue hors des trois cases d'économie se DÉCLARE `awaits` Q3, sans ressource ni action. ⛔ Jamais un nom de classe, d'espèce, de lignée ou de don testé.**
+📍 `sheet-un-usage-se-lit-dans-sa-declaration` · vivante · 30/09 · prolonge `sheet-un-compteur-se-lit-dans-sa-colonne-declaree` · **amendée 30/09 (lot 385) — ce qui attend Q3 pose sa ressource ; une ressource porte ce qu'elle compte ; l'échelle écrite de FH**
+⚖️ **Un usage écrit en prose au SRD se calcule depuis UNE forme de déclaration, lue là où vit son texte — la progression (`resource_uses`), l'espèce (`trait_uses`, par id de trait), l'option de lignée (`lineage_effects[<id>].uses`), le don (`sheet_uses`, `spell_uses`) : le compte (une colonne, ou une formule `fixed` · `proficiency` · `ability` + `minimum` · `per_class_level` · `base` + `plus_one_at_levels`), la recharge, le dé (`die_column`), l'action à économie standard qu'il nourrit, chacun avec son extrait. Une ressource qui compte un record (`counts`) en porte l'id, le nom et le plafond (`sheet_counter`) : deux sources du même record font UN compteur. Un trait que la pile a retiré, ou pas encore donné, ne pose rien. Ce qui se joue hors des trois cases d'économie DÉCLARE son action `awaits` Q3, et pose sa ressource quand son compte de repos est déclaré. ⛔ Jamais un nom de classe, d'espèce, de lignée ou de don testé.**
 
 > ARCHI 35, 30/09, mandat du lot 384 : *« Les sources à économie standard (action, action bonus, réaction), chacune par un
 > extrait typé déclaré dans `srfh-mecaniques-en`, jamais par une liste de noms »* · *« Ce qui attend la question Q3 […] se
@@ -10216,13 +10231,47 @@ ou une épée longue en main, garde l'Unarmed Strike de base, et le manque se di
 📏 **UNE GARDE M'A CORRIGÉ EN CHEMIN** : la phrase de compte du Goliath (*« the chosen benefit »*) vit dans le TRAIT commun,
 pas dans l'option — L1 du lot 373 l'a vu. Elle se déclare à part (`count_trait`, `count_extrait`), sans le mot « chosen »,
 qui aurait ouvert une occurrence de choix non déclarée (garde du lot 360).
-⏳ **CE QUI RESTE HORS DU LOT** : le dé de Martial Arts sur les ARMES de moine (*« or Monk weapons »*) ; les Arcanes et le
+⏳ **CE QUI RESTE HORS DU LOT** : ~~le dé de Martial Arts sur les ARMES de moine~~ (fait au lot 385) ; les Arcanes et le
 Destin de Fate's Hand (deux réponses d'Eric) ; les usages des objets (Q8).
+
+🔄 **AMENDÉE AU LOT 385 — les décisions d'ARCHI 35 sur les points ouverts du 384 (30/09)** : *« 3 → oui, la ressource seule
+(le souffle, une seule réserve pour Giant Ancestry, Relentless Endurance, Arcane Recovery ; leurs actions attendent Q3) »* ·
+*« 4 → le compteur s'appelle ce qu'on compte, l'Heroic Inspiration »* — « D'autres sources en donneront demain (le MJ) : il n'y
+aura qu'un seul compteur » · *« 1 → le dé de Martial Arts sur les armes de moine »*. Savage Attacker (*« once per turn »*) n'est
+pas un compte de repos : il ne pose rien. ⭐ **CE QU'ON COMPTE**, pas sa source : Resourceful déclare `counts` (le glossaire
+Heroic Inspiration), et le plafond vit sur ce record (`sheet_counter` : *« If you gain Heroic Inspiration but already have
+it, it’s lost… »*) ; sans plafond lisible, pas de chiffre : `underived.usage-counter-missing`. ⭐ **UNE RÉSERVE DE GÉANT** :
+elle porte l'id du trait qui déclare le compte (`count_trait` : `giant-ancestry`), et le nom du bienfait choisi.
+⭐ **L'ÉCHELLE ÉCRITE DE FATE'S HAND** (`base` + `plus_one_at_levels`) : *« twice — plus one more use at character levels 5,
+9, 13, and 17 »* — ⛔ « Proficiency Bonus » n'existe pas en FH (`PROF_USES`, 27/08). La couche FH déclare SON compte, avec SA
+phrase, dans la source de son générateur (`fh-species-source.mjs`) — voir `socle-un-extrait-se-cite-dans-sa-pile`.
+⭐ **MARTIAL ARTS SUR LES ARMES DE MOINE** (`weapon_attacks`) : la Dextérité quand elle vaut mieux, et le dé de la colonne quand
+il vaut mieux que celui de l'arme (*« in place of the normal damage »*) — un bâton tenu à deux mains garde son 1d8 tant que la
+colonne dit 1d6 ; l'attaque Light en plus prend le même dé. Sous la même condition que l'Unarmed Strike.
 
 📌 **CE QUI LA TIENT** : `tests/actions-384.test.mjs` (chaque source contre son extrait ; les formules qui suivent le
 personnage — Charisma, maîtrise, niveau ; Martial Arts et sa condition ; les sept sources Q3 ; l'Humain FH sans Resourceful,
 par la couche ; une couche de scénario qui retire ou change une déclaration ; chaque extrait à la lettre ; la fiche) —
-dix-huit mutations vues rouges.
+dix-huit mutations vues rouges. Et `tests/actions-385.test.mjs` (les réserves de Q3, chiffrées dans les deux piles ; une
+réserve de géant ; un compteur d'Heroic Inspiration ; Martial Arts sur le bâton ; la pile FH qui compte par SA formule).
+
+📍 `socle-un-extrait-se-cite-dans-sa-pile` · vivante · 30/09
+⚖️ **Une déclaration cite un extrait du texte de SON record, dans CHAQUE pile où elle est lue : une couche qui réécrit ce texte déclare aussi ce qu'il compte, avec SA phrase, dans la source de son générateur — par-dessus la déclaration du dessous. Une garde relit chaque extrait dans le pli de chaque pile ; une déclaration dont le trait est retiré dort, et se nomme.**
+
+> ARCHI 35, 30/09 (lot 385, question fermée, réponse b) : *« FH déclare son propre compte, avec sa phrase pour extrait […]
+> par-dessus la déclaration SRD »* · *« La déclaration FH vit là où vivent les déclarations FH : dans les sources des
+> générateurs FH, jamais à la main dans la pile »* · et pourquoi pas une garde d'égalité des chiffres : *« Une garde qui prouve
+> l'égalité des chiffres ne répare pas la citation. Elle rend l'écart cohérent, et le jour où Eric retouchera sa phrase, le
+> moteur ne le verra pas. »*
+
+📏 **L'INCIDENT, ET IL EST À MOI (lot 384)** : les usages de `srfh-mecaniques-en` — montée dans les DEUX piles — citaient
+*« a number of times equal to your Proficiency Bonus »*. `fh-species-en` réécrit cette phrase chez le Dwarf, l'Orc, le Goliath
+et le Dragonborn (`PROF_USES`). Les chiffres étaient justes (l'échelle reproduit le SRD à tous les niveaux) ; la CITATION ne
+l'était pas, et mes gardes relisaient la couche SRD seule — ⛔ un témoin qui ne lit qu'une pile ne peut pas accuser l'autre.
+Et la même relecture a trouvé un TROU : la table `lineage_effects` du Hoddon REMPLACE celle du dessous, et son Forest Folk
+n'avait aucun compteur de Speak with Animals.
+⭐ **DEUX LECTEURS** : le générateur relit chaque extrait dans le texte FH qu'il produit, et JETTE sinon (discipline n°3) ;
+`tests/extraits-par-pile-385.test.mjs` relit toutes les déclarations d'usage, pile par pile, sur le pli.
 
 📍 `socle-un-seul-endroit-qui-compte-par-genre` · vivante · 30/09
 ⚖️ **Un seul endroit qui compte, PAR GENRE : les emplacements de sorts dans `spellcasting.slots` (et `slotsRecharge`), tout le reste dans `resources`. Tant qu'Eric n'a pas dit où vit l'état de jeu, `current` vaut `max` à chaque dérivation, et aucun écrivain ne le décrémente.**

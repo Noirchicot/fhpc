@@ -153,6 +153,26 @@ const PROF_USES = {
   why: "PROF n'existe pas en FH ; l'échelle écrite reproduit les valeurs 5e exactes (conversion 27/08, candidat A)"
 };
 
+/* ══ 🧮 LOT 385 — LE COMPTE QUE L'ÉCHELLE ÉCRITE DONNE (ARCHI 35, 30/09) ══════════════════════
+   `derive` compte les usages d'un trait depuis une DÉCLARATION (`data[trait_uses]`, lot 384). Sous
+   `srfh-mecaniques-en`, elle cite la phrase SRD (« a number of times equal to your Proficiency
+   Bonus ») — une phrase que la pile FH ne porte plus, puisque `PROF_USES` la réécrit. ARCHI 35 :
+   *« FH déclare son propre compte, avec sa phrase pour extrait, par-dessus la déclaration SRD »*,
+   ici, dans la source du générateur — jamais à la main dans la pile.
+   ⭐ LA FORMULE EST L'ÉCHELLE, PAS LE BONUS DE MAÎTRISE : 2, puis +1 aux niveaux de personnage 5, 9,
+   13 et 17 (`base` + `plus_one_at_levels`). Les chiffres sont ceux du SRD à tous les niveaux — c'est
+   la conversion du 27/08 —, mais la couche dit ce que SON texte dit.
+   ⛔ Chaque extrait est relu par le générateur dans le texte FH qu'il produit : une phrase qui n'y est
+   pas fait JETER (discipline n°3). La garde `tests/extraits-par-pile-385.test.mjs` relit toutes les
+   déclarations, pile par pile. */
+const ECHELLE_FH = { base: 2, plus_one_at_levels: [5, 9, 13, 17] };
+const ECHELLE_FH_PHRASE = PROF_USES.put.replace(/ — and you regain$/, "");
+const Q3_SOUFFLE = { question: "Q3", why: "replaces-an-attack",
+  extrait: "When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy" };
+const Q3_AU_TOUCHER = (extrait) => ({ question: "Q3", why: "on-hit", extrait });
+const RESERVE_DE_GEANT = { max: ECHELLE_FH, recharge: "long", count_trait: "giant-ancestry",
+  count_extrait: `${ECHELLE_FH_PHRASE} — and you regain all expended uses when you finish a Long Rest` };
+
 
 /* ── LES POINTS DE COMPÉTENCE — LA VERSION VRAIE ─────────────────────
    ⚠️ Les chapitres 2 et 4 se CONTREDISAIENT. Eric a tranché le 2026-08-08 :
@@ -528,15 +548,24 @@ export const LINEAGE_INTROS = {
    Chaque champ porte son `extrait`, un morceau EXACT du texte de niveau 1 de l'option
    (`LINEAGES`, ci-dessous) — `tests/lignees-373.test.mjs` le relit : `cantrips` / `spells`
    (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `granted_skill_budget`.
-   Le Dragonborn et le Goliath n'en portent aucun : le type de dégâts (`damage`) est déjà la
-   donnée que lisent ses traits, et un don de Goliath n'a pas de chiffre de fiche — il se lit
-   dans le trait de lignée, avec son texte.
+   Le Dragonborn n'en porte aucun : le type de dégâts (`damage`) est déjà la donnée que lisent ses
+   traits. Le Goliath en porte depuis le lot 385 : la réserve de son bienfait (`uses`), à l'échelle
+   écrite ; l'effet sans chiffre se lit toujours dans le trait de lignée, avec son texte.
    ⛔ Ces valeurs ne se corrigent pas ici : le chapitre du vault (Races & Species) fait foi. */
 export const LINEAGE_EFFECTS = {
   hoddon: {
     "forest-folk": {
       cantrips: [{ id: "srd:spell:en:minor-illusion", extrait: "You know the Minor Illusion cantrip." }],
-      spells: [{ id: "srd:spell:en:speak-with-animals", extrait: "You also always have the Speak with Animals spell prepared" }]
+      spells: [{ id: "srd:spell:en:speak-with-animals", extrait: "You also always have the Speak with Animals spell prepared" }],
+      /* 🧮 LOT 385 — le sort sans emplacement, à l'échelle écrite. ⚠️ Absent jusqu'ici : cette table
+         REMPLACE celle de `srfh-mecaniques-en` (clef `forest-gnome`), et le Forest Folk de la pile FH
+         n'avait donc aucun compteur. */
+      uses: {
+        extrait: "you can cast it without expending a spell slot twice — plus one more use at character levels 5, 9, 13, and 17 —, and you regain all expended uses when you finish a Long Rest.",
+        max: ECHELLE_FH, recharge: "long",
+        action: { spell: "srd:spell:en:speak-with-animals", economy: "action", economy_extrait: "Action or Ritual",
+          category: "utility", extrait: "You also always have the Speak with Animals spell prepared" }
+      }
     },
     "rock-folk": {
       cantrips: [
@@ -551,6 +580,24 @@ export const LINEAGE_EFFECTS = {
          Meticulous (l'avantage) n'a pas de chiffre : il se lit dans le texte du trait de lignée. */
       granted_skill_budget: { points: 1, from: ["srd:tool:en:tinker-s-tools"], extrait: "1 skill point (Novice) in tinker's tools" }
     }
+  },
+  /* 🧮 LOT 385 — la réserve de Giant Ancestry, UNE pour le bienfait choisi, à l'échelle écrite (le
+     trait commun porte la phrase du compte). Cloud en action bonus, Stone et Storm en réaction ; Fire,
+     Frost et Hill se jouent au toucher : leur action attend Q3, leur réserve se compte. */
+  goliath: {
+    cloud: { uses: { extrait: "As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see.", ...RESERVE_DE_GEANT,
+      action: { economy: "bonus", category: "utility", extrait: "As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see." } } },
+    fire: { uses: { extrait: "When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target.", ...RESERVE_DE_GEANT,
+      awaits: Q3_AU_TOUCHER("When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target.") } },
+    frost: { uses: { extrait: "When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target", ...RESERVE_DE_GEANT,
+      awaits: Q3_AU_TOUCHER("When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target") } },
+    hill: { uses: { extrait: "When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition.", ...RESERVE_DE_GEANT,
+      awaits: Q3_AU_TOUCHER("When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition.") } },
+    stone: { uses: { extrait: "When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total.", ...RESERVE_DE_GEANT,
+      action: { economy: "reaction", category: "utility", extrait: "When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total." } } },
+    storm: { uses: { extrait: "When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature.", ...RESERVE_DE_GEANT,
+      action: { economy: "reaction", category: "damage", damage: [{ dice: "1d8", type: "thunder" }],
+        extrait: "When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature." } } }
   }
 };
 
@@ -638,14 +685,26 @@ export const SPECIES = [
           why: "même échelle que PROF_USES — le DC 5e est reproduit à l'unité près à tous les niveaux" },
         PROF_USES
       ] }
-    }
+    },
+    /* 🧮 LOT 385 — le compte du souffle, à l'échelle écrite ; son action attend Q3 */
+    traitUses: [
+      { trait: "breath-weapon", max: ECHELLE_FH, recharge: "long",
+        extrait: `You can use this Breath Weapon ${ECHELLE_FH_PHRASE} — and you regain all expended uses when you finish a Long Rest.`,
+        awaits: Q3_SOUFFLE }
+    ]
   },
 
   {
     fhName: "Dwarf",
     op: "patch",
     target: srdSpeciesId("dwarf"),
-    traitSubstitutions: { "stonecunning": { substitutions: [PROF_USES] } }
+    traitSubstitutions: { "stonecunning": { substitutions: [PROF_USES] } },
+    traitUses: [
+      { trait: "stonecunning", max: ECHELLE_FH, recharge: "long",
+        extrait: `You can use this Bonus Action ${ECHELLE_FH_PHRASE} — and you regain all expended uses when you finish a Long Rest.`,
+        action: { economy: "bonus", category: "utility",
+          extrait: "As a Bonus Action, you gain Tremorsense with a range of 60 feet for 10 minutes." } }
+    ]
   },
 
   {
@@ -803,7 +862,19 @@ export const SPECIES = [
           why: "même échelle que PROF_USES, appliquée aux PV temporaires (valeurs 5e exactes)" },
         PROF_USES
       ] }
-    }
+    },
+    /* 🧮 LOT 385 — Adrenaline Rush à l'échelle écrite ; Relentless Endurance, que FH ne réécrit pas,
+       redit la déclaration du dessous parce que cette liste la REMPLACE entière */
+    traitUses: [
+      { trait: "adrenaline-rush", max: ECHELLE_FH, recharge: "short",
+        extrait: `You can use this trait ${ECHELLE_FH_PHRASE} — and you regain all expended uses when you finish a Short or Long Rest.`,
+        action: { economy: "bonus", category: "utility",
+          extrait: "You can take the Dash action as a Bonus Action. When you do so, you gain 2 Temporary Hit Points — 3 at character level 5, 4 at level 9, 5 at level 13, and 6 at level 17." } },
+      { trait: "relentless-endurance", max: { fixed: 1 }, recharge: "long",
+        extrait: "Once you use this trait, you can’t do so again until you finish a Long Rest.",
+        awaits: { question: "Q3", why: "triggered",
+          extrait: "When you are reduced to 0 Hit Points but not killed outright, you can drop to 1 Hit Point instead." } }
+    ]
   },
 
   {

@@ -1460,6 +1460,14 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
      forme `[{id, name, text}]`. Les aptitudes de CLASSE, les dons et les
      traits d'arrière-plan n'y sont pas — `class.features[]` porte de la prose
      et des tables aplaties. */
+  /* 🧬 LOT 385 — UN TRAIT DONNÉ À UN NIVEAU SUPÉRIEUR n'est pas encore acquis (ARCHI 35, point 7 du
+     384 : le Draconic Flight, « When you reach character level 5… », s'affichait au niveau 1). Le
+     niveau se lit dans la DÉCLARATION de la pile (`trait_levels` : le trait, son niveau, l'extrait) —
+     ⛔ jamais dans le nom du trait, jamais dans sa prose. Un trait pas encore acquis ne pose rien :
+     ni ligne de trait, ni usage. */
+  const niveauxDesTraits = new Map((Array.isArray(speciesData.trait_levels) ? speciesData.trait_levels : [])
+    .filter((d) => d && typeof d.trait === "string" && Number.isInteger(d.level)).map((d) => [d.trait, d.level]));
+  const traitAcquis = (trait) => !niveauxDesTraits.has(trait.id) || niveauxDesTraits.get(trait.id) <= level;
   const traits = [];
   if (speciesView && Array.isArray(speciesData.traits)) {
     for (const trait of speciesData.traits) {
@@ -1467,6 +1475,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
         underived.declare("traits (espèce)", "underived.trait-entry-invalid", {});
         continue;
       }
+      if (!traitAcquis(trait)) continue;
       const entry = { id: trait.id, name: trait.name, source: speciesView.record.name };
       if (typeof trait.text === "string") entry.text = trait.text;
       /* 🧬 LOT 373 — LE TRAIT QUE LA LIGNÉE RÉALISE devient SPÉCIFIQUE (`socle-trait-qui-depend-
@@ -1705,6 +1714,34 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   /* les maîtrises d'arme CHOISIES (`class.weaponMastery[n]`), déjà lues plus haut en traits */
   const armesDeMaitrise = new Set(masteryChoices.filter((entry) => entry.consumed).map((entry) => entry.choice.ref.id));
 
+  /* les aptitudes de la classe acquises à ce niveau, et les colonnes de la table du niveau */
+  const aptitudes = Array.isArray(classData.features) ? classData.features : [];
+  const aptitudeAcquise = (nom) => aptitudes.find((f) => f && f.name === nom && Number.isInteger(f.level) && f.level <= level) || null;
+  const colonneDeTable = (cle) => (levelRow && levelRow.resources ? levelRow.resources[cle] : undefined);
+  /* 🥋 MARTIAL ARTS, LU AVANT LES ARMES (lot 385) — « You can roll 1d6 in place of the normal damage of
+     your Unarmed Strike or Monk weapons » ; « You can use your Dexterity modifier instead of your
+     Strength modifier for the attack and damage rolls of your Unarmed Strikes and Monk weapons ».
+     Sa condition, déclarée (`requires`) : ni armure ni bouclier, et rien d'autre que des armes de moine.
+     Les armes de moine prennent le dé et la caractéristique quand la déclaration le dit (`weapon_attacks`). */
+  const arts = progression && progression.record.data && progression.record.data.martial_arts;
+  const aptitudeArts = arts ? aptitudeAcquise(arts.feature) : null;
+  const exigeArts = (arts && arts.requires) || {};
+  const armeDeMoine = (view) => (Array.isArray(exigeArts.monk_weapons) ? exigeArts.monk_weapons : []).some((m) => {
+    const d = view.record.data || {};
+    const proprietesDeLArme = Array.isArray(d.property_list) ? d.property_list.map((p) => p && p.key) : [];
+    return d.weapon_category === m.category && d.weapon_range === m.range && (!m.property || proprietesDeLArme.includes(m.property));
+  });
+  const faceArts = aptitudeArts ? colonneDeTable(arts.die_column) : undefined;
+  const caracsArts = aptitudeArts && Array.isArray(arts.abilities) ? arts.abilities.filter((k) => ABILITY_KEYS.includes(k)) : [];
+  const artsDeclares = Boolean(aptitudeArts) && typeof faceArts === "string" && /^[0-9]{1,3}d[0-9]{1,3}$/.test(faceArts) && caracsArts.length > 0;
+  const artsTenus = artsDeclares && !(exigeArts.no_armor && armorPieces.length > 0) && armesEquipees.every(({ view }) => armeDeMoine(view));
+  const surLesArmes = artsTenus && arts.weapon_attacks && typeof arts.weapon_attacks === "object" ? arts.weapon_attacks : {};
+  const artsSurLesArmes = surLesArmes.die === true || surLesArmes.abilities === true;
+  /* « in place of the normal damage » : le dé de Martial Arts quand il vaut MIEUX que celui de l'arme
+     (moyenne) — un bâton tenu à deux mains garde son 1d8 tant que le dé de la colonne est 1d6. */
+  const moyenneDe = (des) => { const [n, m] = des.split("d").map(Number); return n * (m + 1) / 2; };
+  const meilleurDe = (desDeLArme) => (surLesArmes.die === true && moyenneDe(faceArts) > moyenneDe(desDeLArme) ? faceArts : desDeLArme);
+
   const attaques = [];
   for (const arme of armesEquipees) {
     const data = arme.view.record.data || {};
@@ -1724,21 +1761,24 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     /* la caractéristique : corps à corps ou distance, puis « your choice » de Finesse — ⚖️ la fiche
        montre le choix qui donne le meilleur jet (le joueur garde le choix à la table) */
     const choix = declDe("attack_ability_choice");
-    const candidates = choix && Array.isArray(choix.attack_ability_choice.abilities)
+    const moine = artsSurLesArmes && armeDeMoine(arme.view);
+    const candidatesDeLArme = choix && Array.isArray(choix.attack_ability_choice.abilities)
       ? choix.attack_ability_choice.abilities.filter((k) => ABILITY_KEYS.includes(k))
       : [data.weapon_range === "ranged" ? regleDArme.ranged : regleDArme.melee];
+    const candidates = moine && surLesArmes.abilities === true ? [...new Set([...candidatesDeLArme, ...caracsArts])] : candidatesDeLArme;
     const ability = candidates.reduce((best, k) => (abilities[k].mod > abilities[best].mod ? k : best), candidates[0]);
     const maitrisee = armesMaitrisees.has(arme.view.id) || categoriesMaitrisees.has(data.weapon_category);
     if (maitrisee && proficiency === null) { underived.declare(`actions[${arme.id}]`, "underived.proficiency-not-derived-attack", params); continue; }
     const mod = abilities[ability].mod;
     const bonus = mod + (maitrisee ? proficiency : 0);
     const type = data.damage_type_key;
+    const desDeLArme = moine ? meilleurDe(data.damage_dice) : data.damage_dice;
     const action = { id: arme.id, name: arme.name, economy: "action", category: "attack", ability, bonus,
-      damage: [{ dice: signeDes(data.damage_dice, mod), type }] };
+      damage: [{ dice: signeDes(desDeLArme, mod), type }] };
     /* Versatile : le dé à deux mains est le `detail` typé de la propriété (« 1d8 ») */
     const versatile = liste.find((p) => { const d = proprietes.get(p.key); return d && d.two_handed_damage; });
     if (versatile && typeof versatile.detail === "string" && /^[0-9]{1,3}d[0-9]{1,3}$/.test(versatile.detail)) {
-      action.twoHandedDamage = [{ dice: signeDes(versatile.detail, mod), type }];
+      action.twoHandedDamage = [{ dice: signeDes(moine ? meilleurDe(versatile.detail) : versatile.detail, mod), type }];
     }
     /* la portée : le `detail` de la propriété qui la porte (Thrown, Ammunition), recopié */
     const portee = liste.find((p) => porteLaPortee.has(p.key) && typeof p.detail === "string" && p.detail.trim());
@@ -1751,7 +1791,7 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     }
     action.gearId = arme.id;
     actions.push(action);
-    attaques.push({ arme, action, liste, mod });
+    attaques.push({ arme, action, liste, mod, desDeLArme });
   }
   /* Light : « one extra attack as a Bonus Action […] with a different Light weapon », sans le
      modificateur aux dégâts « unless that modifier is negative ». ⭐ Il faut DEUX armes Light
@@ -1759,12 +1799,11 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const legeres = attaques.filter(({ liste }) => liste.some((p) => { const d = proprietes.get(p.key); return d && d.extra_attack; }));
   const unitesLegeres = legeres.reduce((n, { arme }) => n + (Number.isInteger(arme.quantity) ? arme.quantity : 1), 0);
   if (unitesLegeres >= 2) {
-    for (const { arme, action, liste, mod } of legeres) {
+    for (const { arme, action, liste, mod, desDeLArme } of legeres) {
       const decl = liste.map((p) => proprietes.get(p.key)).find((d) => d && d.extra_attack).extra_attack;
       if (!["action", "bonus", "reaction"].includes(decl.economy)) continue;
-      const des = arme.view.record.data.damage_dice;
       const extra = { ...action, id: `${arme.id}:light`, economy: decl.economy,
-        damage: [{ dice: signeDes(des, decl.damage_modifier === "only_if_negative" ? Math.min(mod, 0) : mod), type: action.damage[0].type }] };
+        damage: [{ dice: signeDes(desDeLArme, decl.damage_modifier === "only_if_negative" ? Math.min(mod, 0) : mod), type: action.damage[0].type }] };
       delete extra.twoHandedDamage;                       // l'attaque en plus se fait d'une main
       actions.push(extra);
     }
@@ -1820,8 +1859,18 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        (« equal to your Charisma modifier (minimum of once) »), `per_class_level` (« five times your
        Paladin level ») ;
      · la RECHARGE, le DÉ (`die_column`), l'ACTION qu'il nourrit — chacun avec son extrait ;
-     · ou `awaits` : l'économie hors des trois cases (Q3, reportée au dessin du Companion V2) — la
-       source se DÉCLARE avec cette raison, sans chiffre (ARCHI 35 : « sans chiffre inventé »).
+     · ou `awaits` : l'économie hors des trois cases (Q3, reportée au dessin du Companion V2) — l'ACTION
+       se DÉCLARE avec cette raison, sans chiffre (ARCHI 35 : « sans chiffre inventé »).
+     🧮 LOT 385 (ARCHI 35, point 3 du 384 : « oui, la ressource seule ») : le COMPTE ne dépend pas de
+       l'économie. Une source qui attend Q3 et déclare son compte (le souffle, Relentless Endurance,
+       Arcane Recovery, la réserve de Giant Ancestry) pose sa RESSOURCE ; seule son action attend.
+       Une source sans compte de repos (Savage Attacker, « once per turn ») ne pose rien.
+     🧮 LOT 385 (point 4) : une ressource porte le nom et l'identifiant de CE QU'ELLE COMPTE (`counts`,
+       un record : l'Heroic Inspiration du glossaire), jamais de sa source — et son plafond vit sur ce
+       record (`sheet_counter`). Deux sources du même record font UN compteur.
+     🧮 LOT 385 — l'échelle écrite de Fate's Hand (« twice — plus one more use at character levels 5, 9,
+       13, and 17 », `base` + `plus_one_at_levels`) : ⛔ « Proficiency Bonus » n'existe pas en FH, et la
+       couche FH déclare son propre compte avec SA phrase (ARCHI 35, lot 385).
      ⛔ Jamais un nom de classe, d'espèce, de lignée ou de don testé : la déclaration seule. */
   const ECONOMIES_DE_FICHE = ["action", "bonus", "reaction"];
   const maxDeLaFormule = (f) => {
@@ -1833,17 +1882,15 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       return Number.isInteger(f.minimum) ? Math.max(mod, f.minimum) : mod;
     }
     if (Number.isInteger(f.per_class_level)) return f.per_class_level * level;
+    if (Number.isInteger(f.base) && Array.isArray(f.plus_one_at_levels) && f.plus_one_at_levels.every(Number.isInteger)) {
+      return f.base + f.plus_one_at_levels.filter((n) => n <= level).length;
+    }
     return undefined;
   };
   const DES_DE_DEGATS = /^([0-9]{1,3}d[0-9]{1,3}([+-][0-9]{1,3})?|[0-9]{1,3})$/;
   /** Pose la ressource (si un compte est déclaré) et l'action (si une économie standard l'est).
    *  `max` : `undefined` = pas de compte, `null` = le bonus de maîtrise manque. */
   const poserUsage = ({ id, name, nomAction, max, u, die }) => {
-    if (u.awaits) {
-      underived.declare(`actions[${id}]`, "underived.awaits-economy-q3",
-        { name: nomAction || name, question: typeof u.awaits.question === "string" ? u.awaits.question : "Q3" });
-      return;
-    }
     let resourceId = null;
     if (max !== undefined) {
       if (max === null) { underived.declare(`resources[${id}]`, "underived.proficiency-not-derived-uses", { name }); return; }
@@ -1854,6 +1901,11 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
       if (typeof die === "string") ressource.die = die;
       resources.push(ressource);
       resourceId = id;
+    }
+    if (u.awaits) {
+      underived.declare(`actions[${id}]`, "underived.awaits-economy-q3",
+        { name: nomAction || name, question: typeof u.awaits.question === "string" ? u.awaits.question : "Q3" });
+      return;
     }
     const a = u.action;
     if (!a || !ECONOMIES_DE_FICHE.includes(a.economy)) return;
@@ -1881,9 +1933,6 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   const usages = progression && progression.record.data && Array.isArray(progression.record.data.resource_uses)
     ? progression.record.data.resource_uses : [];
   const colonnes = progression && Array.isArray(progression.record.data.resource_columns) ? progression.record.data.resource_columns : [];
-  const aptitudes = Array.isArray(classData.features) ? classData.features : [];
-  const aptitudeAcquise = (nom) => aptitudes.find((f) => f && f.name === nom && Number.isInteger(f.level) && f.level <= level) || null;
-  const colonneDeTable = (cle) => (levelRow && levelRow.resources ? levelRow.resources[cle] : undefined);
   for (const u of usages) {
     const aptitude = aptitudeAcquise(u.feature);
     if (!aptitude) continue;                            // l'aptitude n'est pas encore acquise à ce niveau
@@ -1908,34 +1957,23 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
     poserUsage({ id, name, nomAction: aptitude.name, max, u, die });
   }
 
-  /* Martial Arts : l'Unarmed Strike qu'elle modifie (le dé de la colonne, For ou Dex) et celle
-     qu'elle ajoute en action bonus — SI sa condition, déclarée, tient : ni armure ni bouclier, et
-     rien d'autre que des armes de moine. ⛔ Sinon, pas un chiffre faux : une déclaration. */
-  const arts = progression && progression.record.data && progression.record.data.martial_arts;
-  const aptitudeArts = arts ? aptitudeAcquise(arts.feature) : null;
+  /* Martial Arts (lue plus haut, avant les armes) : l'Unarmed Strike qu'elle modifie (le dé de la
+     colonne, For ou Dex) et celle qu'elle ajoute en action bonus — SI sa condition, déclarée, tient.
+     ⛔ Sinon, pas un chiffre faux : une déclaration. */
   if (aptitudeArts) {
     const cible = typeof arts.applies_to === "string" ? reader.maybe("glossary", arts.applies_to) : null;
     const mainsNues = cible ? actions.find((a) => a.id === cible.record.slug) : null;
-    const exige = arts.requires || {};
-    const armeDeMoine = ({ view }) => (Array.isArray(exige.monk_weapons) ? exige.monk_weapons : []).some((m) => {
-      const d = view.record.data || {};
-      const proprietesDeLArme = Array.isArray(d.property_list) ? d.property_list.map((p) => p && p.key) : [];
-      return d.weapon_category === m.category && d.weapon_range === m.range && (!m.property || proprietesDeLArme.includes(m.property));
-    });
-    const tenue = !(exige.no_armor && armorPieces.length > 0) && armesEquipees.every(armeDeMoine);
-    const face = colonneDeTable(arts.die_column);
-    const candidates = Array.isArray(arts.abilities) ? arts.abilities.filter((k) => ABILITY_KEYS.includes(k)) : [];
-    if (!mainsNues || !Array.isArray(mainsNues.damage) || typeof face !== "string" || !/^[0-9]{1,3}d[0-9]{1,3}$/.test(face) || candidates.length === 0) {
+    if (!mainsNues || !Array.isArray(mainsNues.damage) || !artsDeclares) {
       underived.declare(`actions[${cible ? cible.record.slug : "unarmed-strike"}:bonus]`, "underived.martial-arts-undeclared", { name: aptitudeArts.name });
-    } else if (!tenue) {
+    } else if (!artsTenus) {
       underived.declare(`actions[${mainsNues.id}:bonus]`, "underived.martial-arts-condition-unmet", { name: aptitudeArts.name });
     } else {
       /* « You can use your Dexterity modifier instead of your Strength modifier » : la fiche montre
          le meilleur des deux (For à égalité), comme Finesse (lot 383) ; « You can roll 1d6 in place of
          the normal damage » : le dé, toujours au-dessus du 1 fixe. */
-      const ability = candidates.reduce((best, k) => (abilities[k].mod > abilities[best].mod ? k : best), candidates[0]);
+      const ability = caracsArts.reduce((best, k) => (abilities[k].mod > abilities[best].mod ? k : best), caracsArts[0]);
       const mod = abilities[ability].mod;
-      Object.assign(mainsNues, { ability, bonus: mod + proficiency, damage: [{ dice: signeDes(face, mod), type: mainsNues.damage[0].type }] });
+      Object.assign(mainsNues, { ability, bonus: mod + proficiency, damage: [{ dice: signeDes(faceArts, mod), type: mainsNues.damage[0].type }] });
       actions.push({ ...mainsNues, id: `${mainsNues.id}:bonus`, economy: "bonus",
         text: typeof arts.extraits === "object" && arts.extraits && typeof arts.extraits.bonus === "string" ? arts.extraits.bonus : mainsNues.text });
     }
@@ -1943,23 +1981,36 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
 
   /* les usages de l'ESPÈCE : par TRAIT — un trait que la pile a retiré (Twice-Born retire
      Resourceful à l'Humain FH, `"remove"` de la couche) ne pose rien */
-  const traitsDEspece = Array.isArray(speciesData.traits) ? speciesData.traits : [];
+  const traitsDEspece = Array.isArray(speciesData.traits) ? speciesData.traits.filter((t) => t && traitAcquis(t)) : [];
   for (const u of Array.isArray(speciesData.trait_uses) ? speciesData.trait_uses : []) {
     const trait = traitsDEspece.find((t) => t && t.id === u.trait);
     if (!trait || typeof trait.id !== "string") continue;
-    const nomDuGlossaire = typeof u.name_from === "string" ? reader.maybe("glossary", u.name_from) : null;
-    if (typeof u.name_from === "string" && !nomDuGlossaire) {
-      underived.declare(`resources[${trait.id}]`, "underived.usage-name-missing", { record: u.name_from });
+    /* ce qu'on COMPTE (`counts`) : son id, son nom et son plafond (`sheet_counter`) sont ceux du record
+       compté ; la source n'apporte que sa recharge. Un compteur déjà posé par une autre source reste
+       UN compteur. */
+    if (typeof u.counts === "string") {
+      const compte = reader.maybe("glossary", u.counts);
+      const plafond = compte && compte.record.data ? compte.record.data.sheet_counter : null;
+      const max = plafond ? maxDeLaFormule(plafond.max) : undefined;
+      if (max === undefined) {
+        underived.declare(`resources[${trait.id}]`, "underived.usage-counter-missing", { record: u.counts });
+        continue;
+      }
+      if (resources.some((r) => r.id === compte.record.slug)) continue;
+      poserUsage({ id: compte.record.slug, name: compte.record.name, nomAction: trait.name, max, u });
       continue;
     }
     const max = u.max ? maxDeLaFormule(u.max) : undefined;
-    poserUsage({ id: trait.id, name: nomDuGlossaire ? nomDuGlossaire.record.name : trait.name, nomAction: trait.name, max, u });
+    poserUsage({ id: trait.id, name: trait.name, nomAction: trait.name, max, u });
   }
 
-  /* les usages de la LIGNÉE choisie (Forest Gnome, les ascendances du Goliath) */
+  /* les usages de la LIGNÉE choisie (Forest Gnome, les ascendances du Goliath). Une réserve que le
+     trait commun déclare (`count_trait` : « you can use the chosen benefit a number of times… ») est
+     UNE réserve, qui porte l'id de ce trait, quelle que soit l'économie du bienfait choisi. */
   const usageDeLignee = optionLignee && effetsLignee && effetsLignee.uses && typeof effetsLignee.uses === "object" ? effetsLignee.uses : null;
   if (usageDeLignee) {
-    const id = `${typeof speciesData.lineage_trait === "string" ? speciesData.lineage_trait : "lineage"}:${optionLignee.id}`;
+    const id = typeof usageDeLignee.count_trait === "string" ? usageDeLignee.count_trait
+      : `${typeof speciesData.lineage_trait === "string" ? speciesData.lineage_trait : "lineage"}:${optionLignee.id}`;
     const sortDeLignee = usageDeLignee.action && typeof usageDeLignee.action.spell === "string" ? reader.maybe("spell", usageDeLignee.action.spell) : null;
     const max = usageDeLignee.max ? maxDeLaFormule(usageDeLignee.max) : undefined;
     poserUsage({ id, name: sortDeLignee ? sortDeLignee.record.name : optionLignee.name, nomAction: optionLignee.name, max, u: usageDeLignee });

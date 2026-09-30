@@ -1513,11 +1513,23 @@
           "data[trait_uses]": [
             {
               "trait": "breath-weapon",
+              "max": {
+                "proficiency": 1
+              },
+              "recharge": "long",
+              "extrait": "You can use this Breath Weapon a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.",
               "awaits": {
                 "question": "Q3",
                 "why": "replaces-an-attack",
                 "extrait": "When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy"
               }
+            }
+          ],
+          "data[trait_levels]": [
+            {
+              "trait": "draconic-flight",
+              "level": 5,
+              "extrait": "When you reach character level 5"
             }
           ]
         },
@@ -1637,6 +1649,12 @@
             "fire": {
               "uses": {
                 "extrait": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target.",
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "count_trait": "giant-ancestry",
+                "count_extrait": "a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest",
                 "awaits": {
                   "question": "Q3",
                   "why": "on-hit",
@@ -1647,6 +1665,12 @@
             "frost": {
               "uses": {
                 "extrait": "When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target",
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "count_trait": "giant-ancestry",
+                "count_extrait": "a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest",
                 "awaits": {
                   "question": "Q3",
                   "why": "on-hit",
@@ -1657,6 +1681,12 @@
             "hill": {
               "uses": {
                 "extrait": "When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition.",
+                "max": {
+                  "proficiency": 1
+                },
+                "recharge": "long",
+                "count_trait": "giant-ancestry",
+                "count_extrait": "a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest",
                 "awaits": {
                   "question": "Q3",
                   "why": "on-hit",
@@ -1664,7 +1694,14 @@
                 }
               }
             }
-          }
+          },
+          "data[trait_levels]": [
+            {
+              "trait": "large-form",
+              "level": 5,
+              "extrait": "Starting at character level 5"
+            }
+          ]
         },
         "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Goliath demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 6 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
@@ -1776,10 +1813,7 @@
           "data[trait_uses]": [
             {
               "trait": "resourceful",
-              "name_from": "srd:glossary:en:heroic-inspiration",
-              "max": {
-                "fixed": 1
-              },
+              "counts": "srd:glossary:en:heroic-inspiration",
               "recharge": "long",
               "extrait": "You gain Heroic Inspiration whenever you finish a Long Rest."
             }
@@ -1915,6 +1949,11 @@
             },
             {
               "trait": "relentless-endurance",
+              "max": {
+                "fixed": 1
+              },
+              "recharge": "long",
+              "extrait": "Once you use this trait, you can’t do so again until you finish a Long Rest.",
               "awaits": {
                 "question": "Q3",
                 "why": "triggered",
@@ -2129,6 +2168,17 @@
             ]
           }
         }
+      },
+      "srd:glossary:en:heroic-inspiration": {
+        "op": "patch",
+        "changes": {
+          "data[sheet_counter]": {
+            "max": {
+              "fixed": 1
+            },
+            "extrait": "If you gain Heroic Inspiration but already have it, it’s lost unless you give it to a player character who lacks it."
+          }
+        }
       }
     },
     "class-progression": {
@@ -2278,6 +2328,11 @@
             {
               "id": "arcane-recovery",
               "feature": "Arcane Recovery",
+              "max": {
+                "fixed": 1
+              },
+              "recharge": "long",
+              "extrait": "Once you use this feature, you can’t do so again until you finish a Long Rest.",
               "awaits": {
                 "question": "Q3",
                 "why": "end-of-rest",
@@ -2319,6 +2374,14 @@
               "extraits": [
                 "You gain the following benefits while you are unarmed or wielding only Monk weapons and you aren’t wearing armor or wielding a Shield.",
                 "• Simple Melee weapons • Martial Melee weapons that have the Light property"
+              ]
+            },
+            "weapon_attacks": {
+              "die": true,
+              "abilities": true,
+              "extraits": [
+                "You can roll 1d6 in place of the normal damage of your Unarmed Strike or Monk weapons.",
+                "You can use your Dexterity modifier instead of your Strength modifier for the attack and damage rolls of your Unarmed Strikes and Monk weapons."
               ]
             }
           }

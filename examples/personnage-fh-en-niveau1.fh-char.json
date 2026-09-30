@@ -26,13 +26,13 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "04da6925df382e940ca8d69090d5ddd0784f493ab9ef5ed2de844ede0e8f60ba",
+        "hash": "34c8a2467e0c6bd4ed5c1c93a8d913943bb859af81fbe46ea7d9f2a4c0e5924c",
         "name": "SRFH — Mechanics (EN)"
       },
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f",
+        "hash": "e8c47f8b1a591cf49aeb5e3037c50c1a91113a19a5de2baa778209fc256cbecb",
         "name": "Fate's Hand — Species (EN)"
       },
       {
@@ -457,13 +457,13 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "04da6925df382e940ca8d69090d5ddd0784f493ab9ef5ed2de844ede0e8f60ba",
+          "hash": "34c8a2467e0c6bd4ed5c1c93a8d913943bb859af81fbe46ea7d9f2a4c0e5924c",
           "name": "SRFH — Mechanics (EN)"
         },
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f",
+          "hash": "e8c47f8b1a591cf49aeb5e3037c50c1a91113a19a5de2baa778209fc256cbecb",
           "name": "Fate's Hand — Species (EN)"
         },
         {
@@ -1038,6 +1038,13 @@
         "current": 1,
         "recharge": "long",
         "die": "d6"
+      },
+      {
+        "id": "arcane-recovery",
+        "name": "Arcane Recovery",
+        "max": 1,
+        "current": 1,
+        "recharge": "long"
       }
     ],
     "traits": [

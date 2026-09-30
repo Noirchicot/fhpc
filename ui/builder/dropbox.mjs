@@ -36,8 +36,8 @@
      `keepalive`, et une vieille Chromium le refusait avec une pré-requête : la coquille réessaie alors
      sans lui (`httpDuNavigateur`). ⛔ Le passage en arrière-plan n'est donc jamais la seule chance. */
 
-import { clefDeLEntree } from "./magasin.mjs?v=936";
-import { RAYON_REGLAGES } from "./magasin.mjs?v=936";
+import { clefDeLEntree } from "./magasin.mjs?v=937";
+import { RAYON_REGLAGES } from "./magasin.mjs?v=937";
 
 /** ✅ L'App key de l'application SOWLREACH (Eric, 30/09, 13:14). ⭐ PUBLIQUE : elle voyage dans le code,
  *  comme une adresse. ⛔ L'App secret n'est ni demandé ni gardé. */

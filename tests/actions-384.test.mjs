@@ -108,9 +108,11 @@ test("2 — Stonecunning, Adrenaline Rush : « equal to your Proficiency Bonus �
   assert.equal(action(orc, "adrenaline-rush").economy, "bonus");
 });
 
+/* 🔄 RÉÉCRIT AU LOT 385 (ARCHI 35, point 4 du 384) : la ressource porte l'id de CE QU'ELLE COMPTE,
+   l'Heroic Inspiration du glossaire — `resourceful` était l'id de sa source. */
 test("2b — Resourceful : Heroic Inspiration, une à chaque Long Rest, nommée par son glossaire", () => {
-  assert.deepEqual(ressource(perso({ classe: "fighter", espece: "human" }), "resourceful"),
-    { id: "resourceful", name: "Heroic Inspiration", max: 1, current: 1, recharge: "long" });
+  assert.deepEqual(ressource(perso({ classe: "fighter", espece: "human" }), "heroic-inspiration"),
+    { id: "heroic-inspiration", name: "Heroic Inspiration", max: 1, current: 1, recharge: "long" });
 });
 
 test("2c — Forest Gnome : Speak with Animals sans emplacement, relié au sort", () => {
@@ -123,12 +125,14 @@ test("2c — Forest Gnome : Speak with Animals sans emplacement, relié au sort"
     "le Rock Gnome ne lance rien sans emplacement");
 });
 
+/* 🔄 RÉÉCRIT AU LOT 385 (ARCHI 35, point 3 du 384) : UNE réserve pour le bienfait choisi, qui porte
+   l'id du trait qui déclare le compte (`giant-ancestry`) — elle était par option. */
 test("2d — Goliath : Cloud en action bonus, Stone et Storm en réaction ; les usages = le bonus de maîtrise", () => {
   const nuage = perso({ classe: "fighter", espece: "goliath", lignee: "cloud" });
-  assert.deepEqual(ressource(nuage, "giant-ancestry:cloud"), { id: "giant-ancestry:cloud", name: "Cloud’s Jaunt", max: 2, current: 2, recharge: "long" });
-  assert.equal(action(nuage, "giant-ancestry:cloud").economy, "bonus");
-  assert.equal(action(perso({ classe: "fighter", espece: "goliath", lignee: "stone" }), "giant-ancestry:stone").economy, "reaction");
-  const orage = action(perso({ classe: "fighter", espece: "goliath", lignee: "storm" }), "giant-ancestry:storm");
+  assert.deepEqual(ressource(nuage, "giant-ancestry"), { id: "giant-ancestry", name: "Cloud’s Jaunt", max: 2, current: 2, recharge: "long" });
+  assert.equal(action(nuage, "giant-ancestry").economy, "bonus");
+  assert.equal(action(perso({ classe: "fighter", espece: "goliath", lignee: "stone" }), "giant-ancestry").economy, "reaction");
+  const orage = action(perso({ classe: "fighter", espece: "goliath", lignee: "storm" }), "giant-ancestry");
   assert.deepEqual([orage.economy, orage.category, orage.damage], ["reaction", "damage", [{ dice: "1d8", type: "thunder" }]],
     "« take a Reaction to deal 1d8 Thunder damage »");
 });
@@ -152,22 +156,25 @@ test("3 — Magic Initiate : son sort de niveau 1, une fois sans emplacement, re
 
 /* ══ 4 — CE QUI ATTEND Q3 ══════════════════════════════════════════════════════════════════════ */
 
+/* 🔄 RÉÉCRIT AU LOT 385 (ARCHI 35, point 3 du 384 : « oui, la ressource seule ») : l'ACTION attend
+   Q3, et reste déclarée sans chiffre ; la RESSOURCE, elle, se compte quand la source déclare son compte
+   de repos — `tests/actions-385.test.mjs` la chiffre. Savage Attacker (« once per turn ») n'en a pas. */
 test("4 — Breath Weapon, Relentless Endurance, Fire/Frost/Hill, Savage Attacker, Arcane Recovery : déclarés, sans chiffre", () => {
   const cas = [
-    [{ classe: "fighter", espece: "dragonborn", lignee: "black" }, "breath-weapon"],
-    [{ classe: "fighter", espece: "orc" }, "relentless-endurance"],
-    ...["fire", "frost", "hill"].map((g) => [{ classe: "fighter", espece: "goliath", lignee: g }, `giant-ancestry:${g}`]),
+    [{ classe: "fighter", espece: "dragonborn", lignee: "black" }, "breath-weapon", true],
+    [{ classe: "fighter", espece: "orc" }, "relentless-endurance", true],
+    ...["fire", "frost", "hill"].map((g) => [{ classe: "fighter", espece: "goliath", lignee: g }, "giant-ancestry", true]),
     [{ classe: "fighter", plus: [{ path: "background", ref: { kind: "background", id: "srd:background:en:soldier" } },
-      { path: "background.originFeat[0]", ref: { kind: "feat", id: "srd:feat:en:savage-attacker" } }] }, "background:savage-attacker"],
-    [{ classe: "wizard" }, "arcane-recovery"]
+      { path: "background.originFeat[0]", ref: { kind: "feat", id: "srd:feat:en:savage-attacker" } }] }, "background:savage-attacker", false],
+    [{ classe: "wizard" }, "arcane-recovery", true]
   ];
-  for (const [options, id] of cas) {
+  for (const [options, id, compte] of cas) {
     const out = perso(options);
     const d = declare(out, `actions[${id}]`);
     assert.equal(d && d.key, "underived.awaits-economy-q3", id);
     assert.equal(d.params.question, "Q3");
     assert.equal(action(out, id), undefined, `${id} : aucune action`);
-    assert.equal(ressource(out, id), undefined, `${id} : aucune ressource`);
+    assert.equal(Boolean(ressource(out, id)), compte, `${id} : ${compte ? "sa réserve se compte" : "aucune ressource"}`);
   }
 });
 
@@ -213,7 +220,7 @@ test("7 — chaque extrait d'espèce, de lignée et de don est recopié du texte
       const trait = data.traits.find((t) => t.id === u.trait);
       assert.ok(trait, `${id} : le trait « ${u.trait} » existe`);
       for (const e of textes(u)) assert.ok(trait.text.includes(e), `${id} ${u.trait} : ${e}`);
-      if (u.name_from) assert.ok(srd.glossary[u.name_from], u.name_from);
+      if (u.counts) assert.ok(srd.glossary[u.counts], u.counts);   // lot 385 : `counts` remplace `name_from`
       vus.push(u.trait);
     }
     const lignees = entree.changes["data[lineages]"] || [];

@@ -317,8 +317,8 @@ export const FR_UNDERIVED = {
     `le nombre d'usages de ${d.name} suit le bonus de maîtrise, qui n'est pas encore dérivé.`,
   "underived.usage-count-unreadable": (d) =>
     `la déclaration de ${d.name} ne donne pas un nombre d'usages lisible.`,
-  "underived.usage-name-missing": (d) =>
-    `le glossaire \`${d.record}\` qui nomme cette ressource n'est pas dans la pile.`,
+  "underived.usage-counter-missing": (d) =>
+    `le glossaire \`${d.record}\` que cette ressource compte n'est pas dans la pile, ou ne déclare pas son plafond.`,
   "underived.martial-arts-undeclared": (d) =>
     `${d.name} ne trouve pas de quoi composer son attaque à mains nues (le glossaire, le dé de la table ou les caractéristiques déclarés).`,
   "underived.martial-arts-condition-unmet": (d) =>
@@ -525,8 +525,8 @@ export const EN_UNDERIVED = {
     `the number of uses of ${d.name} follows the Proficiency Bonus, which is not derived yet.`,
   "underived.usage-count-unreadable": (d) =>
     `the declaration of ${d.name} does not give a readable number of uses.`,
-  "underived.usage-name-missing": (d) =>
-    `the glossary \`${d.record}\` that names this resource is not in the stack.`,
+  "underived.usage-counter-missing": (d) =>
+    `the glossary \`${d.record}\` this resource counts is not in the stack, or does not declare its cap.`,
   "underived.martial-arts-undeclared": (d) =>
     `${d.name} finds nothing to build its Unarmed Strike from (the glossary, the table die or the declared abilities).`,
   "underived.martial-arts-condition-unmet": (d) =>

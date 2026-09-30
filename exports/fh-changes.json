@@ -3,7 +3,7 @@
   "$measures": "Chaque genre porte ce que les COUCHES du builder déclarent : des records ajoutés, patchés, éteints. Trois listes vides signifient « aucune divergence de RECORD entre la pile SRD et la pile Fate's Hand » — PAS « ce chapitre ne contient aucune règle Fate's Hand ». Une règle qui vit dans la prose d'un chapitre et dans aucun record est invisible ici (cas vivant : `spell`, trois listes vides, 737 mots d'Eric).",
   "contract": "fh-changes/1",
   "lang": "en",
-  "layer_run": "6031307e9dad45becffaca8f1f058dca9a1f33095e3ef572c0be1b63b4d3c53b",
+  "layer_run": "909b2212c149d69de3d7f37ff3c155fb0ed21fa9517aad25609ca46ad248d8df",
   "stack": [
     {
       "id": "srd-5.2.1-en",
@@ -18,12 +18,12 @@
     {
       "id": "srfh-mecaniques-en",
       "version": "0.1.0",
-      "hash": "04da6925df382e940ca8d69090d5ddd0784f493ab9ef5ed2de844ede0e8f60ba"
+      "hash": "34c8a2467e0c6bd4ed5c1c93a8d913943bb859af81fbe46ea7d9f2a4c0e5924c"
     },
     {
       "id": "fh-species-en",
       "version": "0.1.0",
-      "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f"
+      "hash": "e8c47f8b1a591cf49aeb5e3037c50c1a91113a19a5de2baa778209fc256cbecb"
     },
     {
       "id": "fh-skills-en",
@@ -246,6 +246,7 @@
       "added": [],
       "patched": [
         "Attack Roll",
+        "Heroic Inspiration",
         "Hit Point Dice",
         "Initiative",
         "Opportunity Attacks",
