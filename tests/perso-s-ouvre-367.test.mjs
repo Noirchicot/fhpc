@@ -167,6 +167,10 @@ test("R6 — ⚖️ LA LIGNE AU MENU : présente tant que la marque vit, absente
   assert.equal(avec.querySelectorAll(".guide-mot").length, 1, "⛔ pas un second aiguilleur (`aiguilleur-un-seul-par-ecran`)");
   const sans = renderUniverseStep({ document: AVANT, query: () => null, fieldErrors: {} }, () => {});
   assert.equal(sans.querySelectorAll("[data-recalage]").length, 0);
+  /* Sur le verre de R : l'encre `--text`, et aucune marge qui s'ajoute à la grille (mesuré au banc : gris
+     `--text-muted` et 4 blg de marge sous `.universe-note` avant cette règle). */
+  const css = stripComments(fs.readFileSync(path.join(UI, "shell.css"), "utf8"));
+  assert.match(css, /\.tdc-r > \[data-recalage\] \{ margin: 0; color: var\(--text\); \}/);
 });
 
 test("M1 — 🔴 PLUS AUCUNE IMPASSE SANS CAUSE NI SORTIE : le mot muet est parti, chaque chemin a son mot", () => {

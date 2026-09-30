@@ -3108,7 +3108,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=918") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=919") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3431,7 +3431,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=918") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=919") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5083,7 +5083,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=918") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=919") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6038,6 +6038,11 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .tdc-r > .tdc-code > .doc-field-input,
 .tdc-ligne-valeur { grid-column: 2; min-width: 0; }
 .tdc-ligne-valeur { font-size: var(--t4); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+/* ⚖️ LOT 367 — LA LIGNE DES RÈGLES MISES À JOUR (`menu-r-ligne-des-regles-mises-a-jour`), sous `Books`.
+   R est une dalle de VERRE : une phrase y écrit en `--text` (`cadre-encre-sur-verre` — le gris de
+   `.universe-note` n'y tient pas les 4,5:1). ⛔ Et sa marge tombe : c'est la GRILLE de R qui écrit
+   l'écart (sacré n° 3), une marge d'enfant s'AJOUTERAIT au `row-gap`. */
+.tdc-r > [data-recalage] { margin: 0; color: var(--text); }
 /* LE CODE DE CAMPAGNE — T0 (8 px) : *« campaign code : 123654849 (t0) »* (Eric, 29/09).
    Place réservée : présent, éteint, et son mot (`.tdc-bientot`) SOUS le champ. */
 .tdc-code-champ { font-size: var(--t0); }

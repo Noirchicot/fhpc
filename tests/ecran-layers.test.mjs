@@ -903,7 +903,9 @@ test("F1 — 🔌 la coquille câble Layers : la porte, les gestes (Fate's Hand,
 
 test("F2 — 🔴 la coquille ALIGNE la pile sur le document AVANT de dériver, au boot comme à l'ouverture d'un fichier", () => {
   const shell = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
-  const occurrences = shell.match(/alignerLaPileSurLeDocument\(\);\s*(?:\/\/[^\n]*)?\s*rebuild\(\);/g) || [];
+  /* ⚖️ LOT 367 — entre les deux, le RECALAGE (`recalerSurLaPileMontee`) : aligner les livres, recaler les
+     empreintes, PUIS dériver. L'ordre reste la loi ; il gagne un temps. */
+  const occurrences = shell.match(/alignerLaPileSurLeDocument\(\);\s*(?:\/\/[^\n]*)?\s*const recalage = recalerSurLaPileMontee\(\);\s*(?:\/\/[^\n]*)?\s*rebuild\(\);/g) || [];
   assert.equal(occurrences.length, 2, "deux chemins montent un document : le boot et `ouvrirUnFichier` sans rechargement");
   assert.match(shell, /const gestes = gestesDAlignement\(layersVerbs\.stack\(\), declares\)/, "…par les gestes purs, testés en E5");
 });

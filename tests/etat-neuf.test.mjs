@@ -53,15 +53,17 @@ function etatSale() {
 
 /* ══ A — LE GARDE QUI COMPTE : LES CLEFS RÉELLES, JAMAIS UNE LISTE ═════════ */
 
-test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 41 champs, 10 survivent, 31 tombent", () => {
+test("A1 — 📏 LA MESURE DU LOT, GRAVÉE : 42 champs, 10 survivent, 32 tombent (lot 367 : + `recalage`)", () => {
   /* ⚠️ Ce n'est pas un garde de régression sur un chiffre — c'est le RELEVÉ
      daté qui rend la phrase du corpus vérifiable. Si un champ s'ajoute, ce
      test se met à jour AVEC son commentaire ; il ne se supprime pas. */
   const clefs = Object.keys(etatNeuf());
-  assert.equal(clefs.length, 41, "📏 mesuré le 2026-09-10 sur v620 — 41 champs déclarés");
+  /* 🔄 LOT 367 (30/09) — un champ de plus, `recalage` (la marque du recalage : un fait d'écran,
+     il tombe avec le personnage) : 41 → 42, et il n'est PAS un survivant. */
+  assert.equal(clefs.length, 42, "📏 mesuré le 2026-09-10 sur v620 — 41 champs déclarés ; + `recalage` au lot 367");
   assert.equal(Object.keys(CHAMPS_QUI_SURVIVENT).length, 10,
     "la liste des survivants est COURTE, et c'est ce qui la rend relisable");
-  assert.equal(clefs.filter((c) => !(c in CHAMPS_QUI_SURVIVENT)).length, 31,
+  assert.equal(clefs.filter((c) => !(c in CHAMPS_QUI_SURVIVENT)).length, 32,
     "⛔ 18 sur 41 avant ce lot — l'inversion est ce chiffre-là");
 });
 
@@ -219,8 +221,8 @@ test("C1 — ⚔️ LA REMISE À ZÉRO D'AVANT (une liste de quinze noms) FAIT R
   assert.deepEqual(restes.sort(), [
     "abilityBilan", "abilityMethod", "decisions", "derivationImpossible", "destinySeq2",
     "inheritanceOpen", "memoireIgnoree", "menuBranche", "ouvertureRefusee", "parcoursItem",
-    "parcoursRefus", "popup", "report", "resolved", "stepSecond", "violations"
-  ], "⛔ la liste par nom laisse SEIZE champs debout — quatorze dans l'organe, deux que ses appelants posaient à la main");
+    "parcoursRefus", "popup", "recalage", "report", "resolved", "stepSecond", "violations"
+  ], "⛔ la liste par nom laisse SEIZE champs debout — quatorze dans l'organe, deux que ses appelants posaient à la main ; DIX-SEPT depuis le lot 367 : le champ ajouté (`recalage`) est vu SANS que personne l'ajoute à la liste — c'est ce que l'inversion achète");
 });
 
 test("C2 — ⚔️ ET UN CHAMP BIDON AJOUTÉ À L'ÉTAT NEUF EST VU PAR LA MÊME MESURE", () => {
