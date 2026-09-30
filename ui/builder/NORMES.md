@@ -11742,6 +11742,13 @@ Emberwood (model catalog) — switch it on in Layers »*) : le préfixe du recor
 contre la liste des catalogs connus que la coquille, seul écrivain, passe à la feuille des interrupteurs à chaque
 repeint (`connaitreLesCatalogues` — leur nom quand le lieu les porte, leur id sinon : ce que Layers montre). Et le
 guide dit qu'une espèce de catalog prend l'image générique. 🛡️ `tests/livre-absent-393.test.mjs` B1, B2, C1.
+🔄 **LOT 391 — LE SCRIPT HEADLESS** (`tools/catalog-headless.mjs`, Eric, 30/09 : *« est-ce que ça peut se faire en
+headless ? »* → **« a »**) : le livre d'un créateur → `claude -p` (sans outils, sans session, hors du dépôt), avec le
+texte pour l'IA du GUIDE et le modèle → le JUGE par sa commande (`verifier-catalog --json`) → les fautes du juge
+renvoyées à Claude, au plus 3 tours → le catalog écrit SEULEMENT s'il est accepté (jamais par-dessus un fichier qui
+existe). ⛔ Aucun second juge : la commande ne vérifie de son côté que sa DEMANDE (l'id et l'auteur donnés). ⛔ Aucune
+clef : la connexion Claude Code du Mac. ⛔ `npm test` n'appelle jamais le vrai Claude (`tests/faux-claude.mjs`).
+Le guide : « Headless, on your own computer ». 🛡️ `tests/catalog-headless-391.test.mjs` H1 à H8.
 
 #### 🔌 UN INTERRUPTEUR DE `LAYERS` NE TOUCHE QUE SON LIVRE (lot 393)
 📍 `menu-layers-un-interrupteur-ne-touche-que-son-livre` · vivante · 30/09
