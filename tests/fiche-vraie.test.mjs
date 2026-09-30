@@ -159,3 +159,87 @@ test("4 — pile française (glossaire sans formule) : les deux scores DÉCLARÉ
   const lignes = [...lignesNonDerivees(node, "senses")].filter((x) => x.tagName === "LI" || x.tagName === "li").map((li) => li.querySelector(".perso-ligne-nom").textContent);
   assert.deepEqual(lignes, [noms["senses[perception-passive]"]]);
 });
+
+/* ══ 5 — UN CHOIX QUI NE SE RÉSOUT PLUS SE NOMME AVEC SON ÉTAPE (point 3 du mandat) ════════
+   📏 Le cas mesuré : l'exemple SRD du dépôt, recalé sur la pile SRD montée (ce que fait
+   `Open a file…`, `socle-perso-sauve-s-ouvre-toujours`). ⚖️ ARCHI 35, 30/09 : le contrat ne bouge pas
+   (« ref mort → jette ») ; le chemin du refus mène à son étape. */
+const { motDeLEcranMort, causeDesChoixMorts, CAUSE_HORS_DES_REGLES } = await import("../ui/builder/ecran-mort.mjs");
+const { refusSansFiche } = await import("../ui/builder/parcours.mjs");
+const { etapeDuChemin, etapeParId, STEPS } = await import("../ui/builder/etapes.mjs");
+
+function exempleRecale() {
+  const h = makeHarness({ layers: PILE_SRD });
+  const doc = readJson("examples/personnage-srd-fr-niveau1.fh-char.json");
+  doc.build.layers = manifestOf(h.layers);
+  assert.throws(() => h.verbs.rebuild({ document: doc }), /gear\[8\]/, "témoin : le contrat tient, `rebuild` jette");
+  return { doc, violations: refusSansFiche(h.verbs.validate({ document: doc }).violations) };
+}
+
+test("5 — le cas mesuré : Sheet nomme chaque choix mort, avec l'étape qui le pose", () => {
+  const { doc, violations } = exempleRecale();
+  const morts = violations.filter((v) => v.key === "choice.ref-missing").map((v) => v.path).sort();
+  assert.deepEqual(morts, ["feat.extra", "feat.magicInitiate.cantrip", "gear[8]"], "témoin : trois refs morts, nommés par `validate`");
+  const mot = motDeLEcranMort(doc, violations, []);
+  assert.notEqual(mot.endsWith(CAUSE_HORS_DES_REGLES), true, "⛔ plus le mot général : la cause est connue");
+  /* ⭐ l'étape se LIT sur la ceinture, jamais écrite ici */
+  assert.ok(mot.includes(`Lanterne pliante on ${etapeParId("equipment", []).mot}`), mot);
+  assert.match(mot, /Chuchotement des pages and Lecteur de marges, which no step asks any more/);
+  assert.match(mot, /Change it on that step; Save character keeps it safe, New character starts over\./);
+  assert.equal(/exemple:|srd:/.test(mot), false, "⛔ jamais un id nu");
+});
+
+test("5b — le mot de l'étape suit la pile : un don d'arrière-plan mort se dit « Inheritance » sous Fate's Hand", () => {
+  const refus = [{ key: "choice.ref-missing", path: "background.originFeat[0]", params: { kind: "feat", id: "fh:feat:en:auspicious" } }];
+  assert.match(causeDesChoixMorts(refus, []), /Auspicious on Background/);
+  assert.match(causeDesChoixMorts(refus, ["fh.inheritance"]), /Auspicious on Inheritance/);
+  /* un cran NON MONTÉ ne reçoit personne : sans `fh.destiny`, la carte tirée n'a plus d'étape */
+  const carte = [{ key: "choice.ref-missing", path: "fh.destiny.arcana", params: { kind: "arcana", id: "fh:arcana:en:the-tower" } }];
+  assert.match(causeDesChoixMorts(carte, []), /The tower, which no step asks any more/);
+  assert.match(causeDesChoixMorts(carte, ["fh.destiny"]), /The tower on Destiny/);
+});
+
+test("5c — ⚔️ CHAQUE CHEMIN QU'UN ÉCRAN ÉCRIT A SON ÉTAPE — relu dans les sources, pas dans une liste", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const dossier = path.join(process.cwd(), "ui/builder");
+  const racines = new Set();
+  for (const f of fs.readdirSync(dossier).filter((n) => n.endsWith(".mjs"))) {
+    const src = fs.readFileSync(path.join(dossier, f), "utf8");
+    /* les chemins LITTÉRAUX qu'un verbe `choose`/`set` reçoit : `path: "x.…"` ou `path: \`x[…` */
+    /* le chemin LITTÉRAL, jusqu'à sa première interpolation (`gear[${i}]` → `gear[`) */
+    for (const m of src.matchAll(/(?:path: |_PATH = )[`"]([a-z][^`"$]*)/g)) racines.add(m[1].replace(/[.[]$/, ""));
+  }
+  assert.ok(racines.has("gear") && racines.has("fh.destiny.arcana"), `témoin : la lecture trouve les chemins (${[...racines].join(", ")})`);
+  const tous = [...new Set(STEPS.map((s) => s.exige).filter(Boolean)), "fh.inheritance"];
+  const orphelines = [...racines].filter((r) => etapeDuChemin(r, tous) === null);
+  assert.deepEqual(orphelines, [], "une racine qu'un écran écrit et qu'aucune étape ne déclare serait nommée « no step asks »");
+});
+
+/* ══ 6 — L'EXEMPLE SRD ANGLAIS, GÉNÉRÉ (point 4, voie c d'ARCHI 35) ══════════════════════ */
+const { exempleSrdEn, SORTIE: SORTIE_SRD, PILE: PILE_EXEMPLE_SRD } = await import("../src/tools/exemple-srd-en.mjs");
+const { octetsDe } = await import("../src/tools/exemple-fh-en.mjs");
+const { SRD_LAYER_ID, SRFH_LAYER_IDS } = await import("../ui/builder/universe-step.mjs");
+
+test("6 — l'exemple SRD commité est EXACTEMENT ce que son générateur produit, sur la pile SRD de l'app", async () => {
+  const fs = await import("node:fs");
+  const { document } = exempleSrdEn();
+  assert.ok(octetsDe(document).equals(fs.readFileSync(SORTIE_SRD)),
+    `${SORTIE_SRD} a divergé de son générateur — rejouer « node src/tools/exemple-srd-en.mjs »`);
+  /* ⭐ la pile est celle que l'app monte en SRD : le fichier s'ouvre sans recalage */
+  assert.deepEqual(document.build.layers.map((c) => c.id), [SRD_LAYER_ID, ...SRFH_LAYER_IDS]);
+  assert.deepEqual(PILE_EXEMPLE_SRD.map((f) => f.replace(/^layers\/|\.layer\.json$/g, "")), [SRD_LAYER_ID, ...SRFH_LAYER_IDS]);
+});
+
+test("6b — l'exemple SRD porte les trois phrases du texte, calculées", () => {
+  const { document, report } = exempleSrdEn();
+  const r = document.resolved;
+  assert.deepEqual(report.unconsumed, [], "aucun choix sans effet");
+  assert.equal(r.abilities.dex.mod, 2, "témoin : DEX 14 + 1 (Criminal) = 15");
+  assert.deepEqual(r.initiative, { name: "Initiative", bonus: 4, score: 12,
+    parts: [{ name: "DEX", value: 2 }, { name: "Alert", value: 2 }] });
+  const perception = r.skills.find((s) => s.id === "perception");
+  assert.notEqual(perception.proficiency, "none", "témoin : Keen Senses sur Perception (maîtrisée)");
+  assert.deepEqual(sens({ resolved: r }, "perception-passive"),
+    { id: "perception-passive", name: "Passive Perception", value: 10 + perception.bonus });
+});

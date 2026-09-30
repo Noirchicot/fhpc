@@ -280,7 +280,7 @@ test("⚖️ LOT 350 — la coquille pose cet écran pour Sheet, et `manqueDuCra
   const shell = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.mjs"), "utf8"));
   const branche = shell.match(/if \(state\.document && manqueDuCran\(step, faitsDuPersonnage\(\)\)\) \{([\s\S]*?)\n {2}\}/);
   assert.ok(branche, "la branche de l'écran mort a changé de forme — ce garde lit à côté");
-  assert.match(branche[1], /const mot = motDeLEcranMort\(state\.document, state\.violations\);/, "le mot vient du module, une fois (et les refus sans fiche, lot 367)");
+  assert.match(branche[1], /const mot = motDeLEcranMort\(state\.document, state\.violations, drapeauxMontes\(\)\);/, "le mot vient du module, une fois (et les refus sans fiche, lot 367 ; les drapeaux montés, lot 379)");
   assert.match(branche[1], /step\.id === "review"\s*\?\s*renderSheetIncomplet\(mot, applyDecisionAction\)/,
     "⚖️ Sheet montre son écran mort AVEC `Save character` — par l'organe de review-step, jamais une porte écrite ici");
   assert.doesNotMatch(branche[1], /Save character|exportJson/, "⛔ la coquille ne fabrique pas la porte : un seul écrivain");

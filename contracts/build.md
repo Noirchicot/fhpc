@@ -880,7 +880,7 @@ serait exact et indémontrable.
 
 | Champ | Pourquoi |
 |---|---|
-| `senses[perception-passive]` | elle se **calcule** (10 + le bonus de la compétence), mais son **nom** ne vit dans aucun record : ce n'est pas un sens d'espèce, c'est une ligne de fiche |
+| `senses[perception-passive]` et `initiative` | **🧾 réécrit au lot 379 (30/09).** Ils se CALCULENT désormais, depuis la formule que la pile déclare sur leur record de glossaire (`data.sheet_score`, `srfh-mecaniques-en`), et le NOM est celui du record. Ne reste déclarée que la pile qui porte le glossaire SANS formule (`underived.sheet-score-undeclared`, la pile française), ou dont la formule lit ce qui manque. Une pile qui ÉTEINT le record (Fate's Hand, pour la Perception passive) ne déclare rien : un score qui n'existe pas n'est pas « non dérivé ». ⚠️ Avant ce lot : « son nom ne vit dans aucun record » — faux depuis que le glossaire SRD est dans la pile |
 | `traits` d'espèce | **plus dans cette table depuis le lot 13** — ils sont **dérivés**. Ne subsiste que la déclaration résiduelle : un record d'espèce qui ne porte pas `traits` du tout (couche tierce ou amputée), prouvée par une privation délibérée |
 | `spells[].castType` | **refusé par le lot 8**, mesure à l'appui — cinq constructions ressemblent à une sauvegarde et une seule est le fait, et un sort peut être génuinement les deux. Le schéma a cédé : le champ n'est plus obligatoire, le sort est émis **sans** son mode |
 | `languages` | aucun genre `language` parmi les 14. ⚠️ Le chapitre 4 leur donne pourtant une règle (**gratuites à la création, 1 point ensuite**) : la règle existe, le genre qui la porterait n'existe pas. Le lot 22 ne l'a pas inventé (loi §0.10) |

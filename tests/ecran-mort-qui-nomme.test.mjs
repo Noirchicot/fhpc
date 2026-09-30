@@ -231,7 +231,7 @@ test("🔴 LOT 186 — UN CRAN NON MONTÉ EST NOMMÉ, avec sa cause ET sa sortie
 
 test("🔴 `shell.mjs` ne fabrique plus la phrase — il la DEMANDE", () => {
   const shell = stripComments(fs.readFileSync(path.join(ROOT, "ui", "builder", "shell.mjs"), "utf8"));
-  assert.match(shell, /motDeLEcranMort\(state\.document, state\.violations\)/,
+  assert.match(shell, /motDeLEcranMort\(state\.document, state\.violations, drapeauxMontes\(\)\)/,  // 🧾 LOT 379 — et les drapeaux montés (le mot de l\'étape d\'un choix mort)
     "la coquille doit poser la phrase du module, sur le document vivant");
   /* ⚖️ LOT 186 — MÊME LOI POUR LE CRAN NON MONTÉ : la coquille DEMANDE la
      phrase, elle ne la fabrique pas, et elle la pose sur la condition qui la

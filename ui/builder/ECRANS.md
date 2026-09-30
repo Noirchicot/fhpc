@@ -1138,6 +1138,10 @@ reste ouvert.**
 📍 `sheet-ne-juge-rien` · déployée, hors corpus · 19/08
 ⚖️ **« Fait / pas fait » est prononcé par le carnet : cet écran GROUPE par étape et met en phrases, sa table n'est qu'un routage — sans un seul seuil.**
 
+> 🧾 **30/09 (lot 379) — UNE LECTURE D'AGENT, PAS UNE PAROLE D'ERIC.** Aucune citation d'Eric ne porte cette règle
+> (relevé du lot 378, `git log -S` compris) : elle attend la dictée de la fiche. Son texte ne change pas d'ici là ;
+> une ligne qu'Eric dictera la remplace, elle ne la complète pas.
+
 **« Fait / pas fait » est prononcé par le carnet : cet écran GROUPE par étape et met en phrases, sa table n'est qu'un routage — sans un seul seuil.**
 
 ### Traverser n'est pas finir
@@ -1151,6 +1155,10 @@ reste ouvert.**
 ### Chaque ligne mène à son étape
 📍 `sheet-chaque-ligne-mene-a-son-etape` · déployée, hors corpus · ?
 ⚖️ **Chaque ligne du récapitulatif est cliquable et mène à l'étape qui la produit.**
+
+> 🧾 **30/09 (lot 379) — UNE LECTURE D'AGENT, PAS UNE PAROLE D'ERIC.** Aucune citation d'Eric ne porte cette règle
+> (relevé du lot 378, `git log -S` compris) : elle attend la dictée de la fiche. Son texte ne change pas d'ici là ;
+> une ligne qu'Eric dictera la remplace, elle ne la complète pas.
 
 **Chaque ligne du récapitulatif est cliquable et mène à l'étape qui la produit.**
 

@@ -1,0 +1,740 @@
+{
+  "schema": "fh-char/1",
+  "id": "example-vesna-srd-en",
+  "name": "Vesna Quickthorn",
+  "lang": "en",
+  "units": {
+    "distance": "ft",
+    "weight": "lb"
+  },
+  "created": "2026-09-30T09:00:00Z",
+  "modified": "2026-09-30T09:00:00Z",
+  "build": {
+    "layers": [
+      {
+        "id": "srd-5.2.1-en",
+        "version": "5.2.1",
+        "hash": "42ec2cd7c2ed30a524995acb29339dfd2d5d698f245c69aeda10c4535bd8ceb1",
+        "name": "SRD 5.2.1 (EN)"
+      },
+      {
+        "id": "srfh-shelving-en",
+        "version": "0.1.0",
+        "hash": "e70733e4c1fe7e8eb03d4a584a51c8a47a73d02896151bf3b8efbd4c7fffbe98",
+        "name": "SRFH — Shelving (EN)"
+      },
+      {
+        "id": "srfh-mecaniques-en",
+        "version": "0.1.0",
+        "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
+        "name": "SRFH — Mechanics (EN)"
+      }
+    ],
+    "choices": [
+      {
+        "path": "level",
+        "value": 1,
+        "label": "Level 1"
+      },
+      {
+        "path": "class",
+        "ref": {
+          "kind": "class",
+          "id": "srd:class:en:wizard"
+        },
+        "label": "Wizard"
+      },
+      {
+        "path": "species",
+        "ref": {
+          "kind": "species",
+          "id": "srd:species:en:elf"
+        },
+        "label": "Elf"
+      },
+      {
+        "path": "species.lineage[0]",
+        "value": "high-elf",
+        "label": "High Elf"
+      },
+      {
+        "path": "species.lineage[0].ability[0]",
+        "value": "int",
+        "label": "Elven Lineage: Intelligence"
+      },
+      {
+        "path": "species.skills[0]",
+        "value": "perception",
+        "label": "Keen Senses: Perception"
+      },
+      {
+        "path": "background",
+        "ref": {
+          "kind": "background",
+          "id": "srd:background:en:criminal"
+        },
+        "label": "Criminal"
+      },
+      {
+        "path": "background.originFeat[0]",
+        "ref": {
+          "kind": "feat",
+          "id": "srd:feat:en:alert"
+        },
+        "label": "Alert"
+      },
+      {
+        "path": "abilities.mode",
+        "value": "standard",
+        "label": "Standard array"
+      },
+      {
+        "path": "abilities.str",
+        "value": 8
+      },
+      {
+        "path": "abilities.dex",
+        "value": 14
+      },
+      {
+        "path": "abilities.con",
+        "value": 13
+      },
+      {
+        "path": "abilities.int",
+        "value": 15
+      },
+      {
+        "path": "abilities.wis",
+        "value": 12
+      },
+      {
+        "path": "abilities.cha",
+        "value": 10
+      },
+      {
+        "path": "background.boost.int",
+        "value": 2
+      },
+      {
+        "path": "background.boost.dex",
+        "value": 1
+      },
+      {
+        "path": "class.skills[0]",
+        "value": "arcana"
+      },
+      {
+        "path": "class.skills[1]",
+        "value": "investigation"
+      },
+      {
+        "path": "class.cantrips[0]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:ray-of-frost"
+        }
+      },
+      {
+        "path": "class.cantrips[1]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:light"
+        }
+      },
+      {
+        "path": "class.cantrips[2]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:mage-hand"
+        }
+      },
+      {
+        "path": "class.prepared[0]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:magic-missile"
+        }
+      },
+      {
+        "path": "class.prepared[1]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:shield"
+        }
+      },
+      {
+        "path": "class.prepared[2]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:detect-magic"
+        }
+      },
+      {
+        "path": "class.prepared[3]",
+        "ref": {
+          "kind": "spell",
+          "id": "srd:spell:en:sleep"
+        }
+      },
+      {
+        "path": "gear[0]",
+        "ref": {
+          "kind": "weapon",
+          "id": "srd:weapon:en:dagger"
+        }
+      },
+      {
+        "path": "gear[0].quantity",
+        "value": 2
+      },
+      {
+        "path": "gear[0].equipped",
+        "value": true
+      },
+      {
+        "path": "gear[1]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:backpack"
+        }
+      },
+      {
+        "path": "gear[1].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[1].equipped",
+        "value": true
+      },
+      {
+        "path": "gear[2]",
+        "ref": {
+          "kind": "gear",
+          "id": "srd:gear:en:book"
+        }
+      },
+      {
+        "path": "gear[2].quantity",
+        "value": 1
+      },
+      {
+        "path": "gear[2].equipped",
+        "value": false
+      },
+      {
+        "path": "currency.cp",
+        "value": 0
+      },
+      {
+        "path": "currency.sp",
+        "value": 0
+      },
+      {
+        "path": "currency.gp",
+        "value": 16
+      },
+      {
+        "path": "currency.pp",
+        "value": 0
+      }
+    ],
+    "budgets": {},
+    "overrides": [],
+    "confirmed": [
+      "background",
+      "background.boost",
+      "class",
+      "class.cantrips",
+      "class.prepared",
+      "class.skills",
+      "species",
+      "species.lineage",
+      "species.skills"
+    ]
+  },
+  "generator": {
+    "name": "src/tools/exemple-srd-en",
+    "version": "1.0.0"
+  },
+  "resolved": {
+    "derivation": {
+      "at": "2026-09-30T09:00:00Z",
+      "stack": [
+        {
+          "id": "srd-5.2.1-en",
+          "version": "5.2.1",
+          "hash": "42ec2cd7c2ed30a524995acb29339dfd2d5d698f245c69aeda10c4535bd8ceb1",
+          "name": "SRD 5.2.1 (EN)"
+        },
+        {
+          "id": "srfh-shelving-en",
+          "version": "0.1.0",
+          "hash": "e70733e4c1fe7e8eb03d4a584a51c8a47a73d02896151bf3b8efbd4c7fffbe98",
+          "name": "SRFH — Shelving (EN)"
+        },
+        {
+          "id": "srfh-mecaniques-en",
+          "version": "0.1.0",
+          "hash": "7b01c491243794819571292b031212e400b40c647941c5a3ee81b715a786b6fa",
+          "name": "SRFH — Mechanics (EN)"
+        }
+      ]
+    },
+    "identity": {
+      "level": 1,
+      "classes": [
+        {
+          "name": "Wizard",
+          "level": 1
+        }
+      ],
+      "species": "Elf",
+      "size": "medium",
+      "background": "Criminal"
+    },
+    "abilities": {
+      "str": {
+        "score": 8,
+        "mod": -1
+      },
+      "dex": {
+        "score": 15,
+        "mod": 2
+      },
+      "con": {
+        "score": 13,
+        "mod": 1
+      },
+      "int": {
+        "score": 17,
+        "mod": 3
+      },
+      "wis": {
+        "score": 12,
+        "mod": 1
+      },
+      "cha": {
+        "score": 10,
+        "mod": 0
+      }
+    },
+    "proficiency": 2,
+    "ac": 12,
+    "vitals": {
+      "hpMax": 7,
+      "hpCurrent": 7,
+      "tempHp": 0,
+      "conditions": []
+    },
+    "speeds": {
+      "walk": 30
+    },
+    "senses": [
+      {
+        "id": "darkvision",
+        "name": "Darkvision",
+        "value": 60,
+        "unit": "ft"
+      },
+      {
+        "id": "perception-passive",
+        "name": "Passive Perception",
+        "value": 13
+      }
+    ],
+    "initiative": {
+      "name": "Initiative",
+      "bonus": 4,
+      "score": 12,
+      "parts": [
+        {
+          "name": "DEX",
+          "value": 2
+        },
+        {
+          "name": "Alert",
+          "value": 2
+        }
+      ]
+    },
+    "languages": [],
+    "saves": {
+      "str": {
+        "bonus": -1,
+        "proficient": false
+      },
+      "dex": {
+        "bonus": 2,
+        "proficient": false
+      },
+      "con": {
+        "bonus": 1,
+        "proficient": false
+      },
+      "int": {
+        "bonus": 5,
+        "proficient": true
+      },
+      "wis": {
+        "bonus": 3,
+        "proficient": true
+      },
+      "cha": {
+        "bonus": 0,
+        "proficient": false
+      }
+    },
+    "skills": [
+      {
+        "id": "acrobatics",
+        "name": "Acrobatics",
+        "ability": "dex",
+        "bonus": 2,
+        "proficiency": "none"
+      },
+      {
+        "id": "animal-handling",
+        "name": "Animal Handling",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "arcana",
+        "name": "Arcana",
+        "ability": "int",
+        "bonus": 5,
+        "proficiency": "adept"
+      },
+      {
+        "id": "athletics",
+        "name": "Athletics",
+        "ability": "str",
+        "bonus": -1,
+        "proficiency": "none"
+      },
+      {
+        "id": "deception",
+        "name": "Deception",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "history",
+        "name": "History",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "insight",
+        "name": "Insight",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "intimidation",
+        "name": "Intimidation",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "investigation",
+        "name": "Investigation",
+        "ability": "int",
+        "bonus": 5,
+        "proficiency": "adept"
+      },
+      {
+        "id": "medicine",
+        "name": "Medicine",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      },
+      {
+        "id": "nature",
+        "name": "Nature",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "perception",
+        "name": "Perception",
+        "ability": "wis",
+        "bonus": 3,
+        "proficiency": "adept"
+      },
+      {
+        "id": "performance",
+        "name": "Performance",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "persuasion",
+        "name": "Persuasion",
+        "ability": "cha",
+        "bonus": 0,
+        "proficiency": "none"
+      },
+      {
+        "id": "religion",
+        "name": "Religion",
+        "ability": "int",
+        "bonus": 3,
+        "proficiency": "none"
+      },
+      {
+        "id": "sleight-of-hand",
+        "name": "Sleight of Hand",
+        "ability": "dex",
+        "bonus": 4,
+        "proficiency": "adept"
+      },
+      {
+        "id": "stealth",
+        "name": "Stealth",
+        "ability": "dex",
+        "bonus": 4,
+        "proficiency": "adept"
+      },
+      {
+        "id": "survival",
+        "name": "Survival",
+        "ability": "wis",
+        "bonus": 1,
+        "proficiency": "none"
+      }
+    ],
+    "tools": [
+      {
+        "id": "thieves-tools",
+        "name": "Thieves’ Tools",
+        "ability": "dex",
+        "bonus": 4,
+        "proficiency": "adept"
+      }
+    ],
+    "training": {
+      "armor": [
+        {
+          "id": "class",
+          "text": "None",
+          "source": "Wizard"
+        }
+      ],
+      "weapons": [
+        {
+          "id": "class",
+          "text": "Simple weapons",
+          "source": "Wizard"
+        }
+      ]
+    },
+    "actions": [],
+    "spellcasting": {
+      "id": "wizard",
+      "name": "Wizard",
+      "ability": "int",
+      "dc": 13,
+      "attackBonus": 5,
+      "slots": {
+        "1": {
+          "max": 2,
+          "current": 2
+        }
+      },
+      "spells": [
+        {
+          "id": "ray-of-frost",
+          "name": "Ray of Frost",
+          "level": 0,
+          "prepared": true,
+          "range": "60 feet",
+          "castingTime": "Action",
+          "duration": "Instantaneous",
+          "ritual": false,
+          "text": "A frigid beam of blue-white light streaks toward a creature within range. Make a ranged spell attack against the target. On a hit, it takes 1d8 Cold damage, and its Speed is reduced by 10 feet until the start of your next turn.\n\nCantrip Upgrade. The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).",
+          "concentration": false
+        },
+        {
+          "id": "light",
+          "name": "Light",
+          "level": 0,
+          "prepared": true,
+          "range": "Touch",
+          "castingTime": "Action",
+          "duration": "1 hour",
+          "ritual": false,
+          "text": "You touch one Large or smaller object that isn’t being worn or carried by someone else. Until the spell ends, the object sheds Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. The light can be colored as you like.\n\nCovering the object with something opaque blocks the light. The spell ends if you cast it again.",
+          "concentration": false
+        },
+        {
+          "id": "mage-hand",
+          "name": "Mage Hand",
+          "level": 0,
+          "prepared": true,
+          "range": "30 feet",
+          "castingTime": "Action",
+          "duration": "1 minute",
+          "ritual": false,
+          "text": "A spectral, floating hand appears at a point you choose within range. The hand lasts for the duration. The hand vanishes if it is ever more than 30 feet away from you or if you cast this spell again.\n\nWhen you cast the spell, you can use the hand to manipulate an object, open an unlocked door or container, stow or retrieve an item from an open container, or pour the contents out of a vial.\n\nAs a Magic action on your later turns, you can control the hand thus again. As part of that action, you can move the hand up to 30 feet.\n\nThe hand can’t attack, activate magic items, or carry more than 10 pounds.",
+          "concentration": false
+        },
+        {
+          "id": "magic-missile",
+          "name": "Magic Missile",
+          "level": 1,
+          "prepared": true,
+          "range": "120 feet",
+          "castingTime": "Action",
+          "duration": "Instantaneous",
+          "ritual": false,
+          "text": "You create three glowing darts of magical force. Each dart strikes a creature of your choice that you can see within range. A dart deals 1d4 + 1 Force damage to its target. The darts all strike simultaneously, and you can direct them to hit one creature or several.\n\nUsing a Higher-Level Spell Slot. The spell creates one more dart for each spell slot level above 1.",
+          "concentration": false
+        },
+        {
+          "id": "shield",
+          "name": "Shield",
+          "level": 1,
+          "prepared": true,
+          "range": "Self",
+          "castingTime": "Reaction, which you take when you are hit by an attack roll or targeted by the Magic Missile spell",
+          "duration": "1 round",
+          "ritual": false,
+          "text": "An imperceptible barrier of magical force protects you. Until the start of your next turn, you have a +5 bonus to AC, including against the triggering attack, and you take no damage from Magic Missile.",
+          "concentration": false
+        },
+        {
+          "id": "detect-magic",
+          "name": "Detect Magic",
+          "level": 1,
+          "prepared": true,
+          "range": "Self",
+          "castingTime": "Action or Ritual",
+          "duration": "Concentration, up to 10 minutes",
+          "ritual": true,
+          "text": "For the duration, you sense the presence of magical effects within 30 feet of yourself. If you sense such effects, you can take the Magic action to see a faint aura around any visible creature or object in the area that bears the magic, and if an effect was created by a spell, you learn the spell’s school of magic.\n\nThe spell is blocked by 1 foot of stone, dirt, or wood; 1 inch of metal; or a thin sheet of lead.",
+          "concentration": true
+        },
+        {
+          "id": "sleep",
+          "name": "Sleep",
+          "level": 1,
+          "prepared": true,
+          "range": "60 feet",
+          "castingTime": "Action",
+          "duration": "Concentration, up to 1 minute",
+          "ritual": false,
+          "text": "Each creature of your choice in a 5-foot-radius Sphere centered on a point within range must succeed on a Wisdom saving throw or have the Incapacitated condition until the end of its next turn, at which point it must repeat the save. If the target fails the second save, the target has the Unconscious condition for the duration. The spell ends on a target if it takes damage or someone within 5 feet of it takes an action to shake it out of the spell’s effect.\n\nCreatures that don’t sleep, such as elves, or that have Immunity to the Exhaustion condition automatically succeed on saves against this spell.",
+          "concentration": true
+        }
+      ]
+    },
+    "spellSources": [
+      {
+        "id": "species:elven-lineage",
+        "name": "Elven Lineage: High Elf",
+        "source": "Elf",
+        "ability": "int",
+        "dc": 13,
+        "attackBonus": 5,
+        "spells": [
+          {
+            "id": "prestidigitation",
+            "name": "Prestidigitation",
+            "level": 0,
+            "prepared": true,
+            "range": "10 feet",
+            "castingTime": "Action",
+            "duration": "Up to 1 hour",
+            "ritual": false,
+            "text": "You create a magical effect within range. Choose the effect from the options below. If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.\n\nSensory Effect. You create an instantaneous, harmless sensory effect, such as a shower of sparks, a puff of wind, faint musical notes, or an odd odor. Fire Play. You instantaneously light or snuff out a candle, a torch, or a small campfire.\n\nClean or Soil. You instantaneously clean or soil an object no larger than 1 cubic foot.\n\nMinor Sensation. You chill, warm, or flavor up to 1 cubic foot of nonliving material for 1 hour.\n\nMagic Mark. You make a color, a small mark, or a symbol appear on an object or a surface for 1 hour.\n\nMinor Creation. You create a nonmagical trinket or an illusory image that can fit in your hand. It lasts until the end of your next turn. A trinket can deal no damage and has no monetary worth.",
+            "concentration": false
+          }
+        ]
+      }
+    ],
+    "resources": [],
+    "traits": [
+      {
+        "id": "darkvision",
+        "name": "Darkvision",
+        "source": "Elf",
+        "text": "You have Darkvision with a range of 60 feet."
+      },
+      {
+        "id": "elven-lineage",
+        "name": "Elven Lineage: High Elf",
+        "source": "Elf",
+        "text": "You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list."
+      },
+      {
+        "id": "fey-ancestry",
+        "name": "Fey Ancestry",
+        "source": "Elf",
+        "text": "You have Advantage on saving throws you make to avoid or end the Charmed condition."
+      },
+      {
+        "id": "keen-senses",
+        "name": "Keen Senses",
+        "source": "Elf",
+        "text": "You have proficiency in the Insight, Perception, or Survival skill."
+      },
+      {
+        "id": "trance",
+        "name": "Trance",
+        "source": "Elf",
+        "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
+      },
+      {
+        "id": "background:srd:feat:en:alert",
+        "name": "Alert",
+        "category": "feat",
+        "source": "Criminal",
+        "text": "You gain the following benefits.\n\nInitiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll.\n\nInitiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can’t make this swap if you or the ally has the Incapacitated condition."
+      }
+    ],
+    "gear": [
+      {
+        "id": "dagger",
+        "name": "Dagger",
+        "quantity": 2,
+        "equipped": true
+      },
+      {
+        "id": "backpack",
+        "name": "Backpack",
+        "quantity": 1,
+        "equipped": true
+      },
+      {
+        "id": "book",
+        "name": "Book",
+        "quantity": 1,
+        "equipped": false
+      }
+    ],
+    "currency": {
+      "cp": 0,
+      "sp": 0,
+      "gp": 16,
+      "pp": 0
+    },
+    "craft": [],
+    "stats": [],
+    "notes": [],
+    "effects": {
+      "applied": [],
+      "apart": [],
+      "pending": []
+    }
+  }
+}

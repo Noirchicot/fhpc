@@ -234,6 +234,21 @@ const OVERRIDES = [
 
 /** Monte la pile, plie le personnage, rend le document ET le rapport. */
 export function exempleFhEn() {
+  return plierUnExemple({
+    pile: PILE,
+    modules: [createFhDestinyStat(), createFhSkillPoolStat(), createFhSpeciesTraits()],
+    identite: { name: "Ilyra Duskleaf", id: "example-ilyra-fh-en", at: "2026-08-09T09:00:00Z",
+      generator: { name: "src/tools/exemple-fh-en", version: "1.0.0" } },
+    choix: CHOIX,
+    overrides: OVERRIDES
+  });
+}
+
+/** 🧾 LOT 379 — LA MÉCANIQUE D'UN EXEMPLE GÉNÉRÉ, PARTAGÉE : la pile, les modules, l'identité, les
+ *  choix, les surcharges → `{document, report}`. Extraite d'`exempleFhEn` (octets inchangés, gardés
+ *  par `render-fiche.test.mjs`) pour que l'exemple SRD anglais (`exemple-srd-en.mjs`) naisse par le
+ *  MÊME chemin — ⛔ jamais une seconde recette qui divergerait de la première. */
+export function plierUnExemple({ pile, modules, identite, choix, overrides }) {
   const b = bus();
   const layers = createLayers({ bus: b });
   const dispatch = (route, payload) => {
@@ -244,15 +259,15 @@ export function exempleFhEn() {
 
   /* Horloge FIXE. `derivation.at` en dépend, et c'est lui qui ferait diverger
      deux exécutions du générateur. */
-  const now = () => "2026-08-09T09:00:00Z";
+  const now = () => identite.at;
   const build = createBuild({
     bus: b,
     dispatch,
     now,
-    modules: [createFhDestinyStat(), createFhSkillPoolStat(), createFhSpeciesTraits()]
+    modules
   });
 
-  for (const fichier of PILE) {
+  for (const fichier of pile) {
     layers.verbs.register({ bytes: readFileSync(join(ROOT, fichier)), origin: fichier });
   }
 
@@ -269,16 +284,16 @@ export function exempleFhEn() {
      ce lot ; l'ordre des clefs n'est lu par personne. */
   const writers = createDocWriters({ schema: JSON.parse(readFileSync(join(ROOT, "schemas", "fh-char.schema.json"), "utf8")) });
   const document = writers.composer({
-    name: "Ilyra Duskleaf",
+    name: identite.name,
     lang: "en",
     units: { distance: "ft", weight: "lb" },
     layers: manifeste,
-    id: "example-ilyra-fh-en",
-    at: "2026-08-09T09:00:00Z"
+    id: identite.id,
+    at: identite.at
   });
-  document.generator = { name: "src/tools/exemple-fh-en", version: "1.0.0" };
-  document.build.choices.push(...structuredClone(CHOIX));
-  document.build.overrides = structuredClone(OVERRIDES);
+  document.generator = { ...identite.generator };
+  document.build.choices.push(...structuredClone(choix));
+  document.build.overrides = structuredClone(overrides);
 
   /* ══ LES SIGNATURES D'UN PERSONNAGE FINI — 27/08 ══════════════════════════
      Mesuré au banc par l'architecte en formation : Ilyra affichait « High Elf

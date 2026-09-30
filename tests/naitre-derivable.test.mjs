@@ -620,7 +620,7 @@ test("D1 — 🔴 `shell.mjs` : plus de liste d'écrans par nom ; il demande `ma
   assert.doesNotMatch(shell, /new Set\(\[\s*"(background|abilities|destiny|skills|equipment|review)"/,
     "⛔ un ensemble d'ids d'écran dans la coquille est une liste par nom, quel que soit son nom");
   assert.match(shell, /manqueDuCran\(step, faitsDuPersonnage\(\)\)/, "la coquille demande au cran ce qui lui manque");
-  assert.match(shell, /motDeLEcranMort\(state\.document, state\.violations\)/, "et pose le mot du module, sur le document vivant (et ses refus, lot 367)");
+  assert.match(shell, /motDeLEcranMort\(state\.document, state\.violations, drapeauxMontes\(\)\)/, "et pose le mot du module, sur le document vivant (et ses refus, lot 367 ; et les drapeaux montés, lot 379)");
   assert.match(shell, /derivable:\s*!state\.derivationImpossible/, "le fait est lu sur le refus de `rebuild`…");
   assert.doesNotMatch(shell, /classeChoisie/, "…et c'est le SEUL fait : le second (la classe, pour Equipment) est parti avec son lecteur");
   /* et la source de la loi porte UNE déclaration — celle de Sheet */
