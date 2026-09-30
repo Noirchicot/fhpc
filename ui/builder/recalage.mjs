@@ -10,14 +10,14 @@
    coquille les câble à l'ouverture (démarrage, fichier ouvert) ; `memoire.mjs` garde la
    marque sous sa clef. */
 
-import { canonicalText } from "../../src/doc/canonical.mjs?v=941";
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=941";
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=941";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=942";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=942";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=942";
 /* 📚 LOT 390 — UN LIVRE DU JOUEUR, C'EST LE PHB, LE DMG, OU UN CATALOG DE CRÉATEUR, dont l'app ne connaît pas
    l'id d'avance. Sans son fichier sous la main, un catalog se sépare d'une couche RETIRÉE du produit par la
    table des noms réservés de l'app (`estUnNomDeLApp`, le juge du catalog) : aucune couche de l'app n'en sort,
    aucun catalog n'y entre. */
-import { estUnNomDeLApp } from "../../src/catalog/juge.mjs?v=941";
+import { estUnNomDeLApp } from "../../src/catalog/juge.mjs?v=942";
 const estUnLivreDuJoueur = (id) => LIVRES_DU_JOUEUR.some((l) => l.id === id) || !estUnNomDeLApp(id);
 
 /** 📚 LOT 393 — UN INTERRUPTEUR DE LAYERS NE TOUCHE QUE SON LIVRE. 📏 Vu au banc du lot 390 : un perso déclare le

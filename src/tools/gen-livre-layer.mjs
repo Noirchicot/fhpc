@@ -126,6 +126,15 @@ export function slugDuNom(nom) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+/** 🔗 LOT 394 — L'ANCRE D'UNE SECTION CHEZ D&D BEYOND. Le compendium nomme la section d'un titre
+ *  par ce titre sans rien d'autre que ses lettres et ses chiffres (relevé sur les ids des titres des
+ *  chapitres 5 et 7, 30/09) : un titre inventé « Test Fortune » a l'ancre `#TestFortune`, « Quill-Pen of
+ *  the North » `#QuillPenoftheNorth`. ⛔ Le nom tel quel (une espace dans l'ancre : le défaut du lot
+ *  387) n'est l'ancre de rien — la page s'ouvre en haut. */
+export function ancreDuLivre(nom) {
+  return String(nom).replace(/[’']/g, "").replace(/[^A-Za-z0-9]/g, "");
+}
+
 /** La couleur entre parenthèses, ou `null`. */
 export function couleurDuNom(nom) {
   const m = String(nom).match(/\(([^)]*)\)/);
@@ -364,7 +373,7 @@ export function construireOrigines(source, { srd, meca }) {
   const background = {};
   for (const b of source.backgrounds || []) {
     const slug = slugDuNom(b.name);
-    const url = `${sections.background || ""}${b.name}`;
+    const url = `${sections.background || ""}${ancreDuLivre(b.name)}`;
     const data = {
       ability_keys: b.abilities.slice(),
       ability_scores: b.abilities.map((k) => NOMS_DE_CARAC[k] || fail(`caractéristique inconnue « ${k} » (${b.name}).`)),
@@ -481,7 +490,7 @@ export function construireOrigines(source, { srd, meca }) {
       else if (frere.data.category !== "origin") ecarts.push(`${f.name} · catégorie : SRD « ${frere.data.category} »`);
       continue;
     }
-    const url = `${sections.feat || ""}${f.name}`;
+    const url = `${sections.feat || ""}${ancreDuLivre(f.name)}`;
     const data = { book_link: url, category: "origin", description: f.resume, name: f.name, prerequisite: null, summary_of: "phb-2024" };
     if (f.luck_points && f.luck_points.max === "proficiency") {
       data.sheet_uses = [{ id: slugDuNom(`${f.name} points`), max: { proficiency: 1 }, recharge: f.luck_points.recharge, source: pointeur(f.name, url) }];
@@ -758,6 +767,170 @@ export function construireDons(source, { srd, origines = {} }) {
   return { records: { feat }, comptes: { feat: Object.keys(feat).length, par_categorie: parCategorie, partages: vus.size }, ecarts, restes };
 }
 
+/* ══ 💍 LOT 394 — LES OBJETS MAGIQUES DU DMG ═════════════════════════════════════════════════════════ */
+
+/** Les conditions d'un effet d'objet, telles que l'inventaire du lot 289 les nomme — relues dans le
+ *  moteur (`effets-objets.mjs`), jamais inventées ici. */
+const CONDITIONS_D_EFFET = new Set(["porte", "tenu", "harmonise+porte", "harmonise+tenu", "harmonise", "active", "consomme", "toujours"]);
+
+/** La rareté d'un objet partagé ramenée à la forme de la liste du compendium : le SRD y ajoute
+ *  l'harmonisation entre parenthèses, et écrit « Rarity Varies » ou l'énumération des variantes. */
+const rareteDuSrd = (r) => {
+  const base = String(r || "").replace(/\s*\(Requires Attunement[^)]*\)\s*$/, "").trim();
+  return /Varies|, or /.test(base) ? "varies" : base.toLowerCase();
+};
+
+/**
+ * Construit les OBJETS MAGIQUES du DMG qui ne sont pas au SRD, et leur rangement. PURE.
+ * @param {object} source l'instantané des faits (`sources-livres/dmg-2024-magic-items.json`)
+ * @param {{srd: object, rangement: object}} base la couche SRD et la couche de rangement (`srfh-shelving-en`)
+ * @returns {{records:object, comptes:object, ecarts:string[], renommes:string[], restes:string[], analogies:object[]}}
+ */
+export function construireObjets(source, { srd, rangement }) {
+  const livre = LIVRES["dmg-2024"];
+  if (!source || !Array.isArray(source.items)) fail("source des objets magiques absente ou illisible.");
+  if (!srd || !srd.records || !srd.records.item) fail("la couche SRD est requise : c'est elle qu'on compare.");
+  if (!rangement || !rangement.records || !rangement.records.shelving) fail("la couche de rangement est requise : c'est elle qui dit où va un objet.");
+  const sigle = livre.sigle.toLowerCase();
+  const parNom = new Map(Object.values(srd.records.item).map((r) => [apostrophe(r.name), r]));
+  const idParNom = new Map(Object.entries(srd.records.item).map(([id, r]) => [apostrophe(r.name), id]));
+  /* le rangement SRD de chaque objet, par son id ; et, par catégorie hors merveilleux, le rangement
+     unique que la table déduit de la catégorie (`derived:item.category`) — LU, jamais écrit ici */
+  const rangementDe = new Map();
+  for (const r of Object.values(rangement.records.shelving)) {
+    if (r && r.data && r.data.of_kind === "item") rangementDe.set(r.data.extends, r.data);
+  }
+  const parCategorie = new Map();
+  for (const [id, r] of Object.entries(srd.records.item)) {
+    const cat = r.data.category;
+    const rg = rangementDe.get(id);
+    if (cat === "wondrous-item" || !rg) continue;
+    const cle = JSON.stringify([rg.shelf.aisle, rg.shelf.shelf, rg.slot && rg.slot.state, rg.slot && rg.slot.slot]);
+    parCategorie.set(cat, [...(parCategorie.get(cat) || []), cle]);
+  }
+  const rangementDeLaCategorie = (cat) => {
+    const vus = [...new Set(parCategorie.get(cat) || [])];
+    if (vus.length !== 1) fail(`la catégorie « ${cat} » n'a pas un rangement unique au SRD (${vus.length}) : pas de déduction possible.`);
+    const [aisle, shelf, state, slot] = JSON.parse(vus[0]);
+    return { aisle, shelf, state, slot };
+  };
+
+  const ecarts = [];
+  const renommes = [];
+  const restes = [];
+  const analogies = [];
+  const vus = new Set();
+  const item = {};
+  const shelving = {};
+  const parCat = {};
+  for (const o of source.items) {
+    const nomSrd = apostrophe(o.srd_name || o.variant_of || o.name);
+    const frere = parNom.get(nomSrd);
+    if (o.shared) {
+      /* ⭐ PARTAGÉ : pas réémis — comparé, fait par fait */
+      if (!frere) fail(`« ${o.name} » se dit partagé, mais le SRD ne porte pas « ${nomSrd} ».`);
+      vus.add(nomSrd);
+      if (o.srd_name) renommes.push(`${o.name} = ${frere.name} (SRD)`);
+      const d = frere.data;
+      if (d.category !== o.category) ecarts.push(`${o.name} · catégorie : SRD « ${d.category} » / DMG « ${o.category} »`);
+      const attSrd = d.attunement === true || /Requires Attunement/.test(d.rarity || "");
+      if (attSrd !== (o.attunement === true)) ecarts.push(`${o.name} · harmonisation : SRD « ${attSrd} » / DMG « ${o.attunement === true} »`);
+      if (o.variant_of) {
+        /* une variante (« Armor, +1 ») : sa rareté est l'un des paliers que le SRD énumère */
+        const plus = (o.name.match(/\+(\d)$/) || [])[1];
+        if (plus && !new RegExp(`${o.rarity}\\s*\\(\\+${plus}\\)`, "i").test(d.rarity || "") && !/Varies/i.test(d.rarity || "")) {
+          ecarts.push(`${o.name} · rareté : SRD « ${d.rarity} » / DMG « ${o.rarity} »`);
+        }
+      } else if (rareteDuSrd(d.rarity) !== String(o.rarity).toLowerCase()) {
+        ecarts.push(`${o.name} · rareté : SRD « ${d.rarity} » / DMG « ${o.rarity} »`);
+      }
+      continue;
+    }
+    if (frere) fail(`« ${o.name} » est au SRD : il ne peut pas être propre au livre.`);
+    for (const champ of ["url", "resume", "rarity", "category"]) {
+      if (typeof o[champ] !== "string" || o[champ] === "") fail(`l'objet propre au livre « ${o.name} » n'a pas de « ${champ} » dans l'instantané.`);
+    }
+    if (o.attunement === true && !/Requires Attunement/.test(o.rarity)) fail(`« ${o.name} » : l'harmonisation n'est pas écrite dans sa rareté, comme au SRD.`);
+    if (o.attunement !== true && /Requires Attunement/.test(o.rarity)) fail(`« ${o.name} » : une rareté qui demande l'harmonisation sur un objet qui ne la demande pas.`);
+    const slug = slugDuNom(o.name);
+    const id = `${sigle}:item:en:${slug}`;
+    if (item[id]) fail(`l'id « ${id} » est produit deux fois.`);
+    const ptr = (section) => ({ livre: "dmg-2024", section: `${o.name} · ${section}`, url: o.url });
+    const data = {
+      attunement: o.attunement === true,
+      book_link: o.url,
+      category: o.category,
+      description: o.resume,
+      name: o.name,
+      rarity: o.rarity,
+      subtype: o.subtype || null,
+      summary_of: "dmg-2024"
+    };
+    if (o.charges) data.charges = { ...o.charges };
+    if (Array.isArray(o.effects) && o.effects.length) {
+      data.effects = o.effects.map((e) => {
+        if (!CONDITIONS_D_EFFET.has(e.condition)) fail(`« ${o.name} » : condition d'effet inconnue « ${e.condition} ».`);
+        if (e.famille !== "chiffre" || typeof e.cible !== "string" || typeof e.mode !== "string" || !Number.isInteger(e.valeur)) {
+          fail(`« ${o.name} » : un effet déclaré n'a pas la forme de l'inventaire du lot 289.`);
+        }
+        const { section, ...forme } = e;
+        return { ...forme, source: ptr(section || "effect") };
+      });
+    }
+    if (o.reste) restes.push(`${o.name} : ${o.reste}`);
+    item[id] = { name: o.name, slug, data };
+    parCat[o.category] = (parCat[o.category] || 0) + 1;
+
+    /* ── LE RANGEMENT ── déduit de la catégorie, ou PROPOSÉ par analogie pour un merveilleux */
+    let shelf;
+    let slot;
+    if (o.category === "wondrous-item") {
+      const r = o.rangement;
+      if (!r || typeof r.like !== "string" || typeof r.shelf !== "string") fail(`« ${o.name} » : un objet merveilleux sans rangement proposé ni modèle.`);
+      const modele = idParNom.get(apostrophe(r.like));
+      const rg = modele && rangementDe.get(modele);
+      if (!rg) fail(`« ${o.name} » : le modèle « ${r.like} » n'est pas un objet rangé du SRD.`);
+      const [aisle, etagere] = r.shelf.split(":");
+      if (rg.shelf.aisle !== aisle || rg.shelf.shelf !== etagere) {
+        fail(`« ${o.name} » : rangé « comme ${r.like} », mais ${r.like} est sur ${rg.shelf.aisle}:${rg.shelf.shelf}, pas sur ${r.shelf}.`);
+      }
+      const place = rg.slot && rg.slot.state === "worn" ? rg.slot.slot : "not_worn";
+      if (place !== r.slot) fail(`« ${o.name} » : emplacement « ${r.slot} », mais ${r.like} est « ${place} ».`);
+      const comme = `proposed:like ${r.like} (Eric's marvels table, 21/08) — lot 394, to validate`;
+      shelf = { aisle, like: r.like, provenance: comme, shelf: etagere, shelf_provisional: true };
+      slot = r.slot === "not_worn"
+        ? { like: r.like, provenance: comme, state: "not_worn", worn: false }
+        : { like: r.like, provenance: comme, slot: r.slot, state: "worn", worn: true };
+      analogies.push({ name: o.name, shelf: r.shelf, slot: r.slot, like: r.like });
+    } else {
+      const c = rangementDeLaCategorie(o.category);
+      shelf = { aisle: c.aisle, provenance: "derived:item.category (lot 394, read in srfh-shelving)", shelf: c.shelf };
+      slot = c.state === "worn" ? { provenance: "derived:item.category", slot: c.slot, state: "worn", worn: true }
+        : c.state === "from_base" ? { from_base: true, provenance: "derived:item.category; the slot is the base's, chosen at purchase", state: "from_base", worn: true }
+        : { provenance: `derived:item.category = ${o.category}`, state: "not_worn", worn: false };
+    }
+    shelving[`${sigle}:shelving:en:${slug}`] = {
+      name: o.name,
+      slug,
+      data: { craftable: { provenance: "derived:record kind item", value: false }, extends: id, name: o.name, of_kind: "item", shelf, slot }
+    };
+  }
+  /* ⚔️ la bijection relue dans l'autre sens : un instantané COMPLET nomme chaque objet du SRD */
+  if (source.meta && source.meta.complet === true) {
+    for (const nom of parNom.keys()) if (!vus.has(nom)) ecarts.push(`${nom} : le SRD porte cet objet, l'instantané du livre ne le nomme pas`);
+  }
+  restes.push(
+    "les charges et leur recharge (`charges`) : posées en donnée quand le livre les chiffre, aucun organe ne les lit — le reste des usages est dans le résumé",
+    "les bonus d'attaque et de dégâts des armes magiques (+1 à +3) et leurs dégâts en plus : le moteur ne chiffre pas encore un effet d'objet sur une attaque",
+    "les sens, résistances, immunités, sorts et actions des objets : dans le résumé ou dans le livre"
+  );
+  return {
+    records: { item, shelving },
+    comptes: { item: Object.keys(item).length, par_categorie: parCat, partages: vus.size, analogies: analogies.length },
+    ecarts, renommes, restes, analogies
+  };
+}
+
 export function generate({ cle = "dmg-2024", dirSources = DIR_SOURCES, dirCouches = DIR_COUCHES } = {}) {
   const livre = LIVRES[cle];
   if (cle === "phb-2024") return genererOrigines({ dirSources, dirCouches });
@@ -769,14 +942,38 @@ export function generate({ cle = "dmg-2024", dirSources = DIR_SOURCES, dirCouche
   }
   const source = JSON.parse(readFileSync(chemin, "utf8"));
   const { layer, comptes, partages } = construireCouche(source, cle);
+  /* 💍 LOT 394 — les objets magiques du DMG entrent dans la MÊME couche que ses trésors (un livre, un
+     fichier). Leur instantané absent se DIT dans le message ; il n'efface pas les trésors. */
+  const cheminObjets = join(dirSources, `${cle}-magic-items.json`);
+  let objets = null;
+  if (cle === "dmg-2024" && existsSync(cheminObjets)) {
+    const lire = (p) => JSON.parse(readFileSync(p, "utf8"));
+    objets = construireObjets(lire(cheminObjets), {
+      srd: lire(join(REPO_ROOT, "layers", "srd-5.2.1-en.layer.json")),
+      rangement: lire(join(REPO_ROOT, "layers", "srfh-shelving-en.layer.json"))
+    });
+    for (const id of Object.keys(objets.records.shelving)) {
+      if (layer.records.shelving && layer.records.shelving[id]) fail(`le rangement « ${id} » existe déjà parmi les trésors.`);
+    }
+    layer.records.item = objets.records.item;
+    layer.records.shelving = { ...(layer.records.shelving || {}), ...objets.records.shelving };
+    layer.description += ` Chapitre 7, « Magic Items A–Z » : ${objets.comptes.item} objets magiques PROPRES au livre ` +
+      `(${objets.comptes.analogies} objets merveilleux rangés PAR ANALOGIE avec la table d'Eric, marqués provisoires) ; ` +
+      `${objets.comptes.partages} objets du SRD comparés, pas réémis (lot 394).`;
+  }
   mkdirSync(dirCouches, { recursive: true });
   const sortie = join(dirCouches, `${livre.id}.layer.json`);
   writeFileSync(sortie, `${JSON.stringify(layer, null, 2)}\n`, "utf8");
   return {
-    sortie, comptes, partages,
+    sortie, comptes, partages, objets,
     message:
       `${livre.id} : ${comptes.gem} gemmes + ${comptes.gear} objets, ` +
-      `${comptes.shelving} rangements — ⚖️ ${partages.length} ids PARTAGÉS avec Fate's Hand.`
+      `${comptes.shelving} rangements — ⚖️ ${partages.length} ids PARTAGÉS avec Fate's Hand.` +
+      (objets
+        ? ` Objets magiques : ${objets.comptes.item} propres au livre (${JSON.stringify(objets.comptes.par_categorie)}), ` +
+          `${objets.comptes.partages} du SRD comparés, ${objets.ecarts.length} écart(s)${objets.ecarts.length ? ` — ${objets.ecarts.join(" ; ")}` : ""}, ` +
+          `${objets.renommes.length} renommés, ${objets.restes.length} faits restés en texte.`
+        : cle === "dmg-2024" ? " Objets magiques : l'instantané « dmg-2024-magic-items.json » est absent." : "")
   };
 }
 

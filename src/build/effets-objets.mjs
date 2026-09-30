@@ -45,6 +45,23 @@ export function effetsDeLObjet(id) {
   return objet ? objet.effets : [];
 }
 
+/* ══ 💍 LOT 394 — LES EFFETS QU'UN RECORD DÉCLARE (un livre du joueur) ═══════════════════════
+   L'inventaire ne connaît que les objets du SRD. Un objet du DMG (`xdmg:item:…`) porte les siens
+   sur son record (`data.effects`), DANS LA MÊME FORME, un pointeur vers sa page au lieu d'une
+   citation (aucune prose du livre). ⭐ L'INVENTAIRE GAGNE : un objet qu'il connaît n'est jamais lu
+   ailleurs — un record ne peut pas réécrire les effets du SRD. Un effet déclaré qui n'a pas la forme
+   (famille, cible, mode, condition connue) n'est pas lu : ce qui ne se classe pas ne s'applique pas. */
+const CONDITIONS = new Set(DONNEES.conditions);
+const effetDeclareLisible = (e) => Boolean(e) && typeof e === "object" && typeof e.famille === "string"
+  && typeof e.cible === "string" && typeof e.mode === "string" && CONDITIONS.has(e.condition);
+
+/** Les effets d'un objet d'une ligne : l'inventaire par son id, sinon ceux que son record déclare. */
+export function effetsDeLaLigne(objet) {
+  const inventaire = effetsDeLObjet(objet.id);
+  if (inventaire.length) return inventaire;
+  return Array.isArray(objet.effetsDeclares) ? objet.effetsDeclares.filter(effetDeclareLisible) : [];
+}
+
 /* ══ ① LES DÉCLENCHÉS — un chiffre qui ne vaut que dans une situation ═══════════════
    ⭐ Chacun est PROUVÉ par sa citation (le garde « marqueurs » les relit toutes) :
    ⛔ une liste par nom ne dit pas qu'elle est incomplète — c'est donc la DONNÉE qui la
@@ -173,7 +190,7 @@ export function planDesEffets({ lignes, level }) {
     for (const objet of ligne.objets) {
       if (vus.has(objet.id)) continue;       // un plan qui est aussi un pouvoir ne compte qu'une fois
       vus.add(objet.id);
-      for (const effet of effetsDeLObjet(objet.id)) {
+      for (const effet of effetsDeLaLigne(objet)) {
         const statique = classerEffet(effet, objet.id);
         /* règle ③ — le choix, D'ABORD : une AUTRE variante que celle de la ligne n'est pas
            cet objet-là (une Potion of Giant Strength (Hill) n'est pas celle du Storm). */
