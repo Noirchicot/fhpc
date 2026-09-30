@@ -85,25 +85,28 @@ export function etatNeuf() {
        clef ; un personnage neuf ou un autre fichier la fait tomber. */
     recalage: null,
     /* 🧭 La branche de rang B du Menu ouverte : "display" (Appearance),
-       "characters" (le magasin de sauvegardes, lot 195), "layers" (le tableau
+       "characters" (My characters, lot 374), "layers" (le tableau
        de commande des couches, lot 188) ou "dm" (la page Dungeon Master, lot 357).
        Lue seulement quand `palier >= 2`. */
     menuBranche: "display",
-    /* ══ 🗄️ LOT 195 — LE MAGASIN, ET CE QU'IL A RÉPONDU ════════════════════
-       ⭐ TROIS CHAMPS, PAS UN, ET AUCUN NE SE DÉDUIT DES AUTRES :
-       · `magasin`      — L'ORGANE lui-même (`null` tant qu'il n'est pas monté).
-         ⛔ Il n'est jamais lu par un écran : la coquille l'interroge, l'écran
-         reçoit des faits.
-       · `magasinListe` — CE QUE `lister()` A RENDU, dans son propre vocabulaire :
-         `{etat:"chargement"}` · `{etat:"liste", entrees, groupes}` ·
-         `{etat:"refus", raison}`. ⛔ « je cherche encore » et « il n'y a rien »
-         sont deux choses ; les confondre ferait croire à une perte.
-       · `magasinOu`    — LA LIGNE DISCRÈTE (`ouEstCeRange()`), gardée à part
-         parce qu'elle survit à un refus de listage : le bouton `Save location`
-         doit rester lisible précisément quand la liste a échoué. */
-    magasin: null,
-    magasinListe: { etat: "chargement" },
-    magasinOu: null,
+    /* ══ 🗄️ LOT 374 — L'ORGANE DU STOCKAGE, ET CE QU'IL A RÉPONDU ═══════════════════
+       ⭐ QUATRE CHAMPS, ET AUCUN NE SE DÉDUIT DES AUTRES :
+       · `stockage`         — LES ORGANES : `{appareil, choisi}` (`null` tant qu'ils ne sont pas
+         montés). ⛔ Jamais lus par un écran : la coquille les interroge, l'écran reçoit des faits.
+       · `personnagesListe` — CE QUE `lister()` A RENDU pour la copie de l'app :
+         `{etat:"chargement"}` · `{etat:"liste", personnages, illisibles}` · `{etat:"refus", raison}`.
+         ⛔ « je cherche encore » et « il n'y a rien » sont deux choses.
+       · `copieDeLApp`      — LE PERSONNAGE COURANT DANS MY CHARACTERS : `{etat:"hors-app"}` (jamais
+         sauvé, ou sorti par sa poubelle) · `{etat:"dans-l-app", revision}` (sa copie suit chaque
+         modification) · `{etat:"conflit", revision}` (un autre onglet a écrit : rien n'est écrasé, la
+         question se pose à la réouverture — § 10).
+       · `envoi`            — CE QUE LA DERNIÈRE ÉCRITURE DE LA COPIE DE L'APP A RÉPONDU : `{etat:"a-jour"}`
+         · `{etat:"refus", raison}` · `{etat:"repris"}` (un envoi raté est reparti à la réouverture —
+         et le Menu le dit, § 10). */
+    stockage: null,
+    personnagesListe: { etat: "chargement" },
+    copieDeLApp: { etat: "hors-app" },
+    envoi: { etat: "a-jour" },
     /* 📚 LOT 188 — les livres du joueur PRÉSENTS sur le disque mais que le bloc
        `layers` a REFUSÉS (`[{id, raison}]`). Un 404 n'est pas ici : c'est zéro
        livre. Un fichier illisible, lui, se dit dans `Layers` avec sa raison. */
@@ -227,17 +230,12 @@ export const CHAMPS_QUI_SURVIVENT = {
   engine: "monté une fois au démarrage ; il ne connaît pas les personnages",
   engineError: "un refus de DÉMARRAGE, pas un fait de personnage — il survit à tout",
   docWriters: "construit une fois au boot sur le schéma ; pur, sans magasin ni bus",
-  /* ── LE MAGASIN D'OCTETS (lot 195) ─────────────────────────────────────── */
-  magasin: "l'organe monté au démarrage, à côté du moteur et sans lui",
-  magasinOu: "où les octets sont rangés — une destination, pas un personnage",
-  /* ⚠️ ET CELUI-CI EST UN ARBITRAGE, PAS UNE ÉVIDENCE. `magasinListe` porte
-     `{etat:"chargement"}` à l'état neuf : le remettre à zéro SANS relancer un
-     `lister()` laisserait la page du magasin bloquée sur « chargement » —
-     mesuré sur la branche sans rechargement de `poserLeDocumentOuvert`, qui ne
-     redemande rien. La liste est de plus déjà rafraîchie par `exporterJson`
-     lors du `Build a character`. Elle survit donc, et elle se rafraîchit par
-     son propre écrivain (`rafraichirLeMagasin`), jamais par celui-ci. */
-  magasinListe: "la liste du magasin a UN écrivain (`rafraichirLeMagasin`) — la vider sans la redemander bloquerait la page sur « chargement »",
+  /* ── L'ORGANE DU STOCKAGE (lot 374) ───────────────────────────────────── */
+  stockage: "les organes montés au démarrage, à côté du moteur et sans lui — ils ne connaissent pas un personnage",
+  /* ⚠️ UN ARBITRAGE, PAS UNE ÉVIDENCE (la leçon du lot 195) : remettre `personnagesListe` à
+     « chargement » SANS relancer un `lister()` bloquerait la page sur « chargement ». Elle survit, et
+     elle se rafraîchit par son propre écrivain (`rafraichirLesPersonnages`), jamais par celui-ci. */
+  personnagesListe: "la liste a UN écrivain (`rafraichirLesPersonnages`) — la vider sans la redemander bloquerait la page sur « chargement »",
   /* ── LA MÉMOIRE DU NAVIGATEUR ──────────────────────────────────────────── */
   /* ⭐ `memoire` est RÉÉCRIT par `memoriser()` au premier `refresh()` qui suit.
      Le remettre à `{ok:true}` ici afficherait « gardé dans ce navigateur »

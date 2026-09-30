@@ -10868,6 +10868,120 @@ en décide seul ; la coquille ne choisit que l'organe qui MONTRE l'écran mort d
 🛡️ `tests/review-export.test.mjs` (les trois portes ; l'écran incomplet : même porte, même verbe, même
 dalle ; la coquille le pose) — 4 mutations vues rouges ; `premier-pas` E1.
 
+### 🗂️ MY CHARACTERS — UNE LIGNE PAR PERSONNAGE (lot 374)
+📍 `menu-my-characters-une-ligne-par-perso` · vivante · 30/09 · borne `menu-magasin-de-sauvegardes`
+⚖️ **My characters (le rang B1 du Menu) porte une ligne par personnage rangé dans l'app — sa version la plus récente : l'image de la fiche de son espèce · son nom · « espèce classe lvl N » · sa campagne (`none` sans elle) · `Open` (gabarit large, 105 × 40, bleu : il navigue) · la poubelle (40 × 40) tout à droite ; ses versions datées restent derrière la ligne ; la liste PAGINE (5 lignes par page, la rangée des pages sous elle), elle ne défile jamais ; `Open a file…` et `Save location` restent au pied.**
+
+> La dictée d'Eric, 29/09 : *« B1 — other page - Your Characters (page de liste) · image / Ratchapapoulos
+> / Humain Guerrier lvl4 / Les chevaliers Noirs / bouton pour ouvrir fiche de perso »*. Puis, chaque réponse
+> avec sa question : la page s'appelle **My characters** ; `Open` **105 × 40** (*« pardon »*) ; **la
+> poubelle tout à droite**, 40 × 40 ; **une question avant d'effacer un perso** (voir la règle suivante).
+> Et le 28/09 : *« une gestion à l'intérieur […] ne jamais avoir à aller dans windows, Mac os ou ios pour
+> aller chercher une fiche »*.
+
+⚖️ **LES DEUX DÉCISIONS D'ERIC TIENNENT ENSEMBLE** — Q1, tranchée par ARCHI 35 le 30/09 sur ses propres
+mots (⏳ signalée à Eric, qui peut objecter) : le **10/09**, *« une entrée datée à chaque Save — rien n'est
+écrasé, la page montre les versions par personnage »* (`menu-magasin-de-sauvegardes`) ; le **29/09**,
+*« une ligne par perso »*, et *« l'app vérifie avant d'écrire »* (§ 10). ⇒ Une LIGNE par perso, qui montre sa
+version la plus récente ; ses VERSIONS DATÉES restent derrière elle (une à chaque Save, jamais écrasées ; la
+vue qui les montre viendra) ; la vérification de révision vaut pour l'écriture dans le stockage choisi.
+Cette règle BORNE celle du 10/09 — la page ne groupe plus les versions sous le nom —, elle ne la barre pas.
+⚖️ **`SAVE LOCATION` RESTE ICI** (Eric, 10/09 : *« un bouton reste présent : save location »* ; Q2 → a,
+ARCHI 35, 30/09) : le dossier de Chrome et d'Edge (lots 195, 202) est un lieu de l'organe, choisi ici,
+discrètement, jusqu'au lot Vault ; le mot du lieu se lit sous le bouton. Là où le navigateur ne sait pas
+choisir (Safari, l'iPad), le bouton est présent, éteint, et dit pourquoi. 🗄️ Le popup « la première fois »
+du 10/09 n'est pas reposé : le choix du lieu part dans Vault (29/09).
+⚖️ **QUI ENTRE DANS LA LISTE** (Q3 → a, ARCHI 35, 30/09) : les persos SAUVÉS au moins une fois (Save
+character, le Save de New character, la version FH) ou OUVERTS (un fichier, la liste) — *« une sauvegarde à
+la fin du process de création »* (Eric, 28/09).
+📐 **LES CINQ LIGNES SE DÉDUISENT** de la scène de 500 blg : 8 d'air + 32 de titre + 52 de rangée des
+pages + 66 de pied (`Save location` porte son mot dessous) + 60 de la paire de la coquille → 282 ; une ligne
+vaut 44 + 8 → ⌊282 / 52⌋ = 5
+(`LIGNES_PAR_PAGE`, une déviation DÉCLARÉE de `liste-quinze-est-un-defaut`). Les chevrons de page sont
+ceux de Wares et de X5 (`wares-chevron`, `chevron-lateral-de-pack`) : sous la liste, pas sur ses côtés —
+deux gouttières latérales prendraient 88 blg à une ligne qui porte déjà image, `Open` et poubelle.
+⭐ **L'IMAGE EST CELLE DE LA FICHE DE L'ESPÈCE** (`imageDeFiche`) : aucun écran ne remplit le `portrait`
+du schéma aujourd'hui ; sans espèce, le dos de carte. Une ligne se lit dans les CHOIX du document, sans
+dérivation : un perso qui ne dérive plus se liste quand même. Un perso illisible se dit à part, sans
+`Open`, avec sa poubelle — sa seule sortie.
+🛡️ `tests/sauvegarde-374.test.mjs` (P1 à P4, C6).
+
+### 🗑️ LA POUBELLE D'UN PERSONNAGE SUIT LE LIEU CHOISI (lot 374)
+📍 `menu-my-characters-poubelle-selon-le-lieu` · vivante · 30/09
+⚖️ **La poubelle d'une ligne demande d'abord — un aiguilleur qui exige sa réponse, `Cancel` et `Delete` en rouge — et elle retire le personnage ENTIER de l'app : sa copie et toutes ses versions. Si le lieu choisi ne sait pas effacer (le fichier), la question dit que les fichiers restent où le joueur les a rangés ; s'il sait effacer (le dossier, Dropbox demain), « Delete this character for good? » l'efface du lieu, PUIS de l'app. Un lieu qui refuse : l'app garde tout.**
+
+> Eric, 30/09, à *« My characters, stockage "le fichier" : une page web ne peut pas effacer un fichier
+> rangé sur l'appareil ; la poubelle d'une ligne ? »* → **« Efface la copie de l'app »**. Et le 29/09,
+> pour un lieu qui sait effacer : *« le Delete de My characters efface le fichier dans le stockage, pour
+> de bon, après confirmation »*.
+
+⭐ **LA QUESTION LIT UNE DONNÉE DU LIEU** (`capacites.efface`), jamais son nom : Dropbox entrera par
+l'adaptateur, sans une ligne de page. L'ordre vit dans une séquence pure (`effacerSelonLeStockage`,
+magasin.mjs). ⭐ Les versions se reconnaissent par l'`id` du personnage, jamais par son nom : un perso renommé les garde,
+un homonyme ne perd pas les siennes. ✍️ Les mots sont des brouillons : *« Delete this character? »* · *« This
+removes Kara and every saved version from My characters. Your files stay where you saved them. »* · *« Delete
+this character for good? »*.
+🛡️ `tests/sauvegarde-374.test.mjs` (S2, V2, D1, P5, C4).
+
+### 🗄️ LE STOCKAGE — UN ORGANE, DES LIEUX (lot 374)
+📍 `socle-le-stockage-un-organe-des-lieux` · vivante · 30/09
+⚖️ **Un seul organe du stockage parle quatre verbes — lister · lire · écrire · effacer —, et l'écriture EXIGE la révision qu'elle croit remplacer. Chaque lieu est un adaptateur qui dit ce qu'il sait faire par ses CAPACITÉS (lister, remplacer, effacer, écrire sans un geste, donner la propriété), jamais par son nom ; un lieu qui remplace refuse une révision périmée, et rien n'est écrasé. Ce qui s'écrit est le document `fh-char/1` lui-même, aux octets du moteur.**
+
+> Eric, 30/09 : **« la sauvegarde c'est la suite »**, **« il faut que tout puisse être lisible par la nouvelle
+> fiche »**, et, à *« Dropbox exige d'enregistrer l'application : quand ? »* → **« Plus tard »**. La carte
+> produit (§ 10, 29/09) : *« l'app VÉRIFIE AVANT D'ÉCRIRE »*.
+
+⭐ **TROIS LIEUX AUJOURD'HUI** : l'APPAREIL (la copie de l'app, IndexedDB — une copie courante par `id`,
+sur une révision `r1`, `r2`… avancée dans la transaction qui la compare, et ses VERSIONS DATÉES, une par
+Save, jamais écrasées : Q1 → b) ; le FICHIER (un téléchargement : il ne liste pas, ne relit pas, n'efface
+pas, ne remplace jamais) ; le DOSSIER de Chrome et d'Edge (lots 195, 202 ; Q2 → a : un fichier daté par
+Save, il sait effacer, sa permission se DEMANDE dans le clic). Dropbox, Google Drive, OneDrive seront des
+adaptateurs de plus. ⛔ **LA RÉVISION EST EXIGÉE PAR
+L'ORGANE**, pas par l'adaptateur : une écriture qui ne la dit pas n'atteint aucun lieu. ⭐ Sauver passe
+par une séquence pure (`sauverDansLesDeux`) : la copie de l'app d'abord, le lieu choisi ensuite — un
+refus de l'app n'envoie aucun fichier. `memoire.mjs` reste la COPIE DE TRAVAIL
+(`socle-chacun-est-proprietaire-de-ses-donnees` : le navigateur est un cache de reprise, le fichier
+appartient au joueur).
+📏 **L'ALLER-RETOUR EST GARDÉ SUR UN VRAI PERSONNAGE** (l'Ilyra de v914, recalée et dérivée) : écrit dans
+les deux lieux, relu, octets identiques, validé par le schéma, redérivé par le moteur sans perte — la
+seule différence admise est nommée : l'heure du calcul (`resolved.derivation.at`).
+🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, A1, C1).
+
+### 🔁 LA SAUVEGARDE AUTOMATIQUE ET LA RÉOUVERTURE (lot 374)
+📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09
+⚖️ **La copie de travail s'écrit à chaque geste ; la copie de l'app d'un personnage de My characters suit chaque modification et part au passage en arrière-plan. Un envoi raté repart à la réouverture, et le Menu le dit ; une copie changée ailleurs entre-temps n'est jamais écrasée : la question « quelle version garder ? » se pose à la réouverture.**
+
+> La carte produit, § 10 (29/09) : *« Quand part la sauvegarde ? »* → **« Automatiquement »** — le dernier
+> moment fiable est le passage en arrière-plan ; *« un envoi raté repart à la réouverture, et le dit »* ; et
+> à *« deux appareils, le même perso modifié : lequel gagne ? »* → **(a) l'app vérifie avant d'écrire** —
+> *« la question est posée à la réouverture »*.
+
+⭐ **LA RÉOUVERTURE LIT TROIS FAITS** (`aLaReouverture`, pure) : le texte de la copie de travail GARDÉ au
+démarrage, la révision sur laquelle il repose (`fhpc.base`, une seconde clef, jamais un champ du
+personnage) et la copie de l'app. Même révision et texte différent → renvoyer, et le dire ; révision
+différente → la question. ⭐ Les écritures de la copie de l'app passent par UNE file de la coquille :
+la sauvegarde automatique en vol et un `Save character` ne se croient jamais en conflit l'un avec
+l'autre. ⚖️ **Q3 → a** (ARCHI 35, 30/09) : un perso jamais sauvé n'entre pas tout seul dans My
+characters — la copie de travail le garde déjà sur l'appareil, et la fenêtre New character le dit (*« le
+perso en cours sera effacé »*) ; il entre au premier Save, ou quand on l'ouvre (un fichier, la liste).
+✍️ Brouillons : *« My characters did not get your last changes: … They are safe in this browser, and
+will be sent again when the app reopens. »* · *« Your last changes reached My characters when the app
+reopened. »* · *« Which version do you keep? »* (`This one` · `The other one` — ⚠️ aucune en rouge :
+`A-TRANCHER §C40`).
+🛡️ `tests/sauvegarde-374.test.mjs` (R1 à R4, P6, P7, C2, C5).
+
+### 💾 `SAVE CHARACTER` RANGE, PUIS VIDE LE CACHE (lot 374)
+📍 `menu-r-save-character-vide-le-cache` · vivante · 30/09
+⚖️ **`Save character` (Sheet) range le personnage dans l'app ET dans le lieu choisi, puis vide la copie de travail — le navigateur rouvre la fiche vierge, et le personnage se rouvre depuis My characters. Un Save refusé ne vide rien. Le `Save` de New character et la version FH (lot 192) rangent sans vider.**
+
+> Eric, 28/09 : *« un sauvegarde à la fin du process de création. puis le cache est totalement vidé,
+> plus de Ilyra Duskleaf. »*
+
+⭐ La copie de travail part avec sa base (`fhpc.base`) et sa marque de recalage (lot 367), qui lui
+appartiennent ; la page redémarre, et un navigateur SANS personnage ouvre la fiche vierge
+(`menu-r-premiere-visite-fiche-vierge`).
+🛡️ `tests/sauvegarde-374.test.mjs` (C3), `tests/shell-wiring.test.mjs` (10 bis).
+
 ### 💤 `VAULT` ET `DUNGEON MASTER` SONT RÉSERVÉS ; `TOOLS` QUITTE R
 📍 `menu-r-portes-reservees` · remplacée · 29/09 · remplacée par `menu-r-portes-en-deux-rangees`
 ⚖️ **`Vault` et `Dungeon Master` sont des places réservées : présentes, éteintes, un mot (« soon ») sous elles — la forme de `Double view` quand la fenêtre est trop petite. `Tools` n'est plus sur R.**
