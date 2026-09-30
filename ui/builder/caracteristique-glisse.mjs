@@ -14,8 +14,8 @@
    Les MOTS : les noms des caractéristiques sont ceux d'Abilities (`NOMS_DE_CARAC`, écrits
    une fois ICI et lus par Abilities) ; « Spellcasting ability » est le terme du texte SRD
    lui-même, et « Ability » le mot du récepteur. */
-import { planAt, planSlots } from "./carnet.mjs?v=931";
-import { renderChoixGlisses } from "./glisser.mjs?v=931";
+import { planAt, planSlots } from "./carnet.mjs?v=932";
+import { renderChoixGlisses } from "./glisser.mjs?v=932";
 
 /** Les noms entiers des six caractéristiques — un seul écrivain (Abilities les lit ici). */
 export const NOMS_DE_CARAC = Object.freeze({

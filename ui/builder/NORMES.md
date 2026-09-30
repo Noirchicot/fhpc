@@ -6100,7 +6100,7 @@ posé —, sources restaurées à l'empreinte.
 ---
 
 ### ✂️ LES POIGNÉES `/` ET `×` DU MODE ÉDITION — ce que chacune fait
-📍 `equipement-sections-renommer-et-effacer` · vivante · 30/09
+📍 `equipement-sections-renommer-et-effacer` · vivante · 30/09 · **amendée 30/09 (lot 380) — au-delà de 5, les Storage de base se détruisent aussi**
 ⚖️ **En mode édition du Backpack, `/` renomme la section sous le viseur : il modifie ou remplace son nom, et il n'est jamais éteint sur une section renommable. `×` suit la règle du 19/09 : tant que le sac compte 5 sections ou moins, il vide la tuile — son nom s'efface, la place reste, la roue garde ses crans ; au-delà, il détruit la tuile, et seulement si elle est vide (18/09).**
 
 > Eric, 2026-09-30, au test au doigt sur son iPad (v929, geste 4) : **« le "/" est grisé, il faut d'abord faire "x"
@@ -6116,6 +6116,33 @@ au doigt, v929 ; ② la légende de l'encart dit *« × Delete it. Whatever it h
 deux fois : sous cinq sections `×` vide la tuile, et une section pleine refuse de partir.
 🗄️ Jusqu'au 30/09, la règle du 19/09 ne vivait que dans deux commentaires du code (`equipment-step.mjs`,
 `shell.mjs`) : c'est son premier lieu dans NORMES.
+
+⚖️ **AU-DELÀ DE 5, LES STORAGE DE BASE SE DÉTRUISENT AUSSI** — ARCHI 35, 30/09, sur les mots d'Eric du même jour
+(*« X devrait détruire la tuile pas juste enlever son nom »*, une seule exception, *« Garde la règle du 19/09 »*,
+qui se règle au NOMBRE) : Eric ne protège que le Party bag et Backpack dropdown (19/09, *« cette section ne
+s'efface pas non plus »*) ; Storage 1 à 3 ne le sont par aucun de ses mots. ⭐ Elles naissent du modèle, pas du
+document : leur destruction s'y ÉCRIT (`backpack.sections[i].detruite`, l'idiome de `.dehors`, rien au schéma),
+et elle ne revient ni à la réouverture, ni sur l'autre appareil (le document voyage). 🗄️ Avant le lot 380, `×` y
+remettait le nom par défaut, et la tuile restait. ⛔ Le dépôt ne se détruit jamais, même si un document le
+prétendait. Chez Kara (6 sections), `×` sur Storage 1 vide la détruit, il en reste 5 — le plancher — et le `×`
+suivant vide une tuile sans la détruire.
+⚖️ **PLEINE, OÙ QU'ELLE SOIT RANGÉE** (ARCHI 35, 30/09) : une section se lit pleine comme l'écran la montre (sa
+plaque, `disposerLeSac`) ; 🗄️ le refus ne comptait que les objets portés au sac, et une section « Other » pleine
+partait.
+✅ **LES DEUX DÉFAUTS SONT RÉPARÉS (lot 380).** ① 📏 La cause, mesurée (v931, 1280, perso neuf) : les poignées
+étaient calculées pour la section sous le viseur AU RENDU, puis le viseur tournait sans repeindre (`surDalle` ne
+fait que noter la section — un repeint rebâtirait le ruban sous le doigt). Ouvert sur Backpack dropdown, `/`
+restait éteint sur TOUTES les sections, `×` allumé sur toutes ; le repeint de `×` les recalculait — d'où
+*« il faut d'abord faire "x" »*. ⭐ Un seul lecteur (`poigneesDeLaSection`, sac-ecran.mjs), appelé au rendu ET à
+chaque arrêt du viseur. ② La légende dit : `/` *« Rename it: type to replace the name, or tap in it to fix a
+letter. »* · `×` *« Delete it once it is empty. Five sections or fewer: clears the name. »* (brouillons à Eric ;
+« Empty it » est le mot du refus qui existe). La forme de `/` est celle du 20/09 : le nom s'ouvre sélectionné —
+la première frappe le remplace, un toucher y pose le curseur.
+⭐ **LA DÉCISION DE `×` EST PURE ET UNE** (`gesteDuX`, `sectionPleine`, `ecritureDeLaDestruction`,
+equipment-step.mjs) : l'écran et la coquille (le dernier rempart) la lisent ; elle vivait en deux morceaux.
+⚠️ **Relevé en passant, hors du lot** : à 375, l'encart de la notice déborde déjà sur `main` (390 pour 358, sa
+dernière ligne coupée) ; les mots du lot tiennent chacun sur une ligne et ne l'aggravent pas (387).
+🛡️ `tests/sections-380.test.mjs` (P1 à P3, X1 à X4, L1) — 12 mutations vues rouges, dont `main` rejoué (P2).
 
 ---
 
