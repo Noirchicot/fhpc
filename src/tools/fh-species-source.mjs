@@ -133,14 +133,22 @@ export const srdSpeciesId = (slug) => `srd:species:en:${slug}`;
 export const DESTINY_BASE = 2;
 
 /* ══ LA CONVERSION « PROFICIENCY BONUS » → L'ÉCHELLE ÉCRITE ═══════════════
-   Eric, 2026-08-27/28 : *« certaines species donnent… c'est pas SRD, à
-   corriger »* puis *« fais faire le boulot de prose par un agent »* et *« sur
-   FH web modifie les species pour que ça s'adapte »*.
-   ⛔ « Proficiency Bonus » n'existe pas en FH (les paliers Novice/Adept/
-   Expert ne le remplacent PAS ici : un compteur d'utilisations n'est pas un
-   palier de compétence). La conversion retenue — candidat A de la passe de
-   prose, valeurs 5e EXACTES à tous les niveaux — écrit l'échelle en clair :
-   2, puis +1 aux niveaux de personnage 5, 9, 13 et 17.
+   Eric, 2026-08-27/28 (lot 73, `6ff5e964`) : *« certaines species donnent des
+   bonus… c'est pas SRD, à corriger — orc, dwarf notamment »* puis *« fais faire
+   le boulot de prose par un agent »* et *« sur FH web modifie les species pour
+   que ça s'adapte »* — et, pour la base : *« au lvl 1 c'est toujours +2 le PB »*.
+   ⭐ CE QU'IL DISAIT : les TRAITS D'ESPÈCE ne comptent plus sur le Proficiency
+   Bonus. Le chapitre des espèces écrit ces comptes sur une échelle, À LA PLACE
+   du PB dans ces traits (*« 2 uses (+1 at levels 5, 9, 13 and 17) »*). Le PB,
+   lui, reste une notion de FH : le chapitre Mechanic l'emploie (§ 3, le Destiny
+   Score : *« Proficiency — add your proficiency bonus »* ; § 8, le DD des
+   Vibrations).
+   🗄️ Jusqu'au 30/09, ce bloc disait « Proficiency Bonus n'existe pas en FH » :
+   une généralisation du lot 73, recopiée par le lot 385, retirée au lot 386.
+   Les paliers Novice/Adept/Expert ne remplacent pas l'échelle ici : un compteur
+   d'utilisations n'est pas un palier de compétence. La conversion retenue —
+   candidat A de la passe de prose, valeurs 5e EXACTES à tous les niveaux —
+   écrit l'échelle en clair : 2, puis +1 aux niveaux de personnage 5, 9, 13 et 17.
    ⏳ [À TRANCHER par Eric] : nommer un TERME FH pour cette échelle (écrit une
    fois au chapitre, cité partout) au lieu de la recopier — cinq copies
    peuvent dériver. La source du texte reste le chapitre du vault
@@ -159,9 +167,10 @@ const PROF_USES = {
    Bonus ») — une phrase que la pile FH ne porte plus, puisque `PROF_USES` la réécrit. ARCHI 35 :
    *« FH déclare son propre compte, avec sa phrase pour extrait, par-dessus la déclaration SRD »*,
    ici, dans la source du générateur — jamais à la main dans la pile.
-   ⭐ LA FORMULE EST L'ÉCHELLE, PAS LE BONUS DE MAÎTRISE : 2, puis +1 aux niveaux de personnage 5, 9,
-   13 et 17 (`base` + `plus_one_at_levels`). Les chiffres sont ceux du SRD à tous les niveaux — c'est
-   la conversion du 27/08 —, mais la couche dit ce que SON texte dit.
+   ⭐ LA FORMULE EST L'ÉCHELLE QUE LE CHAPITRE ÉCRIT : 2, puis +1 aux niveaux de personnage 5, 9, 13
+   et 17 (`base` + `plus_one_at_levels`). Dans ces traits, le chapitre des espèces l'écrit à la place du
+   PB ; le PB, lui, reste une notion de FH (Mechanic § 3). Les chiffres sont ceux du SRD à tous les
+   niveaux — c'est la conversion du 27/08 —, et la couche dit ce que SON texte dit.
    ⛔ Chaque extrait est relu par le générateur dans le texte FH qu'il produit : une phrase qui n'y est
    pas fait JETER (discipline n°3). La garde `tests/extraits-par-pile-385.test.mjs` relit toutes les
    déclarations, pile par pile. */

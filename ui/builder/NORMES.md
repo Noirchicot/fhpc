@@ -10243,8 +10243,15 @@ Heroic Inspiration), et le plafond vit sur ce record (`sheet_counter` : *« If y
 it, it’s lost… »*) ; sans plafond lisible, pas de chiffre : `underived.usage-counter-missing`. ⭐ **UNE RÉSERVE DE GÉANT** :
 elle porte l'id du trait qui déclare le compte (`count_trait` : `giant-ancestry`), et le nom du bienfait choisi.
 ⭐ **L'ÉCHELLE ÉCRITE DE FATE'S HAND** (`base` + `plus_one_at_levels`) : *« twice — plus one more use at character levels 5,
-9, 13, and 17 »* — ⛔ « Proficiency Bonus » n'existe pas en FH (`PROF_USES`, 27/08). La couche FH déclare SON compte, avec SA
-phrase, dans la source de son générateur (`fh-species-source.mjs`) — voir `socle-un-extrait-se-cite-dans-sa-pile`.
+9, 13, and 17 »* — le chapitre des espèces l'écrit À LA PLACE du PB dans ces traits (*« 2 uses (+1 at levels 5, 9, 13 and
+17) »*), et le PB reste une notion de FH (chapitre Mechanic § 3 : *« Proficiency — add your proficiency bonus »*). La couche FH
+déclare SON compte, avec SA phrase, dans la source de son générateur (`fh-species-source.mjs`) — voir
+`socle-un-extrait-se-cite-dans-sa-pile`.
+🗄️ ~~« Proficiency Bonus » n'existe pas en FH (`PROF_USES`, 27/08)~~ — **retirée le 30/09 (lot 386)**. Ce n'était pas un
+chapitre : c'était un commentaire de code (`fh-species-source.mjs`, lot 73) qui généralisait le mot d'Eric du 27-28/08, *« certaines
+species donnent des bonus… c'est pas SRD, à corriger — orc, dwarf notamment »* (et, le même jour, *« au lvl 1 c'est toujours +2
+le PB »*). Le lot 385 l'a recopié ici sans rouvrir le chapitre (`socle-une-regle-se-lit-a-sa-lettre`) ; ARCHI 35 l'a vu en
+citant le chapitre Mechanic.
 ⭐ **MARTIAL ARTS SUR LES ARMES DE MOINE** (`weapon_attacks`) : la Dextérité quand elle vaut mieux, et le dé de la colonne quand
 il vaut mieux que celui de l'arme (*« in place of the normal damage »*) — un bâton tenu à deux mains garde son 1d8 tant que la
 colonne dit 1d6 ; l'attaque Light en plus prend le même dé. Sous la même condition que l'Unarmed Strike.

@@ -1869,8 +1869,9 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
        un record : l'Heroic Inspiration du glossaire), jamais de sa source — et son plafond vit sur ce
        record (`sheet_counter`). Deux sources du même record font UN compteur.
      🧮 LOT 385 — l'échelle écrite de Fate's Hand (« twice — plus one more use at character levels 5, 9,
-       13, and 17 », `base` + `plus_one_at_levels`) : ⛔ « Proficiency Bonus » n'existe pas en FH, et la
-       couche FH déclare son propre compte avec SA phrase (ARCHI 35, lot 385).
+       13, and 17 », `base` + `plus_one_at_levels`) : le chapitre des espèces l'écrit À LA PLACE du PB
+       dans ces traits — le PB reste une notion de FH (Mechanic § 3) —, et la couche FH déclare son
+       propre compte avec SA phrase (ARCHI 35, lot 385 ; phrase corrigée au lot 386).
      ⛔ Jamais un nom de classe, d'espèce, de lignée ou de don testé : la déclaration seule. */
   const ECONOMIES_DE_FICHE = ["action", "bonus", "reaction"];
   const maxDeLaFormule = (f) => {
