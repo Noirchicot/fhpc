@@ -177,15 +177,14 @@ test("B3 — 🗣️ TROIS AVERTISSEMENTS, DANS L'ORDRE D'ERIC — et le troisi�
   assert.equal(avec.actions.some((a) => /Layers|Vault/.test(a.mot)), false, "⛔ aucune voie ne mène à Layers ni à Vault");
 });
 
-test("B4 — ⛔ LA FENÊTRE PRÉVIENT, ELLE NE CONDAMNE PAS : rôle `guide`, `Delete` seul en rouge, pas de réponse exigée", () => {
+test("B4 — ⛔ LA FENÊTRE EXIGE SA RÉPONSE (lot 371) : rôle `aiguilleur`, `Delete` seul en rouge", () => {
   const popup = popupNouveauPersonnage({ enCours: true, choisir: () => {} });
-  assert.equal(popup.role, "guide", "§7 : le gendarme DIT L'ERREUR — ici rien n'est une erreur");
+  /* 🔄 LOT 371 — elle était un `guide` qu'on fermait d'un tap dehors : une lecture du lot 350, pas un mot
+     d'Eric (sa citation dit « Cancel aussi »). `popup-question-exige-une-reponse` : une question ne se ferme
+     que par ses réponses ; `popup-aiguilleur-nom-et-critere` : ce qu'on ne peut pas refuser est un aiguilleur. */
+  assert.equal(popup.role, "aiguilleur", "ce qu'on ne peut pas refuser n'est pas une aide");
   assert.deepEqual(popup.actions.map((a) => a.defait), [false, true, false], "`Delete` DÉFAIT, donc le rouge de ce qui coûte ; ⛔ ni Cancel ni Save");
-  /* ⭐ ELLE N'EXIGE PAS DE RÉPONSE, et c'est la différence avec le popup du 193 : lui
-     repartait à zéro AVANT de poser sa question, donc une question esquivée laissait
-     un document à moitié né. Ici rien ne bouge avant qu'on choisisse — fermer d'un tap
-     dehors vaut `Cancel`. */
-  assert.equal("exigeUneReponse" in popup, false, "⛔ rien n'est engagé avant la réponse : on peut la fermer");
+  assert.equal(popup.exigeUneReponse, true, "⛔ ni tap dehors, ni Échap : Cancel, Delete ou Save");
 });
 
 test("B5 — 🔴 « PAS DE PERSO EN COURS », C'EST UN DOCUMENT QUI N'A RIEN FAIT DEPUIS SA NAISSANCE — hors ce que la dérivation estampille", () => {
@@ -554,14 +553,15 @@ test("G2 — 🔌 LA NAISSANCE DÉRIVE tout de suite, et chaque voie repeint —
     "témoin : la fenêtre se retire de l'état AVANT le geste, pour toutes les voies");
 });
 
-test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le champ qu'à UN endroit : la question de Fate's Hand (lot 351)", () => {
+test("G3 — LA FENÊTRE EXIGE SA RÉPONSE (lot 371), et la coquille ne pose le champ qu'à DEUX endroits nommés", () => {
   /* 🗄️ LOT 201 (Eric, 10/09) : *« Un popup doit me dire, avant même d'arriver à
      l'étape 1, tout de suite : tu veux SRD ou FH ? »* — la question exigeait sa
      réponse parce que le réglage ne se faisait QUE sur elle, APRÈS une remise à
      zéro déjà faite. 🔄 LOT 350 : rien n'est engagé avant la réponse, donc un tap
      dehors vaut `Cancel` (B4). */
+  /* 🔄 LOT 371 — elle l'exige désormais, dans ses deux formes (B4). */
   for (const enCours of [true, false]) {
-    assert.equal("exigeUneReponse" in popupNouveauPersonnage({ enCours, choisir: () => {} }), false);
+    assert.equal(popupNouveauPersonnage({ enCours, choisir: () => {} }).exigeUneReponse, true);
   }
   /* ⚔️ LE MÉCANISME SURVIT, et il a un autre porteur : le dépôt voisin pose ses
      questions par le verbe `popup` (lot 307, « Craft this item for … GP? »). La
@@ -573,8 +573,13 @@ test("G3 — ⛔ LA FENÊTRE N'EXIGE PAS DE RÉPONSE, et la coquille ne pose le 
      renderConfirmationPile, trois voies intactes, réponse exigée »*. Posée dans `Layers`, elle
      faisait défiler la page. 🗄️ Ce garde disait « elle ne le pose nulle part » : c'était vrai
      jusqu'à cette décision. ⛔ Il ne se relâche pas : un SECOND site le ferait rougir. */
+  /* 🔄 LOT 371 — UN SECOND PORTEUR, NOMMÉ : la question qui précède un effacement (`questionAvantDEffacer`,
+     `bouton-famille-defaire` : « toujours accompagnée d'un popup »). ⛔ Le garde ne se relâche pas : un
+     TROISIÈME site le ferait rougir. */
   const poses = shell.match(/exigeUneReponse: true/g) || [];
-  assert.equal(poses.length, 1, "la coquille pose le champ à UN endroit, pas deux");
+  assert.equal(poses.length, 2, "la coquille pose le champ à DEUX endroits, pas trois");
   assert.match(shell, /renderConfirmationPile\([^)]*\)\], \{ exigeUneReponse: true \}/,
-    "…et cet endroit est la question du maître — ailleurs, la coquille ne fait que LIRE le champ");
+    "…l'un est la question du maître…");
+  assert.match(shell, /function questionAvantDEffacer\([^)]*\) \{[^]*?exigeUneReponse: true,/,
+    "…l'autre, la question avant d'effacer — ailleurs, la coquille ne fait que LIRE le champ");
 });

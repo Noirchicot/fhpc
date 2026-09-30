@@ -255,7 +255,8 @@ test("C1 — 🔴 SPECIES : l'Araag en pile SRD se NOMME, dit pourquoi il ne se 
   assert.equal(/\b(World|Destiny|Trainings)\b/.test(texte), false, "⛔ aucune ligne disparue de Layers n'est nommée");
   assert.equal(/\bLore\b/.test(texte), false, "⛔ « Lore » n'est plus un mot du joueur — lot 192");
   assert.match(texte, /Layers/, "la SORTIE nomme l'écran de l'interrupteur…");
-  assert.match(texte, /change your mind/, "…et le bouton de ce pied, mot pour mot");
+  /* 🔄 LOT 371 — le bouton de ce pied s'appelle `Cancel` depuis le 05/09 : la phrase le nomme, mot pour mot. */
+  assert.match(texte, /use Cancel to clear this step/, "…et le bouton de ce pied, mot pour mot");
   assert.match(texte, /Nothing you chose has been erased/, "et le personnage ne se dissocie pas (Eric, 09/09)");
   /* le juge du pied, isolé : `etapeAchevee` avec les refus retombe à faux */
   assert.equal(etapeAchevee({ decisions: etat.decisions, document: etat.document, racine: "species", violations: etat.violations }), false);
@@ -363,7 +364,9 @@ test("D2 — ÉQUIPEMENT : une ligne dont le record manque porte le mot de l'org
 test("E1 — 🔌 `shell.mjs` passe `violations` au juge du pied et au belt, pose `manque`, et ne connaît plus `recordName`", () => {
   const shell = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
   assert.equal(/\brecordName\b/.test(shell), false, "⛔ `recordName` rendait l'id nu — il n'existe plus");
-  assert.match(shell, /import \{ motDuChoix, motDUnRecordAbsent \} from "\.\/mot-du-choix\.mjs\?v=\d+"/);
+  /* 🔄 LOT 371 — la question avant d'effacer met en mots un choix sans record ni libellé par le MÊME organe
+     (`motHumainDeLId`) : un nom de plus dans l'import, jamais un second écrivain. */
+  assert.match(shell, /import \{ motDuChoix, motDUnRecordAbsent(, motHumainDeLId)? \} from "\.\/mot-du-choix\.mjs\?v=\d+"/);
   assert.match(shell, /return motDuChoix\(ctx\.query, cfg\.kind, resolvedRefId\(cfg\)\) \|\| cfg\.label/, "le titre du parcours passe par l'organe");
   assert.match(shell, /acheve: etapeAchevee\(\{[^}]*violations: state\.violations/, "le pied du guide lit `validate()`");
   assert.match(shell, /manque: motDesChoixNonResolus\(nonResolus\)/, "et la bande dit pourquoi");
