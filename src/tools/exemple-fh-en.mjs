@@ -131,7 +131,11 @@ const CHOIX = [
      écrivain du même choix divergerait du premier en silence. */
   { path: "class", ref: { kind: "class", id: "srd:class:en:wizard" }, label: "Wizard" },
   { path: "species", ref: { kind: "species", id: "srd:species:en:elf" }, label: "Elf" },
-  { path: "species.lineage", value: "high-elf", label: "High Elf" },
+  /* 🧬 LOT 373 — la forme que l'écran écrit (`species.lineage[0]`), et ce que la lignée fait
+     encore choisir : la caractéristique de son cantrip (« choose the ability when you select the
+     lineage »). Un magicien haut-elfe lance son Prestidigitation en Intelligence. */
+  { path: "species.lineage[0]", value: "high-elf", label: "High Elf" },
+  { path: "species.lineage[0].ability[0]", value: "int", label: "Elven Lineage: Intelligence" },
   /* LOT 34 — Keen Senses est un budget captif de 2 points sur trois
      compétences (survival, delve, vigilance), plus un choix compté :
      ½ sur deux d'entre elles est l'une des deux répartitions légales. */

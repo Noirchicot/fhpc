@@ -123,6 +123,8 @@ import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   featSousLabel, featInfo,
   /* 🧬 LOT 364 — le B emboîté du don vaut pour toute racine de don (Versatile) */
   estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=923";
+/* 🧬 LOT 373 — « une valeur parmi N » : la caractéristique d'incantation du don, branche du B emboîté */
+import { renderCaracteristiqueGlisse, caracPosee } from "./caracteristique-glisse.mjs?v=923";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
@@ -4522,18 +4524,28 @@ const fabriquerLeParcoursDuDon = (racine) => ({
     /* 🎯 LOT 364 — les maîtrises de Skilled (compétences ou outils) */
     : chemin === `${racine}.proficiencies`
       ? "Tap a skill or tool to read it — drag one into each slot. Leaving this open marks nothing — only Done records the choice."
+    /* 🧬 LOT 373 — la caractéristique d'incantation (Magic Initiate) */
+    : chemin === `${racine}.ability`
+      ? "Drag the ability this feat's spells use into the slot. Leaving this open marks nothing — only Done records the choice."
     : null),
   itemCorps: (item, ctx, act) => (item.path === `${racine}.list`
     ? renderFeatListeGlisse(ctx, act, item.path)
     : item.path === `${racine}.proficiencies`
       ? renderFeatMaitrisesGlisse(ctx, act, item.path)
-      : renderFeatSortsGlisse(ctx, act, item.path)),
+      : item.path === `${racine}.ability`
+        ? renderCaracteristiqueGlisse(ctx, act, item.path, { titre: null })
+        : renderFeatSortsGlisse(ctx, act, item.path)),
   itemLabel: (chemin, ctx) => {
     if (chemin === `${racine}.list`) {
       const plan = (state.decisions || []).find((entry) => entry && entry.path === chemin);
       const id = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
       const nom = id && ctx && typeof ctx.query === "function" ? motDuChoix(ctx.query, "class", id) : null;
       return nom ? { mot: nom, sous: "spell list" } : "Spell list";
+    }
+    /* 🧬 LOT 373 — la loi de la porte : la question, puis la réponse (« Wisdom »). */
+    if (chemin === `${racine}.ability`) {
+      const nom = caracPosee(state.decisions || [], chemin);
+      return nom ? { mot: nom, sous: "spellcasting ability" } : featSousLabel(chemin) || chemin;
     }
     return featSousLabel(chemin) || chemin;
   }

@@ -104,7 +104,9 @@ test("ACCEPTATION SUR LA LIGNE — le magicien elfe est construit à travers un 
      treizième champ déclaré non dérivé. La preuve garde ses DEUX moitiés — le
      compte ET les noms — pour la raison écrite juste au-dessus : un compte seul
      resterait vert sur une liste de treize champs faux. */
-  assert.equal(out.underived.length, 13);
+  /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et DÉCLARÉ (ni lignée qui fasse lancer, ni don). */
+  assert.equal(out.underived.length, 14);
+  assert.equal(out.underived.some((entry) => entry.field === "spellSources"), true);
   assert.equal(out.underived.some((entry) => entry.field === "stats"), true);
   assert.equal(out.underived.some((entry) => entry.field === "traits (espèce)"), false);
   /* ⛔ La clef de trait reste FRANÇAISE, et c'est l'arbitrage du lot 13 (voir

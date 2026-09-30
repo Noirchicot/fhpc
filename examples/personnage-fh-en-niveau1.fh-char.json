@@ -26,13 +26,13 @@
       {
         "id": "srfh-mecaniques-en",
         "version": "0.1.0",
-        "hash": "4f3926c17502ceeb82328a24ca9f211f276192b5ec807152b4f4116cb9996885",
+        "hash": "7f79e95deed3263df5be39f78ac6b503548f309809b47ea985d123f670eca8e6",
         "name": "SRFH — Mechanics (EN)"
       },
       {
         "id": "fh-species-en",
         "version": "0.1.0",
-        "hash": "64d36a5b3f65066b9ba3aa8705de05235f6090021192a7291717a2db7eea68d6",
+        "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f",
         "name": "Fate's Hand — Species (EN)"
       },
       {
@@ -62,7 +62,7 @@
       {
         "id": "fh-feats-en",
         "version": "0.1.0",
-        "hash": "f3d6bd94ee9237af6c1960ae3d91d0d24ab584b1b4366ceaf235d8c86f33af3d",
+        "hash": "c2affa9884ccbe370e1722cad4b6281252022cc712b29d97b80851268f3d3871",
         "name": "Fate's Hand — Feats (EN)"
       },
       {
@@ -98,7 +98,7 @@
       {
         "id": "fh-lore-en",
         "version": "0.1.0",
-        "hash": "df230d5a836db1ce79065069f10cd6acc10a29ca2cdd514ec39c420a0d66e06e",
+        "hash": "eef39c3215144d29ef11fc580a61706bc863f81a85252ac5defd793977e16e7d",
         "name": "Fate's Hand — Lore (EN)"
       }
     ],
@@ -125,9 +125,14 @@
         "label": "Elf"
       },
       {
-        "path": "species.lineage",
+        "path": "species.lineage[0]",
         "value": "high-elf",
         "label": "High Elf"
+      },
+      {
+        "path": "species.lineage[0].ability[0]",
+        "value": "int",
+        "label": "Elven Lineage: Intelligence"
       },
       {
         "path": "species.skillBudget.survival",
@@ -452,13 +457,13 @@
         {
           "id": "srfh-mecaniques-en",
           "version": "0.1.0",
-          "hash": "4f3926c17502ceeb82328a24ca9f211f276192b5ec807152b4f4116cb9996885",
+          "hash": "7f79e95deed3263df5be39f78ac6b503548f309809b47ea985d123f670eca8e6",
           "name": "SRFH — Mechanics (EN)"
         },
         {
           "id": "fh-species-en",
           "version": "0.1.0",
-          "hash": "64d36a5b3f65066b9ba3aa8705de05235f6090021192a7291717a2db7eea68d6",
+          "hash": "67a88a40f64c0b98f6963476160855a77e1d5fc49cdfbe2c26633f7c361a0e7f",
           "name": "Fate's Hand — Species (EN)"
         },
         {
@@ -488,7 +493,7 @@
         {
           "id": "fh-feats-en",
           "version": "0.1.0",
-          "hash": "f3d6bd94ee9237af6c1960ae3d91d0d24ab584b1b4366ceaf235d8c86f33af3d",
+          "hash": "c2affa9884ccbe370e1722cad4b6281252022cc712b29d97b80851268f3d3871",
           "name": "Fate's Hand — Feats (EN)"
         },
         {
@@ -524,7 +529,7 @@
         {
           "id": "fh-lore-en",
           "version": "0.1.0",
-          "hash": "df230d5a836db1ce79065069f10cd6acc10a29ca2cdd514ec39c420a0d66e06e",
+          "hash": "eef39c3215144d29ef11fc580a61706bc863f81a85252ac5defd793977e16e7d",
           "name": "Fate's Hand — Lore (EN)"
         }
       ]
@@ -922,6 +927,30 @@
         }
       ]
     },
+    "spellSources": [
+      {
+        "id": "species:elven-lineage",
+        "name": "Elven Lineage: High Elf",
+        "source": "Elf",
+        "ability": "int",
+        "dc": 13,
+        "attackBonus": 5,
+        "spells": [
+          {
+            "id": "prestidigitation",
+            "name": "Prestidigitation",
+            "level": 0,
+            "prepared": true,
+            "range": "10 feet",
+            "castingTime": "Action",
+            "duration": "Up to 1 hour",
+            "ritual": false,
+            "text": "You create a magical effect within range. Choose the effect from the options below. If you cast this spell multiple times, you can have up to three of its non-instantaneous effects active at a time.\n\nSensory Effect. You create an instantaneous, harmless sensory effect, such as a shower of sparks, a puff of wind, faint musical notes, or an odd odor. Fire Play. You instantaneously light or snuff out a candle, a torch, or a small campfire.\n\nClean or Soil. You instantaneously clean or soil an object no larger than 1 cubic foot.\n\nMinor Sensation. You chill, warm, or flavor up to 1 cubic foot of nonliving material for 1 hour.\n\nMagic Mark. You make a color, a small mark, or a symbol appear on an object or a surface for 1 hour.\n\nMinor Creation. You create a nonmagical trinket or an illusory image that can fit in your hand. It lasts until the end of your next turn. A trinket can deal no damage and has no monetary worth.",
+            "concentration": false
+          }
+        ]
+      }
+    ],
     "resources": [],
     "traits": [
       {
@@ -932,9 +961,9 @@
       },
       {
         "id": "elven-lineage",
-        "name": "Elven Lineage",
+        "name": "Elven Lineage: High Elf",
         "source": "Elf",
-        "text": "You are part of a lineage that grants you supernatural abilities. Choose a lineage from the Elven Lineages table. You gain the level 1 benefit of that lineage.\n\nWhen you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level.\n\nIntelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage)."
+        "text": "You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list."
       },
       {
         "id": "fey-ancestry",

@@ -53,6 +53,7 @@ import { etapeParId } from "./etapes.mjs?v=923";
 /* 🧬 LOT 364 — le don d'origine de l'espèce (Versatile) : l'organe de l'Inheritance, un organe pour deux lieux. */
 import { renderFeatGlisse, featInfo, featListPlan, listeLabel } from "./inheritance-step.mjs?v=923";
 import { motDuChoix } from "./mot-du-choix.mjs?v=923";
+import { renderCaracteristiqueGlisse, caracPosee, MOT_CARAC_D_INCANTATION } from "./caracteristique-glisse.mjs?v=923";
 import { traitsDeLEspece } from "../../src/modules/fh/traits.mjs?v=923";
 /* 📌 LOT 191 / LOT 194 — l'organe du « mot d'un choix » (`mot-du-choix.mjs`)
    n'est plus importé ICI : la seule chose que cet écran nommait était une
@@ -164,6 +165,9 @@ function corpsDeLItem(item, ctx, act) {
   }
   /* Le choix de compétence de l'espèce, quand une espèce en porte un. */
   if (item.path === "species.skills") return renderChoixDeCompetence(ctx, act);
+  /* 🧬 LOT 373 — LA TAILLE, « chosen when you select this species » (Human, Tiefling) : une
+     valeur parmi celles que la couche EXTRAIT du texte (`size_choice.options`), au même organe. */
+  if (item.path === CHEMIN_TAILLE) return renderChoixDeTaille(ctx, act);
   /* ⛔ AUCUN REPLI SILENCIEUX : un item sans corps le DIT. Rendre le panneau
      entier « au cas où » est exactement la faute qu'Eric vient de voir. */
   return el("p", "parcours-refus", [text(
@@ -219,6 +223,49 @@ function renderChoixDeCompetence(ctx, act) {
       act({ ...info, actions: [revenir, choisir].filter(Boolean) });
     }
   });
+}
+
+/* ══ 🧬 LOT 373 — « UNE VALEUR PARMI N » À L'ÉTAPE SPECIES ══════════════════════════════
+   Deux questions que le texte pose en passant, et que la couche déclare (`srfh-mecaniques-en`) :
+   · la TAILLE (« Medium … or Small …, chosen when you select this species ») — un item à part,
+     `species.size`, dont les options et leurs NOMS sont extraits du texte (`size_choice`) ;
+   · la CARACTÉRISTIQUE d'incantation de la lignée — dans la porte de la lignée, sous la réponse. */
+const CHEMIN_TAILLE = "species.size";
+
+/** Les options de taille, nommées par la couche : `[{id, name}]`. */
+function optionsDeTaille(record) {
+  const choix = record && record.data && record.data.size_choice;
+  return choix && Array.isArray(choix.options) ? choix.options.filter((o) => o && typeof o.id === "string") : [];
+}
+
+/** Le nom de la taille POSÉE (« Small »), ou `null`. */
+function tailleChoisie(ctx) {
+  const record = especeRetenue(ctx);
+  const plan = planAt((ctx && ctx.decisions) || [], `${CHEMIN_TAILLE}[0]`) || planAt((ctx && ctx.decisions) || [], CHEMIN_TAILLE);
+  const pose = plan && Array.isArray(plan.selected) ? plan.selected[0] : null;
+  const option = optionsDeTaille(record).find((o) => o.id === pose);
+  return option ? option.name : null;
+}
+
+function renderChoixDeTaille(ctx, act) {
+  const decisions = ctx.decisions || [];
+  const plan = planAt(decisions, CHEMIN_TAILLE);
+  if (!plan) return null;
+  const options = optionsDeTaille(especeRetenue(ctx));
+  const slots = planSlots(decisions, CHEMIN_TAILLE);
+  return renderChoixGlisses({
+    plan, slots: slots.length > 0 ? slots : [{ ...plan, index: 0 }],
+    /* titre: null — la dalle d'item nomme déjà l'écran (§1 quinquies) */
+    titre: null, mot: "Size",
+    labelOf: (id) => { const o = options.find((x) => x.id === id); return o ? o.name : id; },
+    onAction: act
+  });
+}
+
+/** Les plans que le carnet publie SOUS une réponse de lignée (`species.lineage[0].ability`). */
+function sousPortesDeLignee(decisions) {
+  return (Array.isArray(decisions) ? decisions : []).filter((p) => p && typeof p.path === "string" &&
+    /^species\.lineage(\[[0-9]+\])?\.ability$/.test(p.path));
 }
 
 /** Ce que la ligne « gagné d'office » attend. Eric : *« granted automatically
@@ -468,7 +515,8 @@ function resumeDeLItem(item, ctx, act) {
       : null;
     const destiny = baseDeDestinee(data);
     const lignes = [
-      ["Size", data.size], ["Speed", data.speed], ["Creature type", data.creature_type],
+      /* 🧬 LOT 373 — une taille à CHOISIR n'est pas gagnée d'office : sa porte la porte. */
+      ["Size", planAt(decisions, CHEMIN_TAILLE) ? null : data.size], ["Speed", data.speed], ["Creature type", data.creature_type],
       ["Senses", sens], ["Destiny", destiny === null ? null : String(destiny)]
     ];
     /* LES TRAITS, UN PAR LIGNE, ET SANS CEUX QUE LES AUTRES LIGNES PORTENT. */
@@ -523,6 +571,11 @@ function resumeDeLItem(item, ctx, act) {
        espèce qui ne porte rien, la boucle ne pose rien : le bilan est celui
        d'avant, au nœud près. */
     poseLesTraitsDeLignee(bilan, record, elementDeLaLignee(choisi), ctx.query, act);
+    /* 🧬 LOT 373 — et la caractéristique choisie, sur la ligne en gras des bilans. */
+    for (const sous of sousPortesDeLignee(decisions)) {
+      const nom = caracPosee(decisions, sous.path);
+      if (nom) bilan.append(ligneEnGras(MOT_CARAC_D_INCANTATION, nom, ctx.query, act));
+    }
     return bilan;
   }
 
@@ -601,6 +654,10 @@ function resumeDeLItem(item, ctx, act) {
     const listeId = liste && Array.isArray(liste.selected) ? liste.selected[0] : null;
     if (listeId) ligne.append(text(` (${listeLabel(ctx.query, listeId)})`));
     return ligne;
+  }
+  if (item.path === CHEMIN_TAILLE) {
+    const nom = tailleChoisie(ctx);
+    return nom ? ligneEnGras("Size", nom, ctx.query, act) : null;
   }
   if (item.path === "species.skills") {
     const plan = planAt(decisions, "species.skills");
@@ -750,6 +807,8 @@ export const SPECIES_CATALOGUE = {
     if (chemin === CHEMIN_DON_D_ESPECE) {
       return `Tap a feat to read what it grants — drag it into the slot to choose. ${prevention}`;
     }
+    /* 🧬 LOT 373 — la taille : deux jetons, un récepteur, et rien à lire. */
+    if (chemin === CHEMIN_TAILLE) return `Drag your size into the slot. ${prevention}`;
     if (chemin !== "species.lineage") return null;
     if (LIGNAGES_SANS_TABLE.includes(idEspeceRetenue(ctx))) {
       return `Ten lineages, one element each — tap to read, drag one into the slot to choose. ${prevention}`;
@@ -850,6 +909,11 @@ export const SPECIES_CATALOGUE = {
          à moitié dépensé serait un mensonge, et le voyant à gauche dit déjà
          l'inachevé. */
       return budgetDepense(ctx) ? { mot: "Skill budget", sous: "spent" } : "Skill budget";
+    }
+    /* 🧬 LOT 373 — la loi de la porte : la question (« Size »), puis la réponse (« Small »). */
+    if (chemin === CHEMIN_TAILLE) {
+      const nom = tailleChoisie(ctx);
+      return nom ? { mot: nom, sous: "size" } : "Size";
     }
     return chemin === "species.skills" ? "Species skill"
       : chemin === LIGNE_ACQUIS.path ? LIGNE_ACQUIS.label : chemin;
@@ -1423,6 +1487,15 @@ function renderLineageBlock(ctx, record, act) {
     }
   });
   if (glisse) bloc.append(glisse);
+  /* 🧬 LOT 373 — « UNE VALEUR PARMI N », DANS LA PORTE DE LA LIGNÉE : la caractéristique
+     d'incantation (« choose the ability when you select the lineage »). Le carnet ne la publie
+     que sous une lignée qui fait lancer un sort — son plan vit SOUS la réponse
+     (`species.lineage[0].ability`), comme le cantrip du Thaumaturge (lot 372), et il retient le
+     `Done` de la porte. ⛔ Aucun nom de lignée ici : le plan existe, ou pas. */
+  for (const sous of sousPortesDeLignee(decisions)) {
+    const blocCarac = renderCaracteristiqueGlisse(ctx, act, sous.path);
+    if (blocCarac) bloc.append(blocCarac);
+  }
 
   /* 🗒️ UN TABLEAU QUAND CHAQUE LIGNÉE TIENT EN UNE VALEUR — Eric, 28/08 :
      « le Dragonborn pourrait avoir un tableau plutôt qu'un long scroll pour
@@ -1755,7 +1828,7 @@ export function speciesPalier2(decisions) {
      lisait « la bourse OU le QCM » et sortait au premier trouvé ; l'Elfe porte
      MAINTENANT les deux (sa bourse captive ET son lignage), et un `ready` qui
      ne regarde que le premier déclarerait l'écran fini avec un lignage vide. */
-  const plans = ["species.lineage", "species.skillBudget", "species.skills"]
+  const plans = ["species.lineage", "species.skillBudget", "species.skills", "species.size"]
     .map((chemin) => planAt(decisions, chemin))
     .filter(Boolean);
   if (plans.length === 0) return null; // Loroka & co : un seul palier

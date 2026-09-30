@@ -56,14 +56,35 @@
               "etape": "species",
               "chemin": "species.originFeat[0].list",
               "note": "Lot 364 — le second exemplaire (Versatile) ne propose pas la liste que l'arrière-plan a déjà prise ; dans l'autre sens aussi, l'Inheritance ne propose pas celle de Versatile."
+            },
+            "caracteristique": {
+              "extrait": "(choose when you select this feat)",
+              "nature": "creation",
+              "etape": "background",
+              "chemin": "background.originFeat[0].ability"
+            },
+            "caracteristique-versatile": {
+              "extrait": "(choose when you select this feat)",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.originFeat[0].ability",
+              "note": "Lot 373 — le même don détenu par Versatile (Human) : sa porte vit dans le B emboîté du don, sous la racine de l'espèce."
             }
           },
           "data[repeatable]": {
             "extrait": "You can take this feat more than once, but you must choose a different spell list each time",
             "distinct": "spell_list_choice"
+          },
+          "data[spellcasting_ability_choice]": {
+            "from": [
+              "int",
+              "wis",
+              "cha"
+            ],
+            "extrait": "Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat’s spells (choose when you select this feat)"
           }
         },
-        "note": "⚖️ ERIC, 2026-09-10 : *« Reproduis exactement dans backgrounds ce que tu trouves pour Magic Initiate dans FH, rien ne change. Fais-le ! »*\n\n🔴 CE QUE « RIEN NE CHANGE » VEUT DIRE, ET C'EST LITTÉRAL : le moteur et l'écran étaient DÉJÀ prêts. `src/build/decisions.mjs` lit `data.spell_list_choice` sur le record du don, sans aucun cas particulier — ⛔ aucun `if (id === \"magic-initiate\")` nulle part, la loi des lots 39/42. Ce qui manquait n'était pas du code : c'était la DÉCLARATION du côté SRD. La voici, et rien d'autre ne bouge.\n\n📏 CE QUI A ÉTÉ MESURÉ AVANT DE CHOISIR CETTE COUCHE, en trois temps :\n  ① `layers/srd-5.2.1-en.layer.json` est GÉNÉRÉE (`src/tools/gen-srd-layer.mjs`) depuis `~/tools/fh-srd/exports`, et l'export amont NE PORTE PAS ce champ. ⛔ L'y écrire à la main serait un no-op silencieux : la prochaine génération l'écraserait sans un mot.\n  ② `layers/srfh-shelving-en.layer.json` est GÉNÉRÉE elle aussi (`src/tools/gen-srfh-layer.mjs`), depuis `exports/srfh/en/shelving.json`, et son générateur REFUSE tout ce qui n'est pas le genre `shelving`. Elle ne peut donc pas accueillir un `feat` — et même si elle le pouvait, un enrichissement décidé ici dans un fichier copié d'une source serait une source INVENTÉE.\n  ③ ⇒ Une couche `srfh` NEUVE, écrite à la main, et c'est le rang que le lot 95 a défini pour exactement ce cas : *« ce qui est AMBIGU, ni SRD ni FH, et qui monte dans LES DEUX piles »*.\n\n⭐ ET C'EST BIEN DU `srfh`, PAS DU FH — le test d'Eric porte sur le NOM : *« si on change ça, est-ce que ça s'appelle encore le SRD ? »*. Les trois listes, les deux tours mineurs et le sort de niveau 1 SONT le texte du don (« Choose a class: Cleric, Druid, or Wizard […] Two Cantrips […] Level 1 Spell »). Rien n'est ajouté au SRD : on le réécrit dans la forme que la machine sait lire. Mais la FORME, elle, est une décision d'ici — le SRD ne connaît pas `spell_list_choice`. Ni le livre, ni Fate's Hand : `srfh`.\n\n📌 LES IDENTIFIANTS SONT DES RECORDS DE CLASSE, jamais des noms d'affichage — c'est la forme que `fh-feats-en` portait depuis le 20/08 et elle est reprise à l'octet : le croisement des sorts se fait sur `spell.classes` (des NOMS), et c'est le moteur qui traduit l'un dans l'autre, une fois, là où `classSpellPlans` le fait déjà. Les OPTIONS ne sont pas déclarées ici : elles se déduisent de la liste choisie (`spell.classes` × `spell.level`). Les mots `cantrips` et `prepared` sont ceux que la classe emploie déjà (`class.cantrips[n]`, `class.prepared[n]`) — un sort toujours préparé EST un sort préparé, et un troisième vocabulaire pour la même chose est la divergence garantie.\n\n⛔ UN SEUL ÉCRIVAIN. `fh-feats-en` posait ce champ jusqu'au lot 196 ; il ne le pose plus. Deux couches qui déclarent la même valeur sur le même record sont vertes tant que les deux disent la même chose, et divergent en silence le jour où l'une bouge — la couche du dessus gagnerait sans que personne ne l'ait décidé. `fh-feats-en` ne garde donc que `data.blurb`, qui est un champ FH (un texte d'écran), pendant que la MÉCANIQUE vit ici, une fois, sous le SRD comme sous Fate's Hand.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n♻️ LOT 364 — LA REPRISE, DÉCLARÉE. Le texte SRD : « Repeatable. You can take this feat more than once, but you must choose a different spell list each time. » La couche le déclare (`data[repeatable]`, `distinct: \"spell_list_choice\"` — la déclaration qui doit différer d'un exemplaire à l'autre) ; le carnet ne lit que la déclaration, et une garde confronte chaque déclaration au paragraphe « Repeatable. » de son texte."
+        "note": "⚖️ ERIC, 2026-09-10 : *« Reproduis exactement dans backgrounds ce que tu trouves pour Magic Initiate dans FH, rien ne change. Fais-le ! »*\n\n🔴 CE QUE « RIEN NE CHANGE » VEUT DIRE, ET C'EST LITTÉRAL : le moteur et l'écran étaient DÉJÀ prêts. `src/build/decisions.mjs` lit `data.spell_list_choice` sur le record du don, sans aucun cas particulier — ⛔ aucun `if (id === \"magic-initiate\")` nulle part, la loi des lots 39/42. Ce qui manquait n'était pas du code : c'était la DÉCLARATION du côté SRD. La voici, et rien d'autre ne bouge.\n\n📏 CE QUI A ÉTÉ MESURÉ AVANT DE CHOISIR CETTE COUCHE, en trois temps :\n  ① `layers/srd-5.2.1-en.layer.json` est GÉNÉRÉE (`src/tools/gen-srd-layer.mjs`) depuis `~/tools/fh-srd/exports`, et l'export amont NE PORTE PAS ce champ. ⛔ L'y écrire à la main serait un no-op silencieux : la prochaine génération l'écraserait sans un mot.\n  ② `layers/srfh-shelving-en.layer.json` est GÉNÉRÉE elle aussi (`src/tools/gen-srfh-layer.mjs`), depuis `exports/srfh/en/shelving.json`, et son générateur REFUSE tout ce qui n'est pas le genre `shelving`. Elle ne peut donc pas accueillir un `feat` — et même si elle le pouvait, un enrichissement décidé ici dans un fichier copié d'une source serait une source INVENTÉE.\n  ③ ⇒ Une couche `srfh` NEUVE, écrite à la main, et c'est le rang que le lot 95 a défini pour exactement ce cas : *« ce qui est AMBIGU, ni SRD ni FH, et qui monte dans LES DEUX piles »*.\n\n⭐ ET C'EST BIEN DU `srfh`, PAS DU FH — le test d'Eric porte sur le NOM : *« si on change ça, est-ce que ça s'appelle encore le SRD ? »*. Les trois listes, les deux tours mineurs et le sort de niveau 1 SONT le texte du don (« Choose a class: Cleric, Druid, or Wizard […] Two Cantrips […] Level 1 Spell »). Rien n'est ajouté au SRD : on le réécrit dans la forme que la machine sait lire. Mais la FORME, elle, est une décision d'ici — le SRD ne connaît pas `spell_list_choice`. Ni le livre, ni Fate's Hand : `srfh`.\n\n📌 LES IDENTIFIANTS SONT DES RECORDS DE CLASSE, jamais des noms d'affichage — c'est la forme que `fh-feats-en` portait depuis le 20/08 et elle est reprise à l'octet : le croisement des sorts se fait sur `spell.classes` (des NOMS), et c'est le moteur qui traduit l'un dans l'autre, une fois, là où `classSpellPlans` le fait déjà. Les OPTIONS ne sont pas déclarées ici : elles se déduisent de la liste choisie (`spell.classes` × `spell.level`). Les mots `cantrips` et `prepared` sont ceux que la classe emploie déjà (`class.cantrips[n]`, `class.prepared[n]`) — un sort toujours préparé EST un sort préparé, et un troisième vocabulaire pour la même chose est la divergence garantie.\n\n⛔ UN SEUL ÉCRIVAIN. `fh-feats-en` posait ce champ jusqu'au lot 196 ; il ne le pose plus. Deux couches qui déclarent la même valeur sur le même record sont vertes tant que les deux disent la même chose, et divergent en silence le jour où l'une bouge — la couche du dessus gagnerait sans que personne ne l'ait décidé. `fh-feats-en` ne garde donc que `data.blurb`, qui est un champ FH (un texte d'écran), pendant que la MÉCANIQUE vit ici, une fois, sous le SRD comme sous Fate's Hand.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n♻️ LOT 364 — LA REPRISE, DÉCLARÉE. Le texte SRD : « Repeatable. You can take this feat more than once, but you must choose a different spell list each time. » La couche le déclare (`data[repeatable]`, `distinct: \"spell_list_choice\"` — la déclaration qui doit différer d'un exemplaire à l'autre) ; le carnet ne lit que la déclaration, et une garde confronte chaque déclaration au paragraphe « Repeatable. » de son texte.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; une option de lignée porte `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
       "srd:feat:en:skilled": {
         "op": "patch",
@@ -1302,10 +1323,53 @@
               "extrait": "For example, if you choose the spell",
               "nature": "en-jeu",
               "quand": "quand le Rock Gnome fabrique son appareil mécanique"
+            },
+            "caracteristique": {
+              "extrait": "choose the ability when you select the lineage",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage[0].ability"
+            }
+          },
+          "data[lineage_trait]": "gnomish-lineage",
+          "data[spellcasting_ability_choice]": {
+            "from": [
+              "int",
+              "wis",
+              "cha"
+            ],
+            "extrait": "Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage)"
+          },
+          "data[lineage_effects]": {
+            "forest-gnome": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:minor-illusion",
+                  "extrait": "You know the Minor Illusion cantrip."
+                }
+              ],
+              "spells": [
+                {
+                  "id": "srd:spell:en:speak-with-animals",
+                  "extrait": "You also always have the Speak with Animals spell prepared."
+                }
+              ]
+            },
+            "rock-gnome": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:mending",
+                  "extrait": "You know the Mending and Prestidigitation cantrips."
+                },
+                {
+                  "id": "srd:spell:en:prestidigitation",
+                  "extrait": "You know the Mending and Prestidigitation cantrips."
+                }
+              ]
             }
           }
         },
-        "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Gnome demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 2 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Gnome demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 2 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
       "srd:species:en:dragonborn": {
         "op": "patch",
@@ -1380,9 +1444,17 @@
               "nature": "en-jeu",
               "quand": "à chaque Breath Weapon : un Cone de 15 pieds ou une Line de 30 pieds"
             }
+          },
+          "data[lineage_trait]": "draconic-ancestry",
+          "data[lineage_damage]": {
+            "traits": [
+              "breath-weapon",
+              "damage-resistance"
+            ],
+            "extrait": "Your choice affects your Breath Weapon and Damage Resistance traits"
           }
         },
-        "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Dragonborn demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 10 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Dragonborn demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 10 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
       "srd:species:en:goliath": {
         "op": "patch",
@@ -1438,9 +1510,10 @@
               "etape": "species",
               "chemin": "species.lineage"
             }
-          }
+          },
+          "data[lineage_trait]": "giant-ancestry"
         },
-        "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Goliath demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 6 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "⚖️ LOT 360 (ARCHI 35, 29/09 — le relevé des choix que le builder taisait) : le texte SRD de Goliath demande un choix au niveau 1, et la couche SRD ne le déclarait pas — l'écran disait « Granted automatically », puis « settled », sans porte (le test A→Z du lot 358, constat 4). ⭐ LA DÉCLARATION N'AJOUTE AUCUNE RÈGLE : les 6 options sont EXTRAITES mot pour mot du trait SRD (seul un saut de page de l'extraction est recollé). La forme est celle que le moteur lit déjà pour l'Elfe et le Tiefling (`data.lineages`, `species.lineage`), donc la porte de lignée existante s'ouvre sans une ligne d'écran. En pile Fate's Hand, `fh-species-en` repose sa propre liste par-dessus : elle gagne, montée après.\n\n📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
       "srd:species:en:elf": {
         "op": "patch",
@@ -1451,10 +1524,59 @@
               "nature": "creation",
               "etape": "species",
               "chemin": "species.lineage"
+            },
+            "caracteristique": {
+              "extrait": "choose the ability when you select the lineage",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage[0].ability"
+            }
+          },
+          "data[lineage_trait]": "elven-lineage",
+          "data[spellcasting_ability_choice]": {
+            "from": [
+              "int",
+              "wis",
+              "cha"
+            ],
+            "extrait": "Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage)"
+          },
+          "data[lineage_effects]": {
+            "drow": {
+              "darkvision": {
+                "range_ft": 120,
+                "extrait": "The range of your Darkvision increases to 120 feet."
+              },
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:dancing-lights",
+                  "extrait": "You also know the Dancing Lights cantrip."
+                }
+              ]
+            },
+            "high-elf": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:prestidigitation",
+                  "extrait": "You know the Prestidigitation cantrip."
+                }
+              ]
+            },
+            "wood-elf": {
+              "speed": {
+                "walk_ft": 35,
+                "extrait": "Your Speed increases to 35 feet."
+              },
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:druidcraft",
+                  "extrait": "You also know the Druidcraft cantrip."
+                }
+              ]
             }
           }
         },
-        "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
       "srd:species:en:human": {
         "op": "patch",
@@ -1471,14 +1593,35 @@
               "nature": "creation",
               "etape": "species",
               "chemin": "species.originFeat[0]"
+            },
+            "taille": {
+              "extrait": "chosen when you select this species",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.size"
             }
           },
           "data[feat_choice]": {
             "from": "origin",
             "trait": "versatile"
+          },
+          "data[size_choice]": {
+            "extrait": "chosen when you select this species",
+            "options": [
+              {
+                "id": "medium",
+                "name": "Medium",
+                "extrait": "Medium (about 4–7 feet tall)"
+              },
+              {
+                "id": "small",
+                "name": "Small",
+                "extrait": "Small (about 2–4 feet tall)"
+              }
+            ]
           }
         },
-        "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 364 (ARCHI 35, 29/09) — VERSATILE A SA PORTE. « You gain an Origin feat of your choice » : l'espèce déclare `data[feat_choice]`, la forme même de l'Inheritance (`{from: \"origin\"}`), plus le TRAIT qu'elle réalise (`trait: \"versatile\"`) — le trait quitte « Granted automatically » pour la porte, et la fiche nomme le don sous son nom. Le carnet publie `species.originFeat[0]` ; un don déjà retenu par l'arrière-plan et qui ne se reprend pas n'y est pas offert."
+        "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 364 (ARCHI 35, 29/09) — VERSATILE A SA PORTE. « You gain an Origin feat of your choice » : l'espèce déclare `data[feat_choice]`, la forme même de l'Inheritance (`{from: \"origin\"}`), plus le TRAIT qu'elle réalise (`trait: \"versatile\"`) — le trait quitte « Granted automatically » pour la porte, et la fiche nomme le don sous son nom. Le carnet publie `species.originFeat[0]` ; un don déjà retenu par l'arrière-plan et qui ne se reprend pas n'y est pas offert.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       },
       "srd:species:en:tiefling": {
         "op": "patch",
@@ -1495,10 +1638,79 @@
               "nature": "creation",
               "etape": "species",
               "chemin": "species.lineage"
+            },
+            "caracteristique": {
+              "extrait": "choose the ability when you select the legacy",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.lineage[0].ability"
+            },
+            "taille": {
+              "extrait": "chosen when you select this species",
+              "nature": "creation",
+              "etape": "species",
+              "chemin": "species.size"
+            }
+          },
+          "data[lineage_trait]": "fiendish-legacy",
+          "data[spellcasting_ability_choice]": {
+            "from": [
+              "int",
+              "wis",
+              "cha"
+            ],
+            "extrait": "Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the legacy)"
+          },
+          "data[species_cantrips]": [
+            {
+              "id": "srd:spell:en:thaumaturgy",
+              "extrait": "You know the Thaumaturgy cantrip.",
+              "trait": "otherworldly-presence"
+            }
+          ],
+          "data[size_choice]": {
+            "extrait": "chosen when you select this species",
+            "options": [
+              {
+                "id": "medium",
+                "name": "Medium",
+                "extrait": "Medium (about 4–7 feet tall)"
+              },
+              {
+                "id": "small",
+                "name": "Small",
+                "extrait": "Small (about 3–4 feet tall)"
+              }
+            ]
+          },
+          "data[lineage_effects]": {
+            "abyssal": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:poison-spray",
+                  "extrait": "You also know the Poison Spray cantrip."
+                }
+              ]
+            },
+            "chthonic": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:chill-touch",
+                  "extrait": "You also know the Chill Touch cantrip."
+                }
+              ]
+            },
+            "infernal": {
+              "cantrips": [
+                {
+                  "id": "srd:spell:en:fire-bolt",
+                  "extrait": "You also know the Fire Bolt cantrip."
+                }
+              ]
             }
           }
         },
-        "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration."
+        "note": "📋 LOT 360 (ARCHI 35, 29/09) — CE QUE LE TEXTE FAIT CHOISIR, DÉCLARÉ (`data[choix_du_texte:srfh-mecaniques-en]`). Chaque phrase de choix du niveau 1 de ce record (la forme la TROUVE : « choose », « of your choice »… ; elle ne décide rien) porte une déclaration par sa clef : `creation` nomme l'étape et le chemin du document qui posent le choix ; `en-jeu` dit quand la table le fait ; `montee` range un choix du passage de niveau (l'inventaire du futur lot Level up) ; `hors-choix` dit pourquoi le mot ne désigne pas un choix. ⭐ UNE CLEF PAR COUCHE (`choix_du_texte:<id de la couche>`), un seul écrivain chacune : une couche Fate's Hand déclare ce qu'ELLE écrit sous sa propre clef, sans dépendre de celle-ci — et quand deux couches couvrent la même occurrence, celle du DESSUS fait foi, comme partout dans la pile. ⛔ Aucune règle ajoutée : la garde `tests/choix-du-niveau-1.test.mjs` confronte chaque déclaration à sa phrase, et chaque phrase à une déclaration.\n\n🧬 LOT 373 (ARCHI 35, 30/09) — LES LIGNÉES PRENNENT LEURS EFFETS, PAR LA DONNÉE. Chaque champ est un EXTRAIT EXACT du texte SRD, relu par `tests/lignees-373.test.mjs` : `lineage_trait` nomme le trait que la lignée réalise (comme `feat_choice.trait`) ; `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin par le mot : `tests/chemin-par-le-mot-ferme.test.mjs`), `cantrips` / `spells` (le sort, et la phrase qui le donne), `darkvision` (`range_ft`), `speed` (`walk_ft`) ; `spellcasting_ability_choice` déclare « une valeur parmi N » (la porte `species.lineage[0].ability`, ou `<racine>.originFeat[0].ability` pour un don) ; `size_choice` la taille (`species.size`) ; `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme (Dragonborn). `derive` les applique ; ⛔ aucun nom d'espèce dans le moteur. Un effet sans chiffre (la résistance, le souffle, le don de Goliath) se lit dans le trait de lignée, avec son texte."
       }
     },
     "background": {

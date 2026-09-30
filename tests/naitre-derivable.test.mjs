@@ -475,7 +475,12 @@ test("E3 — 🔴 CE QUE LE MOTEUR PEUT DÉCLARER NON DÉRIVÉ, LE SCHÉMA NE L'
     ampute("armor", "srd:armor:en:leather-armor", "Leather Armor", { armor_class: "11 + Dex modifier" })) });
   const scenarios = [
     ["currency", PILES.SRD, []],
-    ["spellcasting", PILES.SRD, SIX_SORTS],
+    /* 🧬 LOT 373 — le Barbare-Acolyte n'OMET plus `spellcasting` : les sorts de Magic Initiate
+       vont à `spellSources` (ARCHI 35, Q1 → a — « le don fixe sa propre caractéristique »), et
+       `spellcasting` vaut `null`, dérivé. L'omission se PROVOQUE désormais par un sort posé sous
+       la CLASSE, qui n'a pas de caractéristique d'incantation. `SIX_SORTS` reste le scénario du
+       témoin inverse (plus bas, `spellSources`). */
+    ["spellcasting", PILES.SRD, [{ path: "class.cantrips[0]", ref: { kind: "spell", id: "srd:spell:en:guidance" } }]],
     ["proficiency", sansBonus, []],
     ["saves", sansBonus, []],
     ["ac", sansCa, CUIR]
@@ -487,6 +492,15 @@ test("E3 — 🔴 CE QUE LE MOTEUR PEUT DÉCLARER NON DÉRIVÉ, LE SCHÉMA NE L'
     assert.ok(!requis.includes(rubrique), `⛔ « ${rubrique} » est \`required\` : \`doc\` refuserait ce que \`build\` écrit`);
     assert.doesNotThrow(() => writers.assertValid(out.document, `e3-${rubrique}`), `le document sans « ${rubrique} » valide`);
     assert.doesNotThrow(() => writers.confirm({ document: out.document, path: "abilities" }), `…et se signe`);
+  }
+  /* 🧬 LOT 373 — …et les six sorts de l'Acolyte sans caractéristique choisie : `spellSources` est
+     POSÉ (vide), la source est DÉCLARÉE, et le document valide. */
+  {
+    const out = PILES.SRD.verbs.rebuild({ document: avec(neuf(PILES.SRD, "e3-sources"), [CLASSE, ...SIX, ...SIX_SORTS]) });
+    assert.equal(out.resolved.spellcasting, null, "le Barbare n'a pas d'incantation de classe — dérivé, pas omis");
+    assert.deepEqual(out.resolved.spellSources, [], "la source de Magic Initiate attend sa caractéristique");
+    assert.ok(out.underived.some((u) => u.field === "spellSources[background:srd:feat:en:magic-initiate]"), "…et le DIT");
+    assert.doesNotThrow(() => writers.assertValid(out.document, "e3-sources"));
   }
   /* ⚔️ et le témoin inverse : ce que le moteur écrit TOUJOURS reste exigé —
      un `resolved` sans `abilities` ne valide pas */

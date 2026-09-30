@@ -197,19 +197,11 @@ for (const [nom, couches] of Object.entries(PILES)) {
    dette qui citerait un autre numéro rougit — un choix neuf se relève AVANT de
    se mettre en dette. */
 /* 🧬 LOT 364 — #6 (Versatile) et #16 (Skilled) sont COMBLÉS : ils sortent d'ici. */
-const RELEVE_OUVERT = ["#4", "#5", "#10", "#11", "#12", "#13", "#15"];
+/* 🧬 LOT 373 — #4, #5 et #15 (« une valeur parmi N » : la caractéristique d'incantation des
+   lignées et de Magic Initiate, la taille) sont COMBLÉS : leurs dix lignes sortent. */
+const RELEVE_OUVERT = ["#10", "#11", "#12", "#13"];
 const LES_DEUX = ["SRD", "FH"];
 const DETTE = [
-  /* #4 — la caractéristique d'incantation (« une valeur parmi N », lot suivant) */
-  { releve: "#4", piles: LES_DEUX, id: "srd:species:en:elf", extrait: "choose the ability when you select the lineage" },
-  { releve: "#4", piles: LES_DEUX, id: "srd:species:en:gnome", extrait: "choose the ability when you select the lineage" },
-  { releve: "#4", piles: LES_DEUX, id: "srd:species:en:tiefling", extrait: "choose the ability when you select the legacy" },
-  { releve: "#4", piles: ["FH"], id: "srd:species:en:elf", extrait: "(chosen with the lineage)" },
-  { releve: "#4", piles: ["FH"], id: "srd:species:en:gnome", extrait: "(chosen with the lineage)" },
-  { releve: "#4", piles: ["FH"], id: "srd:species:en:tiefling", extrait: "(chosen with the legacy)" },
-  /* #5 — la taille Small / Medium (« une valeur parmi N », lot suivant) */
-  { releve: "#5", piles: LES_DEUX, id: "srd:species:en:human", extrait: "chosen when you select this species" },
-  { releve: "#5", piles: LES_DEUX, id: "srd:species:en:tiefling", extrait: "chosen when you select this species" },
   /* #10 — l'Expertise du Roublard au niveau 1 (SRD : lot suivant ; FH : question à Eric) */
   { releve: "#10", piles: LES_DEUX, id: "srd:class:en:rogue", extrait: "You gain Expertise in two of your skill proficiencies of your choice" },
   /* #11 — Thieves' Cant, une langue de plus (avec les langues SRD, lot suivant) */
@@ -219,14 +211,11 @@ const DETTE = [
   { releve: "#12", piles: ["SRD"], id: "srd:class:en:bard", extrait: "Choose 3 Musical Instruments" },
   { releve: "#12", piles: ["SRD"], id: "srd:class:en:bard", extrait: "Musical Instrument of your choice" },
   { releve: "#13", piles: ["SRD"], id: "srd:class:en:monk", extrait: "Choose one type of Artisan" },
-  { releve: "#13", piles: ["SRD"], id: "srd:class:en:monk", extrait: "Musical Instrument chosen for the tool proficiency above" },
-  /* #15 — la caractéristique d'incantation de Magic Initiate */
-  { releve: "#15", piles: LES_DEUX, id: "srd:feat:en:magic-initiate", extrait: "(choose when you select this feat)" },
-  { releve: "#15", piles: ["FH"], id: "srd:feat:en:magic-initiate", extrait: "you choose which one now" }
+  { releve: "#13", piles: ["SRD"], id: "srd:class:en:monk", extrait: "Musical Instrument chosen for the tool proficiency above" }
 ];
 /* ⛔ LE COMPTE EST ÉPINGLÉ : un lot qui comble un trou ôte sa ligne ET baisse ce nombre ;
    le monter demande une ligne du relevé dans le mandat, jamais l'inverse. */
-const DETTE_LIGNES = 16;   // lot 364 : 19 − #6 ×2 − #16
+const DETTE_LIGNES = 6;   // lot 364 : 19 − #6 ×2 − #16 · lot 373 : 16 − #4 ×6 − #5 ×2 − #15 ×2
 
 function detteDe(nomPile, id) {
   return DETTE.filter((l) => l.id === id && l.piles.includes(nomPile));
@@ -268,7 +257,9 @@ function planDuChemin(etat, choices, chemin) {
     if (decisions.some((p) => p.path === chemin)) return { doc, decisions };
     const ancetre = ancetres(chemin).find((a) => decisions.some((p) => p.path === a));
     if (!ancetre) return { doc, decisions };
-    const ouverts = decisions.filter((p) => p.path.startsWith(`${ancetre}.`) && p.expected === 1 &&
+    /* 🧬 LOT 373 — …et l'ancêtre LUI-MÊME s'il est ouvert : la caractéristique d'une lignée
+       (`species.lineage[0].ability`) n'existe qu'une fois `species.lineage[0]` répondu. */
+    const ouverts = decisions.filter((p) => (p.path === ancetre || p.path.startsWith(`${ancetre}.`)) && p.expected === 1 &&
       p.answered < 1 && Array.isArray(p.options) && p.options.length > 0);
     if (ouverts.length === 0) return { doc, decisions };
     ajouts = [...ajouts, ...ouverts.map((p) => {

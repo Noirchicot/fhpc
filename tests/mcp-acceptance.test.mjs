@@ -198,6 +198,7 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
     "notes",
     "resources",
     "senses[perception-passive]",
+    "spellSources",   // 🧬 LOT 373 — vide et déclaré : ni lignée qui fasse lancer, ni don
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
@@ -222,7 +223,8 @@ test("⚠️ `underived` TRAVERSE JUSQU'À L'IA — dans le structuredContent ET
   /* REWRITTEN 2026-08-08 — révision du schéma (GAP-DERIVED) : `stats` est le
      treizième champ non dérivé. Le compte est réécrit à la nouvelle vérité, pas
      relâché en `/NON DÉRIVÉ \(\d+\)/` — un compte flou ne verrait plus rien. */
-  assert.match(texte, /NON DÉRIVÉ \(13\)/);
+  /* 🧬 LOT 373 — 13 → 14 : `spellSources`, vide et déclaré (ni lignée qui fasse lancer, ni don). */
+  assert.match(texte, /NON DÉRIVÉ \(14\)/);
   for (const entry of underived) {
     assert.ok(texte.includes(entry.field), `le texte doit NOMMER « ${entry.field} »`);
     assert.ok(texte.includes(String(entry)), `le texte doit porter la RAISON de « ${entry.field} »`);

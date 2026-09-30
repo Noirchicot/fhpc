@@ -206,6 +206,15 @@ test("9 — ⭐ LE PERSONNAGE SANS OBJET MAGIQUE : `resolved` IDENTIQUE À AVANT
   assert.ok(apres.training && Array.isArray(apres.training.armor), "`training` est posé");
   delete apres.training;
   apres.traits = apres.traits.filter((trait) => trait.category !== "feat");
+  /* 🧬 LOT 373 — DEUX AJOUTS DE CONTENU DE PLUS, NOMMÉS : `spellSources` (le cantrip de la lignée,
+     en Intelligence) et le trait de lignée devenu spécifique (« Elven Lineage: High Elf », son texte
+     de niveau 1). Gardés par `tests/lignees-373.test.mjs` ; ici, sortis de la comparaison. */
+  assert.equal(apres.spellSources.length, 1, "`spellSources` porte la lignée");
+  delete apres.spellSources;
+  const specifique = apres.traits.find((trait) => trait.id === "elven-lineage");
+  assert.equal(specifique.name, "Elven Lineage: High Elf");
+  apres.traits = apres.traits.filter((trait) => trait.id !== "elven-lineage");
+  avant.traits = avant.traits.filter((trait) => trait.id !== "elven-lineage");
   const sansEmpreinte = (pile) => pile.map(({ hash, ...couche }) => couche);
   apres.derivation.stack = sansEmpreinte(apres.derivation.stack);
   avant.derivation.stack = sansEmpreinte(avant.derivation.stack);

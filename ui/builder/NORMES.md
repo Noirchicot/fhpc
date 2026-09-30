@@ -9968,6 +9968,37 @@ fichier serait vert pour rien)*.
 ⭐ **ET UN CRÉNEAU EST UN ENFANT DIRECT** (`planSlots`, carnet.mjs) : `base[n]`, rien dessous. Mesuré au banc : Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait les plans publiés SOUS la réponse. Le don d'origine portait le même défaut depuis ses branches.
 📏 **CE QUE ÇA CHANGE AILLEURS** : le don d'origine (Skilled, Magic Initiate, Auspicious…) sortait `unconsumed` en SRD ; il est désormais un trait. Les maîtrises que Skilled fait choisir sont appliquées (la compétence maîtrisée, l'outil possédé). La raison `no-trait-field-for-class-feat-background` est resserrée : les aptitudes de CLASSE en général restent non dérivées.
 
+📍 `species-une-lignee-a-ses-effets` · vivante · 30/09
+⚖️ **Une lignée applique ses effets par la DONNÉE de sa déclaration, jamais par un nom : `lineage_effects` porte, par id d'option (un champ de schéma, jamais un chemin de patch par le mot), ce que son texte de niveau 1 donne — `cantrips`, `spells`, `darkvision`, `speed`, `granted_skill_budget`, chacun avec son extrait exact —, `lineage_trait` nomme le trait que la lignée réalise, `lineage_damage` les traits qu'un type de dégâts d'ascendance nomme, `species_cantrips` le sort qu'un trait de l'espèce lance avec la même caractéristique ; `derive` les applique. Le trait de lignée devient SPÉCIFIQUE (« Elven Lineage: Drow », le bénéfice de niveau 1 pour texte) ; un effet sans chiffre — une résistance, un souffle, le don d'un Goliath — se lit dans ce trait.**
+
+> ARCHI 35, 30/09 (mandat du lot 373) : *« L'extraction typée des lignées, dans les déclarations […] Chaque champ est un extrait exact de son texte. Les effets appliqués dans `derive`, par la donnée, jamais par une liste de noms. Un effet sans chiffre de fiche devient un trait nommé avec son texte. »* Puis, sur les deux décisions posées : *« Tes cinq décisions sont approuvées, sans veto »* (porte ouverte par la donnée, résistances et souffle en traits nommés).
+> 📜 **Le chapitre FH** (`5.RPG/Fate's Hand/0. D&D 5+ Rules/1. Build a Character/D&D 5+ Races & Species.md`) : Dragonborn, Elf, Goliath et Tiefling gardent leurs lignées SRD ; le Hoddon est le Gnome, et sa troisième lignée, *The Mole People (FH)*, dit : *« Your Darkvision increases to 120 feet; you gain Meticulous — Advantage on Investigation checks — and 1 skill point (Novice) in tinker's tools »*. ARCHI 35, Q2 → a) : ce point est une bourse CAPTIVE, la forme de Keen Senses.
+
+📏 **CE QUI SE PASSAIT** (mesuré au moteur, v923) : `species.lineage[0]` sortait `unconsumed` — un Drow voyait à 60 pieds, un Wood Elf courait à 30, un Tiefling abyssal n'avait ni sa résistance ni son Poison Spray, un Dragonborn noir soufflait « the type determined by your Draconic Ancestry », sans le type.
+⭐ **CE QUI EST LU** : la vitesse de BASE que pose la lignée (avant les objets), la portée de la vision (en place, avec sa provenance), les sorts (`socle-une-source-d-incantation-a-sa-caracteristique`), la bourse d'un OUTIL (le palier posé, la moitié de la maîtrise pour Novice), et les traits « Breath Weapon (Acid) », « Damage Resistance (Acid) ».
+⛔ **UNE PILE QUI NE DÉCLARE RIEN NE CONSOMME RIEN** : la couche FR n'a pas d'effets de lignée — sa réponse reste `unconsumed`, et `validate` dit qu'elle ne change rien à la fiche. Jamais un effet tu.
+🛡️ `tests/lignees-373.test.mjs` (L1, L3, L6, L8), qui bouclent sur les espèces montées des deux piles.
+
+📍 `socle-une-valeur-parmi-n-a-sa-porte` · vivante · 30/09
+⚖️ **Un choix « une valeur parmi N » que le texte fait faire en passant — la caractéristique d'incantation (« choose the ability when you select the lineage », « choose when you select this feat »), la taille (« chosen when you select this species ») — a sa porte : la couche le DÉCLARE (`spellcasting_ability_choice`, `size_choice`, ses options et leurs noms extraits du texte), le carnet publie le plan LÀ OÙ VIT ce qu'il règle — sous la réponse de lignée (`species.lineage[0].ability`), en branche du B emboîté du don (`<racine>.originFeat[0].ability`), ou item de l'étape (`species.size`) —, et elle retient le `Done` de ce qui la porte. ⛔ Une question qui ne porte sur rien ne se pose pas : la porte de la caractéristique ne s'ouvre que sous une lignée qui fait lancer un sort.**
+
+> ARCHI 35, 30/09 : *« la porte de caractéristique ouverte par la DONNÉE (sort donné ou non), la porte de taille pour Human et Tiefling dans les deux piles, les chemins `…lineage[0].ability` et `…originFeat[0].ability` »* — approuvés sans veto.
+
+📏 **LE RELEVÉ DU LOT 360, LIGNES #4, #5 ET #15** : ces trois choix n'avaient ni déclaration ni porte, et dix lignes les tenaient en dette dans `tests/choix-du-niveau-1.test.mjs`. Elles en sortent (dette : 16 → 6).
+⭐ **UN SEUL ORGANE, DEUX LIEUX** : `caracteristique-glisse.mjs` rend la porte dans la lignée ET dans le don — les jetons sont les options DU PLAN, les noms ceux d'Abilities (`NOMS_DE_CARAC`, écrits une fois), le titre le terme du texte : « Spellcasting ability ».
+⭐ **The Mole People n'a pas de sort** (« le seul des trois lignages hoddon sans sort ; assumé », chapitre FH) : pas de porte. Une réponse qui traîne après un changement de lignée publie son plan sans options, et le verrou le dit.
+🛡️ `tests/lignees-373.test.mjs` (L2, L4, L5, L7), `tests/choix-du-niveau-1.test.mjs` (la dette).
+
+📍 `socle-une-source-d-incantation-a-sa-caracteristique` · vivante · 30/09
+⚖️ **Un sort qui ne vient pas de la classe — celui d'une lignée, celui d'un don — se lance avec la caractéristique de SA source : il vit dans `resolved.spellSources[]` (une entrée par source : `id`, `name`, `source`, `ability`, `dc` = 8 + maîtrise + modificateur, `attackBonus` = maîtrise + modificateur, `spells`), jamais dans le bloc de la classe. Sans caractéristique choisie, pas de chiffre : la source est déclarée. La fiche montre chaque source sous « Other spellcasting ».**
+
+> ARCHI 35, 30/09, Q1 → a) : *« `resolved.spellSources[]`, clef neuve et facultative, une entrée par source hors classe (lignée, chaque don) : {id, name, source, ability, dc, attackBonus, spells[]}. Les cantrips de Magic Initiate y déménagent : c'est la règle, le don fixe sa propre caractéristique. »*
+
+📏 **CE QUI SE PASSAIT** : tout ref de sort hors équipement entrait dans `resolved.spellcasting` — un Clerc Magic Initiate lançait ses cantrips de Magicien en Sagesse, un Fighter Magic Initiate n'avait AUCUN bloc (sa classe n'a pas de caractéristique), et un sort de lignée n'avait nulle part où vivre.
+⭐ **LE SORT SUR LA FICHE EST ÉCRIT UNE FOIS** : `$defs.spell` au schéma, `composerLeSort` au moteur — les deux rubriques les lisent.
+⛔ **POURQUOI PAS LE TABLEAU PROMIS PAR `spellcasting`** : cette porte est écrite pour le MULTICLASSAGE (des emplacements partagés) ; une lignée ou un don n'a pas d'emplacements.
+🛡️ `tests/lignees-373.test.mjs` (L3, L5, L7), `tests/naitre-derivable.test.mjs` (E3 : le Barbare-Acolyte a désormais `spellcasting: null` et sa source déclarée).
+
 ---
 
 ## 6 pré decies. 🧬 LE DON D'ORIGINE A DEUX DÉTENTEURS — Versatile *(lot 364, 2026-09-29)*

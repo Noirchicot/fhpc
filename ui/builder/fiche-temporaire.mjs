@@ -447,6 +447,44 @@ function blocSorts(r, etat, reg, declarees) {
   return bloc("spellcasting", LIBELLES_EN.spellcasting, enfants);
 }
 
+/* ══ 🧬 LOT 373 — LES AUTRES SOURCES D'INCANTATION (`resolved.spellSources`) ══════════════════
+   La lignée (« Elven Lineage: Drow ») et chaque don (Magic Initiate) lancent avec LEUR
+   caractéristique, celle que le joueur a choisie : une grille par source — caractéristique, DD,
+   attaque — avec, en note, ce que le moteur nomme (la source), puis ses sorts par niveau. Les
+   mêmes mots que le bloc de classe (`MOTS_FICHE`), la même grammaire de chemins.
+   ⛔ SANS SOURCE, PAS DE BLOC : un personnage qui n'en a aucune n'a rien à lire ici (le moteur le
+   déclare pour le carnet, pas pour la fiche). Une source qui ATTEND sa caractéristique se dit
+   « not derived yet » — c'est un manque, pas un vide. */
+function blocSourcesDeSorts(r, declarees) {
+  const titre = LIBELLES_EN.spellSources;
+  const sources = Array.isArray(r.spellSources) ? r.spellSources.filter(estObjet) : [];
+  const enAttente = [...(declarees.champs || [])].some((champ) => typeof champ === "string" && champ.startsWith("spellSources["));
+  if (sources.length === 0) return enAttente ? bloc("spellSources", titre, [motDAbsence("absente")]) : null;
+  const enfants = [];
+  for (const s of sources) {
+    const chemin = `resolved.spellSources[${s.id}]`;
+    const grille = el("div", "perso-grille perso-grille-combat");
+    grille.append(cellule(MOTS_FICHE.caracDeSort, typeof s.ability === "string" ? s.ability.toUpperCase() : null,
+      { note: s.name || null }));
+    grille.append(cellule(MOTS_FICHE.ddSort, Number.isInteger(s.dc) ? String(s.dc) : null,
+      { provenance: s.source || null, chemin: `${chemin}.dc` }));
+    grille.append(cellule(MOTS_FICHE.attaqueSort, Number.isInteger(s.attackBonus) ? signe(s.attackBonus) : null,
+      { provenance: s.source || null, chemin: `${chemin}.attackBonus` }));
+    enfants.push(grille);
+    const liste = el("ul", "perso-liste");
+    const parNiveau = new Map();
+    for (const sort of Array.isArray(s.spells) ? s.spells : []) {
+      if (!estObjet(sort)) continue;
+      if (!parNiveau.has(sort.level)) parNiveau.set(sort.level, []);
+      parNiveau.get(sort.level).push(sort.name);
+    }
+    for (const [niveau, noms] of parNiveau) liste.append(ligne(MOTS_FICHE.niveauDeSort(niveau), noms.join(", ")));
+    enfants.push(liste);
+  }
+  if (enAttente) enfants.push(motPartiel());
+  return bloc("spellSources", titre, enfants);
+}
+
 function blocStats(r, etat) {
   if (etat === "absente" || etat === "vide") return bloc("stats", LIBELLES_EN.stats, [motDAbsence(etat)]);
   const liste = el("ul", "perso-liste");
@@ -561,6 +599,9 @@ export function renderFicheTemporaire(ctx) {
   fiche.append(blocMaitrises("tools", r, etat("tools"), reg, paliers));
   fiche.append(blocTraining(r, etat("training")));
   fiche.append(blocSorts(r, etat("spellcasting"), reg, declarees));
+  /* 🧬 LOT 373 — les sorts de la lignée et des dons, chacun avec SA caractéristique. */
+  const sourcesDeSorts = blocSourcesDeSorts(r, declarees);
+  if (sourcesDeSorts) fiche.append(sourcesDeSorts);
   fiche.append(blocNoms("actions", r, etat("actions"), (a) => [a && a.name]));
   /* ⭐ LOT 360 — LES CHOIX DE CAPACITÉ (Divine Order, Primal Order, Fighting Style) ENTRENT
      DANS « Traits and features ». Le moteur ne les compose pas — Q1 d'ARCHI 35 : on écrit et

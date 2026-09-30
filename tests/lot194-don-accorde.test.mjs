@@ -143,8 +143,11 @@ test("📏 témoin — le LIVRE seul ne déclare aucun `spell_list_choice` ; la 
      le reposait, les deux couches diraient la même chose aujourd'hui et
      divergeraient en silence au premier réglage. */
   const fhFeats = readJson("layers/fh-feats-en.layer.json").records.feat[MI].changes;
-  assert.deepEqual(Object.keys(fhFeats), ["data.blurb"],
-    "`fh-feats-en` ne porte plus que le TEXTE D'ÉCRAN — la mécanique a UN écrivain, et il est plus bas");
+  /* 🧬 LOT 373 — et la DÉCLARATION de ce que son texte fait choisir (`choix_du_texte:fh-feats-en`,
+     « you choose which one now ») : une clef par couche, celle qui ÉCRIT le texte (lot 360). Ce
+     n'est pas de la mécanique — le moteur ne la lit jamais —, c'est la garde du 360 qui la lit. */
+  assert.deepEqual(Object.keys(fhFeats), ["data.blurb", "data[choix_du_texte:fh-feats-en]"],
+    "`fh-feats-en` ne porte plus que le TEXTE D'ÉCRAN (et ce qu'il fait choisir) — la mécanique a UN écrivain, et il est plus bas");
 });
 
 /* ══ ② LE CÂBLAGE — un don IMPOSÉ publie ses branches ══════════════════════ */

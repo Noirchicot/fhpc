@@ -439,6 +439,9 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
     "notes",
     "resources",
     "senses[perception-passive]",
+    /* 🧬 LOT 373 — ni lignée qui fasse lancer (la couche FR n'a pas d'effets de lignée), ni don :
+       la rubrique vide se NOMME. */
+    "spellSources",
     "spellcasting.spells[].castType",
     "spellcasting.spells[].concentration",
     "spellcasting.spells[].damage",
@@ -480,7 +483,8 @@ test("CE QUE LA PILE NE SAIT PAS NOURRIR N'EST PAS DEVINÉ — et `rebuild` le D
   assert.deepEqual(
     Object.entries(out.resolved).filter(([, v]) => Array.isArray(v) && v.length === 0).map(([k]) => k).sort(),
     /* REWRITTEN 2026-08-08 — `stats` est une collection vide de plus (GAP-DERIVED). */
-    ["actions", "craft", "languages", "notes", "resources", "stats"]
+    /* 🧬 LOT 373 — `spellSources` aussi : ni lignée qui fasse lancer, ni don (déclaré plus haut). */
+    ["actions", "craft", "languages", "notes", "resources", "spellSources", "stats"]
   );
 });
 
@@ -527,7 +531,9 @@ test("`validate` ne trouve rien à redire au personnage d'acceptation", () => {
      rien à ta fiche ». */
   const inertes = verdict.warnings.filter((line) => line.includes("n'a été consommé"));
   assert.deepEqual(inertes.length, 2,
-    "lignage, don homebrew. 🔄 LOT 372 : le don d'arrière-plan est LU (il entre en trait, catégorie `feat`) — " +
+    "lignage, don homebrew. 🧬 LOT 373 : le lignage RESTE ici — la couche FR ne déclare aucun effet de lignée " +
+    "(`lineage_trait`, `lineage_effects` vivent dans `srfh-mecaniques-en`, en anglais) : une réponse sans effet " +
+    "n'est pas consommée. ( 🔄 LOT 372 : le don d'arrière-plan est LU (il entre en trait, catégorie `feat`) — " +
     "il sort de cette liste parce qu'il a un effet, pas parce qu'on l'a tu. ⚠️ « langue » est SORTIE le 2026-09-08 : " +
     "`languages[0] = \"draconique\"` a été RETIRÉ du personnage — une intention sans effet. " +
     "⛔ ET LE TROU QU'ELLE RÉVÉLAIT RESTE, IL N'EST PAS RÉPARÉ : ce personnage est SRD + " +
