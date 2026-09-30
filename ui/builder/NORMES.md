@@ -6099,6 +6099,26 @@ posé —, sources restaurées à l'empreinte.
 
 ---
 
+### ✂️ LES POIGNÉES `/` ET `×` DU MODE ÉDITION — ce que chacune fait
+📍 `equipement-sections-renommer-et-effacer` · vivante · 30/09
+⚖️ **En mode édition du Backpack, `/` renomme la section sous le viseur : il modifie ou remplace son nom, et il n'est jamais éteint sur une section renommable. `×` suit la règle du 19/09 : tant que le sac compte 5 sections ou moins, il vide la tuile — son nom s'efface, la place reste, la roue garde ses crans ; au-delà, il détruit la tuile, et seulement si elle est vide (18/09).**
+
+> Eric, 2026-09-30, au test au doigt sur son iPad (v929, geste 4) : **« le "/" est grisé, il faut d'abord faire "x"
+> (qui efface le texte) pour ensuite faire / pour taper le nom. illogique. X devrait détruire la tuile pas juste enlever
+> son nom. / modifier ou remplacer le nom »**. Puis, relayé par ARCHI 35 avec sa question — *« × quand le sac a
+> 5 sections ou moins : détruit la tuile (la roue ne boucle plus et montre des vides aux deux bouts), ou garde la règle
+> du 19/09 ? »* → **« Garde la règle du 19/09 »**.
+> Le 19/09 : *« si moins de 5 items dans le tambour, n'efface pas la tuile, juste nomme-la blank, quand on efface »*.
+> Le 18/09 : une section ne se supprime que vide (*« vide-la d'abord »*, `shell.mjs`, `supprimerSection`).
+
+⚠️ **Deux défauts nommés, pour le lot qui les répare** : ① `/` éteint sur une section renommable — mesuré par Eric
+au doigt, v929 ; ② la légende de l'encart dit *« × Delete it. Whatever it holds comes back to you first. »* — faux
+deux fois : sous cinq sections `×` vide la tuile, et une section pleine refuse de partir.
+🗄️ Jusqu'au 30/09, la règle du 19/09 ne vivait que dans deux commentaires du code (`equipment-step.mjs`,
+`shell.mjs`) : c'est son premier lieu dans NORMES.
+
+---
+
 ### 🔴 UNE MESURE NE VAUT QUE CONTRE UNE SOURCE EXTÉRIEURE
 📍 `socle-mesurer-contre-la-source-jamais-contre-son-plan` · vivante · 18/09
 ⚖️ **Un écran se mesure contre l'ARTEFACT, une loi de NORMES, un écran déjà en production ou l'œil d'Eric. ⛔ Jamais contre la table qu'on vient d'écrire soi-même.**
