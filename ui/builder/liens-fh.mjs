@@ -45,6 +45,16 @@ export function lienAbilityScoresFhWeb(ancre) {
   return `${FH_WEB}/chapters/ability-scores/` + (ancre ? `#${ancre}` : "");
 }
 
+/** 📚 LOT 387 — LE LIEN D'UN RECORD DU LIVRE DU JOUEUR : l'adresse de sa page chez D&D Beyond
+ *  (`data.book_link`), ou `null`. ⚖️ ARCHI 35, 30/09, la loi des liens d'Eric appliquée aux livres :
+ *  *« pour un record du PHB, le lien est l'adresse de sa page chez D&D Beyond. C'est son livre acheté,
+ *  et le texte entier y reste. »* ⛔ Seule une adresse D&D Beyond est rendue : un champ qui viserait
+ *  ailleurs n'ouvre rien. */
+export function lienDuLivreDuJoueur(record) {
+  const lien = record && record.data && record.data.book_link;
+  return typeof lien === "string" && lien.startsWith("https://www.dndbeyond.com/") ? lien : null;
+}
+
 /** L'URL FH web d'un skill, par son slug ou son nom. */
 export function lienSkillFhWeb(slugOuNom) {
   const slug = String(slugOuNom || "").toLowerCase().replace(/\s+/g, "-");

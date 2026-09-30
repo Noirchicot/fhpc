@@ -459,7 +459,11 @@ export function renderGuideSpecifique({ racine, titre, texte, items, labelOf, bi
      ⭐ L'appelant décide : il donne `{titre, texte}`, ou il ne donne rien. Cet
      écran ne va pas chercher le lore — il ne sait même pas ce qu'il montre. */
   livre.setAttribute("aria-label", "Lore");
-  if (livreDe && livreDe.texte) {
+  if (livreDe && livreDe.href) {
+    /* 📚 LOT 387 — la page du livre du joueur chez D&D Beyond (la loi des liens), comme le livre de
+       Destiny ouvre FH Web. ⛔ `noopener`. */
+    livre.addEventListener("click", () => { window.open(livreDe.href, "_blank", "noopener"); });
+  } else if (livreDe && livreDe.texte) {
     livre.addEventListener("click", () => act({
       kind: "popup", titre: livreDe.titre || "Lore", texte: livreDe.texte
     }));
@@ -558,7 +562,11 @@ export function renderItem({ racine, item, titre, corps, livreDe, aiguilleur, on
   const livre = el("button", "fiche-livre livre-de-sortie");
   livre.type = "button";
   livre.setAttribute("aria-label", "Lore");
-  if (livreDe && livreDe.texte) {
+  if (livreDe && livreDe.href) {
+    /* 📚 LOT 387 — la page du livre du joueur chez D&D Beyond (la loi des liens), comme le livre de
+       Destiny ouvre FH Web. ⛔ `noopener`. */
+    livre.addEventListener("click", () => { window.open(livreDe.href, "_blank", "noopener"); });
+  } else if (livreDe && livreDe.texte) {
     livre.addEventListener("click", () => act({ kind: "popup", titre: livreDe.titre || "Lore", texte: livreDe.texte }));
   } else {
     livre.disabled = true;

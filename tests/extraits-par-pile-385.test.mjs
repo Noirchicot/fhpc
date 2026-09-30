@@ -28,8 +28,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { makeHarness, PILE_SRD } from "./build-harness.mjs";
 import { PILE as PILE_FH } from "../src/tools/exemple-fh-en.mjs";
+import { coucheFixture, pileAvecLivre } from "./fixture-livre-387.mjs";
 
-const PILES = { SRD: PILE_SRD, FH: PILE_FH };
+/* 📚 LOT 387 — la troisième pile : le SRD et un livre du joueur (une FIXTURE, jamais le PHB), à la
+   place qu'`engine.mjs` donne aux livres. ARCHI 35 : *« la garde du 385 apprend cette seconde forme pour
+   les couches de livre : chaque déclaration porte soit un extrait de sa pile, soit un pointeur. Jamais
+   ni l'un ni l'autre. »* Un POINTEUR (`source.url`, une page de D&D Beyond) remplace la citation quand
+   la phrase du livre n'est pas celle du SRD : on ne recopie pas la prose d'un livre sous droits. */
+const PILES = { SRD: PILE_SRD, FH: PILE_FH, LIVRE: pileAvecLivre(PILE_SRD, coucheFixture().layer) };
 
 /** Toutes les citations de la pile : `{ ou, extrait, texte }`, `texte` étant celui du record de la pile
  *  (ou `null` quand la déclaration est inerte : son trait n'existe pas dans cette pile). */
@@ -39,8 +45,15 @@ function citations(h) {
   const glossaire = parId("glossary"); const sorts = parId("spell"); const classes = parId("class");
   const out = [];
   const citer = (ou, extrait, texte) => { if (typeof extrait === "string") out.push({ ou, extrait, texte }); };
+  const pointer = (ou, d) => {
+    if (d && d.source && typeof d.source.url === "string" && d.source.url.startsWith("https://www.dndbeyond.com/")) out.push({ ou, pointeur: d.source.url });
+  };
   const usage = (ou, u, texte) => {
     citer(`${ou} · compte`, u.extrait, texte);
+    pointer(`${ou} · compte`, u);
+    if (u.action) pointer(`${ou} · action`, u.action);
+    /* ⛔ un compte qui ne cite rien et ne pointe nulle part */
+    if (u.max && typeof u.extrait !== "string" && !(u.source && u.source.url)) out.push({ ou: `${ou} · compte`, rien: true });
     citer(`${ou} · action`, u.action && u.action.extrait, texte);
     citer(`${ou} · attente`, u.awaits && u.awaits.extrait, texte);
     if (u.action && typeof u.action.spell === "string" && typeof u.action.economy_extrait === "string") {
@@ -63,6 +76,7 @@ function citations(h) {
     for (const n of d.trait_levels || []) {
       const trait = traits.get(n.trait);
       citer(`${nom} ${n.trait} · niveau`, n.extrait, trait ? trait.text : null);
+      pointer(`${nom} ${n.trait} · niveau`, n);
     }
     for (const [option, effets] of Object.entries(d.lineage_effects || {})) {
       if (!effets || !effets.uses) continue;
@@ -110,7 +124,7 @@ const ETAT = Object.fromEntries(Object.entries(PILES).map(([nom, couches]) => [n
 
 for (const nom of Object.keys(PILES)) {
   test(`${nom} — chaque extrait cité se trouve dans le texte du record de cette pile`, () => {
-    const fautes = ETAT[nom].filter((c) => c.texte !== null && !c.texte.includes(c.extrait));
+    const fautes = ETAT[nom].filter((c) => c.rien || (c.extrait !== undefined && c.texte !== null && !c.texte.includes(c.extrait)));
     assert.deepEqual(fautes.map((c) => `${c.ou} : « ${c.extrait} »`), []);
   });
 }
@@ -126,6 +140,12 @@ test("témoins — ce que chaque pile cite, et ce qu'elle laisse inerte", () => 
      moins rien : la pile FH cite les mêmes sources avec SES phrases. */
   assert.equal(ETAT.SRD.length, 60, "citations lues en pile SRD");
   assert.equal(ETAT.FH.length, 60, "citations lues en pile FH");
+  /* 📚 LOT 387 — la pile du livre : ce que le SRD cite, plus ce que le livre POINTE (aucun SRD ni FH
+     ne pointe : leurs phrases sont citables) */
+  const pointeurs = (nom) => ETAT[nom].filter((c) => c.pointeur).map((c) => c.ou).sort();
+  assert.deepEqual([...pointeurs("SRD"), ...pointeurs("FH")], []);
+  assert.deepEqual(pointeurs("LIVRE"), ["glimmerkin late-bloom · action", "glimmerkin late-bloom · compte", "glimmerkin late-bloom · niveau",
+    "glimmerkin mending-spark · action", "glimmerkin mending-spark · compte", "test-fortune · compte"]);
   /* ⭐ et la pile FH cite SES phrases : l'échelle écrite, jamais le bonus de maîtrise */
   const echelle = ETAT.FH.filter((c) => c.extrait.includes("twice — plus one more use at character levels 5, 9, 13, and 17")).map((c) => c.ou);
   assert.deepEqual(echelle.sort(), ["dragonborn breath-weapon · compte", "dwarf stonecunning · compte", "gnome forest-folk · compte",
