@@ -46,26 +46,26 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=929";
+import { renderConfirmDialog } from "./confirm.mjs?v=931";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=929";
+import { motDeLEchelon } from "./echelle.mjs?v=931";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=929";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=931";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=929";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=931";
 /* 🗂️ LOT 374 — le rang B `characters` EST My characters, tel qu'Eric l'a dicté, et son rendu vit
    dans son propre fichier (le déménagement de `Layers` au 188, et du magasin au 195).
    ⛔ `mes-personnages` n'importe rien d'ici : pas de cycle à arbitrer. */
-import { renderMesPersonnages } from "./mes-personnages.mjs?v=929";
+import { renderMesPersonnages } from "./mes-personnages.mjs?v=931";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -955,8 +955,13 @@ function renderSaveLocation(lieu, onAction) {
 
 /** ⚖️ LOT 374 — LES DEUX MOTS DE L'ENVOI À MY CHARACTERS — ⚠️ brouillons anglais à Eric. */
 export const MOTS_DE_L_ENVOI = Object.freeze({
-  refus: (raison) => `My characters did not get your last changes: ${raison}. They are safe in this browser, and will be sent again when the app reopens.`,
-  repris: "Your last changes reached My characters when the app reopened."
+  refus: (raison, lieu) => (typeof lieu === "string" && lieu !== ""
+    ? `${lieu.charAt(0).toUpperCase()}${lieu.slice(1)} did not get your last changes: ${raison}. They are safe in this app, and will be sent again when the app reopens.`
+    : `My characters did not get your last changes: ${raison}. They are safe in this browser, and will be sent again when the app reopens.`),
+  repris: "Your last changes reached My characters when the app reopened.",
+  /* ⚖️ LOT 377 — le lieu choisi (Dropbox) les a reçus à la réouverture : il se NOMME par sa donnée
+     (`capacites.lieu`, « your Dropbox »), jamais par un test sur son nom. */
+  reprisVers: (lieu) => `Your last changes reached ${lieu} when the app reopened.`
 });
 
 /**
@@ -1059,9 +1064,9 @@ export function renderUniverseStep(ctx, onAction) {
      est arrivé : la ligne d'état « saved » est retirée (`menu-r-ligne-d-etat-retiree`). */
   const envoi = ctx.envoi || { etat: "a-jour" };
   if (envoi.etat === "refus") {
-    tete.append(el("p", "doc-field-error tdc-envoi", [text(MOTS_DE_L_ENVOI.refus(envoi.raison))]));
+    tete.append(el("p", "doc-field-error tdc-envoi", [text(MOTS_DE_L_ENVOI.refus(envoi.raison, envoi.lieu))]));
   } else if (envoi.etat === "repris") {
-    tete.append(el("p", "universe-note tdc-envoi", [text(MOTS_DE_L_ENVOI.repris)]));
+    tete.append(el("p", "universe-note tdc-envoi", [text(envoi.lieu ? MOTS_DE_L_ENVOI.reprisVers(envoi.lieu) : MOTS_DE_L_ENVOI.repris)]));
   }
   section.append(tete);
 

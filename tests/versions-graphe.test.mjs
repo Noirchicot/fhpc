@@ -406,6 +406,13 @@ test("10 — toute ligne `fetch(` de ui/ lit sa version — la coquille de fiche
   const shell = stripComments(fs.readFileSync(path.join(BUILDER, "shell.mjs"), "utf8"));
   assert.match(shell, /fiche\.shell\.html\$\{versionQuery\(import\.meta\.url\)\}/,
     "la coquille doit porter la version dans son CHEMIN, import.meta.url en base ne la transmet pas");
+  /* 🔄 LOT 377 — HORS DE CETTE LOI, ET NOMMÉ : les appels à l'API de Dropbox (des POST vers
+     `https://*.dropboxapi.com`, jamais mis en cache). La coquille ne les écrit pas : elle CONFIE le `fetch` du
+     navigateur à l'organe de Dropbox, qui ne l'appelle que par la variable injectée. ⛔ Un `?v=` y serait un
+     paramètre de trop dans l'adresse d'une API. */
+  assert.match(shell, /const httpDuNavigateur = httpAvecRepli\(typeof fetch === "function" \? fetch\.bind\(globalThis\) : null\);/);
+  const dropbox = stripComments(fs.readFileSync(path.join(BUILDER, "dropbox.mjs"), "utf8"));
+  assert.equal(/\bfetch\s*\(/.test(dropbox), false, "l'organe de Dropbox n'appelle que le `fetch` qu'on lui confie");
 });
 
 /* ══ 4 — ⚔️ LES ATTAQUES : chaque famille d'oubli, nommée par le garde ═══

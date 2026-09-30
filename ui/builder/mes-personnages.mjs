@@ -19,12 +19,12 @@
    la liste PAGINE (`pageDeListe`, l'organe du socle), elle ne défile jamais.
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais : c'est Eric qui arrête les mots que le joueur lit. */
 
-import { imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=929";
-import { motDuChoix } from "./mot-du-choix.mjs?v=929";
-import { poubelle } from "./poubelle-organe.mjs?v=929";
-import { pageDeListe } from "./normes.mjs?v=929";
-import { swapContent } from "./socle.mjs?v=929";
-import { armerEngrenage } from "./engrenage.mjs?v=929";
+import { imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=931";
+import { motDuChoix } from "./mot-du-choix.mjs?v=931";
+import { poubelle } from "./poubelle-organe.mjs?v=931";
+import { pageDeListe } from "./normes.mjs?v=931";
+import { swapContent } from "./socle.mjs?v=931";
+import { armerEngrenage } from "./engrenage.mjs?v=931";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -271,14 +271,32 @@ export function popupEffacerUnPersonnage({ nom, lieuEfface, lieu, choisir }) {
  *    forme ouverte de `A-TRANCHER §C40` (un choix entre deux voies) — ⛔ un lot ne la tranche pas en
  *    repeignant une voie au hasard. Elles retombent sur le défaut de la famille.
  *  ⚠️ Brouillons anglais à Eric.
- *  @param {{nom:string, choisir:(voie:"ici"|"ailleurs")=>void}} p */
-export function popupDeLaReouverture({ nom, choisir }) {
+ *  ⚖️ LOT 377 — D'OÙ VIENT L'AUTRE VERSION SE DIT PAR LA DONNÉE (`ailleurs`, la capacité du lieu qui la
+ *  tient : « in another window » pour l'app, « on another device » pour Dropbox), ⛔ jamais par un test sur
+ *  le nom du lieu. Et une seconde forme, `efface` (ARCHI 35, 30/09 : (b)) — le perso a été EFFACÉ là-bas
+ *  alors qu'il avait changé ici : `Keep` le renvoie, `Delete` le retire d'ici comme là-bas. `Delete` porte
+ *  le rouge de la poubelle (`bouton-famille-defaire`) : c'est le même geste, confirmé ailleurs.
+ *  @param {{nom:string, ailleurs?:string, genre?:"modifie"|"efface",
+ *    choisir:(voie:"ici"|"ailleurs"|"garder"|"effacer")=>void}} p */
+export function popupDeLaReouverture({ nom, ailleurs = "in another window", genre = "modifie", choisir }) {
   const qui = nom && nom.trim() !== "" ? nom.trim() : "This character";
+  if (genre === "efface") {
+    return {
+      titre: "Keep this character?",
+      role: "aiguilleur",
+      exigeUneReponse: true,
+      texte: `${qui} was deleted ${ailleurs}, but was changed here since. Nothing was deleted here.`,
+      actions: [
+        { mot: "Keep", faire: () => choisir("garder") },
+        { mot: "Delete", defait: true, faire: () => choisir("effacer") }
+      ]
+    };
+  }
   return {
     titre: "Which version do you keep?",
     role: "aiguilleur",
     exigeUneReponse: true,
-    texte: `${qui} was also changed in another window after you opened it here. Nothing was overwritten.`,
+    texte: `${qui} was also changed ${ailleurs} after you opened it here. Nothing was overwritten.`,
     actions: [
       { mot: "This one", faire: () => choisir("ici") },
       { mot: "The other one", faire: () => choisir("ailleurs") }

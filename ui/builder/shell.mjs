@@ -19,35 +19,35 @@
    ce qui ne se redessine jamais · ce qui doit survivre. Un lot d'écran lit
    ce fichier-là au lieu de deviner. */
 
-import { bootEngine, loadDocSchema } from "./engine.mjs?v=929";
-import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=929";
+import { bootEngine, loadDocSchema } from "./engine.mjs?v=931";
+import { swapContent, keepInView, watchSnap, mountChevrons, EVENEMENT_RECADRER } from "./socle.mjs?v=931";
 /* 🪙 LOT 316 — la bourse rend la monnaie, et chaque transaction s'annonce une seconde */
-import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=929";
-import { mountPopup } from "./popup.mjs?v=929";
-import { renderLorePanel } from "./lore.mjs?v=929";
-import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=929";
+import { payerAvecMonnaie, enCuivre, annoncerLEcart } from "./monnaie.mjs?v=931";
+import { mountPopup } from "./popup.mjs?v=931";
+import { renderLorePanel } from "./lore.mjs?v=931";
+import { nomDeFichier, renderReviewStep, renderSheetIncomplet, reviewValidate } from "./review-step.mjs?v=931";
 /* ⭐ LE VOYANT DU BELT LIT LA SIGNATURE DU JOUEUR, plus le carnet — voir
    `paintBelt`. `etapeFaite` reste l'organe de Review et n'est plus importé
    ici : deux réponses à deux questions différentes, chacune chez elle. */
-import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT, itemRepondu } from "./parcours.mjs?v=929";
-import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=929";
+import { estConfirme, refusDuDone, etatDeLEtape, etapeAchevee, itemsDeLEtape, refsMortsDeLEtape, refusSansFiche, ETAT, itemRepondu } from "./parcours.mjs?v=931";
+import { STEPS, ceinture, cransAlignes, manqueDuCran } from "./etapes.mjs?v=931";
 /* 🔴 LOT 201 — UN ÉCRAN VIDE SE NOMME. `ecran-mort.mjs` couvre l'écran qui
    REFUSE de se dessiner ; celui-ci couvre l'écran qui s'est dessiné VIDE
    (mesuré le 13/09 sur Species, capture d'Eric : belt, fond, `?`, rien).
    Un seul écrivain, dans `poserLaSortie` — le point que traversent les deux
    rendus. */
-import { nommerLeVide } from "./ecran-vide.mjs?v=929";
-import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=929";
+import { nommerLeVide } from "./ecran-vide.mjs?v=931";
+import { renderGuideSpecifique, renderItem as renderItemDalle, renderBilan, renderGuideGeneral, motDe } from "./parcours-ecrans.mjs?v=931";
 import {
   tutorielActif, setTutorielActif, generalVu, setGeneralVu,
   guideVu, setGuideVu,
   renderTutorielGeneral, renderTutorielSpecifique, renderPointInterrogation
-} from "./tutoriel.mjs?v=929";
+} from "./tutoriel.mjs?v=931";
 /* ⭐ LA MÉMOIRE DU NAVIGATEUR (2026-08-20) — elle n'est PAS l'export disque.
    Celle-ci reprend là où on en était ; `fichier.mjs` sort une copie qui
    survit au nettoyage du navigateur. Voir la tête de `memoire.mjs`. */
-import { lirePersonnage, ecrirePersonnage, oublierPersonnage, lireBase, ecrireBase, oublierBase } from "./memoire.mjs?v=929";
-import { lireLeFichier } from "./ouvrir.mjs?v=929";
+import { lirePersonnage, ecrirePersonnage, oublierPersonnage, lireBase, ecrireBase, oublierBase } from "./memoire.mjs?v=931";
+import { lireLeFichier } from "./ouvrir.mjs?v=931";
 /* ⭐ L'ÉCHELLE (2026-08-30) — le zoom du builder. Ce module possède le cran,
    la grandeur et les deux seuils ; la coquille ne fait que l'appliquer et le
    proposer au Menu. Voir `echelle.mjs`, et `tokens.css` pour le **blg**. */
@@ -61,14 +61,14 @@ import {
   /* ⭐ LE TEXTE GARDE SA TAILLE (20/09) — la sonde se pose ICI, une fois : la
      coquille est l'écrivain du DOM, `echelle.mjs` ne fait que la lire. */
   poserSondeTexte
-} from "./echelle.mjs?v=929";
+} from "./echelle.mjs?v=931";
 /* ══ LA VUE — un panneau, ou deux (lot 120) ════════════════════════════════
    Eric, 2026-09-02, croquis à l'appui. La PRÉFÉRENCE vit dans `vue.mjs` (une
    clef de navigateur, comme le tutoriel) ; la PLACE se demande à `echelle.mjs`,
    seul endroit qui connaît les cotes et le facteur. ⛔ Les deux ne se
    confondent pas : l'une dit ce que le joueur VEUT, l'autre ce que la fenêtre
    PORTE. Spec : vault `FH-WEB/FHPC/FHPCv2 double affichage.md`. */
-import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=929";
+import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=931";
 /* ══ LES COLLECTIONS DE FONDS — lot 134 ════════════════════════════════════
    Eric, 2026-09-02 : *« On a déjà deux collections jour nuit, nous en aurons
    une 3e. Tu vas les stocker pour qu'on puisse les changer dans le menu. »*
@@ -79,69 +79,69 @@ import { vueDoubleVoulue, setVueDoubleVoulue } from "./vue.mjs?v=929";
    sans une ligne ici. */
 import {
   fondVoulu, setFondVoulu, chargerRegistre, collections, collectionServie, appliquerCollection
-} from "./fonds.mjs?v=929";
+} from "./fonds.mjs?v=931";
 /* ⭐ 2026-08-20 — la coquille rend UN écran de choix : les deux langues de
    l'Héritage. Ce n'est pas une entorse à « la coquille ne dessine pas » : le
    parcours de l'Inheritance vit ICI (elle n'a pas de catalogue), et son
    `itemCorps` y est déjà. */
-import { planAt, planSlots } from "./carnet.mjs?v=929";
-import { renderChoixGlisses } from "./glisser.mjs?v=929";
-import { avantLeRepeint, champDeTexteActif } from "./repeint.mjs?v=929";
-import { renderConceptStep } from "./concept-step.mjs?v=929";
+import { planAt, planSlots } from "./carnet.mjs?v=931";
+import { renderChoixGlisses } from "./glisser.mjs?v=931";
+import { avantLeRepeint, champDeTexteActif } from "./repeint.mjs?v=931";
+import { renderConceptStep } from "./concept-step.mjs?v=931";
 /* ⚖️ LOT 350 — `creerUnPersonnage` et `popupDuJeu` sont partis avec le popup « SRD or
    Fate's Hand? » : la fenêtre `New character` et sa séquence les remplacent. */
 import { renderUniverseStep, currentStack, fhRefChoices, FH_LAYER_IDS, sauvegarderPuisEteindre, NOM_DE_LA_VERSION_FH,
   popupNouveauPersonnage, nouveauPersonnageSelonLaVoie, personnageEnCours, ceQuiFaitLePersonnage, REGLAGES_DE_LA_PREMIERE_VISITE, NOM_DU_PERSONNAGE_NEUF,
   /* LOT 351 — la question du maître, peinte en FENÊTRE par `paintPopup` (voir là-bas). */
-  renderConfirmationPile } from "./universe-step.mjs?v=929";
+  renderConfirmationPile } from "./universe-step.mjs?v=931";
 /* LOT 188 — les gestes PURS de `Layers` : ranger la pile montée sur le document,
    écrire son manifeste ; la coquille ne fait que monter ce que les fonctions rendent.
    🔄 LOT 351 — `couchesApresLeGeste` (le geste d'un enfant) est parti avec les six
    interrupteurs ; entre la question qui précède l'effacement d'un livre. */
-import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=929";
+import { gestesDAlignement, manifesteDeLaPile, popupEffacerUnLivre, LIVRES_DU_JOUEUR } from "./layers-ecran.mjs?v=931";
 /* LOT 183 — la phrase de l'écran qui ne peut pas se dessiner. Sortie d'ici
    parce qu'une phrase choisie par une condition mérite un test qui la LIT,
    et que `shell.mjs` n'a aucun harnais de rendu (`tests/shell-wiring.test.mjs`). */
-import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=929";
+import { motDeLEcranMort, MOT_CRAN_NON_MONTE, motDesChoixNonResolus } from "./ecran-mort.mjs?v=931";
 /* LOT 191 — LE MOT D'UN CHOIX, UN SEUL ORGANE : le nom du record s'il se
    résout, sinon le slug humanisé et le refus nommé. ⛔ `recordName` (qui
    rendait l'id nu) n'existe plus ; voir la tête de `mot-du-choix.mjs`. */
-import { motDuChoix, motDUnRecordAbsent, motHumainDeLId } from "./mot-du-choix.mjs?v=929";
-import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=929";
+import { motDuChoix, motDUnRecordAbsent, motHumainDeLId } from "./mot-du-choix.mjs?v=931";
+import { renderSkillsStep, skillsValidate, motDuVerrou, skillsCheminsDeReset, skillsReinitialiserEcran, skillsFermerAjout, skillsAnnulerAjout } from "./skills-step.mjs?v=931";
 import {
   catalogueCursor, catalogueValidate, renderCatalogueRail, renderCatalogueCards
-} from "./catalogue.mjs?v=929";
-import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=929";
-import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=929";
+} from "./catalogue.mjs?v=931";
+import { CLASS_CATALOGUE, renderClassCardBody, renderClassChoices, classPalier2 } from "./class-step.mjs?v=931";
+import { SPECIES_CATALOGUE, renderSpeciesCardBody, renderSpeciesChoices, speciesPalier2 } from "./species-step.mjs?v=931";
 /* LOT 187 — l'arrière-plan du SRD : le même catalogue que Species, servi quand
    `fh.inheritance` n'est PAS levé (voir `parcoursInheritance`). */
-import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=929";
+import { BACKGROUND_CATALOGUE, renderBackgroundCardBody, renderBackgroundChoices, backgroundPalier2, inheritanceMontee } from "./background-step.mjs?v=931";
 /* 📍 LOT 190 — le blurb de Fate's Hand sur les fiches SRD, « pour le moment »
    (Eric, 09/09). Chargé au démarrage, à côté du moteur ; voir sa tête. */
-import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=929";
+import { chargerLaFicheDeSecours } from "./fiche-secours.mjs?v=931";
 import { renderInheritanceStep, inheritanceValidate, renderBoostGlisse,
   renderFeatGlisse, renderFeatListeGlisse, renderFeatSortsGlisse,
   featSousLabel, featInfo,
   /* 🧬 LOT 364 — le B emboîté du don vaut pour toute racine de don (Versatile) */
-  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=929";
+  estRacineDeDon, donABranches, renderFeatMaitrisesGlisse, RACINE_DON_ARRIERE_PLAN } from "./inheritance-step.mjs?v=931";
 /* 🧬 LOT 373 — « une valeur parmi N » : la caractéristique d'incantation du don, branche du B emboîté */
-import { renderCaracteristiqueGlisse, caracPosee } from "./caracteristique-glisse.mjs?v=929";
+import { renderCaracteristiqueGlisse, caracPosee } from "./caracteristique-glisse.mjs?v=931";
 import {
   renderAbilitiesStep, emptyAbilityAssign, abilitiesValidate, lotSansDes,
   /* 🌱 LOT 169 — le chemin où le trait s'écrit, et la lecture du drapeau des dés.
      Une seule source pour les deux : la coquille ne recopie ni le chemin ni la
      condition, elle les prend là où l'écran des caractéristiques les publie. */
   lotRattrape, CHEMIN_TRAIT_TARDIF
-} from "./abilities-step.mjs?v=929";
+} from "./abilities-step.mjs?v=931";
 /* ⭐ L'ORDRE SRD des six clefs — c'est lui qui donne son créneau à chaque
    caractéristique en `FREE` (voir `abilityFreeDirect`). Lu au moteur, jamais
    recopié : une seconde liste de six clefs finirait par diverger. */
-import { ABILITY_KEYS } from "../../src/build/index.mjs?v=929";
+import { ABILITY_KEYS } from "../../src/build/index.mjs?v=931";
 import {
   renderDestinyStep, renderDestinyFinal, destinyValidate, currentArcanaId, drawArcana,
   DESTINY_ARCANA_PATH, arcanaNumeral
-} from "./destiny-step.mjs?v=929";
-import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=929";
+} from "./destiny-step.mjs?v=931";
+import { renderCeremonie, DUREES as DESTINY_DUREES } from "./destiny-ceremonie.mjs?v=931";
 import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex, currentGearLines,
          currentSections, nextSectionIndex, boiteDeSection, nomDeSectionParDefaut, cheminDuDehors,
          butinDuDepart, departRepondu, cheminDuDepart,
@@ -149,29 +149,29 @@ import { renderEquipmentStep, equipmentValidate, currentCurrency, nextGearIndex,
          boitesDehors, scinderLaLigne, retirerLaLigne, accorderLEquipe, appliquerLeButin, verserLeKit,
          pageActiveDeLEquipement, pageVoisineDeLEquipement, choisirLeSatellite,
          rangerParSend, placeLibreDans, materialiserLesDepots, disposerLeSac, MOT_SECTION_PLEINE,
-         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=929";
+         normaliserLeSac, nomDuProchainDepot, cheminDuDepot, chaineDeLaBoite } from "./equipment-step.mjs?v=931";
 /* 🪟 LOT 307 — LE DOUBLE ÉCRAN DE L'ÉTAPE EQUIPMENT : l'organe unique qui dit QUAND deux
    pages s'ouvrent et OÙ chacune se pose. La coquille monte, elle ne décide pas. */
-import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=929";
+import { regimeDeLaVue, pagesDuDoubleEcran, construireLaLune, MOT_UN_SEUL_ECRAN } from "./double-ecran.mjs?v=931";
 /* 🗄️ LOT 356 — `CASES_DU_SAC` N'EST PLUS IMPORTÉ ICI : il bornait la place neuve d'un objet
    (`placeNeuveDans`), et c'est désormais le sac tel qu'on le voit qui la dit (`placeLibreDans`,
    `rangerParSend`, `equipment-step.mjs`). La taille de la grille vient toujours du plan. */
-import { poserLesDalles } from "./sac-ecran.mjs?v=929";
+import { poserLesDalles } from "./sac-ecran.mjs?v=931";
 /* ⭐ MÊME LOI POUR LES ROUES DE WARES : un ruban posé sur un nœud détaché ne bouge pas. */
-import { poserLesRoues } from "./wares-ecran.mjs?v=929";
+import { poserLesRoues } from "./wares-ecran.mjs?v=931";
 /* ⭐ LE PLAFOND VIENT DE L'ÉCRAN QUI LE DESSINE, il ne se retape pas ici : une
    seconde constante divergerait le jour où le SRD ou Eric la bougerait. */
-import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=929";
+import { PLAFOND_HARMONISATION } from "./x1-ecran.mjs?v=931";
 /* le panier du document — mêmes lecteurs que les écrans, jamais une copie */
-import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=929";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=929";
+import { currentCartLines, nextCartIndex } from "./equipement-pipeline.mjs?v=931";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=931";
 /* LOT 54, §1 — PAS `createDoc` : ce bloc refuse de se construire sans
    magasin, et le navigateur n'en a aucun (voir la tête de
    `src/doc/store.mjs` et `universe-step.mjs`). `createDocWriters` est
    PUR — ni magasin ni bus — importé directement de `writers.mjs`, jamais
    via `src/doc/index.mjs` (qui, lui, importe `store.mjs` et donc
    `node:crypto` : un import que le navigateur ne sait pas résoudre). */
-import { createDocWriters } from "../../src/doc/writers.mjs?v=929";
+import { createDocWriters } from "../../src/doc/writers.mjs?v=931";
 /* ⛔ LOT 65 — `renderFiche` N'EST PLUS IMPORTÉ ICI, et c'est la fin d'une
    histoire : l'étape Review l'appelait pour déverser `resolved` en entier
    (lot 40, une CHAÎNE posée par `innerHTML`). B9 demande un masque, pas un
@@ -190,11 +190,11 @@ import { createDocWriters } from "../../src/doc/writers.mjs?v=929";
    `innerHTML` du dépôt, et ce n'est pas un contournement : une page autonome
    est précisément ce que `src/tools/fiche.mjs` produit déjà en ligne de
    commande. Le builder fait la même chose, avec le personnage vivant. */
-import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=929";
+import { injecte, render as renderFiche } from "../../src/tools/render-fiche.mjs?v=931";
 /* `canonical.mjs` et pas `serialize.mjs` : le second importe `node:crypto`
    pour `digest` (même piège que `store.mjs` ci-dessous). Le premier est le
    corps de `toBytes`, sorti au lot 67 exactement pour cette page. */
-import { canonicalText } from "../../src/doc/canonical.mjs?v=929";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=931";
 /* ⭐ LOT 193 — L'HORLOGE DU BLOC `doc`, ET PAS UNE SECONDE ÉCRITE ICI.
    `composer` refuse de dater un document lui-même (il est PUR) : l'appelant
    le date. `platformNow` est LA forme que `$defs/timestamp` accepte — ISO 8601
@@ -203,37 +203,48 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=929";
    coquille aurait été une seconde horloge, libre de rendre les millisecondes
    que le motif refuse. ⚠️ Il ne tire ni `node:crypto` ni magasin : le
    navigateur sait le résoudre, contrairement à `store.mjs`. */
-import { platformNow } from "../../src/doc/clock.mjs?v=929";
+import { platformNow } from "../../src/doc/clock.mjs?v=931";
 /* 🎲 LOT 367 — l'identifiant d'un personnage neuf, tiré de `getRandomValues` (voir `personnageNeuf`). */
-import { uuidDuNavigateur } from "./identifiant.mjs?v=929";
+import { uuidDuNavigateur } from "./identifiant.mjs?v=931";
 /* ⚖️ LOT 367 — le recalage : un perso sauvé avant une mise à jour des règles s'ouvre sur les
    couches d'aujourd'hui, sauvé aussitôt, et le Menu le dit (voir `recalerSurLaPileMontee`). */
-import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=929";
-import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=929";
-import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=929";
+import { recalageDeLaPile, marqueDuRecalage, marqueVivante } from "./recalage.mjs?v=931";
+import { lireRecalage, ecrireRecalage, oublierRecalage } from "./memoire.mjs?v=931";
+import { ouvrirOnglet, telecharger } from "./fichier.mjs?v=931";
 /* ══ 🗄️ LOT 374 — L'ORGANE DU STOCKAGE (refait sur le magasin du lot 195) ═══════════════
    ⚖️ Eric, 28/09 : *« une gestion à l'intérieur […] un sauvegarde à la fin du process de
    création. puis le cache est totalement vidé »* ; § 10 : la sauvegarde automatique, et l'app
    qui vérifie avant d'écrire.
    ⛔ UN SEUL ÉCRIVAIN D'OCTETS DE PERSONNAGE VERS UN LIEU CHOISI : `exporterJson`, plus bas — et
-   UN seul écrivain de la copie de l'app : `envoyerALApp`. Aucun écran ne touche l'organe. */
+   UN seul écrivain de la copie de l'app : `envoyerALApp`. Aucun écran ne touche l'organe.
+   🔄 LOT 377 — le lieu de rencontre (Dropbox) en reçoit un second, et un seul : le COURRIER de la sauvegarde
+   automatique (`envoyerAuLoin`) ; la synchro, elle, écrit par les séquences de magasin.mjs. */
 import { creerStockage, adaptateurAppareil, adaptateurFichier, adaptateurDossier, baseIndexedDb,
   reprendreLesAnciennesSauvegardes, aLaReouverture, sauverDansLesDeux, effacerSelonLeStockage,
-  dossierPossible, dossierRetenu, choisirUnDossier, rienNaChange, lieuRetenu, choisirUnLieu, LIEUX } from "./magasin.mjs?v=929";
-import { popupEffacerUnPersonnage, popupDeLaReouverture } from "./mes-personnages.mjs?v=929";
+  dossierPossible, dossierRetenu, choisirUnDossier, rienNaChange, lieuRetenu, choisirUnLieu, LIEUX,
+  repereDe, synchroniser, trancherLaSynchro, lireLesCommuns, poserUnCommun, creerCourrier } from "./magasin.mjs?v=931";
+/* ⚖️ LOT 377 — Dropbox : la connexion (PKCE), le gardien des jetons, l'adaptateur. */
+import { adaptateurDropbox, gardienDesJetons, preparerLaConnexion, retirerLeRetour, terminerLaConnexion, httpAvecRepli } from "./dropbox.mjs?v=931";
+import { popupEffacerUnPersonnage, popupDeLaReouverture } from "./mes-personnages.mjs?v=931";
 /* Lot 75 — la coquille est un chargement d'EXÉCUTION : elle doit porter la
    version du graphe comme les imports, sinon le cache peut servir la
    coquille d'avant avec un moteur neuf. Voir la tête de `version.mjs`. */
-import { versionQuery } from "./version.mjs?v=929";
+import { versionQuery } from "./version.mjs?v=931";
 /* ══ 🌱 LOT 197 — L'ÉTAT NEUF, ET LA REMISE À ZÉRO QUI EN DÉCOULE ══════════
    ⚖️ Eric, 10/09 : *« Quand je fais reset ou Build a character, je veux tout à
    la racine R et rien de déjà construit ! »* ⛔ La déclaration de `state` ne
    vit plus ici : elle est la SOURCE d'où la remise à zéro repart, et un organe
    que la coquille garderait pour elle ne serait comptable devant aucun garde
    (personne n'importe `shell.mjs`). Lire la tête de `etat-neuf.mjs`. */
-import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=929";
+import { etatNeuf, remettreAZero } from "./etat-neuf.mjs?v=931";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=929";
+import { armerEngrenage } from "./engrenage.mjs?v=931";
+
+/* 🔒 LOT 377 — AVANT TOUT LE RESTE : le `code` et le `state` d'un retour de Dropbox quittent l'adresse
+   (`history.replaceState`) — la première instruction de la coquille. Ni l'historique, ni un lien copié,
+   ni un rechargement ne les garde ; la connexion se termine plus bas, quand la base est ouverte. */
+const RETOUR_DE_CONNEXION = typeof window !== "undefined" && window.location && window.history
+  ? retirerLeRetour(window.location, window.history) : null;
 
 /* Mots d'interface en ANGLAIS (arbitrage d'Eric, 2026-08-10) : la table joue
    en anglais, décidé de longue date pour la couche FH — l'écran réel qui
@@ -885,9 +896,10 @@ function baseDuStockage() {
  *  une entrée. Aujourd'hui le fichier seul — et, derrière lui, le dossier retenu une fois (Chrome et
  *  Edge sur ordinateur, lots 195 et 202 ; `Save location`, dans Vault). ⛔ Aucun reniflage de
  *  navigateur : `dossierPossible` demande à la fenêtre ce qu'elle sait faire.
- *  ⏳ Le jour où Vault câble Dropbox, c'est UNE entrée de plus ici, et `cable: true` dans `LIEUX`. */
+ *  ✅ LOT 377 — Vault câble Dropbox : UNE entrée de plus ici, et `cable: true` dans `LIEUX`. */
 function fenetreDuStockage() { return typeof window === "undefined" ? null : window; }
 const ADAPTATEURS_DES_LIEUX = {
+  dropbox: async (base) => creerStockage(adaptateurDropbox({ http: httpDuNavigateur, jetons: jetonsDe(base) })),
   fichier: async (base) => {
     const poignee = await dossierRetenu({ base, possible: dossierPossible(fenetreDuStockage()) });
     if (poignee) return creerStockage(adaptateurDossier(poignee));
@@ -901,6 +913,146 @@ async function lieuChoisi(base) {
   return ADAPTATEURS_DES_LIEUX[await lieuRetenu(base)](base);
 }
 
+/* ══ ⚖️ LOT 377 — DROPBOX, LE LIEU DE RENCONTRE DES APPAREILS ══════════════════════════════════════
+   Ce qui DÉCIDE vit dans les organes (`dropbox.mjs` : la connexion, les jetons, l'adaptateur ; `magasin.mjs` :
+   la synchro pure, son exécution, le courrier) ; ici, le câblage. ⛔ Aucun test sur le NOM d'un lieu : sa
+   donnée dit s'il faut s'y connecter (`LIEUX[].connexion`), s'il est un point de rencontre
+   (`capacites.rencontre`), et d'où vient l'autre version (`capacites.ailleurs`). */
+function maintenant() { return Date.now(); }
+/** Le `fetch` du navigateur, CONFIÉ à l'organe de Dropbox (`httpAvecRepli` : le repli de `keepalive` est son
+ *  affaire). ⛔ La coquille ne parle jamais elle-même à Dropbox. */
+const httpDuNavigateur = httpAvecRepli(typeof fetch === "function" ? fetch.bind(globalThis) : null);
+function jetonsDe(base) { return gardienDesJetons({ base, http: httpDuNavigateur, maintenant }); }
+/** Les lieux qui exigent une connexion : savoir s'il l'est, et y partir. Une entrée par lieu `connexion`. */
+const CONNEXIONS_DES_LIEUX = {
+  dropbox: {
+    connecte: (base) => jetonsDe(base).connecte(),
+    adresse: (base) => preparerLaConnexion({ crypto: fenetreDuStockage().crypto, base, location: fenetreDuStockage().location })
+  }
+};
+/** Le lieu choisi est-il le point de rencontre des appareils ? SA DONNÉE le dit. */
+function lieuDeRencontre() { return Boolean(state.stockage && state.stockage.choisi && state.stockage.choisi.capacites.rencontre); }
+
+/* ⚔️ UNE FILE POUR LE LIEU DE RENCONTRE — la synchro, le courrier et `Save character` lisent la révision
+   commune PUIS écrivent : deux d'entre eux ensemble liraient la même, et le second se croirait en conflit
+   avec le premier — un faux « changé sur un autre appareil ». ⭐ L'ordre des deux files est fixe : celle
+   du lieu DEHORS, celle de l'app DEDANS ; la file de l'app n'attend jamais celle du lieu. */
+let fileDuLoin = Promise.resolve();
+function enFileDuLoin(geste) {
+  const promesse = fileDuLoin.then(geste, geste);
+  fileDuLoin = promesse.then(() => undefined, () => undefined);
+  return promesse;
+}
+
+/** Le mot d'une copie qu'un autre appareil a changée — ⚠️ brouillon anglais à Eric. */
+const MOT_CHANGE_SUR_UN_AUTRE_APPAREIL = "it was also changed on another device — you will choose which version to keep when the app reopens";
+
+/** ✉️ LE COURRIER — ⚖️ mandat 377, § 5 : jamais deux envois en vol pour le même perso, le plus récent gagne
+ *  (`creerCourrier`, magasin.mjs). Ce qui part est ce que l'app tient AU MOMENT DU DÉPART. */
+const courrier = creerCourrier((id, options) => enFileDuLoin(() => envoyerAuLoin(id, options)));
+async function envoyerAuLoin(id, { urgent = false } = {}) {
+  if (!lieuDeRencontre()) return { ok: true };
+  const { base, appareil, choisi, lieu } = state.stockage;
+  const courant = state.document && state.document.id === id ? state.document : null;
+  const lu = courant ? null : await appareil.lire(id);
+  const document = courant || (lu && lu.etat === "lu" ? lu.document : null);
+  if (!document) return { ok: true };                                  // sorti de l'app entre-temps
+  const repere = repereDe(document);
+  const commun = (await lireLesCommuns(base, lieu))[id] || null;
+  /* ⚖️ LOT 375 — rien ne part quand rien n'a changé : le lieu tient déjà ce personnage. */
+  if (commun && commun.repere === repere) return { ok: true, inchange: true };
+  const issue = await choisi.ecrire(canonicalText(document), { revision: commun ? commun.revision : null, urgent });
+  const mot = choisi.capacites.lieu;
+  if (issue.ok) {
+    await poserUnCommun(base, lieu, id, { revision: issue.revision, repere });
+    if (state.envoi.etat === "refus" && state.envoi.lieu === mot) state.envoi = { etat: "a-jour" };
+  } else {
+    /* ⚖️ § 10 — l'arrière-plan ne pose pas de question : rien n'est écrasé, la copie de l'app garde tout,
+       et la question viendra à la réouverture (ou à l'ouverture de My characters). Le Menu le dit. */
+    state.envoi = { etat: "refus", raison: issue.conflit ? MOT_CHANGE_SUR_UN_AUTRE_APPAREIL : issue.raison, lieu: mot };
+  }
+  return issue;
+}
+
+/* ⚖️ LES QUESTIONS DE LA SYNCHRO — une à la fois ; elles attendent qu'aucune autre fenêtre ne soit ouverte. */
+const questionsDeSynchro = [];
+function poserLaQuestionSuivante() {
+  if (state.popup || questionsDeSynchro.length === 0 || !state.stockage) return;
+  const q = questionsDeSynchro.shift();
+  state.popup = popupDeLaReouverture({
+    nom: q.nom, genre: q.genre, ailleurs: state.stockage.choisi.capacites.ailleurs,
+    choisir: (voie) => applyDecisionAction({ kind: "trancherLaSynchro", id: q.id, nom: q.nom, genre: q.genre, voie })
+  });
+}
+
+/** 🔄 SYNCHRONISER — ⚖️ au démarrage et à l'ouverture de My characters (mandat 377, § 3). La décision est
+ *  pure (`decisionDeSynchro`) ; ici on dit ce qui s'est passé. `clic` : vue dans un clic, la question se
+ *  pose tout de suite ; au démarrage aussi — c'est la réouverture. */
+async function synchroniserLeLieu({ clic = false } = {}) {
+  if (!lieuDeRencontre()) return;
+  const issue = await enFileDuLoin(() => {
+    const { base, appareil, choisi, lieu } = state.stockage;
+    return synchroniser({ appareil, loin: choisi, base, lieu });
+  });
+  const mot = state.stockage.choisi.capacites.lieu;
+  if (issue.etat === "refus") { state.envoi = { etat: "refus", raison: issue.raison, lieu: mot }; refresh(); return; }
+  const rates = issue.faits.filter((f) => !f.ok);
+  if (rates.length > 0) state.envoi = { etat: "refus", raison: rates[0].raison, lieu: mot };
+  /* ⭐ « REPARTI À LA RÉOUVERTURE » SE DIT : un perso déjà rapproché que l'app avait changé sans que le lieu
+     le reçoive — c'est un envoi qui avait raté (§ 10, 374). */
+  else if (!clic && issue.faits.some((f) => f.ok && f.geste === "envoyer" && f.avaitUnCommun)) state.envoi = { etat: "repris", lieu: mot };
+  else if (state.envoi.etat === "refus" && state.envoi.lieu === mot) state.envoi = { etat: "a-jour" };
+  for (const q of issue.questions) if (!questionsDeSynchro.some((x) => x.id === q.id)) questionsDeSynchro.push(q);
+  const courant = state.document && typeof state.document.id === "string" ? state.document.id : null;
+  /* Le perso EN COURS a reçu la version d'un autre appareil : la réouverture a déjà fait partir ce qu'il
+     avait ici, la copie de travail n'a donc rien à perdre — elle rouvre la version reçue. */
+  if (courant && issue.faits.some((f) => f.ok && f.geste === "recevoir" && f.id === courant)) {
+    applyDecisionAction({ kind: "ouvrirUnPersonnage", id: courant });
+    return;
+  }
+  if (courant && issue.faits.some((f) => f.ok && f.geste === "retirer-ici" && f.id === courant)) {
+    state.copieDeLApp = { etat: "hors-app" };
+    oublierBase();
+  }
+  poserLaQuestionSuivante();
+  refresh();
+}
+
+/** 🔌 PARTIR SE CONNECTER — dans le clic sur `Dropbox`. ⭐ La sauvegarde en attente part d'abord : la
+ *  copie de travail est déjà écrite à chaque geste, rien de la fiche en cours ne se perd au retour. */
+async function partirSeConnecter(connexion) {
+  await envoyerMaintenant();
+  let adresse;
+  try { adresse = await connexion.adresse(state.stockage.base); } catch (cause) {
+    porteEnPanne("Vault", cause && cause.message ? cause.message : String(cause));
+    return;
+  }
+  fenetreDuStockage().location.assign(adresse);
+}
+
+/** 🔌 LE RETOUR — ⚖️ mandat 377, § 4 : un refus du joueur chez Dropbox le ramène à Vault, son lieu d'avant
+ *  reste le sien, et un mot le dit ; une connexion réussie le ramène à Vault, le lieu choisi. */
+/** Un mot de panne (un fragment, pensé pour « This did not work: … ») posé seul dans un popup : une phrase. */
+function enPhrase(mot) { return `${mot.charAt(0).toUpperCase()}${mot.slice(1)}${/[.!?]$/.test(mot) ? "" : "."}`; }
+async function revenirDeLaConnexion(issue) {
+  const base = state.stockage.base;
+  if (issue.etat === "connecte") {
+    const choix = await choisirUnLieu(base, issue.lieu, { connecte: true });
+    if (choix.etat === "choisi") {
+      state.stockage.lieu = choix.id;
+      state.stockage.choisi = await lieuChoisi(base);
+    } else {
+      state.popup = { titre: "Vault", role: "gendarme", texte: enPhrase(choix.raison) };
+    }
+  } else {
+    state.popup = { titre: "Vault", role: "gendarme", texte: enPhrase(issue.raison) };
+  }
+  goToStep(STEPS.findIndex((step) => step.id === "universe"));
+  state.palier = 2;
+  state.menuBranche = "vault";
+  openSurface();
+}
+
 /* ⭐ LE RENDEZ-VOUS DES DEUX DÉMARRAGES. Le stockage monte SANS le moteur (sa liste n'a pas besoin de
    dériver un personnage), mais la RÉOUVERTURE lit le personnage courant, que seul le démarrage du
    moteur pose. Elle attend donc les deux. ⛔ Pas un minuteur : une promesse que le moteur tient. */
@@ -912,7 +1064,7 @@ let travailAuDemarrage = null;
 /** ⚖️ LE REPÈRE D'UN PERSONNAGE — ce qui le fait (`ceQuiFaitLePersonnage`, lot 350 : sans `modified` ni
  *  `resolved`), aux octets du moteur. ⛔ Comparer le texte entier ferait de chaque ouverture un « envoi
  *  raté » : la dérivation estampille l'heure de son calcul (ARCHI 35, 30/09). */
-function repereDuPersonnage(document) { return canonicalText(ceQuiFaitLePersonnage(document)); }
+function repereDuPersonnage(document) { return repereDe(document); }
 /* ⚖️ LOT 375 — AUCUN ENVOI QUAND RIEN NE CHANGE (ARCHI 35, 30/09). La dérivation réestampille le document à
    chaque ouverture ; l'appareil n'en fait déjà plus une révision (lot 374), mais la coquille l'APPELAIT
    quand même — pour Dropbox, un aller-retour réseau à chaque ouverture. ⭐ Elle retient donc le REPÈRE que
@@ -924,6 +1076,10 @@ let repereDeLApp = null;
  *  characters (`personnagesListe`) et, pour la copie du perso courant, au Menu (`envoi`). */
 async function monterLeStockage() {
   const base = baseDuStockage();
+  /* ⚖️ LOT 377 — le retour de Dropbox se termine TÔT (l'échange du `code`), et atterrit après le moteur. */
+  const retourDeConnexion = RETOUR_DE_CONNEXION
+    ? terminerLaConnexion({ retour: RETOUR_DE_CONNEXION, base, http: httpDuNavigateur, maintenant })
+    : null;
   /* ⚖️ La reprise des sauvegardes datées (lots 195 à 373), une fois. Sa panne n'empêche rien : la
      liste dira celle de la base, si la base en a une. */
   try { await reprendreLesAnciennesSauvegardes(base); } catch (_) { /* dit par `lister()` */ }
@@ -938,7 +1094,12 @@ async function monterLeStockage() {
   };
   await rafraichirLesPersonnages();
   await moteurPret;
+  if (retourDeConnexion) await revenirDeLaConnexion(await retourDeConnexion);
   await reouvrirLaCopieDeTravail();
+  /* ⚖️ LOT 377 — APRÈS la réouverture : ce que la copie de travail avait est déjà dans l'app ; la synchro
+     rapproche ensuite l'app et le lieu de rencontre. */
+  await synchroniserLeLieu();
+  await rafraichirLesPersonnages();
 }
 
 /** REDEMANDER LA LISTE. ⭐ UN SEUL ÉCRIVAIN de `personnagesListe`. */
@@ -965,6 +1126,7 @@ async function reouvrirLaCopieDeTravail() {
     state.copieDeLApp = { etat: "conflit", revision: decision.revision };
     state.popup = popupDeLaReouverture({
       nom: state.document.name,
+      ailleurs: state.stockage.appareil.capacites.ailleurs,
       choisir: (voie) => applyDecisionAction({ kind: "trancherLaReouverture", voie, revision: decision.revision })
     });
     refresh();
@@ -1002,8 +1164,10 @@ function enFileDeLApp(geste) {
 
 /** ✉️ ÉCRIRE LA COPIE DE L'APP DU PERSONNAGE COURANT — UN SEUL ÉCRIVAIN, sur la révision qu'il tient.
  *  ⛔ Le texte et l'`id` sont pris AU MOMENT OÙ L'ÉCRITURE PART (dans la file) : un personnage neuf
- *  né entre-temps ne recevra pas la révision de l'autre. */
-function envoyerALApp() {
+ *  né entre-temps ne recevra pas la révision de l'autre.
+ *  ⚖️ LOT 377 — une copie de l'app qui a VRAIMENT changé part ensuite vers le lieu de rencontre (Dropbox),
+ *  par le courrier : aux mêmes moments, jamais deux envois en vol pour le même perso. */
+function envoyerALApp({ urgent = false } = {}) {
   return enFileDeLApp(async () => {
     if (!state.stockage || !state.document) return { ok: false, raison: "the store is not open yet" };
     const id = state.document.id;
@@ -1015,6 +1179,7 @@ function envoyerALApp() {
     }
     const issue = await state.stockage.appareil.ecrire(texte, { revision });
     if (state.document && state.document.id === id) suivreLaCopieDeLApp(id, issue, repere);
+    if (issue.ok && lieuDeRencontre()) void courrier.poster(id, { urgent }).then(direSiLeMenuChange(state.envoi.etat));
     return issue;
   });
 }
@@ -1056,22 +1221,31 @@ function planifierLEnvoi() {
   if (minuteurDEnvoi !== null) clearTimeout(minuteurDEnvoi);
   minuteurDEnvoi = setTimeout(() => { minuteurDEnvoi = null; void envoyerEtDire(); }, DELAI_ENVOI_MS);
 }
+/* ⚖️ LOT 377 — `urgent` : le passage en arrière-plan. L'envoi vers Dropbox part alors en `keepalive` (sous
+   son plafond, `dropbox.mjs`) ; coupé quand même, la réouverture le rattrape et le dit. Rend la promesse :
+   partir chez Dropbox l'attend. */
 function envoyerMaintenant() {
-  if (minuteurDEnvoi === null) return;
+  if (minuteurDEnvoi === null) return Promise.resolve();
   clearTimeout(minuteurDEnvoi);
   minuteurDEnvoi = null;
-  void envoyerEtDire();
+  return envoyerEtDire({ urgent: true });
 }
 /* ⭐ On ne repeint que si ce que le Menu DIT a changé : un envoi réussi sur un envoi réussi ne touche
    pas l'écran que le joueur est en train d'utiliser. */
-async function envoyerEtDire() {
+async function envoyerEtDire({ urgent = false } = {}) {
   const avant = state.envoi.etat;
-  await envoyerALApp();
-  if (state.envoi.etat === avant) return;
-  /* 🖐️ LOT 361 — ⛔ pas sous la frappe : ce repeint ne vient d'aucun geste, il attend que le champ perde le focus */
-  const champ = champDeTexteActif();
-  if (champ) champ.addEventListener("blur", refresh, { once: true });
-  else refresh();
+  await envoyerALApp({ urgent });
+  direSiLeMenuChange(avant)();
+}
+/** 🖐️ LOT 361 — ⛔ pas sous la frappe : ce repeint ne vient d'aucun geste, il attend que le champ perde le
+ *  focus. ⚖️ LOT 377 — le MÊME pour le courrier de Dropbox (un seul chemin de repeint sans geste). */
+function direSiLeMenuChange(avant) {
+  return () => {
+    if (state.envoi.etat === avant) return;
+    const champ = champDeTexteActif();
+    if (champ) champ.addEventListener("blur", refresh, { once: true });
+    else refresh();
+  };
 }
 if (typeof document !== "undefined" && typeof document.addEventListener === "function") {
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") envoyerMaintenant(); });
@@ -1097,21 +1271,38 @@ async function exporterJson({ version, quoi = "Save character" } = {}) {
   const id = state.document.id;
   /* ⚔️ DANS LA FILE DE LA COPIE DE L'APP : la révision annoncée est lue APRÈS l'envoi automatique
      qui serait en vol (voir `enFileDeLApp`). */
-  const issue = await enFileDeLApp(async () => {
+  /* ⚔️ LOT 377 — la file du lieu de rencontre DEHORS, celle de l'app dedans (voir `enFileDuLoin`). */
+  const rencontre = lieuDeRencontre();
+  const issue = await enFileDuLoin(() => enFileDeLApp(async () => {
+    const { base, lieu } = state.stockage;
+    const repere = repereDuPersonnage(state.document);
+    /* ⚖️ LOT 377 — la révision que le lieu de rencontre partage avec l'app (Dropbox : son `rev`). */
+    const commun = rencontre ? (await lireLesCommuns(base, lieu))[id] || null : null;
     const verdict = await sauverDansLesDeux({
       appareil: state.stockage.appareil, choisi: state.stockage.choisi,
       texte: canonicalText(state.document),
       revisionApp: state.copieDeLApp.etat === "dans-l-app" ? state.copieDeLApp.revision : null,
+      revisionLoin: commun ? commun.revision : null,
+      /* ⭐ le lieu tient DÉJÀ ce personnage (le courrier l'a porté) : seule la version datée part. */
+      loinAJour: Boolean(commun && commun.repere === repere),
       version,
       /* ⚖️ Q1 b — l'heure du Save : la version datée qu'il garde derrière la ligne. */
       quand: platformNow()
     });
-    if (verdict.ok || verdict.ou === "choisi") suivreLaCopieDeLApp(id, { ok: true, revision: verdict.revision }, repereDuPersonnage(state.document));
+    if (verdict.ok || verdict.ou === "choisi") suivreLaCopieDeLApp(id, { ok: true, revision: verdict.revision }, repere);
+    if (verdict.ok && rencontre) await poserUnCommun(base, lieu, id, { revision: verdict.revisionLoin, repere });
     return verdict;
-  });
+  }));
   void rafraichirLesPersonnages();
   if (issue.ok) return true;
   if (issue.ou === "app") { porteEnPanne(quoi, issue.conflit ? MOT_CHANGE_AILLEURS : issue.raison); return false; }
+  /* ⚖️ § 10 — VU DANS UN CLIC, la question se pose TOUT DE SUITE : la synchro la trouve et la pose. */
+  if (issue.conflit && rencontre) { void synchroniserLeLieu({ clic: true }); return false; }
+  if (rencontre) {
+    state.popup = { titre: quoi, role: "gendarme", texte: `My characters keeps it, but ${state.stockage.choisi.capacites.lieu} did not get it: ${issue.raison}` };
+    refresh();
+    return false;
+  }
   /* ⚠️ La copie de l'app EST rangée : le refus porte sur le fichier seul — on ne dit pas « rien n'a
      été écrit ». */
   state.popup = { titre: quoi, role: "gendarme", texte: `My characters keeps it, but the file was not written: ${issue.raison}` };
@@ -1741,7 +1932,9 @@ function appliquerLaDecision(action) {
     state.palier = 2;
     state.menuBranche = "characters";
     state.personnagesListe = { etat: "chargement" };
-    void rafraichirLesPersonnages();
+    /* ⚖️ LOT 377 — My characters montre ce que le lieu de rencontre tient : la synchro d'abord, dans le
+       clic (sa question se pose tout de suite). */
+    void synchroniserLeLieu({ clic: true }).then(() => rafraichirLesPersonnages());
     openSurface();
     return;
   }
@@ -1782,8 +1975,10 @@ function appliquerLaDecision(action) {
      plus rien ne l'y renvoie tout seul. */
   if (action.kind === "effacerUnPersonnage") {
     if (action.voie !== "delete" || !state.stockage) { refresh(); return; }
-    effacerSelonLeStockage({ appareil: state.stockage.appareil, choisi: state.stockage.choisi, id: action.id }).then((issue) => {
+    enFileDuLoin(() => effacerSelonLeStockage({ appareil: state.stockage.appareil, choisi: state.stockage.choisi, id: action.id })).then(async (issue) => {
       if (!issue.ok) { porteEnPanne("Delete", issue.raison); return; }
+      /* ⚖️ LOT 377 — sa révision commune part avec lui. */
+      if (lieuDeRencontre()) await poserUnCommun(state.stockage.base, state.stockage.lieu, action.id, null);
       if (state.document && state.document.id === action.id) {
         state.copieDeLApp = { etat: "hors-app" };
         oublierBase();
@@ -1800,12 +1995,19 @@ function appliquerLaDecision(action) {
      sauvegarde automatique écrivent alors là. */
   if (action.kind === "choisirUnLieu") {
     if (!state.stockage) return;
-    choisirUnLieu(state.stockage.base, action.id).then(async (issue) => {
+    /* ⚖️ LOT 377 — un lieu qui exige une connexion (sa DONNÉE, `connexion`) : pas encore connecté, on part
+       s'y connecter (une fois par appareil) ; le retour le choisira. */
+    const connexion = LIEUX.some((l) => l.id === action.id && l.connexion === true) ? CONNEXIONS_DES_LIEUX[action.id] : null;
+    (async () => {
+      const connecte = connexion ? await connexion.connecte(state.stockage.base) : false;
+      if (connexion && !connecte) { await partirSeConnecter(connexion); return; }
+      const issue = await choisirUnLieu(state.stockage.base, action.id, { connecte });
       if (issue.etat !== "choisi") { porteEnPanne("Vault", issue.raison); return; }
       state.stockage.lieu = issue.id;
       state.stockage.choisi = await lieuChoisi(state.stockage.base);
       refresh();
-    });
+      await synchroniserLeLieu({ clic: true });
+    })();
     return;
   }
   /* ⚖️ « SAVE LOCATION » (Eric, 10/09 : *« un bouton reste présent : save location »* ; Q2 → a) — la
@@ -1832,10 +2034,33 @@ function appliquerLaDecision(action) {
     if (action.voie === "ici") {
       state.copieDeLApp = { etat: "dans-l-app", revision: action.revision };
       void envoyerALApp().then(() => { void rafraichirLesPersonnages(); });
+      poserLaQuestionSuivante();                 // ⚖️ LOT 377 — celles de la synchro attendaient
       refresh();
       return;
     }
     applyDecisionAction({ kind: "ouvrirUnPersonnage", id: state.document.id });
+    return;
+  }
+  /* ⚖️ LOT 377 — LA QUESTION DE LA SYNCHRO, RÉPONDUE (`trancherLaSynchro`, magasin.mjs). Le perso en cours
+     suit : la version reçue se rouvre, un perso retiré sort de My characters. Puis la question suivante. */
+  if (action.kind === "trancherLaSynchro") {
+    if (!state.stockage) return;
+    const { base, appareil, choisi, lieu } = state.stockage;
+    enFileDuLoin(() => trancherLaSynchro({ appareil, loin: choisi, base, lieu, id: action.id, genre: action.genre, voie: action.voie })).then((issue) => {
+      const courant = state.document && state.document.id === action.id;
+      if (!issue.ok) {
+        if (issue.question) questionsDeSynchro.unshift({ id: action.id, nom: action.nom, genre: issue.question });
+        else state.popup = { titre: "My characters", role: "gendarme", texte: `This did not work: ${issue.raison}\n\nNothing was overwritten.` };
+      } else if (courant && issue.geste === "recevoir") {
+        applyDecisionAction({ kind: "ouvrirUnPersonnage", id: action.id });
+        return undefined;
+      } else if (courant && issue.geste === "retirer-ici") {
+        state.copieDeLApp = { etat: "hors-app" };
+        oublierBase();
+      }
+      poserLaQuestionSuivante();
+      return rafraichirLesPersonnages();
+    });
     return;
   }
   /* 🎛️ LAYERS — la troisième branche de rang B du Menu (Eric, 09/09) : le

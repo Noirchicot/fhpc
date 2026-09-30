@@ -78,7 +78,7 @@ iframe{border:0;width:360px;height:553px;display:block}
 </style>
 <pre id="rapport">…</pre>
 <script type="module">
-import { LISTE_PAR_PAGE } from "./normes.mjs?v=929";
+import { LISTE_PAR_PAGE } from "./normes.mjs?v=931";
 
 const demande = location.hash.slice(1) || "tout";
 const CLE = "fhpc.personnage";
@@ -115,7 +115,7 @@ const IMAGES = await new Promise((fin) => {
 const PEINT = IMAGES >= 5;
 
 /* ── LA GRAINE : l'exemple, les items de l'étape à ouvrir dé-validés ─────── */
-const EXEMPLE = await (await fetch("../../examples/personnage-fh-en-niveau1.fh-char.json?v=929")).json();
+const EXEMPLE = await (await fetch("../../examples/personnage-fh-en-niveau1.fh-char.json?v=931")).json();
 function graine({ ouvrir = [], retirer = [] } = {}) {
   const doc = structuredClone(EXEMPLE);
   const item = (c, racine) => c.startsWith(`${racine}.`) || c.startsWith(`${racine}[`);
@@ -138,7 +138,7 @@ async function monterApp(doc) {
   vider(sessionStorage);
   localStorage.setItem(CLE, JSON.stringify(doc));
   const f = document.createElement("iframe");
-  f.src = "./index.html?v=929";
+  f.src = "./index.html?v=931";
   document.body.prepend(f);
   const d = await attendre(() => {
     const x = f.contentDocument;

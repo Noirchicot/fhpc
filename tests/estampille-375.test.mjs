@@ -52,7 +52,8 @@ test("N2 — ⛔ UN REPÈRE INCONNU N'EST JAMAIS « RIEN N'A CHANGÉ » — on e
 });
 
 test("W1 — 🔌 LA COQUILLE CONSULTE LA DÉCISION AVANT D'APPELER L'ORGANE, et retient ce qu'elle écrit", () => {
-  const envoi = shell.match(/function envoyerALApp\(\) \{[\s\S]*?\n\}/)[0];
+  /* 🔄 LOT 377 — `envoyerALApp` prend `{ urgent }` (le passage en arrière-plan, vers Dropbox). */
+  const envoi = shell.match(/function envoyerALApp\(\{ urgent = false \} = \{\}\) \{[\s\S]*?\n\}/)[0];
   const rangTest = envoi.indexOf("rienNaChange(repereDeLApp, { id, repere })");
   const rangAppel = envoi.indexOf("state.stockage.appareil.ecrire(");
   assert.ok(rangTest > 0 && rangAppel > rangTest, "⛔ le test vient AVANT l'appel — sinon l'envoi part quand même");
@@ -61,7 +62,8 @@ test("W1 — 🔌 LA COQUILLE CONSULTE LA DÉCISION AVANT D'APPELER L'ORGANE, et
   assert.match(envoi, /suivreLaCopieDeLApp\(id, issue, repere\)/);
   const suivre = shell.match(/function suivreLaCopieDeLApp\(id, issue, repere\) \{[\s\S]*?\n\}/)[0];
   assert.match(suivre, /if \(issue\.ok && typeof repere === "string"\) repereDeLApp = \{ id, repere \};/, "ce qui est écrit, l'app le tient");
-  assert.match(shell, /suivreLaCopieDeLApp\(id, \{ ok: true, revision: verdict\.revision \}, repereDuPersonnage\(state\.document\)\);/,
+  /* 🔄 LOT 377 — le repère est lu UNE fois en tête de la file (le lieu de rencontre le partage). */
+  assert.match(shell, /const repere = repereDuPersonnage\(state\.document\);[\s\S]{0,1200}suivreLaCopieDeLApp\(id, \{ ok: true, revision: verdict\.revision \}, repere\);/,
     "un Save aussi : après lui, l'app tient ce repère");
 });
 

@@ -181,7 +181,8 @@ test("O6 — 📄 LE FICHIER DIT CE QU'IL NE SAIT PAS FAIRE, par ses capacités 
   assert.deepEqual(partis, [{ nom: "kara.fate-s-hand.fh-char.json", type: "application/json", contenu: texte(doc) }],
     "le téléchargement porte les MÊMES octets, et le nom de la version FH (lot 192)");
   /* et l'appareil, lui, sait tout faire sans un geste — c'est ce qui permet la sauvegarde automatique */
-  assert.deepEqual({ ...appareil().capacites }, { liste: true, ecrase: true, efface: true, sansGeste: true, possede: false, lieu: MOT_DE_L_APPAREIL });
+  /* 🔄 LOT 377 — et il dit d'où vient « l'autre version » quand c'est lui qui la tient : un autre onglet. */
+  assert.deepEqual({ ...appareil().capacites }, { liste: true, ecrase: true, efface: true, sansGeste: true, possede: false, lieu: MOT_DE_L_APPAREIL, ailleurs: "in another window" });
 });
 
 test("O7 — 🚪 ABSENT N'EST PAS UNE PANNE : `lire` le distingue d'un lieu qui ne répond pas", async () => {
@@ -197,7 +198,8 @@ test("S1 — 💾 SAUVER : la copie de l'app d'abord, le lieu choisi ensuite —
   const { s: choisi, partis } = fichierEspion();
   const doc = perso();
   const ok = await sauverDansLesDeux({ appareil: app, choisi, texte: texte(doc), revisionApp: null });
-  assert.deepEqual(ok, { ok: true, revision: "r1" });
+  /* 🔄 LOT 377 — la séquence rend aussi la révision du lieu choisi (Dropbox : son `rev` ; le fichier : aucune). */
+  assert.deepEqual(ok, { ok: true, revision: "r1", revisionLoin: null });
   assert.equal(partis.length, 1, "le fichier est parti");
   assert.equal((await app.lire(doc.id)).revision, "r1", "et le perso est ENTRÉ dans My characters");
   /* ⚔️ l'app refuse (un autre onglet a écrit) → aucun fichier ne part. (Un perso qui a CHANGÉ : le même,
@@ -209,7 +211,7 @@ test("S1 — 💾 SAUVER : la copie de l'app d'abord, le lieu choisi ensuite —
   const loinRefuse = creerStockage({ capacites: { liste: false, ecrase: false, efface: false, sansGeste: false, possede: true, lieu: "y" },
     ecrire: async () => { throw new Error("download blocked"); } });
   const moitie = await sauverDansLesDeux({ appareil: app, choisi: loinRefuse, texte: texte({ ...doc, name: "Kara changée" }), revisionApp: "r1" });
-  assert.deepEqual(moitie, { ok: false, ou: "choisi", revision: "r2", raison: "download blocked" });
+  assert.deepEqual(moitie, { ok: false, ou: "choisi", conflit: false, revision: "r2", revisionLoin: null, raison: "download blocked" });
 });
 
 test("S2 — 🗑️ LA POUBELLE SELON LE LIEU CHOISI : le fichier → la copie de l'app seule ; un lieu qui efface → lui, PUIS l'app", async () => {
@@ -490,11 +492,16 @@ test("P7 — 🔔 LE MENU DIT L'ENVOI : rouge s'il a raté, une note s'il est re
 test("C1 — ⚔️ UN SEUL ÉCRIVAIN PAR LIEU : la copie de l'app dans la FILE de la coquille, le lieu choisi par `exporterJson` seul", () => {
   const ecrituresApp = [...shell.matchAll(/state\.stockage\.appareil\.ecrire\(/g)].length;
   assert.equal(ecrituresApp, 2, "`envoyerALApp` (le perso courant) et `ouvrirUnDocumentVenuDAilleurs` (un fichier qui entre) — pas un de plus");
-  const envoi = shell.match(/function envoyerALApp\(\) \{[\s\S]*?\n\}/)[0];
+  const envoi = shell.match(/function envoyerALApp\(\{ urgent = false \} = \{\}\) \{[\s\S]*?\n\}/)[0];
   assert.match(envoi, /return enFileDeLApp\(async \(\) => \{[\s\S]*const revision = state\.copieDeLApp\.etat === "dans-l-app"/,
     "⚔️ la révision annoncée se lit DANS la file, après l'écriture précédente");
   assert.equal([...shell.matchAll(/sauverDansLesDeux\(/g)].length, 1, "la séquence des deux lieux a UN appelant");
   assert.equal([...shell.matchAll(/state\.stockage\.choisi\.ecrire\(/g)].length, 0, "⛔ personne n'écrit au lieu choisi hors de la séquence");
+  /* 🔄 LOT 377 — UN écrivain de plus vers le lieu choisi, et un seul : le COURRIER (la sauvegarde automatique
+     vers Dropbox, mandat § 5), dans la file du lieu de rencontre ; la synchro écrit, elle, dans magasin.mjs. */
+  const ecrituresLoin = [...shell.matchAll(/\bchoisi\.ecrire\(/g)].length;
+  assert.equal(ecrituresLoin, 1, "`envoyerAuLoin` seul, hors de la séquence des deux lieux");
+  assert.match(shell, /const courrier = creerCourrier\(\(id, options\) => enFileDuLoin\(\(\) => envoyerAuLoin\(id, options\)\)\);/);
   assert.equal([...shell.matchAll(/nomDeFichier\(document, "fh-char\.json"/g)].length, 1, "le nom du fichier de perso, à UN endroit : le lieu choisi");
 });
 
@@ -533,8 +540,10 @@ test("C4 — 🗑️ LA POUBELLE DE LA COQUILLE : la question sur la DONNÉE du 
 
 test("C5 — 🧭 LA RÉOUVERTURE ATTEND LE MOTEUR, et le stockage monte sans lui ; sa panne ne tue pas le builder", () => {
   const monter = shell.match(/async function monterLeStockage\(\) \{[\s\S]*?\n\}/)[0];
-  assert.match(monter, /await rafraichirLesPersonnages\(\);\s*await moteurPret;\s*await reouvrirLaCopieDeTravail\(\);/,
-    "la liste d'abord (elle n'a pas besoin du moteur), la réouverture après lui");
+  /* 🔄 LOT 377 — entre le moteur et la réouverture, le retour de Dropbox atterrit (sur Vault) ; après elle, la
+     synchro rapproche l'app du lieu de rencontre, puis la liste se relit. */
+  assert.match(monter, /await rafraichirLesPersonnages\(\);\s*await moteurPret;\s*if \(retourDeConnexion\) await revenirDeLaConnexion\(await retourDeConnexion\);\s*await reouvrirLaCopieDeTravail\(\);\s*await synchroniserLeLieu\(\);\s*await rafraichirLesPersonnages\(\);/,
+    "la liste d'abord (elle n'a pas besoin du moteur), la réouverture après lui, la synchro après elle");
   assert.match(shell, /refresh\(\);\s*signalerMoteurPret\(\);\s*\}\)\(\);/, "le moteur tient sa promesse, même en panne");
   assert.match(shell, /try \{ await monterLeStockage\(\); \} catch \(cause\) \{\s*state\.personnagesListe = \{ etat: "refus"/,
     "⛔ une panne du stockage se DIT dans My characters");
@@ -727,7 +736,10 @@ test("E1 — ⚖️ L'APPAREIL COMPARE CE QUI FAIT LE PERSONNAGE : une estampill
 });
 
 test("E2 — 🔌 LA COQUILLE COMPARE SUR LE MÊME REPÈRE à la réouverture — sinon chaque ouverture serait un « envoi raté » dit à tort", () => {
-  assert.match(shell, /function repereDuPersonnage\(document\) \{ return canonicalText\(ceQuiFaitLePersonnage\(document\)\); \}/);
+  /* 🔄 LOT 377 — le repère a UN écrivain, dans l'organe (`repereDe`) : la coquille, l'appareil et la synchro le lisent. */
+  assert.match(shell, /function repereDuPersonnage\(document\) \{ return repereDe\(document\); \}/);
+  const magasinSrc = stripComments(fs.readFileSync(path.join(UI, "magasin.mjs"), "utf8"));
+  assert.match(magasinSrc, /export function repereDe\(document\) \{\s*return canonicalText\(ceQuiFaitLePersonnage\(document\)\);\s*\}/);
   assert.match(shell, /if \(garde\.etat === "lu"\) travailAuDemarrage = repereDuPersonnage\(garde\.document\);/);
   const reouvrir = shell.match(/async function reouvrirLaCopieDeTravail\(\) \{[\s\S]*?\n\}/)[0];
   assert.match(reouvrir, /texte: repereDuPersonnage\(lu\.document\)/);

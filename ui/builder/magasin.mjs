@@ -49,11 +49,11 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=929";
+import { lireLeFichier } from "./ouvrir.mjs?v=931";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=929";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=929";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=931";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=931";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
@@ -65,6 +65,11 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=929";
  * @property {boolean} sansGeste  il peut écrire sans un clic du joueur (la sauvegarde automatique)
  * @property {boolean} possede    le joueur tient ses octets hors de l'app
  * @property {string}  lieu       le mot du lieu, tel que le joueur le lit
+ * @property {string}  [ailleurs] ⚖️ LOT 377 — d'où vient « l'autre version » quand ce lieu en tient une
+ *                                 (la question de la réouverture le dit PAR CETTE DONNÉE, jamais par un
+ *                                 test sur le nom du lieu)
+ * @property {boolean} [rencontre] ⚖️ LOT 377 — le lieu est le POINT DE RENCONTRE des appareils (§ 10) :
+ *                                 My characters se synchronise sur lui (`synchroniser`)
  */
 
 /**
@@ -75,6 +80,8 @@ import { canonicalText } from "../../src/doc/canonical.mjs?v=929";
  * @property {(id: string, texte: string, revision: string|null, document: object, options: {version?: string}) =>
  *   Promise<{ok:true, revision:string|null}|{ok:false, conflit:true, revision:string|null}>} ecrire
  * @property {(id: string) => Promise<void>} [effacer]
+ * @property {() => Promise<{id:string, revision:string}[]>} [index]  ⚖️ LOT 377 — les révisions tenues,
+ *   SANS le contenu (la synchro ne télécharge que ce qui a changé)
  */
 
 /** LE MOT D'UN LIEU QUI NE SAIT PAS LISTER — ⚠️ brouillon anglais à Eric. */
@@ -91,6 +98,9 @@ export const MOT_SANS_REVISION = "the write did not say which version it replace
  * · `lire(id)`  → `{etat:"lu", document, revision}` | `{etat:"absent"}` | `{etat:"refus", raison}`
  * · `ecrire(texte, {revision})` → `{ok:true, revision}` | `{ok:false, conflit:true, revision}` | `{ok:false, raison}`
  * · `effacer(id)` → `{ok:true}` | `{ok:false, raison}`
+ * · ⚖️ LOT 377 — `revisions()` → `{etat:"index", entrees:[{id, revision}]}` | `{etat:"sans-liste"}` |
+ *   `{etat:"refus", raison}` — ce que le lieu tient, sans rien télécharger : la synchro n'ouvre que ce
+ *   qui a bougé. Un CINQUIÈME verbe, et il ne sert qu'à elle.
  *
  * @param {Adaptateur} adaptateur
  */
@@ -165,7 +175,9 @@ export function creerStockage(adaptateur) {
              confirmation du maître range « la version Fate's Hand ». Un lieu qui n'a pas de nom de
              fichier l'ignore. `garder` (Q1 b, l'heure d'un Save) demande à un lieu qui garde des
              VERSIONS d'en ranger une, datée ; la sauvegarde automatique ne le passe jamais. */
-          const verdict = await adaptateur.ecrire(id, texte, revision, issue.document, { version: attendu.version, garder: attendu.garder });
+          /* ⚖️ LOT 377 — `urgent` : l'envoi du passage en arrière-plan (la page peut mourir derrière lui). */
+          const verdict = await adaptateur.ecrire(id, texte, revision, issue.document,
+            { version: attendu.version, garder: attendu.garder, urgent: attendu.urgent === true, courantAJour: attendu.courantAJour === true });
           if (verdict && verdict.ok === true) return { ok: true, revision: verdict.revision ?? null };
           if (verdict && verdict.conflit === true) return { ok: false, conflit: true, revision: verdict.revision ?? null };
           return { ok: false, raison: (verdict && verdict.raison) || "this storage refused to store it" };
@@ -173,6 +185,18 @@ export function creerStockage(adaptateur) {
           return { ok: false, raison: motDe(cause) };
         }
       });
+    },
+
+    async revisions() {
+      if (!capacites.liste || typeof adaptateur.index !== "function") return { etat: "sans-liste" };
+      let entrees;
+      try { entrees = await adaptateur.index(); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+      return {
+        etat: "index",
+        entrees: (Array.isArray(entrees) ? entrees : [])
+          .filter((e) => e && typeof e.id === "string" && e.id !== "")
+          .map((e) => ({ id: e.id, revision: typeof e.revision === "string" ? e.revision : null }))
+      };
     },
 
     async effacer(id) {
@@ -210,10 +234,12 @@ function plusRecentEnTete(a, b) {
 
 /** Le mot de l'appareil — ⚠️ brouillon anglais à Eric. */
 export const MOT_DE_L_APPAREIL = "in this app";
+/** D'où vient l'autre version quand c'est l'appareil qui la tient : un autre onglet. ⚠️ Brouillon. */
+export const MOT_AILLEURS_DE_L_APPAREIL = "in another window";
 
 export function adaptateurAppareil(base) {
   return {
-    capacites: { liste: true, ecrase: true, efface: true, sansGeste: true, possede: false, lieu: MOT_DE_L_APPAREIL },
+    capacites: { liste: true, ecrase: true, efface: true, sansGeste: true, possede: false, lieu: MOT_DE_L_APPAREIL, ailleurs: MOT_AILLEURS_DE_L_APPAREIL },
     async tout() {
       const rangs = await base.tout(RAYON_PERSONNAGES);
       return rangs.map(({ clef, valeur }) => ({
@@ -303,7 +329,14 @@ function slug(mot) {
 function memePersonnage(texteTenu, document) {
   let tenu;
   try { tenu = JSON.parse(texteTenu); } catch (_) { return false; }
-  try { return canonicalText(ceQuiFaitLePersonnage(tenu)) === canonicalText(ceQuiFaitLePersonnage(document)); } catch (_) { return false; }
+  try { return repereDe(tenu) === repereDe(document); } catch (_) { return false; }
+}
+
+/** ⚖️ LE REPÈRE D'UN PERSONNAGE — ce qui le fait (`ceQuiFaitLePersonnage`, lot 350 : sans `modified` ni
+ *  `resolved`, que la dérivation estampille), aux octets du moteur. ⭐ UN ÉCRIVAIN : l'appareil, la
+ *  coquille (lot 375) et la synchro (lot 377) comparent CE repère-ci. */
+export function repereDe(document) {
+  return canonicalText(ceQuiFaitLePersonnage(document));
 }
 
 /** ⚖️ LOT 375 — Y A-T-IL QUELQUE CHOSE À ENVOYER ? Non si le lieu tient DÉJÀ ce repère (ce qui fait ce
@@ -424,10 +457,12 @@ export function adaptateurDossier(poignee) {
    ⭐ UNE TABLE, UN ÉCRIVAIN : la page la lit (l'ordre, les mots), la coquille la lit (quel lieu est
    CÂBLÉ). `cable` dit ce qui marche aujourd'hui — le fichier seul (et, derrière lui, le dossier de
    Chrome et d'Edge, choisi par `Save location`) ; les autres sont des places réservées jusqu'à leur
-   branchement (Dropbox attend l'App key d'Eric). ⛔ Un lieu non câblé ne peut pas être choisi.
+   branchement. ⛔ Un lieu non câblé ne peut pas être choisi.
+   🔄 LOT 377 — DROPBOX EST CÂBLÉ, et il porte `connexion` : un lieu qu'on ne choisit qu'une fois le
+   joueur connecté (OAuth, `dropbox.mjs`). La donnée le dit ; ⛔ aucun test sur son nom.
    ⚠️ Les mots sont des brouillons anglais à Eric (« File » pour « un fichier »). */
 export const LIEUX = Object.freeze([
-  Object.freeze({ id: "dropbox", mot: "Dropbox", cable: false }),
+  Object.freeze({ id: "dropbox", mot: "Dropbox", cable: true, connexion: true }),
   Object.freeze({ id: "google-drive", mot: "Google Drive", cable: false }),
   Object.freeze({ id: "onedrive", mot: "OneDrive", cable: false }),
   Object.freeze({ id: "fichier", mot: "File", cable: true }),
@@ -449,11 +484,14 @@ export async function lieuRetenu(base) {
 }
 
 /** CHOISIR UN LIEU — ⛔ seulement un lieu câblé (une place réservée est éteinte, et ce refus-ci est la
- *  garde de ce qui la contournerait). @returns {Promise<{etat:"choisi",id}|{etat:"refus",raison}>} */
-export async function choisirUnLieu(base, id) {
+ *  garde de ce qui la contournerait). ⚖️ LOT 377 — et un lieu qui exige une connexion (`connexion`) ne se
+ *  choisit que connecté : le joueur qui dit « non » chez Dropbox garde son lieu d'avant.
+ *  @returns {Promise<{etat:"choisi",id}|{etat:"refus",raison}>} */
+export async function choisirUnLieu(base, id, { connecte = false } = {}) {
   const lieu = LIEUX.find((l) => l.id === id);
   if (!lieu) return { etat: "refus", raison: `"${id}" is not a storage` };
   if (!lieu.cable) return { etat: "refus", raison: `${lieu.mot} is not connected yet` };
+  if (lieu.connexion === true && connecte !== true) return { etat: "refus", raison: `connect to ${lieu.mot} first` };
   try { await base.ecrire(RAYON_REGLAGES, CLEF_LIEU, { id }); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
   return { etat: "choisi", id };
 }
@@ -500,16 +538,22 @@ export async function choisirUnDossier({ base, showDirectoryPicker }) {
  *   | {ok:false, ou:"app", conflit?:true, revision?:string|null, raison?:string}
  *   | {ok:false, ou:"choisi", revision:string|null, raison:string}>}
  *   `ou:"choisi"` = la copie de l'app est rangée (sa révision est rendue), seul le lieu choisi a refusé. */
-export async function sauverDansLesDeux({ appareil, choisi, texte, revisionApp, version, quand }) {
+export async function sauverDansLesDeux({ appareil, choisi, texte, revisionApp, revisionLoin, loinAJour = false, version, quand }) {
   /* ⚖️ Q1 b — un Save GARDE une version datée (`garder`), en plus d'avancer la copie courante. */
   const app = await appareil.ecrire(texte, { revision: revisionApp ?? null, garder: quand });
   if (!app.ok) return { ok: false, ou: "app", conflit: app.conflit === true, revision: app.revision ?? null, raison: app.raison };
-  /* ⏳ Le lieu choisi d'aujourd'hui ne remplace jamais rien (`ecrase: false`) : sa révision est `null`.
-     Dropbox tiendra la sienne — c'est au lot qui le branche de la porter ici, pas à celui-ci de
-     l'inventer. */
-  const loin = await choisi.ecrire(texte, { revision: null, version });
-  if (!loin.ok) return { ok: false, ou: "choisi", revision: app.revision, raison: loin.raison || "this storage refused to store it" };
-  return { ok: true, revision: app.revision };
+  /* ⚖️ LOT 377 — LE LIEU CHOISI PORTE SA RÉVISION (`revisionLoin`) : celle que la synchro a vue en commun
+     avec lui (Dropbox : son `rev`) ; `null` = « je crois qu'il ne l'a pas encore ». Un lieu qui ne remplace
+     jamais rien (le fichier, le dossier) n'en a pas l'usage. Et il reçoit l'heure du Save (`garder`) : un
+     lieu qui garde des versions en range une, datée, avec la clef du dossier (`clefDeLEntree`). */
+  /* ⭐ `loinAJour` : le lieu tient DÉJÀ ce personnage (même repère, lot 375) — seule la version datée part ;
+     récrire la copie courante à l'identique ferait naître une révision d'une estampille. */
+  const loin = await choisi.ecrire(texte, { revision: revisionLoin ?? null, version, garder: quand, courantAJour: loinAJour === true });
+  if (!loin.ok) {
+    return { ok: false, ou: "choisi", conflit: loin.conflit === true, revision: app.revision, revisionLoin: loin.revision ?? null,
+      raison: loin.raison || "this storage refused to store it" };
+  }
+  return { ok: true, revision: app.revision, revisionLoin: loin.revision ?? null };
 }
 
 /** 🗑️ EFFACER — la poubelle de My characters, SELON LE STOCKAGE CHOISI.
@@ -555,6 +599,219 @@ export function aLaReouverture({ travail, base, app }) {
   const surLaMeme = !base || base.id !== travail.id || base.revision === revision;
   if (!surLaMeme) return { geste: "question", revision };
   return { geste: app.texte === travail.texte ? "rien" : "renvoyer", revision };
+}
+
+/* ══ ⚖️ LOT 377 — LA SYNCHRO : LE LIEU CHOISI EST LE POINT DE RENCONTRE DES APPAREILS ══════════════
+   § 10 (29/09) : *« le stockage choisi est le point de rencontre entre l'iPad, le téléphone et
+   l'ordinateur »* ; *« l'app VÉRIFIE AVANT D'ÉCRIRE »* — une écriture en arrière-plan ne pose pas de
+   question, rien n'est écrasé, la question vient à la réouverture. Mandat du lot 377 (ARCHI 35, 30/09) :
+   My characters montre sur chaque appareil ce que le lieu tient ; relu au démarrage et à l'ouverture de
+   My characters ; ce que l'app tient et que le lieu n'a pas part vers lui ; modifié des deux côtés
+   depuis la dernière révision commune → la question. ⛔ Aucun travail non envoyé ne se perd en silence :
+   dans le doute, on garde et on demande.
+
+   ⭐ TROIS FAITS PAR PERSONNAGE, et la décision est PURE (`decisionDeSynchro`) :
+     · `app`     — ce que l'app tient : son repère (`repereDe`) ;
+     · `loin`    — ce que le lieu tient : sa révision (Dropbox : son `rev`), SANS le contenu ;
+     · `commun`  — la DERNIÈRE RÉVISION COMMUNE : la révision du lieu et le repère de l'app le jour où
+                   les deux tenaient la même chose. Elle vit dans les réglages de l'app, par lieu
+                   (`synchro-<lieu>`), jamais dans le document.
+   Le contenu du lieu n'est lu que si sa révision a bougé (`repereLoin`, le second passage).
+
+   ── LA TABLE, ÉTAT PAR ÉTAT (gardée ligne à ligne, `tests/dropbox-377.test.mjs`) ─────────────────
+     app  loin  commun   ce qui a bougé                         → geste
+     ·    ·     —        rien des deux côtés                    → `rien`
+     ✓    ·     ·        le lieu ne l'a jamais eu               → `envoyer`
+     ✓    ·     ✓        effacé ailleurs, inchangé ici          → `retirer-ici` (la poubelle d'ailleurs a demandé)
+     ✓    ·     ✓        effacé ailleurs, CHANGÉ ici            → `question-efface` (ARCHI 35, 30/09 : (b))
+     ·    ✓     —        né ailleurs                            → `recevoir`
+     ✓    ✓=c   ✓        rien ici non plus                      → `rien`
+     ✓    ✓=c   ✓        changé ici seulement                   → `envoyer`
+     ✓    ✓≠c   —        changé là-bas (ou jamais rapprochés)    → `lire-le-loin`, puis :
+                           même repère des deux côtés           → `lier`
+                           inchangé ici depuis le commun        → `recevoir`
+                           sinon                                → `question`
+   (`✓=c` : la révision du lieu est celle du commun.) */
+
+const CLEF_SYNCHRO = (lieu) => `synchro-${lieu}`;
+
+/** Les révisions communes d'un lieu, par `id`. ⛔ Un réglage illisible est « aucune » : tout se relit. */
+export async function lireLesCommuns(base, lieu) {
+  const tenus = await lireLeReglage(base, CLEF_SYNCHRO(lieu));
+  return tenus && typeof tenus === "object" ? tenus : {};
+}
+
+/** Poser (ou retirer, `null`) la révision commune d'un personnage — dans UNE transaction. */
+export async function poserUnCommun(base, lieu, id, commun) {
+  await base.echanger(RAYON_REGLAGES, CLEF_SYNCHRO(lieu), (actuels) => {
+    const suivants = { ...(actuels && typeof actuels === "object" ? actuels : {}) };
+    if (commun) suivants[id] = { revision: commun.revision ?? null, repere: commun.repere };
+    else delete suivants[id];
+    return suivants;
+  });
+}
+
+/** ⭐ LA DÉCISION — PURE. @returns {"rien"|"envoyer"|"recevoir"|"lier"|"retirer-ici"|"question"|"question-efface"|"lire-le-loin"} */
+export function decisionDeSynchro({ app, loin, commun, repereLoin }) {
+  if (!app && !loin) return "rien";
+  if (app && !loin) {
+    if (!commun) return "envoyer";
+    return app.repere === commun.repere ? "retirer-ici" : "question-efface";
+  }
+  if (!app) return "recevoir";
+  if (commun && loin.revision === commun.revision) return app.repere === commun.repere ? "rien" : "envoyer";
+  if (typeof repereLoin !== "string") return "lire-le-loin";
+  if (repereLoin === app.repere) return "lier";
+  if (commun && app.repere === commun.repere) return "recevoir";
+  return "question";
+}
+
+/** 🔄 SYNCHRONISER — exécute la décision pour chaque personnage, par les verbes de l'organe.
+ *  ⛔ Les questions ne se tranchent pas ici : elles REVIENNENT, et c'est le joueur qui répond
+ *  (`trancherLaSynchro`). Un refus d'un personnage n'arrête pas les autres ; il se dit.
+ *  @returns {Promise<{etat:"refus", raison:string}
+ *   | {etat:"fait", faits:{id:string, geste:string, ok:boolean, raison?:string, avaitUnCommun:boolean}[],
+ *      questions:{id:string, nom:string, genre:"modifie"|"efface"}[]}>} */
+export async function synchroniser({ appareil, loin, base, lieu }) {
+  const index = await loin.revisions();
+  if (index.etat !== "index") return { etat: "refus", raison: index.etat === "refus" ? index.raison : MOT_SANS_LISTE };
+  const liste = await appareil.lister();
+  if (liste.etat !== "liste") return { etat: "refus", raison: liste.etat === "refus" ? liste.raison : MOT_SANS_LISTE };
+  const communs = await lireLesCommuns(base, lieu);
+  const ici = new Map(liste.personnages.map((p) => [p.id, p]));
+  const la = new Map(index.entrees.map((e) => [e.id, e]));
+  const faits = [];
+  const questions = [];
+  for (const id of new Set([...ici.keys(), ...la.keys()])) {
+    const p = ici.get(id);
+    const app = p ? { repere: repereDe(p.document), revision: p.revision } : null;
+    const tenu = la.get(id) || null;
+    const commun = communs[id] || null;
+    let loinLu = null;
+    let geste = decisionDeSynchro({ app, loin: tenu, commun });
+    if (geste === "lire-le-loin" || geste === "recevoir") {
+      loinLu = await loin.lire(id);
+      if (loinLu.etat === "refus" || (loinLu.etat !== "lu" && loinLu.etat !== "absent")) {
+        faits.push({ id, geste, ok: false, raison: loinLu.raison || "unreadable", avaitUnCommun: Boolean(commun) });
+        continue;
+      }
+      if (loinLu.etat === "absent") geste = decisionDeSynchro({ app, loin: null, commun });
+      else if (loinLu.document.id !== id) { faits.push({ id, geste, ok: false, raison: "this file holds another character", avaitUnCommun: Boolean(commun) }); continue; }
+      else geste = decisionDeSynchro({ app, loin: tenu, commun, repereLoin: repereDe(loinLu.document) });
+    }
+    if (geste === "rien") continue;
+    if (geste === "question" || geste === "question-efface") {
+      const nom = p && p.document && typeof p.document.name === "string" ? p.document.name : "";
+      questions.push({ id, nom, genre: geste === "question" ? "modifie" : "efface" });
+      continue;
+    }
+    const issue = await executer({ geste, id, appareil, loin, base, lieu, p, app, tenu, loinLu });
+    if (issue.question) { questions.push({ id, nom: p && p.document ? p.document.name : "", genre: issue.question }); continue; }
+    faits.push({ id, geste, ok: issue.ok, raison: issue.raison, avaitUnCommun: Boolean(commun) });
+  }
+  /* Les communs d'un personnage parti des deux côtés ne restent pas. */
+  for (const id of Object.keys(communs)) if (!ici.has(id) && !la.has(id)) await poserUnCommun(base, lieu, id, null);
+  return { etat: "fait", faits, questions };
+}
+
+/** Un geste, par les verbes de l'organe. ⛔ Un conflit à l'envoi n'écrase rien : il devient la question. */
+async function executer({ geste, id, appareil, loin, base, lieu, p, app, tenu, loinLu }) {
+  if (geste === "lier") {
+    await poserUnCommun(base, lieu, id, { revision: tenu.revision, repere: app.repere });
+    return { ok: true };
+  }
+  if (geste === "envoyer") {
+    const r = await loin.ecrire(canonicalText(p.document), { revision: tenu ? tenu.revision : null });
+    if (r.ok) { await poserUnCommun(base, lieu, id, { revision: r.revision, repere: app.repere }); return { ok: true }; }
+    if (r.conflit) return { question: r.revision === null ? "efface" : "modifie" };
+    return { ok: false, raison: r.raison };
+  }
+  if (geste === "recevoir") {
+    const r = await appareil.ecrire(canonicalText(loinLu.document), { revision: app ? app.revision : null });
+    if (!r.ok) return { ok: false, raison: r.conflit ? "it was also changed in another window" : r.raison };
+    await poserUnCommun(base, lieu, id, { revision: loinLu.revision, repere: repereDe(loinLu.document) });
+    return { ok: true };
+  }
+  if (geste === "retirer-ici") {
+    const r = await appareil.effacer(id);
+    if (!r.ok) return { ok: false, raison: r.raison };
+    await poserUnCommun(base, lieu, id, null);
+    return { ok: true };
+  }
+  return { ok: false, raison: `unknown step ${geste}` };
+}
+
+/** ⚖️ LA RÉPONSE DU JOUEUR à la question de la synchro.
+ *  · `modifie` : `ici` — cette version part, sur la révision que le lieu tient À L'INSTANT (un troisième
+ *    écrivain entre-temps fera reposer la question) ; `ailleurs` — celle du lieu remplace celle de l'app.
+ *  · `efface`  : `garder` — elle repart vers le lieu ; `effacer` — elle quitte l'app, comme ailleurs.
+ *  @returns {Promise<{ok:true, geste:string}|{ok:false, raison:string, question?:string}>} */
+export async function trancherLaSynchro({ appareil, loin, base, lieu, id, genre, voie }) {
+  const ici = await appareil.lire(id);
+  if (ici.etat === "refus") return { ok: false, raison: ici.raison };
+  if (genre === "efface" && voie === "effacer") {
+    if (ici.etat === "lu") { const r = await appareil.effacer(id); if (!r.ok) return { ok: false, raison: r.raison }; }
+    await poserUnCommun(base, lieu, id, null);
+    return { ok: true, geste: "retirer-ici" };
+  }
+  if (ici.etat !== "lu") return { ok: false, raison: "this character is no longer in My characters" };
+  if (voie === "ailleurs") {
+    const la = await loin.lire(id);
+    if (la.etat !== "lu") return { ok: false, raison: la.etat === "absent" ? "it is no longer there" : la.raison };
+    const r = await appareil.ecrire(canonicalText(la.document), { revision: ici.revision });
+    if (!r.ok) return { ok: false, raison: r.raison || "it was also changed in another window" };
+    await poserUnCommun(base, lieu, id, { revision: la.revision, repere: repereDe(la.document) });
+    return { ok: true, geste: "recevoir" };
+  }
+  /* `ici` ou `garder` : cette version part, sur ce que le lieu tient maintenant. */
+  const tenue = genre === "efface" ? null : await revisionTenueLoin(loin, id);
+  if (tenue && tenue.refus) return { ok: false, raison: tenue.refus };
+  const r = await loin.ecrire(canonicalText(ici.document), { revision: tenue ? tenue.revision : null });
+  if (r.ok) { await poserUnCommun(base, lieu, id, { revision: r.revision, repere: repereDe(ici.document) }); return { ok: true, geste: "envoyer" }; }
+  if (r.conflit) return { ok: false, raison: "it changed again meanwhile", question: r.revision === null ? "efface" : "modifie" };
+  return { ok: false, raison: r.raison };
+}
+
+async function revisionTenueLoin(loin, id) {
+  const index = await loin.revisions();
+  if (index.etat !== "index") return { refus: index.raison || MOT_SANS_LISTE };
+  const e = index.entrees.find((x) => x.id === id);
+  return e ? { revision: e.revision } : null;
+}
+
+/** ✉️ LE COURRIER — ⚖️ mandat 377, § 5 : *« jamais deux envois en vol pour le même perso : le plus récent
+ *  gagne »*. Un envoi posté pendant qu'un autre vole pour le même `id` ne part pas à côté : il est
+ *  RETENU, et repart UNE fois quand le vol se pose — avec ce que l'envoyeur lira ALORS (le plus récent).
+ *  Dix modifications pendant un vol font donc deux envois, jamais onze, jamais deux en même temps.
+ *  @param {(id:string, options:object) => Promise<object>} envoyer  ⛔ ne jette pas : il rend une issue */
+export function creerCourrier(envoyer) {
+  const vols = new Map();
+  return {
+    poster(id, options = {}) {
+      const vol = vols.get(id);
+      if (vol) {
+        vol.encore = true;
+        vol.options = { ...vol.options, ...options, urgent: vol.options.urgent === true || options.urgent === true };
+        return vol.fin;
+      }
+      const etat = { encore: false, options: { ...options } };
+      etat.fin = (async () => {
+        let issue;
+        try {
+          do {
+            etat.encore = false;
+            const opts = etat.options;
+            etat.options = {};
+            try { issue = await envoyer(id, opts); } catch (cause) { issue = { ok: false, raison: motDe(cause) }; }
+          } while (etat.encore);
+        } finally { vols.delete(id); }
+        return issue;
+      })();
+      vols.set(id, etat);
+      return etat.fin;
+    },
+    enVol: (id) => vols.has(id)
+  };
 }
 
 /* ══ LA REPRISE DES SAUVEGARDES DATÉES (lots 195 à 373) ══════════════════════════════════════
@@ -622,6 +879,8 @@ const CLEF_DESTINATION = "destination";
    sienne (`destination`), et le dossier n'est qu'une façon du lieu « fichier ». */
 const CLEF_LIEU = "lieu";
 export const RAYONS = Object.freeze([RAYON_PERSONNAGES, RAYON_SAUVEGARDES, RAYON_REGLAGES]);
+/** ⚖️ LOT 377 — les réglages de l'app : la connexion à Dropbox y vit (`dropbox.mjs`), sur l'appareil. */
+export { RAYON_REGLAGES };
 
 export function baseIndexedDb(indexedDB) {
   let ouverture = null;

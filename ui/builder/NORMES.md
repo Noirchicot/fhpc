@@ -11003,7 +11003,7 @@ this character for good? »*.
 🛡️ `tests/sauvegarde-374.test.mjs` (S2, V2, D1, P5, C4).
 
 ### 🗄️ LE STOCKAGE — UN ORGANE, DES LIEUX (lot 374)
-📍 `socle-le-stockage-un-organe-des-lieux` · vivante · 30/09
+📍 `socle-le-stockage-un-organe-des-lieux` · vivante · 30/09 · **amendée 30/09 (lot 377) — Dropbox est un lieu ; un cinquième verbe, `revisions`**
 ⚖️ **Un seul organe du stockage parle quatre verbes — lister · lire · écrire · effacer —, et l'écriture EXIGE la révision qu'elle croit remplacer. Chaque lieu est un adaptateur qui dit ce qu'il sait faire par ses CAPACITÉS (lister, remplacer, effacer, écrire sans un geste, donner la propriété), jamais par son nom ; un lieu qui remplace refuse une révision périmée, et rien n'est écrasé. Une révision ne naît que si ce qui fait le personnage change (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`) — jamais d'une estampille. Ce qui s'écrit est le document `fh-char/1` lui-même, aux octets du moteur.**
 
 > Eric, 30/09 : **« la sauvegarde c'est la suite »**, **« il faut que tout puisse être lisible par la nouvelle
@@ -11030,10 +11030,20 @@ chaque Save »*). C'est la règle qu'il faudra pour Dropbox.
 📏 **L'ALLER-RETOUR EST GARDÉ SUR UN VRAI PERSONNAGE** (l'Ilyra de v914, recalée et dérivée) : écrit dans
 les deux lieux, relu, octets identiques, validé par le schéma, redérivé par le moteur sans perte — la
 seule différence admise est nommée : l'heure du calcul (`resolved.derivation.at`).
-🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, E1, E2, A1, C1).
+🔄 **LOT 377 — DROPBOX EST UN LIEU DE L'ORGANE** (`adaptateurDropbox`, dropbox.mjs) : il liste, remplace, efface,
+écrit sans geste, et le joueur y possède ses octets ; **sa révision est le `rev` de Dropbox**, et le refus
+natif d'une révision périmée est celui de Dropbox (`WriteMode.update` + `strict_conflict`, la spécification
+officielle citée en tête du module). Deux capacités de plus, en DONNÉE : `rencontre` (le lieu est le point de
+rencontre des appareils : My characters se synchronise sur lui) et `ailleurs` (d'où vient « l'autre
+version » : `in another window` pour l'appareil, `on another device` pour Dropbox). Et un cinquième verbe,
+`revisions()` — ce que le lieu tient, SANS le contenu : la synchro n'ouvre que ce qui a bougé. ⭐ Le repère a
+UN écrivain, dans l'organe (`repereDe`) : l'appareil, la coquille et la synchro le lisent. `sauverDansLesDeux`
+porte la révision du lieu choisi (`revisionLoin`) et l'heure du Save (`garder`) : un lieu qui garde des
+versions en range une ; le dossier de Chrome date donc désormais la sienne à l'heure du Save.
+🛡️ `tests/sauvegarde-374.test.mjs` (O1 à O7, S1, S3, V1, V3, D1 à D3, D5, E1, E2, A1, C1). `tests/dropbox-377.test.mjs` (A1 à A7).
 
 ### 🔁 LA SAUVEGARDE AUTOMATIQUE ET LA RÉOUVERTURE (lot 374)
-📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09 · **amendée 30/09 (lot 375) — rien ne part quand seule une estampille change**
+📍 `socle-sauvegarde-automatique-et-reouverture` · vivante · 30/09 · **amendée 30/09 (lot 375) — rien ne part quand seule une estampille change** · **amendée 30/09 (lot 377) — elle part aussi vers le lieu de rencontre**
 ⚖️ **La copie de travail s'écrit à chaque geste ; la copie de l'app d'un personnage de My characters suit chaque modification et part au passage en arrière-plan — mais seulement si ce qui fait le personnage a changé (`ceQuiFaitLePersonnage` : tout, sauf `modified` et `resolved`) : une estampille seule ne fait ni écriture, ni révision, ni envoi. Un envoi raté repart à la réouverture, et le Menu le dit ; une copie changée ailleurs entre-temps n'est jamais écrasée : la question « quelle version garder ? » se pose à la réouverture.**
 
 > ARCHI 35, 30/09 (lot 375) : *« un perso ne se réécrit plus quand seule une estampille a changé »* — la
@@ -11063,7 +11073,53 @@ perso en cours sera effacé »*) ; il entre au premier Save, ou quand on l'ouvre
 will be sent again when the app reopens. »* · *« Your last changes reached My characters when the app
 reopened. »* · *« Which version do you keep? »* (`This one` · `The other one` — ⚠️ aucune en rouge :
 `A-TRANCHER §C40`).
-🛡️ `tests/sauvegarde-374.test.mjs` (R1 à R4, P6, P7, C2, C5, E1, E2), `tests/estampille-375.test.mjs`.
+🔄 **LOT 377 — ELLE PART AUSSI VERS DROPBOX**, aux mêmes moments : après chaque écriture réelle de la copie de
+l'app, un COURRIER (`creerCourrier`) l'envoie au lieu de rencontre — jamais deux envois en vol pour le même
+perso, le plus récent gagne ; rien ne part quand le lieu tient déjà ce repère (375). Au passage en arrière-plan,
+l'envoi part en `keepalive` sous son plafond (60 000 octets) ; au-delà, sans lui, et coupé, la réouverture le
+rattrape et le DIT (`Your last changes reached your Dropbox when the app reopened.`). La question de la
+réouverture dit d'où vient l'autre version PAR LA DONNÉE (`capacites.ailleurs`). Un refus se dit au Menu en
+nommant le lieu (`Your Dropbox did not get your last changes: …`).
+🛡️ `tests/sauvegarde-374.test.mjs` (R1 à R4, P6, P7, C2, C5, E1, E2), `tests/estampille-375.test.mjs`. `tests/dropbox-377.test.mjs` (A7, S6, C4), `repeint-ne-casse-rien` 11.
+
+### 🔄 LA SYNCHRO — LE LIEU CHOISI EST LE POINT DE RENCONTRE DES APPAREILS (lot 377)
+📍 `socle-la-synchro-par-le-lieu-de-rencontre` · vivante · 30/09
+⚖️ **Quand le lieu choisi est un point de rencontre (Dropbox), My characters montre sur chaque appareil ce qu'il tient : la synchro le relit au démarrage et à l'ouverture de My characters. Ce que l'app tient et que le lieu n'a pas part vers lui ; ce que le lieu tient et que l'app n'a pas arrive. Un perso changé des deux côtés depuis leur dernière révision commune pose la question — au démarrage, ou tout de suite si l'écart est vu dans un clic ; un perso effacé ailleurs mais changé ici la pose aussi. ⛔ Aucun travail non envoyé ne se perd en silence : dans le doute, on garde et on demande.**
+
+> La carte produit, § 10 (29/09) : *« le stockage choisi est le point de rencontre entre l'iPad, le téléphone et
+> l'ordinateur »* ; *« l'app VÉRIFIE AVANT D'ÉCRIRE »* ; *« la question est posée à la réouverture »*. Le mandat du
+> lot 377 (ARCHI 35, 30/09), § 3. Et sur Kara, effacée sur le Mac mais changée sur l'iPad, ARCHI 35, 30/09 :
+> **« c'est (b), la question »** — *« avec (a), l'iPad déferait ce geste en silence »*.
+
+⭐ **LA DÉCISION EST PURE** (`decisionDeSynchro`, magasin.mjs) et lit trois faits par personnage : ce que l'app
+tient (son repère), ce que le lieu tient (sa révision, sans le contenu) et la DERNIÈRE RÉVISION COMMUNE (la
+révision du lieu et le repère de l'app le jour où les deux tenaient la même chose — dans les réglages de l'app,
+par lieu, jamais dans le document). Le contenu du lieu ne se lit que si sa révision a bougé.
+
+| l'app | le lieu | ce qui a bougé | → |
+|---|---|---|---|
+| ✓ | — | jamais eu | `envoyer` |
+| ✓ | — | effacé ailleurs, inchangé ici | `retirer-ici` (la poubelle d'ailleurs a demandé) |
+| ✓ | — | effacé ailleurs, CHANGÉ ici | la question « effacé » |
+| — | ✓ | né ailleurs | `recevoir` |
+| ✓ | = commun | rien, ou changé ici seulement | rien, ou `envoyer` |
+| ✓ | ≠ commun | même repère des deux côtés | `lier` |
+| ✓ | ≠ commun | inchangé ici | `recevoir` |
+| ✓ | ≠ commun | changé des deux côtés | la question « modifié » |
+
+✍️ **LES DEUX QUESTIONS** sont l'organe de la réouverture (`popupDeLaReouverture`) : *« Which version do you
+keep? »* — *« Kara was also changed on another device after you opened it here. Nothing was overwritten. »* ·
+`This one` · `The other one` ; et *« Keep this character? »* — *« Kara was deleted on another device, but was
+changed here since. Nothing was deleted here. »* · `Keep` (elle repart vers le lieu) · `Delete` en rouge (elle
+quitte l'app, comme ailleurs — le rouge de la poubelle). Brouillons à Eric ; `Keep` est déjà celui du lot 371.
+⚔️ **UNE FILE POUR LE LIEU**, dehors ; celle de la copie de l'app, dedans : la synchro, le courrier et `Save
+character` lisent la révision commune puis écrivent, et deux d'entre eux ensemble se croiraient en conflit.
+⭐ Le perso EN COURS qui reçoit la version d'un autre appareil se rouvre par l'atterrissage commun : la
+réouverture a déjà fait partir ce que la copie de travail avait ici.
+⚠️ `strict_conflict` fait d'un contenu IDENTIQUE un conflit (sa lecture la plus sévère) : un Save dont le lieu
+tient déjà le repère ne récrit donc pas la copie courante — seule la version datée part (`loinAJour`). ⏳ La
+preuve vraie des deux refus natifs est l'essai d'Eric sur deux appareils.
+🛡️ `tests/dropbox-377.test.mjs` (S1 à S6, P1, C3, C5) — 28 mutations vues rouges.
 
 ### 💾 `SAVE CHARACTER` RANGE, PUIS VIDE LE CACHE (lot 374)
 📍 `menu-r-save-character-vide-le-cache` · vivante · 30/09
@@ -11368,8 +11424,8 @@ trio. ⛔ Aucun calcul : un chiffre dans un `gap` rougit le garde des jetons (`u
 navigateur (le DOM des tests n'a pas de mise en page).
 
 #### 🗄️ LA PAGE VAULT — UN BOUTON PAR LIEU, CHOISI UNE FOIS
-📍 `menu-vault-un-bouton-par-lieu` · vivante · 30/09
-⚖️ **`Vault` ouvre un rang B du Menu (B2) : son titre, puis un bouton par stockage, dans l'ordre dicté — `Dropbox` · `Google Drive` · `OneDrive` · `File` · `GitHub` · `Other` —, en deux rangées de trois. Le lieu choisi porte le halo de l'actif et son mot dessous ; le choisir, c'est le lieu où `Save character` et la sauvegarde automatique écrivent. Seul le fichier est câblé ; les cinq autres sont des places réservées — présentes, éteintes, « soon » sous elles. `Save location` vit au pied de la page : il choisit le dossier de Chrome et d'Edge, la voie « dossier » du fichier. ⛔ Jamais d'adresse à recopier ; la page ne défile pas.**
+📍 `menu-vault-un-bouton-par-lieu` · vivante · 30/09 · **amendée 30/09 (lot 377) — Dropbox est câblé**
+⚖️ **`Vault` ouvre un rang B du Menu (B2) : son titre, puis un bouton par stockage, dans l'ordre dicté — `Dropbox` · `Google Drive` · `OneDrive` · `File` · `GitHub` · `Other` —, en deux rangées de trois. Le lieu choisi porte le halo de l'actif et son mot dessous ; le choisir, c'est le lieu où `Save character` et la sauvegarde automatique écrivent. Le fichier et Dropbox sont câblés ; les quatre autres sont des places réservées — présentes, éteintes, « soon » sous elles. `Save location` vit au pied de la page : il choisit le dossier de Chrome et d'Edge, la voie « dossier » du fichier. ⛔ Jamais d'adresse à recopier ; la page ne défile pas.**
 
 > Eric, 29/09 : **« Vault (droite -> B2) »** ; **« exact, un bouton par stockage, + un choix libre "Other" »** ;
 > le mandat du Menu R, ligne B2 : *« Dropbox (en tête) · Google Drive · OneDrive · un fichier (la voie
@@ -11388,10 +11444,39 @@ la page Dungeon Master. Là où le navigateur ne sait pas choisir un dossier (Sa
 location` est présent, éteint, et dit pourquoi ; le fichier reste le lieu.
 ⚠️ **Deux rangées de trois est une lecture du lot 376** — la dictée dit l'ordre, pas la disposition : ce
 sont les rangées de R. ✍️ `File` est un brouillon (« un fichier »), comme `soon`.
-⏳ Dropbox attend l'App key d'Eric (`FH-WEB/FHPC/FHPC Dropbox marche a suivre.md`) ; ⛔ aucun connecteur
-en ligne dans ce lot.
+🗄️ Jusqu'au lot 377 : Dropbox attendait l'App key d'Eric, et aucun connecteur en ligne n'était branché.
+🔄 **LOT 377 — Dropbox câblé** (`menu-vault-dropbox-se-connecter`) : une ligne de table (`cable: true`,
+`connexion: true`) et un adaptateur, ⛔ sans une ligne de page — sa porte vit parce que la table le dit, et son
+mot dessous (`your Dropbox`) est sa capacité.
 🛡️ `tests/vault-376.test.mjs` (L1, L2, P1 à P4, C1 à C3) — 14 mutations vues rouges ; `universe-step` R3,
 R4.
+
+#### 🔌 DROPBOX — SE CONNECTER UNE FOIS PAR APPAREIL, DANS LE MÊME ONGLET (lot 377)
+📍 `menu-vault-dropbox-se-connecter` · vivante · 30/09
+⚖️ **Toucher `Dropbox` dans Vault, pas encore connecté, part chez Dropbox dans le même onglet (OAuth 2 avec PKCE S256, un jeton qui se renouvelle) ; le joueur autorise SOWLREACH une fois, et revient sur Vault, Dropbox choisi. Partir et revenir ne perd rien de la fiche en cours. S'il dit non, il revient sur Vault, son lieu d'avant reste le sien, et un mot le dit. ⛔ Aucun secret sur le site ; les jetons restent sur l'appareil, et vider le cache ne déconnecte pas.**
+
+> La carte produit, § 10 : Dropbox en tête parce que *« la connexion se renouvelle seule »* ; la loi 3 : *« aucun
+> login sur le site, aucun secret stocké »*. Le mandat du lot 377 (ARCHI 35, 30/09), § 4 et la sécurité. Eric,
+> 30/09, 13:14 : l'application SOWLREACH est enregistrée, App key `fa6ljsyakrdv7eu` (publique).
+
+🔒 **LA SÉCURITÉ, CE QUI LA TIENT** (`dropbox.mjs`) : le vérificateur et le `state` se tirent de
+`crypto.getRandomValues` (⛔ jamais `Math.random`), sont gardés dans les réglages de l'app et ne servent qu'une
+fois ; le `code` et le `state` quittent l'adresse par `history.replaceState` — la PREMIÈRE instruction de la
+coquille ; un `state` faux est refusé sans échanger le `code` ; les jetons vivent dans la base de l'app (⛔
+jamais dans le document, une adresse, la console, un test) ; l'App secret n'existe nulle part.
+📏 **MESURÉ LE 30/09** : les pré-requêtes CORS de `api.dropboxapi.com` et `content.dropboxapi.com` depuis
+`https://noirchicot.github.io` passent (curl `OPTIONS`, sans jeton), `Dropbox-API-Result` est exposé.
+⚠️ **L'ÉTAT DE L'APPLICATION CHEZ DROPBOX** (ARCHI 35, 30/09, 13:20) : les trois permissions de fichiers ne sont
+pas encore accordées — tant qu'elles ne le sont pas, chaque verbe dit *« Dropbox has not yet given SOWLREACH
+permission to keep files — nothing was lost, your characters stay in this app »*, et les jetons restent.
+⚖️ **LES PANNES SE DISENT, ET NOMMENT LA SORTIE** (loi § 0.5) : hors ligne (*« Dropbox could not be reached — are
+you offline? »*), révoqué (*« … open Vault and touch Dropbox to connect again »*, les jetons morts partent). ⛔
+Aucun repli silencieux vers un autre lieu : Dropbox reste choisi, la copie de l'app garde tout.
+🗂️ **LA DISPOSITION CHEZ LE JOUEUR** (`Apps/SOWLREACH/`) : `/characters/<id>.fh-char.json`, la copie courante,
+trouvée par son `id` ; `/versions/<id>/<clef datée>`, une par Save, jamais écrasée, avec la clef du dossier
+(`clefDeLEntree`). La poubelle efface la copie, puis le dossier des versions, PUIS l'app.
+⏳ Hors du lot : un bouton pour se déconnecter, le passage en production (au 50ᵉ joueur).
+🛡️ `tests/dropbox-377.test.mjs` (K1 à K5, J1 à J5, A4, A5, C1, C2).
 
 #### 🎲 LA PAGE DUNGEON MASTER — quatre places réservées, sans câblage
 📍 `menu-dm-la-page` · vivante · 29/09

@@ -447,10 +447,16 @@ test("11 — ⭐ LA SAUVEGARDE AUTOMATIQUE (lot 374) NE REPEINT PAS SOUS LA FRAP
      change (refus, conflit, reprise). Tombé sous la frappe, ce repeint enregistrait le texte mais ôtait le focus : le
      clavier se fermait au milieu d'un mot. ⭐ On rejoue ICI le vrai corps de la fonction, lu dans `shell.mjs`. */
   const src = stripComments(fs.readFileSync(path.join(UI, "shell.mjs"), "utf8"));
-  const m = src.match(/async function envoyerEtDire\(\) \{([\s\S]*?)\n\}/);
+  /* 🔄 LOT 377 — le repeint sans geste vit dans `direSiLeMenuChange`, partagé avec le courrier de Dropbox :
+     on rejoue les DEUX vrais corps. */
+  const m = src.match(/async function envoyerEtDire\(\{ urgent = false \} = \{\}\) \{([\s\S]*?)\n\}/);
   assert.ok(m, "`envoyerEtDire` se trouve dans shell.mjs");
+  const dire = src.match(/function direSiLeMenuChange\(avant\) \{[\s\S]*?\n\}/);
+  assert.ok(dire, "`direSiLeMenuChange` se trouve dans shell.mjs");
+  assert.match(src, /void courrier\.poster\(id, \{ urgent \}\)\.then\(direSiLeMenuChange\(state\.envoi\.etat\)\);/,
+    "⛔ le courrier de Dropbox repeint par le MÊME chemin — jamais sous la frappe");
   const fabriquer = new Function("state", "envoyerALApp", "refresh", "champDeTexteActif",
-    `return async function envoyerEtDire() {${m[1]}};`);
+    `${dire[0]}\nreturn async function envoyerEtDire({ urgent = false } = {}) {${m[1]}};`);
   const essai = async (champ, etatApres) => {
     const state = { envoi: { etat: "a-jour" } };
     let repeints = 0;

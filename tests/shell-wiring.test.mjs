@@ -146,14 +146,17 @@ test("10 bis — 💾 la troisième voie de la confirmation : `exporterJson` (l'
   /* ⭐ ET CET ORGANE DIT S'IL A RANGÉ. 🔄 LOT 374 — il range par la séquence PURE des deux lieux
      (`sauverDansLesDeux`, magasin.mjs : la copie de l'app, puis le lieu choisi), et rend `true` quand
      les deux ont rangé, `false` sur chaque refus. ⚔️ Rendre `true` sans attendre la séquence → rouge. */
-  const organe = shellText.match(/async function exporterJson\([\s\S]{0,2400}?\n\}\n/);
+  /* 🔄 LOT 377 — la file du lieu de rencontre ENVELOPPE celle de l'app, et la révision commune (Dropbox) se lit
+     dans la file avant la séquence ; deux refus de plus, ceux du lieu de rencontre (le conflit, qui pose la
+     question, et le refus, qui le nomme). */
+  const organe = shellText.match(/async function exporterJson\([\s\S]{0,4000}?\n\}\n/);
   assert.ok(organe);
-  assert.match(organe[0], /const issue = await enFileDeLApp\(async \(\) => \{\s*const verdict = await sauverDansLesDeux\(\{/,
+  assert.match(organe[0], /const issue = await enFileDuLoin\(\(\) => enFileDeLApp\(async \(\) => \{[\s\S]{0,500}?const verdict = await sauverDansLesDeux\(\{/,
     "⛔ les octets passent par la séquence des deux lieux, DANS la file de la copie de l'app — jamais par un `telecharger` direct");
   assert.doesNotMatch(organe[0], /telecharger\(/, "le téléchargement est l'affaire de l'adaptateur du fichier");
   assert.match(organe[0], /if \(issue\.ok\) return true;/, "`true` seulement quand les deux lieux ont rangé");
-  assert.equal((organe[0].match(/return false;/g) || []).length, 4,
-    "les quatre refus (moteur pas chargé, stockage pas monté, copie de l'app refusée, lieu choisi refusé) → `false`");
+  assert.equal((organe[0].match(/return false;/g) || []).length, 6,
+    "les six refus (moteur pas chargé, stockage pas monté, copie de l'app refusée, conflit du lieu de rencontre, lieu de rencontre refusé, fichier refusé) → `false`");
   /* ⛔ `Switch off` reste ce qu'il était : l'extinction sans Save */
   const off = shellText.match(/action\.kind === "confirmLayerStack"[\s\S]{0,200}?\n\s*\}\n/);
   assert.ok(off);

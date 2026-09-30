@@ -50,7 +50,9 @@ const FICHIER = { id: "fichier", mot: MOT_DU_FICHIER, choisissable: true };
 test("L1 — ⚖️ L'ORDRE DICTÉ : Dropbox · Google Drive · OneDrive · le fichier · GitHub · Other — et le fichier seul est câblé", () => {
   assert.deepEqual(LIEUX.map((l) => l.id), ["dropbox", "google-drive", "onedrive", "fichier", "github", "other"],
     "⚖️ « Dropbox (en tête) · Google Drive · OneDrive · un fichier · GitHub · Other »");
-  assert.deepEqual(LIEUX.filter((l) => l.cable).map((l) => l.id), ["fichier"], "⛔ aucun connecteur en ligne dans ce lot");
+  /* 🔄 LOT 377 — Dropbox est câblé (ARCHI 35, 30/09), et il porte `connexion` : on ne le choisit que connecté. */
+  assert.deepEqual(LIEUX.filter((l) => l.cable).map((l) => l.id), ["dropbox", "fichier"], "le fichier, et Dropbox depuis le lot 377");
+  assert.deepEqual(LIEUX.filter((l) => l.connexion === true).map((l) => l.id), ["dropbox"], "seul Dropbox exige une connexion");
   assert.equal(LIEU_PAR_DEFAUT, "fichier", "« ou dans un fichier si rien n'a été réglé »");
   assert.equal(Object.isFrozen(LIEUX) && LIEUX.every((l) => Object.isFrozen(l)), true, "une table qu'on lit, jamais qu'on retouche");
 });
@@ -58,19 +60,25 @@ test("L1 — ⚖️ L'ORDRE DICTÉ : Dropbox · Google Drive · OneDrive · le f
 test("L2 — 🔑 LE LIEU RETENU : le défaut sans réglage ; un lieu NON câblé se refuse et n'écrit rien ; le fichier s'écrit et se relit", async () => {
   const base = baseDeFixture();
   assert.equal(await lieuRetenu(base), "fichier", "rien de réglé → le fichier");
-  for (const id of ["dropbox", "google-drive", "onedrive", "github", "other"]) {
+  /* 🔄 LOT 377 — Dropbox est câblé : il se refuse tant que le joueur n'est pas connecté (voir plus bas). */
+  for (const id of ["google-drive", "onedrive", "github", "other"]) {
     const issue = await choisirUnLieu(base, id);
     assert.equal(issue.etat, "refus", `⛔ ${id} n'est pas câblé`);
     assert.match(issue.raison, /not connected yet/);
   }
   assert.equal((await choisirUnLieu(base, "ftp")).etat, "refus", "un lieu qui n'existe pas");
+  assert.deepEqual(await choisirUnLieu(base, "dropbox"), { etat: "refus", raison: "connect to Dropbox first" },
+    "⛔ LOT 377 — un lieu qui exige une connexion ne se choisit pas sans elle");
   assert.equal(base.rayons.size, 0, "⛔ un refus n'écrit rien");
   assert.deepEqual(await choisirUnLieu(base, "fichier"), { etat: "choisi", id: "fichier" });
   assert.deepEqual(base.rayons.get("reglages").get("lieu"), { id: "fichier" });
   assert.equal(await lieuRetenu(base), "fichier");
   /* un réglage qui désignerait un lieu non câblé (un jour débranché) ne casse rien : le défaut */
-  base.rayons.get("reglages").set("lieu", { id: "dropbox" });
+  base.rayons.get("reglages").set("lieu", { id: "github" });
   assert.equal(await lieuRetenu(base), "fichier");
+  /* 🔄 LOT 377 — connecté, Dropbox se choisit, et se relit. */
+  assert.deepEqual(await choisirUnLieu(base, "dropbox", { connecte: true }), { etat: "choisi", id: "dropbox" });
+  assert.equal(await lieuRetenu(base), "dropbox");
 });
 
 /* ══ P — LA PAGE ═════════════════════════════════════════════════════════════════════════════ */
@@ -91,7 +99,8 @@ test("P1 — 🗄️ LA PAGE REND LES SIX LIEUX DANS L'ORDRE DICTÉ, en deux ran
 test("P2 — 💤 LES LIEUX NON CÂBLÉS SONT DES PLACES RÉSERVÉES : présentes, éteintes, « soon » SOUS elles", () => {
   const page = vault(FICHIER);
   const reservees = page.querySelectorAll("[data-lieu]").filter((b) => b.dataset.reserve === "true");
-  assert.deepEqual(reservees.map((b) => b.dataset.lieu), ["dropbox", "google-drive", "onedrive", "github", "other"]);
+  /* 🔄 LOT 377 — Dropbox n'est plus réservé : sa porte vit (elle part se connecter, ou le choisit). */
+  assert.deepEqual(reservees.map((b) => b.dataset.lieu), ["google-drive", "onedrive", "github", "other"]);
   for (const b of reservees) {
     assert.equal(b.disabled, true, `${b.textContent} : éteint`);
     const place = b.parentNode;
@@ -141,7 +150,9 @@ test("C1 — 🔌 UN ADAPTATEUR PAR LIEU CÂBLÉ — ni un de plus, ni un de moi
 test("C2 — ⚖️ CHOISIR UN LIEU : l'organe écrit le réglage, puis le lieu est REMONTÉ — et `Save character` écrit là", () => {
   assert.match(shell, /if \(action\.kind === "ouvrirVault"\) \{ state\.palier = 2; state\.menuBranche = "vault"; openSurface\(\); return; \}/);
   const geste = shell.slice(shell.indexOf('action.kind === "choisirUnLieu"'), shell.indexOf('action.kind === "choisirLeLieu"'));
-  assert.match(geste, /choisirUnLieu\(state\.stockage\.base, action\.id\)/);
+  /* 🔄 LOT 377 — le choix dit s'il est connecté ; un lieu qui exige une connexion part d'abord s'y connecter. */
+  assert.match(geste, /const issue = await choisirUnLieu\(state\.stockage\.base, action\.id, \{ connecte \}\);/);
+  assert.match(geste, /if \(connexion && !connecte\) \{ await partirSeConnecter\(connexion\); return; \}/);
   assert.match(geste, /state\.stockage\.lieu = issue\.id;\s*state\.stockage\.choisi = await lieuChoisi\(state\.stockage\.base\);/,
     "⛔ remonté par l'organe, jamais rapiécé");
   assert.match(geste, /if \(issue\.etat !== "choisi"\) \{ porteEnPanne\("Vault", issue\.raison\); return; \}/, "un refus se dit");
