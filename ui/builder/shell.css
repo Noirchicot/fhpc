@@ -3114,7 +3114,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      `1637 / 522` était la cote de l'ancien recadrage — même ratio à 1/1000, mais
      on écrit ce qu'on a mesuré, jamais ce qui tombe juste par hasard. */
   aspect-ratio: 552 / 176;
-  background: url("./assets/abilities/tapis-vert.webp?v=927") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-vert.webp?v=928") center / contain no-repeat;
   display: grid; place-items: center;
 }
 .ability-tapis .tray-des { min-height: 0; }
@@ -3437,7 +3437,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .ability-palette {
   padding-block: 0;
   padding-inline: var(--sp-4);
-  background: url("./assets/abilities/tapis-4x4.webp?v=927") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-4x4.webp?v=928") center / contain no-repeat;
 }
 /* 🟢 ET LE DÉ SE POSE SUR UN CERCLE VERT — Eric, 06/09 : *« tu peux mettre les dés
    sur des cercles verts ? sans perdre davantage de place ? »*. Oui, et le « sans
@@ -5089,7 +5089,7 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
      coins alpha 0, rayon 23) est un rectangle à coins courts — les six cellules ont
      la même place. Le stade reste au tirage, où il est juste. */
   aspect-ratio: 552 / 184;
-  background: url("./assets/abilities/tapis-bilan.webp?v=927") center / contain no-repeat;
+  background: url("./assets/abilities/tapis-bilan.webp?v=928") center / contain no-repeat;
   display: grid; align-items: center;
   padding-inline: var(--sp-12);
 }
@@ -6257,14 +6257,20 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
   justify-content: center; align-items: center;
   gap: var(--sp-8);
 }
-.mes-personnages-pied { display: flex; justify-content: center; align-items: flex-start; gap: var(--sp-8); }
-/* `Save location` et le MOT de son lieu dessous — la forme de la place réservée (`.tdc-place`, qui pose
-   la colonne et son écart), en T1. */
-.mes-personnages-lieu-mot {
+.mes-personnages-pied { display: flex; justify-content: center; }
+
+/* ══ 🗄️ B2 — VAULT (dictée du 29/09, lot 376) ══════════════════════════════════════════════════════
+   Les six lieux dans les rangées de R et de Dungeon Master (`.tdc-portes`, `.tdc-rangee` à trois), puis
+   `Save location` au pied. ⭐ Le lieu choisi porte le halo de l'actif (la règle des portes carrées, plus
+   bas, étendue — un seul écrivain du halo) et son MOT dessous, en T1 dans la boîte d'une porte. */
+.vault-ecran { display: flex; flex-direction: column; gap: var(--sp-8); }
+.vault-ecran > .tdc-titre-b { margin: 0; }
+.vault-lieu-mot {
   max-inline-size: var(--bouton-moyen);
   overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   font-size: var(--t1); color: var(--text);
 }
+.vault-pied { display: flex; justify-content: center; }
 
 /* ══ LE GLISSER-DÉPOSER — les trois règles d'Eric du 2026-08-19 ════════════
    *« la taille des objets contenants doit toujours être de la même taille que
@@ -9468,7 +9474,9 @@ button.porte-carree::after { inset: calc(var(--bouton-retrait-v) + var(--bouton-
    un halo en `box-shadow` l'écraserait. Le filtre s'AJOUTE, et il suit le dessin (40), pas la cible (44).
    ⛔ Le carré n'est pas `disabled` : c'est `aria-current`, seul, qui le désigne — il reste plein. */
 button.porte-carree[aria-current="page"] { cursor: default; }
-button.porte-carree[aria-current="page"]::before {
+button.porte-carree[aria-current="page"]::before,
+/* ⚖️ LOT 376 — le lieu choisi de Vault : le MÊME halo, pas un second. */
+button.menu-porte[aria-current="true"]::before {
   filter: drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
           drop-shadow(0 0 var(--halo-epais) var(--belt-halo))
           drop-shadow(0 0 var(--halo-epais) var(--belt-halo));

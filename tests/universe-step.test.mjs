@@ -574,13 +574,14 @@ test("R3 — 🔌 LES VERBES DE R SONT CEUX QU'ERIC A DICTÉS, NI PLUS NI MOINS"
   const node = racine({}, (a) => gestes.push(a));
   const vivants = node.querySelectorAll("button").filter((b) => !b.disabled);
   for (const b of vivants) b.dispatchEvent({ type: "click" });
+  /* 🔄 LOT 376 — `Vault` se réveille : son lot, c'est celui-ci (sa page, `tests/vault-376.test.mjs`). */
   assert.deepEqual(vivants.map((b) => b.textContent),
-    ["New character", "My characters", "Dungeon Master", "Layers", "Display"]);
+    ["New character", "My characters", "Dungeon Master", "Vault", "Layers", "Display"]);
   assert.deepEqual(gestes.map((g) => g.kind),
-    ["ouvrirNouveauPersonnage", "ouvrirLeMagasin", "ouvrirDungeonMaster", "ouvrirLayers", "ouvrirDisplay"]);
+    ["ouvrirNouveauPersonnage", "ouvrirLeMagasin", "ouvrirDungeonMaster", "ouvrirVault", "ouvrirLayers", "ouvrirDisplay"]);
 });
 
-test("R4 — 💤 LES PLACES RÉSERVÉES DE R : Campaign code · Vault — présentes, éteintes, un mot SOUS elles ; Dungeon Master vit", () => {
+test("R4 — 💤 LA PLACE RÉSERVÉE DE R : Campaign code — présente, éteinte, un mot SOUS elle ; Dungeon Master et Vault vivent", () => {
   /* ⚖️ Eric, 29/09 : *« Vault (droite, réservé) »*, et le code de campagne présent, éteint,
      en T0 — *« Campaign code on garde »*, redit l'après-midi. ⭐ LA FORME est celle de
      `Double view` quand la fenêtre est trop petite (📍 `menu-reglage-impossible-reste-
@@ -591,17 +592,14 @@ test("R4 — 💤 LES PLACES RÉSERVÉES DE R : Campaign code · Vault — prés
      l'utilise »*), et `DM` s'écrit en entier. */
   const gestes = [];
   const node = racine({}, (a) => gestes.push(a));
+  /* 🔄 LOT 376 — `Vault` QUITTE les places réservées de R : sa porte ouvre sa page, où ce sont les LIEUX
+     non câblés (Dropbox, Google Drive, OneDrive, GitHub, Other) qui sont réservés. La forme des places
+     réservées reste gardée là-bas (`tests/vault-376.test.mjs`, P2) et sur la page DM (R9). */
   const reservees = node.querySelectorAll("button[data-reserve]");
-  assert.deepEqual(reservees.map((b) => b.textContent), ["Vault"]);
-  const dm = node.querySelectorAll("button").find((b) => b.textContent === "Dungeon Master");
-  assert.ok(dm && dm.disabled !== true && dm.dataset.reserve === undefined, "`Dungeon Master` est une porte VIVANTE");
-  for (const b of reservees) {
-    assert.equal(b.disabled, true, `${b.textContent} : réservée = éteinte`);
-    const place = b.parentNode;
-    assert.ok(place.className.includes("tdc-place"), `${b.textContent} : dans sa place`);
-    const mot = place.querySelectorAll(".tdc-bientot")[0];
-    assert.equal(mot.textContent, "soon", `${b.textContent} : et son mot`);
-    assert.ok(place.childNodes.indexOf(mot) > place.childNodes.indexOf(b), `${b.textContent} : le mot SOUS la porte`);
+  assert.deepEqual(reservees.map((b) => b.textContent), []);
+  for (const vivante of ["Dungeon Master", "Vault"]) {
+    const b = node.querySelectorAll("button").find((x) => x.textContent === vivante);
+    assert.ok(b && b.disabled !== true && b.dataset.reserve === undefined, `\`${vivante}\` est une porte VIVANTE`);
   }
   const code = node.querySelectorAll(".tdc-code[data-reserve]")[0];
   assert.ok(code, "le code de campagne a sa place");

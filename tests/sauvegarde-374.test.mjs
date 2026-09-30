@@ -552,7 +552,7 @@ test("C6 — ⛔ L'ÉCRAN NE REÇOIT JAMAIS L'ORGANE — il reçoit des faits", 
   assert.match(ctx, /envoi: state\.envoi/);
   /* ⚖️ Q2 → a — le lieu entre comme DEUX FAITS lus sur l'organe (son mot, ce que le navigateur peut
      choisir) ; ⛔ jamais l'organe lui-même, ni un de ses verbes. */
-  assert.match(ctx, /lieu: state\.stockage \? \{ mot: state\.stockage\.choisi\.capacites\.lieu, choisissable: state\.stockage\.choisissable \} : null,/);
+  assert.match(ctx, /lieu: state\.stockage \? \{ id: state\.stockage\.lieu, mot: state\.stockage\.choisi\.capacites\.lieu, choisissable: state\.stockage\.choisissable \} : null,/);
   const sansLeLieu = ctx.replace(/lieu: state\.stockage \? \{[^}]*\} : null,/, "");
   assert.equal(/state\.stockage/.test(sansLeLieu), false, "⛔ l'organe n'entre pas dans un écran");
 });
@@ -681,22 +681,21 @@ test("D3 — 🧭 LE DOSSIER RETENU se relit de la base, SEULEMENT si le navigat
   assert.equal(clefDeLEntree(perso({ nom: "Kara" }), "2026-09-30T05:00:00Z", []), "kara.2026-09-30t05-00-00z.fh-char.json");
 });
 
-test("D4 — 🗂️ `SAVE LOCATION` SUR MY CHARACTERS : présent partout, allumé là où l'on peut choisir, et le mot du lieu dessous", () => {
-  const acts = [];
-  const page = (lieu) => renderMesPersonnages({ personnages: { etat: "liste", personnages: [], illisibles: [] }, lieu }, (a) => acts.push(a));
-  const peut = page({ mot: "FH saves", choisissable: true });
-  const b = peut.querySelector(".mes-personnages-lieu");
-  assert.equal(b.textContent, "Save location");
-  assert.equal(peut.querySelector(".mes-personnages-lieu-mot").textContent, "FH saves");
-  b.dispatchEvent({ type: "click", target: b });
-  assert.deepEqual(acts, [{ kind: "choisirLeLieu" }]);
-  const neSaitPas = page({ mot: MOT_DU_FICHIER, choisissable: false }).querySelector(".mes-personnages-lieu");
-  assert.equal(neSaitPas.disabled, true, "⛔ jamais caché : présent, éteint (`menu-reglage-impossible-reste-visible`)");
-  assert.match(neSaitPas.title, /cannot pick a folder/, "…et il dit pourquoi");
+test("D4 — 🗄️ LOT 376 — PLUS DE `SAVE LOCATION` SUR MY CHARACTERS : il vit dans Vault, où le stockage se choisit", () => {
+  /* ⚖️ Ratifié par Eric le 30/09 à 12:50 : « jusqu'au lot Vault ». Le garde positif (présent, allumé là où
+     l'on peut choisir, éteint ailleurs avec sa raison) a déménagé avec lui : `tests/vault-376.test.mjs`. */
+  for (const lieu of [{ id: "fichier", mot: "FH saves", choisissable: true }, { id: "fichier", mot: MOT_DU_FICHIER, choisissable: false }]) {
+    const page = renderMesPersonnages({ personnages: { etat: "liste", personnages: [], illisibles: [] }, lieu }, () => {});
+    assert.equal(page.querySelectorAll("button").filter((b) => /Save location/.test(b.textContent)).length, 0, "⛔ plus de Save location ici");
+    assert.equal(page.querySelector(".mes-personnages-fichier").textContent, "Open a file…", "témoin : le pied porte toujours sa porte du fichier");
+  }
 });
 
 test("D5 — 🔌 LA COQUILLE : le lieu choisi est le dossier RETENU, sinon le fichier ; `Save location` rechoisit puis REMONTE", () => {
-  const lieu = shell.match(/async function lieuChoisi\(base\) \{[\s\S]*?\n\}/)[0];
+  /* 🔄 LOT 376 — le lieu retenu dans Vault désigne son adaptateur par une TABLE ; celle du fichier prend le
+     dossier retenu, sinon le téléchargement. */
+  assert.match(shell, /async function lieuChoisi\(base\) \{\s*return ADAPTATEURS_DES_LIEUX\[await lieuRetenu\(base\)\]\(base\);\s*\}/);
+  const lieu = shell.match(/const ADAPTATEURS_DES_LIEUX = \{[\s\S]*?\n\};/)[0];
   assert.match(lieu, /const poignee = await dossierRetenu\(\{ base, possible: dossierPossible\(fenetreDuStockage\(\)\) \}\);\s*if \(poignee\) return creerStockage\(adaptateurDossier\(poignee\)\);/);
   assert.match(lieu, /return creerStockage\(adaptateurFichier\(\{/);
   const geste = shell.slice(shell.indexOf('action.kind === "choisirLeLieu"'), shell.indexOf('action.kind === "trancherLaReouverture"'));

@@ -204,7 +204,9 @@ test("6 · les images, leurs tailles et le mot sont ceux du banc 310", () => {
 
 test("7 · ⚖️ le carré de l'écran courant porte le HALO de l'actif — ⛔ plus de gris, ⛔ pas de box-shadow", () => {
   /* ⚖️ Eric, 27/09 au soir : « Plutôt que de griser on essaye le halo autour de la fenêtre active ». */
-  const m = SHELL.match(/button\.porte-carree\[aria-current="page"\]::before\s*\{([^}]*)\}/);
+  /* 🔄 LOT 376 — le lieu choisi de Vault porte LE MÊME halo : la règle se partage par une liste de
+     sélecteurs (un écrivain), jamais par une copie (`tests/vault-376.test.mjs`, P3). */
+  const m = SHELL.match(/button\.porte-carree\[aria-current="page"\]::before(?:,\s*[^{},]+)*\s*\{([^}]*)\}/);
   assert.ok(m, "⛔ le carré courant n'a pas de halo");
   /* ⭐ le halo de la maison : `--belt-halo` (la tuile dominante), l'épais repassé TROIS fois —
      regardé le 27/09 : `--spy-halo` se perdait en thème clair */

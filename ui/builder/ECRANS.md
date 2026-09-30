@@ -128,7 +128,7 @@
 **Un personnage qui a coupé un interrupteur entier n'est PAS « hors des deux jeux de règles » ; et au rechargement, la pile montée se range sur ce que son document déclare, au lieu de le laisser mourir sur l'écran mort.**
 
 ### Le magasin de sauvegardes est un rang B du Menu
-📍 `menu-magasin-de-sauvegardes` · vivante · 10/09 · bornée par `menu-my-characters-une-ligne-par-perso`
+📍 `menu-magasin-de-sauvegardes` · vivante · 10/09 · bornée par `menu-my-characters-la-liste-sans-le-lieu`
 ⚖️ **`Open` n'ouvre plus la boîte de fichiers du système : il ouvre le rang `B` où sont TOUTES les sauvegardes, groupées par personnage, la plus récente en tête — et chaque `Save` y range une entrée DATÉE, jamais un écrasement.**
 
 > **Eric** : « j'aimerais un menu de sauvegarde dédié, dans le site, sans avoir à me balader dans les menus, avec une option discrète sur où elles sont vraiment enregistrées. Donc quand j'appuie sur Open, j'ai une page avec toutes mes sauvegardes dedans. »

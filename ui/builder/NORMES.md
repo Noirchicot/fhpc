@@ -10931,7 +10931,7 @@ en décide seul ; la coquille ne choisit que l'organe qui MONTRE l'écran mort d
 dalle ; la coquille le pose) — 4 mutations vues rouges ; `premier-pas` E1.
 
 ### 🗂️ MY CHARACTERS — UNE LIGNE PAR PERSONNAGE (lot 374)
-📍 `menu-my-characters-une-ligne-par-perso` · vivante · 30/09 · borne `menu-magasin-de-sauvegardes`
+📍 `menu-my-characters-une-ligne-par-perso` · remplacée · 30/09 · remplacée par `menu-my-characters-la-liste-sans-le-lieu`
 ⚖️ **My characters (le rang B1 du Menu) porte une ligne par personnage rangé dans l'app — sa version la plus récente : l'image de la fiche de son espèce · son nom · « espèce classe lvl N » · sa campagne (`none` sans elle) · `Open` (gabarit large, 105 × 40, bleu : il navigue) · la poubelle (40 × 40) tout à droite ; ses versions datées restent derrière la ligne ; la liste PAGINE (5 lignes par page, la rangée des pages sous elle), elle ne défile jamais ; `Open a file…` et `Save location` restent au pied.**
 
 > La dictée d'Eric, 29/09 : *« B1 — other page - Your Characters (page de liste) · image / Ratchapapoulos
@@ -10967,6 +10967,23 @@ du schéma aujourd'hui ; sans espèce, le dos de carte. Une ligne se lit dans le
 dérivation : un perso qui ne dérive plus se liste quand même. Un perso illisible se dit à part, sans
 `Open`, avec sa poubelle — sa seule sortie.
 🛡️ `tests/sauvegarde-374.test.mjs` (P1 à P4, C6).
+
+### 🗂️ MY CHARACTERS — LA LISTE, SANS LE LIEU (lot 376)
+📍 `menu-my-characters-la-liste-sans-le-lieu` · vivante · 30/09 · remplace `menu-my-characters-une-ligne-par-perso` · borne `menu-magasin-de-sauvegardes`
+⚖️ **My characters (le rang B1 du Menu) porte une ligne par personnage rangé dans l'app — sa version la plus récente : l'image de la fiche de son espèce · son nom · « espèce classe lvl N » · sa campagne (`none` sans elle) · `Open` (gabarit large, 105 × 40, bleu : il navigue) · la poubelle (40 × 40) tout à droite ; ses versions datées restent derrière la ligne ; la liste PAGINE (5 lignes par page, la rangée des pages sous elle), elle ne défile jamais ; `Open a file…` reste seul au pied. `Save location` n'est plus ici : il vit dans Vault (`menu-vault-un-bouton-par-lieu`).**
+
+> ARCHI 35, mandat du lot 376 (30/09) : *« `Save location` quitte My characters et vit désormais dans
+> Vault »* — la règle du 30/09 le gardait ici *« jusqu'au lot Vault »* (✅ ratifiée par Eric le 30/09 à
+> 12:50, « Ok go »). Tout le reste de la règle remplacée tient, mot pour mot : la dictée du 29/09, les
+> deux décisions d'Eric qui tiennent ensemble (Q1 → b), qui entre dans la liste (Q3 → a), l'image de la
+> fiche de l'espèce.
+
+📐 **LES CINQ LIGNES SE DÉDUISENT TOUJOURS** — le pied a perdu le mot du lieu : 8 d'air + 32 de titre + 52
+de rangée des pages + 52 de pied (`Open a file…` et son écart) + 60 de la paire de la coquille → 296 ; une
+ligne vaut 44 + 8 → ⌊296 / 52⌋ = 5 (`LIGNES_PAR_PAGE`, la déviation DÉCLARÉE de
+`liste-quinze-est-un-defaut`). Le pied se centre sous la liste. 🗄️ Lot 374 : 66 de pied (`Save location`
+portait son mot dessous) → 282 → 5.
+🛡️ `tests/sauvegarde-374.test.mjs` (P1 à P4, C6, D4 — plus de `Save location` ici).
 
 ### 🗑️ LA POUBELLE D'UN PERSONNAGE SUIT LE LIEU CHOISI (lot 374)
 📍 `menu-my-characters-poubelle-selon-le-lieu` · vivante · 30/09
@@ -11333,9 +11350,9 @@ verbe `describe/campaign` ne part plus de R. ⏳ Le titre viendra du PC du MJ, p
 campaign` ni le transport de table ne sont construits — la ligne dit donc « none ».
 🛡️ `universe-step` B3, R4.
 
-#### 🚪 CINQ PORTES EN DEUX RANGÉES CENTRÉES — `Dungeon Master` vit, `Vault` attend
-📍 `menu-r-portes-en-deux-rangees` · vivante · 29/09 · remplace `menu-r-portes-reservees`
-⚖️ **Rangée 1 : `My characters` · `Dungeon Master` ; rangée 2 : `Vault` · `Layers` · `Display` — les deux rangées centrées, avec l'écart que le trio laisse entre ses portes quand il remplit la largeur. `Dungeon Master` ouvre sa page ; `Vault` reste une place réservée (son lot : 353) ; `Tools` n'est pas sur R.**
+#### 🚪 CINQ PORTES EN DEUX RANGÉES CENTRÉES — `Dungeon Master` et `Vault` vivent
+📍 `menu-r-portes-en-deux-rangees` · vivante · 29/09 · remplace `menu-r-portes-reservees` · **amendée 30/09 (lot 376) — `Vault` ouvre sa page**
+⚖️ **Rangée 1 : `My characters` · `Dungeon Master` ; rangée 2 : `Vault` · `Layers` · `Display` — les deux rangées centrées, avec l'écart que le trio laisse entre ses portes quand il remplit la largeur. `Dungeon Master` et `Vault` ouvrent leur page (`menu-dm-la-page`, `menu-vault-un-bouton-par-lieu`) ; `Tools` n'est pas sur R.**
 
 > Eric, 29/09 : **« centre les 2 par en 2 rangées »** · **« 1ere rangée : My characters / Dungeon
 > Master · 2e rangée : Vault / Layers / Display »** ; et `Tools`, plus tôt le même jour : **« on mettra
@@ -11345,9 +11362,36 @@ campaign` ni le transport de table ne sont construits — la ligne dit donc « n
 deux intervalles égaux (`1fr`) — le trio remplit la largeur, une porte par piste ; chaque porte de la
 paire couvre deux pistes et l'intervalle qui les sépare, centrée dedans : elle tombe sur l'intervalle du
 trio. ⛔ Aucun calcul : un chiffre dans un `gap` rougit le garde des jetons (`ui-jetons` garde 2).
-🗄️ Lot 350 : `space-between` — la paire plaquée aux bords — et `Dungeon Master` réservée.
+🗄️ Lot 350 : `space-between` — la paire plaquée aux bords — et `Dungeon Master` réservée. 🗄️ Jusqu'au lot
+376 : `Vault` restait une place réservée (son lot, annoncé 353, fut le 376).
 🛡️ `universe-step` R4, R5, R11 (la feuille : la grille et les aires) ; la géométrie rendue se mesure au
 navigateur (le DOM des tests n'a pas de mise en page).
+
+#### 🗄️ LA PAGE VAULT — UN BOUTON PAR LIEU, CHOISI UNE FOIS
+📍 `menu-vault-un-bouton-par-lieu` · vivante · 30/09
+⚖️ **`Vault` ouvre un rang B du Menu (B2) : son titre, puis un bouton par stockage, dans l'ordre dicté — `Dropbox` · `Google Drive` · `OneDrive` · `File` · `GitHub` · `Other` —, en deux rangées de trois. Le lieu choisi porte le halo de l'actif et son mot dessous ; le choisir, c'est le lieu où `Save character` et la sauvegarde automatique écrivent. Seul le fichier est câblé ; les cinq autres sont des places réservées — présentes, éteintes, « soon » sous elles. `Save location` vit au pied de la page : il choisit le dossier de Chrome et d'Edge, la voie « dossier » du fichier. ⛔ Jamais d'adresse à recopier ; la page ne défile pas.**
+
+> Eric, 29/09 : **« Vault (droite -> B2) »** ; **« exact, un bouton par stockage, + un choix libre "Other" »** ;
+> le mandat du Menu R, ligne B2 : *« Dropbox (en tête) · Google Drive · OneDrive · un fichier (la voie
+> iCloud) · GitHub (catalogues de table publics) · Other (choix libre) »*. La carte produit, § 10 : le
+> joueur choisit son emplacement, la même sélection sur tous les appareils. Et le 30/09 à 12:50, « Ok go »
+> sur `Save location` *« jusqu'au lot Vault »* (`menu-my-characters-la-liste-sans-le-lieu`).
+
+⭐ **LA TABLE DES LIEUX EST UNE DONNÉE DE L'ORGANE** (`LIEUX`, magasin.mjs : un `id`, un mot, `cable`) ;
+l'écran la REÇOIT de la coquille (⛔ magasin.mjs lit déjà universe-step : aucun cycle). Le choix s'écrit
+dans les réglages de l'app (`lieuRetenu`, `choisirUnLieu`) ; ⛔ un lieu non câblé se REFUSE à l'organe,
+pas seulement au bouton éteint, et un réglage qui désignerait un lieu débranché se relit « rien n'a été
+réglé » : le fichier. La coquille remonte l'adaptateur par une table (`ADAPTATEURS_DES_LIEUX`, une entrée
+par lieu câblé) : Dropbox entrera par une ligne de table et un adaptateur, sans une ligne de page.
+⭐ **UNE SEULE FORME DE « PAS ENCORE »** (`menu-reglage-impossible-reste-visible`) : la place réservée de
+la page Dungeon Master. Là où le navigateur ne sait pas choisir un dossier (Safari, l'iPad), `Save
+location` est présent, éteint, et dit pourquoi ; le fichier reste le lieu.
+⚠️ **Deux rangées de trois est une lecture du lot 376** — la dictée dit l'ordre, pas la disposition : ce
+sont les rangées de R. ✍️ `File` est un brouillon (« un fichier »), comme `soon`.
+⏳ Dropbox attend l'App key d'Eric (`FH-WEB/FHPC/FHPC Dropbox marche a suivre.md`) ; ⛔ aucun connecteur
+en ligne dans ce lot.
+🛡️ `tests/vault-376.test.mjs` (L1, L2, P1 à P4, C1 à C3) — 14 mutations vues rouges ; `universe-step` R3,
+R4.
 
 #### 🎲 LA PAGE DUNGEON MASTER — quatre places réservées, sans câblage
 📍 `menu-dm-la-page` · vivante · 29/09
@@ -11359,7 +11403,7 @@ navigateur (le DOM des tests n'a pas de mise en page).
 > connect to VTT sera dedans aussi »**.
 
 ⭐ **UNE SEULE FORME DE « PAS ENCORE »** (`menu-reglage-impossible-reste-visible`) : la même place que
-`Vault` sur R. ⛔ Aucune prose inventée sur la page : Eric arrête les mots que le joueur lit.
+les lieux non câblés de Vault. ⛔ Aucune prose inventée sur la page : Eric arrête les mots que le joueur lit.
 ⏳ `Tools` y viendra *« si on l'utilise »*.
 ⚠️ **Deux rangées de deux est une lecture du lot 357** — la dictée ne dit pas la disposition : ce sont
 les rangées des portes de R, centrées.

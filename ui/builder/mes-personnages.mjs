@@ -19,12 +19,12 @@
    la liste PAGINE (`pageDeListe`, l'organe du socle), elle ne défile jamais.
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais : c'est Eric qui arrête les mots que le joueur lit. */
 
-import { imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=927";
-import { motDuChoix } from "./mot-du-choix.mjs?v=927";
-import { poubelle } from "./poubelle-organe.mjs?v=927";
-import { pageDeListe } from "./normes.mjs?v=927";
-import { swapContent } from "./socle.mjs?v=927";
-import { armerEngrenage } from "./engrenage.mjs?v=927";
+import { imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=928";
+import { motDuChoix } from "./mot-du-choix.mjs?v=928";
+import { poubelle } from "./poubelle-organe.mjs?v=928";
+import { pageDeListe } from "./normes.mjs?v=928";
+import { swapContent } from "./socle.mjs?v=928";
+import { armerEngrenage } from "./engrenage.mjs?v=928";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -45,17 +45,15 @@ export const MOTS_DE_MES_PERSONNAGES = Object.freeze({
   sansEspeceNiClasse: "no species or class yet",
   illisible: "This character could not be read",
   pagePrecedente: "Previous page",
-  pageSuivante: "Next page",
-  lieu: "Save location",
-  lieuImpossible: "This browser cannot pick a folder — your saves go to a file you keep."
+  pageSuivante: "Next page"
 });
 
 /** ⚖️ COMBIEN DE LIGNES TIENNENT DANS LA DALLE — une déviation DÉCLARÉE du « 15 par page » du socle
  *  (📍 `liste-quinze-est-un-defaut` : *« un écran qui dévie passe explicitement son nombre »*).
  *  📐 L'arithmétique, à 500 blg de scène : 8 (air) + 32 (titre et son écart) + la liste + 52 (la rangée
- *  des pages et son écart, quand il y en a plusieurs) + 66 (le pied — `Open a file…` et `Save location`
- *  avec le mot de son lieu dessous — et son écart) + 60 (la paire de la coquille) → 282 blg ; une ligne
- *  vaut 44 (sa cible) + 8 (l'écart du sacré n° 3) = 52 ; ⌊282 / 52⌋ = **5**. ⛔ Mesuré au banc avant
+ *  des pages et son écart, quand il y en a plusieurs) + 52 (le pied `Open a file…` et son écart — 🗄️ lot
+ *  376 : `Save location` est parti dans Vault) + 60 (la paire de la coquille) → 296 blg ; une ligne vaut
+ *  44 (sa cible) + 8 (l'écart du sacré n° 3) = 52 ; ⌊296 / 52⌋ = **5**. ⛔ Mesuré au banc avant
  *  livraison, jamais seulement déduit. */
 export const LIGNES_PAR_PAGE = 5;
 
@@ -150,31 +148,10 @@ export function renderMesPersonnages(ctx, onAction) {
   fichier.append(text(MOTS_DE_MES_PERSONNAGES.ouvrirUnFichier));
   fichier.addEventListener("click", () => onAction({ kind: "ouvrirUnFichier" }));
   pied.append(fichier);
-  if (ctx.lieu) pied.append(renderLeLieu(ctx.lieu, onAction));
+  /* 🗄️ LOT 376 — `Save location` est parti dans Vault, où le stockage se choisit (*« jusqu'au lot Vault »*,
+     ratifié par Eric le 30/09 à 12:50). */
   section.append(pied);
   return section;
-}
-
-/** ⚖️ `SAVE LOCATION` — Eric, 10/09 : *« un bouton reste présent : "save location" »* ; Q2 → a (ARCHI 35,
- *  30/09) : le dossier de Chrome et d'Edge est un lieu de l'organe, et son choix reste ICI, discret,
- *  jusqu'au lot Vault. ⭐ Le MOT du lieu se lit sous le bouton (« a file you keep », ou le nom du
- *  dossier) : le joueur sait où partent ses Save.
- *  ⛔ JAMAIS CACHÉ QUAND LE NAVIGATEUR NE SAIT PAS CHOISIR (Safari, l'iPad) : présent, éteint, et il dit
- *  pourquoi (📍 `menu-reglage-impossible-reste-visible`). */
-function renderLeLieu(lieu, onAction) {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "menu-porte mes-personnages-lieu";
-  b.append(text(MOTS_DE_MES_PERSONNAGES.lieu));
-  b.setAttribute("aria-label", `${MOTS_DE_MES_PERSONNAGES.lieu} — ${lieu.mot}`);
-  if (lieu.choisissable) {
-    b.addEventListener("click", () => onAction({ kind: "choisirLeLieu" }));
-  } else {
-    b.disabled = true;
-    b.dataset.reserve = "true";
-    b.title = MOTS_DE_MES_PERSONNAGES.lieuImpossible;
-  }
-  return el("div", "tdc-place mes-personnages-place", [b, el("span", "mes-personnages-lieu-mot", [text(lieu.mot)])]);
 }
 
 /** LA LISTE, PAGINÉE — et la rangée des pages seulement quand il y en a plus d'une (la loi du

@@ -49,11 +49,11 @@
    Chaque verbe rend un ÉTAT NOMMÉ. Un lieu qui ne sait pas lister ne rend pas une liste vide : il rend
    `sans-liste`, et la page ne dit pas « aucun personnage ». */
 
-import { lireLeFichier } from "./ouvrir.mjs?v=927";
+import { lireLeFichier } from "./ouvrir.mjs?v=928";
 /* ⚖️ CE QUI FAIT LE PERSONNAGE — l'organe du lot 350 (tout, sauf `modified` et `resolved`, que la
    dérivation estampille à chaque calcul) : c'est sur lui qu'une révision se décide (voir l'appareil). */
-import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=927";
-import { canonicalText } from "../../src/doc/canonical.mjs?v=927";
+import { ceQuiFaitLePersonnage } from "./universe-step.mjs?v=928";
+import { canonicalText } from "../../src/doc/canonical.mjs?v=928";
 
 /* ══ L'ORGANE ══════════════════════════════════════════════════════════════════════════ */
 
@@ -416,6 +416,48 @@ export function adaptateurDossier(poignee) {
   };
 }
 
+/* ══ ⚖️ LOT 376 — LES LIEUX DE VAULT, DANS L'ORDRE DICTÉ ═══════════════════════════════════════════
+   Eric, 29/09 (le mandat du Menu R, ligne B2) : *« un bouton par stockage — Dropbox (en tête) · Google
+   Drive · OneDrive · un fichier (la voie iCloud) · GitHub (catalogues de table publics) · Other (choix
+   libre) »* ; à *« Vault : adresses à taper ? »* → **« exact, un bouton par stockage, + un choix libre
+   "Other" »** — ⛔ jamais d'adresse à recopier. La carte produit (§ 10) : Dropbox au sommet.
+   ⭐ UNE TABLE, UN ÉCRIVAIN : la page la lit (l'ordre, les mots), la coquille la lit (quel lieu est
+   CÂBLÉ). `cable` dit ce qui marche aujourd'hui — le fichier seul (et, derrière lui, le dossier de
+   Chrome et d'Edge, choisi par `Save location`) ; les autres sont des places réservées jusqu'à leur
+   branchement (Dropbox attend l'App key d'Eric). ⛔ Un lieu non câblé ne peut pas être choisi.
+   ⚠️ Les mots sont des brouillons anglais à Eric (« File » pour « un fichier »). */
+export const LIEUX = Object.freeze([
+  Object.freeze({ id: "dropbox", mot: "Dropbox", cable: false }),
+  Object.freeze({ id: "google-drive", mot: "Google Drive", cable: false }),
+  Object.freeze({ id: "onedrive", mot: "OneDrive", cable: false }),
+  Object.freeze({ id: "fichier", mot: "File", cable: true }),
+  Object.freeze({ id: "github", mot: "GitHub", cable: false }),
+  Object.freeze({ id: "other", mot: "Other", cable: false })
+]);
+/** Le lieu d'un joueur qui n'a rien choisi — ⚖️ la fenêtre New character (29/09) : *« Save écrit dans le
+ *  stockage choisi, ou dans un fichier si rien n'a été réglé »*. */
+export const LIEU_PAR_DEFAUT = "fichier";
+
+/** LE LIEU RETENU — celui que le joueur a choisi dans Vault, relu de la base. ⛔ Un lieu illisible, ou
+ *  qui n'est pas (ou plus) câblé, n'est pas une panne : c'est « rien n'a été réglé », donc le défaut. */
+export async function lieuRetenu(base) {
+  let reglage;
+  try { reglage = await base.lire(RAYON_REGLAGES, CLEF_LIEU); } catch (_) { return LIEU_PAR_DEFAUT; }
+  const id = reglage && typeof reglage.id === "string" ? reglage.id : null;
+  const lieu = LIEUX.find((l) => l.id === id);
+  return lieu && lieu.cable ? lieu.id : LIEU_PAR_DEFAUT;
+}
+
+/** CHOISIR UN LIEU — ⛔ seulement un lieu câblé (une place réservée est éteinte, et ce refus-ci est la
+ *  garde de ce qui la contournerait). @returns {Promise<{etat:"choisi",id}|{etat:"refus",raison}>} */
+export async function choisirUnLieu(base, id) {
+  const lieu = LIEUX.find((l) => l.id === id);
+  if (!lieu) return { etat: "refus", raison: `"${id}" is not a storage` };
+  if (!lieu.cable) return { etat: "refus", raison: `${lieu.mot} is not connected yet` };
+  try { await base.ecrire(RAYON_REGLAGES, CLEF_LIEU, { id }); } catch (cause) { return { etat: "refus", raison: motDe(cause) }; }
+  return { etat: "choisi", id };
+}
+
 /** ⭐ CE QUE LE NAVIGATEUR PEUT — mesuré, jamais deviné à partir de son nom (lot 195). */
 export function dossierPossible(fenetre) {
   return Boolean(fenetre && typeof fenetre.showDirectoryPicker === "function");
@@ -576,6 +618,9 @@ const CLEF_REPRISE = "reprise-374";
 /* La clef du dossier retenu — celle des lots 195 et 202 : un joueur qui avait choisi son dossier le
    retrouve. */
 const CLEF_DESTINATION = "destination";
+/* ⚖️ LOT 376 — le lieu choisi dans Vault (`{id}`), sous sa propre clef : la poignée du dossier garde la
+   sienne (`destination`), et le dossier n'est qu'une façon du lieu « fichier ». */
+const CLEF_LIEU = "lieu";
 export const RAYONS = Object.freeze([RAYON_PERSONNAGES, RAYON_SAUVEGARDES, RAYON_REGLAGES]);
 
 export function baseIndexedDb(indexedDB) {
