@@ -22,7 +22,7 @@
    gouttière de la maison (`--sp-8`), soit **758 × 560** à l'échelle 1. Une seconde porte
    pour la même place serait un second écrivain : ce fichier REÇOIT sa réponse (`place`). */
 
-import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=920";
+import { createLabels, EN_DEPOT_VOISIN, EN_LUNE } from "../../src/labels.mjs?v=921";
 
 const t = createLabels(EN_DEPOT_VOISIN, EN_LUNE);
 
