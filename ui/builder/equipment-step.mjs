@@ -61,34 +61,34 @@
 /* ⭐ `markPressed` EST LE SEUL ÉCRIVAIN DE `data-active`/`aria-pressed` du dépôt
    (lot 57) : le QCM du départ l'appelle comme les six autres écrans, ⛔ il ne
    pose pas son propre attribut — c'est la divergence que le garde surveille. */
-import { markPressed } from "./carnet.mjs?v=931";
-import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=931";
+import { markPressed } from "./carnet.mjs?v=932";
+import { CURRENCY_KEYS } from "../../src/build/index.mjs?v=932";
 /* `isGenre` vient du CONTRAT, jamais d'une liste recopiée ici : le tambour
    demande à `query` un genre lu dans la donnée (`shelving.of_kind`), et
    `query` JETTE sur un genre inconnu. Vérifier avant de demander transforme
    un écran qui tombe en un record signalé. */
-import { isGenre } from "../../src/layers/document.mjs?v=931";
-import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=931";
-import { pageDeListe } from "./normes.mjs?v=931";
+import { isGenre } from "../../src/layers/document.mjs?v=932";
+import { swapContent, EVENEMENT_RECADRER } from "./socle.mjs?v=932";
+import { pageDeListe } from "./normes.mjs?v=932";
 /* ⭐ L'ÉCRAN WARES (lot 218) — dicté par Eric le 20/09. Il ne sait rien du document ; ce
    fichier-ci lui traduit le rangement en catégories, sous-catégories et pages. */
-import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=931";
-import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=931";
+import { construireLesWares, poserLesRoues } from "./wares-ecran.mjs?v=932";
+import { PAR_PAGE as WARES_PAR_PAGE } from "./wares-disposition.mjs?v=932";
 /* 🧍 LOT 212 — L'ÉCRAN R (Gear), le major hub du chapitre : le pantin et ses
    emplacements, le collecteur, la rangée du pied. Il REMPLACE le dressing en
    trois bandes (`b3-dressing.mjs`) comme écran d'entrée ; l'ancienne scène
    SVG ne vit plus que dans le banc `ecran-b3.html`. Une seule écriture de
    la disposition : la table générée `gear-disposition.mjs`. */
-import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=931";
+import { construireLEcranGear, DESTINATIONS } from "./gear-ecran.mjs?v=932";
 /* ⭐ LA TAILLE DE LA GRILLE VIENT DE L'ÉCRAN, QUI LA COMPTE DANS SON PLAN — ⛔ un
    12 écrit ici serait un nombre retapé, et il mentirait le jour où le plan rend sa
    cinquième rangée. C'est aussi la taille d'une PAGE du sac. */
-import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=931";
+import { construireLeSac, poserLesDalles, CASES_DU_SAC, COLS_GRILLE, CHAMPS_DE_SECTION } from "./sac-ecran.mjs?v=932";
 /* 🗂️ LOT 213 — X1, LA FICHE D'UN OBJET POSSÉDÉ : le tap (ou le clic droit) sur
    un jeton de l'écran R l'ouvre. Elle recouvre la dalle et ⛔ n'écrit JAMAIS la
    3ᵉ ligne du belt — *« les x ne s'inscrivent pas dans le belt »* (Eric, 16/09) :
    c'est son absence de `FENETRE_DE` qui le garantit, et rien d'autre. */
-import { construireLaFicheX1 } from "./x1-ecran.mjs?v=931";
+import { construireLaFicheX1 } from "./x1-ecran.mjs?v=932";
 /* ⭐ LOT 248 — X0 PORTE LE PARCHEMIN DE X1 ET X2, PAR LE MÊME HABILLEUR.
    ⛔ Redessiner la texture ici aurait fait un SECOND ÉCRIVAIN pour un organe
    unique : deux feuilles qui divergent d'une teinte, personne ne le voit
@@ -98,15 +98,15 @@ import { construireLaFicheX1 } from "./x1-ecran.mjs?v=931";
    §7 de `x1-ecran.test.mjs` tient depuis X1 : *« shell.css ne porte AUCUNE
    position de la fiche : les cotes sont dans la table »*. La feuille lit
    `var(--x0-…)`, et ces jetons sont posés ici, à la source. */
-import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=931";
+import { feuilleDesCotesX0 } from "./x0-disposition.mjs?v=932";
 /* 🔗 LE PIPELINE (24/08) — B1 · B2 · SB3.1/2/3, le panier partagé et la
    monnaie. Les écrans publient les gestes, le pipeline fait les écrans (la carte R
    qui les publiait d'abord est retirée au lot 348). */
 import { parseCout, parsePoids, multiplieCout, additionneCouts, formatCout, currentCartLines, cartCompte,
   enGP, poidsParLieu, motDeLEncombrement, motDUnPoids, fabriqueDeValeur,
-  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=931";
+  estRecette, renderB2, renderSacs, renderRecherche, bourseCouvre, totauxDeLaFiche } from "./equipement-pipeline.mjs?v=932";
 /* ⭐ LOT 308 — la borne de la molette de quantité (1 … min(pile, 20)), celle que la molette applique. */
-import { borneDeLaMolette } from "./molette-quantite.mjs?v=931";
+import { borneDeLaMolette } from "./molette-quantite.mjs?v=932";
 /* ⚖️ LOT 242 — LA FICHE DU CATALOGUE A REPRIS SON NOM DE LOI : `X2`, et elle a
    quitté le pipeline pour son propre module, comme X1. 🔴 Elle s'appelait `b1` —
    *le même mot que le rang B1, qui est le sac*. Eric, 21/09 : *« oui b1 = X2 »*.
@@ -114,25 +114,25 @@ import { borneDeLaMolette } from "./molette-quantite.mjs?v=931";
    tête partagée), qui importe `gear-ecran`, qui importe le pipeline. X2 est donc en
    BOUT de chaîne — c'est pour ça qu'elle ne pouvait pas rester dans le pipeline,
    qui aurait fermé le cycle. */
-import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=931";
+import { construireLaFicheX2, acheterUnObjet } from "./x2-ecran.mjs?v=932";
 /* 🪟 LOT 307 — le double écran : l'organe qui choisit le popup d'un dépôt dans la page voisine */
 import { popupDuDepotVoisin, genreDeLaCible, MOT_SANS_PRIX, construireLaLune,
-  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=931";
-import { construireX5 } from "./x5-ecran.mjs?v=931";
-import { texteDeLaNote } from "./bareme-srfh.mjs?v=931";
-import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=931";
-import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=931";
-import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=931";
-import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=931";
+  pagesDuDoubleEcran, FERMER, PAGES_PRINCIPALES_SEULEMENT } from "./double-ecran.mjs?v=932";
+import { construireX5 } from "./x5-ecran.mjs?v=932";
+import { texteDeLaNote } from "./bareme-srfh.mjs?v=932";
+import { seCrafteDansX5, ouvertureX5, ouvertureDepuisX2, coteDUnObjetCrafte, recordDUneVariante, estBaseDeMunition, paiementsDe, piecesDUnAchat } from "./craft.mjs?v=932";
+import { nomCrafte, estCrafte, lireLeBonus, variantesDe, nomDUneVariante, texteDUneVariante } from "../../src/build/objet-crafte.mjs?v=932";
+import { lignesDuCarnet, overridesApresRetrait } from "../../src/build/ancre-de-ligne.mjs?v=932";
+import { SLOT_VERS_BOITES, POCHES_DEBORD, CASES_POLYVALENTES } from "./b3-disposition.mjs?v=932";
 /* ⭐ LOT 285 — le PARCHEMIN DE SORT : sa valeur, son niveau, son nom, son texte. */
-import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=931";
-import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=931";
+import { valeurDUnParchemin, niveauDuSort, motDuNiveau } from "./craft-parchemin.mjs?v=932";
+import { nomDUnParchemin, texteDUnParchemin } from "../../src/build/objet-crafte.mjs?v=932";
 /* LOT 191 — le repli d'une ligne dont le record manque passe par l'organe
    unique : le lot 181 avait réparé le CHERCHEUR (la gemme se résout), mais le
    repli `|| l.ref.id` restait, et il ressortirait au premier genre inconnu. */
-import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=931";
+import { motDUnRecordAbsent } from "./mot-du-choix.mjs?v=932";
 /* ⭐ LOT 290 — l'info d'un sort est celle de l'étape des sorts (le popup du tap au doigt) */
-import { spellInfo } from "./class-step.mjs?v=931";
+import { spellInfo } from "./class-step.mjs?v=932";
 /* 🌱 LOT 198 — EQUIPMENT VIT SANS CLASSE, ET LA BOURSE NOMME. ⚖️ Eric, 10/09 :
    *« Ce que tu crées dans Sheet est un précurseur de la fiche, non ? Pourquoi
    ne pas dériver tous ces éléments dans le bilan de Sheet ? »* — les chapitres
@@ -144,12 +144,12 @@ import { spellInfo } from "./class-step.mjs?v=931";
    ni tuer ni tronquer : la boutique se montre, et la bourse (« My gold ») dit
    d'aller choisir une classe. Complète, ou nommée, jamais tronquée. Le nom du
    cran se lit sur la ceinture, par l'organe qui nomme déjà les crans. */
-import { motDuCran } from "./ecran-mort.mjs?v=931";
+import { motDuCran } from "./ecran-mort.mjs?v=932";
 /* ➡️ LOT 363 — LA VALIDATION DE L'ÉTAPE (Eric, 30/09 : *« validation de l'étape dans le belt »*).
    Le voyant du belt d'Equipment lit la signature `estConfirme(document, "equipment")` (`paintBelt`) ;
    c'est `parcoursNext` qui la pose, puis passe au cran SUIVANT du belt — Sheet aujourd'hui, en SRD
    comme en FH. ⛔ Aucun nom d'étape n'est écrit ici : le cran se lit sur la ceinture. */
-import { estConfirme } from "./parcours.mjs?v=931";
+import { estConfirme } from "./parcours.mjs?v=932";
 export const RACINE_EQUIPEMENT = "equipment";
 
 
@@ -1289,6 +1289,25 @@ export function sectionsDehors(document) {
    chaîne que Send remplit. ⛔ Son nom ne le dit pas (un joueur peut appeler un rangement « Backpack
    dropdown 2 ») : le GENRE s'écrit au document, comme l'or de `dehors` — un scalaire. Le premier, le
    dépôt (`SECTION_DEPOT`), l'est d'entrée de jeu, sans rien écrire. */
+/* 🗑️ LOT 380 — UNE SECTION DE BASE DÉTRUITE — ARCHI 35, 30/09, sur les mots d'Eric du même jour : *« X devrait
+   détruire la tuile pas juste enlever son nom »*, avec une seule exception, *« Garde la règle du 19/09 »* (le
+   plancher des cinq). ⭐ Les quatre sections de base (le dépôt, Storage 1 à 3) naissent du modèle, pas du
+   document : pour qu'une d'elles disparaisse, le document doit le DIRE. Même idiome que `.dehors` : un choix
+   scalaire, rien au schéma. ⛔ Elle ne revient ni à la réouverture, ni sur l'autre appareil (le document voyage).
+   ⛔ Le dépôt ne se détruit jamais (Eric, 19/09 : *« cette section ne s'efface pas non plus »*) — et ce lecteur
+   l'ignore même si un document le prétendait : une destination de Send ne peut pas manquer. */
+const DETRUITE_RE = /^backpack\.sections\[(\d+)\]\.detruite$/;
+export const cheminDeLaDestruction = (index) => `backpack.sections[${index}].detruite`;
+export function sectionsDetruites(document) {
+  const choices = document && document.build && Array.isArray(document.build.choices) ? document.build.choices : [];
+  const detruites = new Set();
+  for (const c of choices) {
+    const m = typeof c.path === "string" ? DETRUITE_RE.exec(c.path) : null;
+    if (m && Number(m[1]) !== SECTION_DEPOT && String(c.value) !== "0" && String(c.value) !== "false") detruites.add(Number(m[1]));
+  }
+  return detruites;
+}
+
 const DEPOT_RE = /^backpack\.sections\[(\d+)\]\.depot$/;
 export const cheminDuDepot = (index) => `backpack.sections[${index}].depot`;
 
@@ -1483,11 +1502,13 @@ export function sectionsDuSac(document) {
   /* 🔵 ET LES PARTY BAGS NÉS DU TROP-PLEIN : bleus comme le premier (`party`), ⭐ mais leur nom s'édite —
      Eric, 29/09 : *« celui-ci reste bleu, mais son nom est éditable »*. */
   const partyNes = sectionsPartyNees(document);
+  /* 🗑️ LOT 380 — ⛔ SAUF CELLES QUE LE JOUEUR A DÉTRUITES (`sectionsDetruites`). */
+  const detruites = sectionsDetruites(document);
   const socle = Array.from({ length: SECTIONS_DU_SAC }, (_, i) => ({
     index: i, nom: (parIndex.get(i) || {}).nom ?? nomDeSectionParDefaut(i),
     renommable: i !== SECTION_DEPOT, ...(hors.has(i) ? { dehors: true } : {}),
     ...(depots.has(i) ? { depot: true } : {})
-  }));
+  })).filter((s) => !detruites.has(s.index));
   const ajoutees = declarees.filter((x) => x.index >= SECTIONS_DU_SAC)
     .map((x) => ({ ...x, ...(hors.has(x.index) ? { dehors: true } : {}),
                    ...(depots.has(x.index) ? { depot: true, renommable: false } : {}),
@@ -1869,6 +1890,40 @@ export function normaliserLeSac({ document, verbs }) {
 
 /** ⚖️ LE REFUS D'UNE SECTION PLEINE (lot 356) — le gendarme le DIT (§0.5 : un refus muet se lit comme une
  *  panne). Un seul texte pour le pilote (Send, l'achat) et la coquille (le dernier rempart). */
+/* ══ ✂️ LOT 380 — CE QUE `×` FAIT, UNE DÉCISION PURE (`equipement-sections-renommer-et-effacer`) ═══════════════
+   ⚖️ Eric, 30/09 : *« X devrait détruire la tuile pas juste enlever son nom »*, et *« Garde la règle du 19/09 »* :
+   *« si moins de 5 items dans le tambour, n'efface pas la tuile, juste nomme-la blank »*. Le 18/09 : une section
+   ne se supprime que vide. Le 19/09 : ni le Party bag ni le dépôt ne s'effacent. ARCHI 35, 30/09 : au-delà de 5,
+   les Storage de base se détruisent aussi.
+   ⭐ L'écran (`surSupprimer`) et la coquille (`supprimerSection`, le dernier rempart) lisent CES fonctions : la
+   règle vivait en deux morceaux, un par fichier, et aucun garde ne la tenait. */
+
+/** Le geste de `×` sur la section au rang `rang` de la liste de la roue (`disposerLeSac(...).sections`).
+ *  @returns {"refus-party"|"refus-depot"|"vider"|"detruire"|null} */
+export function gesteDuX(sections, rang) {
+  const s = Array.isArray(sections) && Number.isInteger(rang) ? sections[rang] : undefined;
+  if (!s) return null;
+  if (s.index === SECTION_PARTY.clef) return "refus-party";
+  if (s.index === SECTION_DEPOT) return "refus-depot";
+  /* ⚖️ le plancher du tambour, compté sur la roue TELLE QU'ON LA VOIT (Party bag et dropdowns compris) */
+  if (sections.length <= 5) return "vider";
+  return "detruire";
+}
+
+/** Une section est-elle PLEINE ? ⭐ Comme l'écran la montre : sa plaque (`disposerLeSac`) — les objets portés
+ *  au sac ET ceux rangés dehors (« Other »). 🔴 Le filtre d'avant ne comptait que `location: backpack`. */
+export function sectionPleine(document, index) {
+  return (disposerLeSac(document).grilles.get(boiteDeSection(index)) || []).some(Boolean);
+}
+
+/** Ce que DÉTRUIRE écrit au document : une section de base (née du modèle) reçoit son marqueur ; une section
+ *  ajoutée perd son nom, comme avant. */
+export function ecritureDeLaDestruction(index) {
+  return index < SECTIONS_DU_SAC
+    ? { verbe: "set", path: cheminDeLaDestruction(index), value: 1 }
+    : { verbe: "clear", path: `backpack.sections[${index}].name` };
+}
+
 export const MOT_SECTION_PLEINE = `This section is full: ${CASES_DU_SAC} items. Make room in it first.`;
 
 /** Les quatre rangements du bouton `Sort`. ⚖️ Eric, 18/09 : *« on garde un sort
@@ -3490,11 +3545,13 @@ export function renderEquipmentStep(ctx, onAction) {
       },
       surSupprimer: () => {
         const s = sections[sectionSac];
-        if (!s) return;
+        /* ✂️ LOT 380 — la décision est UNE fonction pure (`gesteDuX`), gardée ; ici on l'exécute. */
+        const geste = gesteDuX(sections, sectionSac);
+        if (!s || geste === null) return;
         /* ⛔ LE PARTY INVENTORY NE SE SUPPRIME PAS NON PLUS — Eric, 19/09 : il est là
            *« d'entrée de jeu »*, donc il ne dépend d'aucun geste, donc aucun geste ne
            le retire. */
-        if (s.index === SECTION_PARTY.clef) {
+        if (geste === "refus-party") {
           act({ kind: "popup", titre: "Party inventory", role: "gendarme",
             texte: "The party inventory is always there. It is not a section you made." });
           return;
@@ -3502,7 +3559,7 @@ export function renderEquipmentStep(ctx, onAction) {
         /* ⛔ NI LE DÉPÔT — Eric, 19/09 : *« cette section ne s'efface pas non plus »*.
            C'est là qu'atterrit tout ce que `Send to ▾ → Backpack` envoie ; une
            destination qu'on peut supprimer peut manquer au pire moment. */
-        if (s.index === SECTION_DEPOT) {
+        if (geste === "refus-depot") {
           act({ kind: "popup", titre: "Backpack dropdown", role: "gendarme",
             texte: "Everything sent to the backpack lands here. It cannot be removed." });
           return;
@@ -3513,7 +3570,7 @@ export function renderEquipmentStep(ctx, onAction) {
            cesse de boucler, et l'écran montre des trous aux deux bouts. Un tiroir vidé
            qui reste en place garde la roue pleine — et il dit vrai : la place existe,
            elle ne contient rien. */
-        if (sections.length <= 5) { act({ kind: "viderSection", index: s.index }); return; }
+        if (geste === "vider") { act({ kind: "viderSection", index: s.index }); return; }
         if (sectionSac >= sections.length - 2) sectionSac = Math.max(0, sections.length - 3);
         act({ kind: "supprimerSection", index: s.index });
       },

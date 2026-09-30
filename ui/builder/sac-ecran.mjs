@@ -23,36 +23,36 @@
    section à l'autre, les popups de `Sort` et de `Sections`, la molette du tuner.
    La table les porte, l'écran les POSE — les gestes viendront sur ce socle. */
 
-import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=931";
-import { versionQuery } from "./version.mjs?v=931";
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=931";
+import { DALLE, DALLES, EDITION, MARGE, JETON, ROUE, COLONNES, RANGEES, ORGANES, FOND } from "./sac-disposition.mjs?v=932";
+import { versionQuery } from "./version.mjs?v=932";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=932";
 /* ⭐ LE MÉCANISME DE LA ROUE — module feuille (lot 218), parce que Wares en porte DEUX. */
-import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=931";
+import { monterLeTambour, coteDeLaCale } from "./roue-tambour.mjs?v=932";
 /* ⭐ LE GLISSER EST CELUI DE R, PAS UN SECOND — `armerJeton` et `fantome` vivent
    dans `glisser.mjs` depuis le carnet, et R les emploie tels quels. ⛔ Sans eux le
    collecteur du sac ne pouvait rien recevoir, donc `Send` et `Drop` n'agissaient
    sur rien : trois organes posés sur l'écran et morts. C'est précisément ce
    qu'Eric a refusé le 18/09 en regardant l'écran en ligne. */
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=931";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=932";
 /* ⭐ LA BOURSE DU SAC EST CELLE DE R — Eric, 19/09 au soir : *« purse »*. Son bouton
    existait ici depuis le 18/09 et n'était câblé NULLE PART : un organe posé sans son
    fil est un organe mort, et c'est la faute que ce lot a déjà payée trois fois.
    ⛔ On importe l'organe, on ne le redessine pas. */
-import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=931";
+import { popupDeLaBourse, reglesDeLaBourse, montantDeLaBourse } from "./gear-ecran.mjs?v=932";
 /* ⭐ LES TROIS PORTES CARRÉES DU PIED — l'organe partagé des trois écrans d'Équipement (lot 311). */
-import { portesCarrees } from "./porte-carree.mjs?v=931";
+import { portesCarrees } from "./porte-carree.mjs?v=932";
 /* ⭐ LOT 315 — LE COLLECTEUR D'ENVOI ET SON `Send to` DESCENDENT DANS UN MODULE FEUILLE : Wares les
    porte aussi, désormais (Eric, 27/09 : *« prends pack comme modèles »*). */
-import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=931";
+import { collecteurDEnvoi, destinationDEnvoi } from "./collecteur-envoi.mjs?v=932";
 /* 🔴 LE TROISIÈME PIÈGE DU `zoom`, ET C'EST UN GARDE QUI ME L'A APPRIS : un
    `getBoundingClientRect()` rend des pixels PEINTS (blg × le cran), pendant que
    `offsetWidth` et la mise en page restent en blg. ⛔ Mélanger les deux familles
    donne un résultat juste au cran 1 et faux partout ailleurs — le défaut le plus
    silencieux des trois. ⭐ Le facteur se LIT sur la racine d'échelle, par l'organe
    qui le sait (`facteurZoomCourant`) : ⛔ pas un second calcul à moi. */
-import { facteurZoomCourant } from "./echelle.mjs?v=931";
+import { facteurZoomCourant } from "./echelle.mjs?v=932";
 /* 🧭 LOT 330 — l'astrolabe : la molette de la souris sur les chevrons horizontaux */
-import { armerEngrenage } from "./engrenage.mjs?v=931";
+import { armerEngrenage } from "./engrenage.mjs?v=932";
 
 /** ⚖️ CE QUE L'ÉCRAN LIT D'UNE SECTION — la liste, à UN SEUL ENDROIT.
  *  🔴 LA FAUTE QUE ÇA RÉPARE, Eric le 20/09 : *« absolument rien de bleu »*. L'étape
@@ -784,7 +784,27 @@ function glisserDuSac(noeud, index, options, surDepot, pisteNoeud, horsCible = u
  *  ce qui s'efface ce qui ne s'efface pas \u00bb*.
  *  \u26d4 ET LA DERNI\u00c8RE LIGNE SE D\u00c9DUIT DES SECTIONS, elle ne nomme pas des donn\u00e9es \u00e0 la
  *  main : un texte qui \u00e9crit \u00ab Party bag \u00bb ment le jour o\u00f9 le socle change. */
-function notice(options, figee) {
+/** 🖐️ LOT 380 — CE QUE LES QUATRE POIGNÉES PERMETTENT POUR LA SECTION SOUS LE VISEUR. ⭐ UN SEUL LECTEUR,
+ *  appelé au rendu ET à chaque arrêt du viseur (`suivre`, rendu par `notice`).
+ *  🔴 LA FAUTE QU'IL RÉPARE, MESURÉE (v931, 1280, perso neuf) : les poignées étaient calculées pour la section
+ *  sous le viseur AU MOMENT DU RENDU, puis le viseur tournait SANS repeindre (`surDalle` ne fait que noter la
+ *  section, et c'est voulu : un repeint rebâtirait le ruban sous le doigt). Ouvert sur « Backpack dropdown »,
+ *  `/` restait éteint sur TOUTES les sections et `×` allumé sur toutes, Party bag compris ; seul un repeint —
+ *  celui que `×` déclenche — les recalculait. Eric, 30/09, au doigt : *« il faut d'abord faire "x" pour
+ *  ensuite faire / »*. ⛔ Deux lecteurs du même fait à deux moments différents divergent : les gestes lisaient
+ *  la section VIVANTE (`sectionSac`), l'allumage lisait celle du dernier rendu.
+ *  ⚖️ Les règles, en DONNÉE (`equipement-sections-renommer-et-effacer`) : `/` s'éteint sur une section qui
+ *  n'est pas renommable (`renommable: false` — le Party bag, les dropdowns), `×` sur une section figée
+ *  (`fige`), les flèches au bout de la course. Hors de la liste (aucune section) : tout s'éteint.
+ *  @returns {{editer:boolean, effacer:boolean, reculer:boolean, avancer:boolean}}  `true` = allumée */
+export function poigneesDeLaSection(sections, rang) {
+  const liste = Array.isArray(sections) ? sections : [];
+  const s = Number.isInteger(rang) && rang >= 0 ? liste[rang] : undefined;
+  if (!s) return { editer: false, effacer: false, reculer: false, avancer: false };
+  return { editer: s.renommable !== false, effacer: s.fige !== true, reculer: rang > 0, avancer: rang < liste.length - 1 };
+}
+
+function notice(options) {
   const n = el("div", "sac-notice");
   n.dataset.organe = "notice";
   n.setAttribute("role", "group");
@@ -800,21 +820,21 @@ function notice(options, figee) {
     return b;
   };
   const bouge = (sens) => options.surDeplacerSection && options.surDeplacerSection(sens);
-  const rang = options.section | 0;
-  const dernier = (options.sections || []).length - 1;
+  const permis = poigneesDeLaSection(options.sections, options.section | 0);
   /* \u2696\ufe0f L'ORDRE DU MONTAGE : `/` et `\u00d7` en haut, les deux fl\u00e8ches dessous, et le `/` \u00c0
      GAUCHE du `\u00d7`. \u2b50 Ce n'est pas indiff\u00e9rent : renommer est le geste courant, effacer
      celui qu'on regrette. Le courant vient en premier dans le sens de lecture. */
-  n.append(
-    poignee("editer", "/", "Rename this section",
-      () => options.surEditer && options.surEditer(), figee.renommable === false),
-    poignee("effacer", "\u00d7", "Delete this section",
-      () => options.surSupprimer && options.surSupprimer(), figee.fige === true),
+  const poignees = {
+    editer: poignee("editer", "/", "Rename this section",
+      () => options.surEditer && options.surEditer(), !permis.editer),
+    effacer: poignee("effacer", "\u00d7", "Delete this section",
+      () => options.surSupprimer && options.surSupprimer(), !permis.effacer),
     /* \u26d4 ET UNE FL\u00c8CHE S'\u00c9TEINT AU BOUT DE LA COURSE : un bouton qui s'allume pour
        refuser est pire qu'un bouton \u00e9teint (*\u00ab non color\u00e9 = non cliquable \u00bb*). */
-    poignee("reculer", "\u2190", "Move this section left", () => bouge(-1), rang <= 0),
-    poignee("avancer", "\u2192", "Move this section right", () => bouge(1), rang >= dernier),
-  );
+    reculer: poignee("reculer", "\u2190", "Move this section left", () => bouge(-1), !permis.reculer),
+    avancer: poignee("avancer", "\u2192", "Move this section right", () => bouge(1), !permis.avancer)
+  };
+  n.append(poignees.editer, poignees.effacer, poignees.reculer, poignees.avancer);
 
   /* \u2696\ufe0f LES DEUX CR\u00c9ATIONS, DE PART ET D'AUTRE DE LA PAIRE \u2014 le vert \u00e0 gauche (dans le
      sac), le dor\u00e9 \u00e0 droite (dehors) : le m\u00eame c\u00f4t\u00e9 que les `+` d'avant, donc le geste
@@ -852,7 +872,13 @@ function notice(options, figee) {
   if (options.interrupteur) n.append(options.interrupteur);
 
   n.append(encart(options));
-  return n;
+  /* 🖐️ LOT 380 — LES POIGNÉES SUIVENT LE VISEUR : l'écran rappelle `suivre` à chaque arrêt de la roue, par
+     le MÊME lecteur qu'au rendu. ⛔ Pas un repeint : seul l'allumage change. */
+  const suivre = (rang) => {
+    const p = poigneesDeLaSection(options.sections, rang);
+    for (const clef of Object.keys(poignees)) poignees[clef].disabled = !p[clef];
+  };
+  return { noeud: n, suivre };
 }
 
 /** \ud83d\udcd6 L'ENCART D'EXPLICATIONS \u2014 Eric, 2026-09-20 : *\u00ab le texte explicatif d\u00e9taill\u00e9 en
@@ -876,8 +902,17 @@ function encart(options) {
   };
   const liste = el("ul", "sac-notice-liste");
   liste.append(
-    ligne("editer", "/", "Rename the section under the viewfinder \u2014 the cursor opens in its name."),
-    ligne("effacer", "\u00d7", "Delete it. Whatever it holds comes back to you first."),
+    /* 🖐️ LOT 380 — *« / modifier ou remplacer le nom »* (Eric, 30/09) : les deux gestes, dits. La forme est celle
+       du 20/09 (`poserLesDalles`) : le nom s'ouvre SÉLECTIONNÉ — la première frappe le remplace, un toucher dans
+       le champ y pose le curseur. ⚠️ Brouillon anglais à Eric. */
+    ligne("editer", "/", "Rename it: type to replace the name, or tap in it to fix a letter."),
+    /* 🗑️ LOT 380 — LA LÉGENDE DIT CE QUE `×` FAIT (`equipement-sections-renommer-et-effacer`) : elle promettait
+       *« Whatever it holds comes back to you first »* — faux deux fois : une section pleine REFUSE de partir
+       (18/09, *« vide-la d'abord »*), et sous cinq sections `×` VIDE le nom, la place reste (19/09). ⚠️ Brouillon
+       anglais à Eric ; « Empty it » reprend le mot du refus qui existe (`supprimerSection`). */
+    /* 📏 UNE LIGNE CHACUNE À 375 (mesuré le 30/09) : l'encart DÉBORDE DÉJÀ sur `main` à 375 (390 pour 358, sa
+       dernière ligne coupée) — ce lot ne l'aggrave pas (387), il le signale. */
+    ligne("effacer", "\u00d7", "Delete it once it is empty. Five sections or fewer: clears the name."),
     ligne("reculer", "\u2190", "Move it one place left\u2026"),
     ligne("avancer", "\u2192", "\u2026 or one place right."),
   );
@@ -1168,6 +1203,8 @@ export function construireLeSac(options = {}) {
      boîte qu'on ne regardait pas. ⭐ Hors liste = `undefined`, et les poignées se
      taisent par la forme des données, pas par un test de plus. */
   const figee = sectionsVues[Math.max(0, options.section | 0)];
+  /* 🖐️ LOT 380 — le fil des poignées vers le viseur (voir `poigneesDeLaSection`). */
+  let suivreLesPoignees = null;
 
   /* ⚖️ LES DEUX POIGNÉES DU MODE ÉDITION — Eric, 2026-09-19 : *« dans le mode edit
      mettre un x (carré 40 × 40 à gauche, À CHEVAL) et un / (carré 40 × 40 à droite)
@@ -1241,7 +1278,11 @@ export function construireLeSac(options = {}) {
      organes qui disent la même chose, et c'est la faute que ce chapitre a déjà payée
      cinq fois (l'interrupteur, les chevrons, le jeton, le collecteur, le glisser). */
   noeud.append(trier);
-  if (edition && figee) noeud.append(notice({ ...options, interrupteur: sections }, figee));
+  if (edition && figee) {
+    const panneau = notice({ ...options, interrupteur: sections });
+    noeud.append(panneau.noeud);
+    suivreLesPoignees = panneau.suivre;
+  }
   else noeud.append(sections);
 
   /* ⚖️ QUATRE LIGNES DE POIDS — LA SOURCE DU CHAPITRE (16/09) : *« l'encart passe
@@ -1439,6 +1480,9 @@ export function construireLeSac(options = {}) {
        dans la mise en page. Le retard ne peut pas survivre au geste qui l'a créé. */
     const x = xDeLaDalle(k);
     if (Math.round(piste.scrollLeft) !== Math.round(x)) piste.scrollLeft = x;
+    /* 🖐️ LOT 380 — LES POIGNÉES LISENT LA SECTION QUI S'ARRÊTE SOUS LE VISEUR, à chaque arrêt (même celui qui
+       ne change pas de dalle : ce qu'elles montrent se relit, ça ne se suppose pas). */
+    if (suivreLesPoignees && dalles[k]) suivreLesPoignees(Number.isInteger(dalles[k].section) ? dalles[k].section : k);
     if (k === derniereDalle || !dalles[k]) return;
     derniereDalle = k;
     if (options.surDalle) options.surDalle(k);
