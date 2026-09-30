@@ -106,6 +106,15 @@ export const MOT_CRAN_NON_MONTE =
  *  jamais l'une sans l'autre — et la sortie nomme SES boutons mot pour mot :
  *  l'interrupteur de `Layers`, ou `I changed my mind` (*« change your
  *  mind »*, comme le pied du guide).
+ *  ⛔ ✍️ 2026-09-30, lot 369 — CE « MOT POUR MOT » EST ROMPU DEPUIS LE 05/09,
+ *  et la phrase ci-dessus reste comme trace de ce qu'il était. Le bouton du
+ *  pied s'appelle `Cancel` depuis ce jour-là (NORMES « DEUX MOTS, PAS
+ *  TROIS »), et la phrase que rend cette fonction dit encore *« or change
+ *  your mind and pick again »*. ⚠️ Elle ne nomme plus son bouton, et elle
+ *  voisine *« Nothing you chose has been erased »* alors que `Cancel`, lui,
+ *  EFFACE tout le préfixe (mesuré le 30/09 : on retombe au catalogue). ⏳ Lot
+ *  369 = commentaires seuls ; le texte est un brouillon qui attend Eric (voir
+ *  plus bas).
  *
  *  ⚖️ ET ELLE NOMME L'INTERRUPTEUR QUI PORTE CHAQUE RECORD — Eric, 09/09 :
  *  *« Araag comes with World — switch it on in Layers »* (le mot lit le label
@@ -156,7 +165,8 @@ export function motDesChoixNonResolus(refs) {
 
 /** LE MOT DU 2026-08-20, REPRIS À LA LETTRE — il n'avait aucun défaut.
  *  Il reste le mot EXACT du personnage qui a ses scores et perd sa classe
- *  (`I changed my mind` sur Class — le chemin mesuré ce jour-là).
+ *  (`I changed my mind` sur Class — le chemin mesuré ce jour-là ; ce bouton
+ *  s'appelle `Cancel` depuis le 05/09, NORMES « DEUX MOTS, PAS TROIS »).
  *  ⭐ LA CAUSE ET LA SORTIE VIVENT À PART DE LA TÊTE (lot 198) : un chapitre
  *  qui VIT sans fiche (Skills) les emploie telles quelles à la place du
  *  chiffre déduit — mêmes mots, un seul écrivain ; la tête reste celle de
