@@ -6044,6 +6044,9 @@ button.background-impose-nom { border: none; background: none; padding: 0; margi
 .tdc-r > .tdc-code > .doc-field-input,
 .tdc-ligne-valeur { grid-column: 2; min-width: 0; }
 .tdc-ligne-valeur { font-size: var(--t4); font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+/* 📚 LOT 388 — un livre que le perso déclare et que la pile n'a pas monté (`menu-r-regles-et-livres-se-lisent`) :
+   le rouge des mots de R (`.doc-field-error`, `--critical`) — ⛔ un texte, jamais un contrôle. */
+.tdc-livre-absent { color: var(--critical); }
 /* ⚖️ LOT 367 — LA LIGNE DES RÈGLES MISES À JOUR (`menu-r-ligne-des-regles-mises-a-jour`), sous `Books`.
    R est une dalle de VERRE : une phrase y écrit en `--text` (`cadre-encre-sur-verre` — le gris de
    `.universe-note` n'y tient pas les 4,5:1). ⛔ Et sa marge tombe : c'est la GRILLE de R qui écrit

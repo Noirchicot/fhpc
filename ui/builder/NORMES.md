@@ -11095,7 +11095,16 @@ vivent dans `Layers` (lots 188-189 — `menu-layers-est-un-rang-b`), qui est dé
 ⭐ La ligne lit la COMPOSITION (`compositionFh`), pas le nom de la pile : un sous-ensemble légitime
 n'est pas accusé (`menu-sous-ensemble-legitime`). Le mot court d'un livre vit dans sa table
 (`LIVRES_DU_JOUEUR.court`), ⛔ jamais écrit dans l'écran.
-🛡️ `tests/universe-step.test.mjs` B1, B2, B2 bis, B3, R7.
+📚 **LOT 388 — UN LIVRE DÉCLARÉ QUE LA PILE N'A PAS MONTÉ EST CETTE PILE-LÀ** (ARCHI 35, 30/09) : aucun
+interrupteur ne peut allumer un livre absent de l'appareil ou de la Dropbox, et le lot 388 rend le cas courant.
+`Books` résume toujours le perso (il écrit `PHB`), mais le mot du livre absent est EN ROUGE, et la ligne rouge
+dessous envoie à `Layers` : *« PHB: not on this device — open Layers. »* — ⛔ aucun mot neuf (le mot court, le
+mot de `Layers`, la porte nommée comme le mot rouge de la composition) ; le brouillon de `A-TRANCHER §C34`
+attend Eric. ⭐ Lu sur la pile MONTÉE (celle que `Layers` lit) : un livre monté et éteint n'est pas absent ;
+sans pile, on n'accuse pas. ⛔ Toujours du texte, jamais un contrôle (B2).
+📏 Au banc v939, avant : « SRD · FH · PHB » en blanc, sans un mot rouge, alors que `Layers` disait
+« not on this device ».
+🛡️ `tests/universe-step.test.mjs` B1, B2, B2 bis, B3, B3 ter (7 mutations vues rouges), R7.
 
 ### ✍️ `CAMPAIGN` SE MODIFIE À LA MAIN ; LE CODE DE CAMPAGNE EST UNE PLACE RÉSERVÉE
 📍 `menu-r-campagne-et-code` · remplacée · 29/09 · remplacée par `menu-r-campagne-se-lit`

@@ -58,7 +58,7 @@ import { motDeLEchelon } from "./echelle.mjs?v=939";
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=939";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh, MOTS_DE_LAYERS } from "./layers-ecran.mjs?v=939";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
 import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=939";
@@ -770,6 +770,28 @@ export function livresDuMenu(doc) {
   return ["SRD", ...(compositionFh(doc).maitre ? ["FH"] : []), ...livres];
 }
 
+/** 📚 LOT 388 — LES LIVRES QUE LE PERSO DÉCLARE ET QUE LA PILE N'A PAS MONTÉS. ⚖️ `menu-r-regles-et-livres-
+ *  se-lisent` : *« Une pile qu'aucun interrupteur ne peut produire se dit en rouge, et le mot envoie à
+ *  `Layers` »* — un perso qui déclare le PHB sur un appareil (ou une Dropbox) qui ne l'a pas EST cette pile :
+ *  aucun interrupteur ne peut allumer un livre absent. Le lot 388 rend le cas courant (le livre vit dans le
+ *  lieu du joueur, plus sur le disque). ⭐ Lu sur la pile MONTÉE (`ctx.pile`, le manifeste que `Layers` lit
+ *  aussi) : un livre monté, même éteint, n'est pas absent. ⛔ Sans pile, on ne sait pas : on n'accuse pas.
+ *  @returns {string[]} les ids, dans l'ordre stable de `currentBooks` */
+export function livresAbsentsDuMenu(doc, pile) {
+  if (!Array.isArray(pile)) return [];
+  const montes = new Set(pile.map((c) => c && c.id));
+  return currentBooks(doc).filter((id) => !montes.has(id));
+}
+/** Le mot rouge sous `Books` — ⛔ AUCUN MOT NEUF : le mot court du livre (sa table), le mot que `Layers`
+ *  montre déjà sur sa ligne (`MOTS_DE_LAYERS.absent`), et la porte qui répare, nommée comme le mot rouge
+ *  de la composition (« open Layers »). ⛔ Le brouillon de `A-TRANCHER §C34` n'est pas celui-ci : il
+ *  attend Eric (ARCHI 35, 30/09 : *« le rouge et le renvoi à Layers suffisent »*). */
+export const MOT_DES_LIVRES_ABSENTS = (courts) => `${courts.join(", ")}: ${MOTS_DE_LAYERS.absent} — open Layers.`;
+const motCourtDuLivre = (id) => {
+  const livre = LIVRES_DU_JOUEUR.find((l) => l.id === id);
+  return livre ? (livre.court || livre.nom) : id;
+};
+
 /** UNE PORTE DU MENU — le gabarit LARGE (NORMES §6 : dessin 105 × 40, cible 105 × 44,
  *  `--bouton-moyen`), texte T4 16 / 600, DEUX ÉTAGES PERMIS (Eric, 29/09 : *« deux
  *  lignes dans un bouton → oui »*). La famille `.menu-porte` entre dans le patron par
@@ -815,7 +837,9 @@ function ligneLue(mot, valeur) {
   const ligne = el("div", "tdc-ligne-lue");
   ligne.dataset.ligne = mot.toLowerCase();
   ligne.append(el("span", "tdc-ligne-mot", [text(mot)]));
-  ligne.append(el("span", "tdc-ligne-valeur", [text(valeur)]));
+  /* 📚 LOT 388 — une valeur peut être faite de MORCEAUX (un livre absent s'y écrit en rouge) ; ⛔ toujours
+     du texte et des `span`, jamais un contrôle. */
+  ligne.append(el("span", "tdc-ligne-valeur", typeof valeur === "string" ? [text(valeur)] : valeur));
   return ligne;
 }
 
@@ -1098,7 +1122,28 @@ export function renderUniverseStep(ctx, onAction) {
       text("This character's layer stack doesn't match either ruleset — open Layers to realign it.")
     ]));
   }
-  section.append(ligneLue("Books", livresDuMenu(doc).join(" · ")));
+  /* 📚 LOT 388 — un livre déclaré que la pile n'a pas monté s'écrit EN ROUGE dans `Books`, et la ligne rouge
+     dessous envoie là où l'on répare (`livresAbsentsDuMenu`). */
+  const absents = livresAbsentsDuMenu(doc, ctx.pile);
+  const mots = livresDuMenu(doc);
+  const livres = currentBooks(doc);
+  const avantLesLivres = mots.length - livres.length;
+  const morceaux = [];
+  mots.forEach((mot, i) => {
+    if (i > 0) morceaux.push(text(" · "));
+    const id = i >= avantLesLivres ? livres[i - avantLesLivres] : null;
+    if (id && absents.includes(id)) {
+      const rouge = el("span", "tdc-livre-absent", [text(mot)]);
+      rouge.dataset.livre = id;
+      morceaux.push(rouge);
+    } else morceaux.push(text(mot));
+  });
+  section.append(ligneLue("Books", morceaux));
+  if (absents.length > 0) {
+    const dit = el("p", "doc-field-error", [text(MOT_DES_LIVRES_ABSENTS(absents.map(motCourtDuLivre)))]);
+    dit.dataset.livresAbsents = "true";
+    section.append(dit);
+  }
   /* ⚖️ LOT 367 — les règles ont bougé sous ce personnage, et il a été recalé (voir le mot). */
   if (ctx.reglesMisesAJour) {
     const ligne = el("p", "universe-note", [text(MOT_DES_REGLES_MISES_A_JOUR)]);

@@ -34,7 +34,8 @@ import { makeHarness, manifestOf, readJson, SRD_EN, PILE_SRD, FH_SPECIES_EN, FH_
 globalThis.document = createTestDocument();
 
 const { renderUniverseStep, currentStack, currentBooks, currentContent, fhRefChoices, SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, LIVRE_LAYER_IDS, RULE_LAYER_IDS,
-  popupNouveauPersonnage, MOT_DE_L_AIGUILLEUR_DU_MENU, MOT_SANS_CODE_DE_CAMPAGNE }
+  popupNouveauPersonnage, MOT_DE_L_AIGUILLEUR_DU_MENU, MOT_SANS_CODE_DE_CAMPAGNE,
+  livresAbsentsDuMenu, MOT_DES_LIVRES_ABSENTS }
   = await import("../ui/builder/universe-step.mjs");
 /* 🔄 LOT 357 — deux gardes lisent la SOURCE de la coquille et de la feuille (le câblage de
    la page Dungeon Master, le centrage des rangées) : commentaires retirés, comme partout. */
@@ -266,6 +267,38 @@ test("B3 — 📖 `Campaign` SE LIT : « none » sans code — ⛔ plus de champ
   assert.equal(complet.campaign, "Eberron", "le document garde sa valeur : R ne l'écrit plus, et ne l'efface pas");
   assert.equal(valeur(node, "books"), "SRD · FH · PHB · DMG", "le socle, Fate's Hand, puis les livres du joueur");
   assert.equal(valeur(rendre(docSrd()), "books"), "SRD", "sans Fate's Hand ni livre, le SRD reste — il n'est jamais absent");
+});
+
+test("B3 ter — 📚 LOT 388 : UN LIVRE DÉCLARÉ QUE LA PILE N'A PAS MONTÉ s'écrit EN ROUGE dans `Books`, et le mot rouge envoie à Layers", () => {
+  /* ⚖️ `menu-r-regles-et-livres-se-lisent` : *« Une pile qu'aucun interrupteur ne peut produire se dit en rouge,
+     et le mot envoie à `Layers` »*. Un perso qui déclare le PHB sur un appareil (ou une Dropbox) qui ne l'a pas
+     est cette pile — le lot 388 rend le cas courant. 📏 Mesuré au banc v939 avant réparation : « SRD · FH · PHB »
+     en blanc, aucun mot rouge, alors que `Layers` disait « not on this device ». ⛔ Le mot de §C34 n'est pas
+     touché : les mots rouges sont ceux qui existent déjà. */
+  const gestes = [];
+  const ids = [SRD_LAYER_ID, ...SRFH_LAYER_IDS, ...FH_LAYER_IDS, ...LIVRE_LAYER_IDS];
+  const doc = draftDocument({ build: pile(ids) });
+  const montee = (sans) => ids.filter((id) => !sans.includes(id)).map((id) => ({ id, enabled: true }));
+  /* le PHB manque ; le DMG est monté */
+  const node = rendre(doc, (a) => gestes.push(a), { pile: montee(["xphb-en"]) });
+  assert.equal(valeur(node, "books"), "SRD · FH · PHB · DMG", "⭐ le Menu résume toujours le perso : il écrit PHB");
+  const rouges = ligne(node, "books").querySelectorAll(".tdc-livre-absent");
+  assert.deepEqual(rouges.map((r) => [r.textContent, r.dataset.livre]), [["PHB", "xphb-en"]], "⛔ PHB EN ROUGE, et lui seul (le DMG est là)");
+  const dit = node.querySelectorAll("[data-livres-absents]");
+  assert.equal(dit.length, 1);
+  assert.ok(dit[0].className.split(" ").includes("doc-field-error"), "le rouge des mots de R");
+  assert.equal(dit[0].textContent, "PHB: not on this device — open Layers.", "⭐ le mot envoie à Layers — avec les mots qui existent");
+  assert.equal(MOT_DES_LIVRES_ABSENTS(["PHB", "DMG"]), "PHB, DMG: not on this device — open Layers.");
+  /* ⛔ toujours une ligne LUE : aucun contrôle, et la toucher n'émet rien */
+  assert.equal(ligne(node, "books").querySelectorAll("button, input, [role]").length, 0);
+  for (const morceau of ligne(node, "books").querySelectorAll("span")) morceau.click();
+  assert.deepEqual(gestes, []);
+  /* ⭐ un livre MONTÉ, même éteint, n'est pas absent ; et sans pile, on n'accuse pas */
+  const tout = rendre(doc, () => {}, { pile: ids.map((id) => ({ id, enabled: id !== "xphb-en" })) });
+  assert.equal(tout.querySelectorAll(".tdc-livre-absent, [data-livres-absents]").length, 0, "monté et éteint : rien de rouge");
+  assert.deepEqual(livresAbsentsDuMenu(doc, undefined), [], "⛔ sans pile, on ne sait pas : on n'accuse pas");
+  assert.deepEqual(livresAbsentsDuMenu(doc, montee(["xphb-en", "xdmg-en"])), ["xphb-en", "xdmg-en"], "dans l'ordre stable des livres");
+  assert.equal(rendre(docFh(), () => {}, { pile: montee([]) }).querySelectorAll(".tdc-livre-absent, [data-livres-absents]").length, 0, "un perso sans livre : rien de rouge");
 });
 
 test("B5 — la langue et les unités vivent dans APPEARANCE, en places réservées lisibles (pas les codes bruts)", () => {
