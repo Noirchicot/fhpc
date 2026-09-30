@@ -72,7 +72,19 @@
    DONNÉES que le moteur ne lit pas encore : il déclare les dégâts de sort non dérivés pour tous),
    son mode de résolution (`cast_type`, le nom ratifié du contrat) et un résumé marqué ; son
    pointeur est son `book_link`. ⛔ La matière d'une composante, l'aire et la montée en niveau ne
-   sont que dans le résumé ou dans le livre.                                                      */
+   sont que dans le résumé ou dans le livre.
+
+   🎖️ LOT 392 (ARCHI 35, 30/09) — LES DONS GÉNÉRAUX, DE STYLE ET ÉPIQUES, MÊMES LOIS. L'instantané
+   `sources-livres/phb-2024-feats.json` porte les faits des 65 dons hors origine (les dix d'origine sont
+   à l'instantané du lot 387) : catégorie, prérequis, reprise, augmentation de caractéristique, et les
+   effets chiffrés relevés sur la page. Un don que le SRD porte aussi n'est pas réémis : sa catégorie,
+   son prérequis et sa reprise sont COMPARÉS. Un don propre entre dans sa catégorie avec son prérequis
+   dans la forme du SRD (`Prerequisite: …`) — la PORTE qui l'offre est celle qui lit déjà la catégorie :
+   un don de style s'offre au Fighter (lot 360, `options_from.category`), un don général ou épique
+   attend la porte de Level up. Ses effets entrent dans les formes que le moteur lit déjà (`senses`,
+   `armor_training`, `weapon_proficiencies`, `repeatable`, `sheet_uses`) ; le reste se NOMME, avec sa
+   raison, dans `restes`. ⚠️ Le niveau d'un prérequis se LIT dans les dons SRD de la même catégorie,
+   il n'est pas écrit ici.                                                                           */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -627,6 +639,125 @@ export function construireSorts(source, { srd }) {
   return { records: { spell }, comptes: { spell: Object.keys(spell).length, par_niveau: parNiveau, partages: vus.size }, ecarts, renommes, restes };
 }
 
+/* ══ 🎖️ LOT 392 — LES DONS DU PHB HORS ORIGINE ═══════════════════════════════════════════════════════ */
+
+/** Les faits d'un don qui n'ont pas de forme au moteur, et pourquoi. ⛔ Des NOMS de faits et des
+ *  raisons, jamais une phrase du livre. */
+const FAITS_SANS_FORME = Object.freeze({
+  speed_bonus_ft: "le bonus de vitesse — le moteur ne lit la vitesse que sur l'espèce",
+  climb_speed: "la vitesse d'escalade — le moteur ne lit la vitesse que sur l'espèce",
+  hp_max_bonus: "le bonus de points de vie maximum — la fiche ne dérive pas encore les PV d'un don",
+  tool: "l'outil maîtrisé d'office — aucune forme de maîtrise d'outil fixe sur un don",
+  spells: "les sorts que le don donne, et leur lancement sans emplacement — les formes de sorts d'un don (`spell_list_choice`, `spell_uses`) ne vivent que sous un don d'origine",
+  skill_or_expertise: "la compétence ou l'Expertise au choix — aucune forme d'Expertise conditionnelle",
+  skill_choice: "la compétence au choix — la forme `proficiency_choice` ne s'ouvre que sous un don d'origine",
+  expertise: "l'Expertise au choix — aucune forme d'Expertise sur un don",
+  all_skills: "la maîtrise de toutes les compétences — aucune forme",
+  save_proficiency: "la maîtrise de sauvegarde au choix — aucune forme",
+  resistance_choice: "les résistances au choix — le moteur ne lit pas de résistance"
+});
+
+/**
+ * Construit les DONS du PHB hors origine. PURE : ni disque ni horloge.
+ * @param {object} source l'instantané des faits (`sources-livres/phb-2024-feats.json`)
+ * @param {{srd: object, origines?: object}} base la couche SRD, et les dons d'origine déjà construits
+ * @returns {{records:object, comptes:object, ecarts:string[], restes:string[]}}
+ */
+export function construireDons(source, { srd, origines = {} }) {
+  const livre = LIVRES["phb-2024"];
+  if (!source || !Array.isArray(source.feats)) fail("source des dons absente ou illisible.");
+  if (!srd || !srd.records || !srd.records.feat) fail("la couche SRD est requise : c'est elle qu'on compare.");
+  const sigle = livre.sigle.toLowerCase();
+  const parNom = new Map(Object.values(srd.records.feat).map((r) => [apostrophe(r.name), r]));
+  /* le prérequis de chaque catégorie, LU dans les dons SRD : « Level 4+ » (general), « Level 19+ »
+     (epic-boon), « Fighting Style Feature » (fighting-style) — la tête commune de leurs prérequis */
+  const tetes = new Map();
+  for (const r of parNom.values()) {
+    const p = r.data.prerequisite;
+    if (typeof p !== "string") continue;
+    const tete = p.replace(/^Prerequisite: /, "").split(/[,;]/)[0].trim();
+    tetes.set(r.data.category, [...(tetes.get(r.data.category) || []), tete]);
+  }
+  const teteDe = (categorie) => {
+    const t = [...new Set(tetes.get(categorie) || [])];
+    return t.length === 1 ? t[0] : null;
+  };
+  const textes = textesDuSrd(srd);
+  const phraseDuSrd = (p) => textes.some((t) => t.includes(p));
+  const REPRISE = "You can take this feat more than once";
+  const ecarts = [];
+  const restes = [];
+  const vus = new Set();
+  const feat = {};
+  const parCategorie = {};
+  for (const f of source.feats) {
+    if (f.category === "origin") fail(`« ${f.name} » : un don d'origine vit dans l'instantané des origines (lot 387).`);
+    if (!teteDe(f.category)) fail(`« ${f.name} » : la catégorie « ${f.category} » n'a pas de prérequis unique au SRD.`);
+    const frere = parNom.get(apostrophe(f.name));
+    if (frere) {
+      /* ⭐ PARTAGÉ : pas réémis — comparé, fait par fait */
+      vus.add(apostrophe(f.name));
+      const d = frere.data || {};
+      const E = (champ, srdV, phbV) => { if (JSON.stringify(srdV) !== JSON.stringify(phbV)) ecarts.push(`${f.name} · ${champ} : SRD « ${srdV} » / PHB « ${phbV} »`); };
+      E("catégorie", d.category, f.category);
+      E("prérequis", d.prerequisite || null, f.prerequisite ? `Prerequisite: ${f.prerequisite}` : null);
+      E("reprise", /Repeatable\./.test(d.description || ""), f.repeatable === true);
+      continue;
+    }
+    for (const champ of ["url", "resume", "prerequisite"]) {
+      if (typeof f[champ] !== "string" || f[champ] === "") fail(`le don propre au livre « ${f.name} » n'a pas de « ${champ} » dans l'instantané.`);
+    }
+    const tete = teteDe(f.category);
+    if (f.prerequisite.split(/[,;]/)[0].trim() !== tete) {
+      fail(`« ${f.name} » (${f.category}) : le prérequis « ${f.prerequisite} » ne commence pas par « ${tete} », comme ceux du SRD.`);
+    }
+    const slug = slugDuNom(f.name);
+    const id = `${sigle}:feat:en:${slug}`;
+    if (origines[id]) fail(`« ${f.name} » : l'id ${id} est déjà un don d'origine du livre.`);
+    const ptr = (section) => ({ livre: "phb-2024", section: `${f.name} · ${section}`, url: f.url });
+    const data = {
+      book_link: f.url,
+      category: f.category,
+      description: f.resume,
+      name: f.name,
+      prerequisite: `Prerequisite: ${f.prerequisite}`,
+      summary_of: "phb-2024"
+    };
+    if (f.ability_increase) {
+      const a = f.ability_increase;
+      if (!Array.isArray(a.from) || a.from.length === 0 || a.from.some((k) => !NOMS_DE_CARAC[k])) fail(`« ${f.name} » : augmentation de caractéristique illisible.`);
+      data.ability_increase = { ...a, from: a.from.slice() };
+    }
+    if (f.repeatable === true) {
+      if (!phraseDuSrd(REPRISE)) fail("la phrase de reprise n'est plus au SRD : la déclaration ne peut pas la citer.");
+      data.repeatable = { extrait: REPRISE };
+    }
+    const F = f.faits || {};
+    if (Array.isArray(F.senses)) data.senses = F.senses.map((s) => ({ ...s }));
+    if (typeof F.armor_training === "string") data.armor_training = F.armor_training;
+    if (typeof F.weapon_proficiencies === "string") data.weapon_proficiencies = F.weapon_proficiencies;
+    if (Array.isArray(F.weapon_proficiency_categories)) data.weapon_proficiency_categories = F.weapon_proficiency_categories.slice();
+    if (Array.isArray(F.uses)) {
+      data.sheet_uses = F.uses.map((u) => ({ id: u.id, max: { fixed: u.max }, recharge: u.recharge, source: ptr(u.name) }));
+    }
+    for (const [cle2, raison] of Object.entries(FAITS_SANS_FORME)) {
+      if (F[cle2] !== undefined) restes.push(`${f.name} : ${raison}`);
+    }
+    feat[id] = { name: f.name, slug, data };
+    parCategorie[f.category] = (parCategorie[f.category] || 0) + 1;
+  }
+  /* ⚔️ la bijection se relit dans l'autre sens : un instantané COMPLET nomme chaque don SRD hors origine */
+  if (source.meta && source.meta.complet === true) {
+    for (const [nom, r] of parNom) if (r.data.category !== "origin" && !vus.has(nom)) ecarts.push(`${nom} : le SRD porte ce don, l'instantané du livre ne le nomme pas`);
+  }
+  restes.push(
+    "l'augmentation de caractéristique (`ability_increase`) : posée en donnée, aucune porte ne la lit — un don général ou épique ne se prend qu'au Level up",
+    "les dons généraux et épiques : au catalogue, aucune porte ne les offre avant le lot Level up",
+    "les effets de combat des dons de style (dégâts, réactions, vision) : le trait se pose avec son résumé, la fiche ne chiffre rien"
+  );
+  return { records: { feat }, comptes: { feat: Object.keys(feat).length, par_categorie: parCategorie, partages: vus.size }, ecarts, restes };
+}
+
 export function generate({ cle = "dmg-2024", dirSources = DIR_SOURCES, dirCouches = DIR_COUCHES } = {}) {
   const livre = LIVRES[cle];
   if (cle === "phb-2024") return genererOrigines({ dirSources, dirCouches });
@@ -673,11 +804,22 @@ function genererOrigines({ dirSources, dirCouches }) {
     layer.description += ` Chapitre 7 « Spells » : ${sorts.comptes.spell} sorts PROPRES au livre, avec leurs listes de classes ` +
       `(chapitre 3) ; ${sorts.comptes.partages} sorts partagés avec le SRD comparés, pas réémis (lot 389).`;
   }
+  /* 🎖️ LOT 392 — les dons hors origine rejoignent les dons d'origine, dans le même genre `feat`. */
+  const cheminDons = join(dirSources, "phb-2024-feats.json");
+  let dons = null;
+  if (existsSync(cheminDons)) {
+    dons = construireDons(lire(cheminDons), { srd, origines: layer.records.feat || {} });
+    layer.records.feat = { ...(layer.records.feat || {}), ...dons.records.feat };
+    const c = dons.comptes.par_categorie;
+    layer.description += ` Chapitre 5 « Feats », hors origine : ${dons.comptes.feat} dons PROPRES au livre ` +
+      `(${c.general || 0} généraux, ${c["fighting-style"] || 0} de style de combat, ${c["epic-boon"] || 0} épiques) ; ` +
+      `${dons.comptes.partages} dons partagés avec le SRD comparés, pas réémis (lot 392).`;
+  }
   mkdirSync(dirCouches, { recursive: true });
   const sortie = join(dirCouches, `${livre.id}.layer.json`);
   writeFileSync(sortie, `${JSON.stringify(layer, null, 2)}\n`, "utf8");
   return {
-    sortie, comptes, ecarts, restes, sorts,
+    sortie, comptes, ecarts, restes, sorts, dons,
     message:
       `${livre.id} : ${comptes.background} arrière-plans + ${comptes.species} espèce(s) + ${comptes.feat} dons, propres au livre. ` +
       `Partagés comparés : ${ecarts.length} écart(s)${ecarts.length ? ` — ${ecarts.join(" ; ")}` : ""}. ` +
@@ -685,7 +827,12 @@ function genererOrigines({ dirSources, dirCouches }) {
       (sorts
         ? `Sorts : ${sorts.comptes.spell} propres au livre, ${sorts.comptes.partages} partagés comparés, ${sorts.ecarts.length} écart(s)` +
           `${sorts.ecarts.length ? ` — ${sorts.ecarts.join(" ; ")}` : ""}, ${sorts.renommes.length} renommés par le SRD.`
-        : "Sorts : l'instantané « phb-2024-spells.json » est absent — la couche ne porte que les origines.")
+        : "Sorts : l'instantané « phb-2024-spells.json » est absent — la couche ne porte que les origines.") +
+      (dons
+        ? ` Dons hors origine : ${dons.comptes.feat} propres au livre (${JSON.stringify(dons.comptes.par_categorie)}), ` +
+          `${dons.comptes.partages} partagés comparés, ${dons.ecarts.length} écart(s)${dons.ecarts.length ? ` — ${dons.ecarts.join(" ; ")}` : ""}, ` +
+          `${dons.restes.length} faits restés en texte.`
+        : " Dons hors origine : l'instantané « phb-2024-feats.json » est absent.")
   };
 }
 
