@@ -59,9 +59,9 @@
    `liste-une-fiche-defile-elle-ne-pagine-pas`) ; la scène porte déjà
    `overscroll-behavior: contain` et ses chevrons (`socle.mjs`). */
 
-import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=922";
-import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=922";
-import { etapeParId } from "./etapes.mjs?v=922";
+import { LIBELLES_EN, rubriqueDe } from "../../src/tools/render-fiche.mjs?v=923";
+import { createLabels, EN_EFFECT_REASONS } from "../../src/labels.mjs?v=923";
+import { etapeParId } from "./etapes.mjs?v=923";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -567,10 +567,20 @@ export function renderFicheTemporaire(ctx) {
      on MONTRE, les effets attendent leur lot sur `derive` — donc c'est l'interface qui les
      nomme (`capacitesChoisies`, class-step), comme le lignage (`lignageChoisi`). Une
      rubrique vide ou absente qui reçoit un choix se dit PARTIELLE : le reste n'est pas dérivé. */
+  /* 🎯 LOT 372 — ET DEPUIS QUE `derive` LES POSE, UN SEUL ÉCRIVAIN PAR ENTRÉE : le moteur porte le
+     trait (la donnée), l'interface compose ses MOTS (« Primal Order: Warden », « Versatile: Magic
+     Initiate (Wizard) » — §0.13 interdit au moteur de composer un affichable). Un choix composé dont
+     l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place ; ⛔ jamais deux lignes pour
+     une réponse (mesuré au banc : « Primal Order: Magician » deux fois). L'appariement se fait par
+     l'`id` du record, jamais par le nom. */
   const choix = ctx && Array.isArray(ctx.choix) ? ctx.choix.filter((c) => c && typeof c.name === "string") : [];
+  const parId = new Map(choix.filter((c) => typeof c.id === "string").map((c) => [c.id, c]));
+  const traitsDuMoteur = (Array.isArray(r.traits) ? r.traits : []).map((t) => (t && parId.has(t.id) ? { ...t, ...parId.get(t.id) } : t));
+  const lus = new Set((Array.isArray(r.traits) ? r.traits : []).map((t) => t && t.id));
+  const enPlus = choix.filter((c) => !lus.has(c.id));
   const etatDesTraits = etat("traits");
   fiche.append(blocNoms("traits",
-    choix.length > 0 ? { ...r, traits: [...(Array.isArray(r.traits) ? r.traits : []), ...choix] } : r,
+    choix.length > 0 ? { ...r, traits: [...traitsDuMoteur, ...enPlus] } : r,
     choix.length > 0 && (etatDesTraits === "absente" || etatDesTraits === "vide") ? "partielle" : etatDesTraits,
     (t) => [t && t.name, t && t.source]));
   fiche.append(blocNoms("resources", r, etat("resources"), (x) => [x && x.name,

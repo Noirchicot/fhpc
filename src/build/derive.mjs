@@ -1396,13 +1396,14 @@ export function derive({ query, stack, choices, at, units, previous, flags, modu
   }
   /* LE DON D'ORIGINE, EN TRAIT — le don lui-même (Skilled, Alert, Magic Initiate…) : ce qu'il
      fait choisir est lu ailleurs (maîtrises plus haut, sorts à l'incantation). */
+  /* ⚠️ L'`id` DIT AUSSI QUI LE DÉTIENT (`<racine>:<id du don>`) : un Humain Acolyte prend DEUX
+     Magic Initiate (l'arrière-plan et Versatile), deux traits — un id nu en aurait fondu deux en un. */
   for (const { racine, entry, view } of donsDOrigine) {
     entry.consumed = true;
-    if (traits.some((t) => t.id === view.id)) continue;
     /* La source est le NOM DU RECORD détenteur (l'Inheritance en Fate's Hand, Acolyte en SRD), comme
        pour les traits d'espèce — jamais un mot écrit ici. */
     const detenteur = racine === "species" ? speciesView : backgroundView;
-    const trait = { id: view.id, name: view.record.name, category: "feat" };
+    const trait = { id: `${racine}:${view.id}`, name: view.record.name, category: "feat" };
     if (detenteur) trait.source = detenteur.record.name;
     if (typeof view.record.data.description === "string") trait.text = view.record.data.description;
     traits.push(trait);

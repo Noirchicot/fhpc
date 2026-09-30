@@ -20,19 +20,19 @@
    PAS de l'ambiance : c'est de la comptabilité de multiclassage. Ni l'une ni
    l'autre n'est inventée ici — voir INVENTAIRE-LOT-58.md. */
 
-import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=922";
-import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=922";
+import { planAt, planSlots, renderSlotQcm } from "./carnet.mjs?v=923";
+import { renderFicheBody, renderBilanLignes, imageDeFiche, DOS_DE_CARTE } from "./catalogue.mjs?v=923";
 /* 📍 lot 190 — le blurb de Fate's Hand sur la fiche SRD, « pour le moment » */
-import { blurbDeSecours } from "./fiche-secours.mjs?v=922";
+import { blurbDeSecours } from "./fiche-secours.mjs?v=923";
 /* le drapeau de la couche des compétences FH — lu là où le moteur le tient,
    jamais recopié (lot 190 : le sélecteur SRD n'existe que sans lui) */
-import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=922";
-import { renderConfirmDialog } from "./confirm.mjs?v=922";
-import { renderChoixGlisses } from "./glisser.mjs?v=922";
-import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=922";
+import { FH_SKILLS_FLAG } from "../../src/modules/fh/skill-pool.mjs?v=923";
+import { renderConfirmDialog } from "./confirm.mjs?v=923";
+import { renderChoixGlisses } from "./glisser.mjs?v=923";
+import { lienSkillFhWeb, lienFeatureFhWeb, lienFeatsFhWeb, lienOptionDeClasseFhWeb, lienSortParNomFhWeb } from "./liens-fh.mjs?v=923";
 /* LOT 191 — le mot d'un choix, un seul organe pour tous les écrans : le nom
    du record, sinon le slug humanisé et le refus nommé. Jamais l'id nu. */
-import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=922";
+import { motDuChoix, motDUnRecordAbsent } from "./mot-du-choix.mjs?v=923";
 
 /* ⭐ LE CHEMIN DE L'IMAGE ET LE DOS DE CARTE ONT DÉMÉNAGÉ DANS
    `catalogue.mjs` le 2026-08-16, quand les douze espèces sont arrivées :
@@ -355,7 +355,10 @@ export function capacitesChoisies(ctx) {
   return choixDeCapacite(ctx).flatMap((declaration) => {
     const plan = planAt(decisions, cheminDeCapacite(declaration));
     return (plan && Array.isArray(plan.selected) ? plan.selected : [])
-      .map((id) => ({ name: `${declaration.name}: ${nomDOptionDeCapacite(ctx.query, declaration, id)}`, source: record.name }));
+      /* 🎯 LOT 372 — l'`id` du trait que `derive` pose pour cette réponse (`<capacité>:<option>`, ou
+         le record désigné) : la Sheet REMPLACE ce trait par ce nom, elle ne l'ajoute pas. */
+      .map((id) => ({ id: declaration.options_from ? id : `${declaration.id}:${id}`,
+        name: `${declaration.name}: ${nomDOptionDeCapacite(ctx.query, declaration, id)}`, source: record.name }));
   });
 }
 

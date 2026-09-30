@@ -25,6 +25,11 @@ import { makeHarness, manifestOf, PILE_SRD } from "./build-harness.mjs";
 globalThis.document = createTestDocument();
 const { PILE } = await import("../src/tools/exemple-fh-en.mjs");
 const { renderClassChoices, classPalier2 } = await import("../ui/builder/class-step.mjs");
+const { planSlots } = await import("../ui/builder/carnet.mjs");
+const { itemRepondu, itemsDeLEtape } = await import("../ui/builder/parcours.mjs");
+const fs = await import("node:fs");
+const path = await import("node:path");
+const { stripComments } = await import("./source-scan.mjs");
 const { renderFicheTemporaire } = await import("../ui/builder/fiche-temporaire.mjs");
 
 const PILES = { SRD: makeHarness({ layers: PILE_SRD }), FH: makeHarness({ layers: PILE }) };
@@ -149,11 +154,20 @@ test("E4 — ✨ LE CANTRIP EN PLUS A SA PORTE, DANS LA PORTE DE LA CAPACITÉ �
       /* ⛔ il retient le Done de l'étape (classPalier2 lit la provenance), puis le libère. */
       const avant = plans(h, base);
       assert.equal(classPalier2(avant).ready, false, `${nom} : sans son cantrip, la porte n'est pas prête`);
+      /* ⛔ ET LE `Done` DE LA PORTE — mesuré au banc : il signait un Thaumaturge sans cantrip. */
+      assert.equal(itemRepondu(avant, `class.${declaration.id}`), false, `${nom} : la porte n'est pas répondue sans son cantrip`);
+      assert.equal(itemsDeLEtape({ decisions: avant, document: doc(h, base), racine: "class" })
+        .find((i) => i.path === `class.${declaration.id}`).repondu, false, "l'item le dit aussi");
       const cantrip = { path: `${chemin}[0]`, ref: { kind: "spell", id: attendus[0] } };
       const apres = plans(h, [...base, cantrip]);
       assert.equal(apres.find((x) => x.path === chemin).answered, g.count);
+      assert.equal(itemRepondu(apres, `class.${declaration.id}`), true, `${nom} : cantrip posé, la porte est répondue`);
       /* Le sous-choix (un ref) ne compte pas comme une réponse à la capacité (des valeurs). */
       assert.equal(apres.find((x) => x.path === `class.${declaration.id}`).answered, 1, "une réponse, pas deux");
+      /* ⚔️ LES CRÉNEAUX DE LA CAPACITÉ SONT LES SIENS — mesuré au banc : trois collecteurs Primal
+         Order quand le préfixe ramassait les sous-plans du cantrip. */
+      assert.equal(planSlots(apres, `class.${declaration.id}`).length, declaration.count,
+        `${nom} : ${declaration.name} garde ${declaration.count} créneau(x), cantrip posé`);
       /* La porte : le même organe, les mots ratifiés. */
       const ctx = { decisions: apres, query: q(h), path: "class", kind: "class", label: "class", cursor: 0 };
       const porte = texteDe(renderClassChoices(ctx, () => {}, `class.${declaration.id}`));
@@ -169,6 +183,12 @@ test("E4 — ✨ LE CANTRIP EN PLUS A SA PORTE, DANS LA PORTE DE LA CAPACITÉ �
     }
   }
   assert.ok(vus >= 4, `témoin : Thaumaturge et Magician, dans les deux piles (${vus})`);
+});
+
+test("E4 bis — la coquille désarme le `Done` d'un item par `itemRepondu`, un seul lecteur", () => {
+  const shell = stripComments(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "..", "ui", "builder", "shell.mjs"), "utf8"));
+  assert.match(shell, /const repondu = itemRepondu\(state\.decisions, state\.parcoursItem\.path\);/);
+  assert.match(shell, /if \(plan && !repondu && done && !done\.dataset\.verrou\) \{\s*done\.disabled = true;/);
 });
 
 test("E5 — 🛡️ LE BONUS DE CA D'UN DON DE STYLE : en armure, noté ; sans armure, il dort", () => {
@@ -227,7 +247,21 @@ test("E7 — 🧰 SKILLED : les maîtrises choisies — la compétence maîtris�
   const slug = q(H)({ kind: "skill", id: skill }).record.slug;
   assert.equal(out.resolved.skills.find((s) => s.id === slug).proficiency, "adept", "la compétence est maîtrisée");
   assert.ok(out.resolved.tools.some((t) => t.id === q(H)({ kind: "tool", id: tool }).record.slug), "l'outil entre avec les outils");
-  assert.ok(out.resolved.traits.some((t) => t.id === skilled.id && t.category === "feat"), "le don en trait");
+  assert.ok(out.resolved.traits.some((t) => t.id === `species:${skilled.id}` && t.category === "feat"), "le don en trait");
+  /* ⚔️ DEUX FOIS LE MÊME DON, DEUX DÉTENTEURS : deux traits, deux lignes sur la fiche. */
+  const mi = q(H)({ kind: "feat" }).find((v) => v.record.data.spell_list_choice);
+  const fond = q(H)({ kind: "background" }).find((v) => v.record.data.feat_id === mi.id);
+  const deux = rebuild(H, [classe("srd:class:en:fighter"), { path: "species", ref: { kind: "species", id: "srd:species:en:human" } },
+    { path: "background", ref: { kind: "background", id: fond.id } },
+    { path: "background.originFeat[0]", ref: { kind: "feat", id: mi.id } },
+    { path: "species.originFeat[0]", ref: { kind: "feat", id: mi.id } }]);
+  assert.deepEqual(deux.resolved.traits.filter((t) => t.category === "feat").map((t) => t.id),
+    [`background:${mi.id}`, `species:${mi.id}`], "un trait par détenteur");
+  const composes = [{ id: `background:${mi.id}`, name: "Origin feat: X" }, { id: `species:${mi.id}`, name: "Versatile: Y" }];
+  const lignes = renderFicheTemporaire({ resolved: deux.resolved, report: deux, flags: [], choix: composes })
+    .querySelectorAll("[data-rubrique]").find((n) => n.dataset.rubrique === "traits").textContent;
+  assert.ok(lignes.includes("Origin feat: X") && lignes.includes("Versatile: Y"), "la fiche garde les deux, sous leurs mots");
+  assert.equal(lignes.split(mi.record.name).length - 1, 0, "⛔ et pas une troisième ligne sous le nom nu");
 });
 
 test("E8 — 🧾 LA FICHE MONTRE « Armor · Weapons » : une ligne par entrée, le texte du moteur, sa source dessous", () => {

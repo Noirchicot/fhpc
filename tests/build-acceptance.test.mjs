@@ -307,7 +307,7 @@ test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac dep
     "les CINQ traits de l'Elfe, dans l'ordre du record");
   assert.equal(traitsDEspece.length, 5);
   assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.id),
-    ["srd:feat:en:magic-initiate"], "🔄 lot 372 — et le don d'arrière-plan, un seul, après eux");
+    ["background:srd:feat:en:magic-initiate"], "🔄 lot 372 — et le don d'arrière-plan, un seul, après eux");
   /* 🔄 lot 372 — le don porte le nom du record QUI LE DÉTIENT (l'arrière-plan), recopié lui aussi. */
   assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.source), ["Sage"]);
   for (const trait of traitsDEspece) {
@@ -337,6 +337,10 @@ test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac dep
      — haut-elfe »), exactement comme il complète `identity.species`. */
   assert.deepEqual(divergences(FICHIER.resolved.traits, got.traits, "traits"), [
     "traits[ascendance-feerique].text",
+    /* 🔄 LOT 372 — le don d'arrière-plan choisi entre en trait sous `<détenteur>:<id du record>` ; le
+       fichier le nomme `initie-a-la-magie` (un slug éditorial, juste dessous). Les rapprocher
+       demanderait de comparer des noms affichables : la loi §0.13 l'interdit. */
+    "traits[background:srd:feat:en:magic-initiate]",
     "traits[initie-a-la-magie]",
     "traits[lecteur-de-marges]",
     "traits[lignage-elfique].name",
@@ -344,10 +348,6 @@ test("ACCEPTATION — les SENS et les TRAITS d'espèce (étage 2), et le sac dep
     "traits[restauration-magique]",
     "traits[savoir-rituel]",
     "traits[sens-aiguises].text",
-    /* 🔄 LOT 372 — le don d'arrière-plan choisi entre en trait sous l'id de son RECORD ; le fichier
-       le nomme `initie-a-la-magie` (un slug éditorial, déjà dans la liste). Les rapprocher
-       demanderait de comparer des noms affichables : la loi §0.13 l'interdit. */
-    "traits[srd:feat:en:magic-initiate]",
     "traits[transe].text",
     "traits[vision-dans-le-noir].text"
   ], "AUCUNE différence d'id ni de `source` sur les cinq traits d'espèce");

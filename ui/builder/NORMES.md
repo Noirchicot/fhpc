@@ -9948,7 +9948,7 @@ fichier serait vert pour rien)*.
 📏 **CE QUI SE PASSAIT** (mesuré au moteur, v920) : `class.divine-order[0]`, `class.primal-order[0]`, `class.fighting-style[0]` sortaient `unconsumed` — aucun training, aucun bonus, aucun cantrip. Un Protector sans armure lourde, un Thaumaturge sans son cantrip, un Défenseur sans son +1.
 ⭐ **CE QUI EST LU** : le training (la ligne des maîtrises) ; le bonus de compétence — la caractéristique, et son plancher (« minimum of +1 ») — APRÈS les paliers, noté dans la provenance (« +1 Divine Order: Thaumaturge » sous le chiffre) ; le +1 de CA de Defense, en armure seulement, noté lui aussi (`effects.applied` admet l'effet d'une RÈGLE : sans `line`, `object` nomme le don) ; le cantrip, qui entre dans l'incantation comme tout sort choisi.
 ⛔ **Aucune règle recopiée d'une autre source** : chaque extrait est relu dans son texte (garde E1). L'inventaire du lot 289 (`sources-effets/regles-personnage.effets.json`) porte les mêmes citations ; il reste un précurseur non lu par le moteur.
-🛡️ `tests/effets-des-choix-372.test.mjs` (E1–E8, qui bouclent sur les déclarations), 14 mutations vues rouges.
+🛡️ `tests/effets-des-choix-372.test.mjs` (E1–E8, qui bouclent sur les déclarations), 17 mutations vues rouges.
 
 📍 `class-les-maitrises-d-armes-et-d-armures-se-lisent` · vivante · 30/09
 ⚖️ **Les maîtrises d'armes et d'armures sont une rubrique de la fiche (`resolved.training { armor[], weapons[] }`) : d'abord celles de la CLASSE, puis celles qu'un choix y ajoute, chacune avec son `id`, sa source et son texte TEL QUE LA SOURCE L'ÉCRIT — jamais décomposé en catégories. La fiche les montre sous « Armor · Weapons ».**
@@ -9964,6 +9964,8 @@ fichier serait vert pour rien)*.
 
 > ARCHI 35, 30/09, Q3 → a) : *« L'effet de table est LU en posant le don ou la capacité dans `traits`, nommé et avec son texte. Il quitte « Recorded, but no rule reads them » sans chiffre inventé. »*
 
+⭐ **UN SEUL ÉCRIVAIN PAR ENTRÉE, MESURÉ AU BANC** : la Sheet ajoutait déjà ses propres lignes pour ces choix (`capacitesChoisies`, lot 360 ; `donsDOrigineNommes`, lot 364), parce que le moteur ne les portait pas — « Primal Order: Magician » est sorti DEUX fois. Le moteur porte désormais le trait (la donnée), l'interface compose ses MOTS (§0.13 interdit au moteur de composer un affichable) : un choix composé dont l'`id` est celui d'un trait du moteur REMPLACE ce trait, à sa place. L'appariement se fait par l'`id`, jamais par le nom. Et l'`id` d'un don d'origine dit QUI le détient (`background:<don>`, `species:<don>`) : un Humain Acolyte porte deux Magic Initiate, deux traits.
+⭐ **ET UN CRÉNEAU EST UN ENFANT DIRECT** (`planSlots`, carnet.mjs) : `base[n]`, rien dessous. Mesuré au banc : Magician posé, Primal Order montrait TROIS collecteurs — le préfixe ramassait les plans publiés SOUS la réponse. Le don d'origine portait le même défaut depuis ses branches.
 📏 **CE QUE ÇA CHANGE AILLEURS** : le don d'origine (Skilled, Magic Initiate, Auspicious…) sortait `unconsumed` en SRD ; il est désormais un trait. Les maîtrises que Skilled fait choisir sont appliquées (la compétence maîtrisée, l'outil possédé). La raison `no-trait-field-for-class-feat-background` est resserrée : les aptitudes de CLASSE en général restent non dérivées.
 
 ---

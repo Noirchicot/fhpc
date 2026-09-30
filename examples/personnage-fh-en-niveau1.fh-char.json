@@ -955,7 +955,7 @@
         "text": "You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness."
       },
       {
-        "id": "fh:feat:en:auspicious",
+        "id": "background:fh:feat:en:auspicious",
         "name": "Auspicious (fh)",
         "category": "feat",
         "text": "+2 Destiny · fate leans toward you (replaces Lucky)"

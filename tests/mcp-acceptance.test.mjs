@@ -135,7 +135,7 @@ test("ACCEPTATION — le magicien elfe niveau 1 est construit par la SURFACE MCP
     ["ascendance-feerique", "lignage-elfique", "sens-aiguises", "transe", "vision-dans-le-noir"]);
   assert.deepEqual([...new Set(traitsDEspece.map((trait) => trait.source))], ["Elfe"],
     "`source` est le nom du record d'espèce, recopié — les aptitudes de classe, elles, sont déclarées non dérivées");
-  assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.id), ["srd:feat:en:magic-initiate"]);
+  assert.deepEqual(got.traits.filter((trait) => trait.category === "feat").map((trait) => trait.id), ["background:srd:feat:en:magic-initiate"]);
 
   /* LES DIX-HUIT COMPÉTENCES NOMMÉMENT, entrées comprises — un compte reste
      vert si la pile en rend dix-huit mauvaises. */
