@@ -5655,41 +5655,63 @@ mots différents pour le même organe se comptent deux fois, et un organe mort s
 porte »*.
 ⏳ **CE QUI RESTE DÛ** : la **loupe** attend son lot — Eric : *« une chose que nous devons faire
 oui. Pas ce soir. »*
-✅ **LA SORTIE DE L'ÉTAPE EST CONSTRUITE AU LOT 363 — `Done`, un récap, puis `Next`.**
-La question posée à Eric le 29/09, avec deux placements dessinés dans le vrai Gear : *« Où naît `Next`
-dans Gear ? A — sous la bourse, à droite de "destination" · B — en carré au bout de la rangée du bas »*
-→ **« A — sous la bourse »** (30/09). Puis, en regardant le banc, Eric a dicté la suite :
+✅ **CONSTRUIT AU LOT 363, MIS EN CONFORMITÉ AU LOT 371** : la sortie de l'étape vit sous la bourse de Gear.
+Ses lois ont chacune leur adresse (🔒 `socle-format-d-ecriture-est-sacre`) : `equipement-colonne-du-pied`,
+`equipement-question-a-8-du-bord`, `equipement-done-recap-next` — juste dessous.
 
-> Eric, 2026-09-30, mot pour mot : **« pousse le ? à droite, aligne companions et next verticalment
-> (dimension identique pour les 2) tout en les centrant. Comme dans les étapes precedentes on avait
-> l'habitude de valider l'étape par un done. un texte de recap. probablement un recap sur un popup car
-> peu de place pour le faire sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre.
-> et validation de l'étape dans le belt »** · puis **« bourse done et Companions alignés veritacalement,
-> ? à 8 blg du bord droit »**.
+### 🧱 LA COLONNE DU PIED DE GEAR — la bourse, `Done`, Companions
+📍 `equipement-colonne-du-pied` · vivante · 30/09
+⚖️ **Dans le pied de Gear, la bourse, `Done` et Companions partagent UN axe, centré entre le dessin de `Send` et celui du `?`. La bourse est à 8 blg du haut de la dalle du pied — la même cote sur Gear, Pack et Wares — et chaque organe de la colonne est à 8 blg de son voisin (sacré n° 3). `Done` et Companions ont la même boîte : 77 × 40, cible 44.**
 
-Et ses quatre réponses, chacune à SA question :
-· *« Le bouton de Gear : quel mot, avant et après validation ? »* → **« Done, puis Next »** — `Done`
-  ouvre le récap ; une fois l'étape validée, le même organe dit `Next` et repart sans récap (la table
-  des verbes du 26/08 : `Done` et `Next` ne coexistent jamais) ;
-· *« Que montre le récap ? »* → **« Gear, Pack, bourse »** — ce que le perso porte (emplacement →
-  objet, dans l'ordre du plan), ce qu'il y a dans le sac, et l'or ;
-· *« Après validation, s'il modifie son équipement, le voyant du belt… ? »* → **« Reste allumé »** —
-  la validation est la parole du joueur, elle tient jusqu'à ce qu'il la défasse ;
-· *« Pour que la colonne tienne avec le ? à 8 du bord, elle glisse à gauche, la bourse avec elle sur
-  les 3 écrans. Où la poser ? »* → **« Centrée Send ↔ ? »**.
-📐 **LES COTES, AU PLAN** (`R_gen.py` pour Gear, `backpack_gen.py` pour Pack, Wares lit Pack) : la
-colonne bourse · `Done` · Companions sur UN axe, **285,5**, centré entre le dessin de `Send` (226) et
-celui du `?` (345) — 21 de chaque côté ; la bourse passe de 276 à **260,5** sur les TROIS écrans
-(`equipement-trois-pages-alignees`) ; `Done` et Companions : même boîte, 77 × 40 (cible 44), `Done` sur
-la rangée des Tally au cran de `Send` (« Done » 30,41 dans 61) ; le `?` a son dessin à **8 du bord**
-(345..367) et sa cible collée au bord (331..375), comme la lune à gauche — sur les trois pieds.
-⭐ **LE RÉCAP EST UN POPUP DE LA FAMILLE DE LA BOURSE** : le voile transparent qui ferme au clic tombé
-à côté, la surface au liseré de verre ; `Cancel` (rouge, *« cancel annule donc rouge »*) referme sans
-rien écrire ; `Next` (bleu) valide.
-⭐ **LA VALIDATION EST CELLE DE TOUTES LES ÉTAPES** : `Next` passe par `parcoursNext` sur la racine
-`equipment` — il pose la signature que le voyant du belt lit (`estConfirme`), puis va au cran SUIVANT du
-belt (Sheet aujourd'hui, en SRD comme en FH). ⛔ Aucun nom d'étape n'est écrit dans l'écran : le jour où
-un cran s'intercale, le garde `tests/gear-next-vit-dans-r.test.mjs` rougit au lieu de laisser mentir.
+> Eric, 2026-09-30, mot pour mot : **« aligne companions et next verticalment (dimension identique pour
+> les 2) tout en les centrant »** · **« bourse done et Companions alignés veritacalement, ? à 8 blg du bord
+> droit »** · puis, à *« Pour que la colonne tienne avec le ? à 8 du bord, elle glisse à gauche, la bourse
+> avec elle sur les 3 écrans. Où la poser ? »* → **« Centrée Send ↔ ? »**.
+
+📐 **AU PLAN** (`Plan-ecran-R/R_gen.py` pour Gear, `Plan-backpack/backpack_gen.py` pour Pack, Wares lit Pack) :
+l'axe à **285,5**, 21 de `Send` (226) et 21 du `?` (345) ; la bourse **260,5 × 404** (Gear), soit 8 sous le haut
+du pied ; `Done` **462** ; Companions **510**, centré dans sa rangée.
+📏 **LOT 371 — LE LOT 370 A MESURÉ 6** entre `Done` et Companions (dessins 504 → 510) : sous le 8 du sacré n° 3.
+⛔ Ni `Done` (40, sacré) ni Companions (centré, `bouton-hauteur`) ne pouvaient céder : c'est la bourse, cote
+commune aux trois écrans, qui remonte d'un blg avec ses deux sœurs (405 → 404 ; Pack 345 → 344).
+🛡️ `R_gen.py` refuse le plan si la colonne serre sous 8 ; `tests/gear-next-vit-dans-r.test.mjs` ①.
+
+### ❔ LE `?` DES PIEDS D'ÉQUIPEMENT, À 8 DU BORD
+📍 `equipement-question-a-8-du-bord` · vivante · 30/09
+⚖️ **Sur les trois pieds d'Équipement — Gear, Pack, Wares — le `?` a son DESSIN à 8 blg du bord droit, et sa cible (44) colle au bord.**
+
+> Eric, 2026-09-30 : **« pousse le ? à droite »**, puis **« ? à 8 blg du bord droit »**.
+
+📐 Dessin 345..367, cible 331..375, dans les trois plans ; le dessin se décale de 3 dans sa cible
+(`--q-decalage`, `shell.css`), ses trois couches ensemble (le cercle, le glyphe, le disque « jamais vu »).
+⏳ **CE QUI ATTEND ERIC** (audit du lot 370) : la cible sort de la marge de la rangée — `cadre-rien-dans-la-marge`
+dit « rien dans la marge, à part une dalle ou une tuile » ; la lune, à gauche, en est le précédent.
+🛡️ `tests/gear-next-vit-dans-r.test.mjs` ① bis.
+
+### ➡️ LA SORTIE D'ÉQUIPEMENT : `Done`, UN RÉCAP, PUIS `Next`
+📍 `equipement-done-recap-next` · vivante · 30/09 · borne `bouton-back-next-n-ecrivent-jamais`
+⚖️ **Sous la bourse de Gear, `Done` — vert, 16 / 600 — ouvre un récap (Gear, Pack, la bourse) qui EXIGE une réponse : `Cancel` le referme sans rien écrire, `Next` valide l'étape et va au cran suivant du belt. Tant que le récap est ouvert, `Done` est hors de vue. L'étape validée, le même organe dit `Next` (bleu) et repart sans récap. ⛔ Ce `Next` SIGNE l'étape : c'est une déviation voulue par Eric de `bouton-back-next-n-ecrivent-jamais`, bornée à cette sortie.**
+
+> Eric, 2026-09-30, mot pour mot : **« Comme dans les étapes precedentes on avait l'habitude de valider
+> l'étape par un done. un texte de recap. probablement un recap sur un popup car peu de place pour le faire
+> sur gear. en bas de ce recap cancel pour tweaker et next pour poursuivre. et validation de l'étape dans le
+> belt »**. Puis, chaque réponse à SA question : le mot du bouton, avant et après validation ? → **« Done, puis
+> Next »** · que montre le récap ? → **« Gear, Pack, bourse »** · après validation, s'il modifie son équipement,
+> le voyant du belt ? → **« Reste allumé »**.
+
+⚖️ **LA DÉVIATION, DÉCLARÉE** (`socle-norme-est-un-defaut` : un écran qui dévie le fait explicitement) : la Bible
+dit « un `Next` ne signe jamais » ; Eric veut « next pour poursuivre » **et** « validation de l'étape dans le
+belt » — un seul geste. `Next` passe donc par `parcoursNext` sur la racine `equipment`, qui pose la signature
+que le voyant lit (`estConfirme`), puis va au cran suivant. ⛔ La borne ne vaut que pour cette sortie.
+⭐ **CE QUE LA BIBLE TRANCHE, ET QUE LE LOT 371 A MIS EN PLACE** : `Done` vert (`bouton-trois-verbes` — l'étape
+n'a rien d'obligatoire, elle est toujours achevée, `bouton-done-gris-inacheve`), `Next` bleu, les deux au corps
+16 / 600 (`bouton-deux-largeurs`, plus le T2 de `Send`) ; le récap ne se ferme que par `Cancel` ou `Next`
+(`popup-question-exige-une-reponse`) ; `Done` n'est pas rendu tant qu'il est ouvert
+(`bouton-done-et-next-jamais-ensemble`).
+⏳ **CE QUI ATTEND ERIC** (audit du lot 370) : le `Cancel` du récap n'abandonne rien (c'est son mot ; la Bible
+dirait `Back`, exclusif à la coquille) ; `Done`, `Cancel` et `Next` sont fabriqués par l'écran et non par la
+coquille (`socle-l-ecran-declare-la-coquille-execute`).
+🛡️ `tests/gear-next-vit-dans-r.test.mjs` ②–④.
 
 ---
 
@@ -7254,6 +7276,15 @@ rougir sur cette réparation même.
 ⭐ **C'est la seule famille où la couleur ne dit PAS où on en est — elle dit ce que le bouton
 FAIT.** Les deux axes s'y confondent, et **c'est voulu** : un bouton qui **défait** ne doit jamais
 pouvoir être appuyé par distraction. ⛔ Un `Cancel` gris, ça s'appuie sans le vouloir.
+✅ **LOT 371 — LE POPUP DÛ EST POSÉ** sur les cinq `Cancel` qui effaçaient sans un mot (📏 audit du lot 370) :
+celui du guide de Species, de Background, de Class, du don emboîté (`parcoursCancel`), et celui de Destiny
+(`destinyReset`). Une seule question (`questionAvantDEffacer`, `shell.mjs`) : elle NOMME ce qui part (le
+patron de `confirm.mjs`, lot 46), EXIGE une réponse, et — confirmée — rejoue le même geste : l'effaceur reste le
+seul à effacer. ⚠️ Elle ne se pose que s'il y a quelque chose à perdre (la condition de vérité du gendarme,
+A-TRANCHER §C24). ✍️ Ses mots — « This clears what you chose on this step: », `Keep` · `Clear` — sont des
+BROUILLONS : Eric arrête ce que le joueur lit. ⏳ Restent sans question, hors du relevé : le retour qui efface
+sous un don (`retourEfface`, le catalogue du don) et le `Cancel` d'Abilities (le lot de dés).
+🛡️ `tests/conformite-371.test.mjs`.
 
 ### 🔴 LES TROIS VERBES DE LA RANGÉE — la définition d'Eric, mot pour mot *(26/08)*
 📍 `bouton-back-dans-les-sous-menus-seulement` · vivante · 26/08
@@ -7529,7 +7560,7 @@ la… »*.
 **sur une intention**. ⛔ Un commentaire de code dit comment ça marche, **pas ce que ça veut dire**.
 
 ### 🔴 `BACK` ET `NEXT` NE FONT QUE NAVIGUER — c'est une définition, pas une couleur
-📍 `bouton-back-next-n-ecrivent-jamais` · vivante · 26/08
+📍 `bouton-back-next-n-ecrivent-jamais` · vivante · 26/08 · bornée par `equipement-done-recap-next`
 ⚖️ **Un `Back` ou un `Next` ne modifie jamais le document : ni valider, ni écrire, ni effacer, ni signer.**
 
 > Eric, 2026-08-26 : **« back et next = navigation uniquement »**.
@@ -7564,6 +7595,10 @@ mécaniquement, et ça vaut mieux qu'une relecture.
 
 > Eric, 2026-08-26 : **« back bleu, done vert »**.
 
+✅ **LOT 371 — PARTOUT OÙ LA COQUILLE LE POSE** : 📏 le lot 370 a mesuré un `Back` transparent sur les rangs B
+du Menu (Layers, Display, Dungeon Master) — la règle bleue ne vivait que sous `.parcours-pied`. Elle vit
+désormais sur `.sortie-bouton.sortie-back`, à la spécificité des deux autres états de la sortie.
+🛡️ `tests/conformite-371.test.mjs`.
 ⚠️ `shell.css` porte un commentaire daté : **« AUCUNE COULEUR DANS BACK ET DONE — Eric,
 2026-08-17 »**. 🔴 **Il est renversé.** La règle du 26/08 s'applique, et le commentaire du 17/08
 n'a plus autorité sur ces deux boutons.
@@ -10181,7 +10216,8 @@ dernières gouttières valent 4 pour que le pied de Pack (159) tienne dans 560 ;
 8, pied 396..555 ; collecteur +12, bourse +9, Tally et `Send to` +68, lune +19, rangée +112 (les
 écarts du pied de Wares/Pack à son haut). Rangée du bas : les trois carrés, Send (centré), Companions
 centré entre les DESSINS de Send et du `?`, le `?` au bord droit *(🔄 lot 363, 30/09 : Companions
-passe dans l'axe de la colonne bourse · `Done`, le `?` à 8 du bord — voir `equipement-next-vit-dans-r`)*. Les deux dalles sont peintes par
+passe dans l'axe de la colonne bourse · `Done`, le `?` à 8 du bord — voir `equipement-colonne-du-pied` et
+`equipement-question-a-8-du-bord`)*. Les deux dalles sont peintes par
 `.gear-dalle` (DALLES, exportées par le générateur) ; l'écran ne peint plus de fond d'un tenant.
 
 ⚖️ **LE DROPDOWN DES TROIS ÉCRANS** — Eric : **« Oui harmonise les étiquettes de destination · Pour
@@ -10651,7 +10687,7 @@ l'atterrissage sur l'étape 1.
 🛡️ R2 ; `tests/premier-pas.test.mjs` E6.
 
 ### 🆕 `NEW CHARACTER` : UNE FENÊTRE, PUIS L'ÉTAPE 1 AVEC LES LAYERS EN PLACE
-📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde` · bornée par `menu-r-premiere-visite-fiche-vierge`
+📍 `menu-r-new-character-fenetre` · vivante · 29/09 · remplace `menu-dit-la-sauvegarde` · bornée par `menu-r-premiere-visite-fiche-vierge` · **amendée 30/09 (lot 371) — la fenêtre exige sa réponse**
 ⚖️ **`New character` ouvre une fenêtre qui prévient de trois choses — régler ses Layers avant · choisir son stockage dans Vault · le perso en cours sera effacé — et offre `Cancel · Delete · Save` quand un perso est en cours, `Cancel · Start` sinon (le troisième avertissement se tait alors). `Save` écrit par le MÊME écrivain que Sheet et, s'il est refusé, rien ne bouge ; `Delete` efface la copie du navigateur ; puis un personnage vierge naît avec la pile MONTÉE, et l'étape 1 s'ouvre. ⛔ Plus aucune question « SRD or Fate's Hand? ».**
 
 > Eric, 2026-09-29, mot pour mot : **« tout reste dans le navigateur tant que tu n'as pas fait New
@@ -10681,8 +10717,11 @@ en cours. Le navigateur n'est jamais vide après le démarrage : la mémoire ne 
 🔄 **REMPLACÉE LE 30/09** (lot 366) — la page ne charge plus l'exemple : « pas de perso en cours » se lit
 dans la donnée du document, voir `menu-r-premiere-visite-fiche-vierge` juste dessous. Le piège mesuré le
 29/09 (la dérivation estampille `modified` et `resolved`) tient toujours, et la comparaison l'écarte encore.
-⭐ **LA FENÊTRE N'EXIGE PAS DE RÉPONSE** : rien ne bouge avant le choix, un tap dehors vaut `Cancel`.
-Elle est un `guide` (§ 7) ; `Delete` porte le rouge de ce qui défait.
+~~⭐ **LA FENÊTRE N'EXIGE PAS DE RÉPONSE** : rien ne bouge avant le choix, un tap dehors vaut `Cancel`.
+Elle est un `guide` (§ 7)~~ — ⚖️ **LOT 371 : ELLE EXIGE SA RÉPONSE** (`popup-question-exige-une-reponse`). La
+phrase barrée était une lecture du lot 350, pas un mot d'Eric : sa citation dit « Cancel aussi », jamais le
+tap dehors. Elle ne se ferme donc plus que par ses voies, et, parce qu'on ne peut pas la refuser, elle est un
+AIGUILLEUR (`popup-aiguilleur-nom-et-critere`). `Delete` porte le rouge de ce qui défait.
 ⭐ **LA RÈGLE DU 192 TIENT, MOT POUR MOT** : un `Save` refusé — ou qui ne rend pas `true` — n'efface
 rien. Et `Delete` oublie PUIS fait naître, jamais l'inverse : l'ordre est la règle, et il vit dans une
 séquence pure (`nouveauPersonnageSelonLaVoie`).
@@ -10834,6 +10873,8 @@ ailleurs). Que fait la page ? »* → **« Montré éteint »** (la ligne reste,
 n'a QUE des catalogues »*, la pile par source du 29/09).
 ✍️ **`base book` ET `your copy`** — les étiquettes du plan v10 — sont des brouillons : c'est Eric qui
 arrête les mots, et ils vivent une seule fois (`MOTS_DE_LAYERS`, `layers-ecran.mjs`).
+⚖️ **LOT 371 — L'ÉTIQUETTE EST EN T1** (`ecriture-aucun-texte-sous-t1`, `panneau-plancher`) ; elle était en T0.
+⛔ Seules les FAMILLES restent en T0 : c'est la dictée d'Eric (*« en italique t0 »*), une cote donnée.
 🗄️ **`+ TABLE ITEMS` A QUITTÉ `LAYERS`** — Eric l'a renommé `Campaign items` et l'envoie dans la page
 Dungeon Master (lot 357). ✅ La ligne « l'écran `Layers`, place réservée » du tableau
 d'`equipement-table-items` ne tenait donc plus : le lot 357 l'a annotée, et `equipement-campaign-items`
@@ -10877,8 +10918,8 @@ sa copie en ligne.
 mot « World ».
 
 ### 🗑️ UNE POUBELLE PAR LIVRE — plus de `Delete a book`
-📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09
-⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete`, un tap dehors vaut `Cancel`). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
+📍 `menu-layers-une-poubelle-par-livre` · vivante · 29/09 · **amendée 30/09 (lot 371) — la question exige sa réponse**
+⚖️ **Chaque livre du joueur installé porte, tout à droite de sa ligne, une poubelle dessinée — un bouton carré, dessin 40 × 40, cible 44 × 44, rouge parce qu'il défait. Elle efface le livre de SON LIEU DE STOCKAGE — celui que choisit `Vault` — et seulement après la question « Delete this book? » (`Cancel` · `Delete` — ~~un tap dehors vaut `Cancel`~~ : elle exige sa réponse). Tant qu'aucun livre ne vit dans ce stockage, elle est ÉTEINTE, « soon » sous elle. ⛔ Jamais de poubelle sur le SRD ni sur Fate's Hand, et plus de bouton `Delete a book`.**
 
 > Eric, 2026-09-29, dans ses corrections du jour (arborescence d'entrée, au vault) : un bouton
 > **`Delete a book`** à côté d'`Import a book`, qui **demande aussi une confirmation** · puis, relayée
@@ -10898,6 +10939,11 @@ dans le patron par la LISTE (les trois listes de `shell.css`, l'inventaire
 dessin retiré sur ses quatre côtés) ; son teint est `--critical` (`bouton-definition-du-bleu` : ça
 efface → rouge avec popup). Elle se nomme (`aria-label` et `title` : « Delete <le livre> ») : un
 dessin sans mot ne dit rien à un lecteur d'écran.
+⚖️ **LOT 371 — ELLE EXIGE SA RÉPONSE** (`popup-question-exige-une-reponse`) : ni tap dehors, ni Échap. « Un tap
+dehors vaut `Cancel` » n'était pas dans la citation d'Eric : c'était une lecture du lot 351, retirée. Ce qu'on ne
+peut pas refuser est un AIGUILLEUR (`popup-aiguilleur-nom-et-critere`), et `Cancel` porte le rouge de son mot
+(`bouton-deux-mots-retour-et-couleur-se-deduit-mot` — sans `defait`, une action de popup retombait sur le vert,
+§C40). 🛡️ `tests/conformite-371.test.mjs`.
 ⭐ **LA QUESTION EST UNE DESCRIPTION** (`popupEffacerUnLivre`), peinte par `paintPopup` — ⛔ aucun
 composant neuf ; `Delete` porte `defait` ; les mots (`MOTS_EFFACER_UN_LIVRE`) sont des brouillons.
 ⚖️ **LA LOI, TELLE QU'ERIC L'A DITE** : un livre vit dans le stockage choisi au `Vault` — la copie du

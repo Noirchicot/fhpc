@@ -65,19 +65,19 @@
    dans équipement »*). Il vivait à la borne gauche de la rangée du pied, posé ICI (`rangee()`),
    `disabled` faute de cible FH WEB ; sa place sert désormais les trois portes carrées. */
 
-import * as D from "./gear-disposition.mjs?v=918";
-import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=918";
-import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=918";
+import * as D from "./gear-disposition.mjs?v=919";
+import { BOITES, CASES_DU_BODY_FORGING } from "./b3-disposition.mjs?v=919";
+import { armerJeton, armerImmobile, fantome, MAINTIEN_EQUIPEMENT_MS } from "./glisser.mjs?v=919";
 /* ⭐ LE JETON EST UN ORGANE, PAS UN DESSIN DE CET ÉCRAN — `jeton-objet.mjs`, module
    feuille sans import, que le sac porte aussi. */
-import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=918";
-import { versionQuery } from "./version.mjs?v=918";
-import { enGP } from "./equipement-pipeline.mjs?v=918";
+import { corpsDuJeton, motDuJeton } from "./jeton-objet.mjs?v=919";
+import { versionQuery } from "./version.mjs?v=919";
+import { enGP } from "./equipement-pipeline.mjs?v=919";
 /* ⭐ LES TROIS PORTES CARRÉES SONT UN ORGANE PARTAGÉ (lot 311) — le sac et Wares les prennent au
    même module, et le socle les habille une fois. */
-import { portesCarrees } from "./porte-carree.mjs?v=918";
-import { noeudDAnnonce } from "./monnaie.mjs?v=918";
-import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=918";
+import { portesCarrees } from "./porte-carree.mjs?v=919";
+import { noeudDAnnonce } from "./monnaie.mjs?v=919";
+import { destinationDEnvoi } from "./collecteur-envoi.mjs?v=919";
 
 const { DALLE, BELT_H, MARGE, ORGANES, BARRE } = D;
 /* ⚖️ LOT 318 — la césure : les deux dalles du plan (corps, pied), lues au générateur */
@@ -667,8 +667,12 @@ function boutonCompanions(id) {
  *  ⭐ DEUX MOTS, UN SEUL ORGANE, ET JAMAIS ENSEMBLE (la table des verbes du 26/08) : `Done` tant que
  *  l'étape n'est pas validée — il ouvre le récap ; `Next` une fois validée — il repart, sans récap.
  *  C'est l'ÉTAPE qui dit laquelle (`etapeSignee`) : l'écran ne lit pas le document.
- *  ⭐ BLEU DANS LES DEUX CAS (la famille `gear-porte`) : `Done` n'écrit rien, il ouvre ; `Next` signe
- *  l'étape comme partout (`parcoursNext`), et il est bleu partout.
+ *  ⚖️ LOT 371 — LES COULEURS ET LE CORPS DE LA BIBLE : `Done` VERT (`bouton-trois-verbes` ; l'étape n'a rien
+ *  d'obligatoire, elle est donc toujours achevée : `bouton-done-gris-inacheve` le veut vert), `Next` BLEU (il
+ *  navigue) — et tous deux au corps 16 / 600 (`bouton-deux-largeurs`), ⛔ plus le T2 de `Send`. La feuille les
+ *  peint par leur verbe (`data-porte`), jamais par une classe de couleur.
+ *  📌 `Next` SIGNE l'étape (`parcoursNext`) : c'est une DÉVIATION DÉCLARÉE de
+ *  `bouton-back-next-n-ecrivent-jamais`, voulue par Eric — NORMES `equipement-done-recap-next`.
  *  ⛔ IL NE SAIT PAS OÙ IL MÈNE : `surSuivant` est celui de l'étape, qui passe au cran suivant du
  *  belt — un écran qui écrirait « Sheet » mentirait le jour où le belt change (lot 198). */
 function boutonSortie(id, options) {
@@ -689,14 +693,14 @@ function boutonSortie(id, options) {
  *  (`lignesPortees`) et la bourse, écrite par `totalCourt` comme le montant posé dessus (*« deux façons
  *  d'écrire un nombre dans le même écran, c'est deux façons de le lire »*). L'étape ne lui tend que le
  *  SAC (`recapSac`, `[{ objet, qte }]`), que Gear ne voit pas.
- *  ⭐ MÊME FAMILLE QUE LA BOURSE : un voile transparent qui ne peint rien et ferme au clic tombé À CÔTÉ
- *  (`e.target === v`), une surface au liseré de verre. ⛔ `Cancel` n'écrit rien : il referme. */
+ *  ⭐ MÊME FAMILLE QUE LA BOURSE : un voile transparent qui ne peint rien, une surface au liseré de verre.
+ *  ⚖️ LOT 371 — ⛔ LE VOILE NE FERME PLUS : le récap pose une question (`Cancel` · `Next`), et une question
+ *  ne se ferme que par une de ses réponses (`popup-question-exige-une-reponse`). Il PREND le pointeur sur
+ *  tout l'écran — rien dessous n'est atteignable tant qu'il est ouvert. ⛔ `Cancel` n'écrit rien : il
+ *  referme. */
 export function popupDuRecap(options) {
   const v = eld("div", "gear-voile");
   v.dataset.organe = "recap-voile";
-  if (options.surAnnulerRecap) {
-    v.addEventListener("click", (e) => { if (!e || e.target === v) options.surAnnulerRecap(); });
-  }
   const p = eld("div", "gear-recap");
   p.setAttribute("role", "dialog");
   p.setAttribute("aria-label", "Equipment");
@@ -954,7 +958,9 @@ export function construireLEcranGear(options = {}) {
       else if (id === "tally") noeud.append(boutonTally(id, options));
       else if (id === "party-tally") noeud.append(boutonPartyTally(id, options));
       else if (id === "companions") noeud.append(boutonCompanions(id));
-      else if (id === "done") noeud.append(boutonSortie(id, options));
+      /* ⚖️ LOT 371 — `Done` HORS DE VUE TANT QUE LE RÉCAP EST OUVERT : le récap porte `Next`, et `Done` et
+         `Next` ne coexistent jamais (`bouton-done-et-next-jamais-ensemble`). */
+      else if (id === "done") { if (!options.recapOuvert) noeud.append(boutonSortie(id, options)); }
     }
     /* portes et ronds : dans la rangée, ci-dessous */
   }

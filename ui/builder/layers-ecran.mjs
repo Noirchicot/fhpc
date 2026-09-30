@@ -80,13 +80,13 @@
    ⚠️ LES TEXTES SONT DES BROUILLONS en anglais (arbitrage d'Eric, tête de
    `shell.mjs`) ; c'est lui qui arrête les mots que le joueur lit. */
 
-import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee } from "./universe-step.mjs?v=918";
+import { SRD_LAYER_ID, SRFH_LAYER_IDS, FH_LAYER_IDS, RULE_LAYER_IDS, LIVRE_LAYER_IDS, placeReservee } from "./universe-step.mjs?v=919";
 /* LOT 191 — la table des interrupteurs est une feuille (voir sa tête) ; elle
    se réexporte d'ici pour l'écran, la coquille et les gardes. */
-import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=918";
+import { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR, MAITRE, SOCLE } from "./interrupteurs.mjs?v=919";
 export { INTERRUPTEURS, CATALOGUE_FH, LIVRES_DU_JOUEUR };
 /* ⭐ LOT 351 — la poubelle, organe au socle (feuille sans import), partagée avec `My characters`. */
-import { poubelle } from "./poubelle-organe.mjs?v=918";
+import { poubelle } from "./poubelle-organe.mjs?v=919";
 
 function el(tag, className, children) {
   const node = document.createElement(tag);
@@ -99,7 +99,7 @@ function text(value) { return document.createTextNode(String(value)); }
 /* ⭐ LOT 213 — L'ORGANE A DÉMÉNAGÉ DANS UNE FEUILLE SANS IMPORT, pour que la
    fiche X1 le prenne sans traîner `Layers` derrière elle. ⛔ Rien d'autre n'a
    bougé : la fabrique est la même, ses appelants ne changent pas d'adresse. */
-import { interrupteur } from "./interrupteur-organe.mjs?v=918";
+import { interrupteur } from "./interrupteur-organe.mjs?v=919";
 export { interrupteur };
 
 /* ══ UNE PLACE RÉSERVÉE — la loi du 26/08, tranchée en forme le 08/09 ═════
@@ -314,12 +314,18 @@ export const MOTS_EFFACER_UN_LIVRE = Object.freeze({
  *    vaut `Cancel`.
  *  @param {{nom: string, choisir: (voie: "cancel"|"delete") => void}} p */
 export function popupEffacerUnLivre({ nom, choisir }) {
+  /* ⚖️ LOT 371 — UNE QUESTION EXIGE UNE RÉPONSE (`popup-question-exige-une-reponse`) : ni tap dehors, ni
+     Échap. Ce qu'on ne peut pas refuser n'est pas une aide : c'est un AIGUILLEUR, pas un guide
+     (`popup-aiguilleur-nom-et-critere`). Et `Cancel` porte le rouge de son MOT
+     (`bouton-deux-mots-retour-et-couleur-se-deduit-mot`) — sans `defait`, une action de popup retombe
+     sur le vert de la famille (A-TRANCHER §C40). ⛔ « un tap dehors vaut Cancel » (lot 351) est remplacé. */
   return {
     titre: MOTS_EFFACER_UN_LIVRE.titre,
-    role: "guide",
+    role: "aiguilleur",
+    exigeUneReponse: true,
     texte: `${nom}\n${MOTS_EFFACER_UN_LIVRE.texte}`,
     actions: [
-      { mot: "Cancel", defait: false, faire: () => choisir("cancel") },
+      { mot: "Cancel", defait: true, faire: () => choisir("cancel") },
       { mot: "Delete", defait: true, faire: () => choisir("delete") }
     ]
   };

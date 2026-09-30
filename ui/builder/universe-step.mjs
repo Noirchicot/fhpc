@@ -46,27 +46,27 @@
    s'appliquer, dans le même esprit que Class (lot 46) même si la raison
    diffère (là, une perte réelle ; ici, une pause réversible). */
 
-import { renderConfirmDialog } from "./confirm.mjs?v=918";
+import { renderConfirmDialog } from "./confirm.mjs?v=919";
 /* ⭐ LE MOT D'UN ÉCHELON — importé, jamais refait. `echelle.mjs` est la SEULE
    déclaration des noms de crans (garde : `tests/fraction-d-ecran.test.mjs`),
    et un écran qui joindrait lui-même les libellés en serait une seconde.
    ⛔ C'est bien un FORMATAGE qu'on importe, pas un calcul : l'arithmétique de
    l'échelle est faite par la coquille, cet écran reçoit l'état tout prêt. */
-import { motDeLEchelon } from "./echelle.mjs?v=918";
+import { motDeLEchelon } from "./echelle.mjs?v=919";
 /* ⭐ LOT 188 — l'organe interrupteur, la place réservée et l'écran `Layers`
    vivent dans `layers-ecran.mjs`, qui importe en retour les listes de couches
    d'ici (voir sa tête : aucun export n'est lu au chargement, dans aucun sens). */
 /* ⚖️ LOT 350 — le VOYANT a quitté l'import : R ne porte plus la ligne des règles
    (le voyant SRD et l'interrupteur Fate's Hand vivent dans `Layers`, lots 188 et 189). */
-import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=918";
+import { interrupteur, ligneReservee, renderLayersEcran, compositionFh } from "./layers-ecran.mjs?v=919";
 /* ⚖️ LOT 350 — le MOT COURT d'un livre, pour la ligne `Books` de R. La table est une
    feuille sans import (`interrupteurs.mjs`) : la lire ici n'ouvre aucun cycle. */
-import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=918";
+import { LIVRES_DU_JOUEUR } from "./interrupteurs.mjs?v=919";
 /* 🗄️ LOT 195 — le rang B `characters` EST le magasin de sauvegardes, et son
    rendu vit dans son propre fichier (même déménagement que `Layers` au 188).
    ⛔ Aucun export n'est lu au CHARGEMENT de part et d'autre : `magasin-ecran`
    n'importe rien d'ici, donc pas de cycle à arbitrer. */
-import { renderMagasinEcran } from "./magasin-ecran.mjs?v=918";
+import { renderMagasinEcran } from "./magasin-ecran.mjs?v=919";
 
 /** Les SEPT couches que `engine.mjs` monte TOUJOURS — la pile « SRD + FH ».
  *  MÊME liste que `LAYER_FILES` de `engine.mjs`, mais ici ce sont les IDs de
@@ -455,12 +455,13 @@ function memeDonnee(a, b) {
 /** LA FENÊTRE « NEW CHARACTER » — la description d'état que `paintPopup` (shell.mjs)
  *  sait déjà peindre (`{titre, role, texte, actions}`, lot 173) : ⛔ AUCUN COMPOSANT
  *  NEUF, la même voie que le popup du lot 193 qu'elle remplace.
- *  · rôle `guide` — elle prévient, elle ne dit pas d'erreur (§7 : le gendarme DIT
- *    L'ERREUR) ;
+ *  · rôle `aiguilleur` — ⚖️ LOT 371 : elle EXIGE une réponse (`popup-question-exige-une-reponse`),
+ *    et ce qu'on ne peut pas refuser est un aiguilleur, pas un guide
+ *    (`popup-aiguilleur-nom-et-critere`) ;
  *  · `Delete` porte `defait` — il efface, donc le rouge de ce qui coûte (§6) ;
- *  · ⛔ elle n'EXIGE pas de réponse : rien ne bouge avant qu'on choisisse, donc la
- *    fermer d'un tap dehors vaut `Cancel`. C'est la différence avec le popup du 193,
- *    qui repartait à zéro AVANT de poser sa question.
+ *  · 🔄 ~~elle n'EXIGE pas de réponse : la fermer d'un tap dehors vaut `Cancel`~~ — une lecture
+ *    du lot 350, pas un mot d'Eric (sa citation dit « Cancel aussi », jamais le tap dehors) :
+ *    la fenêtre ne se ferme plus que par `Cancel`, `Delete`, `Save` ou `Start`.
  *  ⛔ ELLE NE SAIT PAS CE QUE `choisir` FAIT — même loi que `confirm.mjs` : le
  *  composant ne connaît aucun verbe, la coquille décide.
  *  @param {{enCours: boolean, choisir: (voie: "cancel"|"delete"|"save"|"start") => void}} p */
@@ -471,7 +472,8 @@ export function popupNouveauPersonnage({ enCours, choisir }) {
     : [{ mot: "Cancel", voie: "cancel" }, { mot: "Start", voie: "start" }];
   return {
     titre,
-    role: "guide",
+    role: "aiguilleur",
+    exigeUneReponse: true,
     texte: (enCours ? avertissements : avertissements.slice(0, 2)).join("\n"),
     actions: voies.map(({ mot, voie, defait }) => ({ mot, defait: defait === true, faire: () => choisir(voie) }))
   };

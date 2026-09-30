@@ -67,9 +67,19 @@ test("① la colonne bourse · Done · Companions : UN axe, centré entre le des
   for (const o of [bourse, done, comp]) assert.equal(centre(o), axe, `⛔ ${o.nom} sort de l'axe (« alignés verticalement »)`);
   assert.deepEqual([done.l, done.h], [comp.l, comp.h], "« dimension identique pour les 2 »");
   assert.deepEqual([done.l, done.h], [G.PETIT, 40], "un petit, 77 × 40");
-  assert.equal(done.y, un(G.ORGANES, "SEND TO").y, "sur la rangée de « destination » (celle des Tally)");
-  assert.equal(done.cran, send.cran, "au cran de `Send`");
-  assert.equal(done.mot, "Done", "le plan porte le mot le plus long des deux (Done 30,41 > Next 27,21 à T2)");
+  /* 🔄 LOT 371 — à 8 SOUS LA BOURSE, et non plus sur la rangée des Tally (464) : c'est le seul moyen de tenir les
+     deux écarts à 8 de la colonne sans rogner un organe (NORMES `equipement-colonne-du-pied`). */
+  assert.equal(done.y, bourse.y + bourse.h + 8, "à 8 sous la bourse");
+  assert.ok(done.x >= un(G.ORGANES, "SEND TO").x + un(G.ORGANES, "SEND TO").l + 8, "et à ≥ 8 de « destination »");
+  /* 🔄 LOT 371 — le corps d'un bouton à libellé, 16 / 600 (`bouton-deux-largeurs`), plus le T2 de `Send` */
+  assert.equal(done.cran, "16/600", "le corps que la Bible donne à un bouton à libellé");
+  assert.equal(done.mot, "Done", "le plan porte le mot le plus long des deux (Done 40,29 > Next 36,05 à 16 px)");
+  /* 🔒 LOT 371 — LE SACRÉ N° 3 : ≥ 8 blg entre voisins, mesurés entre les DESSINS (le lot 370 a relevé 6). */
+  const colonne = [bourse, done, comp].sort((a, b) => a.y - b.y);
+  for (let i = 0; i + 1 < colonne.length; i++) {
+    const ecart = colonne[i + 1].y - (colonne[i].y + colonne[i].h);
+    assert.ok(ecart >= 8, `⛔ ${colonne[i].nom} → ${colonne[i + 1].nom} : ${ecart} blg, sous le 8 du sacré n° 3`);
+  }
   assert.ok(done.cible.l >= G.TOUCH && done.cible.h >= G.TOUCH, "une cible d'au moins 44");
 });
 
@@ -82,6 +92,9 @@ test("① bis — le ? à 8 du bord droit, sa cible au bord ; la bourse et le ? 
   }
   const bourses = [G, P].map((plan) => un(plan.ORGANES, "PURSE").x);
   assert.deepEqual(bourses, [260.5, 260.5], "la bourse, cote commune de Gear et de Pack (Wares la lit dans Pack)");
+  /* 🔄 LOT 371 — et à 8 du haut de la dalle du pied, sur les deux plans (Gear sous son belt de 60) */
+  assert.equal(un(G.ORGANES, "PURSE").y - G.BELT_H, un(P.ORGANES, "PURSE").y, "la même hauteur sous le belt");
+  assert.equal(un(G.ORGANES, "PURSE").y - G.DALLES.find((d) => d.nom === "PIED").y, 8, "à 8 du haut du pied");
   assert.equal(un(W.ORGANES, "PURSE").x, 260.5, "et Wares la lit bien");
 });
 
@@ -139,13 +152,19 @@ test("② ter — la feuille le pose à sa cote du plan ; aucune règle ne le re
   assert.ok(regle.includes(`left:${done.cible.x}px;top:${done.cible.y - G.BELT_H}px;width:${done.cible.l}px;height:${done.cible.h}px`), regle);
   const css = stripComments(lire("shell.css"));
   assert.match(css, /\.gear-porte, \.wares-porte \{[^}]*--bouton-fond:\s*var\(--info\)/, "témoin : la famille est bleue");
-  assert.doesNotMatch(css, /\[data-(porte|organe)="(done|next|suivant)"\]/,
-    "⛔ une règle propre à la sortie la sortirait de la famille bleue");
+  /* 🔄 LOT 371 — la couleur de son VERBE (`bouton-trois-verbes`) et le corps de la Bible (`bouton-deux-largeurs`) :
+     `Done` VERT, `Next` le BLEU de la famille, tous deux à 16 / 600 — lus dans la feuille, sur leur verbe. */
+  assert.match(css, /button\.gear-porte\[data-organe="done"\]\[data-porte="done"\]\s*\{\s*--bouton-fond:\s*var\(--positive\)/,
+    "⛔ `Done` n'est pas vert");
+  assert.match(css, /button\.gear-porte\[data-organe="done"\]\[data-porte\]\s*\{\s*font-size:\s*var\(--t4\)/,
+    "⛔ la sortie n'est pas au corps 16 px");
+  assert.doesNotMatch(css, /\[data-porte="next"\]/, "⛔ `Next` quitterait le bleu de la famille");
+  assert.match(lire("tokens.css"), /--t4:\s*calc\(16px/, "témoin : `--t4` vaut bien 16 px");
   assert.match(css, /\.gear-porte\[data-porte="annuler"\]\s*\{\s*--bouton-fond:\s*var\(--critical\)/,
     "« cancel annule donc rouge » (03/09)");
 });
 
-test("② quater — le récap : Gear, Pack, bourse ; Cancel referme, Next valide, le voile referme", () => {
+test("② quater — le récap : Gear, Pack, bourse ; il EXIGE sa réponse (Cancel referme, Next valide) et cache Done", () => {
   const boites = { tete1: { nom: "Hat", qte: 1 }, fourreau1: { nom: "Dagger", qte: 2 } };
   const { n, gestes } = gestesDe({
     etapeSignee: false, recapOuvert: true, boites, bourse: { gp: 64 },
@@ -161,14 +180,20 @@ test("② quater — le récap : Gear, Pack, bourse ; Cancel referme, Next valid
   assert.equal(texte(2), "64 gp", "l'or, écrit comme le montant posé sur la bourse");
   const [annuler, suivant] = [...recap.querySelector(".gear-recap-pied").querySelectorAll("button")];
   assert.deepEqual([annuler.textContent, suivant.textContent], ["Cancel", "Next"], "« cancel pour tweaker et next pour poursuivre »");
+  /* ⚖️ LOT 371 — `popup-question-exige-une-reponse` : le récap ne se ferme QUE par ses réponses. Un clic sur le
+     voile — à côté du récap — ne fait RIEN (il exigeait « annuler » au lot 363). */
+  n.querySelector('[data-organe="recap-voile"]').click();
   annuler.click();
   suivant.click();
-  n.querySelector('[data-organe="recap-voile"]').click();
   /* un clic DANS le récap ne le referme pas — ⚠️ le stub ne fait pas remonter les événements : on remet
      au voile ce qu'il recevrait après la remontée, un clic dont la CIBLE est le récap. (Un `recap.click()`
      n'atteindrait jamais le voile, et ce témoin serait vert quoi qu'on fasse — vu rouge à la mutation.) */
   n.querySelector('[data-organe="recap-voile"]').dispatchEvent({ type: "click", target: recap });
-  assert.deepEqual(gestes, ["annuler", "suivant", "annuler"]);
+  assert.deepEqual(gestes, ["annuler", "suivant"], "ni le voile ni un clic dans le récap ne répondent à sa place");
+  /* ⚖️ LOT 371 — `bouton-done-et-next-jamais-ensemble` : le récap porte `Next`, donc `Done` n'est pas rendu. */
+  assert.equal(n.querySelector('[data-organe="done"]'), null, "⛔ Done visible sous le récap, à côté de son Next");
+  const ferme = construireLEcranGear({ etapeSignee: false, recapOuvert: false }).noeud;
+  assert.ok(ferme.querySelector('[data-organe="done"]'), "témoin : récap fermé, Done est là");
 });
 
 /* ══ ③ LA VALIDATION ══════════════════════════════════════════════════════════════════════ */
