@@ -104,6 +104,27 @@ node tools/verifier-catalog.mjs my-catalog.json
 It is the same judge as the builder's: it prints every fault, and exits with 0 when the catalog is
 accepted. `--json` prints the verdict for a script.
 
+## Headless, on your own computer
+
+If you have the SOWLREACH code and Claude Code on your computer, one command turns **your** book into a checked
+catalog, without opening the builder:
+
+```
+node tools/catalog-headless.mjs --book my-book.md --id yourname-mistlands --author "Your Name" --out mistlands.layer.json
+```
+
+- `--book` is a text or Markdown file: **your own book**, never someone else's. The command cannot check where a
+  text comes from — that is on you.
+- It asks Claude (`claude -p`, with no tools) to write the catalog from this guide's text for an AI and the model,
+  then has it checked by the same judge as the builder. If the judge refuses, it sends Claude the faults and asks
+  again — **3 rounds at most**.
+- It writes `--out` **only if the judge accepts** the catalog. Otherwise it prints the faults left and writes
+  nothing. It never replaces a file that already exists.
+- Optional: `--license` (default `CC-BY-4.0`), `--tours 1` to `3`.
+- It uses the Claude Code you are already signed in to; there is no key to type anywhere.
+- It ends with `0` when the catalog is written, `1` when it is still refused after the rounds, `2` when the
+  command is called wrong, `3` when Claude could not answer.
+
 ## Where it lives
 
 Wherever you chose to keep your characters (Menu › Vault): in your Dropbox, as
