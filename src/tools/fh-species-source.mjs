@@ -158,7 +158,7 @@ export const DESTINY_BASE = 2;
 const PROF_USES = {
   find: "a number of times equal to your Proficiency Bonus, and you regain",
   put: "twice — plus one more use at character levels 5, 9, 13, and 17 — and you regain",
-  why: "PROF n'existe pas en FH ; l'échelle écrite reproduit les valeurs 5e exactes (conversion 27/08, candidat A)"
+  why: "dans ces traits, le chapitre des espèces écrit l'échelle à la place du PB — le PB reste une notion de FH (Mechanic § 3) ; l'échelle reproduit les valeurs 5e exactes (conversion 27/08, candidat A)"
 };
 
 /* ══ 🧮 LOT 385 — LE COMPTE QUE L'ÉCHELLE ÉCRITE DONNE (ARCHI 35, 30/09) ══════════════════════
